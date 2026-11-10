@@ -5472,6 +5472,54 @@
     "the committee always has at least 1 woman and at least 1 man",
     "two particular people are different people, and the row has 5 to 8"
    ]
+  },
+  "constant-change": {
+   "name": "A data set's summary statistics, before and after a change to every value",
+   "summary": "Draw the change first, a constant added, a factor or y = ax + b, then the statistics of the data: told as numbers, a short list or a box plot. The new statistics are worked out of the old exactly, so either side can be shown and the other asked.",
+   "quantities": [
+    {
+     "name": "op, a, b",
+     "is": "the change, y = x + b, y = ax or y = ax + b",
+     "pick": "a from 2, 3, 4, 5, 10, 0.5, 1.5 and 2.5 (or a story's own, such as 10 mm to the cm or 1.8 for °F), b a whole number up to 20 either way"
+    },
+    {
+     "name": "old, new",
+     "is": "the statistics before and after",
+     "pick": "a measure of centre in halves in the story's range, a standard deviation in halves, an IQR and range whole; the new ones worked out"
+    },
+    {
+     "name": "asked, shown",
+     "is": "the statistics asked, and those told",
+     "pick": "the unknown's pair, or one measure of centre and one of spread"
+    },
+    {
+     "name": "back",
+     "is": "whether the new statistics are told and the original asked",
+     "pick": "set by the unknown"
+    },
+    {
+     "name": "xs, ys",
+     "is": "a list of the data and its new values",
+     "pick": "7 to 9 whole numbers up to 40, one of them twice so the mode is one value"
+    },
+    {
+     "name": "box, tick, x0, x1",
+     "is": "the five numbers of a box plot and its axis",
+     "pick": "on ticks of 1, 2 or 5 (more for the new values), at least two ticks apart within 25 ticks"
+    },
+    {
+     "name": "given_var",
+     "is": "find-a-and-b: whether the variances are told instead of the standard deviations",
+     "pick": "two times in five"
+    }
+   ],
+   "clean": [
+    "every number told or asked ends within two decimal places and is positive",
+    "a list's mean ends within one decimal place, and its new values within one",
+    "a box plot's five numbers are on its ticks, at least two ticks apart",
+    "a told measure of centre and of spread differ, so no option reads both ways",
+    "a find-a-and-b change has a ≠ 1 and b ≠ 0"
+   ]
   }
  },
  "types": [
@@ -43983,13 +44031,766 @@
    "id": "t4-constant-changes",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Effect of adding or multiplying a constant on summary statistics",
+   "summary": "Every value of a data set has a constant added, is multiplied by one, or goes through y = ax + b, a change of units or prices: find a new mean, median, mode, quartile, standard deviation, variance, IQR or range, or run the change backwards and find the original from the new. Also find a and b, or the factor, from the statistics before and after.",
    "syllabus": [
     "4.3"
    ],
    "skills": [
     "SL4.3.constant-changes"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "read the statistics told, or read them off the box plot or the list",
+    "read the change: y = x + b, y = ax or y = ax + b",
+    "a measure of centre takes the whole change, a × value + b",
+    "a measure of spread is only multiplied by a, and the variance by a²",
+    "backwards, take away b and then divide by a, or divide a spread by a and the variance by a²"
+   ],
+   "given": [
+    "the mean, median, mode, quartiles, standard deviation, variance, IQR or range of a data set",
+    "a short list of the data",
+    "a box plot to scale",
+    "a constant added to every value, every value multiplied by one, or y = ax + b in a story",
+    "the statistics after the change"
+   ],
+   "asked": "A new statistic after the change, the original statistic from the new, the constants a and b or the factor k, or which statement about the change is true.",
+   "answerForms": [
+    "exact decimals",
+    "two named values",
+    "a and b",
+    "a statement"
+   ],
+   "randomise": [
+    "the change: whether it adds, multiplies or both, a and b",
+    "which statistics are told and asked",
+    "the statistics, or the list or box plot",
+    "forwards or backwards",
+    "the story: crates on pallets, a dust storm, a gate tax, dry wells, cold batteries, heights in mm, winter prices, march rations, cables in cm, pay for scrap, °C to °F, rescaled scores and trip costs"
+   ],
+   "constraints": [
+    "Paper 1 only, every number exact and ending within two decimal places",
+    "every value told or asked is positive",
+    "a > 0, so a spread is multiplied by a and never changes sign",
+    "a box plot's five numbers are on its ticks, at least two ticks apart"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "constant-change",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the statistics in symbols and the change as y = ax + b"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story that tells the statistics and makes the change: a pallet, a tax, a conversion of units or prices"
+    },
+    {
+     "rep": "terms",
+     "exam": true,
+     "how": "a short list of the data, with the change as y = ax + b"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "a box plot to scale of the data, or of the new values when the change is run backwards"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "add-mean-sd",
+     "given": [
+      "the mean and standard deviation of a data set",
+      "a constant added to or taken off every value"
+     ],
+     "asked": "the new mean and the new standard deviation",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "add-mean-variance",
+     "given": [
+      "the mean and variance of a data set",
+      "a constant added to or taken off every value"
+     ],
+     "asked": "the new mean and the new variance",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "add-centre-spread",
+     "given": [
+      "a median, mode or quartile and an IQR or range, a list of the data, or a box plot",
+      "a constant added to or taken off every value"
+     ],
+     "asked": "the new measure of centre and the new measure of spread",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "graph",
+      "terms"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "multiply-mean",
+     "given": [
+      "the mean and standard deviation of a data set",
+      "every value multiplied by a constant"
+     ],
+     "asked": "the new mean",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "multiply-variance",
+     "given": [
+      "the mean and variance of a data set",
+      "every value multiplied by a constant"
+     ],
+     "asked": "the new variance",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "multiply-centre-spread",
+     "given": [
+      "a median, mode or quartile and a standard deviation, IQR or range, a list of the data, or a box plot",
+      "every value multiplied by a constant, or a change of units"
+     ],
+     "asked": "the new measure of centre and the new measure of spread",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "graph",
+      "terms"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "linear-mean-iqr",
+     "given": [
+      "the mean and IQR of a data set",
+      "every value put through y = ax + b"
+     ],
+     "asked": "the new mean and the new IQR",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "linear-sd-variance",
+     "given": [
+      "the standard deviation of a data set",
+      "every value put through y = ax + b"
+     ],
+     "asked": "the new standard deviation and the new variance",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "linear-centre-spread",
+     "given": [
+      "a measure of centre and of spread, a list of the data, or a box plot",
+      "every value put through y = ax + b"
+     ],
+     "asked": "the new measure of centre and the new measure of spread",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "graph",
+      "terms"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "original-mean-sd",
+     "given": [
+      "the change y = x + b, y = ax or y = ax + b",
+      "the mean and standard deviation after it"
+     ],
+     "asked": "the original mean and standard deviation",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "original-variance",
+     "given": [
+      "the change y = ax or y = ax + b",
+      "the variance after it"
+     ],
+     "asked": "the original variance",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "original-centre-spread",
+     "given": [
+      "the change y = x + b, y = ax or y = ax + b",
+      "a box plot of the new values, or a measure of centre and of spread after the change"
+     ],
+     "asked": "the original measure of centre and measure of spread",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "find-a-and-b",
+     "given": [
+      "the mean and standard deviation (or variance) before and after y = ax + b, a > 0"
+     ],
+     "asked": "a and b",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "factor-from-variance",
+     "given": [
+      "the variance before and after every value is multiplied by k > 0"
+     ],
+     "asked": "k",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    },
+    {
+     "id": "effect-statement",
+     "given": [
+      "a constant added to every value, or every value multiplied by one"
+     ],
+     "asked": "which statement about the new measures of centre and spread is true",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.constant-changes"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.3.constant-changes",
+     "method": "shift-stretch-rules",
+     "suits": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ]
+    },
+    {
+     "skill": "SL4.3.constant-changes",
+     "method": "picture-the-histogram",
+     "suits": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ]
+    },
+    {
+     "skill": "SL4.3.constant-changes",
+     "method": "tiny-example",
+     "suits": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Adding the same constant to every value leaves the standard deviation unchanged.",
+     "answer": "True: every value moves by the same amount, so every distance from the mean is the same as before, and so is the spread.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Multiplying every value by a constant multiplies the variance by that constant.",
+     "answer": "Sometimes: only when the constant is 0 or 1. The variance is in squared units, so it is multiplied by the square of the constant.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Predict the mean and the range of the values 1, 2 and 3 after each is doubled and then 5 is added, then check by listing the new values.",
+     "answer": "The mean goes from 2 to 2 × 2 + 5 = 9 and the range from 2 to 4: the new values are 7, 9 and 11. The added 5 moves the centre but not the spread.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.3.constant-changes#0",
+     "text": "Adding a constant changes the standard deviation",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "the standard deviation with the constant added"
+    },
+    {
+     "ref": "SL4.3.constant-changes#1",
+     "text": "Multiplying by k multiplies the variance by k (it is k²)",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "the variance multiplied (or divided) by the factor, not its square"
+    },
+    {
+     "ref": "SL4.3.constant-changes#2",
+     "text": "Adding k to every value adds k to the IQR",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "the IQR with the constant added"
+    },
+    {
+     "ref": "SL4.3.constant-changes#3",
+     "text": "Adding the constant to the range as well as to the values",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "the range with the constant added"
+    },
+    {
+     "ref": "SL4.3.constant-changes#4",
+     "text": "Adding the constant to the variance as well as to the values",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "the variance with the constant added (or taken off)"
+    },
+    {
+     "ref": "SL4.3.constant-changes#5",
+     "text": "Leaving a measure of centre unchanged when every value has changed",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "the original measure of centre"
+    },
+    {
+     "ref": "SL4.3.constant-changes#6",
+     "text": "Multiplying the added constant by the factor too, as if the change were a(x + b)",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "a(value + b)"
+    },
+    {
+     "ref": "SL4.3.constant-changes#7",
+     "text": "Leaving out the added constant for a measure of centre",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "a × value, without the b"
+    },
+    {
+     "ref": "SL4.3.constant-changes#8",
+     "text": "Leaving a measure of spread unchanged when every value is multiplied",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "the original measure of spread"
+    },
+    {
+     "ref": "SL4.3.constant-changes#9",
+     "text": "Multiplying a standard deviation, IQR or range by the square of the factor",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "the spread multiplied by the square of the factor"
+    },
+    {
+     "ref": "SL4.3.constant-changes#10",
+     "text": "Undoing the change in the wrong order: dividing first, then taking away the constant",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "value ÷ a − b"
+    },
+    {
+     "ref": "SL4.3.constant-changes#11",
+     "text": "Applying the change again instead of undoing it",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "a × value + b, the change made again"
+    },
+    {
+     "ref": "SL4.3.constant-changes#12",
+     "text": "Taking the change in the mean as the added constant, before scaling the mean",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "b as the new mean minus the old"
+    },
+    {
+     "ref": "SL4.3.constant-changes#13",
+     "text": "Finding the factor from the means, which the added constant has moved as well",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "a as the ratio of the means, with b = 0"
+    },
+    {
+     "ref": "SL4.3.constant-changes#14",
+     "text": "Swapping which measures move: keeping the centre and shifting the spread",
+     "as": "distractor",
+     "in": [
+      "add-mean-sd",
+      "add-mean-variance",
+      "add-centre-spread",
+      "multiply-mean",
+      "multiply-variance",
+      "multiply-centre-spread",
+      "linear-mean-iqr",
+      "linear-sd-variance",
+      "linear-centre-spread",
+      "original-mean-sd",
+      "original-variance",
+      "original-centre-spread",
+      "find-a-and-b",
+      "factor-from-variance",
+      "effect-statement"
+     ],
+     "wrong": "the centre kept and the spread moved by the constant"
+    }
    ],
    "parts": [
     "aa-sl-2023-nov-tz1-p1-q07.e",

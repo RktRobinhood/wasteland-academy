@@ -36551,7 +36551,485 @@ def check_counting(q):
     return None, None
 
 
-SITUATION_CHECKS = {"counting": check_counting, "circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
+# ── Constant changes to a data set (FAL-754) ─────────────────
+# `constant-change`: a data set's summary statistics, and every value put through y = x + b, y = ax
+# or y = ax + b. The checker reads the change and the statistics back from the equation, the story,
+# the list or the box plot (the story's index alone comes from `given`), works every asked statistic
+# again with exact rationals from the definitions (a list's median, quartiles and mode by sorting
+# and counting; a box plot's from its five drawn numbers), rebuilds each tagged option from its slip,
+# rebuilds every statement offered, and evaluates every plain sum in the working (E12CC_check).
+
+E12CC_SK = "SL4.3.constant-changes#"
+E12CC_LOC = ("mean", "median", "mode", "lower quartile", "upper quartile")
+E12CC_SPREAD = ("standard deviation", "interquartile range", "range")
+E12CC_STATS = E12CC_LOC + E12CC_SPREAD + ("variance",)
+E12CC_ADD_REF = {"standard deviation": 0, "interquartile range": 2, "range": 3, "variance": 4}
+E12CC_NUM = r"−?\d+(?:\.\d+)?"
+E12CC_SPAN, E12CC_EVERY, E12CC_GAP = 25, 5, 2
+# The stories, the checker's own copy: op, data, new data, old data (asked backwards), unit,
+# unit after, axis, axis after, the change sentence ({a}, {b}), the sign of b, and a fixed (a, b).
+E12CC_STORIES = [
+    ("add", "the masses of the crates in the depot", "the masses of the crates on their pallets", "the masses of the crates without their pallets",
+     "kg", "kg", "mass (kg)", "mass on a pallet (kg)", "Each crate in the depot is set on a wooden pallet that weighs {b} kg.", 1, None),
+    ("add", "the times the scouts took to cross the salt flat", "the crossing times in the storm", "the crossing times before the storm",
+     "minutes", "minutes", "time (minutes)", "time in the storm (minutes)", "A dust storm adds {b} minutes to every scout's crossing time.", 1, None),
+    ("add", "the prices on a market stall", "the prices with the gate tax", "the prices before the gate tax",
+     "caps", "caps", "price (caps)", "price with the tax (caps)", "The gate tax adds {b} caps to every price on the stall.", 1, None),
+    ("add", "the depths of water in the camp's wells", "the depths in the dry season", "the depths before the dry season",
+     "m", "m", "depth (m)", "depth in the dry season (m)", "In the dry season the water in every well drops by {b} m.", -1, None),
+    ("add", "the battery lives of the radios", "the battery lives in the cold", "the battery lives in warm weather",
+     "hours", "hours", "battery life (hours)", "battery life in the cold (hours)", "In the cold, every radio's battery lasts {b} hours less.", -1, None),
+    ("mul", "the heights of the bean plants", "the heights in millimetres", "the heights in centimetres",
+     "cm", "mm", "height (cm)", "height (mm)", "Every height is then written in millimetres (1 cm = {fa} mm).", 1, "fa"),
+    ("mul", "the prices on a market stall", "the winter prices", "the prices before winter",
+     "caps", "caps", "price (caps)", "winter price (caps)", "For the winter market, every price on the stall is multiplied by {a}.", 1, None),
+    ("mul", "the water rations of the scouts", "the rations for the long march", "the everyday rations",
+     "litres", "litres", "ration (litres)", "march ration (litres)", "Before the long march, every scout's ration is multiplied by {a}.", 1, None),
+    ("mul", "the lengths of the cables in the store", "the lengths in centimetres", "the lengths in metres",
+     "m", "cm", "length (m)", "length (cm)", "Every length is then written in centimetres (1 m = {fa} cm).", 1, "fa"),
+    ("lin", "the masses of scrap the scavengers brought in", "the amounts the scavengers are paid", "the masses of scrap",
+     "kg", "caps", "scrap (kg)", "pay (caps)", "Each scavenger is paid {b} caps for turning up and {a} caps for every kg of scrap: pay = {a}m + {b}.", 1, None),
+    ("lin", "the noon temperatures at the outpost", "the temperatures in °F", "the temperatures in °C",
+     "°C", "°F", "temperature (°C)", "temperature (°F)", "Every temperature is converted to °F with F = {a}C + {b}.", 1, None),
+    ("lin", "the recruits' scores on the scouting test", "the rescaled scores", "the old scores",
+     "", "", "score", "rescaled score", "The quartermaster rescales every score with S = {a}T + {b}, where T is the old score.", 1, None),
+    ("lin", "the lengths of the caravan trips", "the costs of the trips", "the lengths of the trips",
+     "km", "caps", "trip (km)", "cost (caps)", "Each trip costs {b} caps to set out plus {a} caps per km: cost = {a}d + {b}.", 1, None),
+]
+# A told measure of centre lies in a story's range; the temperature story is a real conversion.
+E12CC_FIXED = {10: (sp.Rational(9, 5), sp.Integer(32))}
+
+
+def E12CC_n(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def E12CC_ends(v, places=2):
+    return (sp.Rational(v) * 10**places).q == 1
+
+
+def E12CC_d(v):
+    v = sp.Rational(v)
+    need(E12CC_ends(v, 9), f"{v} does not end")
+    return dec_text(v)
+
+
+def E12CC_regex(template, names):
+    """A change sentence as a regex: each {name} a number, the same number where it repeats."""
+    out, seen = "", set()
+    parts = re.split(r"(\{\w+\})", template)
+    for part in parts:
+        mt = re.fullmatch(r"\{(\w+)\}", part)
+        if mt is None:
+            out += re.escape(part)
+        elif mt.group(1) in seen:
+            out += f"(?P={mt.group(1)})"
+        else:
+            seen.add(mt.group(1))
+            out += f"(?P<{mt.group(1)}>{names.get(mt.group(1), E12CC_NUM)})"
+    return out
+
+
+def E12CC_lin(t):
+    """'2x + 5', 'x − 4', '0.5x' -> (a, b)."""
+    mt = re.fullmatch(rf"({E12CC_NUM})?x(?: ([+−]) ({E12CC_NUM}))?", t)
+    need(mt is not None, f"can't read the change {t!r}")
+    a = E12CC_n(mt.group(1)) if mt.group(1) else sp.Integer(1)
+    need(mt.group(1) is None or a != 1, "a factor of 1 is written")
+    b = sp.Integer(0) if mt.group(2) is None else (1 if mt.group(2) == "+" else -1) * E12CC_n(mt.group(3))
+    need(b >= 0 or mt.group(2) == "−", "a minus written as plus")
+    return a, b
+
+
+def E12CC_op(a, b):
+    return "add" if a == 1 else ("mul" if b == 0 else "lin")
+
+
+def E12CC_change(q, line, letters=None):
+    """(a, b) of the change sentence, from the equation or the story's own sentence."""
+    ctx = int(q["given"].get("ctx", -1))
+    if ctx < 0:
+        if letters:
+            shape = "kx" if letters == ["k"] else "ax + b"
+            need(line == f"Each value x is changed to y = {shape}, where {letters[0]} > 0.", f"the change {line!r}")
+            return None, None
+        mt = re.fullmatch(r"Each value x(?: of a data set)? is changed to y = (.+)\.", line)
+        need(mt is not None, f"can't read the change {line!r}")
+        return E12CC_lin(mt.group(1))
+    st = E12CC_STORIES[ctx]
+    tail = {"a": " Here a and b are constants, and a > 0.", "k": " Here k is a positive constant."}
+    if letters:
+        word = {"a": "a", "b": "b"} if letters == ["a", "b"] else {"a": "k"}
+        need(st[0] == ("lin" if letters == ["a", "b"] else "mul") and st[10] is None and ctx not in E12CC_FIXED, "a story with letters must have them free")
+        want = st[8].replace("{a}", word["a"]).replace("{b}", word.get("b", "")) + tail[letters[0]]
+        need(line == want, f"the change {line!r}, not {want!r}")
+        return None, None
+    mt = re.fullmatch(E12CC_regex(st[8], {}), line)
+    need(mt is not None, f"can't read story {ctx}'s change {line!r}")
+    g = mt.groupdict()
+    if st[0] == "add":
+        b = st[9] * E12CC_n(g["b"])
+        need(E12CC_n(g["b"]) > 0, "the story's b is written without its sign")
+        return sp.Integer(1), b
+    if st[0] == "mul":
+        a = E12CC_n(g["fa"] if st[10] else g["a"])
+        need(st[10] is None or a in (10, 100), f"{a} is not the unit change")
+        return a, sp.Integer(0)
+    a, b = E12CC_n(g["a"]), E12CC_n(g["b"])
+    if ctx in E12CC_FIXED:
+        need((a, b) == E12CC_FIXED[ctx], "°C to °F is F = 1.8C + 32")
+    return a, b
+
+
+def E12CC_unit(q, after, v, name):
+    ctx = int(q["given"].get("ctx", -1))
+    if ctx < 0 or name == "variance":
+        return ""
+    u = E12CC_STORIES[ctx][5 if after else 4]
+    if u == "":
+        return ""
+    if v == 1 and u.endswith("s"):
+        u = u[:-1]
+    return u if u.startswith("°") else " " + u
+
+
+def E12CC_told(q, line, after):
+    """'X have a mean of 24.5 kg and a standard deviation of 3 kg.' -> {name: value} (in order)."""
+    ctx = int(q["given"].get("ctx", -1))
+    if ctx < 0:
+        head = "The new values have " if after else "A data set has "
+        need(line.startswith(head) and line.endswith("."), f"the statistics {line!r}")
+        body = line[len(head):-1]
+    else:
+        st = E12CC_STORIES[ctx]
+        subject = (st[2] if after else st[1])
+        subject = subject[0].upper() + subject[1:] + " have "
+        need(line.startswith(subject) and line.endswith("."), f"the statistics {line!r}, not of {subject!r}")
+        body = line[len(subject):-1]
+    items = re.split(r", | and (?=an? |mean |median |mode |lower |upper |standard |variance |interquartile |range )", body)
+    out = {}
+    for it in items:
+        if ctx < 0:
+            mt = re.fullmatch(rf"({'|'.join(E12CC_STATS)}) ({E12CC_NUM})", it)
+            need(mt is not None, f"can't read {it!r}")
+            name, v = mt.group(1), E12CC_n(mt.group(2))
+        else:
+            mt = re.fullmatch(rf"(an?) ({'|'.join(E12CC_STATS)}) of ({E12CC_NUM})(.*)", it)
+            need(mt is not None, f"can't read {it!r}")
+            name, v = mt.group(2), E12CC_n(mt.group(3))
+            need(mt.group(1) == ("an" if name in ("upper quartile", "interquartile range") else "a"), f"the article in {it!r}")
+            need(mt.group(4) == E12CC_unit(q, after, v, name), f"the unit in {it!r}")
+        need(name not in out, f"{name} told twice")
+        out[name] = v
+    return out
+
+
+def E12CC_sorted_stats(xs):
+    """A list's statistics from their definitions: the quartiles are the medians of the halves,
+    the median left out when n is odd."""
+    xs = sorted(xs)
+    n = len(xs)
+
+    def med(v):
+        k = len(v)
+        return v[k // 2] if k % 2 else (v[k // 2 - 1] + v[k // 2]) / 2
+    lower, upper = xs[:n // 2], xs[(n + 1) // 2:]
+    counts = {}
+    for x in xs:
+        counts[x] = counts.get(x, 0) + 1
+    top = max(counts.values())
+    modes = [x for x, c in counts.items() if c == top]
+    need(len(modes) == 1, f"{len(modes)} modes")
+    return {"mean": sum(xs) / n, "median": med(xs), "mode": modes[0], "lower quartile": med(lower), "upper quartile": med(upper),
+            "interquartile range": med(upper) - med(lower), "range": xs[-1] - xs[0]}
+
+
+def E12CC_after(name, v, a, b):
+    """A statistic once every value x is ax + b: centre and position take the whole change, a
+    spread is scaled by |a|, and the variance (a mean of squared gaps) by a²."""
+    if name in E12CC_LOC:
+        return a * v + b
+    if name == "variance":
+        return a**2 * v
+    return abs(a) * v
+
+
+def E12CC_before(name, v, a, b):
+    if name in E12CC_LOC:
+        return (v - b) / a
+    if name == "variance":
+        return v / a**2
+    return v / abs(a)
+
+
+def E12CC_slips(name, op, a, b, back, v):
+    """The tagged slips on one statistic: v is the told value (the original forwards, the new
+    backwards). [(value, misconception index)]."""
+    loc, var = name in E12CC_LOC, name == "variance"
+    if not back:
+        if loc:
+            return [(a * (v + b), 6), (a * v, 7)] if op == "lin" else [(v, 5)]
+        if var:
+            return {"add": [(v + b, 4)], "mul": [(a * v, 1), (v, 8)], "lin": [(a * v, 1), (a * a * v + b, 4)]}[op]
+        return {"add": [(v + b, E12CC_ADD_REF[name])], "mul": [(v, 8), (a * a * v, 9)], "lin": [(a * v + b, E12CC_ADD_REF[name]), (a * a * v, 9)]}[op]
+    if loc:
+        return {"add": [(v + b, 11), (v, 5)], "mul": [(a * v, 11), (v, 5)], "lin": [(v / a - b, 10), (a * v + b, 11)]}[op]
+    if var:
+        return {"mul": [(v / a, 1), (a * a * v, 11)], "lin": [(v / a, 1), ((v - b) / a**2, 4)]}[op]
+    return {"add": [(v - b, E12CC_ADD_REF[name])], "mul": [(a * v, 11), (v, 8)], "lin": [((v - b) / a, E12CC_ADD_REF[name]), (a * v, 11)]}[op]
+
+
+def E12CC_text(names, vals):
+    return ", ".join(f"{n} = {E12CC_d(v)}" for n, v in zip(names, vals))
+
+
+def E12CC_fits(v):
+    return v > 0 and E12CC_ends(v)
+
+
+def E12CC_arith(q):
+    """Every plain chain of sums in the working holds: '2 × 12 + 5 = 29', '36 ÷ 2² = 36 ÷ 4 = 9'."""
+    def val(t):
+        t = t.strip().rstrip(".,:;").strip()
+        if not t or not re.fullmatch(r"[\d.()²√×÷+− ]+", t) or not re.search(r"\d", t):
+            return None
+        e = t.replace("×", "*").replace("÷", "/").replace("−", "-").replace("²", "**2")
+        e = re.sub(r"√([\d.]+)", r"sqrt(\1)", e)
+        try:
+            return sp.sympify(e, rational=True)
+        except Exception:
+            return None
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for run in re.findall(r"[\d.()²√×÷+−= ,]*=[\d.()²√×÷+−= ,]*", st):
+                parts = run.split(" = ")
+                for left, right in zip(parts, parts[1:]):
+                    lv, rv = val(left.split(", ")[-1]), val(right.split(", ")[0])
+                    if lv is not None and rv is not None:
+                        need(sp.simplify(lv - rv) == 0, f"{sol['name']}: {left.strip()} = {right.strip()} is false in {st!r}")
+
+
+def E12CC_tiny(q, a, b, xs=None):
+    """The tried values are the change made on 1, 2, 3 (or on the list itself)."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            mt = re.match(rf"Try the change on 1, 2, 3: they become ({E12CC_NUM}), ({E12CC_NUM}) and ({E12CC_NUM})\.", st)
+            if mt:
+                need([E12CC_n(g) for g in mt.groups()] == [a * i + b for i in (1, 2, 3)], f"the tried values in {st!r}")
+            mt = re.match(r"Change every value: (.+) become (.+)\.", st)
+            if mt:
+                need(xs is not None, "a list changed where there is none")
+                old = [E12CC_n(t) for t in mt.group(1).split(", ")]
+                new = [E12CC_n(t) for t in mt.group(2).split(", ")]
+                need(old == xs and new == [a * x + b for x in xs], f"the changed list in {st!r}")
+
+
+def E12CC_box(q, after):
+    """The five numbers drawn, held to the axis: on its ticks and at least two ticks apart."""
+    gr = q["graph"]
+    need(gr is not None and gr["kind"] == "box" and len(gr["boxes"]) == 1 and gr["every"] == E12CC_EVERY, "the box plot")
+    st = E12CC_STORIES[int(q["given"]["ctx"])]
+    need(gr["name"] == st[7 if after else 6], f"the axis {gr['name']!r}")
+    t, x0, x1 = R(gr["tick"]), R(gr["x0"]), R(gr["x1"])
+    need(x1 - x0 == E12CC_SPAN * t and (x0 / (E12CC_EVERY * t)).q == 1, "the axis span")
+    bx = gr["boxes"][0]
+    five = [E12CC_n(bx[k]) for k in ("min", "q1", "med", "q3", "max")]
+    need(not bx["out"], "no outliers are drawn")
+    for v in five:
+        need(((v - x0) / t).q == 1 and x0 <= v <= x1, f"{v} is off the ticks")
+    for lo, hi in zip(five, five[1:]):
+        need(hi - lo >= E12CC_GAP * t, "two numbers closer than two ticks")
+    mn, q1, md, q3, mx = five
+    need(mn > 0, "a value at or below 0")
+    return {"median": md, "lower quartile": q1, "upper quartile": q3, "interquartile range": q3 - q1, "range": mx - mn}, five
+
+
+def E12CC_check(q):
+    g, u, rep, L, asked = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 1, "every constant-change question is Paper 1")
+    need(q["table"] is None, "a table")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z\d])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    E12CC_arith(q)
+    ctx = int(g.get("ctx", -1))
+    need((ctx >= 0) == (rep in ("words", "graph")), "a story only in words or a box plot")
+    if u == "find-a-and-b":
+        return E12CC_find(q)
+    if u == "factor-from-variance":
+        return E12CC_factor(q)
+    if u == "effect-statement":
+        return E12CC_effect(q)
+    mt = re.fullmatch(rf"(Write down|Find) the ({'|'.join(E12CC_STATS)})(?: and the ({'|'.join(E12CC_STATS)}))? of (.+)\.", asked)
+    need(mt is not None, f"can't read {asked!r}")
+    names = [n for n in (mt.group(2), mt.group(3)) if n]
+    where = mt.group(4)
+    if ctx < 0:
+        need(where in ("the new values", "the original values"), f"asked of {where!r}")
+        back = where == "the original values"
+    else:
+        st = E12CC_STORIES[ctx]
+        need(where in (st[2], st[3]), f"asked of {where!r}")
+        back = where == st[3]
+    xs = None
+    if rep == "terms":
+        need(not back and len(L) == 2, "a list runs forwards")
+        ml = re.fullmatch(r"The values of a data set are (.+) and (\d+)\.", L[0])
+        need(ml is not None, f"can't read {L[0]!r}")
+        xs = [E12CC_n(t) for t in ml.group(1).split(", ")] + [E12CC_n(ml.group(2))]
+        need(xs == sorted(xs) and 7 <= len(xs) <= 9 and all(x.q == 1 and 1 <= x <= 40 for x in xs), f"the list {xs}")
+        a, b = E12CC_change(q, L[1])
+        told = E12CC_sorted_stats(xs)
+        need(E12CC_ends(told["mean"], 1) and E12CC_ends(a * told["mean"] + b, 1), "a list's mean ends in one decimal place")
+        need(all(E12CC_ends(a * x + b, 1) and a * x + b > 0 for x in xs), "the new values end in one decimal place")
+        # The changed list's own statistics, found again from the changed values.
+        new_stats = E12CC_sorted_stats([a * x + b for x in xs])
+        for n in names:
+            need(new_stats[n] == E12CC_after(n, told[n], a, b), f"the rule fails for the {n}")
+    elif rep == "graph":
+        need(len(L) == 2, f"the lines {L!r}")
+        st = E12CC_STORIES[ctx]
+        shows = f"The box plot shows {st[2] if back else st[1]}."
+        need(L == ([L[0], shows] if back else [shows, L[1]]), f"the lines {L!r}")
+        a, b = E12CC_change(q, L[0] if back else L[1])
+        told, five = E12CC_box(q, back)
+        need(all(n in told for n in names), f"a box plot doesn't show {names}")
+        other = [E12CC_before("median", v, a, b) if back else a * v + b for v in five]
+        need(other[0] > 0, "the other data go to or below 0")
+    else:
+        need(len(L) == 2, f"the lines {L!r}")
+        a, b = E12CC_change(q, L[0] if back else L[1])
+        told = E12CC_told(q, L[1] if back else L[0], back)
+    op = E12CC_op(a, b)
+    need(a > 0 and (op != "add" or b != 0), f"the change a = {a}, b = {b}")
+    want_op = {"add-mean-sd": ("add",), "add-mean-variance": ("add",), "add-centre-spread": ("add",), "multiply-mean": ("mul",),
+               "multiply-variance": ("mul",), "multiply-centre-spread": ("mul",), "linear-mean-iqr": ("lin",), "linear-sd-variance": ("lin",),
+               "linear-centre-spread": ("lin",), "original-mean-sd": ("add", "mul", "lin"), "original-variance": ("mul", "lin"),
+               "original-centre-spread": ("add", "mul", "lin")}[u]
+    need(op in want_op, f"{u} with a change that is {op}")
+    need(back == u.startswith("original"), f"{u} runs the wrong way")
+    need(mt.group(1) == ("Write down" if op == "add" and not back else "Find"), f"the verb in {asked!r}")
+    pairs = {"add-mean-sd": ["mean", "standard deviation"], "add-mean-variance": ["mean", "variance"], "multiply-mean": ["mean"],
+             "multiply-variance": ["variance"], "linear-mean-iqr": ["mean", "interquartile range"], "linear-sd-variance": ["standard deviation", "variance"],
+             "original-mean-sd": ["mean", "standard deviation"], "original-variance": ["variance"]}
+    if u in pairs:
+        need(names == pairs[u], f"{u} asks {names}")
+    else:
+        need(len(names) == 2 and names[0] in E12CC_LOC and names[1] in E12CC_SPREAD, f"{u} asks {names}")
+    if rep not in ("terms", "graph"):
+        shown = {"multiply-mean": ["mean", "standard deviation"], "multiply-variance": ["mean", "variance"], "linear-sd-variance": ["standard deviation"]}.get(u, names)
+        need(list(told) == shown, f"told {list(told)}, not {shown}")
+    # The told side, then each asked statistic from it.
+    tv = dict(told)
+    if "variance" in names and "variance" not in tv:
+        tv["variance"] = tv["standard deviation"] ** 2
+    right = [E12CC_before(n, tv[n], a, b) if back else E12CC_after(n, tv[n], a, b) for n in names]
+    for n, v in list(told.items()):
+        need(E12CC_fits(v), f"the told {n} {v}")
+    for v in right:
+        need(E12CC_fits(v), f"an asked value {v}")
+    if len(names) == 2:
+        need(tv[names[0]] != tv[names[1]], "a told centre equals the spread told with it")
+    want = E12CC_text(names, right)
+    wrongs = {}
+    for i, n in enumerate(names):
+        for v, k in E12CC_slips(n, op, a, b, back, tv[n]):
+            if E12CC_fits(v) and v != right[i]:
+                vals = list(right)
+                vals[i] = v
+                wrongs.setdefault(E12CC_SK + str(k), set()).add(E12CC_text(names, vals))
+    if op == "add" and len(names) == 2 and names[0] in E12CC_LOC and names[1] not in E12CC_LOC:
+        s2 = tv[names[1]] - b if back else tv[names[1]] + b
+        if E12CC_fits(s2):
+            wrongs.setdefault(E12CC_SK + "14", set()).add(E12CC_text(names, [tv[names[0]], s2]))
+    E12CC_tiny(q, a, b, xs)
+    gc_check_common(q, want, wrongs, None)
+    return None, None
+
+
+def E12CC_find(q):
+    L, g = q["lines"], q["given"]
+    need(len(L) == 3 and q["asked"] == "Find the value of a and the value of b.", f"the lines {L!r}")
+    E12CC_change(q, L[1], ["a", "b"])
+    old, new = E12CC_told(q, L[0], False), E12CC_told(q, L[2], True)
+    need(list(old) == list(new) and list(old) in (["mean", "standard deviation"], ["mean", "variance"]), f"told {list(old)} and {list(new)}")
+    var = "variance" in old
+    m, M = old["mean"], new["mean"]
+    sv, SV = old["variance" if var else "standard deviation"], new["variance" if var else "standard deviation"]
+    a = sp.sqrt(SV / sv) if var else SV / sv
+    need(a.is_rational and a > 0 and a != 1, f"a = {a}")
+    b = M - a * m
+    need(b != 0 and E12CC_ends(a) and E12CC_ends(b), f"b = {b}")
+    # The solution is the only one with a > 0: a² is fixed by the spreads, and b then by the means.
+    A, B = sp.symbols("A B")
+    sols = sp.solve([sp.Eq(A * m + B, M), sp.Eq((A**2 if var else A) * sv, SV)], [A, B], dict=True)
+    need([s for s in sols if s[A] > 0] == [{A: a, B: b}], f"the system gives {sols}")
+    for v in list(old.values()) + list(new.values()):
+        need(E12CC_fits(v), f"a told value {v}")
+    pair = lambda x, y: f"a = {E12CC_d(x)}, b = {E12CC_d(y)}"
+    wrongs = {E12CC_SK + "12": {pair(a, M - m)}}
+    if M / m > 0 and E12CC_ends(M / m) and M / m != a:
+        wrongs[E12CC_SK + "13"] = {pair(M / m, 0)}
+    if var and E12CC_ends(SV / sv) and E12CC_ends(M - SV / sv * m):
+        wrongs[E12CC_SK + "1"] = {pair(SV / sv, M - SV / sv * m)}
+    E12CC_tiny(q, a, b)
+    gc_check_common(q, pair(a, b), wrongs, None)
+    return None, None
+
+
+def E12CC_factor(q):
+    L = q["lines"]
+    need(len(L) == 3 and q["asked"] == "Find the value of k.", f"the lines {L!r}")
+    E12CC_change(q, L[1], ["k"])
+    old, new = E12CC_told(q, L[0], False), E12CC_told(q, L[2], True)
+    need(list(old) == ["variance"] and list(new) == ["variance"], "the variances")
+    k = sp.sqrt(new["variance"] / old["variance"])
+    need(k.is_rational and k > 0 and k != 1 and E12CC_ends(k), f"k = {k}")
+    ratio = new["variance"] / old["variance"]
+    wrongs = {E12CC_SK + "1": {f"k = {E12CC_d(ratio)}"}} if E12CC_ends(ratio) else {}
+    gc_check_common(q, f"k = {E12CC_d(k)}", wrongs, None)
+    return None, None
+
+
+def E12CC_effect(q):
+    L = q["lines"]
+    ctx = int(q["given"].get("ctx", -1))
+    need(len(L) == 1, f"the lines {L!r}")
+    a, b = E12CC_change(q, L[0])
+    op = E12CC_op(a, b)
+    need(op in ("add", "mul"), f"a statement on a change that is {op}")
+    target = "the new values" if ctx < 0 else E12CC_STORIES[ctx][2]
+    need(q["asked"] == f"Which statement about {target} is true?", f"asked {q['asked']!r}")
+    texts = [o["text"] for o in q["choices"]]
+    right_text = [o["text"] for o in q["choices"] if o["correct"]]
+    need(len(right_text) == 1, "one right statement")
+    spreads = "|".join(E12CC_SPREAD + ("variance",))
+    mt = (re.fullmatch(rf"The (mean|median) goes (?:up|down) by .+, and the ({spreads}) stays the same\.", right_text[0])
+          or re.fullmatch(rf"The (mean|median) and the ({spreads}) are both multiplied by .+\.", right_text[0])
+          or re.fullmatch(rf"The (mean|median) is multiplied by .+, and the (variance) by .+\.", right_text[0]))
+    need(mt is not None, f"can't read the measures from {right_text[0]!r}")
+    c, s = mt.group(1), mt.group(2)
+    if op == "add":
+        unit = E12CC_unit(q, False, abs(b), c)
+        way = "up" if b > 0 else "down"
+        by = f"{E12CC_d(abs(b))}{unit}"
+        right = f"The {c} goes {way} by {by}, and the {s} stays the same."
+        table = {E12CC_ADD_REF[s]: f"The {c} and the {s} both go {way} by {by}.", 14: f"The {c} stays the same, and the {s} goes {way} by {by}.",
+                 5: f"The {c} and the {s} both stay the same."}
+    elif s == "variance":
+        right = f"The {c} is multiplied by {E12CC_d(a)}, and the variance by {E12CC_d(a * a)}."
+        table = {1: f"The {c} and the variance are both multiplied by {E12CC_d(a)}.", 8: f"The {c} is multiplied by {E12CC_d(a)}, and the variance stays the same.",
+                 5: f"The {c} stays the same, and the variance is multiplied by {E12CC_d(a * a)}."}
+    else:
+        right = f"The {c} and the {s} are both multiplied by {E12CC_d(a)}."
+        table = {9: f"The {c} is multiplied by {E12CC_d(a)}, and the {s} by {E12CC_d(a * a)}.", 8: f"The {c} is multiplied by {E12CC_d(a)}, and the {s} stays the same.",
+                 5: f"The {c} stays the same, and the {s} is multiplied by {E12CC_d(a)}."}
+    need(set(texts) == {right} | set(table.values()), f"the statements {texts}")
+    E12CC_tiny(q, a, b)
+    gc_check_common(q, right, {E12CC_SK + str(k): {t} for k, t in table.items()}, None, steps=(2, 5))
+    return None, None
+
+
+SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, "circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
                     "distribution": check_distribution, "cubic": check_cubic,
