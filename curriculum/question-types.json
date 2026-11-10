@@ -4360,6 +4360,42 @@
     "the map's own example equations are never asked"
    ]
   },
+  "trig-sketch": {
+   "name": "One circular function on a domain, to sketch",
+   "summary": "y = a fn(bx) + d for sin, cos or tan with whole a and d and b of 1, 2, 3 or 1/2, on a domain in multiples of π or in degrees: two periods for a sketch, one for a table, one maximum and one minimum for the turning points, and fn(bx) = ±1/2 at an intercept. Paper 2's GDC cells put the turning points and intercepts on a wave with tenths, on a whole-number domain.",
+   "quantities": [
+    {
+     "name": "fn, a, b, d",
+     "is": "y = a fn(bx) + d",
+     "pick": "sin, cos or tan; a whole and signed, d whole; b 1, 2, 3 or 1/2; tenths on Paper 2"
+    },
+    {
+     "name": "lo, hi, form",
+     "is": "the domain, and how it is written",
+     "pick": "0 to 2π, 0 to 4π, one or two periods, or a quarter period before 0 for cos; pi or deg"
+    },
+    {
+     "name": "xs",
+     "is": "the x-intercepts",
+     "pick": "where fn(bx) = −d/a = ±1/2, divided by b"
+    },
+    {
+     "name": "blanks",
+     "is": "the key points left blank in a table",
+     "pick": "two of the five"
+    },
+    {
+     "name": "spin",
+     "is": "where a question's slips start",
+     "pick": "0 to 59"
+    }
+   ],
+   "clean": [
+    "Paper 1 positions are landmarks, exact",
+    "a turning-point domain holds one maximum and one minimum, off its ends",
+    "Paper 2 values are 3 s.f., clear of a rounding edge and 0.15 from the ends"
+   ]
+  },
   "geometric-sequence": {
    "name": "One geometric sequence and its sums",
    "summary": "Pick u₁ and r (or the two terms, the expressions in k, the Σ, the story), then derive every term, Sₙ and S∞, so any of them can be hidden and any shown.",
@@ -37833,8 +37869,9 @@
    "id": "t3-trig-sketch",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Sketch a trig graph from its parameters",
+   "summary": "Sketch y = a sin(bx) + d, a cos(bx) + d or a tan(bx) + d on a given domain, in radians or degrees: pick the sketch from four graphs (a wave, a reflected wave such as −sin(2x), a tan graph with its asymptotes, or the wave through five key points in a table), and find what a sketch must mark: its maximum and minimum points, where it meets the axes, tan's asymptotes and the five key points of a period.",
    "syllabus": [
     "3.7",
     "2.3",
@@ -37842,6 +37879,433 @@
    ],
    "skills": [
     "SL3.7.sketch"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "one period is 2π ÷ b (π ÷ b for tan), and its five key points are a quarter of a period apart",
+    "sin starts on its axis and rises; cos starts at its maximum; a minus sign in front reflects either in its axis",
+    "a sets the height above and below the axis y = d",
+    "tan has no turning points: each branch runs between vertical asymptotes, halfway between its crossings of y = d",
+    "join the points with a smooth curve across the whole domain"
+   ],
+   "given": [
+    "an equation and a domain",
+    "a table of five key points",
+    "an unmarked sketch"
+   ],
+   "asked": "Which of four graphs is the sketch, or a feature the sketch marks: the maximum and minimum points, the y-intercept, the x-intercepts, tan's asymptotes, or missing key points.",
+   "answerForms": [
+    "Graph A to Graph D",
+    "points and x-values as exact multiples of π or in degrees",
+    "whole numbers for heights",
+    "3 s.f. on the GDC's Paper 2"
+   ],
+   "randomise": [
+    "sin, cos or tan",
+    "a and its sign",
+    "b: 1, 2, 3 or 1/2",
+    "d",
+    "the domain, in radians or degrees",
+    "which slips the wrong graphs show",
+    "which key points are blank"
+   ],
+   "constraints": [
+    "both bank parts are Paper 1, so every cell is but the GDC's, which is Paper 2",
+    "the four cards share one window and one set of axis marks, and each wrong card makes one slip",
+    "every position is a landmark: a quarter-period point, or where fn(bx) = ±1/2 for an intercept",
+    "a maximum-and-minimum domain holds exactly one of each, off its ends",
+    "a Paper 2 wave has tenths, and its 3 s.f. values are clear of a rounding edge and of the ends"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "graph-pick"
+   ],
+   "situation": "trig-sketch",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "y = 3 sin(2x) + 1, for 0 ≤ x ≤ 2π, or with a domain in degrees"
+    },
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "x at the five key points of one period, with y below each, or two of them blank"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "the sketch drawn with nothing marked, its equation in the words"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "sketch-wave",
+     "given": [
+      "y = a sin(bx) + d or a cos(bx) + d with a > 0",
+      "a domain in radians or degrees"
+     ],
+     "asked": "which of four graphs is its sketch on the domain (pick the graph)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.7.sketch"
+     ]
+    },
+    {
+     "id": "sketch-from-table",
+     "given": [
+      "the five key points of one period of a sine or cosine wave, in a table"
+     ],
+     "asked": "which of four graphs joins them as the wave (pick the graph)",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL3.7.sketch"
+     ]
+    },
+    {
+     "id": "sketch-reflected",
+     "given": [
+      "y = −a sin(bx) + d or −a cos(bx) + d, such as −sin(2x)",
+      "a domain"
+     ],
+     "asked": "which of four graphs is its sketch, reflected (pick the graph)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.7.sketch"
+     ]
+    },
+    {
+     "id": "sketch-tan",
+     "given": [
+      "y = a tan(bx) + d",
+      "a domain of two periods"
+     ],
+     "asked": "which of four graphs is its sketch with its asymptotes (pick the graph)",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.7.sketch"
+     ]
+    },
+    {
+     "id": "max-min-points",
+     "given": [
+      "a sine or cosine wave",
+      "a domain holding one maximum and one minimum"
+     ],
+     "asked": "the coordinates of the maximum point and of the minimum point a sketch marks",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.7.sketch"
+     ]
+    },
+    {
+     "id": "y-intercept",
+     "given": [
+      "a sine, cosine or tan function"
+     ],
+     "asked": "the point where its sketch meets the y-axis",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.7.sketch"
+     ]
+    },
+    {
+     "id": "x-intercepts",
+     "given": [
+      "a sine or cosine wave crossing its axis at half its amplitude, on one period",
+      "or its unmarked sketch"
+     ],
+     "asked": "the x-intercepts its sketch marks",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.7.sketch"
+     ]
+    },
+    {
+     "id": "tan-asymptotes",
+     "given": [
+      "y = a tan(bx) + d",
+      "a domain of two periods"
+     ],
+     "asked": "the equations of the vertical asymptotes its sketch shows",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.7.sketch"
+     ]
+    },
+    {
+     "id": "key-points",
+     "given": [
+      "a sine or cosine wave",
+      "a table of its five key points over one period, two of them blank"
+     ],
+     "asked": "the two missing y-values",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL3.7.sketch"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.7.sketch",
+     "method": "quarter-period-points",
+     "suits": [
+      "sketch-wave",
+      "sketch-from-table",
+      "sketch-reflected",
+      "sketch-tan",
+      "max-min-points",
+      "y-intercept",
+      "tan-asymptotes",
+      "key-points"
+     ]
+    },
+    {
+     "skill": "SL3.7.sketch",
+     "method": "transform-base",
+     "suits": [
+      "sketch-wave",
+      "sketch-reflected",
+      "sketch-tan",
+      "max-min-points",
+      "y-intercept",
+      "x-intercepts",
+      "tan-asymptotes",
+      "key-points"
+     ]
+    },
+    {
+     "skill": "SL3.7.sketch",
+     "method": "gdc-transfer",
+     "suits": [
+      "sketch-wave",
+      "sketch-tan",
+      "max-min-points",
+      "x-intercepts"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "The graph of y = tan x has a maximum point at x = π/2.",
+     "answer": "False: tan x grows without limit as x nears π/2, where it has a vertical asymptote. It has no turning points at all.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Changing b in y = 3 sin(bx) + 1 changes the maximum value of the graph.",
+     "answer": "Never: b only squeezes or stretches the graph across. The maximum stays d + |a| = 4.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Where does y = −2 cos x + 1 start at x = 0, and does it then go up or down?",
+     "answer": "At (0, −1), its minimum, since −2 cos 0 + 1 = −1. From there it goes up, to its maximum of 3 at x = π.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.7.sketch#0",
+     "text": "Drawing tan x with turning points instead of vertical asymptotes",
+     "as": "distractor",
+     "in": [
+      "sketch-tan"
+     ],
+     "wrong": "a wave with turning points where tan's asymptotes are"
+    },
+    {
+     "ref": "SL3.7.sketch#1",
+     "text": "Starting a cosine graph on the axis instead of at a maximum",
+     "as": "distractor",
+     "in": [
+      "sketch-wave",
+      "sketch-from-table",
+      "sketch-reflected",
+      "max-min-points",
+      "y-intercept",
+      "key-points"
+     ],
+     "wrong": "a cosine drawn as a sine, starting on its axis"
+    },
+    {
+     "ref": "SL3.7.sketch#2",
+     "text": "Drawing a zigzag of straight lines instead of a smooth curve",
+     "as": "distractor",
+     "in": [
+      "sketch-wave",
+      "sketch-from-table",
+      "sketch-reflected"
+     ],
+     "wrong": "straight lines joining the key points"
+    },
+    {
+     "ref": "SL3.7.sketch#3",
+     "text": "Moving the graph the wrong way for d: down for + d, or up for − d",
+     "as": "distractor",
+     "in": [
+      "sketch-wave",
+      "sketch-from-table",
+      "sketch-reflected",
+      "sketch-tan",
+      "max-min-points",
+      "y-intercept",
+      "x-intercepts",
+      "key-points"
+     ],
+     "wrong": "the graph with −d in place of d"
+    },
+    {
+     "ref": "SL3.7.sketch#4",
+     "text": "Keeping the period of the base graph, as if b were 1",
+     "as": "distractor",
+     "in": [
+      "sketch-wave",
+      "sketch-from-table",
+      "sketch-reflected",
+      "max-min-points",
+      "x-intercepts",
+      "tan-asymptotes"
+     ],
+     "wrong": "the period of sin x, cos x or tan x, with b left out"
+    },
+    {
+     "ref": "SL3.7.sketch#5",
+     "text": "Putting tan's asymptotes where it crosses its centre line, instead of halfway between those crossings",
+     "as": "distractor",
+     "in": [
+      "sketch-tan",
+      "tan-asymptotes"
+     ],
+     "wrong": "asymptotes at tan's zeros, x = kπ ÷ b"
+    },
+    {
+     "ref": "SL3.7.sketch#6",
+     "text": "Starting a sine graph at a maximum, as a cosine graph does",
+     "as": "distractor",
+     "in": [
+      "y-intercept",
+      "key-points"
+     ],
+     "wrong": "a sine drawn as a cosine, starting at a maximum"
+    },
+    {
+     "ref": "SL3.7.read-features#3",
+     "text": "Using the period rule of sin and cos for tan, which repeats twice as often",
+     "as": "distractor",
+     "in": [
+      "sketch-tan",
+      "tan-asymptotes"
+     ],
+     "wrong": "tan's period taken as 2π ÷ b"
+    },
+    {
+     "ref": "SL3.7.read-features#4",
+     "text": "Using tan's period rule for a sine or cosine wave, which takes twice as long to repeat",
+     "as": "distractor",
+     "in": [
+      "sketch-wave",
+      "sketch-from-table",
+      "sketch-reflected",
+      "max-min-points"
+     ],
+     "wrong": "a sine or cosine with period π ÷ b, when b = 1"
+    },
+    {
+     "ref": "SL3.7.read-features#5",
+     "text": "Leaving d out of the maximum, the minimum or the range",
+     "as": "distractor",
+     "in": [
+      "max-min-points",
+      "y-intercept",
+      "key-points"
+     ],
+     "wrong": "the heights without d"
+    },
+    {
+     "ref": "SL3.7.read-features#8",
+     "text": "Ignoring the minus sign in front of the wave, which turns its peaks into troughs",
+     "as": "distractor",
+     "in": [
+      "sketch-reflected",
+      "sketch-tan",
+      "max-min-points",
+      "y-intercept",
+      "key-points"
+     ],
+     "wrong": "the graph of |a| in place of a, not reflected"
+    },
+    {
+     "ref": "SL3.7.read-features#9",
+     "text": "Mixing up where the two waves peak: cosine at the start of a cycle, sine a quarter of a cycle later",
+     "as": "distractor",
+     "in": [
+      "sketch-wave",
+      "sketch-from-table",
+      "sketch-reflected",
+      "max-min-points"
+     ],
+     "wrong": "a sine drawn as a cosine, peaking at the start of the period"
+    },
+    {
+     "ref": "SL3.8.solve-basic#0",
+     "text": "Stopping at one solution instead of finding them all",
+     "as": "distractor",
+     "in": [
+      "x-intercepts"
+     ],
+     "wrong": "the first intercept alone"
+    },
+    {
+     "ref": "SL3.8.solve-basic#1",
+     "text": "Finding a cosine equation's second solution the way you would for sine",
+     "as": "distractor",
+     "in": [
+      "x-intercepts"
+     ],
+     "wrong": "α and π − α for a cosine"
+    }
    ],
    "parts": [
     "aa-sl-2023-may-tz1-p1-q06.b",

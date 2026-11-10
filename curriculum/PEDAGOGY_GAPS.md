@@ -2097,7 +2097,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 19 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 20 exam types have them so far.
 
 #### Distance and midpoint in 2D or 3D (`t3-distance-midpoint`, exam, 9 bank parts)
 
@@ -2463,6 +2463,27 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): sin 2θ = 2 sin θ. — Sometimes: only when cos θ = 1 or sin θ = 0, because sin 2θ = 2 sin θ cos θ.
   - *interpret-parameter* (L3): Why does 1 − 2 sin²θ suit a question that gives sin θ? — Because it is cos 2θ written with sin θ alone, so the other ratio is never needed.
 - **Misconceptions used:** 8. Ignoring the quadrant and giving the wrong sign; Dropping the squares from the Pythagorean identity; Taking the square root of a difference term by term; Doubling sin θ to get sin 2θ; Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ; Losing the negative sign of cos θ for an obtuse θ before substituting into sin 2θ; Expanding (sin x + cos x)² as sin²x + cos²x; Keeping the number in front the same when rewriting as the sine of a double angle, instead of halving it.
+
+#### Sketch a trig graph from its parameters (`t3-trig-sketch`, exam, 2 bank parts)
+
+- **Situation:** One circular function on a domain, to sketch.
+- **Representations:** **equation**, **table**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given y = a sin(bx) + d or a cos(bx) + d with a > 0; a domain in radians or degrees → which of four graphs is its sketch on the domain (pick the graph)
+  - **exam** L1: given the five key points of one period of a sine or cosine wave, in a table → which of four graphs joins them as the wave (pick the graph)
+  - **exam** L2: given y = −a sin(bx) + d or −a cos(bx) + d, such as −sin(2x); a domain → which of four graphs is its sketch, reflected (pick the graph)
+  - **exam** L3: given y = a tan(bx) + d; a domain of two periods → which of four graphs is its sketch with its asymptotes (pick the graph)
+  - **exam** L2: given a sine or cosine wave; a domain holding one maximum and one minimum → the coordinates of the maximum point and of the minimum point a sketch marks
+  - **exam** L1: given a sine, cosine or tan function → the point where its sketch meets the y-axis
+  - **exam** L3: given a sine or cosine wave crossing its axis at half its amplitude, on one period; or its unmarked sketch → the x-intercepts its sketch marks
+  - **exam** L2: given y = a tan(bx) + d; a domain of two periods → the equations of the vertical asymptotes its sketch shows
+  - **exam** L2: given a sine or cosine wave; a table of its five key points over one period, two of them blank → the two missing y-values
+- **Angles:** Five key points per period; Transform sin x or cos x; Graph on the GDC and transfer.
+- **Concept probes:**
+  - *true-false-reason* (L3): The graph of y = tan x has a maximum point at x = π/2. — False: tan x grows without limit as x nears π/2, where it has a vertical asymptote. It has no turning points at all.
+  - *always-sometimes-never* (L3): Changing b in y = 3 sin(bx) + 1 changes the maximum value of the graph. — Never: b only squeezes or stretches the graph across. The maximum stays d + |a| = 4.
+  - *predict-check* (L3): Where does y = −2 cos x + 1 start at x = 0, and does it then go up or down? — At (0, −1), its minimum, since −2 cos 0 + 1 = −1. From there it goes up, to its maximum of 3 at x = π.
+- **Misconceptions used:** 14. Drawing tan x with turning points instead of vertical asymptotes; Starting a cosine graph on the axis instead of at a maximum; Drawing a zigzag of straight lines instead of a smooth curve; Moving the graph the wrong way for d: down for + d, or up for − d; Keeping the period of the base graph, as if b were 1; Putting tan's asymptotes where it crosses its centre line, instead of halfway between those crossings; Starting a sine graph at a maximum, as a cosine graph does; Using the period rule of sin and cos for tan, which repeats twice as often; Using tan's period rule for a sine or cosine wave, which takes twice as long to repeat; Leaving d out of the maximum, the minimum or the range; Ignoring the minus sign in front of the wave, which turns its peaks into troughs; Mixing up where the two waves peak: cosine at the start of a cycle, sine a quarter of a cycle later; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine.
 
 #### Evaluate or use a trig model: times, counts, durations (`t3-trig-model-use`, exam, 9 bank parts)
 
