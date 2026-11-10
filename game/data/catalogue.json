@@ -5487,6 +5487,47 @@
 				"the committee always has at least 1 woman and at least 1 man",
 				"two particular people are different people, and the row has 5 to 8"
 			]
+		},
+		"tangent-meets-curve": {
+			"name": "A curve, a point P on it, and its tangent or normal",
+			"summary": "Pick a family of curve and a whole-number x₀, find P and the gradient there, and the tangent or the normal; then where it meets the axes and the curve again. For the tangent meeting a cubic or px² + A/x + q again, pick P and Q first and build the curve from them, so (x − x₀)²(x − Q) is a factor of curve minus tangent.",
+			"quantities": [
+				{
+					"name": "f",
+					"is": "the curve",
+					"pick": "ax² + bx + c, ax³ + bx² + cx + d, px² + A/x + q (x ≠ 0) or Ae^(kx) + px² + q, with whole numbers (k in tenths, p in halves for e^(kx))"
+				},
+				{
+					"name": "x₀",
+					"is": "P's x-coordinate",
+					"pick": "a whole number from −4 to 4 (not 0 for px² + A/x + q)"
+				},
+				{
+					"name": "m",
+					"is": "f′(x₀)",
+					"pick": "from f; the normal's gradient is −1/m"
+				},
+				{
+					"name": "A, B",
+					"is": "where the line meets the x-axis and the y-axis",
+					"pick": "from the line"
+				},
+				{
+					"name": "Q",
+					"is": "where the line meets the curve again",
+					"pick": "a whole number for the tangent to a cubic or px² + A/x + q, built in; otherwise found by a scan for sign changes"
+				}
+			],
+			"modes": [
+				"Paper 2: exact values for whole-number curves, 3 s.f. for e^(kx) curves and GDC intersections"
+			],
+			"clean": [
+				"f′(x₀) ≠ 0: at most 12 in size for a tangent and 8 for a normal of a polynomial; at least 0.2 for an e^(kx) curve",
+				"every marked point has |x| ≤ 12 and |y| ≤ 100, and an intercept is at least 0.05 from the origin",
+				"the triangle's intercepts have opposite signs",
+				"the line meets the curve again at exactly one point, at least 0.5 from P: an e^(kx) curve minus a line has at most three roots, and the signs at the ends of the scan agree with the crossings found",
+				"a 3 s.f. answer is clear of a rounding edge and not a whole number by accident"
+			]
 		}
 	},
 	"skills": {
@@ -5683,6 +5724,7 @@
 		"SL5.3.power-rule": "Differentiate ax^n and sums of such terms",
 		"SL5.3.negative-powers": "Rewrite reciprocals and fractions as powers of x, then differentiate",
 		"SL5.3.gradient-at-point": "Find the gradient of a curve at a given point",
+		"SL5.4.tangent-meets-axes-or-curve": "Use a tangent or normal to find intercepts, an area, or a second intersection",
 		"SL5.3.point-with-given-gradient": "Find the point(s) where a curve has a given gradient",
 		"SL5.4.parallel-or-perpendicular": "Find where the tangent (or normal) is parallel or perpendicular to a given line",
 		"SL5.4.tangency-condition": "Find an unknown constant given that a line is tangent to a curve",
@@ -51575,6 +51617,316 @@
 			"topic": 5,
 			"source": "exam",
 			"name": "Where a tangent or normal meets the curve again",
+			"summary": "Follow the tangent or the normal at a point P of a curve: find where it meets the x-axis and the y-axis, the area of the triangle it cuts off with the axes, or where it meets the curve again, by the double root at P for a cubic or with the GDC's intersect.",
+			"situation": "tangent-meets-curve",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "f(x) on a line of its own, and P by its x-coordinate"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "the same, with the curve and the line drawn on a grid and P marked"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "an exam's sketch, not to scale: the curve, the line and the lettered points P, A, B or Q, with no numbers on the axes"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "tangent-x-intercept",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "where the tangent at P meets the x-axis",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "tangent-y-intercept",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "where the tangent at P meets the y-axis",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "normal-x-intercept",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "where the normal at P meets the x-axis",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "normal-y-intercept",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "where the normal at P meets the y-axis",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "tangent-triangle-area",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "the area of the triangle the tangent at P cuts off with the axes",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "normal-triangle-area",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "the area of the triangle the normal at P cuts off with the axes",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "tangent-meets-again",
+					"given": [
+						"f(x): a cubic, or px² + A/x + q",
+						"x₀"
+					],
+					"asked": "the point Q where the tangent at P meets the curve again, exactly",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "tangent-meets-again-gdc",
+					"given": [
+						"f(x) = Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "the point Q where the tangent at P meets the curve again, to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "normal-meets-again",
+					"given": [
+						"f(x): a quadratic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "the point Q where the normal at P meets the curve again, to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.4.tangent-meets-axes-or-curve",
+					"method": "set-axes-zero",
+					"suits": [
+						"tangent-x-intercept",
+						"tangent-y-intercept",
+						"normal-x-intercept",
+						"normal-y-intercept",
+						"tangent-triangle-area",
+						"normal-triangle-area"
+					],
+					"name": "Put x = 0 and y = 0 in the tangent",
+					"about": "Get both intercepts from the line's equation, then use ½ × base × height for the triangle."
+				},
+				{
+					"skill": "SL5.4.tangent-meets-axes-or-curve",
+					"method": "factor-repeated-root",
+					"suits": [
+						"tangent-meets-again"
+					],
+					"name": "Use the double root at the point of contact",
+					"about": "Setting curve = tangent gives (x − a)² as a factor, so for a cubic the remaining root comes from comparing coefficients."
+				},
+				{
+					"skill": "SL5.4.tangent-meets-axes-or-curve",
+					"method": "gdc-intersect",
+					"suits": [
+						"tangent-meets-again",
+						"tangent-meets-again-gdc",
+						"normal-meets-again"
+					],
+					"name": "GDC intersect",
+					"about": "Graph the curve and the line and use the intersect tool."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The tangent to a cubic at a point P meets the cubic again.",
+					"answer": "Sometimes: at every point but the point of inflexion. Curve minus tangent is a cubic with a double root at P, so its third root is real too; only at the inflexion is that root P again, as a triple root.",
+					"level": 4
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "A tangent with intercepts at x = −4 and y = 3 cuts off a triangle of area −6 with the axes.",
+					"answer": "False: lengths are never negative. OA = 4 and OB = 3, so the area is ½ × 4 × 3 = 6.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.4.tangent-meets-axes-or-curve#0",
+					"text": "Finding the intercepts of the curve instead of the tangent or normal",
+					"as": "distractor",
+					"in": [
+						"tangent-y-intercept",
+						"normal-y-intercept"
+					],
+					"wrong": "f(0), the curve's y-intercept, for the line's"
+				},
+				{
+					"ref": "SL5.4.tangent-meets-axes-or-curve#1",
+					"text": "Not using the double root at the point of contact, so it is counted only once among the roots",
+					"as": "distractor",
+					"in": [
+						"tangent-meets-again"
+					],
+					"wrong": "the x² terms compared with x₀ counted once, so the third root comes out x₀ more than Q's"
+				},
+				{
+					"ref": "SL5.4.tangent-meets-axes-or-curve#2",
+					"text": "Using a negative intercept as a negative length in the triangle area",
+					"as": "distractor",
+					"in": [
+						"tangent-triangle-area",
+						"normal-triangle-area"
+					],
+					"wrong": "½ × x-intercept × y-intercept with their signs: a negative area"
+				},
+				{
+					"ref": "SL5.4.tangent-meets-axes-or-curve#3",
+					"text": "Giving the point of contact P as the point where the line meets the curve again",
+					"as": "distractor",
+					"in": [
+						"tangent-meets-again",
+						"tangent-meets-again-gdc",
+						"normal-meets-again"
+					],
+					"wrong": "P's coordinates, the root of curve = line already known"
+				},
+				{
+					"ref": "SL5.4.tangent-meets-axes-or-curve#4",
+					"text": "Putting x = 0 to find where a line meets the x-axis, or y = 0 for the y-axis",
+					"as": "distractor",
+					"in": [
+						"tangent-x-intercept",
+						"tangent-y-intercept",
+						"normal-x-intercept",
+						"normal-y-intercept"
+					],
+					"wrong": "the other intercept's value, on the axis asked about"
+				},
+				{
+					"ref": "SL5.4.normal-equation#0",
+					"text": "Using −m or 1/m instead of −1/m for the normal's gradient",
+					"as": "distractor",
+					"in": [
+						"normal-x-intercept",
+						"normal-y-intercept",
+						"normal-triangle-area",
+						"normal-meets-again"
+					],
+					"wrong": "the line through P with gradient −m or 1/m, followed to the axis, the triangle or the curve"
+				}
+			],
+			"chain": [
+				"f(x₀) and f′(x₀): the point P and the gradient there",
+				"the tangent y = mx + c, or the normal with gradient −1/m",
+				"put y = 0 and x = 0 in the line for its intercepts",
+				"½ × OA × OB with both lengths positive",
+				"solve curve = line: the double root at P leaves one more root, or the GDC's intersect finds it"
+			],
 			"frequency": 2,
 			"marks": 3,
 			"section": {
@@ -51584,9 +51936,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 2
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-tangent-condition",
