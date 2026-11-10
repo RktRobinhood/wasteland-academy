@@ -2241,9 +2241,27 @@
                 }
               ],
               "misconceptions": [
-                "Multiplying base by exponent: 8^(2/3) = 16/3",
-                "Thinking a negative exponent gives a negative value: 27^(−1/3) = −3",
-                "Multiplying exponents when multiplying powers: x^(1/2) × x^(1/3) = x^(1/6)"
+                "Multiplying the base by the exponent",
+                "Thinking a negative exponent gives a negative value",
+                "Multiplying the exponents when multiplying powers",
+                "Taking the root and stopping, without raising to the power",
+                "Multiplying the root by the top of the power instead of raising it to that power",
+                "Ignoring the minus sign in the power, so no reciprocal is taken",
+                "Dividing by the power instead of raising both sides to its reciprocal",
+                "Writing the power of a root upside down, with the root's index on top",
+                "Leaving out the minus sign when a power moves from the bottom of a fraction to the top",
+                "Applying the power to x but not to the number in the bracket",
+                "Adding the powers in a bracket instead of multiplying them",
+                "Adding the tops and adding the bottoms of two fractional powers",
+                "Dividing the powers instead of subtracting them",
+                "Subtracting the powers the wrong way round",
+                "Adding the powers when dividing",
+                "Adding the powers of two different bases as if the base were the same",
+                "Dividing only the first term of the top by the bottom",
+                "Adding the numbers in front instead of multiplying them",
+                "Dividing the powers of x but not the numbers in front",
+                "Treating a cube root as a square root",
+                "Raising both sides to the given power instead of its reciprocal"
               ],
               "threads": [
                 {
