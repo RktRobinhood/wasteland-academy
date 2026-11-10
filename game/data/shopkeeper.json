@@ -1,0 +1,61 @@
+{
+  "name": "Bodge",
+  "lines": {
+    "first_visit": [
+      "A customer! Gerald, a real one! Come in. Mind the floor, it bites.",
+      "I'm Bodge. This is my stall. That's my caravan. The wheels are somebody else's now.",
+      "Everything here's for sale except the parrot, and I haven't got a parrot. Have a look!"
+    ],
+    "enter": [
+      "You came back! With all your bits, too. I count them every time.",
+      "Oh good, it's you. I was arguing with the shelf and losing.",
+      "Shake the sand off. Or don't. This sand's been here longer than I have.",
+      "Don't touch the blue tin. Touch anything else. The blue tin knows what it did.",
+      "I dreamt you'd come in today. In the dream you were a moth. Close enough.",
+      "Welcome back! I moved everything a bit to the left. Can you feel the difference?",
+      "Busy day! You, and a lizard. The lizard didn't buy anything.",
+      "There you are. The lamp bet me you'd never come back. The lamp owes me a bulb."
+    ],
+    "idle": [
+      "Take your time. I've got loads. Found a whole box of it behind the generator.",
+      "Gerald's the till. He only talks when Scrap goes in. Bit like everybody.",
+      "Some nights I polish the chrome so the stars have something to look at.",
+      "Rule of the road: if it's ticking, hold it away from your face. Then ask questions.",
+      "I was out in May once. Worst storm of my life. Still finding sand in my pencil case.",
+      "Stuck on something? Turn it upside down. Works on jars. Works on most things. Not soup.",
+      "Most of what I know, I learned by breaking it first. Don't tell the customers.",
+      "Stand still long enough and the wind brings you stock. That's my whole supply chain."
+    ],
+    "buy": [
+      "Sold! And a free key. Doesn't open anything I know of. Maybe something you know of.",
+      "Good choice. Great choice. Gerald, ring it up! ...He's thrilled. You can't tell.",
+      "Yours now! Have this button too. It came off something important.",
+      "Have a bolt for luck. Keep it in a pocket. Talk to it if things get bad out there.",
+      "Here, half a formula booklet, free. Somebody kept it like treasure. Pass it on.",
+      "Ooh, you'll love that. I loved it. Then I loved it less. You'll love it longer.",
+      "No refunds, no returns. Regrets are allowed, but you have to bring your own.",
+      "I wrapped it in a page of my memoirs. Don't read it. Well, you can. It's very long."
+    ],
+    "broke": [
+      "Short on Scrap? Happens to the best of us. Happens to me hourly.",
+      "Not enough for that. Go have a run and bring me whatever falls off.",
+      "I'd give it to you, but Gerald's watching. He's very strict. He's a box.",
+      "Empty pockets are full pockets that haven't been out yet. I think. Go out.",
+      "Can't stretch to it today. Come back richer. Or come back the same and we'll chat.",
+      "No Scrap, no sale. Looking's free, though. Look as long as you like. Look harder."
+    ],
+    "capped": [
+      "That's as good as it gets. I tried making it better once. It caught fire.",
+      "You've got all of it. There isn't any more. I checked the back. And the back of the back.",
+      "Maxed out! Any more and you'd rattle.",
+      "You've got the lot. Leave some for the lizard."
+    ],
+    "leave": [
+      "Off you go! I don't say goodbye. Last time I said it, the roof left.",
+      "See you soon. Or soon-ish. Whichever comes first.",
+      "Mind the road. It's been in a mood since Tuesday.",
+      "Bring back stories. I pay well for a good one. Not in Scrap. In nodding.",
+      "Go on, then. The wasteland's lucky to have you. Don't tell it I said so."
+    ]
+  }
+}
