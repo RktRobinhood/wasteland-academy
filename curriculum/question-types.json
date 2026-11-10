@@ -5472,6 +5472,45 @@
     "the committee always has at least 1 woman and at least 1 man",
     "two particular people are different people, and the row has 5 to 8"
    ]
+  },
+  "derivative-graph": {
+   "name": "A function read from the graph of its derivative",
+   "summary": "Pick a derivative with whole-number roots: a cubic k(x − a)(x − b)² that crosses the axis at a and touches it at b, or a parabola k(x − a)(x − b), so every sign change, touch and turning point of f′ sits on the grid; or the same cubic as f itself, to read the sign of f′.",
+   "quantities": [
+    {
+     "name": "k",
+     "is": "the leading coefficient",
+     "pick": "±1 or ±2; ±2, ±3 or ±6 for two regions with whole areas"
+    },
+    {
+     "name": "a, b",
+     "is": "the roots",
+     "pick": "whole numbers 3 apart for the cubic, with its other turning point (2a + b)/3; an even gap for the parabola"
+    },
+    {
+     "name": "lo, hi",
+     "is": "the ends drawn",
+     "pick": "one past the roots, or the ends of the two regions"
+    },
+    {
+     "name": "A1, A2",
+     "is": "the areas",
+     "pick": "the areas of the two regions under f′, whole and different"
+    },
+    {
+     "name": "v",
+     "is": "a value of f",
+     "pick": "a whole number at the left end, or the shift of f for a turning point"
+    }
+   ],
+   "modes": [
+    "Paper 1: exact"
+   ],
+   "clean": [
+    "every root and turning point drawn is a whole number",
+    "the two areas are whole, at least 4, different, and neither more than eight times the other",
+    "a turning point of f off the axis has a y-coordinate other than 0 and its own x"
+   ]
   }
  },
  "types": [
@@ -55379,8 +55418,9 @@
    "id": "t5-derivative-graph",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Read f from the graph of f' (or f'')",
+   "summary": "Read the features of f from the graph of f′ or f″: a local maximum or minimum and its justification, points of inflexion, a touch that is not a turning point, where f rises or is concave up, which graph is f, and values of f from signed areas; and read the sign of f′ from the graph of f.",
    "syllabus": [
     "5.8",
     "5.2",
@@ -55389,6 +55429,534 @@
    "skills": [
     "SL5.7.f-from-derivative-graph",
     "SL5.2.sign-from-graph"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "find where f′ changes sign, and which way",
+    "tell a crossing of the axis from a touch",
+    "find the turning points of f′ (the zeros of f″)",
+    "add the signed areas under f′",
+    "walk along the graph of f to read the sign of f′"
+   ],
+   "given": [
+    "the graph of f′",
+    "the graph of f″",
+    "the graph of f",
+    "f′(x) or f″(x) as factors",
+    "the areas of regions under f′",
+    "f′ in words"
+   ],
+   "asked": "An x-coordinate of a turning point or a point of inflexion, its justification, an interval, the nature of a point, a value or comparison of f, which graph is f, or the sign or value of f′ at a point.",
+   "answerForms": [
+    "exact",
+    "an x-value",
+    "x-values",
+    "an interval",
+    "a statement",
+    "pick the graph"
+   ],
+   "randomise": [
+    "whole-number roots of f′, and which of them is a touch",
+    "the leading coefficient and its sign",
+    "a parabola or a cubic with a squared factor",
+    "whether a maximum, minimum, increasing, decreasing, concave up or down is asked",
+    "the two regions' widths and which side of the axis each is on",
+    "the point on the graph of f"
+   ],
+   "constraints": [
+    "every root and turning point of the curve drawn is a whole number, so it sits on a grid line",
+    "the two regions under f′ have whole, different areas",
+    "a point on the graph of f is one where f and f′ are easy to mix up: a crossing, a turning point off the axis, or where they have opposite signs",
+    "each wrong graph changes one thing"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "graph-pick"
+   ],
+   "situation": "derivative-graph",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "the graph of f′, f″ or f, on a grid, with the regions of an area shaded and lettered, or a point marked"
+    },
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "f′(x) or f″(x) as a product of factors, one of them squared"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the signs of f′ and the areas on each stretch, or a turning point of f, in words"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "extremum-from-derivative",
+     "given": [
+      "the graph of f′, or f′(x) as factors"
+     ],
+     "asked": "the x-coordinate of the local maximum or minimum of f",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph",
+      "equation"
+     ],
+     "skills": [
+      "SL5.7.f-from-derivative-graph"
+     ]
+    },
+    {
+     "id": "extremum-justified",
+     "given": [
+      "the graph of f′"
+     ],
+     "asked": "the x-coordinate of the local maximum or minimum of f, with the reason",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.7.f-from-derivative-graph"
+     ]
+    },
+    {
+     "id": "inflexion-from-derivative",
+     "given": [
+      "the graph of f′"
+     ],
+     "asked": "the x-coordinates of the points of inflexion of f",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.7.f-from-derivative-graph"
+     ]
+    },
+    {
+     "id": "touch-not-turning",
+     "given": [
+      "the graph of f′, or f′(x) as factors",
+      "a zero of f′ where it touches the axis"
+     ],
+     "asked": "what the point of f there is",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph",
+      "equation"
+     ],
+     "skills": [
+      "SL5.7.f-from-derivative-graph"
+     ]
+    },
+    {
+     "id": "increasing-past-touch",
+     "given": [
+      "the graph of f′, touching the axis"
+     ],
+     "asked": "where f is increasing or decreasing",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.7.f-from-derivative-graph"
+     ]
+    },
+    {
+     "id": "concave-up-from-cubic",
+     "given": [
+      "the graph of f′, a cubic touching the axis"
+     ],
+     "asked": "where the graph of f is concave up or down",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.7.f-from-derivative-graph"
+     ]
+    },
+    {
+     "id": "inflexion-from-second",
+     "given": [
+      "the graph of f″, or f″(x) as factors"
+     ],
+     "asked": "the x-coordinate of the point of inflexion of f",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph",
+      "equation"
+     ],
+     "skills": [
+      "SL5.7.f-from-derivative-graph"
+     ]
+    },
+    {
+     "id": "compare-from-areas",
+     "given": [
+      "the graph of f′ with two regions and their areas, or the same in words"
+     ],
+     "asked": "which of two values of f is greater",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL5.7.f-from-derivative-graph"
+     ]
+    },
+    {
+     "id": "value-from-areas",
+     "given": [
+      "the graph of f′ with two regions and their areas",
+      "f at the left end"
+     ],
+     "asked": "f at the end of a region",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.7.f-from-derivative-graph"
+     ]
+    },
+    {
+     "id": "pick-f-from-derivative",
+     "given": [
+      "the graph of f′"
+     ],
+     "asked": "which graph could be y = f(x)",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.7.f-from-derivative-graph"
+     ]
+    },
+    {
+     "id": "gradient-sign-statement",
+     "given": [
+      "the graph of f with a point A"
+     ],
+     "asked": "which statement about f′ at A is true",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.2.sign-from-graph"
+     ]
+    },
+    {
+     "id": "gradient-negative-where",
+     "given": [
+      "the graph of f with its turning points"
+     ],
+     "asked": "where f′(x) < 0 or f′(x) > 0",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.2.sign-from-graph"
+     ]
+    },
+    {
+     "id": "gradient-at-turning-point",
+     "given": [
+      "the graph of f with a turning point A, or the turning point in words"
+     ],
+     "asked": "f′ at the turning point",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL5.2.sign-from-graph"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.7.f-from-derivative-graph",
+     "method": "sign-change-of-f-prime",
+     "suits": [
+      "extremum-from-derivative",
+      "extremum-justified",
+      "touch-not-turning",
+      "pick-f-from-derivative"
+     ]
+    },
+    {
+     "skill": "SL5.7.f-from-derivative-graph",
+     "method": "turning-point-of-f-prime",
+     "suits": [
+      "inflexion-from-derivative",
+      "concave-up-from-cubic",
+      "pick-f-from-derivative"
+     ]
+    },
+    {
+     "skill": "SL5.7.f-from-derivative-graph",
+     "method": "sign-diagram",
+     "suits": [
+      "extremum-from-derivative",
+      "inflexion-from-derivative",
+      "touch-not-turning",
+      "increasing-past-touch",
+      "concave-up-from-cubic",
+      "inflexion-from-second"
+     ]
+    },
+    {
+     "skill": "SL5.7.f-from-derivative-graph",
+     "method": "area-under-f-prime",
+     "suits": [
+      "compare-from-areas",
+      "value-from-areas"
+     ]
+    },
+    {
+     "skill": "SL5.2.sign-from-graph",
+     "method": "walk-the-curve",
+     "suits": [
+      "gradient-sign-statement",
+      "gradient-negative-where",
+      "gradient-at-turning-point"
+     ]
+    },
+    {
+     "skill": "SL5.2.sign-from-graph",
+     "method": "tangent-sketch",
+     "suits": [
+      "gradient-sign-statement",
+      "gradient-at-turning-point"
+     ]
+    },
+    {
+     "skill": "SL5.2.sign-from-graph",
+     "method": "sign-row",
+     "suits": [
+      "gradient-negative-where"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "If f′(a) = 0, then f has a local maximum or minimum at x = a.",
+     "answer": "Sometimes: f′ has to change sign at a. f(x) = x³ has f′(0) = 0 but no turning point, since f′(x) = 3x² touches zero without crossing.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "The highest point on the graph of f′ gives the x-coordinate of the local maximum of f.",
+     "answer": "False: the highest point of f′ is where f is steepest, a point of inflexion of f. A local maximum of f is where f′ crosses from positive to negative.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "If, between x = a and x = b, the area under f′ above the x-axis is larger than the area below it, then f(b) > f(a).",
+     "answer": "True: f(b) − f(a) is the integral of f′ from a to b, the area above the axis minus the area below it, which is then positive.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.7.f-from-derivative-graph#0",
+     "text": "Taking a turning point of the f′ graph as a turning point of f",
+     "as": "distractor",
+     "in": [
+      "extremum-from-derivative",
+      "extremum-justified",
+      "touch-not-turning",
+      "pick-f-from-derivative"
+     ],
+     "wrong": "the x of a turning point of f′"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#1",
+     "text": "Claiming a maximum or minimum where f′ touches zero without changing sign",
+     "as": "distractor",
+     "in": [
+      "extremum-from-derivative",
+      "extremum-justified",
+      "touch-not-turning",
+      "pick-f-from-derivative"
+     ],
+     "wrong": "a turning point where f′ only touches the axis"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#2",
+     "text": "Justifying with 'f′ = 0' alone, without the sign change",
+     "as": "distractor",
+     "in": [
+      "extremum-justified",
+      "touch-not-turning"
+     ],
+     "wrong": "f′ = 0 as the whole reason"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#3",
+     "text": "Taking the zeros of f′ as the points of inflexion instead of its turning points",
+     "as": "distractor",
+     "in": [
+      "inflexion-from-derivative"
+     ],
+     "wrong": "the zeros of f′"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#4",
+     "text": "Leaving out the point where f′ touches the axis, though f′ turns there too",
+     "as": "distractor",
+     "in": [
+      "inflexion-from-derivative"
+     ],
+     "wrong": "the turning point of f′ off the axis alone"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#5",
+     "text": "Ending an interval where f′ touches the axis, though f′ does not change sign there",
+     "as": "distractor",
+     "in": [
+      "increasing-past-touch"
+     ],
+     "wrong": "the interval stopped at the touch"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#6",
+     "text": "Adding the areas without their signs, so area below the axis counts as a rise in f",
+     "as": "distractor",
+     "in": [
+      "compare-from-areas",
+      "value-from-areas"
+     ],
+     "wrong": "the areas added with no signs"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#7",
+     "text": "Comparing the heights of the f′ graph instead of the areas under it",
+     "as": "distractor",
+     "in": [
+      "compare-from-areas"
+     ],
+     "wrong": "the end where f′ is higher"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#8",
+     "text": "Claiming a point of inflexion where f″ touches zero without changing sign",
+     "as": "distractor",
+     "in": [
+      "inflexion-from-second"
+     ],
+     "wrong": "where f″ touches the axis"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#9",
+     "text": "Taking a turning point of the f″ graph as a point of inflexion of f",
+     "as": "distractor",
+     "in": [
+      "inflexion-from-second"
+     ],
+     "wrong": "the x of the turning point of f″ off the axis"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#10",
+     "text": "Taking the graph of f′ itself as the graph of f",
+     "as": "distractor",
+     "in": [
+      "pick-f-from-derivative"
+     ],
+     "wrong": "the graph of f′ again"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#11",
+     "text": "Reading the sign change of f′ the wrong way round, mixing up a maximum and a minimum",
+     "as": "distractor",
+     "in": [
+      "extremum-from-derivative",
+      "extremum-justified",
+      "pick-f-from-derivative"
+     ],
+     "wrong": "the other zero of f′, or f upside down"
+    },
+    {
+     "ref": "SL5.7.f-from-derivative-graph#12",
+     "text": "Giving the change in f as its value, leaving out the starting value",
+     "as": "distractor",
+     "in": [
+      "value-from-areas"
+     ],
+     "wrong": "the signed area alone"
+    },
+    {
+     "ref": "SL5.7.concavity#0",
+     "text": "Confusing concave up with increasing: looking at the sign of f′ instead of f″",
+     "as": "distractor",
+     "in": [
+      "concave-up-from-cubic"
+     ],
+     "wrong": "where f′ > 0 (or f′ < 0)"
+    },
+    {
+     "ref": "SL5.2.sign-from-graph#0",
+     "text": "Using the sign of f instead of the sign of f′: being above the axis is not the same as going up",
+     "as": "distractor",
+     "in": [
+      "gradient-sign-statement",
+      "gradient-negative-where"
+     ],
+     "wrong": "the sign of f"
+    },
+    {
+     "ref": "SL5.2.sign-from-graph#1",
+     "text": "Thinking f′ is zero at the x-intercepts rather than at the turning points",
+     "as": "distractor",
+     "in": [
+      "gradient-sign-statement",
+      "gradient-negative-where"
+     ],
+     "wrong": "f′ = 0 at an x-intercept, or the intercepts as the ends"
+    },
+    {
+     "ref": "SL5.2.sign-from-graph#2",
+     "text": "Thinking f′(x) = 0 means the function value is zero",
+     "as": "distractor",
+     "in": [
+      "gradient-sign-statement"
+     ],
+     "wrong": "f = 0 where f′ = 0"
+    },
+    {
+     "ref": "SL5.2.sign-from-graph#3",
+     "text": "Giving the height of the curve at the point instead of its gradient",
+     "as": "distractor",
+     "in": [
+      "gradient-at-turning-point"
+     ],
+     "wrong": "the y-coordinate of the point"
+    }
    ],
    "parts": [
     "aa-sl-2021-nov-tz0-p1-q09.b",

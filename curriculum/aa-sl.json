@@ -14067,7 +14067,8 @@
               "misconceptions": [
                 "Using the sign of f instead of the sign of f′: being above the axis is not the same as going up",
                 "Thinking f′ is zero at the x-intercepts rather than at the turning points",
-                "Thinking f′(x) = 0 means the function value is zero"
+                "Thinking f′(x) = 0 means the function value is zero",
+                "Giving the height of the curve at the point instead of its gradient"
               ],
               "threads": [
                 {
@@ -15808,9 +15809,19 @@
                 }
               ],
               "misconceptions": [
-                "Taking the maximum point of the f′ graph as the maximum of f",
-                "Claiming a maximum where f′ touches zero without changing sign",
-                "Justifying with 'f′ = 0' alone, without the sign change"
+                "Taking a turning point of the f′ graph as a turning point of f",
+                "Claiming a maximum or minimum where f′ touches zero without changing sign",
+                "Justifying with 'f′ = 0' alone, without the sign change",
+                "Taking the zeros of f′ as the points of inflexion instead of its turning points",
+                "Leaving out the point where f′ touches the axis, though f′ turns there too",
+                "Ending an interval where f′ touches the axis, though f′ does not change sign there",
+                "Adding the areas without their signs, so area below the axis counts as a rise in f",
+                "Comparing the heights of the f′ graph instead of the areas under it",
+                "Claiming a point of inflexion where f″ touches zero without changing sign",
+                "Taking a turning point of the f″ graph as a point of inflexion of f",
+                "Taking the graph of f′ itself as the graph of f",
+                "Reading the sign change of f′ the wrong way round, mixing up a maximum and a minimum",
+                "Giving the change in f as its value, leaving out the starting value"
               ],
               "threads": [
                 {

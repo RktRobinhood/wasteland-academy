@@ -3233,7 +3233,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 17 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -3315,6 +3315,31 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 - **Concept probes:**
   - *always-sometimes-never* (L3): The gradients of the tangent and the normal to a curve at the same point multiply to −1. — Sometimes: only when the tangent is not horizontal. At a stationary point the tangent is horizontal and the normal is the vertical line x = x₀, which has no gradient.
 - **Misconceptions used:** 6. Using f′(a) as the y-coordinate of the point; Using the normal's gradient with the tangent's point (mixing the two lines); Using −m or 1/m instead of −1/m for the normal's gradient; Reusing the tangent's y-intercept c in the normal's equation; Taking f(a) to be the tangent's y-intercept c; Thinking f′(a) is the y-coordinate of the point of contact.
+
+#### Read f from the graph of f' (or f'') (`t5-derivative-graph`, exam, 2 bank parts)
+
+- **Situation:** A function read from the graph of its derivative.
+- **Representations:** **graph**, equation, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the graph of f′, or f′(x) as factors → the x-coordinate of the local maximum or minimum of f
+  - **exam** L3: given the graph of f′ → the x-coordinate of the local maximum or minimum of f, with the reason
+  - **exam** L3: given the graph of f′ → the x-coordinates of the points of inflexion of f
+  - new L3: given the graph of f′, or f′(x) as factors; a zero of f′ where it touches the axis → what the point of f there is
+  - new L3: given the graph of f′, touching the axis → where f is increasing or decreasing
+  - **exam** L3: given the graph of f′, a cubic touching the axis → where the graph of f is concave up or down
+  - new L3: given the graph of f″, or f″(x) as factors → the x-coordinate of the point of inflexion of f
+  - new L3: given the graph of f′ with two regions and their areas, or the same in words → which of two values of f is greater
+  - new L4: given the graph of f′ with two regions and their areas; f at the left end → f at the end of a region
+  - new L3: given the graph of f′ → which graph could be y = f(x)
+  - **exam** L1: given the graph of f with a point A → which statement about f′ at A is true
+  - **exam** L2: given the graph of f with its turning points → where f′(x) < 0 or f′(x) > 0
+  - **exam** L1: given the graph of f with a turning point A, or the turning point in words → f′ at the turning point
+- **Angles:** Look for sign changes of f′; Turning points of f′ give inflexions; Sign diagram from the f′ graph; Signed area under f′; Walk along the curve left to right; Lay a tangent at the point; Build a sign diagram.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): If f′(a) = 0, then f has a local maximum or minimum at x = a. — Sometimes: f′ has to change sign at a. f(x) = x³ has f′(0) = 0 but no turning point, since f′(x) = 3x² touches zero without crossing.
+  - *true-false-reason* (L3): The highest point on the graph of f′ gives the x-coordinate of the local maximum of f. — False: the highest point of f′ is where f is steepest, a point of inflexion of f. A local maximum of f is where f′ crosses from positive to negative.
+  - *true-false-reason* (L4): If, between x = a and x = b, the area under f′ above the x-axis is larger than the area below it, then f(b) > f(a). — True: f(b) − f(a) is the integral of f′ from a to b, the area above the axis minus the area below it, which is then positive.
+- **Misconceptions used:** 18. Taking a turning point of the f′ graph as a turning point of f; Claiming a maximum or minimum where f′ touches zero without changing sign; Justifying with 'f′ = 0' alone, without the sign change; Taking the zeros of f′ as the points of inflexion instead of its turning points; Leaving out the point where f′ touches the axis, though f′ turns there too; Ending an interval where f′ touches the axis, though f′ does not change sign there; Adding the areas without their signs, so area below the axis counts as a rise in f; Comparing the heights of the f′ graph instead of the areas under it; Claiming a point of inflexion where f″ touches zero without changing sign; Taking a turning point of the f″ graph as a point of inflexion of f; Taking the graph of f′ itself as the graph of f; Reading the sign change of f′ the wrong way round, mixing up a maximum and a minimum; Giving the change in f as its value, leaving out the starting value; Confusing concave up with increasing: looking at the sign of f′ instead of f″; Using the sign of f instead of the sign of f′: being above the axis is not the same as going up; Thinking f′ is zero at the x-intercepts rather than at the turning points; Thinking f′(x) = 0 means the function value is zero; Giving the height of the curve at the point instead of its gradient.
 
 #### Stationary points and inflexion: find, classify, justify (`t5-stationary-points`, exam, 14 bank parts)
 
