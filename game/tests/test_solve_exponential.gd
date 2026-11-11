@@ -2,8 +2,8 @@ extends "res://tests/test_case.gd"
 ## The solve-exponential situation (FAL-754): t1-solve-exponential is built with every cell and
 ## all four methods of SL1.7.solve-with-logs. Exact cells make either paper and show no calculator;
 ## 3 s.f. cells are Paper 2. Values match sums done by hand, an answer is clear of a rounding edge,
-## early rounding moves the third figure only, a figure shows its crossing, and every tag shows up
-## as an option. The SymPy checker (tools/check-answers) checks the maths.
+## early rounding moves the third figure only, an exact answer stays in range, a figure shows its
+## crossing, and every tag shows up as an option. The SymPy checker (tools/check-answers) checks the maths.
 
 const TYPE := "t1-solve-exponential"
 const CELLS := 26
@@ -93,6 +93,17 @@ func test_an_answer_is_clear_of_an_edge_and_early_rounding_moves_the_third_figur
 		check(SolveExponentialSituation.third_off(t.early, t.t), "meet early %d" % i)
 		var u := _draw("isolate-3sf", i)
 		check(SolveExponentialSituation.clean(u.x), "isolate %d" % i)
+
+
+## Close bases with a big shift (6^x = 7^(x − 3)) would put the root near 38: an exact
+## two-bases answer keeps to the same range as the 3 s.f. ones.
+func test_an_exact_two_bases_answer_stays_in_range() -> void:
+	for i in 200:
+		var s := _draw("shift-base-exact", i)
+		check(s.x > 0.0 and s.x <= SolveExponentialSituation.MAX_X, "shift %d: x = %s" % [i, s.x])
+		var t := _draw("one-minus-exact", i)
+		check(absf(t.x) <= SolveExponentialSituation.MAX_X, "one minus %d: x = %s" % [i, t.x])
+	check(SolveExponentialSituation.two_bases({"shape": "shift", "a": 7, "b": 6, "p": -3, "c": 1}) > SolveExponentialSituation.MAX_X, "the bad case is out of range")
 
 
 func test_a_figure_shows_its_crossing() -> void:

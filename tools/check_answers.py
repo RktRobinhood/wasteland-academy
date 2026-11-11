@@ -36821,6 +36821,7 @@ def E12SE_check(q):
             need(shape == "shift" and asked == "Solve the equation, giving x in the form ln p/ln q, where p and q are rational.", asked)
             n = abs(p)
             need(1 <= n <= 3 and a ** n <= 1000 and ((p > 0) == (a < b)), f"the shift {p} with bases {a}, {b}")
+            need(0 < x <= 12, f"x = {float(x)} is out of the sensible range")
             P, Qr = sp.Integer(a) ** n, sp.Rational(b, a) if p > 0 else sp.Rational(a, b)
             top = f"ln {a}" if n == 1 else f"{n} ln {a}"
             gap = b - a if p > 0 else a - b

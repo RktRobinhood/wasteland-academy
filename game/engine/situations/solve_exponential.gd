@@ -32,6 +32,8 @@ const STORIES := 4
 const PLACES := 6
 ## An answer is at least this far (a fraction of its last place) from a rounding edge.
 const EDGE := 0.05
+## The largest |x| a two-bases answer may have, exact or 3 s.f.
+const MAX_X := 12.0
 ## The skill map's own examples, left out: 3^(x + 1) = 5^x, 2^x = 3^(1 − x), 5e^(2x) = 20 and
 ## P = 200e^(0.3t) reaching 1000.
 const MAP_SHIFT := [3, 5, 1]
@@ -141,7 +143,7 @@ static func _two_bases_3sf(rng: Seeded, s: Dictionary) -> bool:
 	if s.a == s.b or [s.a, s.b, s.p] == MAP_SHIFT and s.shape == "shift" or [s.a, s.b, s.c] == MAP_MIRROR and s.shape == "mirror":
 		return false
 	s.x = two_bases(s)
-	if absf(s.x) < 0.2 or absf(s.x) > 12.0 or not clean(s.x) or not third_off(two_bases_early(s), s.x):
+	if absf(s.x) < 0.2 or absf(s.x) > MAX_X or not clean(s.x) or not third_off(two_bases_early(s), s.x):
 		return false
 	if s.rep == "graph":
 		var y := pow(float(s.b), s.x)
@@ -150,7 +152,8 @@ static func _two_bases_3sf(rng: Seeded, s: Dictionary) -> bool:
 
 
 ## a^(x + p) = b^x with a < b, or a^(x − p) = b^x with a > b: either way x = ln(a^p)/ln(ratio),
-## with the ratio above 1, so x is positive. a^p is at most 1000.
+## with the ratio above 1, so x is positive. a^p is at most 1000, and x at most MAX_X: close
+## bases with a big shift (6^x = 7^(x − 3)) put the root near 38, no sensible exam answer.
 static func _shift_base_exact(rng: Seeded, s: Dictionary) -> bool:
 	_draw_bases(rng, s)
 	s.shape = "shift"
@@ -162,7 +165,7 @@ static func _shift_base_exact(rng: Seeded, s: Dictionary) -> bool:
 	if [s.a, s.b, s.p] == MAP_SHIFT:
 		return false
 	s.x = two_bases(s)
-	return s.x > 0.0
+	return s.x > 0.0 and s.x <= MAX_X
 
 
 ## a^x = b^(c − x): x = ln(b^c)/ln(ab), with b^c at most 1000.

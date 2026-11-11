@@ -374,7 +374,8 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   (`solve_exponential_views.gd`) show the equation, the story, or the two curves (a curve and a line)
   crossing at P with each curve named. The bank's one part is Paper 2, so every cell is Paper 2; an exact
   cell can also make Paper 1 when one is asked for, with no calculator method. The 3 s.f. options include
-  the logs rounded to 2 d.p. too early, which moves the answer in its third figure only.
+  the logs rounded to 2 d.p. too early, which moves the answer in its third figure only. Every two-bases
+  answer, exact or 3 s.f., has |x| at most 12 (`MAX_X`), so close bases with a big shift are refused.
 - `engine/situations/trig_wave.gd` (FAL-751) is `t3-trig-read-features` (SL3.7.read-features) and
   `t3-trig-model-use` (SL3.7.model-context), the `trig-wave` situation, which extends `trig-model`: it
   keeps that situation's Paper 2 wave, contexts and graph, and `TrigWaveViews` extends its views.
@@ -1483,8 +1484,9 @@ method's numbers in its working (`E11LF_check`).
 For `solve-exponential` it reads the equation back from the line, the graph's sentence or the story, turns
 it into SymPy and finds its root by a scan for sign changes refined by bisection to 40 digits. The exact
 answer is derived again from the equation's shape and must equal that root, and every option is evaluated
-and must differ from it; each tagged option is rebuilt from its slip, each figure's curves and crossing
-are held to the equation, and the map's own example equations are refused (`E12SE_check`).
+and must differ from it (an exact shift answer must be at most 12); each tagged option is rebuilt from its
+slip, each figure's curves and crossing are held to the equation, and the map's own example equations are
+refused (`E12SE_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
@@ -2006,7 +2008,8 @@ script error happens while it runs. Run one file with
   figures, map strings with no numbers, and every tag as an option.
 - `test_solve_exponential.gd` (FAL-754): t1-solve-exponential built with every cell and all four methods;
   exact cells make Paper 1 on request with no calculator in the working, 3 s.f. cells Paper 2; hand values,
-  clean answers, early rounding in the third figure only, the crossing on each figure, and every tag.
+  clean answers, early rounding in the third figure only, exact two-bases answers within |x| ≤ 12, the
+  crossing on each figure, and every tag.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters
