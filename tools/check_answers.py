@@ -13871,6 +13871,10 @@ LC_PLUS, LC_OTHER_M = "SL2.1.equation-of-line#0", "SL2.1.equation-of-line#2"
 LC_YINT_POINT, LC_SWAP_INT, LC_YINT_D = ("SL2.1.intercepts#%d" % i for i in range(3))
 LC_PERP, LC_PRODUCT_1, LC_BISECT = ("SL2.1.parallel-perpendicular#%d" % i for i in range(3))
 LC_MID = "SL3.1.midpoint-3d#0"
+# The type's own slips (FAL-815), by their index in its misconceptions.
+(LC_DROP_MINUS, LC_NO_START, LC_SWAP_PT, LC_C_Y, LC_C_SIGN, LC_C_XINT, LC_SAME_LINE, LC_TERM_SIGN, LC_XINT_SIGN, LC_HALF, LC_ADD_LEGS,
+ LC_NO_C, LC_C_ADD, LC_NO_DIV, LC_MUL, LC_BA, LC_MIX, LC_FLIP_HALF) = ("fn-line-from-conditions#%d" % i for i in range(13, 31))
+LCK_SIGNED, LCK_INTERCEPT, LCK_FALL_SIGN, LCK_CROSS, LCK_MIX_PP, LCK_SAME, LCK_NEG, LCK_HV, LCK_TEST = ("fn-concept-gradient-meaning#%d" % i for i in range(3, 12))
 LC_NUM = r"−?\d+(?:\.\d+)?(?:/\d+)?"
 LC_PT = re.compile(rf"\(({LC_NUM}), ({LC_NUM})\)")
 
@@ -14068,7 +14072,7 @@ def lc_gradient_question(q, u):
         m, c = lc_line(L)
         need(m.q <= LC_DEN, "the gradient has a big denominator")
         want = f"m = {frac_text(m)}"
-        return want, lc_two_sets(*[(LC_COEF, f"m = {frac_text(v)}") for v in (a, -a, b)])
+        return want, lc_two_sets(*[(LC_COEF, f"m = {frac_text(v)}") for v in (a, -a, b)], (LC_DROP_MINUS, f"m = {frac_text(a / b)}"))
     if u == "gradient-from-graph":
         pts = lc_coords(q["graph"])
         need(len(pts) == 2, "two marked points")
@@ -14103,11 +14107,11 @@ def lc_missing(q):
     if by is None:
         dx = bx - A[0]
         v = A[1] + m * dx
-        wr = {LC_RUN_RISE: {f"t = {frac_text(A[1] + dx / m)}"}, LC_ORDER: {f"t = {frac_text(A[1] - m * dx)}"}}
+        wr = {LC_RUN_RISE: {f"t = {frac_text(A[1] + dx / m)}"}, LC_ORDER: {f"t = {frac_text(A[1] - m * dx)}"}, LC_NO_START: {f"t = {frac_text(m * dx)}"}}
     else:
         dy = by - A[1]
         v = A[0] + dy / m
-        wr = {LC_RUN_RISE: {f"t = {frac_text(A[0] + dy * m)}"}, LC_ORDER: {f"t = {frac_text(A[0] - dy / m)}"}}
+        wr = {LC_RUN_RISE: {f"t = {frac_text(A[0] + dy * m)}"}, LC_ORDER: {f"t = {frac_text(A[0] - dy / m)}"}, LC_NO_START: {f"t = {frac_text(dy / m)}"}}
     need(v.q == 1, "t is not a whole number")
     return f"t = {frac_text(v)}", wr
 
@@ -14121,14 +14125,15 @@ def lc_equation(q, u):
         need(f is not None, f"can't read {L[0]!r}")
         x, y, n = (lc_q(v) for v in f.groups())
         need(n.q <= LC_DEN and n != 0, "a clean non-zero gradient")
-        return lc_through(w, n, x, y), lc_two_sets((LC_PLUS, lc_through(w, n, -x, y)))
+        return lc_through(w, n, x, y), lc_two_sets((LC_PLUS, lc_through(w, n, -x, y)), (LC_SWAP_PT, lc_through(w, n, y, x)), (LC_C_Y, w(n, y)))
     if u == "equation-two-points":
         A, B = lc_ab(q)
         lc_clean(q, A, B)
         m = (B[1] - A[1]) / (B[0] - A[0])
         if rep == "graph":
             lc_graph_line(q, m, A[1] - m * A[0])
-        return lc_through(w, m, *A), lc_two_sets((LC_ORDER, lc_through(w, -m, *A)), (LC_RUN_RISE, lc_through(w, 1 / m, *A)))
+        return lc_through(w, m, *A), lc_two_sets((LC_ORDER, lc_through(w, -m, *A)), (LC_RUN_RISE, lc_through(w, 1 / m, *A)),
+                                                 (LC_C_SIGN, w(m, m * A[0] - A[1])), (LC_SWAP_PT, lc_through(w, m, A[1], A[0])))
     if u == "midpoint-then-line":
         A, B = lc_ab(q)
         lc_clean(q, A, B)
@@ -14140,6 +14145,8 @@ def lc_equation(q, u):
         need(n.q <= LC_DEN, "the line through M has a big denominator")
         H = ((B[0] - A[0]) / 2, (B[1] - A[1]) / 2)
         wr = lc_two_sets((LC_MID, lc_through(w, (H[1] - T[1]) / (H[0] - T[0]), *H))) if H[0] != T[0] else {}
+        wr.setdefault(LC_C_SIGN, set()).add(w(n, n * M[0] - M[1]))
+        wr.setdefault(LC_ORDER, set()).add(lc_through(w, -n, *M))
         return lc_through(w, n, *M), wr
     if u == "equation-from-intercepts":
         if rep == "graph":
@@ -14155,7 +14162,7 @@ def lc_equation(q, u):
         m = -r / p
         if q["paper"] == 2:
             need(m.q > LC_DEN and not re.fullmatch(r"−?\d+\.\d*", dec_text(m)), f"Paper 2 gradient {m} needs no calculator")
-        return w(m, r), lc_two_sets((LC_ORDER, w(-m, r)), (LC_SWAP_INT, w(-p / r, p)))
+        return w(m, r), lc_two_sets((LC_ORDER, w(-m, r)), (LC_SWAP_INT, w(-p / r, p)), (LC_C_XINT, w(m, p)))
     if u == "perpendicular-bisector":
         A, B = lc_ab(q)
         lc_clean(q, A, B)
@@ -14167,7 +14174,8 @@ def lc_equation(q, u):
         need(M[0].q == 1 and M[1].q == 1, "M is not whole")
         n = -1 / m
         need(n.q <= LC_DEN, "the new gradient has a big denominator")
-        return lc_through(w, n, *M), lc_two_sets((LC_BISECT, lc_through(w, m, *M)), (LC_BISECT, lc_through(w, n, *A)))
+        return lc_through(w, n, *M), lc_two_sets((LC_BISECT, lc_through(w, m, *M)), (LC_BISECT, lc_through(w, n, *A)), (LC_FLIP_HALF, lc_through(w, -m, *M)),
+                                                 (LC_FLIP_HALF, lc_through(w, 1 / m, *M)), (LC_C_SIGN, w(n, n * M[0] - M[1])))
     # parallel-through-point, perpendicular-through-point
     m, c = lc_first_line(q)
     if rep == "graph":
@@ -14180,8 +14188,10 @@ def lc_equation(q, u):
     need(all(v.q == 1 and abs(v) <= LC_LIM for v in P), f"P = {P} is not a small whole point")
     if u == "parallel-through-point":
         need(P[1] - n * P[0] != c, "the parallel line is the first line")
-        return lc_through(w, n, *P), lc_two_sets((LC_OTHER_M, lc_through(w, -1 / m, *P)), (LC_PLUS, lc_through(w, n, -P[0], P[1])))
-    return lc_through(w, n, *P), lc_two_sets((LC_OTHER_M, lc_through(w, m, *P)), (LC_PERP, lc_through(w, -m, *P)), (LC_PERP, lc_through(w, 1 / m, *P)))
+        return lc_through(w, n, *P), lc_two_sets((LC_OTHER_M, lc_through(w, -1 / m, *P)), (LC_PLUS, lc_through(w, n, -P[0], P[1])),
+                                                 (LC_SAME_LINE, w(m, c)), (LC_SWAP_PT, lc_through(w, n, P[1], P[0])))
+    return lc_through(w, n, *P), lc_two_sets((LC_OTHER_M, lc_through(w, m, *P)), (LC_PERP, lc_through(w, -m, *P)), (LC_PERP, lc_through(w, 1 / m, *P)),
+                                             (LC_PLUS, lc_through(w, n, -P[0], P[1])), (LC_SWAP_PT, lc_through(w, n, P[1], P[0])), (LC_C_SIGN, w(n, n * P[0] - P[1])))
 
 
 def lc_new_line(q):
@@ -14210,6 +14220,13 @@ def lc_check_kind(q):
                              "Neither, because the gradients are not equal and do not multiply to −1", "Perpendicular, because the gradients multiply to 1")
     want = para if m1 == m2 else (perp if m1 * m2 == -1 else none)
     wr = {LC_PRODUCT_1: {one}} if m1 * m2 == 1 and m1 != m2 else {}
+    # L₁'s gradient taken as b/a, with L₂'s read off y = mx + c.
+    if L2.startswith("L₂: y = "):
+        ba = b / a
+        if ba == m2:
+            wr[LC_BA] = {para}
+        elif ba * m2 == -1:
+            wr[LC_BA] = {perp}
     return want, wr
 
 
@@ -14228,8 +14245,8 @@ def lc_k(q):
     if q["view"]["angle"] == "product-minus-one":
         need(f.group(1) == "perpendicular", "m₁ × m₂ = −1 is asked of a parallel pair")
     if f.group(1) == "parallel":
-        return f"k = {frac_text(-m * b)}", {}
-    return f"k = {frac_text(b / m)}", {LC_PRODUCT_1: {f"k = {frac_text(-b / m)}"}}
+        return f"k = {frac_text(-m * b)}", {LC_MIX: {f"k = {frac_text(b / m)}"}, LC_DROP_MINUS: {f"k = {frac_text(m * b)}"}}
+    return f"k = {frac_text(b / m)}", {LC_PRODUCT_1: {f"k = {frac_text(-b / m)}"}, LC_MIX: {f"k = {frac_text(-m * b)}"}}
 
 
 def lc_concept(q, u):
@@ -14252,7 +14269,11 @@ def lc_concept(q, u):
             xs, ys = [lc_q(f.group(2)), lc_q(f.group(5))], [lc_q(f.group(4)), lc_q(f.group(6))]
         m = (ys[-1] - ys[0]) / (xs[-1] - xs[0])
         want = f"{dec_text(m)} {per}: the change in {y} for each {each}"
-        return want, {LM_TOTAL: {f"{dec_text(ys[-1] - ys[0])} {unit}: the total change in {y} from the first point to the last"}}
+        wr = {LM_TOTAL: {f"{dec_text(ys[-1] - ys[0])} {unit}: the total change in {y} from the first point to the last"},
+              LCK_INTERCEPT: {f"{dec_text(ys[0] - m * xs[0])} {unit}: the value of {y} when {x} = 0"}}
+        if m < 0:
+            wr[LCK_FALL_SIGN] = {f"{dec_text(-m)} {per}: the change in {y} for each {each}"}
+        return want, wr
     if u == "steepness-compare":
         names = ["L₁", "L₂", "L₃"]
         if rep == "graph":
@@ -14272,16 +14293,22 @@ def lc_concept(q, u):
         top = sizes.index(max(sizes))
         low = sizes.index(min(sizes))
         say = lambda k: f"{names[k]}, and it {'rises' if ms[k] > 0 else 'falls'} from left to right"
-        return say(top), {LC_RUN_RISE: {say(low)}}
+        wr = {LC_RUN_RISE: {say(low)}}
+        high = ms.index(max(ms))
+        if high != top:
+            wr[LCK_SIGNED] = {say(high)}
+        return say(top), wr
     if u == "parallel-why":
         text = L if rep != "graph" else re.fullmatch(r"L₁ and L₂ are drawn on the grid: (L₁: .*) and (L₂: .*)\.", L[0]).groups()
         (m1, c1), (m2, c2) = lc_line(text[0]), lc_line(text[1])
         need(m1 == m2, "the gradients differ")
         if rep == "graph":
             need(len(q["graph"]["curves"]) == 2, "two lines are drawn")
+        wr = {LCK_CROSS: {"They meet far off the grid, because every pair of lines crosses somewhere"}, LCK_MIX_PP: {"Their gradients multiply to −1, so they never meet"}}
         if c1 == c2:
-            return "They are the same line, so they share every point", {}
-        return f"Both change by {frac_text(m1)} for each step of 1, so the gap of {frac_text(abs(c1 - c2))} between them never changes", {}
+            return "They are the same line, so they share every point", wr
+        wr[LCK_SAME] = {"They are the same line, so they share every point"}
+        return f"Both change by {frac_text(m1)} for each step of 1, so the gap of {frac_text(abs(c1 - c2))} between them never changes", wr
     if u == "perpendicular-why":
         if rep == "graph":
             f = re.fullmatch(rf"L₁ goes through O\(0, 0\) and P\(({LC_NUM}), ({LC_NUM})\); L₂ goes through O and Q\(({LC_NUM}), ({LC_NUM})\)\.", L[0])
@@ -14293,8 +14320,11 @@ def lc_concept(q, u):
         m1, m2 = r / p, p / -r
         need(m1 * m2 == -1, "not perpendicular")
         return (f"A quarter-turn sends the step ({frac_text(p)}, {frac_text(r)}) to ({frac_text(-r)}, {frac_text(p)}), so the gradients are {frac_text(m1)} and {frac_text(m2)}, and their product is −1",
-                {LC_PRODUCT_1: {f"The gradients are {frac_text(m1)} and {frac_text(1 / m1)}, a number and its reciprocal, so their product is 1"}})
-    return "The vertical line has no gradient, so there is no product to work out", {}
+                {LC_PRODUCT_1: {f"The gradients are {frac_text(m1)} and {frac_text(1 / m1)}, a number and its reciprocal, so their product is 1"},
+                 LCK_NEG: {f"The gradients are {frac_text(m1)} and {frac_text(-m1)}, opposite numbers, so they add up to 0"}})
+    return "The vertical line has no gradient, so there is no product to work out", {
+        LCK_HV: {"The gradients are 0 and 0, so their product is 0, not −1", "A horizontal line has no gradient, so there is no product to work out"},
+        LCK_TEST: {"They are not perpendicular, because the product is not −1"}}
 
 
 LC_CONCEPT = {"gradient-as-rate", "steepness-compare", "parallel-why", "perpendicular-why", "vertical-exception"}
@@ -14322,7 +14352,7 @@ def check_line_conditions(q):
         m, _ = lc_first_line(q)
         n = -1 / m
         need(n.q <= LC_DEN, "the new gradient has a big denominator")
-        want, wr = f"m = {frac_text(n)}", lc_two_sets((LC_PERP, f"m = {frac_text(-m)}"), (LC_PERP, f"m = {frac_text(1 / m)}"))
+        want, wr = f"m = {frac_text(n)}", lc_two_sets((LC_PERP, f"m = {frac_text(-m)}"), (LC_PERP, f"m = {frac_text(1 / m)}"), (LC_OTHER_M, f"m = {frac_text(m)}"))
     elif u in ("equation-point-gradient", "equation-two-points", "midpoint-then-line", "equation-from-intercepts", "parallel-through-point",
                "perpendicular-through-point", "perpendicular-bisector"):
         want, wr = lc_equation(q, u)
@@ -14332,12 +14362,20 @@ def check_line_conditions(q):
         n, c = lc_new_line(q)
         f = re.fullmatch(rf"The point Q\((t|{LC_NUM}), (t|{LC_NUM})\) lies on the line\. Find t\.", q["asked"])
         need(f is not None, f"asked {q['asked']!r}")
-        v = n * lc_q(f.group(1)) + c if f.group(2) == "t" else (lc_q(f.group(2)) - c) / n
-        want, wr = f"t = {frac_text(v)}", {}
+        if f.group(2) == "t":
+            x = lc_q(f.group(1))
+            v = n * x + c
+            wr = {LC_NO_C: {f"t = {frac_text(n * x)}"}}
+        else:
+            y = lc_q(f.group(2))
+            v = (y - c) / n
+            wr = {LC_C_ADD: {f"t = {frac_text((y + c) / n)}"}, LC_NO_DIV: {f"t = {frac_text(y - c)}"}, LC_MUL: {f"t = {frac_text((y - c) * n)}"}}
+        want = f"t = {frac_text(v)}"
     elif u == "general-form":
         n, c = lc_new_line(q)
         need(n.q > 1, "a whole gradient has no fractions to clear")
-        want, wr = lc_gen(n, c), {}
+        a, b, d = lc_abd(n, c)
+        want, wr = lc_gen(n, c), {LC_TERM_SIGN: {lc_gtext(a, b, -d), lc_gtext(a, -b, d), lc_gtext(a, -b, -d)}}
     elif u == "intercepts-from-equation":
         n, c = lc_new_line(q)
         if rep == "graph":
@@ -14345,7 +14383,7 @@ def check_line_conditions(q):
         z = sp.Integer(0)
         x = -c / n
         form = q["lines"][0].rstrip(".")
-        wr = lc_two_sets((LC_YINT_POINT, lc_pair_text((x, z), (c, z))), (LC_SWAP_INT, lc_pair_text((c, z), (z, x))))
+        wr = lc_two_sets((LC_YINT_POINT, lc_pair_text((x, z), (c, z))), (LC_SWAP_INT, lc_pair_text((c, z), (z, x))), (LC_XINT_SIGN, lc_pair_text((-x, z), (z, c))))
         if form.endswith(" = 0"):
             wr[LC_YINT_D] = {lc_pair_text((x, z), (z, sp.Integer(lc_abd(n, c)[2])))}
         need(q["view"]["angle"] != "read-c" or " = 0" not in form, "read c needs y = mx + c")
@@ -14356,7 +14394,8 @@ def check_line_conditions(q):
             lc_graph_line(q, n, c)
         x = -c / n
         need(c != 0, "no triangle: the line goes through the origin")
-        want, wr = f"Area = {frac_text(abs(x * c) / 2)}", lc_two_sets((LC_SWAP_INT, f"Area = {frac_text(x * x / 2)}"))
+        want, wr = f"Area = {frac_text(abs(x * c) / 2)}", lc_two_sets((LC_SWAP_INT, f"Area = {frac_text(x * x / 2)}"), (LC_HALF, f"Area = {frac_text(abs(x * c))}"),
+                                                                 (LC_ADD_LEGS, f"Area = {frac_text((abs(x) + abs(c)) / 2)}"))
     elif u == "check-perpendicular":
         want, wr = lc_check_kind(q)
     elif u == "k-for-perpendicular":

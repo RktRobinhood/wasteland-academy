@@ -6807,7 +6807,8 @@
 					"as": "distractor",
 					"in": [
 						"gradient-from-two-points",
-						"equation-two-points"
+						"equation-two-points",
+						"midpoint-then-line"
 					],
 					"wrong": "the gradient with the wrong sign, from subtracting in different orders"
 				},
@@ -6825,7 +6826,8 @@
 					"text": "Writes y − y₁ = m(x + x₁), which puts the line through (−x₁, y₁)",
 					"as": "distractor",
 					"in": [
-						"equation-point-gradient"
+						"equation-point-gradient",
+						"perpendicular-through-point"
 					],
 					"wrong": "y − y₁ = m(x + x₁), a line through (−x₁, y₁)"
 				},
@@ -6844,7 +6846,8 @@
 					"as": "distractor",
 					"in": [
 						"perpendicular-through-point",
-						"parallel-through-point"
+						"parallel-through-point",
+						"perpendicular-gradient"
 					],
 					"wrong": "the right point but the other gradient: the original m for a perpendicular, or −1/m for a parallel"
 				},
@@ -6912,6 +6915,156 @@
 						"midpoint-then-line"
 					],
 					"wrong": "half the differences of the coordinates, not half the sums"
+				},
+				{
+					"text": "Drops the minus sign from −a/b, the gradient of ax + by + d = 0",
+					"as": "distractor",
+					"in": [
+						"k-for-perpendicular"
+					],
+					"wrong": "a/b, the gradient without its minus sign"
+				},
+				{
+					"text": "Finds the change from A to B but forgets to add it to A's coordinate",
+					"as": "distractor",
+					"in": [
+						"missing-coordinate-from-gradient"
+					],
+					"wrong": "the rise or the run alone, not added to A's coordinate"
+				},
+				{
+					"text": "Swaps the x- and y-coordinates of the point when putting it into the equation",
+					"as": "distractor",
+					"in": [
+						"equation-point-gradient",
+						"equation-two-points",
+						"parallel-through-point",
+						"perpendicular-through-point"
+					],
+					"wrong": "the right gradient through the point with its coordinates swapped"
+				},
+				{
+					"text": "Uses the y-coordinate of the point as c, as if the point were on the y-axis",
+					"as": "distractor",
+					"in": [
+						"equation-point-gradient"
+					],
+					"wrong": "y = mx + y₁"
+				},
+				{
+					"text": "Solves for c with the sign wrong, taking c = mx₁ − y₁ instead of y₁ − mx₁",
+					"as": "distractor",
+					"in": [
+						"equation-two-points",
+						"midpoint-then-line",
+						"perpendicular-through-point",
+						"perpendicular-bisector"
+					],
+					"wrong": "the right gradient with c of the wrong sign"
+				},
+				{
+					"text": "Uses the x-intercept as c in y = mx + c, instead of the y-intercept",
+					"as": "distractor",
+					"in": [
+						"equation-from-intercepts"
+					],
+					"wrong": "the right gradient with the x-intercept as c"
+				},
+				{
+					"text": "Gives the first line again, forgetting that the parallel line must pass through P",
+					"as": "distractor",
+					"in": [
+						"parallel-through-point"
+					],
+					"wrong": "the line AB (or L₁) itself, not moved through P"
+				},
+				{
+					"text": "Forgets to change the sign of a term when moving it to the other side",
+					"as": "distractor",
+					"in": [
+						"general-form"
+					],
+					"wrong": "one of the three terms with the wrong sign"
+				},
+				{
+					"text": "Drops the minus sign when solving for where the line crosses the x-axis",
+					"as": "distractor",
+					"in": [
+						"intercepts-from-equation"
+					],
+					"wrong": "the x-intercept with the wrong sign"
+				},
+				{
+					"text": "Forgets the ½ in ½ × base × height",
+					"as": "distractor",
+					"in": [
+						"triangle-area"
+					],
+					"wrong": "base × height, twice the area"
+				},
+				{
+					"text": "Adds the two intercepts instead of multiplying them",
+					"as": "distractor",
+					"in": [
+						"triangle-area"
+					],
+					"wrong": "half the sum of the intercepts' sizes"
+				},
+				{
+					"text": "Leaves out c, working as if the line went through the origin",
+					"as": "distractor",
+					"in": [
+						"unknown-coordinate"
+					],
+					"wrong": "mx alone, with no c"
+				},
+				{
+					"text": "Adds c instead of subtracting it when moving it to the other side",
+					"as": "distractor",
+					"in": [
+						"unknown-coordinate"
+					],
+					"wrong": "(y + c)/m instead of (y − c)/m"
+				},
+				{
+					"text": "Forgets to divide by the gradient after taking c away",
+					"as": "distractor",
+					"in": [
+						"unknown-coordinate"
+					],
+					"wrong": "y − c, not divided by m"
+				},
+				{
+					"text": "Multiplies by the gradient instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"unknown-coordinate"
+					],
+					"wrong": "(y − c) × m instead of (y − c)/m"
+				},
+				{
+					"text": "Takes the gradient of ax + by + d = 0 as b/a instead of −a/b",
+					"as": "distractor",
+					"in": [
+						"check-perpendicular"
+					],
+					"wrong": "L₁'s gradient as b/a, so a parallel pair looks perpendicular and a perpendicular pair parallel"
+				},
+				{
+					"text": "Mixes up the two conditions, using the parallel one for perpendicular lines or the perpendicular one for parallel lines",
+					"as": "distractor",
+					"in": [
+						"k-for-perpendicular"
+					],
+					"wrong": "k from the other condition"
+				},
+				{
+					"text": "Takes the perpendicular gradient as only the negative, or only the reciprocal, of the first, instead of flipping it and changing its sign",
+					"as": "distractor",
+					"in": [
+						"perpendicular-bisector"
+					],
+					"wrong": "the negative or the reciprocal of AB's gradient, through the midpoint"
 				}
 			],
 			"chain": [
@@ -69166,6 +69319,78 @@
 						"gradient-as-rate"
 					],
 					"wrong": "calls the gradient the total change, not the change per unit"
+				},
+				{
+					"text": "Comparing the gradients as signed numbers, so the biggest positive one looks the steepest even when a falling line is steeper",
+					"as": "distractor",
+					"in": [
+						"steepness-compare"
+					],
+					"wrong": "the line with the largest gradient, sign and all"
+				},
+				{
+					"text": "Takes the starting value, where the line meets the vertical axis, as the gradient",
+					"as": "distractor",
+					"in": [
+						"gradient-as-rate"
+					],
+					"wrong": "the value at the start, not the change for each step"
+				},
+				{
+					"text": "Drops the minus sign of a falling line's gradient",
+					"as": "distractor",
+					"in": [
+						"gradient-as-rate"
+					],
+					"wrong": "the size of the gradient without its minus sign"
+				},
+				{
+					"text": "Thinks every pair of lines must cross somewhere, even lines with the same gradient",
+					"as": "distractor",
+					"in": [
+						"parallel-why"
+					],
+					"wrong": "\"they meet far off the grid\""
+				},
+				{
+					"text": "Mixes up the parallel and perpendicular conditions: it is perpendicular gradients that multiply to −1",
+					"as": "distractor",
+					"in": [
+						"parallel-why"
+					],
+					"wrong": "\"their gradients multiply to −1\""
+				},
+				{
+					"text": "Thinks the same gradient means the same line, forgetting that the y-intercepts can differ",
+					"as": "distractor",
+					"in": [
+						"parallel-why"
+					],
+					"wrong": "\"they are the same line\""
+				},
+				{
+					"text": "Takes the perpendicular gradient as just the negative of the first, without flipping it",
+					"as": "distractor",
+					"in": [
+						"perpendicular-why"
+					],
+					"wrong": "a gradient and its negative, \"opposite numbers\""
+				},
+				{
+					"text": "Mixes up the horizontal and vertical lines: the horizontal one has gradient zero, and the vertical one has no gradient",
+					"as": "distractor",
+					"in": [
+						"vertical-exception"
+					],
+					"wrong": "the vertical line given gradient zero, or the horizontal one none"
+				},
+				{
+					"text": "Treats m₁ × m₂ = −1 as a test for every pair of lines, vertical ones included",
+					"as": "distractor",
+					"in": [
+						"vertical-exception"
+					],
+					"wrong": "\"not perpendicular, because the product is not −1\""
 				}
 			],
 			"frequency": 0
