@@ -6752,14 +6752,14 @@
 				"equation of the new line through a given point",
 				"substitute a point to find an unknown coordinate, or use the line to find an area"
 			],
-			"frequency": 12,
+			"frequency": 13,
 			"marks": 2,
 			"section": {
 				"A": 9,
-				"B": 3
+				"B": 4
 			},
 			"paper": {
-				"p1": 11,
+				"p1": 12,
 				"p2": 1
 			}
 		},
@@ -7427,14 +7427,14 @@
 				"domain of f^-1 is the range of f",
 				"solve f^-1(linear expression) = c by applying f to both sides"
 			],
-			"frequency": 8,
+			"frequency": 9,
 			"marks": 2,
 			"section": {
 				"A": 8,
-				"B": 0
+				"B": 1
 			},
 			"paper": {
-				"p1": 8,
+				"p1": 9,
 				"p2": 0
 			}
 		},
@@ -7838,14 +7838,14 @@
 				"sketch f^-1 on the same axes by swapping key points",
 				"use the symmetry: intersections of f and f^-1 that lie on y = x, or an area doubled by symmetry"
 			],
-			"frequency": 2,
+			"frequency": 3,
 			"marks": 2,
 			"section": {
 				"A": 1,
-				"B": 1
+				"B": 2
 			},
 			"paper": {
-				"p1": 1,
+				"p1": 2,
 				"p2": 1
 			}
 		},
@@ -8854,14 +8854,14 @@
 				"state the range",
 				"use it: the range of a transformed function, or the condition for g(f(x)) to exist"
 			],
-			"frequency": 4,
+			"frequency": 5,
 			"marks": 2,
 			"section": {
 				"A": 3,
-				"B": 1
+				"B": 2
 			},
 			"paper": {
-				"p1": 2,
+				"p1": 3,
 				"p2": 2
 			}
 		},
@@ -10287,15 +10287,15 @@
 				"often follows a GDC sketch",
 				"the values feed later parts (an interval, a distance, an area)"
 			],
-			"frequency": 5,
+			"frequency": 6,
 			"marks": 2,
 			"section": {
 				"A": 5,
-				"B": 0
+				"B": 1
 			},
 			"paper": {
 				"p1": 0,
-				"p2": 5
+				"p2": 6
 			}
 		},
 		{
@@ -11964,14 +11964,14 @@
 				"solve for the parameter (often two answers from a square)",
 				"or equate coefficients with a given form and solve the resulting quadratic"
 			],
-			"frequency": 9,
+			"frequency": 10,
 			"marks": 2,
 			"section": {
 				"A": 9,
-				"B": 0
+				"B": 1
 			},
 			"paper": {
-				"p1": 8,
+				"p1": 9,
 				"p2": 1
 			}
 		},
@@ -12625,14 +12625,14 @@
 				"show f is self-inverse, or use that to find a constant",
 				"(link to reflections in the axes)"
 			],
-			"frequency": 5,
+			"frequency": 7,
 			"marks": 3,
 			"section": {
 				"A": 1,
-				"B": 4
+				"B": 6
 			},
 			"paper": {
-				"p1": 1,
+				"p1": 3,
 				"p2": 4
 			}
 		},
@@ -14027,14 +14027,14 @@
 				"y-intercept",
 				"then a sketch, an inequality or a tangent"
 			],
-			"frequency": 11,
+			"frequency": 12,
 			"marks": 2,
 			"section": {
 				"A": 1,
-				"B": 10
+				"B": 11
 			},
 			"paper": {
-				"p1": 11,
+				"p1": 12,
 				"p2": 0
 			}
 		},
@@ -14450,14 +14450,14 @@
 				"expand if a general form is asked",
 				"state the range from the vertex"
 			],
-			"frequency": 7,
+			"frequency": 10,
 			"marks": 3,
 			"section": {
-				"A": 1,
+				"A": 4,
 				"B": 6
 			},
 			"paper": {
-				"p1": 7,
+				"p1": 10,
 				"p2": 0
 			}
 		},
@@ -15275,14 +15275,14 @@
 				"solve the resulting equation or quadratic inequality in the parameter",
 				"combine with an extra condition (same-sign roots, positive constant)"
 			],
-			"frequency": 13,
+			"frequency": 14,
 			"marks": 5,
 			"section": {
 				"A": 7,
-				"B": 6
+				"B": 7
 			},
 			"paper": {
-				"p1": 11,
+				"p1": 12,
 				"p2": 2
 			}
 		},
@@ -17109,15 +17109,15 @@
 				"x-intercept and y-intercept",
 				"then a sketch, the range, or the inverse"
 			],
-			"frequency": 12,
+			"frequency": 15,
 			"marks": 2,
 			"section": {
-				"A": 10,
-				"B": 2
+				"A": 11,
+				"B": 4
 			},
 			"paper": {
-				"p1": 10,
-				"p2": 2
+				"p1": 12,
+				"p2": 3
 			}
 		},
 		{
@@ -18344,15 +18344,15 @@
 				"long-run value from the horizontal asymptote",
 				"interpret the growth factor or rate"
 			],
-			"frequency": 14,
+			"frequency": 19,
 			"marks": 2,
 			"section": {
 				"A": 7,
-				"B": 7
+				"B": 12
 			},
 			"paper": {
 				"p1": 0,
-				"p2": 14
+				"p2": 19
 			}
 		},
 		{
@@ -19255,14 +19255,14 @@
 				"name each transformation with its scale factor or vector",
 				"state the order where it matters"
 			],
-			"frequency": 6,
-			"marks": 2,
+			"frequency": 8,
+			"marks": 3,
 			"section": {
-				"A": 3,
+				"A": 5,
 				"B": 3
 			},
 			"paper": {
-				"p1": 4,
+				"p1": 6,
 				"p2": 2
 			}
 		},
@@ -22075,15 +22075,15 @@
 				"for a target, solve and round up, or read the table or the graph",
 				"with imperfect data, estimate d, predict, and say how far to trust it"
 			],
-			"frequency": 6,
+			"frequency": 7,
 			"marks": 2,
 			"section": {
 				"A": 2,
-				"B": 4
+				"B": 5
 			},
 			"paper": {
 				"p1": 0,
-				"p2": 6
+				"p2": 7
 			}
 		},
 		{
@@ -22559,14 +22559,14 @@
 				"Sₙ",
 				"n, u₁ or d from a given sum"
 			],
-			"frequency": 21,
+			"frequency": 24,
 			"marks": 3,
 			"section": {
-				"A": 13,
+				"A": 16,
 				"B": 8
 			},
 			"paper": {
-				"p1": 20,
+				"p1": 23,
 				"p2": 1
 			}
 		},
@@ -24849,15 +24849,15 @@
 				"the time to pass a target, from logs or the TVM solver, rounded up",
 				"two accounts, compared over the same time"
 			],
-			"frequency": 16,
+			"frequency": 18,
 			"marks": 3,
 			"section": {
 				"A": 7,
-				"B": 9
+				"B": 11
 			},
 			"paper": {
 				"p1": 2,
-				"p2": 14
+				"p2": 16
 			}
 		},
 		{
@@ -26337,14 +26337,14 @@
 				"split into cases, or factorise into consecutive integers",
 				"show a remainder that rules out a divisor"
 			],
-			"frequency": 8,
+			"frequency": 9,
 			"marks": 3,
 			"section": {
-				"A": 8,
+				"A": 9,
 				"B": 0
 			},
 			"paper": {
-				"p1": 7,
+				"p1": 8,
 				"p2": 1
 			}
 		},
@@ -27903,14 +27903,14 @@
 				"for another base, divide by the log of the base, or let y be the log and take logs of a^y = b",
 				"on Paper 2, check two forms at one value, or read a value from the log-base template"
 			],
-			"frequency": 10,
-			"marks": 2,
+			"frequency": 12,
+			"marks": 3,
 			"section": {
-				"A": 7,
+				"A": 9,
 				"B": 3
 			},
 			"paper": {
-				"p1": 10,
+				"p1": 12,
 				"p2": 0
 			}
 		},
@@ -28575,15 +28575,15 @@
 				"u₁ or r back from S∞, and a quadratic in r from u₂ and S∞, keeping |r| < 1",
 				"a story: split a ball's path, write a recurring block as a series, or compare S∞ with a target"
 			],
-			"frequency": 5,
+			"frequency": 6,
 			"marks": 3,
 			"section": {
 				"A": 1,
-				"B": 4
+				"B": 5
 			},
 			"paper": {
 				"p1": 1,
-				"p2": 4
+				"p2": 5
 			}
 		},
 		{
@@ -29113,15 +29113,15 @@
 				"with two unknowns, divide or eliminate, or use the working from each coefficient",
 				"with n in a power, table the coefficient against n on the GDC"
 			],
-			"frequency": 9,
+			"frequency": 10,
 			"marks": 5,
 			"section": {
-				"A": 9,
+				"A": 10,
 				"B": 0
 			},
 			"paper": {
 				"p1": 4,
-				"p2": 5
+				"p2": 6
 			}
 		},
 		{
@@ -31907,15 +31907,15 @@
 				"substitute into the booklet formula, or rearrange it for the unknown length",
 				"give it exactly on Paper 1, or to 3 s.f. on Paper 2"
 			],
-			"frequency": 13,
+			"frequency": 16,
 			"marks": 3,
 			"section": {
 				"A": 2,
-				"B": 11
+				"B": 14
 			},
 			"paper": {
 				"p1": 8,
-				"p2": 5
+				"p2": 8
 			}
 		},
 		{
@@ -32257,14 +32257,14 @@
 				"backwards: rearrange for the side, or for sin C and then C or 180° − C",
 				"give the answer to 3 s.f."
 			],
-			"frequency": 11,
+			"frequency": 12,
 			"marks": 5,
 			"section": {
 				"A": 6,
-				"B": 5
+				"B": 6
 			},
 			"paper": {
-				"p1": 6,
+				"p1": 7,
 				"p2": 5
 			}
 		},
@@ -33386,15 +33386,15 @@
 				"substitute and solve for the side or the angle",
 				"give the answer to 3 s.f., in degrees for an angle"
 			],
-			"frequency": 19,
+			"frequency": 22,
 			"marks": 3,
 			"section": {
-				"A": 11,
-				"B": 8
+				"A": 12,
+				"B": 10
 			},
 			"paper": {
-				"p1": 3,
-				"p2": 16
+				"p1": 5,
+				"p2": 17
 			}
 		},
 		{
@@ -33939,15 +33939,15 @@
 				"carry the exact shared side into the next triangle",
 				"turn the angle back into a bearing, or add what the triangle leaves out"
 			],
-			"frequency": 7,
+			"frequency": 8,
 			"marks": 2,
 			"section": {
-				"A": 1,
+				"A": 2,
 				"B": 6
 			},
 			"paper": {
 				"p1": 0,
-				"p2": 7
+				"p2": 8
 			}
 		},
 		{
@@ -35440,15 +35440,15 @@
 				"add and take away the pieces",
 				"for two conditions, take out θ, solve for r, and keep each root whose θ is between 0 and 2π"
 			],
-			"frequency": 13,
+			"frequency": 14,
 			"marks": 3,
 			"section": {
-				"A": 7,
+				"A": 8,
 				"B": 6
 			},
 			"paper": {
 				"p1": 1,
-				"p2": 12
+				"p2": 13
 			}
 		},
 		{
@@ -36085,15 +36085,15 @@
 				"rearrange to work back to r or θ, taking the square root for r from an area",
 				"take the reflex angle or the rest of the circle for a major sector"
 			],
-			"frequency": 16,
+			"frequency": 19,
 			"marks": 3,
 			"section": {
-				"A": 14,
+				"A": 17,
 				"B": 2
 			},
 			"paper": {
 				"p1": 9,
-				"p2": 7
+				"p2": 10
 			}
 		},
 		{
@@ -37200,14 +37200,14 @@
 				"cancel factors, not terms",
 				"end on the other side, with a line for each identity"
 			],
-			"frequency": 3,
+			"frequency": 4,
 			"marks": 3,
 			"section": {
 				"A": 2,
-				"B": 1
+				"B": 2
 			},
 			"paper": {
-				"p1": 3,
+				"p1": 4,
 				"p2": 0
 			}
 		},
@@ -37658,14 +37658,14 @@
 				"pick the form of cos 2θ that fits what is given, or use sin 2θ = 2 sin θ cos θ",
 				"to rewrite, spot the pattern, take out a number, and swap it with an identity"
 			],
-			"frequency": 5,
-			"marks": 2,
+			"frequency": 7,
+			"marks": 3,
 			"section": {
 				"A": 4,
-				"B": 1
+				"B": 3
 			},
 			"paper": {
-				"p1": 5,
+				"p1": 7,
 				"p2": 0
 			}
 		},
@@ -39096,15 +39096,15 @@
 				"the maximum and minimum are d ± |a|",
 				"tan has no amplitude, maximum or minimum"
 			],
-			"frequency": 18,
+			"frequency": 19,
 			"marks": 2,
 			"section": {
-				"A": 6,
+				"A": 7,
 				"B": 12
 			},
 			"paper": {
 				"p1": 8,
-				"p2": 10
+				"p2": 11
 			}
 		},
 		{
@@ -39627,15 +39627,15 @@
 				"take b out of the bracket before reading a shift",
 				"in a story, check the model at t = 0"
 			],
-			"frequency": 7,
+			"frequency": 9,
 			"marks": 4,
 			"section": {
-				"A": 3,
+				"A": 5,
 				"B": 4
 			},
 			"paper": {
 				"p1": 1,
-				"p2": 6
+				"p2": 8
 			}
 		},
 		{
@@ -40373,15 +40373,15 @@
 				"reject any root of sin or cos outside −1 to 1",
 				"solve each root on the interval, and collect the solutions"
 			],
-			"frequency": 3,
+			"frequency": 5,
 			"marks": 5,
 			"section": {
-				"A": 3,
+				"A": 5,
 				"B": 0
 			},
 			"paper": {
 				"p1": 3,
-				"p2": 0
+				"p2": 2
 			}
 		},
 		{
@@ -41516,14 +41516,14 @@
 				"transform the interval for bx + φ, or add multiples of the new period",
 				"undo to x and keep the solutions inside the interval"
 			],
-			"frequency": 8,
-			"marks": 4,
+			"frequency": 9,
+			"marks": 5,
 			"section": {
 				"A": 5,
-				"B": 3
+				"B": 4
 			},
 			"paper": {
-				"p1": 8,
+				"p1": 9,
 				"p2": 0
 			}
 		},
@@ -45697,15 +45697,15 @@
 				"a missing value or frequency from total = mean × n, or a combined mean from the group totals",
 				"the measure of centre or spread an outlier does not move"
 			],
-			"frequency": 11,
+			"frequency": 15,
 			"marks": 3,
 			"section": {
-				"A": 11,
+				"A": 15,
 				"B": 0
 			},
 			"paper": {
 				"p1": 7,
-				"p2": 4
+				"p2": 8
 			}
 		},
 		{
@@ -46384,15 +46384,15 @@
 				"a constant of y = ax + c from the mean point",
 				"substitute an x inside the data into y = ax + b to estimate y"
 			],
-			"frequency": 19,
+			"frequency": 23,
 			"marks": 2,
 			"section": {
-				"A": 19,
+				"A": 23,
 				"B": 0
 			},
 			"paper": {
 				"p1": 0,
-				"p2": 19
+				"p2": 23
 			}
 		},
 		{
@@ -48707,14 +48707,14 @@
 				"the region outside is what is left of the total",
 				"add the regions the question asks for"
 			],
-			"frequency": 11,
+			"frequency": 12,
 			"marks": 2,
 			"section": {
-				"A": 10,
+				"A": 11,
 				"B": 1
 			},
 			"paper": {
-				"p1": 8,
+				"p1": 9,
 				"p2": 3
 			}
 		},
@@ -48922,14 +48922,14 @@
 				"backwards: write Σ P = 1 and Σ x P = E(X), and solve the two equations together",
 				"a game: the gain is the prize minus the stake, and the game is fair when E(gain) = 0, so the stake is the expected prize"
 			],
-			"frequency": 17,
+			"frequency": 18,
 			"marks": 3,
 			"section": {
-				"A": 6,
+				"A": 7,
 				"B": 11
 			},
 			"paper": {
-				"p1": 5,
+				"p1": 6,
 				"p2": 12
 			}
 		},
@@ -49105,14 +49105,14 @@
 				"for an event, pick out exactly the values it takes in, minding strict and non-strict ends",
 				"add their probabilities, or take the others away from 1"
 			],
-			"frequency": 12,
+			"frequency": 14,
 			"marks": 2,
 			"section": {
-				"A": 5,
+				"A": 7,
 				"B": 7
 			},
 			"paper": {
-				"p1": 7,
+				"p1": 9,
 				"p2": 5
 			}
 		},
@@ -49623,15 +49623,15 @@
 				"n or p from E(X) and Var(X), or the least n for P(X ≥ 1) > c",
 				"the kth success on trial m, or a probability given that at least one success happened"
 			],
-			"frequency": 18,
+			"frequency": 19,
 			"marks": 3,
 			"section": {
-				"A": 3,
+				"A": 4,
 				"B": 15
 			},
 			"paper": {
 				"p1": 0,
-				"p2": 18
+				"p2": 19
 			}
 		},
 		{
@@ -50167,15 +50167,15 @@
 				"on Paper 1, compare distances from the mean, or use the rule or a given z",
 				"state the value of x, not z or a probability"
 			],
-			"frequency": 5,
+			"frequency": 6,
 			"marks": 2,
 			"section": {
-				"A": 2,
+				"A": 3,
 				"B": 3
 			},
 			"paper": {
 				"p1": 1,
-				"p2": 4
+				"p2": 5
 			}
 		},
 		{
@@ -51142,15 +51142,15 @@
 				"on Paper 2, split a central area into two equal tails and use invNorm",
 				"state the area, the value or the curve"
 			],
-			"frequency": 8,
+			"frequency": 9,
 			"marks": 2,
 			"section": {
-				"A": 4,
+				"A": 5,
 				"B": 4
 			},
 			"paper": {
 				"p1": 2,
-				"p2": 6
+				"p2": 7
 			}
 		},
 		{
@@ -51630,15 +51630,15 @@
 				"take the area from 1 for a region left out",
 				"multiply by n for a count, or use the area as a binomial's p for exactly k of a sample"
 			],
-			"frequency": 12,
+			"frequency": 13,
 			"marks": 2,
 			"section": {
-				"A": 2,
+				"A": 3,
 				"B": 10
 			},
 			"paper": {
 				"p1": 0,
-				"p2": 12
+				"p2": 13
 			}
 		},
 		{
@@ -52476,14 +52476,14 @@
 				"to test, work out both sides of P(A ∩ B) = P(A)P(B), or compare P(A | B) with P(A)",
 				"state the verdict and quote the two numbers"
 			],
-			"frequency": 9,
+			"frequency": 10,
 			"marks": 2,
 			"section": {
-				"A": 7,
+				"A": 8,
 				"B": 2
 			},
 			"paper": {
-				"p1": 3,
+				"p1": 4,
 				"p2": 6
 			}
 		},
@@ -52981,15 +52981,15 @@
 				"find the part of it that is also wanted: the numerator",
 				"divide, and for a reversed conditional add every path into the given event"
 			],
-			"frequency": 17,
+			"frequency": 21,
 			"marks": 4,
 			"section": {
-				"A": 7,
+				"A": 11,
 				"B": 10
 			},
 			"paper": {
-				"p1": 6,
-				"p2": 11
+				"p1": 9,
+				"p2": 12
 			}
 		},
 		{
@@ -53379,15 +53379,15 @@
 				"write x = μ + zσ for each value",
 				"solve for the unknown, or the two together"
 			],
-			"frequency": 13,
+			"frequency": 15,
 			"marks": 4,
 			"section": {
-				"A": 3,
+				"A": 5,
 				"B": 10
 			},
 			"paper": {
 				"p1": 0,
-				"p2": 13
+				"p2": 15
 			}
 		},
 		{
@@ -53728,15 +53728,15 @@
 				"the limit of a model or of its rate as t → ∞",
 				"a limit at a point from a table, a graph or by cancelling"
 			],
-			"frequency": 6,
+			"frequency": 7,
 			"marks": 2,
 			"section": {
 				"A": 0,
-				"B": 6
+				"B": 7
 			},
 			"paper": {
 				"p1": 0,
-				"p2": 6
+				"p2": 7
 			}
 		},
 		{
@@ -54146,15 +54146,15 @@
 				"both negative and increasing, on a quadratic",
 				"a parameter that keeps f′ on one side of the axis"
 			],
-			"frequency": 4,
+			"frequency": 5,
 			"marks": 3,
 			"section": {
 				"A": 1,
-				"B": 3
+				"B": 4
 			},
 			"paper": {
 				"p1": 3,
-				"p2": 1
+				"p2": 2
 			}
 		},
 		{
@@ -54990,14 +54990,14 @@
 				"the normal's gradient −1/m",
 				"the normal y = mx + c"
 			],
-			"frequency": 14,
+			"frequency": 15,
 			"marks": 3,
 			"section": {
 				"A": 8,
-				"B": 6
+				"B": 7
 			},
 			"paper": {
-				"p1": 8,
+				"p1": 9,
 				"p2": 6
 			}
 		},
@@ -55728,15 +55728,15 @@
 				"f″ at each point for its nature",
 				"f″(x) = 0 for the point of inflexion"
 			],
-			"frequency": 14,
-			"marks": 5,
+			"frequency": 20,
+			"marks": 3,
 			"section": {
 				"A": 2,
-				"B": 12
+				"B": 18
 			},
 			"paper": {
-				"p1": 11,
-				"p2": 3
+				"p1": 16,
+				"p2": 4
 			}
 		},
 		{
@@ -56370,15 +56370,15 @@
 				"why it is a maximum or a minimum",
 				"the second length, or the optimum value there"
 			],
-			"frequency": 18,
-			"marks": 4,
+			"frequency": 21,
+			"marks": 3,
 			"section": {
 				"A": 1,
-				"B": 17
+				"B": 20
 			},
 			"paper": {
 				"p1": 11,
-				"p2": 7
+				"p2": 10
 			}
 		},
 		{
@@ -57146,15 +57146,15 @@
 				"integrate over each piece and add the sizes, or use ∫|v| dt on the GDC",
 				"add areas on a v–t graph, all counted as positive"
 			],
-			"frequency": 23,
+			"frequency": 26,
 			"marks": 3,
 			"section": {
 				"A": 8,
-				"B": 15
+				"B": 18
 			},
 			"paper": {
 				"p1": 10,
-				"p2": 13
+				"p2": 16
 			}
 		},
 		{
@@ -57824,15 +57824,15 @@
 				"find a = 0, then compare with the ends of the interval",
 				"read gradients and signed areas from a graph"
 			],
-			"frequency": 29,
+			"frequency": 34,
 			"marks": 2,
 			"section": {
 				"A": 17,
-				"B": 12
+				"B": 17
 			},
 			"paper": {
 				"p1": 5,
-				"p2": 24
+				"p2": 29
 			}
 		},
 		{
@@ -59113,15 +59113,15 @@
 				"show that a derivative simplifies to a given form",
 				"evaluate the derivative at a point"
 			],
-			"frequency": 8,
+			"frequency": 10,
 			"marks": 3,
 			"section": {
 				"A": 2,
-				"B": 6
+				"B": 8
 			},
 			"paper": {
-				"p1": 6,
-				"p2": 2
+				"p1": 7,
+				"p2": 3
 			}
 		},
 		{
@@ -60272,14 +60272,14 @@
 				"write the function with no C left, or put in the further value",
 				"or go straight to f(b) = f(a) + ∫ f′ dx from a to b"
 			],
-			"frequency": 9,
+			"frequency": 11,
 			"marks": 4,
 			"section": {
-				"A": 8,
-				"B": 1
+				"A": 9,
+				"B": 2
 			},
 			"paper": {
-				"p1": 4,
+				"p1": 6,
 				"p2": 5
 			}
 		},
@@ -62259,14 +62259,14 @@
 				"split where the curves swap, or use |f − g| on the GDC",
 				"or find each area under its curve and subtract"
 			],
-			"frequency": 13,
+			"frequency": 15,
 			"marks": 4,
 			"section": {
-				"A": 3,
-				"B": 10
+				"A": 4,
+				"B": 11
 			},
 			"paper": {
-				"p1": 8,
+				"p1": 10,
 				"p2": 5
 			}
 		},

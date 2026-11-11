@@ -39,7 +39,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 6 exam types, 8 extension types; 37 exam unknowns and 76 new ones; 353 coverage cells (125 with "Exam-style only" on).
 
-#### Read and convert quadratic forms (`fn-quadratic-features`, exam, 11 bank parts)
+#### Read and convert quadratic forms (`fn-quadratic-features`, exam, 12 bank parts)
 
 - **Situation:** One parabola in all its forms, shared with `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-discriminant`, `fn-quadratic-inequality`, `fn-log-of-quadratic`, `fn-concept-quadratic-forms`.
 - **Representations:** **equation**, **graph**, table, words (bold: the exam uses it)
@@ -78,7 +78,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): Two quadratics with the same roots have the same vertex. — False. They share the axis (the midpoint of the roots), but the vertex height k = −a(q − p)²/4 depends on a.
 - **Misconceptions used:** 12. Uses x = b/(2a), dropping the minus sign; Writes the axis as y = h, or just the number h, instead of x = h; Reads h with the wrong sign from a(x − h)²; Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k); Finds the x-coordinate of the vertex but not the y-coordinate; Mixes up maximum and minimum for the sign of a; Forgets to subtract the square of half the coefficient; Forgets to multiply the correction term by a when a is not one; Gets the sign of h wrong inside the bracket; Reads the roots off the factors with the wrong signs; Leaves out the leading coefficient a when writing a(x − p)(x − q); Thinks the y-intercept is pq rather than apq.
 
-#### Find a quadratic from its roots, vertex or points (`fn-quadratic-from-conditions`, exam, 7 bank parts)
+#### Find a quadratic from its roots, vertex or points (`fn-quadratic-from-conditions`, exam, 10 bank parts)
 
 - **Situation:** One parabola in all its forms, shared with `fn-quadratic-features`, `fn-solve-quadratic`, `fn-discriminant`, `fn-quadratic-inequality`, `fn-log-of-quadratic`, `fn-concept-quadratic-forms`.
 - **Representations:** equation, **graph**, table, **words** (bold: the exam uses it)
@@ -130,7 +130,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L3): Before solving e²ˣ − eˣ − 6 = 0, predict how many solutions it has. Then solve. — One. With u = eˣ, u² − u − 6 = 0 gives u = 3 or u = −2, and eˣ = −2 is impossible, so x = ln 3 only.
 - **Misconceptions used:** 6. Divides both sides of 3x² = 6x by x and loses the root x = 0; Gives the roots with the wrong signs; Forgets the ± when square-rooting, so x² = 9 gives only x = 3; Stops at the value of u instead of solving for x; Keeps an impossible solution, such as an exponential equal to a negative number or a negative x inside a log; Writes 4^x as 2(2^x) instead of (2^x)².
 
-#### Discriminant conditions on a parameter (`fn-discriminant`, exam, 13 bank parts)
+#### Discriminant conditions on a parameter (`fn-discriminant`, exam, 14 bank parts)
 
 - **Situation:** A quadratic with a parameter in it, shared with `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-quadratic-inequality`, `fn-log-of-quadratic`, `fn-concept-quadratic-forms`.
 - **Representations:** **equation**, **words**, graph (bold: the exam uses it)
@@ -430,7 +430,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L4): In f(x) = log_k(g(x)), the base k is changed (k > 1). What changes on the graph and what stays fixed? — The domain, the asymptotes and the zeros stay fixed, because log_k 1 = 0 for every base. Only the heights change: the maximum log_k G gets smaller as k grows.
 - **Misconceptions used:** 16. Keeps only one side of the solution, or writes x > ±√c; Joins the two outer regions into a single interval between the roots; Divides by a negative leading coefficient without reversing the inequality; Writes an asymptote as a number instead of an equation; Swaps vertical and horizontal, writing the asymptotes the wrong way round; Gets the sign of a vertical asymptote wrong by reading it off the bracket; Draws the log graph with a horizontal asymptote; Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k); Finds the x-coordinate of the vertex but not the y-coordinate; Mixes up maximum and minimum for the sign of a; Dividing instead of finding the power; Mixing up base and exponent: reading log_a b = x as x^a = b; Believing the log of zero or of a negative number has a real value; Forgets the ± when square-rooting, so x² = 9 gives only x = 3; Thinks the line of symmetry passes through the y-intercept; Writes the range in terms of x instead of y or f(x).
 
-#### Exponential growth, decay and limited-growth models (`fn-exponential-model`, exam, 14 bank parts)
+#### Exponential growth, decay and limited-growth models (`fn-exponential-model`, exam, 19 bank parts)
 
 - **Situation:** An exponential model in context, shared with `fn-concept-growth-patterns`.
 - **Representations:** **equation**, **words**, table, graph (bold: the exam uses it)
@@ -644,7 +644,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): A parabola's vertex is the same point as its y-intercept. — Sometimes: only when the axis of symmetry is x = 0, as for y = x² − 4. For y = (x − 1)(x − 5) the vertex is (3, −4) but the y-intercept is (0, 5).
 - **Misconceptions used:** 6. Draws the parabola opening upwards when a < 0; Draws a pointed V-shaped vertex instead of a smooth curve; Puts the vertex at the y-intercept; Draws a curve that fails the vertical line test; Lets a quantity that cannot be negative (time, population, temperature above room level) go below its limit; Shows a long-run level as a turning point instead of an asymptote.
 
-#### Zeros and turning points with the GDC (`fn-gdc-features`, exam, 5 bank parts)
+#### Zeros and turning points with the GDC (`fn-gdc-features`, exam, 6 bank parts)
 
 - **Situation:** One awkward curve on a closed domain, shared with `fn-sketch-gdc`.
 - **Representations:** **equation**, graph, table (bold: the exam uses it)
@@ -884,7 +884,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 3 exam types, 3 extension types; 18 exam unknowns and 48 new ones; 246 coverage cells (66 with "Exam-style only" on).
 
-#### Values, composites and inverse values read from a graph or a table (`fn-graph-table-composite-inverse`, exam, 8 bank parts)
+#### Values, composites and inverse values read from a graph or a table (`fn-graph-table-composite-inverse`, exam, 9 bank parts)
 
 - **Situation:** A function read from a graph or a table.
 - **Representations:** **graph**, **table**, equation, words (bold: the exam uses it)
@@ -916,7 +916,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): The graph of f rises steadily from (−2, 1) to (4, 7). State the domain and range of f⁻¹ and say why. — Domain 1 ≤ x ≤ 7 and range −2 ≤ y ≤ 4. Every point (p, q) on f becomes (q, p) on f⁻¹, so the x-values and y-values swap roles.
 - **Misconceptions used:** 16. Treats f(x) as f × x, so a factor inside the bracket comes out; Squares the minus sign too: −x² is −(x²), not (−x)²; Writes f(x + a) as f(x) + a; Reads 'solve f(x) = c' as 'find f(c)'; Gives only one solution when y = k crosses the curve several times; Misreads the scale when the axes are not 1 unit per square; Applies f first for (f ∘ g)(x), evaluating g(f(x)) instead; Multiplies the two values instead of composing; Applies the same function twice; Reads f⁻¹(x) as the reciprocal of f(x); Reflects in the x-axis or y-axis instead of in the line y = x; Computes f(a) when f⁻¹(a) is asked for; Solves f⁻¹(x) = c by applying f⁻¹ to c instead of f; States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse.
 
-#### Form a composite, evaluate it, solve for a parameter (`fn-composite`, exam, 9 bank parts)
+#### Form a composite, evaluate it, solve for a parameter (`fn-composite`, exam, 10 bank parts)
 
 - **Situation:** Two rules chained together, shared with `fn-concept-order-and-undo`.
 - **Representations:** **equation**, words (bold: the exam uses it)
@@ -944,7 +944,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L3): Predict how many solutions (f∘g)(x) = 25 has when f(x) = x² and g(x) = 2x − 1. Then solve. — Two, because a square equals 25 for two inputs. (2x − 1)² = 25 gives 2x − 1 = 5 or −5, so x = 3 or x = −2.
 - **Misconceptions used:** 8. Applies f first for (f ∘ g)(x), evaluating g(f(x)) instead; Multiplies the two values instead of composing; Applies the same function twice; Computes g(f(x)) when f(g(x)) is asked for; Replaces only one of the x's in f with g(x); Assumes f ∘ g = g ∘ f; Undoes the operations in the original order; Forgets the ± when square-rooting, so x² = 9 gives only x = 3.
 
-#### Find an inverse algebraically, with its domain; self-inverse functions (`fn-inverse-algebraic`, exam, 5 bank parts)
+#### Find an inverse algebraically, with its domain; self-inverse functions (`fn-inverse-algebraic`, exam, 7 bank parts)
 
 - **Situation:** A one-to-one function and its inverse.
 - **Representations:** **equation**, graph, words (bold: the exam uses it)
@@ -1050,7 +1050,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 2 exam types, 4 extension types; 9 exam unknowns and 40 new ones; 132 coverage cells (29 with "Exam-style only" on).
 
-#### Asymptotes and intercepts of (ax + b)/(cx + d) (`fn-rational-asymptotes-intercepts`, exam, 12 bank parts)
+#### Asymptotes and intercepts of (ax + b)/(cx + d) (`fn-rational-asymptotes-intercepts`, exam, 15 bank parts)
 
 - **Situation:** One linear-over-linear function in all its forms, shared with `fn-rational-sketch`, `fn-ext-transformed-reciprocal`.
 - **Representations:** **equation**, graph, table, words (bold: the exam uses it)
@@ -1194,7 +1194,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 3 exam types, 3 extension types; 10 exam unknowns and 43 new ones; 188 coverage cells (36 with "Exam-style only" on).
 
-#### Inverse as a reflection in y = x (`fn-inverse-reflection`, exam, 2 bank parts)
+#### Inverse as a reflection in y = x (`fn-inverse-reflection`, exam, 3 bank parts)
 
 - **Situation:** A one-to-one function and its inverse, shared with `fn-evaluate-function`, `fn-domain-range`, `fn-concept-function-notation`.
 - **Representations:** **graph**, **equation**, table, words (bold: the exam uses it)
@@ -1249,7 +1249,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L3): Predict whether the point (1.5, 7) is above or below the graph of y = x³ + 2x. Then check. — f(1.5) = 3.375 + 3 = 6.375, which is less than 7, so the point is above the graph.
 - **Misconceptions used:** 10. Treats f(x) as f × x, so a factor inside the bracket comes out; Squares the minus sign too: −x² is −(x²), not (−x)²; Writes f(x + a) as f(x) + a; Interprets P(0) as 'zero population' instead of the initial value; Keeps a negative or non-integer input that the context forbids; Answers with the output when the input is asked for (e.g. a height when a time is asked); Confuses the zeros (x where f(x) = 0) with the y-intercept f(0); Gives the zeros with the wrong signs; Divides by x when solving and loses the zero at the origin; Describes the y-values (range) when the domain is asked for.
 
-#### Domain and range, including restricted and transformed functions (`fn-domain-range`, exam, 4 bank parts)
+#### Domain and range, including restricted and transformed functions (`fn-domain-range`, exam, 5 bank parts)
 
 - **Situation:** A function on a restricted domain, or a changed one, shared with `fn-inverse-reflection`, `fn-evaluate-function`, `fn-concept-function-notation`.
 - **Representations:** **equation**, **graph**, words (bold: the exam uses it)
@@ -1344,7 +1344,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 1 exam types, 6 extension types; 10 exam unknowns and 50 new ones; 253 coverage cells (45 with "Exam-style only" on).
 
-#### Straight line from conditions, then use it (`fn-line-from-conditions`, exam, 12 bank parts)
+#### Straight line from conditions, then use it (`fn-line-from-conditions`, exam, 13 bank parts)
 
 - **Situation:** A segment and a line built from it, shared with `fn-concept-gradient-meaning`.
 - **Representations:** **equation**, **words**, graph, table (bold: the exam uses it)
@@ -1518,7 +1518,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 2 exam types, 3 extension types; 6 exam unknowns and 47 new ones; 257 coverage cells (28 with "Exam-style only" on).
 
-#### Describe the transformations between two graphs (`fn-transform-describe`, exam, 6 bank parts)
+#### Describe the transformations between two graphs (`fn-transform-describe`, exam, 8 bank parts)
 
 - **Situation:** A base graph and a chain of moves, shared with `fn-transform-apply`, `fn-concept-transform-order`.
 - **Representations:** **equation**, **graph**, words (bold: the exam uses it)
@@ -1724,7 +1724,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): An arithmetic sequence with d ≠ 0 has a, a + d and a + 3d as consecutive geometric terms. Then d = a. — True: (a + d)² = a(a + 3d) gives d² = ad, and d ≠ 0, so d = a. The terms a, 2a and 4a have common ratio 2.
 - **Misconceptions used:** 31. Checking a few values of n and stopping; Using the result being proved as a step in its own proof; Comparing the gaps between particular terms instead of the gap between neighbouring terms for general n; Counting one gap too many between the first term and the nth term; Taking away only the first term of a bracket, so the other terms keep their signs; Multiplying only the first term of a bracket by the number outside it; Squaring a bracket term by term, with no middle term; Forgetting to double the middle term when squaring a bracket; Testing the wrong kind of sequence: a common difference for a geometric claim, or a common ratio for an arithmetic one; Dividing a term by the one after it, which gives the reciprocal of the common ratio; Writing a difference of logs as the log of a difference; Taking the common ratio itself as the difference of the logs; Forgetting to halve at the end, which gives twice the sum; Leaving out the doubling of the first term in the sum formula; Treating the last term as the whole sum; Treating the sum of the first n terms as the nth term; Using the next sum instead of the one before when taking a difference of sums; Reading a coefficient of Sₙ as the common difference; Confusing the first term with the common difference; Reading the width of the rectangle as the number of dots in a layer; Counting the corner of a layer twice; Adding the last term to itself instead of to the first term; Counting half as many columns, as if the two lists were already paired off; Taking a ratio across several steps as the common ratio; Moving a term across the equals sign without changing its sign; Counting a term's position in the sequence instead of the steps to reach it; Stopping before dividing by the coefficient of the letter; Using the rule for three consecutive terms on terms that are not consecutive; Halving a rectangle that holds only one copy of the sum; Taking d/a as the common ratio; Leaving the first term out of a pair, so only the last term is counted.
 
-#### Arithmetic sequence or series modelling a pattern or context (`t1-arithmetic-in-context`, exam, 6 bank parts)
+#### Arithmetic sequence or series modelling a pattern or context (`t1-arithmetic-in-context`, exam, 7 bank parts)
 
 - **Situation:** An arithmetic sequence or series in a story.
 - **Representations:** **words**, **table**, graph, **diagram** (bold: the exam uses it)
@@ -1756,7 +1756,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L3): Predict whether d from first and last values and d from a regression line will be equal for data that are nearly arithmetic. Check with a table of your own. — Usually not: the first uses two values only, the regression uses them all. They are equal when the data are exactly arithmetic.
 - **Misconceptions used:** 26. Taking the value after n steps of time as u_n, when u_1 is the value at the start, so the term is one out; Extrapolating an approximate model far beyond the data without comment; Taking the first change in the data as d, instead of the overall change across the data; Adding n steps of d onto the last value in the data, instead of counting on from year 1; Reading the regression line's b as the common difference, instead of its gradient a; Leaving the intercept b out of a prediction from a regression line; Treating a prediction from an approximate model as an exact value; Rejecting every prediction because the data are not exactly arithmetic; Trusting a prediction that breaks a limit the story states; Treating simple interest as compound, so that interest earns interest; Giving only the interest earned, leaving out the starting amount; Stopping one term away from the last positive term when finding the greatest total; Treating the totals of a stack as an arithmetic sequence, when it is the rows added that are; Putting n + 1 into the regression line instead of n, so the prediction is one step too far; Rounding n down when the first term or total past a value is wanted, so the value found has not yet passed it; Mixing up n and the value: giving n when the term or total is asked for, or the reverse; Forgetting to add one when counting terms; Rounding a non-whole n to call the value a term of the sequence; Testing whether the value alone is a multiple of d, without taking off the first term; Setting the number of rows equal to the size of a full pack, instead of making the total a multiple of it; Using u₁ + nd, which counts one step too many; Finding d as the earlier term minus the later term, so a decreasing sequence gets a positive d; Using n instead of n − 1 inside the formula: n/2(2u_1 + nd); Using the wrong n, such as the last term's value or the number of gaps; Using u_n when the question asks for a total S_n, or the reverse; Dividing by the number of terms instead of the number of gaps.
 
-#### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 21 bank parts)
+#### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 24 bank parts)
 
 - **Situation:** One arithmetic sequence and its sums.
 - **Representations:** **notation**, **terms**, table, **words** (bold: the exam uses it)
@@ -1866,7 +1866,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): In V = 8000(0.92)^t, what do 8000 and 0.92 mean? — 8000 is the value when t = 0, the price paid. 0.92 is the fraction kept each year, so the value falls by 8% a year.
 - **Misconceptions used:** 13. Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss; Treating depreciation as linear: subtracting the same percentage of the original price each year; Giving the remaining value when the question asks for the loss in value (or the reverse); Giving the total loss so far when the question asks for the loss in one year; Taking the percentage of the value at the end of the year instead of at the start; Undoing a percentage loss by adding the same percentage back on; Giving the percentage kept each year instead of the percentage lost; Giving the total percentage lost over all the years as the yearly rate; Applying the later rate to every year instead of only to the years after the first; Comparing amounts from different dates, with one side left at today's value; Rounding the answer to the nearest whole number instead of up; Forgetting to convert N from months or quarters back into years; Not flipping the inequality when dividing by the log of a depreciation factor below 1.
 
-#### Compound interest: value, rate or time, with different compounding periods (`t1-compound-interest`, exam, 16 bank parts)
+#### Compound interest: value, rate or time, with different compounding periods (`t1-compound-interest`, exam, 18 bank parts)
 
 - **Situation:** Money invested at a nominal annual rate, compounded k times a year.
 - **Representations:** **words**, **table** (bold: the exam uses it)
@@ -1921,7 +1921,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): In S = −log₁₀ c, what happens to c when S goes up by 1? — c is divided by 10: the minus sign means a higher reading is a smaller amount, so each step up is a tenth of what came before.
 - **Misconceptions used:** 43. Dividing instead of finding the power; Mixing up base and exponent: reading log_a b = x as x^a = b; Believing the log of zero or of a negative number has a real value; Treating a log scale as linear: taking the ratio of two readings as the ratio of the amounts; Dropping the minus sign in front of a log; Undoing a minus log with the minus sign in front of the power instead of in the power; Swapping the number and the power when changing form; Swapping the base and the number when changing form; Dropping the minus sign on the power; Taking the reciprocal of the power instead of making it negative; Turning the fraction in the power upside down; Raising the number to the power instead of taking the root; Raising the base to the number instead of asking what power gives it; Taking the log before the power stands alone; Dropping the log and working with the inside as it stands; Setting the inside of the log to zero instead of to the power of the base; Stopping at x² instead of taking the root; Keeping the negative root, which is outside the domain; Assuming a fraction below one has no real log, because its log is negative; Assuming the log of one has no real value, because it is zero; Reading a minus sign in front of a log as the log of a negative number; Multiplying the base by the number in the power or the log, instead of letting the two cancel; Dropping the log and leaving the base raised to the number; Working out the power inside and stopping there; Using the wrong log key: ln for log, or log for ln; Leaving out the constant in the formula; Leaving out the factor inside the log; Forgetting the multiplier in front of the log; Leaving the power of ten outside the multiplier; Adding the factor straight on to the value it changes; Multiplying by the factor instead of by its log; Stopping before undoing the log; Multiplying by the factor inside the log instead of dividing by it; Dividing by the multiplier after undoing the log instead of before; Giving the difference in readings as the factor; Giving the new amount as a percentage of the old instead of the increase; Reading only the power of ten and ignoring the number in front; Multiplying by the log instead of dividing by it; Subtracting the log instead of dividing by it; Adding the two constants before multiplying by the log; Leaving out the added term inside the log; Forgetting to take off the added term inside the log; Dividing by the rate before taking off the added term.
 
-#### Prove an algebraic identity or a divisibility result (`t1-algebraic-proof`, exam, 8 bank parts)
+#### Prove an algebraic identity or a divisibility result (`t1-algebraic-proof`, exam, 9 bank parts)
 
 - **Situation:** One statement to prove, as a chain of lines.
 - **Representations:** **equation**, **words** (bold: the exam uses it)
@@ -1990,7 +1990,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L4): Before solving 2^(x + 1) = 3^x, say whether x is more or less than 1. — More: at x = 1 the left side is 4 and the right side 3, and 3^x grows faster, so it catches up later. x = ln 2/(ln 3 − ln 2) ≈ 1.71.
 - **Misconceptions used:** 14. Losing the brackets around the power when bringing it down; Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power; Rounding the logs early, so the final answer is wrong; Moving an x term across without changing its sign; Combining two logs by adding or subtracting the numbers inside them; Dividing the other way round when the bracket is divided out; Subtracting the number in front instead of dividing by it; Dividing by the number in front before taking off the added constant; Forgetting to divide by the number in the power; Multiplying by the number in the power instead of dividing by it; Dividing by the base instead of by its log; Dropping the starting amount before taking logs; Using the percentage growth as the continuous rate; Raising the starting amount to the power along with the factor.
 
-#### Log laws and change of base to evaluate or rewrite logarithms (`t1-log-laws`, exam, 10 bank parts)
+#### Log laws and change of base to evaluate or rewrite logarithms (`t1-log-laws`, exam, 12 bank parts)
 
 - **Situation:** A log expression to evaluate, combine, expand or rewrite in another base.
 - **Representations:** **equation** (bold: the exam uses it)
@@ -2020,7 +2020,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): log(a + b) = log a + log b, for positive a and b. — Sometimes: it needs a + b = ab, as with a = b = 2. It isn’t a law.
 - **Misconceptions used:** 24. Splitting the log of a sum: log(a + b) = log a + log b; Turning a quotient of logs into the log of a quotient: log a/log b = log(a/b); Confusing a power of a log with a multiple of the log; Inverting the change of base formula, with the log of the base on top; Simplifying a quotient of logs to the log of the quotient, or to a difference of logs; Dividing by the new base itself, not by the power that turns the old base into it; Stopping at the number inside the log, without taking the log of it; Reading a difference of logs as a quotient of logs; Reading a sum of logs as a product of logs; Multiplying the number inside the log by the coefficient, not raising it to that power; Turning a root into a whole-number multiple, not a fraction; Treating a minus sign in front of a log, or a denominator, as a plus; Dropping the minus sign that a reciprocal gives; Dividing the number by the base, not finding the power; Taking the reciprocal of the log, not its negative; Forgetting that the log of the base is one; Multiplying by the power of the base, not dividing; Assuming the two logs in base ab are negatives of each other, when they add to 1; Swapping the powers, or a number with its power; Adding what is inside the logs, when a sum of logs is the log of a product; Subtracting what is inside the logs, when a difference of logs is the log of a quotient; Ignoring the root on the number; Ignoring the root on the base; Multiplying the log by the number inside, not adding its log.
 
-#### Sum to infinity: convergence, value, or an unknown from it (`t1-sum-to-infinity`, exam, 5 bank parts)
+#### Sum to infinity: convergence, value, or an unknown from it (`t1-sum-to-infinity`, exam, 6 bank parts)
 
 - **Situation:** One geometric sequence and its sums, shared with `t1-geometric-sequence`.
 - **Representations:** **notation**, **terms**, **equation**, **words**, table, graph, **diagram** (bold: the exam uses it)
@@ -2051,7 +2051,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): 0.999… is exactly equal to 1. — True: it is 9/10 + 9/100 + …, with u₁ = 9/10 and r = 1/10, so S∞ = (9/10)/(9/10) = 1.
 - **Misconceptions used:** 12. Thinking r below one is enough, so a large negative ratio seems to converge; Solving only the upper inequality and forgetting the lower one when r depends on x; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity; Putting a plus in the formula's denominator, or dropping the sign of a negative r; Taking the coefficient as u₁ instead of the value at the lower limit; Applying the formula when the size of r is one or more, which gives a meaningless sum; Inverting the rearrangement of the formula, so S∞ and u₁ swap places; Keeping a root too large in size for a sum to infinity to exist; Substituting u₂ as if it were u₁; Doubling the first drop of a bouncing ball as well as the rebounds; Using one tenth as r for a recurring block of more than one digit; Using S∞ in context without checking that r is small enough.
 
-#### Binomial expansion: find an unknown from a given coefficient (`t1-binomial-find-unknown`, exam, 9 bank parts)
+#### Binomial expansion: find an unknown from a given coefficient (`t1-binomial-find-unknown`, exam, 10 bank parts)
 
 - **Situation:** An expansion with a letter missing, and a coefficient given.
 - **Representations:** **equation** (bold: the exam uses it)
@@ -2192,7 +2192,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): The midpoint of two points with whole coordinates has whole coordinates. — Sometimes: only when the two values on each axis are both odd or both even.
 - **Misconceptions used:** 26. Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²; Mishandling a negative coordinate when subtracting; Giving only one value of k, when the squared bracket has two square roots; Subtracting instead of adding: M = ((x₂ − x₁)/2, ...); Finding the endpoint by averaging A and M instead of extending past M; Halving the midpoint coordinates to get the endpoint; Stopping at the squared distance, without the square root; Adding the coordinates of the two points instead of subtracting them; Leaving out the z difference, so the length stays on the floor; Using the whole base diagonal instead of half of it; Giving the whole diameter as the radius; Doubling the distance from the centre, as if a diameter were asked; Leaving out the other squared differences, so the one bracket equals the distance; Using the wrong sign on the known coordinate in the bracket; Stopping at the squared bracket, without taking its root; Naming the wrong pair of equal sides; Using the length of the third side for the equal sides; Adding the coordinates and not halving; Dropping a minus sign before averaging the coordinates; Stopping at the step from A to M, without adding it on to M; Doubling the midpoint and leaving out the known end; Adding the known end to twice the midpoint instead of subtracting it; Adding x and f(x) without squaring them; Using f(x) alone as the distance from the origin; Subtracting the squares instead of adding them; Adding the two differences before squaring them.
 
-#### Volume and surface area of solids, including in terms of a variable (`t3-solid-volume-area`, exam, 13 bank parts)
+#### Volume and surface area of solids, including in terms of a variable (`t3-solid-volume-area`, exam, 16 bank parts)
 
 - **Situation:** One solid and its measurements.
 - **Representations:** **diagram**, **words** (bold: the exam uses it)
@@ -2250,7 +2250,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): Two sides and the angle between them can fit two different triangles. — False: the angle between the sides fixes where both ends of the third side are, so only one triangle fits. Only an angle opposite a given side can be ambiguous.
 - **Misconceptions used:** 3. Giving only the calculator angle from sin⁻¹; Keeping B₂ = 180° − B₁ even when the angle sum then exceeds 180°; Pairing a side with an angle that is not opposite it.
 
-#### Triangle area with 1/2 ab sin C, forwards or backwards (`t3-triangle-area`, exam, 11 bank parts)
+#### Triangle area with 1/2 ab sin C, forwards or backwards (`t3-triangle-area`, exam, 12 bank parts)
 
 - **Situation:** One triangle with its sides, angles and area, shared with `t3-ambiguous-case`, `t3-sine-cosine-rule`.
 - **Representations:** **words**, **diagram** (bold: the exam uses it)
@@ -2300,7 +2300,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): The angle of depression from the top of a tower sits inside the triangle at the top. — False: it is measured down from the horizontal at the eye, so it is outside the triangle. It equals the angle at the ground, because the horizontals are parallel.
 - **Misconceptions used:** 29. Labelling opposite and adjacent relative to the wrong angle; Writing the ratio upside down, e.g. sin θ = hypotenuse / opposite; Treating the longer leg as the hypotenuse; Using rise ÷ sloping length for the gradient; Using run ÷ rise for the gradient; Rearranging by multiplying when the unknown side is underneath the ratio; Using the hypotenuse as if it were one of the shorter sides; Using the calculator in the wrong angle mode; Stopping at half of a length that the symmetry doubles; Applying the ratio function to the fraction instead of its inverse; Reading the inverse function as one over the function; Using adjacent / opposite for tan θ, which gives the other acute angle; Treating a gradient as a sine; Giving the angle with the horizontal when the vertical is asked for; Measuring the angle of depression from the vertical instead of the horizontal; Putting the angle of depression inside the triangle at the top vertex; Leaving the person's height or eye level out of the calculation; Using the whole span where the symmetry gives half of it; Leaving out the overhang past the level point; Taking the top edge to be as long as the lower edge; Adding the thickness of the beam to the length; Using the distance walked in place of the distance left; Halving the angle between the lines of sight to get θ; Stopping at the distance to the centre of the base; Choosing the equal angle at the other end of the line of sight; Using the radius in place of the diameter as the hypotenuse; Giving the whole angle at the top instead of the angle on one side; Using the shorter line of sight in place of the longer one; Adding the two distances when both points are on the same side.
 
-#### Sine rule and cosine rule for a side or an angle (`t3-sine-cosine-rule`, exam, 19 bank parts)
+#### Sine rule and cosine rule for a side or an angle (`t3-sine-cosine-rule`, exam, 22 bank parts)
 
 - **Situation:** One triangle with its sides, angles and area, shared with `t3-ambiguous-case`, `t3-triangle-area`.
 - **Representations:** **words**, **diagram** (bold: the exam uses it)
@@ -2315,7 +2315,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): Two sides and an angle opposite one of them fix exactly one triangle. — Sometimes: if the side opposite the given angle is the longer one, only one triangle fits; if it is the shorter one but longer than the altitude, the angle from sin⁻¹ and 180° minus it can both work.
 - **Misconceptions used:** 8. Evaluating (b² + c² − 2bc) cos A instead of b² + c² − (2bc cos A); Forgetting to square-root a²; Using (a² + b² − c²) / 2ab when the angle wanted is A; Thinking a negative cosine is an error, when it just means the angle is obtuse; Pairing a side with an angle that is not opposite it; Rearranging the sine rule wrongly, with the two sines swapped; Keeping B₂ = 180° − B₁ even when the angle sum then exceeds 180°; Using a calculator in radian mode when the angle is in degrees.
 
-#### Bearings, elevation and depression in context (`t3-bearings-elevation`, exam, 7 bank parts)
+#### Bearings, elevation and depression in context (`t3-bearings-elevation`, exam, 8 bank parts)
 
 - **Situation:** Journeys, sightings and connected triangles.
 - **Representations:** **words**, **diagram** (bold: the exam uses it)
@@ -2383,7 +2383,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): In θ = πt/8, what does π/8 mean, and how long is one turn? — π/8 is the angle turned each second, in radians. One turn is 2π, so it takes 2π ÷ π/8 = 16 seconds.
 - **Misconceptions used:** 15. Multiplying by 180/π when converting degrees to radians; Writing the size in radians as if it were degrees; Giving a decimal when an exact multiple of π is asked for; Taking π as a full turn instead of 2π; Dividing the wrong way round, with the two numbers swapped; Using the degrees-to-radians factor when converting radians to degrees; Leaving a rate in revolutions per minute unconverted when seconds are needed; Mixing degrees and radians in one calculation; Using half of the angle at the centre when the whole of angle AOB is needed; Using the whole of the angle at the centre when half of it is needed; Using sine instead of cosine, when the distance from the centre is the side next to the angle; Mixing up the time on the line with the time off it; Multiplying the angle by the rate instead of dividing by it; Giving the distance round the circle as the answer, without using the time; Writing the size in degrees as if it were radians.
 
-#### Segments and composite regions built from sectors, triangles and rectangles (`t3-composite-circular-region`, exam, 13 bank parts)
+#### Segments and composite regions built from sectors, triangles and rectangles (`t3-composite-circular-region`, exam, 14 bank parts)
 
 - **Situation:** A region of sectors, triangles and rectangles, or a sector from two conditions.
 - **Representations:** equation, **diagram**, **words** (bold: the exam uses it)
@@ -2420,7 +2420,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): A sector with angle θ sits on a straight line beside a triangle with angle π − θ at the same centre. Why does the triangle's area use sin θ? — Because sin(π − θ) = sin θ, so ½r² sin(π − θ) is ½r² sin θ, and the two pieces share the factor ½r².
 - **Misconceptions used:** 15. Leaving the calculator in degree mode when evaluating sin θ for θ in radians; Adding the two radii instead of the chord to the perimeter of a segment; Using the whole sector where only the segment belongs in the region; Adding the hidden join between two shapes to a perimeter; Using the angle between two tangents as the angle at the centre; Reading a ratio of two areas the wrong way round; Using the diameter as the radius of a semicircle; Leaving the triangle out of a region made of a sector and a triangle; Using θ in degrees in l = rθ; Giving the minor sector when the major sector is asked for; Using perimeter = rθ, forgetting the 2r; Accepting a solution with θ > 2π; Keeping only one root when both give a valid sector; Using θ in degrees in the sector term of a segment's area; Leaving the calculator in degree mode when evaluating the sine of an angle in radians.
 
-#### Arc length, sector area and perimeter, forwards or backwards (`t3-arc-sector`, exam, 16 bank parts)
+#### Arc length, sector area and perimeter, forwards or backwards (`t3-arc-sector`, exam, 19 bank parts)
 
 - **Situation:** One sector of a circle.
 - **Representations:** equation, **diagram**, **words** (bold: the exam uses it)
@@ -2477,7 +2477,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): Why is the cos list of the landmark angles the sin list read backwards? — Because cos θ = sin(π/2 − θ): reflecting the unit circle in y = x swaps x and y.
 - **Misconceptions used:** 9. Swapping the sine and cosine values of a special angle; Inverting the value of tan at a special angle; Thinking the angle of an isosceles right triangle has a sine or cosine of one half; Getting the size right but the sign wrong for the quadrant; Measuring the reference angle from the y-axis; Treating a negative angle as positive; Swapping coordinates: taking sin θ as the x-coordinate; Measuring θ clockwise or from the y-axis; Thinking tan has a value where cos is zero.
 
-#### Prove a trig identity (`t3-prove-identity`, exam, 3 bank parts)
+#### Prove a trig identity (`t3-prove-identity`, exam, 4 bank parts)
 
 - **Situation:** One trig identity to prove, as a chain of lines.
 - **Representations:** **equation**, words (bold: the exam uses it)
@@ -2505,7 +2505,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): At x = π/4 both sides of sin 2x = 2 sin x cos x equal 1, so that proves the identity. — False: one value only shows the two sides agree there. sin x = cos x also holds at x = π/4, and it is no identity. A proof runs from one side to the other for every x.
 - **Misconceptions used:** 24. Working on both sides at once as if solving an equation, then treating a true last line as the proof; Cancelling across a sum, as if one term of the top were a factor of the whole top; Choosing a form of the double-angle cosine that does not cancel the constant term; Checking the two sides at one value and calling that a proof; Stopping before reaching the other side, so the proof has no last line; Getting a sign wrong when a bracket after a minus is removed or a factor is taken out; Leaving out the factor of two in the double-angle sine; Swapping the signs in a form of the double-angle cosine; Treating a difference of squares of sine and cosine as one, which only their sum is; Forgetting to double the middle term when squaring a bracket; Squaring each term of a bracket with no middle term; Keeping the same angle when a double-angle identity should change it; Writing a difference of two squares as the same bracket twice; Writing tan as cosine over sine, the wrong way up; Leaving the number in front unchanged when using a double-angle identity; Reading the greatest value off the number in front, leaving out the constant in the bracket; Reading the greatest value off the number in front of the first form, before the identity changes it; Putting the angle into the function without its multiple; Mixing up the double-angle identities for sine and cosine; Adding two fractions by adding their tops and adding their bottoms; Multiplying only the first term of a bracket; Squaring the trig term but not the number in front of it; Factorising a perfect square as a difference of two squares; Starting from the simpler side, which gives less to work from.
 
-#### Use Pythagorean and double-angle identities to find exact values or rewrite (`t3-identity-values`, exam, 5 bank parts)
+#### Use Pythagorean and double-angle identities to find exact values or rewrite (`t3-identity-values`, exam, 7 bank parts)
 
 - **Situation:** One angle fixed by a ratio, or one expression to rewrite.
 - **Representations:** **equation**, **diagram** (bold: the exam uses it)
@@ -2576,7 +2576,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L3): In degree mode, is a value of a radian model usually right, nearly right or nothing like it? Predict whether the error can be positive, then try one. — Positive: the angle is read as far smaller than it is, so the answer can be off by nearly the whole height of the wave.
 - **Misconceptions used:** 13. Leaving the calculator in degree mode for a radian model; Giving only the first intersection when all times in the interval are asked for; Taking b itself as the period, instead of working out b from the period; Giving the time on the wrong side of the level: below it when above was asked, or the reverse; Stopping at the peak, so only half of the time past the level is counted; Counting one cycle when the time span holds several; Taking c in the bracket as the time of a maximum or minimum; Reading the constant d as the largest or smallest value; Dividing the whole time by the period, without placing the first one; Forgetting to change the time span into the unit the model uses; Taking the whole period as the gap from a low point to the next high point; Taking the wrong sign for the value of an angle past the first quadrant; Leaving d out of the maximum, the minimum or the range.
 
-#### Read amplitude, period and principal axis from a graph or equation (`t3-trig-read-features`, exam, 18 bank parts)
+#### Read amplitude, period and principal axis from a graph or equation (`t3-trig-read-features`, exam, 19 bank parts)
 
 - **Situation:** One wave to read or to use, shared with `t3-trig-model-equation`, `t3-trig-model-parameters`, `t3-trig-model-use`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
@@ -2604,7 +2604,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): Why does y = 2 tan x have no amplitude, when y = 2 sin x does? — An amplitude is half the height from the bottom of a wave to its top, and tan has no top: each branch climbs without limit.
 - **Misconceptions used:** 15. Using b as the period, instead of working the period out from b; Taking the amplitude as a + d, or as negative when a is negative; Giving tan x an amplitude; Using the period rule of sin and cos for tan, which repeats twice as often; Using tan's period rule for a sine or cosine wave, which takes twice as long to repeat; Leaving d out of the maximum, the minimum or the range; Keeping the minus sign of a when adding it to d, which swaps the maximum and the minimum; Reading the amplitude as the principal axis, or the other way round; Ignoring the minus sign in front of the wave, which turns its peaks into troughs; Mixing up where the two waves peak: cosine at the start of a cycle, sine a quarter of a cycle later; Taking a as positive when the wave starts at its lowest point; Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum; Using a = max − min, forgetting to halve; Leaving the calculator in degree mode for a radian model; Taking b itself as the period, instead of working out b from the period.
 
-#### Find the parameters of a trig model from a graph, data or context (`t3-trig-model-parameters`, exam, 7 bank parts)
+#### Find the parameters of a trig model from a graph, data or context (`t3-trig-model-parameters`, exam, 9 bank parts)
 
 - **Situation:** One wave and the model behind it, shared with `t3-trig-model-equation`, `t3-trig-model-use`, `t3-trig-read-features`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
@@ -2631,7 +2631,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): In h(t) = −10 cos(πt/6) + 12, what does the minus sign tell you? — The wave starts at its lowest point: at t = 0 it is 12 − 10 = 2, then it rises.
 - **Misconceptions used:** 8. Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum; Using a = max − min, forgetting to halve; Getting the sign of c wrong in the bracket; Reading the shift before taking b out of the bracket; Treating b as the horizontal scale factor: a stretch with scale factor k divides b by k; Getting the direction of the shift wrong: a plus inside the bracket moves the graph left; Leaving the calculator in degree mode for a radian model; Taking b itself as the period, instead of working out b from the period.
 
-#### Trig equation that is a quadratic in sin or cos (`t3-trig-quadratic`, exam, 3 bank parts)
+#### Trig equation that is a quadratic in sin or cos (`t3-trig-quadratic`, exam, 5 bank parts)
 
 - **Situation:** A trig equation that is a quadratic in one ratio.
 - **Representations:** **equation**, graph (bold: the exam uses it)
@@ -2696,7 +2696,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L4): Why does a sine curve against a steep line through the origin have fewer solutions than against a shallow one? — The wave stays inside a band, and a steeper line leaves that band sooner, so there are fewer humps for it to cross.
 - **Misconceptions used:** 16. Looking at only part of the interval and missing solutions; Including the boundary values of k where the line only touches at a maximum or minimum; Leaving the GDC in degree mode; Giving the whole range of the function as the values of k, without counting the solutions each value gives; Counting each point where the line only touches a maximum or minimum as two solutions; Counting one solution in each cycle, when a line inside the range crosses twice in a cycle; Taking the share of one cycle as the share of a span that is not a whole number of cycles; Leaving out the maximum and the minimum, although the line still meets the curve at those heights; Leaving out the crossing at the origin; Counting two solutions in every cycle of the wave, although the line leaves the wave's band; Using the rule for the minimum at a maximum, or the rule for the maximum at a minimum; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Giving the time on the wrong side of the level: below it when above was asked, or the reverse; Stopping at the peak, so only half of the time past the level is counted; Leaving d out of the maximum, the minimum or the range.
 
-#### Solve a trig equation exactly in an interval (`t3-trig-equation`, exam, 8 bank parts)
+#### Solve a trig equation exactly in an interval (`t3-trig-equation`, exam, 9 bank parts)
 
 - **Situation:** One trig equation on an interval.
 - **Representations:** **equation**, graph, diagram (bold: the exam uses it)
@@ -2918,7 +2918,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): The mean of two groups together is the average of their two means. — Sometimes: only when the groups are the same size, or have the same mean. Otherwise the larger group pulls the mean its way.
 - **Misconceptions used:** 28. Dividing by the number of classes instead of the total frequency; Using the upper class boundary instead of the mid-interval value; Calling the estimate the exact mean; Using the lower class boundary instead of the mid-interval value; Using the class width instead of the mid-interval value; Assuming each value counts once, leaving the frequencies out; Using the class that holds the median as the modal class; Assuming the class with an unknown frequency cannot be the modal class; Assuming every class is as wide as the first when listing mid-interval values; Using Sx, which divides by one less than n, instead of σx; Using the standard deviation for the variance, or the variance for the standard deviation; Assuming the standard deviation can be negative because some values are below the mean; Using the mean of the deviations without their signs, with no squaring; Using twice the standard deviation as the variance; Using half of the variance as the standard deviation; Assuming a larger standard deviation means a larger mean; Reading a larger standard deviation as less spread; Assuming every value lies within one standard deviation of the mean; Averaging the two group means for a combined mean when the groups are different sizes; Forgetting that the unknown frequency p also appears in the denominator Σf; Using the sum of the known frequencies as the missing frequency; Assuming every class has the same frequency; Using each solved frequency in the row of the other; Using the old number of values for the new total; Using the missing value once, ignoring its frequency; Dividing the rest of the total by the size of the whole group; Using the equation for the mean when the median is given; Using the count on one side of the median as the missing frequency.
 
-#### Mean, median, mode, quartiles and spread of a data set (`t4-summary-statistics`, exam, 11 bank parts)
+#### Mean, median, mode, quartiles and spread of a data set (`t4-summary-statistics`, exam, 15 bank parts)
 
 - **Situation:** One discrete data set, as a list or a frequency table, and what summarises it.
 - **Representations:** **terms**, **table**, **words** (bold: the exam uses it)
@@ -2960,7 +2960,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L3): Predict y at x = 10 and at x = 11 on a line y = ax + b. What is the difference? — It is exactly a, whatever x you start from: this is what the gradient means.
 - **Misconceptions used:** 20. Interpreting b as the rate of change and a as the starting value; Saying 'a is the gradient' without any reference to the context or units; Treating b as meaningful when x = 0 is far outside the data; Reading the gradient backwards, as the change in x for one unit of y; Ignoring the sign of a, so that a fall is read as a rise; Reading a fitted gradient as an exact rule for every individual, not an average; Reading b as the mean of y; Reading b as the x-intercept, where y is 0; Putting the extra amount in as x, which gives a prediction, not a change; Giving the change for one unit when several extra units are asked about; Calling an intercept outside the data without checking the data; Expecting the regression line to pass through the data points; Saying b is only a constant of the line, with no units or meaning in the story; Forcing the line of best fit through the origin; Extrapolating far outside the data range and calling the result reliable; Rearranging the y-on-x line to predict x from a given y; Trusting a prediction when |r| is small; Reading the nearest plotted point instead of the line; Thinking no estimate from a regression line can be trusted, even inside the data with a strong r; Finding the x on the y-axis and reading across, instead of going up from the x-axis.
 
-#### Regression line and Pearson r on the GDC, then predict (`t4-regression-gdc`, exam, 19 bank parts)
+#### Regression line and Pearson r on the GDC, then predict (`t4-regression-gdc`, exam, 23 bank parts)
 
 - **Situation:** Paired data and the line fitted to it.
 - **Representations:** **table**, **equation** (bold: the exam uses it)
@@ -3075,7 +3075,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L3): Replace one face of a fair die by a copy of another face. What happens to the number of cells in the grid? — Nothing: a die has as many outcomes as faces, whatever is printed on them. The repeated number simply fills more cells.
 - **Misconceptions used:** 20. Counting a pair and its reverse as a single outcome; Using the number of different scores as the total number of outcomes; Reading the boundary score the wrong way: leaving it out of at least or at most, or keeping it in greater than or less than; Using another operation on the two numbers instead of the game's scoring rule; Copying the next cell along instead of working out the cell asked for; Adding the numbers of faces instead of multiplying them to get the size of the grid; Counting the different scores in the event instead of the cells that give them; Giving the probability of the opposite event instead of the one asked for; Counting the ties as part of an event that asks for a strictly higher or lower number; Assuming each side is higher half of the time, which ignores the ties and the faces; Working out the chance that the second number is higher, instead of the first; Treating every cell as equally likely when the die or spinner is biased; Assuming the whole amount needed has to come from one roll or spin; Taking the largest sum as the missing face, without subtracting the other die's face; Subtracting the smallest face of the other die, when the largest sum uses its largest face; Assuming the second smallest sum comes from the second die's next face, when it can come from the first die's next face; Giving the chance on the last face instead of the letter asked for; Assuming the biased die is fair; Using the other die's probabilities for the expected value; Using the same chance on every face, ignoring that the last face has its own chance.
 
-#### Venn diagrams, two-way tables and the addition rule (`t4-venn-addition-rule`, exam, 11 bank parts)
+#### Venn diagrams, two-way tables and the addition rule (`t4-venn-addition-rule`, exam, 12 bank parts)
 
 - **Situation:** Two events in one sample space.
 - **Representations:** **equation**, **words**, **diagram**, **table** (bold: the exam uses it)
@@ -3099,7 +3099,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): P(A ∩ B′) is the probability that neither A nor B happens. — False: it is A happening without B, one crescent of the diagram. Neither is A′ ∩ B′, the region outside both circles.
 - **Misconceptions used:** 6. Adding P(A) + P(B) without subtracting the overlap (double counting); Multiplying P(A) × P(B): that gives P(A ∩ B), and only when the events are independent; Confusing 'A or B' (the union) with 'exactly one of A and B'; Using the whole of A for the 'A only' region, without subtracting the intersection; Forgetting the region outside both circles; Reading A ∩ B′ as 'neither A nor B'.
 
-#### Expected value of a discrete random variable, fair games (`t4-expected-value`, exam, 17 bank parts)
+#### Expected value of a discrete random variable, fair games (`t4-expected-value`, exam, 18 bank parts)
 
 - **Situation:** One discrete random variable with its probability distribution, shared with `t4-discrete-distribution`, `t4-expected-occurrences`.
 - **Representations:** **table**, **equation**, **words** (bold: the exam uses it)
@@ -3113,7 +3113,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A game is fair when the player is as likely to win as to lose. — False: a game is fair when the player's expected gain is 0. One rare big prize can balance many small losses.
 - **Misconceptions used:** 5. Taking the plain average of the x-values and ignoring the probabilities; Believing E(X) must be one of the possible values of X; Dividing Σ x P(X = x) by the number of values; Setting Σ x P(X = x) equal to 1 instead of to E(X); Using the prize as the gain without subtracting the stake.
 
-#### Discrete distribution: probabilities sum to 1, find k, read probabilities (`t4-discrete-distribution`, exam, 12 bank parts)
+#### Discrete distribution: probabilities sum to 1, find k, read probabilities (`t4-discrete-distribution`, exam, 14 bank parts)
 
 - **Situation:** One discrete random variable with its probability distribution, shared with `t4-expected-occurrences`, `t4-expected-value`.
 - **Representations:** **table**, **equation**, **words** (bold: the exam uses it)
@@ -3127,7 +3127,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): P(X > 2) + P(X ≤ 2) = 1. — Always: every value of X is either more than 2 or at most 2, and never both, so the two events are complements.
 - **Misconceptions used:** 3. Adding the x-values (or the products x × P) instead of the probabilities; Treating every possible value of X as equally likely; Including the endpoint for a strict inequality.
 
-#### Binomial probabilities, mean, and finding n (`t4-binomial`, exam, 18 bank parts)
+#### Binomial probabilities, mean, and finding n (`t4-binomial`, exam, 19 bank parts)
 
 - **Situation:** One binomial random variable X ~ B(n, p) in a context.
 - **Representations:** **equation**, **words** (bold: the exam uses it)
@@ -3151,7 +3151,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): For any binomial distribution, Var(X) is smaller than E(X). — True: Var(X) = np(1 − p) = E(X)(1 − p), and 1 − p is less than 1, so the variance is always smaller than the mean. That is why Var(X) ÷ E(X) gives 1 − p.
 - **Misconceptions used:** 14. Writing B(p, n) instead of B(n, p); Leaving out the nCr factor; Swapping the powers of p and its complement; Using the cumulative function (binomcdf) for 'exactly r'; Using P(X ≤ k) as the complement of P(X ≥ k), instead of stopping at the value below k; Using P(X ≤ k) for P(X < k); Subtracting the wrong cumulative: P(a < X ≤ b) subtracts P(X ≤ a); Using np as the variance, forgetting the factor 1 − p; Giving np(1 − p) when the standard deviation is asked for; Rounding E(X) to a whole number; Rounding n down instead of up to the next whole number; Taking p = Var(X) ÷ E(X) (that gives 1 − p); Finding the probability of k successes in n trials for 'the kth success is on trial n'; Multiplying the two probabilities in a conditional instead of dividing.
 
-#### Inverse normal: value for a given probability (`t4-inverse-normal`, exam, 5 bank parts)
+#### Inverse normal: value for a given probability (`t4-inverse-normal`, exam, 6 bank parts)
 
 - **Situation:** A normal variable with a value asked for, shared with `t4-normal-probability`, `t4-normal-unknown-parameter`.
 - **Representations:** **equation**, **words**, diagram (bold: the exam uses it)
@@ -3177,7 +3177,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): If X and Y have the same standard deviation, a value the same distance above each mean cuts off the same tail area. — True: both values have the same z, so the two curves are the same shape with the same area beyond them.
 - **Misconceptions used:** 16. Entering the upper-tail area without converting it to the area on the left; Giving the z-value or the probability as the answer instead of the x-value; Using normalcdf when a value of x is wanted; Taking 1 minus the area when it is already the area on the left; Adding z to the mean without multiplying by σ; Using the central area as the left-tail area; Treating a band as if it ran all the way to the end of the curve; Splitting the tails equally when they are not equal; Giving the larger tail to the wrong end of the curve; Finding the other end of the band instead of the one asked for; Keeping the given value instead of moving it to where the areas match; Measuring the distance on the wrong side of the mean; Moving the value by the gap between the means in the wrong direction; Giving the distance from the mean instead of the value; Reading the tail against the wrong number of standard deviations; Measuring the distance from the given value instead of from the mean.
 
-#### Normal curve properties: symmetry, sigma intervals, matching curves (`t4-normal-properties`, exam, 8 bank parts)
+#### Normal curve properties: symmetry, sigma intervals, matching curves (`t4-normal-properties`, exam, 9 bank parts)
 
 - **Situation:** What the shape of a normal curve gives.
 - **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
@@ -3216,7 +3216,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): Two normal curves have the same σ and different means. What is the same about them, and what is different? — They are the same shape, so one slides onto the other. Only their positions differ.
 - **Misconceptions used:** 35. Using the wrong figure of the rule for how many standard deviations the band reaches; Assuming a larger σ gives a taller curve; Assuming a single value of a continuous variable has a non-zero probability; Using the sum of the tails as the middle, instead of subtracting them from the whole area; Forgetting that the mean cuts the area into two equal halves; Using the origin as the mirror instead of μ; Using the central area as the left-tail area in invNorm; Using the endpoint μ + k as the answer when k is asked for; Giving the area on the wrong side of the bound or the band; Using the share of the whole band for a region that is not that band; Using half of the band where another area is asked for; Keeping both tails when one is asked for; Using one tail where there are two; Leaving a share as a share instead of multiplying by the total; Using the width of the band ÷ k, when the band reaches k standard deviations each side; Stepping from the given end only as far as the mean; Stepping one standard deviation from the mean when the band reaches further; Assuming a change in μ changes the shape of the curve; Assuming a change in σ moves the curve along; Assuming a larger σ makes the curve narrower; Moving the curve the wrong way along the axis; Using the wrong mean for the curve; Shading from the mean to the bound instead of the region asked for; Centring the curve somewhere other than the mean; Using k in place of kσ, so the bound is k from the mean; Using the complement where the mirror is needed; Using the large area as the mirror of itself, without taking it from the whole area; Measuring the area from the mean instead of the tail; Assuming two different tails are equal; Keeping the value unchanged when the curve has moved; Moving the value the wrong way, by the difference of the means; Using the same side of the mean when the two tails point opposite ways; Using the sum of the value and the mean instead of a reflection; Using z without multiplying by σ; Multiplying by σ when k already counts standard deviations.
 
-#### Normal probability for an interval on the GDC (`t4-normal-probability`, exam, 12 bank parts)
+#### Normal probability for an interval on the GDC (`t4-normal-probability`, exam, 13 bank parts)
 
 - **Situation:** A normal variable with a region asked for, shared with `t4-inverse-normal`, `t4-normal-unknown-parameter`.
 - **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
@@ -3261,7 +3261,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L4): As r gets closer to 1, what happens to the two regression lines? — They close up on each other, and at r = ±1 they are the same line.
 - **Misconceptions used:** 7. Rearranging the y-on-x line to make x the subject: it is a different line unless the fit is perfect; Copying the GDC output as y = ax + b without swapping the variables back; Thinking the other line can always be used if you rearrange it; Choosing a line by which variable is on the horizontal axis, regardless of which one is being predicted; Substituting the y-value into the y-on-x line and solving for x; Calling an extrapolated estimate reliable because r is strong; Substituting x̄ into the x-on-y equation as if it were a y-value.
 
-#### Use or test independence of events (`t4-independence`, exam, 9 bank parts)
+#### Use or test independence of events (`t4-independence`, exam, 10 bank parts)
 
 - **Situation:** Two events, known to be independent or to be tested.
 - **Representations:** **equation**, **words**, **diagram**, **table** (bold: the exam uses it)
@@ -3286,7 +3286,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): If A and B are independent, then A′ and B′ are independent. — Always: P(A′ ∩ B′) = 1 − P(A) − P(B) + P(A)P(B), which factorises to (1 − P(A))(1 − P(B)).
 - **Misconceptions used:** 12. Adding P(A) + P(B) for 'A and B'; Giving P(A) + P(B) − P(A)P(B), which is P(A ∪ B), when the intersection is asked for; Taking P(A ∩ B) = 0 for independent events (that is mutually exclusive); Leaving out the complement: using P(A) × P(B) when an event with a dash is asked for; Assuming that events that overlap cannot be independent; Mixing up independent with mutually exclusive: being independent is not about whether the events overlap; Giving a verdict from one number, when the test compares two; Reading the test backwards: equal values mean independent, and different values mean not; Using P(A ∪ B) = P(A) + P(B) as if the events were mutually exclusive; Setting P(A ∩ B) = 0 because the events are independent; Multiplying the two 'only' regions, when independence multiplies P(A) by P(B); Giving the probability of both events, when a conditional is asked for.
 
-#### Conditional probability from formula, table, tree or distribution (`t4-conditional-probability`, exam, 17 bank parts)
+#### Conditional probability from formula, table, tree or distribution (`t4-conditional-probability`, exam, 21 bank parts)
 
 - **Situation:** A conditional probability on events, a tree, or a distribution, shared with `t4-tree-diagram`.
 - **Representations:** **equation**, **words**, **diagram**, **table** (bold: the exam uses it)
@@ -3311,7 +3311,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L4): X is normal. Without working it out, is P(X > 40 | X > 30) bigger or smaller than P(X > 40)? — Bigger: knowing X is above 30 cuts away the rest of the curve, so the same area over X > 40 is now a share of a smaller whole.
 - **Misconceptions used:** 10. Dividing by the probability of the wrong event, not the one that is given; Giving the probability of both events as the answer, without dividing; Computing P(A | B) as P(A) × P(B); Reading P(B | A) off a branch and giving it as P(A | B); Not dividing by all the paths that lead to the condition; Dividing by P(B) instead of multiplying: P(A ∩ B) is P(A | B) × P(B); Treating P(A | B) as if it were P(A ∩ B); Multiplying the wanted probability by the given one instead of dividing; Giving the probability between the two bounds as the answer; Forgetting to divide by P(given).
 
-#### Find an unknown mean or standard deviation with z-scores (`t4-normal-unknown-parameter`, exam, 13 bank parts)
+#### Find an unknown mean or standard deviation with z-scores (`t4-normal-unknown-parameter`, exam, 15 bank parts)
 
 - **Situation:** A normal variable with a parameter hidden, shared with `t4-inverse-normal`, `t4-normal-probability`.
 - **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
@@ -3349,7 +3349,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 18 exam types have them so far.
 
-#### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
+#### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 7 bank parts)
 
 - **Situation:** A quantity changing in time, and its limits.
 - **Representations:** **equation**, **words**, graph, table (bold: the exam uses it)
@@ -3370,7 +3370,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): When a model levels off as t → ∞, its rate of change approaches 0. — Always: a curve that levels off is getting flatter, so its gradient approaches 0, whatever height it levels off at.
 - **Misconceptions used:** 6. Reading the rate of change as the amount itself; Ignoring a negative sign, so a falling quantity is read as rising; Giving the units of y only, instead of units of y per unit of x; Thinking a limit can't exist when the function never reaches the value; Giving the function's value at one point as the limit, instead of where its values are heading; Checking values on one side of x = a only.
 
-#### Where a function is increasing or decreasing (`t5-increasing-decreasing`, exam, 4 bank parts)
+#### Where a function is increasing or decreasing (`t5-increasing-decreasing`, exam, 5 bank parts)
 
 - **Situation:** A function and where it rises or falls.
 - **Representations:** **equation**, **graph**, words, table (bold: the exam uses it)
@@ -3437,7 +3437,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): A cubic has a tangent with gradient g, whatever the number g. — Sometimes: f′ is a quadratic, so its values stop on one side. For a > 0 there is a least gradient, and no tangent is steeper downhill than that.
 - **Misconceptions used:** 1. Solving f(x) = k instead of f′(x) = k.
 
-#### Equation of a tangent or normal, or values read from a given tangent (`t5-tangent-normal-equation`, exam, 14 bank parts)
+#### Equation of a tangent or normal, or values read from a given tangent (`t5-tangent-normal-equation`, exam, 15 bank parts)
 
 - **Situation:** One cubic with its gradient, tangents and turning points, shared with `t5-differentiate-polynomial`, `t5-stationary-points`, `t5-tangent-condition`.
 - **Representations:** **equation**, **words** (bold: the exam uses it)
@@ -3475,7 +3475,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): If, between x = a and x = b, the area under f′ above the x-axis is larger than the area below it, then f(b) > f(a). — True: f(b) − f(a) is the integral of f′ from a to b, the area above the axis minus the area below it, which is then positive.
 - **Misconceptions used:** 18. Taking a turning point of the f′ graph as a turning point of f; Claiming a maximum or minimum where f′ touches zero without changing sign; Justifying with 'f′ = 0' alone, without the sign change; Taking the zeros of f′ as the points of inflexion instead of its turning points; Leaving out the point where f′ touches the axis, though f′ turns there too; Ending an interval where f′ touches the axis, though f′ does not change sign there; Adding the areas without their signs, so area below the axis counts as a rise in f; Comparing the heights of the f′ graph instead of the areas under it; Claiming a point of inflexion where f″ touches zero without changing sign; Taking a turning point of the f″ graph as a point of inflexion of f; Taking the graph of f′ itself as the graph of f; Reading the sign change of f′ the wrong way round, mixing up a maximum and a minimum; Giving the change in f as its value, leaving out the starting value; Confusing concave up with increasing: looking at the sign of f′ instead of f″; Using the sign of f instead of the sign of f′: being above the axis is not the same as going up; Thinking f′ is zero at the x-intercepts rather than at the turning points; Thinking f′(x) = 0 means the function value is zero; Giving the height of the curve at the point instead of its gradient.
 
-#### Stationary points and inflexion: find, classify, justify (`t5-stationary-points`, exam, 14 bank parts)
+#### Stationary points and inflexion: find, classify, justify (`t5-stationary-points`, exam, 20 bank parts)
 
 - **Situation:** One cubic with its gradient, tangents and turning points, shared with `t5-differentiate-polynomial`, `t5-tangent-condition`, `t5-tangent-normal-equation`.
 - **Representations:** **equation**, **words** (bold: the exam uses it)
@@ -3489,7 +3489,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): A point where f″(x) = 0 is a point of inflexion. — Sometimes: f″ must also change sign there. For f(x) = x⁴, f″(0) = 0 but (0, 0) is a minimum.
 - **Misconceptions used:** 3. Substituting the x-value into f′ instead of f to get the y-coordinate; Reversing the second-derivative test: a positive f″ means a minimum; Giving the x-value when the maximum value is asked for (or the other way round).
 
-#### Optimisation: build a function from a constraint, then maximise or minimise (`t5-optimisation-modelling`, exam, 18 bank parts)
+#### Optimisation: build a function from a constraint, then maximise or minimise (`t5-optimisation-modelling`, exam, 21 bank parts)
 
 - **Situation:** One shape or journey with a fixed amount and one free length.
 - **Representations:** **diagram**, **words**, **equation** (bold: the exam uses it)
@@ -3515,7 +3515,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): When a quantity depends on two lengths tied by a constraint, it can be differentiated before one length is eliminated. — Never by the plain power rule: the second length changes with the first, so it can't be held constant. Eliminate it first, so the function has one variable.
 - **Misconceptions used:** 30. Differentiating before eliminating the second variable; Ignoring the feasible domain, such as a cut too big for the sheet; Giving the constraint value or the optimal x when the optimal value is asked for; Solving f(x) = 0 instead of f′(x) = 0; Reading maximum and minimum the wrong way round; Checking the sign of f rather than f′ either side of the point; Counting a fence along the wall as well; Counting only one of the sections of length x; Dividing the fixed amount the wrong way up; Using the circumference in place of the base area; Counting only some of the side faces; Counting a lid on an open shape; Counting the wrong number of flat ends; Using half the curved surface; Cutting x from only one end of each edge; Leaving the height out of the volume; Taking x as the full width of the rectangle; Adding the two legs instead of using Pythagoras; Multiplying distance by speed to get a time; Using x for the stretch along the road; Losing the minus sign when differentiating a negative power; Adding one to a negative power instead of subtracting one; Keeping the old power after multiplying by it; Stopping before taking the root; Taking a square root where a cube root is needed; Measuring x from the depot instead of from P; Taking the straight line to the depot without minimising; Taking the point straight above P as the closest; Leaving out the factor from the power when differentiating the squared bracket; Giving the length found first instead of the one asked for.
 
-#### Kinematics: displacement and distance by integrating velocity (`t5-kinematics-distance`, exam, 23 bank parts)
+#### Kinematics: displacement and distance by integrating velocity (`t5-kinematics-distance`, exam, 26 bank parts)
 
 - **Situation:** A particle's journey, added up, shared with `t5-kinematics-motion`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
@@ -3550,7 +3550,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L4): s(t) = t³ − 4t + C for a moving particle. What does C tell you, and what does it not change? — C is the displacement when t = 0. It shifts the graph of s up or down, so it changes no velocity and no distance travelled.
 - **Misconceptions used:** 21. Assuming the constant is 0 (or that s = 0 at t = 0) without being told; Differentiating v instead of integrating to get s; Confusing the displacement over an interval with the position at the end of it; Using ∫ v dt (the displacement) as the distance; Not splitting the integral where the particle changes direction; Subtracting the area below the t-axis instead of adding it; Counting area below the axis as positive displacement; Giving the signed displacement as a distance from the origin; Using the total distance travelled as the distance from the origin; Using distance = speed × time with a velocity that changes; Looking for where v is increasing instead of where v is positive; Thinking speed increases only while a is positive, whatever the sign of v; Taking half a period as the time between two ridges; Giving how far the second racer has gone, not how far it has left; Assuming a change of direction means the particle is back at its start; Using the total distance to decide whether a particle gets back to its start; Leaving out + C after integrating; Adding the integral over the part where v is negative instead of subtracting it; Using the overall change in position as the distance; Using the size of the overall change in position as the distance; Not splitting the integral where the direction changes.
 
-#### Kinematics: rest, direction change, acceleration, maximum speed (`t5-kinematics-motion`, exam, 29 bank parts)
+#### Kinematics: rest, direction change, acceleration, maximum speed (`t5-kinematics-motion`, exam, 34 bank parts)
 
 - **Situation:** A particle on a straight line, shared with `t5-kinematics-distance`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
@@ -3616,7 +3616,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): In S(t) = 200e^(−0.1t), what does the −0.1 say about the rate of change? — The rate is S′(t) = −0.1 × S(t), so at any time the quantity falls at a tenth of its size per unit of time.
 - **Misconceptions used:** 12. Reading the rate of change as the amount itself; Ignoring a negative sign, so a falling quantity is read as rising; Giving the units of y only, instead of units of y per unit of x; Using the change over the next unit of time instead of the rate at that instant; Finding the greatest value of the quantity instead of its greatest rate; Giving the rate per the model's unit of time when another unit is asked for; Using f′(a) instead of f′(g(a)) for a composite; Multiplying f′(a) × g′(a) for a product; Reading g′(a) when g(a) is needed; Dividing f′(a) by g′(a) for a quotient; Subtracting the two terms of the quotient rule in the wrong order; Leaving out the inner derivative of a composite.
 
-#### Chain, product and quotient rules (`t5-differentiation-rules`, exam, 8 bank parts)
+#### Chain, product and quotient rules (`t5-differentiation-rules`, exam, 10 bank parts)
 
 - **Situation:** A function to differentiate.
 - **Representations:** **equation**, words (bold: the exam uses it)
@@ -3668,7 +3668,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): If f″(a) = 0, then the graph of f has a point of inflexion at x = a. — Sometimes: x³ does at x = 0, but x⁴ has f″(0) = 0 and is concave up on both sides, so it has none. f″ has to change sign.
 - **Misconceptions used:** 7. Squaring f′(x) instead of differentiating it; Stopping at f′ instead of differentiating again; Reading d²y/dx² as (dy/dx)²; Confusing concave up with increasing: looking at the sign of f′ instead of f″; Thinking concave down means decreasing; Going by the curve's general shape instead of checking its zeros, turning points and signs; Putting the zeros of a derivative at the x-intercepts instead of at the turning points.
 
-#### Integrate, then find the constant from a point or initial value (`t5-antiderivative-condition`, exam, 9 bank parts)
+#### Integrate, then find the constant from a point or initial value (`t5-antiderivative-condition`, exam, 11 bank parts)
 
 - **Situation:** A derivative and a condition that fixes the constant.
 - **Representations:** **equation**, **words**, graph (bold: the exam uses it)
@@ -3766,7 +3766,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): ∫ f(x)g(x) dx equals (∫ f(x) dx)(∫ g(x) dx). — Sometimes at best, and not as a rule: for f(x) = g(x) = x it fails, since x³/3 is not (x²/2)². There is no product rule that splits an integral this way.
 - **Misconceptions used:** 14. Dividing by the old power instead of the new one; Forgetting + C; Integrating a fraction in x without first rewriting it as a negative power; Integrating sin x to cos x, with the wrong sign; Using the power rule on a reciprocal term, which would mean dividing by zero; Multiplying by the new power instead of dividing; Multiplying by the coefficient of x, as in differentiation, instead of dividing; Forgetting to divide by the coefficient of x; Dividing by the whole exponent instead of the coefficient of x; Integrating the outer function but leaving the extra factor in place; Forgetting to divide by the number that comes from differentiating the inside; Forgetting to substitute back from u to x; Integrating the numerator and denominator separately; Missing the middle term when squaring a bracket.
 
-#### Area between two curves (`t5-area-between-curves`, exam, 13 bank parts)
+#### Area between two curves (`t5-area-between-curves`, exam, 15 bank parts)
 
 - **Situation:** Two curves and the region between them.
 - **Representations:** **equation**, **graph**, **diagram** (bold: the exam uses it)

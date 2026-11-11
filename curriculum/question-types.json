@@ -2,9 +2,9 @@
  "about": "Catalogue of IB AA SL exam question types, built from the per-part tags of the Math-AA question bank (RktRobinhood/Math-AA---Question-Bank). Structures are described in our own words; no IB text, numbers or images. See curriculum/QUESTION_TYPES.md. Check and regenerate with node tools/question-types.mjs.",
  "bank": {
   "repo": "RktRobinhood/Math-AA---Question-Bank",
-  "papers": "34 papers, May 2021 to May 2025",
-  "questions": 306,
-  "parts": 869
+  "papers": "38 papers, May 2021 to November 2025",
+  "questions": 342,
+  "parts": 973
  },
  "partIds": "A part ID is the bank question ID plus \".\" and the part letter (aa-sl-2021-may-tz1-p1-q01.a). Questions with no lettered parts use the bare question ID.",
  "levels": {
@@ -6492,20 +6492,21 @@
     "aa-sl-2024-may-tz2-p1-q04.b",
     "aa-sl-2024-nov-tz1-p1-q07.a",
     "aa-sl-2024-nov-tz2-p1-q07.a",
-    "aa-sl-2025-may-tz3-p2-q07.c"
+    "aa-sl-2025-may-tz3-p2-q07.c",
+    "aa-sl-2025-nov-tz1-p1-q07.b"
    ],
    "alsoSeenIn": [
     "aa-sl-2025-may-tz3-p2-q07.d"
    ],
    "stats": {
-    "parts": 12,
+    "parts": 13,
     "paper": {
-     "p1": 11,
+     "p1": 12,
      "p2": 1
     },
     "section": {
      "A": 9,
-     "B": 3
+     "B": 4
     },
     "marks": {
      "min": 1,
@@ -6513,7 +6514,7 @@
      "max": 4
     },
     "mainTags": {
-     "2.1": 12
+     "2.1": 13
     }
    }
   },
@@ -7193,18 +7194,19 @@
     "aa-sl-2024-may-tz2-p1-q01.a",
     "aa-sl-2025-may-tz3-p1-q03.a",
     "aa-sl-2025-may-tz3-p1-q03.b",
-    "aa-sl-2025-may-tz3-p1-q03.c"
+    "aa-sl-2025-may-tz3-p1-q03.c",
+    "aa-sl-2025-nov-tz1-p1-q07.c"
    ],
    "alsoSeenIn": [],
    "stats": {
-    "parts": 8,
+    "parts": 9,
     "paper": {
-     "p1": 8,
+     "p1": 9,
      "p2": 0
     },
     "section": {
      "A": 8,
-     "B": 0
+     "B": 1
     },
     "marks": {
      "min": 1,
@@ -7212,7 +7214,7 @@
      "max": 3
     },
     "mainTags": {
-     "2.5": 2,
+     "2.5": 3,
      "2.2": 6
     }
    }
@@ -7639,26 +7641,27 @@
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q09.e",
-    "aa-sl-2024-may-tz2-p1-q01.b"
+    "aa-sl-2024-may-tz2-p1-q01.b",
+    "aa-sl-2025-nov-tz1-p1-q07.f"
    ],
    "alsoSeenIn": [],
    "stats": {
-    "parts": 2,
+    "parts": 3,
     "paper": {
-     "p1": 1,
+     "p1": 2,
      "p2": 1
     },
     "section": {
      "A": 1,
-     "B": 1
+     "B": 2
     },
     "marks": {
-     "min": 2,
+     "min": 1,
      "median": 2,
      "max": 2
     },
     "mainTags": {
-     "2.2": 2
+     "2.2": 3
     }
    }
   },
@@ -8722,18 +8725,19 @@
     "aa-sl-2021-may-tz2-p2-q05.a",
     "aa-sl-2021-may-tz2-p2-q05.b",
     "aa-sl-2024-may-tz1-p1-q08.b",
-    "aa-sl-2025-may-tz2-p1-q03.c"
+    "aa-sl-2025-may-tz2-p1-q03.c",
+    "aa-sl-2025-nov-tz3-p1-q09.b"
    ],
    "alsoSeenIn": [],
    "stats": {
-    "parts": 4,
+    "parts": 5,
     "paper": {
-     "p1": 2,
+     "p1": 3,
      "p2": 2
     },
     "section": {
      "A": 3,
-     "B": 1
+     "B": 2
     },
     "marks": {
      "min": 1,
@@ -8743,7 +8747,7 @@
     "mainTags": {
      "2.6": 1,
      "2.5": 1,
-     "2.2": 2
+     "2.2": 3
     }
    }
   },
@@ -10234,7 +10238,8 @@
     "aa-sl-2022-nov-tz0-p2-q03.a",
     "aa-sl-2022-nov-tz0-p2-q03.b",
     "aa-sl-2024-nov-tz1-p2-q01.b",
-    "aa-sl-2024-nov-tz2-p2-q01.b"
+    "aa-sl-2024-nov-tz2-p2-q01.b",
+    "aa-sl-2025-nov-tz3-p2-q09.d"
    ],
    "alsoSeenIn": [
     "aa-sl-2021-may-tz2-p2-q02.b",
@@ -10249,14 +10254,14 @@
     "aa-sl-2025-may-tz2-p2-q05.a"
    ],
    "stats": {
-    "parts": 5,
+    "parts": 6,
     "paper": {
      "p1": 0,
-     "p2": 5
+     "p2": 6
     },
     "section": {
      "A": 5,
-     "B": 0
+     "B": 1
     },
     "marks": {
      "min": 1,
@@ -10265,7 +10270,7 @@
     },
     "mainTags": {
      "2.10": 1,
-     "2.4": 4
+     "2.4": 5
     }
    }
   },
@@ -12073,18 +12078,19 @@
     "aa-sl-2023-nov-tz1-p1-q02.a",
     "aa-sl-2023-nov-tz1-p1-q02.b",
     "aa-sl-2023-nov-tz2-p1-q02.a",
-    "aa-sl-2023-nov-tz2-p1-q02.b"
+    "aa-sl-2023-nov-tz2-p1-q02.b",
+    "aa-sl-2025-nov-tz1-p1-q07.d"
    ],
    "alsoSeenIn": [],
    "stats": {
-    "parts": 9,
+    "parts": 10,
     "paper": {
-     "p1": 8,
+     "p1": 9,
      "p2": 1
     },
     "section": {
      "A": 9,
-     "B": 0
+     "B": 1
     },
     "marks": {
      "min": 2,
@@ -12092,7 +12098,7 @@
      "max": 7
     },
     "mainTags": {
-     "2.5": 9
+     "2.5": 10
     }
    }
   },
@@ -12757,18 +12763,20 @@
     "aa-sl-2023-may-tz1-p1-q02.c",
     "aa-sl-2023-may-tz2-p2-q07.a",
     "aa-sl-2025-may-tz1-p2-q09.a",
-    "aa-sl-2025-may-tz1-p2-q09.d"
+    "aa-sl-2025-may-tz1-p2-q09.d",
+    "aa-sl-2025-nov-tz1-p1-q07.a",
+    "aa-sl-2025-nov-tz1-p1-q07.e"
    ],
    "alsoSeenIn": [],
    "stats": {
-    "parts": 5,
+    "parts": 7,
     "paper": {
-     "p1": 1,
+     "p1": 3,
      "p2": 4
     },
     "section": {
      "A": 1,
-     "B": 4
+     "B": 6
     },
     "marks": {
      "min": 2,
@@ -12776,7 +12784,7 @@
      "max": 8
     },
     "mainTags": {
-     "2.5": 5
+     "2.5": 7
     }
    }
   },
@@ -14226,21 +14234,22 @@
     "aa-sl-2023-may-tz2-p1-q07.c",
     "aa-sl-2024-may-tz1-p1-q08.c",
     "aa-sl-2024-may-tz1-p1-q08.e",
-    "aa-sl-2025-may-tz1-p1-q08.a"
+    "aa-sl-2025-may-tz1-p1-q08.a",
+    "aa-sl-2025-nov-tz3-p1-q08.b"
    ],
    "alsoSeenIn": [
     "aa-sl-2021-may-tz1-p1-q07.d",
     "aa-sl-2022-may-tz2-p1-q07.d"
    ],
    "stats": {
-    "parts": 11,
+    "parts": 12,
     "paper": {
-     "p1": 11,
+     "p1": 12,
      "p2": 0
     },
     "section": {
      "A": 1,
-     "B": 10
+     "B": 11
     },
     "marks": {
      "min": 1,
@@ -14248,7 +14257,7 @@
      "max": 5
     },
     "mainTags": {
-     "2.6": 11
+     "2.6": 12
     }
    }
   },
@@ -14690,17 +14699,20 @@
     "aa-sl-2022-nov-tz0-p1-q07.b",
     "aa-sl-2024-may-tz1-p1-q08.d",
     "aa-sl-2024-nov-tz1-p1-q07.b",
-    "aa-sl-2024-nov-tz2-p1-q07.b"
+    "aa-sl-2024-nov-tz2-p1-q07.b",
+    "aa-sl-2025-nov-tz1-p1-q04.a",
+    "aa-sl-2025-nov-tz1-p1-q06.a",
+    "aa-sl-2025-nov-tz1-p1-q06.b"
    ],
    "alsoSeenIn": [],
    "stats": {
-    "parts": 7,
+    "parts": 10,
     "paper": {
-     "p1": 7,
+     "p1": 10,
      "p2": 0
     },
     "section": {
-     "A": 1,
+     "A": 4,
      "B": 6
     },
     "marks": {
@@ -14709,7 +14721,7 @@
      "max": 7
     },
     "mainTags": {
-     "2.6": 7
+     "2.6": 10
     }
    }
   },
@@ -15618,18 +15630,19 @@
     "aa-sl-2024-nov-tz2-p2-q06",
     "aa-sl-2025-may-tz2-p1-q05.a",
     "aa-sl-2025-may-tz2-p1-q05.b",
-    "aa-sl-2025-may-tz3-p1-q05.b"
+    "aa-sl-2025-may-tz3-p1-q05.b",
+    "aa-sl-2025-nov-tz3-p1-q08.a"
    ],
    "alsoSeenIn": [],
    "stats": {
-    "parts": 13,
+    "parts": 14,
     "paper": {
-     "p1": 11,
+     "p1": 12,
      "p2": 2
     },
     "section": {
      "A": 7,
-     "B": 6
+     "B": 7
     },
     "marks": {
      "min": 2,
@@ -15637,7 +15650,7 @@
      "max": 9
     },
     "mainTags": {
-     "2.7": 12,
+     "2.7": 13,
      "1.7": 1
     }
    }
@@ -17569,27 +17582,30 @@
     "aa-sl-2024-may-tz2-p1-q06.a",
     "aa-sl-2025-may-tz1-p2-q09.c",
     "aa-sl-2025-may-tz2-p1-q03.a",
-    "aa-sl-2025-may-tz2-p1-q03.b"
+    "aa-sl-2025-may-tz2-p1-q03.b",
+    "aa-sl-2025-nov-tz1-p2-q07.a",
+    "aa-sl-2025-nov-tz3-p1-q05.a",
+    "aa-sl-2025-nov-tz3-p1-q09.a"
    ],
    "alsoSeenIn": [],
    "stats": {
-    "parts": 12,
+    "parts": 15,
     "paper": {
-     "p1": 10,
-     "p2": 2
+     "p1": 12,
+     "p2": 3
     },
     "section": {
-     "A": 10,
-     "B": 2
+     "A": 11,
+     "B": 4
     },
     "marks": {
      "min": 1,
      "median": 2,
-     "max": 3
+     "max": 6
     },
     "mainTags": {
-     "2.8": 9,
-     "2.4": 2,
+     "2.8": 11,
+     "2.4": 3,
      "2.2": 1
     }
    }
@@ -18876,21 +18892,26 @@
     "aa-sl-2024-nov-tz1-p2-q08.c",
     "aa-sl-2024-nov-tz1-p2-q08.d",
     "aa-sl-2024-nov-tz2-p2-q08.c",
-    "aa-sl-2024-nov-tz2-p2-q08.d"
+    "aa-sl-2024-nov-tz2-p2-q08.d",
+    "aa-sl-2025-nov-tz1-p2-q08.a",
+    "aa-sl-2025-nov-tz1-p2-q08.b",
+    "aa-sl-2025-nov-tz1-p2-q08.c",
+    "aa-sl-2025-nov-tz1-p2-q08.e",
+    "aa-sl-2025-nov-tz1-p2-q08.g"
    ],
    "alsoSeenIn": [
     "aa-sl-2024-may-tz2-p2-q04.b",
     "aa-sl-2024-may-tz2-p2-q04.c"
    ],
    "stats": {
-    "parts": 14,
+    "parts": 19,
     "paper": {
      "p1": 0,
-     "p2": 14
+     "p2": 19
     },
     "section": {
      "A": 7,
-     "B": 7
+     "B": 12
     },
     "marks": {
      "min": 1,
@@ -18898,8 +18919,9 @@
      "max": 7
     },
     "mainTags": {
-     "2.9": 9,
-     "1.7": 5
+     "2.9": 11,
+     "1.7": 6,
+     "2.10": 2
     }
    }
   },
@@ -19848,29 +19870,31 @@
     "aa-sl-2023-nov-tz2-p2-q03.b",
     "aa-sl-2024-may-tz2-p1-q07.d",
     "aa-sl-2024-nov-tz1-p1-q08.d",
-    "aa-sl-2024-nov-tz2-p1-q08.d"
+    "aa-sl-2024-nov-tz2-p1-q08.d",
+    "aa-sl-2025-nov-tz1-p1-q01",
+    "aa-sl-2025-nov-tz3-p1-q05.b"
    ],
    "alsoSeenIn": [
     "aa-sl-2021-nov-tz0-p2-q08.d",
     "aa-sl-2023-may-tz1-p1-q06.b"
    ],
    "stats": {
-    "parts": 6,
+    "parts": 8,
     "paper": {
-     "p1": 4,
+     "p1": 6,
      "p2": 2
     },
     "section": {
-     "A": 3,
+     "A": 5,
      "B": 3
     },
     "marks": {
      "min": 2,
-     "median": 2,
+     "median": 3,
      "max": 6
     },
     "mainTags": {
-     "2.11": 5,
+     "2.11": 7,
      "1.7": 1
     }
    }
@@ -22802,17 +22826,18 @@
     "aa-sl-2025-may-tz1-p2-q08.a",
     "aa-sl-2025-may-tz1-p2-q08.b",
     "aa-sl-2025-may-tz1-p2-q08.e",
-    "aa-sl-2025-may-tz2-p2-q09.e"
+    "aa-sl-2025-may-tz2-p2-q09.e",
+    "aa-sl-2025-nov-tz3-p2-q07.a"
    ],
    "stats": {
-    "parts": 6,
+    "parts": 7,
     "paper": {
      "p1": 0,
-     "p2": 6
+     "p2": 7
     },
     "section": {
      "A": 2,
-     "B": 4
+     "B": 5
     },
     "marks": {
      "min": 1,
@@ -22820,7 +22845,7 @@
      "max": 4
     },
     "mainTags": {
-     "1.2": 6
+     "1.2": 7
     }
    }
   },
@@ -23329,16 +23354,19 @@
     "aa-sl-2024-nov-tz1-p1-q06",
     "aa-sl-2024-nov-tz2-p1-q06",
     "aa-sl-2025-may-tz1-p2-q08.c",
-    "aa-sl-2025-may-tz3-p1-q08.a"
+    "aa-sl-2025-may-tz3-p1-q08.a",
+    "aa-sl-2025-nov-tz1-p1-q02.a",
+    "aa-sl-2025-nov-tz1-p1-q02.b",
+    "aa-sl-2025-nov-tz3-p1-q03"
    ],
    "stats": {
-    "parts": 21,
+    "parts": 24,
     "paper": {
-     "p1": 20,
+     "p1": 23,
      "p2": 1
     },
     "section": {
-     "A": 13,
+     "A": 16,
      "B": 8
     },
     "marks": {
@@ -23347,7 +23375,7 @@
      "max": 10
     },
     "mainTags": {
-     "1.2": 21
+     "1.2": 24
     }
    }
   },
@@ -25780,17 +25808,19 @@
     "aa-sl-2023-nov-tz2-p2-q08.c",
     "aa-sl-2023-nov-tz2-p2-q08.d",
     "aa-sl-2025-may-tz1-p1-q03.a",
-    "aa-sl-2025-may-tz1-p1-q03.c"
+    "aa-sl-2025-may-tz1-p1-q03.c",
+    "aa-sl-2025-nov-tz3-p2-q07.b",
+    "aa-sl-2025-nov-tz3-p2-q07.c"
    ],
    "stats": {
-    "parts": 16,
+    "parts": 18,
     "paper": {
      "p1": 2,
-     "p2": 14
+     "p2": 16
     },
     "section": {
      "A": 7,
-     "B": 9
+     "B": 11
     },
     "marks": {
      "min": 1,
@@ -25798,7 +25828,7 @@
      "max": 6
     },
     "mainTags": {
-     "1.4": 16
+     "1.4": 18
     }
    }
   },
@@ -27362,16 +27392,17 @@
     "aa-sl-2022-nov-tz0-p1-q04.a",
     "aa-sl-2024-nov-tz1-p1-q04",
     "aa-sl-2024-nov-tz2-p1-q04",
-    "aa-sl-2025-may-tz1-p2-q01.a"
+    "aa-sl-2025-may-tz1-p2-q01.a",
+    "aa-sl-2025-nov-tz1-p1-q05.a"
    ],
    "stats": {
-    "parts": 8,
+    "parts": 9,
     "paper": {
-     "p1": 7,
+     "p1": 8,
      "p2": 1
     },
     "section": {
-     "A": 8,
+     "A": 9,
      "B": 0
     },
     "marks": {
@@ -27380,7 +27411,7 @@
      "max": 4
     },
     "mainTags": {
-     "1.6": 8
+     "1.6": 9
     }
    }
   },
@@ -29059,25 +29090,27 @@
     "aa-sl-2025-may-tz1-p1-q01.b",
     "aa-sl-2025-may-tz1-p1-q01.c",
     "aa-sl-2025-may-tz3-p1-q02.a",
-    "aa-sl-2025-may-tz3-p1-q02.b"
+    "aa-sl-2025-may-tz3-p1-q02.b",
+    "aa-sl-2025-nov-tz1-p1-q05.b",
+    "aa-sl-2025-nov-tz3-p1-q06"
    ],
    "stats": {
-    "parts": 10,
+    "parts": 12,
     "paper": {
-     "p1": 10,
+     "p1": 12,
      "p2": 0
     },
     "section": {
-     "A": 7,
+     "A": 9,
      "B": 3
     },
     "marks": {
      "min": 1,
-     "median": 2,
+     "median": 3,
      "max": 8
     },
     "mainTags": {
-     "1.7": 10
+     "1.7": 12
     }
    }
   },
@@ -29758,17 +29791,18 @@
     "aa-sl-2021-nov-tz0-p2-q06.b",
     "aa-sl-2022-may-tz1-p1-q08.a",
     "aa-sl-2025-may-tz2-p2-q09.c",
-    "aa-sl-2025-may-tz2-p2-q09.d"
+    "aa-sl-2025-may-tz2-p2-q09.d",
+    "aa-sl-2025-nov-tz3-p2-q09.e"
    ],
    "stats": {
-    "parts": 5,
+    "parts": 6,
     "paper": {
      "p1": 1,
-     "p2": 4
+     "p2": 5
     },
     "section": {
      "A": 1,
-     "B": 4
+     "B": 5
     },
     "marks": {
      "min": 1,
@@ -29776,7 +29810,7 @@
      "max": 8
     },
     "mainTags": {
-     "1.8": 5
+     "1.8": 6
     }
    }
   },
@@ -30351,16 +30385,17 @@
     "aa-sl-2023-nov-tz1-p1-q06",
     "aa-sl-2023-nov-tz2-p1-q06",
     "aa-sl-2025-may-tz2-p2-q04",
-    "aa-sl-2025-may-tz3-p2-q03.b"
+    "aa-sl-2025-may-tz3-p2-q03.b",
+    "aa-sl-2025-nov-tz1-p2-q04"
    ],
    "stats": {
-    "parts": 9,
+    "parts": 10,
     "paper": {
      "p1": 4,
-     "p2": 5
+     "p2": 6
     },
     "section": {
-     "A": 9,
+     "A": 10,
      "B": 0
     },
     "marks": {
@@ -30369,7 +30404,7 @@
      "max": 7
     },
     "mainTags": {
-     "1.9": 9
+     "1.9": 10
     }
    }
   },
@@ -33310,25 +33345,28 @@
     "aa-sl-2024-nov-tz2-p1-q09.b",
     "aa-sl-2025-may-tz1-p1-q09.b",
     "aa-sl-2025-may-tz1-p1-q09.d",
-    "aa-sl-2025-may-tz3-p2-q01.b"
+    "aa-sl-2025-may-tz3-p2-q01.b",
+    "aa-sl-2025-nov-tz3-p2-q08.a",
+    "aa-sl-2025-nov-tz3-p2-q08.b",
+    "aa-sl-2025-nov-tz3-p2-q08.c"
    ],
    "stats": {
-    "parts": 13,
+    "parts": 16,
     "paper": {
      "p1": 8,
-     "p2": 5
+     "p2": 8
     },
     "section": {
      "A": 2,
-     "B": 11
+     "B": 14
     },
     "marks": {
      "min": 2,
      "median": 3,
-     "max": 6
+     "max": 7
     },
     "mainTags": {
-     "3.1": 13
+     "3.1": 16
     }
    }
   },
@@ -33752,17 +33790,18 @@
     "aa-sl-2023-nov-tz2-p1-q05",
     "aa-sl-2024-may-tz1-p2-q09.b",
     "aa-sl-2025-may-tz2-p1-q04.c",
-    "aa-sl-2025-may-tz3-p2-q05"
+    "aa-sl-2025-may-tz3-p2-q05",
+    "aa-sl-2025-nov-tz3-p1-q07.c"
    ],
    "stats": {
-    "parts": 11,
+    "parts": 12,
     "paper": {
-     "p1": 6,
+     "p1": 7,
      "p2": 5
     },
     "section": {
      "A": 6,
-     "B": 5
+     "B": 6
     },
     "marks": {
      "min": 2,
@@ -33770,7 +33809,8 @@
      "max": 7
     },
     "mainTags": {
-     "3.2": 11
+     "3.2": 11,
+     "2.7": 1
     }
    }
   },
@@ -34965,17 +35005,20 @@
     "aa-sl-2025-may-tz2-p2-q07.a",
     "aa-sl-2025-may-tz2-p2-q07.e",
     "aa-sl-2025-may-tz3-p2-q02.a",
-    "aa-sl-2025-may-tz3-p2-q02.b"
+    "aa-sl-2025-may-tz3-p2-q02.b",
+    "aa-sl-2025-nov-tz3-p1-q07.a",
+    "aa-sl-2025-nov-tz3-p1-q07.b",
+    "aa-sl-2025-nov-tz3-p2-q02.b"
    ],
    "stats": {
-    "parts": 19,
+    "parts": 22,
     "paper": {
-     "p1": 3,
-     "p2": 16
+     "p1": 5,
+     "p2": 17
     },
     "section": {
-     "A": 11,
-     "B": 8
+     "A": 12,
+     "B": 10
     },
     "marks": {
      "min": 2,
@@ -34983,7 +35026,7 @@
      "max": 6
     },
     "mainTags": {
-     "3.2": 19
+     "3.2": 22
     }
    }
   },
@@ -35554,25 +35597,26 @@
     "aa-sl-2023-may-tz1-p2-q01.a",
     "aa-sl-2025-may-tz2-p2-q07.b",
     "aa-sl-2025-may-tz2-p2-q07.c",
-    "aa-sl-2025-may-tz2-p2-q07.d"
+    "aa-sl-2025-may-tz2-p2-q07.d",
+    "aa-sl-2025-nov-tz3-p2-q02.a"
    ],
    "stats": {
-    "parts": 7,
+    "parts": 8,
     "paper": {
      "p1": 0,
-     "p2": 7
+     "p2": 8
     },
     "section": {
-     "A": 1,
+     "A": 2,
      "B": 6
     },
     "marks": {
-     "min": 2,
+     "min": 1,
      "median": 2,
      "max": 5
     },
     "mainTags": {
-     "3.3": 7
+     "3.3": 8
     }
    }
   },
@@ -37146,16 +37190,17 @@
     "aa-sl-2024-may-tz2-p2-q08.a",
     "aa-sl-2024-may-tz2-p2-q08.b",
     "aa-sl-2025-may-tz1-p2-q02.b",
-    "aa-sl-2025-may-tz2-p2-q06"
+    "aa-sl-2025-may-tz2-p2-q06",
+    "aa-sl-2025-nov-tz1-p2-q01.b"
    ],
    "stats": {
-    "parts": 13,
+    "parts": 14,
     "paper": {
      "p1": 1,
-     "p2": 12
+     "p2": 13
     },
     "section": {
-     "A": 7,
+     "A": 8,
      "B": 6
     },
     "marks": {
@@ -37164,7 +37209,7 @@
      "max": 7
     },
     "mainTags": {
-     "3.4": 13
+     "3.4": 14
     }
    }
   },
@@ -37835,16 +37880,19 @@
     "aa-sl-2024-nov-tz1-p1-q02.b",
     "aa-sl-2024-nov-tz2-p1-q02.a",
     "aa-sl-2024-nov-tz2-p1-q02.b",
-    "aa-sl-2025-may-tz1-p2-q02.a"
+    "aa-sl-2025-may-tz1-p2-q02.a",
+    "aa-sl-2025-nov-tz1-p2-q01.a",
+    "aa-sl-2025-nov-tz3-p2-q05.a",
+    "aa-sl-2025-nov-tz3-p2-q05.b"
    ],
    "stats": {
-    "parts": 16,
+    "parts": 19,
     "paper": {
      "p1": 9,
-     "p2": 7
+     "p2": 10
     },
     "section": {
-     "A": 14,
+     "A": 17,
      "B": 2
     },
     "marks": {
@@ -37853,7 +37901,7 @@
      "max": 5
     },
     "mainTags": {
-     "3.4": 16
+     "3.4": 19
     }
    }
   },
@@ -39022,17 +39070,18 @@
    "parts": [
     "aa-sl-2021-may-tz1-p1-q06.a",
     "aa-sl-2022-may-tz1-p1-q09.a",
-    "aa-sl-2025-may-tz3-p1-q04.a"
+    "aa-sl-2025-may-tz3-p1-q04.a",
+    "aa-sl-2025-nov-tz1-p1-q09.a"
    ],
    "stats": {
-    "parts": 3,
+    "parts": 4,
     "paper": {
-     "p1": 3,
+     "p1": 4,
      "p2": 0
     },
     "section": {
      "A": 2,
-     "B": 1
+     "B": 2
     },
     "marks": {
      "min": 2,
@@ -39040,7 +39089,7 @@
      "max": 6
     },
     "mainTags": {
-     "3.6": 3
+     "3.6": 4
     }
    }
   },
@@ -39512,25 +39561,29 @@
     "aa-sl-2023-may-tz1-p1-q04.a",
     "aa-sl-2023-may-tz2-p1-q08.a",
     "aa-sl-2024-nov-tz1-p1-q05",
-    "aa-sl-2025-may-tz2-p1-q04.b"
+    "aa-sl-2025-may-tz2-p1-q04.b",
+    "aa-sl-2025-nov-tz1-p1-q09.c",
+    "aa-sl-2025-nov-tz1-p1-q09.d"
    ],
    "stats": {
-    "parts": 5,
+    "parts": 7,
     "paper": {
-     "p1": 5,
+     "p1": 7,
      "p2": 0
     },
     "section": {
      "A": 4,
-     "B": 1
+     "B": 3
     },
     "marks": {
      "min": 1,
-     "median": 2,
+     "median": 3,
      "max": 6
     },
     "mainTags": {
-     "3.6": 5
+     "3.6": 5,
+     "3.5": 1,
+     "2.7": 1
     }
    }
   },
@@ -41109,16 +41162,17 @@
     "aa-sl-2024-nov-tz2-p2-q09.a",
     "aa-sl-2025-may-tz1-p2-q03.a",
     "aa-sl-2025-may-tz2-p1-q08.a",
-    "aa-sl-2025-may-tz3-p2-q07.a"
+    "aa-sl-2025-may-tz3-p2-q07.a",
+    "aa-sl-2025-nov-tz1-p2-q05.b"
    ],
    "stats": {
-    "parts": 18,
+    "parts": 19,
     "paper": {
      "p1": 8,
-     "p2": 10
+     "p2": 11
     },
     "section": {
-     "A": 6,
+     "A": 7,
      "B": 12
     },
     "marks": {
@@ -41127,7 +41181,7 @@
      "max": 4
     },
     "mainTags": {
-     "3.7": 18
+     "3.7": 19
     }
    }
   },
@@ -41676,16 +41730,18 @@
     "aa-sl-2024-may-tz1-p2-q08.d",
     "aa-sl-2024-nov-tz1-p2-q09.b",
     "aa-sl-2024-nov-tz2-p2-q09.b",
-    "aa-sl-2025-may-tz1-p2-q03.b"
+    "aa-sl-2025-may-tz1-p2-q03.b",
+    "aa-sl-2025-nov-tz1-p2-q05.a",
+    "aa-sl-2025-nov-tz1-p2-q05.c"
    ],
    "stats": {
-    "parts": 7,
+    "parts": 9,
     "paper": {
      "p1": 1,
-     "p2": 6
+     "p2": 8
     },
     "section": {
-     "A": 3,
+     "A": 5,
      "B": 4
     },
     "marks": {
@@ -41694,7 +41750,7 @@
      "max": 7
     },
     "mainTags": {
-     "3.7": 7
+     "3.7": 9
     }
    }
   },
@@ -42475,25 +42531,28 @@
    "parts": [
     "aa-sl-2021-may-tz2-p1-q03.b",
     "aa-sl-2021-nov-tz0-p1-q06.b",
-    "aa-sl-2023-may-tz1-p1-q04.b"
+    "aa-sl-2023-may-tz1-p1-q04.b",
+    "aa-sl-2025-nov-tz3-p2-q03.a",
+    "aa-sl-2025-nov-tz3-p2-q03.b"
    ],
    "stats": {
-    "parts": 3,
+    "parts": 5,
     "paper": {
      "p1": 3,
-     "p2": 0
+     "p2": 2
     },
     "section": {
-     "A": 3,
+     "A": 5,
      "B": 0
     },
     "marks": {
-     "min": 5,
+     "min": 2,
      "median": 5,
      "max": 5
     },
     "mainTags": {
-     "3.8": 3
+     "3.8": 4,
+     "3.6": 1
     }
    }
   },
@@ -43710,25 +43769,26 @@
     "aa-sl-2022-nov-tz0-p1-q09.a",
     "aa-sl-2024-may-tz1-p1-q05.a",
     "aa-sl-2024-may-tz2-p1-q02",
-    "aa-sl-2025-may-tz1-p1-q09.c"
+    "aa-sl-2025-may-tz1-p1-q09.c",
+    "aa-sl-2025-nov-tz1-p1-q09.b"
    ],
    "stats": {
-    "parts": 8,
+    "parts": 9,
     "paper": {
-     "p1": 8,
+     "p1": 9,
      "p2": 0
     },
     "section": {
      "A": 5,
-     "B": 3
+     "B": 4
     },
     "marks": {
      "min": 3,
-     "median": 4,
+     "median": 5,
      "max": 6
     },
     "mainTags": {
-     "3.8": 8
+     "3.8": 9
     }
    }
   },
@@ -48212,25 +48272,29 @@
     "aa-sl-2024-nov-tz2-p1-q01.a",
     "aa-sl-2024-nov-tz2-p1-q01.b",
     "aa-sl-2025-may-tz1-p1-q06.b",
-    "aa-sl-2025-may-tz3-p1-q01.a"
+    "aa-sl-2025-may-tz3-p1-q01.a",
+    "aa-sl-2025-nov-tz1-p2-q03.a",
+    "aa-sl-2025-nov-tz3-p2-q01.a",
+    "aa-sl-2025-nov-tz3-p2-q04.a",
+    "aa-sl-2025-nov-tz3-p2-q04.b"
    ],
    "stats": {
-    "parts": 11,
+    "parts": 15,
     "paper": {
      "p1": 7,
-     "p2": 4
+     "p2": 8
     },
     "section": {
-     "A": 11,
+     "A": 15,
      "B": 0
     },
     "marks": {
      "min": 1,
      "median": 3,
-     "max": 4
+     "max": 5
     },
     "mainTags": {
-     "4.3": 11
+     "4.3": 15
     }
    }
   },
@@ -48996,25 +49060,29 @@
     "aa-sl-2024-may-tz2-p2-q03.a",
     "aa-sl-2025-may-tz1-p2-q05.b",
     "aa-sl-2025-may-tz2-p2-q01.a",
-    "aa-sl-2025-may-tz2-p2-q01.b"
+    "aa-sl-2025-may-tz2-p2-q01.b",
+    "aa-sl-2025-nov-tz1-p2-q03.b",
+    "aa-sl-2025-nov-tz1-p2-q03.c",
+    "aa-sl-2025-nov-tz3-p2-q01.b",
+    "aa-sl-2025-nov-tz3-p2-q01.c"
    ],
    "stats": {
-    "parts": 19,
+    "parts": 23,
     "paper": {
      "p1": 0,
-     "p2": 19
+     "p2": 23
     },
     "section": {
-     "A": 19,
+     "A": 23,
      "B": 0
     },
     "marks": {
      "min": 1,
      "median": 2,
-     "max": 3
+     "max": 4
     },
     "mainTags": {
-     "4.4": 19
+     "4.4": 23
     }
    }
   },
@@ -51564,16 +51632,17 @@
     "aa-sl-2023-nov-tz2-p1-q03.a",
     "aa-sl-2023-nov-tz2-p1-q03.b",
     "aa-sl-2024-nov-tz1-p1-q03.a",
-    "aa-sl-2024-nov-tz2-p1-q03.a"
+    "aa-sl-2024-nov-tz2-p1-q03.a",
+    "aa-sl-2025-nov-tz1-p1-q03.a"
    ],
    "stats": {
-    "parts": 11,
+    "parts": 12,
     "paper": {
-     "p1": 8,
+     "p1": 9,
      "p2": 3
     },
     "section": {
-     "A": 10,
+     "A": 11,
      "B": 1
     },
     "marks": {
@@ -51582,7 +51651,7 @@
      "max": 3
     },
     "mainTags": {
-     "4.6": 11
+     "4.6": 12
     }
    }
   },
@@ -51831,16 +51900,17 @@
     "aa-sl-2025-may-tz1-p2-q07.c",
     "aa-sl-2025-may-tz1-p2-q07.d",
     "aa-sl-2025-may-tz2-p1-q07.d",
-    "aa-sl-2025-may-tz3-p2-q04.b"
+    "aa-sl-2025-may-tz3-p2-q04.b",
+    "aa-sl-2025-nov-tz3-p1-q01.c"
    ],
    "stats": {
-    "parts": 17,
+    "parts": 18,
     "paper": {
-     "p1": 5,
+     "p1": 6,
      "p2": 12
     },
     "section": {
-     "A": 6,
+     "A": 7,
      "B": 11
     },
     "marks": {
@@ -51849,7 +51919,7 @@
      "max": 7
     },
     "mainTags": {
-     "4.7": 17
+     "4.7": 18
     }
    }
   },
@@ -52064,16 +52134,18 @@
     "aa-sl-2024-nov-tz2-p2-q04.a",
     "aa-sl-2025-may-tz2-p1-q07.a",
     "aa-sl-2025-may-tz2-p1-q07.b",
-    "aa-sl-2025-may-tz3-p2-q04.a"
+    "aa-sl-2025-may-tz3-p2-q04.a",
+    "aa-sl-2025-nov-tz3-p1-q01.a",
+    "aa-sl-2025-nov-tz3-p1-q01.b"
    ],
    "stats": {
-    "parts": 12,
+    "parts": 14,
     "paper": {
-     "p1": 7,
+     "p1": 9,
      "p2": 5
     },
     "section": {
-     "A": 5,
+     "A": 7,
      "B": 7
     },
     "marks": {
@@ -52082,7 +52154,7 @@
      "max": 5
     },
     "mainTags": {
-     "4.7": 12
+     "4.7": 14
     }
    }
   },
@@ -52624,16 +52696,17 @@
     "aa-sl-2025-may-tz2-p2-q08.e",
     "aa-sl-2025-may-tz3-p2-q08.a",
     "aa-sl-2025-may-tz3-p2-q08.c",
-    "aa-sl-2025-may-tz3-p2-q08.f"
+    "aa-sl-2025-may-tz3-p2-q08.f",
+    "aa-sl-2025-nov-tz1-p2-q06.a"
    ],
    "stats": {
-    "parts": 18,
+    "parts": 19,
     "paper": {
      "p1": 0,
-     "p2": 18
+     "p2": 19
     },
     "section": {
-     "A": 3,
+     "A": 4,
      "B": 15
     },
     "marks": {
@@ -52642,7 +52715,7 @@
      "max": 6
     },
     "mainTags": {
-     "4.8": 18
+     "4.8": 19
     }
    }
   },
@@ -53217,16 +53290,17 @@
     "aa-sl-2023-may-tz2-p2-q04.c",
     "aa-sl-2024-may-tz2-p2-q07.c",
     "aa-sl-2025-may-tz2-p2-q08.b",
-    "aa-sl-2025-may-tz3-p1-q06.a"
+    "aa-sl-2025-may-tz3-p1-q06.a",
+    "aa-sl-2025-nov-tz1-p2-q02.c"
    ],
    "stats": {
-    "parts": 5,
+    "parts": 6,
     "paper": {
      "p1": 1,
-     "p2": 4
+     "p2": 5
     },
     "section": {
-     "A": 2,
+     "A": 3,
      "B": 3
     },
     "marks": {
@@ -53235,7 +53309,7 @@
      "max": 4
     },
     "mainTags": {
-     "4.9": 5
+     "4.9": 6
     }
    }
   },
@@ -54234,16 +54308,17 @@
     "aa-sl-2024-nov-tz1-p2-q07.f",
     "aa-sl-2024-nov-tz2-p2-q07.f",
     "aa-sl-2025-may-tz3-p1-q06.b",
-    "aa-sl-2025-may-tz3-p1-q06.c"
+    "aa-sl-2025-may-tz3-p1-q06.c",
+    "aa-sl-2025-nov-tz1-p2-q02.b"
    ],
    "stats": {
-    "parts": 8,
+    "parts": 9,
     "paper": {
      "p1": 2,
-     "p2": 6
+     "p2": 7
     },
     "section": {
-     "A": 4,
+     "A": 5,
      "B": 4
     },
     "marks": {
@@ -54252,7 +54327,7 @@
      "max": 3
     },
     "mainTags": {
-     "4.9": 7,
+     "4.9": 8,
      "4.3": 1
     }
    }
@@ -54777,25 +54852,26 @@
     "aa-sl-2024-may-tz2-p2-q07.d",
     "aa-sl-2024-may-tz2-p2-q07.e",
     "aa-sl-2025-may-tz2-p2-q08.a",
-    "aa-sl-2025-may-tz2-p2-q08.c"
+    "aa-sl-2025-may-tz2-p2-q08.c",
+    "aa-sl-2025-nov-tz1-p2-q02.a"
    ],
    "stats": {
-    "parts": 12,
+    "parts": 13,
     "paper": {
      "p1": 0,
-     "p2": 12
+     "p2": 13
     },
     "section": {
-     "A": 2,
+     "A": 3,
      "B": 10
     },
     "marks": {
-     "min": 2,
+     "min": 1,
      "median": 2,
      "max": 5
     },
     "mainTags": {
-     "4.9": 12
+     "4.9": 13
     }
    }
   },
@@ -55703,16 +55779,17 @@
     "aa-sl-2022-nov-tz0-p1-q06.a",
     "aa-sl-2023-may-tz1-p2-q08.d",
     "aa-sl-2025-may-tz1-p1-q05.b",
-    "aa-sl-2025-may-tz3-p2-q08.e"
+    "aa-sl-2025-may-tz3-p2-q08.e",
+    "aa-sl-2025-nov-tz1-p1-q03.b"
    ],
    "stats": {
-    "parts": 9,
+    "parts": 10,
     "paper": {
-     "p1": 3,
+     "p1": 4,
      "p2": 6
     },
     "section": {
-     "A": 7,
+     "A": 8,
      "B": 2
     },
     "marks": {
@@ -55721,7 +55798,7 @@
      "max": 6
     },
     "mainTags": {
-     "4.11": 9
+     "4.11": 10
     }
    }
   },
@@ -56252,16 +56329,20 @@
     "aa-sl-2024-nov-tz2-p2-q07.c",
     "aa-sl-2025-may-tz1-p1-q05.a",
     "aa-sl-2025-may-tz2-p1-q07.c",
-    "aa-sl-2025-may-tz3-p2-q08.d"
+    "aa-sl-2025-may-tz3-p2-q08.d",
+    "aa-sl-2025-nov-tz1-p1-q03.c",
+    "aa-sl-2025-nov-tz1-p2-q06.b",
+    "aa-sl-2025-nov-tz3-p1-q04.a",
+    "aa-sl-2025-nov-tz3-p1-q04.b"
    ],
    "stats": {
-    "parts": 17,
+    "parts": 21,
     "paper": {
-     "p1": 6,
-     "p2": 11
+     "p1": 9,
+     "p2": 12
     },
     "section": {
-     "A": 7,
+     "A": 11,
      "B": 10
     },
     "marks": {
@@ -56270,7 +56351,7 @@
      "max": 7
     },
     "mainTags": {
-     "4.11": 15,
+     "4.11": 19,
      "4.6": 2
     }
    }
@@ -56698,16 +56779,18 @@
     "aa-sl-2023-nov-tz2-p2-q09.d",
     "aa-sl-2024-may-tz1-p2-q04.b",
     "aa-sl-2025-may-tz1-p2-q05.c",
-    "aa-sl-2025-may-tz2-p2-q08.f"
+    "aa-sl-2025-may-tz2-p2-q08.f",
+    "aa-sl-2025-nov-tz3-p2-q06.a",
+    "aa-sl-2025-nov-tz3-p2-q06.b"
    ],
    "stats": {
-    "parts": 13,
+    "parts": 15,
     "paper": {
      "p1": 0,
-     "p2": 13
+     "p2": 15
     },
     "section": {
-     "A": 3,
+     "A": 5,
      "B": 10
     },
     "marks": {
@@ -56716,7 +56799,7 @@
      "max": 6
     },
     "mainTags": {
-     "4.12": 13
+     "4.12": 15
     }
    }
   },
@@ -57087,17 +57170,18 @@
     "aa-sl-2024-may-tz1-p2-q08.c",
     "aa-sl-2024-nov-tz1-p2-q08.g",
     "aa-sl-2024-nov-tz2-p2-q08.g",
-    "aa-sl-2025-may-tz3-p2-q09.c"
+    "aa-sl-2025-may-tz3-p2-q09.c",
+    "aa-sl-2025-nov-tz1-p2-q08.d"
    ],
    "stats": {
-    "parts": 6,
+    "parts": 7,
     "paper": {
      "p1": 0,
-     "p2": 6
+     "p2": 7
     },
     "section": {
      "A": 0,
-     "B": 6
+     "B": 7
     },
     "marks": {
      "min": 2,
@@ -57105,7 +57189,7 @@
      "max": 3
     },
     "mainTags": {
-     "5.1": 6
+     "5.1": 7
     }
    }
   },
@@ -57536,17 +57620,18 @@
     "aa-sl-2021-may-tz1-p1-q07.d",
     "aa-sl-2021-nov-tz0-p1-q09.a",
     "aa-sl-2022-may-tz2-p1-q07.d",
-    "aa-sl-2025-may-tz2-p2-q03.a"
+    "aa-sl-2025-may-tz2-p2-q03.a",
+    "aa-sl-2025-nov-tz1-p2-q07.c"
    ],
    "stats": {
-    "parts": 4,
+    "parts": 5,
     "paper": {
      "p1": 3,
-     "p2": 1
+     "p2": 2
     },
     "section": {
      "A": 1,
-     "B": 3
+     "B": 4
     },
     "marks": {
      "min": 2,
@@ -57554,7 +57639,7 @@
      "max": 3
     },
     "mainTags": {
-     "5.2": 4
+     "5.2": 5
     }
    }
   },
@@ -58569,25 +58654,26 @@
     "aa-sl-2024-may-tz1-p1-q07.d",
     "aa-sl-2024-may-tz2-p1-q08.d",
     "aa-sl-2025-may-tz2-p1-q01.b",
-    "aa-sl-2025-may-tz3-p2-q07.d"
+    "aa-sl-2025-may-tz3-p2-q07.d",
+    "aa-sl-2025-nov-tz3-p1-q08.c"
    ],
    "stats": {
-    "parts": 14,
+    "parts": 15,
     "paper": {
-     "p1": 8,
+     "p1": 9,
      "p2": 6
     },
     "section": {
      "A": 8,
-     "B": 6
+     "B": 7
     },
     "marks": {
      "min": 1,
      "median": 3,
-     "max": 4
+     "max": 5
     },
     "mainTags": {
-     "5.4": 13,
+     "5.4": 14,
      "5.6": 1
     }
    }
@@ -59396,27 +59482,33 @@
     "aa-sl-2024-may-tz2-p1-q08.b",
     "aa-sl-2025-may-tz1-p1-q02",
     "aa-sl-2025-may-tz2-p1-q08.d",
-    "aa-sl-2025-may-tz3-p1-q07.e"
+    "aa-sl-2025-may-tz3-p1-q07.e",
+    "aa-sl-2025-nov-tz1-p1-q08.a",
+    "aa-sl-2025-nov-tz1-p1-q08.b",
+    "aa-sl-2025-nov-tz1-p1-q08.c",
+    "aa-sl-2025-nov-tz1-p1-q08.d",
+    "aa-sl-2025-nov-tz1-p2-q08.f",
+    "aa-sl-2025-nov-tz3-p1-q09.d"
    ],
    "stats": {
-    "parts": 14,
+    "parts": 20,
     "paper": {
-     "p1": 11,
-     "p2": 3
+     "p1": 16,
+     "p2": 4
     },
     "section": {
      "A": 2,
-     "B": 12
+     "B": 18
     },
     "marks": {
      "min": 2,
-     "median": 5,
+     "median": 3,
      "max": 7
     },
     "mainTags": {
-     "5.8": 8,
+     "5.8": 13,
      "5.6": 3,
-     "5.7": 3
+     "5.7": 4
     }
    }
   },
@@ -60089,26 +60181,31 @@
     "aa-sl-2025-may-tz2-p1-q06.b",
     "aa-sl-2025-may-tz3-p1-q07.a",
     "aa-sl-2025-may-tz3-p1-q07.b",
-    "aa-sl-2025-may-tz3-p1-q07.d"
+    "aa-sl-2025-may-tz3-p1-q07.d",
+    "aa-sl-2025-nov-tz1-p2-q07.d",
+    "aa-sl-2025-nov-tz1-p2-q07.e",
+    "aa-sl-2025-nov-tz3-p2-q08.d"
    ],
    "stats": {
-    "parts": 18,
+    "parts": 21,
     "paper": {
      "p1": 11,
-     "p2": 7
+     "p2": 10
     },
     "section": {
      "A": 1,
-     "B": 17
+     "B": 20
     },
     "marks": {
      "min": 1,
-     "median": 4,
+     "median": 3,
      "max": 7
     },
     "mainTags": {
-     "5.8": 17,
-     "2.10": 1
+     "5.8": 18,
+     "2.10": 1,
+     "3.1": 1,
+     "2.4": 1
     }
    }
   },
@@ -60917,17 +61014,20 @@
     "aa-sl-2025-may-tz1-p1-q07.b",
     "aa-sl-2025-may-tz1-p1-q07.c",
     "aa-sl-2025-may-tz2-p2-q05.b",
-    "aa-sl-2025-may-tz3-p2-q09.d"
+    "aa-sl-2025-may-tz3-p2-q09.d",
+    "aa-sl-2025-nov-tz1-p2-q09.c",
+    "aa-sl-2025-nov-tz1-p2-q09.e",
+    "aa-sl-2025-nov-tz3-p2-q09.c"
    ],
    "stats": {
-    "parts": 23,
+    "parts": 26,
     "paper": {
      "p1": 10,
-     "p2": 13
+     "p2": 16
     },
     "section": {
      "A": 8,
-     "B": 15
+     "B": 18
     },
     "marks": {
      "min": 2,
@@ -60935,7 +61035,7 @@
      "max": 7
     },
     "mainTags": {
-     "5.9": 23
+     "5.9": 26
     }
    }
   },
@@ -61645,17 +61745,22 @@
     "aa-sl-2025-may-tz2-p2-q05.a",
     "aa-sl-2025-may-tz2-p2-q05.c",
     "aa-sl-2025-may-tz3-p2-q09.a",
-    "aa-sl-2025-may-tz3-p2-q09.b"
+    "aa-sl-2025-may-tz3-p2-q09.b",
+    "aa-sl-2025-nov-tz1-p2-q09.a",
+    "aa-sl-2025-nov-tz1-p2-q09.b",
+    "aa-sl-2025-nov-tz1-p2-q09.d",
+    "aa-sl-2025-nov-tz3-p2-q09.a",
+    "aa-sl-2025-nov-tz3-p2-q09.b"
    ],
    "stats": {
-    "parts": 29,
+    "parts": 34,
     "paper": {
      "p1": 5,
-     "p2": 24
+     "p2": 29
     },
     "section": {
      "A": 17,
-     "B": 12
+     "B": 17
     },
     "marks": {
      "min": 1,
@@ -61663,7 +61768,7 @@
      "max": 5
     },
     "mainTags": {
-     "5.9": 27,
+     "5.9": 32,
      "5.6": 2
     }
    }
@@ -62998,17 +63103,19 @@
     "aa-sl-2023-may-tz2-p2-q07.d",
     "aa-sl-2023-nov-tz1-p1-q09.a",
     "aa-sl-2023-nov-tz2-p1-q09.a",
-    "aa-sl-2025-may-tz3-p2-q06.a"
+    "aa-sl-2025-may-tz3-p2-q06.a",
+    "aa-sl-2025-nov-tz1-p2-q07.b",
+    "aa-sl-2025-nov-tz3-p1-q09.c"
    ],
    "stats": {
-    "parts": 8,
+    "parts": 10,
     "paper": {
-     "p1": 6,
-     "p2": 2
+     "p1": 7,
+     "p2": 3
     },
     "section": {
      "A": 2,
-     "B": 6
+     "B": 8
     },
     "marks": {
      "min": 2,
@@ -63016,7 +63123,7 @@
      "max": 4
     },
     "mainTags": {
-     "5.6": 8
+     "5.6": 10
     }
    }
   },
@@ -64244,17 +64351,19 @@
     "aa-sl-2024-nov-tz1-p2-q03.b",
     "aa-sl-2024-nov-tz2-p2-q03.b",
     "aa-sl-2025-may-tz1-p2-q04",
-    "aa-sl-2025-may-tz2-p1-q02"
+    "aa-sl-2025-may-tz2-p1-q02",
+    "aa-sl-2025-nov-tz1-p1-q08.e",
+    "aa-sl-2025-nov-tz3-p1-q02"
    ],
    "stats": {
-    "parts": 9,
+    "parts": 11,
     "paper": {
-     "p1": 4,
+     "p1": 6,
      "p2": 5
     },
     "section": {
-     "A": 8,
-     "B": 1
+     "A": 9,
+     "B": 2
     },
     "marks": {
      "min": 3,
@@ -64262,8 +64371,8 @@
      "max": 6
     },
     "mainTags": {
-     "5.5": 4,
-     "5.10": 5
+     "5.5": 5,
+     "5.10": 6
     }
    }
   },
@@ -66335,17 +66444,19 @@
     "aa-sl-2024-nov-tz2-p1-q07.c",
     "aa-sl-2024-nov-tz2-p1-q07.d",
     "aa-sl-2025-may-tz1-p1-q04",
-    "aa-sl-2025-may-tz3-p2-q07.f"
+    "aa-sl-2025-may-tz3-p2-q07.f",
+    "aa-sl-2025-nov-tz1-p1-q04.b",
+    "aa-sl-2025-nov-tz3-p1-q08.d"
    ],
    "stats": {
-    "parts": 13,
+    "parts": 15,
     "paper": {
-     "p1": 8,
+     "p1": 10,
      "p2": 5
     },
     "section": {
-     "A": 3,
-     "B": 10
+     "A": 4,
+     "B": 11
     },
     "marks": {
      "min": 2,
@@ -66353,7 +66464,7 @@
      "max": 6
     },
     "mainTags": {
-     "5.11": 13
+     "5.11": 15
     }
    }
   },
@@ -79115,8 +79226,8 @@
   {
    "statement": "1.2",
    "title": "Arithmetic sequences and series",
-   "partsTagged": 32,
-   "partsMain": 29,
+   "partsTagged": 36,
+   "partsMain": 33,
    "types": [
     "t1-sequence-proof",
     "t1-arithmetic-in-context",
@@ -79130,7 +79241,7 @@
   {
    "statement": "1.3",
    "title": "Geometric sequences and series",
-   "partsTagged": 26,
+   "partsTagged": 27,
    "partsMain": 17,
    "types": [
     "t1-sequence-proof",
@@ -79143,8 +79254,8 @@
   {
    "statement": "1.4",
    "title": "Financial applications of geometric sequences and series",
-   "partsTagged": 22,
-   "partsMain": 21,
+   "partsTagged": 24,
+   "partsMain": 23,
    "types": [
     "t1-depreciation",
     "t1-compound-interest"
@@ -79176,8 +79287,8 @@
   {
    "statement": "1.6",
    "title": "Simple deductive proof",
-   "partsTagged": 14,
-   "partsMain": 8,
+   "partsTagged": 16,
+   "partsMain": 9,
    "types": [
     "t1-sequence-proof",
     "t1-algebraic-proof",
@@ -79192,8 +79303,8 @@
   {
    "statement": "1.7",
    "title": "Laws of exponents and logarithms",
-   "partsTagged": 31,
-   "partsMain": 21,
+   "partsTagged": 35,
+   "partsMain": 24,
    "types": [
     "fn-exp-log-inverse-composite",
     "fn-discriminant",
@@ -79213,8 +79324,8 @@
   {
    "statement": "1.8",
    "title": "Sum of infinite geometric sequences",
-   "partsTagged": 7,
-   "partsMain": 5,
+   "partsTagged": 8,
+   "partsMain": 6,
    "types": [
     "t1-sum-to-infinity"
    ],
@@ -79226,8 +79337,8 @@
   {
    "statement": "1.9",
    "title": "Binomial theorem",
-   "partsTagged": 18,
-   "partsMain": 15,
+   "partsTagged": 19,
+   "partsMain": 16,
    "types": [
     "t1-binomial-find-unknown",
     "t1-binomial-term"
@@ -79241,8 +79352,8 @@
   {
    "statement": "2.1",
    "title": "Equations of straight lines, parallel and perpendicular",
-   "partsTagged": 13,
-   "partsMain": 12,
+   "partsTagged": 15,
+   "partsMain": 13,
    "types": [
     "fn-line-from-conditions"
    ],
@@ -79255,8 +79366,8 @@
   {
    "statement": "2.2",
    "title": "Functions, notation, domain, range and inverse as reflection",
-   "partsTagged": 28,
-   "partsMain": 17,
+   "partsTagged": 31,
+   "partsMain": 19,
    "types": [
     "fn-graph-table-composite-inverse",
     "fn-inverse-reflection",
@@ -79294,8 +79405,8 @@
   {
    "statement": "2.4",
    "title": "Key features of graphs",
-   "partsTagged": 44,
-   "partsMain": 17,
+   "partsTagged": 50,
+   "partsMain": 20,
    "types": [
     "fn-evaluate-function",
     "fn-sketch-gdc",
@@ -79318,8 +79429,8 @@
   {
    "statement": "2.5",
    "title": "Composite functions, identity and finding inverse",
-   "partsTagged": 29,
-   "partsMain": 26,
+   "partsTagged": 33,
+   "partsMain": 30,
    "types": [
     "fn-graph-table-composite-inverse",
     "fn-domain-range",
@@ -79333,8 +79444,8 @@
   {
    "statement": "2.6",
    "title": "Quadratic function",
-   "partsTagged": 24,
-   "partsMain": 20,
+   "partsTagged": 28,
+   "partsMain": 24,
    "types": [
     "fn-domain-range",
     "fn-sketch-from-features",
@@ -79350,8 +79461,8 @@
   {
    "statement": "2.7",
    "title": "Solutions of quadratic equations and inequalities, discriminant and nature of roots",
-   "partsTagged": 42,
-   "partsMain": 24,
+   "partsTagged": 50,
+   "partsMain": 27,
    "types": [
     "fn-solve-quadratic",
     "fn-discriminant",
@@ -79369,8 +79480,8 @@
   {
    "statement": "2.8",
    "title": "Reciprocal and simple rational functions, equations of asymptotes",
-   "partsTagged": 22,
-   "partsMain": 13,
+   "partsTagged": 25,
+   "partsMain": 15,
    "types": [
     "fn-domain-range",
     "fn-inverse-algebraic",
@@ -79388,8 +79499,8 @@
   {
    "statement": "2.9",
    "title": "Exponential and logarithmic functions",
-   "partsTagged": 22,
-   "partsMain": 13,
+   "partsTagged": 26,
+   "partsMain": 15,
    "types": [
     "fn-exp-log-inverse-composite",
     "fn-discriminant",
@@ -79405,8 +79516,8 @@
   {
    "statement": "2.10",
    "title": "Solving equations graphically and analytically",
-   "partsTagged": 25,
-   "partsMain": 9,
+   "partsTagged": 30,
+   "partsMain": 11,
    "types": [
     "fn-gdc-features",
     "fn-gdc-intersection",
@@ -79424,8 +79535,8 @@
   {
    "statement": "2.11",
    "title": "Transformations of graphs",
-   "partsTagged": 13,
-   "partsMain": 7,
+   "partsTagged": 16,
+   "partsMain": 9,
    "types": [
     "fn-domain-range",
     "fn-inverse-algebraic",
@@ -79441,8 +79552,8 @@
   {
    "statement": "3.1",
    "title": "3D space, volume, angles, distance and midpoints",
-   "partsTagged": 29,
-   "partsMain": 23,
+   "partsTagged": 33,
+   "partsMain": 27,
    "types": [
     "t3-3d-angle",
     "t3-distance-midpoint",
@@ -79455,8 +79566,8 @@
   {
    "statement": "3.2",
    "title": "2D and 3D trigonometry, sine rule, cosine rule and area",
-   "partsTagged": 54,
-   "partsMain": 42,
+   "partsTagged": 59,
+   "partsMain": 45,
    "types": [
     "t3-3d-angle",
     "t3-ambiguous-case",
@@ -79471,8 +79582,8 @@
   {
    "statement": "3.3",
    "title": "Applications of trigonometry",
-   "partsTagged": 18,
-   "partsMain": 7,
+   "partsTagged": 20,
+   "partsMain": 8,
    "types": [
     "t3-right-angle-trig",
     "t3-bearings-elevation"
@@ -79485,8 +79596,8 @@
   {
    "statement": "3.4",
    "title": "Circle: radians, arcs and sectors",
-   "partsTagged": 34,
-   "partsMain": 32,
+   "partsTagged": 38,
+   "partsMain": 36,
    "types": [
     "t3-circular-motion",
     "t3-composite-circular-region",
@@ -79498,8 +79609,8 @@
   {
    "statement": "3.5",
    "title": "Unit circle definitions, exact trig ratios and ambiguous case of sine rule",
-   "partsTagged": 14,
-   "partsMain": 3,
+   "partsTagged": 17,
+   "partsMain": 4,
    "types": [
     "t3-ambiguous-case",
     "t3-exact-values"
@@ -79512,8 +79623,8 @@
   {
    "statement": "3.6",
    "title": "Pythagorean identity and double angles",
-   "partsTagged": 18,
-   "partsMain": 8,
+   "partsTagged": 20,
+   "partsMain": 10,
    "types": [
     "t3-prove-identity",
     "t3-identity-values"
@@ -79524,8 +79635,8 @@
   {
    "statement": "3.7",
    "title": "Circular functions: graphs, composites and transformations",
-   "partsTagged": 41,
-   "partsMain": 36,
+   "partsTagged": 45,
+   "partsMain": 39,
    "types": [
     "fn-transform-describe",
     "t3-trig-sketch",
@@ -79539,8 +79650,8 @@
   {
    "statement": "3.8",
    "title": "Solving trigonometric equations",
-   "partsTagged": 23,
-   "partsMain": 16,
+   "partsTagged": 25,
+   "partsMain": 18,
    "types": [
     "t3-trig-quadratic",
     "t3-trig-model-equation",
@@ -79568,7 +79679,7 @@
   {
    "statement": "4.2",
    "title": "Histograms, cumulative frequency graphs and box plots",
-   "partsTagged": 16,
+   "partsTagged": 17,
    "partsMain": 13,
    "types": [
     "t4-outlier-rule",
@@ -79583,8 +79694,8 @@
   {
    "statement": "4.3",
    "title": "Mean, median, mode, grouped mean, standard deviation, quartiles and IQR",
-   "partsTagged": 35,
-   "partsMain": 24,
+   "partsTagged": 40,
+   "partsMain": 28,
    "types": [
     "t4-outlier-rule",
     "t4-box-plot",
@@ -79598,8 +79709,8 @@
   {
    "statement": "4.4",
    "title": "Pearson's, scatter diagrams and equation of y on x",
-   "partsTagged": 30,
-   "partsMain": 26,
+   "partsTagged": 34,
+   "partsMain": 30,
    "types": [
     "t4-regression-interpret",
     "t4-regression-gdc"
@@ -79624,8 +79735,8 @@
   {
    "statement": "4.6",
    "title": "Combined, mutually exclusive, conditional, independence and probability diagrams",
-   "partsTagged": 51,
-   "partsMain": 32,
+   "partsTagged": 56,
+   "partsMain": 33,
    "types": [
     "t4-tree-diagram",
     "t4-sample-space",
@@ -79641,8 +79752,8 @@
   {
    "statement": "4.7",
    "title": "Discrete random variables",
-   "partsTagged": 35,
-   "partsMain": 29,
+   "partsTagged": 38,
+   "partsMain": 32,
    "types": [
     "t4-expected-value",
     "t4-discrete-distribution"
@@ -79653,8 +79764,8 @@
   {
    "statement": "4.8",
    "title": "Binomial distribution",
-   "partsTagged": 23,
-   "partsMain": 18,
+   "partsTagged": 24,
+   "partsMain": 19,
    "types": [
     "t4-binomial"
    ],
@@ -79664,8 +79775,8 @@
   {
    "statement": "4.9",
    "title": "Normal distribution and calculations",
-   "partsTagged": 35,
-   "partsMain": 24,
+   "partsTagged": 38,
+   "partsMain": 27,
    "types": [
     "t4-inverse-normal",
     "t4-normal-properties",
@@ -79688,8 +79799,8 @@
   {
    "statement": "4.11",
    "title": "Formal conditional probability and independence",
-   "partsTagged": 30,
-   "partsMain": 24,
+   "partsTagged": 35,
+   "partsMain": 29,
    "types": [
     "t4-independence",
     "t4-conditional-probability"
@@ -79700,8 +79811,8 @@
   {
    "statement": "4.12",
    "title": "Standardization of normal variables",
-   "partsTagged": 13,
-   "partsMain": 13,
+   "partsTagged": 15,
+   "partsMain": 15,
    "types": [
     "t4-normal-unknown-parameter"
    ],
@@ -79714,8 +79825,8 @@
   {
    "statement": "5.1",
    "title": "Introduction to calculus",
-   "partsTagged": 9,
-   "partsMain": 6,
+   "partsTagged": 10,
+   "partsMain": 7,
    "types": [
     "t5-derivative-meaning",
     "t5-derivative-model-gdc"
@@ -79729,8 +79840,8 @@
   {
    "statement": "5.2",
    "title": "Increasing and decreasing functions",
-   "partsTagged": 8,
-   "partsMain": 4,
+   "partsTagged": 10,
+   "partsMain": 5,
    "types": [
     "t5-increasing-decreasing",
     "t5-derivative-graph"
@@ -79744,7 +79855,7 @@
   {
    "statement": "5.3",
    "title": "Differentiating polynomials, n in Z",
-   "partsTagged": 19,
+   "partsTagged": 21,
    "partsMain": 6,
    "types": [
     "t5-differentiate-polynomial"
@@ -79757,8 +79868,8 @@
   {
    "statement": "5.4",
    "title": "Tangents and normals",
-   "partsTagged": 28,
-   "partsMain": 22,
+   "partsTagged": 29,
+   "partsMain": 23,
    "types": [
     "fn-discriminant",
     "fn-curve-intersection-quadratic",
@@ -79774,8 +79885,8 @@
   {
    "statement": "5.5",
    "title": "Integration introduction, areas between curve and x-axis",
-   "partsTagged": 19,
-   "partsMain": 6,
+   "partsTagged": 24,
+   "partsMain": 7,
    "types": [
     "t5-kinematics-distance",
     "t5-antiderivative-condition",
@@ -79791,8 +79902,8 @@
   {
    "statement": "5.6",
    "title": "Differentiating polynomials n in Q, chain, product and quotient rules",
-   "partsTagged": 34,
-   "partsMain": 22,
+   "partsTagged": 37,
+   "partsMain": 24,
    "types": [
     "t5-tangent-condition",
     "t5-stationary-points",
@@ -79805,8 +79916,8 @@
   {
    "statement": "5.7",
    "title": "The second derivative",
-   "partsTagged": 17,
-   "partsMain": 8,
+   "partsTagged": 20,
+   "partsMain": 9,
    "types": [
     "t5-derivative-graph",
     "t5-stationary-points",
@@ -79820,8 +79931,8 @@
   {
    "statement": "5.8",
    "title": "Optimization, local extrema and points of inflexion",
-   "partsTagged": 38,
-   "partsMain": 27,
+   "partsTagged": 45,
+   "partsMain": 33,
    "types": [
     "t5-derivative-graph",
     "t5-stationary-points",
@@ -79836,8 +79947,8 @@
   {
    "statement": "5.9",
    "title": "Kinematics problems",
-   "partsTagged": 57,
-   "partsMain": 50,
+   "partsTagged": 65,
+   "partsMain": 58,
    "types": [
     "t5-kinematics-distance",
     "t5-kinematics-motion"
@@ -79848,8 +79959,8 @@
   {
    "statement": "5.10",
    "title": "Indefinite integration, reverse chain and substitution",
-   "partsTagged": 22,
-   "partsMain": 14,
+   "partsTagged": 24,
+   "partsMain": 15,
    "types": [
     "t5-antiderivative-condition",
     "t5-definite-integral-area",
@@ -79863,8 +79974,8 @@
   {
    "statement": "5.11",
    "title": "Definite integrals, areas under curve onto x-axis and areas between curves",
-   "partsTagged": 35,
-   "partsMain": 18,
+   "partsTagged": 37,
+   "partsMain": 20,
    "types": [
     "t5-kinematics-distance",
     "t5-definite-integral-area",

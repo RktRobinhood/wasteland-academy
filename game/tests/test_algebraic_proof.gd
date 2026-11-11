@@ -26,7 +26,7 @@ func test_the_type_is_built_with_every_cell() -> void:
 	check_eq(QuestionEngine.cells(false, [TYPE]).size(), CELLS)
 	var t := QuestionEngine.type_of(TYPE)
 	check_eq(t.unknowns.size(), 14)
-	check_eq([int(t.paper.p1), int(t.paper.p2)], [7, 1], "the bank's parts are kept")
+	check_eq([int(t.paper.p1), int(t.paper.p2)], [8, 1], "the bank's parts are kept")
 	var skills := {}
 	for u in t.unknowns:
 		for s in u.skills:
