@@ -1109,6 +1109,13 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   all work; the value must be a fraction of whole numbers (`Expr.eval_exact`), so exact
   marking stays exact, and √2 or ln 2 gets "Work that out to a number". Godot's
   `Expression` class is never used on what a student types (`test_expr.gd` checks).
+- **Equivalent answers** (FAL-788): an answer with the right value is right unless the question asks
+  for a form it breaks; then it is a glancing hit whose note names the rule ("Same line, but a, b and d
+  must be integers."). `gline`, `common`, `brackets2`, `surd`, `pm_surd` and an exact-length `form` are
+  marked by value or identity (`Answer.same_value`), with `simplest` and `integers` on the answer where
+  the wording asks for them. No option marked wrong has the answer's value; one in a broken form is
+  flagged `form` and is glancing when picked. `check_equivalent_options` in `tools/check_answers.py`
+  checks both with SymPy. The audit of every kind is the FAL-788 document `equivalence-audit`.
 - **Planner** (`engine/planner.gd`): never-seen cell, then a recently missed one, then
   exam frequency. "Exam-style only" (off by default) keeps exam cells only and follows
   exam frequency. It plans only from the cells the save's course covers (see "Courses").

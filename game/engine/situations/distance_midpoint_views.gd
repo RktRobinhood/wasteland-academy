@@ -127,6 +127,8 @@ static func length_ans(s: Dictionary, label: String, n: int) -> Dictionary:
 		ans = Answer.make("form", {"r": Q.new(sv[1]), "text": text}, {"parts": [head + "√", {"slot": "r"}]})
 	else:
 		ans = Answer.make("form", {"m": Q.new(sv[0]), "r": Q.new(sv[1]), "text": text}, {"parts": [head, {"slot": "m"}, "√", {"slot": "r"}]})
+		# Exact form, not simplest: 3√8 is 6√2 (FAL-788).
+		ans.surd = true
 	ans.exact = true
 	return ans
 

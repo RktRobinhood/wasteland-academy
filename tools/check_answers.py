@@ -553,6 +553,77 @@ def check(q):
     exp, f = SITUATION_CHECKS[sit](q)
     if exp is not None:  # the triangle and distribution checks are complete on their own
         check_common(q, exp, f)
+    check_equivalent_options(q)
+
+
+# ── Equivalent answers (FAL-788) ─────────────────────────────
+# The kinds the engine marks by value: an answer with the right value is right unless the
+# question asks for a form it breaks, and then it is glancing. So no option marked wrong may
+# have the answer's value, and an option flagged "form" must have it and break a form the
+# question asks for. The values are worked out here with SymPy, not taken from the engine.
+
+def eq_surd(v):
+    m, r = R(v["m"]), R(v["r"])
+    need(r >= 0, f"a surd of a negative number: {v}")
+    return sp.nsimplify(m * sp.sqrt(r))
+
+
+def eq_value(kind, ans, v):
+    """What an answer of a by-value kind is, as something == compares; None when the kind
+    is not marked by value or the option can't be typed."""
+    try:
+        if kind == "gline":
+            a, b, d = R(v["a"]), R(v["b"]), R(v["d"])
+            need(a != 0 or b != 0, f"no line: {v}")
+            lead = a if a != 0 else b
+            return ("line", a / lead, b / lead, d / lead)
+        if kind == "common":
+            g, a, b = R(v["g"]), R(v["a"]), R(v["b"])
+            return ("poly", sp.expand(g * X * (a * X + b)))
+        if kind == "brackets2":
+            return ("poly", sp.expand((R(v["a1"]) * X + R(v["b1"])) * (R(v["a2"]) * X + R(v["b2"]))))
+        if kind == "pm_surd":
+            h, w = R(v["h"]), abs(eq_surd(v))
+            return ("pm", frozenset({sp.nsimplify(h + w), sp.nsimplify(h - w)}))
+        if kind == "surd" or (kind == "form" and ans.get("surd")):
+            return ("surd", eq_surd(v))
+    except (KeyError, TypeError, ValueError):
+        return None
+    return None
+
+
+def eq_form_rule(kind, ans, v):
+    """Whether v, with the answer's value, breaks the form the question asks for."""
+    if kind == "gline":
+        return not all(R(v[k]).q == 1 for k in "abd")
+    if kind == "common":
+        a, b = R(v["a"]), R(v["b"])
+        return not (a.q == 1 and b.q == 1 and sp.igcd(int(a), int(b)) == 1)
+    if kind == "brackets2":
+        return bool(ans.get("integers")) and not all(R(v[k]).q == 1 for k in ("a1", "b1", "a2", "b2"))
+    if kind == "pm_surd":
+        return bool(ans.get("simplest")) and abs(R(v["m"])) != abs(R(ans["values"]["m"]))
+    if kind == "surd":
+        return bool(ans.get("simplest")) and (R(v["m"]), R(v["r"])) != (R(ans["values"]["m"]), R(ans["values"]["r"]))
+    return False
+
+
+def check_equivalent_options(q):
+    ans = q["answer"]
+    kind = ans["kind"]
+    want = eq_value(kind, ans, ans["values"])
+    if want is None:
+        return
+    need(not eq_form_rule(kind, ans, ans["values"]), f"the answer {q['answer_text']!r} breaks its own form")
+    for o in q["choices"]:
+        if o["correct"] or o.get("trap"):
+            continue
+        have = eq_value(kind, ans, o.get("values") or {})
+        same = have is not None and have == want
+        if o.get("form"):
+            need(same and eq_form_rule(kind, ans, o["values"]), f"option {o['text']!r} is flagged as the answer in another form, but isn't")
+        else:
+            need(not same, f"option {o['text']!r} is marked wrong but has the answer's value {q['answer_text']!r}")
 
 
 def check_quadratic(q):

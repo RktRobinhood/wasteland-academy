@@ -179,6 +179,8 @@ func u_root_powers(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		return dh + SUM([[p, XQ(q)], [u, XQ(v)]])
 	var ans := form(w.call(c0, e0, c1, e1), [dh, {"slot": "c0"}, "x^", {"slot": "e0"}, " + ", {"slot": "c1"}, "x^", {"slot": "e1"}],
 		{"c0": c0, "e0": e0, "c1": c1, "e1": e1})
+	# The two terms in either order (FAL-788).
+	ans.pairs = [["c0", "e0"], ["c1", "e1"]]
 	var sl := func(p: Q, q: Q, u: Q, v: Q) -> Dictionary:
 		return {"c0": p, "e0": q, "c1": u, "e1": v}
 	var ws: Array = [alt(w.call(c0, r.add(1), c1, e1), R_FRAC, sl.call(c0, r.add(1), c1, e1))]
