@@ -1,33 +1,18 @@
 class_name MathLabel
 extends Control
-## Maths drawn as on paper (FAL-797): fractions stacked over a bar and powers raised, cut
-## by MathText.parse(). It wraps at spaces like an autowrap Label, never inside a fraction
-## or a power, and is sized like one: no minimum width, and the height its lines need at
-## its width. Its font, size and colour come from the theme as a Label's do, and
-## "font_color" and "font_size" overrides work the same, so code that recolours a
-## feedback line needs no change.
+## Maths drawn as on paper (FAL-797): a MathBox tree, with fractions stacked over a bar,
+## powers raised and roots under a radical sign. Set text to have MathBox.parse() cut the
+## tree from it, or set box to draw a tree built elsewhere.
+##
+## It wraps at spaces in the tree's top row like an autowrap Label, never inside a
+## fraction, a power or a root, and is sized like one: no minimum width, and the height
+## its lines need at its width. Its font, size and colour come from the theme as a
+## Label's do, and "font_color" and "font_size" overrides work the same, so code that
+## recolours a feedback line needs no change.
 ##
 ## Inside a Button (UiTheme.math_button), it takes the button's text colour for its state
 ## (hover, pressed, disabled) and the button's font size, as the button's own text would.
-##
-## A fraction's top and bottom are FRACTION_SCALE of the line's size, and a fraction in a
-## fraction shrinks again, but never below a power's size, so the smallest numbers stay
-## readable on a phone. In a power, a fraction keeps the power's size.
 
-## The line's size for a fraction's top and bottom.
-const FRACTION_SCALE := 0.85
-## The bar's height above the baseline, about the middle of a minus sign, as a share of
-## the size. The bar's thickness and the gaps above and below it, likewise.
-const AXIS := 0.3
-const BAR := 0.06
-const GAP := 0.1
-## How far the bar runs past the wider of the top and bottom, and the space either side.
-const OVERHANG := 0.08
-const SIDE := 0.05
-## The height of a number or letter above and below the baseline, as a share of the
-## size, for stacking. A line is never less than the font's own height.
-const INK_ASCENT := 0.8
-const INK_DESCENT := 0.24
 const LINE_SEPARATION := 3
 
 ## The maths, with slashes and carets as the questions write it.
@@ -36,7 +21,11 @@ var text := "":
 		if v == text:
 			return
 		text = v
-		_nodes = MathText.parse(v)
+		box = MathBox.parse(v)
+## The tree it draws. Setting it leaves text as it was.
+var box := MathBox.row():
+	set(v):
+		box = v
 		_rebuild()
 var horizontal_alignment := HORIZONTAL_ALIGNMENT_LEFT:
 	set(v):
@@ -55,11 +44,14 @@ var button: Button:
 			v.draw.connect(queue_redraw)
 		_rebuild()
 
-var _nodes: Array = []
-## Each word: {"w", "asc", "desc", "ops"}, or "\n", or " ". An op is
-## ["text", Vector2 (x, baseline), string, size] or ["bar", Rect2], from the word's
-## left end and the line's baseline.
+## Each word: a laid-out MathBox row, or "\n", or " ". _words is the one in use:
+## _drawn_roots, or _open_roots, where each root is written √(…) as text, so a root too
+## wide for the line can wrap at its spaces.
 var _words: Array = []
+var _drawn_roots: Array = []
+var _open_roots: Array = []
+## The two share their boxes, and a box keeps where it sits in the word laid out last.
+var _laid_words: Array = []
 var _space := 0.0
 ## Each line: {"words": [[x, word]], "w", "base"}, at the current width.
 var _lines: Array = []
@@ -74,12 +66,10 @@ func _init() -> void:
 
 ## The text as a line, without the carets: as RichTextLabel.get_parsed_text().
 func get_parsed_text() -> String:
-	return MathText.plain(_nodes)
+	return box.plain()
 
 
-## What it draws, where, in its own coordinates: {"text", "at" (the baseline's left
-## end), "size"} for each piece of text and {"bar": Rect2} for each fraction's bar. For
-## tests.
+## What it draws, where, in its own coordinates, as MathBox.drawn() lists it. For tests.
 func drawn() -> Array:
 	var out := []
 	# On a button, the lines are centred top to bottom, as a button's own text is.
@@ -91,12 +81,7 @@ func drawn() -> Array:
 		elif horizontal_alignment == HORIZONTAL_ALIGNMENT_RIGHT:
 			x0 = size.x - l.w
 		for xw in l.words:
-			var origin := Vector2(x0 + xw[0], y0 + l.base)
-			for op in xw[1].ops:
-				if op[0] == "text":
-					out.append({"text": op[2], "at": origin + op[1], "size": op[3]})
-				else:
-					out.append({"bar": Rect2(origin + op[1].position, op[1].size)})
+			out.append_array(xw[1].drawn(Vector2(x0 + xw[0], y0 + l.base)))
 	return out
 
 
@@ -152,40 +137,75 @@ func _color() -> Color:
 func _rebuild() -> void:
 	var font := _font()
 	var s := font_size()
-	_words.clear()
 	_space = font.get_string_size(" ", HORIZONTAL_ALIGNMENT_LEFT, -1, s).x
-	var word := []
-	for n in _nodes:
-		if n is String:
-			var parts: PackedStringArray = n.replace("\n", " \n ").split(" ")
-			for k in parts.size():
-				if k > 0:
-					_end_word(word, font, s)
-					word = []
-					if parts[k] != "\n":
-						_words.append(" ")
-				if parts[k] == "\n":
-					if not _words.is_empty() and _words.back() is String and _words.back() == " ":
-						_words.pop_back()
-					_words.append("\n")
-				elif parts[k] != "":
-					word.append(parts[k])
-		else:
-			word.append(n)
-	_end_word(word, font, s)
+	_drawn_roots = _split(box.children, font, s)
+	var has_root := box.children.any(func(n: MathBox): return n.kind == MathBox.Kind.ROOT)
+	_open_roots = _split(_opened(box.children), font, s) if has_root else _drawn_roots
+	_laid_words = _open_roots
 	_laid_width = -1.0
 	_layout()
 
 
-func _end_word(word: Array, font: Font, s: int) -> void:
+## items with each root written out as √(…) in text.
+static func _opened(items: Array) -> Array:
+	var out := []
+	for n: MathBox in items:
+		if n.kind == MathBox.Kind.ROOT:
+			out.append(MathBox.text_box("√("))
+			out.append_array(n.children[0].children)
+			out.append(MathBox.text_box(")"))
+		else:
+			out.append(n)
+	return out
+
+
+## The words of a row's items, cut at the spaces in its text.
+func _split(items: Array, font: Font, s: int) -> Array:
+	var words := []
+	var word := []
+	for n: MathBox in items:
+		if n.kind == MathBox.Kind.TEXT:
+			var parts: PackedStringArray = n.text.replace("\n", " \n ").split(" ")
+			for k in parts.size():
+				if k > 0:
+					_end_word(words, word, font, s)
+					word = []
+					if parts[k] != "\n":
+						words.append(" ")
+				if parts[k] == "\n":
+					if not words.is_empty() and words.back() is String and words.back() == " ":
+						words.pop_back()
+					words.append("\n")
+				elif parts[k] != "":
+					word.append(MathBox.text_box(parts[k]))
+		else:
+			word.append(n)
+	_end_word(words, word, font, s)
+	return words
+
+
+static func _end_word(words: Array, word: Array, font: Font, s: int) -> void:
 	if word.is_empty():
 		return
-	_words.append(_row(word, font, s, s, false))
+	var w := MathBox.row(word)
+	w.layout(font, s)
+	words.append(w)
 
 
 ## Lays the words out in lines at the current width.
 func _layout() -> void:
 	_laid_width = size.x
+	_words = _drawn_roots
+	if autowrap and not is_same(_open_roots, _drawn_roots) and size.x > 0.0:
+		for w in _drawn_roots:
+			if w is MathBox and w.w > size.x and w.children.any(func(n: MathBox): return n.kind == MathBox.Kind.ROOT):
+				_words = _open_roots
+				break
+	if not is_same(_words, _laid_words):
+		for w in _words:
+			if w is MathBox:
+				w.layout(_font(), font_size())
+		_laid_words = _words
 	var font := _font()
 	var s := font_size()
 	var line_asc := font.get_ascent(s)
@@ -230,63 +250,4 @@ func _draw() -> void:
 	var font := _font()
 	var color := _color()
 	for d in drawn():
-		if d.has("bar"):
-			draw_rect(d.bar, color)
-		else:
-			draw_string(font, d.at, d.text, HORIZONTAL_ALIGNMENT_LEFT, -1, d.size, color)
-
-
-## Nodes side by side on one line, at size s: {"w", "asc", "desc", "ops"}. base is the
-## line's own size, for the smallest a fraction may get.
-func _row(nodes: Array, font: Font, s: int, base: int, in_power: bool) -> Dictionary:
-	var out := {"w": 0.0, "asc": 0.0, "desc": 0.0, "ops": []}
-	for n in nodes:
-		var b: Dictionary
-		if n is String:
-			b = {"w": font.get_string_size(n, HORIZONTAL_ALIGNMENT_LEFT, -1, s).x, "asc": s * INK_ASCENT,
-				"desc": s * INK_DESCENT, "ops": [["text", Vector2.ZERO, n, s]]}
-		elif n.has("pow"):
-			b = _power(n.pow, font, s, base)
-		else:
-			b = _fraction(n, font, s, base, in_power)
-		_append(out, b, Vector2(out.w, 0.0))
-		out.w += b.w
-	return out
-
-
-func _power(nodes: Array, font: Font, s: int, base: int) -> Dictionary:
-	var ps := roundi(s * UiTheme.POWER_SCALE)
-	var inner := _row(nodes, font, ps, base, true)
-	# As UiTheme's raised font: up by a share of the power's own line height.
-	var rise := -UiTheme.POWER_RAISE * font.get_height(ps)
-	var out := {"w": inner.w, "asc": maxf(s * INK_ASCENT, rise + inner.asc), "desc": maxf(0.0, inner.desc - rise), "ops": []}
-	_append(out, inner, Vector2(0.0, -rise))
-	return out
-
-
-func _fraction(n: Dictionary, font: Font, s: int, base: int, in_power: bool) -> Dictionary:
-	var fs := s if in_power else maxi(roundi(s * FRACTION_SCALE), roundi(base * UiTheme.POWER_SCALE))
-	var top := _row(n.num, font, fs, base, in_power)
-	var bottom := _row(n.den, font, fs, base, in_power)
-	var bar := maxf(2.0, roundf(s * BAR))
-	var gap := s * GAP
-	var axis := s * AXIS
-	var side := s * SIDE
-	var w := maxf(top.w, bottom.w) + 2.0 * s * OVERHANG
-	var bar_top := -axis - bar / 2.0
-	var out := {"w": w + 2.0 * side, "asc": axis + bar / 2.0 + gap + top.desc + top.asc,
-		"desc": maxf(0.0, -axis + bar / 2.0 + gap + bottom.asc + bottom.desc), "ops": [["bar", Rect2(side, bar_top, w, bar)]]}
-	_append(out, top, Vector2(side + (w - top.w) / 2.0, bar_top - gap - top.desc))
-	_append(out, bottom, Vector2(side + (w - bottom.w) / 2.0, bar_top + bar + gap + bottom.asc))
-	return out
-
-
-## Adds b's ops to out, moved by at. Sizes stay out's own.
-static func _append(out: Dictionary, b: Dictionary, at: Vector2) -> void:
-	for op in b.ops:
-		if op[0] == "text":
-			out.ops.append(["text", op[1] + at, op[2], op[3]])
-		else:
-			out.ops.append(["bar", Rect2(op[1].position + at, op[1].size)])
-	out.asc = maxf(out.asc, b.asc - at.y)
-	out.desc = maxf(out.desc, b.desc + at.y)
+		MathBox.draw_piece(self, font, d, color)

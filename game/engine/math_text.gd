@@ -1,12 +1,14 @@
 class_name MathText
 extends RefCounted
-## Cuts a line of maths into what MathLabel lays out (FAL-797): plain text, powers written
-## with a caret (as Fmt.power_runs) and fractions written with a slash, which it stacks
-## over a bar as on paper. The questions keep their slashes and carets:
+## Cuts a line of maths into what MathBox lays out (FAL-797): plain text, powers written
+## with a caret (as Fmt.power_runs), roots written with √ and fractions written with a
+## slash, which it stacks over a bar as on paper. The questions keep their slashes and carets:
 ## tools/check_answers.py parses them, and a typed answer can still use /.
 ##
-## parse() gives an Array of nodes: a String is plain text, {"pow": nodes} is a power and
-## {"num": nodes, "den": nodes} a fraction. A fraction takes, on each side of its slash:
+## parse() gives an Array of nodes: a String is plain text, {"pow": nodes} is a power,
+## {"root": nodes} a root and {"num": nodes, "den": nodes} a fraction. A root takes a
+## bracket, whose brackets go under the bar (√(x + 1)), a number (√2.5) or one letter
+## with its subscripts (√x, √Δ, √u₁); ∛ stays as text. A fraction takes, on each side of its slash:
 ##   - a whole term: "2πx", "x²", "e^(2x)", "f(x)", "n!", "√3", or a bracket, whose
 ##     brackets go, as on paper ("(x + 1)/(x − 1)"). A sign in front stays in front:
 ##     −3/4 is −(3/4), and the minus is drawn before the bar.
@@ -27,35 +29,18 @@ const UNIT_BOTTOMS := ["s", "s²", "h", "l", "Y", "min"]
 const MARKS := "₀₁₂₃₄₅₆₇₈₉ₙ₊₋ₑᵢₐₓₖ⁰¹²³⁴⁵⁶⁷⁸⁹⁻ⁿ′″!°∞_"
 ## What can follow a bracket and bind to it: (2/3)⁵, (x + 1)!.
 const POSTFIX := "⁰¹²³⁴⁵⁶⁷⁸⁹⁻ⁿ′″!"
+const SUBSCRIPTS := "₀₁₂₃₄₅₆₇₈₉ₙₑᵢₐₓₖ"
 
 
-## True if s has a fraction or a power to draw, so a plain Label won't do.
+## True if s has a fraction, a power or a root to draw, so a plain Label won't do.
 static func has_markup(s: String) -> bool:
-	if not s.contains("/") and not s.contains("^"):
+	if not s.contains("/") and not s.contains("^") and not s.contains("√"):
 		return false
 	return parse(s).any(func(n): return n is Dictionary)
 
 
 static func parse(s: String) -> Array:
 	return _build(s, _fractions(s), 0, s.length())
-
-
-## The text as one line, with the carets gone and the slashes kept: "e^(2x) + 1/2" is
-## "e2x + 1/2". A top or bottom with a space in it gets its brackets back.
-static func plain(nodes: Array) -> String:
-	var out := ""
-	for n in nodes:
-		if n is String:
-			out += n
-		elif n.has("pow"):
-			out += plain(n.pow)
-		else:
-			out += _bracketed(plain(n.num)) + "/" + _bracketed(plain(n.den))
-	return out
-
-
-static func _bracketed(s: String) -> String:
-	return "(%s)" % s if s.contains(" ") else s
 
 
 ## Every fraction in s, left to right, as {top, top_end, bottom, end}: the top is
@@ -114,6 +99,14 @@ static func _build(s: String, fracs: Array, from: int, to: int) -> Array:
 			out.append(_fraction(s, fracs, f))
 			i = f.end
 			continue
+		var r := _root_end(s, i) if s[i] == "√" else 0
+		if r > 0 and r <= to:
+			_flush(out, text)
+			text = ""
+			var under := s[i + 1] == "("
+			out.append({"root": _build(s, fracs, i + 2, r - 1) if under else _build(s, fracs, i + 1, r)})
+			i = r
+			continue
 		var p := Fmt._power_end(s, i + 1) if s[i] == "^" else 0
 		if p > i + 1 and p <= to:
 			_flush(out, text)
@@ -126,6 +119,27 @@ static func _build(s: String, fracs: Array, from: int, to: int) -> Array:
 		i += 1
 	_flush(out, text)
 	return out
+
+
+## Where the root whose √ is at i ends, or 0 if what follows isn't one.
+static func _root_end(s: String, i: int) -> int:
+	var n := s.length()
+	var j := i + 1
+	if j >= n:
+		return 0
+	if s[j] == "(":
+		var close := _close(s, j)
+		return close + 1 if close > j + 1 else 0
+	if s[j].is_valid_int():
+		while j < n and (s[j].is_valid_int() or (s[j] == "." and j + 1 < n and s[j + 1].is_valid_int())):
+			j += 1
+		return j
+	if _letter(s[j]):
+		j += 1
+		while j < n and SUBSCRIPTS.contains(s[j]):
+			j += 1
+		return j
+	return 0
 
 
 static func _flush(out: Array, text: String) -> void:
