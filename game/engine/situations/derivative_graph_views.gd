@@ -163,6 +163,12 @@ static func other_kind(kind: String) -> String:
 	return "minimum" if kind == "maximum" else "maximum"
 
 
+## "x > 1" offered beside an interval answer: it can be picked but never typed. It is
+## marked with "side", not "shape", which is the interval's between/outside pick.
+static func side_alt(rel: String, x: int, ref: String) -> Dictionary:
+	return DifferentiationViews.alt("x %s %s" % [rel, Fmt.num(x)], ref, {"side": rel})
+
+
 ## Whole numbers near x, for generic options.
 static func near(x: int, avoid: Array) -> Array:
 	var out: Array = []
@@ -345,7 +351,7 @@ func u_concave_up_from_cubic(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	# Where f′ itself is positive (or negative): the sign of k(x − a), past the touch.
 	var a: int = s.a
 	var fp_rel := ">" if (s.k > 0) == up else "<"
-	var wr: Array = [DifferentiationViews.alt("x %s %s" % [fp_rel, Fmt.num(a)], R_CONCAVE_SIGN), MonotonicViews.alt_iv(MonotonicViews.other(shape), lo, hi)]
+	var wr: Array = [side_alt(fp_rel, a, R_CONCAVE_SIGN), MonotonicViews.alt_iv(MonotonicViews.other(shape), lo, hi)]
 	var rising := "increasing" if up else "decreasing"
 	return {"lines": [shows(s)], "graph": figure(s), "asked": "Find the values of x for which the graph of f is concave %s." % s.want, "answer": ans, "wrongs": wr,
 		"generic": [MonotonicViews.alt_iv(shape, mini(a, b), maxi(a, b)).values, MonotonicViews.alt_iv(shape, lo - 1, hi).values, MonotonicViews.alt_iv(shape, lo, hi + 1).values, MonotonicViews.alt_iv(MonotonicViews.other(shape), lo - 1, hi + 1).values],
@@ -420,11 +426,16 @@ func u_compare_from_areas(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var taller := H if hh > hl else L
 	var shorter := L if hh > hl else H
 	var heights := "f(%s) is greater, because f′(%s) > f′(%s)" % [taller, taller, shorter]
-	var built := DerivativeMeaningViews.claim_answer(right, [[flat, R_UNSIGNED], [heights, R_HEIGHTS], [flipped, ""]])
+	var third: Array = [heights, R_HEIGHTS]
+	if rep == "words":
+		# No graph to read heights from: judging by the sign of f′ on the last stretch alone.
+		var M := Fmt.num(s.m)
+		third = ["f(%s) is greater, because f′(x) %s 0 for %s < x < %s" % [H if s.s2 > 0 else L, ">" if s.s2 > 0 else "<", M, H], ""]
+	var built := DerivativeMeaningViews.claim_answer(right, [[flat, R_UNSIGNED], third, [flipped, ""]])
 	var where := "Region A is %s the axis and region B is %s it." % ["above" if s.s1 > 0 else "below", "above" if s.s2 > 0 else "below"]
 	if rep == "words":
 		where = "f′ is %s on the first stretch and %s on the second." % [sign_word(s.s1), sign_word(s.s2)]
-	return {"lines": area_lines(rep, s), "graph": area_figure(s) if rep == "graph" else null, "asked": "Which is greater, f(%s) or f(%s)?" % [L, H],
+	return {"lines": area_lines(rep, s), "graph": area_figure(s) if rep == "graph" else null, "asked": "Which is greater, f(%s) or f(%s)? Which answer is fully justified?" % [L, H],
 		"answer": built.answer, "wrongs": built.wrongs, "generic": [],
 		"methods": {"area-under-f-prime": method([
 			"f(%s) − f(%s) is the integral of f′ from %s to %s: the signed area, where area below the axis counts as negative." % [H, L, L, H],
@@ -560,7 +571,7 @@ func u_gradient_negative_where(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var ans := MonotonicViews.interval(shape, lo, hi)
 	# Where f itself has that sign: k(x − a) has it, past the touch.
 	var f_rel := ("<" if neg else ">") if s.k > 0 else (">" if neg else "<")
-	var wr: Array = [DifferentiationViews.alt("x %s %s" % [f_rel, Fmt.num(a)], R_F_SIGN),
+	var wr: Array = [side_alt(f_rel, a, R_F_SIGN),
 		MonotonicViews.alt_iv(shape, mini(a, b), maxi(a, b), R_INTERCEPTS), MonotonicViews.alt_iv(MonotonicViews.other(shape), lo, hi)]
 	var pts: Array = [[float(c), float(DerivativeGraphSituation.at(s, c)), Fmt.point(c, DerivativeGraphSituation.at(s, c))], [float(b), 0.0, Fmt.point(b, 0)]]
 	var g := MonotonicViews.graph_of(DerivativeGraphSituation.fn(s), float(s.lo), float(s.hi), pts)

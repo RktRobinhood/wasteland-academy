@@ -36815,15 +36815,16 @@ def E12DG_check(q):
         A1, A2 = abs(I1), abs(I2)
         ss = lambda p, r: f"{E12DG_n(p)} {'−' if r < 0 else '+'} {E12DG_n(abs(r))}"
         if u == "compare-from-areas":
-            need(asked == f"Which is greater, f({Ls}) or f({Hs})?", "can't read the question")
+            need(asked == f"Which is greater, f({Ls}) or f({Hs})? Which answer is fully justified?", "can't read the question")
             S = I1 + I2
             need(S != 0, "the two values are equal")
             verdict = lambda d: f"f({Hs if d > 0 else Ls}) is greater"
             want = f"{verdict(S)}: f({Hs}) − f({Ls}) = {ss(I1, I2)} = {E12DG_n(S)}"
             hl, hh = e.subs(CX, lo), e.subs(CX, hi)
             tall, short = (Hs, Ls) if hh > hl else (Ls, Hs)
-            wrongs = {F + "6": {f"{verdict(1)}: f({Hs}) − f({Ls}) = {ss(A1, A2)} = {E12DG_n(A1 + A2)}"},
-                      F + "7": {f"f({tall}) is greater, because f′({tall}) > f′({short})"}}
+            wrongs = {F + "6": {f"{verdict(1)}: f({Hs}) − f({Ls}) = {ss(A1, A2)} = {E12DG_n(A1 + A2)}"}}
+            if rep == "graph":
+                wrongs[F + "7"] = {f"f({tall}) is greater, because f′({tall}) > f′({short})"}
         else:
             mv = re.fullmatch(r"f\((−?\d+)\) = (−?\d+)\.", L[-1])
             need(mv is not None and mv.group(1) == Ls, f"can't read the value of f: {L[-1]!r}")
