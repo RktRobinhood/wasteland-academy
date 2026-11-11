@@ -2644,7 +2644,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 23 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 24 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2767,6 +2767,33 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): The median is in the middle of the box. — Sometimes: it is only when the data between the quartiles are symmetric. The median splits the data in two by count, not the box by length.
   - *predict-check* (L3): A box plot has a long upper whisker. Predict whether the mean is above or below the median, then say why. — Above: the median depends only on the middle of the data, but the mean uses every value, so the few high values pull it up.
 - **Misconceptions used:** 22. Assuming a longer section of the box or a longer whisker holds more of the data; Drawing the whisker out to an outlier instead of marking the outlier separately with a cross; Using the median in both halves when n is odd; Using the values in the order shown, without sorting them first; Using each value of a frequency table once, ignoring its frequency; Using the middle of the box as the median; Using the whole length of the plot as the IQR, or the IQR as the range; Using the end of the whisker as the greatest value, leaving the cross out; Using a quarter of the horizontal axis as a quartile, instead of a quarter of the frequency; Using the cumulative frequency levels as the values themselves; Using the ends of the axis as the least and greatest values; Using the share below a value when the question gives the share above it, or the other way round; Using the range to judge the shape of the data; Reading the gaps backwards, so equal gaps seem skewed and unequal gaps symmetric; Assuming the mean equals the median because half of the data lie on each side of the median; Using the values a quarter and three quarters of the way along the list as the quartiles, not the medians of the halves; Drawing the whisker out to the fence, not to the furthest value inside it; Adding the quartiles, or giving the pair of them, instead of subtracting; Comparing only the maximum or minimum values; Using a larger spread as a sign of a higher average; Quoting the numbers without saying what they mean in context; Reading the comparison backwards, so the verdict is the opposite of what the medians show.
+
+#### Effect of adding or multiplying a constant on summary statistics (`t4-constant-changes`, exam, 3 bank parts)
+
+- **Situation:** A data set's summary statistics, before and after a change to every value.
+- **Representations:** **equation**, **words**, **terms**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the mean and standard deviation of a data set; a constant added to or taken off every value → the new mean and the new standard deviation
+  - **exam** L1: given the mean and variance of a data set; a constant added to or taken off every value → the new mean and the new variance
+  - **exam** L2: given a median, mode or quartile and an IQR or range, a list of the data, or a box plot; a constant added to or taken off every value → the new measure of centre and the new measure of spread
+  - **exam** L1: given the mean and standard deviation of a data set; every value multiplied by a constant → the new mean
+  - **exam** L2: given the mean and variance of a data set; every value multiplied by a constant → the new variance
+  - **exam** L2: given a median, mode or quartile and a standard deviation, IQR or range, a list of the data, or a box plot; every value multiplied by a constant, or a change of units → the new measure of centre and the new measure of spread
+  - **exam** L2: given the mean and IQR of a data set; every value put through y = ax + b → the new mean and the new IQR
+  - **exam** L3: given the standard deviation of a data set; every value put through y = ax + b → the new standard deviation and the new variance
+  - **exam** L2: given a measure of centre and of spread, a list of the data, or a box plot; every value put through y = ax + b → the new measure of centre and the new measure of spread
+  - **exam** L3: given the change y = x + b, y = ax or y = ax + b; the mean and standard deviation after it → the original mean and standard deviation
+  - **exam** L3: given the change y = ax or y = ax + b; the variance after it → the original variance
+  - **exam** L3: given the change y = x + b, y = ax or y = ax + b; a box plot of the new values, or a measure of centre and of spread after the change → the original measure of centre and measure of spread
+  - **exam** L3: given the mean and standard deviation (or variance) before and after y = ax + b, a > 0 → a and b
+  - **exam** L2: given the variance before and after every value is multiplied by k > 0 → k
+  - new L1: given a constant added to every value, or every value multiplied by one → which statement about the new measures of centre and spread is true
+- **Angles:** Location shifts, spread scales; Picture the whole data set moving; Test on a tiny data set.
+- **Concept probes:**
+  - *true-false-reason* (L3): Adding the same constant to every value leaves the standard deviation unchanged. — True: every value moves by the same amount, so every distance from the mean is the same as before, and so is the spread.
+  - *always-sometimes-never* (L3): Multiplying every value by a constant multiplies the variance by that constant. — Sometimes: only when the constant is 0 or 1. The variance is in squared units, so it is multiplied by the square of the constant.
+  - *predict-check* (L3): Predict the mean and the range of the values 1, 2 and 3 after each is doubled and then 5 is added, then check by listing the new values. — The mean goes from 2 to 2 × 2 + 5 = 9 and the range from 2 to 4: the new values are 7, 9 and 11. The added 5 moves the centre but not the spread.
+- **Misconceptions used:** 15. Adding a constant changes the standard deviation; Multiplying by k multiplies the variance by k (it is k²); Adding k to every value adds k to the IQR; Adding the constant to the range as well as to the values; Adding the constant to the variance as well as to the values; Leaving a measure of centre unchanged when every value has changed; Multiplying the added constant by the factor too, as if the change were a(x + b); Leaving out the added constant for a measure of centre; Leaving a measure of spread unchanged when every value is multiplied; Multiplying a standard deviation, IQR or range by the square of the factor; Undoing the change in the wrong order: dividing first, then taking away the constant; Applying the change again instead of undoing it; Taking the change in the mean as the added constant, before scaling the mean; Finding the factor from the means, which the added constant has moved as well; Swapping which measures move: keeping the centre and shifting the spread.
 
 #### Grouped and frequency-table data: missing frequency, modal class, estimates (`t4-grouped-data`, exam, 9 bank parts)
 

@@ -365,6 +365,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a crossing or a line. exp-log-form is Paper 1 and log-context Paper 2, which makes the bank's 2/3
   Paper 2 share (48 of 73 cells). `E11LF_check` in the SymPy checker reads the scale back from the
   formula or the sentence.
+- `engine/situations/constant_change.gd` (FAL-754) is `t4-constant-changes` (SL4.3.constant-changes),
+  the `constant-change` situation: 15 unknowns over 99 cells. A data set's summary statistics, and every
+  value put through y = x + b, y = ax or y = ax + b: the new mean, median, mode, quartiles, standard
+  deviation, variance, IQR or range, or the change run backwards to the original ones; a and b found from
+  two means and two spreads, the factor from two variances, and which statement of the effect is true.
+  The original statistics are drawn first and the new ones worked out of them exactly, so every cell is
+  Paper 1 and every number ends within two decimal places. The views (`constant_change_views.gd`) show
+  an equation, a story (a pallet's mass, cm to mm, a pay rate, °C to °F), a list of the data or a box
+  plot to scale on whole ticks, and work the shift-and-stretch rules, the picture of the histogram or box
+  plot sliding and stretching, or the change tried on 1, 2, 3. Run backwards, a variance whose "apply
+  the change again" option would pass 100000 (a² twice over, 10⁸ for metres to centimetres) is drawn
+  again.
 - `engine/situations/trig_wave.gd` (FAL-751) is `t3-trig-read-features` (SL3.7.read-features) and
   `t3-trig-model-use` (SL3.7.model-context), the `trig-wave` situation, which extends `trig-model`: it
   keeps that situation's Paper 2 wave, contexts and graph, and `TrigWaveViews` extends its views.
@@ -1470,6 +1482,11 @@ For `log-exp-form` it reads a log, a power or a sentence back and tests the powe
 exactly; on Paper 2 it reads each scale's constants back from its formula or its sentence, finds each
 value from the logarithm to 40 digits, rebuilds each tagged option from its slip, and requires each
 method's numbers in its working (`E11LF_check`).
+For `constant-change` it reads the change and the statistics back from the equation, the story, the
+list or the box plot (only the story's index comes from `given`), works every asked statistic again in
+exact rationals from the definitions (a list's median, quartiles and mode by sorting and counting, a box
+plot's from its five drawn numbers), rebuilds each tagged option from its slip and every statement
+offered, and evaluates every plain sum in the working (`E12CC_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
@@ -1989,6 +2006,10 @@ script error happens while it runs. Run one file with
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
+- `test_constant_change.gd` (FAL-754): t4-constant-changes built with every cell and unknown, Paper 1
+  only, four distinct options with one right and no extra format; a box plot on its ticks and axis, the
+  rules for a centre, a spread and the variance both ways, a list's statistics by hand, a changed list
+  agreeing with the rules, a real stretch and shift for find-a-and-b, and every tag as an option.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters

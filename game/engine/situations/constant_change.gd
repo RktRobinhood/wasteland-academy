@@ -35,6 +35,8 @@ const SPAN := 25
 const EVERY := 5
 const MIN_GAP := 2
 const TICKS := [1, 2, 5, 10, 20, 50, 100]
+## The largest variance an option of a question run backwards may show.
+const VAR_AGAIN := 100000
 
 ## The factors and constants of a change written as an equation.
 const EQ_A := [[2, 1], [3, 1], [4, 1], [5, 1], [10, 1], [1, 2], [3, 2], [5, 2]]
@@ -54,7 +56,7 @@ const STORIES := [
 		"change": "A dust storm adds {b} minutes to every scout's crossing time.", "a": [[1, 1]], "b": [3, 15], "lo": 20, "hi": 90, "graph": true},
 	{"op": "add", "what": "the prices on a market stall", "new": "the prices with the gate tax", "old": "the prices before the gate tax",
 		"unit": "caps", "unit2": "caps", "axis": "price (caps)", "axis2": "price with the tax (caps)",
-		"change": "The gate tax adds {b} caps to every price on the stall.", "a": [[1, 1]], "b": [1, 8], "lo": 6, "hi": 40, "graph": true},
+		"change": "The gate tax adds {b} caps to every price on the stall.", "a": [[1, 1]], "b": [2, 8], "lo": 6, "hi": 40, "graph": true},
 	{"op": "add", "what": "the depths of water in the camp's wells", "new": "the depths in the dry season", "old": "the depths before the dry season",
 		"unit": "m", "unit2": "m", "axis": "depth (m)", "axis2": "depth in the dry season (m)",
 		"change": "In the dry season the water in every well drops by {b} m.", "a": [[1, 1]], "b": [-6, -1], "lo": 10, "hi": 30, "graph": true},
@@ -392,6 +394,10 @@ static func _clean(s: Dictionary) -> bool:
 		return not s.a.eq(Q.new(1)) and not s.b.is_zero()
 	if s.ask == "factor-from-variance":
 		return not s.old.variance.eq(s.new.variance)
+	# Run back, the slip that applies the change again multiplies a variance by a² twice over:
+	# for 1 m = 100 cm that is 10⁸ times, an absurd option. Keep it within VAR_AGAIN.
+	if s.back and "variance" in s.asked and Q.new(VAR_AGAIN).lt(s.a.sq().mul(s.new.variance)):
+		return false
 	# A told measure of centre is not the spread it is told with, so no option can read both ways.
 	if s.asked.size() == 2:
 		for side in [s.old, s.new]:

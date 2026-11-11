@@ -205,10 +205,21 @@ static func calc_back(name: String, v: Q, a: Q, b: Q) -> String:
 	return "%s ÷ %s = %s" % [D(v), D(a), D(r)]
 
 
+## A statistic worked forwards or back. A variance worked from a standard deviation that is told
+## alone squares it in the line: "3² × 3.5² = 9 × 12.25 = 110.25".
+static func calc_of(s: Dictionary, name: String, v: Q) -> String:
+	if s.back:
+		return calc_back(name, v, s.a, s.b)
+	if name == "variance" and not "variance" in s.shown and "standard deviation" in s.shown and not s.a.eq(Q.new(1)):
+		var r := ConstantChangeSituation.forward(name, v, s.a, s.b)
+		return "%s² × %s² = %s × %s = %s" % [D(s.a), D(s.old["standard deviation"]), D(s.a.sq()), D(v), D(r)]
+	return calc_fwd(name, v, s.a, s.b)
+
+
 ## One statistic's line in the rules: "the mean: 2 × 12 + 5 = 29", or "the range stays 14".
 static func stat_step(s: Dictionary, name: String) -> String:
 	var v: Q = s.new[name] if s.back else s.old[name]
-	var c := calc_back(name, v, s.a, s.b) if s.back else calc_fwd(name, v, s.a, s.b)
+	var c := calc_of(s, name, v)
 	var which := "original" if s.back else "new"
 	if c == "":
 		return "the %s stays %s" % [name, D(v)]
@@ -416,13 +427,13 @@ static func move_line(s: Dictionary) -> String:
 			return "Picture the %s of %s: the change slides it %s to the %s, and its shape and width do not change." % [p, target(s, false), b, dir]
 		"mul":
 			return "Picture the %s of %s: the change %s, so every point and every width on it is multiplied by %s." % [p, target(s, false), stretch, a]
-	return "Picture the %s of %s: multiplying %s, then adding %s slides it %s to the %s without changing its width." \
-		% [p, target(s, false), stretch, D(s.b) if s.b.sign() > 0 else "−" + b, b, dir]
+	return "Picture the %s of %s: multiplying %s, then %s %s slides it %s to the %s without changing its width." \
+		% [p, target(s, false), stretch, "adding" if s.b.sign() > 0 else "taking off", b, b, dir]
 
 
 static func picture_stat(s: Dictionary, name: String) -> String:
 	var v: Q = s.new[name] if s.back else s.old[name]
-	var c := calc_back(name, v, s.a, s.b) if s.back else calc_fwd(name, v, s.a, s.b)
+	var c := calc_of(s, name, v)
 	var times := "divided" if s.back else "multiplied"
 	if is_location(name):
 		return "The %s moves with the picture: %s." % [name, c]
