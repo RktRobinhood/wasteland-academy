@@ -279,6 +279,36 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   misconceptions: the curve's own y-intercept, x = 0 for the x-axis, a signed area, P given as Q,
   x₀ counted once among the roots, and −m or 1/m for the normal's gradient. The checker
   (`E12NM_check`) reads the curve back from the lines and solves curve = line again with SymPy.
+- **The calculus extension types** (FAL-776, batch E13): six `t5-ext-*` types on five situations,
+  each with views that extend `extension_views.gd`. They cover syllabus skills no exam type lists, so
+  they carry no exam parts. `polynomial_conditions.gd` serves `t5-ext-unknown-coefficients` (SL5.3: k
+  from a gradient, a and b from a gradient and a point, from two gradients or from a tangent line) and
+  `t5-ext-stationary-conditions` (SL5.8: k from a stationary x, a and b from a stationary point, p from
+  a point of inflexion, b and c from two stationary x-values, by equations or by f′ in factor form).
+  The letters' whole-number values are picked first and the conditions worked out from them, so the
+  equations always solve; one letter is typed as a number and two as `named`. The GDC's solver is
+  Paper 2, and the rest is Paper 1. `always_increasing.gd` is `t5-ext-always-increasing` (SL5.2): f′
+  is built so it keeps one sign (a quadratic with no real roots, increasing or decreasing; a sum of
+  terms that can't be negative; 2ax + b/x on x > 0, with the inverse it gives; an exponential minus a
+  line, whose least value only the GDC finds). Each answer is a pick of four written arguments, and the
+  right one is the asked method's own, so only that method is worked. `hence_integral.gd` is
+  `t5-ext-hence-integral` (SL5.10): a product rule result read backwards with its extra term moved
+  across (x ln x, x e^(kx), x sin(kx), x cos(kx)), a composite one with its constant factor divided out
+  (e^(px²), ln(x² + c), (x² + c)ⁿ, sin(x²)), the same as an exact definite value, the derivative itself,
+  and which of four true results helps. `integral_gdc.gd` is `t5-ext-integral-gdc` (SL5.5, Paper 2):
+  integrands only the GDC evaluates (e^x sin x, sin(x²), e^(x + c), √(x³ + c), ln(x² + c), 1/(x² + c))
+  and a polynomial checked by hand, with the entry slips worked out as values: limits swapped, degree
+  mode, a bracket closed before the + c. `area_under_curve.gd` is `t5-ext-area-under-curve` (SL5.5,
+  both skills): R above the x-axis under a hump −a(x − r)(x − t), between two lines, between the roots
+  or against the y-axis, under a straight line (a trapezium) or a Paper 2 curve, and a quadratic with
+  surd roots for the GDC. The integral to write is a pick of four integrals; region-for-integral is pick
+  the graph, four cards each shading one region (its own limits, from 0, on to the root, the part to
+  the left). Every figure shades R with the graph spec's `shade`. Built formats: error-spot on the
+  unknowns whose catalogue lists a slip for it, method-pick on always-increasing and hence-integral,
+  true-false-reason on always-increasing and area-under-curve, and pick-the-graph for `graph-pick`. The
+  catalogue's `match`, `order-steps` and `multipart` formats are not built in the engine, so these
+  types don't offer them. The checker's sections are prefixed `E13PC_`, `E13AI_`, `E13HI_`, `E13IG_`
+  and `E13AU_`.
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
@@ -1603,6 +1633,18 @@ question's `given`), checks the figure is drawn to them, puts the solid on its o
 integers and finds the angle again from vectors: a line and a plane from the rise over the length, two
 lines from their dot product. It holds the clean limits, rebuilds each tagged option from its slip, and
 evaluates every sum, named length, ratio and inverse in the working (`E12SA_check`).
+For the E13 calculus extension types (FAL-776) it reads every curve and condition back from the
+lines, the words or the figure's shaded strips, never the question's `given`. `polynomial-conditions`
+solves the conditions for the letters with SymPy symbols, works each tagged slip from its own wrong
+equations, checks every derivative and equation in the working, and judges error-spot lines one by
+one (`E13PC_check`, `E13PC_spot`). `always-increasing` writes each argument again from SymPy's f′ (the
+completed square, the discriminant, the term-by-term claims, the GDC's least value at 40 digits) and
+fails on any option it can't say is wrong (`E13AI_check`). `hence-integral` judges every option by
+differentiating or integrating it, so no wording is copied from the engine (`E13HI_check`).
+`integral-gdc` integrates with mpmath and makes each slip from the integrand's shape: the negative,
+every sin argument times π/180, h(inner) as h(inner − c) + c (`E13IG_check`). `area-under-curve`
+integrates R again, checks f is above the axis inside it, and holds each card's shading to its
+mistake (`E13AU_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
@@ -2132,6 +2174,11 @@ script error happens while it runs. Run one file with
 - `test_rational_exponents.gd` (FAL-754): t1-rational-exponents built with every cell, one right
   option in every cell, Paper 1 only, marking by value, a typed slip logged, every tag as an
   option, the map's and the bank's examples left out, and hand values.
+- `test_polynomial_conditions.gd`, `test_always_increasing.gd`, `test_hence_integral.gd`,
+  `test_integral_gdc.gd` and `test_area_under_curve.gd` (FAL-776): the six calculus extension types
+  built with every cell, each question on its paper, hand values for each family, every distractor
+  tag shown, and the extra formats' rules (error-spot's bad line, method-pick's working method, the
+  cards' shading).
 - `test_tangent_meets.gd` (FAL-754): t5-normal-meets-curve built with every cell, Paper 2 only, no extra
   formats; f and f′ against hand values, the line really the tangent or the normal, A and B on their axes,
   Q on both the curve and the line, (x − x₀)² in a built cubic's curve minus tangent, the figure's curve
