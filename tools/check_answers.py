@@ -40844,6 +40844,187 @@ SPOT_CHECKS["integral-gdc"] = E13IG_spot
 # ── end integral-gdc ──
 
 
+# ── area-under-curve (t5-ext-area-under-curve, FAL-776) ───────
+# f and R's edges are read back from what the student sees: the shaded strips of the figure, or
+# the lines, axes and roots the words name (solved here with SymPy). The area is integrated again
+# exactly, or by mpmath for the Paper 2 curve, and f is checked to be positive inside R. Each
+# integral option is read back (limits and integrand) and judged; each tagged slip is worked out:
+# y-values as limits, the limits swapped, f′ as the integrand, F(lower) − F(upper), a lower limit
+# of 0 and roots rounded to 1 d.p.
+
+E13AU_SE, E13AU_SP = "SL5.5.area-expression#", "SL5.5.area-positive#"
+E13AU_X = sp.Symbol("x")
+
+
+def E13AU_f(t):
+    return E13IG_e(t)
+
+
+def E13AU_round1(x):
+    """x to 1 d.p., halves away from zero, as the engine's snappedf rounds."""
+    x = sp.Float(x, 30)
+    s = 1 if x >= 0 else -1
+    return s * sp.floor(abs(x) * 10 + sp.Rational(1, 2)) / 10
+
+
+def E13AU_positive(f, lo, hi):
+    X = E13AU_X
+    g = sp.lambdify(X, f, "mpmath")
+    for k in range(1, 40):
+        a, b = mpmath.mpf(str(sp.N(lo, 40))), mpmath.mpf(str(sp.N(hi, 40)))
+        x = a + (b - a) * k / 40
+        need(g(x) > 0, f"f is not above the x-axis at x = {x}")
+
+
+def E13AU_roots(f):
+    rs = sorted(sp.real_roots(sp.Poly(sp.expand(f), E13AU_X)), key=float)
+    need(len(rs) == 2 and rs[0] != rs[1], f"f has roots {rs}")
+    return rs
+
+
+def E13AU_edges_from_graph(q, f):
+    g = q["graph"]
+    sh = g["shade"]
+    need(len(sh) == 1, "R is not one shaded region")
+    lo, hi = sh[0][0][0], sh[0][-1][0]
+    fl = sp.lambdify(E13AU_X, f, "math")
+    for x, y0, y1 in sh[0][::7]:
+        need(abs(y0) < 1e-9 and abs(y1 - fl(x)) < 1e-6, "the shading is not between the curve and the x-axis")
+    for x, y in g["curves"][0][::13]:
+        need(abs(fl(x) - y) < 1e-6, "the curve drawn is not y = f(x)")
+    return sp.Rational(round(lo * 1000), 1000), sp.Rational(round(hi * 1000), 1000)
+
+
+def E13AU_read(q):
+    """f, the edges of R, and how R was described."""
+    u, rep, L = q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    X = E13AU_X
+    if rep == "graph":
+        m = re.fullmatch(r"The graph of (?:the line )?y = (.+) is shown\. R(?:, between the curve and the x-axis,)? is shaded\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        f = E13AU_f(m.group(1))
+        lo, hi = E13AU_edges_from_graph(q, f)
+        if "between the curve and the x-axis" in L[0]:
+            rs = E13AU_roots(f)
+            need((lo, hi) == (rs[0], rs[1]), "the shading is not between the roots")
+        return f, lo, hi, "graph"
+    if rep == "equation":
+        m = re.fullmatch(r"∫ from (−?\d+) to (−?\d+) of (.+) dx", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        t = m.group(3)
+        t = t[1:-1] if t.startswith("(") and E13IG_balanced(t[1:-1]) else t
+        return E13AU_f(t), E13PC_n(m.group(1)), E13PC_n(m.group(2)), "integral"
+    m = re.fullmatch(r"f\(x\) = (.+)", L[0])
+    need(m is not None and len(L) == 2, f"can't read {L}")
+    f = E13AU_f(m.group(1))
+    b = L[1]
+    if (m := re.fullmatch(r"R is the region enclosed by the (?:curve|line) y = f\(x\), the x-axis and the lines x = (−?\d+) and x = (−?\d+)\.", b)):
+        return f, E13PC_n(m.group(1)), E13PC_n(m.group(2)), "lines"
+    if b == "R is the region enclosed by the curve y = f(x) and the x-axis.":
+        rs = E13AU_roots(f)
+        return f, rs[0], rs[1], "roots"
+    if b == "R is the region bounded by the curve y = f(x), the x-axis and the y-axis, where x ≥ 0.":
+        rs = E13AU_roots(f)
+        need(rs[0] < 0 < rs[1], "the roots are not either side of the y-axis")
+        return f, sp.Integer(0), rs[1], "y-axis"
+    raise Fail(f"can't read {b!r}")
+
+
+def E13AU_val(f, lo, hi):
+    X = E13AU_X
+    if sp.expand(f).is_polynomial(X):
+        return sp.integrate(sp.expand(f), (X, lo, hi))
+    return E13IG_val(f, lo, hi)
+
+
+def E13AU_integral(t):
+    m = re.fullmatch(r"∫ from (\S+) to (\S+) of (.+) dx", t)
+    need(m is not None, f"can't read the integral {t!r}")
+    g = m.group(3)
+    g = g[1:-1] if g.startswith("(") and E13IG_balanced(g[1:-1]) else g
+    return m.group(1), m.group(2), E13AU_f(g)
+
+
+def E13AU_check(q):
+    u, angle, ch = q["view"]["unknown"], q["view"]["angle"], q["choices"]
+    X = E13AU_X
+    gdc = angle.startswith("gdc-") or u == "area-gdc-limits"
+    need(q["paper"] == (2 if gdc else 1), f"Paper {q['paper']}")
+    wr = defaultdict(set)
+    if u == "region-for-integral":
+        f, p, qq, _ = E13AU_read(q)
+        rs = E13AU_roots(f)
+        need(rs[0] < 0 < p < qq < rs[1], "the limits are not inside the hump, right of the y-axis")
+        mk = {"from-zero": (0, qq), "to-root": (p, rs[1]), "left-part": (rs[0], p)}
+        fl = sp.lambdify(X, f, "math")
+        for o, gr in zip(ch, q["graphs"]):
+            sh = gr["shade"][0]
+            got = (sp.Rational(round(sh[0][0] * 1000), 1000), sp.Rational(round(sh[-1][0] * 1000), 1000))
+            for x, y in gr["curves"][0][::13]:
+                need(abs(fl(x) - y) < 1e-6, "a card's curve is not y = f(x)")
+            want = (p, qq) if o["correct"] else mk.get(o["mistake"])
+            need(want is not None and got == tuple(sp.Rational(w) for w in want), f"the {o.get('mistake') or 'right'} card shades {got}")
+        gc_check_common(q, next(o["text"] for o in ch if o["correct"]), {})
+        return None, None
+    f, lo, hi, how = E13AU_read(q)
+    E13AU_positive(f, lo, hi)
+    if u in ("integral-from-graph", "integral-from-roots"):
+        d = sp.diff(f, X)
+        if gdc:
+            rs = E13AU_roots(f)
+            need(not all(r.is_Rational for r in rs), "the roots need no GDC")
+            show = lambda v: gc_s(sp.N(v, 30))
+        else:
+            need(lo.q == 1 and hi.q == 1, "the edges are not whole numbers")
+            show = lambda v: frac_text(v)
+        rights = []
+        for o in ch:
+            a, b, g = E13AU_integral(o["text"])
+            same = sp.simplify(g - f) == 0
+            if same and (a, b) == (show(lo), show(hi)):
+                rights.append(o["text"])
+            if o["ref"] == E13AU_SE + "0":
+                need(same and (a, b) == (show(f.subs(X, lo)), show(f.subs(X, hi))), f"{o['text']!r} does not use the y-values")
+            elif o["ref"] == E13AU_SE + "1":
+                need(same and (a, b) == (show(hi), show(lo)), f"{o['text']!r} does not swap the limits")
+            elif o["ref"] == E13AU_SE + "2":
+                need(sp.simplify(g - d) == 0 and (a, b) == (show(lo), show(hi)), f"{o['text']!r} does not integrate f′")
+            if o["ref"]:
+                wr[o["ref"]].add(o["text"])
+        need(len(rights) == 1, f"{len(rights)} right integrals")
+        gc_check_common(q, rights[0], wr)
+        return None, None
+    A = E13AU_val(f, lo, hi)
+    show = (lambda v: gc_s(sp.N(v, 30))) if gdc else (lambda v: frac_text(v))
+    if not gdc:
+        need(A.is_Rational, "a Paper 1 area is not exact")
+    else:
+        need(not on_edge(sp.N(A, 30)) and abs(sp.N(A, 30) - round(float(A))) > 0.02, "the area is not fair to 3 s.f.")
+    wr[E13AU_SP + "0"] = {show(-A)}
+    if u == "area-between-roots":
+        wr[E13AU_SP + "1"] = {show(E13AU_val(f, 0, hi))}
+    if u == "area-gdc-limits":
+        rs = E13AU_roots(f)
+        wr[E13AU_SP + "2"] = {show(E13AU_val(f, E13AU_round1(sp.N(rs[0], 30)), E13AU_round1(sp.N(rs[1], 30))))}
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            if (m := re.fullmatch(r"F\(x\) = (.+)\.", st)):
+                need(sp.expand(sp.diff(E13AU_f(m.group(1)), X) - sp.expand(f)) == 0, f"{sol['name']}: F is not an antiderivative")
+            if (m := re.fullmatch(r"F\((−?\d+)\) − F\((−?\d+)\) = .+ = (.+)\.", st)):
+                need((E13PC_n(m.group(1)), E13PC_n(m.group(2))) == (hi, lo) and E13PC_n(m.group(3)) == A, f"{sol['name']}: {st!r}")
+            if (m := re.fullmatch(r"Area = ½ × \((−?\d+) \+ (−?\d+)\) × (\d+) = (.+)\.", st)):
+                need(E13PC_n(m.group(1)) == f.subs(X, lo) and E13PC_n(m.group(2)) == f.subs(X, hi) and E13PC_n(m.group(3)) == hi - lo and E13PC_n(m.group(4)) == A, f"{sol['name']}: {st!r}")
+            if (m := re.search(r"gives (−?[\d.]+)\.$", st)):
+                need(abs(float(m.group(1).replace("−", "-")) - float(A)) < 1e-5 * max(1, abs(float(A))), f"{sol['name']}: the GDC does not give {m.group(1)}")
+    gc_check_common(q, show(A), wr, gc_s2(sp.N(A, 30)) if gdc else None)
+    return None, None
+
+
+SITUATION_CHECKS["area-under-curve"] = E13AU_check
+
+# ── end area-under-curve ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):

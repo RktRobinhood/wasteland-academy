@@ -166,6 +166,7 @@ static var SITUATIONS := {
 	"always-increasing": [AlwaysIncreasingSituation, AlwaysIncreasingViews],
 	"hence-integral": [HenceIntegralSituation, HenceIntegralViews],
 	"integral-gdc": [IntegralGdcSituation, IntegralGdcViews],
+	"area-under-curve": [AreaUnderCurveSituation, AreaUnderCurveViews],
 }
 
 static var _cat: Dictionary = {}
