@@ -37519,6 +37519,342 @@ def E12RE_check(q):
     return None, None
 
 
+# ── tangent-meets-curve (t5-normal-meets-curve, FAL-754) ─────
+# The `tangent-meets-curve` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/tangent_meets.gd. The curve and P are read back from the lines, the line
+# from SymPy's own derivative, and curve = line is solved here: exactly with real_roots for a
+# polynomial (a reciprocal curve times x is one), and for an e^(kx) curve by a float scan for sign
+# changes refined by bisection at 40 digits. That curve minus a line has the third derivative
+# Ak³e^(kx), never 0, so it has at most three roots with their multiplicity, and the signs at the
+# ends of the scan must agree with the crossings found. Each tagged option is worked out from its
+# slip, the figure's curves and marks are held to the curve and the line, and the working's line,
+# derivative and roots are read back and compared.
+
+E12NM_SK = "SL5.4.tangent-meets-axes-or-curve#"
+E12NM_CURVE, E12NM_DOUBLE, E12NM_NEGATIVE, E12NM_P, E12NM_SWAP = (E12NM_SK + str(i) for i in range(5))
+E12NM_NORMAL = "SL5.4.normal-equation#0"
+E12NM_SCAN = 60          # the engine's is 60
+E12NM_STEPS = 6000
+E12NM_X_MAX, E12NM_Y_MAX = 12, 100
+E12NM_GAP = sp.Rational(49, 100)  # the engine's is 0.5
+E12NM_TINY = sp.Rational(49, 1000)  # the engine's is 0.05
+E12NM_BREAK = 1000000.0
+E12NM_SF_UNKNOWNS = ("tangent-meets-again-gdc", "normal-meets-again")
+
+
+def E12NM_read(q):
+    """The curve, its family and x₀, from the first two lines, within the clean limits."""
+    m = re.fullmatch(r"f\(x\) = (.+?)(, for x ≠ 0)?", q["lines"][0])
+    need(m is not None, f"can't read the curve {q['lines'][0]!r}")
+    f = sp.nsimplify(calc_expr(m.group(1)), rational=True)
+    p = re.fullmatch(r"P is the point on the curve y = f\(x\) where x = (−?\d+)\.", q["lines"][1])
+    need(p is not None, f"can't read P {q['lines'][1]!r}")
+    x0 = sp.Integer(int(p.group(1).replace("−", "-")))
+    X = CX
+    if f.has(sp.exp):
+        fam = "exp"
+        (e,) = f.atoms(sp.exp)
+        k = sp.Poly(e.args[0], X).coeff_monomial(X)
+        A = f.coeff(e)
+        rest = sp.Poly(sp.expand(f - A * e), X)
+        need(rest.degree() == 2 and rest.coeff_monomial(X) == 0, f"the curve's polynomial part {rest}")
+        pp, qq = rest.coeff_monomial(X**2), rest.coeff_monomial(1)
+        need(A in (-3, -2, -1, 1, 2, 3) and (10 * k).is_integer and 2 <= abs(10 * k) <= 10, f"A {A} or k {k}")
+        need(2 * pp in (-4, -2, -1, 1, 2, 4) and qq.is_integer and abs(qq) <= 9 and abs(x0) <= 3, f"p {pp}, q {qq} or x0 {x0}")
+        need(m.group(2) is None, "an e^(kx) curve has no excluded x")
+    elif sp.denom(sp.together(f)) != 1:
+        fam = "recip"
+        need(m.group(2) is not None, "a reciprocal curve must exclude x = 0")
+        P3 = sp.Poly(sp.expand(f * X), X)
+        need(P3.degree() == 3 and P3.coeff_monomial(X**2) == 0, f"the reciprocal curve {f}")
+        pp, qq, A = P3.coeff_monomial(X**3), P3.coeff_monomial(X), P3.coeff_monomial(1)
+        need(pp in (-2, -1, 1, 2) and A.is_integer and 0 < abs(A) <= 54 and qq.is_integer and abs(qq) <= 9, f"p {pp}, A {A} or q {qq}")
+        need(x0 != 0 and abs(x0) <= 3, f"x0 {x0}")
+    else:
+        P = sp.Poly(f, X)
+        cs = P.all_coeffs()
+        need(all(c.is_integer for c in cs), f"the polynomial {f} has fractions")
+        if P.degree() == 2:
+            fam = "quad"
+            a, b, c = cs
+            need(a in (-3, -2, -1, 1, 2, 3) and abs(b) <= 8 and abs(c) <= 9 and abs(x0) <= 4, f"the quadratic {f} or x0 {x0}")
+        else:
+            need(P.degree() == 3, f"the curve {f}")
+            fam = "cubic"
+            a, b, c, d = cs
+            need(a in (-2, -1, 1, 2) and abs(b) <= 12 and abs(c) <= 12 and abs(d) <= 9 and abs(x0) <= 3, f"the cubic {f} or x0 {x0}")
+    g = q["given"]
+    need(g["fam"] == fam and int(g["x0"]) == x0, "the given is another curve than the lines")
+    return fam, f, x0
+
+
+def E12NM_n(v):
+    return sp.N(v, 40)
+
+
+def E12NM_show(sf, v):
+    """A value as the answer writes it: 3 s.f., or exact as a decimal where it ends."""
+    if sf:
+        return gc_s(E12NM_n(v)) if not isinstance(v, sp.Rational) else gc_s(v)
+    need(isinstance(sp.nsimplify(v), sp.Rational), f"{v} is not exact")
+    return dec_text(sp.Rational(v))
+
+
+def E12NM_fair(v, what):
+    x = E12NM_n(v)
+    need(not on_edge(abs(x)) and abs(x - sp.floor(x + sp.Rational(1, 2))) > sp.Rational(19, 1000), f"{what} {x} is on a rounding edge or nearly whole")
+
+
+def E12NM_meets(fam, f, line, x0, touching):
+    """The x-values other than x₀ where the curve meets the line."""
+    X = CX
+    if fam != "exp":
+        top = sp.Poly(sp.numer(sp.together(sp.expand(f - line))), X)
+        roots = sorted(set(sp.real_roots(top)), key=lambda r: float(r))
+        need(x0 in roots, "P is not on the line")
+        return [r for r in roots if r != x0]
+    g = f - line
+    gf, gm = sp.lambdify(X, g, "math"), sp.lambdify(X, g, "mpmath")
+    out, cross = [], 0
+    # Off the whole numbers, so that no scan point is P.
+    lo, hi = -E12NM_SCAN - 0.0123457, E12NM_SCAN + 0.0098765
+    xa, fa = float(lo), gf(lo)
+    for i in range(1, E12NM_STEPS + 1):
+        xb = lo + (hi - lo) * i / E12NM_STEPS
+        fb = gf(xb)
+        if fa * fb < 0:
+            a, b = mpmath.mpf(xa), mpmath.mpf(xb)
+            ga = gm(a)
+            for _ in range(140):
+                mid = (a + b) / 2
+                if ga * gm(mid) <= 0:
+                    b = mid
+                else:
+                    a, ga = mid, gm(mid)
+            r = (a + b) / 2
+            cross += 1
+            if abs(r - x0) > mpmath.mpf(10) ** -8:
+                out.append(sp.Float(mpmath.nstr(r, 38), 38))
+        need(fb != 0, "a scan point lands on a root")
+        xa, fa = xb, fb
+    need(cross == len(out) + (0 if touching else 1), "the scan doesn't find P where the normal crosses")
+    need((gf(lo) * gf(hi) < 0) == (cross % 2 == 1), "a crossing outside the scan")
+    need(sp.diff(g, X, 3).subs(X, 0) != 0, "curve minus line can have more than three roots")
+    return out
+
+
+def E12NM_line_of(steps, word):
+    for st in steps:
+        m = re.search(rf"The {word} at P has gradient (.+?), so it is y = (.+)\.$", st)
+        if m:
+            return calc_expr(m.group(2))
+    raise Fail(f"no {word} in the working")
+
+
+def E12NM_same_line(got, want, exact):
+    if exact:
+        need(sp.expand(sp.nsimplify(got, rational=True) - want) == 0, f"the working's line {got} is not {want}")
+    else:
+        g2, w2 = sp.Poly(got, CX).all_coeffs(), sp.Poly(sp.expand(want), CX).all_coeffs()
+        need(len(g2) == len(w2), "the working's line")
+        for a, b in zip(g2, w2):
+            need(abs(E12NM_n(a) - E12NM_n(b)) <= sp.Rational(6, 10**6) * max(1, abs(E12NM_n(b))), f"the working's line {got} is not {want}")
+
+
+def E12NM_close6(text, v):
+    """A number the working writes to 6 s.f. is v."""
+    t = R(text.replace("−", "-"))
+    need(abs(t - E12NM_n(v)) <= sp.Rational(6, 10**6) * max(1, abs(E12NM_n(v))), f"the working's {text} is not {E12NM_n(v)}")
+
+
+def E12NM_figure(q, fam, f, line, x0, y0, marks, shade):
+    """The curve and the line, P, and on the diagram the lettered marks."""
+    g, rep = q["graph"], q["view"]["rep"]
+    if rep == "equation":
+        need(g is None, "an equation question has a figure")
+        return
+    need(g is not None and len(g["curves"]) == 2, "the figure is not a curve and a line")
+    for i, fn in enumerate((f, line)):
+        h = sp.lambdify(CX, fn, "mpmath")
+        pts = [p for p in g["curves"][i] if p[1] != E12NM_BREAK]
+        need(len(pts) > 20, "a curve with too few points")
+        for x, y in pts[::8]:
+            need(abs(h(mpmath.mpf(str(x))) - mpmath.mpf(str(y))) < 1e-6 * max(1, abs(y)), f"curve {i} is not right at x = {x}")
+    want = [("P", x0, y0)] + (marks if rep == "diagram" else [])
+    need(len(g["points"]) == len(want), "the figure's marks")
+    for p, (label, x, y) in zip(g["points"], want):
+        need(p["label"] == label and abs(p["x"] - float(x)) < 1e-6 and abs(p["y"] - float(y)) < 1e-6 * max(1, abs(float(y))), f"the mark {label}")
+    for label, x, y in want:
+        need(g["x0"] <= float(x) <= g["x1"] and g["y0"] <= float(y) <= g["y1"], f"{label} is off the figure")
+    need(bool(g.get("y_bare", False)) == (rep == "diagram"), "only the diagram leaves the numbers off")
+    if shade:
+        (strips,) = g["shade"]
+        lf = sp.lambdify(CX, line, "math")
+        xa = float(marks[0][1])
+        need(abs(min(strips[0][0], strips[-1][0])) < 1e-9 or abs(max(strips[0][0], strips[-1][0])) < 1e-9, "the shading starts at the y-axis")
+        need(abs(min(s[0] for s in strips) - min(0, xa)) < 1e-6 and abs(max(s[0] for s in strips) - max(0, xa)) < 1e-6, "the shading ends at A")
+        for x, lo, hi in strips:
+            y = lf(x)
+            need(abs(lo - min(0, y)) < 1e-6 and abs(hi - max(0, y)) < 1e-6, "the shading is not the triangle")
+    else:
+        need(not g.get("shade"), "a figure shaded for no area")
+
+
+def E12NM_lines(q, word, rep, sketch):
+    if rep == "graph":
+        need(q["lines"][2:] == [f"The graph shows y = f(x) and the {word} to the curve at P."], "the graph's line")
+    elif rep == "diagram":
+        need(q["lines"][2:] == [f"The diagram, not to scale, shows the curve y = f(x) and the {word} at P{sketch}."], "the diagram's line")
+    else:
+        need(len(q["lines"]) == 2, "an equation question's lines")
+
+
+def E12NM_check(q):
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    need(q["paper"] == 2, "a tangent or normal meeting the curve is Paper 2")
+    calc_steps(q)
+    fam, f, x0 = E12NM_read(q)
+    X = CX
+    m0 = re.match(r"The (tangent|normal) to the curve at P meets ", q["asked"])
+    need(m0 is not None, f"can't read the line asked about in {q['asked']!r}")
+    word = m0.group(1)
+    need(word == ("normal" if u.startswith("normal") else "tangent"), "the line is not the unknown's")
+    fams = {"tangent-meets-again": ("cubic", "recip"), "tangent-meets-again-gdc": ("exp",), "normal-meets-again": ("quad", "exp")}
+    need(fam in fams.get(u, ("quad", "cubic", "exp")), f"a {fam} curve for {u}")
+    exact = fam != "exp"
+    sf = not exact or u in E12NM_SF_UNKNOWNS
+    df = sp.diff(f, X)
+    y0, m = sp.nsimplify(f.subs(X, x0)), sp.nsimplify(df.subs(X, x0))
+    need(m != 0, "f′(x₀) = 0")
+    if exact:
+        need(abs(m) <= (8 if word == "normal" else 12), f"f′(x₀) = {m} is too steep")
+    else:
+        need(sp.Rational(2, 10) <= abs(E12NM_n(m)) <= 12, f"f′(x₀) = {E12NM_n(m)}")
+        E12NM_fair(y0, "f(x₀)")
+    need(abs(E12NM_n(y0)) <= E12NM_Y_MAX, f"P is too high: {E12NM_n(y0)}")
+    lm = m if word == "tangent" else -1 / m
+    line = y0 + lm * (X - x0)
+    lc = line.subs(X, 0)
+    show = lambda v: E12NM_show(sf, v)
+    wrong_lines = [-m, 1 / m] if word == "normal" else []
+    wrong_lines = [g for g in wrong_lines if sp.simplify(g - lm) != 0]
+    wrongs, trap = {}, None
+    for sol in q["solutions"]:
+        E12NM_same_line(E12NM_line_of(sol["steps"], word), line, exact)
+        st0 = sol["steps"][0]
+        d = re.search(r"f′\(x\) = (.+?), so f′", st0)
+        need(d is not None and calc_same(sp.nsimplify(calc_expr(d.group(1)), rational=True), df), f"the working's f′(x) in {st0!r}")
+        v = re.search(r"so P is \(−?\d+, (.+?)\)\. .* so f′\(−?\d+\) = (.+)\.$", st0)
+        need(v is not None, f"can't read P and f′(x₀) in {st0!r}")
+        if exact:
+            need(v.group(1) == dec_text(y0) and v.group(2) == dec_text(m), "the working's P or f′(x₀)")
+        else:
+            E12NM_close6(v.group(1), y0)
+            E12NM_close6(v.group(2), m)
+    if u in ("tangent-x-intercept", "tangent-y-intercept", "normal-x-intercept", "normal-y-intercept", "tangent-triangle-area", "normal-triangle-area"):
+        need(x0 != 0 and abs(E12NM_n(y0)) >= sp.Rational(49, 100), f"P ({x0}, {E12NM_n(y0)}) is on an axis, so it is A or B")  # the engine's is 0.5
+        xa = sp.solve(line, X)
+        need(len(xa) == 1, "the line has no x-intercept")
+        xa, yb = xa[0], lc
+        need(E12NM_TINY <= abs(E12NM_n(xa)) <= E12NM_X_MAX and abs(E12NM_n(yb)) <= E12NM_Y_MAX and abs(E12NM_n(yb)) >= (0 if exact else E12NM_TINY) and yb != 0,
+             f"the intercepts {E12NM_n(xa)}, {E12NM_n(yb)}")
+        if u.endswith("area"):
+            need(E12NM_n(xa * yb) < 0, "the triangle's intercepts have the same sign")
+            area = abs(xa * yb) / 2
+            if not exact:
+                E12NM_fair(area, "the area")
+            want = "area = " + show(area)
+            trap = gc_trap([area if exact else E12NM_n(area)], "area = " + gc_s2(E12NM_n(area) if not exact else area))
+            wrongs[E12NM_NEGATIVE] = ["area = " + show(xa * yb / 2)]
+            wrongs[E12NM_NORMAL] = []
+            for g in wrong_lines:
+                c = y0 - g * x0
+                if c != 0:
+                    wrongs[E12NM_NORMAL].append("area = " + show(abs(c * c / g) / 2))
+            marks = [("A", xa, 0), ("B", 0, yb)]
+            sketch = ", which meets the axes at A and B"
+            for sol in q["solutions"]:
+                ab = re.fullmatch(r"Put y = 0: A is \((.+), 0\)\. Put x = 0: B is \(0, (.+)\)\.", sol["steps"][2])
+                need(ab is not None, f"the working's intercepts {sol['steps'][2]!r}")
+                for t, v in zip(ab.groups(), (xa, yb)):
+                    if exact:
+                        need(t == dec_text(v), "the working's intercepts")
+                    else:
+                        E12NM_close6(t, v)
+        else:
+            on_x = "x-intercept" in u
+            v = xa if on_x else yb
+            if not exact:
+                E12NM_fair(v, "the intercept")
+            want = f"({show(v)}, 0)" if on_x else f"(0, {show(v)})"
+            trap = gc_trap([v if exact else E12NM_n(v)], f"({gc_s2(E12NM_n(v) if not exact else v)}, 0)" if on_x else f"(0, {gc_s2(E12NM_n(v) if not exact else v)})")
+            wrongs[E12NM_SWAP] = [f"({show(yb)}, 0)" if on_x else f"(0, {show(xa)})"]
+            if not on_x:
+                wrongs[E12NM_CURVE] = [f"(0, {show(f.subs(X, 0))})"]
+            wrongs[E12NM_NORMAL] = []
+            for g in wrong_lines:
+                c = y0 - g * x0
+                wrongs[E12NM_NORMAL].append(f"({show(-c / g)}, 0)" if on_x else f"(0, {show(c)})")
+            name = "A" if on_x else "B"
+            marks = [("A", xa, 0)] if on_x else [("B", 0, yb)]
+            sketch = f", which meets the {'x' if on_x else 'y'}-axis at {name}"
+            for sol in q["solutions"]:
+                put = re.fullmatch(rf"Put {'y' if on_x else 'x'} = 0 in the {word}: {'x' if on_x else 'y'} = (.+)\.", sol["steps"][2])
+                need(put is not None, f"the working's step {sol['steps'][2]!r}")
+                if exact:
+                    need(put.group(1) == dec_text(v), "the working's intercept")
+                else:
+                    E12NM_close6(put.group(1), v)
+        E12NM_figure(q, fam, f, line, x0, y0, marks, u.endswith("area"))
+        E12NM_lines(q, word, rep, sketch)
+    else:
+        others = E12NM_meets(fam, f, line, x0, word == "tangent")
+        need(len(others) == 1, f"the {word} meets the curve again at {len(others)} points")
+        xq = others[0]
+        yq = f.subs(X, xq)
+        need(abs(E12NM_n(xq - x0)) >= E12NM_GAP and abs(E12NM_n(xq)) <= E12NM_X_MAX and abs(E12NM_n(yq)) <= E12NM_Y_MAX, f"Q ({E12NM_n(xq)}, {E12NM_n(yq)})")
+        if u == "tangent-meets-again":
+            need(xq.is_integer, f"Q's x {xq} is not whole")
+        if sf:
+            E12NM_fair(xq, "Q's x")
+            E12NM_fair(yq, "Q's y")
+        want = f"({show(xq)}, {show(yq)})"
+        wrongs[E12NM_P] = [f"({show(x0)}, {show(y0)})"]
+        if u == "tangent-meets-again":
+            xs = xq + x0
+            if not (fam == "recip" and xs == 0):
+                wrongs[E12NM_DOUBLE] = [f"({show(xs)}, {show(f.subs(X, xs))})"]
+        wrongs[E12NM_NORMAL] = []
+        for g in wrong_lines:
+            wl = y0 + g * (X - x0)
+            try:
+                for r in E12NM_meets(fam, f, wl, x0, False):
+                    wrongs[E12NM_NORMAL].append(f"({show(r)}, {show(f.subs(X, r))})")
+            except Fail:
+                pass
+        for sol in q["solutions"]:
+            if sol["angle"] == "gdc-intersect":
+                gm = re.search(r"use intersect: they meet at x = (−?\d+), .*, and at x = (.+)\.$", sol["steps"][2])
+                need(gm is not None and int(gm.group(1).replace("−", "-")) == x0, f"the working's intersect {sol['steps'][2]!r}")
+                if exact and not sf:
+                    need(gm.group(2) == dec_text(xq), "the working's Q")
+                else:
+                    E12NM_close6(gm.group(2), xq)
+            elif sol["angle"] == "factor-repeated-root":
+                diff = sp.expand((f - line) * X if fam == "recip" else f - line)
+                fm = re.search(r": (.+) = 0\. The tangent touches at P, so (.+)² is a factor", sol["steps"][2])
+                need(fm is not None, f"the working's cubic {sol['steps'][2]!r}")
+                need(sp.expand(sp.nsimplify(calc_expr(fm.group(1)), rational=True) - diff) == 0, f"the working's cubic {fm.group(1)} is not {diff}")
+                need(sp.expand(calc_expr(fm.group(2)) - (X - x0)) == 0, "the working's repeated factor")
+                need(sp.rem(sp.Poly(diff, X), sp.Poly((X - x0) ** 2, X)).is_zero, "(x − x₀)² does not divide curve minus tangent")
+                rm = re.search(r"so r = (.+)\.$", sol["steps"][3])
+                need(rm is not None and rm.group(1) == dec_text(xq), "the working's r")
+        E12NM_figure(q, fam, f, line, x0, y0, [("Q", xq, yq)], False)
+        E12NM_lines(q, word, rep, ", which meets the curve again at Q")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
 SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, "circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
@@ -37558,7 +37894,8 @@ SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, 
                     "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
                     "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-quadratic": E11TQ_check, "trig-model": check_trig_model,
                     "solid": check_solid, "standard-form": check_standard_form,
-                    "rational-exponents": E12RE_check,}
+                    "rational-exponents": E12RE_check,
+                    "tangent-meets-curve": E12NM_check,}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

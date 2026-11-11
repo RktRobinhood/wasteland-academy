@@ -14814,9 +14814,11 @@
                 }
               ],
               "misconceptions": [
-                "Finding the intercepts of the curve instead of the tangent",
-                "Not using the double root, so the cubic looks unsolvable without a calculator",
-                "Using a negative intercept as a negative length in the triangle area"
+                "Finding the intercepts of the curve instead of the tangent or normal",
+                "Not using the double root at the point of contact, so it is counted only once among the roots",
+                "Using a negative intercept as a negative length in the triangle area",
+                "Giving the point of contact P as the point where the line meets the curve again",
+                "Putting x = 0 to find where a line meets the x-axis, or y = 0 for the y-axis"
               ],
               "threads": [
                 {

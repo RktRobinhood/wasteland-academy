@@ -3284,7 +3284,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 17 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -3341,6 +3341,26 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 - **Concept probes:**
   - *true-false-reason* (L3): Two cubics that differ only in their constant term have the same derivative. — True: the constant term differentiates to 0, so one graph is the other moved up or down, with the same gradient at every x.
 - **Misconceptions used:** 6. Reducing the coefficient instead of multiplying by the power; Keeping a constant term when differentiating, instead of dropping it; Dividing only the first term of the numerator by x; Substituting into f(x) instead of f′(x); Substituting first and then differentiating the number f(a), giving 0; Slipping on the sign with a negative x.
+
+#### Where a tangent or normal meets the curve again (`t5-normal-meets-curve`, exam, 2 bank parts)
+
+- **Situation:** A curve, a point P on it, and its tangent or normal.
+- **Representations:** **equation**, graph, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L3: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → where the tangent at P meets the x-axis
+  - **exam** L3: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → where the tangent at P meets the y-axis
+  - **exam** L3: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → where the normal at P meets the x-axis
+  - **exam** L3: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → where the normal at P meets the y-axis
+  - **exam** L4: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → the area of the triangle the tangent at P cuts off with the axes
+  - **exam** L4: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → the area of the triangle the normal at P cuts off with the axes
+  - **exam** L4: given f(x): a cubic, or px² + A/x + q; x₀ → the point Q where the tangent at P meets the curve again, exactly
+  - **exam** L4: given f(x) = Ae^(kx) + px² + q; x₀ → the point Q where the tangent at P meets the curve again, to 3 s.f.
+  - **exam** L4: given f(x): a quadratic or Ae^(kx) + px² + q; x₀ → the point Q where the normal at P meets the curve again, to 3 s.f.
+- **Angles:** Put x = 0 and y = 0 in the tangent; Use the double root at the point of contact; GDC intersect.
+- **Concept probes:**
+  - *always-sometimes-never* (L4): The tangent to a cubic at a point P meets the cubic again. — Sometimes: at every point but the point of inflexion. Curve minus tangent is a cubic with a double root at P, so its third root is real too; only at the inflexion is that root P again, as a triple root.
+  - *true-false-reason* (L3): A tangent with intercepts at x = −4 and y = 3 cuts off a triangle of area −6 with the axes. — False: lengths are never negative. OA = 4 and OB = 3, so the area is ½ × 4 × 3 = 6.
+- **Misconceptions used:** 6. Finding the intercepts of the curve instead of the tangent or normal; Not using the double root at the point of contact, so it is counted only once among the roots; Using a negative intercept as a negative length in the triangle area; Giving the point of contact P as the point where the line meets the curve again; Putting x = 0 to find where a line meets the x-axis, or y = 0 for the y-axis; Using −m or 1/m instead of −1/m for the normal's gradient.
 
 #### Find a point or parameter from a tangent condition (given gradient, parallel, common tangent) (`t5-tangent-condition`, exam, 11 bank parts)
 

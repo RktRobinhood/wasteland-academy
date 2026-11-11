@@ -250,6 +250,23 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   are PlotView's `sketch` and `solid` (which gained a cylinder, an open cylinder and an open bin) or a
   graph with its rectangle shaded. The checker reads the shape back from the words or the figure,
   builds the function again, and solves it with SymPy, or mpmath for a route (`check_optimisation`).
+- `engine/situations/tangent_meets.gd` (FAL-754) is `t5-normal-meets-curve` (SL5.4), the
+  `tangent-meets-curve` situation: a curve, a point P where x = x₀ (a whole number), and the tangent
+  or the normal there, followed to the axes, to the triangle it cuts off with them, or to the curve
+  again. Every question is Paper 2, as both bank parts are. The curve is ax² + bx + c, a cubic,
+  px² + A/x + q or Ae^(kx) + px² + q. Its views (`tangent_meets_views.gd`) show f(x) and x₀, the same
+  with the curve and the line drawn and P marked, or an exam's sketch with no numbers on the axes
+  and the points lettered (A, B, Q), and ask 9 unknowns: where the tangent or the normal meets the
+  x-axis or the y-axis, the area of the triangle either cuts off (shaded), and where the tangent
+  (exactly, or to 3 s.f. on an e^(kx) curve) or the normal (to 3 s.f.) meets the curve again. For
+  the exact Q the cubic or px² + A/x + q is built backwards from P and a whole-number Q, so curve
+  minus tangent is a(x − x₀)²(x − r), solved by comparing x² terms or by the GDC's intersect. A
+  polynomial curve's answers are exact, written as decimals where they end; an e^(kx) curve's are
+  to 3 s.f. with the rounding trap, found by a scan whose sign check rules out a missed crossing
+  (curve minus line has a third derivative that is never 0). Wrong options come from SL5.4's
+  misconceptions: the curve's own y-intercept, x = 0 for the x-axis, a signed area, P given as Q,
+  x₀ counted once among the roots, and −m or 1/m for the normal's gradient. The checker
+  (`E12NM_check`) reads the curve back from the lines and solves curve = line again with SymPy.
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
@@ -2032,6 +2049,10 @@ script error happens while it runs. Run one file with
 - `test_rational_exponents.gd` (FAL-754): t1-rational-exponents built with every cell, one right
   option in every cell, Paper 1 only, marking by value, a typed slip logged, every tag as an
   option, the map's and the bank's examples left out, and hand values.
+- `test_tangent_meets.gd` (FAL-754): t5-normal-meets-curve built with every cell, Paper 2 only, no extra
+  formats; f and f′ against hand values, the line really the tangent or the normal, A and B on their axes,
+  Q on both the curve and the line, (x − x₀)² in a built cubic's curve minus tangent, the figure's curve
+  and line, every tag as an option, and no wrong option or rounding trap that types as right.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters

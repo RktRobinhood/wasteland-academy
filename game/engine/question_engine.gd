@@ -63,6 +63,7 @@ static var SITUATIONS := {
 	"quadratic-equation": [QuadraticEquationSituation, QuadraticEquationViews],
 	"quadratic-inequality": [QuadraticInequalitySituation, QuadraticInequalityViews],
 	"cubic": [CubicSituation, CubicViews],
+	"tangent-meets-curve": [TangentMeetsSituation, TangentMeetsViews],
 	"fn-pre-expand": [ExpandSituation, ExpandViews],
 	"fn-pre-factorise": [FactoriseSituation, FactoriseViews],
 	"fn-pre-surds": [SurdsSituation, SurdsViews],

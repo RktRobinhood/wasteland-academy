@@ -1389,6 +1389,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq, error-spot, match
 - **Bank parts:** 6.
 
+### t5-normal-meets-curve
+
+**Where a tangent or normal meets the curve again.** Follow the tangent or the normal at a point P of a curve: find where it meets the x-axis and the y-axis, the area of the triangle it cuts off with the axes, or where it meets the curve again, by the double root at P for a cubic or with the GDC's intersect.
+
+- **Syllabus:** 5.4, 2.4, 2.7
+- **Skills:** `SL5.4.tangent-meets-axes-or-curve`
+- **Where it appears:** P1 0, P2 2; Section A 2, B 0. Marks per part: 3.
+- **Usual chain:** f(x₀) and f′(x₀): the point P and the gradient there → the tangent y = mx + c, or the normal with gradient −1/m → put y = 0 and x = 0 in the line for its intercepts → ½ × OA × OB with both lengths positive → solve curve = line: the double root at P leaves one more root, or the GDC's intersect finds it
+- **Given:** f(x): a quadratic, a cubic, px² + A/x + q or Ae^(kx) + px² + q, the x-coordinate x₀ of P, a graph of the curve with the line and P marked, or an exam's sketch with the points lettered. **Asked:** Where the tangent or the normal at P meets an axis, the area of the triangle it cuts off with the axes, or where it meets the curve again. **Answer form:** exact, 3 s.f., a point (x, y).
+- **A recipe can randomise:** the family of curve and its coefficients; x₀, a whole number; for the tangent meeting a cubic or px² + A/x + q again: P and Q, with the curve built from them; the tangent or the normal.
+- **Limits that keep answers clean:** Paper 2: every part of this type in the bank is Paper 2; f′(x₀) ≠ 0, so the normal has a gradient; at most 8 in size for a normal of a polynomial; the triangle's two intercepts have opposite signs, so one length is the size of a negative number; for an intercept or an area, P is off both axes, so it is never A or B; the line meets the curve again at exactly one point, at least half a unit from P; a 3 s.f. answer is clear of a rounding edge.
+- **Game formats:** value, mcq
+- **Bank parts:** 2.
+
 ### t5-tangent-condition
 
 **Find a point or parameter from a tangent condition (given gradient, parallel, common tangent).** Find where a cubic has a given gradient (or a tangent parallel to a given line), or find a coefficient from the gradient of a tangent.
