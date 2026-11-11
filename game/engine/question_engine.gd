@@ -110,6 +110,7 @@ static var SITUATIONS := {
 	"tree-diagram": [TreeDiagramSituation, TreeDiagramViews],
 	"independence": [IndependenceSituation, IndependenceViews],
 	"grouped-data": [GroupedDataSituation, GroupedDataViews],
+	"constant-change": [ConstantChangeSituation, ConstantChangeViews],
 	"antiderivative-condition": [AntiderivativeConditionSituation, AntiderivativeConditionViews],
 	"normal-properties": [NormalPropertiesSituation, NormalPropertiesViews],
 	"box-plot": [BoxPlotSituation, BoxPlotViews],

@@ -10991,7 +10991,19 @@
               "misconceptions": [
                 "Adding a constant changes the standard deviation",
                 "Multiplying by k multiplies the variance by k (it is k²)",
-                "Adding k to every value adds k to the IQR"
+                "Adding k to every value adds k to the IQR",
+                "Adding the constant to the range as well as to the values",
+                "Adding the constant to the variance as well as to the values",
+                "Leaving a measure of centre unchanged when every value has changed",
+                "Multiplying the added constant by the factor too, as if the change were a(x + b)",
+                "Leaving out the added constant for a measure of centre",
+                "Leaving a measure of spread unchanged when every value is multiplied",
+                "Multiplying a standard deviation, IQR or range by the square of the factor",
+                "Undoing the change in the wrong order: dividing first, then taking away the constant",
+                "Applying the change again instead of undoing it",
+                "Taking the change in the mean as the added constant, before scaling the mean",
+                "Finding the factor from the means, which the added constant has moved as well",
+                "Swapping which measures move: keeping the centre and shifting the spread"
               ],
               "threads": [
                 {
