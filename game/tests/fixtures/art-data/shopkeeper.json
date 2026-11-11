@@ -1,0 +1,12 @@
+{
+  "name": "Fixture Keeper",
+  "lines": {
+    "first_visit": ["First visit A.", "First visit B."],
+    "enter": ["Enter A.", "Enter B.", "Enter C."],
+    "idle": ["Idle A.", "Idle B."],
+    "buy": ["Buy A.", "Buy B."],
+    "broke": ["Broke A.", "Broke B."],
+    "capped": ["Capped only."],
+    "leave": ["Leave A.", "Leave B."]
+  }
+}

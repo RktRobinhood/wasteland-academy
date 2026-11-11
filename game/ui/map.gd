@@ -1,26 +1,36 @@
 extends Control
-## The map (G5, FAL-417; Q3 and Q11 on the FAL-274 plan): the world, then an island,
-## then a region's screen, then its dungeon. One scene with three screens; show_route()
+## The map (G5, FAL-417; Q3 and Q11 on the FAL-274 plan; the FAL-783 plan): the world,
+## then an island, then a region's screen, then its dungeon. Each layer is a closer look
+## at the place picked on the one above. One scene with three screens; show_route()
 ## switches between them, and MapLink keeps the address bar in step, so links such as
 ## /next/#functions/quadratics open a region and the browser's back button works.
 ##
-## - The world map is the HTML game's overworld painting with a button over each island.
-##   The Signal Tower (Functions) is open; the other four are "coming later". The
-##   Thunderdome opens once a second island does, and the Relic Library (FAL-325) has a
-##   locked spot. Under the painting, as in the HTML game, a button opens the Bazaar (G6,
-##   ui/bazaar.gd) with the Scrap there is to spend.
+## - The world map is the overworld painting with an invisible button over each place:
+##   the five islands (the Signal Tower, Functions, is open, the other four are "coming
+##   soon"), the Thunderdome (open once a second island is), the Relic Library (FAL-325,
+##   locked) and the Bazaar (G6, ui/bazaar.gd). The header shows the Scrap there is to
+##   spend.
 ## - The Functions island is a hub (FAL-531 plan): the all-regions dungeon at the tower in
-##   the middle, the 8 regions around it, a spoke road from the tower to each and a loop
-##   road between neighbours, so any region can be played in any order. A locked spot
-##   waits for a Relic device. A region with no built type is "coming soon", worked out
-##   from the engine, so a region lights up when its situations merge. SPARK's pick
-##   (Progress.suggest()) gets a beacon and first focus: a suggestion, never a gate.
-## - The region screen shows accuracy, best floor, coverage and the 3 weakest skills
+##   the middle and the 8 regions around it, any of them in any order. No roads: the
+##   places are fast-travel points. A locked spot waits for a Relic device. A region with
+##   no built type is "coming soon", worked out from the engine, so a region lights up
+##   when its situations merge. SPARK's pick (Progress.suggest()) gets a beacon and first
+##   focus: a suggestion, never a gate.
+## - No names on the boards. Hovering, focusing or tapping a place shows its card: the
+##   name, then one line (the topic, the spot_line() progress, "Coming soon" or "Locked").
+##   With a mouse or keyboard a press goes in. On a touch screen the first tap shows the
+##   card and lights the place, and a second tap on the place or the card goes in.
+## - Going in zooms the board into the place (ZOOM_TIME), then the next layer fades in;
+##   going back zooms out. With reduced motion (reduced_motion()) it cuts.
+## - The region screen sits over the region's backdrop, washed (REGION_WASH) so its text
+##   keeps 4.5:1. It shows accuracy, best floor, coverage and the 3 weakest skills
 ##   (Progress), and starts a run on floor 1 or after a beaten boss, or opens Practice.
 ##
-## Island art by file name (FAL-362 batch 4): ART_DIR/background.png and a landmark per
-## spot and state (ART_DIR/<spot>-<state>.png). Each one missing falls back to the coded
-## look. Sizes and names are in game/README.md under "Map art".
+## Island art by file name (FAL-362 batch 4, FAL-783 plan): ART_DIR/background.webp or
+## .png, one painting with every place painted in at SPOTS; then the buttons are invisible
+## hit areas with state chips (a dark wash and a padlock, or a flag). A landmark per spot
+## and state (ART_DIR/<spot>-<state>.png) still draws over it. With no painting the coded
+## look draws a ring per place. Sizes and names are in game/README.md under "Map art".
 
 const FIGHT := "res://scenes/fight.tscn"
 const PRACTICE := "res://scenes/practice.tscn"
@@ -30,16 +40,20 @@ const ART_DIR := "res://assets/map/functions/"
 ## Both maps are drawn on a portrait board of this size, scaled to fit under the header.
 const BOARD := Vector2(1080, 1920)
 const HEADER := 190.0
-## The world map's bar under the board, for the Bazaar.
-const FOOTER := 170.0
 const COLUMN := 1000
 const COLUMN_WIDE := 1500
-## A landmark's box on the island board, in board units, and the Relic device's.
-const LANDMARK := 200.0
-const RELIC_LANDMARK := 140.0
-## A spot's button on the island board, and the Relic device's width.
-const SPOT_SIZE := Vector2(480, LANDMARK + 110)
-const RELIC_WIDTH := 200.0
+## A place's button on the island board, a square in board units round its point, and
+## the Relic device's. A painted place fills about this square.
+const HIT := 300.0
+const RELIC_HIT := 160.0
+## How far the board zooms into a place before the next layer shows, and how long the
+## zoom and the fade take, in seconds.
+const ZOOM := 2.6
+const ZOOM_TIME := 0.4
+const FADE_TIME := 0.25
+## The wash of the background colour over a region's backdrop: the dimmest text on the
+## region screen keeps 4.5:1 over every backdrop in assets/regions/ (FAL-790).
+const REGION_WASH := 0.7
 
 ## The five islands, where each sits on the overworld (centre and size, in % of the
 ## board, measured from the art; js/router.js has the same zones) and its music.
@@ -52,25 +66,24 @@ const ISLANDS := [
 ]
 const THUNDERDOME_ZONE := Rect2(50, 46, 38, 18)
 const RELIC_LIBRARY_ZONE := Rect2(83, 94, 30, 8)
+## The Bazaar's place on the overworld, in the sand at the bottom left (FAL-783 plan).
+const BAZAAR_ZONE := Rect2(17, 90, 26, 14)
+## True once overworld.png has the Bazaar painted in (FAL-791); until then a coded
+## marker shows where it is.
+const BAZAAR_PAINTED := false
 
-## Where each landmark sits on the Functions island board (centre, in % of the board;
-## the FAL-531 plan's table): the all-regions dungeon at the tower in the middle, the
-## regions around it, the two most-examined by the landing on the south shore. Spots are
-## keyed by region id, plus "all" and "relic".
+## Where each place sits on the Functions island board (centre, in % of the board; the
+## FAL-783 plan's table): the all-regions dungeon at the tower in the middle, the regions
+## around it, the two most-examined by the landing on the south shore. Spots are keyed by
+## region id, plus "all" and "relic".
 const SPOTS := {
 	"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
 	"graphs-features": Vector2(79, 65), "lines": Vector2(21, 27), "rational": Vector2(79, 28),
-	"composite-inverse": Vector2(25, 8), "transformations": Vector2(75, 9), "all": Vector2(50, 46),
+	"composite-inverse": Vector2(25, 10), "transformations": Vector2(75, 10), "all": Vector2(50, 46),
 	"relic": Vector2(12, 50),
 }
-## The jetty the player lands at (painted only, not a button), with a road to the tower.
+## The jetty the player lands at: painted only, a dot on the coded look, not a button.
 const LANDING := Vector2(50, 97)
-## The loop road around the island, between neighbouring regions.
-const LOOP := [
-	["quadratics", "exp-log"], ["exp-log", "graphs-features"], ["graphs-features", "rational"],
-	["rational", "transformations"], ["transformations", "composite-inverse"],
-	["composite-inverse", "lines"], ["lines", "function-basics"], ["function-basics", "quadratics"],
-]
 ## The coded landmark's glyph for each region, in place of a number. Only characters the
 ## title font has (no superscript letters, FAL-499); mark() falls back to initials.
 const GLYPHS := {
@@ -78,6 +91,7 @@ const GLYPHS := {
 	"rational": "1/x", "function-basics": "f(x)", "lines": "mx+c", "transformations": "-f(x)",
 	Dungeon.ALL: "ALL", "relic": "?",
 }
+const STATE_COLOR := {"locked": UiTheme.DIM, "open": UiTheme.TEAL, "cleared": UiTheme.SAND}
 
 var save_path := SaveData.PATH
 ## Where the island's art is looked for; tests point it at fixtures.
@@ -88,19 +102,31 @@ var screen := ""
 var route: Dictionary = {}
 ## SPARK's pick on the island on screen: Progress.suggest(), {} when nothing is open.
 var pick: Dictionary = {}
+## True while the last pointer was a finger: a first tap on a place shows its card.
+var touch := false
+## The place whose card is showing, and the place a first tap lit (touch only).
+var card_for: Button
+var armed: Button
 
 var world: Control
 var world_board: Control
-var bazaar_button: Button
 var island: Control
 var island_board: Control
 var region_view: Control
+var region_backdrop: TextureRect
 var region_margin: MarginContainer
 var region_col: VBoxContainer
 var region_gap: Control
 var _headers: Array = []
 ## The region screen's side margin, from _fit().
 var _side := 36.0
+## Each board's fitted [position, scale], from _fit().
+var _fitted := {}
+var _tween: Tween
+## True while the board zooms into a place: presses wait for the next layer.
+var _zooming := false
+## True while the first focus is set, so it doesn't show a card on its own.
+var _quiet := false
 
 
 func _ready() -> void:
@@ -123,14 +149,24 @@ func _ready() -> void:
 
 ## Shows a route ({"screen": "world"}, {"screen": "island", "island"} or {"screen":
 ## "region", "island", "region"}) without touching the address bar. MapLink.go() is the
-## way to move and record history.
+## way to move and record history. Moving down a layer fades the new one in; moving up
+## zooms its board out of the place just left.
 func show_route(r: Dictionary) -> void:
+	var was := route
 	route = r.duplicate()
 	screen = route.get("screen", "world")
 	MapLink.current = route.duplicate()
+	if _tween != null:
+		_tween.kill()
+	_zooming = false
+	card_for = null
+	armed = null
+	for layer in [world, island, region_view]:
+		layer.modulate.a = 1.0
 	world.visible = screen == "world"
 	island.visible = screen == "island"
 	region_view.visible = screen == "region"
+	_fit()
 	match screen:
 		"world":
 			_fill_world()
@@ -141,10 +177,37 @@ func show_route(r: Dictionary) -> void:
 		"region":
 			_fill_region()
 			Audio.play_location(island_info(route.island).music)
+	var from := String(was.get("screen", ""))
+	if from == "" or from == screen or reduced_motion():
+		return
+	var layer: Control = {"world": world, "island": island, "region": region_view}[screen]
+	var out := (from == "island" and screen == "world") or (from == "region" and screen == "island")
+	_tween = create_tween().set_parallel()
+	if out:
+		var board := world_board if screen == "world" else island_board
+		var at := _island_point(String(was.get("island", ""))) if screen == "world" else _spot_point(String(was.get("region", "")))
+		var fit: Array = _fitted[board]
+		var z := _zoomed(board, at)
+		board.position = z[0]
+		board.scale = z[1]
+		_tween.tween_property(board, "position", fit[0], ZOOM_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_tween.tween_property(board, "scale", fit[1], ZOOM_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	layer.modulate.a = 0.0
+	_tween.tween_property(layer, "modulate:a", 1.0, FADE_TIME)
 
 
 func go(r: Dictionary) -> void:
 	MapLink.go(get_tree(), r)
+
+
+## True when the game should cut instead of zooming: the save's reduced-motion setting,
+## or the browser's prefers-reduced-motion on the web.
+func reduced_motion() -> bool:
+	if bool(save.get("settings", {}).get("reduced_motion", false)):
+		return true
+	if OS.has_feature("web"):
+		return JavaScriptBridge.eval("window.matchMedia('(prefers-reduced-motion: reduce)').matches", true) == true
+	return false
 
 
 static func island_info(id: String) -> Dictionary:
@@ -175,16 +238,6 @@ static func can_start(region: String, course: String = "") -> bool:
 	return Progress.is_built(region, course)
 
 
-## The roads on the island, as pairs of ends (a spot id or "landing"): a spoke from the
-## tower to every other spot, the loop between neighbours and the road up from the landing.
-static func roads() -> Array:
-	var out: Array = [["landing", Dungeon.ALL]]
-	for id in SPOTS:
-		if id != Dungeon.ALL:
-			out.append([Dungeon.ALL, id])
-	return out + LOOP
-
-
 ## The short mark on a spot's coded landmark: its glyph when the title font can draw
 ## every character of it, otherwise the initials of its name.
 static func mark(id: String, glyph: String = "") -> String:
@@ -197,6 +250,15 @@ static func mark(id: String, glyph: String = "") -> String:
 		if w != "and":
 			initials += w.left(1).to_upper()
 	return initials
+
+
+## The island painting in art_dir (WebP first, then PNG), or "" for the coded look.
+func background_path() -> String:
+	for ext in ArtSlots.EXTENSIONS:
+		var path := "%sbackground.%s" % [art_dir, ext]
+		if ResourceLoader.exists(path):
+			return path
+	return ""
 
 
 # ── Building ─────────────────────────────────────────────────
@@ -219,13 +281,21 @@ func _build() -> void:
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	world_board.add_child(art)
 	_header(world, "The Wasteland", "Title", func(): MapLink.home(get_tree()))
-	_footer(world)
+	var scrap := UiTheme.label("", UiTheme.SMALL, UiTheme.SAND)
+	scrap.name = "Scrap"
+	scrap.autowrap_mode = TextServer.AUTOWRAP_OFF
+	scrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var row: Control = world.get_node("Header").get_child(0)
+	row.add_child(scrap)
+	row.move_child(scrap, row.get_node("HudGap").get_index())
 
 	island = _layer("Island")
 	island_board = _board(island)
 	_header(island, "Signal Tower", "World map", func(): go(MapLink.WORLD))
 
 	region_view = _layer("Region")
+	region_backdrop = UiTheme.backdrop(REGION_WASH)
+	region_view.add_child(region_backdrop)
 	region_margin = MarginContainer.new()
 	region_margin.name = "Margin"
 	region_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -246,6 +316,7 @@ func _layer(n: String) -> Control:
 	c.name = n
 	c.set_anchors_preset(Control.PRESET_FULL_RECT)
 	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	c.clip_contents = true
 	add_child(c)
 	return c
 
@@ -326,26 +397,6 @@ func set_course(id: String) -> bool:
 	return true
 
 
-## The world map's bottom bar: the Bazaar button.
-func _footer(parent: Control) -> void:
-	var m := MarginContainer.new()
-	m.name = "Footer"
-	m.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	m.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	m.custom_minimum_size.y = FOOTER
-	m.add_theme_constant_override("margin_left", 36)
-	m.add_theme_constant_override("margin_right", 36)
-	m.add_theme_constant_override("margin_bottom", 30)
-	parent.add_child(m)
-	bazaar_button = Button.new()
-	bazaar_button.name = "Bazaar"
-	bazaar_button.add_theme_font_size_override("font_size", UiTheme.BIG)
-	bazaar_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	bazaar_button.custom_minimum_size.x = 640
-	bazaar_button.pressed.connect(open_bazaar)
-	m.add_child(bazaar_button)
-
-
 ## The Bazaar, as a history entry, so the browser's back button returns to the map.
 func open_bazaar() -> void:
 	go(MapLink.BAZAAR_ROUTE)
@@ -354,13 +405,11 @@ func open_bazaar() -> void:
 func _fit() -> void:
 	var area := size
 	var room := Rect2(0, HEADER, area.x, maxf(1.0, area.y - HEADER))
-	var world_room := Rect2(room.position, Vector2(room.size.x, maxf(1.0, room.size.y - FOOTER)))
-	for pair in [[world_board, world_room], [island_board, room]]:
-		var b: Control = pair[0]
-		var r: Rect2 = pair[1]
-		var s := minf(r.size.x / BOARD.x, r.size.y / BOARD.y)
+	for b in [world_board, island_board]:
+		var s := minf(room.size.x / BOARD.x, room.size.y / BOARD.y)
 		b.scale = Vector2(s, s)
-		b.position = r.position + (r.size - BOARD * s) / 2.0
+		b.position = room.position + (room.size - BOARD * s) / 2.0
+		_fitted[b] = [b.position, b.scale]
 	var side := maxf(36.0, (area.x - (COLUMN_WIDE if area.x > area.y else COLUMN)) / 2.0)
 	for m in _headers:
 		m.add_theme_constant_override("margin_left", 36)
@@ -376,14 +425,43 @@ func _fit() -> void:
 	region_margin.add_theme_constant_override("margin_bottom", 30)
 
 
-## A board label: readable over painted art.
-func _tag(text: String, size_: int, color: Color) -> Label:
-	var l := UiTheme.label(text, size_, color)
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.add_theme_color_override("font_outline_color", Color(0.05, 0.06, 0.09))
-	l.add_theme_constant_override("outline_size", 14)
-	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return l
+## A board's [position, scale] zoomed ZOOM times into a point (board units), the point
+## in the middle of the room under the header.
+func _zoomed(board: Control, at: Vector2) -> Array:
+	var fit: Array = _fitted[board]
+	var s: Vector2 = fit[1] * ZOOM
+	var centre := Vector2(size.x / 2.0, HEADER + maxf(1.0, size.y - HEADER) / 2.0)
+	return [centre - at * s, s]
+
+
+static func _island_point(id: String) -> Vector2:
+	var z: Rect2 = island_info(id).zone
+	return z.position * BOARD / 100.0
+
+
+static func _spot_point(id: String) -> Vector2:
+	return SPOTS.get(id, Vector2(50, 50)) * BOARD / 100.0
+
+
+## Goes to a route from a place on a board: zooms the board into the place first, unless
+## motion is reduced. Presses during the zoom are ignored.
+func zoom_to(board: Control, at: Vector2, then: Callable) -> void:
+	if _zooming:
+		return
+	_hide_card()
+	if reduced_motion():
+		then.call()
+		return
+	_zooming = true
+	var z := _zoomed(board, at)
+	if _tween != null:
+		_tween.kill()
+	_tween = create_tween().set_parallel()
+	_tween.tween_property(board, "position", z[0], ZOOM_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_tween.tween_property(board, "scale", z[1], ZOOM_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_tween.chain().tween_callback(func():
+		_zooming = false
+		then.call())
 
 
 ## A transparent button over a zone of a board (centre and size in % of the board).
@@ -404,47 +482,209 @@ func _clear(c: Node, keep: int = 0) -> void:
 		ch.queue_free()
 
 
+## Sets the first focus without showing a card: nothing is named until the player looks.
+func _first_focus(b: Button) -> void:
+	if not is_instance_valid(b) or not b.is_inside_tree():
+		return
+	_quiet = true
+	b.grab_focus(true)
+	_quiet = false
+
+
+# ── Places and their cards ───────────────────────────────────
+
+## Makes a button a place: its card (name and line), its name for screen readers and
+## tooltips, its light, and what going in does (`enter`, nothing for a closed place).
+func _place(b: Button, title: String, line: String, color: Color, enter: Callable, tooltip: String = "") -> void:
+	b.set_meta("card", [title, line, color])
+	b.set_meta("enter", enter)
+	b.tooltip_text = tooltip if tooltip != "" else "%s: %s" % [title, line]
+	b.accessibility_name = "%s: %s" % [title, line]
+	var glow := Glow.new()
+	glow.name = "Glow"
+	glow.size = b.size
+	glow.round = b.size.x <= HIT + 1.0 and is_equal_approx(b.size.x, b.size.y)
+	glow.visible = false
+	b.add_child(glow)
+	b.mouse_entered.connect(func(): show_card(b))
+	b.mouse_exited.connect(func(): _let_go(b))
+	b.focus_entered.connect(func():
+		if not _quiet:
+			show_card(b))
+	b.focus_exited.connect(func(): _let_go(b))
+	b.pressed.connect(press.bind(b))
+	# A closed place has no press, but a tap still shows what it is.
+	b.gui_input.connect(func(e: InputEvent):
+		if b.disabled and (e is InputEventMouseButton or e is InputEventScreenTouch) and e.pressed:
+			armed = b
+			show_card(b))
+
+
+## A press on a place: on a touch screen the first one shows its card, then the next
+## one goes in. With a mouse or a keyboard it goes in at once.
+func press(b: Button) -> void:
+	if _zooming or b.disabled:
+		return
+	if touch and armed != b:
+		armed = b
+		show_card(b)
+		return
+	var enter: Callable = b.get_meta("enter")
+	if enter.is_valid():
+		enter.call()
+
+
+## A press on the card goes into its place.
+func press_card() -> void:
+	if card_for != null and is_instance_valid(card_for) and not card_for.disabled:
+		var enter: Callable = card_for.get_meta("enter")
+		if enter.is_valid() and not _zooming:
+			enter.call()
+
+
+## Shows a place's card by it and lights the place.
+func show_card(b: Button) -> void:
+	var board := b.get_parent() as Control
+	var card := board.get_node_or_null("Card") as Control
+	if card == null:
+		return
+	if card_for != null and is_instance_valid(card_for) and card_for != b:
+		(card_for.get_node("Glow") as Control).visible = false
+	card_for = b
+	(b.get_node("Glow") as Control).visible = true
+	var info: Array = b.get_meta("card")
+	(card.get_node("Box/Name") as Label).text = info[0]
+	var line := card.get_node("Box/Line") as Label
+	line.text = info[1]
+	line.add_theme_color_override("font_color", info[2])
+	card.visible = true
+	card.reset_size()
+	var r := Rect2(b.position, b.size)
+	var gap := 14.0
+	var y := r.position.y - card.size.y - gap
+	if y < 0.0:
+		y = r.end.y + gap
+	if y + card.size.y > BOARD.y:
+		y = r.get_center().y - card.size.y / 2.0
+	var x := clampf(r.get_center().x - card.size.x / 2.0, 12.0, BOARD.x - card.size.x - 12.0)
+	card.position = Vector2(x, clampf(y, 12.0, BOARD.y - card.size.y - 12.0))
+	board.move_child(card, -1)
+
+
+## The pointer or focus left a place: its card goes, unless the place still holds the
+## pointer, the focus or a tap.
+func _let_go(b: Button) -> void:
+	if card_for != b or armed == b or b.is_hovered() or b.has_focus(true):
+		return
+	_hide_card()
+
+
+func _hide_card() -> void:
+	if card_for != null and is_instance_valid(card_for):
+		(card_for.get_node("Glow") as Control).visible = false
+		for board in [world_board, island_board]:
+			var card := board.get_node_or_null("Card") as Control
+			if card != null:
+				card.visible = false
+	card_for = null
+	armed = null
+
+
+## The card on a board: hidden until a place is hovered, focused or tapped. A press on
+## it goes into the place.
+func _card(board: Control) -> PanelContainer:
+	var card := PanelContainer.new()
+	card.name = "Card"
+	card.visible = false
+	var sb := UiTheme.panel(Color(0.08, 0.09, 0.12, 0.94))
+	card.add_theme_stylebox_override("panel", sb)
+	card.gui_input.connect(func(e: InputEvent):
+		if e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT and not e.pressed:
+			press_card())
+	var box := VBoxContainer.new()
+	box.name = "Box"
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_theme_constant_override("separation", 0)
+	card.add_child(box)
+	var n := UiTheme.label("", 56, UiTheme.TEXT)
+	n.name = "Name"
+	n.autowrap_mode = TextServer.AUTOWRAP_OFF
+	n.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	n.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(n)
+	var l := UiTheme.label("", UiTheme.SMALL, UiTheme.TEAL)
+	l.name = "Line"
+	l.autowrap_mode = TextServer.AUTOWRAP_OFF
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(l)
+	board.add_child(card)
+	return card
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		touch = true
+	elif event is InputEventKey or (event is InputEventMouse and event.device != InputEvent.DEVICE_ID_EMULATION):
+		touch = false
+
+
+## A tap or click on nothing puts the card away.
+func _unhandled_input(event: InputEvent) -> void:
+	if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed and card_for != null:
+		_hide_card()
+
+
+## A place's light while its card shows: a ring round an island place, a frame round a
+## world-map zone.
+class Glow extends Control:
+	var round := true
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var c := Color(UiTheme.TEXT, 0.85)
+		if round:
+			var r := size.x / 2.0
+			draw_circle(size / 2.0, r - 6.0, Color(UiTheme.TEXT, 0.12))
+			draw_arc(size / 2.0, r - 6.0, 0.0, TAU, 72, c, 8.0, true)
+		else:
+			draw_rect(Rect2(Vector2.ZERO, size).grow(-6.0), Color(UiTheme.TEXT, 0.1))
+			draw_rect(Rect2(Vector2.ZERO, size).grow(-6.0), c, false, 8.0)
+
+
 # ── The world map ────────────────────────────────────────────
 
 func _fill_world() -> void:
 	_clear(world_board, 1)
+	var scrap := int(save.get("scrap", 0))
+	(world.get_node("Header").get_child(0).get_node("Scrap") as Label).text = "Scrap: %d" % scrap
 	for i in ISLANDS:
 		var open := island_open(i.id)
 		var b := _zone_button(world_board, "Island_" + i.id, i.zone)
 		b.disabled = not open
-		b.tooltip_text = "%s: %s" % [i.name, i.topic]
-		_zone_label(b, i.name, i.topic if open else "Coming later", UiTheme.TEAL if open else UiTheme.DIM)
-		if open:
-			b.pressed.connect(func(): go({"screen": "island", "island": i.id}))
+		var to := {"screen": "island", "island": i.id}
+		_place(b, i.name, i.topic if open else "Coming soon", UiTheme.TEAL if open else UiTheme.DIM,
+			(func(): zoom_to(world_board, _island_point(i.id), go.bind(to))) if open else Callable(),
+			"%s: %s" % [i.name, i.topic])
 	var td := _zone_button(world_board, "Thunderdome", THUNDERDOME_ZONE)
 	td.disabled = not thunderdome_open()
-	_zone_label(td, "Thunderdome", "Opens with a second island" if td.disabled else "Every island mixed", UiTheme.PINK if not td.disabled else UiTheme.DIM)
+	_place(td, "Thunderdome", "Locked" if td.disabled else "Every island mixed", UiTheme.DIM if td.disabled else UiTheme.PINK,
+		Callable(), "Thunderdome: opens with a second island" if td.disabled else "")
 	var lib := _zone_button(world_board, "RelicLibrary", RELIC_LIBRARY_ZONE)
 	lib.disabled = true
-	_zone_label(lib, "Relic Library", "Locked", UiTheme.DIM)
-	bazaar_button.text = "Bazaar · %d Scrap" % int(save.get("scrap", 0))
-	var first := world_board.get_node("Island_functions") as Button
-	first.grab_focus.call_deferred()
-
-
-func _zone_label(b: Button, n: String, sub: String, color: Color) -> void:
-	var box := VBoxContainer.new()
-	box.name = "Label"
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_theme_constant_override("separation", 0)
-	box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	box.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	box.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	var name_l := _tag(n, 60, UiTheme.TEXT if not b.disabled else UiTheme.SAND)
-	name_l.name = "Name"
-	name_l.add_theme_font_override("font", UiTheme.TITLE_FONT)
-	name_l.autowrap_mode = TextServer.AUTOWRAP_OFF
-	box.add_child(name_l)
-	var sub_l := _tag(sub, UiTheme.SMALL, color)
-	sub_l.name = "State"
-	sub_l.autowrap_mode = TextServer.AUTOWRAP_OFF
-	box.add_child(sub_l)
-	b.add_child(box)
+	_place(lib, "Relic Library", "Locked", UiTheme.DIM, Callable())
+	var shop := _zone_button(world_board, "Bazaar", BAZAAR_ZONE)
+	if not BAZAAR_PAINTED:
+		var marker := Stall.new()
+		marker.name = "Marker"
+		marker.size = shop.size
+		shop.add_child(marker)
+	_place(shop, "Bazaar", "%d Scrap" % scrap, UiTheme.SAND,
+		func(): zoom_to(world_board, Vector2(BAZAAR_ZONE.position.x, BAZAAR_ZONE.position.y) * BOARD / 100.0, open_bazaar),
+		"Bazaar · %d Scrap" % scrap)
+	_card(world_board)
+	_first_focus.call_deferred(world_board.get_node("Island_functions") as Button)
 
 
 # ── The Functions island ─────────────────────────────────────
@@ -454,8 +694,9 @@ func _fill_island() -> void:
 	var info := island_info(route.island)
 	var title := island.get_node("Header").get_child(0).get_node("Title") as Label
 	title.text = info.name
-	var bg_path := art_dir + "background.png"
-	if ResourceLoader.exists(bg_path):
+	var bg_path := background_path()
+	var painted := bg_path != ""
+	if painted:
 		var art := TextureRect.new()
 		art.name = "Art"
 		art.texture = load(bg_path)
@@ -469,17 +710,16 @@ func _fill_island() -> void:
 	pick = Progress.suggest(save)
 	var first: Button = null
 	for id in MapLink.region_ids():
-		var b := _spot(id, Dungeon.region_name(id), spot_state(id))
+		var b := _spot(id, Dungeon.region_name(id), spot_state(id), painted)
 		if first == null or id == pick.get("region"):
 			first = b
-	_spot(Dungeon.ALL, Dungeon.ALL_NAME, spot_state(Dungeon.ALL))
-	var relic := _spot("relic", "Relic device", "locked")
-	relic.disabled = true
-	relic.tooltip_text = "Locked · lessons later"
-	first.grab_focus.call_deferred()
+	_spot(Dungeon.ALL, Dungeon.ALL_NAME, spot_state(Dungeon.ALL), painted)
+	_spot("relic", "Relic device", "locked", painted)
+	_card(island_board)
+	_first_focus.call_deferred(first)
 
 
-## The coded ground when there is no background art: a dusk gradient and the roads.
+## The coded ground when there is no painting: a dusk gradient and the jetty as a dot.
 func _coded_ground() -> Control:
 	var g := TextureRect.new()
 	g.name = "Ground"
@@ -495,77 +735,61 @@ func _coded_ground() -> Control:
 	g.stretch_mode = TextureRect.STRETCH_SCALE
 	g.size = BOARD
 	g.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var r := Roads.new()
-	r.name = "Roads"
-	r.size = BOARD
-	for ends in roads():
-		r.lines.append([_road_end(ends[0]), _road_end(ends[1]), ends.has(Dungeon.ALL)])
-	g.add_child(r)
+	var jetty := Jetty.new()
+	jetty.name = "Jetty"
+	jetty.size = BOARD
+	g.add_child(jetty)
 	return g
 
 
-static func _road_end(id: String) -> Vector2:
-	return (LANDING if id == "landing" else SPOTS[id]) * BOARD / 100.0
-
-
-## The coded roads: spokes and the landing road dashed, the loop road fainter, and the
-## jetty as a dot.
-class Roads extends Control:
-	## [from, to, spoke], in board units.
-	var lines: Array = []
-
+class Jetty extends Control:
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
-		for l in lines:
-			draw_dashed_line(l[0], l[1], Color(UiTheme.SAND, 0.5 if l[2] else 0.3), 10.0, 30.0)
 		draw_circle(LANDING * BOARD / 100.0, 22.0, Color(UiTheme.SAND, 0.6))
 
 
-## A spot on the island: its landmark (art for its state, or the coded look), name and
-## state line, and SPARK's beacon when it is the pick. Every spot but the Relic device
-## opens its region screen; the Relic device is small and shows its name only.
-func _spot(id: String, title: String, state: String) -> Button:
-	var at: Vector2 = SPOTS.get(id, Vector2(50, 50)) * BOARD / 100.0
+## A place on the island: a square button round its point with its landmark art for its
+## state, nothing over a painting (with a state chip: a padlock or a flag) or the coded
+## ring, and SPARK's beacon when it is the pick. Every spot but the Relic device opens
+## its region screen; the Relic device is small and locked.
+func _spot(id: String, title: String, state: String, painted: bool = false) -> Button:
+	var at := _spot_point(id)
 	var relic := id == "relic"
-	var box_h := RELIC_LANDMARK if relic else LANDMARK
+	var d := RELIC_HIT if relic else HIT
 	var b := Button.new()
 	b.name = "Spot_" + id
 	b.flat = true
-	# As wide as SPOT_SIZE allows while staying centred on the spot and on the board.
-	var w := RELIC_WIDTH if relic else minf(SPOT_SIZE.x, 2.0 * minf(at.x, BOARD.x - at.x))
-	b.size = Vector2(w, box_h + 60) if relic else Vector2(w, SPOT_SIZE.y)
-	b.position = at - Vector2(w / 2.0, box_h / 2.0)
-	var box := VBoxContainer.new()
-	box.name = "Box"
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_theme_constant_override("separation", 2)
-	box.size = b.size
-	box.add_child(_landmark(id, state, box_h))
-	var name_l := _tag(title, UiTheme.SMALL if relic else 40, UiTheme.TEXT)
-	name_l.name = "Name"
-	name_l.autowrap_mode = TextServer.AUTOWRAP_OFF
-	_shrink_to(name_l, w)
-	box.add_child(name_l)
-	if not relic:
-		var state_l := _tag(spot_line(id, state), UiTheme.SMALL, {"locked": UiTheme.DIM, "open": UiTheme.TEAL, "cleared": UiTheme.SAND}[state])
-		state_l.name = "State"
-		state_l.autowrap_mode = TextServer.AUTOWRAP_OFF
-		# A line too wide for the spot breaks before its last part (SPARK's pick).
-		var i := state_l.text.rfind(" · ")
-		if i >= 0 and _width(state_l) > w:
-			state_l.text = state_l.text.left(i) + "\n" + state_l.text.substr(i + 3)
-		box.add_child(state_l)
-	b.add_child(box)
+	b.size = Vector2(d, d)
+	b.position = at - b.size / 2.0
+	var look := _landmark(id, state, d, painted)
+	if look != null:
+		b.add_child(look)
+	elif state != "open":
+		if state == "locked":
+			var wash := Wash.new()
+			wash.name = "Wash"
+			wash.size = b.size
+			b.add_child(wash)
+		var chip := Chip.new()
+		chip.name = "Padlock" if state == "locked" else "Flag"
+		chip.kind = state
+		chip.position = Vector2(d / 2.0 - Chip.R, d - 2.0 * Chip.R - 6.0)
+		b.add_child(chip)
 	if id == pick.get("region"):
 		var beacon := Beacon.new()
 		beacon.name = "Beacon"
-		beacon.position = Vector2(w / 2.0, box_h / 2.0)
+		beacon.r = d * 0.5 - 8.0
+		beacon.position = b.size / 2.0
 		b.add_child(beacon)
-	if not relic:
-		b.pressed.connect(func(): go({"screen": "region", "island": route.island, "region": id}))
 	island_board.add_child(b)
+	if relic:
+		b.disabled = true
+		_place(b, title, "Locked", UiTheme.DIM, Callable(), "Locked · lessons later")
+	else:
+		var to := {"screen": "region", "island": route.island, "region": id}
+		_place(b, title, spot_line(id, state), STATE_COLOR[state], func(): zoom_to(island_board, at, go.bind(to)))
 	return b
 
 
@@ -582,7 +806,7 @@ static func _shrink_to(l: Label, width: float) -> void:
 		l.add_theme_font_size_override("font_size", fs)
 
 
-## The line under a spot: "Coming soon", or how the player is doing there, and
+## The line on a spot's card: "Coming soon", or how the player is doing there, and
 ## " · SPARK's pick" on the pick.
 func spot_line(id: String, state: String) -> String:
 	if state == "locked":
@@ -602,15 +826,19 @@ func spot_line(id: String, state: String) -> String:
 	return " · ".join(bits) + pick_tag
 
 
-## The landmark art for a spot in a state, or the coded look: a ring in the state's
-## colour with the region's glyph (mark()).
-func _landmark(id: String, state: String, box: float = LANDMARK) -> Control:
+## The look of a spot in a state, filling its square: its landmark art, nothing when the
+## place is painted into the island (null), or the coded ring in the state's colour with
+## the region's glyph (mark()).
+func _landmark(id: String, state: String, box: float, painted: bool) -> Control:
 	var path := "%s%s-%s.png" % [art_dir, id, state]
+	var has_art := ResourceLoader.exists(path)
+	if painted and not has_art:
+		return null
 	var holder := CenterContainer.new()
 	holder.name = "Landmark"
-	holder.custom_minimum_size = Vector2(0, box)
+	holder.size = Vector2(box, box)
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if ResourceLoader.exists(path):
+	if has_art:
 		var art := TextureRect.new()
 		art.name = "Art"
 		art.texture = load(path)
@@ -620,35 +848,94 @@ func _landmark(id: String, state: String, box: float = LANDMARK) -> Control:
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		holder.add_child(art)
 		return holder
-	var ring := PanelContainer.new()
-	ring.name = "Coded"
-	var d := box * (1.0 if id == Dungeon.ALL else 0.8)
-	ring.custom_minimum_size = Vector2(d, d)
-	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = UiTheme.PANEL if state != "locked" else Color(0.1, 0.12, 0.16, 0.85)
-	sb.border_color = {"locked": UiTheme.DIM, "open": UiTheme.TEAL, "cleared": UiTheme.SAND}[state]
+	var border: Color = STATE_COLOR[state]
 	if id == Dungeon.ALL and state != "locked":
-		sb.border_color = UiTheme.PINK
-	sb.set_border_width_all(10)
-	sb.set_corner_radius_all(int(d / 2.0))
-	ring.add_theme_stylebox_override("panel", sb)
-	var text := mark(id)
-	var l := UiTheme.label(text, 96 if text.length() == 1 else 72, sb.border_color)
-	l.name = "Mark"
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	l.add_theme_font_override("font", UiTheme.TITLE_FONT)
-	_shrink_to(l, d * 0.75)
-	ring.add_child(l)
-	holder.add_child(ring)
+		border = UiTheme.PINK
+	var bg := UiTheme.PANEL if state != "locked" else Color(0.1, 0.12, 0.16, 0.85)
+	holder.add_child(_ring(mark(id), box * (1.0 if id == Dungeon.ALL else 0.8), border, bg))
 	return holder
 
 
-## SPARK's beacon on the pick: two rings round the landmark and signal waves over it,
-## pulsing. Drawn on top, so it shows over landmark art too. Centred on its position.
+## A coded ring, d across, with a short mark in it.
+func _ring(text: String, d: float, border: Color, bg: Color) -> Control:
+	var ring := PanelContainer.new()
+	ring.name = "Coded"
+	ring.custom_minimum_size = Vector2(d, d)
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = bg
+	sb.border_color = border
+	sb.set_border_width_all(10)
+	sb.set_corner_radius_all(int(d / 2.0))
+	ring.add_theme_stylebox_override("panel", sb)
+	var l := UiTheme.label(text, 96 if text.length() == 1 else 72, border)
+	l.name = "Mark"
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.autowrap_mode = TextServer.AUTOWRAP_OFF
+	l.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	_shrink_to(l, d * 0.75)
+	ring.add_child(l)
+	return ring
+
+
+## The Bazaar's coded marker until the overworld has it painted in: a ring like the
+## island's, with a striped awning over a counter in it.
+class Stall extends Control:
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var c := size / 2.0
+		var r := minf(size.x, size.y) * 0.4
+		draw_circle(c, r, UiTheme.PANEL)
+		draw_arc(c, r, 0.0, TAU, 64, UiTheme.SAND, 10.0, true)
+		var w := r * 1.1
+		var top := c.y - r * 0.45
+		for i in 4:
+			var x0 := c.x - w / 2.0 + w / 4.0 * i
+			draw_colored_polygon(PackedVector2Array([Vector2(x0, top), Vector2(x0 + w / 4.0, top),
+				Vector2(x0 + w / 4.0, top + r * 0.35), Vector2(x0, top + r * 0.35)]), UiTheme.PINK if i % 2 == 0 else UiTheme.SAND)
+		draw_rect(Rect2(c.x - w / 2.0 + 8.0, top + r * 0.35, 10.0, r * 0.65), UiTheme.SAND)
+		draw_rect(Rect2(c.x + w / 2.0 - 18.0, top + r * 0.35, 10.0, r * 0.65), UiTheme.SAND)
+		draw_rect(Rect2(c.x - w / 2.0, c.y + r * 0.4, w, r * 0.2), UiTheme.SAND)
+
+
+## The dark wash over a painted place that can't be played yet.
+class Wash extends Control:
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		draw_circle(size / 2.0, size.x / 2.0 - 10.0, Color(0.03, 0.04, 0.06, 0.55))
+
+
+## A state chip on a painted place, its top-left at its position: a padlock ("locked")
+## or a flag ("cleared"), drawn so one painting serves every state.
+class Chip extends Control:
+	const R := 30.0
+	var kind := "locked"
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		size = Vector2(2.0 * R, 2.0 * R)
+
+	func _draw() -> void:
+		var c := Vector2(R, R)
+		draw_circle(c, R, Color(0.05, 0.06, 0.09, 0.92))
+		draw_arc(c, R - 2.0, 0.0, TAU, 40, UiTheme.SAND if kind == "cleared" else UiTheme.DIM, 4.0, true)
+		if kind == "cleared":
+			draw_line(c + Vector2(-9, 16), c + Vector2(-9, -16), UiTheme.TEXT, 4.0, true)
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-7, -16), c + Vector2(14, -9), c + Vector2(-7, -2)]), UiTheme.SAND)
+		else:
+			draw_arc(c + Vector2(0, -4), 8.0, PI, TAU, 16, UiTheme.TEXT, 4.0, true)
+			draw_rect(Rect2(c + Vector2(-12, -4), Vector2(24, 18)), UiTheme.TEXT)
+
+
+## SPARK's beacon on the pick: two rings round the place and signal waves over it,
+## pulsing. Drawn on top, so it shows over art too. Centred on its position.
 class Beacon extends Control:
-	const R := 108.0
+	var r := 140.0
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -657,10 +944,10 @@ class Beacon extends Control:
 		t.tween_property(self, "modulate:a", 1.0, 0.9).set_trans(Tween.TRANS_SINE)
 
 	func _draw() -> void:
-		draw_arc(Vector2.ZERO, R, 0.0, TAU, 64, UiTheme.PINK, 8.0, true)
-		draw_arc(Vector2.ZERO, R + 18.0, 0.0, TAU, 64, Color(UiTheme.PINK, 0.4), 4.0, true)
+		draw_arc(Vector2.ZERO, r, 0.0, TAU, 64, UiTheme.PINK, 8.0, true)
+		draw_arc(Vector2.ZERO, r + 18.0, 0.0, TAU, 64, Color(UiTheme.PINK, 0.4), 4.0, true)
 		for i in 2:
-			draw_arc(Vector2(0, -R - 12.0), 14.0 + 12.0 * i, PI * 1.2, PI * 1.8, 16, UiTheme.PINK, 6.0, true)
+			draw_arc(Vector2(0, -r - 12.0), 14.0 + 12.0 * i, PI * 1.2, PI * 1.8, 16, UiTheme.PINK, 6.0, true)
 
 
 # ── The region screen ────────────────────────────────────────
@@ -668,6 +955,7 @@ class Beacon extends Control:
 func _fill_region() -> void:
 	_clear(region_col)
 	var id: String = route.region
+	UiTheme.show_backdrop(region_backdrop, ArtSlots.backdrop(id))
 	var head := HBoxContainer.new()
 	head.name = "Head"
 	head.add_theme_constant_override("separation", 24)
