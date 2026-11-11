@@ -63,6 +63,16 @@ extends RefCounted
 ##              roots, points2 and line honour it too (the cubic's Paper 2, FAL-419)
 ##   signed     (optional) a measure that may be negative (a decay rate k): wrong options
 ##              may be negative too
+##   simplest   (optional) the question asks for simplest surd form (surd, pm_surd)
+##   integers   (optional) the question asks for whole numbers (brackets2 "over the integers")
+##   surd       (optional) a form answer whose slots m and r are m√r, marked by value
+##
+## Equivalent answers (FAL-788): an answer with the right value is right unless the question
+## asks for a form it breaks; then it is glancing, and mark() gives the note (form_note).
+## gline, common, brackets2, surd, pm_surd and a form with surd are marked by value
+## (same_value), pct takes a rise of −r% for a fall of r%, and interval takes its ends in
+## either order. No option marked wrong has the answer's value; one in a broken form is
+## flagged form, and picking it is glancing too.
 ##
 ## Typed numbers go through parse_number(), which reads them with the calculator's
 ## expression engine (engine/expr.gd) and takes any that work out to a fraction of whole
@@ -134,6 +144,8 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 		"interval":
 			t = [fixed.get("var", "k") + " is ", {"pick": "shape", "options": SHAPES}, " ", {"slot": "lo"}, " and ", {"slot": "hi"},
 				", with the ends ", {"pick": "ends", "options": ENDS}]
+			# "between 3 and −2" is the same set as "between −2 and 3" (FAL-788).
+			unordered = [["lo", "hi"]]
 		"bound":
 			t = [fixed.get("var", "k") + " ", {"pick": "rel", "options": RELS}, " ", {"slot": "v"}]
 		"quad_in":
@@ -1030,17 +1042,78 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 	if not errors.is_empty():
 		return {"correct": false, "complete": false, "glancing": false, "errors": errors, "values": got}
 	var right := values_right(ans, got)
-	var glancing := not right and values_right(ans, got, true)
-	return {"correct": right, "complete": true, "glancing": glancing,
-		"errors": {}, "values": got, "note": form_note(ans) if glancing else ""}
+	var broken := not right and form_broken(ans, got)
+	return {"correct": right, "complete": true, "glancing": broken or (not right and values_right(ans, got, true)),
+		"errors": {}, "values": got, "note": form_note(ans) if broken else ""}
+
+
+## The kinds marked by value or identity, not slot by slot (FAL-788): an equivalent answer
+## is right unless the question asks for a form it breaks.
+const BY_VALUE := ["gline", "common", "brackets2", "surd", "pm_surd"]
+
+
+## Whether got is the answer by value but breaks the form the question asks for (FAL-788):
+## a glancing hit, and form_note says which rule it breaks.
+static func form_broken(ans: Dictionary, got: Dictionary) -> bool:
+	return same_value(ans, got) and not values_right(ans, got)
 
 
 ## A glancing hit's note when the answer is equivalent but breaks the form the question
 ## asks for (FAL-788); "" when the note is the 3 s.f. one (Q7).
 static func form_note(ans: Dictionary) -> String:
-	if ans.kind == "gline":
-		return "Same line, but a, b and d must be integers."
+	match ans.kind:
+		"gline":
+			return "Same line, but a, b and d must be integers."
+		"common":
+			return "Same expression, but not fully factorised: take out the highest common factor."
+		"brackets2":
+			return "Same expression, but the brackets need whole-number coefficients."
+		"surd", "pm_surd":
+			return "Same value, but not in simplest surd form."
 	return ""
+
+
+## Whether got has the answer's value, whatever its form: the same line, product or surd.
+static func same_value(ans: Dictionary, got: Dictionary) -> bool:
+	if ans.kind not in BY_VALUE and not _is_surd(ans):
+		return false
+	for item in slots(ans):
+		if item.has("slot") and not got.get(item.slot) is Q:
+			return false
+	var w: Dictionary = ans.values
+	match ans.kind:
+		"gline":
+			return gline_same(w, got)
+		"common":
+			# gx(ax + b) = (ga)x² + (gb)x
+			return got.g.mul(got.a).eq(Q.of(w.g).mul(w.a)) and got.g.mul(got.b).eq(Q.of(w.g).mul(w.b))
+		"brackets2":
+			var want := _product(Q.of(w.a1), Q.of(w.b1), Q.of(w.a2), Q.of(w.b2))
+			var have := _product(got.a1, got.b1, got.a2, got.b2)
+			return have[0].eq(want[0]) and have[1].eq(want[1]) and have[2].eq(want[2])
+		"pm_surd":
+			return got.h.eq(w.h) and _surd_same(Q.of(w.m), Q.of(w.r), got.m, got.r, false)
+	return _surd_same(Q.of(w.m), Q.of(w.r), got.m, got.r, true)
+
+
+## Whether an answer is m√r in slots m and r: the surd kind, and a form answer that says so
+## with surd (an exact length, FAL-788).
+static func _is_surd(ans: Dictionary) -> bool:
+	return ans.kind == "surd" or (ans.kind == "form" and ans.get("surd", false))
+
+
+## (a1x + b1)(a2x + b2) as [x², x, 1] coefficients.
+static func _product(a1: Q, b1: Q, a2: Q, b2: Q) -> Array:
+	return [a1.mul(a2), a1.mul(b2).add(a2.mul(b1)), b1.mul(b2)]
+
+
+## Whether m√r and n√s are the same number (signed) or the same size (for h ± m√r).
+static func _surd_same(m: Q, r: Q, n: Q, s: Q, signed: bool) -> bool:
+	if s.sign() < 0:
+		return false
+	if signed and (n.sign() * signi(s.n)) != (m.sign() * signi(r.n)):
+		return false
+	return m.sq().mul(r).eq(n.sq().mul(s))
 
 
 ## Whether got's a, b and d are a non-zero multiple of want's: the same line ax + by + d = 0.
@@ -1069,10 +1142,33 @@ static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = fals
 		return is_finite(have) and absf(have - want) <= 1e-9 * maxf(1.0, absf(want))
 	if ans.kind == "gline":
 		# Any non-zero multiple of the line is that line, of either sign (FAL-788). The
-		# question asks for integers, so a fractional multiple is only glancing.
-		if not gline_same(ans.values, got):
+		# question asks for integers, so a fractional multiple is only glancing (form_broken).
+		return gline_same(ans.values, got) and got.a.is_int() and got.b.is_int() and got.d.is_int()
+	if ans.kind == "common":
+		# Factorise fully: −2x(−3x − 1) is right too; x(6x + 2) is not fully (FAL-788).
+		return same_value(ans, got) and got.a.is_int() and got.b.is_int() \
+			and Q.gcd(absi(got.a.n), absi(got.b.n)) == 1
+	if ans.kind == "brackets2":
+		# Marked by the product: (−2x − 1)(−x − 3) is (2x + 1)(x + 3) (FAL-788). Whole
+		# numbers only where the question asks for the integers.
+		if not same_value(ans, got):
 			return false
-		return glancing or (got.a.is_int() and got.b.is_int() and got.d.is_int())
+		return not ans.get("integers", false) or [got.a1, got.b1, got.a2, got.b2].all(func(q): return q.is_int())
+	if ans.kind == "pm_surd":
+		# By value: h ± √(m²r) is h ± m√r, unless simplest form is asked. h ± (−m)√r is
+		# h ± m√r written the same way (FAL-788).
+		if not ans.get("simplest", false):
+			return same_value(ans, got)
+		return same_value(ans, got) and got.m.abs_q().eq(Q.of(ans.values.m).abs_q())
+	if _is_surd(ans) and not ans.get("simplest", false):
+		# An exact surd is marked by value: 2√8 is 4√2 unless simplest form is asked (FAL-788).
+		return same_value(ans, got)
+	if ans.kind == "pct" and got.get("v") is Q and got.v.sign() < 0 and str(got.get("dir", "")) in DIRS:
+		# A rise of −5% is a fall of 5% (FAL-788).
+		var flipped := got.duplicate()
+		flipped.dir = DIRS[1 - DIRS.find(str(got.dir))]
+		flipped.v = got.v.neg()
+		return values_right(ans, flipped, glancing)
 	if ans.kind == "points2" and not got.is_empty():
 		var swapped := {"x1": got.get("x2"), "y1": got.get("y2"), "x2": got.get("x1"), "y2": got.get("y1")}
 		var plain := ans.duplicate()

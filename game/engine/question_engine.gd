@@ -851,13 +851,23 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 		var key := Answer.canon(ans, w.values)
 		if seen.has(key):
 			continue
+		# An option that would be right if typed is no wrong option (FAL-788).
+		var typed: bool = ans.kind not in Answer.MC_ONLY and not w.get("trap", false) and Answer.typable(ans, w.values)
+		if typed and Answer.values_right(ans, w.values):
+			continue
 		seen[key] = true
-		picked.append(w)
+		picked.append(w.merged({"form": typed and Answer.form_broken(ans, w.values)}))
 	var opts: Array = [{"text": Answer.text(ans), "values": ans.values, "correct": true, "ref": ""}]
 	for w in picked:
 		var trap: bool = w.get("trap", false)
-		opts.append({"text": Answer.trap_text(ans, w.values) if trap else Answer.text(ans, w.values), "values": w.values,
-			"correct": false, "ref": w.ref, "trap": trap})
+		var o := {"text": Answer.trap_text(ans, w.values) if trap else Answer.text(ans, w.values), "values": w.values,
+			"correct": false, "ref": w.ref, "trap": trap}
+		# The answer in a form the question rules out (x(6x + 2) for "factorise fully"):
+		# picking it is a glancing hit with the note, as typing it is.
+		if w.form:
+			o.form = true
+			o.note = Answer.form_note(ans)
+		opts.append(o)
 	return rng.shuffled(opts)
 
 
@@ -886,7 +896,7 @@ static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) 
 		"true-false-reason":
 			var right: Dictionary = q.choices.filter(func(c): return c.correct)[0]
 			var wrongs: Array = q.choices.filter(func(c): return not c.correct)
-			var claims: Array = wrongs.filter(func(c): return not c.get("trap", false))
+			var claims: Array = wrongs.filter(func(c): return not c.get("trap", false) and not c.get("form", false))
 			var tagged: Array = claims.filter(func(c): return c.ref != "")
 			var claim: Dictionary = right
 			if not claims.is_empty() and not rng.chance(0.5):
@@ -987,7 +997,8 @@ static func mark(question: Dictionary, response: Dictionary) -> Dictionary:
 		if i < 0 or i >= question.choices.size():
 			return {"correct": false, "complete": false, "glancing": false, "errors": {"choice": "Choose one."}, "misconception": ""}
 		var c: Dictionary = question.choices[i]
-		return {"correct": c.correct, "complete": true, "glancing": c.get("trap", false), "errors": {}, "misconception": c.ref}
+		return {"correct": c.correct, "complete": true, "glancing": c.get("trap", false) or c.get("form", false), "errors": {},
+			"misconception": c.ref, "note": c.get("note", "")}
 	var r := Answer.mark(question.answer, response)
 	r.misconception = ""
 	if r.complete and not r.correct:

@@ -190,6 +190,8 @@ func u_chord_length(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var r: int = 1 + s.m.n * s.m.n
 	var sv := simplify_surd(dx, r)
 	var ans := Answer.make("surd", {"m": Q.new(sv[0]), "r": Q.new(sv[1])}, {}, "AB = ")
+	# "with r as small as possible" (FAL-788)
+	ans.simplest = true
 	var final := "So " + Answer.text(ans) + "."
 	var out := {"answer": ans, "given": given_of(s),
 		"asked": "The line meets the curve at A and B. Find the exact length AB, in the form m√r with r as small as possible."}

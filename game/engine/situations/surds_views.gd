@@ -39,8 +39,12 @@ static func simplest(n: int) -> Dictionary:
 	return {"m": Q.new(roundi(sqrt(float(sq)))), "r": Q.new(n / sq)}
 
 
+## Every surd question here asks for simplest form, so an equal unsimplified surd is
+## glancing (FAL-788).
 static func surd_answer(a: Q, b: Q) -> Dictionary:
-	return Answer.make("surd", {"m": a, "r": b})
+	var ans := Answer.make("surd", {"m": a, "r": b})
+	ans.simplest = true
+	return ans
 
 
 ## "48 = 16 × 3, so √48 = √16 × √3 = 4√3"
@@ -149,6 +153,7 @@ func u_multiply_surds(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 func u_formula_fraction(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("pm_surd", {"h": s.h, "m": s.a, "r": s.b})
+	ans.simplest = true
 	var dk: Q = s.d.mul(s.a)
 	var steps := ["%s = √(%s × %s) = %s" % [root(s.n), N(dk.sq()), N(s.b), surd(dk, s.b)],
 		"(%s ± %s)/%s = %s/%s ± %s/%s = %s ± %s" % [N(s.m0), surd(dk, s.b), N(s.d), N(s.m0), N(s.d), surd(dk, s.b), N(s.d), N(s.h), surd(s.a, s.b)],
