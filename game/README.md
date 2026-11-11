@@ -1483,6 +1483,12 @@ For `log-exp-form` it reads a log, a power or a sentence back and tests the powe
 exactly; on Paper 2 it reads each scale's constants back from its formula or its sentence, finds each
 value from the logarithm to 40 digits, rebuilds each tagged option from its slip, and requires each
 method's numbers in its working (`E11LF_check`).
+For `rational-exponents` it parses the one line shown (roots, powers after a caret or in superscript,
+products, quotients and sums) into SymPy with its own parser and works the value, x or the power of x
+out again: a value exactly, x from SymPy's solve with x > 0, a power of x by comparing to 50 digits at
+three rational points. Every option is read back and must be right exactly when it is marked right, each tagged option
+is rebuilt from its slip, every equation in the working must hold, the numbers stay within the clean
+limits, and the map's and the bank's own examples are refused (`E12RE_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height

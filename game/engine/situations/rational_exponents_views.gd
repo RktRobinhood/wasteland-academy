@@ -625,7 +625,7 @@ func _split(s: Dictionary, rng: Seeded) -> Dictionary:
 	var each: Array = []
 	for i in count:
 		var t: Array = raw[i]
-		each.append("%s/(%d%s) = %s" % [term(t[0].abs_q(), t[1]), k, XQ(d), term(cs[i].abs_q(), ps[i])])
+		each.append("%s/(%d%s) = %s" % [term(t[0], t[1]), k, XQ(d), term(cs[i], ps[i])])
 	var steps := ["Split the fraction: %s = %s." % [expr, split_text],
 		"%s, so take %s from each power%s." % [dline, d.text(), "" if k == 1 else " and divide each number by %d" % k],
 		"Term by term: %s." % "; ".join(each), "So %s = %s." % [expr, Answer.text(ans)]]
@@ -633,7 +633,7 @@ func _split(s: Dictionary, rng: Seeded) -> Dictionary:
 		each.clear()
 		for i in count:
 			var t: Array = raw[i]
-			each.append("%s/%s = %s" % [term(t[0].abs_q(), t[1]), XQ(d), term(cs[i].abs_q(), ps[i])])
+			each.append("%s/%s = %s" % [term(t[0], t[1]), XQ(d), term(cs[i], ps[i])])
 		steps[2] = "Term by term: %s." % "; ".join(each)
 	# Wrong options, each typed in the answer's slots.
 	var w: Array = []
