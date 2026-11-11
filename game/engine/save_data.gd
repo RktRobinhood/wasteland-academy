@@ -3,7 +3,8 @@ extends RefCounted
 ## The save: a versioned Dictionary in user://save.json.
 ##
 ##   version    VERSION; older saves go through migrate() on load
-##   settings   {"exam_only": false}
+##   settings   {"exam_only": false, "reduced_motion": false}; reduced_motion cuts between
+##              the map's layers instead of zooming (ui/map.gd)
 ##   course     the student's IB course (FAL-397): "aa-sl", "aa-hl", "ai-sl" or "ai-hl".
 ##              Courses.of(save) reads it; set_course() changes it and keeps every cell
 ##              record, so progress on the skills two courses share is not lost
@@ -23,7 +24,8 @@ extends RefCounted
 ##   bazaar     what the Bazaar sold (G6, engine/bazaar.gd): {"max_hp": levels bought,
 ##              "lifelines": {"fifty", "hint", "freeze"} -> extra charges bought,
 ##              "perk": {} or {"id", "lifeline"} for the next run, "owned": cosmetic
-##              ids, "frame" and "tint" worn ("" for none), "spent": Scrap spent}
+##              ids, "frame" and "tint" worn ("" for none), "spent": Scrap spent,
+##              "met": true once the store owner has said their first-visit line}
 ##
 ## When a wrong answer matches a multiple-choice distractor, the distractor's
 ## misconception ref is recorded on the cell, so lesson feedback and suggestions can
@@ -35,7 +37,7 @@ const HISTORY := 20
 
 
 static func blank() -> Dictionary:
-	return {"version": VERSION, "settings": {"exam_only": false}, "course": Courses.DEFAULT, "cells": {}, "probes": {}, "history": [],
+	return {"version": VERSION, "settings": {"exam_only": false, "reduced_motion": false}, "course": Courses.DEFAULT, "cells": {}, "probes": {}, "history": [],
 		"seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
 		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}, "dungeon": {},
 		"bazaar": blank_bazaar()}
@@ -43,7 +45,7 @@ static func blank() -> Dictionary:
 
 static func blank_bazaar() -> Dictionary:
 	return {"max_hp": 0, "lifelines": {"fifty": 0, "hint": 0, "freeze": 0}, "perk": {}, "owned": [],
-		"frame": "", "tint": "", "spent": 0}
+		"frame": "", "tint": "", "spent": 0, "met": false}
 
 
 ## Brings any older save up to VERSION, one step at a time, then fills in fields a

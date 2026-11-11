@@ -581,7 +581,9 @@ func _show_feedback(result: Dictionary) -> void:
 		if probe:
 			feedback.text = "Not quite." if question.verdict != "" else "Here is the answer:"
 		else:
-			feedback.text = "Not quite. " + QuestionEngine.answer_sentence(question)
+			# An equivalent answer in the wrong form says which rule it breaks (FAL-788).
+			var note: String = result.get("note", "") if result.get("glancing", false) else ""
+			feedback.text = "Not quite. " + ("" if note == "" else note + " ") + QuestionEngine.answer_sentence(question)
 		feedback.add_theme_color_override("font_color", UiTheme.PINK)
 		var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), result.get("misconception", ""))
 		if why != "":

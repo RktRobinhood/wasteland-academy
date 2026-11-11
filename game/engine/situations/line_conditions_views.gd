@@ -185,7 +185,7 @@ static func eq_answer(s: Dictionary, n: Q, c: Q, form: String = "") -> Dictionar
 static func form_ask(form: String) -> String:
 	if form == "sl":
 		return " Give it in the form y = mx + c."
-	return " Give it in the form ax + by + d = 0, where a, b and d are integers and a > 0."
+	return " Give it in the form ax + by + d = 0, where a, b and d are integers."
 
 
 static func fin(ans: Dictionary) -> String:
@@ -492,7 +492,7 @@ static func coef_steps(s: Dictionary, ans: Dictionary) -> Array:
 	var b2: int = b if para else -a * signi(b)
 	var k: Q = Q.new(a2).mul(s.px).add(Q.new(b2).mul(s.py))
 	var head := "The first line is %s." % gtext(a, b, d)
-	var keep := ("A parallel line keeps a and b: %sx%s = k." % [Fmt.lead(a2), Fmt.term(Q.new(b2), 1, false, "y")]) if para else ("A perpendicular line swaps a and b and changes one sign, keeping a > 0: %sx%s = k." % [Fmt.lead(a2), Fmt.term(Q.new(b2), 1, false, "y")])
+	var keep := ("A parallel line keeps a and b: %sx%s = k." % [Fmt.lead(a2), Fmt.term(Q.new(b2), 1, false, "y")]) if para else ("A perpendicular line swaps a and b and changes one sign: %sx%s = k." % [Fmt.lead(a2), Fmt.term(Q.new(b2), 1, false, "y")])
 	return [head, keep, "Put in P: k = %s × %s + %s × %s = %s." % [N(a2), P(s.px), P(b2), P(s.py), N(k)], "Rearranged, that is %s." % yeq(s.n, s.c), fin(ans)]
 
 
@@ -608,12 +608,12 @@ func u_general_form(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a: int = s.ga
 	var b: int = s.gb
 	var d: int = s.gd
-	var out := {"asked": "Write the line in the form ax + by + d = 0, where a, b and d are integers and a > 0.", "answer": ans}
+	var out := {"asked": "Write the line in the form ax + by + d = 0, where a, b and d are integers.", "answer": ans}
 	out.lines = [yeq(n, c)] if rep == "equation" else ["A line passes through %s and has gradient %s." % [pt(s.px, s.py), N(n)]]
 	var scale: int = absi(s.gb)
 	out.generic = [{"a": Q.new(a), "b": Q.new(b), "d": Q.new(-d)}, {"a": Q.new(a), "b": Q.new(-b), "d": Q.new(d)}, {"a": Q.new(a), "b": Q.new(-b), "d": Q.new(-d)}, {"a": Q.new(a), "b": Q.new(b), "d": Q.new(d + 1)}]
 	var first := "The line is %s." % yeq(n, c) if rep == "equation" else "y − %s = %s(x − %s), so the line is %s." % [P(s.py), Fmt.lead(n), P(s.px), yeq(n, c)]
-	out.methods = {"point-gradient": method([first, "Multiply every term by %s to clear the fractions: %sy = %s." % [N(scale), Fmt.lead(scale), Fmt.poly([n.mul(scale), c.mul(scale)])], "Move every term to one side, with a > 0.", fin(ans)], ans.values)}
+	out.methods = {"point-gradient": method([first, "Multiply every term by %s to clear the fractions: %sy = %s." % [N(scale), Fmt.lead(scale), Fmt.poly([n.mul(scale), c.mul(scale)])], "Move every term to one side.", fin(ans)], ans.values)}
 	return out
 
 
