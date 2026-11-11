@@ -40649,6 +40649,201 @@ SPOT_CHECKS["hence-integral"] = E13HI_spot
 # ── end hence-integral ──
 
 
+# ── integral-gdc (t5-ext-integral-gdc, FAL-776) ───────────────
+# The integrand and limits are read back from the lines, integrated by mpmath at 30 digits, and
+# each slip is made here from the integrand's own shape: limits swapped (the negative), degree
+# mode (every sin argument times π/180) and a bracket closed before the constant (h(inner) becomes
+# h(inner − c) + c). A GDC entry is read with the checker's calc_expr and compared with SymPy.
+
+E13IG_SK = "SL5.5.definite-integral-gdc#"
+E13IG_X = sp.Symbol("x")
+
+
+def E13IG_read(q):
+    L, asked = q["lines"], q["asked"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    m = re.fullmatch(r"The graph of y = (.+) is shown, with the region from x = (−?\d+) to x = (−?\d+) shaded\.", L[0])
+    if m:
+        t, a, b = m.groups()
+        need(asked == f"Find ∫ from {a} to {b} of {IntegrationViews_wrapped(t)} dx, to 3 s.f.", f"asked {asked!r}")
+    else:
+        m = re.fullmatch(r"∫ from (−?\d+) to (−?\d+) of (.+) dx", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        a, b, t = m.groups()
+    t = t[1:-1] if t.startswith("(") and t.endswith(")") and E13IG_balanced(t[1:-1]) else t
+    return E13IG_e(t), E13PC_n(a), E13PC_n(b), t
+
+
+def E13IG_e(t):
+    """An expression as written, not expanded (e^(x + 4) stays one exponential)."""
+    return calc_expr(t).subs(sp.Symbol("e"), sp.E)
+
+
+def E13IG_same(e1, e2, a, b):
+    """Whether two integrands agree on [a, b], at nine points (they are simple functions of x)."""
+    f1, f2 = sp.lambdify(E13IG_X, e1, "mpmath"), sp.lambdify(E13IG_X, e2, "mpmath")
+    for k in range(9):
+        x = mpmath.mpf(a) + (mpmath.mpf(b) - mpmath.mpf(a)) * (k + 0.5) / 9
+        if abs(f1(x) - f2(x)) > mpmath.mpf(10) ** -15 * max(1, abs(f1(x))):
+            return False
+    return True
+
+
+def E13IG_balanced(t):
+    d = 0
+    for ch in t:
+        d += 1 if ch == "(" else -1 if ch == ")" else 0
+        if d < 0:
+            return False
+    return d == 0
+
+
+def IntegrationViews_wrapped(t):
+    """The game's brackets round a sum (IntegrationViews.wrapped), the checker's own copy."""
+    d = 0
+    for i, ch in enumerate(t):
+        d += 1 if ch == "(" else -1 if ch == ")" else 0
+        if d == 0 and i > 0 and ch in "+−":
+            return f"({t})"
+    return t
+
+
+def E13IG_val(f, a, b):
+    g = sp.lambdify(E13IG_X, f, "mpmath")
+    with mpmath.workdps(30):
+        return sp.Float(mpmath.quad(g, [a, b]), 30)
+
+
+def E13IG_slip(f):
+    """The integrand with its bracket closed before the constant, or None."""
+    X = E13IG_X
+    if f.func in (sp.exp, sp.log) and f.args[0].is_Add:
+        inner = f.args[0]
+    elif f.is_Pow and f.base.is_Add:
+        inner = f.base
+    else:
+        return None
+    c = inner.as_coeff_Add()[0]
+    if c == 0:
+        return None
+    rest = inner - c
+    if f.is_Pow:
+        return sp.powdenest(rest**f.exp, force=True) + c
+    return f.func(rest) + c
+
+
+def E13IG_deg(f):
+    return f.replace(sp.sin, lambda a: sp.sin(a * sp.pi / 180)).replace(sp.cos, lambda a: sp.cos(a * sp.pi / 180))
+
+
+def E13IG_entry(t):
+    return E13IG_e(t)
+
+
+def E13IG_trig(f):
+    return f.has(sp.sin, sp.cos)
+
+
+def E13IG_check(q):
+    u, ch = q["view"]["unknown"], q["choices"]
+    need(q["paper"] == 2, "a GDC integral is Paper 2")
+    f, a, b, ftext = E13IG_read(q)
+    need(a < b and abs(b - a) <= 3, f"limits {a}, {b}")
+    v = E13IG_val(f, a, b)
+    need(not on_edge(abs(v)) and abs(v - sp.floor(v + sp.Rational(1, 2))) > sp.Rational(2, 100), f"{v} is not fair to 3 s.f.")
+    wr = {E13IG_SK + "1": {gc_s(-v)}}
+    if u == "polynomial-check":
+        f = sp.expand(f)
+        need(f.is_polynomial(E13IG_X), "not a polynomial")
+        V = sp.integrate(f, (E13IG_X, a, b))
+        need(sp.N(V - v, 20) == 0 or abs(sp.N(V - v, 20)) < 1e-20, "the GDC value is not the exact one")
+        for sol in q["solutions"]:
+            for st in sol["steps"]:
+                mm = re.fullmatch(r"F\(−?\d+\) − F\(−?\d+\) = .+ = (.+)\.", st)
+                if mm:
+                    need(E13PC_n(mm.group(1)) == V, f"{sol['name']}: {st!r}")
+                mm = re.fullmatch(r"F\(x\) = (.+)\.", st)
+                if mm:
+                    need(sp.expand(sp.diff(E13HI_e(mm.group(1)), E13IG_X) - f) == 0, f"{sol['name']}: F is not an antiderivative")
+    elif u == "gdc-value":
+        if E13IG_trig(f):
+            wr[E13IG_SK + "0"] = {gc_s(E13IG_val(E13IG_deg(f), a, b))}
+        else:
+            s = E13IG_slip(f)
+            need(s is not None, f"{ftext} has no bracket to slip")
+            wr[E13IG_SK + "2"] = {gc_s(E13IG_val(s, a, b))}
+        if q["view"]["rep"] == "graph":
+            fl = sp.lambdify(E13IG_X, f, "math")
+            for x, y in q["graph"]["curves"][0][::9]:
+                need(abs(fl(x) - y) < 1e-6, "the graph is not y = f(x)")
+            sh = q["graph"]["shade"][0]
+            need(abs(sh[0][0] - float(a)) < 1e-9 and abs(sh[-1][0] - float(b)) < 1e-9, "the shaded region is not from a to b")
+    if u in ("gdc-value", "polynomial-check"):
+        for sol in q["solutions"]:
+            for st in sol["steps"]:
+                mm = re.search(r"gives (−?[\d.]+)\.$", st)
+                if mm:
+                    need(abs(float(mm.group(1).replace("−", "-")) - float(v)) < 1e-5 * max(1, abs(float(v))), f"{sol['name']}: the GDC does not give {mm.group(1)}")
+                mm = re.match(r"(?:Enter|Graph y = )(?:f\(x\) = )?(\S+)", st)
+                if mm and "template" in st or st.startswith("Graph y = "):
+                    e = re.match(r"(?:Enter (?:f\(x\) = )?|Graph y = )(.+?)(?: in the GDC| on the GDC)", st).group(1)
+                    need(E13IG_same(E13IG_entry(e), f, a, b), f"{sol['name']}: the entry {e!r} is not the integrand")
+        gc_check_common(q, gc_s(v), wr, gc_s2(v))
+        return None, None
+    # which-entry
+    rx = r"Function (.+), lower limit (−?\d+), upper limit (−?\d+)(, radian mode|, degree mode)?"
+    trig = E13IG_trig(f)
+    rights, wr = [], defaultdict(set)
+    for o in ch:
+        m = re.fullmatch(rx, o["text"])
+        need(m is not None, f"can't read the entry {o['text']!r}")
+        e, lo, hi, mode = E13IG_entry(m.group(1)), E13PC_n(m.group(2)), E13PC_n(m.group(3)), m.group(4)
+        same = E13IG_same(e, f, a, b)
+        good_mode = (mode == ", radian mode") if trig else mode is None
+        if same and (lo, hi) == (a, b) and good_mode:
+            rights.append(o["text"])
+        if o["ref"] == E13IG_SK + "1":
+            need(same and (lo, hi) == (b, a) and good_mode, f"{o['text']!r} does not swap the limits")
+        elif o["ref"] == E13IG_SK + "0":
+            need(trig and same and (lo, hi) == (a, b) and mode == ", degree mode", f"{o['text']!r} is not degree mode")
+        elif o["ref"] == E13IG_SK + "2":
+            s = E13IG_slip(f)
+            need(s is not None and E13IG_same(e, s, a, b) and (lo, hi) == (a, b), f"{o['text']!r} is not the bracket slip")
+        if o["ref"]:
+            wr[o["ref"]].add(o["text"])
+    need(len(rights) == 1, f"{len(rights)} right entries")
+    gc_check_common(q, rights[0], wr)
+    return None, None
+
+
+def E13IG_spot(q, lines):
+    f, a, b, ftext = E13IG_read(q)
+    v = E13IG_val(f, a, b)
+    for i, t in enumerate(lines):
+        if (m := re.fullmatch(r"The integral is ∫ from (−?\d+) to (−?\d+) of (.+) dx", t)):
+            ok = (E13PC_n(m.group(1)), E13PC_n(m.group(2))) == (a, b) and E13IG_same(E13IG_e(m.group(3).strip("()") if E13IG_balanced(m.group(3)[1:-1]) else m.group(3)), f, a, b)
+        elif t in ("Mode: degrees", "Mode: radians"):
+            ok = t == "Mode: radians" or not E13IG_trig(f)
+        elif (m := re.fullmatch(r"Entered: (.+)", t)):
+            ok = E13IG_same(E13IG_entry(m.group(1)), f, a, b)
+        elif (m := re.fullmatch(r"Limits: lower (−?\d+), upper (−?\d+)", t)):
+            ok = (E13PC_n(m.group(1)), E13PC_n(m.group(2))) == (a, b)
+        elif (m := re.fullmatch(r"The GDC gives (\S+), so the integral is (\S+)", t)):
+            ok = m.group(1) == m.group(2) == gc_s(v)
+        else:
+            raise Fail(f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["integral-gdc"] = E13IG_check
+SPOT_CHECKS["integral-gdc"] = E13IG_spot
+
+# ── end integral-gdc ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):

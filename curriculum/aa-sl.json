@@ -15085,7 +15085,7 @@
               "misconceptions": [
                 "Leaving the calculator in degree mode for trig integrands",
                 "Entering the limits the wrong way round, giving the negative of the answer",
-                "Missing brackets, e.g. entering e^x+1 when e^(x+1) is meant"
+                "Missing brackets, so a power or a denominator ends too soon"
               ],
               "threads": [
                 {

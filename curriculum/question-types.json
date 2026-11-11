@@ -79169,7 +79169,7 @@
     },
     {
      "ref": "SL5.5.definite-integral-gdc#2",
-     "text": "Missing brackets, e.g. entering e^x+1 when e^(x+1) is meant",
+     "text": "Missing brackets, so a power or a denominator ends too soon",
      "as": "distractor",
      "in": [
       "gdc-value",
