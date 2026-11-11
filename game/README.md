@@ -2006,6 +2006,10 @@ script error happens while it runs. Run one file with
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
+- `test_tangent_meets.gd` (FAL-754): t5-normal-meets-curve built with every cell, Paper 2 only, no extra
+  formats; f and f′ against hand values, the line really the tangent or the normal, A and B on their axes,
+  Q on both the curve and the line, (x − x₀)² in a built cubic's curve minus tangent, the figure's curve
+  and line, every tag as an option, and no wrong option or rounding trap that types as right.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters

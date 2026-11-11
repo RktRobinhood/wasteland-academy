@@ -35,6 +35,13 @@ func papers(unknown: String, _rep: String, _angle: String) -> Array:
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
 	out.given = TangentMeetsSituation.export(s)
+	# An option that types as right is no wrong option: 961/24 to 2 s.f. is 40, which is
+	# also 40.0, its 3 s.f., so that rounding trap is no trap.
+	var ans: Dictionary = out.answer
+	if not out.trap.is_empty() and Answer.values_right(ans, out.trap):
+		out.trap = {}
+	out.wrongs = out.wrongs.filter(func(w): return not Answer.values_right(ans, w.values, true))
+	out.generic = out.generic.filter(func(g): return not Answer.values_right(ans, g, true))
 	return out
 
 

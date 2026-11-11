@@ -2,8 +2,8 @@ extends "res://tests/test_case.gd"
 ## The tangent-meets-curve situation (FAL-754): t5-normal-meets-curve is built with every cell, on
 ## Paper 2. The line really is the tangent or the normal, an intercept is on its axis, Q is on both
 ## the curve and the line, a built-backwards cubic has (x − x₀)² in curve minus tangent, the figure
-## is the curve and the line, and every tag shows up as an option. The SymPy checker
-## (tools/check-answers) checks the maths.
+## is the curve and the line, every tag shows up as an option and no wrong option types as right.
+## The SymPy checker (tools/check-answers) checks the maths.
 
 const TYPE := "t5-normal-meets-curve"
 const CELLS := 30
@@ -119,3 +119,13 @@ func test_every_tag_shows_up_as_an_option() -> void:
 					seen[o.ref] = true
 	for m in t.misconceptions:
 		check(seen.has(m.ref), "%s never shows" % m.ref)
+
+
+func test_no_wrong_option_types_as_right() -> void:
+	# 961/24 to 2 s.f. is 40, which is also right to 3 s.f. (40.0): that is no rounding trap.
+	var c := {"unknown": "tangent-triangle-area", "rep": "diagram", "angle": "set-axes-zero"}
+	var q := _make(c, 1277)
+	check_eq(q.answer_text, "area = 961/24")
+	for o in q.choices:
+		if not o.correct:
+			check(not Answer.values_right(q.answer, o.values, true), "%s types as right" % o.text)
