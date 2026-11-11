@@ -16,6 +16,12 @@ const R_UNITS := SI + "2"
 const R_DNE := SL + "0"
 const R_F_AT_A := SL + "1"
 const R_ONE_SIDE := SL + "2"
+## The type's own misconceptions, with no ref of their own (FAL-815).
+const OWN := "t5-derivative-meaning#"
+const R_SIGNED := OWN + "6"
+const R_UPSIDE_DOWN := OWN + "7"
+const R_ALL_DIES := OWN + "8"
+const R_X_VALUE := OWN + "9"
 ## Above every plot: the height of the point that breaks a curve at its gap.
 const BREAK_Y := 1000000.0
 
@@ -106,13 +112,19 @@ static func claim(tag: String, text: String) -> Dictionary:
 	return {"form": tag, "vals": [], "text": text}
 
 
-## Options 2 to 4 of a claim, each with the misconception it shows.
+## Options 2 to 4 of a claim, each with the misconception it shows. One with no
+## misconception ("" for its ref) is a filler.
 static func claim_answer(right: String, wrongs_in: Array) -> Dictionary:
 	var ans := Answer.make("claim", claim("right", right))
 	var ws: Array = []
+	var fill: Array = []
 	for i in wrongs_in.size():
-		ws.append(wrong(claim("w%d" % i, wrongs_in[i][0]), wrongs_in[i][1]))
-	return {"answer": ans, "wrongs": ws}
+		var w := wrong(claim("w%d" % i, wrongs_in[i][0]), wrongs_in[i][1])
+		if w.ref == "":
+			fill.append(w.values)
+		else:
+			ws.append(w)
+	return {"answer": ans, "wrongs": ws, "fillers": fill}
 
 
 # ── A rate ───────────────────────────────────────────────────
@@ -131,7 +143,7 @@ func u_rate_at_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		ans.label = "%s′(%d) = " % [c.sym, s.t0]
 	var wr: Array = [wrong({"v": GdcKit.qf(s.v)}, R_VALUE), wrong({"v": GdcKit.qf(-r)}, R_SIGN)]
 	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": wr,
-		"generic": [{"v": GdcKit.qf(r * 2.0)}, {"v": GdcKit.qf(r * 0.5)}, {"v": GdcKit.qf(r * 1.5)}, {"v": GdcKit.qf(r + 1.0)}],
+		"fillers": [{"v": GdcKit.qf(r * 2.0)}, {"v": GdcKit.qf(r * 0.5)}, {"v": GdcKit.qf(r * 1.5)}, {"v": GdcKit.qf(r + 1.0)}],
 		"methods": {"units-ratio": method([
 			"The rate is the derivative: d%s/dt at t = %d, in %s." % [c.sym, s.t0, unit(c)],
 			"GDC, dy/dx at t = %d: %s." % [s.t0, GdcKit.W(r)],
@@ -152,7 +164,7 @@ func u_interpret_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		["At t = %d, the %s is %s at %s %s." % [s.t0, c.what, other, mag, unit(c)], R_SIGN],
 		["At t = %d, the %s has %s by %s %s." % [s.t0, c.what, "gone up" if r > 0.0 else "gone down", mag, c.y], R_UNITS]])
 	var lines: Array = [story(s), "%s′(%d) = %s, to 3 s.f." % [c.sym, s.t0, Fmt.sf(r)]]
-	var out := {"lines": lines, "asked": "Which sentence says what %s′(%d) means here?" % [c.sym, s.t0], "answer": built.answer, "wrongs": built.wrongs, "generic": [],
+	var out := {"lines": lines, "asked": "Which sentence says what %s′(%d) means here?" % [c.sym, s.t0], "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"units-ratio": method([
 			"%s′(t) is d%s/dt, so its units are %s." % [c.sym, c.sym, unit(c)],
 			"It is a rate at one instant, not an amount.",
@@ -176,10 +188,10 @@ func u_units_of_rate(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right: String = unit(c)
 	var built := claim_answer(right, [
 		[c.y, R_UNITS],
-		["%s per %s" % [c.per + "s", c.y.trim_suffix("s") if c.y.ends_with("s") else c.y], ""],
+		["%s per %s" % [c.per + "s", c.y.trim_suffix("s") if c.y.ends_with("s") else c.y], R_UPSIDE_DOWN],
 		["%s per %s²" % [c.y, c.per], ""]])
 	return {"lines": ["The %s is %s, in %s, at time t %s." % [c.what, c.sym, c.y, c.time]],
-		"asked": "Write down the units of d%s/dt." % c.sym, "answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"asked": "Write down the units of d%s/dt." % c.sym, "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"units-ratio": method([
 			"d%s/dt is a change in %s divided by a change in t." % [c.sym, c.sym],
 			"So its units are the units of %s per the units of t." % c.sym,
@@ -195,9 +207,9 @@ func u_write_in_notation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var built := claim_answer(right, [
 		["%s = %s" % [c.sym, Fmt.num(n)], R_VALUE],
 		["d%s/dt = %s" % [c.sym, Fmt.num(-n)], R_SIGN],
-		["dt/d%s = %s" % [c.sym, Fmt.num(n)], ""]])
+		["dt/d%s = %s" % [c.sym, Fmt.num(n)], R_UPSIDE_DOWN]])
 	return {"lines": ["The %s is %s at %d %s." % [c.what, word, mag, unit(c)], "%s is measured in %s, and t in %s." % [c.sym, c.y, c.time]],
-		"asked": "Write this using derivative notation.", "answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"asked": "Write this using derivative notation.", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"sign-direction": method([
 			"A rate is a derivative, here d%s/dt." % c.sym,
 			"%s means it is %s." % [word.capitalize(), "positive" if n > 0 else "negative"],
@@ -220,17 +232,19 @@ func u_compare_rates(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		return "A is %s and B is %s" % [rising(p), rising(q)]
 	var right := "%s, and %s is changing faster." % [move.call(b, d), faster]
 	var ignored := "Both are %s, and %s is changing faster." % [rising(-b) if b * d > 0.0 else "increasing", faster]
+	# Calling the greater signed rate the faster one names the slower here, unless it is the smaller.
+	var signed_slower := (b > d) == (slower == "A")
 	var built := claim_answer(right, [
 		[ignored, R_SIGN],
 		["%s holds more than %s at t = %d." % [faster, slower, s.t0], R_VALUE],
-		["%s, and %s is changing faster." % [move.call(b, d), slower], ""]])
+		["%s, and %s is changing faster." % [move.call(b, d), slower], R_SIGNED if signed_slower else ""]])
 	var lines: Array = ["A(t) and B(t) are two quantities, in %s, t %s after the start." % [c.y, c.time],
 		"A′(%d) = %s and B′(%d) = %s" % [s.t0, bt, s.t0, dt]]
 	var table: Variant = null
 	if rep == "table":
 		lines = ["A(t) and B(t) are two quantities, in %s, t %s after the start." % [c.y, c.time]]
 		table = {"rows": [["", ["A", "B"]], ["rate at t = %d" % s.t0, [bt, dt]]]}
-	return {"lines": lines, "table": table, "asked": "Compare the two rates at t = %d. Which sentence is true?" % s.t0, "answer": built.answer, "wrongs": built.wrongs, "generic": [],
+	return {"lines": lines, "table": table, "asked": "Compare the two rates at t = %d. Which sentence is true?" % s.t0, "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"sign-direction": method([
 			"The sign of each derivative gives the direction: %s." % move.call(b, d),
 			"The size gives the speed: %s is larger in size than %s, so %s is changing faster." % [Fmt.dec(Q.new(roundi(maxf(absf(b), absf(d)) * 10.0), 10)), Fmt.dec(Q.new(roundi(minf(absf(b), absf(d)) * 10.0), 10)), faster],
@@ -262,8 +276,8 @@ func u_limit_of_model(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := limit_ans(s.A)
 	var first: Q = s.A.add(s.B)
 	var out := {"lines": ["%s(t) = %s, t ≥ 0" % [c.sym, model(s)]], "asked": "Find the limit of %s(t) as t → ∞." % c.sym, "answer": ans,
-		"wrongs": [lim_alt(first, R_F_AT_A), dne()],
-		"generic": [lim_alt(Q.new(0)).values, lim_alt(s.B).values, lim_alt(s.A.add(1)).values, lim_alt(s.A.sub(s.B)).values],
+		"wrongs": [lim_alt(first, R_F_AT_A), dne(), lim_alt(Q.new(0), R_ALL_DIES)],
+		"fillers": [lim_alt(s.B).values, lim_alt(s.A.add(1)).values, lim_alt(s.A.sub(s.B)).values],
 		"titles": {"graph-read": "Trace the graph as t grows" if rep == "graph" else "Follow the values as t grows"},
 		"methods": {"graph-read": method([
 			"Follow the curve to large t: it levels off." if rep == "graph" else "Let t grow large: the values level off.",
@@ -288,8 +302,8 @@ func u_limit_of_rate(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := limit_ans(Q.new(0))
 	var start: Q = s.B.mul(s.k).neg()
 	return {"lines": ["%s(t) = %s, t ≥ 0" % [c.sym, model(s)]], "asked": "Find the limit of %s′(t) as t → ∞." % c.sym, "answer": ans,
-		"wrongs": [lim_alt(s.A), dne()],
-		"generic": [lim_alt(start).values, lim_alt(s.A.add(s.B)).values, lim_alt(s.k.neg()).values, lim_alt(Q.new(1)).values],
+		"wrongs": [lim_alt(s.A, R_VALUE), dne(), lim_alt(start, R_F_AT_A)],
+		"fillers": [lim_alt(s.A.add(s.B)).values, lim_alt(s.k.neg()).values, lim_alt(Q.new(1)).values],
 		"titles": {"graph-read": "Follow the values as t grows"},
 		"methods": {"graph-read": method([
 			"%s levels off at large t, so its rate of change dies away." % c.sym,
@@ -318,10 +332,10 @@ func u_limit_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := limit_ans(lim, "The limit is ")
 	var dp: Q = ys[1]
 	var table := {"rows": [["x", xs.map(func(x): return Fmt.dec(x))], ["f(x)", ys.map(func(y): return Fmt.dec(y))]]}
-	var wr: Array = [dne(), DifferentiationViews.alt("The limit is " + Fmt.dec(dp), R_ONE_SIDE)]
+	var wr: Array = [dne(), DifferentiationViews.alt("The limit is " + Fmt.dec(dp), R_ONE_SIDE), lim_alt(Q.new(a), R_X_VALUE)]
 	return {"lines": [rational(s), "f(%s) is not defined. The table gives f(x) close to x = %s." % [Fmt.num(a), Fmt.num(a)]], "table": table,
 		"asked": "Estimate the limit of f(x) as x → %s." % Fmt.num(a), "answer": ans, "wrongs": wr,
-		"generic": [lim_alt(lim.add(1)).values, lim_alt(lim.sub(1)).values, lim_alt(lim.mul(2)).values, lim_alt(Q.new(a)).values],
+		"fillers": [lim_alt(lim.add(1)).values, lim_alt(lim.sub(1)).values, lim_alt(lim.mul(2)).values],
 		"methods": {"table-approach": method([
 			"Read the f(x) row from both ends towards x = %s." % Fmt.num(a),
 			"From the left and from the right the values close in on %s." % Fmt.num(lim),
@@ -351,8 +365,8 @@ func u_limit_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := limit_ans(lim)
 	return {"lines": ["The graph of y = f(x) has a gap at x = %s. The dot shows f(%s)." % [Fmt.num(a), Fmt.num(a)]], "graph": g,
 		"asked": "Write down the limit of f(x) as x → %s." % Fmt.num(a), "answer": ans,
-		"wrongs": [lim_alt(Q.new(y), R_F_AT_A), dne()],
-		"generic": [lim_alt(Q.new(a)).values, lim_alt(lim.add(1)).values, lim_alt(lim.sub(1)).values, lim_alt(lim.neg()).values],
+		"wrongs": [lim_alt(Q.new(y), R_F_AT_A), dne(), lim_alt(Q.new(a), R_X_VALUE)],
+		"fillers": [lim_alt(lim.add(1)).values, lim_alt(lim.sub(1)).values, lim_alt(lim.neg()).values],
 		"methods": {"graph-read": method([
 			"Trace the curve towards x = %s from both sides; ignore the dot." % Fmt.num(a),
 			"The curve heads for the gap at height %s, from the left and from the right." % Fmt.num(lim),

@@ -11758,6 +11758,7 @@ DM_CONTEXTS = [("V", "volume of water in a tank", "litres", "minute", "minutes")
                ("L", "length of a vine on the wall", "cm", "day", "days"), ("C", "charge in a battery bank", "kilowatt-hours", "hour", "hours")]
 DM_I = "SL5.1.interpret-derivative#"
 DM_L = "SL5.1.estimate-limit#"
+DM_OWN = "t5-derivative-meaning#"     # the type's own misconceptions (FAL-815)
 
 
 def dm_model(q):
@@ -11816,13 +11817,13 @@ def check_derivative_meaning(q):
                     need(abs(f(mpmath.mpf(str(x))) - mpmath.mpf(str(yy))) < mpmath.mpf(10) ** -6, "the line drawn is not the tangent")
     elif u == "units-of-rate":
         want = unit
-        wrongs = {DM_I + "2": {y}}
+        wrongs = {DM_I + "2": {y}, DM_OWN + "7": {f"{per}s per {y[:-1] if y.endswith('s') else y}"}}
     elif u == "write-in-notation":
         m = re.fullmatch(rf"The {re.escape(what)} is (increasing|decreasing) at (\d+) {re.escape(unit)}\.", L[0])
         need(m is not None, f"can't read {L[0]!r}")
         n = int(m.group(2)) * (1 if m.group(1) == "increasing" else -1)
         want = f"d{sym}/dt = {dm_num(n)}"
-        wrongs = {DM_I + "0": {f"{sym} = {dm_num(n)}"}, DM_I + "1": {f"d{sym}/dt = {dm_num(-n)}"}}
+        wrongs = {DM_I + "0": {f"{sym} = {dm_num(n)}"}, DM_I + "1": {f"d{sym}/dt = {dm_num(-n)}"}, DM_OWN + "7": {f"dt/d{sym} = {dm_num(n)}"}}
     elif u == "compare-rates":
         t0 = int(g["t0"])
         if rep == "table":
@@ -11838,6 +11839,8 @@ def check_derivative_meaning(q):
         want = f"{move}, and {fast} is changing faster."
         same = dm_word(-b) if b * c > 0 else "increasing"
         wrongs = {DM_I + "1": {f"Both are {same}, and {fast} is changing faster."}, DM_I + "0": {f"{fast} holds more than {slow} at t = {t0}."}}
+        if max(b, c) == (b if slow == "A" else c):         # the greater signed rate is the slower one
+            wrongs[DM_OWN + "6"] = {f"{move}, and {slow} is changing faster."}
     elif u in ("limit-of-model", "limit-of-rate"):
         fn = None
         if rep == "graph":
@@ -11855,7 +11858,16 @@ def check_derivative_meaning(q):
         first = fn.subs(CX, 0)
         lim = sp.limit(fn, CX, sp.oo) if u == "limit-of-model" else sp.limit(sp.diff(fn, CX), CX, sp.oo)
         want = f"The limit is {dm_num(lim)}"
-        wrongs = {DM_L + "0": {"The limit does not exist"}, DM_L + "1": {f"The limit is {dm_num(first)}" if u == "limit-of-model" else f"The limit is {dm_num(sp.limit(fn, CX, sp.oo))}"}}
+        wrongs = {DM_L + "0": {"The limit does not exist"}}
+        if u == "limit-of-model":
+            wrongs[DM_L + "1"] = {f"The limit is {dm_num(first)}"}
+            wrongs[DM_OWN + "8"] = {"The limit is 0"}
+        else:
+            # The rate at the start, and the limit of the quantity itself.
+            start = -R(g["B"]) * R(g["k"])
+            need(abs(sp.N(sp.diff(fn, CX).subs(CX, 0) - start, 30)) < 1e-9, "the given's B and k are not the model's")
+            wrongs[DM_L + "1"] = {"The limit is " + dec_text(start)}
+            wrongs[DM_I + "0"] = {f"The limit is {dm_num(sp.limit(fn, CX, sp.oo))}"}
     else:
         a = int(g["a"])
         if u == "limit-from-graph":
@@ -11885,6 +11897,7 @@ def check_derivative_meaning(q):
                 wrongs = {DM_L + "2": {"The limit is " + dec_text(ys[1])}}
         want = f"The limit is {dm_num(lim)}"
         wrongs[DM_L + "0"] = {"The limit does not exist"}
+        wrongs[DM_OWN + "9"] = {f"The limit is {dm_num(a)}"}
     gc_check_common(q, want, wrongs, trap)
     return None, None
 
@@ -12241,6 +12254,7 @@ IN_L = "SL5.10.linear-composites#"
 IN_I = "SL5.10.inspection-substitution#"
 IN_R = "SL5.10.rewrite-before-integrating#"
 IN_U = sp.Symbol("u")
+IN_OWN = "t5-indefinite-integral#"     # the type's own misconceptions (FAL-815)
 
 
 def in_expr(text):
@@ -12270,21 +12284,28 @@ def in_wrongs(u, g):
     if u == "power-polynomial":
         f = a * x ** 2 + b * x + c
         w[IN_P + "0"] = [a * x ** 3 / 2 + b * x ** 2 + c * x]
+        w[IN_OWN + "14"] = [a * x ** 3 + b * x ** 2 + c * x]
     elif u == "power-negative":
         f = a / x ** n + b * x
         w[IN_P + "0"] = [a * x ** (1 - n) / (-n) + b * x ** 2]
         w[IN_P + "2"] = [a * (n + 1) / x ** (n + 1) + b * x ** 2 / 2, a * sp.log(x ** n) + b * x ** 2 / 2]
     elif u == "power-product":
         f = (x + p) * (x + q)
+        w[IN_OWN + "18"] = [(x ** 2 / 2 + p * x) * (x ** 2 / 2 + q * x)]
     elif u == "standard-exp-trig":
         f = a * sp.exp(x) + b * sp.sin(x) + c * sp.cos(x)
         w[IN_S + "0"] = [a * sp.exp(x) + b * sp.cos(x) + c * sp.sin(x)]
+        w[IN_OWN + "16"] = [a * sp.exp(x) - b * sp.cos(x) - c * sp.sin(x)]
+        w[IN_OWN + "17"] = [sp.diff(f, x)]
     elif u == "standard-reciprocal":
         f = a * x + b + c / x
+        w[IN_OWN + "14"] = [a * x ** 2 + b * x + c * sp.log(x)]
+        w[IN_OWN + "15"] = [a * x ** 2 / 2 + b * x + sp.diff(c / x, x)]
     elif u == "standard-roots":
         e = half if fam == "sqrt" else sp.Rational(1, 3)
         f = a * x ** e + b * x ** (-e)
         w[IN_S + "2"] = [a * (e + 1) * x ** (e + 1) + b * (1 - e) * x ** (1 - e)]
+        w[IN_OWN + "14"] = [a * x ** (e + 1) + b * x ** (1 - e)]
     elif u == "linear-exp":
         f = sp.exp(lin) + c
         w[IN_L + "0"] = [a * sp.exp(lin) + c * x]
@@ -12295,6 +12316,7 @@ def in_wrongs(u, g):
         body = sp.sin(lin) if fam == "cos" else -sp.cos(lin)
         w[IN_L + "0"] = [k * a * body]
         w[IN_L + "1"] = [k * body]
+        w[IN_OWN + "16" if fam == "cos" else IN_S + "0"] = [-k * body / a]
     elif u == "linear-reciprocal":
         f = k / lin
         w[IN_L + "0"] = [k * a * sp.log(lin)]
@@ -12305,6 +12327,7 @@ def in_wrongs(u, g):
         f = k1 * lin ** n1
         w[IN_L + "0"] = [k1 * a * lin ** (n1 + 1) / (n1 + 1)]
         w[IN_L + "1"] = [k1 * lin ** (n1 + 1) / (n1 + 1)]
+        w[IN_P + "0"] = [k1 * lin ** (n1 + 1) / (a * n1)]
     elif u == "inspection-power":
         ins = x ** 2 + a
         top = fam == "top"
@@ -12313,6 +12336,7 @@ def in_wrongs(u, g):
         w[IN_I + "0"] = [sp.Rational(k, e) * x * ins ** e]
         w[IN_I + "1"] = [sp.Rational(k, e) * ins ** e]
         w[IN_I + "2"] = [sp.Rational(k, 2 * e) * IN_U ** e]
+        w[IN_P + "0"] = [sp.Rational(k, 2 * (e - 1)) * ins ** e]      # the bracket's old power, n or −n
     elif u == "inspection-exp":
         ins = x ** 2 + a
         f = k * x * sp.exp(ins)
@@ -12332,9 +12356,15 @@ def in_wrongs(u, g):
         c0 = sp.Rational(-k if sc else k, n + 1)
         w[IN_I + "0"] = [c0 * outer * inn ** (n + 1)]
         w[IN_I + "2"] = [c0 * IN_U ** (n + 1)]
+        sg = -1 if sc else 1
+        w[IN_P + "0"] = [sp.Rational(sg * k, n) * inn ** (n + 1)]
+        w[IN_OWN + "14"] = [sg * k * inn ** (n + 1)]
+        if sc:
+            w[IN_OWN + "19"] = [-c0 * inn ** (n + 1)]
     elif u == "rewrite-fraction":
         f = (a * x ** 2 + b * x + c) / x
         w[IN_R + "0"] = [(sp.Rational(a, 3) * x ** 3 + sp.Rational(b, 2) * x ** 2 + c * x) / (x ** 2 / 2)]
+        w[IN_OWN + "14"] = [a * x ** 2 + b * x + c * sp.log(x)]
     elif u == "rewrite-square":
         if fam == "root":
             f = (a + sp.sqrt(x)) ** 2
@@ -12344,6 +12374,9 @@ def in_wrongs(u, g):
             w[IN_R + "1"] = [sp.exp(2 * x) / 2 + a ** 2 * x]
     elif u == "rewrite-trig-product":
         f = k * sp.sin(x) * sp.cos(x)
+        # Either form: sin x cos x is half of sin 2x, and half the derivative of sin² x.
+        w[IN_S + "0"] = [sp.Rational(k, 4) * sp.cos(2 * x)]
+        w[IN_OWN + "20"] = [-sp.Rational(k, 2) * sp.cos(2 * x), k * sp.sin(x) ** 2]
     else:
         raise Fail(f"no check for {u}")
     return f, w
@@ -34584,6 +34617,7 @@ def E11SP_check(q):
 
 E11DM_SI = "SL5.1.interpret-derivative#"
 E11DM_SR = "SL5.6.rules-with-values#"
+E11DM_OWN = "t5-derivative-model-gdc#"     # the type's own misconceptions (FAL-815)
 E11DM_CTX = [("M", "area of mould on a bunker wall", "cm²", "day", "days"), ("R", "number of rad-rats in the tunnels", "rats", "week", "weeks"),
              ("X", "radiation reading at the dump", "microsieverts", "hour", "hours"), ("C", "amount of coolant in a leaking tank", "litres", "minute", "minutes"),
              ("P", "population of a settlement", "people", "year", "years"), ("V", "area covered by a vine", "m²", "week", "weeks"),
@@ -34861,7 +34895,8 @@ def E11DM_model_unknown(q, u, c, sym, text, fn, T):
         E11DM_ok(x)
         tail = f" {c['y']} per {to}"
         want, trap = "rate = " + E11DM_s(x) + tail, "rate = " + E11DM_s2(x) + tail
-        wrongs = {I + "5": {"rate = " + E11DM_s(r) + tail}, I + "0": {"rate = " + E11DM_s(v / div) + tail}}
+        wrongs = {I + "5": {"rate = " + E11DM_s(r) + tail}, I + "0": {"rate = " + E11DM_s(v / div) + tail},
+                  E11DM_OWN + "18": {"rate = " + E11DM_s(r * div) + tail}}
         E11DM_shows(q, f"÷ {div} = {E11DM_w(x)}")
     elif u == "time-at-rate":
         if rep == "equation":
@@ -34947,6 +34982,9 @@ def E11DM_model_unknown(q, u, c, sym, text, fn, T):
         want, trap = f"{sym} ≈ " + E11DM_s(est), f"{sym} ≈ " + E11DM_s2(est)
         if r < 0:
             wrongs[I + "1"] = {f"{sym} ≈ " + E11DM_s(v - r * mpmath.mpf(h.p) / h.q)}
+        wrongs[E11DM_OWN + "13"] = {f"{sym} ≈ " + E11DM_s(f(mpmath.mpf(t1.p) / t1.q))}
+        wrongs[E11DM_OWN + "14"] = {f"{sym} ≈ " + E11DM_s(v + r)}
+        wrongs[E11DM_OWN + "15"] = {f"{sym} ≈ " + E11DM_s(r * mpmath.mpf(h.p) / h.q)}
         E11DM_shows(q, E11DM_w(v), E11DM_w(r), E11DM_w(est))
     return want, wrongs, trap
 
@@ -35015,6 +35053,7 @@ def E11DM_rates_cross(q, c):
     wrongs = {}
     if over > 0:
         wrongs[E11DM_SI + "0"] = {"total time = " + E11DM_s(over) + tail}
+    wrongs[E11DM_OWN + "16"] = {"total time = " + E11DM_s(T - x) + tail}
     E11DM_shows(q, *[E11DM_w(t) for t in cuts], E11DM_w(x))
     for sol in q["solutions"]:
         if sol["angle"] == "rule-then-substitute":
@@ -35091,11 +35130,11 @@ def E11DM_tail(q):
 
 
 def E11DM_product_wrongs(f, g, df, dg, opt, I, S):
-    return {S + "1": {opt(df * dg)}, S + "2": {opt(df * dg + f * dg)}, I + "0": {opt(f * g)}}
+    return {S + "1": {opt(df * dg)}, S + "2": {opt(df * dg + f * dg)}, I + "0": {opt(f * g)}, E11DM_OWN + "17": {opt(df * g - f * dg)}}
 
 
 def E11DM_quotient_wrongs(f, g, df, dg, opt, S):
-    return {S + "3": {opt(df / dg)}, S + "4": {opt((f * dg - df * g) / g ** 2)}}
+    return {S + "3": {opt(df / dg)}, S + "4": {opt((f * dg - df * g) / g ** 2)}, E11DM_OWN + "12": {opt((df * g - f * dg) / g)}}
 
 
 def E11DM_pieces(q):

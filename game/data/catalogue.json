@@ -54400,7 +54400,8 @@
 						"rate-at-time",
 						"interpret-value",
 						"write-in-notation",
-						"compare-rates"
+						"compare-rates",
+						"limit-of-rate"
 					],
 					"wrong": "the rate read as an amount"
 				},
@@ -54444,7 +54445,8 @@
 					"as": "distractor",
 					"in": [
 						"limit-of-model",
-						"limit-from-graph"
+						"limit-from-graph",
+						"limit-of-rate"
 					],
 					"wrong": "the value at the point, or at the start"
 				},
@@ -54456,6 +54458,40 @@
 						"limit-from-table"
 					],
 					"wrong": "the nearest value on one side"
+				},
+				{
+					"text": "Comparing the rates with their signs, so the larger number is taken as changing faster",
+					"as": "distractor",
+					"in": [
+						"compare-rates"
+					],
+					"wrong": "the larger signed rate called faster"
+				},
+				{
+					"text": "Writing the rate the wrong way up, as time per unit of the quantity",
+					"as": "distractor",
+					"in": [
+						"units-of-rate",
+						"write-in-notation"
+					],
+					"wrong": "t per unit of the quantity"
+				},
+				{
+					"text": "Thinking the whole model dies away to zero, not just its exponential term",
+					"as": "distractor",
+					"in": [
+						"limit-of-model"
+					],
+					"wrong": "zero"
+				},
+				{
+					"text": "Giving the value x approaches instead of the value f(x) approaches",
+					"as": "distractor",
+					"in": [
+						"limit-from-graph",
+						"limit-from-table"
+					],
+					"wrong": "a, the value of x"
 				}
 			],
 			"chain": [
@@ -59265,6 +59301,63 @@
 						"chain-from-graphs"
 					],
 					"wrong": "the outer derivative alone"
+				},
+				{
+					"text": "Dividing by the bottom function instead of its square in the quotient rule",
+					"as": "distractor",
+					"in": [
+						"quotient-from-table"
+					],
+					"wrong": "(f′g − fg′)/g"
+				},
+				{
+					"text": "Finding the model's own value at the new time instead of the tangent's estimate",
+					"as": "distractor",
+					"in": [
+						"tangent-estimate"
+					],
+					"wrong": "the model's value at the later time"
+				},
+				{
+					"text": "Adding the gradient without multiplying it by the step in t",
+					"as": "distractor",
+					"in": [
+						"tangent-estimate"
+					],
+					"wrong": "the value plus the gradient"
+				},
+				{
+					"text": "Giving the change along the tangent without adding the starting value",
+					"as": "distractor",
+					"in": [
+						"tangent-estimate"
+					],
+					"wrong": "the gradient times the step"
+				},
+				{
+					"text": "Adding up the stretches where the rate of B is less than the rate of A",
+					"as": "distractor",
+					"in": [
+						"time-rate-greater"
+					],
+					"wrong": "the rest of the domain"
+				},
+				{
+					"text": "Subtracting the two terms of the product rule instead of adding them",
+					"as": "distractor",
+					"in": [
+						"product-from-table",
+						"product-from-graphs"
+					],
+					"wrong": "f′g − fg′"
+				},
+				{
+					"text": "Multiplying by the number of shorter units instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"rate-other-unit"
+					],
+					"wrong": "the rate times the conversion"
 				}
 			],
 			"chain": [
@@ -62330,7 +62423,11 @@
 					"as": "distractor",
 					"in": [
 						"power-polynomial",
-						"power-negative"
+						"power-negative",
+						"linear-power",
+						"linear-square",
+						"inspection-power",
+						"inspection-trig"
 					],
 					"wrong": "each power divided by n, not n + 1"
 				},
@@ -62359,7 +62456,9 @@
 					"text": "Integrating sin x to cos x, with the wrong sign",
 					"as": "distractor",
 					"in": [
-						"standard-exp-trig"
+						"standard-exp-trig",
+						"linear-trig",
+						"rewrite-trig-product"
 					],
 					"wrong": "−cos x written as cos x"
 				},
@@ -62468,6 +62567,67 @@
 						"rewrite-square"
 					],
 					"wrong": "the middle term of the square left out"
+				},
+				{
+					"text": "Raising the power by one but not dividing by the new power",
+					"as": "distractor",
+					"in": [
+						"power-polynomial",
+						"standard-reciprocal",
+						"standard-roots",
+						"rewrite-fraction",
+						"inspection-trig"
+					],
+					"wrong": "each power raised, with no division"
+				},
+				{
+					"text": "Differentiating the reciprocal term instead of integrating it",
+					"as": "distractor",
+					"in": [
+						"standard-reciprocal"
+					],
+					"wrong": "c/x turned into −c/x²"
+				},
+				{
+					"text": "Integrating cos to −sin, which is what differentiating it gives",
+					"as": "distractor",
+					"in": [
+						"standard-exp-trig",
+						"linear-trig"
+					],
+					"wrong": "the integral of cos with a minus sign"
+				},
+				{
+					"text": "Differentiating every term instead of integrating it",
+					"as": "distractor",
+					"in": [
+						"standard-exp-trig"
+					],
+					"wrong": "the derivative of the integrand"
+				},
+				{
+					"text": "Integrating each bracket on its own and multiplying the results",
+					"as": "distractor",
+					"in": [
+						"power-product"
+					],
+					"wrong": "the product of the two brackets' integrals"
+				},
+				{
+					"text": "Dropping the minus sign that comes from differentiating cos x",
+					"as": "distractor",
+					"in": [
+						"inspection-trig"
+					],
+					"wrong": "the cos power with a plus sign"
+				},
+				{
+					"text": "Losing the factor of a half that sin x cos x carries",
+					"as": "distractor",
+					"in": [
+						"rewrite-trig-product"
+					],
+					"wrong": "twice the answer's number"
 				}
 			],
 			"chain": [
