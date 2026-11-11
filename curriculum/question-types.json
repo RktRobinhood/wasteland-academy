@@ -78841,7 +78841,7 @@
      "wrong": "writes that a square term is > 0 for all x, but it is 0 where its bracket is 0"
     },
     {
-     "text": "Completing the square without taking out the leading coefficient first",
+     "text": "Completing the square without multiplying its constant by the leading coefficient",
      "as": "error-spot",
      "in": [
       "quadratic-derivative",
@@ -79450,7 +79450,7 @@
     },
     {
      "ref": "SL5.5.area-expression#2",
-     "text": "Using the derivative of f as the integrand, or leaving out dx",
+     "text": "Using the derivative of f as the integrand",
      "as": "distractor",
      "in": [
       "integral-from-graph",

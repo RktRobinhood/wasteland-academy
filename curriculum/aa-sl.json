@@ -15141,7 +15141,7 @@
               "misconceptions": [
                 "Using y-values as the limits",
                 "Putting the larger limit at the bottom",
-                "Using the derivative of f as the integrand, or leaving out dx"
+                "Using the derivative of f as the integrand"
               ],
               "threads": [
                 {
