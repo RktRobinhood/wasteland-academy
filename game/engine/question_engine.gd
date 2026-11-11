@@ -162,6 +162,11 @@ static var SITUATIONS := {
 	"basic-probability": [BasicProbabilitySituation, BasicProbabilityViews],
 	"sample-space": [SampleSpaceSituation, SampleSpaceViews],
 	"counting": [CountingSituation, CountingViews],
+	"polynomial-conditions": [PolynomialConditionsSituation, PolynomialConditionsViews],
+	"always-increasing": [AlwaysIncreasingSituation, AlwaysIncreasingViews],
+	"hence-integral": [HenceIntegralSituation, HenceIntegralViews],
+	"integral-gdc": [IntegralGdcSituation, IntegralGdcViews],
+	"area-under-curve": [AreaUnderCurveSituation, AreaUnderCurveViews],
 }
 
 static var _cat: Dictionary = {}

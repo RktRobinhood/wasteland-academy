@@ -487,3 +487,110 @@ func test_the_fight_screen_wears_the_plate_and_shows_the_perk() -> void:
 	check(SaveData.load_from(path).bazaar.perk.is_empty(), "the perk is used up as the run starts")
 	frame.free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+
+# ── The store owner ──────────────────────────────────────────
+
+const KEEPER_DATA := "res://tests/fixtures/art-data/"
+
+
+func _keeper_data(dir: String) -> void:
+	ArtSlots.data_dir = dir
+	ArtSlots.reset()
+
+
+func test_the_store_owner_greets_then_welcomes_back() -> void:
+	_keeper_data(KEEPER_DATA)
+	var data: Dictionary = ArtSlots.data("shopkeeper.json")
+	var made: Array = await _screen(_area(Vector2i(390, 844)), _rich(0))
+	var b: Control = made[1]
+	check(b.bubble != null and b.bubble.visible, "a speech bubble")
+	check(b.line.text in data.lines.first_visit, "the first-visit line: " + b.line.text)
+	check_eq(SaveData.load_from(SAVE).bazaar.met, true, "the save remembers")
+	made[0].free()
+	var again := SaveData.load_from(SAVE)
+	var frame := Control.new()
+	frame.size = _area(Vector2i(390, 844))
+	tree.root.add_child(frame)
+	var b2: Control = (load(BAZAAR) as PackedScene).instantiate()
+	b2.save_path = SAVE
+	b2.save = again
+	frame.add_child(b2)
+	await tree.process_frame
+	check(b2.line.text in data.lines.enter, "the enter line after that: " + b2.line.text)
+	_done([frame])
+	_keeper_data("res://data/")
+
+
+func test_the_store_owner_answers_what_happens() -> void:
+	_keeper_data(KEEPER_DATA)
+	var data: Dictionary = ArtSlots.data("shopkeeper.json")
+	var s := _rich(Tuning.UPGRADES.max_hp[0])
+	var made: Array = await _screen(_area(Vector2i(390, 844)), s)
+	var b: Control = made[1]
+	check(b.buy("max_hp").ok)
+	check(b.line.text in data.lines.buy, "a buy line: " + b.line.text)
+	check(not b.buy("max_hp").ok)
+	check(b.line.text in data.lines.broke, "a broke line: " + b.line.text)
+	# A disabled button still answers a click with the line.
+	b.say("enter")
+	var tap := InputEventMouseButton.new()
+	tap.button_index = MOUSE_BUTTON_LEFT
+	tap.pressed = true
+	(b.buttons.max_hp as Button).gui_input.emit(tap)
+	check(b.line.text in data.lines.broke, "a click on a button it can't buy: " + b.line.text)
+	check_eq(b.message.text, Bazaar.NOT_ENOUGH)
+	# At the cap.
+	b.save.scrap = 1_000_000
+	while Bazaar.price(b.save, "max_hp") >= 0:
+		Bazaar.buy(b.save, "max_hp")
+	b.say("enter")
+	check(not b.buy("max_hp").ok)
+	check_eq(b.line.text, data.lines.capped[0], "the capped line")
+	check_eq(b.say("capped"), "", "never the same line twice in a row")
+	check_eq(b.line.text, data.lines.capped[0], "the line stays")
+	# Now and then an idle line.
+	b._process(b.IDLE_LINE_EVERY + 0.1)
+	check(b.line.text in data.lines.idle, "an idle line: " + b.line.text)
+	# On the way out.
+	b.leave()
+	check(b.line.text in data.lines.leave, "a leave line: " + b.line.text)
+	check(b._leaving, "the map waits for the line")
+	_done(made)
+	_keeper_data("res://data/")
+
+
+func test_the_store_owner_never_says_a_line_twice_in_a_row() -> void:
+	_keeper_data(KEEPER_DATA)
+	var made: Array = await _screen(_area(Vector2i(390, 844)), _rich(0))
+	var b: Control = made[1]
+	var last: String = b.line.text
+	for i in 60:
+		var moment: String = ["enter", "idle", "buy", "broke", "leave"][i % 5 if i < 30 else 0]
+		var said: String = b.say(moment)
+		check(said != "" and said != last, "%s after '%s': '%s'" % [moment, last, said])
+		last = said
+	_done(made)
+	_keeper_data("res://data/")
+
+
+func test_no_lines_file_means_no_bubble() -> void:
+	_keeper_data("res://tests/fixtures/no-art/")
+	var made: Array = await _screen(_area(Vector2i(390, 844)), _rich(0))
+	var b: Control = made[1]
+	check(b.bubble == null, "no bubble")
+	check(b.find_child("Keeper", true, false) == null, "no store owner row with no art and no lines")
+	check_eq(b.say("enter"), "")
+	check(not SaveData.load_from(SAVE).bazaar.met, "the first visit waits for the lines")
+	_done(made)
+	_keeper_data("res://data/")
+
+
+func test_the_real_lines_file_keeps_the_schema() -> void:
+	var data = JSON.parse_string(FileAccess.get_file_as_string("res://data/shopkeeper.json"))
+	check(data is Dictionary and data.get("name") is String, "a name")
+	for m in load("res://ui/bazaar.gd").MOMENTS:
+		var got = data.lines.get(m)
+		check(got is Array and not got.is_empty(), m + " has lines")
+		for l in got:
+			check(l is String and l.length() <= 90, "%s: %d characters: %s" % [m, l.length(), l])

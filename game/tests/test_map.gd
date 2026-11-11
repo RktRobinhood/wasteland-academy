@@ -3,9 +3,12 @@ extends "res://tests/test_case.gd"
 ## and the weakest skills against hand counts on scripted saves; the world map, the
 ## Functions island and the region screen, "coming soon" for a region with nothing
 ## built, the music each screen asks for, the fit on a phone and a PC window, and the
-## world map opening the Bazaar (FAL-416) and leaving it going back there. The island
-## as a hub (FAL-533): the plan's spots with no buttons overlapping, roads that branch
-## from the tower, glyphs in place of numbers, and SPARK's pick (Progress.suggest()).
+## world map opening the Bazaar (FAL-416) from its place and leaving it going back there.
+## The island as a hub (FAL-533): the plan's spots with no buttons overlapping, glyphs in
+## place of numbers, and SPARK's pick (Progress.suggest()). The FAL-783 layers (FAL-790):
+## no roads and no footer, names only on a card shown by hover, focus or a tap (two taps
+## on touch), painted places on a fixture background, the zoom between layers and the
+## region screen over its backdrop.
 
 const MAP := "res://scenes/map.tscn"
 const FIGHT := "res://scenes/fight.tscn"
@@ -303,16 +306,23 @@ func test_the_world_map() -> void:
 	var board: Control = m.world_board
 	var fn := board.get_node("Island_functions") as Button
 	check(not fn.disabled, "the Signal Tower is open")
+	check_eq(_card_of(m, fn), "Signal Tower · Functions")
 	for id in ["algebra", "geometry", "stats", "calculus"]:
 		var b := board.get_node("Island_" + id) as Button
 		check(b.disabled, id + " is closed")
-		check_eq((b.get_node("Label/State") as Label).text, "Coming later", id)
-	check((board.get_node("Thunderdome") as Button).disabled, "the Thunderdome waits for a second island")
-	check((board.get_node("RelicLibrary") as Button).disabled, "the Relic Library spot is locked")
-	var shop := m.world.get_node("Footer/Bazaar") as Button
-	check(not shop.disabled and shop.is_visible_in_tree(), "the Bazaar is open")
-	check_eq(shop.text, "Bazaar · 0 Scrap")
-	check(shop.pressed.is_connected(m.open_bazaar), "it opens the Bazaar")
+		check_eq(_card_of(m, b).get_slice(" · ", 1), "Coming soon", id)
+	var td := board.get_node("Thunderdome") as Button
+	check(td.disabled, "the Thunderdome waits for a second island")
+	check_eq(_card_of(m, td), "Thunderdome · Locked")
+	var lib := board.get_node("RelicLibrary") as Button
+	check(lib.disabled, "the Relic Library spot is locked")
+	check_eq(_card_of(m, lib), "Relic Library · Locked")
+	var shop := board.get_node("Bazaar") as Button
+	check(not shop.disabled, "the Bazaar is open")
+	check_eq(_card_of(m, shop), "Bazaar · 0 Scrap")
+	check(shop.get_node_or_null("Marker") != null, "a coded marker until the painting has the Bazaar")
+	check(m.world.get_node_or_null("Footer") == null, "no bar under the board")
+	check_eq((m.world.get_node("Header").get_child(0).get_node("Scrap") as Label).text, "Scrap: 0", "the Scrap in the header")
 	check_eq(Audio.location(), "overworld", "the overworld loop")
 	_done(made)
 
@@ -322,9 +332,18 @@ func test_the_world_map_opens_the_bazaar_and_leaving_it_goes_back() -> void:
 	save.scrap = 1240
 	var made: Array = await _map({"screen": "world"}, save)
 	var m: Control = made[1]
-	var shop := m.world.get_node("Footer/Bazaar") as Button
-	check_eq(shop.text, "Bazaar · 1240 Scrap", "the Scrap to spend")
+	var shop := m.world_board.get_node("Bazaar") as Button
+	check_eq(_card_of(m, shop), "Bazaar · 1240 Scrap", "the Scrap to spend")
+	check_eq(shop.tooltip_text, "Bazaar · 1240 Scrap")
+	check_eq((m.world.get_node("Header").get_child(0).get_node("Scrap") as Label).text, "Scrap: 1240")
+	# The Bazaar's zone, as the FAL-783 plan has it.
+	var zone: Rect2 = preload("res://ui/map.gd").BAZAAR_ZONE
+	check_eq(zone, Rect2(17, 90, 26, 14))
+	check(Rect2(Vector2.ZERO, m.BOARD).encloses(Rect2(shop.position, shop.size)), "the Bazaar is on the board")
+	# A click goes in, zooming into the Bazaar first.
 	shop.pressed.emit()
+	check(m._zooming, "the board zooms into the Bazaar")
+	await tree.create_timer(m.ZOOM_TIME + 0.1).timeout
 	for i in 3:
 		await tree.process_frame
 	check_eq(MapLink.current, MapLink.BAZAAR_ROUTE, "the route")
@@ -333,7 +352,7 @@ func test_the_world_map_opens_the_bazaar_and_leaving_it_goes_back() -> void:
 	if bazaar != null and bazaar.scene_file_path == BAZAAR:
 		var back := bazaar.find_child("Back", true, false) as Button
 		check_eq(back.text, "World map")
-		back.pressed.emit()
+		bazaar.leave(true)
 		for i in 3:
 			await tree.process_frame
 		var map := tree.current_scene
@@ -359,15 +378,17 @@ func test_the_functions_island() -> void:
 		if c.name.begins_with("Spot_"):
 			spots.append(String(c.name).trim_prefix("Spot_"))
 	check_eq(spots, MapLink.region_ids() + ["all", "relic"], "8 regions in order, the all-regions dungeon, the Relic device")
-	check((board.get_node("Spot_relic") as Button).disabled, "the Relic device is locked")
-	check_eq((board.get_node("Spot_quadratics/Box/State") as Label).text, "Floor 2 · 100%")
+	var buttons := _spot_buttons(m)
+	check(buttons.relic.disabled, "the Relic device is locked")
+	check_eq(_card_of(m, buttons.relic), "Relic device · Locked")
+	check_eq(_card_of(m, buttons.quadratics), "Quadratics · Floor 2 · 100%")
 	for id in MapLink.region_ids():
-		var line := (board.get_node("Spot_%s/Box/State" % id) as Label).text
+		var line := _card_of(m, buttons[id]).trim_prefix(Dungeon.region_name(id) + " · ")
 		check_eq(line == "Coming soon", not Progress.is_built(id), "%s: %s" % [id, line])
 		check_eq(m.spot_state(id) == "locked", not Progress.is_built(id), id)
 	# No island art yet: the coded ground and coded landmarks.
 	check(board.get_node_or_null("Ground") != null, "the coded ground")
-	check(board.get_node_or_null("Spot_quadratics/Box/Landmark/Coded") != null, "the coded landmark")
+	check(board.get_node_or_null("Spot_quadratics/Landmark/Coded") != null, "the coded landmark")
 	check_eq(Audio.location(), "signal-tower", "the island's loop")
 	_done(made)
 
@@ -381,13 +402,28 @@ func _spot_buttons(m: Control) -> Dictionary:
 	return out
 
 
+## What a place's card says, "Name · line", shown by hovering it (then put away).
+func _card_of(m: Control, b: Button) -> String:
+	m.show_card(b)
+	var card := b.get_parent().get_node("Card") as Control
+	var said := "%s · %s" % [(card.get_node("Box/Name") as Label).text, (card.get_node("Box/Line") as Label).text]
+	m._hide_card()
+	return said
+
+
+## The board's labels a player can see, other than the card's.
+func _board_text(board: Control) -> Array:
+	return board.find_children("*", "Label", true, false).filter(func(l): return l.is_visible_in_tree() \
+		and not board.get_node("Card").is_ancestor_of(l)).map(func(l): return (l as Label).text)
+
+
 func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
 	var map_script := preload("res://ui/map.gd")
 	check_eq(map_script.SPOTS, {
 		"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
 		"graphs-features": Vector2(79, 65), "lines": Vector2(21, 27), "rational": Vector2(79, 28),
-		"composite-inverse": Vector2(25, 8), "transformations": Vector2(75, 9), "all": Vector2(50, 46),
-		"relic": Vector2(12, 50)}, "the FAL-531 plan's table")
+		"composite-inverse": Vector2(25, 10), "transformations": Vector2(75, 10), "all": Vector2(50, 46),
+		"relic": Vector2(12, 50)}, "the FAL-783 plan's table")
 	var made: Array = await _map({"screen": "island", "island": "functions"})
 	var m: Control = made[1]
 	var buttons := _spot_buttons(m)
@@ -396,62 +432,171 @@ func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
 	for id in buttons:
 		var b: Button = buttons[id]
 		var r := Rect2(b.position, b.size)
-		var box: float = map_script.RELIC_LANDMARK if id == "relic" else map_script.LANDMARK
+		var side: float = map_script.RELIC_HIT if id == "relic" else map_script.HIT
 		var centre: Vector2 = map_script.SPOTS[id] * map_script.BOARD / 100.0
-		check((r.position + Vector2(r.size.x / 2.0, box / 2.0)).distance_to(centre) < 0.5, "%s's landmark is centred on its spot" % id)
+		check(r.get_center().distance_to(centre) < 0.5, "%s's square is centred on its spot" % id)
+		check(r.size.is_equal_approx(Vector2(side, side)), "%s's square: %s" % [id, r.size])
 		check(board.encloses(r), "%s %s is on the board" % [id, r])
-		check_eq((b.get_node("Box/Landmark") as Control).custom_minimum_size.y, box, id + "'s landmark box")
 		for other in buttons:
 			if other < id:
 				var o: Button = buttons[other]
 				check(not r.intersects(Rect2(o.position, o.size)), "%s and %s overlap" % [id, other])
-	var relic: Button = buttons.relic
-	check(relic.size.x <= 200.0, "the Relic device's button is small: %s" % relic.size)
-	check(relic.get_node_or_null("Box/State") == null, "the Relic device shows its name only")
-	check((relic.get_node("Box/Name") as Label).get_minimum_size().x <= relic.size.x, "its name fits")
 	_done(made)
 
 
-func test_the_roads_branch_from_the_tower() -> void:
+func test_no_roads_on_the_island() -> void:
 	var map_script := preload("res://ui/map.gd")
-	var roads: Array = map_script.roads()
-	var ends := {}
-	for r in roads:
-		for e in r:
-			check(e == "landing" or map_script.SPOTS.has(e), "a road ends at a spot or the landing: " + e)
-	# A spoke from the tower to every spot, and the road up from the landing.
-	for id in map_script.SPOTS:
-		if id != "all":
-			check(roads.has(["all", id]), "a spoke to " + id)
-	check(roads.has(["landing", "all"]), "the landing's road to the tower")
-	# The loop: each region linked to the two neighbours in the plan's table.
-	var neighbours := {
-		"quadratics": ["exp-log", "function-basics"], "exp-log": ["quadratics", "graphs-features"],
-		"function-basics": ["quadratics", "lines"], "graphs-features": ["exp-log", "rational"],
-		"lines": ["function-basics", "composite-inverse"], "rational": ["graphs-features", "transformations"],
-		"composite-inverse": ["lines", "transformations"], "transformations": ["composite-inverse", "rational"],
-	}
-	for id in neighbours:
-		var got: Array = []
-		for r in roads:
-			if not r.has("all") and r.has(id):
-				got.append(r[1] if r[0] == id else r[0])
-		got.sort()
-		var want: Array = neighbours[id].duplicate()
-		want.sort()
-		check_eq(got, want, id + "'s neighbours on the loop")
-	# Every road links to the tower: from it, the roads reach every end.
-	var reached := {"all": true}
-	for pass_ in roads.size():
-		for r in roads:
-			if reached.has(r[0]) or reached.has(r[1]):
-				reached[r[0]] = true
-				reached[r[1]] = true
-	for r in roads:
-		check(reached.has(r[0]) and reached.has(r[1]), "%s reaches the tower" % [r])
+	check(not (map_script as GDScript).get_script_method_list().any(func(f): return f.name == "roads"), "no roads()")
 	var made: Array = await _map({"screen": "island", "island": "functions"})
-	var drawn: Control = made[1].island_board.get_node("Ground/Roads")
-	check_eq(drawn.lines.size(), roads.size(), "the coded ground draws every road")
+	var board: Control = made[1].island_board
+	check(board.find_child("Roads", true, false) == null, "no road node")
+	check(board.get_node_or_null("Ground/Jetty") != null, "the jetty dot stays")
+	_done(made)
+
+
+func test_names_hide_until_a_place_is_hovered_focused_or_tapped() -> void:
+	var save := SaveData.blank()
+	save.scrap = 75
+	for r in [{"screen": "world"}, {"screen": "island", "island": "functions"}]:
+		var made: Array = await _map(r, save)
+		var m: Control = made[1]
+		var board: Control = m.world_board if r.screen == "world" else m.island_board
+		var card := board.get_node("Card") as Control
+		var places: Array = board.get_children().filter(func(c): return c is Button)
+		var names: Array = places.map(func(b): return (b.get_meta("card") as Array)[0])
+		check(not card.visible, "%s: no card at first" % r.screen)
+		check(m.get_viewport().gui_get_focus_owner() in places, "%s: first focus on a place" % r.screen)
+		for t in _board_text(board):
+			check(not t in names, "%s: '%s' shows on the board" % [r.screen, t])
+			check(not t.contains("Coming") and not t.contains("Locked") and not t.contains("Scrap"), "%s: '%s' on the board" % [r.screen, t])
+		for b in places:
+			check(b.accessibility_name.begins_with((b.get_meta("card") as Array)[0] + ": "), "%s: %s's name for screen readers" % [r.screen, b.name])
+			check(b.tooltip_text != "", "%s: %s's tooltip" % [r.screen, b.name])
+		# The mouse: hovering shows the card by the place, and leaving puts it away.
+		m._input(_mouse_motion())
+		var b: Button = places[1]
+		b.mouse_entered.emit()
+		check(card.visible, "%s: hover shows the card" % r.screen)
+		check_eq((card.get_node("Box/Name") as Label).text, (b.get_meta("card") as Array)[0])
+		check((b.get_node("Glow") as Control).visible, "the place lights up")
+		check(Rect2(Vector2.ZERO, m.BOARD).encloses(Rect2(card.position, card.size)), "%s: the card is on the board" % r.screen)
+		b.mouse_exited.emit()
+		check(not card.visible, "%s: leaving puts it away" % r.screen)
+		# The keyboard: focus shows it, and Tab moves between places.
+		var k: Button = places[2]
+		m._input(_key(KEY_TAB))
+		k.grab_focus()
+		check(card.visible and card.get_node("Box/Name").text == (k.get_meta("card") as Array)[0], "%s: focus shows the card" % r.screen)
+		check(k.find_next_valid_focus() in places, "%s: Tab moves to another place" % r.screen)
+		check(card.focus_mode == Control.FOCUS_NONE, "the card never takes focus")
+		_done(made)
+
+
+func test_a_touch_shows_the_card_then_a_second_tap_goes_in() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	var made: Array = await _map({"screen": "island", "island": "functions"}, save)
+	var m: Control = made[1]
+	var was := tree.current_scene
+	m.reparent(tree.root)
+	tree.current_scene = m
+	var open := _open_regions()
+	var b: Button = _spot_buttons(m)[open[0]]
+	m._input(_touch())
+	check(m.touch, "a finger")
+	b.pressed.emit()
+	check_eq(m.screen, "island", "the first tap stays on the island")
+	var card := m.island_board.get_node("Card") as Control
+	check(card.visible and m.card_for == b, "the first tap shows the card")
+	check((b.get_node("Glow") as Control).visible, "and lights the place")
+	# A tap on another place moves the card there; it doesn't go in either.
+	var other: Button = _spot_buttons(m)["all"]
+	other.pressed.emit()
+	check_eq(m.screen, "island")
+	check(m.card_for == other, "the card moves")
+	check(not (b.get_node("Glow") as Control).visible, "the first place goes dark")
+	other.pressed.emit()
+	check_eq(m.route.get("region"), "all", "the second tap on the place goes in")
+	m.show_route({"screen": "island", "island": "functions"})
+	await tree.process_frame
+	# A tap on the card goes in too.
+	b = _spot_buttons(m)[open[0]]
+	b.pressed.emit()
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	(m.island_board.get_node("Card") as Control).gui_input.emit(release)
+	check_eq(m.route.get("region"), open[0], "a tap on the card goes in")
+	m.show_route({"screen": "island", "island": "functions"})
+	await tree.process_frame
+	# A closed place shows its card on a tap and never goes in.
+	var relic: Button = _spot_buttons(m).relic
+	var tap := InputEventMouseButton.new()
+	tap.button_index = MOUSE_BUTTON_LEFT
+	tap.pressed = true
+	relic.gui_input.emit(tap)
+	check(m.card_for == relic and m.island_board.get_node("Card").visible, "the Relic device's card")
+	m.press_card()
+	check_eq(m.screen, "island", "the Relic device stays shut")
+	# A mouse again: one click goes in.
+	m._input(_mouse_motion())
+	check(not m.touch, "a mouse")
+	_spot_buttons(m)[open[0]].pressed.emit()
+	check_eq(m.route.get("region"), open[0], "a click goes in")
+	tree.current_scene = was
+	m.free()
+	_done(made)
+
+
+func _mouse_motion() -> InputEventMouseMotion:
+	var e := InputEventMouseMotion.new()
+	e.device = 0
+	return e
+
+
+func _touch() -> InputEventScreenTouch:
+	var e := InputEventScreenTouch.new()
+	e.pressed = true
+	return e
+
+
+func _key(code: Key) -> InputEventKey:
+	var e := InputEventKey.new()
+	e.keycode = code
+	e.pressed = true
+	return e
+
+
+func test_painted_places_on_a_background() -> void:
+	var save := SaveData.blank()
+	var open := _open_regions()
+	for f in [1, 2, 3]:
+		Dungeon.note_floor(save, open[0], f, true)
+	_answer(save, open[0], 3, 3)
+	var made: Array = await _map({"screen": "island", "island": "functions"}, save, Vector2(1080, 1920),
+		"res://tests/fixtures/art/map/painted/")
+	var m: Control = made[1]
+	check_eq(m.background_path(), "res://tests/fixtures/art/map/painted/background.png")
+	var board: Control = m.island_board
+	check(board.get_node_or_null("Art") != null and board.get_node_or_null("Ground") == null, "the painting, no coded ground")
+	var buttons := _spot_buttons(m)
+	for id in buttons:
+		var b: Button = buttons[id]
+		check(b.get_node_or_null("Landmark") == null, id + ": no ring over the painting")
+		var state: String = "locked" if id == "relic" else m.spot_state(id)
+		check_eq(b.get_node_or_null("Padlock") != null, state == "locked", id + ": a padlock when locked")
+		check_eq(b.get_node_or_null("Wash") != null, state == "locked", id + ": a dark wash when locked")
+		check_eq(b.get_node_or_null("Flag") != null, state == "cleared", id + ": a flag when cleared")
+		check(b.flat and b.text == "", id + ": an invisible hit area")
+	check_eq(m.spot_state(open[0]), "cleared", "a cleared region to flag")
+	check(buttons[open[0]].size.is_equal_approx(Vector2(300, 300)), "a region's square")
+	check(buttons.relic.size.is_equal_approx(Vector2(160, 160)), "the relic's square")
+	check(_board_text(board).is_empty(), "no text on the painting: %s" % [_board_text(board)])
+	_done(made)
+	# A landmark PNG still draws over a painting, as on the coded look.
+	made = await _map({"screen": "island", "island": "functions"}, {}, Vector2(1080, 1920),
+		"res://tests/fixtures/art/map/functions/")
+	check(_spot_buttons(made[1]).quadratics.get_node_or_null("Landmark/Art") != null, "the fixture's landmark art")
 	_done(made)
 
 
@@ -460,13 +605,15 @@ func test_the_coded_landmarks_show_glyphs_not_numbers() -> void:
 	var made: Array = await _map({"screen": "island", "island": "functions"})
 	var buttons := _spot_buttons(made[1])
 	for id in buttons:
-		var mark := buttons[id].get_node("Box/Landmark/Coded/Mark") as Label
+		var mark := buttons[id].get_node("Landmark/Coded/Mark") as Label
 		check_eq(mark.text, map_script.GLYPHS[id], id + "'s glyph, not its initials")
 		check(not mark.text.is_valid_int(), "%s: no number (%s)" % [id, mark.text])
 		for i in mark.text.length():
 			check(UiTheme.TITLE_FONT.has_char(mark.text.unicode_at(i)), "%s: the title font draws '%s'" % [id, mark.text[i]])
 		var ring := mark.get_parent() as Control
 		check(mark.get_minimum_size().x <= ring.custom_minimum_size.x - 20.0, "%s's glyph fits its ring" % id)
+		if id != "relic":
+			check(ring.custom_minimum_size.x >= 240.0, "%s's ring is bigger with no label under it" % id)
 	_done(made)
 	# A glyph the font can't draw falls back to the region's initials.
 	check_eq(map_script.mark("graphs-features", "f⁻¹"), "GKF", "superscript letters fall back")
@@ -486,24 +633,12 @@ func test_sparks_pick_gets_the_beacon_its_line_and_first_focus() -> void:
 	var buttons := _spot_buttons(m)
 	for id in buttons:
 		check_eq(buttons[id].get_node_or_null("Beacon") != null, id == open[1], id + ": a beacon only on the pick")
-	var line := (buttons[open[1]].get_node("Box/State") as Label).text
-	check_eq(line.replace("\n", " · "), "Not tried yet · SPARK's pick")
-	check_eq((buttons[open[0]].get_node("Box/State") as Label).text, "67%", "the tried region's line has no pick")
+	check(buttons[open[1]].get_node("Beacon").visible, "the beacon is on all the time")
+	check_eq(_card_of(m, buttons[open[1]]), Dungeon.region_name(open[1]) + " · Not tried yet · SPARK's pick")
+	check_eq(_card_of(m, buttons[open[0]]), Dungeon.region_name(open[0]) + " · 67%", "the tried region's line has no pick")
 	check_eq(m.get_viewport().gui_get_focus_owner(), buttons[open[1]], "first focus on the pick")
+	check(not m.island_board.get_node("Card").visible, "the first focus shows no card")
 	check(not buttons[open[0]].disabled, "the region tried stays open: a pick is never a gate")
-	_done(made)
-	# A cleared pick with a long line breaks before "SPARK's pick" to stay on its spot.
-	var low := SaveData.blank()
-	for id in open:
-		_answer(low, id, 3, 3)
-	_answer(low, open[0], 0, 20)
-	for f in [1, 2, 3]:
-		Dungeon.note_floor(low, open[0], f, true)
-	made = await _map({"screen": "island", "island": "functions"}, low)
-	var b: Button = _spot_buttons(made[1])[open[0]]
-	var state := b.get_node("Box/State") as Label
-	check_eq(state.text.replace("\n", " · "), "Floor 3 · %d%% · Cleared · SPARK's pick" % Progress.accuracy(low, open[0]).percent)
-	check(state.get_minimum_size().x <= b.size.x, "the line fits its spot: %s" % state.get_minimum_size())
 	_done(made)
 
 
@@ -512,14 +647,16 @@ func test_the_beacon_shows_over_landmark_art() -> void:
 	var made: Array = await _map({"screen": "island", "island": "functions"}, {}, Vector2(1080, 1920),
 		"res://tests/fixtures/art/map/functions/")
 	var b: Button = _spot_buttons(made[1])[open[0]]
-	check(b.get_node_or_null("Box/Landmark/Art") != null, "the fixture's landmark art")
+	check(b.get_node_or_null("Landmark/Art") != null, "the fixture's landmark art")
 	var beacon := b.get_node_or_null("Beacon")
-	check(beacon != null and beacon.get_index() > b.get_node("Box").get_index(), "the beacon, drawn over the art")
+	check(beacon != null and beacon.get_index() > b.get_node("Landmark").get_index(), "the beacon, drawn over the art")
 	_done(made)
 
 
 func test_every_open_region_still_opens_its_screen() -> void:
-	var made: Array = await _map({"screen": "island", "island": "functions"})
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	var made: Array = await _map({"screen": "island", "island": "functions"}, save)
 	var m: Control = made[1]
 	# The map as the scene on screen, so a press shows the route in it.
 	var was := tree.current_scene
@@ -530,7 +667,7 @@ func test_every_open_region_still_opens_its_screen() -> void:
 		var b: Button = buttons[id]
 		check(not b.disabled, id + " is enabled")
 		b.pressed.emit()
-		check_eq(m.screen, "region", id)
+		check_eq(m.screen, "region", id + ": reduced motion cuts straight in")
 		check_eq(m.route.get("region"), id, id + "'s screen")
 		m.show_route({"screen": "island", "island": "functions"})
 		await tree.process_frame
@@ -538,6 +675,59 @@ func test_every_open_region_still_opens_its_screen() -> void:
 	tree.current_scene = was
 	m.free()
 	_done(made)
+
+
+func test_going_in_zooms_into_the_place_and_back_zooms_out() -> void:
+	var made: Array = await _map({"screen": "world"})
+	var m: Control = made[1]
+	var was := tree.current_scene
+	m.reparent(tree.root)
+	tree.current_scene = m
+	var fitted: Vector2 = m.world_board.scale
+	(m.world_board.get_node("Island_functions") as Button).pressed.emit()
+	check_eq(m.screen, "world", "the world stays while the board zooms")
+	await tree.create_timer(m.ZOOM_TIME / 2.0).timeout
+	check(m.world_board.scale.x > fitted.x * 1.05, "the board scales up: %s" % m.world_board.scale)
+	await tree.create_timer(m.ZOOM_TIME / 2.0 + 0.1).timeout
+	check_eq(m.screen, "island", "then the island")
+	check(m.island.modulate.a < 1.0, "fading in")
+	await tree.create_timer(m.FADE_TIME + 0.1).timeout
+	check(is_equal_approx(m.island.modulate.a, 1.0), "faded in")
+	# Back (the header, or the browser through MapLink) zooms the world out of the island.
+	m.show_route(MapLink.WORLD)
+	check(m.world_board.scale.x > fitted.x * 1.5, "the world starts zoomed in on the island")
+	await tree.create_timer(m.ZOOM_TIME + 0.1).timeout
+	check(m.world_board.scale.is_equal_approx(fitted), "and zooms out: %s" % m.world_board.scale)
+	# Reduced motion cuts.
+	m.save.settings.reduced_motion = true
+	m.show_route({"screen": "island", "island": "functions"})
+	check(is_equal_approx(m.island.modulate.a, 1.0), "no fade with reduced motion")
+	m.show_route(MapLink.WORLD)
+	check(m.world_board.scale.is_equal_approx(fitted), "no zoom with reduced motion")
+	tree.current_scene = was
+	m.free()
+	_done(made)
+
+
+func test_the_region_screen_sits_over_its_backdrop() -> void:
+	ArtSlots.root = "res://tests/fixtures/art/"
+	var made: Array = await _map(MapLink.region_route("quadratics"))
+	var m: Control = made[1]
+	var art: TextureRect = m.region_backdrop
+	check(art.visible and art.texture.resource_path == "res://tests/fixtures/art/regions/quadratics/backdrop.png", "the region's backdrop")
+	check_eq(art.stretch_mode, TextureRect.STRETCH_KEEP_ASPECT_COVERED, "cover-fitted")
+	check(art.get_index() < m.region_margin.get_index(), "behind the screen")
+	check((art.get_node("Wash") as ColorRect).color.a >= 0.69, "washed so the text keeps 4.5:1")
+	_done(made)
+	ArtSlots.root = "res://assets/"
+	made = await _map(MapLink.region_route("quadratics"))
+	check(made[1].region_backdrop.visible, "the game's own backdrop")
+	_done(made)
+	ArtSlots.root = "res://tests/fixtures/no-art/"
+	made = await _map(MapLink.region_route("quadratics"))
+	check(not made[1].region_backdrop.visible, "no backdrop, the plain background")
+	_done(made)
+	ArtSlots.root = "res://assets/"
 
 
 func test_a_region_screen_shows_progress_and_its_start_buttons() -> void:
@@ -700,7 +890,7 @@ func test_every_screen_fits_a_phone_and_a_pc_window() -> void:
 				var head: Control = (m.world if r.screen == "world" else m.island).get_node("Header")
 				check(head.get_global_rect().end.y <= board.get_global_rect().position.y + 1.0, "%s: the header overlaps the board" % what)
 				if r.screen == "world":
-					var shop := m.world.get_node("Footer/Bazaar") as Control
-					check(screen.encloses(shop.get_global_rect()), "%s: the Bazaar button outside" % what)
-					check(shop.get_global_rect().position.y >= board.get_global_rect().end.y - 1.0, "%s: the Bazaar button overlaps the board" % what)
+					check(m.world.get_node_or_null("Footer") == null, "%s: no bar under the board" % what)
+					var scrap := m.world.get_node("Header").get_child(0).get_node("Scrap") as Control
+					check(screen.encloses(scrap.get_global_rect()), "%s: the Scrap count outside" % what)
 			_done(made)

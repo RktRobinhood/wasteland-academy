@@ -6,8 +6,15 @@ extends Control
 ## it goes back to the world map.
 ##
 ## Art by file name (FAL-470, engine/art_slots.gd): the stall behind the screen, the
-## shopkeeper by the title (with an idle frame now and then), and an icon beside each
+## shopkeeper under the title (with an idle frame now and then), and an icon beside each
 ## upgrade, each perk and the Scrap count. Each one missing keeps the look from before.
+##
+## The store owner talks (FAL-790): data/shopkeeper.json (written on FAL-789) has their
+## name and lines by moment, shown in a speech bubble by the portrait: first_visit the
+## first time (bazaar.met in the save), enter after that, buy after a purchase, broke
+## and capped when a purchase can't go through for want of Scrap or at a cap, idle now
+## and then, and leave on the way out. Never the same line twice in a row. No file, no
+## bubble; no art, no portrait.
 ##
 ## Links: /next/#bazaar is its map link (engine/map_link.gd), so the browser's back
 ## button leaves it. /next/?bazaar opens it too; /next/?bazaar=demo opens it on a
@@ -21,10 +28,17 @@ const COLUMN_WIDE := 2500
 const SHELF := Color(0.1, 0.125, 0.17)
 ## Item and Scrap icons, and the shopkeeper, in base units.
 const ICON := 96
-const SHOPKEEPER := 200
+const SHOPKEEPER := 360
 ## The shopkeeper shows the idle frame for IDLE_FOR seconds every IDLE_EVERY.
 const IDLE_EVERY := 4.0
 const IDLE_FOR := 0.6
+## The store owner's lines, and the moments they're said at.
+const LINES := "shopkeeper.json"
+const MOMENTS := ["first_visit", "enter", "idle", "buy", "broke", "capped", "leave"]
+## An idle line comes after this many seconds with nothing said.
+const IDLE_LINE_EVERY := 30.0
+## How long the leave line shows before the world map.
+const LEAVE_FOR := 1.2
 
 ## Where the save lives. "" stores nothing (the demo).
 var save_path := SaveData.PATH
@@ -38,6 +52,13 @@ var shopkeeper: TextureRect
 var _keeper: Texture2D
 var _keeper_idle: Texture2D
 var _idle_clock := 0.0
+## The store owner's lines by moment, from LINES ({} with no file).
+var keeper_lines: Dictionary = {}
+## The speech bubble and its text; null with no lines.
+var bubble: PanelContainer
+var line: Label
+var _line_clock := 0.0
+var _leaving := false
 var message: Label
 var scroll: ScrollContainer
 var cols: BoxContainer
@@ -54,16 +75,58 @@ func _ready() -> void:
 		save = demo_save()
 	elif save.is_empty():
 		save = SaveData.load_from(save_path)
-	Bazaar.record(save)
+	var rec := Bazaar.record(save)
 	_build()
 	resized.connect(_fit)
 	_fit()
 	refresh()
+	if not rec.met and say("first_visit") != "":
+		rec.met = true
+		_store()
+	elif rec.met:
+		say("enter")
 
 
-## Back to the world map.
-func leave() -> void:
-	MapLink.go(get_tree(), MapLink.WORLD)
+## Back to the world map, after the store owner's leave line (at once when `now`, with
+## no line to say, or on a second press).
+func leave(now := false) -> void:
+	if now or _leaving or say("leave") == "":
+		_go_now()
+		return
+	_leaving = true
+	get_tree().create_timer(LEAVE_FOR).timeout.connect(_go_now)
+
+
+func _go_now() -> void:
+	if is_inside_tree():
+		MapLink.go(get_tree(), MapLink.WORLD)
+
+
+## The store owner says a line for a moment (MOMENTS), never the line on show. Returns
+## the line, or "" with no bubble or no other line for it.
+func say(moment: String) -> String:
+	if bubble == null:
+		return ""
+	var pool: Array = (keeper_lines.get(moment, []) as Array).filter(func(l): return l is String and l != "" and l != line.text)
+	if pool.is_empty():
+		return ""
+	var said: String = pool[randi() % pool.size()]
+	line.text = said
+	bubble.visible = true
+	_line_clock = 0.0
+	return said
+
+
+## The lines by moment from LINES, each moment a list of strings.
+static func lines() -> Dictionary:
+	var data = ArtSlots.data(LINES)
+	var out := {}
+	if data is Dictionary and data.get("lines") is Dictionary:
+		for m in MOMENTS:
+			var got = data.lines.get(m, [])
+			if got is Array:
+				out[m] = got.filter(func(l): return l is String and l != "")
+	return out
 
 
 ## A save with Scrap to spend and a few things bought, for screenshots.
@@ -100,12 +163,6 @@ func _build() -> void:
 	var head := HBoxContainer.new()
 	head.name = "Head"
 	head.add_theme_constant_override("separation", 24)
-	_keeper = ArtSlots.texture("bazaar/shopkeeper")
-	_keeper_idle = ArtSlots.texture("bazaar/shopkeeper-idle")
-	if _keeper != null:
-		shopkeeper = UiTheme.icon(_keeper, SHOPKEEPER)
-		shopkeeper.name = "Shopkeeper"
-		head.add_child(shopkeeper)
 	var title := UiTheme.label("Bazaar", 96, UiTheme.PINK)
 	title.name = "Title"
 	title.autowrap_mode = TextServer.AUTOWRAP_OFF
@@ -126,6 +183,34 @@ func _build() -> void:
 	hud_gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_child(hud_gap)
 	col.add_child(head)
+
+	# The store owner and what they say, under the title.
+	_keeper = ArtSlots.texture("bazaar/shopkeeper")
+	_keeper_idle = ArtSlots.texture("bazaar/shopkeeper-idle")
+	keeper_lines = lines()
+	var talks := keeper_lines.values().any(func(l): return not l.is_empty())
+	if _keeper != null or talks:
+		var keeper := HBoxContainer.new()
+		keeper.name = "Keeper"
+		keeper.add_theme_constant_override("separation", 20)
+		if _keeper != null:
+			shopkeeper = UiTheme.icon(_keeper, SHOPKEEPER)
+			shopkeeper.name = "Shopkeeper"
+			keeper.add_child(shopkeeper)
+		if talks:
+			bubble = PanelContainer.new()
+			bubble.name = "Bubble"
+			bubble.visible = false
+			bubble.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			bubble.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			var sb := UiTheme.panel(Color(0.93, 0.94, 0.96))
+			sb.set_corner_radius_all(28)
+			bubble.add_theme_stylebox_override("panel", sb)
+			line = UiTheme.label("", UiTheme.BODY, UiTheme.BG)
+			line.name = "Line"
+			bubble.add_child(line)
+			keeper.add_child(bubble)
+		col.add_child(keeper)
 
 	bank = _mono("", UiTheme.BIG, UiTheme.SAND)
 	bank.name = "Bank"
@@ -164,6 +249,11 @@ func _build() -> void:
 
 
 func _process(delta: float) -> void:
+	if bubble != null and not _leaving:
+		_line_clock += delta
+		if _line_clock >= IDLE_LINE_EVERY:
+			say("idle")
+			_line_clock = 0.0
 	if shopkeeper == null or _keeper_idle == null:
 		return
 	_idle_clock = fmod(_idle_clock + delta, IDLE_EVERY)
@@ -203,10 +293,20 @@ func buy(item: String, lifeline: String = "") -> Dictionary:
 		_store()
 		Audio.play_sfx("reward")
 		_say("Bought %s for %d Scrap." % [_name_of(item, lifeline), r.price], UiTheme.TEAL)
+		say("buy")
 	else:
-		_say(r.reason, UiTheme.PINK)
+		_refused(r.reason)
 	refresh()
 	return r
+
+
+## A purchase that can't go through: the reason, and the store owner's line for it.
+func _refused(reason: String) -> void:
+	_say(reason, UiTheme.PINK)
+	if reason == Bazaar.NOT_ENOUGH:
+		say("broke")
+	elif reason == Bazaar.CAPPED:
+		say("capped")
 
 
 func wear(item: String) -> void:
@@ -295,6 +395,10 @@ func _buy_button(item: String, lifeline: String = "", label: String = "") -> But
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b.add_theme_font_size_override("font_size", UiTheme.SMALL)
 	b.pressed.connect(buy.bind(item, lifeline))
+	# A button that can't buy still answers a click or tap: why not, and a line.
+	b.gui_input.connect(func(e: InputEvent):
+		if b.disabled and e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+			_refused(why))
 	buttons[key] = b
 	return b
 

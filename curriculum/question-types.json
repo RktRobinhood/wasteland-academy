@@ -5755,6 +5755,168 @@
     "a triangle from coordinates has no angle under 12° and, but on the right-angle cells, none within 4° of a right angle",
     "the bank's pyramid and the skill's worked examples are left out"
    ]
+  },
+  "polynomial-conditions": {
+   "name": "A polynomial with unknown coefficients and conditions on it",
+   "summary": "Pick the coefficients first, whole numbers, then work out the gradient, point, tangent, stationary point or inflexion they give, so the equations the student forms always solve to the picked values.",
+   "quantities": [
+    {
+     "name": "f",
+     "is": "the polynomial, with one or two coefficients left as letters",
+     "pick": "kx² + bx + c, ax³ + bx, ax² + bx, ax³ + bx² + d, ax³ + px² + bx or x³ + bx² + cx + d, with whole numbers"
+    },
+    {
+     "name": "x₀",
+     "is": "the x-value where a condition holds",
+     "pick": "a small nonzero whole number"
+    },
+    {
+     "name": "m, y₀",
+     "is": "the gradient and the y-value at x₀",
+     "pick": "from f with the picked coefficients"
+    },
+    {
+     "name": "tangent",
+     "is": "y = mx + c at x₀",
+     "pick": "from f′(x₀) and f(x₀)"
+    },
+    {
+     "name": "p, q",
+     "is": "the two stationary x-values of a cubic",
+     "pick": "two different whole numbers with p + q a multiple of 2"
+    }
+   ],
+   "modes": [
+    "Paper 1: whole-number coefficients",
+    "Paper 2: the same, with the two equations solved on the GDC"
+   ],
+   "clean": [
+    "every coefficient is a whole number from −9 to 9 and the letters are nonzero",
+    "each wrong option from a misconception is a number or pair that differs from the answer"
+   ]
+  },
+  "always-increasing": {
+   "name": "A function whose derivative never changes sign",
+   "summary": "Build f′ first so it has one sign for every x: a(x − h)² + k with ak > 0, a sum of terms that can't be negative, 2ax + b/x on x > 0, or an exponential minus a line whose minimum is above zero. Then f follows by integrating.",
+   "quantities": [
+    {
+     "name": "f′",
+     "is": "the derivative",
+     "pick": "3a(x − h)² + k (k > 0), −(3a(x − h)² + k), 3px² + q + re^(sx), 2ax + b/x, e^(sx) − mx + n"
+    },
+    {
+     "name": "f",
+     "is": "the function",
+     "pick": "an antiderivative of f′ with a whole-number constant"
+    },
+    {
+     "name": "Δ",
+     "is": "the discriminant of a quadratic f′",
+     "pick": "negative"
+    },
+    {
+     "name": "min",
+     "is": "the least value of f′ on Paper 2",
+     "pick": "between 0.1 and 9, where the GDC finds it"
+    }
+   ],
+   "modes": [
+    "Paper 1: quadratic f′ and sums of positive terms",
+    "Paper 2: an exponential f′ graphed on the GDC"
+   ],
+   "clean": [
+    "h, k and the coefficients are whole numbers",
+    "the minimum of f′ on Paper 2 is fair to 3 s.f."
+   ]
+  },
+  "hence-integral": {
+   "name": "A derivative result, then an integral found from it",
+   "summary": "Pick a product (x ln x, x e^(kx), x sin(kx), x cos(kx)) or a composite (e^(x²), ln(x² + c), (x² + c)ⁿ) and differentiate it. The integral asked for is the derivative read backwards, with a constant factor to divide out or an extra term to move across.",
+   "quantities": [
+    {
+     "name": "F",
+     "is": "the function differentiated",
+     "pick": "one of the products or composites, with a whole number k, c or n"
+    },
+    {
+     "name": "F′",
+     "is": "its derivative",
+     "pick": "from the product or chain rule"
+    },
+    {
+     "name": "g",
+     "is": "the function to integrate",
+     "pick": "a multiple of F′ (composite) or one term of F′ (product)"
+    },
+    {
+     "name": "limits",
+     "is": "for a definite integral",
+     "pick": "0 and a small whole number, or 1 and e for ln x"
+    }
+   ],
+   "modes": [
+    "Paper 1: exact values with e, ln and π"
+   ],
+   "clean": [
+    "the constant multiple is a whole number",
+    "a definite value is exact"
+   ]
+  },
+  "integral-gdc": {
+   "name": "A definite integral only the GDC can evaluate",
+   "summary": "Pick an integrand with no simple antiderivative (eˣ sin x, x²e^(−x), ln(x² + 1), √(x³ + 1), e^(x + c), 1/(x + c)) and limits, or a polynomial to check by hand. The value is to 3 s.f.; wrong entries (degree mode, swapped limits, missing brackets) are worked out too.",
+   "quantities": [
+    {
+     "name": "f",
+     "is": "the integrand",
+     "pick": "from the families, with small whole-number coefficients"
+    },
+    {
+     "name": "a, b",
+     "is": "the limits",
+     "pick": "small whole numbers with a < b, f defined between them"
+    },
+    {
+     "name": "v",
+     "is": "the value",
+     "pick": "by Simpson's rule, fair to 3 s.f."
+    }
+   ],
+   "modes": [
+    "Paper 2 only"
+   ],
+   "clean": [
+    "the value and every wrong value are fair to 3 s.f. and differ at 3 s.f."
+   ]
+  },
+  "area-under-curve": {
+   "name": "A region above the x-axis under one curve",
+   "summary": "Pick a curve that is positive on an interval: a downward parabola between its roots, a quadratic or cubic between two vertical lines, a straight line, or a parabola with surd roots on Paper 2. R is the region under it, and its area is one definite integral.",
+   "quantities": [
+    {
+     "name": "f",
+     "is": "the curve",
+     "pick": "a(x − r)(t − x), a positive quadratic or cubic on [p, q], mx + c, or −x² + bx + c with a non-square discriminant"
+    },
+    {
+     "name": "limits",
+     "is": "the edges of R",
+     "pick": "whole-number roots or vertical lines; Paper 2 roots from the GDC"
+    },
+    {
+     "name": "A",
+     "is": "the area",
+     "pick": "exact on Paper 1, 3 s.f. on Paper 2"
+    }
+   ],
+   "modes": [
+    "Paper 1: exact areas",
+    "Paper 2: the GDC's integral, and roots that need it"
+   ],
+   "clean": [
+    "f > 0 strictly inside R",
+    "the limits are whole numbers on Paper 1"
+   ]
   }
  },
  "types": [
@@ -78467,7 +78629,7 @@
    "topic": 5,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Show a function always increases",
    "summary": "Show that f′(x) > 0 (or < 0) for every x in the domain, for example because f′ is a square plus a positive number or a positive exponential.",
    "gap": "No catalogued bank part asks for this proof on its own.",
@@ -78483,6 +78645,219 @@
     "method-pick",
     "true-false-reason",
     "mcq"
+   ],
+   "situation": "always-increasing",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "f(x) as a formula"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the graph of y = f′(x), as a GDC draws it"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "quadratic-derivative",
+     "given": [
+      "a cubic f(x) whose f′ is a quadratic with no real roots"
+     ],
+     "asked": "the statement that shows f is increasing for all x",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.2.show-always-increasing"
+     ]
+    },
+    {
+     "id": "decreasing-quadratic",
+     "given": [
+      "a cubic g(x) whose g′ is a quadratic that is always negative"
+     ],
+     "asked": "the statement that shows g is decreasing for all x",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.2.show-always-increasing"
+     ]
+    },
+    {
+     "id": "sum-of-terms",
+     "given": [
+      "f(x) whose derivative is a sum of terms that can't be negative"
+     ],
+     "asked": "the statement that shows f is increasing for all x",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.2.show-always-increasing"
+     ]
+    },
+    {
+     "id": "inverse-exists",
+     "given": [
+      "f(x) = ax² + b ln x for x > 0"
+     ],
+     "asked": "the reason f has an inverse",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.2.show-always-increasing"
+     ]
+    },
+    {
+     "id": "gdc-minimum",
+     "given": [
+      "f(x) whose derivative mixes an exponential and a polynomial"
+     ],
+     "asked": "the statement that shows f is increasing for all x",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.2.show-always-increasing"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.2.show-always-increasing",
+     "method": "complete-square",
+     "suits": [
+      "quadratic-derivative",
+      "decreasing-quadratic"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "sum-of-terms",
+       "inverse-exists",
+       "gdc-minimum"
+      ],
+      "why": "f′ is not a quadratic, so there is no square to complete"
+     }
+    },
+    {
+     "skill": "SL5.2.show-always-increasing",
+     "method": "discriminant-negative",
+     "suits": [
+      "quadratic-derivative",
+      "decreasing-quadratic"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "sum-of-terms",
+       "inverse-exists",
+       "gdc-minimum"
+      ],
+      "why": "f′ is not a quadratic, so it has no discriminant"
+     }
+    },
+    {
+     "skill": "SL5.2.show-always-increasing",
+     "method": "sum-of-positive-terms",
+     "suits": [
+      "sum-of-terms",
+      "inverse-exists"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "quadratic-derivative",
+       "decreasing-quadratic",
+       "gdc-minimum"
+      ],
+      "why": "one term of f′ can be negative, so the terms are not all positive"
+     }
+    },
+    {
+     "skill": "SL5.2.show-always-increasing",
+     "method": "graph-f-prime",
+     "suits": [
+      "gdc-minimum"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A student finds that f′(−1), f′(0) and f′(1) are all positive, so f′(x) > 0 for every x. That is a proof. True or false?",
+     "answer": "False. A few values can't show that f′ is positive everywhere: f′ could dip below zero between them or beyond them. Completing the square, a negative discriminant or a sum of positive terms shows it for every x.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.2.show-always-increasing#0",
+     "text": "Checking f′ at a few points and concluding it keeps that sign everywhere",
+     "as": "distractor",
+     "in": [
+      "quadratic-derivative",
+      "decreasing-quadratic",
+      "sum-of-terms",
+      "inverse-exists",
+      "gdc-minimum"
+     ],
+     "wrong": "tests f′ at two or three values and concludes it has that sign for every x"
+    },
+    {
+     "ref": "SL5.2.show-always-increasing#1",
+     "text": "Showing f(x) > 0 instead of f′(x) > 0",
+     "as": "distractor",
+     "in": [
+      "sum-of-terms",
+      "inverse-exists"
+     ],
+     "wrong": "argues that f(x) itself is positive, which says nothing about whether f increases"
+    },
+    {
+     "ref": "SL5.2.show-always-increasing#2",
+     "text": "Claiming a square is always positive, when it is zero where its bracket is zero",
+     "as": "distractor",
+     "in": [
+      "quadratic-derivative",
+      "decreasing-quadratic",
+      "sum-of-terms"
+     ],
+     "wrong": "writes that a square term is > 0 for all x, but it is 0 where its bracket is 0"
+    },
+    {
+     "text": "Completing the square without multiplying its constant by the leading coefficient",
+     "as": "error-spot",
+     "in": [
+      "quadratic-derivative",
+      "decreasing-quadratic"
+     ],
+     "wrong": "a line of working completes the square inside the bracket but forgets to multiply the square's constant by the leading coefficient"
+    },
+    {
+     "text": "Differentiating one term of f wrongly",
+     "as": "error-spot",
+     "in": [
+      "sum-of-terms",
+      "inverse-exists"
+     ],
+     "wrong": "a line of working gets the derivative of one term wrong, so the terms it argues about are not f′"
+    }
    ]
   },
   {
@@ -78490,7 +78865,7 @@
    "topic": 5,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Coefficients from gradient and point conditions",
    "summary": "Find unknown coefficients in a polynomial from a gradient condition f′(a) = m and a point on the curve, by forming and solving equations.",
    "gap": "Bank tangent-condition parts (t5-tangent-condition) find a point or a line's parameter; none solves for the curve's own coefficients from values of f and f′.",
@@ -78506,6 +78881,153 @@
     "multipart",
     "order-steps",
     "error-spot"
+   ],
+   "situation": "polynomial-conditions",
+   "sharesSituation": [
+    "t5-ext-stationary-conditions"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "f(x) with its letters, and the conditions in symbols, such as f′(1) = 5 and f(1) = 3"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the conditions in words: the curve passes through a point, and its gradient there is a number"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "k-from-gradient",
+     "given": [
+      "f(x) with one unknown coefficient k",
+      "the gradient at one x-value"
+     ],
+     "asked": "k",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.3.unknown-coefficients"
+     ]
+    },
+    {
+     "id": "two-from-gradient-and-point",
+     "given": [
+      "f(x) with unknown coefficients a and b",
+      "the gradient at one x-value",
+      "the point on the curve there"
+     ],
+     "asked": "a and b",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.3.unknown-coefficients"
+     ]
+    },
+    {
+     "id": "two-gradients",
+     "given": [
+      "f(x) with unknown coefficients a and b",
+      "the gradient at two x-values"
+     ],
+     "asked": "a and b",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.3.unknown-coefficients"
+     ]
+    },
+    {
+     "id": "from-tangent",
+     "given": [
+      "f(x) with unknown coefficients a and b",
+      "the equation of the tangent at one x-value"
+     ],
+     "asked": "a and b",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.3.unknown-coefficients"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.3.unknown-coefficients",
+     "method": "form-equations",
+     "suits": [
+      "k-from-gradient",
+      "two-from-gradient-and-point",
+      "two-gradients",
+      "from-tangent"
+     ]
+    },
+    {
+     "skill": "SL5.3.unknown-coefficients",
+     "method": "gdc-solver",
+     "suits": [
+      "two-from-gradient-and-point",
+      "two-gradients",
+      "from-tangent"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "f(x) = kx² + 3x has gradient 7 at x = 1. A student writes k + 3 = 7, so k = 4. True or false?",
+     "answer": "False. 7 is the gradient, so it goes with f′(1) = 2k + 3, not with f(1) = k + 3. Then 2k + 3 = 7 and k = 2.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.3.unknown-coefficients#0",
+     "text": "Using the gradient condition in f(x) instead of f′(x)",
+     "as": "distractor",
+     "in": [
+      "k-from-gradient",
+      "two-from-gradient-and-point",
+      "two-gradients"
+     ],
+     "wrong": "puts the gradient into f(x) = m instead of f′(x) = m"
+    },
+    {
+     "ref": "SL5.3.unknown-coefficients#1",
+     "text": "Treating k as a variable and differentiating it",
+     "as": "error-spot",
+     "in": [
+      "k-from-gradient",
+      "two-from-gradient-and-point"
+     ],
+     "wrong": "a line of working differentiates the letter as if it were x, so the derivative gains an extra term"
+    },
+    {
+     "text": "Using the tangent's y-intercept as the y-coordinate of the point",
+     "as": "distractor",
+     "in": [
+      "from-tangent"
+     ],
+     "wrong": "takes f(x₀) = c, the tangent's y-intercept, instead of mx₀ + c"
+    }
    ]
   },
   {
@@ -78513,7 +79035,7 @@
    "topic": 5,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "A definite integral on the GDC",
    "summary": "Evaluate a definite integral on the GDC to 3 significant figures, with the function and the limits entered correctly.",
    "gap": "The bank uses the GDC integral only inside area and kinematics questions; no part asks for the value on its own.",
@@ -78528,6 +79050,149 @@
     "value",
     "mcq",
     "error-spot"
+   ],
+   "situation": "integral-gdc",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the definite integral written out"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the curve with the region of the integral shaded, and its equation"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "gdc-value",
+     "given": [
+      "a definite integral of a function with no simple antiderivative"
+     ],
+     "asked": "its value to 3 s.f.",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.5.definite-integral-gdc"
+     ]
+    },
+    {
+     "id": "which-entry",
+     "given": [
+      "a definite integral"
+     ],
+     "asked": "the GDC entry that gives it",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.5.definite-integral-gdc"
+     ]
+    },
+    {
+     "id": "polynomial-check",
+     "given": [
+      "a definite integral of a polynomial"
+     ],
+     "asked": "its value to 3 s.f., checked by hand",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.5.definite-integral-gdc"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.5.definite-integral-gdc",
+     "method": "gdc-fnint",
+     "suits": [
+      "gdc-value",
+      "which-entry",
+      "polynomial-check"
+     ]
+    },
+    {
+     "skill": "SL5.5.definite-integral-gdc",
+     "method": "gdc-graph-integral",
+     "suits": [
+      "gdc-value"
+     ]
+    },
+    {
+     "skill": "SL5.5.definite-integral-gdc",
+     "method": "analytic-check",
+     "suits": [
+      "polynomial-check"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Swapping the limits of a definite integral on the GDC changes only the sign of the answer. True or false?",
+     "answer": "True. ∫ from b to a of f(x) dx = −∫ from a to b of f(x) dx, so limits entered the wrong way round give the right size with the wrong sign.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.5.definite-integral-gdc#0",
+     "text": "Leaving the calculator in degree mode for trig integrands",
+     "as": "distractor",
+     "in": [
+      "gdc-value",
+      "which-entry"
+     ],
+     "wrong": "integrates a trig function with the GDC in degree mode"
+    },
+    {
+     "ref": "SL5.5.definite-integral-gdc#1",
+     "text": "Entering the limits the wrong way round, giving the negative of the answer",
+     "as": "distractor",
+     "in": [
+      "gdc-value",
+      "which-entry",
+      "polynomial-check"
+     ],
+     "wrong": "enters the upper limit first, so the answer has the wrong sign"
+    },
+    {
+     "ref": "SL5.5.definite-integral-gdc#2",
+     "text": "Missing brackets, so a power or a denominator ends too soon",
+     "as": "distractor",
+     "in": [
+      "gdc-value",
+      "which-entry"
+     ],
+     "wrong": "types the function without the brackets around a power or a denominator"
+    },
+    {
+     "text": "Entering the function into the GDC without its brackets",
+     "as": "error-spot",
+     "in": [
+      "gdc-value"
+     ],
+     "wrong": "a line of working shows the function typed without the brackets it needs"
+    },
+    {
+     "text": "Leaving the GDC in degree mode for a trig function",
+     "as": "error-spot",
+     "in": [
+      "gdc-value"
+     ],
+     "wrong": "a line of working sets the GDC to degrees for a trig integrand"
+    }
    ]
   },
   {
@@ -78535,7 +79200,7 @@
    "topic": 5,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Area under a curve above the x-axis",
    "summary": "Write the integral for a shaded area above the x-axis (its limits and integrand), then evaluate it.",
    "gap": "Bank area parts (t5-definite-integral-area, t5-area-between-curves) involve regions below the axis or between two curves; the basic area above the axis is not a type of its own.",
@@ -78555,6 +79220,273 @@
     "value",
     "multipart",
     "order-steps"
+   ],
+   "situation": "area-under-curve",
+   "representations": [
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the curve with the region R shaded"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "f(x), and R described by the lines and axes that bound it"
+    },
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "an integral written out, to match to its region"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "integral-from-graph",
+     "given": [
+      "the curve, with R shaded between two marked x-values"
+     ],
+     "asked": "the integral that gives the area of R",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.5.area-expression"
+     ]
+    },
+    {
+     "id": "integral-from-roots",
+     "given": [
+      "f(x)",
+      "R is enclosed by the curve and the x-axis"
+     ],
+     "asked": "the integral that gives the area of R",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL5.5.area-expression"
+     ]
+    },
+    {
+     "id": "region-for-integral",
+     "given": [
+      "an integral ∫ from a to b of f(x) dx"
+     ],
+     "asked": "the graph whose shaded region it gives",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.5.area-expression"
+     ]
+    },
+    {
+     "id": "area-between-lines",
+     "given": [
+      "f(x), positive between two vertical lines"
+     ],
+     "asked": "the area of R",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL5.5.area-positive"
+     ]
+    },
+    {
+     "id": "area-between-roots",
+     "given": [
+      "f(x)",
+      "R is enclosed by the curve and the x-axis"
+     ],
+     "asked": "the area of R",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL5.5.area-positive",
+      "SL5.5.area-expression"
+     ]
+    },
+    {
+     "id": "area-with-y-axis",
+     "given": [
+      "f(x)",
+      "R is bounded by the curve and both axes"
+     ],
+     "asked": "the area of R",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL5.5.area-positive"
+     ]
+    },
+    {
+     "id": "area-straight-edge",
+     "given": [
+      "a straight line y = mx + c above the x-axis between two vertical lines"
+     ],
+     "asked": "the area of R",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL5.5.area-positive"
+     ]
+    },
+    {
+     "id": "area-gdc-limits",
+     "given": [
+      "a quadratic whose roots are not whole numbers",
+      "R is enclosed by the curve and the x-axis"
+     ],
+     "asked": "the area of R to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL5.5.area-positive"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.5.area-expression",
+     "method": "read-boundaries",
+     "suits": [
+      "integral-from-graph",
+      "region-for-integral"
+     ]
+    },
+    {
+     "skill": "SL5.5.area-expression",
+     "method": "solve-for-roots",
+     "suits": [
+      "integral-from-roots"
+     ]
+    },
+    {
+     "skill": "SL5.5.area-expression",
+     "method": "gdc-zeros",
+     "suits": [
+      "integral-from-roots"
+     ]
+    },
+    {
+     "skill": "SL5.5.area-positive",
+     "method": "antiderivative-evaluate",
+     "suits": [
+      "area-between-lines",
+      "area-between-roots",
+      "area-with-y-axis",
+      "area-straight-edge"
+     ]
+    },
+    {
+     "skill": "SL5.5.area-positive",
+     "method": "gdc-integral",
+     "suits": [
+      "area-between-lines",
+      "area-between-roots",
+      "area-gdc-limits"
+     ]
+    },
+    {
+     "skill": "SL5.5.area-positive",
+     "method": "geometric-shapes",
+     "suits": [
+      "area-straight-edge"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "R lies above the x-axis between x = 1 and x = 4. Its area is F(1) − F(4), where F is an antiderivative of f. True or false?",
+     "answer": "False. The area is F(4) − F(1): the upper limit's value minus the lower limit's. F(1) − F(4) is the same size with the wrong sign, and an area is never negative.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.5.area-expression#0",
+     "text": "Using y-values as the limits",
+     "as": "distractor",
+     "in": [
+      "integral-from-graph"
+     ],
+     "wrong": "takes the y-values at the edges of R as the limits"
+    },
+    {
+     "ref": "SL5.5.area-expression#1",
+     "text": "Putting the larger limit at the bottom",
+     "as": "distractor",
+     "in": [
+      "integral-from-graph",
+      "integral-from-roots"
+     ],
+     "wrong": "puts the larger x-value as the lower limit"
+    },
+    {
+     "ref": "SL5.5.area-expression#2",
+     "text": "Using the derivative of f as the integrand",
+     "as": "distractor",
+     "in": [
+      "integral-from-graph",
+      "integral-from-roots"
+     ],
+     "wrong": "integrates f′(x) instead of f(x)"
+    },
+    {
+     "ref": "SL5.5.area-positive#0",
+     "text": "Computing F(a) − F(b)",
+     "as": "distractor",
+     "in": [
+      "area-between-lines",
+      "area-between-roots",
+      "area-with-y-axis"
+     ],
+     "wrong": "works out F(lower) − F(upper)"
+    },
+    {
+     "ref": "SL5.5.area-positive#1",
+     "text": "Using zero as the lower limit when the region starts at an x-intercept",
+     "as": "distractor",
+     "in": [
+      "area-between-roots"
+     ],
+     "wrong": "integrates from x = 0 instead of from the left-hand root"
+    },
+    {
+     "ref": "SL5.5.area-positive#2",
+     "text": "Rounding the limits too early and losing accuracy",
+     "as": "distractor",
+     "in": [
+      "area-gdc-limits"
+     ],
+     "wrong": "rounds the roots to one decimal place before integrating"
+    }
    ]
   },
   {
@@ -78607,7 +79539,7 @@
    "topic": 5,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Constants from a stationary point",
    "summary": "Find unknown constants in f given a stationary point or a point of inflexion, using f′ = 0 (or f″ = 0) together with the point itself.",
    "gap": "Bank stationary-point parts start from a known function; none works backwards to its constants.",
@@ -78623,6 +79555,172 @@
     "multipart",
     "order-steps",
     "error-spot"
+   ],
+   "situation": "polynomial-conditions",
+   "sharesSituation": [
+    "t5-ext-unknown-coefficients"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "f(x) with its letters, and the stationary point or inflexion in symbols"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the curve and its stationary point or point of inflexion described in words"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "k-from-stationary-x",
+     "given": [
+      "f(x) with one unknown coefficient k",
+      "the x-coordinate of a stationary point"
+     ],
+     "asked": "k",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.8.stationary-point-conditions"
+     ]
+    },
+    {
+     "id": "two-from-stationary-point",
+     "given": [
+      "f(x) with unknown coefficients a and b",
+      "the coordinates of a stationary point"
+     ],
+     "asked": "a and b",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.8.stationary-point-conditions"
+     ]
+    },
+    {
+     "id": "k-from-inflexion",
+     "given": [
+      "f(x) with one unknown coefficient p",
+      "the x-coordinate of a point of inflexion"
+     ],
+     "asked": "p",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.8.stationary-point-conditions"
+     ]
+    },
+    {
+     "id": "two-from-two-stationary",
+     "given": [
+      "a cubic x³ + bx² + cx + d with b and c unknown",
+      "the x-coordinates of both stationary points"
+     ],
+     "asked": "b and c",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.8.stationary-point-conditions"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.8.stationary-point-conditions",
+     "method": "two-equations",
+     "suits": [
+      "k-from-stationary-x",
+      "two-from-stationary-point",
+      "k-from-inflexion",
+      "two-from-two-stationary"
+     ]
+    },
+    {
+     "skill": "SL5.8.stationary-point-conditions",
+     "method": "gdc-solver",
+     "suits": [
+      "two-from-stationary-point",
+      "two-from-two-stationary"
+     ]
+    },
+    {
+     "skill": "SL5.8.stationary-point-conditions",
+     "method": "factor-form",
+     "suits": [
+      "two-from-two-stationary"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Some value of k makes f(x) = x³ + kx have a stationary point at (1, 3). True or false?",
+     "answer": "False. f′(1) = 3 + k = 0 gives k = −3, but then f(1) = −2, not 3. One unknown can only meet two conditions if they agree.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.8.stationary-point-conditions#0",
+     "text": "Using f(a) = 0 instead of f′(a) = 0",
+     "as": "distractor",
+     "in": [
+      "k-from-stationary-x"
+     ],
+     "wrong": "sets f(x₀) = 0 instead of f′(x₀) = 0"
+    },
+    {
+     "ref": "SL5.8.stationary-point-conditions#1",
+     "text": "Using only one condition when two unknowns need two equations",
+     "as": "error-spot",
+     "in": [
+      "two-from-stationary-point"
+     ],
+     "wrong": "a line of working picks a value for one unknown from a single equation"
+    },
+    {
+     "ref": "SL5.8.stationary-point-conditions#2",
+     "text": "Substituting the y-coordinate into f′",
+     "as": "distractor",
+     "in": [
+      "two-from-stationary-point"
+     ],
+     "wrong": "puts the y-coordinate into f′ = 0, alongside f(x₀) = y₀"
+    },
+    {
+     "text": "Setting f′ equal to zero at a point of inflexion instead of f″",
+     "as": "distractor",
+     "in": [
+      "k-from-inflexion"
+     ],
+     "wrong": "solves f′(x₀) = 0 instead of f″(x₀) = 0"
+    },
+    {
+     "text": "Forgetting the leading coefficient when writing f′ in factor form",
+     "as": "distractor",
+     "in": [
+      "two-from-two-stationary"
+     ],
+     "wrong": "writes f′(x) = (x − p)(x − q), without the 3, then compares coefficients"
+    }
    ]
   },
   {
@@ -78630,7 +79728,7 @@
    "topic": 5,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Integrate using a derivative (\"hence\")",
    "summary": "Differentiate a given expression, then use the result to integrate a related function, adjusting the constant factor.",
    "gap": "Bank integration parts (t5-indefinite-integral) use standard results or inspection; none links back to a derivative found just before.",
@@ -78646,6 +79744,204 @@
     "method-pick",
     "error-spot",
     "mcq"
+   ],
+   "situation": "hence-integral",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "a derivative result written out, then an integral to find with it"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "find-derivative",
+     "given": [
+      "a product such as x ln x, x e^(kx) or x sin x"
+     ],
+     "asked": "its derivative, the first part of a \"hence\" question",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.hence-from-derivative",
+      "SL5.6.product-rule"
+     ]
+    },
+    {
+     "id": "adjust-factor",
+     "given": [
+      "the derivative of a composite, such as d/dx e^(x²) = 2x e^(x²)"
+     ],
+     "asked": "the integral of a constant multiple of that derivative",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.hence-from-derivative"
+     ]
+    },
+    {
+     "id": "move-extra-term",
+     "given": [
+      "the derivative of a product, such as d/dx (x ln x) = ln x + 1"
+     ],
+     "asked": "the integral of one of its terms",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.hence-from-derivative"
+     ]
+    },
+    {
+     "id": "hence-definite",
+     "given": [
+      "a derivative result",
+      "two limits"
+     ],
+     "asked": "an exact definite integral",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.hence-from-derivative"
+     ]
+    },
+    {
+     "id": "pick-the-derivative",
+     "given": [
+      "an integral such as ∫ x cos x dx"
+     ],
+     "asked": "the derivative result that helps find it",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.hence-from-derivative"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.10.hence-from-derivative",
+     "method": "rearrange-derivative",
+     "suits": [
+      "adjust-factor",
+      "move-extra-term",
+      "hence-definite"
+     ]
+    },
+    {
+     "skill": "SL5.10.hence-from-derivative",
+     "method": "differentiate-check",
+     "suits": [
+      "adjust-factor",
+      "move-extra-term",
+      "pick-the-derivative"
+     ]
+    },
+    {
+     "skill": "SL5.6.product-rule",
+     "method": "product-rule",
+     "suits": [
+      "find-derivative"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Since d/dx (x ln x) = ln x + 1, it follows that ∫ (ln x + 1) dx = x ln x + C. True or false?",
+     "answer": "True. Every derivative result read backwards is an integral result. To get ∫ ln x dx on its own, take ∫ 1 dx = x across: ∫ ln x dx = x ln x − x + C.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.6.product-rule#0",
+     "text": "Multiplying the two derivatives: taking (uv)′ as u′v′",
+     "as": "distractor",
+     "in": [
+      "find-derivative"
+     ],
+     "wrong": "multiplies the derivatives of the two factors"
+    },
+    {
+     "ref": "SL5.6.product-rule#1",
+     "text": "Writing only one of the two terms",
+     "as": "distractor",
+     "in": [
+      "find-derivative"
+     ],
+     "wrong": "keeps only u′v or only uv′"
+    },
+    {
+     "ref": "SL5.10.hence-from-derivative#0",
+     "text": "Taking the derivative itself as the integral",
+     "as": "distractor",
+     "in": [
+      "adjust-factor",
+      "move-extra-term",
+      "hence-definite"
+     ],
+     "wrong": "gives the derivative result itself as the integral"
+    },
+    {
+     "ref": "SL5.10.hence-from-derivative#1",
+     "text": "Forgetting to move the integral of the extra term across",
+     "as": "distractor",
+     "in": [
+      "move-extra-term",
+      "hence-definite"
+     ],
+     "wrong": "integrates the derivative result but leaves the extra term's integral where it is"
+    },
+    {
+     "ref": "SL5.10.hence-from-derivative#2",
+     "text": "Dropping + C",
+     "as": "distractor",
+     "in": [
+      "adjust-factor",
+      "move-extra-term"
+     ],
+     "wrong": "the right antiderivative with no + C"
+    },
+    {
+     "text": "Forgetting to divide by the constant factor in the derivative",
+     "as": "distractor",
+     "in": [
+      "adjust-factor",
+      "hence-definite"
+     ],
+     "wrong": "takes F(x) itself, not F(x) divided by the derivative's constant factor"
+    },
+    {
+     "text": "Multiplying by the constant factor instead of dividing by it",
+     "as": "error-spot",
+     "in": [
+      "adjust-factor"
+     ],
+     "wrong": "a line of working multiplies F(x) by the constant that should be divided out"
+    },
+    {
+     "text": "Getting the sign wrong when moving a term across the equals sign",
+     "as": "error-spot",
+     "in": [
+      "move-extra-term"
+     ],
+     "wrong": "a line of working moves the extra term's integral across but keeps its sign"
+    }
    ]
   },
   {

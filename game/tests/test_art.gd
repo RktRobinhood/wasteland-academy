@@ -319,6 +319,7 @@ func test_the_bazaar_with_art() -> void:
 	var stall: TextureRect = b.get_node("Backdrop")
 	check(stall.visible and _path(stall.texture) == ART + "bazaar/stall.png", "the stall")
 	check(b.shopkeeper != null and _path(b.shopkeeper.texture) == ART + "bazaar/shopkeeper.png", "the shopkeeper")
+	check_eq(b.shopkeeper.custom_minimum_size, Vector2(360, 360), "the shopkeeper, bigger than 200 px")
 	b._process(b.IDLE_EVERY - b.IDLE_FOR / 2.0)
 	check_eq(_path(b.shopkeeper.texture), ART + "bazaar/shopkeeper-idle.png", "the idle frame now and then")
 	b._process(b.IDLE_FOR)
