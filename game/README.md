@@ -234,6 +234,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   It asks a rate from the GDC, what a rate means, its units, a sentence in derivative notation,
   a comparison of two rates, the limit of a model or of its rate as t → ∞, and a limit from a
   table, from a graph with a gap and a dot, or by cancelling. A reading in words is a `claim`.
+- `engine/situations/derivative_graph.gd` (FAL-754) is `t5-derivative-graph` (SL5.7.f-from-derivative-graph
+  and SL5.2.sign-from-graph), the `derivative-graph` situation: 13 unknowns over 29 cells, all Paper 1
+  and exact. Three curve families, each with whole-number roots so every feature sits on a grid line:
+  k(x − a)(x − b)², which crosses at a and touches at b (as f′, f″, or f itself), a parabola
+  k(x − a)(x − b) with a whole vertex, and a parabola cut into two regions with whole, different areas.
+  From f′ it asks a local maximum or minimum and its justification, points of inflexion, the nature of a
+  touch, where f rises past the touch, where f is concave up, which of four graphs could be f, and a
+  value or comparison of f from the signed areas; from f″ a point of inflexion; from f the sign of f′,
+  where f′ is negative and the gradient at a turning point. The views (`derivative_graph_views.gd`) show
+  the graph (regions shaded and lettered A and B), f′ or f″ as factors, or the stretches in words. A
+  justification or comparison is a `claim`; an interval is MonotonicViews' between/outside form, and a
+  wrong "x > 1" beside one carries `side`, so it can be picked but never typed.
 - `engine/situations/optimisation.gd` (FAL-739) is `t5-optimisation-modelling` (SL5.8): one shape or
   journey with a fixed amount and one free length, in eight families: a yard against a wall with fixed
   fence, a plot against a wall with fixed area, a cylinder (closed or open, area or cost), an open
@@ -250,6 +262,23 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   are PlotView's `sketch` and `solid` (which gained a cylinder, an open cylinder and an open bin) or a
   graph with its rectangle shaded. The checker reads the shape back from the words or the figure,
   builds the function again, and solves it with SymPy, or mpmath for a route (`check_optimisation`).
+- `engine/situations/tangent_meets.gd` (FAL-754) is `t5-normal-meets-curve` (SL5.4), the
+  `tangent-meets-curve` situation: a curve, a point P where x = x₀ (a whole number), and the tangent
+  or the normal there, followed to the axes, to the triangle it cuts off with them, or to the curve
+  again. Every question is Paper 2, as both bank parts are. The curve is ax² + bx + c, a cubic,
+  px² + A/x + q or Ae^(kx) + px² + q. Its views (`tangent_meets_views.gd`) show f(x) and x₀, the same
+  with the curve and the line drawn and P marked, or an exam's sketch with no numbers on the axes
+  and the points lettered (A, B, Q), and ask 9 unknowns: where the tangent or the normal meets the
+  x-axis or the y-axis, the area of the triangle either cuts off (shaded), and where the tangent
+  (exactly, or to 3 s.f. on an e^(kx) curve) or the normal (to 3 s.f.) meets the curve again. For
+  the exact Q the cubic or px² + A/x + q is built backwards from P and a whole-number Q, so curve
+  minus tangent is a(x − x₀)²(x − r), solved by comparing x² terms or by the GDC's intersect. A
+  polynomial curve's answers are exact, written as decimals where they end; an e^(kx) curve's are
+  to 3 s.f. with the rounding trap, found by a scan whose sign check rules out a missed crossing
+  (curve minus line has a third derivative that is never 0). Wrong options come from SL5.4's
+  misconceptions: the curve's own y-intercept, x = 0 for the x-axis, a signed area, P given as Q,
+  x₀ counted once among the roots, and −m or 1/m for the normal's gradient. The checker
+  (`E12NM_check`) reads the curve back from the lines and solves curve = line again with SymPy.
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
@@ -365,6 +394,42 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a crossing or a line. exp-log-form is Paper 1 and log-context Paper 2, which makes the bank's 2/3
   Paper 2 share (48 of 73 cells). `E11LF_check` in the SymPy checker reads the scale back from the
   formula or the sentence.
+- `engine/situations/constant_change.gd` (FAL-754) is `t4-constant-changes` (SL4.3.constant-changes),
+  the `constant-change` situation: 15 unknowns over 99 cells. A data set's summary statistics, and every
+  value put through y = x + b, y = ax or y = ax + b: the new mean, median, mode, quartiles, standard
+  deviation, variance, IQR or range, or the change run backwards to the original ones; a and b found from
+  two means and two spreads, the factor from two variances, and which statement of the effect is true.
+  The original statistics are drawn first and the new ones worked out of them exactly, so every cell is
+  Paper 1 and every number ends within two decimal places. The views (`constant_change_views.gd`) show
+  an equation, a story (a pallet's mass, cm to mm, a pay rate, °C to °F), a list of the data or a box
+  plot to scale on whole ticks, and work the shift-and-stretch rules, the picture of the histogram or box
+  plot sliding and stretching, or the change tried on 1, 2, 3. Run backwards, a variance whose "apply
+  the change again" option would pass 100000 (a² twice over, 10⁸ for metres to centimetres) is drawn
+  again.
+- `engine/situations/rational_exponents.gd` (FAL-754) is `t1-rational-exponents`
+  (SL1.7.rational-exponents), the `rational-exponents` situation: 12 unknowns over 23 cells, all
+  Paper 1, as the bank is. The value of a whole number or a fraction to a positive or negative
+  fractional power, x from x^(m/n) = k, a root of x (inside, outside or under 1) or a power times,
+  over or under a root as one power of x, a bracket (c x^q)^(m/n), products and quotients of powers
+  of x, a product or quotient of powers of one prime, and a sum of two or three terms over a root of
+  x split into powers. Every number is drawn as a perfect power first, so it all comes out by hand.
+  The views (`rational_exponents_views.gd`) work it root first, power first, through a prime base,
+  by the laws of indices or term by term, and the wrong options come from the 21 SL1.7 slips
+  (the base times the power, a negative value, multiplied or divided powers, the root alone, no
+  reciprocal, a flipped power, a lost minus sign, the number in a bracket left alone, the first
+  term alone divided). `E12RE_check` in the SymPy checker parses the expression shown and works it
+  again.
+- `engine/situations/solve_exponential.gd` (FAL-754) is `t1-solve-exponential` (SL1.7.solve-with-logs),
+  the `solve-exponential` situation: 7 unknowns over 26 cells, every method of the skill. Two powers with
+  different bases, a^(x + p) = b^x or a^x = b^(c − x), to 3 s.f. or exactly as ln p/ln q (a `form` answer
+  with both numbers typed); k e^(mx) + d = c isolated first, exactly as ln a or (ln r)/m (the `lnq` kind,
+  marked by value), or with a decimal rate or a whole base to 3 s.f.; and growth stories: the exact time
+  A₀e^(kt) takes to reach a level, and when A₀e^(kt) and B₀ × g^t meet, to 3 s.f. The views
+  (`solve_exponential_views.gd`) show the equation, the story, or the two curves (a curve and a line)
+  crossing at P with each curve named. The bank's one part is Paper 2, so every cell is Paper 2; an exact
+  cell can also make Paper 1 when one is asked for, with no calculator method. The 3 s.f. options include
+  the logs rounded to 2 d.p. too early, which moves the answer in its third figure only. Every two-bases
+  answer, exact or 3 s.f., has |x| at most 12 (`MAX_X`), so close bases with a big shift are refused.
 - `engine/situations/trig_wave.gd` (FAL-751) is `t3-trig-read-features` (SL3.7.read-features) and
   `t3-trig-model-use` (SL3.7.model-context), the `trig-wave` situation, which extends `trig-model`: it
   keeps that situation's Paper 2 wave, contexts and graph, and `TrigWaveViews` extends its views.
@@ -381,6 +446,19 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   Degree mode is a worked distractor on every value and time: the model is solved again with its
   angle in degrees. Its one Paper 1 exact value is at a whole t past the first quadrant, in TrigKit's
   exact numbers, and whether a level is reached makes Paper 1 too.
+- `engine/situations/trig_sketch.gd` (FAL-754) is `t3-trig-sketch` (SL3.7.sketch), the `trig-sketch`
+  situation: 9 unknowns over 22 cells, all three methods of the skill (five key points per period,
+  transform sin x or cos x, graph on the GDC and transfer). A phone can't take a drawing, so the four
+  sketches (a sin or cos wave, the wave from a table of its five key points, a reflected wave and
+  a tan(bx) + d with its asymptotes) are pick-the-graph: four cards on one window with one set of axis
+  marks, each wrong card one slip (tan with turning points, a cosine started on its axis, straight
+  lines for a curve, the base period, a missed reflection, d the wrong way, tan's asymptotes at its
+  crossings). What a sketch must mark is typed: the maximum and minimum points, the y-intercept, the
+  x-intercepts (where fn(bx) = ±1/2, from the equation or a figure with nothing marked), tan's
+  asymptotes and two blanks in a table of key points. Paper 1 is exact, in multiples of π or in
+  degrees; the GDC's cells are Paper 2, where a sketch keeps Paper 1's numbers and a maximum point
+  or an x-intercept is on a wave with tenths, to 3 s.f. Both bank parts are Paper 1, so those 5 cells
+  of 22 put the type in `OVER_SHARE` in `test_paper.gd`. The views are `trig_sketch_views.gd`.
 - `engine/situations/trig_model_equation.gd` (FAL-752) is `t3-trig-model-equation` (SL3.8.graphical,
   SL2.10), the `trig-model-equation` situation, which extends `trig-wave`, and `TrigModelEquationViews`
   extends `TrigWaveViews`. Its 18 unknowns don't repeat `t3-trig-model-use`'s and fall in four families:
@@ -406,6 +484,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `space`: the points on axes with the coordinates on them, a cuboid or pyramid on the axes, or a
   round solid with no axes. Position vectors are the map's vector representation, listed as
   `notation`. The 2D unknowns use the type's own `distance-formula-2d` method.
+- `engine/situations/solid_angle.gd` (FAL-754) is `t3-3d-angle` (SL3.1.angle-line-plane and
+  SL3.1.angle-two-lines), the `solid-angle` situation: 11 unknowns over 49 cells and all six methods. A
+  line and a plane: a cuboid's space diagonal and its base, a pyramid's slant edge or the line VM to the
+  middle of a base edge and the base, a cone's slant height and its base, a line through two points and
+  the xy-plane; two lines: a cuboid's two space diagonals at M, two slant edges at the apex, a diagonal
+  and an edge, and angle ABC from three points (with or without a right angle at A or C). The lengths and
+  coordinates are drawn first as whole numbers and the angle is worked out of them; every cell is Paper 2
+  to 3 s.f. but `landmark-angle`, which is Paper 1 with lengths chosen to make 30°, 45° or 60° exactly.
+  The views (`solid_angle_views.gd`) give the solid in a story or as `PlotView`'s `space` figure, which
+  gained optional shaded `faces`, cone `rims`, measures on `lines`, `angles` arcs and `rights` marks for it;
+  points come as coordinates, position vectors or on axes. The bank's pyramid and the skill's worked
+  examples are left out.
 - `engine/situations/motion.gd` (FAL-724) is `t5-kinematics-motion` (SL5.9): Paper 1 is
   v(t) = 3A(t − p)(t − q), with s(t) whole, and a cubic that touches 0 for a change of direction;
   Paper 2 is A t e^(−kt) − B, A sin(wt) + B or A e^(−kt) cos(wt), with rests and extremes found
@@ -1010,7 +1100,8 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 - **The Lines region** (FAL-424): `line_conditions.gd` is a segment and a line built from it: the
   two points come first, then the gradient, the midpoint and a new line through a chosen point, so
   any of them can be hidden. `fn-line-from-conditions` and `fn-concept-gradient-meaning` are on it. The
-  answer kind `gline` is ax + by + d = 0, right at any whole-number multiple with a > 0, and a `line`
+  answer kind `gline` is ax + by + d = 0, right at any non-zero whole-number multiple of either sign
+  (the question asks for integers, not a > 0; a fractional multiple is glancing, FAL-788), and a `line`
   answer's text is y = mx + c. `line_crossing.gd` (`fn-ext-intersection-lines`) picks the meeting point
   first; a Paper 2 pair has one that needs the GDC, to 3 s.f. `line_model.gd` (`fn-ext-line-model`) is a
   fixed amount plus a steady rate. `linear_equation.gd` and `simultaneous.gd` are level-0, with the
@@ -1108,6 +1199,13 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   all work; the value must be a fraction of whole numbers (`Expr.eval_exact`), so exact
   marking stays exact, and √2 or ln 2 gets "Work that out to a number". Godot's
   `Expression` class is never used on what a student types (`test_expr.gd` checks).
+- **Equivalent answers** (FAL-788): an answer with the right value is right unless the question asks
+  for a form it breaks; then it is a glancing hit whose note names the rule ("Same line, but a, b and d
+  must be integers."). `gline`, `common`, `brackets2`, `surd`, `pm_surd` and an exact-length `form` are
+  marked by value or identity (`Answer.same_value`), with `simplest` and `integers` on the answer where
+  the wording asks for them. No option marked wrong has the answer's value; one in a broken form is
+  flagged `form` and is glancing when picked. `check_equivalent_options` in `tools/check_answers.py`
+  checks both with SymPy. The audit of every kind is the FAL-788 document `equivalence-audit`.
 - **Planner** (`engine/planner.gd`): never-seen cell, then a recently missed one, then
   exam frequency. "Exam-style only" (off by default) keeps exam cells only and follows
   exam frequency. It plans only from the cells the save's course covers (see "Courses").
@@ -1465,11 +1563,46 @@ second derivative changes sign, and a total time from the stretches between the 
 Tables, sentences and straight-line graphs are read back and put through each rule with exact
 rationals. Each tagged option is worked out from its slip, each figure's curves and tangents are held
 to the model, and a derivative in the working is compared with SymPy's (`E11DM_check`).
+For `derivative-graph` it holds the curve drawn (or the factors written) to the polynomial, then finds
+its roots with SymPy and works each feature out again: sign changes and touches from the sign a quarter
+either side of each root, turning points from where the derivative changes sign, the signed areas by
+exact integration (each shaded strip held between the curve and the axis), and where f rises from f′
+tested on a fine grid. For "which graph could be f?" it fits a polynomial to each card's samples and
+requires the right card to be an antiderivative and each wrong card to be its named slip. Each tagged
+option is rebuilt from its slip (`E12DG_check`).
 
 For `log-exp-form` it reads a log, a power or a sentence back and tests the power that gives the number
 exactly; on Paper 2 it reads each scale's constants back from its formula or its sentence, finds each
 value from the logarithm to 40 digits, rebuilds each tagged option from its slip, and requires each
 method's numbers in its working (`E11LF_check`).
+For `constant-change` it reads the change and the statistics back from the equation, the story, the
+list or the box plot (only the story's index comes from `given`), works every asked statistic again in
+exact rationals from the definitions (a list's median, quartiles and mode by sorting and counting, a box
+plot's from its five drawn numbers), rebuilds each tagged option from its slip and every statement
+offered, and evaluates every plain sum in the working (`E12CC_check`).
+For `rational-exponents` it parses the one line shown (roots, powers after a caret or in superscript,
+products, quotients and sums) into SymPy with its own parser and works the value, x or the power of x
+out again: a value exactly, x from SymPy's solve with x > 0, a power of x by comparing to 50 digits at
+three rational points. Every option is read back and must be right exactly when it is marked right, each tagged option
+is rebuilt from its slip, every equation in the working must hold, the numbers stay within the clean
+limits, and the map's and the bank's own examples are refused (`E12RE_check`).
+For `solve-exponential` it reads the equation back from the line, the graph's sentence or the story, turns
+it into SymPy and finds its root by a scan for sign changes refined by bisection to 40 digits. The exact
+answer is derived again from the equation's shape and must equal that root, and every option is evaluated
+and must differ from it (an exact shift answer must be at most 12); each tagged option is rebuilt from its
+slip, each figure's curves and crossing are held to the equation, and the map's own example equations are
+refused (`E12SE_check`).
+For `trig-sketch` it reads the function and its domain back from the line, the figure's sentence or
+the table (whose five points must be a quarter of a period apart and on the wave it rebuilds), finds
+turning points, zeros and asymptotes exactly with SymPy's solveset, and holds every card's curve to its
+function sampled across the domain: the right card to the function, each wrong card to the curve its
+slip draws, with its tag, its dots and, for tan, its asymptotes. Each typed option is rebuilt from its
+slip, and Paper 2's 3 s.f. values come from mpmath (`E12TS_check`).
+For `solid-angle` it reads the solid back from the sentences or the figure's measures (never the
+question's `given`), checks the figure is drawn to them, puts the solid on its own axes with SymPy
+integers and finds the angle again from vectors: a line and a plane from the rise over the length, two
+lines from their dot product. It holds the clean limits, rebuilds each tagged option from its slip, and
+evaluates every sum, named length, ratio and inverse in the working (`E12SA_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
@@ -1921,6 +2054,9 @@ script error happens while it runs. Run one file with
   the four FAL-723 types: built with every cell and every skill, no extra format, four
   different options, GDC methods on Paper 2 only, an expression marked by its numbers, an
   interval marked in either order, a limit graph with a gap, and matching as four graphs.
+- `test_derivative_graph.gd` (FAL-754): t5-derivative-graph built with every cell and both skills, Paper 1
+  only, no extra format; hand values, every root and turning point on a whole number, the areas given
+  equal to the areas under the curve drawn, a figure on every graph cell, and every tag as an option.
 - `test_motion_distance.gd`: t5-kinematics-distance built with every cell and both skills, four
   different options, GDC methods on Paper 2 and integrating by hand on Paper 1, the antiderivatives
   against v, a worked trip, graphs with a corner at each zero, and a return that goes both ways.
@@ -2030,6 +2166,28 @@ script error happens while it runs. Run one file with
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
+- `test_constant_change.gd` (FAL-754): t4-constant-changes built with every cell and unknown, Paper 1
+  only, four distinct options with one right and no extra format; a box plot on its ticks and axis, the
+  rules for a centre, a spread and the variance both ways, a list's statistics by hand, a changed list
+  agreeing with the rules, a real stretch and shift for find-a-and-b, and every tag as an option.
+- `test_rational_exponents.gd` (FAL-754): t1-rational-exponents built with every cell, one right
+  option in every cell, Paper 1 only, marking by value, a typed slip logged, every tag as an
+  option, the map's and the bank's examples left out, and hand values.
+- `test_tangent_meets.gd` (FAL-754): t5-normal-meets-curve built with every cell, Paper 2 only, no extra
+  formats; f and f′ against hand values, the line really the tangent or the normal, A and B on their axes,
+  Q on both the curve and the line, (x − x₀)² in a built cubic's curve minus tangent, the figure's curve
+  and line, every tag as an option, and no wrong option or rounding trap that types as right.
+- `test_solve_exponential.gd` (FAL-754): t1-solve-exponential built with every cell and all four methods;
+  exact cells make Paper 1 on request with no calculator in the working, 3 s.f. cells Paper 2; hand values,
+  clean answers, early rounding in the third figure only, exact two-bases answers within |x| ≤ 12, the
+  crossing on each figure, and every tag.
+- `test_trig_sketch.gd` (FAL-754): t3-trig-sketch built with every cell and all three methods, the GDC on
+  Paper 2 and the rest by hand on Paper 1; the sketches pick-the-graph with four different cards on one
+  window, no extra formats; hand values, figures with nothing marked, five-point tables, map strings with
+  no numbers, and every tag as an option.
+- `test_solid_angle.gd` (FAL-754): t3-3d-angle built with every cell and all six methods, landmark-angle
+  on Paper 1 and exact, the rest Paper 2; hand values for every unknown, clean in-range 3 s.f. angles, the
+  right angle at A or C, each figure marking what is asked, map strings with no numbers, and every tag.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters

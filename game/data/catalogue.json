@@ -1598,7 +1598,7 @@
 				},
 				{
 					"name": "forms",
-					"is": "y = nx + c, y − y_P = n(x − x_P), and ax + by + d = 0 with integers and a > 0",
+					"is": "y = nx + c, y − y_P = n(x − x_P), and ax + by + d = 0 with integers (shown with a > 0; any non-zero integer multiple is right)",
 					"pick": "scale y = nx + c by the denominator of n"
 				},
 				{
@@ -1627,7 +1627,7 @@
 			"clean": [
 				"integer points; gradients with denominator at most 5",
 				"the given gradient is non-zero, so the perpendicular gradient exists",
-				"when ax + by + d = 0 is asked, a, b, d are integers with no common factor and a > 0",
+				"when ax + by + d = 0 is asked, the answer shown has integers a, b, d with no common factor and a > 0; the question asks only for integers, so any non-zero integer multiple is right and a fractional one is glancing",
 				"on a graph, A, B and the intercepts sit on grid points"
 			]
 		},
@@ -5487,6 +5487,289 @@
 				"the committee always has at least 1 woman and at least 1 man",
 				"two particular people are different people, and the row has 5 to 8"
 			]
+		},
+		"constant-change": {
+			"name": "A data set's summary statistics, before and after a change to every value",
+			"summary": "Draw the change first, a constant added, a factor or y = ax + b, then the statistics of the data: told as numbers, a short list or a box plot. The new statistics are worked out of the old exactly, so either side can be shown and the other asked.",
+			"quantities": [
+				{
+					"name": "op, a, b",
+					"is": "the change, y = x + b, y = ax or y = ax + b",
+					"pick": "a from 2, 3, 4, 5, 10, 0.5, 1.5 and 2.5 (or a story's own, such as 10 mm to the cm or 1.8 for °F), b a whole number up to 20 either way"
+				},
+				{
+					"name": "old, new",
+					"is": "the statistics before and after",
+					"pick": "a measure of centre in halves in the story's range, a standard deviation in halves, an IQR and range whole; the new ones worked out"
+				},
+				{
+					"name": "asked, shown",
+					"is": "the statistics asked, and those told",
+					"pick": "the unknown's pair, or one measure of centre and one of spread"
+				},
+				{
+					"name": "back",
+					"is": "whether the new statistics are told and the original asked",
+					"pick": "set by the unknown"
+				},
+				{
+					"name": "xs, ys",
+					"is": "a list of the data and its new values",
+					"pick": "7 to 9 whole numbers up to 40, one of them twice so the mode is one value"
+				},
+				{
+					"name": "box, tick, x0, x1",
+					"is": "the five numbers of a box plot and its axis",
+					"pick": "on ticks of 1, 2 or 5 (more for the new values), at least two ticks apart within 25 ticks"
+				},
+				{
+					"name": "given_var",
+					"is": "find-a-and-b: whether the variances are told instead of the standard deviations",
+					"pick": "two times in five"
+				}
+			],
+			"clean": [
+				"every number told or asked ends within two decimal places and is positive",
+				"a list's mean ends within one decimal place, and its new values within one",
+				"a box plot's five numbers are on its ticks, at least two ticks apart",
+				"a told measure of centre and of spread differ, so no option reads both ways",
+				"a find-a-and-b change has a ≠ 1 and b ≠ 0"
+			]
+		},
+		"rational-exponents": {
+			"name": "A power with a rational exponent, of a number or of x",
+			"summary": "Draw the root and the power first, then the base as a perfect power of the root, so every value is exact; powers of x are drawn as fractions with small denominators. Every unknown has its own draw, and nothing needs a calculator.",
+			"quantities": [
+				{
+					"name": "m, n",
+					"is": "the top and bottom of the power",
+					"pick": "n from 2 to 5, m from 2 to 5 with no common factor, so the power is never whole"
+				},
+				{
+					"name": "b, a",
+					"is": "the root and the base, a = b^n",
+					"pick": "b from 2, 3, 4, 5, 7, 8, 9, each a power of one prime, with a at most 1024"
+				},
+				{
+					"name": "u, v",
+					"is": "the roots of a fraction's top and bottom",
+					"pick": "different whole numbers to 5 with no common factor, v at least 2"
+				},
+				{
+					"name": "c, q",
+					"is": "the number and the power of x in a bracket",
+					"pick": "c a perfect power of the root, at most 625; q from 1 to 8"
+				},
+				{
+					"name": "e1, e2",
+					"is": "powers of x or of a prime in a product or quotient",
+					"pick": "fractions with tops from −5 to 5 and bottoms from 2 to 6"
+				},
+				{
+					"name": "tops, k, d",
+					"is": "the terms on top of a quotient, the number under it and the root of x under it",
+					"pick": "two or three terms with small whole coefficients; k is 1 or 2; d is a half, a third, three halves or two thirds"
+				}
+			],
+			"clean": [
+				"every value is exact and comes out by hand",
+				"a number shown is at most 1024, and a power-then-root working reaches at most 2000000",
+				"a fractional power asked for is never whole, and a sum or difference of powers is never 0",
+				"a number under a quotient doesn't divide every number on top",
+				"the bank's numbers and the skill map's examples are left out"
+			]
+		},
+		"tangent-meets-curve": {
+			"name": "A curve, a point P on it, and its tangent or normal",
+			"summary": "Pick a family of curve and a whole-number x₀, find P and the gradient there, and the tangent or the normal; then where it meets the axes and the curve again. For the tangent meeting a cubic or px² + A/x + q again, pick P and Q first and build the curve from them, so (x − x₀)²(x − Q) is a factor of curve minus tangent.",
+			"quantities": [
+				{
+					"name": "f",
+					"is": "the curve",
+					"pick": "ax² + bx + c, ax³ + bx² + cx + d, px² + A/x + q (x ≠ 0) or Ae^(kx) + px² + q, with whole numbers (k in tenths, p in halves for e^(kx))"
+				},
+				{
+					"name": "x₀",
+					"is": "P's x-coordinate",
+					"pick": "a whole number from −4 to 4 (not 0 for px² + A/x + q)"
+				},
+				{
+					"name": "m",
+					"is": "f′(x₀)",
+					"pick": "from f; the normal's gradient is −1/m"
+				},
+				{
+					"name": "A, B",
+					"is": "where the line meets the x-axis and the y-axis",
+					"pick": "from the line"
+				},
+				{
+					"name": "Q",
+					"is": "where the line meets the curve again",
+					"pick": "a whole number for the tangent to a cubic or px² + A/x + q, built in; otherwise found by a scan for sign changes"
+				}
+			],
+			"modes": [
+				"Paper 2: exact values for whole-number curves, 3 s.f. for e^(kx) curves and GDC intersections"
+			],
+			"clean": [
+				"f′(x₀) ≠ 0: at most 12 in size for a tangent and 8 for a normal of a polynomial; at least 0.2 for an e^(kx) curve",
+				"every marked point has |x| ≤ 12 and |y| ≤ 100, and an intercept is at least 0.05 from the origin",
+				"the triangle's intercepts have opposite signs",
+				"the line meets the curve again at exactly one point, at least 0.5 from P: an e^(kx) curve minus a line has at most three roots, and the signs at the ends of the scan agree with the crossings found",
+				"a 3 s.f. answer is clear of a rounding edge and not a whole number by accident"
+			]
+		},
+		"solve-exponential": {
+			"name": "An exponential equation solved with logarithms, in symbols or in a story",
+			"summary": "Draws two powers with different bases, an exponential with a number in front and a constant, or one or two growth models, so the solution comes out exactly as a quotient of logs or m ln r, or needs a calculator to 3 s.f.",
+			"quantities": [
+				{
+					"name": "a, b, p, c",
+					"is": "two bases and the shift or reflected power of a^(x + p) = b^x or a^x = b^(c − x)",
+					"pick": "a and b from 2, 3, 5, 6 and 7, p from −3 to 3, c from 1 to 3"
+				},
+				{
+					"name": "k, m, d, c, r",
+					"is": "the number in front, the rate, the constant and the right side of k e^(mx) + d = c, with r = (c − d)/k",
+					"pick": "k from 2 to 9, m whole or in tenths, d from −12 to 20; r a whole power of a for ln a"
+				},
+				{
+					"name": "A₀, k, L",
+					"is": "a model A₀e^(kt), its rate and a level",
+					"pick": "A₀ from a short list, k in hundredths with 1/k neat, L a whole multiple or half-multiple of A₀"
+				},
+				{
+					"name": "B₀, g",
+					"is": "a second model B₀ × g^t",
+					"pick": "B₀ larger than A₀, g from 1.05 to 1.25, so the faster model catches up"
+				}
+			],
+			"clean": [
+				"an exact answer needs no calculator",
+				"a 3 s.f. answer is clear of a rounding edge and doesn't end in a zero",
+				"the logs rounded to 2 d.p. move the answer in its third figure only",
+				"a graph's crossing sits inside the window",
+				"the skill map's example equations are left out"
+			]
+		},
+		"trig-sketch": {
+			"name": "One circular function on a domain, to sketch",
+			"summary": "y = a fn(bx) + d for sin, cos or tan with whole a and d and b of 1, 2, 3 or 1/2, on a domain in multiples of π or in degrees: two periods for a sketch, one for a table, one maximum and one minimum for the turning points, and fn(bx) = ±1/2 at an intercept. Paper 2's GDC cells put the turning points and intercepts on a wave with tenths, on a whole-number domain.",
+			"quantities": [
+				{
+					"name": "fn, a, b, d",
+					"is": "y = a fn(bx) + d",
+					"pick": "sin, cos or tan; a whole and signed, d whole; b 1, 2, 3 or 1/2; tenths on Paper 2"
+				},
+				{
+					"name": "lo, hi, form",
+					"is": "the domain, and how it is written",
+					"pick": "0 to 2π, 0 to 4π, one or two periods, or a quarter period before 0 for cos; pi or deg"
+				},
+				{
+					"name": "xs",
+					"is": "the x-intercepts",
+					"pick": "where fn(bx) = −d/a = ±1/2, divided by b"
+				},
+				{
+					"name": "blanks",
+					"is": "the key points left blank in a table",
+					"pick": "two of the five"
+				},
+				{
+					"name": "spin",
+					"is": "where a question's slips start",
+					"pick": "0 to 59"
+				}
+			],
+			"clean": [
+				"Paper 1 positions are landmarks, exact",
+				"a turning-point domain holds one maximum and one minimum, off its ends",
+				"Paper 2 values are 3 s.f., clear of a rounding edge and 0.15 from the ends"
+			]
+		},
+		"derivative-graph": {
+			"name": "A function read from the graph of its derivative",
+			"summary": "Pick a derivative with whole-number roots: a cubic k(x − a)(x − b)² that crosses the axis at a and touches it at b, or a parabola k(x − a)(x − b), so every sign change, touch and turning point of f′ sits on the grid; or the same cubic as f itself, to read the sign of f′.",
+			"quantities": [
+				{
+					"name": "k",
+					"is": "the leading coefficient",
+					"pick": "±1 or ±2; ±2, ±3 or ±6 for two regions with whole areas"
+				},
+				{
+					"name": "a, b",
+					"is": "the roots",
+					"pick": "whole numbers 3 apart for the cubic, with its other turning point (2a + b)/3; an even gap for the parabola"
+				},
+				{
+					"name": "lo, hi",
+					"is": "the ends drawn",
+					"pick": "one past the roots, or the ends of the two regions"
+				},
+				{
+					"name": "A1, A2",
+					"is": "the areas",
+					"pick": "the areas of the two regions under f′, whole and different"
+				},
+				{
+					"name": "v",
+					"is": "a value of f",
+					"pick": "a whole number at the left end, or the shift of f for a turning point"
+				}
+			],
+			"modes": [
+				"Paper 1: exact"
+			],
+			"clean": [
+				"every root and turning point drawn is a whole number",
+				"the two areas are whole, at least 4, different, and neither more than eight times the other",
+				"a turning point of f off the axis has a y-coordinate other than 0 and its own x"
+			]
+		},
+		"solid-angle": {
+			"name": "An angle in a solid, or between points in 3D",
+			"summary": "A cuboid ABCDEFGH, a right pyramid VABCD over a square or rectangular base, a cone, or two or three points with whole coordinates. The lengths are drawn first, as whole numbers, and the angle is worked out of them; a landmark angle comes from lengths chosen for it.",
+			"quantities": [
+				{
+					"name": "l, w, h",
+					"is": "a cuboid's AB, BC and AE, or a pyramid's AB, BC and height VX",
+					"pick": "whole numbers: a cuboid's from 2 to 15 and all different, a pyramid's base from 3 to 14 (square two times in five) and height from 3 to 15"
+				},
+				{
+					"name": "r, h, sl, given",
+					"is": "a cone's radius, height and slant height, and which two are shown",
+					"pick": "whole numbers to 18, the third from Pythagoras"
+				},
+				{
+					"name": "edge, corner, pair",
+					"is": "the edge, the corner or the pair of slant edges the question is about",
+					"pick": "any, at random"
+				},
+				{
+					"name": "A, B, C",
+					"is": "the points",
+					"pick": "whole coordinates up to 12 in size; a right angle at A or C from two whole moves at right angles"
+				},
+				{
+					"name": "shape",
+					"is": "landmark-angle: the solid",
+					"pick": "a cone with l = 2r or l = 2h or r = h, a cuboid with a Pythagorean base and a height equal to its diagonal, or a square pyramid with every edge equal"
+				},
+				{
+					"name": "theta",
+					"is": "the angle asked, in degrees",
+					"pick": "worked out from the lengths"
+				}
+			],
+			"clean": [
+				"a Paper 2 angle is clear of a rounding edge at 3 s.f., and at least half a degree from 30°, 45° and 60°",
+				"a line-plane angle is between 12° and 78°, an angle between lines between 20° and 160° and at least 4° from 90°",
+				"the edges of a cuboid are all different",
+				"a triangle from coordinates has no angle under 12° and, but on the right-angle cells, none within 4° of a right angle",
+				"the bank's pyramid and the skill's worked examples are left out"
+			]
 		}
 	},
 	"skills": {
@@ -5572,6 +5855,7 @@
 		"SL1.5.log-context": "Use base-10 and natural logarithms in contextual formulae",
 		"SL1.6.identity-lhs-rhs": "Prove an algebraic identity from LHS to RHS",
 		"SL1.6.integer-proof": "Prove properties of integers: odd, even, consecutive and divisibility",
+		"SL1.7.rational-exponents": "Evaluate and simplify rational exponents",
 		"SL1.7.log-laws": "Use the laws of logarithms to simplify, expand and evaluate",
 		"SL1.8.convergence": "Decide whether a geometric series converges and find the condition for convergence",
 		"SL1.8.sum-to-infinity": "Find the sum to infinity of a convergent geometric series",
@@ -5581,6 +5865,8 @@
 		"SL1.9.ncr-pascal": "Evaluate nCr and use Pascal's triangle",
 		"SL1.9.full-expansion": "Expand (a + b)^n fully",
 		"SL1.9.specific-term": "Find a specific term or coefficient in an expansion",
+		"SL3.1.angle-line-plane": "Find the angle between a line and a plane",
+		"SL3.1.angle-two-lines": "Find the angle between two intersecting lines in a 3D solid",
 		"SL3.1.distance-3d": "Find the distance between two points in 3D",
 		"SL3.1.volume-solids": "Find volumes of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.1.surface-area": "Find surface areas of pyramids, cones, spheres, hemispheres and composite solids",
@@ -5607,6 +5893,7 @@
 		"SL3.6.ratio-from-ratio": "Find one trig ratio from another, using the quadrant for the sign",
 		"SL3.6.double-angle-values": "Find exact values of sin 2θ and cos 2θ from a given ratio",
 		"SL3.6.simplify": "Rewrite and simplify trig expressions using identities",
+		"SL3.7.sketch": "Sketch the graph of a circular function on a given domain",
 		"SL3.7.model-context": "Model a real-life periodic situation (tides, Ferris wheel, temperature, daylight)",
 		"SL3.7.read-features": "Write down amplitude, period, principal axis, maximum, minimum and range",
 		"SL3.7.equation-from-graph": "Find a, b, c and d from a graph or from given maximum and minimum points",
@@ -5625,6 +5912,7 @@
 		"SL4.2.cumfreq-build": "Build a cumulative frequency table and graph, and recover class frequencies from it",
 		"SL4.2.box-plot": "Draw and interpret a box-and-whisker diagram",
 		"SL4.2.compare-distributions": "Compare two distributions in context",
+		"SL4.3.constant-changes": "Find the effect of adding or multiplying every value by a constant",
 		"SL4.3.grouped-mean": "Estimate the mean of grouped data and identify the modal class",
 		"SL4.3.sd-variance": "Find and interpret the standard deviation and the variance",
 		"SL4.3.mean-totals": "Use total = mean × n to find a missing value, a missing frequency or a combined mean",
@@ -5683,12 +5971,14 @@
 		"SL5.3.power-rule": "Differentiate ax^n and sums of such terms",
 		"SL5.3.negative-powers": "Rewrite reciprocals and fractions as powers of x, then differentiate",
 		"SL5.3.gradient-at-point": "Find the gradient of a curve at a given point",
+		"SL5.4.tangent-meets-axes-or-curve": "Use a tangent or normal to find intercepts, an area, or a second intersection",
 		"SL5.3.point-with-given-gradient": "Find the point(s) where a curve has a given gradient",
 		"SL5.4.parallel-or-perpendicular": "Find where the tangent (or normal) is parallel or perpendicular to a given line",
 		"SL5.4.tangency-condition": "Find an unknown constant given that a line is tangent to a curve",
 		"SL5.4.tangent-equation": "Find the equation of the tangent at a given point",
 		"SL5.4.normal-equation": "Find the equation of the normal at a given point",
 		"SL5.4.read-from-tangent": "Use a given tangent line to read off f(a) and f′(a)",
+		"SL5.7.f-from-derivative-graph": "Use the graph of f′ (or f″) to deduce features of f",
 		"SL5.8.find-stationary-points": "Find the coordinates of stationary points",
 		"SL5.8.classify-stationary-points": "Determine the nature of stationary points",
 		"SL5.8.points-of-inflexion": "Find points of inflexion, with zero or non-zero gradient",
@@ -5730,7 +6020,6 @@
 		"SL2.8.rational-model": "Use a rational function as a model",
 		"SL2.2.is-function": "Decide whether a relation is a function, and whether it is one-to-one",
 		"SL2.1.intersection-lines": "Find where two lines intersect",
-		"SL4.3.constant-changes": "Find the effect of adding or multiplying every value by a constant",
 		"SL5.11.integral-properties": "Use properties of definite integrals",
 		"SL5.1.chord-to-tangent": "Find the gradient of a curve as the limit of chord gradients",
 		"SL1.6.identity-constants": "Use = and ≡ correctly and find unknown constants in an identity",
@@ -17992,7 +18281,7 @@
 				},
 				{
 					"ref": "SL1.7.solve-with-logs#1",
-					"text": "Taking logs before isolating: ln(5e^(2x)) = 5 × 2x",
+					"text": "Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power",
 					"as": "error-spot",
 					"in": [
 						"time-to-level",
@@ -26064,6 +26353,518 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Rational and negative exponents",
+			"summary": "One power with a rational exponent, worked exactly by hand: the value of a number to a fractional or negative power, a base from x to a fractional power, a root or a product of roots as one power of x, a bracket to a fractional power, products and quotients of powers, and a quotient over a root split into powers of x, ready for calculus.",
+			"situation": "rational-exponents",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the number, the expression or the equation as the exam writes it, with powers after a caret"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "value-fraction",
+					"given": [
+						"a whole number to a positive fractional power, the number a perfect power of the root"
+					],
+					"asked": "the exact value, a whole number",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "value-negative",
+					"given": [
+						"a whole number to a negative fractional power, the number a perfect power of the root"
+					],
+					"asked": "the exact value, a fraction with 1 on top",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "value-fraction-base",
+					"given": [
+						"a fraction to a positive or negative fractional power, its top and bottom perfect powers of the root"
+					],
+					"asked": "the exact value, a fraction",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "solve-base",
+					"given": [
+						"an equation: x to a positive or negative fractional power equals a number, with x > 0"
+					],
+					"asked": "x, a whole number",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "root-as-power",
+					"given": [
+						"a square or cube root of a power of x, a power of the root, or 1 over such a root"
+					],
+					"asked": "the expression as one power of x",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "root-product-as-power",
+					"given": [
+						"a power of x times a root of x, 1 over that product, or one of them over the other"
+					],
+					"asked": "the expression as one power of x",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "bracket-power",
+					"given": [
+						"a bracket c x^q to a positive or negative fractional power, with c a perfect power of the root"
+					],
+					"asked": "the expression as a x^n",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "product-x",
+					"given": [
+						"two powers of x with fractional powers multiplied, alone or with whole numbers in front"
+					],
+					"asked": "the product as one term",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "quotient-x",
+					"given": [
+						"one power of x over another, with fractional powers, alone or with whole numbers in front"
+					],
+					"asked": "the quotient as one term",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "product-numbers",
+					"given": [
+						"two powers of the same prime's powers, with fractional powers that are not whole alone, multiplied or divided"
+					],
+					"asked": "the exact value",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "split-two",
+					"given": [
+						"two terms over a root of x, or over a number times one"
+					],
+					"asked": "the quotient as a sum of two powers of x",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "split-three",
+					"given": [
+						"three terms over a square or cube root of x, or over a number times one"
+					],
+					"asked": "the quotient as a sum of three powers of x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.7.rational-exponents",
+					"method": "root-then-power",
+					"suits": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base",
+						"solve-base",
+						"root-as-power",
+						"bracket-power"
+					],
+					"name": "Take the root first, then the power",
+					"about": "8^(2/3) = (∛8)² = 2² = 4 keeps the numbers small."
+				},
+				{
+					"skill": "SL1.7.rational-exponents",
+					"method": "power-then-root",
+					"suits": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base",
+						"solve-base",
+						"root-as-power",
+						"bracket-power"
+					],
+					"name": "Raise to the power first, then take the root",
+					"about": "8^(2/3) = ∛(8²) = ∛64 = 4: valid, but with bigger numbers."
+				},
+				{
+					"skill": "SL1.7.rational-exponents",
+					"method": "prime-base",
+					"suits": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base",
+						"solve-base",
+						"bracket-power",
+						"product-numbers"
+					],
+					"name": "Rewrite the base as a prime power",
+					"about": "27^(−1/3) = (3^3)^(−1/3) = 3^(−1) = 1/3, using (a^m)^n = a^(mn)."
+				},
+				{
+					"skill": "SL1.7.rational-exponents",
+					"method": "split-terms",
+					"suits": [
+						"split-two",
+						"split-three"
+					],
+					"name": "Split a fraction into separate powers",
+					"about": "(x² − 2)/√x = x^(3/2) − 2x^(−1/2), ready for differentiation or integration."
+				},
+				{
+					"method": "index-laws",
+					"suits": [
+						"root-product-as-power",
+						"product-x",
+						"quotient-x"
+					],
+					"name": "Use the laws of indices",
+					"about": "Write each root as a fractional power, then add the powers to multiply, subtract them to divide, and multiply them for a power of a power."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A negative power makes a number negative.",
+					"answer": "False: a negative power is a reciprocal. A positive number to any power stays positive; the minus sign flips the number over instead.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "x^a × x^b = x^(ab), for x > 0.",
+					"answer": "Sometimes: it needs ab = a + b, as with a = b = 2. The law is x^a × x^b = x^(a + b).",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "For a positive number a, taking the cube root and then squaring gives the same as squaring and then taking the cube root.",
+					"answer": "True: both are a^(2/3). Taking the root first keeps the numbers small.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.7.rational-exponents#0",
+					"text": "Multiplying the base by the exponent",
+					"as": "distractor",
+					"in": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base",
+						"bracket-power"
+					],
+					"wrong": "the base, or the number in the bracket, times the fractional power"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#1",
+					"text": "Thinking a negative exponent gives a negative value",
+					"as": "distractor",
+					"in": [
+						"value-negative",
+						"value-fraction-base"
+					],
+					"wrong": "the value for the positive power, with a minus sign in front"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#2",
+					"text": "Multiplying the exponents when multiplying powers",
+					"as": "distractor",
+					"in": [
+						"root-product-as-power",
+						"product-x",
+						"product-numbers",
+						"split-two",
+						"split-three"
+					],
+					"wrong": "the product of the powers where their sum belongs"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#3",
+					"text": "Taking the root and stopping, without raising to the power",
+					"as": "distractor",
+					"in": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base",
+						"solve-base"
+					],
+					"wrong": "the root alone"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#4",
+					"text": "Multiplying the root by the top of the power instead of raising it to that power",
+					"as": "distractor",
+					"in": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base"
+					],
+					"wrong": "the root times the top of the fraction"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#5",
+					"text": "Ignoring the minus sign in the power, so no reciprocal is taken",
+					"as": "distractor",
+					"in": [
+						"value-negative",
+						"value-fraction-base",
+						"solve-base",
+						"bracket-power"
+					],
+					"wrong": "the value for the positive power"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#6",
+					"text": "Dividing by the power instead of raising both sides to its reciprocal",
+					"as": "distractor",
+					"in": [
+						"solve-base"
+					],
+					"wrong": "the number divided by the fractional power"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#7",
+					"text": "Writing the power of a root upside down, with the root's index on top",
+					"as": "distractor",
+					"in": [
+						"root-as-power"
+					],
+					"wrong": "the fractional power turned upside down"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#8",
+					"text": "Leaving out the minus sign when a power moves from the bottom of a fraction to the top",
+					"as": "distractor",
+					"in": [
+						"root-as-power",
+						"root-product-as-power",
+						"split-two",
+						"split-three"
+					],
+					"wrong": "a positive power where the negative one belongs"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#9",
+					"text": "Applying the power to x but not to the number in the bracket",
+					"as": "distractor",
+					"in": [
+						"bracket-power"
+					],
+					"wrong": "the number in the bracket left as it was"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#10",
+					"text": "Adding the powers in a bracket instead of multiplying them",
+					"as": "distractor",
+					"in": [
+						"bracket-power"
+					],
+					"wrong": "the power of x plus the power outside the bracket"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#11",
+					"text": "Adding the tops and adding the bottoms of two fractional powers",
+					"as": "distractor",
+					"in": [
+						"root-product-as-power",
+						"product-x"
+					],
+					"wrong": "a power whose top and bottom are the sums of the two tops and the two bottoms"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#12",
+					"text": "Dividing the powers instead of subtracting them",
+					"as": "distractor",
+					"in": [
+						"root-product-as-power",
+						"quotient-x",
+						"product-numbers",
+						"split-two",
+						"split-three"
+					],
+					"wrong": "the quotient of the powers where their difference belongs"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#13",
+					"text": "Subtracting the powers the wrong way round",
+					"as": "distractor",
+					"in": [
+						"root-product-as-power",
+						"quotient-x"
+					],
+					"wrong": "the power with the wrong sign"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#14",
+					"text": "Adding the powers when dividing",
+					"as": "distractor",
+					"in": [
+						"product-numbers"
+					],
+					"wrong": "the sum of the powers where their difference belongs"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#15",
+					"text": "Adding the powers of two different bases as if the base were the same",
+					"as": "distractor",
+					"in": [
+						"product-numbers"
+					],
+					"wrong": "the first base to the sum of the two powers"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#16",
+					"text": "Dividing only the first term of the top by the bottom",
+					"as": "distractor",
+					"in": [
+						"split-two",
+						"split-three"
+					],
+					"wrong": "the later terms left as they were"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#17",
+					"text": "Adding the numbers in front instead of multiplying them",
+					"as": "distractor",
+					"in": [
+						"product-x"
+					],
+					"wrong": "the sum of the numbers in front"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#18",
+					"text": "Dividing the powers of x but not the numbers in front",
+					"as": "distractor",
+					"in": [
+						"quotient-x"
+					],
+					"wrong": "the top number left undivided"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#19",
+					"text": "Treating a cube root as a square root",
+					"as": "distractor",
+					"in": [
+						"root-as-power",
+						"root-product-as-power"
+					],
+					"wrong": "a half where a third belongs"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#20",
+					"text": "Raising both sides to the given power instead of its reciprocal",
+					"as": "distractor",
+					"in": [
+						"solve-base"
+					],
+					"wrong": "the number to the fractional power given"
+				}
+			],
+			"methods": [
+				{
+					"id": "index-laws",
+					"name": "Use the laws of indices",
+					"summary": "Write each root as a fractional power, then add the powers to multiply, subtract them to divide, and multiply them for a power of a power."
+				}
+			],
+			"chain": [
+				"a power m/n is the nth root and then the mth power, in either order",
+				"a negative power is the reciprocal: flip the number or the fraction",
+				"write the base as a power of a prime, then multiply the powers",
+				"multiply powers of one base by adding the powers, and divide by subtracting them",
+				"a root of x is a fractional power, and 1 over a power is the negative power",
+				"split a quotient term by term, taking the power of the bottom from each power on top"
+			],
 			"frequency": 2,
 			"marks": 1,
 			"section": {
@@ -26073,15 +26874,362 @@
 			"paper": {
 				"p1": 2,
 				"p2": 0
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-solve-exponential",
 			"topic": 1,
 			"source": "exam",
 			"name": "Solve an exponential equation exactly with logarithms",
+			"summary": "An unknown trapped in a power, released with logarithms: two powers with different bases, to 3 s.f. or exactly as a quotient of logs; an exponential to isolate first, exactly as m ln r or to 3 s.f.; and growth models in a story, the exact time to reach a level and the time two models meet. A graph shows the curves crossing, and on Paper 2 the GDC solves too.",
+			"situation": "solve-exponential",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the equation alone"
+				},
+				{
+					"rep": "words",
+					"exam": false,
+					"how": "a story with its growth models"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "the two curves, or a curve and a line, drawn crossing at P"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "two-bases-3sf",
+					"given": [
+						"a^(x + p) = b^x or a^x = b^(c − x), or their curves crossing at P"
+					],
+					"asked": "x to 3 s.f.",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL1.7.solve-with-logs"
+					]
+				},
+				{
+					"id": "shift-base-exact",
+					"given": [
+						"a^(x + p) = b^x with a < b, or a^(x − p) = b^x with a > b"
+					],
+					"asked": "x exactly, as ln p/ln q",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.solve-with-logs"
+					]
+				},
+				{
+					"id": "one-minus-exact",
+					"given": [
+						"a^x = b^(c − x)"
+					],
+					"asked": "x exactly, as ln p/ln q",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.solve-with-logs"
+					]
+				},
+				{
+					"id": "isolate-e-exact",
+					"given": [
+						"k e^(mx) + d = c, with whole numbers"
+					],
+					"asked": "x exactly, as ln a or (ln r)/m",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.solve-with-logs"
+					]
+				},
+				{
+					"id": "isolate-3sf",
+					"given": [
+						"k e^(mx) + d = c with a decimal rate, or k × a^x + d = c, or the curve and the line y = c crossing at P"
+					],
+					"asked": "x to 3 s.f.",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL1.7.solve-with-logs"
+					]
+				},
+				{
+					"id": "model-time-exact",
+					"given": [
+						"a story: A = A₀e^(kt)",
+						"a level"
+					],
+					"asked": "the exact time, as m ln r",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.7.solve-with-logs"
+					]
+				},
+				{
+					"id": "model-meet",
+					"given": [
+						"a story: A = A₀e^(kt) and B = B₀ × g^t",
+						"or their curves crossing at P"
+					],
+					"asked": "the time they are equal, to 3 s.f.",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"graph"
+					],
+					"skills": [
+						"SL1.7.solve-with-logs"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.7.solve-with-logs",
+					"method": "log-both-sides",
+					"suits": [
+						"two-bases-3sf",
+						"shift-base-exact",
+						"one-minus-exact",
+						"isolate-e-exact",
+						"isolate-3sf",
+						"model-time-exact",
+						"model-meet"
+					],
+					"name": "Take ln of both sides and bring the exponents down",
+					"about": "(x + 1) ln 3 = x ln 5; expand, collect the x terms and factorise: x = ln 3/(ln 5 − ln 3) ≈ 2.15."
+				},
+				{
+					"skill": "SL1.7.solve-with-logs",
+					"method": "isolate-then-log",
+					"suits": [
+						"isolate-e-exact",
+						"isolate-3sf",
+						"model-time-exact"
+					],
+					"name": "Isolate the exponential, then convert to log form",
+					"about": "5e^(2x) = 20 → e^(2x) = 4 → 2x = ln 4 → x = ln 2."
+				},
+				{
+					"skill": "SL1.7.solve-with-logs",
+					"method": "graph-intersect",
+					"suits": [
+						"two-bases-3sf",
+						"isolate-3sf",
+						"model-meet"
+					],
+					"name": "Graph both sides and find the intersection",
+					"about": "Plot y = 3^(x + 1) and y = 5^x (or y = P(t) and y = 1000) and read off the x-coordinate."
+				},
+				{
+					"skill": "SL1.7.solve-with-logs",
+					"method": "gdc-solver",
+					"suits": [
+						"two-bases-3sf",
+						"isolate-3sf",
+						"model-meet"
+					],
+					"name": "Use the numerical solver",
+					"about": "Enter the equation and solve; quick on Paper 2 but gives no exact form."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "ln(3e^(2x)) = 6x.",
+					"answer": "False: the log of a product is a sum, so ln(3e^(2x)) = ln 3 + 2x. Divide by 3 first, or use the product law, before the power comes down.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Solving a^x = b with log₁₀ instead of ln gives the same x.",
+					"answer": "Always: x = log b/log a in any base, because changing the base multiplies the top and the bottom by the same number.",
+					"level": 4
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Before solving 2^(x + 1) = 3^x, say whether x is more or less than 1.",
+					"answer": "More: at x = 1 the left side is 4 and the right side 3, and 3^x grows faster, so it catches up later. x = ln 2/(ln 3 − ln 2) ≈ 1.71.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.7.solve-with-logs#0",
+					"text": "Losing the brackets around the power when bringing it down",
+					"as": "distractor",
+					"in": [
+						"two-bases-3sf",
+						"shift-base-exact",
+						"one-minus-exact"
+					],
+					"wrong": "the bracketed power brought down with only its x term multiplied by the log"
+				},
+				{
+					"ref": "SL1.7.solve-with-logs#1",
+					"text": "Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power",
+					"as": "distractor",
+					"in": [
+						"isolate-e-exact",
+						"isolate-3sf",
+						"model-time-exact"
+					],
+					"wrong": "the log of the right side divided by the number in front times the rate"
+				},
+				{
+					"ref": "SL1.7.solve-with-logs#2",
+					"text": "Rounding the logs early, so the final answer is wrong",
+					"as": "distractor",
+					"in": [
+						"two-bases-3sf",
+						"isolate-3sf",
+						"model-meet"
+					],
+					"wrong": "each log rounded to 2 d.p. first, so the answer is off in its third figure"
+				},
+				{
+					"text": "Moving an x term across without changing its sign",
+					"as": "distractor",
+					"in": [
+						"two-bases-3sf",
+						"shift-base-exact",
+						"one-minus-exact",
+						"model-meet"
+					],
+					"wrong": "the two logs added where one is taken from the other, or the other way round"
+				},
+				{
+					"text": "Combining two logs by adding or subtracting the numbers inside them",
+					"as": "distractor",
+					"in": [
+						"two-bases-3sf",
+						"shift-base-exact",
+						"one-minus-exact",
+						"model-meet"
+					],
+					"wrong": "the log of the difference or sum of the numbers, not of their quotient or product"
+				},
+				{
+					"text": "Dividing the other way round when the bracket is divided out",
+					"as": "distractor",
+					"in": [
+						"shift-base-exact",
+						"one-minus-exact"
+					],
+					"wrong": "the reciprocal of the right quotient"
+				},
+				{
+					"text": "Subtracting the number in front instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"isolate-e-exact",
+						"isolate-3sf",
+						"model-time-exact"
+					],
+					"wrong": "the log of the right side less the number in front"
+				},
+				{
+					"text": "Dividing by the number in front before taking off the added constant",
+					"as": "distractor",
+					"in": [
+						"isolate-e-exact",
+						"isolate-3sf"
+					],
+					"wrong": "the constant taken off after dividing"
+				},
+				{
+					"text": "Forgetting to divide by the number in the power",
+					"as": "distractor",
+					"in": [
+						"isolate-e-exact",
+						"isolate-3sf",
+						"model-time-exact"
+					],
+					"wrong": "the log of the isolated power, left as it is"
+				},
+				{
+					"text": "Multiplying by the number in the power instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"isolate-e-exact",
+						"model-time-exact"
+					],
+					"wrong": "the log times the rate"
+				},
+				{
+					"text": "Dividing by the base instead of by its log",
+					"as": "distractor",
+					"in": [
+						"isolate-3sf"
+					],
+					"wrong": "the log of the isolated power over the base"
+				},
+				{
+					"text": "Dropping the starting amount before taking logs",
+					"as": "distractor",
+					"in": [
+						"model-time-exact"
+					],
+					"wrong": "the log of the level, not of the level over the start"
+				},
+				{
+					"text": "Using the percentage growth as the continuous rate",
+					"as": "distractor",
+					"in": [
+						"model-meet"
+					],
+					"wrong": "the factor less one in place of its log"
+				},
+				{
+					"text": "Raising the starting amount to the power along with the factor",
+					"as": "distractor",
+					"in": [
+						"model-meet"
+					],
+					"wrong": "the start and the factor taken to the power together"
+				}
+			],
+			"chain": [
+				"isolate the exponential first: undo any added constant, then the number in front",
+				"take ln of both sides, or convert to log form, so the power comes down",
+				"bring each power down as a whole, keeping its bracket",
+				"expand, collect the x terms on one side and factorise",
+				"write the answer exactly with the log laws, or keep every log unrounded to the end for 3 s.f.",
+				"the solution is where the two sides' graphs cross, which a GDC finds too"
+			],
 			"frequency": 1,
 			"marks": 3,
 			"section": {
@@ -26091,9 +27239,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 1
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-log-laws",
@@ -28811,6 +29957,504 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Angle in a 3D solid",
+			"summary": "Find the angle between a line and a plane, or between two lines that meet, in a cuboid, a right pyramid or a cone, or from 3D coordinates: a space diagonal to the base, a slant edge or a face's slant height to the base, a cone's slant height to its base, a line to the xy-plane, two space diagonals, two slant edges at the apex, a diagonal and an edge, and angle ABC. Angles are to 3 s.f. on Paper 2; a landmark angle is exact on Paper 1.",
+			"situation": "solid-angle",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "the solid with lettered corners, the lines asked in pink, the plane shaded and the measures on its edges, or the points on axes with their coordinates"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "the solid in a story, its measures in the sentences"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the points' coordinates in a sentence, as A(1, −2, 3), standing for the map's symbolic representation"
+				},
+				{
+					"rep": "notation",
+					"exam": false,
+					"how": "position vectors a = (1, −2, 3), standing for the map's vector representation"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "cuboid-diagonal-base",
+					"given": [
+						"a cuboid ABCDEFGH with its three edges, in a story or on the figure"
+					],
+					"asked": "the angle between the space diagonal AG and the base",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.angle-line-plane"
+					]
+				},
+				{
+					"id": "pyramid-edge-base",
+					"given": [
+						"a right pyramid VABCD with a square or rectangular base, its base edges and its height"
+					],
+					"asked": "the angle between a slant edge and the base",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.angle-line-plane"
+					]
+				},
+				{
+					"id": "pyramid-face-base",
+					"given": [
+						"a right pyramid VABCD, its base edges and height, and M the midpoint of a base edge"
+					],
+					"asked": "the angle between the slant height VM of a face and the base",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.angle-line-plane"
+					]
+				},
+				{
+					"id": "cone-slant-base",
+					"given": [
+						"a cone with two of its radius, vertical height and slant height"
+					],
+					"asked": "the angle between the slant height and the base",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.angle-line-plane"
+					]
+				},
+				{
+					"id": "coords-line-plane",
+					"given": [
+						"two points in 3D, in a sentence, as position vectors or on axes"
+					],
+					"asked": "the angle between the line through them and the xy-plane",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.angle-line-plane"
+					]
+				},
+				{
+					"id": "landmark-angle",
+					"given": [
+						"a cone, cuboid or pyramid whose lengths make the angle 30°, 45° or 60°"
+					],
+					"asked": "the exact angle between a line and the base, without a calculator",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.angle-line-plane"
+					]
+				},
+				{
+					"id": "cuboid-two-diagonals",
+					"given": [
+						"a cuboid with its edges, and two space diagonals meeting at M"
+					],
+					"asked": "the angle between the diagonals at M",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.angle-two-lines"
+					]
+				},
+				{
+					"id": "pyramid-apex-angle",
+					"given": [
+						"a right pyramid with its base edges and height"
+					],
+					"asked": "the angle at the apex between two slant edges, next to each other or across the base",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.angle-two-lines"
+					]
+				},
+				{
+					"id": "cuboid-diagonal-edge",
+					"given": [
+						"a cuboid with its edges"
+					],
+					"asked": "the angle between the space diagonal AG and an edge at A",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.angle-two-lines"
+					]
+				},
+				{
+					"id": "coords-angle-abc",
+					"given": [
+						"three points A, B and C in 3D"
+					],
+					"asked": "angle ABC",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.angle-two-lines"
+					]
+				},
+				{
+					"id": "coords-right-angle",
+					"given": [
+						"three points in 3D with a right angle at A or C"
+					],
+					"asked": "angle ABC, where a right angle can be spotted first",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.angle-two-lines"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.1.angle-line-plane",
+					"method": "project-and-tan",
+					"suits": [
+						"cuboid-diagonal-base",
+						"pyramid-edge-base",
+						"pyramid-face-base",
+						"cone-slant-base",
+						"landmark-angle"
+					],
+					"name": "Project onto the plane and use tan",
+					"about": "Drop a perpendicular from the top of the line to the plane, join it to where the line meets the plane, and use tan θ = height / horizontal projection."
+				},
+				{
+					"skill": "SL3.1.angle-line-plane",
+					"method": "sin-with-length",
+					"suits": [
+						"cuboid-diagonal-base",
+						"pyramid-edge-base",
+						"pyramid-face-base",
+						"cone-slant-base",
+						"coords-line-plane",
+						"landmark-angle"
+					],
+					"name": "Use sin with the full line length",
+					"about": "If the line's length is known (e.g. from the 3D distance formula), sin θ = vertical height / line length directly."
+				},
+				{
+					"skill": "SL3.1.angle-line-plane",
+					"method": "coordinates",
+					"suits": [
+						"cuboid-diagonal-base",
+						"pyramid-edge-base",
+						"coords-line-plane"
+					],
+					"name": "Read rise and run from coordinates",
+					"about": "Place the solid on axes; the rise is Δz and the horizontal run is √(Δx² + Δy²), so tan θ = Δz / √(Δx² + Δy²)."
+				},
+				{
+					"skill": "SL3.1.angle-two-lines",
+					"method": "three-sides-cosine",
+					"suits": [
+						"cuboid-two-diagonals",
+						"pyramid-apex-angle",
+						"cuboid-diagonal-edge",
+						"coords-angle-abc",
+						"coords-right-angle"
+					],
+					"name": "Three sides, then the cosine rule",
+					"about": "Find all three side lengths with 3D Pythagoras or the distance formula, then use the cosine rule for the angle."
+				},
+				{
+					"skill": "SL3.1.angle-two-lines",
+					"method": "spot-right-angle",
+					"suits": [
+						"cuboid-diagonal-edge",
+						"coords-right-angle"
+					],
+					"name": "Spot a right angle",
+					"about": "If one line runs along an edge perpendicular to the face containing the other, the triangle is right-angled and SOH CAH TOA is quicker."
+				},
+				{
+					"skill": "SL3.1.angle-two-lines",
+					"method": "isosceles-split",
+					"suits": [
+						"cuboid-two-diagonals",
+						"pyramid-apex-angle"
+					],
+					"name": "Halve an isosceles triangle",
+					"about": "With two equal sides (e.g. slant edges), drop the perpendicular from the apex and use sin(θ/2) = (half base) / (equal side)."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The angle between a line and a plane is the angle between the line and any line in the plane through the point where they meet.",
+					"answer": "False: lines in the plane make different angles with it. The angle with the plane is the one with the line's projection, which is the smallest of them.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The angle between a cuboid's space diagonal and its base is smaller than the angle between that diagonal and a base edge at the same corner.",
+					"answer": "Always: the projection onto the base is closer to the diagonal than any edge, so its angle is the smallest.",
+					"level": 4
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "Two space diagonals of a cube cross at right angles.",
+					"answer": "False: they meet at M with AM = BM = half the diagonal, and the cosine rule gives cos θ = 1/3, about 70.5°.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.1.angle-line-plane#0",
+					"text": "Measuring the angle to an edge of the base instead of to the line's projection onto the plane",
+					"as": "distractor",
+					"in": [
+						"cuboid-diagonal-base",
+						"pyramid-edge-base"
+					],
+					"wrong": "the angle between the line and a base edge at its foot"
+				},
+				{
+					"ref": "SL3.1.angle-line-plane#1",
+					"text": "Using the face diagonal as the vertical side of the triangle",
+					"as": "distractor",
+					"in": [
+						"cuboid-diagonal-base"
+					],
+					"wrong": "tan⁻¹ of the face diagonal over the height"
+				},
+				{
+					"ref": "SL3.1.angle-line-plane#2",
+					"text": "Mixing up the slant edge of a pyramid with the slant height of a triangular face",
+					"as": "distractor",
+					"in": [
+						"pyramid-edge-base",
+						"pyramid-face-base"
+					],
+					"wrong": "the run to the middle of a base edge for a slant edge, or to a corner for a slant height"
+				},
+				{
+					"ref": "SL3.1.angle-two-lines#0",
+					"text": "Assuming an angle in a flat drawing of a solid is a right angle because it looks like one",
+					"as": "distractor",
+					"in": [
+						"cuboid-two-diagonals",
+						"pyramid-apex-angle"
+					],
+					"wrong": "90° where the diagonals cross, or tan⁻¹ of the base edge over the slant edge, as if the corner of the base were a right angle"
+				},
+				{
+					"ref": "SL3.1.angle-two-lines#1",
+					"text": "Using a face diagonal where a space diagonal is needed",
+					"as": "distractor",
+					"in": [
+						"cuboid-two-diagonals",
+						"cuboid-diagonal-edge"
+					],
+					"wrong": "the diagonal of a face from A in place of the space diagonal"
+				},
+				{
+					"ref": "SL3.1.angle-two-lines#2",
+					"text": "Putting the side opposite the wanted angle in the wrong place in the cosine rule",
+					"as": "distractor",
+					"in": [
+						"cuboid-two-diagonals",
+						"pyramid-apex-angle",
+						"cuboid-diagonal-edge",
+						"coords-angle-abc",
+						"coords-right-angle"
+					],
+					"wrong": "another angle of the triangle"
+				},
+				{
+					"text": "Finding the angle with the vertical instead of with the base",
+					"as": "distractor",
+					"in": [
+						"pyramid-edge-base",
+						"pyramid-face-base",
+						"cone-slant-base",
+						"coords-line-plane",
+						"landmark-angle"
+					],
+					"wrong": "90° minus the angle"
+				},
+				{
+					"text": "Using the full length of the line as the horizontal side with tan",
+					"as": "distractor",
+					"in": [
+						"cuboid-diagonal-base",
+						"pyramid-edge-base",
+						"pyramid-face-base",
+						"cone-slant-base",
+						"coords-line-plane"
+					],
+					"wrong": "tan⁻¹ of the height over the line's length"
+				},
+				{
+					"text": "Using the whole base diagonal instead of half of it",
+					"as": "distractor",
+					"in": [
+						"pyramid-edge-base"
+					],
+					"wrong": "tan⁻¹ of the height over the base diagonal"
+				},
+				{
+					"text": "Using half of the wrong base edge for the distance from the centre",
+					"as": "distractor",
+					"in": [
+						"pyramid-face-base"
+					],
+					"wrong": "tan⁻¹ of the height over half the edge M is on"
+				},
+				{
+					"text": "Using the diameter of the base instead of its radius",
+					"as": "distractor",
+					"in": [
+						"cone-slant-base"
+					],
+					"wrong": "tan⁻¹ of the height over the diameter"
+				},
+				{
+					"text": "Using the slant height as the vertical height",
+					"as": "distractor",
+					"in": [
+						"cone-slant-base"
+					],
+					"wrong": "tan⁻¹ of the slant height over the radius"
+				},
+				{
+					"text": "Leaving one horizontal difference out of the run",
+					"as": "distractor",
+					"in": [
+						"coords-line-plane"
+					],
+					"wrong": "tan⁻¹ of the rise over one of the horizontal differences"
+				},
+				{
+					"text": "Forgetting to double the half-angle from the isosceles triangle",
+					"as": "distractor",
+					"in": [
+						"cuboid-two-diagonals",
+						"pyramid-apex-angle"
+					],
+					"wrong": "half the angle"
+				},
+				{
+					"text": "Using the whole space diagonal for the distance to the point where the diagonals cross",
+					"as": "distractor",
+					"in": [
+						"cuboid-two-diagonals"
+					],
+					"wrong": "the cosine rule with AM as the whole diagonal"
+				},
+				{
+					"text": "Leaving out the doubling in the bottom of the cosine rule",
+					"as": "distractor",
+					"in": [
+						"cuboid-two-diagonals",
+						"pyramid-apex-angle",
+						"coords-angle-abc",
+						"coords-right-angle"
+					],
+					"wrong": "cos⁻¹ of the top over the product of the two sides"
+				},
+				{
+					"text": "Using the vertical height as the slant edge",
+					"as": "distractor",
+					"in": [
+						"pyramid-apex-angle"
+					],
+					"wrong": "the isosceles split with the height for the equal sides"
+				},
+				{
+					"text": "Taking the acute angle when the cosine is negative",
+					"as": "distractor",
+					"in": [
+						"cuboid-two-diagonals",
+						"coords-angle-abc"
+					],
+					"wrong": "180° minus the angle"
+				},
+				{
+					"text": "Finding the angle with the base instead of with the edge",
+					"as": "distractor",
+					"in": [
+						"cuboid-diagonal-edge"
+					],
+					"wrong": "the angle between AG and the base"
+				},
+				{
+					"text": "Using tan with the hypotenuse in place of a shorter side",
+					"as": "distractor",
+					"in": [
+						"cuboid-diagonal-edge",
+						"coords-right-angle"
+					],
+					"wrong": "tan⁻¹ of a shorter side over the hypotenuse"
+				}
+			],
+			"chain": [
+				"read the measures off the figure or the words, or the points' coordinates",
+				"for a line and a plane, drop a perpendicular from the top of the line and find its projection on the plane",
+				"find the lengths needed with 3D Pythagoras or the distance formula, keeping roots exact",
+				"for two lines, find the triangle they make, then use the cosine rule, a right angle or the isosceles halves",
+				"use the inverse ratio and round to 3 s.f. at the end"
+			],
 			"frequency": 1,
 			"marks": 2,
 			"section": {
@@ -28820,9 +30464,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 1
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-distance-midpoint",
@@ -36032,6 +37674,410 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Sketch a trig graph from its parameters",
+			"summary": "Sketch y = a sin(bx) + d, a cos(bx) + d or a tan(bx) + d on a given domain, in radians or degrees: pick the sketch from four graphs (a wave, a reflected wave such as −sin(2x), a tan graph with its asymptotes, or the wave through five key points in a table), and find what a sketch must mark: its maximum and minimum points, where it meets the axes, tan's asymptotes and the five key points of a period.",
+			"situation": "trig-sketch",
+			"formats": [
+				"value",
+				"mcq",
+				"graph-pick"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "y = 3 sin(2x) + 1, for 0 ≤ x ≤ 2π, or with a domain in degrees"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "x at the five key points of one period, with y below each, or two of them blank"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the sketch drawn with nothing marked, its equation in the words"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "sketch-wave",
+					"given": [
+						"y = a sin(bx) + d or a cos(bx) + d with a > 0",
+						"a domain in radians or degrees"
+					],
+					"asked": "which of four graphs is its sketch on the domain (pick the graph)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL3.7.sketch"
+					]
+				},
+				{
+					"id": "sketch-from-table",
+					"given": [
+						"the five key points of one period of a sine or cosine wave, in a table"
+					],
+					"asked": "which of four graphs joins them as the wave (pick the graph)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL3.7.sketch"
+					]
+				},
+				{
+					"id": "sketch-reflected",
+					"given": [
+						"y = −a sin(bx) + d or −a cos(bx) + d, such as −sin(2x)",
+						"a domain"
+					],
+					"asked": "which of four graphs is its sketch, reflected (pick the graph)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL3.7.sketch"
+					]
+				},
+				{
+					"id": "sketch-tan",
+					"given": [
+						"y = a tan(bx) + d",
+						"a domain of two periods"
+					],
+					"asked": "which of four graphs is its sketch with its asymptotes (pick the graph)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL3.7.sketch"
+					]
+				},
+				{
+					"id": "max-min-points",
+					"given": [
+						"a sine or cosine wave",
+						"a domain holding one maximum and one minimum"
+					],
+					"asked": "the coordinates of the maximum point and of the minimum point a sketch marks",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL3.7.sketch"
+					]
+				},
+				{
+					"id": "y-intercept",
+					"given": [
+						"a sine, cosine or tan function"
+					],
+					"asked": "the point where its sketch meets the y-axis",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL3.7.sketch"
+					]
+				},
+				{
+					"id": "x-intercepts",
+					"given": [
+						"a sine or cosine wave crossing its axis at half its amplitude, on one period",
+						"or its unmarked sketch"
+					],
+					"asked": "the x-intercepts its sketch marks",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.sketch"
+					]
+				},
+				{
+					"id": "tan-asymptotes",
+					"given": [
+						"y = a tan(bx) + d",
+						"a domain of two periods"
+					],
+					"asked": "the equations of the vertical asymptotes its sketch shows",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL3.7.sketch"
+					]
+				},
+				{
+					"id": "key-points",
+					"given": [
+						"a sine or cosine wave",
+						"a table of its five key points over one period, two of them blank"
+					],
+					"asked": "the two missing y-values",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL3.7.sketch"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.7.sketch",
+					"method": "quarter-period-points",
+					"suits": [
+						"sketch-wave",
+						"sketch-from-table",
+						"sketch-reflected",
+						"sketch-tan",
+						"max-min-points",
+						"y-intercept",
+						"tan-asymptotes",
+						"key-points"
+					],
+					"name": "Five key points per period",
+					"about": "Split one period into quarters, tabulate the five key points (axis, max, axis, min, axis for sine) and join with a smooth wave."
+				},
+				{
+					"skill": "SL3.7.sketch",
+					"method": "transform-base",
+					"suits": [
+						"sketch-wave",
+						"sketch-reflected",
+						"sketch-tan",
+						"max-min-points",
+						"y-intercept",
+						"x-intercepts",
+						"tan-asymptotes",
+						"key-points"
+					],
+					"name": "Transform sin x or cos x",
+					"about": "Start from the basic graph and apply the stretches, reflections and shifts to its key features."
+				},
+				{
+					"skill": "SL3.7.sketch",
+					"method": "gdc-transfer",
+					"suits": [
+						"sketch-wave",
+						"sketch-tan",
+						"max-min-points",
+						"x-intercepts"
+					],
+					"name": "Graph on the GDC and transfer",
+					"about": "Use a radian window that matches the domain and copy the shape, intercepts and turning points to paper."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The graph of y = tan x has a maximum point at x = π/2.",
+					"answer": "False: tan x grows without limit as x nears π/2, where it has a vertical asymptote. It has no turning points at all.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Changing b in y = 3 sin(bx) + 1 changes the maximum value of the graph.",
+					"answer": "Never: b only squeezes or stretches the graph across. The maximum stays d + |a| = 4.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Where does y = −2 cos x + 1 start at x = 0, and does it then go up or down?",
+					"answer": "At (0, −1), its minimum, since −2 cos 0 + 1 = −1. From there it goes up, to its maximum of 3 at x = π.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.7.sketch#0",
+					"text": "Drawing tan x with turning points instead of vertical asymptotes",
+					"as": "distractor",
+					"in": [
+						"sketch-tan"
+					],
+					"wrong": "a wave with turning points where tan's asymptotes are"
+				},
+				{
+					"ref": "SL3.7.sketch#1",
+					"text": "Starting a cosine graph on the axis instead of at a maximum",
+					"as": "distractor",
+					"in": [
+						"sketch-wave",
+						"sketch-from-table",
+						"sketch-reflected",
+						"max-min-points",
+						"y-intercept",
+						"key-points"
+					],
+					"wrong": "a cosine drawn as a sine, starting on its axis"
+				},
+				{
+					"ref": "SL3.7.sketch#2",
+					"text": "Drawing a zigzag of straight lines instead of a smooth curve",
+					"as": "distractor",
+					"in": [
+						"sketch-wave",
+						"sketch-from-table",
+						"sketch-reflected"
+					],
+					"wrong": "straight lines joining the key points"
+				},
+				{
+					"ref": "SL3.7.sketch#3",
+					"text": "Moving the graph the wrong way for d: down for + d, or up for − d",
+					"as": "distractor",
+					"in": [
+						"sketch-wave",
+						"sketch-from-table",
+						"sketch-reflected",
+						"sketch-tan",
+						"max-min-points",
+						"y-intercept",
+						"x-intercepts",
+						"key-points"
+					],
+					"wrong": "the graph with −d in place of d"
+				},
+				{
+					"ref": "SL3.7.sketch#4",
+					"text": "Keeping the period of the base graph, ignoring the b in bx",
+					"as": "distractor",
+					"in": [
+						"sketch-wave",
+						"sketch-from-table",
+						"sketch-reflected",
+						"max-min-points",
+						"x-intercepts",
+						"tan-asymptotes"
+					],
+					"wrong": "the period of sin x, cos x or tan x, with b left out"
+				},
+				{
+					"ref": "SL3.7.sketch#5",
+					"text": "Putting tan's asymptotes where it crosses its centre line, instead of halfway between those crossings",
+					"as": "distractor",
+					"in": [
+						"sketch-tan",
+						"tan-asymptotes"
+					],
+					"wrong": "asymptotes at tan's zeros, x = kπ ÷ b"
+				},
+				{
+					"ref": "SL3.7.sketch#6",
+					"text": "Starting a sine graph at a maximum, as a cosine graph does",
+					"as": "distractor",
+					"in": [
+						"y-intercept",
+						"key-points"
+					],
+					"wrong": "a sine drawn as a cosine, starting at a maximum"
+				},
+				{
+					"ref": "SL3.7.read-features#3",
+					"text": "Using the period rule of sin and cos for tan, which repeats twice as often",
+					"as": "distractor",
+					"in": [
+						"sketch-tan",
+						"tan-asymptotes"
+					],
+					"wrong": "tan's period taken as 2π ÷ b"
+				},
+				{
+					"ref": "SL3.7.read-features#4",
+					"text": "Using tan's period rule for a sine or cosine wave, which takes twice as long to repeat",
+					"as": "distractor",
+					"in": [
+						"sketch-wave",
+						"sketch-from-table",
+						"sketch-reflected",
+						"max-min-points"
+					],
+					"wrong": "a sine or cosine with period π ÷ b, when b = 1"
+				},
+				{
+					"ref": "SL3.7.read-features#5",
+					"text": "Leaving d out of the maximum, the minimum or the range",
+					"as": "distractor",
+					"in": [
+						"max-min-points",
+						"y-intercept",
+						"key-points"
+					],
+					"wrong": "the heights without d"
+				},
+				{
+					"ref": "SL3.7.read-features#8",
+					"text": "Ignoring the minus sign in front of the wave, which turns its peaks into troughs",
+					"as": "distractor",
+					"in": [
+						"sketch-reflected",
+						"sketch-tan",
+						"max-min-points",
+						"y-intercept",
+						"key-points"
+					],
+					"wrong": "the graph of |a| in place of a, not reflected"
+				},
+				{
+					"ref": "SL3.7.read-features#9",
+					"text": "Mixing up where the two waves peak: cosine at the start of a cycle, sine a quarter of a cycle later",
+					"as": "distractor",
+					"in": [
+						"sketch-wave",
+						"sketch-from-table",
+						"sketch-reflected",
+						"max-min-points"
+					],
+					"wrong": "a sine drawn as a cosine, peaking at the start of the period"
+				},
+				{
+					"ref": "SL3.8.solve-basic#0",
+					"text": "Stopping at one solution instead of finding them all",
+					"as": "distractor",
+					"in": [
+						"x-intercepts"
+					],
+					"wrong": "the first intercept alone"
+				},
+				{
+					"ref": "SL3.8.solve-basic#1",
+					"text": "Finding a cosine equation's second solution the way you would for sine",
+					"as": "distractor",
+					"in": [
+						"x-intercepts"
+					],
+					"wrong": "α and π − α for a cosine"
+				}
+			],
+			"chain": [
+				"one period is 2π ÷ b (π ÷ b for tan), and its five key points are a quarter of a period apart",
+				"sin starts on its axis and rises; cos starts at its maximum; a minus sign in front reflects either in its axis",
+				"a sets the height above and below the axis y = d",
+				"tan has no turning points: each branch runs between vertical asymptotes, halfway between its crossings of y = d",
+				"join the points with a smooth curve across the whole domain"
+			],
 			"frequency": 2,
 			"marks": 2,
 			"section": {
@@ -36041,9 +38087,7 @@
 			"paper": {
 				"p1": 2,
 				"p2": 0
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-trig-model-use",
@@ -41679,6 +43723,736 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Effect of adding or multiplying a constant on summary statistics",
+			"summary": "Every value of a data set has a constant added, is multiplied by one, or goes through y = ax + b, a change of units or prices: find a new mean, median, mode, quartile, standard deviation, variance, IQR or range, or run the change backwards and find the original from the new. Also find a and b, or the factor, from the statistics before and after.",
+			"situation": "constant-change",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the statistics in symbols and the change as y = ax + b"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story that tells the statistics and makes the change: a pallet, a tax, a conversion of units or prices"
+				},
+				{
+					"rep": "terms",
+					"exam": true,
+					"how": "a short list of the data, with the change as y = ax + b"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "a box plot to scale of the data, or of the new values when the change is run backwards"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "add-mean-sd",
+					"given": [
+						"the mean and standard deviation of a data set",
+						"a constant added to or taken off every value"
+					],
+					"asked": "the new mean and the new standard deviation",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "add-mean-variance",
+					"given": [
+						"the mean and variance of a data set",
+						"a constant added to or taken off every value"
+					],
+					"asked": "the new mean and the new variance",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "add-centre-spread",
+					"given": [
+						"a median, mode or quartile and an IQR or range, a list of the data, or a box plot",
+						"a constant added to or taken off every value"
+					],
+					"asked": "the new measure of centre and the new measure of spread",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"graph",
+						"terms"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "multiply-mean",
+					"given": [
+						"the mean and standard deviation of a data set",
+						"every value multiplied by a constant"
+					],
+					"asked": "the new mean",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "multiply-variance",
+					"given": [
+						"the mean and variance of a data set",
+						"every value multiplied by a constant"
+					],
+					"asked": "the new variance",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "multiply-centre-spread",
+					"given": [
+						"a median, mode or quartile and a standard deviation, IQR or range, a list of the data, or a box plot",
+						"every value multiplied by a constant, or a change of units"
+					],
+					"asked": "the new measure of centre and the new measure of spread",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"graph",
+						"terms"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "linear-mean-iqr",
+					"given": [
+						"the mean and IQR of a data set",
+						"every value put through y = ax + b"
+					],
+					"asked": "the new mean and the new IQR",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "linear-sd-variance",
+					"given": [
+						"the standard deviation of a data set",
+						"every value put through y = ax + b"
+					],
+					"asked": "the new standard deviation and the new variance",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "linear-centre-spread",
+					"given": [
+						"a measure of centre and of spread, a list of the data, or a box plot",
+						"every value put through y = ax + b"
+					],
+					"asked": "the new measure of centre and the new measure of spread",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"graph",
+						"terms"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "original-mean-sd",
+					"given": [
+						"the change y = x + b, y = ax or y = ax + b",
+						"the mean and standard deviation after it"
+					],
+					"asked": "the original mean and standard deviation",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "original-variance",
+					"given": [
+						"the change y = ax or y = ax + b",
+						"the variance after it"
+					],
+					"asked": "the original variance",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "original-centre-spread",
+					"given": [
+						"the change y = x + b, y = ax or y = ax + b",
+						"a box plot of the new values, or a measure of centre and of spread after the change"
+					],
+					"asked": "the original measure of centre and measure of spread",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"graph"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "find-a-and-b",
+					"given": [
+						"the mean and standard deviation (or variance) before and after y = ax + b, a > 0"
+					],
+					"asked": "a and b",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "factor-from-variance",
+					"given": [
+						"the variance before and after every value is multiplied by k > 0"
+					],
+					"asked": "k",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				},
+				{
+					"id": "effect-statement",
+					"given": [
+						"a constant added to every value, or every value multiplied by one"
+					],
+					"asked": "which statement about the new measures of centre and spread is true",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.3.constant-changes"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.3.constant-changes",
+					"method": "shift-stretch-rules",
+					"suits": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"name": "Location shifts, spread scales",
+					"about": "Adding k adds k to the mean, median, mode and quartiles but leaves the SD, IQR and range unchanged; multiplying by k multiplies all of these by k, and the variance by k²."
+				},
+				{
+					"skill": "SL4.3.constant-changes",
+					"method": "picture-the-histogram",
+					"suits": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"name": "Picture the whole data set moving",
+					"about": "Adding k slides the histogram k units along without changing its width; multiplying by k stretches it by factor k, so both the centre and the width scale."
+				},
+				{
+					"skill": "SL4.3.constant-changes",
+					"method": "tiny-example",
+					"suits": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"name": "Test on a tiny data set",
+					"about": "Try the change on a set such as {1, 2, 3} and see what happens to the mean and spread before applying the rule."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Adding the same constant to every value leaves the standard deviation unchanged.",
+					"answer": "True: every value moves by the same amount, so every distance from the mean is the same as before, and so is the spread.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Multiplying every value by a constant multiplies the variance by that constant.",
+					"answer": "Sometimes: only when the constant is 0 or 1. The variance is in squared units, so it is multiplied by the square of the constant.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict the mean and the range of the values 1, 2 and 3 after each is doubled and then 5 is added, then check by listing the new values.",
+					"answer": "The mean goes from 2 to 2 × 2 + 5 = 9 and the range from 2 to 4: the new values are 7, 9 and 11. The added 5 moves the centre but not the spread.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.3.constant-changes#0",
+					"text": "Adding a constant changes the standard deviation",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "the standard deviation with the constant added"
+				},
+				{
+					"ref": "SL4.3.constant-changes#1",
+					"text": "Multiplying by k multiplies the variance by k (it is k²)",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "the variance multiplied (or divided) by the factor, not its square"
+				},
+				{
+					"ref": "SL4.3.constant-changes#2",
+					"text": "Adding k to every value adds k to the IQR",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "the IQR with the constant added"
+				},
+				{
+					"ref": "SL4.3.constant-changes#3",
+					"text": "Adding the constant to the range as well as to the values",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "the range with the constant added"
+				},
+				{
+					"ref": "SL4.3.constant-changes#4",
+					"text": "Adding the constant to the variance as well as to the values",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "the variance with the constant added (or taken off)"
+				},
+				{
+					"ref": "SL4.3.constant-changes#5",
+					"text": "Leaving a measure of centre unchanged when every value has changed",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "the original measure of centre"
+				},
+				{
+					"ref": "SL4.3.constant-changes#6",
+					"text": "Multiplying the added constant by the factor too, as if the change were a(x + b)",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "a(value + b)"
+				},
+				{
+					"ref": "SL4.3.constant-changes#7",
+					"text": "Leaving out the added constant for a measure of centre",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "a × value, without the b"
+				},
+				{
+					"ref": "SL4.3.constant-changes#8",
+					"text": "Leaving a measure of spread unchanged when every value is multiplied",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "the original measure of spread"
+				},
+				{
+					"ref": "SL4.3.constant-changes#9",
+					"text": "Multiplying a standard deviation, IQR or range by the square of the factor",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "the spread multiplied by the square of the factor"
+				},
+				{
+					"ref": "SL4.3.constant-changes#10",
+					"text": "Undoing the change in the wrong order: dividing first, then taking away the constant",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "value ÷ a − b"
+				},
+				{
+					"ref": "SL4.3.constant-changes#11",
+					"text": "Applying the change again instead of undoing it",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "a × value + b, the change made again"
+				},
+				{
+					"ref": "SL4.3.constant-changes#12",
+					"text": "Taking the change in the mean as the added constant, before scaling the mean",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "b as the new mean minus the old"
+				},
+				{
+					"ref": "SL4.3.constant-changes#13",
+					"text": "Finding the factor from the means, which the added constant has moved as well",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "a as the ratio of the means, with b = 0"
+				},
+				{
+					"ref": "SL4.3.constant-changes#14",
+					"text": "Swapping which measures move: keeping the centre and shifting the spread",
+					"as": "distractor",
+					"in": [
+						"add-mean-sd",
+						"add-mean-variance",
+						"add-centre-spread",
+						"multiply-mean",
+						"multiply-variance",
+						"multiply-centre-spread",
+						"linear-mean-iqr",
+						"linear-sd-variance",
+						"linear-centre-spread",
+						"original-mean-sd",
+						"original-variance",
+						"original-centre-spread",
+						"find-a-and-b",
+						"factor-from-variance",
+						"effect-statement"
+					],
+					"wrong": "the centre kept and the spread moved by the constant"
+				}
+			],
+			"chain": [
+				"read the statistics told, or read them off the box plot or the list",
+				"read the change: y = x + b, y = ax or y = ax + b",
+				"a measure of centre takes the whole change, a × value + b",
+				"a measure of spread is only multiplied by a, and the variance by a²",
+				"backwards, take away b and then divide by a, or divide a spread by a and the variance by a²"
+			],
 			"frequency": 3,
 			"marks": 4,
 			"section": {
@@ -41688,9 +44462,7 @@
 			"paper": {
 				"p1": 3,
 				"p2": 0
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-grouped-data",
@@ -51575,6 +54347,316 @@
 			"topic": 5,
 			"source": "exam",
 			"name": "Where a tangent or normal meets the curve again",
+			"summary": "Follow the tangent or the normal at a point P of a curve: find where it meets the x-axis and the y-axis, the area of the triangle it cuts off with the axes, or where it meets the curve again, by the double root at P for a cubic or with the GDC's intersect.",
+			"situation": "tangent-meets-curve",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "f(x) on a line of its own, and P by its x-coordinate"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "the same, with the curve and the line drawn on a grid and P marked"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "an exam's sketch, not to scale: the curve, the line and the lettered points P, A, B or Q, with no numbers on the axes"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "tangent-x-intercept",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "where the tangent at P meets the x-axis",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "tangent-y-intercept",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "where the tangent at P meets the y-axis",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "normal-x-intercept",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "where the normal at P meets the x-axis",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "normal-y-intercept",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "where the normal at P meets the y-axis",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "tangent-triangle-area",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "the area of the triangle the tangent at P cuts off with the axes",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "normal-triangle-area",
+					"given": [
+						"f(x): a quadratic, a cubic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "the area of the triangle the normal at P cuts off with the axes",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "tangent-meets-again",
+					"given": [
+						"f(x): a cubic, or px² + A/x + q",
+						"x₀"
+					],
+					"asked": "the point Q where the tangent at P meets the curve again, exactly",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "tangent-meets-again-gdc",
+					"given": [
+						"f(x) = Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "the point Q where the tangent at P meets the curve again, to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				},
+				{
+					"id": "normal-meets-again",
+					"given": [
+						"f(x): a quadratic or Ae^(kx) + px² + q",
+						"x₀"
+					],
+					"asked": "the point Q where the normal at P meets the curve again, to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.4.tangent-meets-axes-or-curve"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.4.tangent-meets-axes-or-curve",
+					"method": "set-axes-zero",
+					"suits": [
+						"tangent-x-intercept",
+						"tangent-y-intercept",
+						"normal-x-intercept",
+						"normal-y-intercept",
+						"tangent-triangle-area",
+						"normal-triangle-area"
+					],
+					"name": "Put x = 0 and y = 0 in the tangent",
+					"about": "Get both intercepts from the line's equation, then use ½ × base × height for the triangle."
+				},
+				{
+					"skill": "SL5.4.tangent-meets-axes-or-curve",
+					"method": "factor-repeated-root",
+					"suits": [
+						"tangent-meets-again"
+					],
+					"name": "Use the double root at the point of contact",
+					"about": "Setting curve = tangent gives (x − a)² as a factor, so for a cubic the remaining root comes from comparing coefficients."
+				},
+				{
+					"skill": "SL5.4.tangent-meets-axes-or-curve",
+					"method": "gdc-intersect",
+					"suits": [
+						"tangent-meets-again",
+						"tangent-meets-again-gdc",
+						"normal-meets-again"
+					],
+					"name": "GDC intersect",
+					"about": "Graph the curve and the line and use the intersect tool."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The tangent to a cubic at a point P meets the cubic again.",
+					"answer": "Sometimes: at every point but the point of inflexion. Curve minus tangent is a cubic with a double root at P, so its third root is real too; only at the inflexion is that root P again, as a triple root.",
+					"level": 4
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "A tangent with intercepts at x = −4 and y = 3 cuts off a triangle of area −6 with the axes.",
+					"answer": "False: lengths are never negative. OA = 4 and OB = 3, so the area is ½ × 4 × 3 = 6.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.4.tangent-meets-axes-or-curve#0",
+					"text": "Finding the intercepts of the curve instead of the tangent or normal",
+					"as": "distractor",
+					"in": [
+						"tangent-y-intercept",
+						"normal-y-intercept"
+					],
+					"wrong": "f(0), the curve's y-intercept, for the line's"
+				},
+				{
+					"ref": "SL5.4.tangent-meets-axes-or-curve#1",
+					"text": "Not using the double root at the point of contact, so it is counted only once among the roots",
+					"as": "distractor",
+					"in": [
+						"tangent-meets-again"
+					],
+					"wrong": "the x² terms compared with x₀ counted once, so the third root comes out x₀ more than Q's"
+				},
+				{
+					"ref": "SL5.4.tangent-meets-axes-or-curve#2",
+					"text": "Using a negative intercept as a negative length in the triangle area",
+					"as": "distractor",
+					"in": [
+						"tangent-triangle-area",
+						"normal-triangle-area"
+					],
+					"wrong": "½ × x-intercept × y-intercept with their signs: a negative area"
+				},
+				{
+					"ref": "SL5.4.tangent-meets-axes-or-curve#3",
+					"text": "Giving the point of contact P as the point where the line meets the curve again",
+					"as": "distractor",
+					"in": [
+						"tangent-meets-again",
+						"tangent-meets-again-gdc",
+						"normal-meets-again"
+					],
+					"wrong": "P's coordinates, the root of curve = line already known"
+				},
+				{
+					"ref": "SL5.4.tangent-meets-axes-or-curve#4",
+					"text": "Putting x = 0 to find where a line meets the x-axis, or y = 0 for the y-axis",
+					"as": "distractor",
+					"in": [
+						"tangent-x-intercept",
+						"tangent-y-intercept",
+						"normal-x-intercept",
+						"normal-y-intercept"
+					],
+					"wrong": "the other intercept's value, on the axis asked about"
+				},
+				{
+					"ref": "SL5.4.normal-equation#0",
+					"text": "Using −m or 1/m instead of −1/m for the normal's gradient",
+					"as": "distractor",
+					"in": [
+						"normal-x-intercept",
+						"normal-y-intercept",
+						"normal-triangle-area",
+						"normal-meets-again"
+					],
+					"wrong": "the line through P with gradient −m or 1/m, followed to the axis, the triangle or the curve"
+				}
+			],
+			"chain": [
+				"f(x₀) and f′(x₀): the point P and the gradient there",
+				"the tangent y = mx + c, or the normal with gradient −1/m",
+				"put y = 0 and x = 0 in the line for its intercepts",
+				"½ × OA × OB with both lengths positive",
+				"solve curve = line: the double root at P leaves one more root, or the GDC's intersect finds it"
+			],
 			"frequency": 2,
 			"marks": 3,
 			"section": {
@@ -51584,9 +54666,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 2
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-tangent-condition",
@@ -51926,6 +55006,516 @@
 			"topic": 5,
 			"source": "exam",
 			"name": "Read f from the graph of f' (or f'')",
+			"summary": "Read the features of f from the graph of f′ or f″: a local maximum or minimum and its justification, points of inflexion, a touch that is not a turning point, where f rises or is concave up, which graph is f, and values of f from signed areas; and read the sign of f′ from the graph of f.",
+			"situation": "derivative-graph",
+			"formats": [
+				"value",
+				"mcq",
+				"graph-pick"
+			],
+			"representations": [
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the graph of f′, f″ or f, on a grid, with the regions of an area shaded and lettered, or a point marked"
+				},
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "f′(x) or f″(x) as a product of factors, one of them squared"
+				},
+				{
+					"rep": "words",
+					"exam": false,
+					"how": "the signs of f′ and the areas on each stretch, or a turning point of f, in words"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "extremum-from-derivative",
+					"given": [
+						"the graph of f′, or f′(x) as factors"
+					],
+					"asked": "the x-coordinate of the local maximum or minimum of f",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph",
+						"equation"
+					],
+					"skills": [
+						"SL5.7.f-from-derivative-graph"
+					]
+				},
+				{
+					"id": "extremum-justified",
+					"given": [
+						"the graph of f′"
+					],
+					"asked": "the x-coordinate of the local maximum or minimum of f, with the reason",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.7.f-from-derivative-graph"
+					]
+				},
+				{
+					"id": "inflexion-from-derivative",
+					"given": [
+						"the graph of f′"
+					],
+					"asked": "the x-coordinates of the points of inflexion of f",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.7.f-from-derivative-graph"
+					]
+				},
+				{
+					"id": "touch-not-turning",
+					"given": [
+						"the graph of f′, or f′(x) as factors",
+						"a zero of f′ where it touches the axis"
+					],
+					"asked": "what the point of f there is",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"graph",
+						"equation"
+					],
+					"skills": [
+						"SL5.7.f-from-derivative-graph"
+					]
+				},
+				{
+					"id": "increasing-past-touch",
+					"given": [
+						"the graph of f′, touching the axis"
+					],
+					"asked": "where f is increasing or decreasing",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.7.f-from-derivative-graph"
+					]
+				},
+				{
+					"id": "concave-up-from-cubic",
+					"given": [
+						"the graph of f′, a cubic touching the axis"
+					],
+					"asked": "where the graph of f is concave up or down",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.7.f-from-derivative-graph"
+					]
+				},
+				{
+					"id": "inflexion-from-second",
+					"given": [
+						"the graph of f″, or f″(x) as factors"
+					],
+					"asked": "the x-coordinate of the point of inflexion of f",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"graph",
+						"equation"
+					],
+					"skills": [
+						"SL5.7.f-from-derivative-graph"
+					]
+				},
+				{
+					"id": "compare-from-areas",
+					"given": [
+						"the graph of f′ with two regions and their areas, or the same in words"
+					],
+					"asked": "which of two values of f is greater",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"graph",
+						"words"
+					],
+					"skills": [
+						"SL5.7.f-from-derivative-graph"
+					]
+				},
+				{
+					"id": "value-from-areas",
+					"given": [
+						"the graph of f′ with two regions and their areas",
+						"f at the left end"
+					],
+					"asked": "f at the end of a region",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.7.f-from-derivative-graph"
+					]
+				},
+				{
+					"id": "pick-f-from-derivative",
+					"given": [
+						"the graph of f′"
+					],
+					"asked": "which graph could be y = f(x)",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.7.f-from-derivative-graph"
+					]
+				},
+				{
+					"id": "gradient-sign-statement",
+					"given": [
+						"the graph of f with a point A"
+					],
+					"asked": "which statement about f′ at A is true",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.2.sign-from-graph"
+					]
+				},
+				{
+					"id": "gradient-negative-where",
+					"given": [
+						"the graph of f with its turning points"
+					],
+					"asked": "where f′(x) < 0 or f′(x) > 0",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.2.sign-from-graph"
+					]
+				},
+				{
+					"id": "gradient-at-turning-point",
+					"given": [
+						"the graph of f with a turning point A, or the turning point in words"
+					],
+					"asked": "f′ at the turning point",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"graph",
+						"words"
+					],
+					"skills": [
+						"SL5.2.sign-from-graph"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.7.f-from-derivative-graph",
+					"method": "sign-change-of-f-prime",
+					"suits": [
+						"extremum-from-derivative",
+						"extremum-justified",
+						"touch-not-turning",
+						"pick-f-from-derivative"
+					],
+					"name": "Look for sign changes of f′",
+					"about": "A maximum of f is where f′ crosses from positive to negative; a minimum is where it crosses from negative to positive."
+				},
+				{
+					"skill": "SL5.7.f-from-derivative-graph",
+					"method": "turning-point-of-f-prime",
+					"suits": [
+						"inflexion-from-derivative",
+						"concave-up-from-cubic",
+						"pick-f-from-derivative"
+					],
+					"name": "Turning points of f′ give inflexions",
+					"about": "Points of inflexion of f occur at the maxima and minima of the f′ graph, where f″ changes sign."
+				},
+				{
+					"skill": "SL5.7.f-from-derivative-graph",
+					"method": "sign-diagram",
+					"suits": [
+						"extremum-from-derivative",
+						"inflexion-from-derivative",
+						"touch-not-turning",
+						"increasing-past-touch",
+						"concave-up-from-cubic",
+						"inflexion-from-second"
+					],
+					"name": "Sign diagram from the f′ graph",
+					"about": "Convert the f′ graph into sign rows for f′ and f″, then read the behaviour of f."
+				},
+				{
+					"skill": "SL5.7.f-from-derivative-graph",
+					"method": "area-under-f-prime",
+					"suits": [
+						"compare-from-areas",
+						"value-from-areas"
+					],
+					"name": "Signed area under f′",
+					"about": "Compare values of f using f(b) − f(a) = ∫ from a to b of f′(x) dx, the signed area under the f′ graph."
+				},
+				{
+					"skill": "SL5.2.sign-from-graph",
+					"method": "walk-the-curve",
+					"suits": [
+						"gradient-sign-statement",
+						"gradient-negative-where",
+						"gradient-at-turning-point"
+					],
+					"name": "Walk along the curve left to right",
+					"about": "Uphill means f′ > 0, flat at a turning point means f′ = 0, downhill means f′ < 0."
+				},
+				{
+					"skill": "SL5.2.sign-from-graph",
+					"method": "tangent-sketch",
+					"suits": [
+						"gradient-sign-statement",
+						"gradient-at-turning-point"
+					],
+					"name": "Lay a tangent at the point",
+					"about": "Hold a ruler as a tangent at the point and see whether it slopes up, slopes down or is horizontal."
+				},
+				{
+					"skill": "SL5.2.sign-from-graph",
+					"method": "sign-row",
+					"suits": [
+						"gradient-negative-where"
+					],
+					"name": "Build a sign diagram",
+					"about": "Mark the turning points on the x-axis and write +, 0 or − under each stretch of the curve."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "If f′(a) = 0, then f has a local maximum or minimum at x = a.",
+					"answer": "Sometimes: f′ has to change sign at a. f(x) = x³ has f′(0) = 0 but no turning point, since f′(x) = 3x² touches zero without crossing.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "The highest point on the graph of f′ gives the x-coordinate of the local maximum of f.",
+					"answer": "False: the highest point of f′ is where f is steepest, a point of inflexion of f. A local maximum of f is where f′ crosses from positive to negative.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If, between x = a and x = b, the area under f′ above the x-axis is larger than the area below it, then f(b) > f(a).",
+					"answer": "True: f(b) − f(a) is the integral of f′ from a to b, the area above the axis minus the area below it, which is then positive.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.7.f-from-derivative-graph#0",
+					"text": "Taking a turning point of the f′ graph as a turning point of f",
+					"as": "distractor",
+					"in": [
+						"extremum-from-derivative",
+						"extremum-justified",
+						"touch-not-turning",
+						"pick-f-from-derivative"
+					],
+					"wrong": "the x of a turning point of f′"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#1",
+					"text": "Claiming a maximum or minimum where f′ touches zero without changing sign",
+					"as": "distractor",
+					"in": [
+						"extremum-from-derivative",
+						"extremum-justified",
+						"touch-not-turning",
+						"pick-f-from-derivative"
+					],
+					"wrong": "a turning point where f′ only touches the axis"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#2",
+					"text": "Justifying with 'f′ = 0' alone, without the sign change",
+					"as": "distractor",
+					"in": [
+						"extremum-justified",
+						"touch-not-turning"
+					],
+					"wrong": "f′ = 0 as the whole reason"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#3",
+					"text": "Taking the zeros of f′ as the points of inflexion instead of its turning points",
+					"as": "distractor",
+					"in": [
+						"inflexion-from-derivative"
+					],
+					"wrong": "the zeros of f′"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#4",
+					"text": "Leaving out the point where f′ touches the axis, though f′ turns there too",
+					"as": "distractor",
+					"in": [
+						"inflexion-from-derivative"
+					],
+					"wrong": "the turning point of f′ off the axis alone"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#5",
+					"text": "Ending an interval where f′ touches the axis, though f′ does not change sign there",
+					"as": "distractor",
+					"in": [
+						"increasing-past-touch"
+					],
+					"wrong": "the interval stopped at the touch"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#6",
+					"text": "Adding the areas without their signs, so area below the axis counts as a rise in f",
+					"as": "distractor",
+					"in": [
+						"compare-from-areas",
+						"value-from-areas"
+					],
+					"wrong": "the areas added with no signs"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#7",
+					"text": "Comparing the heights of the f′ graph instead of the areas under it",
+					"as": "distractor",
+					"in": [
+						"compare-from-areas"
+					],
+					"wrong": "the end where f′ is higher"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#8",
+					"text": "Claiming a point of inflexion where f″ touches zero without changing sign",
+					"as": "distractor",
+					"in": [
+						"inflexion-from-second"
+					],
+					"wrong": "where f″ touches the axis"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#9",
+					"text": "Taking a turning point of the f″ graph as a point of inflexion of f",
+					"as": "distractor",
+					"in": [
+						"inflexion-from-second"
+					],
+					"wrong": "the x of the turning point of f″ off the axis"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#10",
+					"text": "Taking the graph of f′ itself as the graph of f",
+					"as": "distractor",
+					"in": [
+						"pick-f-from-derivative"
+					],
+					"wrong": "the graph of f′ again"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#11",
+					"text": "Reading the sign change of f′ the wrong way round, mixing up a maximum and a minimum",
+					"as": "distractor",
+					"in": [
+						"extremum-from-derivative",
+						"extremum-justified",
+						"pick-f-from-derivative"
+					],
+					"wrong": "the other zero of f′, or f upside down"
+				},
+				{
+					"ref": "SL5.7.f-from-derivative-graph#12",
+					"text": "Giving the change in f as its value, leaving out the starting value",
+					"as": "distractor",
+					"in": [
+						"value-from-areas"
+					],
+					"wrong": "the signed area alone"
+				},
+				{
+					"ref": "SL5.7.concavity#0",
+					"text": "Confusing concave up with increasing: looking at the sign of f′ instead of f″",
+					"as": "distractor",
+					"in": [
+						"concave-up-from-cubic"
+					],
+					"wrong": "where f′ > 0 (or f′ < 0)"
+				},
+				{
+					"ref": "SL5.2.sign-from-graph#0",
+					"text": "Using the sign of f instead of the sign of f′: being above the axis is not the same as going up",
+					"as": "distractor",
+					"in": [
+						"gradient-sign-statement",
+						"gradient-negative-where"
+					],
+					"wrong": "the sign of f"
+				},
+				{
+					"ref": "SL5.2.sign-from-graph#1",
+					"text": "Thinking f′ is zero at the x-intercepts rather than at the turning points",
+					"as": "distractor",
+					"in": [
+						"gradient-sign-statement",
+						"gradient-negative-where"
+					],
+					"wrong": "f′ = 0 at an x-intercept, or the intercepts as the ends"
+				},
+				{
+					"ref": "SL5.2.sign-from-graph#2",
+					"text": "Thinking f′(x) = 0 means the function value is zero",
+					"as": "distractor",
+					"in": [
+						"gradient-sign-statement"
+					],
+					"wrong": "f = 0 where f′ = 0"
+				},
+				{
+					"ref": "SL5.2.sign-from-graph#3",
+					"text": "Giving the height of the curve at the point instead of its gradient",
+					"as": "distractor",
+					"in": [
+						"gradient-at-turning-point"
+					],
+					"wrong": "the y-coordinate of the point"
+				}
+			],
+			"chain": [
+				"find where f′ changes sign, and which way",
+				"tell a crossing of the axis from a touch",
+				"find the turning points of f′ (the zeros of f″)",
+				"add the signed areas under f′",
+				"walk along the graph of f to read the sign of f′"
+			],
 			"frequency": 2,
 			"marks": 1,
 			"section": {
@@ -51935,9 +55525,7 @@
 			"paper": {
 				"p1": 2,
 				"p2": 0
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-stationary-points",

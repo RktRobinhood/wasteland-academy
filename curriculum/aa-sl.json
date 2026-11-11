@@ -2241,9 +2241,27 @@
                 }
               ],
               "misconceptions": [
-                "Multiplying base by exponent: 8^(2/3) = 16/3",
-                "Thinking a negative exponent gives a negative value: 27^(−1/3) = −3",
-                "Multiplying exponents when multiplying powers: x^(1/2) × x^(1/3) = x^(1/6)"
+                "Multiplying the base by the exponent",
+                "Thinking a negative exponent gives a negative value",
+                "Multiplying the exponents when multiplying powers",
+                "Taking the root and stopping, without raising to the power",
+                "Multiplying the root by the top of the power instead of raising it to that power",
+                "Ignoring the minus sign in the power, so no reciprocal is taken",
+                "Dividing by the power instead of raising both sides to its reciprocal",
+                "Writing the power of a root upside down, with the root's index on top",
+                "Leaving out the minus sign when a power moves from the bottom of a fraction to the top",
+                "Applying the power to x but not to the number in the bracket",
+                "Adding the powers in a bracket instead of multiplying them",
+                "Adding the tops and adding the bottoms of two fractional powers",
+                "Dividing the powers instead of subtracting them",
+                "Subtracting the powers the wrong way round",
+                "Adding the powers when dividing",
+                "Adding the powers of two different bases as if the base were the same",
+                "Dividing only the first term of the top by the bottom",
+                "Adding the numbers in front instead of multiplying them",
+                "Dividing the powers of x but not the numbers in front",
+                "Treating a cube root as a square root",
+                "Raising both sides to the given power instead of its reciprocal"
               ],
               "threads": [
                 {
@@ -2502,7 +2520,7 @@
               ],
               "misconceptions": [
                 "Losing the brackets around the power when bringing it down",
-                "Taking logs before isolating: ln(5e^(2x)) = 5 × 2x",
+                "Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power",
                 "Rounding the logs early, so the final answer is wrong"
               ],
               "threads": [
@@ -7780,7 +7798,7 @@
                 }
               ],
               "misconceptions": [
-                "Assuming an angle in a 2D drawing of a 3D solid is 90° because it looks like it",
+                "Assuming an angle in a flat drawing of a solid is a right angle because it looks like one",
                 "Using a face diagonal where a space diagonal is needed",
                 "Putting the side opposite the wanted angle in the wrong place in the cosine rule"
               ],
@@ -9615,9 +9633,13 @@
                 }
               ],
               "misconceptions": [
-                "Drawing tan x with turning points instead of vertical asymptotes at x = π/2 + kπ",
+                "Drawing tan x with turning points instead of vertical asymptotes",
                 "Starting a cosine graph on the axis instead of at a maximum",
-                "Drawing a zigzag of straight lines instead of a smooth curve"
+                "Drawing a zigzag of straight lines instead of a smooth curve",
+                "Moving the graph the wrong way for d: down for + d, or up for − d",
+                "Keeping the period of the base graph, ignoring the b in bx",
+                "Putting tan's asymptotes where it crosses its centre line, instead of halfway between those crossings",
+                "Starting a sine graph at a maximum, as a cosine graph does"
               ],
               "threads": [
                 {
@@ -10991,7 +11013,19 @@
               "misconceptions": [
                 "Adding a constant changes the standard deviation",
                 "Multiplying by k multiplies the variance by k (it is k²)",
-                "Adding k to every value adds k to the IQR"
+                "Adding k to every value adds k to the IQR",
+                "Adding the constant to the range as well as to the values",
+                "Adding the constant to the variance as well as to the values",
+                "Leaving a measure of centre unchanged when every value has changed",
+                "Multiplying the added constant by the factor too, as if the change were a(x + b)",
+                "Leaving out the added constant for a measure of centre",
+                "Leaving a measure of spread unchanged when every value is multiplied",
+                "Multiplying a standard deviation, IQR or range by the square of the factor",
+                "Undoing the change in the wrong order: dividing first, then taking away the constant",
+                "Applying the change again instead of undoing it",
+                "Taking the change in the mean as the added constant, before scaling the mean",
+                "Finding the factor from the means, which the added constant has moved as well",
+                "Swapping which measures move: keeping the centre and shifting the spread"
               ],
               "threads": [
                 {
@@ -14067,7 +14101,8 @@
               "misconceptions": [
                 "Using the sign of f instead of the sign of f′: being above the axis is not the same as going up",
                 "Thinking f′ is zero at the x-intercepts rather than at the turning points",
-                "Thinking f′(x) = 0 means the function value is zero"
+                "Thinking f′(x) = 0 means the function value is zero",
+                "Giving the height of the curve at the point instead of its gradient"
               ],
               "threads": [
                 {
@@ -14784,9 +14819,11 @@
                 }
               ],
               "misconceptions": [
-                "Finding the intercepts of the curve instead of the tangent",
-                "Not using the double root, so the cubic looks unsolvable without a calculator",
-                "Using a negative intercept as a negative length in the triangle area"
+                "Finding the intercepts of the curve instead of the tangent or normal",
+                "Not using the double root at the point of contact, so it is counted only once among the roots",
+                "Using a negative intercept as a negative length in the triangle area",
+                "Giving the point of contact P as the point where the line meets the curve again",
+                "Putting x = 0 to find where a line meets the x-axis, or y = 0 for the y-axis"
               ],
               "threads": [
                 {
@@ -15808,9 +15845,19 @@
                 }
               ],
               "misconceptions": [
-                "Taking the maximum point of the f′ graph as the maximum of f",
-                "Claiming a maximum where f′ touches zero without changing sign",
-                "Justifying with 'f′ = 0' alone, without the sign change"
+                "Taking a turning point of the f′ graph as a turning point of f",
+                "Claiming a maximum or minimum where f′ touches zero without changing sign",
+                "Justifying with 'f′ = 0' alone, without the sign change",
+                "Taking the zeros of f′ as the points of inflexion instead of its turning points",
+                "Leaving out the point where f′ touches the axis, though f′ turns there too",
+                "Ending an interval where f′ touches the axis, though f′ does not change sign there",
+                "Adding the areas without their signs, so area below the axis counts as a rise in f",
+                "Comparing the heights of the f′ graph instead of the areas under it",
+                "Claiming a point of inflexion where f″ touches zero without changing sign",
+                "Taking a turning point of the f″ graph as a point of inflexion of f",
+                "Taking the graph of f′ itself as the graph of f",
+                "Reading the sign change of f′ the wrong way round, mixing up a maximum and a minimum",
+                "Giving the change in f as its value, leaving out the starting value"
               ],
               "threads": [
                 {
