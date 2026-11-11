@@ -164,6 +164,7 @@ static var SITUATIONS := {
 	"counting": [CountingSituation, CountingViews],
 	"polynomial-conditions": [PolynomialConditionsSituation, PolynomialConditionsViews],
 	"always-increasing": [AlwaysIncreasingSituation, AlwaysIncreasingViews],
+	"hence-integral": [HenceIntegralSituation, HenceIntegralViews],
 }
 
 static var _cat: Dictionary = {}

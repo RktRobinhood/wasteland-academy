@@ -40494,6 +40494,161 @@ SPOT_CHECKS["always-increasing"] = E13AI_spot
 # ── end always-increasing ──
 
 
+# ── hence-integral (t5-ext-hence-integral, FAL-776) ───────────
+# Every option is read back as an expression and judged by SymPy, not compared with the
+# engine's wording: the given derivative result is differentiated again, the right option must
+# differentiate to the integrand (with + C) or equal the exact integral, every other option must
+# not, and each tagged option must be its slip worked out here: a multiple of the derivative
+# result itself, a multiple of F with the extra term left in, the antiderivative without + C, or
+# F times the factor that should have been divided out.
+
+E13HI_SK = "SL5.10.hence-from-derivative#"
+E13HI_X = sp.Symbol("x")
+
+
+def E13HI_e(t):
+    return sp.expand(calc_expr(t.removesuffix(" + C")).subs(sp.Symbol("e"), sp.E))
+
+
+def E13HI_same(a, b):
+    return sp.simplify(sp.expand_log(sp.expand(a - b), force=True)) == 0
+
+
+def E13HI_const(a, b):
+    """a/b when it is a nonzero rational number, else None."""
+    if b == 0:
+        return None
+    r = sp.simplify(a / b)
+    return r if r.is_Rational and r != 0 else None
+
+
+def E13HI_coeff(t):
+    """The number written in front of an expression: 9 in '9x(x² + 2)³', 1 in 'ln x + 1'."""
+    m = re.match(r"(\d+) ?(?=[a-z(])", t)
+    return sp.Integer(m.group(1)) if m and not re.match(r"\d+ ?[+−]", t) else sp.Integer(1)
+
+
+def E13HI_result(line):
+    m = re.fullmatch(r"d/dx \((.+)\) = (.+)", line)
+    need(m is not None, f"can't read the result {line!r}")
+    F, G = E13HI_e(m.group(1)), E13HI_e(m.group(2))
+    need(E13HI_same(sp.diff(F, E13HI_X), G), f"the result {line!r} is false")
+    return F, G
+
+
+def E13HI_standard(term):
+    X = E13HI_X
+    fs = sp.Mul.make_args(term)
+    trans = any(f.has(sp.exp, sp.sin, sp.cos, sp.log) for f in fs)
+    xpow = any(f == X or (f.is_Pow and f.base == X and f.exp > 0) for f in fs)
+    return not (trans and xpow)
+
+
+def E13HI_helps(G, g):
+    for t in sp.Add.make_args(sp.expand(G)):
+        if E13HI_const(t, g) is not None:
+            return all(E13HI_standard(r) for r in sp.Add.make_args(sp.expand(G - t)) if r != 0)
+    return False
+
+
+def E13HI_check(q):
+    u, L, asked, ch = q["view"]["unknown"], q["lines"], q["asked"], q["choices"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    X = E13HI_X
+    need(q["paper"] == 1, "a hence question has no calculator")
+    wr = defaultdict(set)
+    if u == "find-derivative":
+        m = re.fullmatch(r"Find d/dx \((.+)\)\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        F = E13HI_e(m.group(1))
+        v = sp.simplify(F / X)
+        d = sp.diff(F, X)
+        right = lambda e, o: E13HI_same(e, d)
+        slips = {"SL5.6.product-rule#0": [sp.diff(v, X)], "SL5.6.product-rule#1": [v, X * sp.diff(v, X)]}
+        for o in ch:
+            if o["ref"]:
+                need(any(E13HI_same(E13HI_e(o["text"]), s) for s in slips.get(o["ref"], [])), f"{o['text']!r} is not what {o['ref']} gives")
+                wr[o["ref"]].add(o["text"])
+    elif u == "pick-the-derivative":
+        m = re.fullmatch(r"Which derivative result helps to find ∫ (.+) dx\?", asked)
+        need(m is not None, f"asked {asked!r}")
+        g = E13HI_e(m.group(1))
+        helps = []
+        for o in ch:
+            F, G = E13HI_result(o["text"])
+            if E13HI_helps(G, g):
+                helps.append(o["text"])
+        need(len(helps) == 1, f"{len(helps)} results help: {helps}")
+        right = lambda e, o: o == helps[0]
+    else:
+        F, G = E13HI_result(L[0])
+        if u == "hence-definite":
+            m = re.fullmatch(r"Hence find the exact value of ∫ from (\d+) to (\d+) of (.+) dx\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            a, b, g = int(m.group(1)), int(m.group(2)), E13HI_e(m.group(3))
+            V = sp.integrate(g, (X, a, b))
+            r = E13HI_coeff(m.group(3)) / E13HI_coeff(L[0].split(" = ", 1)[1])
+            right = lambda e, o: E13HI_same(e, V)
+            slips = {E13HI_SK + "0": r * (G.subs(X, b) - G.subs(X, a)), E13HI_SK + "1": r * (F.subs(X, b) - F.subs(X, a)),
+                     "t5-ext-hence-integral#5": E13HI_coeff(m.group(3)) * (F.subs(X, b) - F.subs(X, a))}
+            for o in ch:
+                if o["ref"]:
+                    need(E13HI_same(E13HI_e(o["text"]), slips[o["ref"]]), f"{o['text']!r} is not what {o['ref']} gives")
+                    wr[o["ref"]].add(o["text"])
+        else:
+            m = re.fullmatch(r"Hence find ∫ (.+) dx\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            g = E13HI_e(m.group(1))
+            right = lambda e, o: o.endswith(" + C") and E13HI_same(sp.diff(e, X), g)
+            for o in ch:
+                ref, e, c = o["ref"], E13HI_e(o["text"]), o["text"].endswith(" + C")
+                if not ref:
+                    continue
+                if ref == E13HI_SK + "0":
+                    ok = c and E13HI_const(e, G) is not None
+                elif ref == E13HI_SK + "1":
+                    ok = c and E13HI_const(e, F) is not None and not E13HI_same(sp.diff(e, X), g)
+                elif ref == E13HI_SK + "2":
+                    ok = not c and E13HI_same(sp.diff(e, X), g)
+                elif ref == "t5-ext-hence-integral#5":
+                    ok = c and E13HI_same(e, E13HI_coeff(m.group(1)) * F)
+                else:
+                    ok = False
+                need(ok, f"{o['text']!r} is not what {ref} gives")
+                wr[ref].add(o["text"])
+            if u == "adjust-factor":
+                need(E13HI_const(g, G) is not None, "the integrand is not a multiple of the result")
+            else:
+                need(E13HI_const(g, G) is None and E13HI_helps(G, g), "the integrand is not a term of the result")
+    rights = [o["text"] for o in ch if right(E13HI_e(o["text"]) if u != "pick-the-derivative" else None, o["text"])]
+    need(len(rights) == 1, f"{len(rights)} options are right: {rights}")
+    gc_check_common(q, rights[0], wr)
+    return None, None
+
+
+def E13HI_spot(q, lines):
+    X = E13HI_X
+    for i, t in enumerate(lines):
+        if (m := re.fullmatch(r"(?:Check: )?d/dx \((.+)\) = (.+)", t)):
+            ok = E13HI_same(sp.diff(E13HI_e(m.group(1)), X), E13HI_e(m.group(2)))
+        elif (m := re.fullmatch(r"(?:So )?∫ (.+) dx = (.+) \+ C", t)):
+            ok = E13HI_same(sp.diff(E13HI_e(m.group(2)), X), E13HI_e(m.group(1)))
+        elif (m := re.fullmatch(r"(.+) is (\d+(?:/\d+)?) times (.+)", t)):
+            ok = E13HI_same(E13HI_e(m.group(1)), sp.Rational(m.group(2)) * E13HI_e(m.group(3)))
+        else:
+            raise Fail(f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["hence-integral"] = E13HI_check
+SPOT_CHECKS["hence-integral"] = E13HI_spot
+
+# ── end hence-integral ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):
