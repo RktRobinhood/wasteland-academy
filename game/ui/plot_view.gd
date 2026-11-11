@@ -53,7 +53,10 @@ extends Control
 ##               "dash", "asked"}], "ball": {"at", "through", "shape"}}: points on x, y and z axes, seen from
 ##               above as on an exam paper, or x and y flat (a name starting _ isn't drawn or written);
 ##               `asked` is the segment the question is about, and `ball` draws a sphere, hemisphere or
-##               circle round `at` (FAL-751)
+##               circle round `at` (FAL-751). Optional for a solid (FAL-754): "faces": [[names]] shaded (a plane),
+##               "rims": [{"at", "r", "apex"}] a level circle of radius r round `at` (with `apex`, a cone: its two
+##               sides, and the back of the rim dashed), a line's "label" beside its middle (a measure),
+##               "angles": [{"at", "from", "to", "label"}] an arc between two points, and "rights": [[p, at, q]]
 ##   stages      {"stages": [[row lengths, top row first], ...], "names": [text]}: stacks of blocks side by
 ##               side, each row centred and drawn to one scale, with a name under each stack
 ##   dots        {"rows": [[colour number, ...], ...], "name": text}: rows of dots from the left, top row
@@ -171,6 +174,15 @@ func _space() -> void:
 		var pad := maxf(hi - lo, 1.0) * 0.14
 		ends.append([units[i] * (lo - (pad if lo < 0.0 else 0.0)), units[i] * (hi + pad)])
 	var spots: Array = spec.pts.values().map(func(p): return flat.call(p))
+	var rims: Array = []
+	for rim in spec.get("rims", []):
+		var ring: Array = []
+		var c0: Array = spec.pts[rim.at]
+		for i in 96:
+			var t := TAU * i / 96.0
+			ring.append(flat.call([float(c0[0]) + rim.r * cos(t), float(c0[1]) + rim.r * sin(t), float(c0[2])]))
+		spots.append_array(ring)
+		rims.append([rim, ring])
 	if spec.get("ball") != null:
 		var r: float = (flat.call(spec.pts[spec.ball.through]) as Vector2).distance_to(flat.call(spec.pts[spec.ball.at]))
 		var c: Vector2 = flat.call(spec.pts[spec.ball.at])
@@ -209,6 +221,10 @@ func _space() -> void:
 			marks.append(["O", origin])
 	if spec.get("ball") != null:
 		_space_ball(at[spec.ball.at], at[spec.ball.at].distance_to(at[spec.ball.through]))
+	for f in spec.get("faces", []):
+		draw_colored_polygon(PackedVector2Array(f.map(func(n): return at[n])), Color(UiTheme.SAND, 0.2))
+	for pair in rims:
+		_space_rim(pair[0], pair[1].map(func(v): return place.call(v)), at)
 	for ln in spec.lines:
 		if ln.dash:
 			_dashes(at[ln.a], at[ln.b], UiTheme.DIM, 3.0)
@@ -234,6 +250,95 @@ func _space() -> void:
 		var spot := _clear_spot(tries, s, FONT_SIZE - 2, at, taken)
 		_chip(s, spot, UiTheme.TEXT, FONT_SIZE - 2)
 		taken.append(_label_box(s, spot, FONT_SIZE - 2))
+	for r in spec.get("rights", []):
+		var u: Vector2 = (at[r[0]] - at[r[1]]).normalized() * 22.0
+		var v: Vector2 = (at[r[2]] - at[r[1]]).normalized() * 22.0
+		draw_polyline(PackedVector2Array([at[r[1]] + u, at[r[1]] + u + v, at[r[1]] + v]), UiTheme.DIM, 3.0, true)
+	var used := {}
+	for a in spec.get("angles", []):
+		_sketch_arc(a, at, used, taken)
+	for ln in spec.lines:
+		if str(ln.get("label", "")) != "":
+			_space_measure(ln, at, mid, taken)
+
+
+## A measure beside the middle of a line, on the side away from the middle of the figure.
+func _space_measure(ln: Dictionary, at: Dictionary, mid: Vector2, taken: Array) -> void:
+	var s: String = ln.label
+	var a: Vector2 = at[ln.a]
+	var b: Vector2 = at[ln.b]
+	var m := (a + b) / 2.0
+	var n := (b - a).orthogonal().normalized()
+	if n.dot(m - mid) < 0.0:
+		n = -n
+	var w := get_theme_default_font().get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 4).x
+	var tries: Array = []
+	for k in [1.0, -1.0]:
+		for d in [28.0, 48.0, 72.0]:
+			var off: Vector2 = n * float(k) * (d + absf(n.x) * w / 2.0)
+			for slide in [0.0, 0.2, -0.2]:
+				tries.append(m + (b - a) * slide + off + Vector2(0, 10))
+	# Where every spot beside the line is close to another (a pyramid's height in the middle of
+	# its edges), the measure sits on its own line, so it can't be read as another line's.
+	for slide in [0.0, -0.15, 0.15, -0.3]:
+		tries.append(m + (b - a) * slide + Vector2(0, 10))
+	var roomy := tries.filter(func(t): return not _space_crowded(_label_box(s, t, FONT_SIZE - 4).grow(12.0), ln, at))
+	var spot := _clear_spot(roomy + tries, s, FONT_SIZE - 4, at, taken, ln)
+	_chip(s, spot, UiTheme.SAND, FONT_SIZE - 4)
+	taken.append(_label_box(s, spot, FONT_SIZE - 4))
+
+
+## Whether a line other than `own` passes through the box.
+func _space_crowded(box: Rect2, own: Dictionary, at: Dictionary) -> bool:
+	for ln in spec.lines:
+		if ln != own:
+			for i in 41:
+				if box.has_point(at[ln.a].lerp(at[ln.b], i / 40.0)):
+					return true
+	return false
+
+
+## A level circle drawn from its points on screen. With an apex, a cone: the two sides from the
+## apex touch the rim where it turns, and the part of the rim behind them is dashed.
+func _space_rim(rim: Dictionary, ring: Array, at: Dictionary) -> void:
+	var n := ring.size()
+	if not rim.has("apex"):
+		for i in n:
+			draw_line(ring[i], ring[(i + 1) % n], UiTheme.TEAL, 4.0, true)
+		return
+	var v: Vector2 = at[rim.apex]
+	var down: Vector2 = (at[rim.at] - v).normalized()
+	var lo := 0
+	var hi := 0
+	for i in n:
+		var d: Vector2 = (ring[i] - v).normalized()
+		if down.cross(d) < down.cross((ring[lo] - v).normalized()):
+			lo = i
+		if down.cross(d) > down.cross((ring[hi] - v).normalized()):
+			hi = i
+	# The near half of the ring is the one with the lowest point on screen.
+	var low := 0
+	for i in n:
+		if ring[i].y > ring[low].y:
+			low = i
+	var from := lo
+	var to := hi
+	var walk := posmod(to - from, n)
+	if posmod(low - from, n) > walk:
+		var t := from
+		from = to
+		to = t
+		walk = posmod(to - from, n)
+	for i in n:
+		var near := posmod(i - from, n) < walk
+		var p: Vector2 = ring[i]
+		var q: Vector2 = ring[(i + 1) % n]
+		if near:
+			draw_line(p, q, UiTheme.TEAL, 4.0, true)
+		elif i % 2 == 0:
+			draw_line(p, q, UiTheme.DIM, 3.0, true)
+	draw_line(v, ring[lo], UiTheme.TEAL, 4.0, true)
+	draw_line(v, ring[hi], UiTheme.TEAL, 4.0, true)
 
 
 ## A sphere with its equator, a hemisphere with its flat face up, or a plain circle.
