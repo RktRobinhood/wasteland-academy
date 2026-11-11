@@ -130,15 +130,19 @@ func _quadratic(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var a3: int = c[0]
 	var inner := SUM([[1, "x²"], [-2 * s.h, "x"]])
 	var opened := SUM([[a3, sq(s.h)], [-a3 * s.h * s.h, ""], [c[2], ""]])
-	# The answer is the asked method's own argument, so only that method is worked.
+	# The answer is the asked method's own argument. The other method is worked too, and its
+	# last line says the same fact in the asked method's words, so every working ends at the answer.
 	var both := {
 		"complete-square": method(["%s′(x) = %s." % [g, quad_f(s)],
 			"Take out %s: %s′(x) = %s = %s." % [N(a3), g, SUM([[a3, "(%s)" % inner], [c[2], ""]]), opened],
-			"%s ≥ 0 for every x, and it is 0 at x = %s." % [sq(s.h), N(s.h)], cs + "."], {"v": cs}),
+			"%s ≥ 0 for every x, and it is 0 at x = %s." % [sq(s.h), N(s.h)], cs + "."], {"v": right}),
 		"discriminant-negative": method(["%s′(x) = %s, a quadratic with a = %s, b = %s and c = %s." % [g, quad_f(s), N(c[0]), N(c[1]), N(c[2])],
-			"Δ = b² − 4ac = %s² − 4 × %s × %s = %s." % [P(c[1]), P(c[0]), P(c[2]), N(delta)], disc + "."], {"v": disc}),
+			"Δ = b² − 4ac = %s² − 4 × %s × %s = %s." % [P(c[1]), P(c[0]), P(c[2]), N(delta)], disc + "."], {"v": right}),
 	}
-	out.methods = {angle: both[angle]} if both.has(angle) else both
+	var other := "discriminant-negative" if right == cs else "complete-square"
+	both[other].steps.append(("In completed-square form, the same fact reads: %s." % cs) if right == cs
+		else ("By the discriminant, the same fact reads: %s." % disc))
+	out.methods = both
 	# Error-spot: the square completed with h² for a·h².
 	var f1 := "%s′(x) = %s" % [g, quad_f(s)]
 	var slip := "= %s" % SUM([[a3, sq(s.h)], [-s.sg * s.h * s.h, ""], [c[2], ""]])
