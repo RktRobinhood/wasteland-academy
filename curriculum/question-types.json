@@ -61776,6 +61776,77 @@
       "displacement-from-graph"
      ],
      "wrong": "the area below the axis counted as positive"
+    },
+    {
+     "text": "Lowering each power by one without multiplying by the old power first",
+     "as": "distractor",
+     "in": [
+      "acceleration-expression"
+     ],
+     "wrong": "each power lowered, not brought down"
+    },
+    {
+     "text": "Taking a later solution instead of the first one",
+     "as": "distractor",
+     "in": [
+      "first-at-rest",
+      "change-direction",
+      "time-from-velocity"
+     ],
+     "wrong": "a later time, not the first"
+    },
+    {
+     "text": "Taking an earlier root instead of the last time it is back at the start",
+     "as": "distractor",
+     "in": [
+      "returns-to-start"
+     ],
+     "wrong": "an earlier root of s, not the last"
+    },
+    {
+     "text": "Assuming the acceleration is zero whenever the velocity is zero",
+     "as": "distractor",
+     "in": [
+      "acceleration-at-rest"
+     ],
+     "wrong": "zero, as if a were zero at rest"
+    },
+    {
+     "text": "Stopping partway and giving a value found on the way, such as the time, instead of the one asked for",
+     "as": "distractor",
+     "in": [
+      "acceleration-at-rest",
+      "max-velocity-quadratic",
+      "max-velocity",
+      "acceleration-at-max-speed"
+     ],
+     "wrong": "the time, or a value found on the way"
+    },
+    {
+     "text": "Finding the greatest velocity instead of the greatest acceleration",
+     "as": "distractor",
+     "in": [
+      "max-acceleration"
+     ],
+     "wrong": "the maximum of v, not of a"
+    },
+    {
+     "text": "Dropping the minus sign of a falling gradient",
+     "as": "distractor",
+     "in": [
+      "acceleration-from-graph",
+      "velocity-from-graph"
+     ],
+     "wrong": "the gradient without its minus sign"
+    },
+    {
+     "text": "Reading the height of the graph at that time instead of its gradient",
+     "as": "distractor",
+     "in": [
+      "acceleration-from-graph",
+      "velocity-from-graph"
+     ],
+     "wrong": "the graph's height, not its gradient"
     }
    ],
    "parts": [

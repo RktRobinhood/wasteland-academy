@@ -12727,6 +12727,8 @@ MT_V = "SL5.9.velocity-acceleration#"
 MT_D = "SL5.9.rest-and-direction#"
 MT_X = "SL5.9.max-speed#"
 MT_G = "SL5.9.motion-graphs#"
+MT_ME = "t5-kinematics-motion#"
+MT_POWER_ONLY, MT_LATER, MT_EARLIER, MT_A_AT_REST, MT_STOPPED, MT_MAX_V, MT_SIGN, MT_HEIGHT = (MT_ME + str(i) for i in range(12, 20))
 
 
 def mt_times(fn, T, exact):
@@ -12788,8 +12790,12 @@ def check_motion(q):
             for a, b in zip(cs, cs[1:]):
                 if a[0] < t < b[0]:
                     grad = (b[1] - a[1]) / (b[0] - a[0])
+                    height = a[1] + grad * (t - a[0])
             head, unit = ("a = ", " m/s²") if u == "acceleration-from-graph" else ("v = ", " m/s")
-            gc_check_common(q, f"{head}{dm_num(grad)}{unit}", {})
+            w = {MT_HEIGHT: {f"{head}{dm_num(height)}{unit}"}}
+            if grad < 0:
+                w[MT_SIGN] = {f"{head}{dm_num(-grad)}{unit}"}
+            gc_check_common(q, f"{head}{dm_num(grad)}{unit}", w)
         elif u == "displacement-from-graph":
             bits = [(a[1] + b[1]) * (b[0] - a[0]) / 2 for a, b in zip(cs, cs[1:])]
             gc_check_common(q, f"{dm_num(sum(bits))} m", {MT_G + "0": {f"{dm_num(max(c[1] for c in cs))} m"}, MT_G + "2": {f"{dm_num(sum(abs(b) for b in bits))} m"}})
@@ -12802,7 +12808,7 @@ def check_motion(q):
         m = re.search(r"s\(t\) = (.+?), for 0 ≤ t ≤ (\d+)\.", L[0])
         f = in_expr(m.group(1))
         rs = sorted(r for r in sp.roots(sp.Poly(f, x)) if r > 0)
-        gc_check_common(q, f"t = {rs[-1]} s", {})
+        gc_check_common(q, f"t = {rs[-1]} s", {MT_EARLIER: {f"t = {r} s" for r in rs[:-1]}})
         return None, None
     name, f, T = mt_read(q)
     s_ = f if name == "s" else None
@@ -12816,8 +12822,15 @@ def check_motion(q):
         need("cart" in L[0], "the story is not in words")
     if u in ("velocity-expression", "acceleration-expression"):
         want = a if u == "acceleration-expression" else v
+        # Each power lowered by one, its coefficient left as it was.
+        lowered = sum(c * x ** (k[0] - 1) for k, c in sp.Poly(v, x).terms() if k[0] > 0)
+        tagged = {MT_POWER_ONLY: lowered} if u == "acceleration-expression" else {}
         for o in q["choices"]:
-            need(calc_same(in_expr(o["text"].split(" = ", 1)[1]), want) == o["correct"], f"option {o['text']!r} against {want}")
+            got = in_expr(o["text"].split(" = ", 1)[1])
+            need(calc_same(got, want) == o["correct"], f"option {o['text']!r} against {want}")
+            if o["ref"]:
+                need(o["ref"] in tagged, f"the checker can't confirm {o['ref']} on {u}")
+                need(calc_same(got, tagged[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives ({tagged[o['ref']]})")
         return None, None
     if u == "velocity-at-time":
         t0 = int(re.search(r"t = (\d+)", asked).group(1))
@@ -12836,9 +12849,9 @@ def check_motion(q):
         need(sf, "time from velocity is Paper 2")
         c = R(re.search(r"velocity is (−?[\d.]+) m/s", asked).group(1).replace("−", "-"))
         rs = mt_times(v - c, T, False)
-        gc_check_common(q, tail("t = ", rs[0], " s"), {})
+        gc_check_common(q, tail("t = ", rs[0], " s"), {MT_LATER: {tail("t = ", r, " s") for r in rs[1:]}})
     elif u == "first-at-rest":
-        gc_check_common(q, tail("t = ", Z[0], " s"), {MT_D + "0": {tail("t = ", t, " s") for t in A}})
+        gc_check_common(q, tail("t = ", Z[0], " s"), {MT_D + "0": {tail("t = ", t, " s") for t in A}, MT_LATER: {tail("t = ", t, " s") for t in Z[1:]}})
     elif u == "change-direction":
         if exact:
             mult = sp.roots(sp.Poly(v, x))
@@ -12848,7 +12861,7 @@ def check_motion(q):
             w = {MT_D + "2": {tail("t = ", touch[0], " s")}, MT_D + "0": {tail("t = ", t, " s") for t in A}}
             gc_check_common(q, tail("t = ", cross[0], " s"), w)
         else:
-            gc_check_common(q, tail("t = ", Z[0], " s"), {MT_D + "0": {tail("t = ", t, " s") for t in A}})
+            gc_check_common(q, tail("t = ", Z[0], " s"), {MT_D + "0": {tail("t = ", t, " s") for t in A}, MT_LATER: {tail("t = ", t, " s") for t in Z[1:]}})
         if rep == "graph":
             dm_graph_curve(q, v)
     elif u == "moving-one-way":
@@ -12860,7 +12873,7 @@ def check_motion(q):
         if rep == "graph":
             dm_graph_curve(q, v)
     elif u == "acceleration-at-rest":
-        gc_check_common(q, tail("a = ", mt_at(a, Z[0]), " m/s²"), {})
+        gc_check_common(q, tail("a = ", mt_at(a, Z[0]), " m/s²"), {MT_A_AT_REST: {tail("a = ", sp.Integer(0), " m/s²")}, MT_STOPPED: {tail("a = ", Z[0], " m/s²")}})
     elif u == "speeding-up":
         t0 = int(re.search(r"t = (\d+)\?", asked).group(1))
         V, A0 = mt_at(v, t0), mt_at(a, t0)
@@ -12871,13 +12884,14 @@ def check_motion(q):
     elif u == "max-velocity-quadratic":
         need(sp.Poly(v, x).LC() < 0, "v doesn't open down")
         ex = mt_extremes(v, a, T, exact)
-        gc_check_common(q, tail("v = ", max(y for _, y in ex), " m/s"), {MT_X + "2": {"v = 0 m/s"}})
+        top = max(ex, key=lambda p: p[1])
+        gc_check_common(q, tail("v = ", top[1], " m/s"), {MT_X + "2": {"v = 0 m/s"}, MT_STOPPED: {tail("v = ", top[0], " m/s")}})
     elif u == "max-velocity":
         ex = mt_extremes(v, a, T, exact)
         top = max(ex, key=lambda p: p[1])
         need(0 < top[0] < T, "the maximum is at an end")
         mt_one_top(ex)
-        gc_check_common(q, tail("v = ", top[1], " m/s"), {})
+        gc_check_common(q, tail("v = ", top[1], " m/s"), {MT_STOPPED: {tail("v = ", top[0], " m/s")}})
     elif u == "max-speed":
         ex = mt_extremes(v, a, T, exact)
         mt_one_top(ex, abs)
@@ -12889,12 +12903,13 @@ def check_motion(q):
     elif u == "acceleration-at-max-speed":
         ex = mt_extremes(v, a, T, exact)
         mt_one_top(ex, abs)
-        ts = max(ex, key=lambda p: abs(p[1]))[0]
-        gc_check_common(q, tail("a = ", mt_at(a, ts), " m/s²"), {})
+        ts, vs = max(ex, key=lambda p: abs(p[1]))
+        gc_check_common(q, tail("a = ", mt_at(a, ts), " m/s²"), {MT_STOPPED: {tail("a = ", ts, " m/s²"), tail("a = ", abs(vs), " m/s²")}})
     elif u == "max-acceleration":
         ex = mt_extremes(a, sp.diff(a, x), T, exact)
         mt_one_top(ex)
-        gc_check_common(q, tail("a = ", max(y for _, y in ex), " m/s²"), {})
+        top_v = max(y for _, y in mt_extremes(v, a, T, exact))
+        gc_check_common(q, tail("a = ", max(y for _, y in ex), " m/s²"), {MT_MAX_V: {tail("a = ", top_v, " m/s²")}})
     else:
         raise Fail(f"no check for {u}")
     return None, None
