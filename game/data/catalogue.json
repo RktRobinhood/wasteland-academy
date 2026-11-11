@@ -36196,7 +36196,8 @@
 					"in": [
 						"perimeter",
 						"r-from-perimeter",
-						"theta-from-perimeter"
+						"theta-from-perimeter",
+						"perimeter-from-area"
 					],
 					"wrong": "the arc alone taken as the perimeter"
 				},
@@ -36245,6 +36246,192 @@
 						"segments-theta"
 					],
 					"wrong": "the root of the same equation with sin θ taken in degrees"
+				},
+				{
+					"text": "Treating π as a full turn, when π is only half a turn",
+					"as": "distractor",
+					"in": [
+						"deg-to-rad",
+						"rad-to-deg"
+					],
+					"wrong": "π taken as a full turn: half the radians, twice the degrees"
+				},
+				{
+					"text": "Forgetting the π when multiplying by π/180",
+					"as": "distractor",
+					"in": [
+						"deg-to-rad"
+					],
+					"wrong": "degrees ÷ 180, with no π"
+				},
+				{
+					"text": "Using the sector area formula in place of l = rθ",
+					"as": "distractor",
+					"in": [
+						"arc-length"
+					],
+					"wrong": "the area ½r²θ"
+				},
+				{
+					"text": "Adding the two radii, which gives the perimeter, when only the arc is asked for",
+					"as": "distractor",
+					"in": [
+						"arc-length",
+						"major-arc"
+					],
+					"wrong": "the arc + 2r"
+				},
+				{
+					"text": "Adding only one radius to the arc for the perimeter",
+					"as": "distractor",
+					"in": [
+						"perimeter",
+						"r-from-perimeter",
+						"theta-from-perimeter",
+						"perimeter-from-area"
+					],
+					"wrong": "the arc + r taken as the perimeter"
+				},
+				{
+					"text": "Multiplying instead of dividing when rearranging l = rθ",
+					"as": "distractor",
+					"in": [
+						"theta-from-arc",
+						"r-from-arc",
+						"r-in-terms-of-theta",
+						"theta-from-bent-strip"
+					],
+					"wrong": "l × r for θ, or l × θ for r"
+				},
+				{
+					"text": "Giving the whole circumference, with the minor arc not taken away",
+					"as": "distractor",
+					"in": [
+						"major-arc"
+					],
+					"wrong": "the circumference 2πr"
+				},
+				{
+					"text": "Using the whole width of the strip as the arc",
+					"as": "distractor",
+					"in": [
+						"theta-from-bent-strip"
+					],
+					"wrong": "the width ÷ r"
+				},
+				{
+					"text": "Taking only one straight side off the width of the strip",
+					"as": "distractor",
+					"in": [
+						"theta-from-bent-strip"
+					],
+					"wrong": "(the width − one side) ÷ r"
+				},
+				{
+					"text": "Leaving the half out of the area formula for a sector",
+					"as": "distractor",
+					"in": [
+						"sector-area",
+						"theta-from-area",
+						"r-from-area",
+						"major-sector",
+						"area-from-arc",
+						"major-from-perimeter",
+						"ring-inner-radius"
+					],
+					"wrong": "r²θ for the area, or the area rearranged without the ½"
+				},
+				{
+					"text": "Forgetting to square the radius in the area formula",
+					"as": "distractor",
+					"in": [
+						"sector-area",
+						"theta-from-area"
+					],
+					"wrong": "½rθ for the area, or 2A ÷ r for θ"
+				},
+				{
+					"text": "Giving the arc length instead of the area",
+					"as": "distractor",
+					"in": [
+						"sector-area",
+						"major-sector"
+					],
+					"wrong": "the arc rθ"
+				},
+				{
+					"text": "Forgetting the square root after finding r²",
+					"as": "distractor",
+					"in": [
+						"r-from-area",
+						"ring-inner-radius"
+					],
+					"wrong": "r² in place of r"
+				},
+				{
+					"text": "Giving the area of the whole circle, with the minor sector not taken away",
+					"as": "distractor",
+					"in": [
+						"major-sector",
+						"major-from-perimeter"
+					],
+					"wrong": "the circle πr²"
+				},
+				{
+					"text": "Taking the arc length as the radius of the rim, when it is the rim's circumference",
+					"as": "distractor",
+					"in": [
+						"cone-radius"
+					],
+					"wrong": "the arc rθ"
+				},
+				{
+					"text": "Dividing the arc by two and forgetting the π",
+					"as": "distractor",
+					"in": [
+						"cone-radius"
+					],
+					"wrong": "the arc ÷ 2"
+				},
+				{
+					"text": "Using the radius of the sector as the radius of the rim",
+					"as": "distractor",
+					"in": [
+						"cone-radius"
+					],
+					"wrong": "the sector's radius"
+				},
+				{
+					"text": "Square-rooting each term of a difference of squares separately",
+					"as": "distractor",
+					"in": [
+						"ring-inner-radius"
+					],
+					"wrong": "R − √(2A ÷ θ)"
+				},
+				{
+					"text": "Forgetting the two straight ends of the strip",
+					"as": "distractor",
+					"in": [
+						"ring-perimeter"
+					],
+					"wrong": "the two arcs alone"
+				},
+				{
+					"text": "Leaving out the inner arc of the strip",
+					"as": "distractor",
+					"in": [
+						"ring-perimeter"
+					],
+					"wrong": "the outer arc and the two ends"
+				},
+				{
+					"text": "Taking away only one segment when two are cut from the plate",
+					"as": "distractor",
+					"in": [
+						"segments-theta"
+					],
+					"wrong": "the root with one segment cut"
 				}
 			],
 			"chain": [

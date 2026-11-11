@@ -76,7 +76,7 @@ static func clear(s: Dictionary) -> bool:
 		var vs: Array = [out.answer.values.v]
 		for w in out.wrongs:
 			vs.append(w.values.v)
-		for g in out.generic:
+		for g in out.fillers:
 			vs.append(g.v)
 		return vs.all(func(v): return v.to_float() <= 0.0 or Answer.rounds_clearly(v.to_float(), EDGE))
 	return out.answer.values.values().all(func(v): return not v is Q or v.d <= MAX_DEN)
