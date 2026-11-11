@@ -40,8 +40,16 @@ using the mathematics.
   filtering across AA SL, AA HL, AI SL and AI HL as papers become available.
   Practice must continue to work offline with the reviewed runtime catalogue.
 
-This direction guides ongoing engine work. Engine extraction, the academic
-consumer and expanded bank ingestion remain open in
+**Interface, version 1** (FAL-798): `MathsEngine` (`game/engine/maths_engine.gd`)
+covers curriculum selection, generation, marking, worked solutions and learning
+results, with a test that it reaches no game code. The practice and fight screens use
+it, and so does a minimal academic study screen at `/?study`, which is checked to give
+the same maths, marking and solution for the same request and seed. The interface, its
+gaps (scenario wording, multi-part questions, planning) and the packaging options are
+in [game/docs/MATHS-ENGINE.md](game/docs/MATHS-ENGINE.md).
+
+This direction guides ongoing engine work. Packaging outside Godot, neutral scenario
+wording and expanded bank ingestion remain open in
 [#134](https://github.com/RktRobinhood/wasteland-academy/issues/134); the
 [curriculum integration plan](curriculum/README.md#question-bank-integration-direction)
 records the data requirements. The technical stack below describes the original

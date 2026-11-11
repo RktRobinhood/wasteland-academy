@@ -236,7 +236,7 @@ func _open_question() -> void:
 		rule = "link" if boss.link and boss.part == boss.parts.size() - 1 else "boss"
 	else:
 		var view := _plan()
-		question = QuestionEngine.make(view) if not view.has("error") else view
+		question = MathsEngine.generate(view) if not view.has("error") else view
 		if question.has("error"):
 			push_error("Run: %s" % question.error)
 			_end("no-questions")
@@ -314,12 +314,12 @@ func in_late_zone() -> bool:
 	return time_share() < Tuning.LATE_ZONE
 
 
-## Marks a response (as QuestionEngine.mark takes it) and resolves it. An incomplete
+## Marks a response (as MathsEngine.mark takes it) and resolves it. An incomplete
 ## response changes nothing and comes back with complete false and its errors.
 func answer(response: Dictionary) -> Dictionary:
 	if state != "question":
 		return {}
-	var m := QuestionEngine.mark(question, response)
+	var m := MathsEngine.mark(question, response)
 	if not m.complete:
 		return {"complete": false, "errors": m.errors}
 	var outcome := "wrong"

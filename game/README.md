@@ -17,7 +17,9 @@ game/
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
 ├── scenes/fight.tscn    ← the fight screen (ui/fight.gd), on the practice screen's card
 ├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /?explore
+├── scenes/study.tscn    ← the academic study screen (ui/study.gd), at /?study: MathsEngine only
 ├── engine/              ← the question engine: situations, views, marking, planner, save
+├── engine/maths_engine.gd ← the reusable maths interface every screen asks (docs/MATHS-ENGINE.md)
 ├── engine/run.gd        ← a run: floors, fights, bosses, outcomes, lifelines, the hooks (see "Combat")
 ├── engine/dungeon.gd    ← floors by level, tiers, boss chains, start floors (see "The dungeon")
 ├── engine/map_link.gd   ← map links (#functions/quadratics), browser history, music by island
@@ -1471,6 +1473,15 @@ the value carried on. `&select=1` shows the floor select.
 The map takes a hash: `/#functions/quadratics` opens that region's screen,
 `/#functions` the island and `/#world` the world map (see "The map").
 
+### The study screen
+
+`/?study` (FAL-798, #134): the maths engine in a plain academic presentation, with no
+game theme, art, sound controls, combat or rewards. It asks, marks and explains through
+`MathsEngine` only, and keeps its evidence in `user://study.json`, apart from the game's
+save. `/?study&view=<type>/<unknown>/<rep>/<angle>/<format>&seed=3` opens one question, and
+`&autoplay=right` (or `wrong`) answers it at once.
+See [docs/MATHS-ENGINE.md](docs/MATHS-ENGINE.md).
+
 ### The engine explorer
 
 `/?explore`, or "Engine" on the title screen (FAL-391). Pick a course, a topic and
@@ -2243,6 +2254,10 @@ script error happens while it runs. Run one file with
   floor over 200 floors; tiers and timers by floor; the start-floor rule and the save; the
   all-regions dungeon; the "boss beaten" event; and the balance check, which prints the
   average floor and Scrap per run for players who answer 50%, 70% and 90% right.
+- `test_maths_engine.gd`: the `MathsEngine` interface reaches no game code (it follows
+  class names and script paths from `maths_engine.gd`), the study screen calls only
+  `MathsEngine`, and one request and seed give the same maths, marking, misconception
+  and worked solution on the practice screen and the study screen.
 - `test_practice.gd`: the practice screen plays every representation and format,
   records answers, and fits at 390x844 and 1280x800.
 - `test_step.gd`: a worked-solution step as a String or a tagged `{move, board}`: the

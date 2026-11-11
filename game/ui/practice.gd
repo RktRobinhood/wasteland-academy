@@ -174,10 +174,7 @@ func next_question() -> void:
 
 ## Shows the question for a view (a QuestionEngine view, or a probe view).
 func show_view(view: Dictionary) -> void:
-	if view.get("format") == "probe":
-		question = QuestionEngine.probe(view.type, int(view.probe))
-	else:
-		question = QuestionEngine.make(view)
+	question = MathsEngine.generate(view)
 	render_question()
 
 
@@ -504,14 +501,9 @@ func check_answer() -> void:
 				response[id] = _slots[id].text
 			for id in _picks:
 				response[id] = _picks[id]
-			result = QuestionEngine.mark(question, response)
-		"probe":
-			if _choice < 0:
-				result = {"complete": false, "errors": {"choice": "Choose one."}}
-			else:
-				result = QuestionEngine.mark_probe(question, question.options[_choice])
+			result = MathsEngine.mark(question, response)
 		_:
-			result = QuestionEngine.mark(question, {"choice": _choice})
+			result = MathsEngine.mark(question, {"choice": _choice})
 	feedback.visible = true
 	if not result.complete:
 		var msgs: Array = result.errors.values()
@@ -561,7 +553,7 @@ func _reveal_result(frames := LAYOUT_FRAMES) -> void:
 
 ## Keeps the answer in the save, for the planner. The explorer screen keeps nothing.
 func _record(result: Dictionary) -> void:
-	SaveData.record(save, question.cell, result.correct, now(), result.get("misconception", ""), question.format == "probe")
+	MathsEngine.record(save, question, result, now())
 	SaveData.store(save, save_path)
 
 

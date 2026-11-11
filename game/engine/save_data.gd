@@ -31,7 +31,7 @@ extends RefCounted
 
 const VERSION := 5
 const PATH := "user://save.json"
-const HISTORY := 20
+const HISTORY := MathsEngine.HISTORY
 
 
 static func blank() -> Dictionary:
@@ -133,26 +133,8 @@ static func store(data: Dictionary, path: String = PATH) -> bool:
 	return true
 
 
-## Records one answer. key is a cell key (or a probe key with probe = true);
-## misconception is the ref of the wrong option the answer matched, or "".
+## Records one answer (MathsEngine.record_key: the save is the engine's evidence). key
+## is a cell key (or a probe key with probe = true); misconception is the ref of the
+## wrong option the answer matched, or "".
 static func record(data: Dictionary, key: String, right: bool, now: int, misconception: String = "", probe: bool = false) -> void:
-	var book: Dictionary = data.probes if probe else data.cells
-	var r: Dictionary = book.get(key, {"seen": 0, "right": 0, "wrong": 0, "last": 0, "last_result": ""})
-	r.seen = int(r.seen) + 1
-	if right:
-		r.right = int(r.right) + 1
-	else:
-		r.wrong = int(r.wrong) + 1
-	r.last = now
-	r.last_result = "right" if right else "wrong"
-	if not probe:
-		var mis: Dictionary = r.get("misconceptions", {})
-		if misconception != "":
-			mis[misconception] = int(mis.get(misconception, 0)) + 1
-		r.misconceptions = mis
-		r.last_misconception = misconception
-	book[key] = r
-	var hist: Array = data.history
-	hist.append(key)
-	while hist.size() > HISTORY:
-		hist.pop_front()
+	MathsEngine.record_key(data, key, right, now, misconception, probe)
