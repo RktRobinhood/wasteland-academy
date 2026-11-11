@@ -26408,7 +26408,7 @@
 						"value-negative",
 						"value-fraction-base"
 					],
-					"wrong": "the value with a minus sign in front"
+					"wrong": "the value for the positive power, with a minus sign in front"
 				},
 				{
 					"ref": "SL1.7.rational-exponents#2",

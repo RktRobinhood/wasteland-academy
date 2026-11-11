@@ -304,7 +304,8 @@ func u_value_fraction_base(_rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 		"So the value is %s." % s.val.text()]
 	var w: Array = []
 	if neg:
-		w = [wv(RationalExponentsSituation.qpow(Q.new(u, v), m), R_NO_RECIP), wv(s.val.neg(), R_NEGATIVE),
+		var no_flip := RationalExponentsSituation.qpow(Q.new(u, v), m)
+		w = [wv(no_flip, R_NO_RECIP), wv(no_flip.neg(), R_NEGATIVE),
 			wv(Q.new(v, u), R_ROOT_ONLY), wv(base.mul(e), R_TIMES)]
 	else:
 		w = [wv(Q.new(u, v), R_ROOT_ONLY), wv(base.mul(e), R_TIMES), wv(Q.new(u * m, v), R_TIMES_TOP)]

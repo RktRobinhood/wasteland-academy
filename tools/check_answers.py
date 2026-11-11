@@ -36879,7 +36879,7 @@ def E12RE_read(q, u, line):
         need(max(c, d) ** mm <= E12RE_BIG, "the power-then-root working is too big")
         target = E12RE_exact(E12RE_parse(line))
         if neg:
-            W = {E12RE_NO_RECIP: {E12RE_n(root ** mm)}, E12RE_NEGATIVE: {E12RE_n(-target)}, E12RE_ROOT_ONLY: {E12RE_n(1 / root)},
+            W = {E12RE_NO_RECIP: {E12RE_n(root ** mm)}, E12RE_NEGATIVE: {E12RE_n(-root ** mm)}, E12RE_ROOT_ONLY: {E12RE_n(1 / root)},
                  E12RE_TIMES: {E12RE_n(base * e)}}
         else:
             W = {E12RE_ROOT_ONLY: {E12RE_n(root)}, E12RE_TIMES: {E12RE_n(base * e)}, E12RE_TIMES_TOP: {E12RE_n(root * mm)}}

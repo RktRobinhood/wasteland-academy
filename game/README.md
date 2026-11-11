@@ -365,6 +365,19 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a crossing or a line. exp-log-form is Paper 1 and log-context Paper 2, which makes the bank's 2/3
   Paper 2 share (48 of 73 cells). `E11LF_check` in the SymPy checker reads the scale back from the
   formula or the sentence.
+- `engine/situations/rational_exponents.gd` (FAL-754) is `t1-rational-exponents`
+  (SL1.7.rational-exponents), the `rational-exponents` situation: 12 unknowns over 23 cells, all
+  Paper 1, as the bank is. The value of a whole number or a fraction to a positive or negative
+  fractional power, x from x^(m/n) = k, a root of x (inside, outside or under 1) or a power times,
+  over or under a root as one power of x, a bracket (c x^q)^(m/n), products and quotients of powers
+  of x, a product or quotient of powers of one prime, and a sum of two or three terms over a root of
+  x split into powers. Every number is drawn as a perfect power first, so it all comes out by hand.
+  The views (`rational_exponents_views.gd`) work it root first, power first, through a prime base,
+  by the laws of indices or term by term, and the wrong options come from the 21 SL1.7 slips
+  (the base times the power, a negative value, multiplied or divided powers, the root alone, no
+  reciprocal, a flipped power, a lost minus sign, the number in a bracket left alone, the first
+  term alone divided). `E12RE_check` in the SymPy checker parses the expression shown and works it
+  again.
 - `engine/situations/trig_wave.gd` (FAL-751) is `t3-trig-read-features` (SL3.7.read-features) and
   `t3-trig-model-use` (SL3.7.model-context), the `trig-wave` situation, which extends `trig-model`: it
   keeps that situation's Paper 2 wave, contexts and graph, and `TrigWaveViews` extends its views.
@@ -1989,6 +2002,9 @@ script error happens while it runs. Run one file with
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
+- `test_rational_exponents.gd` (FAL-754): t1-rational-exponents built with every cell, one right
+  option in every cell, Paper 1 only, marking by value, a typed slip logged, every tag as an
+  option, the map's and the bank's examples left out, and hand values.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters
