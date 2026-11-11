@@ -163,6 +163,7 @@ static var SITUATIONS := {
 	"sample-space": [SampleSpaceSituation, SampleSpaceViews],
 	"counting": [CountingSituation, CountingViews],
 	"polynomial-conditions": [PolynomialConditionsSituation, PolynomialConditionsViews],
+	"always-increasing": [AlwaysIncreasingSituation, AlwaysIncreasingViews],
 }
 
 static var _cat: Dictionary = {}

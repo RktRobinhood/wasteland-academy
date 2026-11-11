@@ -14210,7 +14210,7 @@
                 }
               ],
               "misconceptions": [
-                "Checking f′ at a few points and concluding it is positive everywhere",
+                "Checking f′ at a few points and concluding it keeps that sign everywhere",
                 "Showing f(x) > 0 instead of f′(x) > 0",
                 "Claiming a square is always positive, when it is zero where its bracket is zero"
               ],

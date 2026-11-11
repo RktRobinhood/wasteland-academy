@@ -78808,7 +78808,7 @@
    "misconceptions": [
     {
      "ref": "SL5.2.show-always-increasing#0",
-     "text": "Checking f′ at a few points and concluding it is positive everywhere",
+     "text": "Checking f′ at a few points and concluding it keeps that sign everywhere",
      "as": "distractor",
      "in": [
       "quadratic-derivative",
@@ -78835,9 +78835,10 @@
      "as": "distractor",
      "in": [
       "quadratic-derivative",
-      "decreasing-quadratic"
+      "decreasing-quadratic",
+      "sum-of-terms"
      ],
-     "wrong": "writes a(x − h)² + k > k for all x, but the square is 0 at x = h"
+     "wrong": "writes that a square term is > 0 for all x, but it is 0 where its bracket is 0"
     },
     {
      "text": "Completing the square without taking out the leading coefficient first",

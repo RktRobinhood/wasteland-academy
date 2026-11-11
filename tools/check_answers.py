@@ -40229,6 +40229,271 @@ SPOT_CHECKS["polynomial-conditions"] = E13PC_spot
 # ── end polynomial-conditions ──
 
 
+# ── E13 writers (FAL-776) ─────────────────────────────────────
+# The checker's own copy of how the game writes a sum of terms (DifferentiationViews.SUM and
+# Fmt.lead, Fmt.poly, Fmt.factor), for the E13 types' statements.
+
+E13_SUPS = str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻")
+
+
+def E13_lead(v):
+    v = sp.Rational(v)
+    if v == 1:
+        return ""
+    if v == -1:
+        return "−"
+    if v == sp.Rational(1, 2):
+        return "½"
+    if v == sp.Rational(-1, 2):
+        return "−½"
+    if v.q == 1:
+        return frac_text(v)
+    return ("−" if v < 0 else "") + f"({frac_text(abs(v))})"
+
+
+def E13_T(c, body):
+    c = sp.Rational(c)
+    if body == "" or body.startswith("/"):
+        return frac_text(c) + body
+    head = E13_lead(c)
+    if any(body.startswith(w) for w in ("ln", "sin", "cos")) and head not in ("", "−"):
+        return head + " " + body
+    return head + body
+
+
+def E13_sum(terms):
+    out = ""
+    for c, body in terms:
+        c = sp.Rational(c)
+        if c == 0:
+            continue
+        t = E13_T(abs(c), body)
+        out += (("−" if c < 0 else "") if out == "" else (" − " if c < 0 else " + ")) + t
+    return out or "0"
+
+
+def E13_sup(p):
+    p = int(p)
+    return "" if p == 1 else str(p).translate(E13_SUPS)
+
+
+def E13_poly(coeffs, letter="x"):
+    n = len(coeffs) - 1
+    return E13_sum([(c, "" if n - i == 0 else letter + E13_sup(n - i)) for i, c in enumerate(coeffs)])
+
+
+def E13_factor(r):
+    r = sp.Rational(r)
+    return "x" if r == 0 else f"(x {'+' if r < 0 else '−'} {frac_text(abs(r))})"
+
+
+def E13_expr(text, extra=()):
+    """The game's way of writing an expression in x, as SymPy (e^x, e^(2x), ln x, 3/x², (x + 1)²)."""
+    t = text.strip()
+    t = t.replace("ln x", "log(x)")
+    return sp.expand(calc_expr(t))
+
+
+# ── always-increasing (t5-ext-always-increasing, FAL-776) ─────
+# f is read back from its line and differentiated by SymPy. Each statement the answer could be
+# is written here from the checker's own f′: the right one for the asked method, the tagged slips
+# and the plain ones, and every option must be one of them. A quadratic f′ is completed and its
+# discriminant found here; on Paper 2 the least value of f′ is where f″ = 0, at 40 digits.
+
+E13AI_SK = "SL5.2.show-always-increasing#"
+E13AI_X = sp.Symbol("x")
+
+
+def E13AI_vertex(A, h, K):
+    return E13_sum([(A, E13_factor(h) + "²"), (K, "")])
+
+
+def E13AI_quad(q, angle, g, f):
+    X = CX
+    d = sp.Poly(sp.diff(f, X), X)
+    need(d.degree() == 2, "f′ is not a quadratic")
+    A, B, C = d.all_coeffs()
+    up = g == "f"
+    need((A > 0) == up and A % 3 == 0 and abs(A) in (3, 6), f"the x² coefficient of {g}′ is {A}")
+    h = -B / (2 * A)
+    need(h.q == 1 and h != 0 and abs(h) <= 3, f"the vertex of {g}′ is at {h}")
+    K = C - B**2 / (4 * A)
+    need(K.q == 1 and (K > 0) == up and 1 <= abs(K) <= 9, f"the least or greatest value of {g}′ is {K}")
+    delta = B**2 - 4 * A * C
+    need(delta < 0, "the discriminant is not negative")
+    sign, word, end = (">", "positive", f"f′(x) > 0 for all x") if up else ("<", "negative", f"g′(x) < 0 for all x")
+    ends = (lambda k: f"≥ {frac_text(k)} > 0 for all x, so f is increasing") if up else (lambda k: f"≤ {frac_text(k)} < 0 for all x, so g is decreasing")
+    cs = f"{g}′(x) = {E13AI_vertex(A, h, K)} {ends(K)}"
+    disc = f"{g}′(x) = {E13_poly([A, B, C])} has discriminant {frac_text(delta)} < 0 and a {word} x² coefficient, so {end}"
+    strict = f"{g}′(x) = {E13AI_vertex(A, h, K)} {sign} {frac_text(K)} for all x, so {g} is {'increasing' if up else 'decreasing'}"
+    k_slip = K + (1 if up else -1) * (abs(A) - 1) * h**2
+    cs_slip = f"{g}′(x) = {E13AI_vertex(A, h, k_slip)} {ends(k_slip)}"
+    disc_slip = f"{g}′(x) = {E13_poly([A, B, C])} has discriminant {frac_text((B / 2)**2 - 4 * A * C)} < 0 and a {word} x² coefficient, so {end}"
+    pts = set()
+    for o in q["choices"]:
+        m = re.fullmatch(rf"{g}′\((−?\d+)\) = (−?\d+) and {g}′\((−?\d+)\) = (−?\d+) are both {word}, so {re.escape(end)}", o["text"])
+        if m:
+            x1, v1, x2, v2 = (E13PC_n(t) for t in m.groups())
+            if x2 == x1 + 2 and v1 == d.eval(x1) and v2 == d.eval(x2):
+                pts.add(o["text"])
+    right = cs if angle == "complete-square" else disc
+    return right, {E13AI_SK + "0": pts, E13AI_SK + "2": {strict}}, {cs_slip, disc_slip}, (A, B, C, h, K, delta)
+
+
+def E13AI_claims(terms, strict):
+    (c0, b0), (c1, _), (c2, b2) = terms
+    return f"{E13_T(c0, b0)} {'>' if strict else '≥'} 0, {frac_text(c1)} > 0 and {E13_T(c2, b2)} > 0"
+
+
+def E13AI_E(s):
+    return "e^x" if s == 1 else f"e^({s}x)"
+
+
+def E13AI_check(q):
+    u, angle, L = q["view"]["unknown"], q["view"]["angle"], q["lines"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    X = CX
+    need(q["paper"] == (2 if u == "gdc-minimum" else 1), f"Paper {q['paper']}")
+    tagged, plain = {}, set()
+    if u in ("quadratic-derivative", "decreasing-quadratic"):
+        g = "f" if u == "quadratic-derivative" else "g"
+        m = re.fullmatch(rf"{g}\(x\) = (.+)", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        f = E13PC_expr(m.group(1))
+        right, tagged, plain, (A, B, C, h, K, delta) = E13AI_quad(q, angle, g, f)
+        for sol in q["solutions"]:
+            for st in sol["steps"]:
+                for part in re.findall(rf"{g}′\(x\) = ([^,.]+?)(?=\.$|, a quadratic| ≥| ≤| has)", st):
+                    for side in part.split(" = "):
+                        need(E13PC_expr(side) == sp.expand(A * X**2 + B * X + C), f"{sol['name']}: {side!r} is not {g}′(x)")
+                mm = re.search(r"Δ = b² − 4ac = (.+) = (−?\d+)\.$", st)
+                if mm:
+                    need(E13PC_n(mm.group(2)) == delta and sp.sympify(mm.group(1).replace("−", "-").replace("²", "**2").replace("×", "*")) == delta, f"{sol['name']}: {st!r}")
+    elif u == "sum-of-terms":
+        m = re.fullmatch(r"f\(x\) = (\d*)x³ \+ (\d*)x \+ (\d*)e\^(?:x|\((\d)x\))", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        p, qq, r = (int(t) if t else 1 for t in m.groups()[:3])
+        s = int(m.group(4) or 1)
+        need(s in (2, 3) if m.group(4) else True, "e^(1x)")
+        need(1 <= p <= 3 and 1 <= qq <= 9 and 1 <= r <= 4, f"f(x) = {m.group(1)}")
+        f = p * X**3 + qq * X + r * sp.exp(s * X)
+        d = sp.diff(f, X)
+        need(sp.simplify(d - (3 * p * X**2 + qq + r * s * sp.exp(s * X))) == 0, "f′")
+        t = [(3 * p, "x²"), (qq, ""), (r * s, E13AI_E(s))]
+        fp = E13_sum(t)
+        right = f"{E13AI_claims(t, False)}, so f′(x) = {fp} > 0 for all x"
+        f1 = E13_sum([(3 * p + qq, ""), (r * s, "e" + E13_sup(s))])
+        need(sp.simplify(d.subs(X, 1) - (3 * p + qq + r * s * sp.E**s)) == 0, "f′(1)")
+        tagged = {E13AI_SK + "0": {f"f′(0) = {qq + r * s} and f′(1) = {f1} are both positive, so f′(x) > 0 for all x"},
+                  E13AI_SK + "1": {f"{L[0][7:]} > 0 for all x, so f is increasing"},
+                  E13AI_SK + "2": {f"{E13AI_claims(t, True)}, so f′(x) = {fp} > 0 for all x"}}
+        st = [(3 * p, "x²"), (qq, ""), (r, E13AI_E(s))] if s > 1 else [(p, "x²"), (qq, ""), (r, E13AI_E(s))]
+        plain = {f"{E13AI_claims(st, False)}, so f′(x) = {E13_sum(st)} > 0 for all x"}
+    elif u == "inverse-exists":
+        m = re.fullmatch(r"f\(x\) = (\d*)x² \+ (\d*) ?ln x, for x > 0", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        a, b = (int(t) if t else 1 for t in m.groups())
+        need(1 <= a <= 4 and 1 <= b <= 9, "a or b")
+        d = sp.diff(a * X**2 + b * sp.log(X), X)
+        need(sp.simplify(d - (2 * a * X + b / X)) == 0, "f′")
+        fp = E13_sum([(2 * a, "x"), (b, "/x")])
+        right = f"For x > 0, {E13_T(2 * a, 'x')} > 0 and {E13_T(b, '/x')} > 0, so f′(x) = {fp} > 0: f is increasing, so it is one-to-one and has an inverse"
+        tagged = {E13AI_SK + "0": {f"f′(1) = {frac_text(d.subs(X, 1))} and f′(2) = {frac_text(d.subs(X, 2))} are both positive, so f is increasing and has an inverse"},
+                  E13AI_SK + "1": {f"{E13_T(a, 'x²')} > 0 and {E13_T(b, 'ln x')} > 0 for x > 0, so f(x) > 0 and f has an inverse"}}
+        plain = {f"For x > 0, {E13_T(2 * a, 'x')} > 0 and {E13_T(b, '/x²')} > 0, so f′(x) = {E13_sum([(2 * a, 'x'), (b, '/x²')])} > 0: f is increasing, so it is one-to-one and has an inverse"}
+    else:
+        m = re.fullmatch(r"f\(x\) = (\d*)e\^x − (\d*)x²(?: ([+−]) (\d*)x)?", L[0])
+        need(m is not None and len(L) == (2 if q["view"]["rep"] == "graph" else 1), f"can't read {L}")
+        A = int(m.group(1) or 1)
+        B = int(m.group(2) or 1)
+        n = (int(m.group(4) or 1) * (-1 if m.group(3) == "−" else 1)) if m.group(3) else 0
+        f = A * sp.exp(X) - B * X**2 + n * X
+        d = sp.diff(f, X)
+        xs = sp.solve(sp.diff(d, X), X)
+        need(len(xs) == 1, "f′ has no single least value")
+        xm = xs[0]
+        need(sp.diff(d, X, 2).subs(X, xm) > 0, "not a minimum")
+        v = sp.N(d.subs(X, xm), 40)
+        need(v > sp.Rational(1, 10) and not on_edge(v) and not on_edge(abs(sp.N(xm, 40))), f"least value {v}")
+        right = f"The GDC shows the least value of f′(x) is {gc_s(v)}, at x = {gc_s(sp.N(xm, 40))}, so f′(x) > 0 for all x"
+        f1 = sp.N(d.subs(X, 1), 40)
+        need(f1 > 0 and d.subs(X, 0) > 0, "a tested value is not positive")
+        tagged = {E13AI_SK + "0": {f"f′(0) = {d.subs(X, 0)} and f′(1) = {gc_s(f1)} are both positive, so f′(x) > 0 for all x"}}
+        plain = {f"The GDC shows the least value of f′(x) is {d.subs(X, 0)}, at x = 0, so f′(x) > 0 for all x",
+                 f"The GDC shows f′(x) = 0 at x = {gc_s(sp.N(xm, 40))}, so f has a stationary point there"}
+        if q["view"]["rep"] == "graph":
+            dl = sp.lambdify(X, d, "math")
+            for x, y in q["graph"]["curves"][0][::11]:
+                need(abs(dl(x) - y) < 1e-6, "the graph is not y = f′(x)")
+    gc_check_common(q, right, tagged)
+    for o in q["choices"]:
+        if not o["correct"] and not o["ref"]:
+            need(o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
+    return None, None
+
+
+def E13AI_claim_true(t, domain_pos):
+    """Whether 'T ≥ 0' or 'T > 0' holds for every x (every x > 0 with domain_pos)."""
+    X = CX
+    m = re.fullmatch(r"(.+) (≥|>) 0", t)
+    need(m is not None, f"no claim in {t!r}")
+    e = E13_expr(m.group(1))
+    dom = sp.Interval.open(0, sp.oo) if domain_pos else sp.S.Reals
+    bad = sp.solve_univariate_inequality(e < 0 if m.group(2) == "≥" else e <= 0, X, relational=False, domain=dom)
+    return bad == sp.S.EmptySet
+
+
+def E13AI_spot(q, lines):
+    u, L = q["view"]["unknown"], q["lines"]
+    L = L[:L.index("A student's working:")]
+    X = CX
+    if u in ("quadratic-derivative", "decreasing-quadratic"):
+        g = "f" if u == "quadratic-derivative" else "g"
+        d = sp.diff(E13PC_expr(re.fullmatch(rf"{g}\(x\) = (.+)", L[0]).group(1)), X)
+        A, B, C = sp.Poly(d, X).all_coeffs()
+        top = C - B**2 / (4 * A)
+        for i, t in enumerate(lines):
+            t = re.sub(rf"^{g}′\(x\) ", "", t)
+            m = re.fullmatch(r"(?:= (.+?) )?(≥|≤) (−?\d+) (>|<) 0, so .+", t)
+            if m:
+                ok = (m.group(1) is None or E13PC_expr(m.group(1)) == sp.expand(d)) and E13PC_n(m.group(3)) == top
+            else:
+                ok = E13PC_expr(t.removeprefix("= ")) == sp.expand(d)
+            if not ok:
+                return i
+        return None
+    if u == "sum-of-terms":
+        f = E13_expr(L[0][len("f(x) = "):])
+        dom = False
+    else:
+        f = E13_expr(re.fullmatch(r"f\(x\) = (.+), for x > 0", L[0]).group(1))
+        dom = True
+    d = sp.diff(f, X)
+    for i, t in enumerate(lines):
+        if (m := re.fullmatch(r"f′\(x\) = (.+)", t)):
+            ok = sp.simplify(E13_expr(m.group(1)) - d) == 0
+        elif (m := re.fullmatch(r"f\(x\) = (.+?)(?: is defined for x > 0)?", t)):
+            ok = sp.simplify(E13_expr(m.group(1)) - f) == 0
+        elif t in ("So f′(x) > 0 for all x", "So f is increasing for all x"):
+            ok = not dom  # the conclusions of a sum of terms that really are positive
+        elif t in ("So f′(x) > 0 for x > 0", "So f is one-to-one and has an inverse"):
+            ok = dom
+        else:
+            body = t.removeprefix("For x > 0, ")
+            parts = re.split(r", | and ", body)
+            ok = all(E13AI_claim_true(p, dom) for p in parts)
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["always-increasing"] = E13AI_check
+SPOT_CHECKS["always-increasing"] = E13AI_spot
+
+# ── end always-increasing ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):
