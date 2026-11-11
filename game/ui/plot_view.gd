@@ -278,9 +278,24 @@ func _space_measure(ln: Dictionary, at: Dictionary, mid: Vector2, taken: Array) 
 			var off: Vector2 = n * float(k) * (d + absf(n.x) * w / 2.0)
 			for slide in [0.0, 0.2, -0.2]:
 				tries.append(m + (b - a) * slide + off + Vector2(0, 10))
-	var spot := _clear_spot(tries, s, FONT_SIZE - 4, at, taken, ln)
+	# Where every spot beside the line is close to another (a pyramid's height in the middle of
+	# its edges), the measure sits on its own line, so it can't be read as another line's.
+	for slide in [0.0, -0.15, 0.15, -0.3]:
+		tries.append(m + (b - a) * slide + Vector2(0, 10))
+	var roomy := tries.filter(func(t): return not _space_crowded(_label_box(s, t, FONT_SIZE - 4).grow(12.0), ln, at))
+	var spot := _clear_spot(roomy + tries, s, FONT_SIZE - 4, at, taken, ln)
 	_chip(s, spot, UiTheme.SAND, FONT_SIZE - 4)
 	taken.append(_label_box(s, spot, FONT_SIZE - 4))
+
+
+## Whether a line other than `own` passes through the box.
+func _space_crowded(box: Rect2, own: Dictionary, at: Dictionary) -> bool:
+	for ln in spec.lines:
+		if ln != own:
+			for i in 41:
+				if box.has_point(at[ln.a].lerp(at[ln.b], i / 40.0)):
+					return true
+	return false
 
 
 ## A level circle drawn from its points on screen. With an apex, a cone: the two sides from the

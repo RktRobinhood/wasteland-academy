@@ -36788,7 +36788,9 @@ def e12sa_pyramid(q, rep, landmark=False):
 
 
 def e12sa_pyramid_pts(l, w, h):
-    P = {"A": (0, 0, 0), "B": (l, 0, 0), "C": (l, w, 0), "D": (0, w, 0)}
+    # SymPy integers throughout, so a midpoint is an exact half, never a float.
+    l, w, z = sp.Integer(l), sp.Integer(w), sp.Integer(0)
+    P = {"A": (z, z, z), "B": (l, z, z), "C": (l, w, z), "D": (z, w, z)}
     P["X"] = (sp.Rational(l, 2), sp.Rational(w, 2), 0)
     P["V"] = (sp.Rational(l, 2), sp.Rational(w, 2), h)
     return P
@@ -36830,7 +36832,9 @@ def e12sa_cone(q, rep):
     return r, h, l, sorted(got)
 
 
-def e12sa_points(q, rep, names):
+def e12sa_points(q, rep, names, drops=False):
+    """The points from the words or the figure's labels. A line-plane figure drops each point
+    to the xy-plane; a triangle's figure has no drops."""
     text = " ".join(q["lines"])
     out = {}
     if rep == "diagram":
@@ -36841,7 +36845,7 @@ def e12sa_points(q, rep, names):
             need(m is not None, f"can't read {g['labels'][n]!r}")
             out[n] = tuple(e12sa_int(t) for t in m.groups())
             need(e12sa_pt(g, n) == out[n], f"{n} is drawn at the wrong place")
-            if out[n][2] != 0:
+            if drops and out[n][2] != 0:
                 need(g["pts"].get("_" + n) is not None and e12sa_pt(g, "_" + n) == out[n][:2] + (0,), f"{n}'s drop to the xy-plane is wrong")
         return out
     need(q["graph"] is None, "only a diagram has a figure")
@@ -36882,7 +36886,7 @@ def e12sa_same(a, b):
 
 
 def e12sa_clauses(st):
-    return [c.strip() for c in re.split(r", (?![^()]*\))|: |\. (?=[A-Z(√])|\.$", st) if c.strip()]
+    return [c.strip() for c in re.split(r", (?![^()]*\))| and (?=[A-Z]{2}²? = )|: |\. (?=[A-Z(√])|\.$", st) if c.strip()]
 
 
 def e12sa_steps(q, P, name, t, paper):
@@ -37114,12 +37118,12 @@ def E12SA_check(q):
             need(e12sa_asked_lines(g) == ["AV"], "the slant height isn't marked")
         w[T + "6"].append(90 - t)
         if u == "cone-slant-base":
-            need(all(e12sa_n(x) <= E12SA_LONGEST for x in (r, h, sl)), "a measure is out of range")
+            need(all(e12sa_n(x) <= E12SA_LONGEST for k, x in (("h", h), ("l", sl), ("r", r)) if k in given), "a given measure is out of range")
             w[T + "10"].append(e12sa_deg_atan(h, 2 * r))
             w[T + "11"].append(e12sa_deg_atan(sl, r))
             w[T + "7"].append(e12sa_deg_atan(h, sl))
     elif u == "coords-line-plane":
-        P = e12sa_points(q, rep, ["A", "B"])
+        P = e12sa_points(q, rep, ["A", "B"], drops=True)
         need("between the line AB and the xy-plane" in asked, "not AB and the xy-plane")
         need(all(abs(v) <= E12SA_REACH for p in P.values() for v in p), "a point is out of reach")
         need(e12sa_sign_change(P["A"], P["B"]), "no coordinate changes sign")
