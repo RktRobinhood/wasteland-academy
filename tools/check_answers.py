@@ -35417,7 +35417,10 @@ def E11PI_check(q):
             need(m, f"can't read {o['text']!r}")
             no, v = int(m.group(1)), E11PI_read(m.group(2))
             need((no == first and E11PI_same(v, lhs)) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
-            if not o["correct"]:
+            if o["ref"] == "t3-prove-identity#27":
+                # A later line, put right: it only carries the first slip down (FAL-815).
+                need(no > first and E11PI_same(v, lhs) and no in bad, f"{o['text']!r} is not a later wrong line put right")
+            elif not o["correct"]:
                 E11PI_tagged(o, v, slips)
         E11PI_shared(q, q["answer_text"])
         E11PI_steps(q, {"LHS": lhs})
@@ -35522,7 +35525,7 @@ def E11PI_check(q):
         else:
             r = re.fullmatch(rf"(.+) ≡ a sin {2 * w}{letter}", line)
             need(r and E11PI_same(E11PI_read(r.group(1)), lhs), f"can't read {line!r}")
-        E11PI_numbers(q, "a = ", a, {E11PI_COEF: [sp.Integer(n)]})
+        E11PI_numbers(q, "a = ", a, {E11PI_COEF: [sp.Integer(n)], "t3-prove-identity#26": [sp.Integer(2 * n)]})
     elif u == "cancel-fraction":
         E11PI_left(q, g, rep, lhs)
         need(E11PI_same(E11PI_form(q), lhs), "the slots don't make the expression")
@@ -35567,6 +35570,9 @@ def E11PI_check(q):
         want = sp.nsimplify(E11PI_float(lhs, x0), rational=True, tolerance=sp.Float("1e-25"))
         need(abs(sp.N(want, 40) - E11PI_float(rhs, x0)) < sp.Float("1e-30"), "the two sides differ")
         wrongs = {ref: [E11PI_float(e, x0) for e in es] for ref, es in slips.items()}
+        if fam == "quartic-diff":
+            # sin² − cos² read as cos 2x, the form with its signs swapped: the value's sign flips (FAL-815).
+            wrongs.setdefault(E11PI_FORM, []).append(-E11PI_float(lhs, x0))
         E11PI_numbers(q, "L = ", want, wrongs)
     elif u == "greatest-value":
         c = int(g["c"])
@@ -35590,6 +35596,10 @@ def E11PI_check(q):
             wrongs[E11PI_PRE] = [sp.Integer(int(g["n"]) + c)]
         elif fam in ("double-twice", "quartic-sin"):
             wrongs[E11PI_PRE] = [sp.Integer(4 * int(g["k"]) + c)]
+        # The other end of the range, and the trig part's greatest value without c (FAL-815).
+        wrongs["t3-prove-identity#24"] = [sp.nsimplify((lo if top else hi) * 2, rational=True, tolerance=1e-9) / 2 + c]
+        if top and c != 0:
+            wrongs["t3-prove-identity#25"] = [sp.nsimplify(hi * 2, rational=True, tolerance=1e-9) / 2]
         E11PI_numbers(q, f"{g['want']} value = ", want, wrongs)
         tail = q["solutions"][0]["steps"][1]
         rr = re.search(r"run from (.+?) to (.+?)\.$", tail)
@@ -37025,6 +37035,11 @@ def E12CC_check(q):
         s2 = tv[names[1]] - b if back else tv[names[1]] + b
         if E12CC_fits(s2):
             wrongs.setdefault(E12CC_SK + "14", set()).add(E12CC_text(names, [tv[names[0]], s2]))
+    if u == "multiply-mean":
+        # The factor added to the mean, and the mean scaled by the factor squared (FAL-815).
+        for v, k in ((tv["mean"] + a, 15), (a**2 * tv["mean"], 16)):
+            if E12CC_fits(v) and v != right[0]:
+                wrongs.setdefault(f"t4-constant-changes#{k}", set()).add(E12CC_text(names, [v]))
     E12CC_tiny(q, a, b, xs)
     gc_check_common(q, want, wrongs, None)
     return None, None
@@ -37055,6 +37070,8 @@ def E12CC_find(q):
         wrongs[E12CC_SK + "13"] = {pair(M / m, 0)}
     if var and E12CC_ends(SV / sv) and E12CC_ends(M - SV / sv * m):
         wrongs[E12CC_SK + "1"] = {pair(SV / sv, M - SV / sv * m)}
+    # b from M = am + b taken the wrong way round: am − M (FAL-815).
+    wrongs["t4-constant-changes#17"] = {pair(a, a * m - M)}
     E12CC_tiny(q, a, b)
     gc_check_common(q, pair(a, b), wrongs, None)
     return None, None

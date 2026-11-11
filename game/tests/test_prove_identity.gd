@@ -208,9 +208,12 @@ func test_every_tag_shows_up_as_an_option() -> void:
 			for o in _make(c, seed).choices:
 				if o.ref != "":
 					seen["%s|%s" % [o.ref, c.unknown]] = true
-	for m in t.misconceptions:
+	for i in t.misconceptions.size():
+		var m: Dictionary = t.misconceptions[i]
+		# One with no ref of its own is logged as "<type id>#<index>".
+		var ref: String = m.get("ref", "%s#%d" % [TYPE, i])
 		for u in m["in"]:
-			check(seen.has("%s|%s" % [m.ref, u]), "%s never shows on %s" % [m.ref, u])
+			check(seen.has("%s|%s" % [ref, u]), "%s never shows on %s" % [ref, u])
 
 
 func test_probes_are_served() -> void:
