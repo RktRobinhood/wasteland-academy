@@ -536,7 +536,7 @@ func u_max_min_points(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		out.wrongs.append(mm_alt(s, [at[0], size, at[1], size.neg()], R_NO_D))
 		out.wrongs.append(mm_alt(s, [at[0], s.d.neg().add(size), at[1], s.d.neg().sub(size)], R_D_WAY))
 	var pw := Q.new(2) if not s.b.eq(1) else P.div(2)
-	var w := turn_places(s.merged({"lo": Q.new(0)}), s.fn, s.a.sign(), pw)
+	var w := turn_places(s.merged({"lo": Q.new(0)}, true), s.fn, s.a.sign(), pw)
 	out.wrongs.append(mm_alt(s, [w[0], top, w[1], low], R_BASE if not s.b.eq(1) else R_SIN_TAN))
 	out.wrongs = spun(out.wrongs, s.spin)
 	out.generic = [mm_alt(s, [at[1], top, at[0], low]).values, mm_alt(s, [at[0], low, at[1], top]).values, mm_alt(s, [at[0], top.add(1), at[1], low.sub(1)]).values,
@@ -663,7 +663,7 @@ func _dec_zeros(rep: String, s: Dictionary) -> Dictionary:
 	var out := {"answer": a, "lines": [eq_line(s)], "asked": "Find the x-intercepts of the sketch on this domain, to 3 significant figures."}
 	plain_figure(out, rep, s)
 	var hi: float = s.hi.to_float()
-	var flip := TrigSketchSituation.dec_zeros(s.merged({"d": s.d.neg()}), 0.0, hi)
+	var flip := TrigSketchSituation.dec_zeros(s.merged({"d": s.d.neg()}, true), 0.0, hi)
 	out.wrongs = []
 	if flip.size() >= 1:
 		out.wrongs.append(wrong(Answer.xs_of(flip.map(func(x): return GdcKit.qf(x))), R_D_WAY))
