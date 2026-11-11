@@ -1004,7 +1004,7 @@ static func mark(question: Dictionary, response: Dictionary) -> Dictionary:
 	if r.complete and not r.correct:
 		for c in question.choices:
 			if not c.correct and c.ref != "" and Answer.typable(question.answer, c.values) \
-					and Answer.values_right(Answer.with_values(question.answer, c.values), r.values):
+					and Answer.matches(question.answer, c.values, r.values):
 				r.misconception = c.ref
 				break
 	return r

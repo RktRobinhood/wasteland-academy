@@ -146,3 +146,23 @@ func test_no_wrong_option_is_equivalent_to_the_answer() -> void:
 				check(not Answer.values_right(q.answer, o.values), "%s seed %d: option %s is the answer %s" % [c.key, seed, o.text, q.answer_text])
 				check(o.get("form", false) == Answer.form_broken(q.answer, o.values), "%s seed %d: option %s" % [c.key, seed, o.text])
 	check(checked > 1000, "only %d options checked" % checked)
+
+
+## A tagged wrong option typed back logs its misconception, though the option itself breaks
+## the asked form (2x(3x + 6) for "factorise fully"): it is matched by value.
+func test_a_typed_wrong_option_of_a_by_value_kind_logs_its_misconception() -> void:
+	var seen := 0
+	for c in QuestionEngine.cells(false, ["fn-pre-factorise", "fn-pre-surds", "fn-line-from-conditions"]):
+		for seed in [1, 2, 3]:
+			var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed})
+			if q.has("error") or q.answer.kind not in Answer.BY_VALUE:
+				continue
+			for o in q.choices:
+				if o.correct or o.ref == "" or not Answer.typable(q.answer, o.values):
+					continue
+				var typed := {}
+				for id in o.values:
+					typed[id] = o.values[id].key() if o.values[id] is Q else str(o.values[id])
+				seen += 1
+				check_eq(QuestionEngine.mark(q, typed).misconception, o.ref, "%s seed %d: %s" % [c.key, seed, o.text])
+	check(seen > 20, "only %d tagged options" % seen)

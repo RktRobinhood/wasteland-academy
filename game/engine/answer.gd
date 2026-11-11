@@ -1073,6 +1073,15 @@ static func form_note(ans: Dictionary) -> String:
 	return ""
 
 
+## Whether typed values are a wrong option's answer (its misconception): by value for the
+## kinds marked by value, as the option itself may break the asked form (2x(3x + 6)).
+static func matches(ans: Dictionary, values: Dictionary, got: Dictionary) -> bool:
+	var other := with_values(ans, values)
+	if ans.kind in BY_VALUE or _is_surd(ans):
+		return same_value(other, got)
+	return values_right(other, got)
+
+
 ## Whether got has the answer's value, whatever its form: the same line, product or surd.
 static func same_value(ans: Dictionary, got: Dictionary) -> bool:
 	if ans.kind not in BY_VALUE and not _is_surd(ans):
