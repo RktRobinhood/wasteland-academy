@@ -484,6 +484,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `space`: the points on axes with the coordinates on them, a cuboid or pyramid on the axes, or a
   round solid with no axes. Position vectors are the map's vector representation, listed as
   `notation`. The 2D unknowns use the type's own `distance-formula-2d` method.
+- `engine/situations/solid_angle.gd` (FAL-754) is `t3-3d-angle` (SL3.1.angle-line-plane and
+  SL3.1.angle-two-lines), the `solid-angle` situation: 11 unknowns over 49 cells and all six methods. A
+  line and a plane: a cuboid's space diagonal and its base, a pyramid's slant edge or the line VM to the
+  middle of a base edge and the base, a cone's slant height and its base, a line through two points and
+  the xy-plane; two lines: a cuboid's two space diagonals at M, two slant edges at the apex, a diagonal
+  and an edge, and angle ABC from three points (with or without a right angle at A or C). The lengths and
+  coordinates are drawn first as whole numbers and the angle is worked out of them; every cell is Paper 2
+  to 3 s.f. but `landmark-angle`, which is Paper 1 with lengths chosen to make 30°, 45° or 60° exactly.
+  The views (`solid_angle_views.gd`) give the solid in a story or as `PlotView`'s `space` figure, which
+  gained optional shaded `faces`, cone `rims`, measures on `lines`, `angles` arcs and `rights` marks for it;
+  points come as coordinates, position vectors or on axes. The bank's pyramid and the skill's worked
+  examples are left out.
 - `engine/situations/motion.gd` (FAL-724) is `t5-kinematics-motion` (SL5.9): Paper 1 is
   v(t) = 3A(t − p)(t − q), with s(t) whole, and a cubic that touches 0 for a change of direction;
   Paper 2 is A t e^(−kt) − B, A sin(wt) + B or A e^(−kt) cos(wt), with rests and extremes found
@@ -1578,6 +1590,11 @@ turning points, zeros and asymptotes exactly with SymPy's solveset, and holds ev
 function sampled across the domain: the right card to the function, each wrong card to the curve its
 slip draws, with its tag, its dots and, for tan, its asymptotes. Each typed option is rebuilt from its
 slip, and Paper 2's 3 s.f. values come from mpmath (`E12TS_check`).
+For `solid-angle` it reads the solid back from the sentences or the figure's measures (never the
+question's `given`), checks the figure is drawn to them, puts the solid on its own axes with SymPy
+integers and finds the angle again from vectors: a line and a plane from the rise over the length, two
+lines from their dot product. It holds the clean limits, rebuilds each tagged option from its slip, and
+evaluates every sum, named length, ratio and inverse in the working (`E12SA_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
@@ -2119,6 +2136,9 @@ script error happens while it runs. Run one file with
   Paper 2 and the rest by hand on Paper 1; the sketches pick-the-graph with four different cards on one
   window, no extra formats; hand values, figures with nothing marked, five-point tables, map strings with
   no numbers, and every tag as an option.
+- `test_solid_angle.gd` (FAL-754): t3-3d-angle built with every cell and all six methods, landmark-angle
+  on Paper 1 and exact, the rest Paper 2; hand values for every unknown, clean in-range 3 s.f. angles, the
+  right angle at A or C, each figure marking what is asked, map strings with no numbers, and every tag.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters

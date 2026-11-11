@@ -39242,6 +39242,600 @@ SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, 
                     "derivative-graph": E12DG_check,}
 
 
+# ── solid-angle (t3-3d-angle, FAL-754) ───────────────────────────────────
+# The `solid-angle` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/solid_angle.gd. The solid or the points are read back from the
+# sentences or the figure's labels (never the question's `given`), put on the checker's own
+# axes, and every angle is found again from vectors with SymPy: a line and a plane from the
+# rise over the length, two lines from their dot product. Each tagged slip is worked out
+# again from its description, and every sum, length and ratio in the working is evaluated.
+E12SA_LP = "SL3.1.angle-line-plane#"
+E12SA_TL = "SL3.1.angle-two-lines#"
+E12SA_T = "t3-3d-angle#"
+E12SA_LINE_PLANE = ("cuboid-diagonal-base", "pyramid-edge-base", "pyramid-face-base", "cone-slant-base", "coords-line-plane", "landmark-angle")
+E12SA_LOW, E12SA_HIGH = 12, 78
+E12SA_WIDE_LOW, E12SA_WIDE_HIGH = 20, 160
+E12SA_RIGHT_GAP = 4
+E12SA_LANDMARK_GAP = sp.Rational(1, 2)
+E12SA_EDGE = sp.Rational(3, 100)
+E12SA_LONGEST = 18
+E12SA_REACH = 12
+E12SA_BANK = {(8, 6, 10), (6, 8, 10), (6, 8, 9), (8, 6, 9)}
+E12SA_BANK_POINTS = {((8, 6, 0), (4, 3, 10)), ((6, 8, 0), (3, 4, 9)), ((1, -2, 3), (4, 2, 15))}
+E12SA_N = r"−?\d+"
+
+
+def e12sa_int(t):
+    return int(t.replace("−", "-"))
+
+
+def e12sa_sub(a, b):
+    return tuple(x - y for x, y in zip(a, b))
+
+
+def e12sa_dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+
+def e12sa_len(a):
+    return sp.sqrt(e12sa_dot(a, a))
+
+
+def e12sa_between(u, v):
+    """The angle between two directions, in degrees, exactly."""
+    return sp.acos(sp.nsimplify(e12sa_dot(u, v)) / (e12sa_len(u) * e12sa_len(v))) * 180 / sp.pi
+
+
+def e12sa_to_plane(d):
+    """The angle between a direction and the horizontal plane, in degrees."""
+    return sp.asin(sp.Abs(d[2]) / e12sa_len(d)) * 180 / sp.pi
+
+
+def e12sa_deg_atan(y, x):
+    return sp.atan(sp.nsimplify(y) / sp.nsimplify(x)) * 180 / sp.pi
+
+
+def e12sa_n(x):
+    return sp.N(x, 40)
+
+
+def e12sa_text(label, x):
+    return f"{label}{gc_s(e12sa_n(x))}°"
+
+
+def e12sa_clear(x):
+    """x is clear of a rounding edge at 3 s.f. by E12SA_EDGE of a unit in the third figure."""
+    v = abs(e12sa_n(x))
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E12SA_EDGE
+
+
+def e12sa_real(x):
+    """A wrong value that is a real angle reading clearly at 3 s.f., as the engine keeps them."""
+    v = e12sa_n(x)
+    if not v.is_real or v <= sp.Rational(1, 2) or v >= sp.Rational(359, 2):
+        return False
+    e = sp.floor(sp.log(abs(v), 10))
+    scaled = abs(v) / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= sp.Rational(1, 500)
+
+
+def e12sa_acos(c):
+    c = sp.nsimplify(c)
+    return sp.acos(c) * 180 / sp.pi if abs(e12sa_n(c)) <= 1 else None
+
+
+def e12sa_asin(c):
+    c = sp.nsimplify(c)
+    return sp.asin(c) * 180 / sp.pi if abs(e12sa_n(c)) <= 1 else None
+
+
+# Reading the question back.
+
+def e12sa_unit_lengths(text, names):
+    out = {}
+    for n in names:
+        m = re.search(rf"\b{n} = (?:[A-Z]{{2}} = )?(\d+) (cm|m)\b", text)
+        if m:
+            out[n] = int(m.group(1))
+    return out
+
+
+def e12sa_label_len(g, a, b):
+    for ln in g["lines"]:
+        if {ln["a"], ln["b"]} == {a, b} and ln.get("label"):
+            m = re.fullmatch(r"(\d+) (cm|m)", ln["label"])
+            need(m is not None, f"can't read the measure {ln['label']!r}")
+            return int(m.group(1))
+    return None
+
+
+def e12sa_pt(g, n):
+    return tuple(sp.nsimplify(v) for v in g["pts"][n])
+
+
+def e12sa_dist(g, a, b):
+    return e12sa_len(e12sa_sub(e12sa_pt(g, a), e12sa_pt(g, b)))
+
+
+def e12sa_asked_lines(g):
+    return sorted("".join(sorted([ln["a"], ln["b"]])) for ln in g["lines"] if ln["asked"])
+
+
+def e12sa_box(q, rep):
+    """A cuboid's AB, BC and AE from the words or the figure's measures."""
+    text = " ".join(q["lines"])
+    if rep == "words":
+        need(q["graph"] is None, "a story has a figure")
+        d = e12sa_unit_lengths(text, ["AB", "BC", "AE"])
+        need(len(d) == 3, f"can't read the cuboid in {text!r}")
+        return d["AB"], d["BC"], d["AE"]
+    g = q["graph"]
+    need(g is not None and g["kind"] == "space" and not g["axes"], "no figure of the cuboid")
+    l, w, h = (e12sa_label_len(g, *e) for e in ("AB", "BC", "AE"))
+    need(None not in (l, w, h), "the figure doesn't give AB, BC and AE")
+    # The figure is a box with those edges.
+    P = {n: e12sa_pt(g, n) for n in "ABCDEFGH"}
+    a = P["A"]
+    u, v, z = e12sa_sub(P["B"], a), e12sa_sub(P["D"], a), e12sa_sub(P["E"], a)
+    need(e12sa_dot(u, v) == 0 and e12sa_dot(u, z) == 0 and e12sa_dot(v, z) == 0, "the figure's edges at A are not at right angles")
+    need(z[0] == 0 and z[1] == 0 and z[2] > 0, "E is not directly above A")
+    need((e12sa_len(u), e12sa_len(v), e12sa_len(z)) == (l, w, h), "the figure is not drawn to its measures")
+    for n, parts in {"C": "BD", "F": "BE", "G": "BDE", "H": "DE"}.items():
+        want = tuple(a[i] + sum(e12sa_sub(P[p], a)[i] for p in parts) for i in range(3))
+        need(P[n] == want, f"{n} is not a corner of the box")
+    return l, w, h
+
+
+def e12sa_cuboid_pts(l, w, h):
+    P = {"A": (0, 0, 0), "B": (l, 0, 0), "C": (l, w, 0), "D": (0, w, 0)}
+    for low, high in zip("ABCD", "EFGH"):
+        P[high] = P[low][:2] + (h,)
+    P["M"] = (sp.Rational(l, 2), sp.Rational(w, 2), sp.Rational(h, 2))
+    return P
+
+
+def e12sa_pyramid(q, rep, landmark=False):
+    """A pyramid's AB, BC and height VX (exactly, from equal edges on Paper 1)."""
+    text = " ".join(q["lines"])
+    if rep == "words":
+        need(q["graph"] is None, "a story has a figure")
+        m = re.search(r"base ABCD is a (square|rectangle) with (?:AB = BC = (\d+) (cm|m)|AB = (\d+) (cm|m) and BC = (\d+) (cm|m)).*VX = (\d+) (cm|m)\.", text)
+        need(m is not None, f"can't read the pyramid in {text!r}")
+        if m.group(1) == "square":
+            l = w = int(m.group(2))
+        else:
+            l, w = int(m.group(4)), int(m.group(6))
+            need(l != w, "a rectangle with equal sides")
+        return l, w, sp.Integer(m.group(8)), None
+    g = q["graph"]
+    need(g is not None and g["kind"] == "space" and not g["axes"], "no figure of the pyramid")
+    l, w = e12sa_label_len(g, "A", "B"), e12sa_label_len(g, "B", "C")
+    need(l is not None and w is not None, "the figure doesn't give AB and BC")
+    shape = re.search(r"with a (square|rectangular) base", text)
+    need(shape is not None and (shape.group(1) == "square") == (l == w), "the base's shape is not its measures")
+    P = {n: e12sa_pt(g, n) for n in "ABCDV"}
+    u, v = e12sa_sub(P["B"], P["A"]), e12sa_sub(P["D"], P["A"])
+    need(e12sa_dot(u, v) == 0 and u[2] == 0 and v[2] == 0 and (e12sa_len(u), e12sa_len(v)) == (l, w), "the base is not drawn to its measures")
+    need(P["C"] == tuple(P["B"][i] + v[i] for i in range(3)), "C is not a corner of the base")
+    centre = tuple((P["A"][i] + P["C"][i]) / 2 for i in range(3))
+    need(P["V"][:2] == centre[:2] and P["V"][2] > 0, "V is not above the centre of the base")
+    slant = None
+    if landmark:
+        need("every edge of the pyramid has the same length" in text, "the equal edges aren't stated")
+        lens = [e12sa_label_len(g, "V", k) for k in "ABCD"]
+        lens = [x for x in lens if x is not None]
+        need(len(lens) == 1 and l == w == lens[0], "the slant edge is not given equal to the base edge")
+        slant = lens[0]
+        h = sp.sqrt(sp.Integer(slant) ** 2 - sp.Rational(l * l + w * w, 4))
+    else:
+        h = e12sa_label_len(g, "V", "X")
+        need(h is not None, "the figure doesn't give VX")
+        h = sp.Integer(h)
+    need(sp.simplify(P["V"][2] - h) == 0 or abs(float(P["V"][2]) - float(h)) < 1e-9, "V is not drawn at its height")
+    return l, w, h, slant
+
+
+def e12sa_pyramid_pts(l, w, h):
+    # SymPy integers throughout, so a midpoint is an exact half, never a float.
+    l, w, z = sp.Integer(l), sp.Integer(w), sp.Integer(0)
+    P = {"A": (z, z, z), "B": (l, z, z), "C": (l, w, z), "D": (z, w, z)}
+    P["X"] = (sp.Rational(l, 2), sp.Rational(w, 2), 0)
+    P["V"] = (sp.Rational(l, 2), sp.Rational(w, 2), h)
+    return P
+
+
+def e12sa_cone(q, rep):
+    """A cone's r, h and slant height, each exact; the two given ones whole."""
+    text = " ".join(q["lines"])
+    if rep == "words":
+        need(q["graph"] is None, "a story has a figure")
+        got = {}
+        for key, words in (("r", "base radius"), ("h", "vertical height"), ("l", "slant height")):
+            m = re.search(rf"its {words} is (\d+) (cm|m)", text)
+            if m:
+                got[key] = sp.Integer(m.group(1))
+    else:
+        g = q["graph"]
+        need(g is not None and g["kind"] == "space", "no figure of the cone")
+        got = {}
+        for key, (a, b) in (("r", "OA"), ("h", "VO"), ("l", "VA")):
+            v = e12sa_label_len(g, a, b)
+            if v is not None:
+                got[key] = sp.Integer(v)
+    need(len(got) == 2, f"the cone gives {sorted(got)}, not two measures")
+    r, h, l = got.get("r"), got.get("h"), got.get("l")
+    if r is None:
+        r = sp.sqrt(l ** 2 - h ** 2)
+    if h is None:
+        h = sp.sqrt(l ** 2 - r ** 2)
+    if l is None:
+        l = sp.sqrt(r ** 2 + h ** 2)
+    need(e12sa_n(r) > 0 and e12sa_n(h) > 0 and e12sa_n(l) > e12sa_n(r) and e12sa_n(l) > e12sa_n(h), "not a cone")
+    if rep == "diagram":
+        g = q["graph"]
+        O, V, A = (e12sa_pt(g, n) for n in "OVA")
+        need(abs(float(e12sa_len(e12sa_sub(V, O))) - float(h)) < 1e-6 and abs(float(e12sa_len(e12sa_sub(A, O))) - float(r)) < 1e-6, "the cone is not drawn to its measures")
+        need(e12sa_dot(e12sa_sub(V, O), e12sa_sub(A, O)) == 0 and A[2] == O[2], "VO is not at right angles to the base")
+        need(len(g.get("rims", [])) == 1 and abs(float(g["rims"][0]["r"]) - float(r)) < 1e-6, "the rim is not the base")
+    return r, h, l, sorted(got)
+
+
+def e12sa_points(q, rep, names, drops=False):
+    """The points from the words or the figure's labels. A line-plane figure drops each point
+    to the xy-plane; a triangle's figure has no drops."""
+    text = " ".join(q["lines"])
+    out = {}
+    if rep == "diagram":
+        g = q["graph"]
+        need(g is not None and g["kind"] == "space" and g["axes"], "no axes")
+        for n in names:
+            m = re.fullmatch(rf"{n}\(({E12SA_N}), ({E12SA_N}), ({E12SA_N})\)", g["labels"][n])
+            need(m is not None, f"can't read {g['labels'][n]!r}")
+            out[n] = tuple(e12sa_int(t) for t in m.groups())
+            need(e12sa_pt(g, n) == out[n], f"{n} is drawn at the wrong place")
+            if drops and out[n][2] != 0:
+                need(g["pts"].get("_" + n) is not None and e12sa_pt(g, "_" + n) == out[n][:2] + (0,), f"{n}'s drop to the xy-plane is wrong")
+        return out
+    need(q["graph"] is None, "only a diagram has a figure")
+    for n in names:
+        pat = rf"\b{n.lower()} = \(({E12SA_N}), ({E12SA_N}), ({E12SA_N})\)" if rep == "notation" else rf"\b{n}\(({E12SA_N}), ({E12SA_N}), ({E12SA_N})\)"
+        m = re.search(pat, text)
+        need(m is not None, f"can't read {n} in {text!r}")
+        out[n] = tuple(e12sa_int(t) for t in m.groups())
+    if rep == "notation":
+        need("position vectors" in text, "the vectors are not called position vectors")
+    return out
+
+
+# The working.
+
+def e12sa_value(t):
+    """A sum of numbers and roots as it is written, or None if it isn't only numbers."""
+    t = t.strip().rstrip(".")
+    if not t or not re.fullmatch(r"[\d.+−×÷()√² ]+", t) or not re.search(r"\d", t):
+        return None
+    if t.count("(") != t.count(")"):
+        return None
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("²", "**2")
+    t = re.sub(r"(\d)√", r"\1*√", t)
+    t = t.replace("√(", "sqrt(")
+    t = re.sub(r"√(\d+(?:\.\d+)?)", r"sqrt(\1)", t)
+    if "√" in t:
+        return None
+    t = re.sub(r"(?<![\w.])(\d+(?:\.\d+)?)", lambda m: f"sp.Rational('{m.group(1)}')", t)
+    try:
+        return eval(t, {"sp": sp, "sqrt": sp.sqrt})
+    except (SyntaxError, TypeError, ZeroDivisionError):
+        return None
+
+
+def e12sa_same(a, b):
+    return abs(e12sa_n(a - b)) < sp.Float("1e-25")
+
+
+def e12sa_clauses(st):
+    return [c.strip() for c in re.split(r", (?![^()]*\))| and (?=[A-Z]{2}²? = )|: |\. (?=[A-Z(√])|\.$", st) if c.strip()]
+
+
+def e12sa_steps(q, P, name, t, paper):
+    """Every sum and named length in the working is true, each ratio is the angle's, and each
+    inverse gives the answer."""
+    tf = e12sa_n(t)
+    ans = q["answer_text"]
+    ratio_of = {"tan": sp.tan, "sin": sp.sin, "cos": sp.cos}
+    for sol in q["solutions"]:
+        found_ratio = found_inverse = False
+        for st in sol["steps"]:
+            for c in e12sa_clauses(st):
+                c2 = re.sub(r"^(so|and|then|Then|So) ", "", c)
+                pieces = c2.split(" = ")
+                vals = [e12sa_value(p) for p in pieces]
+                nums = [v for v in vals if v is not None]
+                for x, y in zip(nums, nums[1:]):
+                    need(e12sa_same(x, y), f"{c!r} doesn't add up in {st!r}")
+                if not nums:
+                    continue
+                # A named length or its square is the length of that segment on the checker's axes.
+                for p in pieces:
+                    m = re.fullmatch(r"(?:[A-Za-z ]+ )?([A-Z]{2})(²?)", p.strip())
+                    if m and m.group(1)[0] in P and m.group(1)[1] in P and m.group(1)[0] != m.group(1)[1] and not re.search(r"[A-Z]{3}$", p.strip()):
+                        L = e12sa_len(e12sa_sub(P[m.group(1)[0]], P[m.group(1)[1]]))
+                        need(e12sa_same(L ** (2 if m.group(2) else 1), nums[0]), f"{m.group(1)} is not {nums[0]} in {st!r}")
+                # A ratio is the ratio of the angle itself.
+                m = re.fullmatch(rf"(tan|sin|cos) (?:θ|{re.escape(name)})", pieces[0])
+                half = re.fullmatch(rf"sin\({re.escape(name)} ÷ 2\)", pieces[0])
+                if m or half:
+                    fn = sp.sin if half else ratio_of[m.group(1)]
+                    want = fn((tf / 2 if half else tf) * sp.pi / 180)
+                    need(abs(e12sa_n(nums[-1]) - e12sa_n(want)) < sp.Float("1e-12"), f"{c!r} is not the ratio of the angle")
+                    found_ratio = True
+            for m in re.finditer(r"(2 × )?(tan|sin|cos)⁻¹\((.+)\) = ([\d.]+)° to 3 s\.f\.", st):
+                v = e12sa_value(m.group(3))
+                need(v is not None, f"can't evaluate {m.group(3)!r}")
+                x = {"tan": sp.atan, "sin": sp.asin, "cos": sp.acos}[m.group(2)](v) * 180 / sp.pi * (2 if m.group(1) else 1)
+                need(e12sa_same(x, t), f"{m.group(0)!r} is not the angle")
+                need(gc_s(e12sa_n(x)) == m.group(4), f"{m.group(0)!r} is not rounded right")
+                found_inverse = True
+            for m in re.finditer(rf"Δx = ({E12SA_N}), Δy = ({E12SA_N}) and Δz = ({E12SA_N})", st):
+                d = tuple(e12sa_int(x) for x in m.groups())
+                need(d == e12sa_sub(P["B"], P["A"]), f"the moves in {st!r} are not B − A")
+        need(found_ratio if paper == 1 else found_inverse, f"{sol['name']}: no {'ratio' if paper == 1 else 'inverse'} of the angle in the working")
+        need(ans in sol["steps"][-1], f"{sol['name']}: the last step doesn't give {ans!r}")
+        if paper == 1:
+            need("⁻¹" not in " ".join(sol["steps"]), f"{sol['name']}: an inverse on Paper 1")
+
+
+def e12sa_read_ok(q):
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def e12sa_limits(u, t, paper):
+    tv = e12sa_n(t)
+    if paper == 1:
+        need(u == "landmark-angle", f"{u} is Paper 2")
+        need(sp.nsimplify(sp.simplify(t)) in (30, 45, 60), f"the landmark angle is {tv}")
+        return
+    need(u != "landmark-angle", "landmark-angle is Paper 1")
+    need(e12sa_clear(t), f"the angle {tv} is on a rounding edge")
+    for mark in (30, 45, 60):
+        need(abs(tv - mark) >= E12SA_LANDMARK_GAP, f"the angle {tv} is too close to {mark}°")
+    if u in E12SA_LINE_PLANE:
+        need(E12SA_LOW <= tv <= E12SA_HIGH, f"the line-plane angle {tv} is out of range")
+    else:
+        need(E12SA_WIDE_LOW <= tv <= E12SA_WIDE_HIGH and abs(tv - 90) >= E12SA_RIGHT_GAP, f"the angle between lines {tv} is out of range")
+
+
+def e12sa_sign_change(*pts):
+    return any(a[i] * b[i] < 0 for a, b in combinations(pts, 2) for i in range(3))
+
+
+def e12sa_name_of(asked):
+    m = re.search(r"size of angle ([A-Z]{3})", asked)
+    return m.group(1) if m else "θ"
+
+
+def E12SA_check(q):
+    u, rep, paper, asked = q["view"]["unknown"], q["view"]["rep"], q["paper"], q["asked"]
+    text = " ".join(q["lines"])
+    e12sa_read_ok(q)
+    name = e12sa_name_of(asked)
+    label = "θ = " if name == "θ" else f"angle {name} = "
+    LP, TL, T = E12SA_LP, E12SA_TL, E12SA_T
+    w = defaultdict(list)
+    g = q["graph"]
+    need(paper == (1 if u == "landmark-angle" else 2), f"{u} on Paper {paper}")
+    if paper == 2:
+        need(asked.endswith("Give your answer to 3 significant figures."), "Paper 2 doesn't ask for 3 s.f.")
+
+    def solid_figure(asked_lines, base_shaded):
+        if rep != "diagram":
+            return
+        need(e12sa_asked_lines(g) == sorted("".join(sorted(x)) for x in asked_lines), f"the figure marks {e12sa_asked_lines(g)}, not {asked_lines}")
+        need((g.get("faces") == [["A", "B", "C", "D"]]) == base_shaded, "the base is shaded wrongly")
+
+    if u in ("cuboid-diagonal-base", "cuboid-two-diagonals", "cuboid-diagonal-edge") or (u == "landmark-angle" and "cuboid" in text):
+        l, w_, h = e12sa_box(q, "diagram" if u == "landmark-angle" else rep)
+        if u == "landmark-angle":
+            need(q["graph"] is not None, "a landmark angle has no figure")
+        need(len({l, w_, h}) == 3 or u == "landmark-angle", "two edges of the cuboid are equal")
+        need(all(2 <= x <= E12SA_LONGEST for x in (l, w_, h)), "an edge is out of range")
+        P = e12sa_cuboid_pts(l, w_, h)
+        AG = e12sa_sub(P["G"], P["A"])
+        d = e12sa_len(AG)
+        if u in ("cuboid-diagonal-base", "landmark-angle"):
+            need("between the diagonal AG and the base ABCD" in asked, "not the diagonal and the base")
+            t = e12sa_to_plane(AG)
+            solid_figure(["AG"], True)
+            if u == "cuboid-diagonal-base":
+                w[LP + "0"] += [e12sa_between(AG, e12sa_sub(P[k], P["A"])) for k in "BD"]
+                w[LP + "1"].append(e12sa_deg_atan(sp.sqrt(l * l + w_ * w_), h))
+                w[T + "7"].append(e12sa_deg_atan(h, d))
+            else:
+                w[T + "6"].append(90 - t)
+        elif u == "cuboid-two-diagonals":
+            m = re.search(r"The diagonals AG and ([A-H]{2}) meet at M\.", text)
+            need(m is not None, "can't read the diagonals")
+            other = m.group(1)
+            need(e12sa_same(P[other[0]][0] + P[other[1]][0], l) and e12sa_same(P[other[0]][1] + P[other[1]][1], w_) and P[other[0]][2] + P[other[1]][2] == h,
+                 f"{other} is not a space diagonal")
+            corner = next(c for c in other if name == "AM" + c)
+            e = e12sa_len(e12sa_sub(P[corner], P["A"]))
+            MA, MB = e12sa_sub(P["A"], P["M"]), e12sa_sub(P[corner], P["M"])
+            t = e12sa_between(MA, MB)
+            solid_figure(["AG", other], False)
+            if rep == "diagram":
+                w[TL + "0"].append(sp.Integer(90))
+                need(any(a["at"] == "M" and {a["from"], a["to"]} == {"A", corner} for a in g.get("angles", [])), "the angle at M isn't marked")
+            for f in (l * l + w_ * w_, l * l + h * h, w_ * w_ + h * h):
+                c = e12sa_acos(1 - sp.Rational(2) * e * e / f)
+                if c is not None:
+                    w[TL + "1"].append(c)
+            w[TL + "2"].append(e12sa_between(e12sa_sub(P["M"], P["A"]), e12sa_sub(P[corner], P["A"])))
+            w[T + "13"].append(t / 2)
+            n = d ** 2
+            w[T + "14"].append(e12sa_acos((2 * n - e * e) / (2 * n)))
+            w[T + "15"].append(e12sa_acos((2 * n / 4 - e * e) / (n / 4)))
+            w[T + "17"].append(180 - t)
+        else:
+            m = re.search(r"between the diagonal AG and the edge (A[BDE])\.", asked)
+            need(m is not None and name == "G" + m.group(1), "can't read the edge")
+            edge = m.group(1)
+            E = e12sa_sub(P[edge[1]], P["A"])
+            t = e12sa_between(AG, E)
+            solid_figure(["AG", edge], False)
+            ek = e12sa_len(E)
+            leg = e12sa_len(e12sa_sub(P["G"], P[edge[1]]))
+            for other in "BDE":
+                if other != edge[1]:
+                    f = e12sa_sub(P[edge[1]], P["A"])
+                    fd = tuple(a + b for a, b in zip(f, e12sa_sub(P[other], P["A"])))
+                    w[TL + "1"].append(e12sa_between(fd, E))
+            w[TL + "2"].append(e12sa_between(e12sa_sub(P["A"], P["G"]), e12sa_sub(P[edge[1]], P["G"])))
+            w[T + "19"] += [e12sa_deg_atan(leg, d), e12sa_deg_atan(ek, d)]
+            if edge != "AE":
+                w[T + "18"].append(e12sa_to_plane(AG))
+    elif u in ("pyramid-edge-base", "pyramid-face-base", "pyramid-apex-angle") or (u == "landmark-angle" and "pyramid" in text):
+        lm = u == "landmark-angle"
+        l, w_, h, slant = e12sa_pyramid(q, "diagram" if lm else rep, lm)
+        need(all(3 <= x <= 14 for x in (l, w_)) and (lm or 3 <= h <= E12SA_LONGEST), "a measure is out of range")
+        if not lm:
+            need((l, w_, int(h)) not in E12SA_BANK, "the bank's pyramid")
+        P = e12sa_pyramid_pts(l, w_, h)
+        if u in ("pyramid-edge-base", "landmark-angle"):
+            m = re.search(r"between the edge V([A-D]) and the base ABCD", asked)
+            need(m is not None, "can't read the edge")
+            k = m.group(1)
+            VK = e12sa_sub(P["V"], P[k])
+            t = e12sa_to_plane(VK)
+            solid_figure(["V" + k], True)
+            if lm:
+                w[T + "6"].append(90 - t)
+            else:
+                xk = e12sa_len(e12sa_sub(P["X"], P[k]))
+                nb = [n for n in "ABCD" if n != k and ("ABCD".index(n) - "ABCD".index(k)) % 2 == 1]
+                w[LP + "0"] += [e12sa_between(e12sa_sub(P["V"], P[k]), e12sa_sub(P[n], P[k])) for n in nb]
+                mids = [tuple((a + b) / 2 for a, b in zip(P[k], P[n])) for n in nb]
+                w[LP + "2"] += [e12sa_deg_atan(h, e12sa_len(e12sa_sub(P["X"], mm))) for mm in mids]
+                w[T + "6"].append(90 - t)
+                w[T + "7"].append(e12sa_deg_atan(h, e12sa_len(VK)))
+                w[T + "8"].append(e12sa_deg_atan(h, 2 * xk))
+        elif u == "pyramid-face-base":
+            m = re.search(r"M is the midpoint of ([A-D]{2})\.", text)
+            need(m is not None and m.group(1) in ("AB", "BC", "CD", "DA"), "can't read M")
+            e = m.group(1)
+            need("between the line VM and the base ABCD" in asked, "not VM and the base")
+            P["M"] = tuple((a + b) / 2 for a, b in zip(P[e[0]], P[e[1]]))
+            if rep == "diagram":
+                mg = e12sa_pt(g, "M")
+                ga, gb = e12sa_pt(g, e[0]), e12sa_pt(g, e[1])
+                need(mg == tuple((a + b) / 2 for a, b in zip(ga, gb)), "M is not drawn at the midpoint")
+            VM = e12sa_sub(P["V"], P["M"])
+            t = e12sa_to_plane(VM)
+            solid_figure(["VM"], True)
+            edge_len = e12sa_len(e12sa_sub(P[e[0]], P[e[1]]))
+            w[LP + "2"].append(e12sa_deg_atan(h, e12sa_len(e12sa_sub(P["X"], P["A"]))))
+            w[T + "6"].append(90 - t)
+            w[T + "7"].append(e12sa_deg_atan(h, e12sa_len(VM)))
+            if l != w_:
+                w[T + "9"].append(e12sa_deg_atan(h, edge_len / 2))
+        else:
+            m = re.fullmatch(r"([A-D])V([A-D])", name)
+            need(m is not None and name in ("AVB", "BVC", "AVC"), f"can't read the angle {name}")
+            a, b = m.groups()
+            VA, VB = e12sa_sub(P[a], P["V"]), e12sa_sub(P[b], P["V"])
+            t = e12sa_between(VA, VB)
+            solid_figure(["V" + a, "V" + b], False)
+            side = e12sa_len(e12sa_sub(P[a], P[b]))
+            s = e12sa_len(VA)
+            if rep == "diagram":
+                w[TL + "0"].append(e12sa_deg_atan(side, s))
+                need(any(x["at"] == "V" and {x["from"], x["to"]} == {a, b} for x in g.get("angles", [])), "the angle at V isn't marked")
+            w[TL + "2"].append(e12sa_between(e12sa_sub(P["V"], P[a]), e12sa_sub(P[b], P[a])))
+            w[T + "13"].append(t / 2)
+            w[T + "15"].append(e12sa_acos((2 * s ** 2 - side ** 2) / s ** 2))
+            c = e12sa_asin(side / 2 / h)
+            if c is not None:
+                w[T + "16"].append(2 * c)
+    elif u in ("cone-slant-base",) or (u == "landmark-angle" and "cone" in text):
+        r, h, sl, given = e12sa_cone(q, "diagram" if u == "landmark-angle" else rep)
+        need("between the slant height VA and the base of the cone" in asked, "not the slant height and the base")
+        t = e12sa_to_plane((r, 0, h))
+        P = {"O": (0, 0, 0), "A": (r, 0, 0), "V": (0, 0, h)}
+        if rep == "diagram" or u == "landmark-angle":
+            need(e12sa_asked_lines(g) == ["AV"], "the slant height isn't marked")
+        w[T + "6"].append(90 - t)
+        if u == "cone-slant-base":
+            need(all(e12sa_n(x) <= E12SA_LONGEST for k, x in (("h", h), ("l", sl), ("r", r)) if k in given), "a given measure is out of range")
+            w[T + "10"].append(e12sa_deg_atan(h, 2 * r))
+            w[T + "11"].append(e12sa_deg_atan(sl, r))
+            w[T + "7"].append(e12sa_deg_atan(h, sl))
+    elif u == "coords-line-plane":
+        P = e12sa_points(q, rep, ["A", "B"], drops=True)
+        need("between the line AB and the xy-plane" in asked, "not AB and the xy-plane")
+        need(all(abs(v) <= E12SA_REACH for p in P.values() for v in p), "a point is out of reach")
+        need(e12sa_sign_change(P["A"], P["B"]), "no coordinate changes sign")
+        need((P["A"], P["B"]) not in E12SA_BANK_POINTS and (P["B"], P["A"]) not in E12SA_BANK_POINTS, "the bank's points")
+        dv = e12sa_sub(P["B"], P["A"])
+        need(dv[2] != 0 and (dv[0], dv[1]) != (0, 0), "AB is vertical or level")
+        t = e12sa_to_plane(dv)
+        if rep == "diagram":
+            need(e12sa_asked_lines(g) == ["AB"], "AB isn't marked")
+        rise = abs(dv[2])
+        w[T + "6"].append(90 - t)
+        w[T + "7"].append(e12sa_deg_atan(rise, e12sa_len(dv)))
+        w[T + "12"] += [e12sa_deg_atan(rise, abs(x)) for x in dv[:2] if x != 0]
+    elif u in ("coords-angle-abc", "coords-right-angle"):
+        P = e12sa_points(q, rep, ["A", "B", "C"])
+        need(name == "ABC", "not angle ABC")
+        need(all(abs(v) <= E12SA_REACH for p in P.values() for v in p), "a point is out of reach")
+        need(e12sa_sign_change(P["A"], P["B"], P["C"]), "no coordinate changes sign")
+        BA, BC = e12sa_sub(P["A"], P["B"]), e12sa_sub(P["C"], P["B"])
+        t = e12sa_between(BA, BC)
+        at_a = e12sa_between(e12sa_sub(P["B"], P["A"]), e12sa_sub(P["C"], P["A"]))
+        at_c = e12sa_between(e12sa_sub(P["A"], P["C"]), e12sa_sub(P["B"], P["C"]))
+        rights = [n for n, x in (("A", at_a), ("B", t), ("C", at_c)) if sp.simplify(x - 90) == 0]
+        if u == "coords-right-angle":
+            need(len(rights) == 1 and rights[0] in "AC", f"the right angle is at {rights}, not A or C")
+        else:
+            need(not rights and all(abs(e12sa_n(x) - 90) >= E12SA_RIGHT_GAP and e12sa_n(x) >= 12 for x in (at_a, t, at_c)), "a triangle near a right angle, or thin")
+        if rep == "diagram":
+            need(e12sa_asked_lines(g) == ["AB", "BC"], "AB and BC aren't marked")
+            need(any(x["at"] == "B" for x in g.get("angles", [])), "the angle at B isn't marked")
+        p2, q2, r2 = e12sa_dot(BA, BA), e12sa_dot(BC, BC), e12sa_dot(e12sa_sub(P["C"], P["A"]), e12sa_sub(P["C"], P["A"]))
+        w[TL + "2"] += [x for x in (at_a, at_c) if sp.simplify(x - 90) != 0]
+        w[T + "15"].append(e12sa_acos(sp.Rational(p2 + q2 - r2) / sp.sqrt(p2 * q2)))
+        if u == "coords-angle-abc":
+            w[T + "17"].append(180 - t)
+        else:
+            hyp = sp.sqrt(max(p2, q2))
+            w[T + "19"] += [e12sa_deg_atan(sp.sqrt(r2), hyp), e12sa_deg_atan(sp.sqrt(min(p2, q2)), hyp)]
+    else:
+        raise Fail(f"no check for {u}")
+
+    e12sa_limits(u, t, paper)
+    if paper == 1:
+        tv = int(sp.nsimplify(sp.simplify(t)))
+        want = f"{label}{tv}°"
+        wrongs = {ref: {f"{label}{int(sp.nsimplify(sp.simplify(x)))}°" for x in xs} for ref, xs in w.items()}
+        trap = None
+        need("exact" in asked, "a Paper 1 angle isn't asked exactly")
+    else:
+        want = e12sa_text(label, t)
+        wrongs = {ref: {e12sa_text(label, x) for x in xs if x is not None and e12sa_real(x)} for ref, xs in w.items()}
+        trap = f"{label}{gc_s2(e12sa_n(t))}°"
+    gc_check_common(q, want, wrongs, trap)
+    e12sa_steps(q, P, name, t, paper)
+    return None, None
+
+
+SITUATION_CHECKS["solid-angle"] = E12SA_check
+
+# ── end solid-angle ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):

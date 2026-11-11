@@ -157,6 +157,7 @@ static var SITUATIONS := {
 	"fn-link-transformations": [LinkTransformationsSituation, LinkTransformationsViews],
 	"fn-link-vectors": [LinkVectorsSituation, LinkVectorsViews],
 	"solid": [SolidSituation, SolidViews],
+	"solid-angle": [SolidAngleSituation, SolidAngleViews],
 	"standard-form": [StandardFormSituation, StandardFormViews],
 	"basic-probability": [BasicProbabilitySituation, BasicProbabilityViews],
 	"sample-space": [SampleSpaceSituation, SampleSpaceViews],
