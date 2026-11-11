@@ -275,7 +275,7 @@ func _space_measure(ln: Dictionary, at: Dictionary, mid: Vector2, taken: Array) 
 	var tries: Array = []
 	for k in [1.0, -1.0]:
 		for d in [28.0, 48.0, 72.0]:
-			var off := n * k * (d + absf(n.x) * w / 2.0)
+			var off: Vector2 = n * float(k) * (d + absf(n.x) * w / 2.0)
 			for slide in [0.0, 0.2, -0.2]:
 				tries.append(m + (b - a) * slide + off + Vector2(0, 10))
 	var spot := _clear_spot(tries, s, FONT_SIZE - 4, at, taken, ln)

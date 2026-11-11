@@ -516,7 +516,7 @@ static func surd(m: int, r: int) -> String:
 
 
 ## A surd after ÷, bracketed when it has a number in front: "(4√2)".
-static func wrap(m: int, r: int) -> String:
+static func wrapped(m: int, r: int) -> String:
 	return "(%s)" % surd(m, r) if m != 1 else surd(m, r)
 
 
@@ -544,11 +544,11 @@ func u_landmark_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 					tan_steps = [see, "VO = √(%d² − %d²) = √%d = %s." % [s.sl, k, 3 * k * k, surd(k, 3)], "tan θ = VO ÷ OA = %s ÷ %d = √3. %s" % [surd(k, 3), k, say]]
 					sin_steps = [see, "VO = √(%d² − %d²) = √%d = %s." % [s.sl, k, 3 * k * k, surd(k, 3)], "sin θ = VO ÷ VA = %s ÷ %d = √3 ÷ 2. %s" % [surd(k, 3), s.sl, say]]
 				"cone-hl":
-					tan_steps = [see, "OA = √(%d² − %d²) = √%d = %s." % [s.sl, k, 3 * k * k, surd(k, 3)], "tan θ = VO ÷ OA = %d ÷ %s = 1 ÷ √3. %s" % [k, wrap(k, 3), say]]
+					tan_steps = [see, "OA = √(%d² − %d²) = √%d = %s." % [s.sl, k, 3 * k * k, surd(k, 3)], "tan θ = VO ÷ OA = %d ÷ %s = 1 ÷ √3. %s" % [k, wrapped(k, 3), say]]
 					sin_steps = [see, "sin θ = VO ÷ VA = %d ÷ %d = 1 ÷ 2. %s" % [k, s.sl, say]]
 				_:
 					tan_steps = [see, "tan θ = VO ÷ OA = %d ÷ %d = 1. %s" % [k, k, say]]
-					sin_steps = [see, "VA = √(%d² + %d²) = √%d = %s." % [k, k, 2 * k * k, surd(k, 2)], "sin θ = VO ÷ VA = %d ÷ %s = 1 ÷ √2. %s" % [k, wrap(k, 2), say]]
+					sin_steps = [see, "VA = √(%d² + %d²) = √%d = %s." % [k, k, 2 * k * k, surd(k, 2)], "sin θ = VO ÷ VA = %d ÷ %s = 1 ÷ √2. %s" % [k, wrapped(k, 2), say]]
 			if vert != t:
 				wr.append(wrong({"v": Q.new(vert)}, R_VERTICAL))
 		"cuboid":
@@ -559,7 +559,7 @@ func u_landmark_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			var see := "G is directly above C, so AC is the projection of AG onto the base, and θ is angle GAC."
 			tan_steps = [see, "AC = √(%s) = √%d = %d." % [sqsum([s.l, s.w]), s.h * s.h, s.h], "tan θ = CG ÷ AC = %d ÷ %d = 1. %s" % [s.h, s.h, say]]
 			sin_steps = [see, "AG = √(%s) = √%d = %s." % [sqsum([s.l, s.w, s.h]), 2 * s.h * s.h, surd(s.h, 2)],
-				"sin θ = CG ÷ AG = %d ÷ %s = 1 ÷ √2. %s" % [s.h, wrap(s.h, 2), say]]
+				"sin θ = CG ÷ AG = %d ÷ %s = 1 ÷ √2. %s" % [s.h, wrapped(s.h, 2), say]]
 		_:
 			lines = ["The diagram shows a right pyramid VABCD with a square base ABCD. The vertex V is directly above the centre X of the base, and every edge of the pyramid has the same length."]
 			var k: String = s.corner
@@ -571,12 +571,14 @@ func u_landmark_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			labels.erase("VX")
 			labels[edge] = "%d%s" % [a, unit_of(s, PYRAMIDS)]
 			g = pyramid_figure(s, labels, [edge])
+			# Every edge is a, so V is a ÷ √2 above the base.
+			g.pts["V"] = [s.w / 2.0, s.l / 2.0, a / sqrt(2.0)]
 			g.faces = [["A", "B", "C", "D"]]
 			var see := "V is directly above X, so X%s is the projection of %s onto the base, and θ is angle V%sX." % [k, edge, k]
 			var dg := diagonal_of(k)
 			var first := "%s = √(%d² + %d²) = √%d = %s, so X%s = %s." % [dg, a, a, 2 * a * a, surd(a, 2), k, surd(half, 2)]
 			var vx := "VX = √(%d² − (%s)²) = √%d = %s." % [a, surd(half, 2), 2 * half * half, surd(half, 2)]
-			tan_steps = [see, first, vx, "tan θ = VX ÷ X%s = %s ÷ %s = 1. %s" % [k, surd(half, 2), wrap(half, 2), say]]
+			tan_steps = [see, first, vx, "tan θ = VX ÷ X%s = %s ÷ %s = 1. %s" % [k, surd(half, 2), wrapped(half, 2), say]]
 			sin_steps = [see, first, vx, "sin θ = VX ÷ %s = %s ÷ %d = √2 ÷ 2. %s" % [edge, surd(half, 2), a, say]]
 	var gen: Array = []
 	for x in [30, 45, 60, 90]:

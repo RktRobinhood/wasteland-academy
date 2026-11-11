@@ -36,6 +36,8 @@ const WIDE_HIGH := 160.0
 const RIGHT_GAP := 4.0
 const LANDMARK_GAP := 0.5
 const LONGEST := 15
+## The unknowns whose angle is between two lines.
+const TWO_LINES := ["cuboid-two-diagonals", "pyramid-apex-angle", "cuboid-diagonal-edge", "coords-angle-abc", "coords-right-angle"]
 ## Pythagorean bases for a cuboid on Paper 1: [l, w, diagonal].
 const TRIPLES := [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 6, 10], [4, 3, 5], [9, 12, 15]]
 ## The bank's pyramid (its base corner and vertex on axes) and the points of the skill's examples.
@@ -102,7 +104,7 @@ static func _draw(rng: Seeded, s: Dictionary) -> bool:
 				s.A[2] = 0
 			for i in 3:
 				s.B.append(s.A[i] + d[i])
-			if not _in_reach(s.B) or absi(d[0]) == absi(d[1]):
+			if not _in_reach(s.B) or absi(d[0]) == absi(d[1]) or not _sign_change([[s.A, s.B]]):
 				return false
 		"coords-angle-abc":
 			s.solid = "points"
@@ -155,7 +157,12 @@ static func _triangle_ok(a: Array, b: Array, c: Array) -> bool:
 	for t in [angle_at(b, a, c), angle_at(a, b, c), angle_at(a, c, b)]:
 		if t < 12.0 or absf(t - 90.0) < RIGHT_GAP:
 			return false
-	for pair in [[a, b], [b, c]]:
+	return _sign_change([[a, b], [b, c]])
+
+
+## Some coordinate changes sign between the two points of a pair, so a minus sign matters.
+static func _sign_change(pairs: Array) -> bool:
+	for pair in pairs:
 		for i in 3:
 			if pair[0][i] * pair[1][i] < 0:
 				return true
@@ -191,13 +198,9 @@ static func _right_triangle(rng: Seeded, s: Dictionary) -> bool:
 		s.C = p
 		s.A = other
 	var t := angle_at(s.A, s.B, s.C)
-	if t < 15.0 or t > 75.0:
+	if t < WIDE_LOW or t > 90.0 - WIDE_LOW:
 		return false
-	for pair in [[s.A, s.B], [s.B, s.C], [s.A, s.C]]:
-		for i in 3:
-			if pair[0][i] * pair[1][i] < 0:
-				return true
-	return false
+	return _sign_change([[s.A, s.B], [s.B, s.C], [s.A, s.C]])
 
 
 ## Paper 1: whole lengths that make the angle a landmark.
@@ -316,7 +319,7 @@ static func _clean(s: Dictionary) -> bool:
 	for mark in [30.0, 45.0, 60.0]:
 		if absf(t - mark) < LANDMARK_GAP:
 			return false
-	if s.ask in ["cuboid-two-diagonals", "pyramid-apex-angle", "coords-angle-abc"]:
+	if s.ask in TWO_LINES:
 		return t >= WIDE_LOW and t <= WIDE_HIGH and absf(t - 90.0) >= RIGHT_GAP
 	if s.ask == "coords-line-plane" and _from_bank(s.A, s.B):
 		return false
