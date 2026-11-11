@@ -37029,6 +37029,496 @@ def E12CC_effect(q):
     return None, None
 
 
+# ── rational-exponents (t1-rational-exponents, FAL-754) ──────
+# The `rational-exponents` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/rational_exponents.gd. Every expression is read back from the line the
+# student sees with a small parser of the game's notation (64^(2/3), ∛(x²), (5x² + 3)/(2√x)) and
+# worked out again with SymPy, x a positive symbol. A value must come out exact, a base solves its
+# equation, a power of x or a term c x^p is found from the expression itself (c at x = 1, p from
+# logs), and a split is SymPy's own expansion. Each tagged wrong option is rebuilt from its slip on
+# the numbers read back, every option is held to being wrong unless it is the answer, a typed
+# option's slots must make the text it shows, and each equation in the working is evaluated, at
+# the answer for an equation in x and at three values of x for an identity.
+
+E12RE_SK = "SL1.7.rational-exponents#"
+(E12RE_TIMES, E12RE_NEGATIVE, E12RE_MUL_EXP, E12RE_ROOT_ONLY, E12RE_TIMES_TOP, E12RE_NO_RECIP, E12RE_DIVIDE, E12RE_FLIP, E12RE_NO_MINUS,
+ E12RE_COEF, E12RE_ADD_BRACKET, E12RE_TOPS_BOTTOMS, E12RE_DIV_EXP, E12RE_WRONG_WAY, E12RE_DIV_ADD, E12RE_TWO_BASES, E12RE_TOP_ONLY,
+ E12RE_ADD_COEF, E12RE_COEF_DIV, E12RE_SQUARE_ROOT, E12RE_SAME_POWER) = [E12RE_SK + str(i) for i in range(21)]
+E12RE_MOST = 1024          # the engine's MOST: no number in a question is bigger
+E12RE_BIG = 2000000        # the engine's BIG: a power-then-root working reaches at most this
+E12RE_X = sp.Symbol("x", positive=True)
+E12RE_POINTS = (sp.Rational(7, 3), sp.Rational(13, 5), sp.Rational(2, 7))
+E12RE_SUPS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+E12RE_TOKEN = re.compile(r"(\d+|x|√|∛|\^|[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+|\(|\)|×|÷|/|\+|−)")
+E12RE_PAPER_1 = ("value-fraction", "value-negative", "value-fraction-base", "solve-base", "root-as-power", "root-product-as-power",
+                 "bracket-power", "product-x", "quotient-x", "product-numbers", "split-two", "split-three")
+# The skill map's examples and the bank's, which the engine leaves out.
+E12RE_REFUSED = ("8^(2/3)", "27^(−1/3)", "√x", "1/√x", "1/(x√x)", "(16x⁴)^(3/4)", "(x² − 2)/√x", "x^(2/3) = 4", "x^(1/2) × x^(1/3)",
+                 "x^(1/3) × x^(1/2)")
+
+
+class E12REBad(Exception):
+    """Text that isn't an expression in the game's notation, such as words."""
+
+
+def E12RE_tokens(t):
+    out, i = [], 0
+    while i < len(t):
+        if t[i] == " ":
+            i += 1
+            continue
+        m = E12RE_TOKEN.match(t, i)
+        if m is None:
+            raise E12REBad(t)
+        out.append(m.group(1))
+        i = m.end()
+    return out
+
+
+def E12RE_sup_value(s):
+    neg = s.startswith("⁻")
+    digits = s[1:] if neg else s
+    if not digits or "⁻" in digits:
+        raise E12REBad(s)
+    v = int("".join(str(E12RE_SUPS.index(c)) for c in digits))
+    return -v if neg else v
+
+
+class E12REParser:
+    """expr: term (± term)*; term: unary ((× ÷ /) unary | unary next to it)*; unary: −unary | postfix;
+    postfix: atom (superscript | ^ unary)*; atom: number, x, (expr), √atom, ∛atom."""
+
+    def __init__(self, text):
+        self.t = E12RE_tokens(text)
+        self.i = 0
+
+    def peek(self):
+        return self.t[self.i] if self.i < len(self.t) else None
+
+    def take(self):
+        tok = self.peek()
+        if tok is None:
+            raise E12REBad("ran out")
+        self.i += 1
+        return tok
+
+    def expr(self):
+        v = self.term()
+        while self.peek() in ("+", "−"):
+            v = v + self.term() if self.take() == "+" else v - self.term()
+        return v
+
+    def term(self):
+        v = self.unary()
+        while True:
+            p = self.peek()
+            if p in ("×", "÷", "/"):
+                self.take()
+                r = self.unary()
+                v = v * r if p == "×" else v / r
+            elif p is not None and (p == "x" or p == "(" or p in ("√", "∛") or p.isdigit()):
+                v = v * self.postfix()
+            else:
+                return v
+
+    def unary(self):
+        if self.peek() == "−":
+            self.take()
+            return -self.unary()
+        return self.postfix()
+
+    def postfix(self):
+        v = self.atom()
+        while True:
+            p = self.peek()
+            if p is not None and p[0] in E12RE_SUPS + "⁻":
+                self.take()
+                v = v ** E12RE_sup_value(p)
+            elif p == "^":
+                self.take()
+                v = v ** self.unary()
+            else:
+                return v
+
+    def atom(self):
+        tok = self.take()
+        if tok.isdigit():
+            return sp.Integer(int(tok))
+        if tok == "x":
+            return E12RE_X
+        if tok == "(":
+            v = self.expr()
+            if self.take() != ")":
+                raise E12REBad("no )")
+            return v
+        if tok == "√":
+            return sp.sqrt(self.atom())
+        if tok == "∛":
+            return self.atom() ** sp.Rational(1, 3)
+        raise E12REBad(tok)
+
+
+def E12RE_parse(text):
+    p = E12REParser(text)
+    v = p.expr()
+    if p.peek() is not None:
+        raise E12REBad(text)
+    return v
+
+
+def E12RE_num(v, x=None):
+    """A value at 50 digits, with x put in."""
+    return sp.N(v if x is None else v.subs(E12RE_X, x), 50)
+
+
+def E12RE_same(a, b, x=None):
+    """Equal at 50 digits: at x, or at three values of x for an identity."""
+    for pt in ((x,) if x is not None else E12RE_POINTS):
+        va, vb = E12RE_num(a, pt), E12RE_num(b, pt)
+        if not (va.is_real and vb.is_real) or abs(va - vb) > sp.Float("1e-35") * (1 + abs(va)):
+            return False
+    return True
+
+
+def E12RE_exact(v):
+    """The exact rational a number expression comes to, held to it."""
+    r = sp.nsimplify(E12RE_num(v), rational=True, tolerance=sp.Rational(1, 10**40))
+    need(r.is_Rational and r.q <= 10**8 and E12RE_same(v, r), f"{v} is not an exact rational")
+    return r
+
+
+def E12RE_mono(f):
+    """c and p with f = c x^p: c is f at x = 1, p from logs, then held to every point."""
+    c = E12RE_exact(f.subs(E12RE_X, 1))
+    need(c != 0, f"{f} is zero")
+    p = sp.nsimplify(sp.N(sp.log(f.subs(E12RE_X, 2) / c) / sp.log(2), 50), rational=True, tolerance=sp.Rational(1, 10**30))
+    need(p.is_Rational and E12RE_same(f, c * E12RE_X ** p), f"{f} is not one power of x")
+    return c, p
+
+
+def E12RE_terms(f):
+    """[(c, p)] with f = Σ c x^p, highest power first, from SymPy's expansion."""
+    g = sp.expand(sp.powsimp(sp.expand(f), force=True))
+    out = []
+    for t in sp.Add.make_args(g):
+        c, p = t.as_coeff_exponent(E12RE_X)
+        need(c.is_Rational and p.is_Rational and sp.simplify(t - c * E12RE_X ** p) == 0, f"can't read the term {t}")
+        out.append((c, p))
+    out.sort(key=lambda cp: -cp[1])
+    need(E12RE_same(f, sum(c * E12RE_X ** p for c, p in out)), f"{f} is not its terms")
+    return out
+
+
+# The game's writing, the checker's own copy (RationalExponentsViews).
+
+def E12RE_n(v):
+    v = sp.Rational(v)
+    return (str(v.p) if v.q == 1 else f"{v.p}/{v.q}").replace("-", "−")
+
+
+def E12RE_sup(k):
+    k = int(k)
+    return "" if k == 1 else ("⁻" if k < 0 else "") + "".join(E12RE_SUPS[int(c)] for c in str(abs(k)))
+
+
+def E12RE_pw(base, e):
+    b, e = sp.Rational(base), sp.Rational(e)
+    bt = str(b.p) if b.q == 1 and b > 0 else f"({E12RE_n(b)})"
+    if e.q == 1:
+        return bt + ("¹" if e == 1 else E12RE_sup(e))
+    return f"{bt}^({E12RE_n(e)})"
+
+
+def E12RE_xq(p):
+    p = sp.Rational(p)
+    if p.q == 1:
+        return "" if p == 0 else "x" + E12RE_sup(p)
+    return f"x^({E12RE_n(p)})"
+
+
+def E12RE_lead(c):
+    c = sp.Rational(c)
+    if c == 1:
+        return ""
+    if c == -1:
+        return "−"
+    if c.q == 1:
+        return E12RE_n(c)
+    return ("−" if c < 0 else "") + f"({E12RE_n(abs(c))})"
+
+
+def E12RE_term(c, p):
+    body = E12RE_xq(p)
+    return E12RE_n(c) if body == "" else E12RE_lead(c) + body
+
+
+def E12RE_sum(terms):
+    out = ""
+    for c, p in terms:
+        c = sp.Rational(c)
+        if c == 0:
+            continue
+        body = E12RE_term(abs(c), p)
+        out += (("−" if c < 0 else "") if out == "" else (" − " if c < 0 else " + ")) + body
+    return out or "0"
+
+
+def E12RE_root(v, n):
+    """The exact whole nth root of v, which must have one."""
+    r, ok = sp.integer_nthroot(int(v), n)
+    need(ok, f"{v} has no whole {n}th root")
+    return sp.Integer(r)
+
+
+def E12RE_prime(a):
+    """The prime a is a power of, and the power."""
+    f = sp.factorint(int(a))
+    need(len(f) == 1, f"{a} is not a power of one prime")
+    return next(iter(f.items()))
+
+
+def E12RE_option(p, e):
+    """p^e as an option: the number when e is whole, else the power to pick."""
+    e = sp.Rational(e)
+    return E12RE_n(sp.Rational(p) ** e) if e.q == 1 else E12RE_pw(p, e)
+
+
+def E12RE_slot_text(u, v):
+    """What a typed option's slots write, so its text must say them."""
+    R = lambda k: sp.Rational(v[k])
+    if "v" in v:
+        return ("x = " if u == "solve-base" else "") + E12RE_n(R("v"))
+    if "c0" in v:
+        n = sum(1 for k in v if k.startswith("c"))
+        return E12RE_sum([(R(f"c{i}"), R(f"e{i}")) for i in range(n)])
+    if "c" in v:
+        return E12RE_term(R("c"), R("e"))
+    return E12RE_xq(R("e"))
+
+
+def E12RE_value_of(u, text):
+    """An option back as an expression."""
+    return E12RE_parse(text[4:] if u == "solve-base" and text.startswith("x = ") else text)
+
+
+def E12RE_split_slash(t):
+    """The two sides of the one slash outside brackets."""
+    depth, at = 0, []
+    for i, ch in enumerate(t):
+        depth += ch == "("
+        depth -= ch == ")"
+        if ch == "/" and depth == 0:
+            at.append(i)
+    need(len(at) == 1, f"can't split {t!r} at one slash")
+    strip = lambda s: s[1:-1] if s.startswith("(") and s.endswith(")") and E12RE_balanced(s[1:-1]) else s
+    return strip(t[:at[0]]), strip(t[at[0] + 1:])
+
+
+def E12RE_balanced(s):
+    d = 0
+    for ch in s:
+        d += ch == "("
+        d -= ch == ")"
+        if d < 0:
+            return False
+    return d == 0
+
+
+def E12RE_read(q, u, line):
+    """target (an expression), want (the answer's text), wrongs (ref -> texts), x (a value for an equation)."""
+    W = {}
+    x_at = None
+    if u in ("value-fraction", "value-negative"):
+        m = re.fullmatch(r"(\d+)\^\((−?)(\d+)/(\d+)\)", line)
+        need(m is not None, f"can't read {line!r}")
+        a, neg, mm, n = int(m.group(1)), m.group(2) == "−", int(m.group(3)), int(m.group(4))
+        need(neg == (u == "value-negative"), "the power's sign is the other unknown's")
+        e = sp.Rational(-mm if neg else mm, n)
+        need(e.q == n and n >= 2 and mm >= 2, "the power is not a fraction m/n with m at least 2")
+        b = E12RE_root(a, n)
+        need(a ** mm <= E12RE_BIG, "the power-then-root working is too big")
+        target = E12RE_exact(E12RE_parse(line))
+        need(target == b ** (e * n), "the value is not the root to the power")
+        if neg:
+            W = {E12RE_NEGATIVE: {E12RE_n(-b ** mm)}, E12RE_TIMES: {E12RE_n(a * e)}, E12RE_NO_RECIP: {E12RE_n(b ** mm)},
+                 E12RE_ROOT_ONLY: {E12RE_n(1 / b)}, E12RE_TIMES_TOP: {E12RE_n(1 / (b * mm))}}
+        else:
+            W = {E12RE_TIMES: {E12RE_n(a * e)}, E12RE_ROOT_ONLY: {E12RE_n(b)}, E12RE_TIMES_TOP: {E12RE_n(b * mm)}}
+        return target, E12RE_n(target), W, None
+    if u == "value-fraction-base":
+        m = re.fullmatch(r"\((\d+)/(\d+)\)\^\((−?)(\d+)/(\d+)\)", line)
+        need(m is not None, f"can't read {line!r}")
+        c, d, neg, mm, n = int(m.group(1)), int(m.group(2)), m.group(3) == "−", int(m.group(4)), int(m.group(5))
+        base = sp.Rational(c, d)
+        need(base.q == d and d > 1, "the base is not a fraction in lowest terms")
+        e = sp.Rational(-mm if neg else mm, n)
+        need(e.q == n and mm >= 2, "the power is not a fraction m/n with m at least 2")
+        root = E12RE_root(c, n) / E12RE_root(d, n)
+        need(max(c, d) ** mm <= E12RE_BIG, "the power-then-root working is too big")
+        target = E12RE_exact(E12RE_parse(line))
+        if neg:
+            W = {E12RE_NO_RECIP: {E12RE_n(root ** mm)}, E12RE_NEGATIVE: {E12RE_n(-root ** mm)}, E12RE_ROOT_ONLY: {E12RE_n(1 / root)},
+                 E12RE_TIMES: {E12RE_n(base * e)}}
+        else:
+            W = {E12RE_ROOT_ONLY: {E12RE_n(root)}, E12RE_TIMES: {E12RE_n(base * e)}, E12RE_TIMES_TOP: {E12RE_n(root * mm)}}
+        return target, E12RE_n(target), W, None
+    if u == "solve-base":
+        m = re.fullmatch(r"x\^\((−?)(\d+)/(\d+)\) = (\d+(?:/\d+)?)", line)
+        need(m is not None, f"can't read {line!r}")
+        need(q["asked"] == "Find x, where x > 0.", q["asked"])
+        e = sp.Rational(-int(m.group(2)) if m.group(1) else int(m.group(2)), int(m.group(3)))
+        k = sp.Rational(m.group(4))
+        need(abs(e.p) >= 2, "the power's top is 1")
+        sols = [s for s in sp.solve(sp.Eq(E12RE_X ** e, k), E12RE_X) if s.is_Rational]
+        need(len(sols) == 1, f"x^{e} = {k} has no single exact positive root: {sols}")
+        x = sols[0]
+        need(x.q == 1 and x <= 100000, "x is not a whole number in the limits")
+        W = {E12RE_SAME_POWER: {"x = " + E12RE_pw(k, e)}, E12RE_ROOT_ONLY: {"x = " + E12RE_n(k ** sp.Rational(1, abs(e.p)))}}
+        if e < 0:
+            W[E12RE_NO_RECIP] = {"x = " + E12RE_n(1 / x)}
+        else:
+            W[E12RE_DIVIDE] = {"x = " + E12RE_n(k / e)}
+        return x, "x = " + E12RE_n(x), W, x
+    if u in ("root-as-power", "root-product-as-power"):
+        f = E12RE_parse(line)
+        c, p = E12RE_mono(f)
+        need(c == 1 and p.q != 1, f"{line} is not a fractional power of x")
+        if u == "root-as-power":
+            need(re.fullmatch(r"(1/)?[√∛](x|\(x[²³⁴⁵]\))|\([√∛]x\)[²³⁴⁵]", line) is not None, f"not a root of a power: {line!r}")
+            n, mm, sg = p.q, abs(p.p), (1 if p > 0 else -1)
+            W = {E12RE_FLIP: {E12RE_xq(sp.Rational(sg * n, mm))}}
+            if line.startswith("1/"):
+                need(p < 0, "1 over a root is a negative power")
+                W[E12RE_NO_MINUS] = {E12RE_xq(-p)}
+            if n == 3:
+                W[E12RE_SQUARE_ROOT] = {E12RE_xq(sp.Rational(sg * mm, 2))}
+        else:
+            k_of = lambda s: 1 if s == "" else E12RE_sup_value(s)
+            shapes = {"times": r"x([²³]?)([√∛])x", "under": r"1/\(x([²³]?)([√∛])x\)", "over": r"([√∛])x/x([²³]?)", "top": r"x([²³]?)/([√∛])x"}
+            hit = [(name, re.fullmatch(rx, line)) for name, rx in shapes.items() if re.fullmatch(rx, line)]
+            need(len(hit) == 1, f"can't read {line!r}")
+            name, m = hit[0]
+            g = m.groups()
+            sign, sup = (g[1], g[0]) if name != "over" else (g[0], g[1])
+            n, k = (2 if sign == "√" else 3), k_of(sup)
+            r = sp.Rational(1, n)
+            W = {"times": {E12RE_MUL_EXP: {E12RE_xq(sp.Rational(k, n))}, E12RE_TOPS_BOTTOMS: {E12RE_xq(sp.Rational(k + 1, n + 1))}},
+                 "under": {E12RE_MUL_EXP: {E12RE_xq(sp.Rational(-k, n))}, E12RE_NO_MINUS: {E12RE_xq(k + r)}},
+                 "over": {E12RE_DIV_EXP: {E12RE_xq(r / k)}, E12RE_WRONG_WAY: {E12RE_xq(-p)}},
+                 "top": {E12RE_DIV_EXP: {E12RE_xq(k * n)}, E12RE_WRONG_WAY: {E12RE_xq(-p)}}}[name]
+            if name == "times" and n == 3:
+                W[E12RE_SQUARE_ROOT] = {E12RE_xq(k + sp.Rational(1, 2))}
+        return f, E12RE_xq(p), W, None
+    if u == "bracket-power":
+        m = re.fullmatch(r"\((\d+)x([²³⁴⁵⁶⁷⁸]?)\)\^\((−?\d+/\d+)\)", line)
+        need(m is not None, f"can't read {line!r}")
+        c, qq, e = int(m.group(1)), (1 if m.group(2) == "" else E12RE_sup_value(m.group(2))), sp.Rational(m.group(3).replace("−", "-"))
+        need(abs(e.p) >= 2 and c <= 625 and c ** abs(e.p) <= E12RE_BIG, "the bracket is out of the limits")
+        E12RE_root(c, e.q)
+        f = E12RE_parse(line)
+        C, P = E12RE_mono(f)
+        W = {E12RE_COEF: {E12RE_term(c, P)}, E12RE_ADD_BRACKET: {E12RE_term(C, qq + e)}, E12RE_TIMES: {E12RE_term(c * e, P)}}
+        if e < 0:
+            W[E12RE_NO_RECIP] = {E12RE_term(sp.Rational(c) ** (-e), -P)}
+        return f, E12RE_term(C, P), W, None
+    if u == "product-x":
+        parts = line.split(" × ")
+        need(len(parts) == 2, f"can't read {line!r}")
+        (a1, e1), (a2, e2) = [E12RE_mono(E12RE_parse(t)) for t in parts]
+        need(e1.q != 1 and e2.q != 1 and e1 != e2 and e1 + e2 != 0, "the powers are out of the limits")
+        f = E12RE_parse(line)
+        co, P = a1 * a2, e1 + e2
+        W = {E12RE_MUL_EXP: {E12RE_term(co, e1 * e2)}, E12RE_TOPS_BOTTOMS: {E12RE_term(co, sp.Rational(e1.p + e2.p, e1.q + e2.q))}}
+        if co != 1:
+            W[E12RE_ADD_COEF] = {E12RE_term(a1 + a2, P)}
+        return f, E12RE_term(co, P), W, None
+    if u == "quotient-x":
+        top, bottom = E12RE_split_slash(line)
+        (A, e1), (B, e2) = E12RE_mono(E12RE_parse(top)), E12RE_mono(E12RE_parse(bottom))
+        need(e1.q != 1 and e2.q != 1 and e1 != e2 and (A / B).q == 1, "the quotient is out of the limits")
+        f = E12RE_parse(line)
+        co, P = A / B, e1 - e2
+        W = {E12RE_DIV_EXP: {E12RE_term(co, e1 / e2)}, E12RE_WRONG_WAY: {E12RE_term(co, -P)}}
+        if B != 1:
+            W[E12RE_COEF_DIV] = {E12RE_term(A, P)}
+        return f, E12RE_term(co, P), W, None
+    if u == "product-numbers":
+        m = re.fullmatch(r"(\d+)\^\((−?\d+/\d+)\) ([×÷]) (\d+)\^\((−?\d+/\d+)\)", line)
+        need(m is not None, f"can't read {line!r}")
+        A, r, op, B, s = int(m.group(1)), sp.Rational(m.group(2).replace("−", "-")), m.group(3), int(m.group(4)), sp.Rational(m.group(5).replace("−", "-"))
+        p, i = E12RE_prime(A)
+        p2, j = E12RE_prime(B)
+        need(p == p2 and A != B, "the two bases are not different powers of one prime")
+        ri, sj = i * r, j * s
+        need(ri.q != 1 and sj.q != 1, "a power is whole on its own")
+        target = E12RE_exact(E12RE_parse(line))
+        need(target == sp.Integer(p) ** (ri + sj if op == "×" else ri - sj), "the value is not the prime to the combined power")
+        if op == "×":
+            W = {E12RE_MUL_EXP: {E12RE_option(p, ri * sj)}, E12RE_TWO_BASES: {E12RE_option(A, r + s)}}
+        else:
+            W = {E12RE_DIV_EXP: {E12RE_option(p, ri / sj)}, E12RE_DIV_ADD: {E12RE_option(p, ri + sj)}}
+        return target, E12RE_n(target), W, None
+    if u in ("split-two", "split-three"):
+        top, under = E12RE_split_slash(line)
+        tops = E12RE_terms(E12RE_parse(top))
+        k, d = E12RE_mono(E12RE_parse(under))
+        need(len(tops) == (2 if u == "split-two" else 3), "the top has the wrong number of terms")
+        need(k.q == 1 and d.q != 1 and d > 0, "the bottom is not a whole number times a root of x")
+        need(all(p.q == 1 and p >= 0 for _, p in tops) and tops[-1][1] == 0, "the top is not a polynomial with a constant term")
+        need(k == 1 or any((c / k).q != 1 for c, _ in tops), "the number under divides every number on top")
+        f = E12RE_parse(line)
+        got = E12RE_terms(f)
+        W = {E12RE_TOP_ONLY: {E12RE_sum([(tops[0][0] / k, tops[0][1] - d)] + list(tops[1:]))},
+             E12RE_NO_MINUS: {E12RE_sum([(c / k, p + d) for c, p in tops])},
+             E12RE_MUL_EXP: {E12RE_sum([(c / k, -p * d if p != 0 else -d) for c, p in tops])},
+             E12RE_DIV_EXP: {E12RE_sum([(c / k, p / d if p != 0 else -d) for c, p in tops])}}
+        return f, E12RE_sum(got), W, None
+    raise Fail(f"unknown {u}")
+
+
+def E12RE_working(q, u, x_at):
+    """Each equation in the working, evaluated: at x for an equation in x, else as an identity."""
+    for sol in q["solutions"]:
+        seen = 0
+        for st in sol["steps"]:
+            for piece in re.split(r", |: |; | so | as | and ", st.rstrip(".")):
+                piece = re.sub(r"^(So|Then) ", "", piece)
+                if " = " not in piece:
+                    continue
+                try:
+                    sides = [E12RE_parse(s) for s in piece.split(" = ")]
+                except E12REBad:
+                    continue
+                for a, b in zip(sides, sides[1:]):
+                    need(E12RE_same(a, b, x_at), f"{sol['name']}: {piece!r} doesn't hold")
+                seen += 1
+        need(seen >= max(1, len(sol["steps"]) - 2), f"{sol['name']}: only {seen} equations in the working could be read")
+
+
+def E12RE_check(q):
+    u, line = q["view"]["unknown"], q["lines"][0] if q["lines"] else ""
+    need(u in E12RE_PAPER_1 and q["paper"] == 1, "every cell is Paper 1")
+    need(q["view"]["rep"] == "equation" and len(q["lines"]) == 1, "one line, the expression")
+    need(q["answer"]["kind"] == "form" and q["answer"].get("exact") is True, "the answer is an exact form")
+    need(line not in E12RE_REFUSED, f"{line!r} is the map's or the bank's")
+    for t in re.findall(r"\d+", line):
+        need(int(t) <= E12RE_MOST, f"{t} is past the limits")
+    target, want, wrongs, x_at = E12RE_read(q, u, line)
+    for o in q["choices"] + [{"text": q["answer_text"], "values": q["answer"]["values"], "correct": True}]:
+        v = o["values"]
+        if "shape" not in v:
+            need(E12RE_slot_text(u, v) == o["text"], f"option {o['text']!r} doesn't say its slots")
+        try:
+            got = E12RE_value_of(u, o["text"])
+        except E12REBad:
+            raise Fail(f"can't read the option {o['text']!r}")
+        right = E12RE_same(got, target, None) if x_at is None else E12RE_same(got, target)
+        need(right == o["correct"], f"option {o['text']!r} is {'right' if right else 'wrong'} but marked {'right' if o['correct'] else 'wrong'}")
+    E12RE_working(q, u, x_at)
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
 SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, "circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
@@ -37067,7 +37557,8 @@ SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, 
                     "fn-link-vectors": check_link_vectors,
                     "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
                     "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-quadratic": E11TQ_check, "trig-model": check_trig_model,
-                    "solid": check_solid, "standard-form": check_standard_form}
+                    "solid": check_solid, "standard-form": check_standard_form,
+                    "rational-exponents": E12RE_check,}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

@@ -519,6 +519,49 @@
 				"the bank's numbers and scales, and the skill map's examples, are left out"
 			]
 		},
+		"rational-exponents": {
+			"name": "A power with a rational exponent, of a number or of x",
+			"summary": "Draw the root and the power first, then the base as a perfect power of the root, so every value is exact; powers of x are drawn as fractions with small denominators. Every unknown has its own draw, and nothing needs a calculator.",
+			"quantities": [
+				{
+					"name": "m, n",
+					"is": "the top and bottom of the power",
+					"pick": "n from 2 to 5, m from 2 to 5 with no common factor, so the power is never whole"
+				},
+				{
+					"name": "b, a",
+					"is": "the root and the base, a = b^n",
+					"pick": "b from 2, 3, 4, 5, 7, 8, 9, each a power of one prime, with a at most 1024"
+				},
+				{
+					"name": "u, v",
+					"is": "the roots of a fraction's top and bottom",
+					"pick": "different whole numbers to 5 with no common factor, v at least 2"
+				},
+				{
+					"name": "c, q",
+					"is": "the number and the power of x in a bracket",
+					"pick": "c a perfect power of the root, at most 625; q from 1 to 8"
+				},
+				{
+					"name": "e1, e2",
+					"is": "powers of x or of a prime in a product or quotient",
+					"pick": "fractions with tops from −5 to 5 and bottoms from 2 to 6"
+				},
+				{
+					"name": "tops, k, d",
+					"is": "the terms on top of a quotient, the number under it and the root of x under it",
+					"pick": "two or three terms with small whole coefficients; k is 1 or 2; d is a half, a third, three halves or two thirds"
+				}
+			],
+			"clean": [
+				"every value is exact and comes out by hand",
+				"a number shown is at most 1024, and a power-then-root working reaches at most 2000000",
+				"a fractional power asked for is never whole, and a sum or difference of powers is never 0",
+				"a number under a quotient doesn't divide every number on top",
+				"the bank's numbers and the skill map's examples are left out"
+			]
+		},
 		"exp-growth-vs-linear": {
 			"extends": "exp-model",
 			"name": "Linear and exponential growth side by side",
@@ -5620,6 +5663,7 @@
 		"SL1.5.log-context": "Use base-10 and natural logarithms in contextual formulae",
 		"SL1.6.identity-lhs-rhs": "Prove an algebraic identity from LHS to RHS",
 		"SL1.6.integer-proof": "Prove properties of integers: odd, even, consecutive and divisibility",
+		"SL1.7.rational-exponents": "Evaluate and simplify rational exponents",
 		"SL1.7.log-laws": "Use the laws of logarithms to simplify, expand and evaluate",
 		"SL1.8.convergence": "Decide whether a geometric series converges and find the condition for convergence",
 		"SL1.8.sum-to-infinity": "Find the sum to infinity of a convergent geometric series",
@@ -26112,6 +26156,518 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Rational and negative exponents",
+			"summary": "One power with a rational exponent, worked exactly by hand: the value of a number to a fractional or negative power, a base from x to a fractional power, a root or a product of roots as one power of x, a bracket to a fractional power, products and quotients of powers, and a quotient over a root split into powers of x, ready for calculus.",
+			"situation": "rational-exponents",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the number, the expression or the equation as the exam writes it, with powers after a caret"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "value-fraction",
+					"given": [
+						"a whole number to a positive fractional power, the number a perfect power of the root"
+					],
+					"asked": "the exact value, a whole number",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "value-negative",
+					"given": [
+						"a whole number to a negative fractional power, the number a perfect power of the root"
+					],
+					"asked": "the exact value, a fraction with 1 on top",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "value-fraction-base",
+					"given": [
+						"a fraction to a positive or negative fractional power, its top and bottom perfect powers of the root"
+					],
+					"asked": "the exact value, a fraction",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "solve-base",
+					"given": [
+						"an equation: x to a positive or negative fractional power equals a number, with x > 0"
+					],
+					"asked": "x, a whole number",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "root-as-power",
+					"given": [
+						"a square or cube root of a power of x, a power of the root, or 1 over such a root"
+					],
+					"asked": "the expression as one power of x",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "root-product-as-power",
+					"given": [
+						"a power of x times a root of x, 1 over that product, or one of them over the other"
+					],
+					"asked": "the expression as one power of x",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "bracket-power",
+					"given": [
+						"a bracket c x^q to a positive or negative fractional power, with c a perfect power of the root"
+					],
+					"asked": "the expression as a x^n",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "product-x",
+					"given": [
+						"two powers of x with fractional powers multiplied, alone or with whole numbers in front"
+					],
+					"asked": "the product as one term",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "quotient-x",
+					"given": [
+						"one power of x over another, with fractional powers, alone or with whole numbers in front"
+					],
+					"asked": "the quotient as one term",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "product-numbers",
+					"given": [
+						"two powers of the same prime's powers, with fractional powers that are not whole alone, multiplied or divided"
+					],
+					"asked": "the exact value",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "split-two",
+					"given": [
+						"two terms over a root of x, or over a number times one"
+					],
+					"asked": "the quotient as a sum of two powers of x",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				},
+				{
+					"id": "split-three",
+					"given": [
+						"three terms over a square or cube root of x, or over a number times one"
+					],
+					"asked": "the quotient as a sum of three powers of x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.rational-exponents"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.7.rational-exponents",
+					"method": "root-then-power",
+					"suits": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base",
+						"solve-base",
+						"root-as-power",
+						"bracket-power"
+					],
+					"name": "Take the root first, then the power",
+					"about": "8^(2/3) = (∛8)² = 2² = 4 keeps the numbers small."
+				},
+				{
+					"skill": "SL1.7.rational-exponents",
+					"method": "power-then-root",
+					"suits": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base",
+						"solve-base",
+						"root-as-power",
+						"bracket-power"
+					],
+					"name": "Raise to the power first, then take the root",
+					"about": "8^(2/3) = ∛(8²) = ∛64 = 4: valid, but with bigger numbers."
+				},
+				{
+					"skill": "SL1.7.rational-exponents",
+					"method": "prime-base",
+					"suits": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base",
+						"solve-base",
+						"bracket-power",
+						"product-numbers"
+					],
+					"name": "Rewrite the base as a prime power",
+					"about": "27^(−1/3) = (3^3)^(−1/3) = 3^(−1) = 1/3, using (a^m)^n = a^(mn)."
+				},
+				{
+					"skill": "SL1.7.rational-exponents",
+					"method": "split-terms",
+					"suits": [
+						"split-two",
+						"split-three"
+					],
+					"name": "Split a fraction into separate powers",
+					"about": "(x² − 2)/√x = x^(3/2) − 2x^(−1/2), ready for differentiation or integration."
+				},
+				{
+					"method": "index-laws",
+					"suits": [
+						"root-product-as-power",
+						"product-x",
+						"quotient-x"
+					],
+					"name": "Use the laws of indices",
+					"about": "Write each root as a fractional power, then add the powers to multiply, subtract them to divide, and multiply them for a power of a power."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A negative power makes a number negative.",
+					"answer": "False: a negative power is a reciprocal. A positive number to any power stays positive; the minus sign flips the number over instead.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "x^a × x^b = x^(ab), for x > 0.",
+					"answer": "Sometimes: it needs ab = a + b, as with a = b = 2. The law is x^a × x^b = x^(a + b).",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "For a positive number a, taking the cube root and then squaring gives the same as squaring and then taking the cube root.",
+					"answer": "True: both are a^(2/3). Taking the root first keeps the numbers small.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.7.rational-exponents#0",
+					"text": "Multiplying the base by the exponent",
+					"as": "distractor",
+					"in": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base",
+						"bracket-power"
+					],
+					"wrong": "the base, or the number in the bracket, times the fractional power"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#1",
+					"text": "Thinking a negative exponent gives a negative value",
+					"as": "distractor",
+					"in": [
+						"value-negative",
+						"value-fraction-base"
+					],
+					"wrong": "the value for the positive power, with a minus sign in front"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#2",
+					"text": "Multiplying the exponents when multiplying powers",
+					"as": "distractor",
+					"in": [
+						"root-product-as-power",
+						"product-x",
+						"product-numbers",
+						"split-two",
+						"split-three"
+					],
+					"wrong": "the product of the powers where their sum belongs"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#3",
+					"text": "Taking the root and stopping, without raising to the power",
+					"as": "distractor",
+					"in": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base",
+						"solve-base"
+					],
+					"wrong": "the root alone"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#4",
+					"text": "Multiplying the root by the top of the power instead of raising it to that power",
+					"as": "distractor",
+					"in": [
+						"value-fraction",
+						"value-negative",
+						"value-fraction-base"
+					],
+					"wrong": "the root times the top of the fraction"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#5",
+					"text": "Ignoring the minus sign in the power, so no reciprocal is taken",
+					"as": "distractor",
+					"in": [
+						"value-negative",
+						"value-fraction-base",
+						"solve-base",
+						"bracket-power"
+					],
+					"wrong": "the value for the positive power"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#6",
+					"text": "Dividing by the power instead of raising both sides to its reciprocal",
+					"as": "distractor",
+					"in": [
+						"solve-base"
+					],
+					"wrong": "the number divided by the fractional power"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#7",
+					"text": "Writing the power of a root upside down, with the root's index on top",
+					"as": "distractor",
+					"in": [
+						"root-as-power"
+					],
+					"wrong": "the fractional power turned upside down"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#8",
+					"text": "Leaving out the minus sign when a power moves from the bottom of a fraction to the top",
+					"as": "distractor",
+					"in": [
+						"root-as-power",
+						"root-product-as-power",
+						"split-two",
+						"split-three"
+					],
+					"wrong": "a positive power where the negative one belongs"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#9",
+					"text": "Applying the power to x but not to the number in the bracket",
+					"as": "distractor",
+					"in": [
+						"bracket-power"
+					],
+					"wrong": "the number in the bracket left as it was"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#10",
+					"text": "Adding the powers in a bracket instead of multiplying them",
+					"as": "distractor",
+					"in": [
+						"bracket-power"
+					],
+					"wrong": "the power of x plus the power outside the bracket"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#11",
+					"text": "Adding the tops and adding the bottoms of two fractional powers",
+					"as": "distractor",
+					"in": [
+						"root-product-as-power",
+						"product-x"
+					],
+					"wrong": "a power whose top and bottom are the sums of the two tops and the two bottoms"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#12",
+					"text": "Dividing the powers instead of subtracting them",
+					"as": "distractor",
+					"in": [
+						"root-product-as-power",
+						"quotient-x",
+						"product-numbers",
+						"split-two",
+						"split-three"
+					],
+					"wrong": "the quotient of the powers where their difference belongs"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#13",
+					"text": "Subtracting the powers the wrong way round",
+					"as": "distractor",
+					"in": [
+						"root-product-as-power",
+						"quotient-x"
+					],
+					"wrong": "the power with the wrong sign"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#14",
+					"text": "Adding the powers when dividing",
+					"as": "distractor",
+					"in": [
+						"product-numbers"
+					],
+					"wrong": "the sum of the powers where their difference belongs"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#15",
+					"text": "Adding the powers of two different bases as if the base were the same",
+					"as": "distractor",
+					"in": [
+						"product-numbers"
+					],
+					"wrong": "the first base to the sum of the two powers"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#16",
+					"text": "Dividing only the first term of the top by the bottom",
+					"as": "distractor",
+					"in": [
+						"split-two",
+						"split-three"
+					],
+					"wrong": "the later terms left as they were"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#17",
+					"text": "Adding the numbers in front instead of multiplying them",
+					"as": "distractor",
+					"in": [
+						"product-x"
+					],
+					"wrong": "the sum of the numbers in front"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#18",
+					"text": "Dividing the powers of x but not the numbers in front",
+					"as": "distractor",
+					"in": [
+						"quotient-x"
+					],
+					"wrong": "the top number left undivided"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#19",
+					"text": "Treating a cube root as a square root",
+					"as": "distractor",
+					"in": [
+						"root-as-power",
+						"root-product-as-power"
+					],
+					"wrong": "a half where a third belongs"
+				},
+				{
+					"ref": "SL1.7.rational-exponents#20",
+					"text": "Raising both sides to the given power instead of its reciprocal",
+					"as": "distractor",
+					"in": [
+						"solve-base"
+					],
+					"wrong": "the number to the fractional power given"
+				}
+			],
+			"methods": [
+				{
+					"id": "index-laws",
+					"name": "Use the laws of indices",
+					"summary": "Write each root as a fractional power, then add the powers to multiply, subtract them to divide, and multiply them for a power of a power."
+				}
+			],
+			"chain": [
+				"a power m/n is the nth root and then the mth power, in either order",
+				"a negative power is the reciprocal: flip the number or the fraction",
+				"write the base as a power of a prime, then multiply the powers",
+				"multiply powers of one base by adding the powers, and divide by subtracting them",
+				"a root of x is a fractional power, and 1 over a power is the negative power",
+				"split a quotient term by term, taking the power of the bottom from each power on top"
+			],
 			"frequency": 2,
 			"marks": 1,
 			"section": {
@@ -26121,9 +26677,7 @@
 			"paper": {
 				"p1": 2,
 				"p2": 0
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-solve-exponential",

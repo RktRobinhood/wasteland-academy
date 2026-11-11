@@ -597,6 +597,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq
 - **Bank parts:** 8.
 
+### t1-rational-exponents
+
+**Rational and negative exponents.** One power with a rational exponent, worked exactly by hand: the value of a number to a fractional or negative power, a base from x to a fractional power, a root or a product of roots as one power of x, a bracket to a fractional power, products and quotients of powers, and a quotient over a root split into powers of x, ready for calculus.
+
+- **Syllabus:** 1.7
+- **Skills:** `SL1.7.rational-exponents`
+- **Where it appears:** P1 2, P2 0; Section A 1, B 1. Marks per part: usually 1 (1 to 2).
+- **Usual chain:** a power m/n is the nth root and then the mth power, in either order → a negative power is the reciprocal: flip the number or the fraction → write the base as a power of a prime, then multiply the powers → multiply powers of one base by adding the powers, and divide by subtracting them → a root of x is a fractional power, and 1 over a power is the negative power → split a quotient term by term, taking the power of the bottom from each power on top
+- **Given:** a number, or a fraction, to a fractional or negative power, an equation in x to a fractional power, a root of x, a power of a root, or 1 over one, a bracket c x^q to a fractional power, a product or quotient of powers of x or of numbers, a sum of terms over a root of x. **Asked:** An exact value, x, one power of x, a term a x^n, or a sum of powers of x. **Answer form:** exact number or fraction, typed, x = a whole number, x^n, with n typed, a x^n, with a and n typed, a sum of powers of x, each number and power typed, a power of a prime, to pick.
+- **A recipe can randomise:** the root and the power, positive or negative; the base: a power of 2, 3, 5 or 7, or a fraction of two such powers; how a root of x is written: inside, outside, under 1, or beside a power; the powers of x, with denominators from 2 to 6; the numbers in front, and whether there are any; the root under a quotient, and the terms on top.
+- **Limits that keep answers clean:** Paper 1 only, as the bank is: every value comes out by hand, and no cell needs a calculator; the base is a perfect power of the root, so the value is exact; a power of x is never whole where a fractional one is asked; only square and cube roots are written with a sign; other roots are in words; the bank's numbers, and the skill map's examples, are left out.
+- **Game formats:** value, mcq
+- **Bank parts:** 2.
+
 ### t1-log-laws
 
 **Log laws and change of base to evaluate or rewrite logarithms.** One log expression, by the laws and by change of base: an exact value, a single log, an expansion in p and q, a shown form, a rewrite in another base, and one 3 s.f. value. The GDC checks two forms at one value, which supports an answer and proves nothing.

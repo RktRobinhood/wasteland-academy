@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 15 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1946,6 +1946,30 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): The sum of three consecutive integers is divisible by 6. — Sometimes: the sum is 3(n + 1), a multiple of 3 every time, but it needs n + 1 even to be a multiple of 6. 1 + 2 + 3 = 6 works and 2 + 3 + 4 = 9 does not.
   - *true-false-reason* (L4): 6n + 9 = 6(n + 3/2), so 6n + 9 is a multiple of 6 for every integer n. — False: n + 3/2 is not an integer, so the 6 outside proves nothing. At n = 1, 6n + 9 = 15, which is not a multiple of 6.
 - **Misconceptions used:** 15. Starting from LHS = RHS and operating on both sides, which assumes what is to be proved; Checking particular values and calling it a proof; Stopping without a concluding statement, or writing = where ≡ is required; Using one letter for two different numbers, which only covers the case where they are equal; Verifying examples instead of arguing in general; Concluding divisibility without showing the bracket is an integer; Forgetting to double the middle term when squaring a bracket; Squaring each term of a bracket and keeping its sign, with no middle term; Getting a sign wrong when multiplying out or removing a bracket; Multiplying only the first term of a bracket; Dividing only part of a numerator by x; Squaring only the numerator of a fraction; Adding one gap too many when summing a list of terms; Squaring the letter but not its coefficient; Writing a² − b² as (a + b)(a + b).
+
+#### Rational and negative exponents (`t1-rational-exponents`, exam, 2 bank parts)
+
+- **Situation:** A power with a rational exponent, of a number or of x.
+- **Representations:** **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a whole number to a positive fractional power, the number a perfect power of the root → the exact value, a whole number
+  - **exam** L2: given a whole number to a negative fractional power, the number a perfect power of the root → the exact value, a fraction with 1 on top
+  - **exam** L3: given a fraction to a positive or negative fractional power, its top and bottom perfect powers of the root → the exact value, a fraction
+  - **exam** L2: given an equation: x to a positive or negative fractional power equals a number, with x > 0 → x, a whole number
+  - **exam** L1: given a square or cube root of a power of x, a power of the root, or 1 over such a root → the expression as one power of x
+  - **exam** L2: given a power of x times a root of x, 1 over that product, or one of them over the other → the expression as one power of x
+  - **exam** L2: given a bracket c x^q to a positive or negative fractional power, with c a perfect power of the root → the expression as a x^n
+  - **exam** L2: given two powers of x with fractional powers multiplied, alone or with whole numbers in front → the product as one term
+  - **exam** L2: given one power of x over another, with fractional powers, alone or with whole numbers in front → the quotient as one term
+  - **exam** L3: given two powers of the same prime's powers, with fractional powers that are not whole alone, multiplied or divided → the exact value
+  - **exam** L2: given two terms over a root of x, or over a number times one → the quotient as a sum of two powers of x
+  - **exam** L3: given three terms over a square or cube root of x, or over a number times one → the quotient as a sum of three powers of x
+- **Angles:** Take the root first, then the power; Raise to the power first, then take the root; Rewrite the base as a prime power; Split a fraction into separate powers; Use the laws of indices.
+- **Concept probes:**
+  - *true-false-reason* (L3): A negative power makes a number negative. — False: a negative power is a reciprocal. A positive number to any power stays positive; the minus sign flips the number over instead.
+  - *always-sometimes-never* (L3): x^a × x^b = x^(ab), for x > 0. — Sometimes: it needs ab = a + b, as with a = b = 2. The law is x^a × x^b = x^(a + b).
+  - *true-false-reason* (L3): For a positive number a, taking the cube root and then squaring gives the same as squaring and then taking the cube root. — True: both are a^(2/3). Taking the root first keeps the numbers small.
+- **Misconceptions used:** 21. Multiplying the base by the exponent; Thinking a negative exponent gives a negative value; Multiplying the exponents when multiplying powers; Taking the root and stopping, without raising to the power; Multiplying the root by the top of the power instead of raising it to that power; Ignoring the minus sign in the power, so no reciprocal is taken; Dividing by the power instead of raising both sides to its reciprocal; Writing the power of a root upside down, with the root's index on top; Leaving out the minus sign when a power moves from the bottom of a fraction to the top; Applying the power to x but not to the number in the bracket; Adding the powers in a bracket instead of multiplying them; Adding the tops and adding the bottoms of two fractional powers; Dividing the powers instead of subtracting them; Subtracting the powers the wrong way round; Adding the powers when dividing; Adding the powers of two different bases as if the base were the same; Dividing only the first term of the top by the bottom; Adding the numbers in front instead of multiplying them; Dividing the powers of x but not the numbers in front; Treating a cube root as a square root; Raising both sides to the given power instead of its reciprocal.
 
 #### Log laws and change of base to evaluate or rewrite logarithms (`t1-log-laws`, exam, 10 bank parts)
 
