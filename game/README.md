@@ -1668,20 +1668,28 @@ each key's face plain.
 
 ## The map
 
-`scenes/map.tscn` (`ui/map.gd`, FAL-417; Q3 and Q11 on the FAL-274 plan). "Play" on the
-title screen opens it. One scene with three screens:
+`scenes/map.tscn` (`ui/map.gd`, FAL-417; Q3 and Q11 on the FAL-274 plan; the FAL-783
+plan, FAL-790). "Play" on the title screen opens it. One scene with three layers, each a
+closer look at the place picked on the one above:
 
-- **The world map**: the HTML game's overworld painting (`assets/map/overworld.png`)
-  with a button over each island. The Signal Tower (Functions) is open; the other four
-  say "Coming later". The Thunderdome stays locked until a second island opens
-  (`MapLink.OPEN_ISLANDS`), and the Relic Library has a locked spot. A bar under the
-  painting opens the Bazaar (see "The Bazaar") and shows the Scrap there is to spend.
+- **The world map**: the overworld painting (`assets/map/overworld.png`) with an
+  invisible button over each place. The Signal Tower (Functions) is open; the other four
+  islands are "Coming soon". The Thunderdome stays locked until a second island opens
+  (`MapLink.OPEN_ISLANDS`), and the Relic Library is locked. The **Bazaar** is a place
+  too, at zone centre (17, 90), 26 × 14 (% of the board, `BAZAAR_ZONE`), with a coded
+  stall marker until the painting has it (`BAZAAR_PAINTED`). It opens the Bazaar (see
+  "The Bazaar"). There is no bar under the board: the Scrap there is to spend is in the
+  header.
 - **The Functions island**: the 8 regions in the catalogue's `order`, the all-regions
-  dungeon and a locked Relic device spot. A region whose types aren't built yet says
-  "Coming soon" and can't start a run or Practice. That comes from the engine
+  dungeon and a locked Relic device spot, as places with no roads between them: any
+  region in any order. A region whose types aren't built yet says "Coming soon" and
+  can't start a run or Practice. That comes from the engine
   (`Progress.is_built`, which asks `Dungeon.region_types`), so a region opens when its
   situations merge, with no map change.
-- **The region screen**: accuracy, best floor and coverage ("34 of 52 checked": the
+- **The region screen**, over the region's `backdrop` (see "Art slots"), cover-fitted
+  under a 70% wash of the background colour (`REGION_WASH`), so its dimmest text keeps
+  4.5:1 over every backdrop in `assets/regions/`. It reads as a close-up of the island
+  place, which is the place in its fight backdrop. It shows accuracy, best floor and coverage ("34 of 52 checked": the
   cells the save has seen against the catalogue's cells for the region, built or not),
   all following the "Exam-style only" switch, which the screen also carries. Then the 3
   weakest skills: the lowest accuracy among skills with at least 3 answers, where each
@@ -1695,6 +1703,22 @@ title screen opens it. One scene with three screens:
   "Courses"); the cell records stay. It sits on the region screen for now, a scrolling
   column that has room, until character setup gives it a place beside the class pick.
 
+**Names on a card.** No name or state shows on a board until a place is hovered,
+focused or tapped. Then a card by the place shows its name and one line: the topic, the
+progress line (`spot_line()`: "Floor 2 · 64%", "Not tried yet · SPARK's pick"), "Coming
+soon" or "Locked"; the Bazaar's says "Bazaar · 120 Scrap". With a mouse, hovering shows
+the card and a click goes in. With a keyboard, Tab moves between places, focus shows the
+card and Enter goes in; the first focus (SPARK's pick on the island) shows none. On a
+touch screen the first tap shows the card and lights the place, and a second tap on the
+place or on the card goes in. A tap on a closed place shows its card. Every place keeps a
+tooltip and an accessible name ("Quadratics: Floor 2 · 64%"). SPARK's beacon stays on.
+
+**The zoom.** Going into a place scales the board into it (`ZOOM`, 0.4 s), then the next
+layer fades in. Going back (the header's button, or the browser's) zooms the layer above
+out of the place just left. With reduced motion it cuts: the save's
+`settings.reduced_motion`, or `prefers-reduced-motion` in the browser. The Bazaar is its
+own scene, so coming back from it doesn't zoom.
+
 **Links and the back button.** On the web the hash is the route. Moving on the map
 sets it, which makes a browser history entry, and a `hashchange` (back, forward, a
 pasted link) sends the game there. Back from a run quits it, so its Scrap is banked.
@@ -1705,13 +1729,13 @@ desktop, `-- --map=functions/quadratics` does the same as the hash.
 ### Map art
 
 The island map loads its art by file name from `game/assets/map/functions/`. Each file
-is optional: when one isn't there, that piece keeps the coded look (a dusk gradient
-with branching roads, and a ring in the state's colour with a short glyph for the
-region), so art can land one file at a time. Import each with mipmaps on, like the rest of the art.
+is optional: when one isn't there, that piece keeps the coded look (a dusk gradient with
+the jetty as a dot, and a ring in the state's colour with a short glyph for each place),
+so art can land one file at a time. Import each with mipmaps on, like the rest of the art.
 
 | File | Size | What it is |
 |---|---|---|
-| `background.png` | 1080x1920, opaque | The whole island, portrait. The spots sit on it at the places in `SPOTS` in `ui/map.gd` (% of the board). It is a hub: the Signal Tower in the middle with the all-regions gate at its foot, the eight regions around it, a road from the tower to each, a loop road between neighbours, and a road up from the landing on the south shore (50, 97). The FAL-531 plan has the table |
+| `background.webp` (or `.png`) | 1080x1920, opaque | The whole island, portrait, one painting with every place painted in at its point in `SPOTS` in `ui/map.gd` (% of the board), the jetty at (50, 97). No roads, no text. The FAL-783 plan has the table of places. With it, a place with no landmark PNG draws nothing but its button: an invisible square of 300 board units round its point (the Relic device's 160). A place that can't be played yet gets a dark wash and a padlock chip, a cleared one a flag chip, both from the code, so one painting serves every state |
 | `<spot>-locked.png` | 256x256, transparent | A spot's landmark before its questions are built |
 | `<spot>-open.png` | 256x256, transparent | A spot's landmark once it can be played |
 | `<spot>-cleared.png` | 256x256, transparent | A spot's landmark once floor 3's boss is beaten there |
@@ -1719,11 +1743,16 @@ region), so art can land one file at a time. Import each with mipmaps on, like t
 `<spot>` is a region id (`quadratics`, `exp-log`, `graphs-features`,
 `composite-inverse`, `rational`, `function-basics`, `lines`, `transformations`), `all`
 for the all-regions dungeon at the tower, or `relic` for the Relic device (only
-`relic-locked.png` is used for now). A landmark is drawn in a 200x200 box (the Relic
-device's in 140x140), kept square and centred, with the spot's name and progress line
-under it, so leave the bottom of the background clear below each spot. SPARK's pick
-(`Progress.suggest()`) gets a pink beacon drawn over its landmark, art or not, so leave
-the landmark itself readable under a ring.
+`relic-locked.png` is used for now). A landmark fills its place's square (300x300, the
+Relic device's 160x160), kept square and centred, over the painting or the coded
+ground. No name shows under it: the card does that. SPARK's pick (`Progress.suggest()`)
+gets a pink beacon drawn round its place, art or not, so leave the place readable under
+a ring.
+
+The world map's places are zones of `assets/map/overworld.png` (`ISLANDS`,
+`THUNDERDOME_ZONE`, `RELIC_LIBRARY_ZONE`, `BAZAAR_ZONE` in `ui/map.gd`). When the
+painting has the Bazaar's stalls painted in at its zone (FAL-791), set `BAZAAR_PAINTED`
+to drop the coded marker.
 
 ## Art slots
 
@@ -1764,7 +1793,7 @@ steps aside when it shows.
 
 | File | Size | Where it shows | With no file |
 |---|---|---|---|
-| `backdrop` | 1920×1080, opaque, dark | Behind the fight screen and its floor select, cover-fitted under a 55% wash of the background colour. A phone held upright shows about the centre 500 px, so keep what matters in the centre 600 | The plain background |
+| `backdrop` | 1920×1080, opaque, dark | Behind the fight screen and its floor select, cover-fitted under a 55% wash of the background colour, and behind the map's region screen under a 70% wash. A phone held upright shows about the centre 500 px, so keep what matters in the centre 600 | The plain background |
 | `miniboss` | 512×512, transparent | Fight 5, the mini-boss, in the 190 px enemy box | The tier's enemy (see `enemies/`) |
 | `miniboss-hurt` | 512×512, transparent: the same pose, size and place | Flashes for 80 ms when a hit lands | No flash |
 | `boss` | 512×512, transparent | Fight 10, the boss | The tier's enemy |
@@ -1794,7 +1823,7 @@ With no row's file there, a fight shows the tier's own enemy from `Tuning.ENEMIE
 | File | Size | Where it shows | With no file |
 |---|---|---|---|
 | `stall` | 1920×1080, opaque, dark | Behind the Bazaar, cover-fitted under a 60% wash. Centre 600 px as for backdrops | The plain background |
-| `shopkeeper` | 512×512, transparent | Beside the Bazaar's title, at 200 px | No shopkeeper |
+| `shopkeeper` | 512×512, transparent | Under the Bazaar's title, at 360 px, beside the speech bubble | No shopkeeper |
 | `shopkeeper-idle` | 512×512, transparent: the same pose, size and place | Swaps in for 0.6 s every 4 s | The portrait stays still |
 | `scrap` | 128×128, transparent | Beside the Scrap count, at 96 px | The count alone |
 | `upgrade-max-hp`, `upgrade-lifeline` | 128×128, transparent | Beside each upgrade, at 96 px | No icon |
@@ -1815,12 +1844,14 @@ listed in the Bazaar in file order; a row whose art isn't there is left out.
 | `medal-floor-1`, `medal-floor-2`, `medal-floor-3` | 256×256, transparent | Beside the region's best floor on the floor select and the run summary, at 120 px | The line alone |
 | `medal-floor-4` | 256×256, transparent | The same, for a best floor of 4 or deeper | The line alone |
 
+The store owner's lines are data: `data/shopkeeper.json` (see "The Bazaar").
+
 Not here: the island map (`assets/map/functions/`, see "Map art"), and the weak-skills
 flag on the map, which has no slot yet.
 
 ## The Bazaar
 
-Scrap banked from runs buys things at the Bazaar (G6, Q10). The world map's bottom bar
+Scrap banked from runs buys things at the Bazaar (G6, Q10). Its place on the world map
 and a run's summary link to it (`#bazaar`), and its "World map" button goes back there. `engine/bazaar.gd` holds the rules and
 no UI; `ui/bazaar.gd` draws them. Every price, cap and perk value is in the Bazaar
 section of `engine/tuning.gd`.
@@ -1846,6 +1877,16 @@ section of `engine/tuning.gd`.
   `test_bazaar.gd` checks that such a player unlocks something every 2 or 3 runs. Print
   the price table with
   `godot --headless --path game --script res://tools/bazaar_balance.gd`.
+- **The store owner talks** (FAL-790). `data/shopkeeper.json` is
+  `{"name": "...", "lines": {"first_visit": [], "enter": [], "idle": [], "buy": [],
+  "broke": [], "capped": [], "leave": []}}`, each line 90 characters at most (written on
+  FAL-789). The line shows in a speech bubble beside the `shopkeeper` portrait:
+  `first_visit` the first time (then `bazaar.met` is set in the save), `enter` after
+  that, `buy` after a purchase, `broke` and `capped` when a purchase can't go through for
+  want of Scrap or at a cap (a click on a disabled button counts), `idle` after 30 s with
+  nothing said, and `leave` on the way out, 1.2 s before the world map (a second press
+  goes at once). Never the same line twice in a row. No file means no bubble; no art
+  means no portrait.
 - Links: `/#bazaar` is its map link; `/?bazaar` opens it too, and
   `/?bazaar=demo` opens it on a sample save and stores nothing (screenshots).
 
@@ -2074,7 +2115,10 @@ script error happens while it runs. Run one file with
   value through the modifiers and is used up after one run, one perk slot, Scrap never
   goes negative and a failed purchase changes nothing, cosmetics, the save and its
   migration, the 70% player's runs per unlock, the screen, the plate and perk on the
-  fight screen, and the world map opening the Bazaar and leaving it going back there.
+  fight screen, the world map opening the Bazaar and leaving it going back there, and the
+  store owner's lines on a fixture file (first visit then enter, buy, broke, capped,
+  idle and leave, never the same line twice in a row, no file no bubble) and the real
+  file's schema.
 - `test_fight.gd`: the fight screen plays a miss with its worked solution, a hit, a
   timeout, the lifelines, quit and the summary, the floor select with beaten floors, a
   boss part with the value carried on, and fits at 360x780, 390x844 and 1280x800.
@@ -2105,8 +2149,11 @@ script error happens while it runs. Run one file with
   than 3 answers; the world map, the island and the region screen; the course picker
   storing the course and keeping the records; "Coming soon" for a
   region with nothing built, which can't start a run; a run started from the map; the
-  island's loop in a run and the boss loop in a boss; Play opening the map; and every
-  screen fitting 390x844 and 1280x800.
+  island's loop in a run and the boss loop in a boss; Play opening the map; every
+  screen fitting 390x844 and 1280x800; and the FAL-783 layers: no road node and no
+  footer, cards hidden until hover, focus or a tap, two taps on touch, the Bazaar as a
+  world-map place, painted places on a fixture background, the zoom in and out (and the
+  cut with reduced motion), and the region screen over its backdrop.
 - `test_explorer.gd`: the engine explorer opens on a live class with no errors, plays
   each course's own classes (AA HL all of AA SL's, AI SL's inside AI HL's), counts
   the catalogue per topic, plays from its pickers, keeps the situation when it asks
