@@ -135,6 +135,7 @@ static var SITUATIONS := {
 	"derivative-model": [DerivativeModelSituation, DerivativeModelViews],
 	"monotonic": [MonotonicSituation, MonotonicViews],
 	"concavity": [ConcavitySituation, ConcavityViews],
+	"derivative-graph": [DerivativeGraphSituation, DerivativeGraphViews],
 	"integration": [IntegrationSituation, IntegrationViews],
 	"definite-integral": [DefiniteIntegralSituation, DefiniteIntegralViews],
 	"area-between": [AreaBetweenSituation, AreaBetweenViews],

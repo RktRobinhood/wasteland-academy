@@ -38819,6 +38819,383 @@ def E12TS_check(q):
 # ── end trig-sketch ──
 
 
+# ── Read f from the graph of f′ (FAL-754) ────────────────────
+# Reads the curve back from the question: the figure's samples (held to the given factors),
+# or f′ or f″ written as factors, or the signs and areas in words. Every feature is found
+# again with SymPy from the curve: its roots and their multiplicities, where it changes sign,
+# its turning points, the signed areas by exact integration. Each claim offered is written out
+# again from those, a tagged option from its slip, and each card of a pick-the-graph question
+# is fitted by an exact polynomial through its samples, then judged by its derivative.
+
+E12DG_F = "SL5.7.f-from-derivative-graph#"
+E12DG_G = "SL5.2.sign-from-graph#"
+E12DG_CON = "SL5.7.concavity#0"
+E12DG_EPS = sp.Rational(1, 4)
+
+
+def E12DG_n(v):
+    return dm_num(sp.nsimplify(v))
+
+
+def E12DG_given(q):
+    g = q["given"]
+    k, a, b = (R(g[c]) for c in ("k", "a", "b"))
+    if g["fam"] == "touch":
+        e = k * (CX - a) * (CX - b) ** 2 + R(g.get("v", 0))
+    else:
+        e = k * (CX - a) * (CX - b)
+    return sp.expand(e)
+
+
+def E12DG_curve(q, what="f′(x)"):
+    """The curve the question shows, held to the factors in the given."""
+    e = E12DG_given(q)
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "graph":
+        gp = q["graph"]
+        need(gp is not None and gp["curves"], "no figure")
+        c = gp["curves"][0]
+        need(co_curve_is(c, e), "the curve drawn is not the function in the given")
+        m = re.search(r"The graph shows y = (f′\(x\)|f″\(x\)|f\(x\)), for (−?\d+) ≤ x ≤ (−?\d+)", L[0])
+        need(m is not None and m.group(1) == what, f"can't read which graph is shown: {L[0]!r}")
+        lo, hi = R(m.group(2).replace("−", "-")), R(m.group(3).replace("−", "-"))
+        need(abs(c[0][0] - float(lo)) < 1e-9 and abs(c[-1][0] - float(hi)) < 1e-9, "the curve is not drawn on the domain given")
+        for p in gp["points"]:
+            if not p.get("name"):
+                need(abs(sp.N(e.subs(CX, R(p["x"]))) - R(p["y"])) < 1e-6, "a marked point is off the curve")
+    elif rep == "equation":
+        m = re.fullmatch(r"(f′|f″)\(x\) = (.+)", L[0])
+        need(m is not None and m.group(1) + "(x)" == what, f"can't read {L[0]!r}")
+        need(sp.expand(calc_expr(m.group(2)) - e) == 0, "the factors written are not the curve")
+        need(q["graph"] is None, "an equation question draws a figure")
+    return e
+
+
+def E12DG_roots(e):
+    """root -> multiplicity, every real root (all rational here)."""
+    rs = sp.roots(sp.Poly(e, CX))
+    need(sum(rs.values()) == sp.degree(e, CX), f"{e} has roots that aren't rational")
+    need(all(r.is_rational for r in rs), f"{e} has a root that is not whole")
+    return rs
+
+
+def E12DG_sg(e, x):
+    v = e.subs(CX, x)
+    return 1 if v > 0 else (-1 if v < 0 else 0)
+
+
+def E12DG_word(n):
+    return "positive" if n > 0 else ("negative" if n < 0 else "zero")
+
+
+def E12DG_changes(e):
+    """The roots where e changes sign: x -> (sign before, sign after)."""
+    out = {}
+    for r in E12DG_roots(e):
+        l, rr = E12DG_sg(e, r - E12DG_EPS), E12DG_sg(e, r + E12DG_EPS)
+        if l != rr:
+            out[r] = (l, rr)
+    return out
+
+
+def E12DG_touches(e):
+    return sorted(r for r in E12DG_roots(e) if E12DG_sg(e, r - E12DG_EPS) == E12DG_sg(e, r + E12DG_EPS))
+
+
+def E12DG_turns(e):
+    """Turning points of e: x -> 'maximum' or 'minimum'."""
+    d = sp.diff(e, CX)
+    out = {}
+    for r, (l, rr) in E12DG_changes(d).items():
+        out[r] = "maximum" if l > 0 else "minimum"
+    return out
+
+
+def E12DG_xs(xs):
+    xs = sorted(xs)
+    names = [E12DG_n(x) for x in xs]
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def E12DG_side(rel, x):
+    return f"x {rel} {E12DG_n(x)}"
+
+
+def E12DG_shape(e, lo, hi, want_pos):
+    """between or outside lo and hi: where e has the sign wanted (e changes sign at both)."""
+    mid = E12DG_sg(e, (lo + hi) / 2)
+    return "between" if (mid > 0) == want_pos else "outside"
+
+
+def E12DG_card_fit(card):
+    """The polynomial (degree ≤ 4) through a card's samples, exact from five of them; it must fit them all."""
+    c = card["curves"][0]
+    need(len(c) > 20, "a card has too few samples")
+    idx = [0, len(c) // 4, len(c) // 2, 3 * len(c) // 4, len(c) - 1]
+    pts = [(sp.Rational(str(c[i][0])), sp.Rational(str(c[i][1]))) for i in idx]
+    p = sp.expand(sp.interpolate(pts, CX))
+    f = sp.lambdify(CX, p, "mpmath")
+    for x, y in c[:: 7]:
+        need(abs(f(mpmath.mpf(str(x))) - mpmath.mpf(str(y))) < 1e-6, "a card is not a polynomial of degree 4 or less")
+    return p
+
+
+def E12DG_same(p, e):
+    """p and e agree to 1e-6 in every coefficient."""
+    d = sp.Poly(sp.expand(p - e), CX)
+    return all(abs(float(co)) < 1e-6 for co in d.all_coeffs())
+
+
+def E12DG_up_to_c(p, e):
+    return E12DG_same(sp.diff(p, CX), sp.diff(e, CX))
+
+
+def E12DG_areas(q, e):
+    """lo, m, hi and the two areas, read from the lines; each held to the integral of e."""
+    L, rep = q["lines"], q["view"]["rep"]
+    num = r"(−?\d+)"
+    if rep == "words":
+        m1 = re.fullmatch(rf"A function f has f′\(x\) ([<>]) 0 for {num} < x < {num} and f′\(x\) ([<>]) 0 for {num} < x < {num}\.", L[0])
+        m2 = re.fullmatch(rf"The area between the graph of f′ and the x-axis is (\d+) for {num} ≤ x ≤ {num} and (\d+) for {num} ≤ x ≤ {num}\.", L[1])
+        need(m1 is not None and m2 is not None, f"can't read the words {L[:2]!r}")
+        rd = lambda t: R(t.replace("−", "-"))
+        lo, m, hi = rd(m1.group(2)), rd(m1.group(3)), rd(m1.group(6))
+        need(rd(m1.group(5)) == m and (rd(m2.group(2)), rd(m2.group(3)), rd(m2.group(5)), rd(m2.group(6))) == (lo, m, m, hi), "the stretches don't agree")
+        A1, A2 = R(m2.group(1)), R(m2.group(4))
+        signs = (1 if m1.group(1) == ">" else -1, 1 if m1.group(4) == ">" else -1)
+    else:
+        m2 = re.fullmatch(rf"Region A lies between the graph and the x-axis for {num} ≤ x ≤ {num}, and has area (\d+)\. Region B lies between them for {num} ≤ x ≤ {num}, and has area (\d+)\.", L[1])
+        need(m2 is not None, f"can't read the regions {L[1]!r}")
+        rd = lambda t: R(t.replace("−", "-"))
+        lo, m, hi = rd(m2.group(1)), rd(m2.group(2)), rd(m2.group(5))
+        need(rd(m2.group(4)) == m, "the regions don't meet")
+        A1, A2 = R(m2.group(3)), R(m2.group(6))
+        signs = None
+        sh = q["graph"].get("shade", [])
+        need(len(sh) == 2, "the two regions are not shaded")
+        f = sp.lambdify(CX, e, "mpmath")
+        for region, (u, w) in zip(sh, [(lo, m), (m, hi)]):
+            need(abs(region[0][0] - float(u)) < 1e-9 and abs(region[-1][0] - float(w)) < 1e-9, "a shaded region has the wrong ends")
+            for x, low, high in region[:: 9]:
+                y = f(mpmath.mpf(str(x)))
+                need(abs(mpmath.mpf(str(low)) - min(y, 0)) < 1e-6 and abs(mpmath.mpf(str(high)) - max(y, 0)) < 1e-6, "a shaded strip is not between the curve and the axis")
+        labels = {p["label"]: p for p in q["graph"]["points"] if p.get("name")}
+        need(set(labels) == {"A", "B"} and float(lo) < labels["A"]["x"] < float(m) < labels["B"]["x"] < float(hi), "the regions are not lettered A and B in order")
+    out = []
+    for (u, w), A, i in [((lo, m), A1, 0), ((m, hi), A2, 1)]:
+        need(not any(u < r < w for r in E12DG_roots(e)), "a region crosses the axis")
+        I = sp.integrate(e, (CX, u, w))
+        need(abs(I) == A, f"the area given, {A}, is not the area under the curve, {abs(I)}")
+        if signs is not None:
+            need(E12DG_sg(e, (u + w) / 2) == signs[i], "the words give the wrong sign of f′")
+        out.append(I)
+    need(A1 != A2 and A1 >= 4 and A2 >= 4, "the areas are not clean")
+    return lo, m, hi, out[0], out[1]
+
+
+def E12DG_check(q):
+    u, L, asked, rep = q["view"]["unknown"], q["lines"], q["asked"], q["view"]["rep"]
+    need(q["paper"] == 1, "every question of this type is Paper 1")
+    if u == "pick-f-from-derivative":
+        return E12DG_pick(q)
+    calc_steps(q)
+    want, wrongs = None, {}
+    F, G = E12DG_F, E12DG_G
+    if u in ("extremum-from-derivative", "extremum-justified"):
+        e = E12DG_curve(q)
+        kind = re.search(r"the local (maximum|minimum) of f", asked).group(1)
+        ch = E12DG_changes(e)
+        hits = [r for r, (l, rr) in ch.items() if (l > 0) == (kind == "maximum")]
+        need(len(hits) == 1, f"f has {len(hits)} local {kind}a")
+        x = hits[0]
+        others = [r for r in ch if r != x]
+        turns = E12DG_turns(e)
+        touches = E12DG_touches(e)
+        if u == "extremum-from-derivative":
+            want = f"x = {E12DG_n(x)}"
+            wrongs = {F + "0": {f"x = {E12DG_n(t)}" for t in turns}, F + "1": {f"x = {E12DG_n(t)}" for t in touches},
+                      F + "11": {f"x = {E12DG_n(t)}" for t in others}}
+        else:
+            l, rr = ch[x]
+            X = E12DG_n(x)
+            want = f"x = {X}, because f′ changes sign from {E12DG_word(l)} to {E12DG_word(rr)} at x = {X}"
+            wrongs = {F + "2": {f"x = {X}, because f′({X}) = 0"},
+                      F + "0": {f"x = {E12DG_n(t)}, because the graph of f′ has a {w} there" for t, w in turns.items()},
+                      F + "1": {f"x = {E12DG_n(t)}, because the graph of f′ touches the x-axis there" for t in touches},
+                      F + "11": {f"x = {E12DG_n(t)}, because f′ changes sign from {E12DG_word(ch[t][0])} to {E12DG_word(ch[t][1])} at x = {E12DG_n(t)}" for t in others}}
+    elif u == "inflexion-from-derivative":
+        e = E12DG_curve(q)
+        want = E12DG_xs(E12DG_turns(e))
+        flat_turns = [t for t in E12DG_turns(e) if e.subs(CX, t) != 0]
+        wrongs = {F + "3": {E12DG_xs(E12DG_roots(e))}, F + "4": {E12DG_xs(flat_turns)} if flat_turns else set()}
+    elif u == "touch-not-turning":
+        e = E12DG_curve(q)
+        X = R(re.search(r"where x = (−?\d+) is true", asked).group(1).replace("−", "-"))
+        need(f"f′({E12DG_n(X)}) = 0." in L, "the zero of f′ is not given")
+        need(X in E12DG_touches(e), "f′ does not touch the axis there")
+        sg = E12DG_sg(e, X + E12DG_EPS)
+        Xs = E12DG_n(X)
+        want = f"A point of inflexion, not a turning point: f′ is {E12DG_word(sg)} on both sides of x = {Xs}"
+        tk = E12DG_turns(e)[X]
+        wrongs = {F + "0": {f"A local {tk}, because the graph of f′ has a {tk} at x = {Xs}"},
+                  F + "1": {f"A turning point of f, because the graph of f′ touches the x-axis at x = {Xs}"},
+                  F + "2": {f"A local {k}, because f′({Xs}) = 0" for k in ("maximum", "minimum")}}
+    elif u == "increasing-past-touch":
+        e = E12DG_curve(q)
+        word = re.search(r"f is (increasing|decreasing)\.", asked).group(1)
+        ch = list(E12DG_changes(e))
+        need(len(ch) == 1, "f′ should change sign once")
+        r = ch[0]
+        pos_right = E12DG_sg(e, r + E12DG_EPS) > 0
+        rel = ">" if pos_right == (word == "increasing") else "<"
+        want = E12DG_side(rel, r)
+        t = E12DG_touches(e)[0]
+        need((t > r) == (rel == ">"), "the touch is not on the side asked, so the question has no trap")
+        # Where f rises, by testing f′ at many points: f′ ≥ 0 on the whole side, so the touch doesn't end it.
+        grid = [sp.Rational(i, 8) for i in range(-60, 60)]
+        side_pts = [x for x in grid if (x > r if rel == ">" else x < r)]
+        need(all(E12DG_sg(e, x) * (1 if word == "increasing" else -1) >= 0 for x in side_pts), "f is not monotonic on the side found")
+        wrongs = {F + "5": {mo_iv("between", min(r, t), max(r, t))}}
+    elif u == "concave-up-from-cubic":
+        e = E12DG_curve(q)
+        up = "concave up" in asked
+        d = sp.diff(e, CX)
+        ts = sorted(E12DG_changes(d))
+        need(len(ts) == 2, "f′ should have two turning points")
+        want = mo_iv(E12DG_shape(d, ts[0], ts[1], up), ts[0], ts[1])
+        r = list(E12DG_changes(e))[0]
+        pos_right = E12DG_sg(e, r + E12DG_EPS) > 0
+        wrongs = {E12DG_CON: {E12DG_side(">" if pos_right == up else "<", r)}}
+    elif u == "inflexion-from-second":
+        e = E12DG_curve(q, "f″(x)")
+        need(asked == "The graph of f has one point of inflexion. Find its x-coordinate.", "can't read the question")
+        ch = list(E12DG_changes(e))
+        need(len(ch) == 1, f"f″ changes sign {len(ch)} times")
+        want = f"x = {E12DG_n(ch[0])}"
+        wrongs = {F + "8": {f"x = {E12DG_n(t)}" for t in E12DG_touches(e)},
+                  F + "9": {f"x = {E12DG_n(t)}" for t in E12DG_turns(e) if e.subs(CX, t) != 0}}
+    elif u in ("compare-from-areas", "value-from-areas"):
+        e = E12DG_given(q)
+        if rep == "graph":
+            E12DG_curve(q)
+        lo, m, hi, I1, I2 = E12DG_areas(q, e)
+        Ls, Hs = E12DG_n(lo), E12DG_n(hi)
+        A1, A2 = abs(I1), abs(I2)
+        ss = lambda p, r: f"{E12DG_n(p)} {'−' if r < 0 else '+'} {E12DG_n(abs(r))}"
+        if u == "compare-from-areas":
+            need(asked == f"Which is greater, f({Ls}) or f({Hs})? Which answer is fully justified?", "can't read the question")
+            S = I1 + I2
+            need(S != 0, "the two values are equal")
+            verdict = lambda d: f"f({Hs if d > 0 else Ls}) is greater"
+            want = f"{verdict(S)}: f({Hs}) − f({Ls}) = {ss(I1, I2)} = {E12DG_n(S)}"
+            hl, hh = e.subs(CX, lo), e.subs(CX, hi)
+            tall, short = (Hs, Ls) if hh > hl else (Ls, Hs)
+            wrongs = {F + "6": {f"{verdict(1)}: f({Hs}) − f({Ls}) = {ss(A1, A2)} = {E12DG_n(A1 + A2)}"}}
+            if rep == "graph":
+                wrongs[F + "7"] = {f"f({tall}) is greater, because f′({tall}) > f′({short})"}
+        else:
+            mv = re.fullmatch(r"f\((−?\d+)\) = (−?\d+)\.", L[-1])
+            need(mv is not None and mv.group(1) == Ls, f"can't read the value of f: {L[-1]!r}")
+            v = R(mv.group(2).replace("−", "-"))
+            X = R(re.fullmatch(r"Find f\((−?\d+)\)\.", asked).group(1).replace("−", "-"))
+            need(X in (m, hi), "f is asked at neither end of a region")
+            change = sp.integrate(e, (CX, lo, X))
+            want = f"f({E12DG_n(X)}) = {E12DG_n(v + change)}"
+            flat = v + (A1 if X == m else A1 + A2)
+            wrongs = {F + "6": {f"f({E12DG_n(X)}) = {E12DG_n(flat)}"}, F + "12": {f"f({E12DG_n(X)}) = {E12DG_n(change)}"}}
+    elif u in ("gradient-sign-statement", "gradient-negative-where", "gradient-at-turning-point"):
+        e = E12DG_given(q)
+        d = sp.diff(e, CX)
+        if rep == "graph":
+            E12DG_curve(q, "f(x)")
+        if u == "gradient-sign-statement":
+            mx = re.search(r"The point A on the curve has x = (−?\d+)\.", L[0])
+            need(mx is not None, "can't read A")
+            X = R(mx.group(1).replace("−", "-"))
+            pa = [p for p in q["graph"]["points"] if p["label"] == "A"]
+            need(len(pa) == 1 and abs(pa[0]["x"] - float(X)) < 1e-9 and abs(sp.N(e.subs(CX, X)) - R(pa[0]["y"])) < 1e-9, "A is not on the curve at that x")
+            Xs = E12DG_n(X)
+            dv, fv = E12DG_sg(d, X), E12DG_sg(e, X)
+            texts = {1: f"f′({Xs}) > 0: the curve is going up at x = {Xs}", -1: f"f′({Xs}) < 0: the curve is going down at x = {Xs}",
+                     0: f"f′({Xs}) = 0: the curve is flat at x = {Xs}"}
+            want = texts[dv]
+            wrongs = {}
+            if fv == 0 and dv != 0:
+                wrongs[G + "1"] = {f"f′({Xs}) = 0: the curve meets the x-axis at x = {Xs}"}
+            if dv == 0 and fv != 0:
+                wrongs[G + "2"] = {f"f({Xs}) = 0, since f′({Xs}) = 0"}
+            if fv != 0 and dv != 0 and fv != dv:
+                wrongs[G + "0"] = {f"f′({Xs}) {'>' if fv > 0 else '<'} 0: the curve is {'above' if fv > 0 else 'below'} the x-axis at x = {Xs}"}
+            need(len(wrongs) == 1, "A is not a point where f and f′ are easy to mix up")
+        elif u == "gradient-negative-where":
+            neg = asked.endswith("f′(x) < 0.")
+            need(neg or asked.endswith("f′(x) > 0."), "can't read the question")
+            ts = sorted(E12DG_changes(d))
+            need(len(ts) == 2, "f should have two turning points")
+            marks = {(round(p["x"], 9), round(p["y"], 9)) for p in q["graph"]["points"] if p["label"]}
+            need(marks == {(float(t), float(e.subs(CX, t))) for t in ts}, "the marked points are not the turning points")
+            want = mo_iv(E12DG_shape(d, ts[0], ts[1], not neg), ts[0], ts[1])
+            r = list(E12DG_changes(e))[0]
+            pos_right = E12DG_sg(e, r + E12DG_EPS) > 0
+            ints = sorted(E12DG_roots(e))
+            shape = E12DG_shape(d, ts[0], ts[1], not neg)
+            wrongs = {G + "0": {E12DG_side(">" if pos_right != neg else "<", r)}, G + "1": {mo_iv(shape, ints[0], ints[-1])}}
+        else:
+            mp = re.search(r"local (maximum|minimum) at (?:the point |A)\((−?\d+), (−?\d+)\)\.", L[0])
+            need(mp is not None, f"can't read the turning point in {L[0]!r}")
+            X, Y = (R(mp.group(i).replace("−", "-")) for i in (2, 3))
+            need(d.subs(CX, X) == 0 and e.subs(CX, X) == Y, "the point is not a turning point of the curve")
+            need(E12DG_turns(e)[X] == mp.group(1), "the turning point is the other kind")
+            need(asked == f"Write down the value of f′({E12DG_n(X)}).", "can't read the question")
+            want = f"f′({E12DG_n(X)}) = {E12DG_n(d.subs(CX, X))}"
+            wrongs = {G + "3": {f"f′({E12DG_n(X)}) = {E12DG_n(Y)}"}}
+    else:
+        need(False, f"the checker has no checks for {u}")
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+def E12DG_pick(q):
+    """The right card is an antiderivative of f′; each wrong card is its named mistake, judged by its own derivative."""
+    e = E12DG_curve(q)
+    calc_options(q)
+    calc_steps(q)
+    need(q["asked"] == "Which graph could be y = f(x)?", "can't read the question")
+    ch = E12DG_changes(e)
+    need(len(ch) == 1 and len(E12DG_touches(e)) == 1, "f′ should cross the axis once and touch it once")
+    a = list(ch)[0]
+    b = E12DG_touches(e)[0]
+    turns = E12DG_turns(e)
+    c = [t for t in turns if t != b][0]
+    k = sp.Poly(e, CX).LC()
+    F = sp.integrate(e, CX)
+    cards = q["graphs"]
+    need(len(cards) == 4, f"{len(cards)} cards")
+    for o, card in zip(q["choices"], cards):
+        p = E12DG_card_fit(card)
+        dp = sp.expand(sp.diff(p, CX))
+        if o["correct"]:
+            need(E12DG_up_to_c(p, F), "the right card is not an antiderivative of f′")
+            continue
+        need(not E12DG_up_to_c(p, F), f"{o['text']} is an antiderivative of f′ too")
+        mk, ref = o["mistake"], o["ref"]
+        if mk == "copy":
+            need(E12DG_same(p, e) and ref == E12DG_F + "10", f"{o['text']} is not the graph of f′ itself")
+        elif mk == "flipped":
+            need(E12DG_same(dp, -e) and ref == E12DG_F + "11", f"{o['text']} is not f upside down")
+        elif mk == "touch-turn":
+            # A cubic whose derivative changes sign at both zeros of f′, the same way as f′ at a.
+            rs = E12DG_roots(sp.nsimplify(dp, rational=True, tolerance=1e-9))
+            need(sp.degree(p, CX) == 3 and sorted(rs) == sorted([a, b]), f"{o['text']} does not turn at the two zeros of f′")
+            need(E12DG_sg(sp.nsimplify(dp, rational=True, tolerance=1e-9), a + E12DG_EPS) == ch[a][1], f"{o['text']} has the wrong nature at x = {a}")
+            need(ref == E12DG_F + "1", f"{o['text']}: ref {ref!r}")
+        elif mk == "peak":
+            need(E12DG_same(dp, k * (CX - c) * (CX - b) ** 2) and ref == E12DG_F + "0", f"{o['text']} does not turn at the turning point of f′")
+        else:
+            need(False, f"the checker can't confirm the mistake {mk!r}")
+    return None, None
+
+
 SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, "circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
@@ -38861,7 +39238,8 @@ SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, 
                     "rational-exponents": E12RE_check,
                     "tangent-meets-curve": E12NM_check,
                     "solve-exponential": E12SE_check,
-                    "trig-sketch": E12TS_check,}
+                    "trig-sketch": E12TS_check,
+                    "derivative-graph": E12DG_check,}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

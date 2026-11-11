@@ -1445,6 +1445,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq, order-steps, error-spot
 - **Bank parts:** 14.
 
+### t5-derivative-graph
+
+**Read f from the graph of f' (or f'').** Read the features of f from the graph of f′ or f″: a local maximum or minimum and its justification, points of inflexion, a touch that is not a turning point, where f rises or is concave up, which graph is f, and values of f from signed areas; and read the sign of f′ from the graph of f.
+
+- **Syllabus:** 5.8, 5.2, 5.7
+- **Skills:** `SL5.7.f-from-derivative-graph`, `SL5.2.sign-from-graph`
+- **Where it appears:** P1 2, P2 0; Section A 0, B 2. Marks per part: usually 1 (1 to 5).
+- **Usual chain:** find where f′ changes sign, and which way → tell a crossing of the axis from a touch → find the turning points of f′ (the zeros of f″) → add the signed areas under f′ → walk along the graph of f to read the sign of f′
+- **Given:** the graph of f′, the graph of f″, the graph of f, f′(x) or f″(x) as factors, the areas of regions under f′, f′ in words. **Asked:** An x-coordinate of a turning point or a point of inflexion, its justification, an interval, the nature of a point, a value or comparison of f, which graph is f, or the sign or value of f′ at a point. **Answer form:** exact, an x-value, x-values, an interval, a statement, pick the graph.
+- **A recipe can randomise:** whole-number roots of f′, and which of them is a touch; the leading coefficient and its sign; a parabola or a cubic with a squared factor; whether a maximum, minimum, increasing, decreasing, concave up or down is asked; the two regions' widths and which side of the axis each is on; the point on the graph of f.
+- **Limits that keep answers clean:** every root and turning point of the curve drawn is a whole number, so it sits on a grid line; the two regions under f′ have whole, different areas; a point on the graph of f is one where f and f′ are easy to mix up: a crossing, a turning point off the axis, or where they have opposite signs; each wrong graph changes one thing.
+- **Game formats:** value, mcq, graph-pick
+- **Bank parts:** 2.
+
 ### t5-stationary-points
 
 **Stationary points and inflexion: find, classify, justify.** Find the stationary points of a cubic, decide which is the maximum and which the minimum, find the point of inflexion, or give the local maximum value.
