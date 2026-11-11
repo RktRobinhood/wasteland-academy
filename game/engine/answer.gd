@@ -37,8 +37,10 @@ extends RefCounted
 ##              for the Rational functions region (FAL-423) also xint (the x-intercept,
 ##              (x, 0)), and axis honours show and may carry var "" (the number alone, a
 ##              wrong option for an asymptote written as an equation);
-##              for the Lines region (FAL-424) also gline (ax + by + d = 0: a whole-number
-##              multiple of the line with a > 0 is right too), and point may carry alone
+##              for the Lines region (FAL-424) also gline (ax + by + d = 0: any non-zero
+##              whole-number multiple of the line, of either sign, is right too, and a
+##              fractional one is glancing, since the question asks for integers, FAL-788),
+##              and point may carry alone
 ##              (x with no y, a wrong option that can be picked but never typed);
 ##              for Topic 5 (FAL-723) also form: an expression written by its builder.
 ##              fixed.parts is the slot input, values.text the expression as it reads,
@@ -659,6 +661,24 @@ static func gline_text(a: Variant, b: Variant, d: Variant) -> String:
 	return out + " = 0"
 
 
+## a, b and d scaled to whole numbers with no common factor, the first non-zero one positive.
+static func _gline_lowest(v: Dictionary) -> Dictionary:
+	var abd := [Q.of(v.a), Q.of(v.b), Q.of(v.d)]
+	var den := 1
+	for q in abd:
+		den = den * q.d / Q.gcd(den, q.d)
+	var whole: Array = abd.map(func(q): return q.n * (den / q.d))
+	var g := 0
+	for n in whole:
+		g = Q.gcd(g, absi(n))
+	var lead: int = whole[0] if whole[0] != 0 else whole[1]
+	var sg := -1 if lead < 0 else 1
+	var out := v.duplicate()
+	for i in 3:
+		out[["a", "b", "d"][i]] = Q.new(sg * whole[i] / g)
+	return out
+
+
 ## mx + c with both numbers to 3 s.f. (a Paper 2 line): "2.31x − 0.552", "−4.70x".
 static func sf_line(m: Variant, c: Variant) -> String:
 	var mq := Q.of(m)
@@ -714,6 +734,9 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind in ["pct", "expmodel", "limited", "fn", "xpow", "form"]:
 		return ans.kind + ":" + text(ans, values)
 	var v := values.duplicate()
+	# Any multiple of a line is that line (FAL-788): written by its lowest whole terms, a > 0.
+	if ans.kind == "gline":
+		v = _gline_lowest(v)
 	if ans.kind == "points2":
 		var ps := _pairs(v)
 		v = {"x1": ps[0][0], "y1": ps[0][1], "x2": ps[1][0], "y2": ps[1][1]}
@@ -1007,8 +1030,33 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 	if not errors.is_empty():
 		return {"correct": false, "complete": false, "glancing": false, "errors": errors, "values": got}
 	var right := values_right(ans, got)
-	return {"correct": right, "complete": true, "glancing": not right and values_right(ans, got, true),
-		"errors": {}, "values": got}
+	var glancing := not right and values_right(ans, got, true)
+	return {"correct": right, "complete": true, "glancing": glancing,
+		"errors": {}, "values": got, "note": form_note(ans) if glancing else ""}
+
+
+## A glancing hit's note when the answer is equivalent but breaks the form the question
+## asks for (FAL-788); "" when the note is the 3 s.f. one (Q7).
+static func form_note(ans: Dictionary) -> String:
+	if ans.kind == "gline":
+		return "Same line, but a, b and d must be integers."
+	return ""
+
+
+## Whether got's a, b and d are a non-zero multiple of want's: the same line ax + by + d = 0.
+static func gline_same(want: Dictionary, got: Dictionary) -> bool:
+	for id in ["a", "b", "d"]:
+		if not got.get(id) is Q:
+			return false
+	if got.a.is_zero() and got.b.is_zero():
+		return false
+	var w := [Q.of(want.a), Q.of(want.b), Q.of(want.d)]
+	var g := [got.a, got.b, got.d]
+	for i in 3:
+		for j in range(i + 1, 3):
+			if not g[i].mul(w[j]).eq(g[j].mul(w[i])):
+				return false
+	return true
 
 
 ## Whether typed values match the answer, slot by slot, in any order within an
@@ -1020,14 +1068,11 @@ static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = fals
 		var have := lnq_value(got.get("m", Q.new(0)), got.get("r", Q.new(0))) if got.get("m") is Q and got.get("r") is Q else NAN
 		return is_finite(have) and absf(have - want) <= 1e-9 * maxf(1.0, absf(want))
 	if ans.kind == "gline":
-		# Any whole-number multiple of the line with a > 0 is that line (FAL-424).
-		for id in ["a", "b", "d"]:
-			if not got.get(id) is Q or not got[id].is_int():
-				return false
-		if got.a.sign() != ans.values.a.sign() or got.a.is_zero():
+		# Any non-zero multiple of the line is that line, of either sign (FAL-788). The
+		# question asks for integers, so a fractional multiple is only glancing.
+		if not gline_same(ans.values, got):
 			return false
-		var scale: Q = got.a.div(ans.values.a)
-		return got.b.eq(ans.values.b.mul(scale)) and got.d.eq(ans.values.d.mul(scale))
+		return glancing or (got.a.is_int() and got.b.is_int() and got.d.is_int())
 	if ans.kind == "points2" and not got.is_empty():
 		var swapped := {"x1": got.get("x2"), "y1": got.get("y2"), "x2": got.get("x1"), "y2": got.get("y1")}
 		var plain := ans.duplicate()

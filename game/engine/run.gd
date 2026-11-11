@@ -381,11 +381,19 @@ func _resolve(outcome: String, m: Dictionary) -> Dictionary:
 			healed = _boss_down()
 	answer_resolved.emit(outcome)
 	return {"complete": true, "outcome": outcome, "enemy_damage": fx.enemy_damage, "player_damage": fx.player_damage,
-		"scrap": fx.scrap, "bonus": bonus, "note": GLANCING_NOTE if outcome == "glancing" else "",
+		"scrap": fx.scrap, "bonus": bonus, "note": _note(outcome, m),
 		"solution": question.solutions[0] if outcome in ["wrong", "timeout"] else {},
 		"misconception": m.get("misconception", ""), "defeated": defeated, "dead": hp <= 0,
 		"another_way": not _followup.is_empty(), "part": part, "carry": carry, "healed": healed,
 		"floor_cleared": defeated and kind == "boss"}
+
+
+## A glancing hit's note: the form the answer breaks (FAL-788), else the 3 s.f. one (Q7).
+static func _note(outcome: String, m: Dictionary) -> String:
+	if outcome != "glancing":
+		return ""
+	var form: String = m.get("note", "")
+	return form if form != "" else GLANCING_NOTE
 
 
 ## The "boss beaten" event: the heal goes through the modifiers step (Second Wind, G6),

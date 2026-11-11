@@ -1010,7 +1010,8 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 - **The Lines region** (FAL-424): `line_conditions.gd` is a segment and a line built from it: the
   two points come first, then the gradient, the midpoint and a new line through a chosen point, so
   any of them can be hidden. `fn-line-from-conditions` and `fn-concept-gradient-meaning` are on it. The
-  answer kind `gline` is ax + by + d = 0, right at any whole-number multiple with a > 0, and a `line`
+  answer kind `gline` is ax + by + d = 0, right at any non-zero whole-number multiple of either sign
+  (the question asks for integers, not a > 0; a fractional multiple is glancing, FAL-788), and a `line`
   answer's text is y = mx + c. `line_crossing.gd` (`fn-ext-intersection-lines`) picks the meeting point
   first; a Paper 2 pair has one that needs the GDC, to 3 s.f. `line_model.gd` (`fn-ext-line-model`) is a
   fixed amount plus a steady rate. `linear_equation.gd` and `simultaneous.gd` are level-0, with the

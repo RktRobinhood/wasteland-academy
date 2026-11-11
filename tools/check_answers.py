@@ -14280,7 +14280,20 @@ def check_line_conditions(q):
     gc_check_common(q, want, wr, trap)
     if q["paper"] == 1 and u != "check-perpendicular":
         need(q["answer"].get("exact", False), "a Paper 1 answer is exact")
+    if q["answer"]["kind"] == "gline":
+        lc_no_multiple(q)
     return None, None
+
+
+def lc_no_multiple(q):
+    """A general-form line is right at any non-zero multiple, of either sign (FAL-788), so no
+    wrong option may be one, and the question asks only for integers, not a > 0."""
+    need("a > 0" not in q["asked"], f"a > 0 is asked: {q['asked']!r}")
+    need("where a, b and d are integers" in q["asked"], f"integers are not asked: {q['asked']!r}")
+    right = lc_line(q["answer_text"])
+    for o in q["choices"]:
+        if not o["correct"]:
+            need(lc_line(o["text"]) != right, f"option {o['text']!r} is a multiple of the right line {q['answer_text']!r}")
 
 
 def lc_trap(q):

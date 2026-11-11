@@ -1598,7 +1598,7 @@
 				},
 				{
 					"name": "forms",
-					"is": "y = nx + c, y − y_P = n(x − x_P), and ax + by + d = 0 with integers and a > 0",
+					"is": "y = nx + c, y − y_P = n(x − x_P), and ax + by + d = 0 with integers (shown with a > 0; any non-zero integer multiple is right)",
 					"pick": "scale y = nx + c by the denominator of n"
 				},
 				{
@@ -1627,7 +1627,7 @@
 			"clean": [
 				"integer points; gradients with denominator at most 5",
 				"the given gradient is non-zero, so the perpendicular gradient exists",
-				"when ax + by + d = 0 is asked, a, b, d are integers with no common factor and a > 0",
+				"when ax + by + d = 0 is asked, the answer shown has integers a, b, d with no common factor and a > 0; the question asks only for integers, so any non-zero integer multiple is right and a fractional one is glancing",
 				"on a graph, A, B and the intercepts sit on grid points"
 			]
 		},

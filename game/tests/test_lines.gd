@@ -137,16 +137,54 @@ func test_a_paper_1_equation_is_exact() -> void:
 		check(q.answer.get("exact", false), "a Paper 1 equation is exact")
 
 
-func test_general_form_takes_any_whole_multiple_with_a_positive() -> void:
+func test_general_form_takes_any_whole_multiple_of_either_sign() -> void:
 	var ans := Answer.make("gline", {"a": Q.new(2), "b": Q.new(-3), "d": Q.new(6)})
 	ans.exact = true
 	check_eq(Answer.text(ans), "2x − 3y + 6 = 0")
 	check(Answer.mark(ans, {"a": "2", "b": "-3", "d": "6"}).correct, "the line")
 	check(Answer.mark(ans, {"a": "4", "b": "-6", "d": "12"}).correct, "a multiple")
-	check(not Answer.mark(ans, {"a": "-2", "b": "3", "d": "-6"}).correct, "a > 0 was asked")
-	check(not Answer.mark(ans, {"a": "1", "b": "-3/2", "d": "3"}).correct, "fractions were not asked")
+	check(Answer.mark(ans, {"a": "-2", "b": "3", "d": "-6"}).correct, "a negative multiple: a > 0 is not asked")
 	check(not Answer.mark(ans, {"a": "2", "b": "-3", "d": "-6"}).correct, "another line")
 	check_eq(Answer.gline_text(1, -2, 0), "x − 2y = 0")
+
+
+## Matt's answer on FAL-782: −6x + 8y + 58 = 0 for 3x − 4y − 29 = 0 (FAL-788).
+func test_an_equivalent_general_form_is_right_and_a_fraction_is_glancing() -> void:
+	var ans := Answer.make("gline", {"a": Q.new(3), "b": Q.new(-4), "d": Q.new(-29)})
+	ans.exact = true
+	check(Answer.mark(ans, {"a": "-6", "b": "8", "d": "58"}).correct, "−2 × the line")
+	check(Answer.mark(ans, {"a": "6", "b": "-8", "d": "-58"}).correct, "2 × the line")
+	var zero := Answer.mark(ans, {"a": "0", "b": "0", "d": "0"})
+	check(not zero.correct and not zero.glancing, "0 = 0 is no line")
+	var frac := Answer.mark(ans, {"a": "3/4", "b": "-1", "d": "-29/4"})
+	check(not frac.correct and frac.glancing, "a fractional multiple is glancing")
+	check_eq(frac.note, "Same line, but a, b and d must be integers.")
+	check_eq(Run._note("glancing", frac), frac.note)
+	check_eq(Run._note("glancing", {"note": ""}), Run.GLANCING_NOTE)
+	var other := Answer.mark(ans, {"a": "3", "b": "-4", "d": "29"})
+	check(not other.correct and not other.glancing, "a different line is wrong")
+	check(not Answer.mark(ans, {"a": "4", "b": "3", "d": "-29"}).correct, "a perpendicular line is wrong")
+
+
+func test_a_general_form_question_takes_a_negative_multiple_and_no_option_is_the_line() -> void:
+	var seen := 0
+	for u in ["parallel-through-point", "perpendicular-through-point", "equation-two-points", "general-form"]:
+		for seed in range(1, 80):
+			var q := QuestionEngine.make({"type": "fn-line-from-conditions", "unknown": u, "rep": "words", "angle": "any", "seed": seed, "paper": 1})
+			if q.has("error") or q.answer.kind != "gline":
+				continue
+			seen += 1
+			check(not "a > 0" in q.asked, "%s: a > 0 is not asked: %s" % [u, q.asked])
+			check("integers" in q.asked, "%s: integers are asked" % u)
+			var v: Dictionary = q.answer.values
+			var typed := {}
+			for id in ["a", "b", "d"]:
+				typed[id] = str(-2 * Q.of(v[id]).n)
+			check(QuestionEngine.mark(q, typed).correct, "%s seed %d: −2 × %s" % [u, seed, q.answer_text])
+			for c in q.choices:
+				if not c.correct:
+					check(not Answer.gline_same(v, c.values), "%s seed %d: option %s is the right line" % [u, seed, c.text])
+	check(seen > 20, "too few general-form questions: %d" % seen)
 
 
 func test_a_filling_tank_states_where_it_is_full() -> void:
