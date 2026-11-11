@@ -234,6 +234,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   It asks a rate from the GDC, what a rate means, its units, a sentence in derivative notation,
   a comparison of two rates, the limit of a model or of its rate as t → ∞, and a limit from a
   table, from a graph with a gap and a dot, or by cancelling. A reading in words is a `claim`.
+- `engine/situations/derivative_graph.gd` (FAL-754) is `t5-derivative-graph` (SL5.7.f-from-derivative-graph
+  and SL5.2.sign-from-graph), the `derivative-graph` situation: 13 unknowns over 29 cells, all Paper 1
+  and exact. Three curve families, each with whole-number roots so every feature sits on a grid line:
+  k(x − a)(x − b)², which crosses at a and touches at b (as f′, f″, or f itself), a parabola
+  k(x − a)(x − b) with a whole vertex, and a parabola cut into two regions with whole, different areas.
+  From f′ it asks a local maximum or minimum and its justification, points of inflexion, the nature of a
+  touch, where f rises past the touch, where f is concave up, which of four graphs could be f, and a
+  value or comparison of f from the signed areas; from f″ a point of inflexion; from f the sign of f′,
+  where f′ is negative and the gradient at a turning point. The views (`derivative_graph_views.gd`) show
+  the graph (regions shaded and lettered A and B), f′ or f″ as factors, or the stretches in words. A
+  justification or comparison is a `claim`; an interval is MonotonicViews' between/outside form, and a
+  wrong "x > 1" beside one carries `side`, so it can be picked but never typed.
 - `engine/situations/optimisation.gd` (FAL-739) is `t5-optimisation-modelling` (SL5.8): one shape or
   journey with a fixed amount and one free length, in eight families: a yard against a wall with fixed
   fence, a plot against a wall with fixed area, a cylinder (closed or open, area or cost), an open
@@ -1465,6 +1477,13 @@ second derivative changes sign, and a total time from the stretches between the 
 Tables, sentences and straight-line graphs are read back and put through each rule with exact
 rationals. Each tagged option is worked out from its slip, each figure's curves and tangents are held
 to the model, and a derivative in the working is compared with SymPy's (`E11DM_check`).
+For `derivative-graph` it holds the curve drawn (or the factors written) to the polynomial, then finds
+its roots with SymPy and works each feature out again: sign changes and touches from the sign a quarter
+either side of each root, turning points from where the derivative changes sign, the signed areas by
+exact integration (each shaded strip held between the curve and the axis), and where f rises from f′
+tested on a fine grid. For "which graph could be f?" it fits a polynomial to each card's samples and
+requires the right card to be an antiderivative and each wrong card to be its named slip. Each tagged
+option is rebuilt from its slip (`E12DG_check`).
 
 For `log-exp-form` it reads a log, a power or a sentence back and tests the power that gives the number
 exactly; on Paper 2 it reads each scale's constants back from its formula or its sentence, finds each
@@ -1880,6 +1899,9 @@ script error happens while it runs. Run one file with
   the four FAL-723 types: built with every cell and every skill, no extra format, four
   different options, GDC methods on Paper 2 only, an expression marked by its numbers, an
   interval marked in either order, a limit graph with a gap, and matching as four graphs.
+- `test_derivative_graph.gd` (FAL-754): t5-derivative-graph built with every cell and both skills, Paper 1
+  only, no extra format; hand values, every root and turning point on a whole number, the areas given
+  equal to the areas under the curve drawn, a figure on every graph cell, and every tag as an option.
 - `test_motion_distance.gd`: t5-kinematics-distance built with every cell and both skills, four
   different options, GDC methods on Paper 2 and integrating by hand on Paper 1, the antiderivatives
   against v, a worked trip, graphs with a corner at each zero, and a return that goes both ways.
