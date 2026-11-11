@@ -223,20 +223,22 @@ jobs:
   # extension types (FAL-459): main's FAL-415 run was cancelled at 15. About 22 on main
   # before the Exponentials and logs region (FAL-418), which adds 355 cells to 506.
   # The Graphs and key features region (FAL-420) finds every number by root-finding,
-  # about ten times the cost of a question elsewhere, so the sweep runs as eight shards
-  # side by side (--shard=k/8: every eighth cell and chain), each with every seed. At four
-  # shards, two passed the 55-minute cap with E4 and R6 in (FAL-424): past it, add shards.
+  # about ten times the cost of a question elsewhere, so the sweep runs as twelve shards
+  # side by side (--shard=k/12: every twelfth cell and chain), each with every seed. At four
+  # shards, two passed the 55-minute cap with E4 and R6 in (FAL-424); at eight, shards 3 and
+  # 5 passed it on main after E12 and FAL-790, with shard 1 at 52 minutes (FAL-776): past
+  # it, add shards.
   stress:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh
-      - run: tools/stress-questions --shard=${{ matrix.shard }}/8
+      - run: tools/stress-questions --shard=${{ matrix.shard }}/12
       - uses: actions/upload-artifact@v7
         if: always()
         with:
