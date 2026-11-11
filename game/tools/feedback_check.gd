@@ -45,7 +45,7 @@ const REPORT_ONLY := []
 ## is sorted into slips and `fillers`, then leaves the list. Nothing joins it.
 const UNSORTED := [
 	"fn-composite", "fn-concept-asymptote-meaning", "fn-concept-function-notation",
-	"fn-concept-gradient-meaning", "fn-concept-growth-patterns", "fn-concept-quadratic-forms",
+	"fn-concept-growth-patterns", "fn-concept-quadratic-forms",
 	"fn-concept-solutions-as-intersections", "fn-concept-transform-order",
 	"fn-curve-intersection-quadratic", "fn-discriminant", "fn-domain-range", "fn-evaluate-function",
 	"fn-exp-log-inverse-composite", "fn-exponential-model", "fn-ext-exp-graph",
@@ -53,7 +53,7 @@ const UNSORTED := [
 	"fn-ext-line-model", "fn-ext-match-graph", "fn-ext-quadratic-model", "fn-ext-rational-model",
 	"fn-ext-transformed-reciprocal", "fn-gdc-features", "fn-gdc-intersection",
 	"fn-gdc-optimise-combined", "fn-gdc-solve-equation", "fn-graph-table-composite-inverse",
-	"fn-inverse-algebraic", "fn-inverse-reflection", "fn-line-from-conditions",
+	"fn-inverse-algebraic", "fn-inverse-reflection",
 	"fn-link-equivalent-forms", "fn-link-extremes", "fn-link-graph-vs-algebra",
 	"fn-link-multiplicative-growth", "fn-link-rate-of-change", "fn-link-symmetry",
 	"fn-link-transformations", "fn-link-vectors", "fn-log-function-features", "fn-log-of-quadratic",
