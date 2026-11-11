@@ -38264,6 +38264,561 @@ def E12SE_check(q):
     need(False, f"the unknown {u}")
 
 
+# ── trig-sketch (t3-trig-sketch, FAL-754) ────────────────────────────────
+# The `trig-sketch` situation, the checker's own reading: the engine is game/engine/situations/
+# trig_sketch.gd. The function and its domain are read back from the question's line (or a table's
+# five key points), and every answer is found again here: turning points and intercepts with SymPy's
+# solveset on the domain, exactly, or by a scan and bisection with mpmath on Paper 2; tan's asymptotes
+# where cos(bx) = 0. Each tagged slip is rebuilt from what it says, each pick-the-graph card must be
+# its named mistake and nothing else, and the GDC's working must show the numbers found here.
+
+E12TS_X = sp.Symbol("x", real=True)
+E12TS_S = "SL3.7.sketch#"
+E12TS_TURN, E12TS_AXIS, E12TS_ZIG, E12TS_DWAY, E12TS_BASE, E12TS_TZERO, E12TS_SPEAK = [E12TS_S + str(i) for i in range(7)]
+E12TS_TSIN, E12TS_STAN, E12TS_NOD, E12TS_MINUS, E12TS_PEAKS = ("SL3.7.read-features#3", "SL3.7.read-features#4", "SL3.7.read-features#5",
+                                                               "SL3.7.read-features#8", "SL3.7.read-features#9")
+E12TS_ONE, E12TS_COSSIN = "SL3.8.solve-basic#0", "SL3.8.solve-basic#1"
+E12TS_FN = {"sin": sp.sin, "cos": sp.cos, "tan": sp.tan}
+E12TS_MF = {"sin": mpmath.sin, "cos": mpmath.cos, "tan": mpmath.tan}
+E12TS_NUM = r"\d+(?:\.\d+)?"
+E12TS_GDC = "gdc-transfer"
+
+
+def E12TS_n(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def E12TS_pi(v):
+    """A multiple of π as the game writes it: 0, π/2, −3π/4, 2π."""
+    v = sp.Rational(v)
+    if v == 0:
+        return "0"
+    n, d = abs(v.p), v.q
+    return ("−" if v < 0 else "") + ("π" if n == 1 else f"{n}π") + ("" if d == 1 else f"/{d}")
+
+
+def E12TS_place(t):
+    """A place across as written ("3π/4", "135°", "−1", "5"), in radians, and whether it was degrees."""
+    if t.endswith("°"):
+        return E12TS_n(t[:-1]) * sp.pi / 180, True
+    m = re.fullmatch(r"(−?)(\d*)π(?:/(\d+))?", t)
+    if m:
+        return (-1 if m[1] else 1) * sp.Rational(int(m[2] or 1), int(m[3] or 1)) * sp.pi, False
+    return E12TS_n(t), False
+
+
+def E12TS_fn(text):
+    """a fn(bx) + d as the game writes it: (a, fn, b, d)."""
+    m = re.fullmatch(rf"(−?)({E12TS_NUM} )?(sin|cos|tan)(?: x|\((\d*(?:\.\d+)?)x(?:/(\d+))?\))(?: ([+−]) ({E12TS_NUM}))?", text)
+    need(m is not None, f"can't read the function {text!r}")
+    a = (-1 if m[1] else 1) * (E12TS_n(m[2].strip()) if m[2] else 1)
+    if m[4] is None and m[5] is None:
+        b = sp.Integer(1)
+    else:
+        b = (E12TS_n(m[4]) if m[4] else 1) / sp.Integer(int(m[5] or 1))
+    need(b != 1 or m[4] is None, "b = 1 is written as a bracket")
+    d = sp.Integer(0) if m[6] is None else (1 if m[6] == "+" else -1) * E12TS_n(m[7])
+    return sp.Rational(a), m[3], sp.Rational(b), sp.Rational(d)
+
+
+def E12TS_domain(text):
+    m = re.fullmatch(r"(\S+) ≤ x ≤ (\S+)", text)
+    need(m is not None, f"can't read the domain {text!r}")
+    lo, dl = E12TS_place(m[1])
+    hi, dh = E12TS_place(m[2])
+    need(dl == dh, "the domain mixes degrees and radians")
+    need(lo < hi, "the domain is empty")
+    return lo, hi, dl
+
+
+def E12TS_read(q):
+    """The function and its domain from the question's first line: a dict W."""
+    L, rep, u = q["lines"], q["view"]["rep"], q["view"]["unknown"]
+    pats = [r"y = (.+), for (.+)", r"The sketch shows y = (.+), for (.+), with nothing marked\.", r"f\(x\) = (.+)\. The table gives its five key points over one period, (.+)\."]
+    for p in pats:
+        m = re.fullmatch(p, L[0])
+        if m:
+            break
+    need(m is not None, f"can't read {L[0]!r}")
+    need((rep == "graph") == p.startswith("The sketch"), "the line doesn't fit the representation")
+    a, fn, b, d = E12TS_fn(m[1])
+    lo, hi, deg = E12TS_domain(m[2])
+    return E12TS_wave(a, fn, b, d, lo, hi, deg, "." in m[1])
+
+
+def E12TS_wave(a, fn, b, d, lo, hi, deg, dec):
+    P = (sp.pi if fn == "tan" else 2 * sp.pi) / b
+    return dict(a=a, fn=fn, b=b, d=d, lo=lo, hi=hi, deg=deg, dec=dec, P=P, f=a * E12TS_FN[fn](b * E12TS_X) + d)
+
+
+def E12TS_x(W, v):
+    """A place across as the game writes it: π, degrees, or 3 s.f. on Paper 2."""
+    if W["dec"]:
+        return gc_s(tm_f(v))
+    v = sp.nsimplify(v)
+    if W["deg"]:
+        return dec_text(sp.Rational(sp.nsimplify(v * 180 / sp.pi))) + "°"
+    return E12TS_pi(sp.Rational(sp.nsimplify(v / sp.pi)))
+
+
+def E12TS_list(names, word=" or "):
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + word + names[-1]
+
+
+def E12TS_sols(expr, lo, hi, closed=True):
+    """The solutions of expr = 0 on [lo, hi] (or [lo, hi)), exactly, in order."""
+    iv = sp.Interval(lo, hi) if closed else sp.Interval.Ropen(lo, hi)
+    s = sp.solveset(expr, E12TS_X, iv)
+    need(isinstance(s, sp.FiniteSet), f"no finite solution set for {expr} on {iv}")
+    return sorted(s, key=lambda v: float(v))
+
+
+def E12TS_turns(W, f, lo, hi, closed=True):
+    """The x of the highest and lowest stationary points of f on the domain: (xmax, xmin)."""
+    xs = E12TS_sols(sp.diff(f, E12TS_X), lo, hi, closed)
+    vals = [(x, sp.nsimplify(f.subs(E12TS_X, x))) for x in xs]
+    need(vals, "no stationary point")
+    top = max(v for _, v in vals)
+    low = min(v for _, v in vals)
+    tops = [x for x, v in vals if v == top]
+    lows = [x for x, v in vals if v == low]
+    return tops, lows, top, low
+
+
+# ── Paper 2: scans with mpmath ──
+
+def E12TS_mf(W, a=None, d=None, fn=None):
+    a = W["a"] if a is None else a
+    d = W["d"] if d is None else d
+    fn = W["fn"] if fn is None else fn
+    A, B, Dd = mpmath.mpf(str(a)), mpmath.mpf(str(W["b"])), mpmath.mpf(str(d))
+    return lambda x: A * E12TS_MF[fn](B * x) + Dd
+
+
+def E12TS_scan(g, lo, hi, n=4000):
+    """Every sign change of g on [lo, hi], each refined by bisection to 30 digits."""
+    mpmath.mp.dps = 40
+    out = []
+    xs = [lo + (hi - lo) * mpmath.mpf(i) / n for i in range(n + 1)]
+    ys = [g(x) for x in xs]
+    for i in range(n):
+        if ys[i] == 0:
+            out.append(xs[i])
+        elif ys[i] * ys[i + 1] < 0:
+            p, r = xs[i], xs[i + 1]
+            for _ in range(140):
+                m = (p + r) / 2
+                if g(p) * g(m) <= 0:
+                    r = m
+                else:
+                    p = m
+            out.append((p + r) / 2)
+    return out
+
+
+def E12TS_dec_turns(W, lo, hi):
+    """The maxima and minima of the Paper 2 wave on (lo, hi), from where its slope changes sign."""
+    A, B = mpmath.mpf(str(W["a"])), mpmath.mpf(str(W["b"]))
+    dfn = {"sin": mpmath.cos, "cos": lambda t: -mpmath.sin(t)}[W["fn"]]
+    slope = lambda x: A * B * dfn(B * x)
+    tops, lows = [], []
+    for x in E12TS_scan(slope, mpmath.mpf(str(lo)), mpmath.mpf(str(hi))):
+        (tops if slope(x - mpmath.mpf("1e-6")) > 0 else lows).append(x)
+    return tops, lows
+
+
+# ── The cards ──
+
+def E12TS_on(curve, f, tol=1e-6):
+    return all(abs(y - f(x)) < tol * max(1, abs(f(x))) for x, y in curve)
+
+
+def E12TS_float(W, a, fn, b, d, shift=0.0):
+    A, B, Dd, F = float(a), float(b), float(d), {"sin": math.sin, "cos": math.cos, "tan": math.tan}[fn]
+    return lambda x: A * F(B * x + shift) + Dd
+
+
+def E12TS_zigzag(W):
+    """Straight lines through f at every quarter of a period from the start of the domain."""
+    f = E12TS_float(W, W["a"], W["fn"], W["b"], W["d"])
+    lo, q = float(W["lo"]), float(W["P"]) / 4
+
+    def z(x):
+        i = math.floor((x - lo) / q + 1e-9)
+        x0 = lo + i * q
+        return f(x0) + (f(x0 + q) - f(x0)) * (x - x0) / q
+    return z
+
+
+def E12TS_ticks(W):
+    lo, hi = W["lo"], W["hi"]
+    out = []
+    for k in range(5):
+        t = lo + (hi - lo) * sp.Rational(k, 4)
+        if t != 0:
+            out.append([float(t), E12TS_x(W, t)])
+    return out
+
+
+def E12TS_card_frame(q, W):
+    cards = q["graphs"]
+    need(len(cards) == 4, f"{len(cards)} cards")
+    first = cards[0]
+    for c in cards:
+        for k in ("x0", "x1", "y0", "y1"):
+            need(c[k] == first[k], "the cards don't share one window")
+        need(c.get("card"), "a card is not drawn as a card")
+        need([[round(x, 9), t] for x, t in c["x_ticks"]] == [[round(x, 9), t] for x, t in E12TS_ticks(W)], "the axis marks are not the domain's quarters")
+    need(first["x0"] <= float(W["lo"]) + 1e-9 and first["x1"] >= float(W["hi"]) - 1e-9, "the window misses the domain")
+    calc_options(q)
+    calc_steps(q)
+
+
+def E12TS_card_curve(card, f, W, tan_centre=None):
+    """Every curve of a card is f, and together they span the domain (tan: cut 3|a| from its centre)."""
+    cs = card["curves"]
+    need(cs and all(len(c) > 3 for c in cs), "a card has no curve")
+    for c in cs:
+        if not E12TS_on(c, f):
+            return False
+        for x, y in c:
+            if x < float(W["lo"]) - 1e-9 or x > float(W["hi"]) + 1e-9:
+                return False
+    xs = [x for c in cs for x, _ in c]
+    if tan_centre is None:
+        return abs(min(xs) - float(W["lo"])) < 1e-9 and abs(max(xs) - float(W["hi"])) < 1e-9
+    return True
+
+
+def E12TS_dots(card, f):
+    for p in card["points"]:
+        need(abs(p["y"] - f(p["x"])) < 1e-6, "a card's dot is off its curve")
+
+
+def E12TS_wave_cards(q, W, reflected):
+    E12TS_card_frame(q, W)
+    a, fn, b, d = W["a"], W["fn"], W["b"], W["d"]
+    other = "cos" if fn == "sin" else "sin"
+    want = E12TS_float(W, a, fn, b, d)
+    mist = {"start": (E12TS_float(W, a, other, b, d), E12TS_AXIS if fn == "cos" else E12TS_PEAKS),
+            "zigzag": (E12TS_zigzag(W), E12TS_ZIG),
+            "period": (E12TS_float(W, a, fn, 2 * b, d), E12TS_STAN) if b == 1 else (E12TS_float(W, a, fn, 1, d), E12TS_BASE)}
+    if d != 0:
+        mist["shift"] = (E12TS_float(W, a, fn, b, -d), E12TS_DWAY)
+    if a < 0:
+        mist["unflipped"] = (E12TS_float(W, -a, fn, b, d), E12TS_MINUS)
+    else:
+        mist["flipped"] = (E12TS_float(W, -a, fn, b, d), "")
+    need((a < 0) == reflected, "the wave's sign is not the unknown's")
+    for o, card in zip(q["choices"], q["graphs"]):
+        if o["correct"]:
+            need(E12TS_card_curve(card, want, W), "the right card is not the function on its domain")
+            E12TS_dots(card, want)
+            continue
+        need(not E12TS_card_curve(card, want, W), f"{o['text']} is the right graph too")
+        m = o["mistake"]
+        need(m in mist, f"the checker can't confirm the mistake {m!r}")
+        need(E12TS_card_curve(card, mist[m][0], W), f"{o['text']} is not {m}")
+        E12TS_dots(card, mist[m][0])
+        need(o["ref"] == mist[m][1], f"{o['text']}: ref {o['ref']!r} is not {mist[m][1]!r}")
+
+
+def E12TS_asym(W, k, shift, lo, hi):
+    """Where tan(kx + shift) has an asymptote on [lo, hi]: kx + shift = π/2 + mπ."""
+    out = []
+    for m in range(-10, 40):
+        x = (sp.pi / 2 + m * sp.pi - shift) / k
+        if lo <= x <= hi:
+            out.append(float(x))
+    return out
+
+
+def E12TS_tan_cards(q, W):
+    E12TS_card_frame(q, W)
+    a, b, d, lo, hi = W["a"], W["b"], W["d"], W["lo"], W["hi"]
+    want = E12TS_float(W, a, "tan", b, d)
+    mist = {"turning": (E12TS_float(W, 2 * a, "sin", b, d), E12TS_TURN, None),
+            "period": (E12TS_float(W, a, "tan", b / 2, d), E12TS_TSIN, (b / 2, 0)),
+            "zeros": (E12TS_float(W, a, "tan", b, d, math.pi / 2), E12TS_TZERO, (b, sp.pi / 2))}
+    if a < 0:
+        mist["unflipped"] = (E12TS_float(W, -a, "tan", b, d), E12TS_MINUS, (b, 0))
+    if d != 0:
+        mist["shift"] = (E12TS_float(W, a, "tan", b, -d), E12TS_DWAY, (b, 0))
+    if a > 0 and d == 0:
+        mist["flipped"] = (E12TS_float(W, -a, "tan", b, d), "", (b, 0))
+    for o, card in zip(q["choices"], q["graphs"]):
+        vl = [v["at"] for v in card["vlines"]]
+        if o["correct"]:
+            need(E12TS_card_curve(card, want, W, tan_centre=d), "the right card is not the function")
+            need(len(card["curves"]) >= 2, "the right card has no gap at an asymptote")
+            need(len(vl) == len(E12TS_asym(W, b, 0, lo, hi)) and all(abs(x - y) < 1e-9 for x, y in zip(vl, E12TS_asym(W, b, 0, lo, hi))), "the asymptotes are in the wrong place")
+            continue
+        need(not E12TS_card_curve(card, want, W, tan_centre=d), f"{o['text']} is the right graph too")
+        m = o["mistake"]
+        need(m in mist, f"the checker can't confirm the mistake {m!r}")
+        g, ref, asy = mist[m]
+        need(E12TS_card_curve(card, g, W, tan_centre=None if asy is None else d), f"{o['text']} is not {m}")
+        need(o["ref"] == ref, f"{o['text']}: ref {o['ref']!r} is not {ref!r}")
+        want_v = [] if asy is None else E12TS_asym(W, asy[0], asy[1], lo, hi)
+        need(len(vl) == len(want_v) and all(abs(x - y) < 1e-9 for x, y in zip(vl, want_v)), f"{o['text']}'s asymptotes are not its own")
+
+
+def E12TS_from_table(q):
+    """The wave a table of five key points over one period gives, with the points held to it."""
+    m = re.fullmatch(r"f is a sine or cosine wave\. The table gives its five key points over one period, (.+)\.", q["lines"][0])
+    need(m is not None, f"can't read {q['lines'][0]!r}")
+    lo, hi, deg = E12TS_domain(m[1])
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "x" and rows[1][0] == "y" and len(rows[0][1]) == 5, "the table is not five key points")
+    xs = [E12TS_place(t)[0] for t in rows[0][1]]
+    ys = [E12TS_n(t) for t in rows[1][1]]
+    P = hi - lo
+    need(all(sp.simplify(xs[i] - (lo + P * sp.Rational(i, 4))) == 0 for i in range(5)), "the table's x are not a quarter of a period apart")
+    top, low = max(ys), min(ys)
+    a, d = (top - low) / 2, (top + low) / 2
+    if ys[0] == d:
+        fn, a = "sin", a if ys[1] > d else -a
+    else:
+        fn, a = "cos", a if ys[0] == top else -a
+    W = E12TS_wave(a, fn, sp.Rational(sp.nsimplify(2 * sp.pi / P)), d, lo, hi, deg, False)
+    for x, y in zip(xs, ys):
+        need(sp.simplify(W["f"].subs(E12TS_X, x) - y) == 0, "a key point is not on the wave")
+    return W
+
+
+# ── The features ──
+
+def E12TS_mm_text(W, xt, top, xl, low):
+    return f"Maximum ({E12TS_x(W, xt)}, {dec_text(top)}), minimum ({E12TS_x(W, xl)}, {dec_text(low)})"
+
+
+def E12TS_first_turns(W, a, fn, b, d, lo, P):
+    """The maximum and minimum of a fn(bx) + d in the period [lo, lo + P)."""
+    f = a * E12TS_FN[fn](b * E12TS_X) + d
+    tops, lows, top, low = E12TS_turns(W, f, lo, lo + P, closed=False)
+    return tops[0], lows[0]
+
+
+def E12TS_max_min(q, W):
+    f, lo, hi, a, fn, b, d, P = W["f"], W["lo"], W["hi"], W["a"], W["fn"], W["b"], W["d"], W["P"]
+    tops, lows, top, low = E12TS_turns(W, f, lo, hi)
+    need(len(tops) == 1 and len(lows) == 1, "the domain doesn't hold one maximum and one minimum")
+    for e in (lo, hi):
+        need(low < f.subs(E12TS_X, e) < top, "an end of the domain is as high or as low as a turning point")
+    need(top == d + abs(a) and low == d - abs(a), "the turning points are not d ± |a|")
+    xt, xl = tops[0], lows[0]
+    w = defaultdict(set)
+    other = "cos" if fn == "sin" else "sin"
+    ot = E12TS_first_turns(W, a, other, b, d, lo, P)
+    w[E12TS_AXIS if fn == "cos" else E12TS_PEAKS].add(E12TS_mm_text(W, ot[0], top, ot[1], low))
+    if a < 0:
+        un = E12TS_first_turns(W, -a, fn, b, d, lo, P)
+        w[E12TS_MINUS].add(E12TS_mm_text(W, un[0], top, un[1], low))
+    if d != 0:
+        w[E12TS_NOD].add(E12TS_mm_text(W, xt, abs(a), xl, -abs(a)))
+        w[E12TS_DWAY].add(E12TS_mm_text(W, xt, -d + abs(a), xl, -d - abs(a)))
+    if b != 1:
+        bt = E12TS_first_turns(W, a, fn, 1, d, 0, 2 * sp.pi)
+        w[E12TS_BASE].add(E12TS_mm_text(W, bt[0], top, bt[1], low))
+    else:
+        ht = E12TS_first_turns(W, a, fn, 2, d, 0, sp.pi)
+        w[E12TS_STAN].add(E12TS_mm_text(W, ht[0], top, ht[1], low))
+    gc_check_common(q, E12TS_mm_text(W, xt, top, xl, low), w, steps=(2, 5))
+
+
+def E12TS_dec_named(xt, top, xl, low):
+    return tm_named([("Maximum at x", xt), ("y", top), ("minimum at x", xl), ("y", low)])
+
+
+def E12TS_dec_max_min(q, W):
+    lo, hi, a, d = W["lo"], W["hi"], W["a"], W["d"]
+    tops, lows = E12TS_dec_turns(W, lo - sp.Rational(15, 100), hi + sp.Rational(15, 100))
+    inner = E12TS_dec_turns(W, lo + sp.Rational(15, 100), hi - sp.Rational(15, 100))
+    need(len(tops) == 1 and len(lows) == 1 and len(inner[0]) == 1 and len(inner[1]) == 1, "the domain doesn't hold one maximum and one minimum, clear of its ends")
+    xt, xl = tops[0], lows[0]
+    for v in (xt, xl):
+        need(not on_edge(abs(sp.Float(v, 30))), f"{v} is on a rounding edge")
+    top, low = d + abs(a), d - abs(a)
+    f = E12TS_mf(W)
+    need(abs(f(xt) - mpmath.mpf(str(top))) < 1e-20 and abs(f(xl) - mpmath.mpf(str(low))) < 1e-20, "the turning values are not d ± |a|")
+    T = 2 * mpmath.pi / mpmath.mpf(str(W["b"]))
+    w = defaultdict(set)
+    w[E12TS_NOD].add(E12TS_dec_named(xt, abs(a), xl, -abs(a)))
+    w[E12TS_DWAY].add(E12TS_dec_named(xt, -d + abs(a), xl, -d - abs(a)))
+    if a < 0:
+        w[E12TS_MINUS].add(E12TS_dec_named(xl, top, xt, low))
+    # The other function's top and bottom nearest these: a quarter of a period away.
+    other = "cos" if W["fn"] == "sin" else "sin"
+    g = E12TS_mf(W, fn=other)
+    cands = [xt + k * T / 4 for k in (-1, 1)]
+    ot = min((c for c in cands if abs(g(c) - mpmath.mpf(str(top))) < 1e-20), key=lambda c: abs(c - xt))
+    cl = [xl + k * T / 4 for k in (-1, 1)]
+    ol = min((c for c in cl if abs(g(c) - mpmath.mpf(str(low))) < 1e-20), key=lambda c: abs(c - xl))
+    w[E12TS_AXIS if W["fn"] == "cos" else E12TS_PEAKS].add(E12TS_dec_named(ot, top, ol, low))
+    gc_check_common(q, E12TS_dec_named(xt, top, xl, low), w, steps=(2, 5))
+    st = q["solutions"][0]["steps"]
+    need(f"({E12TS_w6(xt)}, {dec_text(top)})" in st[1] and f"({E12TS_w6(xl)}, {dec_text(low)})" in st[1], f"the GDC's turning points are not the checker's: {st[1]!r}")
+
+
+def E12TS_w6(v):
+    """Six significant figures with the trailing zeros dropped, as a GDC's screen shows."""
+    t = sig3(sp.Float(v, 30), 6)
+    return (t.rstrip("0").rstrip(".") if "." in t else t).replace("-", "−")
+
+
+def E12TS_y_int(q, W):
+    a, fn, d = W["a"], W["fn"], W["d"]
+    y = sp.nsimplify(W["f"].subs(E12TS_X, 0))
+    t = lambda v: f"(0, {dec_text(v)})"
+    w = defaultdict(set)
+    if fn == "cos":
+        w[E12TS_AXIS].add(t(d))
+        w[E12TS_NOD].add(t(a))
+        w[E12TS_DWAY].add(t(a - d))
+        if a < 0:
+            w[E12TS_MINUS].add(t(abs(a) + d))
+    else:
+        w[E12TS_DWAY].add(t(-d))
+        if fn == "sin":
+            w[E12TS_SPEAK].add(t(a + d))
+    gc_check_common(q, t(y), w, steps=(2, 5))
+
+
+def E12TS_xs_text(W, xs):
+    return "x = " + E12TS_list([E12TS_x(W, x) for x in sorted(xs, key=float)])
+
+
+def E12TS_x_ints(q, W):
+    f, lo, hi, a, fn, b, d = W["f"], W["lo"], W["hi"], W["a"], W["fn"], W["b"], W["d"]
+    xs = E12TS_sols(f, lo, hi)
+    need(len(xs) == 2, f"{len(xs)} x-intercepts")
+    need(all(lo < x < hi for x in xs), "an intercept is on an end of the domain")
+    w = defaultdict(set)
+    flip = E12TS_sols(a * E12TS_FN[fn](b * E12TS_X) - d, lo, hi)
+    if flip:
+        w[E12TS_DWAY].add(E12TS_xs_text(W, flip))
+    k = -d / a
+    if fn == "cos":
+        al = sp.acos(k)
+        w[E12TS_COSSIN].add(E12TS_xs_text(W, [al / b, (sp.pi - al) / b]))
+    if b != 1:
+        w[E12TS_BASE].add(E12TS_xs_text(W, E12TS_sols(a * E12TS_FN[fn](E12TS_X) + d, 0, 2 * sp.pi, closed=False)))
+    w[E12TS_ONE].add(E12TS_xs_text(W, xs[:1]))
+    gc_check_common(q, E12TS_xs_text(W, xs), w, steps=(2, 5))
+
+
+def E12TS_dec_x_ints(q, W):
+    hi = W["hi"]
+    f = E12TS_mf(W)
+    xs = E12TS_scan(f, mpmath.mpf(0), mpmath.mpf(str(hi)))
+    need(len(xs) == 2 and xs[0] > 0.15 and xs[1] < float(hi) - 0.15, "the domain doesn't hold two intercepts clear of its ends")
+    for v in xs:
+        need(not on_edge(abs(sp.Float(v, 30))), f"{v} is on a rounding edge")
+    t = lambda vs: "x = " + E12TS_list([gc_s(sp.Float(v, 30)) for v in sorted(vs)])
+    w = defaultdict(set)
+    flip = E12TS_scan(E12TS_mf(W, d=-W["d"]), mpmath.mpf(0), mpmath.mpf(str(hi)))
+    if flip:
+        w[E12TS_DWAY].add(t(flip))
+    w[E12TS_ONE].add(t(xs[:1]))
+    gc_check_common(q, t(xs), w, steps=(2, 5))
+    st = q["solutions"][0]["steps"]
+    need(f"x = {E12TS_w6(xs[0])} and x = {E12TS_w6(xs[1])}" in st[1], f"the GDC's zeros are not the checker's: {st[1]!r}")
+
+
+def E12TS_asym_text(W, xs):
+    names = [f"x = {E12TS_x(W, x)}" for x in sorted(xs, key=float)]
+    return E12TS_list(names, " and ")
+
+
+def E12TS_tan_asym(q, W):
+    lo, hi, b = W["lo"], W["hi"], W["b"]
+    xs = E12TS_sols(sp.cos(b * E12TS_X), lo, hi)
+    need(len(xs) == 2, f"{len(xs)} asymptotes")
+    w = defaultdict(set)
+    w[E12TS_TZERO].add(E12TS_asym_text(W, E12TS_sols(sp.sin(b * E12TS_X), lo, hi)))
+    w[E12TS_TSIN].add(E12TS_asym_text(W, E12TS_sols(sp.cos(b * E12TS_X / 2), lo, hi)))
+    if b != 1:
+        w[E12TS_BASE].add(E12TS_asym_text(W, E12TS_sols(sp.cos(E12TS_X), 0, 2 * sp.pi, closed=False)))
+    gc_check_common(q, E12TS_asym_text(W, xs), w, steps=(2, 5))
+
+
+def E12TS_key_points(q, W):
+    lo, P, f = W["lo"], W["P"], W["f"]
+    need(sp.simplify(W["hi"] - lo - P) == 0, "the table is not one period")
+    rows = q["table"]["rows"]
+    xs = [lo + P * sp.Rational(i, 4) for i in range(5)]
+    need(rows[0][1] == [E12TS_x(W, x) for x in xs], "the table's x are not the five key points")
+    ys = rows[1][1]
+    blanks = [i for i, v in enumerate(ys) if v in ("p", "q")]
+    need([ys[i] for i in blanks] == ["p", "q"], "the table doesn't leave p and q blank, in order")
+    val = lambda g, x: sp.nsimplify(g.subs(E12TS_X, x))
+    for i, v in enumerate(ys):
+        if i not in blanks:
+            need(E12TS_n(v) == val(f, xs[i]), "a key point is not on the wave")
+    need(any(val(f, xs[i]) != W["d"] for i in blanks), "no blank is a turning point")
+    t = lambda g: f"p = {dec_text(val(g, xs[blanks[0]]))}, q = {dec_text(val(g, xs[blanks[1]]))}"
+    a, fn, b, d = W["a"], W["fn"], W["b"], W["d"]
+    mk = lambda aa, ff, dd: aa * E12TS_FN[ff](b * E12TS_X) + dd
+    other = "cos" if fn == "sin" else "sin"
+    w = defaultdict(set)
+    w[E12TS_AXIS if fn == "cos" else E12TS_SPEAK].add(t(mk(a, other, d)))
+    w[E12TS_NOD].add(t(mk(a, fn, 0)))
+    w[E12TS_DWAY].add(t(mk(a, fn, -d)))
+    if a < 0:
+        w[E12TS_MINUS].add(t(mk(-a, fn, d)))
+    gc_check_common(q, t(f), w, steps=(2, 5))
+
+
+def E12TS_figure(q, W):
+    g = q["graph"]
+    need((g is not None) == (q["view"]["rep"] == "graph"), "the figure doesn't fit the representation")
+    if g is None:
+        return
+    need(not g["points"], "the sketch marks something")
+    f = E12TS_float(W, W["a"], W["fn"], W["b"], W["d"])
+    need(len(g["curves"]) == 1 and E12TS_card_curve(g, f, W), "the sketch is not the function on its domain")
+
+
+def E12TS_check(q):
+    u, angle, paper = q["view"]["unknown"], q["view"]["angle"], q["paper"]
+    need(paper == (2 if angle == E12TS_GDC else 1), f"paper {paper} on {angle}")
+    tr_hyphens(q)
+    if u == "sketch-from-table":
+        W = E12TS_from_table(q)
+        E12TS_wave_cards(q, W, False)
+        return None, None
+    W = E12TS_read(q)
+    need(W["dec"] == (paper == 2 and u in ("max-min-points", "x-intercepts")), "tenths off Paper 2's GDC features")
+    need(not W["deg"] or angle != E12TS_GDC, "a GDC cell in degrees")
+    if u in ("sketch-wave", "sketch-reflected"):
+        need(W["fn"] in ("sin", "cos"), "a wave that isn't sin or cos")
+        E12TS_wave_cards(q, W, u == "sketch-reflected")
+    elif u == "sketch-tan":
+        need(W["fn"] == "tan", "not a tan graph")
+        E12TS_tan_cards(q, W)
+    elif u == "max-min-points":
+        E12TS_dec_max_min(q, W) if W["dec"] else E12TS_max_min(q, W)
+    elif u == "y-intercept":
+        need(W["lo"] <= 0 <= W["hi"], "the domain misses x = 0")
+        E12TS_y_int(q, W)
+    elif u == "x-intercepts":
+        E12TS_figure(q, W)
+        E12TS_dec_x_ints(q, W) if W["dec"] else E12TS_x_ints(q, W)
+    elif u == "tan-asymptotes":
+        need(W["fn"] == "tan", "not a tan graph")
+        E12TS_tan_asym(q, W)
+    elif u == "key-points":
+        E12TS_key_points(q, W)
+    else:
+        need(False, f"no check for {u}")
+    if u != "x-intercepts":
+        need(q["graph"] is None, "a figure where the question has none")
+    return None, None
+
+
+# ── end trig-sketch ──
+
+
 SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, "circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
@@ -38305,7 +38860,8 @@ SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, 
                     "solid": check_solid, "standard-form": check_standard_form,
                     "rational-exponents": E12RE_check,
                     "tangent-meets-curve": E12NM_check,
-                    "solve-exponential": E12SE_check,}
+                    "solve-exponential": E12SE_check,
+                    "trig-sketch": E12TS_check,}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

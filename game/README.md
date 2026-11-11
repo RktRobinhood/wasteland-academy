@@ -434,6 +434,19 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   Degree mode is a worked distractor on every value and time: the model is solved again with its
   angle in degrees. Its one Paper 1 exact value is at a whole t past the first quadrant, in TrigKit's
   exact numbers, and whether a level is reached makes Paper 1 too.
+- `engine/situations/trig_sketch.gd` (FAL-754) is `t3-trig-sketch` (SL3.7.sketch), the `trig-sketch`
+  situation: 9 unknowns over 22 cells, all three methods of the skill (five key points per period,
+  transform sin x or cos x, graph on the GDC and transfer). A phone can't take a drawing, so the four
+  sketches (a sin or cos wave, the wave from a table of its five key points, a reflected wave and
+  a tan(bx) + d with its asymptotes) are pick-the-graph: four cards on one window with one set of axis
+  marks, each wrong card one slip (tan with turning points, a cosine started on its axis, straight
+  lines for a curve, the base period, a missed reflection, d the wrong way, tan's asymptotes at its
+  crossings). What a sketch must mark is typed: the maximum and minimum points, the y-intercept, the
+  x-intercepts (where fn(bx) = ±1/2, from the equation or a figure with nothing marked), tan's
+  asymptotes and two blanks in a table of key points. Paper 1 is exact, in multiples of π or in
+  degrees; the GDC's cells are Paper 2, where a sketch keeps Paper 1's numbers and a maximum point
+  or an x-intercept is on a wave with tenths, to 3 s.f. Both bank parts are Paper 1, so those 5 cells
+  of 22 put the type in `OVER_SHARE` in `test_paper.gd`. The views are `trig_sketch_views.gd`.
 - `engine/situations/trig_model_equation.gd` (FAL-752) is `t3-trig-model-equation` (SL3.8.graphical,
   SL2.10), the `trig-model-equation` situation, which extends `trig-wave`, and `TrigModelEquationViews`
   extends `TrigWaveViews`. Its 18 unknowns don't repeat `t3-trig-model-use`'s and fall in four families:
@@ -1540,6 +1553,12 @@ answer is derived again from the equation's shape and must equal that root, and 
 and must differ from it (an exact shift answer must be at most 12); each tagged option is rebuilt from its
 slip, each figure's curves and crossing are held to the equation, and the map's own example equations are
 refused (`E12SE_check`).
+For `trig-sketch` it reads the function and its domain back from the line, the figure's sentence or
+the table (whose five points must be a quarter of a period apart and on the wave it rebuilds), finds
+turning points, zeros and asymptotes exactly with SymPy's solveset, and holds every card's curve to its
+function sampled across the domain: the right card to the function, each wrong card to the curve its
+slip draws, with its tag, its dots and, for tan, its asymptotes. Each typed option is rebuilt from its
+slip, and Paper 2's 3 s.f. values come from mpmath (`E12TS_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
@@ -2074,6 +2093,10 @@ script error happens while it runs. Run one file with
   exact cells make Paper 1 on request with no calculator in the working, 3 s.f. cells Paper 2; hand values,
   clean answers, early rounding in the third figure only, exact two-bases answers within |x| ≤ 12, the
   crossing on each figure, and every tag.
+- `test_trig_sketch.gd` (FAL-754): t3-trig-sketch built with every cell and all three methods, the GDC on
+  Paper 2 and the rest by hand on Paper 1; the sketches pick-the-graph with four different cards on one
+  window, no extra formats; hand values, figures with nothing marked, five-point tables, map strings with
+  no numbers, and every tag as an option.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters

@@ -875,6 +875,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq
 - **Bank parts:** 5.
 
+### t3-trig-sketch
+
+**Sketch a trig graph from its parameters.** Sketch y = a sin(bx) + d, a cos(bx) + d or a tan(bx) + d on a given domain, in radians or degrees: pick the sketch from four graphs (a wave, a reflected wave such as −sin(2x), a tan graph with its asymptotes, or the wave through five key points in a table), and find what a sketch must mark: its maximum and minimum points, where it meets the axes, tan's asymptotes and the five key points of a period.
+
+- **Syllabus:** 3.7, 2.3, 2.11
+- **Skills:** `SL3.7.sketch`
+- **Where it appears:** P1 2, P2 0; Section A 1, B 1. Marks per part: usually 2 (2 to 4).
+- **Usual chain:** one period is 2π ÷ b (π ÷ b for tan), and its five key points are a quarter of a period apart → sin starts on its axis and rises; cos starts at its maximum; a minus sign in front reflects either in its axis → a sets the height above and below the axis y = d → tan has no turning points: each branch runs between vertical asymptotes, halfway between its crossings of y = d → join the points with a smooth curve across the whole domain
+- **Given:** an equation and a domain, a table of five key points, an unmarked sketch. **Asked:** Which of four graphs is the sketch, or a feature the sketch marks: the maximum and minimum points, the y-intercept, the x-intercepts, tan's asymptotes, or missing key points. **Answer form:** Graph A to Graph D, points and x-values as exact multiples of π or in degrees, whole numbers for heights, 3 s.f. on the GDC's Paper 2.
+- **A recipe can randomise:** sin, cos or tan; a and its sign; b: 1, 2, 3 or 1/2; d; the domain, in radians or degrees; which slips the wrong graphs show; which key points are blank.
+- **Limits that keep answers clean:** both bank parts are Paper 1, so every cell is but the GDC's, which is Paper 2; the four cards share one window and one set of axis marks, and each wrong card makes one slip; every position is a landmark: a quarter-period point, or where fn(bx) = ±1/2 for an intercept; a maximum-and-minimum domain holds exactly one of each, off its ends; a Paper 2 wave has tenths, and its 3 s.f. values are clear of a rounding edge and of the ends.
+- **Game formats:** value, mcq, graph-pick
+- **Bank parts:** 2.
+
 ### t3-trig-model-use
 
 **Evaluate or use a trig model: times, counts, durations.** Use a trig model in a story: its value at a time, exactly on Paper 1, the first time or every time at a level, how long it stays above or below a level, the first maximum, the gap from a low to a high, how many peaks or troughs fall in a span, what an extreme means, and whether a level is ever reached.
