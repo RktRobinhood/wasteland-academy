@@ -440,15 +440,12 @@ static func unique_texts(rows: Array, avoid: String) -> Array:
 	return out
 
 
-## The method whose proof a question shows, and every other method: their tabs say so. A shared
-## situation belongs to no method, so its lines can be another's, and the working says that too.
+## The method whose proof a question shows. Another method would only walk the same lines, so
+## it has no tab, and the asked method has none if the lines aren't its own (FAL-814).
 func of_lines(s: Dictionary, steps: Array, ans: Dictionary) -> Dictionary:
-	var head: Array = [] if SequenceProofSituation.suits(s.ask, angle, s.fam) else [UNSUITED]
-	var out := {angle: method(head + steps, ans.values)}
-	for m in SequenceProofSituation.ASKS[s.ask]:
-		if m != angle:
-			out[m] = method([OTHER_ROUTE] + steps, ans.values)
-	return out
+	if not SequenceProofSituation.suits(s.ask, angle, s.fam):
+		return {}
+	return {angle: method(steps, ans.values)}
 
 
 # ── Three terms: the exam's relations ────────────────────────

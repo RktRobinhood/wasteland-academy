@@ -48,8 +48,6 @@ const SLIPS := {
 	"reciprocal": [R_PART, R_SIGN],
 	"ap": [R_GAPS],
 }
-const UNSUITED := "This statement does not suit that method, so work through it line by line."
-const OTHER_ROUTE := "These lines take a different route from that method, so work through them line by line."
 
 const UNKNOWNS := ["simplify-left-side", "common-expression", "missing-line", "next-step", "valid-proof", "flawed-step", "multiple-k",
 	"consecutive-sum", "greatest-divisor", "finish-divisibility", "represent-integers", "case-bracket", "consecutive-factors", "remainder-form"]
@@ -550,29 +548,24 @@ static func walk(c: Array, upto: int, nm: String) -> Array:
 	return out
 
 
-## Every method of an ask: steps(method) for those that suit the statement. One that
-## doesn't (asked as "another way") says so and takes the method that does.
+## Every method of an ask that suits the statement, each with its own steps(method). A method
+## that doesn't suit it has no tab, so a question never names a method its working sets aside
+## (FAL-814): QuestionEngine draws numbers that suit the asked one.
 func every_method(s: Dictionary, ans: Dictionary, steps: Callable) -> Dictionary:
-	var methods: Dictionary = AlgebraicProofSituation.ASKS[s.ask]
-	var works: Array = methods.keys().filter(func(m): return AlgebraicProofSituation.suits(s.ask, m, s.fam))
 	var out := {}
-	for m in methods:
-		if m in works:
+	for m in AlgebraicProofSituation.ASKS[s.ask]:
+		if AlgebraicProofSituation.suits(s.ask, m, s.fam):
 			out[m] = method(steps.call(m), ans.values)
-		else:
-			out[m] = method([UNSUITED] + steps.call(works[0]), ans.values)
 	return out
 
 
 ## The method whose proof a question shows: its lines belong to that method, so another
-## method's working would not reach this answer. Other methods' tabs say so, and walk those lines.
+## method's working would only walk the same lines. That method alone has a tab, and none if
+## the lines aren't its own (FAL-814).
 func asked_method(s: Dictionary, steps: Array, ans: Dictionary) -> Dictionary:
-	var head: Array = [] if AlgebraicProofSituation.suits(s.ask, angle, s.fam) else [UNSUITED]
-	var out := {angle: method(head + steps, ans.values)}
-	for m in AlgebraicProofSituation.ASKS[s.ask]:
-		if m != angle:
-			out[m] = method([OTHER_ROUTE] + steps, ans.values)
-	return out
+	if not AlgebraicProofSituation.suits(s.ask, angle, s.fam):
+		return {}
+	return {angle: method(steps, ans.values)}
 
 
 static func say(ans: Dictionary) -> String:

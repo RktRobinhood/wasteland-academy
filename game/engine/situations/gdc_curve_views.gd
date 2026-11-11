@@ -989,18 +989,15 @@ func u_extreme_value_only(rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown." % line(s)]
 		out.graph = screen(s, end_dots(s))
-	var form: Array
-	if s.fam == "bellform":
-		form = ["e^(−%s(x %s %s)²) is at most 1, at x = %s." % [GdcKit.lead(s.k), "−" if s.h.sign() > 0 else "+", Fmt.dec(s.h.abs_q()), Fmt.dec(s.h)],
-			"So the maximum value is %s × 1 %s = %s." % [Fmt.dec(s.A), GdcKit.join(s.c, ""), Fmt.dec(s.A.add(s.c))], final]
-	else:
-		form = ["f is not a transformed parent, so its turning value can't be read off: this method fails here.",
-			"The %s tool gives %s." % [word, pt6(t.x, t.y)], final]
 	out.methods = {
 		"gdc-max-min": {"result": ans.values, "steps": [graph_step(s),
 			"The %s tool gives %s: the value is the y-coordinate, %s." % [word, pt6(t.x, t.y), W(t.y)], final]},
-		"read-from-form": {"result": ans.values, "steps": form},
 	}
+	# Only a bell curve's value can be read off. Any other f has no read-from-form tab, so a
+	# family's situation is drawn again for that method (FAL-814).
+	if s.fam == "bellform":
+		out.methods["read-from-form"] = {"result": ans.values, "steps": ["e^(−%s(x %s %s)²) is at most 1, at x = %s." % [GdcKit.lead(s.k), "−" if s.h.sign() > 0 else "+", Fmt.dec(s.h.abs_q()), Fmt.dec(s.h)],
+			"So the maximum value is %s × 1 %s = %s." % [Fmt.dec(s.A), GdcKit.join(s.c, ""), Fmt.dec(s.A.add(s.c))], final]}
 	return out
 
 

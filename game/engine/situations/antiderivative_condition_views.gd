@@ -74,6 +74,8 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	out.given = AntiderivativeConditionSituation.export(s)
 	# Only three wrong options fit, and the engine takes the first it finds.
 	out.wrongs = rng.shuffled(out.wrongs)
+	# The feedback names the question's own function, not the map's f (FAL-814).
+	out.fn_name = "y" if is_curve(s) else s.name
 	return out
 
 
@@ -221,14 +223,15 @@ static func power_slips(s: Dictionary) -> Dictionary:
 	return out
 
 
-## A sum of powers with k added to its own constant term, if it has one.
+## A sum of powers with k added to its own constant term, if it has one. With no power of x
+## left (a linear f′ differentiated), it is that number alone.
 static func _merged(s: Dictionary, terms: Array, k: Q) -> String:
 	var rest: Array = terms.filter(func(t): return t[1] != 0)
 	var total := k
 	for t in terms:
 		if t[1] == 0:
 			total = total.add(t[0])
-	return pw(rest) + konst(s, total)
+	return W(s, total) if rest.is_empty() else pw(rest) + konst(s, total)
 
 
 func _powers(s: Dictionary, lines: Array, asked: String, refs: Array, rule: String = RULE_POWER, angle_id: String = "integrate-then-substitute") -> Dictionary:
