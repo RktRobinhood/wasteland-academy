@@ -19,6 +19,12 @@ const R_NUM_PRODUCT := SKILL + "conditional-distributions#0"
 const R_BETWEEN := SKILL + "conditional-distributions#1"
 const R_NOT_DIVIDED := SKILL + "conditional-distributions#2"
 const INF := "10^99"
+## FAL-815: the slips that were blank options, numbered in the type's misconceptions.
+const CT := "t4-conditional-probability#"
+const R_NO_CONDITION := CT + "10"
+const R_PUT_BACK := CT + "11"
+const R_NO_OVERLAP := CT + "12"
+const R_DISJOINT := CT + "13"
 
 ## Tree stories: the first event, the second event, in a sentence each.
 const TREES := [
@@ -61,7 +67,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 		var v: Q = Q.of(out.answer.values.v)
 		var unit := Q.new(1, 100)
 		for k in [1, -1, 2, -2, 3, -3, 5, -5, 8, -8]:
-			out.generic.append_array(probs([v.add(unit.mul(Q.new(k)))]))
+			out.fillers.append_array(probs([v.add(unit.mul(Q.new(k)))]))
 	return out
 
 
@@ -144,8 +150,8 @@ func u_conditional_from_probabilities(rep: String, s: Dictionary, _rng: Seeded) 
 	else:
 		out.lines = [VennViews.story(s)]
 		out.asked = given_asked(s)
-	out.wrongs = wr(Q.new(s.i, s.a + s.i), R_WRONG_DIV) + wr(mid, R_NO_DIV) + wr(pa.mul(pb), R_TIMES)
-	out.generic = probs([pa, pb])
+	out.wrongs = wr(Q.new(s.i, s.a + s.i), R_WRONG_DIV) + wr(mid, R_NO_DIV) + wr(pa.mul(pb), R_TIMES) + wr(pa, R_NO_CONDITION)
+	out.fillers = probs([pb])
 	out.methods = _given_methods(s, ans, T(s, mid), T(s, pb), s.i, s.i + s.b)
 	return out
 
@@ -154,8 +160,8 @@ func u_conditional_from_venn(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var v := Q.new(s.i, s.i + s.b)
 	var ans := prob_ans(s, "P(A | B) = ", v)
 	var out := {"lines": [VennViews.diagram_line(s)], "asked": "Find P(A | B).", "answer": ans, "table": null, "graph": VennViews.diagram(s)}
-	out.wrongs = wr(Q.new(s.i, s.a + s.i), R_WRONG_DIV) + wr(pr(s, s.i), R_NO_DIV)
-	out.generic = probs([pr(s, s.a + s.i), pr(s, s.b + s.i), Q.new(s.b, s.i + s.b)])
+	out.wrongs = wr(Q.new(s.i, s.a + s.i), R_WRONG_DIV) + wr(pr(s, s.i), R_NO_DIV) + wr(pr(s, s.a + s.i), R_NO_CONDITION)
+	out.fillers = probs([pr(s, s.b + s.i), Q.new(s.b, s.i + s.b)])
 	out.methods = _given_methods(s, ans, T(s, pr(s, s.i)), T(s, pr(s, s.i + s.b)), s.i, s.i + s.b)
 	return out
 
@@ -164,8 +170,8 @@ func u_conditional_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var v := Q.new(s.i, s.i + s.b)
 	var ans := prob_ans(s, "probability = ", v)
 	var out := {"lines": [VennViews.table_line(s)], "asked": given_asked(s), "answer": ans, "table": VennViews.two_way(s)}
-	out.wrongs = wr(Q.new(s.i, s.a + s.i), R_WRONG_DIV) + wr(pr(s, s.i), R_NO_DIV)
-	out.generic = probs([pr(s, s.a + s.i), pr(s, s.b + s.i), Q.new(s.b, s.i + s.b)])
+	out.wrongs = wr(Q.new(s.i, s.a + s.i), R_WRONG_DIV) + wr(pr(s, s.i), R_NO_DIV) + wr(pr(s, s.a + s.i), R_NO_CONDITION)
+	out.fillers = probs([pr(s, s.b + s.i), Q.new(s.b, s.i + s.b)])
 	out.methods = _given_methods(s, ans, T(s, pr(s, s.i)), T(s, pr(s, s.i + s.b)), s.i, s.i + s.b)
 	return out
 
@@ -182,8 +188,8 @@ func u_conditional_complement(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	else:
 		out.lines = [VennViews.story(s)]
 		out.asked = "Given that a %s doesn't %s, find the probability that the same %s doesn't %s either." % [c.one, c.b, c.one, c.a]
-	out.wrongs = wr(Q.new(s.o, s.b + s.o), R_WRONG_DIV) + wr(pr(s, s.o), R_NO_DIV)
-	out.generic = probs([Q.new(s.a, g), pr(s, s.b + s.o), pr(s, s.a + s.o)])
+	out.wrongs = wr(Q.new(s.o, s.b + s.o), R_WRONG_DIV) + wr(pr(s, s.o), R_NO_DIV) + wr(pr(s, s.b + s.o), R_NO_CONDITION)
+	out.fillers = probs([Q.new(s.a, g), pr(s, s.a + s.o)])
 	var ms := _given_methods(s, ans, T(s, pr(s, s.o)), T(s, pr(s, g)), s.o, g, "P(A′ | B′)", "P(A′ ∩ B′) ÷ P(B′)")
 	ms.erase("natural-frequencies")
 	out.methods = ms
@@ -197,7 +203,7 @@ func u_unknown_from_conditional(_rep: String, s: Dictionary, _rng: Seeded) -> Di
 	var r := Q.new(s.t, s.w)
 	var out := {"lines": ["The table shows the number of outcomes in each group.", "P(A′ | B′) = " + Fmt.num(r)], "asked": "Find n.", "answer": ans, "table": table}
 	var pool: Array = [s.a, s.nn + 1, s.nn + 2, s.nn + s.t + 1, s.a + s.nn]
-	out.generic = pool.filter(func(x): return x > 0).map(func(x): return {"v": Q.new(x)})
+	out.fillers = pool.filter(func(x): return x > 0).map(func(x): return {"v": Q.new(x)})
 	out.methods = {"formula": method(["P(A′ | B′) is n out of everything in column B′: n ÷ (%d + n)." % s.a, "%s = n ÷ (%d + n), so %d n = %d(%d + n)" % [Fmt.num(r), s.a, s.w, s.t, s.a],
 		"%d n = %d, so n = %d" % [s.w - s.t, s.t * s.a, s.nn], final_step(ans)], ans.values)}
 	return out
@@ -226,8 +232,8 @@ func u_reverse_from_tree(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		out.lines = ["Of the %s at a depot, %s%% %s." % [c.what, D(s.pa.mul(Q.new(100))), c.a],
 			"%s %s%% of those, and %s%% of the others." % ["A check: " + c.b, D(s.pba.mul(Q.new(100))), D(s.pbn.mul(Q.new(100)))]]
 		out.asked = "%s is %s. Find the probability that it is %s." % [c.one, c.gb, c.ga]
-	out.wrongs = wr(s.pba, R_BRANCH) + wr(both, R_ONE_PATH)
-	out.generic = probs([s.pa, pb, other])
+	out.wrongs = wr(s.pba, R_BRANCH) + wr(both, R_ONE_PATH) + wr(s.pa, R_NO_CONDITION)
+	out.fillers = probs([pb, other])
 	var n: int = 100 if s.paper == 1 else 10000
 	var nb := int(both.mul(Q.new(n)).to_float() + 0.5)
 	var no := int(other.mul(Q.new(n)).to_float() + 0.5)
@@ -248,8 +254,8 @@ func u_reverse_two_draws(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var pairs: int = t * (t - 1)
 	var out := {"lines": ["A bag holds %d %s and %d %s %s." % [s.r, col[0], s.g, col[1], thing], "Two are drawn at random, without replacement."],
 		"asked": "Given that the two are the same colour, find the probability that both are %s." % col[0], "answer": ans, "table": null}
-	out.wrongs = wr(Q.new(first, pairs), R_ONE_PATH)
-	out.generic = probs([Q.new(s.r * s.r, s.r * s.r + s.g * s.g), Q.new(s.r, t), Q.new(first + second, pairs), Q.new(second, first + second)])
+	out.wrongs = wr(Q.new(first, pairs), R_ONE_PATH) + wr(Q.new(s.r * s.r, s.r * s.r + s.g * s.g), R_PUT_BACK)
+	out.fillers = probs([Q.new(s.r, t), Q.new(first + second, pairs), Q.new(second, first + second)])
 	out.methods = {"path-over-paths": method(["Both %s: %d/%d × %d/%d. Both %s: %d/%d × %d/%d." % [col[0], s.r, t, s.r - 1, t - 1, col[1], s.g, t, s.g - 1, t - 1],
 			"Take the wanted path over both: %d ÷ (%d + %d)" % [first, first, second], final_step(ans)], ans.values),
 		"formula-total-probability": method(["P(same) = %s + %s = %s" % [Fmt.num(Q.new(first, pairs)), Fmt.num(Q.new(second, pairs)), Fmt.num(Q.new(first + second, pairs))],
@@ -275,7 +281,7 @@ func u_intersection_from_conditional(rep: String, s: Dictionary, _rng: Seeded) -
 		out.lines = ["%s%% of the %s in a camp %s." % [pcent(s.pb), c.who, c.b], "Of those, %s%% also %s." % [pcent(s.pc), c.a]]
 		out.asked = "Find the probability that a %s chosen at random does both." % c.one
 	out.wrongs = wr(s.pc.div(s.pb), R_DIVIDE_RULE) + wr(s.pc, R_AS_INTERSECTION)
-	out.generic = probs([s.pb, s.pb.div(s.pc), Q.new(1).sub(s.pi)])
+	out.fillers = probs([s.pb, s.pb.div(s.pc), Q.new(1).sub(s.pi)])
 	out.methods = {"rearrange": method(["P(A | B) = P(A ∩ B) ÷ P(B), so P(A ∩ B) = P(A | B) × P(B).", "= %s × %s" % [D(s.pc), D(s.pb)], final_step(ans)], ans.values),
 		"tree-multiply": method(["Draw B first, then A given B. The path has probabilities %s and %s." % [D(s.pb), D(s.pc)], "Multiply along it: %s × %s" % [D(s.pb), D(s.pc)], final_step(ans)], ans.values)}
 	return out
@@ -291,8 +297,8 @@ func u_union_from_conditional(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	else:
 		out.lines = ["%s%% of the %s in a camp %s and %s%% %s." % [pcent(s.pa), c.who, c.a, pcent(s.pb), c.b], "Of those who %s, %s%% also %s." % [c.b, pcent(s.pc), c.a]]
 		out.asked = "Find the probability that a %s chosen at random does at least one of these." % c.one
-	out.wrongs = wr(s.pa.add(s.pb).sub(s.pc), R_AS_INTERSECTION)
-	out.generic = probs([s.pa.add(s.pb), s.pi, s.pa.mul(s.pb), Q.new(1).sub(s.pi)])
+	out.wrongs = wr(s.pa.add(s.pb).sub(s.pc), R_AS_INTERSECTION) + wr(s.pa.add(s.pb), R_NO_OVERLAP)
+	out.fillers = probs([s.pi, s.pa.mul(s.pb), Q.new(1).sub(s.pi)])
 	var a_only: Q = s.pa.sub(s.pi)
 	var b_only: Q = s.pb.sub(s.pi)
 	out.methods = {"rearrange": method(["P(A ∩ B) = P(A | B) × P(B) = %s × %s = %s" % [D(s.pc), D(s.pb), D(s.pi)], "P(A ∪ B) = P(A) + P(B) − P(A ∩ B) = %s + %s − %s" % [D(s.pa), D(s.pb), D(s.pi)], final_step(ans)], ans.values),
@@ -303,7 +309,9 @@ func u_union_from_conditional(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 func u_marginal_from_union(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := prob_ans(s, "P(B) = ", s.pb)
 	var out := {"lines": ["P(A) = " + D(s.pa), "P(A | B) = " + D(s.pc), "P(A ∪ B) = " + D(s.pu)], "asked": "Find P(B).", "answer": ans, "table": null}
-	out.generic = probs([s.pu.sub(s.pa), s.pu.sub(s.pa).add(s.pc), s.pu, s.pu.mul(s.pc)])
+	# P(A ∪ B) − P(A) is P(B) only if A and B can't both happen.
+	out.wrongs = wr(s.pu.sub(s.pa), R_DISJOINT)
+	out.fillers = probs([s.pu.sub(s.pa).add(s.pc), s.pu, s.pu.mul(s.pc)])
 	var diff: Q = s.pu.sub(s.pa)
 	var part: Q = Q.new(1).sub(s.pc)
 	out.methods = {"rearrange": method(["P(A ∩ B) = %s × P(B), so %s = %s + P(B) − %sP(B)." % [D(s.pc), D(s.pu), D(s.pa), D(s.pc)],
@@ -343,7 +351,7 @@ func u_conditional_normal(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		var wanted: Array = {"gt": [hi, null], "lt": [null, lo], "mid": [lo, hi]}[s.form]
 		out.graph = NormalUnknownViews.curve(float(s.mu), float(s.sg), [given, wanted], [{"at": lo, "label": str(s.lo)}, {"at": hi, "label": str(s.hi)}])
 	out.wrongs = wr(qf(s.num * s.den), R_NUM_PRODUCT) + wr(qf(s.mid), R_BETWEEN) + wr(qf(s.num), R_NOT_DIVIDED)
-	out.generic = probs([qf(s.den), qf(s.v * 0.9)])
+	out.fillers = probs([qf(s.den), qf(s.v * 0.9)])
 	var both := "the overlap of %s and %s is %s" % [ev[0], ev[1], {"gt": ev[0], "lt": ev[0], "mid": "%d < X < %d" % [s.lo, s.hi]}[s.form]]
 	var num_t := "%s" % W(s.num)
 	var den_t := "%s" % W(s.den)
@@ -367,7 +375,7 @@ func u_conditional_binomial(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		out.lines = ["X ~ B(%d, %s)" % [s.n, D(s.p)]]
 		out.asked = "Find P(%s | %s)." % [want, given]
 	out.wrongs = wr(qf(s.num * s.den), R_NUM_PRODUCT) + wr(qf(s.num), R_NOT_DIVIDED)
-	out.generic = probs([qf(s.den), qf(s.v * 0.9), qf(1.0 - s.v)])
+	out.fillers = probs([qf(s.den), qf(s.v * 0.9), qf(1.0 - s.v)])
 	var lo: int = s.j if s.form == "le" else s.k
 	var hi: int = {"le": s.k, "eq": s.k, "ge": s.n}[s.form]
 	var both := "%d ≤ X ≤ %d" % [lo, hi] if lo != hi else "X = %d" % lo
@@ -382,8 +390,8 @@ func u_conditional_discrete(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var want := "X ≥ %d" % s.a1
 	var given := "X < %d" % s.b1
 	var out := {"lines": ["The table shows the probability distribution of X."], "asked": "Find P(%s | %s)." % [want, given], "answer": ans, "table": table}
-	out.wrongs = wr(s.num, R_NOT_DIVIDED)
-	out.generic = probs([s.den, s.num.mul(s.den), Q.new(1).sub(s.v)])
+	out.wrongs = wr(s.num, R_NOT_DIVIDED) + wr(s.num.mul(s.den), R_NUM_PRODUCT)
+	out.fillers = probs([s.den, Q.new(1).sub(s.v)])
 	var both := "%d ≤ X < %d" % [s.a1, s.b1]
 	out.methods = {"simplify-intersection": method(["The overlap of %s and %s is %s." % [want, given, both], "P(%s) = %s and P(%s) = %s" % [both, D(s.num), given, D(s.den)], "Divide: %s ÷ %s" % [D(s.num), D(s.den)], final_step(ans)], ans.values)}
 	return out
