@@ -67,7 +67,7 @@ const UNSORTED := [
 	"t1-binomial-find-unknown", "t1-binomial-term", "t1-compound-interest", "t1-depreciation",
 	"t1-geometric-in-context", "t1-geometric-sequence", "t1-log-exp-form", "t1-log-laws",
 	"t1-rational-exponents", "t1-sequence-proof", "t1-solve-exponential", "t1-standard-form",
-	"t1-sum-to-infinity", "t3-3d-angle", "t3-ambiguous-case", "t3-arc-sector",
+	"t1-sum-to-infinity", "t3-3d-angle", "t3-ambiguous-case",
 	"t3-bearings-elevation", "t3-composite-circular-region", "t3-distance-midpoint",
 	"t3-exact-values", "t3-identity-values", "t3-prove-identity", "t3-right-angle-trig",
 	"t3-sine-cosine-rule", "t3-solid-volume-area", "t3-triangle-area", "t3-trig-equation",

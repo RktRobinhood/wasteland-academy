@@ -19074,6 +19074,11 @@ def as_check(q):
         if sp.N(v) > 0:
             wr.setdefault(AS_SKILL + ref, set()).add(as_text(label, v, tail, paper))
 
+    def M(i, label, tail, v):
+        """The type's own misconception #i (FAL-815): its value from the question's numbers."""
+        if sp.N(v) > 0:
+            wr.setdefault(f"t3-arc-sector#{i}", set()).add(as_text(label, v, tail, paper))
+
     label, tail, v = None, "", None
     if u == "deg-to-rad":
         d = k["deg"]
@@ -19084,6 +19089,8 @@ def as_check(q):
             wr[AS_SKILL + "convert#2"] = {"θ = " + sig3(v)}
         else:
             W("convert#0", label, "", d * 180 / pi)
+            M(11, label, "", d / 180)
+        M(10, label, "", d * pi / 360)
     elif u == "rad-to-deg":
         label, tail, v = "θ = ", "°", th * 180 / pi
         if paper == 1:
@@ -19091,29 +19098,40 @@ def as_check(q):
             wr[AS_SKILL + "convert#1"] = {f"θ = {sig3(th)}°"}
         else:
             wr[AS_SKILL + "convert#1"] = {f"θ = {sig3(th)}°"}
+        M(10, label, tail, th * 360 / pi)
     elif u == "arc-length":
         label, tail, v = "l = ", un, r * th
         if k["form"] == "deg":
             W("arc-length#0", label, tail, r * k["deg"])
+        M(12, label, tail, r**2 * th / 2)
+        M(13, label, tail, r * th + 2 * r)
     elif u == "perimeter":
         label, tail, v = "P = ", un, 2 * r + r * th
         W("arc-length#1", label, tail, r * th)
         if k["form"] == "deg":
             W("arc-length#0", label, tail, 2 * r + r * k["deg"])
+        M(14, label, tail, r * th + r)
     elif u == "theta-from-arc":
         label, v = "θ = ", l / r
+        M(15, label, "", l * r)
     elif u == "r-from-arc":
         label, tail, v = "r = ", un, l / th
+        if paper == 2:
+            M(15, label, tail, l * th)
     elif u == "r-from-perimeter":
         label, tail, v = "r = ", un, p / (2 + th)
         W("arc-length#1", label, tail, p / th)
+        M(14, label, tail, p / (1 + th))
     elif u == "theta-from-perimeter":
         label, v = "θ = ", (p - 2 * r) / r
         W("arc-length#1", label, "", p / r)
+        M(14, label, "", (p - r) / r)
     elif u == "major-arc":
         label, tail, v = "l = ", un, r * (2 * pi - th)
         need(sp.N(th) < sp.N(pi), "the given angle is not the minor angle")
         W("arc-length#2", label, tail, r * th)
+        M(16, label, tail, 2 * pi * r)
+        M(13, label, tail, r * (2 * pi - th) + 2 * r)
     elif u == "r-in-terms-of-theta":
         if rep == "words":
             mt = re.search(r"is ([\d.]+) (cm|km|m) long", L[0])
@@ -19122,14 +19140,18 @@ def as_check(q):
         need(mt is not None, "can't read the arc")
         ls = mt.group(1)
         want = f"r = {dec_text(R(ls))}/θ"
-        gc_check_common(q, want, {})
+        gc_check_common(q, want, {"t3-arc-sector#15": {f"r = {dec_text(R(ls))}θ"}})
         return None, None
     elif u == "theta-from-bent-strip":
         mt = re.fullmatch(r"A water trough is bent from a strip of tin ([\d.]+) cm wide\. Across the strip it has a straight side ([\d.]+) cm long, a curved part, then another straight side ([\d.]+) cm long\.", L[0])
         need(mt is not None and mt.group(2) == mt.group(3), f"can't read {L[0]!r}")
         mr = re.fullmatch(r"The curved part is an arc of a circle of radius ([\d.]+) cm\.", L[1])
         need(mr is not None, f"can't read {L[1]!r}")
-        label, v = "θ = ", (R(mt.group(1)) - 2 * R(mt.group(2))) / R(mr.group(1))
+        wd, sd, rr = R(mt.group(1)), R(mt.group(2)), R(mr.group(1))
+        label, v = "θ = ", (wd - 2 * sd) / rr
+        M(17, label, "", wd / rr)
+        M(18, label, "", (wd - sd) / rr)
+        M(15, label, "", (wd - 2 * sd) * rr)
     elif u == "sector-area":
         label, tail, v = "A = ", un2, r**2 * th / 2
         if k["form"] == "deg":
@@ -19140,19 +19162,33 @@ def as_check(q):
         else:
             b = sp.expand(slip / pi**2)
             wr[AS_SKILL + "sector-area#1"] = {f"A = {frac_text(b)}π²{un2}"}
+        M(19, label, tail, r**2 * th)
+        M(20, label, tail, r * th / 2)
+        M(21, label, tail, r * th)
     elif u == "theta-from-area":
         label, v = "θ = ", 2 * a / r**2
+        M(19, label, "", a / r**2)
+        M(20, label, "", 2 * a / r)
     elif u == "r-from-area":
         label, tail, v = "r = ", un, sp.sqrt(2 * a / th)
+        M(22, label, tail, 2 * a / th)
+        if paper == 2:
+            M(19, label, tail, sp.sqrt(a / th))
     elif u == "major-sector":
         label, tail, v = "A = ", un2, r**2 * (2 * pi - th) / 2
         need(sp.N(th) < sp.N(pi), "the given angle is not the minor angle")
         W("sector-area#2", label, tail, r**2 * th / 2)
+        M(23, label, tail, pi * r**2)
+        M(21, label, tail, r * (2 * pi - th))
+        M(19, label, tail, r**2 * (2 * pi - th))
     elif u == "area-from-arc":
         label, tail, v = "A = ", un2, r * l / 2
+        M(19, label, tail, r * l)
     elif u == "perimeter-from-area":
         rr = sp.sqrt(2 * a / th)
         label, tail, v = "P = ", un, rr * (2 + th)
+        W("arc-length#1", label, tail, rr * th)
+        M(14, label, tail, rr * (1 + th))
     elif u == "major-from-perimeter":
         mt = re.fullmatch(r"The diagram shows a circle with centre O\. Angle AOB is ([\d.]+) radians, and the perimeter of the small shaded sector is ([\d.]+) cm\.", L[0])
         need(mt is not None, f"can't read {L[0]!r}")
@@ -19162,6 +19198,8 @@ def as_check(q):
         rr = per / (2 + t0)
         label, tail, v = "A = ", un2, rr**2 * (2 * pi - t0) / 2
         W("sector-area#2", label, tail, rr**2 * t0 / 2)
+        M(23, label, tail, pi * rr**2)
+        M(19, label, tail, rr**2 * (2 * pi - t0))
     elif u == "cone-radius":
         if rep == "words":
             mt = re.fullmatch(r"A sheet of tin is cut into a sector of radius ([\d.]+) cm and angle (\S+?)(°| radians?)\. Its two straight edges are joined to make a funnel, with the arc as the rim\.", L[0].replace(" m ", " cm ").replace(" km ", " cm "))
@@ -19175,6 +19213,9 @@ def as_check(q):
         label, tail, v = "radius = ", un, r * th / (2 * pi)
         if paper == 1:
             need(v.is_Rational, f"radius {v}")
+        M(24, label, tail, r * th)
+        M(25, label, tail, r * th / 2)
+        M(26, label, tail, r)
     elif u in ("ring-inner-radius", "ring-perimeter"):
         need(paper == 2, "a curved strip is Paper 2")
         g = q["graph"]
@@ -19190,10 +19231,15 @@ def as_check(q):
             need(ma is not None, f"can't read {L[1]!r}")
             ar = R(ma.group(1))
             label, tail, v = "r = ", " cm", sp.sqrt(big**2 - 2 * ar / t0)
+            M(22, label, tail, big**2 - 2 * ar / t0)
+            M(19, label, tail, sp.sqrt(big**2 - ar / t0))
+            M(27, label, tail, big - sp.sqrt(2 * ar / t0))
             need(0 < sp.N(v) < big, f"r = {sp.N(v)}")
         else:
             small = R(mt.group(3).removesuffix(" cm"))
             label, tail, v = "P = ", " cm", t0 * (big + small) + 2 * (big - small)
+            M(28, label, tail, t0 * (big + small))
+            M(29, label, tail, t0 * big + 2 * (big - small))
         th = None
     elif u == "segments-theta":
         need(paper == 2, "a plate is Paper 2")
@@ -19214,6 +19260,7 @@ def as_check(q):
         v = nu_f(root)
         label = "θ = "
         wr[AS_SKILL + "segment-shaded#0"] = {"θ = " + rg_s(nu_f(as_plate_root(goal, True)))}
+        wr["t3-arc-sector#30"] = {"θ = " + rg_s(nu_f(as_plate_root(2 * goal)))}
         th = None
     else:
         raise Fail(f"no check for {u}")
