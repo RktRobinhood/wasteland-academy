@@ -36712,6 +36712,7 @@ def E12SE_sf_end(q, label, x, unit, pairs):
     gc_check_common(q, want, E12SE_opts(label, unit, pairs), trap)
     for sol in q["solutions"]:
         need(E12SE_work(x) in " ".join(sol["steps"]), f"{sol['name']}: the working doesn't show {E12SE_work(x)}")
+    return None, None
 
 
 def E12SE_exact_end(q, want, x, wrongs):
@@ -36722,6 +36723,7 @@ def E12SE_exact_end(q, want, x, wrongs):
         if not o["correct"]:
             v = E12SE_value(o["text"])
             need(not v.is_real or abs(v - x) > sp.Rational(1, 10**20), f"option {o['text']!r} equals the answer")
+    return None, None
 
 
 def E12SE_graph(q, fns, var, names, px, py):

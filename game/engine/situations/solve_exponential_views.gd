@@ -93,7 +93,7 @@ static func WP(x: float) -> String:
 ## ln 5, ln(5/3)
 static func ln_of(v: Variant) -> String:
 	var q := Q.of(v)
-	return "ln " + N(q) if q.is_int() and q.sign() > 0 else "ln(%s)" % D(q) if q.sign() > 0 else "ln(%s)" % N(q)
+	return "ln " + N(q) if q.is_int() and q.sign() > 0 else "ln(%s)" % N(q)
 
 
 ## 2 ln 3, ln 3: a whole multiple of a log.
