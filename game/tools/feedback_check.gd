@@ -84,8 +84,8 @@ const UNSORTED := [
 	"t5-ext-always-increasing", "t5-ext-area-under-curve", "t5-ext-hence-integral",
 	"t5-ext-integral-gdc", "t5-ext-stationary-conditions", "t5-ext-unknown-coefficients",
 	"t5-increasing-decreasing", "t5-indefinite-integral", "t5-kinematics-distance",
-	"t5-kinematics-motion", "t5-normal-meets-curve", "t5-optimisation-modelling",
-	"t5-stationary-points", "t5-tangent-condition", "t5-tangent-normal-equation"
+	"t5-normal-meets-curve", "t5-optimisation-modelling", "t5-stationary-points",
+	"t5-tangent-condition", "t5-tangent-normal-equation"
 ]
 
 ## Two full stops, but not an ellipsis.
