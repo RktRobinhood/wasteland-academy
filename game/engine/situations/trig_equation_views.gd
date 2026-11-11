@@ -18,6 +18,7 @@ const R_CANCEL := "SL3.8.factorise-not-divide#0"
 const R_FLIP := "SL3.8.factorise-not-divide#1"
 const R_TWO_X := "SL3.8.factorise-not-divide#2"
 const R_ONE_ROOT := "SL3.8.quadratic-in-trig#1"
+const R_SIGN_FLIP := "t3-trig-equation#10"
 
 const UNKNOWNS := ["basic-exact", "wide-interval", "basic-degrees", "basic-decimal", "multiple-angle", "shifted-angle", "least-positive", "degree-compound",
 	"compound-decimal", "tan-compound", "k-cos-to-tan", "double-equals-cos", "double-equals-sin", "product-zero", "squares-to-tan", "factor-reject"]
@@ -285,7 +286,8 @@ func _basic_view(rep: String, s: Dictionary) -> Dictionary:
 	out.wrongs = basic_wrongs(a, s)
 	if s.ask == "wide-interval" and s.lo.sign() < 0:
 		out.wrongs += xs_alt(a, s, s.xs.filter(func(x): return x.sign() >= 0), R_NEGATIVE)
-	out.generic = xs_others(a, s, [flipped(s)] + nudged(s, s.xs))
+	out.wrongs += xs_alt(a, s, flipped(s), R_SIGN_FLIP)
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	var name := call_of(s)
 	var head := "Rearrange: %s = %s" % [name, T(s.k)]
 	var tail := "On %s: %s" % [interval(s), list_text(s, s.xs)]
@@ -312,9 +314,14 @@ static func gdc_steps(s: Dictionary, a: Dictionary, shown: Array) -> Array:
 		"Use intersect at every crossing: x = %s" % ", ".join(shown), say(a)]
 
 
+## The decimal fillers with the first solution alone in front, as trig-quadratic's views use them.
 static func dec_others(s: Dictionary) -> Array:
+	return [Answer.xs_of(s.xs.slice(0, 1))] + dec_fillers(s)
+
+
+static func dec_fillers(s: Dictionary) -> Array:
 	var xs: Array = s.xs
-	return [Answer.xs_of(xs.slice(0, 1)), Answer.xs_of(xs.map(func(x): return GdcKit.qf(x.to_float() * 2.0))), Answer.xs_of(xs.map(func(x): return GdcKit.qf(x.to_float() + 0.5))),
+	return [Answer.xs_of(xs.map(func(x): return GdcKit.qf(x.to_float() * 2.0))), Answer.xs_of(xs.map(func(x): return GdcKit.qf(x.to_float() + 0.5))),
 		Answer.xs_of(xs.map(func(x): return GdcKit.qf(x.to_float() * 180.0 / PI)))]
 
 
@@ -322,7 +329,7 @@ func u_basic_decimal(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := GdcCurveViews.xs_ans(s.xs)
 	var out := {"answer": a, "lines": ["%s = %s, for %s" % [call_of(s), Fmt.dec(s.k), interval(s)]], "asked": "Find every solution, to 3 significant figures."}
 	out.wrongs = [wrong(Answer.xs_of(s.xs.slice(0, 1)), R_PRINCIPAL)] if s.xs.size() > 1 else []
-	out.generic = dec_others(s)
+	out.fillers = dec_fillers(s)
 	out.methods = {"gdc-intersection": method(gdc_steps(s, a, s.xs.map(func(x): return GdcKit.W(x))), a.values)}
 	return out
 
@@ -333,7 +340,9 @@ func u_compound_decimal(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var top: float = s.hi.to_float() * PI
 	var first: Array = s.xs.filter(func(x): return x.to_float() * s.b.to_float() <= top)
 	out.wrongs = [wrong(Answer.xs_of(first), R_NO_EXTEND)] if not first.is_empty() and first.size() < s.xs.size() else []
-	out.generic = dec_others(s)
+	if s.xs.size() > 1:
+		out.wrongs.append(wrong(Answer.xs_of(s.xs.slice(0, 1)), R_PRINCIPAL))
+	out.fillers = dec_fillers(s)
 	out.methods = {"gdc-intersection": method(gdc_steps(s, a, s.xs.map(func(x): return GdcKit.W(x))), a.values)}
 	return out
 
@@ -364,7 +373,8 @@ func _compound_view(rep: String, s: Dictionary) -> Dictionary:
 		out.wrongs += xs_alt(a, s, [principal(s.fn, s.k).sub(s.phi).div(b)], R_ONE_BACK)
 	if not s.phi.is_zero():
 		out.wrongs += xs_alt(a, s, TrigEquationSituation.solve(s.fn, s.k, b, s.phi.neg(), s.lo, s.hi), R_ADD)
-	out.generic = xs_others(a, s, [flipped(s)] + nudged(s, s.xs))
+	out.wrongs += xs_alt(a, s, flipped(s), R_SIGN_FLIP)
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	out.methods = {"substitute-u": method(compound_steps("substitute-u", s, name, s.xs) + [say(a)], a.values),
 		"add-the-period": method(compound_steps("add-the-period", s, name, s.xs) + [say(a)], a.values)}
 	return out
@@ -395,7 +405,7 @@ func u_least_positive(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	lists.append([x.add(Q.new(1, 6))])
 	lists.append([x.add(Q.new(1, 4))])
 	lists.append([x.add(Q.new(1, 3))])
-	out.generic = xs_others(a, s, lists)
+	out.fillers = xs_others(a, s, lists)
 	var u := x.mul(s.b).add(s.phi)
 	var start := A(s, s.phi)
 	var period: Q = Q.new(2).div(s.b)
@@ -412,7 +422,9 @@ func u_tan_compound(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = []
 	out.wrongs += xs_alt(a, s, [principal("tan", s.k).div(s.b)], R_ONE_BACK)
 	var inv := TrigKit.over(TrigKit.V(1), s.k)
-	out.generic = xs_others(a, s, [flipped(s), TrigEquationSituation.solve("tan", inv, s.b, s.phi, s.lo, s.hi)] + nudged(s, s.xs))
+	out.wrongs += xs_alt(a, s, flipped(s), R_SIGN_FLIP)
+	out.wrongs += xs_alt(a, s, TrigEquationSituation.solve("tan", inv, s.b, s.phi, s.lo, s.hi), R_FLIP)
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	var us := list_text(s, u_values(s))
 	var name := "tan " + bx
 	out.methods = {"divide-to-tan": method(["cos %s = 0 would make sin %s = 0 too, which can't happen, so divide by cos %s." % [bx, bx, bx], "%s = %s" % [name, T(s.k)], "So %s = %s, which gives x = %s" % [bx, us, list_text(s, s.xs)], say(a)], a.values),
@@ -443,7 +455,9 @@ func u_k_cos_to_tan(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		g.curves.append(Plot.sample(func(x: float) -> float: return kk * cos(x), 0.0, TAU))
 		out.graph = g
 	out.wrongs = xs_alt(a, s, TrigEquationSituation.solve("tan", inv, s.b, s.phi, s.lo, s.hi), R_FLIP) if not TrigKit.same(inv, s.k) else []
-	out.generic = xs_others(a, s, [flipped(s), [s.xs[0]]] + nudged(s, s.xs))
+	out.wrongs += xs_alt(a, s, flipped(s), R_SIGN_FLIP)
+	out.wrongs += xs_alt(a, s, [s.xs[0]], R_PRINCIPAL)
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	var head := "cos x = 0 would make sin x = 0 too, which can't happen, so divide by cos x."
 	var mid := "tan x = %s" % T(s.k)
 	var tail := "On %s: x = %s" % [interval(s), list_text(s, s.xs)]
@@ -486,7 +500,8 @@ func u_double_equals_cos(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var kept := TrigEquationSituation.solve("sin", s.k, Q.new(1), Q.new(0), s.lo, s.hi)
 	var zeros := TrigEquationSituation.solve("cos", TrigKit.V(0), Q.new(1), Q.new(0), s.lo, s.hi)
 	out.wrongs = xs_alt(a, s, kept, R_CANCEL)
-	out.generic = xs_others(a, s, [zeros, flipped_sin(s, zeros)] + nudged(s, s.xs))
+	out.wrongs += xs_alt(a, s, flipped_sin(s, zeros), R_SIGN_FLIP)
+	out.fillers = xs_others(a, s, [zeros] + nudged(s, s.xs))
 	var head := "Use sin 2x = 2 sin x cos x and bring it to one side: cos x(2 sin x %s) = 0" % _minus(s.m)
 	var parts := "cos x = 0 gives x = %s, and sin x = %s gives x = %s" % [list_text(s, zeros), T(s.k), list_text(s, kept)]
 	out.methods = {"factorise": method([head, parts, say(a)], a.values),
@@ -517,7 +532,7 @@ func u_double_equals_sin(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	if TrigKit.same(s.m, TrigKit.V(1)):
 		out.wrongs += xs_alt(a, s, [Q.new(0)], R_TWO_X)
 	out.wrongs += xs_alt(a, s, kept, R_CANCEL)
-	out.generic = xs_others(a, s, [zeros] + nudged(s, s.xs))
+	out.fillers = xs_others(a, s, [zeros] + nudged(s, s.xs))
 	var head := "Use sin 2x = 2 sin x cos x and bring it to one side: sin x(2 cos x %s) = 0" % _minus(s.m)
 	var parts := "sin x = 0 gives x = %s, and cos x = %s gives x = %s" % [list_text(s, zeros), T(s.k), list_text(s, kept)]
 	out.methods = {"factorise": method([head, parts, say(a)], a.values),
@@ -532,7 +547,7 @@ func u_product_zero(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var kept := TrigEquationSituation.solve(s.f2, s.k, Q.new(1), Q.new(0), s.lo, s.hi)
 	var zeros := TrigEquationSituation.solve(s.f1, TrigKit.V(0), Q.new(1), Q.new(0), s.lo, s.hi)
 	out.wrongs = xs_alt(a, s, kept, R_CANCEL)
-	out.generic = xs_others(a, s, [zeros] + nudged(s, s.xs))
+	out.fillers = xs_others(a, s, [zeros] + nudged(s, s.xs))
 	out.methods = {"factorise": method(["A product is 0 when one factor is: %s x = 0 or %s x = %s." % [s.f1, s.f2, T(s.k)], "%s x = 0 gives x = %s" % [s.f1, list_text(s, zeros)], "%s x = %s gives x = %s" % [s.f2, T(s.k), list_text(s, kept)], say(a)], a.values)}
 	return out
 
@@ -544,7 +559,7 @@ func u_squares_to_tan(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": ["%s − %s = 0, for %s" % [first, second, interval(s)]], "asked": "Solve the equation, giving exact answers."}
 	var plus_only := TrigEquationSituation.solve("tan", s.k, Q.new(1), Q.new(0), s.lo, s.hi)
 	out.wrongs = xs_alt(a, s, plus_only, R_ONE_ROOT)
-	out.generic = xs_others(a, s, [TrigEquationSituation.solve("tan", TrigKit.neg(s.k), Q.new(1), Q.new(0), s.lo, s.hi)] + nudged(s, s.xs))
+	out.fillers = xs_others(a, s, [TrigEquationSituation.solve("tan", TrigKit.neg(s.k), Q.new(1), Q.new(0), s.lo, s.hi)] + nudged(s, s.xs))
 	var r := TrigKit.sq(s.k)
 	var root := T(s.k)
 	out.methods = {"divide-to-tan": method(["cos x = 0 would make sin x = 0 too, so divide by cos²x: tan²x = %s" % T(r), "Take both roots: tan x = %s or tan x = %s" % [root, T(TrigKit.neg(s.k))], "On %s: x = %s" % [interval(s), list_text(s, s.xs)], say(a)], a.values),
@@ -557,8 +572,8 @@ func u_factor_reject(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := TrigKit.ans("tan θ = ", TrigKit.V(m))
 	var side := times_text(TrigKit.V(m), "sin θ cos θ")
 	var out := {"answer": a, "lines": ["sin²θ = %s, for 0 < θ < π" % side], "asked": "Find the exact value of tan θ."}
-	out.wrongs = TrigKit.like(a, TrigKit.V(Q.new(1).div(m)), R_FLIP)
-	out.generic = TrigKit.others(a, [TrigKit.V(m.neg()), TrigKit.V(Q.new(-1).div(m)), TrigKit.V(m.mul(2)), TrigKit.V(m.div(2)), TrigKit.V(m.add(1)), TrigKit.V(0)])
+	out.wrongs = TrigKit.like(a, TrigKit.V(Q.new(1).div(m)), R_FLIP) + TrigKit.like(a, TrigKit.V(m.neg()), R_SIGN_FLIP)
+	out.fillers = TrigKit.others(a, [TrigKit.V(Q.new(-1).div(m)), TrigKit.V(m.mul(2)), TrigKit.V(m.div(2)), TrigKit.V(m.add(1)), TrigKit.V(0)])
 	var mt := Fmt.num(m)
 	out.methods = {"factorise": method(["Bring it to one side: sin θ(sin θ − (%s) cos θ) = 0" % mt, "sin θ = 0 has no solution on 0 < θ < π, so reject it.", "sin θ = %s cos θ, so tan θ = %s" % [P(m), mt], say(a)], a.values),
 		"divide-to-tan": method(["sin θ ≠ 0 on 0 < θ < π, so divide by sin θ: sin θ = %s cos θ" % P(m), "cos θ = 0 would make sin θ = 0 too, so divide by cos θ.", "tan θ = %s" % mt, say(a)], a.values)}

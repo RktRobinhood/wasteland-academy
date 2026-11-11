@@ -21192,6 +21192,10 @@ def check_exact_trig(q):
     SW, TS, SF = "SL3.5.exact-special#0", "SL3.5.exact-special#1", "SL3.5.exact-special#2"
     SG, YA, NG = "SL3.5.related-angles#0", "SL3.5.related-angles#1", "SL3.5.related-angles#2"
     CO, CK, TZ = "SL3.5.unit-circle#0", "SL3.5.unit-circle#1", "SL3.5.unit-circle#2"
+    US = "t3-exact-values#9"
+
+    def one_surd(x):
+        return len({p.base for p in sp.expand(sp.nsimplify(x)).atoms(sp.Pow) if p.exp in (sp.Rational(1, 2), sp.Rational(-1, 2))}) <= 1
 
     def first_wrongs(fn, t, k=1):
         w = {}
@@ -21249,6 +21253,9 @@ def check_exact_trig(q):
         w = {}
         if fn != "tan" and t == sp.Rational(1, 4):
             w[SF] = [first * sp.Rational(1, 4) + sg * tr_of(fn2, t2)]
+        unsquared = first * tr_of(fn, t) + sg * tr_of(fn2, t2)
+        if one_surd(unsquared):
+            w[US] = [unsquared]
         tr_common(q, "", v, w)
     elif u == "related-value":
         fn, t = g["fn"], R(g["t"])
@@ -21263,6 +21270,8 @@ def check_exact_trig(q):
         need(sp.simplify(abs(v) - tr_of(fn, r)) == 0, "the reference angle doesn't give the size")
         if r != sp.Rational(1, 4):
             w[YA] = [sp.sign(v) * tr_of(fn, sp.Rational(1, 2) - r)]
+        elif fn != "tan":
+            w[SF] = [sp.sign(v) * sp.Rational(1, 2)]
         if rep == "diagram":
             p = q["graph"]["points"][0]
             need(abs(p["x"] - math.cos(float(t) * math.pi)) < 1e-9 and abs(p["y"] - math.sin(float(t) * math.pi)) < 1e-9, "P is drawn at another angle")
@@ -21278,7 +21287,7 @@ def check_exact_trig(q):
         need(t in TR_ROUND and t2 in TR_ROUND and t != t2, "out of range")
         need(L == [f"{tr_call(fn, t)} + {tr_call(fn2, t2)}"], f"can't read {L}")
         a, b = tr_of(fn, t), tr_of(fn2, t2)
-        tr_common(q, "", a + b, {SG: [b - a]}, steps=(2, 10))
+        tr_common(q, "", a + b, {SG: [b - a, a - b, -a - b]}, steps=(2, 10))
     elif u == "given-related":
         gv = sp.Rational(R(g["g"]), R(g["n"]))
         need(0 < gv < 1, "the given ratio is out of range")
@@ -21328,7 +21337,8 @@ def check_exact_trig(q):
         at = tr_angle(t)
         need(asked == f"Why does tan({at}) have no value?", asked)
         tr_claim(q, f"cos({at}) = 0, so sin ÷ cos divides by zero",
-                 {TZ: {f"tan({at}) = 0, because the angle is on an axis", f"tan({at}) = 1, because sin and cos are equal there"}})
+                 {TZ: {f"tan({at}) = 0, because the angle is on an axis", f"tan({at}) = 1, because sin and cos are equal there"},
+                  CO: {f"sin({at}) = 0, so tan has no value"}})
     else:
         need(False, f"no check for {u}")
     return None, None
@@ -21572,6 +21582,7 @@ def check_trig_equation(q):
     K0, K1, K2 = "SL3.8.compound-angle#0", "SL3.8.compound-angle#1", "SL3.8.compound-angle#2"
     F0, F1, F2 = "SL3.8.factorise-not-divide#0", "SL3.8.factorise-not-divide#1", "SL3.8.factorise-not-divide#2"
     Q1 = "SL3.8.quadratic-in-trig#1"
+    SF = "t3-trig-equation#10"
     deg = g["form"] == "deg"
     if u == "factor-reject":
         m = R(g["m"])
@@ -21581,7 +21592,7 @@ def check_trig_equation(q):
         t = math.atan2(float(m), 1.0)
         t = t if t > 0 else t + math.pi
         need(abs(f(t)) < 1e-9, "tan θ doesn't solve the equation")
-        tr_common(q, "tan θ = ", m, {F1: [1 / m]})
+        tr_common(q, "tan θ = ", m, {F1: [1 / m], SF: [-m]})
         return None, None
     if u == "least-positive":
         f = tq_function(L[0], False)
@@ -21620,6 +21631,8 @@ def check_trig_equation(q):
             kept = [gc_s(v) for v, x in zip(vals, xs) if x * b <= hi + 1e-9]
             if 0 < len(kept) < len(names):
                 w[K0] = {"x = " + (kept[0] if len(kept) == 1 else ", ".join(kept[:-1]) + " or " + kept[-1])}
+            if len(xs) > 1:
+                w[B0] = {f"x = {names[0]}"}
         gc_check_common(q, want, w, gc_trap(vals, gc_xs2(vals)), steps=(2, 6))
         return None, None
     step = 2.5 if deg else math.pi / 144
@@ -21633,6 +21646,12 @@ def check_trig_equation(q):
     ks = tr_val_float(g["k"]) if "k" in g else None
     sv = lambda fn_, k_, bb=1.0, ph=0.0: tq_solve(fn_, k_, bb, ph, lo, hi, open_hi, deg)
     d = math.degrees if deg else (lambda v: v)
+
+    def flip(fn_, k_, bb=1.0, ph=0.0):
+        """The shown equation solved for the opposite value, as a set of option texts."""
+        alt = sv(fn_, -k_, bb, ph)
+        if alt:
+            w[SF] = {tq_list(alt)}
     if u in ("basic-exact", "wide-interval", "basic-degrees"):
         need(ks is not None and abs(ks) <= 2, "k is out of range")
         al = {"sin": math.asin, "cos": math.acos, "tan": math.atan}[fn](ks)
@@ -21646,6 +21665,7 @@ def check_trig_equation(q):
             pos = [r for r in roots if r >= -1e-9]
             if pos:
                 w[B2] = {tq_list(tq_names(pos, deg))}
+        flip(fn, ks, b, phi)
     elif u in ("multiple-angle", "shifted-angle", "degree-compound"):
         al = {"sin": math.asin, "cos": math.acos, "tan": math.atan}[fn](ks)
         ph_x = phi * (180 if deg else math.pi)
@@ -21658,12 +21678,22 @@ def check_trig_equation(q):
             alt = sv(fn, ks, b, -phi)
             if alt:
                 w[K2] = {tq_list(alt)}
+        flip(fn, ks, b, phi)
     elif u == "tan-compound":
         w[K1] = {tq_list(tq_names([math.atan(ks) / b], deg))}
+        w[F1] = {tq_list(sv("tan", 1 / ks, b, phi))}
+        flip("tan", ks, b, phi)
     elif u == "k-cos-to-tan":
         w[F1] = {tq_list(sv("tan", 1 / ks))}
+        w[B0] = {tq_list(names[:1])}
+        flip("tan", ks)
     elif u == "double-equals-cos":
         w[F0] = {tq_list(sv("sin", ks))}
+        # cos x = 0 kept, and sin x solved for the opposite value: the whole list from the
+        # factorised equation with the sign of its second bracket changed.
+        flipped = tq_roots(lambda x: math.cos(x) * (2 * math.sin(x) + 2 * ks), lo, hi, open_hi, deg, step)
+        if flipped:
+            w[SF] = {tq_list(tq_names(flipped, deg))}
     elif u == "double-equals-sin":
         w[F0] = {tq_list(sv("cos", ks))}
         if abs(ks - 0.5) < 1e-9:

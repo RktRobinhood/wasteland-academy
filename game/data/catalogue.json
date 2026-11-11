@@ -36644,7 +36644,8 @@
 					"as": "distractor",
 					"in": [
 						"special-value",
-						"special-sum"
+						"special-sum",
+						"related-value"
 					],
 					"wrong": "1/2 for sin(π/4) or cos(π/4)"
 				},
@@ -36684,7 +36685,8 @@
 					"in": [
 						"point-at-angle",
 						"ratio-from-point",
-						"tan-from-point"
+						"tan-from-point",
+						"tan-undefined"
 					],
 					"wrong": "x and y swapped"
 				},
@@ -36706,6 +36708,14 @@
 						"tan-undefined"
 					],
 					"wrong": "tan(π/2) given as 0 or 1"
+				},
+				{
+					"text": "Forgetting to square the first ratio",
+					"as": "distractor",
+					"in": [
+						"special-sum"
+					],
+					"wrong": "the first ratio not squared"
 				}
 			],
 			"chain": [
@@ -41583,7 +41593,9 @@
 						"basic-exact",
 						"wide-interval",
 						"basic-degrees",
-						"basic-decimal"
+						"basic-decimal",
+						"compound-decimal",
+						"k-cos-to-tan"
 					],
 					"wrong": "the principal value alone"
 				},
@@ -41656,7 +41668,8 @@
 					"as": "distractor",
 					"in": [
 						"k-cos-to-tan",
-						"factor-reject"
+						"factor-reject",
+						"tan-compound"
 					],
 					"wrong": "tan x = 1/k"
 				},
@@ -41677,6 +41690,23 @@
 						"squares-to-tan"
 					],
 					"wrong": "the positive root of tan²x alone"
+				},
+				{
+					"text": "Getting the sign wrong when rearranging, so solving for the opposite value",
+					"as": "distractor",
+					"in": [
+						"basic-exact",
+						"wide-interval",
+						"basic-degrees",
+						"multiple-angle",
+						"shifted-angle",
+						"degree-compound",
+						"tan-compound",
+						"k-cos-to-tan",
+						"double-equals-cos",
+						"factor-reject"
+					],
+					"wrong": "the equation solved with the value's sign flipped"
 				}
 			],
 			"chain": [
