@@ -291,7 +291,8 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   is built so it keeps one sign (a quadratic with no real roots, increasing or decreasing; a sum of
   terms that can't be negative; 2ax + b/x on x > 0, with the inverse it gives; an exponential minus a
   line, whose least value only the GDC finds). Each answer is a pick of four written arguments, and the
-  right one is the asked method's own, so only that method is worked. `hence_integral.gd` is
+  right one is the asked method's own. On the quadratics both methods are worked, and the other one
+  ends by saying the same fact in the asked method's words. `hence_integral.gd` is
   `t5-ext-hence-integral` (SL5.10): a product rule result read backwards with its extra term moved
   across (x ln x, x e^(kx), x sin(kx), x cos(kx)), a composite one with its constant factor divided out
   (e^(px²), ln(x² + c), (x² + c)ⁿ, sin(x²)), the same as an exact definite value, the derivative itself,
