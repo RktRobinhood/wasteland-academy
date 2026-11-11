@@ -393,8 +393,10 @@ static func _clean(s: Dictionary) -> bool:
 	if s.ask == "factor-from-variance":
 		return not s.old.variance.eq(s.new.variance)
 	# A told measure of centre is not the spread it is told with, so no option can read both ways.
-	if s.asked.size() == 2 and s.old[s.asked[0]].eq(s.old[s.asked[1]]):
-		return false
+	if s.asked.size() == 2:
+		for side in [s.old, s.new]:
+			if side[s.asked[0]].eq(side[s.asked[1]]):
+				return false
 	if s.rep == "terms":
 		# The mean of a list is whole or ends in one decimal place.
 		return ends(s.old.mean, 1) and ends(s.new.mean, 1)
