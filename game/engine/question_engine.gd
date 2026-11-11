@@ -162,6 +162,7 @@ static var SITUATIONS := {
 	"basic-probability": [BasicProbabilitySituation, BasicProbabilityViews],
 	"sample-space": [SampleSpaceSituation, SampleSpaceViews],
 	"counting": [CountingSituation, CountingViews],
+	"polynomial-conditions": [PolynomialConditionsSituation, PolynomialConditionsViews],
 }
 
 static var _cat: Dictionary = {}

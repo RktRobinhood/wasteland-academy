@@ -14212,7 +14212,7 @@
               "misconceptions": [
                 "Checking f′ at a few points and concluding it is positive everywhere",
                 "Showing f(x) > 0 instead of f′(x) > 0",
-                "Claiming x² > 0 for all x (it equals 0 at x = 0)"
+                "Claiming a square is always positive, when it is zero where its bracket is zero"
               ],
               "threads": [
                 {
@@ -15196,8 +15196,8 @@
               ],
               "misconceptions": [
                 "Computing F(a) − F(b)",
-                "Using 0 as the lower limit when the region starts at an x-intercept",
-                "Rounding the limits too early on P2 and losing accuracy"
+                "Using zero as the lower limit when the region starts at an x-intercept",
+                "Rounding the limits too early and losing accuracy"
               ],
               "threads": [
                 {
@@ -17074,8 +17074,8 @@
                 }
               ],
               "misconceptions": [
-                "Taking the derivative itself as the integral: ∫ ln x dx = ln x + 1",
-                "Forgetting to move across the integral of the extra term (the + 1 becomes − x)",
+                "Taking the derivative itself as the integral",
+                "Forgetting to move the integral of the extra term across",
                 "Dropping + C"
               ],
               "threads": [

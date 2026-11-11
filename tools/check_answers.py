@@ -39920,6 +39920,315 @@ SITUATION_CHECKS["solid-angle"] = E12SA_check
 # ── end solid-angle ──
 
 
+# ── polynomial-conditions (t5-ext-unknown-coefficients, t5-ext-stationary-conditions, FAL-776) ──
+# The checker's own reading of the curve and its conditions, from the lines the student sees.
+# The letters are SymPy symbols, so the derivative is SymPy's, and the conditions are solved
+# with sp.solve. Each tagged slip is worked out from its own wrong equations. Every line of the
+# working that states an equation is checked to be that condition, and error-spot lines are
+# judged one by one against the true curve. The clean limits are the checker's own copy:
+# the engine's are in game/engine/situations/polynomial_conditions.gd.
+
+E13PC_X = sp.Symbol("x")
+E13PC_L = {n: sp.Symbol(n) for n in "abckp"}
+E13PC_UC, E13PC_SC = "SL5.3.unknown-coefficients#", "SL5.8.stationary-point-conditions#"
+E13PC_NUM = r"−?\d+(?:/\d+)?"
+E13PC_LIMIT, E13PC_LETTER, E13PC_GIVEN = 30, 9, 99
+
+
+def E13PC_expr(text):
+    """'kx³ − 4x − 3', '3ax² + b', '12a − 4b' as SymPy, the letters as symbols."""
+    t = text.strip().replace("−", "-").replace("²", "**2").replace("³", "**3")
+    t = re.sub(r"(\d)([a-z(])", r"\1*\2", t)
+    t = re.sub(r"([abckp])x", r"\1*x", t)
+    t = re.sub(r"([abckp])\(", r"\1*(", t)
+    t = re.sub(r"\)\(", r")*(", t)
+    need(re.fullmatch(r"[0-9abckpx*+\-/() ]+", t) is not None, f"can't read {text!r}")
+    return sp.expand(parse_expr(t, local_dict={"x": E13PC_X, **E13PC_L}))
+
+
+def E13PC_n(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def E13PC_read(q):
+    """(f, the letters, the conditions as a dict) from the question's lines."""
+    u, rep, L = q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    N = E13PC_NUM
+    c = {}
+    if rep == "words":
+        pats = {
+            "k-from-gradient": rf"The curve y = (.+) has gradient ({N}) at the point where x = ({N})\.",
+            "two-from-gradient-and-point": rf"The curve y = (.+) passes through the point \(({N}), ({N})\), where its gradient is ({N})\.",
+            "two-gradients": rf"The gradient of the curve y = (.+) is ({N}) where x = ({N}), and ({N}) where x = ({N})\.",
+            "from-tangent": rf"The line y = (.+) is the tangent to the curve y = (.+) at the point where x = ({N})\.",
+            "k-from-stationary-x": rf"The curve y = (.+) has a stationary point where x = ({N})\.",
+            "two-from-stationary-point": rf"The curve y = (.+) has a stationary point at \(({N}), ({N})\)\.",
+            "k-from-inflexion": rf"The curve y = (.+) has a point of inflexion where x = ({N})\.",
+            "two-from-two-stationary": rf"The curve y = (.+) has stationary points where x = ({N}) and where x = ({N})\.",
+        }
+        need(len(L) == 1, "a words question is one line")
+        m = re.fullmatch(pats[u], L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        g = m.groups()
+        if u == "from-tangent":
+            f, rest = g[1], [g[0], g[2]]
+        else:
+            f, rest = g[0], list(g[1:])
+        if u == "k-from-gradient":
+            c = {"m": E13PC_n(rest[0]), "x0": E13PC_n(rest[1])}
+        elif u == "two-from-gradient-and-point":
+            c = {"x0": E13PC_n(rest[0]), "y0": E13PC_n(rest[1]), "m": E13PC_n(rest[2])}
+        elif u == "two-gradients":
+            c = {"m": E13PC_n(rest[0]), "x0": E13PC_n(rest[1]), "m1": E13PC_n(rest[2]), "x1": E13PC_n(rest[3])}
+        elif u == "from-tangent":
+            c = {"line": E13PC_expr(rest[0]), "x0": E13PC_n(rest[1])}
+        elif u in ("k-from-stationary-x", "k-from-inflexion"):
+            c = {"x0": E13PC_n(rest[0])}
+        elif u == "two-from-stationary-point":
+            c = {"x0": E13PC_n(rest[0]), "y0": E13PC_n(rest[1])}
+        else:
+            c = {"x0": E13PC_n(rest[0]), "x1": E13PC_n(rest[1])}
+    else:
+        need(len(L) == 2, "an equation question is two lines")
+        m = re.fullmatch(r"f\(x\) = (.+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        f = m.group(1)
+        pats = {
+            "k-from-gradient": (rf"f′\(({N})\) = ({N})\.", ("x0", "m")),
+            "two-from-gradient-and-point": (rf"f′\(({N})\) = ({N}) and f\(({N})\) = ({N})\.", ("x0", "m", "x0b", "y0")),
+            "two-gradients": (rf"f′\(({N})\) = ({N}) and f′\(({N})\) = ({N})\.", ("x0", "m", "x1", "m1")),
+            "from-tangent": (rf"The tangent to y = f\(x\) at x = ({N}) is y = (.+)\.", ("x0", "line")),
+            "k-from-stationary-x": (rf"The graph of f has a stationary point at x = ({N})\.", ("x0",)),
+            "two-from-stationary-point": (rf"The graph of f has a stationary point at \(({N}), ({N})\)\.", ("x0", "y0")),
+            "k-from-inflexion": (rf"The graph of f has a point of inflexion at x = ({N})\.", ("x0",)),
+            "two-from-two-stationary": (rf"The graph of f has stationary points at x = ({N}) and x = ({N})\.", ("x0", "x1")),
+        }
+        rx, names = pats[u]
+        m = re.fullmatch(rx, L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        for n, v in zip(names, m.groups()):
+            c[n] = E13PC_expr(v) if n == "line" else E13PC_n(v)
+        if "x0b" in c:
+            need(c.pop("x0b") == c["x0"], "the gradient and the point are at different x")
+    F = E13PC_expr(f)
+    letters = sorted((s for s in F.free_symbols if s != E13PC_X), key=lambda s: s.name)
+    return F, letters, c
+
+
+def E13PC_solve(eqs, letters):
+    sol = sp.solve(eqs, letters, dict=True)
+    need(len(sol) == 1 and all(l in sol[0] for l in letters), f"{eqs} do not fix {letters} once")
+    return [sp.Rational(sol[0][l]) for l in letters]
+
+
+def E13PC_text(letters, vals):
+    return ", ".join(f"{l.name} = {frac_text(v)}" for l, v in zip(letters, vals))
+
+
+def E13PC_at(e, x):
+    return sp.expand(e.subs(E13PC_X, x))
+
+
+def E13PC_conditions(u, F, c):
+    """The true equations, each (expression, value)."""
+    X = E13PC_X
+    d1, d2 = sp.diff(F, X), sp.diff(F, X, 2)
+    x0 = c["x0"]
+    if u == "k-from-gradient":
+        return [(E13PC_at(d1, x0), c["m"])]
+    if u == "two-from-gradient-and-point":
+        return [(E13PC_at(d1, x0), c["m"]), (E13PC_at(F, x0), c["y0"])]
+    if u == "two-gradients":
+        return [(E13PC_at(d1, x0), c["m"]), (E13PC_at(d1, c["x1"]), c["m1"])]
+    if u == "from-tangent":
+        line = sp.Poly(c["line"], X)
+        need(line.degree() == 1, "the tangent is not a line")
+        return [(E13PC_at(d1, x0), line.coeff_monomial(X)), (E13PC_at(F, x0), E13PC_at(c["line"], x0))]
+    if u == "k-from-stationary-x":
+        return [(E13PC_at(d1, x0), 0)]
+    if u == "two-from-stationary-point":
+        return [(E13PC_at(d1, x0), 0), (E13PC_at(F, x0), c["y0"])]
+    if u == "k-from-inflexion":
+        return [(E13PC_at(d2, x0), 0)]
+    return [(E13PC_at(d1, x0), 0), (E13PC_at(d1, c["x1"]), 0)]
+
+
+def E13PC_slips(u, F, c, letters):
+    """ref -> the texts its slip gives."""
+    X = E13PC_X
+    d1 = sp.diff(F, X)
+    x0 = c["x0"]
+    out = {}
+
+    def add(ref, eqs):
+        try:
+            vals = E13PC_solve(eqs, letters)
+        except Fail:
+            return
+        out[ref] = {E13PC_text(letters, vals)}
+
+    if u == "k-from-gradient":
+        add(E13PC_UC + "0", [sp.Eq(E13PC_at(F, x0), c["m"])])
+    elif u == "two-from-gradient-and-point":
+        add(E13PC_UC + "0", [sp.Eq(E13PC_at(F, x0), c["m"]), sp.Eq(E13PC_at(d1, x0), c["y0"])])
+    elif u == "two-gradients":
+        add(E13PC_UC + "0", [sp.Eq(E13PC_at(F, x0), c["m"]), sp.Eq(E13PC_at(F, c["x1"]), c["m1"])])
+    elif u == "from-tangent":
+        line = sp.Poly(c["line"], X)
+        add("t5-ext-unknown-coefficients#2", [sp.Eq(E13PC_at(d1, x0), line.coeff_monomial(X)), sp.Eq(E13PC_at(F, x0), line.coeff_monomial(1))])
+    elif u == "k-from-stationary-x":
+        add(E13PC_SC + "0", [sp.Eq(E13PC_at(F, x0), 0)])
+    elif u == "two-from-stationary-point":
+        add(E13PC_SC + "2", [sp.Eq(E13PC_at(d1, c["y0"]), 0), sp.Eq(E13PC_at(F, x0), c["y0"])])
+    elif u == "k-from-inflexion":
+        add("t5-ext-stationary-conditions#3", [sp.Eq(E13PC_at(d1, x0), 0)])
+    else:
+        lead = sp.Poly(F, X).LC()
+        bc = sp.Poly(sp.expand(lead * (X - x0) * (X - c["x1"])), X).all_coeffs()
+        b, cc = letters
+        add("t5-ext-stationary-conditions#4", [sp.Eq(sp.Poly(d1, X).coeff_monomial(X), bc[1]), sp.Eq(sp.Poly(d1, X).coeff_monomial(1), bc[2])])
+    return out
+
+
+def E13PC_clean(F, letters, vals, c):
+    X = E13PC_X
+    full = sp.Poly(sp.expand(F.subs(dict(zip(letters, vals)))), X)
+    for l, v in zip(letters, vals):
+        need(v.q == 1 and v != 0 and abs(v) <= E13PC_LETTER, f"{l} = {v} is not a small nonzero whole number")
+    for coef in sp.Poly(F, X, *letters).coeffs():
+        need(coef.is_integer and abs(coef) <= E13PC_LIMIT, f"the coefficient {coef} is not a small whole number")
+    for k in ("m", "y0", "m1"):
+        if k in c:
+            need(abs(c[k]) <= E13PC_GIVEN, f"{k} = {c[k]} is too big to work by hand")
+    need(c["x0"] != 0 and c["x0"].q == 1, "x0 is not a nonzero whole number")
+    return full
+
+
+def E13PC_eq_line(t, letters):
+    """'27a + b = 79' as an expression that is 0."""
+    m = re.fullmatch(r"(.+) = (.+)", t)
+    need(m is not None, f"no equation in {t!r}")
+    return sp.expand(E13PC_expr(m.group(1)) - E13PC_expr(m.group(2)))
+
+
+E13PC_LIN = r"−?\d*[abckp](?: [+−] \d*[abckp])*(?: [+−] \d+)? = −?\d+(?:/\d+)?"
+
+
+def E13PC_working(q, F, letters, vals, c, u):
+    """Every derivative the working states is SymPy's, every equation holds for the answer, and an
+    equation a condition "gives" is that condition with its number moved across."""
+    X = E13PC_X
+    d1, d2 = sp.expand(sp.diff(F, X)), sp.expand(sp.diff(F, X, 2))
+    true_eqs = [sp.expand(e - v) for e, v in E13PC_conditions(u, F, c)]
+    at = dict(zip(letters, vals))
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            m = re.search(r"f′\(x\) = (.+?)(?:\.$|, a quadratic)", st)
+            if m:
+                parts = m.group(1).split(" = ")
+                need(E13PC_expr(parts[0]) == d1 or (st.startswith("So ") and E13PC_expr(parts[0]) == sp.expand(d1.subs(at))),
+                     f"{sol['name']}: f′ is not {parts[0]!r}")
+                for p in parts[1:]:
+                    need(E13PC_expr(p) == sp.expand(d1.subs(at)), f"{sol['name']}: f′ is not {p!r}")
+            m = re.search(r"f″\(x\) = (.+)\.$", st)
+            if m:
+                need(E13PC_expr(m.group(1)) == d2, f"{sol['name']}: f″ is not {m.group(1)!r}")
+            for m in re.finditer(E13PC_LIN, st):
+                need(E13PC_eq_line(m.group(0), letters).subs(at) == 0, f"{sol['name']}: {m.group(0)!r} is false for the answer")
+            for m in re.finditer(rf"(?:gives |give |\d: |\d and )({E13PC_LIN})", st):
+                if re.fullmatch(r"[a-z] = .+", m.group(1)):
+                    continue
+                e = E13PC_eq_line(m.group(1), letters)
+                need(any(sp.expand(e - t) == 0 for t in true_eqs), f"{sol['name']}: {m.group(1)!r} is not one of the conditions")
+            m = re.fullmatch(r"f[′″]\((−?\d+)\) = ([^:]+) = (−?\d+)\.", st)
+            if m and " gives " not in st:
+                e = sp.expand(E13PC_expr(m.group(2)) - E13PC_n(m.group(3)))
+                need(any(sp.expand(e - t) == 0 for t in true_eqs), f"{sol['name']}: {st!r} is not the condition")
+            m = re.search(r"f[′″]\((−?\d+)\) = 0: (.+) = 0\.$", st)
+            if m:
+                need(any(sp.expand(E13PC_expr(m.group(2)) - t) == 0 for t in true_eqs), f"{sol['name']}: {st!r} is not the condition")
+
+
+def E13PC_check(q):
+    u, angle = q["view"]["unknown"], q["view"]["angle"]
+    F, letters, c = E13PC_read(q)
+    want_letters = {"k-from-gradient": "k", "k-from-stationary-x": "k", "k-from-inflexion": "p", "two-from-two-stationary": "bc"}.get(u, "ab")
+    need("".join(l.name for l in letters) == want_letters, f"the letters are {letters}")
+    need(q["paper"] == (2 if angle.startswith("gdc-") else 1), f"Paper {q['paper']} for {angle}")
+    conds = E13PC_conditions(u, F, c)
+    vals = E13PC_solve([sp.Eq(e, v) for e, v in conds], letters)
+    full = E13PC_clean(F, letters, vals, c)
+    X = E13PC_X
+    if u in ("k-from-stationary-x", "two-from-stationary-point", "two-from-two-stationary"):
+        d = sp.diff(full.as_expr(), X)
+        for x in [c["x0"]] + ([c["x1"]] if "x1" in c else []):
+            need(d.subs(X, x) == 0, "not a stationary point")
+    if u == "k-from-inflexion":
+        d2 = sp.diff(full.as_expr(), X, 2)
+        need(d2.subs(X, c["x0"]) == 0 and d2.subs(X, c["x0"] - 1) * d2.subs(X, c["x0"] + 1) < 0, "f″ doesn't change sign there")
+    if u == "two-from-stationary-point":
+        need(full.as_expr().subs(X, c["x0"]) == c["y0"], "the point is not on the curve")
+    if u == "from-tangent":
+        line = c["line"]
+        need(sp.expand(full.as_expr() - line).subs(X, c["x0"]) == 0 and sp.diff(full.as_expr() - line, X).subs(X, c["x0"]) == 0, "the line is not the tangent")
+    if len(letters) == 1:
+        want = f"{letters[0].name} = {frac_text(vals[0])}"
+    else:
+        want = E13PC_text(letters, vals)
+    gc_check_common(q, want, E13PC_slips(u, F, c, letters))
+    E13PC_working(q, F, letters, vals, c, u)
+    return None, None
+
+
+def E13PC_spot(q, lines):
+    """The first line of a student's working that is false for the true curve."""
+    u = q["view"]["unknown"]
+    F, letters, c = E13PC_read(q)
+    X = E13PC_X
+    conds = E13PC_conditions(u, F, c)
+    vals = E13PC_solve([sp.Eq(e, v) for e, v in conds], letters)
+    true_eqs = [sp.expand(e - v) for e, v in conds]
+    d1 = sp.diff(F, X)
+    N = E13PC_NUM
+    for i, t in enumerate(lines):
+        if re.fullmatch(rf"f′\(({N})\) = 0 has many solutions; take a = ({N}), so b = ({N})", t):
+            ok = False  # one equation can't fix two unknowns, whatever is picked
+        elif (m := re.fullmatch(r"f′\(x\) = (.+)", t)):
+            ok = E13PC_expr(m.group(1)) == d1
+        elif (m := re.fullmatch(rf"f′\(({N})\) = ([^g]+) = ({N})", t)):
+            ok = E13PC_expr(m.group(2)) == E13PC_at(d1, E13PC_n(m.group(1))) and any(
+                sp.expand(E13PC_expr(m.group(2)) - E13PC_n(m.group(3)) - e) == 0 for e in true_eqs)
+        elif (m := re.fullmatch(rf"(f′?)\(({N})\) = ({N}) gives (.+)", t)):
+            g = d1 if m.group(1) == "f′" else F
+            want = sp.expand(E13PC_at(g, E13PC_n(m.group(2))) - E13PC_n(m.group(3)))
+            ok = any(sp.expand(want - e) == 0 for e in true_eqs) and sp.expand(E13PC_eq_line(m.group(4), letters) - want) == 0
+        elif (m := re.fullmatch(rf"The gradient at x = ({N}) is f′\(({N})\), so f′\(({N})\) = ({N})", t)):
+            ok = len({m.group(1), m.group(2), m.group(3)}) == 1 and E13PC_n(m.group(1)) == c["x0"] and E13PC_n(m.group(4)) == c["m"]
+        elif (m := re.fullmatch(rf"The point \(({N}), ({N})\) is on the curve, and f′\(({N})\) = 0", t)):
+            ok = (E13PC_n(m.group(1)), E13PC_n(m.group(2))) == (c["x0"], c["y0"]) and E13PC_n(m.group(3)) == c["x0"]
+        elif (m := re.fullmatch(r"So f\(x\) = (.+)", t)):
+            ok = E13PC_expr(m.group(1)) == sp.expand(F.subs(dict(zip(letters, vals))))
+        elif (m := re.fullmatch(rf"([a-z]) = ({N})(?:, ([a-z]) = ({N}))?", t)):
+            got = {m.group(1): E13PC_n(m.group(2))}
+            if m.group(3):
+                got[m.group(3)] = E13PC_n(m.group(4))
+            ok = got == {l.name: v for l, v in zip(letters, vals)}
+        else:
+            e = E13PC_eq_line(t, letters)
+            ok = e.subs(dict(zip(letters, vals))) == 0
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["polynomial-conditions"] = E13PC_check
+SPOT_CHECKS["polynomial-conditions"] = E13PC_spot
+
+# ── end polynomial-conditions ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):
