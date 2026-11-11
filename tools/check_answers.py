@@ -632,7 +632,118 @@ def check_quadratic(q):
     if f is not None:
         need(f == f_sit, "the givens describe another parabola than the situation")
     check_lines(q, f)
+    quad_check_slips(q, f_sit)
     return exp, f
+
+
+# The slips FAL-815 tagged on the quadratic views, each rebuilt from the parabola (f, as the
+# situation's checks confirmed it) and the question's own givens: unknown -> ref -> the
+# normalised options that slip gives. A tagged option on one of these unknowns must be one.
+QF, QC, QK = "fn-quadratic-features#", "fn-quadratic-from-conditions#", "fn-concept-quadratic-forms#"
+
+
+def quad_slips(q, f):
+    u, g = q["view"]["unknown"], q["given"]
+    kind = q["answer"]["kind"]
+    a, b, c = coeffs(f)
+    h, k = vertex(f)
+    rs = real_roots(f) if sp.discriminant(f, X) >= 0 else []
+    vf = lambda A, H, K: ("poly", sp.expand(A * (X - H)**2 + K))
+    fac = lambda A, P_, Q_: ("poly", sp.expand(A * (X - P_) * (X - Q_)))
+    gen = lambda A, B, C_: ("poly", sp.expand(A * X**2 + B * X + C_))
+    axis = lambda var, v: (("h", v), ("var", var))
+    one = lambda key, v: ((key, v),)
+    claim = lambda form, *vals: ("claim", form, tuple(vals))
+    if u == "y-intercept-from-vertex-form":
+        return {QF + "12": {one("y", k)}, QF + "13": {one("y", h**2 + k)}}
+    if u == "axis-from-roots":
+        p_, r_ = sorted(R(v) for v in g["roots"])
+        out = {QF + "14": {axis("x", (r_ - p_) / 2)}}
+        if q["view"]["rep"] == "equation":
+            out["SL2.6.factorised-form#0"] = {axis("x", -(p_ + r_) / 2)}
+        return out
+    if u == "axis-from-vertex":
+        return {QF + "15": {axis("y", k)}}
+    if u == "axis-from-general":
+        return {"SL2.6.axis-symmetry#1": {axis("y", h)}, QF + "16": {axis("x", -b / a)}}
+    if u == "axis-from-equal-outputs":
+        return {"SL2.6.axis-symmetry#1": {axis("y", h)}}
+    if u == "second-root-from-axis":
+        r_, H = R(g["root"]), R(g["axis"])
+        return {QF + "17": {one("v", 2 * H + r_)}, QF + "18": {one("v", -r_)}, QF + "19": {one("v", H - r_)}}
+    if u == "b-from-axis":
+        A, H = R(g["a"]), R(g["axis"])
+        return {"SL2.6.axis-symmetry#0": {one("v", 2 * A * H)}, QF + "16": {one("v", -A * H)}}
+    if u == "vertex-from-table":
+        other = "maximum" if a > 0 else "minimum"
+        return {QF + "20": {(("kind", other), ("x", h), ("y", k))}}
+    if u == "max-or-min":
+        return {QF + "21": {(("k", h), ("kind", "minimum" if a > 0 else "maximum"))}}
+    if u == "h-k-from-vertex":
+        return {"SL2.6.vertex#0": {vf(a, -h, k)}}
+    if u == "general-from-vertex-form":
+        return {QF + "22": {gen(a, b, h**2 + k)}}
+    if u == "factorised-from-general":
+        return {QF + "23": {fac(a, -rs[0], -rs[1])}}
+    if u == "factorised-from-vertex-form":
+        return {QF + "23": {fac(a, -rs[0], -rs[1])}, "SL2.6.factorised-form#1": {fac(1, rs[0], rs[1])}}
+    if u == "vertex-form-from-vertex-and-a":
+        return {QC + "5": {vf(a, -h, k)}}
+    if u in ("a-from-vertex-and-point", "equation-from-table"):
+        out = {QC + "5": {vf(a, -h, k)}, QC + "6": {vf(-a, h, k)}}
+        if u == "equation-from-table":
+            out["SL2.6.find-equation#0"] = {vf(1, h, k)}
+        return out
+    if u == "equation-from-vertex-and-root":
+        return {"SL2.6.find-equation#0": {fac(1, rs[0], rs[1])}, "SL2.6.find-equation#1": {fac(a, -rs[0], -rs[1])},
+                QC + "6": {fac(-a, rs[0], rs[1])}}
+    if u == "a-from-roots-and-point":
+        return {QC + "6": {fac(-a, rs[0], rs[1])}}
+    if u == "coefficients-from-roots":
+        p_, r_ = rs
+        # One root's sign flipped (the negative one, else the larger), or both.
+        fp, fq = (-p_, r_) if p_ < 0 else (p_, -r_)
+        return {"SL2.6.find-equation#1": {gen(a, -a * (fp + fq), a * fp * fq), gen(a, a * (p_ + r_), a * p_ * r_)}}
+    if u == "coefficient-from-axis":
+        return {QC + "7": {one("v", -b)}, QC + "8": {one("v", b / 2)}}
+    if u == "coefficient-from-point":
+        w = g["unknown"]
+        x1, y1 = (R(v) for v in g["points"][0])
+        cf = {"a": x1**2, "b": x1, "c": sp.Integer(1)}
+        rest = sum(R(v) * cf[key] for key, v in g["partial"].items())
+        return {QC + "9": {one("v", (y1 + rest) / cf[w])}, QC + "10": {one("v", y1 - rest)}}
+    if u == "range-after-finding":
+        rel = "≥" if a > 0 else "≤"
+        flip = "≤" if a > 0 else "≥"
+        return {QC + "11": {(("k", k), ("rel", flip), ("var", "y"))}, QC + "12": {(("k", h), ("rel", rel), ("var", "y"))}}
+    if u == "form-for-feature":
+        feat = g["feature"]
+        if feat == "vertex":
+            return {"SL2.6.vertex#0": {claim("vertex", -h, k)}}
+        if feat == "roots":
+            return {QK + "2": {claim("factorised", -rs[0], -rs[1])}}
+        return {QK + "3": {claim("vertex", k)}}
+    if u == "form-for-task":
+        if g["task"] == "solve":
+            return {QK + "2": {claim("factorised", -rs[0], -rs[1])}}
+        if g["task"] == "f0":
+            return {"SL2.6.factorised-form#2": {claim("factorised", rs[0] * rs[1])}, QK + "3": {claim("vertex", k)}}
+        return {}
+    if u == "match-three-forms":
+        tri = lambda A, P_, Q_: ("triple", sp.expand(a * X**2 + b * X + c), sp.expand(A * (X - P_) * (X - Q_)), sp.expand(a * (X - h)**2 + k))
+        return {QK + "2": {tri(a, -rs[0], -rs[1])}, QK + "4": {tri(1, rs[0], rs[1])}}
+    return {}
+
+
+def quad_check_slips(q, f):
+    slips = quad_slips(q, f)
+    kind = q["answer"]["kind"]
+    fixed = q["answer"].get("fixed") or {}
+    for o in q["choices"]:
+        if o["correct"] or o["ref"] not in slips:
+            continue
+        got = norm(kind, values_of(kind, o["values"], fixed))
+        need(got in slips[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives on {q['view']['unknown']}")
 
 
 def check_common(q, exp, f):
@@ -1705,6 +1816,8 @@ E10AR_SUM0 = "SL1.2.sum#0"
 E10AR_SUM1 = "SL1.2.sum#1"
 E10AR_TOTAL = "SL1.2.model#0"
 E10AR_GAPS = "SL1.2.find-u1-d#0"
+E10AR_T = "t1-arithmetic-in-context#"
+E10AR_TIMES_N, E10AR_CHANGE, E10AR_NO_GAPS, E10AR_NEAR_FAR = (E10AR_T + str(i) for i in (26, 27, 28, 29))
 E10AR_METHOD = {"solve-linear": r"\(n − 1\)|n − 1 =", "count-steps": "one more|add one", "gdc-table": "table", "graph-intersect": "Graph y",
                 "gdc-regression": "LinReg", "average-difference": "last − first"}
 
@@ -1849,7 +1962,8 @@ def e10ar_seq(q, u):
         need(lim[0] <= n <= lim[1] and T(n + 1) > 0, f"n = {n} is out of limits")
         if u[1] == "e":
             return say(T(n)), {E10AR_NTH0: {say(u1 + n * d)}, E10AR_TOTAL: {say(S(n))}}
-        return say(S(n)), {E10AR_TOTAL: {say(T(n))}, E10AR_SUM0: {say(sp.Rational(n, 2) * (2 * u1 + n * d))}, E10AR_SUM1: {say(S(n - 1))}}
+        return say(S(n)), {E10AR_TOTAL: {say(T(n))}, E10AR_SUM0: {say(sp.Rational(n, 2) * (2 * u1 + n * d))}, E10AR_SUM1: {say(S(n - 1))},
+                           E10AR_TIMES_N: {say(n * u1), say(n * T(n))}}
     if u == "in-or-after":
         need(c["time"], "a story with no time in it")
         ma = re.fullmatch(rf"Find the {re.escape(c['what'])} {c['on']} the {c['step']} after (\d+) full {c['step']}s\.", asked)
@@ -1921,6 +2035,8 @@ def e10ar_claims_calc(q):
     vals = {plain(n - 1): u1 + (n - 1) * d, plain(n): u1 + n * d, full(n - 1): sp.Rational(n, 2) * (2 * u1 + (n - 1) * d),
             full(n): sp.Rational(n, 2) * (2 * u1 + n * d), f"{n} × {a}": n * u1, f"{n} × ({plain(n - 1)})": n * (u1 + (n - 1) * d)}
     tags = {full(n - 1) if mt else plain(n - 1): E10AR_TOTAL, plain(n): E10AR_NTH0, full(n): E10AR_SUM0}
+    if ms:
+        tags[f"{n} × ({plain(n - 1)})"] = E10AR_TIMES_N
     return [(t, v == goal, tags.get(t)) for t, v in vals.items()]
 
 
@@ -1976,7 +2092,7 @@ def e10ar_after(q):
         v += d
     need(E10AR_N_SUM[0] <= n <= E10AR_N_SUM[1] and v + d > 0, f"n = {n}")
     say = lambda x: f"{e10ar_d(x)} {c['unit']}"
-    return say(v), {E10AR_MO + "1": {say(v - d)}}
+    return say(v), {E10AR_MO + "1": {say(v - d)}, E10AR_CHANGE: {say(abs(n * d))}}
 
 
 def e10ar_bank(q):
@@ -2063,7 +2179,8 @@ def e10ar_peak(q):
             best, at = run, k
     need(E10AR_N_SUM[0] <= at <= E10AR_N_TERM[1], f"peak at {at}")
     say = lambda v: f"{e10ar_d(v)} {c['unit']}"
-    return say(best), {E10AR_MO + "12": {say(totals[at + 1]), say(totals[at + 2]), say(totals[at - 1])}, E10AR_TOTAL: {say(u1)}, E10AR_FN + "1": {say(sp.Integer(at))}}
+    return say(best), {E10AR_MO + "12": {say(totals[at + 1]), say(totals[at + 2]), say(totals[at - 1])}, E10AR_TOTAL: {say(u1)}, E10AR_FN + "1": {say(sp.Integer(at))},
+                       E10AR_TIMES_N: {say(at * u1)}}
 
 
 def e10ar_data(q):
@@ -2103,6 +2220,7 @@ def e10ar_gradient(q):
     wr = {E10AR_MO + "3": {say(ys[1] - ys[0])}}
     if u == "estimate-d":
         wr[E10AR_GAPS] = {say(sp.Rational(ys[-1] - ys[0], m))}
+        wr[E10AR_NO_GAPS] = {say(ys[-1] - ys[0])}
         if c["sign"] < 0:
             wr[E10AR_SIGN] = {say(-want)}
     else:
@@ -2156,7 +2274,7 @@ def e10ar_claims_valid(q):
     need(p > 0, "a negative prediction with no limit")
     if big - m <= 2:
         out = [(f"Reasonable: year {big} is close to the data, and the yearly changes all go the same way.", True, None), (exact, False, tag(7)), (bad, False, tag(8)),
-               (f"Not valid: year {big} is far beyond the data, which end at year {m}.", False, None)]
+               (f"Not valid: year {big} is far beyond the data, which end at year {m}.", False, E10AR_NEAR_FAR)]
         if cap is not None:
             out.append((f"Not valid: about {said} is over the limit of {cap}.", False, None))
         return out
@@ -2200,7 +2318,7 @@ def e10ar_stack(q):
     need(4 <= n <= 12, f"n = {n}")
     S = lambda k: e10ar_sum(u1, d, k)
     return say(S(n)), {E10AR_TOTAL: {say(e10ar_term(u1, d, n))}, E10AR_MO + "13": {say(S(1) + (n - 1) * (S(2) - S(1)))}, E10AR_SUM1: {say(S(n - 1))},
-                       E10AR_SUM0: {say(sp.Rational(n, 2) * (2 * u1 + n * d))}}
+                       E10AR_SUM0: {say(sp.Rational(n, 2) * (2 * u1 + n * d))}, E10AR_TIMES_N: {say(n * u1)}}
 
 
 def e10ar_crates(q):
@@ -8006,6 +8124,10 @@ def lg_sols(xs):
     return f"{n} solution{'' if n == 1 else 's'}: " + lg_xs([ext_pi(x / sp.pi) for x in xs])
 
 
+LG_T = "fn-link-graph-vs-algebra#"
+LG_BOTH_SIDES, LG_NO_K, LG_OVER_E, LG_GDC_ONLY, LG_TURN_X, LG_TOUCH, LG_K_FIRST, LG_FIRST_ONLY = (LG_T + str(i) for i in range(15, 23))
+
+
 def check_link_graph_algebra(q):
     u, asked, L = q["view"]["unknown"], q["asked"], q["lines"]
     le_no_hyphen(q)
@@ -8021,6 +8143,11 @@ def check_link_graph_algebra(q):
             x0 = sp.solveset(sp.exp(k * X) - c, X, sp.S.Reals)
             need(len(x0) == 1, "e^(kx) = c has not one solution")
             want = f"Yes: x = {lg_ln_over(c, k)} ≈ {gc_s(sp.N(next(iter(x0)), 30))}"
+            wr[LG_GDC_ONLY] = {"No: only a GDC can solve it"}
+            if k > 1:
+                wr[LG_NO_K] = {f"Yes: x = ln {c} ≈ {gc_s(sp.N(sp.log(c), 30))}"}
+            else:
+                wr[LG_OVER_E] = {f"Yes: x = {c}/e ≈ {gc_s(sp.N(sp.Integer(c) / sp.E, 30))}"}
         else:
             m = re.fullmatch(r"(e\^x|ln x) = (\d+) − x", eq)
             a = int(m.group(2))
@@ -8028,6 +8155,8 @@ def check_link_graph_algebra(q):
             zs = gc_zeros(lhs - (a - X), 0.001 if m.group(1) == "ln x" else -10, a + 2)
             need(len(zs) == 1 and not on_edge(abs(zs[0])), "not one clean meeting point")
             want = "No: graph both sides; x ≈ " + gc_s(zs[0])
+            # x still on both sides after undoing the outer function, or after moving the rest.
+            wr[LG_BOTH_SIDES] = {f"Yes: x = ln({a} − x)"} if m.group(1) == "e^x" else {f"Yes: x = e^({a} − x)", f"Yes: x = {a} − ln x"}
     elif u == "solve-by-intersection":
         paper = 2
         rhs_ = gc_expr(re.fullmatch(r"Solve e\^x = (.+), giving every solution to 3 s\.f\.", asked).group(1))
@@ -8046,7 +8175,8 @@ def check_link_graph_algebra(q):
         sols = sorted(sp.solveset(eq, X, sp.Interval(0, U)), key=float)
         nxt = min(sp.solveset(eq, X, sp.Interval.Lopen(U, U + 2 * sp.pi)), key=float)
         want = lg_sols(sols)
-        wr = {"SL2.10.number-of-solutions#1": {lg_sols(sols + [nxt])}, "SL3.8.graphical#0": {lg_sols([s_ for s_ in sols if s_ <= 2 * sp.pi])}}
+        wr = {"SL2.10.number-of-solutions#1": {lg_sols(sols + [nxt])}, "SL3.8.graphical#0": {lg_sols([s_ for s_ in sols if s_ <= 2 * sp.pi])},
+              LG_FIRST_ONLY: {lg_sols(sols[:1])}}
         if q["view"]["rep"] == "graph":
             g = q["graph"]
             need(gc_curve_is(g["curves"][0], gc_f(A * fn(X))) and abs(g["hlines"][0]["at"] - float(rv)) < 1e-9, "the graph drawn is not the equation's")
@@ -8062,6 +8192,11 @@ def check_link_graph_algebra(q):
         want = {3: f"{L_} < k < {H_}", 2: f"k = {L_} or k = {H_}", 1: f"k < {L_} or k > {H_}"}[n]
         if n == 3:
             wr["SL2.10.number-of-solutions#0"] = {f"{L_} ≤ k ≤ {H_}"}
+        # The turning points' x-coordinates, left first, where the bounds on k should be heights.
+        xa, xb = sorted(sp.solve(sp.diff(f, X), X))
+        wr[LG_TURN_X] = {f"{ft(xa)} < k < {ft(xb)}", f"k = {ft(xa)} or k = {ft(xb)}"}
+        if n == 1:
+            wr[LG_TOUCH] = {f"k ≤ {L_} or k ≥ {H_}"}
         need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the graph drawn is not f")
     elif u == "limits-first":
         m = re.search(r"The curve y = (.+?) and the line y = (.+?) enclose a region", asked)
@@ -8093,7 +8228,9 @@ def check_link_graph_algebra(q):
         need(len(bad) == 1 and bad[0] < 0 and r.is_integer, "no rejected whole-number root")
         want = "x = " + ft(r)
         both = f"x = {ft(r)} or x = {ft(bad[0])}"
-        wr = {"SL2.10.solve-analytic#0": {both}, "SL1.7.log-equations#0": {both}}
+        wr = {"SL2.10.solve-analytic#0": {both}, "SL1.7.log-equations#0": {both},
+              # ln x + ln(x + a) taken as ln(2x + a), so 2x + a = b.
+              "SL1.7.log-equations#1": {"x = " + ft(sp.solve(2 * X + a - b, X)[0])}}
         if q["view"]["rep"] == "graph":
             g = q["graph"]
             need(gc_curve_is(g["curves"][0], gc_f(sp.log(X) + sp.log(X + a))) and abs(g["hlines"][0]["at"] - float(sp.log(b))) < 1e-9,
@@ -8105,6 +8242,9 @@ def check_link_graph_algebra(q):
         need(not on_edge(abs(x0)), "x is on a rounding edge")
         want = f"x = {lg_ln_over(c, k)} ≈ {gc_s(x0)}"
         wr["SL1.5.evaluate-tech#0"] = {f"x = {lg_ln_over(c, k, 'log')} ≈ {gc_s(sp.N(sp.log(c, 10) / k, 30))}"}
+        wr[LG_OVER_E] = {f"x = {c}/e ≈ {gc_s(sp.N(sp.Integer(c) / sp.E, 30))}"}
+        if k > 1:
+            wr[LG_K_FIRST] = {f"x = ln({ft(sp.Rational(c, k))}) ≈ {gc_s(sp.N(sp.log(sp.Rational(c, k)), 30))}"}
     else:
         raise Fail(f"no check for {u}")
     need(q["paper"] == paper, f"paper {q['paper']}, not {paper}")
@@ -38591,6 +38731,7 @@ E12TS_TURN, E12TS_AXIS, E12TS_ZIG, E12TS_DWAY, E12TS_BASE, E12TS_TZERO, E12TS_SP
 E12TS_TSIN, E12TS_STAN, E12TS_NOD, E12TS_MINUS, E12TS_PEAKS = ("SL3.7.read-features#3", "SL3.7.read-features#4", "SL3.7.read-features#5",
                                                                "SL3.7.read-features#8", "SL3.7.read-features#9")
 E12TS_ONE, E12TS_COSSIN = "SL3.8.solve-basic#0", "SL3.8.solve-basic#1"
+E12TS_SINCOS = "t3-trig-sketch#14"
 E12TS_FN = {"sin": sp.sin, "cos": sp.cos, "tan": sp.tan}
 E12TS_MF = {"sin": mpmath.sin, "cos": mpmath.cos, "tan": mpmath.tan}
 E12TS_NUM = r"\d+(?:\.\d+)?"
@@ -38994,6 +39135,8 @@ def E12TS_y_int(q, W):
         w[E12TS_DWAY].add(t(-d))
         if fn == "sin":
             w[E12TS_SPEAK].add(t(a + d))
+        # sin 0 = tan 0 = 0: a × 0 with d left out.
+        w[E12TS_NOD].add(t(0))
     gc_check_common(q, t(y), w, steps=(2, 5))
 
 
@@ -39017,6 +39160,9 @@ def E12TS_x_ints(q, W):
     if b != 1:
         w[E12TS_BASE].add(E12TS_xs_text(W, E12TS_sols(a * E12TS_FN[fn](E12TS_X) + d, 0, 2 * sp.pi, closed=False)))
     w[E12TS_ONE].add(E12TS_xs_text(W, xs[:1]))
+    if fn == "sin" and k > 0:
+        al = sp.asin(k)
+        w[E12TS_SINCOS].add(E12TS_xs_text(W, [al / b, (2 * sp.pi - al) / b]))
     gc_check_common(q, E12TS_xs_text(W, xs), w, steps=(2, 5))
 
 
