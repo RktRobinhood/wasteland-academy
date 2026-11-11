@@ -463,7 +463,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A price that rises 10% a year for two years has risen 20% in total. — False. Each year multiplies by 1.1, so two years multiply by 1.1² = 1.21: a 21% rise. The second 10% is taken of a bigger amount.
   - *always-sometimes-never* (L3): A cup of tea cooling as T = 20 + 60e^(−0.1t) eventually drops below 20 °C. — Never. 60e^(−0.1t) is always positive, so T is always above 20; 20 °C is the long-run value the model only approaches.
   - *interpret-parameter* (L3): In V = 800(0.85)ᵗ, what do 800 and 0.85 mean? — V is 800 at t = 0. Each unit of time V is multiplied by 0.85, so it keeps 85% and loses 15% of its value.
-- **Misconceptions used:** 13. Confuses the percentage rate with the growth factor, which is one plus the rate; Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the start value as the value after one period, so the exponent is off by one; Reads the y-intercept of a·b^x + c as a instead of a + c; Uses the asymptote value as the y-intercept; Takes ln of a sum term by term, e.g. ln(a·b^x + c) = ln a + x ln b + ln c; Losing the brackets around the power when bringing it down; Taking logs before isolating: ln(5e^(2x)) = 5 × 2x; Rounding the logs early, so the final answer is wrong; Rounds the wrong way for the context, to a whole number that doesn't meet the condition; Keeps a solution outside the model's domain, such as a negative time; Answers 'how much' when the question asks 'when'; Mixing up base and exponent: reading log_a b = x as x^a = b.
+- **Misconceptions used:** 13. Confuses the percentage rate with the growth factor, which is one plus the rate; Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the start value as the value after one period, so the exponent is off by one; Reads the y-intercept of a·b^x + c as a instead of a + c; Uses the asymptote value as the y-intercept; Takes ln of a sum term by term, e.g. ln(a·b^x + c) = ln a + x ln b + ln c; Losing the brackets around the power when bringing it down; Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power; Rounding the logs early, so the final answer is wrong; Rounds the wrong way for the context, to a whole number that doesn't meet the condition; Keeps a solution outside the model's domain, such as a negative time; Answers 'how much' when the question asks 'when'; Mixing up base and exponent: reading log_a b = x as x^a = b.
 
 #### Log function features: asymptote, domain and sign (`fn-log-function-features`, exam, 3 bank parts)
 
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 15 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1971,6 +1971,25 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): For a positive number a, taking the cube root and then squaring gives the same as squaring and then taking the cube root. — True: both are a^(2/3). Taking the root first keeps the numbers small.
 - **Misconceptions used:** 21. Multiplying the base by the exponent; Thinking a negative exponent gives a negative value; Multiplying the exponents when multiplying powers; Taking the root and stopping, without raising to the power; Multiplying the root by the top of the power instead of raising it to that power; Ignoring the minus sign in the power, so no reciprocal is taken; Dividing by the power instead of raising both sides to its reciprocal; Writing the power of a root upside down, with the root's index on top; Leaving out the minus sign when a power moves from the bottom of a fraction to the top; Applying the power to x but not to the number in the bracket; Adding the powers in a bracket instead of multiplying them; Adding the tops and adding the bottoms of two fractional powers; Dividing the powers instead of subtracting them; Subtracting the powers the wrong way round; Adding the powers when dividing; Adding the powers of two different bases as if the base were the same; Dividing only the first term of the top by the bottom; Adding the numbers in front instead of multiplying them; Dividing the powers of x but not the numbers in front; Treating a cube root as a square root; Raising both sides to the given power instead of its reciprocal.
 
+#### Solve an exponential equation exactly with logarithms (`t1-solve-exponential`, exam, 1 bank parts)
+
+- **Situation:** An exponential equation solved with logarithms, in symbols or in a story.
+- **Representations:** **equation**, words, graph (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a^(x + p) = b^x or a^x = b^(c − x), or their curves crossing at P → x to 3 s.f.
+  - new L3: given a^(x + p) = b^x with a < b, or a^(x − p) = b^x with a > b → x exactly, as ln p/ln q
+  - new L3: given a^x = b^(c − x) → x exactly, as ln p/ln q
+  - **exam** L2: given k e^(mx) + d = c, with whole numbers → x exactly, as ln a or (ln r)/m
+  - new L2: given k e^(mx) + d = c with a decimal rate, or k × a^x + d = c, or the curve and the line y = c crossing at P → x to 3 s.f.
+  - new L3: given a story: A = A₀e^(kt); a level → the exact time, as m ln r
+  - new L4: given a story: A = A₀e^(kt) and B = B₀ × g^t; or their curves crossing at P → the time they are equal, to 3 s.f.
+- **Angles:** Take ln of both sides and bring the exponents down; Isolate the exponential, then convert to log form; Graph both sides and find the intersection; Use the numerical solver.
+- **Concept probes:**
+  - *true-false-reason* (L3): ln(3e^(2x)) = 6x. — False: the log of a product is a sum, so ln(3e^(2x)) = ln 3 + 2x. Divide by 3 first, or use the product law, before the power comes down.
+  - *always-sometimes-never* (L4): Solving a^x = b with log₁₀ instead of ln gives the same x. — Always: x = log b/log a in any base, because changing the base multiplies the top and the bottom by the same number.
+  - *predict-check* (L4): Before solving 2^(x + 1) = 3^x, say whether x is more or less than 1. — More: at x = 1 the left side is 4 and the right side 3, and 3^x grows faster, so it catches up later. x = ln 2/(ln 3 − ln 2) ≈ 1.71.
+- **Misconceptions used:** 14. Losing the brackets around the power when bringing it down; Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power; Rounding the logs early, so the final answer is wrong; Moving an x term across without changing its sign; Combining two logs by adding or subtracting the numbers inside them; Dividing the other way round when the bracket is divided out; Subtracting the number in front instead of dividing by it; Dividing by the number in front before taking off the added constant; Forgetting to divide by the number in the power; Multiplying by the number in the power instead of dividing by it; Dividing by the base instead of by its log; Dropping the starting amount before taking logs; Using the percentage growth as the continuous rate; Raising the starting amount to the power along with the factor.
+
 #### Log laws and change of base to evaluate or rewrite logarithms (`t1-log-laws`, exam, 10 bank parts)
 
 - **Situation:** A log expression to evaluate, combine, expand or rewrite in another base.
@@ -2121,7 +2140,30 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 20 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 21 exam types have them so far.
+
+#### Angle in a 3D solid (`t3-3d-angle`, exam, 1 bank parts)
+
+- **Situation:** An angle in a solid, or between points in 3D.
+- **Representations:** **diagram**, **words**, **equation**, notation (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a cuboid ABCDEFGH with its three edges, in a story or on the figure → the angle between the space diagonal AG and the base
+  - **exam** L3: given a right pyramid VABCD with a square or rectangular base, its base edges and its height → the angle between a slant edge and the base
+  - new L3: given a right pyramid VABCD, its base edges and height, and M the midpoint of a base edge → the angle between the slant height VM of a face and the base
+  - **exam** L2: given a cone with two of its radius, vertical height and slant height → the angle between the slant height and the base
+  - **exam** L3: given two points in 3D, in a sentence, as position vectors or on axes → the angle between the line through them and the xy-plane
+  - new L2: given a cone, cuboid or pyramid whose lengths make the angle 30°, 45° or 60° → the exact angle between a line and the base, without a calculator
+  - **exam** L4: given a cuboid with its edges, and two space diagonals meeting at M → the angle between the diagonals at M
+  - **exam** L3: given a right pyramid with its base edges and height → the angle at the apex between two slant edges, next to each other or across the base
+  - new L3: given a cuboid with its edges → the angle between the space diagonal AG and an edge at A
+  - **exam** L3: given three points A, B and C in 3D → angle ABC
+  - new L3: given three points in 3D with a right angle at A or C → angle ABC, where a right angle can be spotted first
+- **Angles:** Project onto the plane and use tan; Use sin with the full line length; Read rise and run from coordinates; Three sides, then the cosine rule; Spot a right angle; Halve an isosceles triangle.
+- **Concept probes:**
+  - *true-false-reason* (L3): The angle between a line and a plane is the angle between the line and any line in the plane through the point where they meet. — False: lines in the plane make different angles with it. The angle with the plane is the one with the line's projection, which is the smallest of them.
+  - *always-sometimes-never* (L4): The angle between a cuboid's space diagonal and its base is smaller than the angle between that diagonal and a base edge at the same corner. — Always: the projection onto the base is closer to the diagonal than any edge, so its angle is the smallest.
+  - *true-false-reason* (L4): Two space diagonals of a cube cross at right angles. — False: they meet at M with AM = BM = half the diagonal, and the cosine rule gives cos θ = 1/3, about 70.5°.
+- **Misconceptions used:** 20. Measuring the angle to an edge of the base instead of to the line's projection onto the plane; Using the face diagonal as the vertical side of the triangle; Mixing up the slant edge of a pyramid with the slant height of a triangular face; Assuming an angle in a flat drawing of a solid is a right angle because it looks like one; Using a face diagonal where a space diagonal is needed; Putting the side opposite the wanted angle in the wrong place in the cosine rule; Finding the angle with the vertical instead of with the base; Using the full length of the line as the horizontal side with tan; Using the whole base diagonal instead of half of it; Using half of the wrong base edge for the distance from the centre; Using the diameter of the base instead of its radius; Using the slant height as the vertical height; Leaving one horizontal difference out of the run; Forgetting to double the half-angle from the isosceles triangle; Using the whole space diagonal for the distance to the point where the diagonals cross; Leaving out the doubling in the bottom of the cosine rule; Using the vertical height as the slant edge; Taking the acute angle when the cosine is negative; Finding the angle with the base instead of with the edge; Using tan with the hypotenuse in place of a shorter side.
 
 #### Distance and midpoint in 2D or 3D (`t3-distance-midpoint`, exam, 9 bank parts)
 
@@ -3305,7 +3347,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 17 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 18 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
