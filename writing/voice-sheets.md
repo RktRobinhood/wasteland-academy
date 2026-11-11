@@ -198,3 +198,7 @@ The same idea, "you made a ratio mistake", in each voice:
 ## Characters still to come
 
 ROADMAP.md names six Relic-station characters, one per station, including B0-LT, "a malfunctioning scrap robot", at the Signal Tower. Each gets a block here before its lesson is written. B0-LT needs the most care: a second robot must not sound like Spark. Two near-overlaps to watch: the Trader's Caravan accountant sits close to Dax, and the Engine Core's "reckless mechanic" sits close to Gear Mira, who is patient.
+
+## Bodge (the Bazaar's store owner)
+
+Her voice sheet, look brief and the rules for her lines are in `writing/shopkeeper.md` (FAL-789). Her lines are in `game/data/shopkeeper.json`.
