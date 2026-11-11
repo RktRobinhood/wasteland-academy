@@ -459,7 +459,7 @@ func u_sketch_tan(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := {"answer": ans, "graphs": pk.graphs, "lines": [eq_line(s)], "asked": "Which graph is the sketch of the function on this domain?"}
 	var base := "x = π/2 + kπ" if s.form == "pi" else "x = 90° + k × 180°"
 	out.methods = {
-		QPP: method([quarter_line(s), "From x = 0 the points go: on its centre line (0, %s), then %s, with an asymptote a quarter of a period on, at %s." % [D(s.d), "(%s, %s)" % [X(s, q), D(s.d.add(s.a))], asym],
+		QPP: method([quarter_line(s), "From x = 0 the points go: (0, %s) on its centre line, then %s a quarter of a period on. Each asymptote is half a period from a centre-line crossing: on this domain, %s." % [D(s.d), "(%s, %s)" % [X(s, q), D(s.d.add(s.a))], asym],
 			"Each branch %s through its centre line, from one asymptote to the next, with no turning point." % ("rises" if a > 0.0 else "falls"), ending(letter)], ans.values),
 		TB: method(["y = tan x crosses the x-axis at x = 0, rises with no turning point, and has vertical asymptotes at %s." % base,
 			("b = %s makes the period %s ÷ %s = %s, and the asymptotes on this domain are at %s." % [Fmt.num(s.b), "180°" if s.form == "deg" else "π", B(s.b), X(s, P), asym] if not s.b.eq(1) else "With b = 1 the period stays %s, and the asymptotes on this domain are at %s." % [X(s, P), asym]),
@@ -713,7 +713,7 @@ func u_tan_asymptotes(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var base := "x = π/2 + kπ" if s.form == "pi" else "x = 90° + k × 180°"
 	var list := list_of(xs.map(func(x): return X(s, x)))
 	out.methods = {
-		QPP: method([quarter_line(s), "A tan period's key points are an asymptote, then y = d − a, d, d + a, then an asymptote: the branch through (0, %s) has its asymptotes a quarter of a period either side, at x = ±%s." % [D(s.d), X(s, P.div(2))],
+		QPP: method([quarter_line(s), "A tan period's key points are an asymptote, then y = d − a, d, d + a, then an asymptote: the branch through (0, %s) has its asymptotes half a period either side, at x = ±%s." % [D(s.d), X(s, P.div(2))],
 			"Going on a period at a time, the asymptotes on %s are at x = %s." % [domain(s), list], say(a)], a.values),
 		TB: method(["y = tan x has its vertical asymptotes at %s." % base,
 			"b = %s divides every x by %s, and a and d don't move the asymptotes: x = %s + k × %s." % [Fmt.num(s.b), B(s.b), X(s, P.div(2)), X(s, P)] if not s.b.eq(1) else "With b = 1, and a and d moving no asymptote, they stay at x = %s + k × %s." % [X(s, P.div(2)), X(s, P)],

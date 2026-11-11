@@ -9619,7 +9619,7 @@
                 "Starting a cosine graph on the axis instead of at a maximum",
                 "Drawing a zigzag of straight lines instead of a smooth curve",
                 "Moving the graph the wrong way for d: down for + d, or up for − d",
-                "Keeping the period of the base graph, as if b were 1",
+                "Keeping the period of the base graph, ignoring the b in bx",
                 "Putting tan's asymptotes where it crosses its centre line, instead of halfway between those crossings",
                 "Starting a sine graph at a maximum, as a cosine graph does"
               ],

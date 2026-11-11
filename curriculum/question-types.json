@@ -38198,7 +38198,7 @@
     },
     {
      "ref": "SL3.7.sketch#4",
-     "text": "Keeping the period of the base graph, as if b were 1",
+     "text": "Keeping the period of the base graph, ignoring the b in bx",
      "as": "distractor",
      "in": [
       "sketch-wave",
