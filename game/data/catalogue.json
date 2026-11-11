@@ -20663,6 +20663,79 @@
 						"times-larger"
 					],
 					"wrong": "the smaller divided by the larger"
+				},
+				{
+					"text": "Moving the point in a without changing the power of ten to match",
+					"as": "distractor",
+					"in": [
+						"renormalise"
+					],
+					"wrong": "a brought between 1 and 10, the power left as it was"
+				},
+				{
+					"text": "Changing the power of ten the wrong way to balance the moving point",
+					"as": "distractor",
+					"in": [
+						"renormalise",
+						"divide-renormalise"
+					],
+					"wrong": "a brought between 1 and 10, the power moved the wrong way"
+				},
+				{
+					"text": "Changing the power of ten the wrong way when changing the unit",
+					"as": "distractor",
+					"in": [
+						"unit-shift"
+					],
+					"wrong": "the power shifted the wrong way"
+				},
+				{
+					"text": "Squaring the first part of p but not its power of ten",
+					"as": "distractor",
+					"in": [
+						"power-product"
+					],
+					"wrong": "a² q with p's power of ten taken once"
+				},
+				{
+					"text": "Forgetting to change the kilometres into metres before dividing",
+					"as": "distractor",
+					"in": [
+						"rate-unit-shift"
+					],
+					"wrong": "the distance left in kilometres"
+				},
+				{
+					"text": "Using the diameter as the radius",
+					"as": "distractor",
+					"in": [
+						"sphere-volume-pi"
+					],
+					"wrong": "(4/3)d³ in place of (4/3)r³"
+				},
+				{
+					"text": "Dividing the speed by the distance, not the distance by the speed",
+					"as": "distractor",
+					"in": [
+						"time-from-rate"
+					],
+					"wrong": "speed ÷ distance"
+				},
+				{
+					"text": "Multiplying the speed by the distance instead of dividing",
+					"as": "distractor",
+					"in": [
+						"time-from-rate"
+					],
+					"wrong": "speed × distance"
+				},
+				{
+					"text": "Dividing one amount by the other instead of multiplying them",
+					"as": "distractor",
+					"in": [
+						"total-from-unit"
+					],
+					"wrong": "the number divided by the amount for each"
 				}
 			],
 			"chain": [
@@ -49084,6 +49157,39 @@
 						"one-event-only"
 					],
 					"wrong": "P(A′ ∩ B′) given for P(A ∩ B′)"
+				},
+				{
+					"text": "Stopping at P(A ∪ B) and forgetting to take it away from one",
+					"as": "distractor",
+					"in": [
+						"neither-from-rule"
+					],
+					"wrong": "P(A ∪ B), not 1 − P(A ∪ B)"
+				},
+				{
+					"text": "Reading neither as not both, so taking P(A ∩ B) from one instead of P(A ∪ B)",
+					"as": "distractor",
+					"in": [
+						"neither-from-rule"
+					],
+					"wrong": "1 − P(A ∩ B)"
+				},
+				{
+					"text": "Stopping at the x terms added together, without dividing by the coefficient of x",
+					"as": "distractor",
+					"in": [
+						"x-from-total"
+					],
+					"wrong": "the x terms' total, not divided"
+				},
+				{
+					"text": "Mixing up the least and the greatest possible overlap",
+					"as": "distractor",
+					"in": [
+						"least-overlap",
+						"greatest-overlap"
+					],
+					"wrong": "the greatest overlap for the least, or the least for the greatest"
 				}
 			],
 			"chain": [
@@ -53336,7 +53442,8 @@
 					"as": "distractor",
 					"in": [
 						"conditional-normal",
-						"conditional-binomial"
+						"conditional-binomial",
+						"conditional-discrete"
 					],
 					"wrong": "the numerator multiplied by P(given)"
 				},
@@ -53359,6 +53466,42 @@
 						"conditional-discrete"
 					],
 					"wrong": "the wanted probability, not divided"
+				},
+				{
+					"text": "Ignoring the condition and giving the probability of the wanted event on its own",
+					"as": "distractor",
+					"in": [
+						"conditional-from-probabilities",
+						"conditional-from-venn",
+						"conditional-from-table",
+						"conditional-complement",
+						"reverse-from-tree"
+					],
+					"wrong": "P(A), or P(A′), with the condition ignored"
+				},
+				{
+					"text": "Treating the draws as if the first is put back before the second",
+					"as": "distractor",
+					"in": [
+						"reverse-two-draws"
+					],
+					"wrong": "the same ratio with replacement"
+				},
+				{
+					"text": "Adding P(A) and P(B) without taking away the overlap",
+					"as": "distractor",
+					"in": [
+						"union-from-conditional"
+					],
+					"wrong": "P(A) + P(B)"
+				},
+				{
+					"text": "Leaving out P(A ∩ B), as if A and B can't happen together",
+					"as": "distractor",
+					"in": [
+						"marginal-from-union"
+					],
+					"wrong": "P(A ∪ B) − P(A)"
 				}
 			],
 			"chain": [

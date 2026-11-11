@@ -16730,6 +16730,7 @@ def nu_check(q):
 # table, by working out the unknown region from what is shown, never from the situation.
 
 VN_SKILL = "SL4.6."
+VN_T = "t4-venn-addition-rule#"         # FAL-815: the slips that were blank options
 VN_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
 VN_NUM = r"\d+(?:/\d+)?(?:\.\d+)?"
 VN_CONTEXTS = [("scavengers", "scavenger", "carry a radio", "carry a water filter", "carries a radio", "carries a water filter"),
@@ -16834,6 +16835,9 @@ def check_venn(q):
             want, trap, wrongs = vn_opts(q, lab, pi, dec, paper, {"union#1": pa * pb})
         else:
             want, trap, wrongs = vn_opts(q, lab, 1 - pu, dec, paper, {"union#0": 1 - pa - pb})
+            # P(A ∪ B) left as it is, and "neither" read as "not both".
+            wrongs[VN_T + "6"] = {lab + vn_prob_shown(pu, dec, paper)[0]}
+            wrongs[VN_T + "7"] = {lab + vn_prob_shown(1 - pi, dec, paper)[0]}
     elif u == "union-from-regions":
         a, i, b, o, dec = vn_diagram(q)
         need(asked == "Find P(A ∪ B).", f"asked {asked!r}")
@@ -16904,6 +16908,8 @@ def check_venn(q):
         slip = sp.solve(sum(exprs) - n, sp.Symbol("x"))[0]
         need(slip.q == 1, "forgetting the outside doesn't give a whole number")
         wrongs[VN_SKILL + "venn#1"] = {f"x = {slip}"}
+        # The x terms solved for together, not divided by x's coefficient.
+        wrongs[VN_T + "8"] = {f"x = {n - o - sum(exprs).subs(sp.Symbol('x'), 0)}"}
     elif u in ("least-overlap", "greatest-overlap"):
         pa, pb = vn_p(L[0], "A"), vn_p(L[1], "B")
         need(pa + pb > 1 and pa != pb, "the events need not overlap")
@@ -16911,6 +16917,8 @@ def check_venn(q):
         need(asked == f"Find the {'least' if u == 'least-overlap' else 'greatest'} possible value of P(A ∩ B).", f"asked {asked!r}")
         want = "P(A ∩ B) = " + dec_text(v)
         wrongs[VN_SKILL + "union#1"] = {"P(A ∩ B) = " + dec_text(pa * pb)}
+        # The other bound: the greatest overlap for the least, or the least for the greatest.
+        wrongs[VN_T + "9"] = {"P(A ∩ B) = " + dec_text(min(pa, pb) if u == "least-overlap" else pa + pb - 1)}
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs, trap)
@@ -16929,6 +16937,7 @@ def check_venn(q):
 # student sees, and the ratio is found again with exact rationals, or mpmath for a normal.
 
 CD_SKILL = "SL4.11."
+CD_T = "t4-conditional-probability#"    # FAL-815: the slips that were blank options
 CD_TREES = [("crates", "are spoiled", "the scanner flags", "A crate", "spoiled", "flagged"),
             ("fuel cans", "are watered down", "the tester rejects", "A can", "watered down", "rejected"),
             ("water samples", "are unsafe", "the filter test marks red", "A sample", "unsafe", "marked red"),
@@ -17030,10 +17039,14 @@ def cd_check(q):
         if u == "conditional-from-probabilities":
             table["conditional-formula#2"] = (a + i) * (b + i)
         want, trap, wrongs = cd_set(q, label, i / (i + b), table, cd_dec(q))
+        # The condition ignored: P(A) on its own.
+        wrongs[CD_T + "10"] = {label + cd_shown(a + i, paper, cd_dec(q))}
     elif u == "conditional-complement":
         a, i, b, o = cd_regions(q)
         label = "P(A′ | B′) = " if rep == "equation" else "probability = "
         want, trap, wrongs = cd_set(q, label, o / (a + o), {"conditional-formula#0": o / (b + o), "conditional-formula#1": o}, cd_dec(q))
+        # The condition ignored: P(A′) on its own.
+        wrongs[CD_T + "10"] = {label + cd_shown(b + o, paper, cd_dec(q))}
     elif u == "unknown-from-conditional":
         rows = q["table"]["rows"]
         need(rows[0][1] == ["B", "B′"] and rows[2][1][1] == "n", "the table")
@@ -17063,6 +17076,8 @@ def cd_check(q):
         total = both + (1 - pa) * pbn
         need(total >= sp.Rational(1, 10), "the given event is below 0.1")
         want, trap, wrongs = cd_set(q, label, both / total, {"reverse-conditional#0": pba, "reverse-conditional#1": both})
+        # The test ignored: the first branch, P(A), on its own.
+        wrongs[CD_T + "10"] = {label + cd_shown(pa, paper, True)}
     elif u == "reverse-two-draws":
         mt = re.fullmatch(r"A bag holds (\d+) (\w+) and (\d+) (\w+) (\w+)\.", L[0])
         need(mt is not None and L[1] == "Two are drawn at random, without replacement.", f"can't read {L}")
@@ -17073,6 +17088,9 @@ def cd_check(q):
         rr = sp.Rational(r, t) * sp.Rational(r - 1, t - 1)
         same = rr + sp.Rational(gg, t) * sp.Rational(gg - 1, t - 1)
         want, trap, wrongs = cd_set(q, "probability = ", rr / same, {"reverse-conditional#1": rr}, False)
+        # With replacement: (r/t)² over (r/t)² + (g/t)².
+        rep_ = sp.Rational(r, t) ** 2
+        wrongs[CD_T + "11"] = {"probability = " + cd_shown(rep_ / (rep_ + sp.Rational(gg, t) ** 2), paper, False)}
     elif u == "intersection-from-conditional":
         _, pb, pc, _ = cd_lines_rule(q, u)
         label = "P(A ∩ B) = " if rep == "equation" else "probability = "
@@ -17082,12 +17100,15 @@ def cd_check(q):
         need(pc * pb < pa, "the overlap is bigger than A")
         label = "P(A ∪ B) = " if rep == "equation" else "probability = "
         want, trap, wrongs = cd_set(q, label, pa + pb - pc * pb, {"multiplication-rule#1": pa + pb - pc})
+        wrongs[CD_T + "12"] = {label + cd_shown(pa + pb, paper, True)}
     elif u == "marginal-from-union":
         pa, _, pc, pu = cd_lines_rule(q, u)
         x = sp.Symbol("x")
         sol = sp.solve(pa + x - pc * x - pu, x)
         need(len(sol) == 1 and 0 < sol[0] < 1, f"P(B) = {sol}")
         want, trap, wrongs = cd_set(q, "P(B) = ", sol[0], {})
+        # The addition rule with no overlap: P(A ∪ B) = P(A) + P(B).
+        wrongs[CD_T + "13"] = {"P(B) = " + cd_shown(pu - pa, paper, True)}
     elif u == "conditional-normal":
         if rep == "words":
             c = NU_CONTEXTS[int(g["ctx"])]
@@ -17151,7 +17172,7 @@ def cd_check(q):
         num = sum(p for x, p in zip(xs, ps) if a <= x < b)
         den = sum(p for x, p in zip(xs, ps) if x < b)
         need(den >= sp.Rational(1, 10), "the given event is below 0.1")
-        want, trap, wrongs = cd_set(q, "probability = ", num / den, {"conditional-distributions#2": num})
+        want, trap, wrongs = cd_set(q, "probability = ", num / den, {"conditional-distributions#0": num * den, "conditional-distributions#2": num})
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs, trap)
@@ -20930,6 +20951,7 @@ SF_EDGE = sp.Rational(59, 1000)         # the engine's is 0.06
 SF_C = "SL1.1.convert#"
 SF_M = "SL1.1.multiply-divide#"
 SF_X = "SL1.1.context#"
+SF_T = "t1-standard-form#"              # FAL-815: the slips that were blank options
 SF_SUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻", "0123456789-")
 SF_NUM = re.compile(r"(?:(\d+(?:\.\d+)?) × )?10([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+)")
 SF_PLAIN = re.compile(r"\d+(?: \d{3})*(?:\.\d+)?")
@@ -21055,6 +21077,10 @@ def check_standard_form(q):
         a, k = sf_norm(sf_v(rd[0]))
         want = sf_text(a, k, False)
         wrongs = {C + "2": {sf_text(a * 10 if a0 < 1 else a / 10, k - 1 if a0 < 1 else k + 1, False)}}
+        # a brought between 1 and 10 by moving the point; the power left as shown, or moved the
+        # other way: by as many places as the point moved, which k − k0 counts.
+        wrongs[SF_T + "9"] = {sf_text(a, k0, False)}
+        wrongs[SF_T + "10"] = {sf_text(a, k0 - (k - k0), False)}
     elif u == "order-mixed":
         mt = re.fullmatch(r"The four numbers are (.+)\.", L[0])
         need(mt is not None, "can't read the list")
@@ -21085,6 +21111,7 @@ def check_standard_form(q):
         wrongs = {M + "0": {T(r, k - m - n + m * n)}, M + "2": {T(r, k - m - n + m - n)}}
         if a * b >= 10:
             wrongs[M + "1"] = {T(a * b, m + n)}
+            wrongs[SF_T + "9"] = {T(a * b / 10, m + n)}
     elif u in ("divide", "divide-renormalise"):
         need(m != n, "the powers are equal")
         want, trap, r, k = sf_answer(q, a / b * sp.Rational(10) ** (m - n))
@@ -21092,10 +21119,14 @@ def check_standard_form(q):
         wrongs = {M + "2": {T(r, k - m + n + m + n)}}
         if a < b:
             wrongs[M + "1"] = {T(a / b, m - n)}
+            # 10a/b with the power raised, not lowered, to balance it.
+            wrongs[SF_T + "10"] = {T(10 * a / b, m - n + 1)}
     elif u == "power-product":
         e = 2 * m + n
         want, trap, r, k = sf_answer(q, a * a * b * sp.Rational(10) ** e)
         wrongs = {M + "0": {T(r, k - e + m * m + n)}}
+        # a² q with p's power of ten taken once: a² b × 10^(m + n).
+        wrongs[SF_T + "12"] = {T(*sf_norm(a * a * b * sp.Rational(10) ** (m + n)))}
         if a * a * b >= 10:
             wrongs[M + "1"] = {T(a * a * b, e)}
     elif u in ("times-larger", "time-from-rate", "total-from-unit", "rate-unit-shift"):
@@ -21111,11 +21142,18 @@ def check_standard_form(q):
         elif u == "total-from-unit":
             v = sf_v(rd[0]) * sf_v(rd[1])
             slip = sig_v2(a) * sig_v2(b) * sp.Rational(10) ** (m + n)
+            # The story gives the amount for each first, then how many: how many ÷ each.
+            wrongs[SF_T + "17"] = {T(*sf_norm(sf_v(rd[1]) / sf_v(rd[0])))}
         else:
             need("m s⁻¹" in L[0] and ("kilometres away" if u == "rate-unit-shift" else "metres away") in L[0], "the units")
             shift = 3 if u == "rate-unit-shift" else 0
             v = sf_v((b, n + shift)) / sf_v((a, m))
             slip = sig_v2(b) / sig_v2(a) * sp.Rational(10) ** (n + shift - m)
+            if u == "rate-unit-shift":
+                wrongs[SF_T + "13"] = {T(*sf_norm(sf_v((b, n)) / sf_v((a, m))))}
+            else:
+                wrongs[SF_T + "15"] = {T(*sf_norm(sf_v((a, m)) / sf_v((b, n))))}
+                wrongs[SF_T + "16"] = {T(*sf_norm(sf_v((a, m)) * sf_v((b, n))))}
         want, trap, r, k = sf_answer(q, v)
         if paper == 2:
             sr, sk = sf_norm(slip)
@@ -21127,6 +21165,7 @@ def check_standard_form(q):
         found = [s for f, to, s in pairs if re.search(rf"\b{f}\b", L[0]) and f"in {to}." in asked]
         need(len(found) == 1, "can't read the units")
         want = sf_text(a, m + found[0], False)
+        wrongs[SF_T + "11"] = {sf_text(a, m - found[0], False)}
         need(1 <= a < 10 and abs(m + found[0]) >= 2, "the amount's a or power")
     elif u == "scale-value":
         (a, m), = sf_read(L[0])
@@ -21143,6 +21182,9 @@ def check_standard_form(q):
         want, trap, r, k = sf_answer(q, c * sp.Rational(10) ** (3 * m), "V = π(", ") m³")
         if not (1 <= c < 10):
             wrongs[M + "1"] = {sf_text(c, 3 * m, rounded, "V = π(", ") m³")}
+        # (4/3)d³, the diameter cubed in place of the radius.
+        dr, dk = sf_norm(d ** 3 * sp.Rational(4, 3) * sp.Rational(10) ** (3 * m))
+        wrongs[SF_T + "14"] = {sf_text(dr, dk, rounded, "V = π(", ") m³")}
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs, trap, steps=(2, 5))
