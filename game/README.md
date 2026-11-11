@@ -1155,7 +1155,8 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
-  with its `ref`) and a worked solution for every method that suits the unknown.
+  with its `ref`; then `fillers`, options with no slip behind them) and a worked
+  solution for every method that suits the unknown.
 - A **worked-solution step** (FAL-426) in `methods[angle].steps` is a String, or
   `{"move": "<move id>", "board": "<text>"}` when it carries a move tag for the
   explainers: the move is the general step from `curriculum/moves.json`, and the board
@@ -1753,6 +1754,19 @@ text. It also fails on an absurdly large option. So strings carry no numbers of 
 one string serves every question with that tag. Whether a tag fits its option has to be
 read: `--rows=file.tsv` writes one row per type, unknown, representation and tag. A new type
 is enforced from its first commit, and `REPORT_ONLY` is empty.
+
+Every wrong option is a slip or a filler (FAL-815). A slip is a route students take: it
+gets a misconception, its line and a tag, and the checker works it out again. A filler has
+no route to it (the key scaled by a quarter, nudged, a number from nowhere), and the view
+puts it in `fillers`, so a blank is a choice. The check fails on a blank that is neither:
+a `wrongs` entry with no `ref`, or an option from `generic`, the list from before FAL-815
+that mixed the two. A type whose `generic` isn't sorted yet is on `UNSORTED` in
+`tools/feedback_check.gd`, where its blanks are only counted; once sorted, its views say
+`fillers` and it leaves the list, and the check fails on a listed type with nothing left to
+sort. A new type never joins it. A rounding trap with no misconception of its own shows
+`Answer.TRAP_NOTE`, and the engine's last-resort nudges are fillers. The check prints the
+share of multiple-choice wrong options with no line (`BLANK ...`), and `--blanks=file.tsv`
+writes each blank once, with where it came from (`src`, `gi`) and a first example.
 
 The checker only exports seeds 1 to 50. `tools/stress-questions` makes every cell with
 seeds 51 to 2250 (about 258,000 questions, a few minutes) and checks that each question

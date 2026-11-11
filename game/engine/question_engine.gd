@@ -839,8 +839,13 @@ static func _graph_choices(b: Dictionary) -> Array:
 
 
 ## Four options: the answer and three wrong ones. The view's rounding trap (Q7) comes
-## first where it fits, then misconception options, each tagged with its ref; generic
-## ones and, if still short, a nudged number fill the rest. No two options are equal.
+## first where it fits, then misconception options, each tagged with its ref; fillers
+## and, if still short, a nudged number fill the rest. No two options are equal.
+## Each option keeps `src`, where it came from (trap, wrongs, fillers, generic, nudge),
+## and `gi`, its index in its fillers or generic list: tools/feedback-check fails on a
+## blank that isn't a declared filler (FAL-815). `fillers` are wrong options the views
+## declare have no slip behind them; `generic` is the same list from before FAL-815,
+## not yet sorted, and only allowed on the check's UNSORTED types.
 static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	var seen := {Answer.canon(ans, ans.values): true}
 	var picked: Array = []
@@ -848,13 +853,15 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	# A view whose misconception is "too few figures" (SL2.4.max-min#2) tags its trap
 	# with it (trap_ref), so picking it is a glancing hit that logs the misconception.
 	if not b.get("trap", {}).is_empty():
-		pool.append({"values": b.trap, "ref": b.get("trap_ref", ""), "trap": true})
+		pool.append({"values": b.trap, "ref": b.get("trap_ref", ""), "trap": true, "src": "trap"})
 	for w in b.wrongs:
-		pool.append(w)
-	for g in b.generic:
-		pool.append({"values": g, "ref": ""})
+		pool.append(w.merged({"src": "wrongs"}))
+	for channel in ["fillers", "generic"]:
+		var fill: Array = b.get(channel, [])
+		for i in fill.size():
+			pool.append({"values": fill[i], "ref": "", "src": channel, "gi": i})
 	for nudge in _nudges(ans):
-		pool.append({"values": nudge, "ref": ""})
+		pool.append({"values": nudge, "ref": "", "src": "nudge"})
 	for w in pool:
 		if picked.size() >= CHOICES - 1:
 			break
@@ -873,12 +880,15 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	for w in picked:
 		var trap: bool = w.get("trap", false)
 		var o := {"text": Answer.trap_text(ans, w.values) if trap else Answer.text(ans, w.values), "values": w.values,
-			"correct": false, "ref": w.ref, "trap": trap}
+			"correct": false, "ref": w.ref, "trap": trap, "src": w.src, "gi": w.get("gi", -1)}
 		# The answer in a form the question rules out (x(6x + 2) for "factorise fully"):
 		# picking it is a glancing hit with the note, as typing it is.
 		if w.form:
 			o.form = true
 			o.note = Answer.form_note(ans)
+		# A rounding trap with no misconception of its own says why it is half right.
+		elif trap and w.ref == "":
+			o.note = Answer.TRAP_NOTE
 		opts.append(o)
 	return rng.shuffled(opts)
 

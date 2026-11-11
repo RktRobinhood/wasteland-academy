@@ -39,7 +39,7 @@ signal boss_beaten(on_floor: int, kind: String)
 const SLOT_KINDS := ["fight", "encounter", "cell"]
 
 ## The glancing hit's note (Q7).
-const GLANCING_NOTE := "The IB needs 3 s.f."
+const GLANCING_NOTE := Answer.TRAP_NOTE
 
 var save: Dictionary
 var region: String
