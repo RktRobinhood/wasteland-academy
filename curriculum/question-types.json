@@ -39449,6 +39449,38 @@
       "start-side"
      ],
      "wrong": "the shorter side chosen as the start"
+    },
+    {
+     "text": "Giving the other end of the range: the least value when the greatest is asked for, or the greatest when the least is",
+     "as": "distractor",
+     "in": [
+      "greatest-value"
+     ],
+     "wrong": "the other extreme of f"
+    },
+    {
+     "text": "Leaving out the constant term of f, giving the greatest value of the trig part alone",
+     "as": "distractor",
+     "in": [
+      "greatest-value"
+     ],
+     "wrong": "the trig part's greatest value, without the constant"
+    },
+    {
+     "text": "Doubling the number in front where the double-angle sine needs it halved",
+     "as": "distractor",
+     "in": [
+      "sin2-multiple"
+     ],
+     "wrong": "the number in front doubled, not halved"
+    },
+    {
+     "text": "Correcting a later line, which is only wrong because it carries the first slip down",
+     "as": "distractor",
+     "in": [
+      "flawed-line"
+     ],
+     "wrong": "a later line put right, not the first wrong one"
     }
    ],
    "parts": [
@@ -47327,6 +47359,30 @@
       "effect-statement"
      ],
      "wrong": "the centre kept and the spread moved by the constant"
+    },
+    {
+     "text": "Adding the factor to the mean instead of multiplying the mean by it",
+     "as": "distractor",
+     "in": [
+      "multiply-mean"
+     ],
+     "wrong": "the mean with the factor added"
+    },
+    {
+     "text": "Multiplying the mean by the square of the factor, as if it were the variance",
+     "as": "distractor",
+     "in": [
+      "multiply-mean"
+     ],
+     "wrong": "the mean multiplied by the square of the factor"
+    },
+    {
+     "text": "Subtracting the wrong way round when finding b, which flips its sign",
+     "as": "distractor",
+     "in": [
+      "find-a-and-b"
+     ],
+     "wrong": "b with its sign changed"
     }
    ],
    "parts": [
