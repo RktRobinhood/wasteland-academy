@@ -68,7 +68,7 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Usual chain:** midpoint of a segment (sometimes) → gradient of the segment → parallel or perpendicular gradient → equation of the new line through a given point → substitute a point to find an unknown coordinate, or use the line to find an area
 - **Given:** coordinates, equation in y = mx + c or general form, words. **Asked:** A gradient, an equation in a stated form, or a coordinate found from the line. **Answer form:** exact, stated form (y = mx + c or ax + by + d = 0 with integer coefficients).
 - **A recipe can randomise:** two integer points, or a point and a gradient p/q; parallel or perpendicular; the point the new line passes through; the form the answer must take; which coordinate is unknown in the follow-on part.
-- **Limits that keep answers clean:** integer points and gradients with denominator at most 5; the given gradient is non-zero so the perpendicular gradient exists; when ax + by + d = 0 is asked, scale to integers with a > 0; intercepts must be non-zero when the line is built from its intercepts.
+- **Limits that keep answers clean:** integer points and gradients with denominator at most 5; the given gradient is non-zero so the perpendicular gradient exists; when ax + by + d = 0 is asked, scale to integers (any non-zero integer multiple, of either sign, is accepted); intercepts must be non-zero when the line is built from its intercepts.
 - **Game formats:** value, mcq, error-spot, match, method-pick, order-steps
 - **Bank parts:** 12; also used as a step in 1 parts from other topics.
 

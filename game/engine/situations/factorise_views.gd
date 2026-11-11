@@ -116,6 +116,8 @@ func u_difference_of_squares(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 			"So: %s." % Answer.text(ans)], ans.values)}
 		return out
 	var ans := Answer.make("brackets2", b2(s.p, s.q.neg(), s.p, s.q))
+	# "over the integers": fractional brackets of the same product are glancing (FAL-788)
+	ans.integers = true
 	out.answer = ans
 	out.methods = {"recognise-pattern": method([
 		"%s = %s − %s², a difference of two squares" % [expr(s), pxsq, N(s.q)],
