@@ -463,7 +463,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A price that rises 10% a year for two years has risen 20% in total. — False. Each year multiplies by 1.1, so two years multiply by 1.1² = 1.21: a 21% rise. The second 10% is taken of a bigger amount.
   - *always-sometimes-never* (L3): A cup of tea cooling as T = 20 + 60e^(−0.1t) eventually drops below 20 °C. — Never. 60e^(−0.1t) is always positive, so T is always above 20; 20 °C is the long-run value the model only approaches.
   - *interpret-parameter* (L3): In V = 800(0.85)ᵗ, what do 800 and 0.85 mean? — V is 800 at t = 0. Each unit of time V is multiplied by 0.85, so it keeps 85% and loses 15% of its value.
-- **Misconceptions used:** 13. Confuses the percentage rate with the growth factor, which is one plus the rate; Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the start value as the value after one period, so the exponent is off by one; Reads the y-intercept of a·b^x + c as a instead of a + c; Uses the asymptote value as the y-intercept; Takes ln of a sum term by term, e.g. ln(a·b^x + c) = ln a + x ln b + ln c; Losing the brackets around the power when bringing it down; Taking logs before isolating: ln(5e^(2x)) = 5 × 2x; Rounding the logs early, so the final answer is wrong; Rounds the wrong way for the context, to a whole number that doesn't meet the condition; Keeps a solution outside the model's domain, such as a negative time; Answers 'how much' when the question asks 'when'; Mixing up base and exponent: reading log_a b = x as x^a = b.
+- **Misconceptions used:** 13. Confuses the percentage rate with the growth factor, which is one plus the rate; Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the start value as the value after one period, so the exponent is off by one; Reads the y-intercept of a·b^x + c as a instead of a + c; Uses the asymptote value as the y-intercept; Takes ln of a sum term by term, e.g. ln(a·b^x + c) = ln a + x ln b + ln c; Losing the brackets around the power when bringing it down; Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power; Rounding the logs early, so the final answer is wrong; Rounds the wrong way for the context, to a whole number that doesn't meet the condition; Keeps a solution outside the model's domain, such as a negative time; Answers 'how much' when the question asks 'when'; Mixing up base and exponent: reading log_a b = x as x^a = b.
 
 #### Log function features: asymptote, domain and sign (`fn-log-function-features`, exam, 3 bank parts)
 
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1947,6 +1947,49 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): 6n + 9 = 6(n + 3/2), so 6n + 9 is a multiple of 6 for every integer n. — False: n + 3/2 is not an integer, so the 6 outside proves nothing. At n = 1, 6n + 9 = 15, which is not a multiple of 6.
 - **Misconceptions used:** 15. Starting from LHS = RHS and operating on both sides, which assumes what is to be proved; Checking particular values and calling it a proof; Stopping without a concluding statement, or writing = where ≡ is required; Using one letter for two different numbers, which only covers the case where they are equal; Verifying examples instead of arguing in general; Concluding divisibility without showing the bracket is an integer; Forgetting to double the middle term when squaring a bracket; Squaring each term of a bracket and keeping its sign, with no middle term; Getting a sign wrong when multiplying out or removing a bracket; Multiplying only the first term of a bracket; Dividing only part of a numerator by x; Squaring only the numerator of a fraction; Adding one gap too many when summing a list of terms; Squaring the letter but not its coefficient; Writing a² − b² as (a + b)(a + b).
 
+#### Rational and negative exponents (`t1-rational-exponents`, exam, 2 bank parts)
+
+- **Situation:** A power with a rational exponent, of a number or of x.
+- **Representations:** **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a whole number to a positive fractional power, the number a perfect power of the root → the exact value, a whole number
+  - **exam** L2: given a whole number to a negative fractional power, the number a perfect power of the root → the exact value, a fraction with 1 on top
+  - **exam** L3: given a fraction to a positive or negative fractional power, its top and bottom perfect powers of the root → the exact value, a fraction
+  - **exam** L2: given an equation: x to a positive or negative fractional power equals a number, with x > 0 → x, a whole number
+  - **exam** L1: given a square or cube root of a power of x, a power of the root, or 1 over such a root → the expression as one power of x
+  - **exam** L2: given a power of x times a root of x, 1 over that product, or one of them over the other → the expression as one power of x
+  - **exam** L2: given a bracket c x^q to a positive or negative fractional power, with c a perfect power of the root → the expression as a x^n
+  - **exam** L2: given two powers of x with fractional powers multiplied, alone or with whole numbers in front → the product as one term
+  - **exam** L2: given one power of x over another, with fractional powers, alone or with whole numbers in front → the quotient as one term
+  - **exam** L3: given two powers of the same prime's powers, with fractional powers that are not whole alone, multiplied or divided → the exact value
+  - **exam** L2: given two terms over a root of x, or over a number times one → the quotient as a sum of two powers of x
+  - **exam** L3: given three terms over a square or cube root of x, or over a number times one → the quotient as a sum of three powers of x
+- **Angles:** Take the root first, then the power; Raise to the power first, then take the root; Rewrite the base as a prime power; Split a fraction into separate powers; Use the laws of indices.
+- **Concept probes:**
+  - *true-false-reason* (L3): A negative power makes a number negative. — False: a negative power is a reciprocal. A positive number to any power stays positive; the minus sign flips the number over instead.
+  - *always-sometimes-never* (L3): x^a × x^b = x^(ab), for x > 0. — Sometimes: it needs ab = a + b, as with a = b = 2. The law is x^a × x^b = x^(a + b).
+  - *true-false-reason* (L3): For a positive number a, taking the cube root and then squaring gives the same as squaring and then taking the cube root. — True: both are a^(2/3). Taking the root first keeps the numbers small.
+- **Misconceptions used:** 21. Multiplying the base by the exponent; Thinking a negative exponent gives a negative value; Multiplying the exponents when multiplying powers; Taking the root and stopping, without raising to the power; Multiplying the root by the top of the power instead of raising it to that power; Ignoring the minus sign in the power, so no reciprocal is taken; Dividing by the power instead of raising both sides to its reciprocal; Writing the power of a root upside down, with the root's index on top; Leaving out the minus sign when a power moves from the bottom of a fraction to the top; Applying the power to x but not to the number in the bracket; Adding the powers in a bracket instead of multiplying them; Adding the tops and adding the bottoms of two fractional powers; Dividing the powers instead of subtracting them; Subtracting the powers the wrong way round; Adding the powers when dividing; Adding the powers of two different bases as if the base were the same; Dividing only the first term of the top by the bottom; Adding the numbers in front instead of multiplying them; Dividing the powers of x but not the numbers in front; Treating a cube root as a square root; Raising both sides to the given power instead of its reciprocal.
+
+#### Solve an exponential equation exactly with logarithms (`t1-solve-exponential`, exam, 1 bank parts)
+
+- **Situation:** An exponential equation solved with logarithms, in symbols or in a story.
+- **Representations:** **equation**, words, graph (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a^(x + p) = b^x or a^x = b^(c − x), or their curves crossing at P → x to 3 s.f.
+  - new L3: given a^(x + p) = b^x with a < b, or a^(x − p) = b^x with a > b → x exactly, as ln p/ln q
+  - new L3: given a^x = b^(c − x) → x exactly, as ln p/ln q
+  - **exam** L2: given k e^(mx) + d = c, with whole numbers → x exactly, as ln a or (ln r)/m
+  - new L2: given k e^(mx) + d = c with a decimal rate, or k × a^x + d = c, or the curve and the line y = c crossing at P → x to 3 s.f.
+  - new L3: given a story: A = A₀e^(kt); a level → the exact time, as m ln r
+  - new L4: given a story: A = A₀e^(kt) and B = B₀ × g^t; or their curves crossing at P → the time they are equal, to 3 s.f.
+- **Angles:** Take ln of both sides and bring the exponents down; Isolate the exponential, then convert to log form; Graph both sides and find the intersection; Use the numerical solver.
+- **Concept probes:**
+  - *true-false-reason* (L3): ln(3e^(2x)) = 6x. — False: the log of a product is a sum, so ln(3e^(2x)) = ln 3 + 2x. Divide by 3 first, or use the product law, before the power comes down.
+  - *always-sometimes-never* (L4): Solving a^x = b with log₁₀ instead of ln gives the same x. — Always: x = log b/log a in any base, because changing the base multiplies the top and the bottom by the same number.
+  - *predict-check* (L4): Before solving 2^(x + 1) = 3^x, say whether x is more or less than 1. — More: at x = 1 the left side is 4 and the right side 3, and 3^x grows faster, so it catches up later. x = ln 2/(ln 3 − ln 2) ≈ 1.71.
+- **Misconceptions used:** 14. Losing the brackets around the power when bringing it down; Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power; Rounding the logs early, so the final answer is wrong; Moving an x term across without changing its sign; Combining two logs by adding or subtracting the numbers inside them; Dividing the other way round when the bracket is divided out; Subtracting the number in front instead of dividing by it; Dividing by the number in front before taking off the added constant; Forgetting to divide by the number in the power; Multiplying by the number in the power instead of dividing by it; Dividing by the base instead of by its log; Dropping the starting amount before taking logs; Using the percentage growth as the continuous rate; Raising the starting amount to the power along with the factor.
+
 #### Log laws and change of base to evaluate or rewrite logarithms (`t1-log-laws`, exam, 10 bank parts)
 
 - **Situation:** A log expression to evaluate, combine, expand or rewrite in another base.
@@ -2097,7 +2140,30 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 19 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 21 exam types have them so far.
+
+#### Angle in a 3D solid (`t3-3d-angle`, exam, 1 bank parts)
+
+- **Situation:** An angle in a solid, or between points in 3D.
+- **Representations:** **diagram**, **words**, **equation**, notation (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a cuboid ABCDEFGH with its three edges, in a story or on the figure → the angle between the space diagonal AG and the base
+  - **exam** L3: given a right pyramid VABCD with a square or rectangular base, its base edges and its height → the angle between a slant edge and the base
+  - new L3: given a right pyramid VABCD, its base edges and height, and M the midpoint of a base edge → the angle between the slant height VM of a face and the base
+  - **exam** L2: given a cone with two of its radius, vertical height and slant height → the angle between the slant height and the base
+  - **exam** L3: given two points in 3D, in a sentence, as position vectors or on axes → the angle between the line through them and the xy-plane
+  - new L2: given a cone, cuboid or pyramid whose lengths make the angle 30°, 45° or 60° → the exact angle between a line and the base, without a calculator
+  - **exam** L4: given a cuboid with its edges, and two space diagonals meeting at M → the angle between the diagonals at M
+  - **exam** L3: given a right pyramid with its base edges and height → the angle at the apex between two slant edges, next to each other or across the base
+  - new L3: given a cuboid with its edges → the angle between the space diagonal AG and an edge at A
+  - **exam** L3: given three points A, B and C in 3D → angle ABC
+  - new L3: given three points in 3D with a right angle at A or C → angle ABC, where a right angle can be spotted first
+- **Angles:** Project onto the plane and use tan; Use sin with the full line length; Read rise and run from coordinates; Three sides, then the cosine rule; Spot a right angle; Halve an isosceles triangle.
+- **Concept probes:**
+  - *true-false-reason* (L3): The angle between a line and a plane is the angle between the line and any line in the plane through the point where they meet. — False: lines in the plane make different angles with it. The angle with the plane is the one with the line's projection, which is the smallest of them.
+  - *always-sometimes-never* (L4): The angle between a cuboid's space diagonal and its base is smaller than the angle between that diagonal and a base edge at the same corner. — Always: the projection onto the base is closer to the diagonal than any edge, so its angle is the smallest.
+  - *true-false-reason* (L4): Two space diagonals of a cube cross at right angles. — False: they meet at M with AM = BM = half the diagonal, and the cosine rule gives cos θ = 1/3, about 70.5°.
+- **Misconceptions used:** 20. Measuring the angle to an edge of the base instead of to the line's projection onto the plane; Using the face diagonal as the vertical side of the triangle; Mixing up the slant edge of a pyramid with the slant height of a triangular face; Assuming an angle in a flat drawing of a solid is a right angle because it looks like one; Using a face diagonal where a space diagonal is needed; Putting the side opposite the wanted angle in the wrong place in the cosine rule; Finding the angle with the vertical instead of with the base; Using the full length of the line as the horizontal side with tan; Using the whole base diagonal instead of half of it; Using half of the wrong base edge for the distance from the centre; Using the diameter of the base instead of its radius; Using the slant height as the vertical height; Leaving one horizontal difference out of the run; Forgetting to double the half-angle from the isosceles triangle; Using the whole space diagonal for the distance to the point where the diagonals cross; Leaving out the doubling in the bottom of the cosine rule; Using the vertical height as the slant edge; Taking the acute angle when the cosine is negative; Finding the angle with the base instead of with the edge; Using tan with the hypotenuse in place of a shorter side.
 
 #### Distance and midpoint in 2D or 3D (`t3-distance-midpoint`, exam, 9 bank parts)
 
@@ -2464,6 +2530,27 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): Why does 1 − 2 sin²θ suit a question that gives sin θ? — Because it is cos 2θ written with sin θ alone, so the other ratio is never needed.
 - **Misconceptions used:** 8. Ignoring the quadrant and giving the wrong sign; Dropping the squares from the Pythagorean identity; Taking the square root of a difference term by term; Doubling sin θ to get sin 2θ; Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ; Losing the negative sign of cos θ for an obtuse θ before substituting into sin 2θ; Expanding (sin x + cos x)² as sin²x + cos²x; Keeping the number in front the same when rewriting as the sine of a double angle, instead of halving it.
 
+#### Sketch a trig graph from its parameters (`t3-trig-sketch`, exam, 2 bank parts)
+
+- **Situation:** One circular function on a domain, to sketch.
+- **Representations:** **equation**, **table**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given y = a sin(bx) + d or a cos(bx) + d with a > 0; a domain in radians or degrees → which of four graphs is its sketch on the domain (pick the graph)
+  - **exam** L1: given the five key points of one period of a sine or cosine wave, in a table → which of four graphs joins them as the wave (pick the graph)
+  - **exam** L2: given y = −a sin(bx) + d or −a cos(bx) + d, such as −sin(2x); a domain → which of four graphs is its sketch, reflected (pick the graph)
+  - **exam** L3: given y = a tan(bx) + d; a domain of two periods → which of four graphs is its sketch with its asymptotes (pick the graph)
+  - **exam** L2: given a sine or cosine wave; a domain holding one maximum and one minimum → the coordinates of the maximum point and of the minimum point a sketch marks
+  - **exam** L1: given a sine, cosine or tan function → the point where its sketch meets the y-axis
+  - **exam** L3: given a sine or cosine wave crossing its axis at half its amplitude, on one period; or its unmarked sketch → the x-intercepts its sketch marks
+  - **exam** L2: given y = a tan(bx) + d; a domain of two periods → the equations of the vertical asymptotes its sketch shows
+  - **exam** L2: given a sine or cosine wave; a table of its five key points over one period, two of them blank → the two missing y-values
+- **Angles:** Five key points per period; Transform sin x or cos x; Graph on the GDC and transfer.
+- **Concept probes:**
+  - *true-false-reason* (L3): The graph of y = tan x has a maximum point at x = π/2. — False: tan x grows without limit as x nears π/2, where it has a vertical asymptote. It has no turning points at all.
+  - *always-sometimes-never* (L3): Changing b in y = 3 sin(bx) + 1 changes the maximum value of the graph. — Never: b only squeezes or stretches the graph across. The maximum stays d + |a| = 4.
+  - *predict-check* (L3): Where does y = −2 cos x + 1 start at x = 0, and does it then go up or down? — At (0, −1), its minimum, since −2 cos 0 + 1 = −1. From there it goes up, to its maximum of 3 at x = π.
+- **Misconceptions used:** 14. Drawing tan x with turning points instead of vertical asymptotes; Starting a cosine graph on the axis instead of at a maximum; Drawing a zigzag of straight lines instead of a smooth curve; Moving the graph the wrong way for d: down for + d, or up for − d; Keeping the period of the base graph, ignoring the b in bx; Putting tan's asymptotes where it crosses its centre line, instead of halfway between those crossings; Starting a sine graph at a maximum, as a cosine graph does; Using the period rule of sin and cos for tan, which repeats twice as often; Using tan's period rule for a sine or cosine wave, which takes twice as long to repeat; Leaving d out of the maximum, the minimum or the range; Ignoring the minus sign in front of the wave, which turns its peaks into troughs; Mixing up where the two waves peak: cosine at the start of a cycle, sine a quarter of a cycle later; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine.
+
 #### Evaluate or use a trig model: times, counts, durations (`t3-trig-model-use`, exam, 9 bank parts)
 
 - **Situation:** One wave to read or to use, shared with `t3-trig-model-equation`, `t3-trig-model-parameters`, `t3-trig-read-features`.
@@ -2644,7 +2731,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 23 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 24 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2767,6 +2854,33 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): The median is in the middle of the box. — Sometimes: it is only when the data between the quartiles are symmetric. The median splits the data in two by count, not the box by length.
   - *predict-check* (L3): A box plot has a long upper whisker. Predict whether the mean is above or below the median, then say why. — Above: the median depends only on the middle of the data, but the mean uses every value, so the few high values pull it up.
 - **Misconceptions used:** 22. Assuming a longer section of the box or a longer whisker holds more of the data; Drawing the whisker out to an outlier instead of marking the outlier separately with a cross; Using the median in both halves when n is odd; Using the values in the order shown, without sorting them first; Using each value of a frequency table once, ignoring its frequency; Using the middle of the box as the median; Using the whole length of the plot as the IQR, or the IQR as the range; Using the end of the whisker as the greatest value, leaving the cross out; Using a quarter of the horizontal axis as a quartile, instead of a quarter of the frequency; Using the cumulative frequency levels as the values themselves; Using the ends of the axis as the least and greatest values; Using the share below a value when the question gives the share above it, or the other way round; Using the range to judge the shape of the data; Reading the gaps backwards, so equal gaps seem skewed and unequal gaps symmetric; Assuming the mean equals the median because half of the data lie on each side of the median; Using the values a quarter and three quarters of the way along the list as the quartiles, not the medians of the halves; Drawing the whisker out to the fence, not to the furthest value inside it; Adding the quartiles, or giving the pair of them, instead of subtracting; Comparing only the maximum or minimum values; Using a larger spread as a sign of a higher average; Quoting the numbers without saying what they mean in context; Reading the comparison backwards, so the verdict is the opposite of what the medians show.
+
+#### Effect of adding or multiplying a constant on summary statistics (`t4-constant-changes`, exam, 3 bank parts)
+
+- **Situation:** A data set's summary statistics, before and after a change to every value.
+- **Representations:** **equation**, **words**, **terms**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the mean and standard deviation of a data set; a constant added to or taken off every value → the new mean and the new standard deviation
+  - **exam** L1: given the mean and variance of a data set; a constant added to or taken off every value → the new mean and the new variance
+  - **exam** L2: given a median, mode or quartile and an IQR or range, a list of the data, or a box plot; a constant added to or taken off every value → the new measure of centre and the new measure of spread
+  - **exam** L1: given the mean and standard deviation of a data set; every value multiplied by a constant → the new mean
+  - **exam** L2: given the mean and variance of a data set; every value multiplied by a constant → the new variance
+  - **exam** L2: given a median, mode or quartile and a standard deviation, IQR or range, a list of the data, or a box plot; every value multiplied by a constant, or a change of units → the new measure of centre and the new measure of spread
+  - **exam** L2: given the mean and IQR of a data set; every value put through y = ax + b → the new mean and the new IQR
+  - **exam** L3: given the standard deviation of a data set; every value put through y = ax + b → the new standard deviation and the new variance
+  - **exam** L2: given a measure of centre and of spread, a list of the data, or a box plot; every value put through y = ax + b → the new measure of centre and the new measure of spread
+  - **exam** L3: given the change y = x + b, y = ax or y = ax + b; the mean and standard deviation after it → the original mean and standard deviation
+  - **exam** L3: given the change y = ax or y = ax + b; the variance after it → the original variance
+  - **exam** L3: given the change y = x + b, y = ax or y = ax + b; a box plot of the new values, or a measure of centre and of spread after the change → the original measure of centre and measure of spread
+  - **exam** L3: given the mean and standard deviation (or variance) before and after y = ax + b, a > 0 → a and b
+  - **exam** L2: given the variance before and after every value is multiplied by k > 0 → k
+  - new L1: given a constant added to every value, or every value multiplied by one → which statement about the new measures of centre and spread is true
+- **Angles:** Location shifts, spread scales; Picture the whole data set moving; Test on a tiny data set.
+- **Concept probes:**
+  - *true-false-reason* (L3): Adding the same constant to every value leaves the standard deviation unchanged. — True: every value moves by the same amount, so every distance from the mean is the same as before, and so is the spread.
+  - *always-sometimes-never* (L3): Multiplying every value by a constant multiplies the variance by that constant. — Sometimes: only when the constant is 0 or 1. The variance is in squared units, so it is multiplied by the square of the constant.
+  - *predict-check* (L3): Predict the mean and the range of the values 1, 2 and 3 after each is doubled and then 5 is added, then check by listing the new values. — The mean goes from 2 to 2 × 2 + 5 = 9 and the range from 2 to 4: the new values are 7, 9 and 11. The added 5 moves the centre but not the spread.
+- **Misconceptions used:** 15. Adding a constant changes the standard deviation; Multiplying by k multiplies the variance by k (it is k²); Adding k to every value adds k to the IQR; Adding the constant to the range as well as to the values; Adding the constant to the variance as well as to the values; Leaving a measure of centre unchanged when every value has changed; Multiplying the added constant by the factor too, as if the change were a(x + b); Leaving out the added constant for a measure of centre; Leaving a measure of spread unchanged when every value is multiplied; Multiplying a standard deviation, IQR or range by the square of the factor; Undoing the change in the wrong order: dividing first, then taking away the constant; Applying the change again instead of undoing it; Taking the change in the mean as the added constant, before scaling the mean; Finding the factor from the means, which the added constant has moved as well; Swapping which measures move: keeping the centre and shifting the spread.
 
 #### Grouped and frequency-table data: missing frequency, modal class, estimates (`t4-grouped-data`, exam, 9 bank parts)
 
@@ -3233,7 +3347,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 18 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -3291,6 +3405,26 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): Two cubics that differ only in their constant term have the same derivative. — True: the constant term differentiates to 0, so one graph is the other moved up or down, with the same gradient at every x.
 - **Misconceptions used:** 6. Reducing the coefficient instead of multiplying by the power; Keeping a constant term when differentiating, instead of dropping it; Dividing only the first term of the numerator by x; Substituting into f(x) instead of f′(x); Substituting first and then differentiating the number f(a), giving 0; Slipping on the sign with a negative x.
 
+#### Where a tangent or normal meets the curve again (`t5-normal-meets-curve`, exam, 2 bank parts)
+
+- **Situation:** A curve, a point P on it, and its tangent or normal.
+- **Representations:** **equation**, graph, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L3: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → where the tangent at P meets the x-axis
+  - **exam** L3: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → where the tangent at P meets the y-axis
+  - **exam** L3: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → where the normal at P meets the x-axis
+  - **exam** L3: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → where the normal at P meets the y-axis
+  - **exam** L4: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → the area of the triangle the tangent at P cuts off with the axes
+  - **exam** L4: given f(x): a quadratic, a cubic or Ae^(kx) + px² + q; x₀ → the area of the triangle the normal at P cuts off with the axes
+  - **exam** L4: given f(x): a cubic, or px² + A/x + q; x₀ → the point Q where the tangent at P meets the curve again, exactly
+  - **exam** L4: given f(x) = Ae^(kx) + px² + q; x₀ → the point Q where the tangent at P meets the curve again, to 3 s.f.
+  - **exam** L4: given f(x): a quadratic or Ae^(kx) + px² + q; x₀ → the point Q where the normal at P meets the curve again, to 3 s.f.
+- **Angles:** Put x = 0 and y = 0 in the tangent; Use the double root at the point of contact; GDC intersect.
+- **Concept probes:**
+  - *always-sometimes-never* (L4): The tangent to a cubic at a point P meets the cubic again. — Sometimes: at every point but the point of inflexion. Curve minus tangent is a cubic with a double root at P, so its third root is real too; only at the inflexion is that root P again, as a triple root.
+  - *true-false-reason* (L3): A tangent with intercepts at x = −4 and y = 3 cuts off a triangle of area −6 with the axes. — False: lengths are never negative. OA = 4 and OB = 3, so the area is ½ × 4 × 3 = 6.
+- **Misconceptions used:** 6. Finding the intercepts of the curve instead of the tangent or normal; Not using the double root at the point of contact, so it is counted only once among the roots; Using a negative intercept as a negative length in the triangle area; Giving the point of contact P as the point where the line meets the curve again; Putting x = 0 to find where a line meets the x-axis, or y = 0 for the y-axis; Using −m or 1/m instead of −1/m for the normal's gradient.
+
 #### Find a point or parameter from a tangent condition (given gradient, parallel, common tangent) (`t5-tangent-condition`, exam, 11 bank parts)
 
 - **Situation:** One cubic with its gradient, tangents and turning points, shared with `t5-differentiate-polynomial`, `t5-stationary-points`, `t5-tangent-normal-equation`.
@@ -3315,6 +3449,31 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 - **Concept probes:**
   - *always-sometimes-never* (L3): The gradients of the tangent and the normal to a curve at the same point multiply to −1. — Sometimes: only when the tangent is not horizontal. At a stationary point the tangent is horizontal and the normal is the vertical line x = x₀, which has no gradient.
 - **Misconceptions used:** 6. Using f′(a) as the y-coordinate of the point; Using the normal's gradient with the tangent's point (mixing the two lines); Using −m or 1/m instead of −1/m for the normal's gradient; Reusing the tangent's y-intercept c in the normal's equation; Taking f(a) to be the tangent's y-intercept c; Thinking f′(a) is the y-coordinate of the point of contact.
+
+#### Read f from the graph of f' (or f'') (`t5-derivative-graph`, exam, 2 bank parts)
+
+- **Situation:** A function read from the graph of its derivative.
+- **Representations:** **graph**, equation, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the graph of f′, or f′(x) as factors → the x-coordinate of the local maximum or minimum of f
+  - **exam** L3: given the graph of f′ → the x-coordinate of the local maximum or minimum of f, with the reason
+  - **exam** L3: given the graph of f′ → the x-coordinates of the points of inflexion of f
+  - new L3: given the graph of f′, or f′(x) as factors; a zero of f′ where it touches the axis → what the point of f there is
+  - new L3: given the graph of f′, touching the axis → where f is increasing or decreasing
+  - **exam** L3: given the graph of f′, a cubic touching the axis → where the graph of f is concave up or down
+  - new L3: given the graph of f″, or f″(x) as factors → the x-coordinate of the point of inflexion of f
+  - new L3: given the graph of f′ with two regions and their areas, or the same in words → which of two values of f is greater
+  - new L4: given the graph of f′ with two regions and their areas; f at the left end → f at the end of a region
+  - new L3: given the graph of f′ → which graph could be y = f(x)
+  - **exam** L1: given the graph of f with a point A → which statement about f′ at A is true
+  - **exam** L2: given the graph of f with its turning points → where f′(x) < 0 or f′(x) > 0
+  - **exam** L1: given the graph of f with a turning point A, or the turning point in words → f′ at the turning point
+- **Angles:** Look for sign changes of f′; Turning points of f′ give inflexions; Sign diagram from the f′ graph; Signed area under f′; Walk along the curve left to right; Lay a tangent at the point; Build a sign diagram.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): If f′(a) = 0, then f has a local maximum or minimum at x = a. — Sometimes: f′ has to change sign at a. f(x) = x³ has f′(0) = 0 but no turning point, since f′(x) = 3x² touches zero without crossing.
+  - *true-false-reason* (L3): The highest point on the graph of f′ gives the x-coordinate of the local maximum of f. — False: the highest point of f′ is where f is steepest, a point of inflexion of f. A local maximum of f is where f′ crosses from positive to negative.
+  - *true-false-reason* (L4): If, between x = a and x = b, the area under f′ above the x-axis is larger than the area below it, then f(b) > f(a). — True: f(b) − f(a) is the integral of f′ from a to b, the area above the axis minus the area below it, which is then positive.
+- **Misconceptions used:** 18. Taking a turning point of the f′ graph as a turning point of f; Claiming a maximum or minimum where f′ touches zero without changing sign; Justifying with 'f′ = 0' alone, without the sign change; Taking the zeros of f′ as the points of inflexion instead of its turning points; Leaving out the point where f′ touches the axis, though f′ turns there too; Ending an interval where f′ touches the axis, though f′ does not change sign there; Adding the areas without their signs, so area below the axis counts as a rise in f; Comparing the heights of the f′ graph instead of the areas under it; Claiming a point of inflexion where f″ touches zero without changing sign; Taking a turning point of the f″ graph as a point of inflexion of f; Taking the graph of f′ itself as the graph of f; Reading the sign change of f′ the wrong way round, mixing up a maximum and a minimum; Giving the change in f as its value, leaving out the starting value; Confusing concave up with increasing: looking at the sign of f′ instead of f″; Using the sign of f instead of the sign of f′: being above the axis is not the same as going up; Thinking f′ is zero at the x-intercepts rather than at the turning points; Thinking f′(x) = 0 means the function value is zero; Giving the height of the curve at the point instead of its gradient.
 
 #### Stationary points and inflexion: find, classify, justify (`t5-stationary-points`, exam, 14 bank parts)
 
