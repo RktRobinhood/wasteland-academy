@@ -96,6 +96,7 @@ static var SITUATIONS := {
 	"log-laws": [LogLawsSituation, LogLawsViews],
 	"log-exp-form": [LogExpFormSituation, LogExpFormViews],
 	"rational-exponents": [RationalExponentsSituation, RationalExponentsViews],
+	"solve-exponential": [SolveExponentialSituation, SolveExponentialViews],
 	"algebraic-proof": [AlgebraicProofSituation, AlgebraicProofViews],
 	"sequence-proof": [SequenceProofSituation, SequenceProofViews],
 	"prove-identity": [ProveIdentitySituation, ProveIdentityViews],

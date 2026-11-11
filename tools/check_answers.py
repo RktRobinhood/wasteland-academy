@@ -37855,6 +37855,415 @@ def E12NM_check(q):
     return None, None
 
 
+# ── solve-exponential (t1-solve-exponential, FAL-754) ────────
+# The `solve-exponential` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/solve_exponential.gd. Each equation is read back from the line, the
+# graph's sentence or the story, turned into SymPy, and its root found by a scan for a sign change
+# refined by bisection to 40 digits. The exact answer is derived again from the equation's shape
+# (ln p/ln q, ln a or m ln r) and must equal that root; every option is evaluated and must differ
+# from it. Each tagged option is rebuilt from its slip, each figure's curves and crossing are held
+# to the equation, and each method's numbers must be in its working.
+
+E12SE_MAP = "SL1.7.solve-with-logs#"
+E12SE_OWN = "t1-solve-exponential#"
+E12SE_EDGE = sp.Rational(49, 1000)      # the engine's is 0.05
+E12SE_THREE = " Give your answer to 3 significant figures."
+E12SE_EXACT = ("shift-base-exact", "one-minus-exact", "isolate-e-exact", "model-time-exact")
+E12SE_BASES = (2, 3, 5, 6, 7)
+E12SE_PLACES = ("Ash Pass", "Salt Ridge", "Rust Gorge", "Cinder Bay", "Dry Lake", "Glass Flats")
+# The stories: (one thing, two things, it, them, time, start).
+E12SE_STORIES = (
+    ("A mould colony on the wall of the vault at {}", "Two mould colonies are growing on the wall of the vault at {}.", "the colony", "the two colonies", "days", "the vault was sealed"),
+    ("A rust bloom on the hull of a wreck at {}", "Two rust blooms are spreading on the hull of a wreck at {}.", "the bloom", "the two blooms", "weeks", "the rains"),
+    ("A lichen mat on a standing stone at {}", "Two lichen mats are growing on a standing stone at {}.", "the mat", "the two mats", "days", "the dust storm"),
+    ("An algae bloom in the water tank at {}", "Two algae blooms are growing in the water tank at {}.", "the bloom", "the two blooms", "hours", "the pumps stopped"),
+)
+E12SE_RATES = tuple(sp.Rational(n, 100) for n in (5, 10, 20, 25, 40, 50))
+E12SE_MEET_RATES = tuple(sp.Rational(n, 100) for n in (20, 25, 30, 35, 40, 45, 50, 55, 60))
+E12SE_FACTORS = tuple(sp.Rational(n, 100) for n in (105, 108, 110, 112, 115, 120, 125))
+E12SE_STARTS = (12, 15, 20, 25, 30, 40, 50, 60, 80)
+E12SE_POWERS = tuple(sp.Rational(n, 10) for n in (2, 3, 4, 5, 6, 8, 12, 15, 25))
+E12SE_T = sp.Symbol("t")
+
+
+def E12SE_n(v):
+    """A rational as the game writes it: 5/3, −2."""
+    v = sp.Rational(v)
+    return (str(v.p) if v.q == 1 else f"{v.p}/{v.q}").replace("-", "−")
+
+
+def E12SE_ln(v):
+    v = sp.Rational(v)
+    return f"ln {v}" if v.q == 1 and v > 0 else f"ln({E12SE_n(v)})"
+
+
+def E12SE_quot(p, q):
+    return f"x = {E12SE_ln(p)}/{E12SE_ln(q)}"
+
+
+def E12SE_lnq(m, r):
+    """m ln r as the game writes it: ln 2, 3 ln 2, (ln 7)/3, (3 ln 2)/5, ln(3/2)/4."""
+    m, r = sp.Rational(m), sp.Rational(r)
+    top = f"ln {r}" if r.q == 1 else f"ln({E12SE_n(r)})"
+    if abs(m.p) != 1:
+        top = f"{abs(m.p)} {top}"
+    body = top
+    if m.q != 1:
+        body = (f"({top})" if " " in top and r.q == 1 else top) + f"/{m.q}"
+    return ("−" if m < 0 else "") + body
+
+
+def E12SE_sym(text):
+    """The game's notation as SymPy: 9e^(3x) − 11, 4 × 3^x, 122 × 1.05^t."""
+    s = text.replace("−", "-").replace("×", "*").replace("^", "**")
+    s = re.sub(r"(\d)e\*\*", r"\1*E**", s)
+    s = re.sub(r"(?<![\w.])e\*\*", "E**", s)
+    s = re.sub(r"(\d)([xt])", r"\1*\2", s)
+    return sp.sympify(s, locals={"E": sp.E, "x": X, "t": E12SE_T}, rational=True)
+
+
+def E12SE_value(text):
+    """An exact option's value: x = ln 9/ln(5/3), x = (ln 7)/3, x = 2 ln 3/(ln 5 − 1)."""
+    s = text.split(" = ", 1)[1].replace("−", "-")
+    s = re.sub(r"ln\(", "log(", s)
+    s = re.sub(r"ln (\d+)", r"log(\1)", s)
+    s = re.sub(r"(\d) log", r"\1*log", s)
+    return sp.N(sp.sympify(s, rational=True), DIGITS)
+
+
+def E12SE_root(f, var, lo, hi, step):
+    """Every root of f on [lo, hi]: a scan for sign changes, each refined by bisection."""
+    g = sp.lambdify(var, f, "mpmath")
+    mpmath.mp.dps = 50
+    roots = []
+    a = mpmath.mpf(lo)
+    fa = g(a)
+    while a < hi:
+        b = a + mpmath.mpf(step)
+        fb = g(b)
+        if fa == 0:
+            roots.append(a)
+        elif fa * fb < 0:
+            x0, x1, f0 = a, b, fa
+            for _ in range(200):
+                mid = (x0 + x1) / 2
+                fm = g(mid)
+                if (fm < 0) == (f0 < 0):
+                    x0, f0 = mid, fm
+                else:
+                    x1 = mid
+            roots.append((x0 + x1) / 2)
+        a, fa = b, fb
+    return [sp.Float(str(r), DIGITS) for r in roots]
+
+
+def E12SE_one_root(f, var, lo=-30, hi=60, step="0.01"):
+    rs = E12SE_root(f, var, lo, hi, step)
+    need(len(rs) == 1, f"{len(rs)} roots of {f}")
+    return rs[0]
+
+
+def E12SE_r2(v):
+    """A log rounded to 2 d.p. too early."""
+    return sp.Rational(str(Decimal(str(sp.N(v, 30))).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)))
+
+
+def E12SE_s(v):
+    return sig3(v).replace("-", "−")
+
+
+def E12SE_clean(x):
+    v = abs(sp.N(x, DIGITS))
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    need(abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E12SE_EDGE, f"{float(v)} is on a rounding edge")
+    need(not sig3(v / sp.Integer(10) ** e).endswith("0"), f"{float(v)} reads the same as its 2 s.f. trap")
+
+
+def E12SE_third_off(early, x):
+    need(sig3(early, 2) == sig3(x, 2) and sig3(early) != sig3(x), f"rounding early gives {float(early)}, not off in the third figure of {float(x)}")
+
+
+def E12SE_work(x):
+    t = sig3(x, 6).replace("-", "−")
+    return t.rstrip("0").rstrip(".") if "." in t else t
+
+
+def E12SE_shows(q, angle, *texts):
+    for sol in q["solutions"]:
+        if sol["angle"] == angle:
+            body = " ".join(sol["steps"])
+            for t in texts:
+                t = t if isinstance(t, str) else E12SE_work(t)
+                need(t in body, f"{sol['name']}: the working doesn't show {t}")
+
+
+def E12SE_opts(label, unit, pairs):
+    out = {}
+    for ref, v in pairs:
+        if v is None:
+            continue
+        v = sp.N(v, DIGITS)
+        if v.is_real and v != 0 and abs(v) >= sp.Rational(1, 1000):
+            out.setdefault(ref, set()).add(label + E12SE_s(v) + unit)
+    return out
+
+
+def E12SE_sf_end(q, label, x, unit, pairs):
+    E12SE_clean(x)
+    want = label + E12SE_s(x) + unit
+    trap = label + dec_text(sp.Rational(sig3(x, 2))) + unit
+    gc_check_common(q, want, E12SE_opts(label, unit, pairs), trap)
+    for sol in q["solutions"]:
+        need(E12SE_work(x) in " ".join(sol["steps"]), f"{sol['name']}: the working doesn't show {E12SE_work(x)}")
+    return None, None
+
+
+def E12SE_exact_end(q, want, x, wrongs):
+    need(q["answer"].get("exact") is True, "an exact answer is not marked exact")
+    gc_check_common(q, want, wrongs)
+    need(abs(E12SE_value(want) - x) < sp.Rational(1, 10**30), f"{want} is not the root {float(x)}")
+    for o in q["choices"]:
+        if not o["correct"]:
+            v = E12SE_value(o["text"])
+            need(not v.is_real or abs(v - x) > sp.Rational(1, 10**20), f"option {o['text']!r} equals the answer")
+    return None, None
+
+
+def E12SE_graph(q, fns, var, names, px, py):
+    g = q["graph"]
+    need(g is not None and len(g["curves"]) == len(fns), "the figure's curves")
+    for f, curve in zip(fns, g["curves"]):
+        need(len(curve) > 10, "a curve with too few points")
+        for xv, yv in curve[::20]:
+            want = sp.N(f.subs(var, sp.Rational(str(xv))), 20)
+            need(abs(float(want) - yv) <= 1e-6 * max(1.0, abs(yv)), f"the curve at {xv} is {yv}, not {float(want)}")
+    p = g["points"][0]
+    need(p["label"] == "P" and abs(p["x"] - float(px)) < 1e-6 and abs(p["y"] - float(py)) < 1e-6 * max(1.0, abs(float(py))), f"P at {p}")
+    need(g["x0"] < p["x"] < g["x1"] and g["y0"] < p["y"] < g["y1"], "P is off the window")
+    labels = [pt["label"] for pt in g["points"][1:]]
+    need(all(pt.get("name") for pt in g["points"][1:]), "a curve's name has a dot")
+    need(set(labels) <= set(names), f"the curves are named {labels}")
+
+
+def E12SE_hyphens(q):
+    for tx in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+
+
+def E12SE_two(eq):
+    """a, b and the shape of a^(x ± p) = b^x or a^x = b^(c − x)."""
+    m = re.fullmatch(r"(\d+)\^\(x (\+|−) (\d+)\) = (\d+)\^x", eq)
+    if m:
+        a, b, p = int(m.group(1)), int(m.group(4)), int(m.group(3)) * (1 if m.group(2) == "+" else -1)
+        need(a in E12SE_BASES and b in E12SE_BASES and a != b, f"the bases {a}, {b}")
+        need((a, b, p) != (3, 5, 1), "the skill map's own example")
+        return "shift", a, b, p, None
+    m = re.fullmatch(r"(\d+)\^x = (\d+)\^\((\d+) − x\)", eq)
+    need(m is not None, f"can't read {eq!r}")
+    a, b, c = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    need(a in E12SE_BASES and b in E12SE_BASES and a != b and 1 <= c <= 3, f"the bases {a}, {b} and {c}")
+    need((a, b, c) != (2, 3, 1), "the skill map's own example")
+    return "mirror", a, b, None, c
+
+
+def E12SE_story(q, line, one):
+    for i, st in enumerate(E12SE_STORIES):
+        for pl in E12SE_PLACES:
+            head = (st[0] if one else st[1]).format(pl)
+            if line.startswith(head):
+                return st, line[len(head):]
+    need(False, f"can't read the story {line!r}")
+
+
+def E12SE_check(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    M, O = E12SE_MAP, E12SE_OWN
+    E12SE_hyphens(q)
+    if u in E12SE_EXACT:
+        need(q["paper"] in (1, 2), "an exact answer's paper")
+        need(q["view"]["angle"] in ("log-both-sides", "isolate-then-log", "any"), "an exact cell is solved by hand")
+    else:
+        need(q["paper"] == 2, "a 3 s.f. answer is Paper 2")
+    if u == "two-bases-3sf":
+        if rep == "graph":
+            m = re.fullmatch(r"The graph shows y = (.+) and y = (.+), which meet at P\.", L[0])
+            need(m is not None and asked == "Find the x-coordinate of P." + E12SE_THREE, L[0])
+            eq = f"{m.group(1)} = {m.group(2)}"
+        else:
+            need(len(L) == 1 and asked == "Solve the equation." + E12SE_THREE, asked)
+            eq = L[0]
+        shape, a, b, p, c = E12SE_two(eq)
+        lhs, rhs = (E12SE_sym(s) for s in eq.split(" = "))
+        x = E12SE_one_root(lhs - rhs, X, -20, 20)
+        need(sp.Rational(1, 5) <= abs(x) <= 12, f"x = {float(x)}")
+        la, lb = sp.log(a), sp.log(b)
+        if shape == "shift":
+            n = abs(p)
+            need(abs(p * la / (lb - la) - x) < sp.Rational(1, 10**30), "the root is not p ln a/(ln b − ln a)")
+            early = p * E12SE_r2(la) / (E12SE_r2(lb) - E12SE_r2(la))
+            gap = b - a if p > 0 else a - b
+            pairs = [(M + "0", p * la / (lb - 1)), (O + "3", n * la / (la + lb)), (O + "4", n * la / sp.log(gap) if gap >= 2 else None)]
+        else:
+            need(abs(c * lb / (la + lb) - x) < sp.Rational(1, 10**30), "the root is not c ln b/(ln a + ln b)")
+            early = c * E12SE_r2(lb) / (E12SE_r2(la) + E12SE_r2(lb))
+            pairs = [(M + "0", c / (la + lb)), (O + "3", c * lb / (la - lb)), (O + "4", c * lb / sp.log(a + b))]
+        E12SE_third_off(early, x)
+        pairs.append((M + "2", early))
+        if rep == "graph":
+            yp = b ** x if shape == "shift" else a ** x
+            need(sp.Rational(3, 2) <= yp <= 600, f"the crossing's height {float(yp)}")
+            E12SE_graph(q, [lhs, rhs], X, ["y = " + s for s in eq.split(" = ")], x, yp)
+        E12SE_shows(q, "log-both-sides", f"ln {a}", f"ln {b}")
+        return E12SE_sf_end(q, "x = ", x, "", pairs)
+    if u in ("shift-base-exact", "one-minus-exact"):
+        need(len(L) == 1, L)
+        shape, a, b, p, c = E12SE_two(L[0])
+        lhs, rhs = (E12SE_sym(s) for s in L[0].split(" = "))
+        x = E12SE_one_root(lhs - rhs, X, -20, 20)
+        if u == "shift-base-exact":
+            need(shape == "shift" and asked == "Solve the equation, giving x in the form ln p/ln q, where p and q are rational.", asked)
+            n = abs(p)
+            need(1 <= n <= 3 and a ** n <= 1000 and ((p > 0) == (a < b)), f"the shift {p} with bases {a}, {b}")
+            need(0 < x <= 12, f"x = {float(x)} is out of the sensible range")
+            P, Qr = sp.Integer(a) ** n, sp.Rational(b, a) if p > 0 else sp.Rational(a, b)
+            top = f"ln {a}" if n == 1 else f"{n} ln {a}"
+            gap = b - a if p > 0 else a - b
+            wrongs = {O + "3": {E12SE_quot(P, a * b)}, O + "5": {E12SE_quot(Qr, P)},
+                      M + "0": {f"x = {top}/(ln {b} − 1)" if p > 0 else f"x = {top}/(1 − ln {b})"}}
+            if gap >= 2 and gap != Qr and gap != P:
+                wrongs[O + "4"] = {E12SE_quot(P, gap)}
+        else:
+            need(shape == "mirror" and asked == "Solve the equation, giving x in the form ln p/ln q, where p and q are whole numbers.", asked)
+            need(b ** c <= 1000, f"{b}^{c}")
+            P, Qr = sp.Integer(b) ** c, sp.Integer(a * b)
+            wrongs = {O + "3": {E12SE_quot(P, sp.Rational(a, b))}, O + "5": {E12SE_quot(Qr, P)}, O + "4": {E12SE_quot(P, a + b)},
+                      M + "0": {f"x = {c}/(ln {a} + ln {b})"}}
+        want = E12SE_quot(P, Qr)
+        E12SE_shows(q, "log-both-sides", E12SE_ln(P), E12SE_ln(Qr))
+        return E12SE_exact_end(q, want, x, wrongs)
+    if u == "isolate-e-exact":
+        need(len(L) == 1, L)
+        m = re.fullmatch(r"(\d+)e\^(?:\((\d+)x\)|x)(?: (\+|−) (\d+))? = (\d+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        k, mm, c = int(m.group(1)), int(m.group(2) or 1), int(m.group(5))
+        d = int(m.group(4) or 0) * (-1 if m.group(3) == "−" else 1)
+        need(2 <= k <= 9 and 1 <= mm <= 5 and (k, mm, d, c) != (5, 2, 0, 20), f"k {k}, m {mm}")
+        lhs, rhs = (E12SE_sym(s) for s in L[0].split(" = "))
+        x = E12SE_one_root(lhs - rhs, X, -20, 20)
+        need((c - d) % k == 0, "the power doesn't stand alone in whole numbers")
+        r = (c - d) // k
+        root, exact = sp.integer_nthroot(r, mm)
+        if asked == "Solve the equation, giving your answer in the form ln a, where a is a whole number.":
+            need(exact and root >= 2, f"{r} is no {mm}th power")
+            want = "x = " + E12SE_lnq(1, root)
+        else:
+            need(asked == "Solve the equation, giving the exact value of x." and not exact and mm >= 2, asked)
+            want = "x = " + E12SE_lnq(sp.Rational(1, mm), r)
+        wrongs = {}
+        def add(ref, mv, rv):
+            rv = sp.Rational(rv)
+            if rv > 0 and rv != 1:
+                wrongs.setdefault(ref, set()).add("x = " + E12SE_lnq(mv, rv))
+        add(M + "1", sp.Rational(1, k * mm), c - d)
+        add(O + "6", sp.Rational(1, mm), c - d - k)
+        if d:
+            add(O + "7", sp.Rational(1, mm), sp.Rational(c, k) - d)
+        if mm != 1:
+            add(O + "8", 1, r)
+            add(O + "9", mm, r)
+        E12SE_shows(q, "isolate-then-log", f"ln {r}")
+        return E12SE_exact_end(q, want, x, wrongs)
+    if u == "isolate-3sf":
+        if rep == "graph":
+            g = re.fullmatch(r"The graph shows y = (.+) and the line y = (\d+), which meet at P\.", L[0])
+            need(g is not None and asked == "Find the x-coordinate of P." + E12SE_THREE, L[0])
+            eq = f"{g.group(1)} = {g.group(2)}"
+        else:
+            need(len(L) == 1 and asked == "Solve the equation." + E12SE_THREE, asked)
+            eq = L[0]
+        m = re.fullmatch(r"(\d+)(?:e\^\(([\d.]+)x\)| × (\d+)\^x)(?: (\+|−) (\d+))? = (\d+)", eq)
+        need(m is not None, f"can't read {eq!r}")
+        k, c = int(m.group(1)), int(m.group(6))
+        d = int(m.group(5) or 0) * (-1 if m.group(4) == "−" else 1)
+        e = m.group(2) is not None
+        rate = sp.Rational(m.group(2)) if e else None
+        a = None if e else int(m.group(3))
+        need(2 <= k <= 9 and (rate in E12SE_POWERS if e else 2 <= a <= 7), f"k {k}, rate {rate}, base {a}")
+        lhs, rhs = (E12SE_sym(s) for s in eq.split(" = "))
+        x = E12SE_one_root(lhs - rhs, X, -20, 20)
+        r = sp.Rational(c - d, k)
+        div = rate if e else sp.log(a)
+        need(abs(sp.log(r) / div - x) < sp.Rational(1, 10**30), "the root is not ln r over the rate")
+        need(sp.Rational(3, 10) <= x <= 10, f"x = {float(x)}")
+        early = E12SE_r2(sp.log(r)) / (rate if e else E12SE_r2(sp.log(a)))
+        E12SE_third_off(early, x)
+        pairs = [(M + "2", early), (M + "1", sp.log(c - d) / (k * div)), (O + "6", sp.log(c - d - k) / div)]
+        if d and sp.Rational(c, k) - d > 0 and sp.Rational(c, k) - d != 1:
+            pairs.append((O + "7", sp.log(sp.Rational(c, k) - d) / div))
+        if e and rate != 1:
+            pairs.append((O + "8", sp.log(r)))
+        if not e:
+            pairs.append((O + "10", sp.log(r) / a))
+        if rep == "graph":
+            need(c <= 200, f"the line y = {c}")
+            E12SE_graph(q, [lhs], X, ["y = " + eq.split(" = ")[0]], x, c)
+            need(any(abs(h["at"] - c) < 1e-9 for h in q["graph"]["hlines"]), "the line y = c isn't drawn")
+        E12SE_shows(q, "log-both-sides", f"ln {c - d}", f"ln {k}")
+        return E12SE_sf_end(q, "x = ", x, "", pairs)
+    if u == "model-time-exact":
+        st, rest = E12SE_story(q, L[0], True)
+        m = re.fullmatch(r" covers A = (\d+)e\^\(([\d.]+)t\) square centimetres, t (\w+) after (.+)\.", rest)
+        need(m is not None and m.group(3) == st[4] and m.group(4) == st[5], f"can't read {L[0]!r}")
+        A0, k = int(m.group(1)), sp.Rational(m.group(2))
+        need(A0 in E12SE_STARTS and k in E12SE_RATES, f"A₀ {A0}, k {k}")
+        a = re.fullmatch(r"Find the exact number of (\w+) it takes (.+) to cover (\d+) square centimetres\.", asked)
+        need(a is not None and a.group(1) == st[4] and a.group(2) == st[2], asked)
+        Lv = int(a.group(3))
+        need((A0, k, Lv) != (200, sp.Rational(3, 10), 1000), "the skill map's own example")
+        ratio = sp.Rational(Lv, A0)
+        need(ratio > 1 and (ratio.q == 1 or ratio.q == 2), f"the level over the start {ratio}")
+        t = E12SE_one_root(A0 * sp.exp(k * E12SE_T) - Lv, E12SE_T, 0, 100, "0.05")
+        want = "t = " + E12SE_lnq(1 / k, ratio)
+        wrongs = {}
+        def addt(ref, mv, rv):
+            rv = sp.Rational(rv)
+            if rv > 0 and rv != 1:
+                wrongs.setdefault(ref, set()).add("t = " + E12SE_lnq(mv, rv))
+        addt(M + "1", 1 / (k * A0), Lv)
+        addt(O + "11", 1 / k, Lv)
+        addt(O + "6", 1 / k, Lv - A0)
+        addt(O + "8", 1, ratio)
+        addt(O + "9", k, ratio)
+        E12SE_shows(q, "isolate-then-log", E12SE_ln(ratio))
+        return E12SE_exact_end(q, want, t, wrongs)
+    if u == "model-meet":
+        st, rest = E12SE_story(q, L[0], False)
+        need(rest == "", L[0])
+        m = re.fullmatch(r"t (\w+) after (.+), one covers A = (\d+)e\^\(([\d.]+)t\) square centimetres and the other covers B = (\d+) × ([\d.]+)\^t square centimetres\.", L[1])
+        need(m is not None and m.group(1) == st[4] and m.group(2) == st[5], f"can't read {L[1]!r}")
+        A0, k, B0, g = int(m.group(3)), sp.Rational(m.group(4)), int(m.group(5)), sp.Rational(m.group(6))
+        need(8 <= A0 < B0 <= 200 and k in E12SE_MEET_RATES and g in E12SE_FACTORS, f"the models {A0}, {k}, {B0}, {g}")
+        need(k - sp.log(g) >= sp.Rational(1, 20) and k - (g - 1) >= sp.Rational(3, 100), "the faster model doesn't catch up clearly")
+        fa, fb = A0 * sp.exp(k * E12SE_T), B0 * g ** E12SE_T
+        t = E12SE_one_root(fa - fb, E12SE_T, 0, 100, "0.05")
+        need(2 <= t <= 40, f"t = {float(t)}")
+        if rep == "graph":
+            need(L[2] == "The graph shows A and B against t, crossing at P." and asked == "Find the value of t at P." + E12SE_THREE, asked)
+            E12SE_graph(q, [fa, fb], E12SE_T, ["A", "B"], t, fa.subs(E12SE_T, t))
+            need(q["graph"].get("x_name") == "t", "the across axis is t")
+        else:
+            need(len(L) == 2 and asked == f"Find the time when {st[3]} cover the same area." + E12SE_THREE, asked)
+        lr = sp.log(sp.Rational(B0, A0))
+        early = E12SE_r2(lr) / (k - E12SE_r2(sp.log(g)))
+        E12SE_third_off(early, t)
+        pairs = [(M + "2", early), (O + "3", lr / (k + sp.log(g))), (O + "4", sp.log(B0 - A0) / (k - sp.log(g))),
+                 (O + "12", lr / (k - (g - 1))), (O + "13", sp.log(A0) / (sp.log(B0 * g) - k))]
+        E12SE_shows(q, "log-both-sides", f"ln {A0}", f"ln {B0}", sp.log(g))
+        return E12SE_sf_end(q, "t = ", t, " " + st[4], pairs)
+    need(False, f"the unknown {u}")
+
+
 SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, "circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
@@ -37895,7 +38304,8 @@ SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, 
                     "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-quadratic": E11TQ_check, "trig-model": check_trig_model,
                     "solid": check_solid, "standard-form": check_standard_form,
                     "rational-exponents": E12RE_check,
-                    "tangent-meets-curve": E12NM_check,}
+                    "tangent-meets-curve": E12NM_check,
+                    "solve-exponential": E12SE_check,}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

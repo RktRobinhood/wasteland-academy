@@ -5604,6 +5604,39 @@
     "the line meets the curve again at exactly one point, at least 0.5 from P: an e^(kx) curve minus a line has at most three roots, and the signs at the ends of the scan agree with the crossings found",
     "a 3 s.f. answer is clear of a rounding edge and not a whole number by accident"
    ]
+  },
+  "solve-exponential": {
+   "name": "An exponential equation solved with logarithms, in symbols or in a story",
+   "summary": "Draws two powers with different bases, an exponential with a number in front and a constant, or one or two growth models, so the solution comes out exactly as a quotient of logs or m ln r, or needs a calculator to 3 s.f.",
+   "quantities": [
+    {
+     "name": "a, b, p, c",
+     "is": "two bases and the shift or reflected power of a^(x + p) = b^x or a^x = b^(c − x)",
+     "pick": "a and b from 2, 3, 5, 6 and 7, p from −3 to 3, c from 1 to 3"
+    },
+    {
+     "name": "k, m, d, c, r",
+     "is": "the number in front, the rate, the constant and the right side of k e^(mx) + d = c, with r = (c − d)/k",
+     "pick": "k from 2 to 9, m whole or in tenths, d from −12 to 20; r a whole power of a for ln a"
+    },
+    {
+     "name": "A₀, k, L",
+     "is": "a model A₀e^(kt), its rate and a level",
+     "pick": "A₀ from a short list, k in hundredths with 1/k neat, L a whole multiple or half-multiple of A₀"
+    },
+    {
+     "name": "B₀, g",
+     "is": "a second model B₀ × g^t",
+     "pick": "B₀ larger than A₀, g from 1.05 to 1.25, so the faster model catches up"
+    }
+   ],
+   "clean": [
+    "an exact answer needs no calculator",
+    "a 3 s.f. answer is clear of a rounding edge and doesn't end in a zero",
+    "the logs rounded to 2 d.p. move the answer in its third figure only",
+    "a graph's crossing sits inside the window",
+    "the skill map's example equations are left out"
+   ]
   }
  },
  "types": [
@@ -18656,7 +18689,7 @@
     },
     {
      "ref": "SL1.7.solve-with-logs#1",
-     "text": "Taking logs before isolating: ln(5e^(2x)) = 5 × 2x",
+     "text": "Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power",
      "as": "error-spot",
      "in": [
       "time-to-level",
@@ -27809,13 +27842,384 @@
    "id": "t1-solve-exponential",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Solve an exponential equation exactly with logarithms",
+   "summary": "An unknown trapped in a power, released with logarithms: two powers with different bases, to 3 s.f. or exactly as a quotient of logs; an exponential to isolate first, exactly as m ln r or to 3 s.f.; and growth models in a story, the exact time to reach a level and the time two models meet. A graph shows the curves crossing, and on Paper 2 the GDC solves too.",
    "syllabus": [
     "1.7"
    ],
    "skills": [
     "SL1.7.solve-with-logs"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "isolate the exponential first: undo any added constant, then the number in front",
+    "take ln of both sides, or convert to log form, so the power comes down",
+    "bring each power down as a whole, keeping its bracket",
+    "expand, collect the x terms on one side and factorise",
+    "write the answer exactly with the log laws, or keep every log unrounded to the end for 3 s.f.",
+    "the solution is where the two sides' graphs cross, which a GDC finds too"
+   ],
+   "given": [
+    "two powers with different bases, one of them shifted or reflected",
+    "a multiple of e^(mx), with or without an added constant",
+    "a multiple of a whole base to the power x, with a constant",
+    "a growth model A₀e^(kt) and a level",
+    "two growth models, one continuous and one by a factor each step",
+    "the curves drawn crossing at P"
+   ],
+   "asked": "x or t exactly, as ln p/ln q, ln a or m ln r; or to 3 s.f., from the algebra, a graph or the GDC.",
+   "answerForms": [
+    "x = ln p/ln q, with p and q typed",
+    "m ln r, marked by value, so ln 2 and (ln 4)/2 are both right",
+    "3 s.f. on Paper 2"
+   ],
+   "randomise": [
+    "the two bases, the shift and its sign, or the reflected power",
+    "the number in front, the rate and the added constant",
+    "the start amount, the rate and the level of a model",
+    "the second model's start and factor",
+    "the story and the place"
+   ],
+   "constraints": [
+    "an exact answer comes out by hand, so it can be asked on either paper",
+    "each 3 s.f. answer is clear of a rounding edge and does not end in a zero",
+    "rounding the logs early moves the answer in its third figure only",
+    "two models meet once, the faster one starting smaller",
+    "the skill map's example equations are left out"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "solve-exponential",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the equation alone"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a story with its growth models"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the two curves, or a curve and a line, drawn crossing at P"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "two-bases-3sf",
+     "given": [
+      "a^(x + p) = b^x or a^x = b^(c − x), or their curves crossing at P"
+     ],
+     "asked": "x to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL1.7.solve-with-logs"
+     ]
+    },
+    {
+     "id": "shift-base-exact",
+     "given": [
+      "a^(x + p) = b^x with a < b, or a^(x − p) = b^x with a > b"
+     ],
+     "asked": "x exactly, as ln p/ln q",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.solve-with-logs"
+     ]
+    },
+    {
+     "id": "one-minus-exact",
+     "given": [
+      "a^x = b^(c − x)"
+     ],
+     "asked": "x exactly, as ln p/ln q",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.solve-with-logs"
+     ]
+    },
+    {
+     "id": "isolate-e-exact",
+     "given": [
+      "k e^(mx) + d = c, with whole numbers"
+     ],
+     "asked": "x exactly, as ln a or (ln r)/m",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.solve-with-logs"
+     ]
+    },
+    {
+     "id": "isolate-3sf",
+     "given": [
+      "k e^(mx) + d = c with a decimal rate, or k × a^x + d = c, or the curve and the line y = c crossing at P"
+     ],
+     "asked": "x to 3 s.f.",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL1.7.solve-with-logs"
+     ]
+    },
+    {
+     "id": "model-time-exact",
+     "given": [
+      "a story: A = A₀e^(kt)",
+      "a level"
+     ],
+     "asked": "the exact time, as m ln r",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.7.solve-with-logs"
+     ]
+    },
+    {
+     "id": "model-meet",
+     "given": [
+      "a story: A = A₀e^(kt) and B = B₀ × g^t",
+      "or their curves crossing at P"
+     ],
+     "asked": "the time they are equal, to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL1.7.solve-with-logs"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.7.solve-with-logs",
+     "method": "log-both-sides",
+     "suits": [
+      "two-bases-3sf",
+      "shift-base-exact",
+      "one-minus-exact",
+      "isolate-e-exact",
+      "isolate-3sf",
+      "model-time-exact",
+      "model-meet"
+     ]
+    },
+    {
+     "skill": "SL1.7.solve-with-logs",
+     "method": "isolate-then-log",
+     "suits": [
+      "isolate-e-exact",
+      "isolate-3sf",
+      "model-time-exact"
+     ]
+    },
+    {
+     "skill": "SL1.7.solve-with-logs",
+     "method": "graph-intersect",
+     "suits": [
+      "two-bases-3sf",
+      "isolate-3sf",
+      "model-meet"
+     ]
+    },
+    {
+     "skill": "SL1.7.solve-with-logs",
+     "method": "gdc-solver",
+     "suits": [
+      "two-bases-3sf",
+      "isolate-3sf",
+      "model-meet"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "ln(3e^(2x)) = 6x.",
+     "answer": "False: the log of a product is a sum, so ln(3e^(2x)) = ln 3 + 2x. Divide by 3 first, or use the product law, before the power comes down.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Solving a^x = b with log₁₀ instead of ln gives the same x.",
+     "answer": "Always: x = log b/log a in any base, because changing the base multiplies the top and the bottom by the same number.",
+     "level": 4
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Before solving 2^(x + 1) = 3^x, say whether x is more or less than 1.",
+     "answer": "More: at x = 1 the left side is 4 and the right side 3, and 3^x grows faster, so it catches up later. x = ln 2/(ln 3 − ln 2) ≈ 1.71.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.7.solve-with-logs#0",
+     "text": "Losing the brackets around the power when bringing it down",
+     "as": "distractor",
+     "in": [
+      "two-bases-3sf",
+      "shift-base-exact",
+      "one-minus-exact"
+     ],
+     "wrong": "the bracketed power brought down with only its x term multiplied by the log"
+    },
+    {
+     "ref": "SL1.7.solve-with-logs#1",
+     "text": "Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power",
+     "as": "distractor",
+     "in": [
+      "isolate-e-exact",
+      "isolate-3sf",
+      "model-time-exact"
+     ],
+     "wrong": "the log of the right side divided by the number in front times the rate"
+    },
+    {
+     "ref": "SL1.7.solve-with-logs#2",
+     "text": "Rounding the logs early, so the final answer is wrong",
+     "as": "distractor",
+     "in": [
+      "two-bases-3sf",
+      "isolate-3sf",
+      "model-meet"
+     ],
+     "wrong": "each log rounded to 2 d.p. first, so the answer is off in its third figure"
+    },
+    {
+     "text": "Moving an x term across without changing its sign",
+     "as": "distractor",
+     "in": [
+      "two-bases-3sf",
+      "shift-base-exact",
+      "one-minus-exact",
+      "model-meet"
+     ],
+     "wrong": "the two logs added where one is taken from the other, or the other way round"
+    },
+    {
+     "text": "Combining two logs by adding or subtracting the numbers inside them",
+     "as": "distractor",
+     "in": [
+      "two-bases-3sf",
+      "shift-base-exact",
+      "one-minus-exact",
+      "model-meet"
+     ],
+     "wrong": "the log of the difference or sum of the numbers, not of their quotient or product"
+    },
+    {
+     "text": "Dividing the other way round when the bracket is divided out",
+     "as": "distractor",
+     "in": [
+      "shift-base-exact",
+      "one-minus-exact"
+     ],
+     "wrong": "the reciprocal of the right quotient"
+    },
+    {
+     "text": "Subtracting the number in front instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "isolate-e-exact",
+      "isolate-3sf",
+      "model-time-exact"
+     ],
+     "wrong": "the log of the right side less the number in front"
+    },
+    {
+     "text": "Dividing by the number in front before taking off the added constant",
+     "as": "distractor",
+     "in": [
+      "isolate-e-exact",
+      "isolate-3sf"
+     ],
+     "wrong": "the constant taken off after dividing"
+    },
+    {
+     "text": "Forgetting to divide by the number in the power",
+     "as": "distractor",
+     "in": [
+      "isolate-e-exact",
+      "isolate-3sf",
+      "model-time-exact"
+     ],
+     "wrong": "the log of the isolated power, left as it is"
+    },
+    {
+     "text": "Multiplying by the number in the power instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "isolate-e-exact",
+      "model-time-exact"
+     ],
+     "wrong": "the log times the rate"
+    },
+    {
+     "text": "Dividing by the base instead of by its log",
+     "as": "distractor",
+     "in": [
+      "isolate-3sf"
+     ],
+     "wrong": "the log of the isolated power over the base"
+    },
+    {
+     "text": "Dropping the starting amount before taking logs",
+     "as": "distractor",
+     "in": [
+      "model-time-exact"
+     ],
+     "wrong": "the log of the level, not of the level over the start"
+    },
+    {
+     "text": "Using the percentage growth as the continuous rate",
+     "as": "distractor",
+     "in": [
+      "model-meet"
+     ],
+     "wrong": "the factor less one in place of its log"
+    },
+    {
+     "text": "Raising the starting amount to the power along with the factor",
+     "as": "distractor",
+     "in": [
+      "model-meet"
+     ],
+     "wrong": "the start and the factor taken to the power together"
+    }
    ],
    "parts": [
     "aa-sl-2024-may-tz1-p2-q07.d"

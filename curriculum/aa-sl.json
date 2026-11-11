@@ -2520,7 +2520,7 @@
               ],
               "misconceptions": [
                 "Losing the brackets around the power when bringing it down",
-                "Taking logs before isolating: ln(5e^(2x)) = 5 × 2x",
+                "Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power",
                 "Rounding the logs early, so the final answer is wrong"
               ],
               "threads": [
