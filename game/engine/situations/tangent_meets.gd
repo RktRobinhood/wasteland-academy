@@ -35,6 +35,8 @@ const SCAN := 60.0
 const SCAN_STEPS := 2400
 ## A point found is at least this far from P.
 const GAP := 0.5
+## For an intercept or an area, P is at least this far from the x-axis (and x₀ ≠ 0).
+const P_OFF_AXIS := 0.5
 ## Every marked point is inside |x| ≤ X_MAX and |y| ≤ Y_MAX, so the figure stays readable.
 const X_MAX := 12.0
 const Y_MAX := 100.0
@@ -201,6 +203,9 @@ static func _line(s: Dictionary) -> bool:
 ## The line's intercepts, both off the origin, and for an area on opposite sides of it, so
 ## that one length comes from a negative number.
 static func _intercepts(s: Dictionary, area: bool) -> bool:
+	# P is off both axes, so it is never A or B itself.
+	if s.x0 == 0 or absf(fl(s.y0)) < P_OFF_AXIS:
+		return false
 	if s.exact:
 		s.yb = s.lc
 		if s.yb.is_zero():

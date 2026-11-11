@@ -36784,6 +36784,7 @@ def E12NM_check(q):
             E12NM_close6(v.group(1), y0)
             E12NM_close6(v.group(2), m)
     if u in ("tangent-x-intercept", "tangent-y-intercept", "normal-x-intercept", "normal-y-intercept", "tangent-triangle-area", "normal-triangle-area"):
+        need(x0 != 0 and abs(E12NM_n(y0)) >= sp.Rational(49, 100), f"P ({x0}, {E12NM_n(y0)}) is on an axis, so it is A or B")  # the engine's is 0.5
         xa = sp.solve(line, X)
         need(len(xa) == 1, "the line has no x-intercept")
         xa, yb = xa[0], lc
