@@ -27,6 +27,7 @@ const R_MINUS := "SL3.7.read-features#8"
 const R_PEAKS := "SL3.7.read-features#9"
 const R_ONE := "SL3.8.solve-basic#0"
 const R_COS_AS_SIN := "SL3.8.solve-basic#1"
+const R_SIN_AS_COS := "t3-trig-sketch#14"
 
 const QPP := "quarter-period-points"
 const TB := "transform-base"
@@ -539,7 +540,7 @@ func u_max_min_points(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var w := turn_places(s.merged({"lo": Q.new(0)}, true), s.fn, s.a.sign(), pw)
 	out.wrongs.append(mm_alt(s, [w[0], top, w[1], low], R_BASE if not s.b.eq(1) else R_SIN_TAN))
 	out.wrongs = spun(out.wrongs, s.spin)
-	out.generic = [mm_alt(s, [at[1], top, at[0], low]).values, mm_alt(s, [at[0], low, at[1], top]).values, mm_alt(s, [at[0], top.add(1), at[1], low.sub(1)]).values,
+	out.fillers = [mm_alt(s, [at[1], top, at[0], low]).values, mm_alt(s, [at[0], low, at[1], top]).values, mm_alt(s, [at[0], top.add(1), at[1], low.sub(1)]).values,
 		mm_alt(s, [at[0], s.a.add(s.d), at[1], s.d]).values, mm_alt(s, [at[0].add(P.div(4)), top, at[1].add(P.div(4)), low]).values]
 	var kp := key_points(s, s.lo)
 	var top_line := "The highest of them is (%s, %s) and the lowest (%s, %s)." % [X(s, at[0]), D(top), X(s, at[1]), D(low)]
@@ -581,7 +582,7 @@ func _dec_max_min(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var shift := T / 4.0 if s.fn == "cos" else -T / 4.0
 	out.wrongs.append(wrong(v.call(xt + shift, top, xl + shift, low), R_COS_AXIS if s.fn == "cos" else R_PEAKS))
 	out.wrongs = spun(out.wrongs, s.spin)
-	out.generic = [v.call(xl, top, xt, low), v.call(xt, low, xl, top), v.call(xt * 2.0, top, xl * 2.0, low), v.call(xt, top.add(1), xl, low.sub(1))]
+	out.fillers = [v.call(xl, top, xt, low), v.call(xt, low, xl, top), v.call(xt * 2.0, top, xl * 2.0, low), v.call(xt, top.add(1), xl, low.sub(1))]
 	out.methods = {GDC: method([gdc_line(s), "The maximum tool gives (%s, %s) and the minimum tool (%s, %s)." % [GdcKit.W(xt), D(top), GdcKit.W(xl), D(low)], say(a)], a.values)}
 	return out
 
@@ -600,8 +601,12 @@ func u_y_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.wrongs = [wrong({"y": s.d.neg()}, R_D_WAY)]
 		if s.fn == "sin":
 			out.wrongs.append(wrong({"y": s.a.add(s.d)}, R_SIN_PEAK))
+		# sin 0 and tan 0 are 0: with d left out, a × 0 is the y-intercept.
+		out.wrongs.append(wrong({"y": Q.new(0)}, R_NO_D))
 	out.wrongs = spun(out.wrongs, s.spin)
-	out.generic = [{"y": s.d.add(1)}, {"y": s.a}, {"y": s.d.sub(size)}, {"y": s.d.add(size)}, {"y": Q.new(0)}, {"y": s.d.sub(1)}]
+	out.fillers = [{"y": s.d.add(1)}, {"y": s.a}, {"y": s.d.sub(size)}, {"y": s.d.add(size)}, {"y": s.d.sub(1)}]
+	if s.fn == "cos":
+		out.fillers.insert(4, {"y": Q.new(0)})
 	var f0: String = {"sin": "sin 0 = 0", "cos": "cos 0 = 1", "tan": "tan 0 = 0"}[s.fn]
 	var start: String = {"sin": "a sine period starts on its axis, y = d", "cos": "a cosine period starts at a %s, y = a + d" % ("maximum" if s.a.sign() > 0 else "minimum, as a is negative,"), "tan": "a tan branch is centred on y = d"}[s.fn]
 	out.methods = {
@@ -646,9 +651,14 @@ func u_x_intercepts(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if not s.b.eq(1):
 		out.wrongs += TrigEquationViews.xs_alt(a, st, TrigSketchSituation.zeros_exact(s.fn, k, Q.new(1)), R_BASE)
 	out.wrongs += TrigEquationViews.xs_alt(a, st, [xs[0]], R_ONE)
-	out.wrongs = spun(out.wrongs, s.spin)
 	var P := per(s)
-	out.generic = TrigEquationViews.xs_others(a, st, [[xs[0], P.sub(xs[0])], [P.div(4).sub(xs[0].div(2)).abs_q().add(P.div(8)), xs[1]], [xs[0].add(P.div(4)), xs[1].add(P.div(4))], [xs[0].div(2), xs[1].div(2)]])
+	# sin θ = k > 0 solved the cosine way: α and the period minus α.
+	var mirror: Array = [xs[0], P.sub(xs[0])]
+	var cos_way: bool = s.fn == "sin" and k.sign() > 0
+	if cos_way:
+		out.wrongs += TrigEquationViews.xs_alt(a, st, mirror, R_SIN_AS_COS)
+	out.wrongs = spun(out.wrongs, s.spin)
+	out.fillers = TrigEquationViews.xs_others(a, st, ([] if cos_way else [mirror]) + [[P.div(4).sub(xs[0].div(2)).abs_q().add(P.div(8)), xs[1]], [xs[0].add(P.div(4)), xs[1].add(P.div(4))], [xs[0].div(2), xs[1].div(2)]])
 	var base := TrigSketchSituation.zeros_exact(s.fn, k, Q.new(1))
 	var theta := "%s θ = %s at θ = %s" % [s.fn, Fmt.num(k), list_of(base.map(func(t): return TrigKit.angle(t, s.form)))]
 	var last := "Here θ = x, so those are the intercepts." if s.b.eq(1) else "Here θ = %s, so divide by %s: x = %s." % [bx_text(s.b), B(s.b), list_of(xs.map(func(x): return X(s, x)))]
@@ -671,7 +681,7 @@ func _dec_zeros(rep: String, s: Dictionary) -> Dictionary:
 	out.wrongs = spun(out.wrongs, s.spin)
 	var x0: float = xs[0].to_float()
 	var x1: float = xs[1].to_float()
-	out.generic = [Answer.xs_of([GdcKit.qf(x0), GdcKit.qf(x1 + 0.5)]), Answer.xs_of([GdcKit.qf(x0 * 2.0), GdcKit.qf(x1 * 2.0)]), Answer.xs_of([GdcKit.qf(x0 / 2.0), GdcKit.qf(x1 / 2.0)]), Answer.xs_of([GdcKit.qf(x0 + 0.3), GdcKit.qf(x1 + 0.3)])]
+	out.fillers = [Answer.xs_of([GdcKit.qf(x0), GdcKit.qf(x1 + 0.5)]), Answer.xs_of([GdcKit.qf(x0 * 2.0), GdcKit.qf(x1 * 2.0)]), Answer.xs_of([GdcKit.qf(x0 / 2.0), GdcKit.qf(x1 / 2.0)]), Answer.xs_of([GdcKit.qf(x0 + 0.3), GdcKit.qf(x1 + 0.3)])]
 	out.methods = {GDC: method([gdc_line(s), "The zero tool gives x = %s and x = %s." % [GdcKit.W(x0), GdcKit.W(x1)], "So " + Answer.text(a) + "."], a.values)}
 	return out
 
@@ -709,7 +719,7 @@ func u_tan_asymptotes(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if not s.b.eq(1):
 		out.wrongs.append(asym_alt(s, [Q.new(1, 2), Q.new(3, 2)], R_BASE))
 	out.wrongs = spun(out.wrongs, s.spin)
-	out.generic = [asym_alt(s, [P.div(4), P.mul(Q.new(3, 4))]).values, asym_alt(s, [P, P.mul(2)]).values, asym_alt(s, [P.div(2), P]).values, asym_alt(s, [P.div(2), P.mul(Q.new(5, 2))]).values, asym_alt(s, [P.mul(2), P.mul(3)]).values]
+	out.fillers = [asym_alt(s, [P.div(4), P.mul(Q.new(3, 4))]).values, asym_alt(s, [P, P.mul(2)]).values, asym_alt(s, [P.div(2), P]).values, asym_alt(s, [P.div(2), P.mul(Q.new(5, 2))]).values, asym_alt(s, [P.mul(2), P.mul(3)]).values]
 	var base := "x = π/2 + kπ" if s.form == "pi" else "x = 90° + k × 180°"
 	var list := list_of(xs.map(func(x): return X(s, x)))
 	out.methods = {
@@ -746,7 +756,7 @@ func u_key_points(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.a.sign() < 0:
 		out.wrongs.append(wrong(nv.call(key_points(s, s.lo, "", s.a.neg())), R_MINUS))
 	out.wrongs = spun(out.wrongs, s.spin)
-	out.generic = [TrigModelViews.named_vals([right[1], right[0]]), TrigModelViews.named_vals([right[0].add(1), right[1]]), TrigModelViews.named_vals([right[0], right[1].sub(1)]),
+	out.fillers = [TrigModelViews.named_vals([right[1], right[0]]), TrigModelViews.named_vals([right[0].add(1), right[1]]), TrigModelViews.named_vals([right[0], right[1].sub(1)]),
 		TrigModelViews.named_vals([s.a, s.d]), TrigModelViews.named_vals([right[0].neg(), right[1].neg()])]
 	var pat: Array = PATTERN[s.fn]
 	var ys := list_of(kp.map(func(p): return D(p[1])))

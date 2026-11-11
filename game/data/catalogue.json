@@ -14081,7 +14081,8 @@
 					"text": "Uses x = b/(2a), dropping the minus sign",
 					"as": "distractor",
 					"in": [
-						"axis-from-general"
+						"axis-from-general",
+						"b-from-axis"
 					],
 					"wrong": "x = b/(2a), the mirror image of the true axis"
 				},
@@ -14091,7 +14092,9 @@
 					"as": "distractor",
 					"in": [
 						"axis-from-roots",
-						"axis-from-vertex"
+						"axis-from-vertex",
+						"axis-from-general",
+						"axis-from-equal-outputs"
 					],
 					"wrong": "y = h, or the bare number h"
 				},
@@ -14109,7 +14112,8 @@
 					"text": "Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k)",
 					"as": "distractor",
 					"in": [
-						"vertex-from-vertex-form"
+						"vertex-from-vertex-form",
+						"h-k-from-vertex"
 					],
 					"wrong": "(−h, k)"
 				},
@@ -14164,7 +14168,8 @@
 					"text": "Reads the roots off the factors with the wrong signs",
 					"as": "distractor",
 					"in": [
-						"roots-from-factorised"
+						"roots-from-factorised",
+						"axis-from-roots"
 					],
 					"wrong": "x-intercepts at −p and −q"
 				},
@@ -14173,7 +14178,8 @@
 					"text": "Leaves out the leading coefficient a when writing a(x − p)(x − q)",
 					"as": "distractor",
 					"in": [
-						"factorised-from-general"
+						"factorised-from-general",
+						"factorised-from-vertex-form"
 					],
 					"wrong": "(x − p)(x − q) with a dropped"
 				},
@@ -14185,6 +14191,104 @@
 						"y-intercept-from-factorised"
 					],
 					"wrong": "pq instead of apq"
+				},
+				{
+					"text": "Taking k from the vertex form as the y-intercept, when k is the height of the vertex",
+					"as": "distractor",
+					"in": [
+						"y-intercept-from-vertex-form"
+					],
+					"wrong": "k given as the y-intercept"
+				},
+				{
+					"text": "Leaving out the a when working out the y-intercept from a(x − h)² + k",
+					"as": "distractor",
+					"in": [
+						"y-intercept-from-vertex-form"
+					],
+					"wrong": "h² + k, with a left out"
+				},
+				{
+					"text": "Subtracting the roots instead of adding them, so x is half the gap between them",
+					"as": "distractor",
+					"in": [
+						"axis-from-roots"
+					],
+					"wrong": "half the distance between the roots"
+				},
+				{
+					"text": "Taking the horizontal line through the vertex, y = k, as the axis",
+					"as": "distractor",
+					"in": [
+						"axis-from-vertex"
+					],
+					"wrong": "y = k"
+				},
+				{
+					"text": "Dividing −b by a instead of by twice a",
+					"as": "distractor",
+					"in": [
+						"axis-from-general",
+						"b-from-axis"
+					],
+					"wrong": "the axis as x = −b/a, or b from it"
+				},
+				{
+					"text": "Adding the known root to twice h instead of taking it away",
+					"as": "distractor",
+					"in": [
+						"second-root-from-axis"
+					],
+					"wrong": "twice h plus the known root"
+				},
+				{
+					"text": "Mirroring the root in the y-axis instead of in the axis of symmetry",
+					"as": "distractor",
+					"in": [
+						"second-root-from-axis"
+					],
+					"wrong": "minus the known root"
+				},
+				{
+					"text": "Forgetting to double h when undoing the halving, so the other root comes out as h minus the known one",
+					"as": "distractor",
+					"in": [
+						"second-root-from-axis"
+					],
+					"wrong": "h minus the known root"
+				},
+				{
+					"text": "Calling the vertex a maximum when the values rise on both sides of it, or a minimum when they fall",
+					"as": "distractor",
+					"in": [
+						"vertex-from-table"
+					],
+					"wrong": "the right vertex with maximum and minimum swapped"
+				},
+				{
+					"text": "Giving the x-coordinate of the vertex instead of the greatest or least value",
+					"as": "distractor",
+					"in": [
+						"max-or-min"
+					],
+					"wrong": "h given as the value"
+				},
+				{
+					"text": "Forgetting to multiply the constant from the bracket by a when expanding",
+					"as": "distractor",
+					"in": [
+						"general-from-vertex-form"
+					],
+					"wrong": "c = h² + k, the h² not multiplied by a"
+				},
+				{
+					"text": "Writing each factor with the root's own sign, as (x + p) for a root at p",
+					"as": "distractor",
+					"in": [
+						"factorised-from-general",
+						"factorised-from-vertex-form"
+					],
+					"wrong": "a(x + p)(x + q)"
 				}
 			],
 			"chain": [
@@ -14571,7 +14675,9 @@
 					"as": "distractor",
 					"in": [
 						"a-from-roots-and-point",
-						"a-from-vertex-and-point"
+						"a-from-vertex-and-point",
+						"equation-from-vertex-and-root",
+						"equation-from-table"
 					],
 					"wrong": "the equation with a = 1, which misses the given point"
 				},
@@ -14581,7 +14687,8 @@
 					"as": "distractor",
 					"in": [
 						"a-from-roots-and-point",
-						"coefficients-from-roots"
+						"coefficients-from-roots",
+						"equation-from-vertex-and-root"
 					],
 					"wrong": "(x − 1) written for a root at x = −1"
 				},
@@ -14611,6 +14718,75 @@
 						"range-after-finding"
 					],
 					"wrong": "x ≥ k, the range written in x"
+				},
+				{
+					"text": "Getting the sign of h wrong: a vertex at (h, k) gives the bracket (x − h)",
+					"as": "distractor",
+					"in": [
+						"vertex-form-from-vertex-and-a",
+						"a-from-vertex-and-point",
+						"equation-from-table"
+					],
+					"wrong": "a(x + h)² + k"
+				},
+				{
+					"text": "Getting the sign of a wrong when solving for it, so the parabola opens the wrong way",
+					"as": "distractor",
+					"in": [
+						"a-from-vertex-and-point",
+						"equation-from-vertex-and-root",
+						"a-from-roots-and-point",
+						"equation-from-table"
+					],
+					"wrong": "−a in place of a"
+				},
+				{
+					"text": "Dropping the minus sign from the axis formula, so b has the wrong sign",
+					"as": "distractor",
+					"in": [
+						"coefficient-from-axis"
+					],
+					"wrong": "b with its sign flipped"
+				},
+				{
+					"text": "Dividing −b by a instead of by twice a",
+					"as": "distractor",
+					"in": [
+						"coefficient-from-axis"
+					],
+					"wrong": "b from the axis as x = −b/a"
+				},
+				{
+					"text": "Adding the known terms to y instead of taking them away",
+					"as": "distractor",
+					"in": [
+						"coefficient-from-point"
+					],
+					"wrong": "the known terms added to y, not taken away"
+				},
+				{
+					"text": "Forgetting to divide by the number in front of the unknown coefficient",
+					"as": "distractor",
+					"in": [
+						"coefficient-from-point"
+					],
+					"wrong": "y minus the known terms, not divided"
+				},
+				{
+					"text": "Turning the inequality the wrong way for the way the parabola opens",
+					"as": "distractor",
+					"in": [
+						"range-after-finding"
+					],
+					"wrong": "the range with the inequality reversed"
+				},
+				{
+					"text": "Using the x-coordinate of the vertex instead of its height for the range",
+					"as": "distractor",
+					"in": [
+						"range-after-finding"
+					],
+					"wrong": "the range bounded by h, not k"
 				}
 			],
 			"chain": [
@@ -22235,6 +22411,41 @@
 						"estimate-d"
 					],
 					"wrong": "the change divided by the number of values, not the gaps"
+				},
+				{
+					"text": "Multiplying one term by the number of terms, as if every term were the same size",
+					"as": "distractor",
+					"in": [
+						"total-in-context",
+						"term-or-total",
+						"stack-total",
+						"peak-total"
+					],
+					"wrong": "n × the first or the last term"
+				},
+				{
+					"text": "Giving only the change over the steps, leaving out the starting amount",
+					"as": "distractor",
+					"in": [
+						"value-after"
+					],
+					"wrong": "n × d alone"
+				},
+				{
+					"text": "Forgetting to divide the overall change by the number of gaps",
+					"as": "distractor",
+					"in": [
+						"estimate-d"
+					],
+					"wrong": "last minus first, not divided"
+				},
+				{
+					"text": "Rejecting a prediction just past the data as if it were far beyond it",
+					"as": "distractor",
+					"in": [
+						"comment-validity"
+					],
+					"wrong": "not valid, though the year is close to the data"
 				}
 			],
 			"chain": [
@@ -38238,6 +38449,14 @@
 						"x-intercepts"
 					],
 					"wrong": "α and π − α for a cosine"
+				},
+				{
+					"text": "Finding a sine equation's second solution the way you would for cosine",
+					"as": "distractor",
+					"in": [
+						"x-intercepts"
+					],
+					"wrong": "α and the period minus α for a sine"
 				}
 			],
 			"chain": [
@@ -62858,7 +63077,8 @@
 					"text": "Thinks the y-intercept is pq rather than apq",
 					"as": "distractor",
 					"in": [
-						"form-for-feature"
+						"form-for-feature",
+						"form-for-task"
 					],
 					"wrong": "pq read as the y-intercept of a(x − p)(x − q)"
 				},
@@ -62867,9 +63087,37 @@
 					"text": "Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k)",
 					"as": "distractor",
 					"in": [
-						"match-three-forms"
+						"match-three-forms",
+						"form-for-feature"
 					],
 					"wrong": "a vertex form with the sign of h flipped offered as the match"
+				},
+				{
+					"text": "Getting the signs wrong between roots and factors: a root at p goes with the factor (x − p)",
+					"as": "distractor",
+					"in": [
+						"form-for-feature",
+						"form-for-task",
+						"match-three-forms"
+					],
+					"wrong": "the roots read as −p and −q, or the factors written with the roots' signs"
+				},
+				{
+					"text": "Reading k from the vertex form as the y-intercept, when k is the height of the vertex",
+					"as": "distractor",
+					"in": [
+						"form-for-feature",
+						"form-for-task"
+					],
+					"wrong": "k given as the y-intercept"
+				},
+				{
+					"text": "Leaving out the leading coefficient a when writing a(x − p)(x − q)",
+					"as": "distractor",
+					"in": [
+						"match-three-forms"
+					],
+					"wrong": "a factorised form with a dropped offered as the match"
 				}
 			],
 			"frequency": 0
@@ -74086,6 +74334,71 @@
 						"exponential-two-ways"
 					],
 					"wrong": "log 20 ≈ 1.30, the base-10 key used for e^x = 20"
+				},
+				{
+					"text": "Calling a rearrangement a solution when x is still on both sides",
+					"as": "distractor",
+					"in": [
+						"which-method"
+					],
+					"wrong": "x = ln(a − x), or another form with x on both sides"
+				},
+				{
+					"text": "Taking ln of both sides but not dividing by the number in front of x",
+					"as": "distractor",
+					"in": [
+						"which-method"
+					],
+					"wrong": "ln c, not divided by k"
+				},
+				{
+					"text": "Dividing by e to undo the exponential, instead of taking ln",
+					"as": "distractor",
+					"in": [
+						"which-method",
+						"exponential-two-ways"
+					],
+					"wrong": "c/e"
+				},
+				{
+					"text": "Assuming an exponential equation needs a GDC, when ln frees an x that is only in the exponent",
+					"as": "distractor",
+					"in": [
+						"which-method"
+					],
+					"wrong": "only a GDC can solve it"
+				},
+				{
+					"text": "Using the x-coordinates of the turning points for k, when k is a height",
+					"as": "distractor",
+					"in": [
+						"k-for-count"
+					],
+					"wrong": "the turning points' x-coordinates as the bounds for k"
+				},
+				{
+					"text": "Including the turning values, where y = k touches the curve and so meets it twice",
+					"as": "distractor",
+					"in": [
+						"k-for-count"
+					],
+					"wrong": "k ≤ the lower or k ≥ the upper turning value, for one solution"
+				},
+				{
+					"text": "Dividing by the number in front of x before taking ln, instead of after",
+					"as": "distractor",
+					"in": [
+						"exponential-two-ways"
+					],
+					"wrong": "ln(c/k)"
+				},
+				{
+					"text": "Stopping at the first solution instead of finding every one in the interval",
+					"as": "distractor",
+					"in": [
+						"count-trig-solutions"
+					],
+					"wrong": "the first solution alone"
 				}
 			],
 			"frequency": 0
