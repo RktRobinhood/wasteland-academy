@@ -4,6 +4,10 @@ extends "res://tests/test_case.gd"
 ## the planner serves it to an AA HL student and never to an AA SL one, the counts match
 ## hand values, every distractor misconception shows up as an option, and answers are
 ## marked exactly. The SymPy checker (tools/check-answers) checks the maths.
+## "Exam-style only" (FAL-796, GH #132) keys on course exam eligibility, not on which
+## bank a type came from: an AA HL student gets its word questions with it on, no other
+## course does, the bare-symbol drills and the probes stay out, and every other type
+## keeps the cells the old source == "exam" rule gave it.
 
 const TYPE := "t1-ahl-counting"
 ## Cells, counted as tools/pedagogy.mjs counts them.
@@ -69,6 +73,68 @@ func test_the_planner_serves_it_to_an_aa_hl_student_and_never_to_an_aa_sl_one() 
 				check(not QuestionEngine.make(v).has("error"), "%s: the planned view makes a question" % course)
 		if course == "aa-hl":
 			check(seen > 0, "an AA HL student's 400 questions had no counting question")
+		else:
+			check_eq(seen, 0, "an AA SL student was planned one")
+
+
+func test_exam_style_only_gives_aa_hl_its_word_questions() -> void:
+	var t := QuestionEngine.type_of(TYPE)
+	check_eq(t.source, "extension", "provenance stays: no bank part")
+	check(QuestionEngine.exam_style(t), "counting is AA HL exam style")
+	var words := QuestionEngine.cells(false, [TYPE], "aa-hl").filter(func(c): return c.rep == "words")
+	var on := QuestionEngine.cells(true, [TYPE], "aa-hl")
+	check(not on.is_empty(), "AA HL with Exam-style only has no counting cells")
+	check_eq(on.map(func(c): return c.key), words.map(func(c): return c.key), "exam-only is the word cells")
+	for c in on:
+		check(c.exam, c.key + " is not marked exam")
+		check(QuestionEngine.make({"type": TYPE, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": 1}).exam,
+			c.key + ": the question is not marked exam")
+	var unknowns := {}
+	for c in on:
+		unknowns[c.unknown] = true
+	check_eq(unknowns.size(), t.unknowns.size(), "every unknown is asked in words")
+	check(on.size() < CELLS, "the equation drills stay out")
+	check(QuestionEngine.probes(true, "aa-hl").is_empty(), "probes stay out")
+
+
+func test_exam_style_only_gives_other_courses_no_counting() -> void:
+	for course in ["aa-sl", "ai-sl", "ai-hl"]:
+		check_eq(QuestionEngine.cells(true, [], course).filter(func(c): return c.type == TYPE).size(), 0, course)
+
+
+## The old rule: an exam type, an exam unknown, an exam representation.
+func _bank_rule(course: String) -> Array:
+	return QuestionEngine.cells(false, [], course).filter(func(c):
+		var t := QuestionEngine.type_of(c.type)
+		var u: Dictionary = t.unknowns.filter(func(x): return x.id == c.unknown)[0]
+		return t.source == "exam" and bool(u.exam) and QuestionEngine.rep_is_exam(t, c.rep)).map(func(c): return c.key)
+
+
+func test_exam_style_only_keeps_every_other_type_as_it_was() -> void:
+	for course in ["aa-sl", "aa-hl", "ai-sl", "ai-hl"]:
+		var on: Array = QuestionEngine.cells(true, [], course).filter(func(c): return c.type != TYPE).map(func(c): return c.key)
+		check_eq(on, _bank_rule(course), course)
+	for id in QuestionEngine.built_types():
+		var t := QuestionEngine.type_of(id)
+		if t.source != "exam":
+			check(id == TYPE or not QuestionEngine.exam_style(t), id + " became exam style")
+
+
+func test_the_planner_serves_it_with_exam_style_only_to_aa_hl_only() -> void:
+	for course in ["aa-sl", "aa-hl"]:
+		var s := SaveData.blank()
+		SaveData.set_course(s, course)
+		s.settings.exam_only = true
+		var seen := 0
+		for i in 400:
+			var v := Planner.next(s, NOW)
+			check(v.get("format") != "probe", "%s was planned a probe" % course)
+			if v.get("type", "") == TYPE:
+				seen += 1
+				check(course == "aa-hl", "%s was planned a counting question" % course)
+				check_eq(v.rep, "words", "an exam-only counting question is in words")
+		if course == "aa-hl":
+			check(seen > 0, "an AA HL student's 400 exam-only questions had no counting question")
 		else:
 			check_eq(seen, 0, "an AA SL student was planned one")
 

@@ -29,3 +29,18 @@ test('curriculum/PEDAGOGY_GAPS.md is up to date', () => {
   const file = fs.readFileSync(new URL('../../curriculum/PEDAGOGY_GAPS.md', import.meta.url), 'utf8');
   assert.equal(file, render(data, result.counts), 'rerun node tools/pedagogy.mjs --write');
 });
+
+// "Exam-style only" keys on exam eligibility, not provenance (FAL-796, GH #132): an
+// extension skill type may mark exam unknowns when it gives examStyle; nothing else may.
+test('only exam types and extension skill types with examStyle have exam views', () => {
+  const counting = data.doc.types.find(t => t.id === 't1-ahl-counting');
+  assert.equal(counting.source, 'extension');
+  assert.ok(counting.examStyle && counting.unknowns.some(u => u.exam));
+  const without = { ...counting, examStyle: undefined };
+  const concept = { ...counting, kind: 'concept' };
+  for (const t of [without, concept]) {
+    const doc = { ...data.doc, types: data.doc.types.map(o => (o === counting ? t : o)) };
+    const errors = check({ ...data, doc }).errors.filter(e => e.startsWith('t1-ahl-counting'));
+    assert.ok(errors.some(e => /exam unknown|exam representations|examStyle/.test(e)), JSON.stringify(errors));
+  }
+});

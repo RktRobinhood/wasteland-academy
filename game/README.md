@@ -1118,7 +1118,9 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   checks both with SymPy. The audit of every kind is the FAL-788 document `equivalence-audit`.
 - **Planner** (`engine/planner.gd`): never-seen cell, then a recently missed one, then
   exam frequency. "Exam-style only" (off by default) keeps exam cells only and follows
-  exam frequency. It plans only from the cells the save's course covers (see "Courses").
+  exam frequency. An exam cell is an exam unknown in an exam representation of an
+  exam-style type (`QuestionEngine.exam_style()`): an exam type, or an extension type
+  with `examStyle`, such as AA HL counting (FAL-796). The course decides who gets it. It plans only from the cells the save's course covers (see "Courses").
 - **Courses** (`engine/courses.gd`, FAL-397): the save's `course` is `aa-sl`, `aa-hl`,
   `ai-sl` or `ai-hl` (`SaveData.set_course()`, `Courses.of(save)`), and a course is a
   filter over the shared skills, not a separate game. `data/courses.json` lists the

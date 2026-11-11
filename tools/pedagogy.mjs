@@ -41,6 +41,12 @@ export function cells(t) {
   }, 0);
 }
 
+// Whether "Exam-style only" may keep a type's exam: true unknowns and representations.
+// Exam types are, by their bank parts. An extension type is when it says why in
+// `examStyle`: a course's own exam questions the AA SL bank has no parts for, such as
+// AA HL counting (FAL-796). `source` stays the provenance either way.
+export const examStyle = t => t.source === 'exam' || (typeof t.examStyle === 'string' && t.examStyle !== '');
+
 export function check({ doc, map, threads, more = [] }, { region } = {}) {
   const errors = [], warnings = [];
   const skills = new Map(), subOf = new Map();
@@ -65,6 +71,7 @@ export function check({ doc, map, threads, more = [] }, { region } = {}) {
   for (const t of scoped) {
     const w = t.id;
     if (!['exam', 'extension'].includes(t.source)) errors.push(`${w}: source must be exam or extension`);
+    if (t.source === 'exam' && t.examStyle != null) errors.push(`${w}: exam types are exam-style already; examStyle is for extension types`);
     if (t.source === 'extension') {
       if (!KINDS.includes(t.kind)) errors.push(`${w}: kind must be one of ${KINDS}`);
       for (const f of CATALOGUE) if (t[f] == null || t[f] === '') errors.push(`${w}: missing ${f}`);
@@ -74,6 +81,7 @@ export function check({ doc, map, threads, more = [] }, { region } = {}) {
         if (!t.supports?.length) errors.push(`${w}: prior-learning needs supports`);
         for (const s of t.supports || []) if (!known.has(s)) errors.push(`${w}: supports unknown skill ${s}`);
       } else if (!t.skills?.length) errors.push(`${w}: no skills`);
+      if (t.examStyle != null && (t.kind !== 'skill' || !examStyle(t))) errors.push(`${w}: examStyle is a reason, on skill types only`);
       if (['concept', 'link'].includes(t.kind) && t.level?.[0] < 3) errors.push(`${w}: ${t.kind} types sit at levels 3-5`);
       if (t.kind === 'link') {
         if (!threadIds.has(t.thread)) errors.push(`${w}: unknown thread ${t.thread}`);
@@ -97,10 +105,10 @@ export function check({ doc, map, threads, more = [] }, { region } = {}) {
     for (const r of t.representations || []) {
       if (!REPS.includes(r.rep)) errors.push(`${w}: bad representation ${r.rep}`);
       if (typeof r.exam !== 'boolean' || !r.how) errors.push(`${w}: representation ${r.rep} needs exam and how`);
-      if (t.source === 'extension' && r.exam) errors.push(`${w}: extension types have no exam representations`);
+      if (!examStyle(t) && r.exam) errors.push(`${w}: extension types have no exam representations unless they give examStyle`);
       reps.add(r.rep);
     }
-    if (t.source === 'exam' && !(t.representations || []).some(r => r.exam)) errors.push(`${w}: no representation is marked exam`);
+    if (examStyle(t) && !(t.representations || []).some(r => r.exam)) errors.push(`${w}: no representation is marked exam`);
 
     const local = new Map((t.methods || []).map(m => [m.id, m]));
     const uids = new Set();
@@ -111,13 +119,13 @@ export function check({ doc, map, threads, more = [] }, { region } = {}) {
       if (!u.given?.length || !u.asked) errors.push(`${uw}: needs given and asked`);
       if (!Number.isInteger(u.level) || u.level < 0 || u.level > 5) errors.push(`${uw}: level must be 0-5`);
       if (typeof u.exam !== 'boolean') errors.push(`${uw}: exam must be true or false`);
-      if (u.exam && t.source === 'extension') errors.push(`${uw}: an extension type cannot have an exam unknown`);
+      if (u.exam && !examStyle(t)) errors.push(`${uw}: an extension type cannot have an exam unknown unless it gives examStyle`);
       if (!u.reps?.length) errors.push(`${uw}: no representations`);
       for (const r of u.reps || []) if (!reps.has(r)) errors.push(`${uw}: representation ${r} is not listed on the type`);
       if (t.kind !== 'prior-learning' && !u.skills?.length) errors.push(`${uw}: no skills`);
       for (const s of u.skills || []) if (!known.has(s)) errors.push(`${uw}: unknown skill ${s}`);
     }
-    if (t.source === 'exam' && !(t.unknowns || []).some(u => u.exam)) errors.push(`${w}: no unknown is marked exam`);
+    if (examStyle(t) && !(t.unknowns || []).some(u => u.exam)) errors.push(`${w}: no unknown is marked exam`);
     if ((t.unknowns || []).length === 1 && !t.singleUnknown) errors.push(`${w}: one unknown only; say why in singleUnknown`);
     const uskills = new Set((t.unknowns || []).flatMap(u => u.skills || []));
     for (const s of t.skills || []) if (!uskills.has(s)) errors.push(`${w}: no unknown tests ${s}`);
@@ -197,7 +205,7 @@ export function countAll(doc, skills, used) {
       weak: ts.reduce((n, t) => n + (t.angles || []).filter(a => a.weak).length, 0),
       concepts: ts.reduce((n, t) => n + (t.concepts || []).length, 0),
       cells: ts.reduce((n, t) => n + cells(t), 0),
-      examCells: ts.filter(t => t.source === 'exam').reduce((n, t) => n + cells({
+      examCells: ts.filter(examStyle).reduce((n, t) => n + cells({
         ...t, unknowns: (t.unknowns || []).filter(u => u.exam).map(u => ({ ...u, reps: u.reps.filter(r => (t.representations || []).find(x => x.rep === r)?.exam) })),
       }), 0),
     };
