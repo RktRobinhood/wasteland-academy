@@ -29,7 +29,6 @@ const MATH_FONT := preload("res://assets/fonts/dejavu-math-subset.woff2")
 const POWER_SCALE := 0.68
 const POWER_RAISE := -0.28
 
-static var _raised: FontVariation
 
 
 ## Adds the maths subset behind the default font, once. Safe to call again.
@@ -105,44 +104,64 @@ static func label(text: String, size: int = BODY, color: Color = TEXT) -> Label:
 	return l
 
 
-## A label for maths, with powers written with a caret drawn raised (FAL-743). They are
-## raised here, not written in superscript characters, as Unicode has no superscript . or /.
-## Plain text gets a plain label, so only the text with a power is rich text. The questions
-## keep their carets: tools/check_answers.py parses them. A Button can't hold rich text.
+## A label for maths, with powers written with a caret drawn raised (FAL-743) and
+## fractions written with a slash drawn stacked (FAL-797): a MathLabel. They are raised
+## here, not written in superscript characters, as Unicode has no superscript . or /.
+## Plain text gets a plain label. The questions keep their carets and slashes:
+## tools/check_answers.py parses them.
 static func math(text: String, size: int = BODY, color: Color = TEXT, center := false) -> Control:
-	var runs := Fmt.power_runs(text)
-	if not runs.any(func(run): return run[1]):
+	if not MathText.has_markup(text):
 		var l := label(text, size, color)
 		if center:
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		return l
-	var r := RichTextLabel.new()
-	r.fit_content = true
-	r.scroll_active = false
-	r.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	r.add_theme_font_size_override("normal_font_size", size)
-	r.add_theme_color_override("default_color", color)
-	r.add_theme_constant_override("line_separation", 3)
+	return math_label(text, size, color, center)
+
+
+## A MathLabel even for plain text, for a line set later, such as the feedback.
+static func math_label(text: String, size: int = BODY, color: Color = TEXT, center := false) -> MathLabel:
+	var m := MathLabel.new()
+	m.add_theme_font_size_override("font_size", size)
+	m.add_theme_color_override("font_color", color)
 	if center:
-		r.push_paragraph(HORIZONTAL_ALIGNMENT_CENTER)
-	for run in runs:
-		if run[1]:
-			r.push_font(_raised_font(), roundi(size * POWER_SCALE))
-			r.add_text(run[0])
-			r.pop()
-		else:
-			r.add_text(run[0])
-	return r
+		m.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	m.text = text
+	return m
 
 
-static func _raised_font() -> FontVariation:
-	if _raised == null:
-		install_math_font()
-		_raised = FontVariation.new()
-		_raised.base_font = ThemeDB.fallback_font
-		_raised.baseline_offset = POWER_RAISE
-	return _raised
+## Puts text on a button, as maths if it has a fraction or a power. A Button can't hold
+## rich text, so its own text is left empty and a MathLabel named "Math" is drawn on it,
+## in the button's colours and font size; the button grows to fit it. Set the button's
+## font size and alignment first.
+static func math_button(b: Button, text: String) -> void:
+	if not MathText.has_markup(text):
+		b.text = text
+		return
+	b.text = ""
+	b.set_meta("math", text)
+	var m := MathLabel.new()
+	m.name = "Math"
+	m.horizontal_alignment = b.alignment
+	m.button = b
+	m.text = text
+	m.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# The button's padding is known once it has its theme, in the tree.
+	var fit := func() -> void:
+		var sb := b.get_theme_stylebox("normal")
+		m.offset_left = sb.get_margin(SIDE_LEFT)
+		m.offset_right = -sb.get_margin(SIDE_RIGHT)
+		m.offset_top = sb.get_margin(SIDE_TOP)
+		m.offset_bottom = -sb.get_margin(SIDE_BOTTOM)
+		b.custom_minimum_size.y = m.get_combined_minimum_size().y + sb.get_margin(SIDE_TOP) + sb.get_margin(SIDE_BOTTOM)
+	m.minimum_size_changed.connect(fit)
+	b.theme_changed.connect(fit)
+	fit.call()
+	b.add_child(m)
+
+
+## The text on a button, as math_button() put it.
+static func button_text(b: Button) -> String:
+	return b.get_meta("math", b.text)
 
 
 static func panel(color: Color = PANEL) -> StyleBoxFlat:

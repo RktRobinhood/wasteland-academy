@@ -57,7 +57,7 @@ var scroll: ScrollContainer
 var card: VBoxContainer
 var check_button: Button
 var next_button: Button
-var feedback: Label
+var feedback: MathLabel
 var working: VBoxContainer
 ## The in-game calculator (FAL-419), made the first time a Paper 2 question opens it.
 var calculator: Calculator
@@ -233,7 +233,7 @@ func render_question() -> void:
 	check_button.add_theme_font_size_override("font_size", UiTheme.BIG)
 	check_button.pressed.connect(check_answer)
 	card.add_child(check_button)
-	feedback = UiTheme.label("", UiTheme.BODY)
+	feedback = UiTheme.math_label("", UiTheme.BODY)
 	feedback.name = "Feedback"
 	feedback.visible = false
 	card.add_child(feedback)
@@ -329,13 +329,11 @@ func _table(t: Dictionary) -> Control:
 	grid.add_theme_constant_override("h_separation", 6)
 	grid.add_theme_constant_override("v_separation", 10)
 	for row in rows:
-		var head := UiTheme.label(row[0], UiTheme.BODY, UiTheme.SAND)
-		head.autowrap_mode = TextServer.AUTOWRAP_OFF
+		var head := _one_line(UiTheme.math(row[0], UiTheme.BODY, UiTheme.SAND))
 		grid.add_child(head)
 		for v in row[1]:
-			var cell := UiTheme.label(v, UiTheme.BODY)
-			cell.autowrap_mode = TextServer.AUTOWRAP_OFF
-			cell.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			var cell := _one_line(UiTheme.math(v, UiTheme.BODY, UiTheme.TEXT, true))
+			cell.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			grid.add_child(cell)
 	box.add_child(grid)
@@ -347,6 +345,15 @@ func _table(t: Dictionary) -> Control:
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	wrap.add_child(box)
 	return wrap
+
+
+## A table cell's maths on one line, as a Label with autowrap off.
+static func _one_line(c: Control) -> Control:
+	if c is Label:
+		c.autowrap_mode = TextServer.AUTOWRAP_OFF
+	else:
+		c.autowrap = false
+	return c
 
 
 ## The answer as slots: text with boxes to type numbers in and buttons for words.
@@ -386,10 +393,10 @@ func _add_slots() -> void:
 			_picks[item.pick] = ""
 			for opt in item.options:
 				var b := Button.new()
-				b.text = opt
 				b.toggle_mode = true
 				b.button_group = group
 				b.add_theme_font_size_override("font_size", UiTheme.BIG)
+				UiTheme.math_button(b, opt)
 				b.pressed.connect(func(): _picks[item.pick] = opt)
 				flow.add_child(b)
 				buttons.append(b)
@@ -444,12 +451,12 @@ func _add_options(texts: Array) -> void:
 	var group := ButtonGroup.new()
 	for i in texts.size():
 		var b := Button.new()
-		b.text = texts[i]
 		b.toggle_mode = true
 		b.button_group = group
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.add_theme_font_size_override("font_size", UiTheme.BIG if question.format == "probe" else UiTheme.BODY)
+		UiTheme.math_button(b, texts[i])
 		b.pressed.connect(func(): _choice = i)
 		box.add_child(b)
 		_choice_buttons.append(b)
@@ -609,12 +616,12 @@ func _show_working() -> void:
 	for i in question.solutions.size():
 		var sol: Dictionary = question.solutions[i]
 		var b := Button.new()
-		b.text = sol.name if i == 0 else "Another way: " + sol.name
 		b.toggle_mode = true
 		b.button_group = group
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.add_theme_font_size_override("font_size", UiTheme.SMALL)
+		UiTheme.math_button(b, sol.name if i == 0 else "Another way: " + sol.name)
 		b.pressed.connect(_show_steps.bind(steps, i))
 		tabs.add_child(b)
 		if i == 0:

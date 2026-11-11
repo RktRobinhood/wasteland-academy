@@ -106,17 +106,18 @@ func test_an_answer_box_shows_all_it_is_given() -> void:
 
 
 func test_a_power_in_the_question_fits_a_phone() -> void:
-	# FAL-743: the prompt, its lines and the worked steps are rich text when they have a power.
+	# FAL-743: the prompt, its lines and the worked steps are drawn as maths when they have
+	# a power (FAL-797: a MathLabel).
 	var made: Array = await _screen(_area(Vector2i(390, 844)))
 	var p: Control = made[1]
 	p.show_view({"type": "fn-exponential-model", "unknown": "change-over-period", "rep": "equation", "angle": "repeated-multiplication", "format": "value", "seed": 6})
 	p.autoplay(true)
 	await tree.process_frame
 	await tree.process_frame
-	var rich: Array = p.card.find_children("*", "RichTextLabel", true, false)
+	var rich: Array = p.card.find_children("*", "", true, false).filter(func(c): return c is MathLabel and c.visible and c.text != "")
 	check(rich.size() >= 2, "the equation and a worked step")
-	for r: RichTextLabel in rich:
-		check(r.size.y >= r.get_theme_font_size("normal_font_size"), "%s has no height" % r.get_parsed_text())
+	for r: MathLabel in rich:
+		check(r.size.y >= r.font_size(), "%s has no height" % r.get_parsed_text())
 		check(r.get_global_rect().end.x <= p.card.get_global_rect().end.x + 0.5, r.get_parsed_text())
 	made[0].free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
