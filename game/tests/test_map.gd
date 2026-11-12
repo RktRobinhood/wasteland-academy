@@ -105,7 +105,7 @@ func _hand_count(region: String, exam_only: bool) -> int:
 	for t in raw.types:
 		if t.get("region") != region:
 			continue
-		if exam_only and t.source != "exam":
+		if exam_only and t.source != "exam" and str(t.get("examStyle", "")) == "":
 			continue
 		var exam_reps := {}
 		for r in t.representations:

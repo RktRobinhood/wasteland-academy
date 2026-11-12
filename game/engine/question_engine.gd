@@ -277,6 +277,15 @@ static func method_name(t: Dictionary, unknown: String, method: String, b: Dicti
 	return b.get("titles", {}).get(method, angle_info(t, unknown, method).get("name", fallback))
 
 
+## Whether "Exam-style only" may keep a type's exam unknowns and representations: an
+## exam type (bank parts), or an extension type that gives `examStyle`, the reason it is
+## its course's exam questions with no AA SL bank part behind it (AA HL counting,
+## FAL-796). The course filter (covered) still decides who gets it; `source` stays
+## provenance. tools/pedagogy.mjs keeps examStyle off the other extension kinds.
+static func exam_style(t: Dictionary) -> bool:
+	return t.get("source") == "exam" or str(t.get("examStyle", "")) != ""
+
+
 static func rep_is_exam(t: Dictionary, rep: String) -> bool:
 	for r in t.get("representations", []):
 		if r.rep == rep:
@@ -286,7 +295,8 @@ static func rep_is_exam(t: Dictionary, rep: String) -> bool:
 
 ## Every coverage cell of the built types (or of `types`), each
 ## {"key", "type", "unknown", "rep", "angle", "level", "exam", "weight"}.
-## exam_only keeps exam types and their exam unknowns and representations. A course
+## exam_only keeps exam-style types (exam_style) and their exam unknowns and
+## representations. A course
 ## (Courses) keeps the unknowns it covers; "" keeps them all.
 ## Cached: the planner asks on every question, and building every cell each time cost a
 ## student tens of milliseconds a pick (FAL-755). So the result is shared by every caller
@@ -299,7 +309,7 @@ static func cells(exam_only: bool = false, types: Array = [], course: String = "
 	var ids := types if not types.is_empty() else built_types(course)
 	for id in ids:
 		var t := type_of(id)
-		var exam_type: bool = t.source == "exam"
+		var exam_type := exam_style(t)
 		if exam_only and not exam_type:
 			continue
 		for u in t.unknowns:
@@ -834,7 +844,7 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded, paper: int) -> Dic
 		"marks": v.marks,
 		"cell": cell_key(t.id, u.id, v.rep, angle),
 		"type_name": t.name, "level": int(u.level),
-		"exam": t.source == "exam" and bool(u.exam) and rep_is_exam(t, v.rep),
+		"exam": exam_style(t) and bool(u.exam) and rep_is_exam(t, v.rep),
 		"format": fmt, "prompt": prompt, "asked": b.asked, "rep": v.rep,
 		"lines": b.lines, "graph": b.graph, "table": b.table, "diagram": b.get("diagram"),
 		"answer": ans, "answer_text": Answer.text(ans),

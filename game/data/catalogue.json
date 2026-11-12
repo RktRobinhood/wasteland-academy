@@ -76052,6 +76052,7 @@
 			"id": "t1-ahl-counting",
 			"topic": 1,
 			"source": "extension",
+			"examStyle": "AA HL papers ask these counts in words: a code, medals among runners, a committee with exactly or at least one of a kind, two people together or apart in a row. Every unknown is one of those questions, so with Exam-style only on an AA HL student gets each of them in words. The bare-symbol drills (evaluate 10P3) are practice, not exam style, so the equation representation stays out.",
 			"kind": "skill",
 			"name": "Counting: codes, arrangements, selections and restricted rows (AA HL)",
 			"summary": "Count outcomes with the multiplication principle, ordered arrangements with n! and nPr, selections with nCr (exactly, and 'at least one'), and rows where two people must or must not sit together.",
@@ -76067,7 +76068,7 @@
 			"representations": [
 				{
 					"rep": "words",
-					"exam": false,
+					"exam": true,
 					"how": "a story: a locker code, medals among runners, a committee chosen from men and women, people in a row"
 				},
 				{
@@ -76084,7 +76085,7 @@
 					],
 					"asked": "the number of codes",
 					"level": 1,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words"
 					],
@@ -76099,7 +76100,7 @@
 					],
 					"asked": "how many numbers have no repeated digit",
 					"level": 2,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words"
 					],
@@ -76115,7 +76116,7 @@
 					],
 					"asked": "how many even numbers, with no repeated digit",
 					"level": 3,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words"
 					],
@@ -76130,7 +76131,7 @@
 					],
 					"asked": "the number of arrangements, n!",
 					"level": 1,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words",
 						"equation"
@@ -76147,7 +76148,7 @@
 					],
 					"asked": "the number of results, nPr",
 					"level": 2,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words",
 						"equation"
@@ -76163,7 +76164,7 @@
 					],
 					"asked": "n",
 					"level": 3,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words",
 						"equation"
@@ -76180,7 +76181,7 @@
 					],
 					"asked": "the number of committees, nCk",
 					"level": 2,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words",
 						"equation"
@@ -76198,7 +76199,7 @@
 					],
 					"asked": "the number of committees with exactly j women",
 					"level": 3,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words"
 					],
@@ -76214,7 +76215,7 @@
 					],
 					"asked": "the number of committees with at least one woman",
 					"level": 4,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words"
 					],
@@ -76230,7 +76231,7 @@
 					],
 					"asked": "the number of arrangements",
 					"level": 3,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words"
 					],
@@ -76246,7 +76247,7 @@
 					],
 					"asked": "the number of arrangements",
 					"level": 4,
-					"exam": false,
+					"exam": true,
 					"reps": [
 						"words"
 					],
