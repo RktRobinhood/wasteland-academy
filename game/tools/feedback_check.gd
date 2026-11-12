@@ -75,7 +75,7 @@ const UNSORTED := [
 	"t4-probability-basic", "t4-regression-gdc", "t4-regression-x-on-y", "t4-sample-space",
 	"t4-sampling", "t4-summary-statistics", "t4-tree-diagram", "t5-antiderivative-condition",
 	"t5-area-between-curves", "t5-concavity", "t5-definite-integral-area", "t5-derivative-graph",
-	"t5-differentiate-polynomial", "t5-differentiation-rules", "t5-ext-always-increasing",
+	"t5-differentiate-polynomial", "t5-differentiation-rules",
 	"t5-ext-area-under-curve", "t5-ext-hence-integral", "t5-ext-integral-gdc",
 	"t5-ext-stationary-conditions", "t5-ext-unknown-coefficients", "t5-increasing-decreasing",
 	"t5-kinematics-distance", "t5-normal-meets-curve", "t5-optimisation-modelling",
