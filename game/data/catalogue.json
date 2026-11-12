@@ -11681,6 +11681,54 @@
 						"first-time"
 					],
 					"wrong": "the value of the model at that time instead of the time"
+				},
+				{
+					"text": "Gives the negative solution when the positive one is asked for",
+					"as": "distractor",
+					"in": [
+						"solve-mixed-equation"
+					],
+					"wrong": "−x, the negative solution of x = k sin x"
+				},
+				{
+					"text": "Stops at θ and gives the angle instead of the arc length",
+					"as": "distractor",
+					"in": [
+						"form-and-solve"
+					],
+					"wrong": "θ given as the arc"
+				},
+				{
+					"text": "Gives the x-coordinate of the point where the graphs cross instead of y",
+					"as": "distractor",
+					"in": [
+						"simultaneous-nonlinear"
+					],
+					"wrong": "x instead of y"
+				},
+				{
+					"text": "Gives the later of the two times at that height, not the first",
+					"as": "distractor",
+					"in": [
+						"first-time"
+					],
+					"wrong": "the second root"
+				},
+				{
+					"text": "Divides the wrong way, finding sin x ÷ x instead of x ÷ sin x",
+					"as": "distractor",
+					"in": [
+						"constant-from-root"
+					],
+					"wrong": "sin x ÷ x, the reciprocal of k"
+				},
+				{
+					"text": "Multiplies by sin x instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"constant-from-root"
+					],
+					"wrong": "x sin x"
 				}
 			],
 			"chain": [
@@ -13355,7 +13403,8 @@
 					"as": "distractor",
 					"in": [
 						"solve-log-equation",
-						"evaluate-inverse"
+						"evaluate-inverse",
+						"composite-inequality"
 					],
 					"wrong": "for log_b x = n, gives n^b instead of b^n"
 				},
@@ -13373,7 +13422,8 @@
 					"text": "Dividing instead of finding the power",
 					"as": "distractor",
 					"in": [
-						"evaluate-log-function"
+						"evaluate-log-function",
+						"inverse-awkward-base"
 					],
 					"wrong": "log₂ 32 = 16: the number divided by the base"
 				},
@@ -13383,7 +13433,8 @@
 					"as": "distractor",
 					"in": [
 						"inverse-of-log",
-						"write-log-form"
+						"write-log-form",
+						"function-from-inverse"
 					],
 					"wrong": "log_b y = x read as x^b = y, so base and exponent swap"
 				},
@@ -13401,7 +13452,8 @@
 					"text": "Computes g(f(x)) when f(g(x)) is asked for",
 					"as": "distractor",
 					"in": [
-						"simplify-composite"
+						"simplify-composite",
+						"composite-order"
 					],
 					"wrong": "g(f(x)) worked out instead of f(g(x))"
 				},
@@ -13428,7 +13480,8 @@
 					"text": "Inverting the change-of-base formula: log a/log b instead of log b/log a",
 					"as": "distractor",
 					"in": [
-						"inverse-awkward-base"
+						"inverse-awkward-base",
+						"simplify-composite"
 					],
 					"wrong": "log₄ 8 = ln 4/ln 8 = 2/3, the formula upside down"
 				},
@@ -13485,6 +13538,98 @@
 						"transformations-between"
 					],
 					"wrong": "\"a stretch, scale factor 1/2\", with no axis named"
+				},
+				{
+					"text": "Leaves off the number added outside the log",
+					"as": "distractor",
+					"in": [
+						"evaluate-log-function"
+					],
+					"wrong": "the log alone, c not added"
+				},
+				{
+					"text": "Swapping the exponential for a log, or the log for an exponential, but leaving the shifts where they were",
+					"as": "distractor",
+					"in": [
+						"inverse-of-exponential",
+						"inverse-of-log",
+						"function-from-inverse"
+					],
+					"wrong": "b^(x − h) + c turned into log_b(x − h) + c"
+				},
+				{
+					"text": "Gets the signs of both shifts wrong when undoing them",
+					"as": "distractor",
+					"in": [
+						"inverse-of-exponential",
+						"function-from-inverse"
+					],
+					"wrong": "both shifts in the inverse with the opposite signs"
+				},
+				{
+					"text": "Forgets to add back the shift inside the bracket after raising the base to the power",
+					"as": "distractor",
+					"in": [
+						"evaluate-inverse",
+						"solve-log-equation"
+					],
+					"wrong": "b^m, the h not added"
+				},
+				{
+					"text": "Raising the base to the given value before taking off the number added outside the log",
+					"as": "distractor",
+					"in": [
+						"solve-log-equation"
+					],
+					"wrong": "b^d + h, c not taken off first"
+				},
+				{
+					"text": "Writes the number as a power of the common base but forgets that the base is a power of it too",
+					"as": "distractor",
+					"in": [
+						"inverse-awkward-base"
+					],
+					"wrong": "k, the power of p that gives the number"
+				},
+				{
+					"text": "Stops once the log is alone and gives that bound for x, without undoing the log",
+					"as": "distractor",
+					"in": [
+						"composite-inequality"
+					],
+					"wrong": "x below n instead of b^n"
+				},
+				{
+					"text": "Takes the scale factor of f(ax) to be a instead of its reciprocal",
+					"as": "distractor",
+					"in": [
+						"transformations-between"
+					],
+					"wrong": "horizontal stretch, scale factor j instead of 1/j"
+				},
+				{
+					"text": "Swaps the base and the number inside the log",
+					"as": "distractor",
+					"in": [
+						"write-log-form"
+					],
+					"wrong": "log_x b = n"
+				},
+				{
+					"text": "Swaps the power and the number inside the log",
+					"as": "distractor",
+					"in": [
+						"write-log-form"
+					],
+					"wrong": "log_b n = x"
+				},
+				{
+					"text": "Forgets to undo the square, so the power of the base is not halved",
+					"as": "distractor",
+					"in": [
+						"inverse-log-of-square"
+					],
+					"wrong": "b^x + h instead of b^(x/2) + h"
 				}
 			],
 			"chain": [
@@ -42099,7 +42244,8 @@
 					"in": [
 						"name-technique",
 						"is-it-random",
-						"better-method"
+						"better-method",
+						"best-technique"
 					],
 					"wrong": "simple random for whoever comes by"
 				},
@@ -42128,6 +42274,71 @@
 						"improve-reliability"
 					],
 					"wrong": "a random draw called exact or sure to match"
+				},
+				{
+					"text": "Using the sample size as the interval, instead of the population size divided by the sample size",
+					"as": "distractor",
+					"in": [
+						"describe-systematic",
+						"systematic-interval"
+					],
+					"wrong": "the sample size as the interval"
+				},
+				{
+					"text": "Adds the interval once for every pick, though the first pick is the start itself",
+					"as": "distractor",
+					"in": [
+						"systematic-member"
+					],
+					"wrong": "start + j × interval, one step too many"
+				},
+				{
+					"text": "Leaves out the random start, taking the picks as multiples of the interval",
+					"as": "distractor",
+					"in": [
+						"systematic-member"
+					],
+					"wrong": "j × interval, the start left out"
+				},
+				{
+					"text": "Splits the sample equally between the groups instead of in proportion to their sizes",
+					"as": "distractor",
+					"in": [
+						"quota-number"
+					],
+					"wrong": "the sample size divided by the number of groups"
+				},
+				{
+					"text": "Gives the number a matching sample should hold, not how far short the sample falls",
+					"as": "distractor",
+					"in": [
+						"fair-share"
+					],
+					"wrong": "the group's fair share"
+				},
+				{
+					"text": "Subtracts the sample count from the group's size in the whole population, without scaling the group down first",
+					"as": "distractor",
+					"in": [
+						"fair-share"
+					],
+					"wrong": "the group's size minus its sample count"
+				},
+				{
+					"text": "Picks the group with the fewest in the sample, not the one furthest below its fair share",
+					"as": "distractor",
+					"in": [
+						"under-represented"
+					],
+					"wrong": "the group with the smallest sample count"
+				},
+				{
+					"text": "Calls a chance difference in a random sample a bias in the method",
+					"as": "distractor",
+					"in": [
+						"random-not-perfect"
+					],
+					"wrong": "a chance miss called bias"
 				}
 			],
 			"chain": [
@@ -64015,7 +64226,8 @@
 					"text": "Ignores the horizontal shift when finding the y-intercept",
 					"as": "distractor",
 					"in": [
-						"y-intercept"
+						"y-intercept",
+						"pick-graph"
 					],
 					"wrong": "for 2^(x − 1) + 3, gives (0, 4) instead of (0, 3.5)"
 				},
@@ -64045,6 +64257,88 @@
 						"range"
 					],
 					"wrong": "y ≥ c, the asymptote value included"
+				},
+				{
+					"text": "Takes the constant term as the y-intercept, as for a straight line",
+					"as": "distractor",
+					"in": [
+						"y-intercept"
+					],
+					"wrong": "(0, c)"
+				},
+				{
+					"text": "Forgets to add the constant term after working out the power",
+					"as": "distractor",
+					"in": [
+						"y-intercept"
+					],
+					"wrong": "A·b^(−h), c not added"
+				},
+				{
+					"text": "Writes the horizontal asymptote as x = c instead of y = c",
+					"as": "distractor",
+					"in": [
+						"asymptote"
+					],
+					"wrong": "x = c"
+				},
+				{
+					"text": "Ignores the vertical shift and keeps the parent graph's asymptote",
+					"as": "distractor",
+					"in": [
+						"range",
+						"pick-graph"
+					],
+					"wrong": "asymptote y = 0, range from 0"
+				},
+				{
+					"text": "Ignores the negative A, which turns the graph over to the other side of its asymptote",
+					"as": "distractor",
+					"in": [
+						"range"
+					],
+					"wrong": "y > c when A < 0"
+				},
+				{
+					"text": "Takes the base of b to the power −x to be b, missing that the minus makes it the reciprocal",
+					"as": "distractor",
+					"in": [
+						"growth-or-decay"
+					],
+					"wrong": "increasing for b^(−x)"
+				},
+				{
+					"text": "Moves the graph the wrong way for the shift inside the bracket",
+					"as": "distractor",
+					"in": [
+						"pick-graph",
+						"moves-from-parent"
+					],
+					"wrong": "x = −h instead of h"
+				},
+				{
+					"text": "Forgets to multiply the y-value by A",
+					"as": "distractor",
+					"in": [
+						"moves-from-parent"
+					],
+					"wrong": "(h, 1 + c)"
+				},
+				{
+					"text": "Takes A to be the y-intercept, forgetting to take off c",
+					"as": "distractor",
+					"in": [
+						"equation-from-graph"
+					],
+					"wrong": "A = y-intercept"
+				},
+				{
+					"text": "Forgets to divide by A when finding b",
+					"as": "distractor",
+					"in": [
+						"equation-from-graph"
+					],
+					"wrong": "b = y(1) − c"
 				}
 			],
 			"frequency": 0
@@ -64805,7 +65099,8 @@
 					"as": "distractor",
 					"in": [
 						"graph-from-equation",
-						"signs-from-graph"
+						"signs-from-graph",
+						"equation-from-graph"
 					],
 					"wrong": "a growth curve for (1/2)^x, or a decay curve for 2^x"
 				},
@@ -64815,7 +65110,8 @@
 					"as": "distractor",
 					"in": [
 						"match-several",
-						"signs-from-graph"
+						"signs-from-graph",
+						"equation-from-graph"
 					],
 					"wrong": "a parabola opening up for a negative leading coefficient"
 				}
@@ -73034,7 +73330,8 @@
 					"text": "Splitting the log of a sum: log(a + b) = log a + log b",
 					"as": "distractor",
 					"in": [
-						"log-law-check"
+						"log-law-check",
+						"same-or-not"
 					],
 					"wrong": "log(a + b) = log a + log b accepted"
 				},
@@ -73043,7 +73340,8 @@
 					"text": "Turning a quotient of logs into the log of a quotient: log a/log b = log(a/b)",
 					"as": "distractor",
 					"in": [
-						"same-or-not"
+						"same-or-not",
+						"log-law-check"
 					],
 					"wrong": "ln 12/ln 3 taken as ln 4"
 				},
@@ -73052,7 +73350,8 @@
 					"text": "Confusing (log x)² with 2 log x = log x²",
 					"as": "distractor",
 					"in": [
-						"log-law-check"
+						"log-law-check",
+						"same-or-not"
 					],
 					"wrong": "(log x)² taken as 2 log x"
 				},
@@ -73100,6 +73399,79 @@
 						"power-form-first"
 					],
 					"wrong": "3x⁻² → −6x⁻¹, the new power wrong"
+				},
+				{
+					"text": "Takes p as the whole coefficient of x instead of half of it",
+					"as": "distractor",
+					"in": [
+						"identity-constants"
+					],
+					"wrong": "p = b, so q = c − b²"
+				},
+				{
+					"text": "Taking log a − log b to be log(a − b)",
+					"as": "distractor",
+					"in": [
+						"log-law-check",
+						"same-or-not"
+					],
+					"wrong": "log a − log b = log(a − b)"
+				},
+				{
+					"text": "Moving the coefficient inside the log as a factor, so n log a becomes log(na)",
+					"as": "distractor",
+					"in": [
+						"same-or-not"
+					],
+					"wrong": "2 ln m = ln 2m"
+				},
+				{
+					"text": "Squaring each term of a sum on its own, as if (a + b)² were a² + b²",
+					"as": "distractor",
+					"in": [
+						"same-or-not"
+					],
+					"wrong": "(x + m)² = x² + m²"
+				},
+				{
+					"text": "Puts one angle in the wrong quadrant, so it doesn't solve its equation",
+					"as": "distractor",
+					"in": [
+						"cos2x-form"
+					],
+					"wrong": "one angle swapped for π − x, π + x or 2π − x"
+				},
+				{
+					"text": "Writes the factor for a root r as (x + r) instead of (x − r)",
+					"as": "distractor",
+					"in": [
+						"roots-from-vertex-form"
+					],
+					"wrong": "the roots' signs flipped in the factors"
+				},
+				{
+					"text": "Forgets to take the square root when solving for x − h",
+					"as": "distractor",
+					"in": [
+						"roots-from-vertex-form"
+					],
+					"wrong": "roots at h ± d² instead of h ± d"
+				},
+				{
+					"text": "Leaves out the number in front of the bracket when writing the factorised form",
+					"as": "distractor",
+					"in": [
+						"roots-from-vertex-form"
+					],
+					"wrong": "a dropped from a(x − p)(x − q)"
+				},
+				{
+					"text": "Reads the vertex coordinates as the two roots",
+					"as": "distractor",
+					"in": [
+						"roots-from-vertex-form"
+					],
+					"wrong": "a(x − h)(x − k)"
 				}
 			],
 			"frequency": 0

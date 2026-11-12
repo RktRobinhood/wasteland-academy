@@ -32,9 +32,9 @@ func formats(unknown: String) -> Array:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	out.given = GraphMatchSituation.export(s)
 	out.trap = {}
 	return out
@@ -46,6 +46,14 @@ static func N(v: Variant) -> String:
 
 static func wrong(v: String, ref: String = "") -> Dictionary:
 	return {"values": {"v": v}, "ref": ref}
+
+
+## LogFunctionViews.choice, with its untagged options as this view's fillers (FAL-815).
+static func choice(right: String, wrongs: Array, rest: Array) -> Dictionary:
+	var out := LogFunctionViews.choice(right, wrongs, rest)
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
+	return out
 
 
 ## A copy of s with some numbers changed.
@@ -129,8 +137,8 @@ func u_graph_from_equation(_rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 
 func u_equation_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := GraphMatchSituation.text(s)
-	var out := LogFunctionViews.choice(right, [wrong(GraphMatchSituation.text(lifted(s)), MG + "#0")],
-		[GraphMatchSituation.text(swapped(s)), GraphMatchSituation.text(moved(s))])
+	var out := choice(right, [wrong(GraphMatchSituation.text(lifted(s)), MG + "#0"),
+		wrong(GraphMatchSituation.text(swapped(s)), MG + ("#1" if s.fam == "exp" else "#2"))], [GraphMatchSituation.text(moved(s))])
 	var final: String = "So the equation is " + right + "."
 	var y0 := GraphMatchSituation.y0_q(s)
 	out.merge({
@@ -148,7 +156,7 @@ func u_match_several(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var a: Dictionary = s.others[0]
 	var b: Dictionary = s.others[1]
 	if rep == "graph":
-		var out := LogFunctionViews.choice(GraphMatchSituation.text(s), [wrong(GraphMatchSituation.text(swapped(s)), MG + "#2")],
+		var out := choice(GraphMatchSituation.text(s), [wrong(GraphMatchSituation.text(swapped(s)), MG + "#2")],
 			[GraphMatchSituation.text(a), GraphMatchSituation.text(b), GraphMatchSituation.text(moved(s)), GraphMatchSituation.text(lifted(s))])
 		var final: String = "So the graph is " + out.answer.values.v + "."
 		out.merge({
@@ -181,7 +189,7 @@ func u_rule_out_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var y0 := GraphMatchSituation.y0_q(s)
 	var y1 := GraphMatchSituation.y0_q(shown)
 	var right := "It crosses the y-axis at %s, but the equation gives %s at x = 0." % [Fmt.point(0, y1), Fmt.point(0, y0)]
-	var out := LogFunctionViews.choice(right, [], ["Its shape is wrong for this kind of equation.",
+	var out := choice(right, [], ["Its shape is wrong for this kind of equation.",
 		"It has no %s." % ("asymptote" if s.fam == "exp" else "roots"), "Nothing: it could be the graph of the equation."])
 	var final: String = "So: " + right
 	out.merge({
@@ -213,7 +221,7 @@ func u_signs_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		right = combos.call(ap, cp)
 		flip = combos.call(not ap, cp)
 		opts = [combos.call(ap, not cp), combos.call(not ap, not cp)]
-	var out := LogFunctionViews.choice(right, [wrong(flip, MG + ("#1" if s.fam == "exp" else "#2"))], opts)
+	var out := choice(right, [wrong(flip, MG + ("#1" if s.fam == "exp" else "#2"))], opts)
 	var final: String = "So " + right + "."
 	var form := "y = a·b^x + c" if s.fam == "exp" else "y = a(x − p)(x − q)"
 	out.merge({
