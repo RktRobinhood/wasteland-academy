@@ -34,6 +34,9 @@ const R_POWER_ALL := "SL1.3.nth-term#1"
 const R_SUM_POWER := "SL1.3.sum#0"
 const R_ARITH := "SL1.3.find-r-u1#0"
 const R_ROOT := "SL1.3.find-r-u1#2"
+## The slips FAL-815 named, misconceptions with no ref of their own.
+const R_RISE_AS_FALL := "t1-geometric-in-context#21"
+const R_NO_R_MINUS_1 := "t1-geometric-in-context#22"
 
 const UNKNOWNS := ["factor-from-percent", "value-after-years", "value-in-round", "term-number-after", "rebound-height",
 	"nth-expression", "total-over-rounds", "total-two-deals", "overtake-first-round", "scaled-area-term", "mean-of-areas",
@@ -244,7 +247,7 @@ static func wrongs_of(pairs: Array, rng: Seeded) -> Array:
 	return out
 
 
-static func generic_of(x: float) -> Array:
+static func fillers_of(x: float) -> Array:
 	return [wv(x * 1.1), wv(x * 0.9), wv(x * 1.25), wv(x * 0.8)]
 
 
@@ -267,13 +270,17 @@ func u_factor_from_percent(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var wrongs := [wrong({"v": rate}, R_RATE)]
 	if s.sign < 0:
 		wrongs.append(wrong({"v": Q.new(100 + s.p, 100)}, R_FACTOR))
-	var generic := [{"v": Q.new(100 - s.sign * s.p, 100)}, {"v": Q.new(s.p)}, {"v": Q.new(s.p + 1)}, {"v": Q.new(s.p, 10)}]
+	else:
+		wrongs.append(wrong({"v": Q.new(100 - s.p, 100)}, R_RISE_AS_FALL))
+	# The percentage itself, not as a decimal, is the same slip as the rate for r.
+	wrongs.append(wrong({"v": Q.new(s.p)}, R_RATE))
+	var fillers := [{"v": Q.new(s.p + 1)}, {"v": Q.new(s.p, 10)}]
 	var c := stock(s)
 	var steps: Array = ["Each %s the %s is %d%% %s %d%% = %d%% of what it was." % [c.round, c.thing, 100, "+" if s.sign > 0 else "−", s.p, 100 + s.sign * s.p],
 		"As a decimal, %d%% is %s." % [100 + s.sign * s.p, D(s.r)], say(ans)]
 	return {"lines": stock_lines(s), "table": null,
 		"asked": "The %s after each %s is r times what it was. Write down the value of r." % [c.thing, c.round],
-		"answer": ans, "wrongs": wrongs, "generic": generic, "methods": {"multiplier": method(steps, ans.values)}}
+		"answer": ans, "wrongs": wrongs, "fillers": fillers, "methods": {"multiplier": method(steps, ans.values)}}
 
 
 func u_value_after_years(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -300,7 +307,7 @@ func u_value_after_years(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.asked = "Find the %s after %s." % [c.thing, plural(c.round, t)] + to_3sf(s)
 	out.answer = ans
 	out.wrongs = wrongs_of(pairs, rng)
-	out.generic = generic_of(worth)
+	out.fillers = fillers_of(worth)
 	out.titles = titles_for(c.round, false)
 	out.methods = {
 		"multiplier": method([first, "After 1 %s it is %s × %s, so after %s it has been multiplied %d times." % [c.round, D(s.start), X(s, s.r), plural(c.round, t), t],
@@ -333,7 +340,7 @@ func u_value_in_round(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.asked = "Find the %s %s %s %d." % [c.thing, c.at, c.round, n] + to_3sf(s)
 	out.answer = ans
 	out.wrongs = wrongs_of(pairs, rng)
-	out.generic = generic_of(worth)
+	out.fillers = fillers_of(worth)
 	out.titles = titles_for(c.round, false)
 	out.methods = {
 		"multiplier": method([first, "%s %d is %s on from %s 1, so u%s = %s × %s^%d." % [String(c.round).capitalize(), n, plural("step", n - 1), c.round, sub(n), D(s.u1), X(s, s.r), n - 1],
@@ -354,7 +361,7 @@ func u_term_number_after(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.asked = "Let u₁ be the %s today, u₂ the %s after 1 %s, and so on. Find the value of n for which uₙ is the %s after %s." % [c.thing, c.thing, c.round, c.thing, plural(c.round, t)]
 	out.answer = ans
 	out.wrongs = whole_wrongs([[t, R_T_FOR_N]], rng)
-	out.generic = [{"v": Q.new(t + 2)}, {"v": Q.new(t - 1)}, {"v": Q.new(2 * t)}, {"v": Q.new(t + 3)}]
+	out.fillers = [{"v": Q.new(t + 2)}, {"v": Q.new(t - 1)}, {"v": Q.new(2 * t)}, {"v": Q.new(t + 3)}]
 	out.titles = titles_for(c.round, false)
 	out.methods = {"tabulate": method(["List the terms: u₁ is today, u₂ is after 1 %s, and u₃ is after 2 %ss." % [c.round, c.round],
 		"The term number is always one more than the number of %ss, so after %s it is %d + 1." % [c.round, plural(c.round, t), t], say(ans)], ans.values)}
@@ -393,10 +400,10 @@ func u_rebound_height(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			if p[0].sign() > 0:
 				wrongs.append(wrong({"v": p[0]}, p[1]))
 		out.wrongs = wrongs
-		out.generic = [{"v": s.h.mul(s.r)}, {"v": s.v.add(s.h)}, {"v": s.h}, {"v": s.v.mul(2)}]
+		out.fillers = [{"v": s.h.mul(s.r)}, {"v": s.v.add(s.h)}, {"v": s.h}, {"v": s.v.mul(2)}]
 	else:
 		out.wrongs = wrongs_of([[one_less, R_ONE_FEW], [one_more, R_POWER_N], [steps_down, R_FACTOR]], rng)
-		out.generic = generic_of(s.v)
+		out.fillers = fillers_of(s.v)
 	var mult := "Each bounce multiplies the height by r = %s." % X(s, s.r)
 	var worked := "%s × %s^%d = %s" % [D(s.h), B(s, s.r), k, X(s, s.v) if s.paper == 1 else W(s.v)]
 	var row: Array = []
@@ -436,12 +443,12 @@ func u_nth_expression(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if rep == "table":
 		out.lines = ["The table shows the %s in the first three %ss. Each value is the same multiple of the one before." % [c.thing, c.round]]
 	var ask := "Let uₙ be the %s %s %s n. Find an expression for uₙ in terms of n." % [c.thing, c.at, c.round]
-	var generic: Array = [{"a": r, "b": a, "text": rule(s, r, a, "(n − 1)")}, shape.call(rule(s, a, r, "(n + 1)")),
+	var fillers: Array = [{"a": r, "b": a, "text": rule(s, r, a, "(n − 1)")}, shape.call(rule(s, a, r, "(n + 1)")),
 		{"a": a, "b": r.add(1), "text": rule(s, a, r.add(1), "(n − 1)")}, {"a": a.mul(2), "b": r, "text": rule(s, a.mul(2), r, "(n − 1)")}]
 	out.asked = ask
 	out.answer = ans
 	out.wrongs = rng.shuffled(wrongs)
-	out.generic = generic
+	out.fillers = fillers
 	var first: String
 	if rep == "table":
 		first = ratio_line(s, a, c.round)
@@ -486,7 +493,7 @@ func u_total_over_rounds(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.asked = "Find the %s over the first %s. Give your answer to 3 s.f." % [c.total, plural(c.round, n)]
 	out.answer = ans
 	out.wrongs = wrongs_of(pairs, rng)
-	out.generic = generic_of(s.v)
+	out.fillers = fillers_of(s.v)
 	out.titles = titles_for(c.round, false)
 	out.methods = {
 		"multiplier": method([first, "The amounts form a geometric series: u₁ = %s, r = %s and n = %d." % [D(s.u1), X(s, s.r), n],
@@ -518,7 +525,7 @@ func u_total_two_deals(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var short: float = GeometricContextSituation.sum(u, r, n - 1)
 	var low: float = u * (1.0 - pow(rate, n)) / (1.0 - rate)
 	out.wrongs = wrongs_of([[absf(last - a), R_LAST], [absf(short - flat), R_SUM_POWER], [absf(low - flat), R_RATE]], rng)
-	out.generic = generic_of(s.v)
+	out.fillers = fillers_of(s.v)
 	var first := "Deal B multiplies by %s each %s, from u₁ = %s, for n = %d." % [X(s, s.r), c.round, D(s.u1), n]
 	if rep == "table":
 		first = ratio_line(s, s.u1, c.round) + " Deal B has u₁ = %s and n = %d." % [D(s.u1), n]
@@ -576,7 +583,7 @@ func u_overtake_first_round(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	if s.slip_n != n and s.slip_n > 0:
 		pairs.append([s.slip_n, R_LINEAR])
 	out.wrongs = whole_wrongs(pairs, rng)
-	out.generic = near_n(n)
+	out.fillers = near_n(n)
 	var model := "In %s n, %s has %s + %s(n − 1) and %s has %s × %s^(n − 1)." % [c.round, c.a, D(s.a), D(s.d), c.b, D(s.b), X(s, s.r)]
 	out.methods = {
 		"gdc-table-compare": method([model, "In the GDC's table enter Y1 = %s + %s(X − 1) and Y2 = %s × %s^(X − 1), and scroll to where Y2 passes Y1." % [D(s.a), D(s.d), D(s.b), X(s, s.r)],
@@ -613,7 +620,7 @@ func u_scaled_area_term(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		wrong(shape.call("%s^(n − 1) cm²" % B(s, a.mul(b))), R_POWER_ALL)]
 	var out := {"lines": sheet_lines(s), "table": null, "asked": "Find an expression for the area of %sₙ in terms of n." % c.L, "answer": ans,
 		"wrongs": rng.shuffled(wrongs),
-		"generic": [{"a": a, "b": s.kq.mul(2), "text": said.call(a, s.kq.mul(2), "(n − 1)")}, {"a": b, "b": a, "text": said.call(b, a, "(n − 1)")},
+		"fillers": [{"a": a, "b": s.kq.mul(2), "text": said.call(a, s.kq.mul(2), "(n − 1)")}, {"a": b, "b": a, "text": said.call(b, a, "(n − 1)")},
 			shape.call(said.call(a, b, "(n + 1)")), {"a": a.mul(2), "b": b, "text": said.call(a.mul(2), b, "(n − 1)")}]}
 	out.titles = titles_for(c.item, true)
 	out.methods = {"multiplier": method([sheet_factor(s), "%s₁ has area %d × %d = %s cm²." % [c.L, s.w, s.ht, X(s, a)],
@@ -637,9 +644,11 @@ func u_mean_of_areas(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	ans.exact = true
 	var v := func(x: Q, y: int) -> Dictionary: return {"p": x, "a": Q.new(y), "text": mean_text(s, x, y)}
 	var wrongs: Array = [wrong(v.call(total, parts_n), R_TOTAL_MEAN), wrong(v.call(p, parts_n - 1), R_SUM_POWER)]
-	var generic: Array = [v.call(a.div(parts_n), parts_n), v.call(p, parts_n + 1), v.call(a.div(b).div(parts_n), parts_n), v.call(p.mul(2), parts_n)]
+	# The sum formula without its ÷ (r − 1), then divided by n.
+	var no_div: Array = [wrong(v.call(a.div(parts_n), parts_n), R_NO_R_MINUS_1)]
+	var fillers: Array = [v.call(p, parts_n + 1), v.call(a.div(b).div(parts_n), parts_n), v.call(p.mul(2), parts_n)]
 	var out := {"lines": sheet_lines(s), "table": null, "asked": "Find the mean area of the %d %s, in the form p × (%s^a − 1) cm², where a is a whole number." % [parts_n, c.items, B(s, b)],
-		"answer": ans, "wrongs": rng.shuffled(wrongs), "generic": generic}
+		"answer": ans, "wrongs": rng.shuffled(wrongs) + no_div, "fillers": fillers}
 	out.titles = titles_for(c.item, true)
 	out.methods = {"multiplier": method([sheet_factor(s) + " The first area is %d × %d = %s cm²." % [s.w, s.ht, X(s, a)],
 		"S%s = %s × (%s^%d − 1) ÷ (%s − 1) = %s × (%s^%d − 1)" % [sub(parts_n), X(s, a), B(s, b), parts_n, B(s, b), B(s, total), B(s, b), parts_n],
@@ -752,7 +761,7 @@ func u_least_n_term(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		pairs.append([s.other_n, R_WRONG_TEST])
 	out.wrongs = whole_wrongs(pairs, rng)
 	out.wrongs.append(wrong({"v": GeometricContextSituation.fig(s.after, 3)}, R_VALUE_AS_N))
-	out.generic = near_n(n)
+	out.fillers = near_n(n)
 	out.methods = routes(s, ans, read_line(rep, s, false, "uₙ = " + u), "n", "%s × %s^(X − 1)" % [D(s.u1), D(s.r)],
 		["Solve %s > %s: %s^(n − 1) > %s" % [u, D(s.target), D(s.r), W(q)],
 		"Take ln of both sides: (n − 1) ln %s > ln %s, so n − 1 > %s" % [D(s.r), W(q), W(s.x - 1.0)],
@@ -770,7 +779,7 @@ func u_first_below(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = whole_wrongs([[n - 1, short_ref(false)]], rng)
 	out.wrongs.append(wrong({"v": GeometricContextSituation.fig(s.after, 3)}, R_VALUE_AS_N))
-	out.generic = near_n(n)
+	out.fillers = near_n(n)
 	out.methods = routes(s, ans, read_line(rep, s, false, "uₙ = " + u), "n", "%s × %s^(X − 1)" % [D(s.u1), D(s.r)],
 		["Solve %s < %s: %s^(n − 1) < %s" % [u, D(s.target), D(s.r), W(q)],
 		"Take ln of both sides: (n − 1) ln %s < ln %s. ln %s is negative, so dividing by it flips the sign: n − 1 > %s" % [D(s.r), W(q), D(s.r), W(s.x - 1.0)],
@@ -792,7 +801,7 @@ func u_least_rounds_after(rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	out.answer = ans
 	out.wrongs = whole_wrongs([[n + 1, R_N_FOR_T], [n - 1, short_ref(rising)]], rng)
 	out.wrongs.append(wrong({"v": GeometricContextSituation.fig(s.after, 3)}, R_VALUE_AS_N))
-	out.generic = near_n(n)
+	out.fillers = near_n(n)
 	var first := "After t %ss the %s is %s, with r = %s." % [c.round, c.thing, u, D(s.r)]
 	if rep == "table":
 		first = "r = %s ÷ %s = %s, and after t %ss the %s is %s." % [D(s.start.mul(s.r)), D(s.start), D(s.r), c.round, c.thing, u]
@@ -825,7 +834,7 @@ func u_least_n_sum(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = whole_wrongs([[n - 1, short_ref(true)], [s.other_n, R_WRONG_TEST]], rng)
 	out.wrongs.append(wrong({"v": GeometricContextSituation.fig(s.after, 3)}, R_VALUE_AS_N))
-	out.generic = near_n(n)
+	out.fillers = near_n(n)
 	out.methods = routes(s, ans, read_line(rep, s, true, "Sₙ = " + shown_sum), "n", "%s × (%s^X − 1) ÷ %s" % [D(s.u1), D(s.r), minus],
 		sum_steps(s, shown_sum), "it passes %s" % D(s.target))
 	return out
@@ -852,7 +861,7 @@ func u_least_n_two_terms(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if s.arith_n > 0 and s.arith_n != n:
 		pairs.append([s.arith_n, R_ARITH])
 	out.wrongs = whole_wrongs(pairs, rng)
-	out.generic = near_n(n)
+	out.fillers = near_n(n)
 	var first := "u%s = u₁r^%d, so r^%d = %s ÷ %s = %s and r = %s. So Sₙ = %s." % [sub(m), m - 1, m - 1, D(s.um), D(s.u1), D(s.r_q), D(s.r), shown_sum]
 	out.methods = routes(s, ans, first, "n", "%s × (%s^X − 1) ÷ %s" % [D(s.u1), D(s.r), minus],
 		sum_steps(s, shown_sum), "it passes %s" % D(s.target))
@@ -877,7 +886,7 @@ func u_gap_to_limit(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = whole_wrongs([[n - 1, short_ref(false)], [s.other_n, R_WRONG_TEST]], rng)
 	out.wrongs.append(wrong({"v": GeometricContextSituation.fig(f.to_float() - s.after, 3)}, R_VALUE_AS_N))
-	out.generic = near_n(n)
+	out.fillers = near_n(n)
 	var u_text := "u₁ = %s and r = %s" % [D(s.u1), D(s.r)]
 	if rep == "notation":
 		u_text = "Put k = 1: u₁ = %s × %s = %s, and r = %s" % [D(s.c), D(s.r), D(s.u1), D(s.r)]
@@ -915,7 +924,7 @@ func u_count_terms_power(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var d: Q = s.u1.mul(s.r.sub(1))
 	var arith: Q = s.last.sub(s.u1).div(d).add(1)
 	out.wrongs = [wrong({"v": Q.new(n - 1)}, R_POWER_AS_N), wrong({"v": arith}, R_ARITH)]
-	out.generic = [{"v": Q.new(n + 1)}, {"v": s.total}, {"v": Q.new(n + 2)}, {"v": Q.new(n - 2)}]
+	out.fillers = [{"v": Q.new(n + 1)}, {"v": s.total}, {"v": Q.new(n + 2)}, {"v": Q.new(n - 2)}]
 	var first := "u₁ = %s and r = %d, so with n %s the last term is %s × %d^(n − 1)." % [u, r, c.unit if rep == "words" else "terms", u, r]
 	var solve := "Set %s × %d^(n − 1) = %s: %d^(n − 1) = %s ÷ %s = %s" % [u, r, last, r, last, u, q]
 	var powers: Array = []

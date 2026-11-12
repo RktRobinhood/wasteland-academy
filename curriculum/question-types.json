@@ -17156,7 +17156,8 @@
      "as": "distractor",
      "in": [
       "solve-against-zero",
-      "solve-against-constant"
+      "solve-against-constant",
+      "square-against-constant"
      ],
      "wrong": "the two rays written as one interval −2 < x < 3"
     },
@@ -17168,6 +17169,62 @@
       "negative-a"
      ],
      "wrong": "divides by −1 and keeps the sign, so the region is the wrong one"
+    },
+    {
+     "text": "Mixing up the region between the roots and the region outside them",
+     "as": "distractor",
+     "in": [
+      "solve-against-zero",
+      "solve-against-constant",
+      "square-against-constant",
+      "inequality-from-solution"
+     ],
+     "wrong": "the outer rays for a set between the roots, or the sign for the other region"
+    },
+    {
+     "text": "Mixing up strict and inclusive signs, so the roots are put in or left out the wrong way",
+     "as": "distractor",
+     "in": [
+      "solve-against-zero",
+      "solve-against-constant",
+      "negative-a",
+      "inequality-from-solution"
+     ],
+     "wrong": "the right region with the ends the other way"
+    },
+    {
+     "text": "Flipping the signs of both roots, as when they are read off the brackets without changing sign",
+     "as": "distractor",
+     "in": [
+      "solve-against-zero",
+      "solve-against-constant",
+      "negative-a"
+     ],
+     "wrong": "the region with both ends negated"
+    },
+    {
+     "text": "Rounding the root up to the next whole number, when n must stay at or below it",
+     "as": "distractor",
+     "in": [
+      "largest-integer"
+     ],
+     "wrong": "one more than the largest n"
+    },
+    {
+     "text": "Reading the parabola on the wrong side of the x-axis, which swaps all x and no x",
+     "as": "distractor",
+     "in": [
+      "no-real-roots-case"
+     ],
+     "wrong": "all real x for no real x, or the other way round"
+    },
+    {
+     "text": "Writing each factor as x plus the root instead of x minus it, which flips the sign of b",
+     "as": "distractor",
+     "in": [
+      "inequality-from-solution"
+     ],
+     "wrong": "b with the wrong sign"
     }
    ],
    "parts": [
@@ -25140,6 +25197,22 @@
       "least-n-two-terms"
      ],
      "wrong": "r from a root one too high"
+    },
+    {
+     "text": "Using one minus the rate for a percentage rise, as if it were a fall",
+     "as": "distractor",
+     "in": [
+      "factor-from-percent"
+     ],
+     "wrong": "one minus the rate for a rise"
+    },
+    {
+     "text": "Leaving out the division by r − 1 in the sum formula before dividing by how many there are",
+     "as": "distractor",
+     "in": [
+      "mean-of-areas"
+     ],
+     "wrong": "the sum without its ÷ (r − 1), over n"
     }
    ],
    "parts": [
@@ -35473,7 +35546,12 @@
       "ratio-in-letters",
       "side-in-letters",
       "edge-from-span",
-      "upper-edge"
+      "upper-edge",
+      "side-from-angle",
+      "side-under-ratio",
+      "side-special",
+      "angle-from-sides",
+      "angle-special"
      ],
      "wrong": "the ratio of the other acute angle, or the sine and cosine swapped"
     },
@@ -35524,7 +35602,9 @@
      "in": [
       "side-under-ratio",
       "side-either-angle",
-      "side-special"
+      "side-special",
+      "cone-from-eye-level",
+      "depression-sight-line"
      ],
      "wrong": "the known side × the ratio"
     },
@@ -35586,7 +35666,8 @@
      "in": [
       "angle-from-sides",
       "angle-special",
-      "angle-from-gradient"
+      "angle-from-gradient",
+      "elevation-after-walk"
      ],
      "wrong": "90° less the angle"
     },
@@ -35732,6 +35813,40 @@
       "depression-two-points"
      ],
      "wrong": "the sum of the two distances"
+    },
+    {
+     "text": "Mixing up which two sides sin, cos and tan each use",
+     "as": "distractor",
+     "in": [
+      "ratio-from-sides",
+      "ratio-in-letters",
+      "side-either-angle",
+      "side-from-angle",
+      "height-from-angle",
+      "equal-elevations",
+      "depression-from-sight-line",
+      "cone-from-eye-level",
+      "depression-sight-line"
+     ],
+     "wrong": "the right sides put into the wrong one of sin, cos and tan"
+    },
+    {
+     "text": "Dividing one given side by the other without finding the hypotenuse first",
+     "as": "distractor",
+     "in": [
+      "ratio-needs-pythagoras"
+     ],
+     "wrong": "the two legs over each other"
+    },
+    {
+     "text": "Dividing by the ratio when the side you want is on top of it",
+     "as": "distractor",
+     "in": [
+      "side-from-angle",
+      "side-special",
+      "height-from-angle"
+     ],
+     "wrong": "the known side ÷ the ratio"
     }
    ],
    "parts": [
@@ -44650,6 +44765,54 @@
       "touch-one-solution"
      ],
      "wrong": "|a| as the largest value"
+    },
+    {
+     "text": "Dropping the sign of the ratio when rearranging, so the times solve for the opposite value",
+     "as": "distractor",
+     "in": [
+      "exact-times-level"
+     ],
+     "wrong": "the times for the ratio with its sign flipped"
+    },
+    {
+     "text": "Giving a time when the model crosses the level instead of how long it stays past it",
+     "as": "distractor",
+     "in": [
+      "time-at-least-exact"
+     ],
+     "wrong": "one of the two crossing times"
+    },
+    {
+     "text": "Including the crossings that come before the window starts",
+     "as": "distractor",
+     "in": [
+      "times-in-window"
+     ],
+     "wrong": "every crossing from the start, not just those in the window"
+    },
+    {
+     "text": "Choosing < or ≤ at the ends of k without counting the solutions at each end value",
+     "as": "distractor",
+     "in": [
+      "k-exactly-n"
+     ],
+     "wrong": "the right ends, both included or both left out"
+    },
+    {
+     "text": "Giving the values of k between the minimum and the maximum, where the line does meet the curve",
+     "as": "distractor",
+     "in": [
+      "k-no-solution"
+     ],
+     "wrong": "the band inside the range"
+    },
+    {
+     "text": "Setting p equal to the height of the line, leaving the amplitude out",
+     "as": "distractor",
+     "in": [
+      "touch-find-constant"
+     ],
+     "wrong": "p as the line's height"
     }
    ],
    "parts": [
@@ -59567,7 +59730,8 @@
      "text": "Keeping a constant term when differentiating, instead of dropping it",
      "as": "distractor",
      "in": [
-      "derivative"
+      "derivative",
+      "derivative-from-fraction"
      ],
      "wrong": "the constant d kept: 3ax² + 2bx + c + d"
     },
@@ -59606,6 +59770,16 @@
       "gradient-at-point"
      ],
      "wrong": "for negative x₀, 3a(x₀)² worked out as −3a·x₀²"
+    },
+    {
+     "text": "Lowering each power by one without multiplying by the old power",
+     "as": "distractor",
+     "in": [
+      "derivative",
+      "derivative-from-fraction",
+      "gradient-at-point"
+     ],
+     "wrong": "the coefficients kept: ax² + bx + c"
     }
    ],
    "parts": [
@@ -60149,6 +60323,38 @@
       "coefficient-from-tangent"
      ],
      "wrong": "k from f(x₀) = g instead of f′(x₀) = g"
+    },
+    {
+     "text": "Forgetting to multiply by the power when differentiating the x² term",
+     "as": "distractor",
+     "in": [
+      "coefficient-from-tangent"
+     ],
+     "wrong": "the x² term differentiated with no factor of its power"
+    },
+    {
+     "text": "Forgetting to divide by the number in front of k at the end",
+     "as": "distractor",
+     "in": [
+      "coefficient-from-tangent"
+     ],
+     "wrong": "the coefficient times k, not k"
+    },
+    {
+     "text": "Solving for the stationary points, where the gradient is zero, instead of where it equals the given gradient",
+     "as": "distractor",
+     "in": [
+      "x-for-gradient"
+     ],
+     "wrong": "the roots of f′(x) = 0"
+    },
+    {
+     "text": "Flipping the signs of both roots when reading them off the factors",
+     "as": "distractor",
+     "in": [
+      "x-for-gradient"
+     ],
+     "wrong": "both x-values negated"
     }
    ],
    "parts": [
@@ -60401,6 +60607,22 @@
       "read-from-tangent"
      ],
      "wrong": "f′(x₀) = mx₀ + c and f(x₀) = m: the two swapped"
+    },
+    {
+     "text": "Adding the gradient times the x-coordinate instead of subtracting it when finding c",
+     "as": "distractor",
+     "in": [
+      "tangent-at-point"
+     ],
+     "wrong": "c = f(x₀) + m·x₀"
+    },
+    {
+     "text": "Using the y-coordinate of the point as the y-intercept c",
+     "as": "distractor",
+     "in": [
+      "tangent-at-point"
+     ],
+     "wrong": "c = f(x₀)"
     }
    ],
    "parts": [
@@ -61207,7 +61429,8 @@
      "text": "Substituting the x-value into f′ instead of f to get the y-coordinate",
      "as": "distractor",
      "in": [
-      "stationary-points"
+      "stationary-points",
+      "inflexion-point"
      ],
      "wrong": "the y-coordinates from f′, which are both 0"
     },
@@ -61228,6 +61451,22 @@
       "max-value"
      ],
      "wrong": "the x-coordinate of the local maximum"
+    },
+    {
+     "text": "Taking the y-coordinate to be zero because the second derivative is zero there",
+     "as": "distractor",
+     "in": [
+      "inflexion-point"
+     ],
+     "wrong": "y = 0 at the point of inflexion"
+    },
+    {
+     "text": "Giving the value at the other stationary point, the local minimum",
+     "as": "distractor",
+     "in": [
+      "max-value"
+     ],
+     "wrong": "the local minimum value"
     }
    ],
    "parts": [

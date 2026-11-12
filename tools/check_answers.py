@@ -3694,6 +3694,8 @@ QI_REL = {"<": lambda f: f < 0, "≤": lambda f: f <= 0, ">": lambda f: f > 0, "
 # to 3 s.f.); the largest-integer context always needs one; the rest are Paper 1.
 QI_P2 = {"solve-against-zero", "solve-against-constant", "negative-a"}
 QI_P2_ONLY = {"largest-integer"}
+# The slips FAL-815 named (fn-quadratic-inequality's misconceptions with no ref of their own).
+QI_REGION, QI_ENDS, QI_SIGNS, QI_ROUND_UP, QI_ALL_NONE, QI_FACTOR_SIGNS = (f"fn-quadratic-inequality#{i}" for i in range(3, 9))
 
 
 def qi_read(line):
@@ -3718,7 +3720,8 @@ def check_qineq(q):
         best = sp.floor(S.sup)
         need(not S.sup.is_rational, "Paper 2: the boundary should need a calculator")
         need(ans.get("exact"), "a whole-number count must be marked exactly")
-        qr_check_common(q, qr_norm(ans, {"v": str(best)}))
+        # Rounding the root up gives the first n that needs too many tiles.
+        qr_check_common(q, qr_norm(ans, {"v": str(best)}), {QI_ROUND_UP: {qr_norm(ans, {"v": str(sp.ceiling(S.sup))})}})
         return None, None
     if u == "inequality-from-solution":
         p, qq = R(g["p"]), R(g["q"])
@@ -3735,12 +3738,25 @@ def check_qineq(q):
             gr = q["graph"]
             need(sorted(pt["x"] for pt in gr["points"]) == [float(p), float(qq)], "the roots marked are not the givens")
         want = None
+        f = X**2 - (p + qq) * X + p * qq
+        # The other region with the same ends, and the same region with the other ends.
+        other = sp.Interval(p, qq, not inc, not inc) if g["shape"] == "outside" else \
+            sp.Union(sp.Interval(-sp.oo, p, True, not inc), sp.Interval(qq, sp.oo, not inc, True))
+        S_ends = sp.Interval(p, qq, inc, inc) if g["shape"] == "between" else \
+            sp.Union(sp.Interval(-sp.oo, p, True, inc), sp.Interval(qq, sp.oo, inc, True))
+        wr = {}
         for rel in QI_REL:
-            f = X**2 - (p + qq) * X + p * qq
-            if sp.solve_univariate_inequality(QI_REL[rel](f), X, relational=False) == S:
+            sol = sp.solve_univariate_inequality(QI_REL[rel](f), X, relational=False)
+            if sol == S:
                 want = qr_norm(ans, {"b": str(-(p + qq)), "c": str(p * qq), "rel": rel})
+                # (x + p)(x + q): the factors with the roots' own signs.
+                wr[QI_FACTOR_SIGNS] = {qr_norm(ans, {"b": str(p + qq), "c": str(p * qq), "rel": rel})}
+            if sol == other:
+                wr[QI_REGION] = {qr_norm(ans, {"b": str(-(p + qq)), "c": str(p * qq), "rel": rel})}
+            if sol == S_ends:
+                wr[QI_ENDS] = {qr_norm(ans, {"b": str(-(p + qq)), "c": str(p * qq), "rel": rel})}
         need(want is not None, "no monic inequality has this solution")
-        qr_check_common(q, want)
+        qr_check_common(q, want, wr)
         return None, None
     f, rel, rhs_ = qi_read(L[0])
     need(sp.expand(f - (R(g["a"]) * X**2 + R(g["b"]) * X + R(g["c"]))) == 0 and rel == g["rel"], "the inequality shown is not the givens")
@@ -3751,7 +3767,7 @@ def check_qineq(q):
         want = qr_norm(ans, {"v": "all real x" if S == sp.S.Reals else "no real x"})
         need(S in (sp.S.Reals, sp.S.EmptySet), "the solution is not all x or no x")
         need(ans["fixed"]["options"][2:] == [f"x = {frac_text(h)} only", f"every x except {frac_text(h)}"], "the options don't name the vertex")
-        qr_check_common(q, want)
+        qr_check_common(q, want, {QI_ALL_NONE: {qr_norm(ans, {"v": "no real x" if S == sp.S.Reals else "all real x"})}})
         return None, None
     rs = sorted(sp.solveset(f, X, domain=sp.S.Reals), key=float)
     if p2:
@@ -3778,6 +3794,18 @@ def check_qineq(q):
     outside = sp.Union(sp.Interval(-sp.oo, rs[0], True, inc == "left out"), sp.Interval(rs[1], sp.oo, inc == "left out", True))
     if S == outside:
         wr["SL2.7.inequality#1"] = {cv(between)}
+    if S == between:
+        wr[QI_REGION] = {cv(outside)}
+    # The same region with the ends the other way, and with both roots negated.
+    flip = inc == "included"
+    if S in (between, outside):
+        lo, hi = rs
+        same = (lambda a, b, o: sp.Interval(a, b, o, o)) if S == between else \
+            (lambda a, b, o: sp.Union(sp.Interval(-sp.oo, a, True, o), sp.Interval(b, sp.oo, o, True)))
+        wr[QI_ENDS] = {cv(same(lo, hi, flip))}
+        if not p2:
+            # Paper 1 only: the roots read off the factors with their signs.
+            wr[QI_SIGNS] = {cv(same(-hi, -lo, not flip))}
     if u == "negative-a":
         need(R(g["a"]) < 0, "a is not negative")
         # Dividing by −1 but keeping the sign solves the opposite inequality.
@@ -4005,6 +4033,10 @@ CUBIC_P2_X0_MAX, CUBIC_P2_G_MAX = 3, 20
 CUBIC_P2_TOL = sp.Rational(1, 10**6)
 CUBIC_P2_V_MIN = sp.Rational(1, 10)   # every number of an answer is at least this big
 DEC_ = r"(−?\d+(?:\.\d+)?)"
+# The slips FAL-815 named (misconceptions with no ref of their own). Paper 1's cubic checks
+# (check_cubic) confirm the answer and that a tagged option is wrong, not each tag's value.
+CUBIC_C_SIGN, CUBIC_C_IS_Y = "t5-tangent-normal-equation#6", "t5-tangent-normal-equation#7"
+CUBIC_SOLVE_ZERO, CUBIC_OTHER_POINT = "t5-tangent-condition#3", "t5-stationary-points#4"
 
 
 def cubic_sf(x):
@@ -4134,13 +4166,16 @@ def check_cubic_p2(q):
             need(shown_number(q["asked"], r"f′\(x\) = " + INT_) == gr, "the gradient shown is not g")
         rs = sorted(sp.solve(sp.Eq(f1, gr), X), key=num)
         cubic_p2_pair(rs, f"f′(x) = {gr}")
-        cubic_p2_common(q, {"r1": rs[0], "r2": rs[1]}, {})
+        # f′(x) = 0 solved instead: the stationary points' x-values.
+        cubic_p2_common(q, {"r1": rs[0], "r2": rs[1]}, {CUBIC_SOLVE_ZERO: [{"r1": xs[0], "r2": xs[1]}]})
         return None, None
     if u == "max-value":
         mx = [x for x in xs if f2.subs(X, x) < 0]
         need(len(mx) == 1, "not one local maximum")
         need(q["answer"]["label"] == ("y = " if q["view"]["rep"] == "words" else "local maximum = "), "the answer's label")
-        cubic_p2_common(q, {"v": f.subs(X, mx[0])}, {"SL5.8.optimise-given-function#0": [{"v": mx[0]}]})
+        mn_x = [x for x in xs if x != mx[0]]
+        cubic_p2_common(q, {"v": f.subs(X, mx[0])}, {"SL5.8.optimise-given-function#0": [{"v": mx[0]}],
+                                                     CUBIC_OTHER_POINT: [{"v": f.subs(X, mn_x[0])}]})
         return None, None
     if u == "stationary-points":
         ys = [f.subs(X, x) for x in xs]
@@ -4161,7 +4196,8 @@ def check_cubic_p2(q):
         mn = -1 / m
         cubic_p2_common(q, {"m": m, "c": ct}, {
             "SL5.4.tangent-equation#1": [{"m": m, "c": m - m * x0}],
-            "SL5.4.tangent-equation#2": [{"m": mn, "c": y0 - mn * x0}]})
+            "SL5.4.tangent-equation#2": [{"m": mn, "c": y0 - mn * x0}],
+            CUBIC_C_SIGN: [{"m": m, "c": y0 + m * x0}], CUBIC_C_IS_Y: [{"m": m, "c": y0}]})
         return None, None
     if u == "normal-at-point":
         mn = -1 / m
@@ -20670,6 +20706,9 @@ RT_R = "SL3.2.right-ratio#"
 RT_S = "SL3.2.right-side#"
 RT_E = "SL3.3.elevation-depression#"
 RT_T = "t3-right-angle-trig#"
+# The slips FAL-815 named: the right sides with the wrong one of sin, cos and tan; the two given
+# legs over each other with no hypotenuse; and dividing by the ratio when the side wanted is on top.
+RT_WRONG_FN, RT_NO_HYP, RT_DIVIDE = RT_T + "29", RT_T + "30", RT_T + "31"
 RT_NUM = r"(\d+(?:\.\d+)?)"
 RT_AWAY = 5                             # the engine's: an acute angle this far from 45°
 
@@ -20801,6 +20840,7 @@ def rt_check(q):
         mine, other = (o, a) if fn == "sin" else (a, o)
         for ref, (p_, q_) in rt_ratio_wrongs(fn, o, a, h, fn != "tan" and mine < other).items():
             wr[ref] = {f"{fn} θ = {rt_exact(p_ / q_)}"}
+        wr[RT_WRONG_FN] = {f"{fn} θ = {rt_exact(p_ / q_)}" for p_, q_ in ((o, h), (a, h), (o, a)) if (p_, q_) != (top, bot)}
     elif u == "ratio-needs-pythagoras":
         T, Rt, O, _ = rt_triangle(L)
         o = R(re.search(rf"{sorted(Rt + O)[0]}{sorted(Rt + O)[1]} = (\d+) m", text).group(1))
@@ -20813,6 +20853,8 @@ def rt_check(q):
         mine, other = (o, a) if fn == "sin" else (a, o)
         for ref, (p_, q_) in rt_ratio_wrongs(fn, o, a, h, mine < other).items():
             wr[ref] = {f"{fn} θ = {rt_exact(p_ / q_)}"}
+        # The ratio's own leg over the other given leg, with no hypotenuse found.
+        wr[RT_NO_HYP] = {f"{fn} θ = {rt_exact(mine / other)}"}
     elif u == "ratio-in-letters":
         T, Rt, O, sd = rt_triangle(L)
         o, a, h = sd[frozenset(Rt + O)], sd[frozenset(T + Rt)], sd[frozenset(T + O)]
@@ -20828,6 +20870,7 @@ def rt_check(q):
             longer = dist_a > dist_o if fn == "sin" else dist_o > dist_a
         for ref, (p_, q_) in rt_ratio_wrongs(fn, o, a, h, longer).items():
             wr[ref] = {f"{fn} θ = {p_}/{q_}"}
+        wr[RT_WRONG_FN] = {f"{fn} θ = {p_}/{q_}" for p_, q_ in ((o, h), (a, h), (o, a)) if (p_, q_) != (top, bot)}
     elif u == "side-in-letters":
         m = re.fullmatch(r"Write down an expression for (PS|RS) in terms of r and θ\.", asked)
         need(m and "Angle PRS = θ." in text and "radius r" in text, f"can't read {asked!r}")
@@ -20861,6 +20904,16 @@ def rt_check(q):
         W(RT_T + "7", d * rt_mode(fn, dg))
         if fn == "sin":
             W(RT_S + "1", d * tan(e))
+        # Dividing by the ratio; sin and cos swapped; the right sides in the wrong function.
+        W(RT_DIVIDE, d / {"sin": sin, "cos": cos, "tan": tan}[fn](e))
+        if fn == "sin":
+            W(RT_R + "0", d * cos(e))
+        elif fn == "cos":
+            W(RT_R + "0", d * sin(e))
+            W(RT_WRONG_FN, d * tan(e))
+        else:
+            W(RT_WRONG_FN, d * cos(e))
+            W(RT_WRONG_FN, d * sin(e))
     elif u == "side-under-ratio":
         dg = int(n(r"at an angle of (\d+)°\."))
         e = rt_e(dg)
@@ -20876,6 +20929,8 @@ def rt_check(q):
         W(RT_T + "7", d / rt_mode(fn, dg))
         if fn == "sin":
             W(RT_S + "1", d / tan(e))
+        # sin and cos swapped.
+        W(RT_R + "0", d / (cos(e) if fn == "sin" else sin(e)))
     elif u == "side-either-angle":
         dg = int(n(r"angle of (\d+)° with the ground"))
         e = rt_e(dg)
@@ -20885,6 +20940,9 @@ def rt_check(q):
         x = d / tan(e)
         W(RT_S + "0", d * tan(e))
         W(RT_T + "7", d / rt_mode("tan", dg))
+        # The opposite and the adjacent put into sin or cos instead of tan.
+        W(RT_WRONG_FN, d / sin(e))
+        W(RT_WRONG_FN, d / cos(e))
     elif u == "chord-length":
         r_, d = n(r"within (\d+) km"), n(r"passes (\d+) km from S")
         need(3 * r_ <= 10 * d <= 8 * r_, "the road is too near or too far")
@@ -20910,8 +20968,16 @@ def rt_check(q):
         known, have, name = int(m2.group(2)), size[frozenset(m2.group(1))], m3.group(1)
         wanted = size[frozenset(name)]
         want = f"{name} = {rt_exact(known * wanted / have)} m"
+        legs = (frozenset(Rt + O), frozenset(T + Rt))
         if frozenset(name) == frozenset(T + O):
             wr[RT_S + "0"] = {f"{name} = {rt_exact(known * have)} m"}
+            # The other leg's ratio: sin and cos swapped.
+            other_leg = legs[1] if frozenset(m2.group(1)) == legs[0] else legs[0]
+            wr[RT_R + "0"] = {f"{name} = {rt_exact(known / size[other_leg])} m"}
+        else:
+            other_leg = legs[1] if frozenset(name) == legs[0] else legs[0]
+            wr[RT_DIVIDE] = {f"{name} = {rt_exact(known / wanted)} m"}
+            wr[RT_R + "0"] = {f"{name} = {rt_exact(known * size[other_leg])} m"}
     elif u == "angle-from-sides":
         tail, label = "°", "angle = "
         if re.search(r"It is .+ long, and [A-Z] is", text):
@@ -20933,6 +20999,9 @@ def rt_check(q):
         W(RT_A + "1", 1 / f(mpmath.radians(r_)))
         if fn == "tan":
             W(RT_A + "2", 90 - x)
+        else:
+            # sin⁻¹ for cos⁻¹ or the other way: the other acute angle.
+            W(RT_R + "0", 90 - x)
     elif u == "angle-special":
         T, Rt, O, _ = rt_triangle(L)
         got = {frozenset(a): rt_value(v) for a, v in re.findall(r"([A-Z]{2}) = (\d*√?\d+) m", L[1])}
@@ -20949,6 +21018,8 @@ def rt_check(q):
         want = f"θ = {dg}°"
         if fn == "tan" and dg != 45:
             wr[RT_A + "2"] = {f"θ = {90 - dg}°"}
+        elif dg != 45:
+            wr[RT_R + "0"] = {f"θ = {90 - dg}°"}
     elif u == "gradient-from-angle":
         dg = int(n(r"at an angle of (\d+)° above"))
         e = rt_e(dg)
@@ -21008,6 +21079,9 @@ def rt_check(q):
         x = d * tan(t)
         size = R(re.search(r"is ([\d.]+)(°| radians)", text).group(1))
         W(RT_T + "7", d * (tan(be_mp(size)) if is_deg else tan(mpmath.radians(be_mp(size)))))
+        W(RT_WRONG_FN, d * sin(t))
+        W(RT_WRONG_FN, d * cos(t))
+        W(RT_DIVIDE, d / tan(t))
     elif u == "elevation-after-walk":
         t, is_deg = be_angle_read(L[0])
         d, w = n(RT_NUM + r" m from the foot F"), n(r"walks " + RT_NUM + " m straight")
@@ -21017,6 +21091,8 @@ def rt_check(q):
         c = deg if is_deg else (lambda z: z)
         x = c(atan(hh / (d - w)))
         W(RT_T + "21", c(atan(hh / w)))
+        # Adjacent ÷ opposite: the angle at the top.
+        W(RT_A + "2", c(atan((d - w) / hh)))
     elif u == "equal-elevations":
         m = re.search(r"PA = " + RT_NUM + r" m, PB = " + RT_NUM + r" m and angle APB = (\d+)°\.", text)
         need(m, f"can't read {text!r}")
@@ -21027,6 +21103,7 @@ def rt_check(q):
         x = la * sin(th)
         W(RT_T + "22", la * sin(mpmath.radians(mpmath.mpf(phi) / 2)))
         W(RT_T + "27", lb * sin(th))
+        W(RT_WRONG_FN, la * tan(th))
     elif u == "cone-from-eye-level":
         t, _ = be_angle_read(text)
         hh, d, eye = n(r", " + RT_NUM + r" m high"), n(r"at Q, " + RT_NUM + " m from the edge"), n(r"eyes E " + RT_NUM + " m above")
@@ -21035,18 +21112,23 @@ def rt_check(q):
         need(x > 3, "the cone is too small")
         W(RT_E + "2", hh / tan(t) - d)
         W(RT_T + "23", (hh - eye) / tan(t))
+        W(RT_S + "0", (hh - eye) * tan(t) - d)
+        W(RT_WRONG_FN, (hh - eye) / sin(t) - d)
     elif u == "depression-sight-line":
         t, _ = be_angle_read(L[1])
         hh = n(r"is " + RT_NUM + " m above level ground")
         tail, label = " m", "TP = "
         x = hh / sin(t)
         W(RT_E + "1", hh / cos(t))
+        W(RT_S + "0", hh * sin(t))
+        W(RT_WRONG_FN, hh / tan(t))
     elif u == "depression-from-sight-line":
         hh, l_ = n(r"is " + RT_NUM + " m above level ground"), n(r"TP = " + RT_NUM + r" m\.")
         tail, label = "°", "angle = "
         x = deg(asin(hh / l_))
         need(14 < x < 70 and abs(x - 45) >= RT_AWAY, "the angle is out of limits")
         W(RT_E + "0", 90 - x)
+        W(RT_WRONG_FN, deg(atan(hh / l_)))
     elif u == "depression-two-points":
         m = re.search(r"angle of depression of P is (\d+)° and of Q is (\d+)°\.", text)
         need(m, f"can't read {text!r}")
@@ -23251,6 +23333,8 @@ E10GE_NUM = r"−?\d+(?:\.\d+)?"
 E10GE_M, E10GE_F = "SL1.3.model#", "SL1.3.find-n#"
 E10GE_NTH0, E10GE_NTH1, E10GE_SUM0 = "SL1.3.nth-term#0", "SL1.3.nth-term#1", "SL1.3.sum#0"
 E10GE_ARITH, E10GE_ROOT = "SL1.3.find-r-u1#0", "SL1.3.find-r-u1#2"
+# The slips FAL-815 named (misconceptions with no ref of their own).
+E10GE_RISE_AS_FALL, E10GE_NO_R_MINUS_1 = "t1-geometric-in-context#21", "t1-geometric-in-context#22"
 E10GE_LIMIT = 5000000
 E10GE_P1_LIMIT = 200000
 E10GE_EDGE = sp.Rational(19, 1000)      # the engine's is 0.02; a hair under it, for float ties
@@ -23547,7 +23631,10 @@ def e10ge_check(q):
         need(asked == f"The {st[1]} after each {st[4]} is r times what it was. Write down the value of r.", f"asked {asked!r}")
         want = "r = " + dec_text(r)
         t = lambda v: "r = " + dec_text(v)
-        wrongs = {M + "0": {t(p / 100)}, M + "1": {t(1 + p / 100)}}
+        # The rate as a decimal or as the percentage itself; one plus it for a fall, one minus it for a rise.
+        wrongs = {M + "0": {t(p / 100), t(p)}, M + "1": {t(1 + p / 100)}}
+        if r > 1:
+            wrongs[E10GE_RISE_AS_FALL] = {t(1 - p / 100)}
     elif u == "value-after-years":
         st, start, r, p = e10ge_stock(q)
         m = re.fullmatch(rf"Find the {re.escape(st[1])} after (\d+) {st[4]}s?\.(?: Give your answer to 3 s\.f\.)?", asked)
@@ -23759,7 +23846,8 @@ def e10ge_check(q):
             need(p_val.q <= 120, "p is not a fraction a hand can write")
             say = lambda p_, a_: f"mean = {e10ge_b(p_)} × ({e10ge_b(b2)}^{a_} − 1) cm²"
             want = say(p_val, parts)
-            wrongs = {M + "7": {say(p_val * parts, parts)}, E10GE_SUM0: {say(p_val, parts - 1)}}
+            # The sum taken as u₁(r^n − 1), with no ÷ (r − 1), then divided by n.
+            wrongs = {M + "7": {say(p_val * parts, parts)}, E10GE_SUM0: {say(p_val, parts - 1)}, E10GE_NO_R_MINUS_1: {say(area / parts, parts)}}
     elif u == "count-terms-power":
         if rep == "words":
             st = next(s_ for s_ in E10GE_SPREADS if s_[3] == asked)
@@ -33938,6 +34026,8 @@ e10tm_PART, e10tm_TOUCH_END, e10tm_DEG, e10tm_WHOLE, e10tm_TOUCH2, e10tm_ONCE, e
 e10tm_STOP, e10tm_COS = e10tm_B + "0", e10tm_B + "1"
 e10tm_SIDE, e10tm_HALF = E9TRIG_SIDE, E9TRIG_ONE_SIDE
 e10tm_NO_D = E9TRIG_NO_D
+# The slips FAL-815 named (t3-trig-model-equation's misconceptions with no ref of their own).
+e10tm_SIGN, e10tm_CROSS_TIME, e10tm_BEFORE, e10tm_K_ENDS, e10tm_K_INSIDE, e10tm_P_IS_K = (f"t3-trig-model-equation#{i}" for i in range(16, 22))
 e10tm_EXACT = ("exact-times-level", "time-at-least-exact")
 e10tm_STORY = ("times-in-window", "set-above-level", "set-below-level", "set-two-spans", "chance-above", "time-past-level")
 e10tm_WAVE = ("count-solutions", "count-at-extreme", "k-exactly-n", "k-any-solution", "k-no-solution", "touch-find-constant", "touch-one-solution")
@@ -34152,6 +34242,9 @@ def e10tm_exact(q, M, u):
                     cs.append(sp.nsimplify(t))
                     t += T
             wrongs[e10tm_COS] = {e10tm_exact_list(cs)}
+        # The ratio's sign dropped: the times at the level as far the other side of the axis.
+        flip = [rat(x) for x in e9trig_cross(M, float(2 * M["d"] - k), 0.0, float(L_))]
+        wrongs[e10tm_SIGN] = {e10tm_exact_list(flip)}
         gc_check_common(q, e10tm_exact_list(ts), wrongs, steps=(2, 7))
     else:
         word = re.search(r" (at least|at most) ", q["asked"])
@@ -34163,6 +34256,8 @@ def e10tm_exact(q, M, u):
         wrongs = {e10tm_SIDE: {f"{l}{dec_text(T - w)}{tail}"}}
         if above and k > M["d"]:
             wrongs[e10tm_HALF] = {f"{l}{dec_text(w / 2)}{tail}"}
+        # A time the model crosses the level, in the first cycle, given as the length of time.
+        wrongs[e10tm_CROSS_TIME] = {f"{l}{dec_text(t)}{tail}" for t in times(T)[:2]}
         gc_check_common(q, f"{l}{dec_text(w)}{tail}", wrongs, steps=(2, 7))
     for sol in q["solutions"]:
         need("GDC" not in " ".join(sol["steps"]), "a calculator on Paper 1")
@@ -34182,7 +34277,9 @@ def e10tm_story(q, M, u):
         xs = [x for x in all_ if a < x < b]
         ds = [x for x in e9trig_cross(M, fk, 0.0, b, True) if x > a]
         need(2 <= len(xs) <= 4 and all(abs(x - a) > 0.04 * T and abs(x - b) > 0.04 * T for x in all_), f"the window has {len(xs)} clean times")
-        gc_check_common(q, e10tm_list("t", xs), dict({e10tm_PART: {e10tm_list("t", xs[:-1])}}, **({e10tm_DEG: {e10tm_list("t", ds)}} if ds else {})), steps=(2, 6))
+        # Every crossing from t = 0, the ones before the window too.
+        before = {e10tm_BEFORE: {e10tm_list("t", [x for x in all_ if x < b])}}
+        gc_check_common(q, e10tm_list("t", xs), dict({e10tm_PART: {e10tm_list("t", xs[:-1])}}, **({e10tm_DEG: {e10tm_list("t", ds)}} if ds else {}), **before), steps=(2, 6))
         e10tm_numbers_in(q, "t = ", xs + [T])
     elif u in ("set-above-level", "set-below-level", "set-two-spans"):
         m = re.fullmatch(rf"For 0 ≤ t ≤ (\d+), find the set of times when {re.escape(what)} is (above|below) {e10tm_NUM} {re.escape(unit)}\. Give the times to 3 significant figures\.", ask)
@@ -34272,6 +34369,8 @@ def e10tm_wave(q, u):
         wrongs = {e10tm_WHOLE: {t(low, "≤", "≤", top)}}
         if (r1 == "<" and lo == low) or (r2 == "<" and hi == top):
             wrongs[e10tm_TOUCH_END] = {t(lo, "≤" if lo == low else r1, "≤" if hi == top else r2, hi)}
+        # The right ends, both included or both left out, with no count at either end.
+        wrongs[e10tm_K_ENDS] = {t(lo, "≤", "≤", hi), t(lo, "<", "<", hi)}
         gc_check_common(q, t(lo, r1, r2, hi), wrongs)
         said = e10tm_band_text(bs)
         for sol in q["solutions"]:
@@ -34286,7 +34385,8 @@ def e10tm_wave(q, u):
     elif u == "k-no-solution":
         need(ask == "Find the set of values of k for which f(x) = k has no solutions.", f"can't read {ask!r}")
         t = lambda a, b, s: f"k {'<' if s else '≤'} {dec_text(a)} or k {'>' if s else '≥'} {dec_text(b)}"
-        gc_check_common(q, t(low, top, True), {e10tm_TOUCH_END: {t(low, top, False)}, e10tm_NO_D: {t(-amp, amp, True)}})
+        gc_check_common(q, t(low, top, True), {e10tm_TOUCH_END: {t(low, top, False)}, e10tm_NO_D: {t(-amp, amp, True)},
+                                               e10tm_K_INSIDE: {f"{dec_text(low)} < k < {dec_text(top)}"}})
     elif u == "touch-one-solution":
         need(ask == "Find the two values of k for which f(x) = k has exactly one solution.", f"can't read {ask!r}")
         ones = [h for h in (low, W["d"], top) if e10tm_count(W, float(h)) == 1]
@@ -34321,7 +34421,7 @@ def e10tm_touch(q):
         p = k - amp if big else k + amp
         W = W0
         W["d"], W["fd"] = p, float(p)
-        wrongs = {e10tm_OTHER: {f"p = {dec_text(k + amp if big else k - amp)}"}}
+        wrongs = {e10tm_OTHER: {f"p = {dec_text(k + amp if big else k - amp)}"}, e10tm_P_IS_K: {f"p = {dec_text(k)}"}}
     vals = e10tm_turns(W["F"], 0.0, 3 * W["T"])
     need(abs((max(vals) if big else min(vals)) - float(k)) < 1e-8, "the line doesn't touch the wave")
     fig = q["graph"]
