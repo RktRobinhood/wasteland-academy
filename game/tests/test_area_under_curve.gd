@@ -64,6 +64,8 @@ func test_every_tag_shows_up_as_an_option() -> void:
 			for o in _make(c, seed).choices:
 				if o.ref != "":
 					seen[o.ref] = true
-	for m in QuestionEngine.type_of(TYPE).misconceptions:
-		if m.as == "distractor":
-			check(seen.has(m.ref), "%s never shows" % m.ref)
+	var ms: Array = QuestionEngine.type_of(TYPE).misconceptions
+	for i in ms.size():
+		if ms[i].as == "distractor":
+			var ref: String = ms[i].get("ref", "%s#%d" % [TYPE, i])
+			check(seen.has(ref), "%s never shows" % ref)

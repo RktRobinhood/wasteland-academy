@@ -76744,7 +76744,9 @@
 					"text": "Using zero as the lower limit when the region starts at an x-intercept",
 					"as": "distractor",
 					"in": [
-						"area-between-roots"
+						"area-between-roots",
+						"integral-from-roots",
+						"area-gdc-limits"
 					],
 					"wrong": "integrates from x = 0 instead of from the left-hand root"
 				},
@@ -76756,6 +76758,47 @@
 						"area-gdc-limits"
 					],
 					"wrong": "rounds the roots to one decimal place before integrating"
+				},
+				{
+					"text": "Starting the integral at the y-axis instead of at the left-hand edge of R",
+					"as": "distractor",
+					"in": [
+						"area-between-lines",
+						"area-straight-edge"
+					],
+					"wrong": "integrates from x = 0 instead of from the left-hand edge"
+				},
+				{
+					"text": "Substituting the limits into f itself instead of into its antiderivative",
+					"as": "distractor",
+					"in": [
+						"area-between-lines"
+					],
+					"wrong": "works out f(upper) − f(lower)"
+				},
+				{
+					"text": "Integrating from root to root when the y-axis is the left-hand edge of R",
+					"as": "distractor",
+					"in": [
+						"area-with-y-axis"
+					],
+					"wrong": "integrates between the two roots, past the y-axis"
+				},
+				{
+					"text": "Treating R as a rectangle as tall as its right-hand edge",
+					"as": "distractor",
+					"in": [
+						"area-straight-edge"
+					],
+					"wrong": "the right-hand height times the width"
+				},
+				{
+					"text": "Forgetting to halve in the trapezium area, which gives twice the area of R",
+					"as": "distractor",
+					"in": [
+						"area-straight-edge"
+					],
+					"wrong": "the sum of the parallel sides times the width, not halved"
 				}
 			],
 			"frequency": 0
@@ -77208,6 +77251,30 @@
 						"move-extra-term"
 					],
 					"wrong": "a line of working moves the extra term's integral across but keeps its sign"
+				},
+				{
+					"text": "Dropping the antiderivative's value at the lower limit, as if it were zero",
+					"as": "distractor",
+					"in": [
+						"hence-definite"
+					],
+					"wrong": "the antiderivative at the upper limit only"
+				},
+				{
+					"text": "Keeping the sign of the moved term, so ∫ ln x dx comes out as x ln x + x",
+					"as": "distractor",
+					"in": [
+						"hence-definite"
+					],
+					"wrong": "evaluates x ln x + x instead of x ln x − x"
+				},
+				{
+					"text": "Picking the result that differentiates the integrand itself, not one with the integrand as a term",
+					"as": "distractor",
+					"in": [
+						"pick-the-derivative"
+					],
+					"wrong": "the derivative of the integrand, which does not help to integrate it"
 				}
 			],
 			"frequency": 0
