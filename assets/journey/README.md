@@ -180,3 +180,14 @@ local renders in four rounds. Prompts, rounds and counters are on FAL-358.
 FAL-360 added the four recurring dialogue characters (`cast/`) and their portraits: reference-locked edits of the
 canon roster, plus a new design for B0-LT (an angular factory frame with an amber monitor and a crown tag). 30 local
 renders in five rounds. Method and rounds are on FAL-360.
+
+## The look from FAL-792 (approved 2026-11-12)
+
+Matt approved a new look for people and encounters on FAL-792: thick black ink outlines, flat cel colour with one hard
+shadow tone per material, louder colour, scrap armour, goggles, war paint, chrome and leather (original designs,
+`TONE.md` applies). It replaces the painted Salvage Neon Bazaar style above, one batch at a time. Until a sheet's
+batch lands, that sheet is still in the painted style.
+
+- Batch 1, FAL-827: Bodge, the Bazaar store owner, in `game/assets/bazaar/shopkeeper.png` and
+  `shopkeeper-idle.png` (not a journey sheet). The files are the ones Studio Manager accepted on FAL-794, copied
+  unchanged: 512×512 RGBA, one alpha island, and the idle frame changes only the loupe eye (1778 px, alpha identical).
