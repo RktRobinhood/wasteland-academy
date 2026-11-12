@@ -576,7 +576,10 @@ func test_the_store_owner_never_says_a_line_twice_in_a_row() -> void:
 
 func test_no_lines_file_means_no_bubble() -> void:
 	_keeper_data("res://tests/fixtures/no-art/")
+	var root := ArtSlots.root
+	ArtSlots.root = "res://tests/fixtures/no-art/"
 	var made: Array = await _screen(_area(Vector2i(390, 844)), _rich(0))
+	ArtSlots.root = root
 	var b: Control = made[1]
 	check(b.bubble == null, "no bubble")
 	check(b.find_child("Keeper", true, false) == null, "no store owner row with no art and no lines")
