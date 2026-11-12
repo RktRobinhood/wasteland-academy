@@ -12224,6 +12224,110 @@
       "parameter-from-value"
      ],
      "wrong": "only the positive k from k² = n²"
+    },
+    {
+     "text": "Stops after the inner function, without applying the outer one",
+     "as": "distractor",
+     "in": [
+      "value-inside-out"
+     ],
+     "wrong": "g(x₀), not f(g(x₀))"
+    },
+    {
+     "text": "Gives the values of g at the point as k, forgetting the x term of g",
+     "as": "distractor",
+     "in": [
+      "parameter-from-value"
+     ],
+     "wrong": "the values of g(x₀) as k"
+    },
+    {
+     "text": "Moves a number across the equals sign without changing its sign",
+     "as": "distractor",
+     "in": [
+      "parameter-from-value"
+     ],
+     "wrong": "a number added where it should be taken away"
+    },
+    {
+     "text": "Leaves out the constant of f when solving for k",
+     "as": "distractor",
+     "in": [
+      "parameter-from-value"
+     ],
+     "wrong": "the value divided by g(x₀), with f's constant left out"
+    },
+    {
+     "text": "Stops before dividing by the number in front of k",
+     "as": "distractor",
+     "in": [
+      "parameter-from-value"
+     ],
+     "wrong": "the value minus f's constant, not divided"
+    },
+    {
+     "text": "Takes the coefficient of x² as k, without taking its square root",
+     "as": "distractor",
+     "in": [
+      "parameter-from-coefficients"
+     ],
+     "wrong": "± the coefficient of x²"
+    },
+    {
+     "text": "Divides the coefficient of x² by two instead of taking its square root",
+     "as": "distractor",
+     "in": [
+      "parameter-from-coefficients"
+     ],
+     "wrong": "± half the coefficient of x²"
+    },
+    {
+     "text": "Undoes the multiplication in g but forgets its constant",
+     "as": "distractor",
+     "in": [
+      "solve-composite"
+     ],
+     "wrong": "the values of g(x) divided by g's coefficient, with no shift"
+    },
+    {
+     "text": "Stops at the values of g(x), without solving for x",
+     "as": "distractor",
+     "in": [
+      "solve-composite"
+     ],
+     "wrong": "the values of g(x) as x"
+    },
+    {
+     "text": "Squares f(x) instead of putting f inside itself",
+     "as": "distractor",
+     "in": [
+      "self-composite"
+     ],
+     "wrong": "f(x)², not f(f(x))"
+    },
+    {
+     "text": "Undoes only one of the two steps of f",
+     "as": "distractor",
+     "in": [
+      "inner-from-composite"
+     ],
+     "wrong": "the composite with f's constant taken off, or divided by f's coefficient, but not both"
+    },
+    {
+     "text": "Takes the composite itself as f, without undoing g",
+     "as": "distractor",
+     "in": [
+      "outer-from-composite"
+     ],
+     "wrong": "f(x) given as (f∘g)(x)"
+    },
+    {
+     "text": "Puts g into the composite instead of its inverse",
+     "as": "distractor",
+     "in": [
+      "outer-from-composite"
+     ],
+     "wrong": "(f∘g)(g(x)), not (f∘g)(g⁻¹(x))"
     }
    ],
    "parts": [
@@ -22160,6 +22264,14 @@
       "dot-rectangle"
      ],
      "wrong": "uₙ, with the first term left out"
+    },
+    {
+     "text": "Picks a later wrong line, which only carries the slip down, instead of the first line that goes wrong",
+     "as": "distractor",
+     "in": [
+      "flawed-line"
+     ],
+     "wrong": "a later line put right, not the first wrong one"
     }
    ],
    "parts": [
@@ -37293,6 +37405,161 @@
       "arch-area"
      ],
      "wrong": "the same working with sin(θ/2) taken in degrees"
+    },
+    {
+     "text": "Mixes up adding and taking away the triangle in the region",
+     "as": "distractor",
+     "in": [
+      "segment-area",
+      "segment-exact",
+      "segment-in-terms-of-theta",
+      "segment-radius",
+      "tether-area",
+      "tether-expression"
+     ],
+     "wrong": "the triangle added where it is taken away, or taken away where it is added"
+    },
+    {
+     "text": "Leaves out the half in the area formula",
+     "as": "distractor",
+     "in": [
+      "segment-area",
+      "segment-exact",
+      "segment-in-terms-of-theta",
+      "segment-radius",
+      "tether-area",
+      "tether-expression",
+      "ring-area",
+      "ring-expression",
+      "tangent-expression",
+      "arc-area-radius"
+     ],
+     "wrong": "r²θ in place of ½r²θ, or rl in place of ½rl"
+    },
+    {
+     "text": "Uses r instead of r squared in the area formula",
+     "as": "distractor",
+     "in": [
+      "segment-area",
+      "segment-in-terms-of-theta",
+      "ring-expression"
+     ],
+     "wrong": "½rθ in place of ½r²θ"
+    },
+    {
+     "text": "Stops at r squared without taking the square root",
+     "as": "distractor",
+     "in": [
+      "segment-radius",
+      "ratio-radius"
+     ],
+     "wrong": "r² given as r"
+    },
+    {
+     "text": "Leaves the chord out of the perimeter, giving the arc alone",
+     "as": "distractor",
+     "in": [
+      "segment-perimeter"
+     ],
+     "wrong": "the arc length"
+    },
+    {
+     "text": "Uses the angle at the centre O as the angle at A",
+     "as": "distractor",
+     "in": [
+      "tether-angle"
+     ],
+     "wrong": "θ, not θ/2"
+    },
+    {
+     "text": "Stops at angle AOE, before using the isosceles triangle",
+     "as": "distractor",
+     "in": [
+      "tether-angle"
+     ],
+     "wrong": "π − θ"
+    },
+    {
+     "text": "Forgets to move the sin θ term across, so k is the ratio alone",
+     "as": "distractor",
+     "in": [
+      "ratio-equation"
+     ],
+     "wrong": "the ratio m/n as k"
+    },
+    {
+     "text": "Leaves out the inner sector, giving the outer one alone",
+     "as": "distractor",
+     "in": [
+      "ring-area"
+     ],
+     "wrong": "the outer sector"
+    },
+    {
+     "text": "Squares the difference of the radii instead of subtracting their squares",
+     "as": "distractor",
+     "in": [
+      "ring-area"
+     ],
+     "wrong": "½(R − r)²θ"
+    },
+    {
+     "text": "Uses the whole circle where only the semicircle belongs",
+     "as": "distractor",
+     "in": [
+      "hatch-area",
+      "hatch-height"
+     ],
+     "wrong": "the circle's area or its whole circumference"
+    },
+    {
+     "text": "Stops before dividing by the number in front of h",
+     "as": "distractor",
+     "in": [
+      "hatch-height"
+     ],
+     "wrong": "the value of 2h given as h"
+    },
+    {
+     "text": "Leaves out the sector, giving the area of the whole kite",
+     "as": "distractor",
+     "in": [
+      "tangent-region",
+      "tangent-expression"
+     ],
+     "wrong": "the kite ADOE"
+    },
+    {
+     "text": "Counts only one radius in the perimeter of the sector",
+     "as": "distractor",
+     "in": [
+      "theta-in-r"
+     ],
+     "wrong": "P = r + rθ"
+    },
+    {
+     "text": "Moves a term across the equals sign without changing its sign",
+     "as": "distractor",
+     "in": [
+      "theta-in-r"
+     ],
+     "wrong": "the 2r added, not taken away"
+    },
+    {
+     "text": "Stops at the length of the arc, without turning it into the radius of the rim",
+     "as": "distractor",
+     "in": [
+      "cone-from-area"
+     ],
+     "wrong": "the arc length"
+    },
+    {
+     "text": "Takes the sector's area as the area of the circle at the rim",
+     "as": "distractor",
+     "in": [
+      "cone-from-area"
+     ],
+     "wrong": "√(A/π)"
     }
    ],
    "parts": [
@@ -68646,6 +68913,85 @@
       "repeated-changes"
      ],
      "wrong": "the percentages summed instead of the multipliers multiplied"
+    },
+    {
+     "text": "Mixes up the direction of the change, taking a rise for a fall or a fall for a rise",
+     "as": "distractor",
+     "in": [
+      "increase-multiplier",
+      "decrease-multiplier",
+      "apply-change",
+      "multiplier-to-percent",
+      "percent-from-amounts"
+     ],
+     "wrong": "the multiplier or change for the opposite direction"
+    },
+    {
+     "text": "Uses the percentage alone as the multiplier, leaving out the original amount",
+     "as": "distractor",
+     "in": [
+      "increase-multiplier",
+      "apply-change"
+     ],
+     "wrong": "the percentage of the amount, not the new amount"
+    },
+    {
+     "text": "Adds or takes off the percentage as a plain number, not as that percentage of the amount",
+     "as": "distractor",
+     "in": [
+      "apply-change",
+      "reverse-percentage"
+     ],
+     "wrong": "the amount plus or minus the rate itself"
+    },
+    {
+     "text": "Gives the multiplier, written as a percentage, as the change instead of how far it is from the whole amount",
+     "as": "distractor",
+     "in": [
+      "multiplier-to-percent",
+      "percent-from-amounts"
+     ],
+     "wrong": "the multiplier times a hundred as the change"
+    },
+    {
+     "text": "Divides the change by the new amount instead of the original one",
+     "as": "distractor",
+     "in": [
+      "percent-from-amounts"
+     ],
+     "wrong": "the difference over the new amount"
+    },
+    {
+     "text": "Gives the difference between the amounts as the percentage, without dividing by the original",
+     "as": "distractor",
+     "in": [
+      "percent-from-amounts"
+     ],
+     "wrong": "the difference itself as a percentage"
+    },
+    {
+     "text": "Applies the change to the new amount again instead of dividing by the multiplier",
+     "as": "distractor",
+     "in": [
+      "reverse-percentage"
+     ],
+     "wrong": "the new amount times the multiplier"
+    },
+    {
+     "text": "Adds the percentages of changes in a row instead of multiplying their multipliers",
+     "as": "distractor",
+     "in": [
+      "repeated-changes"
+     ],
+     "wrong": "the percentages summed"
+    },
+    {
+     "text": "Adds the multipliers of changes in a row instead of multiplying them",
+     "as": "distractor",
+     "in": [
+      "repeated-changes"
+     ],
+     "wrong": "the two multipliers summed"
     }
    ]
   },
@@ -70924,6 +71270,78 @@
       "why-vertical"
      ],
      "wrong": "calls x = h a horizontal asymptote"
+    },
+    {
+     "text": "Believes a curve can never cross or reach its horizontal asymptote",
+     "as": "distractor",
+     "in": [
+      "crosses-horizontal"
+     ],
+     "wrong": "\"a curve never meets its horizontal asymptote\""
+    },
+    {
+     "text": "Finds where the curve meets the x-axis instead of where it meets the asymptote",
+     "as": "distractor",
+     "in": [
+      "crosses-horizontal"
+     ],
+     "wrong": "the x-intercept as the crossing point"
+    },
+    {
+     "text": "Thinks a curve can cross a vertical asymptote, as it may cross a horizontal one",
+     "as": "distractor",
+     "in": [
+      "crosses-vertical"
+     ],
+     "wrong": "a steep branch crossing x = h"
+    },
+    {
+     "text": "Takes every zero of the bottom as a vertical asymptote, without first cancelling a common factor",
+     "as": "distractor",
+     "in": [
+      "gap-not-asymptote"
+     ],
+     "wrong": "a vertical asymptote at the gap"
+    },
+    {
+     "text": "Cancels the common factor and forgets the point where the original bottom is zero",
+     "as": "distractor",
+     "in": [
+      "gap-not-asymptote"
+     ],
+     "wrong": "the whole line, with no point missing"
+    },
+    {
+     "text": "Looks only at the top growing and forgets that the bottom grows as fast",
+     "as": "distractor",
+     "in": [
+      "why-horizontal"
+     ],
+     "wrong": "f(x) grows without limit"
+    },
+    {
+     "text": "Confuses the top with the bottom, reading the asymptote as a zero of the top",
+     "as": "distractor",
+     "in": [
+      "why-vertical"
+     ],
+     "wrong": "the top is zero at x = h"
+    },
+    {
+     "text": "Gets the signs on the two sides of the vertical asymptote the wrong way round",
+     "as": "distractor",
+     "in": [
+      "why-vertical"
+     ],
+     "wrong": "the sides' signs swapped"
+    },
+    {
+     "text": "Reads the horizontal asymptote as the starting value of the model",
+     "as": "distractor",
+     "in": [
+      "asymptote-in-context"
+     ],
+     "wrong": "the model starts at L"
     }
    ]
   },

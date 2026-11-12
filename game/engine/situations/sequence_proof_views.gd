@@ -46,6 +46,7 @@ const M_CONSECUTIVE := SKILL + "27"
 const M_HALF_RECT := SKILL + "28"
 const M_D_OVER_A := SKILL + "29"
 const M_LAST_ONLY := SKILL + "30"
+const M_LATER_LINE := "t1-sequence-proof#31"
 
 ## The slip numbers of lines_of(): chain -> the slip each number makes.
 const SLIP_REFS := {
@@ -470,7 +471,7 @@ func u_arithmetic_relation(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"Multiply out and add %s to both sides: %s" % [y, good.text], say(ans)]
 	return {"asked": "Write %s in terms of %s and %s." % [z, x, y], "lines": lines, "answer": ans,
 		"wrongs": [line_option(row.call(e + 3, -e - 2), good, M_POSITION), line_option(row.call(e + 1, -1), good, M_ONE_TERM), line_option(row.call(e - 1, -e), good, M_SIGN_MOVE)],
-		"generic": nudged(good), "methods": {"general-difference": method(steps, ans.values)}}
+		"fillers": nudged(good), "methods": {"general-difference": method(steps, ans.values)}}
 
 
 func u_geometric_relation(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -492,8 +493,8 @@ func u_geometric_relation(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		"%s = %s%sr%s" % [left_side, x, Fmt.sup(big), Fmt.sup(power)],
 		"%s%s = (%sr%s)%s = %s%sr%s, the same expression." % [y, Fmt.sup(big), x, Fmt.sup(g), Fmt.sup(big), x, Fmt.sup(big), Fmt.sup(power)], say(ans)]
 	return {"asked": "Find k.", "lines": lines, "answer": ans,
-		"wrongs": [wrong({"v": Q.new(big + 1)}, M_POSITION), wrong({"v": Q.new(2 * mini(g, h))}, M_CONSECUTIVE if g != h else "")],
-		"generic": [{"v": Q.new(big + 2)}, {"v": Q.new(big - 1)}, {"v": Q.new(big + 3)}, {"v": Q.new(g * h + 1)}],
+		"wrongs": [wrong({"v": Q.new(big + 1)}, M_POSITION)] + ([wrong({"v": Q.new(2 * mini(g, h))}, M_CONSECUTIVE)] if g != h else []),
+		"fillers": ([] if g != h else [{"v": Q.new(2 * mini(g, h))}]) + [{"v": Q.new(big + 2)}, {"v": Q.new(big - 1)}, {"v": Q.new(big + 3)}, {"v": Q.new(g * h + 1)}],
 		"methods": {"general-difference": method(steps, ans.values)}}
 
 
@@ -514,7 +515,7 @@ func u_second_term_bound(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"So %sm > %d, and m > %s. b can be as close to 0 as we like, so no greater number works." % [coef, w, bound.text()], say(ans)]
 	return {"asked": "m is always greater than a number L, and L is as great as it can be. Find L.", "lines": lines, "answer": ans,
 		"wrongs": [wrong({"v": Q.new(w)}, M_NO_DIVIDE), wrong({"v": Q.new(w, e + 2)}, M_POSITION)],
-		"generic": [{"v": Q.new(w, e + 1).add(Q.new(1))}, {"v": Q.new(2 * w, e + 1)}, {"v": Q.new(0)}, {"v": Q.new(w + e, e + 1)}],
+		"fillers": [{"v": Q.new(w, e + 1).add(Q.new(1))}, {"v": Q.new(2 * w, e + 1)}, {"v": Q.new(0)}, {"v": Q.new(w + e, e + 1)}],
 		"methods": {"series-formula": method(steps, ans.values)}}
 
 
@@ -539,7 +540,7 @@ func u_common_ratio_check(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		"The two ratios are equal, so the three terms are geometric.", say(ans)]
 	return {"asked": "Show that the three terms form a geometric sequence, and find its common ratio r.", "lines": lines, "answer": ans,
 		"wrongs": [wrong({"v": t2.sub(t1)}, M_WRONG_TEST), wrong({"v": Q.new(1).div(r)}, M_RECIPROCAL), wrong({"v": r.mul(r)}, M_ACROSS)],
-		"generic": [{"v": r.neg()}, {"v": r.add(Q.new(1))}, {"v": r.sub(Q.new(1))}], "methods": {"general-difference": method(steps, ans.values)}}
+		"fillers": [{"v": r.neg()}, {"v": r.add(Q.new(1))}, {"v": r.sub(Q.new(1))}], "methods": {"general-difference": method(steps, ans.values)}}
 
 
 # ── Arithmetic terms that are also geometric ─────────────────
@@ -561,7 +562,7 @@ func u_difference_in_a(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var good: Dictionary = c.back()
 	var ans := form(good)
 	return {"asked": "Find d in terms of a.", "lines": setup(s, rep), "answer": ans, "wrongs": slip_lines(s, "series-formula", c.size() - 1, good),
-		"generic": nudged(good), "methods": {"series-formula": method(walk_lines(c) + [say(ans)], ans.values)}}
+		"fillers": nudged(good), "methods": {"series-formula": method(walk_lines(c) + [say(ans)], ans.values)}}
 
 
 func u_linked_ratio(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -576,7 +577,7 @@ func u_linked_ratio(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	lines.append("r is the common ratio of the geometric sequence.")
 	return {"asked": "Find r.", "lines": lines, "answer": ans,
 		"wrongs": [wrong({"v": Q.new(k)}, M_D_OVER_A), wrong({"v": Q.new(r * r)}, M_ACROSS), wrong({"v": Q.new(1, r)}, M_RECIPROCAL)],
-		"generic": [{"v": Q.new(r + 1)}, {"v": Q.new(r + 2)}, {"v": Q.new(-r)}, {"v": Q.new(r + 3)}], "methods": {"series-formula": method(steps, ans.values)}}
+		"fillers": [{"v": Q.new(r + 1)}, {"v": Q.new(r + 2)}, {"v": Q.new(-r)}, {"v": Q.new(r + 3)}], "methods": {"series-formula": method(steps, ans.values)}}
 
 
 # ── Logs of a geometric sequence ─────────────────────────────
@@ -589,7 +590,7 @@ func u_log_difference(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var steps: Array = walk_lines(c) + [say(ans)]
 	return {"asked": "Prove that vₙ is an arithmetic sequence, and find %s." % LOG_GAP, "lines": lines, "answer": ans,
 		"wrongs": [wrong({"v": geo_ratio(s)}, M_RATIO_AS_DIFF), wrong({"v": Q.new(-s.q)}, M_RECIPROCAL), wrong({"v": Q.new(s.p)}, M_SWAP)],
-		"generic": [{"v": Q.new(s.q + 1)}, {"v": Q.new(s.q - 1)}, {"v": Q.new(s.q + 2)}, {"v": Q.new(2 * s.q)}], "methods": {"general-difference": method(steps, ans.values)}}
+		"fillers": [{"v": Q.new(s.q + 1)}, {"v": Q.new(s.q - 1)}, {"v": Q.new(s.q + 2)}, {"v": Q.new(2 * s.q)}], "methods": {"general-difference": method(steps, ans.values)}}
 
 
 func u_log_general_term(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -605,7 +606,7 @@ func u_log_general_term(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"%s = %d + (n − 1) × %s" % [VN, p, P(q)], say(ans)]
 	return {"asked": "Write %s in terms of n." % VN, "lines": setup(s, rep), "answer": ans,
 		"wrongs": [line_option(row.call(q, p), good, M_GAPS), line_option(row.call(p, q - p), good, M_SWAP), line_option(row.call(r, Q.new(p).sub(r)), good, M_RATIO_AS_DIFF)],
-		"generic": nudged(good), "methods": {"series-formula": method(steps, ans.values)}}
+		"fillers": nudged(good), "methods": {"series-formula": method(steps, ans.values)}}
 
 
 # ── General terms ────────────────────────────────────────────
@@ -616,7 +617,7 @@ func u_constant_difference(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var ans := form(good)
 	var steps: Array = walk_lines(c) + ["This holds for every n, so the sequence is arithmetic.", say(ans)]
 	return {"asked": "Prove that the sequence is arithmetic, and find %s." % GAP, "lines": setup(s, rep), "answer": ans,
-		"wrongs": slip_lines(s, "general-difference", 2, good), "generic": nudged(good), "methods": {"general-difference": method(steps, ans.values)}}
+		"wrongs": slip_lines(s, "general-difference", 2, good), "fillers": nudged(good), "methods": {"general-difference": method(steps, ans.values)}}
 
 
 func u_particular_terms(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -647,7 +648,7 @@ func u_term_from_sum(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var wrongs := slip_lines(s, "general-difference", 3, good)
 	wrongs.append(alt("%s = %s" % [UN, poly([s.A, s.B, 0])], M_SUM_AS_TERM))
 	return {"asked": "Write %s in terms of n." % UN, "lines": setup(s, rep), "answer": ans, "wrongs": rng.shuffled(wrongs),
-		"generic": nudged(good), "methods": {"general-difference": method(walk_lines(c) + [say(ans)], ans.values)}}
+		"fillers": nudged(good), "methods": {"general-difference": method(walk_lines(c) + [say(ans)], ans.values)}}
 
 
 func u_difference_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -665,7 +666,7 @@ func u_difference_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"%s = %s" % [UN1, next_term], "%s = (%s) − (%s) = %d, for every n" % [GAP, next_term, poly([d, tail]), d], say(ans)]
 	return {"asked": "Find d.", "lines": lines, "answer": ans,
 		"wrongs": [wrong({"v": Q.new(a)}, M_COEFF), wrong({"v": Q.new(a + b)}, M_SWAP), wrong({"v": Q.new(b)}, M_COEFF)],
-		"generic": [{"v": Q.new(d + 1)}, {"v": Q.new(d - 1)}, {"v": Q.new(3 * a)}, {"v": Q.new(d + 2)}, {"v": Q.new(4 * a)}],
+		"fillers": [{"v": Q.new(d + 1)}, {"v": Q.new(d - 1)}, {"v": Q.new(3 * a)}, {"v": Q.new(d + 2)}, {"v": Q.new(4 * a)}],
 		"methods": {"general-difference": method(steps, ans.values)}}
 
 
@@ -679,7 +680,7 @@ func u_sum_by_formula(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var by_columns: Array = ["%s: %s" % [cols[0].why, cols[0].text], "%s: %s" % [cols[1].why, cols[1].text],
 		"%s: %s" % [cols[2].why, cols[2].text], "%s: %s" % [cols[3].why, cols[3].text], "%s, so %s." % [cols[4].why, Answer.text(ans)]]
 	var wrongs := slip_lines(s, "series-formula", 2, good)
-	return {"asked": "Write %s in terms of n." % SN, "lines": setup(s, rep), "answer": ans, "wrongs": wrongs, "generic": nudged(good),
+	return {"asked": "Write %s in terms of n." % SN, "lines": setup(s, rep), "answer": ans, "wrongs": wrongs, "fillers": nudged(good),
 		"methods": {"series-formula": method(walk_lines(c) + [say(ans)], ans.values), "forwards-backwards": method(by_columns, ans.values)}}
 
 
@@ -699,7 +700,7 @@ func u_pair_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"Each column on, the top goes up by %d and the bottom goes down by %d, so every column has the same total." % [p, p], say(ans)]
 	return {"asked": "Find the total of each column.", "lines": lines, "answer": ans,
 		"wrongs": [line_option(row.call(2 * p, 2 * q), good, M_LAST_TWICE), line_option(row.call(p, q), good, M_LAST_ONLY), line_option(row.call(p, q + f + p), good, M_GAPS)],
-		"generic": nudged(good), "methods": {"forwards-backwards": method(steps, ans.values)}}
+		"fillers": nudged(good), "methods": {"forwards-backwards": method(steps, ans.values)}}
 
 
 # ── Dots ─────────────────────────────────────────────────────
@@ -770,7 +771,7 @@ func u_dot_total(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"%s = (n/2)(2 × %d + (n − 1) × %d) = (n/2)(%s)" % [SN, f, 2 * p, poly([2 * p, 2 * q])], say(ans)]
 	var wrongs: Array = [alt("%s = %s" % [SN, poly([2 * p, q - p])], M_LAST_AS_SUM), alt("%s = (n/2)(%s)" % [SN, poly([p, q])], M_HALF_RECT),
 		line_option(row.call(p, q + p), good, M_GAPS)]
-	var out := {"asked": "Write %s in terms of n." % SN, "lines": set_up.lines, "answer": ans, "wrongs": wrongs, "generic": nudged(good),
+	var out := {"asked": "Write %s in terms of n." % SN, "lines": set_up.lines, "answer": ans, "wrongs": wrongs, "fillers": nudged(good),
 		"methods": {"dot-diagram": method(by_dots, ans.values), "series-formula": method(by_formula, ans.values)}}
 	out.graph = set_up.get("graph")
 	return out
@@ -787,7 +788,7 @@ func u_dot_layer(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"Layer n is the difference: %s = n(%s) − (n − 1)(%s)" % [UN, poly([p, q]), poly([p, q - p])], say(ans)]
 	var out := {"asked": "Write %s in terms of n." % UN, "lines": set_up.lines, "answer": ans,
 		"wrongs": [line_option(row.call(p, q), good, M_WIDTH), line_option(row.call(2 * p, q), good, M_CORNER), line_option(row.call(2 * p, q + p), good, M_GAPS)],
-		"generic": nudged(good), "methods": {"dot-diagram": method(steps, ans.values)}}
+		"fillers": nudged(good), "methods": {"dot-diagram": method(steps, ans.values)}}
 	out.graph = set_up.get("graph")
 	return out
 
@@ -807,7 +808,7 @@ func u_dot_rectangle(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"u₁ + uₙ = %d + %s" % [f, wrapped(p, q)], say(ans)]
 	return {"asked": "Find the width of the rectangle for any n, in terms of n.", "lines": lines, "answer": ans,
 		"wrongs": [line_option(row.call(2 * p, 2 * q), good, M_LAST_TWICE), line_option(row.call(p, q), good, M_LAST_ONLY), line_option(row.call(p, q + f + p), good, M_GAPS)],
-		"generic": nudged(good), "methods": {"dot-diagram": method(steps, ans.values)},
+		"fillers": nudged(good), "methods": {"dot-diagram": method(steps, ans.values)},
 		"graph": {"kind": "dots", "rows": stair_rows(s), "name": "n = %d" % m}}
 
 
@@ -824,7 +825,7 @@ func u_missing_line(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var steps: Array = ["Line %d: %s" % [hide, c[hide - 1].text], "%s: %s" % [good.why, good.text],
 		"Line %d follows from that: %s" % [hide + 2, c[hide + 1].text], picked("So the missing line is", ans)]
 	return {"asked": "Line %d of this proof is missing. What does it say?" % (hide + 1), "lines": lines, "answer": ans,
-		"wrongs": slip_lines(s, angle, hide, good, true), "generic": nudged(good), "methods": of_lines(s, steps, ans), "shown": {"hide": hide}}
+		"wrongs": slip_lines(s, angle, hide, good, true), "fillers": nudged(good), "methods": of_lines(s, steps, ans), "shown": {"hide": hide}}
 
 
 ## A true value at n = 1, in place of the next line: the #0 slip.
@@ -856,7 +857,7 @@ func u_next_line(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		rows.append([w.values.text, w.ref])
 	for g in nudged(good):
 		rows.append([g.text, ""])
-	var out := pick_answer(good.text, unique_texts(rows, good.text).slice(0, 3))
+	var out := blank_to_fillers(pick_answer(good.text, unique_texts(rows, good.text).slice(0, 3)))
 	var ans: Dictionary = out.answer
 	out.asked = "Which line comes next in this proof?"
 	out.lines = setup(s, "equation") + [claim_text(s)] + shown(c, -1, at - 1)
@@ -893,11 +894,16 @@ func u_flawed_line(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		if k != slip and other.size() > at and other[at].text != good.text and other[at].text != bad[at].text and (at == 0 or other[at - 1].text == c[at - 1].text):
 			wrongs.append(fix.call(at, other[at], slip_tag(s, angle, k)))
 	# A later line is wrong too, but it only follows the first mistake.
+	var fillers: Array = []
 	for i in range(at + 1, mini(bad.size(), c.size())):
-		wrongs.append(fix.call(i, c[i]))
+		var later: Dictionary = fix.call(i, c[i], M_LATER_LINE if bad[i].text != c[i].text else "")
+		if later.ref != "":
+			wrongs.append(later)
+		else:
+			fillers.append(later.values)
 	for d in [1, -1, 2]:
-		wrongs.append(fix.call(at, bump_line(good, d, 0)))
-		wrongs.append(fix.call(at, bump_line(good, d, good.v.size() - 1)))
+		fillers.append(fix.call(at, bump_line(good, d, 0)).values)
+		fillers.append(fix.call(at, bump_line(good, d, good.v.size() - 1)).values)
 	var lines := setup(s, "equation")
 	lines.append(claim_text(s))
 	lines.append("A student's proof has one slip, carried down to the end:")
@@ -908,7 +914,7 @@ func u_flawed_line(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	steps.append("Line %d says %s, which is not right." % [at + 1, bad[at].text])
 	steps.append("%s: %s" % [good.why, good.text])
 	steps.append(say(ans))
-	return {"asked": "Find the first line that goes wrong, and correct it.", "lines": lines, "answer": ans, "wrongs": wrongs, "generic": [],
+	return {"asked": "Find the first line that goes wrong, and correct it.", "lines": lines, "answer": ans, "wrongs": wrongs, "fillers": fillers,
 		"methods": of_lines(s, steps, ans), "shown": {"at": at, "slip": slip}}
 
 
@@ -942,13 +948,29 @@ func arguments(s: Dictionary) -> Array:
 		[[checked, M_CHECK], [assumed, M_CIRCULAR], ["%s = (n/2)(2 × %d + n × %d) = (n/2)(%s), by the formula for an arithmetic sum." % [SN, f, s.p, poly([s.p, 2 * f])], M_GAPS]]]
 
 
+## pick_answer's options sorted: a wrong option with no ref, and anything in its
+## generic list, is a filler (a nudged line has no slip behind it).
+static func blank_to_fillers(out: Dictionary) -> Dictionary:
+	var fillers: Array = out.get("fillers", []) + out.get("generic", [])
+	var wrongs: Array = []
+	for w in out.wrongs:
+		if w.ref == "":
+			fillers.append(w.values)
+		else:
+			wrongs.append(w)
+	out.erase("generic")
+	out.wrongs = wrongs
+	out.fillers = fillers
+	return out
+
+
 static func sum_at(s: Dictionary, n: int) -> int:
 	return n * (s.p * n + pair_tail(s)) / 2
 
 
 func u_valid_proof(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := arguments(s)
-	var out := pick_answer(a[0], a[1])
+	var out := blank_to_fillers(pick_answer(a[0], a[1]))
 	var ans: Dictionary = out.answer
 	var c := lines_of(s, angle)
 	out.asked = "Which of these is a complete proof?"

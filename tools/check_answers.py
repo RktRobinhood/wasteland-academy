@@ -6241,10 +6241,13 @@ def check_percent(q):
     if u in ("increase-multiplier", "decrease-multiplier"):
         m, r = pc_change(q["asked"])
         want = qr_norm(ans, {"v": str(m)})
+        wr[f"{T}#4"] = {qr_norm(ans, {"v": str(2 - m)})}
         if u == "decrease-multiplier":
             wr[f"{T}#0"] = {qr_norm(ans, {"v": str(sp.Rational(r, 100))})}
-        elif r < 10:
-            wr[f"{T}#1"] = {qr_norm(ans, {"v": str(1 + sp.Rational(r, 10))})}
+        else:
+            wr[f"{T}#5"] = {qr_norm(ans, {"v": str(sp.Rational(r, 100))})}
+            if r < 10:
+                wr[f"{T}#1"] = {qr_norm(ans, {"v": str(1 + sp.Rational(r, 10))})}
     elif u == "apply-change":
         if rep == "table":
             P, ch = el_num(tab["Before"]), tab["Change"]
@@ -6254,11 +6257,14 @@ def check_percent(q):
             P = el_num(em_read(r"([\d.]+)(?:,| changes)", Lj, "the amount").group(1))
             m, r = pc_change(q["asked"])
         want = qr_norm(ans, {"v": str(P * m)})
-        if m < 1:
-            wr[f"{T}#0"] = {qr_norm(ans, {"v": str(P * sp.Rational(r, 100))})}
+        wr[f"{T}#0" if m < 1 else f"{T}#5"] = {qr_norm(ans, {"v": str(P * sp.Rational(r, 100))})}
+        wr[f"{T}#4"] = {qr_norm(ans, {"v": str(P * (2 - m))})}
+        wr[f"{T}#6"] = {qr_norm(ans, {"v": str(P + r if m > 1 else P - r)})}
     elif u == "multiplier-to-percent":
         mm = el_num(em_read(r"multiplying by ([\d.]+) stand for\?", q["asked"], "the multiplier").group(1))
         want = ("rise" if mm > 1 else "fall", abs(mm - 1) * 100)
+        wr[f"{T}#4"] = {("fall" if mm > 1 else "rise", abs(mm - 1) * 100)}
+        wr[f"{T}#7"] = {(want[0], mm * 100)}
     elif u == "reverse-percentage":
         if rep == "table":
             A, ch = el_num(tab["After"]), tab["Change"]
@@ -6270,17 +6276,26 @@ def check_percent(q):
         m = 1 + sp.Rational(r, 100) * (1 if up else -1)
         want = qr_norm(ans, {"v": str(A / m)})
         wr[f"{T}#2"] = {qr_norm(ans, {"v": str(A - A * sp.Rational(r, 100) if up else A + A * sp.Rational(r, 100))})}
+        wr[f"{T}#10"] = {qr_norm(ans, {"v": str(A * m)})}
+        wr[f"{T}#6"] = {qr_norm(ans, {"v": str(A - r if up else A + r)})}
     elif u == "repeated-changes":
         parts = Lj.replace("A price has ", "").rstrip(".").split(", then ")
         (m1, _), (m2, _) = pc_change(parts[0]), pc_change(parts[1])
         M = m1 * m2
         want = qr_norm(ans, {"v0": str(M), "v1": str((M - 1) * 100)})
+        summed = (m1 - 1) * 100 + (m2 - 1) * 100
+        wr[f"{T}#11"] = {qr_norm(ans, {"v0": str(1 + summed / 100), "v1": str(summed)})}
+        wr[f"{T}#12"] = {qr_norm(ans, {"v0": str(m1 + m2), "v1": str((m1 + m2 - 1) * 100)})}
     elif u == "percent-from-amounts":
         if rep == "table":
             P, A = el_num(tab["Before"]), el_num(tab["After"])
         else:
             P, A = [el_num(x) for x in em_read(r"(\d+(?:\.\d+)?) (?:→|to) (\d+(?:\.\d+)?)", Lj, "the amounts").groups()]
         want = ("rise" if A > P else "fall", abs(A - P) / P * 100)
+        wr[f"{T}#4"] = {("fall" if A > P else "rise", want[1])}
+        wr[f"{T}#8"] = {(want[0], abs(A - P) / A * 100)}
+        wr[f"{T}#9"] = {(want[0], abs(A - P))}
+        wr[f"{T}#7"] = {(want[0], A / P * 100)}
     else:
         raise Fail(f"the checker has no solver for {u}")
     qr_check_common(q, want, wr)
@@ -8588,6 +8603,20 @@ CP_PREFIX = "SL2.5.composite-"
 CP_REFS = {"value-order": "SL2.5.composite-value#0", "product": "SL2.5.composite-value#1", "twice": "SL2.5.composite-value#2",
            "order": "SL2.5.composite-expression#0", "equal": "SL2.5.composite-expression#2", "undo": "SL2.5.find-inverse#1"}
 CP_COEF_MAX = 60
+CP_T = "fn-composite"
+
+
+def cp_kv(a, b, sf=False):
+    """'k = a or k = b' as the game writes a pair of k values, smaller first."""
+    lo, hi = sorted([a, b], key=lambda v: float(v))
+    w = (lambda v: ext_sf(R(str(sp.N(v, 30))))) if sf else frac_text
+    return f"k = {w(lo)} or k = {w(hi)}"
+
+
+def cp_xs(vals):
+    xs = sorted(vals, key=lambda v: float(v))
+    parts = [frac_text(x) for x in xs]
+    return "x = " + ((", ".join(parts[:-1]) + " or " + parts[-1]) if len(parts) > 1 else parts[0])
 CP_V_MAX = 200
 K = sp.Symbol("k")
 
@@ -8682,6 +8711,7 @@ def check_composite(q):
             wr[CP_REFS["value-order"]] = {lab + ext_sf(val(g.subs(X, f.subs(X, x0))))}
             wr[CP_REFS["product"]] = {lab + ext_sf(val(f.subs(X, x0) * gx))}
             wr[CP_REFS["twice"]] = {lab + ext_sf(val(g.subs(X, gx)))}
+            wr[CP_T + "#8"] = {lab + ext_sf(val(gx))}
             trap = lab + dec_text(R(sig3(val(v), 2).replace("−", "-")))
         else:
             need(abs(v) <= CP_V_MAX, "the value is more than 200")
@@ -8690,6 +8720,7 @@ def check_composite(q):
             wr[CP_REFS["value-order"]] = {lab + frac_text(g.subs(X, f.subs(X, x0)))}
             wr[CP_REFS["product"]] = {lab + frac_text(f.subs(X, x0) * gx)}
             wr[CP_REFS["twice"]] = {lab + frac_text(f.subs(X, f.subs(X, x0)))}
+            wr[CP_T + "#8"] = {lab + frac_text(gx)}
     elif u == "expression":
         f, g = r["f"], r["g"]
         m = re.fullmatch(r"Find \((f∘g|g∘f)\)\(x\), simplified\.", asked)
@@ -8706,13 +8737,22 @@ def check_composite(q):
         f, g = r["f"], r["g"]
         x0, V = el_num(m.group(1)), el_num(m.group(2))
         sols = sorted(sp.solve(f.subs(X, g.subs(X, x0)) - V, K))
+        if g.has(K):
+            # The values w that g(x₀) must take, and the x term of g at x₀.
+            W = sp.Symbol("W")
+            ws = sp.solve(f.subs(X, W) - V, W)
+            shown = g.subs(X, x0).subs(K, 0)
+            sf_ = q["paper"] == 2
+            if len(ws) == 2:
+                wr[CP_T + "#9"] = {cp_kv(ws[0], ws[1], sf_)}
+                wr[CP_T + "#10"] = {cp_kv(ws[0] + shown, ws[1] + shown, sf_)}
         if q["paper"] == 2:
             # Paper 2: (a·x₀ + k)² = r with r not a square, k to 3 s.f.
             need(m.group(3) != "k" and len(sols) == 2 and g.has(K) and not f.has(K), "Paper 2 is the ± pair in g")
             need(all(not s_.is_rational for s_ in sols), "a Paper 2 k is a whole number: it needs no calculator")
             vals = [R(str(sp.N(s_, 30))) for s_ in sols]
             need(all(abs(v_) <= 30 for v_ in vals), "k is out of range")
-            cp_check_text(q, f"k = {ext_sf(vals[0])} or k = {ext_sf(vals[1])}", {})
+            cp_check_text(q, f"k = {ext_sf(vals[0])} or k = {ext_sf(vals[1])}", wr)
             return None, None
         need(all(s_.is_rational and s_.q == 1 and abs(s_) <= 20 for s_ in sols), f"k is not a whole number from −20 to 20: {sols}")
         if m.group(3) == "k":
@@ -8720,6 +8760,10 @@ def check_composite(q):
             want = "k = " + frac_text(sols[0])
             other = sorted(sp.solve(g.subs(X, f.subs(X, x0)) - V, K))
             wr[CP_REFS["order"]] = {"k = " + frac_text(other[0])}
+            gx, d_ = g.subs(X, x0), f.subs(X, 0)
+            wr[CP_T + "#11"] = {"k = " + frac_text(V / gx)}
+            wr[CP_T + "#10"] = {"k = " + frac_text((V + d_) / gx)}
+            wr[CP_T + "#12"] = {"k = " + frac_text(V - d_)}
         else:
             need(len(sols) == 2 and g.has(K) and not f.has(K), "a ± pair of k is in g")
             want = f"k = {frac_text(sols[0])} or k = {frac_text(sols[1])}"
@@ -8733,6 +8777,9 @@ def check_composite(q):
         need(len(sols) == 2 and all(s_.q == 1 for s_ in sols) and sols[0] == -sols[1], f"k = {sols}")
         need(g.has(K) and not f.has(K), "k is in g only")
         want = f"k = {frac_text(sols[0])} or k = {frac_text(sols[1])}"
+        wr[CP_T + "#13"] = {cp_kv(-P, P)}
+        if sols[1] % 2 == 0:
+            wr[CP_T + "#14"] = {cp_kv(-sp.Rational(P, 2), sp.Rational(P, 2))}
     elif u == "solve-composite":
         m = re.fullmatch(r"Solve \(f∘g\)\(x\) = (−?\d+)\.", asked)
         need(m is not None, f"can't read {asked!r}")
@@ -8745,12 +8792,20 @@ def check_composite(q):
         xs = sorted(set(roots))
         parts = [frac_text(x) for x in xs]
         want = "x = " + ((", ".join(parts[:-1]) + " or " + parts[-1]) if len(parts) > 1 else parts[0])
+        if len(xs) == 2:
+            W = sp.Symbol("W")
+            ws = sp.solve(f.subs(X, W) - T, W)
+            gco = poly_coeffs(g)
+            wr[CP_T + "#15"] = {cp_xs([w_ / gco[1] for w_ in ws])}
+            if gco.get(0, 0) == 0:
+                wr[CP_T + "#16"] = {cp_xs(ws)}
     elif u == "self-composite":
         f = r["f"]
         need(asked == "Find (f∘f)(x), simplified.", f"asked {asked!r}")
         h = f.subs(X, f)
         cp_int_poly(h, "the composite")
         want = "(f∘f)(x) = " + cp_poly_text(h)
+        wr[CP_T + "#17"] = {"(f∘f)(x) = " + cp_poly_text(sp.expand(f**2))}
     elif u == "compare-orders":
         need(asked == "Find f∘g and g∘f, and say whether they are equal.", f"asked {asked!r}")
         f, g = r["f"], r["g"]
@@ -8807,6 +8862,7 @@ def check_composite(q):
         need(sp.degree(g, X) in (1, 2), "g is not linear or quadratic")
         want = "g(x) = " + cp_poly_text(g)
         wr[CP_REFS["undo"]] = {"g(x) = " + cp_poly_text(sp.expand(h / m_ - c_))}
+        wr[CP_T + "#18"] = {"g(x) = " + cp_poly_text(sp.expand(h - c_)), "g(x) = " + cp_poly_text(sp.expand(h / m_))}
     elif u == "outer-from-composite":
         need(L[1].startswith("(f∘g)(x) = "), f"lines {L!r}")
         h = parse(L[1].split(" = ", 1)[1])
@@ -8818,6 +8874,8 @@ def check_composite(q):
         cp_int_poly(f, "f")
         need(sp.degree(f, X) == 2, "f is not a quadratic")
         want = "f(x) = " + cp_poly_text(f)
+        wr[CP_T + "#19"] = {"f(x) = " + cp_poly_text(sp.expand(h))}
+        wr[CP_T + "#20"] = {"f(x) = " + cp_poly_text(sp.expand(h.subs(X, g)))}
     else:
         raise Fail(f"the checker has no solver for {u}")
     cp_check_text(q, want, wr, trap)
@@ -11205,6 +11263,7 @@ SPOT_CHECKS["fn-pre-algebraic-fractions"] = af_spot
 AG_STORIES = {"the number of fish in a lake": (" thousand fish", "years"), "the concentration of salt in a tank": (" g per litre", "minutes"),
               "the speed of a rocket sled": (" m/s", "seconds")}
 AG_RM, AG_NO_HA, AG_SWAP, AG_RATIO = "SL2.8.rational-model#0", "SL2.8.asymptotes#2", "SL2.4.asymptotes#1", "SL2.8.asymptotes#1"
+AG_T = "fn-concept-asymptote-meaning"
 
 
 def ag_lin(q):
@@ -11243,7 +11302,7 @@ def check_gallery(q):
         unit = AG_STORIES[story][0]
         cap = m.group(1)
         want = f"In the long run {story} gets closer and closer to {ft(Lv)}{unit}, but it never reaches it."
-        wr = {AG_RM: {f"{cap} reaches {ft(Lv)}{unit} after enough {m.group(5)}."}}
+        wr = {AG_RM: {f"{cap} reaches {ft(Lv)}{unit} after enough {m.group(5)}."}, AG_T + "#12": {f"{cap} starts at {ft(Lv)}{unit}."}}
         gc_check_common(q, want, wr)
         return None, None
     if u == "gap-not-asymptote":
@@ -11258,7 +11317,9 @@ def check_gallery(q):
         need(sp.simplify(num.subs(X, h)) == 0, "the top is not zero at the gap")
         want = f"{fr} is {ft(simple)} for every x except x = {ft(h)}, so the graph is the line y = {ft(simple)} with one point missing: a gap, not an asymptote."
         need(asked == f"Does f have an asymptote at x = {ft(h)}? Say why.", "the question names another x")
-        gc_check_common(q, want, {})
+        wr = {AG_T + "#7": {f"x = {ft(h)} is a vertical asymptote, because the bottom is 0 there."},
+              AG_T + "#8": {f"The graph is the line y = {ft(simple)} with no point missing."}}
+        gc_check_common(q, want, wr)
         return None, None
     if u == "crosses-horizontal":
         g = q["given"]
@@ -11282,12 +11343,15 @@ def check_gallery(q):
             need(sols == [], "f meets its asymptote")
             B, h = T["B"], T["h"]
             want = f"No: f(x) = {ft(A)} would need {ft(B)}/(x − {ft(h)}) = 0, and a fraction with a top of {ft(B)} is never 0."
+        wr = {AG_T + "#4": {"No: a curve can reach its horizontal asymptote only when x is infinite.", "No: a curve can never cross its horizontal asymptote."}}
+        if kind == "lin":
+            wr[AG_T + "#5"] = {f"Yes: it crosses {line} where x = {ft(x0)}." for x0 in sp.solve(f, X)}
         if rep == "graph":
             gr = q["graph"]
             fl = sp.lambdify(X, f, "math")
             need(all(abs(fl(x) - y) < 1e-6 for cv in gr["curves"] for x, y in cv), "the curve drawn is not f")
             need(any(abs(hl["at"] - float(A)) < 1e-9 for hl in gr["hlines"]), "the horizontal asymptote is not drawn")
-        gc_check_common(q, want, {})
+        gc_check_common(q, want, wr)
         return None, None
     f, T, co = ag_lin(q)
     h, A, B = T["h"], T["A"], T["B"]
@@ -11304,7 +11368,8 @@ def check_gallery(q):
         if rep == "table":
             for xs, ys in zip(q["table"]["rows"][0][1], q["table"]["rows"][1][1]):
                 need(abs(float(f.subs(X, R(xs.replace("−", "-")))) - float(R(ys.replace("−", "-")))) < 0.00006, f"the table's f({xs}) is not {ys}")
-        wr = {AG_SWAP: {f"The graph levels off at the value x = {h_}, so it is a horizontal asymptote."}}
+        wr = {AG_SWAP: {f"The graph levels off at the value x = {h_}, so it is a horizontal asymptote."},
+              AG_T + "#10": {f"At x = {h_} the top is 0, so the graph crosses the x-axis there."}, AG_T + "#11": {mk(high, low)}}
         gc_check_common(q, want, wr)
     elif u == "why-horizontal":
         need(asked == f"Why does y get close to {ft(A)} for large x?", "the question names another value")
@@ -11318,7 +11383,8 @@ def check_gallery(q):
                 need(abs(float(f.subs(X, R(xs.replace("−", "-")))) - float(R(ys.replace("−", "-")))) < 0.00006, f"the table's f({xs}) is not {ys}")
         frac = L[0].split(" = ", 1)[1] if rep == "equation" else RationalFunctionSituation_text(co)
         wr = {AG_NO_HA: {f"It doesn't: {frac} has no horizontal asymptote, because the top is not a constant."},
-              AG_RATIO: {f"f(x) gets close to {ft(sp.Rational(b, d))}, the ratio of the constants {ft(b)} and {ft(d)}."}}
+              AG_RATIO: {f"f(x) gets close to {ft(sp.Rational(b, d))}, the ratio of the constants {ft(b)} and {ft(d)}."},
+              AG_T + "#9": {"f(x) grows without limit, because the top gets bigger as x does."}}
         gc_check_common(q, want, wr)
     elif u == "crosses-vertical":
         need(asked == f"A student says the graph can cross its vertical asymptote x = {ft(h)}. Is that right?", "the question names another x")
@@ -11326,7 +11392,7 @@ def check_gallery(q):
         if rep == "graph":
             rf_graph_is(q["graph"], rf_truth(f))
         want = f"No: f is not defined at x = {ft(h)}, so no point of the graph has x = {ft(h)}."
-        gc_check_common(q, want, {})
+        gc_check_common(q, want, {AG_T + "#6": {"Yes: a branch can cross it if the curve is steep enough."}})
     else:
         raise Fail(f"no check for {u}")
     return None, None
@@ -19397,6 +19463,9 @@ def cr_check(q):
         rr = cr_mp(r)
         label, tail, x = "A = ", un + "²", rr**2 * (th - sin(th)) / 2
         W("segment-shaded#3", rr**2 * th / 2)
+        W(CR_T + "15", rr**2 * (th + sin(th)) / 2)
+        W(CR_T + "16", rr**2 * (th - sin(th)))
+        W(CR_T + "17", rr * (th - sin(th)) / 2)
         if d is None:
             W("segment-shaded#0", rr**2 * (th - sin(mpmath.radians(th))) / 2)
         else:
@@ -19406,6 +19475,7 @@ def cr_check(q):
         rr = cr_mp(r)
         label, tail, x = "P = ", un, rr * th + 2 * rr * sin(th / 2)
         W("segment-shaded#1", rr * th + 2 * rr)
+        W(CR_T + "19", rr * th)
         if d is None:
             W(CR_ANY_SINE, rr * th + 2 * rr * sin(mpmath.radians(th / 2)))
         else:
@@ -19426,7 +19496,9 @@ def cr_check(q):
         root = "√3" if surd else ""
         want = f"A = {cr_exact_pi(b)} − {dec_text(c0)}{root} cm²"
         need(asked == "Find the exact area of the shaded segment.", f"asked {asked!r}")
-        gc_check_common(q, want, {CR_SKILL + "segment-shaded#3": {f"A = {cr_exact_pi(b)} cm²"}})
+        gc_check_common(q, want, {CR_SKILL + "segment-shaded#3": {f"A = {cr_exact_pi(b)} cm²"},
+                                  CR_T + "15": {f"A = {cr_exact_pi(b)} + {dec_text(c0)}{root} cm²"},
+                                  CR_T + "16": {f"A = {cr_exact_pi(2 * b)} − {dec_text(2 * c0)}{root} cm²"}})
         cr_working(q)
         return None, None
     elif u == "segment-in-terms-of-theta":
@@ -19435,7 +19507,11 @@ def cr_check(q):
         m = re.fullmatch(r"A and B lie on a circle with centre O and radius ([\d.]+) cm\. Chord AB cuts off the shaded segment, and angle AOB is θ radians, where 0 < θ < π\.", L[0])
         need(m and cr_num(m.group(1)) == r and r.q == 1, f"can't read {L[0]!r}")
         a = dec_text(r**2 / 2)
-        gc_check_common(q, f"A = {a}θ − {a} sin θ cm²", {CR_SKILL + "segment-shaded#3": {f"A = {a}θ cm²"}})
+        a2, ah = dec_text(r**2), dec_text(r / 2)
+        gc_check_common(q, f"A = {a}θ − {a} sin θ cm²", {CR_SKILL + "segment-shaded#3": {f"A = {a}θ cm²"},
+                                                         CR_T + "15": {f"A = {a}θ + {a} sin θ cm²"},
+                                                         CR_T + "16": {f"A = {a2}θ − {a2} sin θ cm²"},
+                                                         CR_T + "17": {f"A = {ah}θ − {ah} sin θ cm²"}})
         cr_working(q)
         return None, None
     elif u == "segment-radius":
@@ -19448,6 +19524,9 @@ def cr_check(q):
         label, tail, x = "r = ", " cm", sqrt(2 * a / (th - sin(th)))
         W("segment-shaded#3", sqrt(2 * a / th))
         W("segment-shaded#0", sqrt(2 * a / (th - sin(mpmath.radians(th)))))
+        W(CR_T + "18", 2 * a / (th - sin(th)))
+        W(CR_T + "16", sqrt(a / (th - sin(th))))
+        W(CR_T + "15", sqrt(2 * a / (th + sin(th))))
     elif u in ("tether-area", "tether-expression", "tether-angle"):
         if rep == "words":
             m = re.fullmatch(r"Two straight walls meet at a corner A\. A rover is tied to a stake O on one wall by a cable ([\d.]+) m long, and the stake is ([\d.]+) m from A\. Stretched out, the cable reaches D further along that wall and E on the other wall, and angle DOE is ([\d.]+) radians?\.", L[0])
@@ -19476,17 +19555,22 @@ def cr_check(q):
                 m = re.fullmatch(r"Arc DE is (\d+) m long\. The rover can reach the shaded ground: sector ODE and triangle OEA\.", L[1])
                 need(m is not None and g["arc_label"] == m.group(1) + " m", f"can't read {L[1]!r}")
                 k = R(m.group(1)) ** 2 / 2
-                gc_check_common(q, f"A = ({dec_text(k)}/θ²)(θ + sin θ) m²", {CR_SKILL + "segment-shaded#8": {f"A = {dec_text(k)}/θ m²"}})
+                gc_check_common(q, f"A = ({dec_text(k)}/θ²)(θ + sin θ) m²", {CR_SKILL + "segment-shaded#8": {f"A = {dec_text(k)}/θ m²"},
+                                CR_T + "16": {f"A = ({dec_text(2 * k)}/θ²)(θ + sin θ) m²"}, CR_T + "15": {f"A = ({dec_text(k)}/θ²)(θ − sin θ) m²"}})
                 cr_working(q)
                 return None, None
         if u == "tether-angle":
             # The triangle OEA is isosceles with π − θ at O.
             label, tail, x = "angle DAE = ", " radians", (pi - (pi - th)) / 2
+            W(CR_T + "20", th)
+            W(CR_T + "21", pi - th)
         else:
             # Sector ODE and triangle OEA, whose angle at O is π − θ.
             label, tail, x = "A = ", " m²", rr**2 * th / 2 + rr**2 * sin(pi - th) / 2
             W("segment-shaded#8", rr**2 * th / 2)
             W("segment-shaded#0", rr**2 * (th + sin(mpmath.radians(th))) / 2)
+            W(CR_T + "15", rr**2 * (th - sin(th)) / 2)
+            W(CR_T + "16", rr**2 * (th + sin(th)))
     elif u in ("ratio-equation", "ratio-theta"):
         m = re.fullmatch(r"The shaded segment on chord RQ and the shaded triangle POR have areas in the ratio (\d+) : (\d+)\.", L[1])
         need(m is not None, f"can't read {L[1]!r}")
@@ -19500,7 +19584,8 @@ def cr_check(q):
         cr_drawn(g, th)
         if u == "ratio-equation":
             kt = lambda v: dec_text(v) if v.q == 1 else f"({frac_text(v)})"
-            gc_check_common(q, f"θ = {kt(k)} sin θ", {CR_SKILL + "segment-shaded#6": {f"θ = {kt(flip)} sin θ"}})
+            gc_check_common(q, f"θ = {kt(k)} sin θ", {CR_SKILL + "segment-shaded#6": {f"θ = {kt(flip)} sin θ"},
+                                                     CR_T + "22": {f"θ = {kt(sp.Rational(a, b))} sin θ"}})
             cr_working(q)
             return None, None
         label, x = "θ = ", th
@@ -19519,6 +19604,8 @@ def cr_check(q):
         W("segment-shaded#0", sqrt(2 * tri / sin(mpmath.radians(th))))
         th2 = cr_root(1 + mpmath.mpf(b) / a)
         W("segment-shaded#6", sqrt(2 * area * a / b / sin(th2)))
+        W(CR_T + "18", 2 * tri / sin(th))
+        W(CR_T + "16", sqrt(tri / sin(th)))
     elif u == "arch-area":
         m = re.fullmatch(r"The shaded end of a shelter is a rectangle with arc AB on top\. Each vertical side is ([\d.]+) cm high\.", L[0])
         m2 = re.fullmatch(r"Arc AB is part of a circle with centre O and radius ([\d.]+) cm, and angle AOB is ([\d.]+) radians\.", L[1])
@@ -19547,7 +19634,8 @@ def cr_check(q):
             need(m.group(3) == f"r cm, where r < {m.group(2)}", "r has no limit")
             need(g["inner_label"] == "r", "the figure's r")
             a, b = t0 * big**2 / 2, t0 / 2
-            gc_check_common(q, f"A = {dec_text(a)} − {dec_text(b)}r² cm²", {})
+            gc_check_common(q, f"A = {dec_text(a)} − {dec_text(b)}r² cm²", {CR_T + "17": {f"A = {dec_text(a)} − {dec_text(b)}r cm²"},
+                                                                           CR_T + "16": {f"A = {dec_text(2 * a)} − {dec_text(2 * b)}r² cm²"}})
             cr_working(q)
             return None, None
         small = cr_num(m.group(3).removesuffix(" cm"))
@@ -19555,6 +19643,9 @@ def cr_check(q):
         tt, bb, ss = cr_mp(t0), cr_mp(big), cr_mp(small)
         label, tail, x = "A = ", " cm²", tt * (bb**2 - ss**2) / 2
         W("sector-area#2", (2 * pi - tt) * (bb**2 - ss**2) / 2)
+        W(CR_T + "23", tt * bb**2 / 2)
+        W(CR_T + "24", tt * (bb - ss)**2 / 2)
+        W(CR_T + "16", tt * (bb**2 - ss**2))
     elif u in ("hatch-area", "hatch-height"):
         m = re.fullmatch(r"A bunker hatch is a rectangle (\d+)x m wide and h m high with a semicircle on top\. The semicircle's diameter is the top of the rectangle\.", L[0])
         need(m is not None, f"can't read {L[0]!r}")
@@ -19563,14 +19654,16 @@ def cr_check(q):
         g = cr_fig(q, "hatch", w_label=f"{k}x m", h_label="h m")
         if u == "hatch-area":
             b = sp.Rational(k**2, 8)
-            gc_check_common(q, f"A = {k}xh + {cr_pi_x2(b)} m²", {CR_SKILL + "segment-shaded#7": {f"A = {k}xh + {cr_pi_x2(4 * b)} m²"}})
+            gc_check_common(q, f"A = {k}xh + {cr_pi_x2(b)} m²", {CR_SKILL + "segment-shaded#7": {f"A = {k}xh + {cr_pi_x2(4 * b)} m²"},
+                                                                 CR_T + "25": {f"A = {k}xh + {cr_pi_x2(2 * b)} m²"}})
         else:
             m = re.fullmatch(r"The perimeter of the whole hatch is (\d+) m\.", L[1])
             need(m is not None, f"can't read {L[1]!r}")
             per = R(m.group(1))
             need(abs(2 * mpmath.mpf(g["rho"]) + 2 * mpmath.mpf(g["h"]) + pi * mpmath.mpf(g["rho"]) - cr_mp(per)) < 1e-6, "the hatch drawn doesn't have that perimeter")
             arc = "πx" if k == 2 else f"{k // 2}πx"
-            gc_check_common(q, f"h = ½({per} − {k}x − {arc})", {CR_SKILL + "segment-shaded#4": {f"h = ½({per} − {2 * k}x − {arc})"}})
+            gc_check_common(q, f"h = ½({per} − {k}x − {arc})", {CR_SKILL + "segment-shaded#4": {f"h = ½({per} − {2 * k}x − {arc})"},
+                                                                CR_T + "25": {f"h = ½({per} − {k}x − {k}πx)"}, CR_T + "26": {f"h = {per} − {k}x − {arc}"}})
         cr_working(q)
         return None, None
     elif u in ("tangent-region", "tangent-expression"):
@@ -19583,7 +19676,8 @@ def cr_check(q):
             need(m.group(2) == "2α" and r.q == 1, "the angle is 2α")
             a = dec_text(r**2)
             c = dec_text(r**2 / 2)
-            gc_check_common(q, f"A = {a}/tan α − {c}(π − 2α) cm²", {CR_SKILL + "segment-shaded#5": {f"A = {a}/tan α − {a}α cm²"}})
+            gc_check_common(q, f"A = {a}/tan α − {c}(π − 2α) cm²", {CR_SKILL + "segment-shaded#5": {f"A = {a}/tan α − {a}α cm²"},
+                                                                   CR_T + "27": {f"A = {a}/tan α cm²"}, CR_T + "16": {f"A = {a}/tan α − {a}(π − 2α) cm²"}})
             cr_working(q)
             return None, None
         th = cr_mp(cr_num(m.group(2)))
@@ -19593,6 +19687,7 @@ def cr_check(q):
         kite = 2 * rr * (rr / tan(th / 2)) / 2
         label, tail, x = "A = ", " cm²", kite - rr**2 * (pi - th) / 2
         W("segment-shaded#5", kite - rr**2 * th / 2)
+        W(CR_T + "27", kite)
     elif u == "cone-from-area":
         m = re.fullmatch(r"The sector in the diagram, with centre O and radius ([\d.]+) cm, has an area of ([\d.]+) cm²\. It is rolled up so that OA meets OB, to make a cone, and the arc becomes the rim\.", L[0])
         need(m is not None, f"can't read {L[0]!r}")
@@ -19603,6 +19698,8 @@ def cr_check(q):
         need(0 < th < 2 * pi, f"θ = {th}")
         cr_drawn(g, th)
         label, tail, x = "radius = ", " cm", rr * th / (2 * pi)
+        W(CR_T + "30", 2 * a / rr)
+        W(CR_T + "31", sqrt(a / pi))
     else:
         if rep != "diagram":
             need(L[1] == CR_LETTERS, "r and θ aren't said")
@@ -19619,15 +19716,17 @@ def cr_check(q):
             label, tail = "r = ", un
             if paper == 1:
                 need(r.q == 1, f"r = {r}")
-                gc_check_common(q, as_text(label, r, tail, 1), {})
+                gc_check_common(q, as_text(label, r, tail, 1), {CR_T + "16": {as_text(label, a / l, tail, 1)}})
                 cr_working(q)
                 return None, None
             x = cr_mp(r)
+            W(CR_T + "16", cr_mp(a / l))
         else:
             p, a = k["p"], k["a"]
             need(p is not None, "no perimeter")
             if u == "theta-in-r":
-                gc_check_common(q, f"θ = ({dec_text(p)} − 2r)/r", {CR_SKILL + "sector-two-conditions#0": {f"θ = {dec_text(p)}/r"}}, steps=(2, 5))
+                gc_check_common(q, f"θ = ({dec_text(p)} − 2r)/r", {CR_SKILL + "sector-two-conditions#0": {f"θ = {dec_text(p)}/r"},
+                                                                  CR_T + "28": {f"θ = ({dec_text(p)} − r)/r"}, CR_T + "29": {f"θ = ({dec_text(p)} + 2r)/r"}}, steps=(2, 5))
                 cr_working(q)
                 return None, None
             need(a is not None, "no area")
@@ -34063,7 +34162,11 @@ def E11SP_flawed(q, g, w, angle, shown):
             if o["ref"]:
                 E11SP_tagged(o, body, w, angle)
         else:
-            need(no > at and not o["ref"], f"{o['text']!r} is about an earlier line, or tagged")
+            need(no > at, f"{o['text']!r} is about an earlier line")
+            if o["ref"]:
+                # A later line the slip carried down, put right: the student fixes it, not the first.
+                need(o["ref"] == "t1-sequence-proof#31", f"{o['text']!r} is tagged {o['ref']}")
+                need(no < len(shown) and not E11SP_true(shown[no], w) and E11SP_true(body, w), f"{o['text']!r} doesn't put right a later wrong line")
     need(q["answer_text"].startswith(head), "the answer is another line")
     E11SP_common(q, q["answer_text"])
 
