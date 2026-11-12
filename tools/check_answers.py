@@ -7176,6 +7176,7 @@ def check_gdc_two_curves(q):
 # question's text; D's maximum, d's minimum and the zeros are found again with mpmath.
 
 CB_MM, CB_SD, CB_CA = "SL2.4.max-min", "SL2.3.sum-difference", "SL2.10.context-apply"
+CB_T = "fn-gdc-optimise-combined#"
 
 
 def cb_read(q):
@@ -7223,7 +7224,8 @@ def check_gdc_combined(q):
     if u == "form-difference":
         right = [o for o in q["choices"] if sp.simplify(tc_expr(o["text"].split(" = ", 1)[1]) - D) == 0]
         need(len(right) == 1 and right[0]["correct"], "not exactly one option is D(t) the right way round")
-        gc_check_common(q, right[0]["text"], {})
+        flipped = {o["text"] for o in q["choices"] if sp.simplify(tc_expr(o["text"].split(" = ", 1)[1]) + D) == 0}
+        gc_check_common(q, right[0]["text"], {CB_T + "9": flipped})
         return None, None
     if u in ("max-difference", "interpret-extreme"):
         x, y = cb_extreme(D, lo, hi, "max")
@@ -7235,7 +7237,16 @@ def check_gdc_combined(q):
             for o in q["choices"]:
                 if o["ref"] == CB_CA + "#2":
                     need(gc_s(y) in o["text"] and "greatest" in o["text"], "CA#2 doesn't give the size of the lead")
-            gc_check_common(q, right["text"], {CB_CA + "#2": {o["text"] for o in q["choices"] if o["ref"] == CB_CA + "#2"}})
+            # Misreading the maximum of D: as where D is zero (the two equal), or as one model's own maximum.
+            if kind == "towns":
+                equal = {f"It is {gc_s(x)} years after 2020 that town P overtakes town Q."}
+                own = {f"It is {gc_s(x)} years after 2020 that town Q's population is greatest."}
+            else:
+                equal = {f"It is {gc_s(x)} hours after the drugs are taken that the concentrations are equal."}
+                own = {f"It is {gc_s(x)} hours after the drugs are taken that A's concentration is greatest."}
+            need(abs(gc_f(D)(x)) > 0, "D is zero at its maximum")
+            gc_check_common(q, right["text"], {CB_CA + "#2": {o["text"] for o in q["choices"] if o["ref"] == CB_CA + "#2"},
+                                                CB_T + "13": equal, CB_T + "12": own})
             return None, None
         want, trap = f"t = {gc_s(x)}, D = {gc_s(y)}", f"t = {gc_s2(x)}, D = {gc_s2(y)}"
         wr[CB_MM + "#0"] = {f"t = {gc_s(y)}, D = {gc_s(x)}"}
@@ -7257,9 +7268,11 @@ def check_gdc_combined(q):
         if u == "least-distance":
             want, trap = gc_s(dm), gc_s2(dm)
             wr[CB_MM + "#0"] = {gc_s(x)}
+            wr[CB_T + "10"] = {gc_s(dm ** 2)}
             need(all(o["ref"] == CB_MM + "#2" for o in q["choices"] if o.get("trap")), "the 2 s.f. distance doesn't log SL2.4.max-min#2")
         else:
             want, trap = gc_pt(x, y), f"({gc_s2(x)}, {gc_s2(y)})"
+            wr[CB_T + "11"] = {gc_pt(x, dm)}
     elif u == "sum-graph":
         S_ = gc_f(f + g)
         ff, gg = gc_f(f), gc_f(g)
@@ -15599,6 +15612,18 @@ def tc_order_text(q, g, M1, M2, text):
     return (e, e)
 
 
+TC_TD, TC_TA, TC_TO = "fn-transform-describe#", "fn-transform-apply#", "fn-concept-transform-order#"
+
+
+def tc_inverse(m):
+    """A move's undoing: a stretch by 1/a, a translation by (−c, −d), a reflection itself."""
+    if m["k"] in ("vs", "hs"):
+        return {"k": m["k"], "a": 1 / m["a"]}
+    if m["k"] == "tr":
+        return {"k": "tr", "c": -m["c"], "d": -m["d"]}
+    return dict(m)
+
+
 def check_transform(q):
     g, u, rep, L = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
     if q["view"]["angle"].startswith("gdc"):
@@ -15619,9 +15644,14 @@ def check_transform(q):
         tc_chain_opts(q, g, M, {"SL2.11.describe#0": lambda o: o == tc_compose([dict(m, c=-m["c"])])})
     elif u == "describe-stretch":
         a = moves[0]["a"]
-        tc_chain_opts(q, g, M, {"SL2.11.stretch#0": lambda o: o == tc_compose([{"k": "hs", "a": 1 / a}])})
+        other = "vs" if moves[0]["k"] == "hs" else "hs"
+        tc_chain_opts(q, g, M, {"SL2.11.stretch#0": lambda o: o == tc_compose([{"k": "hs", "a": 1 / a}]),
+                                TC_TD + "6": lambda o: moves[0]["k"] == "vs" and o == tc_compose([{"k": "vs", "a": 1 / a}]),
+                                TC_TD + "7": lambda o: o == tc_compose([{"k": other, "a": a}]),
+                                "SL2.11.describe#2": lambda o: o == tc_compose([{"k": "vs", "a": sp.Integer(0)}])})
     elif u == "describe-from-graphs":
-        tc_chain_opts(q, g, M)
+        first = moves[0]
+        tc_chain_opts(q, g, M, {TC_TD + "12": lambda o: first["k"] in ("vs", "hs") and o == tc_compose([{"k": first["k"], "a": 1 / first["a"]}, moves[1]])})
     elif u == "describe-with-reflection":
         other = {"k": "ry" if moves[0]["k"] == "rx" else "rx"}
         tc_chain_opts(q, g, M, {"SL2.11.reflect#1": lambda o: o == tc_compose([other, moves[1]])})
@@ -15629,12 +15659,16 @@ def check_transform(q):
         need(g["fam"] == "sq" and L[0] == "y = x²", "the base is not y = x²")
         e = parse(rhs(L[1]))
         need(sp.expand(e - (X - C)**2 - D) == 0, f"{L[1]!r} is not the translated parabola")
-        tc_chain_opts(q, g, M, {"SL2.11.describe#0": lambda o: o == tc_compose([{"k": "tr", "c": -C, "d": D}])})
+        p_, q_ = sp.Poly(sp.expand(e), X).coeff_monomial(X), sp.Poly(sp.expand(e), X).coeff_monomial(1)
+        tc_chain_opts(q, g, M, {"SL2.11.describe#0": lambda o: o == tc_compose([{"k": "tr", "c": -C, "d": D}]),
+                                TC_TD + "13": lambda o: o == tc_compose([{"k": "tr", "c": p_, "d": q_}])})
     elif u == "describe-factor-inside":
         m = re.fullmatch(r"g\(x\) = f\((.+)\)", L[0])
         need(m is not None and tc_same(tm_expr(m[1]), B * (X - C)), f"{L[0]!r} is not the moves")
         k = moves[0]["a"]
-        tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda o: o == M, {"SL2.11.stretch#0": lambda o: o == tc_compose([{"k": "hs", "a": 1 / k}, {"k": "tr", "c": C, "d": 0}])})
+        tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda o: o == M, {"SL2.11.stretch#0": lambda o: o == tc_compose([{"k": "hs", "a": 1 / k}, {"k": "tr", "c": C, "d": 0}]),
+                TC_TD + "14": lambda o: o == tc_compose([{"k": "hs", "a": k}, {"k": "tr", "c": B * C, "d": 0}]),
+                "SL2.11.describe#0": lambda o: o == tc_compose([{"k": "hs", "a": k}, {"k": "tr", "c": -C, "d": 0}])})
     elif u == "stretch-and-shift-parameters":
         tc_lines_pair(q, g, M)
         k, d = moves[0]["a"], moves[1]["d"]
@@ -15644,12 +15678,18 @@ def check_transform(q):
         if rep == "words":
             p = re.findall(rf"\(({TC_NUM}), ({TC_NUM})\)", " ".join(L))
             need(tuple(tc_num(v) for v in p[1]) == tc_image(M, tc_num(p[0][0]), tc_num(p[0][1])), "the second point is not the image")
-        tc_point_opts(q, (C, D), {})
+        k0 = (R(g["key"][0][0]), R(g["key"][0][1]))
+        if rep == "words":
+            k0 = tuple(tc_num(v) for v in p[0])
+        tc_point_opts(q, (C, D), {TC_TD + "15": (-C, -D), TC_TD + "16": tc_image(M, *k0)})
     elif u in ("describe-the-reverse", "undo-in-reverse"):
         if rep == "equation":
             tc_lines_pair(q, g, M)
         need(tc_moves(re.search(r" by (.+)\.$", L[-1])[1]) == moves, "the moves shown are not the chain")
-        tc_opts(q, tc_moves, lambda o: tc_compose(moves + o) == (1, 1, 0, 0), {})
+        t_ = TC_TD if u == "describe-the-reverse" else TC_TO
+        tc_opts(q, tc_moves, lambda o: tc_compose(moves + o) == (1, 1, 0, 0), {
+            t_ + ("17" if u == "describe-the-reverse" else "11"): lambda o: o == [tc_inverse(m) for m in moves],
+            t_ + ("18" if u == "describe-the-reverse" else "12"): lambda o: o == list(reversed(moves))})
     elif u == "sketch-stretch-shift":
         a, d = moves[0]["a"], moves[1]["d"]
         need(tc_same(tm_expr(q["asked"][len("Which graph is y = "):-1]), a * TC_F(X) + d), "the asked rule is not a·f(x) + d")
@@ -15675,7 +15715,8 @@ def check_transform(q):
         tc_f_said(q, g)
         need(tc_moves(re.search(r" by (.+), to give", L[1])[1]) == moves, "the moves shown are not the chain")
         tc_rule_opts(q, g, M, {"SL2.11.composite-transform#0": tc_curve(g, (A, B, C / B, D)),
-                               "SL2.11.composite-transform#1": tc_curve(g, (A, B, C, A * D))})
+                               "SL2.11.composite-transform#1": tc_curve(g, (A, B, C, A * D)),
+                               "SL2.11.translate#0": tc_curve(g, (A, B, -C, D))})
     elif u == "reflect-translate-rule":
         tc_f_said(q, g)
         tc_reflect_translate(q, g, moves, M)
@@ -15694,13 +15735,17 @@ def check_transform(q):
         tc_f_said(q, g) if rep != "graph" else tc_f_plot(q, g)
         dom, ran = tc_moved(tc_f_domain(g), 1 / B, C), tc_moved(tc_f_range(g), A, D)
         rd = lambda t: tuple(tc_set(p) for p in re.fullmatch(r"domain (.+); range (.+)", t).groups())
-        tc_opts(q, rd, lambda v: v == (dom, ran), {"SL2.2.domain#2": lambda v: v == (ran, dom)})
+        fd, fr = tc_f_domain(g), tc_f_range(g)
+        tc_opts(q, rd, lambda v: v == (dom, ran), {"SL2.2.domain#2": lambda v: v == (ran, dom),
+                                                   TC_TA + "19": lambda v: v in [(fd, ran), (dom, fr), (fd, fr)]})
     elif u == "undo-moves":
         need(tc_moves(re.search(r" (?:by|through) (.+)\.$", L[1 if rep == "equation" else 0])[1]) == moves, "the moves shown are not the chain")
         gl = L[0] if rep == "equation" else L[1]
         need(tc_same(tm_expr(re.search(r"= (.+?)\.?$", gl)[1]), tc_curve(g, M)), f"{gl!r} is not g")
         truth = tc_base(g)
-        tc_opts(q, lambda t: tm_expr(t[len("f(x) = "):]), lambda e: tc_same(e, truth), {})
+        tc_opts(q, lambda t: tm_expr(t[len("f(x) = "):]), lambda e: tc_same(e, truth), {
+            TC_TA + "20": lambda e: tc_same(e, tc_curve(g, tc_compose(moves + [tc_inverse(m) for m in moves]))),
+            TC_TA + "21": lambda e: tc_same(e, tc_curve(g, tc_compose(moves + moves)))})
     elif u == "order-changes-rule":
         tc_f_said(q, g)
         tc_two_ways(q, g, moves)
@@ -15733,7 +15778,9 @@ def tc_reflect_translate(q, g, moves, M):
         m = re.fullmatch(r"g\(x\) = (.+), with domain (.+)", text)
         return tm_expr(m[1]), tc_set(m[2])
     openset = {k: (False if k.endswith("_in") else v) for k, v in dom.items()}
+    other = tc_compose([{"k": "ry" if refl["k"] == "rx" else "rx"}, t])
     tc_opts(q, rd, lambda v: tc_same(v[0], truth) and v[1] == dom, {
+        "SL2.11.reflect#1": lambda v: tc_same(v[0], tc_curve(g, other)) and v[1] == tc_moved(fd, 1 / other[1], other[2]),
         "SL2.11.translate#0": lambda v: tc_same(v[0], tc_curve(g, sign)) and v[1] == tc_moved(fd, 1 / sign[1], sign[2]),
         "SL2.2.domain#0": lambda v: tc_same(v[0], truth) and v[1] == openset,
         "SL2.2.domain#1": lambda v: tc_same(v[0], truth) and v[1] == fd})
@@ -15793,7 +15840,10 @@ def tc_two_ways(q, g, moves):
     def rd(t):
         return (tc_order_text(q, g, None, None, t), t.startswith("the same graph"))
     right = lambda v: tc_same(v[0][0], a) and tc_same(v[0][1], b) and v[1] == same
-    tc_opts(q, rd, right, {"SL2.11.composite-transform#2": lambda v: v[1] and not same})
+    A, B, C, D = tc_compose(moves)
+    off = tc_curve(g, (A, B, -C, D))
+    tc_opts(q, rd, right, {"SL2.11.composite-transform#2": lambda v: v[1] and not same,
+                           "SL2.11.translate#0": lambda v: v[1] and same and C != 0 and tc_same(v[0][0], off)})
 
 
 def tc_two_orders(q, g, moves):
@@ -15810,7 +15860,8 @@ def tc_two_orders(q, g, moves):
             return None
         return (tm_expr(m[1]), (tc_num(m[2]), tc_num(m[3])), tm_expr(m[4]), (tc_num(m[5]), tc_num(m[6])))
     tc_opts(q, rd, lambda v: v is not None and tc_same(v[0], a) and tc_same(v[2], b) and v[1] == p1 and v[3] == p2,
-            {"SL2.11.composite-transform#2": lambda v: v is None})
+            {"SL2.11.composite-transform#2": lambda v: v is None,
+             TC_TO + "9": lambda v: v is not None and tc_same(v[0], b) and tc_same(v[2], a) and v[1] == p2 and v[3] == p1})
 
 
 def tc_commute(q):
@@ -15823,7 +15874,8 @@ def tc_commute(q):
 
     def right(v):
         return v is not None and tc_compose(v) == tc_compose([v[1], v[0]])
-    tc_opts(q, rd, right, {"SL2.11.composite-transform#2": lambda v: v is None})
+    tc_opts(q, rd, right, {"SL2.11.composite-transform#2": lambda v: v is None,
+                           TC_TO + "10": lambda v: v is not None and tc_compose(v) != tc_compose([v[1], v[0]])})
 
 
 def tc_inside(q, g, moves, M):
@@ -15840,11 +15892,12 @@ def tc_inside(q, g, moves, M):
                 return ("x", tc_num(mt[1]) * (1 if mt[2] == "right" else -1))
             mt = re.fullmatch(rf"(up|down) ({TC_NUM})", h)
             return ("y", tc_num(mt[2]) * (1 if mt[1] == "up" else -1))
-        tc_opts(q, rd, lambda v: v == ("x", c), {"SL2.11.describe#0": lambda v: v == ("x", -c)})
+        tc_opts(q, rd, lambda v: v == ("x", c), {"SL2.11.describe#0": lambda v: v == ("x", -c),
+                                                 TC_TO + "5": lambda v: c > 0 and v == ("y", -c)})
     else:
         k = m["a"]
         tc_opts(q, lambda t: tc_moves(t.split(":")[0])[0]["k"] + str(tc_moves(t.split(":")[0])[0]["a"]), lambda v: v == "hs" + str(k),
-                {"SL2.11.stretch#0": lambda v: v == "hs" + str(1 / k)})
+                {"SL2.11.stretch#0": lambda v: v == "hs" + str(1 / k), TC_TO + "5": lambda v: v == "vs" + str(1 / k)})
 
 
 def tc_vs_outside(q, g, moves, M):
@@ -15868,21 +15921,28 @@ def tc_vs_outside(q, g, moves, M):
         tc_drawn(gr, gr["curves"][k:], g, outer if a_inner else inner)
 
         def rd(t):
+            if t == "A and B are the same graph":
+                return "same"
             mt = re.fullmatch(r"A is (.+), B is (.+)", t)
             if mt is None:
                 return None
             return (tm_expr(mt[1]), tm_expr(mt[2]))
         want = (ins, outs) if a_inner else (outs, ins)
-        tc_opts(q, rd, lambda v: v is not None and tc_same(v[0], want[0]) and tc_same(v[1], want[1]), {})
+        pair = lambda v, w: isinstance(v, tuple) and tc_same(v[0], w[0]) and tc_same(v[1], w[1])
+        tc_opts(q, rd, lambda v: pair(v, want), {TC_TO + "6": lambda v: pair(v, (want[1], want[0])), TC_TO + "7": lambda v: v == "same"})
         return
 
     def rd2(t):
+        if t.endswith(" are the same graph"):
+            return "same"
         mt = re.fullmatch(r"(.+?) ((?:moves|stretches) .+); (.+?) ((?:moves|stretches) .+)", t)
         if mt is None:
             return None
         return mt[2], mt[4], tc_same(tm_expr(mt[1]), ins), tc_same(tm_expr(mt[3]), outs)
     says = lambda axis: (f"along the {axis}-axis" if m["k"] == "tr" else f"parallel to the {axis}-axis")
-    tc_opts(q, rd2, lambda v: v is not None and v[2] and v[3] and says("x") in v[0] and says("y") in v[1], {})
+    tc_opts(q, rd2, lambda v: isinstance(v, tuple) and v[2] and v[3] and says("x") in v[0] and says("y") in v[1], {
+        TC_TO + "6": lambda v: isinstance(v, tuple) and v[2] and v[3] and says("y") in v[0] and says("x") in v[1],
+        TC_TO + "7": lambda v: v == "same"})
 
 
 def tc_bracket(q, g, moves, M):
@@ -15891,8 +15951,12 @@ def tc_bracket(q, g, moves, M):
     m = re.fullmatch(r"g\(x\) = (.+)", L[0])
     need(tc_same(tm_expr(m[1]), tc_curve({"fam": "pts"}, M)), f"{L[0]!r} is not the moves")
     e = C * B
-    tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda o: o == M,
-            {"SL2.11.composite-transform#0": lambda o: o == tc_compose([moves[0], {"k": "tr", "c": e, "d": 0}])})
+    refs = {"SL2.11.composite-transform#0": lambda o: o == tc_compose([moves[0], {"k": "tr", "c": e, "d": 0}]),
+            TC_TO + "8": lambda o: moves[0]["k"] == "tr" and o == tc_compose([moves[1], moves[0]])}
+    if moves[0]["k"] == "hs":
+        refs["SL2.11.stretch#0"] = lambda o: o == tc_compose([{"k": "hs", "a": 1 / moves[0]["a"]}, moves[1]])
+        refs["SL2.11.describe#0"] = lambda o: o == tc_compose([moves[0], {"k": "tr", "c": -moves[1]["c"], "d": 0}])
+    tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda o: o == M, refs)
 
 
 def tc_both_points(q, g, moves):
@@ -15900,7 +15964,9 @@ def tc_both_points(q, g, moves):
     p1, p2 = tc_image(tc_compose(moves), *k), tc_image(tc_compose([moves[1], moves[0]]), *k)
     need(f"{frac_or_dec(k[0], q)}, {frac_or_dec(k[1], q)}" in q["lines"][0], "the point shown is not the key point")
     rd = lambda t: tuple((tc_num(a), tc_num(b)) for a, b in re.findall(rf"\(({TC_NUM}), ({TC_NUM})\)", t))
-    tc_opts(q, rd, lambda v: v == (p1, p2), {"SL2.11.image-point#1": lambda v: v == (p2, p1)})
+    tc_opts(q, rd, lambda v: v == (p1, p2), {"SL2.11.image-point#1": lambda v: moves[0]["k"] == "vs" and v == (p2, p1),
+                                             TC_TO + "9": lambda v: moves[0]["k"] == "hs" and v == (p2, p1),
+                                             "SL2.11.composite-transform#2": lambda v: v in ((p1, p1), (p2, p2))})
     if q["view"]["rep"] == "graph":
         tc_f_plot(q, g)
 
@@ -15924,13 +15990,12 @@ def tc_models(q):
     d = d2 - a * d1
     t = sp.Symbol("t")
     need(sp.expand(a * (a1 * sp.sin(w * t) + d1) + d - (a2 * sp.sin(w * t) + d2)) == 0, "a and d don't map p onto q")
-    if q["paper"] == 1:
-        want = f"a = {frac_text(a)}, d = {frac_text(d)}".replace("-", "−")
-        trap = None
-    else:
-        want = f"a = {gc_s(a)}, d = {gc_s(d)}"
-        trap = f"a = {gc_s2(a)}, d = {gc_s2(d)}"
-    gc_check_common(q, want, {}, trap=trap)
+    say = (lambda u, v: f"a = {frac_text(u)}, d = {frac_text(v)}".replace("-", "−")) if q["paper"] == 1 else (lambda u, v: f"a = {gc_s(u)}, d = {gc_s(v)}")
+    want = say(a, d)
+    trap = None if q["paper"] == 1 else f"a = {gc_s2(a)}, d = {gc_s2(d)}"
+    # The slips: d as the plain gap of the centre lines, and the amplitudes divided the wrong way.
+    wa = a1 / a2
+    gc_check_common(q, want, {"fn-transform-describe#8": {say(a, d2 - d1)}, "fn-transform-describe#9": {say(wa, d2 - wa * d1)}}, trap=trap)
     return None, None
 
 
@@ -15954,7 +16019,12 @@ def tc_log(q):
             val = lg(x) + int(re.fullmatch(rf"{re.escape(name)} x \+ (\d+)", rhs_)[1])
         A, _, _, D = tc_compose([mv])
         return val, A * lg(x) + D
-    tc_opts(q, rd, lambda v: abs(sp.N((v[0] - new).subs(x, 3))) < 1e-12 and abs(sp.N((v[1] - new).subs(x, 3))) < 1e-12, {})
+    is_ = lambda v, w: abs(sp.N((v[0] - w).subs(x, 3))) < 1e-12 and abs(sp.N((v[1] - w).subs(x, 3))) < 1e-12
+    shift = g["lform"] == "shift"
+    # The log laws swapped (a multiple for a product, a sum for a power), and on a product
+    # the number inside added as it stands.
+    tc_opts(q, rd, lambda v: is_(v, new), {"fn-transform-describe#10": lambda v: is_(v, e * lg(x) if shift else lg(x) + e),
+                                          "fn-transform-describe#11": lambda v: shift and is_(v, lg(x) + p)})
     return None, None
 
 
@@ -16004,6 +16074,15 @@ def rp_table(q):
     return xs, ys, a, my - a * mx, c, mx - c * my
 
 
+RP_T = "t4-regression-x-on-y#"
+
+
+def rp_near(label, v):
+    """A slip's number as an option writes it: to 3 s.f. read either way at a rounding edge, or exact."""
+    e = abs(v) / sp.Integer(10) ** 12
+    return {label + rg_s(v - e), label + rg_s(v), label + rg_s(v + e), label + dec_text(v)}
+
+
 def check_regression_pair(q):
     g, u, L, rep = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
     asked, paper = q["asked"], q["paper"]
@@ -16040,6 +16119,7 @@ def check_regression_pair(q):
         want, trap = rg_num(d, "d = ")
         need(sp.Rational(sig3(d)) != d, "d needs no rounding")
         wrongs[RP_SKILL + "mean-point-intersection#1"] = {"d = " + rg_s(my - c * mx)}
+        wrongs[RP_T + "7"] = rp_near("d = ", mx + c * my)
     elif u == "choose-line":
         a, b = rp_read(L[-2], "y")
         c, d = rp_read(L[-1], "x")
@@ -16058,6 +16138,7 @@ def check_regression_pair(q):
         want = "The line of x on y, since x is being estimated" if est == "x" else "The line of y on x, since y is being estimated"
         wrongs[RP_SKILL + "choose-line#0"] = {"The line of y on x, rearranged to make x the subject" if est == "x" else "The line of x on y, rearranged to make y the subject"}
         wrongs[RP_SKILL + "choose-line#1"] = {"The line of y on x, since x is on the horizontal axis" if est == "x" else "The line of x on y, since y is on the vertical axis"}
+        wrongs[RP_T + "8"] = {"Either line: both give the same estimate"}
         gc_check_common(q, want, wrongs)
         for sol in q["solutions"]:
             need(want in sol["steps"][-1], "the working doesn't end at the right line")
@@ -16073,6 +16154,7 @@ def check_regression_pair(q):
         need(x0 > 0 and xr > 0 and rg_clear(x0) and rg_clear(xr) and sig3(x0) != sig3(xr), "the estimate is not clean")
         want, trap = rg_num(x0, "x = ")
         wrongs[RP_SKILL + "predict-x#0"] = {"x = " + rg_s(xr)}
+        wrongs[RP_T + "9"] = rp_near("x = ", a * y0 + b)
     elif u == "judge-estimate":
         mr = re.search(rf"have r = ({RP_NUM})\.", L[0])
         my = re.fullmatch(r"The values of y in the data run from (\d+) to (\d+)\.", L[1])
@@ -16487,6 +16569,16 @@ def nu_text(label, x):
     return label + rg_s(nu_f(x))
 
 
+def nu_near(label, x):
+    """A slip's text to 3 s.f., read either way where x sits close to a rounding edge (a slip's
+    number isn't kept off the edges as the answer is)."""
+    x = mpmath.mpf(x)
+    return {nu_text(label, x * (1 + e)) for e in (mpmath.mpf("-1e-7"), 0, mpmath.mpf("1e-7"))}
+
+
+NU_T = "t4-normal-unknown-parameter#"
+
+
 def nu_model(q):
     """(mu, sigma) from the first line: a Rational, or None where it is hidden."""
     line = q["lines"][0]
@@ -16556,6 +16648,7 @@ def nu_check(q):
         want, trap = nu_text("k = ", z), bn_trap("k = ", nu_f(z))
         if mt.group(1) == ">":
             wrongs[NU_SKILL + "unknown-mean-or-sd#1"] = {nu_text("k = ", -z)}
+        wrongs[NU_T + "7"] = nu_near("k = ", nu_phi(mpmath.mpf(p.p) / p.q))
         if rep == "diagram":
             nu_shaded(q, mpmath.mpf(p.p) / p.q)
     elif u == "standardise-event":
@@ -16570,6 +16663,7 @@ def nu_check(q):
         other = ">" if r == "<" else "<"
         wrongs[NU_SKILL + "standardise#0"] = {f"P(Z {other} {dec_text(z)})"}
         wrongs[NU_SKILL + "standardise#1"] = {f"P(Z {r} {dec_text(zv)})"}
+        wrongs[NU_T + "8"] = {f"P(Z {r} {dec_text(-z)})"}
         if rep == "diagram":
             a = nu_phi(mpmath.mpf(z.p) / z.q)
             nu_shaded(q, a if r == "<" else 1 - a)
@@ -16581,6 +16675,7 @@ def nu_check(q):
         x = nu_phi(k.p / mpmath.mpf(k.q)) - nu_phi(-k.p / mpmath.mpf(k.q))
         need(nu_clear(x), "on a rounding edge")
         want, trap = nu_text("probability = ", x), bn_trap("probability = ", nu_f(x))
+        wrongs[NU_T + "9"] = nu_near("probability = ", nu_phi(k.p / mpmath.mpf(k.q)))
     elif u in ("unknown-sd", "unknown-mean"):
         mu, sg = nu_model(q)
         x, side, p = nu_tail(q, 1)
@@ -16595,6 +16690,9 @@ def nu_check(q):
             need(1 <= s_ <= mpmath.mpf(mu.p) / mu.q / 4, f"σ = {s_} is outside the limits")
             want, trap = sd_answer(s_)
             wrongs[NU_SKILL + "unknown-mean-or-sd#2"] = {nu_text("σ = ", -s_)}
+            gap = abs(xf - mpmath.mpf(mu.p) / mu.q)
+            wrongs[NU_T + "10"] = nu_near("σ = ", gap * abs(z))
+            wrongs[NU_SKILL + "unknown-mean-and-sd#1"] = nu_near("σ = ", gap / (mpmath.mpf(p.p) / p.q))
             if rep == "diagram":
                 nu_shaded(q, mpmath.mpf(p.p) / p.q)
         else:
@@ -16605,6 +16703,7 @@ def nu_check(q):
             need(m >= 4 * sf_ and nu_clear(m) and nu_clear(xf + z * sf_), f"μ = {m}")
             want, trap = nu_text("μ = ", m), bn_trap("μ = ", nu_f(m))
             wrongs[NU_SKILL + "unknown-mean-or-sd#1"] = {nu_text("μ = ", xf + z * sf_)}
+            wrongs[NU_SKILL + "unknown-mean-and-sd#1"] = nu_near("μ = ", xf - mpmath.mpf(p.p) / p.q * sf_)
             if rep == "diagram":
                 nu_shaded(q, mpmath.mpf(p.p) / p.q)
     elif u == "sd-from-iqr":
@@ -16615,6 +16714,7 @@ def nu_check(q):
         s_ = (mpmath.mpf(iqr.p) / iqr.q) / (2 * nu_inv(sp.Rational(3, 4)))
         need(abs(nu_phi(mpmath.mpf(iqr.p) / iqr.q / 2 / s_) - mpmath.mpf("0.75")) < mpmath.mpf("1e-25"), "σ does not put 75% below Q₃")
         want, trap = sd_answer(s_)
+        wrongs[NU_T + "11"] = nu_near("σ = ", 2 * s_)
     elif u == "sd-from-central-area":
         mu, sg = nu_model(q)
         need(mu is not None and sg is None, "μ is given")
@@ -16631,6 +16731,9 @@ def nu_check(q):
         z = nu_inv((1 + c) / 2)
         s_ = (mpmath.mpf((hi - mu).p) / (hi - mu).q) / z
         want, trap = sd_answer(s_)
+        wrongs[NU_T + "10"] = nu_near("σ = ", (mpmath.mpf((hi - mu).p) / (hi - mu).q) * z)
+        if c != sp.Rational(1, 2):
+            wrongs[NU_T + "12"] = nu_near("σ = ", (mpmath.mpf((hi - mu).p) / (hi - mu).q) / nu_inv(c))
         if rep == "diagram":
             nu_shaded(q, mpmath.mpf(c.p) / c.q)
     elif u == "mean-and-sd":
@@ -16672,6 +16775,7 @@ def nu_check(q):
             a, b = nu_val(mt.group(1)), nu_val(mt.group(2))
             need(a < b and ((a + b) / 2).q == 1, "the mean is not a whole number")
             want = f"μ = {dec_text((a + b) / 2)}"
+            wrongs[NU_T + "13"] = {f"μ = {dec_text(a + b)}"}
             if rep == "diagram":
                 ga = q["graph"]
                 mid = (mpmath.mpf(a.p) / a.q + mpmath.mpf(b.p) / b.q) / 2
@@ -16688,6 +16792,8 @@ def nu_check(q):
             half = (b - a) / 2
             s_ = (mpmath.mpf(half.p) / half.q) / nu_inv(1 - p)
             want, trap = sd_answer(s_)
+            wrongs[NU_T + "11"] = nu_near("σ = ", 2 * s_)
+            wrongs[NU_T + "10"] = nu_near("σ = ", (mpmath.mpf(half.p) / half.q) * nu_inv(1 - p))
     elif u == "mean-from-two-z":
         if rep == "words":
             unit = NU_CONTEXTS[int(g["ctx"])][1]
@@ -16700,6 +16806,8 @@ def nu_check(q):
         sol = sp.solve([m + z1 * s_ - x1, m + z2 * s_ - x2], [m, s_])
         need(sol[m].q == 1 and sol[s_].q == 1 and sol[s_] > 0, f"μ = {sol[m]}, σ = {sol[s_]}")
         want = f"μ = {sol[m]}"
+        wrongs[NU_T + "14"] = {f"μ = {dec_text((x1 + x2) / 2)}"}
+        wrongs[NU_T + "15"] = {f"μ = {sol[s_]}"}
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs, trap)
@@ -17461,7 +17569,7 @@ def rl_on_eq_close(F):
 # the checker's own copy (SB_*).
 
 SB_T = "fn-pre-substitute"
-SB_R = {i: f"{SB_T}#{i}" for i in range(4)}
+SB_R = {i: f"{SB_T}#{i}" for i in range(9)}
 SB_MAX_D = 16
 SB_FRACTIONS = {sp.Rational(*p) for p in [(1, 2), (-1, 2), (1, 3), (3, 2), (1, 4), (2, 3)]}
 
@@ -17515,6 +17623,9 @@ def check_substitute(q):
         sols = sp.solve(f - R(v.replace("−", "-")), X)
         need(len(sols) == 1 and sols[0].q == 1 and sols[0] != 0, f"x = {sols}")
         want = f"x = {frac_text(sols[0])}"
+        # The slips undoing a·x + b = v: b kept its sign, divided first, v put in for x.
+        a, b, v = sp.Poly(f, X).coeff_monomial(X), sp.Poly(f, X).coeff_monomial(1), R(v.replace("−", "-"))
+        wr = {SB_R[6]: {f"x = {frac_text((v + b) / a)}"}, SB_R[7]: {f"x = {frac_text(v / a - b)}"}, SB_R[8]: {f"x = {frac_text(a * v + b)}"}}
     else:
         text, x0 = sb_read(q)
         f = bf_expr(text)
@@ -17531,13 +17642,17 @@ def check_substitute(q):
         if u == "negative-into-square":
             a, b, c = [sp.Poly(f, X).coeff_monomial(X**i) for i in (2, 1, 0)]
             need(a != 0, "no x²")
-            wr = {SB_R[0]: {frac_text(-a * x0**2 + b * x0 + c)}}
+            wr = {SB_R[0]: {frac_text(-a * x0**2 + b * x0 + c)}, SB_R[4]: {frac_text(2 * a * x0 + b * x0 + c)},
+                  SB_R[2]: {frac_text(f.subs(X, -x0))}}
         elif u == "negative-into-linear":
-            wr = {SB_R[2]: {frac_text(f.subs(X, -x0))}}
+            m, c = [sp.Poly(f, X).coeff_monomial(X**i) for i in (1, 0)]
+            wr = {SB_R[2]: {frac_text(f.subs(X, -x0))}, SB_R[5]: {frac_text(m + x0 + c)}}
         elif u == "coefficient-and-power":
             a = sp.Poly(f, X).coeff_monomial(X**2)
             need(f == a * X**2, "not ax²")
-            wr = {SB_R[1]: {frac_text((a * x0)**2)}, SB_R[0]: {frac_text(-val)}}
+            wr = {SB_R[1]: {frac_text((a * x0)**2)}, SB_R[0]: {frac_text(-val)}, SB_R[4]: {frac_text(2 * a * x0)}}
+        elif u == "fraction-input" and x0 < 0:
+            wr = {SB_R[2]: {frac_text(f.subs(X, -x0))}}
         elif u == "rational-expression":
             top, bottom = sb_parts(text)
             ft, fb = bf_expr(top).subs(X, x0), bf_expr(bottom).subs(X, x0)
