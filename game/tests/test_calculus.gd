@@ -27,19 +27,21 @@ func test_the_four_topic_5_types_are_built() -> void:
 func test_every_distractor_misconception_is_an_option() -> void:
 	for id in TYPES:
 		var t := QuestionEngine.type_of(id)
-		for m in t.misconceptions:
-			check_eq(m.as, "distractor", m.ref)
+		for i in t.misconceptions.size():
+			var m: Dictionary = t.misconceptions[i]
+			var ref: String = m.get("ref", "%s#%d" % [id, i])
+			check_eq(m.as, "distractor", ref)
 			for u in m.in:
 				var found := false
 				for c in QuestionEngine.cells(false, [id]).filter(func(x): return x.unknown == u):
 					for seed in range(1, 40):
 						var q := _make(id, u, c.rep, c.angle, seed, "mcq")
-						if q.choices.any(func(o): return o.ref == m.ref):
+						if q.choices.any(func(o): return o.ref == ref):
 							found = true
 							break
 					if found:
 						break
-				check(found, "%s: %s never appears on %s" % [id, m.ref, u])
+				check(found, "%s: %s never appears on %s" % [id, ref, u])
 
 
 func test_the_stationary_points_are_whole_numbers() -> void:

@@ -41,12 +41,21 @@ func need(unknown: String, rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	# Q7's rounding trap, where the answer needs rounding (see game/README.md).
 	out.trap = Answer.rounding_trap(out.answer)
 	return out
+
+
+## The slips FAL-815 named, misconceptions with no ref of their own.
+const R_REGION := "fn-quadratic-inequality#3"
+const R_ENDS := "fn-quadratic-inequality#4"
+const R_SIGNS := "fn-quadratic-inequality#5"
+const R_ROUND_UP := "fn-quadratic-inequality#6"
+const R_ALL_NONE := "fn-quadratic-inequality#7"
+const R_FACTOR_SIGNS := "fn-quadratic-inequality#8"
 
 
 static func N(v: Variant) -> String:
@@ -89,11 +98,30 @@ static func other_ends(e: String) -> String:
 	return "included" if e == "left out" else "left out"
 
 
-## The opposite region, the ends the other way, and swapped signs on the roots.
-static func generic_sets(v: Dictionary) -> Array:
+## The slips on a solution set (FAL-815): the opposite region (R_REGION; when the answer
+## is the two rays that is SL2.7.inequality#1), the ends the other way (R_ENDS) and both
+## roots with their signs flipped (R_SIGNS: read off the factors, so Paper 1 only, and a
+## filler on Paper 2, where a GDC finds the roots). `which` names the ones a builder uses.
+static func set_slips(v: Dictionary, which: Array) -> Array:
 	var opp := "outside" if v.shape == "between" else "between"
-	return [{"shape": opp, "lo": v.lo, "hi": v.hi, "ends": v.ends}, {"shape": v.shape, "lo": v.lo, "hi": v.hi, "ends": other_ends(v.ends)},
-		{"shape": v.shape, "lo": v.hi.neg(), "hi": v.lo.neg(), "ends": v.ends}, {"shape": opp, "lo": v.lo, "hi": v.hi, "ends": other_ends(v.ends)}]
+	var out: Array = []
+	if "region" in which:
+		out.append(wrong({"shape": opp, "lo": v.lo, "hi": v.hi, "ends": v.ends}, "SL2.7.inequality#1" if v.shape == "outside" else R_REGION))
+	if "ends" in which:
+		out.append(wrong({"shape": v.shape, "lo": v.lo, "hi": v.hi, "ends": other_ends(v.ends)}, R_ENDS))
+	if "signs" in which:
+		out.append(wrong({"shape": v.shape, "lo": v.hi.neg(), "hi": v.lo.neg(), "ends": v.ends}, R_SIGNS))
+	return out
+
+
+## The fillers on a solution set: the opposite region with the ends the other way too, and
+## on Paper 2 the roots with their signs flipped.
+static func set_fillers(v: Dictionary, paper2: bool = false) -> Array:
+	var opp := "outside" if v.shape == "between" else "between"
+	var out: Array = [{"shape": opp, "lo": v.lo, "hi": v.hi, "ends": other_ends(v.ends)}]
+	if paper2:
+		out.push_front({"shape": v.shape, "lo": v.hi.neg(), "hi": v.lo.neg(), "ends": v.ends})
+	return out
 
 
 ## The three ways of reading a·(x − p)(x − q) against 0, ending at the answer.
@@ -181,8 +209,9 @@ func _solve(rep: String, s: Dictionary, tag2: bool) -> Dictionary:
 		wrongs.append(wrong({"shape": "between", "lo": v.lo, "hi": v.hi, "ends": v.ends}, "SL2.7.inequality#1"))
 	if tag2:
 		wrongs.append(wrong({"shape": "outside" if v.shape == "between" else "between", "lo": v.lo, "hi": v.hi, "ends": v.ends}, "SL2.7.inequality#2"))
+	wrongs.append_array(set_slips(v, ["region", "ends"] if p2(s) else ["region", "ends", "signs"]))
 	out.wrongs = wrongs
-	out.generic = generic_sets(v)
+	out.fillers = set_fillers(v, p2(s))
 	out.methods = methods(s, ans, [])
 	return out
 
@@ -204,9 +233,10 @@ func u_solve_against_constant(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var wrongs: Array = []
 	if v.shape == "outside":
 		wrongs.append(wrong({"shape": "between", "lo": v.lo, "hi": v.hi, "ends": v.ends}, "SL2.7.inequality#1"))
+	wrongs.append_array(set_slips(v, ["region", "ends"] if p2(s) else ["region", "ends", "signs"]))
 	var ms := methods(s, ans, [move])
 	return {"asked": asked(s), "lines": [line], "given": given_of(s), "answer": ans, "wrongs": wrongs,
-		"generic": generic_sets(v), "methods": {"sketch-roots": ms["sketch-roots"]}}
+		"fillers": set_fillers(v, p2(s)), "methods": {"sketch-roots": ms["sketch-roots"]}}
 
 
 func u_square_against_constant(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -218,11 +248,15 @@ func u_square_against_constant(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 		wrong({"shape": "pm_lt" if below else "pm_gt", "lo": n.neg(), "hi": n, "ends": v.ends}, "SL2.7.inequality#0"),
 		wrong({"shape": "below" if below else "above", "lo": n, "hi": n, "ends": v.ends}, "SL2.7.inequality#0"),
 	]
+	wrongs.append_array(set_slips(v, ["region"]))
+	# The roots are ±n, so flipping their signs gives the answer back.
+	var fillers: Array = [{"shape": v.shape, "lo": v.lo, "hi": v.hi, "ends": other_ends(v.ends)}]
+	fillers.append_array(set_fillers(v))
 	var lead: Array = ["x² %s %s means x² − %s %s 0, and x² − %s = (x + %s)(x − %s)" % [s.rel, N(s.rhs), N(s.rhs), s.rel, N(s.rhs), N(n), N(n)]]
 	var ms := methods(s, ans, lead)
 	ms["sketch-roots"].steps.remove_at(2)
 	return {"asked": "Solve the inequality.", "lines": ["x² %s %s" % [s.rel, N(s.rhs)]], "given": given_of(s), "answer": ans,
-		"wrongs": wrongs, "generic": generic_sets(v),
+		"wrongs": wrongs, "fillers": fillers,
 		"methods": {"sketch-roots": ms["sketch-roots"], "test-point": ms["test-point"]}}
 
 
@@ -237,7 +271,10 @@ func u_no_real_roots_case(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	if rep == "graph":
 		out.graph = QuadraticViews.graph(s, [[s.h, s.k]])
 		out.lines = [line, "The graph of y = %s is shown, with its vertex marked." % Fmt.general(s.a, s.b, s.c)]
-	out.generic = opts.filter(func(o): return o != ans.values.v).map(func(o): return {"v": o})
+	# The other one of all x and no x is the parabola read the wrong side of the axis; the
+	# vertex options are fillers.
+	out.wrongs = [wrong({"v": opts[1] if all else opts[0]}, R_ALL_NONE)]
+	out.fillers = opts.slice(2).map(func(o): return {"v": o})
 	out.methods = {"sketch-roots": {"result": ans.values, "steps": [
 		"Δ = %s² − 4 × %s × %s = %s < 0, so there are no roots." % [Fmt.paren(s.b), Fmt.paren(s.a), Fmt.paren(s.c), N(s.disc)],
 		"The parabola opens %s with its vertex %s, so it is %s the x-axis for every x." % ["upwards" if up else "downwards", Fmt.point(s.h, s.k), "above" if up else "below"],
@@ -258,7 +295,8 @@ func u_largest_integer(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"asked": "Find the largest number of rows n that can be made.",
 		"lines": ["A mosaic has n rows of (n + %s) tiles, and there are %s tiles to use." % [N(s.d), N(s.T)]],
 		"given": {"d": s.d.key(), "T": s.T.key()}, "answer": ans,
-		"generic": [{"v": b1}, {"v": best.sub(1)}, {"v": best.add(2)}, {"v": Q.new(roundi(s.root))}],
+		"wrongs": [wrong({"v": b1}, R_ROUND_UP)],
+		"fillers": [{"v": best.sub(1)}, {"v": best.add(2)}, {"v": Q.new(roundi(s.root))}],
 		"methods": {
 			"test-point": {"result": ans.values, "steps": [
 				"n(n + %s) ≤ %s, so n² + %sn − %s ≤ 0." % [N(s.d), N(s.T), N(s.d), N(s.T)],
@@ -285,8 +323,9 @@ func u_inequality_from_solution(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 		out.lines = ["The graph of y = x² + bx + c is shown, with its roots marked. The solution is where it is %s the x-axis%s." % [
 			"below" if v.shape == "between" else "above", "" if strict(s.rel) else ", the roots included"]]
 	var flip := {"<": ">", ">": "<", "≤": "≥", "≥": "≤"}
-	out.generic = [{"b": s.b, "c": s.c, "rel": flip[s.rel]}, {"b": s.b.neg(), "c": s.c, "rel": s.rel}, {"b": s.b, "c": s.c.neg(), "rel": s.rel},
-		{"b": s.b, "c": s.c, "rel": {"<": "≤", "≤": "<", ">": "≥", "≥": ">"}[s.rel]}]
+	out.wrongs = [wrong({"b": s.b, "c": s.c, "rel": flip[s.rel]}, R_REGION), wrong({"b": s.b.neg(), "c": s.c, "rel": s.rel}, R_FACTOR_SIGNS),
+		wrong({"b": s.b, "c": s.c, "rel": {"<": "≤", "≤": "<", ">": "≥", "≥": ">"}[s.rel]}, R_ENDS)]
+	out.fillers = [{"b": s.b, "c": s.c.neg(), "rel": s.rel}]
 	out.methods = {"sketch-roots": {"result": ans.values, "steps": [
 		"The ends of the solution, x = %s and x = %s, are the roots: (x%s)(x%s) = %s" % [N(s.p), N(s.q), Fmt.plus(s.p.neg()), Fmt.plus(s.q.neg()), Fmt.general(1, s.b, s.c)],
 		"y = %s opens upwards, so it is %s 0 %s the roots%s." % [Fmt.general(1, s.b, s.c), "below" if v.shape == "between" else "above",

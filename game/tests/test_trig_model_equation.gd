@@ -173,14 +173,16 @@ func test_a_figure_shows_every_curve_and_the_level() -> void:
 
 func test_every_misconception_shows_up() -> void:
 	var ty := QuestionEngine.type_of(T)
-	for m in ty.misconceptions:
+	for i in ty.misconceptions.size():
+		var m: Dictionary = ty.misconceptions[i]
+		var ref: String = m.get("ref", "%s#%d" % [T, i])
 		for u in m.in:
 			var found := false
 			for c in QuestionEngine.cells(false, [T]).filter(func(x): return x.unknown == u):
 				for seed in range(1, 41):
-					if _make(c, seed).choices.any(func(o): return o.ref == m.ref):
+					if _make(c, seed).choices.any(func(o): return o.ref == ref):
 						found = true
 						break
 				if found:
 					break
-			check(found, "%s never appears on %s" % [m.ref, u])
+			check(found, "%s never appears on %s" % [ref, u])
