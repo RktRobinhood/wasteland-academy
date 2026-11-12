@@ -22,6 +22,11 @@ extends SceneTree
 ##             fillers. A type on UNSORTED, whose `generic` options haven't been sorted
 ##             yet, has its blanks only counted, and fails once it has none (sorted: take
 ##             it off the list). A new type never joins the list.
+##   method    the question names a method ("Method: ..."), and its worked solution isn't that
+##             method's: the named method has no tab or isn't the first, or a tab sets the named
+##             method aside ("does not suit that method", "this method fails") (FAL-814). A
+##             method the catalogue says fails for the unknown (an angle's weak kind "fails")
+##             may say so on its own tab. Enforced on every type.
 ##
 ## It can't judge whether a tag matches its option, so --rows=/abs/file.tsv also writes one
 ## row per type, unknown, representation and tag (stem, picked option, feedback) to read.
@@ -82,6 +87,10 @@ const SLIP_VERBS := ["adds", "answers", "applies", "assumes", "believes", "calls
 	"restricts", "reverses", "rounds", "says", "sets", "shows", "sketches", "solves", "splits", "squares",
 	"states", "stops", "stretches", "substitutes", "subtracts", "swaps", "takes", "thinks", "treats",
 	"undoes", "uses", "works", "writes"]
+## Working that sets the question's method aside: on the named method's tab, every one of these;
+## on another tab, those that speak of the named method ("that method") rather than its own.
+const SETS_ASIDE := "(?i)(does not|doesn't|do not|don't) suit (that|this) method|different route from (that|this) method|(that|this) method (fails|does not apply|doesn't apply)|not the (named|asked) method"
+const ASIDE_ELSEWHERE := "(?i)(does not|doesn't|do not|don't) suit that method|different route from that method|not the (named|asked) method"
 ## Vulgar fractions, as a question may write them instead.
 const VULGAR := {"½": "1/2", "⅓": "1/3", "⅔": "2/3", "¼": "1/4", "¾": "3/4", "⅕": "1/5", "⅙": "1/6", "⅛": "1/8"}
 
@@ -159,6 +168,7 @@ func _check(q: Dictionary) -> void:
 	if stop != null:
 		var at := stop.get_start()
 		_fault(t.id, "stop", "", "", read.substr(maxi(0, at - 40), 44), q)
+	_check_method(t.id, q)
 	for c in q.choices:
 		if not c.correct and _size(c.values) >= WILD and _size(q.answer.values) < WILD:
 			_fault(t.id, "overflow", "", c.text, "", q)
@@ -167,7 +177,7 @@ func _check(q: Dictionary) -> void:
 		if c.correct or c.get("ref", "") == "" or seen.has(c.ref):
 			continue
 		seen[c.ref] = true
-		var why := QuestionEngine.misconception_text(t, c.ref)
+		var why := QuestionEngine.misconception_text(t, c.ref, q)
 		var key := "%s|%s|%s|%s" % [t.id, q.view.unknown, q.rep, c.ref]
 		tag_counts.get_or_add(t.id, {})[c.ref] = true
 		if not rows.has(key):
@@ -220,6 +230,26 @@ func _print_shares() -> void:
 			by.append("%s %d" % [k, all[k]])
 	print("BLANK %d of %d multiple-choice wrong options have no line (%.1f%%): %s" % [all.blank, all.wrong,
 		100.0 * all.blank / maxi(1, all.wrong), ", ".join(by)])
+
+
+## The named method's working: it is the first tab, and no tab sets the method aside.
+func _check_method(id: String, q: Dictionary) -> void:
+	var angle: String = q.view.get("angle", "any")
+	if angle == "any" or q.format == "method-pick":
+		return
+	if q.solutions.is_empty() or q.solutions[0].angle != angle:
+		_fault(id, "method", angle, "", "no working by the named method", q)
+		return
+	var hit: RegExMatch = null
+	if not QuestionEngine.fails(QuestionEngine.type_of(id), q.view.unknown, angle):
+		hit = RegEx.create_from_string(SETS_ASIDE).search("\n".join(Step.texts(q.solutions[0].steps)))
+	if hit != null:
+		_fault(id, "method", angle, "", hit.get_string(), q)
+	var elsewhere := RegEx.create_from_string(ASIDE_ELSEWHERE)
+	for sol in q.solutions.slice(1):
+		hit = elsewhere.search("\n".join(Step.texts(sol.steps)))
+		if hit != null:
+			_fault(id, "method", sol.angle, "", hit.get_string(), q)
 
 
 ## How large a single-number answer is, or 0 for any other kind.
@@ -339,7 +369,7 @@ func _report(enforce_all: bool) -> int:
 	keys.sort()
 	for key in keys:
 		var f: Dictionary = faults[key]
-		if not enforce_all and f.type in REPORT_ONLY and f.fault != "stop":
+		if not enforce_all and f.type in REPORT_ONLY and not f.fault in ["stop", "method"]:
 			var row: Dictionary = counted.get_or_add(f.type, {"numbers": 0, "claim": 0, "no text": 0, "overflow": 0})
 			row[f.fault] = row.get(f.fault, 0) + 1
 			continue

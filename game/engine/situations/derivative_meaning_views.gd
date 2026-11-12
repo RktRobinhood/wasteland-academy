@@ -112,19 +112,23 @@ static func claim(tag: String, text: String) -> Dictionary:
 	return {"form": tag, "vals": [], "text": text}
 
 
-## Options 2 to 4 of a claim, each with the misconception it shows. One with no
-## misconception ("" for its ref) is a filler.
+## Options 2 to 4 of a claim, each with the misconception it shows ("" for none).
 static func claim_answer(right: String, wrongs_in: Array) -> Dictionary:
 	var ans := Answer.make("claim", claim("right", right))
 	var ws: Array = []
-	var fill: Array = []
 	for i in wrongs_in.size():
-		var w := wrong(claim("w%d" % i, wrongs_in[i][0]), wrongs_in[i][1])
-		if w.ref == "":
-			fill.append(w.values)
-		else:
-			ws.append(w)
-	return {"answer": ans, "wrongs": ws, "fillers": fill}
+		ws.append(wrong(claim("w%d" % i, wrongs_in[i][0]), wrongs_in[i][1]))
+	return {"answer": ans, "wrongs": ws}
+
+
+## claim_answer, with a claim that has no misconception ("" for its ref) moved to
+## `fillers` (FAL-815).
+static func claim_split(right: String, wrongs_in: Array) -> Dictionary:
+	var built := claim_answer(right, wrongs_in)
+	var ws: Array = built.wrongs
+	built.wrongs = ws.filter(func(w): return w.ref != "")
+	built.fillers = ws.filter(func(w): return w.ref == "").map(func(w): return w.values)
+	return built
 
 
 # ── A rate ───────────────────────────────────────────────────
@@ -159,7 +163,7 @@ func u_interpret_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var word := rising(r)
 	var other := rising(-r)
 	var right := "At t = %d, the %s is %s at %s %s." % [s.t0, c.what, word, mag, unit(c)]
-	var built := claim_answer(right, [
+	var built := claim_split(right, [
 		["At t = %d, the %s is %s %s." % [s.t0, c.what, mag, c.y], R_VALUE],
 		["At t = %d, the %s is %s at %s %s." % [s.t0, c.what, other, mag, unit(c)], R_SIGN],
 		["At t = %d, the %s has %s by %s %s." % [s.t0, c.what, "gone up" if r > 0.0 else "gone down", mag, c.y], R_UNITS]])
@@ -186,7 +190,7 @@ func u_interpret_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 func u_units_of_rate(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c := ctx(s)
 	var right: String = unit(c)
-	var built := claim_answer(right, [
+	var built := claim_split(right, [
 		[c.y, R_UNITS],
 		["%s per %s" % [c.per + "s", c.y.trim_suffix("s") if c.y.ends_with("s") else c.y], R_UPSIDE_DOWN],
 		["%s per %s²" % [c.y, c.per], ""]])
@@ -204,7 +208,7 @@ func u_write_in_notation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var mag := absi(n)
 	var word := "increasing" if n > 0 else "decreasing"
 	var right := "d%s/dt = %s" % [c.sym, Fmt.num(n)]
-	var built := claim_answer(right, [
+	var built := claim_split(right, [
 		["%s = %s" % [c.sym, Fmt.num(n)], R_VALUE],
 		["d%s/dt = %s" % [c.sym, Fmt.num(-n)], R_SIGN],
 		["dt/d%s = %s" % [c.sym, Fmt.num(n)], R_UPSIDE_DOWN]])
@@ -234,7 +238,7 @@ func u_compare_rates(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ignored := "Both are %s, and %s is changing faster." % [rising(-b) if b * d > 0.0 else "increasing", faster]
 	# Calling the greater signed rate the faster one names the slower here, unless it is the smaller.
 	var signed_slower := (b > d) == (slower == "A")
-	var built := claim_answer(right, [
+	var built := claim_split(right, [
 		[ignored, R_SIGN],
 		["%s holds more than %s at t = %d." % [faster, slower, s.t0], R_VALUE],
 		["%s, and %s is changing faster." % [move.call(b, d), slower], R_SIGNED if signed_slower else ""]])

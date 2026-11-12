@@ -578,7 +578,7 @@ func _show_feedback(result: Dictionary) -> void:
 			var note: String = result.get("note", "") if result.get("glancing", false) else ""
 			feedback.text = "Not quite. " + ("" if note == "" else note + " ") + QuestionEngine.answer_sentence(question)
 		feedback.add_theme_color_override("font_color", UiTheme.PINK)
-		var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), result.get("misconception", ""))
+		var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), result.get("misconception", ""), question)
 		if why != "":
 			feedback.text += "\nWatch out: " + Fmt.stop(why)
 	# An error-spot, method-pick or true-false-reason question says why.

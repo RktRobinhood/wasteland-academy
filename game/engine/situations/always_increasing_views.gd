@@ -140,8 +140,10 @@ func _quadratic(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := {"asked": "Which statement shows that %s is %s for all x?" % [g, "increasing" if up else "decreasing"],
 		"lines": ["%s(x) = %s" % [g, f_text(s)]]}
 	out.merge(pick(right, tagged))
-	# A decreasing question names g: its methods and the wrong methods say g too.
+	# A decreasing question names g: its methods, the wrong methods and any catalogue line
+	# (QuestionEngine.named) say g too.
 	if not up:
+		out.fn_name = g
 		out.titles = {"complete-square": "Complete the square on g′(x)", "discriminant-negative": "Discriminant of g′ is negative"}
 		out.pick_wrongs = [
 			{"name": "Check g′ at a few values of x", "why": "a few values can't show that g′ keeps its sign for every x"},

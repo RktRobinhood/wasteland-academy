@@ -413,7 +413,7 @@ func _boss_down() -> int:
 ## The "Another way" follow-up for the question just answered right (FAL-310 plan): the
 ## same numbers, asked by the next angle the type lists for that unknown that the
 ## question's paper allows. {} unless the floor is deep enough, there is more than one
-## such angle and the chance comes up.
+## such angle, the chance comes up and that angle has working on the numbers.
 func _another_way_view() -> Dictionary:
 	if floor_no < Tuning.ANOTHER_WAY_FLOOR:
 		return {}
@@ -429,8 +429,10 @@ func _another_way_view() -> Dictionary:
 	var fmt: String = v.format
 	if fmt in QuestionEngine.EXTRA_FORMATS and not fmt in QuestionEngine.extra_formats(v.type, v.unknown, other):
 		fmt = "mcq"
-	return {"type": v.type, "unknown": v.unknown, "rep": v.rep, "angle": other, "format": fmt,
+	var view := {"type": v.type, "unknown": v.unknown, "rep": v.rep, "angle": other, "format": fmt,
 		"seed": v.seed, "same_angle": v.get("same_angle", v.angle)}
+	# A method with no working on these numbers (a proof's lines are one method's) isn't asked.
+	return {} if QuestionEngine.make(view).has("error") else view
 
 
 ## After a result: the end if the player is out of HP, the next fight if the enemy is

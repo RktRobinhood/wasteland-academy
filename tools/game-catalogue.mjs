@@ -23,7 +23,7 @@ export const OUT = path.join(ROOT, 'game/data/catalogue.json');
 const readJSON = f => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
 
 // Fields of a type the engine reads. Bank part lists and exam prose stay behind.
-const TYPE_FIELDS = ['id', 'topic', 'source', 'kind', 'region', 'name', 'summary', 'situation', 'level',
+const TYPE_FIELDS = ['id', 'topic', 'source', 'examStyle', 'kind', 'region', 'name', 'summary', 'situation', 'level',
   'formats', 'representations', 'unknowns', 'angles', 'concepts', 'misconceptions', 'methods', 'chain', 'supports'];
 
 // The game's default font has superscript digits but no superscript letters (FAL-499),

@@ -118,7 +118,7 @@ A shared subtopic keeps its AA prerequisites, so a few point outside the AI cour
 
 ## Situations and views (question-types.json)
 
-The question engine plans from situations and views (FAL-310). Every type has a `source`: `exam` (from the bank) or `extension` (a gap the exam leaves). The "Exam-style only" switch keeps exam types and only their `exam: true` unknowns and representations.
+The question engine plans from situations and views (FAL-310). Every type has a `source`: `exam` (from the bank) or `extension` (a gap the exam leaves). `source` is provenance only. The "Exam-style only" switch keeps the exam-style types a student's course covers, and only their `exam: true` unknowns and representations: every exam type, and an extension `skill` type that gives **`examStyle`**, a sentence on why its questions are its course's exam questions though the AA SL bank has no part for them (AA HL counting, `t1-ahl-counting`; FAL-796). No other extension type may mark an unknown or representation `exam`, so concept probes, prior learning and link types stay out, and no bank part is invented to let a type in.
 
 - **`situations`** (top level): what a recipe generates. Each lists its `quantities` (name, meaning, how to pick or derive it), `modes` and `clean` limits. `extends` means "that situation plus these quantities". `sharesSituation` on a type names the other types built on the same base, so the base is built once.
 - **`unknowns`**: one per sensible question on the situation: `given`, `asked`, `level` (0 to 5, see `levels`), `exam`, the representations (`reps`) the givens can be shown in, and the `skills` it tests.

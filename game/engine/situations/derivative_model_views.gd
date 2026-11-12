@@ -220,7 +220,7 @@ static func claim(tag: String, text: String) -> Dictionary:
 
 ## The right sentence, the wrong ones with their tags, and the fillers (a "" tag).
 static func claims(right: String, wrongs_in: Array) -> Dictionary:
-	var built := DerivativeMeaningViews.claim_answer(right, wrongs_in)
+	var built := DerivativeMeaningViews.claim_split(right, wrongs_in)
 	return {"answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers}
 
 

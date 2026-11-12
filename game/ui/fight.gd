@@ -825,7 +825,7 @@ func _show_result(r: Dictionary) -> void:
 			color = UiTheme.PINK
 	if r.bonus > 0:
 		feedback.text += " Another way: +%d bonus Scrap." % r.bonus
-	var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), r.get("misconception", ""))
+	var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), r.get("misconception", ""), question)
 	if why != "" and r.outcome == "wrong":
 		feedback.text += "\nWatch out: " + why + "."
 	if question.has("reason") and r.outcome != "right":
