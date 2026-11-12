@@ -10856,7 +10856,7 @@
                 }
               ],
               "misconceptions": [
-                "Averaging the two group means for a combined mean when the groups are different sizes",
+                "Averaging the group means for a combined mean when the groups are different sizes",
                 "Forgetting that the unknown frequency p also appears in the denominator Σf",
                 "Using the sum of the known frequencies as the missing frequency",
                 "Assuming every class has the same frequency",

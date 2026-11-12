@@ -47807,7 +47807,7 @@
     },
     {
      "ref": "SL4.3.mean-totals#0",
-     "text": "Averaging the two group means for a combined mean when the groups are different sizes",
+     "text": "Averaging the group means for a combined mean when the groups are different sizes",
      "as": "distractor",
      "in": [
       "new-value-from-new-mean",
@@ -48328,7 +48328,7 @@
     },
     {
      "ref": "SL4.3.mean-totals#0",
-     "text": "Averaging the two group means for a combined mean when the groups are different sizes",
+     "text": "Averaging the group means for a combined mean when the groups are different sizes",
      "as": "distractor",
      "in": [
       "combined-mean"

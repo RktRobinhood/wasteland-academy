@@ -129,8 +129,15 @@ func test_every_suited_method_has_working() -> void:
 		var have: Array = q.solutions.map(func(s): return s.angle)
 		for a in QuestionEngine.angles_for(t, c.unknown):
 			# A method can't be shown on a paper it isn't asked on: no GDC on Paper 1.
-			if a != "any" and q.paper in QuestionEngine.cell_papers(t, c.unknown, c.rep, a):
-				check(a in have, "%s: no working for %s" % [c.key, a])
+			if a == "any" or not q.paper in QuestionEngine.cell_papers(t, c.unknown, c.rep, a) or a in have:
+				continue
+			# A proof's lines have one method's tab only, and a cubic no form can be read from has
+			# none for reading the form (FAL-814). Then "Another way" asks that method with its
+			# own working, or not at all, and asked for itself the method has its own working.
+			var again := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": a, "same_angle": c.angle, "seed": 4})
+			check(again.has("error") or (not again.solutions.is_empty() and again.solutions[0].angle == a), "%s: no working for %s" % [c.key, a])
+			var own := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": a, "seed": 4})
+			check(not own.has("error") and not own.solutions.is_empty() and own.solutions[0].angle == a, "%s: %s has no working of its own" % [c.key, a])
 
 
 func test_same_seed_same_question() -> void:
