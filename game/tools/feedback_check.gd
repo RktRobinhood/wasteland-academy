@@ -77,7 +77,7 @@ const UNSORTED := [
 	"t5-area-between-curves", "t5-concavity", "t5-definite-integral-area", "t5-derivative-graph",
 	"t5-differentiate-polynomial", "t5-differentiation-rules", "t5-ext-always-increasing",
 	"t5-ext-area-under-curve", "t5-ext-hence-integral", "t5-ext-integral-gdc",
-	"t5-ext-stationary-conditions", "t5-ext-unknown-coefficients", "t5-increasing-decreasing",
+	"t5-increasing-decreasing",
 	"t5-kinematics-distance", "t5-normal-meets-curve", "t5-optimisation-modelling",
 	"t5-stationary-points", "t5-tangent-condition", "t5-tangent-normal-equation"
 ]

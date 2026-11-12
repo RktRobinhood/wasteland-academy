@@ -40464,6 +40464,27 @@ def E13PC_slips(u, F, c, letters):
         bc = sp.Poly(sp.expand(lead * (X - x0) * (X - c["x1"])), X).all_coeffs()
         b, cc = letters
         add("t5-ext-stationary-conditions#4", [sp.Eq(sp.Poly(d1, X).coeff_monomial(X), bc[1]), sp.Eq(sp.Poly(d1, X).coeff_monomial(1), bc[2])])
+        # Stationary points taken at −x0 and −x1: each factor of f′ with the wrong sign.
+        add("t5-ext-stationary-conditions#8", [sp.Eq(E13PC_at(d1, -x0), 0), sp.Eq(E13PC_at(d1, -c["x1"]), 0)])
+    # FAL-815: the slips that were blank options.
+    true_vals = E13PC_solve([sp.Eq(e, v) for e, v in E13PC_conditions(u, F, c)], letters)
+    if len(letters) == 2:
+        # The right pair written against the wrong letters.
+        swap = "t5-ext-unknown-coefficients#3" if u in ("two-from-gradient-and-point", "two-gradients", "from-tangent") else "t5-ext-stationary-conditions#5"
+        out[swap] = {E13PC_text(letters, true_vals[::-1])}
+    else:
+        k = letters[0]
+        if u in ("k-from-gradient", "k-from-stationary-x"):
+            # The k term kxⁿ differentiated to kxⁿ⁻¹, the power not brought down.
+            fk = sp.expand(F).coeff(k)
+            bad = sp.diff(sp.expand(F - k * fk), X) + k * sp.cancel(fk / X)
+            rhs = c["m"] if u == "k-from-gradient" else 0
+            add("t5-ext-unknown-coefficients#4" if u == "k-from-gradient" else "t5-ext-stationary-conditions#6", [sp.Eq(E13PC_at(bad, x0), rhs)])
+        if u in ("k-from-stationary-x", "k-from-inflexion"):
+            # c·k + n = 0 solved as c·k = n: the number moved across keeps its sign.
+            e = E13PC_at(sp.diff(F, X, 1 if u == "k-from-stationary-x" else 2), x0)
+            n = e.subs(k, 0)
+            add("t5-ext-stationary-conditions#7", [sp.Eq(e - n, n)])
     return out
 
 

@@ -17,6 +17,12 @@ const R_ONE_CONDITION := SC + "1"
 const R_Y_INTO := SC + "2"
 const R_INFLEXION_F1 := "t5-ext-stationary-conditions#3"
 const R_NO_LEAD := "t5-ext-stationary-conditions#4"
+const R_SWAP_AB := "t5-ext-unknown-coefficients#3"
+const R_NO_POWER_UC := "t5-ext-unknown-coefficients#4"
+const R_SWAP_SC := "t5-ext-stationary-conditions#5"
+const R_NO_POWER_SC := "t5-ext-stationary-conditions#6"
+const R_SIGN_ACROSS := "t5-ext-stationary-conditions#7"
+const R_ROOT_SIGNS := "t5-ext-stationary-conditions#8"
 const UNKNOWNS := ["k-from-gradient", "two-from-gradient-and-point", "two-gradients", "from-tangent",
 	"k-from-stationary-x", "two-from-stationary-point", "k-from-inflexion", "two-from-two-stationary"]
 const SPOTS := ["k-from-gradient", "two-from-gradient-and-point", "two-from-stationary-point"]
@@ -160,7 +166,12 @@ func u_k_from_gradient(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	else:
 		out.lines = ["f(x) = %s" % poly(s.terms), "f′(%s) = %s." % [N(x0), N(s.m)]]
 	out.wrongs = [wrong({"v": s.wrong.k}, R_INTO_F)]
-	out.generic = [{"v": k.neg()}, {"v": k.mul(2)}, {"v": k.add(1)}]
+	out.fillers = [{"v": k.neg()}, {"v": k.add(1)}]
+	# kx² differentiated to kx gives 2k; on kx³ that is no route, so 2k is a filler.
+	if s.terms[0].p == 2:
+		out.wrongs.append(wrong({"v": k.mul(2)}, R_NO_POWER_UC))
+	else:
+		out.fillers.insert(1, {"v": k.mul(2)})
 	out.methods = {"form-equations": method([deriv_line(s, rep, d),
 		"%s = %s." % [at_text("f′", d, x0, ["k"]), N(s.m)],
 		solve_line(d, x0, s.m, "k", k)], ans.values)}
@@ -205,7 +216,8 @@ func u_two_from_gradient_and_point(rep: String, s: Dictionary, rng: Seeded) -> D
 	else:
 		out.lines = ["f(x) = %s" % poly(s.terms), "f′(%s) = %s and f(%s) = %s." % [N(x0), N(s.m), N(x0), N(s.y0)]]
 	out.wrongs = [wrong(pair(s.wrong.a, s.wrong.b), R_INTO_F)]
-	out.generic = [pair(b, a), pair(a.neg(), b.neg()), pair(a, b.neg()), pair(a.neg(), b)]
+	out.wrongs.append(wrong(pair(b, a), R_SWAP_AB))
+	out.fillers = [pair(a.neg(), b.neg()), pair(a, b.neg()), pair(a.neg(), b)]
 	var d := S.deriv(s.terms)
 	var ms := two_methods(s, rep, [[d, x0, s.m, "f′"], [s.terms, x0, s.y0, "f"]], ans)
 	out.methods = {"form-equations": ms["form-equations"], "gdc-solver": ms["gdc-solver"]}
@@ -233,7 +245,8 @@ func u_two_gradients(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		out.lines = ["f(x) = %s" % poly(s.terms), "f′(%s) = %s and f′(%s) = %s." % [N(s.x0), N(s.m), N(s.x1), N(s.m1)]]
 	out.wrongs = [wrong(pair(s.wrong.a, s.wrong.b), R_INTO_F)]
-	out.generic = [pair(b, a), pair(a.neg(), b.neg()), pair(a, b.neg()), pair(a.neg(), b)]
+	out.wrongs.append(wrong(pair(b, a), R_SWAP_AB))
+	out.fillers = [pair(a.neg(), b.neg()), pair(a, b.neg()), pair(a.neg(), b)]
 	var d := S.deriv(s.terms)
 	var ms := two_methods(s, rep, [[d, s.x0, s.m, "f′"], [d, s.x1, s.m1, "f′"]], ans)
 	out.methods = {"form-equations": ms["form-equations"], "gdc-solver": ms["gdc-solver"]}
@@ -252,7 +265,8 @@ func u_from_tangent(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		out.lines = ["f(x) = %s" % poly(s.terms), "The tangent to y = f(x) at x = %s is %s." % [N(x0), line]]
 	out.wrongs = [wrong(pair(s.wrong.a, s.wrong.b), R_TANGENT_C)]
-	out.generic = [pair(b, a), pair(a.neg(), b.neg()), pair(a, b.neg()), pair(a.neg(), b)]
+	out.wrongs.append(wrong(pair(b, a), R_SWAP_AB))
+	out.fillers = [pair(a.neg(), b.neg()), pair(a, b.neg()), pair(a.neg(), b)]
 	var d := S.deriv(s.terms)
 	var letters := ["a", "b"]
 	var e1 := equation(d, x0, s.tm, letters)
@@ -280,8 +294,8 @@ func u_k_from_stationary_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		out.lines = ["The curve y = %s has a stationary point where x = %s." % [poly(s.terms), N(x0)]]
 	else:
 		out.lines = ["f(x) = %s" % poly(s.terms), "The graph of f has a stationary point at x = %s." % N(x0)]
-	out.wrongs = [wrong({"v": s.wrong.k}, R_F_ZERO)]
-	out.generic = [{"v": k.neg()}, {"v": k.mul(2)}, {"v": k.add(1)}]
+	out.wrongs = [wrong({"v": s.wrong.k}, R_F_ZERO), wrong({"v": k.neg()}, R_SIGN_ACROSS), wrong({"v": k.mul(2)}, R_NO_POWER_SC)]
+	out.fillers = [{"v": k.add(1)}]
 	out.methods = {"two-equations": method([deriv_line(s, rep, d),
 		"At a stationary point f′(%s) = 0: %s = 0." % [N(x0), lin_text(S.at(d, x0), ["k"])],
 		solve_line(d, x0, 0, "k", k)], ans.values)}
@@ -300,7 +314,8 @@ func u_two_from_stationary_point(rep: String, s: Dictionary, rng: Seeded) -> Dic
 	else:
 		out.lines = ["f(x) = %s" % poly(s.terms), "The graph of f has a stationary point at %s." % pt]
 	out.wrongs = [wrong(pair(s.wrong.a, s.wrong.b), R_Y_INTO)]
-	out.generic = [pair(b, a), pair(a.neg(), b.neg()), pair(a, b.neg()), pair(a.neg(), b)]
+	out.wrongs.append(wrong(pair(b, a), R_SWAP_SC))
+	out.fillers = [pair(a.neg(), b.neg()), pair(a, b.neg()), pair(a.neg(), b)]
 	var d := S.deriv(s.terms)
 	var ms := two_methods(s, rep, [[d, x0, 0, "f′"], [s.terms, x0, s.y0, "f"]], ans)
 	out.methods = {"two-equations": ms["two-equations"], "gdc-solver": ms["gdc-solver"]}
@@ -337,7 +352,8 @@ func u_k_from_inflexion(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		out.lines = ["f(x) = %s" % poly(s.terms), "The graph of f has a point of inflexion at x = %s." % N(x0)]
 	out.wrongs = [wrong({"v": s.wrong.p}, R_INFLEXION_F1)]
-	out.generic = [{"v": p.neg()}, {"v": p.div(3)}, {"v": p.add(1)}]
+	out.wrongs.append(wrong({"v": p.neg()}, R_SIGN_ACROSS))
+	out.fillers = [{"v": p.div(3)}, {"v": p.add(1)}]
 	out.methods = {"two-equations": method([deriv_line(s, rep, d), "f″(x) = %s." % poly(d2),
 		"At a point of inflexion f″(%s) = 0: %s = 0." % [N(x0), lin_text(S.at(d2, x0), ["p"])],
 		solve_line(d2, x0, 0, "p", p)], ans.values)}
@@ -355,7 +371,9 @@ func u_two_from_two_stationary(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	else:
 		out.lines = ["f(x) = %s" % poly(s.terms), "The graph of f has stationary points at x = %s and x = %s." % [N(s.p), N(s.q)]]
 	out.wrongs = [wrong(pair(s.wrong.b, s.wrong.c), R_NO_LEAD)]
-	out.generic = [pair(b.neg(), c), pair(c, b), pair(b, c.neg()), pair(b.neg(), c.neg())]
+	out.wrongs.append(wrong(pair(b.neg(), c), R_ROOT_SIGNS))
+	out.wrongs.append(wrong(pair(c, b), R_SWAP_SC))
+	out.fillers = [pair(b, c.neg()), pair(b.neg(), c.neg())]
 	var d := S.deriv(s.terms)
 	var ms := two_methods(s, rep, [[d, s.p, 0, "f′"], [d, s.q, 0, "f′"]], ans)
 	var three := lead.mul(3)
