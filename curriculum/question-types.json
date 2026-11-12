@@ -82128,6 +82128,24 @@
       "from-tangent"
      ],
      "wrong": "takes f(x₀) = c, the tangent's y-intercept, instead of mx₀ + c"
+    },
+    {
+     "text": "Swapping the values of a and b when writing the answer",
+     "as": "distractor",
+     "in": [
+      "two-from-gradient-and-point",
+      "two-gradients",
+      "from-tangent"
+     ],
+     "wrong": "the right pair with a and b swapped"
+    },
+    {
+     "text": "Forgetting to multiply by the power when differentiating the k term",
+     "as": "distractor",
+     "in": [
+      "k-from-gradient"
+     ],
+     "wrong": "differentiates kx² to kx, so k comes out doubled"
     }
    ]
   },
@@ -82845,6 +82863,40 @@
       "two-from-two-stationary"
      ],
      "wrong": "writes f′(x) = (x − p)(x − q), without the 3, then compares coefficients"
+    },
+    {
+     "text": "Swapping the values of the two letters when writing the answer",
+     "as": "distractor",
+     "in": [
+      "two-from-stationary-point",
+      "two-from-two-stationary"
+     ],
+     "wrong": "the right pair with the letters swapped"
+    },
+    {
+     "text": "Forgetting to multiply by the power when differentiating the k term",
+     "as": "distractor",
+     "in": [
+      "k-from-stationary-x"
+     ],
+     "wrong": "differentiates kx² to kx, so k comes out doubled"
+    },
+    {
+     "text": "Moving the number across the equals sign without changing its sign",
+     "as": "distractor",
+     "in": [
+      "k-from-stationary-x",
+      "k-from-inflexion"
+     ],
+     "wrong": "keeps the number's sign when solving the condition = 0, so the letter's sign flips"
+    },
+    {
+     "text": "Using the wrong sign in each factor when building f′ from its roots",
+     "as": "distractor",
+     "in": [
+      "two-from-two-stationary"
+     ],
+     "wrong": "takes the stationary x-values as −p and −q, so b changes sign and c stays"
     }
    ]
   },
