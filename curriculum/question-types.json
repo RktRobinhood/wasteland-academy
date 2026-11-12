@@ -10804,7 +10804,8 @@
      "as": "distractor",
      "in": [
       "count-crossings",
-      "intersection-points"
+      "intersection-points",
+      "function-and-inverse"
      ],
      "wrong": "one or two crossings, missing one that lies outside the default window"
     },
@@ -10845,6 +10846,74 @@
       "solve-f-equals-g"
      ],
      "wrong": "for eˣ = x + 3, writes x = ln x + ln 3 and tries to solve that"
+    },
+    {
+     "text": "Giving the y-coordinate of the meeting point instead of its x-coordinate",
+     "as": "distractor",
+     "in": [
+      "solve-f-equals-g",
+      "models-equal",
+      "crossing-from-table",
+      "constant-from-crossing"
+     ],
+     "wrong": "the y-value where the graphs meet, for x"
+    },
+    {
+     "text": "Writing the coordinates of the meeting point the wrong way round",
+     "as": "distractor",
+     "in": [
+      "intersection-points",
+      "crossing-in-interval"
+     ],
+     "wrong": "(y, x) for (x, y)"
+    },
+    {
+     "text": "Taking the gradient of the line as the constant k",
+     "as": "distractor",
+     "in": [
+      "constant-from-crossing"
+     ],
+     "wrong": "k = m"
+    },
+    {
+     "text": "Stopping at an end of the sign-change interval instead of homing in on the crossing",
+     "as": "distractor",
+     "in": [
+      "crossing-from-table"
+     ],
+     "wrong": "a table x-value either side of the crossing"
+    },
+    {
+     "text": "Taking a meeting point from outside the interval asked for",
+     "as": "distractor",
+     "in": [
+      "crossing-in-interval"
+     ],
+     "wrong": "another crossing of the two graphs"
+    },
+    {
+     "text": "Using only the gap in x or only the gap in y, not both",
+     "as": "distractor",
+     "in": [
+      "distance-between-crossings"
+     ],
+     "wrong": "|Δx| or |Δy| alone"
+    },
+    {
+     "text": "Adding the gaps in x and y instead of using Pythagoras",
+     "as": "distractor",
+     "in": [
+      "distance-between-crossings"
+     ],
+     "wrong": "|Δx| + |Δy|"
+    },
+    {
+     "text": "Forgetting the square root at the end of Pythagoras",
+     "as": "distractor",
+     "in": [
+      "distance-between-crossings"
+     ],
+     "wrong": "Δx² + Δy², not rooted"
     }
    ],
    "parts": [
@@ -17112,7 +17181,9 @@
      "text": "Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k)",
      "as": "distractor",
      "in": [
-      "max-value"
+      "max-value",
+      "axis-of-graph",
+      "zeros"
      ],
      "wrong": "for g in vertex form a(x + h)² + G, gives the maximum at x = h instead of x = −h"
     },
@@ -17187,6 +17258,79 @@
       "range"
      ],
      "wrong": "x ≤ log_k G, the range written in x"
+    },
+    {
+     "text": "Reading the roots off the factors with the wrong signs",
+     "as": "distractor",
+     "in": [
+      "argument-roots"
+     ],
+     "wrong": "the roots with their signs flipped"
+    },
+    {
+     "text": "Writing the vertical line of symmetry as a y = equation",
+     "as": "distractor",
+     "in": [
+      "axis-of-graph"
+     ],
+     "wrong": "y = h for x = h"
+    },
+    {
+     "text": "Using the top value of the quadratic itself, without taking its log",
+     "as": "distractor",
+     "in": [
+      "max-value",
+      "range"
+     ],
+     "wrong": "g's largest value, not its log"
+    },
+    {
+     "text": "Taking the quadratic as positive outside its roots, as if it opened upwards",
+     "as": "distractor",
+     "in": [
+      "domain-from-inequality"
+     ],
+     "wrong": "outside the roots for between them"
+    },
+    {
+     "text": "Including the roots, where the quadratic is zero and the log is undefined",
+     "as": "distractor",
+     "in": [
+      "domain-from-inequality"
+     ],
+     "wrong": "the roots included"
+    },
+    {
+     "text": "Forgetting the domain, so the intervals run on past the asymptotes",
+     "as": "distractor",
+     "in": [
+      "sign-of-f"
+     ],
+     "wrong": "outside the zeros, with no asymptotes"
+    },
+    {
+     "text": "Losing the minus sign when finding a, so the quadratic opens upwards",
+     "as": "distractor",
+     "in": [
+      "quadratic-from-features"
+     ],
+     "wrong": "−g, a with the wrong sign"
+    },
+    {
+     "text": "Writing the quadratic from its roots alone, without using the maximum to find a",
+     "as": "distractor",
+     "in": [
+      "quadratic-from-features"
+     ],
+     "wrong": "−(x − p)(x − q), a not found"
+    },
+    {
+     "text": "Putting the asymptotes into the factors with the wrong signs",
+     "as": "distractor",
+     "in": [
+      "quadratic-from-features"
+     ],
+     "wrong": "a(x + p)(x + q)"
     }
    ],
    "parts": [
@@ -35624,7 +35768,8 @@
      "as": "distractor",
      "in": [
       "back-bearing",
-      "two-leg-bearing"
+      "two-leg-bearing",
+      "return-bearing"
      ],
      "wrong": "360° − the bearing, measured the wrong way round"
     },
@@ -35647,7 +35792,8 @@
       "angle-from-bearing",
       "two-leg-distance",
       "due-east-distance",
-      "sine-rule-distance"
+      "sine-rule-distance",
+      "due-west-side"
      ],
      "wrong": "the bearing, or the turn between two bearings, used as the angle inside"
     },
@@ -35695,7 +35841,10 @@
      "as": "distractor",
      "in": [
       "shared-side",
-      "perpendicular-split"
+      "perpendicular-split",
+      "two-leg-distance",
+      "due-east-distance",
+      "rule-to-use"
      ],
      "wrong": "Pythagoras on a triangle with no right angle"
     },
@@ -35707,6 +35856,131 @@
       "rule-to-use"
      ],
      "wrong": "the sine rule offered on two sides and the angle between them"
+    },
+    {
+     "text": "Adding the two legs, as if the journey ran in a straight line",
+     "as": "distractor",
+     "in": [
+      "two-leg-distance"
+     ],
+     "wrong": "the two legs added"
+    },
+    {
+     "text": "Pairing a side with the wrong angle in the sine rule",
+     "as": "distractor",
+     "in": [
+      "sine-rule-distance",
+      "due-west-side"
+     ],
+     "wrong": "a side over the sine of an angle not opposite it"
+    },
+    {
+     "text": "Using sin or cos where the height and the ground distance need tan",
+     "as": "distractor",
+     "in": [
+      "height-from-elevation",
+      "distance-from-depression",
+      "height-with-eye-level",
+      "chain-below-hook"
+     ],
+     "wrong": "sin or cos in place of tan"
+    },
+    {
+     "text": "Dividing by tan instead of multiplying, from rearranging tan the wrong way",
+     "as": "distractor",
+     "in": [
+      "height-from-elevation",
+      "height-with-eye-level"
+     ],
+     "wrong": "distance ÷ tan θ for the height"
+    },
+    {
+     "text": "Leaving the calculator in the wrong angle mode",
+     "as": "distractor",
+     "in": [
+      "height-from-elevation"
+     ],
+     "wrong": "tan worked in degrees for radians, or radians for degrees"
+    },
+    {
+     "text": "Finding the slant distance along the line of sight instead of the distance along the ground",
+     "as": "distractor",
+     "in": [
+      "distance-from-depression"
+     ],
+     "wrong": "height ÷ sin θ, the line of sight"
+    },
+    {
+     "text": "Taking the eye height away instead of adding it",
+     "as": "distractor",
+     "in": [
+      "height-with-eye-level"
+     ],
+     "wrong": "rise − eye height"
+    },
+    {
+     "text": "Leaving out the gap between the hook and the guard's head",
+     "as": "distractor",
+     "in": [
+      "chain-below-hook"
+     ],
+     "wrong": "the gap not taken away"
+    },
+    {
+     "text": "Stopping at the height of the arm's end, without taking away the guard and the gap",
+     "as": "distractor",
+     "in": [
+      "chain-below-hook"
+     ],
+     "wrong": "the height of T alone"
+    },
+    {
+     "text": "Forgetting to change the time from hours into minutes",
+     "as": "distractor",
+     "in": [
+      "time-from-depression"
+     ],
+     "wrong": "the time in hours"
+    },
+    {
+     "text": "Going along both legs instead of straight across",
+     "as": "distractor",
+     "in": [
+      "route-time"
+     ],
+     "wrong": "(AP + PB) at the bike's speed, for the straight ride"
+    },
+    {
+     "text": "Using one speed for the whole route, when each leg has its own",
+     "as": "distractor",
+     "in": [
+      "route-time"
+     ],
+     "wrong": "both legs at one speed"
+    },
+    {
+     "text": "Matching a distance with the wrong speed",
+     "as": "distractor",
+     "in": [
+      "route-time"
+     ],
+     "wrong": "a leg timed at the other speed"
+    },
+    {
+     "text": "Finding the area of only one of the two triangles",
+     "as": "distractor",
+     "in": [
+      "quadrilateral-area"
+     ],
+     "wrong": "one triangle's area"
+    },
+    {
+     "text": "Forgetting to halve ab sin C",
+     "as": "distractor",
+     "in": [
+      "quadrilateral-area"
+     ],
+     "wrong": "twice the area"
     }
    ],
    "parts": [
@@ -69324,6 +69598,39 @@
       "count-from-sketch"
      ],
      "wrong": "fewer solutions, because one meeting point is off the window"
+    },
+    {
+     "text": "Reading off the y-coordinates of the meeting points, when the solutions are the x-values",
+     "as": "distractor",
+     "in": [
+      "graphs-for-equation",
+      "x-not-y"
+     ],
+     "wrong": "the y-values where the graphs meet"
+    },
+    {
+     "text": "Looking for the zeros of one side only, forgetting the other side of the equation",
+     "as": "distractor",
+     "in": [
+      "graphs-for-equation"
+     ],
+     "wrong": "f(x) = 0 for f(x) = g(x)"
+    },
+    {
+     "text": "Using the x-coordinates of the turning points instead of their y-values",
+     "as": "distractor",
+     "in": [
+      "k-for-count"
+     ],
+     "wrong": "−p < k < p, from the turning x-values"
+    },
+    {
+     "text": "Thinking that moving a term to the other side changes the solutions",
+     "as": "distractor",
+     "in": [
+      "same-solutions-after-rearranging"
+     ],
+     "wrong": "rearranging changes the solutions"
     }
    ]
   },
@@ -76513,6 +76820,46 @@
       "ncr-mirror"
      ],
      "wrong": "9!/2! = 181440, the (n − r)! left out"
+    },
+    {
+     "text": "Adding the two values but forgetting to halve the sum",
+     "as": "distractor",
+     "in": [
+      "find-the-mirror"
+     ],
+     "wrong": "the sum of the pair, not its midpoint"
+    },
+    {
+     "text": "Taking only one tail away from the whole, forgetting its mirror image",
+     "as": "distractor",
+     "in": [
+      "normal-middle"
+     ],
+     "wrong": "1 − p, one tail taken off"
+    },
+    {
+     "text": "Finding only the part of the middle on one side of the mean",
+     "as": "distractor",
+     "in": [
+      "normal-middle"
+     ],
+     "wrong": "0.5 − p, half the middle"
+    },
+    {
+     "text": "Taking the complement of the given tail instead of its mirror image",
+     "as": "distractor",
+     "in": [
+      "normal-other-tail"
+     ],
+     "wrong": "1 − p above, p below"
+    },
+    {
+     "text": "Giving both probabilities the tail's value, when the two must add up to one",
+     "as": "distractor",
+     "in": [
+      "normal-other-tail"
+     ],
+     "wrong": "p for both"
     }
    ]
   },
@@ -79192,6 +79539,30 @@
       "gdc-value"
      ],
      "wrong": "a line of working sets the GDC to degrees for a trig integrand"
+    },
+    {
+     "text": "Forgetting to take away the antiderivative at the lower limit",
+     "as": "distractor",
+     "in": [
+      "polynomial-check"
+     ],
+     "wrong": "F at the upper limit alone"
+    },
+    {
+     "text": "Adding the antiderivative at the lower limit instead of taking it away",
+     "as": "distractor",
+     "in": [
+      "polynomial-check"
+     ],
+     "wrong": "F(b) + F(a)"
+    },
+    {
+     "text": "Putting the limits into the integrand itself instead of into its antiderivative",
+     "as": "distractor",
+     "in": [
+      "polynomial-check"
+     ],
+     "wrong": "f(b) − f(a)"
     }
    ]
   },
