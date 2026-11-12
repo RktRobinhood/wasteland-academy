@@ -66,9 +66,11 @@ func test_every_tag_shows_up_as_an_option() -> void:
 			for o in _make(c, seed).choices:
 				if o.ref != "":
 					seen[o.ref] = true
-	for m in QuestionEngine.type_of(TYPE).misconceptions:
-		if m.as == "distractor":
-			check(seen.has(m.ref), "%s never shows" % m.ref)
+	var ms: Array = QuestionEngine.type_of(TYPE).misconceptions
+	for i in ms.size():
+		var ref: String = ms[i].get("ref", "%s#%d" % [TYPE, i])
+		if ms[i].as == "distractor":
+			check(seen.has(ref), "%s never shows" % ref)
 
 
 func test_error_spot_and_method_pick_keep_their_rules() -> void:
@@ -76,9 +78,25 @@ func test_error_spot_and_method_pick_keep_their_rules() -> void:
 		for seed in range(1, 6):
 			var mp := _make(c, seed, "method-pick")
 			var right: Array = mp.choices.filter(func(o): return o.correct)
-			check_eq(right[0].text, QuestionEngine.method_name(QuestionEngine.type_of(TYPE), c.unknown, c.angle, {}, c.angle), c.key)
+			var named := QuestionEngine.method_name(QuestionEngine.type_of(TYPE), c.unknown, c.angle, {}, c.angle)
+			check_eq(right[0].text, named.replace("f′", "g′") if c.unknown == "decreasing-quadratic" else named, c.key)
 			if c.unknown == "gdc-minimum":
 				continue
 			var es := _make(c, seed, "error-spot")
 			check_eq(es.spot.lines.size(), 4, c.key)
 			check(es.choices[es.spot.bad].correct, c.key + ": the bad line")
+
+
+## A decreasing question calls the function g: its method names, wrong methods and lines
+## never switch to f (FAL-815).
+func test_a_decreasing_question_says_g() -> void:
+	for c in QuestionEngine.cells(false, [TYPE]).filter(func(c): return c.unknown == "decreasing-quadratic"):
+		for seed in range(1, 6):
+			for fmt in ["mcq", "method-pick", "true-false-reason", "error-spot"]:
+				var q := _make(c, seed, fmt)
+				var texts: Array = [q.prompt, q.get("reason", "")]
+				for o in q.choices:
+					texts.append(o.text)
+					texts.append(QuestionEngine.misconception_text(QuestionEngine.type_of(TYPE), o.ref))
+				for t in texts:
+					check(not (t.contains("f′") or t.contains("f(") or t.contains("f is") or t.contains(" f ")), "%s %s: %s" % [c.key, fmt, t])

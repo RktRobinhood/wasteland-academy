@@ -77962,7 +77962,7 @@
 							"decreasing-quadratic",
 							"gdc-minimum"
 						],
-						"why": "one term of f′ can be negative, so the terms are not all positive"
+						"why": "a term of the derivative changes sign with x, so the terms don't all share one sign"
 					},
 					"name": "Argue term by term",
 					"about": "Show f′ is a sum of terms that cannot be negative, e.g. 3x² + e^x + 1 > 0 because x² ≥ 0 and e^x > 0."
@@ -77988,7 +77988,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL5.2.show-always-increasing#0",
-					"text": "Checking f′ at a few points and concluding it keeps that sign everywhere",
+					"text": "Checking the derivative at a few points and concluding it keeps that sign everywhere",
 					"as": "distractor",
 					"in": [
 						"quadratic-derivative",
@@ -77997,7 +77997,7 @@
 						"inverse-exists",
 						"gdc-minimum"
 					],
-					"wrong": "tests f′ at two or three values and concludes it has that sign for every x"
+					"wrong": "tests the derivative at two or three values and concludes it has that sign for every x"
 				},
 				{
 					"ref": "SL5.2.show-always-increasing#1",
@@ -78037,6 +78037,49 @@
 						"inverse-exists"
 					],
 					"wrong": "a line of working gets the derivative of one term wrong, so the terms it argues about are not f′"
+				},
+				{
+					"text": "Leaving the square's constant unmultiplied by the leading coefficient when completing the square",
+					"as": "distractor",
+					"in": [
+						"quadratic-derivative",
+						"decreasing-quadratic"
+					],
+					"wrong": "completes the square but leaves the square's constant unmultiplied by the leading coefficient, so the least or greatest value is wrong"
+				},
+				{
+					"text": "Halving b before squaring it in the discriminant",
+					"as": "distractor",
+					"in": [
+						"quadratic-derivative",
+						"decreasing-quadratic"
+					],
+					"wrong": "works out the discriminant with half of b in place of b"
+				},
+				{
+					"text": "Taking the value of f′ at x = 0 as its least value, without finding the minimum point",
+					"as": "distractor",
+					"in": [
+						"gdc-minimum"
+					],
+					"wrong": "reads f′(0) and calls it the least value of f′"
+				},
+				{
+					"text": "Mistaking the minimum point of f′ for a place where f′ is zero",
+					"as": "distractor",
+					"in": [
+						"gdc-minimum"
+					],
+					"wrong": "reads the minimum point of y = f′(x) as a root of f′, so a stationary point of f"
+				},
+				{
+					"text": "Differentiating one term of f wrongly, so the terms argued about are not those of f′",
+					"as": "distractor",
+					"in": [
+						"sum-of-terms",
+						"inverse-exists"
+					],
+					"wrong": "argues term by term about a derivative with one term wrong"
 				}
 			],
 			"frequency": 0

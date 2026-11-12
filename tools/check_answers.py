@@ -68,7 +68,10 @@ FORM_KINDS = {"vertex_form", "vertex_form_a", "general", "general_a", "factorise
 WORD_SLOTS = ("var", "rel", "kind", "k1", "k2")
 # Method-pick cells keyed by a view's title, not the catalogue's name: (type, unknown,
 # rep, angle). This is the checker's own copy, so a title in the engine can't vouch for itself.
-METHOD_PICK_TITLES = {("fn-ext-intersection-lines", "do-they-meet", "words", "coefficient-shortcut"): "Compare the gradients and intercepts"}
+METHOD_PICK_TITLES = {("fn-ext-intersection-lines", "do-they-meet", "words", "coefficient-shortcut"): "Compare the gradients and intercepts",
+                      # A decreasing question calls its function g (FAL-815).
+                      ("t5-ext-always-increasing", "decreasing-quadratic", "equation", "complete-square"): "Complete the square on g′(x)",
+                      ("t5-ext-always-increasing", "decreasing-quadratic", "equation", "discriminant-negative"): "Discriminant of g′ is negative"}
 
 
 class Fail(Exception):
@@ -41322,6 +41325,7 @@ def E13_expr(text, extra=()):
 
 E13AI_SK = "SL5.2.show-always-increasing#"
 E13AI_X = sp.Symbol("x")
+E13AI_T = "t5-ext-always-increasing#"
 
 
 def E13AI_vertex(A, h, K):
@@ -41357,7 +41361,7 @@ def E13AI_quad(q, angle, g, f):
             if x2 == x1 + 2 and v1 == d.eval(x1) and v2 == d.eval(x2):
                 pts.add(o["text"])
     right = cs if angle == "complete-square" else disc
-    return right, {E13AI_SK + "0": pts, E13AI_SK + "2": {strict}}, {cs_slip, disc_slip}, (A, B, C, h, K, delta)
+    return right, {E13AI_SK + "0": pts, E13AI_SK + "2": {strict}, E13AI_T + "5": {cs_slip}, E13AI_T + "6": {disc_slip}}, set(), (A, B, C, h, K, delta)
 
 
 def E13AI_claims(terms, strict):
@@ -41409,7 +41413,7 @@ def E13AI_check(q):
                   E13AI_SK + "1": {f"{L[0][7:]} > 0 for all x, so f is increasing"},
                   E13AI_SK + "2": {f"{E13AI_claims(t, True)}, so f′(x) = {fp} > 0 for all x"}}
         st = [(3 * p, "x²"), (qq, ""), (r, E13AI_E(s))] if s > 1 else [(p, "x²"), (qq, ""), (r, E13AI_E(s))]
-        plain = {f"{E13AI_claims(st, False)}, so f′(x) = {E13_sum(st)} > 0 for all x"}
+        tagged[E13AI_T + "9"] = {f"{E13AI_claims(st, False)}, so f′(x) = {E13_sum(st)} > 0 for all x"}
     elif u == "inverse-exists":
         m = re.fullmatch(r"f\(x\) = (\d*)x² \+ (\d*) ?ln x, for x > 0", L[0])
         need(m is not None and len(L) == 1, f"can't read {L}")
@@ -41421,7 +41425,7 @@ def E13AI_check(q):
         right = f"For x > 0, {E13_T(2 * a, 'x')} > 0 and {E13_T(b, '/x')} > 0, so f′(x) = {fp} > 0: f is increasing, so it is one-to-one and has an inverse"
         tagged = {E13AI_SK + "0": {f"f′(1) = {frac_text(d.subs(X, 1))} and f′(2) = {frac_text(d.subs(X, 2))} are both positive, so f is increasing and has an inverse"},
                   E13AI_SK + "1": {f"{E13_T(a, 'x²')} > 0 and {E13_T(b, 'ln x')} > 0 for x > 0, so f(x) > 0 and f has an inverse"}}
-        plain = {f"For x > 0, {E13_T(2 * a, 'x')} > 0 and {E13_T(b, '/x²')} > 0, so f′(x) = {E13_sum([(2 * a, 'x'), (b, '/x²')])} > 0: f is increasing, so it is one-to-one and has an inverse"}
+        tagged[E13AI_T + "9"] = {f"For x > 0, {E13_T(2 * a, 'x')} > 0 and {E13_T(b, '/x²')} > 0, so f′(x) = {E13_sum([(2 * a, 'x'), (b, '/x²')])} > 0: f is increasing, so it is one-to-one and has an inverse"}
     else:
         m = re.fullmatch(r"f\(x\) = (\d*)e\^x − (\d*)x²(?: ([+−]) (\d*)x)?", L[0])
         need(m is not None and len(L) == (2 if q["view"]["rep"] == "graph" else 1), f"can't read {L}")
@@ -41440,8 +41444,8 @@ def E13AI_check(q):
         f1 = sp.N(d.subs(X, 1), 40)
         need(f1 > 0 and d.subs(X, 0) > 0, "a tested value is not positive")
         tagged = {E13AI_SK + "0": {f"f′(0) = {d.subs(X, 0)} and f′(1) = {gc_s(f1)} are both positive, so f′(x) > 0 for all x"}}
-        plain = {f"The GDC shows the least value of f′(x) is {d.subs(X, 0)}, at x = 0, so f′(x) > 0 for all x",
-                 f"The GDC shows f′(x) = 0 at x = {gc_s(sp.N(xm, 40))}, so f has a stationary point there"}
+        tagged[E13AI_T + "7"] = {f"The GDC shows the least value of f′(x) is {d.subs(X, 0)}, at x = 0, so f′(x) > 0 for all x"}
+        tagged[E13AI_T + "8"] = {f"The GDC shows f′(x) = 0 at x = {gc_s(sp.N(xm, 40))}, so f has a stationary point there"}
         if q["view"]["rep"] == "graph":
             dl = sp.lambdify(X, d, "math")
             for x, y in q["graph"]["curves"][0][::11]:

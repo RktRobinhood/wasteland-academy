@@ -14,6 +14,11 @@ const R_F_POSITIVE := SK + "1"
 const R_STRICT := SK + "2"
 const R_SQUARE_SLIP := "t5-ext-always-increasing#3"
 const R_TERM_SLIP := "t5-ext-always-increasing#4"
+const R_SQUARE_PICK := "t5-ext-always-increasing#5"
+const R_HALF_B := "t5-ext-always-increasing#6"
+const R_AT_ZERO := "t5-ext-always-increasing#7"
+const R_MIN_AS_ROOT := "t5-ext-always-increasing#8"
+const R_TERM_PICK := "t5-ext-always-increasing#9"
 const UNKNOWNS := ["quadratic-derivative", "decreasing-quadratic", "sum-of-terms", "inverse-exists", "gdc-minimum"]
 const PICK_WRONGS := [
 	{"name": "Check f′ at a few values of x", "why": "a few values can't show that f′ keeps its sign for every x"},
@@ -44,7 +49,8 @@ func papers(unknown: String, _rep: String, _angle: String) -> Array:
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
 	out.given = AlwaysIncreasingSituation.export(s)
-	out.pick_wrongs = PICK_WRONGS
+	if not out.has("pick_wrongs"):
+		out.pick_wrongs = PICK_WRONGS
 	return out
 
 
@@ -56,8 +62,13 @@ static func T(c: Variant, body: String) -> String:
 	return DifferentiationViews.T(c, body)
 
 
-static func pick(right: String, tagged: Array, plain: Array) -> Dictionary:
-	return InverseRuleViews.choose(right, tagged, plain)
+## Every wrong statement here is a tagged slip, so the shared builder's plain list comes back
+## empty; it is read as fillers either way.
+static func pick(right: String, tagged: Array) -> Dictionary:
+	var out := InverseRuleViews.choose(right, tagged, [])
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
+	return out
 
 
 static func tag(text: String, ref: String) -> Dictionary:
@@ -123,10 +134,19 @@ func _quadratic(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var points := "%s′(%s) = %s and %s′(%s) = %s are both %s, so %s" % [g, N(x1), N(at(c, x1)), g, N(x2), N(at(c, x2)), sign_word, sign_end]
 	var tagged := [tag(points, R_POINTS), tag("%s′(x) = %s %s" % [g, vertex(s, k), strict], R_STRICT)]
 	var right := cs if angle == "complete-square" else disc
-	var plain := [cs_slip, disc_slip] if angle == "complete-square" else [disc_slip, cs_slip]
+	# The asked method's own slip first, so it is the one shown.
+	var slips := [tag(cs_slip, R_SQUARE_PICK), tag(disc_slip, R_HALF_B)]
+	tagged.append_array(slips if angle == "complete-square" else [slips[1], slips[0]])
 	var out := {"asked": "Which statement shows that %s is %s for all x?" % [g, "increasing" if up else "decreasing"],
 		"lines": ["%s(x) = %s" % [g, f_text(s)]]}
-	out.merge(pick(right, tagged, plain))
+	out.merge(pick(right, tagged))
+	# A decreasing question names g: its methods and the wrong methods say g too.
+	if not up:
+		out.titles = {"complete-square": "Complete the square on g′(x)", "discriminant-negative": "Discriminant of g′ is negative"}
+		out.pick_wrongs = [
+			{"name": "Check g′ at a few values of x", "why": "a few values can't show that g′ keeps its sign for every x"},
+			{"name": "Show that g(x) < 0", "why": "g being negative says nothing about whether g decreases"},
+		]
 	var a3: int = c[0]
 	var inner := SUM([[1, "x²"], [-2 * s.h, "x"]])
 	var opened := SUM([[a3, sq(s.h)], [-a3 * s.h * s.h, ""], [c[2], ""]])
@@ -185,7 +205,7 @@ func u_sum_of_terms(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var slip := "%s, so f′(x) = %s > 0 for all x" % [claims(slip_t, false), SUM(slip_t)]
 	var out := {"asked": "Which statement shows that f is increasing for all x?", "lines": ["f(x) = " + f]}
 	out.merge(pick(right, [tag(points, R_POINTS), tag("%s > 0 for all x, so f is increasing" % f, R_F_POSITIVE),
-		tag("%s, so f′(x) = %s > 0 for all x" % [claims(t, true), fp], R_STRICT)], [slip]))
+		tag("%s, so f′(x) = %s > 0 for all x" % [claims(t, true), fp], R_STRICT), tag(slip, R_TERM_PICK)]))
 	out.methods = {"sum-of-positive-terms": method(["f′(x) = %s." % fp,
 		"A square is never negative, a positive number times an exponential is always positive, and %s > 0." % N(q), right + "."], {"v": right})}
 	var lines := ["f′(x) = " + SUM(slip_t), claims(slip_t, false), "So f′(x) > 0 for all x", "So f is increasing for all x"]
@@ -210,7 +230,7 @@ func u_inverse_exists(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var slip_fp := SUM([[2 * a, "x"], [b, "/x²"]])
 	var slip := "For x > 0, %s > 0 and %s > 0, so f′(x) = %s > 0: f is increasing, so it is one-to-one and has an inverse" % [T(2 * a, "x"), T(b, "/x²"), slip_fp]
 	var out := {"asked": "Which statement shows that f′(x) > 0 for x > 0, and explains why f has an inverse?", "lines": ["f(x) = %s, for x > 0" % f]}
-	out.merge(pick(right, [tag(points, R_POINTS), tag(positive, R_F_POSITIVE)], [slip]))
+	out.merge(pick(right, [tag(points, R_POINTS), tag(positive, R_F_POSITIVE), tag(slip, R_TERM_PICK)]))
 	out.methods = {"sum-of-positive-terms": method(["f′(x) = %s." % fp, "For x > 0, %s and %s are both positive." % [T(2 * a, "x"), T(b, "/x")], right + "."], {"v": right})}
 	var lines := ["f′(x) = " + slip_fp, "For x > 0, %s > 0 and %s > 0" % [T(2 * a, "x"), T(b, "/x²")], "So f′(x) > 0 for x > 0", "So f is one-to-one and has an inverse"]
 	var bad := 0
@@ -248,6 +268,6 @@ func u_gdc_minimum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		for pt in c:
 			top = maxf(top, pt[1])
 		out.graph = Plot.spec([c], [], lo, hi, -2, mini(ceili(top) + 1, 40))
-	out.merge(pick(right, [tag(points, R_POINTS)], [at_zero, zero]))
+	out.merge(pick(right, [tag(points, R_POINTS), tag(at_zero, R_AT_ZERO), tag(zero, R_MIN_AS_ROOT)]))
 	out.methods = {"graph-f-prime": method(["f′(x) = %s." % fp, "Graph y = f′(x) on the GDC and find its minimum point: (%s, %s)." % [S(s.xm), S(s.v)], right + "."], {"v": right})}
 	return out
