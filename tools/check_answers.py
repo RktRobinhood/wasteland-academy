@@ -4875,6 +4875,7 @@ EF_CLAIMS = {
     "log(a/b) = log a / log b": lambda a, b: (sp.log(a / b, 10), sp.log(a, 10) / sp.log(b, 10)),
 }
 TRIG = {"sin": sp.sin, "cos": sp.cos}
+EF_OWN = "fn-link-equivalent-forms#"
 
 
 @lru_cache(maxsize=None)
@@ -4934,6 +4935,8 @@ def check_eqforms(q):
         c = parse(m.group(1)).subs(X, 0)
         wr["SL2.6.complete-square#0"] = {qr_norm(ans, {"v0": str(p_), "v1": str(c)})}
         wr["SL2.6.complete-square#2"] = {qr_norm(ans, {"v0": str(-p_), "v1": str(q_)})}
+        # p read as the whole x coefficient b = 2p, and q from it: c − b².
+        wr[EF_OWN + "15"] = {qr_norm(ans, {"v0": str(2 * p_), "v1": str(c - (2 * p_)**2)})}
         qr_check_common(q, qr_norm(ans, {"v0": str(p_), "v1": str(q_)}), wr)
     elif u == "same-or-not":
         mm, nn = R(g["m"]), R(g["n"])
@@ -4948,6 +4951,20 @@ def check_eqforms(q):
             if o == "The same: they agree when x = 0":
                 need(not same and sp.expand(x - y).subs(X, 0) == 0, "they don't agree at x = 0, or are the same")
                 wr["SL1.6.identity-constants#0"] = {qr_norm(ans, {"v": o})}
+        # Each slip's own claim, written from m and n: ln a − ln b as ln(a − b), n ln a as
+        # ln(na) or (ln a)ⁿ, ln a + ln b as ln(a + b), (x + m)² as x² + m².
+        M, Nn = int(mm), int(nn)
+        if g["pair"] == "log-sub":
+            wr[EF_OWN + "16"] = {qr_norm(ans, {"v": f"Not the same: ln {M * Nn} − ln {Nn} = ln {M * Nn - Nn}"})}
+        if g["pair"] == "log-pow":
+            wr[EF_OWN + "17"] = {qr_norm(ans, {"v": f"Not the same: 2 ln {M} = ln {2 * M}"})}
+            wr["SL1.7.log-laws#2"] = {qr_norm(ans, {"v": f"Not the same: 2 ln {M} = (ln {M})²"})}
+        if g["pair"] == "log-add":
+            need(not same, "ln a + ln b is ln(a + b) here")
+            wr["SL1.7.log-laws#0"] = {qr_norm(ans, {"v": "The same: ln a + ln b = ln(a + b)"})}
+        if g["pair"] == "sq-sum":
+            need(sp.expand(x) != X**2 + M * M and y == X**2 + M * M, "the pair is not (x + m)² against x² + m²")
+            wr[EF_OWN + "18"] = {qr_norm(ans, {"v": "The same: each term can be squared"})}
         qr_check_common(q, qr_norm(ans, {"v": right}), wr)
     elif u == "log-law-check":
         claim = next((c for c in EF_CLAIMS if c in L[0]), None)
@@ -4957,9 +4974,16 @@ def check_eqforms(q):
         right = ans["values"]["v"]
         need(right.startswith("True") == true_ and not right.startswith("True, but"), f"the answer {right!r} gets the claim wrong")
         if "True" in ans["fixed"]["options"]:
-            ref = {"log(a + b) = log a + log b": "SL1.7.log-laws#0", "(log a)² = 2 log a": "SL1.7.log-laws#2"}.get(claim)
+            ref = {"log(a + b) = log a + log b": "SL1.7.log-laws#0", "(log a)² = 2 log a": "SL1.7.log-laws#2",
+                   "log(a/b) = log a / log b": "SL1.7.log-laws#1"}.get(claim)
             if ref:
+                need(not true_, "a misconception's claim is true")
                 wr[ref] = {qr_norm(ans, {"v": "True"})}
+        if claim == "log a − log b = log(a/b)":
+            wr[EF_OWN + "16"] = {qr_norm(ans, {"v": "False: log a − log b = log(a − b)"})}
+            wr["SL1.7.log-laws#1"] = {qr_norm(ans, {"v": "False: log a − log b = log a / log b"})}
+        if claim == "log(a^n) = n log a":
+            wr["SL1.7.log-laws#2"] = {qr_norm(ans, {"v": "False: log(a^n) = (log a)^n"})}
         qr_check_common(q, qr_norm(ans, {"v": right}), wr)
     elif u == "cos2x-form":
         fn, B, C = g["fn"], R(g["B"]), R(g["C"])
@@ -4968,6 +4992,15 @@ def check_eqforms(q):
         need(isinstance(sols, sp.FiniteSet) and 2 <= len(sols) <= 4, f"{sols} is not 2 to 4 solutions")
         vals = sorted(sp.nsimplify(s_ / sp.pi) for s_ in sols)
         want = qr_norm(ans, {f"a{i}": str(v_) for i, v_ in enumerate(vals)})
+        # One angle swapped for a quadrant partner (π − x, π + x, 2π − x) in [0, 2π] that
+        # isn't a solution: that set no longer solves the equation.
+        slips = set()
+        for i, v_ in enumerate(vals):
+            for y_ in (1 - v_, 1 + v_, 2 - v_):
+                if 0 <= y_ <= 2 and y_ not in vals:
+                    need(sp.simplify(sp.cos(2 * y_ * sp.pi) + B * TRIG[fn](y_ * sp.pi) + C) != 0, "a swapped angle solves the equation")
+                    slips.add(qr_norm(ans, {f"a{j}": str(y_ if j == i else w_) for j, w_ in enumerate(vals)}))
+        wr[EF_OWN + "19"] = slips
         qr_check_common(q, want, wr)
     elif u == "power-form-first":
         A, m_, B, n_ = R(g["A"]), R(g["m"]), R(g["B"]), R(g["n"])
@@ -4997,7 +5030,15 @@ def check_eqforms(q):
         a, _, _ = coeffs(f)
         rs = real_roots(f)
         need(all(r.is_integer for r in rs), "the roots are not whole numbers")
-        qr_check_common(q, qr_norm(ans, {"a": str(a), "p": str(rs[0]), "q": str(rs[1])}))
+        hv, kv = vertex(f)
+        d = (rs[1] - rs[0]) / 2
+        fz = lambda a_, p_, q_: qr_norm(ans, {"a": str(a_), "p": str(p_), "q": str(q_)})
+        wr[EF_OWN + "20"] = {fz(a, -rs[0], -rs[1])}
+        wr[EF_OWN + "21"] = {fz(a, hv - d**2, hv + d**2)}
+        if a != 1:
+            wr[EF_OWN + "22"] = {fz(1, rs[0], rs[1])}
+        wr[EF_OWN + "23"] = {fz(a, hv, kv)}
+        qr_check_common(q, fz(a, rs[0], rs[1]), wr)
     else:
         raise Fail(f"the checker has no solver for {u}")
     return None, None
@@ -5668,6 +5709,7 @@ def el_check_log_table(q, b, h, c, hide):
 
 # ── fn-ext-exp-graph (on exp-log-pair) ──
 
+EL_OWN, EG_OWN = "fn-exp-log-inverse-composite#", "fn-ext-exp-graph#"
 EG_UNKNOWNS = {"y-intercept", "asymptote", "range", "growth-or-decay", "pick-graph", "moves-from-parent",
                "equation-from-graph", "compare-reflections"}
 
@@ -5697,16 +5739,23 @@ def check_exp_graph(q):
         need(h != 0, "h = 0 makes the slip the answer")
         want = qr_norm(ans, {"y": str(f.subs(X, 0))})
         wr["SL2.9.exp-graph#0"] = {qr_norm(ans, {"y": str(A + c)})}
+        wr[EG_OWN + "4"] = {qr_norm(ans, {"y": str(c)})}
+        wr[EG_OWN + "5"] = {qr_norm(ans, {"y": str(f.subs(X, 0) - c)})}
     elif u == "asymptote":
         need(c != 0, "c = 0 makes y = 0 the answer")
         want = qr_norm(ans, {"var": "y", "h": str(sp.limit(f, X, -sp.oo))})
         wr["SL2.9.exp-graph#1"] = {qr_norm(ans, {"var": "y", "h": "0"})}
+        wr[EG_OWN + "6"] = {qr_norm(ans, {"var": "x", "h": str(sp.limit(f, X, -sp.oo))})}
     elif u == "range":
         lim = sp.limit(f, X, -sp.oo)
         rng_ = sp.calculus.util.function_range(f, X, sp.S.Reals)
         need(rng_ in (sp.Interval.open(lim, sp.oo), sp.Interval.open(-sp.oo, lim)), f"the range {rng_} is not one side of the asymptote")
         want = qr_norm(ans, {"rel": ">" if rng_.sup == sp.oo else "<", "v": str(lim)})
         wr["SL2.2.range#1"] = {qr_norm(ans, {"rel": "≥" if rng_.sup == sp.oo else "≤", "v": str(lim)})}
+        # The parent's asymptote y = 0 kept; and for A < 0, the side above it.
+        wr[EG_OWN + "7"] = {qr_norm(ans, {"rel": ">" if rng_.sup == sp.oo else "<", "v": "0"})}
+        if A < 0:
+            wr[EG_OWN + "8"] = {qr_norm(ans, {"rel": ">", "v": str(lim)})}
     elif u == "growth-or-decay":
         if rep == "table":
             ys = [el_num(y) for y in q["table"]["rows"][1][1]]
@@ -5720,17 +5769,24 @@ def check_exp_graph(q):
             up = m.group(2) == "^x"
         right = "increasing: the base is greater than 1" if up else "decreasing: the base is between 0 and 1"
         want = qr_norm(ans, {"v": right})
+        if rep == "equation" and not up:
+            wr[EG_OWN + "9"] = {qr_norm(ans, {"v": "increasing: the base is greater than 1"})}
     elif u == "pick-graph":
         need(A > 0, "a reflected graph is not offered as increasing")
         y0 = f.subs(X, 0)
         say = lambda asym, a_, b_, up_: el_m_text(f"asymptote y = {asym}, through {a_ if a_ == b_ else a_ + ' and ' + b_}, {'increasing' if up_ else 'decreasing'}")
         P = lambda x_, y_: el_m_text(f"({frac_text(x_)}, {frac_text(y_)})")
         want = qr_norm(ans, {"v": say(c, P(0, y0), P(h, A + c), True)})
+        wr[EG_OWN + "7"] = {qr_norm(ans, {"v": say(0, P(0, y0), P(h, A + c), True)})}
+        wr["SL2.9.exp-graph#0"] = {qr_norm(ans, {"v": say(c, P(0, A + c), P(h, A + c), True)})}
+        wr[EG_OWN + "10"] = {qr_norm(ans, {"v": say(c, P(0, y0), P(-h, A + c), True)})}
     elif u == "moves-from-parent":
         need(f"(0, 1) on y = {b}^x" in asked, "the parent is not b^x")
         # (0, 1) on b^x is where the exponent is 0: x = h, y = A + c.
         need(sp.simplify(f.subs(X, h) - (A + c)) == 0, "the image is not on the curve")
         want = qr_norm(ans, {"x": str(h), "y": str(A + c)})
+        wr[EG_OWN + "10"] = {qr_norm(ans, {"x": str(-h), "y": str(A + c)})}
+        wr[EG_OWN + "11"] = {qr_norm(ans, {"x": str(h), "y": str(1 + c)})}
     elif u == "equation-from-graph":
         if rep == "table":
             c = el_num(em_read(r"y → (−?\d+)\.", Lj, "the asymptote").group(1))
@@ -5751,6 +5807,8 @@ def check_exp_graph(q):
             for x0, y0 in q["graph"]["curves"][0][::16]:
                 need(abs(sp.N(fn.subs(X, sp.Float(x0, 30))) - y0) <= 1e-6 * max(1, abs(y0)), "the curve is not the function")
         want = qr_norm(ans, {"v0": str(c), "v1": str(A_), "v2": str(b_)})
+        wr[EG_OWN + "12"] = {qr_norm(ans, {"v0": str(c), "v1": str(ys[0]), "v2": str(b_)})}
+        wr[EG_OWN + "13"] = {qr_norm(ans, {"v0": str(c), "v1": str(A_), "v2": str(ys[1] - c)})}
     elif u == "compare-reflections":
         b = int(em_read(r"y = (\d+)\^x and y = \(1/(\d+)\)\^x", Lj, "the two").group(1))
         need(sp.simplify(sp.Integer(b) ** (-X) - sp.Rational(1, b) ** X) == 0, "not a reflection pair")
@@ -5782,6 +5840,7 @@ def check_exp_log_pair(q):
             el_check_log_table(q, b, h, c, x)
         want = qr_norm(ans, {"v": str(val)})
         wr[f"{ELF}#0"] = {qr_norm(ans, {"v": str((x - h) / b + c)})}
+        wr[EL_OWN + "19"] = {qr_norm(ans, {"v": str(val - c)})}
     elif u == "log-of-non-positive":
         b, h, c = el_parse_log(L[0], r"g\(x\)")
         x0 = el_num(em_read(r"Find g\((−?\d+)\)", asked, "the input").group(1))
@@ -5795,6 +5854,8 @@ def check_exp_log_pair(q):
         el_is_inverse(el_fn_expr("log", b, vals["p"], vals["q"]), f, EL_PTS)
         want = el_fn_norm("log", c, h)
         wr[f"{FI}#0"] = {el_fn_norm("recip", h, c)}
+        wr[EL_OWN + "20"] = {el_fn_norm("log", h, c)}
+        wr[EL_OWN + "21"] = {el_fn_norm("log", -c, -h)}
     elif u == "inverse-of-log":
         f = sp.log(X - h, b) + c
         vals = ans["values"]
@@ -5802,6 +5863,7 @@ def check_exp_log_pair(q):
         want = el_fn_norm("exp", c, h)
         wr[f"{FI}#1"] = {el_fn_norm("exp", -h, -c)}
         wr[f"{ELF}#1"] = {el_fn_norm("pow", c, h)}
+        wr[EL_OWN + "20"] = {el_fn_norm("exp", h, c)}
     elif u == "evaluate-inverse":
         a = el_num(em_read(r"Find g⁻¹\((−?\d+)\)\.", asked, "the value").group(1))
         x = b ** (a - c) + h
@@ -5811,6 +5873,7 @@ def check_exp_log_pair(q):
             need(frac_text(a) in q["table"]["rows"][1][1], "the value asked is not in the table")
         want = qr_norm(ans, {"v": str(x)})
         wr[f"{ELI}#1"] = {qr_norm(ans, {"v": str((a - c) ** b + h)})}
+        wr[EL_OWN + "22"] = {qr_norm(ans, {"v": str(b ** (a - c))})}
     elif u == "inverse-awkward-base":
         b1 = int(em_read(r"^f\(x\) = (\d+)\^x$", L[0], "f").group(1))
         v = el_num(em_read(r"Find f⁻¹\((\d+)\)", asked, "the value").group(1))
@@ -5818,6 +5881,10 @@ def check_exp_log_pair(q):
         need(val.is_rational and not val.is_integer, f"log_{b1} {v} = {val} is not a fraction")
         want = qr_norm(ans, {"v": str(val)})
         wr["SL1.7.change-of-base#0"] = {qr_norm(ans, {"v": str(1 / val)})}
+        # The number divided by the base; the number's power of the common base p alone.
+        wr[f"{ELF}#0"] = {qr_norm(ans, {"v": str(sp.Rational(v, b1))})}
+        pb = min(p_ for p_ in (2, 3, 5, 7) if sp.nsimplify(sp.log(b1, p_)).is_integer and sp.nsimplify(sp.log(v, p_)).is_integer)
+        wr[EL_OWN + "24"] = {qr_norm(ans, {"v": str(sp.nsimplify(sp.log(v, pb)))})}
     elif u == "simplify-composite":
         b1 = int(em_read(r"^f\(x\) = (\d+)\^x$", L[0], "f").group(1))
         b2 = int(em_read(r"^g\(x\) = log([₀-₉]+) x, for x > 0$", L[1], "g").group(1).translate(EL_SUB))
@@ -5826,6 +5893,7 @@ def check_exp_log_pair(q):
         need(sp.simplify(sp.Integer(b1) ** sp.log(sp.Integer(7), b2) - sp.Integer(7) ** n) == 0, "f(g(7)) is not 7 to that power")
         want = ("pow", n)
         wr["SL2.5.composite-expression#0"] = {("lin", n)}
+        wr["SL1.7.change-of-base#0"] = {("pow", 1 / n)}
         pbase = min(p for p in (2, 3) if sp.log(b2, p).is_integer and sp.log(b1, p).is_integer)
         if b2 != pbase:
             wr["SL1.7.change-of-base#2"] = {("pow", sp.Rational(int(sp.log(b1, pbase)), b2))}
@@ -5843,10 +5911,18 @@ def check_exp_log_pair(q):
             need(sol.left_open and sol.sup.is_integer, "not 0 < x < v")
             want = qr_norm(ans, {"lo": "0", "r1": "<", "r2": "<" if sol.right_open else "≤", "hi": str(sol.sup)})
             need(ans["kind"] == "range2", "a bounded set is not written as lo < x < hi")
+            nn = sp.nsimplify(sp.log(sol.sup, b))
+            at = lambda hi: qr_norm(ans, {"lo": "0", "r1": "<", "r2": "<" if sol.right_open else "≤", "hi": str(hi)})
         else:
             need(sol.sup == sp.oo and sol.inf.is_integer, "not x > v")
             want = qr_norm(ans, {"rel": ">" if sol.left_open else "≥", "v": str(sol.inf)})
             need(ans["kind"] == "bound", "a ray is not written as x > v")
+            nn = sp.nsimplify(sp.log(sol.inf, b))
+            at = lambda v_: qr_norm(ans, {"rel": ">" if sol.left_open else "≥", "v": str(v_)})
+        # The bound on log_b x given for x; and log_b x = n turned into x = n^b.
+        need(nn.is_integer and nn > 0, "the log bound is not a whole power")
+        wr[EL_OWN + "25"] = {at(nn)}
+        wr[f"{ELI}#1"] = {at(nn ** b)}
     elif u == "transformations-between":
         Lf = [l for l in L if l.startswith("f(x) = ")][0]
         Lg = [l for l in L if l.startswith("g(x) = ")][0]
@@ -5863,6 +5939,7 @@ def check_exp_log_pair(q):
             need("stretch" in asked and j.is_integer and j > 1 and hg == 0 and cg == 0, "g is not a stretch of f")
             right = f"a horizontal stretch, scale factor 1/{j}"
             wr["SL2.11.describe#2"] = {qr_norm(ans, {"v": f"a stretch, scale factor 1/{j}"})}
+            wr[EL_OWN + "26"] = {qr_norm(ans, {"v": f"a horizontal stretch, scale factor {j}"})}
             gx = sp.Integer(bg) ** X
         if rep == "graph":
             gr = q["graph"]
@@ -5876,6 +5953,8 @@ def check_exp_log_pair(q):
         need(b ** n == x, "the power statement is false")
         want = (R(b), R(x), R(n))
         wr[f"{ELF}#1"] = {(R(n), R(x), R(b))}
+        wr[EL_OWN + "27"] = {(R(x), R(b), R(n))}
+        wr[EL_OWN + "28"] = {(R(b), R(n), R(x))}
     elif u == "solve-exp-equation":
         m = em_read(r"^e\^\((\d+)x\)(?: ([+−]) (\d+))? = (−?\d+)$", L[0], "the equation")
         mm, c, d = int(m.group(1)), el_parse_q(m.group(2), m.group(3)), el_num(m.group(4))
@@ -5893,6 +5972,9 @@ def check_exp_log_pair(q):
         need(len(sol) == 1 and sol[0].is_integer, f"the solution {sol} is not one whole number")
         want = qr_norm(ans, {"v": str(sol[0])})
         wr[f"{ELI}#1"] = {qr_norm(ans, {"v": str((d - c) ** b + h)})}
+        if d >= 0:
+            wr[EL_OWN + "23"] = {qr_norm(ans, {"v": str(b ** d + h)})}
+        wr[EL_OWN + "22"] = {qr_norm(ans, {"v": str(b ** (d - c))})}
     elif u == "composite-order":
         b, _, _ = el_parse_exp(L[0])
         if "log" in L[1]:
@@ -5907,7 +5989,8 @@ def check_exp_log_pair(q):
         say = lambda a_, c_, e_: f"f(g(x)) = {a_}, g(f(x)) = {c_}: {'equal' if e_ else 'not equal'}"
         want = qr_norm(ans, {"v": say(fg, gf, same)})
         if not same:
-            wr["SL2.5.composite-expression#2"] = {qr_norm(ans, {"v": say(fg, gf, True)})}
+            wr["SL2.5.composite-expression#2"] = {qr_norm(ans, {"v": say(fg, gf, True)}), qr_norm(ans, {"v": say(fg, fg, True)})}
+            wr["SL2.5.composite-expression#0"] = {qr_norm(ans, {"v": say(gf, fg, False)})}
     elif u == "inverse-graph":
         b, h, c = el_parse_exp(L[0])
         f = b ** (X - h) + c
@@ -5931,12 +6014,16 @@ def check_exp_log_pair(q):
         el_is_inverse(el_fn_expr("exphalf", b, 0, vals["q"]), f, [h + x for x in EL_PTS])
         want = el_fn_norm("exphalf", 0, h)
         wr[f"{FI}#2"] = {el_fn_norm("pm", 0, h)}
+        wr[EL_OWN + "29"] = {el_fn_norm("exp", 0, h)}
     elif u == "function-from-inverse":
         b, h, c = el_parse_log(L[0], r"f⁻¹\(x\)")
         finv = sp.log(X - h, b) + c
         vals = ans["values"]
         el_is_inverse(finv, el_fn_expr("exp", b, vals["p"], vals["q"]), EL_PTS)
         want = el_fn_norm("exp", c, h)
+        wr[EL_OWN + "20"] = {el_fn_norm("exp", h, c)}
+        wr[EL_OWN + "21"] = {el_fn_norm("exp", -c, -h)}
+        wr[f"{ELF}#1"] = {el_fn_norm("pow", c, h)}
     else:
         raise Fail(f"the checker has no solver for {u}")
     qr_check_common(q, want, wr)
@@ -5989,6 +6076,7 @@ def check_exp_log_pair_p2(q):
         need(ans["label"] == el_m_text(f"g({x}) = "), "the label is not g at the input")
         want = el_p2_value(sp.log(k, b) + c)
         wr[f"{ELF}#0"] = {ext_sf(k / sp.Integer(b) + c)}
+        wr[EL_OWN + "19"] = {ext_sf(sp.log(k, b))}
     elif u == "evaluate-inverse":
         m = em_read(r"^Find g⁻¹\((−?\d+(?:\.\d+)?)\),", asked, "the value")
         a, t = el_p2_t(m.group(1), c)
@@ -5998,6 +6086,7 @@ def check_exp_log_pair_p2(q):
         need(abs(x) >= 1, "the answer is too close to 0")
         want = el_p2_value(x)
         wr[f"{ELI}#1"] = {ext_sf(t ** b + h)}
+        wr[EL_OWN + "22"] = {ext_sf(sp.Integer(b) ** t)}
     elif u == "solve-exp-equation":
         m = em_read(r"^e\^\((\d+)x\)(?: ([+−]) (\d+))? = (−?\d+)$", L[0], "the equation")
         mm, c, d = int(m.group(1)), el_parse_q(m.group(2), m.group(3)), el_num(m.group(4))
@@ -6020,6 +6109,8 @@ def check_exp_log_pair_p2(q):
         need(abs(sol[0]) >= 1, "the answer is too close to 0")
         want = el_p2_value(sol[0])
         wr[f"{ELI}#1"] = {ext_sf(t ** b + h)}
+        wr[EL_OWN + "23"] = {ext_sf(sp.Integer(b) ** a + h)}
+        wr[EL_OWN + "22"] = {ext_sf(sp.Integer(b) ** t)}
     qr_check_common(q, want, wr)
     if any(o.get("trap") for o in q["choices"]):
         trap = [o for o in q["choices"] if o.get("trap")][0]
@@ -7420,6 +7511,7 @@ def check_gdc_combined(q):
 # context's interval picks the one asked for.
 
 CE_SG, CE_CA = "SL2.10.solve-gdc", "SL2.10.context-apply"
+CE_OWN = "fn-gdc-solve-equation#"
 
 
 def ce_num(t):
@@ -7437,7 +7529,8 @@ def check_gdc_context_equation(q):
         m = re.search(r"(?:has a solution x = |where x = )([\d.]+)\.", j)
         x0 = ce_num(m.group(1))
         k = x0 / sp.sin(x0)
-        gc_check_common(q, "k = " + gc_s(sp.N(k, 30)), {}, "k = " + gc_s2(sp.N(k, 30)))
+        gc_check_common(q, "k = " + gc_s(sp.N(k, 30)), {CE_OWN + "10": {"k = " + gc_s(sp.N(sp.sin(x0) / x0, 30))},
+                                                        CE_OWN + "11": {"k = " + gc_s(sp.N(x0 * sp.sin(x0), 30))}}, "k = " + gc_s2(sp.N(k, 30)))
         return None, None
     if u == "smallest-whole-number":
         m = re.search(r"\$(\d+) is invested at ([\d.]+)% a year", j)
@@ -7467,7 +7560,7 @@ def check_gdc_context_equation(q):
         need(len(rs) == 1, "not one angle between 0 and π")
         arc = r * rs[0]
         th2 = sp.Rational(sig3(sp.Float(rs[0], 30), 2))
-        gc_check_common(q, gc_s(arc) + " cm", {CE_SG + "#1": {gc_s(r * th2) + " cm"}}, gc_s2(arc) + " cm")
+        gc_check_common(q, gc_s(arc) + " cm", {CE_SG + "#1": {gc_s(r * th2) + " cm"}, CE_OWN + "7": {gc_s(rs[0]) + " cm"}}, gc_s2(arc) + " cm")
         return None, None
     if u == "simultaneous-nonlinear":
         a, b = re.search(r"y = (.+?) and y = (.+?), for x > 0", asked).groups()
@@ -7477,7 +7570,7 @@ def check_gdc_context_equation(q):
         need(len(pos) == 1, "not one solution with x > 0")
         y = gc_f(fb)(pos[0])
         x2 = sp.Rational(sig3(sp.Float(pos[0], 30), 2))
-        gc_check_common(q, "y = " + gc_s(y), {CE_SG + "#1": {"y = " + gc_s(fb.subs(X, x2))}}, "y = " + gc_s2(y))
+        gc_check_common(q, "y = " + gc_s(y), {CE_SG + "#1": {"y = " + gc_s(fb.subs(X, x2))}, CE_OWN + "8": {"y = " + gc_s(pos[0])}}, "y = " + gc_s2(y))
         return None, None
     if u == "first-time":
         m = re.search(r"h\(t\) = (.+?)\. Find the first time it is ([\d.]+) m high", asked)
@@ -7486,7 +7579,7 @@ def check_gdc_context_equation(q):
         need(len(rs) == 2, "the ball is not at that height twice")
         if rep == "graph":
             need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the graph drawn is not h")
-        gc_check_common(q, "t = " + gc_s(rs[0]), {CE_CA + "#2": {"t = " + gc_s(c)}}, "t = " + gc_s2(rs[0]))
+        gc_check_common(q, "t = " + gc_s(rs[0]), {CE_CA + "#2": {"t = " + gc_s(c)}, CE_OWN + "9": {"t = " + gc_s(rs[1])}}, "t = " + gc_s2(rs[0]))
         return None, None
     # x = k sin x, or an exponential against a line.
     if L[0].startswith("Two quantities"):
@@ -7510,6 +7603,7 @@ def check_gdc_context_equation(q):
             pos = [x for x in rs if x > 1e-9]
             need(len(pos) == 1, "not one positive solution")
             want = pos[0]
+            wr[CE_OWN + "6"] = {"x = " + gc_s(x) for x in rs if x < -1e-9}
         else:
             need("largest solution" in asked, "which solution is asked?")
             want = rs[-1]
@@ -7523,9 +7617,10 @@ def check_gdc_context_equation(q):
         else:
             right = next(o for o in q["choices"] if o["correct"])
             need(right["text"].startswith(f"t = {gc_s(rs[1])}:") and f"t = {gc_s(rs[0])}" in right["text"], "the right option doesn't keep the positive root")
+            keep = {f"Both, t = {gc_s(rs[0])} and t = {gc_s(rs[1])}: each solves the equation."}
             for o in q["choices"]:
                 if o["ref"]:
-                    need(o["text"].startswith(f"t = {gc_s(rs[0])}:"), "CA#1 doesn't keep the negative root")
+                    need(o["text"].startswith(f"t = {gc_s(rs[0])}:") or o["text"] in keep, "CA#1 doesn't keep the negative root")
             gc_check_common(q, right["text"], {CE_CA + "#1": {o["text"] for o in q["choices"] if o["ref"]}})
     elif u == "count-roots":
         if rep == "graph":
@@ -7941,7 +8036,11 @@ def check_graph_match(q):
         need(len(fits) == 1 and fits[0]["correct"], f"{len(fits)} equations fit the graph")
         f = gm_expr(right["text"])
         mk = "lifted" if u == "equation-from-graph" else "swapped"
-        wr = {(GM_MG + "#0" if mk == "lifted" else GM_MG + "#2"): {o["text"] for o in q["choices"] if o["ref"] and sp.simplify(gm_expr(o["text"]) - gm_change(f, mk)) == 0}}
+        same = lambda mk: {o["text"] for o in q["choices"] if o["ref"] and sp.simplify(gm_expr(o["text"]) - gm_change(f, mk)) == 0}
+        wr = {(GM_MG + "#0" if mk == "lifted" else GM_MG + "#2"): same(mk)}
+        if u == "equation-from-graph":
+            # The other shape: a growth curve for a decay (#1), or a parabola flipped (#2).
+            wr[GM_MG + ("#1" if gm_parts(f)[0] == "exp" else "#2")] = same("swapped")
         gc_check_common(q, right["text"], wr)
     elif u == "rule-out-graph":
         f = gm_expr(L[0])
@@ -18421,6 +18520,7 @@ def check_link_vectors(q):
 
 SM_T = "SL4.1.sampling-technique#"
 SM_B = "SL4.1.bias-reliability#"
+SM_S = "t4-sampling#"
 SM_CTX = [("settlers", "camp", ("farmers", "guards", "cooks"), "at the well", "the camp register", "how much water they use"),
           ("traders", "market", ("salt sellers", "fuel sellers", "scrap dealers"), "at the market gate", "the traders' ledger", "how far they travel"),
           ("scavengers", "depot", ("day crew", "night crew", "drivers"), "at the depot door", "the crew roster", "how many hours they work"),
@@ -18551,12 +18651,12 @@ def check_sampling(q):
     if u in ("name-technique", "technique-disadvantage", "is-it-random"):
         N, G = sm_camp(L[0], c)
         tech, n = sm_technique(L[1], c, G)
-        sm_scale(q, N, G, n)
+        k = sm_scale(q, N, G, n)
         if u == "name-technique":
             need(asked == "Which sampling technique is this?", f"asked {asked!r}")
             want = SM_NAMES[tech]
             wrongs = {"quota": {SM_T + "0": {SM_NAMES["stratified"]}}, "stratified": {SM_T + "0": {SM_NAMES["quota"]}},
-                      "systematic": {SM_T + "1": {SM_NAMES["simple"]}}, "convenience": {SM_T + "2": {SM_NAMES["simple"]}}, "simple": {}}[tech]
+                      "systematic": {SM_T + "1": {SM_NAMES["simple"]}}, "convenience": {SM_T + "2": {SM_NAMES["simple"]}}, "simple": {SM_T + "1": {SM_NAMES["systematic"]}}}[tech]
             need(all(o["text"] in SM_NAMES.values() for o in q["choices"]), "an option is not a technique")
         elif u == "technique-disadvantage":
             want = SM_MAIN[tech].format(place)
@@ -18568,10 +18668,10 @@ def check_sampling(q):
             need(asked == "Is this a simple random sample?", f"asked {asked!r}")
             if tech == "systematic":
                 want = "No: only the start is random, and the interval fixes every pick after it."
-                wrongs = {SM_T + "1": {"Yes: the start is random, so the whole sample is random."}}
+                wrongs = {SM_T + "1": {"Yes: the start is random, so the whole sample is random.", f"Yes: every {sm_ord(k)} name is as good as any other."}}
             elif tech == "convenience":
                 want = "No: anyone who doesn't come by has no chance of being chosen."
-                wrongs = {SM_T + "2": {"Yes: whoever comes by is a random person."}}
+                wrongs = {SM_T + "2": {"Yes: whoever comes by is a random person.", "Yes: the surveyor didn't choose who came by."}}
             else:
                 need(tech == "simple", f"{tech} isn't asked here")
                 want = f"Yes: every set of {n} people has the same chance."
@@ -18599,7 +18699,8 @@ def check_sampling(q):
         n = sm_size(L[1], N)
         k = sm_scale(q, N, G, n)
         want = f"Go down {lst}, pick a random start among the first {k} names, then take every {sm_ord(k)} name."
-        wrongs = {SM_T + "1": {f"Draw {n} names at random from {lst}."}}
+        wrongs = {SM_T + "1": {f"Draw {n} names at random from {lst}."},
+                  SM_S + "5": {f"Go down {lst}, pick a random start among the first {n} names, then take every {sm_ord(n)} name."}}
     elif u == "systematic-interval":
         mt = re.fullmatch(rf"{re.escape(sm_cap(lst))} lists (\d+) {who}\.", L[0])
         need(mt is not None, f"can't read {L[0]!r}")
@@ -18607,6 +18708,7 @@ def check_sampling(q):
         n = sm_size(L[1], N)
         k = sm_scale(q, N, [], n)
         want = f"interval = {k}"
+        wrongs = {SM_S + "5": {f"interval = {n}"}}
     elif u == "systematic-member":
         mt = re.fullmatch(rf"{re.escape(sm_cap(lst))} numbers (\d+) {who} from 1 to (\d+)\.", L[0])
         m2 = re.fullmatch(r"A systematic sample starts at number (\d+) and takes every (\d+)(?:st|nd|rd|th) name\.", L[1])
@@ -18616,6 +18718,7 @@ def check_sampling(q):
         v = start + (j - 1) * k
         need(1 <= start <= k and v <= N, "the pick is off the list")
         want = f"number {v}"
+        wrongs = {SM_S + "6": {f"number {start + j * k}"}, SM_S + "7": {f"number {j * k}"}}
     elif u == "quota-number":
         mt = re.search(r"A (quota|stratified) sample of (\d+) must match", L[1])
         need(mt is not None, f"can't read {L[1]!r}")
@@ -18634,6 +18737,8 @@ def check_sampling(q):
         v = sp.Rational(G[i] * n, N)
         need(v.q == 1, "the number isn't whole")
         want = f"number = {v}"
+        if n % 3 == 0 and len(G) == 3:
+            wrongs = {SM_S + "8": {f"number = {n // 3}"}}
     elif u in ("fair-share", "under-represented"):
         if rep == "table":
             mt = re.fullmatch(rf"The table shows a {place} of (\d+) {who} and a sample of (\d+) of them\.", L[0])
@@ -18655,6 +18760,7 @@ def check_sampling(q):
             i = names.index(m3.group(1))
             need(got[i] < fair[i] and got[i] > 0, "the group doesn't fall short")
             want = f"number = {fair[i] - got[i]}"
+            wrongs = {SM_S + "9": {f"number = {fair[i]}"}, SM_S + "10": {f"number = {G[i] - got[i]}"}}
         else:
             ratio = [sp.Rational(x, f) for x, f in zip(got, fair)]
             short = [f - x for x, f in zip(got, fair)]
@@ -18662,7 +18768,8 @@ def check_sampling(q):
             need(short[i] == max(short) and short.count(short[i]) == 1 and sorted(ratio)[1] > ratio[i], "no one group is clearly the most under-represented")
             need(got[i] != min(got), "the smallest count gives the answer away")
             want = sm_cap(names[i])
-            wrongs = {SM_B + "1": {f"None: the sample matches the {place}."}}
+            wrongs = {SM_B + "1": {f"None: the sample matches the {place}."},
+                      SM_S + "11": {sm_cap(names[j]) for j in range(len(got)) if got[j] == min(got)}}
     elif u in ("why-biased", "better-method"):
         N, G = sm_camp(L[0], c)
         mt = re.fullmatch(rf"To learn {topic} across the whole {place}, a surveyor draws (\d+) {a} at random and asks only them\.", L[1])
@@ -18687,7 +18794,7 @@ def check_sampling(q):
         mt = re.fullmatch(rf"A surveyor asks (\d+) {a} about {topic}, and none of the {b}\.", L[1])
         need(mt is not None and L[2] == f"She plans to ask {3 * int(mt.group(1))} {a} instead.", f"can't read {L[1:]!r}")
         want = f"No: the result gets steadier, but the {b} are still left out."
-        wrongs = {SM_B + "0": {"Yes: a larger sample removes bias."}}
+        wrongs = {SM_B + "0": {"Yes: a larger sample removes bias.", f"Yes: with {3 * int(mt.group(1))} people everyone has had a chance."}}
     elif u == "random-not-perfect":
         if rep == "table":
             mt = re.fullmatch(rf"The table shows a {place} of (\d+) {who} and a simple random sample of (\d+) of them\.", L[0])
@@ -18703,7 +18810,8 @@ def check_sampling(q):
         sm_scale(q, N, G, n)
         need(all(abs(sp.Rational(x * n, N) - y) >= 2 for x, y in zip(G, got)), "the sample doesn't miss the mix")
         want = "The draw can be fair and still miss the mix: chance alone moves a sample."
-        wrongs = {SM_B + "1": {f"The draw can't have been random: a random sample always matches the {place}.", f"The {place}'s numbers must be wrong: a sample shows the true mix."}}
+        wrongs = {SM_B + "1": {f"The draw can't have been random: a random sample always matches the {place}.", f"The {place}'s numbers must be wrong: a sample shows the true mix."},
+                  SM_S + "12": {f"The method is biased against the {x}." for x in names[:len(G)]}}
     elif u == "improve-reliability":
         mt = re.fullmatch(rf"A surveyor wants to learn {topic}, so she draws (\d+) of all the {who} at random\.", L[0])
         need(mt is not None and 5 <= int(mt.group(1)) <= 12, f"can't read {L[0]!r}")
