@@ -239,7 +239,7 @@ static func gpq(u: Q, v: Q, k: Q) -> Array:
 
 
 func _number(s: Dictionary, lines: Array, asked: String, w: Array, gen: Array, rng: Seeded, methods: Dictionary, ans: Dictionary) -> Dictionary:
-	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": rng.shuffled(w), "generic": gen, "methods": methods}
+	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen, "methods": methods}
 
 
 static func said(ans: Dictionary) -> String:
@@ -363,7 +363,7 @@ func u_single_ln_k(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 				"%s + %s = %s(%d × %d) = %s." % [lg(L, str(LogLawsSituation.ipow(s.u, s.c))), v, L, LogLawsSituation.ipow(s.u, s.c), s.v, lg(L, str(s.k))], done]
 			w = [wk(L, Q.new(s.c * s.u * s.v), R_TIMES_IN), wk(L, Q.new(LogLawsSituation.ipow(s.u, s.c) + s.v), R_ADD_IN)]
 	var gen: Array = [k.add(1), k.add(2), k.sub(1), k.mul(2), k.add(3)].filter(func(x): return x.sign() > 0).map(func(x): return {"k": x, "text": k_text(L, x)})
-	return {"lines": [expr], "asked": "Write this as %s k, where k is a positive whole number." % L, "answer": ans, "wrongs": rng.shuffled(w), "generic": gen,
+	return {"lines": [expr], "asked": "Write this as %s k, where k is a positive whole number." % L, "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen,
 		"methods": {COMBINE: method(steps, ans.values)}}
 
 
@@ -438,7 +438,7 @@ func u_single_log_letters(_rep: String, s: Dictionary, rng: Seeded) -> Dictionar
 	var gen: Array = [s.co.add(1), s.co.add(2), s.co.mul(3), s.co.add(3)].map(func(q): return {"c": q, "text": "%s(%s)" % [L, mono(q, top, under)]})
 	var at := "x = %d" % s.cx if s.shape == "one" else "x = %d and y = %d" % [s.cx, s.cy]
 	var check_steps := [steps[0], steps[1], "With %s, both forms show %s on the GDC." % [at, _screen(value)], CHECK_NOTE, "So the single log is %s." % single]
-	return {"lines": [expr], "asked": "Write this as a single logarithm.", "answer": ans, "wrongs": rng.shuffled(w), "generic": gen,
+	return {"lines": [expr], "asked": "Write this as a single logarithm.", "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen,
 		"methods": {COMBINE: method(steps + ["So the single log is %s." % single], ans.values), GDC_CHECK: method(check_steps, ans.values)}}
 
 
@@ -498,7 +498,7 @@ func u_expand_letters(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var value := u.to_float() * LogLawsSituation.lg(s.b, s.cx) + v.to_float() * LogLawsSituation.lg(s.b, s.cy) + float(s.k)
 	var check_steps := [steps[0], "With %s, both forms show %s on the GDC." % [at, _screen(value)], CHECK_NOTE, steps[-1]]
 	return {"lines": ["Let p = %s and q = %s, where x, y > 0." % [lx, ly]], "asked": "Express %s in terms of p and q." % whole, "answer": ans,
-		"wrongs": rng.shuffled(w), "generic": gpq(u, v, k), "methods": {EXPAND: method(steps, ans.values), GDC_CHECK: method(check_steps, ans.values)}}
+		"wrongs": rng.shuffled(w), "fillers": gpq(u, v, k), "methods": {EXPAND: method(steps, ans.values), GDC_CHECK: method(check_steps, ans.values)}}
 
 
 func u_expand_numbers(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -563,7 +563,7 @@ func u_expand_numbers(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if s.shape == "mul":
 		w.append(walt("%dpq" % (s.i * s.j) if s.i * s.j > 1 else "pq", R_MUL_LOGS))
 	return {"lines": ["Let %s = p and %s = q." % [p1, p2]], "asked": "Express %s in terms of p and q." % whole, "answer": ans, "wrongs": rng.shuffled(w),
-		"generic": gpq(u, v, k), "methods": {EXPAND: method(steps, ans.values)}}
+		"fillers": gpq(u, v, k), "methods": {EXPAND: method(steps, ans.values)}}
 
 
 func u_show_number(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -764,7 +764,7 @@ func u_cob_common_base(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var w: Array = [walt("%s/(%d %s)" % [lc, k, ld], R_INVERT), walt("%s(%d/%d)" % [H, N_, c], R_SIMPLIFY),
 		walt("(%s)%s/%s" % [ld, Fmt.sup(k), lc], R_POWER_LOG)]
 	var gen: Array = [k + 1, k + 2, k + 3].map(func(x): return {"k": Q.new(x), "text": "%d %s/%s" % [x, ld, lc]})
-	return {"lines": [whole], "asked": "Express this in terms of %s and %s." % [ld, lc], "answer": ans, "wrongs": rng.shuffled(w), "generic": gen,
+	return {"lines": [whole], "asked": "Express this in terms of %s and %s." % [ld, lc], "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen,
 		"methods": {FORMULA: method(m1, ans.values), DEFINE: method(m2, ans.values)}}
 
 
@@ -814,7 +814,7 @@ func u_cob_in_p_q(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			v.e = Q.new(j)
 		gen.append(v)
 	return {"lines": ["Let %s = p and %s = q." % [lc, ld]], "asked": "Find an expression for %s in terms of p and q." % whole, "answer": ans,
-		"wrongs": rng.shuffled(w), "generic": gen, "methods": {FORMULA: method(m1, ans.values), DEFINE: method(m2, ans.values)}}
+		"wrongs": rng.shuffled(w), "fillers": gen, "methods": {FORMULA: method(m1, ans.values), DEFINE: method(m2, ans.values)}}
 
 
 func u_given_log_base(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -865,7 +865,7 @@ func u_base_power_letter(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	var w: Array = [wrong({"c": Q.new(r, big), "text": times(Q.new(r, big), lx)}, R_BASE_ITSELF), wrong({"c": Q.new(r * k), "text": times(Q.new(r * k), lx)}, R_TIMES_BASE)]
 	w.append(walt("%d/(%s)" % [k, r_co] if r > 1 else "%d/%s" % [k, lx], R_INVERT))
 	var gen: Array = [c.add(1), c.add(2), Q.new(r + 1, k), Q.new(r, k + 1), c.mul(3)].filter(func(x): return not x.eq(c) and not x.eq(1)).map(func(x): return {"c": x, "text": times(x, lx)})
-	return {"lines": [whole], "asked": "Write this in terms of %s, where x > 0." % lx, "answer": ans, "wrongs": rng.shuffled(w), "generic": gen,
+	return {"lines": [whole], "asked": "Write this in terms of %s, where x > 0." % lx, "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen,
 		"methods": {FORMULA: method(m1, ans.values), POWERS: method(m2, ans.values), DEFINE: method(m3, ans.values)}}
 
 
@@ -886,5 +886,5 @@ func u_value_3sf(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var w: Array = [wrong({"v": GdcKit.qf(1.0 / s.v)}, R_INVERT), wrong({"v": GdcKit.qf(log(float(N_) / B) / log(10.0))}, R_SIMPLIFY),
 		wrong({"v": GdcKit.qf(float(N_) / B)}, R_NUM_BASE)]
 	var gen: Array = [1.1, 0.9, 1.3].map(func(f): return {"v": GdcKit.qf(s.v * f)})
-	return {"lines": [whole], "asked": "Find the value. Give your answer to 3 significant figures.", "answer": ans, "wrongs": rng.shuffled(w), "generic": gen,
+	return {"lines": [whole], "asked": "Find the value. Give your answer to 3 significant figures.", "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen,
 		"methods": {FORMULA: method(m1, ans.values), GDC_BASE: method(m2, ans.values)}}

@@ -5179,7 +5179,8 @@ def check_symmetry(q):
             m = re.fullmatch(r"X ~ N\(μ, σ²\) and P\(X < (\S+)\) = P\(X > (\S+)\)\.", L[0])
             need(m is not None, "can't read the tails")
             lo, hi = RD(m.group(1)), RD(m.group(2))
-            qr_check_common(q, qr_norm(ans, {"v": str((lo + hi) / 2)}))
+            wr["fn-link-symmetry#12"] = {qr_norm(ans, {"v": str(lo + hi)})}  # not halved
+            qr_check_common(q, qr_norm(ans, {"v": str((lo + hi) / 2)}), wr)
         else:
             f = sy_parabola(g)
             xa, xb, yv = R(g["xa"]), R(g["xb"]), R(g["yv"])
@@ -5196,6 +5197,7 @@ def check_symmetry(q):
                 need(all(f.subs(X, sp.nsimplify(pt["x"])) == sp.nsimplify(pt["y"]) for pt in gr["points"]), "a marked point is off the curve")
             h = vertex(f)[0]
             wr["SL2.6.axis-symmetry#1"] = {qr_norm(ans, {"var": "y", "h": str(h)})}
+            wr["fn-link-symmetry#12"] = {qr_norm(ans, {"var": "x", "h": str(xa + xb)})}  # not halved
             qr_check_common(q, qr_norm(ans, {"var": "x", "h": str(h)}), wr)
     elif u in ("normal-middle", "normal-other-tail"):
         mu, a, p_ = R(g["mu"]), R(g["a"]), R(g["p"])
@@ -5211,11 +5213,15 @@ def check_symmetry(q):
             need(f"P(X > {frac_text(mu + a)}) = {dec_text(p_)}" in L[0] or f"P(X > {frac_text(mu + a)}), is {dec_text(p_)}" in L[0], "the tail shown is not the givens")
             mid = sp.nsimplify(sp.N(Phi(mu + a) - Phi(mu - a), 30), rational=True, tolerance=1e-20)
             wr["SL4.9.symmetry-probability#0"] = {qr_norm(ans, {"v": str(2 * p_)})}
+            wr["fn-link-symmetry#13"] = {qr_norm(ans, {"v": str(1 - p_)})}  # one tail off
+            wr["fn-link-symmetry#14"] = {qr_norm(ans, {"v": str(sp.Rational(1, 2) - p_)})}  # one side of the mean
             qr_check_common(q, qr_norm(ans, {"v": str(mid)}), wr)
         else:
             need(f"P(X < {frac_text(mu - a)}) = {dec_text(p_)}" in L[0] or f"P(X < {frac_text(mu - a)}), is {dec_text(p_)}" in L[0], "the tail shown is not the givens")
             up = sp.nsimplify(sp.N(1 - Phi(mu + a), 30), rational=True, tolerance=1e-20)
             wr["SL4.9.symmetry-probability#1"] = {qr_norm(ans, {"v0": str(p_), "v1": str(p_ + sp.Rational(1, 2))})}
+            wr["fn-link-symmetry#15"] = {qr_norm(ans, {"v0": str(1 - p_), "v1": str(p_)})}  # the complement, not the mirror
+            wr["fn-link-symmetry#16"] = {qr_norm(ans, {"v0": str(p_), "v1": str(p_)})}  # the tail for both
             qr_check_common(q, qr_norm(ans, {"v0": str(up), "v1": str(1 - up)}), wr)
     elif u == "central-interval":
         mu, sigma, qq = R(g["mu"]), R(g["sigma"]), R(g["q"])
@@ -6277,9 +6283,13 @@ def check_log_quadratic(q):
     wr = {}
     if u == "argument-roots":
         want = qr_norm(ans, {"r1": str(p), "r2": str(qq)})
+        if h != 0:
+            wr["fn-log-of-quadratic#16"] = {qr_norm(ans, {"r1": str(-p), "r2": str(-qq)})}  # signs off the factors
     elif u == "domain-from-inequality":
         want = F["dom"]
         wr["SL2.7.inequality#0"] = {sp.Interval.open(p, sp.oo)}
+        wr["fn-log-of-quadratic#19"] = {sp.Union(sp.Interval.open(-sp.oo, p), sp.Interval.open(qq, sp.oo))}  # g > 0 outside
+        wr["fn-log-of-quadratic#20"] = {sp.Interval(p, qq)}  # the roots included
     elif u == "asymptotes":
         say = lambda a_, b2: el_m_text(f"x = {frac_text(a_)} and x = {frac_text(b2)}")
         want = qr_norm(ans, {"v": say(p, qq)})
@@ -6291,10 +6301,13 @@ def check_log_quadratic(q):
         half = sp.expand(zs[1] - h)
         m_, root = half.as_coeff_Mul()
         want = qr_norm(ans, {"h": str(h), "m": str(m_), "r": str(sp.Integer(root ** 2))})
+        if h != 0:
+            wr["SL2.6.vertex#0"] = {qr_norm(ans, {"h": str(-h), "m": str(m_), "r": str(sp.Integer(root ** 2))})}
     elif u == "max-value":
         want = qr_norm(ans, {"v0": str(n), "v1": str(h)})
         wr["SL2.6.vertex#0"] = {qr_norm(ans, {"v0": str(n), "v1": str(-h)})}
         wr["SL2.6.vertex#1"] = {qr_norm(ans, {"v0": str(h), "v1": str(h)})}
+        wr["fn-log-of-quadratic#18"] = {qr_norm(ans, {"v0": str(G), "v1": str(h)})}  # g's top, no log
     elif u == "base-from-max":
         Ls = " ".join(L)
         nn = R(em_read(r"(?:maximum value of f is|largest value f takes is|maximum point is \(−?\d+,) (\d+)", Ls, "the maximum").group(1))
@@ -6306,10 +6319,13 @@ def check_log_quadratic(q):
         want = ("y", "≤", n)
         wr["SL2.6.vertex#2"] = {("y", "≥", n)}
         wr["SL2.2.range#2"] = {("x", "≤", n)}
+        wr["fn-log-of-quadratic#18"] = {("y", "≤", G)}  # g's top, no log
     elif u == "axis-of-graph":
         need(h != 0, "the axis is the y-axis, so x = 0 can't be a wrong option")
         want = qr_norm(ans, {"var": "x", "h": str(h)})
         wr["SL2.4.symmetry#0"] = {qr_norm(ans, {"var": "x", "h": "0"})}
+        wr["fn-log-of-quadratic#17"] = {qr_norm(ans, {"var": "y", "h": str(h)})}
+        wr["SL2.6.vertex#0"] = {qr_norm(ans, {"var": "x", "h": str(-h)})}
     elif u == "y-intercept":
         need(p < 0 < qq, "the graph does not meet the y-axis")
         need(ans["label"] == f"f(0) = {el_log_name(base)} ", "the form asked is not log_k c")
@@ -6321,8 +6337,15 @@ def check_log_quadratic(q):
         right = f"{frac_text(p)} < x < {lq_surd(z1)} or {lq_surd(z2)} < x < {frac_text(qq)}"
         want = qr_norm(ans, {"v": right})
         wr["SL2.7.inequality#1"] = {qr_norm(ans, {"v": f"{lq_surd(z1)} < x < {lq_surd(z2)}"})}
+        wr["fn-log-of-quadratic#21"] = {qr_norm(ans, {"v": f"x < {lq_surd(z1)} or x > {lq_surd(z2)}"})}  # the domain forgotten
     elif u == "quadratic-from-features":
         want = qr_norm(ans, {"A": str(a), "B": str(b_), "C": str(c)})
+        wr["fn-log-of-quadratic#22"] = {qr_norm(ans, {"A": str(-a), "B": str(-b_), "C": str(-c)})}  # a's sign lost
+        g1 = sp.Poly(sp.expand(-(X - p) * (X - qq)), X).all_coeffs()  # a taken as −1
+        if a != -1:
+            wr["fn-log-of-quadratic#23"] = {qr_norm(ans, {"A": str(g1[0]), "B": str(g1[1]), "C": str(g1[2])})}
+        g2 = sp.Poly(sp.expand(a * (X + p) * (X + qq)), X).all_coeffs()  # factors with the asymptotes' signs flipped
+        wr["fn-log-of-quadratic#24"] = {qr_norm(ans, {"A": str(g2[0]), "B": str(g2[1]), "C": str(g2[2])})}
     else:
         raise Fail(f"the checker has no solver for {u}")
     qr_check_common(q, want, wr)
@@ -7291,6 +7314,24 @@ def tc_window(cs):
     return [c for c in cs if abs(c[0]) <= 10 and abs(c[1]) <= 10]
 
 
+TC_GI = "fn-gdc-intersection#"
+TC_CS = "fn-concept-solutions-as-intersections#"
+
+
+def tc_orders(names, join):
+    """Every order of a list of written values, joined as the game joins them (a slip's
+    values need not come out sorted)."""
+    return {join(list(p_)) for p_ in itertools.permutations(names)}
+
+
+def tc_join_or(names):
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def tc_join_and(names):
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+
+
 # fn-concept-solutions-as-intersections (FAL-420): solutions as meeting points, on the
 # gdc-two-curves situation. The curves are read back and every crossing found again; a
 # cubic's count of solutions of f(x) = k comes from its exact turning values.
@@ -7309,7 +7350,8 @@ def tc_concept(q):
              "the turning points shown are not the cubic's")
         lo_v, hi_v = sorted([f.subs(X, t) for t in ts])
         if u == "k-for-count":
-            gc_check_common(q, f"{frac_text(lo_v)} < k < {frac_text(hi_v)}", {"SL2.10.number-of-solutions#0": {f"{frac_text(lo_v)} ≤ k ≤ {frac_text(hi_v)}"}})
+            gc_check_common(q, f"{frac_text(lo_v)} < k < {frac_text(hi_v)}", {"SL2.10.number-of-solutions#0": {f"{frac_text(lo_v)} ≤ k ≤ {frac_text(hi_v)}"},
+                                                                         TC_CS + "5": {f"{frac_text(ts[0])} < k < {frac_text(ts[1])}"}})  # the turning x-values
             return None, None
         k = el_num(re.search(r"= (−?\d+) have\?", asked).group(1))
         n = len(set(sp.real_roots(sp.Poly(f - k, X))))
@@ -7331,7 +7373,9 @@ def tc_concept(q):
     right = next(o for o in q["choices"] if o["correct"])
     if u == "graphs-for-equation":
         need("read the x-coordinates where they meet" in right["text"], "the right plan doesn't read the x-coordinates")
-        gc_check_common(q, right["text"], {})
+        A, B = m.group(1), m.group(2)
+        gc_check_common(q, right["text"], {TC_CS + "3": {f"Graph y = {A} and y = {B}, and read the y-coordinates where they meet."},
+                                           TC_CS + "4": {f"Graph y = {A} only, and read where it crosses the x-axis."}})
     elif u == "count-from-sketch":
         wr = {}
         if [c for c in cs if abs(c[0]) <= 10 and abs(c[1]) <= 10] != list(cs):
@@ -7342,7 +7386,8 @@ def tc_concept(q):
         want = f"x = {gc_s(cs[0][0])} and x = {gc_s(cs[1][0])}"
         pts = f"({gc_s(cs[0][0])}, {gc_s(cs[0][1])}) and ({gc_s(cs[1][0])}, {gc_s(cs[1][1])})"
         need(pts in j, "the meeting points said are not the curves'")
-        gc_check_common(q, want, {"SL2.4.intersection#0": {pts, f"y = {gc_s(cs[0][1])} and y = {gc_s(cs[1][1])}"}})
+        gc_check_common(q, want, {"SL2.4.intersection#0": {pts, f"y = {gc_s(cs[0][1])} and y = {gc_s(cs[1][1])}"},
+                                  TC_CS + "3": {f"x = {gc_s(cs[0][1])} and x = {gc_s(cs[1][1])}"}})
     elif u == "difference-picture":
         ff, gg = gc_f(f), gc_f(g)
         mk = {"sum": lambda x: ff(x) + gg(x), "lifted": lambda x: ff(x) - gg(x) + 2, "f-alone": ff}
@@ -7352,7 +7397,7 @@ def tc_concept(q):
         gc_check_common(q, right["text"], {})
     elif u == "same-solutions-after-rearranging":
         need(right["text"].startswith("Yes: B is A with"), "the right option doesn't say they have the same solutions")
-        gc_check_common(q, right["text"], {})
+        gc_check_common(q, right["text"], {TC_CS + "6": {"No: rearranging an equation changes its solutions."}})
     else:
         raise Fail(f"no check for {u}")
     return None, None
@@ -7381,7 +7426,9 @@ def check_gdc_two_curves(q):
         need(len(cs) == 2 and len(others) == 1, "the line doesn't meet the curve once more")
         need(gc_fair(others[0][0]), "the other crossing is not a fair 3 s.f. value")
         want = f"k = {gc_s(k)}, x = {gc_s(others[0][0])}"
-        gc_check_common(q, want, {}, gc_trap([k, others[0][0]], f"k = {gc_s2(k)}, x = {gc_s2(others[0][0])}"))
+        wr = {TC_GI + "6": {f"k = {gc_s(k)}, x = {gc_s(others[0][1])}"},  # the other crossing's y
+              TC_GI + "8": {f"k = {gc_s(mm)}, x = {gc_s(others[0][0])}"}}  # k = the gradient
+        gc_check_common(q, want, wr, gc_trap([k, others[0][0]], f"k = {gc_s2(k)}, x = {gc_s2(others[0][0])}"))
         return None, None
     f, g, lo, hi, open_left = tc_read(q)
     if hi is None:
@@ -7408,12 +7455,16 @@ def check_gdc_two_curves(q):
         wr[TC_IN + "#0"] = {tc_only_x(cs)}
         if u == "intersection-points" and tc_window(cs):
             wr[TC_IN + "#1"] = {tc_pts(tc_window(cs))}
+        if u == "intersection-points":
+            wr[TC_GI + "7"] = tc_orders([gc_pt(y, x) for x, y in cs], tc_join_and)  # (y, x)
         if u == "function-and-inverse":
             need(all(abs(x - y) < 1e-20 for x, y in cs), "f and f⁻¹ meet off y = x")
+            wr[TC_IN + "#1"] = {gc_pt(x, y) for x, y in cs}  # one meeting point of the two
     elif u == "solve-f-equals-g":
         want, trap = gc_xs([c[0] for c in cs]), gc_xs2([c[0] for c in cs])
         if tc_window(cs):
             wr[TC_SG + "#0"] = {gc_xs([c[0] for c in tc_window(cs)])}
+        wr[TC_GI + "6"] = tc_orders([gc_s(c[1]) for c in cs], tc_join_or)  # the y-values
     elif u == "models-equal":
         need(lo == 0 and all(gc_f(fn)(mpmath.mpf(0)) >= 0 for fn in (f, g)), "a model starts below 0")
         if len(cs) == 2:
@@ -7421,9 +7472,11 @@ def check_gdc_two_curves(q):
             need(cs[0][0] < 9 and cs[1][0] > sp.Rational(103, 10), "the second meeting is not past t = 10")
             want, trap = gc_xs([c[0] for c in cs]).replace("x = ", "t = "), gc_xs2([c[0] for c in cs]).replace("x = ", "t = ")
             wr[TC_SG + "#0"] = {"t = " + gc_s(cs[0][0])}
+            wr[TC_GI + "6"] = {t_.replace("x = ", "t = ") for t_ in tc_orders([gc_s(c[1]) for c in cs], tc_join_or)}  # the heights
         else:
             need(len(cs) == 1, "the models don't meet once for t ≥ 0")
             want, trap = "t = " + gc_s(cs[0][0]), "t = " + gc_s2(cs[0][0])
+            wr[TC_GI + "6"] = {"t = " + gc_s(cs[0][1])}  # the height where they meet
             need(all(o["ref"] == TC_SG + "#1" for o in q["choices"] if o.get("trap")), "the 2 s.f. time doesn't log SL2.10.solve-gdc#1")
     elif u == "distance-between-crossings":
         need(len(cs) == 2, "not two crossings")
@@ -7432,6 +7485,9 @@ def check_gdc_two_curves(q):
         want, trap = gc_s(d), gc_s2(d)
         rr = [sp.Rational(sig3(sp.Float(v, 30))) for v in (x1, y1, x2, y2)]
         wr[TC_IN + "#2"] = {gc_s(sp.N(sp.sqrt((rr[2] - rr[0]) ** 2 + (rr[3] - rr[1]) ** 2), 30))}
+        wr[TC_GI + "11"] = {gc_s(abs(x2 - x1)), gc_s(abs(y2 - y1))}  # one gap alone
+        wr[TC_GI + "12"] = {gc_s(abs(x2 - x1) + abs(y2 - y1))}  # the gaps added
+        wr[TC_GI + "13"] = {gc_s((x2 - x1) ** 2 + (y2 - y1) ** 2)}  # no square root
     elif u == "count-crossings":
         want = str(len(cs))
         wr[TC_IN + "#1"] = {str(len(tc_window(cs)))}
@@ -7441,6 +7497,8 @@ def check_gdc_two_curves(q):
         inside = [c for c in cs if a < c[0] < b]
         need(len(inside) == 1, f"{len(inside)} crossings in the interval")
         want, trap = gc_pt(*inside[0]), f"({gc_s2(inside[0][0])}, {gc_s2(inside[0][1])})"
+        wr[TC_GI + "10"] = {gc_pt(x, y) for x, y in cs if not a < x < b}  # another crossing
+        wr[TC_GI + "7"] = {gc_pt(inside[0][1], inside[0][0])}  # (y, x)
     elif u == "crossing-from-table":
         t = q["table"]
         ff, gg = gc_f(f), gc_f(g)
@@ -7449,6 +7507,12 @@ def check_gdc_two_curves(q):
         hs = [R(fv) - R(gv) for fv, gv in zip(t["fs"], t["gs"])]
         need(sum(1 for i in range(len(hs) - 1) if hs[i] * hs[i + 1] < 0) == len(cs), "the table doesn't show each crossing as a sign change")
         want, trap = "x = " + gc_s(cs[-1][0]), "x = " + gc_s2(cs[-1][0])
+        xs_t = [R(xv) for xv in t["xs"]]
+        ends = [xs_t[i] for i in range(len(xs_t) - 1) if xs_t[i] < cs[-1][0] < xs_t[i + 1]][:1]
+        need(len(ends) == 1, "the largest crossing is not inside the table")
+        i_ = xs_t.index(ends[0])
+        wr[TC_GI + "9"] = {"x = " + gc_s(xs_t[i_]), "x = " + gc_s(xs_t[i_ + 1])}  # an end of the interval
+        wr[TC_GI + "6"] = {"x = " + gc_s(cs[-1][1])}  # the crossing's y
     else:
         raise Fail(f"the checker has no gdc-two-curves check for {u}")
     gc_check_common(q, want, wr, trap)
@@ -20530,6 +20594,11 @@ def be_check(q):
     def W(ref, val):
         wr.setdefault(BE_SKILL + ref, set()).add(be_text(label, val, tail))
 
+    def T(i, val):
+        """One of the type's own misconceptions, t3-bearings-elevation#i (FAL-815)."""
+        if val > 0:
+            wr.setdefault(f"t3-bearings-elevation#{i}", set()).add(be_text(label, val, tail))
+
     if rep == "words":
         need(q["graph"] is None, "words have no sketch")
     scaled = True
@@ -20561,6 +20630,8 @@ def be_check(q):
             again = mpmath.sqrt(d1m**2 + d2m**2 - 2 * d1m * d2m * be_c(180 - t))
             need(abs(again - x) < mpmath.mpf(10) ** -25, "the cosine rule disagrees with the components")
             W("bearings#2", mpmath.sqrt(d1m**2 + d2m**2 - 2 * d1m * d2m * be_c(t)))
+            T(9, d1m + d2m)  # the legs added
+            W("multi-triangle#1", mpmath.hypot(d1m, d2m))  # Pythagoras with no right angle
         else:
             there = mpmath.degrees(mpmath.atan2(e, n)) % 360
             label, tail = "bearing = ", "°"
@@ -20571,6 +20642,7 @@ def be_check(q):
             else:
                 x = (there + 180) % 360
                 W("bearings#1", there)
+                W("bearings#0", 360 - x)  # measured anticlockwise
             need(100 <= x < 360, f"a bearing of {x} isn't three figures at 3 s.f.")
     elif u == "due-east-distance":
         m = re.search(r"An outpost B is ([\d.]+) km due east of a camp at A\. A signal fire at C is ([\d.]+) km from A, on a bearing of (\d{3})°\.", text)
@@ -20579,6 +20651,7 @@ def be_check(q):
         label, tail = "BC = ", " km"
         x = mpmath.sqrt(ab**2 + ac**2 - 2 * ab * ac * be_c(90 - b))
         W("bearings#2", mpmath.sqrt(ab**2 + ac**2 - 2 * ab * ac * be_c(b)))
+        W("multi-triangle#1", mpmath.hypot(ab, ac))  # Pythagoras with no right angle
     elif u == "sine-rule-distance":
         m = re.search(r"An outpost B is ([\d.]+) km due east of a camp at A\. From A, a signal fire at C is on a bearing of (\d{3})°\. Angle ABC is (\d+)°\.", text)
         wh = re.fullmatch(r"Find the distance (AC|BC)\. Give your answer to 3 significant figures\.", asked)
@@ -20590,6 +20663,7 @@ def be_check(q):
         label, tail = wh.group(1) + " = ", " km"
         x = ab * be_s(opp) / be_s(c)
         W("bearings#2", ab * be_s(phi if wh.group(1) == "AC" else b) / be_s(180 - b - phi))
+        T(10, ab * be_s(at_a if wh.group(1) == "AC" else phi) / be_s(c))  # the other side's angle on top
     elif u == "due-west-side":
         m = re.search(r"AC = ([\d.]+) m, the bearing of B from A is (\d{3})° and angle BAC is (\d+)°\.", text)
         need(m is not None, f"{text!r}")
@@ -20600,16 +20674,28 @@ def be_check(q):
         bpt = (ab * be_s(b), ab * be_c(b))
         need(abs(bpt[1] - c[1]) < mpmath.mpf(10) ** -25 and c[0] < bpt[0] and c[1] < 0, "C is not due west of B")
         label, tail, x = "BC = ", " m", bpt[0] - c[0]
+        abc = b - 90
+        W("bearings#2", ac * be_s(phi) / be_s(b))  # the bearing for angle ABC
+        T(10, ac * be_s(phi) / be_s(180 - phi - abc))  # AC paired with angle ACB
     elif u == "height-from-elevation":
         m = re.search(r"([\d.]+) m from the foot", text)
         t, deg = be_angle_read(text)
-        label, tail, x = "height = ", " m", be_mp(R(m.group(1))) * tan(t)
+        d = be_mp(R(m.group(1)))
+        label, tail, x = "height = ", " m", d * tan(t)
+        T(11, d * sin(t))
+        T(11, d * cos(t))
+        T(12, d / tan(t))
+        e_ = be_mp(R(re.search(r"(?:elevation|depression)[^.]*? is ([\d.]+)", text).group(1)))
+        T(13, d * (be_t(e_) if not deg else tan(e_)))  # radians read as degrees, or degrees as radians
     elif u == "distance-from-depression":
         m = re.search(r"From the top T of a .+? ([\d.]+) m high", text)
         t, deg = be_angle_read(text)
         h = be_mp(R(m.group(1)))
         label, tail, x = "distance = ", " m", h / tan(t)
         W("elevation-depression#1", h * tan(t))
+        T(11, h * sin(t))
+        T(11, h / cos(t))
+        T(14, h / sin(t))  # the line of sight
     elif u == "angle-of-depression":
         m = re.search(r"From the top T of a .+? ([\d.]+) m high", text)
         m2 = re.search(r"P is ([\d.]+) m from the foot", text)
@@ -20622,6 +20708,9 @@ def be_check(q):
         eye, d = be_mp(R(m.group(1))), be_mp(R(m.group(2)))
         label, tail, x = "height = ", " m", eye + d * tan(t)
         W("elevation-depression#2", d * tan(t))
+        T(11, d * sin(t) + eye)
+        T(15, d * tan(t) - eye)
+        T(12, d / tan(t) + eye)
     elif u == "chain-below-hook":
         m = re.search(r"([\d.]+) m from the foot of a crane", text)
         m2 = re.search(r"A guard ([\d.]+) m tall stands under it, and the hook on the chain is ([\d.]+) m above", text)
@@ -20630,6 +20719,9 @@ def be_check(q):
         label, tail, x = "length = ", " m", d * tan(t) - eye - gp
         need(x > 0, "the chain has no length")
         W("elevation-depression#2", d * tan(t) - gp)
+        T(16, d * tan(t) - eye)
+        T(17, d * tan(t))
+        T(11, d * sin(t) - eye - gp)
     elif u == "time-from-depression":
         m = re.search(r"From the top of a .+? ([\d.]+) m high", text)
         m2 = re.search(r"at (\d+) km/h", text)
@@ -20637,6 +20729,7 @@ def be_check(q):
         h, v = be_mp(R(m.group(1))), int(m2.group(1))
         label, tail, x = "time = ", " minutes", h / tan(t) / 1000 / v * 60
         W("elevation-depression#1", h * tan(t) / 1000 / v * 60)
+        T(18, h / tan(t) / 1000 / v)  # still in hours
         scaled = False
     elif u == "route-time":
         m = re.search(r"PB = ([\d.]+) km\. A camp at A is ([\d.]+) km from P", text)
@@ -20645,6 +20738,13 @@ def be_check(q):
         v1, v2 = int(m2.group(1)), int(m2.group(2))
         label, tail = "time = ", " hours"
         x = mpmath.hypot(a, b) / v1 if "straight across" in asked else a / v1 + b / v2
+        if "straight across" in asked:
+            T(19, (a + b) / v1)  # both legs
+            T(21, mpmath.hypot(a, b) / v2)  # the truck's speed
+        else:
+            T(20, (a + b) / v1)
+            T(20, (a + b) / v2)
+            T(21, a / v2 + b / v1)  # the speeds swapped
     elif u == "shared-side":
         m = re.search(r"AB = ([\d.]+) km, AD = ([\d.]+) km and angle BAD = 90°\. BC = ([\d.]+) km and angle DBC = (\d+)°", text)
         ab, ad, bc, phi = [be_mp(R(m.group(i))) for i in (1, 2, 3, 4)]
@@ -20659,6 +20759,9 @@ def be_check(q):
         bd = mpmath.sqrt(ab**2 + ad**2 - 2 * ab * ad * mpmath.cos(mpmath.radians(a0)))
         label, tail = "area = ", " km²"
         x = ab * ad * mpmath.sin(mpmath.radians(a0)) / 2 + bd * bc * mpmath.sin(mpmath.radians(phi)) / 2
+        T(22, ab * ad * mpmath.sin(mpmath.radians(a0)) / 2)
+        T(22, bd * bc * mpmath.sin(mpmath.radians(phi)) / 2)
+        T(23, 2 * x)  # not halved
     elif u == "perpendicular-split":
         m = re.search(r"to a depot B, ([\d.]+) km away\. A well at C is ([\d.]+) km from A, and angle BAC is (\d+)°\.", text)
         ab, ac, phi = be_mp(R(m.group(1))), be_mp(R(m.group(2))), int(m.group(3))
@@ -20675,6 +20778,8 @@ def be_check(q):
         want = "The sine rule" if aas else ("A right-angle ratio such as tan" if rt else "The cosine rule")
         if sas or sss:
             wr[BE_SKILL + "multi-triangle#2"] = {"The sine rule"}
+        if not rt:
+            wr[BE_SKILL + "multi-triangle#1"] = {"A right-angle ratio such as tan"}  # no right angle to use it in
     else:
         raise Fail(f"no check for {u}")
     trap = None
@@ -41652,6 +41757,11 @@ def E13IG_check(q):
         need(f.is_polynomial(E13IG_X), "not a polynomial")
         V = sp.integrate(f, (E13IG_X, a, b))
         need(sp.N(V - v, 20) == 0 or abs(sp.N(V - v, 20)) < 1e-20, "the GDC value is not the exact one")
+        X = E13IG_X
+        Fb, Fa = sp.integrate(f, (X, 0, b)), sp.integrate(f, (X, 0, a))
+        wr["t5-ext-integral-gdc#5"] = {gc_s(Fb)}  # F(b) alone
+        wr["t5-ext-integral-gdc#6"] = {gc_s(Fb + Fa)}  # F(b) + F(a)
+        wr["t5-ext-integral-gdc#7"] = {gc_s(f.subs(X, b) - f.subs(X, a))}  # f(b) − f(a)
         for sol in q["solutions"]:
             for st in sol["steps"]:
                 mm = re.fullmatch(r"F\(−?\d+\) − F\(−?\d+\) = .+ = (.+)\.", st)
