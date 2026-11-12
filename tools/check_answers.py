@@ -882,21 +882,27 @@ def tri_wrongs(u, g, t):
     if u == "side-cosine-rule":
         return {"SL3.2.cosine-rule-side#0": [sp.sqrt((y**2 + z**2 - 2 * y * z) * deg_cos(A[X]))],
                 "SL3.2.cosine-rule-side#1": [x**2],
-                "SL3.2.right-side#2": [sp.sqrt(y**2 + z**2 - 2 * y * z * sp.cos(A[X]))]}
+                "SL3.2.right-side#2": [sp.sqrt(y**2 + z**2 - 2 * y * z * sp.cos(A[X]))],
+                "t3-sine-cosine-rule#8": [sp.sqrt(y**2 + z**2 + 2 * y * z * deg_cos(A[X]))],   # + 2yz cos X
+                "t3-sine-cosine-rule#9": [sp.sqrt(y**2 + z**2)]}                               # Pythagoras
     if u == "angle-cosine-rule":
         return {"SL3.2.cosine-rule-angle#0": [A[Y], A[Z]], "SL3.2.cosine-rule-angle#1": [180 - A[X]]}
     if u == "side-sine-rule":
         return {"SL3.2.sine-rule#0": [x * deg_sin(A[Z]) / deg_sin(A[X])],
                 "SL3.2.sine-rule#1": [x * deg_sin(A[X]) / deg_sin(A[Y])],
-                "SL3.2.right-side#2": [x * sp.sin(A[Y]) / sp.sin(A[X])]}
+                "SL3.2.right-side#2": [x * sp.sin(A[Y]) / sp.sin(A[X])],
+                "t3-sine-cosine-rule#10": [x * deg_sin(A[Y])]}   # not divided by sin X
     if u == "angle-sine-rule":
         return {"SL3.2.sine-rule#0": [to_deg(sp.asin(x * deg_sin(A[X]) / y))] if num(x * deg_sin(A[X]) / y) < 1 else [],
                 "SL3.5.ambiguous-case#1": [180 - A[Y]]}
     area = t["area"]
     if u == "area-from-two-sides":
-        return {"SL3.2.area-sine#2": [2 * area], "SL3.2.right-side#2": [y * z * sp.sin(A[X]) / 2]}
+        return {"SL3.2.area-sine#2": [2 * area], "SL3.2.right-side#2": [y * z * sp.sin(A[X]) / 2],
+                "t3-triangle-area#3": [y * z * deg_cos(A[X]) / 2] if num(deg_cos(A[X])) > 0 else [],   # cos for sin
+                "t3-triangle-area#4": [y * z / 2]}                                                       # no sine
     if u == "side-from-area":
-        return {"SL3.2.area-sine#2": [tri_area(g["area"]) / (y * deg_sin(A[X]))]}
+        return {"SL3.2.area-sine#2": [tri_area(g["area"]) / (y * deg_sin(A[X]))],
+                "t3-triangle-area#4": [2 * tri_area(g["area"]) / y]}
     if u == "angle-from-area":
         acute = to_deg(sp.asin(2 * tri_area(g["area"]) / (y * z)))
         half = to_deg(sp.asin(tri_area(g["area"]) / (y * z)))
@@ -3221,7 +3227,10 @@ def check_qparam(q):
         kv = R(g["kv"])
         d = D.subs(K, kv)
         labels = QP_MEET if lines_family else QP_NAT
-        qr_check_common(q, qr_norm(ans, {"d": str(d), "nature": qp_nat(d, labels)}))
+        a_, b_, c_ = [R(v) for v in sp.Poly(sp.expand(f.subs(K, kv)), X).all_coeffs()]
+        d2 = b_**2 + 4 * a_ * c_   # b² + 4ac for Δ
+        qr_check_common(q, qr_norm(ans, {"d": str(d), "nature": qp_nat(d, labels)}),
+                        {"SL2.7.discriminant#2": {qr_norm(ans, {"d": str(d2), "nature": qp_nat(d2, labels)})}})
     elif u == "delta-in-k":
         co = sp.Poly(D, K).all_coeffs()
         co = [0] * (3 - len(co)) + co
@@ -3248,6 +3257,22 @@ def check_qparam(q):
         if cond == "same-sign":
             S = S.intersect(sp.solve_univariate_inequality((R(g["c0"]) + R(g["c1"]) * K) / A > 0, K, relational=False))
         wr = {}
+        if cond in ("two", "none"):
+            # The ends, where Δ = 0, taken in though the inequality is strict.
+            wr["fn-discriminant#7"] = {cv(sp.solve_univariate_inequality(D >= 0 if cond == "two" else D <= 0, K, relational=False))}
+        if cond != "same-sign" and len(crit) == 1:
+            dB, dC = sp.Poly(D, K).all_coeffs()
+            if dB < 0:
+                # Δ = dB·k + dC against 0, divided through by dB < 0 with the sign kept.
+                k0 = -dC / dB
+                kept = {"two": sp.Interval.open(k0, sp.oo), "none": sp.Interval.open(-sp.oo, k0), "real": sp.Interval(k0, sp.oo)}[cond]
+                wr["fn-discriminant#8"] = {cv(kept)}
+        if cond == "none" and len(crit) == 2:
+            # Outside the roots of Δ = 0, where Δ < 0 needs between them.
+            wr["fn-discriminant#9"] = {cv(sp.Union(sp.Interval.open(-sp.oo, crit[0]), sp.Interval.open(crit[1], sp.oo)))}
+        if cond == "same-sign":
+            wr["fn-discriminant#10"] = {cv(sp.solve_univariate_inequality(D > 0, K, relational=False))}
+            wr["fn-discriminant#11"] = {cv(sp.solve_univariate_inequality((R(g["c0"]) + R(g["c1"]) * K) / A > 0, K, relational=False))}
         if u == "k-interval":
             if cond == "real":
                 S2 = sp.solve_univariate_inequality(D > 0, K, relational=False)
@@ -9547,10 +9572,56 @@ def check_rearrange(q):
                 need(ra_same(e, [y / top + b2]), f"{t!r} is not y/a + b")
             elif ref == RA_T + "#4":
                 need(len(e) == 1 and ra_same(e, [ra_solutions(q["answer_text"], subject)[0]]), f"{t!r} is not the positive root alone")
+            elif ref == RA_T + "#5":
+                need(any(ra_same(e, k_) for k_ in ra_sign_kept(eq, subject, u)), f"{t!r} is not a term moved across with its sign kept")
+            elif ref in (RA_T + "#6", RA_T + "#7"):
+                # L = subject × other: the other letter multiplied on, or the division upside down.
+                left_, right_ = ra_sides(eq)
+                L_, other = ra_parse(left_), sp.simplify(ra_parse(right_) / RA_SYMS[subject])
+                need(not other.has(RA_SYMS[subject]), f"{eq!r} is not a product with {subject}")
+                need(ra_same(e, [L_ * other] if ref == RA_T + "#6" else [other / L_]), f"{t!r} is not what {ref} gives")
             else:
                 raise Fail(f"the checker can't confirm {ref} on {u}")
     gc_check_common(q, q["answer_text"], {ref: texts for ref, texts in wr.items()})
     return None, None
+
+
+def ra_sign_kept(eq, subject, u):
+    """The rearrangements with one term moved to the other side and its sign kept: each a
+    list of the subject's solutions."""
+    y, x = RA_SYMS["y"], RA_SYMS["x"]
+    left, right = ra_sides(eq)
+    R_ = ra_parse(right)
+    S = RA_SYMS[subject]
+    if u == "one-step":
+        return [[ra_parse(left) + (R_ - S)]]
+    if u == "two-step":
+        a_, b_ = sp.Poly(R_, x).all_coeffs()
+        return [[(y + b_) / a_]]
+    if u == "power-or-root":
+        if R_.has(sp.sqrt(x)) or isinstance(R_, sp.Pow) and R_.exp == sp.Rational(1, 2):
+            c_ = sp.expand(R_**2 - x)
+            return [[y**2 + c_]]
+        c_ = sp.expand(R_ - x**2)
+        return [[sp.sqrt(y + c_), -sp.sqrt(y + c_)]]
+    if u == "subject-in-denominator":
+        top, bot = sp.fraction(sp.together(R_))
+        b_ = -sp.Poly(bot, x).all_coeffs()[1]
+        return [[top / y - b_]]
+    if u == "subject-twice":
+        top, bot = sp.fraction(sp.together(R_))
+        a_, b_ = sp.Poly(top, x).all_coeffs() if sp.Poly(top, x).degree() == 1 else (0, top)
+        c_, d_ = sp.Poly(bot, x).all_coeffs()
+        # y(cx + d) = ax + b: b moved with its sign kept, or cxy moved right with its sign kept.
+        return [[(d_ * y + b_) / (a_ - c_ * y)], [(d_ * y - b_) / (a_ + c_ * y)]]
+    if u == "subject-twice-linear":
+        k_, m_ = RA_SYMS["k"], RA_SYMS["m"]
+        lhs = ra_parse(left)
+        p_ = lhs.subs(x, 0)
+        n_ = sp.Poly(R_, x).all_coeffs()[0]
+        # p moved right with its sign kept, or nx moved left with its sign kept.
+        return [[(m_ + p_) / (k_ - n_)], [(m_ - p_) / (k_ + n_)]]
+    raise Fail(f"no sign-kept slip on {u}")
 
 
 def ra_spot(q, lines):
@@ -17160,6 +17231,7 @@ RL_XS = [sp.Rational(i, 2) for i in range(-16, 17)]
 RL_GRID = [-7.9137 + 0.1 * i for i in range(160)]
 RL_TOL = 0.06
 RL_R0, RL_R1, RL_R2 = "SL2.2.is-function#0", "SL2.2.is-function#1", "SL2.2.is-function#2"
+RL_ANY_OUTPUT, RL_CUT_X = "fn-ext-is-function#3", "fn-ext-is-function#4"
 RL_YES_GRAPH = "A function: every vertical line crosses it at most once"
 RL_YES_EQ = "Yes: no x gives two values of y"
 RL_YES_ONE = "Yes: every horizontal line crosses it at most once, so it has an inverse"
@@ -17383,8 +17455,12 @@ def rl_check(q):
             who, pairs = "x", defaultdict(list)
             for a, b in rl_table(q):
                 pairs[f"x = {frac_text(a)}"].append(frac_text(b))
-        claim, _ = rl_mapping_claim(pairs, who)
-        return rl_finish(q, claim, {RL_R0: rl_share_ref(q, pairs)})
+        claim, is_fn = rl_mapping_claim(pairs, who)
+        wr = {RL_R0: rl_share_ref(q, pairs)}
+        if not is_fn and all(pairs[k] for k in pairs):
+            # Every input has an output, so a student checking only that calls it a function.
+            wr[RL_ANY_OUTPUT] = {"A function: every input in the list has an output"}
+        return rl_finish(q, claim, wr)
     if u == "one-to-one":
         if rep == "graph":
             graphs, ch = q["graphs"], q["choices"]
@@ -17447,7 +17523,16 @@ def rl_check(q):
                 need(o["correct"] or o["why"] != "", "a wrong graph doesn't say what is wrong")
             need(len(good) == 1, f"{good} are functions")
             return gc_check_common(q, good[0], {})
-        return rl_finish(q, lambda t: rl_restrict(F, t, pts), {})
+        # A cut in x: some input it keeps still has two outputs.
+        cut_x = set()
+        for o in q["choices"]:
+            mx = re.fullmatch(r"Keep only x (≥|≤) (−?\d+)", o["text"])
+            if mx:
+                c_ = rl_int(mx.group(2))
+                kept = [x_ for x_ in pts if (x_ >= c_ if mx.group(1) == "≥" else x_ <= c_)]
+                if any(len(pts[x_]) == 2 for x_ in kept):
+                    cut_x.add(o["text"])
+        return rl_finish(q, lambda t: rl_restrict(F, t, pts), {RL_CUT_X: cut_x})
     raise Fail(f"no check for {u}")
 
 
@@ -27437,6 +27522,10 @@ def gpd_median(data):
     return data[n // 2] if n % 2 else (data[n // 2 - 1] + data[n // 2]) / 2
 
 
+# The type's own slips (no skill ref): the mean given for σx, and Σ(x − x̄)² not divided by n.
+GPD_MEAN_READ, GPD_NOT_DIVIDED = "t4-grouped-data#28", "t4-grouped-data#29"
+
+
 def check_grouped_data(q):
     g, u, L, rep, asked, paper = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
     need(paper == 2 or u not in GPD_P2_ONLY, f"{u} is Paper 2")
@@ -27535,7 +27624,7 @@ def check_grouped_data(q):
             root = sp.sqrt
             if u == "estimate-sd":
                 word("Find an estimate of the standard deviation", root(var))
-                table = {sd + "1": [var], gm + "5": [root(flat)], gm + "1": [root(hi_var)]}
+                table = {sd + "1": [var], gm + "5": [root(flat)], gm + "1": [root(hi_var)], GPD_MEAN_READ: [mean]}
                 if not thousands:
                     table[sd + "0"] = [root(sx2)]
                 want, trap, wrongs = gpd_set(q, "standard deviation ≈ ", root(var), table)
@@ -27558,7 +27647,8 @@ def check_grouped_data(q):
         need(rg_s(sp.sqrt(var)) != rg_s(sp.sqrt(sx2)), "σx and Sx read the same")
         if u == "sd-from-table":
             word("Find the standard deviation", sp.sqrt(var))
-            want, trap, wrongs = gpd_set(q, "standard deviation = ", sp.sqrt(var), {sd + "0": [sp.sqrt(sx2)], sd + "1": [var], gm + "5": [sp.sqrt(flat)]})
+            want, trap, wrongs = gpd_set(q, "standard deviation = ", sp.sqrt(var), {sd + "0": [sp.sqrt(sx2)], sd + "1": [var], gm + "5": [sp.sqrt(flat)],
+                                                                                  GPD_MEAN_READ: [mean]})
         else:
             word("Find the variance", var)
             want, trap, wrongs = gpd_set(q, "variance = ", var, {sd + "0": [sx2], sd + "1": [sp.sqrt(var)], gm + "5": [flat]})
@@ -27578,10 +27668,12 @@ def check_grouped_data(q):
             word("Find the standard deviation of these values", s)
             if paper == 1:
                 need(s.is_integer and s >= 1, f"the Paper 1 sd {s}")
-            want, trap, wrongs = gpd_set(q, "standard deviation = ", s, {sd + "1": [var], sd + "0": [sp.sqrt(ssq / (n - 1))], sd + "3": [mad]})
+            want, trap, wrongs = gpd_set(q, "standard deviation = ", s, {sd + "1": [var], sd + "0": [sp.sqrt(ssq / (n - 1))], sd + "3": [mad],
+                                                                                   GPD_MEAN_READ: [mean]})
         else:
             word("Find the variance of these values", var)
-            want, trap, wrongs = gpd_set(q, "variance = ", var, {sd + "1": [sp.sqrt(var)], sd + "0": [ssq / (n - 1)], sd + "3": [mad]})
+            want, trap, wrongs = gpd_set(q, "variance = ", var, {sd + "1": [sp.sqrt(var)], sd + "0": [ssq / (n - 1)], sd + "3": [mad],
+                                                                        GPD_NOT_DIVIDED: [ssq]})
         gpd_gdc(q, {"σx": sp.sqrt(var)})
     elif u in ("variance-from-sd", "sd-from-variance"):
         c = GPD_CLASSES[int(g["ctx"])]
@@ -37501,7 +37593,8 @@ def E12RE_read(q, u, line):
         E12RE_root(c, e.q)
         f = E12RE_parse(line)
         C, P = E12RE_mono(f)
-        W = {E12RE_COEF: {E12RE_term(c, P)}, E12RE_ADD_BRACKET: {E12RE_term(C, qq + e)}, E12RE_TIMES: {E12RE_term(c * e, P)}}
+        W = {E12RE_COEF: {E12RE_term(c, P)}, E12RE_ADD_BRACKET: {E12RE_term(C, qq + e)}, E12RE_TIMES: {E12RE_term(c * e, P)},
+             "t1-rational-exponents#21": {E12RE_term(C, qq)}}   # the number raised, x's power left as it was
         if e < 0:
             W[E12RE_NO_RECIP] = {E12RE_term(sp.Rational(c) ** (-e), -P)}
         return f, E12RE_term(C, P), W, None

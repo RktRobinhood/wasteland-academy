@@ -15725,7 +15725,8 @@
      "as": "distractor",
      "in": [
       "nature-from-equation",
-      "delta-in-k"
+      "delta-in-k",
+      "roots-from-k"
      ],
      "wrong": "b² + 4ac, or √(b² − 4ac)"
     },
@@ -15765,6 +15766,49 @@
       "k-interval"
      ],
      "wrong": "k < k₁ or k > k₂ written as k₁ > k > k₂, one interval"
+    },
+    {
+     "text": "Includes the values of k where the discriminant is zero, though the inequality is strict",
+     "as": "distractor",
+     "in": [
+      "k-interval",
+      "always-positive"
+     ],
+     "wrong": "the end values taken in"
+    },
+    {
+     "text": "Forgets to reverse the inequality sign when dividing by a negative number",
+     "as": "distractor",
+     "in": [
+      "k-interval",
+      "always-positive"
+     ],
+     "wrong": "the inequality the wrong way round, after dividing by the negative gradient of Δ in k"
+    },
+    {
+     "text": "Takes the values of k outside the critical values when a negative discriminant needs those between them",
+     "as": "distractor",
+     "in": [
+      "k-interval",
+      "always-positive"
+     ],
+     "wrong": "the two outer regions instead of the interval between"
+    },
+    {
+     "text": "Uses only the condition for two distinct roots, forgetting that the roots must have the same sign",
+     "as": "distractor",
+     "in": [
+      "same-sign-roots"
+     ],
+     "wrong": "the values from Δ > 0 alone"
+    },
+    {
+     "text": "Uses only the product of the roots, forgetting the condition for two distinct roots",
+     "as": "distractor",
+     "in": [
+      "same-sign-roots"
+     ],
+     "wrong": "the values from a positive product alone"
     }
    ],
    "parts": [
@@ -28092,6 +28136,14 @@
       "solve-base"
      ],
      "wrong": "the number to the fractional power given"
+    },
+    {
+     "text": "Raising the number in the bracket to the power but leaving the power of x as it was",
+     "as": "distractor",
+     "in": [
+      "bracket-power"
+     ],
+     "wrong": "the power of x from inside the bracket, not multiplied by the power outside"
     }
    ],
    "parts": [
@@ -33901,6 +33953,23 @@
       "area-from-two-sides"
      ],
      "wrong": "the area with the angle read as radians"
+    },
+    {
+     "text": "Using cos instead of sin in the area formula",
+     "as": "distractor",
+     "in": [
+      "area-from-two-sides"
+     ],
+     "wrong": "½ab cos C, when cos C is positive"
+    },
+    {
+     "text": "Leaving out the sine, as if the two sides were the base and the height",
+     "as": "distractor",
+     "in": [
+      "area-from-two-sides",
+      "side-from-area"
+     ],
+     "wrong": "½ab as the area, or a side worked back from it"
     }
    ],
    "parts": [
@@ -35106,6 +35175,30 @@
       "side-sine-rule"
      ],
      "wrong": "the side worked out with the angles read as radians"
+    },
+    {
+     "text": "Adding the cosine term in the cosine rule instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "side-cosine-rule"
+     ],
+     "wrong": "√(b² + c² + 2bc cos A)"
+    },
+    {
+     "text": "Leaving out the cosine term, as if the angle were a right angle",
+     "as": "distractor",
+     "in": [
+      "side-cosine-rule"
+     ],
+     "wrong": "√(b² + c²), Pythagoras' theorem"
+    },
+    {
+     "text": "Forgetting to divide by the sine of the given angle",
+     "as": "distractor",
+     "in": [
+      "side-sine-rule"
+     ],
+     "wrong": "the known side times the sine of the angle opposite the asked side"
     }
    ],
    "parts": [
@@ -47898,6 +47991,24 @@
       "missing-frequency-from-median"
      ],
      "wrong": "the known side, with the other known rows forgotten"
+    },
+    {
+     "text": "Stopping at the mean instead of going on to the standard deviation",
+     "as": "distractor",
+     "in": [
+      "estimate-sd",
+      "sd-from-table",
+      "sd-of-small-set"
+     ],
+     "wrong": "the mean"
+    },
+    {
+     "text": "Forgetting to divide the sum of the squared deviations by n",
+     "as": "distractor",
+     "in": [
+      "variance-of-small-set"
+     ],
+     "wrong": "Σ(x − x̄)², not divided by n"
     }
    ],
    "parts": [
@@ -70179,6 +70290,35 @@
       "power-or-root"
      ],
      "wrong": "only +√(y − 9)"
+    },
+    {
+     "text": "Moves a term to the other side without changing its sign",
+     "as": "distractor",
+     "in": [
+      "one-step",
+      "two-step",
+      "power-or-root",
+      "subject-in-denominator",
+      "subject-twice",
+      "subject-twice-linear"
+     ],
+     "wrong": "a term moved across with the sign it had"
+    },
+    {
+     "text": "Multiplies by the other letter instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "one-step"
+     ],
+     "wrong": "the product where the quotient belongs"
+    },
+    {
+     "text": "Divides the wrong way round, with the other letter on top",
+     "as": "distractor",
+     "in": [
+      "one-step"
+     ],
+     "wrong": "the quotient upside down"
     }
    ]
   },
@@ -71397,6 +71537,22 @@
       "vertical-line"
      ],
      "wrong": "\"x = 3 is a function\""
+    },
+    {
+     "text": "Checks only that every input has an output, not that each has just one",
+     "as": "distractor",
+     "in": [
+      "from-mapping"
+     ],
+     "wrong": "\"a function\", because every input has an output"
+    },
+    {
+     "text": "Restricts x, which still leaves some inputs with two outputs",
+     "as": "distractor",
+     "in": [
+      "make-it-a-function"
+     ],
+     "wrong": "a restriction on x instead of on y"
     }
    ]
   },

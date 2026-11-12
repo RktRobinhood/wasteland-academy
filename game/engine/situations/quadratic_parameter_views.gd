@@ -2,7 +2,7 @@ class_name QuadraticParameterViews
 extends RefCounted
 ## The views on the `quadratic-parameter` situation: one builder per unknown of
 ## fn-discriminant (FAL-414). Builders return what QuadraticViews' builders return (see
-## quadratic_views.gd): asked, lines, graph, given, answer, wrongs, generic, methods.
+## quadratic_views.gd): asked, lines, graph, given, answer, wrongs, fillers, methods.
 ##
 ## Representations: "equation" shows the quadratic in k (or the curve and the line),
 ## "words" says the condition in a sentence (a line meeting a curve), "graph" sketches
@@ -17,6 +17,12 @@ const SKETCH := [
 	"opens downwards and touches the x-axis once", "opens downwards and never meets the x-axis"]
 const DIRECT := ["c", "b", "both"]
 const LINES := ["grad", "icpt"]
+## fn-discriminant's own slips, with no skill ref: logged by index.
+const R_ENDS_IN := "fn-discriminant#7"
+const R_NO_REVERSE := "fn-discriminant#8"
+const R_OUTSIDE := "fn-discriminant#9"
+const R_ONLY_DELTA := "fn-discriminant#10"
+const R_ONLY_PRODUCT := "fn-discriminant#11"
 
 const NEED := {
 	"nature-from-equation": {"base": {"mode": "any4", "even": true}},
@@ -79,9 +85,9 @@ func merge_need(a: Dictionary, b: Dictionary) -> Variant:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	# Q7's rounding trap, where the answer needs rounding (see game/README.md).
 	out.trap = Answer.rounding_trap(out.answer)
 	return out
@@ -302,7 +308,7 @@ func u_nature_from_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		"asked": "Find the discriminant of f(x), and say how many real roots the equation f(x) = 0 has.",
 		"lines": [QuadraticViews.gen_line(s)], "given": {"a": a.key(), "b": b.key(), "c": c.key()}, "answer": ans,
 		"wrongs": wrongs,
-		"generic": [{"d": d, "nature": NAT[0] if d.sign() <= 0 else NAT[2]}, {"d": d, "nature": NAT[1]}, {"d": d.neg(), "nature": nature_of(d.neg())}],
+		"fillers": [{"d": d, "nature": NAT[0] if d.sign() <= 0 else NAT[2]}, {"d": d, "nature": NAT[1]}, {"d": d.neg(), "nature": nature_of(d.neg())}],
 		"methods": {
 			"compute-delta": {"result": res, "steps": [
 				"a = %s, b = %s, c = %s" % [N(a), N(b), N(c)], calc, said, "So " + Answer.text(ans, res) + "."]},
@@ -332,7 +338,7 @@ func u_delta_sign_from_graph(_rep: String, s: Dictionary, rng: Seeded) -> Dictio
 		"lines": ["The graph of y = ax² + bx + c is shown."],
 		"graph": QuadraticViews.graph(s, []),
 		"given": {"a": s.a.key(), "b": s.b.key(), "c": s.c.key()}, "answer": ans,
-		"generic": others.map(func(o): return {"v": o}),
+		"fillers": others.map(func(o): return {"v": o}),
 		"methods": {"vertex-position": {"result": {"v": SIGNS[i]}, "steps": [
 			"The parabola opens %s, so a %s 0." % ["upwards" if up else "downwards", ">" if up else "<"],
 			"Its vertex is %s the x-axis: the graph %s." % ["on" if s.k.is_zero() else ("below" if s.k.sign() < 0 else "above"), seen],
@@ -350,7 +356,7 @@ func u_graph_from_delta(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"asked": "Which sketch fits the graph of y = ax² + bx + c?",
 		"lines": ["For the quadratic y = ax² + bx + c, %s." % SIGNS[i]],
 		"given": {"a": s.a.key(), "b": s.b.key(), "c": s.c.key(), "signs": SIGNS[i]}, "answer": ans,
-		"generic": others.map(func(o): return {"v": o}),
+		"fillers": others.map(func(o): return {"v": o}),
 		"methods": {"vertex-position": {"result": {"v": SKETCH[i]}, "steps": [
 			"a %s 0, so the parabola opens %s." % [">" if up else "<", "upwards" if up else "downwards"],
 			["Δ > 0, so there are two real roots: it crosses the x-axis twice.",
@@ -377,14 +383,16 @@ func u_roots_from_k(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var count: String = ["it crosses the x-axis twice", "it touches the x-axis", "it does not meet the x-axis"][0 if d.sign() > 0 else (1 if d.is_zero() else 2)]
 	var d2: Q = abc[1].sq().add(abc[0].mul(abc[2]).mul(4))
 	var dm := QuadraticParameterSituation.delta_at(s, kv.neg())
-	var generic: Array = [{"d": d2, "nature": say.call(d2)}, {"d": dm, "nature": say.call(dm)}]
+	# b² + 4ac for Δ is the catalogue's slip; the rest are fillers.
+	var wrongs: Array = [wrong({"d": d2, "nature": say.call(d2)}, "SL2.7.discriminant#2")]
+	var fillers: Array = [{"d": dm, "nature": say.call(dm)}]
 	for o in opts:
 		if o != say.call(d):
-			generic.append({"d": d, "nature": o})
+			fillers.append({"d": d, "nature": o})
 	return {
 		"asked": ("When k = %s, find the discriminant of the equation for where they meet, and say how many points the line and the curve meet at." if line
 			else "When k = %s, find the discriminant of f(x), and say how many real roots f(x) = 0 has.") % N(kv),
-		"lines": said_lines(s), "given": given_of(s).merged({"kv": kv.key()}), "answer": ans, "generic": generic,
+		"lines": said_lines(s), "given": given_of(s).merged({"kv": kv.key()}), "answer": ans, "wrongs": wrongs, "fillers": fillers,
 		"methods": {
 			"compute-delta": {"result": res, "steps": [put, calc, "So " + Answer.text(ans, res) + "."]},
 			"gdc-slider": {"result": res, "steps": [
@@ -423,7 +431,7 @@ func u_delta_in_k(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	st.append("So " + Answer.text(ans) + ".")
 	return {
 		"asked": "Find the discriminant of the equation %s, in terms of k." % ("for where they meet" if is_line(s) else "f(x) = 0"),
-		"lines": said_lines(s), "given": given_of(s), "answer": ans, "wrongs": wrongs, "generic": [g1, g2, g3],
+		"lines": said_lines(s), "given": given_of(s), "answer": ans, "wrongs": wrongs, "fillers": [g1, g2, g3],
 		"methods": {"discriminant-condition": {"result": vals, "steps": st}},
 	}
 
@@ -463,11 +471,11 @@ func u_k_for_equal_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.wrongs = wrongs
 	if one:
 		var k: Q = s.crit[0]
-		out.generic = [{"v": k.neg()}, {"v": k.mul(2)}, {"v": k.add(s.dC.sign())}, {"v": QuadraticParameterSituation.contact_x(s, k)}]
+		out.fillers = [{"v": k.neg()}, {"v": k.mul(2)}, {"v": k.add(s.dC.sign())}, {"v": QuadraticParameterSituation.contact_x(s, k)}]
 	else:
 		var k1: Q = s.crit[0]
 		var k2: Q = s.crit[1]
-		out.generic = [{"r1": k1.neg(), "r2": k2.neg()}, {"r1": k1.div(2), "r2": k2.div(2)}, {"r1": k1.mul(2), "r2": k2.mul(2)}, {"r1": k1.sub(1), "r2": k2.add(1)}]
+		out.fillers = [{"r1": k1.neg(), "r2": k2.neg()}, {"r1": k1.div(2), "r2": k2.div(2)}, {"r1": k1.mul(2), "r2": k2.mul(2)}, {"r1": k1.sub(1), "r2": k2.add(1)}]
 	return out
 
 
@@ -610,16 +618,28 @@ static func interval_methods(s: Dictionary, cond: String, ans: Dictionary, lead:
 
 
 ## Wrong intervals: the opposite region, the ends the other way, and the slips the
-## catalogue names for k-interval.
-static func interval_wrongs(ans: Dictionary, cond: String, tag: bool) -> Dictionary:
+## catalogue names for k-interval. The ends taken in when Δ must be strictly one side of
+## 0, the inequality not reversed on dividing by Δ's negative gradient in k, and the
+## outside taken for Δ < 0 are slips; the rest are fillers.
+static func interval_wrongs(s: Dictionary, ans: Dictionary, cond: String, tag: bool) -> Dictionary:
 	var v: Dictionary = ans.values
 	var wrongs: Array = []
-	var generic: Array = []
+	var fillers: Array = []
 	if ans.kind == "bound":
 		if cond == "real" and tag:
 			wrongs.append(wrong({"rel": loose(v.rel), "v": v.v}, "SL2.7.discriminant-parameter#2"))
-		generic = [{"rel": flip_rel(v.rel), "v": v.v}, {"rel": loose(v.rel), "v": v.v}, {"rel": v.rel, "v": v.v.neg()}, {"rel": flip_rel(loose(v.rel)), "v": v.v}]
-		return {"wrongs": wrongs, "generic": generic}
+		var flipped := {"rel": flip_rel(v.rel), "v": v.v}
+		var ends := {"rel": loose(v.rel), "v": v.v}
+		if v.rel in ["<", ">"]:
+			wrongs.append(wrong(ends, R_ENDS_IN))
+		else:
+			fillers.append(ends)
+		if s.dB.sign() < 0:
+			wrongs.append(wrong(flipped, R_NO_REVERSE))
+		else:
+			fillers.push_front(flipped)
+		fillers += [{"rel": v.rel, "v": v.v.neg()}, {"rel": flip_rel(loose(v.rel)), "v": v.v}]
+		return {"wrongs": wrongs, "fillers": fillers}
 	var other := "left out" if v.ends == "included" else "included"
 	if tag:
 		if v.shape == "between" and v.lo.eq(v.hi.neg()):
@@ -629,9 +649,18 @@ static func interval_wrongs(ans: Dictionary, cond: String, tag: bool) -> Diction
 		if v.shape == "outside":
 			wrongs.append(wrong({"shape": "between", "lo": v.lo, "hi": v.hi, "ends": v.ends}, "SL2.7.inequality#1"))
 	var opp := "outside" if v.shape == "between" else "between"
-	generic = [{"shape": opp, "lo": v.lo, "hi": v.hi, "ends": v.ends}, {"shape": v.shape, "lo": v.lo, "hi": v.hi, "ends": other},
-		{"shape": opp, "lo": v.lo, "hi": v.hi, "ends": other}, {"shape": v.shape, "lo": v.hi.neg(), "hi": v.lo.neg(), "ends": v.ends}]
-	return {"wrongs": wrongs, "generic": generic}
+	var opposite := {"shape": opp, "lo": v.lo, "hi": v.hi, "ends": v.ends}
+	var ends_other := {"shape": v.shape, "lo": v.lo, "hi": v.hi, "ends": other}
+	if v.shape == "between":
+		wrongs.append(wrong(opposite, R_OUTSIDE))
+	else:
+		fillers.append(opposite)
+	if v.ends == "left out":
+		wrongs.append(wrong(ends_other, R_ENDS_IN))
+	else:
+		fillers.append(ends_other)
+	fillers += [{"shape": opp, "lo": v.lo, "hi": v.hi, "ends": other}, {"shape": v.shape, "lo": v.hi.neg(), "hi": v.lo.neg(), "ends": v.ends}]
+	return {"wrongs": wrongs, "fillers": fillers}
 
 
 func u_k_interval(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -643,18 +672,18 @@ func u_k_interval(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var lines: Array = shown(s)
 	if line:
 		lines = ["The line y = %s %s." % [line_rhs(s), said % curve_rhs(s)]]
-	var w := interval_wrongs(ans, cond, true)
+	var w := interval_wrongs(s, ans, cond, true)
 	return {
 		"asked": ("Find the possible values of k." if line else "The equation f(x) = 0 %s. Find the possible values of k." % said) + to_sf(s),
 		"lines": lines, "given": given_of(s).merged({"cond": cond}), "answer": ans,
-		"wrongs": w.wrongs, "generic": w.generic,
+		"wrongs": w.wrongs, "fillers": w.fillers,
 		"methods": interval_methods(s, cond, ans, equate(s)),
 	}
 
 
 func u_always_positive(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := cond_answer(s, "none")
-	var w := interval_wrongs(ans, "none", false)
+	var w := interval_wrongs(s, ans, "none", false)
 	var lines: Array = []
 	var asked := ""
 	if rep == "equation":
@@ -678,7 +707,7 @@ func u_always_positive(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	cs.append(final)
 	return {
 		"asked": asked, "lines": lines, "given": given_of(s).merged({"cond": "none"}), "answer": ans,
-		"wrongs": w.wrongs, "generic": w.generic,
+		"wrongs": w.wrongs, "fillers": w.fillers,
 		"methods": {"compute-delta": {"result": ans.values, "steps": cd}, "discriminant-condition": {"result": ans.values, "steps": dcm},
 			"complete-square-condition": {"result": ans.values, "steps": cs}},
 	}
@@ -695,8 +724,9 @@ func u_same_sign_roots(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"asked": "Find the possible values of k.",
 		"lines": ["The equation %s = 0 has two distinct real roots, and they have the same sign." % kx_text(s)],
 		"given": given_of(s).merged({"cond": "same-sign"}), "answer": ans,
-		"generic": [{"shape": "below", "lo": Q.new(0), "hi": hi, "ends": "left out"}, {"shape": "between", "lo": Q.new(0), "hi": hi, "ends": "included"},
-			{"shape": "above", "lo": Q.new(0), "hi": hi, "ends": "left out"}, {"shape": "outside", "lo": Q.new(0), "hi": hi, "ends": "left out"}],
+		"wrongs": [wrong({"shape": "below", "lo": Q.new(0), "hi": hi, "ends": "left out"}, R_ONLY_DELTA),
+			wrong({"shape": "above", "lo": Q.new(0), "hi": hi, "ends": "left out"}, R_ONLY_PRODUCT)],
+		"fillers": [{"shape": "between", "lo": Q.new(0), "hi": hi, "ends": "included"}, {"shape": "outside", "lo": Q.new(0), "hi": hi, "ends": "left out"}],
 		"methods": {
 			"discriminant-condition": {"result": res, "steps": [delta_step(s), two, prod, final]},
 			"sketch-roots": {"result": res, "steps": [
@@ -736,7 +766,7 @@ func u_tangent_contact_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		var xw: Q = s.p.div(-2)
 		wrongs.append(wrong({"k": kw, "x": xw, "y": s.m.mul(xw).add(kw)}, "SL2.7.discriminant-parameter#0"))
 	out.wrongs = wrongs
-	out.generic = [{"k": k, "x": pt[0].neg(), "y": pt[1]}, {"k": k.neg(), "x": pt[0], "y": pt[1]}, {"k": k, "x": pt[0], "y": pt[1].neg()},
+	out.fillers = [{"k": k, "x": pt[0].neg(), "y": pt[1]}, {"k": k.neg(), "x": pt[0], "y": pt[1]}, {"k": k, "x": pt[0], "y": pt[1].neg()},
 		{"k": k, "x": pt[1], "y": pt[0]}]
 	out.methods = {"discriminant-condition": {"result": res, "steps": dc}, "derivative-match": {"result": res, "steps": deriv_steps(s, final)}}
 	return out
