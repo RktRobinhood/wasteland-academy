@@ -22,6 +22,10 @@ const NEG_ONE := "SL2.11.reflect#0"
 const END_OPEN := "SL2.2.domain#0"
 const END_COPY := "SL2.2.domain#1"
 const SWAP_SET := "SL2.2.domain#2"
+const TA := "fn-transform-apply#"
+const A_COPIED := TA + "19"
+const A_SAME_ORDER := TA + "20"
+const A_AGAIN := TA + "21"
 
 
 ## f as the question gives it: its rule and domain, or by name.
@@ -168,7 +172,8 @@ func u_rule_from_moves(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs.append(["g(x) = " + TC.rule_inner(s, a, bare, s.map.D), COMP_IN])
 	if not a.abs_q().eq(1):
 		wrongs.append([rule_line(s, with(s.map, {"D": a.mul(s.map.D)})), SK_ONE])
-	var bad: Array = [rule_line(s, with(s.map, {"C": s.map.C.neg()})), rule_line(s, with(s.map, {"D": s.map.D.neg()})),
+	wrongs.append([rule_line(s, with(s.map, {"C": s.map.C.neg()})), TR_SIGN])
+	var bad: Array = [rule_line(s, with(s.map, {"D": s.map.D.neg()})),
 		rule_line(s, with(s.map, {"C": s.map.D, "D": s.map.C})), rule_line(s, with(s.map, {"C": s.map.C.neg(), "D": s.map.D.neg()}))]
 	var steps: Array = []
 	var so_far: Array = []
@@ -204,7 +209,8 @@ func u_reflect_translate_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var neg := "Negate the output, f(x) to −f(x)" if refl.k == "rx" else "Negate the input, f(x) to f(−x)"
 	var edge := "The domain's end %s moves with x: it is now %s." % [TC.set_text(s, TC.f_domain(s), "x"), TC.set_text(s, dom, "x")]
 	var step := "Then translate: replace x by %s and add %s, giving %s." % [TC.x_minus(s, t.c), TC.n(s, t.d), f_form(s, s.map)]
-	return ask(right, wrongs, [say.call(other_map, TC.moved_set(TC.f_domain(s), Q.new(1).div(other_map.B), other_map.C)), say.call(s.map, TC.moved_set(TC.f_domain(s), Q.new(1).div(s.map.B), s.map.C.neg())), say.call(sign_map, dom)],
+	wrongs.append([say.call(other_map, TC.moved_set(TC.f_domain(s), Q.new(1).div(other_map.B), other_map.C)), REFLECT])
+	return ask(right, wrongs, [say.call(s.map, TC.moved_set(TC.f_domain(s), Q.new(1).div(s.map.B), s.map.C.neg())), say.call(sign_map, dom)],
 		"Find g(x) and the domain of g.", [f_given(rep, s), moves_line(s)], {
 			"gdc-check": [neg + ". " + step, "Graph y = %s on the GDC to check where the curve starts." % TC.g_rule(s), edge],
 			"step-by-step-substitution": [neg + ".", step, edge],
@@ -267,7 +273,7 @@ func u_undo_moves(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	for m in back:
 		done.append(m)
 		steps.append("After %s: y = %s." % [TC.move_text(s, m), vert_rule(s, TC.compose(done))])
-	return ask(right, [], [wrong_map.call(same_order), wrong_map.call(moves), wrong_map.call(signs), wrong_map.call([TC.slide(0, s.map.D.neg())])],
+	return ask(right, [[wrong_map.call(same_order), A_SAME_ORDER], [wrong_map.call(moves), A_AGAIN]], [wrong_map.call(signs), wrong_map.call([TC.slide(0, s.map.D.neg())])],
 		"Find f(x).", lines, {
 			"step-by-step-substitution": steps,
 			"substitute": steps,
@@ -286,7 +292,9 @@ func u_order_changes_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var other_m := with(first, {"D": first.D.neg()})
 	var wrongs: Array = [[one_way.call(first), COMP_ORDER], [one_way.call(second), COMP_ORDER]] if not same else []
 	var off_c := with(first, {"C": first.C.neg()})
-	var bad: Array = [say.call(first, other_m), say.call(other_m, first), one_way.call(other_m), say.call(off_c, first), one_way.call(off_c)] if same else \
+	if same and not first.C.is_zero():
+		wrongs = [[one_way.call(off_c), TR_SIGN]]
+	var bad: Array = [say.call(first, other_m), say.call(other_m, first), one_way.call(other_m), say.call(off_c, first)] if same else \
 		[say.call(second, first), say.call(first, other_m), say.call(other_m, second), say.call(off_c, second), say.call(first, with(second, {"C": second.C.neg()}))]
 	var axis_same: bool = (stretch_m.k == "vs" and not t.d.is_zero()) or (stretch_m.k == "hs" and not t.c.is_zero())
 	var why := "The stretch and the translation act along the same axis, so the stretch changes the size of the translation when it comes second." if axis_same else "The stretch and the translation act along different axes, so neither changes the other."
@@ -347,7 +355,6 @@ func u_image_point(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		wrongs.append(wrong({"x": p[0].mul(map.B).add(map.C), "y": im[1]}, IM_DOUBLE))
 	if has_v and p[1].is_zero() and not p[0].is_zero():
 		wrongs.append(wrong({"x": p[0].mul(map.A).add(map.C), "y": im[1]}, ROOTS))
-	wrongs.append(wrong({"x": im[1], "y": im[0]}))
 	var ans := Answer.make("point", {"x": im[0], "y": im[1]})
 	var x_line := "x: %s ÷ %s%s = %s." % [TC.n(s, p[0]), par(s, map.B), TC.plus(s, map.C), TC.n(s, im[0])]
 	var y_line := "y: %s × %s%s = %s." % [TC.n(s, map.A), par(s, p[1]), TC.plus(s, map.D), TC.n(s, im[1])]
@@ -356,7 +363,7 @@ func u_image_point(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"mapping-rule": ["The mapping is (x, y) to (x/b + c, a·y + d).", x_line, y_line],
 		"step-by-step": ["Take each move in turn: first what acts on x, inside f.", x_line, y_line],
 		"solve-for-input": ["Solve b(x − c) = %s for the input that f reads as %s." % [TC.n(s, p[0]), TC.n(s, p[0])], x_line, y_line],
-	}, s)
+	}, s, [{"x": im[1], "y": im[0]}])
 	out.merge(show_point(rep, s, p, false), true)
 	return out
 
@@ -369,16 +376,14 @@ func u_original_point(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var wrongs: Array = [wrong({"x": im[0].add(map.C).mul(map.B), "y": src[1]}, IM_LEFT)]
 	if not map.B.abs_q().eq(1):
 		wrongs.append(wrong({"x": im[0].sub(map.C).div(map.B), "y": src[1]}, IM_DOUBLE))
-	wrongs.append(wrong({"x": im[0], "y": src[1]}))
-	wrongs.append(wrong({"x": src[0], "y": im[1].div(map.A)}))
-	wrongs.append(wrong({"x": src[1], "y": src[0]}))
+	var fillers: Array = [{"x": im[0], "y": src[1]}, {"x": src[0], "y": im[1].div(map.A)}, {"x": src[1], "y": src[0]}]
 	var x_line := "x: b(x′ − c) = %s × (%s − %s) = %s." % [TC.n(s, map.B), TC.n(s, im[0]), par(s, map.C), TC.n(s, src[0])]
 	var y_line := "y: (y′ − d) ÷ a = (%s − %s) ÷ %s = %s." % [TC.n(s, im[1]), par(s, map.D), par(s, map.A), TC.n(s, src[1])]
 	var out := typed(Answer.make("point", {"x": src[0], "y": src[1]}), wrongs, "Find the point on y = f(x) it came from.", [], {
 		"mapping-rule": ["The mapping runs backwards: x = b(x′ − c) and y = (y′ − d) ÷ a.", x_line, y_line],
 		"step-by-step": ["Undo the moves, last one first.", x_line, y_line],
 		"solve-for-input": ["g at %s reads f at b(x′ − c), so that is the x-coordinate." % TC.n(s, im[0]), x_line, y_line],
-	}, s)
+	}, s, fillers)
 	var shown := show_point("equation", s, im, true)
 	if rep == "table":
 		shown.lines[0] = "The table gives points on y = g(x). Q is the point with x = %s." % TC.n(s, im[0])
@@ -408,22 +413,26 @@ func u_moved_asymptote(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var steps := {}
 	var ans: Dictionary
 	var wrongs: Array
+	var fillers: Array
 	var line_x: String = "x = 0 goes to x = %s." % TC.n(s, x) if x != null else ""
 	var line_y: String = "y = 0 goes to y = %s." % TC.n(s, y) if y != null else ""
 	var read := "An asymptote moves with the curve: x = p goes to x = p/b + c, and y = q to y = a·q + d."
 	if x != null and y != null:
 		ans = Answer.make("named", {"v0": x, "v1": y}, {"names": ["x", "y"]})
-		wrongs = [wrong({"v0": Q.new(0), "v1": y}, SK_ASY), wrong({"v0": x, "v1": Q.new(0)}, TR_ASY), wrong({"v0": y, "v1": x}), wrong({"v0": x.neg(), "v1": y})]
+		wrongs = [wrong({"v0": Q.new(0), "v1": y}, SK_ASY), wrong({"v0": x, "v1": Q.new(0)}, TR_ASY)]
+		fillers = [{"v0": y, "v1": x}, {"v0": x.neg(), "v1": y}]
 		steps = {"move-key-points": [read, line_x + " " + line_y], "shift-features": [read, line_x + " " + line_y]}
 	elif x != null:
 		ans = Answer.make("axis", {"var": "x", "h": x})
-		wrongs = [wrong({"var": "x", "h": Q.new(0)}, SK_ASY), wrong({"var": "x", "h": x.neg()}), wrong({"var": "y", "h": x})]
+		wrongs = [wrong({"var": "x", "h": Q.new(0)}, SK_ASY)]
+		fillers = [{"var": "x", "h": x.neg()}, {"var": "y", "h": x}]
 		steps = {"move-key-points": [read, line_x], "shift-features": [read, line_x]}
 	else:
 		ans = Answer.make("axis", {"var": "y", "h": y})
-		wrongs = [wrong({"var": "y", "h": Q.new(0)}, TR_ASY), wrong({"var": "y", "h": y.neg()}), wrong({"var": "x", "h": y})]
+		wrongs = [wrong({"var": "y", "h": Q.new(0)}, TR_ASY)]
+		fillers = [{"var": "y", "h": y.neg()}, {"var": "x", "h": y}]
 		steps = {"move-key-points": [read, line_y], "shift-features": [read, line_y]}
-	var out := typed(ans, wrongs, "Find the equation of each asymptote of g." if x != null and y != null else "Find the equation of the asymptote of g.", lines, steps, s)
+	var out := typed(ans, wrongs, "Find the equation of each asymptote of g." if x != null and y != null else "Find the equation of the asymptote of g.", lines, steps, s, fillers)
 	out.graph = graph
 	return out
 
@@ -437,13 +446,13 @@ func u_domain_range_of_g(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var fd := TC.f_domain(s)
 	var fr := TC.f_range(s)
 	var swapped_sets := "domain %s; range %s" % [TC.set_text(s, ran, "x"), TC.set_text(s, dom, "y")]
-	var bad: Array = [say.call(fd, ran), say.call(dom, fr), say.call(fd, fr),
-		say.call(TC.moved_set(fd, Q.new(1).div(map.B), map.C.neg()), ran), say.call(dom, TC.moved_set(fr, map.A, map.D.neg())),
+	var copied: Array = [[say.call(fd, ran), A_COPIED], [say.call(dom, fr), A_COPIED], [say.call(fd, fr), A_COPIED]]
+	var bad: Array = [say.call(TC.moved_set(fd, Q.new(1).div(map.B), map.C.neg()), ran), say.call(dom, TC.moved_set(fr, map.A, map.D.neg())),
 		say.call(TC.moved_set(fd, map.B, map.C), ran), say.call(dom, TC.moved_set(fr, Q.new(1).div(map.A), map.D)),
 		say.call(TC.moved_set(fd, Q.new(1).div(map.B), map.C.add(1)), TC.moved_set(fr, map.A, map.D.add(1)))]
 	var d_step := "The domain moves with what acts on x: %s becomes %s." % [TC.set_text(s, fd, "x"), TC.set_text(s, dom, "x")]
 	var r_step := "The range moves with what acts on y: %s becomes %s." % [TC.set_text(s, fr, "y"), TC.set_text(s, ran, "y")]
-	var out := ask(right, [[swapped_sets, SWAP_SET]] if swapped_sets != right else [], bad, "Find the domain and the range of g.", [f_given("equation", s), moves_line(s)], {
+	var out := ask(right, ([[swapped_sets, SWAP_SET]] if swapped_sets != right else []) + copied, bad, "Find the domain and the range of g.", [f_given("equation", s), moves_line(s)], {
 		"stretch-then-translate-form": ["g(x) = %s, so x goes to x/b + c and y to a·y + d, with a = %s, b = %s, c = %s, d = %s." % [f_form(s, map), TC.n(s, map.A), TC.n(s, map.B), TC.n(s, map.C), TC.n(s, map.D)], d_step, r_step],
 		"graph-extent": ["Move the graph's left and right ends, and its lowest and highest points.", d_step, r_step],
 	})

@@ -19,6 +19,12 @@ const NEED := {
 const MM := "SL2.4.max-min"
 const SD := "SL2.3.sum-difference"
 const CA := "SL2.10.context-apply"
+const T := "fn-gdc-optimise-combined"
+const R_REVERSED := T + "#9"
+const R_NO_ROOT := T + "#10"
+const R_DIST_AS_Y := T + "#11"
+const R_OWN_MAX := T + "#12"
+const R_EQUAL := T + "#13"
 
 
 func has(unknown: String) -> bool:
@@ -34,14 +40,14 @@ func need(unknown: String, rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	out.given = GdcCombinedSituation.export(s)
 	if not out.has("trap"):
 		out.trap = GdcCurveViews.trap(out.answer) if out.answer.kind != "named" else Answer.rounding_trap_all(out.answer)
 	out.wrongs = out.wrongs.filter(func(w): return GdcCurveViews.clear(w.values))
-	out.generic = out.generic.filter(func(g): return GdcCurveViews.clear(g))
+	out.fillers = out.fillers.filter(func(g): return GdcCurveViews.clear(g))
 	return out
 
 
@@ -107,22 +113,33 @@ static func d_step(s: Dictionary) -> String:
 func u_form_difference(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := "D(t) = " + d_text(s)
 	var gen: Array
+	var reversed := ""
 	if s.kind == "towns":
-		# −(q + rt) written out, a sign slip and the sum.
+		# −(q + rt) written out, a sign slip and the sum. The first is reversed and its bracket
+		# dropped as well, two slips at once, so it stays a filler.
 		var q: Dictionary = s.g
 		gen = ["D(t) = %s − %s" % [ft(s), gt(s)], "D(t) = %s − %s%s" % [ft(s), GdcKit.first(q.m, "t"), GdcKit.join(q.c, "")],
 			"D(t) = %s + %s" % [ft(s), gt(s)], "D(t) = %s − %s" % [gt(s), GdcKit.first(s.f.A, "t")]]
 	else:
 		var dk: Q = s.f.A.sub(s.g.A)
-		gen = ["D(t) = %s − %s" % [gt(s), ft(s)], "D(t) = %s + %s" % [ft(s), gt(s)],
+		reversed = "D(t) = %s − %s" % [gt(s), ft(s)]
+		gen = ["D(t) = %s + %s" % [ft(s), gt(s)],
 			"D(t) = %s" % GdcTwoCurvesSituation.text(GdcTwoCurvesSituation.curve("texp", {"A": dk if not dk.is_zero() else Q.new(1), "k": s.f.k.sub(s.g.k).abs_q()}), "t")]
-	var out := LogFunctionViews.choice(right, [], gen)
+	var out := _choice(right, [wrong({"v": reversed}, R_REVERSED)] if reversed != "" else [], gen)
 	var final: String = "So " + out.answer.values.v + "."
 	out.merge({
 		"asked": "Write down an expression for D(t), %s." % d_meaning(s), "lines": [models(s, rep)],
 		"methods": {"simplify-first": {"result": out.answer.values, "steps": [
 			"The one that is ahead comes first: %s." % ("Q(t) − P(t)" if s.kind == "towns" else "A(t) − B(t)"),
 			"Substitute each model in brackets, then drop the brackets with care: %s." % d_text(s), final]}}})
+	return out
+
+
+## LogFunctionViews.choice's untagged options, read whichever name it gives them, as fillers.
+static func _choice(right: String, wrongs: Array, fill: Array) -> Dictionary:
+	var out := LogFunctionViews.choice(right, wrongs, fill)
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
 	return out
 
 
@@ -140,7 +157,7 @@ func u_max_difference(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var tool := "The maximum tool gives (%s, %s)." % [W(e.x), W(e.y)]
 	return {
 		"asked": "Find the greatest value of D(t), %s, and the time when it happens." % d_meaning(s), "lines": [models(s, rep)],
-		"answer": ans, "wrongs": wrongs, "generic": gen,
+		"answer": ans, "wrongs": wrongs, "fillers": gen,
 		"methods": {
 			"gdc-combine": {"result": ans.values, "steps": [d_step(s), "Graph y = D(t) on %s, as one function." % dom(s), tool, final]},
 			"gdc-max-min": {"result": ans.values, "steps": [d_step(s), "Graph it and use the maximum tool, not the maximum of either model.", tool, final]},
@@ -160,7 +177,7 @@ func u_difference_zero(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var both := "On the whole real line D(t) = 0 at t = %s and t = %s; only t = %s is in %s." % [W(out_z), W(z), W(z), dom(s)]
 	return {
 		"asked": "Find when D(t), %s, is zero." % d_meaning(s), "lines": [models(s, rep)], "answer": ans,
-		"wrongs": [wrong(Answer.xs_of([qf(out_z), qf(z)]), CA + "#1")], "generic": gen,
+		"wrongs": [wrong(Answer.xs_of([qf(out_z), qf(z)]), CA + "#1")], "fillers": gen,
 		"methods": {
 			"gdc-combine": {"result": ans.values, "steps": [d_step(s), "Graph y = D(t) and use the zero tool.", both, final]},
 			"gdc-intersect": {"result": ans.values, "steps": ["D(t) = 0 where the models are equal: graph y = %s and y = %s." % [ft(s), gt(s)],
@@ -178,8 +195,8 @@ func u_least_distance(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c: Array = s.closest
 	var out := _distance(s, ans, final, e, c)
 	out.asked = "Find the least distance from P to the curve."
-	out.wrongs = [wrong({"v": qf(c[0])}, MM + "#0")]
-	out.generic = [{"v": qf(e.y * e.y)}, {"v": qf(absf(c[1]))}, {"v": qf(GdcCombinedSituation.at(s, s.d1.to_float()))}]
+	out.wrongs = [wrong({"v": qf(c[0])}, MM + "#0"), wrong({"v": qf(e.y * e.y)}, R_NO_ROOT)]
+	out.fillers = [{"v": qf(absf(c[1]))}, {"v": qf(GdcCombinedSituation.at(s, s.d1.to_float()))}]
 	# The distance to 2 s.f. is the rounding trap, and its misconception.
 	out.trap_ref = MM + "#2"
 	return out
@@ -193,7 +210,8 @@ func u_closest_point(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So the closest point is " + Answer.text(ans) + "."
 	var out := _distance(s, ans, final, e, c)
 	out.asked = "Find the coordinates of the point on the curve closest to P."
-	out.generic = [{"x": qf(c[0]), "y": qf(e.y)}, {"x": qf(c[1]), "y": qf(c[0])}, {"x": Q.new(0), "y": qf(GdcTwoCurvesSituation.at(s.f, 0.0))},
+	out.wrongs = [wrong({"x": qf(c[0]), "y": qf(e.y)}, R_DIST_AS_Y)]
+	out.fillers = [{"x": qf(c[1]), "y": qf(c[0])}, {"x": Q.new(0), "y": qf(GdcTwoCurvesSituation.at(s.f, 0.0))},
 		{"x": qf(c[0]), "y": qf(-c[1])}]
 	return out
 
@@ -207,7 +225,7 @@ func _distance(s: Dictionary, ans: Dictionary, final: String, e: Dictionary, c: 
 	var tool := "The minimum tool gives x = %s, where d = %s; the point is %s." % [W(e.x), W(e.y), GdcKit.pt6(c[0], c[1])]
 	return {
 		"lines": ["f(x) = %s, for %s, and the point P(%s, %s)" % [ft(s), "%s ≤ x ≤ %s" % [Fmt.num(s.d1), Fmt.num(s.d2)], px, py]],
-		"answer": ans, "wrongs": [], "generic": [],
+		"answer": ans, "wrongs": [], "fillers": [],
 		"methods": {
 			"gdc-combine": {"result": ans.values, "steps": ["The distance from P to the point (x, f(x)) is " + d + ".",
 				"Graph y = d(x) on the domain.", tool, final]},
@@ -259,7 +277,7 @@ func u_sum_zeros(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var gen: Array = [Answer.xs_of(s.f_zeros.map(func(z): return qf(z))), Answer.xs_of(s.zeros.map(func(z): return qf(-z))),
 		Answer.xs_of(s.zeros.map(func(z): return qf(z + 1.0)))]
 	var out := {"asked": "Find the zeros of f(x) + g(x).", "lines": ["f(x) = %s and g(x) = %s, for %s ≤ x ≤ %s" % [ft(s), gt(s), Fmt.num(s.d1), Fmt.num(s.d2)]],
-		"answer": ans, "wrongs": [wrong(Answer.xs_of(both.map(func(z): return qf(z))), SD + "#1")], "generic": gen}
+		"answer": ans, "wrongs": [wrong(Answer.xs_of(both.map(func(z): return qf(z))), SD + "#1")], "fillers": gen}
 	if rep == "graph":
 		out.lines = ["The graphs of " + out.lines[0] + " are shown."]
 		var lo: float = s.d1.to_float()
@@ -283,17 +301,19 @@ func u_interpret_extreme(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var e: Dictionary = s.ext
 	var right: String
 	var lead: String
-	var gen: Array
+	var equal: String
+	var own: String
 	if s.kind == "towns":
 		right = "It is %s years after 2020 that town Q is furthest ahead of town P." % S(e.x)
 		lead = "Town Q's greatest lead over town P is %s thousand people." % S(e.y)
-		gen = ["It is %s years after 2020 that town P overtakes town Q." % S(e.x), "It is %s years after 2020 that town Q's population is greatest." % S(e.x)]
+		equal = "It is %s years after 2020 that town P overtakes town Q." % S(e.x)
+		own = "It is %s years after 2020 that town Q's population is greatest." % S(e.x)
 	else:
 		right = "It is %s hours after the drugs are taken that A's concentration is furthest above B's." % S(e.x)
 		lead = "The greatest amount by which A's concentration is above B's is %s mg/l." % S(e.y)
-		gen = ["It is %s hours after the drugs are taken that A's concentration is greatest." % S(e.x),
-			"It is %s hours after the drugs are taken that the concentrations are equal." % S(e.x)]
-	var out := LogFunctionViews.choice(right, [wrong({"v": lead}, CA + "#2")], gen)
+		own = "It is %s hours after the drugs are taken that A's concentration is greatest." % S(e.x)
+		equal = "It is %s hours after the drugs are taken that the concentrations are equal." % S(e.x)
+	var out := _choice(right, [wrong({"v": lead}, CA + "#2"), wrong({"v": equal}, R_EQUAL), wrong({"v": own}, R_OWN_MAX)], [])
 	var final: String = "So: " + out.answer.values.v
 	out.merge({
 		"asked": "D(t) is %s. The graph of D has its maximum point at (%s, %s). What does %s tell you?" % [d_meaning(s), S(e.x), S(e.y), S(e.x)],
@@ -312,7 +332,7 @@ func u_first_whole_day(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So the first whole number of years is " + Answer.text(ans) + "."
 	var gen: Array = [{"v": Q.new(n + 1)}, {"v": Q.new(roundi(s.ext.x))}, {"v": Q.new(maxi(n - 2, 0))}]
 	var out := {"asked": "Find the first whole number of years t after 2020 at which town P has more people than town Q.",
-		"lines": [models(s, "words")], "answer": ans, "wrongs": [wrong({"v": Q.new(floori(z))}, CA + "#0")], "generic": gen}
+		"lines": [models(s, "words")], "answer": ans, "wrongs": [wrong({"v": Q.new(floori(z))}, CA + "#0")], "fillers": gen}
 	if rep == "table":
 		var tb: Dictionary = s.table
 		out.lines = ["The table shows the populations of town P, P(t) = %s, and town Q, Q(t) = %s, in thousands, t years after 2020." % [ft(s), gt(s)]]

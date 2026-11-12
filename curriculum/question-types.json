@@ -11468,6 +11468,46 @@
       "interpret-extreme"
      ],
      "wrong": "gives the size of the lead when the question asks when it happens"
+    },
+    {
+     "text": "Subtracting the models the wrong way round, so D measures the other one's lead",
+     "as": "distractor",
+     "in": [
+      "form-difference"
+     ],
+     "wrong": "D(t) with the two models swapped"
+    },
+    {
+     "text": "Forgetting the square root after minimising the squared distance",
+     "as": "distractor",
+     "in": [
+      "least-distance"
+     ],
+     "wrong": "the least value of d²"
+    },
+    {
+     "text": "Reading the minimum of the distance graph as the point, so the least distance is given as the y-coordinate",
+     "as": "distractor",
+     "in": [
+      "closest-point"
+     ],
+     "wrong": "the x-coordinate with the least distance as y"
+    },
+    {
+     "text": "Reading the maximum of D as the time one model is at its own greatest",
+     "as": "distractor",
+     "in": [
+      "interpret-extreme"
+     ],
+     "wrong": "the time read as one model's own maximum"
+    },
+    {
+     "text": "Reading the maximum of D as the time the two models are equal, where D is in fact zero",
+     "as": "distractor",
+     "in": [
+      "interpret-extreme"
+     ],
+     "wrong": "the time read as a crossing of the models"
     }
    ],
    "parts": [
@@ -20529,7 +20569,8 @@
      "as": "distractor",
      "in": [
       "describe-translation",
-      "describe-after-completing-square"
+      "describe-after-completing-square",
+      "describe-factor-inside"
      ],
      "wrong": "f(x + 2) described as 2 to the right, or the vector (2, 0)"
     },
@@ -20580,6 +20621,110 @@
       "describe-with-reflection"
      ],
      "wrong": "g(x) = f(−x) described as a reflection in the x-axis"
+    },
+    {
+     "text": "Using the reciprocal for a vertical stretch: its scale factor is what every y-coordinate is multiplied by",
+     "as": "distractor",
+     "in": [
+      "describe-stretch"
+     ],
+     "wrong": "a·f(x) named a vertical stretch with scale factor 1/a"
+    },
+    {
+     "text": "Naming the wrong axis: a stretch parallel to the y-axis changes the y-coordinates, one parallel to the x-axis the x-coordinates",
+     "as": "distractor",
+     "in": [
+      "describe-stretch"
+     ],
+     "wrong": "the right scale factor on the other axis"
+    },
+    {
+     "text": "Forgetting that the stretch also moves the centre line, so d is taken as the plain gap between the centre lines",
+     "as": "distractor",
+     "in": [
+      "relate-two-models"
+     ],
+     "wrong": "d as the difference of the centre lines"
+    },
+    {
+     "text": "Dividing the amplitudes the wrong way round",
+     "as": "distractor",
+     "in": [
+      "relate-two-models"
+     ],
+     "wrong": "a as p's amplitude over q's"
+    },
+    {
+     "text": "Mixing up the log laws: a product inside the log gives a sum, and a power gives a multiple",
+     "as": "distractor",
+     "in": [
+      "describe-log-rewrite"
+     ],
+     "wrong": "the product law used on a power, or the power law on a product"
+    },
+    {
+     "text": "Forgetting to take the log of the number multiplying x, so it is added as it stands",
+     "as": "distractor",
+     "in": [
+      "describe-log-rewrite"
+     ],
+     "wrong": "the number inside added, not its log"
+    },
+    {
+     "text": "Dividing the wrong way when comparing the gaps, so the scale factor is upside down",
+     "as": "distractor",
+     "in": [
+      "describe-from-graphs"
+     ],
+     "wrong": "the reciprocal of the scale factor"
+    },
+    {
+     "text": "Reading the vector straight from the coefficients, without completing the square",
+     "as": "distractor",
+     "in": [
+      "describe-after-completing-square"
+     ],
+     "wrong": "the coefficient of x and the constant as the vector"
+    },
+    {
+     "text": "Not taking the number out of the bracket first, so the shift is read from the constant as written",
+     "as": "distractor",
+     "in": [
+      "describe-factor-inside"
+     ],
+     "wrong": "f(bx − e) read as a shift of e"
+    },
+    {
+     "text": "Subtracting the wrong way round, taking the end point from the start point",
+     "as": "distractor",
+     "in": [
+      "vector-from-key-point"
+     ],
+     "wrong": "the vector with both signs changed"
+    },
+    {
+     "text": "Giving the moved point itself instead of the change from the start point",
+     "as": "distractor",
+     "in": [
+      "vector-from-key-point"
+     ],
+     "wrong": "the image point as the vector"
+    },
+    {
+     "text": "Undoing each move but keeping them in the original order, instead of last move first",
+     "as": "distractor",
+     "in": [
+      "describe-the-reverse"
+     ],
+     "wrong": "each move undone, in the old order"
+    },
+    {
+     "text": "Reversing the order of the moves without undoing each one",
+     "as": "distractor",
+     "in": [
+      "describe-the-reverse"
+     ],
+     "wrong": "the old moves, last one first, not undone"
     }
    ],
    "parts": [
@@ -21206,7 +21351,8 @@
      "as": "distractor",
      "in": [
       "reflect-rule",
-      "sketch-reflection"
+      "sketch-reflection",
+      "reflect-translate-rule"
      ],
      "wrong": "f(−x) for a reflection in the x-axis, or −f(x) for the y-axis"
     },
@@ -21225,7 +21371,9 @@
      "as": "distractor",
      "in": [
       "rule-single-translation",
-      "reflect-translate-rule"
+      "reflect-translate-rule",
+      "rule-from-moves",
+      "order-changes-rule"
      ],
      "wrong": "f(x + c) + d for a translation by (c, d)"
     },
@@ -21282,6 +21430,30 @@
       "domain-range-of-g"
      ],
      "wrong": "the range of g given when its domain is asked"
+    },
+    {
+     "text": "Copying f's domain or range across to g without moving it with the graph",
+     "as": "distractor",
+     "in": [
+      "domain-range-of-g"
+     ],
+     "wrong": "f's domain or range left where it was"
+    },
+    {
+     "text": "Undoing the moves in the order they were done, instead of last move first",
+     "as": "distractor",
+     "in": [
+      "undo-moves"
+     ],
+     "wrong": "each move undone, in the old order"
+    },
+    {
+     "text": "Applying the moves to g again instead of undoing them",
+     "as": "distractor",
+     "in": [
+      "undo-moves"
+     ],
+     "wrong": "the moves done a second time"
     }
    ],
    "parts": [
@@ -56541,6 +56713,30 @@
       "mean-from-one-mean"
      ],
      "wrong": "x̄ put in where y goes"
+    },
+    {
+     "text": "Adding the y-term to x̄ instead of taking it away when solving for d",
+     "as": "distractor",
+     "in": [
+      "d-from-mean-point"
+     ],
+     "wrong": "d = x̄ + cȳ"
+    },
+    {
+     "text": "Assuming the two regression lines give the same estimate, though they differ unless the fit is perfect",
+     "as": "distractor",
+     "in": [
+      "choose-line"
+     ],
+     "wrong": "either line, as if they were one line"
+    },
+    {
+     "text": "Putting the y-value into the line of y on x in place of x",
+     "as": "distractor",
+     "in": [
+      "predict-x-from-lines"
+     ],
+     "wrong": "a times the y-value, plus b"
     }
    ],
    "parts": [
@@ -58099,7 +58295,9 @@
      "text": "Writing (x − μ)/σ = probability instead of = z",
      "as": "distractor",
      "in": [
-      "mean-and-sd"
+      "mean-and-sd",
+      "unknown-sd",
+      "unknown-mean"
      ],
      "wrong": "the probabilities used in place of z"
     },
@@ -58111,6 +58309,81 @@
       "mean-and-sd"
      ],
      "wrong": "z rounded to 1 d.p. first"
+    },
+    {
+     "text": "Using normalcdf on the area instead of invNorm, as if the probability were a z-value",
+     "as": "distractor",
+     "in": [
+      "z-from-area"
+     ],
+     "wrong": "normalcdf of the given area"
+    },
+    {
+     "text": "Subtracting the wrong way round, working out (μ − x) ÷ σ, so z has the wrong sign",
+     "as": "distractor",
+     "in": [
+      "standardise-event"
+     ],
+     "wrong": "the z-value with its sign changed"
+    },
+    {
+     "text": "Finding only the area below the upper bound, without taking away the tail below the lower one",
+     "as": "distractor",
+     "in": [
+      "within-k-sd"
+     ],
+     "wrong": "P(Z < k), one bound only"
+    },
+    {
+     "text": "Multiplying by z when rearranging for σ, instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "unknown-sd",
+      "sd-from-central-area",
+      "sd-from-equal-tails"
+     ],
+     "wrong": "the distance from the mean times z"
+    },
+    {
+     "text": "Using the whole width as the distance from the mean to one end, when the mean sits halfway between the ends",
+     "as": "distractor",
+     "in": [
+      "sd-from-iqr",
+      "sd-from-equal-tails"
+     ],
+     "wrong": "σ doubled: the whole width divided by z"
+    },
+    {
+     "text": "Putting the central area into invNorm as if it were the area to the left",
+     "as": "distractor",
+     "in": [
+      "sd-from-central-area"
+     ],
+     "wrong": "z from invNorm of the central area"
+    },
+    {
+     "text": "Adding the two values but forgetting to halve the sum",
+     "as": "distractor",
+     "in": [
+      "mean-from-equal-tails"
+     ],
+     "wrong": "the sum of the two values"
+    },
+    {
+     "text": "Taking the mean halfway between the two values, though their z-values differ in size",
+     "as": "distractor",
+     "in": [
+      "mean-from-two-z"
+     ],
+     "wrong": "the midpoint of the two values"
+    },
+    {
+     "text": "Gives σ when μ is asked for",
+     "as": "distractor",
+     "in": [
+      "mean-from-two-z"
+     ],
+     "wrong": "the standard deviation"
     }
    ],
    "parts": [
@@ -73610,7 +73883,9 @@
      "text": "Drops the sign of the input",
      "as": "distractor",
      "in": [
-      "negative-into-linear"
+      "negative-into-linear",
+      "negative-into-square",
+      "fraction-input"
      ],
      "wrong": "−1 instead of 7"
     },
@@ -73621,6 +73896,47 @@
       "rational-expression"
      ],
      "wrong": "the top or bottom worked left to right"
+    },
+    {
+     "text": "Doubles x instead of squaring it",
+     "as": "distractor",
+     "in": [
+      "negative-into-square",
+      "coefficient-and-power"
+     ],
+     "wrong": "2x used in place of x²"
+    },
+    {
+     "text": "Adds the coefficient and the input instead of multiplying them",
+     "as": "distractor",
+     "in": [
+      "negative-into-linear"
+     ],
+     "wrong": "the number in front of x added to the input"
+    },
+    {
+     "text": "Keeps the sign of the constant when moving it to the other side",
+     "as": "distractor",
+     "in": [
+      "missing-input"
+     ],
+     "wrong": "the constant added to the value instead of taken away"
+    },
+    {
+     "text": "Undoes the steps in the wrong order, dividing before taking the constant away",
+     "as": "distractor",
+     "in": [
+      "missing-input"
+     ],
+     "wrong": "the value divided first, then the constant taken away"
+    },
+    {
+     "text": "Puts the value in for x instead of solving for x",
+     "as": "distractor",
+     "in": [
+      "missing-input"
+     ],
+     "wrong": "the expression worked out at the value"
     }
    ]
   },
@@ -75279,7 +75595,8 @@
      "as": "distractor",
      "in": [
       "two-orders",
-      "which-pairs-commute"
+      "which-pairs-commute",
+      "point-both-orders"
      ],
      "wrong": "\"the order never matters\""
     },
@@ -75288,7 +75605,8 @@
      "text": "Using b as the scale factor of f(bx) (it is 1/b)",
      "as": "distractor",
      "in": [
-      "inside-opposite"
+      "inside-opposite",
+      "order-from-bracket"
      ],
      "wrong": "f(2x) named a stretch with scale factor 2"
     },
@@ -75297,7 +75615,8 @@
      "text": "Taking the direction from the sign inside the bracket: a horizontal shift goes the opposite way",
      "as": "distractor",
      "in": [
-      "inside-opposite"
+      "inside-opposite",
+      "order-from-bracket"
      ],
      "wrong": "f(x + 2) described as 2 to the right"
     },
@@ -75309,6 +75628,71 @@
       "point-both-orders"
      ],
      "wrong": "the vertical translation applied before the vertical stretch"
+    },
+    {
+     "text": "Treating a change inside the bracket as if it were outside, so it acts on y",
+     "as": "distractor",
+     "in": [
+      "inside-opposite"
+     ],
+     "wrong": "a change inside f read as a move up, down or a vertical stretch"
+    },
+    {
+     "text": "Swapping what inside and outside do: a change inside the bracket acts on x, and one outside acts on y",
+     "as": "distractor",
+     "in": [
+      "inside-vs-outside"
+     ],
+     "wrong": "the inside and outside changes swapped"
+    },
+    {
+     "text": "Assuming a change inside the bracket does the same as one outside it",
+     "as": "distractor",
+     "in": [
+      "inside-vs-outside"
+     ],
+     "wrong": "the two called the same graph"
+    },
+    {
+     "text": "Taking the moves in the order they are written, from the outside in, instead of from the bracket out",
+     "as": "distractor",
+     "in": [
+      "order-from-bracket"
+     ],
+     "wrong": "a(f(x) + d) read as the stretch, then the translation"
+    },
+    {
+     "text": "Swapping the two results, giving each order what the other order gives",
+     "as": "distractor",
+     "in": [
+      "point-both-orders",
+      "two-orders"
+     ],
+     "wrong": "the two orders' results swapped"
+    },
+    {
+     "text": "Missing that both moves act along the same axis, so the order changes the result",
+     "as": "distractor",
+     "in": [
+      "which-pairs-commute"
+     ],
+     "wrong": "a pair along one axis said to commute"
+    },
+    {
+     "text": "Undoing each move but keeping them in the original order, instead of last move first",
+     "as": "distractor",
+     "in": [
+      "undo-in-reverse"
+     ],
+     "wrong": "each move undone, in the old order"
+    },
+    {
+     "text": "Reversing the order of the moves without undoing each one",
+     "as": "distractor",
+     "in": [
+      "undo-in-reverse"
+     ],
+     "wrong": "the old moves, last one first, not undone"
     }
    ]
   },
