@@ -9,6 +9,15 @@ const REF_DECREASE := T + "#0"
 const REF_TEN_TIMES := T + "#1"
 const REF_REVERSE := T + "#2"
 const REF_ADD_PERCENTS := T + "#3"
+const REF_DIRECTION := T + "#4"
+const REF_PART_ONLY := T + "#5"
+const REF_PLAIN_NUMBER := T + "#6"
+const REF_MULT_AS_CHANGE := T + "#7"
+const REF_OVER_NEW := T + "#8"
+const REF_DIFF_AS_PERCENT := T + "#9"
+const REF_APPLY_AGAIN := T + "#10"
+const REF_ADD_CHANGES := T + "#11"
+const REF_ADD_MULTIPLIERS := T + "#12"
 
 
 func needs() -> Dictionary:
@@ -47,7 +56,8 @@ func u_increase_multiplier(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var ans := dec_number("multiplier = ", m)
 	var said := "A price rises by %d%%." % r if rep == "words" else "An increase of %d%%" % r
 	var out := {"asked": "Write down the multiplier for an increase of %d%%." % r, "lines": [said], "answer": ans,
-		"wrongs": [], "generic": [{"v": Q.new(r, 100)}, {"v": Q.new(100 - r, 100)}, {"v": Q.new(r)}, {"v": Q.new(100 + 2 * r, 100)}],
+		"wrongs": [wrong({"v": Q.new(r, 100)}, REF_PART_ONLY), wrong({"v": Q.new(100 - r, 100)}, REF_DIRECTION)],
+		"fillers": [{"v": Q.new(r)}, {"v": Q.new(100 + 2 * r, 100)}],
 		"methods": {"one-multiplier": method(["The new amount is 100%% + %d%% = %d%% of the old one." % [r, 100 + r], "%d%% = %s" % [100 + r, D(m)], "So the " + Answer.text(ans) + "."], {"v": m})}}
 	if r < 10:
 		out.wrongs.append(wrong({"v": Q.new(10 + r, 10)}, REF_TEN_TIMES))
@@ -60,8 +70,8 @@ func u_decrease_multiplier(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var ans := dec_number("multiplier = ", m)
 	var said := "A price falls by %d%%." % r if rep == "words" else "A decrease of %d%%" % r
 	return {"asked": "Write down the multiplier for a decrease of %d%%." % r, "lines": [said], "answer": ans,
-		"wrongs": [wrong({"v": Q.new(r, 100)}, REF_DECREASE)],
-		"generic": [{"v": Q.new(100 + r, 100)}, {"v": Q.new(-r, 100)}, {"v": Q.new(100 - 2 * r, 100)}],
+		"wrongs": [wrong({"v": Q.new(r, 100)}, REF_DECREASE), wrong({"v": Q.new(100 + r, 100)}, REF_DIRECTION)],
+		"fillers": [{"v": Q.new(-r, 100)}, {"v": Q.new(100 - 2 * r, 100)}],
 		"methods": {"one-multiplier": method(["The new amount is 100%% − %d%% = %d%% of the old one." % [r, 100 - r], "%d%% = %s" % [100 - r, D(m)], "So the " + Answer.text(ans) + "."], {"v": m})}}
 
 
@@ -72,8 +82,9 @@ func u_apply_change(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var A: Q = s.A
 	var ans := dec_number("new amount = ", A)
 	var part := P.mul(Q.new(r, 100))
-	var out := {"asked": "Find the amount after %s." % change(r, up), "answer": ans, "wrongs": [],
-		"generic": [{"v": P.mul(PercentSituation.mult(r, not up))}, {"v": P.add(Q.new(r if up else -r))}, {"v": part}, {"v": A.add(part if up else part.neg())}]}
+	var out := {"asked": "Find the amount after %s." % change(r, up), "answer": ans,
+		"wrongs": [wrong({"v": P.mul(PercentSituation.mult(r, not up))}, REF_DIRECTION), wrong({"v": P.add(Q.new(r if up else -r))}, REF_PLAIN_NUMBER)],
+		"fillers": [{"v": A.add(part if up else part.neg())}]}
 	match rep:
 		"words":
 			out.lines = ["A shop's price of %s changes by %s." % [D(P), change(r, up).trim_prefix("an ").trim_prefix("a ")]]
@@ -82,9 +93,7 @@ func u_apply_change(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			out.table = {"rows": [["Before", [D(P)]], ["Change", ["%s%d%%" % ["+" if up else "−", r]]], ["After", ["?"]]]}
 		_:
 			out.lines = ["%s, %s" % [D(P), change(r, up)]]
-	if not up:
-		out.wrongs.append(wrong({"v": part}, REF_DECREASE))
-		out.generic = out.generic.filter(func(g): return not g.v.eq(part))
+	out.wrongs.append(wrong({"v": part}, REF_PART_ONLY if up else REF_DECREASE))
 	var final := "So the " + Answer.text(ans) + "."
 	out.methods = {
 		"one-multiplier": method(["The multiplier is %s." % D(s.m), "%s × %s = %s" % [D(P), D(s.m), D(A)], final], {"v": A}),
@@ -101,7 +110,8 @@ func u_multiplier_to_percent(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	ans.exact = true
 	var other := "fall" if up else "rise"
 	return {"asked": "What percentage change does multiplying by %s stand for?" % D(mm), "lines": ["× %s" % D(mm)], "answer": ans,
-		"generic": [{"dir": other, "v": v}, {"dir": ans.values.dir, "v": mm.mul(Q.new(100))}, {"dir": ans.values.dir, "v": v.div(Q.new(10))}, {"dir": other, "v": mm.mul(Q.new(100))}],
+		"wrongs": [wrong({"dir": other, "v": v}, REF_DIRECTION), wrong({"dir": ans.values.dir, "v": mm.mul(Q.new(100))}, REF_MULT_AS_CHANGE)],
+		"fillers": [{"dir": ans.values.dir, "v": v.div(Q.new(10))}, {"dir": other, "v": mm.mul(Q.new(100))}],
 		"methods": {"one-multiplier": method(["%s = %s%% of the amount." % [D(mm), D(mm.mul(Q.new(100)))], "%s%% − 100%% = %s%s%%" % [D(mm.mul(Q.new(100))), "+" if up else "−", D(v)], "So it is " + Answer.text(ans) + "."], ans.values)}}
 
 
@@ -112,8 +122,9 @@ func u_reverse_percentage(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var A: Q = s.A
 	var ans := dec_number("original amount = ", P)
 	var back := A.sub(A.mul(Q.new(r, 100))) if up else A.add(A.mul(Q.new(r, 100)))
-	var out := {"asked": "Find the amount before the change.", "answer": ans, "wrongs": [wrong({"v": back}, REF_REVERSE)],
-		"generic": [{"v": A.mul(s.m)}, {"v": A.sub(Q.new(r)) if up else A.add(Q.new(r))}, {"v": A.div(PercentSituation.mult(r, not up))}]}
+	var out := {"asked": "Find the amount before the change.", "answer": ans,
+		"wrongs": [wrong({"v": back}, REF_REVERSE), wrong({"v": A.mul(s.m)}, REF_APPLY_AGAIN), wrong({"v": A.sub(Q.new(r)) if up else A.add(Q.new(r))}, REF_PLAIN_NUMBER)],
+		"fillers": [{"v": A.div(PercentSituation.mult(r, not up))}]}
 	match rep:
 		"words":
 			out.lines = ["After %s, a price is %s." % [change(r, up), D(A)]]
@@ -145,8 +156,9 @@ func u_repeated_changes(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var said := ["A price has %s, then %s." % [c1, c2]] if rep == "words" else ["%s, then %s" % [c1, c2]]
 	var final := "So " + Answer.text(ans) + "."
 	var out := {"asked": "Find the overall multiplier and the overall percentage change.", "lines": said, "answer": ans,
-		"generic": [{"v0": Q.new(1).add(added.div(Q.new(100))), "v1": added}, {"v0": m1.add(m2), "v1": m1.add(m2).sub(Q.new(1)).mul(Q.new(100))},
-			{"v0": M, "v1": pc.neg()}, {"v0": m1.mul(m1), "v1": m1.mul(m1).sub(Q.new(1)).mul(Q.new(100))}],
+		"wrongs": [wrong({"v0": Q.new(1).add(added.div(Q.new(100))), "v1": added}, REF_ADD_CHANGES),
+			wrong({"v0": m1.add(m2), "v1": m1.add(m2).sub(Q.new(1)).mul(Q.new(100))}, REF_ADD_MULTIPLIERS)],
+		"fillers": [{"v0": M, "v1": pc.neg()}, {"v0": m1.mul(m1), "v1": m1.mul(m1).sub(Q.new(1)).mul(Q.new(100))}],
 		"methods": {"one-multiplier": method([
 			"The multipliers are %s and %s." % [D(m1), D(m2)], "%s × %s = %s" % [D(m1), D(m2), D(M)],
 			"%s is a change of %s%%." % [D(M), D(pc)], final], ans.values)},
@@ -167,8 +179,12 @@ func u_percent_from_amounts(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var other := "fall" if up else "rise"
 	var diff := A.sub(P).abs_q()
 	var out := {"asked": "Find the percentage change.", "answer": ans,
-		"generic": [{"dir": other, "v": Q.new(r)}, {"dir": ans.values.dir, "v": diff.div(A).mul(Q.new(100))}, {"dir": ans.values.dir, "v": diff},
-			{"dir": ans.values.dir, "v": A.div(P).mul(Q.new(100))}]}
+		"wrongs": [wrong({"dir": other, "v": Q.new(r)}, REF_DIRECTION), wrong({"dir": ans.values.dir, "v": diff.div(A).mul(Q.new(100))}, REF_OVER_NEW),
+			wrong({"dir": ans.values.dir, "v": diff}, REF_DIFF_AS_PERCENT), wrong({"dir": ans.values.dir, "v": A.div(P).mul(Q.new(100))}, REF_MULT_AS_CHANGE)],
+		"fillers": []}
+	# Four slips for three places: the rate turns the list, so each is offered on some questions.
+	var i := r % 4
+	out.wrongs = out.wrongs.slice(i) + out.wrongs.slice(0, i)
 	match rep:
 		"words":
 			out.lines = ["A price changes from %s to %s." % [D(P), D(A)]]

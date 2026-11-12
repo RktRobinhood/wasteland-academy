@@ -272,17 +272,18 @@ func test_every_slip_of_the_gallery_is_an_option() -> void:
 		var m: Dictionary = ty.misconceptions[i]
 		if m.as != "distractor":
 			continue
+		var ref: String = m.get("ref", "%s#%d" % [t, i])
 		for u in m.in:
 			var found := false
 			for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown == u):
 				for seed in range(1, 80):
 					var q := _make(t, u, c.rep, c.angle, seed, "mcq")
-					if q.choices.any(func(o): return o.ref == m.ref):
+					if q.choices.any(func(o): return o.ref == ref):
 						found = true
 						break
 				if found:
 					break
-			check(found, "%s never offers %s" % [u, m.ref])
+			check(found, "%s never offers %s" % [u, ref])
 
 
 # ── fn-ext-rational-model ────────────────────────────────────

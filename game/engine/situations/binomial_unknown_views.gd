@@ -260,7 +260,7 @@ func _one(s: Dictionary, rng: Seeded) -> Dictionary:
 	var term := term_step(s)
 	var says := "So %s = %s." % [letter_term(s.mult, l, s.e), N(s.coef)]
 	var w: Dictionary = _surd_options(s) if by_hand else _letter_options(s, mag)
-	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": rng.shuffled(w.wrongs), "generic": w.generic,
+	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": rng.shuffled(w.wrongs), "fillers": w.fillers,
 		"methods": {"coefficient-equation": method([term, says, root_step(s), final], ans.values),
 			GDC: method([term, "Graph Y1 = %s and Y2 = %s." % [letter_term(s.mult, "X", s.e), N(s.coef)], gdc_read(s), final], ans.values)}}
 
@@ -294,7 +294,7 @@ func _letter_options(s: Dictionary, mag: Q) -> Dictionary:
 	for m in [mag.add(1), mag.add(2), mag.mul(2), mag.add(3)]:
 		gen.append(Answer.xs_of(pattern(s, m)))
 	gen.append(Answer.xs_of([mag.neg()]) if not s.positive else Answer.xs_of([mag.add(4)]))
-	return {"wrongs": w, "generic": gen}
+	return {"wrongs": w, "fillers": gen}
 
 
 func _surd_options(s: Dictionary) -> Dictionary:
@@ -312,7 +312,7 @@ func _surd_options(s: Dictionary) -> Dictionary:
 	for r in [d + 1, d + 2, d + 3, 2 * d, d + 4]:
 		if BinomialUnknownSituation.int_root(r, 2) < 0:
 			gen.append({"r": Q.new(r), "text": "%s = %s√%d" % [l, sign, r]})
-	return {"wrongs": w, "generic": gen}
+	return {"wrongs": w, "fillers": gen}
 
 
 func u_k_odd_power(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -360,7 +360,7 @@ func u_n_from_coefficient(_rep: String, s: Dictionary, rng: Seeded) -> Dictionar
 	if j == 2:
 		w.append(wrong(Answer.xs_of([Q.new(1 - n), Q.new(n)]), R_NEG))
 		methods["coefficient-equation"] = method(hand, ans.values)
-	return {"lines": lines, "asked": "Find the value of n.", "answer": ans, "wrongs": rng.shuffled(w), "generic": gi([n + 1, n - 1, n + 2, n - 2, n + 3]),
+	return {"lines": lines, "asked": "Find the value of n.", "answer": ans, "wrongs": rng.shuffled(w), "fillers": gi([n + 1, n - 1, n + 2, n - 2, n + 3]),
 		"methods": methods}
 
 
@@ -394,7 +394,7 @@ func u_n_from_power_bracket(_rep: String, s: Dictionary, rng: Seeded) -> Diction
 	var read := "The table shows %d at X = %d and %s at X = %d." % [below, n - 1, N(s.coef), n]
 	return {"lines": ["Consider the expansion of (%d + %s)^(%s), where n is a positive integer." % [c, xt, top]],
 		"asked": "Given that the coefficient of %s is %s, find the value of n." % [x_text(2 * s.p), N(s.coef)],
-		"answer": ans, "wrongs": [wi(N_, R_SHIFT)], "generic": gi([n + 1, n - 1, n + 2, n - 2, n + 3]),
+		"answer": ans, "wrongs": [wi(N_, R_SHIFT)], "fillers": gi([n + 1, n - 1, n + 2, n - 2, n + 3]),
 		"methods": {GDC: method([term, table, read, "So n = %d." % n], ans.values)}}
 
 
@@ -415,7 +415,7 @@ func u_n_and_k_from_expansion(_rep: String, s: Dictionary, rng: Seeded) -> Dicti
 		w.append(wnamed(nq, k.abs_q(), R_SIGN))
 	return {"lines": ["The expansion of (1 + kx)^n begins %s" % head, "n is a positive integer and k is a rational number."],
 		"asked": "Find the value of n and the value of k.", "answer": ans, "wrongs": rng.shuffled(w),
-		"generic": gnamed([[Q.new(n + 1), p.div(Q.new(n + 1))], [Q.new(n - 1), p.div(Q.new(n - 1))], [nq, k.add(1)], [nq, k.mul(2)], [Q.new(n + 2), p.div(Q.new(n + 2))]]),
+		"fillers": gnamed([[Q.new(n + 1), p.div(Q.new(n + 1))], [Q.new(n - 1), p.div(Q.new(n - 1))], [nq, k.add(1)], [nq, k.mul(2)], [Q.new(n + 2), p.div(Q.new(n + 2))]]),
 		"methods": {"simultaneous": method([first, "The coefficient of x² gives n(n − 1)/2 × k² = %dk², so n(n − 1) = %d." % [q, n * (n - 1)],
 			quadratic_n(n) + ", and n is positive, so n = %d." % n, last, final], ans.values),
 			GDC: method([first, "The coefficient of x² gives nC2 × k² = %dk², so nC2 = %d." % [q, q],
@@ -444,7 +444,7 @@ func u_n_and_k_two_coefficients(_rep: String, s: Dictionary, rng: Seeded) -> Dic
 		w.append(wnamed(n2, q.div(p), R_NCR))
 	return {"lines": ["In the expansion of (1 + ax)^n, where n is a positive integer, the coefficient of x is %s and the coefficient of x² is %s." % [N(p), N(q)]],
 		"asked": "Find the value of n and the value of a.", "answer": ans, "wrongs": rng.shuffled(w),
-		"generic": gnamed([[Q.new(n + 1), p.div(Q.new(n + 1))], [Q.new(n - 1), p.div(Q.new(n - 1))], [nq, a.neg()], [nq, a.mul(2)], [nq, a.add(1)]]),
+		"fillers": gnamed([[Q.new(n + 1), p.div(Q.new(n + 1))], [Q.new(n - 1), p.div(Q.new(n - 1))], [nq, a.neg()], [nq, a.mul(2)], [nq, a.add(1)]]),
 		"methods": {"simultaneous": method([first, second,
 			"n(n − 1)a² is na(na − a), so %s × (%s − a) ÷ 2 = %s." % [F(p), N(p), N(q)],
 			"%s − a = 2 × %s ÷ %s = %s, so a = %s, and n = %s ÷ %s = %d." % [N(p), F(q), F(p), N(gap), N(a), N(p), F(a), n], last], ans.values),
@@ -479,7 +479,7 @@ func u_equal_find_k(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var graph := "Graph Y1 = %s − %s and find its zeros." % [letter_term(A, "X", j), letter_term(B, "X", j + 1)]
 	var read := "The zeros are X = 0 and X = %s, and k ≠ 0 keeps the second." % screen(k)
 	return {"lines": lines, "asked": "Find the value of k.", "answer": ans, "wrongs": rng.shuffled(w),
-		"generic": gx([k.add(1), k.mul(2), k.div(2), k.neg(), k.add(2)]),
+		"fillers": gx([k.add(1), k.mul(2), k.div(2), k.neg(), k.add(2)]),
 		"methods": {"coefficient-equation": method(terms + [same, cut, final], ans.values), GDC: method(terms + [graph, read, final], ans.values)}}
 
 
@@ -512,7 +512,7 @@ func u_equal_find_n(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if whole_n(flip, n):
 		w.append(wrong(Answer.xs_of([flip]), R_INV))
 	var gdc: Array = [hand[0], "Table Y1 = %s, with X going up in ones." % keyed, "The table shows 0 at X = %d." % n, "So n = %d." % n]
-	return {"lines": lines, "asked": "Find the value of n.", "answer": ans, "wrongs": rng.shuffled(w), "generic": gi([n + 1, n - 1, n + 2, n - 2, n + 3]),
+	return {"lines": lines, "asked": "Find the value of n.", "answer": ans, "wrongs": rng.shuffled(w), "fillers": gi([n + 1, n - 1, n + 2, n - 2, n + 3]),
 		"methods": {"coefficient-equation": method(hand, ans.values), GDC: method(gdc, ans.values)}}
 
 
@@ -537,7 +537,7 @@ func u_ratio_find_k(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"k = %s ÷ %s." % [P(r), P(size)], final]
 	var graph := "Graph Y1 = (%s) ÷ (%s) and Y2 = %s." % [letter_term(B, "X", j + 1), letter_term(A, "X", j), N(r) if r.d == 1 else "%d ÷ %d" % [r.n, r.d]]
 	return {"lines": lines, "asked": "Find the value of k.", "answer": ans, "wrongs": rng.shuffled(w),
-		"generic": gx([k.add(1), k.mul(2), k.div(2), k.add(2), k.add(3)]),
+		"fillers": gx([k.add(1), k.mul(2), k.div(2), k.add(2), k.add(3)]),
 		"methods": {"coefficient-equation": method(hand, ans.values),
 			GDC: method(terms + [graph, "The graphs cross at X = %s." % screen(k), final], ans.values)}}
 
@@ -558,7 +558,7 @@ func u_ratio_find_n(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var flip: Q = Q.new(j).add(Q.new(r.d, r.n).mul(Q.new(j + 1, k)))
 	if whole_n(flip, n):
 		w.append(wrong(Answer.xs_of([flip]), R_INV))
-	return {"lines": lines, "asked": "Find the value of n.", "answer": ans, "wrongs": rng.shuffled(w), "generic": gi([n + 1, n - 1, n + 2, n - 2, n + 3]),
+	return {"lines": lines, "asked": "Find the value of n.", "answer": ans, "wrongs": rng.shuffled(w), "fillers": gi([n + 1, n - 1, n + 2, n - 2, n + 3]),
 		"methods": {"coefficient-equation": method(hand, ans.values),
 			GDC: method([given, "Table Y1 = %s, with X going up in ones." % keyed, "The table shows %s at X = %d." % [screen(r), n], "So n = %d." % n], ans.values)}}
 
@@ -596,7 +596,7 @@ func u_two_brackets(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if d == 2:
 		w.append(wnamed(a, bp, R_ROOT))
 	return {"lines": lines, "asked": "Find the value of a and the value of b, where a > 0 and b > 0.", "answer": ans, "wrongs": rng.shuffled(w),
-		"generic": gnamed([[b, a], [a.mul(2), b], [a, b.add(1)], [a.add(1), b], [a, b.mul(2)], [a.add(1), b.add(1)]]),
+		"fillers": gnamed([[b, a], [a.mul(2), b], [a, b.add(1)], [a.add(1), b], [a, b.mul(2)], [a.add(1), b.add(1)]]),
 		"methods": {"simultaneous": method([first, second, div, back, final], ans.values),
 			GDC: method([first, second, "With X for b, a is Y1 = %s from the first and Y2 = %s from the second." % [key1, key2],
 				"For X > 0 the graphs cross at X = %s, Y = %s." % [screen(b), screen(a)], final], ans.values)}}
@@ -631,7 +631,7 @@ func u_quotient_coefficient(_rep: String, s: Dictionary, rng: Seeded) -> Diction
 	if slip != null:
 		w.append(wx([slip], R_TOP))
 	return {"lines": lines, "asked": "Find the value of a.", "answer": ans, "wrongs": rng.shuffled(w),
-		"generic": gx([a.mul(2), a.add(1), Q.new(1).div(a), a.neg(), a.div(2)]),
+		"fillers": gx([a.mul(2), a.add(1), Q.new(1).div(a), a.neg(), a.div(2)]),
 		"methods": {"coefficient-equation": method([from, term, same, cut, final], ans.values),
 			GDC: method([from, term, graph, read, final], ans.values)}}
 
@@ -693,6 +693,6 @@ func u_term_mean(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if not exact and next.size() == 2 and Fmt.sf(next[0]) != Fmt.sf(next[1]):
 		w.append(wx([GdcKit.qf(next[0]), GdcKit.qf(next[1])], R_PLACE))
 	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": rng.shuffled(w),
-		"generic": [Answer.xs_of([s.x1.add(1), s.x2.add(1)]), Answer.xs_of([s.x1]), Answer.xs_of([s.x2]), Answer.xs_of([s.x1.mul(2), s.x2.mul(2)]), Answer.xs_of([s.x1, s.x2.add(1)])],
+		"fillers": [Answer.xs_of([s.x1.add(1), s.x2.add(1)]), Answer.xs_of([s.x1]), Answer.xs_of([s.x2]), Answer.xs_of([s.x1.mul(2), s.x2.mul(2)]), Answer.xs_of([s.x1, s.x2.add(1)])],
 		"methods": {"coefficient-equation": method([first, mean, divide, solve, final], ans.values),
 			GDC: method([first, mean, graph, read, final], ans.values)}}
