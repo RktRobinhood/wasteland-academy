@@ -41599,6 +41599,9 @@ def E13HI_check(q):
             F, G = E13HI_result(o["text"])
             if E13HI_helps(G, g):
                 helps.append(o["text"])
+            if o["ref"]:
+                need(o["ref"] == "t5-ext-hence-integral#10" and E13HI_same(F, g), f"{o['text']!r} is not what {o['ref']} gives")
+                wr[o["ref"]].add(o["text"])
         need(len(helps) == 1, f"{len(helps)} results help: {helps}")
         right = lambda e, o: o == helps[0]
     else:
@@ -41612,6 +41615,12 @@ def E13HI_check(q):
             right = lambda e, o: E13HI_same(e, V)
             slips = {E13HI_SK + "0": r * (G.subs(X, b) - G.subs(X, a)), E13HI_SK + "1": r * (F.subs(X, b) - F.subs(X, a)),
                      "t5-ext-hence-integral#5": E13HI_coeff(m.group(3)) * (F.subs(X, b) - F.subs(X, a))}
+            # #8: the integrand's antiderivative (no constant) at the upper limit only.
+            Ag = sp.integrate(g, X)
+            slips["t5-ext-hence-integral#8"] = Ag.subs(X, b)
+            # #9: the moved term keeps its sign: r(2F − A) for A = ∫ g/r dx.
+            K = 2 * F - sp.integrate(g / r, X)
+            slips["t5-ext-hence-integral#9"] = r * (K.subs(X, b) - K.subs(X, a))
             for o in ch:
                 if o["ref"]:
                     need(E13HI_same(E13HI_e(o["text"]), slips[o["ref"]]), f"{o['text']!r} is not what {o['ref']} gives")
@@ -42014,6 +42023,10 @@ def E13AU_check(q):
                 need(same and (a, b) == (show(hi), show(lo)), f"{o['text']!r} does not swap the limits")
             elif o["ref"] == E13AU_SE + "2":
                 need(sp.simplify(g - d) == 0 and (a, b) == (show(lo), show(hi)), f"{o['text']!r} does not integrate f′")
+            elif o["ref"] == E13AU_SP + "1":
+                need(u == "integral-from-roots" and same and hi > 0 and (a, b) == (show(0), show(hi)), f"{o['text']!r} does not start at zero")
+            elif o["ref"]:
+                raise Fail(f"the checker can't confirm {o['ref']} on {u}")
             if o["ref"]:
                 wr[o["ref"]].add(o["text"])
         need(len(rights) == 1, f"{len(rights)} right integrals")
@@ -42031,6 +42044,19 @@ def E13AU_check(q):
     if u == "area-gdc-limits":
         rs = E13AU_roots(f)
         wr[E13AU_SP + "2"] = {show(E13AU_val(f, E13AU_round1(sp.N(rs[0], 30)), E13AU_round1(sp.N(rs[1], 30))))}
+        need(rs[0] < 0 < rs[1], "the roots are not either side of the y-axis")
+        wr[E13AU_SP + "1"] = {show(E13AU_val(f, 0, hi))}
+    T = "t5-ext-area-under-curve#"
+    if u in ("area-between-lines", "area-straight-edge") and lo > 0:
+        wr[T + "6"] = {show(E13AU_val(f, 0, hi))}
+    if u == "area-between-lines" and f.is_polynomial(X):
+        wr[T + "7"] = {show(f.subs(X, hi) - f.subs(X, lo))}
+    if u == "area-with-y-axis":
+        wr[T + "8"] = {show(E13AU_val(f, E13AU_roots(f)[0], hi))}
+    if u == "area-straight-edge":
+        need(sp.degree(f, X) == 1, "R's top is not a line")
+        wr[T + "9"] = {show(f.subs(X, hi) * (hi - lo))}
+        wr[T + "10"] = {show((f.subs(X, lo) + f.subs(X, hi)) * (hi - lo))}
     for sol in q["solutions"]:
         for st in sol["steps"]:
             if (m := re.fullmatch(r"F\(x\) = (.+)\.", st)):
