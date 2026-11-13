@@ -410,17 +410,47 @@ func test_no_sheet_keeps_the_enemy_on_the_screen() -> void:
 	_done(made)
 
 
-## A long question scrolls in the card at the size students use.
-func test_a_long_question_scrolls() -> void:
+## Waits for the card to find its scale (ui/fit_box.gd).
+func _fitted(f: Control) -> void:
+	for i in 30:
+		await tree.process_frame
+		if not f.fit_box.fitting:
+			return
+	fail("the card never settled on a scale")
+
+
+## How tall the card shows, in the scroller's units.
+func _shown(f: Control) -> float:
+	return f.card.size.y * f.card.scale.y
+
+
+## No bar at the side (Matt, 2026-11-06): a question a little too tall for its room is
+## drawn smaller until it all shows, and only a card too tall even then needs a swipe.
+func test_a_long_question_fits_without_a_scroll_bar() -> void:
 	var made: Array = await _screen(_area(Vector2i(390, 844)))
 	var f: Control = made[1]
+	await _fitted(f)
+	var room: float = f.scroll.size.y
 	var filler := Control.new()
+	filler.custom_minimum_size.y = maxf(0.0, room - f.card.get_combined_minimum_size().y) + 300
+	f.card.add_child(filler)
+	await _fitted(f)
+	var k: float = f.card.scale.y
+	check(k < 1.0 and k >= FitBox.MIN_SCALE, "it shrinks (%.2f)" % k)
+	check(_shown(f) <= room + 1.0, "and all of it shows (%.0f in %.0f)" % [_shown(f), room])
+	check(_shown(f) >= room * 0.95, "no smaller than it needs (%.0f in %.0f)" % [_shown(f), room])
+	check(f.card.get_global_rect().end.x <= f.scroll.get_global_rect().end.x + 1.0, "as wide as its room")
+	check(not f.scroll.get_v_scroll_bar().visible, "no scroll bar")
+	f.render_question()
+	await _fitted(f)
+	check_eq(f.card.scale.y, 1.0, "a new card starts at full size")
+	filler = Control.new()
 	filler.custom_minimum_size.y = 3000
 	f.card.add_child(filler)
-	for i in 3:
-		await tree.process_frame
-	check(f.card.size.y > f.scroll.size.y, "taller than its room")
-	check(f.scroll.get_v_scroll_bar().max_value >= 3000, "and it scrolls")
+	await _fitted(f)
+	check(is_equal_approx(snappedf(f.card.scale.y, 0.001), FitBox.MIN_SCALE), "no smaller than the floor (%s)" % f.card.scale.y)
+	check(f.scroll.get_v_scroll_bar().max_value > room + 1000, "so it scrolls")
+	check(not f.scroll.get_v_scroll_bar().visible, "still with no bar")
 	_done(made)
 
 
@@ -493,16 +523,22 @@ func test_wide_tables_and_long_answers_fit_the_frame() -> void:
 		f.show_view(v)
 		if f.question.has("error"):
 			continue
-		await tree.process_frame
-		check(f.card.get_combined_minimum_size().x <= f.scroll.size.x, "%s %s: %s wide in %s" % [c.type, c.unknown, f.card.get_combined_minimum_size().x, f.scroll.size.x])
+		await _fitted(f)
+		var k: float = f.card.scale.x
+		check(f.card.get_combined_minimum_size().x * k <= f.scroll.size.x + 0.5, "%s %s: %s wide in %s" % [c.type, c.unknown, f.card.get_combined_minimum_size().x * k, f.scroll.size.x])
 		var table: Node = f.card.find_child("TableScroll", true, false)
-		if table != null and table.get_child(0).get_combined_minimum_size().x > table.size.x:
-			seen.table += 1
-			check(table.get_h_scroll_bar().max_value >= table.get_child(0).get_combined_minimum_size().x, "%s: the table scrolls sideways" % c.type)
+		if table != null:
+			var natural: float = table.get_child(0).get_combined_minimum_size().x
+			if natural > f.scroll.size.x:
+				seen.table += 1
+			# Drawn smaller, it fits; only at the floor does it still scroll sideways.
+			if natural > table.size.x:
+				check(is_equal_approx(snappedf(k, 0.001), FitBox.MIN_SCALE), "%s: a table that doesn't fit is at the floor (%s)" % [c.type, k])
+				check(table.get_h_scroll_bar().max_value >= natural, "%s: the table scrolls sideways" % c.type)
 		for b: Button in f.card.find_children("*", "Button", true, false):
 			if b.autowrap_mode != TextServer.AUTOWRAP_OFF and b.get_parent().name == "Slots":
 				seen.wrapped += 1
-				check(b.size.x <= f.scroll.size.x and b.size.y >= UiTheme.BIG * 2, "%s: the answer wraps (%s)" % [c.type, b.size])
+				check(b.size.x * k <= f.scroll.size.x and b.size.y >= UiTheme.BIG * 2, "%s: the answer wraps (%s)" % [c.type, b.size])
 	check(seen.table > 0, "a table wider than the card was tried")
 	check(seen.wrapped > 0, "a long word-choice answer was tried")
 	_done(made)
