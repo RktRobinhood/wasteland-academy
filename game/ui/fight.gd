@@ -96,6 +96,8 @@ var left: VBoxContainer
 ## Holds the card's frame clear of the scene's sides.
 var right_pad: MarginContainer
 var card_frame: CardFrame
+## Between the scroller and the card: shrinks the card to fit (ui/fit_box.gd).
+var fit_box: FitBox
 var enemy_art: TextureRect
 var enemy_name: Label
 var enemy_bar: ProgressBar
@@ -194,6 +196,17 @@ func _fit() -> void:
 	left.custom_minimum_size.x = left_w if wide else 0.0
 	var band: float = left_w if wide else size.x
 	scene_box.custom_minimum_size.y = JourneyStage.fit_height(band, size.y, SCENE_SHARE_WIDE if wide else SCENE_SHARE)
+	fit_box.reset()
+
+
+## A new question starts at full size, then shrinks to fit.
+func _clear_card() -> void:
+	super()
+	fit_box.reset()
+
+
+func _card_settling() -> bool:
+	return fit_box.fitting
 
 
 ## Starts a run with this screen's region, floor and seed (a fresh seed if 0).
@@ -350,13 +363,17 @@ func _build() -> void:
 	scroll.name = "Scroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# No bar at the side (Matt, 2026-11-06): the card shrinks to fit instead (FitBox), and
+	# a card too tall even then still scrolls with a swipe or the wheel.
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 	scroll.scroll_deadzone = SWIPE_DEADZONE
 	card_frame.add_child(scroll)
+	fit_box = FitBox.new()
+	scroll.add_child(fit_box)
 	card = VBoxContainer.new()
 	card.name = "Card"
-	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.add_theme_constant_override("separation", 24)
-	scroll.add_child(card)
+	fit_box.add_child(card)
 
 	summary_box = VBoxContainer.new()
 	summary_box.name = "Summary"
