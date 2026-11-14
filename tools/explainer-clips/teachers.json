@@ -1,12 +1,15 @@
 {
-  "about": "Who narrates explainer clips. A clip names one teacher by id; recordings go in game/assets/audio/voice/<id>/clips/<clip id>/. Add a teacher only once the character has a voice sheet (writing/voice-sheets.md) and a voice brief (writing/voice-briefs.md). `regions` is where that teacher narrates; the first teacher with no regions listed is the default.",
+  "about": "Who narrates explainer clips. A clip names its map zone (the island ids in game/ui/map.gd) and is narrated by that zone's teacher; recordings go in game/assets/audio/voice/<teacher>/clips/<clip id>/. The zone casting below is provisional: it uses the three characters who have voice sheets today, matched to the maths each already talks about. The Relic-station characters (writing/voice-sheets.md, 'Characters still to come') can take over a zone once they have a sheet and a brief. A teacher with no brief cannot be recorded yet.",
+  "zones": {
+    "algebra": "dax",
+    "functions": "noma",
+    "geometry": "noma",
+    "stats": "dax",
+    "calculus": "gear-mira"
+  },
   "teachers": {
-    "gear-mira": {
-      "name": "Gear Mira",
-      "role": "Mechanic-Teacher",
-      "sheet": "writing/voice-sheets.md#gear-mira",
-      "brief": "writing/voice-briefs.md#gear-mira",
-      "regions": []
-    }
+    "gear-mira": { "name": "Gear Mira", "role": "Mechanic-Teacher", "sheet": "writing/voice-sheets.md#gear-mira", "brief": "writing/voice-briefs.md#gear-mira" },
+    "noma": { "name": "Noma", "role": "Map-Keeper", "sheet": "writing/voice-sheets.md#noma", "brief": "writing/voice-briefs.md#noma" },
+    "dax": { "name": "Dax", "role": "Trader-Engineer", "sheet": "writing/voice-sheets.md#dax", "brief": null }
   }
 }

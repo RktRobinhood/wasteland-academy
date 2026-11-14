@@ -9,24 +9,25 @@
   // ---------------------------------------------------------------- timing
   // Props move on twos (15 drawings a second); every event sits on that grid so picture, effects and voice share it.
   const DPS = 15, F = 1 / DPS, at = (n) => n / DPS;
-  const D = at(306);                                // 20.4 s: four beats of about 5 s, one teacher line each
-  const HOPS = [165, 171, 177].map(at), HOP = 4 * F;   // one hop per unit; each takes 4 drawings then holds 2
-  const T = { draw0: at(4), draw1: at(22), cap1: at(26), cut2: at(75), cap2: at(79), arrow: at(100), word: at(104),
-    cut3: at(150), dots: at(154), land: HOPS[2] + HOP, cut4: at(225), cap4: at(231), ting: at(240) };
-  // The teacher's lines. A clip is fixed, so the teacher can say this clip's numbers. `slot` is the longest the
-  // recording may run. Recordings live in game/assets/audio/voice/<teacher>/clips/<clip id>/01.ogg, 02.ogg, ...
+  const D = at(327);                                // 21.8 s: four beats of about 5.3 s, one teacher line each
+  const HOPS = [176, 182, 188].map(at), HOP = 4 * F;   // one hop per unit; each takes 4 drawings then holds 2
+  const T = { draw0: at(4), draw1: at(22), cap1: at(26), cut2: at(80), cap2: at(84), arrow: at(105), word: at(109),
+    cut3: at(160), dots: at(164), land: HOPS[2] + HOP, cut4: at(240), cap4: at(246), ting: at(255) };
+  // The narrator's lines: every beat is voiced, and the captions are these words exactly. A clip is fixed, so the
+  // narrator can say this clip's numbers. `slot` is the longest the recording may run (about 0.45 s a word).
+  // The narrator is whoever teachers.json gives for the clip's zone; these are written in Noma's voice.
   const VOICE = [
-    { t: at(8), slot: 4.4, say: "Here's y equals x squared. Watch the lowest point." },
-    { t: at(80), slot: 4.4, say: 'Swap x for x minus three, and the curve moves right.' },
-    { t: at(155), slot: 4.4, say: 'Every point slides three to the right. Same shape.' },
-    { t: at(230), slot: 4.4, say: 'The vertex lands on three, zero. Read it back to me.' },
+    { t: at(8), slot: 4.8, say: 'Here is y equals x squared, its lowest point at the origin.' },
+    { t: at(86), slot: 4.8, say: 'Write x minus three where x stood, and it walks right.' },
+    { t: at(165), slot: 4.8, say: 'Every point moves three to the right. The shape never changes.' },
+    { t: at(246), slot: 4.8, say: 'So the vertex settles at three, zero. Same curve, new ground.' },
   ];
   // Beats, for the storyboard and for reviewers: `key` is the time of the still that shows the beat.
   const BEATS = [
-    { t0: 0, t1: T.cut2, key: at(60), text: TEXT.start, change: 'The curve y = x² is chalked onto the board; its equation slip pops in.', camera: 'Whole board, slow drift.', sound: 'Chalk stroke, slip pop.' },
-    { t0: T.cut2, t1: T.cut3, key: at(135), text: TEXT.rule + ' / ' + TEXT.word, change: 'The slip is replaced by the new rule; an arrow runs 3 units along the x-axis and the word lands.', camera: 'Whips in on the axis.', sound: 'Whoosh, stamp, three ticks.' },
-    { t0: T.cut3, t1: T.cut4, key: at(205), text: '(none new)', change: 'Vertex and two side points hop right one unit at a time, three hops; the curve rides with them and a dashed ghost stays behind.', camera: 'Follows the curve right.', sound: 'Pop per hop, tock on landing.' },
-    { t0: T.cut4, t1: D, key: at(285), text: TEXT.end, change: 'New vertex is named; glints on the curve. Holds.', camera: 'Pulls back to the whole board.', sound: 'Stamp, two dings.' },
+    { t0: 0, t1: T.cut2, key: at(64), text: TEXT.start, change: 'The curve y = x² is chalked onto the board; its equation slip pops in.', camera: 'Whole board, slow drift.', sound: 'Chalk on slate, paper slip.' },
+    { t0: T.cut2, t1: T.cut3, key: at(145), text: TEXT.rule + ' / ' + TEXT.word, change: 'The slip is replaced by the new rule; an arrow runs 3 units along the x-axis and the word lands.', camera: 'Whips in on the axis.', sound: 'Three relay ticks, a metal stamp.' },
+    { t0: T.cut3, t1: T.cut4, key: at(220), text: '(none new)', change: 'Vertex and two side points hop right one unit at a time, three hops; the curve rides with them and a dashed ghost stays behind.', camera: 'Follows the curve right.', sound: 'Scrape per hop, metal clank on landing.' },
+    { t0: T.cut4, t1: D, key: at(305), text: TEXT.end, change: 'New vertex is named; glints on the curve. Holds.', camera: 'Pulls back to the whole board.', sound: 'Stamp, two struck-pipe dings.' },
   ];
 
   registerStyle({
@@ -37,11 +38,11 @@
     duration: D,
     size: [1080, 1350],
     fonts: FONTS,
-    teacher: 'gear-mira',
+    zone: 'functions',
     voice: VOICE,
     beats: BEATS,
     assumptions: ['Clip frame is 1080×1350 (4:5) so it sits above captions and controls on the 1080×1920 game screen.',
-      'The four teacher lines are drafts in Gear Mira\'s voice (writing/voice-sheets.md); the Writer confirms them before recording.'],
+      'The four teacher lines are drafts in Noma\'s voice (writing/voice-sheets.md); the Writer confirms them before recording.'],
     render: { samples: 4, preview: 2, shutter: 0, tone: 'linear', exposure: 1, bloom: 0, vignette: 0, grain: 0, fov: 26, background: PAL.ground.lit },
 
     build(S) {

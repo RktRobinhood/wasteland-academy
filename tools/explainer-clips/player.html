@@ -17,16 +17,19 @@
   #bar input[type=range] { flex: 1; accent-color: #22d3c5; }
   button { background: #1f2937; color: #22d3c5; border: 1px solid #22d3c5; border-radius: 6px; padding: 6px 12px; font: inherit; cursor: pointer; }
   label { white-space: nowrap; }
+  #cap { min-height: 2.6em; width: min(100%, 720px); box-sizing: border-box; padding: 6px 16px 0; text-align: center; font-size: 18px; color: #f3e6c4; }
 </style>
 <script type="importmap">{ "imports": { "three": "./node_modules/three/build/three.module.js" } }</script>
 </head>
 <body>
 <div id="wrap"><canvas id="c"></canvas></div>
+<div id="cap" aria-live="off"></div>
 <div id="bar">
   <button id="play">Play</button>
   <input id="scrub" type="range" min="0" max="1" step="0.001" value="0">
   <span id="time">0.0</span>
   <label><input id="snd" type="checkbox" checked> Sound</label>
+  <label><input id="cc" type="checkbox" checked> Captions</label>
   <label><input id="loop" type="checkbox" checked> Loop</label>
 </div>
 <script type="module">
@@ -52,10 +55,11 @@
     for (const v of style.voice || []) { const a = new Audio(voiceUrl(v)), dt = v.t - t;
       if (dt >= 0) { const id = setTimeout(() => a.play().catch(() => {}), dt * 1000); a.addEventListener('pause', () => clearTimeout(id)); } else { a.currentTime = -dt; a.play().catch(() => {}); }
       voices.push(a); } };
-  const show = () => { S.seek(t); $('scrub').value = t / D; $('time').textContent = t.toFixed(1) + ' / ' + D.toFixed(1); };
+  const caption = () => { const v = $('cc').checked && (style.voice || []).find((v) => t >= v.t && t < v.t + v.slot); $('cap').textContent = v ? v.say : ''; };
+  const show = () => { S.seek(t); caption(); $('scrub').value = t / D; $('time').textContent = t.toFixed(1) + ' / ' + D.toFixed(1); };
   const setPlaying = (p) => { playing = p; $('play').textContent = p ? 'Pause' : 'Play'; last = performance.now(); sound(); };
   $('play').onclick = () => setPlaying(!playing);
-  $('snd').onchange = sound;
+  $('snd').onchange = sound; $('cc').onchange = caption;
   $('scrub').oninput = (e) => { t = e.target.value * D; sound(); show(); };
   const tick = (now) => { if (playing) { t += (now - last) / 1000; last = now;
       if (t >= D) { if ($('loop').checked) { t = 0; sound(); } else { t = D; setPlaying(false); } }

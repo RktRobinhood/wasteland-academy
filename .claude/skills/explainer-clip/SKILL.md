@@ -10,8 +10,8 @@ Read `tools/explainer-clips/README.md` first. It is the guide; this is the order
 Run end to end without asking anyone. Reviewing roles check the output files afterwards.
 
 1. Read the issue and the topic's entry in `curriculum/`. Pick one idea and three to five beats. Just the maths: no characters on screen.
-2. Pick the teacher from `tools/explainer-clips/teachers.json` and write one line per beat in their voice (`writing/voice-sheets.md`). Check every number and equation by hand.
-3. Copy `styles/shift-graph.js` to `styles/<id>.js` and rebuild the content, timing, `VOICE`, `BEATS`, objects and `sound(k)`. Build with the kit and `PAL` only. Do not edit `lib/stage.js` or `lib/sound.js`; change the look only in `lib/salvage-ink.js`, and only when the issue asks for a style change.
+2. Set the clip's map zone and take its narrator from `tools/explainer-clips/teachers.json`. Write a line for every beat in that character's voice (`writing/voice-sheets.md`); the captions are these words exactly. Check every number and equation by hand.
+3. Copy `styles/shift-graph.js` to `styles/<id>.js` and rebuild the content, timing, `VOICE`, `BEATS`, objects and `sound(k)` (setting sounds only: chalk, paper, metal, relays). Build with the kit and `PAL` only. Do not edit `lib/stage.js` or `lib/sound.js`; change the look only in `lib/salvage-ink.js`, and only when the issue asks for a style change.
 4. `node render.mjs <id> storyboard`. Open each `out/<id>/beat-N.png`, compare with `reference/`, and fix anything cropped, overlapping or too small to read on a phone. Repeat until right.
 5. Hand `out/<id>/voice-script.json` to the Audio Designer, or record the lines yourself if that is your role, saving each at the path it lists.
 6. `node render.mjs <id> video`. If it exits non-zero, fix what it lists and render again.
