@@ -105,9 +105,9 @@ if (mode !== 'storyboard') {
   recorded.forEach((v, i) => { ins.push('-i', path.join(ROOT, v.file)); parts.push(`[${i + 1}:a]aresample=48000,adelay=${Math.round(v.t * 1000)}:all=1,volume=1.6[v${i}]`); });
   const mix = path.join(OUT, 'mix.wav');
   await run('ffmpeg', ['-y', '-loglevel', 'error', ...ins, '-filter_complex', `${parts.join(';')};[s]${recorded.map((_, i) => `[v${i}]`).join('')}amix=inputs=${recorded.length + 1}:normalize=0,loudnorm=I=${LUFS}:TP=-1.5:LRA=11,apad[a]`, '-map', '[a]', '-t', String(D), '-ar', '48000', mix]);
-  await run('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, '-i', mix, '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', mp4]);
+  await run('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, '-i', mix, '-c:v', 'libx264', '-crf', '20', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', mp4]);
   // Godot's VideoStreamPlayer plays Ogg Theora only
-  await run('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, '-i', mix, '-c:v', 'libtheora', '-q:v', '8', '-c:a', 'libvorbis', '-q:a', '5', path.join(OUT, `${clip}.ogv`)]);
+  await run('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, '-i', mix, '-c:v', 'libtheora', '-q:v', '6', '-c:a', 'libvorbis', '-q:a', '5', path.join(OUT, `${clip}.ogv`)]);
   const loud = /Integrated loudness:\s+I:\s+(-?[\d.]+) LUFS/.exec(await run('ffmpeg', ['-i', mp4, '-af', 'ebur128', '-f', 'null', '-']).catch((e) => String(e)));
   if (loud && Math.abs(+loud[1] - LUFS) > 1.5) warn(`loudness is ${loud[1]} LUFS, wanted about ${LUFS}`);
 

@@ -57,7 +57,7 @@ Nothing here waits for a person. Each stage ends in files and an exit code for t
    - Build everything in code from the kit. No downloaded models, images or textures.
 3. **Storyboard.** `node render.mjs <id> storyboard` writes one still per beat, `storyboard.html` and `voice-script.json`. Open the stills, compare them with `reference/`, and fix anything cropped, overlapping or too small. About half a minute.
 4. **Voice.** Once the zone's tutor is approved, the Audio Designer records each line in `voice-script.json` with the tutor's brief and saves it at the path given there (`game/assets/audio/voice/<teacher>/clips/<id>/01.ogg`, …). A take longer than its slot fails the check: record it shorter or re-time the beat.
-5. **Render.** `node render.mjs <id> video` writes `<id>.mp4`, `<id>.ogv`, `<id>.vtt` and `report.json`. It mixes the recordings over the effects at −15 LUFS. Before the voice is recorded it still renders, so the picture can be reviewed, and the report says `voicePending` and `"ready": false`. Add `--draft` for a quick rough render; a draft is never ready.
+5. **Render.** `node render.mjs <id> video` writes `<id>.mp4`, `<id>.ogv`, `<id>.vtt` and `report.json`. It mixes the recordings over the effects at −15 LUFS. Before the voice is recorded it still renders, so the picture can be reviewed, and the report says `voicePending` and `"ready": false`. Add `--draft` for a quick rough render; a draft is never ready. On a machine with no GPU the 22-second example took 7 minutes as a draft; a full render is about four times that.
 6. **Hand over.** Attach `storyboard.html`, the `.mp4` and `report.json` to the issue. A clip is done when `report.json` says `"ready": true` and the reviewing roles have passed the maths, the tone and the look.
 
 The renderer exits non-zero and lists the problem when the page throws an error, a beat has no voice line, a line uses a ruled-out word, slots overlap or run into the end, a recording is longer than its slot, the zone or tutor is not in `teachers.json`, recordings exist for an unapproved tutor, the first frame is empty, the duration is outside 5 to 30 seconds, or loudness is more than 1.5 LUFS from −15.
@@ -97,7 +97,8 @@ The first command, at the repo root, provides Playwright. The second provides th
 
 ## Not decided yet
 
-- **Playing clips in the game.** Nothing in `game/` plays a clip yet, and the `.ogv` has not been tried in the Godot web build. Check playback and file size there before making many clips; on the web the fallback is an HTML `<video>` over the canvas.
+- **Playing clips in the game.** Nothing in `game/` plays a clip yet, and the `.ogv` has not been tried in the Godot web build. Check playback there before making many clips.
+- **File size.** The paper texture and wandering edges compress badly. The 22-second example is about 6 MB as `.mp4` and 11 MB as `.ogv`. For the web build an HTML `<video>` over the canvas playing the `.mp4` would halve that; turning the print finish down in `lib/salvage-ink.js` is the other lever.
 - **Where finished clips live.** Video is large for a repository. Choose between `game/assets/video/`, Git LFS and a release asset before the first clip ships.
 - **Casting and voices.** No tutor is approved yet (#18), so no clip can be finished. The example's four lines are plain drafts and are not recorded.
 - **Licence.** See Provenance.
