@@ -40,7 +40,7 @@
   const canvas = document.getElementById('c');
   const S = await K.run(canvas, style, { samples: +(qs.get('samples') || style.render.preview || 2), width: W, height: H });
   const D = style.duration, VO = (style.voice || []).length > 0;
-  const voiceUrl = (v) => `../../game/assets/audio/voice/spark/moves/${v.move}_${v.take || 1}.ogg`;
+  const voiceUrl = (v) => `../../game/assets/audio/voice/${style.teacher}/clips/${clip}/${String(style.voice.indexOf(v) + 1).padStart(2, '0')}.ogg`;
   window.STYLE = style; window.DURATION = D; window.seek = (t, n) => S.seek(t, n);
   window.renderSound = async () => { const r = await SOUND.renderOffline((k) => style.sound(k), D, 48000, { voiceover: VO }); return { peak: r.peak, frames: r.frames, sr: r.sr, b64: btoa(Array.from(new Uint8Array(r.inter.buffer), (b) => String.fromCharCode(b)).join('')) }; };
 

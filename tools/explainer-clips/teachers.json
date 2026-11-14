@@ -1,0 +1,12 @@
+{
+  "about": "Who narrates explainer clips. A clip names one teacher by id; recordings go in game/assets/audio/voice/<id>/clips/<clip id>/. Add a teacher only once the character has a voice sheet (writing/voice-sheets.md) and a voice brief (writing/voice-briefs.md). `regions` is where that teacher narrates; the first teacher with no regions listed is the default.",
+  "teachers": {
+    "gear-mira": {
+      "name": "Gear Mira",
+      "role": "Mechanic-Teacher",
+      "sheet": "writing/voice-sheets.md#gear-mira",
+      "brief": "writing/voice-briefs.md#gear-mira",
+      "regions": []
+    }
+  }
+}

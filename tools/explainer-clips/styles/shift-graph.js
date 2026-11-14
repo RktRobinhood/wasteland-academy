@@ -1,4 +1,4 @@
-// CLIP: shift-graph. "Replace x with x - 3 and the graph moves right 3" (AA SL 2.11, graph transformations).
+// CLIP: shift-graph. Just the maths: a board, no characters. "Replace x with x - 3 and the graph moves right 3" (AA SL 2.11, graph transformations).
 // The prototype clip for the Salvage Ink look. Copy this file to start a new clip: change the content block,
 // the objects and the moves, and keep the kit (lib/salvage-ink.js) and the structure.
 {
@@ -9,23 +9,24 @@
   // ---------------------------------------------------------------- timing
   // Props move on twos (15 drawings a second); every event sits on that grid so picture, effects and voice share it.
   const DPS = 15, F = 1 / DPS, at = (n) => n / DPS;
-  const D = at(204);                                // 13.6 s
-  const HOPS = [110, 116, 122].map(at), HOP = 4 * F;   // one hop per unit; each takes 4 drawings then holds 2
-  const T = { draw0: at(4), draw1: at(22), cap1: at(26), cut2: at(50), cap2: at(54), arrow: at(70), word: at(72),
-    cut3: at(100), dots: at(104), land: HOPS[2] + HOP, cut4: at(150), cap4: at(156), ting: at(165) };
-  // Spark's lines: existing move recordings (curriculum/moves.json). Spark never says a number; the board shows them.
+  const D = at(306);                                // 20.4 s: four beats of about 5 s, one teacher line each
+  const HOPS = [165, 171, 177].map(at), HOP = 4 * F;   // one hop per unit; each takes 4 drawings then holds 2
+  const T = { draw0: at(4), draw1: at(22), cap1: at(26), cut2: at(75), cap2: at(79), arrow: at(100), word: at(104),
+    cut3: at(150), dots: at(154), land: HOPS[2] + HOP, cut4: at(225), cap4: at(231), ting: at(240) };
+  // The teacher's lines. A clip is fixed, so the teacher can say this clip's numbers. `slot` is the longest the
+  // recording may run. Recordings live in game/assets/audio/voice/<teacher>/clips/<clip id>/01.ogg, 02.ogg, ...
   const VOICE = [
-    { move: 'reason-from-shape', take: 1, t: at(6), len: 2.57 },
-    { move: 'describe-transformation', take: 1, t: at(54), len: 2.51 },
-    { move: 'transform-point', take: 1, t: at(102), len: 2.6 },
-    { move: 'state-answer', take: 1, t: at(153), len: 2.43 },
+    { t: at(8), slot: 4.4, say: "Here's y equals x squared. Watch the lowest point." },
+    { t: at(80), slot: 4.4, say: 'Swap x for x minus three, and the curve moves right.' },
+    { t: at(155), slot: 4.4, say: 'Every point slides three to the right. Same shape.' },
+    { t: at(230), slot: 4.4, say: 'The vertex lands on three, zero. Read it back to me.' },
   ];
   // Beats, for the storyboard and for reviewers: `key` is the time of the still that shows the beat.
   const BEATS = [
-    { t0: 0, t1: T.cut2, key: at(44), text: TEXT.start, change: 'The curve y = x² is chalked onto the board; its equation slip pops in.', camera: 'Whole board and Spark, slow drift.', sound: 'Chalk stroke, slip pop.' },
-    { t0: T.cut2, t1: T.cut3, key: at(94), text: TEXT.rule + ' / ' + TEXT.word, change: 'The slip is replaced by the new rule; an arrow runs 3 units along the x-axis and the word lands.', camera: 'Whips in on the axis.', sound: 'Whoosh, stamp, three ticks.' },
-    { t0: T.cut3, t1: T.cut4, key: at(140), text: '(none new)', change: 'Vertex and two side points hop right one unit at a time, three hops; the curve rides with them and a dashed ghost stays behind.', camera: 'Follows the curve right.', sound: 'Pop per hop, tock on landing.' },
-    { t0: T.cut4, t1: D, key: at(190), text: TEXT.end, change: 'New vertex is named; Spark hops; glints on the curve. Holds.', camera: 'Pulls back to the whole board.', sound: 'Stamp, two dings.' },
+    { t0: 0, t1: T.cut2, key: at(60), text: TEXT.start, change: 'The curve y = x² is chalked onto the board; its equation slip pops in.', camera: 'Whole board, slow drift.', sound: 'Chalk stroke, slip pop.' },
+    { t0: T.cut2, t1: T.cut3, key: at(135), text: TEXT.rule + ' / ' + TEXT.word, change: 'The slip is replaced by the new rule; an arrow runs 3 units along the x-axis and the word lands.', camera: 'Whips in on the axis.', sound: 'Whoosh, stamp, three ticks.' },
+    { t0: T.cut3, t1: T.cut4, key: at(205), text: '(none new)', change: 'Vertex and two side points hop right one unit at a time, three hops; the curve rides with them and a dashed ghost stays behind.', camera: 'Follows the curve right.', sound: 'Pop per hop, tock on landing.' },
+    { t0: T.cut4, t1: D, key: at(285), text: TEXT.end, change: 'New vertex is named; glints on the curve. Holds.', camera: 'Pulls back to the whole board.', sound: 'Stamp, two dings.' },
   ];
 
   registerStyle({
@@ -36,17 +37,18 @@
     duration: D,
     size: [1080, 1350],
     fonts: FONTS,
+    teacher: 'gear-mira',
     voice: VOICE,
     beats: BEATS,
     assumptions: ['Clip frame is 1080×1350 (4:5) so it sits above captions and controls on the 1080×1920 game screen.',
-      'Voice uses take 1 of four existing Spark move lines; no new recording.'],
-    render: { samples: 16, preview: 2, shutter: 0, tone: 'linear', exposure: 1, bloom: 0, vignette: 0, grain: 0, fov: 26, background: PAL.ground.lit },
+      'The four teacher lines are drafts in Gear Mira\'s voice (writing/voice-sheets.md); the Writer confirms them before recording.'],
+    render: { samples: 4, preview: 2, shutter: 0, tone: 'linear', exposure: 1, bloom: 0, vignette: 0, grain: 0, fov: 26, background: PAL.ground.lit },
 
     build(S) {
       const { THREE, K, scene, camera } = S;
       const ink = inkKit(S, { sun: [-5.5, 7.5, 6.5], sunTarget: [0, 1.6, 0], sunSize: 8 }), { fill, solid, mark, arc, burst, flat } = ink;
       ink.print();
-      const M = { slate: fill(PAL.slate, { band: 0.05, hatch: 1.4 }), rust: fill(PAL.rust, { gloss: 0.03 }), spark: fill(PAL.spark, { gloss: 0.03 }), iron: fill(PAL.iron, { gloss: 0.04 }),
+      const M = { slate: fill(PAL.slate, { band: 0.05, hatch: 1.4 }), rust: fill(PAL.rust, { gloss: 0.03 }), iron: fill(PAL.iron, { gloss: 0.04 }),
         concrete: fill(PAL.concrete), magenta: fill(PAL.magenta, { gloss: 0.05 }), teal: fill(PAL.teal, { gloss: 0.05 }) };
       const group = (parent = scene) => { const g = new THREE.Group(); parent.add(g); return g; };
       const box = (w, h, d, r, mat, x, y, z, parent, f) => { const m = solid(K.roundedBox(w, h, d, r, 4), mat, parent, f); m.position.set(x, y, z); return m; };
@@ -62,7 +64,7 @@
 
       // ---- the chalkboard: a slate slab in a rust frame on two posts, leaning back a little
       const BW = 4.5, BH = 3.9, BY = 2.75, LEAN = -0.1;
-      const board = group(); board.position.set(-0.2, BY, 0); board.rotation.x = LEAN;
+      const board = group(); board.position.set(0, BY, 0); board.rotation.x = LEAN;
       box(BW + 0.36, BH + 0.36, 0.2, 0.08, M.rust, 0, 0, -0.06, board);
       box(BW, BH, 0.2, 0.03, M.slate, 0, 0, 0.02, board, { line: 2.5, cast: false });
       for (const x of [-1.6, 1.6]) box(0.22, BY - BH / 2 + 0.3, 0.22, 0.05, M.iron, x, -BH / 2 - (BY - BH / 2) / 2 + 0.12, -0.2, board);
@@ -99,31 +101,12 @@
       const star = (s) => mark([[[[0, -s], [0, 0], [0, s]], s * 0.34], [[[-s * 0.7, 0], [0, 0], [s * 0.7, 0]], s * 0.3]], PAPER, 0.024);
       const ting = [layer(star(0.26), 0.014), layer(star(0.15), 0.014)];
 
-      // ---- Spark: boxy scavenger robot, bottom right, watching the board
-      const spark = group(); spark.position.set(2.05, 0, 1.9); spark.rotation.y = -0.62; const SS = 0.72;
-      for (const x of [-0.56, 0.56]) { box(0.36, 0.5, 1.15, 0.16, M.iron, x, 0.25, 0, spark); }
-      const body = group(spark); body.position.y = 0.42;
-      box(0.98, 0.84, 0.86, 0.1, M.spark, 0, 0.5, 0, body);
-      box(0.5, 0.3, 0.06, 0.03, M.iron, 0, 0.62, 0.44, body, { line: 2.5, cast: false });
-      { const crown = mark([[[[-0.14, -0.07], [-0.16, 0.08], [-0.07, 0], [0, 0.11], [0.07, 0], [0.16, 0.08], [0.14, -0.07], [-0.14, -0.07]], 0.03, 'none']], PAL.magenta.lit, 0); crown.position.set(0, 0.62, 0.475); body.add(crown); }
-      const arm = solid(K.tube([[-0.5, 0.62, 0.1], [-0.78, 0.7, 0.3], [-0.9, 1.02, 0.5]], 0.07, { segments: 16, radial: 8 }), M.concrete, body, { line: 3 });
-      solid(new THREE.SphereGeometry(0.11, 14, 10), M.magenta, arm, { line: 3 }).position.set(-0.9, 1.06, 0.5);
-      const headG = group(body); headG.position.y = 1.02;
-      solid(new THREE.CylinderGeometry(0.09, 0.11, 0.3, 12), M.concrete, headG, { line: 3 }).position.y = 0.05;
-      for (const x of [-0.27, 0.27]) { const eye = solid(new THREE.CylinderGeometry(0.25, 0.22, 0.5, 24).rotateX(Math.PI / 2), M.spark, headG); eye.position.set(x, 0.42, 0.05);
-        const rim = new THREE.Mesh(new THREE.CircleGeometry(0.2, 24), flat(INK)); rim.position.z = 0.252; eye.add(rim);
-        const glow = new THREE.Mesh(new THREE.CircleGeometry(0.15, 24), flat(PAL.mint.lit)); glow.position.z = 0.254; eye.add(glow);
-        const pupil = new THREE.Mesh(new THREE.CircleGeometry(0.06, 16), flat(PAL.teal.shade)); pupil.position.set(-0.03, 0.02, 0.256); eye.add(pupil); }
-      solid(new THREE.CylinderGeometry(0.015, 0.015, 0.5, 6), M.iron, headG, { line: 2 }).position.set(0.42, 0.75, -0.1);
-      solid(new THREE.SphereGeometry(0.055, 10, 8), M.magenta, headG, { line: 2 }).position.set(0.42, 1.0, -0.1);
-      spark.scale.setScalar(SS);
-
       // ---- the camera: one framing per beat. [aim x, y, z, elevation, azimuth, distance]
       const DEG = Math.PI / 180;
-      const cam = K.track([[0, [0.1, 2.5, 0, 12 * DEG, -7 * DEG, 17.2]], [T.cut2 - 4 * F, [0.1, 2.5, 0, 12.5 * DEG, -4 * DEG, 16.8], 'linear'],
-        [T.cap2, [-0.15, 2.45, 0, 10 * DEG, 5 * DEG, 14.8], 'inOutQuint'], [T.cut3 - 4 * F, [-0.15, 2.45, 0, 10.5 * DEG, 8 * DEG, 14.5], 'linear'],
-        [T.dots, [0.1, 2.5, 0, 11 * DEG, -5 * DEG, 14.6], 'inOutQuint'], [T.cut4 - 4 * F, [0.15, 2.5, 0, 11.5 * DEG, -2 * DEG, 14.3], 'linear'],
-        [T.cap4, [0.15, 2.5, 0, 13 * DEG, 5 * DEG, 17.4], 'inOutQuint'], [D, [0.15, 2.5, 0, 13 * DEG, 8 * DEG, 17.0], 'linear']]);
+      const cam = K.track([[0, [0, 2.75, 0, 9 * DEG, -5 * DEG, 14.6]], [T.cut2 - 4 * F, [0, 2.75, 0, 9.5 * DEG, -2 * DEG, 14.3], 'linear'],
+        [T.cap2, [-0.1, 2.55, 0, 8 * DEG, 4 * DEG, 13.0], 'inOutQuint'], [T.cut3 - 4 * F, [-0.1, 2.55, 0, 8.5 * DEG, 7 * DEG, 12.8], 'linear'],
+        [T.dots, [0.2, 2.6, 0, 9 * DEG, -5 * DEG, 12.9], 'inOutQuint'], [T.cut4 - 4 * F, [0.25, 2.6, 0, 9.5 * DEG, -2 * DEG, 12.7], 'linear'],
+        [T.cap4, [0, 2.7, 0, 10 * DEG, 4 * DEG, 14.8], 'inOutQuint'], [D, [0, 2.7, 0, 10 * DEG, 7 * DEG, 14.5], 'linear']]);
       const camPos = (c) => [c[0] + c[5] * Math.sin(c[4]) * Math.cos(c[3]), c[1] + c[5] * Math.sin(c[3]), c[2] + c[5] * Math.cos(c[4]) * Math.cos(c[3])];
       // the world point at screen position (sx, sy) (-1..1) at a given time, turned flat to the picture; push moves it away
       const TAN = Math.tan(S.R.fov / 2 * DEG);
@@ -138,19 +121,17 @@
       const word = ink.lettering(TEXT.word, { height: 0.62 }), [ww, wh] = word.userData.size;
       const wordTicks = mark(burst(9, ww * 0.56, wh * 0.62, 0.3, 0.06, 7)); wordTicks.position.z = -0.01; word.add(wordTicks);
       const labels = [
-        label(ink.caption(TEXT.start), T.cap1, T.cut2 - 2 * F, -0.42, 0.8, 0.36, 0.03),
-        label(ink.caption(TEXT.rule), T.cap2, T.cut3 - 2 * F, -0.25, 0.82, 0.6, -0.03),
-        label(word, T.word, T.cut3 - 2 * F, 0.02, -0.7, 0.62, 0.02),
-        label(ink.caption(TEXT.rule), T.dots - 2 * F, T.cut4 - 2 * F, -0.25, 0.82, 0.6, 0.02),
-        label(ink.caption(TEXT.rule), T.cap4 - 2 * F, 99, -0.28, 0.82, 0.56, -0.03),
-        label(ink.caption(TEXT.end), T.cap4, 99, -0.3, -0.7, 0.56, 0.03),
+        label(ink.caption(TEXT.start), T.cap1, T.cut2 - 2 * F, -0.4, 0.84, 0.4, 0.03),
+        label(ink.caption(TEXT.rule), T.cap2, T.cut3 - 2 * F, -0.2, 0.84, 0.64, -0.03),
+        label(word, T.word, T.cut3 - 2 * F, 0.12, -0.74, 0.66, 0.02),
+        label(ink.caption(TEXT.rule), T.dots - 2 * F, T.cut4 - 2 * F, -0.2, 0.84, 0.64, 0.02),
+        label(ink.caption(TEXT.rule), T.cap4 - 2 * F, 99, -0.2, 0.84, 0.62, -0.03),
+        label(ink.caption(TEXT.end), T.cap4, 99, 0.12, -0.76, 0.6, 0.03),
       ];
 
       // how far the live curve has moved (in units) at drawing time q, and its hop height
       const moved = (q) => HOPS.reduce((s, h) => s + K.seg(q, h, h + HOP, K.ease.inOut), 0);
       const hopY = (q) => HOPS.reduce((s, h) => { const u = K.seg(q, h, h + HOP); return s + (u > 0 && u < 1 ? Math.sin(Math.PI * u) : 0); }, 0);
-      const talking = (q) => VOICE.some((v) => q >= v.t && q < v.t + v.len);
-
       return {
         update(t) {
           const q = Math.floor(t * DPS + 1e-3) / DPS, n = Math.round(q * DPS);
@@ -174,21 +155,14 @@
           speed.visible = fast; speed.position.set(gx(mv - 2.6), gy(2.2), 0.012);
           const lx = q - T.land; hit.visible = lx >= 0 && lx < 2 * F - 1e-3; hit.position.set(gx(SHIFT), gy(0), 0.012); hit.scale.setScalar(lx < F - 1e-3 ? 0.85 : 1.15);
 
-          // beat 4: glints, and Spark is pleased
+          // beat 4: glints on the moved curve
           ting.forEach((m, i) => { const x = q - T.ting - i * 2 * F; show(m, pop(x, 0.2) * (1 + 0.12 * Math.sin(n * 1.6 + i))); m.position.set(gx(i ? SHIFT + 2.5 : SHIFT - 1.6), gy(i ? 4.6 : 3.3), 0.014); });
-          const jump = K.seg(q, T.cap4, T.cap4 + 4 * F), jy = jump > 0 && jump < 1 ? Math.sin(Math.PI * jump) * 0.35 : 0, sy = 1 - 0.12 * wobble(q - T.cap4 - 4 * F + F * 0.5, 3.2, 8);
-          spark.position.y = jy; spark.scale.set(SS / Math.sqrt(sy), SS * sy, SS / Math.sqrt(sy));
-          // Spark nods on twos while a line plays, and looks where the action is
-          headG.rotation.z = talking(q) ? 0.06 * (Math.floor(n / 2) % 2 ? 1 : -1) : 0;
-          headG.rotation.y = -0.25 + 0.2 * K.seg(q, T.cut3, T.land) + 0.5 * K.seg(q, T.cap4, T.cap4 + 3 * F);
-          arm.rotation.z = talking(q) ? 0.08 * (Math.floor(n / 3) % 2) : 0;
-
           for (const f of labels) f(q);
         },
       };
     },
 
-    // Effects only: Spark's voice is mixed in by the renderer from `voice` above. Every time is a frame the picture changes on.
+    // Effects only: the teacher's voice is mixed in by the renderer from `voice` above. Every time is a frame the picture changes on.
     sound(k) {
       k.bed('room', 0, D, { gain: 0.6 });
       k.play('stroke', T.draw0, { material: 'chalk', dur: T.draw1 - T.draw0, gain: 0.9, pan: -0.1 });
