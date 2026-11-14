@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Explainer clip player</title>
+<style>
+  @font-face { font-family: "Bangers"; src: url("../../game/assets/fonts/bangers-latin.woff2") format("woff2"); }
+  @font-face { font-family: "Share Tech Mono"; src: url("../../game/assets/fonts/share-tech-mono-latin.woff2") format("woff2"); }
+  @font-face { font-family: "Share Tech Mono"; src: url("../../game/assets/fonts/dejavu-math-subset.woff2") format("woff2"); unicode-range: U+2200-22FF, U+2070-209F; }
+  html, body { margin: 0; height: 100%; background: #0c1118; color: #e8ecf2; font: 15px "Share Tech Mono", monospace; }
+  body { display: flex; flex-direction: column; align-items: center; }
+  #wrap { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; }
+  canvas { max-width: 100%; max-height: 100%; display: block; }
+  #bar { display: flex; gap: 12px; align-items: center; padding: 10px 16px; width: min(100%, 720px); box-sizing: border-box; }
+  #bar input[type=range] { flex: 1; accent-color: #22d3c5; }
+  button { background: #1f2937; color: #22d3c5; border: 1px solid #22d3c5; border-radius: 6px; padding: 6px 12px; font: inherit; cursor: pointer; }
+  label { white-space: nowrap; }
+</style>
+<script type="importmap">{ "imports": { "three": "./node_modules/three/build/three.module.js" } }</script>
+</head>
+<body>
+<div id="wrap"><canvas id="c"></canvas></div>
+<div id="bar">
+  <button id="play">Play</button>
+  <input id="scrub" type="range" min="0" max="1" step="0.001" value="0">
+  <span id="time">0.0</span>
+  <label><input id="snd" type="checkbox" checked> Sound</label>
+  <label><input id="loop" type="checkbox" checked> Loop</label>
+</div>
+<script type="module">
+  // ?clip=<id> picks styles/<id>.js; ?samples=N overrides the sample count (the renderer passes the full count).
+  import * as THREE from 'three';
+  window.THREE = THREE;
+  const qs = new URLSearchParams(location.search), clip = qs.get('clip') || 'shift-graph';
+  const load = (src) => new Promise((ok, bad) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => bad(new Error('cannot load ' + src)); document.head.append(s); });
+  for (const src of ['lib/stage.js', 'lib/sound.js', 'lib/salvage-ink.js', `styles/${clip}.js`]) await load(src);
+  const style = STYLES[STYLES.length - 1], [W, H] = style.size || [1920, 1080];
+  const canvas = document.getElementById('c');
+  const S = await K.run(canvas, style, { samples: +(qs.get('samples') || style.render.preview || 2), width: W, height: H });
+  const D = style.duration, VO = (style.voice || []).length > 0;
+  const voiceUrl = (v) => `../../game/assets/audio/voice/spark/moves/${v.move}_${v.take || 1}.ogg`;
+  window.STYLE = style; window.DURATION = D; window.seek = (t, n) => S.seek(t, n);
+  window.renderSound = async () => { const r = await SOUND.renderOffline((k) => style.sound(k), D, 48000, { voiceover: VO }); return { peak: r.peak, frames: r.frames, sr: r.sr, b64: btoa(Array.from(new Uint8Array(r.inter.buffer), (b) => String.fromCharCode(b)).join('')) }; };
+
+  const $ = (id) => document.getElementById(id);
+  let t = 0, playing = false, last = 0, stopSound = null, voices = [];
+  const silence = () => { if (stopSound) stopSound(); stopSound = null; voices.forEach((a) => a.pause()); voices = []; };
+  const sound = () => { silence(); if (!playing || !$('snd').checked) return;
+    stopSound = SOUND.live((k) => style.sound(k), t, { voiceover: VO });
+    for (const v of style.voice || []) { const a = new Audio(voiceUrl(v)), dt = v.t - t;
+      if (dt >= 0) { const id = setTimeout(() => a.play().catch(() => {}), dt * 1000); a.addEventListener('pause', () => clearTimeout(id)); } else { a.currentTime = -dt; a.play().catch(() => {}); }
+      voices.push(a); } };
+  const show = () => { S.seek(t); $('scrub').value = t / D; $('time').textContent = t.toFixed(1) + ' / ' + D.toFixed(1); };
+  const setPlaying = (p) => { playing = p; $('play').textContent = p ? 'Pause' : 'Play'; last = performance.now(); sound(); };
+  $('play').onclick = () => setPlaying(!playing);
+  $('snd').onchange = sound;
+  $('scrub').oninput = (e) => { t = e.target.value * D; sound(); show(); };
+  const tick = (now) => { if (playing) { t += (now - last) / 1000; last = now;
+      if (t >= D) { if ($('loop').checked) { t = 0; sound(); } else { t = D; setPlaying(false); } }
+      show(); }
+    requestAnimationFrame(tick); };
+  show(); requestAnimationFrame(tick);
+  window.READY = true;
+</script>
+</body>
+</html>
