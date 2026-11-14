@@ -1,15 +1,19 @@
 {
-  "about": "Who narrates explainer clips. A clip names its map zone (the island ids in game/ui/map.gd) and is narrated by that zone's teacher; recordings go in game/assets/audio/voice/<teacher>/clips/<clip id>/. The zone casting below is provisional: it uses the three characters who have voice sheets today, matched to the maths each already talks about. The Relic-station characters (writing/voice-sheets.md, 'Characters still to come') can take over a zone once they have a sheet and a brief. A teacher with no brief cannot be recorded yet.",
+  "about": "Who narrates explainer clips. A clip names its map zone (the island ids in game/ui/map.gd, plus foundations) and is narrated by that zone's tutor; recordings go in game/assets/audio/voice/<tutor>/clips/<clip id>/. Tutors are the regional cast from GitHub issue #18, not the story characters (Spark, Gear Mira, Dax, Noma). Every entry here is that issue's starting proposal and none is approved: casting, names and accents are decided on #18. When a tutor is approved, set status to 'approved' and fill in sheet and brief. Nothing may be recorded for a clip until its tutor is approved.",
   "zones": {
-    "algebra": "dax",
-    "functions": "noma",
-    "geometry": "noma",
-    "stats": "dax",
-    "calculus": "gear-mira"
+    "foundations": "tin-can-tess",
+    "algebra": "mags-the-ledger",
+    "functions": "rook-dead-air",
+    "geometry": "kara-meridian",
+    "stats": "lucky-lenoir",
+    "calculus": "calc"
   },
   "teachers": {
-    "gear-mira": { "name": "Gear Mira", "role": "Mechanic-Teacher", "sheet": "writing/voice-sheets.md#gear-mira", "brief": "writing/voice-briefs.md#gear-mira" },
-    "noma": { "name": "Noma", "role": "Map-Keeper", "sheet": "writing/voice-sheets.md#noma", "brief": "writing/voice-briefs.md#noma" },
-    "dax": { "name": "Dax", "role": "Trader-Engineer", "sheet": "writing/voice-sheets.md#dax", "brief": null }
+    "tin-can-tess": { "name": "Tin-Can Tess", "status": "provisional", "direction": "Scrapyard mechanic. Female, lively Australian English, wry, approachable.", "sheet": null, "brief": null },
+    "mags-the-ledger": { "name": "Mags the Ledger", "status": "provisional", "direction": "Wasteland trader who treats equations as negotiations. Female, rugged outback Australian English, quick-witted, commanding.", "sheet": null, "brief": null },
+    "rook-dead-air": { "name": "Rook Dead-Air", "status": "provisional", "direction": "Communications engineer: inputs, outputs, unstable transmissions. Male, South African English influence, precise but increasingly excitable.", "sheet": null, "brief": null },
+    "kara-meridian": { "name": "Kara Meridian", "status": "provisional", "direction": "Desert surveyor with homemade instruments. Female, southern African English, measured, confident.", "sheet": null, "brief": null },
+    "lucky-lenoir": { "name": "Lucien \"Lucky\" Lenoir", "status": "provisional", "direction": "Charming gamesmaster who keeps losing to probability. Male, French-accented English, theatrical but intelligible.", "sheet": null, "brief": null },
+    "calc": { "name": "C.A.L.C.", "status": "provisional", "direction": "Damaged reactor-maintenance AI obsessed with rates of change. Synthetic voice, expressive glitching.", "sheet": null, "brief": null }
   }
 }

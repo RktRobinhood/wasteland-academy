@@ -8,7 +8,7 @@ Short voiced motion graphics that explain one maths idea on a wasteland chalkboa
 
 - **Just the maths.** A board, a graph or working, labels. No characters on screen, so nothing needs rigging. A talking head, if wanted, is separate art placed beside the video in the game.
 - **One idea, 10 to 25 seconds, three to five beats.** Each beat is one change on the board and one narrator line.
-- **Fully voiced, by the zone's teacher.** Every beat has a spoken line. A clip names its map zone, and `teachers.json` says which character narrates there, so the voice changes as the player moves across the map. Lines are recorded with the local voice model. A clip is fixed video, so the narrator can say this clip's numbers.
+- **Fully voiced, by the zone's tutor.** Every beat has a spoken line. A clip names its map zone, and `teachers.json` says which tutor narrates there, so the voice changes as the player moves across the map. Lines are recorded with the local voice model. A clip is fixed video, so the narrator can say this clip's numbers.
 - **Full captions, on or off.** Captions are the narrator's words exactly, written to a `.vtt` file beside the video and never drawn into the picture, so the game can show or hide them.
 - **Sound effects from our world.** Chalk on slate, paper, scrap metal, relays, struck pipe. They sit under the voice.
 - **Fixed video.** three.js does not run inside Godot. The renderer writes an `.ogv` (Godot's `VideoStreamPlayer` plays Ogg Theora only) and an `.mp4` for review.
@@ -39,7 +39,7 @@ Everything that makes the style is in `lib/salvage-ink.js`. A clip that builds i
 | `lib/stage.js`, `lib/sound.js` | The rendering kit and the sound-effect kit, unchanged from the source. Do not edit. |
 | `styles/shift-graph.js` | The worked example. Copy it to start a clip. |
 | `styles/ink-toon.reference.js` | The original coffee example, kept for technique (pouring, squash, steam). It does not run with the house kit. |
-| `teachers.json` | Which teacher narrates each map zone, and where their voice sheet and brief are. |
+| `teachers.json` | Which tutor narrates each map zone, and whether their casting is approved. |
 | `player.html` | Plays a clip live with a scrub bar, sound and a captions toggle: `player.html?clip=<id>`. |
 | `render.mjs` | Renders stills, video, sound, captions, the voice script and a check report. |
 | `reference/` | Stills of the example, to compare a new clip against. |
@@ -49,32 +49,35 @@ Everything that makes the style is in `lib/salvage-ink.js`. A clip that builds i
 
 Nothing here waits for a person. Each stage ends in files and an exit code for the next role.
 
-1. **Script.** Pick one idea and three to five beats. Set the clip's `zone` (the island ids in `game/ui/map.gd`: `algebra`, `functions`, `geometry`, `stats`, `calculus`) and look up its teacher in `teachers.json`. Write one line for every beat in that teacher's voice (`writing/voice-sheets.md`): 8 to 12 words, numbers allowed, and no "just", "easy", "simple", "obvious" or "guess". Say the maths the way the board shows it: if the board says "right", the line says "right". Check every number and equation by hand.
+1. **Script.** Pick one idea and three to five beats. Set the clip's `zone` (`foundations`, or an island id from `game/ui/map.gd`: `algebra`, `functions`, `geometry`, `stats`, `calculus`) and look up its tutor in `teachers.json`. Write one line for every beat, in the tutor's voice if they have a sheet and plainly if not: 8 to 12 words, numbers allowed, and no "just", "easy", "simple", "obvious" or "guess". Say the maths the way the board shows it: if the board says "right", the line says "right". Check every number and equation by hand.
 2. **Build.** Copy `styles/shift-graph.js` to `styles/<id>.js` and keep its structure: content block, timing table `T`, `VOICE`, `BEATS`, `build(S)` returning `update(t)`, then `sound(k)`.
    - `update(t)` sets the whole scene for time `t`. Nothing builds up between calls. No `Math.random`, `Date` or timers; use `K.rng(seed)`.
    - Every event time sits on the 15-per-second grid in `T`, and `sound(k)` uses the same times.
    - Give each line a `slot` (the longest its recording may run): about 0.45 s per word. Leave 0.2 s between slots and half a second clear at the end.
    - Build everything in code from the kit. No downloaded models, images or textures.
 3. **Storyboard.** `node render.mjs <id> storyboard` writes one still per beat, `storyboard.html` and `voice-script.json`. Open the stills, compare them with `reference/`, and fix anything cropped, overlapping or too small. About half a minute.
-4. **Voice.** The Audio Designer records each line in `voice-script.json` with the teacher's brief and saves it at the path given there (`game/assets/audio/voice/<teacher>/clips/<id>/01.ogg`, …). A take longer than its slot fails the check: record it shorter or re-time the beat.
+4. **Voice.** Once the zone's tutor is approved, the Audio Designer records each line in `voice-script.json` with the tutor's brief and saves it at the path given there (`game/assets/audio/voice/<teacher>/clips/<id>/01.ogg`, …). A take longer than its slot fails the check: record it shorter or re-time the beat.
 5. **Render.** `node render.mjs <id> video` writes `<id>.mp4`, `<id>.ogv`, `<id>.vtt` and `report.json`. It mixes the recordings over the effects at −15 LUFS. Before the voice is recorded it still renders, so the picture can be reviewed, and the report says `voicePending` and `"ready": false`. Add `--draft` for a quick rough render; a draft is never ready.
 6. **Hand over.** Attach `storyboard.html`, the `.mp4` and `report.json` to the issue. A clip is done when `report.json` says `"ready": true` and the reviewing roles have passed the maths, the tone and the look.
 
-The renderer exits non-zero and lists the problem when the page throws an error, a beat has no voice line, a line uses a ruled-out word, slots overlap or run into the end, a recording is longer than its slot, the zone or teacher is not in `teachers.json`, the first frame is empty, the duration is outside 5 to 30 seconds, or loudness is more than 1.5 LUFS from −15.
+The renderer exits non-zero and lists the problem when the page throws an error, a beat has no voice line, a line uses a ruled-out word, slots overlap or run into the end, a recording is longer than its slot, the zone or tutor is not in `teachers.json`, recordings exist for an unapproved tutor, the first frame is empty, the duration is outside 5 to 30 seconds, or loudness is more than 1.5 LUFS from −15.
 
-## Teachers by zone
+## Tutors by zone
 
-`teachers.json` maps each map zone to its narrator. The casting is provisional and uses the three characters who have voice sheets, matched to the maths each already talks about:
+`teachers.json` maps each map zone to the tutor who narrates there. The tutors are the regional cast being developed on GitHub issue #18. They are not the story characters: Spark, Gear Mira, Dax and Noma don't narrate clips.
 
-| Zone | Island | Narrator |
+| Zone | Island | Tutor (proposal on #18) |
 |---|---|---|
-| `algebra` | Scrap Fields | Dax |
-| `functions` | Signal Tower | Noma |
-| `geometry` | Dry Flats | Noma |
-| `stats` | Radio Spires | Dax |
-| `calculus` | Engine Core | Gear Mira |
+| `foundations` | Prior knowledge | Tin-Can Tess |
+| `algebra` | Scrap Fields | Mags the Ledger |
+| `functions` | Signal Tower | Rook Dead-Air |
+| `geometry` | Dry Flats | Kara Meridian |
+| `stats` | Radio Spires | Lucien "Lucky" Lenoir |
+| `calculus` | Engine Core | C.A.L.C. |
 
-Dax has a voice sheet but no voice brief, so his zones can't be recorded until one is written. To recast a zone, or to bring in a new teacher such as a Relic-station character or an Australian wasteland voice, write the character's sheet and brief first, then change the zone's entry. One clip has one narrator; re-recording the same script for another zone's teacher only needs a second set of voice files, because the picture and timing stay the same.
+Every entry is that issue's starting proposal and none is approved. Casting, names, accents and the voice registry are decided there, and this file follows it. Until a zone's tutor is approved, clips for that zone can be scripted, built, storyboarded and rendered silent, but not recorded: the renderer fails a clip that has recordings for an unapproved tutor. Write the lines plainly first; the Writer puts them in the tutor's voice once the tutor has a sheet.
+
+One clip has one narrator. The picture and timing don't depend on who speaks, so recasting a zone only means recording the lines again.
 
 ## In the game
 
@@ -96,7 +99,7 @@ The first command, at the repo root, provides Playwright. The second provides th
 
 - **Playing clips in the game.** Nothing in `game/` plays a clip yet, and the `.ogv` has not been tried in the Godot web build. Check playback and file size there before making many clips; on the web the fallback is an HTML `<video>` over the canvas.
 - **Where finished clips live.** Video is large for a repository. Choose between `game/assets/video/`, Git LFS and a release asset before the first clip ships.
-- **Zone casting and voices.** The casting above is a first proposal. The example's four lines are drafts in Noma's voice and are not recorded.
+- **Casting and voices.** No tutor is approved yet (#18), so no clip can be finished. The example's four lines are plain drafts and are not recorded.
 - **Licence.** See Provenance.
 
 ## Provenance

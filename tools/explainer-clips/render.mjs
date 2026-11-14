@@ -64,9 +64,10 @@ for (const [i, v] of style.voice.entries()) {
 voice.forEach((v, i) => { if (i && v.t < voice[i - 1].t + voice[i - 1].slot + 0.2) warn(`line ${v.n} starts inside line ${voice[i - 1].n}'s slot (needs a 0.2 s gap)`);
   if (v.t + v.slot > D - 0.5) warn(`line ${v.n}'s slot runs into the last half second`); });
 for (const [i, b] of style.beats.entries()) if (!voice.some((v) => v.t >= b.t0 && v.t < b.t1)) warn(`beat ${i + 1} has no voice line: every beat is voiced`);
+if (voice.some((v) => v.recorded) && teachers[style.teacher]?.status !== 'approved') warn(`recordings exist for ${style.teacher}, whose casting is not approved (teachers.json)`);
 const recorded = voice.filter((v) => v.recorded), pending = voice.filter((v) => !v.recorded);
 // what the Audio Designer records from: the lines, where each file goes and how long it may run
-await writeFile(path.join(OUT, 'voice-script.json'), JSON.stringify({ clip, zone: style.zone, teacher: style.teacher, sheet: teachers[style.teacher]?.sheet ?? null, brief: teachers[style.teacher]?.brief ?? null, lines: voice.map((v) => ({ n: v.n, say: v.say, maxSeconds: v.slot, file: v.file, recorded: v.recorded })) }, null, 2) + '\n');
+await writeFile(path.join(OUT, 'voice-script.json'), JSON.stringify({ clip, zone: style.zone, teacher: style.teacher, casting: teachers[style.teacher]?.status ?? null, direction: teachers[style.teacher]?.direction ?? null, sheet: teachers[style.teacher]?.sheet ?? null, brief: teachers[style.teacher]?.brief ?? null, lines: voice.map((v) => ({ n: v.n, say: v.say, maxSeconds: v.slot, file: v.file, recorded: v.recorded })) }, null, 2) + '\n');
 if (!style.beats.length) warn('clip has no beats: reviewers need one entry per beat');
 if (D < 5 || D > 30) warn(`duration ${D.toFixed(1)} s is outside 5-30 s`);
 
@@ -114,7 +115,7 @@ if (mode !== 'storyboard') {
   const ts = (s) => new Date(s * 1000).toISOString().slice(11, 23);
   await writeFile(path.join(OUT, `${clip}.vtt`), 'WEBVTT\n\n' + voice.map((v) => `${ts(v.t)} --> ${ts(v.t + (v.len ?? v.slot))}\n${v.say}\n`).join('\n'));
   await writeFile(path.join(OUT, 'report.json'), JSON.stringify({ clip, name: style.name, topic: style.topic, syllabus: style.syllabus, duration: D, size: [W, H], fps: FPS, frames: N, loudness: loud ? +loud[1] : null,
-    zone: style.zone, teacher: style.teacher,
+    zone: style.zone, teacher: style.teacher, casting: teachers[style.teacher]?.status ?? null,
     voice: voice.map((v) => ({ n: v.n, t: v.t, slot: v.slot, len: v.len ?? null, recorded: v.recorded, say: v.say })), voicePending: pending.length, draft: DRAFT, ready: !DRAFT && !problems.length && !pending.length, assumptions: style.assumptions, problems }, null, 2) + '\n');
   console.log(`video: ${path.relative(process.cwd(), mp4)} (+ .ogv, .vtt, report.json)`);
 }

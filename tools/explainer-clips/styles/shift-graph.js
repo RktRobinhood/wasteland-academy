@@ -15,12 +15,13 @@
     cut3: at(160), dots: at(164), land: HOPS[2] + HOP, cut4: at(240), cap4: at(246), ting: at(255) };
   // The narrator's lines: every beat is voiced, and the captions are these words exactly. A clip is fixed, so the
   // narrator can say this clip's numbers. `slot` is the longest the recording may run (about 0.45 s a word).
-  // The narrator is whoever teachers.json gives for the clip's zone; these are written in Noma's voice.
+  // The narrator is whoever teachers.json gives for the clip's zone. These are plain drafts: the Writer puts them in
+  // the tutor's voice once that tutor is cast.
   const VOICE = [
     { t: at(8), slot: 4.8, say: 'Here is y equals x squared, its lowest point at the origin.' },
-    { t: at(86), slot: 4.8, say: 'Write x minus three where x stood, and it walks right.' },
+    { t: at(86), slot: 4.8, say: 'Put x minus three where x was, and the curve shifts right.' },
     { t: at(165), slot: 4.8, say: 'Every point moves three to the right. The shape never changes.' },
-    { t: at(246), slot: 4.8, say: 'So the vertex settles at three, zero. Same curve, new ground.' },
+    { t: at(246), slot: 4.8, say: 'So the vertex lands at three, zero. Same curve, new position.' },
   ];
   // Beats, for the storyboard and for reviewers: `key` is the time of the still that shows the beat.
   const BEATS = [
@@ -42,7 +43,7 @@
     voice: VOICE,
     beats: BEATS,
     assumptions: ['Clip frame is 1080×1350 (4:5) so it sits above captions and controls on the 1080×1920 game screen.',
-      'The four teacher lines are drafts in Noma\'s voice (writing/voice-sheets.md); the Writer confirms them before recording.'],
+      'The four teacher lines are plain drafts; the Functions tutor is not cast yet (GitHub issue #18), so nothing is recorded.'],
     render: { samples: 4, preview: 2, shutter: 0, tone: 'linear', exposure: 1, bloom: 0, vignette: 0, grain: 0, fov: 26, background: PAL.ground.lit },
 
     build(S) {
