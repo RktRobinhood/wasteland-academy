@@ -29878,6 +29878,300 @@ def e9log_solve(q):
 # ── end log-laws ──
 
 
+# ── log-equation (t1-log-equation, FAL-956) ──────────────────
+# The equation is read back from its line. Every log is turned into the one base its bases are
+# powers of, the logs are dropped, and SymPy solves the polynomial that is left; a root stands only
+# if it makes every argument positive, and it is put back into the logs at 40 digits as well. Each
+# slip is worked out again here from the arguments, and every option with a tag must be one of them.
+# The worked steps' values at a root, the two roots and the domain are checked too.
+
+E18LE_OWN = "t1-log-equation#"
+E18LE_KEEP = "SL1.7.log-equations#0"
+E18LE_ADD = "SL1.7.log-equations#1"
+E18LE_SWAP = "SL1.7.log-equations#2"
+E18LE_SUBTRACT, E18LE_FLIP, E18LE_ADD_C, E18LE_TIMES_C, E18LE_TWO_IN, E18LE_WRONG_WAY, E18LE_SAME_BASE, E18LE_NEGATIVE = (
+    E18LE_OWN + str(i) for i in range(3, 11))
+E18LE_ARG = r"(\d*)x(?: ([+−]) (\d+))?"
+E18LE_TERM = re.compile(r"(?:(\d+) )?" + E9LOG_NAME + r"(?:\((" + E18LE_ARG + r")\)| (x)| (\d+))")
+E18LE_NUM = r"−?\d+(?:/\d+)?"
+
+
+def E18LE_r(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def E18LE_arg(t):
+    """ax + p from its text, as (a, p)."""
+    m = re.fullmatch(E18LE_ARG, t)
+    need(m is not None, f"can't read the argument {t!r}")
+    a = int(m.group(1) or 1)
+    p = int(m.group(3) or 0) * (-1 if m.group(2) == "−" else 1)
+    need(a >= 1 and t == E18LE_lin((a, p)), f"the argument {t!r} isn't written as the game writes it")
+    return a, p
+
+
+def E18LE_lin(arg):
+    a, p = arg
+    head = "x" if a == 1 else f"{a}x"
+    return head if p == 0 else f"{head} {'+' if p > 0 else '−'} {abs(p)}"
+
+
+def E18LE_at(arg, x):
+    return arg[0] * x + arg[1]
+
+
+def E18LE_split(side):
+    """A side's terms with their signs, split at a top-level + or −."""
+    out, depth, cur, sign = [], 0, "", 1
+    i = 0
+    while i < len(side):
+        ch = side[i]
+        depth += ch == "("
+        depth -= ch == ")"
+        if depth == 0 and side[i:i + 3] in (" + ", " − "):
+            out.append((sign, cur))
+            sign = 1 if side[i + 1] == "+" else -1
+            cur = ""
+            i += 3
+            continue
+        cur += ch
+        i += 1
+    out.append((sign, cur))
+    return out
+
+
+def E18LE_side(side):
+    """[(coefficient, base, argument or number)] and the side's number."""
+    terms, num = [], sp.Integer(0)
+    for sign, t in E18LE_split(side):
+        if re.fullmatch(r"\d+", t):
+            num += sign * int(t)
+            continue
+        m = E18LE_TERM.fullmatch(t)
+        need(m is not None, f"can't read the term {t!r}")
+        co = int(m.group(1) or 1)
+        base = e9log_base(m.group(2))
+        if m.group(8):
+            terms.append((sign * co, base, int(m.group(8))))
+        else:
+            terms.append((sign * co, base, E18LE_arg(m.group(3) or "x")))
+    return terms, num
+
+
+def E18LE_read(line):
+    """The equation as terms moved to the left, = K; the bases' common base and each base's power."""
+    lhs, rhs = line.split(" = ")
+    tl, nl = E18LE_side(lhs)
+    tr, nr = E18LE_side(rhs)
+    terms = tl + [(-c, b, a) for c, b, a in tr]
+    K = nr - nl
+    bases = {b for _, b, _ in terms}
+    if mpmath.e in bases:
+        need(bases == {mpmath.e}, "ln with another log")
+        beta, powers = sp.E, {mpmath.e: 1}
+    else:
+        beta = next(c for c in range(2, min(bases) + 1) if all(E18LE_power(b, c) for b in bases))
+        powers = {b: E18LE_power(b, beta) for b in bases}
+        beta = sp.Integer(beta)
+    return terms, K, beta, powers
+
+
+def E18LE_power(n, c):
+    """k with c^k = n, or 0."""
+    k, v = 0, 1
+    while v < n:
+        v *= c
+        k += 1
+    return k if v == n else 0
+
+
+def E18LE_poly(terms, K, beta, powers):
+    """The polynomial the equation comes to once the logs are dropped: Σ w ln(arg) = K ln β."""
+    X = CX
+    # Logs of one argument in two bases are one log, so the polynomial has no repeated root.
+    merged = {}
+    for c, b, a in terms:
+        merged[a] = merged.get(a, 0) + sp.Rational(c, powers[b])
+    D = math.lcm(*[int(w.q) for w in merged.values()])
+    ns = {a: int(w * D) for a, w in merged.items() if w != 0}
+    # Every argument is positive, so a common power can come off: A⁴ = 2¹² is A = 2³.
+    g = math.gcd(*ns.values(), int(D * K))
+    left, right = sp.Integer(1), beta ** (D * K / g)
+    for a, n in ns.items():
+        n //= g
+        e = a if isinstance(a, int) else E18LE_at(a, X)
+        if n > 0:
+            left *= e ** n
+        else:
+            right *= e ** (-n)
+    return sp.expand(left - right)
+
+
+def E18LE_args(terms):
+    return [a for _, _, a in terms if not isinstance(a, int)]
+
+
+def E18LE_valid(args, x):
+    return all(E18LE_at(a, x) > 0 for a in args)
+
+
+def E18LE_eval(terms, K, x):
+    """The equation's two sides' difference at x, at 40 digits."""
+    with mpmath.workdps(40):
+        tot = mpmath.mpf(0)
+        for c, b, a in terms:
+            v = sp.Rational(a if isinstance(a, int) else E18LE_at(a, x))
+            v = mpmath.mpf(v.p) / v.q
+            tot += c * mpmath.log(v) / mpmath.log(b)
+        return abs(tot - K)
+
+
+def E18LE_x(v):
+    return "x = " + frac_text(v)
+
+
+def E18LE_linear(lhs, rhs):
+    """The x that solves lhs = rhs, both linear in x; None when there's none."""
+    X = CX
+    p = sp.Poly(sp.expand(lhs - rhs), X)
+    if p.degree() != 1:
+        return None
+    return sp.solve(p.as_expr(), X)[0]
+
+
+def E18LE_steps(q, args, roots, x):
+    """The values a step gives at a root, the two roots and the domain, against the checker's own."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for m in re.finditer(r"At x = (" + E18LE_NUM + r"), (.+?) (?:are both positive|is positive|are negative|is negative|:)", st):
+                v = E18LE_r(m.group(1))
+                for bit in re.split(r" and ", m.group(2)):
+                    if bit == "x":
+                        continue
+                    mm = re.fullmatch(r"(.+?) = (" + E18LE_NUM + r")", bit)
+                    if mm is None:
+                        continue
+                    a = E18LE_arg(mm.group(1))
+                    need(a in args and E18LE_at(a, v) == E18LE_r(mm.group(2)), f"{sol['name']}: {bit!r} at x = {v}")
+            if m := re.search(r": x = (" + E18LE_NUM + r") or x = (" + E18LE_NUM + r")\.$", st):
+                need(sorted([E18LE_r(m.group(1)), E18LE_r(m.group(2))]) == roots, f"{sol['name']}: the roots in {st!r}")
+            if m := re.search(r", so x > (" + E18LE_NUM + r")\.$", st):
+                need(E18LE_r(m.group(1)) == max(sp.Rational(-p, a) for a, p in args), f"{sol['name']}: the domain in {st!r}")
+            if m := re.search(r"Only x = (" + E18LE_NUM + r") is in", st):
+                need(E18LE_r(m.group(1)) == x, f"{sol['name']}: {st!r}")
+
+
+def E18LE_check(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    X = CX
+    need(q["paper"] == 1, f"Paper {q['paper']}: a log equation is Paper 1")
+    need(q["answer"]["kind"] == "form" and q["answer"].get("exact") is True, "the answer isn't an exact x")
+    terms, K, beta, powers = E18LE_read(L[0])
+    args = E18LE_args(terms)
+    need(K.is_integer and K >= 0, f"the constant {K}")
+    poly = E18LE_poly(terms, K, beta, powers)
+    deg = sp.Poly(poly, X).degree()
+    need(deg in (1, 2), f"the logs drop to a degree {deg} polynomial")
+    roots = sorted(r for r in sp.solve(poly, X) if r.is_rational)
+    need(len(roots) == deg, f"{L[0]} doesn't come to rational roots: {sp.solve(poly, X)}")
+    good = [r for r in roots if E18LE_valid(args, r)]
+    need(len(good) == 1, f"{L[0]} has {len(good)} solutions, not 1")
+    x = good[0]
+    need(E18LE_eval(terms, K, x) < mpmath.mpf(10) ** -30, f"x = {x} doesn't solve {L[0]}")
+    bad = [r for r in roots if r != x]
+    if deg == 1:
+        need(x != 0 and abs(x) <= 20 and x.q <= 4, f"x = {x} is out of the clean limits")
+    else:
+        need(len(bad) == 1 and all(abs(r) <= 12 and r.q <= 2 for r in roots), f"the roots {roots} are out of the clean limits")
+    either = " or ".join(E18LE_x(r) for r in roots)
+    wrongs = defaultdict(set)
+    if bad:
+        wrongs[E18LE_KEEP] |= {E18LE_x(bad[0]), either}
+    # The equation's own pieces, for the slips.
+    signs = [c for c, _, a in terms if not isinstance(a, int)]
+    nb = [b for _, b, _ in terms]
+    b0 = nb[0]
+    Bv = None
+    if len(set(nb)) == 1 and all(not isinstance(a, int) for _, _, a in terms):
+        Bv = sp.Integer(b0) ** K if b0 != mpmath.e else None
+    elif len(set(nb)) == 1:
+        Bv = sp.Integer(next(a for _, _, a in terms if isinstance(a, int)))
+    if u == "combine-linear":
+        need(len(E18LE_split(L[0].split(" = ")[0])) == 2 and signs == [1, -1], f"{L[0]} isn't a difference of two logs")
+        need(q["asked"] == "Solve the equation for x.", q["asked"])
+        T, U = (E18LE_at(a, X) for a in args)
+        wrongs[E18LE_SUBTRACT].add(E18LE_linear(T - U, Bv))
+        E18LE_linear_slips(wrongs, T, U, Bv, K, b0)
+    elif u == "constant-as-log":
+        mt = re.fullmatch(r"(.+) = (\d+) \+ (.+)", L[0])
+        need(mt is not None and len(args) == 2, f"can't read {L[0]}")
+        c = int(mt.group(2))
+        T, U = (E18LE_at(a, X) for a in args)
+        wrongs[E18LE_ADD_C].add(E18LE_linear(T, U + c))
+        wrongs[E18LE_TIMES_C].add(E18LE_linear(T, c * U))
+        E18LE_linear_slips(wrongs, T, U, Bv, K, b0)
+    elif u in ("combine-quadratic", "reject-root"):
+        need(deg == 2 and len(args) == 2, f"{L[0]} isn't a quadratic in two logs")
+        A1, A2 = (E18LE_at(a, X) for a in args)
+        if signs == [1, 1]:
+            wrongs[E18LE_ADD].add(E18LE_linear(A1 + A2, Bv))
+        else:
+            need(signs == [2, -1], f"{L[0]}: the logs' coefficients {signs}")
+            wrongs[E18LE_TWO_IN].add(E18LE_linear(2 * A1, Bv * A2))
+        if x < 0:
+            wrongs[E18LE_NEGATIVE].add("No solution: both roots are negative")
+        if u == "reject-root":
+            need(L[1] == f"Combining the logs and solving gives {either}.", f"the roots line {L[1]!r}")
+            need(q["asked"] == "Find the value of x that must be rejected.", q["asked"])
+            want = E18LE_x(bad[0])
+            wrongs = {E18LE_KEEP: {"Neither: both values solve the equation"}}
+            if x < 0:
+                wrongs[E18LE_NEGATIVE] = {"Both, as both values are negative"}
+    elif u == "change-of-base":
+        need(len(set(nb)) == 2, f"{L[0]} doesn't have two bases")
+        small, big = sorted(set(nb))
+        k = powers[big] // powers[small]
+        need(powers[big] % powers[small] == 0 and k in (2, 3) and small in (2, 3, 5), f"the bases {small} and {big}")
+        if len(args) == 2 and args[0] != args[1]:
+            one = next(a for c, b, a in terms if b == small)
+            two = next(a for c, b, a in terms if b == big)
+            O, T = E18LE_at(one, X), E18LE_at(two, X)
+            wrongs[E18LE_SAME_BASE].add(E18LE_linear(O, T))
+            wrongs[E18LE_WRONG_WAY] |= {r for r in sp.solve(sp.expand(O - T**2), X) if r.is_rational and E18LE_valid(args, r)}
+        else:
+            need(len(args) == 2 and args[0] == args[1] and signs == [1, 1], f"can't read {L[0]}")
+            A = E18LE_at(args[0], X)
+            j = sp.Rational(K, k + 1)
+            need(j.q == 1 and K * k % (k + 1) == 0, f"c = {K}")
+            for ref, v in ((E18LE_WRONG_WAY, sp.Integer(small) ** j), (E18LE_SAME_BASE, sp.Integer(small) ** sp.Rational(K, 2)),
+                           (E18LE_SWAP, sp.Integer(K * k // (k + 1)) ** small)):
+                if v.is_rational:
+                    wrongs[ref].add(E18LE_linear(A, v))
+    else:
+        raise Fail(f"no check for {u}")
+    if u != "reject-root":
+        want = E18LE_x(x)
+    wrongs = {r: {w if isinstance(w, str) else E18LE_x(w) for w in ws if w is not None} for r, ws in wrongs.items()}
+    gc_check_common(q, want, wrongs)
+    E18LE_steps(q, args, roots, x)
+    for o in q["choices"]:
+        if not o["correct"] and not o["ref"]:
+            need(re.fullmatch(r"x = " + E18LE_NUM, o["text"]) is not None, f"a filler that isn't a value of x: {o['text']!r}")
+    return None, None
+
+
+def E18LE_linear_slips(wrongs, T, U, Bv, K, b):
+    """The quotient upside down, and b and c swapped (log_b X = c read as X = c^b)."""
+    wrongs[E18LE_FLIP].add(E18LE_linear(U, Bv * T))
+    if b != mpmath.e and K > 0:
+        S = sp.Integer(K) ** b
+        if S != Bv:
+            wrongs[E18LE_SWAP].add(E18LE_linear(T, S * U))
+
+
+# ── end log-equation ──
+
+
 # ── antiderivative-condition (t5-antiderivative-condition, FAL-740) ──────
 # The `antiderivative-condition` situation's clean limits, the checker's own copy: the engine's is
 # in game/engine/situations/antiderivative_condition.gd. The derivative and the condition are read
@@ -39324,6 +39618,7 @@ SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, 
                     "solve-exponential": E12SE_check,
                     "trig-sketch": E12TS_check,
                     "derivative-graph": E12DG_check,}
+SITUATION_CHECKS["log-equation"] = E18LE_check
 
 
 # ── solid-angle (t3-3d-angle, FAL-754) ───────────────────────────────────
