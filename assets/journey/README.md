@@ -120,8 +120,8 @@ move. Their dialogue portraits are in `assets/portraits/` (see its README).
 | `encounters/cell/guard.webp` + `.json` | idle 110×252, talk 110×252 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 13,000 |
 | `encounters/st-coffee-cart.webp` + `.json` | idle 207×254, talk 207×254 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 29,186 |
 | `encounters/st-hush-water.webp` + `.json` | idle 177×251, talk 177×251, bust 177×251 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 31,160 |
-| `encounters/st-live-wires.webp` + `.json` | idle 272×252, talk 272×252, bust 272×252 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 51,480 |
-| `encounters/st-mast-climber.webp` + `.json` | idle 146×251, talk 146×251 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 19,870 |
+| `encounters/st-live-wires.webp` + `.json` | idle 272×252, talk 272×252, bust 272×252 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 46,972 |
+| `encounters/st-mast-climber.webp` + `.json` | idle 141×252, talk 141×252 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 14,358 |
 | `encounters/st-numbers-station.webp` + `.json` | idle 194×251, talk 194×251 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 24,890 |
 | `encounters/st-permit-booth.webp` + `.json` | idle 177×251, talk 177×251, bust 177×251 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 28,240 |
 | `enemies/d1-scavenger.webp` + `d1-scavenger.json` | idle 143×230, step-a 161×225, step-b 144×229, step-c 155×228, attack 212×229, hurt 126×222, defeated 161×223 | idle [idle] (1), walk [step-a, step-b, step-c, idle] (8), attack [attack] (1, once), hurt [hurt] (1, once), defeated [defeated] (1, once) | feet point | 113,653 |
@@ -199,3 +199,8 @@ batch lands, that sheet is still in the painted style.
   convention are unchanged; only `x`, `w`, `h`, `ox`, `oy` were re-measured (heights 248 → 251-254 px). Live-wires
   is 272 px wide instead of 316 because the old painted ground patch is gone; a short inked cable from his boot to
   the junction box keeps the frame one piece. The coffee seller's apron is one solid brown.
+  After the audit: the live-wires box is a square-cornered dark rust iron cabinet again, with its inked access
+  panel and a flat yellow/white spark star on the side facing him (only the box was re-rendered; the man, cable and
+  arms are the same pixels). The mast-climber's mast is drawn on the CPU behind the rendered climber, at the old
+  mast's width and positions: a slim pole and back rail in one steel grey with one shadow tone, and the boxes,
+  panels and cable runs as closed, filled, inked shapes.
