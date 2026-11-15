@@ -20,7 +20,8 @@ assets/
 ├── avatars/
 │   ├── avatar-female.png     ← Female Learner sprite 256×256
 │   ├── avatar-male.png       ← Male Learner sprite 256×256
-│   ├── avatar-spark.png      ← SPARK robot sprite 256×256
+│   ├── avatar-dog.png        ← Cyber-dog sprite 256×256
+│   ├── spark-companion.png   ← SPARK floating companion, small
 │   ├── spark-happy.png       ← SPARK expression 128×128
 │   ├── spark-thinking.png    ← SPARK expression 128×128
 │   ├── spark-surprised.png   ← SPARK expression 128×128
@@ -93,6 +94,7 @@ The engine gracefully degrades if any asset is missing — placeholder CSS fills
 - Style: Semi-realistic, slightly stylised, post-apocalyptic scavenger aesthetic
 - Consistent lighting direction: top-left light source
 - All three avatars must feel like they belong to the same universe/art style
+- Character plan: FAL-939. Each character has its own class (Tilly: Scout, Banjo: Ranger, the dog: Tinker). SPARK is not a pick; it is every character's companion
 
 ### Avatar 1 — Tilly Redback (Female Learner)
 - Young woman, late teens
@@ -109,13 +111,22 @@ The engine gracefully degrades if any asset is missing — placeholder CSS fills
 - Holding something (a tool, a notebook) — resourceful feel
 - Expression: focused, ready
 
-### Avatar 3 — SPARK (Robot Companion)
+### Avatar 3 — The cyber-dog (Tinker)
+- Australian working dog, kelpie or blue heeler (Writer settles name and breed on the character sheet)
+- Rebuilt by SPARK: scrap cybernetic parts, a scrap-built voice implant at the throat, and a small blue eye light that matches SPARK's
+- Four-legged silhouette, clearly different from the two Learners
+- Expression: alert and eager
+- The film *Up* is a reference only: no borrowed collar design
+- Also needs a side-on journey sheet to match the FAL-208 sheets
+
+### SPARK companion (not a pick)
 - Small, round, WALL-E-ish robot
 - Glowing cyan/teal eyes (expressive — can show emotions)
 - Patchwork body — different materials welded together, pink crown graffiti on chest
 - Utility arms, antenna
 - Expression: curious and cheerful
-- This is the character that delivers hints and worked solutions
+- Drawn small, floating beside whichever character the player picks, on the journey scene and in combat
+- Delivers hints, worked solutions and explainer clips
 
 ---
 
