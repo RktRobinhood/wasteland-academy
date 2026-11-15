@@ -149,6 +149,10 @@ func _build() -> void:
 	scroll.name = "Scroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# The bar's width kept whether it shows or not: a card just about a screen tall
+	# otherwise flips the bar on and off, rewrapping its text each time, until the
+	# message queue runs out (FAL-429, with "Watch it" under the working).
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
 	scroll.scroll_deadzone = SWIPE_DEADZONE
 	col.add_child(scroll)
 	card = VBoxContainer.new()
