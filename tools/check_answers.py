@@ -42575,6 +42575,513 @@ SITUATION_CHECKS["mutually-exclusive"] = E14ME_check
 # ── end mutually-exclusive ──
 
 
+# ── conditional-diagram (FAL-777) ────────────────────────────
+# t4-ext-conditional-diagram. The table, the Venn diagram, the tree or the bag is read back from
+# what the question shows, and the conditional worked out again by restricting to the given group.
+
+E14CD_SK = "SL4.6.conditional-diagram#"
+E14CD_T = "t4-ext-conditional-diagram#"
+E14CD_COLOURS = [("red", "blue"), ("green", "white"), ("black", "yellow"), ("red", "green")]
+
+
+def E14CD_counts(q):
+    """a, i, b, o and u from the two-way table or the Venn diagram, with the totals checked."""
+    if q["view"]["rep"] == "table":
+        rows = q["table"]["rows"]
+        need(rows[0] == ["", ["B", "B′", "Total"]] and [r[0] for r in rows[1:]] == ["A", "A′", "Total"], "the table's headings")
+        (i, a, na), (b, o, nn), (nb, nb2, u) = ([int(x) for x in r[1]] for r in rows[1:])
+        need(na == a + i and nn == b + o and nb == i + b and nb2 == a + o and u == a + i + b + o, "the table's totals don't add up")
+        m = re.fullmatch(r"The table shows (\d+) .+\. A means they .+ and B means they .+\.", q["lines"][0])
+        need(m is not None and int(m.group(1)) == u, f"can't read {q['lines'][0]!r}")
+    else:
+        g = q["graph"]
+        need(g["kind"] == "venn", "no Venn diagram")
+        a, i, b, o = (int(g[k]) for k in "aibo")
+        u = a + i + b + o
+        need(q["lines"][0] == f"The Venn diagram shows how many of {u} outcomes are in each region for events A and B. One is chosen at random.", "the total")
+    need(min(a, b, o) >= 2 and i >= 2 and max(a, b, o) <= 30 and i <= 20, "the clean limits")
+    return a, i, b, o, u
+
+
+def E14CD_spot(q, lines):
+    a, i, b, o, u = E14CD_counts(q)
+    gb = E14CD_given_b(q) if q["view"]["rep"] == "table" else q["asked"] == "Find P(A | B)."
+    given = "B" if gb else "A"
+    ng = i + (b if given == "B" else a)
+    name = "P(A | B)" if given == "B" else "P(B | A)"
+    value = None
+    for k, t in enumerate(lines):
+        if (m := re.fullmatch(r"The given group is ([AB]): n\(([AB])\) = (\d+) \+ (\d+) = (\d+)\.", t)):
+            ok = m.group(1) == m.group(2) == given and int(m.group(3)) + int(m.group(4)) == int(m.group(5)) == ng
+        elif (m := re.fullmatch(r"Both A and B: n\(A ∩ B\) = (\d+)\.", t)):
+            ok = int(m.group(1)) == i
+        elif (m := re.fullmatch(r"(P\([AB] \| [AB]\)) = (\d+) ÷ (\d+)", t)):
+            ok = m.group(1) == name and int(m.group(2)) == i and int(m.group(3)) == ng
+            value = sp.Rational(int(m.group(2)), int(m.group(3)))
+        elif (m := re.fullmatch(r"= (\d+/\d+|\d+)", t)):
+            ok = value is not None and sp.Rational(m.group(1)) == value and value == sp.Rational(i, ng)
+        elif (m := re.fullmatch(r"So (P\([AB] \| [AB]\)) = (\d+/\d+|\d+)", t)):
+            ok = m.group(1) == name and sp.Rational(m.group(2)) == sp.Rational(i, ng)
+        else:
+            need(False, f"can't read the line {t!r}")
+        if not ok:
+            return k
+    return None
+
+
+def E14CD_given_b(q):
+    """On a table, whether the question restricts to group B: the asked sentence names B's
+    words after 'those who' (the table line says which words are A and which B)."""
+    m = re.fullmatch(r"The table shows \d+ .+\. A means they (.+) and B means they (.+)\.", q["lines"][0])
+    need(m is not None, "can't read the table's line")
+    mm = re.fullmatch(r"An? .+ is chosen at random from those who (.+)\. Find the probability that they also (.+)\.", q["asked"])
+    need(mm is not None, f"can't read {q['asked']!r}")
+    need({mm.group(1), mm.group(2)} == {m.group(1), m.group(2)}, "the asked groups are not the table's")
+    return mm.group(1) == m.group(2)
+
+
+def E14CD_check(q):
+    u_, L = q["view"]["unknown"], q["lines"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+        q = dict(q, lines=L)
+    need(q["paper"] == 1, f"Paper {q['paper']}")
+    R1 = sp.Rational
+    if u_ in ("from-table", "from-venn"):
+        a, i, b, o, u = E14CD_counts(q)
+        if u_ == "from-table":
+            gb = E14CD_given_b(q)
+            label = "probability = "
+        else:
+            need(q["asked"] in ("Find P(A | B).", "Find P(B | A)."), f"asked {q['asked']!r}")
+            gb = q["asked"] == "Find P(A | B)."
+            label = "P(A | B) = " if gb else "P(B | A) = "
+        ng, nother = (i + b, i + a) if gb else (i + a, i + b)
+        need(5 * ng >= u and ng != nother, "the clean limits")
+        want = R1(i, ng)
+        wrongs = {E14CD_SK + "0": R1(i, u), E14CD_SK + "1": R1(i, nother), E14CD_T + "7": R1(ng, u)}
+        need(len({want, *wrongs.values()}) == 4, "two slips give the same number")
+        text = lambda v: label + frac_text(v)
+    elif u_ == "tree-branch":
+        g = q["graph"]
+        need(g["kind"] == "tree" and g["first"] == ["A", "A′"] and g["second"] == ["B", "B′"], "no tree")
+        pa, pa2 = (R1(x) for x in g["p"])
+        (pba, pba2), (pbn, pbn2) = ([R1(x) for x in r] for r in g["q"])
+        need(pa + pa2 == 1 and pba + pba2 == 1 and pbn + pbn2 == 1, "a pair of branches doesn't add to 1")
+        need((pa * 10).q == 1 and sp.Rational(1, 5) <= pa <= sp.Rational(4, 5) and (pba * 20).q == 1 and (pbn * 20).q == 1 and 0 < pba < 1 and 0 < pbn < 1, "the clean limits")
+        if q["asked"] == "Find P(B | A).":
+            want, label = pba, "P(B | A) = "
+            wrongs = {E14CD_T + "2": pa * pba, E14CD_T + "4": pbn, E14CD_T + "6": pa * pba + (1 - pa) * pbn}
+        else:
+            need(q["asked"] == "Find P(B′ | A′).", f"asked {q['asked']!r}")
+            want, label = 1 - pbn, "P(B′ | A′) = "
+            wrongs = {E14CD_T + "2": (1 - pa) * (1 - pbn), E14CD_T + "4": 1 - pba, E14CD_T + "6": (1 - pa) * (1 - pbn) + pa * (1 - pba)}
+        need(len({want, *wrongs.values()}) == 4, "two slips give the same number")
+        text = lambda v: label + dec_text(v)
+    else:
+        m = re.fullmatch(r"A bag holds (\d+) (\w+) and (\d+) (\w+) (\w+)\.", L[0])
+        need(m is not None and len(L) == 2 and L[1] == "Two are taken at random, one after the other, without replacement.", f"can't read {L}")
+        r, c0, g_, c1 = int(m.group(1)), m.group(2), int(m.group(3)), m.group(4)
+        need((c0, c1) in E14CD_COLOURS and r != g_ and 3 <= r <= 9 and 3 <= g_ <= 9, "the clean limits")
+        mm = re.fullmatch(rf"Given that the first is {c0}, find the probability that the second is (\w+)\.", q["asked"])
+        need(mm is not None and mm.group(1) in (c0, c1), f"asked {q['asked']!r}")
+        same = mm.group(1) == c0
+        n = r + g_
+        # The second draw, counted from the bag that is left.
+        top = sum(1 for k in range(n) if k != 0 and (k < r if same else k >= r))
+        want = R1(top, n - 1)
+        wrongs = {E14CD_T + "2": R1(r * top, n * (n - 1)), E14CD_T + "3": R1(r if same else g_, n)}
+        if same:
+            wrongs[E14CD_SK + "0"] = R1(top, n)
+        need(len({want, *wrongs.values()}) == len(wrongs) + 1, "two slips give the same number")
+        text = lambda v: "probability = " + frac_text(v)
+    gc_check_common(q, text(want), {k: {text(v)} for k, v in wrongs.items()})
+    for o in q["choices"]:
+        lab = q["answer"]["label"]
+        need(o["text"].startswith(lab), f"option {o['text']!r}")
+        v = R1(o["text"][len(lab):])
+        need(0 < v < 1 and o["correct"] == (v == want), f"option {o['text']!r}")
+    return None, None
+
+
+SITUATION_CHECKS["conditional-diagram"] = E14CD_check
+SPOT_CHECKS["conditional-diagram"] = E14CD_spot
+
+# ── end conditional-diagram ──
+
+
+# ── z-score (FAL-777) ────────────────────────────────────────
+# t4-ext-z-scores. μ, σ and the value are read back from the model line, the story or the figure,
+# and z = (x − μ)/σ or x = μ + zσ worked out again; a comparison standardises both values (and
+# for the proportion below uses mpmath's normal cdf), and the better is the larger z, or for a
+# time the smaller. The checker's own copy of the clean limits.
+
+E14ZS_ZS = "SL4.12.z-score#"
+E14ZS_CZ = "SL4.12.compare-z#"
+E14ZS_T = "t4-ext-z-scores#"
+E14ZS_SIGMAS = {2, 4, 5, 8, 10, 16, 20}
+# what -> (unit, one value, its subject, its noun)
+E14ZS_CTX = {"The marks in a test": (" marks", "a mark", "The mark", "mark"),
+             "The masses of melons from a farm": (" g", "a melon's mass", "The melon's mass", "mass"),
+             "The heights of adult cactus plants": (" cm", "a cactus's height", "The cactus's height", "height"),
+             "The lengths of steel rods from a forge": (" mm", "a rod's length", "The rod's length", "length")}
+
+
+def E14ZS_n(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def E14ZS_model(q):
+    """μ, σ and the context (None for X ~ N) from the first line."""
+    L = q["lines"]
+    if (m := re.fullmatch(r"X ~ N\((\d+), (\d+)²\)", L[0])):
+        return int(m.group(1)), int(m.group(2)), None
+    m = re.fullmatch(r"(.+) are normally distributed with mean (\d+)(.*) and standard deviation (\d+)(.*)\.", L[0])
+    need(m is not None and m.group(1) in E14ZS_CTX, f"can't read {L[0]!r}")
+    c = E14ZS_CTX[m.group(1)]
+    need(m.group(3) == c[0] == m.group(5), "the units")
+    return int(m.group(2)), int(m.group(4)), c
+
+
+def E14ZS_cap(t):
+    return t[:1].upper() + t[1:]
+
+
+def E14ZS_values(q, want, wrongs, label, unit=""):
+    text = lambda v: label + dec_text(v) + unit
+    gc_check_common(q, text(want), {k: {text(v)} for k, v in wrongs.items()})
+    for o in q["choices"]:
+        need(o["text"].startswith(label) and o["text"].endswith(unit), f"option {o['text']!r}")
+        v = E14ZS_n(o["text"][len(label):len(o["text"]) - len(unit)])
+        need(o["correct"] == (v == want), f"option {o['text']!r}")
+
+
+def E14ZS_pct(z):
+    return gc_s(100 * mpmath.ncdf(mpmath.mpf(sp.Rational(z).p) / sp.Rational(z).q)) + "%"
+
+
+def E14ZS_compare(q, times):
+    L = q["lines"]
+    need(len(L) == 2, f"can't read {L}")
+    vals = {}
+    for t in L:
+        if times:
+            m = re.fullmatch(r"(\w+) ran the 400 m in (\d+) s\. In (.+), 400 m times have mean (\d+) s and standard deviation (\d+) s\.", t)
+        else:
+            m = re.fullmatch(r"(\w+)'s mark in (\w+) was (\d+)\. The (\w+) marks had mean (\d+) and standard deviation (\d+)\.", t)
+        need(m is not None, f"can't read {t!r}")
+        if times:
+            name, x, grp, mu, sg = m.group(1), int(m.group(2)), m.group(3), int(m.group(4)), int(m.group(5))
+            key = name
+        else:
+            name, key, x, mu, sg = m.group(1), m.group(2), int(m.group(3)), int(m.group(5)), int(m.group(6))
+            need(m.group(4) == key, "the subject")
+            grp = None
+        z = sp.Rational(x - mu, sg)
+        need(2 <= sg <= 10 and (z * 4).q == 1 and sp.Rational(1, 2) <= abs(z) <= sp.Rational(5, 2), f"the clean limits: z = {z}")
+        need((z < 0) == times, "a score below the mean or a time above it")
+        vals[key] = dict(name=name, x=x, mu=mu, sg=sg, z=z, grp=grp, gap=abs(x - mu))
+    k1, k2 = sorted(vals, key=lambda k: vals[k]["z"], reverse=not times)
+    a, b = vals[k1], vals[k2]
+    need(abs(a["z"] - b["z"]) >= sp.Rational(1, 4) and abs(a["z"]) > abs(b["z"]), "the z-values are too close")
+    need((a["x"] < b["x"]) if not times else (a["x"] > b["x"]), "the raw values don't point the other way")
+    need(a["gap"] < b["gap"] and a["mu"] != b["mu"], "the gaps don't point the other way")
+    need(q["paper"] == 2, "a comparison is Paper 2")
+    perc = q["view"]["angle"] == "compare-percentiles"
+    if times:
+        need(q["asked"] == "Whose time was more exceptional? Give a reason.", "asked")
+        if perc:
+            right = f"{a['name']}'s: only {E14ZS_pct(a['z'])} of {a['grp']} were faster than {a['name']}, fewer than {E14ZS_pct(b['z'])} of {b['grp']} for {b['name']}"
+        else:
+            right = f"{a['name']}'s: {a['name']}'s z-value, {dec_text(a['z'])}, is lower than {b['name']}'s, {dec_text(b['z'])}, and a lower time is better"
+        tagged = {E14ZS_CZ + "2": {f"{b['name']}'s: {b['name']}'s z-value, {dec_text(b['z'])}, is higher than {a['name']}'s, {dec_text(a['z'])}"},
+                  E14ZS_CZ + "0": {f"{b['name']}'s: {b['name']}'s time, {b['x']} s, is lower than {a['x']} s"},
+                  E14ZS_CZ + "1": {f"{b['name']}'s: {b['name']} was {b['gap']} s below the mean, more than {a['name']}'s {a['gap']} s"}}
+        plain = set()
+    else:
+        who = a["name"]
+        need(b["name"] == who and q["asked"] == f"In which subject did {who} do better relative to the class? Give a reason.", "asked")
+        if perc:
+            right = f"{E14ZS_cap(k1)}: {E14ZS_pct(a['z'])} of the class scored below {who} there, more than {E14ZS_pct(b['z'])} in {k2}"
+        else:
+            right = f"{E14ZS_cap(k1)}: {who}'s z-value there, {dec_text(a['z'])}, is higher than {dec_text(b['z'])} in {k2}"
+        tagged = {E14ZS_CZ + "0": {f"{E14ZS_cap(k2)}: {who}'s mark there, {b['x']}, is higher than {a['x']}"},
+                  E14ZS_CZ + "1": {f"{E14ZS_cap(k2)}: {who} is {b['gap']} marks above the mean there, more than {a['gap']}"}}
+        plain = {"Neither: both marks are above the mean"}
+    gc_check_common(q, right, tagged)
+    for o in q["choices"]:
+        need(o["correct"] or o["ref"] or o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
+    # The working: each value standardised, or its proportion below.
+    for sol in q["solutions"]:
+        for v in (a, b):
+            lead = (v["name"] if times else E14ZS_cap(k1 if v is a else k2)) + ": "
+            if sol["angle"] == "compare-z-values":
+                want = f"{lead}z = ({v['x']} − {v['mu']})/{v['sg']} = {dec_text(v['z'])}."
+            else:
+                p = gc_s(mpmath.ncdf(mpmath.mpf(v["z"].p) / v["z"].q))
+                want = f"{lead}P(X < {v['x']}) = normalcdf(−10^99, {v['x']}, {v['mu']}, {v['sg']}) = {p}."
+            need(want in sol["steps"], f"{sol['name']}: no line {want!r}")
+
+
+def E14ZS_check(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+        q = dict(q, lines=L)
+    if u in ("compare-scores", "compare-times"):
+        E14ZS_compare(q, u == "compare-times")
+        return None, None
+    need(q["paper"] == 1, f"Paper {q['paper']}")
+    mu, sg, c = E14ZS_model(q)
+    rep = q["view"]["rep"]
+    need(sg in E14ZS_SIGMAS, f"σ = {sg}")
+    if u == "z-from-x":
+        if rep == "words":
+            m = re.fullmatch(rf"Find the z-value of {re.escape(c[1])} of (\d+){re.escape(c[0])}\.", q["asked"])
+            need(m is not None and len(L) == 1, f"asked {q['asked']!r}")
+        else:
+            m = re.fullmatch(r"Find the z-value of x = (\d+)\.", q["asked"])
+            need(m is not None and len(L) == 2, f"asked {q['asked']!r}")
+            x_line = f"x = {m.group(1)}" + (" is marked on the axis, with μ and steps of σ." if rep == "graph" else "")
+            need(L[1] == x_line, f"can't read {L[1]!r}")
+        x = int(m.group(1))
+        z = sp.Rational(x - mu, sg)
+        need(z != 0 and (2 * z).q == 1 and abs(z) <= 3, f"z = {z}")
+        if rep == "graph":
+            g = q["graph"]
+            k = max(2, math.ceil(abs(z)))
+            want_marks = [{"at": float(mu + j * sg), "label": str(mu + j * sg)} for j in range(-k, k + 1)] + [{"at": float(x), "label": "x"}]
+            need(g["kind"] == "normal" and g["mu"] == mu and g["sigma"] == sg, "the curve is another distribution")
+            need([{"at": float(mk["at"]), "label": mk["label"]} for mk in g["marks"]] == want_marks, "the axis marks are not μ, the steps of σ and x")
+        E14ZS_values(q, z, {E14ZS_ZS + "1": -z, E14ZS_ZS + "0": sp.Rational(x - mu, sg * sg)}, "z = ")
+    elif u == "x-from-z":
+        if rep == "words":
+            m = re.fullmatch(rf"{re.escape(E14ZS_cap(c[1]))} has a z-value of (−?[\d.]+)\.", L[1])
+            need(m is not None and len(L) == 2 and q["asked"] == f"Find this {c[3]}.", f"can't read {L}")
+        else:
+            m = re.fullmatch(r"z = (−?[\d.]+)", L[1])
+            need(m is not None and len(L) == 2 and q["asked"] == "Find the value of x with this z-value.", f"can't read {L}")
+        z = E14ZS_n(m.group(1))
+        need(z != 0 and (2 * z).q == 1 and abs(z) <= 3, f"z = {z}")
+        x = mu + z * sg
+        need(x.q == 1, "x is not whole")
+        E14ZS_values(q, x, {E14ZS_ZS + "1": mu - z * sg, E14ZS_T + "10": mu + z * sg * sg, E14ZS_T + "6": mu + z}, "x = ", c[0] if rep == "words" else "")
+    else:
+        m = re.fullmatch(rf"{re.escape(E14ZS_cap(c[1]))} has a z-value of (−?[\d.]+)\.", L[1])
+        need(m is not None and len(L) == 2 and q["asked"] == "Which statement is true?", f"can't read {L}")
+        z = E14ZS_n(m.group(1))
+        need(z != 0 and (2 * z).q == 1 and abs(z) <= 2 and (mu + z * sg).q == 1, f"z = {z}")
+        a = dec_text(abs(z))
+        sds = "1 standard deviation" if abs(z) == 1 else f"{a} standard deviations"
+        sd = "above" if z > 0 else "below"
+        other = "below" if z > 0 else "above"
+        right = f"{c[2]} is {sds} {sd} the mean"
+        tagged = {E14ZS_ZS + "1": {f"{c[2]} is {sds} {other} the mean"}, E14ZS_T + "7": {f"{c[2]} is {a}{c[0]} {sd} the mean"}}
+        if z < 0:
+            tagged[E14ZS_ZS + "2"] = {"A z-value can't be negative, so there is an error"}
+        gc_check_common(q, right, tagged)
+        for o in q["choices"]:
+            need(o["correct"] or o["ref"] or o["text"] == f"{c[2]} is {a} times the mean", f"the checker can't say why {o['text']!r} is wrong")
+    return None, None
+
+
+def E14ZS_spot(q, lines):
+    L = q["lines"][:q["lines"].index("A student's working:")]
+    q = dict(q, lines=L)
+    mu, sg, c = E14ZS_model(q)
+    u = q["view"]["unknown"]
+    if u == "z-from-x":
+        x = int(re.search(r"(\d+)", q["asked"].split("of")[-1]).group(1))
+        z = sp.Rational(x - mu, sg)
+        for i, t in enumerate(lines):
+            if t == "z = (x − μ)/σ":
+                ok = True
+            elif (m := re.fullmatch(r"= \((\d+) − (\d+)\)/(\d+)²", t)):
+                ok = (int(m.group(1)), int(m.group(2))) == (x, mu) and int(m.group(3)) ** 2 == sg
+            elif (m := re.fullmatch(r"x − μ = (\d+) − (\d+) = (−?\d+)", t)):
+                ok = (int(m.group(1)), int(m.group(2))) == (x, mu) and E14ZS_n(m.group(3)) == x - mu
+            elif (m := re.fullmatch(r"σ² = (\d+)", t)):
+                ok = int(m.group(1)) == sg * sg
+            elif (m := re.fullmatch(r"(?:z = |= )(−?\d+)(?:/| ÷ )(\d+)", t)):
+                ok = sp.Rational(E14ZS_n(m.group(1)), int(m.group(2))) == z
+            elif (m := re.fullmatch(r"= (−?[\d.]+)", t)):
+                ok = E14ZS_n(m.group(1)) == z
+            else:
+                need(False, f"can't read the line {t!r}")
+            if not ok:
+                return i
+        return None
+    zt = re.search(r"z(?: = |-value of )(−?\d+(?:\.\d+)?)", " ".join(L)).group(1)
+    z = E14ZS_n(zt)
+    x = mu + z * sg
+    for i, t in enumerate(lines):
+        if t == "x = μ + zσ":
+            ok = True
+        elif (m := re.fullmatch(r"zσ = (−?[\d.]+) × (\d+) = (−?[\d.]+)", t)):
+            ok = E14ZS_n(m.group(1)) == z and int(m.group(2)) == sg and E14ZS_n(m.group(3)) == z * sg
+        elif (m := re.fullmatch(r"= (\d+) \+ \(?(−?[\d.]+)\)? × (\d+)", t)):
+            ok = int(m.group(1)) == mu and E14ZS_n(m.group(2)) == z and int(m.group(3)) == sg
+        elif (m := re.fullmatch(r"= (\d+) ([+−]) ([\d.]+)", t)):
+            ok = mu + (1 if m.group(2) == "+" else -1) * E14ZS_n(m.group(3)) == x
+        elif (m := re.fullmatch(r"= (−?[\d.]+)", t)):
+            ok = E14ZS_n(m.group(1)) == x
+        else:
+            need(False, f"can't read the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["z-score"] = E14ZS_check
+SPOT_CHECKS["z-score"] = E14ZS_spot
+
+# ── end z-score ──
+
+
+# ── sign-at-point (FAL-777) ──────────────────────────────────
+# t5-ext-sign-at-point. f (or f′) is read back from the question, differentiated with SymPy and
+# evaluated at the point; the direction is the sign of f′(a), and the slips are rebuilt from the
+# same f. On Paper 2 f′(a) and f(a) come from mpmath, to 3 s.f.
+
+E14SP_SK = "SL5.2.sign-at-point#"
+E14SP_T = "t5-ext-sign-at-point#"
+# The story -> (name, end, Up, Down, up, down, negative): a positive quantity falls, a negative one rises.
+E14SP_CTX = {"The temperature of a cooling tank, in °C,": ("temperature", 6, "Rising", "Falling", "rising", "falling", False),
+             "The depth of water in a reservoir, in metres,": ("depth of water", 8, "Rising", "Falling", "rising", "falling", False),
+             "The number of rats in a bunker, in hundreds,": ("number of rats", 6, "Increasing", "Decreasing", "increasing", "decreasing", False),
+             "The price of fuel, in caps per litre,": ("price of fuel", 8, "Rising", "Falling", "rising", "falling", False),
+             "The temperature inside a freezer, in °C,": ("temperature", 6, "Rising", "Falling", "rising", "falling", True),
+             "The height of a diver above the surface, in metres,": ("diver's height", 8, "Rising", "Falling", "rising", "falling", True),
+             "The balance of a trader's account, in hundreds of caps,": ("balance", 8, "Rising", "Falling", "rising", "falling", True)}
+
+
+def E14SP_poly(text, letter):
+    e = E13PC_expr(text.replace(letter, "x")) if letter != "x" else E13PC_expr(text)
+    return sp.Poly(e, CX)
+
+
+def E14SP_cmp(v):
+    return "> 0" if v > 0 else "< 0"
+
+
+def E14SP_num(v):
+    return frac_text(v) if isinstance(v, sp.Rational) or sp.Rational(v).q == 1 else dec_text(v)
+
+
+def E14SP_check(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    X = CX
+    angle = q["view"]["angle"]
+    plain = set()
+    if u in ("from-formula", "in-context"):
+        if u == "from-formula":
+            m = re.fullmatch(r"f\(x\) = (.+)", L[0])
+            need(m is not None and len(L) == 1, f"can't read {L}")
+            g, letter, up, down = "f", "x", "Increasing", "Decreasing"
+            f = E14SP_poly(m.group(1), "x")
+            m2 = re.fullmatch(r"Is f increasing or decreasing at x = (−?\d+)\? Give a reason\.", q["asked"])
+            need(m2 is not None, f"asked {q['asked']!r}")
+            a = int(m2.group(1).replace("−", "-"))
+            need(a in (-3, -2, -1, 2, 3), f"a = {a}")
+        else:
+            m = re.fullmatch(r"(.+,) is modelled by ([A-Z])\(t\) = (.+), where t is the time in hours, 0 ≤ t ≤ (\d+)\.", L[0])
+            need(m is not None and len(L) == 1 and m.group(1) in E14SP_CTX, f"can't read {L}")
+            name, end, up, down, up_w, down_w, neg = E14SP_CTX[m.group(1)]
+            need(int(m.group(4)) == end, "the time the story runs for")
+            g, letter = m.group(2), "t"
+            f = E14SP_poly(m.group(3), "t")
+            m2 = re.fullmatch(rf"Is the {re.escape(name)} {up_w} or {down_w} at t = (\d+)\? Give a reason\.", q["asked"])
+            need(m2 is not None, f"asked {q['asked']!r}")
+            a = int(m2.group(1))
+            need(0 < a < end, f"t = {a}")
+            if neg:
+                need(all(-200 <= f.eval(t) < 0 for t in range(end + 1)), "the quantity leaves [−200, 0)")
+            else:
+                need(all(0 < f.eval(t) <= 200 for t in range(end + 1)), "the quantity leaves (0, 200]")
+        need(f.degree() == 3, "f is not a cubic")
+        d = f.diff(X)
+        fa, fp = f.eval(a), d.eval(a)
+        need(fa != 0 and fp != 0 and (fa > 0) != (fp > 0), "f(a) and f′(a) don't point opposite ways")
+        word = up if fp > 0 else down
+        lo, hi = sp.Rational(100 * a - 1, 100), sp.Rational(100 * a + 1, 100)
+        flo, fhi = f.eval(lo), f.eval(hi)
+        need((flo < fhi) == (fp > 0), "the neighbours disagree with f′(a)")
+        if angle == "compare-neighbours":
+            right = f"{word}, because {g}({dec_text(lo)}) {'<' if flo < fhi else '>'} {g}({dec_text(hi)})"
+        else:
+            right = f"{word}, because {g}′({frac_text(a)}) = {frac_text(fp)} {E14SP_cmp(fp)}"
+        c3, c2, c1, _ = f.all_coeffs()
+        # One term differentiated with its power left the same: x³ to 3x³, or x² to 2x².
+        kept = {v for v in (3 * c3 * a**3 + 2 * c2 * a + c1, 3 * c3 * a**2 + 2 * c2 * a**2 + c1) if v not in (0, fp)}
+        wd = lambda v: up if v > 0 else down
+        tagged = {E14SP_SK + "0": {f"{wd(fa)}, because {g}({frac_text(a)}) = {frac_text(fa)} {E14SP_cmp(fa)}"},
+                  E14SP_SK + "1": {f"{word}, because the graph {'goes up' if fp > 0 else 'goes down'}"}}
+        if kept:
+            tagged[E14SP_T + "2"] = {f"{wd(v)}, because {g}′({frac_text(a)}) = {frac_text(v)} {E14SP_cmp(v)}" for v in kept}
+        plain = {f"Neither: {g} has a turning point at {letter} = {frac_text(a)}"}
+        for sol in q["solutions"]:
+            for st in sol["steps"]:
+                if (mm := re.fullmatch(rf"{g}′\({letter}\) = (.+)\.", st)):
+                    need(E14SP_poly(mm.group(1), letter).as_expr() == d.as_expr(), f"{sol['name']}: {st!r} is not {g}′")
+                if (mm := re.fullmatch(rf"{g}\((−?[\d.]+)\) = (−?[\d.]+) and {g}\((−?[\d.]+)\) = (−?[\d.]+)\.", st)):
+                    vals = [sp.Rational(x.replace("−", "-")) for x in mm.groups()]
+                    need(vals == [lo, flo, hi, fhi], f"{sol['name']}: {st!r}")
+    elif u == "from-derivative":
+        m = re.fullmatch(r"f′\(x\) = (−?\d*)\(x ([+−]) (\d+)\)\(x ([+−]) (\d+)\)", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        k = {"": 1, "−": -1}.get(m.group(1), None) or int(m.group(1).replace("−", "-"))
+        p = int(m.group(3)) * (1 if m.group(2) == "−" else -1)
+        r = int(m.group(5)) * (1 if m.group(4) == "−" else -1)
+        m2 = re.fullmatch(r"Is f increasing or decreasing at x = (−?\d+)\? Give a reason\.", q["asked"])
+        need(m2 is not None, f"asked {q['asked']!r}")
+        a = int(m2.group(1).replace("−", "-"))
+        need(p < r and a not in (p, r) and 0 not in (p, r) and abs(k) <= 3, "the clean limits")
+        fp = sp.expand(k * (X - p) * (X - r)).subs(X, a)
+        word = "Increasing" if fp > 0 else "Decreasing"
+        kt = "" if k == 1 else ("−" if k == -1 else frac_text(k))
+        sgn = lambda v: f"+ {v}" if v >= 0 else f"− {-v}"
+        right = f"{word}, because f′({frac_text(a)}) = {kt}({frac_text(a)} {sgn(-p)})({frac_text(a)} {sgn(-r)}) = {frac_text(fp)} {E14SP_cmp(fp)}"
+        flips = set()
+        for f0, f1 in ((-p, r), (p, -r)):
+            v = k * (a - f0) * (a - f1)
+            if v != 0 and v != fp:
+                flips.add(f"{'Increasing' if v > 0 else 'Decreasing'}, because f′({frac_text(a)}) = {frac_text(v)} {E14SP_cmp(v)}")
+        tagged = {E14SP_SK + "1": {f"{word}, because the graph {'goes up' if fp > 0 else 'goes down'}"}}
+        if flips:
+            tagged[E14SP_T + "3"] = flips
+        plain = {f"Neither: f has a turning point at x = {frac_text(a)}"}
+    else:
+        need(q["paper"] == 2, "a GDC question is Paper 2")
+        m = re.fullmatch(r"f\(x\) = (.+?)(, x > 0)?", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        f = E13_expr(m.group(1))
+        m2 = re.fullmatch(r"Is f increasing or decreasing at x = (\d\.\d)\? Give a reason\.", q["asked"])
+        need(m2 is not None, f"asked {q['asked']!r}")
+        a = sp.Rational(m2.group(1))
+        need(0 < a <= 3 and (10 * a).q == 1 and a.q != 1, f"x = {a}")
+        fp = sp.N(sp.diff(f, X).subs(X, a), 40)
+        fa = sp.N(f.subs(X, a), 40)
+        need(abs(fp) > 0.1 and abs(fa) > 0.1 and (fp > 0) != (fa > 0) and not on_edge(abs(fp)) and not on_edge(abs(fa)), "the clean limits")
+        at = m2.group(1)
+        word = "Increasing" if fp > 0 else "Decreasing"
+        right = f"{word}, because the GDC gives f′({at}) = {gc_s(fp)} {E14SP_cmp(fp)}"
+        tagged = {E14SP_SK + "0": {f"{'Increasing' if fa > 0 else 'Decreasing'}, because f({at}) = {gc_s(fa)} {E14SP_cmp(fa)}"},
+                  E14SP_SK + "1": {f"{word}, because the graph {'goes up' if fp > 0 else 'goes down'}"}}
+        plain = {f"Neither: f has a turning point at x = {at}"}
+        need(any(gc_s(fp) in st for st in q["solutions"][0]["steps"][:-1]), "the working doesn't show the GDC's gradient")
+    if u != "gdc-check":
+        need(q["paper"] == 1, f"Paper {q['paper']}")
+    gc_check_common(q, right, tagged)
+    for o in q["choices"]:
+        need(o["correct"] or o["ref"] or o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
+    return None, None
+
+
+SITUATION_CHECKS["sign-at-point"] = E14SP_check
+
+# ── end sign-at-point ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):

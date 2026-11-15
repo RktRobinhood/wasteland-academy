@@ -11928,8 +11928,8 @@
                 {
                   "id": "formula",
                   "approach": "formula",
-                  "name": "P(A ∩ B) ÷ P(B)",
-                  "summary": "Divide the probability of both by the probability of the given event."
+                  "name": "P(both) ÷ P(given event)",
+                  "summary": "Divide the probability that both happen by the probability of the given event: P(A ∩ B) ÷ P(B) for P(A | B)."
                 }
               ],
               "misconceptions": [
@@ -14154,8 +14154,8 @@
                 }
               ],
               "misconceptions": [
-                "Using the sign of f(a) instead of f′(a)",
-                "Justifying with 'the graph goes up' without referring to the derivative"
+                "Using the sign of the value at the point instead of the sign of the derivative",
+                "Justifying with 'the graph goes up' or 'goes down' without referring to the derivative"
               ],
               "threads": []
             },

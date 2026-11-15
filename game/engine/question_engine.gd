@@ -169,6 +169,9 @@ static var SITUATIONS := {
 	"integral-gdc": [IntegralGdcSituation, IntegralGdcViews],
 	"area-under-curve": [AreaUnderCurveSituation, AreaUnderCurveViews],
 	"mutually-exclusive": [MutuallyExclusiveSituation, MutuallyExclusiveViews],
+	"conditional-diagram": [ConditionalDiagramSituation, ConditionalDiagramViews],
+	"z-score": [ZScoreSituation, ZScoreViews],
+	"sign-at-point": [SignAtPointSituation, SignAtPointViews],
 }
 
 static var _cat: Dictionary = {}

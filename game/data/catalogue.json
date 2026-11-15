@@ -6249,7 +6249,8 @@
 			],
 			"clean": [
 				"f′(a) is a whole number on Paper 1, fair to 3 s.f. on Paper 2",
-				"f(a ± 0.01) ends within 6 decimal places"
+				"f(a ± 0.01) ends within 6 decimal places",
+				"in a story, a quantity that falls stays positive and one that rises stays negative"
 			]
 		},
 		"rate-of-rate": {
@@ -6282,7 +6283,7 @@
 		},
 		"z-score": {
 			"name": "A value in a normal distribution, and its z-value",
-			"summary": "X ~ N(μ, σ²) in a story, with x = μ + zσ for a z in steps of 0.25; or two values, each in its own normal distribution, to compare by z. For a time, lower is better.",
+			"summary": "X ~ N(μ, σ²) in a story, with x = μ + zσ for a z in steps of 0.5; or two values, each in its own normal distribution, to compare by z or by the proportion below. For a time, lower is better.",
 			"quantities": [
 				{
 					"name": "μ, σ",
@@ -6292,7 +6293,7 @@
 				{
 					"name": "z",
 					"is": "the z-value",
-					"pick": "a nonzero multiple of 0.25 from −3 to 3, a multiple of 0.5 where steps of σ are counted"
+					"pick": "a nonzero multiple of 0.5 from −3 to 3; between ±0.5 and ±2.5 in steps of 0.25 for a comparison"
 				},
 				{
 					"name": "x",
@@ -6306,8 +6307,8 @@
 				}
 			],
 			"modes": [
-				"Paper 1: z, x and comparisons by z",
-				"Paper 2: comparisons by the proportion below, with normalcdf"
+				"Paper 1: z, x and what z means",
+				"Paper 2: comparisons, by z or by the proportion below with normalcdf"
 			],
 			"clean": [
 				"every z-value ends in two decimal places",
@@ -78957,8 +78958,8 @@
 						"tree-branch",
 						"second-draw"
 					],
-					"name": "P(A ∩ B) ÷ P(B)",
-					"about": "Divide the probability of both by the probability of the given event."
+					"name": "P(both) ÷ P(given event)",
+					"about": "Divide the probability that both happen by the probability of the given event: P(A ∩ B) ÷ P(B) for P(A | B)."
 				}
 			],
 			"concepts": [
@@ -79001,7 +79002,7 @@
 					"wrong": "multiplies the first branch by the second, P(A) × P(B | A) = P(A ∩ B)"
 				},
 				{
-					"text": "Putting the first sweet back before the second draw",
+					"text": "Putting the first one back before the second draw",
 					"as": "distractor",
 					"in": [
 						"second-draw"
@@ -79024,6 +79025,23 @@
 						"from-venn"
 					],
 					"wrong": "a line of working divides by the whole total, not the given group's"
+				},
+				{
+					"text": "Adding the paths into the second event, which gives its total probability, not the conditional",
+					"as": "distractor",
+					"in": [
+						"tree-branch"
+					],
+					"wrong": "adds the products along both paths that end at the asked outcome, which is P(B), not P(B | A)"
+				},
+				{
+					"text": "Giving the probability of the given group itself",
+					"as": "distractor",
+					"in": [
+						"from-table",
+						"from-venn"
+					],
+					"wrong": "gives n(given) ÷ total, the chance of being in the given group, not of the other event inside it"
 				}
 			],
 			"frequency": 0
@@ -79203,8 +79221,7 @@
 					"text": "Dividing by the variance instead of the standard deviation",
 					"as": "distractor",
 					"in": [
-						"z-from-x",
-						"x-from-z"
+						"z-from-x"
 					],
 					"wrong": "divides x − μ by σ², the variance"
 				},
@@ -79282,12 +79299,20 @@
 					"wrong": "a line of working divides by the variance"
 				},
 				{
-					"text": "Subtracting zσ from the mean when z is positive",
+					"text": "Getting the sign of zσ wrong when adding it to the mean",
 					"as": "error-spot",
 					"in": [
 						"x-from-z"
 					],
-					"wrong": "a line of working takes zσ away from μ"
+					"wrong": "a line of working adds zσ to μ with the wrong sign"
+				},
+				{
+					"text": "Multiplying z by the variance instead of the standard deviation",
+					"as": "distractor",
+					"in": [
+						"x-from-z"
+					],
+					"wrong": "works out μ + zσ², multiplying z by the variance"
 				}
 			],
 			"frequency": 0
@@ -79686,7 +79711,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL5.2.sign-at-point#0",
-					"text": "Using the sign of f(a) instead of f′(a)",
+					"text": "Using the sign of the value at the point instead of the sign of the derivative",
 					"as": "distractor",
 					"in": [
 						"from-formula",
@@ -79697,7 +79722,7 @@
 				},
 				{
 					"ref": "SL5.2.sign-at-point#1",
-					"text": "Justifying with 'the graph goes up' without referring to the derivative",
+					"text": "Justifying with 'the graph goes up' or 'goes down' without referring to the derivative",
 					"as": "distractor",
 					"in": [
 						"from-formula",
