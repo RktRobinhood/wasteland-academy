@@ -156,7 +156,8 @@ func u_signs_from_sentence(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var said: String = ("The %s is %s at a decreasing rate." % [st.name, st.up]) if s.rate_words else right_sentence(s)
 	var right := signs_text(st.q, s.s1, s.s2)
 	var tagged: Array = []
-	if s.s1 > 0 and s.s2 < 0:
+	# Only a sentence that says "at a decreasing rate" can be read as decreasing that way.
+	if s.rate_words:
 		tagged.append(tag(signs_text(st.q, -1, -1), R_RATE_FALLING))
 	if s.s1 != s.s2:
 		tagged.append(tag(signs_text(st.q, s.s2, s.s1), R_SWAP))

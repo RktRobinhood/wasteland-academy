@@ -6,8 +6,9 @@ extends RefCounted
 ## y₀ ÷ a is not m, so the slips that read the height or the line from the origin go wrong.
 ##
 ## generate() returns ask, paper and:
-##   tangent-drawn, pick-tangent  deg (2 or 3), c (a fraction), a, y0, m: the curve is
-##                                f(x) = c(x − a)^deg + m(x − a) + y₀
+##   tangent-drawn, pick-tangent  deg 2, c (±1/2 or ±1/4), a, y0, m: the curve is
+##                                f(x) = c(x − a)^deg + m(x − a) + y₀, so the tangent at P
+##                                touches the curve without cutting it
 ##   chord-table                  the same with deg 3 and c a whole number, so the chord over
 ##                                a ± 0.1 has gradient m + 0.01c
 ##   compare-two                  the same with deg 2, and xa, xb: two whole x-values whose
@@ -68,9 +69,10 @@ static func _fits(s: Dictionary) -> bool:
 static func _try(ask: String, rng: Seeded) -> Dictionary:
 	match ask:
 		"tangent-drawn", "pick-tangent":
-			var deg: int = rng.pick([2, 3])
-			var c := Q.new(rng.pick([-1, 1]), rng.pick([2, 4]) if deg == 2 else rng.pick([4, 8]))
-			var s := {"deg": deg, "c": c, "a": rng.pick([-2, -1, 1, 2, 3]), "y0": rng.int_in(-5, 5), "m": ExtensionViews.nonzero(rng, -3, 3)}
+			# A parabola: a cubic's c(x − a)³ would put P on its point of inflexion, where the
+			# tangent cuts the curve.
+			var c := Q.new(rng.pick([-1, 1]), rng.pick([2, 4]))
+			var s := {"deg": 2, "c": c, "a": rng.pick([-2, -1, 1, 2, 3]), "y0": rng.int_in(-5, 5), "m": ExtensionViews.nonzero(rng, -3, 3)}
 			if s.y0 == s.m or s.y0 == 0 or Q.new(s.y0, s.a).eq(Q.new(s.m)) or not _fits(s):
 				return {}
 			# The tangent's grid points stay on the grid's window.

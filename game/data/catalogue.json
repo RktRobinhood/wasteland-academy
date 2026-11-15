@@ -80923,7 +80923,7 @@
 					"wrong": "uses the second derivative for the direction and the first for the bend"
 				},
 				{
-					"text": "Reading a negative second derivative as 'more and more slowly' when the quantity is falling",
+					"text": "Taking f″ > 0 as 'more and more quickly' and f″ < 0 as 'more and more slowly' for a quantity that is falling",
 					"as": "distractor",
 					"in": [
 						"sentence-from-signs",
@@ -80931,7 +80931,7 @@
 						"from-graph",
 						"from-model"
 					],
-					"wrong": "takes f″ < 0 as slowing down and f″ > 0 as speeding up, which is the wrong way round for a quantity that falls"
+					"wrong": "reads the sign of f″ as speeding up or slowing down, which is the wrong way round for a quantity that falls"
 				}
 			],
 			"frequency": 0

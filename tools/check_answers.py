@@ -43155,6 +43155,8 @@ def E14GG_check(q):
         return None, None
     f, a, y0 = E14GG_f(g)
     d = sp.diff(f, CX)
+    # A drawn tangent touches without cutting: no point of inflexion at P.
+    need(u == "chord-table" or int(g["deg"]) == 2, "the drawn curve is not a parabola")
     if u == "tangent-drawn":
         m = re.fullmatch(rf"The graph shows the curve y = f\(x\) and its tangent at P{E14GG_PT}\. The tangent runs through the grid points {E14GG_PT} and {E14GG_PT}\.", L[0])
         need(m is not None and len(L) == 1 and q["asked"] == "Find the gradient of the curve at P.", f"can't read {L}")
@@ -43329,7 +43331,8 @@ def E14RR_check(q):
         name, letter = m.group(2), m.group(1)
         need(letter == E14RR_STORIES[name][0], "the letter")
         _, up, down = E14RR_STORIES[name]
-        if L[1] == f"The {name} is {up} at a decreasing rate.":
+        rate_words = L[1] == f"The {name} is {up} at a decreasing rate."
+        if rate_words:
             s1, s2 = 1, -1
         else:
             pairs = [(d, sp_) for d in (1, -1) for sp_ in (1, -1) if E14RR_sentence(name, d, d * sp_ > 0) == L[1]]
@@ -43337,7 +43340,7 @@ def E14RR_check(q):
             s1, s2 = pairs[0]
         right = E14RR_signs(letter, s1, s2)
         tagged = {}
-        if s1 > 0 and s2 < 0:
+        if rate_words:
             tagged[E14RR_SK + "1"] = {E14RR_signs(letter, -1, -1)}
         if s1 != s2:
             tagged[E14RR_T + "2"] = {E14RR_signs(letter, s2, s1)}
