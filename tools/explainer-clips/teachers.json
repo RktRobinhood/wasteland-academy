@@ -177,8 +177,21 @@
     },
     "spark": {
       "name": "Spark",
-      "status": "provisional",
-      "note": "Round-1 Gemini voices (pulcherrima, puck) rejected on FAL-927 card bf4fcd36; round 2 is on FAL-927. The shipped move clips are local VoxCPM2 (FAL-428) until a Gemini voice is approved and they are re-recorded."
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "leda",
+      "direction": "A small robot companion with a bright, light, youthful voice, gender-neutral, quick pace with short sudden pauses, crisp clear consonants, dry amused tone with real warmth underneath, a little mischievous, lively but never shouting. Quick on the jokes, slower and clearer on every maths word. Fond, never mocking. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "Robot effect 'sheen': falcon-voice fx/spark-sheen.sh (2% tape-style slowdown asetrate=23520,aresample=24000 on the 24 kHz take; rubberband=pitch=1.189:formant=shifted; fx/vocoder.py at 15% wet; highpass 200 Hz, lowpass 7500 Hz), then -16 LUFS through a true-peak limit (falcon-voice master.sh). Dry: no echo, flanger or flutter.",
+      "cast_take": {
+        "task": "FAL-940",
+        "date": "2026-11-15",
+        "sha256_16": "67e1bb4b33198c56"
+      },
+      "approved_on": "FAL-927 card 33e55bc6 (2026-11-15), voice leda chosen on card 31790857",
+      "note": "The 162 shipped move clips are still local VoxCPM2 (FAL-428). Re-record them with this voice in the paid production pass.",
+      "sheet": null,
+      "brief": null
     }
   }
 }
