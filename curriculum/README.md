@@ -16,6 +16,8 @@ The single source of truth for what Wasteland Academy covers: the four IB Mathem
 | `PEDAGOGY_GAPS.md` | Generated from `question-types.json`. What the exam leaves out, region by region: unknowns, representations, methods, concept probes, misconceptions and extension types. |
 | `lessons.json` | The Relic lesson map: short playable lessons designed down from the exam question types, each teaching one idea (GitHub issue #13). Functions in full; the other islands as big ideas only. |
 | `LESSONS.md` | Generated from `lessons.json`. Each region's lesson ladder, the build order, and which lessons sit behind each exam type. |
+| `explainers.json` | The explainer map: every explainer across AA SL, AA HL, AI SL and AI HL, one idea each, with its courses, the explainers it builds on and the "remember when" callbacks (FAL-935). |
+| `EXPLAINERS.md` | Generated from `explainers.json`. Counts by course and layer, the build order, and a node diagram for each part of each island. |
 | `moves.json` | The explainer move list: solving actions a teacher names the same way in any topic, each with the line Spark says for it. |
 | `moves-map.json` | The move for every worked step of every built method, keyed by method and step count. |
 
@@ -29,6 +31,7 @@ node tools/courses.mjs --write    # rewrite game/data/courses.json and COURSES.m
 node tools/question-types.mjs --bank ../Math-AA---Question-Bank --write   # check the type catalogue, rewrite QUESTION_TYPES.md
 node tools/pedagogy.mjs --write   # check situations, views and extension types, rewrite PEDAGOGY_GAPS.md
 node tools/lessons.mjs --write    # check the lesson map, refresh its priorities, rewrite LESSONS.md
+node tools/explainers.mjs --write # check the explainer map, refresh its computed fields, rewrite EXPLAINERS.md
 node tools/moves.mjs --check       # check the move list and the step map
 node tools/moves.mjs --coverage /abs/questions.json   # also check the map against an export, print coverage
 ```
@@ -147,6 +150,17 @@ A Relic lesson is a 3 to 6 minute playable episode: a character shows a broken m
 - **`materials`** are open resources worth borrowing from. Only licences that allow a paid release are accepted (CC BY, CC BY-SA, CC0 and similar). Check the licence on the source itself: OpenStax 2e books and PhET simulations are now non-commercial, for example. Adapting CC BY-SA material makes the adapted asset CC BY-SA too. OpenStax's book pages also say the books may not be fed to AI tools without permission, so agents take ideas from them, not text.
 - **`priority`** is computed: `parts` is the exam parts the lesson supports, weighted by the share of each type's exam unknowns it lists, and `rank` is the build order: the pilot and the second lesson first, then every lesson after all its prerequisites, the most weighted parts first among those that are ready. `--write` refreshes both.
 - **`gaps`** lists any Functions exam type with no lesson, with the reason. The check fails if an exam type has neither.
+
+## Explainers (explainers.json)
+
+An explainer is a short narrated clip that teaches one idea, at the same grain as a Relic lesson. Explainers build on each other, and which ones a student gets depends on their course. `about.fields` in the file documents every field; the rules the check enforces are:
+
+- **`id`** is `ex.<zone>.<slug>`, where the zone is the island (`algebra`, `functions`, `geometry`, `stats`, `calculus`) or `foundations` for prior learning. Where a lesson teaches the same idea, the slug is the lesson's and `lesson` names it. IDs are permanent once on `main`.
+- **`courses`** is a subset of `aa-sl`, `aa-hl`, `ai-sl`, `ai-hl`. An SL course brings its HL course, and every course must be a course of at least one of the explainer's `subtopics`. The `layer` (core, aa, ai, hl and so on) is computed from it.
+- **`prereqs`** are the "this builds on" links. Every prerequisite is in every course of the explainer, so no student is sent to one their course lacks. When AA and AI handle an idea differently, make one shared core explainer and a method explainer per course on top of it, not two copies. HL extensions build on the SL explainer.
+- **Lessons.** A lesson's prerequisites must be reached through the explainer's `prereqs` wherever the courses allow; one may be left out only when its explainer is missing from one of this explainer's courses (for example `parabola-symmetry` is shared by all four courses, so it cannot require the AA-only `zero-product`).
+- **Coverage.** Every subtopic of every course has a non-foundations explainer in that course, and every skill in the map is taught by at least one explainer. A skill a course has but no explainer of that course teaches is a warning.
+- **`question_types`**, **`threads`** and **`priority`** are computed by `--write`, from the explainer's skills and its lesson.
 
 ## Explainer moves (moves.json, moves-map.json)
 
