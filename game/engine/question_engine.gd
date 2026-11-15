@@ -172,6 +172,7 @@ static var SITUATIONS := {
 	"conditional-diagram": [ConditionalDiagramSituation, ConditionalDiagramViews],
 	"z-score": [ZScoreSituation, ZScoreViews],
 	"sign-at-point": [SignAtPointSituation, SignAtPointViews],
+	"gradient-from-graph": [GradientFromGraphSituation, GradientFromGraphViews],
 }
 
 static var _cat: Dictionary = {}

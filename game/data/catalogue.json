@@ -79521,9 +79521,10 @@
 					"in": [
 						"tangent-drawn",
 						"gdc-gradient",
+						"compare-two",
 						"pick-tangent"
 					],
-					"wrong": "uses the line from the origin to the point, so the gradient is y ÷ x at P"
+					"wrong": "uses the line from the origin to the point, so the gradient is y ÷ x there"
 				},
 				{
 					"ref": "SL5.1.gradient-from-graph#2",
@@ -80922,12 +80923,15 @@
 					"wrong": "uses the second derivative for the direction and the first for the bend"
 				},
 				{
-					"text": "Reading 'more and more slowly' as a negative second derivative when the quantity is falling",
+					"text": "Reading a negative second derivative as 'more and more slowly' when the quantity is falling",
 					"as": "distractor",
 					"in": [
-						"signs-from-sentence"
+						"sentence-from-signs",
+						"signs-from-sentence",
+						"from-graph",
+						"from-model"
 					],
-					"wrong": "gives f″ < 0 for a fall that slows, when the rate is rising towards 0"
+					"wrong": "takes f″ < 0 as slowing down and f″ > 0 as speeding up, which is the wrong way round for a quantity that falls"
 				}
 			],
 			"frequency": 0

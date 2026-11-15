@@ -42810,7 +42810,7 @@ def E14ZS_compare(q, times):
         plain = {"Neither: both marks are above the mean"}
     gc_check_common(q, right, tagged)
     for o in q["choices"]:
-        need(o["correct"] or o["ref"] or o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
+        need(o["correct"] or o["ref"] or o.get("trap") or o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
     # The working: each value standardised, or its proportion below.
     for sol in q["solutions"]:
         for v in (a, b):
@@ -43073,13 +43073,179 @@ def E14SP_check(q):
         need(q["paper"] == 1, f"Paper {q['paper']}")
     gc_check_common(q, right, tagged)
     for o in q["choices"]:
-        need(o["correct"] or o["ref"] or o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
+        need(o["correct"] or o["ref"] or o.get("trap") or o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
     return None, None
 
 
 SITUATION_CHECKS["sign-at-point"] = E14SP_check
 
 # ── end sign-at-point ──
+
+
+# ── gradient-from-graph (FAL-777) ────────────────────────────
+# t5-ext-gradient-from-graph. The curve f(x) = c(x − a)^deg + m(x − a) + y₀ is rebuilt with SymPy
+# from the question's data and held to its figure (every sampled point) and its table; the gradient
+# is the tangent's rise over run between the grid points the question names, the chord's from the
+# table, or SymPy's f′(a) to 3 s.f. on Paper 2. Each tagged option is rebuilt from the same numbers.
+
+E14GG_SK = "SL5.1.gradient-from-graph#"
+E14GG_T = "t5-ext-gradient-from-graph#"
+E14GG_PT = r"\((−?\d+), (−?\d+)\)"
+
+
+def E14GG_n(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def E14GG_f(g):
+    deg, c, a, m, y0 = int(g["deg"]), sp.Rational(str(g["c"])), int(g["a"]), int(g["m"]), int(g["y0"])
+    # compare-two asks about A and B, not P, so its m may be 0.
+    need(deg in (2, 3) and c != 0 and (m != 0 or g["ask"] == "compare-two"), "the curve's clean limits")
+    return sp.expand(c * (CX - a) ** deg + m * (CX - a) + y0), a, y0
+
+
+def E14GG_on(curve, e):
+    """Every sampled point of a drawn curve lies on e."""
+    fl = sp.lambdify(CX, e)
+    need(len(curve) > 10, "a curve with too few points")
+    for x, y in curve:
+        need(abs(fl(x) - y) < 1e-6, f"the drawn curve leaves the curve at x = {x}")
+
+
+def E14GG_line(curve):
+    """The gradient and the line of a drawn straight line, from its ends."""
+    (x0, y0), (x1, y1) = curve[0], curve[-1]
+    g = sp.nsimplify((y1 - y0) / (x1 - x0), rational=True, tolerance=1e-9)
+    for x, y in curve:
+        need(abs(y0 + float(g) * (x - x0) - y) < 1e-6, "a drawn line is not straight")
+    return g, sp.nsimplify(y0 - float(g) * x0, rational=True, tolerance=1e-9)
+
+
+def E14GG_plain(q, plain):
+    for o in q["choices"]:
+        need(o["correct"] or o["ref"] or o.get("trap") or o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
+
+
+def E14GG_check(q):
+    u, L, g = q["view"]["unknown"], q["lines"], q["given"]
+    need(q["paper"] == (2 if u == "gdc-gradient" else 1), f"Paper {q['paper']}")
+    if u == "gdc-gradient":
+        m = re.fullmatch(r"f\(x\) = (.+?)(, x > 0)?", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        f = E13_expr(m.group(1))
+        need(("log" in str(f)) == (m.group(2) is not None), "ln x without x > 0")
+        m2 = re.fullmatch(r"Find the gradient of the curve y = f\(x\) at x = (\d\.\d)\.", q["asked"])
+        need(m2 is not None, f"asked {q['asked']!r}")
+        a = sp.Rational(m2.group(1))
+        need(sp.Rational(1, 2) <= a <= 3 and a.q != 1, f"x = {a}")
+        fp = sp.N(sp.diff(f, CX).subs(CX, a), 40)
+        fa = sp.N(f.subs(CX, a), 40)
+        need(abs(fp) > 0.1 and abs(fa) > 0.1 and not on_edge(abs(fp)) and not on_edge(abs(fa)) and not on_edge(abs(fa / a)), "the clean limits")
+        h = sp.Rational(1, 1000)
+        chord = sp.N((f.subs(CX, a + h) - f.subs(CX, a - h)) / (2 * h), 40)
+        need(gc_s(chord) == gc_s(fp), "the short chord doesn't give f′(a) to 3 s.f.")
+        gc_check_common(q, gc_s(fp), {E14GG_SK + "0": {gc_s(fa)}, E14GG_SK + "1": {gc_s(fa / a)}}, trap=gc_s2(fp))
+        for sol in q["solutions"]:
+            nums = [E14GG_n(x) for st in sol["steps"][:-1] for x in re.findall(r"−?\d+\.\d+", st)]
+            if sol["angle"] == "gdc-dydx":
+                need(any(abs(v - fp) < 1e-5 * max(1, abs(fp)) for v in nums), f"{sol['name']}: no GDC gradient")
+            else:
+                need(any(abs(v - chord) < 1e-5 * max(1, abs(chord)) for v in nums), f"{sol['name']}: no chord gradient")
+        E14GG_plain(q, {gc_s(fp + 1), gc_s(fp - 1)})
+        return None, None
+    f, a, y0 = E14GG_f(g)
+    d = sp.diff(f, CX)
+    if u == "tangent-drawn":
+        m = re.fullmatch(rf"The graph shows the curve y = f\(x\) and its tangent at P{E14GG_PT}\. The tangent runs through the grid points {E14GG_PT} and {E14GG_PT}\.", L[0])
+        need(m is not None and len(L) == 1 and q["asked"] == "Find the gradient of the curve at P.", f"can't read {L}")
+        pa, py, x1, y1, x2, y2 = (int(v.replace("−", "-")) for v in m.groups())
+        need((pa, py) == (a, y0) and f.subs(CX, a) == y0, "P is not on the curve")
+        need(x1 == a - 2 and x2 == a + 2, "the grid points are not two units either side of P")
+        grad = sp.Rational(y2 - y1, x2 - x1)
+        need(sp.Rational(y0 - y1, a - x1) == grad, "P is not on the line through the grid points")
+        need(d.subs(CX, a) == grad, "the line through the grid points is not the tangent")
+        need(grad != y0 and grad != sp.Rational(y0, a), "a slip gives the answer")
+        gr = q["graph"]
+        need(len(gr["curves"]) == 2, "the figure needs the curve and the tangent")
+        E14GG_on(gr["curves"][0], f)
+        need(E14GG_line(gr["curves"][1]) == (grad, y0 - grad * a), "the drawn line is not the tangent")
+        need({(p["x"], p["y"]) for p in gr["points"]} == {(a, y0), (x1, y1), (x2, y2)}, "the figure's points")
+        tagged = {E14GG_SK + "0": {dec_text(y0)}, E14GG_SK + "1": {dec_text(sp.Rational(y0, a))}, E14GG_T + "3": {dec_text(1 / grad)}}
+        if grad < 0:
+            tagged[E14GG_T + "4"] = {dec_text(-grad)}
+        gc_check_common(q, dec_text(grad), tagged)
+        E14GG_plain(q, {dec_text(grad + 1), dec_text(grad - 1)})
+    elif u == "chord-table":
+        m = re.fullmatch(r"Estimate the gradient of the curve y = f\(x\) at x = (\d+), using the chord from x = (\d+\.\d) to x = (\d+\.\d)\.", q["asked"])
+        need(m is not None and L == [f"The table gives values of f(x) near x = {m.group(1)}."], f"can't read {q['asked']!r}")
+        xa, lo, hi = int(m.group(1)), sp.Rational(m.group(2)), sp.Rational(m.group(3))
+        need(xa == a and lo == a - sp.Rational(1, 10) and hi == a + sp.Rational(1, 10), "the chord is not a ± 0.1")
+        need(int(g["deg"]) == 3 and sp.Rational(str(g["c"])).q == 1, "the clean limits")
+        rows = q["table"]["rows"]
+        need(rows[0] == ["x", [dec_text(lo), dec_text(a), dec_text(hi)]], "the table's x row")
+        need(rows[1][0] == "f(x)" and rows[1][1] == [dec_text(f.subs(CX, v)) for v in (lo, a, hi)], "the table's f(x) row is not f")
+        flo, fa, fhi = (E14GG_n(v) for v in rows[1][1])
+        est = (fhi - flo) / (hi - lo)
+        need(abs(est - d.subs(CX, a)) < sp.Rational(1, 10), "the chord is far from the tangent")
+        gc_check_common(q, dec_text(est), {E14GG_SK + "0": {dec_text(fa)}, E14GG_T + "5": {dec_text((fhi - flo) / sp.Rational(1, 10))}})
+        E14GG_plain(q, {dec_text(est + 1), dec_text(est - 1)})
+    elif u == "compare-two":
+        need(L == ["The graph shows the curve y = f(x), with the points A and B on it."]
+             and q["asked"] == "At which point, A or B, is the gradient of the curve greater? Give a reason.", f"can't read {L}")
+        gr = q["graph"]
+        E14GG_on(gr["curves"][0], f)
+        pts = {p["label"]: (sp.nsimplify(p["x"]), sp.nsimplify(p["y"], rational=True)) for p in gr["points"]}
+        need(set(pts) == {"A", "B"}, "the figure's points")
+        (xa, ya), (xb, yb) = pts["A"], pts["B"]
+        need(xa.q == 1 and xb.q == 1 and xa != 0 and xb != 0 and f.subs(CX, xa) == ya and f.subs(CX, xb) == yb, "A or B is not on the curve")
+        ga, gb = d.subs(CX, xa), d.subs(CX, xb)
+        need(abs(ga) >= 1 and abs(gb) >= 1 and abs(ga - gb) >= sp.Rational(3, 2), "the gradients are not clearly apart")
+        need((ga < gb) != (ya < yb), "the heights are in the same order as the gradients")
+        big, small = ("A", "B") if ga > gb else ("B", "A")
+        high = "A" if ya > yb else "B"
+        steep = "A" if ya / xa > yb / xb else "B"
+        need(ya / xa != yb / xb, "the lines from the origin have one gradient")
+        if (ga > 0) != (gb > 0):
+            right = f"{big}, because the curve rises at {big} and falls at {small}"
+        elif ga > 0:
+            right = f"{big}, because the curve rises more steeply at {big} than at {small}"
+        else:
+            right = f"{big}, because the curve falls less steeply at {big} than at {small}"
+        tagged = {E14GG_SK + "0": {f"{high}, because {high} is higher up the curve"},
+                  E14GG_SK + "1": {f"{steep}, because the line from the origin to {steep} has the greater gradient"}}
+        if ga < 0 and gb < 0:
+            tagged[E14GG_SK + "2"] = {f"{small}, because the curve falls more steeply at {small}"}
+        gc_check_common(q, right, tagged)
+        E14GG_plain(q, {"Neither: the gradients at A and B are equal"})
+    else:
+        need(q["format"] == "pick-the-graph", f"format {q['format']}")
+        m = re.fullmatch(rf"The graph shows the curve y = f\(x\) and the point P{E14GG_PT} on it\.", L[0])
+        need(m is not None and len(L) == 1 and q["asked"] == "Which graph shows the tangent to the curve at P?", f"can't read {L}")
+        need((int(m.group(1).replace("−", "-")), int(m.group(2).replace("−", "-"))) == (a, y0), "P is not the curve's point")
+        want = {"": d.subs(CX, a), "origin": sp.Rational(y0, a), "height": sp.Integer(y0), "chord": (f.subs(CX, a + 2) - y0) / 2}
+        refs = {"": "", "origin": E14GG_SK + "1", "height": E14GG_SK + "0", "chord": E14GG_T + "6"}
+        need(len(set(want.values())) == 4, "two cards show the same line")
+        ch, graphs = q["choices"], q["graphs"]
+        need(len(ch) == 4 and len(graphs) == 4 and sum(o["correct"] for o in ch) == 1, "four cards, one right")
+        seen = set()
+        for o, card in zip(ch, graphs):
+            need(o["text"] == "Graph " + "ABCD"[ch.index(o)], f"card {o['text']!r}")
+            mk = "" if o["correct"] else o["mistake"]
+            need(mk in want and mk not in seen and o["ref"] == refs[mk], f"{o['text']}: mistake {mk!r}, ref {o['ref']!r}")
+            seen.add(mk)
+            need(len(card["curves"]) == 2, f"{o['text']}: the curve and one line")
+            E14GG_on(card["curves"][0], f)
+            grad, icpt = E14GG_line(card["curves"][1])
+            need(grad == want[mk] and icpt == y0 - want[mk] * a, f"{o['text']}: the line is not the {mk or 'tangent'} through P")
+            if o["correct"]:
+                need(q["answer_text"] == o["text"], "the answer is not the tangent's card")
+        need(any(q["answer_text"] in st for st in q["solutions"][0]["steps"][-1:]), "the working doesn't end on the answer")
+    return None, None
+
+
+SITUATION_CHECKS["gradient-from-graph"] = E14GG_check
+
+# ── end gradient-from-graph ──
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
