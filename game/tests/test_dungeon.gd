@@ -468,6 +468,43 @@ func test_the_all_regions_dungeon_mixes_every_built_region() -> void:
 	check_eq(Dungeon.region_name(Dungeon.ALL), "All regions")
 
 
+## Each island's all-regions dungeon mixes its own regions' types, and the Thunderdome
+## every island's (FAL-925). A Thunderdome floor plays types from more than one island,
+## with a mini-boss and a boss, and a run in each island's dungeon stays on its island.
+func test_each_island_and_the_thunderdome_mix_their_own_types() -> void:
+	var every := {}
+	for island in MapLink.OPEN_ISLANDS:
+		var want := {}
+		for r in MapLink.region_ids(island):
+			for id in Dungeon.region_types(r):
+				want[id] = true
+		var got := Dungeon.region_types(Dungeon.all_of(island))
+		check_eq(got.size(), want.size(), island + ": every type of its regions, once")
+		check(got.all(func(id): return want.has(id)), island + ": only its own regions' types")
+		check_eq(Dungeon.region_name(Dungeon.all_of(island)), "All regions")
+		every.merge(want)
+	var dome := Dungeon.region_types(Dungeon.THUNDERDOME)
+	check_eq(dome.size(), every.size(), "the Thunderdome: every island's types")
+	check_eq(Dungeon.region_name(Dungeon.THUNDERDOME), "Thunderdome")
+	var run := _run(7, 1, {}, Dungeon.THUNDERDOME)
+	immortal(run)
+	sim(run, 0.8, 1)
+	check(run.stats.bosses >= 1, "a Thunderdome floor has its bosses")
+	var islands := {}
+	for e in run.answers:
+		var t: String = _cell(e.cell).type
+		check(dome.has(t), e.cell)
+		islands[MapLink.island_of(QuestionEngine.type_of(t).region)] = true
+	check(islands.size() >= 2, "a floor mixes islands: %s" % [islands.keys()])
+	for island in ["algebra", "calculus"]:
+		var r := _run(9, 1, {}, Dungeon.all_of(island))
+		immortal(r)
+		sim(r, 0.8, 1)
+		check(r.stats.bosses >= 1, island + ": the floor's bosses")
+		for e in r.answers:
+			check_eq(MapLink.island_of(QuestionEngine.type_of(_cell(e.cell).type).region), island, e.cell)
+
+
 # ── The "boss beaten" event ──────────────────────────────────
 
 func test_boss_beaten_goes_through_the_modifiers() -> void:

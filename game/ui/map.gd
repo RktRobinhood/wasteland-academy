@@ -303,6 +303,22 @@ func island_art_dir() -> String:
 	return art_dir if art_dir != "" else "%s%s/" % [MAP_ART, route.get("island", "functions")]
 
 
+## What the region screen and the fight screen show behind a region: its backdrop, or,
+## with none, a close-up of its island on the overworld painting (the Thunderdome's arena
+## for the Thunderdome), so a region with no art yet still reads as its island, under the
+## same wash (FAL-925).
+static func backdrop_for(region: String) -> Texture2D:
+	var art := ArtSlots.backdrop(region)
+	if art != null:
+		return art
+	var zone: Rect2 = island_info(MapLink.island_of(region)).zone
+	var tex := AtlasTexture.new()
+	tex.atlas = OVERWORLD
+	tex.region = Rect2((zone.position - zone.size / 2.0) * BOARD / 100.0, zone.size * BOARD / 100.0).intersection(
+		Rect2(Vector2.ZERO, BOARD))
+	return tex
+
+
 ## The island's painting (WebP first, then PNG), or "" for the coded look.
 func background_path() -> String:
 	for ext in ArtSlots.EXTENSIONS:
@@ -1032,7 +1048,7 @@ class Beacon extends Control:
 func _fill_region() -> void:
 	_clear(region_col)
 	var id: String = route.region
-	UiTheme.show_backdrop(region_backdrop, ArtSlots.backdrop_or_ground(id))
+	UiTheme.show_backdrop(region_backdrop, backdrop_for(id))
 	var head := HBoxContainer.new()
 	head.name = "Head"
 	head.add_theme_constant_override("separation", 24)

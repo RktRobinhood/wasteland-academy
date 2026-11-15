@@ -84,7 +84,16 @@ Audio.sound_enabled = true           # what the speaker icon switches
   Nothing ships without one.
 - The map and the runs choose the loop (FAL-417): the world map plays `overworld`, an
   island and its runs play the island's loop, and a mini-boss or boss its `-boss` loop
-  (`MapLink.music_for`). The settings screen has only the three settings.
+  (`MapLink.music_for`). Each of the five islands has its own pair (`MapLink.MUSIC`:
+  `scrap-fields`, `signal-tower`, `dry-flats`, `radio-spires`, `engine-core`), and the
+  Thunderdome's screen and runs play `thunderdome`, bosses too, so all twelve loops play
+  somewhere (FAL-925). The settings screen has only the three settings.
+- Fights play the effects (FAL-925, `ui/fight.gd`): `open` as a mini-boss or boss steps
+  up, `correct` for a hit (right, glancing or late), `retry` for a miss or a timeout,
+  `clear` when an enemy falls (in place of the hit's), `hint` for a lifeline, and
+  `reward` when the summary banks Scrap. The settings screen and the HUD play `confirm`,
+  and the Bazaar `reward` and `confirm`. With sound off nothing is heard;
+  `Audio.last_sfx` still records the cue asked for, for tests.
 
 ## Scripts (run from the repo root)
 
@@ -1882,7 +1891,7 @@ closer look at the place picked on the one above:
   region opens when its situations merge, with no map change. SPARK's pick is among the
   island's regions.
 - **The region screen**, over the region's `backdrop` (see "Art slots"), or its island's
-  coded ground where it has none (`ArtSlots.backdrop_or_ground`), cover-fitted
+  close-up on the overworld painting where it has none (`backdrop_for()`), cover-fitted
   under a 70% wash of the background colour (`REGION_WASH`), so its dimmest text keeps
   4.5:1 over every backdrop in `assets/regions/`. It reads as a close-up of the island
   place, which is the place in its fight backdrop. It shows accuracy, best floor and coverage ("34 of 52 checked": the
@@ -2007,12 +2016,13 @@ all-regions dungeon, `all-<island>` for another island's, and `thunderdome` work
   `definite-integrals`, `derivative-rules`, `derivative-basics`, `integration`
 
 Only the Signal Tower's regions have backdrops so far. A region with no `backdrop` shows
-its island's coded ground under the same wash, so it reads as that island's colours
-rather than a blank screen.
+a close-up of its island cut from the overworld painting (the arena for the
+Thunderdome) under the same wash (`backdrop_for()` in `ui/map.gd`), so it reads as that
+island rather than a blank screen.
 
 | File | Size | Where it shows | With no file |
 |---|---|---|---|
-| `backdrop` | 1920×1080, opaque, dark | Behind the fight screen and its floor select, cover-fitted under a 55% wash of the background colour, and behind the map's region screen under a 70% wash. A phone held upright shows about the centre 500 px, so keep what matters in the centre 600 | The island's coded ground (`ArtSlots.GROUND`) |
+| `backdrop` | 1920×1080, opaque, dark | Behind the fight screen and its floor select, cover-fitted under a 55% wash of the background colour, and behind the map's region screen under a 70% wash. A phone held upright shows about the centre 500 px, so keep what matters in the centre 600 | A close-up of its island on the overworld painting |
 | `miniboss` | 512×512, transparent | Fight 5, the mini-boss, in the 190 px enemy box | The tier's enemy (see `enemies/`) |
 | `miniboss-hurt` | 512×512, transparent: the same pose, size and place | Flashes for 80 ms when a hit lands | No flash |
 | `boss` | 512×512, transparent | Fight 10, the boss | The tier's enemy |
@@ -2374,7 +2384,8 @@ script error happens while it runs. Run one file with
   file's schema.
 - `test_fight.gd`: the fight screen plays a miss with its worked solution, a hit, a
   timeout, the lifelines, quit and the summary, the floor select with beaten floors, a
-  boss part with the value carried on, and fits at 360x780, 390x844 and 1280x800.
+  boss part with the value carried on, the sound effects it asks for (FAL-925), and fits
+  at 360x780, 390x844 and 1280x800, with every region's title beside Quit.
 - `test_dungeon.gd`: the same seed gives the same floors, fights and bosses; fight 5 is a
   2-part mini-boss and fight 10 a 3- or 4-part boss on one situation, following its chain;
   follow-through after a wrong part; floor 1 serves levels 0 to 2 and floor 4 includes
@@ -2394,9 +2405,11 @@ script error happens while it runs. Run one file with
   isn't, on tiny fixture images (`tests/fixtures/art/`) and fixture data; the region's
   bosses with their names, taunts and hurt frames; the enemy pool; a region with no art
   playing exactly as before, and the same run with art giving the same results; the
-  fight screen, title screen and Bazaar with art and without; and every file in the art
-  folders importing lossy with mipmaps.
-- `test_map.gd`: links for every region id, the island and junk; coverage against a
+  fight screen, title screen and Bazaar with art and without (the island's close-up
+  with no backdrop); every island and the Thunderdome naming their bosses; and every
+  file in the art folders importing lossy with mipmaps.
+- `test_map.gd`: links for every region id on its own island, every island, the
+  Thunderdome and junk; `island_of()` for every region; coverage against a
   hand count from the catalogue on a scripted save with the switch off and on;
   accuracy, best floor and cleared; the weakest skills leaving out skills with fewer
   than 3 answers; the world map, the island and the region screen; the course picker
@@ -2406,7 +2419,11 @@ script error happens while it runs. Run one file with
   screen fitting 390x844 and 1280x800; and the FAL-783 layers: no road node and no
   footer, cards hidden until hover, focus or a tap, two taps on touch, the Bazaar as a
   world-map place, painted places on a fixture background, the zoom in and out (and the
-  cut with reduced motion), and the region screen over its backdrop.
+  cut with reduced motion), and the region screen over its backdrop. Every island
+  (FAL-925): all five open on the world map, each laid out with no place overlapping
+  and a card beside its place, every region and all-regions dungeon opening its screen,
+  a run starting in a region of each island, its all-regions dungeon and the
+  Thunderdome, and each island's loop and boss loop, so all twelve loops are reachable.
 - `test_explorer.gd`: the engine explorer opens on a live class with no errors, plays
   each course's own classes (AA HL all of AA SL's, AI SL's inside AI HL's), counts
   the catalogue per topic, plays from its pickers, keeps the situation when it asks

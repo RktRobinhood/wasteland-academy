@@ -234,8 +234,7 @@ func test_the_fight_screen_with_no_art() -> void:
 	_use(NONE, NONE)
 	var made: Array = await _fight(5)
 	var f: Control = made[1]
-	check(f.backdrop.visible and f.backdrop.texture == ArtSlots.ground(MapLink.island_of(f.region)),
-		"no backdrop: the island's coded ground (FAL-925)")
+	check(f.backdrop.visible and f.backdrop.texture is AtlasTexture, "no backdrop: the island's close-up (FAL-925)")
 	check_eq(_path(f.enemy_art.texture), "res://assets/enemies/" + Tuning.ENEMIES[f.run.tier].art)
 	check(f.card.get_node_or_null("Taunt") == null, "no taunt")
 	f.autoplay(true)

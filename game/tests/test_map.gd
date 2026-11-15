@@ -836,8 +836,9 @@ func test_the_region_screen_sits_over_its_backdrop() -> void:
 	_done(made)
 	ArtSlots.root = "res://tests/fixtures/no-art/"
 	made = await _map(MapLink.region_route("quadratics"))
-	check(made[1].region_backdrop.visible and made[1].region_backdrop.texture == ArtSlots.ground("functions"),
-		"no backdrop: the island's coded ground (FAL-925)")
+	var closeup = made[1].region_backdrop.texture
+	check(made[1].region_backdrop.visible and closeup is AtlasTexture and closeup.atlas == made[1].OVERWORLD,
+		"no backdrop: a close-up of the island on the world map (FAL-925)")
 	_done(made)
 	ArtSlots.root = "res://assets/"
 
@@ -1109,6 +1110,6 @@ func test_a_run_starts_on_every_island_and_in_the_thunderdome() -> void:
 				check_eq(f.run.region, region)
 				check(Dungeon.region_types(region).has(f.run.question.view.type), "%s asks its own: %s" % [region, f.run.question.view.type])
 				check_eq(Audio.location(), MapLink.music_for(region, fight_no > 1), "%s fight %d's loop" % [region, fight_no])
-				check(f.backdrop.visible, region + ": a backdrop or the island's ground behind it")
+				check(f.backdrop.visible, region + ": a backdrop or the island's close-up behind it")
 			frame.free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))

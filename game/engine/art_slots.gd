@@ -115,14 +115,6 @@ static func backdrop(region: String) -> Texture2D:
 	return texture("regions/%s/backdrop" % region)
 
 
-## What the fight screen and the region screen show behind a region: its backdrop, or,
-## with none, its island's coded ground (ground()), so a region with no art yet still sits
-## on its island's colours rather than a blank screen (FAL-925).
-static func backdrop_or_ground(region: String) -> Texture2D:
-	var art := backdrop(region)
-	return art if art != null else ground(MapLink.island_of(region))
-
-
 ## An island's coded ground (GROUND): a dusk gradient from top to bottom. The island map
 ## draws it with no painting, and screens behind a region with no backdrop.
 static func ground(island: String) -> Texture2D:
