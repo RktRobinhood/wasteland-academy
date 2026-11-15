@@ -80,7 +80,7 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 	return _view(_weighted(fresh if not fresh.is_empty() else pool, rng), seed, fmt, "frequency", rng)
 
 
-## The built types of a catalogue region (or Dungeon.ALL), in catalogue order.
+## The built types of a region (or an all-regions dungeon, or the Thunderdome), in catalogue order.
 static func region_types(region: String, course: String = "") -> Array:
 	return Dungeon.region_types(region, course)
 

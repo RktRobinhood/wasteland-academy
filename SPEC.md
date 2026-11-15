@@ -40,8 +40,16 @@ using the mathematics.
   filtering across AA SL, AA HL, AI SL and AI HL as papers become available.
   Practice must continue to work offline with the reviewed runtime catalogue.
 
-This direction guides ongoing engine work. Engine extraction, the academic
-consumer and expanded bank ingestion remain open in
+**Interface, version 1** (FAL-798): `MathsEngine` (`game/engine/maths_engine.gd`)
+covers curriculum selection, generation, marking, worked solutions and learning
+results, with a test that it reaches no game code. The practice and fight screens use
+it, and so does a minimal academic study screen at `/?study`, which is checked to give
+the same maths, marking and solution for the same request and seed. The interface, its
+gaps (scenario wording, multi-part questions, planning) and the packaging options are
+in [game/docs/MATHS-ENGINE.md](game/docs/MATHS-ENGINE.md).
+
+This direction guides ongoing engine work. Packaging outside Godot, neutral scenario
+wording and expanded bank ingestion remain open in
 [#134](https://github.com/RktRobinhood/wasteland-academy/issues/134); the
 [curriculum integration plan](curriculum/README.md#question-bank-integration-direction)
 records the data requirements. The technical stack below describes the original
@@ -355,21 +363,38 @@ In the Godot game (FAL-531), island maps are hubs: every built region opens in a
 
 ---
 
-## 10. PLAYER PROFILE & AVATARS
+## 10. PLAYER PROFILE & CHARACTERS
+
+Character plan: FAL-939 (2026-11-15). Classes, traits, action skills and trees: FAL-291, with tree plan v2 from FAL-345.
 
 ### Profile Setup (first launch)
 1. Enter name/callsign
-2. Choose avatar: **Tilly Redback** (Female Learner) / **Banjo Brumby** (Male Learner) / **SPARK** (robot)
+2. Choose character. The character sets the class:
+
+| Character | Class |
+|---|---|
+| **Tilly Redback** (Female Learner) | **Scout**: streaks and pace |
+| **Banjo Brumby** (Male Learner) | **Ranger**: precise typed answers |
+| **The cyber-dog** (name and breed from Writer) | **Tinker**: learning from mistakes |
+
 3. Profile saved to localStorage
 
-### Avatar Sprites
-3 base avatars, each with cosmetic gear slots unlockable via Scrap.
+- Switching character in the hub between runs is free. Each character keeps its own skill tree.
+- Lines never gender the player, and class tropes stay on branches, not on the player (TONE.md).
+- Saved profiles with the old avatar `spark` load as the cyber-dog.
+
+### The cyber-dog
+An Australian working dog (kelpie or blue heeler) that Spark rebuilt, which is why the Tinker badge has Spark's blue eye in it. It talks through a scrap-built voice implant. The film *Up* is a reference only: no borrowed names, collar design or catchphrases. It uses the same Tinker mechanics as any other class.
+
+### Character Sprites
+3 base characters, each with cosmetic gear slots unlockable via Scrap.
 See ART_REQUIREMENTS.md for pixel art specifications.
 
 ### SPARK as Companion
-SPARK (the robot character) appears as the hint-giver throughout the game:
+SPARK (the robot character) is not a pick. It is the companion of every character, drawn as a small robot floating beside the player on the journey scene and in combat:
 - Delivers Hint lifeline content
 - Shows worked solutions after questions
+- Plays the explainer clips
 - Brief flavour dialogue on boss encounters
 - Tone: curious, helpful, slightly sarcastic, always believes in you
 
@@ -402,7 +427,8 @@ Shown after every Thunderdome run and available from the overworld.
 See `ART_REQUIREMENTS.md` for full generation briefs.
 
 **Needed before v1:**
-- [ ] 3× avatar sprites (Female Learner, Male Learner, SPARK)
+- [ ] 3× character sprites (Tilly Redback, Banjo Brumby, the cyber-dog)
+- [ ] SPARK companion sprite (small, floats beside the player)
 - [ ] 5× enemy sprites (Scavenger, Raider, Enforcer, Warlord, Overseer/Boss)
 - [ ] 3× lifeline icons × 2 states (enabled/disabled) = 6 icons
 - [ ] PWA app icon 192×192 and 512×512

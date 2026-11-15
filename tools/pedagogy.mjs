@@ -4,7 +4,7 @@
 // (FAL-310 plan, FAL-311 catalogue) and prints coverage counts per region.
 //
 //   node tools/pedagogy.mjs                    check everything, print the counts
-//   node tools/pedagogy.mjs --region <id>      check one Functions region only
+//   node tools/pedagogy.mjs --region <id>      check one region only
 //   node tools/pedagogy.mjs --write            also rewrite curriculum/PEDAGOGY_GAPS.md
 //
 // No question bank is needed. Exit 1 on any error.
@@ -31,6 +31,10 @@ export function load() {
   return { doc: readJSON('curriculum/question-types.json'), map: readJSON('curriculum/aa-sl.json'), threads: readJSON('curriculum/threads.json'),
     more: ['aa-hl', 'ai'].map(f => readJSON(`curriculum/${f}.json`)) };
 }
+
+// The topic (island) a region is on: the topic of its syllabus subtopics ("2.6" is topic 2).
+// Every island has regions (FAL-925); this report's region tables are Functions'.
+export const regionTopic = r => Number(String(r.syllabus?.[0] ?? '').split('.')[0]);
 
 // Number of coverage cells a type can make: one per (unknown, representation, angle);
 // an unknown no listed method suits still counts once per representation ("any method").
@@ -90,7 +94,8 @@ export function check({ doc, map, threads, more = [] }, { region } = {}) {
     }
     for (const s of t.skills || []) if (!known.has(s)) errors.push(`${w}: unknown skill ${s}`);
     // The full view model: every Functions type, and any other type with a situation.
-    // Regions are Functions islands, so only Functions types need one.
+    // Every island has regions (FAL-925); only Functions types must have one here, and
+    // the region check below places the rest.
     if (t.topic !== 2 && !t.situation) continue;
     for (const f of FULL) {
       if (f === 'region' && t.topic !== 2) continue;
@@ -186,13 +191,24 @@ export function check({ doc, map, threads, more = [] }, { region } = {}) {
     const linked = new Set(all.filter(t => t.kind === 'link').map(t => t.thread));
     for (const id of threadIds.keys()) if (!linked.has(id)) errors.push(`thread ${id} has no link type`);
     for (const r of doc.regions || []) if (!all.some(t => t.region === r.id && t.source === 'exam')) warnings.push(`region ${r.id} has no exam type`);
+    // A region sits on one island: its subtopics and its types share one topic, and its
+    // order is its place on that island's map (FAL-925).
+    const orders = new Set();
+    for (const r of doc.regions || []) {
+      const n = regionTopic(r);
+      if (!(n >= 1 && n <= 5) || r.syllabus.some(x => Number(x.split('.')[0]) !== n)) errors.push(`region ${r.id}: its syllabus must be on one topic`);
+      for (const t of all.filter(t => t.region === r.id)) if (t.topic !== n) errors.push(`${t.id}: topic ${t.topic} type in topic ${n} region ${r.id}`);
+      if (orders.has(`${n}/${r.order}`)) errors.push(`region ${r.id}: order ${r.order} is taken on topic ${n}`);
+      orders.add(`${n}/${r.order}`);
+    }
+    if (new Set((doc.regions || []).map(r => r.id)).size !== (doc.regions || []).length) errors.push('region ids must be unique');
     for (const t of fnTypes) if (!t.region) errors.push(`${t.id}: Functions type with no region`);
   }
   return { errors, warnings, counts: countAll(doc, skills, used) };
 }
 
 export function countAll(doc, skills, used) {
-  const regions = (doc.regions || []).map(r => {
+  const regions = (doc.regions || []).filter(r => regionTopic(r) === 2).map(r => {
     const ts = doc.types.filter(t => t.region === r.id);
     const us = ts.flatMap(t => t.unknowns || []);
     return {
@@ -265,7 +281,7 @@ export function render({ doc, map, threads, more = [] }, counts) {
     L.push(`- **Misconceptions used:** ${(t.misconceptions || []).length}. ${(t.misconceptions || []).map(x => x.text).join('; ')}.`, '');
   };
 
-  for (const r of doc.regions || []) {
+  for (const r of (doc.regions || []).filter(r => regionTopic(r) === 2)) {
     const c = counts.regions.find(x => x.id === r.id);
     L.push(`### ${r.order}. ${r.name} (syllabus ${r.syllabus.join(', ')})`, '');
     L.push(`${c.examTypes} exam types, ${c.extTypes} extension types; ${c.examUnknowns} exam unknowns and ${c.extUnknowns} new ones; ${c.cells} coverage cells (${c.examCells} with "Exam-style only" on).`, '');

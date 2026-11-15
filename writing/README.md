@@ -7,7 +7,8 @@ Read [`../TONE.md`](../TONE.md) before you write anything. It says who we're wri
 | File | What it is |
 |---|---|
 | `voice-sheets.md` | One block per speaking character: wants, vocabulary, rhythm, tic and avoidance, praise and correction lines, samples. Write every line against it. |
-| `voice-briefs.md` | Voice descriptions and audition scripts for Spark, Gear Mira and Noma, for VoxCPM2 on the shared GPU. |
+| `voice-briefs.md` | Voice descriptions and audition scripts for Spark, Gear Mira, Noma and Nugget, for VoxCPM2 on the shared GPU. |
+| `explainers/` | Explainer scripts (one lesson per idea, narrated by the zone's tutor), the reusable callback lines, and the style guide and script format in `explainers/README.md`. |
 | `encounters/` | Speech-bubble lines for the rare road encounters (Meet, Deal, Standoff) and the Cell, one JSON file per island. Format and rules in `encounters/README.md`. Never voiced. |
 
 ## How text gets written here

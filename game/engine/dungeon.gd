@@ -10,28 +10,56 @@ extends RefCounted
 ##   Dungeon.boss_plan(seed, "quadratics", floor, "boss")  # the chain steps of fight 10
 ##   Dungeon.start_floors(save, "quadratics")  # [1] plus the floor after each beaten boss
 ##
-## A region is a catalogue region id, or ALL for the all-regions dungeon: every built
-## type of the island (the Functions types, which have a region).
+## A region is a catalogue region id, an island's all-regions dungeon (all_of(): every
+## built type of the island; ALL is the Functions island's), or THUNDERDOME: every built
+## type of every island (FAL-925).
 ##
 ## Most functions take the student's `course` last (Courses.of(save); "" for none): a
 ## floor, a warm-up, a prior-learning step, a boss chain or a link part only uses
 ## unknowns the course covers.
 
+## The Functions island's all-regions dungeon. Saves and links name it, so it keeps its id;
+## another island's is "all-<island>" (all_of()), and its link is #<island>/all all the same.
 const ALL := "all"
 const ALL_NAME := "All regions"
+## The Thunderdome (FAL-925): every built type of every island, mixed.
+const THUNDERDOME := "thunderdome"
+const THUNDERDOME_NAME := "Thunderdome"
+
+
+## An island's all-regions dungeon: ALL on the Functions island, else "all-<island>".
+static func all_of(island: String) -> String:
+	return ALL if island == "functions" else "%s-%s" % [ALL, island]
+
+
+## True for any island's all-regions dungeon.
+static func is_all(region: String) -> bool:
+	return region == ALL or region.begins_with(ALL + "-")
+
+
+## The island an all-regions dungeon is on.
+static func island_of_all(region: String) -> String:
+	return "functions" if region == ALL else region.trim_prefix(ALL + "-")
 
 
 ## The built types a run in this region plays, in catalogue order. With a course, the
 ## types it covers at least one unknown of.
 static func region_types(region: String, course: String = "") -> Array:
 	var built := QuestionEngine.built_types(course)
-	if region == ALL:
+	if region == THUNDERDOME:
 		return built.filter(func(id): return QuestionEngine.type_of(id).get("region") != null)
+	if is_all(region):
+		var island := island_of_all(region)
+		return built.filter(func(id):
+			var r = QuestionEngine.type_of(id).get("region")
+			return r != null and MapLink.island_of(r) == island)
 	return built.filter(func(id): return QuestionEngine.type_of(id).get("region") == region)
 
 
 static func region_name(region: String) -> String:
-	if region == ALL:
+	if region == THUNDERDOME:
+		return THUNDERDOME_NAME
+	if is_all(region):
 		return ALL_NAME
 	for r in QuestionEngine.catalogue().get("regions", []):
 		if r is Dictionary and r.get("id") == region:
