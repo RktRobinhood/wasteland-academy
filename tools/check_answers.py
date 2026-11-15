@@ -42080,6 +42080,99 @@ SITUATION_CHECKS["area-under-curve"] = E13AU_check
 # ── end area-under-curve ──
 
 
+# ── variable-kind (t4-ext-data-type, FAL-778) ────────────────
+# Each variable is classified here from its own words: "the number of" is a count, a size, price,
+# cost or score goes up in fixed steps, and a mass, time, length, volume, temperature, distance or
+# height is measured, recorded "to the nearest" unit or not. Each claim offered is then judged true
+# or false of that variable, so exactly one must be true, and it must be the one marked right.
+
+E15DT_SK = "SL4.1.data-type#"
+E15DT_T = "t4-ext-data-type#"
+E15DT_CLAIMS = {
+    "Discrete: it is counted, so it takes separate values with gaps between them.": lambda how: how == "counted",
+    "Discrete: it goes up in fixed steps, with no values in between.": lambda how: how in ("counted", "stepped"),
+    "Continuous: it is measured, so it can take any value in a range.": lambda how: how in ("measured", "rounded"),
+    "Continuous: it is measured, so it can take any value in a range; rounding only changes how it is written.": lambda how: how in ("measured", "rounded"),
+    "Continuous: its values have decimals.": lambda how: False,
+    "Discrete: its values are whole numbers.": lambda how: False,
+    "Continuous: an average of it can be a decimal.": lambda how: False,
+    "Discrete: only a few separate values were recorded.": lambda how: False,
+    "Discrete: it is measured, so it can only take whole values.": lambda how: False,
+    "Continuous: it is counted, so it can take any value.": lambda how: False,
+}
+E15DT_ASKED = {"classify-variable": ("counted", "measured"), "decimal-but-discrete": ("stepped",), "rounded-but-continuous": ("rounded",)}
+
+
+def E15DT_how(what):
+    if what.startswith("the number of "):
+        return "counted"
+    if re.search(r"\b(shoe size|price|cost|score)\b", what):
+        return "stepped"
+    if re.search(r"\b(mass|time|length|volume|temperature|distance|height)\b", what):
+        return "rounded" if "to the nearest" in what else "measured"
+    raise Fail(f"can't tell how {what!r} is found")
+
+
+def E15DT_table(q, what, how):
+    rows = q["table"]["rows"]
+    need(len(rows) == 1 and len(rows[0][1]) >= 5, "the table is not one row of values")
+    vals = rows[0][1]
+    need(len(set(vals)) == len(vals), "two values in the table are the same")
+    for t in vals:
+        x = sp.Rational(t)
+        if how == "stepped":
+            if "dollars and cents" in what:
+                need(re.fullmatch(r"\d+\.\d\d", t) is not None, f"{t} is not dollars and cents")
+            else:
+                need((x * 2).q == 1 and re.fullmatch(r"\d+(\.5)?", t) is not None, f"{t} is not a whole or half step")
+        elif how == "rounded":
+            need(x.q == 1 and re.fullmatch(r"\d+", t), f"{t} is not a whole number")
+
+
+def E15DT_check(q):
+    u, L, ch = q["view"]["unknown"], q["lines"], q["choices"]
+    if u in E15DT_ASKED:
+        m = re.fullmatch(r"A study records (.+?)\.( Some of its values are in the table\.)?", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        what, how = m.group(1), E15DT_how(m.group(1))
+        need(how in E15DT_ASKED[u], f"{u} asks about a variable that is {how}")
+        need((q["table"] is not None) == (q["view"]["rep"] == "table") == bool(m.group(2)), "the table is not where the view puts it")
+        if q["table"] is not None:
+            E15DT_table(q, what, how)
+        need(q["asked"] == "Is this variable discrete or continuous?", f"asked {q['asked']!r}")
+        for o in ch:
+            need(o["text"] in E15DT_CLAIMS, f"{o['text']!r} is not a known claim")
+        true = [o["text"] for o in ch if E15DT_CLAIMS[o["text"]](how)]
+        need(len(true) == 1, f"{len(true)} true claims for a variable that is {how}")
+        want = true[0]
+        wrongs = {E15DT_SK + "0": {"Continuous: its values have decimals."}, E15DT_SK + "1": {"Discrete: its values are whole numbers."},
+                  E15DT_T + "2": {"Continuous: an average of it can be a decimal."} if how == "counted" else set(),
+                  E15DT_T + "3": {"Discrete: only a few separate values were recorded."} if how == "measured" else set()}
+        need(how != "stepped" or any(o["ref"] == E15DT_SK + "0" for o in ch), "a stepped variable without the decimals slip")
+    else:
+        kind = "continuous" if u == "which-continuous" else "discrete"
+        need(q["asked"] == f"Which of these variables is {kind}?" and L[0] == "A study records four variables:", f"can't read {q['asked']!r}")
+        listed = [re.fullmatch(r"(.+)\.", t).group(1) for t in L[1:5]]
+        hows = {w: E15DT_how(w[0].lower() + w[1:]) for w in listed}
+        of_kind = [w for w in listed if (hows[w] in ("measured", "rounded")) == (kind == "continuous")]
+        need(len(of_kind) == 1, f"{len(of_kind)} {kind} variables among four")
+        need(sorted(o["text"] for o in ch) == sorted(w + "." for w in listed), "the options are not the four variables")
+        want = of_kind[0] + "."
+        trap = "stepped" if kind == "continuous" else "rounded"
+        wrongs = {E15DT_SK + ("0" if kind == "continuous" else "1"): {w + "." for w in listed if hows[w] == trap}}
+    gc_check_common(q, want, wrongs)
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            if (m := re.search(r"between (.+?) and (.+?)(?:, however| can occur|: the|\.$)", st)):
+                need(m.group(1) != m.group(2), f"{sol['name']}: {st!r}")
+    return None, None
+
+
+SITUATION_CHECKS["variable-kind"] = E15DT_check
+
+# ── end variable-kind ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):
