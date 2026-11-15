@@ -42736,6 +42736,187 @@ SITUATION_CHECKS["correlation"] = E15DC_check
 # ── end correlation ──
 
 
+# ── exact-triangle (t3-ext-exact-triangle, FAL-778) ──────────
+# The triangle is read from the words, or from the drawing (its side labels and angle, with the
+# drawn corners checked to fit them), or for a height from the sketch (the foot H on AB, the right
+# angle there). Every answer is worked out again exactly with SymPy's sin and cos of the angle,
+# never a table of exact values, and so is every tagged slip. Each "= …" chain in the working is
+# evaluated piece by piece, and an error-spot's lines are judged the same way.
+
+E15ET_SK = "SL3.5.exact-triangle#"
+E15ET_T = "t3-ext-exact-triangle#"
+
+
+def E15ET_val(t):
+    """An exact value as the game writes it ("9√3/2", "½ × 4 × 12 × √2/2", "6 sin 30°"), or None."""
+    s = t.strip().rstrip(".").replace(" cm²", "").replace(" cm", "")
+    if not s or re.search(r"[A-Za-z]", re.sub(r"\b(sin|cos) \d+°", "", s)):
+        return None
+    s = s.replace("−", "-").replace("×", "*").replace("÷", "/").replace("½", "(1/2)")
+    s = re.sub(r"\b(sin|cos) (\d+)°", lambda m: f"{m.group(1)}({m.group(2)}*pi/180)", s)
+    s = re.sub(r"√\(([^()]*)\)", r"sqrt(\1)", s)
+    s = re.sub(r"√(\d+)", r"sqrt(\1)", s)
+    s = re.sub(r"(\d+)²", r"(\1**2)", s)
+    try:
+        v = parse_expr(s, transformations=TRANSFORMS, local_dict={"sqrt": sp.sqrt, "sin": sp.sin, "cos": sp.cos, "pi": sp.pi})
+    except Exception:
+        return None
+    return sp.nsimplify(sp.simplify(v)) if v.free_symbols == set() else None
+
+
+def E15ET_text(v):
+    """m√r as the game writes it: "18√2", "√103", "5/9", "−1/4"."""
+    v = sp.nsimplify(v)
+    if v.is_Rational:
+        return frac_text(v)
+    m, rest = v.as_coeff_Mul()
+    need(rest.is_Pow and rest.exp == sp.Rational(1, 2) and rest.base.is_Integer, f"{v} is not m√r")
+    m, r = sp.Rational(m), int(rest.base)
+    top = ("" if abs(m.p) == 1 else str(abs(m.p))) + f"√{r}"
+    return ("−" if m < 0 else "") + top + ("" if m.q == 1 else f"/{m.q}")
+
+
+def E15ET_rad(d):
+    return sp.Integer(d) * sp.pi / 180
+
+
+def E15ET_chains(q):
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            parts = [E15ET_val(p) for p in st.split(" = ")]
+            for x, y in zip(parts, parts[1:]):
+                if x is not None and y is not None:
+                    need(sp.simplify(x - y) == 0, f"{sol['name']}: {st!r}")
+
+
+def E15ET_read(q):
+    """{'a', 'b', 'c', 'C', 'A', 'area'} from the words, the drawing or the sketch."""
+    u, L = q["view"]["unknown"], q["lines"]
+    g = {"a": None, "b": None, "c": None, "C": None, "A": None, "area": None}
+    if u == "exact-height":
+        sk = q["graph"]
+        need(sk is not None and sk["kind"] == "sketch" and sk["right"] == ["H"], "no sketch with a right angle at H")
+        P = {k: sp.Matrix([sp.nsimplify(v[0]), sp.nsimplify(v[1])]) for k, v in sk["pts"].items()}
+        A_, B_, C_, H_ = (sk["pts"][k] for k in "ABCH")
+        need(abs(H_[1]) < 1e-9 and abs(H_[0] - C_[0]) < 1e-9 and 0 < H_[0] < B_[0] and A_ == [0.0, 0.0], "H is not the foot of the height on AB")
+        lab = {(ln["a"], ln["b"]): ln for ln in sk["lines"]}
+        need(lab[("C", "H")]["label"] == "?" and lab[("C", "H")]["dash"], "the height is not the dashed ? line")
+        g["b"] = int(re.fullmatch(r"(\d+) cm", lab[("A", "C")]["label"]).group(1))
+        arc = sk["arcs"][0]
+        need(arc["at"] == "A", "the angle is not at A")
+        g["A"] = int(re.fullmatch(r"(\d+)°", arc["label"]).group(1))
+        need(abs(math.hypot(C_[0], C_[1]) - g["b"]) < 1e-9 and abs(math.degrees(math.atan2(C_[1], C_[0])) - g["A"]) < 1e-6, "the sketch is not drawn to its labels")
+        return g
+    if q["diagram"] is not None:
+        d = q["diagram"]
+        sides = {s["side"]: s["label"] for s in d["sides"]}
+        for k in "abc":
+            if (m := re.fullmatch(r"(\d+) cm", sides[k])):
+                g[k] = int(m.group(1))
+        ang = {a["at"]: a["label"] for a in d["angles"]}
+        need(ang["A"] == "" and ang["B"] == "", "an angle at A or B is marked")
+        if (m := re.fullmatch(r"(\d+)°", ang["C"])):
+            g["C"] = int(m.group(1))
+        V = d["vertices"]
+        dist = lambda p, r: math.hypot(V[p][0] - V[r][0], V[p][1] - V[r][1])
+        for k, (p, r) in {"a": ("B", "C"), "b": ("A", "C"), "c": ("A", "B")}.items():
+            need(g[k] is None or abs(dist(p, r) - g[k]) < 1e-6, f"side {k} is not drawn to its label")
+        if (m := re.fullmatch(r"The diagram shows triangle ABC\. Its area is (.+) cm²\.", L[0])):
+            g["area"] = E15ET_val(m.group(1))
+        else:
+            need(L[0] == "The diagram shows triangle ABC.", f"can't read {L[0]!r}")
+        return g
+    if (m := re.fullmatch(r"In triangle ABC, BC = (\d+) cm, AC = (\d+) cm and angle ACB = (\d+)°\.", L[0])):
+        g["a"], g["b"], g["C"] = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    elif (m := re.fullmatch(r"In triangle ABC, BC = (\d+) cm, AC = (\d+) cm and AB = (\d+) cm\.", L[0])):
+        g["a"], g["b"], g["c"] = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    elif (m := re.fullmatch(r"In triangle ABC, BC = (\d+) cm and angle ACB = (\d+)°\. The area of the triangle is (.+) cm²\.", L[0])):
+        g["a"], g["C"], g["area"] = int(m.group(1)), int(m.group(2)), E15ET_val(m.group(3))
+    else:
+        raise Fail(f"can't read {L[0]!r}")
+    return g
+
+
+def E15ET_check(q):
+    u = q["view"]["unknown"]
+    need(q["paper"] == 1, "an exact triangle is Paper 1")
+    g = E15ET_read(q)
+    a, b, c, C, A, area = g["a"], g["b"], g["c"], g["C"], g["A"], g["area"]
+    sin, cos = sp.sin, sp.cos
+    if u == "exact-area":
+        need(a and b and C in (45, 60, 120, 135) and c is None, f"givens {g}")
+        v = sp.Rational(1, 2) * a * b * sin(E15ET_rad(C))
+        want = f"Area = {E15ET_text(v)} cm²"
+        wr = {E15ET_T + "4": {f"Area = {E15ET_text(2 * v)} cm²"}}
+        if C == 60:
+            wr[E15ET_T + "3"] = {f"Area = {E15ET_text(sp.Rational(1, 2) * a * b * cos(E15ET_rad(C)))} cm²"}
+    elif u == "exact-side":
+        need(a and b and C in (60, 120), f"givens {g}")
+        c2 = sp.nsimplify(a * a + b * b - 2 * a * b * cos(E15ET_rad(C)))
+        need(c2.is_Integer and not sp.sqrt(c2).is_Integer, f"AB² = {c2}")
+        want = f"AB = {E15ET_text(sp.sqrt(c2))} cm"
+        wr = {E15ET_T + "5": {f"AB = {E15ET_text(sp.sqrt(a * a + b * b - a * b * cos(E15ET_rad(C))))} cm"}}
+        if C == 120:
+            wr[E15ET_SK + "0"] = {f"AB = {E15ET_text(sp.sqrt(a * a + b * b - 2 * a * b * sp.Rational(1, 2)))} cm"}
+    elif u == "exact-cos":
+        need(a and b and c and a + b > c and a + c > b and b + c > a, f"givens {g}")
+        v = sp.Rational(a * a + b * b - c * c, 2 * a * b)
+        need(v != 0, "cos C is 0")
+        want = f"cos ACB = {E15ET_text(v)}"
+        wr = {E15ET_T + "5": {f"cos ACB = {E15ET_text(2 * v)}"}, E15ET_T + "6": {f"cos ACB = {E15ET_text(sp.Rational(b * b + c * c - a * a, 2 * b * c))}"},
+              E15ET_T + "8": {f"cos ACB = {E15ET_text(-v)}"}}
+        need(q["diagram"] is None or {x["at"]: x["label"] for x in q["diagram"]["angles"]}["C"] == "?", "the asked angle is not marked ?")
+    elif u == "side-from-exact-area":
+        need(a and C and area is not None, f"givens {g}")
+        v = sp.nsimplify(2 * area / (a * sin(E15ET_rad(C))))
+        need(v.is_Integer and v > 0, f"AC = {v}")
+        need(q["diagram"] is None or {s["side"]: s["label"] for s in q["diagram"]["sides"]}["b"] == "?", "AC is not marked ?")
+        want = f"AC = {v} cm"
+        wr = {E15ET_T + "4": {f"AC = {E15ET_text(v / 2)} cm"}}
+    else:
+        need(A in (30, 45, 60) and b, f"givens {g}")
+        v = b * sin(E15ET_rad(A))
+        want = f"CH = {E15ET_text(v)} cm"
+        wr = {E15ET_T + "7": {f"CH = {E15ET_text(b * cos(E15ET_rad(A)))} cm"}}
+    gc_check_common(q, want, wr)
+    E15ET_chains(q)
+    return None, None
+
+
+def E15ET_spot(q, lines):
+    g = E15ET_read(q)
+    a, b, C = g["a"], g["b"], g["C"]
+    area = sp.Rational(1, 2) * a * b * sp.sin(E15ET_rad(C))
+    c2 = sp.nsimplify(a * a + b * b - 2 * a * b * sp.cos(E15ET_rad(C)))
+    for i, t in enumerate(lines):
+        if t in ("Area = ½ab sin C",):
+            ok = True
+        elif "≈" in t:
+            ok = False
+        elif (m := re.fullmatch(r"So the area is (.+) cm²", t)):
+            v = E15ET_val(m.group(1))
+            ok = v is not None and re.search(r"\.\d", m.group(1)) is None and sp.simplify(v - area) == 0
+        else:
+            parts = t.removeprefix("So ").removesuffix(" cm").split(" = ")
+            head = parts[0]
+            want = {"Area": area, "AB²": c2, "AB": sp.sqrt(c2)}.get(head)
+            if want is None:
+                want = E15ET_val(head)
+                need(want is not None and re.fullmatch(r"(sin|cos) \d+°", head), f"can't judge the line {t!r}")
+            vals = [E15ET_val(p) for p in parts[1:]]
+            need(vals and all(v is not None for v in vals), f"can't judge the line {t!r}")
+            ok = all(sp.simplify(v - want) == 0 for v in vals)
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["exact-triangle"] = E15ET_check
+SPOT_CHECKS["exact-triangle"] = E15ET_spot
+
+# ── end exact-triangle ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):
