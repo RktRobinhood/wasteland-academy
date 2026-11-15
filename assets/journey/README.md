@@ -18,6 +18,10 @@ Each character or object is one atlas (`<name>.webp`, lossy WebP with alpha) plu
   relative to the **feet point** (the ground contact, x centred). Draw a frame at `feet + (ox, oy)`, so every frame of
   a sheet stands on the same point and nothing jumps when frames swap.
 - `figure_height`: shipped px height of the idle frame. Scale a sheet by `display height / figure_height`.
+- `display_height` (optional): the sheet's height on the strip, in strip units. Without it the strip uses its own
+  table (the Learner is 92, the enemies by tier, below).
+- `stride` (optional, party sheets): ground per walk frame as a fraction of `figure_height`, for a walk whose stride
+  isn't the Learner's 36 / 880 (Parallax, below).
 - `anims`: `{name: {frames: [frame index, ...], fps, loop}}`.
 - `facing`: the party faces `right`, enemies face `left`, objects `none`.
 - `stages` (bosses only): one entry per boss stage, `{idle, attack}`, naming the anims to play in that stage.
@@ -40,7 +44,9 @@ weapon clears the road in these frames (lowest pixel 8 px or more above the feet
 crossfaded). `scroll` is the layer's speed as a fraction of the ground speed. `far` is opaque (sky and skyline),
 `mid` and `near` have alpha. `near.feet_y` is the row of `near` the characters stand on. The ground speed that matches
 the walk cycle with no foot slide: the planted boot moves 36 px per walk frame on an 880 px figure, so
-`speed = 36 / 880 × display figure height × walk fps` (30 px/s for a 92 px Learner at 8 fps).
+`speed = 36 / 880 × display figure height × walk fps` (30 px/s for a 92 px Learner at 8 fps). An avatar with a
+different stride sets `stride` in place of 36 / 880: the dog's is `0.08` (16 px per frame on its 203 px figure,
+measured from where its paws touch down in `walk1` to `walk4`), so at 48 px and 8 fps it walks at 30.7 px/s.
 
 **Calm rule.** While a question is open, play only idle loops (code breathing, scale 1 to 1.02 over 2.4 s). The beat
 plays after the answer. Hits use at most one 80 ms white flash, so never more than 3 flashes a second. With reduced
@@ -117,13 +123,13 @@ move. Their dialogue portraits are in `assets/portraits/` (see its README).
 | `cast/noma.webp` + `noma.json` | idle 74×220, talk 74×220 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 14,582 |
 | `encounters/cell/backdrop.webp` | opaque 864×256 | static | strip origin (0, 0) | 25,926 |
 | `encounters/cell/bars.webp` + `.json` | shut 864×256, loose 864×256, open 864×256 | shut/loose/open, one frame each (1, once) | feet point | 360,974 |
-| `encounters/cell/guard.webp` + `.json` | idle 106×248, talk 106×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 15,540 |
-| `encounters/st-coffee-cart.webp` + `.json` | idle 203×248, talk 203×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 24,468 |
-| `encounters/st-hush-water.webp` + `.json` | idle 174×248, talk 174×248, bust 174×248 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 30,292 |
-| `encounters/st-live-wires.webp` + `.json` | idle 316×248, talk 316×248, bust 316×248 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 47,693 |
-| `encounters/st-mast-climber.webp` + `.json` | idle 144×248, talk 144×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 27,899 |
-| `encounters/st-numbers-station.webp` + `.json` | idle 199×248, talk 199×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 22,476 |
-| `encounters/st-permit-booth.webp` + `.json` | idle 173×248, talk 173×248, bust 173×248 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 25,456 |
+| `encounters/cell/guard.webp` + `.json` | idle 110×252, talk 110×252 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 13,000 |
+| `encounters/st-coffee-cart.webp` + `.json` | idle 207×254, talk 207×254 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 29,186 |
+| `encounters/st-hush-water.webp` + `.json` | idle 177×251, talk 177×251, bust 177×251 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 31,160 |
+| `encounters/st-live-wires.webp` + `.json` | idle 272×252, talk 272×252, bust 272×252 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 46,972 |
+| `encounters/st-mast-climber.webp` + `.json` | idle 141×252, talk 141×252 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 14,358 |
+| `encounters/st-numbers-station.webp` + `.json` | idle 194×251, talk 194×251 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 24,890 |
+| `encounters/st-permit-booth.webp` + `.json` | idle 177×251, talk 177×251, bust 177×251 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 28,240 |
 | `enemies/d1-scavenger.webp` + `d1-scavenger.json` | idle 143×230, step-a 161×225, step-b 144×229, step-c 155×228, attack 212×229, hurt 126×222, defeated 161×223 | idle [idle] (1), walk [step-a, step-b, step-c, idle] (8), attack [attack] (1, once), hurt [hurt] (1, once), defeated [defeated] (1, once) | feet point | 113,653 |
 | `enemies/d2-raider.webp` + `d2-raider.json` | idle 130×244, step-a 141×241, step-b 131×245, step-c 131×242, attack 276×251, hurt 151×221, defeated 228×182 | idle [idle] (1), walk [step-a, step-b, step-c, idle] (8), attack [attack] (1, once), hurt [hurt] (1, once), defeated [defeated] (1, once) | feet point | 105,533 |
 | `enemies/d3-enforcer.webp` + `d3-enforcer.json` | idle 174×240, step-a 180×238, step-b 174×239, step-c 176×239, attack 178×273, hurt 221×229, s2 174×239, s2-attack 166×223, defeated 198×210 | idle [idle] (1), walk [step-a, step-b, step-c, idle] (8), attack [attack] (1, once), hurt [hurt] (1, once), defeated [defeated] (1, once), s2-idle [s2] (1), s2-attack [s2-attack] (1, once) | feet point | 151,218 |
@@ -182,7 +188,7 @@ FAL-360 added the four recurring dialogue characters (`cast/`) and their portrai
 canon roster, plus a new design for B0-LT (an angular factory frame with an amber monitor and a crown tag). 30 local
 renders in five rounds. Method and rounds are on FAL-360.
 
-FAL-943 added Nugget Bullant, the cyber-dog (the third pick, FAL-939; look from `writing/voice-sheets.md`): `party/learner-dog`, so `JourneyLink`'s `"learner-" + id` finds it for the save avatar `dog`. It has the Learners' anim names, so the strip plays it with no new beat code, but a dog's poses: `attack` is a lunging bite, `work` [work, work-b] digs with the front paws, `heave` leans back with the jaws clamped on the handle. It has **no `hand` slot**, so the strip draws no weapon on it (`_draw_sprite` already skips the weapon on a frame without `hand`). The walk is 4 frames, not 6. **Display height:** draw it at **48 px** (the Learner is 92); today every avatar is drawn at `LEARNER_H`, so the dog needs a per-sheet height in `_disp_h` before it ships (Coder). The poses are centred on the idle's body (`align: bbox`), not its feet, so the bite lunges in place and code does the lunge. Idle anchor from text-to-image with the male Learner's side frame as the style reference, then reference-locked edits; 42 local renders in four rounds. The avatar is `assets/avatars/avatar-dog.png` and the floating Spark companion is `assets/avatars/spark-companion.png` (128×128, the same Spark with a small hover glow). Method and rounds are on FAL-943.
+FAL-943 added Nugget Bullant, the cyber-dog (the third pick, FAL-939; look from `writing/voice-sheets.md`): `party/learner-dog`, so `JourneyLink`'s `"learner-" + id` finds it for the save avatar `dog`. It has the Learners' anim names, so the strip plays it with no new beat code, but a dog's poses: `attack` is a lunging bite, `work` [work, work-b] digs with the front paws, `heave` leans back with the jaws clamped on the handle. It has **no `hand` slot**, so the strip draws no weapon on it (`_draw_sprite` already skips the weapon on a frame without `hand`). The walk is 4 frames, not 6. **Display height:** **48 px** (the Learner is 92), set by `display_height` in its JSON, with its own `stride` (FAL-960). The poses are centred on the idle's body (`align: bbox`), not its feet, so the bite lunges in place and code does the lunge. Idle anchor from text-to-image with the male Learner's side frame as the style reference, then reference-locked edits; 42 local renders in four rounds. The avatar is `assets/avatars/avatar-dog.png` and the floating Spark companion is `assets/avatars/spark-companion.png` (128×128, the same Spark with a small hover glow). Method and rounds are on FAL-943.
 
 ## The look from FAL-792 (approved 2026-11-12)
 
@@ -194,3 +200,16 @@ batch lands, that sheet is still in the painted style.
 - Batch 1, FAL-827: Bodge, the Bazaar store owner, in `game/assets/bazaar/shopkeeper.png` and
   `shopkeeper-idle.png` (not a journey sheet). The files are the ones Studio Manager accepted on FAL-794, copied
   unchanged: 512×512 RGBA, one alpha island, and the idle frame changes only the loupe eye (1778 px, alpha identical).
+- Batch 2, FAL-951 (restart of FAL-828): the six Signal Tower encounters (`st-coffee-cart`, `st-hush-water`,
+  `st-live-wires`, `st-mast-climber`, `st-numbers-station`, `st-permit-booth`) and the Cell guard
+  (`encounters/cell/guard`), every frame. `cell/backdrop` and `cell/bars` are scenery and keep the painted finish.
+  Each idle is the old idle redrawn in the new look; talk and bust are the new idle with only the moving arm redrawn,
+  so everything outside the arm is the same pixels in every frame of a sheet. Frame ids, anims and the feet-point
+  convention are unchanged; only `x`, `w`, `h`, `ox`, `oy` were re-measured (heights 248 → 251-254 px). Live-wires
+  is 272 px wide instead of 316 because the old painted ground patch is gone; a short inked cable from his boot to
+  the junction box keeps the frame one piece. The coffee seller's apron is one solid brown.
+  After the audit: the live-wires box is a square-cornered dark rust iron cabinet again, with its inked access
+  panel and a flat yellow/white spark star on the side facing him (only the box was re-rendered; the man, cable and
+  arms are the same pixels). The mast-climber's mast is drawn on the CPU behind the rendered climber, at the old
+  mast's width and positions: a slim pole and back rail in one steel grey with one shadow tone, and the boxes,
+  panels and cable runs as closed, filled, inked shapes.

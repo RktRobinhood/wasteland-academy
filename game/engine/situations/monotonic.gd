@@ -13,6 +13,11 @@ extends RefCounted
 ##   gdc     f′(x) = a + bx − c e^x, with r1 < r2 its zeros (floats)
 ##   param   k bound m = 3n: f(x) = ±x³ + kx² ± 3n²x + d, increasing or decreasing everywhere
 ##   shift   g′(x) = a(x − h)² + k − e, with a > 0
+##   quotient  f(x) = (ax + b)/(cx + d), c 1 or 2, so f′(x) = D/(cx + d)² with D = ad − bc ≠ 0;
+##           want is "increasing" when D > 0. 0 and 1 are in the domain (d ≠ 0, c + d ≠ 0)
+##
+## paper is need.paper (1 by default): no unknown's numbers change with it, and the GDC ones are
+## Paper 2 by their method.
 
 const TRIES := 800
 
@@ -66,6 +71,8 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 			s.a = rng.int_in(1, 4)
 			s.h = rng.int_in(-5, 5)
 			s.k = ExtensionViews.nonzero(rng, -9, 9)
+		"quotient-sign":
+			s = _quotient(rng)
 	if s.is_empty():
 		return {}
 	s.ask = ask
@@ -76,6 +83,20 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		s.x1 = s.p - rng.int_in(1, 2)
 		s.x2 = rng.pick([mid, s.q, s.q + 1])
 	return s
+
+
+static func _quotient(rng: Seeded) -> Dictionary:
+	for i in TRIES:
+		var c: int = rng.pick([1, 1, 2])
+		var a := ExtensionViews.nonzero(rng, -4, 4)
+		var b := ExtensionViews.nonzero(rng, -9, 9)
+		var d := ExtensionViews.nonzero(rng, -5, 5)
+		var D := a * d - b * c
+		# D = 0 is a line with a hole. An even d over 2x would cancel a 2 from the bottom.
+		if D == 0 or c + d == 0 or (c == 2 and d % 2 == 0):
+			continue
+		return {"fam": "quotient", "a": a, "b": b, "c": c, "d": d, "D": D, "want": "increasing" if D > 0 else "decreasing"}
+	return {}
 
 
 static func _gdc(rng: Seeded) -> Dictionary:

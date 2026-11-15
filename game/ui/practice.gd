@@ -487,10 +487,10 @@ func _add_graph_options() -> void:
 		g.mouse_filter = Control.MOUSE_FILTER_STOP
 		g.set_spec(question.graphs[i])
 		var b := Button.new()
-		b.text = question.choices[i].text
 		b.toggle_mode = true
 		b.button_group = group
 		b.add_theme_font_size_override("font_size", UiTheme.BODY)
+		UiTheme.math_button(b, question.choices[i].text)
 		b.pressed.connect(func(): _choice = i)
 		g.gui_input.connect(func(e: InputEvent):
 			if _tapped(e) and not b.disabled:
@@ -718,7 +718,7 @@ func autoplay(right: bool) -> void:
 			for id in _picks:
 				_picks[id] = values[id]
 				for b in _pick_buttons[id]:
-					b.button_pressed = b.text == values[id]
+					b.button_pressed = UiTheme.button_text(b) == values[id]
 		_:
 			var pick := -1
 			var items: Array = question.choices if question.format != "probe" else question.options
