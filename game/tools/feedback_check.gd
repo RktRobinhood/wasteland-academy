@@ -14,6 +14,14 @@ extends SceneTree
 ##             look at an untagged option's size: it only confirms that the option is wrong.
 ##   stop      two full stops in a row, in anything the student reads, the "The answer is"
 ##             line included: an answer can be a sentence of its own. Enforced on every type.
+##   blank     a wrong option with no line that isn't a declared filler (FAL-815): a view's
+##             `wrongs` entry with no ref, or one from its `generic` list. Every wrong option
+##             is a slip, with a misconception and its line, or a filler, in the view's
+##             `fillers` (the key scaled or nudged, a number with no route to it). A
+##             rounding trap shows Answer.TRAP_NOTE; the engine's last-resort nudges are
+##             fillers. A type on UNSORTED, whose `generic` options haven't been sorted
+##             yet, has its blanks only counted, and fails once it has none (sorted: take
+##             it off the list). A new type never joins the list.
 ##   method    the question names a method ("Method: ..."), and its worked solution isn't that
 ##             method's: the named method has no tab or isn't the first, or a tab sets the named
 ##             method aside ("does not suit that method", "this method fails") (FAL-814). A
@@ -22,6 +30,8 @@ extends SceneTree
 ##
 ## It can't judge whether a tag matches its option, so --rows=/abs/file.tsv also writes one
 ## row per type, unknown, representation and tag (stem, picked option, feedback) to read.
+## --blanks=/abs/file.tsv writes one row per blank (type, unknown, where it came from),
+## with how often it was shown and a first example: the list to sort into slips and fillers.
 ##
 ## Every built type is enforced, from its first commit. A type on REPORT_ONLY has its
 ## failures only counted. The list is empty, and a type shouldn't join it.
@@ -30,11 +40,38 @@ extends SceneTree
 ## Faults are counted once per type, tag and number, however many questions show them.
 ##
 ##   godot --headless --path game --script res://tools/feedback_check.gd -- \
-##       [--seeds=12] [--types=id,id] [--rows=/abs/file.tsv] [--all]
+##       [--seeds=12] [--types=id,id] [--rows=/abs/file.tsv] [--blanks=/abs/file.tsv] [--all]
 ##
 ## --all enforces the report-only types too.
 
 const REPORT_ONLY := []
+
+## Types whose views still offer `generic` or untagged `wrongs` options (FAL-815): each
+## is sorted into slips and `fillers`, then leaves the list. Nothing joins it.
+const UNSORTED := [
+	"fn-concept-function-notation", "fn-concept-growth-patterns", "fn-curve-intersection-quadratic",
+	"fn-domain-range", "fn-evaluate-function", "fn-exponential-model", "fn-ext-inequality-graphical",
+	"fn-ext-intersection-lines", "fn-ext-line-model", "fn-ext-quadratic-model",
+	"fn-ext-rational-model", "fn-ext-transformed-reciprocal", "fn-gdc-features",
+	"fn-graph-table-composite-inverse", "fn-inverse-algebraic", "fn-inverse-reflection",
+	"fn-link-extremes", "fn-link-multiplicative-growth", "fn-link-rate-of-change",
+	"fn-link-transformations", "fn-link-vectors", "fn-log-function-features",
+	"fn-pre-algebraic-fractions", "fn-pre-expand", "fn-pre-factorise", "fn-pre-graph-reading",
+	"fn-pre-linear-equations", "fn-pre-linear-inequalities", "fn-pre-simultaneous", "fn-pre-surds",
+	"fn-rational-asymptotes-intercepts", "fn-rational-sketch", "fn-sketch-from-features",
+	"fn-sketch-gdc", "fn-solve-quadratic", "t1-ahl-counting", "t1-algebraic-proof",
+	"t1-arithmetic-sequence", "t1-binomial-term", "t1-compound-interest", "t1-depreciation",
+	"t1-geometric-sequence", "t1-log-exp-form", "t1-solve-exponential", "t1-sum-to-infinity",
+	"t3-distance-midpoint", "t3-identity-values", "t3-solid-volume-area", "t3-trig-model-parameters",
+	"t3-trig-model-use", "t3-trig-quadratic", "t3-trig-read-features", "t4-binomial", "t4-box-plot",
+	"t4-cumulative-frequency", "t4-discrete-distribution", "t4-expected-occurrences",
+	"t4-expected-value", "t4-independence", "t4-inverse-normal", "t4-normal-probability",
+	"t4-normal-properties", "t4-outlier-rule", "t4-probability-basic", "t4-regression-gdc",
+	"t4-sample-space", "t4-summary-statistics", "t4-tree-diagram", "t5-antiderivative-condition",
+	"t5-area-between-curves", "t5-concavity", "t5-definite-integral-area", "t5-derivative-graph",
+	"t5-differentiation-rules", "t5-increasing-decreasing", "t5-kinematics-distance",
+	"t5-normal-meets-curve", "t5-optimisation-modelling"
+]
 
 ## Two full stops, but not an ellipsis.
 const DOUBLE_STOP := "(?<!\\.)\\.\\.(?!\\.)"
@@ -65,6 +102,9 @@ const WILD := 1e9
 var faults := {}  ## "type|fault|ref|token" -> {"type", "fault", "ref", "token", "text", "n", "first"}
 var rows := {}  ## "type|unknown|rep|ref" -> row
 var tag_counts := {}  ## type -> {ref: true}
+var shares := {}  ## type -> {"wrong": n, "blank": n, <src>: n blank from it}
+var unsorted_seen := {}  ## type -> true, an UNSORTED type that showed an unsorted blank
+var blank_rows := {}  ## "type|unknown|src|gi" -> first example and a count
 
 
 func _initialize() -> void:
@@ -72,7 +112,7 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var args := {"seeds": "12", "types": "", "rows": ""}
+	var args := {"seeds": "12", "types": "", "rows": "", "blanks": ""}
 	var enforce_all := false
 	for a in OS.get_cmdline_user_args():
 		if a == "--all":
@@ -108,6 +148,12 @@ func _run() -> void:
 					_check(q)
 	if args.rows != "":
 		_write_rows(args.rows)
+	if args.blanks != "":
+		_write_blanks(args.blanks)
+	for id in UNSORTED:
+		if (only.is_empty() or id in only) and id in QuestionEngine.built_types() and not unsorted_seen.has(id):
+			_fault(id, "sorted", "", "", "no unsorted blanks: take it off UNSORTED", {})
+	_print_shares()
 	var failed := _report(enforce_all)
 	print("FEEDBACK %d questions, %d enforced failures" % [n, failed])
 	quit(1 if failed > 0 else 0)
@@ -126,6 +172,8 @@ func _check(q: Dictionary) -> void:
 	for c in q.choices:
 		if not c.correct and _size(c.values) >= WILD and _size(q.answer.values) < WILD:
 			_fault(t.id, "overflow", "", c.text, "", q)
+		if not c.correct and c.has("src"):
+			_blank(t.id, q, c)
 		if c.correct or c.get("ref", "") == "" or seen.has(c.ref):
 			continue
 		seen[c.ref] = true
@@ -141,6 +189,47 @@ func _check(q: Dictionary) -> void:
 			continue
 		for token in strange_numbers(why, _seen_text(q)):
 			_fault(t.id, "numbers", c.ref, token, why, q)
+
+
+## Counts a multiple-choice wrong option for the shares, and fails a blank that isn't a
+## declared filler (FAL-815). A blank shows no "Watch out" line and no note.
+func _blank(id: String, q: Dictionary, c: Dictionary) -> void:
+	var row: Dictionary = shares.get_or_add(id, {"wrong": 0, "blank": 0})
+	row.wrong += 1
+	var t := QuestionEngine.type_of(id)
+	if QuestionEngine.misconception_text(t, c.ref) != "" or c.get("note", "") != "":
+		return
+	row.blank += 1
+	row[c.src] = row.get(c.src, 0) + 1
+	var key := "%s|%s|%s|%d" % [id, q.view.unknown, c.src, c.get("gi", -1)]
+	if not blank_rows.has(key):
+		blank_rows[key] = {"type": id, "unknown": q.view.unknown, "src": c.src, "gi": c.get("gi", -1), "option": c.text,
+			"answer": q.answer_text, "stem": _stem(q), "cell": q.cell, "seed": q.view.seed, "n": 0}
+	blank_rows[key].n += 1
+	if not (c.src == "generic" or (c.src == "wrongs" and c.ref == "")):
+		return
+	if id in UNSORTED:
+		unsorted_seen[id] = true
+		return
+	var at := "%s %s" % [q.view.unknown, "generic[%d]" % c.gi if c.src == "generic" else "wrongs"]
+	_fault(id, "blank", at, "", "%s (answer %s): a slip needs a misconception, a filler belongs in `fillers`" % [c.text, q.answer_text], q)
+
+
+## Wrong options with no line, per type and over all: the share a student who picks one
+## gets no help from.
+func _print_shares() -> void:
+	var all := {"wrong": 0, "blank": 0}
+	var ids := shares.keys()
+	ids.sort()
+	for id in ids:
+		for k in shares[id]:
+			all[k] = all.get(k, 0) + shares[id][k]
+	var by: Array = []
+	for k in ["fillers", "nudge", "generic", "wrongs", "trap"]:
+		if all.has(k):
+			by.append("%s %d" % [k, all[k]])
+	print("BLANK %d of %d multiple-choice wrong options have no line (%.1f%%): %s" % [all.blank, all.wrong,
+		100.0 * all.blank / maxi(1, all.wrong), ", ".join(by)])
 
 
 ## The named method's working: it is the first tab, and no tab sets the method aside.
@@ -282,7 +371,7 @@ func _report(enforce_all: bool) -> int:
 		var f: Dictionary = faults[key]
 		if not enforce_all and f.type in REPORT_ONLY and not f.fault in ["stop", "method"]:
 			var row: Dictionary = counted.get_or_add(f.type, {"numbers": 0, "claim": 0, "no text": 0, "overflow": 0})
-			row[f.fault] += 1
+			row[f.fault] = row.get(f.fault, 0) + 1
 			continue
 		enforced += 1
 		print("FAIL %s: %s %s%s x%d: %s%s" % [f.type, f.fault, f.ref, " [%s]" % f.token if f.token != "" else "", f.n, f.text,
@@ -292,6 +381,21 @@ func _report(enforce_all: bool) -> int:
 	for id in ids:
 		print("REPORT %s: numbers %d, claim %d, no text %d, overflow %d" % [id, counted[id].numbers, counted[id].claim, counted[id]["no text"], counted[id].overflow])
 	return enforced
+
+
+func _write_blanks(path: String) -> void:
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	if f == null:
+		printerr("feedback_check: can't write %s" % path)
+		return
+	f.store_line("\t".join(["type", "unknown", "src", "gi", "n", "option", "answer", "stem", "cell", "seed"]))
+	var keys := blank_rows.keys()
+	keys.sort()
+	for key in keys:
+		var r: Dictionary = blank_rows[key]
+		f.store_line("\t".join([r.type, r.unknown, r.src, r.gi, r.n, r.option, r.answer, r.stem, r.cell, r.seed].map(func(x): return str(x).replace("\t", " ").replace("\n", " / "))))
+	f.close()
+	print("FEEDBACK %d blank rows -> %s" % [keys.size(), path])
 
 
 func _write_rows(path: String) -> void:

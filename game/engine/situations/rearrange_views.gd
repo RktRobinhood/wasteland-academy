@@ -13,6 +13,9 @@ const R_TERM_BY_TERM := T + "#1"
 const R_ONE_SIDE := T + "#2"
 const R_BOTH_SIDES := T + "#3"
 const R_NO_PM := T + "#4"
+const R_SIGN_KEPT := T + "#5"
+const R_TIMES := T + "#6"
+const R_DIV_FLIP := T + "#7"
 
 
 ## Methods that don't change the subject, for a method-pick question's wrong options.
@@ -47,8 +50,11 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 
 # ── Helpers ──────────────────────────────────────────────────
 
+## InverseRuleViews.choose, with its untagged options as this file's fillers (read
+## defensively: that file may call them `fillers` or still `generic`).
 static func pick(right: String, bad: Array, plain: Array) -> Dictionary:
-	return InverseRuleViews.choose(right, bad, plain)
+	var c := InverseRuleViews.choose(right, bad, plain)
+	return {"answer": c.answer, "wrongs": c.wrongs, "fillers": c.get("fillers", []) + c.get("generic", [])}
 
 
 static func tag(text: String, ref: String) -> Dictionary:
@@ -66,8 +72,13 @@ func u_one_step(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right: String = f[2]
 	var subject: String = f[1]
 	var plain := _one_step_wrongs(s.i)
+	# The first: the step kept, not undone (a sign kept for a sum, a product for a product);
+	# the second, for a product: the division the wrong way up.
+	var bad: Array = [tag(plain[0], R_SIGN_KEPT if "+" in f[0] else R_TIMES)]
+	if not "+" in f[0]:
+		bad.append(tag(plain[1], R_DIV_FLIP))
 	var out := {"asked": "Make %s the subject of the formula." % subject, "lines": [f[0]] if rep == "equation" else [f[3]]}
-	out.merge(pick(right, [], plain))
+	out.merge(pick(right, bad, plain.slice(bad.size())))
 	var steps := ["In %s, %s is %s" % [f[0], subject, "added to something" if "+" in f[0] else "multiplied by something"],
 		"Undo that on both sides: %s" % ("subtract" if "+" in f[0] else "divide"), "So %s." % right]
 	out.methods = {"inverse-operations": method(steps, {"v": right})}
@@ -96,8 +107,8 @@ func u_two_step(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b: int = s.b
 	var right := RearrangeSituation.solved_text("two", s)
 	var order := "x = %s" % ("y/%s%s" % [Fmt.num(a), Fmt.plus(-b)] if a > 0 else "−y/%s%s" % [Fmt.num(-a), Fmt.plus(-b)])
-	var wrongs := [tag(order, R_ORDER)]
-	var plain := ["x = %s" % RearrangeSituation._over(Fmt.poly([1, b]).replace("x", "y"), a), "x = %s" % RearrangeSituation._over(Fmt.poly([1, -b]).replace("x", "y"), -a),
+	var wrongs := [tag(order, R_ORDER), tag("x = %s" % RearrangeSituation._over(Fmt.poly([1, b]).replace("x", "y"), a), R_SIGN_KEPT)]
+	var plain := ["x = %s" % RearrangeSituation._over(Fmt.poly([1, -b]).replace("x", "y"), -a),
 		"x = %s(y%s)" % [Fmt.lead(a), Fmt.plus(-b)], "x = y%s" % Fmt.plus(-b)]
 	var out := {"asked": "Make x the subject of the formula."}
 	if rep == "words":
@@ -135,12 +146,13 @@ func u_power_or_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.kind == "sq":
 		right = "x = ±√(%s)" % under
 		var r := int(round(sqrt(absf(c))))
-		bad = [tag("x = √y%s" % Fmt.plus(-r if c > 0 else r), R_TERM_BY_TERM), tag("x = √(%s)" % under, R_NO_PM)]
-		plain = ["x = ±√(y%s)" % Fmt.plus(c), "x = ±(y%s)" % Fmt.plus(-c), "x = ±√y%s" % Fmt.plus(-c)]
+		bad = [tag("x = √y%s" % Fmt.plus(-r if c > 0 else r), R_TERM_BY_TERM), tag("x = √(%s)" % under, R_NO_PM), tag("x = ±√(y%s)" % Fmt.plus(c), R_SIGN_KEPT)]
+		plain = ["x = ±(y%s)" % Fmt.plus(-c), "x = ±√y%s" % Fmt.plus(-c)]
 		out.lines = ["y = x²%s" % Fmt.plus(c)] if rep == "equation" else ["y is x squared%s." % (" plus %d" % c if c > 0 else " minus %d" % -c)]
 	else:
 		right = "x = y²%s" % Fmt.plus(-c)
-		plain = ["x = y²%s" % Fmt.plus(c), "x = ±y²%s" % Fmt.plus(-c), "x = √y%s" % Fmt.plus(-c), "x = (y%s)²" % Fmt.plus(c)]
+		bad = [tag("x = y²%s" % Fmt.plus(c), R_SIGN_KEPT)]
+		plain = ["x = ±y²%s" % Fmt.plus(-c), "x = √y%s" % Fmt.plus(-c), "x = (y%s)²" % Fmt.plus(c)]
 		out.lines = ["y = √(%s)" % Fmt.poly([1, c])] if rep == "equation" else ["y is the square root of x%s." % (" plus %d" % c if c > 0 else " minus %d" % -c)]
 	out.merge(pick(right, bad, plain))
 	var steps: Array
@@ -158,8 +170,8 @@ func u_subject_in_denominator(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var a: int = s.a
 	var b: int = s.b
 	var right := RearrangeSituation.solved_text("denom", s)
-	var wrongs := [tag("x = y/%s%s" % [N(a), Fmt.plus(b)] if a > 0 else "x = −y/%s%s" % [N(-a), Fmt.plus(b)], R_ONE_SIDE)]
-	var plain := ["x = %s/y%s" % [N(a), Fmt.plus(-b)], "x = y/%s%s" % [N(a), Fmt.plus(-b)], "x = %s%s" % [N(a), Fmt.plus(b)], "x = %sy%s" % [Fmt.lead(a), Fmt.plus(b)]]
+	var wrongs := [tag("x = y/%s%s" % [N(a), Fmt.plus(b)] if a > 0 else "x = −y/%s%s" % [N(-a), Fmt.plus(b)], R_ONE_SIDE), tag("x = %s/y%s" % [N(a), Fmt.plus(-b)], R_SIGN_KEPT)]
+	var plain := ["x = y/%s%s" % [N(a), Fmt.plus(-b)], "x = %s%s" % [N(a), Fmt.plus(b)], "x = %sy%s" % [Fmt.lead(a), Fmt.plus(b)]]
 	var out := {"asked": "Make x the subject of the formula.", "lines": ["y = %s/(%s)" % [N(a), Fmt.poly([1, -b])]]}
 	out.merge(pick(right, wrongs, plain))
 	var final := "So %s." % right
@@ -181,14 +193,15 @@ func u_subject_twice(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c: int = s.c
 	var d: int = s.d
 	var right := RearrangeSituation.solved_text("twice", s)
-	var plain := ["x = %s" % InverseRuleSituation.frac(Fmt.poly([d, b]).replace("x", "y"), Fmt.poly([-c, a]).replace("x", "y")),
-		"x = %s" % InverseRuleSituation.frac(Fmt.poly([d, -b]).replace("x", "y"), Fmt.poly([c, a]).replace("x", "y")),
-		"x = %s" % InverseRuleSituation.frac(Fmt.poly([a, -b]).replace("x", "y"), Fmt.poly([-c, d]).replace("x", "y")),
+	# A term moved across with its sign kept: b, or the cxy term.
+	var bad := [tag("x = %s" % InverseRuleSituation.frac(Fmt.poly([d, b]).replace("x", "y"), Fmt.poly([-c, a]).replace("x", "y")), R_SIGN_KEPT),
+		tag("x = %s" % InverseRuleSituation.frac(Fmt.poly([d, -b]).replace("x", "y"), Fmt.poly([c, a]).replace("x", "y")), R_SIGN_KEPT)]
+	var plain := ["x = %s" % InverseRuleSituation.frac(Fmt.poly([a, -b]).replace("x", "y"), Fmt.poly([-c, d]).replace("x", "y")),
 		"x = %s" % InverseRuleSituation.frac(Fmt.poly([d, -b]).replace("x", "y"), Fmt.poly([c, -a]).replace("x", "y")),
 		"x = %s" % InverseRuleSituation.frac(Fmt.poly([d, -b - 1]).replace("x", "y"), Fmt.poly([-c, a]).replace("x", "y")),
 		"x = %s" % InverseRuleSituation.frac(Fmt.poly([-d, b]).replace("x", "y"), Fmt.poly([-c, a + 1]).replace("x", "y"))]
 	var out := {"asked": "Make x the subject of the formula.", "lines": ["y = %s" % InverseRuleSituation.frac(Fmt.poly([a, b]), Fmt.poly([c, d]))]}
-	out.merge(pick(right, [], plain))
+	out.merge(pick(right, bad, plain))
 	var x2 := 2 if c * 2 + d != 0 else 3
 	var cross := "y(%s) = %s" % [Fmt.poly([c, d]), Fmt.poly([a, b])]
 	var expanded := "%s%s = %s" % [Fmt.poly([c, 0]).replace("x", "yx"), _y_term(d), Fmt.poly([a, b])]
@@ -218,10 +231,12 @@ func u_subject_twice_linear(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var p: int = s.p
 	var n: int = s.n
 	var right := "x = (m%s)/(k%s)" % [Fmt.plus(-p), Fmt.plus(-n)]
-	var plain := ["x = (m%s)/(k%s)" % [Fmt.plus(p), Fmt.plus(-n)], "x = (m%s)/(k%s)" % [Fmt.plus(-p), Fmt.plus(n)], "x = (m%s)/(k%s)" % [Fmt.plus(-p), Fmt.plus(-n - 1)],
+	# p, or nx, moved across with its sign kept.
+	var bad := [tag("x = (m%s)/(k%s)" % [Fmt.plus(p), Fmt.plus(-n)], R_SIGN_KEPT), tag("x = (m%s)/(k%s)" % [Fmt.plus(-p), Fmt.plus(n)], R_SIGN_KEPT)]
+	var plain := ["x = (m%s)/(k%s)" % [Fmt.plus(-p), Fmt.plus(-n - 1)],
 		"x = (m%s)/(%d − k)" % [Fmt.plus(p), n], "x = (k%s)/(m%s)" % [Fmt.plus(-n), Fmt.plus(-p)]]
 	var out := {"asked": "Make x the subject of the formula.", "lines": ["kx%s = %dx + m" % [Fmt.plus(p), n]]}
-	out.merge(pick(right, [], plain))
+	out.merge(pick(right, bad, plain))
 	var final := "So %s." % right
 	var step_collect := "Get the x terms on the left and the others on the right: kx − %dx = m%s" % [n, Fmt.plus(-p)]
 	out.methods = {

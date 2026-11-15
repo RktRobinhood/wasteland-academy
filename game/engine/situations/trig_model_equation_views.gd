@@ -23,6 +23,13 @@ const R_EVERY_CYCLE := "SL3.8.graphical#9"
 const R_OTHER_EXTREME := "SL3.8.graphical#10"
 const R_STOP_AT_ONE := "SL3.8.solve-basic#0"
 const R_COS_LIKE_SIN := "SL3.8.solve-basic#1"
+## The slips FAL-815 named, misconceptions with no ref of their own.
+const R_SIGN_DROPPED := "t3-trig-model-equation#16"
+const R_CROSSING_TIME := "t3-trig-model-equation#17"
+const R_BEFORE_WINDOW := "t3-trig-model-equation#18"
+const R_K_ENDS := "t3-trig-model-equation#19"
+const R_K_INSIDE := "t3-trig-model-equation#20"
+const R_P_IS_K := "t3-trig-model-equation#21"
 
 const M_GDC := "gdc-intersect"
 const M_SKETCH := "sketch-and-count"
@@ -154,7 +161,8 @@ func u_exact_times_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var flipped := s.duplicate()
 	flipped.ratio = s.ratio.neg()
 	var half: Q = s.period.div(2)
-	out.generic = [exact_xs(exact_ts(flipped, exact_us(flipped), L_)), exact_xs(ts.map(func(t): return t.add(half))), exact_xs(ts.map(func(t): return t.add(1))), exact_xs(ts + [ts[ts.size() - 1].add(s.period)])]
+	out.wrongs.append(wrong(exact_xs(exact_ts(flipped, exact_us(flipped), L_)), R_SIGN_DROPPED))
+	out.fillers = [exact_xs(ts.map(func(t): return t.add(half))), exact_xs(ts.map(func(t): return t.add(1))), exact_xs(ts + [ts[ts.size() - 1].add(s.period)])]
 	var last := "The times in 0 ≤ t ≤ %s are %s." % [D(L_), Answer.xs_list(ts.map(func(t): return D(t)))]
 	var near := exact_near(s)
 	out.methods = {M_CAST: method(exact_cast(s) + [last, say(a)], a.values),
@@ -181,7 +189,8 @@ func u_time_at_least_exact(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	# Half of a stretch round a peak: at a trough the string's "peak" wouldn't be true.
 	if s.above and w.lt(s.period) and s.level.sub(s.d).sign() > 0:
 		out.wrongs.append(wrong({"v": w.div(2)}, R_ONE_SIDE))
-	out.generic = [{"v": t1}, {"v": t2}, {"v": s.period}, {"v": s.period.div(2)}, {"v": w.add(1)}, {"v": w.mul(2)}]
+	out.wrongs.append_array([wrong({"v": t1}, R_CROSSING_TIME), wrong({"v": t2}, R_CROSSING_TIME)])
+	out.fillers = [{"v": s.period}, {"v": s.period.div(2)}, {"v": w.add(1)}, {"v": w.mul(2)}]
 	var near := exact_near(s)
 	var round_it: Q = exact_h(s).mul(2)
 	var above_near: bool = near.word == "peak"
@@ -290,7 +299,8 @@ func u_times_in_window(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var deg := crossings(s, k, s.t_to, true).filter(func(x): return x > s.t_from)
 	if not deg.is_empty():
 		out.wrongs.append(wrong(like.call(deg), R_GDC_DEGREES))
-	out.generic = [like.call(all), like.call(xs.map(func(x): return x + 1.0)), like.call(xs.map(func(x): return x + s.T / 4.0)), like.call(xs + [xs[xs.size() - 1] + s.T])]
+	out.wrongs.append(wrong(like.call(all), R_BEFORE_WINDOW))
+	out.fillers = [like.call(xs.map(func(x): return x + 1.0)), like.call(xs.map(func(x): return x + s.T / 4.0)), like.call(xs + [xs[xs.size() - 1] + s.T])]
 	var found := "Intersect finds each one: t = %s." % list(xs)
 	out.methods = {M_GDC: method([gdc_line(s, s.level), "Set the window to %s: they cross %d times." % [window_text(s), xs.size()], found, say(a)], a.values),
 		M_SKETCH: method(["Sketch the model and the line over %s: they cross %d times, once going up and once going down in each cycle." % [window_text(s), xs.size()],
@@ -317,7 +327,7 @@ func set_view(rep: String, s: Dictionary) -> Dictionary:
 		var p: Array = ps[0]
 		out.wrongs.append(DifferentiationViews.alt(set_text([[p[0], (p[0] + p[1]) / 2.0]], s.L), R_ONE_SIDE))
 	var shift := func(dt: float) -> Array: return ps.map(func(p): return [p[0] + dt if p[0] > 0.0 else 0.0, minf(p[1] + dt, s.L)])
-	out.generic = [DifferentiationViews.alt(set_text(shift.call(1.0), s.L)).values, DifferentiationViews.alt(set_text(shift.call(s.T / 4.0), s.L)).values,
+	out.fillers = [DifferentiationViews.alt(set_text(shift.call(1.0), s.L)).values, DifferentiationViews.alt(set_text(shift.call(s.T / 4.0), s.L)).values,
 		DifferentiationViews.alt(set_text(shift.call(-0.5), s.L)).values, DifferentiationViews.alt(set_text(pieces(s, k + s.a.to_float() / 4.0, s.L, s.above), s.L)).values]
 	var xs := crossings(s, k, s.L)
 	var said := "The model is %s %s for %s." % [word, D(s.level), stretches_text(ps)]
@@ -374,7 +384,7 @@ func u_chance_above(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if d > 0.0:
 		out.wrongs.append(wrong(v_of(d / s.L), R_GDC_DEGREES))
 	out.wrongs = spun(out.wrongs, s)
-	out.generic = [v_of(p / 2.0), v_of(minf(p + 0.1, 0.95)), v_of(maxf(p - 0.1, 0.03)), v_of(0.5)]
+	out.fillers = [v_of(p / 2.0), v_of(minf(p + 0.1, 0.95)), v_of(maxf(p - 0.1, 0.03)), v_of(0.5)]
 	out.methods = span_methods(s, a, ps, ["The chance is the share of the span: %s ÷ %d = %s" % [GdcKit.W(tot), s.L, GdcKit.W(p)]])
 	return out
 
@@ -396,7 +406,7 @@ func u_time_past_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if d > 0.0:
 		out.wrongs.append(wrong(v_of(d), R_GDC_DEGREES))
 	out.wrongs = spun(out.wrongs, s)
-	out.generic = [v_of(tot / 2.0), v_of(tot + w), v_of(float(s.L)), v_of(tot + 1.0)]
+	out.fillers = [v_of(tot / 2.0), v_of(tot + w), v_of(float(s.L)), v_of(tot + 1.0)]
 	out.methods = span_methods(s, a, ps, [])
 	return out
 
@@ -626,7 +636,7 @@ func u_count_solutions(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var deg := count_k(s, k, true)
 		if deg != n:
 			out.wrongs.append(wrong({"v": Q.new(deg)}, R_GDC_DEGREES))
-	out.generic = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 1))}, {"v": Q.new(2 * n)}]
+	out.fillers = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 1))}, {"v": Q.new(2 * n)}]
 	var between := "%s < %s < %s, so the line crosses the wave." % [D(s.low), D(s.k), D(s.top)]
 	var extra: int = n - 2 * whole
 	var said := "Number of solutions = %d." % n
@@ -650,7 +660,7 @@ func u_count_at_extreme(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "titles": READ_TURNS, "asked": "Find the number of solutions of f(x) = %s." % D(s.k)}
 	out.wrongs = [wrong({"v": Q.new(2 * n)}, R_TOUCH_TWICE)]
 	out.wrongs.append(wrong({"v": Q.new(1)}, R_PART))
-	out.generic = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 2))}, {"v": Q.new(2 * n + 1)}, {"v": Q.new(0)}]
+	out.fillers = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 2))}, {"v": Q.new(2 * n + 1)}, {"v": Q.new(0)}]
 	var word := extreme_word(s, s.big)
 	var first := first_of(s, s.big)
 	var last := along(s, first, n - 1)
@@ -682,7 +692,9 @@ func u_k_exactly_n(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			to.r2 = "≤"
 		out.wrongs.append(wrong(to, R_TOUCH_END))
 	out.wrongs.append(wrong(range_vals(s.low, s.top), R_WHOLE_RANGE))
-	out.generic = [range_vals(s.k_lo, s.k_hi), range_vals(s.k_lo, s.k_hi, "<"), range_vals(s.low, s.top, "<"), range_vals(s.low, s.d), range_vals(s.d, s.top), range_vals(s.low, s.d, "<"), range_vals(s.d, s.top, "<")]
+	# The right ends with both included or both left out, as if no count at an end were needed.
+	out.wrongs.append_array([wrong(range_vals(s.k_lo, s.k_hi), R_K_ENDS), wrong(range_vals(s.k_lo, s.k_hi, "<"), R_K_ENDS)])
+	out.fillers = [range_vals(s.low, s.top, "<"), range_vals(s.low, s.d), range_vals(s.d, s.top), range_vals(s.low, s.d, "<"), range_vals(s.d, s.top, "<")]
 	var counts := bands_text(s)
 	var right := "So exactly %d solutions needs %s." % [s.n_sol, Answer.text(a)]
 	out.methods = {M_SKETCH: method(["Sketch the wave over the interval, and slide the line y = k up from %s to %s." % [D(s.low), D(s.top)], counts + ".", right], a.values),
@@ -704,7 +716,7 @@ func u_k_any_solution(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := x_view(rep, s, null, true)
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "titles": READ_TURNS, "asked": "Find the set of values of k for which f(x) = k has at least one solution."}
 	out.wrongs = [wrong(range_vals(s.low, s.top, "<"), R_DROP_ENDS), wrong(range_vals(amp.neg(), amp), R_NO_D)]
-	out.generic = [range_vals(s.d, s.top), range_vals(s.low, s.d), range_vals(s.low.sub(amp), s.top.add(amp)), range_vals(s.low.sub(1), s.top.add(1))]
+	out.fillers = [range_vals(s.d, s.top), range_vals(s.low, s.d), range_vals(s.low.sub(amp), s.top.add(amp)), range_vals(s.low.sub(1), s.top.add(1))]
 	var turn := "The interval holds %s periods, so the wave reaches both its maximum and its minimum." % cycles_text(s)
 	var range_ := "%s runs from −1 to 1, so f runs from %s − %s = %s to %s + %s = %s." % [s.fn, D(s.d), D(amp), D(s.low), D(s.d), D(amp), D(s.top)]
 	var meets := "y = k meets the wave for every height from the minimum to the maximum, the two ends included."
@@ -725,7 +737,8 @@ func u_k_no_solution(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := x_view(rep, s, null, true)
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "titles": READ_TURNS, "asked": "Find the set of values of k for which f(x) = k has no solutions."}
 	out.wrongs = [DifferentiationViews.alt(outside_text(s.low, s.top, false), R_TOUCH_END), DifferentiationViews.alt(outside_text(amp.neg(), amp, true), R_NO_D, {"lo": amp.neg(), "hi": amp})]
-	out.generic = [DifferentiationViews.alt("%s < k < %s" % [D(s.low), D(s.top)]).values, DifferentiationViews.alt(outside_text(s.d, s.top, true), "", {"lo": s.d, "hi": s.top}).values,
+	out.wrongs.append(DifferentiationViews.alt("%s < k < %s" % [D(s.low), D(s.top)], R_K_INSIDE))
+	out.fillers = [DifferentiationViews.alt(outside_text(s.d, s.top, true), "", {"lo": s.d, "hi": s.top}).values,
 		DifferentiationViews.alt(outside_text(s.low, s.d, true), "", {"lo": s.low, "hi": s.d}).values, DifferentiationViews.alt(outside_text(s.low.sub(1), s.top.add(1), true), "", {"lo": s.low.sub(1), "hi": s.top.add(1)}).values]
 	var turn := "The interval holds %s periods, so the wave reaches both its maximum and its minimum." % cycles_text(s)
 	var range_ := "%s runs from −1 to 1, so f runs from %s − %s = %s to %s + %s = %s." % [s.fn, D(s.d), D(amp), D(s.low), D(s.d), D(amp), D(s.top)]
@@ -758,11 +771,12 @@ func u_touch_find_constant(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var sum: String
 	if s.which == "d":
 		out.wrongs = [wrong({"v": s.k.add(amp) if s.big else s.k.sub(amp)}, R_OTHER_EXTREME)]
-		out.generic = [{"v": s.k}, {"v": amp}, {"v": s.k.add(amp.mul(2))}, {"v": amp.neg()}, {"v": p.add(1)}]
+		out.wrongs.append(wrong({"v": s.k}, R_P_IS_K))
+		out.fillers = [{"v": amp}, {"v": s.k.add(amp.mul(2))}, {"v": amp.neg()}, {"v": p.add(1)}]
 		sum = "%s %s %s = %s" % [D(s.k), "−" if s.big else "+", PD(amp), D(p)]
 	else:
 		out.wrongs = [wrong({"v": p.neg()}, R_OTHER_EXTREME), wrong({"v": s.k if s.big else s.k.neg()}, R_NO_D)]
-		out.generic = [{"v": s.k.add(s.d)}, {"v": s.d}, {"v": p.mul(2)}, {"v": p.add(1)}]
+		out.fillers = [{"v": s.k.add(s.d)}, {"v": s.d}, {"v": p.mul(2)}, {"v": p.add(1)}]
 		sum = "%s − %s = %s" % [PD(s.k if s.big else s.d), PD(s.d if s.big else s.k), D(p)]
 	var head := "The line touches at a %s, so %s is the %s value of f." % [word, D(s.k), word]
 	var formula: String
@@ -786,7 +800,7 @@ func u_touch_one_solution(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var v := x_view(rep, s, null, true)
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "titles": READ_TURNS, "asked": "Find the two values of k for which f(x) = k has exactly one solution."}
 	out.wrongs = [wrong({"r1": amp.neg(), "r2": amp}, R_NO_D)]
-	out.generic = [{"r1": s.low, "r2": s.d}, {"r1": s.d, "r2": s.top}, {"r1": s.low.sub(amp), "r2": s.top.add(amp)}, {"r1": s.low.sub(1), "r2": s.top.add(1)}]
+	out.fillers = [{"r1": s.low, "r2": s.d}, {"r1": s.d, "r2": s.top}, {"r1": s.low.sub(amp), "r2": s.top.add(amp)}, {"r1": s.low.sub(1), "r2": s.top.add(1)}]
 	var one := "The wave reaches its maximum %s and its minimum %s once each on this interval, and the line only touches there." % [D(s.top), D(s.low)]
 	var rest := "The ends of the interval are at height %s, and every k between the turning points is crossed at least twice." % D(s.d)
 	var right := say(a)
@@ -931,7 +945,7 @@ func u_solve_vs_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var deg := vs_roots(s, true)
 	if not deg.is_empty():
 		out.wrongs.append(wrong(vs_list(deg), R_GDC_DEGREES))
-	out.generic = [vs_list(xs.map(func(x): return x + 0.5)), vs_list(xs.map(func(x): return x * 1.25)), vs_list(xs.map(func(x): return x - 0.25)), vs_list(xs + [xs[xs.size() - 1] + 1.0])]
+	out.fillers = [vs_list(xs.map(func(x): return x + 0.5)), vs_list(xs.map(func(x): return x * 1.25)), vs_list(xs.map(func(x): return x - 0.25)), vs_list(xs + [xs[xs.size() - 1] + 1.0])]
 	return out
 
 
@@ -942,7 +956,7 @@ func u_solve_vs_exp(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var deg := vs_roots(s, true)
 	if not deg.is_empty():
 		out.wrongs.append(wrong(vs_list(deg), R_GDC_DEGREES))
-	out.generic = [vs_list(xs.map(func(x): return x + 0.5)), vs_list(xs.map(func(x): return x * 1.25)), vs_list(xs.map(func(x): return x + 0.25)), vs_list(xs + [xs[xs.size() - 1] + 1.0])]
+	out.fillers = [vs_list(xs.map(func(x): return x + 0.5)), vs_list(xs.map(func(x): return x * 1.25)), vs_list(xs.map(func(x): return x + 0.25)), vs_list(xs + [xs[xs.size() - 1] + 1.0])]
 	return out
 
 
@@ -970,7 +984,7 @@ func u_count_vs_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if deg != n:
 		out.wrongs.append(wrong({"v": Q.new(deg)}, R_GDC_DEGREES))
 	out.wrongs = spun(out.wrongs, s)
-	out.generic = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 2, 1))}, {"v": Q.new(2 * n)}]
+	out.fillers = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 2, 1))}, {"v": Q.new(2 * n)}]
 	var said := "Number of solutions = %d." % n
 	var bound := "The wave stays between −%s and %s, and the line is outside that once the size of x passes %s ÷ %s = %s." % [D(amp), D(amp), D(amp), D(s.m), GdcKit.W(reach)]
 	var widest: float = maxf(hi, -lo)

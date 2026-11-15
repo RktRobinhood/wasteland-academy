@@ -15,6 +15,9 @@ const R_SWAPPED := SK + "1"
 const R_BRACKETS := SK + "2"
 const R_SPOT_BRACKETS := "t5-ext-integral-gdc#3"
 const R_SPOT_DEGREES := "t5-ext-integral-gdc#4"
+const R_NO_LOWER := "t5-ext-integral-gdc#5"
+const R_ADD_LOWER := "t5-ext-integral-gdc#6"
+const R_INTO_F := "t5-ext-integral-gdc#7"
 const UNKNOWNS := ["gdc-value", "which-entry", "polynomial-check"]
 const S := preload("res://engine/situations/integral_gdc.gd")
 const DV := preload("res://engine/situations/definite_integral_views.gd")
@@ -38,6 +41,9 @@ func papers(unknown: String, _rep: String, _angle: String) -> Array:
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
 	out.given = S.export(s)
+	# DefiniteIntegralViews and InverseRuleViews hand back their fillers as `generic`.
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
 	return out
 
 
@@ -151,9 +157,10 @@ func u_polynomial_check(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := DV.val(s.v, true)
 	var up := DefiniteIntegralSituation.integral(co, 0, b)
 	var dn := DefiniteIntegralSituation.integral(co, 0, a)
-	var gen := DV.vals(ans, [up, up.add(dn), DefiniteIntegralSituation.at(co, b).sub(DefiniteIntegralSituation.at(co, a))])
+	var wr: Array = [DV.like(ans, -s.v, R_SWAPPED), DV.like(ans, up, R_NO_LOWER), DV.like(ans, up.add(dn), R_ADD_LOWER),
+		DV.like(ans, DefiniteIntegralSituation.at(co, b).sub(DefiniteIntegralSituation.at(co, a)), R_INTO_F)]
 	var methods := {
 		"gdc-fnint": ["Enter f(x) = %s in the GDC's ∫dx template, with lower limit %d and upper limit %d." % [Fmt.poly(co), a, b], "The GDC gives %s." % W(s.v)],
 		"analytic-check": ["F(x) = %s." % DV.anti(co), "F(%d) − F(%d) = %s − %s = %s." % [b, a, N(up), P(dn), N(v)], "That agrees with the GDC's %s." % W(s.v)],
 	}
-	return DV.pack([DV.integral_text(Fmt.poly(co), a, b)], "Find the value of the integral, to 3 s.f.", ans, [DV.like(ans, -s.v, R_SWAPPED)], gen, methods)
+	return DV.pack([DV.integral_text(Fmt.poly(co), a, b)], "Find the value of the integral, to 3 s.f.", ans, _rng.shuffled(wr), [], methods)

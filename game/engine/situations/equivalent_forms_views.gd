@@ -5,6 +5,8 @@ extends ExtensionViews
 ## method-pick.
 
 const MP := ["true-false-reason", "method-pick"]
+## Slips with no ref of their own (FAL-815): "<type id>#<index>".
+const OWN := "fn-link-equivalent-forms#"
 
 
 func needs() -> Dictionary:
@@ -71,7 +73,7 @@ func u_form_for_feature(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong(features(s.c, s.p, s.q, s.h, s.c.sub(s.h.sq())), "SL2.6.complete-square#1"),
 		wrong(features(s.c, s.p.neg(), s.q.neg(), s.h, s.k), "SL2.6.factorised-form#0"),
 		wrong(features(s.p.mul(s.q), s.p, s.q, s.h, s.k), "SL2.6.factorised-form#2")]
-	out.generic = [features(s.c, s.p, s.q, s.h.neg(), s.k), features(s.k, s.p, s.q, s.h, s.c), features(s.c, s.p, s.q, s.h, s.k.neg())]
+	out.fillers = [features(s.c, s.p, s.q, s.h.neg(), s.k), features(s.k, s.p, s.q, s.h, s.c), features(s.c, s.p, s.q, s.h, s.k.neg())]
 	out.pick_wrongs = [pick("Read the vertex off the factorised form", "that form shows the roots, not the vertex"),
 		pick("Read the roots off the general form", "the general form shows only the y-intercept c"),
 		pick("Put x = 1 into each form", "that checks the forms agree but finds no feature")]
@@ -94,8 +96,9 @@ func u_identity_constants(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 			"substitute-values": method(["≡ holds for every x. x = 0: %s = p² + q. x = 1: %s = (1 + p)² + q" % [N(s.c), N(s.b.add(s.c).add(1))],
 				"Subtract: %s = 1 + 2p, so p = %s" % [N(s.b.add(1)), N(s.p)], "q = %s − %s = %s" % [N(s.c), N(s.p.sq()), N(s.q)], final], ans.values),
 		},
-		"wrongs": [wrong({"v0": s.p, "v1": s.c}, "SL2.6.complete-square#0"), wrong({"v0": s.p.neg(), "v1": s.q}, "SL2.6.complete-square#2")],
-		"generic": [{"v0": s.b, "v1": s.c.sub(s.b.sq())}, {"v0": s.p, "v1": s.c.add(s.p.sq())}, {"v0": s.p.neg(), "v1": s.c}],
+		"wrongs": [wrong({"v0": s.p, "v1": s.c}, "SL2.6.complete-square#0"), wrong({"v0": s.p.neg(), "v1": s.q}, "SL2.6.complete-square#2"),
+			wrong({"v0": s.b, "v1": s.c.sub(s.b.sq())}, OWN + "15")],
+		"fillers": [{"v0": s.p, "v1": s.c.add(s.p.sq())}, {"v0": s.p.neg(), "v1": s.c}],
 		"pick_wrongs": [pick("Solve x² + bx + c = 0", "≡ is an identity to match, not an equation to solve"),
 			pick("Put in x = 0 only", "one value gives one equation, and there are two unknowns"),
 			pick("Read p as b", "the x term is 2px, so p is half of b")]}
@@ -133,6 +136,7 @@ func u_same_or_not(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"log-sub":
 			law = "ln a − ln b = ln(a/b), so %s = ln(%d/%d) = %s" % [pr.x, m * n, n, pr.y]
 			opts = ["The same: " + law, "Not the same: a log law changes the value", "Not the same: %s = ln %d" % [pr.x, m * n - n], "The same only to 3 decimal places"]
+			refs[opts[2]] = OWN + "16"
 			check = "%s ≈ %s and %s ≈ %s" % [pr.x, Fmt.sf(log(m * n) - log(n)), pr.y, Fmt.sf(log(m))]
 		"log-div":
 			law = "%s ≈ %s, but %s ≈ %s" % [pr.x, Fmt.sf(log(m * n) / log(n)), pr.y, Fmt.sf(log(m))]
@@ -142,15 +146,19 @@ func u_same_or_not(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"log-pow":
 			law = "n ln a = ln a^n, so %s = ln %d² = %s" % [pr.x, m, pr.y]
 			opts = ["The same: " + law, "Not the same: %s = ln %d" % [pr.x, 2 * m], "Not the same: %s = (ln %d)²" % [pr.x, m], "The same only to 3 decimal places"]
+			refs[opts[1]] = OWN + "17"
+			refs[opts[2]] = "SL1.7.log-laws#2"
 			check = "%s ≈ %s and %s ≈ %s" % [pr.x, Fmt.sf(2 * log(m)), pr.y, Fmt.sf(log(m * m))]
 		"log-add":
 			law = "ln a + ln b = ln(ab), so %s = ln %d, not %s" % [pr.x, m * n, pr.y]
 			opts = ["Not the same: " + law, "The same: ln a + ln b = ln(a + b)", "The same: both are about %s" % Fmt.sf(log(m + n)), "Not the same: %s = ln %d" % [pr.x, absi(m - n)]]
+			refs[opts[1]] = "SL1.7.log-laws#0"
 			check = "%s ≈ %s, but %s ≈ %s" % [pr.x, Fmt.sf(log(m) + log(n)), pr.y, Fmt.sf(log(m + n))]
 		"sq-sum":
 			law = "(x + %d)² = x² + %dx + %d, which is x² + %d only at x = 0" % [m, 2 * m, m * m, m * m]
 			opts = ["Not the same: " + law, "The same: they agree when x = 0", "The same: each term can be squared", "Not the same: they never agree"]
 			refs[opts[1]] = "SL1.6.identity-constants#0"
+			refs[opts[2]] = OWN + "18"
 			check = "x = 0 gives %d and %d, but x = 1 gives %d and %d" % [m * m, m * m, (1 + m) * (1 + m), 1 + m * m]
 		_:
 			law = "(x + %d)(x − %d) = x² − %dx + %dx − %d = x² − %d for every x" % [m, m, m, m, m * m, m * m]
@@ -164,7 +172,7 @@ func u_same_or_not(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sub_end := "They differ, so they are not the same" if not pr.same else "They agree here, but values that agree can't prove two forms are equal; the law can"
 	return {"asked": "Are these the same object? Choose the answer and its reason.", "lines": lines, "given": export(s), "answer": ans,
 		"wrongs": opts.filter(func(o): return refs.has(o)).map(func(o): return wrong({"v": o}, refs[o])),
-		"generic": opts.slice(1).filter(func(o): return not refs.has(o)).map(func(o): return {"v": o}),
+		"fillers": opts.slice(1).filter(func(o): return not refs.has(o)).map(func(o): return {"v": o}),
 		"methods": {
 			"substitute-values": method(["Work both out: " + check, sub_end, final], ans.values),
 			"combine": method(["Use the law: " + law if pr.same else "Combine: " + law, final], ans.values),
@@ -215,10 +223,14 @@ func u_log_law_check(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			refs["True"] = "SL1.7.log-laws#2"
 		"sub":
 			opts = [right, "False: log a − log b = log(a − b)", "False: log a − log b = log a / log b", "True, but only when a > b"]
+			refs[opts[1]] = OWN + "16"
+			refs[opts[2]] = "SL1.7.log-laws#1"
 		"pow":
 			opts = [right, "False: log(a^n) = (log a)^n", "False: log(a^n) = log(na)", "True, but only for whole numbers n"]
+			refs[opts[1]] = "SL1.7.log-laws#2"
 		_:
 			opts = [right, "True", "False: log(a/b) = log(a − b)", "True, but only when a > b"]
+			refs["True"] = "SL1.7.log-laws#1"
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
 	var final := "So: %s." % Answer.text(ans)
 	var m: int = s.m.n
@@ -232,7 +244,7 @@ func u_log_law_check(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		lines = ["A student writes this log law in their notes: %s." % c[0]]
 	return {"asked": "Is the claim true? Choose the answer and the law that is actually true.", "lines": lines, "given": export(s), "answer": ans,
 		"wrongs": opts.filter(func(o): return refs.has(o)).map(func(o): return wrong({"v": o}, refs[o])),
-		"generic": opts.slice(1).filter(func(o): return not refs.has(o)).map(func(o): return {"v": o}),
+		"fillers": opts.slice(1).filter(func(o): return not refs.has(o)).map(func(o): return {"v": o}),
 		"methods": {
 			"combine": method(["Test it with numbers: " + test, verdict, final], ans.values),
 			"gdc-check": method(["On the GDC, " + test.substr(0, 1).to_lower() + test.substr(1), verdict, final], ans.values),
@@ -308,7 +320,7 @@ func u_cos2x_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			pick("Use cos 2x = %s" % other, "that leaves %s x and %s x in one equation" % ["cos" if s.fn == "sin" else "sin", s.fn])]}
 	# SL3.6.double-angle-values#1 (cos 2x = 1 − sin²x) gives a quadratic whose roots are
 	# not sines of special angles, so its answers are no multiples of π: no option.
-	out.generic = _angle_slips(sols)
+	out.wrongs = _angle_slips(sols).map(func(v): return wrong(v, OWN + "19"))
 	return out
 
 
@@ -364,7 +376,7 @@ func u_power_form_first(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 			# The new power one up, not one down.
 			wrong({"c0": d1, "e0": p1.add(1), "c1": d2, "e1": p2.sub(1)}, "SL5.3.negative-powers#1"),
 		],
-		"generic": [{"c0": d1.neg(), "e0": p1.sub(1), "c1": d2.neg(), "e1": p2.sub(1)}, {"c0": k1, "e0": p1.sub(1), "c1": k2, "e1": p2.sub(1)}],
+		"fillers": [{"c0": d1.neg(), "e0": p1.sub(1), "c1": d2.neg(), "e1": p2.sub(1)}, {"c0": k1, "e0": p1.sub(1), "c1": k2, "e1": p2.sub(1)}],
 		"pick_wrongs": [pick("Differentiate the denominator", "d/dx(1/x²) is not 1/(2x)"), pick("Differentiate the top and the bottom separately", "a quotient doesn't differentiate term by term"),
 			pick("Multiply the fractions out first", "there is nothing to multiply; write each term as a power of x")]}
 
@@ -382,7 +394,9 @@ func u_roots_from_vertex_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		"Each root r gives a factor (x − r), with a = %s in front" % N(s.a), "So %s." % Answer.text(ans)]
 	return {"asked": "Write f in factorised form, and so give its roots.", "lines": ["f(x) = " + Fmt.vertex(s.a, s.h, s.k)], "given": export(s), "answer": ans,
 		"methods": {"roots-to-factors": method(steps, ans.values)},
-		"generic": [{"a": s.a, "p": r1.neg(), "q": r2.neg()}, {"a": s.a, "p": s.h.sub(s.d.sq()), "q": s.h.add(s.d.sq())}, {"a": Q.new(1) if not s.a.eq(1) else Q.new(2), "p": r1, "q": r2},
-			{"a": s.a, "p": s.h, "q": s.k}],
+		"wrongs": [wrong({"a": s.a, "p": r1.neg(), "q": r2.neg()}, OWN + "20"), wrong({"a": s.a, "p": s.h.sub(s.d.sq()), "q": s.h.add(s.d.sq())}, OWN + "21")]
+			+ ([wrong({"a": Q.new(1), "p": r1, "q": r2}, OWN + "22")] if not s.a.eq(1) else []) + [wrong({"a": s.a, "p": s.h, "q": s.k}, OWN + "23")],
+		# With a = 1 there is no number in front to leave out: 2(x − p)(x − q) has no route.
+		"fillers": [{"a": Q.new(2), "p": r1, "q": r2}] if s.a.eq(1) else [],
 		"pick_wrongs": [pick("Read the roots as h and k", "(h, k) is the vertex, not the roots"), pick("Take the square root of k", "the square root is of −k/a, after moving k across"),
 			pick("Expand and read the roots from c", "c is the y-intercept, not a root")]}

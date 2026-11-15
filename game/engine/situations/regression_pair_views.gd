@@ -15,6 +15,10 @@ const R_LINE_AXIS := SKILL + "choose-line#1"
 const R_Y_IN_Y_ON_X := SKILL + "predict-x#0"
 const R_EXTRAPOLATE := SKILL + "predict-x#1"
 const R_WRONG_SLOT := SKILL + "mean-point-intersection#1"
+const T := "t4-regression-x-on-y"
+const R_ADDS_TERM := T + "#7"
+const R_SAME_LINE := T + "#8"
+const R_Y_AS_X := T + "#9"
 const YBAR := "ȳ"
 
 const P2_ONLY := ["x-on-y-line", "d-from-mean-point", "predict-x-from-data", "predict-x-from-lines", "judge-estimate"]
@@ -100,7 +104,7 @@ func u_x_on_y_line(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find the equation of the regression line of x on y, in the form x = cy + d, with c and d to 3 s.f."
 	out.answer = ans
 	out.wrongs = [wrong({"v0": s.ra, "v1": s.rb}, R_REARRANGED), wrong({"v0": s.a, "v1": s.b}, R_NOT_SWAPPED)]
-	out.generic = [{"v0": s.c, "v1": s.d.neg()}, {"v0": s.d, "v1": s.c}, {"v0": s.c.mul(Q.new(9, 10)), "v1": s.d}]
+	out.fillers = [{"v0": s.c, "v1": s.d.neg()}, {"v0": s.d, "v1": s.c}, {"v0": s.c.mul(Q.new(9, 10)), "v1": s.d}]
 	out.methods = {"gdc-swap-lists": method(["Enter the y-values in L1 and the x-values in L2, and run LinReg (ax + b) with y as the independent variable.",
 		"The GDC's a and b are c = %s and d = %s." % [W(s.c), W(s.d)], "Write the result with x as the subject.", final_step(ans)], ans.values)}
 	return out
@@ -111,8 +115,8 @@ func u_d_from_mean_point(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var ans := sf_ans("d = ", d)
 	var out := {"lines": ["The mean point of a set of data is (%s, %s)." % [D(s.mx), D(s.my)], "The regression line of x on y is x = %sy + d." % D(s.c)],
 		"asked": "The line passes through the mean point. Find d.", "answer": ans, "table": null}
-	out.wrongs = [wrong({"v": s.rx}, R_WRONG_SLOT)]
-	out.generic = [{"v": s.mx.add(s.c.mul(s.my))}, {"v": s.mx.sub(s.c)}, {"v": s.mx.div(s.my)}, {"v": Q.new(0)}]
+	out.wrongs = [wrong({"v": s.rx}, R_WRONG_SLOT), wrong({"v": s.mx.add(s.c.mul(s.my))}, R_ADDS_TERM)]
+	out.fillers = [{"v": s.mx.sub(s.c)}, {"v": s.mx.div(s.my)}, {"v": Q.new(0)}]
 	var cy: Q = s.c.mul(s.my)
 	out.methods = {"gradient-mean-point": method(["The line passes through (x̄, %s), so x̄ = c%s + d: %s = %s × %s + d." % [YBAR, YBAR, D(s.mx), D(s.c), D(s.my)],
 		"d = %s − %s = %s" % [D(s.mx), D(cy) if cy.sign() >= 0 else "(%s)" % D(cy), W(d)], final_step(ans)], ans.values)}
@@ -140,7 +144,7 @@ func u_choose_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var why: String = xy(s) if est_x else yx(s)
 	var given := "y = %d" % s.v if est_x else "x = %d" % s.v
 	var out := {"lines": lines, "asked": asked, "answer": ans, "table": null,
-		"wrongs": [wrong(claim("w0", other), R_LINE_REARRANGE), wrong(claim("w1", axis), R_LINE_AXIS), wrong(claim("w2", "Either line: both give the same estimate"))]}
+		"wrongs": [wrong(claim("w0", other), R_LINE_REARRANGE), wrong(claim("w1", axis), R_LINE_AXIS), wrong(claim("w2", "Either line: both give the same estimate"), R_SAME_LINE)]}
 	out.methods = {"predicted-on-left": method(["Name the variable being estimated: %s, from %s." % ["x" if est_x else "y", given],
 		"Use the line that has it as its subject: %s." % why, "So: " + right + "."], ans.values)}
 	return out
@@ -154,7 +158,7 @@ func u_predict_x_from_data(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	out.asked = "Use the appropriate regression line to estimate x when y = %d. Give your answer to 3 s.f." % s.y0
 	out.answer = ans
 	out.wrongs = [wrong({"v": s.xr}, R_Y_IN_Y_ON_X)]
-	out.generic = [{"v": s.c.mul(Q.new(s.y0)).sub(s.d)}, {"v": s.d.mul(Q.new(s.y0)).add(s.c)}, {"v": s.x0.mul(Q.new(9, 10))}, {"v": s.x0.mul(Q.new(11, 10))}]
+	out.fillers = [{"v": s.c.mul(Q.new(s.y0)).sub(s.d)}, {"v": s.d.mul(Q.new(s.y0)).add(s.c)}, {"v": s.x0.mul(Q.new(9, 10))}, {"v": s.x0.mul(Q.new(11, 10))}]
 	out.methods = {"substitute-y": method(["x is being estimated, so use the line of x on y. Run LinReg with y as the independent variable: c = %s and d = %s." % [W(s.c), W(s.d)],
 		"Substitute y = %d with the unrounded values: x = %s × %d + %s = %s" % [s.y0, W(s.c), s.y0, W(s.d), W(s.x0)], final_step(ans)], ans.values)}
 	return out
@@ -163,8 +167,8 @@ func u_predict_x_from_data(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 func u_predict_x_from_lines(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := sf_ans("x = ", s.x0)
 	var out := {"lines": both_lines(s), "asked": "Estimate x when y = %d. Give your answer to 3 s.f." % s.y0, "answer": ans, "table": null}
-	out.wrongs = [wrong({"v": s.xr}, R_Y_IN_Y_ON_X)]
-	out.generic = [{"v": s.c.mul(Q.new(s.y0)).sub(s.d)}, {"v": s.a.mul(Q.new(s.y0)).add(s.b)}, {"v": s.x0.mul(Q.new(9, 10))}, {"v": s.x0.mul(Q.new(11, 10))}]
+	out.wrongs = [wrong({"v": s.xr}, R_Y_IN_Y_ON_X), wrong({"v": s.a.mul(Q.new(s.y0)).add(s.b)}, R_Y_AS_X)]
+	out.fillers = [{"v": s.c.mul(Q.new(s.y0)).sub(s.d)}, {"v": s.x0.mul(Q.new(9, 10))}, {"v": s.x0.mul(Q.new(11, 10))}]
 	var sign_d: String = "%s %s" % ["−" if s.d.sign() < 0 else "+", D(s.d.abs_q())]
 	out.methods = {"substitute-y": method(["x is being estimated, so use the line of x on y: %s." % xy(s),
 		"x = %s × %d %s = %s" % [D(s.c), s.y0, sign_d, W(s.x0)], final_step(ans)], ans.values)}
@@ -181,16 +185,18 @@ func u_judge_estimate(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right: String = {"good": good, "outside": outside, "weak": weak}[s.case]
 	var ans := Answer.make("claim", claim("right", right))
 	var wrongs: Array = []
+	var fillers: Array = []
 	if s.case == "outside":
-		wrongs = [wrong(claim("w0", any_y), R_EXTRAPOLATE), wrong(claim("w1", weak)), wrong(claim("w2", good))]
+		wrongs = [wrong(claim("w0", any_y), R_EXTRAPOLATE)]
+		fillers = [claim("w1", weak), claim("w2", good)]
 	elif s.case == "weak":
-		wrongs = [wrong(claim("w0", good)), wrong(claim("w1", outside)), wrong(claim("w2", no_line))]
+		fillers = [claim("w0", good), claim("w1", outside), claim("w2", no_line)]
 	else:
-		wrongs = [wrong(claim("w0", weak)), wrong(claim("w1", outside)), wrong(claim("w2", no_line))]
+		fillers = [claim("w0", weak), claim("w1", outside), claim("w2", no_line)]
 	var out := {"lines": ["For some %s, the %s (x) and the %s (y) have r = %s." % [c.who, c.x, c.y, D(s.rr)],
 		"The values of y in the data run from %d to %d." % [s.ylo, s.yhi]],
 		"asked": "The line of x on y is used to estimate x when y = %d. How reliable is this estimate?" % s.y0,
-		"answer": ans, "table": null, "wrongs": wrongs}
+		"answer": ans, "table": null, "wrongs": wrongs, "fillers": fillers}
 	var inside: bool = s.y0 >= s.ylo and s.y0 <= s.yhi
 	out.methods = {"reliability-check": method(["Is y inside the data? %d is %s %d to %d." % [s.y0, "inside" if inside else "outside", s.ylo, s.yhi],
 		"Is the correlation strong? r = %s, so it is %s." % [D(s.rr), "strong" if s.case != "weak" else "weak"], "So: " + right + "."], ans.values)}
@@ -209,7 +215,7 @@ func u_mean_point_from_lines(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		lines[0] = "The diagram shows the regression line of y on x, %s." % yx(s)
 		lines[1] = "It also shows the regression line of x on y, %s." % xy(s)
 		out.graph = two_lines_graph(s)
-	out.generic = [{"x": s.my, "y": s.mx}, {"x": s.mx.add(Q.new(1)), "y": s.my}, {"x": s.mx, "y": s.my.sub(Q.new(1))}, {"x": s.b, "y": s.d}]
+	out.fillers = [{"x": s.my, "y": s.mx}, {"x": s.mx.add(Q.new(1)), "y": s.my}, {"x": s.mx, "y": s.my.sub(Q.new(1))}, {"x": s.b, "y": s.d}]
 	var ac: Q = s.a.mul(s.c)
 	var left := Q.new(1).sub(ac)
 	var right: Q = s.c.mul(s.b).add(s.d)
@@ -248,7 +254,7 @@ func u_mean_from_one_mean(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var out := {"lines": ["The regression line of %s is %s." % [kind, line], "%s = %s" % [name, D(have)]],
 		"asked": "Find %s." % (YBAR if known_x else "x̄"), "answer": ans, "table": null}
 	out.wrongs = [wrong({"v": s.rx}, R_WRONG_SLOT)]
-	out.generic = [{"v": have}, {"v": want.add(Q.new(1))}, {"v": want.sub(Q.new(1))}, {"v": want.add(Q.new(2))}]
+	out.fillers = [{"v": have}, {"v": want.add(Q.new(1))}, {"v": want.sub(Q.new(1))}, {"v": want.add(Q.new(2))}]
 	var steps: Array = ["The regression line passes through (x̄, %s), so put x = x̄ and y = %s into it." % [YBAR, YBAR]]
 	if known_x == (s.line == "yx"):
 		var m: Q = s.a if s.line == "yx" else s.c
