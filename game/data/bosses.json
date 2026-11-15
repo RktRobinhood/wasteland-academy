@@ -78,5 +78,55 @@
 			"name": "The Tailor",
 			"taunt": "Everything gets shifted, stretched or flipped. Even your plan."
 		}
+	},
+	"algebra": {
+		"miniboss": {
+			"name": "Ratchet Rae",
+			"taunt": "Every turn adds a little. You'd be amazed what piles up."
+		},
+		"boss": {
+			"name": "The Compounder",
+			"taunt": "Interest never sleeps out here. Neither do I."
+		}
+	},
+	"geometry": {
+		"miniboss": {
+			"name": "Surveyor Hale",
+			"taunt": "Two sides and an angle. I know the third side. Do you?"
+		},
+		"boss": {
+			"name": "The Sundial",
+			"taunt": "I tell the time by my own shadow. Ask me the angle."
+		}
+	},
+	"stats": {
+		"miniboss": {
+			"name": "Static Lou",
+			"taunt": "Half of what comes over the radio is noise. Pick the half."
+		},
+		"boss": {
+			"name": "The Pollster",
+			"taunt": "I asked a sample of one. It agreed with me."
+		}
+	},
+	"calculus": {
+		"miniboss": {
+			"name": "Gradient Jo",
+			"taunt": "Steeper by the second. Keep up."
+		},
+		"boss": {
+			"name": "The Integrator",
+			"taunt": "I add up every last sliver out here. You're next."
+		}
+	},
+	"thunderdome": {
+		"miniboss": {
+			"name": "Mixtape Vex",
+			"taunt": "A bit of everything tonight. Hope you packed the lot."
+		},
+		"boss": {
+			"name": "The Promoter",
+			"taunt": "Five islands, one ring. Show me what you brought."
+		}
 	}
 }

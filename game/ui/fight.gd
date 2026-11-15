@@ -19,7 +19,8 @@ extends "res://ui/practice.gd"
 ## Deep links, for screenshots and tests:
 ##   web:      /next/?play=quadratics&seed=3&floor=1&autoplay=wrong
 ##   desktop:  -- --play=quadratics --seed=3 --autoplay=wrong
-## play is a region id or "all" (the all-regions dungeon). floor must be one the save
+## play is a region id, an island's all-regions dungeon ("all", "all-calculus") or
+## "thunderdome" (every island mixed). floor must be one the save
 ## may start on, else the run starts on floor 1. autoplay=right or wrong answers the
 ## first question at once; autoplay=lose plays wrong answers until the run ends, to
 ## show the summary; autoplay=carry answers a boss's first part wrong and opens the
@@ -29,6 +30,10 @@ extends "res://ui/practice.gd"
 ##
 ## The map (ui/map.gd) starts a run by setting `launch` before opening this scene. The
 ## island's loop plays during a run, and its boss loop during a mini-boss or boss.
+## Fights play the accepted effects (audio/sfx_cues.gd, FAL-925) through Audio, which
+## stays silent while sound is off: "open" as a mini-boss or boss steps up, "correct" for
+## a hit, "retry" for a miss or a timeout, "clear" when an enemy falls, "hint" for a
+## lifeline, and "reward" when the summary banks Scrap (sfx_for()).
 ##
 ## Art by file name (FAL-470, engine/art_slots.gd): the region's backdrop behind the
 ## screen, its mini-boss and boss (with a hurt frame that flashes on a hit) and their
@@ -61,6 +66,7 @@ const FRAME_GAP := 6
 const STACK_GAP := 16
 const ENEMY_TAG_WIDTH := 350
 const JOURNEY_STAGE := "res://scenes/journey_stage.tscn"
+const MAP_SCREEN := "res://ui/map.gd"
 const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"}
 ## How long a hit shows the enemy's hurt frame (one flash, FAL-473).
 const HURT_FLASH := 0.08
@@ -114,7 +120,7 @@ var timer_label: Label
 var timer_fill: StyleBoxFlat
 var lifeline_buttons := {}
 var badge: Control
-var hint_label: Label
+var hint_label: MathLabel
 var summary_box: VBoxContainer
 var floor_box: VBoxContainer
 ## The deep link's jump to a fight (1: none).
@@ -127,6 +133,8 @@ var _taunted := -1
 var job := {}
 ## The fight (run.fights) `job` is for.
 var _job_fight := -1
+## The mini-boss or boss (run.fights) whose "open" effect played, so it plays once a fight.
+var _announced := -1
 
 
 func _ready() -> void:
@@ -216,6 +224,7 @@ func start_run() -> void:
 	run = Run.new(save, region, start_floor, run_seed)
 	_taunted = -1
 	_job_fight = -1
+	_announced = -1
 	if first_fight > 1:
 		run.first_fight = first_fight
 		run.records = false
@@ -224,17 +233,29 @@ func start_run() -> void:
 	SaveData.store(save, save_path)
 	run.question_opened.connect(func(_f, _t): _show_question())
 	run.question_opened.connect(func(_f, _t): Audio.play_location(MapLink.music_for(region, run.kind != "fight")))
+	run.question_opened.connect(func(_f, _t):
+		# A mini-boss or boss steps up: once, as its first question opens.
+		if run.kind != "fight" and _announced != run.fights:
+			_announced = run.fights
+			Audio.play_sfx("open"))
 	run.run_ended.connect(_show_summary)
 	journey = JourneyLink.attach(run, strip, save)
 	summary_box.visible = false
 	floor_box.visible = false
-	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop(region))
+	UiTheme.show_backdrop(backdrop, _backdrop())
 	quit_button.visible = true
 	card_frame.visible = true
 	scroll.visible = true
 	left.visible = true
 	hp_row.visible = true
 	run.start()
+
+
+## The region's backdrop, or a close-up of its island from the world map (the map's
+## backdrop_for(), loaded here rather than preloaded because the map preloads this screen).
+func _backdrop() -> Texture2D:
+	var map = load(MAP_SCREEN)
+	return map.backdrop_for(region)
 
 
 ## The floor select (Q4): floor 1 and the floor after each floor whose boss the player
@@ -248,7 +269,7 @@ func show_floor_select() -> void:
 	hp_row.visible = false
 	floor_box.visible = true
 	quit_button.visible = false
-	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop(region))
+	UiTheme.show_backdrop(backdrop, _backdrop())
 	for c in floor_box.get_children():
 		floor_box.remove_child(c)
 		c.queue_free()
@@ -664,7 +685,7 @@ func _show_question() -> void:
 		taunt.name = "Taunt"
 		card.add_child(taunt)
 		card.move_child(taunt, 0)
-	hint_label = UiTheme.label("", UiTheme.BODY, UiTheme.SAND)
+	hint_label = UiTheme.math_label("", UiTheme.BODY, UiTheme.SAND)
 	hint_label.name = "Hint"
 	hint_label.visible = false
 	card.add_child(hint_label)
@@ -693,7 +714,7 @@ func _show_boss_part() -> void:
 			var right: bool = answers[i].outcome in ["right", "late", "glancing"]
 			var pv: Dictionary = b.parts[i].view
 			var asked: String = QuestionEngine.unknown_of(QuestionEngine.type_of(pv.type), pv.unknown).get("asked", "")
-			done.add_child(UiTheme.label("(%s) %s · %s: %s" % [QuestionEngine.part_letter(i), "right" if right else "missed",
+			done.add_child(UiTheme.math("(%s) %s · %s: %s" % [QuestionEngine.part_letter(i), "right" if right else "missed",
 				asked, b.parts[i].answer_text], UiTheme.SMALL, UiTheme.TEAL if right else UiTheme.DIM))
 		card.add_child(done)
 		card.move_child(done, at)
@@ -703,7 +724,7 @@ func _show_boss_part() -> void:
 		var box := PanelContainer.new()
 		box.name = "Carried"
 		box.add_theme_stylebox_override("panel", UiTheme.panel())
-		var l := UiTheme.label("From part (%s): %s. Carry on from this." % [q.carried.part, q.carried.text], UiTheme.BODY, UiTheme.SAND)
+		var l := UiTheme.math("From part (%s): %s. Carry on from this." % [q.carried.part, q.carried.text], UiTheme.BODY, UiTheme.SAND)
 		box.add_child(l)
 		card.add_child(box)
 		card.move_child(box, at)
@@ -770,6 +791,8 @@ func _update_timer() -> void:
 func use_lifeline(id: String) -> void:
 	if run == null:
 		return
+	if run.can_use(id):
+		Audio.play_sfx("hint")
 	match id:
 		"fifty":
 			for i in run.use_fifty():
@@ -812,9 +835,18 @@ func check_answer() -> void:
 	_show_result(r)
 
 
+## The effect for an answer's result: "clear" when the enemy falls, "correct" for a hit
+## (right, glancing or late), "retry" for a miss or a timeout.
+static func sfx_for(r: Dictionary) -> String:
+	if r.get("defeated", false):
+		return "clear"
+	return "correct" if r.get("outcome", "") in ["right", "glancing", "late"] else "retry"
+
+
 func _show_result(r: Dictionary) -> void:
 	result = r
 	answered = true
+	Audio.play_sfx(sfx_for(r))
 	SaveData.store(save, save_path)
 	feedback.visible = true
 	var color := UiTheme.TEAL
@@ -941,6 +973,8 @@ func next_question() -> void:
 
 func _show_summary(s: Dictionary) -> void:
 	SaveData.store(save, save_path)
+	if int(s.get("scrap", 0)) > 0:
+		Audio.play_sfx("reward")
 	card_frame.visible = false
 	scroll.visible = false
 	left.visible = false
@@ -976,7 +1010,7 @@ func _show_summary(s: Dictionary) -> void:
 	list.name = "Missed"
 	list.add_theme_constant_override("separation", 8)
 	for m in s.missed:
-		list.add_child(UiTheme.label("• " + m, UiTheme.BODY))
+		list.add_child(UiTheme.math("• " + m, UiTheme.BODY))
 	summary_box.add_child(list)
 	var again := Button.new()
 	again.name = "PlayAgain"

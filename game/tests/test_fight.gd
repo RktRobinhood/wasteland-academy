@@ -653,3 +653,50 @@ func test_the_method_line_shows_only_where_it_matters() -> void:
 		f.question = QuestionEngine.make({"type": "t5-indefinite-integral", "unknown": u, "seed": 2})
 		check(f.prompt_text().contains("Method:"), u + " keeps its line")
 	_done(made)
+
+
+## The fight's sound effects (FAL-925), asked of Audio with sound off as it starts: a hit,
+## a miss, a fallen enemy, a lifeline, a boss stepping up, and nothing heard.
+func test_fights_ask_for_their_sound_effects() -> void:
+	var fight_script := preload("res://ui/fight.gd")
+	check_eq(fight_script.sfx_for({"outcome": "right", "defeated": false}), "correct")
+	check_eq(fight_script.sfx_for({"outcome": "late", "defeated": false}), "correct")
+	check_eq(fight_script.sfx_for({"outcome": "wrong", "defeated": false}), "retry")
+	check_eq(fight_script.sfx_for({"outcome": "timeout", "defeated": false}), "retry")
+	check_eq(fight_script.sfx_for({"outcome": "right", "defeated": true}), "clear")
+	for cue in ["correct", "retry", "clear", "hint", "open", "reward"]:
+		check(SfxCues.CUES.has(cue), cue + " is an accepted effect")
+	check(not Audio.sound_enabled, "sound starts off")
+	var made: Array = await _screen(_area(Vector2i(390, 844)), 3, false, {}, 1, "kinematics")
+	var f: Control = made[1]
+	Audio.last_sfx = ""
+	f.autoplay(false)
+	check_eq(Audio.last_sfx, "retry", "a miss")
+	f.next_question()
+	f.use_lifeline("hint")
+	check_eq(Audio.last_sfx, "hint", "a lifeline")
+	f.autoplay(true)
+	check_eq(Audio.last_sfx, fight_script.sfx_for(f.result), "a hit")
+	check(Audio.get_children().all(func(p): return not (p is AudioStreamPlayer and p.playing)), "nothing is heard with sound off")
+	_done(made)
+	Audio.last_sfx = ""
+	made = await _screen(_area(Vector2i(390, 844)), 3, false, {}, Tuning.FIGHTS_PER_FLOOR, "kinematics")
+	check_eq(made[1].run.kind, "boss")
+	check_eq(Audio.last_sfx, "open", "the boss steps up")
+	check_eq(Audio.location(), "engine-core-boss", "the Engine Core's boss loop")
+	_done(made)
+
+
+## An island with no journey scenery yet (all but the Signal Tower, FAL-925) shows no
+## strip: the enemy's portrait stands in, over the island's close-up, and reads as a fight.
+func test_an_island_with_no_scenery_keeps_the_enemy_on_the_screen() -> void:
+	check(not JourneyStage.shared_assets().has_scenery(JourneyLink.region_for("kinematics")), "no Engine Core scenery yet")
+	var made: Array = await _screen(_area(Vector2i(390, 844)), 3, false, {}, 1, "kinematics")
+	var f: Control = made[1]
+	for i in 3:
+		await tree.process_frame
+	check(not f.strip.visible, "no strip")
+	check(f.enemy_art.is_visible_in_tree() and f.enemy_art.texture != null, "the portrait stands in")
+	check(f.backdrop.visible, "the island's close-up behind it")
+	check(f.job.is_empty() and f.check_button.text == "Attack", "a fight's words")
+	_done(made)

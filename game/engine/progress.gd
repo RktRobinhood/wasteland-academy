@@ -9,7 +9,8 @@ extends RefCounted
 ##   Progress.is_built("rational")               # false until a situation of the region is built
 ##   Progress.suggest(save)                      # SPARK's pick: {"region", "why"}, or {}
 ##
-## A region is a catalogue region id, or Dungeon.ALL for the whole island. Coverage
+## A region is a catalogue region id, an island's all-regions dungeon (Dungeon.all_of), or
+## Dungeon.THUNDERDOME for every island. Coverage
 ## counts the cells the save has seen against the catalogue's cells for the region,
 ## built or not, so it reads "0 of 40" before a region is playable. Every number follows
 ## the save's "Exam-style only" switch: with it on, only exam cells count. They follow its
@@ -24,11 +25,12 @@ const MIN_ATTEMPTS := MathsEngine.MIN_ATTEMPTS
 ## Every catalogue type of the region, built or not, in catalogue order.
 static func catalogue_types(region: String) -> Array:
 	var out: Array = []
+	var island := Dungeon.island_of_all(region) if Dungeon.is_all(region) else ""
 	for t in QuestionEngine.catalogue().get("types", []):
 		var r = t.get("region")
 		if r == null:
 			continue
-		if region == Dungeon.ALL or r == region:
+		if r == region or region == Dungeon.THUNDERDOME or (island != "" and MapLink.island_of(r) == island):
 			out.append(t.id)
 	return out
 
@@ -94,6 +96,7 @@ static func is_built(region: String, course: String = "") -> bool:
 
 ## SPARK's pick on the island map (FAL-531 plan): the open (built) region to suggest,
 ## and why, as {"region", "why"}; {} when no region is open. A suggestion, never a gate.
+## The map hands it the island's regions (MapLink.region_ids(island)).
 ##   "untried":  the first the player hasn't tried, in MapLink.region_ids() order (most
 ##               examined first);
 ##   "accuracy": otherwise the lowest accuracy among regions with MIN_ATTEMPTS answers;

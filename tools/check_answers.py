@@ -19886,7 +19886,7 @@ def as_check(q):
             W("sector-area#1", label, tail, slip)
         else:
             b = sp.expand(slip / pi**2)
-            wr[AS_SKILL + "sector-area#1"] = {f"A = {frac_text(b)}π²{un2}"}
+            wr[AS_SKILL + "sector-area#1"] = {f"A = {as_pi(sp.Rational(b)).replace('π', 'π²')}{un2}"}
         M(19, label, tail, r**2 * th)
         M(20, label, tail, r * th / 2)
         M(21, label, tail, r * th)
