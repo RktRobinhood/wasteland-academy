@@ -87,7 +87,7 @@ func test_a_gdc_table_is_rounded_to_3_sf() -> void:
 					var z: float = q.answer.values.x0.to_float() if q.answer.values.has("x0") else q.answer.values.v.to_float()
 					check(t.xs[i].to_float() < z and z < t.xs[i + 1].to_float(), "%s: the zero isn't between the rows that change sign" % c.key)
 					for s in q.solutions:
-						check(s.steps[0].contains("= %s and" % t.rows[1][1][i]), "%s: the working doesn't quote the table: %s" % [c.key, s.steps[0]])
+						check(Step.text(s.steps[0]).contains("= %s and" % t.rows[1][1][i]), "%s: the working doesn't quote the table: %s" % [c.key, Step.text(s.steps[0])])
 	check(seen > 0, "a table was tried")
 
 
