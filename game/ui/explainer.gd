@@ -386,8 +386,13 @@ func _render(seeked: bool) -> void:
 		var l: Control = lines.get_child(i)
 		var ch: Dictionary = chapters[i]
 		var ratio := 1.0 if i < at else (clampf((time - ch.start) / ch.write, 0.0, 1.0) if i == at else 0.0)
-		l.set("visible_ratio", ratio)
-		l.modulate.a = 0.0 if ratio <= 0.0 else 1.0
+		# A Label writes letter by letter; a line of stacked maths (a MathLabel, FAL-797)
+		# has no visible_ratio, so it chalks in by fading up over the same time.
+		if "visible_ratio" in l:
+			l.set("visible_ratio", ratio)
+			l.modulate.a = 0.0 if ratio <= 0.0 else 1.0
+		else:
+			l.modulate.a = ratio
 	if at >= 0:
 		caption.text = chapters[at].caption
 		if entered:
