@@ -83597,12 +83597,12 @@
      "wrong": "gives the size of the rise over the run, without the minus sign of a downhill tangent"
     },
     {
-     "text": "Dividing the chord's rise by 0.1 instead of by its whole run of 0.2",
+     "text": "Dividing the chord's rise by half its run",
      "as": "distractor",
      "in": [
       "chord-table"
      ],
-     "wrong": "divides f(a + 0.1) − f(a − 0.1) by 0.1, half the chord's run"
+     "wrong": "divides the chord's rise by the step from x = a to one end, which is half the chord's run"
     },
     {
      "text": "Drawing a chord to a point further along the curve instead of the tangent",
