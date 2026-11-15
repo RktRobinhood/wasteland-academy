@@ -61,8 +61,8 @@ var captions := true
 var current := -1
 
 var frame: PanelContainer
-var title: Label
-var asked: Label
+var title: MathLabel
+var asked: MathLabel
 var board_scroll: ScrollContainer
 var lines: VBoxContainer
 var spark: TextureRect
@@ -180,9 +180,10 @@ func _build() -> void:
 	var head := HBoxContainer.new()
 	head.name = "Head"
 	head.add_theme_constant_override("separation", 20)
-	title = UiTheme.label("", 64, DUST)
+	# A method name with maths in it (u_1, S_n, n/2) is drawn as maths, in the body font:
+	# Bangers has capitals only, so S_n read as S_N (FAL-969). _fill_board picks the font.
+	title = UiTheme.math_label("", 64, DUST)
 	title.name = "Title"
-	title.add_theme_font_override("font", UiTheme.TITLE_FONT)
 	title.add_theme_color_override("font_outline_color", INK)
 	title.add_theme_constant_override("outline_size", 12)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -212,9 +213,9 @@ func _build() -> void:
 	var inner := VBoxContainer.new()
 	inner.add_theme_constant_override("separation", 18)
 	board.add_child(inner)
-	asked = UiTheme.label("", UiTheme.SMALL, Color(CHALK, 0.6))
+	asked = UiTheme.math_label("", UiTheme.SMALL, Color(CHALK, 0.6))
 	asked.name = "Asked"
-	asked.add_theme_font_override("font", MONO)
+	asked.add_theme_font_override("font", mono_with_fallback())
 	inner.add_child(asked)
 	board_scroll = ScrollContainer.new()
 	board_scroll.name = "Scroll"
@@ -328,12 +329,43 @@ func _fit() -> void:
 	spark.offset_bottom = -26.0
 
 
+## Share Tech Mono, with the game's own font stack behind it for what it lacks, such as
+## the subscript digits in S₁₂ (FAL-969).
+static func mono_with_fallback() -> Font:
+	UiTheme.install_math_font()
+	var f := FontVariation.new()
+	f.base_font = MONO
+	f.fallbacks = [ThemeDB.fallback_font]
+	return f
+
+
+## Whether a title is only words, with no maths, so it can be set in Bangers. Bangers has
+## capitals only, so a lone letter such as the x in "Factor out x" would read as X.
+static func plain_words(s: String) -> bool:
+	if MathText.has_markup(s):
+		return false
+	for w in s.split(" ", false):
+		var bare := w.strip_edges().trim_suffix(",").trim_suffix(":").trim_suffix(".")
+		if bare.length() == 1 and not bare in ["a", "A", "I"]:
+			return false
+		for i in bare.length():
+			var c := bare.unicode_at(i)
+			var letter := (c >= 65 and c <= 90) or (c >= 97 and c <= 122)
+			if not letter and not bare[i] in "'’-":
+				return false
+	return true
+
+
 func _fill_board() -> void:
 	for c in lines.get_children():
 		lines.remove_child(c)
 		c.queue_free()
 	var sols: Array = question.get("solutions", [])
 	title.text = sols[solution].name if not sols.is_empty() else "Worked solution"
+	if plain_words(title.text):
+		title.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	else:
+		title.remove_theme_font_override("font")
 	asked.text = str(question.get("asked", ""))
 	for i in chapters.size():
 		var l := UiTheme.math(chapters[i].board, UiTheme.BIG, CHALK)
