@@ -192,6 +192,23 @@
       "note": "The 162 shipped move clips are still local VoxCPM2 (FAL-428). Re-record them with this voice in the paid production pass.",
       "sheet": null,
       "brief": null
+    },
+    "nugget": {
+      "name": "Nugget Bullant",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "en-au-techagent-3",
+      "direction": "A young voice, gender-neutral, mid-low pitch with a slightly rough, dry texture, a clear Australian accent, speaking in short bursts of two to five words with a full stop after each, flat and even like each word is read off a card, keen and earnest underneath, steady volume. Short bursts with a real full stop after each one; the dots mark a hard stop, then the second phrase lands firmer.",
+      "processing": "Implant effect preset A 'cheap speaker': falcon-voice fx/nugget-implant.sh (2% tape-style slowdown asetrate=23520,aresample=24000 on the 24 kHz take; fx/nugget-implant.py: 450-3400 Hz speaker band, cone peaks +6 dB at 1.8 kHz and +3 dB at 900 Hz, 0.9 ms tin-ring comb, mild asymmetric overdrive, 400-4000 Hz band, short crackle at each burst onset, seed 942), then falcon-voice fx/level-wav.sh (HP 70 Hz, 3:1 compressor, edge-silence trim, -16 LUFS through a -2 dBFS limiter). Not master.sh: it lands short of -16 LUFS on this effect.",
+      "cast_take": {
+        "task": "FAL-942",
+        "date": "2026-11-15",
+        "sha256_16": "1eb24c8674dbaf52"
+      },
+      "approved_on": "FAL-942 card cecae42f (voice techagent-3, 2026-11-15), effect A chosen on card eade3d32 (2026-11-15)",
+      "sheet": "writing/voice-sheets.md",
+      "brief": "writing/voice-briefs.md"
     }
   }
 }
