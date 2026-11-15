@@ -173,6 +173,7 @@ static var SITUATIONS := {
 	"z-score": [ZScoreSituation, ZScoreViews],
 	"sign-at-point": [SignAtPointSituation, SignAtPointViews],
 	"gradient-from-graph": [GradientFromGraphSituation, GradientFromGraphViews],
+	"rate-of-rate": [RateOfRateSituation, RateOfRateViews],
 }
 
 static var _cat: Dictionary = {}

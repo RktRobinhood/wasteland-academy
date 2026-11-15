@@ -43248,6 +43248,143 @@ SITUATION_CHECKS["gradient-from-graph"] = E14GG_check
 # ── end gradient-from-graph ──
 
 
+# ── rate-of-rate (FAL-777) ───────────────────────────────────
+# t5-ext-interpret-second-derivative. The signs of the first and second derivatives are read back
+# from the question: from the signs it states, from its sentence, from the cubic model (SymPy
+# differentiates it), or from the drawn curve (every sampled point is held to the cubic). The
+# direction is the sign of f′ and the speed grows when f′ and f″ agree; each slip is rebuilt.
+
+E14RR_SK = "SL5.7.interpret-second-derivative#"
+E14RR_T = "t5-ext-interpret-second-derivative#"
+# name -> (letter, up, down)
+E14RR_STORIES = {"number of rats in a bunker": ("N", "increasing", "decreasing"),
+                 "temperature of a reactor's coolant": ("T", "rising", "falling"),
+                 "water level in a tank": ("L", "rising", "falling"),
+                 "price of fuel": ("P", "rising", "falling"),
+                 "volume of water in a reservoir": ("V", "increasing", "decreasing"),
+                 "height of a weather balloon": ("H", "rising", "falling"),
+                 "amount of dust in the air": ("A", "increasing", "decreasing"),
+                 "radiation level in a crater": ("R", "rising", "falling")}
+
+
+def E14RR_sentence(name, d, faster):
+    _, up, down = E14RR_STORIES[name]
+    w = up if d > 0 else down
+    return f"The {name} is {w} more and more quickly." if faster else f"The {name} is {w}, but more and more slowly."
+
+
+def E14RR_signs(q, s1, s2, at="t"):
+    c = lambda v: "> 0" if v > 0 else "< 0"
+    return f"{q}′({at}) {c(s1)} and {q}″({at}) {c(s2)}"
+
+
+def E14RR_sentences(name, s1, s2):
+    """The right sentence, the slips and the plain fillers."""
+    _, up, down = E14RR_STORIES[name]
+    right = E14RR_sentence(name, s1, s1 * s2 > 0)
+    tagged = {}
+    if s1 != s2:
+        tagged[E14RR_SK + "0"] = {f"The {name} is {up if s2 > 0 else down}."}
+        tagged[E14RR_T + "2"] = {E14RR_sentence(name, s2, s1 * s2 > 0)}
+    if s1 < 0:
+        tagged[E14RR_T + "3"] = {E14RR_sentence(name, s1, s2 > 0)}
+    plain = {E14RR_sentence(name, d, f) for d in (1, -1) for f in (True, False)} | {f"The {name} is not changing."}
+    return right, tagged, plain
+
+
+def E14RR_cubic(text):
+    return sp.Poly(E13_expr(text.replace("t", "x")), CX)
+
+
+def E14RR_clear(f, t0):
+    """The moment is clear of the turning points and the point of inflexion, and f stays in (0, 150]."""
+    d1, d2 = f.diff(CX), f.diff(CX).diff(CX)
+    need(abs(d1.eval(t0)) >= 2 and abs(d2.eval(t0)) >= 2, "the signs are too faint to read")
+    for r in sp.real_roots(d1) + sp.real_roots(d2):
+        need(abs(r - t0) >= 1, f"t = {t0} is within 1 of a turning point or the point of inflexion")
+    need(all(0 < f.eval(t) <= 150 for t in range(7)), "the quantity leaves (0, 150]")
+    return int(sp.sign(d1.eval(t0))), int(sp.sign(d2.eval(t0)))
+
+
+def E14RR_plain(q, plain):
+    for o in q["choices"]:
+        need(o["correct"] or o["ref"] or o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
+
+
+def E14RR_check(q):
+    u, L, asked = q["view"]["unknown"], q["lines"], q["asked"]
+    need(q["paper"] == 1, f"Paper {q['paper']}")
+    if u == "sentence-from-signs":
+        m = re.fullmatch(r"([A-Z])\(t\) is the (.+), t hours after midnight\.", L[0])
+        m2 = re.fullmatch(r"For (\d) < t < (\d+), ([A-Z])′\(t\) ([<>]) 0 and ([A-Z])″\(t\) ([<>]) 0\.", L[1])
+        need(m and m2 and len(L) == 2 and m.group(2) in E14RR_STORIES, f"can't read {L}")
+        name = m.group(2)
+        need(m.group(1) == m2.group(3) == m2.group(5) == E14RR_STORIES[name][0], "the letter")
+        need(asked == f"Which sentence describes the {name} for {m2.group(1)} < t < {m2.group(2)}?", f"asked {asked!r}")
+        s1, s2 = (1 if m2.group(4) == ">" else -1), (1 if m2.group(6) == ">" else -1)
+        right, tagged, plain = E14RR_sentences(name, s1, s2)
+    elif u == "signs-from-sentence":
+        m = re.fullmatch(r"([A-Z])\(t\) is the (.+), t hours after midnight\. For (\d) < t < (\d+):", L[0])
+        need(m and len(L) == 2 and m.group(2) in E14RR_STORIES and asked == f"Which is true for {m.group(3)} < t < {m.group(4)}?", f"can't read {L}")
+        name, letter = m.group(2), m.group(1)
+        need(letter == E14RR_STORIES[name][0], "the letter")
+        _, up, down = E14RR_STORIES[name]
+        if L[1] == f"The {name} is {up} at a decreasing rate.":
+            s1, s2 = 1, -1
+        else:
+            pairs = [(d, sp_) for d in (1, -1) for sp_ in (1, -1) if E14RR_sentence(name, d, d * sp_ > 0) == L[1]]
+            need(len(pairs) == 1, f"can't read the sentence {L[1]!r}")
+            s1, s2 = pairs[0]
+        right = E14RR_signs(letter, s1, s2)
+        tagged = {}
+        if s1 > 0 and s2 < 0:
+            tagged[E14RR_SK + "1"] = {E14RR_signs(letter, -1, -1)}
+        if s1 != s2:
+            tagged[E14RR_T + "2"] = {E14RR_signs(letter, s2, s1)}
+        if s1 < 0:
+            tagged[E14RR_T + "3"] = {E14RR_signs(letter, -1, -s2)}
+        plain = {E14RR_signs(letter, a, b) for a in (1, -1) for b in (1, -1)}
+    elif u == "from-model":
+        m = re.fullmatch(r"The (.+) t hours after midnight is modelled by ([A-Z])\(t\) = (.+), for 0 ≤ t ≤ 6\.", L[0])
+        need(m and len(L) == 1 and m.group(1) in E14RR_STORIES and m.group(2) == E14RR_STORIES[m.group(1)][0], f"can't read {L}")
+        name, letter = m.group(1), m.group(2)
+        m2 = re.fullmatch(rf"Use {letter}′\((\d)\) and {letter}″\((\d)\) to describe the {re.escape(name)} at t = (\d)\.", asked)
+        need(m2 and m2.group(1) == m2.group(2) == m2.group(3), f"asked {asked!r}")
+        t0 = int(m2.group(1))
+        f = E14RR_cubic(m.group(3))
+        need(f.degree() == 3, "not a cubic")
+        s1, s2 = E14RR_clear(f, t0)
+        right, tagged, plain = E14RR_sentences(name, s1, s2)
+        st = q["solutions"][0]["steps"]
+        need(f"{letter}′({t0}) = {frac_text(f.diff(CX).eval(t0))} " in st[0] and f"{letter}″({t0}) = {frac_text(f.diff(CX).diff(CX).eval(t0))} " in st[1], "the working's h′(t₀) or h″(t₀)")
+    else:
+        m = re.fullmatch(r"The graph shows ([A-Z])\(t\), the (.+), t hours after midnight\. The point where t = (\d) is marked\.", L[0])
+        need(m and len(L) == 1 and m.group(2) in E14RR_STORIES and m.group(1) == E14RR_STORIES[m.group(2)][0], f"can't read {L}")
+        name, t0 = m.group(2), int(m.group(3))
+        need(asked == f"Which sentence describes the {name} at t = {t0}?", f"asked {asked!r}")
+        c = q["given"]["c"]
+        f = sp.Poly([int(v) for v in c], CX)
+        gr = q["graph"]
+        fl = sp.lambdify(CX, f.as_expr())
+        need(len(gr["curves"]) == 1 and len(gr["curves"][0]) > 10, "the figure's curve")
+        for x, y in gr["curves"][0]:
+            need(abs(fl(x) - y) < 1e-6, f"the drawn curve leaves the model at t = {x}")
+        need(gr["curves"][0][0][0] == 0 and gr["curves"][0][-1][0] == 6, "the curve runs for 0 ≤ t ≤ 6")
+        need(len(gr["points"]) == 1 and gr["points"][0]["x"] == t0 and abs(gr["points"][0]["y"] - fl(t0)) < 1e-9, "the marked point")
+        s1, s2 = E14RR_clear(f, t0)
+        right, tagged, plain = E14RR_sentences(name, s1, s2)
+    gc_check_common(q, right, tagged)
+    E14RR_plain(q, plain)
+    for sol in q["solutions"]:
+        need(sol["steps"][-1].rstrip(".") == right.rstrip("."), f"{sol['name']}: the last step is not the answer")
+    return None, None
+
+
+SITUATION_CHECKS["rate-of-rate"] = E14RR_check
+
+# ── end rate-of-rate ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):
