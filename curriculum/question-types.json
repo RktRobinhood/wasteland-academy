@@ -6168,6 +6168,192 @@
     "a quadratic has two distinct whole or half roots, each at most 12 in size, and exactly one makes every argument positive",
     "a slip is offered as an option only when its x is at most 60 in size, with a denominator at most 12"
    ]
+  },
+  "gradient-from-graph": {
+   "name": "A curve and the tangent at one point",
+   "summary": "A curve through P(a, f(a)) whose tangent at P has a whole-number gradient m, so the tangent runs through grid points either side of P; a second point Q for a comparison; or a formula only the GDC differentiates.",
+   "quantities": [
+    {
+     "name": "f",
+     "is": "the curve",
+     "pick": "c(x − a)³ + m(x − a) + y₀ or c(x − a)² + m(x − a) + y₀, c a small fraction; e^x, ln x or a root mixed with a polynomial on Paper 2"
+    },
+    {
+     "name": "a, y₀",
+     "is": "the point P",
+     "pick": "whole numbers, y₀ ≠ m and a ≠ 0"
+    },
+    {
+     "name": "m",
+     "is": "the gradient at P",
+     "pick": "a whole number from −4 to 4, not 0"
+    },
+    {
+     "name": "h",
+     "is": "the half-width of a short chord",
+     "pick": "0.1"
+    },
+    {
+     "name": "A, B",
+     "is": "two points for a comparison",
+     "pick": "whole x-values whose gradients differ, and whose heights are in the other order"
+    }
+   ],
+   "modes": [
+    "Paper 1: a drawn tangent, a short chord from a table, two gradients compared",
+    "Paper 2: a formula, with the GDC's dy/dx"
+   ],
+   "clean": [
+    "the tangent meets grid points two units either side of P",
+    "a GDC gradient is fair to 3 s.f."
+   ]
+  },
+  "sign-at-point": {
+   "name": "A function and one point",
+   "summary": "A cubic f, a model T(t) in a story, f′ given in factors, or on Paper 2 a function only the GDC differentiates, and one x where f′ is not 0. The sign of f(a) is the other way from the sign of f′(a), so reading the wrong one gives the wrong answer.",
+   "quantities": [
+    {
+     "name": "f",
+     "is": "the function",
+     "pick": "px³ + qx² + rx + d with whole coefficients; T(t) the same in a story; k(x − p)(x − r) for f′; e^(kx) or ln x mixed with a polynomial on Paper 2"
+    },
+    {
+     "name": "a",
+     "is": "the point",
+     "pick": "a whole number (a decimal on Paper 2) with f′(a) ≠ 0"
+    },
+    {
+     "name": "f(a), f′(a)",
+     "is": "the value and the gradient there",
+     "pick": "nonzero, with opposite signs"
+    }
+   ],
+   "modes": [
+    "Paper 1: polynomials and f′ in factors",
+    "Paper 2: the GDC's dy/dx"
+   ],
+   "clean": [
+    "f′(a) is a whole number on Paper 1, fair to 3 s.f. on Paper 2",
+    "f(a ± 0.01) ends within 6 decimal places"
+   ]
+  },
+  "rate-of-rate": {
+   "name": "A quantity, its rate and the rate of its rate",
+   "summary": "A quantity in a story (a population, a temperature, a water level, a price) with the signs of its first and second derivatives over a stretch of time, given as signs, as a sentence, as a curve with a point marked or as a cubic model at a time.",
+   "quantities": [
+    {
+     "name": "s₁, s₂",
+     "is": "the signs of the first and second derivatives",
+     "pick": "one of the four pairs, mostly mixed signs"
+    },
+    {
+     "name": "story",
+     "is": "the quantity, its letter and its verb",
+     "pick": "one of eight stories"
+    },
+    {
+     "name": "h(t)",
+     "is": "a cubic model for the from-model unknown, and the curve drawn",
+     "pick": "whole coefficients; h′(t₀) and h″(t₀) nonzero"
+    }
+   ],
+   "modes": [
+    "Paper 1 throughout"
+   ],
+   "clean": [
+    "h′(t₀) and h″(t₀) are whole numbers",
+    "the point is clear of the curve's turning point and point of inflexion"
+   ]
+  },
+  "z-score": {
+   "name": "A value in a normal distribution, and its z-value",
+   "summary": "X ~ N(μ, σ²) in a story, with x = μ + zσ for a z in steps of 0.25; or two values, each in its own normal distribution, to compare by z. For a time, lower is better.",
+   "quantities": [
+    {
+     "name": "μ, σ",
+     "is": "the mean and standard deviation",
+     "pick": "whole numbers, σ from 2 to 16"
+    },
+    {
+     "name": "z",
+     "is": "the z-value",
+     "pick": "a nonzero multiple of 0.25 from −3 to 3, a multiple of 0.5 where steps of σ are counted"
+    },
+    {
+     "name": "x",
+     "is": "the value",
+     "pick": "μ + zσ, a whole number"
+    },
+    {
+     "name": "two tests",
+     "is": "μ₁, σ₁, x₁ and μ₂, σ₂, x₂ for a comparison",
+     "pick": "the larger z goes with the smaller raw score and the smaller x − μ"
+    }
+   ],
+   "modes": [
+    "Paper 1: z, x and comparisons by z",
+    "Paper 2: comparisons by the proportion below, with normalcdf"
+   ],
+   "clean": [
+    "every z-value ends in two decimal places",
+    "the two z-values differ by at least 0.25"
+   ]
+  },
+  "conditional-diagram": {
+   "name": "Two events shown as counts or branches",
+   "summary": "Counts in the four regions of a two-way table or a Venn diagram, a tree diagram with its branch probabilities, or a bag of two colours drawn twice without replacement. The given group is never the largest, and P(A | B) and P(B | A) differ.",
+   "quantities": [
+    {
+     "name": "a, i, b, o",
+     "is": "the regions: A only, both, B only, neither",
+     "pick": "whole numbers from 2 to 30, i at least 2"
+    },
+    {
+     "name": "pa, pba, pbn",
+     "is": "a tree's P(A), P(B | A) and P(B | A′)",
+     "pick": "multiples of 0.1 or 0.05 strictly between 0 and 1"
+    },
+    {
+     "name": "r, g",
+     "is": "the counts of the two colours in a bag",
+     "pick": "whole numbers from 3 to 9"
+    }
+   ],
+   "modes": [
+    "Paper 1 throughout, answers exact"
+   ],
+   "clean": [
+    "no two of the slips give the same fraction",
+    "the given group holds at least a fifth of the total"
+   ]
+  },
+  "mutually-exclusive": {
+   "name": "Two events that may or may not overlap",
+   "summary": "Two events given by their probabilities, by a Venn diagram of counts, or in words on a fair die, spinner or deck; half the time they can't both happen. Where they can, they are often independent too, so the two ideas are told apart.",
+   "quantities": [
+    {
+     "name": "P(A), P(B), P(A ∩ B)",
+     "is": "the probabilities",
+     "pick": "multiples of 0.05; P(A ∩ B) = 0 or P(A) × P(B)"
+    },
+    {
+     "name": "a, i, b, o",
+     "is": "Venn counts",
+     "pick": "whole numbers; i = 0 or i × u = n(A) × n(B)"
+    },
+    {
+     "name": "outcomes",
+     "is": "a fair die, spinner or set of numbered cards, and two events on it",
+     "pick": "events in words: a number, odd, even, a multiple, a prime, greater than"
+    }
+   ],
+   "modes": [
+    "Paper 1 throughout, answers exact"
+   ],
+   "clean": [
+    "P(A) + P(B) < 1 whenever the events are not mutually exclusive, so that slip has a case",
+    "every probability is a multiple of 0.05 or a fraction of the outcomes"
+   ]
   }
  },
  "types": [
@@ -82452,7 +82638,7 @@
    "topic": 4,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "probability",
    "name": "Mutually exclusive events",
    "summary": "Decide with a reason whether two events are mutually exclusive, and use P(A ∪ B) = P(A) + P(B) when they are.",
@@ -82469,6 +82655,180 @@
     "true-false-reason",
     "value",
     "match"
+   ],
+   "situation": "mutually-exclusive",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "P(A) = 0.3, P(B) = 0.45 and P(A ∪ B) = 0.75"
+    },
+    {
+     "rep": "diagram",
+     "exam": false,
+     "how": "a Venn diagram of counts"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "events on a fair die, spinner or set of cards, or a story"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "decide-from-probabilities",
+     "given": [
+      "P(A), P(B) and P(A ∪ B) or P(A ∩ B)"
+     ],
+     "asked": "whether A and B are mutually exclusive, with the reason",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL4.6.mutually-exclusive"
+     ]
+    },
+    {
+     "id": "decide-from-venn",
+     "given": [
+      "a Venn diagram of counts"
+     ],
+     "asked": "whether A and B are mutually exclusive, with the reason",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL4.6.mutually-exclusive"
+     ]
+    },
+    {
+     "id": "decide-in-context",
+     "given": [
+      "two events on a fair die, spinner or set of cards"
+     ],
+     "asked": "whether the events are mutually exclusive, with the reason",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.6.mutually-exclusive"
+     ]
+    },
+    {
+     "id": "union-exclusive",
+     "given": [
+      "P(A) and P(B) for mutually exclusive events"
+     ],
+     "asked": "P(A ∪ B)",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.mutually-exclusive"
+     ]
+    },
+    {
+     "id": "missing-exclusive",
+     "given": [
+      "P(A) and P(A ∪ B) for mutually exclusive events"
+     ],
+     "asked": "P(B)",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL4.6.mutually-exclusive"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.6.mutually-exclusive",
+     "method": "intersection-zero",
+     "suits": [
+      "decide-from-probabilities",
+      "decide-from-venn",
+      "decide-in-context",
+      "union-exclusive",
+      "missing-exclusive"
+     ]
+    },
+    {
+     "skill": "SL4.6.mutually-exclusive",
+     "method": "separate-circles",
+     "suits": [
+      "decide-from-venn"
+     ]
+    },
+    {
+     "skill": "SL4.6.mutually-exclusive",
+     "method": "can-both-happen",
+     "suits": [
+      "decide-in-context"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A and B are mutually exclusive, P(A) = 0.3 and P(B) = 0.4. Then A and B are independent too. True or false?",
+     "answer": "False. Mutually exclusive means P(A ∩ B) = 0, but independent would need P(A ∩ B) = 0.3 × 0.4 = 0.12. Knowing A happened tells you B didn't, so they are not independent.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.6.mutually-exclusive#0",
+     "text": "Treating mutually exclusive as if it meant independent",
+     "as": "distractor",
+     "in": [
+      "decide-from-probabilities",
+      "decide-from-venn",
+      "decide-in-context",
+      "union-exclusive",
+      "missing-exclusive"
+     ],
+     "wrong": "tests independence, P(A ∩ B) = P(A) × P(B), in place of P(A ∩ B) = 0"
+    },
+    {
+     "ref": "SL4.6.mutually-exclusive#1",
+     "text": "Concluding that A and B are mutually exclusive because P(A) + P(B) < 1",
+     "as": "distractor",
+     "in": [
+      "decide-from-probabilities",
+      "decide-from-venn",
+      "decide-in-context"
+     ],
+     "wrong": "says the events are mutually exclusive because their probabilities add to less than 1"
+    },
+    {
+     "text": "Multiplying P(A) and P(B) to get P(A ∪ B)",
+     "as": "distractor",
+     "in": [
+      "union-exclusive"
+     ],
+     "wrong": "multiplies the two probabilities, which gives P(A ∩ B) for independent events, not the union"
+    },
+    {
+     "text": "Subtracting P(A) × P(B) from the sum, as for independent events",
+     "as": "distractor",
+     "in": [
+      "union-exclusive",
+      "missing-exclusive"
+     ],
+     "wrong": "uses P(A ∪ B) = P(A) + P(B) − P(A)P(B) for events that can't both happen"
+    }
    ]
   },
   {
@@ -82476,7 +82836,7 @@
    "topic": 4,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "probability",
    "name": "Conditional probability from a diagram",
    "summary": "Read a conditional probability straight from a two-way table, Venn diagram or tree by keeping only the given group.",
@@ -82493,6 +82853,209 @@
     "mcq",
     "method-pick",
     "error-spot"
+   ],
+   "situation": "conditional-diagram",
+   "representations": [
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "a two-way table of counts with its totals"
+    },
+    {
+     "rep": "diagram",
+     "exam": false,
+     "how": "a Venn diagram of counts, or a tree diagram"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a bag of sweets or tokens drawn twice without replacement"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "from-table",
+     "given": [
+      "a two-way table of counts"
+     ],
+     "asked": "the probability that someone from one group is also in the other",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.6.conditional-diagram"
+     ]
+    },
+    {
+     "id": "from-venn",
+     "given": [
+      "a Venn diagram of counts"
+     ],
+     "asked": "P(A | B)",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL4.6.conditional-diagram"
+     ]
+    },
+    {
+     "id": "tree-branch",
+     "given": [
+      "a tree diagram with its branch probabilities"
+     ],
+     "asked": "P(B | A) or P(B′ | A′)",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL4.6.conditional-diagram"
+     ]
+    },
+    {
+     "id": "second-draw",
+     "given": [
+      "a bag of two colours, two drawn without replacement"
+     ],
+     "asked": "the probability that the second is a colour, given the first",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.6.conditional-diagram"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.6.conditional-diagram",
+     "method": "restrict-table",
+     "suits": [
+      "from-table"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "tree-branch",
+       "second-draw"
+      ],
+      "why": "there is no table of counts to restrict"
+     }
+    },
+    {
+     "skill": "SL4.6.conditional-diagram",
+     "method": "restrict-venn",
+     "suits": [
+      "from-venn"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "tree-branch",
+       "second-draw"
+      ],
+      "why": "there is no Venn diagram of counts to restrict"
+     }
+    },
+    {
+     "skill": "SL4.6.conditional-diagram",
+     "method": "tree-branch",
+     "suits": [
+      "tree-branch",
+      "second-draw"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "from-table",
+       "from-venn"
+      ],
+      "why": "there is no tree, so there is no branch to read"
+     }
+    },
+    {
+     "skill": "SL4.6.conditional-diagram",
+     "method": "formula",
+     "suits": [
+      "from-table",
+      "from-venn",
+      "tree-branch",
+      "second-draw"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "In a two-way table, P(A | B) and P(B | A) are always equal, because both use the same cell n(A ∩ B). True or false?",
+     "answer": "False. Both have n(A ∩ B) on top, but P(A | B) divides it by n(B) and P(B | A) by n(A). They are equal only when n(A) = n(B).",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.6.conditional-diagram#0",
+     "text": "Dividing by the grand total instead of the total of the 'given' group",
+     "as": "distractor",
+     "in": [
+      "from-table",
+      "from-venn",
+      "second-draw"
+     ],
+     "wrong": "divides the count in both by the grand total, not by the total of the given group"
+    },
+    {
+     "ref": "SL4.6.conditional-diagram#1",
+     "text": "Confusing P(A | B) with P(B | A)",
+     "as": "distractor",
+     "in": [
+      "from-table",
+      "from-venn"
+     ],
+     "wrong": "divides by the total of the other group, which gives the reverse conditional"
+    },
+    {
+     "text": "Multiplying along the path, which gives the probability of both, not the conditional",
+     "as": "distractor",
+     "in": [
+      "tree-branch",
+      "second-draw"
+     ],
+     "wrong": "multiplies the first branch by the second, P(A) × P(B | A) = P(A ∩ B)"
+    },
+    {
+     "text": "Putting the first sweet back before the second draw",
+     "as": "distractor",
+     "in": [
+      "second-draw"
+     ],
+     "wrong": "uses the starting counts for the second draw, as if the first sweet were replaced"
+    },
+    {
+     "text": "Reading the branch from the other first-stage outcome",
+     "as": "distractor",
+     "in": [
+      "tree-branch"
+     ],
+     "wrong": "reads the second-stage branch that grows from the other first outcome"
+    },
+    {
+     "text": "Dividing by the grand total in a line of working",
+     "as": "error-spot",
+     "in": [
+      "from-table",
+      "from-venn"
+     ],
+     "wrong": "a line of working divides by the whole total, not the given group's"
+    }
    ]
   },
   {
@@ -82500,7 +83063,7 @@
    "topic": 4,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "normal-distribution",
    "name": "Find, interpret and compare z-scores",
    "summary": "Find a z-value and say what it means, turn a z-value back into x, and compare results from two different normal distributions using z.",
@@ -82519,6 +83082,241 @@
     "error-spot",
     "match",
     "true-false-reason"
+   ],
+   "situation": "z-score",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "X ~ N(60, 8²) and a value of x or z"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a story: test marks, lengths, masses or race times"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the normal curve with μ and steps of σ marked on the axis, and x marked"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "z-from-x",
+     "given": [
+      "μ, σ and a value x"
+     ],
+     "asked": "the z-value of x",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL4.12.z-score"
+     ]
+    },
+    {
+     "id": "x-from-z",
+     "given": [
+      "μ, σ and a z-value"
+     ],
+     "asked": "the value x with that z-value",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.12.z-score"
+     ]
+    },
+    {
+     "id": "interpret-z",
+     "given": [
+      "a value's z-value in a story"
+     ],
+     "asked": "what the z-value says about the value",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.12.z-score"
+     ]
+    },
+    {
+     "id": "compare-scores",
+     "given": [
+      "two scores, each in its own normal distribution"
+     ],
+     "asked": "which score is better relative to its group, with the reason",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.12.compare-z"
+     ]
+    },
+    {
+     "id": "compare-times",
+     "given": [
+      "two race times, each in its own normal distribution"
+     ],
+     "asked": "which time is more exceptional, with the reason",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.12.compare-z"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.12.z-score",
+     "method": "z-formula",
+     "suits": [
+      "z-from-x",
+      "x-from-z",
+      "interpret-z"
+     ]
+    },
+    {
+     "skill": "SL4.12.z-score",
+     "method": "count-sds",
+     "suits": [
+      "z-from-x",
+      "x-from-z",
+      "interpret-z"
+     ]
+    },
+    {
+     "skill": "SL4.12.compare-z",
+     "method": "compare-z-values",
+     "suits": [
+      "compare-scores",
+      "compare-times"
+     ]
+    },
+    {
+     "skill": "SL4.12.compare-z",
+     "method": "compare-percentiles",
+     "suits": [
+      "compare-scores",
+      "compare-times"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Ravi scored 70 in a test with mean 60 and 82 in a test with mean 75, so he did better in the second test. True or false?",
+     "answer": "False, or not yet shown. The marks can't be compared without the standard deviations: standardise each one, z = (x − μ)/σ, and compare the z-values.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.12.z-score#0",
+     "text": "Dividing by the variance instead of the standard deviation",
+     "as": "distractor",
+     "in": [
+      "z-from-x",
+      "x-from-z"
+     ],
+     "wrong": "divides x − μ by σ², the variance"
+    },
+    {
+     "ref": "SL4.12.z-score#1",
+     "text": "Writing (μ − x)/σ and getting the sign wrong",
+     "as": "distractor",
+     "in": [
+      "z-from-x",
+      "x-from-z",
+      "interpret-z"
+     ],
+     "wrong": "works out (μ − x)/σ, so the sign of z is the wrong way round"
+    },
+    {
+     "ref": "SL4.12.z-score#2",
+     "text": "Thinking a negative z-value is impossible",
+     "as": "distractor",
+     "in": [
+      "interpret-z"
+     ],
+     "wrong": "says a negative z-value can't happen, so there must be an error"
+    },
+    {
+     "ref": "SL4.12.compare-z#0",
+     "text": "Comparing the raw scores instead of the standardised values",
+     "as": "distractor",
+     "in": [
+      "compare-scores",
+      "compare-times"
+     ],
+     "wrong": "picks the higher raw score or the lower raw time"
+    },
+    {
+     "ref": "SL4.12.compare-z#1",
+     "text": "Comparing x − μ without dividing by σ",
+     "as": "distractor",
+     "in": [
+      "compare-scores",
+      "compare-times"
+     ],
+     "wrong": "compares how far each value is from its mean, in marks or seconds, without dividing by σ"
+    },
+    {
+     "ref": "SL4.12.compare-z#2",
+     "text": "Forgetting that for times a more negative z is better",
+     "as": "distractor",
+     "in": [
+      "compare-times"
+     ],
+     "wrong": "picks the time with the larger z-value, as if a higher time were better"
+    },
+    {
+     "text": "Adding z to the mean without multiplying it by σ",
+     "as": "distractor",
+     "in": [
+      "x-from-z"
+     ],
+     "wrong": "works out μ + z, as if z were in the units of x"
+    },
+    {
+     "text": "Reading z as a distance in the units of x",
+     "as": "distractor",
+     "in": [
+      "interpret-z"
+     ],
+     "wrong": "says x is z marks, cm or kg from the mean, not z standard deviations"
+    },
+    {
+     "text": "Dividing x − μ by σ² in a line of working",
+     "as": "error-spot",
+     "in": [
+      "z-from-x"
+     ],
+     "wrong": "a line of working divides by the variance"
+    },
+    {
+     "text": "Subtracting zσ from the mean when z is positive",
+     "as": "error-spot",
+     "in": [
+      "x-from-z"
+     ],
+     "wrong": "a line of working takes zσ away from μ"
+    }
    ]
   },
   {
@@ -82550,7 +83348,7 @@
    "topic": 5,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "derivative-basics",
    "name": "Estimate a gradient from a graph",
    "summary": "Estimate the gradient of a curve at a point from a drawn tangent or with the GDC, and compare the gradients at two points.",
@@ -82567,6 +83365,208 @@
     "value",
     "graph-pick",
     "true-false-reason"
+   ],
+   "situation": "gradient-from-graph",
+   "representations": [
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the curve on a grid, with the tangent at P ruled, or with the points marked"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "values of f just either side of x = a"
+    },
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "f(x) as a formula, for the GDC"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "tangent-drawn",
+     "given": [
+      "the curve and its tangent at P, drawn on a grid"
+     ],
+     "asked": "an estimate of the gradient at P",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.1.gradient-from-graph"
+     ]
+    },
+    {
+     "id": "chord-table",
+     "given": [
+      "f(a − 0.1), f(a) and f(a + 0.1) in a table"
+     ],
+     "asked": "an estimate of the gradient at x = a from the chord either side",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL5.1.gradient-from-graph"
+     ]
+    },
+    {
+     "id": "gdc-gradient",
+     "given": [
+      "f(x) and x = a"
+     ],
+     "asked": "the gradient of the curve at x = a, to 3 s.f.",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.1.gradient-from-graph"
+     ]
+    },
+    {
+     "id": "compare-two",
+     "given": [
+      "the curve with two points A and B marked"
+     ],
+     "asked": "which gradient is greater, and why",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.1.gradient-from-graph"
+     ]
+    },
+    {
+     "id": "pick-tangent",
+     "given": [
+      "the curve and a point P on it"
+     ],
+     "asked": "which of four graphs shows the tangent at P",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.1.gradient-from-graph"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.1.gradient-from-graph",
+     "method": "tangent-rise-run",
+     "suits": [
+      "tangent-drawn",
+      "pick-tangent"
+     ]
+    },
+    {
+     "skill": "SL5.1.gradient-from-graph",
+     "method": "symmetric-chord",
+     "suits": [
+      "chord-table",
+      "gdc-gradient"
+     ]
+    },
+    {
+     "skill": "SL5.1.gradient-from-graph",
+     "method": "gdc-dydx",
+     "suits": [
+      "gdc-gradient"
+     ]
+    },
+    {
+     "skill": "SL5.1.gradient-from-graph",
+     "method": "compare-steepness",
+     "suits": [
+      "compare-two"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "P is a point on a curve. The gradient of the curve at P is the y-coordinate of P. True or false?",
+     "answer": "False. The y-coordinate says how high P is; the gradient says how steeply the curve climbs there, the rise over the run of the tangent at P.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.1.gradient-from-graph#0",
+     "text": "Using the y-value at the point as the gradient",
+     "as": "distractor",
+     "in": [
+      "tangent-drawn",
+      "chord-table",
+      "gdc-gradient",
+      "compare-two",
+      "pick-tangent"
+     ],
+     "wrong": "gives the y-coordinate of the point as the gradient"
+    },
+    {
+     "ref": "SL5.1.gradient-from-graph#1",
+     "text": "Using the chord from the origin to the point instead of the tangent",
+     "as": "distractor",
+     "in": [
+      "tangent-drawn",
+      "gdc-gradient",
+      "pick-tangent"
+     ],
+     "wrong": "uses the line from the origin to the point, so the gradient is y ÷ x at P"
+    },
+    {
+     "ref": "SL5.1.gradient-from-graph#2",
+     "text": "Thinking a steeper downhill tangent has a larger gradient",
+     "as": "distractor",
+     "in": [
+      "compare-two"
+     ],
+     "wrong": "calls the steeper of two downhill tangents the greater gradient"
+    },
+    {
+     "text": "Dividing the run by the rise",
+     "as": "distractor",
+     "in": [
+      "tangent-drawn"
+     ],
+     "wrong": "divides the run of the tangent by its rise, so the gradient is upside down"
+    },
+    {
+     "text": "Dropping the minus sign of a tangent that slopes down",
+     "as": "distractor",
+     "in": [
+      "tangent-drawn"
+     ],
+     "wrong": "gives the size of the rise over the run, without the minus sign of a downhill tangent"
+    },
+    {
+     "text": "Dividing the chord's rise by 0.1 instead of by its whole run of 0.2",
+     "as": "distractor",
+     "in": [
+      "chord-table"
+     ],
+     "wrong": "divides f(a + 0.1) − f(a − 0.1) by 0.1, half the chord's run"
+    },
+    {
+     "text": "Drawing a chord to a point further along the curve instead of the tangent",
+     "as": "distractor",
+     "in": [
+      "pick-tangent"
+     ],
+     "wrong": "draws the line from P to another point of the curve, which cuts it"
+    }
    ]
   },
   {
@@ -82574,7 +83574,7 @@
    "topic": 5,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "derivative-basics",
    "name": "Increasing or decreasing at a point",
    "summary": "Decide whether a function is increasing or decreasing at one point from the sign of f′ there, and give the reason.",
@@ -82590,6 +83590,164 @@
     "mcq",
     "true-false-reason",
     "value"
+   ],
+   "situation": "sign-at-point",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "f(x), or f′(x) in factors"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a temperature, a depth or a stock level modelled by a formula in t"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "from-formula",
+     "given": [
+      "a cubic f(x) and x = a"
+     ],
+     "asked": "whether f is increasing or decreasing at x = a, with the reason",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.2.sign-at-point"
+     ]
+    },
+    {
+     "id": "in-context",
+     "given": [
+      "a quantity modelled by a cubic in t, and a time"
+     ],
+     "asked": "whether the quantity is rising or falling then, with the reason",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL5.2.sign-at-point"
+     ]
+    },
+    {
+     "id": "from-derivative",
+     "given": [
+      "f′(x) in factor form and x = a"
+     ],
+     "asked": "whether f is increasing or decreasing at x = a, with the reason",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.2.sign-at-point"
+     ]
+    },
+    {
+     "id": "gdc-check",
+     "given": [
+      "f(x) with an exponential or a log, and x = a"
+     ],
+     "asked": "whether f is increasing or decreasing at x = a, with the GDC's gradient",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.2.sign-at-point"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.2.sign-at-point",
+     "method": "evaluate-derivative",
+     "suits": [
+      "from-formula",
+      "in-context",
+      "from-derivative"
+     ]
+    },
+    {
+     "skill": "SL5.2.sign-at-point",
+     "method": "compare-neighbours",
+     "suits": [
+      "from-formula",
+      "in-context"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "from-derivative"
+      ],
+      "why": "only f′ is given, so there are no values of f to compare"
+     }
+    },
+    {
+     "skill": "SL5.2.sign-at-point",
+     "method": "gdc-dydx",
+     "suits": [
+      "gdc-check"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "f(2) < 0, so f is decreasing at x = 2. True or false?",
+     "answer": "False. f(2) < 0 says the curve is below the x-axis there. Whether f is increasing or decreasing depends on the sign of f′(2).",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.2.sign-at-point#0",
+     "text": "Using the sign of f(a) instead of f′(a)",
+     "as": "distractor",
+     "in": [
+      "from-formula",
+      "in-context",
+      "gdc-check"
+     ],
+     "wrong": "reads the sign of f(a), not f′(a), and gives the direction it would mean"
+    },
+    {
+     "ref": "SL5.2.sign-at-point#1",
+     "text": "Justifying with 'the graph goes up' without referring to the derivative",
+     "as": "distractor",
+     "in": [
+      "from-formula",
+      "in-context",
+      "from-derivative",
+      "gdc-check"
+     ],
+     "wrong": "gives the right direction with 'the graph goes up' or 'goes down' as the reason, and no derivative"
+    },
+    {
+     "text": "Leaving a term's power the same when differentiating it",
+     "as": "distractor",
+     "in": [
+      "from-formula",
+      "in-context"
+     ],
+     "wrong": "differentiates one term of f without lowering its power, so f′(a) and maybe its sign are wrong"
+    },
+    {
+     "text": "Substituting into a bracket of f′ with its number's sign flipped",
+     "as": "distractor",
+     "in": [
+      "from-derivative"
+     ],
+     "wrong": "works out the factors of f′ at a with x − p read as x + p, so the sign of f′(a) can come out wrong"
+    }
    ]
   },
   {
@@ -83594,7 +84752,7 @@
    "topic": 5,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "derivative-rules",
    "name": "The second derivative in context",
    "summary": "Say what the sign of the second derivative means in context, such as \"the temperature is rising, but more and more slowly\".",
@@ -83610,6 +84768,156 @@
     "mcq",
     "true-false-reason",
     "match"
+   ],
+   "situation": "rate-of-rate",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the signs, P′(t) > 0 and P″(t) < 0, or a cubic model h(t)"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a sentence: the level is rising, but more and more slowly"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the quantity against time, with one moment marked"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "sentence-from-signs",
+     "given": [
+      "the signs of the first and second derivatives in a story"
+     ],
+     "asked": "the sentence that describes the quantity",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.7.interpret-second-derivative"
+     ]
+    },
+    {
+     "id": "signs-from-sentence",
+     "given": [
+      "a sentence about how a quantity changes"
+     ],
+     "asked": "the signs of its first and second derivatives",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL5.7.interpret-second-derivative"
+     ]
+    },
+    {
+     "id": "from-graph",
+     "given": [
+      "the graph of a quantity against time, with one moment marked"
+     ],
+     "asked": "the sentence that describes the quantity then",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.7.interpret-second-derivative"
+     ]
+    },
+    {
+     "id": "from-model",
+     "given": [
+      "a cubic model h(t) and a time t₀"
+     ],
+     "asked": "what the signs of h′(t₀) and h″(t₀) say about the quantity",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.7.interpret-second-derivative"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.7.interpret-second-derivative",
+     "method": "two-layer-reading",
+     "suits": [
+      "sentence-from-signs",
+      "signs-from-sentence",
+      "from-graph",
+      "from-model"
+     ]
+    },
+    {
+     "skill": "SL5.7.interpret-second-derivative",
+     "method": "curve-shape",
+     "suits": [
+      "sentence-from-signs",
+      "signs-from-sentence",
+      "from-graph"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "V″(t) < 0 for a water tank, so the volume of water is going down. True or false?",
+     "answer": "False. V″(t) < 0 says the rate V′(t) is going down. The volume can still be rising, more and more slowly, while V′(t) > 0.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.7.interpret-second-derivative#0",
+     "text": "Reading the sign of f″ as whether the quantity rises or falls",
+     "as": "distractor",
+     "in": [
+      "sentence-from-signs",
+      "from-graph",
+      "from-model"
+     ],
+     "wrong": "takes the sign of the second derivative as the direction of the quantity itself"
+    },
+    {
+     "ref": "SL5.7.interpret-second-derivative#1",
+     "text": "Treating 'increasing at a decreasing rate' as 'decreasing'",
+     "as": "distractor",
+     "in": [
+      "signs-from-sentence"
+     ],
+     "wrong": "reads 'increasing at a decreasing rate' as a quantity that is going down"
+    },
+    {
+     "text": "Swapping what the first and second derivatives say",
+     "as": "distractor",
+     "in": [
+      "sentence-from-signs",
+      "signs-from-sentence",
+      "from-graph",
+      "from-model"
+     ],
+     "wrong": "uses the second derivative for the direction and the first for the bend"
+    },
+    {
+     "text": "Reading 'more and more slowly' as a negative second derivative when the quantity is falling",
+     "as": "distractor",
+     "in": [
+      "signs-from-sentence"
+     ],
+     "wrong": "gives f″ < 0 for a fall that slows, when the rate is rising towards 0"
+    }
    ]
   },
   {
