@@ -168,6 +168,7 @@ static var SITUATIONS := {
 	"integral-gdc": [IntegralGdcSituation, IntegralGdcViews],
 	"area-under-curve": [AreaUnderCurveSituation, AreaUnderCurveViews],
 	"variable-kind": [VariableKindSituation, VariableKindViews],
+	"study": [StudySituation, StudyViews],
 }
 
 static var _cat: Dictionary = {}

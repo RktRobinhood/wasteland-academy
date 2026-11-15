@@ -42173,6 +42173,78 @@ SITUATION_CHECKS["variable-kind"] = E15DT_check
 # ── end variable-kind ──
 
 
+# ── study (t4-ext-population-sample, FAL-778) ────────────────
+# The population is read from the first line (everyone the study is about), the sample from the
+# last (the people actually asked), and how they were chosen from the verbs of the last line, with
+# the stories' own copy in SM_CTX. Random means a numbered draw from everyone; the right claim is
+# written here from that, and each tagged option is rebuilt from its slip.
+
+E15PS_SK = "SL4.1.population-sample#"
+E15PS_T = "t4-ext-population-sample#"
+
+
+def E15PS_read(q):
+    L = q["lines"]
+    c = next((c for c in SM_CTX if re.fullmatch(rf"The {c[1]} has \d+ {c[0]}\.", L[0])), None)
+    need(c is not None, f"can't read {L[0]!r}")
+    who, place, names, spot, lst, topic = c
+    N = int(re.fullmatch(rf"The {place} has (\d+) {who}\.", L[0]).group(1))
+    need(L[1] == f"A surveyor wants to learn {topic}.", f"can't read {L[1]!r}")
+    if (m := re.fullmatch(rf"She numbers everyone on {lst}, draws (\d+) of the numbers at random and asks those (\d+) {who}\.", L[2])):
+        need(m.group(1) == m.group(2), "she asks a different number from the draw")
+        how, n, g = "draw", int(m.group(1)), None
+    elif (m := re.fullmatch(rf"She stands {spot} and asks the first (\d+) {who} who come by\.", L[2])):
+        how, n, g = "spot", int(m.group(1)), None
+    elif (m := re.fullmatch(rf"She pins up a notice {spot} and asks the first (\d+) {who} who reply\.", L[2])):
+        how, n, g = "volunteer", int(m.group(1)), None
+    elif (m := re.fullmatch(rf"She draws (\d+) of the (.+) at random from {lst} and asks only them\.", L[2])):
+        need(m.group(2) in names, f"{m.group(2)!r} is not a group of the {place}")
+        how, n, g = "group", int(m.group(1)), m.group(2)
+    else:
+        raise Fail(f"can't read how the sample was chosen: {L[2]!r}")
+    need(0 < 4 * n < N, f"a sample of {n} from {N}")
+    return c, N, n, how, g
+
+
+def E15PS_check(q):
+    u, ch = q["view"]["unknown"], q["choices"]
+    (who, place, names, spot, lst, topic), N, n, how, g = E15PS_read(q)
+    everyone, asked = f"All {N} {who} in the {place}.", f"The {n} {who} she asked."
+    for o in ch:
+        need(not (o["text"].startswith("Only the ") and o["text"][9:].split(" in the ")[0] == g), f"{o['text']!r} is the sampled group")
+    if u == "name-population":
+        need(q["asked"] == "What is the population in this study?", f"asked {q['asked']!r}")
+        want, wrongs = everyone, {E15PS_SK + "0": {asked}}
+    elif u == "name-sample":
+        need(q["asked"] == "What is the sample in this study?", f"asked {q['asked']!r}")
+        want, wrongs = asked, {E15PS_T + "2": {everyone}}
+    elif u == "is-random":
+        need(q["asked"] == "Is the sample random? Give a reason.", f"asked {q['asked']!r}")
+        want = {"draw": f"Yes: everyone on {lst} had the same chance of being chosen.",
+                "spot": f"No: anyone who doesn't come by {spot} had no chance of being chosen.",
+                "volunteer": "No: only people who choose to reply could be in the sample.",
+                "group": f"No: only the {g} could be chosen, so the other {who} had no chance."}[how]
+        for o in ch:
+            need(o["correct"] or o["text"].startswith("Yes" if how != "draw" else "No"), f"{o['text']!r} gives the right verdict but is marked wrong")
+        wrongs = {E15PS_SK + "1": {"Yes: whoever comes by is chosen by chance."} if how == "spot" else set(),
+                  E15PS_T + "3": {f"Yes: {n} people is enough to make it random."} if how != "draw" else set()}
+    else:
+        need(how != "draw", "the sample is random already")
+        need(q["asked"] == "Which change would make this a random sample?", f"asked {q['asked']!r}")
+        want = f"Number everyone on {lst} and draw {n} of the numbers at random."
+        wrongs = {E15PS_T + "3": {f"Keep the same method and ask {2 * n} {who} instead."},
+                  E15PS_SK + "1": {f"Stand {spot} at a different time and ask the first {n} {who} who come by."}}
+        for o in ch:
+            need(o["correct"] or "at random" not in o["text"] or o["text"].startswith("Ask only the "), f"{o['text']!r} is a random draw from everyone")
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+SITUATION_CHECKS["study"] = E15PS_check
+
+# ── end study ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):
