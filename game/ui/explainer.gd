@@ -314,8 +314,13 @@ func _fit() -> void:
 	var wide := size.x > size.y
 	var w := minf(size.x - 48.0, 1900.0 if wide else 1040.0)
 	var h := minf(size.y - 48.0, 1200.0 if wide else 1780.0)
-	frame.size = Vector2(w, h)
-	frame.position = (size - frame.size) / 2.0
+	# Anchored offsets, not a set size: a size set while the chalk lines had no width yet
+	# (and wrapped a word to a line) would stay that tall once they had.
+	frame.set_anchors_preset(Control.PRESET_CENTER)
+	frame.offset_left = -w / 2.0
+	frame.offset_right = w / 2.0
+	frame.offset_top = -h / 2.0
+	frame.offset_bottom = h / 2.0
 	var side := 220.0 if wide else 170.0
 	spark.offset_left = -side - 22.0
 	spark.offset_top = -side - 26.0

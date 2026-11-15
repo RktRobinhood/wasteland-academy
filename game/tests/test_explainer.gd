@@ -102,6 +102,27 @@ func test_the_player_plays_a_chapter_per_step() -> void:
 	e.free()
 
 
+## The frame, with its title, captions, scrub bar and buttons, sits inside the screen on
+## a phone and on a PC (a frame sized before the chalk lines had a width once grew to
+## four screens tall, with only the slate showing).
+func test_the_player_fits_the_screen() -> void:
+	for window in [Vector2i(390, 844), Vector2i(1280, 800)]:
+		var base := Vector2(1080, 1920)
+		var area := Vector2(window) / minf(window.x / base.x, window.y / base.y)
+		var holder := Control.new()
+		holder.size = area
+		tree.root.add_child(holder)
+		var e := Explainer.make(_question(), 0)
+		holder.add_child(e)
+		for i in 3:
+			await tree.process_frame
+		var screen := Rect2(Vector2.ZERO, area)
+		for n in [e.frame, e.title, e.caption_box, e.scrub, e.play_button, e.cc_button]:
+			var c: Control = n
+			check(screen.encloses(c.get_global_rect()), "%s: %s is off the screen at %s" % [window, c.name, c.get_global_rect()])
+		holder.free()
+
+
 func test_watch_it_on_the_worked_solution() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 	var p: Control = (load(PRACTICE) as PackedScene).instantiate()
