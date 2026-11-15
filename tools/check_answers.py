@@ -12046,6 +12046,36 @@ def check_monotonic(q):
         need(sp.Poly(f, CX).LC() > 0, "g′ opens down, so g can't increase everywhere")
         want = f"d ≤ {dm_num(k)}"
         wrongs = {MO_P + "1": {f"d > {dm_num(k)}"}}
+    elif u == "quotient-sign":
+        m = re.fullmatch(r"f\(x\) = \((.+)\)/\((.+)\), for x ≠ (.+)", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        top, bot = calc_expr(m.group(1)), calc_expr(m.group(2))
+        need(sp.degree(top, CX) == 1 and sp.degree(bot, CX) == 1, "not a linear quotient")
+        gap = sp.solve(bot, CX)[0]
+        need(R(m.group(3).replace("−", "-")) == gap, f"the domain leaves out {m.group(3)}, not {gap}")
+        df = sp.factor(sp.diff(top / bot, CX))
+        n = sp.simplify(df * bot ** 2)
+        need(n.is_number and n != 0, f"f′ is not a number over the square: {df}")
+        sq = f"({m.group(2)})²"
+        ex = f"x ≠ {dm_num(gap)}"
+
+        def say(v, square, where):
+            pos = v > 0
+            return (f"f′(x) = {frac_text(v)}/{sq}: the top is {'positive' if pos else 'negative'} and {sq} > 0 for {square}, "
+                    f"so f′(x) {'>' if pos else '<'} 0 for all {where}, and f is {'increasing' if pos else 'decreasing'}")
+        want = say(n, ex, ex)
+        f0, f1 = df.subs(CX, 0), df.subs(CX, 1)
+        sign = "positive" if n > 0 else "negative"
+        pts = (f"f′(0) = {frac_text(f0)} and f′(1) = {frac_text(f1)} are both {sign}, so f′(x) {'>' if n > 0 else '<'} 0 "
+               f"for all {ex}, and f is {'increasing' if n > 0 else 'decreasing'}")
+        # u v′ − v u′ on the top: the same square, the opposite sign.
+        rev = sp.simplify((top * sp.diff(bot, CX) - bot * sp.diff(top, CX)))
+        wrongs = {"SL5.2.show-always-increasing#0": {pts}, "SL5.2.show-always-increasing#2": {say(n, "all x", "x")},
+                  "SL5.6.quotient-rule#0": {say(rev, ex, ex)}}
+        for sol in q["solutions"]:
+            for st in sol["steps"]:
+                for mm in re.finditer(r"so f′\(x\) = (−?\d+)/", st):
+                    need(R(mm.group(1).replace("−", "-")) == n, f"{st!r}: the top of f′ is {n}")
     gc_check_common(q, want, wrongs)
     return None, None
 

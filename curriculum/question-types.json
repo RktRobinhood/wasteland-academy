@@ -57646,7 +57646,8 @@
    "skills": [
     "SL5.2.increasing-decreasing-intervals",
     "SL5.2.sign-from-graph",
-    "SL5.2.parameter-for-monotonic"
+    "SL5.2.parameter-for-monotonic",
+    "SL5.2.show-always-increasing"
    ],
    "skillFit": "full",
    "chain": [
@@ -57654,7 +57655,8 @@
     "read the sign of f′ from a table or a graph",
     "read the sign of f′ from the graph of f",
     "both negative and increasing, on a quadratic",
-    "a parameter that keeps f′ on one side of the axis"
+    "a parameter that keeps f′ on one side of the axis",
+    "the sign of a quotient's f′ for every x in its domain"
    ],
    "given": [
     "f(x)",
@@ -57662,9 +57664,10 @@
     "the graph of f′",
     "f′(x) with an exponential",
     "the graph of f",
-    "f with a letter in it"
+    "f with a letter in it",
+    "a quotient f(x)"
    ],
-   "asked": "An interval of x, the sign of f′ at a point, or the values of a parameter.",
+   "asked": "An interval of x, the sign of f′ at a point or for every x, or the values of a parameter.",
    "answerForms": [
     "an interval",
     "exact",
@@ -57674,14 +57677,16 @@
     "whole-number turning points p and q, and a leading coefficient",
     "whether increasing or decreasing is asked",
     "whole-number roots for a quadratic",
-    "the coefficients a, b and c in f′(x) = a + bx − c e^x"
+    "the coefficients a, b and c in f′(x) = a + bx − c e^x",
+    "the coefficients of a quotient (ax + b)/(cx + d)"
    ],
    "constraints": [
     "a cubic's turning points are whole numbers, q − p is even, and f has whole-number coefficients",
     "a quadratic's roots are whole numbers with a whole-number vertex",
     "a parameter's bound is a whole number",
     "on Paper 2 the zeros of f′ are clear of a rounding edge",
-    "an interval's ends can be open or closed, except for a parameter, whose boundary is the point of the question"
+    "an interval's ends can be open or closed, except for a parameter, whose boundary is the point of the question",
+    "a quotient's f′ is a nonzero whole number over (cx + d)², and 0 and 1 are in its domain"
    ],
    "formats": [
     "value",
@@ -57863,6 +57868,21 @@
      "skills": [
       "SL5.2.parameter-for-monotonic"
      ]
+    },
+    {
+     "id": "quotient-sign",
+     "given": [
+      "f(x) = (ax + b)/(cx + d)"
+     ],
+     "asked": "the sign of f′(x) for every x in the domain, and so whether f is increasing or decreasing",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.2.show-always-increasing"
+     ]
     }
    ],
    "angles": [
@@ -57951,6 +57971,13 @@
      "method": "gdc-slider",
      "suits": [
       "parameter-discriminant"
+     ]
+    },
+    {
+     "skill": "SL5.2.show-always-increasing",
+     "method": "sum-of-positive-terms",
+     "suits": [
+      "quotient-sign"
      ]
     }
    ],
@@ -58054,6 +58081,33 @@
       "parameter-discriminant"
      ],
      "wrong": "the upper bound alone"
+    },
+    {
+     "ref": "SL5.2.show-always-increasing#0",
+     "text": "Checking f′ at a few points and concluding it keeps that sign everywhere",
+     "as": "distractor",
+     "in": [
+      "quotient-sign"
+     ],
+     "wrong": "tests f′ at two values of x and concludes it has that sign for every x"
+    },
+    {
+     "ref": "SL5.2.show-always-increasing#2",
+     "text": "Claiming a square is always positive, when it is zero where its bracket is zero",
+     "as": "distractor",
+     "in": [
+      "quotient-sign"
+     ],
+     "wrong": "says the square on the bottom is > 0 for all x, but it is 0 where f is not defined"
+    },
+    {
+     "ref": "SL5.6.quotient-rule#0",
+     "text": "Reversing the numerator to u v′ − v u′, which flips the sign of the answer",
+     "as": "distractor",
+     "in": [
+      "quotient-sign"
+     ],
+     "wrong": "the top of f′ with the opposite sign, and the opposite conclusion"
     }
    ],
    "parts": [

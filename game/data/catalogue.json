@@ -6345,6 +6345,7 @@
 		"SL5.2.increasing-decreasing-intervals": "Find the intervals on which f is increasing or decreasing",
 		"SL5.2.sign-from-graph": "Read the sign of f′(x) from the graph of f",
 		"SL5.2.parameter-for-monotonic": "Find a parameter so that f is increasing (or decreasing) everywhere",
+		"SL5.2.show-always-increasing": "Show that a function is increasing (or decreasing) for all x in its domain",
 		"SL5.3.power-rule": "Differentiate ax^n and sums of such terms",
 		"SL5.3.negative-powers": "Rewrite reciprocals and fractions as powers of x, then differentiate",
 		"SL5.3.gradient-at-point": "Find the gradient of a curve at a given point",
@@ -6404,7 +6405,6 @@
 		"SL5.8.closed-interval-extremes": "Find the greatest and least values of f on a closed interval (and its range)",
 		"SL1.7.log-equations": "Solve logarithmic equations and reject invalid solutions",
 		"SL1.5.evaluate-tech": "Evaluate logarithms and solve simple exponential equations with technology",
-		"SL5.2.show-always-increasing": "Show that a function is increasing (or decreasing) for all x in its domain",
 		"SL5.3.unknown-coefficients": "Find unknown coefficients from gradient and point conditions",
 		"SL5.5.definite-integral-gdc": "Evaluate a definite integral using technology",
 		"SL5.5.area-expression": "Write an integral expression for a shaded area under a curve",
@@ -54371,6 +54371,21 @@
 					"skills": [
 						"SL5.2.parameter-for-monotonic"
 					]
+				},
+				{
+					"id": "quotient-sign",
+					"given": [
+						"f(x) = (ax + b)/(cx + d)"
+					],
+					"asked": "the sign of f′(x) for every x in the domain, and so whether f is increasing or decreasing",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.2.show-always-increasing"
+					]
 				}
 			],
 			"angles": [
@@ -54482,6 +54497,15 @@
 					],
 					"name": "Explore k on the GDC",
 					"about": "Graph f′ for several values of k (or use a slider) to find the boundary where the parabola just touches the x-axis, then confirm by algebra."
+				},
+				{
+					"skill": "SL5.2.show-always-increasing",
+					"method": "sum-of-positive-terms",
+					"suits": [
+						"quotient-sign"
+					],
+					"name": "Argue term by term",
+					"about": "Show f′ is a sum of terms that cannot be negative, e.g. 3x² + e^x + 1 > 0 because x² ≥ 0 and e^x > 0."
 				}
 			],
 			"concepts": [
@@ -54584,6 +54608,33 @@
 						"parameter-discriminant"
 					],
 					"wrong": "the upper bound alone"
+				},
+				{
+					"ref": "SL5.2.show-always-increasing#0",
+					"text": "Checking f′ at a few points and concluding it keeps that sign everywhere",
+					"as": "distractor",
+					"in": [
+						"quotient-sign"
+					],
+					"wrong": "tests f′ at two values of x and concludes it has that sign for every x"
+				},
+				{
+					"ref": "SL5.2.show-always-increasing#2",
+					"text": "Claiming a square is always positive, when it is zero where its bracket is zero",
+					"as": "distractor",
+					"in": [
+						"quotient-sign"
+					],
+					"wrong": "says the square on the bottom is > 0 for all x, but it is 0 where f is not defined"
+				},
+				{
+					"ref": "SL5.6.quotient-rule#0",
+					"text": "Reversing the numerator to u v′ − v u′, which flips the sign of the answer",
+					"as": "distractor",
+					"in": [
+						"quotient-sign"
+					],
+					"wrong": "the top of f′ with the opposite sign, and the opposite conclusion"
 				}
 			],
 			"chain": [
@@ -54591,7 +54642,8 @@
 				"read the sign of f′ from a table or a graph",
 				"read the sign of f′ from the graph of f",
 				"both negative and increasing, on a quadratic",
-				"a parameter that keeps f′ on one side of the axis"
+				"a parameter that keeps f′ on one side of the axis",
+				"the sign of a quotient's f′ for every x in its domain"
 			],
 			"frequency": 5,
 			"marks": 3,
