@@ -42427,6 +42427,154 @@ SITUATION_CHECKS["area-under-curve"] = E13AU_check
 # ── end area-under-curve ──
 
 
+# ── mutually-exclusive (FAL-777) ─────────────────────────────
+# t4-ext-mutually-exclusive. Each pair of events is decided again from what the question shows:
+# the probabilities, the Venn counts, or the outcomes of the die, spinner or cards read back from
+# the words. The checker's own copy of the clean limits: probabilities are multiples of 0.05.
+
+E14ME_SK = "SL4.6.mutually-exclusive#"
+E14ME_T = "t4-ext-mutually-exclusive#"
+E14ME_DEVICES = {"A fair six-sided die is rolled once.": (6, "roll"), "A fair spinner numbered 1 to 8 is spun once.": (8, "spin"),
+                 "One card is drawn at random from ten cards numbered 1 to 10.": (10, "card"),
+                 "One card is drawn at random from twelve cards numbered 1 to 12.": (12, "card")}
+
+
+def E14ME_dec(text):
+    need(re.fullmatch(r"0\.\d+", text) is not None, f"{text!r} is not a probability in decimals")
+    v = sp.Rational(text)
+    need((v * 20).q == 1 and 0 < v < 1, f"{text} is not a multiple of 0.05 between 0 and 1")
+    return v
+
+
+def E14ME_frac(text):
+    return sp.Rational(text)
+
+
+def E14ME_event(text, n):
+    """The outcomes 1..n in an event, from its words."""
+    xs = range(1, n + 1)
+    if (m := re.fullmatch(r"an? (\d+)", text)):
+        k = int(m.group(1))
+        need((text.startswith("an ")) == (k in (8, 11, 18)), f"article in {text!r}")
+        return {k}
+    if (m := re.fullmatch(r"a number greater than (\d+)", text)):
+        return {x for x in xs if x > int(m.group(1))}
+    if (m := re.fullmatch(r"a number less than (\d+)", text)):
+        return {x for x in xs if x < int(m.group(1))}
+    tests = {"an odd number": lambda x: x % 2 == 1, "an even number": lambda x: x % 2 == 0, "a multiple of 3": lambda x: x % 3 == 0,
+             "a multiple of 4": lambda x: x % 4 == 0, "a prime number": sp.isprime, "a square number": lambda x: sp.sqrt(x).is_integer,
+             "a factor of 12": lambda x: 12 % x == 0}
+    need(text in tests, f"can't read the event {text!r}")
+    return {x for x in xs if tests[text](x)}
+
+
+def E14ME_num_word(x):
+    return ("an " if x in (8, 11, 18) else "a ") + str(x)
+
+
+def E14ME_slips(me, pa, pb, pi, w):
+    out = {}
+    out[E14ME_SK + "0"] = {"Yes: P(A ∩ B) = P(A) × P(B)"} if (not me and pi == pa * pb) else {"No: P(A ∩ B) ≠ P(A) × P(B)"}
+    if not me and pa + pb < 1:
+        out[E14ME_SK + "1"] = {f"Yes: P(A) + P(B) = {w(pa + pb)} < 1"}
+    if pa + pb != 1:
+        out[E14ME_T + "4"] = {f"No: P(A) + P(B) = {w(pa + pb)}, not 1"}
+    out[E14ME_T + "5"] = {f"No: P(A ∪ B) = {w(pa + pb - pi)}, not 0"}
+    return out
+
+
+def E14ME_values(q, want, wrongs):
+    """A value question: the answer, its tagged slips, and every other option a probability
+    that isn't the answer."""
+    gc_check_common(q, q["answer"]["label"] + dec_text(want), {k: {q["answer"]["label"] + dec_text(v)} for k, v in wrongs.items()})
+    for o in q["choices"]:
+        v = sp.Rational(o["text"][len(q["answer"]["label"]):])
+        need(0 < v < 1, f"option {o['text']!r} is no probability")
+        need(o["correct"] == (v == want), f"option {o['text']!r}")
+
+
+def E14ME_check(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    need(q["paper"] == 1, f"Paper {q['paper']}")
+    if u == "decide-from-probabilities":
+        need(len(L) == 3, f"can't read {L}")
+        pa = E14ME_dec(L[0].removeprefix("P(A) = "))
+        pb = E14ME_dec(L[1].removeprefix("P(B) = "))
+        need(L[0].startswith("P(A) = ") and L[1].startswith("P(B) = "), f"can't read {L}")
+        if L[2].startswith("P(A ∪ B) = "):
+            pu = E14ME_dec(L[2][11:])
+            pi = pa + pb - pu
+            via = "P(A ∩ B) = P(A) + P(B) − P(A ∪ B) = "
+        else:
+            need(L[2].startswith("P(A ∩ B) = "), f"can't read {L[2]!r}")
+            pi = sp.Rational(L[2][11:])
+            via = "P(A ∩ B) = "
+        need(0 <= pi < min(pa, pb), f"P(A ∩ B) = {pi} doesn't fit P(A) and P(B)")
+        need(pa != pb and pa + pb - pi <= 1, "the clean limits")
+        me = pi == 0
+        right = f"Yes: {via}0" if me else f"No: {via}{dec_text(pi)}, not 0"
+        tagged = E14ME_slips(me, pa, pb, pi, dec_text)
+        for st in q["solutions"][0]["steps"]:
+            if (m := re.fullmatch(r"P\(A ∪ B\) = P\(A\) \+ P\(B\) − P\(A ∩ B\), so P\(A ∩ B\) = ([\d.]+) \+ ([\d.]+) − ([\d.]+) = ([\d.]+)\.", st)):
+                a, b, c, d = (sp.Rational(x) for x in m.groups())
+                need((a, b, c) == (pa, pb, pa + pb - pi) and a + b - c == d, f"working {st!r}")
+    elif u == "decide-from-venn":
+        m = re.fullmatch(r"The Venn diagram shows how many of (\d+) equally likely outcomes are in each region for events A and B\.", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        n = int(m.group(1))
+        g = q["graph"]
+        need(g["kind"] == "venn" and g["names"] == ["A", "B"], "no Venn diagram")
+        a, i, b, o = (int(g[k]) for k in "aibo")
+        need(a + i + b + o == n and min(a, b, o) >= 1 and i >= 0, f"the regions don't make {n}")
+        need(n in (20, 24, 30, 40) and a + i != b + i and a + b + 2 * i < n, "the clean limits")
+        pa, pb, pi = sp.Rational(a + i, n), sp.Rational(b + i, n), sp.Rational(i, n)
+        me = i == 0
+        right = "Yes: no outcome is in both A and B, so P(A ∩ B) = 0" if me else f"No: {i} outcomes are in both A and B, so P(A ∩ B) = {frac_text(pi)}, not 0"
+        tagged = E14ME_slips(me, pa, pb, pi, frac_text)
+    elif u == "decide-in-context":
+        need(len(L) == 2 and L[0] in E14ME_DEVICES, f"can't read {L}")
+        n, one = E14ME_DEVICES[L[0]]
+        m = re.fullmatch(r'A is the event "(.+)" and B is the event "(.+)"\.', L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        A, B = E14ME_event(m.group(1), n), E14ME_event(m.group(2), n)
+        need(A and B and len(A) < n and len(B) < n and A != B, "an event is empty, certain, or the other one")
+        both = sorted(A & B)
+        me = not both
+        need(len(A) + len(B) != n, "P(A) + P(B) = 1")
+        right = f"Yes: no single {one} is both {m.group(1)} and {m.group(2)}" if me else f"No: {E14ME_num_word(both[0])} is both {m.group(1)} and {m.group(2)}"
+        tagged = E14ME_slips(me, sp.Rational(len(A), n), sp.Rational(len(B), n), sp.Rational(len(both), n), frac_text)
+        lists = f"A: {', '.join(map(str, sorted(A)))}. B: {', '.join(map(str, sorted(B)))}."
+        for sol in q["solutions"]:
+            need(any(lists in st for st in sol["steps"]), f"{sol['name']}: the outcomes listed are not the events'")
+    elif u == "union-exclusive":
+        if q["view"]["rep"] == "equation":
+            need(len(L) == 3 and L[0] == "A and B are mutually exclusive." and L[1].startswith("P(A) = ") and L[2].startswith("P(B) = "), f"can't read {L}")
+            pa, pb = E14ME_dec(L[1][7:]), E14ME_dec(L[2][7:])
+        else:
+            need(len(L) == 1 and "exactly one" in L[0], f"can't read {L}")
+            ps = re.findall(r"\b0\.\d+", L[0])
+            need(len(ps) == 2, f"can't read {L}")
+            pa, pb = (E14ME_dec(p) for p in ps)
+        need(pa != pb and pa + pb < 1, "the clean limits")
+        E14ME_values(q, pa + pb, {E14ME_T + "2": pa * pb, E14ME_T + "3": pa + pb - pa * pb})
+        return None, None
+    else:
+        need(len(L) == 3 and L[0] == "A and B are mutually exclusive." and L[1].startswith("P(A) = ") and L[2].startswith("P(A ∪ B) = "), f"can't read {L}")
+        pa, pu = E14ME_dec(L[1][7:]), E14ME_dec(L[2][11:])
+        need(pu > pa and pu - pa != pa and pa * 20 in (4, 10, 12, 15, 16), "the clean limits")
+        E14ME_values(q, pu - pa, {E14ME_T + "3": (pu - pa) / (1 - pa)})
+        return None, None
+    gc_check_common(q, right, tagged)
+    for o in q["choices"]:
+        need(o["correct"] or o["ref"], f"the checker can't say why {o['text']!r} is wrong")
+    return None, None
+
+
+SITUATION_CHECKS["mutually-exclusive"] = E14ME_check
+
+# ── end mutually-exclusive ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):

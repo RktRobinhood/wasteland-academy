@@ -6367,7 +6367,8 @@
 			],
 			"clean": [
 				"P(A) + P(B) < 1 whenever the events are not mutually exclusive, so that slip has a case",
-				"every probability is a multiple of 0.05 or a fraction of the outcomes"
+				"every probability is a multiple of 0.05 or a fraction of the outcomes",
+				"on a die, spinner or cards, P(A) + P(B) is never exactly 1, so every slip has something wrong to say"
 			]
 		}
 	},
@@ -78741,9 +78742,7 @@
 					"in": [
 						"decide-from-probabilities",
 						"decide-from-venn",
-						"decide-in-context",
-						"union-exclusive",
-						"missing-exclusive"
+						"decide-in-context"
 					],
 					"wrong": "tests independence, P(A ∩ B) = P(A) × P(B), in place of P(A ∩ B) = 0"
 				},
@@ -78774,6 +78773,26 @@
 						"missing-exclusive"
 					],
 					"wrong": "uses P(A ∪ B) = P(A) + P(B) − P(A)P(B) for events that can't both happen"
+				},
+				{
+					"text": "Confusing mutually exclusive with complementary, so that P(A) + P(B) would have to be 1",
+					"as": "distractor",
+					"in": [
+						"decide-from-probabilities",
+						"decide-from-venn",
+						"decide-in-context"
+					],
+					"wrong": "decides by whether P(A) + P(B) = 1, which is the test for complementary events"
+				},
+				{
+					"text": "Testing whether P(A ∪ B) is 0 instead of P(A ∩ B)",
+					"as": "distractor",
+					"in": [
+						"decide-from-probabilities",
+						"decide-from-venn",
+						"decide-in-context"
+					],
+					"wrong": "looks at the union, the outcomes in either event, instead of the overlap"
 				}
 			],
 			"frequency": 0

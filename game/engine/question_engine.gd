@@ -168,6 +168,7 @@ static var SITUATIONS := {
 	"hence-integral": [HenceIntegralSituation, HenceIntegralViews],
 	"integral-gdc": [IntegralGdcSituation, IntegralGdcViews],
 	"area-under-curve": [AreaUnderCurveSituation, AreaUnderCurveViews],
+	"mutually-exclusive": [MutuallyExclusiveSituation, MutuallyExclusiveViews],
 }
 
 static var _cat: Dictionary = {}
