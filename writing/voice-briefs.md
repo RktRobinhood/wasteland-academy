@@ -1,4 +1,4 @@
-# Voice briefs: Spark, Gear Mira, Noma
+# Voice briefs: Spark, Gear Mira, Noma, Nugget
 
 For local voice design (VoxCPM2 on the shared GPU), per `game-dialogue` §5. Each character gets a short **control** string to paste into the model, notes for whoever picks the takes, and a six-line audition script. The script lines come from the voice sheets (`voice-sheets` on FAL-332), so the audition tests the lines the voice will actually say. Numbers and symbols are spelled the way the character says them.
 
@@ -76,8 +76,33 @@ The FAL-330 round used one neutral line per character, with no contractions ("Le
 
 ---
 
+## Nugget Bullant (the cyber-dog)
+
+**Control:**
+
+> A young voice, gender-neutral, mid-low pitch with a slightly rough, dry texture, a clear Australian accent, speaking in short bursts of two to five words with a full stop after each, flat and even like each word is read off a card, keen and earnest underneath, steady volume.
+
+**Notes for picking a take:**
+
+- Nugget is a pick, so a player who chooses the dog hears this voice in their own lines, run after run. Pick the take that stays easy to hear on the twentieth "Again."
+- Spark is in almost every Nugget scene, so the two voices must be easy to tell apart. Spark is bright, light and quick with dry jokes. Nugget sits lower and rougher, and stops dead between bursts. Listen to Spark line 1 and Nugget line 1 back to back with your eyes shut.
+- Render the voice clean and add the implant afterwards as an effect: a small cheap speaker (cut the lows and the highs) and a short crackle at the start of each burst. If Spark gets a radio edge, Nugget's effect has to sound smaller and boxier than Spark's.
+- The tic (line 3) needs a real stop at the dots, and the second phrase should land firmer than the first.
+- If the accent comes out as a caricature, try "a light Australian accent" in the control.
+
+**Audition script:**
+
+1. Greeting: "Sparky. Gate's open. Hence: go."
+2. Praise: "Both roots. Rounded up. Next mob."
+3. Correction and tic: "Off the scent. Sniff the... read the question again."
+4. Tense, before a boss: "Big mob. Stay low. Heels first, Sparky."
+5. Joke: "Sparky says no nipping. Sparky also rolls off cliffs."
+6. Asking for help: "Lost the trail. Sparky. First track only."
+
+---
+
 ## For the render run
 
 - One take per line per seed, at least two seeds per character, so takes can be compared line by line.
 - Every line is under 15 seconds at the brief's pace. The longest, Spark 3 and Spark 6, run about 7 seconds.
-- Check the transcripts for "b squared", "factorised" and "Okafor"; the model may stumble on them. If it does, keep the spelling and note it, so we know which words need a fix later.
+- Check the transcripts for "b squared", "factorised", "Okafor" and "Sparky"; the model may stumble on them. If it does, keep the spelling and note it, so we know which words need a fix later.
