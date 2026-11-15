@@ -1386,7 +1386,7 @@ Every tagged part of the 342 questions in the [Math-AA question bank](https://gi
 | Type | Name | Syllabus | Skills | Parts | Where | Marks |
 |---|---|---|---|---|---|---|
 | `t5-derivative-meaning` | Interpret a derivative as a rate, or its limit | 5.1 | interpret-derivative, estimate-limit | 7 | P1 0, P2 7; Section A 0, B 7 | usually 2 (2 to 3) |
-| `t5-increasing-decreasing` | Where a function is increasing or decreasing | 5.2 | increasing-decreasing-intervals, sign-from-graph, parameter-for-monotonic | 5 | P1 3, P2 2; Section A 1, B 4 | usually 3 (2 to 3) |
+| `t5-increasing-decreasing` | Where a function is increasing or decreasing | 5.2 | increasing-decreasing-intervals, sign-from-graph, parameter-for-monotonic, show-always-increasing | 5 | P1 3, P2 2; Section A 1, B 4 | usually 3 (2 to 3) |
 | `t5-differentiate-polynomial` | Differentiate a polynomial or negative power and evaluate | 5.3 | power-rule, negative-powers, gradient-at-point | 6 | P1 6, P2 0; Section A 2, B 4 | usually 2 (1 to 3) |
 | `t5-normal-meets-curve` | Where a tangent or normal meets the curve again | 5.4, 2.4, 2.7 | tangent-meets-axes-or-curve | 2 | P1 0, P2 2; Section A 2, B 0 | 3 |
 | `t5-tangent-condition` | Find a point or parameter from a tangent condition (given gradient, parallel, common tangent) | 5.4, 5.6 | parallel-or-perpendicular, tangency-condition, point-with-given-gradient | 11 | P1 6, P2 5; Section A 7, B 4 | usually 4 (3 to 6) |
@@ -1423,12 +1423,12 @@ Every tagged part of the 342 questions in the [Math-AA question bank](https://gi
 **Where a function is increasing or decreasing.** Find where a function is increasing or decreasing, from its equation, a table of f′ or the graph of f′, on Paper 2 with a GDC where f′ has an exponential; read the sign of f′ from the graph of f; and find a parameter that keeps f increasing everywhere.
 
 - **Syllabus:** 5.2
-- **Skills:** `SL5.2.increasing-decreasing-intervals`, `SL5.2.sign-from-graph`, `SL5.2.parameter-for-monotonic`
+- **Skills:** `SL5.2.increasing-decreasing-intervals`, `SL5.2.sign-from-graph`, `SL5.2.parameter-for-monotonic`, `SL5.2.show-always-increasing`
 - **Where it appears:** P1 3, P2 2; Section A 1, B 4. Marks per part: usually 3 (2 to 3).
-- **Usual chain:** differentiate, then solve f′(x) > 0 or f′(x) < 0 → read the sign of f′ from a table or a graph → read the sign of f′ from the graph of f → both negative and increasing, on a quadratic → a parameter that keeps f′ on one side of the axis
-- **Given:** f(x), a table of f′(x), the graph of f′, f′(x) with an exponential, the graph of f, f with a letter in it. **Asked:** An interval of x, the sign of f′ at a point, or the values of a parameter. **Answer form:** an interval, exact, 3 s.f..
-- **A recipe can randomise:** whole-number turning points p and q, and a leading coefficient; whether increasing or decreasing is asked; whole-number roots for a quadratic; the coefficients a, b and c in f′(x) = a + bx − c e^x.
-- **Limits that keep answers clean:** a cubic's turning points are whole numbers, q − p is even, and f has whole-number coefficients; a quadratic's roots are whole numbers with a whole-number vertex; a parameter's bound is a whole number; on Paper 2 the zeros of f′ are clear of a rounding edge; an interval's ends can be open or closed, except for a parameter, whose boundary is the point of the question.
+- **Usual chain:** differentiate, then solve f′(x) > 0 or f′(x) < 0 → read the sign of f′ from a table or a graph → read the sign of f′ from the graph of f → both negative and increasing, on a quadratic → a parameter that keeps f′ on one side of the axis → the sign of a quotient's f′ for every x in its domain
+- **Given:** f(x), a table of f′(x), the graph of f′, f′(x) with an exponential, the graph of f, f with a letter in it, a quotient f(x). **Asked:** An interval of x, the sign of f′ at a point or for every x, or the values of a parameter. **Answer form:** an interval, exact, 3 s.f..
+- **A recipe can randomise:** whole-number turning points p and q, and a leading coefficient; whether increasing or decreasing is asked; whole-number roots for a quadratic; the coefficients a, b and c in f′(x) = a + bx − c e^x; the coefficients of a quotient (ax + b)/(cx + d).
+- **Limits that keep answers clean:** a cubic's turning points are whole numbers, q − p is even, and f has whole-number coefficients; a quadratic's roots are whole numbers with a whole-number vertex; a parameter's bound is a whole number; on Paper 2 the zeros of f′ are clear of a rounding edge; an interval's ends can be open or closed, except for a parameter, whose boundary is the point of the question; a quotient's f′ is a nonzero whole number over (cx + d)², and 0 and 1 are in its domain.
 - **Game formats:** value, mcq
 - **Bank parts:** 5.
 
@@ -1703,7 +1703,7 @@ Every tagged part of the 342 questions in the [Math-AA question bank](https://gi
 | 4.11 Formal conditional probability and independence | 35 (29) | 2 | – | – |
 | 4.12 Standardization of normal variables | 15 (15) | 1 | z-score, compare-z | – |
 | 5.1 Introduction to calculus | 10 (7) | 2 | chord-to-tangent, gradient-from-graph | – |
-| 5.2 Increasing and decreasing functions | 10 (5) | 2 | sign-at-point, show-always-increasing | – |
+| 5.2 Increasing and decreasing functions | 10 (5) | 2 | sign-at-point | – |
 | 5.3 Differentiating polynomials, n in Z | 21 (6) | 1 | unknown-coefficients | – |
 | 5.4 Tangents and normals | 29 (23) | 5 | – | t5-tangent-condition |
 | 5.5 Integration introduction, areas between curve and x-axis | 24 (7) | 3 | definite-integral-gdc, area-expression, area-positive | – |

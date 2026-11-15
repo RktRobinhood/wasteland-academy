@@ -375,7 +375,7 @@
       "methods": [],
       "question_types": ["t1-geometric-sequence", "t1-ext-sigma-arithmetic"],
       "threads": ["accumulation"],
-      "priority": { "parts": 2.3, "rank": 163 }
+      "priority": { "parts": 2.3, "rank": 164 }
     },
     {
       "id": "ex.algebra.arithmetic-model",
@@ -568,7 +568,7 @@
       "methods": [],
       "question_types": ["t1-rational-exponents"],
       "threads": ["inverses", "equivalent-forms"],
-      "priority": { "parts": 2, "rank": 164 }
+      "priority": { "parts": 2, "rank": 165 }
     },
     {
       "id": "ex.algebra.log-laws",
@@ -653,7 +653,7 @@
       "methods": [],
       "question_types": ["t1-sequence-proof", "t1-algebraic-proof", "t1-ext-numerical-show-that"],
       "threads": ["accumulation", "symmetry", "equivalent-forms"],
-      "priority": { "parts": 8.5, "rank": 82 }
+      "priority": { "parts": 8.5, "rank": 83 }
     },
     {
       "id": "ex.algebra.integer-proof",
@@ -1675,7 +1675,7 @@
       "lesson": "lesson.fn.graph-inequality",
       "question_types": ["fn-quadratic-inequality", "fn-rational-sketch", "fn-ext-inequality-graphical"],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 2.4, "rank": 162 }
+      "priority": { "parts": 2.4, "rank": 163 }
     },
     {
       "id": "ex.functions.context-check",
@@ -1849,7 +1849,7 @@
       "lesson": "lesson.fn.discriminant",
       "question_types": ["fn-solve-quadratic", "fn-discriminant", "fn-quadratic-inequality", "fn-concept-quadratic-forms"],
       "threads": ["extremes", "graph-vs-algebra"],
-      "priority": { "parts": 4.7, "rank": 83 }
+      "priority": { "parts": 4.7, "rank": 81 }
     },
     {
       "id": "ex.functions.discriminant-parameter",
@@ -2808,7 +2808,7 @@
       "methods": [],
       "question_types": ["t3-arc-sector"],
       "threads": ["accumulation"],
-      "priority": { "parts": 12.7, "rank": 81 }
+      "priority": { "parts": 12.7, "rank": 82 }
     },
     {
       "id": "ex.geometry.segments",
@@ -4793,7 +4793,7 @@
       "methods": [],
       "question_types": ["t5-increasing-decreasing", "t5-derivative-graph", "t5-ext-sign-at-point"],
       "threads": ["rate-of-change", "extremes", "graph-vs-algebra"],
-      "priority": { "parts": 4.3, "rank": 41 }
+      "priority": { "parts": 3.5, "rank": 41 }
     },
     {
       "id": "ex.calculus.monotonic-proof",
@@ -4810,7 +4810,7 @@
       "methods": [],
       "question_types": ["t5-increasing-decreasing", "t5-ext-always-increasing"],
       "threads": ["inverses", "equivalent-forms", "extremes"],
-      "priority": { "parts": 1.7, "rank": 169 }
+      "priority": { "parts": 2.5, "rank": 162 }
     },
     {
       "id": "ex.calculus.tangent-normal",
@@ -4929,7 +4929,7 @@
       "methods": [],
       "question_types": ["t5-derivative-model-gdc"],
       "threads": ["extremes"],
-      "priority": { "parts": 2, "rank": 165 }
+      "priority": { "parts": 2, "rank": 166 }
     },
     {
       "id": "ex.calculus.show-derivative-form",
@@ -4946,7 +4946,7 @@
       "methods": [],
       "question_types": ["t5-differentiation-rules"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 2, "rank": 166 }
+      "priority": { "parts": 2, "rank": 167 }
     },
     {
       "id": "ex.calculus.stationary-points",
@@ -5240,7 +5240,7 @@
       "methods": [],
       "question_types": ["t5-definite-integral-area"],
       "threads": ["inverses", "accumulation"],
-      "priority": { "parts": 1.8, "rank": 168 }
+      "priority": { "parts": 1.8, "rank": 169 }
     },
     {
       "id": "ex.calculus.trapezoidal-rule",
@@ -5427,7 +5427,7 @@
       "methods": ["algebra", "gdc"],
       "question_types": ["t5-definite-integral-area"],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 1.8, "rank": 167 }
+      "priority": { "parts": 1.8, "rank": 168 }
     },
     {
       "id": "ex.calculus.area-y-axis",
