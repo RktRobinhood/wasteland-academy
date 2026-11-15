@@ -685,3 +685,18 @@ func test_fights_ask_for_their_sound_effects() -> void:
 	check_eq(Audio.last_sfx, "open", "the boss steps up")
 	check_eq(Audio.location(), "engine-core-boss", "the Engine Core's boss loop")
 	_done(made)
+
+
+## An island with no journey scenery yet (all but the Signal Tower, FAL-925) shows no
+## strip: the enemy's portrait stands in, over the island's close-up, and reads as a fight.
+func test_an_island_with_no_scenery_keeps_the_enemy_on_the_screen() -> void:
+	check(not JourneyStage.shared_assets().has_scenery(JourneyLink.region_for("kinematics")), "no Engine Core scenery yet")
+	var made: Array = await _screen(_area(Vector2i(390, 844)), 3, false, {}, 1, "kinematics")
+	var f: Control = made[1]
+	for i in 3:
+		await tree.process_frame
+	check(not f.strip.visible, "no strip")
+	check(f.enemy_art.is_visible_in_tree() and f.enemy_art.texture != null, "the portrait stands in")
+	check(f.backdrop.visible, "the island's close-up behind it")
+	check(f.job.is_empty() and f.check_button.text == "Attack", "a fight's words")
+	_done(made)
