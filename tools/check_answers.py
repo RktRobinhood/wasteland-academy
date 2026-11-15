@@ -32230,6 +32230,24 @@ def e9area_integrals(text, sub):
     return total
 
 
+def e9area_each_curve(q, top, bot, a, b, value=in_expr):
+    """Difference of areas: each curve's own integral, worked out here, and the upper curve's is first."""
+    for sol in q["solutions"]:
+        if sol["angle"] != "difference-of-areas":
+            continue
+        got = []
+        for st in sol["steps"]:
+            m = re.fullmatch(r"For the (upper|lower) curve, ∫ from (.+?) to (.+?) of (.+) dx = (.+)\.", st)
+            if m:
+                lo, hi = (sp.Rational(t.replace("−", "-")) for t in m.group(2, 3))
+                h = in_expr(m.group(4))
+                need(sp.simplify(h - (top if m.group(1) == "upper" else bot)) == 0, f"{st!r}: not the {m.group(1)} curve")
+                need((lo, hi) == (a, b), f"{st!r}: not from {a} to {b}")
+                need(di_same(value(m.group(5)), sp.integrate(h, (CX, a, b))), f"{st!r}: the integral is wrong")
+                got.append(m.group(1))
+        need(got == ["upper", "lower"], f"difference of areas: {got}")
+
+
 def e9area_gdc_pair(q):
     """Two curves on a domain: every crossing, found here."""
     L = q["lines"]
@@ -32313,6 +32331,7 @@ def check_area_between(q):
         side = abs(e9area_size(top, bot, rb[0], rb[1]))
         e9area_figure(q, top, bot, [(p, r2)])
         e9area_opts(q, e9area_a(v), {AB + "0": {e9area_a(-v)}, AB + "1": {e9area_a(side)}, AB + "5": {e9area_a(sp.integrate(sp.expand(slip), (x, p, r2)))}})
+        e9area_each_curve(q, top, bot, p, r2)
         return None, None
 
     if u in ("area-split-cubic", "area-split-bounded") or (u == "split-expression" and paper == 1):
@@ -32406,6 +32425,7 @@ def check_area_between(q):
             e9area_figure(q, f, g, [(a, b)])
         calc_options(q)
         calc_steps(q)
+        e9area_each_curve(q, f, g, a, b, di_exact_value)
         return None, None
 
     if u == "find-shift":

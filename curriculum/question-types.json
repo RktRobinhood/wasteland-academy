@@ -66686,6 +66686,8 @@
      "method": "difference-of-areas",
      "suits": [
       "area-line-curve",
+      "area-two-parabolas",
+      "area-exp-lines",
       "find-shift",
       "gdc-area"
      ]

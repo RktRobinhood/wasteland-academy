@@ -13,7 +13,7 @@ const CALCULATOR_WORDS := "(?i)\\b(gdc|calculators?|linreg\\w*|l1|l2|y1|y2|solve
 ## cell can make up for them. The value is the most the type's Paper 2 share may be.
 const OVER_SHARE := {"fn-sketch-from-features": 0.08, "fn-curve-intersection-quadratic": 0.07,
 	"fn-log-of-quadratic": 0.12, "fn-rational-sketch": 0.24, "fn-log-function-features": 0.14, "t1-log-laws": 0.13,
-	"t3-trig-sketch": 0.24, "t5-area-between-curves": 0.41}
+	"t3-trig-sketch": 0.24}
 ## These types' cells can't reach the Paper 2 share the bank now has (FAL-817 added the
 ## November 2025 parts). The value is the least the type's Paper 2 share may be. Remove an
 ## entry once the type's views are recalibrated.
