@@ -6,7 +6,11 @@ extends RefCounted
 ## tools/check_answers.py parses them, and a typed answer can still use /.
 ##
 ## parse() gives an Array of nodes: a String is plain text, {"pow": nodes} is a power,
-## {"root": nodes} a root and {"num": nodes, "den": nodes} a fraction. A root takes a
+## {"sub": nodes} a subscript, {"root": nodes} a root and {"num": nodes, "den": nodes} a
+## fraction. A subscript is written with an underscore after a letter, as the catalogue
+## writes method names (FAL-955): u_1, S_n, log_b(x), u_(n+1), whose brackets go. An
+## underscore after a lower-case word that isn't a function (open_hi) or with no letter
+## before it (x = ___) stays as written. A root takes a
 ## bracket, whose brackets go under the bar (√(x + 1)), a number (√2.5) or one letter
 ## with its subscripts (√x, √Δ, √u₁); ∛ stays as text. A fraction takes, on each side of its slash:
 ##   - a whole term: "2πx", "x²", "e^(2x)", "f(x)", "n!", "√3", or a bracket, whose
@@ -34,7 +38,7 @@ const SUBSCRIPTS := "₀₁₂₃₄₅₆₇₈₉ₙₑᵢₐₓₖ"
 
 ## True if s has a fraction, a power or a root to draw, so a plain Label won't do.
 static func has_markup(s: String) -> bool:
-	if not s.contains("/") and not s.contains("^") and not s.contains("√"):
+	if not s.contains("/") and not s.contains("^") and not s.contains("√") and not s.contains("_"):
 		return false
 	return parse(s).any(func(n): return n is Dictionary)
 
@@ -119,10 +123,43 @@ static func _build(s: String, fracs: Array, from: int, to: int) -> Array:
 			out.append({"pow": _build(s, fracs, i + 2, p - 1) if bracketed else _build(s, fracs, i + 1, p)})
 			i = p
 			continue
+		var b := _sub_end(s, i) if s[i] == "_" else 0
+		if b > i + 1 and b <= to:
+			_flush(out, text)
+			text = ""
+			var sub_bracketed := s[i + 1] == "("
+			out.append({"sub": _build(s, fracs, i + 2, b - 1) if sub_bracketed else _build(s, fracs, i + 1, b)})
+			i = b
+			continue
 		text += s[i]
 		i += 1
 	_flush(out, text)
 	return out
+
+
+## Where the subscript whose underscore is at i ends, or 0 if it isn't one: a bracket, a
+## number or a word, after one letter, a word with a capital in it (rS_n) or a function.
+static func _sub_end(s: String, i: int) -> int:
+	var n := s.length()
+	if i == 0 or i + 1 >= n or not _letter(s[i - 1]):
+		return 0
+	var from := i
+	while from > 0 and _letter(s[from - 1]):
+		from -= 1
+	var base := s.substr(from, i - from)
+	if base.length() > 1 and base == base.to_lower() and not base in FUNCS:
+		return 0
+	var j := i + 1
+	if s[j] == "(":
+		var close := _close(s, j)
+		return close + 1 if close > j + 1 else 0
+	if s[j].is_valid_int():
+		while j < n and s[j].is_valid_int():
+			j += 1
+		return j
+	while j < n and _letter(s[j]):
+		j += 1
+	return j if j > i + 1 else 0
 
 
 ## Where the root whose √ is at i ends, or 0 if what follows isn't one.
@@ -142,6 +179,8 @@ static func _root_end(s: String, i: int) -> int:
 		j += 1
 		while j < n and SUBSCRIPTS.contains(s[j]):
 			j += 1
+		if j < n and s[j] == "_" and _sub_end(s, j) > j + 1:
+			return _sub_end(s, j)
 		return j
 	return 0
 
@@ -229,6 +268,8 @@ static func _bottom_end(s: String, at: int) -> int:
 			if p <= j + 1:
 				break
 			j = p
+		elif c == "_" and _sub_end(s, j) > j + 1:
+			j = _sub_end(s, j)
 		elif c == "(" and j > start and (_letter(s[j - 1]) or "′″".contains(s[j - 1])):
 			# A function's bracket: 1/f(1), 1/ln(1.25).
 			var close := _close(s, j)

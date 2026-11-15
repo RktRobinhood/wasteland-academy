@@ -6284,6 +6284,42 @@
     "a third side found from the cosine rule is m√r with r > 1",
     "a cosine is a fraction between −1 and 1, not 0"
    ]
+  },
+  "log-equation": {
+   "name": "A log equation in x, linear or quadratic once the logs are dropped",
+   "summary": "Draw the base, the constant and the arguments so the root comes out exact, and, for a quadratic, so exactly one root makes an argument zero or negative. Every unknown has its own draw.",
+   "quantities": [
+    {
+     "name": "b, L",
+     "is": "the base of the log and how it is written",
+     "pick": "2, 3, 5, 10 (as log) or e (as ln)"
+    },
+    {
+     "name": "c, B",
+     "is": "the constant on the right, and what the arguments come to",
+     "pick": "B = b^c from 2 to 125, or B a whole number for the log of a number"
+    },
+    {
+     "name": "m, n, r",
+     "is": "the arguments mx + n and x + r of a linear equation",
+     "pick": "m from 1 to 6, n from −20 to 30, r from −6 to 6"
+    },
+    {
+     "name": "a, p, q",
+     "is": "the arguments ax + p and x + q of a quadratic",
+     "pick": "a 1 or 2, p from −8 to 8, q from −8 to 10"
+    },
+    {
+     "name": "k, j",
+     "is": "the power of the second base, b^k, and c = (k + 1)j",
+     "pick": "k 2 or 3, j 1 or 2"
+    }
+   ],
+   "clean": [
+    "a linear root is a fraction with a denominator at most 4, nonzero and at most 20 in size",
+    "a quadratic has two distinct whole or half roots, each at most 12 in size, and exactly one makes every argument positive",
+    "a slip is offered as an option only when its x is at most 60 in size, with a denominator at most 12"
+   ]
   }
  },
  "types": [
@@ -30767,27 +30803,368 @@
     "aa-sl-2025-may-tz1-p1-q01.b",
     "aa-sl-2025-may-tz1-p1-q01.c",
     "aa-sl-2025-may-tz3-p1-q02.a",
-    "aa-sl-2025-may-tz3-p1-q02.b",
-    "aa-sl-2025-nov-tz1-p1-q05.b",
-    "aa-sl-2025-nov-tz3-p1-q06"
+    "aa-sl-2025-may-tz3-p1-q02.b"
    ],
    "stats": {
-    "parts": 12,
+    "parts": 10,
     "paper": {
-     "p1": 12,
+     "p1": 10,
      "p2": 0
     },
     "section": {
-     "A": 9,
+     "A": 7,
      "B": 3
     },
     "marks": {
      "min": 1,
-     "median": 3,
+     "median": 2,
      "max": 8
     },
     "mainTags": {
-     "1.7": 12
+     "1.7": 10
+    }
+   }
+  },
+  {
+   "id": "t1-log-equation",
+   "topic": 1,
+   "source": "exam",
+   "detail": "full",
+   "region": "exponents-logs",
+   "name": "Solve a log equation and reject a root that makes an argument non-positive",
+   "summary": "One equation in logs of linear arguments: combine the logs, change to one base where two are given, drop the logs, solve the linear or quadratic equation, and reject any root that makes an argument zero or negative.",
+   "syllabus": [
+    "1.7",
+    "1.5"
+   ],
+   "skills": [
+    "SL1.7.log-equations",
+    "SL1.7.log-laws",
+    "SL1.7.change-of-base",
+    "SL1.5.exp-log-form"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "combine the logs with the product, quotient or power law",
+    "change to a common base where the bases are b and b² or b³",
+    "write the constant as a log, or go to exponential form, and drop the logs",
+    "solve the linear or quadratic equation",
+    "check each root in every argument, or find the domain first, and reject any root outside it"
+   ],
+   "given": [
+    "a difference of logs equal to a number or to the log of a number",
+    "a log equal to a number plus another log",
+    "a sum of logs, or twice a log less another, equal to a number or a log",
+    "logs in two bases, b and b² or b and b³",
+    "the two roots a student found"
+   ],
+   "asked": "x, exact, or the root that must be rejected.",
+   "answerForms": [
+    "x, a whole number or a fraction, typed",
+    "the rejected root, typed"
+   ],
+   "randomise": [
+    "the base: 2, 3, 5, 10 or e",
+    "the law used: product, quotient or power",
+    "the constant, or the number in the log on the right",
+    "whether the equation comes to a linear or a quadratic",
+    "the arguments, and so which root is rejected",
+    "the two bases and their power, 2 or 3"
+   ],
+   "constraints": [
+    "Paper 1 throughout, as both bank parts are; every answer is exact and needs no calculator",
+    "every argument is linear in x",
+    "a quadratic has whole or half roots, and exactly one of them is rejected",
+    "the numbers are drawn, not taken from any exam question"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "log-equation",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the equation as the exam writes it"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "combine-linear",
+     "given": [
+      "a difference of two logs in one base, equal to a number or to the log of a number"
+     ],
+     "asked": "x, exact",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-equations",
+      "SL1.7.log-laws",
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "constant-as-log",
+     "given": [
+      "one log equal to a whole number plus another log"
+     ],
+     "asked": "x, exact, by writing the number as a log",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-equations",
+      "SL1.7.log-laws",
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "combine-quadratic",
+     "given": [
+      "a sum of two logs, or twice one log less another, equal to a number or a log"
+     ],
+     "asked": "x, exact, with one root rejected",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-equations",
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "change-of-base",
+     "given": [
+      "logs of linear arguments in two bases, b and b² or b³"
+     ],
+     "asked": "x, exact, with any invalid root rejected",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-equations",
+      "SL1.7.change-of-base"
+     ]
+    },
+    {
+     "id": "reject-root",
+     "given": [
+      "a log equation and the two roots its quadratic gives"
+     ],
+     "asked": "the root that must be rejected",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-equations"
+     ]
+    }
+   ],
+   "methods": [
+    {
+     "id": "domain-first",
+     "name": "Find the domain first",
+     "summary": "Every argument must be positive, so x > a bound; solve, then keep only the roots past it."
+    },
+    {
+     "id": "check-each-root",
+     "name": "Put each root into every argument",
+     "summary": "A root stands only if every log it meets has a positive argument."
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.7.log-equations",
+     "method": "combine-then-exponentiate",
+     "suits": [
+      "combine-linear",
+      "constant-as-log",
+      "combine-quadratic"
+     ]
+    },
+    {
+     "skill": "SL1.7.log-equations",
+     "method": "match-arguments",
+     "suits": [
+      "combine-linear",
+      "constant-as-log",
+      "combine-quadratic"
+     ]
+    },
+    {
+     "method": "domain-first",
+     "suits": [
+      "combine-quadratic",
+      "reject-root"
+     ]
+    },
+    {
+     "method": "check-each-root",
+     "suits": [
+      "reject-root"
+     ]
+    },
+    {
+     "skill": "SL1.7.change-of-base",
+     "method": "cob-formula",
+     "suits": [
+      "change-of-base"
+     ]
+    },
+    {
+     "skill": "SL1.7.change-of-base",
+     "method": "common-base-power",
+     "suits": [
+      "change-of-base"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "log₂ x + log₂(x − 3) = 2 has two solutions, x = 4 and x = −1.",
+     "answer": "False: x(x − 3) = 4 gives x = 4 or x = −1, but x = −1 makes both arguments negative, so only x = 4 solves it.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "A root of the equation you get once the logs are dropped is a solution of the log equation.",
+     "answer": "Sometimes: it must also make every log’s argument positive.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.7.log-equations#0",
+     "text": "Keeping a solution that makes an argument zero or negative",
+     "as": "distractor",
+     "in": [
+      "combine-quadratic",
+      "change-of-base",
+      "reject-root"
+     ],
+     "wrong": "the root that makes an argument negative, kept, or both roots"
+    },
+    {
+     "ref": "SL1.7.log-equations#1",
+     "text": "Combining log a + log b as log(a + b)",
+     "as": "distractor",
+     "in": [
+      "combine-quadratic"
+     ],
+     "wrong": "the arguments added, not multiplied"
+    },
+    {
+     "text": "Swapping the base and the power: log_b X = c read as X = c^b, not X = b^c",
+     "as": "distractor",
+     "in": [
+      "combine-linear",
+      "constant-as-log",
+      "change-of-base"
+     ],
+     "wrong": "the base and the power swapped, c^b for b^c"
+    },
+    {
+     "text": "Reading a difference of logs as the log of a difference: log a − log b = log(a − b)",
+     "as": "distractor",
+     "in": [
+      "combine-linear"
+     ],
+     "wrong": "the arguments subtracted, not divided"
+    },
+    {
+     "text": "Turning the quotient upside down: log a − log b = log(b/a)",
+     "as": "distractor",
+     "in": [
+      "combine-linear",
+      "constant-as-log"
+     ],
+     "wrong": "the quotient of the arguments inverted"
+    },
+    {
+     "text": "Adding the constant to the argument: c + log X read as log(X + c)",
+     "as": "distractor",
+     "in": [
+      "constant-as-log"
+     ],
+     "wrong": "the constant added inside the log"
+    },
+    {
+     "text": "Multiplying the argument by the constant itself: c + log_b X read as log_b(cX), not log_b(b^c X)",
+     "as": "distractor",
+     "in": [
+      "constant-as-log"
+     ],
+     "wrong": "the argument times c, not times b^c"
+    },
+    {
+     "text": "Reading 2 log a as log 2a, not log a²",
+     "as": "distractor",
+     "in": [
+      "combine-quadratic"
+     ],
+     "wrong": "the argument doubled, not squared"
+    },
+    {
+     "text": "Changing base the wrong way: log_(b^k) x read as k log_b x, not log_b x divided by k",
+     "as": "distractor",
+     "in": [
+      "change-of-base"
+     ],
+     "wrong": "the other base’s log doubled, not halved"
+    },
+    {
+     "text": "Treating logs in two bases as if they had the same base",
+     "as": "distractor",
+     "in": [
+      "change-of-base"
+     ],
+     "wrong": "the bases ignored"
+    },
+    {
+     "text": "Rejecting a root because it is negative, not because it makes an argument zero or negative",
+     "as": "distractor",
+     "in": [
+      "combine-quadratic",
+      "reject-root"
+     ],
+     "wrong": "a negative root that solves the equation, rejected"
+    }
+   ],
+   "parts": [
+    "aa-sl-2025-nov-tz1-p1-q05.b",
+    "aa-sl-2025-nov-tz3-p1-q06"
+   ],
+   "stats": {
+    "parts": 2,
+    "paper": {
+     "p1": 2,
+     "p2": 0
+    },
+    "section": {
+     "A": 2,
+     "B": 0
+    },
+    "marks": {
+     "min": 4,
+     "median": 4,
+     "max": 5
+    },
+    "mainTags": {
+     "1.7": 2
     }
    }
   },
@@ -59921,7 +60298,8 @@
    "skills": [
     "SL5.2.increasing-decreasing-intervals",
     "SL5.2.sign-from-graph",
-    "SL5.2.parameter-for-monotonic"
+    "SL5.2.parameter-for-monotonic",
+    "SL5.2.show-always-increasing"
    ],
    "skillFit": "full",
    "chain": [
@@ -59929,7 +60307,8 @@
     "read the sign of f′ from a table or a graph",
     "read the sign of f′ from the graph of f",
     "both negative and increasing, on a quadratic",
-    "a parameter that keeps f′ on one side of the axis"
+    "a parameter that keeps f′ on one side of the axis",
+    "the sign of a quotient's f′ for every x in its domain"
    ],
    "given": [
     "f(x)",
@@ -59937,9 +60316,10 @@
     "the graph of f′",
     "f′(x) with an exponential",
     "the graph of f",
-    "f with a letter in it"
+    "f with a letter in it",
+    "a quotient f(x)"
    ],
-   "asked": "An interval of x, the sign of f′ at a point, or the values of a parameter.",
+   "asked": "An interval of x, the sign of f′ at a point or for every x, or the values of a parameter.",
    "answerForms": [
     "an interval",
     "exact",
@@ -59949,14 +60329,16 @@
     "whole-number turning points p and q, and a leading coefficient",
     "whether increasing or decreasing is asked",
     "whole-number roots for a quadratic",
-    "the coefficients a, b and c in f′(x) = a + bx − c e^x"
+    "the coefficients a, b and c in f′(x) = a + bx − c e^x",
+    "the coefficients of a quotient (ax + b)/(cx + d)"
    ],
    "constraints": [
     "a cubic's turning points are whole numbers, q − p is even, and f has whole-number coefficients",
     "a quadratic's roots are whole numbers with a whole-number vertex",
     "a parameter's bound is a whole number",
     "on Paper 2 the zeros of f′ are clear of a rounding edge",
-    "an interval's ends can be open or closed, except for a parameter, whose boundary is the point of the question"
+    "an interval's ends can be open or closed, except for a parameter, whose boundary is the point of the question",
+    "a quotient's f′ is a nonzero whole number over (cx + d)², and 0 and 1 are in its domain"
    ],
    "formats": [
     "value",
@@ -60138,6 +60520,21 @@
      "skills": [
       "SL5.2.parameter-for-monotonic"
      ]
+    },
+    {
+     "id": "quotient-sign",
+     "given": [
+      "f(x) = (ax + b)/(cx + d)"
+     ],
+     "asked": "the sign of f′(x) for every x in the domain, and so whether f is increasing or decreasing",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.2.show-always-increasing"
+     ]
     }
    ],
    "angles": [
@@ -60226,6 +60623,13 @@
      "method": "gdc-slider",
      "suits": [
       "parameter-discriminant"
+     ]
+    },
+    {
+     "skill": "SL5.2.show-always-increasing",
+     "method": "sum-of-positive-terms",
+     "suits": [
+      "quotient-sign"
      ]
     }
    ],
@@ -60329,6 +60733,33 @@
       "parameter-discriminant"
      ],
      "wrong": "the upper bound alone"
+    },
+    {
+     "ref": "SL5.2.show-always-increasing#0",
+     "text": "Checking f′ at a few points and concluding it keeps that sign everywhere",
+     "as": "distractor",
+     "in": [
+      "quotient-sign"
+     ],
+     "wrong": "tests f′ at two values of x and concludes it has that sign for every x"
+    },
+    {
+     "ref": "SL5.2.show-always-increasing#2",
+     "text": "Claiming a square is always positive, when it is zero where its bracket is zero",
+     "as": "distractor",
+     "in": [
+      "quotient-sign"
+     ],
+     "wrong": "says the square on the bottom is > 0 for all x, but it is 0 where f is not defined"
+    },
+    {
+     "ref": "SL5.6.quotient-rule#0",
+     "text": "Reversing the numerator to u v′ − v u′, which flips the sign of the answer",
+     "as": "distractor",
+     "in": [
+      "quotient-sign"
+     ],
+     "wrong": "the top of f′ with the opposite sign, and the opposite conclusion"
     }
    ],
    "parts": [
@@ -69232,6 +69663,8 @@
      "method": "difference-of-areas",
      "suits": [
       "area-line-curve",
+      "area-two-parabolas",
+      "area-exp-lines",
       "find-shift",
       "gdc-area"
      ]
@@ -85406,7 +85839,8 @@
     "fn-solve-quadratic",
     "fn-log-of-quadratic",
     "t1-log-exp-form",
-    "t1-log-laws"
+    "t1-log-laws",
+    "t1-log-equation"
    ],
    "skillsWithoutType": [
     "SL1.5.integer-exponent-laws",
@@ -85443,11 +85877,11 @@
     "fn-transform-describe",
     "t1-rational-exponents",
     "t1-solve-exponential",
-    "t1-log-laws"
+    "t1-log-laws",
+    "t1-log-equation"
    ],
    "skillsWithoutType": [
     "SL1.7.common-base",
-    "SL1.7.log-equations",
     "SL1.7.hidden-quadratic"
    ],
    "typesWithoutSkill": []
@@ -85978,8 +86412,7 @@
     "t5-derivative-graph"
    ],
    "skillsWithoutType": [
-    "SL5.2.sign-at-point",
-    "SL5.2.show-always-increasing"
+    "SL5.2.sign-at-point"
    ],
    "typesWithoutSkill": []
   },

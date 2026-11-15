@@ -8,7 +8,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## In numbers
 
-- **Types:** 106 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
+- **Types:** 107 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
 - **Skills with a type:** 286 of 286.
 - **Functions:** 141 unknowns the exam asks and 434 it doesn't; 574 angles, 193 of them with a weak spot for method-pick questions; 160 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
 - **Coverage cells** (one unknown in one representation by one method): 2102 in Functions, of which 528 are reachable with "Exam-style only" on.
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
+17 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 17 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1990,7 +1990,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L4): Before solving 2^(x + 1) = 3^x, say whether x is more or less than 1. — More: at x = 1 the left side is 4 and the right side 3, and 3^x grows faster, so it catches up later. x = ln 2/(ln 3 − ln 2) ≈ 1.71.
 - **Misconceptions used:** 14. Losing the brackets around the power when bringing it down; Taking logs before isolating the exponential, as if the log of a multiple were the multiple times the power; Rounding the logs early, so the final answer is wrong; Moving an x term across without changing its sign; Combining two logs by adding or subtracting the numbers inside them; Dividing the other way round when the bracket is divided out; Subtracting the number in front instead of dividing by it; Dividing by the number in front before taking off the added constant; Forgetting to divide by the number in the power; Multiplying by the number in the power instead of dividing by it; Dividing by the base instead of by its log; Dropping the starting amount before taking logs; Using the percentage growth as the continuous rate; Raising the starting amount to the power along with the factor.
 
-#### Log laws and change of base to evaluate or rewrite logarithms (`t1-log-laws`, exam, 12 bank parts)
+#### Log laws and change of base to evaluate or rewrite logarithms (`t1-log-laws`, exam, 10 bank parts)
 
 - **Situation:** A log expression to evaluate, combine, expand or rewrite in another base.
 - **Representations:** **equation** (bold: the exam uses it)
@@ -2019,6 +2019,22 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): log a/log b can be written as log(a/b). — False: log(a/b) is log a − log b. log a/log b is log_b a, by change of base.
   - *always-sometimes-never* (L4): log(a + b) = log a + log b, for positive a and b. — Sometimes: it needs a + b = ab, as with a = b = 2. It isn’t a law.
 - **Misconceptions used:** 24. Splitting the log of a sum: log(a + b) = log a + log b; Turning a quotient of logs into the log of a quotient: log a/log b = log(a/b); Confusing a power of a log with a multiple of the log; Inverting the change of base formula, with the log of the base on top; Simplifying a quotient of logs to the log of the quotient, or to a difference of logs; Dividing by the new base itself, not by the power that turns the old base into it; Stopping at the number inside the log, without taking the log of it; Reading a difference of logs as a quotient of logs; Reading a sum of logs as a product of logs; Multiplying the number inside the log by the coefficient, not raising it to that power; Turning a root into a whole-number multiple, not a fraction; Treating a minus sign in front of a log, or a denominator, as a plus; Dropping the minus sign that a reciprocal gives; Dividing the number by the base, not finding the power; Taking the reciprocal of the log, not its negative; Forgetting that the log of the base is one; Multiplying by the power of the base, not dividing; Assuming the two logs in base ab are negatives of each other, when they add to 1; Swapping the powers, or a number with its power; Adding what is inside the logs, when a sum of logs is the log of a product; Subtracting what is inside the logs, when a difference of logs is the log of a quotient; Ignoring the root on the number; Ignoring the root on the base; Multiplying the log by the number inside, not adding its log.
+
+#### Solve a log equation and reject a root that makes an argument non-positive (`t1-log-equation`, exam, 2 bank parts)
+
+- **Situation:** A log equation in x, linear or quadratic once the logs are dropped.
+- **Representations:** **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a difference of two logs in one base, equal to a number or to the log of a number → x, exact
+  - **exam** L2: given one log equal to a whole number plus another log → x, exact, by writing the number as a log
+  - **exam** L3: given a sum of two logs, or twice one log less another, equal to a number or a log → x, exact, with one root rejected
+  - **exam** L3: given logs of linear arguments in two bases, b and b² or b³ → x, exact, with any invalid root rejected
+  - **exam** L2: given a log equation and the two roots its quadratic gives → the root that must be rejected
+- **Angles:** Combine into one log, then rewrite in exponential form; Write the constant as a log and equate arguments; Find the domain first; Put each root into every argument; Apply log_a b = log_c b / log_c a; Write both numbers as powers of a common base.
+- **Concept probes:**
+  - *true-false-reason* (L3): log₂ x + log₂(x − 3) = 2 has two solutions, x = 4 and x = −1. — False: x(x − 3) = 4 gives x = 4 or x = −1, but x = −1 makes both arguments negative, so only x = 4 solves it.
+  - *always-sometimes-never* (L4): A root of the equation you get once the logs are dropped is a solution of the log equation. — Sometimes: it must also make every log’s argument positive.
+- **Misconceptions used:** 11. Keeping a solution that makes an argument zero or negative; Combining log a + log b as log(a + b); Swapping the base and the power: log_b X = c read as X = c^b, not X = b^c; Reading a difference of logs as the log of a difference: log a − log b = log(a − b); Turning the quotient upside down: log a − log b = log(b/a); Adding the constant to the argument: c + log X read as log(X + c); Multiplying the argument by the constant itself: c + log_b X read as log_b(cX), not log_b(b^c X); Reading 2 log a as log 2a, not log a²; Changing base the wrong way: log_(b^k) x read as k log_b x, not log_b x divided by k; Treating logs in two bases as if they had the same base; Rejecting a root because it is negative, not because it makes an argument zero or negative.
 
 #### Sum to infinity: convergence, value, or an unknown from it (`t1-sum-to-infinity`, exam, 6 bank parts)
 
@@ -3385,12 +3401,13 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - **exam** L3: given a quadratic with whole-number roots → where f is both negative and increasing, or positive and decreasing
   - new L4: given a cubic with a letter k → the values of k for which f is increasing or decreasing for all x
   - **exam** L3: given f in vertex form; g′(x) = f(x) − d → the values of d for which g is an increasing function
-- **Angles:** Solve f′(x) > 0 or f′(x) < 0; Sign table for f′; Read the graph of f′; Find turning points of f on the GDC; Use the vertex of a quadratic; Walk along the curve left to right; Lay a tangent at the point; Build a sign diagram; Require discriminant of f′ ≤ 0; Require the minimum of f′ to be ≥ 0; Explore k on the GDC.
+  - **exam** L3: given f(x) = (ax + b)/(cx + d) → the sign of f′(x) for every x in the domain, and so whether f is increasing or decreasing
+- **Angles:** Solve f′(x) > 0 or f′(x) < 0; Sign table for f′; Read the graph of f′; Find turning points of f on the GDC; Use the vertex of a quadratic; Walk along the curve left to right; Lay a tangent at the point; Build a sign diagram; Require discriminant of f′ ≤ 0; Require the minimum of f′ to be ≥ 0; Explore k on the GDC; Argue term by term.
 - **Concept probes:**
   - *true-false-reason* (L3): If f(x) < 0 for every x in an interval, then f is decreasing there. — False: being below the axis says nothing about direction. f(x) = x² − 9 is negative on 0 < x < 3, and it is increasing there.
   - *true-false-reason* (L4): If f′(a) = 0, then f changes from increasing to decreasing, or the other way, at x = a. — False: f(x) = x³ has f′(0) = 0, and it is increasing on both sides of 0.
   - *always-sometimes-never* (L4): A cubic with a positive leading coefficient is increasing for all x. — Sometimes: x³ + x is, but x³ − 3x has turning points at x = ±1 and decreases between them. It depends on whether f′ has two roots.
-- **Misconceptions used:** 8. Giving an interval of y-values rather than x-values; Reading where f is above or below the axis, instead of where f′ is positive or negative; Taking the side of the roots where f′ has the opposite sign to the one asked for; Using the sign of f instead of the sign of f′: being above the axis is not the same as going up; Thinking f′ is zero at the x-intercepts rather than at the turning points; Using the discriminant of f(x) instead of f′(x); Asking f′ for two roots, when a monotonic f allows at most one; Keeping only the upper bound when solving an inequality in k², and losing the lower bound.
+- **Misconceptions used:** 11. Giving an interval of y-values rather than x-values; Reading where f is above or below the axis, instead of where f′ is positive or negative; Taking the side of the roots where f′ has the opposite sign to the one asked for; Using the sign of f instead of the sign of f′: being above the axis is not the same as going up; Thinking f′ is zero at the x-intercepts rather than at the turning points; Using the discriminant of f(x) instead of f′(x); Asking f′ for two roots, when a monotonic f allows at most one; Keeping only the upper bound when solving an inequality in k², and losing the lower bound; Checking f′ at a few points and concluding it keeps that sign everywhere; Claiming a square is always positive, when it is zero where its bracket is zero; Reversing the numerator to u v′ − v u′, which flips the sign of the answer.
 
 #### Differentiate a polynomial or negative power and evaluate (`t5-differentiate-polynomial`, exam, 6 bank parts)
 
