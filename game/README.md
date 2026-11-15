@@ -427,6 +427,19 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   must equal the target at three sets of them. Each tagged option is worked out from its slip, a
   typed answer's slots must make the expression it shows, and each equation in the working is
   evaluated. `test_log_laws.gd` covers the cells, the papers, the no-proof line and typed marking.
+- `engine/situations/log_equation.gd` (FAL-956) is `t1-log-equation` (SL1.7.log-equations, with
+  SL1.7.log-laws, SL1.7.change-of-base and SL1.5.exp-log-form), the `log-equation` situation: one
+  equation in logs of linear arguments, with the root drawn first. Its views (`log_equation_views.gd`)
+  ask 5 unknowns over 11 cells: a difference of logs equal to a number or a log (linear), a log equal to
+  a number plus a log (write the number as a log), a sum of logs or 2 log − log that comes to a
+  quadratic with one root rejected, two bases b and b^k (one argument in both, or one in each and a
+  root rejected), and the root a student must reject. Every argument is linear, a quadratic has whole
+  or half roots and exactly one of them stands, and every working checks the root in each argument or
+  starts from the domain. "Both roots" and "no solution" are options in another shape. Paper 1
+  throughout, as both bank parts are. `E18LE_check` in the SymPy checker reads the equation back, turns
+  every log into one base, drops the logs, solves the polynomial, keeps the roots that make every
+  argument positive, and rebuilds each tagged option from its slip. `test_log_equation.gd` covers the
+  cells, the paper, the rejected root, typed marking and every tag.
 - `engine/situations/log_exp_form.gd` (FAL-753) is `t1-log-exp-form` (SL1.5.exp-log-form and
   SL1.5.log-context), the `log-exp-form` situation: 25 unknowns over 73 cells. Paper 1 changes a fact
   between log and exponential form, evaluates a log exactly, solves for the number, the bracket, the
@@ -2288,6 +2301,9 @@ script error happens while it runs. Run one file with
   logs and terms in k match sums done by hand; the dot figures count what they say; a hidden or spoiled
   line is its own number; relations never use the exam's evenly spaced terms; every tag shows up.
 
+- `test_log_equation.gd` (FAL-956): t1-log-equation built with every cell and all four skills, Paper 1
+  only, four distinct options with one right and the answer in each working's last step; the rejected
+  root is named in the working; a typed x is marked by its value; hand roots and factors; every tag shows up.
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
