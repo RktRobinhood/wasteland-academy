@@ -10,6 +10,7 @@ const read = f => fs.readFileSync(new URL('../../' + f, import.meta.url), 'utf8'
 
 test('aa-sl.json, aa-hl.json and ai.json pass tools/courses.mjs', () => {
   assert.deepEqual(result.errors, []);
+  assert.ok(result.bankTypes > 0, 'the unbuilt bank types in curriculum/bank-types.json are checked too');
 });
 
 test('the course index lists the four courses, every one with five topics', () => {

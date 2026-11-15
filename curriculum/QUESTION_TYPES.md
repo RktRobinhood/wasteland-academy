@@ -6,10 +6,21 @@ Every tagged part of the 342 questions in the [Math-AA question bank](https://gi
 
 - **106 types**, 27 of them Functions (topic 2) in full detail and 79 from other topics. The rest of the other topics are at catalogue level: name, mapping, counts and part IDs.
 - **973 parts assigned**, 0 unclassified, out of 973.
-- **Functions:** 269 parts carry a 2.x tag, 196 of them as the main tag.
+- **Functions:** 267 parts carry a 2.x tag, 194 of them as the main tag.
 - A part normally goes to a type of its first (main) syllabus tag. A few parts follow the pattern instead: for example, twin-paper parts whose taggers listed the same two tags in opposite orders are kept together, and log-law steps inside an exponential model go with the model.
 - `alsoSeenIn` on a Functions type lists parts from other topics that use it as a step (a quadratic solved inside a probability question, a GDC intersection inside a kinematics question).
 - This file covers the exam types only. The 76 extension types, and the unknowns, representations and methods of every Functions type, are in `PEDAGOGY_GAPS.md`.
+
+## All four courses in the bank
+
+The bank at `41261da1` (the pinned commit) holds all four courses. This catalogue assigns the AA SL parts up to 2025-nov; the rest are unassigned until types are built for them. The bank's own HL and AI type briefs are in `bank-types.json`, unbuilt. A question on both an SL and an HL paper is stored once, under its SL id, so its parts are counted under the SL course only. Paper and calculator are kept apart: every AI paper allows a GDC.
+
+| Course | Questions | Parts | Assigned | Unassigned | Parts per paper | SL questions also on its papers |
+|---|--:|--:|--:|--:|---|--:|
+| AA SL | 396 | 1128 | 973 | 155 | P1 (no GDC) 532, P2 (GDC) 596 | – |
+| AA HL | 327 | 1205 | 0 | 1205 | P1 (no GDC) 371, P2 (GDC) 408, P3 (GDC) 426 | 214 (518 parts) |
+| AI SL | 386 | 1349 | 0 | 1349 | P1 (GDC) 743, P2 (GDC) 606 | – |
+| AI HL | 357 | 1485 | 0 | 1485 | P1 (GDC) 536, P2 (GDC) 480, P3 (GDC) 469 | 127 (421 parts) |
 
 ## Section A and Section B
 
@@ -18,7 +29,7 @@ Every tagged part of the 342 questions in the [Math-AA question bank](https://gi
 | Questions in the bank | 228 | 114 |
 | Marks per question | 4 to 9, mean 5.9 | 12 to 18, mean 15.0 |
 | Parts per question | 2.1 | 4.4 |
-| Parts with a Functions main tag | 89 of 468 | 107 of 505 |
+| Parts with a Functions main tag | 89 of 468 | 105 of 505 |
 
 **Section A** questions are short and self-contained: one idea, worked in one to three parts, often a single 4 to 7 mark task with no lettered parts at all. A recipe for a Section A type generates one function and asks one or two things about it.
 
@@ -1649,52 +1660,52 @@ Every tagged part of the 342 questions in the [Math-AA question bank](https://gi
 |---|---|---|---|---|
 | 1.1 Scientific notation | 3 (3) | 1 | add-subtract, powers-roots | – |
 | 1.2 Arithmetic sequences and series | 36 (33) | 3 | sigma | – |
-| 1.3 Geometric sequences and series | 27 (17) | 3 | – | – |
-| 1.4 Financial applications of geometric sequences and series | 24 (23) | 2 | real-value | – |
-| 1.5 Laws of exponents with integer exponents and introduction to logarithms | 16 (5) | 5 | integer-exponent-laws, zero-negative, evaluate-tech | – |
+| 1.3 Geometric sequences and series | 27 (18) | 3 | – | – |
+| 1.4 Financial applications of geometric sequences and series | 23 (22) | 2 | real-value | – |
+| 1.5 Laws of exponents with integer exponents and introduction to logarithms | 15 (5) | 5 | integer-exponent-laws, zero-negative, evaluate-tech | – |
 | 1.6 Simple deductive proof | 16 (9) | 3 | identity-constants, numerical-show-that | – |
-| 1.7 Laws of exponents and logarithms | 35 (24) | 7 | common-base, log-equations, hidden-quadratic | – |
+| 1.7 Laws of exponents and logarithms | 37 (25) | 7 | common-base, log-equations, hidden-quadratic | – |
 | 1.8 Sum of infinite geometric sequences | 8 (6) | 1 | sn-vs-sinf | – |
-| 1.9 Binomial theorem | 19 (16) | 2 | constant-term, product-expansion | – |
-| 2.1 Equations of straight lines, parallel and perpendicular | 15 (13) | 1 | intersection-lines, line-model | – |
-| 2.2 Functions, notation, domain, range and inverse as reflection | 31 (19) | 8 | is-function | – |
-| 2.3 Graphs of functions | 25 (13) | 7 | match-graph | – |
-| 2.4 Key features of graphs | 50 (20) | 12 | – | fn-gdc-optimise-combined |
+| 1.9 Binomial theorem | 18 (16) | 2 | constant-term, product-expansion | – |
+| 2.1 Equations of straight lines, parallel and perpendicular | 16 (13) | 1 | intersection-lines, line-model | – |
+| 2.2 Functions, notation, domain, range and inverse as reflection | 32 (19) | 8 | is-function | – |
+| 2.3 Graphs of functions | 24 (11) | 7 | match-graph | – |
+| 2.4 Key features of graphs | 48 (19) | 12 | – | fn-gdc-optimise-combined |
 | 2.5 Composite functions, identity and finding inverse | 33 (30) | 5 | – | – |
 | 2.6 Quadratic function | 28 (24) | 5 | model | – |
-| 2.7 Solutions of quadratic equations and inequalities, discriminant and nature of roots | 50 (27) | 7 | – | fn-log-of-quadratic |
-| 2.8 Reciprocal and simple rational functions, equations of asymptotes | 25 (15) | 6 | transformed-reciprocal, rational-model | – |
-| 2.9 Exponential and logarithmic functions | 26 (15) | 5 | exp-graph | – |
-| 2.10 Solving equations graphically and analytically | 30 (11) | 7 | inequality-graphical | – |
+| 2.7 Solutions of quadratic equations and inequalities, discriminant and nature of roots | 48 (27) | 7 | – | fn-log-of-quadratic |
+| 2.8 Reciprocal and simple rational functions, equations of asymptotes | 25 (16) | 6 | transformed-reciprocal, rational-model | – |
+| 2.9 Exponential and logarithmic functions | 24 (15) | 5 | exp-graph | – |
+| 2.10 Solving equations graphically and analytically | 31 (11) | 7 | inequality-graphical | – |
 | 2.11 Transformations of graphs | 16 (9) | 7 | – | – |
-| 3.1 3D space, volume, angles, distance and midpoints | 33 (27) | 4 | – | – |
+| 3.1 3D space, volume, angles, distance and midpoints | 32 (26) | 4 | – | – |
 | 3.2 2D and 3D trigonometry, sine rule, cosine rule and area | 59 (45) | 6 | – | – |
-| 3.3 Applications of trigonometry | 20 (8) | 2 | two-observations | – |
-| 3.4 Circle: radians, arcs and sectors | 38 (36) | 3 | – | – |
-| 3.5 Unit circle definitions, exact trig ratios and ambiguous case of sine rule | 17 (4) | 2 | exact-triangle | – |
+| 3.3 Applications of trigonometry | 22 (9) | 2 | two-observations | – |
+| 3.4 Circle: radians, arcs and sectors | 37 (35) | 3 | – | – |
+| 3.5 Unit circle definitions, exact trig ratios and ambiguous case of sine rule | 18 (4) | 2 | exact-triangle | – |
 | 3.6 Pythagorean identity and double angles | 20 (10) | 2 | – | – |
-| 3.7 Circular functions: graphs, composites and transformations | 45 (39) | 5 | – | – |
+| 3.7 Circular functions: graphs, composites and transformations | 45 (40) | 5 | – | – |
 | 3.8 Solving trigonometric equations | 25 (18) | 3 | – | – |
-| 4.1 Concepts, reliability and sampling techniques | 8 (8) | 2 | population-sample, data-type, stratified-numbers | – |
-| 4.2 Histograms, cumulative frequency graphs and box plots | 17 (13) | 3 | frequency-histogram | – |
-| 4.3 Mean, median, mode, grouped mean, standard deviation, quartiles and IQR | 40 (28) | 5 | – | – |
-| 4.4 Pearson's, scatter diagrams and equation of y on x | 34 (30) | 2 | describe-correlation | – |
-| 4.5 Probability concepts and expected numbers | 19 (8) | 2 | – | – |
-| 4.6 Combined, mutually exclusive, conditional, independence and probability diagrams | 56 (33) | 4 | mutually-exclusive, conditional-diagram | – |
+| 4.1 Concepts, reliability and sampling techniques | 4 (4) | 2 | population-sample, data-type, stratified-numbers | – |
+| 4.2 Histograms, cumulative frequency graphs and box plots | 22 (17) | 3 | frequency-histogram | – |
+| 4.3 Mean, median, mode, grouped mean, standard deviation, quartiles and IQR | 36 (26) | 5 | – | – |
+| 4.4 Pearson's, scatter diagrams and equation of y on x | 34 (31) | 2 | describe-correlation | – |
+| 4.5 Probability concepts and expected numbers | 19 (9) | 2 | – | – |
+| 4.6 Combined, mutually exclusive, conditional, independence and probability diagrams | 55 (33) | 4 | mutually-exclusive, conditional-diagram | – |
 | 4.7 Discrete random variables | 38 (32) | 2 | – | – |
-| 4.8 Binomial distribution | 24 (19) | 1 | – | – |
-| 4.9 Normal distribution and calculations | 38 (27) | 3 | – | – |
-| 4.10 Regression line of x on y | 6 (5) | 1 | – | – |
-| 4.11 Formal conditional probability and independence | 35 (29) | 2 | – | – |
+| 4.8 Binomial distribution | 25 (19) | 1 | – | – |
+| 4.9 Normal distribution and calculations | 39 (27) | 3 | – | – |
+| 4.10 Regression line of x on y | 6 (6) | 1 | – | – |
+| 4.11 Formal conditional probability and independence | 33 (28) | 2 | – | – |
 | 4.12 Standardization of normal variables | 15 (15) | 1 | z-score, compare-z | – |
-| 5.1 Introduction to calculus | 10 (7) | 2 | chord-to-tangent, gradient-from-graph | – |
+| 5.1 Introduction to calculus | 12 (10) | 2 | chord-to-tangent, gradient-from-graph | – |
 | 5.2 Increasing and decreasing functions | 10 (5) | 2 | sign-at-point, show-always-increasing | – |
-| 5.3 Differentiating polynomials, n in Z | 21 (6) | 1 | unknown-coefficients | – |
+| 5.3 Differentiating polynomials, n in Z | 21 (7) | 1 | unknown-coefficients | – |
 | 5.4 Tangents and normals | 29 (23) | 5 | – | t5-tangent-condition |
-| 5.5 Integration introduction, areas between curve and x-axis | 24 (7) | 3 | definite-integral-gdc, area-expression, area-positive | – |
-| 5.6 Differentiating polynomials n in Q, chain, product and quotient rules | 37 (24) | 4 | – | – |
-| 5.7 The second derivative | 20 (9) | 3 | interpret-second-derivative | – |
-| 5.8 Optimization, local extrema and points of inflexion | 45 (33) | 3 | closed-interval-extremes, stationary-point-conditions | – |
+| 5.5 Integration introduction, areas between curve and x-axis | 21 (6) | 3 | definite-integral-gdc, area-expression, area-positive | – |
+| 5.6 Differentiating polynomials n in Q, chain, product and quotient rules | 28 (20) | 4 | – | – |
+| 5.7 The second derivative | 19 (8) | 3 | interpret-second-derivative | – |
+| 5.8 Optimization, local extrema and points of inflexion | 45 (35) | 3 | closed-interval-extremes, stationary-point-conditions | – |
 | 5.9 Kinematics problems | 65 (58) | 2 | – | – |
-| 5.10 Indefinite integration, reverse chain and substitution | 24 (15) | 3 | hence-from-derivative | – |
-| 5.11 Definite integrals, areas under curve onto x-axis and areas between curves | 37 (20) | 3 | integral-properties | – |
+| 5.10 Indefinite integration, reverse chain and substitution | 26 (16) | 3 | hence-from-derivative | – |
+| 5.11 Definite integrals, areas under curve onto x-axis and areas between curves | 35 (20) | 3 | integral-properties | – |

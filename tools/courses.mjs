@@ -127,6 +127,23 @@ export function build() {
     if (layer !== 'ai' && coursesOf(id).some(c => c.startsWith('ai-')) && !sharedIds.has(id))
       errors.push(`${id} lists an AI course but is not in ai.json shared`);
 
+  // curriculum/bank-types.json: the bank's unbuilt HL and AI types (tools/question-types.mjs
+  // merges them). Each course a type names is one of the four, and every subtopic its syllabus
+  // codes and skills land in is a live subtopic of each of those courses.
+  const bankTypes = fs.existsSync(path.join(ROOT, 'curriculum/bank-types.json')) ? readJSON('curriculum/bank-types.json').types : [];
+  for (const t of bankTypes) {
+    const w = `bank-types ${t.id}`;
+    if (!t.courses?.length) errors.push(`${w}: no courses`);
+    for (const c of t.courses || []) if (!COURSE_IDS.includes(c)) errors.push(`${w}: unknown course ${c}`);
+    (t.subtopics || []).forEach((s, i) => { if (s == null) errors.push(`${w}: syllabus ${t.syllabus[i]} names no statement in the bank`); });
+    const skillIds = [...(t.skills || []), ...(t.unknowns || []).flatMap(u => u.skills || [])];
+    const subs = new Set([...(t.subtopics || []).filter(Boolean), ...skillIds.map(s => s.split('.').slice(0, 2).join('.'))]);
+    for (const s of subs) {
+      if (!subtopics.has(s) || subtopics.get(s).st.retired) { errors.push(`${w}: unknown subtopic ${s}`); continue; }
+      for (const c of t.courses || []) if (!coursesOf(s).includes(c)) errors.push(`${w}: ${s} is not in ${c}`);
+    }
+  }
+
   // ── 2. Count ─────────────────────────────────────────────────
   const live = [...subtopics.values()].filter(x => !x.st.retired);
   const topicNames = Object.fromEntries(byKey['aa-sl'].map.topics.map(t => [t.topic, t.name]));
@@ -233,7 +250,7 @@ export function build() {
   const mdText = md.join('\n');
   const jsonText = JSON.stringify(index, null, 2) + '\n';
   const line = index.courses.map(c => `${c.short} ${sum(c.topics, 'subtopics')}/${sum(c.topics, 'skills')}`).join(', ');
-  return { errors, warnings, index, thin, jsonText, mdText, line };
+  return { errors, warnings, index, thin, jsonText, mdText, line, bankTypes: bankTypes.length };
 }
 
 // ── 4. Output ────────────────────────────────────────────────
@@ -241,7 +258,7 @@ export const OUT = { json: 'game/data/courses.json', md: 'curriculum/COURSES.md'
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = new Set(process.argv.slice(2));
-  const { errors, warnings, thin, jsonText, mdText, line } = build();
+  const { errors, warnings, thin, jsonText, mdText, line, bankTypes } = build();
   if (errors.length) {
     console.error(`Course map has ${errors.length} error(s):\n  ` + errors.join('\n  '));
     process.exit(1);
@@ -253,7 +270,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       console.error(`Out of date: ${stale.join(', ')}. Run node tools/courses.mjs --write`);
       process.exit(1);
     }
-    console.log(`Courses OK (subtopics/skills): ${line}. ${thin.length} thin skills, ${warnings.length} cross-course prereqs.`);
+    console.log(`Courses OK (subtopics/skills): ${line}. ${thin.length} thin skills, ${warnings.length} cross-course prereqs, ${bankTypes} unbuilt bank types.`);
     process.exit(0);
   }
   if (args.has('--write')) {

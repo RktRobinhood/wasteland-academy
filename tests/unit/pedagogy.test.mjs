@@ -44,3 +44,14 @@ test('only exam types and extension skill types with examStyle have exam views',
     assert.ok(errors.some(e => /exam unknown|exam representations|examStyle/.test(e)), JSON.stringify(errors));
   }
 });
+
+// curriculum/bank-types.json: the question bank's unbuilt HL and AI types (GH #134). They
+// pass with the rest above; a clash with a permanent type id or a skill no map or sub-tag
+// names is an error.
+test('an unbuilt bank type may not reuse a catalogue id or name an unknown skill', () => {
+  const [first] = data.bank.types;
+  const bad = { ...first, id: data.doc.types[0].id, skills: [...first.skills, 'SL9.9.nothing'] };
+  const errors = check({ ...data, bank: { ...data.bank, types: [bad, ...data.bank.types.slice(1)] } }).errors;
+  assert.ok(errors.some(e => e.includes('also in question-types.json')), JSON.stringify(errors));
+  assert.ok(errors.some(e => e.includes('unknown skill SL9.9.nothing')), JSON.stringify(errors));
+});
