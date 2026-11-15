@@ -1,8 +1,9 @@
 extends Control
 ## The title screen. "Play" opens the map (ui/map.gd), "Practice" opens the practice
 ## screen and "Engine" the engine explorer. On the first load only, ?explore (see
-## explorer.gd) goes to the explorer, a deep link to the Bazaar (see bazaar.gd), a run
-## (see fight.gd) or a question (see practice.gd) goes straight there, and a map link
+## explorer.gd) goes to the explorer, ?study to the study screen (study.gd), a deep link
+## to the Bazaar (see bazaar.gd), a run (see fight.gd) or a question (see practice.gd)
+## goes straight there, and a map link
 ## such as #functions/quadratics (see engine/map_link.gd) opens the map there. With the
 ## takeover switch on (README, "Switching to Godot"), a small "Classic game" link goes
 ## to the HTML game. ?journey=demo opens the journey demo (ui/journey_demo.gd).
@@ -15,6 +16,8 @@ extends Control
 const PRACTICE := "res://scenes/practice.tscn"
 const FIGHT := "res://scenes/fight.tscn"
 const EXPLORER := "res://scenes/explorer.tscn"
+## The academic study screen (ui/study.gd), on the same maths engine: ?study.
+const STUDY := "res://scenes/study.tscn"
 const BAZAAR := "res://scenes/bazaar.tscn"
 const JOURNEY_DEMO := "res://scenes/journey_demo.tscn"
 
@@ -60,6 +63,8 @@ func _ready() -> void:
 	var practice := preload("res://ui/practice.gd")
 	if practice.url_args().get("journey", "") == "demo":
 		get_tree().change_scene_to_file.call_deferred(JOURNEY_DEMO)
+	elif practice.url_args().has("study"):
+		get_tree().change_scene_to_file.call_deferred(STUDY)
 	elif practice.url_args().has("explore"):
 		open_explorer.call_deferred()
 	elif preload("res://ui/bazaar.gd").deep_link() != "":
