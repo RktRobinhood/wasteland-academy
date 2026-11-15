@@ -15,7 +15,7 @@ func _run(seed_no: int = 42, start_floor: int = 1, save: Dictionary = {}) -> Run
 
 ## The response that answers the open question right, or wrong (a wrong option). A typed
 ## question's wrong answer is one that can be typed: some wrong options can't (a root the
-## question has no slot for).
+## question has no slot for). When none can, it types the answer one off (FAL-959).
 static func respond(q: Dictionary, right: bool) -> Dictionary:
 	var pick := -1
 	var typed := not QuestionEngine.is_choice(q)
@@ -25,13 +25,27 @@ static func respond(q: Dictionary, right: bool) -> Dictionary:
 			pick = i
 	if QuestionEngine.is_choice(q):
 		return {"choice": pick}
-	var values: Dictionary = q.answer.values if right else q.choices[pick].values
+	var values: Dictionary = q.answer.values if right else _wrong_values(q, pick)
 	var out := {}
 	for item in Answer.slots(q.answer):
 		var id: String = item.get("slot", item.get("pick", ""))
 		out[id] = Answer.export_values({id: values[id]})[id] if item.has("slot") else values[id]
 	return out
 
+
+## The values of a typed wrong answer: the wrong option picked, or, when no wrong option can
+## be typed (a point short, an x without its y, only the rounding trap), the answer with its
+## first number one off.
+static func _wrong_values(q: Dictionary, pick: int) -> Dictionary:
+	if pick >= 0:
+		return q.choices[pick].values
+	var values: Dictionary = q.answer.values.duplicate()
+	for item in Answer.slots(q.answer):
+		if item.has("slot") and values.get(item.slot) is Q:
+			values[item.slot] = values[item.slot].add(1)
+			return values
+	assert(false, "no wrong answer to type")
+	return values
 
 ## Plays a run to the end with a fixed script: by question number, right, wrong, right,
 ## timeout, then again. Quits after `most` questions.
