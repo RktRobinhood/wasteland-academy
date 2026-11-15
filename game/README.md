@@ -2059,9 +2059,9 @@ Flats), `stats/` (the Radio Spires) and `calculus/` (the Engine Core). Each file
 optional: when one isn't there, that piece keeps the coded look (the island's dusk
 gradient, `ArtSlots.GROUND`, with the jetty as a dot, and a ring in the state's colour
 with a short glyph, `GLYPHS`, for each place), so art can land one file at a time and an
-island's painting shows the moment it's dropped in, with no code change. Only
-`functions/background.webp` is painted so far (FAL-791). Import each with mipmaps on,
-like the rest of the art.
+island's painting shows the moment it's dropped in, with no code change.
+`functions/background.webp` (FAL-791) and `algebra/background.webp` (FAL-963) are
+painted so far. Import each with mipmaps on, like the rest of the art.
 
 | File | Size | What it is |
 |---|---|---|
@@ -2131,8 +2131,8 @@ all-regions dungeon, `all-<island>` for another island's, and `thunderdome` work
 - Engine Core (`calculus`): `kinematics`, `stationary-points`, `tangents-normals`,
   `definite-integrals`, `derivative-rules`, `derivative-basics`, `integration`
 
-Only the Signal Tower's regions have backdrops so far. A region with no `backdrop` shows
-a close-up of its island cut from the overworld painting (the arena for the
+Only the Signal Tower's and the Scrap Fields' regions have backdrops so far. A region
+with no `backdrop` shows a close-up of its island cut from the overworld painting (the arena for the
 Thunderdome) under the same wash (`backdrop_for()` in `ui/map.gd`), so it reads as that
 island rather than a blank screen.
 
