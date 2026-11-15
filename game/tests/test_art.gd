@@ -117,6 +117,18 @@ func test_the_shipped_pool_is_the_five_tier_enemies() -> void:
 		for slot in ["miniboss", "boss"]:
 			check(str(named[region][slot].get("name", "")) != "" and str(named[region][slot].get("taunt", "")) != "",
 				"%s %s has a name and a taunt" % [region, slot])
+	# Every other island, and the Thunderdome, names its bosses (FAL-925): a region with
+	# no entry of its own, and the island's all-regions dungeon, use the island's.
+	for island in ["algebra", "geometry", "stats", "calculus", Dungeon.THUNDERDOME]:
+		check(named.has(island), "%s has boss names" % island)
+	for region in MapLink.region_ids() + [Dungeon.all_of("calculus"), Dungeon.THUNDERDOME]:
+		var key: String = region if named.has(region) else MapLink.island_of(region)
+		if not named.has(key):
+			continue
+		var boss := ArtSlots.enemy(region, "boss", 5, 1, 1, 10)
+		check(boss.named and boss.name == named[key].boss.name and boss.taunt != "", "%s's boss: %s" % [region, boss.name])
+		check_eq(ArtSlots.enemy(region, "mini", 3, 1, 1, 5).name, named[key].miniboss.name, region + "'s mini-boss")
+	check_eq(ArtSlots.enemy("kinematics", "boss", 5, 1, 1, 10).name, named.calculus.boss.name, "an Engine Core region")
 
 
 # ── A region with no art ─────────────────────────────────────
@@ -222,7 +234,7 @@ func test_the_fight_screen_with_no_art() -> void:
 	_use(NONE, NONE)
 	var made: Array = await _fight(5)
 	var f: Control = made[1]
-	check(not f.backdrop.visible, "no backdrop")
+	check(f.backdrop.visible and f.backdrop.texture is AtlasTexture, "no backdrop: the island's close-up (FAL-925)")
 	check_eq(_path(f.enemy_art.texture), "res://assets/enemies/" + Tuning.ENEMIES[f.run.tier].art)
 	check(f.card.get_node_or_null("Taunt") == null, "no taunt")
 	f.autoplay(true)

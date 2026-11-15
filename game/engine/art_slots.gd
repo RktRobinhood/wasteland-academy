@@ -20,12 +20,24 @@ const EXTENSIONS := ["webp", "png"]
 const BOSS_SLOT := {"mini": "miniboss", "boss": "boss"}
 ## Best-floor medals: floors 1 to MEDALS - 1, then one for MEDALS and deeper.
 const MEDALS := 4
+## Each island's coded ground, [top, bottom], until it has a painting: dusk over its own
+## colours (rust for the Scrap Fields, sand for the Dry Flats, night teal for the Radio
+## Spires, ember for the Engine Core, neon for the Thunderdome).
+const GROUND := {
+	"functions": [Color(0.24, 0.17, 0.2), Color(0.36, 0.27, 0.16)],
+	"algebra": [Color(0.22, 0.14, 0.13), Color(0.4, 0.24, 0.14)],
+	"geometry": [Color(0.25, 0.2, 0.17), Color(0.45, 0.35, 0.21)],
+	"stats": [Color(0.12, 0.16, 0.24), Color(0.17, 0.3, 0.32)],
+	"calculus": [Color(0.14, 0.13, 0.16), Color(0.35, 0.18, 0.12)],
+	"thunderdome": [Color(0.19, 0.1, 0.22), Color(0.36, 0.14, 0.3)],
+}
 
 ## Where the slots are. Tests point these at fixtures.
 static var root := "res://assets/"
 static var data_dir := "res://data/"
 
 static var _data := {}
+static var _grounds := {}
 
 
 ## The file for a slot ("" when it has none).
@@ -66,7 +78,8 @@ static func reset() -> void:
 ## "named"} (art and hurt are file paths, "" for none; named is true when
 ## data/bosses.json named a mini-boss or boss). kind is "fight", "mini" or "boss"
 ## (Dungeon.fight_kind). A mini-boss or boss uses its region's art and its name and
-## taunt from data/bosses.json; a regular fight draws from the shared pool. Whatever is
+## taunt from data/bosses.json, keyed by region id or, failing that, by island id
+## (MapLink.island_of); a regular fight draws from the shared pool. Whatever is
 ## missing comes from the pool, then from the tier (Tuning.ENEMIES), as before FAL-470.
 ## The draw hashes the run seed, floor and fight, so it never moves the run's own dice.
 static func enemy(region: String, kind: String, tier: int, seed_no: int, on_floor: int, fight: int) -> Dictionary:
@@ -83,7 +96,10 @@ static func enemy(region: String, kind: String, tier: int, seed_no: int, on_floo
 		out.hurt = _hurt_of("enemies/" + str(p.id))
 	if BOSS_SLOT.has(kind):
 		var slot: String = BOSS_SLOT[kind]
-		var said: Dictionary = (data("bosses.json") as Dictionary).get(region, {}).get(slot, {})
+		# The region's own, else its island's (an island's all-regions dungeon, a region
+		# with no entry yet, and the Thunderdome, FAL-925).
+		var bosses: Dictionary = data("bosses.json")
+		var said: Dictionary = bosses.get(region, bosses.get(MapLink.island_of(region), {})).get(slot, {})
 		out.named = said.has("name")
 		out.name = said.get("name", out.name)
 		out.taunt = said.get("taunt", "")
@@ -97,6 +113,22 @@ static func enemy(region: String, kind: String, tier: int, seed_no: int, on_floo
 ## A region's fight backdrop, or null.
 static func backdrop(region: String) -> Texture2D:
 	return texture("regions/%s/backdrop" % region)
+
+
+## An island's coded ground (GROUND): a dusk gradient from top to bottom. The island map
+## draws it with no painting, and screens behind a region with no backdrop.
+static func ground(island: String) -> Texture2D:
+	if not _grounds.has(island):
+		var pair: Array = GROUND.get(island, GROUND.functions)
+		var grad := Gradient.new()
+		grad.set_color(0, pair[0])
+		grad.set_color(1, pair[1])
+		var tex := GradientTexture2D.new()
+		tex.gradient = grad
+		tex.fill_from = Vector2(0, 0)
+		tex.fill_to = Vector2(0, 1)
+		_grounds[island] = tex
+	return _grounds[island]
 
 
 ## The best-floor medal for a floor (the last medal covers that floor and deeper), or null.

@@ -97,6 +97,221 @@
 				"2.11"
 			],
 			"order": 8
+		},
+		{
+			"id": "sequences",
+			"name": "Sequences and series",
+			"syllabus": [
+				"1.2",
+				"1.3",
+				"1.8"
+			],
+			"order": 1
+		},
+		{
+			"id": "finance",
+			"name": "Interest and depreciation",
+			"syllabus": [
+				"1.4"
+			],
+			"order": 2
+		},
+		{
+			"id": "exponents-logs",
+			"name": "Exponents and log laws",
+			"syllabus": [
+				"1.1",
+				"1.5",
+				"1.7"
+			],
+			"order": 3
+		},
+		{
+			"id": "binomial",
+			"name": "Binomial theorem",
+			"syllabus": [
+				"1.9"
+			],
+			"order": 4
+		},
+		{
+			"id": "proof",
+			"name": "Proof",
+			"syllabus": [
+				"1.6"
+			],
+			"order": 5
+		},
+		{
+			"id": "triangles",
+			"name": "Triangle trigonometry",
+			"syllabus": [
+				"3.2",
+				"3.3"
+			],
+			"order": 1
+		},
+		{
+			"id": "trig-graphs",
+			"name": "Trig graphs and models",
+			"syllabus": [
+				"3.7"
+			],
+			"order": 2
+		},
+		{
+			"id": "arcs-sectors",
+			"name": "Arcs and sectors",
+			"syllabus": [
+				"3.4"
+			],
+			"order": 3
+		},
+		{
+			"id": "geometry-3d",
+			"name": "3D geometry",
+			"syllabus": [
+				"3.1"
+			],
+			"order": 4
+		},
+		{
+			"id": "trig-equations",
+			"name": "Trig equations",
+			"syllabus": [
+				"3.8"
+			],
+			"order": 5
+		},
+		{
+			"id": "unit-circle",
+			"name": "Unit circle and identities",
+			"syllabus": [
+				"3.5",
+				"3.6"
+			],
+			"order": 6
+		},
+		{
+			"id": "discrete-distributions",
+			"name": "Discrete distributions",
+			"syllabus": [
+				"4.7",
+				"4.8"
+			],
+			"order": 1
+		},
+		{
+			"id": "probability",
+			"name": "Probability",
+			"syllabus": [
+				"4.5",
+				"4.6"
+			],
+			"order": 2
+		},
+		{
+			"id": "normal-distribution",
+			"name": "Normal distribution",
+			"syllabus": [
+				"4.9",
+				"4.12"
+			],
+			"order": 3
+		},
+		{
+			"id": "regression",
+			"name": "Correlation and regression",
+			"syllabus": [
+				"4.4",
+				"4.10"
+			],
+			"order": 4
+		},
+		{
+			"id": "conditional-probability",
+			"name": "Conditional probability",
+			"syllabus": [
+				"4.11"
+			],
+			"order": 5
+		},
+		{
+			"id": "averages-spread",
+			"name": "Averages and spread",
+			"syllabus": [
+				"4.3"
+			],
+			"order": 6
+		},
+		{
+			"id": "sampling-data",
+			"name": "Sampling and data",
+			"syllabus": [
+				"4.1",
+				"4.2"
+			],
+			"order": 7
+		},
+		{
+			"id": "kinematics",
+			"name": "Kinematics",
+			"syllabus": [
+				"5.9"
+			],
+			"order": 1
+		},
+		{
+			"id": "stationary-points",
+			"name": "Stationary points",
+			"syllabus": [
+				"5.8"
+			],
+			"order": 2
+		},
+		{
+			"id": "tangents-normals",
+			"name": "Tangents and normals",
+			"syllabus": [
+				"5.4"
+			],
+			"order": 3
+		},
+		{
+			"id": "definite-integrals",
+			"name": "Definite integrals",
+			"syllabus": [
+				"5.11"
+			],
+			"order": 4
+		},
+		{
+			"id": "derivative-rules",
+			"name": "Derivative rules",
+			"syllabus": [
+				"5.6",
+				"5.7"
+			],
+			"order": 5
+		},
+		{
+			"id": "derivative-basics",
+			"name": "Derivative basics",
+			"syllabus": [
+				"5.1",
+				"5.2",
+				"5.3"
+			],
+			"order": 6
+		},
+		{
+			"id": "integration",
+			"name": "Integration",
+			"syllabus": [
+				"5.5",
+				"5.10"
+			],
+			"order": 7
 		}
 	],
 	"situations": {
@@ -20115,6 +20330,7 @@
 			"id": "t1-standard-form",
 			"topic": 1,
 			"source": "exam",
+			"region": "exponents-logs",
 			"name": "Calculate with numbers in standard form",
 			"summary": "Numbers a × 10^k: convert both ways, bring a back between 1 and 10, order mixed forms, read a GDC display, multiply and divide with and without a calculator, and solve problems with very large or very small amounts.",
 			"situation": "standard-form",
@@ -20687,6 +20903,7 @@
 			"id": "t1-sequence-proof",
 			"topic": 1,
 			"source": "exam",
+			"region": "proof",
 			"name": "Prove a property linking arithmetic and geometric terms",
 			"summary": "Prove a result that ties arithmetic and geometric terms together, or a general result about a sequence or its sum. A phone can't read a written proof, so each question is one decision a proof turns on: a relation between terms, a hidden line, the next line, the first wrong line, a consequence such as the common ratio or difference, or which of four arguments is a proof.",
 			"situation": "sequence-proof",
@@ -21497,6 +21714,7 @@
 			"id": "t1-arithmetic-in-context",
 			"topic": 1,
 			"source": "exam",
+			"region": "sequences",
 			"name": "Arithmetic sequence or series modelling a pattern or context",
 			"summary": "A story that is an arithmetic sequence: find a term or a total, tell 'after n years' from 'in year n', find simple interest, estimate d from imperfect data and comment on a prediction, or find n: which term has a value, the first to pass a target, whether a value is a term at all.",
 			"situation": "arithmetic-context",
@@ -22259,6 +22477,7 @@
 			"id": "t1-arithmetic-sequence",
 			"topic": 1,
 			"source": "exam",
+			"region": "sequences",
 			"name": "Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums",
 			"summary": "From u₁ and d, two terms, the first few terms or a sum, find a term, d, u₁, the term number n or a sum Sₙ.",
 			"situation": "arithmetic-sequence",
@@ -22743,6 +22962,7 @@
 			"id": "t1-geometric-in-context",
 			"topic": 1,
 			"source": "exam",
+			"region": "sequences",
 			"name": "Geometric sequence or series modelling a context",
 			"summary": "Turn a percentage change or a rebound into a multiplier, then find a later value, a total, the first round past a target or the round one model overtakes another, keeping track of whether a value is 'after t rounds' or 'in round n'.",
 			"situation": "geometric-context",
@@ -23451,6 +23671,7 @@
 			"id": "t1-geometric-sequence",
 			"topic": 1,
 			"source": "exam",
+			"region": "sequences",
 			"name": "Geometric sequence: find r, u1, a term or S_n",
 			"summary": "Find the common ratio, a term or the general term of a geometric sequence, find r and u₁ from given terms, including expressions in k and coefficients of a binomial expansion, and find finite sums from terms, the last term, a closed form or sigma notation.",
 			"situation": "geometric-sequence",
@@ -24178,6 +24399,7 @@
 			"id": "t1-depreciation",
 			"topic": 1,
 			"source": "exam",
+			"region": "finance",
 			"name": "Depreciation as repeated percentage decrease",
 			"summary": "Find what a thing losing a fixed percentage of its value is worth after n years, what it has lost, the price it was bought for, the rate, a value under two rates, the gap between its value and an account, and how long it takes to fall below a target.",
 			"situation": "depreciation",
@@ -24708,6 +24930,7 @@
 			"id": "t1-compound-interest",
 			"topic": 1,
 			"source": "exam",
+			"region": "finance",
 			"name": "Compound interest: value, rate or time, with different compounding periods",
 			"summary": "Find the value of an investment after n years of compound interest, the interest earned, the amount to invest now, the annual rate, the time to reach a target, and how much more one account is worth than another.",
 			"situation": "compound-interest",
@@ -25033,6 +25256,7 @@
 			"id": "t1-log-exp-form",
 			"topic": 1,
 			"source": "exam",
+			"region": "exponents-logs",
 			"name": "Switch between log and exponential form to evaluate or solve, including log models",
 			"summary": "Change a fact between log and exponential form, evaluate logs exactly, and solve for the number, the base or x by hand. Then work named scales and a log model on a calculator: a reading, an amount, the steps between two readings, and the time to reach a level.",
 			"situation": "log-exp-form",
@@ -26007,6 +26231,7 @@
 			"id": "t1-algebraic-proof",
 			"topic": 1,
 			"source": "exam",
+			"region": "proof",
 			"name": "Prove an algebraic identity or a divisibility result",
 			"summary": "Prove an identity from one side to the other, or that an integer expression is always a multiple of a number. A phone can't read a written proof, so each question is one decision a proof turns on: the simplified form, a hidden line, the next line, the first wrong line, the factor k, the integer bracket, a remainder, or which of four arguments is a proof.",
 			"situation": "algebraic-proof",
@@ -26521,6 +26746,7 @@
 			"id": "t1-rational-exponents",
 			"topic": 1,
 			"source": "exam",
+			"region": "exponents-logs",
 			"name": "Rational and negative exponents",
 			"summary": "One power with a rational exponent, worked exactly by hand: the value of a number to a fractional or negative power, a base from x to a fractional power, a root or a product of roots as one power of x, a bracket to a fractional power, products and quotients of powers, and a quotient over a root split into powers of x, ready for calculus.",
 			"situation": "rational-exponents",
@@ -27049,6 +27275,7 @@
 			"id": "t1-solve-exponential",
 			"topic": 1,
 			"source": "exam",
+			"region": "exponents-logs",
 			"name": "Solve an exponential equation exactly with logarithms",
 			"summary": "An unknown trapped in a power, released with logarithms: two powers with different bases, to 3 s.f. or exactly as a quotient of logs; an exponential to isolate first, exactly as m ln r or to 3 s.f.; and growth models in a story, the exact time to reach a level and the time two models meet. A graph shows the curves crossing, and on Paper 2 the GDC solves too.",
 			"situation": "solve-exponential",
@@ -27414,6 +27641,7 @@
 			"id": "t1-log-laws",
 			"topic": 1,
 			"source": "exam",
+			"region": "exponents-logs",
 			"name": "Log laws and change of base to evaluate or rewrite logarithms",
 			"summary": "One log expression, by the laws and by change of base: an exact value, a single log, an expansion in p and q, a shown form, a rewrite in another base, and one 3 s.f. value. The GDC checks two forms at one value, which supports an answer and proves nothing.",
 			"situation": "log-laws",
@@ -28087,6 +28315,7 @@
 			"id": "t1-sum-to-infinity",
 			"topic": 1,
 			"source": "exam",
+			"region": "sequences",
 			"name": "Sum to infinity: convergence, value, or an unknown from it",
 			"summary": "Decide whether a sum to infinity exists, by the ratio, a table of partial sums or a band on a graph, find S∞ from terms, sigma notation or a shaded square, use it to find u₁, r or x, and apply it to a bouncing ball, a recurring decimal, nested squares and a running total with or without a target.",
 			"situation": "geometric-sequence",
@@ -28759,6 +28988,7 @@
 			"id": "t1-binomial-find-unknown",
 			"topic": 1,
 			"source": "exam",
+			"region": "binomial",
 			"name": "Binomial expansion: find an unknown from a given coefficient",
 			"summary": "Run the expansion backwards: a coefficient, two coefficients or the first terms are given, and a letter in the bracket, n or x is found. Both signs are kept where the power is even, a negative n is rejected, and a power with n in it goes to the GDC.",
 			"situation": "binomial-unknown",
@@ -29297,6 +29527,7 @@
 			"id": "t1-binomial-term",
 			"topic": 1,
 			"source": "exam",
+			"region": "binomial",
 			"name": "Binomial expansion: a coefficient, a term or the full expansion",
 			"summary": "Evaluate nCr, read and build Pascal's triangle, expand (a + b)^n in full, and find one term or coefficient: with a negative term, a number beside x, x², a letter in the bracket, or by its place in the expansion.",
 			"situation": "binomial-expansion",
@@ -30125,6 +30356,7 @@
 			"id": "t3-3d-angle",
 			"topic": 3,
 			"source": "exam",
+			"region": "geometry-3d",
 			"name": "Angle in a 3D solid",
 			"summary": "Find the angle between a line and a plane, or between two lines that meet, in a cuboid, a right pyramid or a cone, or from 3D coordinates: a space diagonal to the base, a slant edge or a face's slant height to the base, a cone's slant height to its base, a line to the xy-plane, two space diagonals, two slant edges at the apex, a diagonal and an edge, and angle ABC. Angles are to 3 s.f. on Paper 2; a landmark angle is exact on Paper 1.",
 			"situation": "solid-angle",
@@ -30639,6 +30871,7 @@
 			"id": "t3-distance-midpoint",
 			"topic": 3,
 			"source": "exam",
+			"region": "geometry-3d",
 			"name": "Distance and midpoint in 2D or 3D",
 			"summary": "Find a distance or a midpoint from coordinates in 2D or 3D, on a plan, as position vectors or on a figure: a space diagonal, a pyramid's edge or height, a radius from a centre or a diameter, the two values of k from a distance, an isosceles triangle, a missing endpoint and the distance from the origin to a point on a curve. Lengths are exact on Paper 1 and to 3 s.f. on Paper 2.",
 			"situation": "distance-midpoint",
@@ -31297,6 +31530,7 @@
 			"id": "t3-solid-volume-area",
 			"topic": 3,
 			"source": "exam",
+			"region": "geometry-3d",
 			"name": "Volume and surface area of solids, including in terms of a variable",
 			"summary": "One solid, shown by a labelled sketch or in words: a cone, pyramid, sphere, hemisphere or a composite. Find its volume or surface area, a height by Pythagoras, a radius or height from a given volume, a composite's r with the GDC, an expression in terms of a variable, the cost of painting it, or the sector that rolls into a cone.",
 			"situation": "solid",
@@ -32091,6 +32325,7 @@
 			"id": "t3-ambiguous-case",
 			"topic": 3,
 			"source": "exam",
+			"region": "triangles",
 			"name": "Sine rule ambiguous case",
 			"summary": "Two sides and an angle opposite one of them, where the side opposite the angle may be the shorter one: find the two possible values of an angle, the two possible lengths of the third side, or the largest possible angle when one triangle or two may fit.",
 			"situation": "triangle",
@@ -32266,6 +32501,7 @@
 			"id": "t3-triangle-area",
 			"topic": 3,
 			"source": "exam",
+			"region": "triangles",
 			"name": "Triangle area with 1/2 ab sin C, forwards or backwards",
 			"summary": "Find the area of a triangle from two sides and the angle between them, or work backwards from the area to a side or to the angle between two sides.",
 			"situation": "triangle",
@@ -32441,6 +32677,7 @@
 			"id": "t3-right-angle-trig",
 			"topic": 3,
 			"source": "exam",
+			"region": "triangles",
 			"name": "Right-angled trigonometry, including elevation and gradients",
 			"summary": "One right-angled triangle, in any position or in a story: write a ratio, find a side or an angle, link a gradient to tan θ, and use angles of elevation and depression in side views. It reaches a rectangle in a circle, a chord, a sloping beam, a walk towards a tower, two towers, and a cone seen from eye level.",
 			"situation": "right-triangle",
@@ -33303,6 +33540,7 @@
 			"id": "t3-sine-cosine-rule",
 			"topic": 3,
 			"source": "exam",
+			"region": "triangles",
 			"name": "Sine rule and cosine rule for a side or an angle",
 			"summary": "Find a side or an angle of a triangle: the cosine rule from two sides and the angle between them or from three sides, the sine rule from two angles and a side or from two sides and a non-included angle when only one triangle fits.",
 			"situation": "triangle",
@@ -33570,6 +33808,7 @@
 			"id": "t3-bearings-elevation",
 			"topic": 3,
 			"source": "exam",
+			"region": "triangles",
 			"name": "Bearings, elevation and depression in context",
 			"summary": "Journeys, sightings and fields in the wasteland: back bearings, bearings and distances of a two-leg journey, angles inside a triangle from a bearing, heights and distances from angles of elevation and depression, with an observer's height and a speed where the story has them, and chains of connected triangles.",
 			"situation": "bearings-elevation",
@@ -34123,6 +34362,7 @@
 			"id": "t3-circular-motion",
 			"topic": 3,
 			"source": "exam",
+			"region": "arcs-sectors",
 			"name": "Angle in radians as a function of time for rotating objects",
 			"summary": "Something turns steadily about a point: find the angle turned in one second or in t seconds, a rate from a period, from revolutions per minute or from degrees per second, the time to turn an angle, how long a straight line cut from its circle is swept in each turn, the fraction of a turn that takes, the arc swept and the speed of a point on the rim.",
 			"situation": "circular-motion",
@@ -34898,6 +35138,7 @@
 			"id": "t3-composite-circular-region",
 			"topic": 3,
 			"source": "exam",
+			"region": "arcs-sectors",
 			"name": "Segments and composite regions built from sectors, triangles and rectangles",
 			"summary": "A region made by adding and taking away sectors, triangles, rectangles and circles: a segment, a sector with a triangle beside it, an arch, a curved strip, the part between two tangents and a circle, a semicircle on a rectangle. Or one sector fixed by two conditions, where θ is taken out to leave a quadratic in r and each root has to be tested.",
 			"situation": "circular-region",
@@ -35624,6 +35865,7 @@
 			"id": "t3-arc-sector",
 			"topic": 3,
 			"source": "exam",
+			"region": "arcs-sectors",
 			"name": "Arc length, sector area and perimeter, forwards or backwards",
 			"summary": "One sector of a circle, with its radius and its angle in radians, in degrees or as a multiple of π: convert the angle, find the arc, the perimeter or the area, or work back to r or θ from any of them. It also takes the major arc and major sector, a sector rolled into a cone, a curved strip between two circles and a plate with two segments cut away.",
 			"situation": "arc-sector",
@@ -36269,6 +36511,7 @@
 			"id": "t3-exact-values",
 			"topic": 3,
 			"source": "exam",
+			"region": "unit-circle",
 			"name": "Exact trig values and related angles",
 			"summary": "Exact sin, cos and tan: at the landmark angles from 0 to π/2, at any related angle past them, in sums and with a number in front, and read from a point on the unit circle.",
 			"situation": "exact-trig",
@@ -36729,6 +36972,7 @@
 			"id": "t3-prove-identity",
 			"topic": 3,
 			"source": "exam",
+			"region": "unit-circle",
 			"name": "Prove a trig identity",
 			"summary": "Show that one trig expression equals another, using sin²x + cos²x = 1, tan x = sin x/cos x and the double-angle identities. A phone can't read a written proof, so each question is one decision a proof turns on: the simple form, a hidden line, the next line, the first wrong line, the form of cos 2x that cancels the 1, the side to start from, which argument is a proof, or a value once the identity holds.",
 			"situation": "prove-identity",
@@ -37384,6 +37628,7 @@
 			"id": "t3-identity-values",
 			"topic": 3,
 			"source": "exam",
+			"region": "unit-circle",
 			"name": "Use Pythagorean and double-angle identities to find exact values or rewrite",
 			"summary": "Find one ratio from another with the quadrant setting the sign, find sin 2θ and cos 2θ from a ratio, work back from cos 2θ, and rewrite expressions with the Pythagorean and double angle identities.",
 			"situation": "trig-identity",
@@ -37842,6 +38087,7 @@
 			"id": "t3-trig-sketch",
 			"topic": 3,
 			"source": "exam",
+			"region": "trig-graphs",
 			"name": "Sketch a trig graph from its parameters",
 			"summary": "Sketch y = a sin(bx) + d, a cos(bx) + d or a tan(bx) + d on a given domain, in radians or degrees: pick the sketch from four graphs (a wave, a reflected wave such as −sin(2x), a tan graph with its asymptotes, or the wave through five key points in a table), and find what a sketch must mark: its maximum and minimum points, where it meets the axes, tan's asymptotes and the five key points of a period.",
 			"situation": "trig-sketch",
@@ -38262,6 +38508,7 @@
 			"id": "t3-trig-model-use",
 			"topic": 3,
 			"source": "exam",
+			"region": "trig-graphs",
 			"name": "Evaluate or use a trig model: times, counts, durations",
 			"summary": "Use a trig model in a story: its value at a time, exactly on Paper 1, the first time or every time at a level, how long it stays above or below a level, the first maximum, the gap from a low to a high, how many peaks or troughs fall in a span, what an extreme means, and whether a level is ever reached.",
 			"situation": "trig-wave",
@@ -38741,6 +38988,7 @@
 			"id": "t3-trig-read-features",
 			"topic": 3,
 			"source": "exam",
+			"region": "trig-graphs",
 			"name": "Read amplitude, period and principal axis from a graph or equation",
 			"summary": "Read a wave's features from its equation or its graph: amplitude, period, principal axis, maximum, minimum, range and the first x at a maximum, for sin, cos and tan, with b whole, a fraction, a multiple of π or a decimal, and the letters of a wave from a story.",
 			"situation": "trig-wave",
@@ -39280,6 +39528,7 @@
 			"id": "t3-trig-model-parameters",
 			"topic": 3,
 			"source": "exam",
+			"region": "trig-graphs",
 			"name": "Find the parameters of a trig model from a graph, data or context",
 			"summary": "Find the parameters of a trig model from its turning points, a graph, a story or two points: a, b, c and d, the exact y-intercept once the midline is known, a sum written as one cosine, a tan graph's a and b, and the transformations that build the wave.",
 			"situation": "trig-model",
@@ -39811,6 +40060,7 @@
 			"id": "t3-trig-quadratic",
 			"topic": 3,
 			"source": "exam",
+			"region": "trig-equations",
 			"name": "Trig equation that is a quadratic in sin or cos",
 			"summary": "Solve a trig equation that is a quadratic in sin x, cos x or tan x: write the quadratic after an identity, choose the identity, factorise or use the formula, reject a root outside the range, then give every solution on an interval, how many there are, one of them or their sum, with exact answers on Paper 1 and 3 s.f. from a graph of the whole equation on Paper 2.",
 			"situation": "trig-quadratic",
@@ -40557,6 +40807,7 @@
 			"id": "t3-trig-model-equation",
 			"topic": 3,
 			"source": "exam",
+			"region": "trig-equations",
 			"name": "Solve a trig model equation or inequality for times",
 			"summary": "Solve a trig model equation or inequality: every time in a span at a level, exactly on Paper 1 and in a window on Paper 2, the set of times above or below a level, the time or the chance past a level in a span that isn't whole cycles, a trig curve against a line or a falling exponential, the number of solutions of f(x) = k, which k give exactly n solutions, and a line touching at a maximum or minimum.",
 			"situation": "trig-model-equation",
@@ -41171,6 +41422,7 @@
 			"id": "t3-trig-equation",
 			"topic": 3,
 			"source": "exam",
+			"region": "trig-equations",
 			"name": "Solve a trig equation exactly in an interval",
 			"summary": "Solve a trig equation in an interval: sin x, cos x or tan x equal to a value, with a transformed angle bx + φ, in radians or degrees, and by factorising or turning it into tan x so that no solution is lost.",
 			"situation": "trig-equation",
@@ -41700,6 +41952,7 @@
 			"id": "t4-sampling",
 			"topic": 4,
 			"source": "exam",
+			"region": "sampling-data",
 			"name": "Sampling methods and bias",
 			"summary": "A population in groups and a surveyor's method, in a story or a table: name the technique, give a disadvantage, describe a systematic sample, find its interval or a later pick, choose the best technique, fill groups in proportion, and judge bias and reliability: who is left out, which way an estimate leans, what would fix it, and what a larger sample can't do.",
 			"situation": "sampling",
@@ -42151,6 +42404,7 @@
 			"id": "t4-outlier-rule",
 			"topic": 4,
 			"source": "exam",
+			"region": "sampling-data",
 			"name": "The 1.5 x IQR outlier rule",
 			"summary": "Use the 1.5 × IQR rule: find the fences, decide with two numbers whether a value is an outlier, show that the greatest value is one, find the largest value that isn't and the smallest that is, find a quartile from knowing there are no outliers, count the outliers in a data set by hand or with a modified box plot, then decide in context whether to keep or remove a value and what removing it does to the measures.",
 			"situation": "box-plot",
@@ -42595,6 +42849,7 @@
 			"id": "t4-cumulative-frequency",
 			"topic": 4,
 			"source": "exam",
+			"region": "sampling-data",
 			"name": "Read and use a cumulative frequency graph",
 			"summary": "Grouped data as a cumulative frequency curve on a grid, or as a table of classes: read the median, quartiles, percentiles, IQR and range, count how many lie above, below or between values, find a cut-off, estimate by interpolating the table, and build the running totals from the frequencies and back, including which points are plotted.",
 			"situation": "cumulative-frequency",
@@ -43291,6 +43546,7 @@
 			"id": "t4-box-plot",
 			"topic": 4,
 			"source": "exam",
+			"region": "sampling-data",
 			"name": "Read, interpret and compare box plots",
 			"summary": "Read the median, a quartile, the IQR and the range off a box plot drawn to scale, with one or two boxes and outliers as crosses; find the five numbers from a list, a frequency table or a cumulative frequency curve; pick the box plot of a data set; use the fact that each section holds a quarter of the data; judge the shape, and how the mean compares with the median; and compare two groups in context, by medians and IQRs or by means and standard deviations.",
 			"situation": "box-plot",
@@ -43891,6 +44147,7 @@
 			"id": "t4-constant-changes",
 			"topic": 4,
 			"source": "exam",
+			"region": "averages-spread",
 			"name": "Effect of adding or multiplying a constant on summary statistics",
 			"summary": "Every value of a data set has a constant added, is multiplied by one, or goes through y = ax + b, a change of units or prices: find a new mean, median, mode, quartile, standard deviation, variance, IQR or range, or run the change backwards and find the original from the new. Also find a and b, or the factor, from the statistics before and after.",
 			"situation": "constant-change",
@@ -44637,6 +44894,7 @@
 			"id": "t4-grouped-data",
 			"topic": 4,
 			"source": "exam",
+			"region": "averages-spread",
 			"name": "Grouped and frequency-table data: missing frequency, modal class, estimates",
 			"summary": "Read a frequency table, grouped into classes or of single values: find a missing frequency from the total, the mean or the median, the modal class and mid-interval values, and estimate the mean, standard deviation and variance. Also the link between variance and standard deviation, and totals and means of groups.",
 			"situation": "grouped-data",
@@ -45457,6 +45715,7 @@
 			"id": "t4-summary-statistics",
 			"topic": 4,
 			"source": "exam",
+			"region": "averages-spread",
 			"name": "Mean, median, mode, quartiles and spread of a data set",
 			"summary": "Find the mean, median, mode, range, quartiles and interquartile range of a list or a frequency table, find a missing value or frequency from a given mean, combine two group means, and choose the measure of centre or spread an outlier leaves alone.",
 			"situation": "data-summary",
@@ -45881,6 +46140,7 @@
 			"id": "t4-regression-interpret",
 			"topic": 4,
 			"source": "exam",
+			"region": "regression",
 			"name": "Interpret a regression gradient or judge a prediction",
 			"summary": "From a table or a line, say what the gradient a and the intercept b mean in the story, find the expected change for an extra amount of x, and judge whether an estimate can be trusted: inside or outside the data, strong or weak r, y on x solved for x.",
 			"situation": "regression-interpret",
@@ -46306,6 +46566,7 @@
 			"id": "t4-regression-gdc",
 			"topic": 4,
 			"source": "exam",
+			"region": "regression",
 			"name": "Regression line and Pearson r on the GDC, then predict",
 			"summary": "From a table of paired data, find the regression line of y on x, Pearson's r and the mean point with the GDC, find a constant of a regression line from the mean point, and use a regression line to estimate y.",
 			"situation": "regression",
@@ -46568,6 +46829,7 @@
 			"id": "t4-expected-occurrences",
 			"topic": 4,
 			"source": "exam",
+			"region": "probability",
 			"name": "Expected number of occurrences, n x p",
 			"summary": "Find how many times an event is expected to happen in n trials as n × P(event), or work back from an expected number to the number of trials.",
 			"situation": "distribution",
@@ -46693,6 +46955,7 @@
 			"id": "t4-probability-basic",
 			"topic": 4,
 			"source": "exam",
+			"region": "probability",
 			"name": "Probability from a table, a count or the complement",
 			"summary": "Find a probability by counting equally likely outcomes (a bag, a two-way table, a list of data, a grid of two dice, a listed sample space), by the complement (1 − P(A), counting what is left, or at least one = 1 − none), or estimate one from results: a table, a bar chart, a graph settling to its long-run value, the more reliable of two tests, and a run of results that changes nothing.",
 			"situation": "basic-probability",
@@ -47281,6 +47544,7 @@
 			"id": "t4-tree-diagram",
 			"topic": 4,
 			"source": "exam",
+			"region": "probability",
 			"name": "Tree diagrams and selection without replacement",
 			"summary": "Fill in a tree of two stages with 2 or 3 branches at each fork, multiply along a path and add between paths, use the complement for different colours or at least one, draw with and without replacement, write a branch or a draw in terms of k or n, and solve for an unknown on a branch. The tree can also carry normal groups, repeated tries and a repeated game.",
 			"situation": "tree-diagram",
@@ -47873,6 +48137,7 @@
 			"id": "t4-sample-space",
 			"topic": 4,
 			"source": "exam",
+			"region": "probability",
 			"name": "Sample space diagrams for dice and spinners",
 			"summary": "Two dice, a die and a spinner, or two spinners, fair or with unusual faces, set out as an m × n grid of outcomes. Fill in a cell, count the outcomes, find P(event), a complement, or a score from a points rule, and use the grid's symmetry. A biased die rolled twice has a grid of probabilities. A face or a probability left as a letter is found from a sum's distribution or from P(X < Y), and then E(Y).",
 			"situation": "sample-space",
@@ -48481,6 +48746,7 @@
 			"id": "t4-venn-addition-rule",
 			"topic": 4,
 			"source": "exam",
+			"region": "probability",
 			"name": "Venn diagrams, two-way tables and the addition rule",
 			"summary": "Two events in a sample space, from the addition rule, a story, a Venn diagram or a two-way table: find the union, the intersection, neither, one event only, exactly one, a region or an unknown x, a missing table entry, and the least and greatest overlap.",
 			"situation": "venn",
@@ -48891,6 +49157,7 @@
 			"id": "t4-expected-value",
 			"topic": 4,
 			"source": "exam",
+			"region": "discrete-distributions",
 			"name": "Expected value of a discrete random variable, fair games",
 			"summary": "Find E(X) from a distribution, work back from a given E(X) to two unknown probabilities, or find the stake that makes a game fair.",
 			"situation": "distribution",
@@ -49106,6 +49373,7 @@
 			"id": "t4-discrete-distribution",
 			"topic": 4,
 			"source": "exam",
+			"region": "discrete-distributions",
 			"name": "Discrete distribution: probabilities sum to 1, find k, read probabilities",
 			"summary": "Use the fact that a distribution's probabilities add to 1 to find k or a missing probability, then read the probability of an event such as X ≥ a or a < X ≤ b off the distribution.",
 			"situation": "distribution",
@@ -49289,6 +49557,7 @@
 			"id": "t4-binomial",
 			"topic": 4,
 			"source": "exam",
+			"region": "discrete-distributions",
 			"name": "Binomial probabilities, mean, and finding n",
 			"summary": "State a binomial model B(n, p), then find P(X = r), cumulative probabilities (at most, at least, between), the mean, variance and standard deviation, n and p from them or from a probability target, and the harder 'kth success' and conditional questions.",
 			"situation": "binomial",
@@ -49807,6 +50076,7 @@
 			"id": "t4-inverse-normal",
 			"topic": 4,
 			"source": "exam",
+			"region": "normal-distribution",
 			"name": "Inverse normal: value for a given probability",
 			"summary": "An area is given and the value of X that cuts it off is asked for: a with P(X < a) = p or P(X > a) = p, the top or bottom k%, a quartile, a percentile, the two ends of a central interval, the other end of a band, and a band whose tails are in a given ratio. On Paper 1, with no invNorm, a second curve with the same σ, a mirror tail, the 68-95-99.7 rule or a given line of N(0, 1) fixes the value.",
 			"situation": "inverse-normal",
@@ -50351,6 +50621,7 @@
 			"id": "t4-normal-properties",
 			"topic": 4,
 			"source": "exam",
+			"region": "normal-distribution",
 			"name": "Normal curve properties: symmetry, sigma intervals, matching curves",
 			"summary": "Read the normal curve: the 68-95-99.7 rule as a share, a count, a tail or a band, what μ and σ do to the curve, which curves match, P(X = a) = 0, a mirror tail or value, area bookkeeping from given tails, and, on Paper 2, the central interval with invNorm or a solver.",
 			"situation": "normal-properties",
@@ -51326,6 +51597,7 @@
 			"id": "t4-normal-probability",
 			"topic": 4,
 			"source": "exam",
+			"region": "normal-distribution",
 			"name": "Normal probability for an interval on the GDC",
 			"summary": "X is normal with μ and σ known, and a region is asked for: below, above, between or outside values, a percentage in a story, an expected count in a sample, exactly k of a sample in the region, a rejection rule, a variable that can be negative, a variance written in place of σ, a value recorded to a rounding unit, and a middle from two given tails.",
 			"situation": "normal-probability",
@@ -51814,6 +52086,7 @@
 			"id": "t4-regression-x-on-y",
 			"topic": 4,
 			"source": "exam",
+			"region": "regression",
 			"name": "Choose the right regression line; x on y; mean point on both",
 			"summary": "Find the regression line of x on y, choose the right line for an estimate, estimate x from y, judge that estimate, and use the fact that both lines meet at the mean point.",
 			"situation": "regression-x-on-y",
@@ -52158,6 +52431,7 @@
 			"id": "t4-independence",
 			"topic": 4,
 			"source": "exam",
+			"region": "conditional-probability",
 			"name": "Use or test independence of events",
 			"summary": "Use P(A ∩ B) = P(A)P(B) to find an overlap, a union, a region, a conditional or an unknown probability, and decide with two numbers whether events are independent, from probabilities, a story, a Venn diagram, a two-way table or a tree. Independent is kept apart from mutually exclusive.",
 			"situation": "independence",
@@ -52660,6 +52934,7 @@
 			"id": "t4-conditional-probability",
 			"topic": 4,
 			"source": "exam",
+			"region": "conditional-probability",
 			"name": "Conditional probability from formula, table, tree or distribution",
 			"summary": "P(A | B) by the formula, from a Venn diagram or a two-way table, with complements, reversed through a tree or two draws, rearranged to find P(A ∩ B), P(A ∪ B) or P(B), and with normal, binomial and discrete variables.",
 			"situation": "conditional",
@@ -53165,6 +53440,7 @@
 			"id": "t4-normal-unknown-parameter",
 			"topic": 4,
 			"source": "exam",
+			"region": "normal-distribution",
 			"name": "Find an unknown mean or standard deviation with z-scores",
 			"summary": "X is normal with something hidden: rewrite an event for Z, find a z-value from an area, find P(within kσ of the mean), and find σ, μ or both from a tail, a central area, an interquartile range, equal tails or two z-values.",
 			"situation": "normal-unknown",
@@ -53563,6 +53839,7 @@
 			"id": "t5-derivative-meaning",
 			"topic": 5,
 			"source": "exam",
+			"region": "derivative-basics",
 			"name": "Interpret a derivative as a rate, or its limit",
 			"summary": "Read a derivative as a rate of change in a model, with its sign and units: find it with the GDC, say what it means, compare two rates, and write a rate in derivative notation. Estimate a limit from a model, a table or a graph, or find it by cancelling.",
 			"situation": "derivative-meaning",
@@ -53912,6 +54189,7 @@
 			"id": "t5-increasing-decreasing",
 			"topic": 5,
 			"source": "exam",
+			"region": "derivative-basics",
 			"name": "Where a function is increasing or decreasing",
 			"summary": "Find where a function is increasing or decreasing, from its equation, a table of f′ or the graph of f′, on Paper 2 with a GDC where f′ has an exponential; read the sign of f′ from the graph of f; and find a parameter that keeps f increasing everywhere.",
 			"situation": "monotonic",
@@ -54330,6 +54608,7 @@
 			"id": "t5-differentiate-polynomial",
 			"topic": 5,
 			"source": "exam",
+			"region": "derivative-basics",
 			"name": "Differentiate a polynomial or negative power and evaluate",
 			"summary": "Differentiate a cubic term by term (or a fraction over x after splitting it), and evaluate the derivative at a point.",
 			"situation": "cubic",
@@ -54515,6 +54794,7 @@
 			"id": "t5-normal-meets-curve",
 			"topic": 5,
 			"source": "exam",
+			"region": "tangents-normals",
 			"name": "Where a tangent or normal meets the curve again",
 			"summary": "Follow the tangent or the normal at a point P of a curve: find where it meets the x-axis and the y-axis, the area of the triangle it cuts off with the axes, or where it meets the curve again, by the double root at P for a cubic or with the GDC's intersect.",
 			"situation": "tangent-meets-curve",
@@ -54841,6 +55121,7 @@
 			"id": "t5-tangent-condition",
 			"topic": 5,
 			"source": "exam",
+			"region": "tangents-normals",
 			"name": "Find a point or parameter from a tangent condition (given gradient, parallel, common tangent)",
 			"summary": "Find where a cubic has a given gradient (or a tangent parallel to a given line), or find a coefficient from the gradient of a tangent.",
 			"situation": "cubic",
@@ -54968,6 +55249,7 @@
 			"id": "t5-tangent-normal-equation",
 			"topic": 5,
 			"source": "exam",
+			"region": "tangents-normals",
 			"name": "Equation of a tangent or normal, or values read from a given tangent",
 			"summary": "Find the tangent or the normal to a cubic at x = x₀ as y = mx + c, or read f(x₀) and f′(x₀) from a given tangent.",
 			"situation": "cubic",
@@ -55174,6 +55456,7 @@
 			"id": "t5-derivative-graph",
 			"topic": 5,
 			"source": "exam",
+			"region": "stationary-points",
 			"name": "Read f from the graph of f' (or f'')",
 			"summary": "Read the features of f from the graph of f′ or f″: a local maximum or minimum and its justification, points of inflexion, a touch that is not a turning point, where f rises or is concave up, which graph is f, and values of f from signed areas; and read the sign of f′ from the graph of f.",
 			"situation": "derivative-graph",
@@ -55700,6 +55983,7 @@
 			"id": "t5-stationary-points",
 			"topic": 5,
 			"source": "exam",
+			"region": "stationary-points",
 			"name": "Stationary points and inflexion: find, classify, justify",
 			"summary": "Find the stationary points of a cubic, decide which is the maximum and which the minimum, find the point of inflexion, or give the local maximum value.",
 			"situation": "cubic",
@@ -55912,6 +56196,7 @@
 			"id": "t5-optimisation-modelling",
 			"topic": 5,
 			"source": "exam",
+			"region": "stationary-points",
 			"name": "Optimisation: build a function from a constraint, then maximise or minimise",
 			"summary": "A shape or journey with a fixed amount: get the second length from the constraint, build or show the function of one variable, differentiate, solve, justify the maximum or minimum, and give the optimum. Yards against a wall, cylinders, open bins, trays cut from a sheet, rectangles under an arch, routes off a road and the closest point on a curve.",
 			"situation": "optimisation-model",
@@ -56554,6 +56839,7 @@
 			"id": "t5-kinematics-distance",
 			"topic": 5,
 			"source": "exam",
+			"region": "kinematics",
 			"name": "Kinematics: displacement and distance by integrating velocity",
 			"summary": "Integrate a velocity for a displacement or a position, with a start value, and find the total distance travelled, splitting at each rest or using ∫|v| dt on the GDC. Also distance from a displacement, an expression for a distance, the distance read as areas on a v–t graph, whether a particle gets back to its start, the gap between evenly spaced points, and a race between two velocities.",
 			"situation": "motion-distance",
@@ -57330,6 +57616,7 @@
 			"id": "t5-kinematics-motion",
 			"topic": 5,
 			"source": "exam",
+			"region": "kinematics",
 			"name": "Kinematics: rest, direction change, acceleration, maximum speed",
 			"summary": "Find velocity and acceleration, when a particle is at rest, changes direction or moves one way, its greatest velocity, speed or acceleration, and read all of this from motion graphs. Most of it is Paper 2, on a velocity with e or sin.",
 			"situation": "motion",
@@ -58008,6 +58295,7 @@
 			"id": "t5-derivative-model-gdc",
 			"topic": 5,
 			"source": "exam",
+			"region": "derivative-rules",
 			"name": "Derivative of a model at a point with technology",
 			"summary": "Differentiate a real-world model at a point, with the GDC or by a rule: a rate with its units, the time a rate is reached, the greatest rate, whether the quantity is rising or falling and what the rate means in the story. Use the chain, product and quotient rules with values from a table or read from graphs, and picture the rate as a tangent.",
 			"situation": "derivative-model",
@@ -58650,6 +58938,7 @@
 			"id": "t5-differentiation-rules",
 			"topic": 5,
 			"source": "exam",
+			"region": "derivative-rules",
 			"name": "Chain, product and quotient rules",
 			"summary": "Differentiate standard functions, composites, products and quotients, written as an expression; show that a derivative takes a given form; find a gradient at a point, exactly on Paper 1 and to 3 s.f. on Paper 2.",
 			"situation": "differentiation",
@@ -59297,6 +59586,7 @@
 			"id": "t5-concavity",
 			"topic": 5,
 			"source": "exam",
+			"region": "derivative-rules",
 			"name": "Second derivative and concavity",
 			"summary": "Find and evaluate a second derivative; find where a graph is concave up or down, from f, f″, the graph of f′, or f′ with an exponential on Paper 2; and match the graphs of f, f′ and f″.",
 			"situation": "concavity",
@@ -59699,6 +59989,7 @@
 			"id": "t5-antiderivative-condition",
 			"topic": 5,
 			"source": "exam",
+			"region": "integration",
 			"name": "Integrate, then find the constant from a point or initial value",
 			"summary": "Integrate f′ or f″, and use a point, a value or a start amount to fix the constant. The result is f(x), the equation of a curve, the constant itself, or a further value. It covers polynomials, negative powers, trig with a chain or a shift, 1/(ax + b), e^(ax), logs by inspection, a gradient that fixes a parameter, two conditions from f″, a family of curves on one figure, the graph of f′ read as areas, and a decaying rate in a story.",
 			"situation": "antiderivative-condition",
@@ -60456,6 +60747,7 @@
 			"id": "t5-definite-integral-area",
 			"topic": 5,
 			"source": "exam",
+			"region": "definite-integrals",
 			"name": "Definite integrals and areas, including regions below the axis and unknown limits",
 			"summary": "Evaluate a definite integral exactly, find an area with a region below the x-axis, find an unknown limit or stretch from a given value, find a region cut by a tangent or a line, and turn a rate in a story into a total.",
 			"situation": "definite-integral",
@@ -61199,6 +61491,7 @@
 			"id": "t5-indefinite-integral",
 			"topic": 5,
 			"source": "exam",
+			"region": "integration",
 			"name": "Integrate standard functions and linear composites",
 			"summary": "Integrate sums of powers, standard functions and composites with ax + b, spot the reverse chain rule, and rewrite an integrand before integrating. Every answer is an expression with + C.",
 			"situation": "integration",
@@ -61852,6 +62145,7 @@
 			"id": "t5-area-between-curves",
 			"topic": 5,
 			"source": "exam",
+			"region": "definite-integrals",
 			"name": "Area between two curves",
 			"summary": "Find the region between two curves: where they meet, an integral for it, its area, or a letter from its area. It covers a parabola and a line, two parabolas, a cubic and a line, trig and exponential pairs worked exactly, curves that swap over, g = f + k, the graph of f′ with its areas, and on Paper 2 curves that need a GDC, a function and its inverse, and a region with three edges.",
 			"situation": "area-between",
@@ -74095,6 +74389,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "link",
+			"region": "definite-integrals",
 			"name": "Adding up many small pieces",
 			"summary": "Link an area under a curve, a distance from a velocity graph, a normal probability and an arithmetic series as one act of adding up pieces.",
 			"level": [
@@ -74115,6 +74410,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "link",
+			"region": "binomial",
 			"name": "The nCr pattern",
 			"summary": "Match a row of Pascal's triangle, a term of a binomial expansion and a binomial probability built from the same nCr.",
 			"level": [
@@ -74134,6 +74430,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "exponents-logs",
 			"name": "Add and subtract in standard form",
 			"summary": "Add or subtract two numbers in standard form with different powers of ten, and give the answer in standard form.",
 			"level": [
@@ -74154,6 +74451,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "exponents-logs",
 			"name": "Powers and roots in standard form",
 			"summary": "Square, cube or take a root of a number in standard form, adjusting the power of ten so that the root comes out whole.",
 			"level": [
@@ -74174,6 +74472,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "sequences",
 			"name": "Sigma notation for arithmetic series",
 			"summary": "Read a sigma sum: count its terms, evaluate it as an arithmetic series, write a series in sigma form, or find the upper limit from the total.",
 			"level": [
@@ -74195,6 +74494,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "finance",
 			"name": "Real value after inflation",
 			"summary": "Find the real value of an investment by using the interest rate minus the inflation rate, and decide whether it keeps up with prices.",
 			"level": [
@@ -74216,6 +74516,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "exponents-logs",
 			"name": "Integer exponent laws",
 			"summary": "Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/x^n as ax^(−n).",
 			"level": [
@@ -74239,6 +74540,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "exponents-logs",
 			"name": "Logs and exponential equations on the GDC",
 			"summary": "Evaluate log and ln values on the GDC and solve a^x = b to 3 significant figures, choosing the right log key.",
 			"level": [
@@ -74260,6 +74562,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "proof",
 			"name": "Identities and unknown constants",
 			"summary": "Tell an identity from an equation, and find the constants that make two expressions identical by comparing coefficients or substituting values.",
 			"level": [
@@ -74282,6 +74585,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "proof",
 			"name": "Numerical \"show that\"",
 			"summary": "Complete a \"show that\" with a given number, setting out each step so that the given answer is reached rather than assumed.",
 			"level": [
@@ -74303,6 +74607,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "exponents-logs",
 			"name": "Exponential equations with a common base",
 			"summary": "Solve an exponential equation exactly by writing both sides as powers of the same base and equating the exponents.",
 			"level": [
@@ -74325,6 +74630,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "exponents-logs",
 			"name": "Solve log equations and reject roots",
 			"summary": "Combine logs into one, rewrite in exponential form, solve, and reject any root that makes a log argument zero or negative.",
 			"level": [
@@ -74347,6 +74653,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "exponents-logs",
 			"name": "Exponential equations that are quadratics",
 			"summary": "Spot that an equation in b^(2x) and b^x is a quadratic in u = b^x, solve it, and reject any u that is zero or negative.",
 			"level": [
@@ -74370,6 +74677,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "sequences",
 			"name": "Partial sums against the sum to infinity",
 			"summary": "Compare S_n with S∞: find the least n that brings S_n within a given gap of S∞, or the share of S∞ that the first few terms give.",
 			"level": [
@@ -74392,6 +74700,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "binomial",
 			"name": "Constant term when both terms contain x",
 			"summary": "In an expansion such as (x² + 3/x)^n, write the general term, find the r that makes the power of x zero (or a given power), and find that term.",
 			"level": [
@@ -74414,6 +74723,7 @@
 			"topic": 1,
 			"source": "extension",
 			"kind": "skill",
+			"region": "binomial",
 			"name": "A coefficient in a bracket times an expansion",
 			"summary": "Find one coefficient in (p + qx)(a + bx)^n by pairing each term of the first bracket with the matching term of the expansion and adding.",
 			"level": [
@@ -74436,6 +74746,7 @@
 			"topic": 3,
 			"source": "extension",
 			"kind": "skill",
+			"region": "triangles",
 			"name": "A height from two angles of elevation",
 			"summary": "Find a height from two angles of elevation taken a known distance apart, with two right-angled triangles or with the sine rule in the triangle between them.",
 			"level": [
@@ -74457,6 +74768,7 @@
 			"topic": 3,
 			"source": "extension",
 			"kind": "skill",
+			"region": "unit-circle",
 			"name": "Exact lengths and areas in triangles",
 			"summary": "Use exact values such as sin 60° = √3/2 in the cosine rule or ½ab sin C to give a side or an area as an exact surd.",
 			"level": [
@@ -74478,6 +74790,7 @@
 			"topic": 4,
 			"source": "extension",
 			"kind": "skill",
+			"region": "sampling-data",
 			"name": "Population, sample and randomness",
 			"summary": "Name the population and the sample in a study, and decide with a reason whether the sample is random.",
 			"level": [
@@ -74497,6 +74810,7 @@
 			"topic": 4,
 			"source": "extension",
 			"kind": "skill",
+			"region": "sampling-data",
 			"name": "Discrete or continuous",
 			"summary": "Classify a variable as discrete or continuous.",
 			"level": [
@@ -74517,6 +74831,7 @@
 			"topic": 4,
 			"source": "extension",
 			"kind": "skill",
+			"region": "sampling-data",
 			"name": "Numbers in a stratified sample",
 			"summary": "Find how many to select from each group in a stratified sample, as the group's share of the population times the sample size.",
 			"level": [
@@ -74537,6 +74852,7 @@
 			"topic": 4,
 			"source": "extension",
 			"kind": "skill",
+			"region": "sampling-data",
 			"name": "Frequency tables and histograms",
 			"summary": "Read and complete a frequency table and an equal-width histogram: a missing frequency, a bar height, or how many values fall in a range.",
 			"level": [
@@ -74558,6 +74874,7 @@
 			"topic": 4,
 			"source": "extension",
 			"kind": "skill",
+			"region": "regression",
 			"name": "Describe correlation",
 			"summary": "Describe the correlation in a scatter diagram or from a value of r (direction and strength), and say why correlation does not show cause.",
 			"level": [
@@ -74579,6 +74896,7 @@
 			"topic": 4,
 			"source": "extension",
 			"kind": "skill",
+			"region": "probability",
 			"name": "Mutually exclusive events",
 			"summary": "Decide with a reason whether two events are mutually exclusive, and use P(A ∪ B) = P(A) + P(B) when they are.",
 			"level": [
@@ -74600,6 +74918,7 @@
 			"topic": 4,
 			"source": "extension",
 			"kind": "skill",
+			"region": "probability",
 			"name": "Conditional probability from a diagram",
 			"summary": "Read a conditional probability straight from a two-way table, Venn diagram or tree by keeping only the given group.",
 			"level": [
@@ -74621,6 +74940,7 @@
 			"topic": 4,
 			"source": "extension",
 			"kind": "skill",
+			"region": "normal-distribution",
 			"name": "Find, interpret and compare z-scores",
 			"summary": "Find a z-value and say what it means, turn a z-value back into x, and compare results from two different normal distributions using z.",
 			"level": [
@@ -74643,6 +74963,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "derivative-basics",
 			"name": "From chords to the tangent",
 			"summary": "Find the gradients of chords from a point to nearby points, see them approach a limit, and give that limit as the gradient of the tangent.",
 			"level": [
@@ -74664,6 +74985,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "derivative-basics",
 			"name": "Estimate a gradient from a graph",
 			"summary": "Estimate the gradient of a curve at a point from a drawn tangent or with the GDC, and compare the gradients at two points.",
 			"level": [
@@ -74685,6 +75007,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "derivative-basics",
 			"name": "Increasing or decreasing at a point",
 			"summary": "Decide whether a function is increasing or decreasing at one point from the sign of f′ there, and give the reason.",
 			"level": [
@@ -74705,6 +75028,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "derivative-basics",
 			"name": "Show a function always increases",
 			"summary": "Show that f′(x) > 0 (or < 0) for every x in the domain, for example because f′ is a square plus a positive number or a positive exponential.",
 			"situation": "always-increasing",
@@ -74945,6 +75269,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "derivative-basics",
 			"name": "Coefficients from gradient and point conditions",
 			"summary": "Find unknown coefficients in a polynomial from a gradient condition f′(a) = m and a point on the curve, by forming and solving equations.",
 			"situation": "polynomial-conditions",
@@ -75112,6 +75437,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "integration",
 			"name": "A definite integral on the GDC",
 			"summary": "Evaluate a definite integral on the GDC to 3 significant figures, with the function and the limits entered correctly.",
 			"situation": "integral-gdc",
@@ -75279,6 +75605,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "integration",
 			"name": "Area under a curve above the x-axis",
 			"summary": "Write the integral for a shaded area above the x-axis (its limits and integrand), then evaluate it.",
 			"situation": "area-under-curve",
@@ -75580,6 +75907,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "derivative-rules",
 			"name": "The second derivative in context",
 			"summary": "Say what the sign of the second derivative means in context, such as \"the temperature is rising, but more and more slowly\".",
 			"level": [
@@ -75600,6 +75928,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "stationary-points",
 			"name": "Greatest and least values on an interval",
 			"summary": "Find the greatest and least values of f on a closed interval by comparing the stationary values with the values at the endpoints, and state the range.",
 			"level": [
@@ -75621,6 +75950,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "stationary-points",
 			"name": "Constants from a stationary point",
 			"summary": "Find unknown constants in f given a stationary point or a point of inflexion, using f′ = 0 (or f″ = 0) together with the point itself.",
 			"situation": "polynomial-conditions",
@@ -75809,6 +76139,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "integration",
 			"name": "Integrate using a derivative (\"hence\")",
 			"summary": "Differentiate a given expression, then use the result to integrate a related function, adjusting the constant factor.",
 			"situation": "hence-integral",
@@ -76032,6 +76363,7 @@
 			"topic": 5,
 			"source": "extension",
 			"kind": "skill",
+			"region": "definite-integrals",
 			"name": "Properties of definite integrals",
 			"summary": "Use the rules for definite integrals of an unknown f: reverse the limits, split the interval, take out a constant factor, and add a constant to the integrand.",
 			"level": [
@@ -76054,6 +76386,7 @@
 			"source": "extension",
 			"examStyle": "AA HL papers ask these counts in words: a code, medals among runners, a committee with exactly or at least one of a kind, two people together or apart in a row. Every unknown is one of those questions, so with Exam-style only on an AA HL student gets each of them in words. The bare-symbol drills (evaluate 10P3) are practice, not exam style, so the equation representation stays out.",
 			"kind": "skill",
+			"region": "binomial",
 			"name": "Counting: codes, arrangements, selections and restricted rows (AA HL)",
 			"summary": "Count outcomes with the multiplication principle, ordered arrangements with n! and nPr, selections with nCr (exactly, and 'at least one'), and rows where two people must or must not sit together.",
 			"situation": "counting",

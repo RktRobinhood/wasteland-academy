@@ -1,9 +1,10 @@
 class_name Run
 extends RefCounted
-## A run: a dungeon in one region (or Dungeon.ALL), floor after floor of fights, until
-## the player's HP reaches 0 or they quit, then a summary that pays its Scrap into the
-## save (FAL-413, FAL-415). It holds every rule and no UI, so a test can play a whole
-## run with fixed answers; ui/fight.gd draws it.
+## A run: a dungeon in one region (or an all-regions dungeon, or the Thunderdome; see
+## Dungeon.region_types), floor after floor of fights, until the player's HP reaches 0 or
+## they quit, then a summary that pays its Scrap into the save (FAL-413, FAL-415). It
+## holds every rule and no UI, so a test can play a whole run with fixed answers;
+## ui/fight.gd draws it.
 ##
 ## A floor is Tuning.FIGHTS_PER_FLOOR fights. Fight 5 is a mini-boss and fight 10 the
 ## boss: linked parts on one situation (Q9), see _open_boss(). Beating the boss opens

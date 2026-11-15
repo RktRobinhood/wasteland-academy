@@ -22,7 +22,7 @@ game/
 ├── engine/maths_engine.gd ← the reusable maths interface every screen asks (docs/MATHS-ENGINE.md)
 ├── engine/run.gd        ← a run: floors, fights, bosses, outcomes, lifelines, the hooks (see "Combat")
 ├── engine/dungeon.gd    ← floors by level, tiers, boss chains, start floors (see "The dungeon")
-├── engine/map_link.gd   ← map links (#functions/quadratics), browser history, music by island
+├── engine/map_link.gd   ← map links (#functions/quadratics), each region's island, browser history, music by island
 ├── engine/progress.gd   ← a region's accuracy, best floor, coverage and weakest skills
 ├── engine/courses.gd    ← the student's IB course and what it covers (see "Courses")
 ├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains, Bazaar prices
@@ -86,7 +86,16 @@ Audio.sound_enabled = true           # what the speaker icon switches
   Nothing ships without one.
 - The map and the runs choose the loop (FAL-417): the world map plays `overworld`, an
   island and its runs play the island's loop, and a mini-boss or boss its `-boss` loop
-  (`MapLink.music_for`). The settings screen has only the three settings.
+  (`MapLink.music_for`). Each of the five islands has its own pair (`MapLink.MUSIC`:
+  `scrap-fields`, `signal-tower`, `dry-flats`, `radio-spires`, `engine-core`), and the
+  Thunderdome's screen and runs play `thunderdome`, bosses too, so all twelve loops play
+  somewhere (FAL-925). The settings screen has only the three settings.
+- Fights play the effects (FAL-925, `ui/fight.gd`): `open` as a mini-boss or boss steps
+  up, `correct` for a hit (right, glancing or late), `retry` for a miss or a timeout,
+  `clear` when an enemy falls (in place of the hit's), `hint` for a lifeline, and
+  `reward` when the summary banks Scrap. The settings screen and the HUD play `confirm`,
+  and the Bazaar `reward` and `confirm`. With sound off nothing is heard;
+  `Audio.last_sfx` still records the cue asked for, for tests.
 
 ## Scripts (run from the repo root)
 
@@ -1382,8 +1391,17 @@ dungeon part of `Tuning`. Q4, Q6, Q9 and Q14 are on the FAL-274 plan.
 - **Start floor.** `Dungeon.start_floors(save, region)` is floor 1 and, for every floor
   N whose boss the player has beaten, floor N + 1. The fight screen opens on a floor select with those floors.
   The save keeps `dungeon[region] = {"best", "beaten"}`.
-- **All regions.** Region `"all"` (`Dungeon.ALL`) mixes every built type of the island
-  (every type with a region). The map's "All regions" spot is `#functions/all`.
+- **All regions.** Each island's all-regions dungeon mixes every built type of its
+  regions: `Dungeon.all_of(island)`, which is `"all"` (`Dungeon.ALL`) on the Functions
+  island, the id saves and links already had, and `"all-<island>"` on the others
+  (`"all-calculus"`). The map's "All regions" spot is `#<island>/all` on every island.
+- **The Thunderdome** (FAL-925). Region `"thunderdome"` (`Dungeon.THUNDERDOME`) mixes
+  every built type of every island, with the same floors, tiers, bosses and records as a
+  region. Its screen is `#thunderdome`, off the world map.
+- **Bosses on every island.** Only Functions types have chains so far (`Tuning.CHAINS`),
+  so on the other islands the mini-boss and the boss are a single fight at their tier
+  (D3 and D5, raised on deeper floors), named from `data/bosses.json` by island (see "Art
+  slots"). A type's chain makes them chained parts there with no other change.
 
 ### Journey strip events
 
@@ -1501,10 +1519,12 @@ The fight screen takes `/?play=quadratics&seed=3&floor=1`, with
 is a region id or `all`. `floor` must be one the save may start on, else the run starts
 on floor 1. `&fight=5` or `&fight=10` starts at the mini-boss or boss (such a run records
 no floors), and `&autoplay=carry` answers its first part wrong and opens the next, to show
-the value carried on. `&select=1` shows the floor select.
+the value carried on. `&select=1` shows the floor select. `play` is any region id, an
+island's all-regions dungeon (`all`, `all-algebra`) or `thunderdome`.
 
 The map takes a hash: `/#functions/quadratics` opens that region's screen,
-`/#functions` the island and `/#world` the world map (see "The map").
+`/#functions` the island, `/#calculus/all` an island's all-regions dungeon,
+`/#thunderdome` the Thunderdome and `/#world` the world map (see "The map").
 
 ### The study screen
 
@@ -1862,20 +1882,27 @@ plan, FAL-790). "Play" on the title screen opens it. One scene with three layers
 closer look at the place picked on the one above:
 
 - **The world map**: the overworld painting (`assets/map/overworld.png`) with an
-  invisible button over each place. The Signal Tower (Functions) is open; the other four
-  islands are "Coming soon". The Thunderdome stays locked until a second island opens
-  (`MapLink.OPEN_ISLANDS`), and the Relic Library is locked. The **Bazaar** is a place
-  too, at zone centre (17, 90), 26 × 14 (% of the board, `BAZAAR_ZONE`), with a coded
-  stall marker until the painting has it (`BAZAAR_PAINTED`). It opens the Bazaar (see
-  "The Bazaar"). There is no bar under the board: the Scrap there is to spend is in the
-  header.
-- **The Functions island**: the 8 regions in the catalogue's `order`, the all-regions
-  dungeon and a locked Relic device spot, as places with no roads between them: any
-  region in any order. A region whose types aren't built yet says "Coming soon" and
-  can't start a run or Practice. That comes from the engine
-  (`Progress.is_built`, which asks `Dungeon.region_types`), so a region opens when its
-  situations merge, with no map change.
-- **The region screen**, over the region's `backdrop` (see "Art slots"), cover-fitted
+  invisible button over each place. All five islands are open (FAL-925,
+  `MapLink.OPEN_ISLANDS`): the Scrap Fields (`algebra`, topic 1), the Signal Tower
+  (`functions`), the Dry Flats (`geometry`), the Radio Spires (`stats`) and the Engine
+  Core (`calculus`); the id is the island's link and its art folder. The **Thunderdome**
+  is open too, a mixed run of every island: it opens its own region screen
+  (`#thunderdome`), whose back button goes to the world map. The Relic Library is
+  locked; its card says it opens after the maths engine. The **Bazaar** is a place too,
+  at zone centre (17, 90), 26 × 14 (% of the board, `BAZAAR_ZONE`), painted into the
+  overworld (FAL-791, `BAZAAR_PAINTED`; while that's false a coded stall marker shows).
+  It opens the Bazaar (see "The Bazaar"). There is no bar under the board: the Scrap
+  there is to spend is in the header.
+- **An island**: its regions (`MapLink.region_ids(island)`, in the catalogue's `order`:
+  most-examined first), its all-regions dungeon and a locked Relic device spot, as places
+  with no roads between them: any region in any order. Each catalogue region is on the
+  island of its syllabus topic (`MapLink.island_of`; "2.6" is Functions). A region whose
+  types aren't built yet says "Coming soon" and can't start a run or Practice. That
+  comes from the engine (`Progress.is_built`, which asks `Dungeon.region_types`), so a
+  region opens when its situations merge, with no map change. SPARK's pick is among the
+  island's regions.
+- **The region screen**, over the region's `backdrop` (see "Art slots"), or its island's
+  close-up on the overworld painting where it has none (`backdrop_for()`), cover-fitted
   under a 70% wash of the background colour (`REGION_WASH`), so its dimmest text keeps
   4.5:1 over every backdrop in `assets/regions/`. It reads as a close-up of the island
   place, which is the place in its fight backdrop. It shows accuracy, best floor and coverage ("34 of 52 checked": the
@@ -1895,7 +1922,11 @@ closer look at the place picked on the one above:
 **Names on a card.** No name or state shows on a board until a place is hovered,
 focused or tapped. Then a card by the place shows its name and one line: the topic, the
 progress line (`spot_line()`: "Floor 2 · 64%", "Not tried yet · SPARK's pick"), "Coming
-soon" or "Locked"; the Bazaar's says "Bazaar · 120 Scrap". With a mouse, hovering shows
+soon" or "Locked"; the Bazaar's says "Bazaar · 120 Scrap". On an island the card sits
+beside its place, on the side with more room, its text shrunk to fit (down to
+`CARD_NAME_LEAST`), because a column's places are closer together than a card is tall;
+it covers the ground beside while it shows, never the place itself. On the world map it
+goes above or below. With a mouse, hovering shows
 the card and a click goes in. With a keyboard, Tab moves between places, focus shows the
 card and Enter goes in; the first focus (SPARK's pick on the island) shows none. On a
 touch screen the first tap shows the card and lights the place, and a second tap on the
@@ -1917,22 +1948,28 @@ desktop, `-- --map=functions/quadratics` does the same as the hash.
 
 ### Map art
 
-The island map loads its art by file name from `game/assets/map/functions/`. Each file
-is optional: when one isn't there, that piece keeps the coded look (a dusk gradient with
-the jetty as a dot, and a ring in the state's colour with a short glyph for each place),
-so art can land one file at a time. Import each with mipmaps on, like the rest of the art.
+Each island loads its art by file name from its own folder, `game/assets/map/<island>/`:
+`functions/` (the Signal Tower), `algebra/` (the Scrap Fields), `geometry/` (the Dry
+Flats), `stats/` (the Radio Spires) and `calculus/` (the Engine Core). Each file is
+optional: when one isn't there, that piece keeps the coded look (the island's dusk
+gradient, `ArtSlots.GROUND`, with the jetty as a dot, and a ring in the state's colour
+with a short glyph, `GLYPHS`, for each place), so art can land one file at a time and an
+island's painting shows the moment it's dropped in, with no code change. Only
+`functions/background.webp` is painted so far (FAL-791). Import each with mipmaps on,
+like the rest of the art.
 
 | File | Size | What it is |
 |---|---|---|
-| `background.webp` (or `.png`) | 1080x1920, opaque | The whole island, portrait, one painting with every place painted in at its point in `SPOTS` in `ui/map.gd` (% of the board), the jetty at (50, 97). No roads, no text. The FAL-783 plan has the table of places. With it, a place with no landmark PNG draws nothing but its button: an invisible square of 300 board units round its point (the Relic device's 160). A place that can't be played yet gets a dark wash and a padlock chip, a cleared one a flag chip, both from the code, so one painting serves every state |
+| `background.webp` (or `.png`) | 1080x1920, opaque | The whole island, portrait, one painting with every place painted in at its point in that island's `SPOTS` table in `ui/map.gd` (% of the board), the jetty at (50, 97). No roads, no text. The FAL-783 plan has the Signal Tower's table of places; the other four islands' tables were laid out for the coded look on FAL-925, and a painting may follow them or move them (then update `SPOTS`). With it, a place with no landmark PNG draws nothing but its button: an invisible square of 300 board units round its point (the Relic device's 160). A place that can't be played yet gets a dark wash and a padlock chip, a cleared one a flag chip, both from the code, so one painting serves every state |
 | `<spot>-locked.png` | 256x256, transparent | A spot's landmark before its questions are built |
 | `<spot>-open.png` | 256x256, transparent | A spot's landmark once it can be played |
 | `<spot>-cleared.png` | 256x256, transparent | A spot's landmark once floor 3's boss is beaten there |
 
-`<spot>` is a region id (`quadratics`, `exp-log`, `graphs-features`,
-`composite-inverse`, `rational`, `function-basics`, `lines`, `transformations`), `all`
-for the all-regions dungeon at the tower, or `relic` for the Relic device (only
-`relic-locked.png` is used for now). A landmark fills its place's square (300x300, the
+`<spot>` is a region id of that island (on the Signal Tower `quadratics`, `exp-log`,
+`graphs-features`, `composite-inverse`, `rational`, `function-basics`, `lines`,
+`transformations`; the other islands' ids are in `SPOTS` and in "Art slots" below),
+`all` for the island's all-regions dungeon in the middle, or `relic` for the Relic
+device (only `relic-locked.png` is used for now). A landmark fills its place's square (300x300, the
 Relic device's 160x160), kept square and centred, over the painting or the coded
 ground. No name shows under it: the card does that. SPARK's pick (`Progress.suggest()`)
 gets a pink beacon drawn round its place, art or not, so leave the place readable under
@@ -1976,13 +2013,27 @@ The title screen uses only the version for the window's shape, so with only one 
 two, the other shape keeps the plain look. Spark is in the key art, so the Spark image
 steps aside when it shows.
 
-**`assets/regions/<region-id>/`**, for `quadratics`, `exp-log`, `graphs-features`,
-`composite-inverse`, `rational`, `function-basics`, `lines` and `transformations`
-(`all`, the all-regions dungeon, works too)
+**`assets/regions/<region-id>/`**, for every catalogue region (`all`, the Functions
+all-regions dungeon, `all-<island>` for another island's, and `thunderdome` work too):
+
+- Scrap Fields (`algebra`): `sequences`, `finance`, `exponents-logs`, `binomial`, `proof`
+- Signal Tower (`functions`): `quadratics`, `exp-log`, `graphs-features`,
+  `composite-inverse`, `rational`, `function-basics`, `lines`, `transformations`
+- Dry Flats (`geometry`): `triangles`, `trig-graphs`, `arcs-sectors`, `geometry-3d`,
+  `trig-equations`, `unit-circle`
+- Radio Spires (`stats`): `discrete-distributions`, `probability`, `normal-distribution`,
+  `regression`, `conditional-probability`, `averages-spread`, `sampling-data`
+- Engine Core (`calculus`): `kinematics`, `stationary-points`, `tangents-normals`,
+  `definite-integrals`, `derivative-rules`, `derivative-basics`, `integration`
+
+Only the Signal Tower's regions have backdrops so far. A region with no `backdrop` shows
+a close-up of its island cut from the overworld painting (the arena for the
+Thunderdome) under the same wash (`backdrop_for()` in `ui/map.gd`), so it reads as that
+island rather than a blank screen.
 
 | File | Size | Where it shows | With no file |
 |---|---|---|---|
-| `backdrop` | 1920×1080, opaque, dark | Behind the fight screen and its floor select, cover-fitted under a 55% wash of the background colour, and behind the map's region screen under a 70% wash. A phone held upright shows about the centre 500 px, so keep what matters in the centre 600 | The plain background |
+| `backdrop` | 1920×1080, opaque, dark | Behind the fight screen and its floor select, cover-fitted under a 55% wash of the background colour, and behind the map's region screen under a 70% wash. A phone held upright shows about the centre 500 px, so keep what matters in the centre 600 | A close-up of its island on the overworld painting |
 | `miniboss` | 512×512, transparent | Fight 5, the mini-boss, in the 190 px enemy box | The tier's enemy (see `enemies/`) |
 | `miniboss-hurt` | 512×512, transparent: the same pose, size and place | Flashes for 80 ms when a hit lands | No flash |
 | `boss` | 512×512, transparent | Fight 10, the boss | The tier's enemy |
@@ -1991,7 +2042,11 @@ steps aside when it shows.
 Each mini-boss's and boss's name and one-line taunt are in `data/bosses.json`:
 `{"<region-id>": {"miniboss": {"name", "taunt"}, "boss": {"name", "taunt"}}}`. The
 name replaces the tier name over the HP bar, and the taunt opens the fight on the card.
-A region with no entry shows "Mini-boss Enforcer" and the like, as before, and no taunt.
+A key may also be an island id (`algebra`, `geometry`, `stats`, `calculus`) or
+`thunderdome`: a region with no entry of its own uses its island's (FAL-925), so every
+region of the four newer islands, and each island's all-regions dungeon, has its island's
+pair for now. With neither, it shows "Mini-boss Enforcer" and the like, as before, and
+no taunt.
 
 **`assets/enemies/`**: the shared pool of regular enemies
 
@@ -2035,7 +2090,7 @@ listed in the Bazaar in file order; a row whose art isn't there is left out.
 
 The store owner's lines are data: `data/shopkeeper.json` (see "The Bazaar").
 
-Not here: the island map (`assets/map/functions/`, see "Map art"), and the weak-skills
+Not here: the island maps (`assets/map/<island>/`, see "Map art"), and the weak-skills
 flag on the map, which has no slot yet.
 
 ## The Bazaar
@@ -2340,7 +2395,8 @@ script error happens while it runs. Run one file with
   file's schema.
 - `test_fight.gd`: the fight screen plays a miss with its worked solution, a hit, a
   timeout, the lifelines, quit and the summary, the floor select with beaten floors, a
-  boss part with the value carried on, and fits at 360x780, 390x844 and 1280x800.
+  boss part with the value carried on, the sound effects it asks for (FAL-925), and fits
+  at 360x780, 390x844 and 1280x800, with every region's title beside Quit.
 - `test_dungeon.gd`: the same seed gives the same floors, fights and bosses; fight 5 is a
   2-part mini-boss and fight 10 a 3- or 4-part boss on one situation, following its chain;
   follow-through after a wrong part; floor 1 serves levels 0 to 2 and floor 4 includes
@@ -2364,9 +2420,11 @@ script error happens while it runs. Run one file with
   isn't, on tiny fixture images (`tests/fixtures/art/`) and fixture data; the region's
   bosses with their names, taunts and hurt frames; the enemy pool; a region with no art
   playing exactly as before, and the same run with art giving the same results; the
-  fight screen, title screen and Bazaar with art and without; and every file in the art
-  folders importing lossy with mipmaps.
-- `test_map.gd`: links for every region id, the island and junk; coverage against a
+  fight screen, title screen and Bazaar with art and without (the island's close-up
+  with no backdrop); every island and the Thunderdome naming their bosses; and every
+  file in the art folders importing lossy with mipmaps.
+- `test_map.gd`: links for every region id on its own island, every island, the
+  Thunderdome and junk; `island_of()` for every region; coverage against a
   hand count from the catalogue on a scripted save with the switch off and on;
   accuracy, best floor and cleared; the weakest skills leaving out skills with fewer
   than 3 answers; the world map, the island and the region screen; the course picker
@@ -2376,7 +2434,11 @@ script error happens while it runs. Run one file with
   screen fitting 390x844 and 1280x800; and the FAL-783 layers: no road node and no
   footer, cards hidden until hover, focus or a tap, two taps on touch, the Bazaar as a
   world-map place, painted places on a fixture background, the zoom in and out (and the
-  cut with reduced motion), and the region screen over its backdrop.
+  cut with reduced motion), and the region screen over its backdrop. Every island
+  (FAL-925): all five open on the world map, each laid out with no place overlapping
+  and a card beside its place, every region and all-regions dungeon opening its screen,
+  a run starting in a region of each island, its all-regions dungeon and the
+  Thunderdome, and each island's loop and boss loop, so all twelve loops are reachable.
 - `test_explorer.gd`: the engine explorer opens on a live class with no errors, plays
   each course's own classes (AA HL all of AA SL's, AI SL's inside AI HL's), counts
   the catalogue per topic, plays from its pickers, keeps the situation when it asks

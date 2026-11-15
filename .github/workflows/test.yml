@@ -6,6 +6,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Runs the seed sweep on a branch: gh workflow run test --ref <branch>
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -91,7 +93,12 @@ jobs:
           'map-world=#world'
           'map-island=#functions'
           'map-region=#functions/quadratics'
-          'map-coming-soon=#functions/exp-log'
+          'map-island-algebra=#algebra'
+          'map-region-geometry=#geometry/triangles'
+          'map-all-stats=#stats/all'
+          'map-thunderdome=#thunderdome'
+          'fight-calculus=?play=kinematics&seed=3'
+          'fight-thunderdome=?play=thunderdome&seed=3&fight=10'
           'bazaar=?bazaar=demo'
           'bazaar-link=#bazaar'
       - uses: actions/upload-artifact@v7
@@ -230,7 +237,11 @@ jobs:
   # shards, two passed the 55-minute cap with E4 and R6 in (FAL-424); at eight, shards 3 and
   # 5 passed it on main after E12 and FAL-790, with shard 1 at 52 minutes (FAL-776): past
   # it, add shards.
+  # Not on pull requests (FAL-918): at about 35 minutes a shard it doubled every PR's
+  # wait. The checker above still makes seeds 1 to 50 of every cell on each PR; the
+  # sweep runs on main after the merge, or on a branch by hand (workflow_dispatch).
   stress:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:

@@ -71,6 +71,10 @@ var sfx_volume := DEFAULT_SFX_VOLUME:
 		_apply_volumes()
 		_changed()
 
+## The last effect a scene asked for, heard or not (sound off still records it), so a
+## test can tell what a screen would play.
+var last_sfx := ""
+
 var _location := ""
 var _music: Array[AudioStreamPlayer] = []
 var _playing := 0
@@ -130,6 +134,7 @@ func play_sfx(cue: String) -> void:
 	if not SfxCues.CUES.has(cue):
 		push_warning("Audio: no effect named '%s'" % cue)
 		return
+	last_sfx = cue
 	if not sound_enabled or sfx_volume <= 0.0:
 		return
 	var path := SfxCues.path(cue)

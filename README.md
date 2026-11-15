@@ -151,4 +151,10 @@ at `/`, and an HTML game save made at `/` is there at `/classic/`.
 
 ## Status
 
-Pre-production. Spec complete. Awaiting: art assets, engine build, content authoring.
+Playable. The Godot game is live at the main address. All five islands are open, each
+with its regions, runs, mini-bosses and bosses, and so are the Thunderdome (every island
+mixed), the Bazaar and Practice. The question engine has 148 built question types across
+the five AA SL topics; the HL and AI courses play the ones that cover them. Still to
+come: paintings for four of the islands and backdrops for their regions, the Relic
+Library's lessons, and encounters. See [`ROADMAP.md`](ROADMAP.md) and
+[`game/README.md`](game/README.md).

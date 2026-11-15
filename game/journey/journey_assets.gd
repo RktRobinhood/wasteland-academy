@@ -147,6 +147,12 @@ func has_avatar(avatar: String) -> bool:
 	return avatar in avatars
 
 
+## True when a region has its scenery (its parallax layers), so a strip there has somewhere
+## to walk. Only the Signal Tower has so far; the other islands' runs show no strip (FAL-925).
+func has_scenery(region: String) -> bool:
+	return not (regions.get(region, {}).get("layers", []) as Array).is_empty()
+
+
 ## The sheets a region's beats can use: what JourneyBeats.encounter() picks from.
 func roster(region: String) -> Dictionary:
 	var r: Dictionary = regions.get(region, {"props": [], "creatures": []})
