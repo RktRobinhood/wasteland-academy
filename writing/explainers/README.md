@@ -199,7 +199,7 @@ The editor's pass, done by Writer on every script:
 
 ## Not decided yet
 
-- **The map.** `curriculum/explainers.json` (FAL-935) isn't on `main` yet. The pilots use `ex.foundations.substitute-and-evaluate` and `ex.algebra.geometric-sequence` as stand-in ids.
+- **The map.** `curriculum/explainers.json` (FAL-935) is in PR #147 and not on `main` yet. The pilots use its ids. Where the map and a pilot differ (pilot 1's prerequisite and skill scope), the script's `notes` say so, and FAL-936 asks Studio Manager to decide.
 - **Casting.** Every tutor, voice and name is provisional (#18). Mags's block and the five notes above get redone once casting is settled.
 - **Line ids for recording.** For now a recording is named by section and position, frozen at `approved`. If the Audio Designer needs ids that survive edits, add an `id` field to each line.
 - **A checker.** A content test that validates these files (moves, speakers, callbacks, banned words, digits in captions) would be Coder's to add.

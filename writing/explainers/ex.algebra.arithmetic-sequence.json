@@ -2,7 +2,7 @@
   "id": "ex.algebra.arithmetic-sequence",
   "format": 1,
   "status": "draft",
-  "title": "The nth term",
+  "title": "Add the Same Each Step",
   "idea": "An arithmetic sequence adds the same amount d every time, so term n is the first term plus n − 1 lots of d.",
   "zone": "algebra",
   "tutor": "mags-the-ledger",
@@ -19,7 +19,7 @@
     "SL1.2.nth-term"
   ],
   "builds_on": [
-    "ex.foundations.substitute-and-evaluate"
+    "ex.foundations.pre-substitute"
   ],
   "leads_to": [
     "ex.algebra.arithmetic-series"
@@ -36,13 +36,13 @@
   ],
   "estimate": {
     "words_watched": 978,
-    "words_not_watched": 1015,
+    "words_not_watched": 1024,
     "narration_watched": "6 min 45 s",
-    "narration_not_watched": "7 min 00 s",
+    "narration_not_watched": "7 min 04 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
   },
   "notes": [
-    "builds_on names a foundations explainer that the map (FAL-935) has not confirmed yet. If the map gives it another id, change it here and in the recall section.",
+    "builds_on is ex.foundations.pre-substitute from the explainer map in PR #147 (FAL-935), because the recall is substitution. The map lists ex.foundations.pre-balance as this explainer's prerequisite, and also gives it SL1.2.find-u1-d and SL1.2.find-n. This pilot teaches SL1.2.nth-term only; adding the other two would push it past 8 minutes. Raised on FAL-936.",
     "No second-method section. The map lists four methods for SL1.2.nth-term: the formula is the lesson, counting on is the concrete case in the big idea, the linear form uₙ = dn + (u₁ − d) appears in example 3(b), and the GDC table is a method explainer under plan decision 4.",
     "Numbers in the examples come from the arithmetic-context stories in game/engine/situations/arithmetic_context.gd (fight pit rows, failing well, sandbag barricade), inside their ranges."
   ],
@@ -78,7 +78,7 @@
     {
       "id": "recall",
       "kind": "recall",
-      "builds_on": "ex.foundations.substitute-and-evaluate",
+      "builds_on": "ex.foundations.pre-substitute",
       "watched": [
         {
           "use": "mags-the-ledger.tin-can-tess.watched"
@@ -90,7 +90,7 @@
         {
           "ask": {
             "kind": "recall",
-            "prompt": "Work out 5 + (8 − 1) × 3",
+            "prompt": "Substitute n = 8 into 5 + (n − 1) × 3",
             "choices": [
               "26",
               "36",
@@ -120,7 +120,7 @@
         {
           "ask": {
             "kind": "recall",
-            "prompt": "Work out 5 + (8 − 1) × 3",
+            "prompt": "Substitute n = 8 into 5 + (n − 1) × 3",
             "choices": [
               "26",
               "36",
@@ -146,11 +146,11 @@
         },
         {
           "speaker": "mags-the-ledger",
-          "say": "Brackets get worked out first. Then multiply and divide. Add and subtract last. So eight minus one is seven, seven threes are twenty-one, and five more makes twenty-six.",
+          "say": "Put the number in where the letter was. Then work the brackets first, multiply next, and add last. So with n as eight: eight minus one is seven, seven threes are twenty-one, and five more makes twenty-six.",
           "board": [
             {
               "write": "5 + (8 − 1) × 3",
-              "kind": "step"
+              "move": "substitute"
             },
             {
               "write": "= 5 + 7 × 3",
