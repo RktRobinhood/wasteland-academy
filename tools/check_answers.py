@@ -42245,6 +42245,161 @@ SITUATION_CHECKS["study"] = E15PS_check
 # ── end study ──
 
 
+# ── stratified-sample (t4-ext-stratified-numbers, FAL-778) ────
+# The groups are read from the sentence or the table, the sample size from the sentence or the
+# table's total, and each answer is worked out again with exact fractions: G × n ÷ N, rounded to
+# the nearest whole number where asked, n − r₁ − r₂ for the last group, q × N ÷ G backwards, and
+# p% of n. Every tagged option is rebuilt from its slip, every sum in the working is redone, and an
+# error-spot's lines are judged one by one.
+
+E15SN_SK = "SL4.1.stratified-numbers#"
+E15SN_T = "t4-ext-stratified-numbers#"
+
+
+def E15SN_round(x):
+    x = sp.Rational(x)
+    return int(sp.floor(x + sp.Rational(1, 2)))
+
+
+def E15SN_ctx(line):
+    for c in SM_CTX:
+        if re.match(rf"(A {c[1]} has \d+ {c[0]}:|The table shows the \d+ {c[0]} in a {c[1]}, by group\.|The {c[0]} of a {c[1]} are )", line):
+            return c
+    raise Fail(f"can't read {line!r}")
+
+
+def E15SN_read(q):
+    """{'c', 'G', 'N', 'n', 'col', 'g', 'p'}: the groups, the sample size and the sample column."""
+    L, u = q["lines"], q["view"]["unknown"]
+    c = E15SN_ctx(L[0])
+    who, place, names = c[0], c[1], c[2]
+    out = {"c": c, "G": None, "N": None, "n": None, "col": None, "g": None, "p": None}
+    if u == "stratum-from-percent":
+        m = re.fullmatch(rf"The {who} of a {place} are (\d+)% {names[0]}, (\d+)% {names[1]} and (\d+)% {names[2]}\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        out["p"] = [int(m.group(i)) for i in (1, 2, 3)]
+        need(sum(out["p"]) == 100 and len(set(out["p"])) == 3, "the percentages don't add to 100")
+    elif q["table"] is not None:
+        rows = q["table"]["rows"]
+        need(rows[0] == ["group", ["number", "in sample"]] and [r[0] for r in rows[1:4]] == list(names) and rows[4][0] == "Total", "table heads")
+        out["G"] = [int(r[1][0]) for r in rows[1:4]]
+        out["N"] = int(rows[4][1][0])
+        need(sum(out["G"]) == out["N"], "the table's groups don't add to its total")
+        out["col"] = [r[1][1] for r in rows[1:5]]
+        need(L[0] == f"The table shows the {out['N']} {who} in a {place}, by group.", f"can't read {L[0]!r}")
+        if out["col"][3] not in ("?", ""):
+            out["n"] = int(out["col"][3])
+    else:
+        out["N"], out["G"] = sm_camp(L[0], c)
+    need(out["G"] is None or len(set(out["G"])) == 3, "two groups are the same size")
+    if u in ("stratum-count", "stratum-count-rounded", "stratum-from-percent") and q["table"] is None:
+        m = re.fullmatch(rf"A stratified sample of (\d+) {who} is taken, by group\.", L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        out["n"] = int(m.group(1))
+    m = re.search(r"Find how many (.+?) (?:go in the sample|she must take)", q["asked"])
+    if m:
+        out["g"] = names.index(m.group(1))
+    return out
+
+
+def E15SN_steps(q, d):
+    """Every sum the working writes."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for a, b, c, x, r in re.findall(r"(\d+)/(\d+) × (\d+) = ([\d.]+)(?: \(to 2 d\.p\.\))?(?:, which rounds to (\d+))?", st) + \
+                    [(a, c, b, x, r) for a, b, c, x, r in re.findall(r"(\d+) × (\d+)/(\d+) = ([\d.]+)(?: \(to 2 d\.p\.\))?(?:, which rounds to (\d+))?", st)]:
+                v = sp.Rational(int(a), int(b)) * int(c)
+                need(abs(v - sp.Rational(x)) <= sp.Rational(1, 200), f"{sol['name']}: {st!r}")
+                need(not r or E15SN_round(v) == int(r), f"{sol['name']}: {st!r} rounds wrong")
+            for a, b, c, w in re.findall(r"(\d+) − (\d+) − (\d+) = (\d+)", st):
+                need(int(a) - int(b) - int(c) == int(w), f"{sol['name']}: {st!r}")
+            if (m := re.fullmatch(r"Check: the groups give (\d+), (\d+) and (\d+), which add to (\d+)\.", st)):
+                got = [int(m.group(i)) for i in (1, 2, 3)]
+                need(got == [E15SN_round(sp.Rational(G * d["n"], d["N"])) for G in d["G"]] and sum(got) == int(m.group(4)), f"{sol['name']}: {st!r}")
+
+
+def E15SN_check(q):
+    u = q["view"]["unknown"]
+    d = E15SN_read(q)
+    G, N, n, g, names = d["G"], d["N"], d["n"], d["g"], d["c"][2]
+    third = E15SN_round(sp.Rational(n, 3)) if n else None
+    if u == "stratum-count":
+        need(n is not None and all((Gi * n) % N == 0 for Gi in G), "not every share is whole")
+        v = G[g] * n // N
+        need(10 <= n <= (40 if q["paper"] == 1 else 120) and max(G) <= (400 if q["paper"] == 1 else 3000), f"n = {n}, groups {G} outside the limits")
+        wrongs = {E15SN_SK + "0": {f"number = {third}"} - {f"number = {v}"}}
+    elif u == "stratum-count-rounded":
+        x = sp.Rational(G[g] * n, N)
+        need(abs(x - sp.floor(x) - sp.Rational(1, 2)) >= sp.Rational(1, 10), f"the share {float(x)} is within 0.1 of a half")
+        v = E15SN_round(x)
+        need(v != third, "the equal split is the answer")
+        wrongs = {E15SN_SK + "0": {f"number = {third}"}, E15SN_T + "2": {f"number = {int(sp.floor(x))}"} - {f"number = {v}"}}
+    elif u == "last-stratum":
+        m = re.fullmatch(rf"A surveyor takes a stratified sample of (\d+)\. She has rounded the {names[0]} and the {names[1]} to the nearest whole number\.", q["lines"][1])
+        need(m is not None and int(m.group(1)) == n, f"can't read {q['lines'][1]!r}")
+        r = [E15SN_round(sp.Rational(Gi * n, N)) for Gi in G]
+        need(d["col"][:3] == [str(r[0]), str(r[1]), "?"], "the table's rounded numbers are wrong")
+        need(sum(r) != n, "the rounded shares already add to the sample")
+        need(all(abs(sp.Rational(Gi * n, N) - sp.floor(sp.Rational(Gi * n, N)) - sp.Rational(1, 2)) >= sp.Rational(1, 10) for Gi in G), "a share is within 0.1 of a half")
+        need(g == 2, "the asked group is not the third")
+        v = n - r[0] - r[1]
+        need(v > 0, "nothing left for the third group")
+        wrongs = {E15SN_SK + "1": {f"number = {r[2]}"}}
+    elif u == "sample-size-from-stratum":
+        m = re.fullmatch(r"In a stratified sample, (\d+) (.+) are chosen\.", q["lines"][1])
+        need(m is not None, f"can't read {q['lines'][1]!r}")
+        qg, i = int(m.group(1)), names.index(m.group(2))
+        need(d["col"] is None or (d["col"][i] == str(qg) and d["col"][3] == "?"), "the table's sample column is wrong")
+        nn = sp.Rational(qg * N, G[i])
+        need(nn.q == 1 and all(sp.Rational(Gi * nn, N).q == 1 for Gi in G), "the sample size isn't whole, or a share isn't")
+        n = v = int(nn)
+        wrongs = {E15SN_SK + "0": {f"sample size = {3 * qg}"} - {f"sample size = {v}"}}
+    else:
+        p = d["p"]
+        need((p[g] * n) % 100 == 0 and n != 100, f"{p[g]}% of {n}")
+        v = p[g] * n // 100
+        need(v != third, "the equal split is the answer")
+        wrongs = {E15SN_T + "3": {f"number = {p[g]}"}, E15SN_SK + "0": {f"number = {third}"}}
+    label = "sample size = " if u == "sample-size-from-stratum" else "number = "
+    gc_check_common(q, f"{label}{v}", wrongs)
+    if G is not None:
+        E15SN_steps(q, dict(d, n=n))
+    return None, None
+
+
+def E15SN_spot(q, lines):
+    d = E15SN_read(q)
+    G, N, n, g, names = d["G"], d["N"], d["n"], d["g"], d["c"][2]
+    x = sp.Rational(G[g] * n, N)
+    v = E15SN_round(x)
+    name = names[g]
+    for i, t in enumerate(lines):
+        if (m := re.fullmatch(r"The groups add to (\d+): (\d+) \+ (\d+) \+ (\d+)\.", t)):
+            ok = [int(m.group(k)) for k in (2, 3, 4)] == G and int(m.group(1)) == N
+        elif t == "Each group's share is 1/3.":
+            ok = False
+        elif (m := re.fullmatch(r"The (.+?)'s? share is (\d+)/(\d+)\.", t)):
+            ok = m.group(1) == name and sp.Rational(int(m.group(2)), int(m.group(3))) == sp.Rational(G[g], N)
+        elif (m := re.fullmatch(r"(\d+)/(\d+) × (\d+) = ([\d.]+)(?: \(to 2 d\.p\.\))?(?:, which rounds to (\d+))?", t)):
+            share = sp.Rational(int(m.group(1)), int(m.group(2)))
+            got = share * int(m.group(3))
+            ok = share == sp.Rational(G[g], N) and int(m.group(3)) == n and abs(got - sp.Rational(m.group(4))) <= sp.Rational(1, 200) \
+                and (m.group(5) is None or E15SN_round(got) == int(m.group(5)))
+        elif (m := re.fullmatch(rf"So (\d+) {re.escape(name)} go in the sample\.", t)):
+            ok = int(m.group(1)) == v
+        else:
+            raise Fail(f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["stratified-sample"] = E15SN_check
+SPOT_CHECKS["stratified-sample"] = E15SN_spot
+
+# ── end stratified-sample ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):

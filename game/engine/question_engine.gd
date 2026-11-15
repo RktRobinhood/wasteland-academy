@@ -169,6 +169,7 @@ static var SITUATIONS := {
 	"area-under-curve": [AreaUnderCurveSituation, AreaUnderCurveViews],
 	"variable-kind": [VariableKindSituation, VariableKindViews],
 	"study": [StudySituation, StudyViews],
+	"stratified-sample": [StratifiedSampleSituation, StratifiedSampleViews],
 }
 
 static var _cat: Dictionary = {}
