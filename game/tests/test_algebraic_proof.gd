@@ -226,9 +226,16 @@ func test_another_way_keeps_the_numbers() -> void:
 			for seed in range(1, 12):
 				var q := QuestionEngine.make({"type": TYPE, "unknown": c.unknown, "rep": c.rep, "angle": other, "same_angle": c.angle, "seed": seed, "format": "mcq"})
 				var first := _make(c.unknown, c.rep, c.angle, seed, "mcq")
-				check(not q.has("error"), "%s as %s seed %d" % [c.key, other, seed])
+				# Lines that aren't the other method's have no working by it, so it isn't asked (FAL-814).
+				if q.has("error"):
+					check(not _has_angle(first, other), "%s as %s seed %d" % [c.key, other, seed])
+					continue
 				check_eq(q.lines[0], first.lines[0], "%s as %s seed %d" % [c.key, other, seed])
 				check(not q.solutions.is_empty() and q.solutions[0].angle == other, "%s as %s seed %d: the working" % [c.key, other, seed])
+
+
+static func _has_angle(q: Dictionary, angle: String) -> bool:
+	return q.solutions.any(func(sol): return sol.angle == angle)
 
 
 func test_probes_are_served() -> void:

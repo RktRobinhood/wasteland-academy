@@ -57,8 +57,6 @@ const SLIPS := {
 	"perfect-square": [R_FACT, R_FORM, R_COEFSQ],
 	"split": [R_SUM, R_DOUBLE],
 }
-const OTHER_ROUTE := "These lines take a different route from that method, so work through them line by line."
-const UNSUITED := "This statement does not suit that method, so work through it line by line."
 const POWERS := {2: "²", 3: "³", 4: "⁴"}
 const HAS_LIMITS := ["half-tan", "half-tan-plus", "reciprocal-sum", "tan-diff", "tan-ratio", "tan-double", "split"]
 
@@ -561,24 +559,12 @@ static func walk(c: Array, upto: int, nm: String) -> Array:
 	return out
 
 
-## The method whose proof a question shows. Other methods' tabs say so, and walk the same lines.
+## The method whose proof a question shows. Another method would only walk the same lines, so
+## it has no tab, and the asked method has none if the statement isn't its own (FAL-814).
 func routes(s: Dictionary, steps: Array, ans: Dictionary) -> Dictionary:
-	var out := {}
-	for m in ProveIdentitySituation.ASKS[s.ask]:
-		var note := ""
-		if m != angle:
-			note = OTHER_ROUTE
-		elif not ProveIdentitySituation.suits(s.ask, m, s.fam):
-			note = UNSUITED
-		var lines: Array = steps.duplicate()
-		if note != "":
-			lines[0] = note + " " + lines[0]
-		out[m] = method(lines, ans.values)
-	if not out.has(angle):
-		var lines: Array = steps.duplicate()
-		lines[0] = UNSUITED + " " + lines[0]
-		out[angle] = method(lines, ans.values)
-	return out
+	if not ProveIdentitySituation.suits(s.ask, angle, s.fam):
+		return {}
+	return {angle: method(steps, ans.values)}
 
 
 static func say(ans: Dictionary) -> String:

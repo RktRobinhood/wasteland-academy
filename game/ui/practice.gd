@@ -547,9 +547,9 @@ func check_answer() -> void:
 ## and solution too tall to show with Next keep the result in view; a swipe reaches Next.
 ## An incomplete answer only needs its message shown: Attack stays, and Next is hidden.
 func _reveal_result(frames := LAYOUT_FRAMES) -> void:
-	if frames > 0:
+	if frames > 0 or _card_settling():
 		# autoplay=lose answers several questions in one frame.
-		var later := _reveal_result.bind(frames - 1)
+		var later := _reveal_result.bind(maxi(0, frames - 1))
 		if not get_tree().process_frame.is_connected(later):
 			get_tree().process_frame.connect(later, CONNECT_ONE_SHOT)
 		return
@@ -563,7 +563,14 @@ func _reveal_result(frames := LAYOUT_FRAMES) -> void:
 		if c.visible:
 			top = c
 			break
-	scroll.scroll_vertical = mini(int(next_button.get_rect().end.y - scroll.size.y), int(top.position.y))
+	# The fight's card may be drawn smaller (FitBox): its own units, scaled to the scroller's.
+	var k := card.scale.y
+	scroll.scroll_vertical = mini(int(next_button.get_rect().end.y * k - scroll.size.y), int(top.position.y * k))
+
+
+## True while the card is still changing size, so a scroll to the result waits for it.
+func _card_settling() -> bool:
+	return false
 
 
 ## Keeps the answer in the save, for the planner. The explorer screen keeps nothing.
@@ -585,7 +592,7 @@ func _show_feedback(result: Dictionary) -> void:
 			var note: String = result.get("note", "") if result.get("glancing", false) else ""
 			feedback.text = "Not quite. " + ("" if note == "" else note + " ") + QuestionEngine.answer_sentence(question)
 		feedback.add_theme_color_override("font_color", UiTheme.PINK)
-		var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), result.get("misconception", ""))
+		var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), result.get("misconception", ""), question)
 		if why != "":
 			feedback.text += "\nWatch out: " + Fmt.stop(why)
 	# An error-spot, method-pick or true-false-reason question says why.

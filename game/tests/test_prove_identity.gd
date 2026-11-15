@@ -195,7 +195,10 @@ func test_another_way_keeps_the_numbers() -> void:
 				continue
 			for seed in range(1, 6):
 				var q := QuestionEngine.make({"type": TYPE, "unknown": c.unknown, "rep": c.rep, "angle": other, "same_angle": c.angle, "seed": seed, "format": "mcq"})
-				check(not q.has("error"), "%s as %s seed %d" % [c.key, other, seed])
+				# Lines that aren't the other method's have no working by it, so it isn't asked (FAL-814).
+				if q.has("error"):
+					check(not _make(c, seed).solutions.any(func(sol): return sol.angle == other), "%s as %s seed %d" % [c.key, other, seed])
+					continue
 				check_eq(q.lines, _make(c, seed).lines, "%s as %s seed %d" % [c.key, other, seed])
 				check(not q.solutions.is_empty() and q.solutions[0].angle == other, "%s as %s seed %d: the working" % [c.key, other, seed])
 

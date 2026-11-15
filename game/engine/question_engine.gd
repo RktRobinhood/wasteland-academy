@@ -162,6 +162,11 @@ static var SITUATIONS := {
 	"basic-probability": [BasicProbabilitySituation, BasicProbabilityViews],
 	"sample-space": [SampleSpaceSituation, SampleSpaceViews],
 	"counting": [CountingSituation, CountingViews],
+	"polynomial-conditions": [PolynomialConditionsSituation, PolynomialConditionsViews],
+	"always-increasing": [AlwaysIncreasingSituation, AlwaysIncreasingViews],
+	"hence-integral": [HenceIntegralSituation, HenceIntegralViews],
+	"integral-gdc": [IntegralGdcSituation, IntegralGdcViews],
+	"area-under-curve": [AreaUnderCurveSituation, AreaUnderCurveViews],
 }
 
 static var _cat: Dictionary = {}
@@ -272,6 +277,15 @@ static func method_name(t: Dictionary, unknown: String, method: String, b: Dicti
 	return b.get("titles", {}).get(method, angle_info(t, unknown, method).get("name", fallback))
 
 
+## Whether "Exam-style only" may keep a type's exam unknowns and representations: an
+## exam type (bank parts), or an extension type that gives `examStyle`, the reason it is
+## its course's exam questions with no AA SL bank part behind it (AA HL counting,
+## FAL-796). The course filter (covered) still decides who gets it; `source` stays
+## provenance. tools/pedagogy.mjs keeps examStyle off the other extension kinds.
+static func exam_style(t: Dictionary) -> bool:
+	return t.get("source") == "exam" or str(t.get("examStyle", "")) != ""
+
+
 static func rep_is_exam(t: Dictionary, rep: String) -> bool:
 	for r in t.get("representations", []):
 		if r.rep == rep:
@@ -281,7 +295,8 @@ static func rep_is_exam(t: Dictionary, rep: String) -> bool:
 
 ## Every coverage cell of the built types (or of `types`), each
 ## {"key", "type", "unknown", "rep", "angle", "level", "exam", "weight"}.
-## exam_only keeps exam types and their exam unknowns and representations. A course
+## exam_only keeps exam-style types (exam_style) and their exam unknowns and
+## representations. A course
 ## (Courses) keeps the unknowns it covers; "" keeps them all.
 ## Cached: the planner asks on every question, and building every cell each time cost a
 ## student tens of milliseconds a pick (FAL-755). So the result is shared by every caller
@@ -294,7 +309,7 @@ static func cells(exam_only: bool = false, types: Array = [], course: String = "
 	var ids := types if not types.is_empty() else built_types(course)
 	for id in ids:
 		var t := type_of(id)
-		var exam_type: bool = t.source == "exam"
+		var exam_type := exam_style(t)
 		if exam_only and not exam_type:
 			continue
 		for u in t.unknowns:
@@ -570,15 +585,17 @@ static func make(view: Dictionary) -> Dictionary:
 	var paper := 0
 	# "Another way" keeps the numbers, so the method that made them picks their paper.
 	var calculator := gdc_method(v.t, v.u.id, rng_angle)
+	var fam_key := ""
+	var fn := {}
 	if shared:
 		var fam := family_of(v.t.id, v.u.id, v.rep)
-		var fam_key := "%s|%s|%s|%d" % [v.t.id, v.rep, ",".join(fam.unknowns), v.seed]
+		fam_key = "%s|%s|%s|%d" % [v.t.id, v.rep, ",".join(fam.unknowns), v.seed]
 		# One paper for the whole family, so every unknown asks the same numbers.
 		var both := [1, 2]
 		for id in fam.unknowns:
 			both = both.filter(func(p): return p in cell_papers(v.t, id, v.rep, v.angle))
 		paper = 2 if calculator else _pick_paper(v.t, both if not both.is_empty() else [1], fam_key, view.get("paper", 0))
-		var fn: Dictionary = fam.need.duplicate()
+		fn = fam.need.duplicate()
 		# A calculator method is the exception to the note below: its numbers have to need one.
 		if calculator:
 			fn["angle"] = v.angle
@@ -590,7 +607,8 @@ static func make(view: Dictionary) -> Dictionary:
 		# The method that made the numbers rides along, for recipes whose numbers depend
 		# on it (a Paper 2 context that a factorising method can't solve). It is the
 		# stream's angle, not this view's, so "Another way" keeps the numbers; the view's
-		# working then says where its method fails. A shared situation belongs to the
+		# working then says where its method fails, or, with no working there at all, the
+		# view is an error and the follow-up isn't asked. A shared situation belongs to the
 		# family, not to a method, so it gets none. Other recipes ignore it.
 		var nd: Dictionary = v.views.need(v.u.id, v.rep)
 		nd["angle"] = rng_angle
@@ -603,6 +621,22 @@ static func make(view: Dictionary) -> Dictionary:
 	if s.is_empty():
 		return {"error": "no clean situation for %s" % cell_key(v.t.id, v.u.id, v.rep, v.angle)}
 	var q := _build(v, s, rng, 2 if calculator or gdc_method(v.t, v.u.id, v.angle) else _final_paper(s, paper))
+	# A family's situation belongs to no method, so the one it drew may not suit this view's.
+	# Then the family draws again, told the method, as a calculator method's numbers are. If
+	# the family's need rules the method out (a graph family's curve must have an endpoint
+	# maximum, which no form shows), the view takes its own numbers instead.
+	if shared and q.get("unsuited", false):
+		fn["angle"] = v.angle
+		s = recipe.generate(Seeded.new(fam_key), fn)
+		if not s.is_empty():
+			rng = Seeded.new("%s|%d" % [cell_key(v.t.id, v.u.id, v.rep, rng_angle), v.seed])
+			q = _build(v, s, rng, 2 if calculator or gdc_method(v.t, v.u.id, v.angle) else _final_paper(s, paper))
+		if s.is_empty() or q.get("unsuited", false):
+			var own := view.duplicate()
+			own.erase("shared")
+			return make(own)
+	if q.has("error"):
+		return q
 	if rng_angle != v.angle:
 		q.view.same_angle = rng_angle
 	if shared:
@@ -778,6 +812,9 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded, paper: int) -> Dic
 	# Views whose context hangs on the method (fn-link-symmetry's find-the-mirror: a
 	# parabola, or nCr) are told it.
 	var b: Dictionary = v.views.build_view(u.id, v.rep, angle, s, rng) if v.views.has_method("build_view") else v.views.build(u.id, v.rep, s, rng)
+	# A method with no working on these numbers can't be the one the question names (FAL-814).
+	if angle != "any" and not b.methods.has(angle):
+		return {"error": "method %s has no working on these numbers" % angle, "unsuited": true}
 	var ans: Dictionary = b.answer
 	if ans.kind in Answer.MC_ONLY:
 		fmt = "mcq"
@@ -807,11 +844,11 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded, paper: int) -> Dic
 		"marks": v.marks,
 		"cell": cell_key(t.id, u.id, v.rep, angle),
 		"type_name": t.name, "level": int(u.level),
-		"exam": t.source == "exam" and bool(u.exam) and rep_is_exam(t, v.rep),
+		"exam": exam_style(t) and bool(u.exam) and rep_is_exam(t, v.rep),
 		"format": fmt, "prompt": prompt, "asked": b.asked, "rep": v.rep,
 		"lines": b.lines, "graph": b.graph, "table": b.table, "diagram": b.get("diagram"),
 		"answer": ans, "answer_text": Answer.text(ans),
-		"choices": choices, "solutions": solutions,
+		"choices": choices, "solutions": solutions, "fn_name": b.get("fn_name", ""),
 		"given": b.given, "situation_id": t.situation, "situation": SITUATIONS[t.situation][0].export(s),
 	}
 	if fmt == "pick-the-graph":
@@ -880,12 +917,25 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 
 ## The catalogue text of a misconception ref ("" if the type has none by that ref).
 ## A misconception without a ref of its own is "<type id>#<index>".
-static func misconception_text(t: Dictionary, ref: String) -> String:
+static func misconception_text(t: Dictionary, ref: String, q: Dictionary = {}) -> String:
 	var ms: Array = t.get("misconceptions", [])
 	for i in ms.size():
 		if ms[i].get("ref", "%s#%d" % [t.id, i]) == ref:
-			return ms[i].text
+			return named(ms[i].text, q.get("fn_name", ""))
 	return ""
+
+
+## A misconception's f, f′, f″ and f(x) in the question's own name: h, or for a curve y,
+## dy/dx and d²y/dx² (FAL-814). The map's text says f whatever the question calls it.
+static func named(text: String, fn_name: String) -> String:
+	if fn_name == "" or fn_name == "f":
+		return text
+	var curve := fn_name == "y"
+	var out := text
+	for pair in [["f″(x)", "d²y/dx²" if curve else fn_name + "″(x)"], ["f′(x)", "dy/dx" if curve else fn_name + "′(x)"],
+			["f″", "d²y/dx²" if curve else fn_name + "″"], ["f′", "dy/dx" if curve else fn_name + "′"], ["f(x)", "y" if curve else fn_name + "(x)"]]:
+		out = out.replace(pair[0], pair[1])
+	return RegEx.create_from_string("(?<![\\w(])f(?![\\w(′″])").sub(out, fn_name, true)
 
 
 ## Turns a built multiple-choice question into an extra format, in place. The
@@ -919,7 +969,7 @@ static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) 
 					opts.append({"text": "False: it should be %s" % w.text, "correct": false, "ref": ""})
 			q.claim = claim.text
 			q.prompt = "%s\nA student's answer: %s. True or false?" % [b.asked, claim.text]
-			var why := misconception_text(t, claim.ref) if not claim.correct else ""
+			var why := misconception_text(t, claim.ref, q) if not claim.correct else ""
 			if claim.correct:
 				q.reason = "The student is right: the answer is %s" % Fmt.stop(right.text)
 			else:

@@ -39920,6 +39920,1111 @@ SITUATION_CHECKS["solid-angle"] = E12SA_check
 # ── end solid-angle ──
 
 
+# ── polynomial-conditions (t5-ext-unknown-coefficients, t5-ext-stationary-conditions, FAL-776) ──
+# The checker's own reading of the curve and its conditions, from the lines the student sees.
+# The letters are SymPy symbols, so the derivative is SymPy's, and the conditions are solved
+# with sp.solve. Each tagged slip is worked out from its own wrong equations. Every line of the
+# working that states an equation is checked to be that condition, and error-spot lines are
+# judged one by one against the true curve. The clean limits are the checker's own copy:
+# the engine's are in game/engine/situations/polynomial_conditions.gd.
+
+E13PC_X = sp.Symbol("x")
+E13PC_L = {n: sp.Symbol(n) for n in "abckp"}
+E13PC_UC, E13PC_SC = "SL5.3.unknown-coefficients#", "SL5.8.stationary-point-conditions#"
+E13PC_NUM = r"−?\d+(?:/\d+)?"
+E13PC_LIMIT, E13PC_LETTER, E13PC_GIVEN = 30, 9, 99
+
+
+def E13PC_expr(text):
+    """'kx³ − 4x − 3', '3ax² + b', '12a − 4b' as SymPy, the letters as symbols."""
+    t = text.strip().replace("−", "-").replace("²", "**2").replace("³", "**3")
+    t = re.sub(r"(\d)([a-z(])", r"\1*\2", t)
+    t = re.sub(r"([abckp])x", r"\1*x", t)
+    t = re.sub(r"([abckp])\(", r"\1*(", t)
+    t = re.sub(r"\)\(", r")*(", t)
+    need(re.fullmatch(r"[0-9abckpx*+\-/() ]+", t) is not None, f"can't read {text!r}")
+    return sp.expand(parse_expr(t, local_dict={"x": E13PC_X, **E13PC_L}))
+
+
+def E13PC_n(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def E13PC_read(q):
+    """(f, the letters, the conditions as a dict) from the question's lines."""
+    u, rep, L = q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    N = E13PC_NUM
+    c = {}
+    if rep == "words":
+        pats = {
+            "k-from-gradient": rf"The curve y = (.+) has gradient ({N}) at the point where x = ({N})\.",
+            "two-from-gradient-and-point": rf"The curve y = (.+) passes through the point \(({N}), ({N})\), where its gradient is ({N})\.",
+            "two-gradients": rf"The gradient of the curve y = (.+) is ({N}) where x = ({N}), and ({N}) where x = ({N})\.",
+            "from-tangent": rf"The line y = (.+) is the tangent to the curve y = (.+) at the point where x = ({N})\.",
+            "k-from-stationary-x": rf"The curve y = (.+) has a stationary point where x = ({N})\.",
+            "two-from-stationary-point": rf"The curve y = (.+) has a stationary point at \(({N}), ({N})\)\.",
+            "k-from-inflexion": rf"The curve y = (.+) has a point of inflexion where x = ({N})\.",
+            "two-from-two-stationary": rf"The curve y = (.+) has stationary points where x = ({N}) and where x = ({N})\.",
+        }
+        need(len(L) == 1, "a words question is one line")
+        m = re.fullmatch(pats[u], L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        g = m.groups()
+        if u == "from-tangent":
+            f, rest = g[1], [g[0], g[2]]
+        else:
+            f, rest = g[0], list(g[1:])
+        if u == "k-from-gradient":
+            c = {"m": E13PC_n(rest[0]), "x0": E13PC_n(rest[1])}
+        elif u == "two-from-gradient-and-point":
+            c = {"x0": E13PC_n(rest[0]), "y0": E13PC_n(rest[1]), "m": E13PC_n(rest[2])}
+        elif u == "two-gradients":
+            c = {"m": E13PC_n(rest[0]), "x0": E13PC_n(rest[1]), "m1": E13PC_n(rest[2]), "x1": E13PC_n(rest[3])}
+        elif u == "from-tangent":
+            c = {"line": E13PC_expr(rest[0]), "x0": E13PC_n(rest[1])}
+        elif u in ("k-from-stationary-x", "k-from-inflexion"):
+            c = {"x0": E13PC_n(rest[0])}
+        elif u == "two-from-stationary-point":
+            c = {"x0": E13PC_n(rest[0]), "y0": E13PC_n(rest[1])}
+        else:
+            c = {"x0": E13PC_n(rest[0]), "x1": E13PC_n(rest[1])}
+    else:
+        need(len(L) == 2, "an equation question is two lines")
+        m = re.fullmatch(r"f\(x\) = (.+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        f = m.group(1)
+        pats = {
+            "k-from-gradient": (rf"f′\(({N})\) = ({N})\.", ("x0", "m")),
+            "two-from-gradient-and-point": (rf"f′\(({N})\) = ({N}) and f\(({N})\) = ({N})\.", ("x0", "m", "x0b", "y0")),
+            "two-gradients": (rf"f′\(({N})\) = ({N}) and f′\(({N})\) = ({N})\.", ("x0", "m", "x1", "m1")),
+            "from-tangent": (rf"The tangent to y = f\(x\) at x = ({N}) is y = (.+)\.", ("x0", "line")),
+            "k-from-stationary-x": (rf"The graph of f has a stationary point at x = ({N})\.", ("x0",)),
+            "two-from-stationary-point": (rf"The graph of f has a stationary point at \(({N}), ({N})\)\.", ("x0", "y0")),
+            "k-from-inflexion": (rf"The graph of f has a point of inflexion at x = ({N})\.", ("x0",)),
+            "two-from-two-stationary": (rf"The graph of f has stationary points at x = ({N}) and x = ({N})\.", ("x0", "x1")),
+        }
+        rx, names = pats[u]
+        m = re.fullmatch(rx, L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        for n, v in zip(names, m.groups()):
+            c[n] = E13PC_expr(v) if n == "line" else E13PC_n(v)
+        if "x0b" in c:
+            need(c.pop("x0b") == c["x0"], "the gradient and the point are at different x")
+    F = E13PC_expr(f)
+    letters = sorted((s for s in F.free_symbols if s != E13PC_X), key=lambda s: s.name)
+    return F, letters, c
+
+
+def E13PC_solve(eqs, letters):
+    sol = sp.solve(eqs, letters, dict=True)
+    need(len(sol) == 1 and all(l in sol[0] for l in letters), f"{eqs} do not fix {letters} once")
+    return [sp.Rational(sol[0][l]) for l in letters]
+
+
+def E13PC_text(letters, vals):
+    return ", ".join(f"{l.name} = {frac_text(v)}" for l, v in zip(letters, vals))
+
+
+def E13PC_at(e, x):
+    return sp.expand(e.subs(E13PC_X, x))
+
+
+def E13PC_conditions(u, F, c):
+    """The true equations, each (expression, value)."""
+    X = E13PC_X
+    d1, d2 = sp.diff(F, X), sp.diff(F, X, 2)
+    x0 = c["x0"]
+    if u == "k-from-gradient":
+        return [(E13PC_at(d1, x0), c["m"])]
+    if u == "two-from-gradient-and-point":
+        return [(E13PC_at(d1, x0), c["m"]), (E13PC_at(F, x0), c["y0"])]
+    if u == "two-gradients":
+        return [(E13PC_at(d1, x0), c["m"]), (E13PC_at(d1, c["x1"]), c["m1"])]
+    if u == "from-tangent":
+        line = sp.Poly(c["line"], X)
+        need(line.degree() == 1, "the tangent is not a line")
+        return [(E13PC_at(d1, x0), line.coeff_monomial(X)), (E13PC_at(F, x0), E13PC_at(c["line"], x0))]
+    if u == "k-from-stationary-x":
+        return [(E13PC_at(d1, x0), 0)]
+    if u == "two-from-stationary-point":
+        return [(E13PC_at(d1, x0), 0), (E13PC_at(F, x0), c["y0"])]
+    if u == "k-from-inflexion":
+        return [(E13PC_at(d2, x0), 0)]
+    return [(E13PC_at(d1, x0), 0), (E13PC_at(d1, c["x1"]), 0)]
+
+
+def E13PC_slips(u, F, c, letters):
+    """ref -> the texts its slip gives."""
+    X = E13PC_X
+    d1 = sp.diff(F, X)
+    x0 = c["x0"]
+    out = {}
+
+    def add(ref, eqs):
+        try:
+            vals = E13PC_solve(eqs, letters)
+        except Fail:
+            return
+        out[ref] = {E13PC_text(letters, vals)}
+
+    if u == "k-from-gradient":
+        add(E13PC_UC + "0", [sp.Eq(E13PC_at(F, x0), c["m"])])
+    elif u == "two-from-gradient-and-point":
+        add(E13PC_UC + "0", [sp.Eq(E13PC_at(F, x0), c["m"]), sp.Eq(E13PC_at(d1, x0), c["y0"])])
+    elif u == "two-gradients":
+        add(E13PC_UC + "0", [sp.Eq(E13PC_at(F, x0), c["m"]), sp.Eq(E13PC_at(F, c["x1"]), c["m1"])])
+    elif u == "from-tangent":
+        line = sp.Poly(c["line"], X)
+        add("t5-ext-unknown-coefficients#2", [sp.Eq(E13PC_at(d1, x0), line.coeff_monomial(X)), sp.Eq(E13PC_at(F, x0), line.coeff_monomial(1))])
+    elif u == "k-from-stationary-x":
+        add(E13PC_SC + "0", [sp.Eq(E13PC_at(F, x0), 0)])
+    elif u == "two-from-stationary-point":
+        add(E13PC_SC + "2", [sp.Eq(E13PC_at(d1, c["y0"]), 0), sp.Eq(E13PC_at(F, x0), c["y0"])])
+    elif u == "k-from-inflexion":
+        add("t5-ext-stationary-conditions#3", [sp.Eq(E13PC_at(d1, x0), 0)])
+    else:
+        lead = sp.Poly(F, X).LC()
+        bc = sp.Poly(sp.expand(lead * (X - x0) * (X - c["x1"])), X).all_coeffs()
+        b, cc = letters
+        add("t5-ext-stationary-conditions#4", [sp.Eq(sp.Poly(d1, X).coeff_monomial(X), bc[1]), sp.Eq(sp.Poly(d1, X).coeff_monomial(1), bc[2])])
+    return out
+
+
+def E13PC_clean(F, letters, vals, c):
+    X = E13PC_X
+    full = sp.Poly(sp.expand(F.subs(dict(zip(letters, vals)))), X)
+    for l, v in zip(letters, vals):
+        need(v.q == 1 and v != 0 and abs(v) <= E13PC_LETTER, f"{l} = {v} is not a small nonzero whole number")
+    for coef in sp.Poly(F, X, *letters).coeffs():
+        need(coef.is_integer and abs(coef) <= E13PC_LIMIT, f"the coefficient {coef} is not a small whole number")
+    for k in ("m", "y0", "m1"):
+        if k in c:
+            need(abs(c[k]) <= E13PC_GIVEN, f"{k} = {c[k]} is too big to work by hand")
+    need(c["x0"] != 0 and c["x0"].q == 1, "x0 is not a nonzero whole number")
+    return full
+
+
+def E13PC_eq_line(t, letters):
+    """'27a + b = 79' as an expression that is 0."""
+    m = re.fullmatch(r"(.+) = (.+)", t)
+    need(m is not None, f"no equation in {t!r}")
+    return sp.expand(E13PC_expr(m.group(1)) - E13PC_expr(m.group(2)))
+
+
+E13PC_LIN = r"−?\d*[abckp](?: [+−] \d*[abckp])*(?: [+−] \d+)? = −?\d+(?:/\d+)?"
+
+
+def E13PC_working(q, F, letters, vals, c, u):
+    """Every derivative the working states is SymPy's, every equation holds for the answer, and an
+    equation a condition "gives" is that condition with its number moved across."""
+    X = E13PC_X
+    d1, d2 = sp.expand(sp.diff(F, X)), sp.expand(sp.diff(F, X, 2))
+    true_eqs = [sp.expand(e - v) for e, v in E13PC_conditions(u, F, c)]
+    at = dict(zip(letters, vals))
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            m = re.search(r"f′\(x\) = (.+?)(?:\.$|, a quadratic)", st)
+            if m:
+                parts = m.group(1).split(" = ")
+                need(E13PC_expr(parts[0]) == d1 or (st.startswith("So ") and E13PC_expr(parts[0]) == sp.expand(d1.subs(at))),
+                     f"{sol['name']}: f′ is not {parts[0]!r}")
+                for p in parts[1:]:
+                    need(E13PC_expr(p) == sp.expand(d1.subs(at)), f"{sol['name']}: f′ is not {p!r}")
+            m = re.search(r"f″\(x\) = (.+)\.$", st)
+            if m:
+                need(E13PC_expr(m.group(1)) == d2, f"{sol['name']}: f″ is not {m.group(1)!r}")
+            for m in re.finditer(E13PC_LIN, st):
+                need(E13PC_eq_line(m.group(0), letters).subs(at) == 0, f"{sol['name']}: {m.group(0)!r} is false for the answer")
+            for m in re.finditer(rf"(?:gives |give |\d: |\d and )({E13PC_LIN})", st):
+                if re.fullmatch(r"[a-z] = .+", m.group(1)):
+                    continue
+                e = E13PC_eq_line(m.group(1), letters)
+                need(any(sp.expand(e - t) == 0 for t in true_eqs), f"{sol['name']}: {m.group(1)!r} is not one of the conditions")
+            m = re.fullmatch(r"f[′″]\((−?\d+)\) = ([^:]+) = (−?\d+)\.", st)
+            if m and " gives " not in st:
+                e = sp.expand(E13PC_expr(m.group(2)) - E13PC_n(m.group(3)))
+                need(any(sp.expand(e - t) == 0 for t in true_eqs), f"{sol['name']}: {st!r} is not the condition")
+            m = re.search(r"f[′″]\((−?\d+)\) = 0: (.+) = 0\.$", st)
+            if m:
+                need(any(sp.expand(E13PC_expr(m.group(2)) - t) == 0 for t in true_eqs), f"{sol['name']}: {st!r} is not the condition")
+
+
+def E13PC_check(q):
+    u, angle = q["view"]["unknown"], q["view"]["angle"]
+    F, letters, c = E13PC_read(q)
+    want_letters = {"k-from-gradient": "k", "k-from-stationary-x": "k", "k-from-inflexion": "p", "two-from-two-stationary": "bc"}.get(u, "ab")
+    need("".join(l.name for l in letters) == want_letters, f"the letters are {letters}")
+    need(q["paper"] == (2 if angle.startswith("gdc-") else 1), f"Paper {q['paper']} for {angle}")
+    conds = E13PC_conditions(u, F, c)
+    vals = E13PC_solve([sp.Eq(e, v) for e, v in conds], letters)
+    full = E13PC_clean(F, letters, vals, c)
+    X = E13PC_X
+    if u in ("k-from-stationary-x", "two-from-stationary-point", "two-from-two-stationary"):
+        d = sp.diff(full.as_expr(), X)
+        for x in [c["x0"]] + ([c["x1"]] if "x1" in c else []):
+            need(d.subs(X, x) == 0, "not a stationary point")
+    if u == "k-from-inflexion":
+        d2 = sp.diff(full.as_expr(), X, 2)
+        need(d2.subs(X, c["x0"]) == 0 and d2.subs(X, c["x0"] - 1) * d2.subs(X, c["x0"] + 1) < 0, "f″ doesn't change sign there")
+    if u == "two-from-stationary-point":
+        need(full.as_expr().subs(X, c["x0"]) == c["y0"], "the point is not on the curve")
+    if u == "from-tangent":
+        line = c["line"]
+        need(sp.expand(full.as_expr() - line).subs(X, c["x0"]) == 0 and sp.diff(full.as_expr() - line, X).subs(X, c["x0"]) == 0, "the line is not the tangent")
+    if len(letters) == 1:
+        want = f"{letters[0].name} = {frac_text(vals[0])}"
+    else:
+        want = E13PC_text(letters, vals)
+    gc_check_common(q, want, E13PC_slips(u, F, c, letters))
+    E13PC_working(q, F, letters, vals, c, u)
+    return None, None
+
+
+def E13PC_spot(q, lines):
+    """The first line of a student's working that is false for the true curve."""
+    u = q["view"]["unknown"]
+    F, letters, c = E13PC_read(q)
+    X = E13PC_X
+    conds = E13PC_conditions(u, F, c)
+    vals = E13PC_solve([sp.Eq(e, v) for e, v in conds], letters)
+    true_eqs = [sp.expand(e - v) for e, v in conds]
+    d1 = sp.diff(F, X)
+    N = E13PC_NUM
+    for i, t in enumerate(lines):
+        if re.fullmatch(rf"f′\(({N})\) = 0 has many solutions; take a = ({N}), so b = ({N})", t):
+            ok = False  # one equation can't fix two unknowns, whatever is picked
+        elif (m := re.fullmatch(r"f′\(x\) = (.+)", t)):
+            ok = E13PC_expr(m.group(1)) == d1
+        elif (m := re.fullmatch(rf"f′\(({N})\) = ([^g]+) = ({N})", t)):
+            ok = E13PC_expr(m.group(2)) == E13PC_at(d1, E13PC_n(m.group(1))) and any(
+                sp.expand(E13PC_expr(m.group(2)) - E13PC_n(m.group(3)) - e) == 0 for e in true_eqs)
+        elif (m := re.fullmatch(rf"(f′?)\(({N})\) = ({N}) gives (.+)", t)):
+            g = d1 if m.group(1) == "f′" else F
+            want = sp.expand(E13PC_at(g, E13PC_n(m.group(2))) - E13PC_n(m.group(3)))
+            ok = any(sp.expand(want - e) == 0 for e in true_eqs) and sp.expand(E13PC_eq_line(m.group(4), letters) - want) == 0
+        elif (m := re.fullmatch(rf"The gradient at x = ({N}) is f′\(({N})\), so f′\(({N})\) = ({N})", t)):
+            ok = len({m.group(1), m.group(2), m.group(3)}) == 1 and E13PC_n(m.group(1)) == c["x0"] and E13PC_n(m.group(4)) == c["m"]
+        elif (m := re.fullmatch(rf"The point \(({N}), ({N})\) is on the curve, and f′\(({N})\) = 0", t)):
+            ok = (E13PC_n(m.group(1)), E13PC_n(m.group(2))) == (c["x0"], c["y0"]) and E13PC_n(m.group(3)) == c["x0"]
+        elif (m := re.fullmatch(r"So f\(x\) = (.+)", t)):
+            ok = E13PC_expr(m.group(1)) == sp.expand(F.subs(dict(zip(letters, vals))))
+        elif (m := re.fullmatch(rf"([a-z]) = ({N})(?:, ([a-z]) = ({N}))?", t)):
+            got = {m.group(1): E13PC_n(m.group(2))}
+            if m.group(3):
+                got[m.group(3)] = E13PC_n(m.group(4))
+            ok = got == {l.name: v for l, v in zip(letters, vals)}
+        else:
+            e = E13PC_eq_line(t, letters)
+            ok = e.subs(dict(zip(letters, vals))) == 0
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["polynomial-conditions"] = E13PC_check
+SPOT_CHECKS["polynomial-conditions"] = E13PC_spot
+
+# ── end polynomial-conditions ──
+
+
+# ── E13 writers (FAL-776) ─────────────────────────────────────
+# The checker's own copy of how the game writes a sum of terms (DifferentiationViews.SUM and
+# Fmt.lead, Fmt.poly, Fmt.factor), for the E13 types' statements.
+
+E13_SUPS = str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻")
+
+
+def E13_lead(v):
+    v = sp.Rational(v)
+    if v == 1:
+        return ""
+    if v == -1:
+        return "−"
+    if v == sp.Rational(1, 2):
+        return "½"
+    if v == sp.Rational(-1, 2):
+        return "−½"
+    if v.q == 1:
+        return frac_text(v)
+    return ("−" if v < 0 else "") + f"({frac_text(abs(v))})"
+
+
+def E13_T(c, body):
+    c = sp.Rational(c)
+    if body == "" or body.startswith("/"):
+        return frac_text(c) + body
+    head = E13_lead(c)
+    if any(body.startswith(w) for w in ("ln", "sin", "cos")) and head not in ("", "−"):
+        return head + " " + body
+    return head + body
+
+
+def E13_sum(terms):
+    out = ""
+    for c, body in terms:
+        c = sp.Rational(c)
+        if c == 0:
+            continue
+        t = E13_T(abs(c), body)
+        out += (("−" if c < 0 else "") if out == "" else (" − " if c < 0 else " + ")) + t
+    return out or "0"
+
+
+def E13_sup(p):
+    p = int(p)
+    return "" if p == 1 else str(p).translate(E13_SUPS)
+
+
+def E13_poly(coeffs, letter="x"):
+    n = len(coeffs) - 1
+    return E13_sum([(c, "" if n - i == 0 else letter + E13_sup(n - i)) for i, c in enumerate(coeffs)])
+
+
+def E13_factor(r):
+    r = sp.Rational(r)
+    return "x" if r == 0 else f"(x {'+' if r < 0 else '−'} {frac_text(abs(r))})"
+
+
+def E13_expr(text, extra=()):
+    """The game's way of writing an expression in x, as SymPy (e^x, e^(2x), ln x, 3/x², (x + 1)²)."""
+    t = text.strip()
+    t = t.replace("ln x", "log(x)")
+    return sp.expand(calc_expr(t))
+
+
+# ── always-increasing (t5-ext-always-increasing, FAL-776) ─────
+# f is read back from its line and differentiated by SymPy. Each statement the answer could be
+# is written here from the checker's own f′: the right one for the asked method, the tagged slips
+# and the plain ones, and every option must be one of them. A quadratic f′ is completed and its
+# discriminant found here; on Paper 2 the least value of f′ is where f″ = 0, at 40 digits.
+
+E13AI_SK = "SL5.2.show-always-increasing#"
+E13AI_X = sp.Symbol("x")
+
+
+def E13AI_vertex(A, h, K):
+    return E13_sum([(A, E13_factor(h) + "²"), (K, "")])
+
+
+def E13AI_quad(q, angle, g, f):
+    X = CX
+    d = sp.Poly(sp.diff(f, X), X)
+    need(d.degree() == 2, "f′ is not a quadratic")
+    A, B, C = d.all_coeffs()
+    up = g == "f"
+    need((A > 0) == up and A % 3 == 0 and abs(A) in (3, 6), f"the x² coefficient of {g}′ is {A}")
+    h = -B / (2 * A)
+    need(h.q == 1 and h != 0 and abs(h) <= 3, f"the vertex of {g}′ is at {h}")
+    K = C - B**2 / (4 * A)
+    need(K.q == 1 and (K > 0) == up and 1 <= abs(K) <= 9, f"the least or greatest value of {g}′ is {K}")
+    delta = B**2 - 4 * A * C
+    need(delta < 0, "the discriminant is not negative")
+    sign, word, end = (">", "positive", f"f′(x) > 0 for all x") if up else ("<", "negative", f"g′(x) < 0 for all x")
+    ends = (lambda k: f"≥ {frac_text(k)} > 0 for all x, so f is increasing") if up else (lambda k: f"≤ {frac_text(k)} < 0 for all x, so g is decreasing")
+    cs = f"{g}′(x) = {E13AI_vertex(A, h, K)} {ends(K)}"
+    disc = f"{g}′(x) = {E13_poly([A, B, C])} has discriminant {frac_text(delta)} < 0 and a {word} x² coefficient, so {end}"
+    strict = f"{g}′(x) = {E13AI_vertex(A, h, K)} {sign} {frac_text(K)} for all x, so {g} is {'increasing' if up else 'decreasing'}"
+    k_slip = K + (1 if up else -1) * (abs(A) - 1) * h**2
+    cs_slip = f"{g}′(x) = {E13AI_vertex(A, h, k_slip)} {ends(k_slip)}"
+    disc_slip = f"{g}′(x) = {E13_poly([A, B, C])} has discriminant {frac_text((B / 2)**2 - 4 * A * C)} < 0 and a {word} x² coefficient, so {end}"
+    pts = set()
+    for o in q["choices"]:
+        m = re.fullmatch(rf"{g}′\((−?\d+)\) = (−?\d+) and {g}′\((−?\d+)\) = (−?\d+) are both {word}, so {re.escape(end)}", o["text"])
+        if m:
+            x1, v1, x2, v2 = (E13PC_n(t) for t in m.groups())
+            if x2 == x1 + 2 and v1 == d.eval(x1) and v2 == d.eval(x2):
+                pts.add(o["text"])
+    right = cs if angle == "complete-square" else disc
+    return right, {E13AI_SK + "0": pts, E13AI_SK + "2": {strict}}, {cs_slip, disc_slip}, (A, B, C, h, K, delta)
+
+
+def E13AI_claims(terms, strict):
+    (c0, b0), (c1, _), (c2, b2) = terms
+    return f"{E13_T(c0, b0)} {'>' if strict else '≥'} 0, {frac_text(c1)} > 0 and {E13_T(c2, b2)} > 0"
+
+
+def E13AI_E(s):
+    return "e^x" if s == 1 else f"e^({s}x)"
+
+
+def E13AI_check(q):
+    u, angle, L = q["view"]["unknown"], q["view"]["angle"], q["lines"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    X = CX
+    need(q["paper"] == (2 if u == "gdc-minimum" else 1), f"Paper {q['paper']}")
+    tagged, plain = {}, set()
+    if u in ("quadratic-derivative", "decreasing-quadratic"):
+        g = "f" if u == "quadratic-derivative" else "g"
+        m = re.fullmatch(rf"{g}\(x\) = (.+)", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        f = E13PC_expr(m.group(1))
+        right, tagged, plain, (A, B, C, h, K, delta) = E13AI_quad(q, angle, g, f)
+        for sol in q["solutions"]:
+            for st in sol["steps"]:
+                for part in re.findall(rf"{g}′\(x\) = ([^,.]+?)(?=\.$|, a quadratic| ≥| ≤| has)", st):
+                    for side in part.split(" = "):
+                        need(E13PC_expr(side) == sp.expand(A * X**2 + B * X + C), f"{sol['name']}: {side!r} is not {g}′(x)")
+                mm = re.search(r"Δ = b² − 4ac = (.+) = (−?\d+)\.$", st)
+                if mm:
+                    need(E13PC_n(mm.group(2)) == delta and sp.sympify(mm.group(1).replace("−", "-").replace("²", "**2").replace("×", "*")) == delta, f"{sol['name']}: {st!r}")
+    elif u == "sum-of-terms":
+        m = re.fullmatch(r"f\(x\) = (\d*)x³ \+ (\d*)x \+ (\d*)e\^(?:x|\((\d)x\))", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        p, qq, r = (int(t) if t else 1 for t in m.groups()[:3])
+        s = int(m.group(4) or 1)
+        need(s in (2, 3) if m.group(4) else True, "e^(1x)")
+        need(1 <= p <= 3 and 1 <= qq <= 9 and 1 <= r <= 4, f"f(x) = {m.group(1)}")
+        f = p * X**3 + qq * X + r * sp.exp(s * X)
+        d = sp.diff(f, X)
+        need(sp.simplify(d - (3 * p * X**2 + qq + r * s * sp.exp(s * X))) == 0, "f′")
+        t = [(3 * p, "x²"), (qq, ""), (r * s, E13AI_E(s))]
+        fp = E13_sum(t)
+        right = f"{E13AI_claims(t, False)}, so f′(x) = {fp} > 0 for all x"
+        f1 = E13_sum([(3 * p + qq, ""), (r * s, "e" + E13_sup(s))])
+        need(sp.simplify(d.subs(X, 1) - (3 * p + qq + r * s * sp.E**s)) == 0, "f′(1)")
+        tagged = {E13AI_SK + "0": {f"f′(0) = {qq + r * s} and f′(1) = {f1} are both positive, so f′(x) > 0 for all x"},
+                  E13AI_SK + "1": {f"{L[0][7:]} > 0 for all x, so f is increasing"},
+                  E13AI_SK + "2": {f"{E13AI_claims(t, True)}, so f′(x) = {fp} > 0 for all x"}}
+        st = [(3 * p, "x²"), (qq, ""), (r, E13AI_E(s))] if s > 1 else [(p, "x²"), (qq, ""), (r, E13AI_E(s))]
+        plain = {f"{E13AI_claims(st, False)}, so f′(x) = {E13_sum(st)} > 0 for all x"}
+    elif u == "inverse-exists":
+        m = re.fullmatch(r"f\(x\) = (\d*)x² \+ (\d*) ?ln x, for x > 0", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        a, b = (int(t) if t else 1 for t in m.groups())
+        need(1 <= a <= 4 and 1 <= b <= 9, "a or b")
+        d = sp.diff(a * X**2 + b * sp.log(X), X)
+        need(sp.simplify(d - (2 * a * X + b / X)) == 0, "f′")
+        fp = E13_sum([(2 * a, "x"), (b, "/x")])
+        right = f"For x > 0, {E13_T(2 * a, 'x')} > 0 and {E13_T(b, '/x')} > 0, so f′(x) = {fp} > 0: f is increasing, so it is one-to-one and has an inverse"
+        tagged = {E13AI_SK + "0": {f"f′(1) = {frac_text(d.subs(X, 1))} and f′(2) = {frac_text(d.subs(X, 2))} are both positive, so f is increasing and has an inverse"},
+                  E13AI_SK + "1": {f"{E13_T(a, 'x²')} > 0 and {E13_T(b, 'ln x')} > 0 for x > 0, so f(x) > 0 and f has an inverse"}}
+        plain = {f"For x > 0, {E13_T(2 * a, 'x')} > 0 and {E13_T(b, '/x²')} > 0, so f′(x) = {E13_sum([(2 * a, 'x'), (b, '/x²')])} > 0: f is increasing, so it is one-to-one and has an inverse"}
+    else:
+        m = re.fullmatch(r"f\(x\) = (\d*)e\^x − (\d*)x²(?: ([+−]) (\d*)x)?", L[0])
+        need(m is not None and len(L) == (2 if q["view"]["rep"] == "graph" else 1), f"can't read {L}")
+        A = int(m.group(1) or 1)
+        B = int(m.group(2) or 1)
+        n = (int(m.group(4) or 1) * (-1 if m.group(3) == "−" else 1)) if m.group(3) else 0
+        f = A * sp.exp(X) - B * X**2 + n * X
+        d = sp.diff(f, X)
+        xs = sp.solve(sp.diff(d, X), X)
+        need(len(xs) == 1, "f′ has no single least value")
+        xm = xs[0]
+        need(sp.diff(d, X, 2).subs(X, xm) > 0, "not a minimum")
+        v = sp.N(d.subs(X, xm), 40)
+        need(v > sp.Rational(1, 10) and not on_edge(v) and not on_edge(abs(sp.N(xm, 40))), f"least value {v}")
+        right = f"The GDC shows the least value of f′(x) is {gc_s(v)}, at x = {gc_s(sp.N(xm, 40))}, so f′(x) > 0 for all x"
+        f1 = sp.N(d.subs(X, 1), 40)
+        need(f1 > 0 and d.subs(X, 0) > 0, "a tested value is not positive")
+        tagged = {E13AI_SK + "0": {f"f′(0) = {d.subs(X, 0)} and f′(1) = {gc_s(f1)} are both positive, so f′(x) > 0 for all x"}}
+        plain = {f"The GDC shows the least value of f′(x) is {d.subs(X, 0)}, at x = 0, so f′(x) > 0 for all x",
+                 f"The GDC shows f′(x) = 0 at x = {gc_s(sp.N(xm, 40))}, so f has a stationary point there"}
+        if q["view"]["rep"] == "graph":
+            dl = sp.lambdify(X, d, "math")
+            for x, y in q["graph"]["curves"][0][::11]:
+                need(abs(dl(x) - y) < 1e-6, "the graph is not y = f′(x)")
+    gc_check_common(q, right, tagged)
+    for o in q["choices"]:
+        if not o["correct"] and not o["ref"]:
+            need(o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
+    return None, None
+
+
+def E13AI_claim_true(t, domain_pos):
+    """Whether 'T ≥ 0' or 'T > 0' holds for every x (every x > 0 with domain_pos)."""
+    X = CX
+    m = re.fullmatch(r"(.+) (≥|>) 0", t)
+    need(m is not None, f"no claim in {t!r}")
+    e = E13_expr(m.group(1))
+    dom = sp.Interval.open(0, sp.oo) if domain_pos else sp.S.Reals
+    bad = sp.solve_univariate_inequality(e < 0 if m.group(2) == "≥" else e <= 0, X, relational=False, domain=dom)
+    return bad == sp.S.EmptySet
+
+
+def E13AI_spot(q, lines):
+    u, L = q["view"]["unknown"], q["lines"]
+    L = L[:L.index("A student's working:")]
+    X = CX
+    if u in ("quadratic-derivative", "decreasing-quadratic"):
+        g = "f" if u == "quadratic-derivative" else "g"
+        d = sp.diff(E13PC_expr(re.fullmatch(rf"{g}\(x\) = (.+)", L[0]).group(1)), X)
+        A, B, C = sp.Poly(d, X).all_coeffs()
+        top = C - B**2 / (4 * A)
+        for i, t in enumerate(lines):
+            t = re.sub(rf"^{g}′\(x\) ", "", t)
+            m = re.fullmatch(r"(?:= (.+?) )?(≥|≤) (−?\d+) (>|<) 0, so .+", t)
+            if m:
+                ok = (m.group(1) is None or E13PC_expr(m.group(1)) == sp.expand(d)) and E13PC_n(m.group(3)) == top
+            else:
+                ok = E13PC_expr(t.removeprefix("= ")) == sp.expand(d)
+            if not ok:
+                return i
+        return None
+    if u == "sum-of-terms":
+        f = E13_expr(L[0][len("f(x) = "):])
+        dom = False
+    else:
+        f = E13_expr(re.fullmatch(r"f\(x\) = (.+), for x > 0", L[0]).group(1))
+        dom = True
+    d = sp.diff(f, X)
+    for i, t in enumerate(lines):
+        if (m := re.fullmatch(r"f′\(x\) = (.+)", t)):
+            ok = sp.simplify(E13_expr(m.group(1)) - d) == 0
+        elif (m := re.fullmatch(r"f\(x\) = (.+?)(?: is defined for x > 0)?", t)):
+            ok = sp.simplify(E13_expr(m.group(1)) - f) == 0
+        elif t in ("So f′(x) > 0 for all x", "So f is increasing for all x"):
+            ok = not dom  # the conclusions of a sum of terms that really are positive
+        elif t in ("So f′(x) > 0 for x > 0", "So f is one-to-one and has an inverse"):
+            ok = dom
+        else:
+            body = t.removeprefix("For x > 0, ")
+            parts = re.split(r", | and ", body)
+            ok = all(E13AI_claim_true(p, dom) for p in parts)
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["always-increasing"] = E13AI_check
+SPOT_CHECKS["always-increasing"] = E13AI_spot
+
+# ── end always-increasing ──
+
+
+# ── hence-integral (t5-ext-hence-integral, FAL-776) ───────────
+# Every option is read back as an expression and judged by SymPy, not compared with the
+# engine's wording: the given derivative result is differentiated again, the right option must
+# differentiate to the integrand (with + C) or equal the exact integral, every other option must
+# not, and each tagged option must be its slip worked out here: a multiple of the derivative
+# result itself, a multiple of F with the extra term left in, the antiderivative without + C, or
+# F times the factor that should have been divided out.
+
+E13HI_SK = "SL5.10.hence-from-derivative#"
+E13HI_X = sp.Symbol("x")
+
+
+def E13HI_e(t):
+    return sp.expand(calc_expr(t.removesuffix(" + C")).subs(sp.Symbol("e"), sp.E))
+
+
+def E13HI_same(a, b):
+    return sp.simplify(sp.expand_log(sp.expand(a - b), force=True)) == 0
+
+
+def E13HI_const(a, b):
+    """a/b when it is a nonzero rational number, else None."""
+    if b == 0:
+        return None
+    r = sp.simplify(a / b)
+    return r if r.is_Rational and r != 0 else None
+
+
+def E13HI_coeff(t):
+    """The number written in front of an expression: 9 in '9x(x² + 2)³', 1 in 'ln x + 1'."""
+    m = re.match(r"(\d+) ?(?=[a-z(])", t)
+    return sp.Integer(m.group(1)) if m and not re.match(r"\d+ ?[+−]", t) else sp.Integer(1)
+
+
+def E13HI_result(line):
+    m = re.fullmatch(r"d/dx \((.+)\) = (.+)", line)
+    need(m is not None, f"can't read the result {line!r}")
+    F, G = E13HI_e(m.group(1)), E13HI_e(m.group(2))
+    need(E13HI_same(sp.diff(F, E13HI_X), G), f"the result {line!r} is false")
+    return F, G
+
+
+def E13HI_standard(term):
+    X = E13HI_X
+    fs = sp.Mul.make_args(term)
+    trans = any(f.has(sp.exp, sp.sin, sp.cos, sp.log) for f in fs)
+    xpow = any(f == X or (f.is_Pow and f.base == X and f.exp > 0) for f in fs)
+    return not (trans and xpow)
+
+
+def E13HI_helps(G, g):
+    for t in sp.Add.make_args(sp.expand(G)):
+        if E13HI_const(t, g) is not None:
+            return all(E13HI_standard(r) for r in sp.Add.make_args(sp.expand(G - t)) if r != 0)
+    return False
+
+
+def E13HI_check(q):
+    u, L, asked, ch = q["view"]["unknown"], q["lines"], q["asked"], q["choices"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    X = E13HI_X
+    need(q["paper"] == 1, "a hence question has no calculator")
+    wr = defaultdict(set)
+    if u == "find-derivative":
+        m = re.fullmatch(r"Find d/dx \((.+)\)\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        F = E13HI_e(m.group(1))
+        v = sp.simplify(F / X)
+        d = sp.diff(F, X)
+        right = lambda e, o: E13HI_same(e, d)
+        slips = {"SL5.6.product-rule#0": [sp.diff(v, X)], "SL5.6.product-rule#1": [v, X * sp.diff(v, X)]}
+        for o in ch:
+            if o["ref"]:
+                need(any(E13HI_same(E13HI_e(o["text"]), s) for s in slips.get(o["ref"], [])), f"{o['text']!r} is not what {o['ref']} gives")
+                wr[o["ref"]].add(o["text"])
+    elif u == "pick-the-derivative":
+        m = re.fullmatch(r"Which derivative result helps to find ∫ (.+) dx\?", asked)
+        need(m is not None, f"asked {asked!r}")
+        g = E13HI_e(m.group(1))
+        helps = []
+        for o in ch:
+            F, G = E13HI_result(o["text"])
+            if E13HI_helps(G, g):
+                helps.append(o["text"])
+        need(len(helps) == 1, f"{len(helps)} results help: {helps}")
+        right = lambda e, o: o == helps[0]
+    else:
+        F, G = E13HI_result(L[0])
+        if u == "hence-definite":
+            m = re.fullmatch(r"Hence find the exact value of ∫ from (\d+) to (\d+) of (.+) dx\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            a, b, g = int(m.group(1)), int(m.group(2)), E13HI_e(m.group(3))
+            V = sp.integrate(g, (X, a, b))
+            r = E13HI_coeff(m.group(3)) / E13HI_coeff(L[0].split(" = ", 1)[1])
+            right = lambda e, o: E13HI_same(e, V)
+            slips = {E13HI_SK + "0": r * (G.subs(X, b) - G.subs(X, a)), E13HI_SK + "1": r * (F.subs(X, b) - F.subs(X, a)),
+                     "t5-ext-hence-integral#5": E13HI_coeff(m.group(3)) * (F.subs(X, b) - F.subs(X, a))}
+            for o in ch:
+                if o["ref"]:
+                    need(E13HI_same(E13HI_e(o["text"]), slips[o["ref"]]), f"{o['text']!r} is not what {o['ref']} gives")
+                    wr[o["ref"]].add(o["text"])
+        else:
+            m = re.fullmatch(r"Hence find ∫ (.+) dx\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            g = E13HI_e(m.group(1))
+            right = lambda e, o: o.endswith(" + C") and E13HI_same(sp.diff(e, X), g)
+            for o in ch:
+                ref, e, c = o["ref"], E13HI_e(o["text"]), o["text"].endswith(" + C")
+                if not ref:
+                    continue
+                if ref == E13HI_SK + "0":
+                    ok = c and E13HI_const(e, G) is not None
+                elif ref == E13HI_SK + "1":
+                    ok = c and E13HI_const(e, F) is not None and not E13HI_same(sp.diff(e, X), g)
+                elif ref == E13HI_SK + "2":
+                    ok = not c and E13HI_same(sp.diff(e, X), g)
+                elif ref == "t5-ext-hence-integral#5":
+                    ok = c and E13HI_same(e, E13HI_coeff(m.group(1)) * F)
+                else:
+                    ok = False
+                need(ok, f"{o['text']!r} is not what {ref} gives")
+                wr[ref].add(o["text"])
+            if u == "adjust-factor":
+                need(E13HI_const(g, G) is not None, "the integrand is not a multiple of the result")
+            else:
+                need(E13HI_const(g, G) is None and E13HI_helps(G, g), "the integrand is not a term of the result")
+    rights = [o["text"] for o in ch if right(E13HI_e(o["text"]) if u != "pick-the-derivative" else None, o["text"])]
+    need(len(rights) == 1, f"{len(rights)} options are right: {rights}")
+    gc_check_common(q, rights[0], wr)
+    return None, None
+
+
+def E13HI_spot(q, lines):
+    X = E13HI_X
+    for i, t in enumerate(lines):
+        if (m := re.fullmatch(r"(?:Check: )?d/dx \((.+)\) = (.+)", t)):
+            ok = E13HI_same(sp.diff(E13HI_e(m.group(1)), X), E13HI_e(m.group(2)))
+        elif (m := re.fullmatch(r"(?:So )?∫ (.+) dx = (.+) \+ C", t)):
+            ok = E13HI_same(sp.diff(E13HI_e(m.group(2)), X), E13HI_e(m.group(1)))
+        elif (m := re.fullmatch(r"(.+) is (\d+(?:/\d+)?) times (.+)", t)):
+            ok = E13HI_same(E13HI_e(m.group(1)), sp.Rational(m.group(2)) * E13HI_e(m.group(3)))
+        else:
+            raise Fail(f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["hence-integral"] = E13HI_check
+SPOT_CHECKS["hence-integral"] = E13HI_spot
+
+# ── end hence-integral ──
+
+
+# ── integral-gdc (t5-ext-integral-gdc, FAL-776) ───────────────
+# The integrand and limits are read back from the lines, integrated by mpmath at 30 digits, and
+# each slip is made here from the integrand's own shape: limits swapped (the negative), degree
+# mode (every sin argument times π/180) and a bracket closed before the constant (h(inner) becomes
+# h(inner − c) + c). A GDC entry is read with the checker's calc_expr and compared with SymPy.
+
+E13IG_SK = "SL5.5.definite-integral-gdc#"
+E13IG_X = sp.Symbol("x")
+
+
+def E13IG_read(q):
+    L, asked = q["lines"], q["asked"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    m = re.fullmatch(r"The graph of y = (.+) is shown, with the region from x = (−?\d+) to x = (−?\d+) shaded\.", L[0])
+    if m:
+        t, a, b = m.groups()
+        need(asked == f"Find ∫ from {a} to {b} of {IntegrationViews_wrapped(t)} dx, to 3 s.f.", f"asked {asked!r}")
+    else:
+        m = re.fullmatch(r"∫ from (−?\d+) to (−?\d+) of (.+) dx", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        a, b, t = m.groups()
+    t = t[1:-1] if t.startswith("(") and t.endswith(")") and E13IG_balanced(t[1:-1]) else t
+    return E13IG_e(t), E13PC_n(a), E13PC_n(b), t
+
+
+def E13IG_e(t):
+    """An expression as written, not expanded (e^(x + 4) stays one exponential)."""
+    return calc_expr(t).subs(sp.Symbol("e"), sp.E)
+
+
+def E13IG_same(e1, e2, a, b):
+    """Whether two integrands agree on [a, b], at nine points (they are simple functions of x)."""
+    f1, f2 = sp.lambdify(E13IG_X, e1, "mpmath"), sp.lambdify(E13IG_X, e2, "mpmath")
+    for k in range(9):
+        x = mpmath.mpf(a) + (mpmath.mpf(b) - mpmath.mpf(a)) * (k + 0.5) / 9
+        if abs(f1(x) - f2(x)) > mpmath.mpf(10) ** -15 * max(1, abs(f1(x))):
+            return False
+    return True
+
+
+def E13IG_balanced(t):
+    d = 0
+    for ch in t:
+        d += 1 if ch == "(" else -1 if ch == ")" else 0
+        if d < 0:
+            return False
+    return d == 0
+
+
+def IntegrationViews_wrapped(t):
+    """The game's brackets round a sum (IntegrationViews.wrapped), the checker's own copy."""
+    d = 0
+    for i, ch in enumerate(t):
+        d += 1 if ch == "(" else -1 if ch == ")" else 0
+        if d == 0 and i > 0 and ch in "+−":
+            return f"({t})"
+    return t
+
+
+def E13IG_val(f, a, b):
+    g = sp.lambdify(E13IG_X, f, "mpmath")
+    with mpmath.workdps(30):
+        return sp.Float(mpmath.quad(g, [a, b]), 30)
+
+
+def E13IG_slip(f):
+    """The integrand with its bracket closed before the constant, or None."""
+    X = E13IG_X
+    if f.func in (sp.exp, sp.log) and f.args[0].is_Add:
+        inner = f.args[0]
+    elif f.is_Pow and f.base.is_Add:
+        inner = f.base
+    else:
+        return None
+    c = inner.as_coeff_Add()[0]
+    if c == 0:
+        return None
+    rest = inner - c
+    if f.is_Pow:
+        return sp.powdenest(rest**f.exp, force=True) + c
+    return f.func(rest) + c
+
+
+def E13IG_deg(f):
+    return f.replace(sp.sin, lambda a: sp.sin(a * sp.pi / 180)).replace(sp.cos, lambda a: sp.cos(a * sp.pi / 180))
+
+
+def E13IG_entry(t):
+    return E13IG_e(t)
+
+
+def E13IG_trig(f):
+    return f.has(sp.sin, sp.cos)
+
+
+def E13IG_check(q):
+    u, ch = q["view"]["unknown"], q["choices"]
+    need(q["paper"] == 2, "a GDC integral is Paper 2")
+    f, a, b, ftext = E13IG_read(q)
+    need(a < b and abs(b - a) <= 3, f"limits {a}, {b}")
+    v = E13IG_val(f, a, b)
+    need(not on_edge(abs(v)) and abs(v - sp.floor(v + sp.Rational(1, 2))) > sp.Rational(2, 100), f"{v} is not fair to 3 s.f.")
+    wr = {E13IG_SK + "1": {gc_s(-v)}}
+    if u == "polynomial-check":
+        f = sp.expand(f)
+        need(f.is_polynomial(E13IG_X), "not a polynomial")
+        V = sp.integrate(f, (E13IG_X, a, b))
+        need(sp.N(V - v, 20) == 0 or abs(sp.N(V - v, 20)) < 1e-20, "the GDC value is not the exact one")
+        for sol in q["solutions"]:
+            for st in sol["steps"]:
+                mm = re.fullmatch(r"F\(−?\d+\) − F\(−?\d+\) = .+ = (.+)\.", st)
+                if mm:
+                    need(E13PC_n(mm.group(1)) == V, f"{sol['name']}: {st!r}")
+                mm = re.fullmatch(r"F\(x\) = (.+)\.", st)
+                if mm:
+                    need(sp.expand(sp.diff(E13HI_e(mm.group(1)), E13IG_X) - f) == 0, f"{sol['name']}: F is not an antiderivative")
+    elif u == "gdc-value":
+        if E13IG_trig(f):
+            wr[E13IG_SK + "0"] = {gc_s(E13IG_val(E13IG_deg(f), a, b))}
+        else:
+            s = E13IG_slip(f)
+            need(s is not None, f"{ftext} has no bracket to slip")
+            wr[E13IG_SK + "2"] = {gc_s(E13IG_val(s, a, b))}
+        if q["view"]["rep"] == "graph":
+            fl = sp.lambdify(E13IG_X, f, "math")
+            for x, y in q["graph"]["curves"][0][::9]:
+                need(abs(fl(x) - y) < 1e-6, "the graph is not y = f(x)")
+            sh = q["graph"]["shade"][0]
+            need(abs(sh[0][0] - float(a)) < 1e-9 and abs(sh[-1][0] - float(b)) < 1e-9, "the shaded region is not from a to b")
+    if u in ("gdc-value", "polynomial-check"):
+        for sol in q["solutions"]:
+            for st in sol["steps"]:
+                mm = re.search(r"gives (−?[\d.]+)\.$", st)
+                if mm:
+                    need(abs(float(mm.group(1).replace("−", "-")) - float(v)) < 1e-5 * max(1, abs(float(v))), f"{sol['name']}: the GDC does not give {mm.group(1)}")
+                mm = re.match(r"(?:Enter|Graph y = )(?:f\(x\) = )?(\S+)", st)
+                if mm and "template" in st or st.startswith("Graph y = "):
+                    e = re.match(r"(?:Enter (?:f\(x\) = )?|Graph y = )(.+?)(?: in the GDC| on the GDC)", st).group(1)
+                    need(E13IG_same(E13IG_entry(e), f, a, b), f"{sol['name']}: the entry {e!r} is not the integrand")
+        gc_check_common(q, gc_s(v), wr, gc_s2(v))
+        return None, None
+    # which-entry
+    rx = r"Function (.+), lower limit (−?\d+), upper limit (−?\d+)(, radian mode|, degree mode)?"
+    trig = E13IG_trig(f)
+    rights, wr = [], defaultdict(set)
+    for o in ch:
+        m = re.fullmatch(rx, o["text"])
+        need(m is not None, f"can't read the entry {o['text']!r}")
+        e, lo, hi, mode = E13IG_entry(m.group(1)), E13PC_n(m.group(2)), E13PC_n(m.group(3)), m.group(4)
+        same = E13IG_same(e, f, a, b)
+        good_mode = (mode == ", radian mode") if trig else mode is None
+        if same and (lo, hi) == (a, b) and good_mode:
+            rights.append(o["text"])
+        if o["ref"] == E13IG_SK + "1":
+            need(same and (lo, hi) == (b, a) and good_mode, f"{o['text']!r} does not swap the limits")
+        elif o["ref"] == E13IG_SK + "0":
+            need(trig and same and (lo, hi) == (a, b) and mode == ", degree mode", f"{o['text']!r} is not degree mode")
+        elif o["ref"] == E13IG_SK + "2":
+            s = E13IG_slip(f)
+            need(s is not None and E13IG_same(e, s, a, b) and (lo, hi) == (a, b), f"{o['text']!r} is not the bracket slip")
+        if o["ref"]:
+            wr[o["ref"]].add(o["text"])
+    need(len(rights) == 1, f"{len(rights)} right entries")
+    gc_check_common(q, rights[0], wr)
+    return None, None
+
+
+def E13IG_spot(q, lines):
+    f, a, b, ftext = E13IG_read(q)
+    v = E13IG_val(f, a, b)
+    for i, t in enumerate(lines):
+        if (m := re.fullmatch(r"The integral is ∫ from (−?\d+) to (−?\d+) of (.+) dx", t)):
+            ok = (E13PC_n(m.group(1)), E13PC_n(m.group(2))) == (a, b) and E13IG_same(E13IG_e(m.group(3).strip("()") if E13IG_balanced(m.group(3)[1:-1]) else m.group(3)), f, a, b)
+        elif t in ("Mode: degrees", "Mode: radians"):
+            ok = t == "Mode: radians" or not E13IG_trig(f)
+        elif (m := re.fullmatch(r"Entered: (.+)", t)):
+            ok = E13IG_same(E13IG_entry(m.group(1)), f, a, b)
+        elif (m := re.fullmatch(r"Limits: lower (−?\d+), upper (−?\d+)", t)):
+            ok = (E13PC_n(m.group(1)), E13PC_n(m.group(2))) == (a, b)
+        elif (m := re.fullmatch(r"The GDC gives (\S+), so the integral is (\S+)", t)):
+            ok = m.group(1) == m.group(2) == gc_s(v)
+        else:
+            raise Fail(f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["integral-gdc"] = E13IG_check
+SPOT_CHECKS["integral-gdc"] = E13IG_spot
+
+# ── end integral-gdc ──
+
+
+# ── area-under-curve (t5-ext-area-under-curve, FAL-776) ───────
+# f and R's edges are read back from what the student sees: the shaded strips of the figure, or
+# the lines, axes and roots the words name (solved here with SymPy). The area is integrated again
+# exactly, or by mpmath for the Paper 2 curve, and f is checked to be positive inside R. Each
+# integral option is read back (limits and integrand) and judged; each tagged slip is worked out:
+# y-values as limits, the limits swapped, f′ as the integrand, F(lower) − F(upper), a lower limit
+# of 0 and roots rounded to 1 d.p.
+
+E13AU_SE, E13AU_SP = "SL5.5.area-expression#", "SL5.5.area-positive#"
+E13AU_X = sp.Symbol("x")
+
+
+def E13AU_f(t):
+    return E13IG_e(t)
+
+
+def E13AU_round1(x):
+    """x to 1 d.p., halves away from zero, as the engine's snappedf rounds."""
+    x = sp.Float(x, 30)
+    s = 1 if x >= 0 else -1
+    return s * sp.floor(abs(x) * 10 + sp.Rational(1, 2)) / 10
+
+
+def E13AU_positive(f, lo, hi):
+    X = E13AU_X
+    g = sp.lambdify(X, f, "mpmath")
+    for k in range(1, 40):
+        a, b = mpmath.mpf(str(sp.N(lo, 40))), mpmath.mpf(str(sp.N(hi, 40)))
+        x = a + (b - a) * k / 40
+        need(g(x) > 0, f"f is not above the x-axis at x = {x}")
+
+
+def E13AU_roots(f):
+    rs = sorted(sp.real_roots(sp.Poly(sp.expand(f), E13AU_X)), key=float)
+    need(len(rs) == 2 and rs[0] != rs[1], f"f has roots {rs}")
+    return rs
+
+
+def E13AU_edges_from_graph(q, f):
+    g = q["graph"]
+    sh = g["shade"]
+    need(len(sh) == 1, "R is not one shaded region")
+    lo, hi = sh[0][0][0], sh[0][-1][0]
+    fl = sp.lambdify(E13AU_X, f, "math")
+    for x, y0, y1 in sh[0][::7]:
+        need(abs(y0) < 1e-9 and abs(y1 - fl(x)) < 1e-6, "the shading is not between the curve and the x-axis")
+    for x, y in g["curves"][0][::13]:
+        need(abs(fl(x) - y) < 1e-6, "the curve drawn is not y = f(x)")
+    return sp.Rational(round(lo * 1000), 1000), sp.Rational(round(hi * 1000), 1000)
+
+
+def E13AU_read(q):
+    """f, the edges of R, and how R was described."""
+    u, rep, L = q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    X = E13AU_X
+    if rep == "graph":
+        m = re.fullmatch(r"The graph of (?:the line )?y = (.+) is shown\. R(?:, between the curve and the x-axis,)? is shaded\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        f = E13AU_f(m.group(1))
+        lo, hi = E13AU_edges_from_graph(q, f)
+        if "between the curve and the x-axis" in L[0]:
+            rs = E13AU_roots(f)
+            need((lo, hi) == (rs[0], rs[1]), "the shading is not between the roots")
+        return f, lo, hi, "graph"
+    if rep == "equation":
+        m = re.fullmatch(r"∫ from (−?\d+) to (−?\d+) of (.+) dx", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        t = m.group(3)
+        t = t[1:-1] if t.startswith("(") and E13IG_balanced(t[1:-1]) else t
+        return E13AU_f(t), E13PC_n(m.group(1)), E13PC_n(m.group(2)), "integral"
+    m = re.fullmatch(r"f\(x\) = (.+)", L[0])
+    need(m is not None and len(L) == 2, f"can't read {L}")
+    f = E13AU_f(m.group(1))
+    b = L[1]
+    if (m := re.fullmatch(r"R is the region enclosed by the (?:curve|line) y = f\(x\), the x-axis and the lines x = (−?\d+) and x = (−?\d+)\.", b)):
+        return f, E13PC_n(m.group(1)), E13PC_n(m.group(2)), "lines"
+    if b == "R is the region enclosed by the curve y = f(x) and the x-axis.":
+        rs = E13AU_roots(f)
+        return f, rs[0], rs[1], "roots"
+    if b == "R is the region bounded by the curve y = f(x), the x-axis and the y-axis, where x ≥ 0.":
+        rs = E13AU_roots(f)
+        need(rs[0] < 0 < rs[1], "the roots are not either side of the y-axis")
+        return f, sp.Integer(0), rs[1], "y-axis"
+    raise Fail(f"can't read {b!r}")
+
+
+def E13AU_val(f, lo, hi):
+    X = E13AU_X
+    if sp.expand(f).is_polynomial(X):
+        return sp.integrate(sp.expand(f), (X, lo, hi))
+    return E13IG_val(f, lo, hi)
+
+
+def E13AU_integral(t):
+    m = re.fullmatch(r"∫ from (\S+) to (\S+) of (.+) dx", t)
+    need(m is not None, f"can't read the integral {t!r}")
+    g = m.group(3)
+    g = g[1:-1] if g.startswith("(") and E13IG_balanced(g[1:-1]) else g
+    return m.group(1), m.group(2), E13AU_f(g)
+
+
+def E13AU_check(q):
+    u, angle, ch = q["view"]["unknown"], q["view"]["angle"], q["choices"]
+    X = E13AU_X
+    gdc = angle.startswith("gdc-") or u == "area-gdc-limits"
+    need(q["paper"] == (2 if gdc else 1), f"Paper {q['paper']}")
+    wr = defaultdict(set)
+    if u == "region-for-integral":
+        f, p, qq, _ = E13AU_read(q)
+        rs = E13AU_roots(f)
+        need(rs[0] < 0 < p < qq < rs[1], "the limits are not inside the hump, right of the y-axis")
+        mk = {"from-zero": (0, qq), "to-root": (p, rs[1]), "left-part": (rs[0], p)}
+        fl = sp.lambdify(X, f, "math")
+        for o, gr in zip(ch, q["graphs"]):
+            sh = gr["shade"][0]
+            got = (sp.Rational(round(sh[0][0] * 1000), 1000), sp.Rational(round(sh[-1][0] * 1000), 1000))
+            for x, y in gr["curves"][0][::13]:
+                need(abs(fl(x) - y) < 1e-6, "a card's curve is not y = f(x)")
+            want = (p, qq) if o["correct"] else mk.get(o["mistake"])
+            need(want is not None and got == tuple(sp.Rational(w) for w in want), f"the {o.get('mistake') or 'right'} card shades {got}")
+        gc_check_common(q, next(o["text"] for o in ch if o["correct"]), {})
+        return None, None
+    f, lo, hi, how = E13AU_read(q)
+    E13AU_positive(f, lo, hi)
+    if u in ("integral-from-graph", "integral-from-roots"):
+        d = sp.diff(f, X)
+        if gdc:
+            rs = E13AU_roots(f)
+            need(not all(r.is_Rational for r in rs), "the roots need no GDC")
+            show = lambda v: gc_s(sp.N(v, 30))
+        else:
+            need(lo.q == 1 and hi.q == 1, "the edges are not whole numbers")
+            show = lambda v: frac_text(v)
+        rights = []
+        for o in ch:
+            a, b, g = E13AU_integral(o["text"])
+            same = sp.simplify(g - f) == 0
+            if same and (a, b) == (show(lo), show(hi)):
+                rights.append(o["text"])
+            if o["ref"] == E13AU_SE + "0":
+                need(same and (a, b) == (show(f.subs(X, lo)), show(f.subs(X, hi))), f"{o['text']!r} does not use the y-values")
+            elif o["ref"] == E13AU_SE + "1":
+                need(same and (a, b) == (show(hi), show(lo)), f"{o['text']!r} does not swap the limits")
+            elif o["ref"] == E13AU_SE + "2":
+                need(sp.simplify(g - d) == 0 and (a, b) == (show(lo), show(hi)), f"{o['text']!r} does not integrate f′")
+            if o["ref"]:
+                wr[o["ref"]].add(o["text"])
+        need(len(rights) == 1, f"{len(rights)} right integrals")
+        gc_check_common(q, rights[0], wr)
+        return None, None
+    A = E13AU_val(f, lo, hi)
+    show = (lambda v: gc_s(sp.N(v, 30))) if gdc else (lambda v: frac_text(v))
+    if not gdc:
+        need(A.is_Rational, "a Paper 1 area is not exact")
+    else:
+        need(not on_edge(sp.N(A, 30)) and abs(sp.N(A, 30) - round(float(A))) > 0.02, "the area is not fair to 3 s.f.")
+    wr[E13AU_SP + "0"] = {show(-A)}
+    if u == "area-between-roots":
+        wr[E13AU_SP + "1"] = {show(E13AU_val(f, 0, hi))}
+    if u == "area-gdc-limits":
+        rs = E13AU_roots(f)
+        wr[E13AU_SP + "2"] = {show(E13AU_val(f, E13AU_round1(sp.N(rs[0], 30)), E13AU_round1(sp.N(rs[1], 30))))}
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            if (m := re.fullmatch(r"F\(x\) = (.+)\.", st)):
+                need(sp.expand(sp.diff(E13AU_f(m.group(1)), X) - sp.expand(f)) == 0, f"{sol['name']}: F is not an antiderivative")
+            if (m := re.fullmatch(r"F\((−?\d+)\) − F\((−?\d+)\) = .+ = (.+)\.", st)):
+                need((E13PC_n(m.group(1)), E13PC_n(m.group(2))) == (hi, lo) and E13PC_n(m.group(3)) == A, f"{sol['name']}: {st!r}")
+            if (m := re.fullmatch(r"Area = ½ × \((−?\d+) \+ (−?\d+)\) × (\d+) = (.+)\.", st)):
+                need(E13PC_n(m.group(1)) == f.subs(X, lo) and E13PC_n(m.group(2)) == f.subs(X, hi) and E13PC_n(m.group(3)) == hi - lo and E13PC_n(m.group(4)) == A, f"{sol['name']}: {st!r}")
+            if (m := re.search(r"gives (−?[\d.]+)\.$", st)):
+                need(abs(float(m.group(1).replace("−", "-")) - float(A)) < 1e-5 * max(1, abs(float(A))), f"{sol['name']}: the GDC does not give {m.group(1)}")
+    gc_check_common(q, show(A), wr, gc_s2(sp.N(A, 30)) if gdc else None)
+    return None, None
+
+
+SITUATION_CHECKS["area-under-curve"] = E13AU_check
+
+# ── end area-under-curve ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):

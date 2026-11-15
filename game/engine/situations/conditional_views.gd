@@ -124,10 +124,21 @@ static func given_asked(s: Dictionary) -> String:
 
 # ── P(A | B) ─────────────────────────────────────────────────
 
-## P(A | B) with A, the numerator n and the given count g: formula and count working.
-func _given_methods(s: Dictionary, ans: Dictionary, top: Variant, under: Variant, n: int, g: int, name: String = "P(A | B)", cap: String = "P(A ∩ B) ÷ P(B)") -> Dictionary:
+## The natural-frequencies method as a question with n of `noun` reads it: the map's own
+## name ("Imagine 1000 people") has neither its count nor its things (FAL-814).
+static func imagine(n: int, noun: String) -> String:
+	return "Imagine %d %s" % [n, noun]
+
+
+static func imagine_title(n: int, noun: String) -> Dictionary:
+	return {"natural-frequencies": imagine(n, noun)}
+
+
+## P(A | B) with A, the numerator n and the given count g: formula and count working. The
+## counts are of `noun`, as the question names them.
+func _given_methods(s: Dictionary, ans: Dictionary, top: Variant, under: Variant, n: int, g: int, noun: String, name: String = "P(A | B)", cap: String = "P(A ∩ B) ÷ P(B)") -> Dictionary:
 	return {"formula": method(["%s = %s" % [name, cap], "= %s ÷ %s" % [top, under], final_step(ans)], ans.values),
-		"natural-frequencies": method(["Imagine %d people: %d are in the given group, and %d of those are also in the one you want." % [s.u, g, n], "Divide: %d ÷ %d" % [n, g], final_step(ans)], ans.values),
+		"natural-frequencies": method(["%s: %d are in the given group, and %d of those are also in the one you want." % [imagine(s.u, noun), g, n], "Divide: %d ÷ %d" % [n, g], final_step(ans)], ans.values),
 		"venn-restrict": method(["Restrict to the given event: it holds %d of the %d." % [g, s.u], "Of those, %d are also in the one you want: %d ÷ %d" % [n, n, g], final_step(ans)], ans.values)}
 
 
@@ -146,7 +157,9 @@ func u_conditional_from_probabilities(rep: String, s: Dictionary, _rng: Seeded) 
 		out.asked = given_asked(s)
 	out.wrongs = wr(Q.new(s.i, s.a + s.i), R_WRONG_DIV) + wr(mid, R_NO_DIV) + wr(pa.mul(pb), R_TIMES)
 	out.generic = probs([pa, pb])
-	out.methods = _given_methods(s, ans, T(s, mid), T(s, pb), s.i, s.i + s.b)
+	var noun: String = "cases" if rep == "equation" else c3(s).who
+	out.methods = _given_methods(s, ans, T(s, mid), T(s, pb), s.i, s.i + s.b, noun)
+	out.titles = imagine_title(s.u, noun)
 	return out
 
 
@@ -156,7 +169,8 @@ func u_conditional_from_venn(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var out := {"lines": [VennViews.diagram_line(s)], "asked": "Find P(A | B).", "answer": ans, "table": null, "graph": VennViews.diagram(s)}
 	out.wrongs = wr(Q.new(s.i, s.a + s.i), R_WRONG_DIV) + wr(pr(s, s.i), R_NO_DIV)
 	out.generic = probs([pr(s, s.a + s.i), pr(s, s.b + s.i), Q.new(s.b, s.i + s.b)])
-	out.methods = _given_methods(s, ans, T(s, pr(s, s.i)), T(s, pr(s, s.i + s.b)), s.i, s.i + s.b)
+	out.methods = _given_methods(s, ans, T(s, pr(s, s.i)), T(s, pr(s, s.i + s.b)), s.i, s.i + s.b, "outcomes")
+	out.titles = imagine_title(s.u, "outcomes")
 	return out
 
 
@@ -166,7 +180,8 @@ func u_conditional_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var out := {"lines": [VennViews.table_line(s)], "asked": given_asked(s), "answer": ans, "table": VennViews.two_way(s)}
 	out.wrongs = wr(Q.new(s.i, s.a + s.i), R_WRONG_DIV) + wr(pr(s, s.i), R_NO_DIV)
 	out.generic = probs([pr(s, s.a + s.i), pr(s, s.b + s.i), Q.new(s.b, s.i + s.b)])
-	out.methods = _given_methods(s, ans, T(s, pr(s, s.i)), T(s, pr(s, s.i + s.b)), s.i, s.i + s.b)
+	out.methods = _given_methods(s, ans, T(s, pr(s, s.i)), T(s, pr(s, s.i + s.b)), s.i, s.i + s.b, c3(s).who)
+	out.titles = imagine_title(s.u, c3(s).who)
 	return out
 
 
@@ -184,7 +199,7 @@ func u_conditional_complement(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		out.asked = "Given that a %s doesn't %s, find the probability that the same %s doesn't %s either." % [c.one, c.b, c.one, c.a]
 	out.wrongs = wr(Q.new(s.o, s.b + s.o), R_WRONG_DIV) + wr(pr(s, s.o), R_NO_DIV)
 	out.generic = probs([Q.new(s.a, g), pr(s, s.b + s.o), pr(s, s.a + s.o)])
-	var ms := _given_methods(s, ans, T(s, pr(s, s.o)), T(s, pr(s, g)), s.o, g, "P(A′ | B′)", "P(A′ ∩ B′) ÷ P(B′)")
+	var ms := _given_methods(s, ans, T(s, pr(s, s.o)), T(s, pr(s, g)), s.o, g, "", "P(A′ | B′)", "P(A′ ∩ B′) ÷ P(B′)")
 	ms.erase("natural-frequencies")
 	out.methods = ms
 	return out
@@ -231,10 +246,12 @@ func u_reverse_from_tree(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var n: int = 100 if s.paper == 1 else 10000
 	var nb := int(both.mul(Q.new(n)).to_float() + 0.5)
 	var no := int(other.mul(Q.new(n)).to_float() + 0.5)
+	var noun: String = "cases" if rep == "diagram" else c.what
 	out.methods = {"path-over-paths": method(["The paths ending in B: %s × %s = %s and %s × %s = %s." % [D(s.pa), D(s.pba), D(both), D(Q.new(1).sub(s.pa)), D(s.pbn), D(other)],
 			"Take the wanted path over both: %s ÷ (%s + %s)" % [D(both), D(both), D(other)], final_step(ans)], ans.values),
 		"formula-total-probability": method(["P(B) = P(A ∩ B) + P(A′ ∩ B) = %s + %s = %s" % [D(both), D(other), D(pb)], "P(A | B) = P(A ∩ B) ÷ P(B) = %s ÷ %s" % [D(both), D(pb)], final_step(ans)], ans.values),
-		"natural-frequencies": method(["Imagine %d cases: %d follow the first path into B and %d the second." % [n, nb, no], "Divide: %d ÷ %d" % [nb, nb + no], final_step(ans)], ans.values)}
+		"natural-frequencies": method(["%s: %d follow the first path into B and %d the second." % [imagine(n, noun), nb, no], "Divide: %d ÷ %d" % [nb, nb + no], final_step(ans)], ans.values)}
+	out.titles = imagine_title(n, noun)
 	return out
 
 
@@ -254,7 +271,8 @@ func u_reverse_two_draws(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 			"Take the wanted path over both: %d ÷ (%d + %d)" % [first, first, second], final_step(ans)], ans.values),
 		"formula-total-probability": method(["P(same) = %s + %s = %s" % [Fmt.num(Q.new(first, pairs)), Fmt.num(Q.new(second, pairs)), Fmt.num(Q.new(first + second, pairs))],
 			"P(both %s | same) = %s ÷ %s" % [col[0], Fmt.num(Q.new(first, pairs)), Fmt.num(Q.new(first + second, pairs))], final_step(ans)], ans.values),
-		"natural-frequencies": method(["Count ordered pairs: %d are both %s and %d are both %s." % [first, col[0], second, col[1]], "Divide: %d ÷ %d" % [first, first + second], final_step(ans)], ans.values)}
+		"natural-frequencies": method(["Count the ordered pairs: %d are both %s and %d are both %s." % [first, col[0], second, col[1]], "Divide: %d ÷ %d" % [first, first + second], final_step(ans)], ans.values)}
+	out.titles = {"natural-frequencies": "Count the ordered pairs"}
 	return out
 
 
