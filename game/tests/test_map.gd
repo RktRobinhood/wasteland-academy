@@ -8,7 +8,9 @@ extends "res://tests/test_case.gd"
 ## place of numbers, and SPARK's pick (Progress.suggest()). The FAL-783 layers (FAL-790):
 ## no roads and no footer, names only on a card shown by hover, focus or a tap (two taps
 ## on touch), painted places on a fixture background, the zoom between layers and the
-## region screen over its backdrop.
+## region screen over its backdrop. Every island open (FAL-925): each region routes on its
+## own island, island_of() for every region, each island's spots laid out with no overlap,
+## the Thunderdome's screen and the Relic Library's card.
 
 const MAP := "res://scenes/map.tscn"
 const FIGHT := "res://scenes/fight.tscn"
@@ -50,6 +52,11 @@ func _done(made: Array) -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 
 
+## The Functions island's regions, in order: most tests play on its painted board.
+func _fn() -> Array:
+	return MapLink.region_ids("functions")
+
+
 ## A region with no built type, or "" once every region is built.
 func _unbuilt_region() -> String:
 	for id in MapLink.region_ids():
@@ -61,24 +68,41 @@ func _unbuilt_region() -> String:
 # ── Links ────────────────────────────────────────────────────
 
 func test_every_region_has_a_link() -> void:
-	var ids := MapLink.region_ids()
-	check_eq(ids, ["quadratics", "exp-log", "graphs-features", "composite-inverse", "rational",
-		"function-basics", "lines", "transformations"], "the plan's 8 regions in order")
+	check_eq(_fn(), ["quadratics", "exp-log", "graphs-features", "composite-inverse", "rational",
+		"function-basics", "lines", "transformations"], "the plan's 8 Functions regions in order")
 	var raw: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CATALOGUE))
+	var ids := MapLink.region_ids()
 	check_eq(ids.size(), (raw.regions as Array).size(), "every catalogue region")
-	for id in ids + ["all"]:
-		var want := {"screen": "region", "island": "functions", "region": id}
-		check_eq(MapLink.parse("#functions/" + id), want, id)
-		check_eq(MapLink.parse("functions/%s/" % id), want, id + " without # and with a slash")
-		check_eq(MapLink.to_hash(want), "#functions/" + id, id + " back to a link")
+	var on_islands := 0
+	for island in MapLink.OPEN_ISLANDS:
+		var here := MapLink.region_ids(island)
+		check(here.size() >= 5, "%s has %d regions" % [island, here.size()])
+		on_islands += here.size()
+		for id in here + ["all"]:
+			var region: String = Dungeon.all_of(island) if id == "all" else id
+			var want := {"screen": "region", "island": island, "region": region}
+			check_eq(MapLink.parse("#%s/%s" % [island, id]), want, id)
+			check_eq(MapLink.parse("%s/%s/" % [island, id]), want, id + " without # and with a slash")
+			check_eq(MapLink.to_hash(want), "#%s/%s" % [island, id], id + " back to a link")
+			check_eq(MapLink.region_route(region), want, id + "'s route")
+	check_eq(on_islands, ids.size(), "every region is on one island")
+	check_eq(MapLink.parse("#algebra/quadratics"), {"screen": "world"}, "a region only on its own island")
 
 
 func test_the_island_and_world_links() -> void:
 	check_eq(MapLink.parse("#functions"), {"screen": "island", "island": "functions"})
 	check_eq(MapLink.parse("#Functions/"), {"screen": "island", "island": "functions"}, "case and a slash")
 	check_eq(MapLink.to_hash({"screen": "island", "island": "functions"}), "#functions")
+	for island in MapLink.OPEN_ISLANDS:
+		check_eq(MapLink.parse("#" + island), {"screen": "island", "island": island}, island)
+		check_eq(MapLink.to_hash({"screen": "island", "island": island}), "#" + island)
 	check_eq(MapLink.parse("#world"), {"screen": "world"})
 	check_eq(MapLink.to_hash({"screen": "world"}), "#world")
+	check_eq(MapLink.parse("#thunderdome"), MapLink.THUNDERDOME_ROUTE, "the Thunderdome")
+	check_eq(MapLink.parse("#Thunderdome/"), MapLink.THUNDERDOME_ROUTE, "case and a slash")
+	check_eq(MapLink.to_hash(MapLink.THUNDERDOME_ROUTE), "#thunderdome")
+	check_eq(MapLink.region_route(Dungeon.THUNDERDOME), MapLink.THUNDERDOME_ROUTE)
+	check_eq(MapLink.scene_for(MapLink.THUNDERDOME_ROUTE), MAP)
 	check_eq(MapLink.scene_for({"screen": "world"}), MAP)
 	check_eq(MapLink.scene_for(MapLink.region_route("quadratics")), MAP)
 
@@ -92,8 +116,9 @@ func test_the_bazaar_link() -> void:
 
 
 func test_junk_falls_back_to_the_world_map() -> void:
-	for junk in ["", "#", "#/", "#nowhere", "#functions/nowhere", "#functions/quadratics/extra", "#calculus",
-			"#calculus/quadratics", "#../functions", "#functions//", "%20%20", "#?play=all", "#functions/QUADRATICS!"]:
+	for junk in ["", "#", "#/", "#nowhere", "#functions/nowhere", "#functions/quadratics/extra", "#maths",
+			"#calculus/quadratics", "#../functions", "#functions//", "%20%20", "#?play=all", "#functions/QUADRATICS!",
+			"#thunderdome/all", "#functions/all-algebra", "#functions/thunderdome"]:
 		check_eq(MapLink.parse(junk), {"screen": "world"}, "'%s'" % junk)
 
 
@@ -110,9 +135,10 @@ func _hand_count(region: String, exam_only: bool) -> int:
 		if exam_only and t.source != "exam" and str(t.get("examStyle", "")) == "":
 			continue
 		var exam_reps := {}
-		for r in t.representations:
+		# A type only catalogued so far has no views, so no cells.
+		for r in t.get("representations", []):
 			exam_reps[r.rep] = r.exam
-		for u in t.unknowns:
+		for u in t.get("unknowns", []):
 			if exam_only and not u.exam:
 				continue
 			var methods := {}
@@ -152,11 +178,17 @@ func test_coverage_matches_a_hand_count_with_the_switch_off_and_on() -> void:
 	save.settings.exam_only = false
 	if unbuilt != "":
 		check_eq(Progress.coverage(save, unbuilt), {"checked": 0, "total": _hand_count(unbuilt, false)}, unbuilt)
-	# The island: every region's cells.
-	var island := 0
-	for id in MapLink.region_ids():
-		island += _hand_count(id, false)
-	check_eq(Progress.coverage(save, "all").total, island, "the all-regions total")
+	# An island: every region's cells, and the Thunderdome every island's. On AA HL, which
+	# covers every type the hand count counts (the AA HL counting type too).
+	SaveData.set_course(save, "aa-hl")
+	var dome := 0
+	for name in MapLink.OPEN_ISLANDS:
+		var island := 0
+		for id in MapLink.region_ids(name):
+			island += _hand_count(id, false)
+		check_eq(Progress.coverage(save, Dungeon.all_of(name)).total, island, "the %s all-regions total" % name)
+		dome += island
+	check_eq(Progress.coverage(save, Dungeon.THUNDERDOME).total, dome, "the Thunderdome's total")
 
 
 func test_accuracy_and_best_floor() -> void:
@@ -209,9 +241,9 @@ func test_the_weakest_skills_ignore_skills_with_fewer_than_3_answers() -> void:
 	check_eq(Progress.skill_stats(save, "quadratics")[picks[0].skill], {"right": 0, "seen": 2}, "still counted, just not flagged")
 
 
-## The open (built) regions, most-examined first.
+## The Functions island's open (built) regions, most-examined first.
 func _open_regions() -> Array:
-	return MapLink.region_ids().filter(func(id): return Progress.is_built(id))
+	return _fn().filter(func(id): return Progress.is_built(id))
 
 
 ## Answers `right` of `seen` in the region's first cell.
@@ -227,16 +259,16 @@ func test_sparks_pick_is_the_first_untried_open_region() -> void:
 	if open.size() < 2:
 		return
 	var save := SaveData.blank()
-	check_eq(Progress.suggest(save), {"region": open[0], "why": "untried"}, "a new save: the most-examined")
+	check_eq(Progress.suggest(save, _fn()), {"region": open[0], "why": "untried"}, "a new save: the most-examined")
 	_answer(save, open[0], 0, 5)
-	check_eq(Progress.suggest(save), {"region": open[1], "why": "untried"}, "the next one not tried, however badly the first went")
+	check_eq(Progress.suggest(save, _fn()), {"region": open[1], "why": "untried"}, "the next one not tried, however badly the first went")
 	# A floor reached counts as tried too.
 	var save2 := SaveData.blank()
 	Dungeon.note_floor(save2, open[0], 1, false)
-	check_eq(Progress.suggest(save2).region, open[1], "a run with no answers is a try")
+	check_eq(Progress.suggest(save2, _fn()).region, open[1], "a run with no answers is a try")
 	var unbuilt := _unbuilt_region()
 	if unbuilt != "":
-		check(Progress.suggest(SaveData.blank()).region != unbuilt, "never a region with nothing built")
+		check(Progress.suggest(SaveData.blank(), _fn()).region != unbuilt, "never a region with nothing built")
 
 
 func test_sparks_pick_is_the_lowest_accuracy_once_all_are_tried() -> void:
@@ -251,12 +283,12 @@ func test_sparks_pick_is_the_lowest_accuracy_once_all_are_tried() -> void:
 	_answer(save, open[-1], 0, 4)
 	save.cells.erase(Progress.catalogue_cells(open[0], false)[0].key)
 	_answer(save, open[0], 0, Progress.MIN_ATTEMPTS - 1)
-	check_eq(Progress.suggest(save), {"region": open[-1], "why": "accuracy"})
+	check_eq(Progress.suggest(save, _fn()), {"region": open[-1], "why": "accuracy"})
 	# A tie goes to the more-examined region.
 	var tie := SaveData.blank()
 	for id in open:
 		_answer(tie, id, 1, 4)
-	check_eq(Progress.suggest(tie), {"region": open[0], "why": "accuracy"}, "a tie")
+	check_eq(Progress.suggest(tie, _fn()), {"region": open[0], "why": "accuracy"}, "a tie")
 
 
 func test_sparks_pick_is_the_lowest_coverage_when_no_accuracy_counts() -> void:
@@ -273,7 +305,7 @@ func test_sparks_pick_is_the_lowest_coverage_when_no_accuracy_counts() -> void:
 		var c := Progress.coverage(save, id)
 		return float(c.checked) / c.total)
 	var want: String = open[shares.find(shares.min())]
-	check_eq(Progress.suggest(save), {"region": want, "why": "coverage"}, "shares %s" % [shares])
+	check_eq(Progress.suggest(save, _fn()), {"region": want, "why": "coverage"}, "shares %s" % [shares])
 	check(want != open[0], "the region with more checked is not the pick")
 
 
@@ -309,16 +341,18 @@ func test_the_world_map() -> void:
 	var fn := board.get_node("Island_functions") as Button
 	check(not fn.disabled, "the Signal Tower is open")
 	check_eq(_card_of(m, fn), "Signal Tower · Functions")
-	for id in ["algebra", "geometry", "stats", "calculus"]:
+	var names := {"algebra": "Scrap Fields · Numbers and algebra", "geometry": "Dry Flats · Geometry and trigonometry",
+		"stats": "Radio Spires · Statistics and probability", "calculus": "Engine Core · Calculus"}
+	for id in names:
 		var b := board.get_node("Island_" + id) as Button
-		check(b.disabled, id + " is closed")
-		check_eq(_card_of(m, b).get_slice(" · ", 1), "Coming soon", id)
+		check(not b.disabled, id + " is open (FAL-925)")
+		check_eq(_card_of(m, b), names[id], id)
 	var td := board.get_node("Thunderdome") as Button
-	check(td.disabled, "the Thunderdome waits for a second island")
-	check_eq(_card_of(m, td), "Thunderdome · Locked")
+	check(not td.disabled, "the Thunderdome is open with every island")
+	check_eq(_card_of(m, td), "Thunderdome · Every island mixed")
 	var lib := board.get_node("RelicLibrary") as Button
 	check(lib.disabled, "the Relic Library spot is locked")
-	check_eq(_card_of(m, lib), "Relic Library · Locked")
+	check_eq(_card_of(m, lib), "Relic Library · Opens after the maths engine")
 	var shop := board.get_node("Bazaar") as Button
 	check(not shop.disabled, "the Bazaar is open")
 	check_eq(_card_of(m, shop), "Bazaar · 0 Scrap")
@@ -379,12 +413,12 @@ func test_the_functions_island() -> void:
 	for c in board.get_children():
 		if c.name.begins_with("Spot_"):
 			spots.append(String(c.name).trim_prefix("Spot_"))
-	check_eq(spots, MapLink.region_ids() + ["all", "relic"], "8 regions in order, the all-regions dungeon, the Relic device")
+	check_eq(spots, _fn() + ["all", "relic"], "8 regions in order, the all-regions dungeon, the Relic device")
 	var buttons := _spot_buttons(m)
 	check(buttons.relic.disabled, "the Relic device is locked")
 	check_eq(_card_of(m, buttons.relic), "Relic device · Locked")
 	check_eq(_card_of(m, buttons.quadratics), "Quadratics · Floor 2 · 100%")
-	for id in MapLink.region_ids():
+	for id in _fn():
 		var line := _card_of(m, buttons[id]).trim_prefix(Dungeon.region_name(id) + " · ")
 		check_eq(line == "Coming soon", not Progress.is_built(id), "%s: %s" % [id, line])
 		check_eq(m.spot_state(id) == "locked", not Progress.is_built(id), id)
@@ -428,7 +462,7 @@ func _board_text(board: Control) -> Array:
 
 func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
 	var map_script := preload("res://ui/map.gd")
-	check_eq(map_script.SPOTS, {
+	check_eq(map_script.SPOTS.functions, {
 		"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
 		"graphs-features": Vector2(79, 65), "lines": Vector2(21, 27), "rational": Vector2(79, 28),
 		"composite-inverse": Vector2(25, 10), "transformations": Vector2(75, 10), "all": Vector2(50, 46),
@@ -436,13 +470,13 @@ func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
 	var made: Array = await _map({"screen": "island", "island": "functions"})
 	var m: Control = made[1]
 	var buttons := _spot_buttons(m)
-	check_eq(buttons.size(), map_script.SPOTS.size(), "a button per spot")
+	check_eq(buttons.size(), map_script.SPOTS.functions.size(), "a button per spot")
 	var board := Rect2(Vector2.ZERO, map_script.BOARD)
 	for id in buttons:
 		var b: Button = buttons[id]
 		var r := Rect2(b.position, b.size)
 		var side: float = map_script.RELIC_HIT if id == "relic" else map_script.HIT
-		var centre: Vector2 = map_script.SPOTS[id] * map_script.BOARD / 100.0
+		var centre: Vector2 = map_script.SPOTS.functions[id] * map_script.BOARD / 100.0
 		check(r.get_center().distance_to(centre) < 0.5, "%s's square is centred on its spot" % id)
 		check(r.size.is_equal_approx(Vector2(side, side)), "%s's square: %s" % [id, r.size])
 		check(board.encloses(r), "%s %s is on the board" % [id, r])
@@ -451,6 +485,41 @@ func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
 				var o: Button = buttons[other]
 				check(not r.intersects(Rect2(o.position, o.size)), "%s and %s overlap" % [id, other])
 	_done(made)
+
+
+## Every island's board (FAL-925): a place per region in its order, its all-regions
+## dungeon and the Relic device, each square on its SPOTS point, on the board and clear
+## of every other; with no painting in its folder, the coded ground and a ring each.
+func test_every_island_is_laid_out_with_no_place_overlapping() -> void:
+	var map_script := preload("res://ui/map.gd")
+	var board := Rect2(Vector2.ZERO, map_script.BOARD)
+	for island in MapLink.OPEN_ISLANDS:
+		var made: Array = await _map({"screen": "island", "island": island})
+		var m: Control = made[1]
+		var buttons := _spot_buttons(m)
+		var spots: Array = m.island_board.get_children().filter(func(c): return c.name.begins_with("Spot_")).map(
+			func(c): return String(c.name).trim_prefix("Spot_"))
+		check_eq(spots, MapLink.region_ids(island) + ["all", "relic"], island + ": its regions in order, all, relic")
+		check_eq(buttons.size(), (map_script.SPOTS[island] as Dictionary).size(), island + ": a place per spot")
+		check_eq(m.background_path() != "", island == "functions", island + ": only the Signal Tower is painted yet")
+		if island != "functions":
+			check(m.island_board.get_node_or_null("Ground") != null, island + ": the coded ground")
+		check_eq((m.island.get_node("Header").get_child(0).get_node("Title") as Label).text, m.island_info(island).name)
+		for id in buttons:
+			var b: Button = buttons[id]
+			var r := Rect2(b.position, b.size)
+			var centre: Vector2 = map_script.SPOTS[island][id] * map_script.BOARD / 100.0
+			check(r.get_center().distance_to(centre) < 0.5, "%s %s is on its spot" % [island, id])
+			check(board.encloses(r), "%s %s %s is on the board" % [island, id, r])
+			if island != "functions" and id != "relic":
+				var mark := b.get_node_or_null("Landmark/Coded/Mark") as Label
+				check(mark != null and mark.text == map_script.GLYPHS[id], "%s %s: its glyph" % [island, id])
+			for other in buttons:
+				if other < id:
+					var o: Button = buttons[other]
+					check(not r.intersects(Rect2(o.position, o.size)), "%s: %s and %s overlap" % [island, id, other])
+		check_eq(Audio.location(), MapLink.MUSIC[island], island + "'s loop")
+		_done(made)
 
 
 func test_no_roads_on_the_island() -> void:
@@ -697,16 +766,23 @@ func test_every_open_region_still_opens_its_screen() -> void:
 	var was := tree.current_scene
 	m.reparent(tree.root)
 	tree.current_scene = m
-	var buttons := _spot_buttons(m)
-	for id in _open_regions() + ["all"]:
-		var b: Button = buttons[id]
-		check(not b.disabled, id + " is enabled")
-		b.pressed.emit()
-		check_eq(m.screen, "region", id + ": reduced motion cuts straight in")
-		check_eq(m.route.get("region"), id, id + "'s screen")
-		m.show_route({"screen": "island", "island": "functions"})
+	for island in MapLink.OPEN_ISLANDS:
+		m.show_route({"screen": "island", "island": island})
 		await tree.process_frame
-		buttons = _spot_buttons(m)
+		var buttons := _spot_buttons(m)
+		for id in MapLink.region_ids(island) + ["all"]:
+			var b: Button = buttons[id]
+			var region: String = Dungeon.all_of(island) if id == "all" else id
+			check(not b.disabled, "%s %s is enabled" % [island, id])
+			check_eq(m.spot_state(region), "open", "%s %s has questions" % [island, id])
+			b.pressed.emit()
+			check_eq(m.screen, "region", id + ": reduced motion cuts straight in")
+			check_eq(m.route, {"screen": "region", "island": island, "region": region}, id + "'s screen")
+			check(m.region_col.get_node_or_null("Start/Floor1") != null, id + ": a run can start")
+			check_eq(Audio.location(), MapLink.MUSIC[island], id + ": the island's loop")
+			m.show_route({"screen": "island", "island": island})
+			await tree.process_frame
+			buttons = _spot_buttons(m)
 	tree.current_scene = was
 	m.free()
 	_done(made)
@@ -760,7 +836,8 @@ func test_the_region_screen_sits_over_its_backdrop() -> void:
 	_done(made)
 	ArtSlots.root = "res://tests/fixtures/no-art/"
 	made = await _map(MapLink.region_route("quadratics"))
-	check(not made[1].region_backdrop.visible, "no backdrop, the plain background")
+	check(made[1].region_backdrop.visible and made[1].region_backdrop.texture == ArtSlots.ground("functions"),
+		"no backdrop: the island's coded ground (FAL-925)")
 	_done(made)
 	ArtSlots.root = "res://assets/"
 
@@ -907,7 +984,11 @@ func test_every_screen_fits_a_phone_and_a_pc_window() -> void:
 	for window in [Vector2i(390, 844), Vector2i(1280, 800)]:
 		var area := _area(window)
 		var screen := Rect2(Vector2.ZERO, area)
-		for r in [{"screen": "world"}, {"screen": "island", "island": "functions"}, MapLink.region_route("quadratics")]:
+		var routes: Array = [{"screen": "world"}, MapLink.region_route("quadratics"), MapLink.THUNDERDOME_ROUTE]
+		for island in MapLink.OPEN_ISLANDS:
+			routes.append({"screen": "island", "island": island})
+			routes.append(MapLink.region_route(MapLink.region_ids(island)[0]))
+		for r in routes:
 			var made: Array = await _map(r, save, area)
 			var m: Control = made[1]
 			var what := "%s %s" % [window, r.screen]
@@ -929,3 +1010,105 @@ func test_every_screen_fits_a_phone_and_a_pc_window() -> void:
 					var scrap := m.world.get_node("Header").get_child(0).get_node("Scrap") as Control
 					check(screen.encloses(scrap.get_global_rect()), "%s: the Scrap count outside" % what)
 			_done(made)
+
+
+# ── Every island (FAL-925) ───────────────────────────────────
+
+## Each region is on the island of its types' topic, and an all-regions dungeon on its own.
+func test_island_of_is_right_for_every_region() -> void:
+	var topic_island := {}
+	for island in MapLink.OPEN_ISLANDS:
+		topic_island[int(MapLink.OPEN_ISLANDS[island])] = island
+	check_eq(topic_island.size(), 5, "five islands, one per topic")
+	var placed := 0
+	for t in QuestionEngine.catalogue().types:
+		if t.get("region") == null:
+			continue
+		placed += 1
+		check_eq(MapLink.island_of(t.region), topic_island[int(t.topic)], "%s (%s)" % [t.region, t.id])
+	check(placed > 140, "types with a region: %d" % placed)
+	for island in MapLink.OPEN_ISLANDS:
+		check_eq(MapLink.island_of(Dungeon.all_of(island)), island, island + "'s all-regions dungeon")
+	check_eq(Dungeon.all_of("functions"), "all", "the Functions dungeon keeps its id")
+	check_eq(MapLink.island_of(Dungeon.THUNDERDOME), Dungeon.THUNDERDOME)
+	# Every built type of topics 1 to 5 has a region, so the map and the runs reach it.
+	for id in QuestionEngine.built_types():
+		check(QuestionEngine.type_of(id).get("region") != null, id + " has a region")
+
+
+## Each island's loop on its map and in its runs, its boss loop in a boss fight, and the
+## Thunderdome's own: with the overworld, every one of the twelve loops is reachable.
+func test_every_island_plays_its_own_loop() -> void:
+	var heard := {"overworld": true}
+	for island in MapLink.OPEN_ISLANDS:
+		for region in MapLink.region_ids(island) + [Dungeon.all_of(island)]:
+			check_eq(MapLink.music_for(region), MapLink.MUSIC[island], region)
+			check_eq(MapLink.music_for(region, true), MapLink.MUSIC[island] + "-boss", region + " boss")
+			heard[MapLink.music_for(region)] = true
+			heard[MapLink.music_for(region, true)] = true
+	check_eq(MapLink.music_for(Dungeon.THUNDERDOME), "thunderdome")
+	check_eq(MapLink.music_for(Dungeon.THUNDERDOME, true), "thunderdome", "the Thunderdome keeps one loop")
+	heard["thunderdome"] = true
+	var want: Array = MusicTracks.CUES.keys()
+	want.sort()
+	var got: Array = heard.keys()
+	got.sort()
+	check_eq(got, want, "every loop is reachable")
+	for cue in got:
+		check(ResourceLoader.exists(MusicTracks.path(cue)), cue + "'s file")
+
+
+## The Thunderdome on the world map opens its screen: every island's types, its own loop,
+## a run to start, and back to the world map.
+func test_the_thunderdome_opens_a_mixed_screen() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	var made: Array = await _map({"screen": "world"}, save)
+	var m: Control = made[1]
+	var was := tree.current_scene
+	m.reparent(tree.root)
+	tree.current_scene = m
+	(m.world_board.get_node("Thunderdome") as Button).pressed.emit()
+	check_eq(m.route, MapLink.THUNDERDOME_ROUTE, "its screen")
+	check_eq((m.region_col.get_node("Head/Title") as Label).text, "Thunderdome")
+	check_eq((m.region_col.get_node("Head/Back") as Button).text, "World map")
+	check(m.region_col.get_node_or_null("Start/Floor1") != null, "a run can start")
+	check_eq(Audio.location(), "thunderdome", "its own loop")
+	var islands := {}
+	for id in Dungeon.region_types(Dungeon.THUNDERDOME):
+		islands[MapLink.island_of(QuestionEngine.type_of(id).region)] = true
+	check_eq(islands.size(), 5, "every island's types: %s" % [islands.keys()])
+	(m.region_col.get_node("Head/Back") as Button).pressed.emit()
+	check_eq(m.screen, "world", "back to the world map")
+	tree.current_scene = was
+	m.free()
+	_done(made)
+
+
+## A run starts from the map in a region of every island, the island's all-regions
+## dungeon and the Thunderdome, plays that place's questions and loop, and its boss loop.
+func test_a_run_starts_on_every_island_and_in_the_thunderdome() -> void:
+	var fight_script := preload("res://ui/fight.gd")
+	var places: Array = [Dungeon.THUNDERDOME]
+	for island in MapLink.OPEN_ISLANDS:
+		places.append(MapLink.region_ids(island)[0])
+		places.append(Dungeon.all_of(island))
+	for region in places:
+		for fight_no in [1, Tuning.FIGHTS_PER_FLOOR]:
+			fight_script.launch = {"region": region, "floor": 1}
+			var frame := Control.new()
+			frame.size = Vector2(1080, 1920)
+			tree.root.add_child(frame)
+			var f: Control = (load(FIGHT) as PackedScene).instantiate()
+			f.save_path = SAVE
+			f.first_fight = fight_no
+			frame.add_child(f)
+			await tree.process_frame
+			check(f.run != null and f.run.state == "question", "%s: a run started" % region)
+			if f.run != null:
+				check_eq(f.run.region, region)
+				check(Dungeon.region_types(region).has(f.run.question.view.type), "%s asks its own: %s" % [region, f.run.question.view.type])
+				check_eq(Audio.location(), MapLink.music_for(region, fight_no > 1), "%s fight %d's loop" % [region, fight_no])
+				check(f.backdrop.visible, region + ": a backdrop or the island's ground behind it")
+			frame.free()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))

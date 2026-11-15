@@ -89,7 +89,12 @@ jobs:
           'map-world=#world'
           'map-island=#functions'
           'map-region=#functions/quadratics'
-          'map-coming-soon=#functions/exp-log'
+          'map-island-algebra=#algebra'
+          'map-region-geometry=#geometry/triangles'
+          'map-all-stats=#stats/all'
+          'map-thunderdome=#thunderdome'
+          'fight-calculus=?play=kinematics&seed=3'
+          'fight-thunderdome=?play=thunderdome&seed=3&fight=10'
           'bazaar=?bazaar=demo'
           'bazaar-link=#bazaar'
       - uses: actions/upload-artifact@v7

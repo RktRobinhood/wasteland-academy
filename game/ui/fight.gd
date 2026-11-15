@@ -19,7 +19,8 @@ extends "res://ui/practice.gd"
 ## Deep links, for screenshots and tests:
 ##   web:      /next/?play=quadratics&seed=3&floor=1&autoplay=wrong
 ##   desktop:  -- --play=quadratics --seed=3 --autoplay=wrong
-## play is a region id or "all" (the all-regions dungeon). floor must be one the save
+## play is a region id, an island's all-regions dungeon ("all", "all-calculus") or
+## "thunderdome" (every island mixed). floor must be one the save
 ## may start on, else the run starts on floor 1. autoplay=right or wrong answers the
 ## first question at once; autoplay=lose plays wrong answers until the run ends, to
 ## show the summary; autoplay=carry answers a boss's first part wrong and opens the
@@ -228,7 +229,7 @@ func start_run() -> void:
 	journey = JourneyLink.attach(run, strip, save)
 	summary_box.visible = false
 	floor_box.visible = false
-	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop(region))
+	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop_or_ground(region))
 	quit_button.visible = true
 	card_frame.visible = true
 	scroll.visible = true
@@ -248,7 +249,7 @@ func show_floor_select() -> void:
 	hp_row.visible = false
 	floor_box.visible = true
 	quit_button.visible = false
-	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop(region))
+	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop_or_ground(region))
 	for c in floor_box.get_children():
 		floor_box.remove_child(c)
 		c.queue_free()

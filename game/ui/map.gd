@@ -6,16 +6,16 @@ extends Control
 ## /next/#functions/quadratics open a region and the browser's back button works.
 ##
 ## - The world map is the overworld painting with an invisible button over each place:
-##   the five islands (the Signal Tower, Functions, is open, the other four are "coming
-##   soon"), the Thunderdome (open once a second island is), the Relic Library (FAL-325,
-##   locked) and the Bazaar (G6, ui/bazaar.gd). The header shows the Scrap there is to
-##   spend.
-## - The Functions island is a hub (FAL-531 plan): the all-regions dungeon at the tower in
-##   the middle and the 8 regions around it, any of them in any order. No roads: the
-##   places are fast-travel points. A locked spot waits for a Relic device. A region with
-##   no built type is "coming soon", worked out from the engine, so a region lights up
-##   when its situations merge. SPARK's pick (Progress.suggest()) gets a beacon and first
-##   focus: a suggestion, never a gate.
+##   the five islands, all open since FAL-925, the Thunderdome (every island mixed, a
+##   region screen of its own at #thunderdome), the Relic Library (FAL-325, locked until
+##   after the maths engine) and the Bazaar (G6, ui/bazaar.gd). The header shows the Scrap
+##   there is to spend.
+## - An island is a hub (FAL-531 plan): its all-regions dungeon in the middle and its
+##   regions (MapLink.region_ids(island)) around it, any of them in any order. No roads:
+##   the places are fast-travel points. A locked spot waits for a Relic device. A region
+##   with no built type is "coming soon", worked out from the engine, so a region lights
+##   up when its situations merge. SPARK's pick (Progress.suggest() over the island's
+##   regions) gets a beacon and first focus: a suggestion, never a gate.
 ## - No names on the boards. Hovering, focusing or tapping a place shows its card: the
 ##   name, then one line (the topic, the spot_line() progress, "Coming soon" or "Locked").
 ##   With a mouse or keyboard a press goes in. On a touch screen the first tap shows the
@@ -26,17 +26,21 @@ extends Control
 ##   keeps 4.5:1. It shows accuracy, best floor, coverage and the 3 weakest skills
 ##   (Progress), and starts a run on floor 1 or after a beaten boss, or opens Practice.
 ##
-## Island art by file name (FAL-362 batch 4, FAL-783 plan): ART_DIR/background.webp or
-## .png, one painting with every place painted in at SPOTS; then the buttons are invisible
-## hit areas with state chips (a dark wash and a padlock, or a flag). A landmark per spot
-## and state (ART_DIR/<spot>-<state>.png) still draws over it. With no painting the coded
-## look draws a ring per place. Sizes and names are in game/README.md under "Map art".
+## Island art by file name (FAL-362 batch 4, FAL-783 plan), in each island's own folder,
+## MAP_ART/<island>/ (FAL-925): background.webp or .png, one painting with every place
+## painted in at its SPOTS point; then the buttons are invisible hit areas with state chips
+## (a dark wash and a padlock, or a flag). A landmark per spot and state
+## (<spot>-<state>.png) still draws over it. With no painting the coded look draws the
+## island's ground (ArtSlots.ground) and a ring per place, so a painting dropped into an
+## island's folder later shows with no code change. Sizes and names are in game/README.md
+## under "Map art".
 
 const FIGHT := "res://scenes/fight.tscn"
 const PRACTICE := "res://scenes/practice.tscn"
 const MAIN := "res://scenes/main.tscn"
 const OVERWORLD := preload("res://assets/map/overworld.png")
-const ART_DIR := "res://assets/map/functions/"
+## Each island's art is in its own folder here: MAP_ART/<island id>/ (island_art_dir()).
+const MAP_ART := "res://assets/map/"
 ## Both maps are drawn on a portrait board of this size, scaled to fit under the header.
 const BOARD := Vector2(1080, 1920)
 const HEADER := 190.0
@@ -61,31 +65,58 @@ const FADE_TIME := 0.25
 const REGION_WASH := 0.7
 
 ## The five islands, where each sits on the overworld (centre and size, in % of the
-## board, measured from the art; js/router.js has the same zones) and its music.
+## board, measured from the art; js/router.js has the same zones). The id is the island's
+## link (MapLink.OPEN_ISLANDS) and its art folder; its music is MapLink.MUSIC.
 const ISLANDS := [
-	{"id": "algebra", "name": "Scrap Fields", "topic": "Numbers and algebra", "zone": Rect2(30, 18, 52, 24), "music": "scrap-fields"},
-	{"id": "functions", "name": "Signal Tower", "topic": "Functions", "zone": Rect2(80, 18, 26, 26), "music": "signal-tower"},
-	{"id": "geometry", "name": "Dry Flats", "topic": "Geometry and trigonometry", "zone": Rect2(15, 49, 28, 30), "music": "dry-flats"},
-	{"id": "stats", "name": "Radio Spires", "topic": "Statistics and probability", "zone": Rect2(85, 51, 26, 26), "music": "radio-spires"},
-	{"id": "calculus", "name": "Engine Core", "topic": "Calculus", "zone": Rect2(50, 78, 60, 24), "music": "engine-core"},
+	{"id": "algebra", "name": "Scrap Fields", "topic": "Numbers and algebra", "zone": Rect2(30, 18, 52, 24)},
+	{"id": "functions", "name": "Signal Tower", "topic": "Functions", "zone": Rect2(80, 18, 26, 26)},
+	{"id": "geometry", "name": "Dry Flats", "topic": "Geometry and trigonometry", "zone": Rect2(15, 49, 28, 30)},
+	{"id": "stats", "name": "Radio Spires", "topic": "Statistics and probability", "zone": Rect2(85, 51, 26, 26)},
+	{"id": "calculus", "name": "Engine Core", "topic": "Calculus", "zone": Rect2(50, 78, 60, 24)},
 ]
 const THUNDERDOME_ZONE := Rect2(50, 46, 38, 18)
 const RELIC_LIBRARY_ZONE := Rect2(83, 94, 30, 8)
+## The Relic Library's card: its lessons come once the maths engine is done (FAL-325).
+const RELIC_LIBRARY_LINE := "Opens after the maths engine"
 ## The Bazaar's place on the overworld, in the sand at the bottom left (FAL-783 plan).
 const BAZAAR_ZONE := Rect2(17, 90, 26, 14)
 ## True once overworld.png has the Bazaar painted in (FAL-791, its junk caravan fills
 ## BAZAAR_ZONE); while false a coded marker shows where it is.
 const BAZAAR_PAINTED := true
 
-## Where each place sits on the Functions island board (centre, in % of the board; the
-## FAL-783 plan's table): the all-regions dungeon at the tower in the middle, the regions
-## around it, the two most-examined by the landing on the south shore. Spots are keyed by
-## region id, plus "all" and "relic".
+## Where each place sits on each island's board (centre, in % of the board): the
+## all-regions dungeon in the middle, the regions round it, the two most-examined by the
+## landing on the south shore, and the Relic device. Spots are keyed by island, then by
+## region id, plus "all" (the island's all-regions dungeon, spot_key()) and "relic". The
+## Signal Tower's is the FAL-783 plan's table, painted into its background; the others
+## are laid out for the coded look (FAL-925), with no two squares overlapping, and a
+## painting for one paints its places at these points.
 const SPOTS := {
-	"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
-	"graphs-features": Vector2(79, 65), "lines": Vector2(21, 27), "rational": Vector2(79, 28),
-	"composite-inverse": Vector2(25, 10), "transformations": Vector2(75, 10), "all": Vector2(50, 46),
-	"relic": Vector2(12, 50),
+	"functions": {
+		"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
+		"graphs-features": Vector2(79, 65), "lines": Vector2(21, 27), "rational": Vector2(79, 28),
+		"composite-inverse": Vector2(25, 10), "transformations": Vector2(75, 10), "all": Vector2(50, 46),
+		"relic": Vector2(12, 50),
+	},
+	"algebra": {
+		"sequences": Vector2(24, 72), "finance": Vector2(76, 72), "exponents-logs": Vector2(21, 30),
+		"binomial": Vector2(79, 30), "proof": Vector2(50, 12), "all": Vector2(50, 50), "relic": Vector2(12, 50),
+	},
+	"geometry": {
+		"triangles": Vector2(25, 85), "trig-graphs": Vector2(75, 85), "arcs-sectors": Vector2(21, 64),
+		"geometry-3d": Vector2(79, 64), "trig-equations": Vector2(21, 27), "unit-circle": Vector2(79, 27),
+		"all": Vector2(50, 46), "relic": Vector2(50, 10),
+	},
+	"stats": {
+		"discrete-distributions": Vector2(25, 85), "probability": Vector2(75, 86), "normal-distribution": Vector2(21, 66),
+		"regression": Vector2(79, 65), "conditional-probability": Vector2(21, 27), "averages-spread": Vector2(79, 28),
+		"sampling-data": Vector2(50, 10), "all": Vector2(50, 46), "relic": Vector2(12, 47),
+	},
+	"calculus": {
+		"kinematics": Vector2(25, 85), "stationary-points": Vector2(75, 86), "tangents-normals": Vector2(21, 66),
+		"definite-integrals": Vector2(79, 65), "derivative-rules": Vector2(21, 27), "derivative-basics": Vector2(79, 28),
+		"integration": Vector2(50, 10), "all": Vector2(50, 46), "relic": Vector2(88, 47),
+	},
 }
 ## The jetty the player lands at: painted only, a dot on the coded look, not a button.
 const LANDING := Vector2(50, 97)
@@ -94,13 +125,20 @@ const LANDING := Vector2(50, 97)
 const GLYPHS := {
 	"quadratics": "x²", "exp-log": "log", "graphs-features": "(x,y)", "composite-inverse": "f(g)",
 	"rational": "1/x", "function-basics": "f(x)", "lines": "mx+c", "transformations": "-f(x)",
-	Dungeon.ALL: "ALL", "relic": "?",
+	"sequences": "1,3,5", "finance": "%", "exponents-logs": "10²", "binomial": "nCr", "proof": "QED",
+	"triangles": "sin", "trig-graphs": "cos", "arcs-sectors": "rad", "geometry-3d": "3D", "trig-equations": "tan",
+	"unit-circle": "30°", "discrete-distributions": "E(X)", "probability": "P(A)", "normal-distribution": "z",
+	"regression": "r", "conditional-probability": "A|B", "averages-spread": "IQR", "sampling-data": "n=30",
+	"kinematics": "v(t)", "stationary-points": "f'=0", "tangents-normals": "f'(a)", "definite-integrals": "[a,b]",
+	"derivative-rules": "dy/dx", "derivative-basics": "f'(x)", "integration": "+C",
+	"all": "ALL", "relic": "?",
 }
 const STATE_COLOR := {"locked": UiTheme.DIM, "open": UiTheme.TEAL, "cleared": UiTheme.SAND}
 
 var save_path := SaveData.PATH
-## Where the island's art is looked for; tests point it at fixtures.
-var art_dir := ART_DIR
+## Where the island's art is looked for, when set (tests point it at fixtures); "" for the
+## island's own folder (island_art_dir()).
+var art_dir := ""
 var save: Dictionary = {}
 ## "world", "island" or "region".
 var screen := ""
@@ -178,10 +216,10 @@ func show_route(r: Dictionary) -> void:
 			Audio.play_location("overworld")
 		"island":
 			_fill_island()
-			Audio.play_location(island_info(route.island).music)
+			Audio.play_location(String(MapLink.MUSIC.get(route.island, "")))
 		"region":
 			_fill_region()
-			Audio.play_location(island_info(route.island).music)
+			Audio.play_location(MapLink.music_for(route.region))
 	var from := String(was.get("screen", ""))
 	if from == "" or from == screen or reduced_motion():
 		return
@@ -190,7 +228,7 @@ func show_route(r: Dictionary) -> void:
 	_tween = create_tween().set_parallel()
 	if out:
 		var board := world_board if screen == "world" else island_board
-		var at := _island_point(String(was.get("island", ""))) if screen == "world" else _spot_point(String(was.get("region", "")))
+		var at := _island_point(String(was.get("island", ""))) if screen == "world" else _spot_point(String(was.get("island", "")), String(was.get("region", "")))
 		var fit: Array = _fitted[board]
 		var z := _zoomed(board, at)
 		board.position = z[0]
@@ -216,6 +254,8 @@ func reduced_motion() -> bool:
 
 
 static func island_info(id: String) -> Dictionary:
+	if id == Dungeon.THUNDERDOME:
+		return {"id": id, "name": Dungeon.THUNDERDOME_NAME, "topic": "Every island mixed", "zone": THUNDERDOME_ZONE}
 	for i in ISLANDS:
 		if i.id == id:
 			return i
@@ -257,10 +297,16 @@ static func mark(id: String, glyph: String = "") -> String:
 	return initials
 
 
-## The island painting in art_dir (WebP first, then PNG), or "" for the coded look.
+## The folder the island on screen loads its art from: art_dir when a test set it, else
+## MAP_ART/<island>/.
+func island_art_dir() -> String:
+	return art_dir if art_dir != "" else "%s%s/" % [MAP_ART, route.get("island", "functions")]
+
+
+## The island's painting (WebP first, then PNG), or "" for the coded look.
 func background_path() -> String:
 	for ext in ArtSlots.EXTENSIONS:
-		var path := "%sbackground.%s" % [art_dir, ext]
+		var path := "%sbackground.%s" % [island_art_dir(), ext]
 		if ResourceLoader.exists(path):
 			return path
 	return ""
@@ -444,8 +490,15 @@ static func _island_point(id: String) -> Vector2:
 	return z.position * BOARD / 100.0
 
 
-static func _spot_point(id: String) -> Vector2:
-	return SPOTS.get(id, Vector2(50, 50)) * BOARD / 100.0
+## A place's point on an island's board (board units).
+static func _spot_point(island: String, id: String) -> Vector2:
+	return (SPOTS.get(island, {}) as Dictionary).get(spot_key(id), Vector2(50, 50)) * BOARD / 100.0
+
+
+## The key a place goes by on an island board (SPOTS, GLYPHS, its art and its node): its
+## region id, or "all" for any island's all-regions dungeon.
+static func spot_key(id: String) -> String:
+	return Dungeon.ALL if Dungeon.is_all(id) else id
 
 
 ## Goes to a route from a place on a board: zooms the board into the place first, unless
@@ -695,11 +748,13 @@ func _fill_world() -> void:
 			"%s: %s" % [i.name, i.topic])
 	var td := _zone_button(world_board, "Thunderdome", THUNDERDOME_ZONE)
 	td.disabled = not thunderdome_open()
+	var td_at := Vector2(THUNDERDOME_ZONE.position.x, THUNDERDOME_ZONE.position.y) * BOARD / 100.0
 	_place(td, "Thunderdome", "Locked" if td.disabled else "Every island mixed", UiTheme.DIM if td.disabled else UiTheme.PINK,
-		Callable(), "Thunderdome: opens with a second island" if td.disabled else "")
+		Callable() if td.disabled else (func(): zoom_to(world_board, td_at, go.bind(MapLink.THUNDERDOME_ROUTE))),
+		"Thunderdome: opens with a second island" if td.disabled else "")
 	var lib := _zone_button(world_board, "RelicLibrary", RELIC_LIBRARY_ZONE)
 	lib.disabled = true
-	_place(lib, "Relic Library", "Locked", UiTheme.DIM, Callable())
+	_place(lib, "Relic Library", RELIC_LIBRARY_LINE, UiTheme.DIM, Callable())
 	var shop := _zone_button(world_board, "Bazaar", BAZAAR_ZONE)
 	if not BAZAAR_PAINTED:
 		var marker := Stall.new()
@@ -713,7 +768,7 @@ func _fill_world() -> void:
 	_first_focus.call_deferred(world_board.get_node("Island_functions") as Button)
 
 
-# ── The Functions island ─────────────────────────────────────
+# ── An island ────────────────────────────────────────────────
 
 func _fill_island() -> void:
 	_clear(island_board)
@@ -732,31 +787,27 @@ func _fill_island() -> void:
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		island_board.add_child(art)
 	else:
-		island_board.add_child(_coded_ground())
-	pick = Progress.suggest(save)
+		island_board.add_child(_coded_ground(route.island))
+	var regions := MapLink.region_ids(route.island)
+	pick = Progress.suggest(save, regions)
 	var first: Button = null
-	for id in MapLink.region_ids():
+	for id in regions:
 		var b := _spot(id, Dungeon.region_name(id), spot_state(id), painted)
 		if first == null or id == pick.get("region"):
 			first = b
-	_spot(Dungeon.ALL, Dungeon.ALL_NAME, spot_state(Dungeon.ALL), painted)
+	var all := Dungeon.all_of(route.island)
+	_spot(all, Dungeon.ALL_NAME, spot_state(all), painted)
 	_spot("relic", "Relic device", "locked", painted)
 	_card(island_board)
 	_first_focus.call_deferred(first)
 
 
-## The coded ground when there is no painting: a dusk gradient and the jetty as a dot.
-func _coded_ground() -> Control:
+## The coded ground when there is no painting: the island's dusk gradient
+## (ArtSlots.ground) and the jetty as a dot.
+func _coded_ground(island_id: String) -> Control:
 	var g := TextureRect.new()
 	g.name = "Ground"
-	var grad := Gradient.new()
-	grad.set_color(0, Color(0.24, 0.17, 0.2))
-	grad.set_color(1, Color(0.36, 0.27, 0.16))
-	var tex := GradientTexture2D.new()
-	tex.gradient = grad
-	tex.fill_from = Vector2(0, 0)
-	tex.fill_to = Vector2(0, 1)
-	g.texture = tex
+	g.texture = ArtSlots.ground(island_id)
 	g.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	g.stretch_mode = TextureRect.STRETCH_SCALE
 	g.size = BOARD
@@ -781,11 +832,11 @@ class Jetty extends Control:
 ## ring, and SPARK's beacon when it is the pick. Every spot but the Relic device opens
 ## its region screen; the Relic device is small and locked.
 func _spot(id: String, title: String, state: String, painted: bool = false) -> Button:
-	var at := _spot_point(id)
+	var at := _spot_point(route.island, id)
 	var relic := id == "relic"
 	var d := RELIC_HIT if relic else HIT
 	var b := Button.new()
-	b.name = "Spot_" + id
+	b.name = "Spot_" + spot_key(id)
 	b.flat = true
 	b.size = Vector2(d, d)
 	b.position = at - b.size / 2.0
@@ -856,7 +907,7 @@ func spot_line(id: String, state: String) -> String:
 ## place is painted into the island (null), or the coded ring in the state's colour with
 ## the region's glyph (mark()).
 func _landmark(id: String, state: String, box: float, painted: bool) -> Control:
-	var path := "%s%s-%s.png" % [art_dir, id, state]
+	var path := "%s%s-%s.png" % [island_art_dir(), spot_key(id), state]
 	var has_art := ResourceLoader.exists(path)
 	if painted and not has_art:
 		return null
@@ -875,10 +926,10 @@ func _landmark(id: String, state: String, box: float, painted: bool) -> Control:
 		holder.add_child(art)
 		return holder
 	var border: Color = STATE_COLOR[state]
-	if id == Dungeon.ALL and state != "locked":
+	if Dungeon.is_all(id) and state != "locked":
 		border = UiTheme.PINK
 	var bg := UiTheme.PANEL if state != "locked" else Color(0.1, 0.12, 0.16, 0.85)
-	holder.add_child(_ring(mark(id), box * (1.0 if id == Dungeon.ALL else 0.8), border, bg))
+	holder.add_child(_ring(mark(spot_key(id)), box * (1.0 if Dungeon.is_all(id) else 0.8), border, bg))
 	return holder
 
 
@@ -981,16 +1032,18 @@ class Beacon extends Control:
 func _fill_region() -> void:
 	_clear(region_col)
 	var id: String = route.region
-	UiTheme.show_backdrop(region_backdrop, ArtSlots.backdrop(id))
+	UiTheme.show_backdrop(region_backdrop, ArtSlots.backdrop_or_ground(id))
 	var head := HBoxContainer.new()
 	head.name = "Head"
 	head.add_theme_constant_override("separation", 24)
 	var back := Button.new()
 	back.name = "Back"
-	back.text = "Island"
+	# The Thunderdome stands on the world map, not on an island.
+	var dome: bool = id == Dungeon.THUNDERDOME
+	back.text = "World map" if dome else "Island"
 	back.add_theme_font_size_override("font_size", UiTheme.SMALL)
 	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	back.pressed.connect(func(): go({"screen": "island", "island": route.island}))
+	back.pressed.connect(func(): go(MapLink.WORLD if dome else {"screen": "island", "island": route.island}))
 	head.add_child(back)
 	var title := UiTheme.label(Dungeon.region_name(id), 84, UiTheme.TEAL)
 	title.name = "Title"
