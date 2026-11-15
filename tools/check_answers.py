@@ -42400,6 +42400,175 @@ SPOT_CHECKS["stratified-sample"] = E15SN_spot
 # ── end stratified-sample ──
 
 
+# ── histogram (t4-ext-frequency-histogram, FAL-778) ──────────
+# The data is read back from what the student sees: the table's rows, or the histogram's bars (each
+# shaded strip's edges and height, which must touch, share one width and match their outlines).
+# Every count is added up again from that, each class boundary goes in the class it starts, and
+# each wrong histogram card is compared bar by bar with the data to find its one change.
+
+E15FH_SK = "SL4.2.frequency-histogram#"
+E15FH_T = "t4-ext-frequency-histogram#"
+E15FH_STORIES = {"the time each driver takes to change a wheel": ("drivers", "t", "minutes", (5, 10)),
+                 "the mass of each salvaged battery": ("batteries", "m", "kg", (5, 10)),
+                 "the length of each salvaged pipe": ("pipes", "l", "cm", (10, 20)),
+                 "the distance each courier rides in a day": ("couriers", "d", "km", (10, 20)),
+                 "the time each runner takes to cross the dunes": ("runners", "t", "minutes", (10, 20))}
+
+
+def E15FH_dec(r):
+    r = sp.Rational(r)
+    if r.q == 1:
+        return str(r.p)
+    s = f"{float(r):.6f}".rstrip("0")
+    need(sp.Rational(s) == r, f"{r} doesn't end")
+    return s
+
+
+def E15FH_bars(g, card=False):
+    """[(left, right, height)] from a histogram's shaded strips, checked against its outlines."""
+    bars = []
+    for reg, cur in zip(g["shade"], g["curves"]):
+        need(len(reg) == 2 and reg[0][1] == 0 and reg[1][1] == 0 and reg[0][2] == reg[1][2], "a bar is not a rectangle from 0")
+        l, r, h = sp.Rational(str(reg[0][0])), sp.Rational(str(reg[1][0])), sp.Rational(str(reg[0][2]))
+        need([[float(l), 0.0], [float(l), float(h)], [float(r), float(h)], [float(r), 0.0]] == [[float(a), float(b)] for a, b in cur], "a bar's outline is not its shading")
+        need(h.q == 1 and h > 0, f"a bar's height {h} is not a whole frequency")
+        bars.append((l, r, int(h)))
+    need(len(g["shade"]) == len(g["curves"]), "outlines and bars don't match")
+    need(g.get("y_name") == "frequency" and g["y0"] == 0 and g["y1"] > max(b[2] for b in bars), "the frequency axis")
+    return bars
+
+
+def E15FH_read(q):
+    """(story, w, freqs with None for a hidden class, T or None)."""
+    L = q["lines"]
+    m = re.match(r"The (?:table|histogram) shows (.+?)(?:, for (\d+) (\w+))?(?: \((\w) in (\w+)\))?\.$", L[0])
+    need(m is not None and m.group(1) in E15FH_STORIES, f"can't read {L[0]!r}")
+    who, x, unit, widths = E15FH_STORIES[m.group(1)]
+    need(m.group(3) in (None, who) and m.group(4) in (None, x) and m.group(5) in (None, unit), f"can't read {L[0]!r}")
+    T = int(m.group(2)) if m.group(2) else None
+    if q["table"] is not None:
+        rows = q["table"]["rows"]
+        need(rows[0] == [f"{x} ({unit})", ["frequency"]], "the table's head")
+        f, w = [], None
+        body = rows[1:]
+        if body[-1][0] == "Total":
+            T2 = int(body[-1][1][0])
+            need(T is None or T == T2, "two totals")
+            T, body = T2, body[:-1]
+        for c, (lab, val) in enumerate(body):
+            mm = re.fullmatch(rf"(\d+) ≤ {x} < (\d+)", lab)
+            need(mm is not None, f"can't read the class {lab!r}")
+            a, b = int(mm.group(1)), int(mm.group(2))
+            w = w or b - a
+            need(a == c * w and b - a == w, f"the class {lab!r} doesn't follow on with width {w}")
+            f.append(None if val[0] == "?" else int(val[0]))
+    else:
+        g = q["graph"]
+        bars = E15FH_bars(g)
+        w = bars[0][1] - bars[0][0]
+        k = int(sp.Rational(g["x1"]) / w)
+        need([t[0] for t in g["x_ticks"]] == [float(c * w) for c in range(k + 1)] and [t[1] for t in g["x_ticks"]] == [str(c * w) for c in range(k + 1)], "the boundaries marked")
+        need(g.get("x_name") == x, "the across axis")
+        f = [None] * k
+        for l, r, h in bars:
+            need(r - l == w and (l / w).q == 1, "the bars aren't equal-width classes with no gaps")
+            f[int(l / w)] = h
+        hidden = [c for c in range(k) if f[c] is None]
+        need(len(hidden) <= 1, "more than one bar missing")
+        if hidden:
+            mm = re.fullmatch(rf"The bar for (\d+) ≤ {x} < (\d+) is missing, and (\d+) {who} are measured in all\.", L[1])
+            need(mm is not None and int(mm.group(1)) == hidden[0] * w, f"can't read {L[1]!r}")
+            T = int(mm.group(3))
+            qm = [p for p in g["points"] if p["label"] == "?"]
+            need(len(qm) == 1 and qm[0].get("name") and abs(qm[0]["x"] - float((hidden[0] + sp.Rational(1, 2)) * w)) < 1e-9, "the missing bar isn't marked ?")
+    need(int(w) in widths and 4 <= len(f) <= 6, f"width {w}, {len(f)} classes")
+    known = [v for v in f if v is not None]
+    need(all(2 <= v <= 24 for v in known), "a frequency outside 2 to 24")
+    need(all(f[c] is None or f[c + 1] is None or f[c] != f[c + 1] for c in range(len(f) - 1)), "two neighbouring frequencies are the same")
+    if T is not None and None not in f:
+        need(T == sum(f), "the total isn't the frequencies added")
+    return (who, x, unit), int(w), f, T
+
+
+def E15FH_cls(x, w, c):
+    return f"{c * w} ≤ {x} < {(c + 1) * w}"
+
+
+def E15FH_check(q):
+    u, ch, asked = q["view"]["unknown"], q["choices"], q["asked"]
+    (who, x, unit), w, f, T = E15FH_read(q)
+    k = len(f)
+    if u == "missing-frequency":
+        need(f.count(None) == 1 and T is not None, "no one hidden frequency with a total")
+        i = f.index(None)
+        known = sum(v for v in f if v is not None)
+        p = T - known
+        need(p >= 2, f"the missing frequency is {p}")
+        need(asked == ("Find the missing frequency." if q["table"] is not None else f"Find the frequency of the class {E15FH_cls(x, w, i)}."), f"asked {asked!r}")
+        gc_check_common(q, f"frequency = {p}", {E15FH_T + "4": {f"frequency = {known}"}})
+        return None, None
+    need(None not in f, "a frequency is hidden")
+    T = sum(f)
+    if u == "bar-height":
+        m = re.fullmatch(rf"A histogram is drawn from this table\. Find the height of the bar for (\d+) ≤ {x} < (\d+)\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        i = int(m.group(1)) // w
+        gc_check_common(q, f"height = {f[i]}", {E15FH_T + "2": {f"height = {E15FH_dec(sp.Rational(f[i], w))}"}, E15FH_T + "3": {f"height = {sum(f[:i + 1])}"}})
+    elif u == "count-in-range":
+        m = re.fullmatch(rf"Find how many {who} have (\d+) ≤ {x} < (\d+)\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        a, b = int(m.group(1)) // w, int(m.group(2)) // w
+        need(int(m.group(1)) % w == 0 and int(m.group(2)) % w == 0 and 1 <= a and b - a >= 2 and b <= k, "the range is not two or more whole classes")
+        gc_check_common(q, f"number = {sum(f[a:b])}", {E15FH_SK + "0": {f"number = {sum(f[a - 1:b])}"}})
+    elif u == "count-at-least":
+        m = re.fullmatch(rf"Find how many {who} have {x} ≥ (\d+)\.", asked)
+        need(m is not None and int(m.group(1)) % w == 0, f"asked {asked!r}")
+        j = int(m.group(1)) // w
+        need(1 <= j <= k - 2, "the boundary leaves fewer than two classes above it")
+        gc_check_common(q, f"number = {sum(f[j:])}", {E15FH_SK + "0": {f"number = {sum(f[j - 1:])}"}})
+    elif u == "class-of-value":
+        m = re.fullmatch(rf"One more of the {who} is measured: its value is exactly (\d+) {unit}\.", q["lines"][1])
+        need(m is not None and int(m.group(1)) % w == 0 and 0 < int(m.group(1)) < k * w, f"can't read {q['lines'][1]!r}")
+        j = int(m.group(1)) // w
+        gc_check_common(q, E15FH_cls(x, w, j), {E15FH_SK + "0": {E15FH_cls(x, w, j - 1)}})
+    elif u == "total-frequency":
+        need(asked == f"Find how many {who} the histogram shows.", f"asked {asked!r}")
+        gc_check_common(q, f"number = {T}", {E15FH_T + "5": {f"number = {k}"}})
+    else:
+        need(asked == "Which histogram shows the data in the table?", f"asked {asked!r}")
+        rights, wr = [], defaultdict(set)
+        for o, gr in zip(ch, q["graphs"]):
+            need(gr.get("card"), "a histogram card is not drawn as a card")
+            bars = E15FH_bars(gr)
+            touching = all(r - l == w for l, r, h in bars) and [l for l, r, h in bars] == [c * w for c in range(k)]
+            gaps = all(abs((l - c * w) - sp.Rational(3, 20) * w) < sp.Rational(1, 1000) and abs((c + 1) * w - r - sp.Rational(3, 20) * w) < sp.Rational(1, 1000) for c, (l, r, h) in enumerate(bars))
+            hs = [h for l, r, h in bars]
+            need(len(bars) == k and (touching or gaps), "a card's bars are not the classes")
+            diff = [c for c in range(k) if hs[c] != f[c]]
+            if touching and not diff:
+                rights.append(o["text"])
+            mk = o.get("mistake", "")
+            if o["correct"]:
+                continue
+            if mk == "gaps":
+                need(gaps and not diff, "the gaps card changes more than the gaps")
+                wr[E15FH_SK + "1"].add(o["text"])
+            elif mk == "swap":
+                need(touching and len(diff) == 2 and diff[1] == diff[0] + 1 and hs[diff[0]] == f[diff[1]] and hs[diff[1]] == f[diff[0]], "the swap card doesn't swap two neighbours")
+            elif mk == "height":
+                need(touching and len(diff) == 1 and hs[diff[0]] == f[diff[0]] + 2, "the height card doesn't raise one bar by 2")
+            else:
+                raise Fail(f"unknown mistake {mk!r}")
+        need(len(rights) == 1, f"{len(rights)} cards show the data")
+        gc_check_common(q, rights[0], wr)
+    return None, None
+
+
+SITUATION_CHECKS["histogram"] = E15FH_check
+
+# ── end histogram ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):

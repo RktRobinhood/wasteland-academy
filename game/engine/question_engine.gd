@@ -170,6 +170,7 @@ static var SITUATIONS := {
 	"variable-kind": [VariableKindSituation, VariableKindViews],
 	"study": [StudySituation, StudyViews],
 	"stratified-sample": [StratifiedSampleSituation, StratifiedSampleViews],
+	"histogram": [HistogramSituation, HistogramViews],
 }
 
 static var _cat: Dictionary = {}
