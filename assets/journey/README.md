@@ -212,5 +212,6 @@ batch lands, that sheet is still in the painted style.
   the old idles redrawn in the new look. Each talk is the new idle with only the raised arm redrawn (B0-LT's talk
   changes only the screen, to a dark screen with an amber waveform). Frame ids, anims and the feet-point convention
   are unchanged; only `x`, `y`, `w`, `h`, `ox`, `oy` were re-measured (heights 220 → 221-223 px). The frames sit on the 16 px WebP block grid (`x` = 0, 64-96), so idle and talk decode to the same pixels outside the arm. The look is
-  louder than the painted cast: Dax wears a brown hat with teal goggles instead of the cap, and Noma's tunic is
-  bright teal with a magenta sash. B0-LT is chrome grey with a teal chest plate.
+  louder than the painted cast: Noma's tunic is bright teal with a magenta sash, and B0-LT is chrome grey with a
+  teal chest plate. Dax's portraits now match his sheet (brown hat with teal goggles, dark hair and beard) instead
+  of the old portraits' cap and grey hair.
