@@ -18,6 +18,10 @@ Each character or object is one atlas (`<name>.webp`, lossy WebP with alpha) plu
   relative to the **feet point** (the ground contact, x centred). Draw a frame at `feet + (ox, oy)`, so every frame of
   a sheet stands on the same point and nothing jumps when frames swap.
 - `figure_height`: shipped px height of the idle frame. Scale a sheet by `display height / figure_height`.
+- `display_height` (optional): the sheet's height on the strip, in strip units. Without it the strip uses its own
+  table (the Learner is 92, the enemies by tier, below).
+- `stride` (optional, party sheets): ground per walk frame as a fraction of `figure_height`, for a walk whose stride
+  isn't the Learner's 36 / 880 (Parallax, below).
 - `anims`: `{name: {frames: [frame index, ...], fps, loop}}`.
 - `facing`: the party faces `right`, enemies face `left`, objects `none`.
 - `stages` (bosses only): one entry per boss stage, `{idle, attack}`, naming the anims to play in that stage.
@@ -40,7 +44,9 @@ weapon clears the road in these frames (lowest pixel 8 px or more above the feet
 crossfaded). `scroll` is the layer's speed as a fraction of the ground speed. `far` is opaque (sky and skyline),
 `mid` and `near` have alpha. `near.feet_y` is the row of `near` the characters stand on. The ground speed that matches
 the walk cycle with no foot slide: the planted boot moves 36 px per walk frame on an 880 px figure, so
-`speed = 36 / 880 × display figure height × walk fps` (30 px/s for a 92 px Learner at 8 fps).
+`speed = 36 / 880 × display figure height × walk fps` (30 px/s for a 92 px Learner at 8 fps). An avatar with a
+different stride sets `stride` in place of 36 / 880: the dog's is `0.08` (16 px per frame on its 203 px figure,
+measured from where its paws touch down in `walk1` to `walk4`), so at 48 px and 8 fps it walks at 30.7 px/s.
 
 **Calm rule.** While a question is open, play only idle loops (code breathing, scale 1 to 1.02 over 2.4 s). The beat
 plays after the answer. Hits use at most one 80 ms white flash, so never more than 3 flashes a second. With reduced
@@ -182,7 +188,7 @@ FAL-360 added the four recurring dialogue characters (`cast/`) and their portrai
 canon roster, plus a new design for B0-LT (an angular factory frame with an amber monitor and a crown tag). 30 local
 renders in five rounds. Method and rounds are on FAL-360.
 
-FAL-943 added Nugget Bullant, the cyber-dog (the third pick, FAL-939; look from `writing/voice-sheets.md`): `party/learner-dog`, so `JourneyLink`'s `"learner-" + id` finds it for the save avatar `dog`. It has the Learners' anim names, so the strip plays it with no new beat code, but a dog's poses: `attack` is a lunging bite, `work` [work, work-b] digs with the front paws, `heave` leans back with the jaws clamped on the handle. It has **no `hand` slot**, so the strip draws no weapon on it (`_draw_sprite` already skips the weapon on a frame without `hand`). The walk is 4 frames, not 6. **Display height:** draw it at **48 px** (the Learner is 92); today every avatar is drawn at `LEARNER_H`, so the dog needs a per-sheet height in `_disp_h` before it ships (Coder). The poses are centred on the idle's body (`align: bbox`), not its feet, so the bite lunges in place and code does the lunge. Idle anchor from text-to-image with the male Learner's side frame as the style reference, then reference-locked edits; 42 local renders in four rounds. The avatar is `assets/avatars/avatar-dog.png` and the floating Spark companion is `assets/avatars/spark-companion.png` (128×128, the same Spark with a small hover glow). Method and rounds are on FAL-943.
+FAL-943 added Nugget Bullant, the cyber-dog (the third pick, FAL-939; look from `writing/voice-sheets.md`): `party/learner-dog`, so `JourneyLink`'s `"learner-" + id` finds it for the save avatar `dog`. It has the Learners' anim names, so the strip plays it with no new beat code, but a dog's poses: `attack` is a lunging bite, `work` [work, work-b] digs with the front paws, `heave` leans back with the jaws clamped on the handle. It has **no `hand` slot**, so the strip draws no weapon on it (`_draw_sprite` already skips the weapon on a frame without `hand`). The walk is 4 frames, not 6. **Display height:** **48 px** (the Learner is 92), set by `display_height` in its JSON, with its own `stride` (FAL-960). The poses are centred on the idle's body (`align: bbox`), not its feet, so the bite lunges in place and code does the lunge. Idle anchor from text-to-image with the male Learner's side frame as the style reference, then reference-locked edits; 42 local renders in four rounds. The avatar is `assets/avatars/avatar-dog.png` and the floating Spark companion is `assets/avatars/spark-companion.png` (128×128, the same Spark with a small hover glow). Method and rounds are on FAL-943.
 
 ## The look from FAL-792 (approved 2026-11-12)
 
