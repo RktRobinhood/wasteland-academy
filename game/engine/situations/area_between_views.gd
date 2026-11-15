@@ -511,12 +511,20 @@ func u_area_two_parabolas(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		graph = figure(fs, float(p) - 1.0, float(q) + 1.0, [[fs[0], fs[1], float(p), float(q)]],
 			[[p, yp.to_float(), Fmt.point(p, yp)], [q, yq.to_float(), Fmt.point(q, yq)]], ["f", "g"])
 	var lines := two(rep, fp(s.top), fp(s.bot), "The two curves enclose a region.", "The diagram shows the graphs of f and g, and the region they enclose is shaded.")
+	var meet := "Set them equal: %s = 0, so they meet at x = %d and x = %d." % [fp(gap), p, q]
+	var big := AreaBetweenSituation.integ(s.top, p, q)
+	var low := AreaBetweenSituation.integ(bot, p, q)
 	return pack(lines, "Find the area of the region.", ans, wr, vals(ans, [v.mul(2), v.add(1), v.div(2), v.add(2)]),
 		{"top-minus-bottom": [
-			"Set them equal: %s = 0, so they meet at x = %d and x = %d." % [fp(gap), p, q],
+			meet,
 			"Bracket the lower curve, as every term of it is taken away: (%s) − (%s) = %s." % [fp(s.top), fp(s.bot), fp(gap)],
 			"Area = %s." % integral(fp(gap), p, q),
-			"The antiderivative is %s, and upper minus lower gives %s." % [anti(gap), N(v)]]}, graph)
+			"The antiderivative is %s, and upper minus lower gives %s." % [anti(gap), N(v)]],
+		"difference-of-areas": [
+			meet,
+			"For the upper curve, %s = %s." % [integral(fp(s.top), p, q), N(big)],
+			"For the lower curve, %s = %s." % [integral(fp(bot), p, q), N(low)],
+			"Top minus bottom: %s − %s = %s." % [N(big), N(low) if low.sign() >= 0 else "(%s)" % N(low), N(v)]]}, graph)
 
 
 # ── Curves that swap over ────────────────────────────────────
@@ -688,6 +696,9 @@ func u_area_exp_lines(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var fb := func(x: float) -> float: return -B * exp(k * x)
 	if rep == "graph":
 		graph = figure([fa, fb], float(m) - 1.0, float(n) + 1.0, [[fa, fb, float(m), float(n)]], [], ["f", "g"])
+	# Each curve's own integral, for the difference of areas: (e⁴ − e) is written e⁴ − e.
+	var up := T(Q.new(A, k), br).trim_prefix("(").trim_suffix(")") if A == k else T(Q.new(A, k), br)
+	var down := T(Q.new(-B, k), br)
 	var lines := two(rep, top, bot, "A region is enclosed by the two curves and the lines x = %d and x = %d." % [m, n],
 		"The shaded region is enclosed by the graphs of f and g and the lines x = %d and x = %d." % [m, n])
 	return pack(lines, "Find the exact area of the region.", ans, wr, gen,
@@ -695,7 +706,12 @@ func u_area_exp_lines(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"Every height of the upper curve is positive and every height of the lower is negative, so the upper is on top.",
 			"Top minus bottom is (%s) − (%s) = %s." % [top, bot, T(A + B, e)],
 			"The antiderivative is %s." % T(c, e),
-			"Upper minus lower: %s." % T(c, br)]}, graph)
+			"Upper minus lower: %s." % T(c, br)],
+		"difference-of-areas": [
+			"Every height of the upper curve is positive and every height of the lower is negative, so the upper is on top.",
+			"For the upper curve, %s = %s." % [integral(top, m, n), up],
+			"For the lower curve, %s = %s." % [integral(bot, m, n), down],
+			"Top minus bottom: %s − (%s) = %s." % [up, down, T(c, br)]]}, graph)
 
 
 # ── A shift or a letter from the area ────────────────────────
