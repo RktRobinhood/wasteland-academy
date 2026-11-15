@@ -184,3 +184,13 @@ func test_every_misconception_shows_up() -> void:
 				if found:
 					break
 			check(found, "%s never appears on %s" % [m.ref, u])
+
+
+func test_every_working_sentence_ends_before_the_next() -> void:
+	# FAL-760: "= 0.333333 In radians, the bracket is ..." ran two steps together.
+	var joined := RegEx.create_from_string("[^.:] In radians")
+	for c in QuestionEngine.cells(false, [T]):
+		for seed in range(1, 13):
+			for sol in _make(c, seed).solutions:
+				for st in sol.steps:
+					check(joined.search(Step.text(st)) == null, "%s seed %d: %s" % [c.key, seed, Step.text(st)])

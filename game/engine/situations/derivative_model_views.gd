@@ -562,7 +562,9 @@ func u_tangent_estimate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.r < 0.0:
 		slips.append(wv(s.v - s.r * s.h.to_float(), R_SIGN))
 	var line := "The tangent at t = %d passes through (%d, %s) with gradient %s." % [s.t0, s.t0, GdcKit.W(s.v), GdcKit.W(s.r)]
-	var step := "At t = %s: %s + %s × %s = %s." % [D(Q.new(s.t0).add(s.h)), GdcKit.W(s.v), GdcKit.W(s.r), D(s.h), GdcKit.W(est)]
+	# A falling rate is taken away: "8.19712 − 3.55208 × 0.3", not "+ −3.55208" (FAL-760).
+	var step := "At t = %s: %s %s %s × %s = %s." % [D(Q.new(s.t0).add(s.h)), GdcKit.W(s.v), "−" if s.r < 0.0 else "+",
+		GdcKit.W(absf(s.r)), D(s.h), GdcKit.W(est)]
 	var out := {"lines": model_lines(rep, s), "asked": "Use the tangent at t = %d to estimate %s when t = %s, to 3 s.f." % [s.t0, c.sym, D(Q.new(s.t0).add(s.h))],
 		"answer": ans, "wrongs": slips, "generic": gv([DerivativeModelSituation.y(s.mod, t1), s.v + s.r, s.r * s.h.to_float(), est * 1.1, est * 0.9]),
 		"methods": {"gdc-derivative": method(["With the GDC: %s(%d) = %s and %s′(%d) = %s." % [c.sym, s.t0, GdcKit.W(s.v), c.sym, s.t0, GdcKit.W(s.r)], step, Answer.text(ans)], ans.values),

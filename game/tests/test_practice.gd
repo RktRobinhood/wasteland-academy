@@ -56,7 +56,7 @@ func test_plays_every_representation_and_format() -> void:
 			p.autoplay(right)
 			await tree.process_frame
 			check(p.answered, "%s: answered" % v)
-			check_eq(p.feedback.text.begins_with("Right") or p.feedback.text.begins_with("Good"), right, "%s: feedback %s" % [v, p.feedback.text])
+			check_eq(p.feedback.math.begins_with("Right") or p.feedback.math.begins_with("Good"), right, "%s: feedback %s" % [v, p.feedback.math])
 			check(p.working.visible, "%s: working shown" % v)
 	var saved := SaveData.load_from(SAVE)
 	check(saved.cells.size() >= 5, "answers are saved")
@@ -72,7 +72,7 @@ func test_a_wrong_option_records_its_misconception() -> void:
 	p.autoplay(false)
 	var r: Dictionary = p.save.cells[p.question.cell]
 	check_eq(r.last_misconception, "SL2.6.vertex#0")
-	check(p.feedback.text.contains("Watch out"), "the misconception is named")
+	check(p.feedback.math.contains("Watch out"), "the misconception is named")
 	made[0].free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 
@@ -118,6 +118,79 @@ func test_a_power_in_the_question_fits_a_phone() -> void:
 	for r: RichTextLabel in rich:
 		check(r.size.y >= r.get_theme_font_size("normal_font_size"), "%s has no height" % r.get_parsed_text())
 		check(r.get_global_rect().end.x <= p.card.get_global_rect().end.x + 0.5, r.get_parsed_text())
+	made[0].free()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+
+
+func test_a_power_in_an_option_is_raised() -> void:
+	# FAL-760: the options, the "Not quite" line and the method tabs raised no power.
+	for window: Vector2i in [Vector2i(390, 844), Vector2i(1280, 800)]:
+		var made: Array = await _screen(_area(window))
+		var p: Control = made[1]
+		p.show_view({"type": "t1-log-exp-form", "unknown": "to-exponential-form", "rep": "words", "angle": "rewrite-exponential", "format": "mcq", "seed": 1})
+		await tree.process_frame
+		await tree.process_frame
+		var plain := Button.new()
+		plain.text = "5"
+		plain.add_theme_font_size_override("font_size", UiTheme.BODY)
+		p.card.add_child(plain)
+		await tree.process_frame
+		var line: float = plain.size.y
+		plain.free()
+		for b: MathButton in p._choice_buttons:
+			check_eq(b.text, "", "%s: a power is drawn by the label, not the button" % b.math)
+			var shown: String = b.get_node("Math").get_parsed_text()
+			check(b.math.contains("^") and not shown.contains("^"), "%s shows %s" % [b.math, shown])
+			check(b.size.y >= line - 0.5, "%s: %d tall, under a line's %d" % [b.math, b.size.y, line])
+			check(b.get_node("Math").get_global_rect().end.y <= b.get_global_rect().end.y + 0.5, "%s: the label runs out of its button" % b.math)
+			check(b.get_global_rect().end.x <= p.card.get_global_rect().end.x + 0.5, "%s: off the card" % b.math)
+		p.autoplay(false)
+		await tree.process_frame
+		check(p.feedback.math.contains("^") and not p.feedback.get_parsed_text().contains("^"), p.feedback.get_parsed_text())
+		check(p.feedback.get_parsed_text().begins_with("Not quite"), p.feedback.get_parsed_text())
+		var right: MathButton = p._choice_buttons.filter(func(b): return b.math == p.question.answer_text)[0]
+		await tree.process_frame
+		check_eq(right.get_node("Math").get_theme_color("default_color"), UiTheme.TEAL, "the right option turns teal")
+		made[0].free()
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+
+
+func test_a_long_option_with_a_power_wraps() -> void:
+	# FAL-760: a rich option is as tall as its lines, as a plain one is.
+	var made: Array = await _screen(_area(Vector2i(390, 844)))
+	var p: Control = made[1]
+	p.show_view({"type": "t1-log-exp-form", "unknown": "to-exponential-form", "rep": "words", "angle": "rewrite-exponential", "format": "mcq", "seed": 1})
+	await tree.process_frame
+	var b: MathButton = p._choice_buttons[0]
+	b.math = "e^(2x) " + "and more words ".repeat(12)
+	await tree.process_frame
+	await tree.process_frame
+	var one: float = b.get_theme_font("font").get_height(b.get_theme_font_size("font_size"))
+	check(b.size.y > 2.0 * one, "wrapped onto several lines: %d tall" % b.size.y)
+	check(b.get_node("Math").get_global_rect().end.y <= b.get_global_rect().end.y + 0.5, "the label fits its button")
+	b.math = "no power"
+	check(b.text == "no power" and not b.has_node("Math"), "plain text goes back to the button")
+	made[0].free()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+
+
+func test_a_subscript_in_a_method_tab_is_lowered() -> void:
+	# FAL-760: "Substitute into u_n = u_1 r^(n − 1)" showed its underscores.
+	var made: Array = await _screen(_area(Vector2i(390, 844)))
+	var p: Control = made[1]
+	p.show_view({"type": "t1-geometric-sequence", "unknown": "r-from-terms", "rep": "terms", "angle": "repeated-multiply", "format": "mcq", "seed": 1})
+	p.autoplay(false)
+	await tree.process_frame
+	var tabs: Array = p.card.find_child("Methods", true, false).get_children()
+	check_eq(tabs.size(), 2)
+	var other: MathButton = tabs[1]
+	check_eq(other.math, "Another way: Substitute into u_n = u_1 r^(n − 1)")
+	check_eq(other.get_node("Math").get_parsed_text(), "Another way: Substitute into un = u1 rn − 1")
+	other.button_pressed = true
+	other.pressed.emit()
+	await tree.process_frame
+	var title: RichTextLabel = p.card.find_child("Steps", true, false).get_child(0)
+	check_eq(title.get_parsed_text(), "Substitute into un = u1 rn − 1")
 	made[0].free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 

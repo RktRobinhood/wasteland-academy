@@ -1442,11 +1442,20 @@ run plays the same with the strip on, off or broken (`test_journey.gd` checks al
 
 Questions are written with a caret (`e^(4x − 3)`, `a × 10^k`), as `tools/check_answers.py`
 parses them back and Unicode has no superscript `.` or `/`. `UiTheme.math()` (FAL-743) cuts the
-powers out with `Fmt.power_runs()` and draws them raised, in a `RichTextLabel` with a
-`FontVariation` over the default font. Text with no power stays a plain `Label`. It is used for the
-prompt, the question's lines, the worked solution and the explorer's versions. Options, the
-text around an answer box and graph labels still show the caret: a `Button`, a `LineEdit`'s row
-and `draw_string` can't take rich text.
+powers out with `Fmt.script_runs()` and draws them raised, in a `RichTextLabel` with a
+`FontVariation` over the default font. Subscripts typed with an underscore after a letter (`u_1`,
+`S_n`, `log_a b`, the `a` of `a^(log_a x)`) are drawn lowered the same way (FAL-760), as Unicode has
+no subscript b or c; the catalogue keeps its underscores. Text with neither stays a plain `Label`.
+It is used for the prompt, the question's lines, the worked solution and the explorer's versions.
+
+A `Button` can't hold rich text, so the options and the worked solution's method tabs are a
+`MathButton` (`ui/math_button.gd`): text with a power or subscript is drawn by a `RichTextLabel`
+inside the button, which sets its own height from that label's (never under one line's) and takes
+its colour from the button's state, so a right option still turns teal. Plain text stays the
+button's own `text`. The feedback line and the fight's hint are a `MathText` (`ui/math_text.gd`),
+so "The answer is 9^(1/2) = 3." and "Watch out" lines raise and lower too. Set `math` on either,
+not `text`; it keeps the text as written. The text around an answer box (its pick buttons too) and
+graph labels still show the caret: a `LineEdit`'s row and `draw_string` can't take rich text.
 
 An answer box starts 150 wide and grows as it's typed in, up to `Practice.SLOT_CHARS`, which still
 fits the fight's card on a 360 px phone. It isn't sized from the answer, as that would give away
@@ -2288,7 +2297,8 @@ script error happens while it runs. Run one file with
   all-regions dungeon; the "boss beaten" event; and the balance check, which prints the
   average floor and Scrap per run for players who answer 50%, 70% and 90% right.
 - `test_practice.gd`: the practice screen plays every representation and format,
-  records answers, and fits at 390x844 and 1280x800.
+  records answers, and fits at 390x844 and 1280x800; options, method tabs and the "Not quite"
+  line raise powers and lower subscripts, inside buttons at least a line tall (FAL-760).
 - `test_step.gd`: a worked-solution step as a String or a tagged `{move, board}`: the
   practice screen and Hint show the board, and the export writes text with the moves.
 - `test_audio.gd`: a loop per location at the length the review measured, only the

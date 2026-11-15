@@ -28,8 +28,14 @@ const MATH_FONT := preload("res://assets/fonts/dejavu-math-subset.woff2")
 ## A power's size against its line, and how far up it sits, as a share of the font's height.
 const POWER_SCALE := 0.68
 const POWER_RAISE := -0.28
+## How far down a subscript sits, as a share of the font's height (FAL-760).
+const SUB_DROP := 0.12
+## How far up a subscript in a power sits: under the power, over the line.
+const POWER_SUB_RAISE := -0.12
 
 static var _raised: FontVariation
+static var _lowered: FontVariation
+static var _raised_lowered: FontVariation
 
 
 ## Adds the maths subset behind the default font, once. Safe to call again.
@@ -107,42 +113,68 @@ static func label(text: String, size: int = BODY, color: Color = TEXT) -> Label:
 
 ## A label for maths, with powers written with a caret drawn raised (FAL-743). They are
 ## raised here, not written in superscript characters, as Unicode has no superscript . or /.
-## Plain text gets a plain label, so only the text with a power is rich text. The questions
-## keep their carets: tools/check_answers.py parses them. A Button can't hold rich text.
+## Subscripts written with an underscore (u_1, log_a b) are drawn lowered (FAL-760), as
+## Unicode has no subscript b or c. Plain text gets a plain label, so only the text with
+## either is rich text. The questions keep their carets: tools/check_answers.py parses them.
+## A Button can't hold rich text: MathButton draws one inside it, and MathText is a
+## label whose text changes.
 static func math(text: String, size: int = BODY, color: Color = TEXT, center := false) -> Control:
-	var runs := Fmt.power_runs(text)
-	if not runs.any(func(run): return run[1]):
+	if not scripted(text):
 		var l := label(text, size, color)
 		if center:
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		return l
-	var r := RichTextLabel.new()
+	var r := rich(size, color)
 	r.fit_content = true
+	if center:
+		r.push_paragraph(HORIZONTAL_ALIGNMENT_CENTER)
+	add_math(r, text, size)
+	return r
+
+
+## Whether text has a power or a subscript to draw off the line.
+static func scripted(text: String) -> bool:
+	return Fmt.script_runs(text).any(func(run): return run[1] != 0)
+
+
+## An empty rich label set up for maths, which the mouse goes through.
+static func rich(size: int = BODY, color: Color = TEXT) -> RichTextLabel:
+	var r := RichTextLabel.new()
 	r.scroll_active = false
 	r.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	r.add_theme_font_size_override("normal_font_size", size)
 	r.add_theme_color_override("default_color", color)
 	r.add_theme_constant_override("line_separation", 3)
-	if center:
-		r.push_paragraph(HORIZONTAL_ALIGNMENT_CENTER)
-	for run in runs:
-		if run[1]:
-			r.push_font(_raised_font(), roundi(size * POWER_SCALE))
-			r.add_text(run[0])
-			r.pop()
-		else:
-			r.add_text(run[0])
 	return r
 
 
-static func _raised_font() -> FontVariation:
-	if _raised == null:
+## Adds text to r, with its powers raised and its subscripts lowered, at font size size.
+static func add_math(r: RichTextLabel, text: String, size: int) -> void:
+	for run in Fmt.script_runs(text):
+		if run[1] == 0:
+			r.add_text(run[0])
+		else:
+			r.push_font(_script_font(run[1]), roundi(size * POWER_SCALE))
+			r.add_text(run[0])
+			r.pop()
+
+
+static func _script_font(place: int) -> FontVariation:
+	var f: FontVariation = {Fmt.RAISED: _raised, Fmt.LOWERED: _lowered, Fmt.RAISED_LOWERED: _raised_lowered}[place]
+	if f == null:
 		install_math_font()
-		_raised = FontVariation.new()
-		_raised.base_font = ThemeDB.fallback_font
-		_raised.baseline_offset = POWER_RAISE
-	return _raised
+		f = FontVariation.new()
+		f.base_font = ThemeDB.fallback_font
+		f.baseline_offset = {Fmt.RAISED: POWER_RAISE, Fmt.LOWERED: SUB_DROP, Fmt.RAISED_LOWERED: POWER_SUB_RAISE}[place]
+		match place:
+			Fmt.RAISED:
+				_raised = f
+			Fmt.LOWERED:
+				_lowered = f
+			_:
+				_raised_lowered = f
+	return f
 
 
 static func panel(color: Color = PANEL) -> StyleBoxFlat:

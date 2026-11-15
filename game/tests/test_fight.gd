@@ -48,7 +48,7 @@ func test_a_wrong_answer_shows_its_worked_solution() -> void:
 	check_eq(f.run.state, "result")
 	check_eq(f.result.outcome, "wrong")
 	check(f.working.visible, "the worked solution shows")
-	check(f.feedback.text.begins_with("Missed"), f.feedback.text)
+	check(f.feedback.math.begins_with("Missed"), f.feedback.math)
 	check(f.next_button.visible)
 	check_eq(int(f.player_bar.value), f.run.hp)
 	f.next_question()
@@ -78,7 +78,7 @@ func test_lifelines_on_the_screen() -> void:
 	var made: Array = await _screen(_area(Vector2i(390, 844)))
 	var f: Control = made[1]
 	f.use_lifeline("hint")
-	check(f.hint_label.visible and f.hint_label.text.begins_with("Hint: "), f.hint_label.text)
+	check(f.hint_label.visible and f.hint_label.math.begins_with("Hint: "), f.hint_label.math)
 	check(f.lifeline_buttons.hint.disabled, "used up")
 	f.use_lifeline("freeze")
 	check(f.run.frozen_left > 0.0)
@@ -259,14 +259,14 @@ func test_a_job_talks_about_the_job() -> void:
 		check_eq(f.check_button.text, pick.sheet.verb, "the button says the job")
 		check(f.enemy_bar.is_visible_in_tree(), "the bar stays")
 		f.autoplay(true)
-		check(f.feedback.text.begins_with(pick.sheet.hit), f.feedback.text)
-		check(f.feedback.text.contains("+%d Scrap" % f.result.scrap), f.feedback.text)
-		check(not f.feedback.text.contains("enemy") and not f.feedback.text.contains("Hit!"), f.feedback.text)
+		check(f.feedback.math.begins_with(pick.sheet.hit), f.feedback.math)
+		check(f.feedback.math.contains("+%d Scrap" % f.result.scrap), f.feedback.math)
+		check(not f.feedback.math.contains("enemy") and not f.feedback.math.contains("Hit!"), f.feedback.math)
 		while f.run.state != "ended" and not f.result.get("defeated", false):
 			f.next_question()
 			f.autoplay(true)
-		check(f.feedback.text.contains(pick.sheet.done), f.feedback.text)
-		check(not f.feedback.text.contains("falls"), f.feedback.text)
+		check(f.feedback.math.contains(pick.sheet.done), f.feedback.math)
+		check(not f.feedback.math.contains("falls"), f.feedback.math)
 		check_eq(f.next_button.text, "Walk on")
 		_done(made)
 
@@ -304,10 +304,10 @@ func test_a_part_hit_and_a_late_one_stay_on_the_job() -> void:
 	f.answered = false
 	f._show_result({"outcome": "glancing", "note": "", "enemy_damage": 5, "player_damage": 0, "scrap": 5, "bonus": 0,
 		"solution": [], "dead": false, "defeated": false})
-	check(f.feedback.text.begins_with("It barely moves"), f.feedback.text)
+	check(f.feedback.math.begins_with("It barely moves"), f.feedback.math)
 	f._show_result({"outcome": "late", "note": "", "enemy_damage": 10, "player_damage": 5, "scrap": 5, "bonus": 0,
 		"solution": [], "dead": false, "defeated": false})
-	check(f.feedback.text.begins_with("Late, but it gives"), f.feedback.text)
+	check(f.feedback.math.begins_with("Late, but it gives"), f.feedback.math)
 	_done(made)
 
 
@@ -320,11 +320,11 @@ func test_a_fight_reads_as_a_fight() -> void:
 	check_eq(f.enemy_name.text, "%s · D%d" % [f.run.enemy.name, f.run.tier])
 	check(f.progress.text.contains("· fight 1 of %d ·" % Tuning.FIGHTS_PER_FLOOR), f.progress.text)
 	f.autoplay(true)
-	check(f.feedback.text.begins_with("Hit!"), f.feedback.text)
+	check(f.feedback.math.begins_with("Hit!"), f.feedback.math)
 	while f.run.state != "ended" and not f.result.get("defeated", false):
 		f.next_question()
 		f.autoplay(true)
-	check(f.feedback.text.contains("The %s falls." % f.run.enemy.name), f.feedback.text)
+	check(f.feedback.math.contains("The %s falls." % f.run.enemy.name), f.feedback.math)
 	check_eq(f.next_button.text, "Next fight")
 	_done(made)
 
@@ -376,7 +376,7 @@ func test_no_strip_keeps_the_fight_labels() -> void:
 	f.autoplay(true)
 	g.autoplay(true)
 	check_eq(g.next_button.text, "Next question")
-	check(g.feedback.text.begins_with("Hit!"), g.feedback.text)
+	check(g.feedback.math.begins_with("Hit!"), g.feedback.math)
 	for k in ["outcome", "scrap", "enemy_damage", "player_damage", "defeated"]:
 		check_eq(g.result[k], f.result[k], k)
 	check_eq(g.run.hp, f.run.hp, "the same HP")
@@ -548,7 +548,7 @@ func test_a_boss_part_shows_the_value_carried_on() -> void:
 	check(f.card.get_node_or_null("Carried") == null, "part (a) carries nothing")
 	var a: Dictionary = f.run.question
 	f.autoplay(false)
-	check(f.feedback.text.contains("carries on from " + a.answer_text), f.feedback.text)
+	check(f.feedback.math.contains("carries on from " + a.answer_text), f.feedback.math)
 	check_eq(f.next_button.text, "Next part")
 	f.next_question()
 	await tree.process_frame

@@ -113,7 +113,7 @@ func test_ask_it_another_way_keeps_the_situation() -> void:
 	check_eq(e.unknown, seen[0], "goes round to the first again")
 	# It plays as on the practice screen, and the card's own button asks again.
 	e.autoplay(true)
-	check(e.answered and e.feedback.text.begins_with("Right"), e.feedback.text)
+	check(e.answered and e.feedback.math.begins_with("Right"), e.feedback.math)
 	check(e.working.visible, "worked solution shown")
 	check_eq(e.next_button.text, "Ask it another way")
 	e.next_button.pressed.emit()
@@ -135,7 +135,7 @@ func test_pickers_set_the_view() -> void:
 	e._choose("format", "mcq")
 	check_eq(e.question.format, "mcq")
 	e.autoplay(false)
-	check(e.feedback.text.begins_with("Not quite"), e.feedback.text)
+	check(e.feedback.math.begins_with("Not quite"), e.feedback.math)
 	# A new unknown keeps the representation if it can, and drops a method that doesn't suit.
 	e._choose("unknown", "axis-from-roots")
 	check_eq(e.rep, "graph")

@@ -37,6 +37,21 @@ func test_powers_are_cut_out_of_the_text() -> void:
 	check_eq(Fmt.power_runs("e^x + 1"), [["e", false], ["x", true], [" + 1", false]])
 
 
+func test_subscripts_are_cut_out_of_the_text() -> void:
+	# FAL-760: method names and feedback wrote u_1 and log_a b as typed.
+	check_eq(Fmt.script_runs("u_1 r^n"), [["u", 0], ["1", Fmt.LOWERED], [" r", 0], ["n", Fmt.RAISED]])
+	check_eq(Fmt.script_runs("Let y = log_a b"), [["Let y = log", 0], ["a", Fmt.LOWERED], [" b", 0]])
+	check_eq(Fmt.script_runs("log_b(x)"), [["log", 0], ["b", Fmt.LOWERED], ["(x)", 0]])
+	check_eq(Fmt.script_runs("u_(n+1) − u_n"), [["u", 0], ["n+1", Fmt.LOWERED], [" − u", 0], ["n", Fmt.LOWERED]])
+	check_eq(Fmt.script_runs("a^(log_a x) = x"), [["a", 0], ["log", Fmt.RAISED], ["a", Fmt.RAISED_LOWERED], [" x", Fmt.RAISED], [" = x", 0]])
+	check_eq(Fmt.script_runs("x = ___ and _1"), [["x = ___ and _1", 0]], "a blank and a lone underscore stay")
+	check_eq(Fmt.power_runs("u_1 r^n"), [["u_1 r", false], ["n", true]], "power_runs leaves subscripts")
+	var sub := UiTheme.math("S_n")
+	check(sub is RichTextLabel, "a subscript is rich text")
+	check_eq(sub.get_parsed_text(), "Sn")
+	sub.free()
+
+
 func test_only_text_with_a_power_is_rich_text() -> void:
 	var plain := UiTheme.math("x² + 1")
 	check(plain is Label, "plain text stays a label")

@@ -26,6 +26,8 @@ const R_NEG_ROOT := "t1-binomial-term#10"
 const R_N_TERMS := "t1-binomial-term#11"
 const R_PLACE := "t1-binomial-term#12"
 const R_OVER := "t1-binomial-term#13"
+## A slip this big or bigger isn't offered: tools/feedback-check calls it an overflow.
+const SLIP_MAX := 1000000000
 
 const UNKNOWNS := ["ncr-value", "ncr-read-triangle", "ncr-large-r", "ncr-symmetry", "ncr-edge", "ncr-find-n",
 	"ncr-formula-in-n", "pascal-row", "pascal-next-row", "row-from-entries", "number-of-terms", "expand-small",
@@ -743,19 +745,24 @@ static func choose_steps(s: Dictionary, j: int) -> Array:
 		"%d × %s = %s" % [C(n, j), bare(each), N(coef(s, j))]]
 
 
-## The slips a single coefficient can show, in order of a shuffle.
+## The slips a single coefficient can show, in order of a shuffle. A slip past SLIP_MAX goes,
+## and a plain wrong number takes its place: (4 − 3x)⁹ with both brackets raised to 7 is
+## −1289945088, too big to read as a slip (FAL-760).
 static func term_slips(s: Dictionary, j: int, make: Callable) -> Array:
 	var n: int = s.n
 	var c := coef(s, j)
 	var w: Array = []
+	var add := func(v: int, ref: String) -> void:
+		if absi(v) < SLIP_MAX:
+			w.append(make.call(v, ref))
 	if c < 0:
-		w.append(make.call(-c, R_SIGN))
+		add.call(-c, R_SIGN)
 	if absi(s.b) > 1 and n - j >= 2:
-		w.append(make.call(C(n, j) * pw(s.a, j) * s.b, R_OTHER))
+		add.call(C(n, j) * pw(s.a, j) * s.b, R_OTHER)
 	if absi(s.a) > 1 and j >= 2:
-		w.append(make.call(C(n, j) * s.a * pw(s.b, n - j), R_UNRAISED))
+		add.call(C(n, j) * s.a * pw(s.b, n - j), R_UNRAISED)
 	if j != n - j and absi(s.b) > 1:
-		w.append(make.call(C(n, j) * pw(s.a, j) * pw(s.b, j), R_POWERS))
+		add.call(C(n, j) * pw(s.a, j) * pw(s.b, j), R_POWERS)
 	return w
 
 

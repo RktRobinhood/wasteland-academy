@@ -301,7 +301,7 @@ func test_an_empty_attack_shows_what_is_missing() -> void:
 			await _settle()
 			check(_shows(s, s.check_button), "%s, %s: the button starts in view" % [path, spec[0]])
 			await _tap(_middle(s.check_button))
-			check_eq(s.feedback.text, spec[2], "%s, %s: the message" % [path, spec[0]])
+			check_eq(s.feedback.math, spec[2], "%s, %s: the message" % [path, spec[0]])
 			check(not s.answered, "%s, %s: it isn't an answer" % [path, spec[0]])
 			check(_shows(s, s.feedback), "%s, %s: the message shows (%s in %s)" % [path, spec[0], s.feedback.get_global_rect(), s.scroll.get_global_rect()])
 			check(_shows(s, s.check_button), "%s, %s: the button still shows" % [path, spec[0]])

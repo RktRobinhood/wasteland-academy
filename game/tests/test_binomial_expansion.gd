@@ -188,3 +188,16 @@ func test_the_type_is_on_the_aa_courses_only() -> void:
 		check_eq(QuestionEngine.cells(false, [TYPE], course).size(), CELLS, course)
 	for course in ["ai-sl", "ai-hl"]:
 		check_eq(QuestionEngine.cells(false, [TYPE], course).size(), 0, course)
+
+
+func test_no_option_is_too_big_to_read() -> void:
+	# FAL-760: (4 − 3x)⁹ at seed 37 offered −1289945088, both brackets raised to 7.
+	var q := _make("coefficient-raised", "equation", "choose-brackets", 37, "mcq")
+	check(q.choices.any(func(o): return o.correct), "the answer is still an option")
+	for u in ["coefficient-plain", "coefficient-negative", "coefficient-raised", "coefficient-power", "specific-term"]:
+		for c in QuestionEngine.cells(false, [TYPE]).filter(func(c): return c.unknown == u):
+			for seed in range(1, 41):
+				for o in _make(u, c.rep, c.angle, seed, "mcq").choices:
+					if o.has("values"):
+						for v in o.values.values():
+							check(absf(Q.of(v).to_float()) < BinomialExpansionViews.SLIP_MAX, "%s seed %d: %s" % [c.key, seed, o.text])

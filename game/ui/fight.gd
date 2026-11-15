@@ -112,7 +112,7 @@ var timer_label: Label
 var timer_fill: StyleBoxFlat
 var lifeline_buttons := {}
 var badge: Control
-var hint_label: Label
+var hint_label: MathText
 var summary_box: VBoxContainer
 var floor_box: VBoxContainer
 ## The deep link's jump to a fight (1: none).
@@ -647,7 +647,7 @@ func _show_question() -> void:
 		taunt.name = "Taunt"
 		card.add_child(taunt)
 		card.move_child(taunt, 0)
-	hint_label = UiTheme.label("", UiTheme.BODY, UiTheme.SAND)
+	hint_label = MathText.new(UiTheme.BODY, UiTheme.SAND)
 	hint_label.name = "Hint"
 	hint_label.visible = false
 	card.add_child(hint_label)
@@ -765,7 +765,7 @@ func use_lifeline(id: String) -> void:
 		"hint":
 			var step := run.use_hint()
 			if step != "":
-				hint_label.text = "Hint: " + step
+				hint_label.math = "Hint: " + step
 				hint_label.visible = true
 		"freeze":
 			run.use_freeze()
@@ -788,8 +788,8 @@ func check_answer() -> void:
 	if not r.get("complete", false):
 		var msgs: Array = r.get("errors", {}).values()
 		feedback.visible = true
-		feedback.text = msgs[0] if msgs.size() == 1 else "Fill in every box."
-		feedback.add_theme_color_override("font_color", UiTheme.SAND)
+		feedback.math = msgs[0] if msgs.size() == 1 else "Fill in every box."
+		feedback.set_color(UiTheme.SAND)
 		_reveal_result()
 		return
 	_show_result(r)
@@ -804,41 +804,41 @@ func _show_result(r: Dictionary) -> void:
 	match r.outcome:
 		"right":
 			if job.is_empty():
-				feedback.text = "Hit! −%d enemy HP · +%d Scrap" % [r.enemy_damage, r.scrap + r.bonus]
+				feedback.math = "Hit! −%d enemy HP · +%d Scrap" % [r.enemy_damage, r.scrap + r.bonus]
 			else:
-				feedback.text = "%s +%d Scrap" % [job.hit, r.scrap + r.bonus]
+				feedback.math = "%s +%d Scrap" % [job.hit, r.scrap + r.bonus]
 		"glancing":
-			feedback.text = "%s %s %s" % ["Glancing hit: half damage." if job.is_empty() else "It barely moves: half the work.",
+			feedback.math = "%s %s %s" % ["Glancing hit: half damage." if job.is_empty() else "It barely moves: half the work.",
 				r.note, QuestionEngine.answer_sentence(question)]
 			color = UiTheme.SAND
 		"late":
 			if job.is_empty():
-				feedback.text = "Late hit! It lands, but you take %d damage · +%d Scrap" % [r.player_damage, r.scrap]
+				feedback.math = "Late hit! It lands, but you take %d damage · +%d Scrap" % [r.player_damage, r.scrap]
 			else:
-				feedback.text = "Late, but it gives. You take %d damage · +%d Scrap" % [r.player_damage, r.scrap]
+				feedback.math = "Late, but it gives. You take %d damage · +%d Scrap" % [r.player_damage, r.scrap]
 			color = UiTheme.SAND
 		"wrong":
-			feedback.text = "Missed. −%d HP. %s" % [r.player_damage, QuestionEngine.answer_sentence(question)]
+			feedback.math = "Missed. −%d HP. %s" % [r.player_damage, QuestionEngine.answer_sentence(question)]
 			color = UiTheme.PINK
 		"timeout":
-			feedback.text = "Time's up. −%d HP. %s" % [r.player_damage, QuestionEngine.answer_sentence(question)]
+			feedback.math = "Time's up. −%d HP. %s" % [r.player_damage, QuestionEngine.answer_sentence(question)]
 			color = UiTheme.PINK
 	if r.bonus > 0:
-		feedback.text += " Another way: +%d bonus Scrap." % r.bonus
+		feedback.math += " Another way: +%d bonus Scrap." % r.bonus
 	var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), r.get("misconception", ""))
 	if why != "" and r.outcome == "wrong":
-		feedback.text += "\nWatch out: " + why + "."
+		feedback.math += "\nWatch out: " + why + "."
 	if question.has("reason") and r.outcome != "right":
-		feedback.text += "\n" + question.reason
+		feedback.math += "\n" + question.reason
 	if r.get("carry", "") != "" and r.outcome in ["wrong", "timeout", "glancing"]:
-		feedback.text += "\nPart (%s) carries on from %s." % [QuestionEngine.part_letter(r.part + 1), r.carry]
+		feedback.math += "\nPart (%s) carries on from %s." % [QuestionEngine.part_letter(r.part + 1), r.carry]
 	if r.defeated:
-		feedback.text += "\n" + job.get("done", "The %s falls." % run.enemy.name)
+		feedback.math += "\n" + job.get("done", "The %s falls." % run.enemy.name)
 		if r.get("healed", 0) > 0:
-			feedback.text += " +%d HP." % r.healed
+			feedback.math += " +%d HP." % r.healed
 		if r.get("floor_cleared", false):
-			feedback.text += " Floor %d cleared: floor %d is next." % [run.floor_no, run.floor_no + 1]
-	feedback.add_theme_color_override("font_color", color)
+			feedback.math += " Floor %d cleared: floor %d is next." % [run.floor_no, run.floor_no + 1]
+	feedback.set_color(color)
 	var banner := _result_banner(r)
 	if banner != null:
 		card.add_child(banner)

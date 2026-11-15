@@ -102,3 +102,15 @@ func test_every_tag_shows_up_as_an_option() -> void:
 					seen[o.ref] = true
 	for m in t.misconceptions:
 		check(seen.has(m.ref), "%s never shows" % m.ref)
+
+
+func test_a_falling_rate_is_taken_away() -> void:
+	# FAL-760: "8.19712 + −3.55208 × 0.3 = 7.13149".
+	var falling := 0
+	for c in QuestionEngine.cells(false, [TYPE]).filter(func(c): return c.unknown == "tangent-estimate"):
+		for seed in range(1, 21):
+			for sol in _make(c, seed).solutions:
+				for st in sol.steps:
+					check(not Step.text(st).contains("+ −"), "%s seed %d: %s" % [c.key, seed, Step.text(st)])
+					falling += int(Step.text(st).contains(" − ") and Step.text(st).contains(" × "))
+	check(falling > 0, "no falling rate was drawn")

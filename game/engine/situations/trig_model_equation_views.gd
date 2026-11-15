@@ -345,7 +345,7 @@ func span_methods(s: Dictionary, a: Dictionary, ps: Array, end: Array) -> Dictio
 	var xs := crossings(s, k, s.L)
 	var said := "It is %s %s for %s, which adds up to %s." % [word_of(s), D(s.level), stretches_text(ps), GdcKit.W(total(ps))]
 	var crossed := "For 0 ≤ t ≤ %d they cross at t = %s." % [s.L, list(xs)] if not xs.is_empty() else "They don't cross for 0 ≤ t ≤ %d." % s.L
-	var solved: Array = [crossed] if xs.is_empty() else [rearrange(s, s.level) + " " + us_text(s, s.level), "Undoing the bracket, " + crossed.substr(0, 1).to_lower() + crossed.substr(1)]
+	var solved: Array = [crossed] if xs.is_empty() else [rearrange(s, s.level) + ". " + us_text(s, s.level), "Undoing the bracket, " + crossed.substr(0, 1).to_lower() + crossed.substr(1)]
 	return {M_GDC: method([gdc_line(s, s.level), crossed, said] + end + [say(a)], a.values),
 		M_SKETCH: method(["Sketch the model and the line for 0 ≤ t ≤ %d: the span holds %s periods, so count the stretches past the line one by one, not by cycles." % [s.L, GdcKit.S(s.L / s.T)],
 			] + solved + [said] + end + [say(a)], a.values)}

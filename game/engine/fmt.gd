@@ -14,24 +14,49 @@ const TIE := 1.0 + 1e-14
 ## [["e", false], ["4x − 3", true]]. The brackets round a power go, as on paper. A ^ with
 ## no power after it stays as it is.
 static func power_runs(s: String) -> Array:
+	return script_runs(s, false).map(func(run): return [run[0], run[1] == RAISED])
+
+
+const RAISED := 1
+const LOWERED := -1
+## A subscript inside a power: the a of a^(log_a x).
+const RAISED_LOWERED := 2
+
+## s cut at its powers and, with subs, its subscripts (FAL-760), each run [text, place]:
+## place is 0 on the line, RAISED or LOWERED. "u_1 r^n" is [["u", 0], ["1", LOWERED],
+## [" r", 0], ["n", RAISED]]. A subscript follows a letter, so "x = ___" keeps its blank;
+## "log_b(x)" lowers only the b. A bracket round either goes, as on paper. A subscript in a
+## power is RAISED_LOWERED; a power in a power is drawn at the first's height.
+static func script_runs(s: String, subs := true) -> Array:
 	var out := []
 	var plain := ""
 	var i := 0
 	while i < s.length():
-		var end := _power_end(s, i + 1) if s[i] == "^" else 0
+		var end := 0
+		if s[i] == "^" or (subs and s[i] == "_" and i > 0 and _letter(s[i - 1])):
+			end = _power_end(s, i + 1)
 		if end <= i + 1:
 			plain += s[i]
 			i += 1
 			continue
 		if plain != "":
-			out.append([plain, false])
+			out.append([plain, 0])
 			plain = ""
 		var bracketed := s[i + 1] == "("
-		out.append([s.substr(i + 2, end - i - 3) if bracketed else s.substr(i + 1, end - i - 1), true])
+		var body := s.substr(i + 2, end - i - 3) if bracketed else s.substr(i + 1, end - i - 1)
+		if s[i] == "_":
+			out.append([body, LOWERED])
+		else:
+			for run in script_runs(body, subs):
+				out.append([run[0], RAISED_LOWERED if run[1] in [LOWERED, RAISED_LOWERED] else RAISED])
 		i = end
 	if plain != "":
-		out.append([plain, false])
+		out.append([plain, 0])
 	return out
+
+
+static func _letter(ch: String) -> bool:
+	return ch.to_lower() != ch.to_upper()
 
 
 ## Where the power that starts at index at ends, or at if there isn't one: a bracket with

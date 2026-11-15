@@ -57,7 +57,7 @@ var scroll: ScrollContainer
 var card: VBoxContainer
 var check_button: Button
 var next_button: Button
-var feedback: Label
+var feedback: MathText
 var working: VBoxContainer
 ## The in-game calculator (FAL-419), made the first time a Paper 2 question opens it.
 var calculator: Calculator
@@ -233,7 +233,7 @@ func render_question() -> void:
 	check_button.add_theme_font_size_override("font_size", UiTheme.BIG)
 	check_button.pressed.connect(check_answer)
 	card.add_child(check_button)
-	feedback = UiTheme.label("", UiTheme.BODY)
+	feedback = MathText.new(UiTheme.BODY)
 	feedback.name = "Feedback"
 	feedback.visible = false
 	card.add_child(feedback)
@@ -443,13 +443,13 @@ func _add_options(texts: Array) -> void:
 	box.add_theme_constant_override("separation", 14)
 	var group := ButtonGroup.new()
 	for i in texts.size():
-		var b := Button.new()
-		b.text = texts[i]
+		var b := MathButton.new()
 		b.toggle_mode = true
 		b.button_group = group
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.add_theme_font_size_override("font_size", UiTheme.BIG if question.format == "probe" else UiTheme.BODY)
+		b.math = texts[i]
 		b.pressed.connect(func(): _choice = i)
 		box.add_child(b)
 		_choice_buttons.append(b)
@@ -515,8 +515,8 @@ func check_answer() -> void:
 	feedback.visible = true
 	if not result.complete:
 		var msgs: Array = result.errors.values()
-		feedback.text = msgs[0] if msgs.size() == 1 else "Fill in every box."
-		feedback.add_theme_color_override("font_color", UiTheme.SAND)
+		feedback.math = msgs[0] if msgs.size() == 1 else "Fill in every box."
+		feedback.set_color(UiTheme.SAND)
 		_reveal_result()
 		return
 	answered = true
@@ -568,22 +568,22 @@ func _record(result: Dictionary) -> void:
 func _show_feedback(result: Dictionary) -> void:
 	var probe: bool = question.format == "probe"
 	if result.correct:
-		feedback.text = "Right!" if not probe or question.verdict != "" else "Good. Compare with this answer:"
-		feedback.add_theme_color_override("font_color", UiTheme.TEAL)
+		feedback.math = "Right!" if not probe or question.verdict != "" else "Good. Compare with this answer:"
+		feedback.set_color(UiTheme.TEAL)
 	else:
 		if probe:
-			feedback.text = "Not quite." if question.verdict != "" else "Here is the answer:"
+			feedback.math = "Not quite." if question.verdict != "" else "Here is the answer:"
 		else:
 			# An equivalent answer in the wrong form says which rule it breaks (FAL-788).
 			var note: String = result.get("note", "") if result.get("glancing", false) else ""
-			feedback.text = "Not quite. " + ("" if note == "" else note + " ") + QuestionEngine.answer_sentence(question)
-		feedback.add_theme_color_override("font_color", UiTheme.PINK)
+			feedback.math = "Not quite. " + ("" if note == "" else note + " ") + QuestionEngine.answer_sentence(question)
+		feedback.set_color(UiTheme.PINK)
 		var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), result.get("misconception", ""))
 		if why != "":
-			feedback.text += "\nWatch out: " + Fmt.stop(why)
+			feedback.math += "\nWatch out: " + Fmt.stop(why)
 	# An error-spot, method-pick or true-false-reason question says why.
 	if question.has("reason"):
-		feedback.text += "\n" + question.reason
+		feedback.math += "\n" + question.reason
 	if question.format == "probe" or QuestionEngine.is_choice(question):
 		for i in _choice_buttons.size():
 			var right_option: bool = question.choices[i].correct if question.format != "probe" else question.options[i] == question.verdict
@@ -610,13 +610,13 @@ func _show_working() -> void:
 	var group := ButtonGroup.new()
 	for i in question.solutions.size():
 		var sol: Dictionary = question.solutions[i]
-		var b := Button.new()
-		b.text = sol.name if i == 0 else "Another way: " + sol.name
+		var b := MathButton.new()
 		b.toggle_mode = true
 		b.button_group = group
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.add_theme_font_size_override("font_size", UiTheme.SMALL)
+		b.math = sol.name if i == 0 else "Another way: " + sol.name
 		b.pressed.connect(_show_steps.bind(steps, i))
 		tabs.add_child(b)
 		if i == 0:
