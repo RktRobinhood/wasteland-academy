@@ -26,7 +26,7 @@ const FUNCS := ["sin", "cos", "tan", "sec", "csc", "cot", "arcsin", "arccos", "a
 const UNIT_TOPS := ["m", "km", "cm", "mm", "rad", "mg", "kg", "g", "P", "C"]
 const UNIT_BOTTOMS := ["s", "s²", "h", "l", "Y", "min"]
 ## Characters that belong to a term with the letters and digits round them.
-const MARKS := "₀₁₂₃₄₅₆₇₈₉ₙ₊₋ₑᵢₐₓₖ⁰¹²³⁴⁵⁶⁷⁸⁹⁻ⁿ′″!°∞_"
+const MARKS := "₀₁₂₃₄₅₆₇₈₉ₙ₊₋ₑᵢₐₓₖ⁰¹²³⁴⁵⁶⁷⁸⁹⁻ⁿ′″!°∞_%"
 ## What can follow a bracket and bind to it: (2/3)⁵, (x + 1)!.
 const POSTFIX := "⁰¹²³⁴⁵⁶⁷⁸⁹⁻ⁿ′″!"
 const SUBSCRIPTS := "₀₁₂₃₄₅₆₇₈₉ₙₑᵢₐₓₖ"
@@ -63,6 +63,10 @@ static func _fractions(s: String) -> Array:
 			continue
 		var a := s.substr(top, top_end - top)
 		var b := s.substr(bottom, end - bottom)
+		# d/dx(1/x²): the operator's bottom is dx alone, and the bracket is what it acts on.
+		if a in ["d", "d²"] and b.begins_with("d") and b.contains("("):
+			end = bottom + b.find("(")
+			b = b.left(b.find("("))
 		if (_word(a) and _word(b) and a.length() >= 3 and b.length() >= 3) \
 				or ((a in UNIT_TOPS or a.ends_with("°")) and b in UNIT_BOTTOMS):
 			continue

@@ -2,6 +2,8 @@ extends "res://tests/test_case.gd"
 ## Fractions in shown maths are stacked over a bar (FAL-797, GH #62): MathText cuts them
 ## out of the text, MathBox lays them out and MathLabel draws them.
 
+const PRACTICE := preload("res://ui/practice.gd")
+
 
 func _f(num: Variant, den: Variant) -> Dictionary:
 	return {"num": num if num is Array else [num], "den": den if den is Array else [den]}
@@ -39,6 +41,15 @@ func test_a_function_takes_its_argument() -> void:
 	check_eq(MathText.parse("sin²θ/cos²θ"), [_f("sin²θ", "cos²θ")])
 	check_eq(MathText.parse("t = 2 + ln(39/50)/ln 0.81"), ["t = 2 + ", _f(["ln(", _f("39", "50"), ")"], "ln 0.81")])
 	check_eq(MathText.parse("log_a b = log_c b / log_c a."), ["log_a b = ", _f("log_c b", "log_c a"), "."])
+
+
+func test_d_by_dx_acts_on_the_bracket_after_it() -> void:
+	# d/dx(1/x²) is d/dx of (1/x²), not d over dx(1/x²).
+	check_eq(MathText.parse("d/dx(1/x²) = −2/x³"), [_f("d", "dx"), "(", _f("1", "x²"), ") = −", _f("2", "x³")])
+	check_eq(MathText.parse("d/dx (x sin x)"), [_f("d", "dx"), " (x sin x)"])
+	check_eq(MathText.parse("d²y/dx² = 6x"), [_f("d²y", "dx²"), " = 6x"])
+	check_eq(MathText.parse("1/f(1)"), [_f("1", "f(1)")], "a function's bracket still goes under the bar")
+	check_eq(MathText.parse("each period earns 6%/4"), ["each period earns ", _f("6%", "4")])
 
 
 func test_a_bracket_after_a_number_multiplies() -> void:
@@ -288,6 +299,49 @@ func test_an_answer_choice_shows_its_fraction() -> void:
 	check_eq(plain.get_child_count(), 0)
 	b.free()
 	plain.free()
+
+
+func test_a_word_choice_by_an_answer_box_is_as_wide_as_its_maths() -> void:
+	# A pick's button doesn't wrap and its own text is empty, so it takes its maths' width,
+	# on one line, as a button takes its own text's.
+	var flow := HFlowContainer.new()
+	flow.theme = UiTheme.make()
+	flow.size = Vector2(1000, 0)
+	tree.root.add_child(flow)
+	var b := Button.new()
+	b.add_theme_font_size_override("font_size", UiTheme.BIG)
+	UiTheme.math_button(b, "y ≥ −1/6")
+	flow.add_child(b)
+	await tree.process_frame
+	await tree.process_frame
+	var m: MathLabel = b.get_node("Math")
+	check(not m.autowrap, "it doesn't wrap, as its button doesn't")
+	check(m.size.x >= m.get_combined_minimum_size().x - 0.5 and m.get_combined_minimum_size().x > UiTheme.BIG * 2,
+		"as wide as its maths (%s in %s)" % [m.get_combined_minimum_size().x, m.size.x])
+	check_eq(_bars(m).size(), 1)
+	var font := m._font()
+	for d in m.drawn():
+		if d.has("text"):
+			check(d.at.x + font.get_string_size(d.text, HORIZONTAL_ALIGNMENT_LEFT, -1, d.size).x <= m.size.x + 0.5, "%s fits the button" % d.text)
+	# One too wide for a phone wraps on a line of its own, as Practice._add_slots() does it.
+	var long := Button.new()
+	long.add_theme_font_size_override("font_size", UiTheme.BIG)
+	UiTheme.math_button(long, "vertex (7/2, 9/4), roots 2 and 5, y-intercept −10, opens downwards")
+	flow.add_child(long)
+	await tree.process_frame
+	check(long.get_combined_minimum_size().x > PRACTICE.PICK_WIDE, "measured on one line first")
+	long.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	long.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	long.custom_minimum_size.x = PRACTICE.PICK_WIDE
+	UiTheme.fit_math_button(long)
+	for i in 3:
+		await tree.process_frame
+	var lm: MathLabel = long.get_node("Math")
+	check(lm.autowrap, "then wraps")
+	check(is_equal_approx(long.size.x, PRACTICE.PICK_WIDE), "at its width (%s)" % long.size.x)
+	check(long.size.y >= lm.get_combined_minimum_size().y and lm.get_combined_minimum_size().y > UiTheme.BIG * 2,
+		"as tall as its lines (%s)" % long.size.y)
+	flow.free()
 
 
 func test_feedback_can_be_recoloured_and_set_again() -> void:

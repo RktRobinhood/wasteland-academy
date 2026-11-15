@@ -132,7 +132,7 @@ static func math_label(text: String, size: int = BODY, color: Color = TEXT, cent
 ## Puts text on a button, as maths if it has a fraction or a power. A Button can't hold
 ## rich text, so its own text is left empty and a MathLabel named "Math" is drawn on it,
 ## in the button's colours and font size; the button grows to fit it. Set the button's
-## font size and alignment first.
+## font size, alignment and autowrap_mode first, or call fit_math_button() after.
 static func math_button(b: Button, text: String) -> void:
 	if not MathText.has_markup(text):
 		b.text = text
@@ -141,22 +141,35 @@ static func math_button(b: Button, text: String) -> void:
 	b.set_meta("math", text)
 	var m := MathLabel.new()
 	m.name = "Math"
-	m.horizontal_alignment = b.alignment
 	m.button = b
 	m.text = text
 	m.set_anchors_preset(Control.PRESET_FULL_RECT)
 	# The button's padding is known once it has its theme, in the tree.
-	var fit := func() -> void:
-		var sb := b.get_theme_stylebox("normal")
-		m.offset_left = sb.get_margin(SIDE_LEFT)
-		m.offset_right = -sb.get_margin(SIDE_RIGHT)
-		m.offset_top = sb.get_margin(SIDE_TOP)
-		m.offset_bottom = -sb.get_margin(SIDE_BOTTOM)
-		b.custom_minimum_size.y = m.get_combined_minimum_size().y + sb.get_margin(SIDE_TOP) + sb.get_margin(SIDE_BOTTOM)
-	m.minimum_size_changed.connect(fit)
-	b.theme_changed.connect(fit)
-	fit.call()
+	m.minimum_size_changed.connect(fit_math_button.bind(b))
+	b.theme_changed.connect(fit_math_button.bind(b))
 	b.add_child(m)
+	fit_math_button(b)
+
+
+## Sizes a math_button() to its maths, as a button sizes to its own text: a button that
+## doesn't wrap (a word choice by an answer box) is one line, as wide as its maths; one
+## that wraps is as tall as its maths wraps to at its width. Its MathLabel takes the
+## button's alignment and wrapping again, so call this after changing either.
+static func fit_math_button(b: Button) -> void:
+	var m := b.get_node_or_null("Math") as MathLabel
+	if m == null:
+		return
+	m.autowrap = b.autowrap_mode != TextServer.AUTOWRAP_OFF
+	m.horizontal_alignment = b.alignment
+	var sb := b.get_theme_stylebox("normal")
+	m.offset_left = sb.get_margin(SIDE_LEFT)
+	m.offset_right = -sb.get_margin(SIDE_RIGHT)
+	m.offset_top = sb.get_margin(SIDE_TOP)
+	m.offset_bottom = -sb.get_margin(SIDE_BOTTOM)
+	var need := m.get_combined_minimum_size()
+	if not m.autowrap:
+		b.custom_minimum_size.x = need.x + sb.get_margin(SIDE_LEFT) + sb.get_margin(SIDE_RIGHT)
+	b.custom_minimum_size.y = need.y + sb.get_margin(SIDE_TOP) + sb.get_margin(SIDE_BOTTOM)
 
 
 ## The text on a button, as math_button() put it.

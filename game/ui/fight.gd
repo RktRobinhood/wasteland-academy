@@ -976,7 +976,7 @@ func _show_summary(s: Dictionary) -> void:
 	list.name = "Missed"
 	list.add_theme_constant_override("separation", 8)
 	for m in s.missed:
-		list.add_child(UiTheme.label("• " + m, UiTheme.BODY))
+		list.add_child(UiTheme.math("• " + m, UiTheme.BODY))
 	summary_box.add_child(list)
 	var again := Button.new()
 	again.name = "PlayAgain"

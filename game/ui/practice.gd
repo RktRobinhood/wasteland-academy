@@ -203,7 +203,8 @@ func render_question() -> void:
 	var meta_row := HBoxContainer.new()
 	meta_row.name = "MetaRow"
 	meta_row.add_theme_constant_override("separation", 16)
-	var meta_label := UiTheme.label(meta, UiTheme.SMALL, UiTheme.DIM)
+	# A type name can hold maths: "Asymptotes and intercepts of (ax + b)/(cx + d)".
+	var meta_label := UiTheme.math(meta, UiTheme.SMALL, UiTheme.DIM)
 	meta_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	meta_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	meta_row.add_child(meta_label)
@@ -365,8 +366,8 @@ func _add_slots() -> void:
 	for item in question.answer.template:
 		if item is String:
 			if item != "":
-				var l := UiTheme.label(item, UiTheme.BIG)
-				l.autowrap_mode = TextServer.AUTOWRAP_OFF
+				# The text round the boxes is maths too: 10^(x/2) + [ ], dy/dx = [ ].
+				var l := _one_line(UiTheme.math(item, UiTheme.BIG))
 				l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 				flow.add_child(l)
 		elif item.has("slot"):
@@ -415,6 +416,7 @@ func _add_slots() -> void:
 				b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 				b.custom_minimum_size.x = PICK_WIDE
+				UiTheme.fit_math_button(b)
 	if not _slots.is_empty():
 		card.add_child(_keypad())
 		_focus = _slots.values()[0]

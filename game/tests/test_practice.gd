@@ -123,6 +123,33 @@ func test_a_power_in_the_question_fits_a_phone() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 
 
+func test_the_text_round_an_answer_box_is_maths() -> void:
+	# FAL-797: "g⁻¹(x) = 10^(x/2) + [ ]" shows its power raised and its fraction stacked,
+	# not its caret, and stays on one line by its box.
+	var made: Array = await _screen(_area(Vector2i(390, 844)))
+	var p: Control = made[1]
+	var cells: Array = QuestionEngine.cells(false, ["fn-exp-log-inverse-composite"]).filter(func(c): return c.unknown == "inverse-log-of-square")
+	check(not cells.is_empty(), "the cell is built")
+	var v: Dictionary = cells[0].duplicate()
+	v.format = "value"
+	v.seed = 2
+	p.show_view(v)
+	await tree.process_frame
+	await tree.process_frame
+	var slots: Node = p.card.find_child("Slots", true, false)
+	check(slots != null, "an answer box")
+	var maths: Array = slots.get_children().filter(func(c): return c is MathLabel)
+	check(maths.any(func(m: MathLabel): return m.text.contains("^(x/2)")), "the power is maths: %s" % [maths.map(func(m): return m.text)])
+	for c in slots.get_children():
+		if c is Label:
+			check(not c.text.contains("^"), "no caret shows: " + c.text)
+	for m: MathLabel in maths:
+		check(not m.autowrap and m.size.x >= m.get_combined_minimum_size().x - 0.5, "%s is on one line" % m.text)
+		check(m.get_global_rect().end.x <= p.card.get_global_rect().end.x + 0.5, "%s fits the card" % m.text)
+	made[0].free()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+
+
 func test_planner_questions_follow_on() -> void:
 	var made: Array = await _screen(_area(Vector2i(390, 844)))
 	var p: Control = made[1]

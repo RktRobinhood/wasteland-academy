@@ -580,7 +580,8 @@ func u_sector_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.paper == 2:
 		out.wrongs += like(ans, s, ab(GdcKit.qf(0.5 * s.r.to_float() * pow(radians(s), 2))), R_THETA_SQ)
 	elif th[0].is_zero():
-		out.wrongs += said("A = %s%s" % [Fmt.num(s.r.mul(th[1].sq()).div(2)) + "π²", unit2(s)], R_THETA_SQ)
+		# π²/4, as Fmt.pi writes 5π/6: "1/4π²" reads as 1/(4π²) once stacked (FAL-797).
+		out.wrongs += said("A = %s%s" % [Fmt.pi(s.r.mul(th[1].sq()).div(2)).replace("π", "π²"), unit2(s)], R_THETA_SQ)
 	else:
 		out.wrongs += like(ans, s, ab(s.r.mul(th[0].sq()).div(2)), R_THETA_SQ)
 	out.generic = others(ans, s, [scale(th, s.r.sq()), scale(th, s.r), scale(th, s.r.div(2)), ab(0, s.r.sq()), scale(v, 2), plus(v, ab(s.r))])

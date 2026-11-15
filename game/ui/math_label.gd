@@ -34,6 +34,8 @@ var horizontal_alignment := HORIZONTAL_ALIGNMENT_LEFT:
 ## False keeps it on one line, as wide as its text, like a Label with autowrap off.
 var autowrap := true:
 	set(v):
+		if v == autowrap:
+			return
 		autowrap = v
 		_rebuild()
 ## The button it's drawn on, if any: its colour follows the button's state.
