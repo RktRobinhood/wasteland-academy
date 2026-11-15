@@ -66,8 +66,8 @@ func test_not_built_classes_are_greyed_out() -> void:
 	e._refresh()
 	var grey := 0
 	for b in e.choices.find_children("*", "Button", true, false):
-		if b.text.ends_with("not built yet") and not b.name == "NotBuilt":
-			check(b.disabled, b.text + " can be picked")
+		if UiTheme.button_text(b).ends_with("not built yet") and not b.name == "NotBuilt":
+			check(b.disabled, UiTheme.button_text(b) + " can be picked")
 			grey += 1
 	check_eq(grey, e._types_in(2)[1].size())
 	for t in e._types_in(2)[0]:
@@ -141,7 +141,7 @@ func test_pickers_set_the_view() -> void:
 	check_eq(e.rep, "graph")
 	check(e.angle in e._angles_for("axis-from-roots"), e.angle)
 	for b in e.choices.find_children("Unknown_*", "Button", true, false):
-		check(not b.text.contains("-from-"), "plain words, not ids: " + b.text)
+		check(not UiTheme.button_text(b).contains("-from-"), "plain words, not ids: " + UiTheme.button_text(b))
 	made[0].free()
 
 
@@ -269,8 +269,8 @@ func test_every_course_plays_the_classes_it_covers() -> void:
 	e._refresh()
 	var not_in := 0
 	for b in e.choices.find_children("*", "Button", true, false):
-		if b.text.ends_with("not in AI SL"):
-			check(b.disabled, b.text + " can be picked")
+		if UiTheme.button_text(b).ends_with("not in AI SL"):
+			check(b.disabled, UiTheme.button_text(b) + " can be picked")
 			not_in += 1
 	check(not_in > 0, "some Functions classes are not in AI SL")
 	made[0].free()
