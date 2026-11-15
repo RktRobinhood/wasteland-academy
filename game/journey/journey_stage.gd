@@ -10,6 +10,7 @@ extends Control
 ## reach the run.
 ##
 ##   start_run(region, avatar, weapon, seed)   hides the strip if the avatar has no sheet
+##                                             or the region no scenery
 ##   fight_ahead(fight, tier, questions)        the next encounter, known once a fight is won
 ##   fight_started(fight, tier, questions)      tier 1-5, or 0 if the run has none yet
 ##   question_opened(index)                     calm: everything stops where it is
@@ -72,7 +73,8 @@ var assets: JourneyAssets
 var reduced_motion := false
 ## Test hook: every animation fails (nothing is planned or drawn).
 var fail_animations := false
-## False until start_run() finds the avatar's sheet. The strip is hidden while false.
+## False until start_run() finds the avatar's sheet and the region's scenery. The strip is
+## hidden while false.
 var active := false
 ## Advance the clock in _process. Tests turn it off and call advance().
 var auto_clock := true
@@ -139,7 +141,7 @@ func start_run(p_region: String, p_avatar: String, p_weapon: String = "rebar", p
 	avatar = p_avatar
 	run_seed = p_seed
 	weapon = p_weapon if assets.weapons.has(p_weapon) else "rebar"
-	active = assets.has_avatar(avatar)
+	active = assets.has_avatar(avatar) and assets.has_scenery(region)
 	visible = active
 	_queue.clear()
 	_seg = {}

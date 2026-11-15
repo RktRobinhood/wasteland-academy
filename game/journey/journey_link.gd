@@ -63,7 +63,7 @@ static func questions_of(p_run: Run) -> int:
 ## encounter as the strip does, from the same inputs, so the strip sends nothing back.
 static func job_words(p_run: Run, save: Dictionary = {}) -> Dictionary:
 	var assets := JourneyStage.shared_assets()
-	if not assets.has_avatar(avatar_for(save)):
+	if not assets.has_avatar(avatar_for(save)) or not assets.has_scenery(region_for(p_run.region)):
 		return {}
 	var e := JourneyBeats.encounter(p_run.run_seed, p_run.fight, p_run.tier,
 			assets.roster(region_for(p_run.region)), questions_of(p_run))

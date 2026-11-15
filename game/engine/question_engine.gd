@@ -312,7 +312,8 @@ static func cells(exam_only: bool = false, types: Array = [], course: String = "
 		var exam_type := exam_style(t)
 		if exam_only and not exam_type:
 			continue
-		for u in t.unknowns:
+		# A type only catalogued so far (no views yet) has no unknowns, so no cells.
+		for u in t.get("unknowns", []):
 			if exam_only and not u.exam:
 				continue
 			if not covered(course, t, u):
