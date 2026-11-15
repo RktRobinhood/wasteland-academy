@@ -83,6 +83,8 @@ func _strings(v: Variant, out: Array) -> void:
 	elif v is Array:
 		for e in v:
 			_strings(e, out)
+	elif v is Dictionary and v.has("move") and v.has("board"):
+		out.append(Step.text(v))  # a tagged step: its board, not its move id
 	elif v is Dictionary:
 		for e in v.values():
 			_strings(e, out)

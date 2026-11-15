@@ -17,6 +17,9 @@ game/
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
 ├── scenes/fight.tscn    ← the fight screen (ui/fight.gd), on the practice screen's card
 ├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /?explore
+├── scenes/explain.tscn  ← the explainer player on its own (ui/explain_screen.gd), at /?explain (see "Explainers")
+├── ui/explainer.gd      ← the explainer player, an overlay any screen can open ("Watch it" on a worked solution)
+├── engine/moves.gd, data/moves.json ← the explainer moves and the step map, tagged onto steps at runtime
 ├── scenes/study.tscn    ← the academic study screen (ui/study.gd), at /?study: MathsEngine only
 ├── engine/              ← the question engine: situations, views, marking, planner, save
 ├── engine/maths_engine.gd ← the reusable maths interface every screen asks (docs/MATHS-ENGINE.md)
@@ -66,7 +69,7 @@ both, so let Godot write its `.import`.
 ## Sound
 
 Two autoloads, added on FAL-385. `Audio` (`audio/audio.gd`) owns the music, the effects
-and the three settings; `AudioHud` (`scenes/audio_hud.tscn`) is the speaker icon and the
+and the four settings; `AudioHud` (`scenes/audio_hud.tscn`) is the speaker icon and the
 gear that sit above every scene, with the settings screen behind the gear.
 
 ```gdscript
@@ -78,10 +81,12 @@ Audio.sound_enabled = true           # what the speaker icon switches
 - **Sound starts off**, on a fresh install and for every student in a classroom. Nothing
   is decoded or played until the speaker is tapped, which also satisfies the browser rule
   that audio needs a gesture first.
-- The three settings (`sound_enabled`, `music_volume`, `sfx_volume`) save to
+- The four settings (`sound_enabled`, `music_volume`, `sfx_volume`, `voice_volume`) save to
   `user://settings.cfg` the moment they change, and load at boot.
-- Buses: Master, with **Music** and **SFX** under it (`audio/bus_layout.tres`). Each
-  slider moves one bus; turning sound off mutes both and stops the players.
+- Buses: Master, with **Music**, **SFX** and **Voice** under it (`audio/bus_layout.tres`).
+  Each slider moves one bus; turning sound off mutes them all and stops the players.
+  `Audio.play_voice(stream, speed)` plays Spark's explainer line on Voice and ducks the
+  music 12 dB under it; a pitch shift on the bus keeps 0.75× and 1.5× at Spark's pitch.
 - Which loop plays at which location, and the alternate seed waiting on Matt's listening
   pass, is the one table in `audio/music_tracks.gd`. The effect cues mirror the HTML
   game's `js/sfx.js` and live in `audio/sfx_cues.gd`.
@@ -92,13 +97,40 @@ Audio.sound_enabled = true           # what the speaker icon switches
   (`MapLink.music_for`). Each of the five islands has its own pair (`MapLink.MUSIC`:
   `scrap-fields`, `signal-tower`, `dry-flats`, `radio-spires`, `engine-core`), and the
   Thunderdome's screen and runs play `thunderdome`, bosses too, so all twelve loops play
-  somewhere (FAL-925). The settings screen has only the three settings.
+  somewhere (FAL-925). The settings screen has only the four settings.
 - Fights play the effects (FAL-925, `ui/fight.gd`): `open` as a mini-boss or boss steps
   up, `correct` for a hit (right, glancing or late), `retry` for a miss or a timeout,
   `clear` when an enemy falls (in place of the hit's), `hint` for a lifeline, and
   `reward` when the summary banks Scrap. The settings screen and the HUD play `confirm`,
   and the Bazaar `reward` and `confirm`. With sound off nothing is heard;
   `Audio.last_sfx` still records the cue asked for, for tests.
+
+## Explainers
+
+FAL-429, on the move format from FAL-425/426. A worked solution plays like a video on a
+chalkboard (`ui/explainer.gd`): one chapter per step, the chalk writing the step's board
+while Spark says its move's line, a random one of its two takes
+(`assets/audio/voice/spark/moves/<move>_1.ogg`, `_2.ogg`). Play and pause, a scrub bar with
+a mark per step, replay this step, CC (on to start, since sound starts off) and 0.75×, 1×
+and 1.5×. "New numbers" makes the same view on a new seed; "Your turn", at the end on the
+practice screen, sets that view with new numbers. A step with no move plays silent under
+its own chalk line as the caption.
+
+- **Tagging.** `QuestionEngine._build` passes every solution's steps through `Moves.tag`,
+  which looks up `type/unknown/angle` in `data/moves.json` with the solution's step count
+  (`<rep>/<n>` first, then `<n>`) and the branches, and makes each mapped step
+  `{"move", "board"}`. A method or step count the map doesn't have stays plain. The copy
+  is generated: `node tools/game-moves.mjs --write` after changing `curriculum/moves.json`
+  or `moves-map.json` (`tests/unit/game-moves.test.mjs` fails while it is stale).
+- **Ways in.** "Watch it" under every worked solution with a tagged step, on the practice
+  screen and the fight's card; `/?explain` on its own (a quadratic, or `&view=…&seed=…` as
+  the practice screen takes; `&t=4.5` opens paused that far in, for screenshots). Any
+  screen can open one: `add_child(Explainer.make(question, solution))`.
+- **Look.** "Salvage Ink" (`tools/explainer-clips/lib/salvage-ink.js`): slate board,
+  iron frame with bolts, chalk in the paper colour, Bangers and Share Tech Mono. The frame
+  and board are drawn placeholders until there is art.
+- `tests/test_explainer.gd` checks every move used exists and has both voice files, and
+  prints how many built methods end up with a tagged step.
 
 ## Scripts (run from the repo root)
 

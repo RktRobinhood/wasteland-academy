@@ -6,7 +6,8 @@ extends Control
 ## goes straight there, and a map link
 ## such as #functions/quadratics (see engine/map_link.gd) opens the map there. With the
 ## takeover switch on (README, "Switching to Godot"), a small "Classic game" link goes
-## to the HTML game. ?journey=demo opens the journey demo (ui/journey_demo.gd).
+## to the HTML game. ?journey=demo opens the journey demo (ui/journey_demo.gd), and
+## ?explain the explainer player (ui/explain_screen.gd).
 ##
 ## Key art (FAL-470): title/key-art behind the title on a PC (a landscape window) and
 ## title/key-art-phone on a phone (portrait). The title sits in the art's top band and
@@ -20,6 +21,7 @@ const EXPLORER := "res://scenes/explorer.tscn"
 const STUDY := "res://scenes/study.tscn"
 const BAZAAR := "res://scenes/bazaar.tscn"
 const JOURNEY_DEMO := "res://scenes/journey_demo.tscn"
+const EXPLAIN := "res://scenes/explain.tscn"
 
 static var _routed := false
 
@@ -63,6 +65,8 @@ func _ready() -> void:
 	var practice := preload("res://ui/practice.gd")
 	if practice.url_args().get("journey", "") == "demo":
 		get_tree().change_scene_to_file.call_deferred(JOURNEY_DEMO)
+	elif practice.url_args().has("explain"):
+		get_tree().change_scene_to_file.call_deferred(EXPLAIN)
 	elif practice.url_args().has("study"):
 		get_tree().change_scene_to_file.call_deferred(STUDY)
 	elif practice.url_args().has("explore"):

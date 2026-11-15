@@ -121,6 +121,32 @@ text = "60%"
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="VoiceLabel" type="Label" parent="Center/Panel/Pad/Column"]
+layout_mode = 2
+text = "Spark's voice"
+
+[node name="VoiceRow" type="HBoxContainer" parent="Center/Panel/Pad/Column"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="VoiceSlider" type="HSlider" parent="Center/Panel/Pad/Column/VoiceRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 76)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+value = 0.8
+
+[node name="VoiceValue" type="Label" parent="Center/Panel/Pad/Column/VoiceRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "80%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
 [node name="Hint" type="Label" parent="Center/Panel/Pad/Column"]
 unique_name_in_owner = true
 layout_mode = 2

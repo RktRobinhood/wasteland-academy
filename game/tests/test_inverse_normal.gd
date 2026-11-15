@@ -99,7 +99,7 @@ func test_paper_1_is_exact_and_shows_no_calculator() -> void:
 			check(q.answer.get("exact", false), c.key + " is not exact")
 			for sol in q.solutions:
 				for st in sol.steps:
-					check(rx.search(str(st)) == null, c.key + ": " + str(st))
+					check(rx.search(Step.text(st)) == null, c.key + ": " + Step.text(st))
 
 
 func test_a_shift_keeps_the_distance_from_the_mean() -> void:

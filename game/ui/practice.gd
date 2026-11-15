@@ -30,6 +30,8 @@ const LAYOUT_FRAMES := 3
 
 ## The region the map asked for, read once by _ready().
 static var launch_region := ""
+## A view to open on, read once by _ready(): the explainer's "Your turn" (FAL-429).
+static var launch_view := {}
 
 ## Where the save lives. Tests point this somewhere else.
 var save_path := SaveData.PATH
@@ -76,7 +78,11 @@ func _ready() -> void:
 	resized.connect(_fit)
 	_fit()
 	var deep := deep_link()
-	if not deep.is_empty():
+	if not launch_view.is_empty():
+		var v := launch_view
+		launch_view = {}
+		show_view(v)
+	elif not deep.is_empty():
 		show_view(deep.view)
 		if deep.autoplay != "":
 			autoplay(deep.autoplay == "right")
@@ -143,6 +149,10 @@ func _build() -> void:
 	scroll.name = "Scroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# The bar's width kept whether it shows or not: a card just about a screen tall
+	# otherwise flips the bar on and off, rewrapping its text each time, until the
+	# message queue runs out (FAL-429, with "Watch it" under the working).
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
 	scroll.scroll_deadzone = SWIPE_DEADZONE
 	col.add_child(scroll)
 	card = VBoxContainer.new()
@@ -639,6 +649,25 @@ func _show_steps(box: VBoxContainer, i: int) -> void:
 	box.add_child(UiTheme.math(sol.name, UiTheme.SMALL, UiTheme.DIM))
 	for st in sol.steps:
 		box.add_child(UiTheme.math(Step.text(st), UiTheme.BODY))
+	# The explainer (FAL-429), for a solution with a move to watch.
+	if Explainer.can_play(sol):
+		var watch := Button.new()
+		watch.name = "WatchIt"
+		watch.text = "Watch it"
+		watch.add_theme_font_size_override("font_size", UiTheme.SMALL)
+		watch.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		watch.pressed.connect(watch_it.bind(i))
+		box.add_child(watch)
+
+
+## Play worked solution i in the explainer, over this screen. On the practice screen,
+## "Your turn" at its end asks the same view with new numbers; a fight has its own next
+## question, so there it only closes.
+func watch_it(i: int) -> Explainer:
+	var e := Explainer.make(question, i, get_script().resource_path == "res://ui/practice.gd")
+	e.your_turn.connect(show_view)
+	add_child(e)
+	return e
 
 
 func _update_progress() -> void:
