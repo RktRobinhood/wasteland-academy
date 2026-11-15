@@ -1,0 +1,710 @@
+{
+  "id": "ex.foundations.pre-read-and-round",
+  "format": 1,
+  "status": "draft",
+  "title": "Read the Gauge",
+  "idea": "Work out what one step on a scale is worth before reading it, keep the full calculator value, and round once at the end to three significant figures, counting from the first non-zero digit.",
+  "zone": "foundations",
+  "tutor": "tin-can-tess",
+  "courses": [
+    "aa-sl",
+    "aa-hl",
+    "ai-sl",
+    "ai-hl"
+  ],
+  "syllabus": [
+    "SL2.3"
+  ],
+  "skills": [],
+  "builds_on": [],
+  "leads_to": [
+    "ex.algebra.rounding-accuracy",
+    "ex.functions.how-high-and-where",
+    "ex.stats.averages"
+  ],
+  "terms": [
+    "scale",
+    "significant figures"
+  ],
+  "misconceptions": [
+    "Counts squares as units when each square is worth more or less than one",
+    "Mixes up significant figures and decimal places",
+    "Rounds in two steps: 2.0449 becomes 2.045, then 2.05",
+    "Gives too few significant figures, such as dropping a needed final zero"
+  ],
+  "estimate": {
+    "words_watched": 810,
+    "words_not_watched": 810,
+    "narration_watched": "5 min 37 s",
+    "narration_not_watched": "5 min 37 s",
+    "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions; with no prerequisite explainer there is one recall version, so they are the same. Player turns are player-paced and not counted."
+  },
+  "notes": [
+    "Foundations is prior learning (FAL-953), so this runs 4–6 minutes, not 6–8, and some sections are short.",
+    "No prerequisite explainer. The recall section is one tap question on what students bring from earlier school (rounding to one decimal place), with no callback line, so it has a single `beats` list instead of `watched` and `not_watched`, and both length figures are the same.",
+    "No second-method section: the map lists no methods. Of the question type's methods, grid-count, first-nonzero-digit and round-once are the lesson; decimal places appears only as the contrast in example 2; plotting across-then-up and bounds are left to the question type.",
+    "The board is text only, so a gauge is written as its two labelled marks and the number of steps between them. A drawn gauge or axis would teach the scale better. That needs a figure board item, which the format doesn't have yet; raised on FAL-953 for phase 2.",
+    "The misconception \"Plots (x, y) as (y, x)\" belongs to plotting, which this script doesn't teach.",
+    "Example 3 is a two-part course-style item (a reading, then a GDC value given to 3 s.f.), as FAL-953 allows for Foundations. Its volume formula is given in the question, so no area-and-volume knowledge is needed.",
+    "Live numbers for the turns come from fn-pre-graph-reading (game/engine/situations/graph_reading.gd); the fallbacks are fixed and worked below."
+  ],
+  "sections": [
+    {
+      "id": "cold-open",
+      "kind": "cold-open",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "say": "Tess here. Every machine in this yard has a gauge on it, eh, and no two gauges agree on anything."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "The boiler counts in fours, the fuel tank counts in two point fives, and the water tank counts in whatever mood it's in that day.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "joke": true
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "So today: read any gauge, and write the number down with the right number of figures.",
+          "pause": 0.5,
+          "board": [
+            {
+              "write": "Read it right. Round it once.",
+              "kind": "heading"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recall",
+      "kind": "recall",
+      "builds_on": null,
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "say": "First, one you brought with you from school. Tap the answer."
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "Round 3.47 to 1 decimal place.",
+            "choices": [
+              "3.5",
+              "3.4",
+              "4"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Three point five. The seven after the four rounds it up."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Look at the next digit along. It's a seven, which is five or more, so the four goes up to five. Three point five."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "big-idea",
+      "kind": "big-idea",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "First, the scale. Here's the boiler gauge. Two marks with numbers on, twenty and forty, and five small steps between them.",
+          "board": [
+            {
+              "write": "Marks: 20 and 40, with 5 steps between",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Never assume a step is worth one. Work it out: forty take twenty is twenty, and that's shared over five steps, so each step is four.",
+          "board": [
+            {
+              "write": "scale: what one step is worth",
+              "kind": "term"
+            },
+            {
+              "write": "one step = (40 − 20) ÷ 5 = 4",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "The needle sits three steps past twenty. Three fours, twelve, so the reading's thirty-two.",
+          "board": [
+            {
+              "write": "reading = 20 + 3 × 4 = 32",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Now, rounding. A GDC gives you heaps of digits, more than anybody measured, and most answers want three significant figures."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Significant figures start at the first digit that isn't zero. Count three from there, then look at the next one. Five or more, and the last figure goes up.",
+          "board": [
+            {
+              "write": "significant figures: count from the first non-zero digit",
+              "kind": "term"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "One point four nine seven two, to three significant figures. One, four, nine, and the next digit is a seven, so the nine goes up. That makes one point five zero.",
+          "board": [
+            {
+              "write": "1.4972 = 1.50 (3 s.f.)",
+              "move": "round-for-context"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Keep the zero on the end. One point five is only two significant figures. The zero says you measured that far.",
+          "board": [
+            {
+              "write": "1.5 is only 2 s.f., so keep the 0",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "And you round once, at the very end, from the full value the GDC gave you.",
+          "board": [
+            {
+              "write": "Round once, at the end",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "My nan rounded everything. Her prices, her age, her recipes. Her scones were famous, for all the wrong reasons.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "pause": 0.5,
+          "joke": true
+        }
+      ]
+    },
+    {
+      "id": "example-1",
+      "kind": "example",
+      "level": "full",
+      "problem": {
+        "setup": "A fuel gauge has marks labelled 10 litres and 20 litres, with 4 equal steps between them. The needle is 3 steps past the 10 litre mark. Find the reading."
+      },
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Here's the fuel tank. Step one: what we're finding, which is the amount of fuel in it, in litres.",
+          "board": [
+            {
+              "write": "Find the fuel reading, in litres.",
+              "kind": "heading",
+              "label": "Step 1: what are we finding?"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Step two: the givens. Marks at ten litres and twenty litres, four steps apart. The needle's three steps past ten.",
+          "board": [
+            {
+              "write": "Marks: 10 L and 20 L, 4 steps apart",
+              "move": "read-givens",
+              "label": "Step 2: the givens"
+            },
+            {
+              "write": "Needle: 3 steps past 10 L",
+              "move": "read-givens"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Step three: what's one step worth? Twenty take ten is ten, over four steps. Each step is two point five litres.",
+          "board": [
+            {
+              "write": "one step = (20 − 10) ÷ 4 = 2.5 L",
+              "move": "evaluate",
+              "label": "Step 3: what is one step worth?"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why not count each step as 1 litre?",
+            "choices": [
+              "10 litres are spread over 4 steps",
+              "Small steps are always 1",
+              "It would make the answer bigger"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Right. The marks tell you what the steps are worth. Don't assume."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Look at the marks. Ten litres from one to the next, over four steps. So each step is more than one."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Step four: read it. Ten, plus three steps of two point five. Seventeen point five litres.",
+          "board": [
+            {
+              "write": "reading = 10 + 3 × 2.5 = 17.5 L",
+              "move": "evaluate",
+              "label": "Step 4: count on from the mark"
+            },
+            {
+              "write": "The tank holds 17.5 litres.",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Check: the needle's past halfway between ten and twenty, and so is seventeen point five.",
+          "board": [
+            {
+              "write": "Check: 3 of 4 steps is past halfway, and 17.5 > 15 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-1",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "twin",
+        "like": "example-1",
+        "type": "fn-pre-graph-reading",
+        "skills": [],
+        "intro": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Your go. Work out what one step is worth before you read anything."
+          }
+        ],
+        "fallback": {
+          "setup": "A pressure gauge has marks labelled 20 and 40, with 4 equal steps between them. The needle is 3 steps past the 20 mark.",
+          "parts": [
+            {
+              "text": "Find the reading.",
+              "answer": "35"
+            }
+          ],
+          "working": [
+            "one step = (40 − 20) ÷ 4 = 5",
+            "reading = 20 + 3 × 5 = 35",
+            "Check: 3 of 4 steps is past halfway, and 35 > 30 ✓"
+          ]
+        },
+        "right": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Scale first, then the count. That's the way."
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Choice. Bang on."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "What's one step worth? Share the gap between the marks over the steps."
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Count on from the labelled mark, not from zero."
+          }
+        ]
+      }
+    },
+    {
+      "id": "example-2",
+      "kind": "example",
+      "level": "faded",
+      "problem": {
+        "setup": "A GDC gives the thickness of a sheet of tin as 0.0045678 metres. Write the thickness correct to 3 significant figures."
+      },
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Now a small one. My GDC says this sheet of tin is zero point zero zero four five six seven eight metres thick, which is thin enough to see through, nearly.",
+          "board": [
+            {
+              "write": "Write 0.0045678 m to 3 s.f.",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "The zeros at the front only put the decimal point in the right place. They don't count. Start at the four.",
+          "board": [
+            {
+              "write": "0.0045678: the first non-zero digit is the 4",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "fill",
+            "prompt": "0.0045678 to 3 s.f. = ?",
+            "choices": [
+              "0.00457",
+              "0.005",
+              "0.0046"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Zero point zero zero four five seven. Four, five, six, and the seven after them rounds the six up."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Start counting at the four: four, five, six. The next digit is a seven, so the six goes up. Zero point zero zero four five seven."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Three decimal places would give zero point zero zero five. That's only one significant figure, and it throws away most of what the GDC told you.",
+          "board": [
+            {
+              "write": "0.0045678 m = 0.00457 m (3 s.f.)",
+              "move": "round-for-context",
+              "kind": "answer"
+            },
+            {
+              "write": "0.005 is 3 d.p., but only 1 s.f.",
+              "kind": "note"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-3",
+      "kind": "example",
+      "level": "exam",
+      "problem": {
+        "setup": "A water tank is a cylinder of radius 0.9 m. Its depth gauge has marks labelled 1.0 m and 1.5 m, with 5 equal steps between them, and the needle is 3 steps past the 1.0 m mark. The volume of water in the tank is V = π × 0.9² × d m³, where d is the depth in metres.",
+        "parts": [
+          {
+            "part": "a",
+            "command": "Write down",
+            "text": "Write down the depth of the water."
+          },
+          {
+            "part": "b",
+            "command": "Find",
+            "text": "Find the volume of water in the tank. Give your answer correct to 3 significant figures."
+          }
+        ]
+      },
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "This one's laid out like the exam papers. Two parts, so write the letters down as you go."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Part a says write down. The marks are half a metre apart, over five steps, so a step is zero point one. Three steps past one metre is one point three metres.",
+          "board": [
+            {
+              "write": "(a)  one step = (1.5 − 1.0) ÷ 5 = 0.1 m",
+              "part": "a",
+              "move": "evaluate"
+            },
+            {
+              "write": "d = 1.0 + 3 × 0.1 = 1.3 m",
+              "part": "a",
+              "move": "evaluate",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Part b says find. Formula first, then the depth goes in.",
+          "board": [
+            {
+              "write": "(b)  V = π × 0.9² × d",
+              "part": "b",
+              "move": "recall-formula"
+            },
+            {
+              "write": "V = π × 0.9² × 1.3",
+              "part": "b",
+              "move": "substitute"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "On the GDC that's three point three zero eight zero nine, and it keeps going. Write down what it gives you, with dots on the end.",
+          "board": [
+            {
+              "write": "= 3.30809… m³",
+              "part": "b",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why write 3.30809… and round only at the end?",
+            "choices": [
+              "Rounding early can change the last figure",
+              "Long numbers score more marks",
+              "The GDC can't round"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Yes. Round once, at the end, from the full value."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Every early rounding nudges the number a little. Do it a few times and the last figure moves. So you round once, at the end."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Three significant figures: three, three, zero, and the next digit is an eight. So the zero goes up. Three point three one cubic metres.",
+          "board": [
+            {
+              "write": "V = 3.31 m³ (3 s.f.)",
+              "part": "b",
+              "move": "round-for-context"
+            },
+            {
+              "write": "The tank holds 3.31 m³ of water.",
+              "part": "b",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "second-method",
+      "kind": "second-method",
+      "skipped": "The map lists no second method for this idea; see notes."
+    },
+    {
+      "id": "spot-the-slip",
+      "kind": "spot-the-slip",
+      "misconception": "Rounds in two steps: 2.0449 becomes 2.045, then 2.05",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "This is from my own log book, from before I knew better. One line's off. Which?",
+          "board": [
+            {
+              "write": "GDC: x = 2.0449",
+              "kind": "step",
+              "key": "s1"
+            },
+            {
+              "write": "x = 2.045 (4 s.f.)",
+              "kind": "step",
+              "key": "s2"
+            },
+            {
+              "write": "x = 2.05 (3 s.f.)",
+              "kind": "slip",
+              "key": "s3"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "tap-line",
+            "prompt": "Tap the line with the slip.",
+            "choices": [
+              "s1",
+              "s2",
+              "s3"
+            ],
+            "answer": 2,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "That's it. I rounded a number that was already rounded."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Look at the last line. Which number did I round from: the GDC's, or my own?"
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Here's the check. Go back to the full value, two point zero four four nine. Three figures: two, zero, four. The next digit is a four, so nothing goes up. Two point zero four.",
+          "board": [
+            {
+              "write": "Check: 2.0449, and the digit after 2.04 is a 4, so 2.04 ✓",
+              "move": "check",
+              "kind": "check"
+            },
+            {
+              "strike": "s3"
+            },
+            {
+              "write": "x = 2.04 (3 s.f.)",
+              "kind": "answer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-2",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "exam",
+        "like": "example-3",
+        "type": "fn-pre-graph-reading",
+        "skills": [],
+        "intro": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Your go, and no help on the first try. Scale first, and round once, at the end."
+          }
+        ],
+        "fallback": {
+          "setup": "A tank is a cylinder of radius 0.6 m. Its depth gauge has marks labelled 0 m and 2 m, with 8 equal steps between them, and the needle is 5 steps past 0. The volume of water is V = π × 0.6² × d m³, where d is the depth in metres.",
+          "parts": [
+            {
+              "part": "a",
+              "text": "Write down the depth of the water.",
+              "answer": "1.25 m"
+            },
+            {
+              "part": "b",
+              "text": "Find the volume of water in the tank. Give your answer correct to 3 significant figures.",
+              "answer": "1.41 m³"
+            }
+          ],
+          "working": [
+            "(a) one step = (2 − 0) ÷ 8 = 0.25 m",
+            "d = 5 × 0.25 = 1.25 m",
+            "(b) V = π × 0.6² × 1.25",
+            "= 1.41371… m³",
+            "V = 1.41 m³ (3 s.f.)"
+          ]
+        },
+        "right": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Parts labelled, and rounded once at the end. That'd hold."
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Heaps better than I did my first time."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "What's one step worth? Work that out before you read the needle."
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Round from the full GDC value, not from one you've already rounded."
+          }
+        ]
+      }
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "So. Before you read a gauge, work out what one step is worth. Keep every digit the GDC gives you, and round once, at the end, counting from the first digit that isn't zero.",
+          "board": [
+            {
+              "write": "one step = (gap between the marks) ÷ (number of steps)",
+              "kind": "answer"
+            },
+            {
+              "write": "3 s.f.: start at the first non-zero digit",
+              "kind": "answer"
+            },
+            {
+              "write": "Round once, at the end, from the full value",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Mags wants every answer in her book to three significant figures, so you'll be using this next door."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "That water tank gauge, by the way? Fixed it. The mood turned out to be a moth.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "joke": true
+        }
+      ]
+    }
+  ]
+}

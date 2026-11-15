@@ -10,8 +10,13 @@ Read [`../../TONE.md`](../../TONE.md) and [`../voice-sheets.md`](../voice-sheets
 | `callbacks.json` | Reusable "builds on" lines for every tutor, recorded once and used by any script. |
 | `ex.algebra.arithmetic-sequence.json` | Pilot 1: the nth term. Mags, about 7 minutes. |
 | `ex.algebra.arithmetic-series.json` | Pilot 2: the sum Sₙ, built on pilot 1. Mags, about 8 minutes. |
+| `ex.foundations.pre-substitute.json` | Brackets Round Negatives. Tess, about 5½ minutes. |
+| `ex.foundations.pre-balance.json` | Keep the Scales Level, built on Brackets Round Negatives. Tess, about 5½ minutes. |
+| `ex.foundations.pre-read-and-round.json` | Read the Gauge. Tess, about 5½ minutes. |
+| `ex.foundations.pre-percent-multiplier.json` | One Multiplication. Tess, about 5 minutes. |
+| `ex.foundations.pre-expand.json` | Fill the Rectangle. Tess, about 5½ minutes. |
 
-Nothing here is recorded. Every tutor is provisional until casting is decided on GitHub #18.
+Nothing here is recorded. The board chose each tutor's voice on FAL-927 (`tools/explainer-clips/teachers.json`), but GitHub #18 is still open, so the voice blocks below stay provisional until casting is settled there.
 
 ## The arc
 
@@ -31,7 +36,7 @@ This is the plan's nine-part arc as the research brief on [FAL-934](/FAL/issues/
 | 10 | `your-turn`, `kind: exam` | player-paced | Exam style, live numbers, no help on the first try. |
 | 11 | `recap` | 20–30 s | The idea in one or two sentences, the steps, what comes next, sign-off. |
 
-Narration runs 6 to 8 minutes. If a script runs past about 8 minutes, or needs a second new idea, more than three new terms or more than two methods, split it at a natural seam and have the second half recall the first.
+Narration runs 6 to 8 minutes. The version for a player who watched the prerequisite stays under 8 minutes, and the not-watched version may run up to 30 seconds over. Foundations explainers teach prior learning, so they run 4 to 6 minutes: every section is still there, but any of them can be short, and the exam-style example can be a two-part item that puts the idea inside a course-style question. If a script runs past about 8 minutes, or needs a second new idea, more than three new terms or more than two methods, split it at a natural seam and have the second half recall the first.
 
 How examples get harder: change one thing at a time. Add a step, take away the signposting, put it in words, make d negative, fold in an earlier skill, or switch to the full exam layout. Keep the method and change the surface (the story, the letters, the kind of number). Each worked example gets one "why this step?" tap question.
 
@@ -58,7 +63,7 @@ Matt's target: "mathematical knowledge presented in an academic manner so studen
 
 ### The tutors
 
-The tutors come from `tools/explainer-clips/teachers.json` (provisional, GitHub #18). Only Mags has a full voice block so far, below, and it is provisional too. Each of the other five gets a block in the same form before their first script is written, as `../README.md` requires. The notes after Mags's block are the starting direction.
+The tutors come from `tools/explainer-clips/teachers.json`. Mags and Tess have full voice blocks, below, and both are provisional (GitHub #18). Each of the other four gets a block in the same form before their first script is written, as `../README.md` requires. The notes after Tess's block are the starting direction.
 
 #### Mags the Ledger (algebra, Scrap Fields), provisional
 
@@ -86,9 +91,34 @@ Keeps the Ledger for the Scrap Fields: every debt, deal and seat sold at the fig
 
 **Not the others:** Dax talks fast, drops names and sells. Mags says less and writes everything down. Gear Mira makes you read a measurement back with its unit; Mags makes you put the working in order and keep it. Bodge talks nonsense about her stock; Mags never wanders off the point for more than one sentence.
 
-#### The other five, in brief
+#### Tin-Can Tess (foundations, the Scrapworks), provisional
 
-- **Tin-Can Tess** (foundations, her scrapyard). Lively, wry and warm, and laughs easily. She teaches the basics as junk at hand: a bolt, a tin, a bucket. She sits close to Gear Mira (both mechanics) and to Mags (both Australian), so give her the most talk and the loosest sentences of the three.
+Runs the Scrapworks, the yard where everything broken in the Bazaar ends up, and most of it goes back out the gate working. A New Zealander, as the voice approved on FAL-927 is: lively, wry and warm, and quick to laugh at her own jokes. She teaches the basics with whatever junk is to hand: a bolt and its washer, the scrap scales, a sheet of tin, a gauge that won't agree with the next one.
+
+**Wants:** players who aren't scared of the basics. Out here the sums that hurt people are the small ones nobody checked. Would never admit: she still counts negatives on her fingers when nobody's looking.
+
+**Vocabulary:** the yard and the bench. Bolts, washers, tins, buckets, jerry cans, the chilly bin, spanners, the shed, "on the bench", "pull it apart", "bolt it together", "that'd hold". Kiwi words used lightly, one or two a section at most: kia ora, sweet as, choice, heaps, "eh" at the end of a line. Exact maths words, always.
+
+**Rhythm:** the most talk and the loosest sentences of any tutor. She runs a thought on with "and", talks while she works, and goes off on an aside, then comes back with "anyway". She keeps the maths steps crisp and lets the talk round them run. She asks you things as she goes ("See the order?"), and at a tap question she waits. She laughs at her own jokes and never at anyone's slip. Numbers in long form, like the other tutors.
+
+**Tic and avoidance:** "Bits on the bench." Before she puts anything together she lays every part out where she can see it: the number with its brackets, both pans of the scale, every term of both brackets. She keeps a tin of every bolt she's ever stripped, one for each slip, and owns up to her own slips cheerfully. She never says "wrong" or "broken for good". Working that's off is "a bit off" or "back on the bench", because nothing that comes into her yard is past fixing.
+
+**Praise and correction:**
+
+| Right | Not quite |
+|---|---|
+| "Sweet as. Bits on the bench, and it all went together." | "Back on the bench with it. Can a square come out negative?" |
+| "You kept the brackets. That's the whole trick, right there." | "Close. Do the same to both sides, not only the one." |
+| "Choice. And you checked it, too." | "Put your answer back in. Does it come out level?" |
+| "That'd hold. I'd put it out front with a price on it." | "Check it with a number. Put x equals one into both. Do they match?" |
+| "Heaps better than I did my first time." | "Count on from the labelled mark, not from zero." |
+
+**Samples:** cold open, "A trader brought this counting drum back this morning. Says it's broken, because it told him minus three squared is minus nine." Family story, "My brother took an engine apart once and put it back in the order he liked best. Lovely noise. Didn't go anywhere." Sign-off, "And if a trader says half off, today only? Ask what it cost yesterday."
+
+**Not the others:** Mags and Tess are both from down under, so keep them apart. Mags is Australian, says little and writes everything down; Tess is a New Zealander, talks the whole time and hands you things to hold. Gear Mira measures and reads numbers back with their units, and her sentences get shorter under pressure; Tess pulls things apart and puts them back, and her sentences stay long and get warmer. Bodge wanders off about her stock; every story Tess tells comes back to the maths within a sentence.
+
+#### The other four, in brief
+
 - **Rook Dead-Air** (functions, Signal Tower). Precise, and gets more excited as the lesson builds. His words come from radio: input, output, signal, static, "come in", "over". South African English shows in word choice. Watch B0-LT, who will also live at the Signal Tower.
 - **Kara Meridian** (geometry, Dry Flats). Measured and sure of herself. Surveying words: baseline, bearing, level, sight line. She speaks slowly and states things plainly. She sits near Noma (maps, distance), so Kara measures today's ground and Noma tells its stories.
 - **Lucien "Lucky" Lenoir** (statistics, Radio Spires). A theatrical gamesmaster who keeps losing to probability, and the joke is always that the maths was right and he bet against it. French-accented English comes through in syntax (fewer contractions, "I bet you remember it") and a rare French word. Never spell his accent phonetically.
@@ -127,6 +157,8 @@ The game records which explainers the player has watched. A recall section has t
 
 Prerequisites suggest and never lock, so the not-watched version must teach enough to carry on.
 
+An explainer with no prerequisite (`builds_on` empty, as most Foundations explainers are) has one version. Its recall section is a single tap question on what students bring from earlier school, with no callback line, so the section has `beats` and `"builds_on": null` instead of `watched` and `not_watched`. Say so in the script's `notes`.
+
 The callback lines are in `callbacks.json`, 14 per tutor: `own.watched`, `own.not-watched`, `short-version` and `after`, then a `watched` and `not-watched` line for each of the other five tutors. A script uses one with `{ "use": "mags-the-ledger.tin-can-tess.not-watched" }`. They never name the topic, so each can be recorded once and reused anywhere. The game shows the prerequisite's title card while the line plays. Matt's examples, Old Mama Ode and a bubble bot at the Bazaar, aren't tutors, so they have no lines yet. They get lines if casting on #18 adds them.
 
 ## The script format
@@ -148,7 +180,7 @@ Scripts are JSON. Both readers are code: the Godot player parses JSON natively, 
 | `misconceptions` | The map's misconceptions this script addresses, in the curriculum's words. |
 | `estimate` | Word counts and narration time for both recall versions, and how they were worked out. |
 | `notes` | Anything a reviewer needs: a skipped section, a provisional id. |
-| `sections` | In arc order. Each has an `id`, a `kind` from the arc table and its `beats`. A recall section has `watched` and `not_watched` instead of `beats`. An example has `level` and `problem`. A your-turn section has `turn`. |
+| `sections` | In arc order. Each has an `id`, a `kind` from the arc table and its `beats`. A recall section has `watched` and `not_watched` instead of `beats`, unless the explainer has no prerequisite (see Callback lines). An example has `level` and `problem`. A your-turn section has `turn`. |
 
 ### Beats
 
@@ -199,7 +231,11 @@ The editor's pass, done by Writer on every script:
 
 ## Not decided yet
 
-- **The map.** `curriculum/explainers.json` (FAL-935) is in PR #147 and not on `main` yet. The pilots use its ids. Where the map and a pilot differ (pilot 1's prerequisite and skill scope), the script's `notes` say so, and FAL-936 asks Studio Manager to decide.
-- **Casting.** Every tutor, voice and name is provisional (#18). Mags's block and the five notes above get redone once casting is settled.
-- **Line ids for recording.** For now a recording is named by section and position, frozen at `approved`. If the Audio Designer needs ids that survive edits, add an `id` field to each line.
-- **A checker.** A content test that validates these files (moves, speakers, callbacks, banned words, digits in captions) would be Coder's to add.
+The CEO settled the pilot questions on [FAL-953](/FAL/issues/FAL-953): the map follows the scripts, the length rule is the one in "The arc", and Gauss stays as pilot 2's story. What's still open:
+
+- **The map's split entries.** The map is on `main` (PR #147). Where a pilot teaches less than its map entry, the map changes to match: the Curriculum Author splits those entries on [FAL-952](/FAL/issues/FAL-952). Until that lands, pilot 1's `notes` still describe the difference.
+- **Casting.** The board chose the voices on FAL-927, but GitHub #18 is still open. Mags's and Tess's blocks and the four notes above can change when casting is settled there.
+- **Turns, the engine and recording ids.** How a `turn` maps to the maths engine, and whether lines need ids that survive edits, are phase 2, with Coder. Until then a recording is named by section and position, frozen at `approved`.
+- **How symbols are said.** "u n" or "u sub n", and the like, is decided with the voice, at recording.
+- **Pictures on the board.** The board is text only, so a gauge, an axis or an area grid is written as text (the Foundations scripts do this). A drawn figure would teach some ideas better. A `figure` board item would be a phase 2 question for Coder and Artist.
+- **A checker.** The Curriculum Author is adding a script checker on [FAL-952](/FAL/issues/FAL-952) (moves, speakers, callbacks, banned words, digits in captions).

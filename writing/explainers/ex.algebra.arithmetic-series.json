@@ -34,10 +34,10 @@
     "Finding u_n when the question asks for S_n (or the reverse)"
   ],
   "estimate": {
-    "words_watched": 1125,
-    "words_not_watched": 1195,
-    "narration_watched": "7 min 47 s",
-    "narration_not_watched": "8 min 15 s",
+    "words_watched": 1134,
+    "words_not_watched": 1204,
+    "narration_watched": "7 min 50 s",
+    "narration_not_watched": "8 min 18 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
   },
   "notes": [
@@ -538,40 +538,46 @@
           ]
         },
         {
+          "speaker": "mags-the-ledger",
+          "say": "We've got the first term and the last, so it's first plus last. Which number goes in for n?",
+          "board": [
+            {
+              "write": "Sₙ = n/2 (u₁ + uₙ)",
+              "move": "recall-formula"
+            }
+          ]
+        },
+        {
           "ask": {
             "kind": "fill",
-            "prompt": "n − 1 = 19, so n = ?",
+            "prompt": "n − 1 = 19. In Sₙ = n/2 (u₁ + uₙ), n = ?",
             "choices": [
               "20",
               "19",
-              "18"
+              "195"
             ],
             "answer": 0,
             "right": [
               {
                 "speaker": "mags-the-ledger",
-                "say": "Twenty days. Nineteen hops, twenty days."
+                "say": "Twenty. n counts the days. Nineteen hops, twenty days."
               }
             ],
             "not_yet": [
               {
                 "speaker": "mags-the-ledger",
-                "say": "Nineteen is the hops. The days are one more than the hops. Twenty."
+                "say": "Nineteen is the hops, and a hundred and ninety-five is the litres. n counts the days: twenty."
               }
             ]
           }
         },
         {
           "speaker": "mags-the-ledger",
-          "say": "Now we've got the first term and the last, so first plus last is the one to use.",
+          "say": "So n is twenty.",
           "board": [
             {
               "write": "n = 20",
               "move": "isolate"
-            },
-            {
-              "write": "Sₙ = n/2 (u₁ + uₙ)",
-              "move": "recall-formula"
             },
             {
               "write": "S₂₀ = 20/2 (480 + 195)",

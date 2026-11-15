@@ -1,0 +1,704 @@
+{
+  "id": "ex.foundations.pre-substitute",
+  "format": 1,
+  "status": "draft",
+  "title": "Brackets Round Negatives",
+  "idea": "When you substitute, the number goes in brackets, sign and all, so a negative input is squared or multiplied correctly; then brackets, powers, × and ÷, + and −.",
+  "zone": "foundations",
+  "tutor": "tin-can-tess",
+  "courses": [
+    "aa-sl",
+    "aa-hl",
+    "ai-sl",
+    "ai-hl"
+  ],
+  "syllabus": [
+    "SL2.2"
+  ],
+  "skills": [],
+  "builds_on": [],
+  "leads_to": [
+    "ex.foundations.pre-balance",
+    "ex.functions.function-machine"
+  ],
+  "terms": [
+    "substitute",
+    "order of operations"
+  ],
+  "misconceptions": [
+    "Squares without brackets, so the sign comes out wrong",
+    "Multiplies before squaring",
+    "Drops the sign of the input"
+  ],
+  "estimate": {
+    "words_watched": 805,
+    "words_not_watched": 805,
+    "narration_watched": "5 min 35 s",
+    "narration_not_watched": "5 min 35 s",
+    "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions; with no prerequisite explainer there is one recall version, so they are the same. Player turns are player-paced and not counted."
+  },
+  "notes": [
+    "Foundations is prior learning (FAL-953), so this runs 4–6 minutes, not 6–8, and some sections are short.",
+    "No prerequisite explainer. The recall section is one tap question on what students bring from earlier school (a negative times a negative), with no callback line, so it has a single `beats` list instead of `watched` and `not_watched`, and both length figures are the same.",
+    "No second-method section: the map lists no methods. The lesson's four (bracket-first, order of operations, top-and-bottom, estimate-check) are all here except top-and-bottom, which needs a fraction input and is left to the question type.",
+    "Example 3 is a two-part course-style item (SL2.2 function notation), as FAL-953 allows for Foundations.",
+    "Live numbers for the turns come from fn-pre-substitute (game/engine/situations/substitute.gd); the fallbacks are fixed and worked below."
+  ],
+  "sections": [
+    {
+      "id": "cold-open",
+      "kind": "cold-open",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "say": "Kia ora, welcome to the Scrapworks. I'm Tess. If it's broken, it ends up in my yard, and most of it goes back out the gate working. Most of it."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "A trader brought this counting drum back this morning. Says it's broken, because it told him minus three squared is minus nine.",
+          "board": [
+            {
+              "write": "−3² = −9 ?",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "He's out front on my chilly bin, waiting for an apology. From a drum.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "joke": true
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Thing is, the drum might be right. So might he. It all comes down to brackets.",
+          "pause": 0.5
+        }
+      ]
+    },
+    {
+      "id": "recall",
+      "kind": "recall",
+      "builds_on": null,
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "say": "First, one you brought with you from school. Tap the answer."
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "(−4) × (−3) = ?",
+            "choices": [
+              "12",
+              "−12",
+              "−7"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Twelve. A negative times a negative is positive. Hang on to that one."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "A negative times a negative is positive, and four threes are twelve. So it's plus twelve. Hang on to that one."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "big-idea",
+      "kind": "big-idea",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Here's the drum, opened up. A letter in an expression is a slot. When you substitute, you take the letter out and put a number in its place.",
+          "board": [
+            {
+              "write": "substitute: replace the letter with the number, in brackets",
+              "kind": "term"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Say the slot is x squared, and the number going in is minus three. The whole minus three goes in, not the three on its own. So it goes in with brackets round it. Minus three times minus three: plus nine.",
+          "board": [
+            {
+              "write": "x² at x = −3",
+              "kind": "note"
+            },
+            {
+              "write": "(−3)² = (−3) × (−3)",
+              "move": "substitute"
+            },
+            {
+              "write": "= 9",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "I fitted a bolt once and left the washer on the bench. Held fine, right up until the panel rattled off halfway out the gate.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "joke": true
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "The minus sign is the washer. It goes in with the number, every time, and the brackets hold them together."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Now the drum. With no brackets, minus three squared means square the three first, then put the minus on. The power goes before the minus.",
+          "board": [
+            {
+              "write": "−3² = −(3²) = −9",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "So the drum read it with no brackets and said minus nine. The trader meant the brackets and wanted nine. Both right, for different questions.",
+          "board": [
+            {
+              "write": "(−3)² = 9,  but  −3² = −9",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "That's the order of operations doing its job. Brackets first, then powers, then times and divide, then plus and minus.",
+          "board": [
+            {
+              "write": "order of operations: brackets, powers, × and ÷, then + and −",
+              "kind": "term"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Bits on the bench, then. The number goes in with its brackets. Then the order.",
+          "pause": 0.5
+        }
+      ]
+    },
+    {
+      "id": "example-1",
+      "kind": "example",
+      "level": "full",
+      "problem": {
+        "setup": "Find the value of x² + 5 when x = −3."
+      },
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Step one: what we're finding. The value of x squared plus five, when x is minus three.",
+          "board": [
+            {
+              "write": "Find the value of x² + 5 when x = −3.",
+              "kind": "heading",
+              "label": "Step 1: what are we finding?"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Step two: substitute. Take x out, and put minus three in, brackets and all.",
+          "board": [
+            {
+              "write": "(−3)² + 5",
+              "move": "substitute",
+              "label": "Step 2: substitute, in brackets"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why the brackets round −3?",
+            "choices": [
+              "So the whole −3 is squared, sign and all",
+              "Brackets make the answer bigger",
+              "The question had brackets"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "That's it. The minus goes in with the three, and the brackets keep them together."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "The brackets mean the whole minus three gets squared, sign and all. Without them, only the three would be."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Step three: the order, and the power goes first, so minus three, in brackets, squared, is nine, and then you add the five and you've got fourteen.",
+          "board": [
+            {
+              "write": "= 9 + 5",
+              "move": "evaluate",
+              "label": "Step 3: powers first, then add"
+            },
+            {
+              "write": "= 14",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Step four: the answer. When x is minus three, x squared plus five is fourteen.",
+          "board": [
+            {
+              "write": "When x = −3, x² + 5 = 14.",
+              "move": "state-answer",
+              "kind": "answer",
+              "label": "Step 4: the answer"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Then check the sign. A square is never negative, so x squared plus five can't come out under five, and fourteen doesn't. Sweet as.",
+          "board": [
+            {
+              "write": "Check: x² ≥ 0, so x² + 5 ≥ 5, and 14 ≥ 5 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-1",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "twin",
+        "like": "example-1",
+        "type": "fn-pre-substitute",
+        "skills": [],
+        "intro": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Your go. Same job, new numbers. Brackets on first."
+          }
+        ],
+        "fallback": {
+          "setup": "Find the value of x² + 7 when x = −4.",
+          "parts": [
+            {
+              "text": "Find the value.",
+              "answer": "23"
+            }
+          ],
+          "working": [
+            "(−4)² + 7",
+            "= 16 + 7",
+            "= 23",
+            "Check: 23 ≥ 7 ✓"
+          ]
+        },
+        "right": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "You kept the brackets. That's the whole trick, right there."
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Sweet as. Bits on the bench, and it all went together."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Back on the bench with it. Can a square come out negative?"
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Put the number in with its brackets, then do the power first."
+          }
+        ]
+      }
+    },
+    {
+      "id": "example-2",
+      "kind": "example",
+      "level": "faded",
+      "problem": {
+        "setup": "Find the value of 2x² − 5x when x = −2."
+      },
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Bit harder now. Two x squared, minus five x, when x is minus two. Two slots this time, and both get minus two, in brackets.",
+          "board": [
+            {
+              "write": "Find the value of 2x² − 5x when x = −2.",
+              "kind": "heading"
+            },
+            {
+              "write": "2(−2)² − 5(−2)",
+              "move": "substitute"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "fill",
+            "prompt": "2(−2)² = ?",
+            "choices": [
+              "8",
+              "16",
+              "−8"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Eight. Square first, so four, then double it."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Power before the times. Minus two, in brackets, squared, is four, and two fours are eight."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Next slot is minus five times minus two, and that's negative times negative, so plus ten. Eight and ten, eighteen.",
+          "board": [
+            {
+              "write": "= 8 + 10",
+              "move": "evaluate"
+            },
+            {
+              "write": "= 18",
+              "move": "evaluate"
+            },
+            {
+              "write": "When x = −2, 2x² − 5x = 18.",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-3",
+      "kind": "example",
+      "level": "exam",
+      "problem": {
+        "setup": "The function f is defined by f(x) = 4 + 2x − x².",
+        "parts": [
+          {
+            "part": "a",
+            "command": "Write down",
+            "text": "Write down f(0)."
+          },
+          {
+            "part": "b",
+            "command": "Find",
+            "text": "Find f(−3)."
+          }
+        ]
+      },
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Now one laid out the way the exam papers do it, with a part a and a part b. Write each letter down before you start on it, so whoever marks it can find your working."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Part a says write down, so no working needed. Zero goes in for x, and everything with an x in it disappears. f of zero is four.",
+          "board": [
+            {
+              "write": "(a)  f(0) = 4",
+              "part": "a",
+              "move": "evaluate",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Part b says find, so the working goes down. Every x gets minus three, in brackets.",
+          "board": [
+            {
+              "write": "(b)  f(−3) = 4 + 2(−3) − (−3)²",
+              "part": "b",
+              "move": "substitute"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why is −(−3)² equal to −9, not 9?",
+            "choices": [
+              "Square first, then the minus in front",
+              "Two minuses make a plus",
+              "The brackets cancel the minus"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Right. The bracket squares to nine, and the minus in front was never inside it."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "The square goes first: minus three, in brackets, squared, is nine. The minus in front sits outside the bracket, so it's minus nine."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "So it's four, minus six, minus nine. Minus eleven.",
+          "board": [
+            {
+              "write": "= 4 − 6 − 9",
+              "part": "b",
+              "move": "evaluate"
+            },
+            {
+              "write": "= −11",
+              "part": "b",
+              "move": "evaluate"
+            },
+            {
+              "write": "f(−3) = −11",
+              "part": "b",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Quick check on the sign. The only bit adding is the four, and the six and the nine take away more than that, so a minus answer makes sense.",
+          "board": [
+            {
+              "write": "Check: 4 is the only positive term, and 6 + 9 > 4, so f(−3) < 0 ✓",
+              "part": "b",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "second-method",
+      "kind": "second-method",
+      "skipped": "The map lists no second method for this idea; see notes."
+    },
+    {
+      "id": "spot-the-slip",
+      "kind": "spot-the-slip",
+      "misconception": "Squares without brackets, so the sign comes out wrong",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Somebody left this on my bench. One line's a bit off. Find it.",
+          "board": [
+            {
+              "write": "Find x² + 2x when x = −4",
+              "kind": "step",
+              "key": "s1"
+            },
+            {
+              "write": "= −4² + 2(−4)",
+              "kind": "slip",
+              "key": "s2"
+            },
+            {
+              "write": "= −16 − 8",
+              "kind": "step",
+              "key": "s3"
+            },
+            {
+              "write": "= −24",
+              "kind": "step",
+              "key": "s4"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "tap-line",
+            "prompt": "Tap the line with the slip.",
+            "choices": [
+              "s1",
+              "s2",
+              "s3",
+              "s4"
+            ],
+            "answer": 1,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "That's the one. The minus four went in with no brackets, so only the four got squared."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Look at where the minus four goes in. Has every slot got brackets?"
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "And you can catch it without redoing anything. x squared is a square, and a square is never negative, so that first bit can't ever be minus sixteen.",
+          "board": [
+            {
+              "write": "Check: x² ≥ 0, so x² can't be −16 ✗",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Line through it, and go again with the brackets on. Sixteen, minus eight. Eight.",
+          "board": [
+            {
+              "strike": "s2"
+            },
+            {
+              "write": "= (−4)² + 2(−4) = 16 − 8 = 8",
+              "kind": "answer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-2",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "exam",
+        "like": "example-3",
+        "type": "fn-pre-substitute",
+        "skills": [],
+        "intro": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Your go, and no help on the first try. Label your parts, and brackets round every number that goes in."
+          }
+        ],
+        "fallback": {
+          "setup": "The function g is defined by g(x) = 5 − 3x − x².",
+          "parts": [
+            {
+              "part": "a",
+              "text": "Write down g(0).",
+              "answer": "5"
+            },
+            {
+              "part": "b",
+              "text": "Find g(−2).",
+              "answer": "7"
+            }
+          ],
+          "working": [
+            "(a) g(0) = 5",
+            "(b) g(−2) = 5 − 3(−2) − (−2)²",
+            "= 5 + 6 − 4",
+            "= 7"
+          ]
+        },
+        "right": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Choice. Parts labelled, and the minus kept outside the bracket."
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "That'd hold. I'd put it out front with a price on it."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Back on the bench with part b. What's minus two, in brackets, squared?"
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Look at the minus in front of the x squared. Is it inside the bracket, or outside?"
+          }
+        ]
+      }
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "So. When you substitute, the number goes in with its brackets, sign and all. Then brackets, powers, times, plus, in that order. Then check the sign makes sense.",
+          "board": [
+            {
+              "write": "Substitute: the number goes in brackets, sign and all",
+              "kind": "answer"
+            },
+            {
+              "write": "1. Brackets round the number",
+              "kind": "note"
+            },
+            {
+              "write": "2. Powers, then × and ÷, then + and −",
+              "kind": "note"
+            },
+            {
+              "write": "3. Check the sign and the size",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Next time we run it the other way. You know what comes out, and you find what went in."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "The trader's drum? Fine all along. I stuck a pair of brackets on the side and charged him for the repair. Best money I've made all week.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "joke": true
+        }
+      ]
+    }
+  ]
+}

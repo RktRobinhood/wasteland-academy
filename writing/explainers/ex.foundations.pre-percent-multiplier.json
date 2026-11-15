@@ -1,0 +1,711 @@
+{
+  "id": "ex.foundations.pre-percent-multiplier",
+  "format": 1,
+  "status": "draft",
+  "title": "One Multiplication",
+  "idea": "A rise of r% is one multiplication by 1 + r/100 and a fall of r% is one multiplication by 1 − r/100, so changes in a row multiply: a 4% rise is ×1.04 and a 4% fall is ×0.96.",
+  "zone": "foundations",
+  "tutor": "tin-can-tess",
+  "courses": [
+    "aa-sl",
+    "aa-hl",
+    "ai-sl",
+    "ai-hl"
+  ],
+  "syllabus": [
+    "SL2.9",
+    "SL1.4"
+  ],
+  "skills": [],
+  "builds_on": [],
+  "leads_to": [
+    "ex.functions.growth-factor",
+    "ex.algebra.geometric-sequence"
+  ],
+  "terms": [
+    "multiplier"
+  ],
+  "misconceptions": [
+    "Uses the percentage as the multiplier for a decrease",
+    "Puts the percentage in the wrong decimal place in the growth multiplier",
+    "Adds percentages for changes in a row: +10% then −10% is no change"
+  ],
+  "estimate": {
+    "words_watched": 728,
+    "words_not_watched": 728,
+    "narration_watched": "5 min 05 s",
+    "narration_not_watched": "5 min 05 s",
+    "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions; with no prerequisite explainer there is one recall version, so they are the same. Player turns are player-paced and not counted."
+  },
+  "notes": [
+    "Foundations is prior learning (FAL-953), so this runs 4–6 minutes, not 6–8, and some sections are short.",
+    "No prerequisite explainer. The recall section is one tap question on what students bring from earlier school (a percentage as a decimal), with no callback line, so it has a single `beats` list instead of `watched` and `not_watched`, and both length figures are the same.",
+    "No second-method section: the map lists no methods. Find-then-add is the long way in the big idea, so the two are compared there. Reverse percentages (divide by the multiplier) and the unitary method are left to the question type; they are a second idea, and the misconception \"reverses a change by taking the percentage of the new amount\" goes with them.",
+    "Example 3 is a two-part course-style item (depreciation, SL1.4), as FAL-953 allows for Foundations. Its check compares with taking 30% off once, which is the same misconception as the slip, met from the other side.",
+    "Prices are in scrap, the game's currency (SPEC.md).",
+    "Live numbers for the turns come from fn-pre-percent-multiplier (game/engine/situations/percent.gd); the fallbacks are fixed and worked below."
+  ],
+  "sections": [
+    {
+      "id": "cold-open",
+      "kind": "cold-open",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "say": "Tess here. Prices at the Bazaar change every day, and every trader has their own way of telling you."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Up ten percent. Down fifteen. Half off, today only, for my favourite customer. I'm everybody's favourite customer, apparently.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "joke": true
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Here's how to turn any of it into one multiplication.",
+          "pause": 0.5,
+          "board": [
+            {
+              "write": "A percentage change is one multiplication",
+              "kind": "heading"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recall",
+      "kind": "recall",
+      "builds_on": null,
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "say": "First, one you brought with you from school. Tap the answer."
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "Write 4% as a decimal.",
+            "choices": [
+              "0.04",
+              "0.4",
+              "4.0"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Zero point zero four. Per cent means out of a hundred, so it's four hundredths."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Per cent means out of a hundred. Four out of a hundred is four hundredths, zero point zero four."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "big-idea",
+      "kind": "big-idea",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Here's a jerry can of fuel. Eighty scrap yesterday. Today the price is up fifteen percent.",
+          "board": [
+            {
+              "write": "80 scrap, up 15%",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "The long way first: fifteen percent of eighty is twelve, you add it on, and it's ninety-two.",
+          "board": [
+            {
+              "write": "15% of 80 = 0.15 × 80 = 12",
+              "move": "evaluate"
+            },
+            {
+              "write": "80 + 12 = 92",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Now the short way. You start with all of it, a hundred percent. Add fifteen and you've got a hundred and fifteen percent, which is one point one five. Eighty times one point one five is ninety-two, in one go.",
+          "board": [
+            {
+              "write": "100% + 15% = 115% = 1.15",
+              "move": "percent-multiplier"
+            },
+            {
+              "write": "80 × 1.15 = 92",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "That one point one five is the multiplier: the number you multiply by to make the change.",
+          "board": [
+            {
+              "write": "multiplier: the number you multiply by to make the change",
+              "kind": "term"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Going down works the same way. Fifteen percent off leaves eighty-five percent, so the multiplier is zero point eight five. Not zero point one five. That's the bit you took away.",
+          "board": [
+            {
+              "write": "100% − 15% = 85% = 0.85",
+              "move": "percent-multiplier"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "And changes in a row are one multiplication each, so you multiply the multipliers.",
+          "board": [
+            {
+              "write": "Changes in a row: multiply the multipliers",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "My uncle put his trailer up ten percent, then took ten percent off for a mate, and reckoned he was back where he started. Hold that thought.",
+          "cue": "chuckles",
+          "cue_at": "end",
+          "pause": 0.5,
+          "joke": true
+        }
+      ]
+    },
+    {
+      "id": "example-1",
+      "kind": "example",
+      "level": "full",
+      "problem": {
+        "setup": "A tank of water costs 60 scrap. The price rises by 4%. Find the new price."
+      },
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Step one: what we're finding. The new price of a tank of water, in scrap.",
+          "board": [
+            {
+              "write": "Find the new price, in scrap.",
+              "kind": "heading",
+              "label": "Step 1: what are we finding?"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Step two: the givens. Sixty scrap to start, and a rise of four percent.",
+          "board": [
+            {
+              "write": "Old price = 60 scrap",
+              "move": "read-givens",
+              "label": "Step 2: the givens"
+            },
+            {
+              "write": "Rise = 4%",
+              "move": "read-givens"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Step three: the multiplier. A hundred percent plus four percent is a hundred and four percent. One point zero four.",
+          "board": [
+            {
+              "write": "100% + 4% = 104% = 1.04",
+              "move": "percent-multiplier",
+              "label": "Step 3: the multiplier"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why is a 4% rise × 1.04 and not × 1.4?",
+            "choices": [
+              "4% is 0.04, so 1 + 0.04 = 1.04",
+              "1.4 is too big for a price",
+              "The 0 is only there to look neat"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "That's it. Four percent is four hundredths. One point four would be a forty percent rise."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Four percent is zero point zero four. Add it to the one, and you get one point zero four. One point four would be a forty percent rise."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Step four: one multiplication. Sixty times one point zero four, sixty-two point four. The new price is sixty-two point four scrap.",
+          "board": [
+            {
+              "write": "60 × 1.04 = 62.4",
+              "move": "evaluate",
+              "label": "Step 4: multiply"
+            },
+            {
+              "write": "The new price is 62.4 scrap.",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Check: a small rise, so it should be a bit more than sixty, and it is.",
+          "board": [
+            {
+              "write": "Check: 62.4 is a little more than 60 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-1",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "twin",
+        "like": "example-1",
+        "type": "fn-pre-percent-multiplier",
+        "skills": [],
+        "intro": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Your go. Multiplier first, then one multiplication."
+          }
+        ],
+        "fallback": {
+          "setup": "A coil of wire costs 50 scrap. The price rises by 6%.",
+          "parts": [
+            {
+              "text": "Find the new price.",
+              "answer": "53 scrap"
+            }
+          ],
+          "working": [
+            "100% + 6% = 106% = 1.06",
+            "50 × 1.06 = 53",
+            "The new price is 53 scrap."
+          ]
+        },
+        "right": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Choice. One multiplication, done."
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Sweet as. A bit more than you started with, which is right for a rise."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "What's a hundred percent plus the rise, as a decimal?"
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Check your decimal. A few percent is a few hundredths."
+          }
+        ]
+      }
+    },
+    {
+      "id": "example-2",
+      "kind": "example",
+      "level": "faded",
+      "problem": {
+        "setup": "A generator part costs 240 scrap. In a sale, the price falls by 15%. Find the sale price."
+      },
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Now a price going down. A generator part, two hundred and forty scrap, with fifteen percent off in a sale.",
+          "board": [
+            {
+              "write": "Find the sale price: 240 scrap, down 15%.",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "fill",
+            "prompt": "Multiplier for a 15% fall = ?",
+            "choices": [
+              "0.85",
+              "0.15",
+              "1.15"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Zero point eight five. You pay for the eighty-five percent that's left."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Fifteen percent off leaves eighty-five percent. As a decimal, that's zero point eight five. Zero point one five is the bit taken off."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "One multiplication. Two hundred and forty times zero point eight five is two hundred and four. The sale price is two hundred and four scrap.",
+          "board": [
+            {
+              "write": "100% − 15% = 85% = 0.85",
+              "move": "percent-multiplier"
+            },
+            {
+              "write": "240 × 0.85 = 204",
+              "move": "evaluate"
+            },
+            {
+              "write": "The sale price is 204 scrap.",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-3",
+      "kind": "example",
+      "level": "exam",
+      "problem": {
+        "setup": "A generator is worth 2000 scrap. Its value falls by 10% each year.",
+        "parts": [
+          {
+            "part": "a",
+            "command": "Write down",
+            "text": "Write down the multiplier for one year."
+          },
+          {
+            "part": "b",
+            "command": "Find",
+            "text": "Find the value of the generator after 3 years."
+          }
+        ]
+      },
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "One laid out like the exam papers. Two parts, and the letter goes down before each one."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Part a says write down. Ten percent off leaves ninety percent. Zero point nine.",
+          "board": [
+            {
+              "write": "(a)  0.9",
+              "part": "a",
+              "move": "percent-multiplier",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Part b says find. Every year is another times zero point nine, so three years is three of them.",
+          "board": [
+            {
+              "write": "(b)  2000 × 0.9 × 0.9 × 0.9",
+              "part": "b",
+              "move": "repeat-multiplier"
+            },
+            {
+              "write": "= 2000 × 0.9³",
+              "part": "b",
+              "move": "repeat-multiplier"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why not take 30% off once?",
+            "choices": [
+              "Each year's 10% comes off a smaller value",
+              "It comes to the same either way",
+              "Three years is too long for one step"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Right. Year two takes ten percent of what's left, not of the start."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Each year takes ten percent of what's left by then, and that keeps getting smaller. So three lots of ten percent isn't thirty."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Zero point nine cubed is zero point seven two nine. Times two thousand: one thousand, four hundred and fifty-eight scrap.",
+          "board": [
+            {
+              "write": "= 2000 × 0.729",
+              "part": "b",
+              "move": "evaluate"
+            },
+            {
+              "write": "= 1458",
+              "part": "b",
+              "move": "evaluate"
+            },
+            {
+              "write": "After 3 years the generator is worth 1458 scrap.",
+              "part": "b",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Check: thirty percent off in one go would give fourteen hundred. Ours is a bit more, because each ten percent came off less.",
+          "board": [
+            {
+              "write": "Check: 1458 > 2000 × 0.7 = 1400 ✓",
+              "part": "b",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "second-method",
+      "kind": "second-method",
+      "skipped": "The map lists no second method for this idea; see notes."
+    },
+    {
+      "id": "spot-the-slip",
+      "kind": "spot-the-slip",
+      "misconception": "Adds percentages for changes in a row: +10% then −10% is no change",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "Here's my uncle's working from the trailer deal, the bits I could read, anyway. One line's off. Find it.",
+          "board": [
+            {
+              "write": "Price: 200 scrap",
+              "kind": "step",
+              "key": "s1"
+            },
+            {
+              "write": "Up 10%, then down 10%",
+              "kind": "step",
+              "key": "s2"
+            },
+            {
+              "write": "+10% − 10% = 0% change",
+              "kind": "slip",
+              "key": "s3"
+            },
+            {
+              "write": "New price: 200 scrap",
+              "kind": "step",
+              "key": "s4"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "tap-line",
+            "prompt": "Tap the line with the slip.",
+            "choices": [
+              "s1",
+              "s2",
+              "s3",
+              "s4"
+            ],
+            "answer": 2,
+            "right": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "That's the one. The two tens come off different amounts, so they don't cancel."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "tin-can-tess",
+                "say": "Look at the line that adds the percentages. Is the second ten percent taken from two hundred?"
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Run the numbers and it falls apart. Up ten percent is two hundred and twenty, and ten percent of that is twenty-two, so it comes down to one hundred and ninety-eight.",
+          "board": [
+            {
+              "write": "Check: 200 × 1.1 = 220, then 220 × 0.9 = 198 ≠ 200 ✗",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "So multiply the multipliers. One point one times zero point nine is zero point nine nine. One percent down, overall.",
+          "board": [
+            {
+              "strike": "s3"
+            },
+            {
+              "write": "1.1 × 0.9 = 0.99, so 1% down overall",
+              "move": "repeat-multiplier",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Don't tell my uncle. He still thinks he broke even.",
+          "cue": "chuckles",
+          "cue_at": "end",
+          "joke": true
+        }
+      ]
+    },
+    {
+      "id": "turn-2",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "exam",
+        "like": "example-3",
+        "type": "fn-pre-percent-multiplier",
+        "skills": [],
+        "intro": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "Your go, and no help on the first try. Multiplier first, then one multiplication for each change."
+          }
+        ],
+        "fallback": {
+          "setup": "A tank holds 5000 litres of water. It loses 20% of its water each week.",
+          "parts": [
+            {
+              "part": "a",
+              "text": "Write down the multiplier for one week.",
+              "answer": "0.8"
+            },
+            {
+              "part": "b",
+              "text": "Find the amount of water in the tank after 3 weeks.",
+              "answer": "2560 litres"
+            }
+          ],
+          "working": [
+            "(a) 100% − 20% = 80% = 0.8",
+            "(b) 5000 × 0.8³",
+            "= 5000 × 0.512",
+            "= 2560 litres"
+          ]
+        },
+        "right": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "That'd hold. I'd put it out front with a price on it."
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Choice. Every change a multiplication."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "tin-can-tess",
+            "say": "What's left after twenty percent goes? Write that as a decimal for part a."
+          },
+          {
+            "speaker": "tin-can-tess",
+            "say": "Each week is another multiplication. How many weeks?"
+          }
+        ]
+      }
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "beats": [
+        {
+          "speaker": "tin-can-tess",
+          "clear": true,
+          "say": "So. A rise of r percent is times one plus r over a hundred. A fall is times one minus r over a hundred. Changes in a row, you multiply the multipliers. You never add the percentages.",
+          "board": [
+            {
+              "write": "rise of r%: × (1 + r/100)",
+              "kind": "answer"
+            },
+            {
+              "write": "fall of r%: × (1 − r/100)",
+              "kind": "answer"
+            },
+            {
+              "write": "Changes in a row: multiply the multipliers",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Next up, things that multiply by the same number again and again, like debts that get away from you."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "And if a trader says half off, today only? Ask what it cost yesterday.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "joke": true
+        }
+      ]
+    }
+  ]
+}
