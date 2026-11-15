@@ -96,8 +96,9 @@ func test_every_distractor_shows_up() -> void:
 				if o.ref != "":
 					seen[o.ref] = true
 	var t := QuestionEngine.type_of(TYPE)
-	for m in t.misconceptions:
-		check(seen.has(m.ref), "%s never comes up" % m.ref)
+	for i in t.misconceptions.size():
+		var ref: String = t.misconceptions[i].get("ref", "%s#%d" % [TYPE, i])
+		check(seen.has(ref), "%s never comes up" % ref)
 	for ref in seen:
 		check(QuestionEngine.misconception_text(t, ref) != "", "%s has no text" % ref)
 

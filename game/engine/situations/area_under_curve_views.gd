@@ -17,6 +17,11 @@ const R_DERIVATIVE := SE + "2"
 const R_UPPER_LOWER := SP + "0"
 const R_FROM_ZERO := SP + "1"
 const R_ROUNDED := SP + "2"
+const R_FROM_Y_AXIS := "t5-ext-area-under-curve#6"
+const R_F_NOT_F := "t5-ext-area-under-curve#7"
+const R_BOTH_ROOTS := "t5-ext-area-under-curve#8"
+const R_RECTANGLE := "t5-ext-area-under-curve#9"
+const R_NO_HALF := "t5-ext-area-under-curve#10"
 const UNKNOWNS := ["integral-from-graph", "integral-from-roots", "region-for-integral", "area-between-lines",
 	"area-between-roots", "area-with-y-axis", "area-straight-edge", "area-gdc-limits"]
 const S := preload("res://engine/situations/area_under_curve.gd")
@@ -92,8 +97,25 @@ static func figure(s: Dictionary, lo: float, hi: float, marks: Array = [], vline
 	return g
 
 
-static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, gen: Array, methods: Dictionary, graph: Variant = null) -> Dictionary:
-	return DV.pack(lines, asked, ans, wr, gen, methods, graph)
+## `fill` is the fillers: wrong values with no slip behind them. DefiniteIntegralViews.pack adds
+## its own (the key nudged); whatever list it returns them in, they come out as `fillers` here.
+static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, fill: Array, methods: Dictionary, graph: Variant = null) -> Dictionary:
+	return sorted(DV.pack(lines, asked, ans, wr, fill, methods, graph))
+
+
+## Another situation's builder output with its unsorted list read as fillers.
+static func sorted(out: Dictionary) -> Dictionary:
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
+	return out
+
+
+## A slip that only has a natural route on some seeds: tagged when `slip`, else a filler.
+static func either(ans: Dictionary, v: Variant, ref: String, slip: bool, wr: Array, fill: Array) -> void:
+	if slip:
+		wr.append(DV.like(ans, v, ref))
+	else:
+		fill.append(DV.like(ans, v).values)
 
 
 static func area_ans(s: Dictionary, v: Variant) -> Dictionary:
@@ -132,14 +154,20 @@ func u_integral_from_roots(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		var lo := GdcKit.S(s.r1)
 		var hi := GdcKit.S(s.r2)
 		var right := I(s, lo, hi)
-		out.merge(InverseRuleViews.choose(right, [InverseRuleViews.tag(I(s, hi, lo), R_SWAPPED), InverseRuleViews.tag(I(s, lo, hi, d_text(s)), R_DERIVATIVE)],
-			[I(s, 0, hi), I(s, lo, 0)]))
+		out.merge(sorted(InverseRuleViews.choose(right, [InverseRuleViews.tag(I(s, hi, lo), R_SWAPPED), InverseRuleViews.tag(I(s, lo, hi, d_text(s)), R_DERIVATIVE),
+			InverseRuleViews.tag(I(s, 0, hi), R_FROM_ZERO)], [I(s, lo, 0)])))
 		out.methods = {"gdc-zeros": method(["Graph y = %s on the GDC and find its zeros: x = %s and x = %s." % [f_text(s), W(s.r1), W(s.r2)],
 			"Between them the curve is above the x-axis, so R runs from one zero to the other.", right + "."], {"v": right})}
 		return out
 	var right := I(s, s.r, s.t)
-	out.merge(InverseRuleViews.choose(right, [InverseRuleViews.tag(I(s, s.t, s.r), R_SWAPPED), InverseRuleViews.tag(I(s, s.r, s.t, d_text(s)), R_DERIVATIVE)],
-		[I(s, 0, s.t), I(s, s.r, 0)]))
+	var bad := [InverseRuleViews.tag(I(s, s.t, s.r), R_SWAPPED), InverseRuleViews.tag(I(s, s.r, s.t, d_text(s)), R_DERIVATIVE)]
+	var plain := [I(s, s.r, 0)]
+	# Starting at zero is the slip when the right-hand root is right of the y-axis.
+	if s.t > 0:
+		bad.append(InverseRuleViews.tag(I(s, 0, s.t), R_FROM_ZERO))
+	else:
+		plain.push_front(I(s, 0, s.t))
+	out.merge(sorted(InverseRuleViews.choose(right, bad, plain)))
 	out.methods = {"solve-for-roots": method(["f(x) = %s = 0, so x = %s or x = %s." % [factored(s), N(s.r), N(s.t)],
 		"Between the roots the curve is above the x-axis, so R runs from x = %s to x = %s." % [N(s.r), N(s.t)], right + "."], {"v": right})}
 	return out
@@ -178,16 +206,21 @@ func u_area_between_lines(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var g := show(s, rep, float(p), float(q), "enclosed by the curve y = f(x), the x-axis and the lines x = %s and x = %s" % [N(p), N(q)], [p, q])
 	if s.fam == "wave":
 		var ans := DV.val(s.v, true)
-		var gen: Array = DV.vals(ans, [s.v0]) if p > 0 else []
-		return pack(g.lines, "Find the area of R.", ans, [DV.like(ans, -s.v, R_UPPER_LOWER)], gen,
+		var wr: Array = [DV.like(ans, -s.v, R_UPPER_LOWER)]
+		if p > 0:
+			wr.append(DV.like(ans, s.v0, R_FROM_Y_AXIS))
+		return pack(g.lines, "Find the area of R.", ans, wr, [],
 			{"gdc-integral": ["Enter %s in the GDC's ∫dx template, from x = %d to x = %d." % [f_text(s), p, q], "The GDC gives %s." % W(s.v)]}, g.graph)
 	var v := S.area(s, p, q)
 	var ans := area_ans(s, v)
-	var gen := DV.vals(ans, [S.area(s, 0, q), S.at(s, q).sub(S.at(s, p))])
+	var wr: Array = [DV.like(ans, v.neg(), R_UPPER_LOWER)]
+	var fill: Array = []
+	either(ans, S.area(s, 0, q), R_FROM_Y_AXIS, p > 0, wr, fill)
+	wr.append(DV.like(ans, S.at(s, q).sub(S.at(s, p)), R_F_NOT_F))
 	var methods := {"antiderivative-evaluate": by_hand(s, p, q, v)}
 	if s.paper == 2:
 		methods = {"gdc-integral": ["Enter %s in the GDC's ∫dx template, from x = %d to x = %d." % [f_text(s), p, q], "The GDC gives %s." % W(v)]}
-	return pack(g.lines, "Find the area of R.", ans, [DV.like(ans, v.neg(), R_UPPER_LOWER)], gen, methods, g.graph)
+	return pack(g.lines, "Find the area of R.", ans, wr, fill, methods, g.graph)
 
 
 func u_area_between_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -212,7 +245,8 @@ func u_area_with_y_axis(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := S.area(s, 0, t)
 	var ans := area_ans(s, v)
 	var methods := {"antiderivative-evaluate": ["R runs from the y-axis, x = 0, to the root x = %s." % N(t)] + by_hand(s, 0, t, v)}
-	return pack(g.lines, "Find the area of R.", ans, [DV.like(ans, v.neg(), R_UPPER_LOWER)], DV.vals(ans, [S.area(s, s.r, t), S.area(s, s.r, 0)]), methods, g.graph)
+	return pack(g.lines, "Find the area of R.", ans, [DV.like(ans, v.neg(), R_UPPER_LOWER), DV.like(ans, S.area(s, s.r, t), R_BOTH_ROOTS)],
+		DV.vals(ans, [S.area(s, s.r, 0)]), methods, g.graph)
 
 
 func u_area_straight_edge(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -225,13 +259,15 @@ func u_area_straight_edge(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var ans := area_ans(s, v)
 	var fp := S.at(s, p)
 	var fq := S.at(s, q)
-	var gen := DV.vals(ans, [fq.mul(q - p), fp.add(fq).mul(q - p), S.area(s, 0, q)])
+	var wr: Array = [DV.like(ans, fq.mul(q - p), R_RECTANGLE), DV.like(ans, fp.add(fq).mul(q - p), R_NO_HALF)]
+	var fill: Array = []
+	either(ans, S.area(s, 0, q), R_FROM_Y_AXIS, p > 0, wr, fill)
 	var methods := {
 		"geometric-shapes": ["R is a trapezium: its parallel sides are f(%s) = %s and f(%s) = %s, a distance %d apart." % [N(p), N(fp), N(q), N(fq), q - p],
 			"Area = ½ × (%s + %s) × %d = %s." % [N(fp), N(fq), q - p, N(v)]],
 		"antiderivative-evaluate": by_hand(s, p, q, v),
 	}
-	return pack(g.lines, "Find the area of R.", ans, [], gen, methods, g.graph)
+	return pack(g.lines, "Find the area of R.", ans, wr, fill, methods, g.graph)
 
 
 func u_area_gdc_limits(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -240,5 +276,5 @@ func u_area_gdc_limits(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var methods := {"gdc-integral": ["Graph y = %s on the GDC and find its zeros: x = %s and x = %s. Keep them stored, not rounded." % [f_text(s), W(s.r1), W(s.r2)],
 		"∫ from the first zero to the second of f(x) dx on the GDC gives %s." % W(s.v)]}
 	var f := S.poly_fn(s.coeffs)
-	return pack(lines, "Find the area of R, to 3 s.f.", ans, [DV.like(ans, s.slip, R_ROUNDED)],
-		DV.vals(ans, [DI.simpson(f, 0.0, s.r2), DI.simpson(f, s.r1, 0.0)]), methods)
+	return pack(lines, "Find the area of R, to 3 s.f.", ans, [DV.like(ans, s.slip, R_ROUNDED), DV.like(ans, DI.simpson(f, 0.0, s.r2), R_FROM_ZERO)],
+		DV.vals(ans, [DI.simpson(f, s.r1, 0.0)]), methods)

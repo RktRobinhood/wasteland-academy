@@ -75,7 +75,7 @@ static func clear(s: Dictionary) -> bool:
 		vs = [out.answer.values.v]
 		for w in out.wrongs:
 			vs.append(w.values.v)
-		for g in out.generic:
+		for g in out.get("fillers", []):
 			vs.append(g.v)
 	elif out.answer.kind == "measures":
 		vs = [out.answer.values.v1, out.answer.values.v2]

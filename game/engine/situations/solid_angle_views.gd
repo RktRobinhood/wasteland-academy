@@ -298,7 +298,7 @@ func u_cuboid_diagonal_base(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var f := sqrt(float(base))
 	var lines := cuboid_lines(rep, s)
 	var wr: Array = bad(acos_d(l / d), R_EDGE) + bad(atan_d(f, h), R_FACE_UP) + bad(atan_d(h, d), R_FULL_RUN)
-	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "generic": gens([atan_d(h, l), atan_d(h, w), acos_d(w / d), t + 10.0]),
+	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "fillers": gens([atan_d(h, l), atan_d(h, w), acos_d(w / d), t + 10.0]),
 		"asked": sf3("Find the angle θ between the diagonal AG and the base ABCD.")}
 	var see := "G is directly above C, so AC is the projection of AG onto the base, and θ is angle GAC."
 	out.methods = {
@@ -353,7 +353,7 @@ func u_pyramid_edge_base(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var along: float = (l if k in ["A", "B"] else w) / 2.0
 	var wr: Array = bad(atan_d(h, face), R_SLANT) + bad(acos_d(along / va), R_EDGE) + bad(90.0 - t, R_VERTICAL) + bad(atan_d(h, va), R_FULL_RUN) \
 		+ bad(atan_d(h, 2.0 * xa), R_WHOLE_DIAG)
-	var out := {"lines": pyramid_lines(rep, s), "answer": ans, "wrongs": rng.shuffled(wr), "generic": gens([atan_d(h, l), atan_d(h, w), t + 10.0, t - 10.0]),
+	var out := {"lines": pyramid_lines(rep, s), "answer": ans, "wrongs": rng.shuffled(wr), "fillers": gens([atan_d(h, l), atan_d(h, w), t + 10.0, t - 10.0]),
 		"asked": sf3("Find the angle θ between the edge %s and the base ABCD." % edge)}
 	var half := "%s = √(%s) = %s, and X is its midpoint, so X%s = %s." % [dg, sqsum([l, w]), root_eq(base), k, half_eq(base)]
 	var see := "V is directly above X, so X%s is the projection of %s onto the base, and θ is angle V%sX." % [k, edge, k]
@@ -395,7 +395,7 @@ func u_pyramid_face_base(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if l != w:
 		wr += bad(atan_d(h, other.to_float()), R_OTHER_HALF)
 	var out := {"lines": pyramid_lines(rep, s, " M is the midpoint of %s." % e), "answer": ans, "wrongs": rng.shuffled(wr),
-		"generic": gens([atan_d(h, run.to_float() * 2.0), t + 10.0, t - 10.0, 90.0 - t / 2.0]),
+		"fillers": gens([atan_d(h, run.to_float() * 2.0), t + 10.0, t - 10.0, 90.0 - t / 2.0]),
 		"asked": sf3("Find the angle θ between the line VM and the base ABCD.")}
 	var xm := "XM runs from the centre of the base to the middle of %s, parallel to %s, so XM = %d ÷ 2 = %s." % [e, next_edge, run.mul(2).n, Fmt.dec(run)]
 	out.methods = {
@@ -434,7 +434,7 @@ func u_cone_slant_base(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var t: float = s.theta
 	var ans := ang_ans("θ = ", t)
 	var wr: Array = bad(atan_d(h, 2.0 * r), R_DIAMETER) + bad(90.0 - t, R_VERTICAL) + bad(atan_d(sl, r), R_SLANT_UP) + bad(atan_d(h, sl), R_FULL_RUN)
-	var out := {"lines": cone_lines(rep, s), "answer": ans, "wrongs": rng.shuffled(wr), "generic": gens([t + 10.0, t - 10.0, t / 2.0, 90.0 - t / 2.0]),
+	var out := {"lines": cone_lines(rep, s), "answer": ans, "wrongs": rng.shuffled(wr), "fillers": gens([t + 10.0, t - 10.0, t / 2.0, 90.0 - t / 2.0]),
 		"asked": sf3("Find the angle θ between the slant height VA and the base of the cone.")}
 	var see := "V is directly above O, so OA is the projection of VA onto the base, and θ is angle VAO, with its right angle at O."
 	# Each side as a value in a sum, and the line that finds a missing one.
@@ -493,7 +493,7 @@ func u_coords_line_plane(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var story := "On a site plan with x-, y- and z-axes in metres, the ground is the xy-plane. %s runs straight between the points %%s." % RUNS[s.ctx]
 	var lines := points_lines(rep, s, ["A", "B"], story)
 	var wr: Array = bad(90.0 - t, R_VERTICAL) + bad(atan_d(rise, sqrt(float(n))), R_FULL_RUN) + bad(atan_d(rise, absf(d[0])), R_ONE_RUN)
-	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "generic": gens([atan_d(rise, absf(d[1])), t + 10.0, t - 10.0, t / 2.0]),
+	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "fillers": gens([atan_d(rise, absf(d[1])), t + 10.0, t - 10.0, t / 2.0]),
 		"asked": sf3("Find the angle θ between the line AB and the xy-plane.")}
 	var moves := "From A to B: Δx = %s, Δy = %s and Δz = %s." % [N(d[0]), N(d[1]), N(d[2])]
 	if rep == "notation":
@@ -584,7 +584,7 @@ func u_landmark_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	for x in [30, 45, 60, 90]:
 		if x != t:
 			gen.append({"v": Q.new(x)})
-	var out := {"lines": lines, "answer": ans, "wrongs": wr, "generic": gen, "asked": asked, "graph": g,
+	var out := {"lines": lines, "answer": ans, "wrongs": wr, "fillers": gen, "asked": asked, "graph": g,
 		"methods": {"project-and-tan": method(tan_steps, ans.values), "sin-with-length": method(sin_steps, ans.values)}}
 	return out
 
@@ -618,7 +618,7 @@ func u_cuboid_two_diagonals(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 		+ bad(t / 2.0, R_HALF_ANGLE) + bad(acos_d(1.0 - e * e / (2.0 * n)), R_WHOLE_SPACE) + bad(acos_d(no_two), R_NO_TWO)
 	if t > 90.0:
 		wr += bad(180.0 - t, R_ACUTE)
-	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "generic": gens([t + 10.0, t - 10.0, 180.0 - t / 2.0, t * 1.5]),
+	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "fillers": gens([t + 10.0, t - 10.0, 180.0 - t / 2.0, t * 1.5]),
 		"asked": sf3("Find the size of angle %s." % name)}
 	var ag := "AG = √(%s) = %s, and the diagonals cut each other in half at M, so AM = %sM = %s." % [sqsum([l, w, h]), root_eq(n), corner, half_eq(n)]
 	var opp := "A%s" % corner
@@ -655,7 +655,7 @@ func u_pyramid_apex_angle(rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	# A right angle at the base corner is what a drawing seems to show.
 	var wr: Array = (bad(atan_d(side, va), R_LOOKS_RIGHT) if rep == "diagram" else []) + bad(acos_d(side / 2.0 / va), R_OPPOSITE) + bad(t / 2.0, R_HALF_ANGLE) + bad(acos_d(no_two), R_NO_TWO) \
 		+ bad(2.0 * asin_d(side / 2.0 / h), R_HEIGHT_EDGE)
-	var out := {"lines": pyramid_lines(rep, s), "answer": ans, "wrongs": rng.shuffled(wr), "generic": gens([t + 10.0, t - 10.0, 180.0 - t, t * 1.5]),
+	var out := {"lines": pyramid_lines(rep, s), "answer": ans, "wrongs": rng.shuffled(wr), "fillers": gens([t + 10.0, t - 10.0, 180.0 - t, t * 1.5]),
 		"asked": sf3("Find the size of angle %s." % pair)}
 	var edge := "%s = √(%s) = %s, and X is its middle, so XA = %s. Then VA = √(XA² + VX²) = √(%d ÷ 4 + %d²) = %s, and every slant edge has this length." % [
 		"AC", sqsum([l, w]), root_eq(base), half_eq(base), base, h, root_eq(va2)]
@@ -703,7 +703,7 @@ func u_cuboid_diagonal_edge(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	if s.edge != "AE":
 		wr += bad(atan_d(h, sqrt(float(l * l + w * w))), R_TO_BASE)
 	var lines := cuboid_lines(rep, s)
-	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "generic": gens([t + 10.0, t - 10.0, t / 2.0, 90.0 - t / 2.0]),
+	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "fillers": gens([t + 10.0, t - 10.0, t / 2.0, 90.0 - t / 2.0]),
 		"asked": sf3("Find the size of angle %s, between the diagonal AG and the edge %s." % [name, s.edge])}
 	var ag := "AG = √(%s) = %s." % [sqsum([l, w, h]), root_eq(n)]
 	out.methods = {
@@ -736,10 +736,13 @@ func u_coords_angle_abc(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var at_a := SolidAngleSituation.angle_at(s.B, s.A, s.C)
 	var at_c := SolidAngleSituation.angle_at(s.A, s.C, s.B)
 	var no_two := (p + q - r) / sqrt(float(p) * float(q))
-	var wr: Array = bad(rng.pick([at_a, at_c]), R_OPPOSITE) + bad(acos_d(no_two), R_NO_TWO)
+	var picked: float = rng.pick([at_a, at_c])
+	var wr: Array = bad(picked, R_OPPOSITE) + bad(acos_d(no_two), R_NO_TWO)
 	if t > 90.0:
 		wr += bad(180.0 - t, R_ACUTE)
-	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "generic": gens([at_a, at_c, t + 10.0, t - 10.0, 180.0 - t]),
+	# The triangle's other angle is the same slip as the one picked (FAL-815).
+	var opp: Array = bad(at_c if picked == at_a else at_a, R_OPPOSITE)
+	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr) + opp, "fillers": gens([t + 10.0, t - 10.0, 180.0 - t]),
 		"asked": sf3("Find the size of angle ABC.")}
 	var sides := "%s, %s and %s." % [side_sq_text(s, "A", "B"), side_sq_text(s, "B", "C"), side_sq_text(s, "A", "C")]
 	out.methods = {"three-sides-cosine": method(["The squares of the sides: " + sides,
@@ -769,7 +772,7 @@ func u_coords_right_angle(rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	var hyp_name := "BC" if at == "A" else "AB"
 	var no_two := (p + q - r) / sqrt(float(p) * float(q))
 	var wr: Array = bad(90.0 - t, R_OPPOSITE) + bad(atan_d(sqrt(float(far)), sqrt(float(hyp))), R_TAN_HYP) + bad(acos_d(no_two), R_NO_TWO)
-	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "generic": gens([t + 10.0, t - 10.0, t / 2.0, 90.0 - t / 2.0]),
+	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(wr), "fillers": gens([t + 10.0, t - 10.0, t / 2.0, 90.0 - t / 2.0]),
 		"asked": sf3("Find the size of angle ABC.")}
 	var sides := "%s, %s and %s." % [side_sq_text(s, "A", "B"), side_sq_text(s, "B", "C"), side_sq_text(s, "A", "C")]
 	var sum_names := "AB² + AC²" if at == "A" else "BC² + AC²"

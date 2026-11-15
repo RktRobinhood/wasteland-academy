@@ -13,6 +13,9 @@ extends ExtensionViews
 const R_MANY := "SL2.2.is-function#0"
 const R_HORIZONTAL := "SL2.2.is-function#1"
 const R_VERTICAL := "SL2.2.is-function#2"
+## The type's own, with no skill ref: logged by index.
+const R_ANY_OUTPUT := "fn-ext-is-function#3"
+const R_CUT_X := "fn-ext-is-function#4"
 const VERT := "every vertical line crosses it at most once"
 const HORIZ := "every horizontal line crosses it at most once, so it has an inverse"
 
@@ -46,13 +49,15 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 # ── Helpers ──────────────────────────────────────────────────
 
 ## The sentence answer with its options in a seeded order, so the first isn't always right.
+## The untagged options are fillers (read defensively: the shared choose may call them
+## `fillers` or still `generic`).
 static func sentence(right: String, bad: Array, plain: Array, rng: Seeded) -> Dictionary:
 	var c := BasicFunctionViews.choose(right, bad, plain)
 	var opts: Array = c.answer.fixed.options
 	var mixed := rng.shuffled(opts)
 	opts.clear()
 	opts.append_array(mixed)
-	return c
+	return {"answer": c.answer, "wrongs": c.wrongs, "fillers": c.get("fillers", []) + c.get("generic", [])}
 
 
 static func tag(text: String, ref: String) -> Dictionary:
@@ -165,7 +170,7 @@ func u_from_mapping(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var steps: Array
 	if not s.fn:
 		right = two.call(s.wx, s.wy1, s.wy2)
-		c = sentence(right, [], [yes, two.call(s.fx, s.fy, s.wy1 if s.wy1 != s.fy else s.wy2), "A function: every input in the list has an output"], rng)
+		c = sentence(right, [tag("A function: every input in the list has an output", R_ANY_OUTPUT)], [yes, two.call(s.fx, s.fy, s.wy1 if s.wy1 != s.fy else s.wy2)], rng)
 		steps = ["Go through the inputs one at a time", "%s appears with %s and with %s, so one input has two outputs" % [nm.call(s.wx), it.call(s.wy1), it.call(s.wy2)]]
 	else:
 		right = yes
@@ -294,7 +299,7 @@ func u_make_it_a_function(rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 		out.lines = ["The graph shows the relation %s." % s.eq]
 		out.graph = BasicRelationSituation.plot(s)
 	var right := "Keep only " + half
-	out.merge(sentence(right, [], ["Keep only %s" % side[1], "Keep only %s" % side[2], "Keep only %s ≤ y ≤ %s" % [N(k - 1), N(k + 1)], "Keep only y ≠ %s" % N(k)], rng))
+	out.merge(sentence(right, [tag("Keep only %s" % side[1], R_CUT_X), tag("Keep only %s" % side[2], R_CUT_X)], ["Keep only %s ≤ y ≤ %s" % [N(k - 1), N(k + 1)], "Keep only y ≠ %s" % N(k)], rng))
 	out.methods = BasicFunctionViews.ways({
 		"vertical-line-test": ["A vertical line crosses the curve twice: at y = %s and y = %s when x = %s" % [N(s.wy1), N(s.wy2), N(s.wx)], "The part with %s is cut once by every vertical line" % half],
 		"solve-for-y": ["Solve for y: %s, two outputs for one input" % solved(s), "Taking only the %s sign gives %s, one output for each input" % ["+" if s.rel == ">=" else "−", half]]}, "So: %s." % right, out.answer)

@@ -46,27 +46,30 @@ func test_every_cell_makes_a_question_on_its_situation() -> void:
 func test_every_distractor_misconception_is_an_option() -> void:
 	for t in CELLS:
 		var ty := QuestionEngine.type_of(t)
-		for m in ty.misconceptions:
-			if m.as != "distractor" or NOT_BUILT.has(m.ref):
+		for i in ty.misconceptions.size():
+			var m: Dictionary = ty.misconceptions[i]
+			var ref: String = m.get("ref", "%s#%d" % [t, i])
+			if m.as != "distractor" or NOT_BUILT.has(ref):
 				continue
 			for u in m.in:
 				var found := false
 				for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown == u):
 					for seed in range(1, 40):
 						var q := _make(t, u, c.rep, c.angle, seed, "mcq")
-						if q.choices.any(func(o): return o.ref == m.ref):
+						if q.choices.any(func(o): return o.ref == ref):
 							found = true
 							break
 					if found:
 						break
-				check(found, "%s: %s never appears on %s" % [t, m.ref, u])
+				check(found, "%s: %s never appears on %s" % [t, ref, u])
 
 
 func test_the_not_built_misconceptions_are_distractors() -> void:
 	var refs := {}
 	for t in CELLS:
-		for m in QuestionEngine.type_of(t).misconceptions:
-			refs[m.ref] = m.as
+		var ms: Array = QuestionEngine.type_of(t).misconceptions
+		for i in ms.size():
+			refs[ms[i].get("ref", "%s#%d" % [t, i])] = ms[i].as
 	for ref in NOT_BUILT:
 		check_eq(refs.get(ref, ""), "distractor", ref)
 

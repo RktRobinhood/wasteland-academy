@@ -11,6 +11,16 @@ const RM := "SL2.8.rational-model#0"
 const NO_HA := "SL2.8.asymptotes#2"
 const SWAP := "SL2.4.asymptotes#1"
 const RATIO := "SL2.8.asymptotes#1"
+const T := "fn-concept-asymptote-meaning"
+const NEVER_CROSS := T + "#4"
+const X_AXIS := T + "#5"
+const CROSS_VA := T + "#6"
+const EVERY_ZERO := T + "#7"
+const NO_GAP := T + "#8"
+const TOP_ONLY := T + "#9"
+const TOP_BOTTOM := T + "#10"
+const SIDES := T + "#11"
+const START := T + "#12"
 
 
 func needs() -> Dictionary:
@@ -42,8 +52,27 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	return out
 
 
-static func pick(right: String, bad: Array, plain: Array) -> Dictionary:
-	return InverseRuleViews.choose(right, bad, plain)
+## InverseRuleViews.choose, with the plain options sorted: one whose text is a key of
+## `slips` is tagged with that ref, the rest are fillers. The answer and its options stay
+## in choose's order. A bad option with no ref is a filler too.
+static func pick(right: String, bad: Array, plain: Array, slips: Dictionary = {}) -> Dictionary:
+	var out := InverseRuleViews.choose(right, bad, plain)
+	var wrongs: Array = []
+	var fillers: Array = []
+	for w in out.wrongs:
+		if w.ref == "":
+			fillers.append(w.values)
+		else:
+			wrongs.append(w)
+	for g in out.get("fillers", []) + out.get("generic", []):
+		if slips.has(g.v):
+			wrongs.append(wrong(g, slips[g.v]))
+		else:
+			fillers.append(g)
+	out.erase("generic")
+	out.wrongs = wrongs
+	out.fillers = fillers
+	return out
 
 
 static func tag(text: String, ref: String) -> Dictionary:
@@ -84,8 +113,9 @@ func u_why_vertical(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "table":
 		var near := [s.h - 0.1, s.h - 0.01, s.h + 0.01, s.h + 0.1]
 		out.table = table_near(s, near)
-	out.merge(pick(right, [tag("The graph levels off at the value x = %s, so it is a horizontal asymptote." % h, SWAP), tag(swapped, "")],
-		["At x = %s the top is 0, so the graph crosses the x-axis there." % h, "y is close to %s on both sides, because f(%s) = %s." % [h, h, h]]))
+	var top_zero := "At x = %s the top is 0, so the graph crosses the x-axis there." % h
+	out.merge(pick(right, [tag("The graph levels off at the value x = %s, so it is a horizontal asymptote." % h, SWAP), tag(swapped, SIDES)],
+		[top_zero, "y is close to %s on both sides, because f(%s) = %s." % [h, h, h]], {top_zero: TOP_BOTTOM}))
 	var fin := "So %s" % right
 	out.methods = {
 		"undefined-input": method(["Put x = %s into the bottom: x %s = 0, so f(%s) is undefined." % [h, Fmt.plus(-s.h).strip_edges() if s.h != 0 else "", h], "Close to x = %s the bottom is a tiny number, so y = B/(tiny) is very large (B = %s)." % [h, N(s.B)], fin], {"v": right}),
@@ -105,7 +135,7 @@ func u_why_horizontal(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.table = table_near(s, [-1000.0, -100.0, 100.0, 1000.0])
 	out.merge(pick(right, [tag("It doesn't: %s has no horizontal asymptote, because the top is not a constant." % RationalFunctionSituation.frac(s.a, s.b, 1, s.d), NO_HA),
 		tag("f(x) gets close to %s, the ratio of the constants %s and %s." % [N(Q.new(s.b, s.d)), N(s.b), N(s.d)], RATIO)],
-		["f(x) grows without limit, because the top gets bigger as x does."]))
+		["f(x) grows without limit, because the top gets bigger as x does."], {"f(x) grows without limit, because the top gets bigger as x does.": TOP_ONLY}))
 	var fin := "So " + right
 	out.methods = {
 		"large-x-limit": method(["Look at large x: x = 1000 gives %s." % Fmt.dec(Q.new(roundi(at(s, 1000.0) * 10000.0), 10000)).replace("-", "−"), "The constants are tiny next to the x terms, so f(x) ≈ %s/x = %s." % [Fmt.lead(s.a) + "x", A], fin], {"v": right}),
@@ -145,14 +175,18 @@ func u_crosses_horizontal(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var right: String
 	var bad: Array = []
 	var plain: Array = []
+	var infinite := "No: a curve can reach its horizontal asymptote only when x is infinite."
+	var slips := {infinite: NEVER_CROSS}
 	if s.kind == "lin":
 		right = "No: f(x) = %s would need %s/(x − %s) = 0, and a fraction with a top of %s is never 0." % [A, N(s.B), N(s.h), N(s.B)]
 		bad = [tag("Yes: it crosses %s at x = %s." % [line, N(s.h)], "")]
-		plain = ["Yes: it crosses %s where x = %s." % [line, N(Q.new(-s.b, s.a))], "No: a curve can reach its horizontal asymptote only when x is infinite."]
+		var axis := "Yes: it crosses %s where x = %s." % [line, N(Q.new(-s.b, s.a))]
+		plain = [axis, infinite]
+		slips[axis] = X_AXIS
 	else:
 		right = "Yes: it crosses %s at x = 0, where x/(x² + 1) is 0." % line if s.kind != "decay" else "Yes: it crosses %s at x = 0, where x·e^(−x) is 0." % line
-		bad = [tag("No: a curve can never cross its horizontal asymptote.", "")]
-		plain = ["Yes: it crosses %s at x = 1." % line, "No: a curve can reach its horizontal asymptote only when x is infinite."]
+		bad = [tag("No: a curve can never cross its horizontal asymptote.", NEVER_CROSS)]
+		plain = ["Yes: it crosses %s at x = 1." % line, infinite]
 	var out := {"asked": "Does the curve cross its horizontal asymptote %s? If it does, where?" % line}
 	var fn_text := "f(x) = " + cross_text(s)
 	out.lines = [fn_text] if rep == "equation" else ["The graph of %s is shown, with its horizontal asymptote dashed." % fn_text]
@@ -166,7 +200,7 @@ func u_crosses_horizontal(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		else:
 			out.graph = Plot.spec([Plot.sample(fn, -6.0, 6.0)], [], win[0], win[1], win[2], win[3], [[s.A, ""]])
 		out.graph.one_colour = true
-	out.merge(pick(right, bad, plain))
+	out.merge(pick(right, bad, plain, slips))
 	var fin := "So " + right
 	var solve := "Solve f(x) = %s: %s." % [A, ("the fraction %s/(x − %s) = 0 has no solution" % [N(s.B), N(s.h)]) if s.kind == "lin" else "x/(x² + 1) = 0 gives x = 0" if s.kind != "decay" else "x·e^(−x) = 0 gives x = 0, since e^(−x) is never 0"]
 	out.methods = {
@@ -188,7 +222,7 @@ func u_crosses_vertical(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		out.lines = ["A student says %s can cross its vertical asymptote x = %s." % [fx(s), h]]
 	out.merge(pick(right, [], ["Yes: it crosses where the graph meets the x-axis.", "Yes: a branch can cross it if the curve is steep enough.",
-		"No: the graph is not continuous anywhere, so it cannot cross any line."]))
+		"No: the graph is not continuous anywhere, so it cannot cross any line."], {"Yes: a branch can cross it if the curve is steep enough.": CROSS_VA}))
 	var fin := "So " + right
 	out.methods = {"undefined-input": method(["Put x = %s into f: the bottom is 0, so f(%s) is undefined." % [h, h], "No y goes with x = %s, so the graph has no point on the line x = %s." % [h, h], fin], {"v": right})}
 	return out
@@ -203,8 +237,9 @@ func u_gap_not_asymptote(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var bottom := Fmt.poly([s.c, s.d])
 	var right := "%s is %s for every x except x = %s, so the graph is the line y = %s with one point missing: a gap, not an asymptote." % [RationalFunctionSituation.frac(s.a, s.b, s.c, s.d), m, h, m]
 	var out := {"asked": "Does f have an asymptote at x = %s? Say why." % h, "lines": ["f(x) = " + RationalFunctionSituation.frac(s.a, s.b, s.c, s.d)]}
-	out.merge(pick(right, [], ["x = %s is a vertical asymptote, because the bottom is 0 there." % h, "x = %s is a vertical asymptote and y = %s a horizontal one." % [h, m],
-		"The graph is the line y = %s with no point missing." % m]))
+	var every := "x = %s is a vertical asymptote, because the bottom is 0 there." % h
+	var whole := "The graph is the line y = %s with no point missing." % m
+	out.merge(pick(right, [], [every, "x = %s is a vertical asymptote and y = %s a horizontal one." % [h, m], whole], {every: EVERY_ZERO, whole: NO_GAP}))
 	var fin := "So " + right
 	out.methods = {"divide-out": method(["Factorise the top: %s = %s(%s)." % [top, m, bottom], "Cancel (%s): f(x) = %s, except at x = %s where the bottom is 0." % [bottom, m, h], fin], {"v": right})}
 	return out
@@ -220,7 +255,8 @@ func u_asymptote_in_context(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var out := {"asked": "What does the horizontal asymptote y = %s mean here, and is it ever reached?" % L,
 		"lines": ["%s is modelled by %s, where t is in %s." % [st[0].substr(0, 1).to_upper() + st[0].substr(1), model, st[2]]]}
 	out.merge(pick(right, [tag("%s reaches %s%s after enough %s." % [st[0].substr(0, 1).to_upper() + st[0].substr(1), L, st[1], st[2]], RM)],
-		["%s starts at %s%s." % [st[0].substr(0, 1).to_upper() + st[0].substr(1), L, st[1]], "%s is %s%s at every time." % [st[0].substr(0, 1).to_upper() + st[0].substr(1), L, st[1]]]))
+		["%s starts at %s%s." % [st[0].substr(0, 1).to_upper() + st[0].substr(1), L, st[1]], "%s is %s%s at every time." % [st[0].substr(0, 1).to_upper() + st[0].substr(1), L, st[1]]],
+		{"%s starts at %s%s." % [st[0].substr(0, 1).to_upper() + st[0].substr(1), L, st[1]]: START}))
 	var fin := "So " + right
 	out.methods = {"interpret-asymptote": method(["For large t the constants matter little: P(t) ≈ %dt/t = %s." % [s.L, L], "P(t) = %s − (a positive number)/(t + %d), so it is always a little below %s." % [L, s.k, L], fin], {"v": right})}
 	return out

@@ -31,6 +31,22 @@ const NS := "SL2.10.number-of-solutions"
 
 const IN := "SL2.4.intersection"
 const SG := "SL2.10.solve-gdc"
+## fn-gdc-intersection's own misconceptions, by index (FAL-815).
+const GI := "fn-gdc-intersection#"
+const R_Y_FOR_X := GI + "6"
+const R_SWAPPED := GI + "7"
+const R_GRADIENT_K := GI + "8"
+const R_TABLE_END := GI + "9"
+const R_OUTSIDE := GI + "10"
+const R_ONE_GAP := GI + "11"
+const R_ADD_GAPS := GI + "12"
+const R_NO_ROOT := GI + "13"
+## fn-concept-solutions-as-intersections' own misconceptions.
+const CS := "fn-concept-solutions-as-intersections#"
+const R_READ_Y := CS + "3"
+const R_ONE_SIDE := CS + "4"
+const R_TURN_X := CS + "5"
+const R_REARRANGE := CS + "6"
 
 
 func has(unknown: String) -> bool:
@@ -55,15 +71,18 @@ func merge_need(a: Dictionary, b: Dictionary) -> Variant:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	# LogFunctionViews.choice hands its fillers back as `generic`.
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	out.given = GdcTwoCurvesSituation.export(s)
 	out.given.merge(out.get("check", {}), true)
 	if not out.has("trap"):
 		out.trap = GdcCurveViews.trap(out.answer) if out.answer.kind != "pts" else Answer.rounding_trap_all(out.answer)
 	out.wrongs = out.wrongs.filter(func(w): return GdcCurveViews.clear(w.values))
-	out.generic = out.generic.filter(func(g): return GdcCurveViews.clear(g))
+	out.fillers = out.fillers.filter(func(g): return GdcCurveViews.clear(g))
 	return out
 
 
@@ -189,11 +208,11 @@ func u_intersection_points(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var inside := in_window(cs)
 	if inside.size() < cs.size() and not inside.is_empty():
 		wrongs.append(wrong(Answer.pts_of(inside.map(func(c): return [qf(c[0]), qf(c[1])])), IN + "#1"))
-	var gen: Array = [Answer.pts_of(cs.map(func(c): return [qf(c[1]), qf(c[0])])),
-		Answer.pts_of(cs.map(func(c): return [qf(c[0]), qf(GdcTwoCurvesSituation.at(s.g, c[0]) + 1.0)])),
+	wrongs.append(wrong(Answer.pts_of(cs.map(func(c): return [qf(c[1]), qf(c[0])])), R_SWAPPED))
+	var gen: Array = [Answer.pts_of(cs.map(func(c): return [qf(c[0]), qf(GdcTwoCurvesSituation.at(s.g, c[0]) + 1.0)])),
 		Answer.pts_of(cs.map(func(c): return [qf(-c[0]), qf(c[1])]))]
 	var out := {"asked": "Find the coordinates of every point where the graphs of f and g meet.", "lines": eq_lines(s), "answer": ans,
-		"wrongs": wrongs, "generic": gen}
+		"wrongs": wrongs, "fillers": gen}
 	if rep == "graph":
 		out.lines = ["The graphs of " + eq_lines(s)[0] + " are shown."]
 		out.graph = screen(s)
@@ -211,12 +230,13 @@ func u_solve_f_equals_g(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var inside := in_window(cs)
 	if inside.size() < cs.size() and not inside.is_empty():
 		wrongs.append(wrong(Answer.xs_of(inside.map(func(c): return qf(c[0]))), SG + "#0"))
-	var gen: Array = [Answer.xs_of(cs.map(func(c): return qf(c[1]))), Answer.xs_of(cs.map(func(c): return qf(-c[0]))),
+	wrongs.append(wrong(Answer.xs_of(cs.map(func(c): return qf(c[1]))), R_Y_FOR_X))
+	var gen: Array = [Answer.xs_of(cs.map(func(c): return qf(-c[0]))),
 		Answer.xs_of(cs.slice(1).map(func(c): return qf(c[0]))) if cs.size() > 1 else {"n": "1", "x0": qf(cs[0][0] + 1.0)}]
 	var eq := "%s = %s" % [ft(s), gt(s)]
 	var whole := "Use the whole domain, %s, not the standard window." % dom(s)
 	return {
-		"asked": "Solve %s, for %s." % [eq, dom(s)], "lines": [eq], "answer": ans, "wrongs": wrongs, "generic": gen,
+		"asked": "Solve %s, for %s." % [eq, dom(s)], "lines": [eq], "answer": ans, "wrongs": wrongs, "fillers": gen,
 		"methods": {
 			"gdc-intersect": {"result": ans.values, "steps": [win_step(s), whole, "The intersect tool gives " + xs6(cs) + ".", final]},
 			"zeros-of-difference": {"result": ans.values, "steps": ["Write it as one side equal to 0: %s = 0." % diff_text(s),
@@ -242,9 +262,8 @@ func u_models_equal(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var times := Answer.xs_list(cs.map(func(x): return "t = " + W(x[0])))
 		return {
 			"asked": "Find every time when %s." % what, "lines": [words(s)], "answer": ans2,
-			"wrongs": [wrong(Answer.xs_of([qf(c[0])]), SG + "#0")],
-			"generic": [Answer.xs_of(cs.map(func(x): return qf(x[1]))), Answer.xs_of([qf(cs[1][0])]),
-				Answer.xs_of(cs.map(func(x): return qf(x[0] + 1.0)))],
+			"wrongs": [wrong(Answer.xs_of([qf(c[0])]), SG + "#0"), wrong(Answer.xs_of(cs.map(func(x): return qf(x[1]))), R_Y_FOR_X)],
+			"fillers": [Answer.xs_of([qf(cs[1][0])]), Answer.xs_of(cs.map(func(x): return qf(x[0] + 1.0)))],
 			"methods": {
 				"gdc-intersect": {"result": ans2.values, "steps": [a_eq + ".", "Graph both for the whole of %s, not just to t = 10." % dom(s),
 					"The intersect tool gives " + times + ".", final2]},
@@ -256,9 +275,9 @@ func u_models_equal(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		}
 	var ans := num(c[0], "t = ")
 	var final := "So %s when %s %s." % [what, Answer.text(ans), ctx.x_unit]
-	var gen: Array = [{"v": qf(c[1])}, {"v": qf(c[0] + 1.0)}, {"v": qf(floorf(c[0]))}, {"v": qf(s.d2.to_float() - c[0])}]
+	var gen: Array = [{"v": qf(c[0] + 1.0)}, {"v": qf(floorf(c[0]))}, {"v": qf(s.d2.to_float() - c[0])}]
 	var out := {
-		"asked": "Find when %s." % what, "lines": [words(s)], "answer": ans, "generic": gen,
+		"asked": "Find when %s." % what, "lines": [words(s)], "answer": ans, "wrongs": [wrong({"v": qf(c[1])}, R_Y_FOR_X)], "fillers": gen,
 		"methods": {
 			"gdc-intersect": {"result": ans.values, "steps": [a_eq + ".", "Graph both for %s and use the intersect tool: t = %s." % [dom(s), W(c[0])], final]},
 			"zeros-of-difference": {"result": ans.values, "steps": [a_eq + ", so %s = 0." % diff_text(s),
@@ -279,10 +298,10 @@ func u_function_and_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var only := Answer.pts_of(cs.map(func(c): return [qf(c[0]), qf(c[1])]))
 	only.only_x = true
 	var gen: Array = [Answer.pts_of(cs.map(func(c): return [qf(c[0]), qf(-c[1])])),
-		Answer.pts_of([[qf(cs[0][0]), qf(cs[0][1])]]), Answer.pts_of([[qf(cs[1][0]), qf(cs[1][1])]]),
 		Answer.pts_of(cs.map(func(c): return [qf(c[0]), qf(GdcTwoCurvesSituation.at(s.f, c[0] + 1.0))]))]
 	var out := {"asked": "Find the coordinates of the points where the graphs of f and f⁻¹ meet.", "lines": eq_lines(s), "answer": ans,
-		"wrongs": [wrong(only, IN + "#0")], "generic": gen}
+		"wrongs": [wrong(only, IN + "#0"), wrong(Answer.pts_of([[qf(cs[0][0]), qf(cs[0][1])]]), IN + "#1"),
+			wrong(Answer.pts_of([[qf(cs[1][0]), qf(cs[1][1])]]), IN + "#1")], "fillers": gen}
 	if rep == "graph":
 		out.lines = ["The graphs of " + eq_lines(s)[0] + " are shown."]
 		out.graph = screen(s)
@@ -306,11 +325,11 @@ func u_distance_between_crossings(_rep: String, s: Dictionary, _rng: Seeded) -> 
 	var final := "So the distance is " + Answer.text(ans) + "."
 	var r := func(x: float) -> float: return float(Fmt.sf(x).replace("−", "-"))
 	var rd := sqrt(pow(r.call(b[0]) - r.call(a[0]), 2) + pow(r.call(b[1]) - r.call(a[1]), 2))
-	var gen: Array = [{"v": qf(absf(b[0] - a[0]))}, {"v": qf(absf(b[1] - a[1]))}, {"v": qf(absf(b[0] - a[0]) + absf(b[1] - a[1]))},
-		{"v": qf(pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2))}]
+	var wr: Array = [wrong({"v": qf(rd)}, IN + "#2"), wrong({"v": qf(absf(b[0] - a[0]))}, R_ONE_GAP), wrong({"v": qf(absf(b[1] - a[1]))}, R_ONE_GAP),
+		wrong({"v": qf(absf(b[0] - a[0]) + absf(b[1] - a[1]))}, R_ADD_GAPS), wrong({"v": qf(pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2))}, R_NO_ROOT)]
 	return {
 		"asked": "The graphs of f and g meet at A and B. Find the distance AB.", "lines": eq_lines(s), "answer": ans,
-		"wrongs": [wrong({"v": qf(rd)}, IN + "#2")], "generic": gen,
+		"wrongs": _rng.shuffled(wr),
 		"methods": {"gdc-intersect": {"result": ans.values, "steps": [win_step(s),
 			"Store the crossings: A%s and B%s." % [GdcKit.pt6(a[0], a[1]), GdcKit.pt6(b[0], b[1])],
 			"AB = √((%s − %s)² + (%s − %s)²) = %s, from the stored values." % [W(b[0]), P(a[0]), W(b[1]), P(a[1]), W(d)], final]}},
@@ -325,7 +344,7 @@ func u_count_crossings(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So the graphs meet %d time%s on the domain." % [n, "" if n == 1 else "s"]
 	var out := {"asked": "How many times do the graphs of f and g meet on the domain?", "lines": eq_lines(s), "answer": ans,
 		"wrongs": [wrong({"v": Q.new(inside)}, IN + "#1")] if inside != n else [],
-		"generic": [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(0)}]}
+		"fillers": [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(0)}]}
 	if rep == "graph":
 		out.lines = ["The graphs of " + eq_lines(s)[0] + " are shown."]
 		out.graph = screen(s)
@@ -358,14 +377,15 @@ func u_crossing_in_interval(_rep: String, s: Dictionary, rng: Seeded) -> Diction
 	var ans := Answer.make("point", {"x": qf(c[0]), "y": qf(c[1])})
 	ans.show = "sf"
 	var final := "So the graphs meet at %s in that interval." % Answer.text(ans)
-	var gen: Array = []
+	var wr: Array = []
 	for other in cs:
 		if other != c:
-			gen.append({"x": qf(other[0]), "y": qf(other[1])})
-	gen.append_array([{"x": qf(c[1]), "y": qf(c[0])}, {"x": qf(c[0]), "y": qf(-c[1])}, {"x": qf(c[0]), "y": Q.new(0)}])
+			wr.append(wrong({"x": qf(other[0]), "y": qf(other[1])}, R_OUTSIDE))
+	wr.append(wrong({"x": qf(c[1]), "y": qf(c[0])}, R_SWAPPED))
+	var gen: Array = [{"x": qf(c[0]), "y": qf(-c[1])}, {"x": qf(c[0]), "y": Q.new(0)}]
 	return {
 		"asked": "Find the coordinates of the point where the graphs of f and g meet for %s < x < %s." % [Fmt.dec(a), Fmt.dec(b)],
-		"lines": eq_lines(s), "answer": ans, "generic": gen,
+		"lines": eq_lines(s), "answer": ans, "wrongs": wr, "fillers": gen,
 		"methods": {
 			"gdc-intersect": {"result": ans.values, "steps": [win_step(s),
 				"Move the cursor between x = %s and x = %s and use the intersect tool: %s." % [Fmt.dec(a), Fmt.dec(b), GdcKit.pt6(c[0], c[1])], final]},
@@ -393,14 +413,15 @@ func u_crossing_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var b: Q = tb.xs[i + 1]
 	var ans := num(c[0], "x = ")
 	var final := "So the largest crossing is at " + Answer.text(ans) + "."
-	var gen: Array = [{"v": a}, {"v": b}, {"v": a.add(b).div(Q.new(2))}, {"v": qf(c[1])}]
+	var wr: Array = [wrong({"v": a}, R_TABLE_END), wrong({"v": b}, R_TABLE_END), wrong({"v": qf(c[1])}, R_Y_FOR_X)]
+	var gen: Array = [{"v": a.add(b).div(Q.new(2))}]
 	var rows := [["x", tb.xs.map(func(v): return Fmt.dec(v))], ["f(x)", tb.fs.map(func(v): return Fmt.sf(v))],
 		["g(x)", tb.gs.map(func(v): return Fmt.sf(v))]]
 	var sign := "f − g changes sign between x = %s and x = %s (f(%s) − g(%s) and f(%s) − g(%s) have opposite signs)." % [Fmt.dec(a), Fmt.dec(b),
 		Fmt.dec(a), Fmt.dec(a), Fmt.dec(b), Fmt.dec(b)]
 	return {
 		"asked": "The table shows f(x) = %s and g(x) = %s, for %s. Find the interval holding the largest crossing of the graphs, then its x to 3 s.f." % [ft(s), gt(s), dom(s)],
-		"lines": [], "table": {"rows": rows, "xs": tb.xs, "fs": tb.fs, "gs": tb.gs}, "answer": ans, "generic": gen,
+		"lines": [], "table": {"rows": rows, "xs": tb.xs, "fs": tb.fs, "gs": tb.gs}, "answer": ans, "wrongs": wr, "fillers": gen,
 		"methods": {"table-sign-change": {"result": ans.values, "steps": [sign,
 			"Tabulate again from x = %s with a smaller step, and again, or use the intersect tool there: x = %s." % [Fmt.dec(a), W(c[0])], final]}},
 	}
@@ -417,11 +438,11 @@ func u_constant_from_crossing(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var lines := ["The line %s meets the curve y = %s where x = 0." % [line, ft(s)]]
 	if rep == "words":
 		lines = ["A straight line with gradient %s passes through the point where the curve y = %s crosses the y-axis." % [Fmt.dec(m), ft(s)]]
-	var gen: Array = [{"v0": k.neg(), "v1": qf(other[0])}, {"v0": k, "v1": qf(other[1])}, {"v0": m, "v1": qf(other[0])},
-		{"v0": k, "v1": qf(-other[0])}]
+	var wr: Array = [wrong({"v0": k, "v1": qf(other[1])}, R_Y_FOR_X), wrong({"v0": m, "v1": qf(other[0])}, R_GRADIENT_K)]
+	var gen: Array = [{"v0": k.neg(), "v1": qf(other[0])}, {"v0": k, "v1": qf(-other[0])}]
 	var sub := "At x = 0 the curve is at y = %s, so 0 + k = %s: k = %s." % [Fmt.dec(k), Fmt.dec(k), Fmt.dec(k)]
 	return {
-		"asked": "Find k, and the x-coordinate of the other point where the line meets the curve.", "lines": lines, "answer": ans, "generic": gen,
+		"asked": "Find k, and the x-coordinate of the other point where the line meets the curve.", "lines": lines, "answer": ans, "wrongs": wr, "fillers": gen,
 		"methods": {
 			"gdc-intersect": {"result": ans.values, "steps": [sub,
 				"Graph y = %s and y = %s; the intersect tool finds the other crossing at x = %s." % [ft(s), gt(s), W(other[0])], final]},
@@ -436,9 +457,9 @@ func u_constant_from_crossing(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 func u_graphs_for_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var eq := "%s = %s" % [ft(s), gt(s)]
 	var right := "Graph y = %s and y = %s, and read the x-coordinates where they meet." % [ft(s), gt(s)]
-	var out := LogFunctionViews.choice(right, [], ["Graph y = %s and y = %s, and read the y-coordinates where they meet." % [ft(s), gt(s)],
-		"Graph y = %s only, and read where it crosses the x-axis." % ft(s),
-		"Graph y = %s − %s, and read where it crosses y = 1." % [ft(s), gt(s)]])
+	var out := LogFunctionViews.choice(right, [wrong({"v": "Graph y = %s and y = %s, and read the y-coordinates where they meet." % [ft(s), gt(s)]}, R_READ_Y),
+		wrong({"v": "Graph y = %s only, and read where it crosses the x-axis." % ft(s)}, R_ONE_SIDE)],
+		["Graph y = %s − %s, and read where it crosses y = 1." % [ft(s), gt(s)]])
 	var final: String = "So: " + right
 	out.merge({
 		"asked": "To solve %s with a GDC, which graphs do you draw, and what do you read off?" % eq, "lines": [eq],
@@ -485,7 +506,7 @@ func u_count_from_sketch(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var final := "So there %s %d solution%s." % ["is" if n == 1 else "are", n, "" if n == 1 else "s"]
 	return {
 		"asked": asked, "lines": lines, "graph": _sketch(s), "answer": ans, "wrongs": wrongs,
-		"generic": [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(0)}],
+		"fillers": [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(0)}],
 		"methods": {
 			"sketch-and-count": {"result": ans.values, "steps": steps + [final]},
 			"horizontal-line-sweep": {"result": ans.values, "steps": steps + [final]},
@@ -522,8 +543,9 @@ func u_x_not_y(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var xs := "x = %s and x = %s" % [S(cs[0][0]), S(cs[1][0])]
 	var pts := "(%s, %s) and (%s, %s)" % [S(cs[0][0]), S(cs[0][1]), S(cs[1][0]), S(cs[1][1])]
 	var ys := "y = %s and y = %s" % [S(cs[0][1]), S(cs[1][1])]
-	var out := LogFunctionViews.choice(xs, [wrong({"v": pts}, IN + "#0"), wrong({"v": ys}, IN + "#0")],
-		["x = %s and x = %s" % [S(cs[0][1]), S(cs[1][1])], "x = %s and x = %s" % [S(-float(cs[0][0])), S(-float(cs[1][0]))],
+	var out := LogFunctionViews.choice(xs, [wrong({"v": pts}, IN + "#0"), wrong({"v": ys}, IN + "#0"),
+		wrong({"v": "x = %s and x = %s" % [S(cs[0][1]), S(cs[1][1])]}, R_READ_Y)],
+		["x = %s and x = %s" % [S(-float(cs[0][0])), S(-float(cs[1][0]))],
 			"x = %s and x = %s" % [S(cs[0][0]), S(-float(cs[1][0]))]])
 	var final: String = "So the solutions are " + xs + "."
 	var lines := ["The graphs of y = %s and y = %s meet at %s." % [ft(s), gt(s), pts]]
@@ -576,8 +598,8 @@ func u_same_solutions_after_rearranging(rep: String, s: Dictionary, _rng: Seeded
 	var a := "%s = %s" % [ft(s), gt(s)]
 	var b := "%s − (%s) = 0" % [ft(s), gt(s)]
 	var right := "Yes: B is A with %s taken from both sides, so they have the same solutions." % gt(s)
-	var out := LogFunctionViews.choice(right, [], ["No: B's solutions are where the graph of the difference meets y = %s." % gt(s),
-		"No: rearranging an equation changes its solutions.", "Yes, but only when both sides are lines."])
+	var out := LogFunctionViews.choice(right, [wrong({"v": "No: rearranging an equation changes its solutions."}, R_REARRANGE)],
+		["No: B's solutions are where the graph of the difference meets y = %s." % gt(s), "Yes, but only when both sides are lines."])
 	var final: String = "So: " + right
 	var lines := ["Equation A: %s.  Equation B: %s." % [a, b]]
 	if rep == "words":
@@ -603,9 +625,8 @@ func u_k_for_count(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"asked": "For which values of k does %s = k have exactly three solutions?" % ft(s),
 		"lines": ["The sketch shows y = %s, with turning points (%s, %s) and (%s, %s)." % [ft(s), N(s.p.neg()), N(_at_q(s, s.p.neg())),
 			N(s.p), N(_at_q(s, s.p))]], "graph": _sketch(s), "answer": ans,
-		"wrongs": [wrong({"lo": bottom, "r1": "≤", "r2": "≤", "hi": top}, NS + "#0")],
-		"generic": [{"lo": bottom, "r1": "<", "r2": "≤", "hi": top}, {"lo": s.p.neg(), "r1": "<", "r2": "<", "hi": s.p},
-			{"lo": bottom.sub(Q.new(1)), "r1": "<", "r2": "<", "hi": top.add(Q.new(1))}],
+		"wrongs": [wrong({"lo": bottom, "r1": "≤", "r2": "≤", "hi": top}, NS + "#0"), wrong({"lo": s.p.neg(), "r1": "<", "r2": "<", "hi": s.p}, R_TURN_X)],
+		"fillers": [{"lo": bottom, "r1": "<", "r2": "≤", "hi": top}, {"lo": bottom.sub(Q.new(1)), "r1": "<", "r2": "<", "hi": top.add(Q.new(1))}],
 		"methods": {
 			"horizontal-line-sweep": {"result": ans.values, "steps": ["Slide a line y = k up the sketch and count where it meets the curve.",
 				"Between the turning values %s and %s it meets it three times; at either one it only touches there, so twice." % [N(bottom), N(top)], final]},
