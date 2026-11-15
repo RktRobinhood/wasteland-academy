@@ -140,7 +140,7 @@ static func scatter(s: Dictionary) -> Dictionary:
 
 ## The statements, in a fresh order: the first three are the wrong options.
 static func statements(right: String, wrongs_in: Array, rng: Seeded) -> Dictionary:
-	return DerivativeMeaningViews.claim_answer(right, rng.shuffled(wrongs_in))
+	return DerivativeMeaningViews.claim_split(right, rng.shuffled(wrongs_in))
 
 
 ## "rises by about 2.31 km"
@@ -301,6 +301,7 @@ func u_judge_prediction(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.asked = "A scout uses the line to estimate y when x = %d, and gets y ≈ %s. Comment on the reliability of this estimate." % [x0, T(s.y0)]
 	out.answer = made.answer
 	out.wrongs = made.wrongs
+	out.fillers = made.fillers
 	var inside: bool = x0 >= s.lo and x0 <= s.hi
 	var first := "Is x inside the data? The data run from %d to %d, so %d is %s them." % [s.lo, s.hi, x0, "inside" if inside else "outside"]
 	var r_said: String = "Run LinReg on the lists: r = %s" % W(GdcKit.qf(s.r)) if rep == "table" else "r = %s" % R2(s.rr)
@@ -344,6 +345,7 @@ func u_flawed_estimate(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.asked = "Give a reason why this method is not appropriate."
 	out.answer = made.answer
 	out.wrongs = made.wrongs
+	out.fillers = made.fillers
 	out.methods = {"reliability-check": method(steps, made.answer.values)}
 	return out
 
@@ -362,11 +364,12 @@ func u_read_estimate(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		var v: int = s.read + step
 		if v > 0 and not v in taken and wrongs.size() < 3:
 			wrongs.append([said.call(v), ""])
-	var made := DerivativeMeaningViews.claim_answer(right, wrongs)
+	var made := DerivativeMeaningViews.claim_split(right, wrongs)
 	var out := setup(rep, s)
 	out.lines = out.lines.slice(0, 1)
 	out.asked = "Read from the line an estimate of the %s when x = %d, to the nearest 5." % [c.y, s.x0]
 	out.answer = made.answer
 	out.wrongs = made.wrongs
+	out.fillers = made.fillers
 	out.methods = {"read-off-line": method(["Go up from x = %d to the line, not to the nearest dot." % s.x0, "Go across to the y-axis: the line is at about y = %d there." % s.read, right], made.answer.values)}
 	return out

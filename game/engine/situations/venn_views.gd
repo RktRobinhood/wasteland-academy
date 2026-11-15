@@ -14,6 +14,12 @@ const R_EXACTLY_ONE := SKILL + "union#2"
 const R_N_A := SKILL + "venn#0"
 const R_NO_OUTSIDE := SKILL + "venn#1"
 const R_NEITHER := SKILL + "venn#2"
+## FAL-815: the slips that were blank options, numbered in the type's misconceptions.
+const VT := "t4-venn-addition-rule#"
+const R_NO_ONE_MINUS := VT + "6"
+const R_NOT_BOTH := VT + "7"
+const R_NO_DIVIDE := VT + "8"
+const R_LEAST_GREATEST := VT + "9"
 
 ## The stories: who is counted, one of them, and what A and B are, plural and singular.
 const CONTEXTS := [
@@ -52,7 +58,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 		var v: Q = out.answer.values.v
 		var unit := Q.new(1, s.get("u", 100))
 		for k in [1, -1, 2, -2, 3, -3, 4, -4, 5, -5]:
-			out.generic.append_array(probs([v.add(unit.mul(Q.new(k)))]))
+			out.fillers.append_array(probs([v.add(unit.mul(Q.new(k)))]))
 	return out
 
 
@@ -151,7 +157,7 @@ func u_union_from_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var pa := pr(s, s.a + s.i)
 	var pb := pr(s, s.b + s.i)
 	out.wrongs = wr(pa.add(pb), R_DOUBLE) + wr(pa.mul(pb), R_TIMES) + wr(pr(s, s.a + s.b), R_EXACTLY_ONE)
-	out.generic = probs([pa.add(pb).sub(pr(s, 2 * s.i)), pr(s, s.i), pr(s, s.o), pr(s, s.a)])
+	out.fillers = probs([pa.add(pb).sub(pr(s, 2 * s.i)), pr(s, s.i), pr(s, s.o), pr(s, s.a)])
 	var i_t := T(s, pr(s, s.i))
 	out.methods = {"addition-rule": method(["P(A ∪ B) = P(A) + P(B) − P(A ∩ B)", "= %s + %s − %s" % [T(s, pa), T(s, pb), i_t], final_step(ans)], ans.values),
 		"venn-regions": method(["Put %s in the middle. A only is %s and B only is %s." % [i_t, T(s, pr(s, s.a)), T(s, pr(s, s.b))],
@@ -174,7 +180,7 @@ func u_intersection_from_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		out.lines = ["Of the %d %s in a camp, %d %s and %d %s. In all, %d do at least one of these." % [s.u, c.who, s.a + s.i, c.a, s.b + s.i, c.b, s.a + s.i + s.b], chosen(s)]
 		out.asked = "Find the probability that the %s %s and %s." % [c.one, c.a1, c.b1]
 	out.wrongs = wr(pa.mul(pb), R_TIMES)
-	out.generic = probs([pu.sub(pa), pu.sub(pb), Q.new(1).sub(pu), pa.add(pb).sub(pu).add(pr(s, 1))])
+	out.fillers = probs([pu.sub(pa), pu.sub(pb), Q.new(1).sub(pu), pa.add(pb).sub(pu).add(pr(s, 1))])
 	out.methods = {"addition-rule": method(["P(A ∪ B) = P(A) + P(B) − P(A ∩ B), so P(A ∩ B) = P(A) + P(B) − P(A ∪ B)", "= %s + %s − %s" % [T(s, pa), T(s, pb), T(s, pu)], final_step(ans)], ans.values),
 		"venn-regions": method(["Inside the circles the total is %s, but P(A) and P(B) add to %s." % [T(s, pu), T(s, pa.add(pb))],
 			"The overlap was counted twice, so it is the difference: %s − %s" % [T(s, pa.add(pb)), T(s, pu)], final_step(ans)], ans.values)}
@@ -195,8 +201,8 @@ func u_neither_from_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	else:
 		out.lines = [story(s), chosen(s)]
 		out.asked = "Find the probability that the %s does neither." % c.one
-	out.wrongs = wr(Q.new(1).sub(pa).sub(pb), R_DOUBLE)
-	out.generic = probs([pu, pr(s, s.i), Q.new(1).sub(pr(s, s.i)), pr(s, s.o + s.i + 1)])
+	out.wrongs = wr(Q.new(1).sub(pa).sub(pb), R_DOUBLE) + wr(pu, R_NO_ONE_MINUS) + wr(Q.new(1).sub(pr(s, s.i)), R_NOT_BOTH)
+	out.fillers = probs([pr(s, s.i), pr(s, s.o + s.i + 1)])
 	out.methods = {"one-minus-neither": method(["P(A ∪ B) = %s + %s − %s = %s" % [T(s, pa), T(s, pb), T(s, pr(s, s.i)), T(s, pu)], "Neither is everything outside the union: 1 − %s" % T(s, pu), final_step(ans)], ans.values),
 		"venn-regions": method(["The three regions inside the circles are %s, %s and %s." % [T(s, pr(s, s.a)), T(s, pr(s, s.i)), T(s, pr(s, s.b))],
 			"What is left of 1 is outside both: 1 − %s" % T(s, pu), final_step(ans)], ans.values)}
@@ -208,7 +214,7 @@ func u_union_from_regions(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var ans := prob_ans(s, "P(A ∪ B) = ", v)
 	var out := {"lines": [diagram_line(s)], "asked": "Find P(A ∪ B).", "answer": ans, "table": null, "graph": diagram(s)}
 	out.wrongs = wr(pr(s, s.a + s.b + 2 * s.i), R_DOUBLE) + wr(pr(s, s.a + s.b), R_EXACTLY_ONE)
-	out.generic = probs([pr(s, s.o), pr(s, s.i), pr(s, s.a + s.i), pr(s, s.b + s.i)])
+	out.fillers = probs([pr(s, s.o), pr(s, s.i), pr(s, s.a + s.i), pr(s, s.b + s.i)])
 	out.methods = {"venn-regions": method(["A ∪ B is all three regions inside the circles, the middle counted once.", "%s + %s + %s" % [_r(s, s.a), _r(s, s.i), _r(s, s.b)], final_step(ans)], ans.values),
 		"one-minus-neither": method(["The region outside both circles is %s." % _r(s, s.o), "P(A ∪ B) = 1 − P(A′ ∩ B′)", final_step(ans)], ans.values)}
 	return out
@@ -239,7 +245,7 @@ func u_union_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := prob_ans(s, "P(A ∪ B) = ", v)
 	var out := {"lines": [table_line(s), chosen(s)], "asked": "Find P(A ∪ B).", "answer": ans, "table": two_way(s)}
 	out.wrongs = wr(pr(s, s.a + s.b + 2 * s.i), R_DOUBLE) + wr(pr(s, s.a + s.b), R_EXACTLY_ONE)
-	out.generic = probs([pr(s, s.o), pr(s, s.i), pr(s, s.a + s.i)])
+	out.fillers = probs([pr(s, s.o), pr(s, s.i), pr(s, s.a + s.i)])
 	var n: int = s.a + s.i + s.b
 	out.methods = {"two-way-table": method(["Add every cell in row A or column B, counting the shared cell once: %d + %d + %d = %d" % [s.a, s.i, s.b, n],
 		"Divide by the grand total: %d ÷ %d" % [n, s.u], final_step(ans)], ans.values)}
@@ -257,7 +263,7 @@ func u_table_missing_entry(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var ans := count_ans("? = ", n)
 	var out := {"lines": ["The two-way table shows %d outcomes." % s.u], "asked": "Find the entry marked ?.", "answer": ans, "table": two_way(s, hide)}
 	var pool: Array = [s.a, s.b, s.o, s.a + s.i, s.b + s.i, s.u - s.i, n + 1, n + 2]
-	out.generic = pool.filter(func(x): return x > 0).map(func(x): return {"v": Q.new(x)})
+	out.fillers = pool.filter(func(x): return x > 0).map(func(x): return {"v": Q.new(x)})
 	var step: String = {"a": "%d − %d = %d" % [s.a + s.i, s.i, s.a], "b": "%d − %d = %d" % [s.b + s.i, s.i, s.b],
 		"na'": "%d − %d = %d" % [s.u, s.a + s.i, s.b + s.o], "nb'": "%d − %d = %d" % [s.u, s.b + s.i, s.a + s.o],
 		"o": "%d − %d = %d, then %d − %d = %d" % [s.u, s.a + s.i, s.b + s.o, s.b + s.o, s.b, s.o]}[s.cell]
@@ -278,7 +284,7 @@ func u_one_event_only(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = [diagram_line(s)]
 		out.graph = diagram(s)
 	out.wrongs = wr(pr(s, s.o), R_NEITHER) + wr(pa, R_N_A)
-	out.generic = probs([pr(s, s.b), pr(s, s.i), pr(s, s.a + s.b)])
+	out.fillers = probs([pr(s, s.b), pr(s, s.i), pr(s, s.a + s.b)])
 	out.methods = {"set-notation": method(["P(A ∩ B′) = P(A) − P(A ∩ B)", "= %s − %s" % [T(s, pa), T(s, pr(s, s.i))], final_step(ans)], ans.values),
 		"fill-from-middle": method(["Put %s in the middle of the diagram." % T(s, pr(s, s.i)), "A ∩ B′ is the part of A outside B: %s − %s" % [T(s, pa), T(s, pr(s, s.i))], final_step(ans)], ans.values)}
 	return out
@@ -300,7 +306,7 @@ func u_exactly_one(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = [story(s), chosen(s)]
 		out.asked = "Find the probability that the %s does exactly one of these." % c.one
 	out.wrongs = wr(pr(s, s.a + s.i + s.b), R_EXACTLY_ONE)
-	out.generic = probs([pr(s, s.i), pr(s, s.o), pa, pb])
+	out.fillers = probs([pr(s, s.i), pr(s, s.o), pa, pb])
 	out.methods = {"fill-from-middle": method(["Put %s in the middle. A only is %s and B only is %s." % [T(s, mid), T(s, pr(s, s.a)), T(s, pr(s, s.b))], "Exactly one is those two regions: %s + %s" % [T(s, pr(s, s.a)), T(s, pr(s, s.b))], final_step(ans)], ans.values),
 		"set-notation": method(["P(exactly one) = P(A) + P(B) − 2P(A ∩ B)", "= %s + %s − 2 × %s" % [T(s, pa), T(s, pb), T(s, mid)], final_step(ans)], ans.values)}
 	return out
@@ -324,7 +330,7 @@ func u_region_from_totals(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		wrongs.insert(0, wrong({"v": Q.new(s.u - na - nb - s.i)}, R_N_A))
 	out.wrongs = wrongs
 	var pool: Array = [s.u - na, s.u - nb, s.u - s.i, s.o + 1, s.o + 2, s.o + s.i]
-	out.generic = pool.filter(func(x): return x > 0).map(func(x): return {"v": Q.new(x)})
+	out.fillers = pool.filter(func(x): return x > 0).map(func(x): return {"v": Q.new(x)})
 	out.methods = {"fill-from-middle": method(["Put %d in the middle. A only is %d − %d = %d and B only is %d − %d = %d." % [s.i, na, s.i, s.a, nb, s.i, s.b],
 		"The three regions inside the circles add to %d." % [s.a + s.i + s.b], "What is left of %d is outside both: %d − %d = %d" % [s.u, s.u, s.a + s.i + s.b, s.o], final_step(ans)], ans.values)}
 	return out
@@ -353,8 +359,9 @@ func u_x_from_total(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var m: int = s.ma + s.mi + s.mb
 	var k: int = s.ca + s.ci + s.cb
 	var no_out := Q.new(s.u - k, m)
-	out.wrongs = [wrong({"v": no_out}, R_NO_OUTSIDE)]
-	out.generic = [{"v": Q.new(s.u - k - s.o)}, {"v": Q.new(s.x + 1)}, {"v": Q.new(s.x - 1)}, {"v": Q.new(s.x + 2)}]
+	# u − k − o is m·x, the x terms before dividing by m.
+	out.wrongs = [wrong({"v": no_out}, R_NO_OUTSIDE), wrong({"v": Q.new(s.u - k - s.o)}, R_NO_DIVIDE)]
+	out.fillers = [{"v": Q.new(s.x + 1)}, {"v": Q.new(s.x - 1)}, {"v": Q.new(s.x + 2)}]
 	out.methods = {"unknown-total": method(["The four regions add to the total: (%s) + (%s) + (%s) + %d = %d" % [ta, ti, tb, s.o, s.u],
 		"%dx + %d = %d" % [m, k + s.o, s.u], "%dx = %d, so x = %d" % [m, s.u - k - s.o, s.x], final_step(ans)], ans.values)}
 	return out
@@ -369,8 +376,11 @@ func u_least_overlap(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	ans.show = "dec"
 	ans.exact = true
 	var out := {"lines": ["P(A) = " + Fmt.dec(s.pa), "P(B) = " + Fmt.dec(s.pb)], "asked": "Find the least possible value of P(A ∩ B).", "answer": ans, "table": null}
-	out.wrongs = wr(s.pa.mul(s.pb), R_TIMES)
-	out.generic = probs([Q.new(1, 100), s.pa, s.pb, Q.new(1).sub(s.pa), Q.new(1).sub(s.pb)])
+	# The smaller of P(A) and P(B) is the greatest overlap, not the least.
+	var small: Q = s.pa if s.pa.lt(s.pb) else s.pb
+	var big: Q = s.pb if s.pa.lt(s.pb) else s.pa
+	out.wrongs = wr(s.pa.mul(s.pb), R_TIMES) + wr(small, R_LEAST_GREATEST)
+	out.fillers = probs([Q.new(1, 100), big, Q.new(1).sub(s.pa), Q.new(1).sub(s.pb)])
 	out.methods = {"addition-rule": method(["P(A ∪ B) = P(A) + P(B) − P(A ∩ B), and P(A ∪ B) ≤ 1.", "So %s + %s − P(A ∩ B) ≤ 1, which gives P(A ∩ B) ≥ %s" % [Fmt.dec(s.pa), Fmt.dec(s.pb), Fmt.dec(v)], final_step(ans)], ans.values)}
 	return out
 
@@ -382,7 +392,8 @@ func u_greatest_overlap(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	ans.show = "dec"
 	ans.exact = true
 	var out := {"lines": ["P(A) = " + Fmt.dec(s.pa), "P(B) = " + Fmt.dec(s.pb)], "asked": "Find the greatest possible value of P(A ∩ B).", "answer": ans, "table": null}
-	out.wrongs = wr(s.pa.mul(s.pb), R_TIMES)
-	out.generic = probs([big, s.pa.add(s.pb).sub(Q.new(1)), Q.new(1).sub(small), Q.new(1).sub(big)])
+	# P(A) + P(B) − 1 is the least overlap, not the greatest.
+	out.wrongs = wr(s.pa.mul(s.pb), R_TIMES) + wr(s.pa.add(s.pb).sub(Q.new(1)), R_LEAST_GREATEST)
+	out.fillers = probs([big, Q.new(1).sub(small), Q.new(1).sub(big)])
 	out.methods = {"addition-rule": method(["A ∩ B is inside A and inside B, so it can be no bigger than either.", "It is largest when the smaller event sits inside the other: P(A ∩ B) = %s" % Fmt.dec(small), final_step(ans)], ans.values)}
 	return out

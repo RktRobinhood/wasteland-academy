@@ -10,18 +10,24 @@ extends Node
 ##   Audio.play_sfx("correct")            # a short one-shot
 ##   Audio.sound_enabled = true           # what the speaker icon switches
 ##   Audio.music_volume = 0.4             # 0.0-1.0, the settings sliders
+##   Audio.play_voice(stream)             # Spark's explainer line, the music ducked under it
 ##
 ## Which loop plays where is res://audio/music_tracks.gd; the effects are
 ## res://audio/sfx_cues.gd. Settings are saved to user://settings.cfg as soon as
 ## they change, so they survive a reload.
 
-## Emitted after any of the three settings changes, however it changed.
+## Emitted after any of the four settings changes, however it changed.
 signal settings_changed
 
 const SETTINGS_PATH := "user://settings.cfg"
 const SETTINGS_SECTION := "audio"
 const MUSIC_BUS := "Music"
 const SFX_BUS := "SFX"
+## Spark's explainer lines (FAL-429).
+const VOICE_BUS := "Voice"
+## How far the music drops while Spark talks, and how fast it goes and comes back.
+const DUCK_DB := -12.0
+const DUCK_SEC := 0.25
 ## Long enough that walking into a boss fight does not cut the region bed off.
 const CROSSFADE_SEC := 1.2
 const SILENT_DB := -60.0
@@ -36,6 +42,7 @@ const SFX_VOICES := 6
 const DEFAULT_SOUND_ENABLED := false
 const DEFAULT_MUSIC_VOLUME := 0.6
 const DEFAULT_SFX_VOLUME := 0.6
+const DEFAULT_VOICE_VOLUME := 0.8
 
 ## Where the player is until a scene says otherwise. The boot screen is the
 ## overworld; drop this once the overworld scene calls play_location() itself.
@@ -71,6 +78,16 @@ var sfx_volume := DEFAULT_SFX_VOLUME:
 		_apply_volumes()
 		_changed()
 
+## Voice bus level, 0.0 (silent) to 1.0 (file level).
+var voice_volume := DEFAULT_VOICE_VOLUME:
+	set(value):
+		value = clampf(value, 0.0, 1.0)
+		if is_equal_approx(value, voice_volume):
+			return
+		voice_volume = value
+		_apply_volumes()
+		_changed()
+
 ## The last effect a scene asked for, heard or not (sound off still records it), so a
 ## test can tell what a screen would play.
 var last_sfx := ""
@@ -82,6 +99,10 @@ var _fade: Tween
 var _sfx: Array[AudioStreamPlayer] = []
 var _next_voice := 0
 var _loading := false
+var _voice: AudioStreamPlayer
+## 0 (music at its level) to 1 (ducked by DUCK_DB), tweened while Spark talks.
+var _duck := 0.0
+var _duck_tween: Tween
 
 
 func _ready() -> void:
@@ -98,6 +119,10 @@ func _ready() -> void:
 		player.bus = SFX_BUS
 		add_child(player)
 		_sfx.append(player)
+	_voice = AudioStreamPlayer.new()
+	_voice.bus = VOICE_BUS
+	_voice.finished.connect(_set_ducked.bind(false))
+	add_child(_voice)
 	_load_settings()
 	_apply_volumes()
 	play_location(BOOT_LOCATION)
@@ -147,16 +172,75 @@ func play_sfx(cue: String) -> void:
 	player.play()
 
 
+## Play one voice line on the Voice bus, stopping the one before, with the music ducked
+## under it. `speed` plays it faster or slower at the same pitch. `from` is a position in
+## the line, in seconds. Does nothing, and returns false, when sound or the voice is off.
+func play_voice(stream: AudioStream, speed := 1.0, from := 0.0) -> bool:
+	_voice.stop()
+	if stream == null or not sound_enabled or voice_volume <= 0.0:
+		_set_ducked(false)
+		return false
+	_voice.stream = stream
+	set_voice_speed(speed)
+	_voice.play(from)
+	_set_ducked(true)
+	return true
+
+
+## Stop Spark's line and bring the music back up.
+func stop_voice() -> void:
+	_voice.stop()
+	_set_ducked(false)
+
+
+## True while a voice line is playing.
+func voice_playing() -> bool:
+	return _voice.playing
+
+
+## The speed of the line playing now and the next ones: the pitch shift on the Voice bus
+## undoes what pitch_scale does to the pitch.
+func set_voice_speed(speed: float) -> void:
+	_voice.pitch_scale = speed
+	var idx := _bus_index(VOICE_BUS)
+	var at := -1
+	for i in AudioServer.get_bus_effect_count(idx):
+		if AudioServer.get_bus_effect(idx, i) is AudioEffectPitchShift:
+			at = i
+	if at == -1:
+		if is_equal_approx(speed, 1.0):
+			return
+		AudioServer.add_bus_effect(idx, AudioEffectPitchShift.new())
+		at = AudioServer.get_bus_effect_count(idx) - 1
+	(AudioServer.get_bus_effect(idx, at) as AudioEffectPitchShift).pitch_scale = 1.0 / speed
+	AudioServer.set_bus_effect_enabled(idx, at, not is_equal_approx(speed, 1.0))
+
+
+## Whether the music is ducked for Spark now (for tests).
+func ducked() -> bool:
+	return _duck > 0.0
+
+
+func _set_ducked(on: bool) -> void:
+	if _duck_tween != null and _duck_tween.is_valid():
+		_duck_tween.kill()
+	_duck_tween = create_tween()
+	_duck_tween.tween_method(func(d: float) -> void:
+		_duck = d
+		_apply_volumes(), _duck, 1.0 if on else 0.0, DUCK_SEC)
+
+
 ## True while a music loop is audible. For tests and for the settings screen.
 func music_playing() -> bool:
 	return _music.any(func(player: AudioStreamPlayer) -> bool: return player.playing)
 
 
-## Put the three settings back to a fresh install and save that.
+## Put the four settings back to a fresh install and save that.
 func reset_settings() -> void:
 	sound_enabled = DEFAULT_SOUND_ENABLED
 	music_volume = DEFAULT_MUSIC_VOLUME
 	sfx_volume = DEFAULT_SFX_VOLUME
+	voice_volume = DEFAULT_VOICE_VOLUME
 
 
 func _changed() -> void:
@@ -176,17 +260,19 @@ func _apply_enabled() -> void:
 		player.stop()
 	for player in _sfx:
 		player.stop()
+	stop_voice()
 
 
 func _apply_volumes() -> void:
-	_set_bus_level(MUSIC_BUS, music_volume)
+	_set_bus_level(MUSIC_BUS, music_volume, DUCK_DB * _duck)
 	_set_bus_level(SFX_BUS, sfx_volume)
+	_set_bus_level(VOICE_BUS, voice_volume)
 
 
-func _set_bus_level(bus: String, level: float) -> void:
+func _set_bus_level(bus: String, level: float, offset_db := 0.0) -> void:
 	var idx := _bus_index(bus)
 	# linear_to_db(0.0) is -inf, so mute instead of sending that to the server.
-	AudioServer.set_bus_volume_db(idx, linear_to_db(maxf(level, 0.0001)))
+	AudioServer.set_bus_volume_db(idx, linear_to_db(maxf(level, 0.0001)) + offset_db)
 	AudioServer.set_bus_mute(idx, not sound_enabled or level <= 0.0)
 
 
@@ -261,6 +347,7 @@ func _load_settings() -> void:
 	sound_enabled = bool(cfg.get_value(SETTINGS_SECTION, "sound_enabled", DEFAULT_SOUND_ENABLED))
 	music_volume = float(cfg.get_value(SETTINGS_SECTION, "music_volume", DEFAULT_MUSIC_VOLUME))
 	sfx_volume = float(cfg.get_value(SETTINGS_SECTION, "sfx_volume", DEFAULT_SFX_VOLUME))
+	voice_volume = float(cfg.get_value(SETTINGS_SECTION, "voice_volume", DEFAULT_VOICE_VOLUME))
 	_loading = false
 
 
@@ -270,6 +357,7 @@ func _save_settings() -> void:
 	cfg.set_value(SETTINGS_SECTION, "sound_enabled", sound_enabled)
 	cfg.set_value(SETTINGS_SECTION, "music_volume", music_volume)
 	cfg.set_value(SETTINGS_SECTION, "sfx_volume", sfx_volume)
+	cfg.set_value(SETTINGS_SECTION, "voice_volume", voice_volume)
 	var err := cfg.save(SETTINGS_PATH)
 	if err != OK:
 		push_warning("Audio: could not save %s (error %d)" % [SETTINGS_PATH, err])

@@ -930,6 +930,9 @@ static func needs_rounding(v: Q) -> bool:
 	return not (r.ok and r.q.eq(v))
 
 
+## What a picked rounding trap says, when the view gives it no misconception (FAL-815).
+const TRAP_NOTE := "The IB needs 3 s.f."
+
 ## Kinds whose one typed number can be shown rounded, as a rounding trap.
 const TRAP_KINDS := ["number", "xval", "axis", "yint", "xint"]
 

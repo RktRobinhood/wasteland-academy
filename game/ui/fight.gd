@@ -120,7 +120,7 @@ var timer_label: Label
 var timer_fill: StyleBoxFlat
 var lifeline_buttons := {}
 var badge: Control
-var hint_label: Label
+var hint_label: MathLabel
 var summary_box: VBoxContainer
 var floor_box: VBoxContainer
 ## The deep link's jump to a fight (1: none).
@@ -685,7 +685,7 @@ func _show_question() -> void:
 		taunt.name = "Taunt"
 		card.add_child(taunt)
 		card.move_child(taunt, 0)
-	hint_label = UiTheme.label("", UiTheme.BODY, UiTheme.SAND)
+	hint_label = UiTheme.math_label("", UiTheme.BODY, UiTheme.SAND)
 	hint_label.name = "Hint"
 	hint_label.visible = false
 	card.add_child(hint_label)
@@ -714,7 +714,7 @@ func _show_boss_part() -> void:
 			var right: bool = answers[i].outcome in ["right", "late", "glancing"]
 			var pv: Dictionary = b.parts[i].view
 			var asked: String = QuestionEngine.unknown_of(QuestionEngine.type_of(pv.type), pv.unknown).get("asked", "")
-			done.add_child(UiTheme.label("(%s) %s · %s: %s" % [QuestionEngine.part_letter(i), "right" if right else "missed",
+			done.add_child(UiTheme.math("(%s) %s · %s: %s" % [QuestionEngine.part_letter(i), "right" if right else "missed",
 				asked, b.parts[i].answer_text], UiTheme.SMALL, UiTheme.TEAL if right else UiTheme.DIM))
 		card.add_child(done)
 		card.move_child(done, at)
@@ -724,7 +724,7 @@ func _show_boss_part() -> void:
 		var box := PanelContainer.new()
 		box.name = "Carried"
 		box.add_theme_stylebox_override("panel", UiTheme.panel())
-		var l := UiTheme.label("From part (%s): %s. Carry on from this." % [q.carried.part, q.carried.text], UiTheme.BODY, UiTheme.SAND)
+		var l := UiTheme.math("From part (%s): %s. Carry on from this." % [q.carried.part, q.carried.text], UiTheme.BODY, UiTheme.SAND)
 		box.add_child(l)
 		card.add_child(box)
 		card.move_child(box, at)
@@ -1010,7 +1010,7 @@ func _show_summary(s: Dictionary) -> void:
 	list.name = "Missed"
 	list.add_theme_constant_override("separation", 8)
 	for m in s.missed:
-		list.add_child(UiTheme.label("• " + m, UiTheme.BODY))
+		list.add_child(UiTheme.math("• " + m, UiTheme.BODY))
 	summary_box.add_child(list)
 	var again := Button.new()
 	again.name = "PlayAgain"
