@@ -355,6 +355,38 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   catalogue's `match`, `order-steps` and `multipart` formats are not built in the engine, so these
   types don't offer them. The checker's sections are prefixed `E13PC_`, `E13AI_`, `E13HI_`, `E13IG_`
   and `E13AU_`.
+- **The data, sampling and exact-triangle extension types** (FAL-778, batch E15): six types on six
+  situations of their own, each with views that extend `extension_views.gd`, so the exam types' files
+  and checks are untouched. They cover syllabus skills no exam type lists, so they carry no exam parts.
+  `variable_kind.gd` is `t4-ext-data-type` (SL4.1): a bank of counted, stepped (half shoe sizes, cents,
+  half points) and measured variables, some recorded to the nearest whole unit, in words or as a row of
+  recorded values; the answer is the one true claim of kind and reason, or the one variable of the
+  asked kind among four. `study.gd` is `t4-ext-population-sample` (SL4.1): a surveyor who asks some of
+  a place's people, chosen by a numbered draw, at a spot, by a notice or from one group; it asks the
+  population, the sample, whether the sample is random and what would make it random.
+  `stratified_sample.gd` is `t4-ext-stratified-numbers` (SL4.1): three groups and a sample, with each
+  share G × n ÷ N whole, or rounded (at least 0.1 from a half), the third group set so the sample adds
+  up when the rounded shares don't, the sample size from one group's number, and shares from
+  percentages. `histogram.gd` is `t4-ext-frequency-histogram` (SL4.2): 4 to 6 equal classes from 0,
+  as a table or as a histogram drawn by GraphView, each bar a shaded strip with its outline and the
+  class boundaries as `x_ticks`; it asks a missing frequency (a missing bar is marked ?), a bar's
+  height, counts over classes, the class a boundary value goes in, the total, and which of four
+  histogram cards shows a table (the wrong cards have gaps, two bars swapped or one bar too tall).
+  `correlation.gd` is `t4-ext-describe-correlation` (SL4.4): 10 to 14 points made to a band of r
+  (strong 0.85 to 0.98, moderate 0.5 to 0.72, weak 0.2 to 0.4, none up to 0.12, and a curve with r
+  near 0 whose points fit a parabola), drawn as a GraphView scatter; it asks a description from the
+  scatter or from r, whether the correlation shows cause (each story names the third thing both
+  follow), what r near 0 says about a curve, which scatter card has a given r, and the strongest of
+  four values of r. `exact_triangle.gd` is `t3-ext-exact-triangle` (SL3.5, Paper 1): two sides and an
+  angle of 30°, 45°, 60°, 120°, 135° or 150°, or three sides, for an exact area, third side (m√r),
+  cosine, side from an exact area, and a height drawn as PlotView's `sketch` with its right angle at
+  the foot. Built formats: true-false-reason on the data-type, population-sample and correlation
+  types, error-spot on stratified-numbers (an equal split, or the sample size where the population
+  belongs) and exact-triangle (an area left as a decimal, a square root taken term by term), and
+  pick-the-graph for `graph-pick`. The catalogue's `match` and `order-steps` formats are not built in
+  the engine, so these types don't offer them. The six types' steps are not in
+  `curriculum/moves-map.json` yet, as no type from E12 on is. The checker's sections are prefixed
+  `E15DT_`, `E15PS_`, `E15SN_`, `E15FH_`, `E15DC_` and `E15ET_`.
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
