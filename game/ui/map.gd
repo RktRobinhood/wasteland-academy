@@ -46,6 +46,11 @@ const COLUMN_WIDE := 1500
 ## the Relic device's. A painted place fills about this square.
 const HIT := 300.0
 const RELIC_HIT := 160.0
+## A place card's name size, and the least it shrinks to so the card fits beside its place;
+## a side with less room than CARD_LEAST isn't tried.
+const CARD_NAME := 56
+const CARD_NAME_LEAST := 40
+const CARD_LEAST := 300.0
 ## How far the board zooms into a place before the next layer shows, and how long the
 ## zoom and the fade take, in seconds.
 const ZOOM := 2.6
@@ -68,9 +73,9 @@ const THUNDERDOME_ZONE := Rect2(50, 46, 38, 18)
 const RELIC_LIBRARY_ZONE := Rect2(83, 94, 30, 8)
 ## The Bazaar's place on the overworld, in the sand at the bottom left (FAL-783 plan).
 const BAZAAR_ZONE := Rect2(17, 90, 26, 14)
-## True once overworld.png has the Bazaar painted in (FAL-791); until then a coded
-## marker shows where it is.
-const BAZAAR_PAINTED := false
+## True once overworld.png has the Bazaar painted in (FAL-791, its junk caravan fills
+## BAZAAR_ZONE); while false a coded marker shows where it is.
+const BAZAAR_PAINTED := true
 
 ## Where each place sits on the Functions island board (centre, in % of the board; the
 ## FAL-783 plan's table): the all-regions dungeon at the tower in the middle, the regions
@@ -542,7 +547,11 @@ func press_card() -> void:
 			enter.call()
 
 
-## Shows a place's card by it and lights the place.
+## Shows a place's card by it and lights the place. On an island the card goes beside
+## the place, on the side with more room (its text shrunk to fit that side), because a
+## column's places sit closer than a card is tall; it covers the ground beside while it
+## shows. When it can't fit beside (the place in the middle), and on the world map, it
+## goes above or below, whichever has more room.
 func show_card(b: Button) -> void:
 	var board := b.get_parent() as Control
 	var card := board.get_node_or_null("Card") as Control
@@ -553,21 +562,38 @@ func show_card(b: Button) -> void:
 	card_for = b
 	(b.get_node("Glow") as Control).visible = true
 	var info: Array = b.get_meta("card")
-	(card.get_node("Box/Name") as Label).text = info[0]
+	var title := card.get_node("Box/Name") as Label
+	title.text = info[0]
+	title.add_theme_font_size_override("font_size", CARD_NAME)
 	var line := card.get_node("Box/Line") as Label
 	line.text = info[1]
+	line.add_theme_font_size_override("font_size", UiTheme.SMALL)
 	line.add_theme_color_override("font_color", info[2])
 	card.visible = true
 	card.reset_size()
 	var r := Rect2(b.position, b.size)
 	var gap := 14.0
-	var y := r.position.y - card.size.y - gap
-	if y < 0.0:
-		y = r.end.y + gap
-	if y + card.size.y > BOARD.y:
-		y = r.get_center().y - card.size.y / 2.0
-	var x := clampf(r.get_center().x - card.size.x / 2.0, 12.0, BOARD.x - card.size.x - 12.0)
-	card.position = Vector2(x, clampf(y, 12.0, BOARD.y - card.size.y - 12.0))
+	var edge := 12.0
+	var left_room := r.position.x - gap - edge
+	var right_room := BOARD.x - r.end.x - gap - edge
+	var room := maxf(left_room, right_room)
+	if board == island_board and card.size.x > room and room > CARD_LEAST:
+		var inside := room - (card.size.x - maxf(_width(title), _width(line)))
+		_shrink_to(title, inside, CARD_NAME_LEAST)
+		_shrink_to(line, inside, UiTheme.SMALL - 6)
+		card.reset_size()
+	var at := Vector2.ZERO
+	if board == island_board and card.size.x <= room:
+		at.x = r.end.x + gap if right_room >= left_room else r.position.x - gap - card.size.x
+		at.y = r.get_center().y - card.size.y / 2.0
+	else:
+		var above := r.position.y - card.size.y - gap
+		var below := r.end.y + gap
+		at.y = above if above >= 0.0 and (above >= BOARD.y - below - card.size.y or board != island_board) else below
+		if at.y + card.size.y > BOARD.y:
+			at.y = r.get_center().y - card.size.y / 2.0
+		at.x = r.get_center().x - card.size.x / 2.0
+	card.position = Vector2(clampf(at.x, edge, BOARD.x - card.size.x - edge), clampf(at.y, edge, BOARD.y - card.size.y - edge))
 	board.move_child(card, -1)
 
 
@@ -606,7 +632,7 @@ func _card(board: Control) -> PanelContainer:
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_theme_constant_override("separation", 0)
 	card.add_child(box)
-	var n := UiTheme.label("", 56, UiTheme.TEXT)
+	var n := UiTheme.label("", CARD_NAME, UiTheme.TEXT)
 	n.name = "Name"
 	n.autowrap_mode = TextServer.AUTOWRAP_OFF
 	n.add_theme_font_override("font", UiTheme.TITLE_FONT)
@@ -798,10 +824,10 @@ static func _width(l: Label) -> float:
 	return f.get_string_size(l.text, HORIZONTAL_ALIGNMENT_LEFT, -1, l.get_theme_font_size("font_size")).x
 
 
-## Takes a label's font size down until its text fits the width.
-static func _shrink_to(l: Label, width: float) -> void:
+## Takes a label's font size down until its text fits the width, or to `least`.
+static func _shrink_to(l: Label, width: float, least: int = UiTheme.SMALL) -> void:
 	var fs := l.get_theme_font_size("font_size")
-	while fs > UiTheme.SMALL and _width(l) > width:
+	while fs > least and _width(l) > width:
 		fs -= 2
 		l.add_theme_font_size_override("font_size", fs)
 

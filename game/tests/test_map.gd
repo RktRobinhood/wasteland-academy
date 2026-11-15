@@ -16,6 +16,8 @@ const MAIN := "res://scenes/main.tscn"
 const BAZAAR := "res://scenes/bazaar.tscn"
 const SAVE := "user://test_map_save.json"
 const CATALOGUE := "res://data/catalogue.json"
+## An island art folder with nothing in it: the coded look.
+const NO_ART := "res://tests/fixtures/no-art/map/"
 
 
 func _area(window: Vector2i) -> Vector2:
@@ -320,7 +322,7 @@ func test_the_world_map() -> void:
 	var shop := board.get_node("Bazaar") as Button
 	check(not shop.disabled, "the Bazaar is open")
 	check_eq(_card_of(m, shop), "Bazaar · 0 Scrap")
-	check(shop.get_node_or_null("Marker") != null, "a coded marker until the painting has the Bazaar")
+	check(shop.get_node_or_null("Marker") == null, "the painting has the Bazaar (FAL-791): no coded marker")
 	check(m.world.get_node_or_null("Footer") == null, "no bar under the board")
 	check_eq((m.world.get_node("Header").get_child(0).get_node("Scrap") as Label).text, "Scrap: 0", "the Scrap in the header")
 	check_eq(Audio.location(), "overworld", "the overworld loop")
@@ -386,10 +388,17 @@ func test_the_functions_island() -> void:
 		var line := _card_of(m, buttons[id]).trim_prefix(Dungeon.region_name(id) + " · ")
 		check_eq(line == "Coming soon", not Progress.is_built(id), "%s: %s" % [id, line])
 		check_eq(m.spot_state(id) == "locked", not Progress.is_built(id), id)
-	# No island art yet: the coded ground and coded landmarks.
+	# The accepted painting (FAL-791): the art, no coded ground, no rings.
+	check_eq(m.background_path(), "res://assets/map/functions/background.webp")
+	check(board.get_node_or_null("Art") != null and board.get_node_or_null("Ground") == null, "the painting")
+	check(board.get_node_or_null("Spot_quadratics/Landmark") == null, "no ring over the painting")
+	check_eq(Audio.location(), "signal-tower", "the island's loop")
+	_done(made)
+	# With no painting in its folder, the coded ground and coded landmarks.
+	made = await _map({"screen": "island", "island": "functions"}, save, Vector2(1080, 1920), NO_ART)
+	board = made[1].island_board
 	check(board.get_node_or_null("Ground") != null, "the coded ground")
 	check(board.get_node_or_null("Spot_quadratics/Landmark/Coded") != null, "the coded landmark")
-	check_eq(Audio.location(), "signal-tower", "the island's loop")
 	_done(made)
 
 
@@ -447,7 +456,7 @@ func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
 func test_no_roads_on_the_island() -> void:
 	var map_script := preload("res://ui/map.gd")
 	check(not (map_script as GDScript).get_script_method_list().any(func(f): return f.name == "roads"), "no roads()")
-	var made: Array = await _map({"screen": "island", "island": "functions"})
+	var made: Array = await _map({"screen": "island", "island": "functions"}, {}, Vector2(1080, 1920), NO_ART)
 	var board: Control = made[1].island_board
 	check(board.find_child("Roads", true, false) == null, "no road node")
 	check(board.get_node_or_null("Ground/Jetty") != null, "the jetty dot stays")
@@ -490,6 +499,32 @@ func test_names_hide_until_a_place_is_hovered_focused_or_tapped() -> void:
 		check(k.find_next_valid_focus() in places, "%s: Tab moves to another place" % r.screen)
 		check(card.focus_mode == Control.FOCUS_NONE, "the card never takes focus")
 		_done(made)
+
+
+## The island's columns sit closer than a card is tall (FAL-925), so a place's card goes
+## beside it, on the side with more room, on the board and clear of the place itself.
+func test_a_card_sits_beside_its_place_on_the_island() -> void:
+	var map_script := preload("res://ui/map.gd")
+	var made: Array = await _map({"screen": "island", "island": "functions"})
+	var m: Control = made[1]
+	var card := m.island_board.get_node("Card") as Control
+	var board := Rect2(Vector2.ZERO, map_script.BOARD)
+	for id in ["composite-inverse", "lines", "function-basics", "quadratics", "rational", "graphs-features", "relic"]:
+		var b: Button = _spot_buttons(m)[id]
+		m.show_card(b)
+		var c := Rect2(card.position, card.size)
+		var r := Rect2(b.position, b.size)
+		check(board.encloses(c), "%s: the card %s is on the board" % [id, c])
+		check(not c.intersects(r), "%s: the card %s covers its place %s" % [id, c, r])
+		check(absf(c.get_center().y - r.get_center().y) < 1.0, "%s: the card is beside its place" % id)
+		var left := r.get_center().x < map_script.BOARD.x / 2.0
+		check_eq(c.position.x > r.end.x, left, "%s: the card on the side with more room" % id)
+		m._hide_card()
+	var mid: Button = _spot_buttons(m)["all"]
+	m.show_card(mid)
+	var c := Rect2(card.position, card.size)
+	check(board.encloses(c) and not c.intersects(Rect2(mid.position, mid.size)), "the middle place's card clears it")
+	_done(made)
 
 
 func test_a_touch_shows_the_card_then_a_second_tap_goes_in() -> void:
@@ -602,7 +637,7 @@ func test_painted_places_on_a_background() -> void:
 
 func test_the_coded_landmarks_show_glyphs_not_numbers() -> void:
 	var map_script := preload("res://ui/map.gd")
-	var made: Array = await _map({"screen": "island", "island": "functions"})
+	var made: Array = await _map({"screen": "island", "island": "functions"}, {}, Vector2(1080, 1920), NO_ART)
 	var buttons := _spot_buttons(made[1])
 	for id in buttons:
 		var mark := buttons[id].get_node("Landmark/Coded/Mark") as Label
