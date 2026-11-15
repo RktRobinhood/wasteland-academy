@@ -834,7 +834,9 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded, paper: int) -> Dic
 			order.append(a)
 	for a in order:
 		if b.methods.has(a) and (paper != 1 or not gdc_method(t, u.id, a)):
-			solutions.append({"angle": a, "name": method_name(t, u.id, a, b, "Worked solution"), "steps": b.methods[a].steps,
+			# Each mapped step carries its explainer move (FAL-429, curriculum/moves-map.json).
+			solutions.append({"angle": a, "name": method_name(t, u.id, a, b, "Worked solution"),
+				"steps": Moves.tag(t.id, u.id, v.rep, a, b.methods[a].steps),
 				"result": b.methods[a].result})
 	var choices := _choices(ans, b, rng) if fmt != "pick-the-graph" else _graph_choices(b)
 	var out_view := {"type": t.id, "unknown": u.id, "rep": v.rep, "angle": angle, "format": fmt, "seed": v.seed}
