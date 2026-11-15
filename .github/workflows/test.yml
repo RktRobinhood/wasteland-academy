@@ -92,6 +92,8 @@ jobs:
           'map-coming-soon=#functions/exp-log'
           'bazaar=?bazaar=demo'
           'bazaar-link=#bazaar'
+          'explain=?explain&seed=3'
+          'explain-mid-step=?explain&seed=3&t=5.5'
       - uses: actions/upload-artifact@v7
         if: always()
         with:

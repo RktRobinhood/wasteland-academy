@@ -170,7 +170,7 @@ func test_a_point_is_named_once_when_the_two_key_points_meet() -> void:
 			var q := _make(c.type, c.unknown, c.rep, c.angle, seed, "mcq")
 			var texts: Array = q.lines + q.choices.map(func(o): return o.text)
 			for sol in q.solutions:
-				texts += sol.steps
+				texts += Step.texts(sol.steps)
 			for t in texts:
 				var seen := {}
 				for m in pt.search_all(t):

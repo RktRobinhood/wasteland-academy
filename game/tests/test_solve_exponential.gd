@@ -65,7 +65,7 @@ func test_an_exact_cell_asked_on_paper_1_is_exact_and_by_hand() -> void:
 		check(q.answer.exact, c.key)
 		for sol in q.solutions:
 			for st in sol.steps:
-				check(rx.search(st) == null, "%s: %s" % [c.key, st])
+				check(rx.search(Step.text(st)) == null, "%s: %s" % [c.key, Step.text(st)])
 
 
 func test_the_sums_match_hand_values() -> void:
