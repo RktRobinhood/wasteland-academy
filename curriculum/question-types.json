@@ -30916,8 +30916,7 @@
      "wrong": "the arguments added, not multiplied"
     },
     {
-     "ref": "SL1.7.log-equations#2",
-     "text": "Converting log_2 X = 3 to X = 3² or X = 3/2 instead of X = 2³",
+     "text": "Swapping the base and the power: log_b X = c read as X = c^b, not X = b^c",
      "as": "distractor",
      "in": [
       "combine-linear",
@@ -30968,7 +30967,7 @@
      "wrong": "the argument doubled, not squared"
     },
     {
-     "text": "Changing base the wrong way: log_(b²) x read as 2 log_b x, not (1/2) log_b x",
+     "text": "Changing base the wrong way: log_(b^k) x read as k log_b x, not log_b x divided by k",
      "as": "distractor",
      "in": [
       "change-of-base"

@@ -30844,9 +30844,8 @@ def e9log_solve(q):
 E18LE_OWN = "t1-log-equation#"
 E18LE_KEEP = "SL1.7.log-equations#0"
 E18LE_ADD = "SL1.7.log-equations#1"
-E18LE_SWAP = "SL1.7.log-equations#2"
-E18LE_SUBTRACT, E18LE_FLIP, E18LE_ADD_C, E18LE_TIMES_C, E18LE_TWO_IN, E18LE_WRONG_WAY, E18LE_SAME_BASE, E18LE_NEGATIVE = (
-    E18LE_OWN + str(i) for i in range(3, 11))
+E18LE_SWAP, E18LE_SUBTRACT, E18LE_FLIP, E18LE_ADD_C, E18LE_TIMES_C, E18LE_TWO_IN, E18LE_WRONG_WAY, E18LE_SAME_BASE, E18LE_NEGATIVE = (
+    E18LE_OWN + str(i) for i in range(2, 11))
 E18LE_ARG = r"(\d*)x(?: ([+−]) (\d+))?"
 E18LE_TERM = re.compile(r"(?:(\d+) )?" + E9LOG_NAME + r"(?:\((" + E18LE_ARG + r")\)| (x)| (\d+))")
 E18LE_NUM = r"−?\d+(?:/\d+)?"

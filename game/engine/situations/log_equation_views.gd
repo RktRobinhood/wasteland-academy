@@ -11,12 +11,13 @@ extends ExtensionViews
 ## Every working ends by checking the root in each log's argument, or starts from the domain. A
 ## slip's x is offered only when it is a small number, and the checker works it out again.
 ##
-## Misconceptions are the three map strings, then the type's own, "<type id>#<index>".
+## Misconceptions are the two map strings with no numbers in them, then the type's own,
+## "<type id>#<index>". Every wrong option is a slip with its line, or a declared filler.
 
 const OWN := "t1-log-equation#"
 const R_KEEP := "SL1.7.log-equations#0"
 const R_ADD := "SL1.7.log-equations#1"
-const R_SWAP := "SL1.7.log-equations#2"
+const R_SWAP := OWN + "2"
 const R_SUBTRACT := OWN + "3"
 const R_FLIP := OWN + "4"
 const R_ADD_C := OWN + "5"
@@ -252,7 +253,7 @@ static func near(v: Q) -> Array:
 
 
 func _answer(lines: Array, asked: String, ans: Dictionary, w: Array, gen: Array, rng: Seeded, methods: Dictionary) -> Dictionary:
-	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": rng.shuffled(w), "generic": gen, "methods": methods}
+	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen, "methods": methods}
 
 
 # ── One root ─────────────────────────────────────────────────
