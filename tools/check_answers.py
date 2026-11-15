@@ -42434,7 +42434,7 @@ def E15FH_bars(g, card=False):
         need(h.q == 1 and h > 0, f"a bar's height {h} is not a whole frequency")
         bars.append((l, r, int(h)))
     need(len(g["shade"]) == len(g["curves"]), "outlines and bars don't match")
-    need(g.get("y_name") == "frequency" and g["y0"] == 0 and g["y1"] > max(b[2] for b in bars), "the frequency axis")
+    need(g.get("y_name") == "f" and g["y0"] == 0 and g["y1"] > max(b[2] for b in bars), "the frequency axis")
     return bars
 
 

@@ -88,7 +88,7 @@ static func figure(s: Dictionary, f: Array = [], hide: int = -1, gaps: bool = fa
 	g.shade = shade
 	g.x_ticks = range(s.k + 1).map(func(c): return [float(c * s.w), str(c * s.w)])
 	g.x_name = st(s).x
-	g.y_name = "frequency"
+	g.y_name = "f"
 	g.one_colour = true
 	if hide >= 0:
 		g.points.append({"x": (hide + 0.5) * w, "y": 1.0, "label": "?", "name": true})
