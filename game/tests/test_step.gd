@@ -33,7 +33,7 @@ func test_worked_solution_shows_the_board() -> void:
 	tree.root.add_child(p)
 	await tree.process_frame
 	p.show_view(VIEW)
-	var plain: Array = p.question.solutions[0].steps.duplicate()
+	var plain: Array = Step.texts(p.question.solutions[0].steps)
 	var steps: Array = plain.duplicate()
 	steps[0] = Step.tagged("substitute", plain[0])
 	p.question.solutions[0].steps = steps
@@ -42,14 +42,14 @@ func test_worked_solution_shows_the_board() -> void:
 	var box: Node = p.working.find_child("Steps", true, false)
 	check(box != null, "the worked solution has its steps")
 	if box != null:
-		var shown: Array = box.get_children().slice(1).map(func(l): return l.text)
+		var shown: Array = box.get_children().slice(1).filter(func(l): return not l is Button).map(func(l): return l.text)
 		check_eq(shown, plain, "a tagged step shows as its board, the others as before")
 	p.free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 
 	var r := Run.new(SaveData.blank(), "quadratics", 1, 42)
 	r.start()
-	var first: String = r.question.solutions[0].steps[0]
+	var first: String = Step.text(r.question.solutions[0].steps[0])
 	r.question.solutions[0].steps[0] = Step.tagged("substitute", first)
 	check_eq(r.use_hint(), first, "Hint shows the tagged first step's board")
 
@@ -57,14 +57,16 @@ func test_worked_solution_shows_the_board() -> void:
 ## The checker's export writes steps as text, with each step's move (or null) beside it.
 func test_export_writes_text_and_moves() -> void:
 	var q := QuestionEngine.make(VIEW)
-	var plain: Array = q.solutions[0].steps.duplicate()
+	var plain: Array = Step.texts(q.solutions[0].steps)
 	q.solutions[0].steps = [Step.tagged("substitute", plain[0])] + plain.slice(1)
 	var e: Dictionary = load(EXPORT).exported(q)
 	check_eq(e.solutions[0].steps, plain)
 	var moves: Array = ["substitute"]
 	moves.resize(plain.size())
 	check_eq(e.solutions[0].moves, moves)
-	check(e.solutions.slice(1).all(func(sol): return sol.moves.all(func(m): return m == null)), "untagged steps export a null move")
+	for i in range(1, q.solutions.size()):
+		check_eq(e.solutions[i].moves, q.solutions[i].steps.map(func(st): return Step.move(st) if Step.move(st) != "" else null),
+			"every step exports its move, or null")
 
 
 func test_a_step_says_each_value_once() -> void:
