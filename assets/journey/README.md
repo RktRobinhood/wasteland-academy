@@ -117,13 +117,13 @@ move. Their dialogue portraits are in `assets/portraits/` (see its README).
 | `cast/noma.webp` + `noma.json` | idle 74×220, talk 74×220 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 14,582 |
 | `encounters/cell/backdrop.webp` | opaque 864×256 | static | strip origin (0, 0) | 25,926 |
 | `encounters/cell/bars.webp` + `.json` | shut 864×256, loose 864×256, open 864×256 | shut/loose/open, one frame each (1, once) | feet point | 360,974 |
-| `encounters/cell/guard.webp` + `.json` | idle 106×248, talk 106×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 15,540 |
-| `encounters/st-coffee-cart.webp` + `.json` | idle 203×248, talk 203×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 24,468 |
-| `encounters/st-hush-water.webp` + `.json` | idle 174×248, talk 174×248, bust 174×248 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 30,292 |
-| `encounters/st-live-wires.webp` + `.json` | idle 316×248, talk 316×248, bust 316×248 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 47,693 |
-| `encounters/st-mast-climber.webp` + `.json` | idle 144×248, talk 144×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 27,899 |
-| `encounters/st-numbers-station.webp` + `.json` | idle 199×248, talk 199×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 22,476 |
-| `encounters/st-permit-booth.webp` + `.json` | idle 173×248, talk 173×248, bust 173×248 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 25,456 |
+| `encounters/cell/guard.webp` + `.json` | idle 110×252, talk 110×252 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 13,000 |
+| `encounters/st-coffee-cart.webp` + `.json` | idle 207×254, talk 207×254 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 29,186 |
+| `encounters/st-hush-water.webp` + `.json` | idle 177×251, talk 177×251, bust 177×251 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 31,160 |
+| `encounters/st-live-wires.webp` + `.json` | idle 272×252, talk 272×252, bust 272×252 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 46,972 |
+| `encounters/st-mast-climber.webp` + `.json` | idle 141×252, talk 141×252 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 14,358 |
+| `encounters/st-numbers-station.webp` + `.json` | idle 194×251, talk 194×251 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 24,890 |
+| `encounters/st-permit-booth.webp` + `.json` | idle 177×251, talk 177×251, bust 177×251 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 28,240 |
 | `enemies/d1-scavenger.webp` + `d1-scavenger.json` | idle 143×230, step-a 161×225, step-b 144×229, step-c 155×228, attack 212×229, hurt 126×222, defeated 161×223 | idle [idle] (1), walk [step-a, step-b, step-c, idle] (8), attack [attack] (1, once), hurt [hurt] (1, once), defeated [defeated] (1, once) | feet point | 113,653 |
 | `enemies/d2-raider.webp` + `d2-raider.json` | idle 130×244, step-a 141×241, step-b 131×245, step-c 131×242, attack 276×251, hurt 151×221, defeated 228×182 | idle [idle] (1), walk [step-a, step-b, step-c, idle] (8), attack [attack] (1, once), hurt [hurt] (1, once), defeated [defeated] (1, once) | feet point | 105,533 |
 | `enemies/d3-enforcer.webp` + `d3-enforcer.json` | idle 174×240, step-a 180×238, step-b 174×239, step-c 176×239, attack 178×273, hurt 221×229, s2 174×239, s2-attack 166×223, defeated 198×210 | idle [idle] (1), walk [step-a, step-b, step-c, idle] (8), attack [attack] (1, once), hurt [hurt] (1, once), defeated [defeated] (1, once), s2-idle [s2] (1), s2-attack [s2-attack] (1, once) | feet point | 151,218 |
@@ -194,3 +194,16 @@ batch lands, that sheet is still in the painted style.
 - Batch 1, FAL-827: Bodge, the Bazaar store owner, in `game/assets/bazaar/shopkeeper.png` and
   `shopkeeper-idle.png` (not a journey sheet). The files are the ones Studio Manager accepted on FAL-794, copied
   unchanged: 512×512 RGBA, one alpha island, and the idle frame changes only the loupe eye (1778 px, alpha identical).
+- Batch 2, FAL-951 (restart of FAL-828): the six Signal Tower encounters (`st-coffee-cart`, `st-hush-water`,
+  `st-live-wires`, `st-mast-climber`, `st-numbers-station`, `st-permit-booth`) and the Cell guard
+  (`encounters/cell/guard`), every frame. `cell/backdrop` and `cell/bars` are scenery and keep the painted finish.
+  Each idle is the old idle redrawn in the new look; talk and bust are the new idle with only the moving arm redrawn,
+  so everything outside the arm is the same pixels in every frame of a sheet. Frame ids, anims and the feet-point
+  convention are unchanged; only `x`, `w`, `h`, `ox`, `oy` were re-measured (heights 248 → 251-254 px). Live-wires
+  is 272 px wide instead of 316 because the old painted ground patch is gone; a short inked cable from his boot to
+  the junction box keeps the frame one piece. The coffee seller's apron is one solid brown.
+  After the audit: the live-wires box is a square-cornered dark rust iron cabinet again, with its inked access
+  panel and a flat yellow/white spark star on the side facing him (only the box was re-rendered; the man, cable and
+  arms are the same pixels). The mast-climber's mast is drawn on the CPU behind the rendered climber, at the old
+  mast's width and positions: a slim pole and back rail in one steel grey with one shadow tone, and the boxes,
+  panels and cable runs as closed, filled, inked shapes.
