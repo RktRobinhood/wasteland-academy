@@ -171,6 +171,7 @@ static var SITUATIONS := {
 	"study": [StudySituation, StudyViews],
 	"stratified-sample": [StratifiedSampleSituation, StratifiedSampleViews],
 	"histogram": [HistogramSituation, HistogramViews],
+	"correlation": [CorrelationSituation, CorrelationViews],
 }
 
 static var _cat: Dictionary = {}

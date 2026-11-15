@@ -42569,6 +42569,173 @@ SITUATION_CHECKS["histogram"] = E15FH_check
 # ── end histogram ──
 
 
+# ── correlation (t4-ext-describe-correlation, FAL-778) ───────
+# r is worked out exactly from the points the scatter draws (SymPy), and it must be the r the
+# question shows, to 2 d.p. The description follows from r's sign and size by the bands: strong
+# 0.85 to 0.98, moderate 0.5 to 0.72, weak 0.2 to 0.4, none up to 0.12; a curve is r up to 0.12
+# with a least-squares parabola through the points giving R² of at least 0.85. Each scatter card
+# is judged the same way, and each tagged option is rebuilt from its slip.
+
+E15DC_SK = "SL4.4.describe-correlation#"
+E15DC_T = "t4-ext-describe-correlation#"
+E15DC_STORIES = [("the number of fans sold in a day", "the number of heatstroke cases that day", "days", 1, "the heat of the day"),
+                 ("the number of water barrels a camp has", "the number of goats it keeps", "camps", 1, "the size of the camp"),
+                 ("the number of guards at a market", "the number of thefts reported there", "markets", 1, "how busy the market is"),
+                 ("the number of dust masks sold in a week", "the number of people out walking that week", "weeks", -1, "how bad the dust storms are"),
+                 ("the number of radio towers in a settlement", "the number of traders there", "settlements", 1, "the size of the settlement"),
+                 ("the hours a scavenger trains each week", "her score in the trials", "scavengers", 1, ""),
+                 ("the age of a water pump in years", "the litres it pumps an hour", "pumps", -1, ""),
+                 ("the distance a convoy travels", "the fuel left in its tanks", "convoys", -1, "")]
+E15DC_BANDS = [("strong", 0.85, 0.98), ("moderate", 0.5, 0.72), ("weak", 0.2, 0.4), ("none", 0.0, 0.12)]
+
+
+def E15DC_pts(g):
+    need(not g["curves"] and g["x0"] == 0 and g["y0"] == 0, "a scatter has no curves and starts at 0")
+    xs = [sp.Rational(str(p["x"])) for p in g["points"]]
+    ys = [sp.Rational(str(p["y"])) for p in g["points"]]
+    need(all(v.q == 1 for v in xs + ys) and all(0 < x < g["x1"] for x in xs) and all(0 < y < g["y1"] for y in ys), "a point is not whole or is off the window")
+    need(len(set(xs)) == len(xs) and 10 <= len(xs) <= 14, "the x-values")
+    return xs, ys
+
+
+def E15DC_r(xs, ys):
+    n = len(xs)
+    mx, my = sum(xs) / n, sum(ys) / n
+    sxy = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
+    sxx = sum((x - mx) ** 2 for x in xs)
+    syy = sum((y - my) ** 2 for y in ys)
+    return float(sxy / sp.sqrt(sxx * syy))
+
+
+def E15DC_band(r):
+    """(band, sign), with r and its 2 d.p. text both inside the band."""
+    shown = abs(round(r, 2))
+    for name, lo, hi in E15DC_BANDS:
+        if lo <= abs(r) <= hi and lo <= shown <= hi:
+            return name, (0 if name == "none" else (1 if r > 0 else -1))
+    raise Fail(f"r = {r:.4f} is in no band")
+
+
+def E15DC_curve(xs, ys):
+    """R² of the least-squares parabola, and the sign of its x² coefficient."""
+    A = sp.Matrix([[1, x, x * x] for x in xs])
+    Y = sp.Matrix(ys)
+    c = (A.T * A).solve(A.T * Y)
+    my = sum(ys) / len(ys)
+    res = sum((y - (c[0] + c[1] * x + c[2] * x * x)) ** 2 for x, y in zip(xs, ys))
+    tot = sum((y - my) ** 2 for y in ys)
+    return float(1 - res / tot), sp.sign(c[2])
+
+
+def E15DC_rtext(r):
+    v = round(r, 2)
+    return f"r = {'−' if v < 0 else ''}{abs(v):.2f}"
+
+
+def E15DC_desc(band, sign):
+    if band == "none":
+        return "No linear correlation"
+    return f"{band.capitalize()} {'positive' if sign > 0 else 'negative'} correlation"
+
+
+def E15DC_read(q):
+    """(story, n, r from the points or None, r shown or None)."""
+    L = q["lines"]
+    for st in E15DC_STORIES:
+        x, y, who = st[0], st[1], st[2]
+        m1 = re.fullmatch(rf"For (\d+) {who}, x is {re.escape(x)} and y is {re.escape(y)}\.", L[0])
+        m2 = re.fullmatch(rf"The scatter diagram shows {re.escape(x)} \(x\) and {re.escape(y)} \(y\) for (\d+) {who}(?:, with r = (−?[\d.]+))?\.", L[0])
+        if m1 or m2:
+            break
+    else:
+        raise Fail(f"can't read {L[0]!r}")
+    n = int((m1 or m2).group(1))
+    shown = None
+    if m1:
+        mr = re.fullmatch(r"r = (−?\d\.\d\d)\.", L[1])
+        need(mr is not None, f"can't read {L[1]!r}")
+        shown = float(mr.group(1).replace("−", "-"))
+    elif m2.group(2):
+        shown = float(m2.group(2).replace("−", "-"))
+    r = None
+    if q["graph"] is not None:
+        xs, ys = E15DC_pts(q["graph"])
+        need(len(xs) == n, "the scatter has another number of points")
+        r = E15DC_r(xs, ys)
+        need(shown is None or E15DC_rtext(r) == f"r = {'−' if shown < 0 else ''}{abs(shown):.2f}", f"the r shown is not the points' r {r:.4f}")
+    return st, n, r, (shown if shown is not None else r)
+
+
+def E15DC_check(q):
+    u, ch = q["view"]["unknown"], q["choices"]
+    if u == "strongest-r":
+        L = q["lines"]
+        need(L[0] == "Four sets of data give these values of r:", f"can't read {L[0]!r}")
+        rs = [float(re.fullmatch(r"r = (−?\d\.\d\d)\.", t).group(1).replace("−", "-")) for t in L[1:5]]
+        top = max(rs, key=abs)
+        need(sorted(abs(v) for v in rs)[-2] <= abs(top) - 0.08 + 1e-9, "the strongest r is not clear")
+        tag = {E15DC_rtext(max(rs))} if top < 0 else set()
+        gc_check_common(q, E15DC_rtext(top), {E15DC_SK + "0": tag})
+        return None, None
+    st, n, r, shown = E15DC_read(q)
+    x, y, who, sign, third = st
+    if u == "describe-scatter":
+        need(r is not None and q["asked"] == "Describe the correlation.", "no scatter")
+        band, sg = E15DC_band(r)
+        need(sg == 0 or sg == sign, "the story's direction is not the data's")
+        wr = {E15DC_SK + "0": {"Weak negative correlation"} if band == "strong" and sg < 0 else set()}
+        gc_check_common(q, E15DC_desc(band, sg), wr)
+    elif u == "describe-r":
+        band, sg = E15DC_band(shown)
+        need(sg == 0 or sg == sign, "the story's direction is not r's")
+        wr = {E15DC_SK + "0": {"Weak negative correlation"} if band == "strong" and sg < 0 else set(),
+              E15DC_T + "3": {"Strong positive correlation"} if sg > 0 and band != "strong" else set()}
+        gc_check_common(q, E15DC_desc(band, sg), wr)
+    elif u == "causation":
+        band, sg = E15DC_band(shown)
+        need(band == "strong" and sg == sign and third, "a cause question needs strong correlation and a third thing")
+        near = "1" if sg > 0 else "−1"
+        gc_check_common(q, f"No: correlation alone doesn't show cause; both could follow {third}.",
+                        {E15DC_SK + "1": {f"Yes: r is close to {near}, so a change in x causes the change in y.", "Yes: the points lie close to a straight line, so x causes y."}})
+    elif u == "no-linear":
+        need(r is not None, "no scatter")
+        xs, ys = E15DC_pts(q["graph"])
+        r2, lead = E15DC_curve(xs, ys)
+        need(abs(r) <= 0.12 and abs(round(r, 2)) >= 0.01 and r2 >= 0.85, f"r = {r:.3f}, R² = {r2:.3f}: not a curve with r near 0")
+        gc_check_common(q, "There is no linear correlation, but the points follow a curve, so x and y are related.", {E15DC_SK + "2": {"x and y are not related at all."}})
+        for sol in q["solutions"]:
+            for t in sol["steps"]:
+                if (m := re.match(r"The points (rise and then fall|fall and then rise)", t)):
+                    need((m.group(1) == "rise and then fall") == (lead < 0), f"{sol['name']}: the curve is the other way up")
+    else:
+        need(q["asked"] == "Which scatter diagram shows these data?", f"asked {q['asked']!r}")
+        band, sg = E15DC_band(shown)
+        need(band in ("strong", "moderate") and sg == sign, "a match-r needs a strong or moderate r of the story's sign")
+        rights, wr = [], defaultdict(set)
+        for o, gr in zip(ch, q["graphs"]):
+            need(gr.get("card"), "a scatter card is not drawn as a card")
+            xs, ys = E15DC_pts(gr)
+            rc = E15DC_r(xs, ys)
+            b, s2 = E15DC_band(rc)
+            if E15DC_rtext(rc) == E15DC_rtext(shown):
+                rights.append(o["text"])
+            if o["correct"]:
+                continue
+            mk = o.get("mistake")
+            want = {"sign": (band, -sg), "weak": ("weak", sg), "none": ("none", 0)}.get(mk)
+            need(want == (b, s2), f"the {mk} card has {b} {s2}")
+            if mk == "weak" and band == "strong" and sg < 0:
+                wr[E15DC_SK + "0"].add(o["text"])
+        need(len(rights) == 1, f"{len(rights)} cards have r {E15DC_rtext(shown)}")
+        gc_check_common(q, rights[0], wr)
+    return None, None
+
+
+SITUATION_CHECKS["correlation"] = E15DC_check
+
+# ── end correlation ──
+
+
 # ── Boss chains (FAL-415) ────────────────────────────────────
 
 def check_chain(parts):
