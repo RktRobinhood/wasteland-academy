@@ -19139,7 +19139,7 @@ def as_check(q):
             W("sector-area#1", label, tail, slip)
         else:
             b = sp.expand(slip / pi**2)
-            wr[AS_SKILL + "sector-area#1"] = {f"A = {frac_text(b)}π²{un2}"}
+            wr[AS_SKILL + "sector-area#1"] = {f"A = {as_pi(sp.Rational(b)).replace('π', 'π²')}{un2}"}
     elif u == "theta-from-area":
         label, v = "θ = ", 2 * a / r**2
     elif u == "r-from-area":
