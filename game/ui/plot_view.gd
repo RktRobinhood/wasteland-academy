@@ -961,6 +961,9 @@ func _sketch() -> void:
 		var normal := (q - p).orthogonal().normalized()
 		if normal.dot((p + q) / 2.0 - mid) < 0.0:
 			normal = -normal
+		if _passes_a_name(ln, at):
+			_sketch_span(ln, p, q, normal, at, taken)
+			continue
 		var w := get_theme_default_font().get_string_size(ln.label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 2).x
 		var gap := 20.0 + absf(normal.x) * w / 2.0 + absf(normal.y) * FONT_SIZE / 2.0
 		var tries: Array = []
@@ -973,6 +976,94 @@ func _sketch() -> void:
 		taken.append(_label_box(ln.label, spot, FONT_SIZE - 2))
 	if spec.has("note"):
 		_chip(spec.note, Vector2(size.x - 120, 34), UiTheme.DIM, FONT_SIZE - 8)
+
+
+## Whether a named point lies inside the line, between its ends (M in the middle of a chord AB).
+func _passes_a_name(ln: Dictionary, at: Dictionary) -> bool:
+	var p: Vector2 = at[ln.a]
+	var q: Vector2 = at[ln.b]
+	for n in at:
+		if String(n).begins_with("_") or n == ln.a or n == ln.b:
+			continue
+		var c: Vector2 = at[n]
+		if c.distance_to(p) > 8.0 and c.distance_to(q) > 8.0 and c.distance_to(Geometry2D.get_closest_point_to_segment(c, p, q)) < 2.0:
+			return true
+	return false
+
+
+## A measure of a line that passes a named point (FAL-968): a label beside the line would sit
+## beside one part of it (AM, not AB), so it goes on a dimension line beside the whole of it,
+## with an arrow to each end.
+func _sketch_span(ln: Dictionary, p: Vector2, q: Vector2, normal: Vector2, at: Dictionary, taken: Array) -> void:
+	var fs := FONT_SIZE - 2
+	var col := UiTheme.PINK if ln.label == "?" else UiTheme.SAND
+	var lift := Vector2(0, fs * 0.3)
+	var gap := 64.0
+	var outs := [64.0, 88.0, 112.0, 140.0, 170.0, 200.0, -64.0, -88.0, -112.0, -140.0, -170.0, -200.0]
+	# First clear of everything; else at least crossed by no line, its label on the page.
+	for strict in [true, false]:
+		var found := outs.filter(func(d): return _span_clear(ln, p, q, normal * d, _label_box(ln.label, (p + q) / 2.0 + normal * d + lift, fs), at, taken, strict))
+		if not found.is_empty():
+			gap = found[0]
+			break
+	var side := normal * signf(gap)
+	var u := (q - p).normalized()
+	var p2 := p + normal * gap
+	var q2 := q + normal * gap
+	draw_line(p + side * 10.0, p2 + side * 10.0, UiTheme.DIM, 2.0, true)
+	draw_line(q + side * 10.0, q2 + side * 10.0, UiTheme.DIM, 2.0, true)
+	draw_line(p2, q2, col, 3.0, true)
+	for end in [[p2, u], [q2, -u]]:
+		var tip: Vector2 = end[0]
+		var dir: Vector2 = end[1]
+		draw_colored_polygon(PackedVector2Array([tip, tip + dir * 16.0 + dir.orthogonal() * 7.0, tip + dir * 16.0 - dir.orthogonal() * 7.0]), col)
+	var spot := (p2 + q2) / 2.0 + lift
+	_chip(ln.label, spot, col, fs)
+	taken.append(_label_box(ln.label, spot, fs))
+	# The dimension line keeps the labels placed after it off itself.
+	for i in 21:
+		taken.append(Rect2(p2.lerp(q2, i / 20.0) - Vector2(6, 6), Vector2(12, 12)))
+
+
+## Whether a dimension line `off` from pq, with its label in `box`, is clear: on the page, off
+## every label and circle, and crossed by no line, so it can't be read as another line's. A dashed line
+## (a level, a span) may cross the two short lines out to it. Not `strict`: only no line crossing
+## it, with its label and ends on the page.
+func _span_clear(ln: Dictionary, p: Vector2, q: Vector2, off: Vector2, box: Rect2, at: Dictionary, taken: Array, strict: bool = true) -> bool:
+	if box.position.x < 4.0 or box.end.x > size.x - 4.0 or box.position.y < 4.0 or box.end.y > size.y - 4.0:
+		return false
+	var p2 := p + off
+	var q2 := q + off
+	if not Rect2(Vector2.ZERO, size).has_point(p2) or not Rect2(Vector2.ZERO, size).has_point(q2):
+		return false
+	if strict and taken.any(func(r): return r.intersects(box)):
+		return false
+	for c in spec.get("circles", []) if strict else []:
+		var o: Vector2 = at[c.at]
+		for i in 96:
+			if box.grow(4.0).has_point(o + Vector2.from_angle(TAU * i / 96.0) * o.distance_to(at[c.through])):
+				return false
+	for i in 41:
+		var on: Vector2 = p2.lerp(q2, i / 40.0)
+		if strict and taken.any(func(r): return r.has_point(on)):
+			return false
+	var out := off.normalized() * 10.0
+	var grow := (q - p).normalized() * 16.0
+	for other in spec.lines:
+		if other == ln:
+			continue
+		var a: Vector2 = at[other.a]
+		var b: Vector2 = at[other.b]
+		for i in 41:
+			if strict and box.has_point(a.lerp(b, i / 40.0)):
+				return false
+		if Geometry2D.segment_intersects_segment(a, b, p2 - grow, q2 + grow) != null:
+			return false
+		if not other.dash:
+			for e in [[p + out, p2], [q + out, q2]]:
+				if Geometry2D.segment_intersects_segment(a, b, e[0], e[1]) != null:
+					return false
+	return true
 
 
 ## The box a chip takes up at `at`, with a little room around it.
