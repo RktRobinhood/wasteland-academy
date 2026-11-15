@@ -1,0 +1,7 @@
+{
+  "name": "explainer-clips",
+  "private": true,
+  "description": "Renders Salvage Ink explainer clips. three.js is the only dependency; Playwright comes from the repo root.",
+  "type": "module",
+  "dependencies": { "three": "0.187.0" }
+}

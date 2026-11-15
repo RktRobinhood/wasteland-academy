@@ -174,10 +174,7 @@ func next_question() -> void:
 
 ## Shows the question for a view (a QuestionEngine view, or a probe view).
 func show_view(view: Dictionary) -> void:
-	if view.get("format") == "probe":
-		question = QuestionEngine.probe(view.type, int(view.probe))
-	else:
-		question = QuestionEngine.make(view)
+	question = MathsEngine.generate(view)
 	render_question()
 
 
@@ -504,14 +501,9 @@ func check_answer() -> void:
 				response[id] = _slots[id].text
 			for id in _picks:
 				response[id] = _picks[id]
-			result = QuestionEngine.mark(question, response)
-		"probe":
-			if _choice < 0:
-				result = {"complete": false, "errors": {"choice": "Choose one."}}
-			else:
-				result = QuestionEngine.mark_probe(question, question.options[_choice])
+			result = MathsEngine.mark(question, response)
 		_:
-			result = QuestionEngine.mark(question, {"choice": _choice})
+			result = MathsEngine.mark(question, {"choice": _choice})
 	feedback.visible = true
 	if not result.complete:
 		var msgs: Array = result.errors.values()
@@ -540,9 +532,9 @@ func check_answer() -> void:
 ## and solution too tall to show with Next keep the result in view; a swipe reaches Next.
 ## An incomplete answer only needs its message shown: Attack stays, and Next is hidden.
 func _reveal_result(frames := LAYOUT_FRAMES) -> void:
-	if frames > 0:
+	if frames > 0 or _card_settling():
 		# autoplay=lose answers several questions in one frame.
-		var later := _reveal_result.bind(frames - 1)
+		var later := _reveal_result.bind(maxi(0, frames - 1))
 		if not get_tree().process_frame.is_connected(later):
 			get_tree().process_frame.connect(later, CONNECT_ONE_SHOT)
 		return
@@ -556,12 +548,19 @@ func _reveal_result(frames := LAYOUT_FRAMES) -> void:
 		if c.visible:
 			top = c
 			break
-	scroll.scroll_vertical = mini(int(next_button.get_rect().end.y - scroll.size.y), int(top.position.y))
+	# The fight's card may be drawn smaller (FitBox): its own units, scaled to the scroller's.
+	var k := card.scale.y
+	scroll.scroll_vertical = mini(int(next_button.get_rect().end.y * k - scroll.size.y), int(top.position.y * k))
+
+
+## True while the card is still changing size, so a scroll to the result waits for it.
+func _card_settling() -> bool:
+	return false
 
 
 ## Keeps the answer in the save, for the planner. The explorer screen keeps nothing.
 func _record(result: Dictionary) -> void:
-	SaveData.record(save, question.cell, result.correct, now(), result.get("misconception", ""), question.format == "probe")
+	MathsEngine.record(save, question, result, now())
 	SaveData.store(save, save_path)
 
 
