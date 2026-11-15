@@ -13,6 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { regionTopic } from './pedagogy.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJSON = f => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
@@ -246,7 +247,8 @@ export function check({ lessons: file, doc, map }) {
 
 export function countAll(file, doc, prio) {
   const lessons = file.lessons || [];
-  const regions = (doc.regions || []).map(r => {
+  // Lessons are Functions' for now, so the tables list the Functions regions (FAL-925).
+  const regions = (doc.regions || []).filter(r => regionTopic(r) === 2).map(r => {
     const ls = lessons.filter(l => l.region === r.id);
     return { id: r.id, name: r.name, order: r.order, lessons: ls.length, prior: ls.filter(l => l.levels?.[1] === 0).length,
       exam: doc.types.filter(t => t.region === r.id && t.source === 'exam').length };
@@ -309,7 +311,7 @@ export function render({ lessons: file, doc, map }, counts) {
 
   L.push('## Lessons by region', '');
   L.push('Each region\'s ladder lists its lessons with their prerequisites first. Prerequisites in another region are named in full.', '');
-  for (const r of doc.regions) {
+  for (const r of doc.regions.filter(r => regionTopic(r) === 2)) {
     const ls = ladder(lessons.filter(l => l.region === r.id));
     L.push(`### ${r.order}. ${r.name} (syllabus ${r.syllabus.join(', ')})`, '');
     L.push('| # | Lesson | Prerequisites | Levels | Interaction | Supports (exam parts) |', '|---|---|---|---|---|---|');

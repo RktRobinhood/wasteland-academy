@@ -128,6 +128,7 @@ The question engine plans from situations and views (FAL-310). Every type has a 
 - **`misconceptions`**: `ref` is `skill#index` into this map's misconceptions; `wrong` says how the wrong option is made.
 - **Extension `kind`**: `skill` (a map skill no exam type covers), `prior-learning` (level 0 algebra, with `supports` naming the skills that need it), `concept`, or `link` (a concept thread, with the `blueprints` it builds on).
 - **Coverage cell**: one unknown in one representation by one angle that suits it.
+- **`regions`** (top level): the places on each island's map, one per group of syllabus subtopics (FAL-925; Functions first, on FAL-417). Each has an `id`, a `name`, its `syllabus` subtopics, all on one topic, which is its island, and an `order`, its place on that island's map: most-examined first. A type's `region` puts it there; the game plays a region from its built types. Region IDs are permanent once they are on `main`, like every other ID here: saves and map links point at them. `tools/pedagogy.mjs` checks that a region's subtopics and types share one topic.
 
 ## Lessons (lessons.json)
 
