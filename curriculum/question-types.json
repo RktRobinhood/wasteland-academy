@@ -6132,6 +6132,158 @@
     "f > 0 strictly inside R",
     "the limits are whole numbers on Paper 1"
    ]
+  },
+  "variable-kind": {
+   "name": "A variable from a study, counted or measured",
+   "summary": "Pick variables from a bank of wasteland studies, each counted (goats, crates, messages) or measured (mass, time, length), and some that trip students up: counts written with decimals (half shoe sizes, prices in cents) and measurements recorded to the nearest whole unit. A table shows a few recorded values.",
+   "quantities": [
+    {
+     "name": "v",
+     "is": "the variable",
+     "pick": "from the bank, with its kind (discrete or continuous) and why"
+    },
+    {
+     "name": "vals",
+     "is": "recorded values for the table",
+     "pick": "5 to 7 values in the variable's own steps: halves, cents, whole units"
+    },
+    {
+     "name": "four",
+     "is": "four variables to choose between",
+     "pick": "one of the asked kind and three of the other, one of them a trap"
+    }
+   ],
+   "clean": [
+    "each variable's kind is settled by whether it is counted or measured, never by how it is written",
+    "a table's values are all different and in the variable's own steps"
+   ]
+  },
+  "study": {
+   "name": "A study: who it is about, who was asked, and how they were chosen",
+   "summary": "A surveyor wants to learn something about all the people in a place and asks some of them, chosen by a numbered draw, by standing at one spot, by a notice answered by volunteers, or by drawing from one group only. The population, the sample and whether the sample is random follow from the story.",
+   "quantities": [
+    {
+     "name": "N",
+     "is": "the population size",
+     "pick": "Paper 1: 120 to 600; Paper 2: 600 to 2400"
+    },
+    {
+     "name": "n",
+     "is": "the sample size",
+     "pick": "10 to 60, well under N"
+    },
+    {
+     "name": "how",
+     "is": "how the sample was chosen",
+     "pick": "a numbered draw, a spot, volunteers or one group"
+    }
+   ],
+   "clean": [
+    "n is less than a quarter of N",
+    "only a numbered draw from everyone gives a random sample"
+   ]
+  },
+  "stratified-sample": {
+   "name": "A population in groups and a stratified sample from it",
+   "summary": "Three groups of a population and a sample size. Each group's number in the sample is its share of the population times the sample size: whole in some questions, and in others rounded, with the sample still adding to its size. The same numbers run backwards to the sample size, and forwards from percentages.",
+   "quantities": [
+    {
+     "name": "G",
+     "is": "the three group sizes",
+     "pick": "different whole numbers; Paper 1 to 400, Paper 2 to 3000"
+    },
+    {
+     "name": "N",
+     "is": "the population",
+     "pick": "the groups added"
+    },
+    {
+     "name": "n",
+     "is": "the sample size",
+     "pick": "Paper 1: 10 to 60; Paper 2: 40 to 150"
+    },
+    {
+     "name": "q",
+     "is": "each group's number in the sample",
+     "pick": "G × n ÷ N, whole or rounded to the nearest whole number"
+    }
+   ],
+   "clean": [
+    "a whole share is whole for every group",
+    "a rounded share is at least 0.1 from a half",
+    "where the last group is asked, the three rounded shares don't add to n"
+   ]
+  },
+  "histogram": {
+   "name": "A frequency table and its equal-width histogram",
+   "summary": "A measured variable (a time, a mass, a length) in 4 to 6 classes of equal width, a ≤ x < b, with their frequencies. The histogram draws one bar per class with no gaps, its height the frequency. A missing frequency, a bar's height, a count over several classes and the class a boundary value goes in are all read from it.",
+   "quantities": [
+    {
+     "name": "w",
+     "is": "the class width",
+     "pick": "5, 10 or 20"
+    },
+    {
+     "name": "lo",
+     "is": "the first class's lower boundary",
+     "pick": "0"
+    },
+    {
+     "name": "f",
+     "is": "the frequencies",
+     "pick": "whole numbers from 2 to 24, adding to the total"
+    }
+   ],
+   "clean": [
+    "frequencies of neighbouring classes differ",
+    "a missing frequency is at least 2"
+   ]
+  },
+  "correlation": {
+   "name": "Paired data and how strongly it is correlated",
+   "summary": "Ten to fourteen points in a story, made strong, moderate or weak, positive or negative, with no correlation, or on a curve with r near 0. Pearson's r is worked out from the points, so the description, the cause question and the matching scatter all follow from the data.",
+   "quantities": [
+    {
+     "name": "x, y",
+     "is": "the points",
+     "pick": "whole numbers, 10 to 14 of them, around a line or a curve"
+    },
+    {
+     "name": "r",
+     "is": "Pearson's r from the points",
+     "pick": "strong 0.85 to 0.98, moderate 0.5 to 0.72, weak 0.2 to 0.4, none below 0.12, in size"
+    }
+   ],
+   "clean": [
+    "r is shown to 2 d.p. and its band is clear of the band edges",
+    "a curve's r is below 0.12 in size"
+   ]
+  },
+  "exact-triangle": {
+   "name": "A triangle whose angle has an exact sine and cosine",
+   "summary": "Two whole sides and the angle between them of 30°, 45°, 60°, 120°, 135° or 150°, or three whole sides. The area ½ab sin C, the third side from the cosine rule, a perpendicular height and the cosine of an angle are then exact: a whole number, a fraction or m√r.",
+   "quantities": [
+    {
+     "name": "a, b",
+     "is": "two sides",
+     "pick": "whole numbers from 2 to 12"
+    },
+    {
+     "name": "C",
+     "is": "the angle between them",
+     "pick": "30°, 45°, 60°, 120°, 135° or 150°"
+    },
+    {
+     "name": "c",
+     "is": "the third side",
+     "pick": "√(a² + b² − 2ab cos C), simplified"
+    }
+   ],
+   "clean": [
+    "an area or a height is a whole number or a whole m times √2 or √3",
+    "a third side found from the cosine rule is m√r with r > 1",
+    "a cosine is a fraction between −1 and 1, not 0"
+   ]
   }
  },
  "types": [
@@ -81879,7 +82031,7 @@
    "topic": 3,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "unit-circle",
    "name": "Exact lengths and areas in triangles",
    "summary": "Use exact values such as sin 60° = √3/2 in the cosine rule or ½ab sin C to give a side or an area as an exact surd.",
@@ -81896,6 +82048,209 @@
     "value",
     "error-spot",
     "order-steps"
+   ],
+   "situation": "exact-triangle",
+   "representations": [
+    {
+     "rep": "diagram",
+     "exam": false,
+     "how": "a labelled triangle drawing, not to scale, with the given sides and angle marked and the asked one shown as ?"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the triangle in words: two sides and the angle between them, or three sides"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "exact-area",
+     "given": [
+      "two sides and the angle between them"
+     ],
+     "asked": "the exact area",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.5.exact-triangle"
+     ]
+    },
+    {
+     "id": "exact-side",
+     "given": [
+      "two sides and the angle between them, 60° or 120°"
+     ],
+     "asked": "the exact third side, as a surd",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.5.exact-triangle"
+     ]
+    },
+    {
+     "id": "exact-cos",
+     "given": [
+      "three sides"
+     ],
+     "asked": "the exact cosine of an angle",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.5.exact-triangle"
+     ]
+    },
+    {
+     "id": "side-from-exact-area",
+     "given": [
+      "the exact area, one side and the angle"
+     ],
+     "asked": "the other side",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.5.exact-triangle"
+     ]
+    },
+    {
+     "id": "exact-height",
+     "given": [
+      "a side and the angle at one end of the base"
+     ],
+     "asked": "the exact perpendicular height",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL3.5.exact-triangle"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.5.exact-triangle",
+     "method": "exact-substitution",
+     "suits": [
+      "exact-area",
+      "exact-side",
+      "exact-cos",
+      "side-from-exact-area",
+      "exact-height"
+     ]
+    },
+    {
+     "skill": "SL3.5.exact-triangle",
+     "method": "drop-perpendicular",
+     "suits": [
+      "exact-area",
+      "exact-side",
+      "exact-height"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "interpret-parameter",
+     "prompt": "Two triangles have sides 6 and 8, one with 60° between them and one with 120°. Why do they have the same area but not the same third side?",
+     "answer": "sin 120° = sin 60°, since 120° mirrors 60° in the y-axis of the unit circle, so ½ab sin C is the same. But cos 120° = −cos 60°, so the cosine rule adds ab for 120° where it takes ab away for 60°.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.5.exact-triangle#0",
+     "text": "Using cos 120° = +½, which gives a side that is too short",
+     "as": "distractor",
+     "in": [
+      "exact-side"
+     ],
+     "wrong": "uses cos 120° = ½ in the cosine rule"
+    },
+    {
+     "ref": "SL3.5.exact-triangle#1",
+     "text": "Splitting a square root over a sum or difference, as if √(p + q) were √p + √q",
+     "as": "error-spot",
+     "in": [
+      "exact-side"
+     ],
+     "wrong": "a line of working takes the square root of each term of c² separately"
+    },
+    {
+     "ref": "SL3.5.exact-triangle#2",
+     "text": "Giving a decimal when an exact surd is required",
+     "as": "error-spot",
+     "in": [
+      "exact-area"
+     ],
+     "wrong": "a line of working ends with the area as a decimal"
+    },
+    {
+     "text": "Using cos C in place of sin C in ½ab sin C",
+     "as": "distractor",
+     "in": [
+      "exact-area"
+     ],
+     "wrong": "½ab cos C"
+    },
+    {
+     "text": "Leaving out the ½ in ½ab sin C",
+     "as": "distractor",
+     "in": [
+      "exact-area",
+      "side-from-exact-area"
+     ],
+     "wrong": "ab sin C as the area"
+    },
+    {
+     "text": "Leaving out the 2 in 2ab cos C",
+     "as": "distractor",
+     "in": [
+      "exact-side",
+      "exact-cos"
+     ],
+     "wrong": "the cosine rule with ab cos C"
+    },
+    {
+     "text": "Using a side next to the angle where the side opposite it belongs",
+     "as": "distractor",
+     "in": [
+      "exact-cos"
+     ],
+     "wrong": "the cosine of another angle of the triangle"
+    },
+    {
+     "text": "Using cos A in place of sin A for the height opposite the angle",
+     "as": "distractor",
+     "in": [
+      "exact-height"
+     ],
+     "wrong": "the side times cos A"
+    },
+    {
+     "text": "Writing the cosine rule's top line the wrong way round, c² − a² − b²",
+     "as": "distractor",
+     "in": [
+      "exact-cos"
+     ],
+     "wrong": "the cosine with its sign flipped"
+    }
    ]
   },
   {
@@ -81903,7 +82258,7 @@
    "topic": 4,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "sampling-data",
    "name": "Population, sample and randomness",
    "summary": "Name the population and the sample in a study, and decide with a reason whether the sample is random.",
@@ -81918,6 +82273,134 @@
    "formats": [
     "mcq",
     "true-false-reason"
+   ],
+   "situation": "study",
+   "representations": [
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a study in a sentence or two: what is wanted, about whom, and how the people asked were chosen"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "name-population",
+     "given": [
+      "a study"
+     ],
+     "asked": "the population",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.1.population-sample"
+     ]
+    },
+    {
+     "id": "name-sample",
+     "given": [
+      "a study"
+     ],
+     "asked": "the sample",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.1.population-sample"
+     ]
+    },
+    {
+     "id": "is-random",
+     "given": [
+      "a study and how its sample was chosen"
+     ],
+     "asked": "whether the sample is random, with the reason",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.1.population-sample"
+     ]
+    },
+    {
+     "id": "make-random",
+     "given": [
+      "a study whose sample is not random"
+     ],
+     "asked": "the change that makes it a random sample",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.1.population-sample"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.1.population-sample",
+     "method": "definition-check",
+     "suits": [
+      "name-population",
+      "name-sample",
+      "is-random",
+      "make-random"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A sample of 500 people who walk past a market stall is random, because 500 is a lot of people. True or false?",
+     "answer": "False. Only people who walk past could be chosen, so not everyone had an equal chance; a larger sample doesn't change that.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.1.population-sample#0",
+     "text": "Taking the people who answered the survey as the population (they are the sample)",
+     "as": "distractor",
+     "in": [
+      "name-population"
+     ],
+     "wrong": "gives the people asked as the population"
+    },
+    {
+     "ref": "SL4.1.population-sample#1",
+     "text": "Calling a sample of whoever walks past random (it is a convenience sample: not everyone has an equal chance)",
+     "as": "distractor",
+     "in": [
+      "is-random",
+      "make-random"
+     ],
+     "wrong": "calls a sample of whoever comes by random"
+    },
+    {
+     "text": "Taking the whole population as the sample, when the sample is only the part measured",
+     "as": "distractor",
+     "in": [
+      "name-sample"
+     ],
+     "wrong": "gives everyone the study is about as the sample"
+    },
+    {
+     "text": "Assuming a larger sample makes a method random that leaves people out",
+     "as": "distractor",
+     "in": [
+      "is-random",
+      "make-random"
+     ],
+     "wrong": "keeps the method and asks more people"
+    }
    ]
   },
   {
@@ -81925,7 +82408,7 @@
    "topic": 4,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "sampling-data",
    "name": "Discrete or continuous",
    "summary": "Classify a variable as discrete or continuous.",
@@ -81941,6 +82424,168 @@
     "mcq",
     "match",
     "true-false-reason"
+   ],
+   "situation": "variable-kind",
+   "representations": [
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the variable named in a sentence about a study"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "a few recorded values of the variable, as a study writes them down"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "classify-variable",
+     "given": [
+      "a variable from a study"
+     ],
+     "asked": "discrete or continuous, with the reason",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.1.data-type"
+     ]
+    },
+    {
+     "id": "decimal-but-discrete",
+     "given": [
+      "a counted or stepped variable whose values have decimals"
+     ],
+     "asked": "discrete or continuous, with the reason",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL4.1.data-type"
+     ]
+    },
+    {
+     "id": "rounded-but-continuous",
+     "given": [
+      "a measured variable recorded to the nearest whole unit"
+     ],
+     "asked": "discrete or continuous, with the reason",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL4.1.data-type"
+     ]
+    },
+    {
+     "id": "which-continuous",
+     "given": [
+      "four variables"
+     ],
+     "asked": "the one that is continuous",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.1.data-type"
+     ]
+    },
+    {
+     "id": "which-discrete",
+     "given": [
+      "four variables"
+     ],
+     "asked": "the one that is discrete",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.1.data-type"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.1.data-type",
+     "method": "counted-or-measured",
+     "suits": [
+      "classify-variable",
+      "decimal-but-discrete",
+      "rounded-but-continuous",
+      "which-continuous",
+      "which-discrete"
+     ]
+    },
+    {
+     "skill": "SL4.1.data-type",
+     "method": "in-between-test",
+     "suits": [
+      "classify-variable",
+      "decimal-but-discrete",
+      "rounded-but-continuous",
+      "which-continuous",
+      "which-discrete"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Age given in whole years is discrete data, because it is written as a whole number. True or false?",
+     "answer": "False. Age is measured on a continuous scale: rounding it to whole years changes how it is written, not what it is.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.1.data-type#0",
+     "text": "Assuming any data with decimals is continuous (money in cents and half shoe sizes are discrete)",
+     "as": "distractor",
+     "in": [
+      "decimal-but-discrete",
+      "which-continuous"
+     ],
+     "wrong": "calls a variable continuous because its values have decimals"
+    },
+    {
+     "ref": "SL4.1.data-type#1",
+     "text": "Assuming data recorded to the nearest whole number must be discrete (height to the nearest cm is still continuous)",
+     "as": "distractor",
+     "in": [
+      "rounded-but-continuous",
+      "which-discrete"
+     ],
+     "wrong": "calls a measurement discrete because it is recorded in whole units"
+    },
+    {
+     "text": "Calling a counted variable continuous because its mean can be a decimal",
+     "as": "distractor",
+     "in": [
+      "classify-variable"
+     ],
+     "wrong": "a count called continuous because an average of it need not be whole"
+    },
+    {
+     "text": "Calling a measured variable discrete because only a few values were recorded",
+     "as": "distractor",
+     "in": [
+      "classify-variable"
+     ],
+     "wrong": "a measurement called discrete because the study wrote down separate values"
+    }
    ]
   },
   {
@@ -81948,7 +82593,7 @@
    "topic": 4,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "sampling-data",
    "name": "Numbers in a stratified sample",
    "summary": "Find how many to select from each group in a stratified sample, as the group's share of the population times the sample size.",
@@ -81964,6 +82609,192 @@
     "value",
     "mcq",
     "error-spot"
+   ],
+   "situation": "stratified-sample",
+   "representations": [
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the groups and their sizes in a sentence"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "a table of the groups and their sizes, with the sample column to fill in"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "stratum-count",
+     "given": [
+      "the group sizes",
+      "the sample size"
+     ],
+     "asked": "the number from one group, whole",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL4.1.stratified-numbers"
+     ]
+    },
+    {
+     "id": "stratum-count-rounded",
+     "given": [
+      "the group sizes",
+      "the sample size"
+     ],
+     "asked": "the number from one group, rounded to the nearest whole number",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL4.1.stratified-numbers"
+     ]
+    },
+    {
+     "id": "last-stratum",
+     "given": [
+      "the group sizes",
+      "the sample size",
+      "the rounded numbers from two groups"
+     ],
+     "asked": "the number from the third group so the sample has its size",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.1.stratified-numbers"
+     ]
+    },
+    {
+     "id": "sample-size-from-stratum",
+     "given": [
+      "the group sizes",
+      "one group's number in the sample"
+     ],
+     "asked": "the sample size",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL4.1.stratified-numbers"
+     ]
+    },
+    {
+     "id": "stratum-from-percent",
+     "given": [
+      "each group as a percentage of the population",
+      "the sample size"
+     ],
+     "asked": "the number from one group",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.1.stratified-numbers"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.1.stratified-numbers",
+     "method": "proportion-formula",
+     "suits": [
+      "stratum-count",
+      "stratum-count-rounded",
+      "sample-size-from-stratum",
+      "stratum-from-percent"
+     ]
+    },
+    {
+     "skill": "SL4.1.stratified-numbers",
+     "method": "scale-factor",
+     "suits": [
+      "stratum-count",
+      "stratum-count-rounded",
+      "last-stratum",
+      "sample-size-from-stratum",
+      "stratum-from-percent"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "predict-check",
+     "prompt": "Every group doubles in size and the sample size stays the same. Predict how many come from each group, then check.",
+     "answer": "The same numbers as before: each group's share of the population is unchanged, so each share of the sample is too.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.1.stratified-numbers#0",
+     "text": "Splitting the sample equally between the strata instead of in proportion to their sizes",
+     "as": "distractor",
+     "in": [
+      "stratum-count",
+      "stratum-count-rounded",
+      "sample-size-from-stratum",
+      "stratum-from-percent"
+     ],
+     "wrong": "the sample split equally between the groups, or the sample size as the group's number times the number of groups"
+    },
+    {
+     "ref": "SL4.1.stratified-numbers#1",
+     "text": "Rounding each stratum so the numbers no longer add up to the required sample size",
+     "as": "distractor",
+     "in": [
+      "last-stratum"
+     ],
+     "wrong": "the third group's own rounded share, so the three numbers add to one more or one less than the sample"
+    },
+    {
+     "text": "Rounding a share down when it is nearer the next whole number",
+     "as": "distractor",
+     "in": [
+      "stratum-count-rounded"
+     ],
+     "wrong": "the share with its decimal part cut off"
+    },
+    {
+     "text": "Taking the group's percentage as its number in the sample",
+     "as": "distractor",
+     "in": [
+      "stratum-from-percent"
+     ],
+     "wrong": "the percentage itself"
+    },
+    {
+     "text": "Splitting the sample equally between the groups in a line of working",
+     "as": "error-spot",
+     "in": [
+      "stratum-count",
+      "stratum-count-rounded"
+     ],
+     "wrong": "a line of working gives each group the sample size divided by the number of groups"
+    },
+    {
+     "text": "Dividing by the sample size where the population belongs in the group's share",
+     "as": "error-spot",
+     "in": [
+      "stratum-count"
+     ],
+     "wrong": "a line of working writes the group's share as its size over the sample size"
+    }
    ]
   },
   {
@@ -81971,7 +82802,7 @@
    "topic": 4,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "sampling-data",
    "name": "Frequency tables and histograms",
    "summary": "Read and complete a frequency table and an equal-width histogram: a missing frequency, a bar height, or how many values fall in a range.",
@@ -81988,6 +82819,213 @@
     "mcq",
     "match",
     "graph-pick"
+   ],
+   "situation": "histogram",
+   "representations": [
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "the frequency table, classes a ≤ x < b with their frequencies"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the histogram: bars with no gaps on a frequency axis, the class boundaries marked"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "missing-frequency",
+     "given": [
+      "the frequencies of all but one class",
+      "the total"
+     ],
+     "asked": "the missing frequency",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.frequency-histogram"
+     ]
+    },
+    {
+     "id": "bar-height",
+     "given": [
+      "a frequency table"
+     ],
+     "asked": "the height of one bar of its histogram",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.frequency-histogram"
+     ]
+    },
+    {
+     "id": "count-in-range",
+     "given": [
+      "a histogram"
+     ],
+     "asked": "how many values lie between two class boundaries",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.frequency-histogram"
+     ]
+    },
+    {
+     "id": "count-at-least",
+     "given": [
+      "a histogram or a frequency table"
+     ],
+     "asked": "how many values are at least a class boundary",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph",
+      "table"
+     ],
+     "skills": [
+      "SL4.2.frequency-histogram"
+     ]
+    },
+    {
+     "id": "class-of-value",
+     "given": [
+      "a frequency table",
+      "a value on a class boundary"
+     ],
+     "asked": "the class the value goes in",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.frequency-histogram"
+     ]
+    },
+    {
+     "id": "total-frequency",
+     "given": [
+      "a histogram"
+     ],
+     "asked": "how many values it shows",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.frequency-histogram"
+     ]
+    },
+    {
+     "id": "pick-histogram",
+     "given": [
+      "a frequency table"
+     ],
+     "asked": "the histogram that shows it",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.frequency-histogram"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.2.frequency-histogram",
+     "method": "read-bars",
+     "suits": [
+      "bar-height",
+      "count-in-range",
+      "count-at-least",
+      "total-frequency",
+      "pick-histogram"
+     ]
+    },
+    {
+     "skill": "SL4.2.frequency-histogram",
+     "method": "total-minus-known",
+     "suits": [
+      "missing-frequency",
+      "count-at-least"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "In a histogram whose classes all have the same width, the tallest bar is the modal class. True or false?",
+     "answer": "True. With equal widths each bar's height is its frequency, so the tallest bar holds the most values.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.2.frequency-histogram#0",
+     "text": "Putting a value that lies on a class boundary into the class that ends there",
+     "as": "distractor",
+     "in": [
+      "count-at-least",
+      "count-in-range",
+      "class-of-value"
+     ],
+     "wrong": "counts a value on a boundary in the class that ends there"
+    },
+    {
+     "ref": "SL4.2.frequency-histogram#1",
+     "text": "Leaving gaps between bars, as in a bar chart, for continuous data",
+     "as": "distractor",
+     "in": [
+      "pick-histogram"
+     ],
+     "wrong": "a histogram drawn with gaps between its bars"
+    },
+    {
+     "text": "Dividing a frequency by the class width, which an equal-width histogram doesn't need",
+     "as": "distractor",
+     "in": [
+      "bar-height"
+     ],
+     "wrong": "the frequency divided by the class width"
+    },
+    {
+     "text": "Using the running total up to a class as its frequency",
+     "as": "distractor",
+     "in": [
+      "bar-height"
+     ],
+     "wrong": "the cumulative frequency up to the end of the class"
+    },
+    {
+     "text": "Adding the known frequencies instead of taking them from the total",
+     "as": "distractor",
+     "in": [
+      "missing-frequency"
+     ],
+     "wrong": "the known frequencies added"
+    },
+    {
+     "text": "Counting the bars instead of adding their heights",
+     "as": "distractor",
+     "in": [
+      "total-frequency"
+     ],
+     "wrong": "the number of classes"
+    }
    ]
   },
   {
@@ -81995,7 +83033,7 @@
    "topic": 4,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "regression",
    "name": "Describe correlation",
    "summary": "Describe the correlation in a scatter diagram or from a value of r (direction and strength), and say why correlation does not show cause.",
@@ -82012,6 +83050,182 @@
     "match",
     "graph-pick",
     "true-false-reason"
+   ],
+   "situation": "correlation",
+   "representations": [
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "a scatter diagram of the points, with r given where the question needs it"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the two variables in a story and the value of r"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "describe-scatter",
+     "given": [
+      "a scatter diagram"
+     ],
+     "asked": "the correlation it shows, in words",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.4.describe-correlation"
+     ]
+    },
+    {
+     "id": "describe-r",
+     "given": [
+      "a value of r in a story"
+     ],
+     "asked": "the correlation it shows, in words",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.4.describe-correlation"
+     ]
+    },
+    {
+     "id": "causation",
+     "given": [
+      "two variables with strong correlation"
+     ],
+     "asked": "whether one causes the other, with the reason",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL4.4.describe-correlation"
+     ]
+    },
+    {
+     "id": "no-linear",
+     "given": [
+      "a scatter diagram on a curve, with r near 0"
+     ],
+     "asked": "what r near 0 does and doesn't say",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.4.describe-correlation"
+     ]
+    },
+    {
+     "id": "match-r",
+     "given": [
+      "a value of r"
+     ],
+     "asked": "the scatter diagram it belongs to",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.4.describe-correlation"
+     ]
+    },
+    {
+     "id": "strongest-r",
+     "given": [
+      "four values of r"
+     ],
+     "asked": "the one with the strongest correlation",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.4.describe-correlation"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.4.describe-correlation",
+     "method": "read-scatter",
+     "suits": [
+      "describe-scatter",
+      "no-linear",
+      "match-r"
+     ]
+    },
+    {
+     "skill": "SL4.4.describe-correlation",
+     "method": "read-r",
+     "suits": [
+      "describe-r",
+      "causation",
+      "no-linear",
+      "match-r",
+      "strongest-r"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "r = −0.95 shows a weaker correlation than r = 0.6, because −0.95 is the smaller number. True or false?",
+     "answer": "False. The size of r gives the strength and its sign the direction: |−0.95| = 0.95 is closer to 1 than 0.6.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.4.describe-correlation#0",
+     "text": "Reading a negative r as weak correlation, when its sign gives only the direction",
+     "as": "distractor",
+     "in": [
+      "describe-scatter",
+      "describe-r",
+      "match-r",
+      "strongest-r"
+     ],
+     "wrong": "a strong negative correlation called weak, or a weaker positive r taken as stronger"
+    },
+    {
+     "ref": "SL4.4.describe-correlation#1",
+     "text": "Assuming strong correlation proves that one variable causes the other",
+     "as": "distractor",
+     "in": [
+      "causation"
+     ],
+     "wrong": "says the strong correlation shows that one variable causes the other"
+    },
+    {
+     "ref": "SL4.4.describe-correlation#2",
+     "text": "Assuming r near 0 means no relationship at all (there may be a non-linear one)",
+     "as": "distractor",
+     "in": [
+      "no-linear"
+     ],
+     "wrong": "says r near 0 means the variables aren't related at all"
+    },
+    {
+     "text": "Calling any positive r strong, whatever its size",
+     "as": "distractor",
+     "in": [
+      "describe-r"
+     ],
+     "wrong": "a weak or moderate positive r called strong"
+    }
    ]
   },
   {
