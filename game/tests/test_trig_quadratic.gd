@@ -1,6 +1,6 @@
 extends "res://tests/test_case.gd"
 ## The `trig-quadratic` situation (FAL-753): t3-trig-quadratic is built with every cell and all three
-## methods, every cell makes four options with one right on its one paper, values match sums done by
+## methods, every cell makes four options with one right on a paper it can make, values match sums done by
 ## hand, a root out of range gives no solutions, a figure is the equation it says, and every tag
 ## shows up as an option. The SymPy checker (tools/check-answers) checks the maths.
 
@@ -35,7 +35,8 @@ func test_every_cell_makes_a_question_in_both_formats() -> void:
 	for c in QuestionEngine.cells(false, [TYPE]):
 		check(QuestionEngine.extra_formats(TYPE, c.unknown, c.angle).is_empty(), c.key + " offers an extra format")
 		var want: int = 2 if c.unknown in TrigQuadraticViews.P2 else 1
-		check_eq(QuestionEngine.cell_papers(t, c.unknown, c.rep, c.angle), [want], c.key)
+		var papers: Array = [1, 2] if c.unknown in TrigQuadraticViews.EITHER else [want]
+		check_eq(QuestionEngine.cell_papers(t, c.unknown, c.rep, c.angle), papers, c.key)
 		for f in ["value", "mcq"]:
 			for seed in [1, 2, 3]:
 				var q := _make(c, seed, f)
@@ -43,7 +44,7 @@ func test_every_cell_makes_a_question_in_both_formats() -> void:
 				if q.has("error"):
 					break
 				check_eq(q.situation_id, "trig-quadratic", c.key)
-				check_eq(q.paper, want, c.key)
+				check(q.paper in papers, "%s is Paper %d" % [c.key, q.paper])
 				check_eq(q.choices.size(), 4, c.key)
 				check_eq(q.choices.filter(func(o): return o.correct).size(), 1, c.key)
 				check_eq(q.solutions[0].angle, c.angle, c.key)

@@ -5,7 +5,7 @@ extends "res://tests/test_case.gd"
 ## pieces match hand values. The SymPy checker (tools/check-answers) checks the maths.
 
 const TYPE := "t5-area-between-curves"
-const CELLS := 50
+const CELLS := 54
 const REF := "SL5.11.area-between-curves#"
 
 

@@ -12551,6 +12551,36 @@ def check_monotonic(q):
         need(sp.Poly(f, CX).LC() > 0, "g′ opens down, so g can't increase everywhere")
         want = f"d ≤ {dm_num(k)}"
         wrongs = {MO_P + "1": {f"d > {dm_num(k)}"}}
+    elif u == "quotient-sign":
+        m = re.fullmatch(r"f\(x\) = \((.+)\)/\((.+)\), for x ≠ (.+)", L[0])
+        need(m is not None and len(L) == 1, f"can't read {L}")
+        top, bot = calc_expr(m.group(1)), calc_expr(m.group(2))
+        need(sp.degree(top, CX) == 1 and sp.degree(bot, CX) == 1, "not a linear quotient")
+        gap = sp.solve(bot, CX)[0]
+        need(R(m.group(3).replace("−", "-")) == gap, f"the domain leaves out {m.group(3)}, not {gap}")
+        df = sp.factor(sp.diff(top / bot, CX))
+        n = sp.simplify(df * bot ** 2)
+        need(n.is_number and n != 0, f"f′ is not a number over the square: {df}")
+        sq = f"({m.group(2)})²"
+        ex = f"x ≠ {dm_num(gap)}"
+
+        def say(v, square, where):
+            pos = v > 0
+            return (f"f′(x) = {frac_text(v)}/{sq}: the top is {'positive' if pos else 'negative'} and {sq} > 0 for {square}, "
+                    f"so f′(x) {'>' if pos else '<'} 0 for all {where}, and f is {'increasing' if pos else 'decreasing'}")
+        want = say(n, ex, ex)
+        f0, f1 = df.subs(CX, 0), df.subs(CX, 1)
+        sign = "positive" if n > 0 else "negative"
+        pts = (f"f′(0) = {frac_text(f0)} and f′(1) = {frac_text(f1)} are both {sign}, so f′(x) {'>' if n > 0 else '<'} 0 "
+               f"for all {ex}, and f is {'increasing' if n > 0 else 'decreasing'}")
+        # u v′ − v u′ on the top: the same square, the opposite sign.
+        rev = sp.simplify((top * sp.diff(bot, CX) - bot * sp.diff(top, CX)))
+        wrongs = {"SL5.2.show-always-increasing#0": {pts}, "SL5.2.show-always-increasing#2": {say(n, "all x", "x")},
+                  "SL5.6.quotient-rule#0": {say(rev, ex, ex)}}
+        for sol in q["solutions"]:
+            for st in sol["steps"]:
+                for mm in re.finditer(r"so f′\(x\) = (−?\d+)/", st):
+                    need(R(mm.group(1).replace("−", "-")) == n, f"{st!r}: the top of f′ is {n}")
     gc_check_common(q, want, wrongs)
     return None, None
 
@@ -33479,6 +33509,24 @@ def e9area_integrals(text, sub):
     return total
 
 
+def e9area_each_curve(q, top, bot, a, b, value=in_expr):
+    """Difference of areas: each curve's own integral, worked out here, and the upper curve's is first."""
+    for sol in q["solutions"]:
+        if sol["angle"] != "difference-of-areas":
+            continue
+        got = []
+        for st in sol["steps"]:
+            m = re.fullmatch(r"For the (upper|lower) curve, ∫ from (.+?) to (.+?) of (.+) dx = (.+)\.", st)
+            if m:
+                lo, hi = (sp.Rational(t.replace("−", "-")) for t in m.group(2, 3))
+                h = in_expr(m.group(4))
+                need(sp.simplify(h - (top if m.group(1) == "upper" else bot)) == 0, f"{st!r}: not the {m.group(1)} curve")
+                need((lo, hi) == (a, b), f"{st!r}: not from {a} to {b}")
+                need(di_same(value(m.group(5)), sp.integrate(h, (CX, a, b))), f"{st!r}: the integral is wrong")
+                got.append(m.group(1))
+        need(got == ["upper", "lower"], f"difference of areas: {got}")
+
+
 def e9area_gdc_pair(q):
     """Two curves on a domain: every crossing, found here."""
     L = q["lines"]
@@ -33562,6 +33610,7 @@ def check_area_between(q):
         side = abs(e9area_size(top, bot, rb[0], rb[1]))
         e9area_figure(q, top, bot, [(p, r2)])
         e9area_opts(q, e9area_a(v), {AB + "0": {e9area_a(-v)}, AB + "1": {e9area_a(side)}, AB + "5": {e9area_a(sp.integrate(sp.expand(slip), (x, p, r2)))}})
+        e9area_each_curve(q, top, bot, p, r2)
         return None, None
 
     if u in ("area-split-cubic", "area-split-bounded") or (u == "split-expression" and paper == 1):
@@ -33655,6 +33704,7 @@ def check_area_between(q):
             e9area_figure(q, f, g, [(a, b)])
         calc_options(q)
         calc_steps(q)
+        e9area_each_curve(q, f, g, a, b, di_exact_value)
         return None, None
 
     if u == "find-shift":
@@ -36911,6 +36961,9 @@ E11TQ_CANCEL = "SL3.8.factorise-not-divide#0"
 E11TQ_PART, E11TQ_DEG, E11TQ_TWICE = "SL3.8.graphical#0", "SL3.8.graphical#2", "SL3.8.graphical#4"
 E11TQ_LIST = ("all-solutions", "all-solutions-degrees", "double-angle-solve", "surd-coefficient")
 E11TQ_GDC = ("gdc-solve", "gdc-count")
+# A list of exact solutions can be on either paper (FAL-956): the working is the same.
+E11TQ_EITHER = ("all-solutions", "all-solutions-degrees", "double-angle-solve", "plus-minus-root", "tan-squared", "tan-zero-root",
+                "surd-coefficient", "compound-quadratic", "rational-disguise", "double-factor")
 
 
 def E11TQ_expr(text):
@@ -37328,7 +37381,7 @@ def E11TQ_gdc_solve(q, g, E, rep):
 
 def E11TQ_check(q):
     g, u, rep, L = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
-    need(q["paper"] == (2 if u in E11TQ_GDC else 1), f"paper {q['paper']} for {u}")
+    need(q["paper"] in ((1, 2) if u in E11TQ_EITHER else (2,) if u in E11TQ_GDC else (1,)), f"paper {q['paper']} for {u}")
     tr_hyphens(q)
     if u == "constant-from-solution":
         E11TQ_constant(q, g)
