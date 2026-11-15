@@ -448,6 +448,7 @@ func test_a_version_2_save_gets_a_dungeon_record() -> void:
 
 # ── The all-regions dungeon ──────────────────────────────────
 
+## ALL is the Functions island's; the other islands have their own (FAL-925, below).
 func test_the_all_regions_dungeon_mixes_every_built_region() -> void:
 	var all := Dungeon.region_types(Dungeon.ALL)
 	var regions := {}
@@ -455,8 +456,8 @@ func test_the_all_regions_dungeon_mixes_every_built_region() -> void:
 		var reg = QuestionEngine.type_of(id).get("region")
 		check(reg != null, "%s is on the island" % id)
 		regions[reg] = true
-	for r in QuestionEngine.catalogue().regions:
-		for id in Dungeon.region_types(r.id):
+	for r in MapLink.region_ids("functions"):
+		for id in Dungeon.region_types(r):
 			check(all.has(id), "%s is in the all-regions dungeon" % id)
 	check(not all.has("t1-arithmetic-sequence"), "other topics stay out")
 	var run := _run(5, 1, {}, Dungeon.ALL)
