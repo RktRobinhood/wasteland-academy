@@ -2,7 +2,7 @@
 
 One block per speaking character, in the `game-dialogue` §1 format. Write every line against these. If a line could belong to two characters, fix it before it ships.
 
-Sources: `SPEC.md` §10 and §13, `assets/style-guide/README.md`, and the roster sheet `style-06-characters-dialogue-quests.png` (traits, taglines, quest cards, expressions). Where those disagree, the conflict is listed at the end and raised on FAL-332.
+Sources: `SPEC.md` §10 and §13, the character plan on FAL-939, `assets/style-guide/README.md`, and the roster sheet `style-06-characters-dialogue-quests.png` (traits, taglines, quest cards, expressions). Where those disagree, the conflict is listed at the end and raised on FAL-332.
 
 ## Rules for every character
 
@@ -55,6 +55,48 @@ Decided on FAL-332, 2026-10-29: the player picks Tilly Redback, Banjo Brumby or 
 - Checked 2026-10-29: every Learner line on this sheet (the table, the samples and the cover-the-name line) holds for a SPARK player. None needed a fix.
 
 **Hints in a SPARK run (provisional canon, 2026-10-29).** Matt hasn't said who gives hints when the player is SPARK. Until the board rules, hints, corrections and worked solutions stay in Spark's voice, with the same text in every run, so there's only one set of lines to write. In a SPARK run they read as Spark talking to the student who's steering it: "we" is Spark and that student, and "you" still gets the credit. A Spark line that needs the player to be a second body beside Spark ("climb on my treads") breaks in a SPARK run, so don't write one.
+
+---
+
+## Nugget Bullant (the cyber-dog)
+
+Canon: the third pick, class Tinker (SPEC §10, plan on FAL-939). A blue heeler that Spark rebuilt, with scrap struts in one back leg, a small blue eye light that matches Spark's, and a voice implant at the throat. Spark's blue eye at the centre of the Tinker badge is that eye light. Art brief: `ART_REQUIREMENTS.md`, Avatar 3.
+
+**Name and breed.** A blue heeler (Australian cattle dog): blue-grey mottled coat, tan legs, a dark patch over one eye. "Nugget" was stamped on the tag Spark found on it. The bazaar added "Bullant", after the ant that stings well above its size, because Nugget nips the heels of anything that wanders off, Spark included. Like Redback and Brumby, the surname is a tough local animal. The heeler won over the kelpie because the blue coat goes with Spark's blue eye, and because heelers pick one person and stick to them, which is how Nugget treats Spark.
+
+**Pronouns.** The player is Nugget when they pick it, so the Learner rule holds: no line calls Nugget "he" or "she". Lines that address the player still use `{callsign}`. Spark and the NPCs say "Nugget" or "the dog" when they talk about the rebuild.
+
+**How it talks.** Spark built the implant from a CB radio speaker, the voice chip of a dead talking calculator and a lot of wire. The chip only holds what Spark could load into it: a few hundred everyday words, plus a soggy mark scheme pulled out of a dust drift. So Nugget's speech is short and plain, and now and then a stiff exam word comes out where a dog word should be ("Hence: dinner."). The voice arrives a beat after the thought, flat, from a small speaker. When Nugget is excited the words queue up and rush out together. When the bank has no word for something, the implant beeps once and Nugget uses the nearest word it has.
+
+*Up* is a reference only. Its dog talks through a collar that translates whatever it thinks; Nugget has an implant in the throat and picks words from a small bank. Nugget also locks on to a job and stays on it, so there is no running gag about getting distracted or loving everyone on sight.
+
+**Spark and Nugget.** Spark found Nugget half-buried in a drift, one back leg and the bark gone, and rebuilt both from the scrap pile. The eye light was Spark's spare. Nugget decided on the spot that Spark is the boss and has herded it ever since: a nip at the treads when Spark rolls too far ahead, a body block when Spark gets near an edge. Spark complains about this most days and has never asked Nugget to stop. It calls Nugget "my best repair" when it thinks Nugget can't hear, and Nugget always hears. Nugget calls Spark "Sparky", the Australian word for an electrician, and Spark has given up correcting it. Spark still gives every hint, and its sarcasm still lands on the maths, never on the dog.
+
+**Wants:** a job every run, and someone to do it for. Would never admit: it doesn't remember whose whistle it used to come to, and its ears still go up at any whistle.
+
+**Vocabulary:** stock work and the senses: trail, scent, track, mob, gate, paddock, heel, round up, stay. A question is a mob to round up; a mistake is a lost trail. The word bank adds a few exam words (hence, show that, given, otherwise), and the maths words come out exact because Spark loaded them first.
+
+**Rhythm:** the shortest lines in the cast. Two to five words, then a full stop. Nouns and verbs, few articles, present tense. Asks with one word ("Here?"). Says the key word twice when it's sure ("Gate. Gate's open.").
+
+**Tic and avoidance:** reaches for the dog word, stops, and fixes it out loud: "Sniff the... solve the bracket." The slip stays in the line, then the fix, which is the Tinker idea in one habit. Never says "bad". The word is in the bank and Nugget won't use it. A miss is "lost the trail" or "off the scent".
+
+**Dialogue options:** as for the Learner, under about eight words, and every set has one that asks Sparky for help without shame. Nugget isn't a class trope. The Tinker branches carry the tropes (FAL-345), and any character can take any branch.
+
+**Praise and correction** (how Nugget reacts to its own answer):
+
+| Got it | Not yet |
+|---|---|
+| "Both roots. Rounded up." | "Lost the trail. Back to the gate." |
+| "Hence: done." | "Off the scent. Again." |
+| "Good. Good. Next mob." | "Wrong paddock. Sniff the... read the question." |
+| "Knew that track." | "Sparky. Where'd I lose it?" |
+| "Smelled that one coming." | "Slower. Nose down. Again." |
+
+**Samples:**
+
+- Eager, starting a run: "Gate's open. Hence: go. Sparky, keep up."
+- Before a boss: "Big mob. Stay low. Heels first, Sparky."
+- Stuck, asking for help: "Lost it. Sparky. First track only."
 
 ---
 
@@ -187,11 +229,12 @@ The same idea, "you made a ratio mistake", in each voice:
 - Gear Mira: "You doubled the fuel and left the oil alone. Read me the ratio again."
 - Dax: "Double the cargo and you pay for one crate, {callsign}? Nobody sells like that. Scale both."
 - Noma: "You walked twice as far east and the same distance north. That's a different place."
+- Nugget: "Pushed one side of the mob. Both sides. Same push."
 
 ## Where canon disagrees (raised on FAL-332)
 
 1. **Learner's gender.** *Decided 2026-10-29* (board, FAL-332 card e328c985): V1 ships three avatars, Tilly Redback (the female Learner), Banjo Brumby (the male Learner) and SPARK. Tilly and Banjo share the Learner's voice. The style guide README's "a resourceful female scavenger" and the roster sheet's single young woman both predate the decision.
-2. **Spark as avatar and companion.** *Decided 2026-10-29*, same card: SPARK is a playable, gender-neutral avatar. The card didn't say who gives hints in a SPARK run. The provisional answer is under "SPARK as the player's avatar" in the Learner block, and the board can overrule it.
+2. **Spark as avatar and companion.** Settled on FAL-939 (Matt, 2026-11-15). SPARK is no longer a pick; it is always the companion, for every character. The third pick is the cyber-dog, Nugget Bullant (above), and Spark is its companion too.
 3. **Spark's sarcasm.** SPEC §10 says "slightly sarcastic". The roster sheet's Spark tone line ("Math isn't just in books. It's in the world around us!") has none. The sheet follows SPEC, because SPEC sets Spark's tone; the roster line is treated as poster copy.
 4. **Voice versus scope.** SPEC §14 still puts "Sound / music" out of scope for V1. ROADMAP.md (L3, December) plans local narration with subtitles for the Relic lessons, and FAL-330 is already making voice auditions. ROADMAP is the newer plan, so the briefs assume voiced lines. SPEC §14 should be updated to match.
 
