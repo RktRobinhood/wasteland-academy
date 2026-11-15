@@ -35630,6 +35630,9 @@ E11TQ_CANCEL = "SL3.8.factorise-not-divide#0"
 E11TQ_PART, E11TQ_DEG, E11TQ_TWICE = "SL3.8.graphical#0", "SL3.8.graphical#2", "SL3.8.graphical#4"
 E11TQ_LIST = ("all-solutions", "all-solutions-degrees", "double-angle-solve", "surd-coefficient")
 E11TQ_GDC = ("gdc-solve", "gdc-count")
+# A list of exact solutions can be on either paper (FAL-956): the working is the same.
+E11TQ_EITHER = ("all-solutions", "all-solutions-degrees", "double-angle-solve", "plus-minus-root", "tan-squared", "tan-zero-root",
+                "surd-coefficient", "compound-quadratic", "rational-disguise", "double-factor")
 
 
 def E11TQ_expr(text):
@@ -36047,7 +36050,7 @@ def E11TQ_gdc_solve(q, g, E, rep):
 
 def E11TQ_check(q):
     g, u, rep, L = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
-    need(q["paper"] == (2 if u in E11TQ_GDC else 1), f"paper {q['paper']} for {u}")
+    need(q["paper"] in ((1, 2) if u in E11TQ_EITHER else (2,) if u in E11TQ_GDC else (1,)), f"paper {q['paper']} for {u}")
     tr_hyphens(q)
     if u == "constant-from-solution":
         E11TQ_constant(q, g)
