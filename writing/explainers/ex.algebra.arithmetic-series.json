@@ -1,0 +1,1075 @@
+{
+  "id": "ex.algebra.arithmetic-series",
+  "format": 1,
+  "status": "draft",
+  "title": "Adding up the rows",
+  "idea": "Write an arithmetic series forwards and backwards and every column adds to first plus last, so Sₙ = n/2 (u₁ + uₙ); putting in uₙ = u₁ + (n − 1)d gives the second form, Sₙ = n/2 (2u₁ + (n − 1)d).",
+  "zone": "algebra",
+  "tutor": "mags-the-ledger",
+  "courses": [
+    "aa-sl",
+    "aa-hl",
+    "ai-sl",
+    "ai-hl"
+  ],
+  "syllabus": [
+    "SL1.2"
+  ],
+  "skills": [
+    "SL1.2.sum"
+  ],
+  "builds_on": [
+    "ex.algebra.arithmetic-sequence"
+  ],
+  "leads_to": [
+    "ex.algebra.geometric-sequence"
+  ],
+  "terms": [
+    "series",
+    "Sₙ"
+  ],
+  "misconceptions": [
+    "Using n instead of n − 1 inside the formula: n/2(2u_1 + nd)",
+    "Using the wrong n, such as the last term's value or the number of gaps",
+    "Finding u_n when the question asks for S_n (or the reverse)"
+  ],
+  "estimate": {
+    "words_watched": 1125,
+    "words_not_watched": 1195,
+    "narration_watched": "7 min 47 s",
+    "narration_not_watched": "8 min 15 s",
+    "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
+  },
+  "notes": [
+    "leads_to names the geometric sequence explainer by the id pattern the map (FAL-935) is expected to use. Change it if the map differs.",
+    "The two forms of the formula are the two methods (task FAL-936). Gauss pairing is the big idea, not a third method, and the GDC routes (sum(seq(…)), cumulative lists) belong in a method explainer under plan decision 4.",
+    "Example 1 uses the fight pit from ex.algebra.arithmetic-sequence, and its check uses row 40 = 178 seats from there, so a player who watched both sees the two lessons join up. A player who didn't still gets every number on the board."
+  ],
+  "sections": [
+    {
+      "id": "cold-open",
+      "kind": "cold-open",
+      "beats": [
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Mags again. The pit boss is selling every seat for the big fight, and he wants the house counted before the gates open."
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Last time he counted seats himself, he got as far as row nine and needed a lie-down.",
+          "joke": true
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Forty rows, every seat, and we won't count one.",
+          "pause": 0.5,
+          "board": [
+            {
+              "write": "Total seats in rows 1 to 40?",
+              "kind": "heading"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recall",
+      "kind": "recall",
+      "builds_on": "ex.algebra.arithmetic-sequence",
+      "watched": [
+        {
+          "use": "mags-the-ledger.own.watched"
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "An arithmetic sequence has u₁ = 7 and d = 5. Find u₂₀.",
+            "choices": [
+              "102",
+              "107",
+              "97"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "One hundred and two. Nineteen hops of five on top of seven. Keep that formula close. We're building on it."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "Nineteen hops from the first term to the twentieth. Nineteen fives are ninety-five, and seven more is one hundred and two."
+              }
+            ]
+          }
+        }
+      ],
+      "not_watched": [
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Quick one before we start. Tap the answer."
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "An arithmetic sequence has u₁ = 7 and d = 5. Find u₂₀.",
+            "choices": [
+              "102",
+              "107",
+              "97"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "One hundred and two. Good."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "It's one hundred and two. Here's why."
+              }
+            ]
+          }
+        },
+        {
+          "use": "mags-the-ledger.own.not-watched"
+        },
+        {
+          "use": "mags-the-ledger.short-version"
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "An arithmetic sequence adds the same amount, d, every time. To get term n, start at the first term and add d, n minus one times. n minus one, because you count the hops between the terms, not the terms. So u n is u one, plus n minus one lots of d.",
+          "board": [
+            {
+              "write": "uₙ = u₁ + (n − 1)d",
+              "move": "recall-formula",
+              "kind": "answer"
+            },
+            {
+              "write": "u₂₀ = 7 + 19 × 5 = 102",
+              "move": "substitute"
+            }
+          ]
+        },
+        {
+          "use": "mags-the-ledger.after"
+        }
+      ]
+    },
+    {
+      "id": "big-idea",
+      "kind": "big-idea",
+      "beats": [
+        {
+          "speaker": "mags-the-ledger",
+          "clear": true,
+          "say": "There's an old story from before the dust. A boy called Carl Gauss was told to add up every number from one to a hundred, to keep him quiet.",
+          "board": [
+            {
+              "write": "1 + 2 + 3 + … + 100 = ?",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "The way the story goes, he wrote the sum out forwards, and underneath it, backwards. Then he added each column.",
+          "board": [
+            {
+              "write": "S  =   1  +  2  +  3  + … + 100",
+              "move": "gauss-pair"
+            },
+            {
+              "write": "S  = 100 + 99 + 98 + … +   1",
+              "move": "gauss-pair"
+            },
+            {
+              "write": "2S = 101 + 101 + 101 + … + 101",
+              "move": "gauss-pair"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "One and a hundred, a hundred and one. Two and ninety-nine, a hundred and one. Every column comes to a hundred and one."
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why does every column add to the same total?",
+            "choices": [
+              "Along the top each number goes up by 1, and along the bottom each goes down by 1",
+              "All the numbers are whole",
+              "There are 100 columns"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "That's it. What the top row gains, the bottom row loses, so the column total holds steady."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "Watch one column to the next. The top number goes up one and the bottom one comes down one. They cancel."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "A hundred columns of a hundred and one is ten thousand, one hundred. But every number's in there twice, so halve it. Five thousand and fifty.",
+          "board": [
+            {
+              "write": "2S = 100 × 101 = 10100",
+              "move": "evaluate"
+            },
+            {
+              "write": "S = 5050",
+              "move": "evaluate",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "It didn't keep him quiet for long.",
+          "cue": "chuckles",
+          "cue_at": "end",
+          "joke": true
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Two words for the book. Add up the terms of a sequence and you get a series. S n is the sum of the first n terms.",
+          "board": [
+            {
+              "write": "series: the terms of a sequence added up",
+              "kind": "term"
+            },
+            {
+              "write": "Sₙ = u₁ + u₂ + … + uₙ, the sum of the first n terms",
+              "kind": "term"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "The trick works on any arithmetic series. Every column is first plus last, and there are n columns. Then halve it, because everything's written twice.",
+          "board": [
+            {
+              "write": "2Sₙ = n(u₁ + uₙ)",
+              "move": "gauss-pair"
+            },
+            {
+              "write": "Sₙ = n/2 (u₁ + uₙ)",
+              "move": "recall-formula",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "That's one form. Swap u n for what it equals, u one plus n minus one lots of d, and you get the other. n over two, times two u one plus n minus one lots of d.",
+          "board": [
+            {
+              "write": "u₁ + uₙ = u₁ + u₁ + (n − 1)d = 2u₁ + (n − 1)d",
+              "move": "substitute"
+            },
+            {
+              "write": "Sₙ = n/2 (2u₁ + (n − 1)d)",
+              "move": "recall-formula",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Both are in the formula book. Same sum, two doors in. Pick your door by what you've got.",
+          "pause": 0.5
+        }
+      ]
+    },
+    {
+      "id": "example-1",
+      "kind": "example",
+      "level": "full",
+      "problem": {
+        "setup": "Row 1 of the fight pit has 22 seats, and each row has 4 more seats than the row in front of it. Find the total number of seats in the first 40 rows."
+      },
+      "beats": [
+        {
+          "speaker": "mags-the-ledger",
+          "clear": true,
+          "say": "Back to the pit. Step one: what are we finding? The total of the first forty rows. That's S forty, not u forty.",
+          "board": [
+            {
+              "write": "Find S₄₀, the total number of seats in rows 1 to 40.",
+              "kind": "heading",
+              "label": "Step 1: what are we finding?"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Step two: the givens, with units. u one, twenty-two seats. d, four seats per row. n, forty rows.",
+          "board": [
+            {
+              "write": "u₁ = 22 seats",
+              "move": "read-givens",
+              "label": "Step 2: the givens"
+            },
+            {
+              "write": "d = 4 seats per row",
+              "move": "read-givens"
+            },
+            {
+              "write": "n = 40",
+              "move": "read-givens"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Step three: pick the door. We know d, but we haven't worked out the back row, so it's the d form. Formula first.",
+          "board": [
+            {
+              "write": "We know d, not u₄₀: use the d form.",
+              "move": "choose-rule",
+              "label": "Step 3: pick the formula"
+            },
+            {
+              "write": "Sₙ = n/2 (2u₁ + (n − 1)d)",
+              "move": "recall-formula"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Step four: substitute. Forty over two, times two twenty-twos plus forty minus one lots of four.",
+          "board": [
+            {
+              "write": "S₄₀ = 40/2 (2 × 22 + (40 − 1) × 4)",
+              "move": "substitute",
+              "label": "Step 4: substitute"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why is there a 40/2 at the front?",
+            "choices": [
+              "Forwards and backwards writes every seat twice, so we halve",
+              "There are 20 rows",
+              "The pit has two halves"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "That's it. The trick writes the sum down twice, so we halve it."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "Think back to forwards and backwards. Every seat got written down twice. Halving gives the real total."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Step five: work it out. Two twenty-twos, forty-four. Thirty-nine fours, a hundred and fifty-six. Together that's two hundred. Twenty lots of two hundred: four thousand.",
+          "board": [
+            {
+              "write": "= 20 (44 + 156)",
+              "move": "evaluate",
+              "label": "Step 5: work it out"
+            },
+            {
+              "write": "= 20 × 200",
+              "move": "evaluate"
+            },
+            {
+              "write": "= 4000",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Step six, in words: the first forty rows hold four thousand seats.",
+          "board": [
+            {
+              "write": "The first 40 rows hold 4000 seats.",
+              "move": "state-answer",
+              "kind": "answer",
+              "label": "Step 6: answer in words"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Check it's sensible. Four thousand over forty rows is a hundred a row, on average. That's halfway between twenty-two at the front and a hundred and seventy-eight at the back.",
+          "board": [
+            {
+              "write": "Check: 4000 ÷ 40 = 100 a row, halfway between 22 and u₄₀ = 178 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-1",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "twin",
+        "like": "example-1",
+        "type": "t1-arithmetic-in-context",
+        "skills": [
+          "SL1.2.sum"
+        ],
+        "intro": [
+          {
+            "speaker": "mags-the-ledger",
+            "say": "Your turn. The east stand this time. Givens first, then pick your formula."
+          }
+        ],
+        "fallback": {
+          "setup": "Row 1 of the east stand has 30 seats, and each row has 3 more seats than the row in front of it.",
+          "parts": [
+            {
+              "text": "Find the total number of seats in the first 25 rows.",
+              "answer": "1650"
+            }
+          ],
+          "working": [
+            "u₁ = 30 seats, d = 3 seats per row, n = 25",
+            "S₂₅ = 25/2 (2 × 30 + (25 − 1) × 3)",
+            "= 12.5 (60 + 72)",
+            "= 12.5 × 132",
+            "= 1650",
+            "The first 25 rows hold 1650 seats."
+          ]
+        },
+        "right": [
+          {
+            "speaker": "mags-the-ledger",
+            "say": "Right formula, right total. Into the book."
+          },
+          {
+            "speaker": "mags-the-ledger",
+            "say": "You picked the formula before you touched a number. Good habit."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "mags-the-ledger",
+            "say": "Inside the bracket it's n minus one lots of d. Count the hops."
+          },
+          {
+            "speaker": "mags-the-ledger",
+            "say": "That's one row. The question wants every row added up. Use the S formula."
+          }
+        ]
+      }
+    },
+    {
+      "id": "example-2",
+      "kind": "example",
+      "level": "faded",
+      "problem": {
+        "setup": "A failing well gives 480 litres on day 1, and 15 litres less on each day after that. The crew stops drawing water after the day it gives 195 litres. Find the total amount of water the crew draws."
+      },
+      "beats": [
+        {
+          "speaker": "mags-the-ledger",
+          "clear": true,
+          "say": "A harder one. The old well: four hundred and eighty litres on day one, fifteen less each day. The crew stops after the day it gives a hundred and ninety-five. What did they draw, all told?",
+          "board": [
+            {
+              "write": "u₁ = 480 litres",
+              "move": "read-givens"
+            },
+            {
+              "write": "d = −15 litres per day",
+              "move": "read-givens"
+            },
+            {
+              "write": "last term uₙ = 195 litres",
+              "move": "read-givens"
+            },
+            {
+              "write": "Find Sₙ, the total water drawn.",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "We know the last term. We don't know n, the number of days. So first: which term is a hundred and ninety-five? Set the formula for u n equal to it.",
+          "board": [
+            {
+              "write": "480 + (n − 1)(−15) = 195",
+              "move": "apply-condition"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Take four eighty from both sides: minus two hundred and eighty-five. Divide both sides by minus fifteen. n minus one is nineteen.",
+          "board": [
+            {
+              "write": "(n − 1)(−15) = −285",
+              "move": "isolate"
+            },
+            {
+              "write": "n − 1 = 19",
+              "move": "isolate"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "fill",
+            "prompt": "n − 1 = 19, so n = ?",
+            "choices": [
+              "20",
+              "19",
+              "18"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "Twenty days. Nineteen hops, twenty days."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "Nineteen is the hops. The days are one more than the hops. Twenty."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Now we've got the first term and the last, so first plus last is the one to use.",
+          "board": [
+            {
+              "write": "n = 20",
+              "move": "isolate"
+            },
+            {
+              "write": "Sₙ = n/2 (u₁ + uₙ)",
+              "move": "recall-formula"
+            },
+            {
+              "write": "S₂₀ = 20/2 (480 + 195)",
+              "move": "substitute"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Twenty over two is ten. Four eighty and one ninety-five is six hundred and seventy-five. Ten of those: six thousand, seven hundred and fifty litres.",
+          "board": [
+            {
+              "write": "= 10 × 675",
+              "move": "evaluate"
+            },
+            {
+              "write": "= 6750",
+              "move": "evaluate"
+            },
+            {
+              "write": "The crew draws 6750 litres.",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-3",
+      "kind": "example",
+      "level": "exam",
+      "problem": {
+        "setup": "A barricade is built from sandbags in layers. Layer 1, at the bottom, has 96 sandbags, and each layer above it has 4 fewer sandbags than the layer below. The barricade has 18 layers.",
+        "parts": [
+          {
+            "part": "a",
+            "command": "Find",
+            "text": "Find the number of sandbags in the top layer."
+          },
+          {
+            "part": "b",
+            "command": "Find",
+            "text": "Find the total number of sandbags in the barricade."
+          },
+          {
+            "part": "c",
+            "command": "Show that",
+            "text": "Show that the total number of sandbags in the first n layers is 98n − 2n²."
+          }
+        ]
+      },
+      "beats": [
+        {
+          "speaker": "mags-the-ledger",
+          "clear": true,
+          "say": "Now one laid out like the old exam papers. Write each letter down, and keep each part's working under it."
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Part a. The top layer is layer eighteen. Ninety-six, plus seventeen lots of minus four. Seventeen fours are sixty-eight, so that's twenty-eight.",
+          "board": [
+            {
+              "write": "(a)  u₁ = 96, d = −4, n = 18",
+              "part": "a",
+              "move": "read-givens"
+            },
+            {
+              "write": "u₁₈ = 96 + (18 − 1)(−4)",
+              "part": "a",
+              "move": "substitute"
+            },
+            {
+              "write": "= 96 − 68",
+              "part": "a",
+              "move": "evaluate"
+            },
+            {
+              "write": "= 28",
+              "part": "a",
+              "move": "evaluate"
+            },
+            {
+              "write": "The top layer has 28 sandbags.",
+              "part": "a",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Part b. We've found the last term, so first plus last is the quick door. Use your answer from part a, even if you're not sure of it. Whoever marks it follows your working through.",
+          "board": [
+            {
+              "write": "(b)  Sₙ = n/2 (u₁ + uₙ)",
+              "part": "b",
+              "move": "recall-formula"
+            },
+            {
+              "write": "S₁₈ = 18/2 (96 + 28)",
+              "part": "b",
+              "move": "substitute"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Eighteen over two is nine. Ninety-six and twenty-eight make a hundred and twenty-four. Nine of those is one thousand, one hundred and sixteen sandbags.",
+          "board": [
+            {
+              "write": "= 9 × 124",
+              "part": "b",
+              "move": "evaluate"
+            },
+            {
+              "write": "= 1116",
+              "part": "b",
+              "move": "evaluate"
+            },
+            {
+              "write": "The barricade has 1116 sandbags.",
+              "part": "b",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Part c says show that. They've given you the answer. Your job is to get there from the formula, step by step, and land exactly on their line. Keep n as n, and never work backwards."
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "We want it in terms of n, so the d form. Two ninety-sixes are a hundred and ninety-two. The bracket gives minus four n plus four. That's a hundred and ninety-six minus four n.",
+          "board": [
+            {
+              "write": "(c)  Sₙ = n/2 (2u₁ + (n − 1)d)",
+              "part": "c",
+              "move": "recall-formula"
+            },
+            {
+              "write": "= n/2 (2 × 96 + (n − 1)(−4))",
+              "part": "c",
+              "move": "substitute"
+            },
+            {
+              "write": "= n/2 (192 − 4n + 4)",
+              "part": "c",
+              "move": "expand"
+            },
+            {
+              "write": "= n/2 (196 − 4n)",
+              "part": "c",
+              "move": "simplify"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Multiply through by n over two. Ninety-eight n, minus two n squared. That's their line, so we stop.",
+          "board": [
+            {
+              "write": "= 98n − 2n²",
+              "part": "c",
+              "move": "simplify",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why not put n = 18 into 98n − 2n², get 1116, and stop?",
+            "choices": [
+              "One value doesn't show it's true for every n",
+              "18 is too big",
+              "It gives the wrong answer"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "Right. One number's a check, not a proof. Do the check on scrap, and show it in general on the page."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "Eighteen only tells you it works for eighteen. Show that wants every n, so you work in general. Eighteen makes a good check on scrap."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "On scrap, then. Eighteen gives one thousand, one hundred and sixteen, same as part b. The parts agree.",
+          "board": [
+            {
+              "write": "Check: 98 × 18 − 2 × 18² = 1764 − 648 = 1116, as in (b) ✓",
+              "part": "c",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "second-method",
+      "kind": "second-method",
+      "about": "Part (b) of example 3 again, the two forms side by side.",
+      "beats": [
+        {
+          "speaker": "mags-the-ledger",
+          "clear": true,
+          "say": "Back to part b, through the other door. Same question, the form with d in it. Side by side.",
+          "board": [
+            {
+              "write": "METHOD 1",
+              "method": 1,
+              "kind": "heading"
+            },
+            {
+              "write": "Sₙ = n/2 (u₁ + uₙ)",
+              "method": 1,
+              "move": "recall-formula"
+            },
+            {
+              "write": "S₁₈ = 9 (96 + 28)",
+              "method": 1,
+              "move": "substitute"
+            },
+            {
+              "write": "= 9 × 124 = 1116",
+              "method": 1,
+              "move": "evaluate"
+            },
+            {
+              "write": "METHOD 2",
+              "method": 2,
+              "kind": "heading"
+            },
+            {
+              "write": "Sₙ = n/2 (2u₁ + (n − 1)d)",
+              "method": 2,
+              "move": "recall-formula"
+            },
+            {
+              "write": "S₁₈ = 9 (2 × 96 + 17 × (−4))",
+              "method": 2,
+              "move": "substitute"
+            },
+            {
+              "write": "= 9 (192 − 68)",
+              "method": 2,
+              "move": "evaluate"
+            },
+            {
+              "write": "= 9 × 124 = 1116",
+              "method": 2,
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Look inside the brackets. One ninety-two take sixty-eight is a hundred and twenty-four, same as first plus last. Two u one plus n minus one lots of d is first plus last, written another way."
+        },
+        {
+          "ask": {
+            "kind": "choose",
+            "prompt": "When is Method 1, n/2 (u₁ + uₙ), the one to pick?",
+            "choices": [
+              "When you know the last term",
+              "When you know d but not the last term",
+              "When n is even"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "That's it. Last term in hand, use it."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "Method one needs u n. Got the last term? Use it."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Only d and n? The d form. Want it in terms of n, like part c? The d form again.",
+          "board": [
+            {
+              "write": "Know uₙ → METHOD 1: n/2 (u₁ + uₙ)",
+              "move": "choose-rule",
+              "kind": "note"
+            },
+            {
+              "write": "Know d, not uₙ, or need it in terms of n → METHOD 2: n/2 (2u₁ + (n − 1)d)",
+              "move": "choose-rule",
+              "kind": "note"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "spot-the-slip",
+      "kind": "spot-the-slip",
+      "misconception": "Using n instead of n − 1 inside the formula: n/2(2u_1 + nd)",
+      "beats": [
+        {
+          "speaker": "mags-the-ledger",
+          "clear": true,
+          "say": "Somebody's tallied the pit and got it wrong. One line's off. Find it.",
+          "board": [
+            {
+              "write": "S₄₀ = 40/2 (2 × 22 + 40 × 4)",
+              "key": "s1",
+              "kind": "slip"
+            },
+            {
+              "write": "= 20 (44 + 160)",
+              "key": "s2",
+              "kind": "step"
+            },
+            {
+              "write": "= 20 × 204",
+              "key": "s3",
+              "kind": "step"
+            },
+            {
+              "write": "= 4080",
+              "key": "s4",
+              "kind": "step"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "tap-line",
+            "prompt": "Tap the line with the slip.",
+            "choices": [
+              "s1",
+              "s2",
+              "s3",
+              "s4"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "That one. Forty lots of four, where it should be thirty-nine."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "mags-the-ledger",
+                "say": "Look inside the bracket on the first line. How many lots of d should there be?"
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Two checks would have caught it. Put n equals one in, and the sum of one term has to be the first term. Their rule gives twenty-four, not twenty-two.",
+          "board": [
+            {
+              "write": "Check n = 1: 1/2 (2 × 22 + 1 × 4) = 24 ≠ 22 ✗",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Or work it the other way. First plus last gives four thousand. Two methods, two different answers? Somebody's lying.",
+          "board": [
+            {
+              "strike": "s1"
+            },
+            {
+              "write": "S₄₀ = 20 (44 + 39 × 4) = 20 × 200 = 4000",
+              "kind": "answer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-2",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "exam",
+        "like": "example-3",
+        "type": "t1-arithmetic-in-context",
+        "skills": [
+          "SL1.2.sum",
+          "SL1.2.nth-term"
+        ],
+        "intro": [
+          {
+            "speaker": "mags-the-ledger",
+            "say": "Your turn. No help on the first go. Label every part, and pick your formula before you write a number."
+          }
+        ],
+        "fallback": {
+          "setup": "A salvage crew hauls 40 kg of scrap on day 1, and 6 kg more on each day after that.",
+          "parts": [
+            {
+              "part": "a",
+              "text": "Find the amount of scrap the crew hauls on day 15.",
+              "answer": "124 kg"
+            },
+            {
+              "part": "b",
+              "text": "Find the total amount of scrap hauled over the first 15 days.",
+              "answer": "1230 kg"
+            },
+            {
+              "part": "c",
+              "text": "Show that the total hauled over the first n days is 3n² + 37n kg.",
+              "answer": "Sₙ = n/2 (80 + 6(n − 1)) = n/2 (6n + 74) = 3n² + 37n"
+            }
+          ],
+          "working": [
+            "(a) u₁₅ = 40 + 14 × 6 = 124 kg",
+            "(b) S₁₅ = 15/2 (40 + 124) = 7.5 × 164 = 1230 kg",
+            "(c) Sₙ = n/2 (2 × 40 + (n − 1) × 6) = n/2 (80 + 6n − 6) = n/2 (6n + 74) = 3n² + 37n",
+            "Check: n = 15 gives 675 + 555 = 1230, as in (b) ✓"
+          ]
+        },
+        "right": [
+          {
+            "speaker": "mags-the-ledger",
+            "say": "Every part labelled, and the parts agree. I'd sign that."
+          },
+          {
+            "speaker": "mags-the-ledger",
+            "say": "Clean books. Nothing for me to cross out."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "mags-the-ledger",
+            "say": "Are you after one day, or all of them added up? Check which the part asks for."
+          },
+          {
+            "speaker": "mags-the-ledger",
+            "say": "For the show that, start from the formula with d in it and keep n as n."
+          }
+        ]
+      }
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "beats": [
+        {
+          "speaker": "mags-the-ledger",
+          "clear": true,
+          "say": "So. A series is a sequence added up. Forwards and backwards, every column is first plus last, so it's n over two, first plus last. No last term? Use the d form.",
+          "board": [
+            {
+              "write": "Sₙ = n/2 (u₁ + uₙ): you know the last term",
+              "kind": "answer"
+            },
+            {
+              "write": "Sₙ = n/2 (2u₁ + (n − 1)d): you know d",
+              "kind": "answer"
+            },
+            {
+              "write": "Check: S₁ = u₁, and both doors agree",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Next on my books: sequences that multiply instead of add. That's where debts turn nasty."
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "Dust. Gets in everything.",
+          "cue": "coughs",
+          "cue_at": "start"
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "The pit boss sold all four thousand seats, by the way. Then he asked me to count the takings. I charge by the column.",
+          "joke": true
+        }
+      ]
+    }
+  ]
+}
