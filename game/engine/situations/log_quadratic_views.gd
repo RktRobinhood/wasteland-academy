@@ -29,9 +29,9 @@ func need(unknown: String, _rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	out.given = LogQuadraticSituation.export(s)
 	out.trap = {}
 	out.asked = ExpLogPairViews.M(out.asked)
@@ -102,7 +102,8 @@ func u_argument_roots(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var disc: Q = s.disc
 	return {
 		"asked": "Solve g(x) = 0, where g(x) = %s is the quadratic inside the log." % g_text(s), "lines": [f_line(s)], "answer": ans,
-		"generic": [{"r1": s.p.neg(), "r2": s.q.neg()}, {"r1": s.p, "r2": s.q.add(Q.new(1))}, {"r1": s.h, "r2": s.q}, {"r1": s.p.sub(Q.new(1)), "r2": s.q}],
+		"wrongs": [] if s.h.is_zero() else [wrong({"r1": s.p.neg(), "r2": s.q.neg()}, "fn-log-of-quadratic#16")],
+		"fillers": [{"r1": s.p, "r2": s.q.add(Q.new(1))}, {"r1": s.h, "r2": s.q}, {"r1": s.p.sub(Q.new(1)), "r2": s.q}],
 		"methods": {
 			"factorise": {"result": ans.values, "steps": ["%s = %s" % [g_text(s), g_factored(s)], "Each factor can be 0: x = %s or x = %s." % [N(s.p), N(s.q)], final]},
 			"quadratic-formula": {"result": ans.values, "steps": [
@@ -121,9 +122,10 @@ func u_domain_from_inequality(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var down := "g opens downwards (a = %s < 0), so it is positive between its roots." % N(s.a)
 	out.merge({
 		"asked": "Find the domain of f: the values of x for which g(x) = %s > 0." % g_text(s), "answer": ans,
-		"wrongs": [wrong({"shape": "above", "lo": s.p, "hi": s.q, "ends": "left out"}, "SL2.7.inequality#0")],
-		"generic": [{"shape": "outside", "lo": s.p, "hi": s.q, "ends": "left out"}, {"shape": "between", "lo": s.p, "hi": s.q, "ends": "included"},
-			{"shape": "below", "lo": s.p, "hi": s.q, "ends": "left out"}],
+		"wrongs": [wrong({"shape": "above", "lo": s.p, "hi": s.q, "ends": "left out"}, "SL2.7.inequality#0"),
+			wrong({"shape": "outside", "lo": s.p, "hi": s.q, "ends": "left out"}, "fn-log-of-quadratic#19"),
+			wrong({"shape": "between", "lo": s.p, "hi": s.q, "ends": "included"}, "fn-log-of-quadratic#20")],
+		"fillers": [{"shape": "below", "lo": s.p, "hi": s.q, "ends": "left out"}],
 		"methods": {
 			"sketch-roots": {"result": ans.values, "steps": [roots, down, final]},
 			"sign-table": {"result": ans.values, "steps": [
@@ -159,7 +161,7 @@ func u_asymptotes(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var final := "So the asymptotes are " + Answer.text(ans) + "."
 	out.merge({
 		"asked": "Write down the equations of the vertical asymptotes of the graph of f.", "answer": ans, "wrongs": tagged,
-		"generic": [{"v": ExpLogPairViews.M("x = %s and x = %s" % [N(p), N(s.h)])}],
+		"fillers": [{"v": ExpLogPairViews.M("x = %s and x = %s" % [N(p), N(s.h)])}],
 		"methods": {
 			"undefined-input": {"result": ans.values, "steps": [
 				"f is undefined where g(x) = %s = 0." % g_factored(s), "As x nears a root, g(x) → 0⁺ and f(x) → −∞.", final]},
@@ -182,8 +184,8 @@ func u_zeros(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var amq: Q = s.a.neg()
 	return {
 		"asked": "Find the exact zeros of f.", "lines": [f_line(s)], "answer": ans,
-		"generic": [{"h": s.h, "m": Q.new(s.zm), "r": Q.new(s.zr + 1)}, {"h": s.h.neg(), "m": Q.new(s.zm), "r": Q.new(s.zr)},
-			{"h": s.h, "m": Q.new(1), "r": s.k}, {"h": s.h, "m": Q.new(s.zm * 2), "r": Q.new(s.zr)}],
+		"wrongs": [] if s.h.is_zero() else [wrong({"h": s.h.neg(), "m": Q.new(s.zm), "r": Q.new(s.zr)}, "SL2.6.vertex#0")],
+		"fillers": [{"h": s.h, "m": Q.new(s.zm), "r": Q.new(s.zr + 1)}, {"h": s.h, "m": Q.new(1), "r": s.k}, {"h": s.h, "m": Q.new(s.zm * 2), "r": Q.new(s.zr)}],
 		"methods": {
 			"quadratic-formula": {"result": ans.values, "steps": [
 				"f(x) = 0 when g(x) = %d⁰ = 1: %s = 0" % [b, gm1],
@@ -209,8 +211,9 @@ func u_max_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var gmax := "g(%s) = %s, and %s %s = %d since %d%s = %s." % [N(s.h), N(s.k), LG(s), N(s.k), n, b, Fmt.sup(n), N(s.k)]
 	out.merge({
 		"asked": "Find the maximum value of f, and the value of x where it happens.", "answer": ans,
-		"wrongs": [wrong({"v0": Q.new(n), "v1": s.h.neg()}, "SL2.6.vertex#0"), wrong({"v0": s.h, "v1": s.h}, "SL2.6.vertex#1")],
-		"generic": [{"v0": s.k, "v1": s.h}, {"v0": Q.new(n + 1), "v1": s.h}, {"v0": Q.new(n), "v1": s.p}],
+		"wrongs": [wrong({"v0": Q.new(n), "v1": s.h.neg()}, "SL2.6.vertex#0"), wrong({"v0": s.h, "v1": s.h}, "SL2.6.vertex#1"),
+			wrong({"v0": s.k, "v1": s.h}, "fn-log-of-quadratic#18")],
+		"fillers": [{"v0": Q.new(n + 1), "v1": s.h}, {"v0": Q.new(n), "v1": s.p}],
 		"methods": {
 			"gdc-transfer": {"result": ans.values, "steps": ["Graph y = f(x) and find its maximum: (%s, %d)." % [N(s.h), n], "Check: " + gmax, final]},
 			"midpoint-of-roots": {"result": ans.values, "steps": [
@@ -250,7 +253,7 @@ func u_base_from_max(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.merge({
 		"asked": "Find the value of the base k.",
 		"wrongs": [wrong({"v": s.k.div(Q.new(n))}, "SL1.5.exp-log-form#0")],
-		"generic": [{"v": s.k}, {"v": Q.new(n)}, {"v": Q.new(b + 1)}, {"v": s.k.mul(Q.new(n))}],
+		"fillers": [{"v": s.k}, {"v": Q.new(n)}, {"v": Q.new(b + 1)}, {"v": s.k.mul(Q.new(n))}],
 		"methods": {
 			"key-points": {"result": ans.values, "steps": [top, "log_k(%s) = %d means k%s = %s." % [N(s.k), n, Fmt.sup(n), N(s.k)], final]},
 			"midpoint-of-roots": {"result": ans.values, "steps": [
@@ -270,8 +273,9 @@ func u_range(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So the range is " + Answer.text(ans) + "."
 	out.merge({
 		"asked": "Find the range of f.", "answer": ans,
-		"wrongs": [wrong({"var": "y", "rel": "≥", "k": Q.new(n)}, "SL2.6.vertex#2"), wrong({"var": "x", "rel": "≤", "k": Q.new(n)}, "SL2.2.range#2")],
-		"generic": [{"var": "y", "rel": "≤", "k": s.k}, {"var": "y", "rel": "≤", "k": s.h}, {"var": "x", "rel": "≥", "k": Q.new(n)}],
+		"wrongs": [wrong({"var": "y", "rel": "≥", "k": Q.new(n)}, "SL2.6.vertex#2"), wrong({"var": "x", "rel": "≤", "k": Q.new(n)}, "SL2.2.range#2"),
+			wrong({"var": "y", "rel": "≤", "k": s.k}, "fn-log-of-quadratic#18")],
+		"fillers": [{"var": "y", "rel": "≤", "k": s.h}, {"var": "x", "rel": "≥", "k": Q.new(n)}],
 		"methods": {
 			"complete-square": {"result": ans.values, "steps": [
 				"g(x) = %s ≤ %s, and g(x) > 0 on the domain." % [Fmt.vertex(s.a, s.h, s.k), N(s.k)],
@@ -292,8 +296,9 @@ func u_axis_of_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var z2 := zero_text(s, 1)
 	out.merge({
 		"asked": "Write down the equation of the line of symmetry of the graph of f.", "answer": ans,
-		"wrongs": [wrong({"var": "x", "h": Q.new(0)}, "SL2.4.symmetry#0")],
-		"generic": [{"var": "y", "h": s.h}, {"var": "x", "h": s.h.neg()}, {"var": "x", "h": s.p}],
+		"wrongs": [wrong({"var": "x", "h": Q.new(0)}, "SL2.4.symmetry#0"), wrong({"var": "y", "h": s.h}, "fn-log-of-quadratic#17"),
+			wrong({"var": "x", "h": s.h.neg()}, "SL2.6.vertex#0")],
+		"fillers": [{"var": "x", "h": s.p}],
 		"methods": {
 			"midpoint-of-roots": {"result": ans.values, "steps": [
 				"f is symmetric where g is. g's roots are %s and %s." % [N(s.p), N(s.q)], "Their midpoint is (%s + %s)/2 = %s." % [N(s.p), Fmt.paren(s.q), N(s.h)], final]},
@@ -312,7 +317,7 @@ func u_y_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So " + Answer.text(ans) + "."
 	return {
 		"asked": "Find where the graph of f meets the y-axis: give f(0) in the form %s c." % LG(s), "lines": [f_line(s)], "answer": ans,
-		"generic": [{"v": s.k}, {"v": c.add(Q.new(1))}, {"v": s.p.mul(s.q).abs_q()}, {"v": s.a.abs_q().add(c)}],
+		"fillers": [{"v": s.k}, {"v": c.add(Q.new(1))}, {"v": s.p.mul(s.q).abs_q()}, {"v": s.a.abs_q().add(c)}],
 		"methods": {"what-power": {"result": ans.values, "steps": [
 			"At x = 0: g(0) = %s, which is positive, so f(0) exists." % N(c), "f(0) = %s(g(0)) = %s %s" % [LG(s), LG(s), N(c)], final]}},
 	}
@@ -333,8 +338,8 @@ func u_sign_of_f(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var zeros := "f(x) = 0 where g(x) = 1: x = %s and x = %s." % [z1, z2]
 	out.merge({
 		"asked": "Find the values of x for which f(x) < 0.", "answer": ans,
-		"wrongs": [wrong({"v": opts[1]}, "SL2.7.inequality#1")],
-		"generic": [{"v": opts[2]}, {"v": opts[3]}],
+		"wrongs": [wrong({"v": opts[1]}, "SL2.7.inequality#1"), wrong({"v": opts[2]}, "fn-log-of-quadratic#21")],
+		"fillers": [{"v": opts[3]}],
 		"methods": {
 			"sketch-roots": {"result": ans.values, "steps": [zeros, "f < 0 where 0 < g(x) < 1: between each asymptote and the nearer zero.", final]},
 			"test-point": {"result": ans.values, "steps": [zeros, "At x = %s, f = %d > 0; just inside each asymptote f → −∞ < 0." % [N(s.h), s.n], final]},
@@ -358,10 +363,15 @@ func u_quadratic_from_features(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		out.lines = [gl, "The graph of f has asymptotes x = %s and x = %s, and its maximum value is %d." % [N(s.p), N(s.q), n]]
 	var final := "So " + Answer.text(ans) + "."
 	var w: int = s.w
+	var wr: Array = [wrong({"A": s.a.neg(), "B": s.b.neg(), "C": s.c.neg()}, "fn-log-of-quadratic#22"),
+		wrong({"A": s.a, "B": s.b.neg(), "C": s.c}, "fn-log-of-quadratic#24")]
+	# From the roots alone, a is taken as −1: a slip only when a isn't −1.
+	if not s.a.eq(Q.new(-1)):
+		wr.insert(1, wrong({"A": Q.new(-1), "B": s.h.mul(Q.new(2)), "C": Q.new(w * w).sub(s.h.mul(s.h))}, "fn-log-of-quadratic#23"))
 	out.merge({
 		"asked": "Find g(x), in the form ax² + bx + c.",
-		"generic": [{"A": s.a.neg(), "B": s.b.neg(), "C": s.c.neg()}, {"A": Q.new(-1), "B": s.h.mul(Q.new(2)), "C": Q.new(w * w).sub(s.h.mul(s.h))},
-			{"A": s.a, "B": s.b.neg(), "C": s.c}, {"A": s.a.mul(Q.new(n)), "B": s.b.mul(Q.new(n)), "C": s.c.mul(Q.new(n))}],
+		"wrongs": wr,
+		"fillers": [{"A": s.a.mul(Q.new(n)), "B": s.b.mul(Q.new(n)), "C": s.c.mul(Q.new(n))}],
 		"methods": {
 			"undefined-input": {"result": ans.values, "steps": [
 				"f is undefined at x = %s and x = %s, so g(x) = a(%s)(%s)." % [N(s.p), N(s.q), Answer.x_minus(s.p), Answer.x_minus(s.q)],

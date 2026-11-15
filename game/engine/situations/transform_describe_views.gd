@@ -10,6 +10,21 @@ const TC := preload("res://engine/situations/transform_chain.gd")
 const DESC := "SL2.11.describe#0"
 const STRETCH := "SL2.11.stretch#0"
 const REFLECT := "SL2.11.reflect#1"
+const NO_AXIS := "SL2.11.describe#2"
+const TD := "fn-transform-describe#"
+const D_RECIP := TD + "6"
+const D_AXIS := TD + "7"
+const D_CENTRE := TD + "8"
+const D_AMPS := TD + "9"
+const D_LAWS := TD + "10"
+const D_NO_LOG := TD + "11"
+const D_RATIO := TD + "12"
+const D_COEFFS := TD + "13"
+const D_NOT_FACTORED := TD + "14"
+const D_BACKWARDS := TD + "15"
+const D_POINT := TD + "16"
+const D_SAME_ORDER := TD + "17"
+const D_NOT_UNDONE := TD + "18"
 
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -20,10 +35,14 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	return out
 
 
-## A question answered by a choice of statements. wrongs: [[text, ref], ...]; every
-## method's steps get the same last line, "So <right>."
-static func ask(right: String, wrongs: Array, generic: Array, asked: String, lines: Array, methods: Dictionary) -> Dictionary:
-	var out := LogFunctionViews.choice(right, wrongs.map(func(w): return wrong({"v": w[0]}, w[1])), generic)
+## A question answered by a choice of statements. wrongs: [[text, ref], ...], each a slip
+## with its ref; fillers: the texts with no route to them. Every method's steps get the
+## same last line, "So <right>."
+static func ask(right: String, wrongs: Array, fillers: Array, asked: String, lines: Array, methods: Dictionary) -> Dictionary:
+	var out := LogFunctionViews.choice(right, wrongs.map(func(w): return wrong({"v": w[0]}, w[1])), fillers)
+	# LogFunctionViews' untagged options, whichever name it gives them, are fillers here.
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
 	var ms := {}
 	for a in methods:
 		ms[a] = method(methods[a] + ["So the answer is %s." % right], out.answer.values)
@@ -31,15 +50,16 @@ static func ask(right: String, wrongs: Array, generic: Array, asked: String, lin
 	return out
 
 
-## A question answered in numbers. methods' last lines say the answer.
-static func typed(ans: Dictionary, wrongs: Array, asked: String, lines: Array, methods: Dictionary, s: Dictionary) -> Dictionary:
+## A question answered in numbers. methods' last lines say the answer. wrongs are slips with
+## their refs, fillers the values with no route to them.
+static func typed(ans: Dictionary, wrongs: Array, asked: String, lines: Array, methods: Dictionary, s: Dictionary, fillers: Array = []) -> Dictionary:
 	ans.exact = true
 	if s.paper == 2:
 		ans.show = "dec"
 	var ms := {}
 	for a in methods:
 		ms[a] = method(methods[a] + ["So the answer is %s." % Answer.text(ans)], ans.values)
-	return {"answer": ans, "wrongs": wrongs, "asked": asked, "lines": lines, "methods": ms}
+	return {"answer": ans, "wrongs": wrongs, "fillers": fillers, "asked": asked, "lines": lines, "methods": ms}
 
 
 static func f_line(s: Dictionary) -> String:
@@ -173,17 +193,22 @@ func u_describe_stretch(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var horizontal: bool = m.k == "hs"
 	var right: String = TC.move_text(s, m)
 	var flip := Q.new(1).div(a)
-	var wrongs: Array = [[TC.hs_text(s, flip), STRETCH]] if horizontal else [[TC.hs_text(s, a), ""]]
-	var generic: Array = [TC.vs_text(s, flip), TC.vs_text(s, a), TC.hs_text(s, flip), TC.hs_text(s, a), "a stretch with scale factor %s" % TC.n(s, a)]
+	var no_axis := "a stretch with scale factor %s" % TC.n(s, a)
+	# Horizontal: b used as the factor, or the right factor on the other axis. Vertical: the
+	# factor inverted, as if it were inside, or the other axis. Either: no axis named.
+	var wrongs: Array = [[TC.hs_text(s, flip), STRETCH], [TC.vs_text(s, a), D_AXIS]] if horizontal else [[TC.vs_text(s, flip), D_RECIP], [TC.hs_text(s, a), D_AXIS]]
+	wrongs.append([no_axis, NO_AXIS])
+	var fillers: Array = [TC.vs_text(s, flip)] if horizontal else [TC.hs_text(s, flip)]
 	# On 1/x or a log a horizontal stretch is another way to say something else.
 	if s.fam in TC.NO_HS:
-		wrongs = []
-		generic = [TC.vs_text(s, flip), TC.vs_text(s, a.mul(2)), "a stretch with scale factor %s" % TC.n(s, a)]
-	generic = generic.filter(func(t): return t != right)
+		wrongs = [[TC.vs_text(s, flip), D_RECIP], [no_axis, NO_AXIS]]
+		fillers = [TC.vs_text(s, a.mul(2))]
+	wrongs = wrongs.filter(func(w): return w[0] != right)
+	fillers = fillers.filter(func(t): return t != right)
 	var word := "x" if horizontal else "y"
 	var where := "inside the bracket, so x is multiplied by %s and every x-coordinate by %s" % [TC.n(s, s.map.B), TC.n(s, a)] if horizontal \
 		else "outside the bracket, so every y-coordinate is multiplied by %s" % TC.n(s, a)
-	var out := ask(right, wrongs, generic, "Describe the transformation that maps the graph of f onto the graph of g.", [], {
+	var out := ask(right, wrongs, fillers, "Describe the transformation that maps the graph of f onto the graph of g.", [], {
 		"rewrite-in-f": [rewrite_step(s), "The factor is " + where + "."],
 		"scale-rule": ["a·f(x) stretches y by a, and f(bx) stretches x by 1/b.", "Here the factor is " + where + "."],
 		"track-points": [point_step(s), "Only the %s-coordinates have changed, each multiplied by %s." % [word, TC.n(s, a)]],
@@ -201,12 +226,12 @@ func u_stretch_and_shift_parameters(rep: String, s: Dictionary, _rng: Seeded) ->
 	var said := "The number with x is %s, so the horizontal scale factor is 1 ÷ %s = %s." % [TC.n(s, s.map.B), TC.n(s, s.map.B), TC.n(s, k)]
 	var p: Array = telling(s)
 	var im := TC.image(s.map, p[0], p[1])
-	var out := typed(ans, [wrong({"v0": Q.new(1).div(k), "v1": d}, STRETCH), wrong({"v0": k, "v1": d.neg()}), wrong({"v0": Q.new(1).div(k), "v1": d.neg()})],
+	var out := typed(ans, [wrong({"v0": Q.new(1).div(k), "v1": d}, STRETCH)],
 		"Find the horizontal scale factor and the vertical translation that map the graph of f onto the graph of g.", [], {
 			"rewrite-in-f": [rewrite_step(s), said, "The number added outside is the vertical translation, %s." % TC.n(s, d)],
 			"compare-key-points": ["The point %s on f goes to %s on g." % [P_(s, p), P_(s, im)], "Its x-coordinate is multiplied by %s and %s is added to its y-coordinate." % [TC.n(s, k), TC.n(s, d)]],
 			"scale-rule": ["f(bx) + d is a horizontal stretch with scale factor 1/b, then a vertical translation by d.", said],
-		}, s)
+		}, s, [{"v0": k, "v1": d.neg()}, {"v0": Q.new(1).div(k), "v1": d.neg()}])
 	out.merge(show_pair(rep, s), true)
 	return out
 
@@ -249,7 +274,8 @@ func u_relate_two_models(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var wa := a1.div(a2)
 	return {"asked": "The graph of p is mapped onto the graph of q by a vertical stretch with scale factor a, then a vertical translation by d, in that order. Find a and d.",
 		"lines": lines, "answer": ans, "methods": ms,
-		"wrongs": [wrong({"v0": a, "v1": d2.sub(d1)}), wrong({"v0": wa, "v1": d2.sub(wa.mul(d1))}), wrong({"v0": a, "v1": d.neg()})]}
+		"wrongs": [wrong({"v0": a, "v1": d2.sub(d1)}, D_CENTRE), wrong({"v0": wa, "v1": d2.sub(wa.mul(d1))}, D_AMPS)],
+		"fillers": [{"v0": a, "v1": d.neg()}]}
 
 
 func u_describe_log_rewrite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -264,9 +290,12 @@ func u_describe_log_rewrite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var shift_text := TC.tr_text(s, 0, e)
 	var stretch_text := TC.vs_text(s, e)
 	var right: String = say.call("%s + %d" % [plain, e], shift_text) if is_tr else say.call("%d %s" % [e, plain], stretch_text)
-	var bad: Array = [say.call("%d %s" % [e, plain], stretch_text), say.call("%s + %d" % [plain, power], TC.tr_text(s, 0, power)), say.call("%d %s" % [power, plain], TC.vs_text(s, power))] if is_tr else \
-		[say.call("%s + %d" % [plain, e], shift_text), say.call("%s + %d" % [plain, power], TC.tr_text(s, 0, power)), say.call("%d %s" % [power, plain], TC.vs_text(s, power))]
-	return ask(right, [], bad, "The graph of y = %s is mapped onto y = %s, for x > 0. Rewrite the new function with a log law, and say which transformation it shows." % [plain, head],
+	# The two log laws mixed up; on a product, the number inside kept as it is, not its log.
+	var mixed: String = say.call("%d %s" % [e, plain], stretch_text) if is_tr else say.call("%s + %d" % [plain, e], shift_text)
+	var kept: String = say.call("%s + %d" % [plain, power], TC.tr_text(s, 0, power))
+	var wrongs: Array = [[mixed, D_LAWS]] + ([[kept, D_NO_LOG]] if is_tr else [])
+	var fillers: Array = ([] if is_tr else [kept]) + [say.call("%d %s" % [power, plain], TC.vs_text(s, power))]
+	return ask(right, wrongs, fillers, "The graph of y = %s is mapped onto y = %s, for x > 0. Rewrite the new function with a log law, and say which transformation it shows." % [plain, head],
 		["y = " + plain, "y = " + head], {
 			"rewrite-in-f": [("Log of a product: %s(%d · x) = %s(%d) + %s x, and %s(%d) = %d." % [name, power, name, power, name, name, power, e]) if is_tr else ("Log of a power: %s(x%s) = %d %s." % [name, Fmt.sup(e), e, plain]),
 				"A number added to the whole function is a translation." if is_tr else "A number multiplying the whole function is a vertical stretch."],
@@ -280,8 +309,9 @@ func u_describe_from_graphs(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var first: Dictionary = s.moves[0]
 	var tr_m: Dictionary = s.moves[1]
 	var bad: Array = []
+	var wrongs: Array = []
 	if first.k in ["vs", "hs"]:
-		bad.append(TC.chain_text(s, [{"k": first.k, "a": Q.new(1).div(first.a)}, tr_m]))
+		wrongs.append([TC.chain_text(s, [{"k": first.k, "a": Q.new(1).div(first.a)}, tr_m]), D_RATIO])
 		if not s.fam in TC.NO_HS:
 			bad.append(TC.chain_text(s, [{"k": "hs" if first.k == "vs" else "vs", "a": first.a}, tr_m]))
 	else:
@@ -294,7 +324,7 @@ func u_describe_from_graphs(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var im1 := TC.image(s.map, two[1][0], two[1][1])
 	var across := "From P to Q, x changes by %s and y by %s. From P′ to Q′, x changes by %s and y by %s." % [TC.n(s, two[1][0].sub(two[0][0])), TC.n(s, two[1][1].sub(two[0][1])), TC.n(s, im1[0].sub(im0[0])), TC.n(s, im1[1].sub(im0[1]))]
 	var read := "The ratio of those changes gives the stretch or reflection, and what is left over is the translation."
-	var out := ask(right, [], bad, "Describe the two transformations, in order, that map the graph of f onto the graph of g.", [PAIR_LINE], {
+	var out := ask(right, wrongs, bad, "Describe the two transformations, in order, that map the graph of f onto the graph of g.", [PAIR_LINE], {
 		"compare-key-points": [across, read],
 		"overlay-graphs": ["Compare the shapes: the gaps between points show any stretch or flip.", across, read],
 		"track-points": ["P%s goes to P′%s, and Q%s goes to Q′%s." % [P_(s, two[0]), P_(s, im0), P_(s, two[1]), P_(s, im1)], across],
@@ -333,7 +363,7 @@ func u_describe_after_completing_square(_rep: String, s: Dictionary, _rng: Seede
 	var form := "(%s)²%s" % [TC.x_minus(s, h), TC.plus(s, k)]
 	var done := "Halve %s to get %s, so %s = %s." % [TC.n(s, p), TC.n(s, h.neg()), line.trim_prefix("y = "), form]
 	var read := "The vertex of y = x² is (0, 0), and here it is %s." % TC.pt(s, h, k)
-	return ask(TC.tr_text(s, h, k), [[TC.tr_text(s, h.neg(), k), DESC]], [TC.tr_text(s, p, q), TC.tr_text(s, h.neg(), k.neg()), TC.tr_text(s, h, k.neg())],
+	return ask(TC.tr_text(s, h, k), [[TC.tr_text(s, h.neg(), k), DESC], [TC.tr_text(s, p, q), D_COEFFS]], [TC.tr_text(s, h.neg(), k.neg()), TC.tr_text(s, h, k.neg())],
 		"The graph of y = x² is translated onto the graph of %s. Find the translation." % line, ["y = x²", line], {
 			"rewrite-in-f": [done, "That is f(x − c) + d with c = %s and d = %s." % [TC.n(s, h), TC.n(s, k)]],
 			"substitute": ["Write (x − c)² + d = x² − 2cx + c² + d and match it with %s." % line.trim_prefix("y = "), "−2c = %s gives c = %s, and then d = %s." % [TC.n(s, p), TC.n(s, h), TC.n(s, k)]],
@@ -349,8 +379,10 @@ func u_describe_factor_inside(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var e := b.mul(c)
 	var inside := "%sx%s" % [TC.lead(s, b), TC.plus(s, e.neg())]
 	var bracket := "%s(%s)" % [TC.lead(s, b), TC.x_minus(s, c)]
-	return ask(TC.chain_text(s, s.moves), [[TC.chain_text(s, [{"k": "hs", "a": b}, TC.slide(c, 0)]), STRETCH]],
-		[TC.chain_text(s, [{"k": "hs", "a": k}, TC.slide(e, 0)]), TC.chain_text(s, [{"k": "hs", "a": k}, TC.slide(c.neg(), 0)]), TC.chain_text(s, [{"k": "vs", "a": k}, TC.slide(c, 0)])],
+	return ask(TC.chain_text(s, s.moves), [[TC.chain_text(s, [{"k": "hs", "a": b}, TC.slide(c, 0)]), STRETCH],
+		[TC.chain_text(s, [{"k": "hs", "a": k}, TC.slide(e, 0)]), D_NOT_FACTORED], [TC.chain_text(s, [{"k": "hs", "a": k}, TC.slide(c.neg(), 0)]), DESC]],
+		# The wrong axis is a slip too, but the three above always take the slots.
+		[TC.chain_text(s, [{"k": "vs", "a": k}, TC.slide(c, 0)])],
 		"Describe the transformations, in order, that map the graph of y = f(x) onto the graph of y = g(x).", ["g(x) = f(%s)" % inside], {
 			"rewrite-in-f": ["Take %s out of the bracket: %s = %s." % [TC.n(s, b), inside, bracket], "The %s on x is the stretch, and %s then gives the translation, %s." % [TC.n(s, b), TC.x_minus(s, c), across_word(s, c)]],
 			"scale-rule": ["Take %s out: g(x) = f(%s)." % [TC.n(s, b), bracket], "f(bx) is a stretch with scale factor 1/b = %s, and %s then moves the graph %s." % [TC.n(s, k), TC.x_minus(s, c), across_word(s, c)]],
@@ -364,12 +396,12 @@ func u_vector_from_key_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var ans := Answer.make("point", {"x": m.c, "y": m.d})
 	var diff := "Change in x: %s − %s = %s. Change in y: %s − %s = %s." % [TC.n(s, im[0]), par(s, p[0]), TC.n(s, m.c), TC.n(s, im[1]), par(s, p[1]), TC.n(s, m.d)]
 	var moved := "The point goes from %s to %s." % [P_(s, p), P_(s, im)]
-	var out := typed(ans, [wrong({"x": m.c.neg(), "y": m.d.neg()}), wrong({"x": m.d, "y": m.c}), wrong({"x": im[0], "y": im[1]})],
+	var out := typed(ans, [wrong({"x": m.c.neg(), "y": m.d.neg()}, D_BACKWARDS), wrong({"x": im[0], "y": im[1]}, D_POINT)],
 		"The curve is translated. Find the translation vector.", [], {
 			"compare-key-points": [moved, diff],
 			"shift-features": ["A translation moves every feature by the same vector, so follow this one point. " + moved, diff],
 			"track-points": ["Subtract the start from the end, in that order.", diff],
-		}, s)
+		}, s, [{"x": m.d, "y": m.c}])
 	if rep == "graph":
 		out.lines = [PAIR_LINE]
 		out.graph = pair_graph(s)
@@ -378,8 +410,10 @@ func u_vector_from_key_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	return out
 
 
-## The moves back from g to f: shared by describe-the-reverse and undo-in-reverse.
-static func reverse_of(s: Dictionary, lines: Array) -> Dictionary:
+## The moves back from g to f: shared by describe-the-reverse and undo-in-reverse. refs:
+## the type's two slips, each move undone but in the old order, and the old order reversed
+## with nothing undone.
+static func reverse_of(s: Dictionary, lines: Array, refs: Array) -> Dictionary:
 	var fwd: Array = s.moves
 	var back: Array = TC.undo(fwd)
 	var same_order: Array = fwd.map(func(m): return TC.inverse(m))
@@ -389,7 +423,7 @@ static func reverse_of(s: Dictionary, lines: Array) -> Dictionary:
 	kept[kept.size() - 1] = fwd[0]
 	var k: Array = s.key[0]
 	var im := TC.image(s.map, k[0], k[1])
-	return ask(TC.chain_text(s, back), [], [TC.chain_text(s, same_order), TC.chain_text(s, flipped), TC.chain_text(s, kept), TC.chain_text(s, fwd)],
+	return ask(TC.chain_text(s, back), [[TC.chain_text(s, same_order), refs[0]], [TC.chain_text(s, flipped), refs[1]]], [TC.chain_text(s, kept), TC.chain_text(s, fwd)],
 		"Which moves, in order, map the new graph back onto the original one?", lines, {
 			"compare-key-points": ["Undo each move and take them last one first: the last move went on last, so it comes off first.",
 				"Check with a point: %s goes to %s, and the moves back return it to %s." % [P_(s, k), P_(s, im), P_(s, k)]],
@@ -401,5 +435,5 @@ static func reverse_of(s: Dictionary, lines: Array) -> Dictionary:
 func u_describe_the_reverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var said := "The graph of f goes to the graph of g by %s." % TC.chain_text(s, s.moves)
 	if rep == "words":
-		return reverse_of(s, ["A curve goes to a new curve by %s." % TC.chain_text(s, s.moves)])
-	return reverse_of(s, [f_line(s), g_line(s), said])
+		return reverse_of(s, ["A curve goes to a new curve by %s." % TC.chain_text(s, s.moves)], [D_SAME_ORDER, D_NOT_UNDONE])
+	return reverse_of(s, [f_line(s), g_line(s), said], [D_SAME_ORDER, D_NOT_UNDONE])

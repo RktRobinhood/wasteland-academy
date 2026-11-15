@@ -39,6 +39,11 @@ const R_PART := SKILL + "20"
 const R_COEFSQ := SKILL + "21"
 const R_FACT := SKILL + "22"
 const R_SIMPLE := SKILL + "23"
+## Misconceptions with no ref of their own, logged by index (FAL-815).
+const R_OTHER_END := "t3-prove-identity#24"
+const R_NO_CONST := "t3-prove-identity#25"
+const R_DOUBLED := "t3-prove-identity#26"
+const R_LATER := "t3-prove-identity#27"
 
 ## statement -> the slips chain() can make on it.
 const SLIPS := {
@@ -645,13 +650,22 @@ static func wrong_lines(s: Dictionary, i: int, rng: Seeded, head: String = "") -
 	return out
 
 
+## AlgebraicProofViews.pick_answer, with each untagged option (a line of the same shape that is
+## simply wrong) declared a filler.
+static func pick(right_text: String, wrongs_in: Array) -> Dictionary:
+	var out := AlgebraicProofViews.pick_answer(right_text, wrongs_in)
+	out.fillers = out.wrongs.filter(func(w): return w.ref == "").map(func(w): return w.values)
+	out.wrongs = out.wrongs.filter(func(w): return w.ref != "")
+	return out
+
+
 # ── The proof itself ─────────────────────────────────────────
 
 func u_simplified_result(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c := chain(s)
 	var good: Dictionary = c.back()
 	var ans := typed(good, "L = ")
-	return {"asked": "Write L in the form %s." % form_name(good), "lines": named(s, rep), "answer": ans, "wrongs": slip_ends(s, good), "generic": shifted_ends(s, good),
+	return {"asked": "Write L in the form %s." % form_name(good), "lines": named(s, rep), "answer": ans, "wrongs": slip_ends(s, good), "fillers": shifted_ends(s, good),
 		"methods": routes(s, walk(c, c.size() - 1, "L") + [say(ans)], ans)}
 
 
@@ -660,7 +674,7 @@ func u_next_line(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var at := rng.int_in(1, c.size() - 1)
 	var good: Dictionary = c[at]
 	var ws: Array = [["%s − (%s) = 0" % [left(s), right(s)], R_BOTH]] + wrong_lines(s, at, rng, "= ")
-	var out := AlgebraicProofViews.pick_answer("= " + good.text, ws.slice(0, 3))
+	var out := pick("= " + good.text, ws.slice(0, 3))
 	out.asked = "Which line comes next in this proof?"
 	out.lines = [claim(s)] + numbered(c, -1, at - 1)
 	out.methods = routes(s, walk(c, at, "LHS") + [picked("So the next line is", out.answer)], out.answer)
@@ -672,7 +686,7 @@ func u_missing_line(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var c := chain(s)
 	var hide := rng.int_in(1, c.size() - 2)
 	var label := "Line %d: " % (hide + 1)
-	var out := AlgebraicProofViews.pick_answer(label + c[hide].text, wrong_lines(s, hide, rng, label).slice(0, 3))
+	var out := pick(label + c[hide].text, wrong_lines(s, hide, rng, label).slice(0, 3))
 	out.asked = "Line %d of this proof is missing. What does it say?" % (hide + 1)
 	out.lines = [claim(s)] + numbered(c, hide)
 	out.methods = routes(s, walk(c, hide, "LHS") + [picked("So the missing line is", out.answer)], out.answer)
@@ -694,8 +708,8 @@ func u_flawed_line(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			ws.append([said.call(at, w[0]), w[1]])
 	# A later line is wrong too, but it only follows the first mistake.
 	if at + 1 < bad.size() and at + 1 < c.size():
-		ws.insert(0, [said.call(at + 1, c[at + 1].text), ""])
-	var out := AlgebraicProofViews.pick_answer(said.call(at, c[at].text), ws.slice(0, 3))
+		ws.insert(0, [said.call(at + 1, c[at + 1].text), R_LATER])
+	var out := pick(said.call(at, c[at].text), ws.slice(0, 3))
 	out.asked = "Find the first line that goes wrong, and correct it."
 	out.lines = [claim(s), "A student's proof has one slip, carried down to the end:"] + numbered(bad)
 	var steps: Array = ["Check each line against the one before. Line %d does not follow from line %d." % [at + 1, at], "%s: LHS = %s" % [c[at].why, c[at].text],
@@ -761,7 +775,7 @@ func u_true_identity(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		if not seen.has(end):
 			seen[end] = true
 			ws.append(["%s ≡ %s" % [l, end], ""])
-	var out := AlgebraicProofViews.pick_answer("%s ≡ %s" % [l, c.back().text], ws.slice(0, 3))
+	var out := pick("%s ≡ %s" % [l, c.back().text], ws.slice(0, 3))
 	out.asked = "Which of these is true for every value of %s where both sides are defined?" % s.letter
 	out.lines = ["Work on the left side of each, which is the same in all four."]
 	out.methods = routes(s, walk(c, c.size() - 1, "L") + [picked("So the identity is", out.answer)], out.answer)
@@ -800,11 +814,11 @@ func u_half_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		AlgebraicProofViews.line_option(power(s, other(fn), 2, 2 * k, 1), good, R_FORM)]
 	if minus:
 		wrongs.insert(1, AlgebraicProofViews.line_option(power(s, fn, 2, -2 * k, 1), good, R_SIGN))
-	var generic: Array = [power(s, fn, 2, 4 * k, 1), power(s, fn, 2, 2 * k + 1, 1), power(s, fn, 2, 4 * k, 2)].map(func(l): return AlgebraicProofViews.line_option(l, good).values)
+	var fillers: Array = [power(s, fn, 2, 4 * k, 1), power(s, fn, 2, 2 * k + 1, 1), power(s, fn, 2, 4 * k, 2)].map(func(l): return AlgebraicProofViews.line_option(l, good).values)
 	var inner := "1 − (%s)" % cos2_form(s, "sin") if minus else "1 + %s" % cos2_form(s, "cos")
 	var steps: Array = ["Use %s: L = %s" % [cos2(s, fn), whole(k, inner)], "The 1s cancel: L = %s" % good.text, say(ans)]
 	return {"asked": "Write L in the form %s." % form_name(good), "lines": ["L = " + whole(k, "1 %s cos %s" % ["−" if minus else "+", d])], "answer": ans, "wrongs": wrongs,
-		"generic": generic, "methods": {angle: method(steps, ans.values)}}
+		"fillers": fillers, "methods": {angle: method(steps, ans.values)}}
 
 
 func u_sin2_multiple(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -814,8 +828,8 @@ func u_sin2_multiple(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var d := ang(s, 2)
 	var line: String = "%s ≡ a sin %s" % [left(s), d] if rep != "words" else "%d times the product of sin %s and cos %s is a times sin %s, for every %s." % [n, ang(s, 1), ang(s, 1), d, s.letter]
 	var steps: Array = ["%s, so %s = ½ sin %s." % [sin2(s), sc(s), d], "Multiply by %d: %s = %s." % [n, left(s), lead(a, "sin " + d)], say(ans)]
-	return {"asked": "Find a.", "lines": [line], "answer": ans, "wrongs": [wrong({"v": Q.new(n)}, R_COEF)],
-		"generic": [{"v": Q.new(2 * n)}, {"v": Q.new(n, 4)}, {"v": Q.new(n + 2)}, {"v": a.add(Q.new(1))}], "methods": {angle: method(steps, ans.values)}}
+	return {"asked": "Find a.", "lines": [line], "answer": ans, "wrongs": [wrong({"v": Q.new(n)}, R_COEF), wrong({"v": Q.new(2 * n)}, R_DOUBLED)],
+		"fillers": [{"v": Q.new(n, 4)}, {"v": Q.new(n + 2)}, {"v": a.add(Q.new(1))}], "methods": {angle: method(steps, ans.values)}}
 
 
 func u_cancel_fraction(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -826,12 +840,12 @@ func u_cancel_fraction(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wrongs: Array = [AlgebraicProofViews.alt(chain(s, R_SUM).back().text, R_SUM), AlgebraicProofViews.alt(whole(s.k, "2 %s + %s %s" % [sc(s), fn, ang(s, 1)]), R_SUM),
 		AlgebraicProofViews.alt(chain(s, R_DOUBLE).back().text, R_DOUBLE)]
 	return {"asked": "Factorise the top and cancel. Write L in the form %s." % form_name(good), "lines": named(s, "equation"), "answer": ans, "wrongs": wrongs,
-		"generic": shifted_ends(s, good), "methods": {angle: method(walk(c, c.size() - 1, "L") + [say(ans)], ans.values)}}
+		"fillers": shifted_ends(s, good), "methods": {angle: method(walk(c, c.size() - 1, "L") + [say(ans)], ans.values)}}
 
 
 func u_factor_structure(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var c := chain(s)
-	var out := AlgebraicProofViews.pick_answer("L = " + c[1].text, wrong_lines(s, 1, rng, "L = ").slice(0, 3))
+	var out := pick("L = " + c[1].text, wrong_lines(s, 1, rng, "L = ").slice(0, 3))
 	out.asked = "Which line is a correct first step in factorising L?"
 	out.lines = named(s, "equation")
 	out.methods = {angle: method([c[1].why + ".", picked("So the first step is", out.answer)], out.answer.values)}
@@ -920,7 +934,7 @@ func u_identity_value(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			var one := TrigKit.of(w[1], t)
 			slipped = [] if one.is_empty() else TrigKit.times(one, w[0])
 	out.wrongs = TrigKit.like(a, slipped, R_AT)
-	out.generic = TrigKit.others(a, [TrigKit.neg(v), TrigKit.times(v, 2), TrigKit.times(v, Q.new(1, 2)), TrigKit.times(v, 3), TrigKit.plus(v, TrigKit.V(1))].filter(func(e): return not e.is_empty()))
+	out.fillers = TrigKit.others(a, [TrigKit.neg(v), TrigKit.times(v, 2), TrigKit.times(v, Q.new(1, 2)), TrigKit.times(v, 3), TrigKit.plus(v, TrigKit.V(1))].filter(func(e): return not e.is_empty()))
 	var angle_at := Fmt.pi(t.mul(2 * int(s.w) if w.is_empty() else int(w[2]) * int(s.w)))
 	var inside := ang(s, 2) if w.is_empty() else ang(s, w[2])
 	var fn: String = "sin" if w.is_empty() else w[1]
@@ -974,9 +988,12 @@ func u_value_from_ratio(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var what: String = "tan %s" % ang(s, 1) if s.given == "tan" else "%s %s" % [s.given, ang(s, 2)]
 	var given := "%s = %s" % [what, Fmt.num(r)]
 	var wrongs: Array = ratio_slips(s).map(func(p): return wrong({"v": p[0]}, p[1]))
-	var generic: Array = [{"v": r}, {"v": v.mul(-1)}, {"v": v.mul(2)}, {"v": v.mul(Q.new(1, 2))}, {"v": v.add(Q.new(1))}, {"v": v.sub(Q.new(1))}]
+	var fillers: Array = [{"v": r}, {"v": v.mul(-1)}, {"v": v.mul(2)}, {"v": v.mul(Q.new(1, 2))}, {"v": v.add(Q.new(1))}, {"v": v.sub(Q.new(1))}]
+	# A difference of fourth powers ends on ± cos: the other sign is that form with its signs swapped.
+	if s.fam == "quartic-diff":
+		wrongs.append(wrong(fillers.pop_at(1), R_FORM))
 	var steps: Array = ["Simplify L with the identities: L = %s" % right(s), "Put in %s." % given, say(ans)]
-	return {"asked": "Find the exact value of L.", "lines": ["L = " + left(s), "%s." % given], "answer": ans, "wrongs": wrongs, "generic": generic,
+	return {"asked": "Find the exact value of L.", "lines": ["L = " + left(s), "%s." % given], "answer": ans, "wrongs": wrongs, "fillers": fillers,
 		"methods": routes(s, steps, ans)}
 
 
@@ -1015,10 +1032,15 @@ func u_greatest_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			wrongs.append(wrong({"v": Q.new(s.n).add(add)}, R_PRE))
 		elif s.fam in ["double-twice", "quartic-sin"]:
 			wrongs.append(wrong({"v": Q.new(4 * s.k).add(add)}, R_PRE))
-	var generic: Array = [{"v": (r[0] if top else r[1]).add(add)}, {"v": add}, {"v": r[1]}, {"v": v.add(Q.new(1))}, {"v": v.sub(Q.new(1))}, {"v": v.add(Q.new(2))}]
+	wrongs.append(wrong({"v": (r[0] if top else r[1]).add(add)}, R_OTHER_END))
+	var fillers: Array = [{"v": add}, {"v": v.add(Q.new(1))}, {"v": v.sub(Q.new(1))}, {"v": v.add(Q.new(2))}]
+	if top and c != 0:
+		wrongs.append(wrong({"v": r[1]}, R_NO_CONST))
+	else:
+		fillers.insert(1, {"v": r[1]})
 	var steps: Array = ["Simplify with the identities: f(%s) = %s%s" % [s.letter, right(s), tail],
 		"Its values run from %s to %s." % [Fmt.num(r[0].add(add)), Fmt.num(r[1].add(add))], say(ans)]
-	return {"asked": "Find the %s value of f." % s.want, "lines": lines, "answer": ans, "wrongs": wrongs, "generic": generic, "methods": routes(s, steps, ans)}
+	return {"asked": "Find the %s value of f." % s.want, "lines": lines, "answer": ans, "wrongs": wrongs, "fillers": fillers, "methods": routes(s, steps, ans)}
 
 
 func u_common_expression(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -1031,4 +1053,4 @@ func u_common_expression(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	steps.append("Use %s: RHS = %s" % [cos2(s, fn), good.text])
 	steps.append(say(ans).replace("So ", "Both sides reach the same expression, so the proof ends on "))
 	return {"asked": "Simplify each side on its own. Which expression do both sides reach? Write it in the form %s." % form_name(good), "lines": [claim(s, false, rhs)], "answer": ans,
-		"wrongs": slip_ends(s, good), "generic": shifted_ends(s, good), "methods": routes(s, steps, ans), "shown": {"rhs": fn}}
+		"wrongs": slip_ends(s, good), "fillers": shifted_ends(s, good), "methods": routes(s, steps, ans), "shown": {"rhs": fn}}

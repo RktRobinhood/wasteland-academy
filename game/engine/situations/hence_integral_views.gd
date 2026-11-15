@@ -18,6 +18,9 @@ const R_NO_C := SK + "2"
 const R_NOT_DIVIDED := "t5-ext-hence-integral#5"
 const R_MULTIPLIED := "t5-ext-hence-integral#6"
 const R_SIGN := "t5-ext-hence-integral#7"
+const R_NO_LOWER := "t5-ext-hence-integral#8"
+const R_KEPT_SIGN := "t5-ext-hence-integral#9"
+const R_DIFF_INTEGRAND := "t5-ext-hence-integral#10"
 const UNKNOWNS := ["find-derivative", "adjust-factor", "move-extra-term", "hence-definite", "pick-the-derivative"]
 const DIFF_WRONGS := [
 	{"name": "Multiply the derivatives of the two factors", "why": "(uv)′ is u′v + uv′, not u′v′"},
@@ -91,8 +94,13 @@ static func plus_c(t: String) -> String:
 	return t + " + C"
 
 
+## `plain` is the fillers. InverseRuleViews.choose returns them as `generic` (or, once that
+## situation is sorted, `fillers`); either way they come out as `fillers` here.
 static func pick(right: String, tagged: Array, plain: Array) -> Dictionary:
-	return InverseRuleViews.choose(right, tagged, plain)
+	var out := InverseRuleViews.choose(right, tagged, plain)
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
+	return out
 
 
 static func tag(text: String, ref: String) -> Dictionary:
@@ -255,8 +263,8 @@ func u_hence_definite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var lnn := "ln %d" % n
 		var right := SUM([[m * n, lnn], [-m * (n - 1), ""]])
 		out = {"asked": "Hence find the exact value of ∫ from 1 to %d of %s dx." % [n, T(m, "ln x")], "lines": ["d/dx (x ln x) = ln x + 1"]}
-		out.merge(pick(right, [tag(T(m, lnn), R_DERIVATIVE), tag(T(m * n, lnn), R_NOT_MOVED)],
-			[SUM([[m * n, lnn], [m * (n - 1), ""]]), SUM([[m * n, lnn], [-m * n, ""]])]))
+		out.merge(pick(right, [tag(T(m, lnn), R_DERIVATIVE), tag(T(m * n, lnn), R_NOT_MOVED),
+			tag(SUM([[m * n, lnn], [m * (n - 1), ""]]), R_KEPT_SIGN), tag(SUM([[m * n, lnn], [-m * n, ""]]), R_NO_LOWER)], []))
 		out.methods = {"rearrange-derivative": method(["Read the result backwards: ∫ ln x dx = x ln x − x + C.",
 			"So the integral is %s[x ln x − x] from 1 to %d = %s(%s − %d) − %s(0 − 1)." % [Fmt.lead(m), n, Fmt.lead(m), T(n, lnn), n, Fmt.lead(m)],
 			"So the integral is %s." % right], {"v": right})}
@@ -266,7 +274,7 @@ func u_hence_definite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var half := q(m, 2)
 	var right: String = (eb + " − 1") if half.eq(1) else T(half, "(%s − 1)" % eb)
 	out = {"asked": "Hence find the exact value of ∫ from 0 to %d of %s dx." % [b, T(m, "x e^(x²)")], "lines": ["d/dx (e^(x²)) = 2x e^(x²)"]}
-	out.merge(pick(right, [tag(T(m * b, eb), R_DERIVATIVE), tag(T(m, "(%s − 1)" % eb), R_NOT_DIVIDED)], [T(half, eb)]))
+	out.merge(pick(right, [tag(T(m * b, eb), R_DERIVATIVE), tag(T(m, "(%s − 1)" % eb), R_NOT_DIVIDED), tag(T(half, eb), R_NO_LOWER)], []))
 	out.methods = {"rearrange-derivative": method(["Read the result backwards: ∫ 2x e^(x²) dx = e^(x²) + C.",
 		"%s is %s times 2x e^(x²), so ∫ %s dx = %s + C." % [T(m, "x e^(x²)"), half.text(), T(m, "x e^(x²)"), T(half, "e^(x²)")],
 		"From 0 to %d: %s." % [b, T(half, "(%s − e⁰)" % eb)], "So the integral is %s." % right], {"v": right})}
@@ -292,7 +300,10 @@ func u_pick_the_derivative(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	}
 	var c: Array = cases[s.fam]
 	var out := {"asked": "Which derivative result helps to find %s?" % integral(c[0]), "lines": ["Each result below is true."]}
-	out.merge(pick(c[1], [], c[2]))
+	# A result that differentiates the integrand itself is the slip; the rest are fillers.
+	var own := "d/dx (%s) = " % c[0]
+	out.merge(pick(c[1], c[2].filter(func(t): return t.begins_with(own)).map(func(t): return tag(t, R_DIFF_INTEGRAND)),
+		c[2].filter(func(t): return not t.begins_with(own))))
 	out.methods = {"differentiate-check": method(["The one that helps has %s, or a multiple of it, as one term, and the other term easy to integrate." % c[0],
 		"%s." % c[1]], {"v": c[1]})}
 	return out

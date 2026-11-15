@@ -11,6 +11,15 @@ extends ExtensionViews
 ## does work when the equation is e^(kx) = c, so it can't be a wrong option there.
 
 const T := "fn-link-graph-vs-algebra"
+const R_BOTH_SIDES := T + "#15"
+const R_NO_K := T + "#16"
+const R_OVER_E := T + "#17"
+const R_GDC_ONLY := T + "#18"
+const R_TURN_X := T + "#19"
+const R_TOUCH := T + "#20"
+const R_K_FIRST := T + "#21"
+const R_FIRST_ONLY := T + "#22"
+const R_LOG_SUM := "SL1.7.log-equations#1"
 
 
 func needs() -> Dictionary:
@@ -46,9 +55,14 @@ static func pick(name: String, why: String) -> Dictionary:
 	return LinkExtremesViews.pick(name, why)
 
 
-static func ask(right: String, wrongs: Array, generic: Array, asked: String, lines: Array, methods: Dictionary, final: String,
+## wrongs [[text, ref]], fillers [text]. LinkExtremesViews.ask may return them as `generic`
+## or as `fillers`: either way they leave here as fillers.
+static func ask(right: String, wrongs: Array, fillers: Array, asked: String, lines: Array, methods: Dictionary, final: String,
 		picks: Array) -> Dictionary:
-	return LinkExtremesViews.ask(right, wrongs, generic, asked, lines, methods, final, picks)
+	var out := LinkExtremesViews.ask(right, wrongs, fillers, asked, lines, methods, final, picks)
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
+	return out
 
 
 ## e^(kx) as written: "e^x", "e^(2x)".
@@ -71,15 +85,17 @@ static func xs_text(names: Array) -> String:
 func u_which_method(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right: String
 	var eq: String
-	var generic: Array
+	var wrongs: Array
+	var fillers: Array
 	var steps: Dictionary
 	if s.solvable:
 		var k: int = s.k
 		var c: int = s.c
 		eq = "%s = %d" % [ex(k), c]
 		right = "Yes: x = %s ≈ %s" % [ln_over(c, k), S(s.x0)]
-		generic = ["No: only a GDC can solve it", ("Yes: x = ln %d ≈ %s" % [c, S(log(float(c)))]) if k > 1 else
-			("Yes: x = %d/e ≈ %s" % [c, S(c / exp(1.0))]), "No: it has no solution"]
+		wrongs = [["No: only a GDC can solve it", R_GDC_ONLY], [("Yes: x = ln %d ≈ %s" % [c, S(log(float(c)))]) if k > 1 else
+			("Yes: x = %d/e ≈ %s" % [c, S(c / exp(1.0))]), R_NO_K if k > 1 else R_OVER_E]]
+		fillers = ["No: it has no solution"]
 		steps = {
 			"intersect-two-graphs": ["Graph y = %s and y = %d: they meet once, at x = %s." % [ex(k), c, W(s.x0)],
 				"Algebra works too: x appears once, in the exponent, so taking ln isolates it."],
@@ -91,9 +107,11 @@ func u_which_method(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		eq = "%s = %d − x" % [f, a]
 		right = "No: graph both sides; x ≈ " + S(s.x0)
 		if s.form == "exp":
-			generic = ["Yes: x = ln(%d − x)" % a, "Yes: x = ln %d ≈ %s" % [a, S(log(float(a)))], "No: it has no solution"]
+			wrongs = [["Yes: x = ln(%d − x)" % a, R_BOTH_SIDES]]
+			fillers = ["Yes: x = ln %d ≈ %s" % [a, S(log(float(a)))], "No: it has no solution"]
 		else:
-			generic = ["Yes: x = e^(%d − x)" % a, "Yes: x = %d − ln x" % a, "No: it has no solution"]
+			wrongs = [["Yes: x = e^(%d − x)" % a, R_BOTH_SIDES], ["Yes: x = %d − ln x" % a, R_BOTH_SIDES]]
+			fillers = ["No: it has no solution"]
 		var other := "y = %d − x" % a
 		steps = {
 			"intersect-two-graphs": ["Graph y = %s and %s: they meet once, at x = %s." % [f, other, W(s.x0)],
@@ -102,7 +120,7 @@ func u_which_method(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 				("Raising e to both sides gives x = e^(%d − x): x is still on both sides." % a),
 				"So graph both sides instead: they meet at x = %s." % W(s.x0)],
 		}
-	return ask(right, [], generic, "Can %s be solved exactly by algebra? Choose the true statement." % eq, [eq], steps,
+	return ask(right, wrongs, fillers, "Can %s be solved exactly by algebra? Choose the true statement." % eq, [eq], steps,
 		"So the true statement is: %s." % right, [])
 
 
@@ -165,8 +183,8 @@ func u_count_trig_solutions(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var b1: Q = first_turn[1]
 	var listed := xs_text(sols.map(func(x): return Fmt.pi(x))).trim_prefix("x = ")
 	var final: String = "So there are " + right + "."
-	var out := ask(right, [[sols_text(sols + [s.next]), "SL2.10.number-of-solutions#1"], [sols_text(first_turn), "SL3.8.graphical#0"]],
-		[sols_text(other), sols_text(sols.slice(0, 1))],
+	var out := ask(right, [[sols_text(sols + [s.next]), "SL2.10.number-of-solutions#1"], [sols_text(first_turn), "SL3.8.graphical#0"],
+		[sols_text(sols.slice(0, 1)), R_FIRST_ONLY]], [sols_text(other)],
 		"How many solutions has %s for %s? Find them." % [eq, dom], [eq + ", for " + dom], {
 			"horizontal-line-sweep": ["%s means %s: draw y = %s across y = %s x for %s." % [eq, half, N(Q.new(s.sign, 2)), s.fn, dom],
 				"It crosses %d times, at x = %s." % [sols.size(), listed]],
@@ -204,25 +222,27 @@ func u_k_for_count(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var at := "k = %s or k = %s" % [L, H]
 	var right: String
 	var wrongs: Array = []
-	var generic: Array
+	var fillers: Array
 	var why: String
 	match int(s.count):
 		3:
 			right = inside
-			wrongs = [[closed, "SL2.10.number-of-solutions#0"]]
-			generic = [outside, at, "%s < k < %s" % [N(p), N(q)]]
+			wrongs = [[closed, "SL2.10.number-of-solutions#0"], ["%s < k < %s" % [N(p), N(q)], R_TURN_X]]
+			fillers = [outside, at]
 			why = "Strictly between them, y = k crosses all three branches; at %s or %s it only touches a turning point." % [L, H]
 		2:
 			right = at
-			generic = [inside, closed, "k = %s or k = %s" % [N(p), N(q)]]
+			wrongs = [["k = %s or k = %s" % [N(p), N(q)], R_TURN_X]]
+			fillers = [inside, closed]
 			why = "Exactly at a turning value, y = k touches the curve there and crosses it once more."
 		_:
 			right = outside
-			generic = ["k ≤ %s or k ≥ %s" % [L, H], inside, at]
+			wrongs = [["k ≤ %s or k ≥ %s" % [L, H], R_TOUCH]]
+			fillers = [inside, at]
 			why = "Below %s or above %s, y = k misses the turning points and crosses once." % [L, H]
 	var count: String = ["one solution", "two solutions", "three solutions"][int(s.count) - 1]
 	var fx := "f(x) = " + Fmt.poly([1, s.b, s.c, s.d])
-	var out := ask(right, wrongs, generic, "Find the values of k for which f(x) = k has exactly %s." % count,
+	var out := ask(right, wrongs, fillers, "Find the values of k for which f(x) = k has exactly %s." % count,
 		["The graph of %s is shown, with its turning points %s and %s." % [fx, Fmt.point(p, hi), Fmt.point(q, lo)]], {
 			"horizontal-line-sweep": ["Slide the line y = k up the graph.",
 				"Below %s it crosses once; at %s two; between, three; at %s two; above, once." % [L, L, H]],
@@ -292,7 +312,8 @@ func u_log_equation_check(rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	var both := "x = %s or x = %s" % [N(r), N(bad)]
 	var roots := "x = %s or x = %s" % [N(r), N(bad)]
 	var lhs := "ln x + ln(x + %d)" % a
-	var out := ask(right, [[both, keep]], ["x = " + N(bad), "x = " + N(Q.new(b - a, 2)), "No solution"],
+	# ln x + ln(x + a) taken as ln(2x + a): 2x + a = b.
+	var out := ask(right, [[both, keep], ["x = " + N(Q.new(b - a, 2)), R_LOG_SUM]], ["x = " + N(bad), "No solution"],
 		"Solve %s." % eq, [eq], {
 			"intersect-two-graphs": ["Graph Y1 = %s and Y2 = ln %d: they meet once, at x = %d." % [lhs, b, r],
 				"The left side exists only for x > 0, so there is no other meeting point."],
@@ -327,8 +348,14 @@ func u_exponential_two_ways(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var log10 := log(float(c)) / log(10.0) / k
 	var g1 := ("x = ln(%s) ≈ %s" % [N(Q.new(c, k)), S(log(float(c) / k))]) if k > 1 else ("x = (ln %d)/2 ≈ %s" % [c, S(log(float(c)) / 2.0)])
 	var final: String = "So " + right + "."
-	return ask(right, [["x = %s ≈ %s" % [ln_over(c, k, "log"), S(log10)], "SL1.5.evaluate-tech#0"]],
-		[g1, "x = %d/e ≈ %s" % [c, S(c / exp(1.0))], "x = −%s ≈ %s" % [ln_over(c, k), S(-x)]],
+	# e^(kx) = c taken as e^x = c/k is a slip; (ln c)/2 for k = 1 has no route to it.
+	var wrongs: Array = [["x = %s ≈ %s" % [ln_over(c, k, "log"), S(log10)], "SL1.5.evaluate-tech#0"], ["x = %d/e ≈ %s" % [c, S(c / exp(1.0))], R_OVER_E]]
+	var fillers: Array = ["x = −%s ≈ %s" % [ln_over(c, k), S(-x)]]
+	if k > 1:
+		wrongs.append([g1, R_K_FIRST])
+	else:
+		fillers.push_front(g1)
+	return ask(right, wrongs, fillers,
 		"Solve %s exactly, and give x to 3 s.f." % eq, [eq], {
 			"apply-inverse": ["Take ln of both sides: %s = ln %d." % ["x" if k == 1 else "%dx" % k, c], "So x = %s = %s." % [ln_over(c, k), W(x)]],
 			"graph-check": ["Graph y = %s and y = %d: they meet once, at x = %s." % [ex(k), c, W(x)], "That agrees with %s." % ln_over(c, k)],

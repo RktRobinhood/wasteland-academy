@@ -20,6 +20,16 @@ const SETS := ["root", "recip", "exp", "ln", "log2", "sin", "sq", "vert", "pts"]
 ## fraction-free expansion.
 const P1_ONLY := ["describe-log-rewrite", "describe-after-completing-square", "sketch-reflection", "reflect-rule"]
 
+const TO := "fn-concept-transform-order#"
+const C_INSIDE_AS_Y := TO + "5"
+const C_SWAP_IO := TO + "6"
+const C_SAME_IO := TO + "7"
+const C_OUTSIDE_IN := TO + "8"
+const C_SWAP_ORDERS := TO + "9"
+const C_SAME_AXIS := TO + "10"
+const C_SAME_ORDER := TO + "11"
+const C_NOT_UNDONE := TO + "12"
+
 const ORDER_PICKS := [
 	{"name": "Add the two scale factors", "why": "a scale factor multiplies, and adding says nothing about the order"},
 	{"name": "Read the numbers in the order they are written", "why": "the order written in a rule is not always the order of the moves"},
@@ -115,8 +125,8 @@ func u_two_orders(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var lines: Array = [f_given(rep, s), "Two moves: %s, and %s." % [TC.move_text(s, stretch_m), TC.move_text(s, t)]]
 	var written := "Stretch first: %s. Translation first: %s." % [f_form(s, first), f_form(s, second)]
 	var track := "Follow %s: it lands at %s one way and %s the other." % [P_(s, k), P_(s, im1), P_(s, im2)]
-	return ask(say.call(first, second, im1, im2), [[never, COMP_ORDER]],
-		[say.call(second, first, im2, im1), say.call(first, shifted, im1, wrong_im), say.call(shifted, second, wrong_im, im2)],
+	return ask(say.call(first, second, im1, im2), [[never, COMP_ORDER], [say.call(second, first, im2, im1), C_SWAP_ORDERS]],
+		[say.call(first, shifted, im1, wrong_im), say.call(shifted, second, wrong_im, im2)],
 		"Find g(x) for each order, and where a point goes each way.", lines, {
 			"step-by-step-substitution": [written, track],
 			"track-a-point": [track, written],
@@ -141,7 +151,7 @@ func u_which_pairs_commute(_rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var yes := "%s: one acts on x and the other on y, so neither changes the other" % pair_text(s, free_pair[0], free_pair[1])
 	var wrongs: Array = [["any two moves: the order of moves never matters", COMP_ORDER]]
 	for b in rng.shuffled(bound):
-		wrongs.append(["%s: one acts on x and the other on y, so neither changes the other" % pair_text(s, b[0], b[1]), ""])
+		wrongs.append(["%s: one acts on x and the other on y, so neither changes the other" % pair_text(s, b[0], b[1]), C_SAME_AXIS])
 	var show := "Try each pair on y = f(x), first one way and then the other, and compare the two rules."
 	return ask(yes, wrongs, [], "Which pair of moves gives the same graph in either order, for every f?", ["Think of each pair as two moves on y = f(x)."], {
 		"step-by-step-substitution": [show, "Moves along one axis interfere: a stretch changes the size of a translation that came before it.", "Moves along different axes don't."],
@@ -162,7 +172,13 @@ func u_inside_opposite(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			else "%s reaches each input %s sooner, so the graph is moved the opposite way to the sign" % [more, TC.n(s, c.abs_q())]
 		right = "%s: %s" % [across_word(s, c), why]
 		wrongs = [["%s: the sign says which way" % across_word(s, c.neg()), DESC]]
-		bad = ["%s: the number is added" % vert_word(s, c), "%s: the number is taken away" % vert_word(s, c.neg())]
+		bad = ["%s: the number is added" % vert_word(s, c)]
+		# x − c read as f(x) − c, a move down: only x − c says "taken away".
+		var down := "%s: the number is taken away" % vert_word(s, c.neg())
+		if c.sign() > 0:
+			wrongs.append([down, C_INSIDE_AS_Y])
+		else:
+			bad.append(down)
 		track = ["%s = 0 at x = %s, so what f did at 0, g does at %s." % [more, TC.n(s, c), TC.n(s, c)], "So every point moves %s." % across_word(s, c)]
 		scale = track
 	else:
@@ -170,8 +186,8 @@ func u_inside_opposite(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var b: Q = s.map.B
 		var why := "%sx reaches each input at %s times the x, so the factor is the reciprocal" % [TC.lead(s, b), TC.n(s, k)]
 		right = "%s: %s" % [TC.hs_text(s, k), why]
-		wrongs = [["%s: the number with x is the factor" % TC.hs_text(s, b), STRETCH]]
-		bad = ["%s: the number with x is the factor" % TC.vs_text(s, b), "%s: the number is outside the function" % TC.vs_text(s, k)]
+		wrongs = [["%s: the number with x is the factor" % TC.hs_text(s, b), STRETCH], ["%s: the number with x is the factor" % TC.vs_text(s, b), C_INSIDE_AS_Y]]
+		bad = ["%s: the number is outside the function" % TC.vs_text(s, k)]
 		scale = ["f(bx) is a horizontal stretch with scale factor 1/b, here 1 ÷ %s = %s." % [TC.n(s, b), TC.n(s, k)], "x must be %s times the size to give the same input." % TC.n(s, k)]
 		track = ["What f did at x, g does at %s times x." % TC.n(s, k), "So every x-coordinate is multiplied by %s." % TC.n(s, k)]
 	var out := ask(right, wrongs, bad, "How does the graph of g sit compared with the graph of f, and why?", ["g(x) = " + f_form(s, s.map)], {
@@ -236,13 +252,13 @@ func u_inside_vs_outside(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		swapped = "A is %s, B is %s" % [out_name if a_inner else in_name, in_name if a_inner else out_name]
 		same = "A and B are the same graph"
 		var pair := "%s %s; %s %s." % [in_name, in_says, out_name, out_says]
-		out = ask(right, [], [swapped, same, "neither is a move of f", "A is %s, B is %s" % [TC.f_rule(s), TC.f_rule(s)]], "Which curve is which, in the graph shown?", lines + ["Curve A goes through the marked point A, and curve B through B."], {
+		out = ask(right, [[swapped, C_SWAP_IO], [same, C_SAME_IO]], ["neither is a move of f", "A is %s, B is %s" % [TC.f_rule(s), TC.f_rule(s)]], "Which curve is which, in the graph shown?", lines + ["Curve A goes through the marked point A, and curve B through B."], {
 			"scale-rule": [reading, pair],
 			"rewrite-in-f": ["Compare each with f(x): %s" % pair, reading],
 		})
 		out.graph = g
 		return out
-	return ask(right, [], [swapped, same, both.call(in_says, in_says), both.call(out_says, out_says)], "What does each do to the graph of f, and along which axis?", lines, {
+	return ask(right, [[swapped, C_SWAP_IO], [same, C_SAME_IO]], [both.call(in_says, in_says), both.call(out_says, out_says)], "What does each do to the graph of f, and along which axis?", lines, {
 		"scale-rule": [reading, "%s %s." % [in_name, in_says], "%s %s." % [out_name, out_says]],
 		"rewrite-in-f": ["Both are written with f, so read where the change sits.", reading],
 	})
@@ -261,15 +277,17 @@ func u_order_from_bracket(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		var b := Q.new(1).div(k)
 		var e := b.mul(c)
 		line = "g(x) = f(%sx%s)" % [TC.lead(s, b), TC.plus(s, e.neg())]
-		wrongs = [[TC.chain_text(s, [moves[0], TC.slide(e, 0)]), COMP_IN]]
-		bad = [TC.chain_text(s, [{"k": "hs", "a": b}, moves[1]]), TC.chain_text(s, [moves[0], TC.slide(c.neg(), 0)]), TC.chain_text(s, [moves[1], {"k": "hs", "a": b}])]
+		wrongs = [[TC.chain_text(s, [moves[0], TC.slide(e, 0)]), COMP_IN], [TC.chain_text(s, [{"k": "hs", "a": b}, moves[1]]), STRETCH],
+			[TC.chain_text(s, [moves[0], TC.slide(c.neg(), 0)]), DESC]]
+		bad = [TC.chain_text(s, [moves[1], {"k": "hs", "a": b}])]
 		lead_step = "Take %s out of the bracket: g(x) = f(%s(%s))." % [TC.n(s, b), TC.lead(s, b), TC.x_minus(s, c)]
 	else:
 		var d: Q = moves[0].d
 		var a: Q = moves[1].a
 		line = "g(x) = %s(f(x)%s)" % [TC.lead(s, a), TC.plus(s, d)]
 		var ad := a.mul(d)
-		bad = [TC.chain_text(s, [moves[1], moves[0]]), TC.chain_text(s, [TC.slide(0, ad), moves[1]]), TC.chain_text(s, [TC.slide(0, d.neg()), moves[1]]), TC.chain_text(s, [TC.slide(0, d), {"k": "vs", "a": Q.new(1).div(a)}])]
+		wrongs = [[TC.chain_text(s, [moves[1], moves[0]]), C_OUTSIDE_IN]]
+		bad = [TC.chain_text(s, [TC.slide(0, ad), moves[1]]), TC.chain_text(s, [TC.slide(0, d.neg()), moves[1]]), TC.chain_text(s, [TC.slide(0, d), {"k": "vs", "a": Q.new(1).div(a)}])]
 		lead_step = "Work from the bracket out: f(x)%s comes first, then the %s multiplies all of it." % [TC.plus(s, d), TC.n(s, a)]
 	var so := "That is %s." % right
 	return ask(right, wrongs, bad, "Give an order of moves that takes the graph of y = f(x) to the graph of y = g(x), and the size of each.", [line], {
@@ -288,10 +306,10 @@ func u_point_both_orders(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var im1 := TC.image(first, k[0], k[1])
 	var im2 := TC.image(second, k[0], k[1])
 	var say := func(p1: Array, p2: Array) -> String: return "stretch first, %s; translation first, %s" % [P_(s, p1), P_(s, p2)]
-	var swapped_ref: String = IM_ORDER if stretch_m.k == "vs" else ""
+	var swapped_ref: String = IM_ORDER if stretch_m.k == "vs" else C_SWAP_ORDERS
 	var off: Array = [im1[0].add(1), im1[1].add(1)]
 	var lines: Array = ["The point P%s lies on y = f(x)." % P_(s, k), "Two moves: %s, and %s." % [TC.move_text(s, stretch_m), TC.move_text(s, t)]]
-	var out := ask(say.call(im1, im2), [[say.call(im2, im1), swapped_ref]], [say.call(im1, im1), say.call(im2, im2), say.call(off, im2)],
+	var out := ask(say.call(im1, im2), [[say.call(im2, im1), swapped_ref], [say.call(im1, im1), COMP_ORDER], [say.call(im2, im2), COMP_ORDER]], [say.call(off, im2)],
 		"Find the image of P under each order.", lines, {
 			"track-a-point": ["Stretch, then translate: %s." % P_(s, im1), "Translate, then stretch: %s." % P_(s, im2)],
 			"step-by-step": ["Stretch first: the stretch acts on %s, and the translation is added after, giving %s." % [P_(s, k), P_(s, im1)],
@@ -304,4 +322,4 @@ func u_point_both_orders(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 
 
 func u_undo_in_reverse(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	return reverse_of(s, ["A curve goes to a new curve by %s." % TC.chain_text(s, s.moves)])
+	return reverse_of(s, ["A curve goes to a new curve by %s." % TC.chain_text(s, s.moves)], [C_SAME_ORDER, C_NOT_UNDONE])
