@@ -1,5 +1,5 @@
 {
-  "about": "Who narrates explainer clips. A clip names its map zone (the island ids in game/ui/map.gd, plus foundations) and is narrated by that zone's tutor; recordings go in game/assets/audio/voice/<tutor>/clips/<clip id>/. Tutors are the regional cast from GitHub issue #18, not the story characters (Spark, Gear Mira, Dax, Noma). Every entry here is that issue's starting proposal and none is approved: casting, names and accents are decided on #18. When a tutor is approved, set status to 'approved' and fill in sheet and brief. Nothing may be recorded for a clip until its tutor is approved.",
+  "about": "Who narrates explainer clips, and the voice of every cast character. A clip names its map zone (the island ids in game/ui/map.gd, plus foundations) and is narrated by that zone's tutor; recordings go in game/assets/audio/voice/<tutor>/clips/<clip id>/. Tutors are the regional cast from GitHub issue #18; story characters are under 'characters'. Casting was decided by the board on FAL-927 (2026-11-15). An approved voice is fixed: every line is recorded with the same provider, model, voice and direction (word for word) and the same processing. Changing any of them means re-recording every line for that character. Nothing may be recorded for a clip until its tutor is approved. Credit each clip as 'Generated with Gemini text-to-speech (<model>, voice <voice>) via the Gemini API', with the direction and the date.",
   "zones": {
     "foundations": "tin-can-tess",
     "algebra": "mags-the-ledger",
@@ -9,11 +9,176 @@
     "calculus": "calc"
   },
   "teachers": {
-    "tin-can-tess": { "name": "Tin-Can Tess", "status": "provisional", "direction": "Scrapyard mechanic. Female, lively Australian English, wry, approachable.", "sheet": null, "brief": null },
-    "mags-the-ledger": { "name": "Mags the Ledger", "status": "provisional", "direction": "Wasteland trader who treats equations as negotiations. Female, rugged outback Australian English, quick-witted, commanding.", "sheet": null, "brief": null },
-    "rook-dead-air": { "name": "Rook Dead-Air", "status": "provisional", "direction": "Communications engineer: inputs, outputs, unstable transmissions. Male, South African English influence, precise but increasingly excitable.", "sheet": null, "brief": null },
-    "kara-meridian": { "name": "Kara Meridian", "status": "provisional", "direction": "Desert surveyor with homemade instruments. Female, southern African English, measured, confident.", "sheet": null, "brief": null },
-    "lucky-lenoir": { "name": "Lucien \"Lucky\" Lenoir", "status": "provisional", "direction": "Charming gamesmaster who keeps losing to probability. Male, French-accented English, theatrical but intelligible.", "sheet": null, "brief": null },
-    "calc": { "name": "C.A.L.C.", "status": "provisional", "direction": "Damaged reactor-maintenance AI obsessed with rates of change. Synthetic voice, expressive glitching.", "sheet": null, "brief": null }
+    "tin-can-tess": {
+      "name": "Tin-Can Tess",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "en-nz-commercial-3",
+      "direction": "A woman in her thirties with a strong, natural New Zealand English accent, clearly Kiwi on every line. A scrapyard mechanic: lively, wry and approachable, a bright voice with a bit of grit, quick to laugh at her own jokes. Grounded and natural, not theatrical. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "cast_take": {
+        "task": "FAL-940",
+        "date": "2026-11-15",
+        "sha256_16": "3faee72f957a9379"
+      },
+      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)",
+      "sheet": null,
+      "brief": null
+    },
+    "mags-the-ledger": {
+      "name": "Mags the Ledger",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "en-au-tutor-3",
+      "direction": "A woman in her forties with a strong, natural rural Australian accent, clearly Australian on every line. A low, confident, warm voice with a dry edge, quick-witted and commanding, a trader who enjoys a hard bargain. Grounded and natural, not theatrical or spooky. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "cast_take": {
+        "task": "FAL-937",
+        "date": "2026-11-15",
+        "sha256_16": "d6d945a1b6e203fe"
+      },
+      "approved_on": "FAL-927 round-6 card 59f9e885 (2026-11-15)",
+      "sheet": null,
+      "brief": null
+    },
+    "rook-dead-air": {
+      "name": "Rook Dead-Air",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "en-za-storyteller-1",
+      "direction": "A man in his forties with a strong, unmistakable South African English accent, clearly South African on every line, the flat clipped vowels and crisp consonants of a Johannesburg radio man. A mid-low voice with a slight radio-operator rasp, precise clipped diction, dry and steady, speeds up a little when he gets excited. Grounded and natural, not theatrical. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "cast_take": {
+        "task": "FAL-927",
+        "date": "2026-11-15",
+        "sha256_16": "110fe8d3bd65082f"
+      },
+      "approved_on": "FAL-927 round-7 card e466bd05 (2026-11-15)",
+      "sheet": null,
+      "brief": null
+    },
+    "kara-meridian": {
+      "name": "Kara Meridian",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "gacrux",
+      "direction": "A woman in her forties with a strong, natural Nigerian English accent, clearly Nigerian on every line, the warm, rhythmic, clearly articulated English of Lagos. A desert surveyor who builds her own instruments: measured, confident and calm, a rich mid-low voice. Grounded and natural, not theatrical. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "cast_take": {
+        "task": "FAL-940",
+        "date": "2026-11-15",
+        "sha256_16": "884e1c574aba64bf"
+      },
+      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)",
+      "sheet": null,
+      "brief": null,
+      "direction_note": "Nigerian English comes from the direction only; the voice library has no Nigerian voice. Check each take for drift towards another accent."
+    },
+    "lucky-lenoir": {
+      "name": "Lucien \"Lucky\" Lenoir",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "fr-fr-podcaster-8",
+      "direction": "A man in his thirties speaking English with a strong, natural French accent, clearly French on every line, but every word easy to understand. A charming wasteland gamesmaster who keeps losing to probability: playful, theatrical and warm, a smooth mid-low voice with a showman's flourish. Natural, not a caricature. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "cast_take": {
+        "task": "FAL-940",
+        "date": "2026-11-15",
+        "sha256_16": "3efb7341a0346bdc"
+      },
+      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)",
+      "sheet": null,
+      "brief": null,
+      "direction_note": "A French voice reading English; the accent comes from the voice."
+    },
+    "calc": {
+      "name": "C.A.L.C.",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "charon",
+      "direction": "A damaged reactor-maintenance AI. An even, precise, synthetic-sounding voice, slightly flat and clipped, with a dry, deadpan wit and sudden bursts of enthusiasm about rates of change. Clear and steady, every word distinct. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then glitch FX (acrusher=bits=8:samples=2:mix=0.45:mode=log,aecho=0.8:0.6:4|9:0.35|0.25,flanger=delay=2:depth=2:regen=50:width=70:speed=0.15), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "cast_take": {
+        "task": "FAL-940",
+        "date": "2026-11-15",
+        "sha256_16": "9085a11b6119a9b1"
+      },
+      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)",
+      "sheet": null,
+      "brief": null
+    }
+  },
+  "characters": {
+    "bodge": {
+      "name": "Bodge",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "en-au-storyteller-1",
+      "direction": "An older woman in her sixties, weathered and gruff, with a husky, lived-in rasp and a strong, broad Australian accent. Cheerful and slightly unhinged, with sudden flat deadpan asides, warm underneath. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "cast_take": {
+        "task": "FAL-937",
+        "date": "2026-11-15",
+        "sha256_16": "b0e0c22d944b746c"
+      },
+      "approved_on": "FAL-927 round-6 card 59f9e885 (2026-11-15)"
+    },
+    "gear-mira": {
+      "name": "Gear Mira",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "en-gb-csagent-9",
+      "direction": "A young woman in her late twenties, a practical, patient mechanic and teacher. A warm, grounded voice, calm and clear, who finishes every sentence. Under pressure her sentences get shorter, not louder. Natural, not theatrical. Speaks with a natural Glasgow Scottish accent. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "cast_take": {
+        "task": "FAL-940",
+        "date": "2026-11-15",
+        "sha256_16": "6c51f5549fb1b64e"
+      },
+      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)"
+    },
+    "dax": {
+      "name": "Dax",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "en-gb-concierge-12",
+      "direction": "An older man in his late fifties, a friendly, fast-talking wasteland trader. A warm, slightly rough voice, talky and persuasive, long sentences tumbling one into the next, then a short line to close the deal. Natural, not theatrical. Speaks with a natural Newcastle Geordie accent. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "cast_take": {
+        "task": "FAL-940",
+        "date": "2026-11-15",
+        "sha256_16": "273f8e17a4ff1288"
+      },
+      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)"
+    },
+    "noma": {
+      "name": "Noma",
+      "status": "approved",
+      "provider": "gemini",
+      "model": "gemini-3.8-flash-tts",
+      "voice": "en-in-storyteller-9",
+      "direction": "An elderly woman in her seventies, the wise map-keeper of the bazaar. A warm, slow, unhurried voice, a little weathered, sentences that wander and then land exactly. Never hurries, even when the news is bad. Natural, not theatrical. Speaks with a natural Indian English accent. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
+      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "cast_take": {
+        "task": "FAL-940",
+        "date": "2026-11-15",
+        "sha256_16": "f041751a2f2c7913"
+      },
+      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)"
+    },
+    "spark": {
+      "name": "Spark",
+      "status": "provisional",
+      "note": "Round-1 Gemini voices (pulcherrima, puck) rejected on FAL-927 card bf4fcd36; round 2 is on FAL-927. The shipped move clips are local VoxCPM2 (FAL-428) until a Gemini voice is approved and they are re-recorded."
+    }
   }
 }
