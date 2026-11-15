@@ -72,7 +72,7 @@
       "lesson": "lesson.fn.pre-change-subject",
       "question_types": ["fn-pre-rearrange"],
       "threads": [],
-      "priority": { "parts": 0, "rank": 64 }
+      "priority": { "parts": 0, "rank": 65 }
     },
     {
       "id": "ex.foundations.pre-simultaneous",
@@ -89,7 +89,7 @@
       "lesson": "lesson.fn.pre-simultaneous",
       "question_types": ["fn-pre-simultaneous"],
       "threads": [],
-      "priority": { "parts": 0, "rank": 22 }
+      "priority": { "parts": 0, "rank": 18 }
     },
     {
       "id": "ex.foundations.pre-linear-inequalities",
@@ -123,7 +123,7 @@
       "lesson": "lesson.fn.pre-expand",
       "question_types": ["fn-pre-expand"],
       "threads": [],
-      "priority": { "parts": 0, "rank": 18 }
+      "priority": { "parts": 0, "rank": 19 }
     },
     {
       "id": "ex.foundations.pre-factorise",
@@ -174,7 +174,7 @@
       "lesson": "lesson.fn.pre-algebraic-fractions",
       "question_types": ["fn-pre-algebraic-fractions"],
       "threads": [],
-      "priority": { "parts": 0, "rank": 61 }
+      "priority": { "parts": 0, "rank": 62 }
     },
     {
       "id": "ex.foundations.pre-percent-multiplier",
@@ -224,7 +224,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 19 }
+      "priority": { "parts": 0, "rank": 20 }
     },
     {
       "id": "ex.foundations.distance-midpoint-2d",
@@ -240,7 +240,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 119 }
+      "priority": { "parts": 0, "rank": 120 }
     },
     {
       "id": "ex.foundations.area-and-volume",
@@ -256,7 +256,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 95 }
+      "priority": { "parts": 0, "rank": 96 }
     },
     {
       "id": "ex.algebra.standard-form",
@@ -273,7 +273,7 @@
       "methods": [],
       "question_types": ["t1-standard-form"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 2, "rank": 157 }
+      "priority": { "parts": 2, "rank": 160 }
     },
     {
       "id": "ex.algebra.standard-form-arithmetic",
@@ -290,7 +290,7 @@
       "methods": ["by-hand", "gdc"],
       "question_types": ["t1-standard-form", "t1-ext-standard-form-add", "t1-ext-standard-form-powers"],
       "threads": [],
-      "priority": { "parts": 1, "rank": 172 }
+      "priority": { "parts": 1, "rank": 175 }
     },
     {
       "id": "ex.algebra.rounding-accuracy",
@@ -307,7 +307,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 229 }
+      "priority": { "parts": 0, "rank": 232 }
     },
     {
       "id": "ex.algebra.bounds-and-error",
@@ -324,7 +324,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 256 }
+      "priority": { "parts": 0, "rank": 259 }
     },
     {
       "id": "ex.algebra.arithmetic-sequence",
@@ -335,13 +335,32 @@
       "layer": "core",
       "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"],
       "subtopics": ["SL1.2"],
-      "skills": ["SL1.2.nth-term", "SL1.2.find-u1-d", "SL1.2.find-n"],
-      "prereqs": ["ex.foundations.pre-balance"],
+      "skills": ["SL1.2.nth-term"],
+      "prereqs": ["ex.foundations.pre-substitute"],
       "related": ["ex.functions.gradient", "ex.functions.line-model"],
       "methods": [],
+      "question_types": ["t1-arithmetic-sequence", "fn-link-rate-of-change"],
+      "threads": ["rate-of-change"],
+      "priority": { "parts": 4.8, "rank": 33 },
+      "note": "Teaches the nth term only, as pilot 1 does (FAL-952); working back from given terms is ex.algebra.arithmetic-from-terms."
+    },
+    {
+      "id": "ex.algebra.arithmetic-from-terms",
+      "title": "Working Back from the Terms",
+      "zone": "algebra",
+      "cluster": "Sequences and series",
+      "idea": "Set uₙ = u₁ + (n − 1)d equal to the terms you are given and solve for the missing u₁, d or n, counting the gaps between terms rather than the terms.",
+      "layer": "core",
+      "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"],
+      "subtopics": ["SL1.2"],
+      "skills": ["SL1.2.find-u1-d", "SL1.2.find-n"],
+      "prereqs": ["ex.algebra.arithmetic-sequence", "ex.foundations.pre-balance", "ex.foundations.pre-simultaneous"],
+      "related": ["ex.functions.gradient"],
+      "methods": ["simultaneous-equations", "count-the-gaps"],
       "question_types": ["t1-arithmetic-in-context", "t1-arithmetic-sequence", "fn-link-rate-of-change"],
       "threads": ["rate-of-change", "graph-vs-algebra"],
-      "priority": { "parts": 17.9, "rank": 33 }
+      "priority": { "parts": 13.1, "rank": 108 },
+      "note": "Split from ex.algebra.arithmetic-sequence so each script stays under 8 minutes (FAL-952). Two given terms need simultaneous equations; one term and its value need only the balance."
     },
     {
       "id": "ex.algebra.arithmetic-series",
@@ -352,13 +371,32 @@
       "layer": "core",
       "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"],
       "subtopics": ["SL1.2"],
-      "skills": ["SL1.2.sum", "SL1.2.sum-unknown"],
+      "skills": ["SL1.2.sum"],
       "prereqs": ["ex.algebra.arithmetic-sequence"],
       "related": [],
-      "methods": ["formula-with-d", "formula-with-last-term", "gdc"],
+      "methods": ["formula-with-d", "formula-with-last-term"],
       "question_types": ["t1-arithmetic-sequence", "t5-link-accumulation"],
-      "threads": ["accumulation", "symmetry", "graph-vs-algebra"],
-      "priority": { "parts": 9.6, "rank": 68 }
+      "threads": ["accumulation", "symmetry"],
+      "priority": { "parts": 4.8, "rank": 60 },
+      "note": "Teaches the sum only, as pilot 2 does (FAL-952); the two forms of the formula are its two methods, and the GDC routes belong in a method explainer. Finding an unknown from a sum is ex.algebra.arithmetic-sum-unknown."
+    },
+    {
+      "id": "ex.algebra.arithmetic-sum-unknown",
+      "title": "Working Back from a Sum",
+      "zone": "algebra",
+      "cluster": "Sequences and series",
+      "idea": "Put what you know into the sum formula and solve for the unknown: a quadratic in n when the number of terms is missing, or linear equations in u₁ and d when n is known.",
+      "layer": "core",
+      "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"],
+      "subtopics": ["SL1.2"],
+      "skills": ["SL1.2.sum-unknown"],
+      "prereqs": ["ex.algebra.arithmetic-series", "ex.functions.gdc-solve", "ex.foundations.pre-simultaneous"],
+      "related": ["ex.algebra.arithmetic-from-terms"],
+      "methods": ["quadratic-in-n", "gdc-table"],
+      "question_types": ["t1-arithmetic-sequence"],
+      "threads": ["graph-vs-algebra"],
+      "priority": { "parts": 4.8, "rank": 149 },
+      "note": "Split from ex.algebra.arithmetic-series (FAL-952). The quadratic in n is solved on the GDC (ex.functions.gdc-solve) because the by-hand quadratic formula is AA only; two given sums need simultaneous equations."
     },
     {
       "id": "ex.algebra.sigma-notation",
@@ -375,7 +413,7 @@
       "methods": [],
       "question_types": ["t1-geometric-sequence", "t1-ext-sigma-arithmetic"],
       "threads": ["accumulation"],
-      "priority": { "parts": 2.3, "rank": 163 }
+      "priority": { "parts": 2.3, "rank": 166 }
     },
     {
       "id": "ex.algebra.arithmetic-model",
@@ -392,7 +430,7 @@
       "methods": [],
       "question_types": ["t1-arithmetic-in-context"],
       "threads": ["rate-of-change"],
-      "priority": { "parts": 3.5, "rank": 152 }
+      "priority": { "parts": 3.5, "rank": 155 }
     },
     {
       "id": "ex.algebra.geometric-sequence",
@@ -403,13 +441,14 @@
       "layer": "core",
       "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"],
       "subtopics": ["SL1.3"],
-      "skills": ["SL1.3.nth-term", "SL1.3.find-r-u1", "SL1.3.find-n"],
+      "skills": ["SL1.3.nth-term"],
       "prereqs": ["ex.algebra.arithmetic-sequence", "ex.foundations.pre-percent-multiplier"],
       "related": ["ex.functions.growth-factor"],
-      "methods": ["logs", "gdc-table"],
-      "question_types": ["t1-geometric-in-context", "t1-geometric-sequence", "fn-link-multiplicative-growth"],
-      "threads": ["multiplicative-growth", "inverses", "graph-vs-algebra"],
-      "priority": { "parts": 7.5, "rank": 51 }
+      "methods": [],
+      "question_types": ["t1-geometric-sequence", "fn-link-multiplicative-growth"],
+      "threads": ["multiplicative-growth"],
+      "priority": { "parts": 2.3, "rank": 51 },
+      "note": "Teaches the nth term only, like ex.algebra.arithmetic-sequence (FAL-952); working back to r, u₁ or n is ex.algebra.geometric-from-terms."
     },
     {
       "id": "ex.algebra.geometric-series",
@@ -426,7 +465,25 @@
       "methods": ["formula", "gdc"],
       "question_types": ["t1-geometric-in-context", "t1-geometric-sequence", "fn-link-multiplicative-growth"],
       "threads": ["multiplicative-growth", "accumulation"],
-      "priority": { "parts": 5.3, "rank": 112 }
+      "priority": { "parts": 5.3, "rank": 91 }
+    },
+    {
+      "id": "ex.algebra.geometric-from-terms",
+      "title": "Working Back to r and n",
+      "zone": "algebra",
+      "cluster": "Sequences and series",
+      "idea": "Divide one given term by another so u₁ cancels and leaves a power of r, then find n for a given term or sum with logarithms or a GDC table.",
+      "layer": "core",
+      "courses": ["aa-sl", "aa-hl", "ai-sl", "ai-hl"],
+      "subtopics": ["SL1.3"],
+      "skills": ["SL1.3.find-r-u1", "SL1.3.find-n"],
+      "prereqs": ["ex.algebra.geometric-sequence", "ex.algebra.geometric-series", "ex.functions.gdc-solve"],
+      "related": ["ex.algebra.arithmetic-from-terms", "ex.functions.solve-with-logs"],
+      "methods": ["logs", "gdc-table"],
+      "question_types": ["t1-geometric-in-context", "t1-geometric-sequence"],
+      "threads": ["inverses", "graph-vs-algebra"],
+      "priority": { "parts": 5.3, "rank": 143 },
+      "note": "Split from ex.algebra.geometric-sequence, the same split as the arithmetic pair (FAL-952). It comes after the series because SL1.3.find-n includes the least n with Sₙ above a target. Solving with logarithms (ex.functions.solve-with-logs) is not in AI SL, so there the GDC table is the method."
     },
     {
       "id": "ex.algebra.convergence",
@@ -443,7 +500,7 @@
       "methods": [],
       "question_types": ["t1-sum-to-infinity", "fn-link-multiplicative-growth", "t1-ext-partial-vs-infinite"],
       "threads": ["multiplicative-growth", "inverses", "accumulation", "graph-vs-algebra"],
-      "priority": { "parts": 1.5, "rank": 137 }
+      "priority": { "parts": 1.5, "rank": 138 }
     },
     {
       "id": "ex.algebra.sum-to-infinity",
@@ -460,7 +517,7 @@
       "methods": [],
       "question_types": ["t1-sum-to-infinity"],
       "threads": ["multiplicative-growth", "accumulation"],
-      "priority": { "parts": 4.5, "rank": 148 }
+      "priority": { "parts": 4.5, "rank": 151 }
     },
     {
       "id": "ex.algebra.compound-interest",
@@ -494,7 +551,7 @@
       "methods": ["formula", "tvm-solver"],
       "question_types": ["t1-depreciation", "t1-compound-interest", "fn-link-multiplicative-growth", "t1-ext-real-value"],
       "threads": ["multiplicative-growth"],
-      "priority": { "parts": 7, "rank": 129 }
+      "priority": { "parts": 7, "rank": 130 }
     },
     {
       "id": "ex.algebra.amortisation",
@@ -511,7 +568,7 @@
       "methods": ["tvm-solver", "amortisation-table"],
       "question_types": [],
       "threads": ["multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 225 }
+      "priority": { "parts": 0, "rank": 228 }
     },
     {
       "id": "ex.algebra.annuities",
@@ -528,7 +585,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation"],
-      "priority": { "parts": 0, "rank": 255 }
+      "priority": { "parts": 0, "rank": 258 }
     },
     {
       "id": "ex.algebra.exponent-laws",
@@ -568,7 +625,7 @@
       "methods": [],
       "question_types": ["t1-rational-exponents"],
       "threads": ["inverses", "equivalent-forms"],
-      "priority": { "parts": 2, "rank": 164 }
+      "priority": { "parts": 2, "rank": 167 }
     },
     {
       "id": "ex.algebra.log-laws",
@@ -585,7 +642,7 @@
       "methods": [],
       "question_types": ["t1-log-laws", "fn-link-equivalent-forms"],
       "threads": ["inverses", "equivalent-forms"],
-      "priority": { "parts": 6, "rank": 103 }
+      "priority": { "parts": 6, "rank": 104 }
     },
     {
       "id": "ex.algebra.change-of-base",
@@ -602,7 +659,7 @@
       "methods": [],
       "question_types": ["fn-exp-log-inverse-composite", "t1-log-laws"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 8.4, "rank": 124 }
+      "priority": { "parts": 8.4, "rank": 125 }
     },
     {
       "id": "ex.algebra.common-base",
@@ -619,7 +676,7 @@
       "methods": [],
       "question_types": ["t1-ext-common-base"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 257 }
+      "priority": { "parts": 0, "rank": 260 }
     },
     {
       "id": "ex.algebra.log-equations",
@@ -636,7 +693,7 @@
       "methods": [],
       "question_types": ["fn-link-graph-vs-algebra", "t1-ext-log-equations"],
       "threads": ["inverses", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 266 }
+      "priority": { "parts": 0, "rank": 269 }
     },
     {
       "id": "ex.algebra.lhs-to-rhs",
@@ -670,7 +727,7 @@
       "methods": [],
       "question_types": ["t1-algebraic-proof"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 4.5, "rank": 147 }
+      "priority": { "parts": 4.5, "rank": 150 }
     },
     {
       "id": "ex.algebra.compare-coefficients",
@@ -687,7 +744,7 @@
       "methods": [],
       "question_types": ["fn-link-equivalent-forms", "t1-ext-identity-constants"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 194 }
+      "priority": { "parts": 0, "rank": 197 }
     },
     {
       "id": "ex.algebra.induction",
@@ -704,7 +761,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 185 }
+      "priority": { "parts": 0, "rank": 188 }
     },
     {
       "id": "ex.algebra.induction-divisibility",
@@ -721,7 +778,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 265 }
+      "priority": { "parts": 0, "rank": 268 }
     },
     {
       "id": "ex.algebra.contradiction",
@@ -738,7 +795,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 259 }
+      "priority": { "parts": 0, "rank": 262 }
     },
     {
       "id": "ex.algebra.counterexample",
@@ -755,7 +812,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 260 }
+      "priority": { "parts": 0, "rank": 263 }
     },
     {
       "id": "ex.algebra.pascal-ncr",
@@ -772,7 +829,7 @@
       "methods": [],
       "question_types": ["t1-binomial-term", "fn-link-symmetry", "t1-link-binomial"],
       "threads": ["symmetry", "binomial"],
-      "priority": { "parts": 2, "rank": 94 }
+      "priority": { "parts": 2, "rank": 95 }
     },
     {
       "id": "ex.algebra.binomial-expansion",
@@ -789,7 +846,7 @@
       "methods": ["pascal-row", "ncr-formula"],
       "question_types": ["t1-binomial-term", "t1-ext-binomial-product"],
       "threads": ["binomial"],
-      "priority": { "parts": 2, "rank": 106 }
+      "priority": { "parts": 2, "rank": 107 }
     },
     {
       "id": "ex.algebra.binomial-term",
@@ -806,7 +863,7 @@
       "methods": [],
       "question_types": ["t1-binomial-find-unknown", "t1-binomial-term", "t1-link-binomial", "t1-ext-binomial-constant-term"],
       "threads": ["symmetry", "binomial"],
-      "priority": { "parts": 12, "rank": 108 }
+      "priority": { "parts": 12, "rank": 110 }
     },
     {
       "id": "ex.algebra.counting-principle",
@@ -823,7 +880,7 @@
       "methods": [],
       "question_types": ["t1-ahl-counting"],
       "threads": ["multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 228 }
+      "priority": { "parts": 0, "rank": 231 }
     },
     {
       "id": "ex.algebra.permutations-combinations",
@@ -840,7 +897,7 @@
       "methods": ["direct", "complement"],
       "question_types": ["t1-ahl-counting"],
       "threads": ["symmetry", "binomial"],
-      "priority": { "parts": 0, "rank": 269 }
+      "priority": { "parts": 0, "rank": 272 }
     },
     {
       "id": "ex.algebra.binomial-rational",
@@ -857,7 +914,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth", "accumulation", "equivalent-forms", "binomial"],
-      "priority": { "parts": 0, "rank": 193 }
+      "priority": { "parts": 0, "rank": 196 }
     },
     {
       "id": "ex.algebra.partial-fractions",
@@ -874,7 +931,7 @@
       "methods": ["substitute-roots", "compare-coefficients"],
       "question_types": [],
       "threads": ["inverses", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 203 }
+      "priority": { "parts": 0, "rank": 206 }
     },
     {
       "id": "ex.algebra.linear-systems-technology",
@@ -897,7 +954,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 181 }
+      "priority": { "parts": 0, "rank": 184 }
     },
     {
       "id": "ex.algebra.elimination-3x3",
@@ -914,7 +971,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 211 }
+      "priority": { "parts": 0, "rank": 214 }
     },
     {
       "id": "ex.algebra.classify-systems",
@@ -931,7 +988,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 226 }
+      "priority": { "parts": 0, "rank": 229 }
     },
     {
       "id": "ex.algebra.polynomial-roots-gdc",
@@ -948,7 +1005,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 270 }
+      "priority": { "parts": 0, "rank": 273 }
     },
     {
       "id": "ex.algebra.complex-cartesian",
@@ -971,7 +1028,7 @@
       "methods": ["by-hand", "gdc"],
       "question_types": [],
       "threads": ["multiplicative-growth", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 176 }
+      "priority": { "parts": 0, "rank": 179 }
     },
     {
       "id": "ex.algebra.argand-modulus",
@@ -988,7 +1045,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors", "symmetry"],
-      "priority": { "parts": 0, "rank": 182 }
+      "priority": { "parts": 0, "rank": 185 }
     },
     {
       "id": "ex.algebra.equate-parts",
@@ -1005,7 +1062,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 263 }
+      "priority": { "parts": 0, "rank": 266 }
     },
     {
       "id": "ex.algebra.complex-quadratic-roots",
@@ -1022,7 +1079,7 @@
       "methods": ["formula", "gdc"],
       "question_types": [],
       "threads": ["symmetry", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 227 }
+      "priority": { "parts": 0, "rank": 230 }
     },
     {
       "id": "ex.algebra.polar-form",
@@ -1039,7 +1096,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 186 }
+      "priority": { "parts": 0, "rank": 189 }
     },
     {
       "id": "ex.algebra.polar-multiply",
@@ -1061,7 +1118,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "vectors", "multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 190 }
+      "priority": { "parts": 0, "rank": 193 }
     },
     {
       "id": "ex.algebra.euler-sums",
@@ -1078,7 +1135,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["symmetry", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 264 }
+      "priority": { "parts": 0, "rank": 267 }
     },
     {
       "id": "ex.algebra.add-sinusoids",
@@ -1095,7 +1152,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "vectors"],
-      "priority": { "parts": 0, "rank": 254 }
+      "priority": { "parts": 0, "rank": 257 }
     },
     {
       "id": "ex.algebra.de-moivre",
@@ -1112,7 +1169,7 @@
       "methods": ["polar-form", "gdc"],
       "question_types": [],
       "threads": ["transformations", "multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 202 }
+      "priority": { "parts": 0, "rank": 205 }
     },
     {
       "id": "ex.algebra.de-moivre-proof",
@@ -1129,7 +1186,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 261 }
+      "priority": { "parts": 0, "rank": 264 }
     },
     {
       "id": "ex.algebra.multiple-angle",
@@ -1146,7 +1203,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms", "binomial"],
-      "priority": { "parts": 0, "rank": 267 }
+      "priority": { "parts": 0, "rank": 270 }
     },
     {
       "id": "ex.algebra.nth-roots",
@@ -1163,7 +1220,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses", "symmetry"],
-      "priority": { "parts": 0, "rank": 268 }
+      "priority": { "parts": 0, "rank": 271 }
     },
     {
       "id": "ex.algebra.conjugate-roots",
@@ -1180,7 +1237,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["symmetry"],
-      "priority": { "parts": 0, "rank": 258 }
+      "priority": { "parts": 0, "rank": 261 }
     },
     {
       "id": "ex.algebra.matrix-arithmetic",
@@ -1197,7 +1254,7 @@
       "methods": ["by-hand", "gdc"],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 177 }
+      "priority": { "parts": 0, "rank": 180 }
     },
     {
       "id": "ex.algebra.matrix-inverse",
@@ -1214,7 +1271,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses"],
-      "priority": { "parts": 0, "rank": 189 }
+      "priority": { "parts": 0, "rank": 192 }
     },
     {
       "id": "ex.algebra.eigenvalues",
@@ -1231,7 +1288,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 195 }
+      "priority": { "parts": 0, "rank": 198 }
     },
     {
       "id": "ex.algebra.diagonalise",
@@ -1248,7 +1305,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 262 }
+      "priority": { "parts": 0, "rank": 265 }
     },
     {
       "id": "ex.functions.gradient",
@@ -1302,7 +1359,7 @@
       "lesson": "lesson.fn.perpendicular",
       "question_types": ["fn-line-from-conditions", "fn-concept-gradient-meaning", "fn-link-vectors"],
       "threads": ["vectors", "symmetry"],
-      "priority": { "parts": 3.9, "rank": 65 }
+      "priority": { "parts": 3.9, "rank": 66 }
     },
     {
       "id": "ex.functions.line-model",
@@ -1364,7 +1421,7 @@
       "lesson": "lesson.fn.is-function",
       "question_types": ["fn-graph-table-composite-inverse", "fn-concept-order-and-undo", "fn-ext-is-function"],
       "threads": ["inverses"],
-      "priority": { "parts": 0, "rank": 132 }
+      "priority": { "parts": 0, "rank": 133 }
     },
     {
       "id": "ex.functions.domain-range",
@@ -1443,7 +1500,7 @@
         "fn-link-symmetry"
       ],
       "threads": ["transformations", "inverses", "symmetry"],
-      "priority": { "parts": 8.2, "rank": 110 }
+      "priority": { "parts": 8.2, "rank": 112 }
     },
     {
       "id": "ex.functions.composite",
@@ -1461,7 +1518,7 @@
       "lesson": "lesson.fn.composite",
       "question_types": ["fn-graph-table-composite-inverse", "fn-domain-range", "fn-composite", "fn-exp-log-inverse-composite", "fn-concept-order-and-undo"],
       "threads": ["transformations", "inverses"],
-      "priority": { "parts": 16.8, "rank": 27 }
+      "priority": { "parts": 16.8, "rank": 28 }
     },
     {
       "id": "ex.functions.swap-and-solve",
@@ -1479,7 +1536,7 @@
       "lesson": "lesson.fn.swap-and-solve",
       "question_types": ["fn-inverse-algebraic", "fn-exp-log-inverse-composite", "fn-concept-order-and-undo"],
       "threads": ["transformations", "inverses", "symmetry"],
-      "priority": { "parts": 8, "rank": 125 }
+      "priority": { "parts": 8, "rank": 126 }
     },
     {
       "id": "ex.functions.inverse-domain",
@@ -1504,7 +1561,7 @@
         "fn-link-inverses"
       ],
       "threads": ["transformations", "inverses", "symmetry", "extremes"],
-      "priority": { "parts": 7, "rank": 133 }
+      "priority": { "parts": 7, "rank": 134 }
     },
     {
       "id": "ex.functions.how-high-and-where",
@@ -1558,7 +1615,7 @@
         "fn-link-graph-vs-algebra"
       ],
       "threads": ["inverses", "graph-vs-algebra"],
-      "priority": { "parts": 13.4, "rank": 29 }
+      "priority": { "parts": 13.4, "rank": 26 }
     },
     {
       "id": "ex.functions.count-solutions",
@@ -1584,7 +1641,7 @@
         "fn-link-graph-vs-algebra"
       ],
       "threads": ["extremes", "graph-vs-algebra"],
-      "priority": { "parts": 8.8, "rank": 122 }
+      "priority": { "parts": 8.8, "rank": 123 }
     },
     {
       "id": "ex.functions.gdc-solve",
@@ -1610,7 +1667,7 @@
         "fn-link-graph-vs-algebra"
       ],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 18.1, "rank": 59 }
+      "priority": { "parts": 18.1, "rank": 52 }
     },
     {
       "id": "ex.functions.sketch-features",
@@ -1657,7 +1714,7 @@
       "lesson": "lesson.fn.combine-functions",
       "question_types": ["fn-gdc-optimise-combined", "fn-ext-inequality-graphical", "fn-concept-solutions-as-intersections"],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 3, "rank": 155 }
+      "priority": { "parts": 3, "rank": 158 }
     },
     {
       "id": "ex.functions.graph-inequality",
@@ -1675,7 +1732,7 @@
       "lesson": "lesson.fn.graph-inequality",
       "question_types": ["fn-quadratic-inequality", "fn-rational-sketch", "fn-ext-inequality-graphical"],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 2.4, "rank": 162 }
+      "priority": { "parts": 2.4, "rank": 165 }
     },
     {
       "id": "ex.functions.context-check",
@@ -1703,7 +1760,7 @@
         "fn-ext-rational-model"
       ],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 8.6, "rank": 123 }
+      "priority": { "parts": 8.6, "rank": 124 }
     },
     {
       "id": "ex.functions.zero-product",
@@ -1777,7 +1834,7 @@
         "fn-link-extremes"
       ],
       "threads": ["transformations", "vectors", "extremes"],
-      "priority": { "parts": 8.3, "rank": 53 }
+      "priority": { "parts": 8.3, "rank": 54 }
     },
     {
       "id": "ex.functions.complete-square",
@@ -1795,7 +1852,7 @@
       "lesson": "lesson.fn.complete-square",
       "question_types": ["fn-quadratic-features", "fn-transform-describe", "fn-concept-quadratic-forms", "fn-link-equivalent-forms"],
       "threads": ["transformations", "vectors", "equivalent-forms"],
-      "priority": { "parts": 3, "rank": 154 }
+      "priority": { "parts": 3, "rank": 157 }
     },
     {
       "id": "ex.functions.quadratic-from-clues",
@@ -1813,7 +1870,7 @@
       "lesson": "lesson.fn.quadratic-from-clues",
       "question_types": ["fn-quadratic-features", "fn-quadratic-from-conditions", "fn-concept-quadratic-forms"],
       "threads": ["transformations", "equivalent-forms"],
-      "priority": { "parts": 7.3, "rank": 128 }
+      "priority": { "parts": 7.3, "rank": 129 }
     },
     {
       "id": "ex.functions.quadratic-formula",
@@ -1867,7 +1924,7 @@
       "lesson": "lesson.fn.discriminant-parameter",
       "question_types": ["fn-discriminant", "fn-curve-intersection-quadratic", "fn-link-extremes"],
       "threads": ["extremes", "graph-vs-algebra"],
-      "priority": { "parts": 12.7, "rank": 107 }
+      "priority": { "parts": 12.7, "rank": 109 }
     },
     {
       "id": "ex.functions.quadratic-inequality",
@@ -1902,7 +1959,7 @@
       "methods": ["regression", "simultaneous"],
       "question_types": [],
       "threads": ["symmetry", "extremes", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 198 }
+      "priority": { "parts": 0, "rank": 201 }
     },
     {
       "id": "ex.functions.growth-factor",
@@ -1938,7 +1995,7 @@
       "lesson": "lesson.fn.exp-graph",
       "question_types": ["fn-exponential-model", "fn-ext-exp-graph", "fn-concept-growth-patterns", "fn-ext-match-graph", "fn-link-multiplicative-growth"],
       "threads": ["transformations", "vectors", "multiplicative-growth"],
-      "priority": { "parts": 6.3, "rank": 114 }
+      "priority": { "parts": 6.3, "rank": 115 }
     },
     {
       "id": "ex.functions.log-undoes-power",
@@ -1988,7 +2045,7 @@
         "fn-link-multiplicative-growth"
       ],
       "threads": ["multiplicative-growth", "inverses", "graph-vs-algebra"],
-      "priority": { "parts": 15.2, "rank": 98 }
+      "priority": { "parts": 15.2, "rank": 99 }
     },
     {
       "id": "ex.functions.log-graph",
@@ -2006,7 +2063,7 @@
       "lesson": "lesson.fn.log-graph",
       "question_types": ["fn-exp-log-inverse-composite", "fn-log-of-quadratic", "fn-log-function-features"],
       "threads": ["transformations", "vectors", "multiplicative-growth", "inverses"],
-      "priority": { "parts": 3.8, "rank": 150 }
+      "priority": { "parts": 3.8, "rank": 153 }
     },
     {
       "id": "ex.functions.hidden-quadratic",
@@ -2024,7 +2081,7 @@
       "lesson": "lesson.fn.hidden-quadratic",
       "question_types": ["fn-solve-quadratic", "fn-link-equivalent-forms", "t1-ext-hidden-quadratic"],
       "threads": ["inverses", "equivalent-forms", "graph-vs-algebra"],
-      "priority": { "parts": 2, "rank": 118 }
+      "priority": { "parts": 2, "rank": 119 }
     },
     {
       "id": "ex.functions.reciprocal",
@@ -2042,7 +2099,7 @@
       "lesson": "lesson.fn.reciprocal",
       "question_types": ["fn-rational-sketch", "fn-concept-asymptote-meaning"],
       "threads": ["inverses", "symmetry"],
-      "priority": { "parts": 2.3, "rank": 62 }
+      "priority": { "parts": 2.3, "rank": 63 }
     },
     {
       "id": "ex.functions.rational-asymptotes",
@@ -2068,7 +2125,7 @@
         "fn-concept-asymptote-meaning"
       ],
       "threads": ["transformations", "vectors"],
-      "priority": { "parts": 20.4, "rank": 67 }
+      "priority": { "parts": 20.4, "rank": 68 }
     },
     {
       "id": "ex.functions.transformed-reciprocal",
@@ -2086,7 +2143,7 @@
       "lesson": "lesson.fn.transformed-reciprocal",
       "question_types": ["fn-rational-sketch", "fn-transform-describe", "fn-ext-transformed-reciprocal", "fn-link-transformations"],
       "threads": ["transformations", "vectors", "equivalent-forms"],
-      "priority": { "parts": 3.8, "rank": 151 }
+      "priority": { "parts": 3.8, "rank": 154 }
     },
     {
       "id": "ex.functions.long-run-value",
@@ -2104,7 +2161,7 @@
       "lesson": "lesson.fn.long-run-value",
       "question_types": ["fn-sketch-from-features", "fn-exponential-model", "fn-ext-rational-model", "fn-concept-asymptote-meaning"],
       "threads": [],
-      "priority": { "parts": 2.9, "rank": 158 }
+      "priority": { "parts": 2.9, "rank": 161 }
     },
     {
       "id": "ex.functions.translation",
@@ -2133,7 +2190,7 @@
         "fn-link-vectors"
       ],
       "threads": ["transformations", "vectors", "inverses"],
-      "priority": { "parts": 8.5, "rank": 26 }
+      "priority": { "parts": 8.5, "rank": 27 }
     },
     {
       "id": "ex.functions.stretch",
@@ -2176,7 +2233,7 @@
       "lesson": "lesson.fn.reflection",
       "question_types": ["fn-domain-range", "fn-inverse-algebraic", "fn-transform-describe", "fn-transform-apply", "fn-ext-exp-graph"],
       "threads": ["transformations", "symmetry"],
-      "priority": { "parts": 3.3, "rank": 56 }
+      "priority": { "parts": 3.3, "rank": 57 }
     },
     {
       "id": "ex.functions.transform-order",
@@ -2194,7 +2251,7 @@
       "lesson": "lesson.fn.transform-order",
       "question_types": ["fn-transform-describe", "fn-transform-apply", "fn-concept-transform-order", "fn-link-transformations"],
       "threads": ["transformations", "vectors", "equivalent-forms"],
-      "priority": { "parts": 4.7, "rank": 58 }
+      "priority": { "parts": 4.7, "rank": 59 }
     },
     {
       "id": "ex.functions.variation-model",
@@ -2211,7 +2268,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 302 }
+      "priority": { "parts": 0, "rank": 305 }
     },
     {
       "id": "ex.functions.cubic-model",
@@ -2228,7 +2285,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["extremes", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 287 }
+      "priority": { "parts": 0, "rank": 290 }
     },
     {
       "id": "ex.functions.choose-a-model",
@@ -2245,7 +2302,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "multiplicative-growth", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 207 }
+      "priority": { "parts": 0, "rank": 210 }
     },
     {
       "id": "ex.functions.fit-and-use-model",
@@ -2262,7 +2319,7 @@
       "methods": ["simultaneous", "regression"],
       "question_types": [],
       "threads": ["inverses", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 288 }
+      "priority": { "parts": 0, "rank": 291 }
     },
     {
       "id": "ex.functions.half-life",
@@ -2279,7 +2336,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth", "inverses"],
-      "priority": { "parts": 0, "rank": 289 }
+      "priority": { "parts": 0, "rank": 292 }
     },
     {
       "id": "ex.functions.log-model",
@@ -2296,7 +2353,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth", "inverses"],
-      "priority": { "parts": 0, "rank": 292 }
+      "priority": { "parts": 0, "rank": 295 }
     },
     {
       "id": "ex.functions.logistic-model",
@@ -2313,7 +2370,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth", "inverses"],
-      "priority": { "parts": 0, "rank": 293 }
+      "priority": { "parts": 0, "rank": 296 }
     },
     {
       "id": "ex.functions.piecewise-model",
@@ -2330,7 +2387,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 296 }
+      "priority": { "parts": 0, "rank": 299 }
     },
     {
       "id": "ex.functions.log-scales",
@@ -2347,7 +2404,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth", "inverses"],
-      "priority": { "parts": 0, "rank": 237 }
+      "priority": { "parts": 0, "rank": 240 }
     },
     {
       "id": "ex.functions.linearise-data",
@@ -2364,7 +2421,7 @@
       "methods": ["semi-log", "log-log"],
       "question_types": [],
       "threads": ["rate-of-change", "multiplicative-growth", "equivalent-forms", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 291 }
+      "priority": { "parts": 0, "rank": 294 }
     },
     {
       "id": "ex.functions.factor-remainder",
@@ -2381,7 +2438,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 183 }
+      "priority": { "parts": 0, "rank": 186 }
     },
     {
       "id": "ex.functions.factorise-polynomials",
@@ -2398,7 +2455,7 @@
       "methods": ["division", "compare-coefficients"],
       "question_types": [],
       "threads": ["equivalent-forms", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 187 }
+      "priority": { "parts": 0, "rank": 190 }
     },
     {
       "id": "ex.functions.sum-product-roots",
@@ -2415,7 +2472,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["symmetry", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 301 }
+      "priority": { "parts": 0, "rank": 304 }
     },
     {
       "id": "ex.functions.rational-quadratic",
@@ -2432,7 +2489,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 218 }
+      "priority": { "parts": 0, "rank": 221 }
     },
     {
       "id": "ex.functions.oblique-asymptote",
@@ -2449,7 +2506,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms", "extremes", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 295 }
+      "priority": { "parts": 0, "rank": 298 }
     },
     {
       "id": "ex.functions.odd-even",
@@ -2466,7 +2523,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "accumulation", "symmetry"],
-      "priority": { "parts": 0, "rank": 216 }
+      "priority": { "parts": 0, "rank": 219 }
     },
     {
       "id": "ex.functions.self-inverse",
@@ -2483,7 +2540,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses", "symmetry"],
-      "priority": { "parts": 0, "rank": 300 }
+      "priority": { "parts": 0, "rank": 303 }
     },
     {
       "id": "ex.functions.restrict-for-inverse",
@@ -2500,7 +2557,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 299 }
+      "priority": { "parts": 0, "rank": 302 }
     },
     {
       "id": "ex.functions.polynomial-inequality",
@@ -2517,7 +2574,7 @@
       "methods": ["sign-table", "sketch", "gdc"],
       "question_types": [],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 217 }
+      "priority": { "parts": 0, "rank": 220 }
     },
     {
       "id": "ex.functions.rational-inequality",
@@ -2534,7 +2591,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 297 }
+      "priority": { "parts": 0, "rank": 300 }
     },
     {
       "id": "ex.functions.modulus-graphs",
@@ -2551,7 +2608,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "symmetry"],
-      "priority": { "parts": 0, "rank": 238 }
+      "priority": { "parts": 0, "rank": 241 }
     },
     {
       "id": "ex.functions.reciprocal-of-f",
@@ -2568,7 +2625,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "inverses", "extremes"],
-      "priority": { "parts": 0, "rank": 298 }
+      "priority": { "parts": 0, "rank": 301 }
     },
     {
       "id": "ex.functions.linear-input",
@@ -2585,7 +2642,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "vectors"],
-      "priority": { "parts": 0, "rank": 290 }
+      "priority": { "parts": 0, "rank": 293 }
     },
     {
       "id": "ex.functions.modulus-equations",
@@ -2602,7 +2659,7 @@
       "methods": ["cases", "squaring", "graph"],
       "question_types": [],
       "threads": ["symmetry", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 294 }
+      "priority": { "parts": 0, "rank": 297 }
     },
     {
       "id": "ex.geometry.right-trig",
@@ -2636,7 +2693,7 @@
       "methods": [],
       "question_types": ["t3-ambiguous-case", "t3-sine-cosine-rule"],
       "threads": [],
-      "priority": { "parts": 8.3, "rank": 109 }
+      "priority": { "parts": 8.3, "rank": 111 }
     },
     {
       "id": "ex.geometry.cosine-rule",
@@ -2687,7 +2744,7 @@
       "methods": [],
       "question_types": ["t3-right-angle-trig", "t3-bearings-elevation"],
       "threads": ["vectors", "rate-of-change"],
-      "priority": { "parts": 7.8, "rank": 113 }
+      "priority": { "parts": 7.8, "rank": 114 }
     },
     {
       "id": "ex.geometry.multi-triangle",
@@ -2704,7 +2761,7 @@
       "methods": ["sine-rule", "cosine-rule", "right-trig"],
       "question_types": ["t3-bearings-elevation", "t3-ext-two-observations"],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 2.7, "rank": 161 }
+      "priority": { "parts": 2.7, "rank": 164 }
     },
     {
       "id": "ex.geometry.distance-3d",
@@ -2721,7 +2778,7 @@
       "methods": [],
       "question_types": ["t3-distance-midpoint", "fn-link-vectors"],
       "threads": ["vectors"],
-      "priority": { "parts": 9, "rank": 120 }
+      "priority": { "parts": 9, "rank": 121 }
     },
     {
       "id": "ex.geometry.volume-surface",
@@ -2738,7 +2795,7 @@
       "methods": [],
       "question_types": ["t3-solid-volume-area"],
       "threads": ["accumulation"],
-      "priority": { "parts": 16, "rank": 96 }
+      "priority": { "parts": 16, "rank": 97 }
     },
     {
       "id": "ex.geometry.angles-3d",
@@ -2755,7 +2812,7 @@
       "methods": ["right-trig", "cosine-rule"],
       "question_types": ["t3-3d-angle"],
       "threads": ["vectors", "symmetry"],
-      "priority": { "parts": 1, "rank": 174 }
+      "priority": { "parts": 1, "rank": 177 }
     },
     {
       "id": "ex.geometry.arc-and-sector",
@@ -2824,7 +2881,7 @@
       "methods": ["degrees", "radians"],
       "question_types": ["t3-composite-circular-region"],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 7, "rank": 131 }
+      "priority": { "parts": 7, "rank": 132 }
     },
     {
       "id": "ex.geometry.sector-two-conditions",
@@ -2841,7 +2898,7 @@
       "methods": [],
       "question_types": ["t3-composite-circular-region"],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 7, "rank": 130 }
+      "priority": { "parts": 7, "rank": 131 }
     },
     {
       "id": "ex.geometry.perpendicular-bisector",
@@ -2858,7 +2915,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["symmetry", "equivalent-forms", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 220 }
+      "priority": { "parts": 0, "rank": 223 }
     },
     {
       "id": "ex.geometry.voronoi",
@@ -2875,7 +2932,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 246 }
+      "priority": { "parts": 0, "rank": 249 }
     },
     {
       "id": "ex.geometry.voronoi-problems",
@@ -2892,7 +2949,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation", "symmetry", "extremes"],
-      "priority": { "parts": 0, "rank": 320 }
+      "priority": { "parts": 0, "rank": 323 }
     },
     {
       "id": "ex.geometry.unit-circle",
@@ -2926,7 +2983,7 @@
       "methods": [],
       "question_types": ["t3-exact-values", "t3-ext-exact-triangle"],
       "threads": ["symmetry"],
-      "priority": { "parts": 1, "rank": 101 }
+      "priority": { "parts": 1, "rank": 102 }
     },
     {
       "id": "ex.geometry.related-angles",
@@ -2943,7 +3000,7 @@
       "methods": [],
       "question_types": ["t3-exact-values", "fn-link-symmetry"],
       "threads": ["symmetry"],
-      "priority": { "parts": 1, "rank": 102 }
+      "priority": { "parts": 1, "rank": 103 }
     },
     {
       "id": "ex.geometry.ambiguous-case",
@@ -2960,7 +3017,7 @@
       "methods": [],
       "question_types": ["t3-ambiguous-case"],
       "threads": ["inverses", "symmetry"],
-      "priority": { "parts": 1, "rank": 173 }
+      "priority": { "parts": 1, "rank": 176 }
     },
     {
       "id": "ex.geometry.pythagorean-identity",
@@ -2994,7 +3051,7 @@
       "methods": [],
       "question_types": ["t3-identity-values", "fn-link-equivalent-forms"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 2.3, "rank": 91 }
+      "priority": { "parts": 2.3, "rank": 92 }
     },
     {
       "id": "ex.geometry.prove-trig-identity",
@@ -3011,7 +3068,7 @@
       "methods": [],
       "question_types": ["t3-prove-identity", "t3-identity-values"],
       "threads": ["equivalent-forms", "extremes"],
-      "priority": { "parts": 6.3, "rank": 135 }
+      "priority": { "parts": 6.3, "rank": 136 }
     },
     {
       "id": "ex.geometry.wave-features",
@@ -3063,7 +3120,7 @@
       "methods": [],
       "question_types": ["t3-trig-model-use", "t3-trig-model-parameters"],
       "threads": ["transformations", "vectors", "symmetry", "extremes", "graph-vs-algebra"],
-      "priority": { "parts": 15, "rank": 99 }
+      "priority": { "parts": 15, "rank": 100 }
     },
     {
       "id": "ex.geometry.trig-equations-graphical",
@@ -3080,7 +3137,7 @@
       "methods": [],
       "question_types": ["t3-trig-model-equation", "fn-link-graph-vs-algebra"],
       "threads": ["extremes", "graph-vs-algebra"],
-      "priority": { "parts": 5, "rank": 145 }
+      "priority": { "parts": 5, "rank": 147 }
     },
     {
       "id": "ex.geometry.trig-equations",
@@ -3097,7 +3154,7 @@
       "methods": ["unit-circle", "graph"],
       "question_types": ["t3-trig-equation", "fn-link-inverses"],
       "threads": ["inverses", "symmetry"],
-      "priority": { "parts": 3, "rank": 105 }
+      "priority": { "parts": 3, "rank": 106 }
     },
     {
       "id": "ex.geometry.trig-compound-argument",
@@ -3114,7 +3171,7 @@
       "methods": [],
       "question_types": ["t3-trig-equation"],
       "threads": ["transformations"],
-      "priority": { "parts": 3, "rank": 156 }
+      "priority": { "parts": 3, "rank": 159 }
     },
     {
       "id": "ex.geometry.quadratic-in-trig",
@@ -3131,7 +3188,7 @@
       "methods": [],
       "question_types": ["t3-trig-quadratic", "t3-trig-equation", "fn-link-equivalent-forms"],
       "threads": ["equivalent-forms", "graph-vs-algebra"],
-      "priority": { "parts": 8, "rank": 126 }
+      "priority": { "parts": 8, "rank": 127 }
     },
     {
       "id": "ex.geometry.reciprocal-trig",
@@ -3148,7 +3205,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 200 }
+      "priority": { "parts": 0, "rank": 203 }
     },
     {
       "id": "ex.geometry.reciprocal-identities",
@@ -3165,7 +3222,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses", "equivalent-forms", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 312 }
+      "priority": { "parts": 0, "rank": 315 }
     },
     {
       "id": "ex.geometry.inverse-trig",
@@ -3182,7 +3239,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "inverses", "symmetry"],
-      "priority": { "parts": 0, "rank": 208 }
+      "priority": { "parts": 0, "rank": 211 }
     },
     {
       "id": "ex.geometry.compound-angles",
@@ -3199,7 +3256,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 241 }
+      "priority": { "parts": 0, "rank": 244 }
     },
     {
       "id": "ex.geometry.double-from-compound",
@@ -3216,7 +3273,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "equivalent-forms", "extremes", "graph-vs-algebra", "binomial"],
-      "priority": { "parts": 0, "rank": 306 }
+      "priority": { "parts": 0, "rank": 309 }
     },
     {
       "id": "ex.geometry.trig-symmetry",
@@ -3233,7 +3290,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "symmetry", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 245 }
+      "priority": { "parts": 0, "rank": 248 }
     },
     {
       "id": "ex.geometry.symmetric-solutions",
@@ -3250,7 +3307,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["symmetry", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 315 }
+      "priority": { "parts": 0, "rank": 318 }
     },
     {
       "id": "ex.geometry.vectors-components",
@@ -3276,7 +3333,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors"],
-      "priority": { "parts": 0, "rank": 175 }
+      "priority": { "parts": 0, "rank": 178 }
     },
     {
       "id": "ex.geometry.parallel-vectors",
@@ -3293,7 +3350,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors"],
-      "priority": { "parts": 0, "rank": 219 }
+      "priority": { "parts": 0, "rank": 222 }
     },
     {
       "id": "ex.geometry.vector-geometry",
@@ -3310,7 +3367,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors"],
-      "priority": { "parts": 0, "rank": 318 }
+      "priority": { "parts": 0, "rank": 321 }
     },
     {
       "id": "ex.geometry.scalar-product",
@@ -3327,7 +3384,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 180 }
+      "priority": { "parts": 0, "rank": 183 }
     },
     {
       "id": "ex.geometry.scalar-product-properties",
@@ -3344,7 +3401,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 313 }
+      "priority": { "parts": 0, "rank": 316 }
     },
     {
       "id": "ex.geometry.vector-product",
@@ -3361,7 +3418,7 @@
       "methods": ["determinant", "gdc"],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 188 }
+      "priority": { "parts": 0, "rank": 191 }
     },
     {
       "id": "ex.geometry.vector-product-area",
@@ -3378,7 +3435,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 319 }
+      "priority": { "parts": 0, "rank": 322 }
     },
     {
       "id": "ex.geometry.vector-line",
@@ -3403,7 +3460,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors", "rate-of-change", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 179 }
+      "priority": { "parts": 0, "rank": 182 }
     },
     {
       "id": "ex.geometry.angle-between-lines",
@@ -3420,7 +3477,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 240 }
+      "priority": { "parts": 0, "rank": 243 }
     },
     {
       "id": "ex.geometry.vector-kinematics",
@@ -3437,7 +3494,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "vectors", "rate-of-change"],
-      "priority": { "parts": 0, "rank": 221 }
+      "priority": { "parts": 0, "rank": 224 }
     },
     {
       "id": "ex.geometry.closest-approach",
@@ -3454,7 +3511,7 @@
       "methods": ["perpendicular-dot", "minimise-distance", "gdc"],
       "question_types": [],
       "threads": ["extremes", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 304 }
+      "priority": { "parts": 0, "rank": 307 }
     },
     {
       "id": "ex.geometry.variable-velocity",
@@ -3471,7 +3528,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "accumulation", "extremes"],
-      "priority": { "parts": 0, "rank": 317 }
+      "priority": { "parts": 0, "rank": 320 }
     },
     {
       "id": "ex.geometry.lines-intersect",
@@ -3488,7 +3545,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 242 }
+      "priority": { "parts": 0, "rank": 245 }
     },
     {
       "id": "ex.geometry.skew-lines",
@@ -3505,7 +3562,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 314 }
+      "priority": { "parts": 0, "rank": 317 }
     },
     {
       "id": "ex.geometry.plane-equation",
@@ -3522,7 +3579,7 @@
       "methods": ["vector-form", "normal-form"],
       "question_types": [],
       "threads": ["vectors", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 199 }
+      "priority": { "parts": 0, "rank": 202 }
     },
     {
       "id": "ex.geometry.plane-conditions",
@@ -3539,7 +3596,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 310 }
+      "priority": { "parts": 0, "rank": 313 }
     },
     {
       "id": "ex.geometry.line-meets-plane",
@@ -3556,7 +3613,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["symmetry", "extremes", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 309 }
+      "priority": { "parts": 0, "rank": 312 }
     },
     {
       "id": "ex.geometry.planes-intersect",
@@ -3573,7 +3630,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 311 }
+      "priority": { "parts": 0, "rank": 314 }
     },
     {
       "id": "ex.geometry.angles-planes",
@@ -3590,7 +3647,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 303 }
+      "priority": { "parts": 0, "rank": 306 }
     },
     {
       "id": "ex.geometry.matrix-transformations",
@@ -3607,7 +3664,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors", "inverses"],
-      "priority": { "parts": 0, "rank": 243 }
+      "priority": { "parts": 0, "rank": 246 }
     },
     {
       "id": "ex.geometry.compose-transformations",
@@ -3624,7 +3681,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 305 }
+      "priority": { "parts": 0, "rank": 308 }
     },
     {
       "id": "ex.geometry.graph-basics",
@@ -3647,7 +3704,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 191 }
+      "priority": { "parts": 0, "rank": 194 }
     },
     {
       "id": "ex.geometry.adjacency-walks",
@@ -3664,7 +3721,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth", "symmetry"],
-      "priority": { "parts": 0, "rank": 239 }
+      "priority": { "parts": 0, "rank": 242 }
     },
     {
       "id": "ex.geometry.graph-transition",
@@ -3681,7 +3738,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 308 }
+      "priority": { "parts": 0, "rank": 311 }
     },
     {
       "id": "ex.geometry.eulerian-routes",
@@ -3698,7 +3755,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 307 }
+      "priority": { "parts": 0, "rank": 310 }
     },
     {
       "id": "ex.geometry.spanning-trees",
@@ -3715,7 +3772,7 @@
       "methods": ["kruskal", "prim"],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 244 }
+      "priority": { "parts": 0, "rank": 247 }
     },
     {
       "id": "ex.geometry.travelling-salesman",
@@ -3732,7 +3789,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 316 }
+      "priority": { "parts": 0, "rank": 319 }
     },
     {
       "id": "ex.stats.sampling",
@@ -3749,7 +3806,7 @@
       "methods": [],
       "question_types": ["t4-sampling", "t4-ext-population-sample", "t4-ext-stratified-numbers"],
       "threads": [],
-      "priority": { "parts": 2, "rank": 111 }
+      "priority": { "parts": 2, "rank": 113 }
     },
     {
       "id": "ex.stats.data-and-bias",
@@ -3766,7 +3823,7 @@
       "methods": [],
       "question_types": ["t4-sampling", "t4-outlier-rule", "t4-ext-data-type"],
       "threads": [],
-      "priority": { "parts": 4, "rank": 116 }
+      "priority": { "parts": 4, "rank": 117 }
     },
     {
       "id": "ex.stats.survey-design",
@@ -3788,7 +3845,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 330 }
+      "priority": { "parts": 0, "rank": 333 }
     },
     {
       "id": "ex.stats.histograms",
@@ -3805,7 +3862,7 @@
       "methods": [],
       "question_types": ["t4-ext-frequency-histogram"],
       "threads": [],
-      "priority": { "parts": 0, "rank": 138 }
+      "priority": { "parts": 0, "rank": 139 }
     },
     {
       "id": "ex.stats.cumulative-frequency",
@@ -3822,7 +3879,7 @@
       "methods": [],
       "question_types": ["t4-cumulative-frequency"],
       "threads": ["accumulation"],
-      "priority": { "parts": 6, "rank": 139 }
+      "priority": { "parts": 6, "rank": 140 }
     },
     {
       "id": "ex.stats.box-plots",
@@ -3839,7 +3896,7 @@
       "methods": [],
       "question_types": ["t4-outlier-rule", "t4-box-plot"],
       "threads": ["symmetry"],
-      "priority": { "parts": 9, "rank": 121 }
+      "priority": { "parts": 9, "rank": 122 }
     },
     {
       "id": "ex.stats.averages",
@@ -3890,7 +3947,7 @@
       "methods": [],
       "question_types": ["t4-constant-changes", "fn-link-transformations"],
       "threads": ["transformations"],
-      "priority": { "parts": 3, "rank": 153 }
+      "priority": { "parts": 3, "rank": 156 }
     },
     {
       "id": "ex.stats.unbiased-estimates",
@@ -3907,7 +3964,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 253 }
+      "priority": { "parts": 0, "rank": 256 }
     },
     {
       "id": "ex.stats.correlation",
@@ -3924,7 +3981,7 @@
       "methods": [],
       "question_types": ["t4-regression-gdc", "t4-ext-describe-correlation"],
       "threads": [],
-      "priority": { "parts": 5.8, "rank": 57 }
+      "priority": { "parts": 5.8, "rank": 58 }
     },
     {
       "id": "ex.stats.regression-line",
@@ -3941,7 +3998,7 @@
       "methods": ["gdc", "mean-point"],
       "question_types": ["t4-regression-interpret", "t4-regression-gdc", "fn-link-rate-of-change"],
       "threads": ["rate-of-change"],
-      "priority": { "parts": 24.3, "rank": 63 }
+      "priority": { "parts": 24.3, "rank": 64 }
     },
     {
       "id": "ex.stats.x-on-y",
@@ -3958,7 +4015,7 @@
       "methods": [],
       "question_types": ["t4-regression-x-on-y"],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 5, "rank": 146 }
+      "priority": { "parts": 5, "rank": 148 }
     },
     {
       "id": "ex.stats.spearman",
@@ -3975,7 +4032,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 252 }
+      "priority": { "parts": 0, "rank": 255 }
     },
     {
       "id": "ex.stats.choose-coefficient",
@@ -3992,7 +4049,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 323 }
+      "priority": { "parts": 0, "rank": 326 }
     },
     {
       "id": "ex.stats.nonlinear-regression",
@@ -4009,7 +4066,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 251 }
+      "priority": { "parts": 0, "rank": 254 }
     },
     {
       "id": "ex.stats.coefficient-determination",
@@ -4026,7 +4083,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 324 }
+      "priority": { "parts": 0, "rank": 327 }
     },
     {
       "id": "ex.stats.probability-basics",
@@ -4043,7 +4100,7 @@
       "methods": [],
       "question_types": ["t4-probability-basic"],
       "threads": [],
-      "priority": { "parts": 2.7, "rank": 21 }
+      "priority": { "parts": 2.7, "rank": 22 }
     },
     {
       "id": "ex.stats.relative-frequency",
@@ -4060,7 +4117,7 @@
       "methods": [],
       "question_types": ["t4-expected-occurrences", "t4-probability-basic"],
       "threads": [],
-      "priority": { "parts": 5.3, "rank": 142 }
+      "priority": { "parts": 5.3, "rank": 144 }
     },
     {
       "id": "ex.stats.venn",
@@ -4094,7 +4151,7 @@
       "methods": [],
       "question_types": ["t4-tree-diagram", "t4-sample-space"],
       "threads": ["multiplicative-growth", "symmetry", "binomial"],
-      "priority": { "parts": 19, "rank": 28 }
+      "priority": { "parts": 19, "rank": 29 }
     },
     {
       "id": "ex.stats.conditional-from-diagram",
@@ -4111,7 +4168,7 @@
       "methods": [],
       "question_types": ["t4-ext-conditional-diagram"],
       "threads": [],
-      "priority": { "parts": 0, "rank": 60 }
+      "priority": { "parts": 0, "rank": 61 }
     },
     {
       "id": "ex.stats.independence",
@@ -4128,7 +4185,7 @@
       "methods": [],
       "question_types": ["t4-independence"],
       "threads": [],
-      "priority": { "parts": 3.3, "rank": 117 }
+      "priority": { "parts": 3.3, "rank": 118 }
     },
     {
       "id": "ex.stats.conditional-formula",
@@ -4145,7 +4202,7 @@
       "methods": [],
       "question_types": ["t4-conditional-probability"],
       "threads": ["accumulation"],
-      "priority": { "parts": 21, "rank": 66 }
+      "priority": { "parts": 21, "rank": 67 }
     },
     {
       "id": "ex.stats.test-independence",
@@ -4162,7 +4219,7 @@
       "methods": [],
       "question_types": ["t4-independence"],
       "threads": [],
-      "priority": { "parts": 6.7, "rank": 134 }
+      "priority": { "parts": 6.7, "rank": 135 }
     },
     {
       "id": "ex.stats.bayes",
@@ -4179,7 +4236,7 @@
       "methods": ["tree", "formula"],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 321 }
+      "priority": { "parts": 0, "rank": 324 }
     },
     {
       "id": "ex.stats.random-variable",
@@ -4247,7 +4304,7 @@
       "methods": ["formula", "gdc"],
       "question_types": ["t4-binomial", "t1-link-binomial"],
       "threads": ["symmetry", "binomial"],
-      "priority": { "parts": 9.5, "rank": 97 },
+      "priority": { "parts": 9.5, "rank": 98 },
       "note": "Shared by all four courses, so nCr from the binomial theorem (AA only) is a callback, not a prerequisite."
     },
     {
@@ -4265,7 +4322,7 @@
       "methods": [],
       "question_types": ["t4-binomial"],
       "threads": ["multiplicative-growth", "inverses"],
-      "priority": { "parts": 6.3, "rank": 136 }
+      "priority": { "parts": 6.3, "rank": 137 }
     },
     {
       "id": "ex.stats.poisson",
@@ -4282,7 +4339,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "inverses"],
-      "priority": { "parts": 0, "rank": 223 }
+      "priority": { "parts": 0, "rank": 226 }
     },
     {
       "id": "ex.stats.poisson-applications",
@@ -4299,7 +4356,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["binomial"],
-      "priority": { "parts": 0, "rank": 328 }
+      "priority": { "parts": 0, "rank": 331 }
     },
     {
       "id": "ex.stats.normal-curve",
@@ -4333,7 +4390,7 @@
       "methods": [],
       "question_types": ["t4-normal-properties", "t4-normal-probability", "fn-link-symmetry", "t5-link-accumulation"],
       "threads": ["accumulation", "symmetry"],
-      "priority": { "parts": 16, "rank": 54 }
+      "priority": { "parts": 16, "rank": 55 }
     },
     {
       "id": "ex.stats.inverse-normal",
@@ -4350,7 +4407,7 @@
       "methods": [],
       "question_types": ["t4-inverse-normal", "fn-link-inverses"],
       "threads": ["inverses"],
-      "priority": { "parts": 6, "rank": 93 }
+      "priority": { "parts": 6, "rank": 94 }
     },
     {
       "id": "ex.stats.z-scores",
@@ -4367,7 +4424,7 @@
       "methods": [],
       "question_types": ["t4-normal-unknown-parameter", "fn-link-transformations", "t4-ext-z-scores"],
       "threads": ["transformations"],
-      "priority": { "parts": 5, "rank": 100 }
+      "priority": { "parts": 5, "rank": 101 }
     },
     {
       "id": "ex.stats.unknown-parameters",
@@ -4384,7 +4441,7 @@
       "methods": [],
       "question_types": ["t4-normal-unknown-parameter"],
       "threads": ["inverses", "symmetry", "graph-vs-algebra"],
-      "priority": { "parts": 10, "rank": 115 }
+      "priority": { "parts": 10, "rank": 116 }
     },
     {
       "id": "ex.stats.linear-transform-rv",
@@ -4401,7 +4458,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations"],
-      "priority": { "parts": 0, "rank": 192 }
+      "priority": { "parts": 0, "rank": 195 }
     },
     {
       "id": "ex.stats.discrete-variance",
@@ -4418,7 +4475,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["symmetry"],
-      "priority": { "parts": 0, "rank": 249 }
+      "priority": { "parts": 0, "rank": 252 }
     },
     {
       "id": "ex.stats.continuous-rv",
@@ -4435,7 +4492,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation", "symmetry"],
-      "priority": { "parts": 0, "rank": 248 }
+      "priority": { "parts": 0, "rank": 251 }
     },
     {
       "id": "ex.stats.continuous-mean-median",
@@ -4452,7 +4509,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation", "symmetry", "extremes"],
-      "priority": { "parts": 0, "rank": 326 }
+      "priority": { "parts": 0, "rank": 329 }
     },
     {
       "id": "ex.stats.combining-rvs",
@@ -4469,7 +4526,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 201 }
+      "priority": { "parts": 0, "rank": 204 }
     },
     {
       "id": "ex.stats.combine-normals",
@@ -4486,7 +4543,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation"],
-      "priority": { "parts": 0, "rank": 209 }
+      "priority": { "parts": 0, "rank": 212 }
     },
     {
       "id": "ex.stats.sample-mean-clt",
@@ -4503,7 +4560,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 224 }
+      "priority": { "parts": 0, "rank": 227 }
     },
     {
       "id": "ex.stats.confidence-intervals",
@@ -4520,7 +4577,7 @@
       "methods": ["z-interval", "t-interval"],
       "question_types": [],
       "threads": ["symmetry"],
-      "priority": { "parts": 0, "rank": 325 }
+      "priority": { "parts": 0, "rank": 328 }
     },
     {
       "id": "ex.stats.hypothesis-test-idea",
@@ -4537,7 +4594,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 184 }
+      "priority": { "parts": 0, "rank": 187 }
     },
     {
       "id": "ex.stats.chi-squared-independence",
@@ -4554,7 +4611,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["symmetry"],
-      "priority": { "parts": 0, "rank": 222 }
+      "priority": { "parts": 0, "rank": 225 }
     },
     {
       "id": "ex.stats.chi-squared-gof",
@@ -4571,7 +4628,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 247 }
+      "priority": { "parts": 0, "rank": 250 }
     },
     {
       "id": "ex.stats.chi-squared-refinements",
@@ -4588,7 +4645,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 322 }
+      "priority": { "parts": 0, "rank": 325 }
     },
     {
       "id": "ex.stats.t-test",
@@ -4605,7 +4662,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 331 }
+      "priority": { "parts": 0, "rank": 334 }
     },
     {
       "id": "ex.stats.critical-regions",
@@ -4622,7 +4679,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses"],
-      "priority": { "parts": 0, "rank": 210 }
+      "priority": { "parts": 0, "rank": 213 }
     },
     {
       "id": "ex.stats.test-mean",
@@ -4639,7 +4696,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 332 }
+      "priority": { "parts": 0, "rank": 335 }
     },
     {
       "id": "ex.stats.test-proportion-rate",
@@ -4656,7 +4713,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["binomial"],
-      "priority": { "parts": 0, "rank": 333 }
+      "priority": { "parts": 0, "rank": 336 }
     },
     {
       "id": "ex.stats.correlation-test",
@@ -4673,7 +4730,7 @@
       "methods": [],
       "question_types": [],
       "threads": [],
-      "priority": { "parts": 0, "rank": 327 }
+      "priority": { "parts": 0, "rank": 330 }
     },
     {
       "id": "ex.stats.markov-chains",
@@ -4690,7 +4747,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 250 }
+      "priority": { "parts": 0, "rank": 253 }
     },
     {
       "id": "ex.stats.steady-state",
@@ -4707,7 +4764,7 @@
       "methods": ["matrix-powers", "equations"],
       "question_types": [],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 329 }
+      "priority": { "parts": 0, "rank": 332 }
     },
     {
       "id": "ex.calculus.limits-and-gradient",
@@ -4809,7 +4866,7 @@
       "methods": [],
       "question_types": ["t5-increasing-decreasing", "t5-ext-always-increasing"],
       "threads": ["inverses", "equivalent-forms", "extremes"],
-      "priority": { "parts": 1.7, "rank": 169 }
+      "priority": { "parts": 1.7, "rank": 172 }
     },
     {
       "id": "ex.calculus.tangent-normal",
@@ -4843,7 +4900,7 @@
       "methods": [],
       "question_types": ["t5-normal-meets-curve", "t5-tangent-condition", "fn-link-extremes"],
       "threads": ["extremes", "graph-vs-algebra"],
-      "priority": { "parts": 5.7, "rank": 140 }
+      "priority": { "parts": 5.7, "rank": 141 }
     },
     {
       "id": "ex.calculus.standard-derivatives",
@@ -4860,7 +4917,7 @@
       "methods": [],
       "question_types": ["t5-differentiation-rules"],
       "threads": ["rate-of-change", "multiplicative-growth", "equivalent-forms"],
-      "priority": { "parts": 2, "rank": 20 }
+      "priority": { "parts": 2, "rank": 21 }
     },
     {
       "id": "ex.calculus.chain-rule",
@@ -4894,7 +4951,7 @@
       "methods": [],
       "question_types": ["t5-differentiation-rules"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 2, "rank": 127 }
+      "priority": { "parts": 2, "rank": 128 }
     },
     {
       "id": "ex.calculus.quotient-rule",
@@ -4911,7 +4968,7 @@
       "methods": ["quotient-rule", "product-rule"],
       "question_types": ["t5-differentiation-rules"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 2, "rank": 149 }
+      "priority": { "parts": 2, "rank": 152 }
     },
     {
       "id": "ex.calculus.rules-with-values",
@@ -4928,7 +4985,7 @@
       "methods": [],
       "question_types": ["t5-derivative-model-gdc"],
       "threads": ["extremes"],
-      "priority": { "parts": 2, "rank": 165 }
+      "priority": { "parts": 2, "rank": 168 }
     },
     {
       "id": "ex.calculus.show-derivative-form",
@@ -4945,7 +5002,7 @@
       "methods": [],
       "question_types": ["t5-differentiation-rules"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 2, "rank": 166 }
+      "priority": { "parts": 2, "rank": 169 }
     },
     {
       "id": "ex.calculus.stationary-points",
@@ -4962,7 +5019,7 @@
       "methods": ["algebra", "gdc"],
       "question_types": ["t5-stationary-points", "fn-link-extremes"],
       "threads": ["extremes", "graph-vs-algebra"],
-      "priority": { "parts": 5, "rank": 52 }
+      "priority": { "parts": 5, "rank": 53 }
     },
     {
       "id": "ex.calculus.classify-first-derivative",
@@ -4979,7 +5036,7 @@
       "methods": [],
       "question_types": ["t5-stationary-points"],
       "threads": ["rate-of-change", "extremes"],
-      "priority": { "parts": 5, "rank": 55 }
+      "priority": { "parts": 5, "rank": 56 }
     },
     {
       "id": "ex.calculus.global-extremes",
@@ -5047,7 +5104,7 @@
       "methods": [],
       "question_types": ["t5-ext-stationary-conditions"],
       "threads": [],
-      "priority": { "parts": 0, "rank": 283 }
+      "priority": { "parts": 0, "rank": 286 }
     },
     {
       "id": "ex.calculus.second-derivative",
@@ -5064,7 +5121,7 @@
       "methods": [],
       "question_types": ["t5-concavity"],
       "threads": ["rate-of-change"],
-      "priority": { "parts": 1.7, "rank": 92 }
+      "priority": { "parts": 1.7, "rank": 93 }
     },
     {
       "id": "ex.calculus.concavity",
@@ -5086,7 +5143,7 @@
       "methods": [],
       "question_types": ["t5-concavity", "t5-ext-interpret-second-derivative"],
       "threads": ["rate-of-change"],
-      "priority": { "parts": 1.7, "rank": 104 }
+      "priority": { "parts": 1.7, "rank": 105 }
     },
     {
       "id": "ex.calculus.second-derivative-test",
@@ -5103,7 +5160,7 @@
       "methods": [],
       "question_types": ["t5-stationary-points"],
       "threads": ["extremes"],
-      "priority": { "parts": 5, "rank": 144 }
+      "priority": { "parts": 5, "rank": 146 }
     },
     {
       "id": "ex.calculus.inflexion",
@@ -5120,7 +5177,7 @@
       "methods": [],
       "question_types": ["t5-stationary-points"],
       "threads": ["symmetry"],
-      "priority": { "parts": 5, "rank": 143 }
+      "priority": { "parts": 5, "rank": 145 }
     },
     {
       "id": "ex.calculus.derivative-graphs",
@@ -5137,7 +5194,7 @@
       "methods": [],
       "question_types": ["t5-derivative-graph", "t5-concavity"],
       "threads": ["accumulation", "extremes"],
-      "priority": { "parts": 2.7, "rank": 160 }
+      "priority": { "parts": 2.7, "rank": 163 }
     },
     {
       "id": "ex.calculus.velocity-acceleration",
@@ -5239,7 +5296,7 @@
       "methods": [],
       "question_types": ["t5-definite-integral-area"],
       "threads": ["inverses", "accumulation"],
-      "priority": { "parts": 1.8, "rank": 168 }
+      "priority": { "parts": 1.8, "rank": 171 }
     },
     {
       "id": "ex.calculus.trapezoidal-rule",
@@ -5256,7 +5313,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses", "accumulation"],
-      "priority": { "parts": 0, "rank": 236 }
+      "priority": { "parts": 0, "rank": 239 }
     },
     {
       "id": "ex.calculus.trapezoid-accuracy",
@@ -5273,7 +5330,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 284 }
+      "priority": { "parts": 0, "rank": 287 }
     },
     {
       "id": "ex.calculus.standard-integrals",
@@ -5307,7 +5364,7 @@
       "methods": [],
       "question_types": ["t5-indefinite-integral"],
       "threads": ["transformations", "inverses"],
-      "priority": { "parts": 1.4, "rank": 159 }
+      "priority": { "parts": 1.4, "rank": 162 }
     },
     {
       "id": "ex.calculus.inspection-substitution",
@@ -5324,7 +5381,7 @@
       "methods": ["inspection", "substitution"],
       "question_types": ["t5-indefinite-integral"],
       "threads": ["inverses"],
-      "priority": { "parts": 1.4, "rank": 170 }
+      "priority": { "parts": 1.4, "rank": 173 }
     },
     {
       "id": "ex.calculus.rewrite-then-integrate",
@@ -5341,7 +5398,7 @@
       "methods": [],
       "question_types": ["t5-indefinite-integral"],
       "threads": ["transformations", "equivalent-forms"],
-      "priority": { "parts": 1.4, "rank": 171 }
+      "priority": { "parts": 1.4, "rank": 174 }
     },
     {
       "id": "ex.calculus.function-from-derivative",
@@ -5358,7 +5415,7 @@
       "methods": [],
       "question_types": ["t5-antiderivative-condition", "t5-ext-hence-integral"],
       "threads": ["transformations", "inverses", "accumulation"],
-      "priority": { "parts": 5.5, "rank": 141 }
+      "priority": { "parts": 5.5, "rank": 142 }
     },
     {
       "id": "ex.calculus.definite-integrals",
@@ -5426,7 +5483,7 @@
       "methods": ["algebra", "gdc"],
       "question_types": ["t5-definite-integral-area"],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 1.8, "rank": 167 }
+      "priority": { "parts": 1.8, "rank": 170 }
     },
     {
       "id": "ex.calculus.area-y-axis",
@@ -5443,7 +5500,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses", "accumulation", "symmetry"],
-      "priority": { "parts": 0, "rank": 230 }
+      "priority": { "parts": 0, "rank": 233 }
     },
     {
       "id": "ex.calculus.volume-x-axis",
@@ -5460,7 +5517,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation"],
-      "priority": { "parts": 0, "rank": 215 }
+      "priority": { "parts": 0, "rank": 218 }
     },
     {
       "id": "ex.calculus.volume-y-axis",
@@ -5477,7 +5534,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation"],
-      "priority": { "parts": 0, "rank": 286 }
+      "priority": { "parts": 0, "rank": 289 }
     },
     {
       "id": "ex.calculus.volume-between-curves",
@@ -5494,7 +5551,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["accumulation", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 285 }
+      "priority": { "parts": 0, "rank": 288 }
     },
     {
       "id": "ex.calculus.continuity-limits",
@@ -5511,7 +5568,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 212 }
+      "priority": { "parts": 0, "rank": 215 }
     },
     {
       "id": "ex.calculus.first-principles",
@@ -5528,7 +5585,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change"],
-      "priority": { "parts": 0, "rank": 272 }
+      "priority": { "parts": 0, "rank": 275 }
     },
     {
       "id": "ex.calculus.higher-derivatives",
@@ -5545,7 +5602,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 197 }
+      "priority": { "parts": 0, "rank": 200 }
     },
     {
       "id": "ex.calculus.lhopital",
@@ -5562,7 +5619,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "multiplicative-growth", "equivalent-forms", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 233 }
+      "priority": { "parts": 0, "rank": 236 }
     },
     {
       "id": "ex.calculus.limits-by-maclaurin",
@@ -5579,7 +5636,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 276 }
+      "priority": { "parts": 0, "rank": 279 }
     },
     {
       "id": "ex.calculus.implicit-differentiation",
@@ -5596,7 +5653,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "extremes"],
-      "priority": { "parts": 0, "rank": 274 }
+      "priority": { "parts": 0, "rank": 277 }
     },
     {
       "id": "ex.calculus.related-rates",
@@ -5613,7 +5670,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change"],
-      "priority": { "parts": 0, "rank": 279 }
+      "priority": { "parts": 0, "rank": 282 }
     },
     {
       "id": "ex.calculus.further-derivatives",
@@ -5630,7 +5687,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth", "inverses", "symmetry"],
-      "priority": { "parts": 0, "rank": 214 }
+      "priority": { "parts": 0, "rank": 217 }
     },
     {
       "id": "ex.calculus.further-integrals",
@@ -5647,7 +5704,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "inverses", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 232 }
+      "priority": { "parts": 0, "rank": 235 }
     },
     {
       "id": "ex.calculus.substitution",
@@ -5664,7 +5721,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses", "accumulation"],
-      "priority": { "parts": 0, "rank": 235 }
+      "priority": { "parts": 0, "rank": 238 }
     },
     {
       "id": "ex.calculus.by-parts",
@@ -5681,7 +5738,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["inverses", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 231 }
+      "priority": { "parts": 0, "rank": 234 }
     },
     {
       "id": "ex.calculus.choose-technique",
@@ -5698,7 +5755,7 @@
       "methods": ["inspection", "substitution", "by-parts", "partial-fractions"],
       "question_types": [],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 271 }
+      "priority": { "parts": 0, "rank": 274 }
     },
     {
       "id": "ex.calculus.maclaurin",
@@ -5715,7 +5772,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "symmetry", "binomial"],
-      "priority": { "parts": 0, "rank": 205 }
+      "priority": { "parts": 0, "rank": 208 }
     },
     {
       "id": "ex.calculus.maclaurin-manipulate",
@@ -5732,7 +5789,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "inverses", "accumulation", "equivalent-forms"],
-      "priority": { "parts": 0, "rank": 278 }
+      "priority": { "parts": 0, "rank": 281 }
     },
     {
       "id": "ex.calculus.series-from-de",
@@ -5749,7 +5806,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change"],
-      "priority": { "parts": 0, "rank": 281 }
+      "priority": { "parts": 0, "rank": 284 }
     },
     {
       "id": "ex.calculus.form-differential-equation",
@@ -5766,7 +5823,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["transformations", "rate-of-change", "multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 178 }
+      "priority": { "parts": 0, "rank": 181 }
     },
     {
       "id": "ex.calculus.separate-variables",
@@ -5789,7 +5846,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth", "inverses"],
-      "priority": { "parts": 0, "rank": 206 }
+      "priority": { "parts": 0, "rank": 209 }
     },
     {
       "id": "ex.calculus.euler-method",
@@ -5806,7 +5863,7 @@
       "methods": ["by-hand", "spreadsheet"],
       "question_types": [],
       "threads": ["vectors", "rate-of-change", "accumulation", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 196 }
+      "priority": { "parts": 0, "rank": 199 }
     },
     {
       "id": "ex.calculus.logistic-de",
@@ -5823,7 +5880,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 277 }
+      "priority": { "parts": 0, "rank": 280 }
     },
     {
       "id": "ex.calculus.homogeneous-de",
@@ -5840,7 +5897,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 273 }
+      "priority": { "parts": 0, "rank": 276 }
     },
     {
       "id": "ex.calculus.integrating-factor",
@@ -5857,7 +5914,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 0, "rank": 275 }
+      "priority": { "parts": 0, "rank": 278 }
     },
     {
       "id": "ex.calculus.slope-fields",
@@ -5879,7 +5936,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["rate-of-change", "symmetry", "extremes", "graph-vs-algebra"],
-      "priority": { "parts": 0, "rank": 282 }
+      "priority": { "parts": 0, "rank": 285 }
     },
     {
       "id": "ex.calculus.coupled-euler",
@@ -5896,7 +5953,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors", "extremes"],
-      "priority": { "parts": 0, "rank": 204 }
+      "priority": { "parts": 0, "rank": 207 }
     },
     {
       "id": "ex.calculus.coupled-exact",
@@ -5913,7 +5970,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors", "multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 213 }
+      "priority": { "parts": 0, "rank": 216 }
     },
     {
       "id": "ex.calculus.phase-portraits",
@@ -5930,7 +5987,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors", "multiplicative-growth"],
-      "priority": { "parts": 0, "rank": 234 }
+      "priority": { "parts": 0, "rank": 237 }
     },
     {
       "id": "ex.calculus.second-order-de",
@@ -5952,7 +6009,7 @@
       "methods": [],
       "question_types": [],
       "threads": ["vectors", "equivalent-forms", "extremes"],
-      "priority": { "parts": 0, "rank": 280 }
+      "priority": { "parts": 0, "rank": 283 }
     }
   ]
 }
