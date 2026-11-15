@@ -12,6 +12,11 @@ const R_SQUARE := T + "#0"
 const R_TIMES_FIRST := T + "#1"
 const R_DROP_SIGN := T + "#2"
 const R_LEFT_RIGHT := T + "#3"
+const R_DOUBLES := T + "#4"
+const R_ADDS_INPUT := T + "#5"
+const R_KEEPS_SIGN := T + "#6"
+const R_WRONG_ORDER := T + "#7"
+const R_PUTS_VALUE := T + "#8"
 const LAST := "So the value is %s."
 
 
@@ -114,8 +119,9 @@ func u_negative_into_square(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var sq := x0.sq()
 	var ts := terms(s)
 	var out := show(rep, s, {"answer": ans})
-	out.wrongs = [wrong({"v": s.value.sub(ts[0].mul(2))}, R_SQUARE)]
-	out.generic = opts([a.mul(2).mul(x0).add(ts[1]).add(c), ts[0].sub(ts[1]).add(c), s.value.neg(), s.value.add(2)])
+	out.wrongs = [wrong({"v": s.value.sub(ts[0].mul(2))}, R_SQUARE), wrong({"v": a.mul(2).mul(x0).add(ts[1]).add(c)}, R_DOUBLES),
+		wrong({"v": ts[0].sub(ts[1]).add(c)}, R_DROP_SIGN)]
+	out.fillers = opts([s.value.neg(), s.value.add(2)])
 	var sums := "%s = %s" % [sum_line(ts), N(s.value)]
 	out.methods = ways({
 		"bracket-first": ["Replace x with (%s): %s" % [N(x0), put_in(s)], "(%s)² = %s, so the terms are %s" % [N(x0), N(sq), sum_line(ts)], sums],
@@ -133,8 +139,8 @@ func u_negative_into_linear(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var x0: Q = s.x0
 	var out := show(rep, s, {"answer": ans})
 	var dropped := m.mul(x0.abs_q()).add(c)
-	out.wrongs = [wrong({"v": dropped}, R_DROP_SIGN)]
-	out.generic = opts([m.mul(x0), s.value.neg(), s.value.add(1), m.add(x0).add(c)])
+	out.wrongs = [wrong({"v": dropped}, R_DROP_SIGN), wrong({"v": m.add(x0).add(c)}, R_ADDS_INPUT)]
+	out.fillers = opts([m.mul(x0), s.value.neg(), s.value.add(1)])
 	var mx := m.mul(x0)
 	out.methods = ways({"bracket-first": ["Replace x with (%s): %s" % [N(x0), put_in(s)], "%s × %s = %s" % [Fmt.paren(m), Fmt.paren(x0), N(mx)], "%s = %s" % [sum_line([c, mx]), N(s.value)]]}, ans)
 	return out
@@ -148,8 +154,9 @@ func u_coefficient_and_power(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var wrongs: Array = [wrong({"v": a.mul(x0).sq()}, R_TIMES_FIRST)]
 	if a.sign() < 0 or x0.sign() < 0:
 		wrongs.append(wrong({"v": s.value.neg()}, R_SQUARE))
+	wrongs.append(wrong({"v": a.mul(x0).mul(2)}, R_DOUBLES))
 	out.wrongs = wrongs
-	out.generic = opts([a.mul(x0).mul(2), a.mul(x0), s.value.neg(), s.value.add(a)])
+	out.fillers = opts([a.mul(x0), s.value.neg(), s.value.add(a)])
 	var sq := x0.sq()
 	var bracket := "Replace x with (%s): %s" % [N(x0), put_in(s)]
 	var square := "Square first: (%s)² = %s" % [N(x0), N(sq)]
@@ -168,11 +175,14 @@ func u_fraction_input(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sign_step: String
 	if s.has("co"):
 		var ts := terms(s)
-		out.generic = opts([s.value.add(1), s.value.neg(), s.value.add(ts[0]), SubstituteSituation.poly_at(s.co, x0.neg()), Q.new(1).div(s.value)])
+		var unsigned := SubstituteSituation.poly_at(s.co, x0.neg())
+		# Putting in −x0 is dropping the input's sign only when the input is negative.
+		out.wrongs = [wrong({"v": unsigned}, R_DROP_SIGN)] if x0.sign() < 0 else []
+		out.fillers = opts([s.value.add(1), s.value.neg(), s.value.add(ts[0])] + ([] if x0.sign() < 0 else [unsigned]) + [Q.new(1).div(s.value)])
 		work = ["Replace x with (%s): %s" % [N(x0), put_in(s)], "Work each term out as a fraction: %s" % sum_line(ts), "Put it over one denominator: top %s, bottom %s" % [Fmt.num(Q.new(s.value.n)), Fmt.num(Q.new(s.value.d))]]
 		sign_step = "Sign and size: the terms are %s, so about %s" % [sum_line(ts), Fmt.dec(Q.new(roundi(s.value.to_float() * 10.0), 10))]
 	else:
-		out.generic = opts([Q.new(1).div(s.value), s.value.neg(), s.t, s.b, s.value.add(1)])
+		out.fillers = opts([Q.new(1).div(s.value), s.value.neg(), s.t, s.b, s.value.add(1)])
 		work = ["Top: %s = %s" % [put_top(s), N(s.t)], "Bottom: %s = %s" % [put_bottom(s), N(s.b)], "Divide: %s ÷ %s = %s" % [N(s.t), Fmt.paren(s.b), N(s.value)]]
 		sign_step = "Sign and size: the top is %s and the bottom is %s, so the answer is %s" % [sign_word(s.t), sign_word(s.b), sign_word(s.value)]
 	out.methods = ways({"top-and-bottom": work, "estimate-check": [sign_step, work[-1]]}, ans)
@@ -200,7 +210,7 @@ func u_rational_expression(rep: String, s: Dictionary, rng: Seeded) -> Dictionar
 	var ans := exact("number", {"v": s.value})
 	var out := show(rep, s, {"answer": ans})
 	out.wrongs = [wrong({"v": s.ltr_value}, R_LEFT_RIGHT)]
-	out.generic = opts([Q.new(1).div(s.value), s.value.neg(), s.t, s.b, s.t.add(s.b)])
+	out.fillers = opts([Q.new(1).div(s.value), s.value.neg(), s.t, s.b, s.t.add(s.b)])
 	var top := "Top: %s = %s" % [put_top(s), N(s.t)]
 	var bottom := "Bottom: %s = %s" % [put_bottom(s), N(s.b)]
 	var divide := "Divide: %s ÷ %s = %s" % [N(s.t), Fmt.paren(s.b), N(s.value)]
@@ -240,7 +250,8 @@ func u_missing_input(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.asked = "The expression %s has the value %s. Find x." % [s.text, N(v)]
 	else:
 		out.lines = ["%s = %s" % [s.text, N(v)]]
-	out.generic = opts([v.add(b).div(a), v.div(a).sub(b), a.mul(v).add(b), s.x0.neg(), s.x0.add(1)])
+	out.wrongs = [wrong({"v": v.add(b).div(a)}, R_KEEPS_SIGN), wrong({"v": v.div(a).sub(b)}, R_WRONG_ORDER), wrong({"v": a.mul(v).add(b)}, R_PUTS_VALUE)]
+	out.fillers = opts([s.x0.neg(), s.x0.add(1)])
 	var last := "So %s." % Answer.text(ans)
 	var check := "Check: %s = %s, the right size and sign" % [s.text.replace("x", "(%s)" % N(s.x0)), N(v)]
 	var rest := v.sub(b)

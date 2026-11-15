@@ -37,6 +37,11 @@ const R_SIGN := "SL1.2.nth-term#1"
 const R_SUM_N := "SL1.2.sum#0"
 const R_SUM_GAPS := "SL1.2.sum#1"
 const R_BY_TERMS := "SL1.2.find-u1-d#0"
+const T := "t1-arithmetic-in-context#"
+const R_TIMES_N := T + "26"
+const R_CHANGE_ONLY := T + "27"
+const R_NO_GAPS := T + "28"
+const R_NEAR_FAR := T + "29"
 
 const UNKNOWNS := ["term-in-context", "total-in-context", "term-or-total", "in-or-after", "value-after", "simple-interest",
 	"estimate-d", "fit-gradient", "predict-from-gaps", "predict-from-line", "comment-validity", "stack-total", "peak-total",
@@ -129,6 +134,13 @@ static func n_wrongs(pairs: Array) -> Array:
 	return pairs.map(func(p): return wrong({"v": p[0]}, p[1]))
 
 
+## A claim question's options with no line: they go to the fillers, its slips stay.
+static func claims_out(out: Dictionary, made: Dictionary) -> void:
+	out.answer = made.answer
+	out.wrongs = made.wrongs.filter(func(w): return w.ref != "")
+	out.fillers = made.wrongs.filter(func(w): return w.ref == "").map(func(w): return w.values)
+
+
 static func story(s: Dictionary) -> Dictionary:
 	return ArithmeticContextSituation.STORIES[s.ctx]
 
@@ -218,7 +230,7 @@ func u_term_in_context(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find %s." % (c.term % n)
 	out.answer = ans
 	out.wrongs = n_wrongs([[term(s, n + 1), R_N_D], [total(s, n), R_FOUND_TERM]])
-	out.generic = nums([term(s, n - 1), s.d.mul(n), s.v.add(s.u1)])
+	out.fillers = nums([term(s, n - 1), s.d.mul(n), s.v.add(s.u1)])
 	var solved := method([read_of(rep, s),
 		"One %s is one term, so n = %d and this is uₙ = u₁ + (n − 1)d." % [c.step, n],
 		"%s = %s = %s" % [U(n), term_sum(s, n - 1), D(s.v)], so(ans)], {"v": s.v})
@@ -238,7 +250,8 @@ func u_total_in_context(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find %s." % (c.sum % n)
 	out.answer = ans
 	out.wrongs = n_wrongs([[s.v, R_FOUND_TERM], [sum.add(s.d.mul(n).div(2)), R_SUM_N], [total(s, n - 1), R_SUM_GAPS]])
-	out.generic = nums([total(s, n + 1), s.u1.mul(n), s.v.mul(n)])
+	out.wrongs.append_array(n_wrongs([[s.u1.mul(n), R_TIMES_N], [s.v.mul(n), R_TIMES_N]]))
+	out.fillers = nums([total(s, n + 1)])
 	var solved := method([read_of(rep, s),
 		"A total over %d %ss is a sum, so n = %d and Sₙ = (n ÷ 2)(2u₁ + (n − 1)d)." % [n, c.step, n],
 		"%s = %s = %s" % [SS(n), sum_sum(s, n, n - 1), D(sum)], so(ans)], {"v": sum})
@@ -256,13 +269,12 @@ func u_term_or_total(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var is_term: bool = s.case == "term"
 	var right: String = term_sum(s, n - 1) if is_term else sum_sum(s, n, n - 1)
 	var wrongs: Array = [[sum_sum(s, n, n - 1), R_FOUND_TERM], [term_sum(s, n), R_N_D], ["%d × %s" % [n, D(s.u1)], ""]] if is_term \
-		else [[term_sum(s, n - 1), R_FOUND_TERM], [sum_sum(s, n, n), R_SUM_N], ["%d × (%s)" % [n, term_sum(s, n - 1)], ""]]
+		else [[term_sum(s, n - 1), R_FOUND_TERM], [sum_sum(s, n, n), R_SUM_N], ["%d × (%s)" % [n, term_sum(s, n - 1)], R_TIMES_N]]
 	var made := DerivativeMeaningViews.claim_answer(right, rng.shuffled(wrongs))
 	var out := setup(rep, s)
 	var goal: String = c.term % n if is_term else c.sum % n
 	out.asked = "Which calculation gives %s?" % goal
-	out.answer = made.answer
-	out.wrongs = made.wrongs
+	claims_out(out, made)
 	out.methods = {"identify-parameters": method([read_of(rep, s),
 		"This asks for %s, so it is %s." % ["one term, not a total" if is_term else "a total of %d terms, not one term" % n, U(n) if is_term else SS(n)],
 		"uₙ = u₁ + (n − 1)d" if is_term else "Sₙ = (n ÷ 2)(2u₁ + (n − 1)d)", right], made.answer.values)}
@@ -282,7 +294,7 @@ func u_in_or_after(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = n_wrongs([[term(s, n), R_AFTER]]) if is_after else n_wrongs([[term(s, n + 1), R_N_D]])
 	out.wrongs.append_array(n_wrongs([[total(s, n), R_FOUND_TERM]]))
-	out.generic = nums([term(s, at + 1), term(s, at - 1), s.d.mul(n)])
+	out.fillers = nums([term(s, at + 1), term(s, at - 1), s.d.mul(n)])
 	var where := "Once %d full %ss have passed, %s %d is under way, so this is %s." % [n, c.step, c.step, n + 1, U(at)] if is_after \
 		else "%s %d is term %d, so this is %s." % [c.step.capitalize(), n, n, U(at)]
 	var solved := method([read_of(rep, s), where, "%s = %s = %s" % [U(at), term_sum(s, at - 1), D(v)], so(ans)], {"v": v})
@@ -306,7 +318,8 @@ func u_value_after(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find the %s after %d %ss." % [c.what, n, c.step]
 	out.answer = ans
 	out.wrongs = n_wrongs([[term(s, n), R_AFTER]])
-	out.generic = nums([term(s, n + 2), s.d.mul(n).abs_q(), s.u1.add(s.d.mul(n * 2))])
+	out.wrongs.append(wrong({"v": s.d.mul(n).abs_q()}, R_CHANGE_ONLY))
+	out.fillers = nums([term(s, n + 2), s.u1.add(s.d.mul(n * 2))])
 	var start := "The amount at the start is u₁ = %s, before any %s has passed, and d = %s." % [D(s.u1), c.step, D(s.d)]
 	var solved := method([start, "After 1 %s it is u₂, so after %d %ss it is %s." % [c.step, n, c.step, U(n + 1)],
 		"%s = %s = %s" % [U(n + 1), term_sum(s, n), D(s.v)], so(ans)], {"v": s.v})
@@ -335,7 +348,7 @@ func u_simple_interest(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find the value of the deposit after %d years." % n
 	out.answer = ans
 	out.wrongs = n_wrongs([[term(s, n), R_AFTER], [compound, R_COMPOUND], [s.I.mul(n), R_ONLY_INTEREST]])
-	out.generic = nums([term(s, n + 2), p.add(s.rate.mul(n))])
+	out.fillers = nums([term(s, n + 2), p.add(s.rate.mul(n))])
 	var read := "The interest a year is %s%% of %s = %s tokens, the same every year." % [D(s.rate), D(p), Fmt.money(s.I)] if rep != "table" \
 		else "The value goes up by %s − %s = %s tokens each year." % [Fmt.money(term(s, 2)), Fmt.money(p), Fmt.money(s.I)]
 	var solved := method([read, "So u₁ = %s, the deposit before any year has passed, d = %s, and after %d years the value is %s." % [D(p), D(s.I), n, U(n + 1)],
@@ -391,7 +404,8 @@ func u_estimate_d(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = n_wrongs([[s.d1, R_ONE_DIFF], [Q.new(s.ys[s.m - 1] - s.ys[0], s.m), R_BY_TERMS]])
 	if c.sign < 0:
 		out.wrongs.append(wrong({"v": s.avg.neg()}, R_SIGN))
-	out.generic = nums([Q.new(s.ys[s.m - 1] - s.ys[0]), s.a.mul(2), s.avg.add(1)])
+	out.wrongs.append(wrong({"v": Q.new(s.ys[s.m - 1] - s.ys[0])}, R_NO_GAPS))
+	out.fillers = nums([s.a.mul(2), s.avg.add(1)])
 	out.methods = {"average-difference": method(["The values do not change by the same amount each year, so d can only be estimated.",
 		"%d values have %d gaps between them." % [s.m, s.m - 1], gap_step(s), so(ans)], {"v": s.avg})}
 	return out
@@ -404,7 +418,7 @@ func u_fit_gradient(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "The %s is modelled by an arithmetic sequence. Use the regression line of the values on n to estimate the common difference d, to 3 s.f." % c.what
 	out.answer = ans
 	out.wrongs = n_wrongs([[s.b, R_B_AS_D], [s.d1, R_ONE_DIFF]])
-	out.generic = nums([s.avg, s.a.neg(), s.a.mul(2)])
+	out.fillers = nums([s.avg, s.a.neg(), s.a.mul(2)])
 	out.methods = {"gdc-regression": method([linreg(s),
 		"a is the change in the value for one more year, so it plays the part of d.", so(ans)], {"v": s.a})}
 	return out
@@ -419,7 +433,7 @@ func u_predict_from_gaps(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.answer = ans
 	out.wrongs = n_wrongs([[s.pa.add(s.avg), R_N_D], [Q.new(s.ys[s.m - 1]).add(s.avg.mul(big_n)), R_FROM_LAST],
 		[Q.new(s.ys[0]).add(s.d1.mul(big_n - 1)), R_ONE_DIFF]])
-	out.generic = nums([s.avg.mul(big_n), s.pa.sub(s.avg), s.pa.mul(2)])
+	out.fillers = nums([s.avg.mul(big_n), s.pa.sub(s.avg), s.pa.mul(2)])
 	out.methods = {"average-difference": method([gap_step(s),
 		"Year %d is %d steps on from year 1, so %s ≈ %d + %d × %s." % [big_n, big_n - 1, U(big_n), s.ys[0], big_n - 1, PDW(s.avg)],
 		"%s %s" % [U(big_n), is_val(s.pa)], so(ans)], {"v": s.pa})}
@@ -439,7 +453,7 @@ func u_predict_from_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.asked = "The %s is modelled by the regression line of the values on n. Use it to predict the value in year %d, to 3 s.f." % [c.what, big_n]
 	out.answer = ans
 	out.wrongs = n_wrongs([[s.a.mul(big_n), R_NO_B], [s.pl.add(s.a), R_LINE_NEXT]])
-	out.generic = nums([s.pa, s.pl.sub(s.a), s.b.mul(big_n)])
+	out.fillers = nums([s.pa, s.pl.sub(s.a), s.b.mul(big_n)])
 	out.methods = {"gdc-regression": method([linreg(s),
 		"Put n = %d into the line, keeping the GDC's values: y = %s × %d %s." % [big_n, W(s.a), big_n, signed_b(s.b)],
 		"y %s" % is_val(s.pl), so(ans)], {"v": s.pl})}
@@ -463,7 +477,7 @@ func u_comment_validity(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	match s.case:
 		"near":
 			right = "Reasonable: year %d is close to the data, and the yearly changes all go the same way." % big_n
-			wrongs = [[exact, R_EXACT], [all_bad, R_ALL_BAD], ["Not valid: year %d is far beyond the data, which end at year %d." % [big_n, m], ""]]
+			wrongs = [[exact, R_EXACT], [all_bad, R_ALL_BAD], ["Not valid: year %d is far beyond the data, which end at year %d." % [big_n, m], R_NEAR_FAR]]
 			verdict = "That is only %d past the data, and the yearly changes have all gone the same way." % (big_n - m)
 			if rising:
 				s.cap = int(ceilf(maxf(s.pa.to_float(), s.pl.to_float()) * 1.3 / 10.0)) * 10
@@ -485,8 +499,7 @@ func u_comment_validity(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			wrongs = [["Valid: the data fit the model well, so the prediction can be trusted.", R_PAST_LIMIT], [exact, R_EXACT], [all_bad, R_ALL_BAD]]
 	var made := DerivativeMeaningViews.claim_answer(right, rng.shuffled(wrongs))
 	out.asked = "A scout uses the data to predict the %s in year %d, and gets about %s. Comment on the validity of this prediction." % [c.what, big_n, said]
-	out.answer = made.answer
-	out.wrongs = made.wrongs
+	claims_out(out, made)
 	var changes: Array = []
 	for i in range(1, m):
 		changes.append(s.ys[i] - s.ys[i - 1])
@@ -553,7 +566,8 @@ func u_stack_total(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var t2 := total(s, 2)
 	out.wrongs = n_wrongs([[term(s, n), R_FOUND_TERM], [t1.add(t2.sub(t1).mul(n - 1)), R_TOTALS_ARITH],
 		[total(s, n - 1), R_SUM_GAPS], [s.v.add(s.d.mul(n).div(2)), R_SUM_N]])
-	out.generic = nums([total(s, n + 1), s.u1.mul(n)])
+	out.wrongs.append(wrong({"v": s.u1.mul(n)}, R_TIMES_N))
+	out.fillers = nums([total(s, n + 1)])
 	var rows: Array = []
 	var running: Array = []
 	for k in range(1, n + 1):
@@ -578,7 +592,7 @@ func u_stack_crates(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.rowk > 0:
 		wr.append([Q.new(s.rowk), R_FOUND_TERM])
 	out.wrongs = n_wrongs(wr)
-	out.generic = nums([Q.new(k + 1), Q.new(k - 1), Q.new(k * 2)])
+	out.fillers = nums([Q.new(k + 1), Q.new(k - 1), Q.new(k * 2)])
 	out.methods = {"gdc-table": method([pile_read(rep, s),
 		"The total in n rows is Sₙ, so enter Y1 = X ÷ 2 × (2 × %s + (X − 1) × %s) ÷ %d and open the table." % [D(s.u1), D(s.d), s.c],
 		"X = %d gives %s, which is not whole, and X = %d gives %s, the first whole value." % [k - 1, W(total(s, k - 1).div(s.c)), k, W(total(s, k).div(s.c))],
@@ -600,7 +614,8 @@ func u_peak_total(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = n_wrongs([[total(s, k + 1) if term(s, k + 1).sign() < 0 else total(s, k + 2), R_ONE_AWAY], [total(s, k - 1), R_ONE_AWAY],
 		[s.u1, R_FOUND_TERM], [Q.new(k), R_N_OR_TERM]])
-	out.generic = nums([total(s, 2 * k), s.u1.mul(k)])
+	out.wrongs.append(wrong({"v": s.u1.mul(k)}, R_TIMES_N))
+	out.fillers = nums([total(s, 2 * k)])
 	var first := "From the %s, u₁ = %s and d = %s." % ["table" if rep == "table" else "story", D(s.u1), D(s.d)]
 	var solved := method([first,
 		"The total grows while the terms are above 0. The last is %s = %s, and %s = %s." % [U(k), D(term(s, k)), U(k + 1), D(term(s, k + 1))],
@@ -646,7 +661,7 @@ func u_term_number(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = (c.find % D(s.v)) + " Give n, the %s number." % c.step
 	out.answer = ans
 	out.wrongs = n_wrongs([[Q.new(k - 1), R_NO_ONE], [s.v, R_N_OR_TERM]])
-	out.generic = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
+	out.fillers = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
 	out.methods = to_term(rep, s, s.v, k, ans)
 	return out
 
@@ -659,7 +674,7 @@ func u_zero_term(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = c.zero + " Give n, the %s number." % c.step
 	out.answer = ans
 	out.wrongs = n_wrongs([[Q.new(k - 1), R_NO_ONE]])
-	out.generic = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
+	out.fillers = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
 	out.methods = to_term(rep, s, Q.new(0), k, ans)
 	return out
 
@@ -677,7 +692,7 @@ func u_count_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find n, the number of %s." % c.thing
 	out.answer = ans
 	out.wrongs = n_wrongs([[Q.new(k - 1), R_NO_ONE]])
-	out.generic = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
+	out.fillers = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
 	var read := "From the table, u₁ = %s and d = %s − %s = %d." % [first, D(term(s, 2)), first, s.gap] if rep == "table" \
 		else "u₁ = %s, d = %d and the last term is %s." % [first, s.gap, last]
 	var gaps: Q = s.last.sub(s.u1)
@@ -707,7 +722,7 @@ func u_first_past(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = n_wrongs([[Q.new(k - 1), R_ROUND_DOWN], [s.v, R_N_OR_TERM]])
 	if by_sum > 0:
 		out.wrongs.append(wrong({"v": Q.new(by_sum)}, R_FOUND_TERM))
-	out.generic = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
+	out.fillers = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
 	var gap: Q = x.sub(s.u1).abs_q()
 	var step: Q = s.d.abs_q()
 	var word := "more" if rising else "less"
@@ -735,7 +750,7 @@ func u_first_total_past(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	while term(s, j).lt(x) or term(s, j).eq(x):
 		j += 1
 	out.wrongs = n_wrongs([[Q.new(k - 1), R_ROUND_DOWN], [s.v, R_N_OR_TERM], [Q.new(j), R_FOUND_TERM]])
-	out.generic = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
+	out.fillers = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
 	var r: Dictionary = {"v": Q.new(k)}
 	var expr := "%s ÷ 2 × (2 × %s + (%s − 1) × %s)"
 	out.methods = {
@@ -767,8 +782,7 @@ func u_whole_n_test(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var made := DerivativeMeaningViews.claim_answer(right, rng.shuffled(wrongs))
 	var out := setup(rep, s)
 	out.asked = (c.can % vt) + " Justify your answer."
-	out.answer = made.answer
-	out.wrongs = made.wrongs
+	claims_out(out, made)
 	var gap: Q = v.sub(s.u1)
 	var r: Dictionary = made.answer.values
 	out.methods = {

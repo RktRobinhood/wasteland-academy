@@ -1210,7 +1210,7 @@ func u_bounce_multiple(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"methods": {
 			"split-series": method(["Down: x/(1 − %s). Up: %sx/(1 − %s)." % [B(s, r), B(s, r), B(s, r)], "Total = x(1 + %s)/(1 − %s) = x × %s/%s" % [B(s, r), B(s, r), B(s, top), B(s, one)], "k = %s ÷ %s = %s" % [X(s, top), B(s, one), X(s, s.v)], say(ans)], ans.values),
 			"model-series": method(["The path is x + 2 × %sx + 2 × %s²x + …: one drop, then a geometric series." % [B(s, r), B(s, r)], "|r| < 1, so the rebounds add to 2 × %sx/(1 − %s)." % [B(s, r), B(s, r)],
-				"Total = x(1 + 2 × %s/%s) = %sx" % [B(s, r), B(s, one), X(s, s.v)], say(ans)], ans.values),
+				"Total = x(1 + 2 × %s/%s) = %sx" % [B(s, r), B(s, one), B(s, s.v)], say(ans)], ans.values),
 		}})
 
 

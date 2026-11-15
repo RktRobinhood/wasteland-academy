@@ -189,19 +189,21 @@ func test_significant_figures_format() -> void:
 func test_every_distractor_misconception_is_an_option() -> void:
 	for id in TYPES:
 		var t := QuestionEngine.type_of(id)
-		for m in t.misconceptions:
+		for i in t.misconceptions.size():
+			var m: Dictionary = t.misconceptions[i]
+			var ref: String = m.get("ref", "%s#%d" % [id, i])
 			for u in m.in:
 				var found := false
 				for c in QuestionEngine.cells(false, [id]).filter(func(x): return x.unknown == u):
 					for seed in range(1, 40):
 						var q := QuestionEngine.make({"type": id, "unknown": u, "rep": c.rep, "angle": c.angle, "seed": seed, "format": "mcq",
 							"paper": 2})
-						if q.choices.any(func(o): return o.ref == m.ref):
+						if q.choices.any(func(o): return o.ref == ref):
 							found = true
 							break
 					if found:
 						break
-				check(found, "%s: %s never appears on %s" % [id, m.ref, u])
+				check(found, "%s: %s never appears on %s" % [id, ref, u])
 
 
 func test_a_typed_misconception_is_recognised() -> void:

@@ -665,7 +665,7 @@ func _show_versions() -> void:
 				inner.add_child(g)
 			if q.table != null:
 				inner.add_child(_table(q.table))
-			inner.add_child(UiTheme.label("Answer: " + q.answer_text, UiTheme.BODY, UiTheme.TEAL))
+			inner.add_child(UiTheme.math("Answer: " + q.answer_text, UiTheme.BODY, UiTheme.TEAL))
 		list.add_child(box)
 	answered = true
 

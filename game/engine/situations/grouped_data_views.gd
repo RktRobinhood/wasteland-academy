@@ -41,6 +41,9 @@ const R_ONE_F := MT + "6"
 const R_WHOLE_SIZE := MT + "7"
 const R_MEAN_EQ := MM + "3"
 const R_ONE_SIDE := MM + "4"
+## The type's own, with no skill ref: logged by index.
+const R_MEAN_READ := "t4-grouped-data#28"
+const R_NOT_DIVIDED := "t4-grouped-data#29"
 
 ## A grouped table's story: the letter, the two heads, what `many` counts and the line above it.
 const CLASSES := [
@@ -329,7 +332,7 @@ func u_modal_class(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Write down the modal class."
 	out.answer = ans
 	out.wrongs = [wrong({"v": labels[s.mid]}, R_MEDIAN_CLASS)]
-	out.generic = labels.filter(func(l): return l != labels[s.big] and l != labels[s.mid]).map(func(l): return {"v": l})
+	out.fillers = labels.filter(func(l): return l != labels[s.big] and l != labels[s.mid]).map(func(l): return {"v": l})
 	out.methods = {"any": method(["The modal class is the class with the greatest frequency.",
 		"The greatest frequency is %s, in the row %s." % [D(s.fs[s.big]), labels[s.big]], "So the modal class is %s." % Answer.text(ans)], ans.values)}
 	return out
@@ -346,7 +349,7 @@ func u_modal_class_after_frequency(_rep: String, s: Dictionary, _rng: Seeded) ->
 		out.wrongs.append(wrong({"v": labels[s.known_top]}, R_P_LEFT_OUT))
 	if s.mid >= 0 and s.mid != s.big:
 		out.wrongs.append(wrong({"v": labels[s.mid]}, R_MEDIAN_CLASS))
-	out.generic = labels.filter(func(l): return l != labels[s.big]).map(func(l): return {"v": l})
+	out.fillers = labels.filter(func(l): return l != labels[s.big]).map(func(l): return {"v": l})
 	var known := without(s.fs, s.at)
 	var rest := total(known)
 	out.methods = {"any": method(["p is hidden, so find it first: the frequencies add to %s." % D(s.n),
@@ -365,7 +368,7 @@ func u_mid_interval_value(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	out.asked = "Write down the mid-interval value of the class %s." % class_label(s, i)
 	out.answer = ans
 	out.wrongs = wr(ans, Q.new(hi), R_UPPER) + wr(ans, Q.new(lo), R_LOWER) + wr(ans, Q.new(hi - lo), R_WIDTH)
-	out.generic = gen(ans, nudges(s.xs[i]))
+	out.fillers = gen(ans, nudges(s.xs[i]))
 	out.methods = {"any": method(["The mid-interval value is halfway between the two ends of the class.",
 		"(%d + %d) ÷ 2 = %s" % [lo, hi, D(s.xs[i])], final_step(ans)], ans.values)}
 	return out
@@ -397,7 +400,7 @@ func u_mid_interval_list(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		stepped.append(s.xs[0].add(w0.mul(Q.new(i))))
 	out.wrongs = [wrong(list_values(s.hi.map(func(h): return Q.new(h))), R_UPPER), wrong(list_values(s.lo.map(func(l): return Q.new(l))), R_LOWER),
 		wrong(list_values(stepped), R_FIRST_WIDTH)]
-	out.generic = [list_values(s.xs.map(func(x): return x.add(Q.new(1))))]
+	out.fillers = [list_values(s.xs.map(func(x): return x.add(Q.new(1))))]
 	out.methods = {"any": method(["Each mid-interval value is halfway between the ends of its class. The classes need not be equally wide, so find each one.",
 		"; ".join(sums), "So " + Answer.text(ans) + "."], ans.values)}
 	return out
@@ -428,7 +431,7 @@ func u_estimate_mean(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		by_hi = by_hi.add(s.fs[i].mul(uppers[i]))
 		by_lo = by_lo.add(s.fs[i].mul(lowers[i]))
 	out.wrongs = wr(ans, s.fx.div(k), R_BY_CLASSES) + wr(ans, by_hi.div(s.n), R_UPPER) + wr(ans, by_lo.div(s.n), R_LOWER) + wr(ans, total(s.xs).div(k), R_NO_FREQ)
-	out.generic = gen(ans, nudges(s.mean))
+	out.fillers = gen(ans, nudges(s.mean))
 	var shown: String = D(s.mean) if ans.show == "dec" else W(s.mean)
 	out.methods = {"midpoint-formula": method(mean_steps(s, shown) + [final_step(ans)], ans.values),
 		"gdc-lists": method(gdc_mean_steps(s, shown) + [final_step(ans)], ans.values)}
@@ -443,7 +446,7 @@ func u_estimate_why(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Which statement about this value is true?"
 	out.answer = ans
 	out.wrongs = [wrong(claim("exact", WHY_EXACT), R_EXACT)]
-	out.generic = [claim("rounded", WHY_ROUNDED), claim("one", WHY_ONE)]
+	out.fillers = [claim("rounded", WHY_ROUNDED), claim("one", WHY_ONE)]
 	out.methods = {"any": method(["A class gives only a range for its values: the table doesn't say where in the class each one lies.",
 		"The mid-interval value stands in for all the values of its class, so the result is an estimate, not the exact mean.", WHY_RIGHT], ans.values)}
 	return out
@@ -477,7 +480,10 @@ func _spread(s: Dictionary, asked: String, grouped: bool, want_sd: bool) -> Dict
 	if grouped:
 		var hi_var := spread_with(s, s.hi.map(func(h): return Q.new(h)))
 		out.wrongs += wr(ans, GroupedDataSituation.root(hi_var) if want_sd else hi_var, R_UPPER)
-	out.generic = gen(ans, [s.mean, s.sd.mul(Q.new(2)), value.add(Q.new(1)), value.mul(Q.new(2))])
+	# x̄ read off for σx is a slip when the sd is asked; for the variance it is a filler.
+	if want_sd:
+		out.wrongs += wr(ans, s.mean, R_MEAN_READ)
+	out.fillers = gen(ans, ([] if want_sd else [s.mean]) + [s.sd.mul(Q.new(2)), value.add(Q.new(1)), value.mul(Q.new(2))])
 	var read := "Read off σx = %s, not Sx, which divides by one less than n." % W(s.sd)
 	var finish: Array = [] if want_sd else ["Variance = σx² = %s² = %s" % [W(s.sd), W(s.variance)]]
 	var data := "mid-interval values" if grouped else "values"
@@ -525,7 +531,12 @@ func _small_set(s: Dictionary, want_sd: bool) -> Dictionary:
 		out.wrongs += wr(ans, s.variance, R_SWAPPED) + wr(ans, GroupedDataSituation.root(by_less), R_SX)
 	else:
 		out.wrongs += wr(ans, s.sd, R_SWAPPED) + wr(ans, by_less, R_SX)
-	out.generic = gen(ans, [sq_sum, s.mean, value.add(Q.new(1)), value.add(Q.new(2)), value.mul(Q.new(2))])
+	# Σ(x − x̄)² left undivided is a slip for the variance, and x̄ for σx one for the sd.
+	if want_sd:
+		out.wrongs += wr(ans, s.mean, R_MEAN_READ)
+	else:
+		out.wrongs += wr(ans, sq_sum, R_NOT_DIVIDED)
+	out.fillers = gen(ans, ([sq_sum] if want_sd else [s.mean]) + [value.add(Q.new(1)), value.add(Q.new(2)), value.mul(Q.new(2))])
 	var squares: Array = devs.map(func(d): return d.mul(d))
 	var steps: Array = ["Mean = (%s) ÷ %d = %s ÷ %d = %s" % [plus(s.xs), count, D(s.fx), count, D(s.mean)],
 		"Take the mean from each value: the deviations are %s." % L(devs),
@@ -559,7 +570,7 @@ func u_variance_from_sd(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var out := {"lines": ["The standard deviation of the %s is %s." % [c.what, D(s.sd)]], "table": null, "answer": ans}
 	out.asked = to_sf(ans, "Find the variance")
 	out.wrongs = wr(ans, s.sd.mul(Q.new(2)), R_DOUBLE) + wr(ans, s.sd, R_SWAPPED)
-	out.generic = gen(ans, [s.sd.div(Q.new(2)), s.sd.add(Q.new(1)), s.variance.mul(Q.new(2)), s.variance.add(Q.new(1))])
+	out.fillers = gen(ans, [s.sd.div(Q.new(2)), s.sd.add(Q.new(1)), s.variance.mul(Q.new(2)), s.variance.add(Q.new(1))])
 	out.methods = {"variance-sd-link": method(["The variance is the square of the standard deviation.",
 		"%s × %s = %s" % [D(s.sd), D(s.sd), D(s.variance)], final_step(ans)], ans.values)}
 	return out
@@ -571,7 +582,7 @@ func u_sd_from_variance(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var out := {"lines": ["The variance of the %s is %s." % [c.what, D(s.variance)]], "table": null, "answer": ans}
 	out.asked = to_sf(ans, "Find the standard deviation")
 	out.wrongs = wr(ans, s.variance.div(Q.new(2)), R_HALVE) + wr(ans, s.variance, R_SWAPPED) + wr(ans, s.sd.neg(), R_NEGATIVE)
-	out.generic = gen(ans, [s.sd.add(Q.new(1)), s.sd.mul(Q.new(2)), s.variance.add(Q.new(1))])
+	out.fillers = gen(ans, [s.sd.add(Q.new(1)), s.sd.mul(Q.new(2)), s.variance.add(Q.new(1))])
 	var shown: String = D(s.sd) if ans.show == "dec" else W(s.sd)
 	out.methods = {"variance-sd-link": method(["The standard deviation is the positive square root of the variance.",
 		"√%s = %s" % [D(s.variance), shown], final_step(ans)], ans.values)}
@@ -590,7 +601,7 @@ func u_interpret_sd(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"%s %s, %s has mean %d %s and standard deviation %d %s." % [c.at, c.b, c.thing, s.m2, c.unit, s.sd2, c.unit]], "table": null, "answer": ans}
 	out.asked = "What do these figures show?"
 	out.wrongs = [wrong(claim("mean", c.more % more), R_LARGER_MEAN), wrong(claim("back", back), R_BACKWARDS), wrong(claim("each", c.each % [more, large]), R_ALL_WITHIN)]
-	out.generic = []
+	out.fillers = []
 	out.methods = {"any": method(["The standard deviation measures how far the values typically lie from their mean. It says nothing about which mean is greater.",
 		"The larger standard deviation is %d %s, %s." % [large, c.unit, _place(c, more)], right], ans.values)}
 	return out
@@ -613,7 +624,7 @@ func u_missing_frequency_from_total(_rep: String, s: Dictionary, _rng: Seeded) -
 	var share: Q = s.n.div(Q.new(s.xs.size()))
 	if share.is_int():
 		out.wrongs += wr(ans, share, R_EQUAL_SHARE)
-	out.generic = gen(ans, nudges(s.p))
+	out.fillers = gen(ans, nudges(s.p))
 	out.methods = {"any": method(["The frequencies add to %s." % D(s.n), "The known rows add to %s = %s." % [plus(known), D(rest)],
 		"p = %s − %s = %s" % [D(s.n), D(rest), D(s.p)], final_step(ans)], ans.values)}
 	return out
@@ -659,7 +670,7 @@ func u_missing_frequency_from_estimate(_rep: String, s: Dictionary, _rng: Seeded
 	var slip: Q = s.mean.mul(f_known).sub(fx_known).div(xp)
 	if slip.sign() > 0:
 		out.wrongs += wr(ans, slip, R_NO_P)
-	out.generic = gen(ans, nudges(s.p) + [f_known])
+	out.fillers = gen(ans, nudges(s.p) + [f_known])
 	out.methods = _frequency_methods(s, ans, "Mean")
 	return out
 
@@ -684,7 +695,7 @@ func u_two_frequencies_from_mean(_rep: String, s: Dictionary, _rng: Seeded) -> D
 	var slip_p: Q = left.sub(slip_q)
 	if slip_p.sign() > 0 and slip_q.sign() > 0 and GroupedDataSituation.ends(slip_p, 2) and GroupedDataSituation.ends(slip_q, 2):
 		out.wrongs.append(wrong({"p": slip_p, "q": slip_q}, R_NO_P))
-	out.generic = [{"p": s.p.add(Q.new(1)), "q": s.q.sub(Q.new(1))}, {"p": s.p.sub(Q.new(1)), "q": s.q.add(Q.new(1))},
+	out.fillers = [{"p": s.p.add(Q.new(1)), "q": s.q.sub(Q.new(1))}, {"p": s.p.sub(Q.new(1)), "q": s.q.add(Q.new(1))},
 		{"p": s.p.add(Q.new(2)), "q": s.q.sub(Q.new(2))}, {"p": s.p.add(Q.new(1)), "q": s.q.add(Q.new(1))}]
 	var d := b.sub(a)
 	var last := "(%s − %s)q = %s − %s × %s = %s, so q = %s ÷ %s = %s and p = %s − %s = %s" % [D(b), D(a), D(right), D(a), D(left), D(right.sub(a.mul(left))),
@@ -734,7 +745,7 @@ func u_missing_frequency_from_median(_rep: String, s: Dictionary, _rng: Seeded) 
 	out.wrongs = wr(ans, near, R_ONE_SIDE)
 	if slip.sign() > 0:
 		out.wrongs += wr(ans, slip, R_MEAN_EQ)
-	out.generic = gen(ans, nudges(s.p))
+	out.fillers = gen(ans, nudges(s.p))
 	var a: Q = s.xs[s.cut]
 	var b: Q = s.xs[s.cut + 1]
 	out.methods = {"ordered-position": method(["The median %s is halfway between %s and %s, so the two middle values are one %s and one %s." % [D(s.median), D(a), D(b), D(a), D(b)],
@@ -756,7 +767,7 @@ func u_missing_value_from_table_mean(_rep: String, s: Dictionary, _rng: Seeded) 
 	var want: Q = s.mean.mul(s.n)
 	var rest := want.sub(known_fx)
 	out.wrongs = wr(ans, rest, R_ONE_F)
-	out.generic = gen(ans, nudges(k) + [s.mean])
+	out.fillers = gen(ans, nudges(k) + [s.mean])
 	var known_devs: Array = []
 	var dev := Q.new(0)
 	for j in s.xs.size():
@@ -790,7 +801,7 @@ func u_new_value_from_new_mean(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var before := old.mul(Q.new(c))
 	var after := new_m.mul(Q.new(c + 1))
 	out.wrongs = wr(ans, new_m.mul(Q.new(2)).sub(old), R_AVERAGE) + (wr(ans, new_m.sub(old).mul(Q.new(c)), R_OLD_COUNT) if new_m.sub(old).sign() > 0 else [])
-	out.generic = gen(ans, nudges(k) + [new_m])
+	out.fillers = gen(ans, nudges(k) + [new_m])
 	var dev := old.sub(new_m).mul(Q.new(c))
 	out.methods = {"total-from-mean": method(["The %d %s had a total of %s × %d = %s." % [c, g.things, D(old), c, D(before)],
 		"All %d now have a total of %s × %d = %s." % [c + 1, D(new_m), c + 1, D(after)], "The new value is the difference: %s − %s = %s" % [D(after), D(before), D(k)],
@@ -826,7 +837,7 @@ func u_whole_mean_from_groups(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	out.asked = to_sf(ans, "Find the mean %s by all %s %s" % [g.what, D(s.n), g.things])
 	var flat := total(s.means).div(Q.new(count))
 	out.wrongs = wr(ans, flat, R_AVERAGE)
-	out.generic = gen(ans, nudges(s.whole) + [s.total.div(Q.new(count)), s.means[0]])
+	out.fillers = gen(ans, nudges(s.whole) + [s.total.div(Q.new(count)), s.means[0]])
 	var shown: String = D(s.whole) if ans.show == "dec" else W(s.whole)
 	out.methods = {"total-from-mean": method(group_steps(s, g) + ["There are %s = %s %s: %s ÷ %s = %s" % [" + ".join(s.sizes.map(func(n): return str(n))), D(s.n), g.things, D(s.total), D(s.n), shown],
 		final_step(ans)], ans.values)}
@@ -840,7 +851,7 @@ func u_whole_total_from_groups(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 		"table": {"rows": group_rows(g, s)}, "answer": ans, "asked": "Find the %s by all %s %s." % [g.all, D(s.n), g.things]}
 	var flat := total(s.means).div(Q.new(s.sizes.size()))
 	out.wrongs = wr(ans, flat.mul(s.n), R_AVERAGE)
-	out.generic = gen(ans, [s.total.add(Q.new(10)), s.total.sub(Q.new(10)), total(s.means).mul(s.n), s.total.div(s.n)])
+	out.fillers = gen(ans, [s.total.add(Q.new(10)), s.total.sub(Q.new(10)), total(s.means).mul(s.n), s.total.div(s.n)])
 	out.methods = {"total-from-mean": method(group_steps(s, g) + [final_step(ans)], ans.values)}
 	return out
 
@@ -856,7 +867,7 @@ func u_group_mean_from_whole(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var t1: Q = s.means[0].mul(Q.new(n1))
 	var rest := t.sub(t1)
 	out.wrongs = wr(ans, s.whole.mul(Q.new(2)).sub(s.means[0]), R_AVERAGE) + wr(ans, rest.div(s.n), R_WHOLE_SIZE)
-	out.generic = gen(ans, nudges(s.means[1]) + [s.whole])
+	out.fillers = gen(ans, nudges(s.means[1]) + [s.whole])
 	out.methods = {"total-from-mean": method(["The whole group's total is %s × %s = %s." % [D(s.whole), D(s.n), D(t)],
 		"The %d known %s make %d × %s = %s." % [n1, g.things, n1, D(s.means[0]), D(t1)],
 		"The other %d make %s − %s = %s, so their mean is %s ÷ %d = %s" % [n2, D(t), D(t1), D(rest), D(rest), n2, D(s.means[1])],

@@ -13,6 +13,15 @@ const R_INTERVAL := ST + "1"
 const R_STREET := ST + "2"
 const R_LARGER := BI + "0"
 const R_PERFECT := BI + "1"
+## Slips with no ref of their own (FAL-815): "<type id>#<index>".
+const R_N_AS_K := "t4-sampling#5"
+const R_STEP_EXTRA := "t4-sampling#6"
+const R_NO_START := "t4-sampling#7"
+const R_EQUAL_SPLIT := "t4-sampling#8"
+const R_FAIR_NOT_SHORT := "t4-sampling#9"
+const R_UNSCALED := "t4-sampling#10"
+const R_FEWEST := "t4-sampling#11"
+const R_CHANCE_BIAS := "t4-sampling#12"
 
 const NAMES := {"simple": "Simple random sampling", "systematic": "Systematic sampling", "convenience": "Convenience sampling",
 	"quota": "Quota sampling", "stratified": "Stratified sampling"}
@@ -134,8 +143,11 @@ static func method_line(s: Dictionary, tech: String) -> String:
 	return "A surveyor stands %s and asks whoever comes by until there are %d %s and %d %s." % [c.spot, s.q[0], group(s, 0), s.q[1], group(s, 1)]
 
 
+## The right claim, the tagged wrong claims, and the untagged ones as fillers.
 static func claims(right: String, wrongs_in: Array) -> Dictionary:
-	return DerivativeMeaningViews.claim_answer(right, wrongs_in)
+	var built := DerivativeMeaningViews.claim_answer(right, wrongs_in)
+	return {"answer": built.answer, "wrongs": built.wrongs.filter(func(w): return w.ref != ""),
+		"fillers": built.wrongs.filter(func(w): return w.ref == "").map(func(w): return w.values)}
 
 
 static func count_ans(label: String, n: int) -> Dictionary:
@@ -194,13 +206,13 @@ static func flaw_steps(s: Dictionary, tech: String) -> Array:
 func u_name_technique(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right: String = NAMES[s.tech]
 	var wrongs: Array = {
-		"simple": [[NAMES.systematic, ""], [NAMES.convenience, ""], [NAMES.stratified, ""]],
+		"simple": [[NAMES.systematic, R_INTERVAL], [NAMES.convenience, ""], [NAMES.stratified, ""]],
 		"systematic": [[NAMES.simple, R_INTERVAL], [NAMES.stratified, ""], [NAMES.convenience, ""]],
 		"convenience": [[NAMES.simple, R_STREET], [NAMES.quota, ""], [NAMES.systematic, ""]],
 		"quota": [[NAMES.stratified, R_QUOTA], [NAMES.convenience, ""], [NAMES.simple, ""]],
 		"stratified": [[NAMES.quota, R_QUOTA], [NAMES.simple, ""], [NAMES.systematic, ""]]}[s.tech]
 	var built := claims(right, wrongs)
-	return {"lines": [camp_line(s), method_line(s, s.tech)], "asked": "Which sampling technique is this?", "answer": built.answer, "wrongs": built.wrongs,
+	return {"lines": [camp_line(s), method_line(s, s.tech)], "asked": "Which sampling technique is this?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"feature-checklist": method(checklist(s, s.tech) + [right], built.answer.values),
 			"eliminate-by-flaw": method(flaw_steps(s, s.tech) + [right], built.answer.values)}}
 
@@ -210,7 +222,7 @@ func u_technique_disadvantage(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var flaw := func(key: String) -> String: return FLAWS[key] % c.place if "%s" in FLAWS[key] else FLAWS[key]
 	var right: String = flaw.call(MAIN_FLAW[s.tech])
 	var built := claims(right, FALSE_FLAWS[s.tech].map(func(key): return [flaw.call(key), ""]))
-	return {"lines": [camp_line(s), method_line(s, s.tech)], "asked": "Which of these is a real disadvantage of this method?", "answer": built.answer, "wrongs": built.wrongs,
+	return {"lines": [camp_line(s), method_line(s, s.tech)], "asked": "Which of these is a real disadvantage of this method?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"eliminate-by-flaw": method(["This is %s." % NAMES[s.tech].to_lower()] + flaw_steps(s, s.tech).slice(0, 1) + [right], built.answer.values)}}
 
 
@@ -240,12 +252,12 @@ func u_best_technique(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			flawed = ["With no list there is nothing to draw numbers from.", "No groups are asked for, so a fixed interval from a random start is what is left."]
 		_:
 			lines = ["%s lists all %d %s by number." % [cap(c.list), s.N, c.who], "The groups don't matter here. The surveyor wants every set of %d to have the same chance." % s.n]
-			wrongs = [[NAMES.systematic, R_INTERVAL], [NAMES.convenience, ""], [NAMES.quota, ""]]
+			wrongs = [[NAMES.systematic, R_INTERVAL], [NAMES.convenience, R_STREET], [NAMES.quota, ""]]
 			why = ["Every set of %d has the same chance only if the names are drawn freely." % s.n, "A fixed interval would rule out most sets, and no group is needed."]
 			flawed = ["A fixed interval rules out most sets of %d, and a spot leaves out whoever doesn't come by." % s.n, "A draw from the full list has neither flaw."]
 	var right: String = NAMES[s.tech]
 	var built := claims(right, wrongs)
-	return {"lines": lines, "asked": "Which technique fits best?", "answer": built.answer, "wrongs": built.wrongs,
+	return {"lines": lines, "asked": "Which technique fits best?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"feature-checklist": method(why + [right], built.answer.values), "eliminate-by-flaw": method(flawed + [right], built.answer.values)}}
 
 
@@ -256,15 +268,15 @@ func u_is_it_random(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"systematic":
 			right = "No: only the start is random, and the interval fixes every pick after it."
 			wrongs = [["Yes: the start is random, so the whole sample is random.", R_INTERVAL],
-				["Yes: every %s name is as good as any other." % ordinal(s.k), ""], ["No: a sample from a list can never be random.", ""]]
+				["Yes: every %s name is as good as any other." % ordinal(s.k), R_INTERVAL], ["No: a sample from a list can never be random.", ""]]
 		"convenience":
 			right = "No: anyone who doesn't come by has no chance of being chosen."
-			wrongs = [["Yes: whoever comes by is a random person.", R_STREET], ["Yes: the surveyor didn't choose who came by.", ""], ["No: a sample of %d is too large to be random." % s.n, ""]]
+			wrongs = [["Yes: whoever comes by is a random person.", R_STREET], ["Yes: the surveyor didn't choose who came by.", R_STREET], ["No: a sample of %d is too large to be random." % s.n, ""]]
 		_:
 			right = "Yes: every set of %d people has the same chance." % s.n
 			wrongs = [["No: a sample from a list can never be random.", ""], ["No: only the start is random.", R_INTERVAL], ["No: some people on the list were left out.", ""]]
 	var built := claims(right, wrongs)
-	return {"lines": [camp_line(s), method_line(s, s.tech)], "asked": "Is this a simple random sample?", "answer": built.answer, "wrongs": built.wrongs,
+	return {"lines": [camp_line(s), method_line(s, s.tech)], "asked": "Is this a simple random sample?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"feature-checklist": method(checklist(s, s.tech) + [right], built.answer.values),
 			"eliminate-by-flaw": method(flaw_steps(s, s.tech) + [right], built.answer.values)}}
 
@@ -283,10 +295,10 @@ func u_describe_systematic(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var full := "Go down %s, pick a random start among the first %d names, then take every %s name."
 	var right: String = full % [c.list, s.k, ordinal(s.k)]
 	var built := claims(right, [["Draw %d names at random from %s." % [s.n, c.list], R_INTERVAL],
-		[full % [c.list, s.n, ordinal(s.n)], ""],
+		[full % [c.list, s.n, ordinal(s.n)], R_N_AS_K],
 		["Take the first %d names on %s." % [s.n, c.list], ""],
 		["Ask the first %d %s who come by." % [s.n, c.who], ""]])
-	return {"lines": [camp_line(s), size_line(s)], "asked": "Which of these describes a systematic sample?", "answer": built.answer, "wrongs": built.wrongs,
+	return {"lines": [camp_line(s), size_line(s)], "asked": "Which of these describes a systematic sample?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"feature-checklist": method(["A systematic sample needs a fixed interval: %d ÷ %d = %d." % [s.N, s.n, s.k], "Only the start is random, so it is drawn among the first %d." % s.k, right], built.answer.values)}}
 
 
@@ -294,7 +306,7 @@ func u_systematic_interval(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var c := ctx(s)
 	var ans := count_ans("interval = ", s.k)
 	return {"lines": ["%s lists %d %s." % [cap(c.list), s.N, c.who], size_line(s)], "asked": "Find the interval for a systematic sample.", "answer": ans,
-		"wrongs": [], "generic": nums([s.n, s.N - s.n, 2 * s.k, s.k + 1, s.k - 1, s.k + 2]),
+		"wrongs": [wrong({"v": Q.new(s.n)}, R_N_AS_K)], "fillers": nums([s.N - s.n, 2 * s.k, s.k + 1, s.k - 1, s.k + 2]),
 		"methods": {"feature-checklist": method(["The %d picks spread evenly over the %d names." % [s.n, s.N], "%d ÷ %d = %d" % [s.N, s.n, s.k], final_step(ans)], ans.values)}}
 
 
@@ -303,8 +315,9 @@ func u_systematic_member(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var v: int = s.start + (s.j - 1) * s.k
 	var ans := count_ans("number ", v)
 	return {"lines": ["%s numbers %d %s from 1 to %d." % [cap(c.list), s.N, c.who, s.N], "A systematic sample starts at number %d and takes every %s name." % [s.start, ordinal(s.k)]],
-		"asked": "Find the number of the %s person chosen." % ordinal(s.j), "answer": ans, "wrongs": [],
-		"generic": nums([s.start + s.j * s.k, s.j * s.k, s.start + s.j - 1, s.start + (s.j - 2) * s.k, v + 1]),
+		"asked": "Find the number of the %s person chosen." % ordinal(s.j), "answer": ans,
+		"wrongs": [wrong({"v": Q.new(s.start + s.j * s.k)}, R_STEP_EXTRA), wrong({"v": Q.new(s.j * s.k)}, R_NO_START)],
+		"fillers": nums([s.start + s.j - 1, s.start + (s.j - 2) * s.k, v + 1]),
 		"methods": {"feature-checklist": method(["The first pick is number %d, and each pick after it adds %d." % [s.start, s.k],
 			"The %s pick is %d steps on: %d + %d × %d" % [ordinal(s.j), s.j - 1, s.start, s.j - 1, s.k], final_step(ans)], ans.values)}}
 
@@ -321,10 +334,9 @@ func u_quota_number(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "table":
 		out.lines = ["The table shows the %d %s in a %s." % [s.N, c.who, c.place], line]
 		out.table = groups_table(s, ["number"], [s.G], [s.N])
-	var pool: Array = [s.n - s.q[g], s.q[(g + 1) % 3], s.q[(g + 2) % 3], s.q[g] + 1, s.q[g] + 2, s.q[g] - 1]
 	if s.n % 3 == 0:
-		pool.insert(0, s.n / 3)
-	out.generic = nums(pool)
+		out.wrongs = [wrong({"v": Q.new(s.n / 3)}, R_EQUAL_SPLIT)]
+	out.fillers = nums([s.n - s.q[g], s.q[(g + 1) % 3], s.q[(g + 2) % 3], s.q[g] + 1, s.q[g] + 2, s.q[g] - 1])
 	out.methods = {"feature-checklist": method(["Groups filled in proportion: every group is cut by the same factor, %d ÷ %d = %d." % [s.N, s.n, s.k],
 		"%d ÷ %d = %d" % [s.G[g], s.k, s.q[g]], final_step(ans)], ans.values)}
 	return out
@@ -341,7 +353,8 @@ func u_fair_share(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.table = groups_table(s, [c.place, "sample"], [s.G, s.got], [s.N, s.n])
 	else:
 		out.lines = [camp_line(s), "A sample of %d holds %d %s, %d %s and %d %s." % [s.n, s.got[0], group(s, 0), s.got[1], group(s, 1), s.got[2], group(s, 2)]]
-	out.generic = nums([s.q[g], s.got[g], s.G[g] - s.got[g], short + 1, short + 2, short + 3])
+	out.wrongs = [wrong({"v": Q.new(s.q[g])}, R_FAIR_NOT_SHORT), wrong({"v": Q.new(s.G[g] - s.got[g])}, R_UNSCALED)]
+	out.fillers = nums([s.got[g], short + 1, short + 2, short + 3])
 	out.methods = {"compare-proportions": method(["The %s are %d of %d in the %s, the same share as %d of %d." % [group(s, g), s.G[g], s.N, c.place, s.q[g], s.n],
 		"The sample holds %d of them." % s.got[g], "%d − %d = %d" % [s.q[g], s.got[g], short], final_step(ans)], ans.values)}
 	return out
@@ -353,10 +366,10 @@ func u_under_represented(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var right := cap(group(s, g))
 	var low: int = s.got.find(s.got.min())
 	var other: int = 3 - g - low
-	var built := claims(right, [[cap(group(s, low)), ""], [cap(group(s, other)), ""], ["None: the sample matches the %s." % c.place, ""]])
+	var built := claims(right, [[cap(group(s, low)), R_FEWEST], [cap(group(s, other)), ""], ["None: the sample matches the %s." % c.place, ""]])
 	var fair: Array = s.q
 	return {"lines": ["The table shows a %s of %d %s and a sample of %d of them." % [c.place, s.N, c.who, s.n]], "table": groups_table(s, [c.place, "sample"], [s.G, s.got], [s.N, s.n]),
-		"asked": "Which group is most under-represented in the sample?", "answer": built.answer, "wrongs": built.wrongs,
+		"asked": "Which group is most under-represented in the sample?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"compare-proportions": method(["Scale the %s down by %d: a matching sample holds %d, %d and %d." % [c.place, s.k, fair[0], fair[1], fair[2]],
 			"The sample holds %d, %d and %d." % s.got, "%s fall short by %d, the most of any group." % [cap(group(s, g)), fair[g] - s.got[g]], right], built.answer.values)}}
 
@@ -381,7 +394,7 @@ func u_why_biased(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var built := claims(right, [["The sample is too small: with more %s it would have no bias." % a, R_LARGER],
 		["Nothing: a random draw always represents the whole %s." % c.place, R_PERFECT],
 		["A random draw always favours the larger group.", ""]])
-	return {"lines": [camp_line(s), one_group_line(s)], "asked": "Why might this not represent the whole %s?" % c.place, "answer": built.answer, "wrongs": built.wrongs,
+	return {"lines": [camp_line(s), one_group_line(s)], "asked": "Why might this not represent the whole %s?" % c.place, "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"who-is-missing": method(["Picture the whole %s: %d %s and %d %s." % [c.place, s.G[0], a, s.G[1], b], "Nobody from the %s can be chosen." % b, right], built.answer.values),
 			"compare-proportions": method([compare_step(s), "So the sample's make-up is far from the population's.", right], built.answer.values)}}
 
@@ -394,7 +407,7 @@ func u_better_method(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var built := claims(right, [["Keep to the %s, and ask %d of them instead." % [a, 2 * s.n], R_LARGER],
 		["Change nothing: a random draw from the %s is enough." % a, R_PERFECT],
 		["Ask the first %d %s who come by %s." % [s.n, c.who, c.spot], R_STREET]])
-	return {"lines": [camp_line(s), one_group_line(s)], "asked": "Which change would make the sample represent the whole %s?" % c.place, "answer": built.answer, "wrongs": built.wrongs,
+	return {"lines": [camp_line(s), one_group_line(s)], "asked": "Which change would make the sample represent the whole %s?" % c.place, "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"who-is-missing": method(["The %s are left out, so more %s can't fix it." % [b, a], "Both groups need a place, in proportion, and a random draw keeps the choice fair.", right], built.answer.values)}}
 
 
@@ -404,7 +417,7 @@ func u_bias_direction(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var other: String = ("Too low: " + t.less) if t.high else ("Too high: " + t.more)
 	var built := claims(right, [[other, ""], ["Neither: asking %d people cancels out any bias." % s.n, R_LARGER], ["Neither: a sample is always a fair picture of everyone.", R_PERFECT]])
 	return {"lines": ["A surveyor wants to estimate the mean %s of all the %s in a %s." % [t.qty, t.who, t.place], "She asks %d of them, all %s." % [s.n, t.where]],
-		"asked": "How is her estimate likely to be wrong?", "answer": built.answer, "wrongs": built.wrongs,
+		"asked": "How is her estimate likely to be wrong?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"who-is-missing": method(["Picture all the %s: she reaches only those %s." % [t.who, t.where], "Those people are not typical, and the rest are left out.", right], built.answer.values)}}
 
 
@@ -414,10 +427,10 @@ func u_bigger_sample(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b := group(s, 1)
 	var right := "No: the result gets steadier, but the %s are still left out." % b
 	var built := claims(right, [["Yes: a larger sample removes bias.", R_LARGER],
-		["Yes: with %d people everyone has had a chance." % (3 * s.n), ""],
+		["Yes: with %d people everyone has had a chance." % (3 * s.n), R_LARGER],
 		["No: a larger sample always makes the bias worse.", ""]])
 	return {"lines": [camp_line(s), "A surveyor asks %d %s about %s, and none of the %s." % [s.n, a, c.topic, b], "She plans to ask %d %s instead." % [3 * s.n, a]],
-		"asked": "Will asking more remove the bias?", "answer": built.answer, "wrongs": built.wrongs,
+		"asked": "Will asking more remove the bias?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"who-is-missing": method(["A larger sample makes a result more reliable.", "But the %s still can't be chosen, so the method stays biased." % b, right], built.answer.values),
 			"compare-proportions": method([compare_step(s), "With %d %s, the sample is still all %s." % [3 * s.n, a, a], right], built.answer.values)}}
 
@@ -429,9 +442,9 @@ func u_random_not_perfect(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var right := "The draw can be fair and still miss the mix: chance alone moves a sample."
 	var built := claims(right, [["The draw can't have been random: a random sample always matches the %s." % c.place, R_PERFECT],
 		["The %s's numbers must be wrong: a sample shows the true mix." % c.place, R_PERFECT],
-		["The method is biased against the %s." % a, ""]])
+		["The method is biased against the %s." % a, R_CHANCE_BIAS]])
 	var line := "A simple random sample of %d holds %d %s and %d %s." % [s.n, s.got[0], group(s, 0), s.got[1], group(s, 1)]
-	var out := {"lines": [camp_line(s), line], "asked": "What does this show?", "answer": built.answer, "wrongs": built.wrongs}
+	var out := {"lines": [camp_line(s), line], "asked": "What does this show?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers}
 	if rep == "table":
 		out.lines = ["The table shows a %s of %d %s and a simple random sample of %d of them." % [c.place, s.N, c.who, s.n]]
 		out.table = groups_table(s, [c.place, "sample"], [s.G, s.got], [s.N, s.n])
@@ -447,7 +460,7 @@ func u_improve_reliability(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		["Ask the same %d people again." % s.n, ""],
 		["Leave out anyone whose answer looks unusual.", ""]])
 	return {"lines": ["A surveyor wants to learn %s, so she draws %d of all the %s at random." % [c.topic, s.n, c.who], "Each time she repeats this, the result changes a lot."],
-		"asked": "What would make the result more reliable?", "answer": built.answer, "wrongs": built.wrongs,
+		"asked": "What would make the result more reliable?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"who-is-missing": method(["Nobody is left out: the draw is random.", "The trouble is the size: with only %d people, one odd answer moves the result." % s.n, right], built.answer.values),
 			"compare-proportions": method(["One person is 1/%d of the sample." % s.n, "So the sample's make-up can swing far from the population's by chance.", right], built.answer.values)}}
 
@@ -459,5 +472,5 @@ func u_source_reliability(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		["It is reliable: a figure that is written down can't be wrong.", ""],
 		["It can't be used, because a percentage is never exact.", ""]])
 	return {"lines": ["%s says %d%% %s." % [t.who, s.rate, t.says], "The figure comes from %s." % (t.from % s.n)], "asked": "Why might this figure not be reliable?",
-		"answer": built.answer, "wrongs": built.wrongs,
+		"answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"who-is-missing": method(["Look at where the figure comes from, not at how large it is.", "Ask who is left out, or who gains.", right], built.answer.values)}}

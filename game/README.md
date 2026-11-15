@@ -32,6 +32,8 @@ game/
 ├── engine/bazaar.gd     ← the Bazaar's rules: upgrades, perks, cosmetics (see "The Bazaar")
 ├── engine/art_slots.gd  ← art by file name, with a fallback for each (see "Art slots")
 ├── engine/step.gd       ← a worked-solution step: a String, or {move, board} with a move tag (see "Question engine")
+├── engine/math_text.gd  ← cuts shown maths into text, powers, roots and stacked fractions (FAL-797)
+├── ui/math_box.gd       ← maths as a box tree (row, text, fraction, power, root): layout, drawing, to_text() for Expr; ui/math_label.gd draws one and wraps it
 ├── engine/expr.gd       ← the expression engine (TinyExpr port): the calculator and every typed answer
 ├── engine/brent.gd, graph_tools.gd ← Brent's root finder and minimiser (SciPy port); zeros, extrema, intersections
 ├── ui/calculator.gd     ← the in-game calculator (see "The calculator"); ui/calc_graph.gd its graph, ui/keypad.gd the keys
@@ -1198,7 +1200,8 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
-  with its `ref`) and a worked solution for every method that suits the unknown.
+  with its `ref`; then `fillers`, options with no slip behind them) and a worked
+  solution for every method that suits the unknown.
 - A **worked-solution step** (FAL-426) in `methods[angle].steps` is a String, or
   `{"move": "<move id>", "board": "<text>"}` when it carries a move tag for the
   explainers: the move is the general step from `curriculum/moves.json`, and the board
@@ -1523,15 +1526,27 @@ run plays the same with the strip on, off or broken (`test_journey.gd` checks al
   Add `&motion=reduced` for reduced motion, or `&avatar=learner-male` for that sheet (an
   avatar with no sheet hides the strip, as it does in a run).
 
-### Powers and answer boxes on the card
+### Powers, fractions and answer boxes on the card
 
-Questions are written with a caret (`e^(4x − 3)`, `a × 10^k`), as `tools/check_answers.py`
-parses them back and Unicode has no superscript `.` or `/`. `UiTheme.math()` (FAL-743) cuts the
-powers out with `Fmt.power_runs()` and draws them raised, in a `RichTextLabel` with a
-`FontVariation` over the default font. Text with no power stays a plain `Label`. It is used for the
-prompt, the question's lines, the worked solution and the explorer's versions. Options, the
-text around an answer box and graph labels still show the caret: a `Button`, a `LineEdit`'s row
-and `draw_string` can't take rich text.
+Questions are written with a caret (`e^(4x − 3)`, `a × 10^k`) and a slash (`(x + 1)/(x − 1)`), as
+`tools/check_answers.py` parses them back and Unicode has no superscript `.` or `/`. A typed answer
+still takes `/`. `UiTheme.math()` draws them as on paper (FAL-743, FAL-797): `MathText` cuts the
+text into powers, roots and fractions, `MathBox` lays them out, and a `MathLabel` draws them, with
+powers raised, roots under a radical sign and fractions stacked over a bar. Text with none stays a
+plain `Label`. A sign stays in front of the bar (−3/4), a bracket round a whole top or bottom goes,
+fractions nest, a fraction in a power keeps the power's size, and units (m/s), P/Y and word pairs
+(zero/root) are left as written; `test_fractions.gd` has the rules. Write a coefficient so it reads
+one way: `(3/2)x` or `3x/2`, and `π²/4`, not `1/4π²`, which stacks as 1/(4π²).
+
+It is used for the prompt, the question's lines and table, the text around an answer box, the
+options, the word choices, the solution tabs, the worked steps, the feedback, the hint, the type
+name above the question and a run's skills missed. `UiTheme.math_button()` puts maths on a button:
+a `Button` can't draw it, so a `MathLabel` is drawn on it in the button's colours, and the button
+is sized to it. Graph labels still show the caret, as `draw_string` draws them.
+
+A `MathLabel` wraps at spaces, never inside a fraction or a power. A root too wide for its line is
+written `√(…)` so it wraps. A line with a fraction is taller, so a few more fight cards need a swipe
+at the `FitBox` floor (4.3% of cells at 390x844, from 3.6%); none is wider than its card.
 
 An answer box starts 150 wide and grows as it's typed in, up to `Practice.SLOT_CHARS`, which still
 fits the fight's card on a 360 px phone. It isn't sized from the answer, as that would give away
@@ -1818,6 +1833,19 @@ text. It also fails on an absurdly large option. So strings carry no numbers of 
 one string serves every question with that tag. Whether a tag fits its option has to be
 read: `--rows=file.tsv` writes one row per type, unknown, representation and tag. A new type
 is enforced from its first commit, and `REPORT_ONLY` is empty.
+
+Every wrong option is a slip or a filler (FAL-815). A slip is a route students take: it
+gets a misconception, its line and a tag, and the checker works it out again. A filler has
+no route to it (the key scaled by a quarter, nudged, a number from nowhere), and the view
+puts it in `fillers`, so a blank is a choice. The check fails on a blank that is neither:
+a `wrongs` entry with no `ref`, or an option from `generic`, the list from before FAL-815
+that mixed the two. A type whose `generic` isn't sorted yet is on `UNSORTED` in
+`tools/feedback_check.gd`, where its blanks are only counted; once sorted, its views say
+`fillers` and it leaves the list, and the check fails on a listed type with nothing left to
+sort. A new type never joins it. A rounding trap with no misconception of its own shows
+`Answer.TRAP_NOTE`, and the engine's last-resort nudges are fillers. The check prints the
+share of multiple-choice wrong options with no line (`BLANK ...`), and `--blanks=file.tsv`
+writes each blank once, with where it came from (`src`, `gi`) and a first example.
 
 The checker only exports seeds 1 to 50. `tools/stress-questions` makes every cell with
 seeds 51 to 2250 (about 258,000 questions, a few minutes) and checks that each question

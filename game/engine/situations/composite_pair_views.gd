@@ -14,6 +14,19 @@ const R_EXPR_ORDER := "SL2.5.composite-expression#0"
 const R_EQUAL := "SL2.5.composite-expression#2"
 const R_UNDO_ORDER := "SL2.5.find-inverse#1"
 const R_NO_PM := "SL2.7.solve-equation#2"
+const R_STOP_INNER := T + "#8"
+const R_G_AS_K := T + "#9"
+const R_SIGN_MOVE := T + "#10"
+const R_NO_D := T + "#11"
+const R_NO_DIVIDE := T + "#12"
+const R_NO_ROOT := T + "#13"
+const R_HALVE := T + "#14"
+const R_SOLVE_NO_SHIFT := T + "#15"
+const R_SOLVE_STOP := T + "#16"
+const R_SQUARE := T + "#17"
+const R_ONE_STEP := T + "#18"
+const R_H_AS_F := T + "#19"
+const R_G_NOT_INV := T + "#20"
 
 
 func needs() -> Dictionary:
@@ -140,13 +153,14 @@ func u_value_inside_out(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		lines.append("x is in radians.")
 	var fshow := (Fmt.sf(v, 4) if sine else N(v))
 	var h := comp(f, g)
-	var out := {"asked": "Find (f∘g)(%s)." % N(x0), "lines": lines, "answer": ans, "wrongs": [], "generic": []}
+	var out := {"asked": "Find (f∘g)(%s)." % N(x0), "lines": lines, "answer": ans, "wrongs": [], "fillers": []}
 	# The classic slips: g first (the wrong order), the product, one rule twice.
 	var swapped := ev(g, ev(f, x0))
 	out.wrongs.append(wrong({"v": swapped}, R_VAL_ORDER))
 	out.wrongs.append(wrong({"v": ev(f, x0).mul(gx)}, R_VAL_PRODUCT))
 	out.wrongs.append(wrong({"v": ev(f, ev(f, x0)) if not sine else ev(g, gx)}, R_VAL_TWICE))
-	out.generic = [{"v": gx}, {"v": ev(f, x0)}, {"v": v.add(1)}]
+	out.wrongs.append(wrong({"v": gx}, R_STOP_INNER))
+	out.fillers = [{"v": ev(f, x0)}, {"v": v.add(1)}]
 	var final := "So " + Answer.text(ans) + "."
 	var inside := [
 		"g(%s) = %s" % [N(x0), Fmt.equals(CompositePairSituation.sub_in(g, N(x0)), N(gx))],
@@ -181,11 +195,12 @@ func u_expression(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var lab := letter(order_fg)
 	var ans := poly_ans(h, "(%s)(x) = " % lab)
 	var out := {"asked": "Find (%s)(x), simplified." % lab, "lines": rule_lines(rep, [["f", f], ["g", g]]), "answer": ans,
-		"wrongs": pw(ans, wrong_h, R_EXPR_ORDER), "generic": []}
-	# The product f(x)·g(x) and the sum are the other tempting slips.
-	out.generic.append_array(pg(ans, CompositePairSituation.pmul(f.co, g.co)))
-	out.generic.append_array(pg(ans, CompositePairSituation.padd(f.co, g.co)))
-	out.generic.append_array(pg(ans, CompositePairSituation.padd(h, [Q.new(1)])))
+		"wrongs": pw(ans, wrong_h, R_EXPR_ORDER), "fillers": []}
+	# The product f(x)·g(x) is of a higher degree than the answer, so pg drops it; the sum
+	# has no route.
+	out.fillers.append_array(pg(ans, CompositePairSituation.pmul(f.co, g.co)))
+	out.fillers.append_array(pg(ans, CompositePairSituation.padd(f.co, g.co)))
+	out.fillers.append_array(pg(ans, CompositePairSituation.padd(h, [Q.new(1)])))
 	out.methods = _expression_methods(f, g, outer, inner, h, order_fg, ans)
 	return out
 
@@ -236,14 +251,14 @@ func _param_pm(s: Dictionary) -> Dictionary:
 		ans.show = "sf"
 	var shown := Q.new(a).mul(x0)
 	var out := {"asked": "Given that (f∘g)(%s) = %s, find the possible values of k." % [N(x0), N(v)],
-		"lines": ["f(x) = %s" % Fmt.poly([1, 0, c]), "g(x) = %sx + k" % Fmt.lead(a)], "answer": ans, "wrongs": [], "generic": []}
+		"lines": ["f(x) = %s" % Fmt.poly([1, 0, c]), "g(x) = %sx + k" % Fmt.lead(a)], "answer": ans, "wrongs": [], "fillers": []}
 	if awkward:
 		var root := Q.new(roundi(sqrt(float(s.r)) * 1e9), 1000000000)
-		out.generic = [{"r1": root, "r2": root.neg()}, {"r1": root.add(shown), "r2": root.neg().add(shown)},
-			{"r1": s.k1.add(1), "r2": s.k2.add(1)}, {"r1": root.sub(shown).add(1), "r2": root.neg().sub(shown).add(1)}]
+		out.wrongs = [wrong({"r1": root, "r2": root.neg()}, R_G_AS_K), wrong({"r1": root.add(shown), "r2": root.neg().add(shown)}, R_SIGN_MOVE)]
+		out.fillers = [{"r1": s.k1.add(1), "r2": s.k2.add(1)}, {"r1": root.sub(shown).add(1), "r2": root.neg().sub(shown).add(1)}]
 	else:
-		out.generic = [{"r1": Q.new(n), "r2": Q.new(-n)}, {"r1": Q.new(n).add(shown), "r2": Q.new(-n).add(shown)},
-			{"r1": s.k1, "r2": s.k1.neg()}, {"r1": s.k1.add(1), "r2": s.k2.add(1)}]
+		out.wrongs = [wrong({"r1": Q.new(n), "r2": Q.new(-n)}, R_G_AS_K), wrong({"r1": Q.new(n).add(shown), "r2": Q.new(-n).add(shown)}, R_SIGN_MOVE)]
+		out.fillers = [{"r1": s.k1, "r2": s.k1.neg()}, {"r1": s.k1.add(1), "r2": s.k2.add(1)}]
 	var final := "So %s." % Answer.text(ans)
 	var gx_text := "k" if shown.is_zero() else ("%s + k" % N(shown) if shown.sign() > 0 else "k − %s" % shown.abs_q().text())
 	var plus_c := "%s %s" % ["+" if c >= 0 else "−", absi(c)]
@@ -269,14 +284,15 @@ func _param_lin(s: Dictionary) -> Dictionary:
 	var ans := Answer.make("number", {"v": s.k}, {}, "k = ")
 	ans.exact = true
 	var f_text := "f(x) = kx %s" % ("+ %s" % N(s.d) if s.d.sign() >= 0 else "− %s" % s.d.abs_q().text())
-	var out := {"asked": "Given that (f∘g)(%s) = %s, find k." % [N(x0), N(s.v)], "lines": [f_text, fx("g", g)], "answer": ans, "wrongs": [], "generic": []}
+	var out := {"asked": "Given that (f∘g)(%s) = %s, find k." % [N(x0), N(s.v)], "lines": [f_text, fx("g", g)], "answer": ans, "wrongs": [], "fillers": []}
 	# g(f(x₀)) = v read the other way round, or forgetting the +d.
 	var gm: Q = g.co[1]
 	var sv: Q = s.v
 	var sd: Q = s.d
 	var swapped: Q = sv.sub(g.co[0]).div(gm).sub(sd).div(x0)
 	out.wrongs.append(wrong({"v": swapped}, R_EXPR_ORDER))
-	out.generic = [{"v": s.v.div(gx)}, {"v": s.v.add(s.d).div(gx)}, {"v": s.k.neg()}, {"v": s.v.sub(s.d)}]
+	out.wrongs.append_array([wrong({"v": s.v.div(gx)}, R_NO_D), wrong({"v": s.v.add(s.d).div(gx)}, R_SIGN_MOVE), wrong({"v": s.v.sub(s.d)}, R_NO_DIVIDE)])
+	out.fillers = [{"v": s.k.neg()}]
 	var final := "So %s." % Answer.text(ans)
 	var d_part := ("+ %s" % N(s.d)) if s.d.sign() >= 0 else ("− %s" % s.d.abs_q().text())
 	var eq := "%sk %s = %s" % [Fmt.lead(gx), d_part, N(s.v)]
@@ -300,9 +316,15 @@ func u_parameter_from_coefficients(_rep: String, s: Dictionary, _rng: Seeded) ->
 	var f_text := "f(x) = %s" % Fmt.poly([1, 0, c])
 	var g_text := "g(x) = kx %s" % [("+ %d" % d) if d > 0 else ("− %d" % -d)]
 	var out := {"asked": "The composite (f∘g)(x) can be written as %dx² + qx + r. Find the possible values of k." % s.p.n,
-		"lines": [f_text, g_text], "answer": ans, "wrongs": [], "generic": []}
-	out.generic = [{"r1": s.p, "r2": s.p.neg()}, {"r1": Q.new(n * n / 2), "r2": Q.new(-n * n / 2)},
-		{"r1": Q.new(n + 1), "r2": Q.new(-n - 1)}, {"r1": Q.new(n).add(Q.new(d)), "r2": Q.new(-n).add(Q.new(d))}]
+		"lines": [f_text, g_text], "answer": ans, "wrongs": [], "fillers": []}
+	out.wrongs = [wrong({"r1": s.p, "r2": s.p.neg()}, R_NO_ROOT)]
+	# Halving n² is the slip only when n² is even; with n odd the value is rounded down.
+	var halved := {"r1": Q.new(n * n / 2), "r2": Q.new(-n * n / 2)}
+	if n % 2 == 0:
+		out.wrongs.append(wrong(halved, R_HALVE))
+	else:
+		out.fillers.append(halved)
+	out.fillers.append_array([{"r1": Q.new(n + 1), "r2": Q.new(-n - 1)}, {"r1": Q.new(n).add(Q.new(d)), "r2": Q.new(-n).add(Q.new(d))}])
 	var final := "So %s." % Answer.text(ans)
 	var inner_sq := "(kx %s)²" % [("+ %d" % d) if d > 0 else ("− %d" % -d)]
 	var expanded := "k²x² %s %skx %s" % [("+" if d > 0 else "−"), "2" if absi(d) == 1 else N(2 * absi(d)), ("+ %d" % (d * d + c)) if d * d + c >= 0 else ("− %d" % -(d * d + c))]
@@ -324,7 +346,7 @@ func u_solve_composite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		vals["x%d" % i] = xs[i]
 	var ans := Answer.make("xs", vals, {"var": "x"})
 	var h := comp(f, g)
-	var out := {"asked": "Solve (f∘g)(x) = %s." % N(s.t), "lines": [fx("f", f), fx("g", g)], "answer": ans, "wrongs": [], "generic": []}
+	var out := {"asked": "Solve (f∘g)(x) = %s." % N(s.t), "lines": [fx("f", f), fx("g", g)], "answer": ans, "wrongs": [], "fillers": []}
 	var final := "So %s." % Answer.text(ans)
 	# Wrong options have the same number of x-values.
 	var gm: Q = g.co[1]
@@ -335,13 +357,14 @@ func u_solve_composite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var r := Q.new(roundi(sqrt(n.to_float())))
 		var plus := r.sub(gb).div(gm)
 		var minus := r.neg().sub(gb).div(gm)
-		out.generic = [{"n": Q.new(2), "x0": plus, "x1": plus.add(1)}, {"n": Q.new(2), "x0": r.div(gm), "x1": r.neg().div(gm)},
+		out.wrongs.append(wrong({"n": Q.new(2), "x0": r.div(gm), "x1": r.neg().div(gm)}, R_SOLVE_NO_SHIFT))
+		out.fillers = [{"n": Q.new(2), "x0": plus, "x1": plus.add(1)},
 			{"n": Q.new(2), "x0": plus.add(1), "x1": minus.add(1)}, {"n": Q.new(2), "x0": plus.neg(), "x1": minus.neg()}]
 		if xs.size() == 2 and gb.is_zero():
-			out.generic.append({"n": Q.new(2), "x0": r, "x1": r.neg()})
+			out.wrongs.append(wrong({"n": Q.new(2), "x0": r, "x1": r.neg()}, R_SOLVE_STOP))
 	else:
 		var x: Q = xs[0]
-		out.generic = [{"n": Q.new(1), "x0": x.add(1)}, {"n": Q.new(1), "x0": x.neg()}, {"n": Q.new(1), "x0": x.sub(1)}, {"n": Q.new(1), "x0": s.t}]
+		out.fillers = [{"n": Q.new(1), "x0": x.add(1)}, {"n": Q.new(1), "x0": x.neg()}, {"n": Q.new(1), "x0": x.sub(1)}, {"n": Q.new(1), "x0": s.t}]
 	var whole := ["(f∘g)(x) = %s = %s" % [CompositePairSituation.sub_in(f, rt(g)), ptext(h)],
 		"Set it equal to %s: %s = %s" % [N(s.t), ptext(h), N(s.t)], _solve_last(f, g, s), final]
 	var flow := ["Undo f first: from %s, the value of g(x) is %s" % [N(s.t), _g_values(f, g, s)],
@@ -375,12 +398,12 @@ func u_self_composite(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var f: Dictionary = s.f
 	var h := comp(f, f)
 	var ans := poly_ans(h, "(f∘f)(x) = ")
-	var out := {"asked": "Find (f∘f)(x), simplified.", "lines": rule_lines(rep, [["f", f]]), "answer": ans, "wrongs": [], "generic": []}
+	var out := {"asked": "Find (f∘f)(x), simplified.", "lines": rule_lines(rep, [["f", f]]), "answer": ans, "wrongs": [], "fillers": []}
 	# The classic slip: replace only one of the x's, or square the rule.
-	out.wrongs.append_array(pw(ans, CompositePairSituation.pmul(f.co, f.co), ""))
-	out.generic.append_array(pg(ans, CompositePairSituation.padd(f.co, f.co)))
-	out.generic.append_array(pg(ans, CompositePairSituation.padd(h, [Q.new(1)])))
-	out.generic.append_array(pg(ans, CompositePairSituation.pscale(h, Q.new(2))))
+	out.wrongs.append_array(pw(ans, CompositePairSituation.pmul(f.co, f.co), R_SQUARE))
+	out.fillers.append_array(pg(ans, CompositePairSituation.padd(f.co, f.co)))
+	out.fillers.append_array(pg(ans, CompositePairSituation.padd(h, [Q.new(1)])))
+	out.fillers.append_array(pg(ans, CompositePairSituation.pscale(h, Q.new(2))))
 	var final := "So %s." % Answer.text(ans)
 	var whole := ["Replace x in f(x) with f(x): (f∘f)(x) = %s" % CompositePairSituation.sub_in(f, rt(f)), "Expand and simplify: %s" % ptext(h), final]
 	var x1 := Q.new(1)
@@ -406,7 +429,7 @@ func u_compare_orders(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var opts: Array = [a, b, c, d]
 	var ans := Answer.make("choice", {"v": a}, {"options": opts})
 	var out := {"asked": "Find f∘g and g∘f, and say whether they are equal.", "lines": rule_lines(rep, [["f", f], ["g", g]]), "answer": ans,
-		"wrongs": [wrong({"v": b}, R_EXPR_ORDER), wrong({"v": c}, R_EQUAL)], "generic": [{"v": d}]}
+		"wrongs": [wrong({"v": b}, R_EXPR_ORDER), wrong({"v": c}, R_EQUAL)], "fillers": [{"v": d}]}
 	var final := "So %s." % a
 	var x1 := Q.new(1)
 	var v_fg := ev(f, ev(g, x1))
@@ -428,16 +451,16 @@ func u_build_from_words(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var h := CompositePairSituation.chain_co(steps)
 	var ans := poly_ans(h, "h(x) = ")
 	var out := {"asked": "A rule takes x and does this: %s. Write it as one expression, h(x)." % CompositePairSituation.steps_text(steps),
-		"lines": [], "answer": ans, "wrongs": [], "generic": []}
+		"lines": [], "answer": ans, "wrongs": [], "fillers": []}
 	# The steps taken in the opposite order, and each bracket left out.
 	var rev := steps.duplicate()
 	rev.reverse()
 	out.wrongs.append_array(pw(ans, CompositePairSituation.chain_co(rev), R_EXPR_ORDER))
 	var no_sq := steps.filter(func(st): return st != "square")
-	out.generic.append_array(pg(ans, CompositePairSituation.chain_co(no_sq)))
-	out.generic.append_array(pg(ans, CompositePairSituation.padd(h, [Q.new(2)])))
-	out.generic.append_array(pg(ans, CompositePairSituation.pscale(h, Q.new(-1))))
-	out.generic.append_array(pg(ans, CompositePairSituation.pmul(h, [Q.new(0), Q.new(1)])))
+	out.fillers.append_array(pg(ans, CompositePairSituation.chain_co(no_sq)))
+	out.fillers.append_array(pg(ans, CompositePairSituation.padd(h, [Q.new(2)])))
+	out.fillers.append_array(pg(ans, CompositePairSituation.pscale(h, Q.new(-1))))
+	out.fillers.append_array(pg(ans, CompositePairSituation.pmul(h, [Q.new(0), Q.new(1)])))
 	var final := "So %s." % Answer.text(ans)
 	var st: Array = []
 	var cur := "x"
@@ -500,7 +523,7 @@ func u_decompose(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		lines = ["h(x) = %s" % shown]
 	var out := {"asked": "Write h as f(g(x)) for two simpler rules: choose g, the first step, and f.", "lines": lines, "answer": ans,
-		"wrongs": [wrong({"v": swapped}, R_EXPR_ORDER)], "generic": [{"v": no_shift}, {"v": no_const}, {"v": sign}]}
+		"wrongs": [wrong({"v": swapped}, R_EXPR_ORDER)], "fillers": [{"v": no_shift}, {"v": no_const}, {"v": sign}]}
 	var final := "So %s." % right
 	var x1 := Q.new(1)
 	var gx := ev(g, x1)
@@ -527,12 +550,12 @@ func u_inner_from_composite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var ans := poly_ans(g.co, "g(x) = ", 2 if g.t == "poly" else 1)
 	var m: Q = f.co[1]
 	var c: Q = f.co[0]
-	var out := {"asked": "Find g(x).", "lines": [fx("f", f), "(f∘g)(x) = %s" % ptext(h)], "answer": ans, "wrongs": [], "generic": []}
+	var out := {"asked": "Find g(x).", "lines": [fx("f", f), "(f∘g)(x) = %s" % ptext(h)], "answer": ans, "wrongs": [], "fillers": []}
 	# Undoing f's steps in the original order: h ÷ m − c instead of (h − c) ÷ m.
 	out.wrongs.append_array(pw(ans, CompositePairSituation.padd(CompositePairSituation.pscale(h, Q.new(1).div(m)), [c.neg()]), R_UNDO_ORDER))
-	out.generic.append_array(pg(ans, CompositePairSituation.padd(h, [c.neg()])))
-	out.generic.append_array(pg(ans, CompositePairSituation.pscale(h, Q.new(1).div(m))))
-	out.generic.append_array(pg(ans, CompositePairSituation.pscale(CompositePairSituation.padd(h, [c]), Q.new(1).div(m))))
+	out.wrongs.append_array(pw(ans, CompositePairSituation.padd(h, [c.neg()]), R_ONE_STEP))
+	out.wrongs.append_array(pw(ans, CompositePairSituation.pscale(h, Q.new(1).div(m)), R_ONE_STEP))
+	out.fillers.append_array(pg(ans, CompositePairSituation.pscale(CompositePairSituation.padd(h, [c]), Q.new(1).div(m))))
 	var final := "So %s." % Answer.text(ans)
 	var minus := "%s = %s" % [CompositePairSituation.sub_in(lin(m, 0), "g(x)"), ptext(CompositePairSituation.padd(h, [c.neg()]))]
 	var whole := ["f(g(x)) = %s = %s" % [rt_g(f), ptext(h)], minus, "g(x) = (%s) ÷ %s" % [ptext(CompositePairSituation.padd(h, [c.neg()])), N(m)], final]
@@ -586,14 +609,15 @@ func u_outer_from_composite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var ans := poly_ans(f.co, "f(x) = ", 2)
 	var a: Q = g.co[1]
 	var b: Q = g.co[0]
-	var out := {"asked": "Find f(x).", "lines": [fx("g", g), "(f∘g)(x) = %s" % ptext(h)], "answer": ans, "wrongs": [], "generic": []}
+	var out := {"asked": "Find f(x).", "lines": [fx("g", g), "(f∘g)(x) = %s" % ptext(h)], "answer": ans, "wrongs": [], "fillers": []}
 	# h itself, or f with g's x and constant left in (f(x) = h(x) with x not replaced).
-	out.wrongs.append_array(pw(ans, h if CompositePairSituation.degree(h) <= 2 else []))
+	if CompositePairSituation.degree(h) <= 2:
+		out.wrongs.append_array(pw(ans, h, R_H_AS_F))
 	var inv := lin(Q.new(1).div(a), b.neg().div(a))
-	out.generic.append_array(pg(ans, CompositePairSituation.pcompose(h, [b, a])))
-	out.generic.append_array(pg(ans, CompositePairSituation.pcompose(h, [b.neg(), a])))
-	out.generic.append_array(pg(ans, CompositePairSituation.pcompose(f.co, [Q.new(0), a])))
-	out.generic.append_array(pg(ans, CompositePairSituation.padd(f.co, [Q.new(1)])))
+	out.wrongs.append_array(pw(ans, CompositePairSituation.pcompose(h, [b, a]), R_G_NOT_INV))
+	out.fillers.append_array(pg(ans, CompositePairSituation.pcompose(h, [b.neg(), a])))
+	out.fillers.append_array(pg(ans, CompositePairSituation.pcompose(f.co, [Q.new(0), a])))
+	out.fillers.append_array(pg(ans, CompositePairSituation.padd(f.co, [Q.new(1)])))
 	var final := "So %s." % Answer.text(ans)
 	var shift := ("− %s" % N(b)) if b.sign() >= 0 else ("+ %s" % N(b.neg()))
 	var ginv := CompositePairSituation.pcompose(h, inv.co)

@@ -24,6 +24,24 @@ const R_BIG_THETA := SKILL + "sector-two-conditions#1"
 const R_ONE_ROOT := SKILL + "sector-two-conditions#2"
 const R_DEG_SECTOR := "t3-composite-circular-region#13"
 const R_ANY_SINE := "t3-composite-circular-region#14"
+const CT := "t3-composite-circular-region#"
+const R_MIX := CT + "15"
+const R_NO_HALF := CT + "16"
+const R_R_NOT_SQ := CT + "17"
+const R_NO_ROOT := CT + "18"
+const R_NO_CHORD := CT + "19"
+const R_CENTRE_ANGLE := CT + "20"
+const R_STOP_AOE := CT + "21"
+const R_NO_COLLECT := CT + "22"
+const R_OUTER_ONLY := CT + "23"
+const R_DIFF_SQ := CT + "24"
+const R_WHOLE_CIRCLE := CT + "25"
+const R_NO_DIVIDE := CT + "26"
+const R_KITE_ONLY := CT + "27"
+const R_ONE_RADIUS := CT + "28"
+const R_SIGN_MOVE := CT + "29"
+const R_ARC_AS_R := CT + "30"
+const R_AREA_AS_BASE := CT + "31"
 
 ## A circle cut by a straight line: the thing, the line, and the part behind it.
 const SEG_STORIES := [
@@ -98,6 +116,20 @@ static func slip(ans: Dictionary, s: Dictionary, x: float, ref: String) -> Array
 	return ArcSectorViews.like(ans, s, val(x), ref)
 
 
+## Slips past the ones a view always offers, turned by k (from the question's own numbers),
+## so that each of them is the one offered on some questions.
+static func turn(xs: Array, k: int) -> Array:
+	if xs.is_empty():
+		return xs
+	var i := absi(k) % xs.size()
+	return xs.slice(i) + xs.slice(0, i)
+
+
+## A whole number from two values of the question, for turn().
+static func key_of(a: Q, b: Q) -> int:
+	return hash("%s|%s" % [Fmt.dec(a), Fmt.dec(b)])
+
+
 static func rest(ans: Dictionary, s: Dictionary, xs: Array) -> Array:
 	return ArcSectorViews.others(ans, s, xs.map(func(x): return val(x)))
 
@@ -170,7 +202,8 @@ func u_segment_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.wrongs += slip(ans, s, half * (th - sin_deg(th)), R_SIN_DEG)
 	else:
 		out.wrongs += slip(ans, s, half * (s.t.to_float() - sin(th)), R_DEG_SECTOR)
-	out.generic = rest(ans, s, [half * sin(th), half * (th + sin(th)), rr * rr * (th - sin(th)), rr * (th - sin(th)) / 2.0, half * (th - sin(th)) * 2.0])
+	out.wrongs += turn([slip(ans, s, half * (th + sin(th)), R_MIX), slip(ans, s, rr * rr * (th - sin(th)), R_NO_HALF), slip(ans, s, rr * (th - sin(th)) / 2.0, R_R_NOT_SQ)], key_of(s.r, s.t)).reduce(func(acc, x): return acc + x, [])
+	out.fillers = rest(ans, s, [half * sin(th), half * (th - sin(th)) * 2.0])
 	var r := Rt(s)
 	var t := th_shown(s)
 	var sec := rd(half * t)
@@ -200,10 +233,10 @@ func u_segment_exact(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"table": null, "answer": ans, "lines": v.lines, "graph": v.graph, "asked": v.asked}
 	out.wrongs = [DifferentiationViews.alt("A = %s%s" % [b, u], R_SECTOR)]
 	var half_b: Q = e.b.mul(Q.new(1, 2))
-	out.generic = [DifferentiationViews.alt("A = %s + %s%s%s" % [b, c, root, u]).values,
-		DifferentiationViews.alt("A = %s%s%s" % [c, root, u]).values,
+	out.wrongs.append(DifferentiationViews.alt("A = %s + %s%s%s" % [b, c, root, u], R_MIX))
+	out.wrongs.append(DifferentiationViews.alt("A = %s − %s%s%s" % [Fmt.pi(e.b.mul(2)), Fmt.dec(e.c.mul(2)), root, u], R_NO_HALF, {"b": e.b.mul(2), "c": e.c.mul(2)}))
+	out.fillers = [DifferentiationViews.alt("A = %s%s%s" % [c, root, u]).values,
 		DifferentiationViews.alt("A = %s − %s%s%s" % [Fmt.pi(half_b), c, root, u], "", {"b": half_b, "c": e.c}).values,
-		DifferentiationViews.alt("A = %s − %s%s%s" % [Fmt.pi(e.b.mul(2)), Fmt.dec(e.c.mul(2)), root, u], "", {"b": e.b.mul(2), "c": e.c.mul(2)}).values,
 		DifferentiationViews.alt("A = %s − %s%s%s" % [b, Fmt.dec(e.c.mul(2)), root, u], "", {"b": e.b, "c": e.c.mul(2)}).values]
 	var r := Fmt.dec(s.r)
 	var t := ArcSectorViews.angle_text(s)
@@ -224,7 +257,8 @@ func u_segment_perimeter(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		out.wrongs += slip(ans, s, arc + 2.0 * rr * sin_deg(th / 2.0), R_ANY_SINE)
 	else:
 		out.wrongs += slip(ans, s, rr * s.t.to_float() + chord, R_ARC_DEG)
-	out.generic = rest(ans, s, [arc, chord, arc + chord + 2.0 * rr, arc + 2.0 * chord, arc + rr * sin(th / 2.0)])
+	out.wrongs += slip(ans, s, arc, R_NO_CHORD)
+	out.fillers = rest(ans, s, [chord, arc + chord + 2.0 * rr, arc + 2.0 * chord, arc + rr * sin(th / 2.0)])
 	var r := Rt(s)
 	var t := th_shown(s)
 	var half_text: String = Fmt.dec(s.t.div(2)) + ("°" if s.form == "deg" else "")
@@ -246,10 +280,10 @@ func u_segment_in_terms_of_theta(_rep: String, s: Dictionary, _rng: Seeded) -> D
 	out.wrongs = [DifferentiationViews.alt("A = %sθ%s" % [at, u], R_SECTOR)]
 	var dbl := Fmt.dec(a.mul(2))
 	var rt := Fmt.dec(s.r)
-	out.generic = [DifferentiationViews.alt("A = %sθ + %s sin θ%s" % [at, at, u]).values,
-		DifferentiationViews.alt("A = %s sin θ%s" % [at, u]).values,
-		DifferentiationViews.alt("A = %sθ − %s sin θ%s" % [dbl, dbl, u], "", {"a": a.mul(2), "b": a.mul(2)}).values,
-		DifferentiationViews.alt("A = %sθ − %s sin θ%s" % [Fmt.dec(s.r.div(2)), Fmt.dec(s.r.div(2)), u], "", {"a": s.r.div(2), "b": s.r.div(2)}).values]
+	out.wrongs += turn([DifferentiationViews.alt("A = %sθ + %s sin θ%s" % [at, at, u], R_MIX),
+		DifferentiationViews.alt("A = %sθ − %s sin θ%s" % [dbl, dbl, u], R_NO_HALF, {"a": a.mul(2), "b": a.mul(2)}),
+		DifferentiationViews.alt("A = %sθ − %s sin θ%s" % [Fmt.dec(s.r.div(2)), Fmt.dec(s.r.div(2)), u], R_R_NOT_SQ, {"a": s.r.div(2), "b": s.r.div(2)})], key_of(s.r, s.r))
+	out.fillers = [DifferentiationViews.alt("A = %s sin θ%s" % [at, u]).values]
 	out.methods = {"sector-minus-triangle": method(["Sector: ½ × %s² × θ = %sθ" % [rt, at], "Triangle: ½ × %s² × sin θ = %s sin θ" % [rt, at],
 		"The segment is the sector less the triangle.", ArcSectorViews.say(ans)], ans.values)}
 	return out
@@ -265,7 +299,8 @@ func u_segment_radius(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"graph": region("segment", s, {"r_label": "r", "angle_label": Fmt.dec(s.t)})}
 	var out := frame(v, s, ans, "Find r.")
 	out.wrongs = slip(ans, s, sqrt(2.0 * a / t), R_SECTOR) + slip(ans, s, sqrt(2.0 * a / (t - sin_deg(t))), R_SIN_DEG)
-	out.generic = rest(ans, s, [2.0 * a / size, sqrt(a / size), sqrt(2.0 * a / sin(t)), sqrt(2.0 * a / (t + sin(t))), 2.0 * sqrt(2.0 * a / size)])
+	out.wrongs += turn([slip(ans, s, 2.0 * a / size, R_NO_ROOT), slip(ans, s, sqrt(a / size), R_NO_HALF), slip(ans, s, sqrt(2.0 * a / (t + sin(t))), R_MIX)], key_of(s.t, s.area[0])).reduce(func(acc, x): return acc + x, [])
+	out.fillers = rest(ans, s, [sqrt(2.0 * a / sin(t)), 2.0 * sqrt(2.0 * a / size)])
 	var inside := rd(size)
 	var sq := rd(2.0 * a / inside)
 	out.methods = {"sector-minus-triangle": method(["The segment is ½r²(θ − sin θ), so ½r²(%s − sin %s) = %s." % [Fmt.dec(s.t), Fmt.dec(s.t), at],
@@ -298,7 +333,8 @@ func u_tether_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.graph = tether_figure(s, {"r_label": r + U(s), "angle_label": ts})
 		out.asked = ArcSectorViews.finish(s, "Find the area the rover can reach.", ans)
 	out.wrongs = slip(ans, s, half * t, R_NO_TRIANGLE) + slip(ans, s, half * (t + sin_deg(t)), R_SIN_DEG)
-	out.generic = rest(ans, s, [half * sin(t), half * (t - sin(t)), rr * rr * (t + sin(t)), half * (t + 2.0 * sin(t)), half * PI])
+	out.wrongs += turn([slip(ans, s, half * (t - sin(t)), R_MIX), slip(ans, s, rr * rr * (t + sin(t)), R_NO_HALF)], key_of(s.r, s.t)).reduce(func(acc, x): return acc + x, [])
+	out.fillers = rest(ans, s, [half * sin(t), half * (t + 2.0 * sin(t)), half * PI])
 	var sec := rd(half * t)
 	var other := w(PI - t)
 	var tri := rd(half * sin(float(other)))
@@ -319,9 +355,9 @@ func u_tether_expression(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	out.wrongs = [DifferentiationViews.alt("A = %s/θ m²" % ks, R_NO_TRIANGLE)]
 	var dbl := Fmt.dec(l.sq())
 	var half := Fmt.dec(k.div(2))
-	out.generic = [DifferentiationViews.alt("A = (%s/θ²)(θ + sin θ) m²" % dbl, "", {"k": l.sq()}).values,
-		DifferentiationViews.alt("A = (%s/θ²)(θ + sin θ) m²" % half, "", {"k": k.div(2)}).values,
-		DifferentiationViews.alt("A = (%s/θ²)(θ − sin θ) m²" % ks).values,
+	out.wrongs += [DifferentiationViews.alt("A = (%s/θ²)(θ + sin θ) m²" % dbl, R_NO_HALF, {"k": l.sq()}),
+		DifferentiationViews.alt("A = (%s/θ²)(θ − sin θ) m²" % ks, R_MIX)]
+	out.fillers = [DifferentiationViews.alt("A = (%s/θ²)(θ + sin θ) m²" % half, "", {"k": k.div(2)}).values,
 		DifferentiationViews.alt("A = (%s/θ)(θ + sin θ) m²" % ks).values]
 	out.methods = {"add-subtract-regions": method(["l = rθ, so r = %s/θ." % ls, "Sector ODE is ½r²θ, and triangle OEA is ½r² sin(π − θ) = ½r² sin θ.", "So A = ½r²(θ + sin θ).",
 		"Put r² = %s/θ²: ½ × %s = %s." % [Fmt.dec(l.sq()), Fmt.dec(l.sq()), ks], ArcSectorViews.say(ans)], ans.values)}
@@ -337,8 +373,8 @@ func u_tether_angle(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.lines = [WALLS + " OA = %s, arc DE is %s long, and angle DOE is θ radians." % [r + " m", l + " m"]]
 	out.graph = tether_figure(s, {"r_label": r + " m", "angle_label": "θ", "arc_label": l + " m", "mark_a": true})
 	out.asked = ArcSectorViews.finish(s, "Find angle DAE, in radians.", ans)
-	out.wrongs = []
-	out.generic = rest(ans, s, [t, PI - t, (PI - t) / 2.0, t * 2.0])
+	out.wrongs = slip(ans, s, t, R_CENTRE_ANGLE) + slip(ans, s, PI - t, R_STOP_AOE)
+	out.fillers = rest(ans, s, [(PI - t) / 2.0, t * 2.0])
 	var ts := w(rd(t))
 	var other := w(PI - rd(t))
 	out.methods = {"angle-facts": method(["θ = l ÷ r = %s ÷ %s = %s" % [l, r, ts], "Angle AOE is π − %s = %s, on a straight wall." % [ts, other],
@@ -382,7 +418,8 @@ func u_ratio_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var flip := Q.new(s.m + s.n, s.m)
 	out.wrongs = [DifferentiationViews.alt("θ = %s sin θ" % k_text(flip), R_RATIO, {"k": flip})] if not flip.eq(k) else []
 	var bare := Q.new(s.m, s.n)
-	out.generic = [DifferentiationViews.alt("θ = %s sin θ" % k_text(bare), "", {"k": bare}).values, DifferentiationViews.alt("θ = %s sin θ" % k_text(k.add(1)), "", {"k": k.add(1)}).values,
+	out.wrongs.append(DifferentiationViews.alt("θ = %s sin θ" % k_text(bare), R_NO_COLLECT, {"k": bare}))
+	out.fillers = [DifferentiationViews.alt("θ = %s sin θ" % k_text(k.add(1)), "", {"k": k.add(1)}).values,
 		DifferentiationViews.alt("θ = %s sin θ" % k_text(k.mul(2)), "", {"k": k.mul(2)}).values, DifferentiationViews.alt("θ = %s sin θ" % k_text(k.add(2)), "", {"k": k.add(2)}).values]
 	out.methods = {"add-subtract-regions": method(ratio_steps(s) + [ArcSectorViews.say(ans)], ans.values)}
 	return out
@@ -397,7 +434,7 @@ func u_ratio_theta(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = []
 	if s.m != s.n:
 		out.wrongs = slip(ans, s, CircularRegionSituation.root(1.0 + float(s.n) / s.m), R_RATIO)
-	out.generic = rest(ans, s, [CircularRegionSituation.root(k + 1.0), CircularRegionSituation.root(k + 0.5), th + 0.5, th / 2.0, PI - th])
+	out.fillers = rest(ans, s, [CircularRegionSituation.root(k + 1.0), CircularRegionSituation.root(k + 0.5), th + 0.5, th / 2.0, PI - th])
 	out.methods = {"add-subtract-regions": method(ratio_steps(s) + ["Solve θ = %s sin θ on the GDC, in radians, with 0 < θ < π." % k_text(ratio_k(s)), ArcSectorViews.say(ans)], ans.values)}
 	return out
 
@@ -416,7 +453,8 @@ func u_ratio_radius(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = slip(ans, s, sqrt(2.0 * a / th), R_SECTOR) + slip(ans, s, sqrt(2.0 * q / sin_deg(th)), R_SIN_DEG)
 	if s.m != s.n:
 		out.wrongs += slip(ans, s, sqrt(2.0 * a * s.m / s.n / sin(flip)), R_RATIO)
-	out.generic = rest(ans, s, [2.0 * q / sin(th), sqrt(2.0 * q), sqrt(q / sin(th)), sqrt(2.0 * a / sin(th)), 2.0 * sqrt(2.0 * q / sin(th))])
+	out.wrongs += turn([slip(ans, s, 2.0 * q / sin(th), R_NO_ROOT), slip(ans, s, sqrt(q / sin(th)), R_NO_HALF)], key_of(s.t, s.area[0])).reduce(func(acc, x): return acc + x, [])
+	out.fillers = rest(ans, s, [sqrt(2.0 * q), sqrt(2.0 * a / sin(th)), 2.0 * sqrt(2.0 * q / sin(th))])
 	var ths := rd(th)
 	var qs := rd(q)
 	var f := Fmt.num(Q.new(s.m, s.n))
@@ -444,7 +482,7 @@ func u_arch_area(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"graph": region("arch", s, {"r": rr, "h": hh, "r_label": r, "angle_label": ts, "h_label": ht})}
 	var out := frame(v, s, ans, "Find the area of the end of the shelter.")
 	out.wrongs = slip(ans, s, wide * hh + half * th, R_SECTOR) + slip(ans, s, 2.0 * rr * sin_deg(th / 2.0) * hh + half * (th - sin_deg(th)), R_ANY_SINE)
-	out.generic = rest(ans, s, [wide * hh, rr * hh + seg, 2.0 * wide * hh + seg, wide * hh + 2.0 * seg, seg])
+	out.fillers = rest(ans, s, [wide * hh, rr * hh + seg, 2.0 * wide * hh + seg, wide * hh + 2.0 * seg, seg])
 	var rt := Fmt.dec(s.r)
 	var hs := Fmt.dec(s.h)
 	var ws := rd(wide)
@@ -472,7 +510,8 @@ func u_ring_area(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"graph": ArcSectorViews.ring_figure(s, Fmt.dec(s.rin) + " cm")}
 	var out := frame(v, s, ans, "Find the area of the shield.")
 	out.wrongs = slip(ans, s, (TAU - t) * (big * big - small * small) / 2.0, R_MINOR)
-	out.generic = rest(ans, s, [t * big * big / 2.0, t * pow(big - small, 2) / 2.0, t * (big * big - small * small), t * (big - small), PI * (big * big - small * small)])
+	out.wrongs += turn([slip(ans, s, t * big * big / 2.0, R_OUTER_ONLY), slip(ans, s, t * pow(big - small, 2) / 2.0, R_DIFF_SQ), slip(ans, s, t * (big * big - small * small), R_NO_HALF)], key_of(s.r, s.rin)).reduce(func(acc, x): return acc + x, [])
+	out.fillers = rest(ans, s, [t * (big - small), PI * (big * big - small * small)])
 	var o2 := rd(t * big * big / 2.0)
 	var i2 := rd(t * small * small / 2.0)
 	var ts := Fmt.dec(s.t)
@@ -491,10 +530,9 @@ func u_ring_expression(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.lines = ["A curved shield lies between two circles with centre O, as shaded. The reflex angle at O is %s radians, the outer radius is %s and the inner radius is r cm, where r < %s." % [Fmt.dec(s.t), Fmt.dec(s.r) + " cm", Fmt.dec(s.r)]]
 	out.graph = ArcSectorViews.ring_figure(s, "r")
 	var t := Fmt.dec(s.t)
-	out.wrongs = []
-	out.generic = [DifferentiationViews.alt("A = %s − %sr cm²" % [at, bt]).values,
-		DifferentiationViews.alt("A = %s − %sr² cm²" % [Fmt.dec(a.mul(2)), Fmt.dec(b.mul(2))], "", {"a": a.mul(2), "b": b.mul(2)}).values,
-		DifferentiationViews.alt("A = %s − %sr² cm²" % [at, Fmt.dec(b.mul(2))], "", {"a": a, "b": b.mul(2)}).values,
+	out.wrongs = [DifferentiationViews.alt("A = %s − %sr cm²" % [at, bt], R_R_NOT_SQ),
+		DifferentiationViews.alt("A = %s − %sr² cm²" % [Fmt.dec(a.mul(2)), Fmt.dec(b.mul(2))], R_NO_HALF, {"a": a.mul(2), "b": b.mul(2)})]
+	out.fillers = [DifferentiationViews.alt("A = %s − %sr² cm²" % [at, Fmt.dec(b.mul(2))], "", {"a": a, "b": b.mul(2)}).values,
 		DifferentiationViews.alt("A = %s + %sr² cm²" % [at, bt]).values]
 	out.methods = {"add-subtract-regions": method(["Outer sector: ½ × %s² × %s = %s" % [Fmt.dec(s.r), t, at], "Inner sector: ½ × r² × %s = %sr²" % [t, bt], "The shield is the outer sector less the inner one.", ArcSectorViews.say(ans)], ans.values)}
 	return out
@@ -522,8 +560,8 @@ func u_hatch_area(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.graph = hatch_figure(s)
 	var big := Q.new(k * k, 2)
 	out.wrongs = [DifferentiationViews.alt("A = %dxh + %s m²" % [k, pi_x2(big)], R_DIAMETER, {"a": Q.new(k), "b": big})]
-	out.generic = [DifferentiationViews.alt("A = %dxh + %s m²" % [k, pi_x2(b.mul(2))], "", {"a": Q.new(k), "b": b.mul(2)}).values,
-		DifferentiationViews.alt("A = %dxh + %s m²" % [k * 2, pi_x2(b)], "", {"a": Q.new(k * 2), "b": b}).values,
+	out.wrongs.append(DifferentiationViews.alt("A = %dxh + %s m²" % [k, pi_x2(b.mul(2))], R_WHOLE_CIRCLE, {"a": Q.new(k), "b": b.mul(2)}))
+	out.fillers = [DifferentiationViews.alt("A = %dxh + %s m²" % [k * 2, pi_x2(b)], "", {"a": Q.new(k * 2), "b": b}).values,
 		DifferentiationViews.alt("A = %dxh + %dπx m²" % [k, k]).values,
 		DifferentiationViews.alt("A = %dxh m²" % k).values]
 	out.methods = {"add-subtract-regions": method(["Rectangle: %dx × h = %dxh" % [k, k], "The semicircle's radius is half the width: %s." % ("x" if k == 2 else "%dx" % (k / 2)),
@@ -542,9 +580,9 @@ func u_hatch_height(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.lines = ["A bunker hatch is a rectangle %dx m wide and h m high with a semicircle on top. The semicircle's diameter is the top of the rectangle." % k, "The perimeter of the whole hatch is %s m." % p]
 	out.graph = hatch_figure(s)
 	out.wrongs = [DifferentiationViews.alt("h = ½(%s − %dx − %s)" % [p, 2 * k, arc], R_JOIN, {"p": per, "a": Q.new(2 * k), "b": Q.new(hf)})]
-	out.generic = [DifferentiationViews.alt("h = ½(%s − %dx − %dπx)" % [p, k, k], "", {"p": per, "a": Q.new(k), "b": Q.new(k)}).values,
-		DifferentiationViews.alt("h = %s − %dx − %s" % [p, k, arc]).values,
-		DifferentiationViews.alt("h = ½(%s − %s)" % [p, arc]).values,
+	out.wrongs.append(DifferentiationViews.alt("h = ½(%s − %dx − %dπx)" % [p, k, k], R_WHOLE_CIRCLE, {"p": per, "a": Q.new(k), "b": Q.new(k)}))
+	out.wrongs.append(DifferentiationViews.alt("h = %s − %dx − %s" % [p, k, arc], R_NO_DIVIDE))
+	out.fillers = [DifferentiationViews.alt("h = ½(%s − %s)" % [p, arc]).values,
 		DifferentiationViews.alt("h = ½(%s + %dx + %s)" % [p, k, arc]).values]
 	out.methods = {"add-subtract-regions": method(["The join between the rectangle and the semicircle is inside, so it isn't on the perimeter.",
 		"The curved top is half a circle: ½ × 2π × %s = %s." % ["x" if k == 2 else "%dx" % hf, arc], "P = %dx + 2h + %s = %s" % [k, arc, p], "2h = %s − %dx − %s" % [p, k, arc], ArcSectorViews.say(ans)], ans.values)}
@@ -566,7 +604,8 @@ func u_tangent_region(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"graph": region("tangent", s, {"r_label": r + " cm", "angle_label": ts})}
 	var out := frame(v, s, ans, "Find the area of the shaded region.")
 	out.wrongs = slip(ans, s, kite - half * th, R_TAN_ANGLE)
-	out.generic = rest(ans, s, [kite, kite / 2.0 - sec / 2.0, rr * rr * tan(th / 2.0) - sec, kite - 2.0 * sec, kite / 2.0])
+	out.wrongs += slip(ans, s, kite, R_KITE_ONLY)
+	out.fillers = rest(ans, s, [kite / 2.0 - sec / 2.0, rr * rr * tan(th / 2.0) - sec, kite - 2.0 * sec, kite / 2.0])
 	var half_t := w(th / 2.0)
 	var dod := rd(PI - th)
 	var k2 := rd(kite)
@@ -589,10 +628,10 @@ func u_tangent_expression(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	out.lines = ["AD and AE are tangents to a circle with centre O and radius %s, touching it at D and E. Angle DAE is 2α radians." % (r + " cm"), "The shaded region lies between the tangents and minor arc DE."]
 	out.graph = region("tangent", s, {"r_label": r + " cm", "angle_label": "2α"})
 	out.wrongs = [DifferentiationViews.alt("A = %s/tan α − %sα cm²" % [at, at], R_TAN_ANGLE)]
-	out.generic = [DifferentiationViews.alt("A = %s/tan α cm²" % at).values,
-		DifferentiationViews.alt("A = %s/tan α − %s(π − 2α) cm²" % [ct, ct], "", {"a": c, "c": c}).values,
-		DifferentiationViews.alt("A = %s tan α − %s(π − 2α) cm²" % [at, ct]).values,
-		DifferentiationViews.alt("A = %s/tan α − %s(π − 2α) cm²" % [at, at], "", {"a": a, "c": a}).values]
+	out.wrongs += [DifferentiationViews.alt("A = %s/tan α cm²" % at, R_KITE_ONLY),
+		DifferentiationViews.alt("A = %s/tan α − %s(π − 2α) cm²" % [at, at], R_NO_HALF, {"a": a, "c": a})]
+	out.fillers = [DifferentiationViews.alt("A = %s/tan α − %s(π − 2α) cm²" % [ct, ct], "", {"a": c, "c": c}).values,
+		DifferentiationViews.alt("A = %s tan α − %s(π − 2α) cm²" % [at, ct]).values]
 	out.methods = {"add-subtract-regions": method(["The radii meet the tangents at right angles, and OA bisects angle DAE, so angle OAD = α and AD = %s/tan α." % r,
 		"Kite ADOE is two such triangles: 2 × ½ × %s × %s/tan α = %s/tan α." % [r, r, at],
 		"The kite's angles add to 2π, with right angles at D and E, so angle DOE = π − 2α.",
@@ -621,8 +660,8 @@ func u_theta_in_r(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := two_view(rep, s, ["p"])
 	var out := {"table": null, "answer": ans, "lines": v.lines, "graph": v.graph, "asked": "Write θ, in radians, in terms of the radius r."}
 	out.wrongs = [DifferentiationViews.alt("θ = %s/r" % p, R_NO_RADII)]
-	out.generic = [DifferentiationViews.alt("θ = (%s − r)/r" % p).values, DifferentiationViews.alt("θ = (%s + 2r)/r" % p).values,
-		DifferentiationViews.alt("θ = (%s − 2r)/r²" % p).values, DifferentiationViews.alt("θ = (%s − 2)/r" % p).values]
+	out.wrongs += [DifferentiationViews.alt("θ = (%s − r)/r" % p, R_ONE_RADIUS), DifferentiationViews.alt("θ = (%s + 2r)/r" % p, R_SIGN_MOVE)]
+	out.fillers = [DifferentiationViews.alt("θ = (%s − 2r)/r²" % p).values, DifferentiationViews.alt("θ = (%s − 2)/r" % p).values]
 	out.methods = {"rearrange-perimeter": method(["The perimeter is two radii and the arc: P = 2r + rθ.", "%s = 2r + rθ, so rθ = %s − 2r." % [p, p], ArcSectorViews.say(ans)], ans.values)}
 	return out
 
@@ -638,7 +677,7 @@ func u_two_conditions_quadratic(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var v := two_view(rep, s)
 	var out := {"table": null, "answer": ans, "lines": v.lines, "graph": v.graph, "asked": "Eliminate θ from the two conditions, and write the equation for r in the form r² − br + c = 0."}
 	out.wrongs = [DifferentiationViews.alt("r − %s = 0" % Fmt.num(area.mul(2).div(per)), R_NO_RADII)]
-	out.generic = [DifferentiationViews.alt("r² − %sr + %s = 0" % [p, a], "", {"b": per, "c": area}).values,
+	out.fillers = [DifferentiationViews.alt("r² − %sr + %s = 0" % [p, a], "", {"b": per, "c": area}).values,
 		DifferentiationViews.alt("r² − %sr + %s = 0" % [bt, Fmt.dec(area.mul(2))], "", {"b": b, "c": area.mul(2)}).values,
 		DifferentiationViews.alt("r² + %sr + %s = 0" % [bt, a]).values,
 		DifferentiationViews.alt("r² − %sr − %s = 0" % [bt, a]).values]
@@ -682,7 +721,7 @@ func u_two_conditions_r(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var r1: float = s.r1.to_float()
 	var r2: float = s.r2.to_float()
 	out.wrongs = ArcSectorViews.like(ans, s, _exact_or(s, s.r1), R_BIG_THETA) + ArcSectorViews.like(ans, s, _exact_or(s, s.area[0].mul(2).div(s.per[0])), R_NO_RADII)
-	out.generic = ArcSectorViews.others(ans, s, [val(r1 + r2), val(2.0 * r2), val(r2 + 1.0), val(r2 + 2.0), val(r2 + 0.5)] if s.paper == 2 else [_exact_or(s, s.r1.add(s.r2)), _exact_or(s, s.r2.mul(2)), _exact_or(s, s.r2.add(1)), _exact_or(s, s.r2.add(2))])
+	out.fillers = ArcSectorViews.others(ans, s, [val(r1 + r2), val(2.0 * r2), val(r2 + 1.0), val(r2 + 2.0), val(r2 + 0.5)] if s.paper == 2 else [_exact_or(s, s.r1.add(s.r2)), _exact_or(s, s.r2.mul(2)), _exact_or(s, s.r2.add(1)), _exact_or(s, s.r2.add(2))])
 	var ts := roots_text(s)
 	var check := "θ = (%s − 2r)/r gives θ %s at r = %s, more than 2π, so that root is no sector." % [Fmt.dec(s.per[0]), big_theta(s), ts[0]]
 	out.methods = {"substitute-eliminate": method([into_area(s), solve_text(s), check, ArcSectorViews.say(ans)], ans.values)}
@@ -718,10 +757,10 @@ func u_two_conditions_theta(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var ts := roots_text(s)
 	if s.paper == 1:
 		out.wrongs = ArcSectorViews.like(ans, s, ArcSectorViews.ab(s.r2.mul(2).div(s.r1)), R_BIG_THETA) + ArcSectorViews.like(ans, s, ArcSectorViews.ab(s.per[0].sq().div(s.area[0].mul(2))), R_NO_RADII)
-		out.generic = ArcSectorViews.others(ans, s, [ArcSectorViews.ab(s.t.mul(2)), ArcSectorViews.ab(s.t.add(1)), ArcSectorViews.ab(s.t.add(2)), ArcSectorViews.ab(s.t.div(2))])
+		out.fillers = ArcSectorViews.others(ans, s, [ArcSectorViews.ab(s.t.mul(2)), ArcSectorViews.ab(s.t.add(1)), ArcSectorViews.ab(s.t.add(2)), ArcSectorViews.ab(s.t.div(2))])
 	else:
 		out.wrongs = slip(ans, s, 2.0 * r2 / r1, R_BIG_THETA) + slip(ans, s, pf * pf / (2.0 * af), R_NO_RADII)
-		out.generic = rest(ans, s, [t * 2.0, t + 1.0, t / 2.0, t + 0.5])
+		out.fillers = rest(ans, s, [t * 2.0, t + 1.0, t / 2.0, t + 0.5])
 	var rs := rd(r2)
 	var at := Fmt.dec(s.t) if s.paper == 1 else w((pf - 2.0 * rs) / rs)
 	var pick := "At r = %s, θ %s is more than 2π, so r = %s." % [ts[0], big_theta(s), ts[1]]
@@ -749,14 +788,14 @@ func u_two_conditions_both(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		var two: Q = s.r2.add(1)
 		var b2: Q = s.r1.mul(2)
 		var c2: Q = s.r2.mul(2)
-		out.generic = [DifferentiationViews.alt("r = %s%s or %s%s" % [Fmt.dec(one), u, Fmt.dec(two), u], "", {"a": one, "b": two}).values,
+		out.fillers = [DifferentiationViews.alt("r = %s%s or %s%s" % [Fmt.dec(one), u, Fmt.dec(two), u], "", {"a": one, "b": two}).values,
 			DifferentiationViews.alt("r = %s%s or %s%s" % [Fmt.dec(b2), u, Fmt.dec(c2), u], "", {"a": b2, "b": c2}).values]
 	else:
 		ans = TriangleViews.two_measures("r = ", r1, r2, u)
 		ans.show = "sf"
 		out.asked = "Find both possible values of the radius. Give your answers to 3 significant figures."
 		out.wrongs = [wrong({"v1": GdcKit.qf(r2), "v2": GdcKit.qf(r1), "only": true}, R_ONE_ROOT), wrong({"v1": GdcKit.qf(r1), "v2": GdcKit.qf(r2), "only": true}, R_ONE_ROOT)]
-		out.generic = [TriangleViews.res2(r1 + 1.0, r2 + 1.0), TriangleViews.res2(2.0 * r1, 2.0 * r2), TriangleViews.res2(r1 / 2.0, r2 / 2.0), TriangleViews.res2(r1 + 0.5, r2 - 0.5)]
+		out.fillers = [TriangleViews.res2(r1 + 1.0, r2 + 1.0), TriangleViews.res2(2.0 * r1, 2.0 * r2), TriangleViews.res2(r1 / 2.0, r2 / 2.0), TriangleViews.res2(r1 + 0.5, r2 - 0.5)]
 	out.answer = ans
 	var check := "θ = (%s − 2r)/r gives θ %s at r = %s and θ %s at r = %s. Both are between 0 and 2π, so both are real sectors." % [Fmt.dec(s.per[0]), big_theta(s), ts[0], small_theta(s), ts[1]]
 	out.methods = {"substitute-eliminate": method([into_area(s), solve_text(s), check, ArcSectorViews.say(ans)], ans.values)}
@@ -771,8 +810,8 @@ func u_arc_area_radius(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := frame(two_view(rep, s, ["l", "a"]), s, ans, "Find the radius." if rep == "words" else "Find r.")
 	var lq: Q = s.l[0]
 	var aq: Q = s.area[0]
-	out.wrongs = []
-	out.generic = ArcSectorViews.others(ans, s, [_exact_or(s, aq.div(lq)), _exact_or(s, aq.mul(4).div(lq)), _exact_or(s, lq.div(aq)), _exact_or(s, lq.mul(2).div(aq)), _exact_or(s, aq.mul(2).div(lq).add(1)), _exact_or(s, aq.mul(2).div(lq).add(2))])
+	out.wrongs = ArcSectorViews.like(ans, s, _exact_or(s, aq.div(lq)), R_NO_HALF)
+	out.fillers = ArcSectorViews.others(ans, s, [_exact_or(s, aq.mul(4).div(lq)), _exact_or(s, lq.div(aq)), _exact_or(s, lq.mul(2).div(aq)), _exact_or(s, aq.mul(2).div(lq).add(1)), _exact_or(s, aq.mul(2).div(lq).add(2))])
 	var at := Fmt.dec(aq)
 	var lt := Fmt.dec(lq)
 	var worked := Fmt.dec(s.r) if s.paper == 1 else w(s.r.to_float())
@@ -790,8 +829,8 @@ func u_cone_from_area(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.lines = ["The sector in the diagram, with centre O and radius %s, has an area of %s cm². It is rolled up so that OA meets OB, to make a cone, and the arc becomes the rim." % [r + " cm", at]]
 	out.graph = ArcSectorViews.figure(s, "minor", {"r_label": r + " cm", "cone": true})
 	out.asked = ArcSectorViews.finish(s, "Find the radius of the circle at the rim.", ans)
-	out.wrongs = []
-	out.generic = rest(ans, s, [2.0 * a / sl, a / sl, sqrt(a / PI), 2.0 * a / (PI * sl), a / (2.0 * PI * sl)])
+	out.wrongs = slip(ans, s, 2.0 * a / sl, R_ARC_AS_R) + slip(ans, s, sqrt(a / PI), R_AREA_AS_BASE)
+	out.fillers = rest(ans, s, [a / sl, 2.0 * a / (PI * sl), a / (2.0 * PI * sl)])
 	var arc := rd(2.0 * a / sl)
 	out.methods = {"area-half-rl": method(["A = ½rl, so the arc is l = 2 × %s ÷ %s = %s" % [at, r, w(arc)], "The arc is the rim: 2π × radius = %s" % w(arc), "radius = %s ÷ 2π = %s" % [w(arc), w(arc / TAU)], ArcSectorViews.say(ans)], ans.values)}
 	return out

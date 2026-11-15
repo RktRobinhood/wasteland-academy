@@ -18,6 +18,8 @@ const NEED := {
 
 const SG := "SL2.10.solve-gdc"
 const CA := "SL2.10.context-apply"
+## Slips with no ref of their own (FAL-815): "<type id>#<index>".
+const OWN := "fn-gdc-solve-equation#"
 
 
 func has(unknown: String) -> bool:
@@ -33,14 +35,14 @@ func need(unknown: String, rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	out.given = GdcContextEquationSituation.export(s)
 	if not out.has("trap"):
 		out.trap = GdcCurveViews.trap(out.answer)
 	out.wrongs = out.wrongs.filter(func(w): return GdcCurveViews.clear(w.values))
-	out.generic = out.generic.filter(func(g): return GdcCurveViews.clear(g))
+	out.fillers = out.fillers.filter(func(g): return GdcCurveViews.clear(g))
 	return out
 
 
@@ -115,19 +117,21 @@ func u_solve_mixed_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var rs: Array = s.roots
 	var asked: String
 	var wrongs: Array = []
-	var gen: Array = [{"v": qf(-x)}, {"v": qf(x / 2.0)}]
+	var gen: Array = [{"v": qf(x / 2.0)}]
 	if s.form == "ksin":
+		# x = k sin x is odd, so −x solves it too: the negative solution.
 		asked = "Find the positive solution of %s." % eq(s)
+		wrongs.append(wrong({"v": qf(-x)}, OWN + "6"))
 		gen.append({"v": qf(GdcContextEquationSituation.k_of(s))})
 	else:
 		asked = "Find the largest solution of %s." % eq(s)
 		wrongs.append(wrong({"v": qf(rs[0])}, SG + "#0"))
-		gen.append({"v": qf(rs[0] + 1.0)})
+		gen = [{"v": qf(-x)}] + gen + [{"v": qf(rs[0] + 1.0)}]
 	var lo := -3.0 if s.form == "ksin" else -5.0
 	var hi := 4.0 if s.form == "ksin" else 20.0
 	var win := "with the x-window from %s to %s, so no solution is off screen" % [Fmt.num(roundi(lo)), Fmt.num(roundi(hi))]
 	return {
-		"asked": asked, "lines": [eq(s)], "answer": ans, "wrongs": wrongs, "generic": gen,
+		"asked": asked, "lines": [eq(s)], "answer": ans, "wrongs": wrongs, "fillers": gen,
 		"methods": {
 			"intersect-two-graphs": {"result": ans.values, "steps": ["%s, %s." % [both_sides(s), win],
 				"They cross at " + roots6(rs) + ".", final]},
@@ -147,12 +151,12 @@ func u_form_and_solve(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	ans.show = "sf"
 	var final := "So the arc is " + Answer.text(ans) + " long."
 	var th2 := float(Fmt.sf(th, 2).replace("−", "-"))
-	var gen: Array = [{"v": qf(th)}, {"v": qf(r.to_float() * th / 2.0)}, {"v": qf(r.to_float() * (th - sin(th)))}]
+	var gen: Array = [{"v": qf(r.to_float() * th / 2.0)}, {"v": qf(r.to_float() * (th - sin(th)))}]
 	var e := eq(s)
 	return {
 		"asked": "A chord cuts off a segment of a circle of radius %s cm. The segment's area is %s cm², and the angle at the centre is θ radians. Find the length of the segment's arc." % [Fmt.num(r), D(area)],
 		"lines": ["Circle radius %s cm, segment area %s cm²." % [Fmt.num(r), D(area)]], "answer": ans,
-		"wrongs": [wrong({"v": qf(r.to_float() * th2)}, SG + "#1")], "generic": gen,
+		"wrongs": [wrong({"v": qf(r.to_float() * th2)}, SG + "#1"), wrong({"v": qf(th)}, OWN + "7")], "fillers": gen,
 		"methods": {
 			"intersect-two-graphs": {"result": ans.values, "steps": [
 				"Segment area = sector − triangle = ½r²θ − ½r² sin θ, so %s." % e,
@@ -180,7 +184,7 @@ func u_root_in_interval(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var gen: Array = [{"v": qf(-s.want)}, {"v": qf(s.want + 1.0)}, {"v": qf(rs[0] + rs[1])}]
 	var keep := "Only %s = %s is in %s > 0; %s = %s is not." % [v, W(s.want), v, v, W(rs[0])]
 	return {
-		"asked": asked, "lines": lines, "answer": ans, "wrongs": [wrong({"v": qf(rs[0])}, CA + "#1")], "generic": gen,
+		"asked": asked, "lines": lines, "answer": ans, "wrongs": [wrong({"v": qf(rs[0])}, CA + "#1")], "fillers": gen,
 		"methods": {
 			"intersect-two-graphs": {"result": ans.values, "steps": ["%s and find where they cross." % both_sides(s, v),
 				"They cross at " + roots6(rs, v) + ".", keep, final]},
@@ -199,11 +203,11 @@ func u_simultaneous_nonlinear(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var x2 := float(Fmt.sf(x, 2).replace("−", "-"))
 	var p: float = s.co[2]
 	var parts := eq(s).split(" = ")
-	var gen: Array = [{"v": qf(x)}, {"v": qf(-y)}, {"v": qf(p - x)}, {"v": qf(s.roots[0])}]
+	var gen: Array = [{"v": qf(-y)}, {"v": qf(p - x)}, {"v": qf(s.roots[0])}]
 	return {
 		"asked": "Solve the simultaneous equations y = %s and y = %s, for x > 0. Find the value of y." % [parts[0], parts[1]],
 		"lines": ["y = %s" % parts[0], "y = %s" % parts[1]], "answer": ans,
-		"wrongs": [wrong({"v": qf(p - x2 * x2)}, SG + "#1")], "generic": gen,
+		"wrongs": [wrong({"v": qf(p - x2 * x2)}, SG + "#1"), wrong({"v": qf(x)}, OWN + "8")], "fillers": gen,
 		"methods": {"intersect-two-graphs": {"result": ans.values, "steps": [
 			"Graph y = %s and y = %s: they cross once with x > 0." % [parts[0], parts[1]],
 			"The intersect tool gives (%s, %s); y comes from the unrounded x." % [W(x), W(y)], final]}},
@@ -218,7 +222,7 @@ func u_first_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var tmax: float = 1.0 / s.co[1]
 	var out := {"asked": "The height of a ball, in metres, t seconds after it is hit is h(t) = %s. Find the first time it is %s m high." % [
 			eq(s, "t").split(" = ")[0], D(c)], "lines": ["h(t) = %s, for t ≥ 0" % eq(s, "t").split(" = ")[0]], "answer": ans,
-		"wrongs": [wrong({"v": c}, CA + "#2")], "generic": [{"v": qf(rs[1])}, {"v": qf(tmax)}, {"v": qf(rs[0] + rs[1])}]}
+		"wrongs": [wrong({"v": c}, CA + "#2"), wrong({"v": qf(rs[1])}, OWN + "9")], "fillers": [{"v": qf(tmax)}, {"v": qf(rs[0] + rs[1])}]}
 	if rep == "graph":
 		out.lines = ["The graph of h(t) = %s, for t ≥ 0, is shown." % eq(s, "t").split(" = ")[0]]
 		var f := func(x: float) -> float: return s.co[0] * x * exp(-s.co[1] * x)
@@ -242,7 +246,7 @@ func u_count_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So %s has %d solution%s for −20 ≤ x ≤ 20." % [eq(s), n, "" if n == 1 else "s"]
 	var out := {"asked": "How many solutions does %s have for −20 ≤ x ≤ 20?" % eq(s), "lines": [eq(s)], "answer": ans,
 		"wrongs": [wrong({"v": Q.new(inside)}, SG + "#0")] if inside != n else [],
-		"generic": [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(0)}]}
+		"fillers": [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(0)}]}
 	if rep == "graph":
 		out.lines = ["The graph of y = %s − (%s) is shown, for −20 ≤ x ≤ 20." % [eq(s).split(" = ")[0], eq(s).split(" = ")[1]]]
 		out.graph = screen(s, -20.0, 20.0)
@@ -269,7 +273,10 @@ func u_constant_from_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var xf := x0.to_float()
 	return {
 		"asked": "Find the value of k.", "lines": lines, "answer": ans,
-		"generic": [{"v": qf(sin(xf) / xf)}, {"v": qf(xf * sin(xf))}, {"v": qf(xf / sin(deg_to_rad(xf)))}, {"v": qf(asin(minf(1.0, 1.0 / xf)))}],
+		"wrongs": [wrong({"v": qf(sin(xf) / xf)}, OWN + "10"), wrong({"v": qf(xf * sin(xf))}, OWN + "11")],
+		# x ÷ sin x in degrees is a slip too, but the rounding trap and the two above fill
+		# every slot, so it never shows.
+		"fillers": [{"v": qf(xf / sin(deg_to_rad(xf)))}, {"v": qf(asin(minf(1.0, 1.0 / xf)))}],
 		"methods": {"apply-inverse": {"result": ans.values, "steps": [
 			"Substitute x = %s: %s = k sin %s." % [D(x0), D(x0), D(x0)],
 			"So k = %s ÷ sin %s, with the calculator in radians: %s." % [D(x0), D(x0), W(k)], final]}},
@@ -289,7 +296,7 @@ func u_smallest_whole_number(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		Fmt.num(p0), _pct_digits(rate)]
 	var out := {"asked": "Find the smallest whole number of years after which the investment is worth more than $%s." % Fmt.num(target),
 		"lines": [words], "answer": ans, "wrongs": [wrong({"v": Q.new(floori(n_real))}, CA + "#0")],
-		"generic": [{"v": Q.new(n + 1)}, {"v": Q.new(roundi(target.to_float() / p0.to_float()))}, {"v": Q.new(maxi(n - 2, 1))}]}
+		"fillers": [{"v": Q.new(n + 1)}, {"v": Q.new(roundi(target.to_float() / p0.to_float()))}, {"v": Q.new(maxi(n - 2, 1))}]}
 	if rep == "table":
 		var tb: Dictionary = s.table
 		out.table = {"heads": ["n", "value ($)"], "xs": tb.xs, "ys": tb.ys,
@@ -315,9 +322,11 @@ static func _pct_digits(rate: Q) -> String:
 func u_reject_a_root(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var rs: Array = s.roots
 	var good := "t = %s: the other solution, t = %s, is before noon (t < 0)." % [S(s.want), S(rs[0])]
-	var out := LogFunctionViews.choice(good, [wrong({"v": "t = %s: it is the first solution the GDC finds." % S(rs[0])}, CA + "#1")],
-		["Both, t = %s and t = %s: each solves the equation." % [S(rs[0]), S(s.want)],
-		"t = %s: the other solution makes %s negative." % [S(s.want), GdcKit.first(s.nums[1], "t") + GdcKit.join(s.nums[2], "")]])
+	var out := LogFunctionViews.choice(good, [wrong({"v": "t = %s: it is the first solution the GDC finds." % S(rs[0])}, CA + "#1"),
+		wrong({"v": "Both, t = %s and t = %s: each solves the equation." % [S(rs[0]), S(s.want)]}, CA + "#1")],
+		["t = %s: the other solution makes %s negative." % [S(s.want), GdcKit.first(s.nums[1], "t") + GdcKit.join(s.nums[2], "")]])
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
 	var final: String = "So " + good
 	out.merge({
 		"asked": "The GDC gives two solutions of %s. Which one says when the two quantities are equal, and why?" % eq(s, "t"),

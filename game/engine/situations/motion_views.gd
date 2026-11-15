@@ -23,6 +23,16 @@ const R_V_ZERO := SX + "2"
 const R_HEIGHT := SG + "0"
 const R_SLOPE := SG + "1"
 const R_POSITIVE_AREA := SG + "2"
+## The type's own misconceptions, by index (FAL-815).
+const ME := "t5-kinematics-motion#"
+const R_POWER_ONLY := ME + "12"
+const R_LATER := ME + "13"
+const R_EARLIER := ME + "14"
+const R_A_AT_REST := ME + "15"
+const R_STOPPED := ME + "16"
+const R_MAX_V := ME + "17"
+const R_SIGN := ME + "18"
+const R_HEIGHT_NOT_SLOPE := ME + "19"
 const UNKNOWNS := ["velocity-expression", "acceleration-expression", "velocity-at-time", "acceleration-at-time", "time-from-acceleration",
 	"time-from-velocity", "first-at-rest", "change-direction", "returns-to-start", "moving-one-way", "acceleration-at-rest", "speeding-up",
 	"max-velocity-quadratic", "max-velocity", "max-speed", "acceleration-at-max-speed", "max-acceleration", "speed-from-graph",
@@ -59,8 +69,18 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 
 # ── Writing things ───────────────────────────────────────────
 
-static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, gen: Array, methods: Dictionary, graph: Variant = null) -> Dictionary:
-	return DefiniteIntegralViews.pack(lines, asked, ans, wr, gen, methods, graph)
+## DefiniteIntegralViews.pack's shape, with the untagged options declared fillers: no slip
+## behind them (FAL-815). The answer's own nudges come after the view's.
+static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, fill: Array, methods: Dictionary, graph: Variant = null) -> Dictionary:
+	var ms := {}
+	for id in methods:
+		ms[id] = method(methods[id].map(DefiniteIntegralViews.minus) + [DefiniteIntegralViews.say(ans)], ans.values)
+	var more: Array = []
+	if ans.values.has("v"):
+		var v: Q = ans.values.v
+		more = DefiniteIntegralViews.vals(ans, [v.add(1), v.sub(1), v.add(2), v.mul(3)])
+	return {"lines": lines.map(DefiniteIntegralViews.minus), "asked": DefiniteIntegralViews.minus(asked), "answer": ans, "wrongs": wr,
+		"fillers": fill + more, "methods": ms, "graph": graph}
 
 
 static func p2(s: Dictionary) -> bool:
@@ -177,8 +197,8 @@ func u_acceleration_expression(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var mk := func(a: int, b: int) -> Dictionary:
 		return DifferentiationViews.form(head + Fmt.poly([a, b], "t"), [head, {"slot": "a"}, "t + ", {"slot": "b"}], {"a": Q.new(a), "b": Q.new(b)})
 	var ans: Dictionary = mk.call(d[0], d[1])
-	return pack([v_story(s, rep)], "Find an expression for the acceleration.", ans, [],
-		[mk.call(co[0], co[1]).values, mk.call(d[0], -d[1]).values, mk.call(-d[0], d[1]).values, mk.call(d[0], co[2]).values, mk.call(2 * d[0], d[1]).values],
+	return pack([v_story(s, rep)], "Find an expression for the acceleration.", ans, [wrong(mk.call(co[0], co[1]).values, R_POWER_ONLY)],
+		[mk.call(d[0], -d[1]).values, mk.call(-d[0], d[1]).values, mk.call(d[0], co[2]).values, mk.call(2 * d[0], d[1]).values],
 		{"differentiate-displacement": [
 			"a = dv/dt, so differentiate v(t) with respect to t.",
 			"The result depends on t, so the acceleration is not constant here."]})
@@ -256,10 +276,10 @@ func u_time_from_velocity(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var t: float = roots[0]
 	var ans := val(s, t, "t = ", T_UNIT)
 	var shown := Fmt.dec(GdcKit.qf(c))
-	var gen: Array = [t + 1.0, t * 2.0, t + 0.5]
+	var wr: Array = []
 	if roots.size() > 1:
-		gen.push_front(roots[1])
-	return pack([v_story(s, "equation")], "Find the first time when the velocity is %s m/s, to 3 s.f." % shown, ans, [], fl(ans, gen),
+		wr.append(like(ans, roots[1], R_LATER))
+	return pack([v_story(s, "equation")], "Find the first time when the velocity is %s m/s, to 3 s.f." % shown, ans, wr, fl(ans, [t + 1.0, t * 2.0, t + 0.5]),
 		{"gdc-zeros": [
 			"Graph y = v(t) and y = %s on the GDC." % shown,
 			"The first intersection is at t = %s." % GdcKit.W(t)]})
@@ -276,8 +296,9 @@ func u_first_at_rest(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wr.append(like(ans, s.turns[0], R_A_ZERO))
 	else:
 		wr.append(like(ans, float(s.p + s.q) / 2.0, R_A_ZERO))
+	wr.append(like(ans, z[1], R_LATER))
 	return pack([v_story(s, rep)], "Find the first time at which %s is at rest%s." % ["the cart" if rep == "words" else "the particle", ", to 3 s.f" if p2(s) else ""], ans, wr,
-		fl(ans, [z[1], t + 1.0, float(s.T), t * 2.0]),
+		fl(ans, [t + 1.0, float(s.T), t * 2.0]),
 		{"solve-v-zero": [
 			"At rest means v = 0.",
 			"Solve v(t) = 0 for t in the interval%s." % (": the GDC gives t = " + GdcKit.W(t) + " first" if p2(s) else ": v factorises as %s(t%s)(t%s)" % [Fmt.lead(3 * int(s.A)), Fmt.plus(-int(s.p)), Fmt.plus(-int(s.q))]),
@@ -304,10 +325,9 @@ func u_change_direction(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var before: float = v.call(t - 0.25)
 	var after: float = v.call(t + 0.25)
 	var sg := func(y: float) -> String: return "positive" if y > 0.0 else "negative"
-	var gen: Array = [t + 1.0, float(s.T), t + 2.0, t * 2.0]
 	if not touch:
-		gen.push_front(s.z[1])
-	return pack([v_story(s, "equation")], asked, ans, wr, fl(ans, gen),
+		wr.append(like(ans, s.z[1], R_LATER))
+	return pack([v_story(s, "equation")], asked, ans, wr, fl(ans, [t + 1.0, float(s.T), t + 2.0, t * 2.0]),
 		{"sign-table": [
 			"The particle can only change direction where v = 0: %s." % ", ".join((s.z as Array).map(func(z): return "t = " + Wr(s, z))),
 			"v must change sign there. Either side of t = %s, v is %s then %s." % [Wr(s, t), sg.call(before), sg.call(after)],
@@ -325,8 +345,8 @@ func u_returns_to_start(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := val(s.merged({"paper": 1}), float(q), "t = ", T_UNIT)
 	var dom := q + 1
 	var line := "A particle moves in a straight line. Its displacement from its starting point, in metres, t seconds after it starts is s(t) = %s, for 0 ≤ t ≤ %d." % [Fmt.poly(co, "t"), dom]
-	return pack([line], "Find the last time at which the particle is back at its starting point.", ans, [],
-		[like(ans, p).values, like(ans, q + 1).values, like(ans, p + q).values, like(ans, p * q).values, like(ans, 0).values],
+	return pack([line], "Find the last time at which the particle is back at its starting point.", ans, [like(ans, p, R_EARLIER)],
+		[like(ans, q + 1).values, like(ans, p + q).values, like(ans, p * q).values, like(ans, 0).values],
 		{"solve-s-zero": [
 			"Back at the start means s = 0.",
 			"s(t) factorises as %st(t%s)(t%s)." % [Fmt.lead(A), Fmt.plus(-p), Fmt.plus(-q)],
@@ -367,8 +387,9 @@ func u_acceleration_at_rest(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var at: float = a.call(t)
 	var v := MotionSituation.v_of(s)
 	var ans := val(s, at, "a = ", A_UNIT)
-	return pack([v_story(s, "equation")], "Find the acceleration when the particle is first at rest%s." % (", to 3 s.f" if p2(s) else ""), ans, [],
-		fl(ans, [0.0, t, -at, a.call(0.0), v.call(0.0), at * 2.0]),
+	return pack([v_story(s, "equation")], "Find the acceleration when the particle is first at rest%s." % (", to 3 s.f" if p2(s) else ""), ans,
+		[like(ans, 0.0, R_A_AT_REST), like(ans, t, R_STOPPED)],
+		fl(ans, [-at, a.call(0.0), v.call(0.0), at * 2.0]),
 		{"solve-v-zero": [
 			"First at rest: v = 0 first at t = %s." % Wr(s, t),
 			"Acceleration is v′(t). It need not be 0 when v is.",
@@ -386,11 +407,13 @@ func u_speeding_up(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var up := "Speeding up: v and a have the same sign."
 	var down := "Slowing down: v and a have opposite signs."
 	var only := "Speeding up: a is positive." if a > 0.0 else "Slowing down: a is negative."
-	var built := DerivativeMeaningViews.claim_answer(up if same else down, [[down if same else up, ""], [only, R_A_POSITIVE],
-		["Neither: the speed only changes when v = 0.", ""]])
+	var built := DerivativeMeaningViews.claim_answer(up if same else down, [[down if same else up, ""], [only, R_A_POSITIVE]])
+	# The other claim is the answer turned round, with no slip of its own to name.
+	var other: Dictionary = built.wrongs.pop_front()
+	var neither := DerivativeMeaningViews.claim("w2", "Neither: the speed only changes when v = 0.")
 	var sign := func(y: float) -> String: return "positive" if y > 0.0 else "negative"
 	return {"lines": [v_story(s, "equation"), "When t = %d, v = %s and a = %s." % [t0, Fmt.sf(v) if p2(s) else Wr(s, v), Fmt.sf(a) if p2(s) else Wr(s, a)]].map(DefiniteIntegralViews.minus),
-		"asked": "Is the particle speeding up or slowing down when t = %d?" % t0, "answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"asked": "Is the particle speeding up or slowing down when t = %d?" % t0, "answer": built.answer, "wrongs": built.wrongs, "fillers": [other.values, neither],
 		"methods": {"compare-signs": method([
 			"v is %s and a is %s." % [sign.call(v), sign.call(a)],
 			"The size of v grows when a pushes the same way as v, and shrinks when it pushes against it.",
@@ -404,8 +427,8 @@ func u_max_velocity_quadratic(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var m: float = float(s.p + s.q) / 2.0
 	var top := MotionSituation.poly(co, m)
 	var ans := val(s, top, "v = ", V_UNIT)
-	return pack([v_story(s, "equation")], "Find the maximum velocity.", ans, [like(ans, 0.0, R_V_ZERO)],
-		fl(ans, [m, MotionSituation.poly(co, 0.0), MotionSituation.poly(co, float(s.T)), top + 1.0, top * 2.0]),
+	return pack([v_story(s, "equation")], "Find the maximum velocity.", ans, [like(ans, 0.0, R_V_ZERO), like(ans, m, R_STOPPED)],
+		fl(ans, [MotionSituation.poly(co, 0.0), MotionSituation.poly(co, float(s.T)), top + 1.0, top * 2.0]),
 		{"acceleration-zero": [
 			"The maximum of v is where a = 0: v′(t) = %s." % a_text(s),
 			"That gives t = %s." % Wr(s, m),
@@ -421,8 +444,8 @@ func u_max_velocity(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var t: float = s.tmax
 	var ans := val(s, top, "v = ", V_UNIT)
 	var v := MotionSituation.v_of(s)
-	return pack([v_story(s, rep)], "Find the maximum velocity, to 3 s.f.", ans, [],
-		fl(ans, [t, v.call(float(s.T)), top * 2.0, top + 1.0, v.call(0.0), s.smax + 1.0]),
+	return pack([v_story(s, rep)], "Find the maximum velocity, to 3 s.f.", ans, [like(ans, t, R_STOPPED)],
+		fl(ans, [v.call(float(s.T)), top * 2.0, top + 1.0, v.call(0.0), s.smax + 1.0]),
 		{"acceleration-zero": [
 			"The maximum of v is where a = 0 inside the interval, or at an end.",
 			"GDC, zeros of v′(t) on the interval: the maximum is at t = %s." % GdcKit.W(t),
@@ -462,8 +485,9 @@ func u_acceleration_at_max_speed(_rep: String, s: Dictionary, _rng: Seeded) -> D
 	var at: float = a.call(s.ts)
 	var v := MotionSituation.v_of(s)
 	var ans := val(s, at, "a = ", A_UNIT)
-	return pack([v_story(s, "equation")], "Find the acceleration at the time when the speed is greatest, to 3 s.f.", ans, [],
-		fl(ans, [s.smax, s.ts, -at + 1.0, a.call(0.0) + 1.0, at + 2.0]),
+	return pack([v_story(s, "equation")], "Find the acceleration at the time when the speed is greatest, to 3 s.f.", ans,
+		[like(ans, s.smax, R_STOPPED), like(ans, s.ts, R_STOPPED)],
+		fl(ans, [-at + 1.0, a.call(0.0) + 1.0, at + 2.0]),
 		{"gdc-max-min": [
 			"Graph y = |v(t)| on the GDC: its maximum on the interval is at t = %s." % GdcKit.W(s.ts),
 			"dy/dx of v there gives %s." % GdcKit.W(at)]})
@@ -472,8 +496,8 @@ func u_acceleration_at_max_speed(_rep: String, s: Dictionary, _rng: Seeded) -> D
 func u_max_acceleration(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var top: float = s.amax
 	var ans := val(s, top, "a = ", A_UNIT)
-	return pack([v_story(s, "equation")], "Find the maximum acceleration on the interval, to 3 s.f.", ans, [],
-		fl(ans, [s.vmax, s.tamax + 1.0, top * 2.0, top + 1.0, -top, s.smax]),
+	return pack([v_story(s, "equation")], "Find the maximum acceleration on the interval, to 3 s.f.", ans, [like(ans, s.vmax, R_MAX_V)],
+		fl(ans, [s.tamax + 1.0, top * 2.0, top + 1.0, -top, s.smax]),
 		{"gdc-max-min": [
 			"Acceleration is v′(t). Graph it on the GDC, using the derivative of v.",
 			"The maximum on the interval is %s, at t = %s." % [GdcKit.W(top), GdcKit.W(s.tamax)]]})
@@ -526,8 +550,14 @@ func _gradient(s: Dictionary, name: String, story_line: String, head: String, un
 	var rise := "Gradient = change in %s ÷ change in t = %s." % [name, N(slope)]
 	m["gradient-reading"] = [read, rise]
 	m["graph-gradient"] = ["%s is the gradient of the %s–t graph." % [what.capitalize(), name], read + " " + rise]
-	return pack([story_line], "Find the %s when t = %s." % [what, t.text()], ans, [],
-		DefiniteIntegralViews.vals(ans, [h, slope.neg(), Q.of(int(bit[1]) - int(bit[0])), h.add(1), slope.add(1)]), m, g)
+	var wr: Array = [DefiniteIntegralViews.like(ans, h, R_HEIGHT_NOT_SLOPE)]
+	var fill: Array = [Q.of(int(bit[1]) - int(bit[0])), h.add(1), slope.add(1)]
+	# Turning a rising gradient round is no slip anyone makes; losing a falling one's minus is.
+	if slope.sign() < 0:
+		wr.append(DefiniteIntegralViews.like(ans, slope.neg(), R_SIGN))
+	else:
+		fill.push_front(slope.neg())
+	return pack([story_line], "Find the %s when t = %s." % [what, t.text()], ans, wr, DefiniteIntegralViews.vals(ans, fill), m, g)
 
 
 func u_acceleration_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
