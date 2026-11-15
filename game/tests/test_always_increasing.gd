@@ -97,6 +97,6 @@ func test_a_decreasing_question_says_g() -> void:
 				var texts: Array = [q.prompt, q.get("reason", "")]
 				for o in q.choices:
 					texts.append(o.text)
-					texts.append(QuestionEngine.misconception_text(QuestionEngine.type_of(TYPE), o.ref))
+					texts.append(QuestionEngine.misconception_text(QuestionEngine.type_of(TYPE), o.ref, q))
 				for t in texts:
 					check(not (t.contains("f′") or t.contains("f(") or t.contains("f is") or t.contains(" f ")), "%s %s: %s" % [c.key, fmt, t])
