@@ -40,7 +40,8 @@ func test_a_function_takes_its_argument() -> void:
 	check_eq(MathText.parse("2 sin 4x/cos 4x"), ["2 ", _f("sin 4x", "cos 4x")])
 	check_eq(MathText.parse("sin²θ/cos²θ"), [_f("sin²θ", "cos²θ")])
 	check_eq(MathText.parse("t = 2 + ln(39/50)/ln 0.81"), ["t = 2 + ", _f(["ln(", _f("39", "50"), ")"], "ln 0.81")])
-	check_eq(MathText.parse("log_a b = log_c b / log_c a."), ["log_a b = ", _f("log_c b", "log_c a"), "."])
+	check_eq(MathText.parse("log_a b = log_c b / log_c a."), ["log", {"sub": ["a"]}, " b = ",
+		_f(["log", {"sub": ["c"]}, " b"], ["log", {"sub": ["c"]}, " a"]), "."])
 
 
 func test_d_by_dx_acts_on_the_bracket_after_it() -> void:
@@ -54,7 +55,8 @@ func test_d_by_dx_acts_on_the_bracket_after_it() -> void:
 
 func test_a_bracket_after_a_number_multiplies() -> void:
 	check_eq(MathText.parse("17 cos(π/4(t − 4)) + 38"), ["17 cos(", _f("π", "4"), "(t − 4)) + 38"])
-	check_eq(MathText.parse("S_n = n/2(u_1 + u_n)"), ["S_n = ", _f("n", "2"), "(u_1 + u_n)"])
+	check_eq(MathText.parse("S_n = n/2(u_1 + u_n)"), ["S", {"sub": ["n"]}, " = ", _f("n", "2"), "(u", {"sub": ["1"]},
+		" + u", {"sub": ["n"]}, ")"])
 
 
 func test_nested_fractions() -> void:
