@@ -34,7 +34,7 @@ game/
 ├── engine/step.gd       ← a worked-solution step: a String, or {move, board} with a move tag (see "Question engine")
 ├── engine/math_text.gd  ← cuts shown maths into text, powers, roots and stacked fractions (FAL-797)
 ├── ui/math_box.gd       ← maths as a box tree (row, text, fraction, power, root): layout, drawing, to_text() for Expr; ui/math_label.gd draws one and wraps it
-├── ui/math_entry.gd     ← an answer box typed in notation (FAL-812): stacked fractions, ◀ ▶, text in the syntax Answer reads
+├── ui/math_entry.gd     ← a box typed in notation (FAL-812, FAL-813): stacked fractions, powers, roots, ◀ ▶, text in the syntax Answer and Expr read
 ├── engine/expr.gd       ← the expression engine (TinyExpr port): the calculator and every typed answer
 ├── engine/brent.gd, graph_tools.gd ← Brent's root finder and minimiser (SciPy port); zeros, extrema, intersections
 ├── ui/calculator.gd     ← the in-game calculator (see "The calculator"); ui/calc_graph.gd its graph, ui/keypad.gd the keys
@@ -1975,6 +1975,18 @@ calculator").
   function rows above them), recent results (tap one to use it again), Ans, degrees or
   radians, and results to 6 significant figures (`engine/calc_format.gd`), so the
   student still rounds to 3 s.f.
+- **Typed in notation** (FAL-813), as a TI-84 Plus CE in MathPrint mode: the input is a
+  `MathEntry` (`ui/math_entry.gd`). The fraction key stacks a fraction (what is before
+  the cursor, a number, Ans, π, a bracket or a power, becomes its top), `^` raises a
+  power to type into and `√` puts a bar over what is typed under it; ◀ ▶ (or a `)` with
+  no bracket open) leave them, and Del at the start of a power or root takes it away and
+  keeps what is in it. A function or Ans is one key, which Del takes away whole. Each
+  recent result shows what was typed, in notation, with the result to the right below
+  it. An exact result that is a fraction (bottom under 10000) shows stacked; S⇔D
+  switches the last result between the fraction and its decimal, and finds a fraction
+  for a decimal that has one, as the TI's ►F◄►D. The input gives `Expr` the same text
+  it read before: a fraction as `(n)/(d)`, a power `^(…)`, a root `√(…)`. The graph
+  lines (y1, y2) stay one-line.
 - **Graph mode**: y1 and y2 (`ui/calc_graph.gd`), drag to pan, wheel, pinch or + − to
   zoom, Std for −10 to 10, tap to trace. A curve has a gap where it jumps
   (`GraphTools.jumps`). Zero, Max, Min and Intersect find every one in the window with

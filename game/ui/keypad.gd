@@ -10,18 +10,21 @@ extends VBoxContainer
 
 signal key(k: String)
 
-## The answer keys: two rows of seven. In an answer box, "/" is the fraction key
-## (MathEntry, FAL-812), drawn as a fraction of two empty boxes; the calculator types a /.
+## The answer keys: two rows of seven. "/" is the fraction key (MathEntry, FAL-812), drawn
+## as a fraction of two empty boxes, in an answer box and the calculator (FAL-813).
 const ANSWER_KEYS := ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".", "/", "−", "Del"]
 ## Below the answer keys in an answer box: the cursor keys.
 const ANSWER_LAST := ["◀", "▶"]
 const COLUMNS := 7
-## The calculator's function rows, above the answer keys, and its last row below them.
+## The calculator's function rows, above the answer keys, and its last row below them:
+## the cursor keys and S⇔D, which switches the last result between a fraction and a
+## decimal, as the TI's ►F◄►D.
 const CALC_ROWS := [["sin", "cos", "tan", "ln", "log", "√", "^"], ["(", ")", "π", "e", "x", "Ans", "×"]]
-const CALC_LAST := ["+", "AC", "EXE"]
+const CALC_LAST := ["+", "◀", "▶", "S⇔D", "AC", "EXE"]
+const TOGGLE := "S⇔D"
 ## Keys that are functions or operations, not digits (the calculator draws them orange).
 const FUNCTION_KEYS := ["sin", "cos", "tan", "ln", "log", "√", "^", "(", ")", "π", "e", "x", "Ans", "×", "+",
-	"/", "−", "AC"]
+	"/", "−", "AC", "◀", "▶", "S⇔D"]
 const KEY_SIZE := Vector2(120, 104)
 
 ## key text -> Button
@@ -59,13 +62,19 @@ static func make(rows_above: Array = [], last_row: Array = []) -> Keypad:
 ## ◀ ▶ below them.
 static func make_answer() -> Keypad:
 	var pad := make([], ANSWER_LAST)
-	var b: Button = pad.buttons["/"]
+	pad.fraction_face()
+	return pad
+
+
+## Draws the "/" key as a fraction of two empty boxes.
+func fraction_face() -> void:
+	var b: Button = buttons["/"]
 	b.text = ""
 	var icon := FractionIcon.new()
+	icon.name = "Fraction"
 	icon.button = b
 	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
 	b.add_child(icon)
-	return pad
 
 
 func _button(k: String) -> Button:
@@ -82,7 +91,7 @@ func _button(k: String) -> Button:
 
 
 ## What a key types into a line: − as -, × as *, √ as √(, a function as its name and
-## "(". "" for keys that aren't text (Del, AC, EXE).
+## "(". "" for keys that aren't text (Del, AC, EXE, the cursor keys, S⇔D).
 static func typed(k: String) -> String:
 	match k:
 		"−":
@@ -93,7 +102,7 @@ static func typed(k: String) -> String:
 			return "√("
 		"sin", "cos", "tan", "ln", "log":
 			return k + "("
-		"Del", "AC", "EXE":
+		"Del", "AC", "EXE", "◀", "▶", TOGGLE:
 			return ""
 	return k
 
