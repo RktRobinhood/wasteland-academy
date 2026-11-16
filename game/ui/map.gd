@@ -5,19 +5,22 @@ extends Control
 ## switches between them, and MapLink keeps the address bar in step, so links such as
 ## /next/#functions/quadratics open a region and the browser's back button works.
 ##
-## - The world map is the overworld painting with an invisible button over each place:
-##   the five islands, all open since FAL-925, the Thunderdome (every island mixed, a
-##   region screen of its own at #thunderdome), the Relic Library (FAL-325, locked until
-##   after the maths engine) and the Bazaar (G6, ui/bazaar.gd). The header shows the Scrap
-##   there is to spend.
+## - The world map is the overworld painting (FAL-981, FAL-986) with an invisible button
+##   over each place: the five islands, all open since FAL-925, the Thunderdome (every
+##   island mixed, a region screen of its own at #thunderdome), the Relic Library (FAL-325,
+##   locked until after the maths engine) and the Bazaar (G6, ui/bazaar.gd). It reads as a
+##   fast-travel map (FAL-988): every place has a pin in its state's colour (a padlock when
+##   locked) and its name on a banner under the pin, always shown, and a "you are here"
+##   marker stands at the place the player last went into (the save's "here"). No roads.
+##   The header shows the Scrap there is to spend.
 ## - An island is a hub (FAL-531 plan): its all-regions dungeon in the middle and its
 ##   regions (MapLink.region_ids(island)) around it, any of them in any order. No roads:
 ##   the places are fast-travel points. A locked spot waits for a Relic device. A region
 ##   with no built type is "coming soon", worked out from the engine, so a region lights
 ##   up when its situations merge. SPARK's pick (Progress.suggest() over the island's
 ##   regions) gets a beacon and first focus: a suggestion, never a gate.
-## - No names on the boards. Hovering, focusing or tapping a place shows its card: the
-##   name, then one line (the topic, the spot_line() progress, "Coming soon" or "Locked").
+## - No names on an island's board. Hovering, focusing or tapping a place shows its card
+##   (on the world map too, under the banners): the name, then one line (the topic, the spot_line() progress, "Coming soon" or "Locked").
 ##   With a mouse or keyboard a press goes in. On a touch screen the first tap shows the
 ##   card and lights the place, and a second tap on the place or the card goes in.
 ## - Going in zooms the board into the place (ZOOM_TIME), then the next layer fades in;
@@ -65,21 +68,30 @@ const FADE_TIME := 0.25
 const REGION_WASH := 0.7
 
 ## The five islands, where each sits on the overworld (centre and size, in % of the
-## board, measured from the art; js/router.js has the same zones). The id is the island's
-## link (MapLink.OPEN_ISLANDS) and its art folder; its music is MapLink.MUSIC.
+## board) and its pin (a point, in %), measured from the art on FAL-986 (zones.json). Where
+## two landmarks overlap in the painting the zones are trimmed so no two buttons overlap,
+## and each pin stays inside its own zone. js/router.js has the same zones. The id is the
+## island's link (MapLink.OPEN_ISLANDS) and its art folder; its music is MapLink.MUSIC.
 const ISLANDS := [
-	{"id": "algebra", "name": "Scrap Fields", "topic": "Numbers and algebra", "zone": Rect2(30, 18, 52, 24)},
-	{"id": "functions", "name": "Signal Tower", "topic": "Functions", "zone": Rect2(80, 18, 26, 26)},
-	{"id": "geometry", "name": "Dry Flats", "topic": "Geometry and trigonometry", "zone": Rect2(15, 49, 28, 30)},
-	{"id": "stats", "name": "Radio Spires", "topic": "Statistics and probability", "zone": Rect2(85, 51, 26, 26)},
-	{"id": "calculus", "name": "Engine Core", "topic": "Calculus", "zone": Rect2(50, 78, 60, 24)},
+	{"id": "algebra", "name": "Scrap Fields", "topic": "Numbers and algebra", "zone": Rect2(21, 24, 38, 18), "pin": Vector2(22, 31)},
+	{"id": "functions", "name": "Signal Tower", "topic": "Functions", "zone": Rect2(84.5, 24, 29, 18), "pin": Vector2(85, 28.5)},
+	{"id": "geometry", "name": "Dry Flats", "topic": "Geometry and trigonometry", "zone": Rect2(16, 42.5, 32, 15), "pin": Vector2(14, 47)},
+	{"id": "stats", "name": "Radio Spires", "topic": "Statistics and probability", "zone": Rect2(83, 41.5, 32, 17), "pin": Vector2(84, 47)},
+	{"id": "calculus", "name": "Engine Core", "topic": "Calculus", "zone": Rect2(50.5, 57.75, 58, 15.5), "pin": Vector2(51, 64)},
 ]
-const THUNDERDOME_ZONE := Rect2(50, 46, 38, 18)
-const RELIC_LIBRARY_ZONE := Rect2(83, 94, 30, 8)
+const THUNDERDOME_ZONE := Rect2(50.5, 40.5, 31, 12)
+const THUNDERDOME_PIN := Vector2(51, 46)
+const RELIC_LIBRARY_ZONE := Rect2(77, 71, 38, 11)
+const RELIC_LIBRARY_PIN := Vector2(80, 76)
 ## The Relic Library's card: its lessons come once the maths engine is done (FAL-325).
 const RELIC_LIBRARY_LINE := "Opens after the maths engine"
-## The Bazaar's place on the overworld, in the sand at the bottom left (FAL-783 plan).
-const BAZAAR_ZONE := Rect2(17, 90, 26, 14)
+## The Bazaar's place on the overworld, the caravan at the bottom left (FAL-986).
+const BAZAAR_ZONE := Rect2(22, 70.75, 40, 10.5)
+const BAZAAR_PIN := Vector2(25, 74)
+## Where a new save stands on the world map (the save's "here").
+const HOME := "bazaar"
+## A name banner's text size on the world map: about 17 px on a phone held upright.
+const BANNER_NAME := 46
 ## True once overworld.png has the Bazaar painted in (FAL-791, its junk caravan fills
 ## BAZAAR_ZONE); while false a coded marker shows where it is.
 const BAZAAR_PAINTED := true
@@ -255,7 +267,8 @@ func reduced_motion() -> bool:
 
 static func island_info(id: String) -> Dictionary:
 	if id == Dungeon.THUNDERDOME:
-		return {"id": id, "name": Dungeon.THUNDERDOME_NAME, "topic": "Every island mixed", "zone": THUNDERDOME_ZONE}
+		return {"id": id, "name": Dungeon.THUNDERDOME_NAME, "topic": "Every island mixed", "zone": THUNDERDOME_ZONE,
+			"pin": THUNDERDOME_PIN}
 	for i in ISLANDS:
 		if i.id == id:
 			return i
@@ -556,7 +569,7 @@ func _clear(c: Node, keep: int = 0) -> void:
 		ch.queue_free()
 
 
-## Sets the first focus without showing a card: nothing is named until the player looks.
+## Sets the first focus without showing a card: the card waits until the player looks.
 func _first_focus(b: Button) -> void:
 	if not is_instance_valid(b) or not b.is_inside_tree():
 		return
@@ -760,17 +773,20 @@ func _fill_world() -> void:
 		b.disabled = not open
 		var to := {"screen": "island", "island": i.id}
 		_place(b, i.name, i.topic if open else "Coming soon", UiTheme.TEAL if open else UiTheme.DIM,
-			(func(): zoom_to(world_board, _island_point(i.id), go.bind(to))) if open else Callable(),
+			(func(): _go_from_world(i.id, _island_point(i.id), go.bind(to))) if open else Callable(),
 			"%s: %s" % [i.name, i.topic])
+		_landmark_pin(b, i.id, i.name, i.pin, world_state(i.id))
 	var td := _zone_button(world_board, "Thunderdome", THUNDERDOME_ZONE)
 	td.disabled = not thunderdome_open()
 	var td_at := Vector2(THUNDERDOME_ZONE.position.x, THUNDERDOME_ZONE.position.y) * BOARD / 100.0
 	_place(td, "Thunderdome", "Locked" if td.disabled else "Every island mixed", UiTheme.DIM if td.disabled else UiTheme.PINK,
-		Callable() if td.disabled else (func(): zoom_to(world_board, td_at, go.bind(MapLink.THUNDERDOME_ROUTE))),
+		Callable() if td.disabled else (func(): _go_from_world(Dungeon.THUNDERDOME, td_at, go.bind(MapLink.THUNDERDOME_ROUTE))),
 		"Thunderdome: opens with a second island" if td.disabled else "")
+	_landmark_pin(td, Dungeon.THUNDERDOME, "Thunderdome", THUNDERDOME_PIN, world_state(Dungeon.THUNDERDOME))
 	var lib := _zone_button(world_board, "RelicLibrary", RELIC_LIBRARY_ZONE)
 	lib.disabled = true
 	_place(lib, "Relic Library", RELIC_LIBRARY_LINE, UiTheme.DIM, Callable())
+	_landmark_pin(lib, "relic_library", "Relic Library", RELIC_LIBRARY_PIN, "locked")
 	var shop := _zone_button(world_board, "Bazaar", BAZAAR_ZONE)
 	if not BAZAAR_PAINTED:
 		var marker := Stall.new()
@@ -778,10 +794,155 @@ func _fill_world() -> void:
 		marker.size = shop.size
 		shop.add_child(marker)
 	_place(shop, "Bazaar", "%d Scrap" % scrap, UiTheme.SAND,
-		func(): zoom_to(world_board, Vector2(BAZAAR_ZONE.position.x, BAZAAR_ZONE.position.y) * BOARD / 100.0, open_bazaar),
+		func(): _go_from_world(HOME, Vector2(BAZAAR_ZONE.position.x, BAZAAR_ZONE.position.y) * BOARD / 100.0, open_bazaar),
 		"Bazaar · %d Scrap" % scrap)
+	_landmark_pin(shop, HOME, "Bazaar", BAZAAR_PIN, "open")
 	_card(world_board)
 	_first_focus.call_deferred(world_board.get_node("Island_functions") as Button)
+
+
+## A place's state on the world map, for its pin: "locked", "open" or "cleared". An island
+## is cleared once its all-regions dungeon is (Progress.is_cleared(), as on the island's
+## board); the Thunderdome waits for a second island; the Relic Library is locked and the
+## Bazaar always open.
+func world_state(id: String) -> String:
+	if id == Dungeon.THUNDERDOME:
+		return "open" if thunderdome_open() else "locked"
+	if id == HOME:
+		return "open"
+	if not island_open(id):
+		return "locked"
+	return "cleared" if Progress.is_cleared(save, Dungeon.all_of(id)) else "open"
+
+
+## The place the player stands at on the world map: the save's "here" when it names a
+## place that can be gone into, else the Bazaar.
+func here() -> String:
+	var id := String(save.get("here", HOME))
+	if id == HOME or (id == Dungeon.THUNDERDOME and thunderdome_open()) or island_open(id):
+		return id
+	return HOME
+
+
+## Goes into a place from the world map: records it as where the player is, then zooms in.
+func _go_from_world(id: String, at: Vector2, then: Callable) -> void:
+	if _zooming:
+		return
+	save["here"] = id
+	SaveData.store(save, save_path)
+	zoom_to(world_board, at, then)
+
+
+## A world-map place's pin and name banner, as children of its button, and the "you are
+## here" marker when the player stands there. `at` is the pin, in % of the board. The
+## banner can hang past its zone, so it hands its hover and clicks to its place itself.
+func _landmark_pin(b: Button, id: String, title: String, at: Vector2, state: String) -> void:
+	var p := at * BOARD / 100.0 - b.position
+	var pin := Pin.new()
+	pin.name = "Pin"
+	pin.kind = state
+	pin.position = p - Vector2(Pin.R, Pin.R)
+	b.add_child(pin)
+	var banner := _banner(title)
+	banner.gui_input.connect(_banner_input.bind(b))
+	banner.mouse_entered.connect(func(): show_card(b))
+	banner.mouse_exited.connect(func(): _let_go(b))
+	b.add_child(banner)
+	banner.reset_size()
+	var top := Vector2(p.x - banner.size.x / 2.0, p.y + Pin.R + 6.0) + b.position
+	top.x = clampf(top.x, 12.0, BOARD.x - banner.size.x - 12.0)
+	banner.position = top - b.position
+	if id == here():
+		var mark := Here.new()
+		mark.name = "Here"
+		mark.position = p + Vector2(Pin.R + Here.R - 4.0, -Pin.R - Here.R + 12.0)
+		b.add_child(mark)
+		if not reduced_motion():
+			mark.pulse()
+		b.accessibility_name += " · You are here"
+
+
+## A click on a place's banner is a press on the place (a closed one shows its card).
+func _banner_input(e: InputEvent, b: Button) -> void:
+	if not (e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT and not e.pressed):
+		return
+	if b.disabled:
+		armed = b
+		show_card(b)
+	else:
+		press(b)
+
+
+## A place's name on the world map: the title font on a dark plate with a sand edge.
+func _banner(title: String) -> PanelContainer:
+	var plate := PanelContainer.new()
+	plate.name = "Banner"
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.08, 0.09, 0.12, 0.92)
+	sb.border_color = UiTheme.SAND
+	sb.set_border_width_all(4)
+	sb.set_corner_radius_all(10)
+	sb.content_margin_left = 22
+	sb.content_margin_right = 22
+	sb.content_margin_top = 2
+	sb.content_margin_bottom = 2
+	plate.add_theme_stylebox_override("panel", sb)
+	var n := UiTheme.label(title.to_upper(), BANNER_NAME, UiTheme.TEXT)
+	n.name = "Name"
+	n.autowrap_mode = TextServer.AUTOWRAP_OFF
+	n.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	n.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.add_child(n)
+	return plate
+
+
+## A place's pin on the world map, its top-left at its position: a disc ringed in its
+## state's colour (STATE_COLOR), with a dot when open, a flag when cleared and a padlock
+## when locked.
+class Pin extends Control:
+	const R := 28.0
+	var kind := "open"
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		size = Vector2(2.0 * R, 2.0 * R)
+
+	func _draw() -> void:
+		var c := Vector2(R, R)
+		var col: Color = STATE_COLOR[kind]
+		draw_circle(c, R, Color(0.05, 0.06, 0.09, 0.92))
+		draw_arc(c, R - 5.0, 0.0, TAU, 40, col, 8.0, true)
+		match kind:
+			"cleared":
+				draw_line(c + Vector2(-7, 12), c + Vector2(-7, -12), UiTheme.TEXT, 4.0, true)
+				draw_colored_polygon(PackedVector2Array([c + Vector2(-5, -12), c + Vector2(10, -7), c + Vector2(-5, -2)]), col)
+			"locked":
+				draw_arc(c + Vector2(0, -3), 6.0, PI, TAU, 16, UiTheme.TEXT, 3.0, true)
+				draw_rect(Rect2(c + Vector2(-9, -3), Vector2(18, 13)), UiTheme.TEXT)
+			_:
+				draw_circle(c, 9.0, col)
+
+
+## The "you are here" marker beside a pin, centred on its position: a figure on a dark
+## disc in a pink ring. pulse() makes the ring breathe; with reduced motion it stays still.
+class Here extends Control:
+	const R := 30.0
+	var pulsing := false
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func pulse() -> void:
+		pulsing = true
+		var t := create_tween().set_loops()
+		t.tween_property(self, "modulate:a", 0.55, 0.8).set_trans(Tween.TRANS_SINE)
+		t.tween_property(self, "modulate:a", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
+
+	func _draw() -> void:
+		draw_circle(Vector2.ZERO, R, Color(0.05, 0.06, 0.09, 0.95))
+		draw_arc(Vector2.ZERO, R - 3.0, 0.0, TAU, 48, UiTheme.PINK, 6.0, true)
+		draw_circle(Vector2(0, -8), 7.0, UiTheme.TEXT)
+		draw_arc(Vector2(0, 14), 13.0, PI, TAU, 24, UiTheme.TEXT, 8.0, true)
 
 
 # ── An island ────────────────────────────────────────────────

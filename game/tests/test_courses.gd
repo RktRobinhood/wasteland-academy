@@ -138,7 +138,7 @@ func test_a_method_the_course_does_not_cover_is_not_offered() -> void:
 func test_the_save_keeps_the_course() -> void:
 	var s := SaveData.blank()
 	check_eq(s.course, "aa-sl")
-	check_eq(s.version, 5)
+	check_eq(s.version, SaveData.VERSION)
 	check(SaveData.set_course(s, "ai-hl"))
 	check_eq(SaveData.migrate(JSON.parse_string(JSON.stringify(s))).course, "ai-hl", "it survives the JSON round trip")
 
