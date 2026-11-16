@@ -34,6 +34,7 @@ game/
 ├── engine/step.gd       ← a worked-solution step: a String, or {move, board} with a move tag (see "Question engine")
 ├── engine/math_text.gd  ← cuts shown maths into text, powers, roots and stacked fractions (FAL-797)
 ├── ui/math_box.gd       ← maths as a box tree (row, text, fraction, power, root): layout, drawing, to_text() for Expr; ui/math_label.gd draws one and wraps it
+├── ui/math_entry.gd     ← an answer box typed in notation (FAL-812): stacked fractions, ◀ ▶, text in the syntax Answer reads
 ├── engine/expr.gd       ← the expression engine (TinyExpr port): the calculator and every typed answer
 ├── engine/brent.gd, graph_tools.gd ← Brent's root finder and minimiser (SciPy port); zeros, extrema, intersections
 ├── ui/calculator.gd     ← the in-game calculator (see "The calculator"); ui/calc_graph.gd its graph, ui/keypad.gd the keys
@@ -1602,8 +1603,8 @@ run plays the same with the strip on, off or broken (`test_journey.gd` checks al
 ### Powers, fractions and answer boxes on the card
 
 Questions are written with a caret (`e^(4x − 3)`, `a × 10^k`) and a slash (`(x + 1)/(x − 1)`), as
-`tools/check_answers.py` parses them back and Unicode has no superscript `.` or `/`. A typed answer
-still takes `/`. `UiTheme.math()` draws them as on paper (FAL-743, FAL-797): `MathText` cuts the
+`tools/check_answers.py` parses them back and Unicode has no superscript `.` or `/`.
+`UiTheme.math()` draws them as on paper (FAL-743, FAL-797): `MathText` cuts the
 text into powers, roots and fractions, `MathBox` lays them out, and a `MathLabel` draws them, with
 powers raised, roots under a radical sign and fractions stacked over a bar. Text with none stays a
 plain `Label`. A sign stays in front of the bar (−3/4), a bracket round a whole top or bottom goes,
@@ -1624,6 +1625,17 @@ at the `FitBox` floor (4.3% of cells at 390x844, from 3.6%); none is wider than 
 An answer box starts 150 wide and grows as it's typed in, up to `Practice.SLOT_CHARS`, which still
 fits the fight's card on a 360 px phone. It isn't sized from the answer, as that would give away
 how long the answer is.
+
+An answer box is typed in notation, as on a TI-84 Plus CE in MathPrint mode (`ui/math_entry.gd`,
+FAL-812): a `MathEntry` holds a `MathBox` tree and draws it with a cursor, so a typed fraction looks
+like a shown one. The fraction key (or `/` on a keyboard) makes a number just before the cursor the
+top and moves to the bottom; with no number there the fraction starts empty, cursor in the top. An
+empty part shows a dashed box. ◀ ▶ (and the arrow keys) move through the top, then the bottom, then
+out; ↑ ↓ move between top and bottom, and a tap puts the cursor where it lands. Del at the start of
+an empty bottom removes the fraction and keeps the top. Minus shows as a true minus. Marking is
+unchanged: `text` is the tree in the syntax `Answer.parse_number` reads, a fraction as `(n)/(d)`,
+and setting `text` (tests, autoplay) builds the same tree, so `3/2` shows stacked.
+`test_math_entry.gd` has the key sequences.
 
 ### Deep links
 
@@ -2159,8 +2171,8 @@ all-regions dungeon, `all-<island>` for another island's, and `thunderdome` work
 - Engine Core (`calculus`): `kinematics`, `stationary-points`, `tangents-normals`,
   `definite-integrals`, `derivative-rules`, `derivative-basics`, `integration`
 
-Only the Signal Tower's regions have backdrops so far. A region with no `backdrop` shows
-a close-up of its island cut from the overworld painting (the arena for the
+Only the Signal Tower's and the Scrap Fields' regions have backdrops so far. A region
+with no `backdrop` shows a close-up of its island cut from the overworld painting (the arena for the
 Thunderdome) under the same wash (`backdrop_for()` in `ui/map.gd`), so it reads as that
 island rather than a blank screen.
 
