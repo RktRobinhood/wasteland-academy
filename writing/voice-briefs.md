@@ -1,6 +1,8 @@
 # Voice briefs: Spark, Gear Mira, Noma, Nugget
 
-For local voice design (VoxCPM2 on the shared GPU), per `game-dialogue` §5. Each character gets a short **control** string to paste into the model, notes for whoever picks the takes, and a six-line audition script. The script lines come from the voice sheets (`voice-sheets` on FAL-332), so the audition tests the lines the voice will actually say. Numbers and symbols are spelled the way the character says them.
+> **Superseded for casting.** Voices are Gemini text-to-speech, and casting is finished (#18, owner decision 2026-11-16). Each character's approved voice, model and direction are in `tools/explainer-clips/teachers.json`, under `characters`; record with those, word for word, not with the control strings below. The control strings are kept because they made the VoxCPM2 takes in the game today: Spark's 162 move lines, credited in `assets/audio/CREDITS.md`. The audition scripts and the notes for picking a take still describe each voice.
+
+Written for local voice design (VoxCPM2 on the shared GPU), per `game-dialogue` §5. Each character gets a short **control** string to paste into the model, notes for whoever picks the takes, and a six-line audition script. The script lines come from the voice sheets (`voice-sheets` on FAL-332), so the audition tests the lines the voice will actually say. Numbers and symbols are spelled the way the character says them.
 
 The FAL-330 round used one neutral line per character, with no contractions ("Let us start with the gap"). That line can't show sarcasm, patience or age. These scripts cover each voice's full range: greeting, praise, correction, a tense moment, a joke and the tic.
 
