@@ -26933,7 +26933,8 @@
 					"in": [
 						"term-from-u1-r",
 						"term-exact",
-						"general-term"
+						"general-term",
+						"term-choose-sign"
 					],
 					"wrong": "the term one further along, u₁r^n"
 				},
@@ -26965,7 +26966,10 @@
 						"r-odd-gap",
 						"r-even-gap",
 						"interior-terms",
-						"k-consecutive"
+						"k-consecutive",
+						"r-from-terms",
+						"u1-from-two-terms",
+						"term-choose-sign"
 					],
 					"wrong": "the common difference between the two terms, or a value of k or the terms from it"
 				},
@@ -27017,7 +27021,8 @@
 					"text": "Miscounting the terms when the last term is given",
 					"as": "distractor",
 					"in": [
-						"sum-last-term"
+						"sum-last-term",
+						"sigma-write"
 					],
 					"wrong": "the sum of one term fewer"
 				},
@@ -27057,6 +27062,199 @@
 						"bounce-before"
 					],
 					"wrong": "the first drop counted twice"
+				},
+				{
+					"text": "Using one power of r too few, which gives the term before the one asked for",
+					"as": "distractor",
+					"in": [
+						"term-from-u1-r",
+						"term-exact"
+					],
+					"wrong": "u₁r^(n − 2)"
+				},
+				{
+					"text": "Multiplying u₁r by the power instead of raising r to it",
+					"as": "distractor",
+					"in": [
+						"term-from-u1-r",
+						"term-exact"
+					],
+					"wrong": "u₁r(n − 1)"
+				},
+				{
+					"text": "Swapping the first term and the common ratio over",
+					"as": "distractor",
+					"in": [
+						"general-term",
+						"sigma-first-r",
+						"sigma-write"
+					],
+					"wrong": "r as the first term and u₁ as the ratio"
+				},
+				{
+					"text": "Forgetting to take the root after dividing one term by the other",
+					"as": "distractor",
+					"in": [
+						"r-odd-gap",
+						"r-even-gap",
+						"term-choose-sign"
+					],
+					"wrong": "r to the gap's power given as r"
+				},
+				{
+					"text": "Dividing by the number of steps instead of taking that root",
+					"as": "distractor",
+					"in": [
+						"r-odd-gap"
+					],
+					"wrong": "(u_q/u_p)/(q − p)"
+				},
+				{
+					"text": "Multiplying by r to go back to u₁ instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"u1-from-two-terms"
+					],
+					"wrong": "u_p r^(p − 1)"
+				},
+				{
+					"text": "Dividing by r only once, however many steps back u₁ is",
+					"as": "distractor",
+					"in": [
+						"u1-from-two-terms"
+					],
+					"wrong": "u_p/r"
+				},
+				{
+					"text": "Giving r, found on the way, instead of u₁",
+					"as": "distractor",
+					"in": [
+						"u1-from-two-terms"
+					],
+					"wrong": "r"
+				},
+				{
+					"text": "Picking the root whose sign the far term rules out",
+					"as": "distractor",
+					"in": [
+						"term-choose-sign"
+					],
+					"wrong": "the next term with r of the other sign"
+				},
+				{
+					"text": "Giving p and q the wrong way round",
+					"as": "distractor",
+					"in": [
+						"interior-terms"
+					],
+					"wrong": "p and q swapped"
+				},
+				{
+					"text": "Stopping at one value of k when both make the terms geometric",
+					"as": "distractor",
+					"in": [
+						"k-consecutive"
+					],
+					"wrong": "one root of the quadratic in k"
+				},
+				{
+					"text": "Slipping on the sign of b in the quadratic formula, so both roots change sign",
+					"as": "distractor",
+					"in": [
+						"k-consecutive"
+					],
+					"wrong": "both values of k negated"
+				},
+				{
+					"text": "Dividing the coefficients the wrong way round, which gives the reciprocal of h",
+					"as": "distractor",
+					"in": [
+						"coefficients-geometric"
+					],
+					"wrong": "1/h"
+				},
+				{
+					"text": "Stopping at h squared, forgetting the square root",
+					"as": "distractor",
+					"in": [
+						"coefficients-geometric"
+					],
+					"wrong": "h²"
+				},
+				{
+					"text": "Giving the last term instead of the sum of the terms",
+					"as": "distractor",
+					"in": [
+						"sum-from-u1-r",
+						"sum-exact",
+						"sum-last-term",
+						"sigma-evaluate"
+					],
+					"wrong": "uₙ"
+				},
+				{
+					"text": "Taking k as u₁, forgetting to divide by r minus one",
+					"as": "distractor",
+					"in": [
+						"sum-closed-form"
+					],
+					"wrong": "k = u₁"
+				},
+				{
+					"text": "Swapping the two constants over",
+					"as": "distractor",
+					"in": [
+						"sum-closed-form"
+					],
+					"wrong": "the two constants swapped"
+				},
+				{
+					"text": "Dividing by r minus one once instead of twice",
+					"as": "distractor",
+					"in": [
+						"sum-of-sums"
+					],
+					"wrong": "c = r − 1"
+				},
+				{
+					"text": "Forgetting to multiply n by r minus one when putting it over the common denominator",
+					"as": "distractor",
+					"in": [
+						"sum-of-sums"
+					],
+					"wrong": "b = 1"
+				},
+				{
+					"text": "Leaving a term over when an even number of terms pair off exactly",
+					"as": "distractor",
+					"in": [
+						"sum-alternating"
+					],
+					"wrong": "u₁ for an even count"
+				},
+				{
+					"text": "Counting each rebound once, forgetting it goes up and comes back down",
+					"as": "distractor",
+					"in": [
+						"bounce-before"
+					],
+					"wrong": "h + hr + … , each rebound once"
+				},
+				{
+					"text": "Counting one rebound too many before the landing asked about",
+					"as": "distractor",
+					"in": [
+						"bounce-before"
+					],
+					"wrong": "n rebounds instead of n − 1"
+				},
+				{
+					"text": "Leaving out the first drop",
+					"as": "distractor",
+					"in": [
+						"bounce-before"
+					],
+					"wrong": "the rebounds alone"
 				}
 			],
 			"chain": [
@@ -28589,7 +28787,10 @@
 					"as": "distractor",
 					"in": [
 						"value-negative-power",
-						"solve-log-x"
+						"solve-log-x",
+						"to-exponential-form",
+						"to-log-form",
+						"value-fractional-power"
 					],
 					"wrong": "the positive power"
 				},
@@ -28888,6 +29089,14 @@
 						"model-time"
 					],
 					"wrong": "the division done first"
+				},
+				{
+					"text": "Adding the constant to both sides instead of taking it away",
+					"as": "distractor",
+					"in": [
+						"solve-log-linear"
+					],
+					"wrong": "x = (b^c + q)/p"
 				}
 			],
 			"chain": [
@@ -31878,7 +32087,9 @@
 						"sinf-value",
 						"sinf-sigma",
 						"sinf-shaded",
-						"story-total"
+						"story-total",
+						"u1-from-sinf",
+						"nested-squares"
 					],
 					"wrong": "u₁/(1 + r)"
 				},
@@ -31927,7 +32138,10 @@
 					"as": "distractor",
 					"in": [
 						"r-from-u2-reject",
-						"r-from-u2-both"
+						"r-from-u2-both",
+						"sinf-value",
+						"sinf-sigma",
+						"story-total"
 					],
 					"wrong": "r found from S∞ = u₂/(1 − r)"
 				},
@@ -31958,6 +32172,207 @@
 						"story-target"
 					],
 					"wrong": "S∞ read as a ceiling when r > 1"
+				},
+				{
+					"text": "Reversing the condition, as if |r| had to be more than one",
+					"as": "distractor",
+					"in": [
+						"exists-claim",
+						"x-interval"
+					],
+					"wrong": "|r| > 1"
+				},
+				{
+					"text": "Thinking the terms have to reach zero for the sum to settle",
+					"as": "distractor",
+					"in": [
+						"exists-claim",
+						"exists-table"
+					],
+					"wrong": "no S∞ as no term is 0"
+				},
+				{
+					"text": "Believing an endless sum can never have a finite total",
+					"as": "distractor",
+					"in": [
+						"exists-claim"
+					],
+					"wrong": "no infinite sum is finite"
+				},
+				{
+					"text": "Thinking only a ratio of exactly one rules out a sum to infinity",
+					"as": "distractor",
+					"in": [
+						"exists-claim"
+					],
+					"wrong": "S∞ for any r but 1"
+				},
+				{
+					"text": "Thinking S∞ exists only once the sums stop changing altogether",
+					"as": "distractor",
+					"in": [
+						"exists-table"
+					],
+					"wrong": "no S∞ while the sums change"
+				},
+				{
+					"text": "Taking the last sum in the table as the limit without checking that the sums settle",
+					"as": "distractor",
+					"in": [
+						"exists-table"
+					],
+					"wrong": "the last sum as S∞"
+				},
+				{
+					"text": "Leaving u₁ off the top of the formula",
+					"as": "distractor",
+					"in": [
+						"sinf-value"
+					],
+					"wrong": "1/(1 − r)"
+				},
+				{
+					"text": "Stopping at the first piece instead of adding the pieces for ever",
+					"as": "distractor",
+					"in": [
+						"sinf-shaded",
+						"nested-squares",
+						"recurring-decimal"
+					],
+					"wrong": "u₁"
+				},
+				{
+					"text": "Thinking the whole square ends up shaded",
+					"as": "distractor",
+					"in": [
+						"sinf-shaded"
+					],
+					"wrong": "the whole area"
+				},
+				{
+					"text": "Stopping at the value of the log, forgetting to undo it",
+					"as": "distractor",
+					"in": [
+						"x-from-log-series"
+					],
+					"wrong": "log x given as x"
+				},
+				{
+					"text": "Undoing the log by multiplying by the base instead of raising the base to that power",
+					"as": "distractor",
+					"in": [
+						"x-from-log-series"
+					],
+					"wrong": "b × log x"
+				},
+				{
+					"text": "Multiplying S∞ by r instead of by one minus r",
+					"as": "distractor",
+					"in": [
+						"u1-from-sinf"
+					],
+					"wrong": "S∞ × r"
+				},
+				{
+					"text": "Stopping at one minus r, forgetting to take it away from one",
+					"as": "distractor",
+					"in": [
+						"r-from-sinf",
+						"r-from-multiple"
+					],
+					"wrong": "1 − r given as r"
+				},
+				{
+					"text": "Adding instead of subtracting when getting r from one minus r",
+					"as": "distractor",
+					"in": [
+						"r-from-sinf",
+						"r-from-multiple"
+					],
+					"wrong": "1 + (1 − r)"
+				},
+				{
+					"text": "Stopping at one root when both have a size below one",
+					"as": "distractor",
+					"in": [
+						"r-from-u2-both"
+					],
+					"wrong": "one root"
+				},
+				{
+					"text": "Slipping on the sign of the middle coefficient in the quadratic formula, so both roots change sign",
+					"as": "distractor",
+					"in": [
+						"r-from-u2-both",
+						"r-from-u2-reject"
+					],
+					"wrong": "both roots negated"
+				},
+				{
+					"text": "Counting only the falls and leaving out the rebounds up",
+					"as": "distractor",
+					"in": [
+						"bounce-total",
+						"bounce-multiple"
+					],
+					"wrong": "h/(1 − r)"
+				},
+				{
+					"text": "Leaving out the first drop",
+					"as": "distractor",
+					"in": [
+						"bounce-total",
+						"bounce-multiple"
+					],
+					"wrong": "the rebounds alone"
+				},
+				{
+					"text": "Taking the corner's fraction along the side as the ratio of the areas",
+					"as": "distractor",
+					"in": [
+						"nested-squares"
+					],
+					"wrong": "r = t"
+				},
+				{
+					"text": "Thinking a total that keeps rising must pass any value in the end",
+					"as": "distractor",
+					"in": [
+						"story-target"
+					],
+					"wrong": "yes, it keeps rising"
+				},
+				{
+					"text": "Thinking the total stops growing once the amounts get small",
+					"as": "distractor",
+					"in": [
+						"story-target"
+					],
+					"wrong": "the total stops"
+				},
+				{
+					"text": "Using the sum to infinity instead of the sum of the first n terms",
+					"as": "distractor",
+					"in": [
+						"deposit-for-target"
+					],
+					"wrong": "target × (1 − r)"
+				},
+				{
+					"text": "Splitting the total equally, as if every amount were the same",
+					"as": "distractor",
+					"in": [
+						"deposit-for-target"
+					],
+					"wrong": "target ÷ n"
+				},
+				{
+					"text": "Counting one term too many or too few in the sum",
+					"as": "distractor",
+					"in": [
+						"deposit-for-target"
+					],
+					"wrong": "n + 1 or n − 1 terms"
 				}
 			],
 			"chain": [
@@ -33326,6 +33741,121 @@
 						"expand-reciprocal"
 					],
 					"wrong": "the powers of x run n, n − 1 and so on down to 0"
+				},
+				{
+					"text": "Leaving out the binomial coefficients, so each term is only the two powers multiplied",
+					"as": "distractor",
+					"in": [
+						"expand-small",
+						"expand-unit",
+						"expand-negative",
+						"expand-raised",
+						"expand-from-triangle",
+						"expand-power",
+						"expand-reciprocal",
+						"first-three-terms",
+						"coefficient-plain",
+						"coefficient-negative",
+						"coefficient-raised",
+						"coefficient-from-triangle",
+						"coefficient-power",
+						"specific-term",
+						"term-by-position"
+					],
+					"wrong": "a^(n − r) b^r with no nCr"
+				},
+				{
+					"text": "Swapping the powers over, so the falling power goes on the wrong term",
+					"as": "distractor",
+					"in": [
+						"expand-small",
+						"expand-unit",
+						"expand-negative",
+						"expand-raised",
+						"expand-from-triangle",
+						"expand-power",
+						"expand-reciprocal",
+						"first-three-terms"
+					],
+					"wrong": "nCr a^r b^(n − r) on the x powers of nCr a^(n − r) b^r"
+				},
+				{
+					"text": "Putting minus signs on the wrong terms, or where there are none",
+					"as": "distractor",
+					"in": [
+						"expand-small",
+						"expand-unit",
+						"expand-negative",
+						"expand-raised",
+						"expand-from-triangle",
+						"expand-power",
+						"expand-reciprocal",
+						"first-three-terms"
+					],
+					"wrong": "the signs alternating on the wrong terms"
+				},
+				{
+					"text": "Giving nCr alone, leaving out the powers of the two terms",
+					"as": "distractor",
+					"in": [
+						"coefficient-plain",
+						"coefficient-negative",
+						"coefficient-raised",
+						"coefficient-from-triangle",
+						"coefficient-power",
+						"specific-term",
+						"term-by-position",
+						"missing-coefficient"
+					],
+					"wrong": "nCr"
+				},
+				{
+					"text": "Counting the entries of a row from one instead of from zero",
+					"as": "distractor",
+					"in": [
+						"ncr-read-triangle"
+					],
+					"wrong": "nC(r − 1)"
+				},
+				{
+					"text": "Adding r to n instead of taking r away",
+					"as": "distractor",
+					"in": [
+						"ncr-symmetry"
+					],
+					"wrong": "m = n + r"
+				},
+				{
+					"text": "Thinking nCn is zero, when there is exactly one way to choose all n",
+					"as": "distractor",
+					"in": [
+						"ncr-edge"
+					],
+					"wrong": "nCn = 0"
+				},
+				{
+					"text": "Mixing it up with choosing one, or all but one, which gives n",
+					"as": "distractor",
+					"in": [
+						"ncr-edge"
+					],
+					"wrong": "nC0 or nCn = n"
+				},
+				{
+					"text": "Taking the factor above n instead of the one below it",
+					"as": "distractor",
+					"in": [
+						"ncr-formula-in-n"
+					],
+					"wrong": "n(n + 1)/2"
+				},
+				{
+					"text": "Working out the other letter's coefficient instead",
+					"as": "distractor",
+					"in": [
+						"missing-coefficient"
+					],
+					"wrong": "p for q, or q for p"
 				}
 			],
 			"chain": [
@@ -88855,7 +89385,8 @@
 					"text": "Allowing repeats when each person can fill only one place.",
 					"as": "distractor",
 					"in": [
-						"award-places"
+						"award-places",
+						"arrange-all"
 					],
 					"wrong": "n^r: one runner winning twice"
 				},
@@ -88891,7 +89422,8 @@
 					"text": "Using permutations for a committee, even though changing the order does not change its members.",
 					"as": "distractor",
 					"in": [
-						"committee"
+						"committee",
+						"committee-mixed"
 					],
 					"wrong": "nPk for a committee"
 				},
@@ -88900,7 +89432,8 @@
 					"text": "Forgetting the arrangements within the block: the people who sit together can exchange places inside it.",
 					"as": "distractor",
 					"in": [
-						"together"
+						"together",
+						"apart"
 					],
 					"wrong": "(n − 1)!: the block's own order forgotten"
 				},
@@ -88912,6 +89445,129 @@
 						"apart"
 					],
 					"wrong": "n! − 2"
+				},
+				{
+					"text": "Treating the digit places as letter places too",
+					"as": "distractor",
+					"in": [
+						"code-count"
+					],
+					"wrong": "26^(a + b)"
+				},
+				{
+					"text": "Letting every place take any letter or digit",
+					"as": "distractor",
+					"in": [
+						"code-count"
+					],
+					"wrong": "36^(a + b)"
+				},
+				{
+					"text": "Multiplying by the number of digit places instead of raising ten to that power",
+					"as": "distractor",
+					"in": [
+						"code-count"
+					],
+					"wrong": "26^a × 10b"
+				},
+				{
+					"text": "Allowing a digit to be used again when each can be used only once",
+					"as": "distractor",
+					"in": [
+						"no-repeat-number",
+						"even-numbers"
+					],
+					"wrong": "repeats allowed"
+				},
+				{
+					"text": "Leaving zero out altogether instead of only from the first place",
+					"as": "distractor",
+					"in": [
+						"no-repeat-number"
+					],
+					"wrong": "9Pd"
+				},
+				{
+					"text": "Ignoring the condition and counting every case",
+					"as": "distractor",
+					"in": [
+						"even-numbers",
+						"committee-mixed",
+						"together"
+					],
+					"wrong": "the count with no condition"
+				},
+				{
+					"text": "Forgetting to multiply by the choices for the last digit",
+					"as": "distractor",
+					"in": [
+						"even-numbers"
+					],
+					"wrong": "(m − 1)P(d − 1)"
+				},
+				{
+					"text": "Multiplying n by r instead of working out nPr",
+					"as": "distractor",
+					"in": [
+						"award-places"
+					],
+					"wrong": "n × r"
+				},
+				{
+					"text": "Taking the number of ways as twice n instead of n times the number below it",
+					"as": "distractor",
+					"in": [
+						"find-n-from-npr"
+					],
+					"wrong": "n = v/2"
+				},
+				{
+					"text": "Choosing the rest of the committee at its full size from the other group",
+					"as": "distractor",
+					"in": [
+						"committee-mixed"
+					],
+					"wrong": "C(w, j) × C(m, k)"
+				},
+				{
+					"text": "Forgetting to take away the committees with none of them",
+					"as": "distractor",
+					"in": [
+						"committee-at-least-one"
+					],
+					"wrong": "every committee"
+				},
+				{
+					"text": "Giving the number of committees with none of them instead",
+					"as": "distractor",
+					"in": [
+						"committee-at-least-one"
+					],
+					"wrong": "C(m, k)"
+				},
+				{
+					"text": "Counting committees with exactly one of them instead of at least one",
+					"as": "distractor",
+					"in": [
+						"committee-at-least-one"
+					],
+					"wrong": "w × C(m, k − 1)"
+				},
+				{
+					"text": "Leaving the block out when arranging the rest",
+					"as": "distractor",
+					"in": [
+						"together"
+					],
+					"wrong": "2 × (n − 2)!"
+				},
+				{
+					"text": "Giving the count with the two together instead of apart",
+					"as": "distractor",
+					"in": [
+						"apart"
+					],
+					"wrong": "2 × (n − 1)!"
 				}
 			],
 			"frequency": 0

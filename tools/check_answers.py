@@ -23407,6 +23407,7 @@ def check_trig_model(q):
 # misconception's wrong value is worked out from what the slip does.
 
 GS13, GS18 = "SL1.3.", "SL1.8."
+GS_O, SI_O = "t1-geometric-sequence#", "t1-sum-to-infinity#"  # the types' own slips (FAL-820)
 GS_LIMIT = {1: 200000, 2: 5000000}
 GS_DEN_MAX = 6561
 GS_EDGE = sp.Rational(19, 1000)         # the engine's is 0.02; a hair under it, for float ties
@@ -23572,6 +23573,7 @@ def check_geometric(q):
         need(asked == "Find the common ratio r.", f"asked {asked!r}")
         t = one("r = ", (u1 * r) / u1)
         wrongs[GS13 + "nth-term#2"] = {t(u1 / (u1 * r)), t(u1 * r - u1)}
+        wrongs[GS13 + "find-r-u1#0"] = {t(u1 * r ** 2 - u1 * r)}  # u₃ − u₂, a difference
     elif u in ("term-from-u1-r", "term-exact"):
         gs_seq_shown(q, u1, r)
         need(asked == (f"Find {gs_u(n)}." if u == "term-from-u1-r" else f"Find the exact value of {gs_u(n)}."), f"asked {asked!r}")
@@ -23582,6 +23584,8 @@ def check_geometric(q):
         t = one(gs_u(n) + " = ", val)
         wrongs[GS13 + "nth-term#0"] = {t(val * r)}
         wrongs[GS13 + "nth-term#1"] = {t((u1 * r) ** (n - 1))}
+        wrongs[GS_O + "13"] = {t(val / r)}  # one power too few
+        wrongs[GS_O + "14"] = {t(u1 * r * (n - 1))}  # times the power, not to it
     elif u == "general-term":
         gs_seq_shown(q, u1, r)
         exp_form = angle == "exponential-form"
@@ -23596,6 +23600,8 @@ def check_geometric(q):
             need(a * r ** (k if exp_form else k - 1) == u1 * r ** (k - 1), "the rule misses a term")
         wrongs[GS13 + "nth-term#0"] = {"uₙ = " + rl(u1, r, "n")}
         wrongs[GS13 + "nth-term#1"] = {f"uₙ = {br(u1 * r)}^(n − 1)"}
+        if not exp_form:
+            wrongs[GS_O + "15"] = {"uₙ = " + rl(r, u1, tail)}  # u₁ and r swapped
     elif u in ("r-odd-gap", "r-even-gap", "u1-from-two-terms", "term-choose-sign"):
         pp, qq = int(g["p"]), int(g["q"])
         up, uq = R(g["up"]), R(g["uq"])
@@ -23622,6 +23628,11 @@ def check_geometric(q):
             t = one(gs_u(n) + " = ", val)
             if neg:
                 wrongs[GS13 + "find-r-u1#1"] = {t(-val)}
+            else:
+                wrongs[GS_O + "21"] = {t(-val)}  # the root of the sign ruled out
+            wrongs[GS13 + "find-r-u1#0"] = {t(uq + (uq - up) / gap)}  # a common difference
+            wrongs[GS_O + "16"] = {t(uq * uq / up)}  # r^gap, no root
+            wrongs[GS13 + "nth-term#0"] = {t(val * keep[0])}  # one step too far
         else:
             if rep == "notation":
                 need(L[0] == f"{gs_u(pp)} = {gs_x(paper, up)},  {gs_u(qq)} = {gs_x(paper, uq)}", f"line {L[0]!r}")
@@ -23631,6 +23642,8 @@ def check_geometric(q):
                 need(len(roots) == 1 and asked == "Find r.", "an odd gap has one r")
                 t = one("r = ", roots[0])
                 wrongs[GS13 + "find-r-u1#0"] = {t((uq - up) / gap)}
+                wrongs[GS_O + "16"] = {t(uq / up)}  # no root
+                wrongs[GS_O + "17"] = {t(uq / up / gap)}  # divided by the gap
                 if paper == 2 and uq / up > 0:
                     wrongs[GS13 + "find-r-u1#2"] = {t(sp.Rational(str(round(float(num((uq / up) ** sp.Rational(1, gap + 1))), 9))))}
             elif u == "r-even-gap":
@@ -23639,11 +23652,17 @@ def check_geometric(q):
                 want, show = gs_xs_text(paper, "r", roots)
                 wrongs[GS13 + "find-r-u1#1"] = {f"r = {gs_text(show, roots[1])}"}
                 wrongs[GS13 + "find-r-u1#0"] = {f"r = {gs_text(show, (uq - up) / gap)}"}
+                wrongs[GS_O + "16"] = {f"r = {gs_text(show, uq / up)}", gs_xs_text_as(show, "r", [uq / up, -uq / up])}  # no root
             else:
                 need(len(roots) == 1 and asked == "Find u₁.", "an odd gap has one r")
                 val = up / roots[0] ** (pp - 1)
                 t = one("u₁ = ", val)
                 wrongs[GS13 + "find-r-u1#2"] = {t(up / roots[0] ** pp)}
+                wrongs[GS_O + "18"] = {t(up * roots[0] ** (pp - 1))}  # multiplied going back
+                if pp != 2:
+                    wrongs[GS_O + "19"] = {t(up / roots[0])}  # divided once
+                wrongs[GS_O + "20"] = {t(roots[0])}  # r for u₁
+                wrongs[GS13 + "find-r-u1#0"] = {t(up - (pp - 1) * roots[0])}  # r as a difference
     elif u == "interior-terms":
         a, b = R(g["first"]), R(g["fourth"])
         need(a > 0 and b > 0, "the outer terms are not positive")
@@ -23661,6 +23680,7 @@ def check_geometric(q):
         want = gs_named(show, names, [p1, p2])
         third = (b - a) / 3
         wrongs[GS13 + "find-r-u1#0"] = {gs_named(show, names, [a + third, a + 2 * third])}
+        wrongs[GS_O + "22"] = {gs_named(show, names, [p2, p1])}  # p and q swapped
         if paper == 2:
             r4 = (b / a) ** sp.Rational(1, 4)
             wrongs[GS13 + "find-r-u1#2"] = {gs_named(show, names, [a * r4, a * r4 ** 2])}
@@ -23681,6 +23701,8 @@ def check_geometric(q):
         want, show = gs_xs_text(paper, "k", roots)
         if e[0] + e[4] != 2 * e[2]:
             wrongs[GS13 + "find-r-u1#0"] = {f"k = {gs_text(show, sp.solve(2 * t2 - t1 - t3, k)[0])}"}
+        wrongs[GS_O + "23"] = {f"k = {gs_text(show, ro)}" for ro in roots}  # one root only
+        wrongs[GS_O + "24"] = {gs_xs_text_as(show, "k", [-ro for ro in roots])}  # b's sign slipped
     elif u == "coefficients-geometric":
         nn = int(g["n"])
         a, b, d = [int(t) for t in g["pow"]]
@@ -23691,6 +23713,9 @@ def check_geometric(q):
         sols = sp.solve(sp.Eq(co[1] ** 2, co[0] * co[2]), h)
         need(len(sols) == 1, "not one positive h")
         t = one("h = ", sols[0])
+        wrongs[GS_O + "25"] = {t(1 / sols[0])}  # the ratio upside down
+        if abs(2 * b - a - d) == 2:
+            wrongs[GS_O + "26"] = {t(sols[0] ** 2)}  # h², no root
     elif u in ("sum-from-u1-r", "sum-exact"):
         gs_seq_shown(q, u1, r)
         ex = "the exact value of " if u == "sum-exact" else ""
@@ -23700,13 +23725,15 @@ def check_geometric(q):
         wrongs[GS13 + "sum#0"] = {t(u1 * (1 - r ** (n - 1)) / (1 - r))}
         if r < 0 and n % 2 == 1:
             wrongs[GS13 + "sum#1"] = {t(u1 * (1 - abs(r) ** n) / (1 - r))}
+        wrongs[GS_O + "27"] = {t(u1 * r ** (n - 1))}  # the last term, not the sum
     elif u == "sum-last-term":
         last = R(g["last"])
         need(last == u1 * r ** (n - 1), "the last term is not the nth")
         gs_series_shown(q, u1, r, last)
         val = gs_sum(u1, r, n)
         t = one("Sum = ", val)
-        wrongs[GS13 + "sum#2"] = {t(gs_sum(u1, r, n - 1))}
+        wrongs[GS13 + "sum#2"] = {t(gs_sum(u1, r, n - 1)), t(gs_sum(u1, r, n + 1))}
+        wrongs[GS_O + "27"] = {t(last)}  # the last term, not the sum
         if r < 0 and n % 2 == 1:
             wrongs[GS13 + "sum#1"] = {t(u1 * (1 - abs(r) ** n) / (1 - r))}
     elif u == "sum-closed-form":
@@ -23716,10 +23743,13 @@ def check_geometric(q):
             a, b = r, r - 1
             need(all((a ** m - 1) / b == gs_sum(u1, r, m) for m in range(1, 7)), "the closed form is wrong")
             want = f"a = {a}, b = {b}"
+            wrongs[GS_O + "29"] = {f"a = {b}, b = {a}"}  # swapped
         else:
             a, b = r, u1 / (r - 1)
             need(all(b * (a ** m - 1) == gs_sum(u1, r, m) for m in range(1, 7)), "the closed form is wrong")
             want = f"a = {a}, k = {frac_text(b)}"
+            wrongs[GS_O + "29"] = {f"a = {frac_text(b)}, k = {a}"}  # swapped
+            wrongs[GS_O + "28"] = {f"a = {a}, k = {frac_text(u1)}"}  # not divided by r − 1
     elif u == "sum-of-sums":
         need(u1 == 1 and r >= 3, "the sequence is out of range")
         a, b, c = r, r - 1, (r - 1) ** 2
@@ -23727,6 +23757,8 @@ def check_geometric(q):
             total = sum(gs_sum(u1, r, j) for j in range(1, m + 1))
             need((a * (a ** m - 1) - b * m) / c == total, "the closed form is wrong")
         want = f"a = {a}, b = {b}, c = {c}"
+        wrongs[GS_O + "30"] = {f"a = {a}, b = {b}, c = {b}"}  # divided by r − 1 once
+        wrongs[GS_O + "31"] = {f"a = {a}, b = 1, c = {c}"}  # n not over the denominator
     elif u == "sum-alternating":
         need(r == -1 and L[0] == gs_terms(paper, u1, r), f"line {L[0]!r}")
         odd = g["odd"]
@@ -23737,6 +23769,8 @@ def check_geometric(q):
         t = one("Sum = ", vals.pop())
         if odd:
             wrongs[GS13 + "sum#1"] = {t(sp.Integer(0))}
+        else:
+            wrongs[GS_O + "32"] = {t(u1)}  # a term left over
     elif u in ("bounce-before", "bounce-total", "bounce-multiple"):
         ctx = GS_BALLS[int(g["ctx"])]
         need(ctx in L[0], f"the story {L[0]!r}")
@@ -23752,6 +23786,8 @@ def check_geometric(q):
             need(asked == "The total distance it travels before it comes to rest is kx metres. Find k.", f"asked {asked!r}")
             t = one("k = ", exact)
             wrongs[GS18 + "applications#0"] = {t(2 / (1 - r))}
+            wrongs[SI_O + "28"] = {t(1 / (1 - r))}  # the falls alone
+            wrongs[SI_O + "29"] = {t(2 * r / (1 - r))}  # no first drop
         else:
             h = R(g["h"])
             need(f"height of {gs_x(paper, h)} m" in L[0], f"the story {L[0]!r} doesn't give the height")
@@ -23764,10 +23800,15 @@ def check_geometric(q):
                     dist += 2 * height
                 t = one("Distance = ", dist, " m")
                 wrongs[GS18 + "applications#0"] = {t(dist + h)}
+                wrongs[GS_O + "33"] = {t(h + sum(h * r ** i for i in range(1, n)))}  # each rebound once
+                wrongs[GS_O + "34"] = {t(dist + 2 * h * r ** n)}  # a rebound too many
+                wrongs[GS_O + "35"] = {t(dist - h)}  # no first drop
             else:
                 need(asked == "Find the total distance it travels before it comes to rest.", f"asked {asked!r}")
                 t = one("Total distance = ", h + 2 * gs_inf(h * r, r), " m")
                 wrongs[GS18 + "applications#0"] = {t(2 * gs_inf(h, r))}
+                wrongs[SI_O + "28"] = {t(gs_inf(h, r))}  # the falls alone
+                wrongs[SI_O + "29"] = {t(2 * gs_inf(h * r, r))}  # no first drop
     elif u in ("sigma-first-r", "sigma-evaluate"):
         c, b, lo, sh, up = R(g["c"]), R(g["b"]), int(g["lower"]), int(g["shift"]), int(g["upper"])
         need(L[0] == gs_sigma_text(paper, c, b, lo, sh, up), f"the Σ shows {L[0]!r}")
@@ -23783,6 +23824,8 @@ def check_geometric(q):
             if first != c:
                 wrongs[GS13 + "sigma#0"] = {gs_named(show, names, [c, second / first])}
             wrongs[GS13 + "sigma#1"] = {gs_named(show, names, [first, c])}
+            if first == c:
+                wrongs[GS_O + "15"] = {gs_named(show, names, [second / first, first])}  # u₁ and r swapped
         else:
             count = up - lo + 1
             need(asked == "Find the value of this sum.", f"asked {asked!r}")
@@ -23791,12 +23834,15 @@ def check_geometric(q):
             if first != c:
                 wrongs[GS13 + "sigma#0"] = {t(gs_sum(c, b, count))}
             wrongs[GS13 + "sigma#2"] = {t(gs_sum(first, b, up - lo))}
+            wrongs[GS_O + "27"] = {t(f.subs(k, up))}  # the last term, not the sum
     elif u == "sigma-write":
         last = R(g["last"])
         need(last == u1 * r ** (n - 1), "the last term is not the nth")
         gs_series_shown(q, u1, r, last)
         need(sum(u1 * r ** (j - 1) for j in range(1, n + 1)) == gs_sum(u1, r, n), "the Σ is not the series")
         want = f"a = {frac_text(u1)}, b = {frac_text(r)}, n = {n}"
+        wrongs[GS13 + "sum#2"] = {f"a = {frac_text(u1)}, b = {frac_text(r)}, n = {n - 1}"}  # the last power as n
+        wrongs[GS_O + "15"] = {f"a = {frac_text(r)}, b = {frac_text(u1)}, n = {n}"}  # u₁ and r swapped
     elif u == "exists-claim":
         gs_seq_shown(q, u1, r)
         ar = abs(r)
@@ -23805,8 +23851,12 @@ def check_geometric(q):
         mag = gs_x(paper, ar)
         if ar < 1:
             want = f"Yes: |r| = {mag}, which is less than 1"
+            wrongs[SI_O + "12"] = {f"No: |r| = {mag}, and |r| has to be more than 1"}  # the test reversed
+            wrongs[SI_O + "13"] = {"No: the terms never reach 0"}
+            wrongs[SI_O + "14"] = {"No: an infinite sum can't be finite"}
         elif ar > 1:
             want = f"No: |r| = {mag}, which is more than 1"
+            wrongs[SI_O + "15"] = {"Yes: r is not 1", "Yes: S∞ exists for any r except 1"}  # only r = 1 fails
             wrongs[GS18 + "sum-to-infinity#2"] = {f"Yes: S∞ = u₁/(1 − r) = {gs_x(paper, u1 / (1 - r))}"}
             if r < 0:
                 wrongs[GS18 + "convergence#0"] = {f"Yes: r = {gs_x(paper, r)}, which is less than 1"}
@@ -23824,8 +23874,11 @@ def check_geometric(q):
         need(g["kind"] == ("conv" if settles else "big" if r > 0 else "neg-big"), "the kind is wrong")
         if settles:
             want = f"S∞ exists: the sums settle near {gs_text('sf', lim)}"
+            wrongs[SI_O + "16"] = {"S∞ does not exist: the sums keep changing"}
+            wrongs[SI_O + "13"] = {"S∞ does not exist: no term is 0"}
         else:
             want = "S∞ does not exist: the sums never settle"
+            wrongs[SI_O + "17"] = {"S∞ exists: it is the last sum shown"}
             wrongs[GS18 + "sum-to-infinity#2"] = {f"S∞ exists: u₁/(1 − r) = {gs_text('sf', lim)}"}
     elif u == "x-interval":
         a, b, c = int(g["ax"]), int(g["bx"]), int(g["cx"])
@@ -23839,6 +23892,7 @@ def check_geometric(q):
         one_end = sp.solve(sp.Eq(ex, 1), x)[0]
         wrongs[GS18 + "convergence#1"] = {f"x {'<' if a > 0 else '>'} {frac_text(one_end)}"}
         wrongs[GS18 + "convergence#2"] = {f"{frac_text(lo)} ≤ x ≤ {frac_text(hi)}"}
+        wrongs[SI_O + "12"] = {f"x < {frac_text(lo)} or x > {frac_text(hi)}"}  # |r| > 1
         if rep == "graph":
             gr = q["graph"]
             need(lo.q == 1 and hi.q == 1, "a graph's ends are whole")
@@ -23856,6 +23910,8 @@ def check_geometric(q):
             need((u1 / (1 - r)).q <= 30, "a Paper 1 S∞ has a large denominator")
         t = one("S∞ = ", gs_inf(u1, r))
         wrongs[GS18 + "sum-to-infinity#0"] = {t(u1 / (1 + r))}
+        wrongs[GS18 + "find-unknown#2"] = {t(u1 * r / (1 - r))}  # from u₂
+        wrongs[SI_O + "18"] = {t(1 / (1 - r))}  # no u₁ on top
     elif u == "sinf-sigma":
         c, b, lo, sh = R(g["c"]), R(g["b"]), int(g["lower"]), int(g["shift"])
         need(L[0] == gs_sigma_text(paper, c, b, lo, sh, -1), f"the Σ shows {L[0]!r}")
@@ -23867,6 +23923,7 @@ def check_geometric(q):
         wrongs[GS18 + "sum-to-infinity#0"] = {t(first / (1 + b))}
         if first != c:
             wrongs[GS18 + "sum-to-infinity#1"] = {t(c / (1 - b))}
+        wrongs[GS18 + "find-unknown#2"] = {t(first * b / (1 - b))}  # from the second term
     elif u == "sinf-shaded":
         cut, shaded, area = int(g["cut"]), int(g["shaded"]), R(g["area"])
         need(f"{cut} by {cut} grid" in L[0] and f"area {gs_x(paper, area)} " in L[0] and f"{shaded} of the" in L[0], f"line {L[0]!r}")
@@ -23879,6 +23936,8 @@ def check_geometric(q):
         val = sp.limit(area * sp.Rational(shaded, cells) * (1 - sp.Rational(1, cells) ** m) / (1 - sp.Rational(1, cells)), m, sp.oo)
         t = one("Total shaded area = ", val)
         wrongs[GS18 + "sum-to-infinity#0"] = {t(area * sp.Rational(shaded, cells) / (1 + sp.Rational(1, cells)))}
+        wrongs[SI_O + "19"] = {t(area * sp.Rational(shaded, cells))}  # the first shading only
+        wrongs[SI_O + "20"] = {t(area)}  # the whole square
     elif u == "x-from-log-series":
         m, base, ln, tt = int(g["m2"]), int(g["base"]), int(g["ln"]), int(g["t"])
         log_name = f"log{str(base).translate(str.maketrans('0123456789', '₀₁₂₃₄₅₆₇₈₉'))}"
@@ -23897,6 +23956,8 @@ def check_geometric(q):
         need(asked == f"The series is geometric, with S∞ = {head}. Find x.", f"asked {asked!r}")
         val = sp.Integer(base) ** sp.simplify(S * (1 - ps[0]))
         t = one("x = ", val)
+        wrongs[SI_O + "21"] = {t(sp.simplify(S * (1 - ps[0])))}  # the log left in
+        wrongs[SI_O + "22"] = {t(base * sp.simplify(S * (1 - ps[0])))}  # times the base
     elif u in ("u1-from-sinf", "r-from-sinf"):
         S = R(g["sinf"])
         need(abs(r) < 1, "no sum to infinity")
@@ -23908,12 +23969,16 @@ def check_geometric(q):
             sol = sp.solve(sp.Eq(x / (1 - r), S), x)
             t = one("u₁ = ", sol[0])
             wrongs[GS18 + "find-unknown#0"] = {t(S / (1 - r))}
+            wrongs[SI_O + "23"] = {t(S * r)}  # times r
+            wrongs[GS18 + "sum-to-infinity#0"] = {t(S * (1 + r))}  # 1 + r below
         else:
             shown = f"u₁ = {gs_x(paper, u1)},  S∞ = {gs_x(paper, S)}" if rep == "notation" else f"A geometric series has first term {gs_x(paper, u1)} and sum to infinity {gs_x(paper, S)}."
             need(L[0] == shown, f"line {L[0]!r}")
             sol = sp.solve(sp.Eq(u1 / (1 - x), S), x)
             t = one("r = ", sol[0])
             wrongs[GS18 + "find-unknown#0"] = {t(1 - S / u1)}
+            wrongs[SI_O + "24"] = {t(u1 / S)}  # stopped at 1 − r
+            wrongs[SI_O + "25"] = {t(1 + u1 / S)}  # added, not taken away
     elif u == "r-from-multiple":
         mult = R(g["mult"])
         tm = gs_x(paper, mult)
@@ -23924,6 +23989,8 @@ def check_geometric(q):
         need(abs(sol[0]) < 1, "|r| is not below 1")
         t = one("r = ", sol[0])
         wrongs[GS18 + "find-unknown#0"] = {t(1 - mult)}
+        wrongs[SI_O + "24"] = {t(1 / mult)}  # stopped at 1 − r
+        wrongs[SI_O + "25"] = {t(1 + 1 / mult)}  # added, not taken away
     elif u in ("r-from-u2-reject", "r-from-u2-both"):
         S, u2 = R(g["sinf"]), R(g["u2"])
         shown = f"u₂ = {gs_x(paper, u2)},  S∞ = {gs_x(paper, S)}" if rep == "notation" else f"The second term of a geometric series is {gs_x(paper, u2)} and its sum to infinity is {gs_x(paper, S)}."
@@ -23939,9 +24006,12 @@ def check_geometric(q):
             want, show = gs_xs_text(paper, "r", good)
             bad = [ro for ro in roots if ro not in good]
             wrongs[GS18 + "find-unknown#1"] = {gs_xs_text_as(show, "r", roots), gs_xs_text_as(show, "r", bad)}
+            wrongs[SI_O + "27"] = {gs_xs_text_as(show, "r", [-ro for ro in roots])}  # both signs slipped
         else:
             need(len(good) == 2 and asked == "Find the possible values of r.", "both roots should stay")
             want, show = gs_xs_text(paper, "r", good)
+            wrongs[SI_O + "26"] = {f"r = {gs_text(show, ro)}" for ro in good}  # one root only
+            wrongs[SI_O + "27"] = {gs_xs_text_as(show, "r", [-ro for ro in good])}  # both signs slipped
         wrongs[GS18 + "find-unknown#2"] = {f"r = {gs_text(show, 1 - u2 / S)}"}
     elif u == "recurring-decimal":
         digits, ln = int(g["digits"]), int(g["len"])
@@ -23953,6 +24023,7 @@ def check_geometric(q):
         val = sp.solve(sp.Eq(top * d - d, digits), d)[0]     # 10ᵏd − d cancels the tail
         need(val == gs_inf(sp.Rational(digits, top), sp.Rational(1, top)), "the series and the algebra disagree")
         want = frac_text(val)
+        wrongs[SI_O + "19"] = {frac_text(sp.Rational(digits, top))}  # the first block only
         if ln > 1:
             wrongs[GS18 + "applications#1"] = {frac_text(sp.Rational(digits, top) / sp.Rational(9, 10))}
     elif u == "nested-squares":
@@ -23963,6 +24034,9 @@ def check_geometric(q):
         # The next side by Pythagoras, on coordinates of one corner triangle.
         rr = sp.Matrix([tt * side, (1 - tt) * side]).dot(sp.Matrix([tt * side, (1 - tt) * side])) / side ** 2
         t = one("Total area = ", gs_inf(side ** 2, rr), " cm²")
+        wrongs[SI_O + "19"] = {t(side ** 2)}  # the first square only
+        wrongs[SI_O + "30"] = {t(side ** 2 / (1 - tt))}  # r = t
+        wrongs[GS18 + "sum-to-infinity#0"] = {t(side ** 2 / (1 + rr))}
     elif u == "story-total":
         need(gs_x(paper, u1) in L[0], f"story {L[0]!r}")
         rate = gs_x(paper, r) if paper == 1 else dec_text(r * 100) + "%"
@@ -23970,6 +24044,7 @@ def check_geometric(q):
         unit = re.search(r"\d ([A-Za-z]+) ", L[0]).group(1)
         t = one("Total = ", gs_inf(u1, r), " " + unit)
         wrongs[GS18 + "sum-to-infinity#0"] = {t(u1 / (1 + r))}
+        wrongs[GS18 + "find-unknown#2"] = {t(u1 * r / (1 - r))}  # from the second amount
     elif u == "story-target":
         target, kind = R(g["target"]), g["kind"]
         need(gs_x(paper, u1) in L[0], f"story {L[0]!r}")
@@ -23983,10 +24058,12 @@ def check_geometric(q):
             if s_inf < target:
                 need(kind == "under", "the total stops short")
                 want = f"No: the total stays below S∞ = {lim}, and that is less than {goal}"
+                wrongs[SI_O + "31"] = {f"Yes: the total keeps rising, so it passes {goal} in the end", "Yes: an endless run of additions has no limit"}
             else:
                 need(kind == "over" and s_inf > target, "the total passes the target")
                 need(next(m for m in range(1, 900) if gs_sum(u1, r, m) > target) > 1, "the first amount passes it")
                 want = f"Yes: S∞ = {lim}, which is more than {goal}"
+            wrongs[SI_O + "32"] = {"No: the total stops once the amounts are small"}
         else:
             need(kind == "grow" and r > 1, "r is not above 1")
             need(next(m for m in range(1, 900) if gs_sum(u1, r, m) > target) > 1, "the target is too low")
@@ -24001,6 +24078,9 @@ def check_geometric(q):
         sol = sp.solve(sp.Eq(gs_sum(x, r, n), target), x)
         unit = asked[asked.index(f" is {gs_x(paper, target)}") + len(f" is {gs_x(paper, target)}"):].split(".")[0]
         t = one("First amount = ", sol[0], unit)
+        wrongs[SI_O + "33"] = {t(target * (1 - r))}  # S∞ for Sₙ
+        wrongs[SI_O + "34"] = {t(target / n)}  # an equal split
+        wrongs[SI_O + "35"] = {t(target / gs_sum(sp.Integer(1), r, m)) for m in (n - 1, n + 1)}  # a term too many or few
     else:
         need(False, f"no check for {u}")
     gc_check_common(q, want, wrongs, trap)
@@ -24839,10 +24919,15 @@ def be_ncr(q, u, paper):
         if u == "ncr-read-triangle":
             be_triangle(q, n + 1)
             wrongs[BE_S + "ncr-pascal#1"] = {sp.binomial(n - 1, r)}
+            if r > 0:
+                wrongs[BE_T + "18"] = {sp.binomial(n, r - 1)}  # entries counted from 1
         if u == "ncr-edge":
             need(r in (0, n), "not an edge of the row")
             if r == 0:
                 wrongs[BE_S + "ncr-pascal#2"] = {sp.Integer(0)}
+            else:
+                wrongs[BE_T + "20"] = {sp.Integer(0)}  # nCn taken as 0
+            wrongs[BE_T + "21"] = {sp.Integer(n)}  # nC1's n
         if u == "ncr-large-r":
             need(n - r <= 4 and r > n - r, "r is not the large one")
         if paper == 1 and u == "ncr-value" and angle != "pascal-build":
@@ -24854,7 +24939,7 @@ def be_ncr(q, u, paper):
         n, r = int(m.group(1)), int(m.group(2))
         sol = [v for v in range(n + 1) if v != r and sp.binomial(n, v) == sp.binomial(n, r)]
         need(len(sol) == 1, f"m has {sol}")
-        return "m = ", sp.Integer(sol[0]), be_expr, {}
+        return "m = ", sp.Integer(sol[0]), be_expr, {BE_T + "19": {sp.Integer(n + r)}}  # n + r
     if u == "ncr-find-n":
         m = re.fullmatch(r"nC2 = (\d+), where n is a whole number\. Find n\.", asked)
         need(m is not None, f"can't read {asked!r}")
@@ -24874,7 +24959,8 @@ def be_ncr(q, u, paper):
         need(m is not None, f"can't read {asked!r}")
         top = be_expr(m.group(1))
         want = sp.expand(sp.expand_func(sp.binomial(top, 2)))
-        return "", want, be_expr, {BE_T + "9": {sp.expand(top * (top - 1))}}
+        return "", want, be_expr, {BE_T + "9": {sp.expand(top * (top - 1))},
+                                   BE_T + "22": {sp.expand(top * (top + 1) / 2)}}  # the factor above
     raise AssertionError(u)
 
 
@@ -24945,6 +25031,9 @@ def be_expansion(q, u, paper):
         wrongs[BE_T + "13"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * b**(n - j), lambda j: j)}
     else:
         wrongs[BE_S + "full-expansion#2"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * b**j)}
+    wrongs[BE_T + "14"] = {be_sum(n, a, p, b, e, js, lambda j: a**j * b**(n - j))}  # no nCr
+    wrongs[BE_T + "15"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * b**j * a**(n - j))}  # powers swapped
+    wrongs[BE_T + "16"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * b**(n - j) * (-1)**(n - j))}  # signs moved
     return "", want, be_expr, wrongs
 
 
@@ -24999,6 +25088,8 @@ def be_one(q, u, paper):
         wrongs[BE_S + "ncr-pascal#1"] = {sp.binomial(n - 1, pick) * b**pick}
         if pick == 2 and b > 1:
             wrongs[BE_S + "specific-term#1"] = {sp.binomial(n, pick) * b}
+        wrongs[BE_T + "23"] = {cs[n - 2] if name == "p" else cs[n - 1]}  # the other letter
+        wrongs[BE_T + "17"] = {sp.binomial(n, pick)}  # nCr alone
         return f"{name} = ", c, be_expr, wrongs
     if c < 0:
         wrongs[BE_S + "specific-term#0"] = {wrap(-c)}
@@ -25009,6 +25100,8 @@ def be_one(q, u, paper):
     if j != n - j and abs(b) > 1:
         wrongs[BE_S + "full-expansion#2"] = {wrap(bn * a**j * b**j)}
     wrongs[BE_S + "specific-term#2"] = {c if is_term else c * BE_X**power}
+    wrongs[BE_T + "17"] = {wrap(bn)}  # nCr alone
+    wrongs[BE_T + "14"] = {wrap(a**j * b**(n - j))}  # no nCr
     if u == "term-by-position":
         lower = powers[pos]
         wrongs[BE_T + "12"] = {cs[lower] * BE_X**lower}
@@ -29938,6 +30031,8 @@ def E11LF_paper1(q, u):
         wrongs = {O + "7": {f"{E11LF_pw(x, c)} = {b}"}, O + "6": {f"{E11LF_pw(b, x)} = {E11LF_n(c)}"}}
         if c.q == 1 and c > 0:
             wrongs[F + "1"] = {f"{E11LF_pw(c, b)} = {E11LF_n(x)}"}
+        if c < 0:
+            wrongs[O + "8"] = {f"{E11LF_pw(b, -c)} = {E11LF_n(x)}"}  # the power's minus dropped
     elif u == "to-log-form":
         need(q["asked"] == "Write this in logarithmic form.", q["asked"])
         if rep == "words":
@@ -29952,6 +30047,8 @@ def E11LF_paper1(q, u):
         need(c < 0 or c.q != 1, "a whole power is the exp-log-pair's question")
         want = f"{E11LF_any_lg(b, x)} = {E11LF_n(c)}"
         wrongs = {O + "7": {f"{E11LF_any_lg(x, b)} = {E11LF_n(c)}"}, O + "6": {f"{E11LF_any_lg(b, c)} = {E11LF_n(x)}"}}
+        if c < 0:
+            wrongs[O + "8"] = {f"{E11LF_any_lg(b, x)} = {E11LF_n(-c)}"}  # the power's minus dropped
     elif u == "solve-exp-as-log":
         if rep == "words":
             m = re.fullmatch(r"A patch of mould covers (\d+) square metres\. Its area is multiplied by (\d+) each week, and after x weeks it covers (\d+) square metres\.", L[0])
@@ -30008,6 +30105,8 @@ def E11LF_paper1(q, u):
         else:
             need(y.q > 1, f"the value {y}")
             wrongs = {O + "10": {E11LF_n(1 / y)}}
+            if y < 0:
+                wrongs[O + "8"] = {E11LF_n(-y)}  # the minus dropped
             if arg.is_rational:
                 wrongs[F + "0"] = {E11LF_n(arg / b)}
     elif u == "log-of-power":
@@ -30059,6 +30158,7 @@ def E11LF_paper1(q, u):
         wrongs = {O + "14": {"x = " + E11LF_n(by(sp.Integer(c)))}, F + "0": {"x = " + E11LF_n(by(sp.Integer(b * c)))}}
         if c >= 1:
             wrongs[F + "1"] = {"x = " + E11LF_n(by(sp.Integer(c) ** b))}
+        wrongs[O + "43"] = {"x = " + E11LF_n((sp.Rational(b) ** c + q0) / p)}  # the constant added
     elif u == "solve-log-square":
         label = "a = " if rep == "graph" else "x = "
         if rep == "graph":
@@ -38446,6 +38546,7 @@ def E11CM_check(q):
 # are not trusted. The engine's limits are in game/engine/situations/counting.gd.
 
 CT_SKILL = "AHL1.10."
+CT_OWN = "t1-ahl-counting#"  # the type's own slips (FAL-820)
 CT_CODE_STORIES = ["A locker code is {l} followed by {d}. Letters and digits can repeat.",
                    "A radio password is {l} then {d}, with repeats allowed.",
                    "A vault code has {l} followed by {d}. Any letter or digit can be used again."]
@@ -38478,24 +38579,33 @@ def check_counting(q):
         need(asked == "How many different codes are possible?", f"asked {asked!r}")
         need(2 <= a <= 3 and 2 <= b <= 4, "the code has an unusual size")
         val = 26**a * 10**b          # each of the a + b places is filled independently
-        wrongs[CT_SKILL + "counting-principle#1"] = {f"{label}{26 * a + 10 * b}"}
+        wrongs[CT_SKILL + "counting-principle#1"] = {f"{label}{26 * a + 10 * b}", f"{label}{26**a + 10**b}"}
+        wrongs[CT_OWN + "11"] = {f"{label}{26**(a + b)}"}  # every place a letter
+        wrongs[CT_OWN + "12"] = {f"{label}{36**(a + b)}"}  # every place either
+        wrongs[CT_OWN + "13"] = {f"{label}{26**a * 10 * b}"}  # times b, not to the power b
     elif u == "no-repeat-number":
         line0(f"A {d}-digit number does not start with 0.")
         need(asked == f"How many {d}-digit numbers have no repeated digit?", f"asked {asked!r}")
         need(3 <= d <= 5, "the number has an unusual length")
         val = sum(1 for p in itertools.permutations(range(10), d) if p[0] != 0)
         wrongs[CT_SKILL + "counting-principle#0"] = {f"{label}{math.perm(10, d)}"}
+        wrongs[CT_OWN + "14"] = {f"{label}{sum(1 for p in itertools.product(range(10), repeat=d) if p[0] != 0)}"}  # repeats let in
+        wrongs[CT_OWN + "15"] = {f"{label}{sum(1 for _ in itertools.permutations(range(1, 10), d))}"}  # no 0 anywhere
     elif u == "even-numbers":
         line0(f"The digits are 1 to {m}, and each is used at most once.")
         need(asked == f"How many even {d}-digit numbers can be made?", f"asked {asked!r}")
         need(m in (6, 8) and d in (3, 4), "the pool or length is unusual")
         val = sum(1 for p in itertools.permutations(range(1, m + 1), d) if p[-1] % 2 == 0)
         wrongs[CT_SKILL + "counting-principle#2"] = {f"{label}{math.perm(m, d - 1) * (m // 2)}"}
+        wrongs[CT_OWN + "16"] = {f"{label}{sum(1 for _ in itertools.permutations(range(1, m + 1), d))}"}  # even or not
+        wrongs[CT_OWN + "14"] = {f"{label}{sum(1 for p in itertools.product(range(1, m + 1), repeat=d) if p[-1] % 2 == 0)}"}  # repeats let in
+        wrongs[CT_OWN + "17"] = {f"{label}{math.perm(m - 1, d - 1)}"}  # the last digit's choices left out
     elif u == "arrange-all":
         line0(f"Evaluate {n}!" if rep == "equation" else f"{n} different {CT_ITEMS[ctx % 6]} are arranged in a row.")
         need(asked == ("Find the value." if rep == "equation" else "In how many ways can this be done?"), f"asked {asked!r}")
         need(5 <= n <= 8, "n is outside 5 to 8")
         val = sum(1 for _ in itertools.permutations(range(n)))
+        wrongs[CT_SKILL + "permutations#1"] = {f"{label}{n**n}"}  # repeats let in
     elif u == "award-places":
         line0(f"Evaluate {n}P{r}" if rep == "equation" else CT_PLACES[r].format(n=n))
         need(asked == ("Find the value." if rep == "equation" else "How many different results are possible?"), f"asked {asked!r}")
@@ -38504,6 +38614,7 @@ def check_counting(q):
         wrongs[CT_SKILL + "permutations#0"] = {f"{label}{math.comb(n, r)}"}
         wrongs[CT_SKILL + "permutations#1"] = {f"{label}{n**r}"}
         wrongs[CT_SKILL + "permutations#2"] = {f"{label}{math.factorial(n) // math.factorial(r)}"}
+        wrongs[CT_OWN + "18"] = {f"{label}{n * r}"}  # n × r
     elif u == "find-n-from-npr":
         line0(f"nP2 = {v}" if rep == "equation" else f"A race has n runners. There are {v} ways to award first and second place.")
         need(asked == "Find n.", f"asked {asked!r}")
@@ -38514,6 +38625,7 @@ def check_counting(q):
         val = int(pos[0])
         need(6 <= val <= 15, f"n = {val} is outside 6 to 15")
         need(sum(1 for _ in itertools.permutations(range(val), 2)) == v, "nP2 is not the value shown")
+        wrongs[CT_OWN + "19"] = {f"{label}{sp.solve(2 * sp.Symbol('n') - v)[0]}"}  # 2n = v
     elif u == "committee":
         line0(f"Evaluate {n}C{k}" if rep == "equation" else f"A committee of {k} is chosen from {n} people.")
         need(asked == ("Find the value." if rep == "equation" else "How many different committees are possible?"), f"asked {asked!r}")
@@ -38530,11 +38642,17 @@ def check_counting(q):
             need(2 <= j < k and j <= women and k - j <= men, "j is outside its limits")
             val = sum(1 for x in w if x == j)
             wrongs[CT_SKILL + "combinations#0"] = {f"{label}{math.comb(women, j) + math.comb(men, k - j)}"}
+            wrongs[CT_OWN + "16"] = {f"{label}{len(w)}"}  # any committee
+            wrongs[CT_OWN + "20"] = {f"{label}{math.comb(women, j) * math.comb(men, k)}"}  # k from the others too
+            wrongs[CT_SKILL + "combinations#2"] = {f"{label}{math.perm(women, j) * math.perm(men, k - j)}"}  # in order
         else:
             need(asked == f"How many committees have at least one of the {g1}?", f"asked {asked!r}")
             need(k <= men, "k is above the men")
             val = sum(1 for x in w if x >= 1)
             wrongs[CT_SKILL + "combinations#1"] = {f"{label}{women * math.comb(men + women - 1, k - 1)}"}
+            wrongs[CT_OWN + "21"] = {f"{label}{len(w)}"}  # none not taken away
+            wrongs[CT_OWN + "22"] = {f"{label}{sum(1 for x in w if x == 0)}"}  # the none count
+            wrongs[CT_OWN + "23"] = {f"{label}{sum(1 for x in w if x == 1)}"}  # exactly one
     elif u in ("together", "apart"):
         who = CT_WHO[ctx % 6]
         line0(f"{n} {who} sit in a row. Two particular {who} {'must' if u == 'together' else 'must not'} sit next to each other.")
@@ -38544,6 +38662,12 @@ def check_counting(q):
         val = sum(1 for p in itertools.permutations(range(n)) if adjacent(p) == (u == "together"))
         wrongs[CT_SKILL + ("restricted-arrangements#0" if u == "together" else "restricted-arrangements#1")] = \
             {f"{label}{math.factorial(n - 1) if u == 'together' else math.factorial(n) - 2}"}
+        if u == "together":
+            wrongs[CT_OWN + "16"] = {f"{label}{math.factorial(n)}"}  # anywhere
+            wrongs[CT_OWN + "24"] = {f"{label}{2 * math.factorial(n - 2)}"}  # the block left out
+        else:
+            wrongs[CT_OWN + "25"] = {f"{label}{sum(1 for p in itertools.permutations(range(n)) if adjacent(p))}"}  # together
+            wrongs[CT_SKILL + "restricted-arrangements#0"] = {f"{label}{math.factorial(n) - math.factorial(n - 1)}"}  # block order lost
     else:
         raise Fail(f"no check for {u}")
     need(0 < val < CT_COUNT_MAX, f"the count {val} is out of range")
