@@ -230,6 +230,7 @@ batch lands, that sheet is still in the painted style.
   Learner's costume (brown leather jacket, dark brown trousers, magenta scarf, chrome shoulder plate, teal pack),
   with his cap instead of her headband. D5 stays a dark machine: almost-black gunmetal plates with a few rust-orange
   ones. Stage looks: D3 `s2` adds hot-magenta lines along the plate seams, D4 `s2` turns the shoulder tubes magenta,
-  D5 `s2` opens the chest on a flat magenta core and `s3` strips it to a chrome frame. Glows are flat inked shapes,
+  D5 `s2` opens the chest on a flat magenta core and `s3` strips it to a dark gunmetal frame with a few rust-orange plates
+  (the same palette as the idle; no chrome or yellow). Glows are flat inked shapes,
   with no bloom outside the outline. Frame ids, anims, `stages` and `hand` are unchanged; only `x`, `y`, `w`, `h`,
   `ox`, `oy` were re-measured (each new frame is within 5% of the old size, with the feet on the bottom row).
