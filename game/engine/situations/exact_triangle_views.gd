@@ -159,8 +159,11 @@ func u_exact_side(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ah := times(S.sin_of(60), b)
 	var hb: Q = Q.new(a).add(ch) if C == 120 else Q.new(a).sub(ch)
 	var where := "beyond C, so HB = %d + %s = %s" % [a, ch.text(), hb.text()] if C == 120 else "between B and C, so HB = %d − %s = %s" % [a, ch.text(), hb.abs_q().text()]
+	# For C = 60° the foot is CH = b/2 from C along CB: past B when b > 2a, at B when b = 2a.
 	if C == 60 and hb.sign() < 0:
-		where = "beyond C, so HB = %s − %d = %s" % [ch.text(), a, hb.abs_q().text()]
+		where = "beyond B, so HB = %s − %d = %s" % [ch.text(), a, hb.abs_q().text()]
+	elif C == 60 and hb.sign() == 0:
+		where = "at B itself, so HB = 0 and AB = AH"
 	var steps := {
 		"exact-substitution": ["AB² = a² + b² − 2ab cos C, with cos %d° = %s." % [C, cos_t(C)],
 			"AB² = %d + %d − 2 × %d × %d × %s = %d" % [a * a, b * b, a, b, fac(S.cos_of(C)), c2], "AB = %s" % root, "So AB = %s cm." % ex(e)],

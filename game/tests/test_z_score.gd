@@ -81,3 +81,13 @@ func test_error_spot_marks_the_slip() -> void:
 			var es := _make(c, seed, "error-spot")
 			check_eq(es.spot.lines.size(), 4, c.key)
 			check(es.choices[es.spot.bad].correct, c.key + ": the bad line")
+
+
+func test_the_measure_in_the_key_is_not_the_only_one_named() -> void:
+	# #193: only the key said "z-value" (or gave a percentage), which gave it away.
+	for c in QuestionEngine.cells(false, [TYPE]).filter(func(x): return x.unknown == "compare-scores"):
+		var cue := "%" if c.angle == "compare-percentiles" else "z-value"
+		for seed in range(1, 10):
+			var q := _make(c, seed)
+			check(q.choices.filter(func(o): return o.correct)[0].text.contains(cue), c.key)
+			check(q.choices.any(func(o): return not o.correct and o.text.contains(cue)), "%s seed %d: only the key names %s" % [c.key, seed, cue])

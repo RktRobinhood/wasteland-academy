@@ -406,14 +406,19 @@ func u_speeding_up(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var same: bool = (v > 0.0) == (a > 0.0)
 	var up := "Speeding up: v and a have the same sign."
 	var down := "Slowing down: v and a have opposite signs."
-	var only := "Speeding up: a is positive." if a > 0.0 else "Slowing down: a is negative."
-	var built := DerivativeMeaningViews.claim_answer(up if same else down, [[down if same else up, ""], [only, R_A_POSITIVE]])
+	# Reading the sign of a alone (R_A_POSITIVE) only gives the wrong verdict when v < 0;
+	# when v > 0 it agrees with the key, so it is no wrong option there (#193).
+	var slips: Array = [[down if same else up, ""]]
+	if v < 0.0:
+		slips.append(["Speeding up: a is positive." if a > 0.0 else "Slowing down: a is negative.", R_A_POSITIVE])
+	var built := DerivativeMeaningViews.claim_answer(up if same else down, slips)
 	# The other claim is the answer turned round, with no slip of its own to name.
 	var other: Dictionary = built.wrongs.pop_front()
 	var neither := DerivativeMeaningViews.claim("w2", "Neither: the speed only changes when v = 0.")
+	var unknown := DerivativeMeaningViews.claim("w3", "It can't be told without the displacement s.")
 	var sign := func(y: float) -> String: return "positive" if y > 0.0 else "negative"
 	return {"lines": [v_story(s, "equation"), "When t = %d, v = %s and a = %s." % [t0, Fmt.sf(v) if p2(s) else Wr(s, v), Fmt.sf(a) if p2(s) else Wr(s, a)]].map(DefiniteIntegralViews.minus),
-		"asked": "Is the particle speeding up or slowing down when t = %d?" % t0, "answer": built.answer, "wrongs": built.wrongs, "fillers": [other.values, neither],
+		"asked": "Is the particle speeding up or slowing down when t = %d? Give a reason." % t0, "answer": built.answer, "wrongs": built.wrongs, "fillers": [other.values, neither, unknown],
 		"methods": {"compare-signs": method([
 			"v is %s and a is %s." % [sign.call(v), sign.call(a)],
 			"The size of v grows when a pushes the same way as v, and shrinks when it pushes against it.",

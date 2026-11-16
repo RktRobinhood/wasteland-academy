@@ -359,7 +359,8 @@ static func roots_line(lead: String, poly_text: String, A: int, rs: Array) -> St
 
 static func reject_line(s: Dictionary, args: Array) -> String:
 	var why := ""
-	if s.shape in ["power", "equal"]:
+	# (x + p)² hides the sign of x + p, but not a zero: x + p = 0 makes it 0 (n = m·p).
+	if s.shape in ["power", "equal"] and not LogEquationSituation.at(s.one, s.bad).is_zero():
 		why = ", though %s is positive there" % sq(s.one)
 	return "%s %s, so reject it%s. %s" % [xv(s.bad), spoils(args, s.bad), why, check_line(args, s.x)]
 

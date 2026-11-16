@@ -60,12 +60,16 @@ func u_excluded_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var bottom := AlgebraicFractionSituation.lin(s.c, s.d)
 	var frac := AlgebraicFractionSituation.over(top, bottom)
 	var right := "x ≠ %s, because the bottom would be 0" % N(h)
-	var out := {"asked": "Which value of x can the fraction not take, and why?"}
+	var out := {"asked": "Find the value of x for which the %s is undefined, and give a reason." % ("expression" if rep == "equation" else "fraction")}
 	out.lines = [frac] if rep == "equation" else ["A fraction has %s on the top and %s on the bottom." % [top, bottom]]
 	out.merge(pick(right, [tag(ZERO_WORDS, R_ZERO_DIVISION)], ["x ≠ %s, because the top would be 0" % N(Q.new(-s.q, s.p)), "x ≠ %s, because the bottom would be 0" % N(h.neg()),
 		"x ≠ 0, because the bottom would be 0"]))
 	var fin := "So %s." % right
-	out.methods = {"number-check": method(["Put x = %s into the bottom: %s = %s." % [N(h), bottom.replace("x", Fmt.paren(h)), "0"], "A fraction with 0 on the bottom is undefined, so x can't be %s." % N(h), fin], {"v": right})}
+	# Find the value first (bottom = 0), then check it with the number (#193).
+	var solve := "%s = 0, so x = %s." % [bottom, N(h)] if s.c == 1 else "%s = 0, so %dx = %s and x = %s." % [bottom, s.c, N(-s.d), N(h)]
+	out.methods = {"number-check": method(["A fraction is undefined where its bottom is 0, so solve " + solve,
+		"Check with the number: put x = %s into the bottom: %s = 0." % [N(h), bottom.replace("x", Fmt.paren(h))],
+		"A fraction with 0 on the bottom is undefined, so x can't be %s." % N(h), fin], {"v": right})}
 	return out
 
 

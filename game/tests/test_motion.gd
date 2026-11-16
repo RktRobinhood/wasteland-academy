@@ -83,3 +83,29 @@ func test_a_motion_graph_names_its_axes() -> void:
 	check_eq(q.graph.y_name, "v")
 	var r := _make("velocity-from-graph", "graph", "gradient-reading", 4)
 	check_eq(r.graph.y_name, "s")
+
+
+func test_no_wrong_option_on_speeding_up_states_the_right_verdict() -> void:
+	# #193: "Speeding up: a is positive." was a wrong option even when v > 0, where it is right.
+	var tagged := {true: 0, false: 0}
+	for c in QuestionEngine.cells(false, [TYPE]).filter(func(x): return x.unknown == "speeding-up"):
+		for paper in [1, 2]:
+			if not paper in QuestionEngine.cell_papers(QuestionEngine.type_of(TYPE), c.unknown, c.rep, c.angle):
+				continue
+			for seed in range(1, 30):
+				var q := _make(c.unknown, c.rep, c.angle, seed, "mcq", paper)
+				check(q.asked.ends_with("Give a reason."), q.asked)
+				var key: String = q.choices.filter(func(o): return o.correct)[0].text
+				var verdict: String = key.split(":")[0]
+				# "When t = 3, v = −4 and a = 6.": the sign of v as the question shows it.
+				var v: float = -1.0 if q.lines[1].contains(", v = −") else 1.0
+				for o in q.choices:
+					if not o.correct:
+						check(not o.text.begins_with(verdict + ":"), "%s seed %d: %s" % [c.key, seed, o.text])
+					if o.ref == R_A_POSITIVE_REF:
+						tagged[v < 0.0] += 1
+	check_eq(tagged[false], 0, "the sign-of-a slip is offered when v > 0")
+	check(tagged[true] > 0, "the sign-of-a slip never shows")
+
+
+const R_A_POSITIVE_REF := "SL5.9.rest-and-direction#1"

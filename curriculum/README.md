@@ -21,6 +21,7 @@ The single source of truth for what Wasteland Academy covers: the four IB Mathem
 | `EXPLAINERS.md` | Generated from `explainers.json`. Counts by course and layer, the build order, and a node diagram for each part of each island. |
 | `moves.json` | The explainer move list: solving actions a teacher names the same way in any topic, each with the line Spark says for it. |
 | `moves-map.json` | The move for every worked step of every built method, keyed by method and step count. |
+| `signoff.json` | The sign-off list: every situation, its types, and whether a person has read its prompts, options and worked steps (GitHub #193). See "Sign-off list" below. |
 
 Regenerate the reports after changing the map or any content pack:
 
@@ -247,3 +248,12 @@ A method's step count can change with the representation (a graph adds a "read i
 In the engine a step can be a String, as now, or `{"move": "<move id>", "board": "<this question's text>"}`. Coder tags the steps from this map. A branch matches a different line of engine code, so that line gets the branch's move.
 
 The map is built from the export in `game/tools/export_questions.gd`. When a method changes or a new type is built, export again and run `node tools/moves.mjs --coverage <questions.json>`. It fails if any exported solution's step count is not in the map, and it prints the share of steps that have a move, type by type.
+
+## Sign-off list
+
+`signoff.json` has one row per situation in `question-types.json`, exam situations first, since the reading pass goes in that order. `tools/check-answers` tests each question's last step; it does not read the prompt, the options or the worked steps. This list records which situations a person has read.
+
+- **Statuses:** `unread`; `review-read` (a review read some units and their defects were fixed; the rest is not confirmed); `signed-off` (the Curriculum Author read every unit, representation and method: prompt, options, worked steps and probes).
+- **When you read a situation,** set its `status`, `readBy`, `date` and `note` (what you read and what you fixed) in the same PR as the fixes.
+- **Reading checklist:** the prompt uses exam command terms; the worked steps find the answer rather than assume it; every wrong option is wrong and says why; no wrong option states the key's verdict; the key is not the only option that names its measure or method; filler options don't cluster round the key where a named slip exists.
+- **Kept in step by `tests/unit/signoff.test.mjs`** (part of `npm test`). It fails when a situation is added to or removed from `question-types.json` without a matching row, when a row's types or exam flag drift, or when a read row has no reader, date or note. A new situation therefore goes on the list as `unread`.

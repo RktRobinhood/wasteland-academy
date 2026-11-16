@@ -1,0 +1,1207 @@
+{
+ "about": "Which question situations have had their prompts, options and worked steps read by a person, not only checked by tools/check-answers (which tests the last step). Exam situations come first, the order of the reading pass. See curriculum/README.md, \"Sign-off list\". Checked by tests/unit/signoff.test.mjs.",
+ "statuses": {
+  "unread": "No one has read the prompts and worked steps yet.",
+  "review-read": "Some units were read in a review and their defects fixed; the rest of the situation is not confirmed.",
+  "signed-off": "The Curriculum Author read every unit, representation and method: prompt, options, worked steps and probes."
+ },
+ "situations": [
+  {
+   "situation": "quadratic",
+   "types": [
+    "fn-quadratic-features",
+    "fn-quadratic-from-conditions",
+    "fn-concept-quadratic-forms"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "quadratic-equation",
+   "types": [
+    "fn-solve-quadratic"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "quadratic-parameter",
+   "types": [
+    "fn-discriminant"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "curve-and-line",
+   "types": [
+    "fn-curve-intersection-quadratic"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "quadratic-inequality",
+   "types": [
+    "fn-quadratic-inequality"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "exp-model",
+   "types": [
+    "fn-exponential-model"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "log-laws",
+   "types": [
+    "t1-log-laws"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "log-exp-form",
+   "types": [
+    "t1-log-exp-form"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "exp-log-pair",
+   "types": [
+    "fn-exp-log-inverse-composite",
+    "fn-ext-exp-graph"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "log-function",
+   "types": [
+    "fn-log-function-features"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "log-quadratic",
+   "types": [
+    "fn-log-of-quadratic"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "review of main at 067afaa (GitHub #193)",
+   "date": "2026-11-16",
+   "note": "fn-log-of-quadratic interpret-parameter probe held only when the vertex height is above 1. Fixed in FAL-1033. Only the units named in #193 are confirmed read."
+  },
+  {
+   "situation": "gdc-curve",
+   "types": [
+    "fn-sketch-gdc",
+    "fn-gdc-features"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "gdc-two-curves",
+   "types": [
+    "fn-gdc-intersection",
+    "fn-concept-solutions-as-intersections"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "gdc-combined",
+   "types": [
+    "fn-gdc-optimise-combined"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "gdc-context-equation",
+   "types": [
+    "fn-gdc-solve-equation"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "graph-from-features",
+   "types": [
+    "fn-sketch-from-features"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "composite-pair",
+   "types": [
+    "fn-composite"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "composite-graph-table",
+   "types": [
+    "fn-graph-table-composite-inverse"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "inverse-rule",
+   "types": [
+    "fn-inverse-algebraic"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "rational-function",
+   "types": [
+    "fn-rational-asymptotes-intercepts",
+    "fn-rational-sketch",
+    "fn-ext-transformed-reciprocal"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "basic-function",
+   "types": [
+    "fn-evaluate-function",
+    "fn-concept-function-notation"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "basic-restricted",
+   "types": [
+    "fn-domain-range"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "basic-one-to-one",
+   "types": [
+    "fn-inverse-reflection"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "line-conditions",
+   "types": [
+    "fn-line-from-conditions",
+    "fn-concept-gradient-meaning"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "transform-chain",
+   "types": [
+    "fn-transform-describe",
+    "fn-transform-apply",
+    "fn-concept-transform-order"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "triangle",
+   "types": [
+    "t3-ambiguous-case",
+    "t3-triangle-area",
+    "t3-sine-cosine-rule"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "arithmetic-sequence",
+   "types": [
+    "t1-arithmetic-sequence",
+    "t1-ext-sigma-arithmetic"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "arithmetic-context",
+   "types": [
+    "t1-arithmetic-in-context"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "distribution",
+   "types": [
+    "t4-expected-occurrences",
+    "t4-expected-value",
+    "t4-discrete-distribution"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "cubic",
+   "types": [
+    "t5-differentiate-polynomial",
+    "t5-tangent-condition",
+    "t5-tangent-normal-equation",
+    "t5-stationary-points"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "binomial",
+   "types": [
+    "t4-binomial"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "binomial-expansion",
+   "types": [
+    "t1-binomial-term",
+    "t1-ext-binomial-constant-term",
+    "t1-ext-binomial-product"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "regression",
+   "types": [
+    "t4-regression-gdc"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "regression-interpret",
+   "types": [
+    "t4-regression-interpret"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "data-summary",
+   "types": [
+    "t4-summary-statistics"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "compound-interest",
+   "types": [
+    "t1-compound-interest",
+    "t1-ext-real-value"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "depreciation",
+   "types": [
+    "t1-depreciation"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "differentiation",
+   "types": [
+    "t5-differentiation-rules"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "derivative-meaning",
+   "types": [
+    "t5-derivative-meaning"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "derivative-model",
+   "types": [
+    "t5-derivative-model-gdc"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "monotonic",
+   "types": [
+    "t5-increasing-decreasing"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "concavity",
+   "types": [
+    "t5-concavity"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "integration",
+   "types": [
+    "t5-indefinite-integral"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "definite-integral",
+   "types": [
+    "t5-definite-integral-area"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "area-between",
+   "types": [
+    "t5-area-between-curves"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "motion",
+   "types": [
+    "t5-kinematics-motion"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "review of main at 067afaa (GitHub #193)",
+   "date": "2026-11-16",
+   "note": "t5-kinematics-motion speeding-up: a wrong option stated the right verdict. Fixed in FAL-1033. Only the units named in #193 are confirmed read."
+  },
+  {
+   "situation": "venn",
+   "types": [
+    "t4-venn-addition-rule"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "conditional",
+   "types": [
+    "t4-conditional-probability"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "normal-unknown",
+   "types": [
+    "t4-normal-unknown-parameter"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "regression-x-on-y",
+   "types": [
+    "t4-regression-x-on-y"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "sampling",
+   "types": [
+    "t4-sampling"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "cumulative-frequency",
+   "types": [
+    "t4-cumulative-frequency"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "arc-sector",
+   "types": [
+    "t3-arc-sector"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "circular-motion",
+   "types": [
+    "t3-circular-motion"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "bearings-elevation",
+   "types": [
+    "t3-bearings-elevation",
+    "t3-ext-two-observations"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "solid",
+   "types": [
+    "t3-solid-volume-area"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "distance-midpoint",
+   "types": [
+    "t3-distance-midpoint"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "standard-form",
+   "types": [
+    "t1-standard-form",
+    "t1-ext-standard-form-add",
+    "t1-ext-standard-form-powers"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "exact-trig",
+   "types": [
+    "t3-exact-values"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "trig-identity",
+   "types": [
+    "t3-identity-values"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "prove-identity",
+   "types": [
+    "t3-prove-identity"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "trig-equation",
+   "types": [
+    "t3-trig-equation"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "trig-quadratic",
+   "types": [
+    "t3-trig-quadratic"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "trig-model",
+   "types": [
+    "t3-trig-model-parameters"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "trig-wave",
+   "types": [
+    "t3-trig-model-use",
+    "t3-trig-read-features"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "review of main at 067afaa (GitHub #193)",
+   "date": "2026-11-16",
+   "note": "t3-trig-model-use predict-check probe was muddled. Fixed in FAL-1033. Only the units named in #193 are confirmed read."
+  },
+  {
+   "situation": "trig-model-equation",
+   "types": [
+    "t3-trig-model-equation"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "geometric-sequence",
+   "types": [
+    "t1-geometric-sequence",
+    "t1-sum-to-infinity",
+    "t1-ext-partial-vs-infinite"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "geometric-context",
+   "types": [
+    "t1-geometric-in-context"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "normal-probability",
+   "types": [
+    "t4-normal-probability"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "inverse-normal",
+   "types": [
+    "t4-inverse-normal"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "basic-probability",
+   "types": [
+    "t4-probability-basic"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "sample-space",
+   "types": [
+    "t4-sample-space"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "algebraic-proof",
+   "types": [
+    "t1-algebraic-proof"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "sequence-proof",
+   "types": [
+    "t1-sequence-proof"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "motion-distance",
+   "types": [
+    "t5-kinematics-distance"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "optimisation-model",
+   "types": [
+    "t5-optimisation-modelling"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "tree-diagram",
+   "types": [
+    "t4-tree-diagram"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "circular-region",
+   "types": [
+    "t3-composite-circular-region"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "right-triangle",
+   "types": [
+    "t3-right-angle-trig"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "independence",
+   "types": [
+    "t4-independence"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "grouped-data",
+   "types": [
+    "t4-grouped-data"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "binomial-unknown",
+   "types": [
+    "t1-binomial-find-unknown"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "antiderivative-condition",
+   "types": [
+    "t5-antiderivative-condition"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "normal-properties",
+   "types": [
+    "t4-normal-properties"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "box-plot",
+   "types": [
+    "t4-outlier-rule",
+    "t4-box-plot"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "constant-change",
+   "types": [
+    "t4-constant-changes"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "rational-exponents",
+   "types": [
+    "t1-rational-exponents"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "tangent-meets-curve",
+   "types": [
+    "t5-normal-meets-curve"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "solve-exponential",
+   "types": [
+    "t1-solve-exponential",
+    "t1-ext-common-base",
+    "t1-ext-hidden-quadratic"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "trig-sketch",
+   "types": [
+    "t3-trig-sketch"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "derivative-graph",
+   "types": [
+    "t5-derivative-graph"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "solid-angle",
+   "types": [
+    "t3-3d-angle"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "log-equation",
+   "types": [
+    "t1-log-equation"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "review of main at 067afaa (GitHub #193)",
+   "date": "2026-11-16",
+   "note": "t1-log-equation reject step: called (x + p)² positive where it is 0. Fixed in FAL-1033. Only the units named in #193 are confirmed read."
+  },
+  {
+   "situation": "quadratic-model",
+   "types": [
+    "fn-ext-quadratic-model"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "exp-growth-vs-linear",
+   "types": [
+    "fn-concept-growth-patterns"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "graph-match",
+   "types": [
+    "fn-ext-match-graph"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "gdc-inequality",
+   "types": [
+    "fn-ext-inequality-graphical"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "inverse-order-undo",
+   "types": [
+    "fn-concept-order-and-undo"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "rational-model",
+   "types": [
+    "fn-ext-rational-model"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "rational-asymptote-gallery",
+   "types": [
+    "fn-concept-asymptote-meaning"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "basic-relation",
+   "types": [
+    "fn-ext-is-function"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "line-crossing",
+   "types": [
+    "fn-ext-intersection-lines"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "line-model",
+   "types": [
+    "fn-ext-line-model"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-pre-expand",
+   "types": [
+    "fn-pre-expand"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-pre-factorise",
+   "types": [
+    "fn-pre-factorise"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-pre-surds",
+   "types": [
+    "fn-pre-surds"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-pre-linear-inequalities",
+   "types": [
+    "fn-pre-linear-inequalities"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-pre-percent-multiplier",
+   "types": [
+    "fn-pre-percent-multiplier"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-pre-graph-reading",
+   "types": [
+    "fn-pre-graph-reading"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-pre-rearrange",
+   "types": [
+    "fn-pre-rearrange"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-pre-algebraic-fractions",
+   "types": [
+    "fn-pre-algebraic-fractions"
+   ],
+   "exam": false,
+   "status": "review-read",
+   "readBy": "review of main at 067afaa (GitHub #193)",
+   "date": "2026-11-16",
+   "note": "excluded-value: worked solution did not find the value; prompt not exam phrasing. Fixed in FAL-1033. Only the units named in #193 are confirmed read."
+  },
+  {
+   "situation": "fn-pre-substitute",
+   "types": [
+    "fn-pre-substitute"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-pre-linear-equations",
+   "types": [
+    "fn-pre-linear-equations"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-pre-simultaneous",
+   "types": [
+    "fn-pre-simultaneous"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-link-transformations",
+   "types": [
+    "fn-link-transformations"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-link-vectors",
+   "types": [
+    "fn-link-vectors"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-link-rate-of-change",
+   "types": [
+    "fn-link-rate-of-change"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-link-multiplicative-growth",
+   "types": [
+    "fn-link-multiplicative-growth"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-link-inverses",
+   "types": [
+    "fn-link-inverses"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-link-symmetry",
+   "types": [
+    "fn-link-symmetry"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-link-equivalent-forms",
+   "types": [
+    "fn-link-equivalent-forms"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-link-extremes",
+   "types": [
+    "fn-link-extremes"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "fn-link-graph-vs-algebra",
+   "types": [
+    "fn-link-graph-vs-algebra"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "counting",
+   "types": [
+    "t1-ahl-counting"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "polynomial-conditions",
+   "types": [
+    "t5-ext-unknown-coefficients",
+    "t5-ext-stationary-conditions"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "always-increasing",
+   "types": [
+    "t5-ext-always-increasing"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "hence-integral",
+   "types": [
+    "t5-ext-hence-integral"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "integral-gdc",
+   "types": [
+    "t5-ext-integral-gdc"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "area-under-curve",
+   "types": [
+    "t5-ext-area-under-curve"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "variable-kind",
+   "types": [
+    "t4-ext-data-type"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "study",
+   "types": [
+    "t4-ext-population-sample"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "stratified-sample",
+   "types": [
+    "t4-ext-stratified-numbers"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "histogram",
+   "types": [
+    "t4-ext-frequency-histogram"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "correlation",
+   "types": [
+    "t4-ext-describe-correlation"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "exact-triangle",
+   "types": [
+    "t3-ext-exact-triangle"
+   ],
+   "exam": false,
+   "status": "review-read",
+   "readBy": "review of main at 067afaa (GitHub #193)",
+   "date": "2026-11-16",
+   "note": "t3-ext-exact-triangle drop-perpendicular: H placed beyond C instead of beyond B or at B. Fixed in FAL-1033. Only the units named in #193 are confirmed read."
+  },
+  {
+   "situation": "integer-powers",
+   "types": [
+    "t1-ext-exponent-laws"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "show-that-value",
+   "types": [
+    "t1-ext-numerical-show-that"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "gradient-from-graph",
+   "types": [
+    "t5-ext-gradient-from-graph"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "sign-at-point",
+   "types": [
+    "t5-ext-sign-at-point"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "rate-of-rate",
+   "types": [
+    "t5-ext-interpret-second-derivative"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "z-score",
+   "types": [
+    "t4-ext-z-scores"
+   ],
+   "exam": false,
+   "status": "review-read",
+   "readBy": "review of main at 067afaa (GitHub #193)",
+   "date": "2026-11-16",
+   "note": "t4-ext-z-scores compare-scores: only the key named the z-value. Fixed in FAL-1033. Only the units named in #193 are confirmed read."
+  },
+  {
+   "situation": "conditional-diagram",
+   "types": [
+    "t4-ext-conditional-diagram"
+   ],
+   "exam": false,
+   "status": "unread"
+  },
+  {
+   "situation": "mutually-exclusive",
+   "types": [
+    "t4-ext-mutually-exclusive"
+   ],
+   "exam": false,
+   "status": "unread"
+  }
+ ]
+}
