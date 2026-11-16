@@ -84503,7 +84503,8 @@
      "in": [
       "height-two-angles",
       "ground-distance",
-      "height-exact"
+      "height-exact",
+      "height-either-side"
      ],
      "wrong": "AB used as BF"
     },
@@ -84539,7 +84540,8 @@
      "text": "Stopping at the line of sight BT and giving it as the height",
      "as": "distractor",
      "in": [
-      "height-two-angles"
+      "height-two-angles",
+      "height-exact"
      ],
      "wrong": "BT given as TF"
     },

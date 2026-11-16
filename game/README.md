@@ -416,6 +416,29 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   sections are prefixed `E17CB_`, `E17EL_`, `E17SF_` (both standard-form types), `E17RV_` and
   `E17ST_`, with the tools they share prefixed `E17_`; on a shared situation the checker sends the
   new unknowns to its section and every other unknown to the exam type's checks as before.
+- **The hidden-quadratic and two-observation extension types** (FAL-779, batch E16, lane C): two types
+  that cover syllabus skills no exam type lists, so they carry no exam parts. Both add unknowns to an
+  existing situation, so its other types' cells, numbers and checks are unchanged.
+  `t1-ext-hidden-quadratic` (SL1.7) on `solve-exponential` draws the roots of a quadratic in u = b^x
+  first, so a b^(2x) + B b^x + C = 0 (b^(2x) sometimes written (b²)^x, as 9^x) has whole coefficients:
+  two roots that are powers of b (or one is 1/b), a power and a negative root, a b^(2x) = c b^x with
+  the root u = 0, e^(2x) + Be^x + C = 0 with x = ln p or ln q (a `form` answer, either order), a root
+  that is no power of b (x = ln r/ln b), and the number of real solutions (roots of both signs, a
+  repeated root, a root between 0 and 1). It is solved by naming u, by factorising in b^x, or on
+  Paper 2 by the GDC's zeros (the map's method is named "Graph the expression on the GDC and find its
+  zeros", so the engine treats it as a calculator method); a root u that is 0 or negative is rejected.
+  The skill map's examples are left out, with a root's sign flipped too. `t3-ext-two-observations`
+  (SL3.3) on `bearings-elevation` has two observers a known distance apart on one side of the foot
+  (angle ATB, BT, the height, BF) or on either side (the height), every question with the side view
+  drawn to scale by PlotView's `sketch`; it is solved by the sine rule in ABT and then the right
+  triangle BFT, by two tan equations, or by the GDC's intersection of the two height lines, and with
+  30° and 60° the height is exact on Paper 1 (BT = AB, the triangle being isosceles). Each answer to
+  3 s.f. is worked from the 5 s.f. figure before it and rounds the same. Built formats: error-spot on
+  the hidden quadratic (b^(2x) read as 2u, a negative root's sign dropped, u = 0 taken as x = 0) and
+  method-pick on both. The catalogue's `order-steps` and `multipart` formats are not built in the
+  engine, so these types don't offer them. Their steps are not in `curriculum/moves-map.json` yet. The
+  checker's sections are prefixed `E16HQ_` and `E16TO_`; each wraps its situation's existing check
+  and sends only its own unknowns to its section.
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.

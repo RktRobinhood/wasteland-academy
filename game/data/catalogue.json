@@ -80001,7 +80001,7 @@
 						],
 						"why": "the GDC gives the zeros as decimals, not as exact logs"
 					},
-					"name": "Graph the expression and find its zeros",
+					"name": "Graph the expression on the GDC and find its zeros",
 					"about": "Plot y = 2^(2x) − 6 × 2^x + 8 and read off the x-intercepts."
 				}
 			],
@@ -80369,7 +80369,8 @@
 					"in": [
 						"height-two-angles",
 						"ground-distance",
-						"height-exact"
+						"height-exact",
+						"height-either-side"
 					],
 					"wrong": "AB used as BF"
 				},
@@ -80405,7 +80406,8 @@
 					"text": "Stopping at the line of sight BT and giving it as the height",
 					"as": "distractor",
 					"in": [
-						"height-two-angles"
+						"height-two-angles",
+						"height-exact"
 					],
 					"wrong": "BT given as TF"
 				},

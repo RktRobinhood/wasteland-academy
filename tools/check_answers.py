@@ -44133,6 +44133,481 @@ SITUATION_CHECKS["show-that-value"] = E17ST_check
 SPOT_CHECKS["show-that-value"] = E17ST_spot
 
 
+# ── solve-exponential, t1-ext-hidden-quadratic (FAL-779) ────
+# The equation is read back from its line and turned into SymPy. Its base b is the one written
+# with exponent x; the quadratic a u² + B u + C in u = b^x is found again by evaluating the
+# equation at three values of u and checked at two more. Its roots come from SymPy, each
+# positive one gives x = log_b u, and every answer, tagged option and claim in the working
+# (u = N, b^x = N gives x = X, an identity, an equation = 0, x-intercepts) is worked out again.
+# An error-spot's first wrong line is the first with a false claim.
+
+E16HQ_MAP = "SL1.7.hidden-quadratic#"
+E16HQ_OWN = "t1-ext-hidden-quadratic#"
+E16HQ_UNKNOWNS = ("two-powers", "reject-negative", "zero-root", "exact-ln", "exact-log-base", "solution-count")
+E16HQ_U = sp.Symbol("u")
+E16HQ_MAPS = [(2, {2, 4}), (sp.E, {2, 3}), (3, {1, 3})]
+
+
+def E16HQ_n(v):
+    """A number as the game writes it: 3, −4, 8/5."""
+    v = sp.Rational(v)
+    s = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + s
+
+
+def E16HQ_parse(text):
+    """An expression in x and u, written as the game writes it, as SymPy (None if it can't be read)."""
+    t = text.strip().rstrip(".").strip()
+    t = t.replace("−", "-").replace("×", "*").replace("²", "**2").replace("^", "**")
+    if not re.fullmatch(r"[0-9eux+\-*/(). ]+", t):
+        return None
+    try:
+        return parse_expr(t, local_dict={"x": X, "u": E16HQ_U, "e": sp.E}, transformations=TRANSFORMS, evaluate=True)
+    except Exception:
+        return None
+
+
+def E16HQ_base(eq):
+    if re.search(r"e\^x", eq):
+        return sp.E
+    ms = re.findall(r"(?<![\d^(])(\d+)\^x", eq)
+    need(len(ms) > 0, f"no b^x in {eq!r}")
+    return sp.Integer(min(int(v) for v in ms))
+
+
+def E16HQ_num(e, at):
+    return sp.N(e.subs(at), 50)
+
+
+def E16HQ_read(q):
+    """(f, b, a, B, C): the equation as f(x) = 0 and its quadratic in u = b^x."""
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "graph":
+        m = re.fullmatch(r"The graph shows y = (.+), which meets the x-axis at P and Q\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        eq = m.group(1) + " = 0"
+    else:
+        eq = L[0]
+    sides = eq.split(" = ")
+    need(len(sides) == 2, f"can't read {eq!r}")
+    lhs, rhs = E16HQ_parse(sides[0]), E16HQ_parse(sides[1])
+    need(lhs is not None and rhs is not None, f"can't read {eq!r}")
+    f = lhs - rhs
+    b = E16HQ_base(eq)
+    vals = []
+    for uu in (1, 2, 3):
+        v = E16HQ_num(f, {X: sp.log(uu) / sp.log(b)})
+        vals.append(v)
+    # f = a u² + B u + C at u = 1, 2, 3.
+    a = (vals[2] - 2 * vals[1] + vals[0]) / 2
+    B = vals[1] - vals[0] - 3 * a
+    C = vals[0] - a - B
+    a, B, C = (sp.Integer(round(v)) for v in (a, B, C))
+    for uu in (5, sp.Rational(1, 7)):
+        need(abs(E16HQ_num(f, {X: sp.log(uu) / sp.log(b)}) - (a * uu ** 2 + B * uu + C)) < 1e-30, "the equation is not a quadratic in b^x")
+    need(a > 0, "the leading coefficient is not positive")
+    return f, b, a, B, C
+
+
+def E16HQ_log(u, b):
+    """x with b^x = u, exact: a whole number where u is a power of b."""
+    return sp.simplify(sp.log(u, b))
+
+
+def E16HQ_ln(v):
+    v = sp.Rational(v)
+    return f"ln {E16HQ_n(v)}" if v.q == 1 and v > 0 else f"ln({E16HQ_n(v)})"
+
+
+def E16HQ_xs(vals):
+    vals = sorted(sp.Rational(v) for v in vals)
+    names = [E16HQ_n(v) for v in vals]
+    return "x = " + (", ".join(names[:-1]) + " or " + names[-1] if len(names) > 1 else names[0])
+
+
+def E16HQ_claims_ok(t, f, b, quad, sols, strict_u=True):
+    """Whether every claim in a line of working is true. quad: a u² + B u + C; sols: the x values."""
+    u, roots = E16HQ_U, [r for r in sp.roots(sp.Poly(quad, E16HQ_U)).keys()]
+    bt = "e" if b == sp.E else str(b)
+    bx = re.escape(f"{bt}^x")
+    xs_at = [sp.Rational(3, 10), sp.Rational(11, 10), sp.Rational(-7, 10)]
+
+    def same(e1, e2):
+        for xv in xs_at:
+            at = {X: xv, u: b ** xv}
+            if abs(E16HQ_num(e1, at) - E16HQ_num(e2, at)) > 1e-30:
+                return False
+        return True
+
+    text = t.rstrip(".")
+    # b^x = N gives x = X, or has no solution.
+    for m in re.finditer(rf"(?:{bx}|u) = (−?[\d/]+) gives (?:x = ([^;,]+?)(?=$|;|,| and )|{bx} = (−?[\d/]+), so x = (−?[\d/]+))", text):
+        N = sp.Rational(R(m.group(1).replace("−", "-")))
+        if N not in roots or N <= 0:
+            return False
+        if m.group(2) is not None:
+            xv = E16HQ_xv(m.group(2), b)
+            if xv is None or abs(sp.N(b ** xv - N, 40)) > 1e-30:
+                return False
+    for m in re.finditer(rf"{bx} = (−?[\d/]+) has no solution, as {bx} (> 0 for every x|is never 0)", text):
+        N = sp.Rational(R(m.group(1).replace("−", "-")))
+        if N not in roots or (N < 0) != (m.group(2) == "> 0 for every x") or N > 0:
+            return False
+    text2 = re.sub(rf"(?:{bx}|u) = −?[\d/]+ (gives [^;]*|has no solution[^;]*)", "", text)
+    # The x-values claimed: "So x = 1 or x = 3.", "x = 0 or 2".
+    for m in re.finditer(r"(?:^|So |, so |: )x = ([^;:]+)$", text2):
+        parts = re.split(r" or x = | or |, ", m.group(1))
+        for p in parts:
+            xv = E16HQ_xv(p, b)
+            if xv is None or not any(abs(sp.N(xv - s_, 40)) < 1e-30 for s_ in sols):
+                return False
+        text2 = text2[:m.start()]
+    # u = N and b^x = N, as roots: "so u = 1 or u = 25", "So 5^x = 1 or 5^x = 25".
+    for m in re.finditer(rf"(?:(?<=so )|(?<=So )|(?<=^))((?:(?:u|{bx}) = −?[\d/]+(?: or )?)+)", text2):
+        for v in re.findall(r"= (−?[\d/]+)", m.group(1)):
+            if sp.Rational(R(v.replace("−", "-"))) not in roots:
+                return False
+    # Equations and identities with x or u on both sides, or ending in = 0.
+    for frag in re.split(r", so | the equation is |: |; |, the roots? of |, a root of |, as |, and | and |, the left side factorises in |^So |^Then |^As ", text2):
+        frag = frag.strip()
+        if " = " not in frag or "gives" in frag:
+            continue
+        sides = frag.split(" = ")
+        es = [E16HQ_parse(p) for p in sides]
+        if any(e is None for e in es):
+            continue
+        if not any(e.free_symbols for e in es):
+            # A numerical fact: "3^2 = 9".
+            if any(abs(sp.N(es[i] - es[i + 1], 40)) > 1e-30 for i in range(len(es) - 1)):
+                return False
+            continue
+        if len(es) == 2 and es[1] == 0:
+            if not (same(es[0], f) or same(es[0], quad.subs(u, b ** X))):
+                return False
+            continue
+        if len(es) == 2 and es[0] == u and not es[1].free_symbols:
+            if es[1] not in roots:
+                return False
+            continue
+        if es[0] == u and len(es) == 2 and es[1].free_symbols == {X}:
+            continue  # "u = 2^x" names u
+        if len(es) == 2 and es[0] == b ** X and not es[1].free_symbols:
+            if es[1] not in roots:
+                return False
+            continue
+        if len(es) == 2 and es[0] == X and not es[1].free_symbols:
+            if not any(abs(sp.N(es[1] - s_, 40)) < 1e-30 for s_ in sols):
+                return False
+            continue
+        for i in range(len(es) - 1):
+            if not same(es[i], es[i + 1]):
+                return False
+    return True
+
+
+def E16HQ_xv(text, b):
+    """An x-value as written: "3", "−1", "ln 4", "ln 12/ln 5"."""
+    t = text.strip().rstrip(".")
+    m = re.fullmatch(r"(−?)ln (\d+)/ln (\d+)", t)
+    if m:
+        return (-1 if m.group(1) else 1) * sp.log(int(m.group(2))) / sp.log(int(m.group(3)))
+    m = re.fullmatch(r"(−?)ln ?\(?(\d+(?:/\d+)?)\)?", t)
+    if m:
+        return (-1 if m.group(1) else 1) * sp.log(sp.Rational(m.group(2)))
+    if re.fullmatch(r"−?\d+(?:/\d+)?", t):
+        return sp.Rational(t.replace("−", "-"))
+    return None
+
+
+def E16HQ_check(q):
+    u_id, paper = q["view"]["unknown"], q["paper"]
+    U = E16HQ_U
+    f, b, a, B, C = E16HQ_read(q)
+    quad = a * U ** 2 + B * U + C
+    rts = sp.roots(sp.Poly(quad, U))
+    need(all(r.is_Rational for r in rts), "a root in u is not rational")
+    roots = sorted(rts.keys())
+    pos = [r for r in roots if r > 0]
+    sols = [E16HQ_log(r, b) for r in pos]
+    if q["view"]["angle"] == "graph-zeros":
+        need(paper == 2, "a graph-zeros question is not Paper 2")
+    for bb, us in E16HQ_MAPS:
+        need(not (b == bb and a == 1 and {abs(r) for r in roots} == us), "the skill map's example, or it with a sign flipped")
+    need(b in (2, 3, 4, 5, 7, sp.E), f"the base {b} is outside the limits")
+    wr = {}
+    bt = "e" if b == sp.E else str(b)
+    if u_id in ("two-powers", "reject-negative", "zero-root"):
+        need(all(s_.is_Integer and -2 <= s_ <= 4 for s_ in sols), f"x = {sols} is not whole from −2 to 4")
+        want = E16HQ_xs(sols)
+        if u_id == "two-powers":
+            need(len(sols) == 2 and len(roots) == 2, "not two solutions")
+            wr[E16HQ_MAP + "2"] = {E16HQ_xs(roots)}
+            small = [r for r in pos if r < 1]
+            if small:
+                wr[E16HQ_OWN + "4"] = {E16HQ_xs([s_ for r, s_ in zip(pos, sols) if r >= 1])}
+        elif u_id == "reject-negative":
+            neg = [r for r in roots if r < 0]
+            need(len(sols) == 1 and len(neg) == 1, "not one positive and one negative root")
+            k = E16HQ_log(-neg[0], b)
+            need(k.is_Integer, "the negative root is not minus a power of b")
+            wr[E16HQ_MAP + "1"] = {E16HQ_xs(sols + [k])}
+            wr[E16HQ_MAP + "2"] = {E16HQ_xs(roots)}
+        else:
+            need(C == 0 and len(sols) == 1 and 0 in roots, "not a zero root and one positive root")
+            wr[E16HQ_OWN + "3"] = {E16HQ_xs(sols + [0])}
+            wr[E16HQ_MAP + "2"] = {E16HQ_xs(pos)}
+    elif u_id == "exact-ln":
+        need(b == sp.E and a == 1 and len(pos) == 2 and all(r.q == 1 and 3 <= r <= 9 for r in pos), f"roots {roots} break the limits")
+        want = f"x = ln {E16HQ_n(pos[0])} or x = ln {E16HQ_n(pos[1])}"
+        wr[E16HQ_MAP + "2"] = {f"x = {E16HQ_n(pos[0])} or x = {E16HQ_n(pos[1])}"}
+        lin = sp.solve(sp.Eq(2 * a * U + B * U + C, 0), U)
+        wr[E16HQ_MAP + "0"] = {f"x = {E16HQ_ln(r)}" for r in lin if r > 0}
+        if q["view"]["rep"] == "graph":
+            g = q["graph"]
+            need(g is not None, "no graph")
+            P = {p["label"]: p for p in g["points"]}
+            need(set(P) == {"P", "Q"}, "the graph doesn't mark P and Q")
+            for lab, s_ in zip("PQ", sols):
+                need(abs(P[lab]["x"] - float(s_)) < 1e-9 and P[lab]["y"] == 0, f"{lab} is not at the zero x = {s_}")
+            for px, py in g["curves"][0][::13]:
+                need(abs(py - float(E16HQ_num(f, {X: sp.nsimplify(px)}))) <= 1e-6 * max(1, abs(py)), "the curve drawn is not its equation")
+    elif u_id == "exact-log-base":
+        neg = [r for r in roots if r < 0]
+        need(b != sp.E and len(pos) == 1 and len(neg) == 1 and pos[0].q == 1, "not one whole positive root and one negative")
+        r, s_ = pos[0], -neg[0]
+        need(not E16HQ_log(r, b).is_Rational and 3 <= r <= 20 and 2 <= s_ <= 9, f"u = {r} breaks the limits")
+        want = f"x = ln {r}/ln {bt}"
+        wr[E16HQ_OWN + "6"] = {f"x = ln {bt}/ln {r}"}
+        wr[E16HQ_MAP + "1"] = {f"x = ln {r}/ln {bt} or x = ln {s_}/ln {bt}"}
+        wr[E16HQ_MAP + "2"] = {f"x = {r}"}
+    else:
+        n = len(pos)
+        want = f"number of solutions = {n}"
+        if len(rts) == 1:
+            need(n == 1, "a repeated root that is not positive")
+            wr[E16HQ_OWN + "5"] = {"number of solutions = 2"}
+        if any(r < 0 for r in roots):
+            wr[E16HQ_MAP + "1"] = {f"number of solutions = {len(roots)}"}
+        if any(0 < r < 1 for r in roots):
+            wr[E16HQ_OWN + "4"] = {f"number of solutions = {sum(1 for r in roots if r >= 1)}"}
+    gc_check_common(q, want, wr)
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            need(E16HQ_claims_ok(st, f, b, quad, sols), f"{sol['name']}: {st!r} is not true")
+        if sol["angle"] == "graph-zeros" and u_id != "solution-count":
+            need(any(st == "It crosses the x-axis " + ("once, at " if len(sols) == 1 else "at ") + " and ".join(f"x = {E16HQ_n(s_)}" for s_ in sols) + "." for st in sol["steps"]), "the GDC's zeros are not the solutions")
+        if sol["angle"] == "graph-zeros" and u_id == "solution-count":
+            said = {2: "It crosses the x-axis twice.", 0: "It doesn't meet the x-axis."}.get(len(sols), "It touches the x-axis once, without crossing it." if len(rts) == 1 else "It crosses the x-axis once.")
+            need(said in sol["steps"], "the GDC's graph doesn't show the count")
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E16HQ_spot(q, lines):
+    f, b, a, B, C = E16HQ_read(dict(q, lines=q["lines"][:q["lines"].index("A student's working:")]))
+    U = E16HQ_U
+    quad = a * U ** 2 + B * U + C
+    sols = [E16HQ_log(r, b) for r in sp.roots(sp.Poly(quad, U)) if r > 0]
+    for i, t in enumerate(lines):
+        if not E16HQ_claims_ok(t, f, b, quad, sols):
+            return i
+    return None
+
+
+E16HQ_PREV = SITUATION_CHECKS["solve-exponential"]
+E16HQ_PREV_SPOT = SPOT_CHECKS.get("solve-exponential")
+
+
+def E16HQ_entry(q):
+    return E16HQ_check(q) if q["view"]["unknown"] in E16HQ_UNKNOWNS else E16HQ_PREV(q)
+
+
+def E16HQ_spot_entry(q, lines):
+    if q["view"]["unknown"] in E16HQ_UNKNOWNS:
+        return E16HQ_spot(q, lines)
+    return E16HQ_PREV_SPOT(q, lines)
+
+
+SITUATION_CHECKS["solve-exponential"] = E16HQ_entry
+SPOT_CHECKS["solve-exponential"] = E16HQ_spot_entry
+
+
+# ── bearings-elevation, t3-ext-two-observations (FAL-779) ───
+# The distance AB and the two angles of elevation are read back from the lines. The top T is
+# found again from coordinates (A at 0, B at d, T where the two lines of sight meet), not from the
+# sine rule the engine uses, at 40 digits. Every tagged option is rebuilt from its slip, the side
+# view is held to the story, and every numerical equation in the working is worked out again from
+# the figures it shows, with each length it gives (BT, TF, BF, x, y) held to the true one.
+
+E16TO_MAP = "SL3.3.two-observations#"
+E16TO_OWN = "t3-ext-two-observations#"
+E16TO_UNKNOWNS = ("angle-at-top", "slant-distance", "height-two-angles", "ground-distance", "height-exact", "height-either-side")
+
+
+def E16TO_read(q):
+    L, u = q["lines"], q["view"]["unknown"]
+    if u == "height-either-side":
+        m = re.fullmatch(r"A and B are points on level ground, (\d+) m apart, and the foot F of a vertical (.+) is on the line between them\.", L[0])
+        m2 = re.fullmatch(r"The angle of elevation of the top T is (\d+)° from A and (\d+)° from B\.", L[1])
+        need(m and m2, f"can't read {L[:2]!r}")
+        return int(m.group(1)), int(m2.group(1)), int(m2.group(2)), m.group(2), True
+    m = re.fullmatch(r"A and B are points on level ground, in a straight line with the foot F of a vertical (.+), and B is between A and F\.", L[0])
+    m2 = re.fullmatch(r"AB = (\d+) m\. The angle of elevation of the top T is (\d+)° from A and (\d+)° from B\.", L[1])
+    need(m and m2, f"can't read {L[:2]!r}")
+    return int(m2.group(1)), int(m2.group(2)), int(m2.group(3)), m.group(1), False
+
+
+def E16TO_eval(text):
+    """A numerical expression as the working writes it, at 40 digits; None where it has words."""
+    t = text.strip().rstrip(".").strip()
+    t = re.sub(r"(sin|cos|tan) (\d+)°", r"\1(radians(\2))", t)
+    t = t.replace("°", "").replace("−", "-").replace("×", "*").replace("÷", "/")
+    t = re.sub(r"√(\d+)", r"sqrt(\1)", t)
+    t = re.sub(r"(\d)(sqrt)", r"\1*\2", t)
+    if not re.fullmatch(r"[0-9.+\-*/() ]*(?:(?:sin|cos|tan|radians|sqrt)[0-9.+\-*/() ]*)*", t) or not re.search(r"\d", t):
+        return None
+    try:
+        return mpmath.mpf(eval(t, {"__builtins__": {}}, {"sin": mpmath.sin, "cos": mpmath.cos, "tan": mpmath.tan, "radians": mpmath.radians, "sqrt": mpmath.sqrt}))
+    except Exception:
+        return None
+
+
+def E16TO_steps(q, truth):
+    """Every numerical equation holds to the figures shown, and each named length is the true one."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for frag in re.split(r", so |: |; |, and |, | and |\. ", st.rstrip(".")):
+                sides = frag.split(" = ")
+                if len(sides) < 2:
+                    continue
+                vals = [E16TO_eval(p) for p in sides]
+                for a, b in zip(vals, vals[1:]):
+                    if a is None or b is None:
+                        continue
+                    # A figure shown to 5 s.f. (102 for 102.0003) is that value to its last place.
+                    tol = abs(b) * mpmath.mpf("1.2e-4") + mpmath.mpf("1e-25")
+                    need(abs(a - b) <= tol, f"{sol['name']}: {frag!r} doesn't hold ({a} against {b})")
+                name = re.sub(r"^(?:So |They meet at |Triangle BFT has a right angle at F: |Let )", "", sides[0]).strip()
+                last = next((v for v in reversed(vals) if v is not None), None)
+                for key in ("BT", "TF", "BF", "x", "y"):
+                    if name == key and last is not None and key in truth:
+                        need(abs(last - truth[key]) <= abs(truth[key]) * mpmath.mpf("1.2e-4"), f"{sol['name']}: {name} = {last}, not {truth[key]}")
+            # "They meet at x = 32.474, y = 22.739": both read.
+            for key, v in re.findall(r"\b(x|y) = ([\d.]+)(?=[,:])", st):
+                need(abs(mpmath.mpf(v) - truth[key]) <= truth[key] * mpmath.mpf("1.2e-4"), f"{sol['name']}: {key} = {v} is not the crossing")
+
+
+def E16TO_check(q):
+    with mpmath.workdps(40):
+        return E16TO_work(q)
+
+
+def E16TO_work(q):
+    u, asked, paper = q["view"]["unknown"], q["asked"], q["paper"]
+    d, al, be, thing, either = E16TO_read(q)
+    tan, sin, cos = be_t, be_s, be_c
+    dm = mpmath.mpf(d)
+    # T from the two lines of sight: y = x tan α from A at 0, and y = ±(x − d) tan β from B at d.
+    if either:
+        need(40 <= d <= 200 and 20 <= al <= 70 and 20 <= be <= 70 and abs(al - be) >= 8 and al + be <= 140, f"{d}, {al}°, {be}° break the limits")
+        xf = dm * tan(be) / (tan(al) + tan(be))
+        bf = dm - xf
+    else:
+        exact = u == "height-exact"
+        if exact:
+            need(paper == 1 and (al, be) == (30, 60) and d % 2 == 0 and 4 <= d <= 60, f"{d}, {al}°, {be}° break the exact limits, or not Paper 1")
+        else:
+            need(15 <= al <= 45 and al + 10 <= be <= min(al + 30, 75) and 20 <= d <= 120, f"{d}, {al}°, {be}° break the limits")
+        xf = dm * tan(be) / (tan(be) - tan(al))
+        bf = xf - dm
+    if u != "height-exact":
+        need(paper == 2, "not Paper 2")
+    h = xf * tan(al)
+    bt = mpmath.hypot(bf, h)
+    truth = {"BT": bt, "TF": h, "BF": bf, "x": bf, "y": h}
+    wr = {}
+    label, tail, x = None, " m", None
+
+    def W(ref, val):
+        if val > 0:
+            wr.setdefault(ref, set()).add(be_text(label, val, tail))
+
+    if u == "angle-at-top":
+        top = be_angle((xf, h), (0, 0), (dm, 0))
+        need(abs(top - mpmath.nint(top)) < mpmath.mpf("1e-20"), "angle ATB is not whole")
+        want = f"angle ATB = {int(mpmath.nint(top))}°"
+        wr[E16TO_MAP + "1"] = {f"angle ATB = {al + be}°"}
+        wr[E16TO_OWN + "3"] = {f"angle ATB = {180 - al - be}°"}
+        need(asked == "Find angle ATB.", f"asked {asked!r}")
+    elif u == "height-exact":
+        he = sp.Integer(d) * sp.tan(sp.pi / 6) * sp.tan(sp.pi / 3) / (sp.tan(sp.pi / 3) - sp.tan(sp.pi / 6))
+        need(abs(sp.N(he, 40) - sp.Float(str(h), 40)) < 1e-25, "the exact height is not the height")
+        want = f"height = {rt_exact(he)} m"
+        wr[E16TO_MAP + "0"] = {f"height = {rt_exact(d * sp.tan(sp.pi / 3))} m"}
+        wr[E16TO_OWN + "5"] = {f"height = {rt_exact(sp.Integer(d) * sp.cos(sp.pi / 3))} m"}
+        wr[E16TO_OWN + "4"] = {f"height = {d} m"}  # BT = AB in the isosceles triangle
+        need(asked == f"Find the exact height of the {thing}.", f"asked {asked!r}")
+    else:
+        if u == "slant-distance":
+            label, x = "BT = ", bt
+            W(E16TO_MAP + "1", dm * sin(al) / sin(al + be))
+            W(E16TO_MAP + "2", dm * tan(al))
+            need(asked.startswith("Find the distance BT."), f"asked {asked!r}")
+        elif u == "ground-distance":
+            label, x = "BF = ", bf
+            W(E16TO_MAP + "0", dm)
+            W(E16TO_OWN + "6", dm + bf)
+            need(asked.startswith("Find the distance BF."), f"asked {asked!r}")
+        else:
+            label, x = "height = ", h
+            need(asked.startswith(f"Find the height of the {thing}."), f"asked {asked!r}")
+            W(E16TO_MAP + "0", dm * tan(be))
+            if u == "height-two-angles":
+                W(E16TO_MAP + "1", dm * sin(al) * sin(be) / sin(al + be))
+                W(E16TO_OWN + "4", bt)
+                W(E16TO_OWN + "5", bt * cos(be))
+            else:
+                lo, hi = min(al, be), max(al, be)
+                W(E16TO_OWN + "7", dm * sin(lo) * sin(hi) / sin(hi - lo))
+        need(x > 0 and be_clear(x), f"{x} is on a rounding edge")
+        need(asked.endswith(" Give your answer to 3 significant figures."), f"asked {asked!r}")
+        for o in q["choices"]:
+            v = re.search(r"= (−?[\d.]+)", o["text"])
+            need(v is not None and be_clear(R(v.group(1).replace("−", "-"))), f"option {o['text']!r} is on a rounding edge or unread")
+    trap = None
+    if x is not None:
+        want = be_text(label, x, tail)
+        t2 = bn_trap(label, nu_f(x))
+        trap = t2 + tail if t2 else None
+    gc_check_common(q, want, wr, trap)
+    # The side view, to scale, with T above F and the asked part marked ?.
+    pts = be_figure(q, True)
+    for n, p in (("A", (0, 0)), ("B", (dm, 0)), ("F", (xf, 0)), ("T", (xf, h))):
+        need(n in pts, f"no {n} in the sketch")
+    s = pts["B"][0] / dm
+    for n, p in (("A", (0, 0)), ("F", (xf, 0)), ("T", (xf, h))):
+        need(abs(pts[n][0] - p[0] * s) + abs(pts[n][1] - p[1] * s) < mpmath.mpf("1e-6") * dm * s, f"{n} is not where the story puts it")
+    need("F" in q["graph"].get("right", []), "no right angle at F")
+    ask = {"angle-at-top": "ATB", "slant-distance": "BT", "ground-distance": "BF"}.get(u, "TF")
+    marks = [ln["a"] + ln["b"] for ln in q["graph"]["lines"] if ln["label"] == "?"] + [a["from"] + a["at"] + a["to"] for a in q["graph"]["arcs"] if a["label"] == "?"]
+    need(marks in ([ask], [ask[::-1]]), f"the sketch marks {marks}, not {ask}")
+    E16TO_steps(q, truth)
+    E17_no_hyphen(q)
+    return None, None
+
+
+E16TO_PREV = SITUATION_CHECKS["bearings-elevation"]
+
+
+def E16TO_entry(q):
+    return E16TO_check(q) if q["view"]["unknown"] in E16TO_UNKNOWNS else E16TO_PREV(q)
+
+
+SITUATION_CHECKS["bearings-elevation"] = E16TO_entry
+
+
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]
