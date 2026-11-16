@@ -179,7 +179,7 @@ func u_interest_value(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var n: int = s.n
 	var V: Q = s.V
 	var exact: float = s.exact
-	var factor := "%.3f" % (1.0 + s.r.to_float() / 100.0)
+	var factor := Fmt.dec(Q.new(1).add(s.r.div(100)))
 	var factor_n := pow(1.0 + s.r.to_float() / 100.0, n)
 	var shown := "$" + Fmt.money(V)
 	var lines: Array = ["%s invests $%d in an account that pays %s%% per year, compounded annually." % [WHO[s.ctx], pv, Fmt.dec(s.r)],

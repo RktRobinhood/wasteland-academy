@@ -44063,7 +44063,7 @@ def E17ST_check(q):
         need(pv % 100 == 0 and 500 <= pv <= 5000 and 2 <= r <= 9 and (2 * r).q == 1 and 3 <= n <= 8, "the investment breaks the limits")
         exact = pv * (1 + r / 100) ** n
         need(ci_clear(exact) and ci_cents(exact) == V and V.q != 1, f"${V} is not the value to the nearest cent, or is too close to an edge")
-        factor = f"{Decimal((1 + r / 100).p) / Decimal((1 + r / 100).q):.3f}"
+        factor = dec_text(1 + r / 100)
         mr = re.fullmatch(rf"{pv} × {re.escape(factor)}\^{n} = (\d+\.\d{{4}}), which is \${re.escape(ci_money(V))} to the nearest cent", q["answer_text"])
         need(mr is not None and abs(R(mr.group(1)) - exact) <= sp.Rational(1, 20000) + sp.Rational(1, 10 ** 9), f"the right working {q['answer_text']!r} is not the value to 4 decimal places")
         want = q["answer_text"]
