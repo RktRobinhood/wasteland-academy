@@ -35,7 +35,7 @@ This is the plan's nine-part arc as the research brief on [FAL-934](/FAL/issues/
 | 4 | `example`, `level: full` | 60–90 s | The easiest version, fully worked, every step labelled out loud ("Step three: the formula"). |
 | 5 | `your-turn`, `kind: twin` | player-paced | The same structure as example 1 with new numbers. |
 | 6 | `example`, `level: faded` | 45–60 s | Harder by one thing. The tutor does most of it and the player fills in the key step. |
-| 7 | `example`, `level: exam` | 90–120 s | Parts (a), (b), (c) with command terms, and every board habit on show. |
+| 7 | `example`, `level: exam` | 90–120 s | First the stem, read out in one or two plain lines (10–15 s) with its givens going on the board. Then parts (a), (b), (c) with command terms, and every board habit on show. |
 | 8 | `second-method` | 60–90 s | Only when the map lists a second method. The same problem as example 3, side by side, then "when would you pick each?" Otherwise the section is there with `skipped` and a reason. |
 | 9 | `spot-the-slip` | 30–45 s | A wrong worked solution built from one of the map's misconceptions. The player taps the bad line, and the tutor shows the check that catches it. |
 | 10 | `your-turn`, `kind: exam` | player-paced | Exam style, live numbers, no help on the first try. |
@@ -59,6 +59,8 @@ The board shows maths and nothing else. Jokes live in the voice. Every example m
 8. **Command terms done the way they ask.** Write down needs no working. Find does. Hence uses the part before. For show that, start from the general case, keep n as n, end exactly on the given line and never work backwards.
 9. **Keep going after a slip.** Use your own earlier answer in later parts, because the marker follows your working through.
 10. **Mistakes crossed out, never rubbed out.** One line through, and the right working beside it. (This one is Mags's habit, but every tutor can use it.)
+
+**The exam example reads its stem first.** Before part (a), the tutor says the setup in one or two plain lines, about 10 to 15 seconds, so nobody hears an answer before they know the question. The givens go on the board as they're said, one per line, with units and no `part` field. If a letter or notation is new to the player, define it in the same line ("f of x names a rule: whatever goes in for x, f of x is what comes out"). The checker rejects an exam example with no part-less board item before part (a).
 
 When the topic calls for them, add the brief's others: the setup before evaluating (the integral with its limits and dx, the probability statement P(…)), + C as its own line, GDC inputs written as a list with the output (never keystrokes), sketch conventions, and the proof layout for induction.
 
