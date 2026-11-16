@@ -171,7 +171,8 @@ export function build() {
 
   // `subtopics` lists the subtopic IDs the course covers, so the engine can tell which
   // questions a student on that course may be asked (a skill's subtopic is its first two
-  // dot-separated parts, as in engine/courses.gd).
+  // dot-separated parts, as in engine/courses.gd). `skills` lists the skills that narrow
+  // their subtopic's courses, each with its own; the engine reads those first.
   const index = {
     courses: COURSES.map(c => ({
       ...c,
@@ -181,6 +182,7 @@ export function build() {
       }),
       subtopics: live.filter(x => x.st.courses.includes(c.id)).map(x => x.st.id),
     })),
+    skills: Object.fromEntries(live.flatMap(x => x.st.skills.filter(k => k.courses).map(k => [k.id, k.courses]))),
   };
   for (const c of index.courses) for (const t of c.topics)
     if (!Number.isFinite(t.hours)) errors.push(`${c.id} topic ${t.n}: no hours`);
