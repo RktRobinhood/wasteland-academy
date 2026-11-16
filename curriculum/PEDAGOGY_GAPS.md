@@ -1973,7 +1973,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Solve an exponential equation exactly with logarithms (`t1-solve-exponential`, exam, 1 bank parts)
 
-- **Situation:** An exponential equation solved with logarithms, in symbols or in a story, shared with `t1-ext-common-base`.
+- **Situation:** An exponential equation solved with logarithms, in symbols or in a story, shared with `t1-ext-common-base`, `t1-ext-hidden-quadratic`.
 - **Representations:** **equation**, words, graph (bold: the exam uses it)
 - **Unknowns:**
   - new L3: given a^(x + p) = b^x or a^x = b^(c − x), or their curves crossing at P → x to 3 s.f.
@@ -2333,7 +2333,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Bearings, elevation and depression in context (`t3-bearings-elevation`, exam, 8 bank parts)
 
-- **Situation:** Journeys, sightings and connected triangles.
+- **Situation:** Journeys, sightings and connected triangles, shared with `t3-ext-two-observations`.
 - **Representations:** **words**, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given the bearing of B from A → the bearing of A from B

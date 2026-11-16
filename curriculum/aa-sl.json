@@ -2641,9 +2641,9 @@
                 }
               ],
               "misconceptions": [
-                "Treating 2^(2x) as 2 × 2^x instead of (2^x)²",
-                "Keeping a root such as e^x = −3, which has no real solution",
-                "Stopping at u = 2 and u = 4 and forgetting to solve 2^x = u"
+                "Reading a power 2x as twice the power, instead of the power squared",
+                "Keeping a negative value of u, which no power of a positive base can equal",
+                "Giving the values of u as the solutions, without going on to solve b^x = u"
               ],
               "threads": [
                 {
@@ -8354,8 +8354,8 @@
                 }
               ],
               "misconceptions": [
-                "Using the 50 m between observers as the distance to the foot of the tower",
-                "Taking the angle at the top as α + β instead of β − α",
+                "Using the distance between the two observers as the distance to the foot of the object",
+                "Taking the angle at the top as the sum of the two angles of elevation instead of their difference",
                 "Using a right-triangle ratio in the triangle that has no right angle"
               ],
               "threads": [
