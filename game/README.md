@@ -416,6 +416,31 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   sections are prefixed `E17CB_`, `E17EL_`, `E17SF_` (both standard-form types), `E17RV_` and
   `E17ST_`, with the tools they share prefixed `E17_`; on a shared situation the checker sends the
   new unknowns to its section and every other unknown to the exam type's checks as before.
+- **The sequence extension types** (FAL-779, batch E16, lane B): two types that cover syllabus skills
+  no exam type lists, so they carry no exam parts. Both share an exam type's situation, adding unknowns
+  to it, so the exam types' own cells, numbers and checks are unchanged. `t1-ext-partial-vs-infinite`
+  (SL1.8.sn-vs-sinf) on `geometric-sequence` (with `t1-geometric-sequence` and `t1-sum-to-infinity`)
+  is Paper 2 throughout: u₁ a multiple of 20 and 0 < r < 1, shown as u₁ and r or as four terms, and it
+  asks the least n with S∞ − Sₙ below a gap, the least n with Sₙ past a percentage of S∞ (each crossing
+  at least 0.1 from a whole number, so a GDC's table settles it), the share of S∞ the first k terms
+  give (at most 99%) and the gap S∞ − Sₖ, both to 3 s.f. The least n is worked as the tail series
+  S∞ × rⁿ with powers tried either side, with logs (the sign turned at ln r < 0), from a GDC table of
+  S∞ − Sₙ or Sₙ, or where the graphs of the gap and the tolerance cross; a working value is written to
+  six figures, keeping its zeros when it is rounded, and the next step works from what is shown.
+  `t1-ext-sigma-arithmetic` (SL1.2.sigma) on `arithmetic-sequence` (with `t1-arithmetic-sequence`)
+  reads Σ (r = a to b) (pr + q) as the sequence with u₁ = pa + q and d = p: the number of terms, its
+  value from r = 1 and from a higher lower limit (by the first and last terms, by splitting into pΣr
+  and Σq, as a difference of two sums from r = 1, or with the GDC's Σ, which is Paper 2), a series
+  written out to put in Σ form (p, q and n, by u₁ + (r − 1)d or as a linear function), and the upper
+  limit k from the total, whose quadratic has a negative whole second root. The skill map's example
+  sums are left out, and SL1.2.sigma's map strings, which quoted them, now name the slip. Built
+  formats: method-pick and error-spot on partial-vs-infinite (the inequality kept after dividing by
+  ln r), and error-spot on sigma (the constant added once, the terms counted as b − a). The
+  catalogue's `match` and `multipart` formats are not built in the engine, so these types don't offer
+  them. Their steps are not in `curriculum/moves-map.json` yet, as no type from E12 on is. The
+  checker's sections are prefixed `E16PI_` and `E16SA_`, with the tools they share prefixed `E16B_`
+  (a line's =, < and > read with SymPy, a Σ summed first); on each shared situation the checker sends
+  the new unknowns to its section and every other unknown to the exam type's checks as before.
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
