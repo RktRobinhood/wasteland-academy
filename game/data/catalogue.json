@@ -80343,7 +80343,7 @@
 						],
 						"why": "the GDC gives the crossing as a decimal, not as an exact surd"
 					},
-					"name": "Intersect the two height expressions",
+					"name": "Intersect the two height expressions on the GDC",
 					"about": "Graph y = x tan β and y = (x + 50) tan α and read the intersection: x is the distance and y the height."
 				}
 			],

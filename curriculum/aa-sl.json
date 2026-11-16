@@ -8349,7 +8349,7 @@
                 {
                   "id": "gdc-intersection",
                   "approach": "gdc",
-                  "name": "Intersect the two height expressions",
+                  "name": "Intersect the two height expressions on the GDC",
                   "summary": "Graph y = x tan β and y = (x + 50) tan α and read the intersection: x is the distance and y the height."
                 }
               ],
