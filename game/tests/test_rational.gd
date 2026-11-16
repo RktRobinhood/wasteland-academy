@@ -339,3 +339,21 @@ func test_the_least_whole_number_rounds_up() -> void:
 		check(QuestionEngine.mark(q, typed).correct, "n = %s is right" % str(s.n))
 		var down := {"v": Q.new(int(s.n) - 1).key()}
 		check(not QuestionEngine.mark(q, down).correct, "rounding down is wrong")
+
+
+func test_an_excluded_value_is_found_before_it_is_checked() -> void:
+	# #193: the worked solution substituted the answer without finding it, and the prompt
+	# was not exam phrasing.
+	var t := "fn-pre-algebraic-fractions"
+	for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown == "excluded-value"):
+		for seed in range(1, 12):
+			var q := _make(t, c.unknown, c.rep, c.angle, seed, "mcq")
+			check_eq(q.asked, "Find the value of x for which the %s is undefined, and give a reason." % ("expression" if c.rep == "equation" else "fraction"), c.key)
+			# The key reads "x ≠ −7/2, because the bottom would be 0".
+			var key: String = q.choices.filter(func(o): return o.correct)[0].text
+			var h: String = key.trim_prefix("x ≠ ").get_slice(",", 0)
+			var sol: Dictionary = q.solutions.filter(func(x): return x.angle == "number-check")[0]
+			var first := Step.text(sol.steps[0])
+			check(first.begins_with("A fraction is undefined where its bottom is 0, so solve "), first)
+			check(first.ends_with("x = %s." % h), "%s seed %d: %s" % [c.key, seed, first])
+			check(Step.text(sol.steps[1]).begins_with("Check with the number: put x = %s" % h), Step.text(sol.steps[1]))

@@ -59,3 +59,19 @@ func test_every_tag_shows_up() -> void:
 	var ms: Array = QuestionEngine.type_of(TYPE).misconceptions
 	for i in ms.size():
 		check(seen.has(ms[i].get("ref", "%s#%d" % [TYPE, i])), "%s never shows" % ms[i].get("ref", i))
+
+
+func test_the_foot_of_the_perpendicular_is_placed_right() -> void:
+	# #193: with C = 60°, CH = b/2 from C along CB. b > 2a puts H past B, b = 2a puts it at B.
+	var v := ExactTriangleViews.new()
+	for row in [[5, 4, "between B and C, so HB = 5 − 2 = 3"], [3, 10, "beyond B, so HB = 5 − 3 = 2"], [4, 8, "at B itself, so HB = 0"]]:
+		var a: int = row[0]
+		var b: int = row[1]
+		var c2: int = a * a + b * b - a * b
+		var s := {"a": a, "b": b, "C": 60, "c2": c2, "side": S.simplify(c2)}
+		var steps: Array = v.u_exact_side("words", s, Seeded.new("foot")).methods["drop-perpendicular"].steps
+		check(steps[1].contains(row[2]), "a = %d, b = %d: %s" % [a, b, steps[1]])
+		check(not steps[1].contains("beyond C"), "a = %d, b = %d: H is not beyond C" % [a, b])
+	# C = 120°: H is on BC extended past C.
+	var s := {"a": 3, "b": 4, "C": 120, "c2": 37, "side": S.simplify(37)}
+	check(v.u_exact_side("words", s, Seeded.new("foot")).methods["drop-perpendicular"].steps[1].contains("beyond C, so HB = 3 + 2 = 5"))

@@ -314,3 +314,15 @@ func test_merging_needs() -> void:
 	check_eq(QuestionEngine.merge_need({"no_halves": false}, {"no_halves": true}), {"no_halves": true})
 	check_eq(QuestionEngine.merge_need({"mode": "rational"}, {"mode": "none"}), null)
 	check_eq(QuestionEngine.merge_need({"mode": "rational"}, {"mode": "any"}), {"mode": "rational"})
+
+
+func test_the_reviewed_probes_say_what_they_ask() -> void:
+	# #193: the trig-model predict-check asked three things at once, and the log-of-quadratic
+	# answer ("the maximum gets smaller") held only when the vertex height is above 1.
+	var trig := QuestionEngine.probe("t3-trig-model-use", 2)
+	check_eq(trig.kind, "predict-check")
+	check_eq(trig.verdict, "Negative")
+	check(trig.prompt.contains("positive or negative"), trig.prompt)
+	var lq := QuestionEngine.probe("fn-log-of-quadratic", 2)
+	check_eq(lq.kind, "interpret-parameter")
+	check(lq.prompt.contains("greater than 1"), lq.prompt)
