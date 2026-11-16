@@ -2143,8 +2143,8 @@ all-regions dungeon, `all-<island>` for another island's, and `thunderdome` work
 - Engine Core (`calculus`): `kinematics`, `stationary-points`, `tangents-normals`,
   `definite-integrals`, `derivative-rules`, `derivative-basics`, `integration`
 
-Only the Signal Tower's regions have backdrops so far. A region with no `backdrop` shows
-a close-up of its island cut from the overworld painting (the arena for the
+Only the Signal Tower's and the Scrap Fields' regions have backdrops so far. A region
+with no `backdrop` shows a close-up of its island cut from the overworld painting (the arena for the
 Thunderdome) under the same wash (`backdrop_for()` in `ui/map.gd`), so it reads as that
 island rather than a blank screen.
 
