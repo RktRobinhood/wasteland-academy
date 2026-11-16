@@ -27,7 +27,7 @@ over the historical lesson dates below: complete the mathematics engine, roll
 out question content for the other courses, then implement playable lessons.
 No delivery date for an academic interface or expanded bank ingestion is set.
 
-## Now to November 15: the Functions island in Godot
+## Now to November 15: the Functions zone in Godot
 
 Matt asked for the Godot rebuild after the student trial (GitHub issue #8, planned on FAL-274). Godot took over the main address on November 4 (FAL-721), and the HTML game moved to `/classic/`.
 
@@ -37,8 +37,8 @@ Matt asked for the Godot rebuild after the student trial (GitHub issue #8, plann
 | Nov 4 | Exponentials and logs, Graphs and key features with the in-game calculator, Composite and inverse, Rational functions | FAL-274 |
 | Nov 8 | Progress check. It decides whether class phase 1 makes the November 15 build | FAL-291 |
 | Nov 11 | Function basics, Lines and Transformations, the calculator skin, then the 9 extra skills | FAL-274 |
-| Nov 13 | Planning check: the island order and the split between the tracks (see After November 15) | FAL-274 |
-| Nov 15 | The Functions island in Godot, for mid-term review | FAL-274 |
+| Nov 13 | Planning check: the zone order and the split between the tracks (see After November 15) | FAL-274 |
+| Nov 15 | The Functions zone in Godot, for mid-term review | FAL-274 |
 
 Art runs alongside: icon animation loops (FAL-323) and a one-region slice of the side-scrolling journey scene (FAL-289, FAL-293).
 
@@ -46,7 +46,7 @@ Explainer prep also runs alongside, after Thursday's demo: the move list, Spark'
 
 ## After November 15
 
-The explainer player comes first, November 16–22. Then two tracks run side by side: the four remaining islands, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3), the journey scene (FAL-289) and encounters, the rare talking events on the road (FAL-347, code in FAL-349), fit around them, and so does the soundtrack below. The island order and the split between the tracks are set at the November 13 planning check. After the explainer player, Coder builds the Male Learner two ways, as a 3D model and as a 2D cut-out rig, and CEO compares them at strip size (FAL-368). The result decides how new characters are posed, including B0-LT's cutout in L3.
+The explainer player comes first, November 16–22. Then two tracks run side by side: the four remaining zones, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3), the journey scene (FAL-289) and encounters, the rare talking events on the road (FAL-347, code in FAL-349), fit around them, and so does the soundtrack below. The zone order and the split between the tracks are set at the November 13 planning check. After the explainer player, Coder builds the Male Learner two ways, as a 3D model and as a 2D cut-out rig, and CEO compares them at strip size (FAL-368). The result decides how new characters are posed, including B0-LT's cutout in L3.
 
 ### Explainers: chalkboard "videos" that are really the engine
 
@@ -72,7 +72,7 @@ Matt's spec is GitHub issue #13 (FAL-325). Players find salvaged CRT and VR mach
 | Nov 30 – Dec 13 | **L2 Pilot: The Broken Conveyor** (SL2.11, graph transformations), with placeholder art. Its demonstrate step uses the explainer player. | Coder |
 | Dec 14–20 | **L3 Presentation.** B0-LT as a cutout character and the CRT and salvaged-VR look. One week, because the explainer player already does narration and captions. | Coder, Artist |
 | Jan 4–17, 2027 | **L4 A second lesson that plays differently,** to prove the lesson engine isn't built around one lesson. Plus a first Relic Library terminal. | Coder |
-| From Jan 18, 2027 | **L5 Scale up** from the lesson map, island by island, in the order the islands ship. | Coder, Curriculum Author, Artist |
+| From Jan 18, 2027 | **L5 Scale up** from the lesson map, zone by zone, in the order the zones ship. | Coder, Curriculum Author, Artist |
 
 The spec's rule stands: build and test two lessons before making more.
 
@@ -84,14 +84,14 @@ No lesson code is written before November 15. The Godot build leaves these place
 - **Engine:** any screen can ask for a question by type, unknown, representation, angle and seed, not only a run. A lesson's apply step uses the same recipes and answer checker as runs, so no lesson question is written by hand (FAL-322).
 - **Mistakes:** when a wrong answer matches a multiple-choice distractor, the save records which misconception it was. Lesson feedback uses this, and later the planner can suggest the lesson for that mistake (FAL-322).
 - **One explanation per mistake:** lesson feedback comes from the same `misconceptions` entries in `curriculum/question-types.json` as the distractors, so a mistake is explained the same way everywhere.
-- **Map:** each island map keeps a spot for a Relic device, and the overworld keeps a spot for the Relic Library.
+- **Map:** each zone's map keeps a spot for a Relic device, and the overworld keeps a spot for the Relic Library.
 - **IDs:** lesson IDs follow the curriculum rule (`curriculum/README.md`). They're permanent once they're on `main`.
 
 ### Where the lessons live
 
-The spec's six themed locations become Relic stations inside our five islands. The islands' names, art and IDs stay as they are.
+The spec's six themed locations become Relic stations inside our five zones. The zones' names, art and IDs stay as they are.
 
-| Island | Relic station | Character |
+| Zone | Relic station | Character |
 |---|---|---|
 | The Scrap Fields (Number and algebra) | Trader's Caravan | A paranoid wasteland accountant |
 | The Signal Tower (Functions) | Scrapworks | B0-LT, a malfunctioning scrap robot |
@@ -114,7 +114,7 @@ Matt's ask is FAL-357, and the plan there is approved. The game gets lo-fi study
 |---|---|---|
 | Nov 16–22 | **S0 Spike, about a day.** Install ACE-Step 1.5 in ComfyUI, render about 30 candidates for the Signal Tower set, cut the loops, build a listening page, and test three synced layers in a web build (FAL-364). | Audio Designer, and Matt listens |
 | Dec 7–20 | **S1 Sound system.** Audio buses, the Music and Sound effects toggles, `set_tension`, about 15 sound effects, and the Signal Tower set in the game. The Voice bus, its toggle and ducking come earlier, with the explainer player (FAL-429). | Coder |
-| As each island ships | **S2 One music set per island,** plus a title theme and stingers. Ready by launch or just after. | Audio Designer, and Matt listens |
+| As each zone ships | **S2 One music set per zone,** plus a title theme and stingers. Ready by launch or just after. | Audio Designer, and Matt listens |
 
 These rules hold for every step:
 

@@ -1,14 +1,14 @@
 # Encounters
 
-Rare talking events on the road: a Meet, a Deal or a Standoff takes the place of one fight. The questions are the island's ordinary recipe questions. These files hold only the words around them; the game holds every number (damage, heals, Scrap, how often). Full design: the spec on FAL-347.
+Rare talking events on the road: a Meet, a Deal or a Standoff takes the place of one fight. The questions are the zone's ordinary recipe questions. These files hold only the words around them; the game holds every number (damage, heals, Scrap, how often). Full design: the spec on FAL-347.
 
 | File | What it is |
 |---|---|
 | `signal-tower.json` | The Signal Tower set (Functions): a list of encounters. |
-| `cell.json` | The Cell, where every `lockup` bust lands, on every island. One object: its damage type and its line lists. |
-| `damage-types.json` | The damage flashes every encounter picks from, shared by every island. A list of types. |
+| `cell.json` | The Cell, where every `lockup` bust lands, in every zone. One object: its damage type and its line lists. |
+| `damage-types.json` | The damage flashes every encounter picks from, shared by every zone. A list of types. |
 
-New islands get their own `<island>.json` in the same format. A shared wasteland set, when there is one, goes in `wasteland.json`.
+New zones get their own `<zone>.json` in the same format. The `island` field keeps its name: it's a key, not text a player reads. A shared wasteland set, when there is one, goes in `wasteland.json`.
 
 ## The format
 
@@ -41,7 +41,7 @@ New islands get their own `<island>.json` in the same format. A shared wasteland
 }
 ```
 
-- `id` starts with the island's prefix (`st-` for Signal Tower), lower case with hyphens. IDs are permanent once on `main`, because saves store them.
+- `id` starts with the zone's prefix (`st-` for Signal Tower), lower case with hyphens. IDs are permanent once on `main`, because saves store them.
 - `kind`: `meet`, `deal` or `standoff`.
 - `prize`: `heal` or `scrap` for a Meet; `heal`, `lifeline` or `scrap` for a Deal; `scrap` for a Standoff.
 - `bust`: `none` for a Meet; `lockup` or `ambush` for a Deal; `big_trap` for a Standoff.
@@ -53,7 +53,7 @@ New islands get their own `<island>.json` in the same format. A shared wasteland
 - `miss` plays after a miss that doesn't bust. Write at least 2. The miss that busts plays `bust`. A miss never undoes progress, so no miss line says it does. The game starts at a different `miss` line on each run, so they can come in any order, and a Deal or Standoff only plays one before the bust. Every `miss` line has to work as the first one, and has to set up the `bust` on its own.
 - `cast.voice` stands in for a full voice sheet for a one-off character. Gear Mira, Dax and Noma stay out of encounters. A `spark` line follows Spark's block in `../voice-sheets.md`.
 
-`cell.json` has `damage` (a type `id`, shown on every hunger tick, after a right answer or a wrong one), `open`, `right` (a bar works loose; at least 2), `miss` (at least 2), `hunger` (said when a hunger tick lands; at least 3), `escape`, and `thrown_out` (the guard gives up after six questions). It is shared by every island, so it names nothing island-specific.
+`cell.json` has `damage` (a type `id`, shown on every hunger tick, after a right answer or a wrong one), `open`, `right` (a bar works loose; at least 2), `miss` (at least 2), `hunger` (said when a hunger tick lands; at least 3), `escape`, and `thrown_out` (the guard gives up after six questions). It is shared by every zone, so it names nothing zone-specific.
 
 ## Damage types
 
@@ -71,7 +71,7 @@ Each entry in `damage-types.json` is one type:
 ## Rules for the lines
 
 - **Every bubble is at most 70 characters**, so it fits two lines on a 360 px phone.
-- **Any question on the island has to fit.** No line names the question's maths or hints at an answer. The question card sits under the bubble.
+- **Any question in the zone has to fit.** No line names the question's maths or hints at an answer. The question card sits under the bubble.
 - **No numbers for stakes or prizes.** The game shows HP and Scrap in a chip. Lines don't promise "double" or "a lot".
 - **Every number in a line is checked**, and the checks go in the hand-off. Ask Curriculum Author when unsure.
 - Nobody calls a question easy, and no line genders the player (see `../voice-sheets.md`).

@@ -71,7 +71,7 @@ npm test
 
 - `tests/content/`: content validator (`node --test`). Known content defects are listed in `tests/content/known-defects.mjs` and show as TODO.
 - `tests/unit/`: unit checks (`node --test`): question generator, spaced repetition, save migrations, and the offline rules above (no remote URLs, everything precached, vendored KaTeX matches `katex@0.16.9`).
-- `tests/e2e/`: Playwright. A full island fight on a phone screen, a small-phone layout check, service-worker checks (a full fight with the network off, and updates), save export/import, and the install button and iOS tip.
+- `tests/e2e/`: Playwright. A full fight in a zone on a phone screen, a small-phone layout check, service-worker checks (a full fight with the network off, and updates), save export/import, and the install button and iOS tip.
 - `tools/explainer-clips/`: short voiced explainer clips in the game's look, built in three.js and rendered to video unattended. See its README for the process.
 - `tools/telemetry/`: the weekly telemetry outlier report (`report.py`), tested on fake events with planted outliers: `python3 -m unittest discover -s tools/telemetry`.
 
@@ -158,10 +158,10 @@ at `/`, and an HTML game save made at `/` is there at `/classic/`.
 
 ## Status
 
-Playable. The Godot game is live at the main address. All five islands are open, each
-with its regions, runs, mini-bosses and bosses, and so are the Thunderdome (every island
+Playable. The Godot game is live at the main address. All five zones are open, each
+with its regions, runs, mini-bosses and bosses, and so are the Thunderdome (every zone
 mixed), the Bazaar and Practice. The question engine has 148 built question types across
 the five AA SL topics; the HL and AI courses play the ones that cover them. Still to
-come: paintings for four of the islands and backdrops for their regions, the Relic
+come: paintings for four of the zones and backdrops for their regions, the Relic
 Library's lessons, and encounters. See [`ROADMAP.md`](ROADMAP.md) and
 [`game/README.md`](game/README.md).

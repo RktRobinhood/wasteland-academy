@@ -8,7 +8,7 @@
 
 ## 1. CONCEPT
 
-A roguelite math review game for IB Mathematics: Analysis and Approaches SL. Students navigate a post-apocalyptic wasteland overworld (Mario World structure), entering topic islands to battle math enemies and visiting a central **Thunderdome** for configurable exam-prep runs. The aesthetic is **Salvage Neon Bazaar** — dark, gritty wasteland punctuated by vibrant neon. Built as a Progressive Web App so students can install it to their phone home screen and play it like a native game.
+A roguelite math review game for IB Mathematics: Analysis and Approaches SL. Students navigate a post-apocalyptic wasteland overworld (Mario World structure), entering topic zones to battle math enemies and visiting a central **Thunderdome** for configurable exam-prep runs. The aesthetic is **Salvage Neon Bazaar** — dark, gritty wasteland punctuated by vibrant neon. Built as a Progressive Web App so students can install it to their phone home screen and play it like a native game.
 
 **Core philosophy**: Productive struggle + flow state + spaced repetition. The game responds to the student's level, rewards being in the right difficulty zone, and circles back to weak spots with breathing room.
 
@@ -96,7 +96,7 @@ Each content file registers itself via a global `WA.registerPack(pack)` call. Th
 │   ├── base.css            ← Reset, typography, safe areas
 │   ├── screens.css         ← Screen-level layouts
 │   ├── combat.css          ← Battle UI components
-│   ├── map.css             ← Overworld + island map
+│   ├── map.css             ← Overworld + zone map
 │   └── stats.css           ← Stats/debrief screen
 │
 ├── js/
@@ -123,7 +123,7 @@ Each content file registers itself via a global `WA.registerPack(pack)` call. Th
     ├── avatars/            ← Player avatar sprites
     ├── enemies/            ← Enemy sprites per difficulty tier
     ├── ui/                 ← Lifeline icons, HP bar frames, buttons
-    └── map/                ← Overworld map, island backgrounds
+    └── map/                ← Overworld map, zone backgrounds
 ```
 
 ---
@@ -191,10 +191,10 @@ Post-apocalyptic wasteland world. Dark, desolate base punctuated by vibrant hand
 ## 4. GAME STRUCTURE
 
 ### 4.1 Overworld Map (Mario World)
-A wasteland map showing 5 topic islands + the central Thunderdome.
+A wasteland map, The Wasteland, showing 5 topic zones + the central Thunderdome. Players read each place's name, never "island" or "zone" (#203, `writing/glossary.md`).
 
-**Islands** (topic zones):
-| Island | Topic | IB Reference |
+**Zones**:
+| Zone | Topic | IB Reference |
 |--------|-------|-------------|
 | The Scrap Fields | Numbers & Algebra | Topic 1 |
 | The Signal Tower | Functions | Topic 2 |
@@ -204,16 +204,16 @@ A wasteland map showing 5 topic islands + the central Thunderdome.
 
 **Central Hub**: The Thunderdome — battle arena, always accessible
 
-Island states: **Locked** / **In Progress** / **Cleared** (boss defeated)  
+Zone states: **Locked** / **In Progress** / **Cleared** (boss defeated)  
 Node states: **Locked** / **Available** / **Complete** / **WANTED** (has flagged questions)
 
-### 4.2 Island Structure (Node Map)
-Island maps are hubs (FAL-531): regions sit around the island's tower, joined by branching roads, and open in any order. SPARK's pick (the untried, weakest or least-covered open region) gives guidance in place of gates. The floors inside a region stay in order.
-Each island contains 6–10 nodes arranged in a branching path:
+### 4.2 Zone Structure (Node Map)
+Zone maps are hubs (FAL-531): regions sit around the zone's tower, joined by branching roads, and open in any order. SPARK's pick (the untried, weakest or least-covered open region) gives guidance in place of gates. The floors inside a region stay in order. Players read a floor as a **mile** (`writing/glossary.md`).
+Each zone contains 6–10 nodes arranged in a branching path:
 - One **main branch** (linear, prerequisite-ordered)
 - **Side branches** for alternative/advanced subtopics
-- Node types: **Battle** (standard fight) / **Mini-Boss** / **Rest Point** (review worked solutions) / **Boss** (island finale)
-- Completing the island boss marks the island **Cleared** on the overworld
+- Node types: **Battle** (standard fight) / **Mini-Boss** / **Rest Point** (review worked solutions) / **Boss** (zone finale)
+- Completing the zone boss marks the zone **Cleared** on the overworld
 
 ### 4.3 Thunderdome
 Central arena, accessible from day one. Students configure their run before entering.
@@ -354,11 +354,11 @@ Examples:
 - *Lucky Find*: One extra lifeline charge this run
 - *Focused*: Timer extended by 10s on all questions this run
 
-### Mastery Gating (Island Mode)
-In the Godot game (FAL-531), island maps are hubs: every built region opens in any order, and SPARK's pick gives guidance in place of the gates below. Only the floors inside a region stay sequential.
-- Island nodes unlock sequentially along the main branch
+### Mastery Gating (Zone Mode)
+In the Godot game (FAL-531), zone maps are hubs: every built region opens in any order, and SPARK's pick gives guidance in place of the gates below. Only the floors inside a region stay sequential.
+- Zone nodes unlock sequentially along the main branch
 - Side branch nodes unlock when their prerequisite main-branch node is cleared
-- Island boss unlocks only when all main-branch nodes are cleared
+- Zone boss unlocks only when all main-branch nodes are cleared
 - No minimum accuracy required to "pass" a node — students may always retry
 
 ---
@@ -438,7 +438,7 @@ See `ART_REQUIREMENTS.md` for full generation briefs.
 - [ ] WANTED poster badge
 
 **Nice to have for v1:**
-- [ ] Island thumbnail images × 5 (shown on overworld map)
+- [ ] Zone thumbnail images × 5 (shown on overworld map)
 - [ ] Thunderdome arena background
 - [ ] SPARK expression variants (happy, thinking, sarcastic)
 
