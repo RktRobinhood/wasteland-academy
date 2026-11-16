@@ -1,7 +1,7 @@
 {
   "id": "ex.algebra.arithmetic-sequence",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Add the Same Each Step",
   "idea": "An arithmetic sequence adds the same amount d every time, so term n is the first term plus n − 1 lots of d.",
   "zone": "algebra",

@@ -37,6 +37,9 @@ const RULES = [
   ['an unknown turn type', s => { section(s, 'turn-1').turn.type = 't9-no-such-type'; }, /type t9-no-such-type is not in curriculum\/question-types\.json/],
   // Structure
   ['sections out of arc order', s => { s.sections.reverse(); }, /is out of arc order/],
+  ['a recall with neither version', s => { delete section(s, 'recall').not_watched; }, /a recall section has both watched and not_watched/],
+  ['a no-prerequisite recall in a script that builds on one', s => { const r = section(s, 'recall'); r.builds_on = null; r.beats = r.watched; }, /builds_on null is only for a script with no builds_on/],
+  ['a no-prerequisite recall with no beats', s => { s.builds_on = []; const r = section(s, 'recall'); r.builds_on = null; delete r.watched; delete r.not_watched; }, /a recall section with builds_on null has beats/],
   ['an unknown section kind', s => { section(s, 'recap').kind = 'encore'; }, /unknown section kind encore/],
   ['a strike with no board key', s => { slip(s).beats.find(b => b.board?.some(x => x.strike)).board.find(x => x.strike).strike = 's9'; }, /strike s9 is not an earlier board key/],
   ['a tap-line choice with no board key', s => { ask(s, 'spot-the-slip').choices[0] = 's9'; }, /tap-line choice s9 is not a board key/],

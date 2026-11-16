@@ -1,7 +1,7 @@
 {
   "id": "ex.foundations.pre-expand",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Fill the Rectangle",
   "idea": "(x + a)(x + b) is the area of a rectangle split into four pieces, so expanding multiplies every term in one bracket by every term in the other, and (x + a)² has two middle strips.",
   "zone": "foundations",

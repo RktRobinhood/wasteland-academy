@@ -122,10 +122,14 @@ export function checkScript(script, ctx, file = `${script.id}.json`) {
     if (s.kind === 'your-turn' && !ctx.types.has(s.turn?.type)) err(`${w}.turn`, `type ${s.turn?.type} is not in curriculum/question-types.json`);
     if (s.kind === 'recall') {
       for (const b of s.builds_on ? [s.builds_on].flat() : []) if (!(script.builds_on || []).includes(b)) err(w, `builds_on ${b} is not in the script's builds_on`);
-      if (!s.watched?.length || !s.not_watched?.length) err(w, 'a recall section has both watched and not_watched');
+      // With no prerequisite there is nothing to have watched: one beats list, builds_on null (README, "Callback lines").
+      if (s.builds_on === null) {
+        if ((script.builds_on || []).length) err(w, 'a recall section with builds_on null is only for a script with no builds_on');
+        if (!s.beats?.length) err(w, 'a recall section with builds_on null has beats');
+      } else if (!s.watched?.length || !s.not_watched?.length) err(w, 'a recall section has both watched and not_watched');
     }
     // Each recall version is its own board; any other section is one board.
-    const scopes = s.kind === 'recall' ? [['watched', s.watched], ['not_watched', s.not_watched]] : [['beats', s.beats]];
+    const scopes = s.kind === 'recall' && s.builds_on !== null ? [['watched', s.watched], ['not_watched', s.not_watched]] : [['beats', s.beats]];
     for (const [name, beats] of scopes) {
       const keys = new Set(), all = new Set();
       for (const { item } of items(beats, '')) if (item?.key) all.add(item.key);

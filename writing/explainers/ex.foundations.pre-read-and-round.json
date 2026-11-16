@@ -1,7 +1,7 @@
 {
   "id": "ex.foundations.pre-read-and-round",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Read the Gauge",
   "idea": "Work out what one step on a scale is worth before reading it, keep the full calculator value, and round once at the end to three significant figures, counting from the first non-zero digit.",
   "zone": "foundations",

@@ -1,7 +1,7 @@
 {
   "id": "ex.foundations.pre-substitute",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Brackets Round Negatives",
   "idea": "When you substitute, the number goes in brackets, sign and all, so a negative input is squared or multiplied correctly; then brackets, powers, × and ÷, + and −.",
   "zone": "foundations",
