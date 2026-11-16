@@ -33953,6 +33953,8 @@ E9TRIG_B, E9TRIG_TAN_AMP, E9TRIG_TAN_SIN, E9TRIG_SIN_TAN, E9TRIG_NO_D, E9TRIG_SW
 E9TRIG_AMP = E9TRIG_RF + "11"
 E9TRIG_AXIS, E9TRIG_MINUS, E9TRIG_SIN_COS, E9TRIG_WHEEL = [E9TRIG_RF + str(i) for i in range(7, 11)]
 E9TRIG_HALF, E9TRIG_DOUBLE = E9TRIG_EF + "0", E9TRIG_EF + "1"
+E9TRIG_NO_ADD_D, E9TRIG_OTHER_FN, E9TRIG_NO_A, E9TRIG_LATER_T, E9TRIG_SHORT, E9TRIG_PAST, E9TRIG_MIN_T, E9TRIG_WORDS, E9TRIG_TWICE_A = (
+    f"t3-trig-model-use#{i}" for i in range(13, 22))  # FAL-820
 E9TRIG_MAX_AMP, E9TRIG_X_AXIS, E9TRIG_BASE_AXIS, E9TRIG_STRICT, E9TRIG_LATER, E9TRIG_FLIP = (f"t3-trig-read-features#{i}" for i in range(15, 21))  # FAL-820
 E9TRIG_DEG, E9TRIG_FIRST, E9TRIG_PERB, E9TRIG_SIDE, E9TRIG_ONE_SIDE, E9TRIG_CYCLE, E9TRIG_C, E9TRIG_D_X = [E9TRIG_MC + str(i) for i in range(8)]
 E9TRIG_DIVIDE, E9TRIG_UNIT, E9TRIG_WHOLE, E9TRIG_SIGN = [E9TRIG_MC + str(i) for i in range(8, 12)]
@@ -34401,19 +34403,21 @@ def e9trig_model_use(q):
         m = re.fullmatch(rf"Find {re.escape(what)} when t = (\d+), to 3 significant figures\.", ask)
         need(m is not None, f"can't read {ask!r}")
         t = int(m[1])
-        e9trig_num(q, sym + " = ", e9trig_at(M, t), unit, {E9TRIG_DEG: [e9trig_at(M, t, True)]})
+        e9trig_num(q, sym + " = ", e9trig_at(M, t), unit, {E9TRIG_DEG: [e9trig_at(M, t, True)], E9TRIG_NO_ADD_D: [e9trig_at(M, t) - M["fd"]]})  # d not added
     elif u == "exact-value":
         m = re.fullmatch(rf"Find the exact value of {re.escape(what)} when t = (\d+)\.", ask)
         need(m is not None and paper == 1, f"can't read {ask!r}")
         t = int(m[1])
         fv = (sp.sin if M["fn"] == "sin" else sp.cos)(M["b"] * t)
+        ov = (sp.cos if M["fn"] == "sin" else sp.sin)(M["b"] * t)
         v = M["A"] * fv + M["d"]
-        tr_common(q, sym + " = ", v, {E9TRIG_SIGN: [M["d"] - M["A"] * fv]}, tail=unit, steps=(2, 5))
+        tr_common(q, sym + " = ", v, {E9TRIG_SIGN: [M["d"] - M["A"] * fv], E9TRIG_NO_ADD_D: [M["A"] * fv], E9TRIG_OTHER_FN: [M["A"] * ov + M["d"]],
+                                      E9TRIG_NO_A: [fv + M["d"]]}, tail=unit, steps=(2, 5))  # no d, the other function, no a
     elif u == "first-time-level":
         k = e9trig_level(q, M)
         xs = e9trig_cross(M, float(k), 1e-6, 2.2 * T)
         ds = e9trig_cross(M, float(k), 0.0, 1.01 * 360.0 / M["fb"], True)
-        e9trig_num(q, "t = ", xs[0], time, {E9TRIG_DEG: ds[:1]})
+        e9trig_num(q, "t = ", xs[0], time, {E9TRIG_DEG: ds[:1], E9TRIG_LATER_T: [xs[1], xs[0] + T]})  # a later crossing
     elif u == "all-times":
         m = re.fullmatch(rf"Find every time in 0 ≤ t ≤ (\d+) when {re.escape(what)} is ({E9TRIG_NUM}) {re.escape(M['unit'])}, to 3 significant figures\.", ask)
         need(m is not None, f"can't read {ask!r}")
@@ -34421,7 +34425,8 @@ def e9trig_model_use(q):
         xs = e9trig_cross(M, k, 0.0, L_)
         need(2 <= len(xs) <= 4, f"{len(xs)} times")
         ds = e9trig_cross(M, k, 0.0, 720.0 / M["fb"], True)[:2]
-        gc_check_common(q, e9trig_list(xs), {E9TRIG_FIRST: {e9trig_list(xs[:1])}, E9TRIG_DEG: {e9trig_list(ds)}})
+        gc_check_common(q, e9trig_list(xs), {E9TRIG_FIRST: {e9trig_list(xs[:1])}, E9TRIG_DEG: {e9trig_list(ds)},
+                                             E9TRIG_SHORT: {e9trig_list(xs[:-1])}, E9TRIG_PAST: {e9trig_list(xs + [xs[-1] + T])}})  # last missed, one past the end
     elif u in ("duration-above", "duration-below"):
         k = e9trig_level(q, M)
         w = e9trig_cycle(M, float(k))
@@ -34446,10 +34451,12 @@ def e9trig_model_use(q):
         t = M["tmax"]
         c = M["fc"]
         whole = abs(t - round(t)) < 1e-9
+        later, low_t = M["tmax"] + T, M["tmin"]  # the next peak, the first trough
         if whole:
-            gc_check_common(q, f"t = {round(t)}{time}", {E9TRIG_C: {f"t = {dec_text(sp.Rational(M['c']))}{time}"}})
+            ex = lambda v: f"t = {dec_text(sp.nsimplify(round(v, 9)))}{time}"
+            gc_check_common(q, f"t = {round(t)}{time}", {E9TRIG_C: {f"t = {dec_text(sp.Rational(M['c']))}{time}"}, E9TRIG_LATER_T: {ex(later)}, E9TRIG_MIN_T: {ex(low_t)}})
         else:
-            e9trig_num(q, "t = ", t, time, {E9TRIG_C: [c]})
+            e9trig_num(q, "t = ", t, time, {E9TRIG_C: [c], E9TRIG_LATER_T: [later], E9TRIG_MIN_T: [low_t]})
     elif u == "high-low-gap":
         need(M["dec"], "the gap needs a decimal b")
         e9trig_num(q, "Time = ", T / 2, time, {E9TRIG_WHOLE: [T], E9TRIG_PERB: [M["fb"] / 2]})
@@ -34477,7 +34484,8 @@ def e9trig_model_use(q):
         word = "highest" if big else "lowest"
         ts = lambda x: str(round(x)) if abs(x - round(x)) < 1e-9 else gc_s(e9trig_f(x))
         said = lambda w, y, x: f"The {w} value of {what} is {dec_text(y)}{unit}, first reached at t = {ts(x)}"
-        gc_check_common(q, said(word, v, t), {E9TRIG_D_X: {said(word, M["d"], t)}, E9TRIG_C: {said(word, v, M["fc"])}})
+        gc_check_common(q, said(word, v, t), {E9TRIG_D_X: {said(word, M["d"], t)}, E9TRIG_C: {said(word, v, M["fc"])},
+                                              E9TRIG_WORDS: {said("lowest" if big else "highest", v, t)}})  # the other word
     elif u == "reaches-level":
         m = re.fullmatch(rf"Does {re.escape(what)} ever reach ({E9TRIG_NUM}){re.escape(unit)}\? Which statement is right\?", ask)
         need(m is not None, f"can't read {ask!r}")
@@ -34488,7 +34496,8 @@ def e9trig_model_use(q):
         reach = float(k) < scan
         does = lambda v: f"It reaches {dec_text(k)}, as its largest value is {dec_text(v)}"
         never = lambda v: f"It never reaches {dec_text(k)}, as its largest value is {dec_text(v)}"
-        gc_check_common(q, does(top) if reach else never(top), {E9TRIG_D_X: {never(d)}, E9TRIG_NO_D: {never(a)}, E9TRIG_DOUBLE: {does(top + a)}})
+        gc_check_common(q, does(top) if reach else never(top), {E9TRIG_D_X: {never(d)}, E9TRIG_NO_D: {never(a)}, E9TRIG_DOUBLE: {does(top + a)},
+                                                                 E9TRIG_TWICE_A: {does(top + a)}})  # d + 2a
     else:
         raise Fail(f"no check for {u}")
 

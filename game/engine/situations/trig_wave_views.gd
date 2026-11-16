@@ -39,6 +39,17 @@ const R_BASE_AXIS := RF + "17"
 const R_STRICT := RF + "18"
 const R_LATER_PEAK := RF + "19"
 const R_FLIP_DIV := RF + "20"
+## t3-trig-model-use's own slips, by index (FAL-820).
+const MU := "t3-trig-model-use#"
+const R_NO_ADD_D := MU + "13"
+const R_OTHER_FN := MU + "14"
+const R_NO_TIMES_A := MU + "15"
+const R_LATER := MU + "16"
+const R_SHORT_LIST := MU + "17"
+const R_PAST_END := MU + "18"
+const R_MIN_TIME := MU + "19"
+const R_WORD_SWAP := MU + "20"
+const R_TWICE_A := MU + "21"
 
 const RF_UNKNOWNS := ["amplitude", "period", "amp-period", "principal-axis", "max-value", "min-value", "range", "first-max-x",
 	"tan-period", "tan-features", "b-from-graph", "a-d-from-graph", "intercept-gap", "b-from-story", "amp-axis-story", "wheel-a-b"]
@@ -868,7 +879,8 @@ func u_value_at_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong(v_of(m_value(s, t, true)), R_DEGREES)]
 	var u: float = s.B * (t - s.C.to_float())
 	var fv: float = sin(u) if s.fn == "sin" else cos(u)
-	out.generic = [v_of(2.0 * s.d.to_float() - v), v_of(s.A.to_float() * fv), v_of(v + s.a.to_float() / 2.0), v_of(v - 1.0)]
+	out.wrongs.append(wrong(v_of(s.A.to_float() * fv), R_NO_ADD_D))
+	out.fillers = [v_of(2.0 * s.d.to_float() - v), v_of(v + s.a.to_float() / 2.0), v_of(v - 1.0)]
 	var sym: String = ctx(s).sym
 	out.methods = {"substitute-evaluate": method(["Put t = %d into the model, with the angle in radians: the bracket is %s" % [s.t0, GdcKit.W(u)],
 		"%s(%s) = %s" % [s.fn, GdcKit.W(u), GdcKit.W(fv)], "%s = %s × %s + %s = %s" % [sym, D(s.A), PW(fv), D(s.d), GdcKit.W(v)], say(a)], a.values)}
@@ -885,7 +897,9 @@ func u_exact_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": set.lines, "graph": set.graph, "asked": "Find the exact value of %s when t = %d." % [what(s), s.t0]}
 	out.wrongs = TrigKit.like(a, TrigKit.plus(TrigKit.times(fv, s.A.neg()), TrigKit.V(s.d)), R_SIGN)
 	var other := TrigKit.of("cos" if s.fn == "sin" else "sin", angle_t)
-	out.generic = TrigKit.others(a, [TrigKit.times(fv, s.A), TrigKit.plus(TrigKit.times(other, s.A), TrigKit.V(s.d)), TrigKit.plus(fv, TrigKit.V(s.d)), TrigKit.plus(TrigKit.times(fv, s.A), TrigKit.V(s.d.add(1)))])
+	out.wrongs = mixed(out.wrongs + TrigKit.like(a, TrigKit.times(fv, s.A), R_NO_ADD_D) + TrigKit.like(a, TrigKit.plus(TrigKit.times(other, s.A), TrigKit.V(s.d)), R_OTHER_FN)
+		+ TrigKit.like(a, TrigKit.plus(fv, TrigKit.V(s.d)), R_NO_TIMES_A), _rng)
+	out.fillers = TrigKit.others(a, [TrigKit.plus(TrigKit.times(fv, s.A), TrigKit.V(s.d.add(1)))])
 	out.methods = {"substitute-evaluate": method(["Put t = %d into the model: %s(%d) = %s %s(%s) + %s" % [s.t0, sym, s.t0, D(s.A), s.fn, Fmt.pi(angle_t), D(s.d)],
 		"%s = %s" % [TrigKit.call_text(s.fn, angle_t, "rad"), TrigKit.text(fv)], "%s = %s × %s + %s = %s" % [sym, D(s.A), "(%s)" % TrigKit.text(fv) if TrigKit.fl(fv) < 0.0 else TrigKit.text(fv), D(s.d), TrigKit.text(v)], say(a)], a.values)}
 	return out
@@ -899,7 +913,8 @@ func u_first_time_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var set := m_setup(rep, s, 2.2 * s.T, s.level)
 	var out := {"answer": a, "lines": set.lines, "graph": set.graph, "asked": "Find the first time after t = 0 that %s is %s%s, to 3 significant figures." % [what(s), D(s.level), unit_of(s)]}
 	out.wrongs = [wrong(v_of(crossings(s, k, 720.0 / s.B, true)[0]), R_DEGREES)]
-	out.generic = [v_of(xs[1]), v_of(t + s.T), v_of(t + s.T / 2.0), v_of(absf(t - s.T / 4.0) + 0.5)]
+	out.wrongs += [wrong(v_of(xs[1]), R_LATER), wrong(v_of(t + s.T), R_LATER)]
+	out.fillers = [v_of(t + s.T / 2.0), v_of(absf(t - s.T / 4.0) + 0.5)]
 	out.methods = {"solve-analytically": method([rearrange(s, s.level), us_text(s, s.level), "Undoing the bracket, the times after 0 are t = %s, and each repeats every %s." % [list(xs.slice(0, 2)), GdcKit.W(s.T)], say(a)], a.values),
 		"gdc-intersection": method([gdc_line(s, s.level), "After t = 0 they first cross at t = %s." % GdcKit.W(t), say(a)], a.values)}
 	return out
@@ -915,7 +930,8 @@ func u_all_times(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong(like.call([xs[0]]), R_FIRST_ONLY)]
 	# In degree mode the first two solutions are far along, as the angles are read as small.
 	out.wrongs.append(wrong(like.call(crossings(s, s.level.to_float(), 720.0 / s.B, true).slice(0, 2)), R_DEGREES))
-	out.generic = [like.call(xs.slice(0, xs.size() - 1)), like.call(xs.map(func(x): return x + 1.0)), like.call(xs.map(func(x): return x + s.T / 4.0)), like.call(xs + [xs[xs.size() - 1] + s.T])]
+	out.wrongs = mixed(out.wrongs + [wrong(like.call(xs.slice(0, xs.size() - 1)), R_SHORT_LIST), wrong(like.call(xs + [xs[xs.size() - 1] + s.T]), R_PAST_END)], _rng)
+	out.fillers = [like.call(xs.map(func(x): return x + 1.0)), like.call(xs.map(func(x): return x + s.T / 4.0))]
 	var last := "The times in 0 ≤ t ≤ %d are %s." % [s.L, list(xs)]
 	var peak := peak_around(s, s.level.to_float())
 	var h: float = peak[1]
@@ -967,7 +983,7 @@ func u_duration_above(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var set := m_setup(rep, s, 2.2 * s.T, s.level)
 	var out := {"answer": a, "lines": set.lines, "graph": set.graph, "asked": "In each cycle, for how long is %s above %s%s? Answer to 3 significant figures." % [what(s), D(s.level), unit_of(s)]}
 	out.wrongs = [wrong(v_of(deg_width(s, k, true)), R_DEGREES), wrong(v_of(s.T - w), R_OTHER_SIDE), wrong(v_of(h), R_ONE_SIDE)]
-	out.generic = [v_of(w + s.T), v_of(w / 4.0), v_of(s.T), v_of(s.T / 2.0)]
+	out.fillers = [v_of(w + s.T), v_of(w / 4.0), v_of(s.T), v_of(s.T / 2.0)]
 	out.methods = duration_methods(s, a, true, w, [])
 	return out
 
@@ -988,7 +1004,7 @@ func u_duration_below(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var set := m_setup(rep, s, 2.2 * s.T, s.level)
 	var out := {"answer": a, "lines": set.lines, "graph": set.graph, "asked": "Between two neighbouring peaks, for how long is %s below %s%s? Answer to 3 significant figures." % [what(s), D(s.level), unit_of(s)]}
 	out.wrongs = [wrong(v_of(deg_width(s, k, false)), R_DEGREES), wrong(v_of(2.0 * h), R_OTHER_SIDE), wrong(v_of(w / 2.0), R_ONE_SIDE)]
-	out.generic = [v_of(w + s.T), v_of(w / 4.0), v_of(s.T), v_of(s.T / 2.0)]
+	out.fillers = [v_of(w + s.T), v_of(w / 4.0), v_of(s.T), v_of(s.T / 2.0)]
 	out.methods = duration_methods(s, a, false, w, [])
 	return out
 
@@ -1003,7 +1019,7 @@ func u_duration_span(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var set := m_setup(rep, s, s.L, s.level)
 	var out := {"answer": a, "lines": set.lines, "graph": set.graph, "asked": "For how long in 0 ≤ t ≤ %d is %s above %s%s? Answer to 3 significant figures." % [s.L, what(s), D(s.level), unit_of(s)]}
 	out.wrongs = [wrong(v_of(deg_width(s, k, true) * s.cycles), R_DEGREES), wrong(v_of(w), R_ONE_CYCLE), wrong(v_of(s.L - total), R_OTHER_SIDE)]
-	out.generic = [v_of(total / 2.0), v_of(total + w), v_of(float(s.L)), v_of(total + 1.0)]
+	out.fillers = [v_of(total / 2.0), v_of(total + w), v_of(float(s.L)), v_of(total + 1.0)]
 	var rest := ["0 ≤ t ≤ %d is %d periods of %s, so the total is %d × %s = %s" % [s.L, s.cycles, D(s.period), s.cycles, GdcKit.W(w), GdcKit.W(total)]]
 	var m := duration_methods(s, a, true, w, rest)
 	out.methods = {"symmetry-duration": m["symmetry-duration"], "gdc-intersection": m["gdc-intersection"]}
@@ -1021,7 +1037,8 @@ func u_first_max_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		a.values.v = Q.new(roundi(t))
 	var c: float = s.C.to_float()
 	out.wrongs = [wrong(v_of(c), R_C_PEAK)] if c > 0.0 else []
-	out.generic = [v_of(s.tmin), v_of(t + s.T), v_of(s.T), v_of(t + 1.0)]
+	out.wrongs += [wrong(v_of(s.tmin), R_MIN_TIME), wrong(v_of(t + s.T), R_LATER)]
+	out.fillers = [v_of(s.T), v_of(t + 1.0)]
 	var want := "1" if s.A.sign() > 0 else "−1"
 	var turn: float = (0.5 if s.fn == "sin" else 0.0) if s.A.sign() > 0 else (1.5 if s.fn == "sin" else 1.0)
 	var bracket: float = turn * PI
@@ -1040,7 +1057,7 @@ func u_high_low_gap(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var set := m_setup(rep, s, 2.2 * s.T)
 	var out := {"answer": a, "lines": set.lines, "graph": set.graph, "asked": "Find the time from a minimum of the model to the next maximum, to 3 significant figures."}
 	out.wrongs = [wrong(v_of(s.T), R_WHOLE_GAP), wrong(v_of(s.bdec.to_float() / 2.0), R_PERIOD_B)]
-	out.generic = [v_of(s.T / 4.0), v_of(gap + 1.0), v_of(1.5 * s.T), v_of(2.0 * s.T)]
+	out.fillers = [v_of(s.T / 4.0), v_of(gap + 1.0), v_of(1.5 * s.T), v_of(2.0 * s.T)]
 	var b := D(s.bdec)
 	var f := "The period is 2π ÷ %s = %s" % [b, GdcKit.W(s.T)]
 	out.methods = {"solve-analytically": method([f, "cos and sin go from −1 to 1 in half a turn of π, so the time is π ÷ %s = %s" % [b, GdcKit.W(gap)], say(a)], a.values),
@@ -1072,7 +1089,7 @@ func u_count_peaks(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var by_b: int = floori(s.L / s.B)
 	if by_b != n and by_b > 0:
 		out.wrongs.append(wrong({"v": Q.new(by_b)}, R_PERIOD_B))
-	out.generic = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 1))}, {"v": Q.new(2 * n)}]
+	out.fillers = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 1))}, {"v": Q.new(2 * n)}]
 	var first := "The period is %s, and the first maximum is at t = %s." % [GdcKit.W(s.T), GdcKit.W(s.tmax)]
 	out.methods = count_methods(s, a, s.tmax, n, "peak", str(s.L), [first])
 	return out
@@ -1094,7 +1111,7 @@ func u_count_lows(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var whole := floori(s.L / s.T)
 	if whole != n:
 		out.wrongs.append(wrong({"v": Q.new(whole)}, R_DIVIDE))
-	out.generic = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 1))}, {"v": Q.new(2 * n)}]
+	out.fillers = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 1))}, {"v": Q.new(2 * n)}]
 	var first := "The first %s is %d %s. The period is %s, and the first minimum is at t = %s." % [name, s.L, c.time, GdcKit.W(s.T), GdcKit.W(s.tmin)]
 	out.methods = count_methods(s, a, s.tmin, n, "trough", str(s.L), [first])
 	return out
@@ -1116,12 +1133,12 @@ func u_interpret_extreme(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var c: float = s.C.to_float()
 	if c > 0.0 and absf(c - t) > 1e-6:
 		ws.append([said.call(word, value, c), R_C_PEAK])
-	ws.append([said.call("lowest" if big else "highest", value, t), ""])
+	ws.append([said.call("lowest" if big else "highest", value, t), R_WORD_SWAP])
 	ws.append([said.call(word, value, t + s.T / 2.0), ""])
-	var cl := DerivativeMeaningViews.claim_answer(said.call(word, value, t), ws.slice(0, 3))
+	var cl := DerivativeMeaningViews.claim_split(said.call(word, value, t), ws.slice(0, 3))
 	var a: Dictionary = cl.answer
 	var set := m_setup(rep, s, 2.2 * s.T)
-	var out := {"answer": a, "wrongs": cl.wrongs, "generic": [], "lines": set.lines, "graph": set.graph, "asked": "Write down the %s value of the model, and say what it means here." % ("maximum" if big else "minimum")}
+	var out := {"answer": a, "wrongs": cl.wrongs, "fillers": cl.fillers, "lines": set.lines, "graph": set.graph, "asked": "Write down the %s value of the model, and say what it means here." % ("maximum" if big else "minimum")}
 	var right: String = Answer.text(a) + "."
 	out.methods = {"substitute-evaluate": method(["%s runs between %s and %s, so it stays within %s of %s." % [s.fn, "−1", "1", D(s.a), D(s.d)], "So the %s value is %s %s %s = %s, first at t = %s." % [word, D(s.d), "+" if big else "−", D(s.a), D(value), ft(t)], "Put t = %s into the model: it gives %s." % [ft(t), D(value)], right], a.values)}
 	return out
@@ -1135,14 +1152,14 @@ func u_reaches_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var r_text_: String
 	if s.reach:
 		r_text_ = does.call(s.top)
-		ws = [[never.call(s.d), R_D_EXTREME], [never.call(s.a), R_NO_D], [does.call(s.top.add(s.a)), ""]]
+		ws = [[never.call(s.d), R_D_EXTREME], [never.call(s.a), R_NO_D], [does.call(s.top.add(s.a)), R_TWICE_A]]
 	else:
 		r_text_ = never.call(s.top)
-		ws = [[does.call(s.top.add(s.a)), ""], [never.call(s.d), R_D_EXTREME], [never.call(s.a), R_NO_D]]
+		ws = [[does.call(s.top.add(s.a)), R_TWICE_A], [never.call(s.d), R_D_EXTREME], [never.call(s.a), R_NO_D]]
 	var cl := DerivativeMeaningViews.claim_answer(r_text_, ws)
 	var a: Dictionary = cl.answer
 	var set := m_setup(rep, s, s.T * (1.25 if s.paper == 1 else 2.2), s.level)
-	var out := {"answer": a, "wrongs": cl.wrongs, "generic": [], "lines": set.lines, "graph": set.graph, "asked": "Does %s ever reach %s%s? Which statement is right?" % [what(s), k, unit_of(s)]}
+	var out := {"answer": a, "wrongs": cl.wrongs, "fillers": [], "lines": set.lines, "graph": set.graph, "asked": "Does %s ever reach %s%s? Which statement is right?" % [what(s), k, unit_of(s)]}
 	var r: float = s.level.sub(s.d).div(s.A).to_float()
 	var right: String = Answer.text(a) + "."
 	var big := "The largest value of %s is 1, so the model's largest value is %s + %s = %s." % [s.fn, D(s.d), D(s.a), D(s.top)]

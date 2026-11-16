@@ -41771,6 +41771,80 @@
 						"reaches-level"
 					],
 					"wrong": "|a| as the largest value"
+				},
+				{
+					"text": "Forgetting to add d after working out the wave part",
+					"as": "distractor",
+					"in": [
+						"value-at-time",
+						"exact-value"
+					],
+					"wrong": "a times the trig value, without d"
+				},
+				{
+					"text": "Using the value of the other function, cos in place of sin or sin in place of cos",
+					"as": "distractor",
+					"in": [
+						"exact-value"
+					],
+					"wrong": "the other function's value"
+				},
+				{
+					"text": "Forgetting to multiply the trig value by a",
+					"as": "distractor",
+					"in": [
+						"exact-value"
+					],
+					"wrong": "the trig value plus d"
+				},
+				{
+					"text": "Giving a later time instead of the first one after zero",
+					"as": "distractor",
+					"in": [
+						"first-time-level",
+						"first-max-time"
+					],
+					"wrong": "a later crossing or a later peak"
+				},
+				{
+					"text": "Stopping before the end of the interval, which misses the last time",
+					"as": "distractor",
+					"in": [
+						"all-times"
+					],
+					"wrong": "the list without its last time"
+				},
+				{
+					"text": "Including a time past the end of the interval",
+					"as": "distractor",
+					"in": [
+						"all-times"
+					],
+					"wrong": "one time too many, after the interval ends"
+				},
+				{
+					"text": "Giving the time of the first minimum instead of the first maximum",
+					"as": "distractor",
+					"in": [
+						"first-max-time"
+					],
+					"wrong": "the time of the minimum"
+				},
+				{
+					"text": "Describing the maximum as the lowest value, or the minimum as the highest",
+					"as": "distractor",
+					"in": [
+						"interpret-extreme"
+					],
+					"wrong": "highest and lowest swapped"
+				},
+				{
+					"text": "Adding a twice to d, as if the amplitude were the whole height of the wave",
+					"as": "distractor",
+					"in": [
+						"reaches-level"
+					],
+					"wrong": "d + twice a as the largest value"
 				}
 			],
 			"chain": [
