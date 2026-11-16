@@ -36,11 +36,40 @@ static func wrong(values: Dictionary, ref: String = "") -> Dictionary:
 	return {"values": values, "ref": ref}
 
 
-static func dec(v: Q) -> Dictionary:
-	var ans := Answer.make("number", {"v": v})
+## A rounded number, written with the figures it was rounded to (FAL-1051): 0.00730 to
+## 3 s.f., 2.30 to 2 d.p. An option is told apart by its text, so 0.0073 is another option;
+## one with the answer's value is still never a wrong option (Answer.values_right), and a
+## typed number is marked by value, since a typed 0.0073 can't keep a zero it never had.
+static func rounded(r: Q, text: String) -> Dictionary:
+	var ans := Answer.make("form", {"v": r, "text": text}, {"parts": [{"slot": "v"}]})
 	ans.exact = true
-	ans.show = "dec"
 	return ans
+
+
+## r's neighbours at 3 s.f., one 3rd figure up, down and two up: the last options, for
+## when the slips above have the answer's value (12.996 to 2 or 4 s.f. is 13.0).
+static func near(r: Q) -> Array:
+	return [1, -1, 2].map(func(k): return sf_values(r.add(_unit(r).mul(Q.new(k))), 3))
+
+
+## v to n significant figures, as an option: the value and its text with its zeros.
+static func sf_values(v: Q, n: int) -> Dictionary:
+	return {"v": GraphReadingSituation.sf_q(v, n), "text": Fmt.sf(v, n)}
+
+
+## v to n decimal places, as an option.
+static func dp_values(v: Q, n: int) -> Dictionary:
+	var r := GraphReadingSituation.dp_q(v, n)
+	return {"v": r, "text": places(r, n)}
+
+
+## r, which has at most n decimal places, written with exactly n: 2.3 to 2 places is "2.30".
+static func places(r: Q, n: int) -> String:
+	var t := Fmt.dec(r)
+	if n == 0:
+		return t
+	var have := t.length() - t.find(".") - 1 if t.contains(".") else 0
+	return (t if t.contains(".") else t + ".") + "0".repeat(n - have)
 
 
 func u_read_coordinates(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -100,14 +129,14 @@ func u_plot_from_table(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 func u_round_3sf(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v: Q = s.v
 	var r := GraphReadingSituation.sf_q(v, 3)
-	var ans := dec(r)
-	var final := "So it is %s to 3 s.f." % Fmt.dec(r)
+	var ans := rounded(r, Fmt.sf(v, 3))
+	var final := "So it is %s to 3 s.f." % ans.values.text
 	# Cut off after 3 figures, not rounded.
 	var trunc := Q.new(floori(v.to_float() / _unit(v).to_float() + 1e-9)).mul(_unit(v))
 	return {
 		"asked": "Write %s correct to 3 significant figures." % Fmt.dec(v), "lines": [Fmt.dec(v)], "answer": ans,
-		"wrongs": [wrong({"v": GraphReadingSituation.sf_q(v, 2)}, T + "4")],
-		"generic": [{"v": trunc}, {"v": GraphReadingSituation.sf_q(v, 4)}, {"v": r.add(_unit(v))}],
+		"wrongs": [wrong(sf_values(v, 2), T + "4")],
+		"generic": [sf_values(trunc, 3), sf_values(v, 4)] + near(r),
 		"methods": {
 			"first-nonzero-digit": {"result": ans.values, "steps": ["Count three figures from the first non-zero digit of %s." % Fmt.dec(v),
 				"The next digit decides: round once, up if it is 5 or more.", final]},
@@ -118,20 +147,20 @@ func u_round_3sf(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 ## The size of the 3rd significant figure of v: 0.01 for 2.345.
 static func _unit(v: Q) -> Q:
-	var e := floori(log(absf(v.to_float())) / log(10.0)) - 2
+	var e := floori(log(absf(v.to_float())) / log(10.0) + 1e-12) - 2
 	return Q.new(1, int(pow(10, -e))) if e < 0 else Q.new(int(pow(10, e)))
 
 
 func u_round_small_3sf(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v: Q = s.v_small
 	var r := GraphReadingSituation.sf_q(v, 3)
-	var ans := dec(r)
-	var final := "So it is %s to 3 s.f." % Fmt.dec(r)
+	var ans := rounded(r, Fmt.sf(v, 3))
+	var final := "So it is %s to 3 s.f." % ans.values.text
+	var two := GraphReadingSituation.dp_q(v, 2)
 	return {
 		"asked": "Write %s correct to 3 significant figures." % Fmt.dec(v), "lines": [Fmt.dec(v)], "answer": ans,
-		"wrongs": [wrong({"v": GraphReadingSituation.dp_q(v, 3)}, T + "2")],
-		"generic": [{"v": GraphReadingSituation.dp_q(v, 2) if not GraphReadingSituation.dp_q(v, 2).is_zero() else Q.new(1, 100)}, {"v": GraphReadingSituation.sf_q(v, 2)},
-			{"v": r.mul(Q.new(10))}],
+		"wrongs": [wrong(dp_values(v, 3), T + "2")],
+		"generic": [dp_values(v, 2) if not two.is_zero() else {"v": Q.new(1, 100), "text": "0.01"}, sf_values(v, 2), sf_values(r.mul(Q.new(10)), 3)] + near(r),
 		"methods": {"first-nonzero-digit": {"result": ans.values, "steps": ["The zeros after the point don't count: start at the first non-zero digit.",
 			"Keep three figures from there and round once.", final]}},
 	}
@@ -141,12 +170,13 @@ func u_round_dp(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v: Q = s.v
 	var n: int = s.dp
 	var r := GraphReadingSituation.dp_q(v, n)
-	var ans := dec(r)
-	var final := "So it is %s to %d decimal place%s." % [Fmt.dec(r), n, "" if n == 1 else "s"]
+	var ans := rounded(r, places(r, n))
+	var final := "So it is %s to %d decimal place%s." % [ans.values.text, n, "" if n == 1 else "s"]
+	var step := Q.new(1, int(pow(10, n)))
 	return {
 		"asked": "Write %s correct to %d decimal place%s." % [Fmt.dec(v), n, "" if n == 1 else "s"], "lines": [Fmt.dec(v)], "answer": ans,
-		"generic": [{"v": GraphReadingSituation.dp_q(v, n + 1)}, {"v": GraphReadingSituation.sf_q(v, n) if not GraphReadingSituation.sf_q(v, n).eq(r) else r.add(Q.new(1, 10))},
-			{"v": GraphReadingSituation.dp_q(v, 3 - n)}, {"v": r.sub(Q.new(1, int(pow(10, n))))}],
+		"generic": [dp_values(v, n + 1), sf_values(v, n) if not GraphReadingSituation.sf_q(v, n).eq(r) else {"v": r.add(Q.new(1, 10)), "text": places(r.add(Q.new(1, 10)), n)},
+			dp_values(v, 3 - n)] + [-1, 1, 2].map(func(k): return {"v": r.add(step.mul(Q.new(k))), "text": places(r.add(step.mul(Q.new(k))), n)}),
 		"methods": {
 			"decimal-places": {"result": ans.values, "steps": ["Count %d digit%s after the decimal point." % [n, "" if n == 1 else "s"],
 				"The next digit decides whether to round up.", final]},
