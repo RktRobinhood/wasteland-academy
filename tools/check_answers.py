@@ -45094,6 +45094,1381 @@ SITUATION_CHECKS["show-that-value"] = E17ST_check
 SPOT_CHECKS["show-that-value"] = E17ST_spot
 
 
+# ── binomial-expansion, t1-ext-binomial-constant-term and t1-ext-binomial-product (FAL-779) ──
+# The checker's own copy of the clean limits: the engine's is in
+# game/engine/situations/binomial_expansion.gd. Each bracket is read back from the question's
+# words, expanded with SymPy, and the coefficient asked is read off the expansion, so nothing is
+# taken from the engine. Every tagged option is rebuilt from its slip, every equation in the
+# working must hold (at the r found, where there is one), and an error-spot's first wrong line is
+# the first whose equation or claim fails. Every other unknown goes to the exam type's checks.
+
+E16A_X, E16A_R, E16A_K = sp.symbols("x r k")
+E16A_SUPS = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻", "0123456789-")
+E16A_SUP = "[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+"
+E16A_HAND, E16A_MOST = 20000, 200000
+E16A_SPLIT = re.compile(r", so |, and |, which gives |; |: | gives |, which is ")
+
+
+def E16A_stop(t):
+    """A full stop off the end, but not the dots of '+ ...'."""
+    t = t.strip()
+    return t if t.endswith("...") else t.rstrip(".").strip()
+
+
+def E16A_sup(t):
+    return int(t.translate(E16A_SUPS)) if t else 1
+
+
+def E16A_n(v):
+    """A rational as the game writes it: 3, −4, 8/5."""
+    v = sp.Rational(v)
+    s = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + s
+
+
+def E16A_term(c, j):
+    """c·x^j as the game writes it: 810x⁷, −80x, x⁻³, 45."""
+    c = sp.Integer(c)
+    if j == 0:
+        return E16A_n(c)
+    sup = "" if j == 1 else str(j).translate(str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"))
+    head = "" if abs(c) == 1 else str(abs(c))
+    return ("−" if c < 0 else "") + head + "x" + sup
+
+
+def E16A_expr(text, letters=("x", "r", "k")):
+    """A piece of working as SymPy, or None where it has words in it or a letter not allowed."""
+    t = text.strip().rstrip(".").strip()
+    if not t or re.search(r"[A-Z]", re.sub(r"(\d+)C(\d+|r)", "", t)):
+        return None
+    t = re.sub(E16A_SUP, lambda mt: "**(" + mt.group(0).translate(E16A_SUPS) + ")", t)
+    t = re.sub(r"(\d+)C(\d+|r)", r"binomial(\1,\2)", t)
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    if not re.fullmatch(r"[0-9a-z+\-*/(), ]+", t.replace("binomial", "")):
+        return None
+    if any(ch not in letters for ch in set(re.findall(r"[a-z]", t.replace("binomial", "")))):
+        return None
+    local = {"x": E16A_X, "r": E16A_R, "k": E16A_K, "binomial": sp.binomial}
+    try:
+        e = parse_expr(t, local_dict=local, transformations=TRANSFORMS, evaluate=True)
+    except Exception:
+        return None
+    if not all(str(s) in letters for s in e.free_symbols):
+        return None
+    return e
+
+
+def E16A_series(text, letters):
+    """A side that ends '+ ...': its terms, as {power: coefficient}, and that it is cut short."""
+    t = E16A_stop(text)
+    cut = t.endswith("+ ...")
+    e = E16A_expr(t[:-5] if cut else t, letters)
+    return e, cut
+
+
+def E16A_powers(e):
+    out = {}
+    for t in sp.Add.make_args(sp.expand(e)):
+        c, p = t.as_coeff_exponent(E16A_X)
+        out[p] = out.get(p, 0) + c
+    return {p: c for p, c in out.items() if c != 0}
+
+
+def E16A_sides(frag, letters):
+    """The sides of 'A = B = C' as SymPy: the first side its longest readable end, the last its
+    longest readable start; None when a side can't be read."""
+    parts = frag.split(" = ")
+    out = []
+    for i, p in enumerate(parts):
+        words = E16A_stop(p).split(" ")
+        got = None
+        if i == 0:
+            for s in range(len(words)):
+                cand = " ".join(words[s:])
+                got = E16A_series(cand, letters)
+                if got[0] is not None:
+                    break
+        elif i == len(parts) - 1:
+            for s in range(len(words), 0, -1):
+                cand = " ".join(words[:s])
+                got = E16A_series(cand, letters)
+                if got[0] is not None:
+                    break
+        else:
+            got = E16A_series(p, letters)
+        if got is None or got[0] is None:
+            return None
+        out.append(got)
+    return out
+
+
+def E16A_judge(line, subs, letters=("x", "r", "k")):
+    """(judged, true): every readable equation in the line, at each of subs."""
+    judged = 0
+    for frag in E16A_SPLIT.split(E16A_stop(line)):
+        if " = " not in frag:
+            continue
+        sides = E16A_sides(frag, letters)
+        if sides is None:
+            continue
+        judged += 1
+        for (a, ca), (b, cb) in zip(sides, sides[1:]):
+            if ca or cb:
+                full, part = (b, a) if ca else (a, b)
+                for sb in subs:
+                    pf = E16A_powers(full.subs({k: v for k, v in sb.items() if k != E16A_X}))
+                    pp = E16A_powers(part.subs({k: v for k, v in sb.items() if k != E16A_X}))
+                    if not pp or any(pf.get(p) != c for p, c in pp.items()):
+                        return judged, False
+                    lo, hi = min(pp), max(pp)
+                    if any(lo <= p <= hi and p not in pp for p in pf):
+                        return judged, False
+                continue
+            for sb in subs:
+                d = sp.simplify((a - b).subs(sb))
+                if d != 0:
+                    return judged, False
+    return judged, True
+
+
+def E16A_steps(q, subs, letters=("x", "r", "k")):
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            need(E16A_judge(st, subs, letters)[1], f"{sol['name']}: {st!r} is not true")
+
+
+def E16A_no_hyphen(q):
+    texts = [q["asked"], q.get("prompt", "")] + q["lines"] + [o["text"] for o in q["choices"]] + [st for sol in q["solutions"] for st in sol["steps"]]
+    for t in texts:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def E16A_coef(e, j):
+    return E16A_powers(e).get(j, sp.Integer(0))
+
+
+# ── t1-ext-binomial-constant-term ──
+
+E16BC_MAP = "SL1.9.constant-term#"
+E16BC_OWN = "t1-ext-binomial-constant-term#"
+E16BC_UNKNOWNS = ("ct-power-of-x", "ct-find-r", "ct-middle-constant", "ct-constant", "ct-constant-raised", "ct-given-power")
+E16BC_BRACKET = re.compile(rf"\((\d*)x({E16A_SUP})? ([+−]) (\d+)/x({E16A_SUP})?\)({E16A_SUP})")
+# The skill map's examples: (a, p, k, q, n, m).
+E16BC_SKILL_MAP = {(1, 1, 2, 1, 6, 0), (1, 2, -1, 1, 9, 0), (2, 2, 1, 1, 6, 3)}
+
+
+def E16BC_read(q):
+    m = E16BC_BRACKET.search(q["asked"])
+    need(m is not None, f"no bracket in {q['asked']!r}")
+    a = int(m.group(1)) if m.group(1) else 1
+    p, qq, n = E16A_sup(m.group(2)), E16A_sup(m.group(5)), E16A_sup(m.group(6))
+    k = int(m.group(4)) * (1 if m.group(3) == "+" else -1)
+    return a, p, k, qq, n
+
+
+def E16BC_general(a, p, k, qq, n):
+    return sp.binomial(n, E16A_R) * (a * E16A_X**p)**(n - E16A_R) * (k / E16A_X**qq)**E16A_R
+
+
+def E16BC_check(q):
+    u, paper = q["view"]["unknown"], q["paper"]
+    a, p, k, qq, n = E16BC_read(q)
+    x, r = E16A_X, E16A_R
+    most = E16A_HAND if paper == 1 else E16A_MOST
+    need(1 <= p <= 3 and qq in (1, 2) and 2 <= abs(k) <= 4 and 3 <= n <= 10 and 1 <= a <= 3, f"the bracket ({a}, {p}, {k}, {qq}, {n}) breaks the limits")
+    need(not (a % 2 == 0 and k % 2 == 0) and not (a % 3 == 0 and k % 3 == 0), "the bracket has a common factor")
+    expansion = sp.expand((a * x**p + k / x**qq)**n)
+    power = p * (n - r) - qq * r
+    wr = {}
+    if u == "ct-power-of-x":
+        mt = re.search(r" is (.+)\. Find the power of x", q["asked"])
+        need(mt is not None, "no general term")
+        g = E16A_expr(mt.group(1))
+        need(g is not None and all(sp.simplify(g.subs(r, v) - E16BC_general(a, p, k, qq, n).subs(r, v)) == 0 for v in range(n + 1)), "the general term shown is not the bracket's")
+        need(a == 1 and (a, p, k, qq, n, 0) not in E16BC_SKILL_MAP, "a number beside x, or the skill map's example")
+        fmt = lambda top, c: f"{top} − {'' if c == 1 else c}r"
+        want = fmt(p * n, p + qq)
+        need(sp.expand(E16A_expr(want) - power) == 0, "the power of x is not the general term's")
+        wr[E16BC_MAP + "0"] = {fmt(p * n, p)}
+        if p > 1:
+            wr[E16BC_OWN + "4"] = {fmt(n, 1 + qq)}
+        gc_check_common(q, want, wr)
+        E16A_steps(q, [{x: 2, r: 3}, {x: 3, r: 5}])
+        E16A_no_hyphen(q)
+        return None, None
+    m = 0
+    if u == "ct-given-power":
+        mt = re.search(rf"coefficient of x({E16A_SUP})? in", q["asked"])
+        need(mt is not None, "no power asked")
+        m = E16A_sup(mt.group(1))
+        need(m != 0 and abs(m) <= 9, f"x^{m} breaks the limits")
+    roots = sp.solve(sp.Eq(power, m), r)
+    need(len(roots) == 1 and roots[0].is_Integer and 1 <= roots[0] <= n - 1, f"no whole r from 1 to n − 1 gives x^{m}")
+    r0 = int(roots[0])
+    need((a, p, k, qq, n, m) not in E16BC_SKILL_MAP, "the skill map's example")
+    need((p == qq) == (u == "ct-middle-constant"), "symmetric powers only for the middle term")
+    if u == "ct-middle-constant":
+        need(a == 1 and n % 2 == 0 and r0 == n // 2, "the middle term is not at r = n/2")
+    if u in ("ct-find-r", "ct-constant", "ct-middle-constant"):
+        need(a == 1, "a number beside x")
+    if u == "ct-constant-raised":
+        need(a >= 2 and n - r0 >= 2, "the number beside x is not raised to at least 2")
+    if u == "ct-constant":
+        need(r0 >= 2, "r is 1, so the top unraised is no slip")
+    c = E16A_coef(expansion, m)
+    need(c == sp.binomial(n, r0) * a**(n - r0) * k**r0, "the coefficient is not nCr a^(n − r) k^r")
+    if u == "ct-find-r":
+        want = f"r = {r0}"
+        wr[E16BC_MAP + "0"] = {f"r = {n - sp.Rational(m, p)}"}
+        wr[E16BC_OWN + "3"] = {f"r = {n - r0}"}
+        if p > 1:
+            wr[E16BC_OWN + "4"] = {f"r = {E16A_n(v)}" for v in sp.solve(sp.Eq(n - r - qq * r, 0), r)}
+    else:
+        need(abs(c) <= most, f"the coefficient {c} is too large for Paper {paper}")
+        want = E16A_n(c)
+        slip = n - sp.Rational(m, p)
+        if slip.is_Integer and 0 <= slip <= n:
+            # The fraction's x left out: p(n − r) = m.
+            wr[E16BC_MAP + "0"] = {E16A_n(E16A_coef(sp.expand((a * x**p + k)**n), p * (n - slip)))}
+        wr[E16BC_MAP + "1"] = {E16A_n(sp.binomial(n, r0) * a**(n - r0))}
+        wr[E16BC_MAP + "2"] = {E16A_n(r0)}
+        if c < 0:
+            wr[E16BC_OWN + "5"] = {E16A_n(-c)}
+        if a > 1:
+            wr[E16BC_OWN + "6"] = {E16A_n(sp.binomial(n, r0) * a * k**r0)}
+        if u == "ct-given-power":
+            wr[E16BC_OWN + "7"] = {E16A_term(c, m)}
+    gc_check_common(q, want, wr)
+    E16A_steps(q, [{x: 2, r: r0}, {x: 3, r: r0}])
+    E16A_no_hyphen(q)
+    return None, None
+
+
+def E16BC_spot(q, lines):
+    a, p, k, qq, n = E16BC_read(q)
+    x, r = E16A_X, E16A_R
+    power = p * (n - r) - qq * r
+    r0 = int(sp.solve(sp.Eq(power, 0), r)[0])
+    const = sp.binomial(n, r0) * a**(n - r0) * k**r0
+    gen = E16BC_general(a, p, k, qq, n)
+    for i, t in enumerate(lines):
+        ok = True
+        judged, holds = E16A_judge(t, [{x: 2, r: r0}, {x: 3, r: r0}])
+        ok = ok and holds
+        if (mt := re.fullmatch(r"The general term is (.+)", t)):
+            g = E16A_expr(mt.group(1))
+            ok = ok and g is not None and all(sp.simplify(g.subs(r, v) - gen.subs(r, v)) == 0 for v in range(n + 1))
+            judged += 1
+        if (mt := re.fullmatch(r"(?:So the|The) power of x is (.+?)(?: = .*)?", t)):
+            e = E16A_expr(mt.group(1))
+            ok = ok and e is not None and sp.expand(e - power) == 0
+            judged += 1
+        if (mt := re.fullmatch(r"The constant term needs (.+) = 0", t)):
+            e = E16A_expr(mt.group(1))
+            ok = ok and e is not None and sp.expand(e - power) == 0
+            judged += 1
+        if (mt := re.fullmatch(r"The constant term is (?:.+ = )?(−?\d+)", t)):
+            ok = ok and int(mt.group(1).replace("−", "-")) == const
+            judged += 1
+        need(judged > 0, f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+# ── t1-ext-binomial-product ──
+
+E16BP_MAP = "SL1.9.product-expansion#"
+E16BP_OWN = "t1-ext-binomial-product#"
+E16BP_UNKNOWNS = ("pr-linear", "pr-same-power", "pr-hence", "pr-reciprocal", "pr-find-k", "pr-small")
+E16BP_PRODUCT = re.compile(rf"\(([^()]+)\)\(([^()]+)\)({E16A_SUP})")
+# The skill map's examples: (first bracket, expansion's bracket, n, m).
+E16BP_SKILL_MAP = {("1 + 2x", "3 − x", 5, 2), ("2 − x", "1 + x", 6, 3), ("x² + 1", "x − 2/x", 4, 0)}
+
+
+def E16BP_read(q):
+    m = E16BP_PRODUCT.search(q["asked"])
+    need(m is not None, f"no product in {q['asked']!r}")
+    first = E16A_expr(m.group(1), ("x", "k"))
+    inner = E16A_expr(m.group(2), ("x",))
+    need(first is not None and inner is not None, f"can't read {m.group(0)!r}")
+    return m.group(1), m.group(2), first, inner, E16A_sup(m.group(3))
+
+
+def E16BP_check(q):
+    u, paper = q["view"]["unknown"], q["paper"]
+    x, k = E16A_X, E16A_K
+    ftext, itext, first, inner, n = E16BP_read(q)
+    most = E16A_HAND if paper == 1 else E16A_MOST
+    mt = re.search(rf"(?:coefficient of x({E16A_SUP})?|constant term) in", q["asked"])
+    need(mt is not None, "no power asked")
+    m = 0 if "constant term in" in mt.group(0) else E16A_sup(mt.group(1))
+    need((ftext, itext, n, m) not in E16BP_SKILL_MAP, "the skill map's example")
+    ex = sp.expand(inner**n)
+    c = lambda j: E16A_coef(ex, j)
+    wr = {}
+    if u == "pr-reciprocal":
+        need(n in (4, 6, 8), f"n = {n} is not even from 4 to 8")
+        fp = E16A_powers(first)
+        need(set(fp) == {2, 0} and fp[2] == 1, f"{ftext} is not x² + c")
+        ip = E16A_powers(inner)
+        need(set(ip) == {1, -1} and ip[1] == 1 and abs(ip[-1]) in (2, 3), f"{itext} is not x + k/x")
+        cc = fp[0]
+        pairs = [c(-2), cc * c(0)]
+        v = E16A_coef(sp.expand(first * ex), 0)
+        need(v == sum(pairs), "the two pairs don't add up to the constant term")
+        wr[E16BP_MAP + "0"] = {E16A_n(cc * c(0))}
+        wr[E16BP_OWN + "5"] = {E16A_n(c(2) + cc * c(0))}
+        wr[E16BP_MAP + "2"] = {E16A_n(abs(pairs[0]) + abs(pairs[1]))}
+        want = E16A_n(v)
+        letters = ("x",)
+    else:
+        ip = E16A_powers(inner)
+        need(set(ip) == {0, 1}, f"{itext} is not a + bx")
+        ea, eb = ip[0], ip[1]
+        need(1 <= ea <= 3 and 1 <= abs(eb) <= 3 and sp.gcd(ea, eb) == 1, f"{itext} breaks the limits")
+        need(u == "pr-small" or not (ea == 1 and abs(eb) == 1), "(1 ± x) outside the small expansions")
+        need((3 <= n <= 4) if u == "pr-small" else (5 <= n <= 8), f"n = {n} breaks the limits")
+        if u == "pr-find-k":
+            fp = E16A_powers(first.subs(k, 0))
+            need(set(fp) == {0} and fp[0] == 1 and sp.expand(first - 1 - k * x) == 0, f"{ftext} is not 1 + kx")
+            mv = re.search(r" is (−?\d+)\. Find the value of k\.", q["asked"])
+            V = int(mv.group(1).replace("−", "-"))
+            sol = sp.solve(sp.Eq(E16A_coef(sp.expand(first * ex), m), V), k)
+            need(len(sol) == 1 and sol[0].is_Integer and 2 <= abs(sol[0]) <= 5, f"k = {sol} is not a whole number from 2 to 5 in size")
+            K = sol[0]
+            need(2 <= m <= n - 1 and c(m) != c(m - 1) and c(m) + K * c(m - 1) == V and K * c(m - 1) != 0, "the pairs break the limits")
+            need(all(abs(t) <= most for t in (c(m), K * c(m - 1), V)), "a coefficient is too large")
+            wr[E16BP_MAP + "0"] = {f"k = {E16A_n(sp.Rational(V, c(m - 1)))}"}
+            if eb < 0:
+                pos = sp.expand((ea - eb * x)**n)
+                wr[E16BP_MAP + "2"] = {f"k = {E16A_n(sp.Rational(V - E16A_coef(pos, m), E16A_coef(pos, m - 1)))}"}
+            wr[E16BP_OWN + "3"] = {f"k = {E16A_n(sp.Rational(V - c(m), c(m)))}"}
+            want = f"k = {E16A_n(K)}"
+            letters = ("x", "k")
+            gc_check_common(q, want, wr)
+            E16A_steps(q, [{x: 2, k: K}, {x: 3, k: K}], letters)
+            E16A_no_hyphen(q)
+            return None, None
+        fp = E16A_powers(first)
+        need(len(fp) == 2 and 0 in fp, f"{ftext} is not p + qx^d")
+        d = max(fp)
+        fa, fb = fp[0], fp[d]
+        need(1 <= fa <= 4 and 1 <= abs(fb) <= 4 and sp.gcd(fa, fb) == 1 and fa + fb != 0, f"{ftext} breaks the limits")
+        need(d == 1 or u == "pr-same-power", "x² in the first bracket")
+        if u == "pr-same-power":
+            need(m == d, "the power asked is not the first bracket's")
+        else:
+            need((1 <= m <= n) if u == "pr-small" else (2 <= m <= n - 1), f"x^{m} breaks the limits")
+            need(c(m) != c(m - 1), "pairing x with the x^m term gives the answer")
+        pairs = [fa * c(m), fb * c(m - d)]
+        v = E16A_coef(sp.expand(first * ex), m)
+        need(v == sum(pairs) and pairs[0] != 0 and pairs[1] != 0 and v != 0, "a pair or the answer is 0")
+        need(all(abs(t) <= most for t in pairs + [v]), "a coefficient is too large")
+        wr[E16BP_MAP + "0"] = {E16A_n(pairs[0])}
+        wr[E16BP_MAP + "2"] = {E16A_n(abs(pairs[0]) + abs(pairs[1]))}
+        if u == "pr-same-power":
+            wr[E16BP_MAP + "1"] = {E16A_n(fb * c(m))}
+        else:
+            wr[E16BP_OWN + "3"] = {E16A_n((fa + fb) * c(m))}
+        if u == "pr-hence":
+            ml = re.fullmatch(rf"In the expansion of \({re.escape(itext)}\){E16A_SUP}, the coefficient of x({E16A_SUP})? is (−?\d+) and the coefficient of x({E16A_SUP})? is (−?\d+)\.", q["lines"][0])
+            need(ml is not None, f"can't read {q['lines'][0]!r}")
+            need(E16A_sup(ml.group(1)) == m and E16A_sup(ml.group(3)) == m - 1, "the coefficients given are not of x^m and x^(m − 1)")
+            given = [int(ml.group(2).replace("−", "-")), int(ml.group(4).replace("−", "-"))]
+            need(given == [c(m), c(m - 1)], f"the coefficients given {given} are not the expansion's")
+            wr[E16BP_OWN + "4"] = {E16A_n(c(m) + c(m - 1))}
+        want = E16A_n(v)
+        letters = ("x",)
+    gc_check_common(q, want, wr)
+    E16A_steps(q, [{x: 2}, {x: 3}], letters)
+    E16A_no_hyphen(q)
+    return None, None
+
+
+def E16BP_spot(q, lines):
+    x = E16A_X
+    ftext, itext, first, inner, n = E16BP_read(q)
+    m = E16A_sup(re.search(rf"coefficient of x({E16A_SUP})? in", q["asked"]).group(1))
+    ex = sp.expand(inner**n)
+    v = E16A_coef(sp.expand(first * ex), m)
+    for i, t in enumerate(lines):
+        judged, ok = E16A_judge(t, [{x: 2}, {x: 3}], ("x",))
+        if (mt := re.fullmatch(rf"The (x{E16A_SUP}?|constant) term of \((.+?)\)({E16A_SUP}) is (.+)", t)):
+            j = 0 if mt.group(1) == "constant" else E16A_sup(mt.group(1)[1:])
+            e = E16A_expr(mt.group(2), ("x",))
+            last = E16A_expr(mt.group(4).split(" = ")[-1], ("x",))
+            ok = ok and e is not None and last is not None and sp.expand(last - E16A_coef(sp.expand(e**E16A_sup(mt.group(3))), j) * x**j) == 0
+            judged += 1
+        if (mt := re.fullmatch(rf"The (x{E16A_SUP}?) terms add to (.+)", t)):
+            last = E16A_expr(mt.group(2).split(" = ")[-1], ("x",))
+            ok = ok and last is not None and sp.expand(last - v * x**m) == 0
+            judged += 1
+        if (mt := re.fullmatch(rf"So the coefficient of x({E16A_SUP})? is (−?\d+)", t)):
+            ok = ok and E16A_sup(mt.group(1)) == m and int(mt.group(2).replace("−", "-")) == v
+            judged += 1
+        need(judged > 0, f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+E16A_PREV = SITUATION_CHECKS["binomial-expansion"]
+E16A_PREV_SPOT = SPOT_CHECKS.get("binomial-expansion")
+
+
+def E16A_entry(q):
+    u = q["view"]["unknown"]
+    if u in E16BC_UNKNOWNS:
+        return E16BC_check(q)
+    if u in E16BP_UNKNOWNS:
+        return E16BP_check(q)
+    return E16A_PREV(q)
+
+
+def E16A_spot_entry(q, lines):
+    u = q["view"]["unknown"]
+    if u in E16BC_UNKNOWNS:
+        return E16BC_spot(q, lines)
+    if u in E16BP_UNKNOWNS:
+        return E16BP_spot(q, lines)
+    need(E16A_PREV_SPOT is not None, "the checker has no error-spot checks for this unknown")
+    return E16A_PREV_SPOT(q, lines)
+
+
+SITUATION_CHECKS["binomial-expansion"] = E16A_entry
+SPOT_CHECKS["binomial-expansion"] = E16A_spot_entry
+
+
+# ── E16 shared (FAL-779) ─────────────────────────────────────
+# Tools the E16 sections of this lane share: a side of a line of working read with SymPy (with
+# the question's own letters put in, or left free where the line is an identity in them), and a
+# check that every =, < and > a line states holds. A Σ with its limits, or a bare Σ on the
+# question's limits, is summed first.
+
+E16B_LEAD = re.compile(r"^(?:So |Need |Then |and |but |which gives |Check: )+")
+E16B_SPLIT = re.compile(r", so |, but |, and |; |: | and | needs | means | gives |, as |, where |, ")
+E16B_REL = re.compile(r" (=|<|>) ")
+E16B_SUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻", "0123456789-")
+E16B_SUBS = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+E16B_DEC = re.compile(r"\d+\.(\d+)")
+E16B_SIGMA = re.compile(r"Σ \((\w) = (\S+) to (\S+)\) \(([^()]*)\)")
+E16B_BARE_SIGMA = re.compile(r"Σ(\([^()]*\)|[0-9]+|[a-z])")
+
+
+def E16B_q(text):
+    """'−3/2' or '0.65' as an exact Rational."""
+    return sp.Rational(text.strip().replace("−", "-"))
+
+
+def E16B_expr(text, subs, free=()):
+    """A side as SymPy with subs put in, or None where it has words or other letters in it."""
+    t = E16B_LEAD.sub("", text.strip().rstrip(".").strip()).rstrip("%").strip()
+    if not t:
+        return None
+    t = re.sub("[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+", lambda m: "**(" + m.group(0).translate(E16B_SUP) + ")", t)
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    t = re.sub(r"\bln ([\d.]+)", r"log(\1)", t).replace("ln(", "log(")
+    if not re.fullmatch(r"[0-9a-z+\-*/(). ]+", t):
+        return None
+    bare = t.replace("log", "")
+    if re.search(r"[a-z]{2,}", bare):
+        return None
+    letters = set(re.findall(r"[a-z]", bare))
+    if not letters <= set(subs) | set(free):
+        return None
+    local = {k: sp.Symbol(k) for k in letters}
+    local["log"] = sp.log
+    try:
+        e = parse_expr(t, local_dict=local, transformations=TRANSFORMS + (rationalize,), evaluate=True)
+    except Exception:
+        return None
+    return e.subs({sp.Symbol(k): sp.nsimplify(v) for k, v in subs.items()})
+
+
+def E16B_sums(line, var_limits):
+    """Each Σ in the line replaced by its value. var_limits: (letter, lower, upper) for a bare Σ."""
+    def full(m):
+        v = sp.Symbol(m.group(1))
+        lo, hi = (E16B_expr(x, {}, ("k", "n")) for x in (m.group(2), m.group(3)))
+        body = E16B_expr(m.group(4), {}, (m.group(1),))
+        if lo is None or hi is None or body is None:
+            return m.group(0)
+        return "(" + sp.sstr(sp.factor(sp.summation(body, (v, lo, hi)))) + ")"
+    out = E16B_SIGMA.sub(full, line)
+    if var_limits is not None:
+        name, lo, hi = var_limits
+        def bare(m):
+            inner = m.group(1).strip("()")
+            body = E16B_expr(inner, {}, (name,))
+            if body is None:
+                return m.group(0)
+            return "(" + sp.sstr(sp.factor(sp.summation(body, (sp.Symbol(name), lo, hi)))) + ")"
+        out = E16B_BARE_SIGMA.sub(bare, out)
+    return out
+
+
+def E16B_holds(line, subs, free=(), limits=None):
+    """False if a relation the line states is false at subs; unread ones pass."""
+    line = E16B_sums(line, limits)
+    for frag in E16B_SPLIT.split(line.rstrip(".")):
+        parts = E16B_REL.split(frag)
+        sides, ops = parts[0::2], parts[1::2]
+        if not ops:
+            continue
+        es = [E16B_expr(p, subs, free) for p in sides]
+        tol = sp.Float(10) ** -25
+        rel = sp.Float(0)
+        for p in sides:
+            p = E16B_LEAD.sub("", p.strip().rstrip(".").rstrip("%").strip())
+            mt = re.fullmatch(r"−?\d+\.(\d+)", p)
+            if mt:
+                tol = max(tol, sp.Float(10) ** -len(mt.group(1)) / 2 + sp.Float(10) ** -12)
+            for d in E16B_DEC.finditer(p):
+                if len(d.group(0).replace(".", "").lstrip("0")) >= 6:
+                    rel = sp.Float(10) ** -5
+        for i, op in enumerate(ops):
+            a, b = es[i], es[i + 1]
+            if a is None or b is None or sides[i].strip() in free or sides[i + 1].strip() in free:
+                continue
+            if a.free_symbols or b.free_symbols:
+                if op != "=":
+                    continue
+                if sp.simplify(a - b) != 0:
+                    return False
+                continue
+            va, vb = sp.N(a, 40), sp.N(b, 40)
+            if not (va.is_real and vb.is_real):
+                return False
+            if op == "=":
+                if abs(va - vb) > tol + rel * abs(vb):
+                    return False
+            elif (op == "<") != (va < vb):
+                return False
+    return True
+
+
+def E16B_first_false(lines, subs, free=(), limits=None):
+    for i, t in enumerate(lines):
+        if not E16B_holds(t, subs, free, limits):
+            return i
+    return None
+
+
+def E16B_steps(q, subs, free=(), limits=None):
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            need(E16B_holds(st, subs, free, limits), f"{sol['name']}: {st!r} is not true at the answer")
+
+
+def E16B_no_hyphen(q):
+    texts = [q["asked"], q.get("prompt", "")] + q["lines"] + [o["text"] for o in q["choices"]] + [st for sol in q["solutions"] for st in sol["steps"]]
+    for t in texts:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+# ── geometric-sequence, t1-ext-partial-vs-infinite (FAL-779) ─
+# u₁ and r are read back from the line (u₁ = 40,  r = 0.8, or four terms whose ratios must agree),
+# and the gap, percentage or k from the question. The least n is found by stepping n up with exact
+# fractions until S∞ − Sₙ is below the tolerance; the share and the gap after k terms are exact.
+# Every tagged option is rebuilt from its slip, every relation in the working must hold at the
+# answer, each Sₖ or S∞ − Sₖ written in a step is that value to its figures, and an error-spot's
+# first wrong line is the first whose relation fails.
+
+E16PI_MAP = "SL1.8.sn-vs-sinf#"
+E16PI_OWN = "t1-ext-partial-vs-infinite#"
+E16PI_UNKNOWNS = ("least-n-gap", "least-n-percent", "share-of-sinf", "gap-after-n")
+E16PI_R = {sp.Rational(v, 100) for v in (20, 25, 30, 40, 50, 60, 65, 70, 75, 80, 85, 90)}
+E16PI_EPS = {sp.Rational(1), sp.Rational(1, 2), sp.Rational(1, 10), sp.Rational(1, 20), sp.Rational(1, 100), sp.Rational(1, 200), sp.Rational(1, 1000)}
+E16PI_PCT = {sp.Rational(v, 10) for v in (900, 950, 980, 990, 995, 999)}
+E16PI_EDGE = sp.Rational(1, 10)
+E16PI_NUM = r"−?\d+(?:\.\d+)?"
+
+
+def E16PI_series(q):
+    L = q["lines"]
+    m = re.fullmatch(rf"u₁ = ({E16PI_NUM}),  r = ({E16PI_NUM})", L[0])
+    if q["view"]["rep"] == "notation":
+        need(m is not None, f"can't read u₁ and r from {L[0]!r}")
+        return E16B_q(m.group(1)), E16B_q(m.group(2))
+    m = re.fullmatch(rf"({E16PI_NUM}), ({E16PI_NUM}), ({E16PI_NUM}), ({E16PI_NUM}), …", L[0])
+    need(m is not None, f"can't read four terms from {L[0]!r}")
+    ts = [E16B_q(g) for g in m.groups()]
+    r = ts[1] / ts[0]
+    need(all(ts[i + 1] == ts[i] * r for i in range(3)), "the terms shown are not geometric")
+    return ts[0], r
+
+
+def E16PI_least(u1, r, tol, first=0):
+    """The least n ≥ 1 with u₁ r^(n − first)/(1 − r) < tol."""
+    n = 1
+    while u1 * r ** (n - first) / (1 - r) >= tol:
+        n += 1
+        need(n < 500, "no n meets the condition")
+    return n
+
+
+def E16PI_clear(x):
+    """x is at least 0.02 of a unit in its third figure from a rounding edge."""
+    v = abs(sp.Rational(x))
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= sp.Rational(2, 100)
+
+
+def E16PI_shown(v, show):
+    """A wrong value as the answer's style writes it."""
+    if show == "sf":
+        return ext_sf(v)
+    t = dec_text(v)
+    if "/" in t or len(t) > 8:
+        t = dec_text(sp.Rational(sig3(v)))
+    return t
+
+
+def E16PI_named(q, u1, r):
+    """Each Sₖ = v and S∞ − Sₖ = v a step writes is that value to its figures."""
+    sinf = u1 / (1 - r)
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for m in re.finditer(r"(S∞ − )?S([₀-₉]+) = (\d+(?:\.\d+)?)(?![\d.(/]| [×(/−+])", st):
+                k = int(m.group(2).translate(E16B_SUBS))
+                true = sinf * r ** k if m.group(1) else u1 * (1 - r ** k) / (1 - r)
+                shown = sp.Rational(m.group(3))
+                places = len(m.group(3).split(".")[1]) if "." in m.group(3) else 0
+                close = abs(true - shown) <= sp.Rational(1, 2 * 10 ** places) + sp.Rational(1, 10 ** 12)
+                need(close, f"{sol['name']}: {m.group(0)!r} is not S{'∞ − S' if m.group(1) else ''}{k} = {sp.N(true, 12)}")
+            m = re.search(r"cross at x = (\d+(?:\.\d+)?)", st)
+            if m:
+                q_ = q["_e16pi_real"]
+                places = len(m.group(1).split(".")[1]) if "." in m.group(1) else 0
+                need(abs(q_ - sp.Rational(m.group(1))) <= sp.Rational(1, 2 * 10 ** places) + sp.Rational(1, 10 ** 9), f"the crossing {m.group(1)} is not at {sp.N(q_, 8)}")
+
+
+def E16PI_check(q):
+    u, asked = q["view"]["unknown"], q["asked"]
+    need(q["paper"] == 2, "a partial-sum question is not Paper 2")
+    u1, r = E16PI_series(q)
+    need(r in E16PI_R and u1 > 0 and u1 % 20 == 0 and u1 <= 500, f"u₁ = {u1} and r = {r} are outside the limits")
+    sinf = u1 / (1 - r)
+    wr = {}
+    trap = None
+    if u in ("least-n-gap", "least-n-percent"):
+        if u == "least-n-gap":
+            m = re.search(r"Find the least n for which S∞ − Sₙ < (\d+(?:\.\d+)?)\.", asked)
+            need(m is not None, f"can't read the gap from {asked!r}")
+            tol = sp.Rational(m.group(1))
+            need(tol in E16PI_EPS, f"the gap {tol} is not one of the limits")
+        else:
+            m = re.search(r"Find the least n for which Sₙ is more than (\d+(?:\.\d+)?)% of S∞\.", asked)
+            need(m is not None, f"can't read the percentage from {asked!r}")
+            pct = sp.Rational(m.group(1))
+            need(pct in E16PI_PCT, f"{pct}% is not one of the limits")
+            tol = (1 - pct / 100) * sinf
+        n = E16PI_least(u1, r, tol)
+        real = sp.log(tol / sinf) / sp.log(r)
+        q["_e16pi_real"] = real
+        need(4 <= n <= 40 and abs(sp.N(real - sp.floor(real + sp.Rational(1, 2)), 30)) >= E16PI_EDGE, f"n = {n}, crossing {sp.N(real, 8)}: outside the limits")
+        need(sinf * r ** n < tol <= sinf * r ** (n - 1), "the least n doesn't meet the condition first")
+        # One term below the tolerance: the least m with u₁r^(m − 1) < tol.
+        m1 = 1
+        while u1 * r ** (m1 - 1) >= tol:
+            m1 += 1
+        want = f"n = {n}"
+        wr[E16PI_MAP + "1"] = {f"n = {n - 1}"}
+        wr[E16PI_OWN + "3"] = {f"n = {n + 1}"}
+        wr[E16PI_MAP + "2"] = {f"n = {m1}"}
+        subs = {"n": n}
+    else:
+        if u == "share-of-sinf":
+            m = re.search(r"Find the percentage of S∞ that the first (\d+) terms give\.", asked)
+        else:
+            m = re.search(r"Find S∞ − S([₀-₉]+), the part of S∞ still to come after the first (\d+) terms\.", asked)
+            need(m is not None and int(m.group(1).translate(E16B_SUBS)) == int(m.group(2)), f"can't read k from {asked!r}")
+            m = re.search(r"after the first (\d+) terms", asked)
+        need(m is not None, f"can't read k from {asked!r}")
+        k = int(m.group(1))
+        need(3 <= k <= 8, f"k = {k} is outside 3 to 8")
+        need(u != "share-of-sinf" or 100 * (1 - r ** k) <= 99, "the share is more than 99%")
+        sk = u1 * (1 - r ** k) / (1 - r)
+        if u == "share-of-sinf":
+            v = 100 * sk / sinf
+            slips = {E16PI_OWN + "3": 100 * (1 - r ** (k - 1)), E16PI_OWN + "4": 100 * r ** k, E16PI_OWN + "5": 100 * sinf / sk}
+            head, tail = "", "%"
+        else:
+            v = sinf - sk
+            slips = {E16PI_OWN + "6": u1 * r ** k, E16PI_OWN + "3": sinf * r ** (k - 1), E16PI_OWN + "7": sk}
+            head, tail = f"S∞ − S{str(k).translate(str.maketrans('0123456789', '₀₁₂₃₄₅₆₇₈₉'))} = ", ""
+        need(v == u1 * r ** k / (1 - r) if u == "gap-after-n" else v == 100 * (1 - r ** k), "the tail and the sum disagree")
+        for x in [v] + list(slips.values()):
+            need(not gc_rounds(x) or E16PI_clear(x), f"{sp.N(x, 10)} is on a rounding edge")
+        show = "sf" if gc_rounds(v) else "dec"
+        want = head + (ext_sf(v) if show == "sf" else dec_text(v)) + tail
+        if show == "sf":
+            trap = head + gc_s2(v) + tail
+        for ref, x in slips.items():
+            if x != v:
+                wr[ref] = {head + E16PI_shown(x, show) + tail}
+        subs = {}
+    gc_check_common(q, want, wr, trap)
+    E16B_steps(q, subs)
+    E16PI_named(q, u1, r)
+    E16B_no_hyphen(q)
+    return None, None
+
+
+def E16PI_spot(q, lines):
+    u1, r = E16PI_series(q)
+    sinf = u1 / (1 - r)
+    m = re.search(r"S∞ − Sₙ < (\d+(?:\.\d+)?)\.", q["asked"])
+    if m:
+        tol = sp.Rational(m.group(1))
+    else:
+        pct = sp.Rational(re.search(r"more than (\d+(?:\.\d+)?)% of S∞", q["asked"]).group(1))
+        tol = (1 - pct / 100) * sinf
+    for t in lines:
+        need(E16B_REL.search(t) is not None, f"can't judge the line {t!r}")
+    return E16B_first_false(lines, {"n": E16PI_least(u1, r, tol)})
+
+
+E16PI_PREV = SITUATION_CHECKS["geometric-sequence"]
+E16PI_PREV_SPOT = SPOT_CHECKS.get("geometric-sequence")
+
+
+def E16PI_entry(q):
+    return E16PI_check(q) if q["view"]["unknown"] in E16PI_UNKNOWNS else E16PI_PREV(q)
+
+
+def E16PI_spot_entry(q, lines):
+    if q["view"]["unknown"] in E16PI_UNKNOWNS:
+        return E16PI_spot(q, lines)
+    need(E16PI_PREV_SPOT is not None, "the checker has no error-spot checks for geometric-sequence")
+    return E16PI_PREV_SPOT(q, lines)
+
+
+SITUATION_CHECKS["geometric-sequence"] = E16PI_entry
+SPOT_CHECKS["geometric-sequence"] = E16PI_spot_entry
+
+
+# ── arithmetic-sequence, t1-ext-sigma-arithmetic (FAL-779) ──
+# The Σ is read back from its line, Σ (r = a to b) (pr + q), or the series from its first three
+# terms and its last, and summed again with SymPy. An upper limit k is found by solving
+# Σ (r = 1 to k) (pr + q) = T, which must have one positive whole root and one negative one.
+# Every tagged option is rebuilt from its slip, every relation in the working must hold at the
+# answer (a line in r must hold for every r), and an error-spot's first wrong line is the first
+# whose relation fails.
+
+E16SA_MAP = "SL1.2.sigma#"
+E16SA_SUM = "SL1.2.sum#"
+E16SA_OWN = "t1-ext-sigma-arithmetic#"
+E16SA_UNKNOWNS = ("count-terms", "evaluate-sigma", "evaluate-shifted", "write-sigma", "upper-from-total")
+E16SA_R = sp.Symbol("r")
+E16SA_LINE = re.compile(r"Σ \(r = (\d+) to (\d+|k)\) \(([^()]*)\)(?: = (−?\d+))?")
+E16SA_SERIES = re.compile(r"(−?\d+) ([+−]) (\d+) ([+−]) (\d+) \+ … ([+−]) (\d+)")
+E16SA_UN_MAX = 400
+E16SA_SN_MAX = 4000
+
+
+def E16SA_n(v):
+    """A rational as the game writes it: 3, −4, 8/5."""
+    v = sp.Rational(v)
+    s = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + s
+
+
+def E16SA_term(text):
+    """'3r + 2' -> (3, 2)."""
+    e = E16B_expr(text, {}, ("r",))
+    need(e is not None and sp.Poly(e, E16SA_R).degree() == 1, f"can't read the term {text!r}")
+    P = sp.Poly(e, E16SA_R)
+    return P.coeff_monomial(E16SA_R), P.coeff_monomial(1)
+
+
+def E16SA_sum(p, c, a, b):
+    return sp.summation(p * E16SA_R + c, (E16SA_R, a, b))
+
+
+def E16SA_pair(n, first, last):
+    return sp.Rational(n, 2) * (first + last)
+
+
+def E16SA_check(q):
+    u, L, angle = q["view"]["unknown"], q["lines"], q["view"]["angle"]
+    need(q["paper"] == (2 if angle == "gdc-sigma" else 1), f"paper {q['paper']} for the method {angle}")
+    wr = {}
+    limits = None
+    if u == "write-sigma":
+        m = E16SA_SERIES.fullmatch(L[0])
+        need(m is not None, f"can't read the series {L[0]!r}")
+        sg = lambda s_, v: E16B_q(v) * (-1 if s_ == "−" else 1)
+        t1, t2, t3, last = E16B_q(m.group(1)), sg(m.group(2), m.group(3)), sg(m.group(4), m.group(5)), sg(m.group(6), m.group(7))
+        d = t2 - t1
+        need(d != 0 and t3 - t2 == d, "the series shown is not arithmetic")
+        n = (last - t1) / d + 1
+        need(n.q == 1 and 8 <= n <= 40, f"{last} is not a term from the 8th to the 40th")
+        p, c = d, t1 - d
+        need(c != 0 and (p, c, n) != (3, 1, 20), f"p = {p}, q = {c} breaks the limits or is the map's example")
+        need(abs(t1) <= E16SA_UN_MAX and abs(last) <= E16SA_UN_MAX and abs(E16SA_pair(n, t1, last)) <= E16SA_SN_MAX, "a value is past the limits")
+        f = lambda p_, c_, n_: f"p = {E16SA_n(p_)}, q = {E16SA_n(c_)}, n = {E16SA_n(n_)}"
+        want = f(p, c, n)
+        wr[E16SA_OWN + "6"] = {f(p, t1, n)}
+        wr[E16SA_SUM + "1"] = {f(p, c, n - 1)} | ({f(p, c, last)} if last > 0 else set())
+        subs = {"p": p, "q": c, "n": n}
+    else:
+        m = E16SA_LINE.fullmatch(L[0])
+        need(m is not None and bool(m.group(4)) == (u == "upper-from-total"), f"can't read the sum {L[0]!r}")
+        a = int(m.group(1))
+        p, c = E16SA_term(m.group(3))
+        need(p != 0 and c != 0 and p.q == 1 and c.q == 1, f"the term {m.group(3)!r} breaks the limits")
+        need(-5 <= p <= 9 and -9 <= c <= 12, f"p = {p} or q = {c} is outside the limits")
+        if u == "upper-from-total":
+            need(m.group(2) == "k" and a == 1, "the upper limit is not k from r = 1")
+            T = E16B_q(m.group(4))
+            k = sp.Symbol("k")
+            roots = sp.solve(sp.Eq(E16SA_sum(p, c, 1, k), T), k)
+            pos = [x for x in roots if x.is_integer and x > 0]
+            neg = [x for x in roots if x < 0]
+            need(len(roots) == 2 and len(pos) == 1 and len(neg) == 1 and neg[0].is_integer, f"the roots {roots} are not one positive and one negative whole number")
+            K = int(pos[0])
+            need(5 <= K <= 30 and p > 0 and (p, c, T) != (2, -1, 225), f"k = {K} or p = {p} breaks the limits")
+            want = f"k = {K}"
+            wr[E16SA_OWN + "7"] = {f"k = {E16SA_n(neg[0])}"}
+            subs = {"k": K}
+            limits = ("r", 1, K)
+        else:
+            b = int(m.group(2))
+            n = b - a + 1
+            first, last = p * a + c, p * b + c
+            S = E16SA_sum(p, c, a, b)
+            need(S == E16SA_pair(n, first, last), "the sum is not the arithmetic series it says")
+            need(abs(first) <= E16SA_UN_MAX and abs(last) <= E16SA_UN_MAX and first != 0, "a term is past the limits")
+            subs = {"n": n}
+            if u == "count-terms":
+                need(2 <= a <= 20 and 5 <= b - a <= 60 and (a, b) != (5, 30), f"r = {a} to {b} breaks the limits")
+                want = f"{n} terms"
+                wr[E16SA_MAP + "0"] = {f"{b - a} terms"}
+            else:
+                need(S != 0 and abs(S) <= E16SA_SN_MAX, f"the sum {S} is past the limits")
+                want = E16SA_n(S)
+                sr = E16SA_sum(1, 0, a, b)
+                wr[E16SA_MAP + "1"] = {E16SA_n(p * sr + c)}
+                if u == "evaluate-sigma":
+                    need(a == 1 and 8 <= b <= 40 and (p, c, b) != (3, 2, 20), f"r = 1 to {b} breaks the limits, or is the map's example")
+                    wr[E16SA_MAP + "2"] = {E16SA_n(p * sr)}
+                    wr[E16SA_SUM + "0"] = {E16SA_n(sp.Rational(n, 2) * (2 * first + n * p))}
+                else:
+                    need(2 <= a <= 12 and 5 <= b - a <= 30, f"r = {a} to {b} breaks the limits")
+                    wr[E16SA_MAP + "0"] = {E16SA_n(E16SA_pair(n - 1, first, last))}
+                    wr[E16SA_OWN + "5"] = {E16SA_n(E16SA_sum(p, c, 1, b))}
+                    wr[E16SA_MAP + "2"] = {E16SA_n(E16SA_pair(n, p, p * n))}
+                limits = ("r", a, b)
+    gc_check_common(q, want, wr)
+    E16B_steps(q, subs, ("r",), limits)
+    E16B_no_hyphen(q)
+    return None, None
+
+
+def E16SA_spot(q, lines):
+    m = E16SA_LINE.fullmatch(q["lines"][0])
+    need(m is not None, f"can't read the sum {q['lines'][0]!r}")
+    a, b = int(m.group(1)), int(m.group(2))
+    return E16B_first_false(lines, {"n": b - a + 1}, ("r",), ("r", a, b))
+
+
+E16SA_PREV = SITUATION_CHECKS["arithmetic-sequence"]
+E16SA_PREV_SPOT = SPOT_CHECKS.get("arithmetic-sequence")
+
+
+def E16SA_entry(q):
+    return E16SA_check(q) if q["view"]["unknown"] in E16SA_UNKNOWNS else E16SA_PREV(q)
+
+
+def E16SA_spot_entry(q, lines):
+    if q["view"]["unknown"] in E16SA_UNKNOWNS:
+        return E16SA_spot(q, lines)
+    need(E16SA_PREV_SPOT is not None, "the checker has no error-spot checks for arithmetic-sequence")
+    return E16SA_PREV_SPOT(q, lines)
+
+
+SITUATION_CHECKS["arithmetic-sequence"] = E16SA_entry
+SPOT_CHECKS["arithmetic-sequence"] = E16SA_spot_entry
+
+
+# ── solve-exponential, t1-ext-hidden-quadratic (FAL-779) ────
+# The equation is read back from its line and turned into SymPy. Its base b is the one written
+# with exponent x; the quadratic a u² + B u + C in u = b^x is found again by evaluating the
+# equation at three values of u and checked at two more. Its roots come from SymPy, each
+# positive one gives x = log_b u, and every answer, tagged option and claim in the working
+# (u = N, b^x = N gives x = X, an identity, an equation = 0, x-intercepts) is worked out again.
+# An error-spot's first wrong line is the first with a false claim.
+
+E16HQ_MAP = "SL1.7.hidden-quadratic#"
+E16HQ_OWN = "t1-ext-hidden-quadratic#"
+E16HQ_UNKNOWNS = ("two-powers", "reject-negative", "zero-root", "exact-ln", "exact-log-base", "solution-count")
+E16HQ_U = sp.Symbol("u")
+E16HQ_MAPS = [(2, {2, 4}), (sp.E, {2, 3}), (3, {1, 3})]
+
+
+def E16HQ_n(v):
+    """A number as the game writes it: 3, −4, 8/5."""
+    v = sp.Rational(v)
+    s = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + s
+
+
+def E16HQ_parse(text):
+    """An expression in x and u, written as the game writes it, as SymPy (None if it can't be read)."""
+    t = text.strip().rstrip(".").strip()
+    t = t.replace("−", "-").replace("×", "*").replace("²", "**2").replace("^", "**")
+    if not re.fullmatch(r"[0-9eux+\-*/(). ]+", t):
+        return None
+    try:
+        return parse_expr(t, local_dict={"x": X, "u": E16HQ_U, "e": sp.E}, transformations=TRANSFORMS, evaluate=True)
+    except Exception:
+        return None
+
+
+def E16HQ_base(eq):
+    if re.search(r"e\^x", eq):
+        return sp.E
+    ms = re.findall(r"(?<![\d^(])(\d+)\^x", eq)
+    need(len(ms) > 0, f"no b^x in {eq!r}")
+    return sp.Integer(min(int(v) for v in ms))
+
+
+def E16HQ_num(e, at):
+    return sp.N(e.subs(at), 50)
+
+
+def E16HQ_read(q):
+    """(f, b, a, B, C): the equation as f(x) = 0 and its quadratic in u = b^x."""
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "graph":
+        m = re.fullmatch(r"The graph shows y = (.+), which meets the x-axis at P and Q\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        eq = m.group(1) + " = 0"
+    else:
+        eq = L[0]
+    sides = eq.split(" = ")
+    need(len(sides) == 2, f"can't read {eq!r}")
+    lhs, rhs = E16HQ_parse(sides[0]), E16HQ_parse(sides[1])
+    need(lhs is not None and rhs is not None, f"can't read {eq!r}")
+    f = lhs - rhs
+    b = E16HQ_base(eq)
+    vals = []
+    for uu in (1, 2, 3):
+        v = E16HQ_num(f, {X: sp.log(uu) / sp.log(b)})
+        vals.append(v)
+    # f = a u² + B u + C at u = 1, 2, 3.
+    a = (vals[2] - 2 * vals[1] + vals[0]) / 2
+    B = vals[1] - vals[0] - 3 * a
+    C = vals[0] - a - B
+    a, B, C = (sp.Integer(round(v)) for v in (a, B, C))
+    for uu in (5, sp.Rational(1, 7)):
+        need(abs(E16HQ_num(f, {X: sp.log(uu) / sp.log(b)}) - (a * uu ** 2 + B * uu + C)) < 1e-30, "the equation is not a quadratic in b^x")
+    need(a > 0, "the leading coefficient is not positive")
+    return f, b, a, B, C
+
+
+def E16HQ_log(u, b):
+    """x with b^x = u, exact: a whole number where u is a power of b."""
+    return sp.simplify(sp.log(u, b))
+
+
+def E16HQ_ln(v):
+    v = sp.Rational(v)
+    return f"ln {E16HQ_n(v)}" if v.q == 1 and v > 0 else f"ln({E16HQ_n(v)})"
+
+
+def E16HQ_xs(vals):
+    vals = sorted(sp.Rational(v) for v in vals)
+    names = [E16HQ_n(v) for v in vals]
+    return "x = " + (", ".join(names[:-1]) + " or " + names[-1] if len(names) > 1 else names[0])
+
+
+def E16HQ_claims_ok(t, f, b, quad, sols, strict_u=True):
+    """Whether every claim in a line of working is true. quad: a u² + B u + C; sols: the x values."""
+    u, roots = E16HQ_U, [r for r in sp.roots(sp.Poly(quad, E16HQ_U)).keys()]
+    bt = "e" if b == sp.E else str(b)
+    bx = re.escape(f"{bt}^x")
+    xs_at = [sp.Rational(3, 10), sp.Rational(11, 10), sp.Rational(-7, 10)]
+
+    def same(e1, e2):
+        for xv in xs_at:
+            at = {X: xv, u: b ** xv}
+            if abs(E16HQ_num(e1, at) - E16HQ_num(e2, at)) > 1e-30:
+                return False
+        return True
+
+    text = t.rstrip(".")
+    # b^x = N gives x = X, or has no solution.
+    for m in re.finditer(rf"(?:{bx}|u) = (−?[\d/]+) gives (?:x = ([^;,]+?)(?=$|;|,| and )|{bx} = (−?[\d/]+), so x = (−?[\d/]+))", text):
+        N = sp.Rational(R(m.group(1).replace("−", "-")))
+        if N not in roots or N <= 0:
+            return False
+        if m.group(2) is not None:
+            xv = E16HQ_xv(m.group(2), b)
+            if xv is None or abs(sp.N(b ** xv - N, 40)) > 1e-30:
+                return False
+    for m in re.finditer(rf"{bx} = (−?[\d/]+) has no solution, as {bx} (> 0 for every x|is never 0)", text):
+        N = sp.Rational(R(m.group(1).replace("−", "-")))
+        if N not in roots or (N < 0) != (m.group(2) == "> 0 for every x") or N > 0:
+            return False
+    text2 = re.sub(rf"(?:{bx}|u) = −?[\d/]+ (gives [^;]*|has no solution[^;]*)", "", text)
+    # The x-values claimed: "So x = 1 or x = 3.", "x = 0 or 2".
+    for m in re.finditer(r"(?:^|So |, so |: )x = ([^;:]+)$", text2):
+        parts = re.split(r" or x = | or |, ", m.group(1))
+        for p in parts:
+            xv = E16HQ_xv(p, b)
+            if xv is None or not any(abs(sp.N(xv - s_, 40)) < 1e-30 for s_ in sols):
+                return False
+        text2 = text2[:m.start()]
+    # u = N and b^x = N, as roots: "so u = 1 or u = 25", "So 5^x = 1 or 5^x = 25".
+    for m in re.finditer(rf"(?:(?<=so )|(?<=So )|(?<=^))((?:(?:u|{bx}) = −?[\d/]+(?: or )?)+)", text2):
+        for v in re.findall(r"= (−?[\d/]+)", m.group(1)):
+            if sp.Rational(R(v.replace("−", "-"))) not in roots:
+                return False
+    # Equations and identities with x or u on both sides, or ending in = 0.
+    for frag in re.split(r", so | the equation is |: |; |, the roots? of |, a root of |, as |, and | and |, the left side factorises in |^So |^Then |^As ", text2):
+        frag = frag.strip()
+        if " = " not in frag or "gives" in frag:
+            continue
+        sides = frag.split(" = ")
+        es = [E16HQ_parse(p) for p in sides]
+        if any(e is None for e in es):
+            continue
+        if not any(e.free_symbols for e in es):
+            # A numerical fact: "3^2 = 9".
+            if any(abs(sp.N(es[i] - es[i + 1], 40)) > 1e-30 for i in range(len(es) - 1)):
+                return False
+            continue
+        if len(es) == 2 and es[1] == 0:
+            if not (same(es[0], f) or same(es[0], quad.subs(u, b ** X))):
+                return False
+            continue
+        if len(es) == 2 and es[0] == u and not es[1].free_symbols:
+            if es[1] not in roots:
+                return False
+            continue
+        if es[0] == u and len(es) == 2 and es[1].free_symbols == {X}:
+            continue  # "u = 2^x" names u
+        if len(es) == 2 and es[0] == b ** X and not es[1].free_symbols:
+            if es[1] not in roots:
+                return False
+            continue
+        if len(es) == 2 and es[0] == X and not es[1].free_symbols:
+            if not any(abs(sp.N(es[1] - s_, 40)) < 1e-30 for s_ in sols):
+                return False
+            continue
+        for i in range(len(es) - 1):
+            if not same(es[i], es[i + 1]):
+                return False
+    return True
+
+
+def E16HQ_xv(text, b):
+    """An x-value as written: "3", "−1", "ln 4", "ln 12/ln 5"."""
+    t = text.strip().rstrip(".")
+    m = re.fullmatch(r"(−?)ln (\d+)/ln (\d+)", t)
+    if m:
+        return (-1 if m.group(1) else 1) * sp.log(int(m.group(2))) / sp.log(int(m.group(3)))
+    m = re.fullmatch(r"(−?)ln ?\(?(\d+(?:/\d+)?)\)?", t)
+    if m:
+        return (-1 if m.group(1) else 1) * sp.log(sp.Rational(m.group(2)))
+    if re.fullmatch(r"−?\d+(?:/\d+)?", t):
+        return sp.Rational(t.replace("−", "-"))
+    return None
+
+
+def E16HQ_check(q):
+    u_id, paper = q["view"]["unknown"], q["paper"]
+    U = E16HQ_U
+    f, b, a, B, C = E16HQ_read(q)
+    quad = a * U ** 2 + B * U + C
+    rts = sp.roots(sp.Poly(quad, U))
+    need(all(r.is_Rational for r in rts), "a root in u is not rational")
+    roots = sorted(rts.keys())
+    pos = [r for r in roots if r > 0]
+    sols = [E16HQ_log(r, b) for r in pos]
+    if q["view"]["angle"] == "graph-zeros":
+        need(paper == 2, "a graph-zeros question is not Paper 2")
+    for bb, us in E16HQ_MAPS:
+        need(not (b == bb and a == 1 and {abs(r) for r in roots} == us), "the skill map's example, or it with a sign flipped")
+    need(b in (2, 3, 4, 5, 7, sp.E), f"the base {b} is outside the limits")
+    wr = {}
+    bt = "e" if b == sp.E else str(b)
+    if u_id in ("two-powers", "reject-negative", "zero-root"):
+        need(all(s_.is_Integer and -2 <= s_ <= 4 for s_ in sols), f"x = {sols} is not whole from −2 to 4")
+        want = E16HQ_xs(sols)
+        if u_id == "two-powers":
+            need(len(sols) == 2 and len(roots) == 2, "not two solutions")
+            wr[E16HQ_MAP + "2"] = {E16HQ_xs(roots)}
+            small = [r for r in pos if r < 1]
+            if small:
+                wr[E16HQ_OWN + "4"] = {E16HQ_xs([s_ for r, s_ in zip(pos, sols) if r >= 1])}
+        elif u_id == "reject-negative":
+            neg = [r for r in roots if r < 0]
+            need(len(sols) == 1 and len(neg) == 1, "not one positive and one negative root")
+            k = E16HQ_log(-neg[0], b)
+            need(k.is_Integer, "the negative root is not minus a power of b")
+            wr[E16HQ_MAP + "1"] = {E16HQ_xs(sols + [k])}
+            wr[E16HQ_MAP + "2"] = {E16HQ_xs(roots)}
+        else:
+            need(C == 0 and len(sols) == 1 and 0 in roots, "not a zero root and one positive root")
+            wr[E16HQ_OWN + "3"] = {E16HQ_xs(sols + [0])}
+            wr[E16HQ_MAP + "2"] = {E16HQ_xs(pos)}
+    elif u_id == "exact-ln":
+        need(b == sp.E and a == 1 and len(pos) == 2 and all(r.q == 1 and 3 <= r <= 9 for r in pos), f"roots {roots} break the limits")
+        want = f"x = ln {E16HQ_n(pos[0])} or x = ln {E16HQ_n(pos[1])}"
+        wr[E16HQ_MAP + "2"] = {f"x = {E16HQ_n(pos[0])} or x = {E16HQ_n(pos[1])}"}
+        lin = sp.solve(sp.Eq(2 * a * U + B * U + C, 0), U)
+        wr[E16HQ_MAP + "0"] = {f"x = {E16HQ_ln(r)}" for r in lin if r > 0}
+        if q["view"]["rep"] == "graph":
+            g = q["graph"]
+            need(g is not None, "no graph")
+            P = {p["label"]: p for p in g["points"]}
+            need(set(P) == {"P", "Q"}, "the graph doesn't mark P and Q")
+            for lab, s_ in zip("PQ", sols):
+                need(abs(P[lab]["x"] - float(s_)) < 1e-9 and P[lab]["y"] == 0, f"{lab} is not at the zero x = {s_}")
+            for px, py in g["curves"][0][::13]:
+                need(abs(py - float(E16HQ_num(f, {X: sp.nsimplify(px)}))) <= 1e-6 * max(1, abs(py)), "the curve drawn is not its equation")
+    elif u_id == "exact-log-base":
+        neg = [r for r in roots if r < 0]
+        need(b != sp.E and len(pos) == 1 and len(neg) == 1 and pos[0].q == 1, "not one whole positive root and one negative")
+        r, s_ = pos[0], -neg[0]
+        need(not E16HQ_log(r, b).is_Rational and 3 <= r <= 20 and 2 <= s_ <= 9, f"u = {r} breaks the limits")
+        want = f"x = ln {r}/ln {bt}"
+        wr[E16HQ_OWN + "6"] = {f"x = ln {bt}/ln {r}"}
+        wr[E16HQ_MAP + "1"] = {f"x = ln {r}/ln {bt} or x = ln {s_}/ln {bt}"}
+        wr[E16HQ_MAP + "2"] = {f"x = {r}"}
+    else:
+        n = len(pos)
+        want = f"number of solutions = {n}"
+        if len(rts) == 1:
+            need(n == 1, "a repeated root that is not positive")
+            wr[E16HQ_OWN + "5"] = {"number of solutions = 2"}
+        if any(r < 0 for r in roots):
+            wr[E16HQ_MAP + "1"] = {f"number of solutions = {len(roots)}"}
+        if any(0 < r < 1 for r in roots):
+            wr[E16HQ_OWN + "4"] = {f"number of solutions = {sum(1 for r in roots if r >= 1)}"}
+    gc_check_common(q, want, wr)
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            need(E16HQ_claims_ok(st, f, b, quad, sols), f"{sol['name']}: {st!r} is not true")
+        if sol["angle"] == "graph-zeros" and u_id != "solution-count":
+            need(any(st == "It crosses the x-axis " + ("once, at " if len(sols) == 1 else "at ") + " and ".join(f"x = {E16HQ_n(s_)}" for s_ in sols) + "." for st in sol["steps"]), "the GDC's zeros are not the solutions")
+        if sol["angle"] == "graph-zeros" and u_id == "solution-count":
+            said = {2: "It crosses the x-axis twice.", 0: "It doesn't meet the x-axis."}.get(len(sols), "It touches the x-axis once, without crossing it." if len(rts) == 1 else "It crosses the x-axis once.")
+            need(said in sol["steps"], "the GDC's graph doesn't show the count")
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E16HQ_spot(q, lines):
+    f, b, a, B, C = E16HQ_read(dict(q, lines=q["lines"][:q["lines"].index("A student's working:")]))
+    U = E16HQ_U
+    quad = a * U ** 2 + B * U + C
+    sols = [E16HQ_log(r, b) for r in sp.roots(sp.Poly(quad, U)) if r > 0]
+    for i, t in enumerate(lines):
+        if not E16HQ_claims_ok(t, f, b, quad, sols):
+            return i
+    return None
+
+
+E16HQ_PREV = SITUATION_CHECKS["solve-exponential"]
+E16HQ_PREV_SPOT = SPOT_CHECKS.get("solve-exponential")
+
+
+def E16HQ_entry(q):
+    return E16HQ_check(q) if q["view"]["unknown"] in E16HQ_UNKNOWNS else E16HQ_PREV(q)
+
+
+def E16HQ_spot_entry(q, lines):
+    if q["view"]["unknown"] in E16HQ_UNKNOWNS:
+        return E16HQ_spot(q, lines)
+    return E16HQ_PREV_SPOT(q, lines)
+
+
+SITUATION_CHECKS["solve-exponential"] = E16HQ_entry
+SPOT_CHECKS["solve-exponential"] = E16HQ_spot_entry
+
+
+# ── bearings-elevation, t3-ext-two-observations (FAL-779) ───
+# The distance AB and the two angles of elevation are read back from the lines. The top T is
+# found again from coordinates (A at 0, B at d, T where the two lines of sight meet), not from the
+# sine rule the engine uses, at 40 digits. Every tagged option is rebuilt from its slip, the side
+# view is held to the story, and every numerical equation in the working is worked out again from
+# the figures it shows, with each length it gives (BT, TF, BF, x, y) held to the true one.
+
+E16TO_MAP = "SL3.3.two-observations#"
+E16TO_OWN = "t3-ext-two-observations#"
+E16TO_UNKNOWNS = ("angle-at-top", "slant-distance", "height-two-angles", "ground-distance", "height-exact", "height-either-side")
+
+
+def E16TO_read(q):
+    L, u = q["lines"], q["view"]["unknown"]
+    if u == "height-either-side":
+        m = re.fullmatch(r"A and B are points on level ground, (\d+) m apart, and the foot F of a vertical (.+) is on the line between them\.", L[0])
+        m2 = re.fullmatch(r"The angle of elevation of the top T is (\d+)° from A and (\d+)° from B\.", L[1])
+        need(m and m2, f"can't read {L[:2]!r}")
+        return int(m.group(1)), int(m2.group(1)), int(m2.group(2)), m.group(2), True
+    m = re.fullmatch(r"A and B are points on level ground, in a straight line with the foot F of a vertical (.+), and B is between A and F\.", L[0])
+    m2 = re.fullmatch(r"AB = (\d+) m\. The angle of elevation of the top T is (\d+)° from A and (\d+)° from B\.", L[1])
+    need(m and m2, f"can't read {L[:2]!r}")
+    return int(m2.group(1)), int(m2.group(2)), int(m2.group(3)), m.group(1), False
+
+
+def E16TO_eval(text):
+    """A numerical expression as the working writes it, at 40 digits; None where it has words."""
+    t = text.strip().rstrip(".").strip()
+    t = re.sub(r"(sin|cos|tan) (\d+)°", r"\1(radians(\2))", t)
+    t = t.replace("°", "").replace("−", "-").replace("×", "*").replace("÷", "/")
+    t = re.sub(r"√(\d+)", r"sqrt(\1)", t)
+    t = re.sub(r"(\d)(sqrt)", r"\1*\2", t)
+    if not re.fullmatch(r"[0-9.+\-*/() ]*(?:(?:sin|cos|tan|radians|sqrt)[0-9.+\-*/() ]*)*", t) or not re.search(r"\d", t):
+        return None
+    try:
+        return mpmath.mpf(eval(t, {"__builtins__": {}}, {"sin": mpmath.sin, "cos": mpmath.cos, "tan": mpmath.tan, "radians": mpmath.radians, "sqrt": mpmath.sqrt}))
+    except Exception:
+        return None
+
+
+def E16TO_steps(q, truth):
+    """Every numerical equation holds to the figures shown, and each named length is the true one."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for frag in re.split(r", so |: |; |, and |, | and |\. ", st.rstrip(".")):
+                sides = frag.split(" = ")
+                if len(sides) < 2:
+                    continue
+                vals = [E16TO_eval(p) for p in sides]
+                for a, b in zip(vals, vals[1:]):
+                    if a is None or b is None:
+                        continue
+                    # A figure shown to 5 s.f. (102 for 102.0003) is that value to its last place.
+                    tol = abs(b) * mpmath.mpf("1.2e-4") + mpmath.mpf("1e-25")
+                    need(abs(a - b) <= tol, f"{sol['name']}: {frag!r} doesn't hold ({a} against {b})")
+                name = re.sub(r"^(?:So |They meet at |Triangle BFT has a right angle at F: |Let )", "", sides[0]).strip()
+                last = next((v for v in reversed(vals) if v is not None), None)
+                for key in ("BT", "TF", "BF", "x", "y"):
+                    if name == key and last is not None and key in truth:
+                        need(abs(last - truth[key]) <= abs(truth[key]) * mpmath.mpf("1.2e-4"), f"{sol['name']}: {name} = {last}, not {truth[key]}")
+            # "They meet at x = 32.474, y = 22.739": both read.
+            for key, v in re.findall(r"\b(x|y) = ([\d.]+)(?=[,:])", st):
+                need(abs(mpmath.mpf(v) - truth[key]) <= truth[key] * mpmath.mpf("1.2e-4"), f"{sol['name']}: {key} = {v} is not the crossing")
+
+
+def E16TO_check(q):
+    with mpmath.workdps(40):
+        return E16TO_work(q)
+
+
+def E16TO_work(q):
+    u, asked, paper = q["view"]["unknown"], q["asked"], q["paper"]
+    d, al, be, thing, either = E16TO_read(q)
+    tan, sin, cos = be_t, be_s, be_c
+    dm = mpmath.mpf(d)
+    # T from the two lines of sight: y = x tan α from A at 0, and y = ±(x − d) tan β from B at d.
+    if either:
+        need(40 <= d <= 200 and 20 <= al <= 70 and 20 <= be <= 70 and abs(al - be) >= 8 and al + be <= 140, f"{d}, {al}°, {be}° break the limits")
+        xf = dm * tan(be) / (tan(al) + tan(be))
+        bf = dm - xf
+    else:
+        exact = u == "height-exact"
+        if exact:
+            need(paper == 1 and (al, be) == (30, 60) and d % 2 == 0 and 4 <= d <= 60, f"{d}, {al}°, {be}° break the exact limits, or not Paper 1")
+        else:
+            need(15 <= al <= 45 and al + 10 <= be <= min(al + 30, 75) and 20 <= d <= 120, f"{d}, {al}°, {be}° break the limits")
+        xf = dm * tan(be) / (tan(be) - tan(al))
+        bf = xf - dm
+    if u != "height-exact":
+        need(paper == 2, "not Paper 2")
+    h = xf * tan(al)
+    bt = mpmath.hypot(bf, h)
+    truth = {"BT": bt, "TF": h, "BF": bf, "x": bf, "y": h}
+    wr = {}
+    label, tail, x = None, " m", None
+
+    def W(ref, val):
+        if val > 0:
+            wr.setdefault(ref, set()).add(be_text(label, val, tail))
+
+    if u == "angle-at-top":
+        top = be_angle((xf, h), (0, 0), (dm, 0))
+        need(abs(top - mpmath.nint(top)) < mpmath.mpf("1e-20"), "angle ATB is not whole")
+        want = f"angle ATB = {int(mpmath.nint(top))}°"
+        wr[E16TO_MAP + "1"] = {f"angle ATB = {al + be}°"}
+        wr[E16TO_OWN + "3"] = {f"angle ATB = {180 - al - be}°"}
+        need(asked == "Find angle ATB.", f"asked {asked!r}")
+    elif u == "height-exact":
+        he = sp.Integer(d) * sp.tan(sp.pi / 6) * sp.tan(sp.pi / 3) / (sp.tan(sp.pi / 3) - sp.tan(sp.pi / 6))
+        need(abs(sp.N(he, 40) - sp.Float(str(h), 40)) < 1e-25, "the exact height is not the height")
+        want = f"height = {rt_exact(he)} m"
+        wr[E16TO_MAP + "0"] = {f"height = {rt_exact(d * sp.tan(sp.pi / 3))} m"}
+        wr[E16TO_OWN + "5"] = {f"height = {rt_exact(sp.Integer(d) * sp.cos(sp.pi / 3))} m"}
+        wr[E16TO_OWN + "4"] = {f"height = {d} m"}  # BT = AB in the isosceles triangle
+        need(asked == f"Find the exact height of the {thing}.", f"asked {asked!r}")
+    else:
+        if u == "slant-distance":
+            label, x = "BT = ", bt
+            W(E16TO_MAP + "1", dm * sin(al) / sin(al + be))
+            W(E16TO_MAP + "2", dm * tan(al))
+            need(asked.startswith("Find the distance BT."), f"asked {asked!r}")
+        elif u == "ground-distance":
+            label, x = "BF = ", bf
+            W(E16TO_MAP + "0", dm)
+            W(E16TO_OWN + "6", dm + bf)
+            need(asked.startswith("Find the distance BF."), f"asked {asked!r}")
+        else:
+            label, x = "height = ", h
+            need(asked.startswith(f"Find the height of the {thing}."), f"asked {asked!r}")
+            W(E16TO_MAP + "0", dm * tan(be))
+            if u == "height-two-angles":
+                W(E16TO_MAP + "1", dm * sin(al) * sin(be) / sin(al + be))
+                W(E16TO_OWN + "4", bt)
+                W(E16TO_OWN + "5", bt * cos(be))
+            else:
+                lo, hi = min(al, be), max(al, be)
+                W(E16TO_OWN + "7", dm * sin(lo) * sin(hi) / sin(hi - lo))
+        need(x > 0 and be_clear(x), f"{x} is on a rounding edge")
+        need(asked.endswith(" Give your answer to 3 significant figures."), f"asked {asked!r}")
+        for o in q["choices"]:
+            v = re.search(r"= (−?[\d.]+)", o["text"])
+            need(v is not None and be_clear(R(v.group(1).replace("−", "-"))), f"option {o['text']!r} is on a rounding edge or unread")
+    trap = None
+    if x is not None:
+        want = be_text(label, x, tail)
+        t2 = bn_trap(label, nu_f(x))
+        trap = t2 + tail if t2 else None
+    gc_check_common(q, want, wr, trap)
+    # The side view, to scale, with T above F and the asked part marked ?.
+    pts = be_figure(q, True)
+    for n, p in (("A", (0, 0)), ("B", (dm, 0)), ("F", (xf, 0)), ("T", (xf, h))):
+        need(n in pts, f"no {n} in the sketch")
+    s = pts["B"][0] / dm
+    for n, p in (("A", (0, 0)), ("F", (xf, 0)), ("T", (xf, h))):
+        need(abs(pts[n][0] - p[0] * s) + abs(pts[n][1] - p[1] * s) < mpmath.mpf("1e-6") * dm * s, f"{n} is not where the story puts it")
+    need("F" in q["graph"].get("right", []), "no right angle at F")
+    ask = {"angle-at-top": "ATB", "slant-distance": "BT", "ground-distance": "BF"}.get(u, "TF")
+    marks = [ln["a"] + ln["b"] for ln in q["graph"]["lines"] if ln["label"] == "?"] + [a["from"] + a["at"] + a["to"] for a in q["graph"]["arcs"] if a["label"] == "?"]
+    need(marks in ([ask], [ask[::-1]]), f"the sketch marks {marks}, not {ask}")
+    E16TO_steps(q, truth)
+    E17_no_hyphen(q)
+    return None, None
+
+
+E16TO_PREV = SITUATION_CHECKS["bearings-elevation"]
+
+
+def E16TO_entry(q):
+    return E16TO_check(q) if q["view"]["unknown"] in E16TO_UNKNOWNS else E16TO_PREV(q)
+
+
+SITUATION_CHECKS["bearings-elevation"] = E16TO_entry
+
+
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]

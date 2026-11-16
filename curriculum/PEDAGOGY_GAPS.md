@@ -1758,7 +1758,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 24 bank parts)
 
-- **Situation:** One arithmetic sequence and its sums.
+- **Situation:** One arithmetic sequence and its sums, shared with `t1-ext-sigma-arithmetic`.
 - **Representations:** **notation**, **terms**, table, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given u₁; d; n → the term uₙ
@@ -1811,7 +1811,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Geometric sequence: find r, u1, a term or S_n (`t1-geometric-sequence`, exam, 9 bank parts)
 
-- **Situation:** One geometric sequence and its sums, shared with `t1-sum-to-infinity`.
+- **Situation:** One geometric sequence and its sums, shared with `t1-sum-to-infinity`, `t1-ext-partial-vs-infinite`.
 - **Representations:** **notation**, **terms**, **words**, **equation**, table, graph, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given the first terms, as a list, a table or dots on a graph → the common ratio r
@@ -1973,7 +1973,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Solve an exponential equation exactly with logarithms (`t1-solve-exponential`, exam, 1 bank parts)
 
-- **Situation:** An exponential equation solved with logarithms, in symbols or in a story, shared with `t1-ext-common-base`.
+- **Situation:** An exponential equation solved with logarithms, in symbols or in a story, shared with `t1-ext-common-base`, `t1-ext-hidden-quadratic`.
 - **Representations:** **equation**, words, graph (bold: the exam uses it)
 - **Unknowns:**
   - new L3: given a^(x + p) = b^x or a^x = b^(c − x), or their curves crossing at P → x to 3 s.f.
@@ -2038,7 +2038,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Sum to infinity: convergence, value, or an unknown from it (`t1-sum-to-infinity`, exam, 6 bank parts)
 
-- **Situation:** One geometric sequence and its sums, shared with `t1-geometric-sequence`.
+- **Situation:** One geometric sequence and its sums, shared with `t1-geometric-sequence`, `t1-ext-partial-vs-infinite`.
 - **Representations:** **notation**, **terms**, **equation**, **words**, table, graph, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L2: given the first terms, or u₁ and r → whether S∞ exists, and why
@@ -2097,7 +2097,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Binomial expansion: a coefficient, a term or the full expansion (`t1-binomial-term`, exam, 6 bank parts)
 
-- **Situation:** One bracket (ax^p + b)^n, or nCr on its own.
+- **Situation:** One bracket (ax^p + b)^n, or nCr on its own, shared with `t1-ext-binomial-constant-term`, `t1-ext-binomial-product`.
 - **Representations:** **equation**, table (bold: the exam uses it)
 - **Unknowns:**
   - new L1: given n; r → the value of nCr
@@ -2333,7 +2333,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Bearings, elevation and depression in context (`t3-bearings-elevation`, exam, 8 bank parts)
 
-- **Situation:** Journeys, sightings and connected triangles.
+- **Situation:** Journeys, sightings and connected triangles, shared with `t3-ext-two-observations`.
 - **Representations:** **words**, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given the bearing of B from A → the bearing of A from B

@@ -1,7 +1,7 @@
 {
   "id": "ex.algebra.arithmetic-series",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Adding Up an Arithmetic Sequence",
   "idea": "Write an arithmetic series forwards and backwards and every column adds to first plus last, so Sₙ = n/2 (u₁ + uₙ); putting in uₙ = u₁ + (n − 1)d gives the second form, Sₙ = n/2 (2u₁ + (n − 1)d).",
   "zone": "algebra",
@@ -34,14 +34,14 @@
     "Finding u_n when the question asks for S_n (or the reverse)"
   ],
   "estimate": {
-    "words_watched": 1125,
-    "words_not_watched": 1195,
-    "narration_watched": "7 min 47 s",
-    "narration_not_watched": "8 min 15 s",
+    "words_watched": 1134,
+    "words_not_watched": 1204,
+    "narration_watched": "7 min 50 s",
+    "narration_not_watched": "8 min 18 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
   },
   "notes": [
-    "leads_to and builds_on match the explainer map in PR #147 (FAL-935). The map also gives this explainer SL1.2.sum-unknown; this pilot teaches SL1.2.sum, and example 2 finds n from the last term on the way.",
+    "leads_to and builds_on match the explainer map (FAL-952). The map's entry is SL1.2.sum only, as this pilot teaches it; example 2 finds n from the last term on the way. Finding an unknown from a given sum is ex.algebra.arithmetic-sum-unknown.",
     "The two forms of the formula are the two methods (task FAL-936). Gauss pairing is the big idea, not a third method, and the GDC routes (sum(seq(…)), cumulative lists) belong in a method explainer under plan decision 4.",
     "Example 1 uses the fight pit from ex.algebra.arithmetic-sequence, and its check uses row 40 = 178 seats from there, so a player who watched both sees the two lessons join up. A player who didn't still gets every number on the board."
   ],
@@ -538,40 +538,46 @@
           ]
         },
         {
+          "speaker": "mags-the-ledger",
+          "say": "We've got the first term and the last, so it's first plus last. Which number goes in for n?",
+          "board": [
+            {
+              "write": "Sₙ = n/2 (u₁ + uₙ)",
+              "move": "recall-formula"
+            }
+          ]
+        },
+        {
           "ask": {
             "kind": "fill",
-            "prompt": "n − 1 = 19, so n = ?",
+            "prompt": "n − 1 = 19. In Sₙ = n/2 (u₁ + uₙ), n = ?",
             "choices": [
               "20",
               "19",
-              "18"
+              "195"
             ],
             "answer": 0,
             "right": [
               {
                 "speaker": "mags-the-ledger",
-                "say": "Twenty days. Nineteen hops, twenty days."
+                "say": "Twenty. n counts the days. Nineteen hops, twenty days."
               }
             ],
             "not_yet": [
               {
                 "speaker": "mags-the-ledger",
-                "say": "Nineteen is the hops. The days are one more than the hops. Twenty."
+                "say": "Nineteen is the hops, and a hundred and ninety-five is the litres. n counts the days: twenty."
               }
             ]
           }
         },
         {
           "speaker": "mags-the-ledger",
-          "say": "Now we've got the first term and the last, so first plus last is the one to use.",
+          "say": "So n is twenty.",
           "board": [
             {
               "write": "n = 20",
               "move": "isolate"
-            },
-            {
-              "write": "Sₙ = n/2 (u₁ + uₙ)",
-              "move": "recall-formula"
             },
             {
               "write": "S₂₀ = 20/2 (480 + 195)",

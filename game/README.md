@@ -416,6 +416,78 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   sections are prefixed `E17CB_`, `E17EL_`, `E17SF_` (both standard-form types), `E17RV_` and
   `E17ST_`, with the tools they share prefixed `E17_`; on a shared situation the checker sends the
   new unknowns to its section and every other unknown to the exam type's checks as before.
+- **The binomial extension types** (FAL-779, batch E16): two types on `binomial-expansion`, the
+  situation of `t1-binomial-term`, that cover SL1.9 skills no exam type lists, so they carry no exam
+  parts. Each adds unknowns of its own (`BinomialExpansionSituation.CONSTANT` and `PRODUCT`), so the
+  exam type's cells, numbers and checks are unchanged. `t1-ext-binomial-constant-term`
+  (SL1.9.constant-term, 6 unknowns, 13 cells) has x in both terms of the bracket, (ax^p ± k/x^q)^n:
+  the power of x in the general term as pn − (p + q)r, the r of the term independent of x, the
+  constant term with p = q (where the middle term is a method), with p ≠ q, with a number beside x,
+  and the coefficient of a power other than 0; solved by setting the power, by listing the powers
+  for each r, or by symmetry, which the catalogue says fails wherever p ≠ q or the power isn't 0.
+  `t1-ext-binomial-product` (SL1.9.product-expansion, 6 unknowns, 12 cells) multiplies
+  (a + bx)^n by a short bracket: a coefficient of (p + qx)(a + bx)^n, the power the first bracket's
+  x term carries (where multiplying the two coefficients is the slip), the same "hence" from the two
+  coefficients given, the constant term of (x² + c)(x + k/x)^n, k from a given coefficient of
+  (1 + kx)(a + bx)^n, and n of 3 or 4, where expanding everything is a method too; every answer comes
+  from two pairs of terms, neither 0. Every answer is exact. Built formats: method-pick on every
+  cell, error-spot on the r of the constant term (the fraction's power of x written as positive), the
+  constant term (the top of the fraction left unraised) and the product's coefficient (the x term
+  paired with the term of the asked power). Wrong options are slips or declared fillers, never
+  `generic`. The catalogue's `order-steps` and `multipart` formats are not built in the engine, so
+  these types don't offer them. Their steps are not in `curriculum/moves-map.json` yet. The skill
+  map's misconceptions for both skills no longer quote an example's numbers, and "Sign slips" now
+  names the slip. The checker's sections are prefixed `E16BC_` and `E16BP_`, with the tools they
+  share prefixed `E16A_`; `binomial-expansion`'s checks send the new unknowns there and every other
+  unknown to the exam type's checks as before.
+- **The sequence extension types** (FAL-779, batch E16, lane B): two types that cover syllabus skills
+  no exam type lists, so they carry no exam parts. Both share an exam type's situation, adding unknowns
+  to it, so the exam types' own cells, numbers and checks are unchanged. `t1-ext-partial-vs-infinite`
+  (SL1.8.sn-vs-sinf) on `geometric-sequence` (with `t1-geometric-sequence` and `t1-sum-to-infinity`)
+  is Paper 2 throughout: u₁ a multiple of 20 and 0 < r < 1, shown as u₁ and r or as four terms, and it
+  asks the least n with S∞ − Sₙ below a gap, the least n with Sₙ past a percentage of S∞ (each crossing
+  at least 0.1 from a whole number, so a GDC's table settles it), the share of S∞ the first k terms
+  give (at most 99%) and the gap S∞ − Sₖ, both to 3 s.f. The least n is worked as the tail series
+  S∞ × rⁿ with powers tried either side, with logs (the sign turned at ln r < 0), from a GDC table of
+  S∞ − Sₙ or Sₙ, or where the graphs of the gap and the tolerance cross; a working value is written to
+  six figures, keeping its zeros when it is rounded, and the next step works from what is shown.
+  `t1-ext-sigma-arithmetic` (SL1.2.sigma) on `arithmetic-sequence` (with `t1-arithmetic-sequence`)
+  reads Σ (r = a to b) (pr + q) as the sequence with u₁ = pa + q and d = p: the number of terms, its
+  value from r = 1 and from a higher lower limit (by the first and last terms, by splitting into pΣr
+  and Σq, as a difference of two sums from r = 1, or with the GDC's Σ, which is Paper 2), a series
+  written out to put in Σ form (p, q and n, by u₁ + (r − 1)d or as a linear function), and the upper
+  limit k from the total, whose quadratic has a negative whole second root. The skill map's example
+  sums are left out, and SL1.2.sigma's map strings, which quoted them, now name the slip. Built
+  formats: method-pick and error-spot on partial-vs-infinite (the inequality kept after dividing by
+  ln r), and error-spot on sigma (the constant added once, the terms counted as b − a). The
+  catalogue's `match` and `multipart` formats are not built in the engine, so these types don't offer
+  them. Their steps are not in `curriculum/moves-map.json` yet, as no type from E12 on is. The
+  checker's sections are prefixed `E16PI_` and `E16SA_`, with the tools they share prefixed `E16B_`
+  (a line's =, < and > read with SymPy, a Σ summed first); on each shared situation the checker sends
+  the new unknowns to its section and every other unknown to the exam type's checks as before.
+- **The hidden-quadratic and two-observation extension types** (FAL-779, batch E16, lane C): two types
+  that cover syllabus skills no exam type lists, so they carry no exam parts. Both add unknowns to an
+  existing situation, so its other types' cells, numbers and checks are unchanged.
+  `t1-ext-hidden-quadratic` (SL1.7) on `solve-exponential` draws the roots of a quadratic in u = b^x
+  first, so a b^(2x) + B b^x + C = 0 (b^(2x) sometimes written (b²)^x, as 9^x) has whole coefficients:
+  two roots that are powers of b (or one is 1/b), a power and a negative root, a b^(2x) = c b^x with
+  the root u = 0, e^(2x) + Be^x + C = 0 with x = ln p or ln q (a `form` answer, either order), a root
+  that is no power of b (x = ln r/ln b), and the number of real solutions (roots of both signs, a
+  repeated root, a root between 0 and 1). It is solved by naming u, by factorising in b^x, or on
+  Paper 2 by the GDC's zeros (the map's method is named "Graph the expression on the GDC and find its
+  zeros", so the engine treats it as a calculator method); a root u that is 0 or negative is rejected.
+  The skill map's examples are left out, with a root's sign flipped too. `t3-ext-two-observations`
+  (SL3.3) on `bearings-elevation` has two observers a known distance apart on one side of the foot
+  (angle ATB, BT, the height, BF) or on either side (the height), every question with the side view
+  drawn to scale by PlotView's `sketch`; it is solved by the sine rule in ABT and then the right
+  triangle BFT, by two tan equations, or by the GDC's intersection of the two height lines, and with
+  30° and 60° the height is exact on Paper 1 (BT = AB, the triangle being isosceles). Each answer to
+  3 s.f. is worked from the 5 s.f. figure before it and rounds the same. Built formats: error-spot on
+  the hidden quadratic (b^(2x) read as 2u, a negative root's sign dropped, u = 0 taken as x = 0) and
+  method-pick on both. The catalogue's `order-steps` and `multipart` formats are not built in the
+  engine, so these types don't offer them. Their steps are not in `curriculum/moves-map.json` yet. The
+  checker's sections are prefixed `E16HQ_` and `E16TO_`; each wraps its situation's existing check
+  and sends only its own unknowns to its section.
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
@@ -2370,6 +2442,11 @@ script error happens while it runs. Run one file with
   extra format, four different options, the GDC on Paper 2 only, hand values, the bracket as the
   exam writes it, the staggered triangle, a term against a coefficient, a typed expansion and row,
   every misconception as an option, the three concept probes and AA courses only.
+- `test_binomial_constant_term.gd` and `test_binomial_product.gd` (FAL-779): the two binomial
+  extension types built with every cell in every format they offer, the r found giving the power
+  asked, the middle term only for symmetric powers, each product's answer as two pairs of terms
+  multiplied out the long way, the skill map's examples left out, hand values, the exam type's
+  cells untouched, and every tag shown.
 - `test_prove_identity.gd` (FAL-753): `t3-prove-identity`: every cell on Paper 1, four different options, hand
   values, each chain reaching its right side, hidden and spoiled lines where they should be, no exam
   statement or HL ratio, typed slips detected, and every tag shown.
@@ -2639,7 +2716,10 @@ script error happens while it runs. Run one file with
 The "Web" preset uses the single-threaded template, because GitHub Pages can't send
 the cross-origin isolation headers that threads need. Godot's PWA option is off: the
 HTML game's service worker covers the whole site, and it skips `next/` and `classic/`
-(`service-worker.js`, tested in `tests/unit/service-worker.test.mjs`).
+(`service-worker.js`, tested in `tests/unit/service-worker.test.mjs`). With the takeover
+switch on, the root worker is `_takeover/service-worker.js` instead, which keeps the
+export (`index.pck` holds the question catalogue) for offline play after one visit
+(the root README, "Switching to Godot", and `tests/takeover/takeover.spec.mjs`).
 
 Export templates: `./export.sh` looks in `$GODOT_TEMPLATES`, then
 `<data dir>/godot/export_templates/4.7.2.stable/` under `$XDG_DATA_HOME` and

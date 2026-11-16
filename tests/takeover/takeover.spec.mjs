@@ -4,7 +4,8 @@
 //
 // Switch off: the site as it was, the HTML game at the root and Godot at next/.
 // Switch on: Godot at the root, the HTML game at classic/, next/ links sent to the
-// root, and a browser that ran the old game's service worker ends up on Godot.
+// root, a browser that ran the old game's service worker ends up on Godot, and Godot
+// plays offline after one visit and picks up a new deploy.
 import { test, expect } from '@playwright/test';
 import http from 'node:http';
 import fs from 'node:fs';
@@ -29,9 +30,10 @@ const MIME = {
 
 // Serves $TAKEOVER_SITES/<position> like Pages: a folder without its slash redirects,
 // a folder serves its index.html, and everything has max-age=600. `position` can
-// change mid-test, as a deploy that flips the switch would.
+// change mid-test, as a deploy that flips the switch would, and `edit` stands in for
+// a new export: edit(rel, text) is what that file becomes.
 async function startSite(position) {
-  const state = { position };
+  const state = { position, edit: null };
   const sockets = new Set();
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://x');
@@ -47,6 +49,7 @@ async function startSite(position) {
     }
     fs.readFile(fp, (err, data) => {
       if (err) return res.writeHead(404, { 'content-type': 'text/plain' }).end('not found');
+      if (state.edit) data = state.edit(path.relative(root, fp), data);
       res.writeHead(200, { 'content-type': MIME[path.extname(fp)] || 'application/octet-stream', 'cache-control': 'max-age=600' });
       res.end(data);
     });
@@ -78,6 +81,25 @@ async function playOneQuestion(page) {
   await startNode(page, 'Standard Form');
   await answer(page, await currentQuestion(page), true);
   await expect(page.locator('#outcome-msg')).toHaveText('CORRECT!');
+}
+
+// Every URL in the page's caches, by cache name
+async function cachedUrls(page) {
+  return page.evaluate(async () => {
+    const out = {};
+    for (const key of await caches.keys()) out[key] = (await (await caches.open(key)).keys()).map(r => r.url).sort();
+    return out;
+  });
+}
+
+// The root worker controls the page and has copied the whole export
+async function godotCached(page, site) {
+  await waitForWorker(page);
+  // Every file the export put at the root: the worker's list must cover them all
+  const root = path.join(SITES, 'on');
+  const exported = fs.readdirSync(root).filter(f => f !== 'service-worker.js' && fs.statSync(path.join(root, f)).isFile());
+  await expect.poll(async () => (await cachedUrls(page))['wasteland-academy-godot'] || [], { timeout: 60_000 })
+    .toEqual(exported.map(f => site.url + f).sort());
 }
 
 async function waitForWorker(page) {
@@ -220,30 +242,29 @@ test.describe('switch on: Godot at the root, the HTML game at classic/', () => {
     // The switch goes on. The next visit to the root goes through the old worker.
     site.state.position = 'on';
     await page.goto(site.url);
-    // The retiring worker unregisters and reloads the page
+    // The worker update (the root worker, _takeover/) clears the old game and reloads the page
     await expect.poll(async () => {
       try {
         return await page.evaluate(async () => ({
           registrations: (await navigator.serviceWorker.getRegistrations()).length,
-          controlled: !!navigator.serviceWorker.controller,
+          worker: navigator.serviceWorker.controller?.scriptURL.endsWith('/service-worker.js'),
+          oldGame: !!document.getElementById('screen-profile'),
         }));
       } catch { return 'navigating'; }
-    }, { timeout: 60_000 }).toEqual({ registrations: 0, controlled: false });
+    }, { timeout: 60_000 }).toEqual({ registrations: 1, worker: true, oldGame: false });
+    // The old worker is service-worker.js too, so wait for the new one's activation:
+    // no old game file is left in any cache, only Godot's
+    await expect.poll(async () => {
+      try { return Object.keys(await cachedUrls(page)); } catch { return 'navigating'; }
+    }, { timeout: 60_000 }).toEqual(['wasteland-academy-godot']);
     await godotBoots(page);
     expect(new URL(page.url()).pathname).toBe(BASE);
     await expect(page.locator('meta[name="wa-classic"]')).toHaveCount(1);
-    // No old game file is left in any cache
-    expect(await page.evaluate(async () => {
-      const urls = [];
-      for (const key of await caches.keys()) {
-        for (const r of await (await caches.open(key)).keys()) urls.push(r.url);
-      }
-      return urls;
-    })).toEqual([]);
-    // A reload stays on Godot, with no worker
+    await godotCached(page, site);
+    // A reload stays on Godot
     await page.reload();
     await godotBoots(page);
-    expect(await page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(false);
+    expect(await workerScopes(page, site)).toEqual(['']);
 
     // Saves: the HTML game's keys are untouched by Godot, and classic/ picks them up
     expect(await page.evaluate(() => localStorage.getItem('wa_save'))).toBe(save);
@@ -257,7 +278,70 @@ test.describe('switch on: Godot at the root, the HTML game at classic/', () => {
     await expect(page.locator('#screen-world')).toBeVisible();
     await expect(page.locator('#world-player-name')).toHaveText('OLDSAVE');
     await waitForWorker(page);
-    expect(await workerScopes(page, site)).toEqual(['classic/']);
+    await expect.poll(() => workerScopes(page, site)).toEqual(['', 'classic/']);
     expect(await page.evaluate(async () => (await indexedDB.databases()).map(d => d.name).sort())).toEqual(databases);
+    // The HTML game's worker leaves Godot's offline copy alone
+    expect(Object.keys(await cachedUrls(page)).sort()).toEqual(['wasteland-academy-godot', 'wasteland-academy-v3']);
+  });
+
+  // SPEC: "Practice must continue to work offline with the reviewed runtime catalogue."
+  // The catalogue is in index.pck, so a question in the explorer proves it loaded.
+  test('/ plays offline after one visit: a practice question and a fight', async ({ page, context }) => {
+    const errors = trackPageErrors(page);
+    await page.goto(site.url);
+    await godotBoots(page);
+    await godotCached(page, site);
+
+    await context.setOffline(true);
+    // classic/ isn't the root worker's, so this goes to the network
+    expect(await page.evaluate(() => fetch('classic/manifest.json', { cache: 'no-store' }).then(() => 'online', () => 'offline')))
+      .toBe('offline');
+    // The explorer opens on a question from the catalogue and puts it in the URL
+    await page.goto(site.url + '?explore');
+    await godotBoots(page);
+    await expect.poll(() => page.url()).toMatch(/\?explore&view=[^&]+\/[^&]+&seed=\d+$/);
+    await shot(page, 'on-offline-explore-phone');
+    await page.reload();
+    await godotBoots(page);
+    await expect.poll(() => page.url()).toMatch(/\?explore&view=/);
+
+    await page.goto(site.url + '?play=quadratics&seed=3');
+    await godotBoots(page);
+    await shot(page, 'on-offline-fight-phone');
+    // Map links too
+    await page.goto(site.url + '#functions/quadratics');
+    await godotBoots(page);
+    expect(new URL(page.url()).hash).toBe('#functions/quadratics');
+    errors.expectNone();
+  });
+
+  test('a new deploy reaches a player who has the build cached, online and then offline', async ({ page, context }) => {
+    await page.goto(site.url);
+    await godotBoots(page);
+    await godotCached(page, site);
+    const build = () => page.locator('meta[name="wa-build"]').getAttribute('content').catch(() => null);
+    expect(await build()).toBe(null);
+
+    // The next deploy: a new index.html and index.js, with max-age=600 on everything as before
+    site.state.edit = (rel, data) => {
+      if (rel === 'index.html') return data.toString().replace('<head>', '<head>\n<meta name="wa-build" content="2">');
+      if (rel === 'index.js') return data.toString() + '\nwindow.waBuildJs = 2;\n';
+      return data;
+    };
+    await page.reload();
+    await godotBoots(page);
+    expect(await build()).toBe('2');
+    expect(await page.evaluate(() => window.waBuildJs)).toBe(2);
+
+    // The cache has the new deploy, so offline gets it too
+    await expect.poll(() => page.evaluate(async () => [
+      (await (await caches.match('index.html'))?.text())?.includes('wa-build'),
+      (await (await caches.match('index.js'))?.text())?.includes('waBuildJs'),
+    ])).toEqual([true, true]);
+    await context.setOffline(true);
+    await page.reload();
+    await godotBoots(page);
+    expect(await build()).toBe('2');
+    expect(await page.evaluate(() => window.waBuildJs)).toBe(2);
   });
 });
