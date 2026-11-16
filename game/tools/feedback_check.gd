@@ -49,27 +49,25 @@ const REPORT_ONLY := []
 ## Types whose views still offer `generic` or untagged `wrongs` options (FAL-815): each
 ## is sorted into slips and `fillers`, then leaves the list. Nothing joins it.
 const UNSORTED := [
-	"fn-concept-growth-patterns",
-	"fn-ext-inequality-graphical",
-	"fn-ext-intersection-lines", "fn-ext-line-model", "fn-ext-quadratic-model",
-	"fn-ext-rational-model", "fn-ext-transformed-reciprocal", "fn-gdc-features",
-	"fn-link-extremes", "fn-link-multiplicative-growth", "fn-link-rate-of-change",
-	"fn-link-transformations", "fn-link-vectors", "fn-log-function-features",
-	"fn-pre-algebraic-fractions", "fn-pre-expand", "fn-pre-factorise", "fn-pre-graph-reading",
-	"fn-pre-linear-equations", "fn-pre-linear-inequalities", "fn-pre-simultaneous", "fn-pre-surds",
-	"fn-rational-asymptotes-intercepts", "fn-rational-sketch", "fn-sketch-from-features",
-	"fn-sketch-gdc", "t1-ahl-counting", "t1-algebraic-proof",
+	"fn-concept-growth-patterns", "fn-ext-inequality-graphical", "fn-ext-intersection-lines",
+	"fn-ext-line-model", "fn-ext-quadratic-model", "fn-ext-rational-model",
+	"fn-ext-transformed-reciprocal", "fn-gdc-features", "fn-link-extremes",
+	"fn-pre-algebraic-fractions", "fn-pre-expand", "fn-pre-graph-reading",
+	"fn-pre-linear-equations", "fn-pre-linear-inequalities", "fn-pre-simultaneous",
+	"fn-pre-surds", "fn-rational-asymptotes-intercepts", "fn-rational-sketch",
+	"fn-sketch-from-features", "fn-sketch-gdc", "t1-ahl-counting", "t1-algebraic-proof",
 	"t1-arithmetic-sequence", "t1-binomial-term", "t1-compound-interest", "t1-depreciation",
 	"t1-geometric-sequence", "t1-log-exp-form", "t1-solve-exponential", "t1-sum-to-infinity",
-	"t3-distance-midpoint", "t3-identity-values", "t3-solid-volume-area", "t3-trig-model-parameters",
-	"t3-trig-model-use", "t3-trig-quadratic", "t3-trig-read-features", "t4-binomial", "t4-box-plot",
-	"t4-cumulative-frequency", "t4-discrete-distribution", "t4-expected-occurrences",
-	"t4-expected-value", "t4-independence", "t4-inverse-normal", "t4-normal-probability",
-	"t4-normal-properties", "t4-outlier-rule", "t4-probability-basic", "t4-regression-gdc",
-	"t4-sample-space", "t4-summary-statistics", "t4-tree-diagram", "t5-antiderivative-condition",
-	"t5-area-between-curves", "t5-concavity", "t5-definite-integral-area", "t5-derivative-graph",
-	"t5-differentiation-rules", "t5-increasing-decreasing", "t5-kinematics-distance",
-	"t5-normal-meets-curve", "t5-optimisation-modelling"
+	"t3-distance-midpoint", "t3-identity-values", "t3-solid-volume-area",
+	"t3-trig-model-parameters", "t3-trig-model-use", "t3-trig-quadratic",
+	"t3-trig-read-features", "t4-binomial", "t4-box-plot", "t4-cumulative-frequency",
+	"t4-discrete-distribution", "t4-expected-occurrences", "t4-expected-value",
+	"t4-independence", "t4-inverse-normal", "t4-normal-probability", "t4-normal-properties",
+	"t4-outlier-rule", "t4-probability-basic", "t4-regression-gdc", "t4-sample-space",
+	"t4-summary-statistics", "t4-tree-diagram", "t5-antiderivative-condition",
+	"t5-area-between-curves", "t5-concavity", "t5-definite-integral-area",
+	"t5-derivative-graph", "t5-differentiation-rules", "t5-increasing-decreasing",
+	"t5-kinematics-distance", "t5-normal-meets-curve", "t5-optimisation-modelling"
 ]
 
 ## Two full stops, but not an ellipsis.

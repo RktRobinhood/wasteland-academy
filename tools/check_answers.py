@@ -4549,7 +4549,8 @@ def check_factorise(q):
         need(L[0] == f"Two numbers have product {frac_text(P)} and sum {frac_text(S)}.", "the product and sum shown are not the givens")
         m, n = sorted(sp.solve(X**2 - S * X + P, X))
         need(m.is_integer and n.is_integer and m != n and m != 0 and n != 0, "the two numbers are not different nonzero whole numbers")
-        qr_check_common(q, qr_norm(ans, {"r1": str(m), "r2": str(n)}))
+        qr_check_common(q, qr_norm(ans, {"r1": str(m), "r2": str(n)}), {f"{T}#0": {qr_norm(ans, {"r1": str(-m), "r2": str(-n)})},  # signs swapped
+                                                                       f"{T}#5": {qr_norm(ans, {"r1": "1", "r2": str(P)})}})  # product only
         return None, None
     A, B, C = R(g["A"]), R(g["B"]), R(g["C"])
     f = A * X**2 + B * X + C
@@ -4560,7 +4561,9 @@ def check_factorise(q):
         sol = sp.solve(sp.Poly(sp.expand((X + r) * (X + S_) - f), X).coeffs(), S_, dict=True)
         need(len(sol) == 1 and sol[0][S_].is_integer, "no whole number fills the bracket")
         need(ans.get("exact"), "a missing whole number must be marked exactly")
-        qr_check_common(q, qr_norm(ans, {"v": str(sol[0][S_])}))
+        qr_check_common(q, qr_norm(ans, {"v": str(sol[0][S_])}), {f"{T}#11": {qr_norm(ans, {"v": str(C)})},  # c itself
+                                                                  f"{T}#12": {qr_norm(ans, {"v": str(B + r)})},  # b + r
+                                                                  f"{T}#13": {qr_norm(ans, {"v": str(C - r)})}})  # c − r
         return None, None
     need(parse(L[0]) == sp.expand(f), f"the expression shown {L[0]!r} is not the givens")
     need(all(c.q == 1 and abs(c) <= 81 for c in (A, B, C)), "coefficients are not small whole numbers")
@@ -4573,6 +4576,7 @@ def check_factorise(q):
             fake = f"({qr_lead(p_)}x + {q_})({qr_lead(p_)}x − {q_})"
             need(ans["kind"] == "choice" and fake in ans["fixed"]["options"], "the sum of squares is not offered as a difference")
             wr[f"{T}#1"] = {qr_norm(ans, {"v": fake})}
+            wr[f"{T}#7"] = {qr_norm(ans, {"v": f"({qr_lead(p_)}x + {q_})²"})}  # a perfect square
             qr_check_common(q, qr_norm(ans, {"v": "It does not factorise"}), wr)
             return None, None
     if u == "common-factor":
@@ -4581,6 +4585,7 @@ def check_factorise(q):
         a_, b_ = A / gg, B / gg
         need(gg >= 2, "the highest common factor is only x")
         wr[f"{T}#2"] = {qr_norm(ans, {"g": str(gg), "a": str(a_), "b": str(B)})}
+        wr[f"{T}#4"] = {qr_norm(ans, {"g": str(gg), "a": str(A), "b": str(b_)})}  # the x² term not divided
         qr_check_common(q, qr_norm(ans, {"g": str(gg), "a": str(a_), "b": str(b_)}), wr)
         return None, None
     # The factors, by SymPy: each linear factor written with a positive x term.
@@ -4602,6 +4607,8 @@ def check_factorise(q):
         need(A == 1, "not monic")
         (_, r), (_, s_) = lin
         wr[f"{T}#0"] = {qr_norm(ans, {"r": str(-r), "s": str(-s_)})}
+        wr[f"{T}#5"] = {qr_norm(ans, {"r": str(C), "s": "1"})}  # product only
+        wr[f"{T}#6"] = {qr_norm(ans, {"r": str(B), "s": str(C)})}  # b and c in the brackets
         qr_check_common(q, qr_norm(ans, {"r": str(r), "s": str(s_)}), wr)
         return None, None
     (a1, b1), (a2, b2) = lin
@@ -4609,6 +4616,13 @@ def check_factorise(q):
         need(A >= 2, "a is not more than 1")
         # The pair of c only, in brackets with x: (x + b1)(x + b2).
         wr[f"{T}#3"] = {qr_norm(ans, {"a1": "1", "b1": str(b1), "a2": "1", "b2": str(b2)})}
+        wr[f"{T}#0"] = {qr_norm(ans, {"a1": str(a1), "b1": str(-b1), "a2": str(a2), "b2": str(-b2)})}  # signs swapped
+        wr[f"{T}#10"] = {qr_norm(ans, {"a1": str(a1), "b1": str(b2), "a2": str(a2), "b2": str(b1)})}  # numbers in the wrong brackets
+    elif u == "difference-of-squares":
+        p_, q_ = sp.sqrt(A), sp.sqrt(-C)
+        wr[f"{T}#7"] = {qr_norm(ans, {"a1": str(p_), "b1": str(-q_), "a2": str(p_), "b2": str(-q_)})}  # a perfect square
+        wr[f"{T}#8"] = {qr_norm(ans, {"a1": "1", "b1": str(-q_), "a2": str(A), "b2": str(q_)})}  # a not rooted
+        wr[f"{T}#9"] = {qr_norm(ans, {"a1": str(p_), "b1": str(C), "a2": str(p_), "b2": "1"})}  # c not rooted
     qr_check_common(q, qr_norm(ans, {"a1": str(a1), "b1": str(b1), "a2": str(a2), "b2": str(b2)}), wr)
     return None, None
 
@@ -6454,6 +6468,9 @@ def lf_curve(q, fn):
     return gr
 
 
+LF = "fn-log-function-features#"  # its own slips (FAL-820)
+
+
 def check_log_function(q):
     g, ans, u, rep, L, asked = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
     for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
@@ -6470,6 +6487,13 @@ def check_log_function(q):
         fx = sp.log(xs - h) / xs ** pw
         sol = sp.solveset(sp.Gt(fx, 0) if rel == ">" else sp.Lt(fx, 0), xs, sp.Interval.open(h, sp.oo))
         want = lf_set_want(ans, sol)
+        wr[LF + "13"] = {lf_set_want(ans, sp.Interval(sol.inf, sol.sup, rel == "<", rel == ">"))}  # the zero of f included
+        if rel == ">":
+            wr[LF + "11"] = {lf_set_want(ans, sp.Interval.open(h, sp.oo))}  # where ln is defined, not positive
+            wr[LF + "14"] = {lf_set_want(ans, sp.solveset(sp.Gt(sp.log(xs), 0), xs, sp.Interval.open(0, sp.oo)))}  # ln x, no shift
+        else:
+            wr[LF + "12"] = {lf_set_want(ans, sp.Interval(h, sol.sup, False, True))}  # the undefined end included
+            wr[LF + "15"] = {lf_set_want(ans, sp.Interval.open(0, sol.sup))}  # from the origin
         qr_check_common(q, want, wr)
         return None, None
     if u == "reflect-exponential":
@@ -6480,6 +6504,7 @@ def check_log_function(q):
         if rep == "graph":
             lf_curve(q, sp.Integer(b) ** (X - hh))
         want = qr_norm(ans, {"x": str(py), "y": str(px)})
+        wr[LF + "20"] = {qr_norm(ans, {"x": str(px), "y": str(py)})}  # not swapped
         qr_check_common(q, want, wr)
         return None, None
     if u == "n-from-asymptote":
@@ -6494,6 +6519,7 @@ def check_log_function(q):
         want = qr_norm(ans, {"v": str(a)})
         if a != 0:
             wr["SL2.4.asymptotes#2"] = {qr_norm(ans, {"v": str(-a)})}
+        wr[LF + "9"] = {qr_norm(ans, {"v": str(cc)})}  # the vertical shift taken
         qr_check_common(q, want, wr)
         return None, None
     if u == "pick-graph" and rep == "graph":
@@ -6508,6 +6534,11 @@ def check_log_function(q):
         good = [o["text"] for o in q["choices"] if matches(o["text"])]
         need(len(good) == 1, f"{len(good)} equations fit the graph")
         want = qr_norm(ans, {"v": good[0]})
+        _, b, ins, c = lf_parse(good[0])
+        h = sp.solve(ins, X)[0]
+        say = lambda p_, q_: f"y = {el_log_name(b)}({el_x_minus(p_)}){el_plus_q(q_)}"
+        wr["SL2.9.log-graph#1"] = {qr_norm(ans, {"v": say(-h, c)})}
+        wr[LF + "19"] = {qr_norm(ans, {"v": say(c, h)})}  # the shifts swapped
         qr_check_common(q, want, wr)
         return None, None
     A, b, ins, c = lf_parse(" ".join(L) if u != "pick-graph" else asked)
@@ -6524,23 +6555,40 @@ def check_log_function(q):
         want = qr_norm(ans, {"v": say_x(x0)})
         wr["SL2.9.log-graph#1"] = {qr_norm(ans, {"v": say_x(nn / mm)})}
         wr["SL2.4.asymptotes#0"] = {qr_norm(ans, {"v": frac_text(x0)})}
+        wr["SL2.4.asymptotes#1"] = {qr_norm(ans, {"v": el_m_text(f"y = {frac_text(x0)}")})}
+        wr[LF + "8"] = {qr_norm(ans, {"v": say_x(-nn)})}  # not divided by m
+        wr[LF + "9"] = {qr_norm(ans, {"v": el_m_text(f"y = {frac_text(c)}")})}  # the vertical shift
+        wr[LF + "10"] = {qr_norm(ans, {"v": "x = 0"})}  # the parent's asymptote
     elif u == "domain-from-equation":
         want = lf_set_want(ans, dom)
         wr["SL2.2.domain#1"] = {qr_norm(ans, {"rel": ">", "v": "0"})}
+        rel = ">" if mm > 0 else "<"
+        wr[LF + "12"] = {lf_set_want(ans, sp.Interval(x0, sp.oo) if mm > 0 else sp.Interval(-sp.oo, x0))}  # the edge included
+        wr[LF + "16"] = {qr_norm(ans, {"rel": "<" if mm > 0 else ">", "v": str(x0)})}  # not turned round
+        wr["SL2.9.log-graph#1"] = {qr_norm(ans, {"rel": rel, "v": str(-x0)})}
+        wr[LF + "8"] = {qr_norm(ans, {"rel": rel, "v": str(-nn)})}  # not divided by m
     elif u == "domain-from-graph":
         need(isinstance(dom, sp.Interval), "the domain is not one interval")
         right = el_m_text(f"x > {frac_text(dom.inf)}" if dom.sup == sp.oo else f"x < {frac_text(dom.sup)}")
         want = qr_norm(ans, {"v": right})
         wr["SL2.2.domain#2"] = {qr_norm(ans, {"v": "all real values of y"})}
+        wr[LF + "12"] = {qr_norm(ans, {"v": el_m_text(f"x ≥ {frac_text(dom.inf)}" if dom.sup == sp.oo else f"x ≤ {frac_text(dom.sup)}")})}  # the edge included
+        wr["SL2.2.domain#1"] = {qr_norm(ans, {"v": "x > 0"})}
     elif u == "asymptote-from-graph":
         want = qr_norm(ans, {"v": say_x(x0)})
         wr["SL2.4.asymptotes#1"] = {qr_norm(ans, {"v": el_m_text(f"y = {frac_text(x0)}")})}
         wr["SL2.9.log-graph#0"] = {qr_norm(ans, {"v": "y = 0"})}
+        wr[LF + "9"] = {qr_norm(ans, {"v": el_m_text(f"y = {frac_text(c)}")})}  # the vertical shift
+        wr["SL2.9.log-graph#1"] = {qr_norm(ans, {"v": say_x(-x0)})}
+        wr[LF + "10"] = {qr_norm(ans, {"v": "x = 0"})}  # the parent's asymptote
     elif u == "x-intercept":
         sol = sp.solveset(fn.subs(X, xs), xs, dom)
         need(isinstance(sol, sp.FiniteSet) and len(sol) == 1 and list(sol)[0].is_rational, f"the x-intercept {sol} is not one exact number")
         want = qr_norm(ans, {"v": str(list(sol)[0])})
         wr["SL2.9.log-graph#2"] = {qr_norm(ans, {"v": str(x0)})}
+        lv = sp.Rational(-c, A)
+        wr[LF + "17"] = {qr_norm(ans, {"v": str(lv)})}  # the log's value, not undone
+        wr[LF + "18"] = {qr_norm(ans, {"v": str(sp.Integer(b) ** lv)})}  # the input's value, not solved
     elif u == "pick-graph":
         need(mm == 1 and A == 1, "pick-graph is on log_b(x − h) + c")
         h = x0
@@ -6550,6 +6598,7 @@ def check_log_function(q):
         need(fn.subs(X, h + 1) == c and sp.simplify(fn.subs(X, h + b) - (c + 1)) == 0, "the key points are not on the graph")
         want = qr_norm(ans, {"v": say(h, P(h + 1, c), p2, True)})
         wr["SL2.9.log-graph#2"] = {qr_norm(ans, {"v": say(h, P(h, 0), p2, True)})}
+        wr["SL2.9.log-graph#1"] = {qr_norm(ans, {"v": say(-h, P(-h + 1, c), P(-h + b, c + 1), True)})}
     elif u == "log-inequality":
         m = em_read(r"^Solve log([₀-₉]+)\(([^()]+)\) ([<>≤≥]) (−?\d+)\.$", asked, "the inequality")
         k = el_num(m.group(4))
@@ -6559,6 +6608,15 @@ def check_log_function(q):
             gr = lf_curve(q, sp.log(ins, b))
             need([R(sp.nsimplify(hl["at"])) for hl in gr["hlines"]] == [k], "the line drawn is not y = k")
         want = lf_set_want(ans, sol)
+        rel = m.group(3)
+        if rel in (">", "≥"):
+            wr[LF + "21"] = {lf_set_want(ans, sp.solveset(op(ins.subs(X, xs), k), xs, sp.S.Reals))}  # no power taken
+            edge = sp.solve(ins - sp.Integer(b) ** k, X)[0]
+            wr[LF + "16"] = {qr_norm(ans, {"rel": rel, "v": str(edge)})}  # not turned round
+        else:
+            wr[LF + "12"] = {lf_set_want(ans, sp.Interval(sol.inf, sol.sup))}  # both ends closed
+            if sol.sup > 0:
+                wr[LF + "15"] = {lf_set_want(ans, sp.Interval(0, sol.sup, sol.left_open, sol.right_open))}  # from the origin
     else:
         raise Fail(f"the checker has no solver for {u}")
     qr_check_common(q, want, wr)
@@ -6767,6 +6825,9 @@ def check_link_growth(q):
         wr["SL2.9.exp-model#0"] = {qr_norm(ans, {"v": say(sp.Rational(r, 100))})}
         if f < 1:
             wr["SL1.3.model#1"] = {qr_norm(ans, {"v": say(1 + sp.Rational(r, 100))})}
+        else:
+            wr[T + "#14"] = {qr_norm(ans, {"v": say(1 - sp.Rational(r, 100))})}  # the factor for a fall
+        wr[T + "#13"] = {qr_norm(ans, {"v": say(1 + sp.Rational(r, 10))})}  # divided by ten
     elif u in ("sequence-vs-function", "depreciation-two-ways", "compounding-factor"):
         n = int(em_read(r"after (\d+) years", asked, "the years").group(1))
         if u == "sequence-vs-function":
@@ -6780,6 +6841,7 @@ def check_link_growth(q):
             wr["SL2.9.exp-model#1"] = {el_m(P0 * f * n)}
             wr["SL2.9.exp-model#2"] = wr["SL1.3.model#2"] = {el_m(P0 * f ** (n - 1))}
             wr["SL1.3.nth-term#0"] = {el_m(P0 * f ** (n + 1))}
+            wr["SL1.4.future-value#1"] = {el_m(P0 + P0 * (f - 1) * n)}
         elif u == "depreciation-two-ways":
             m = em_read(r"bought for (\d+) loses (\d+)% of its value each year", Lj, "the machine")
             P0, r = el_num(m.group(1)), sp.Rational(int(m.group(2)), 100)
@@ -6789,6 +6851,7 @@ def check_link_growth(q):
             want = m3(P0 * (1 - r) ** n)
             wr["SL1.4.depreciation#1"] = wr["SL1.3.model#1"] = {el_m(P0 * (1 - r * n))}
             wr["SL1.4.depreciation#0"] = {el_m(P0 * (1 + r) ** n), el_m(P0 * r ** n)}
+            wr["SL1.3.model#2"] = {el_m(P0 * (1 - r) ** (n - 1))}
         else:
             m = em_read(r"(\d+) is invested at (\d+)% a year, compounded (half-yearly|quarterly|monthly)\.", Lj, "the investment")
             P0, R_ = el_num(m.group(1)), sp.Rational(int(m.group(2)), 100)
@@ -6796,6 +6859,8 @@ def check_link_growth(q):
             want = m3(P0 * (1 + R_ / k) ** (k * n))
             wr["SL1.4.future-value#0"] = {el_m(P0 * (1 + R_) ** (k * n))}
             wr["SL1.4.future-value#1"] = {el_m(P0 * (1 + R_ * n))}
+            wr[T + "#21"] = {el_m(P0 * (1 + R_) ** n)}  # once a year at the annual rate
+            wr[T + "#22"] = {el_m(P0 * (1 + R_ / k) ** n)}  # the period rate, once a year
     elif u == "first-below":
         Tv = el_num(em_read(r"below (\d+)\.", asked, "the threshold").group(1))
         if rep == "words":
@@ -6812,6 +6877,7 @@ def check_link_growth(q):
         frac = num(nx) - sp.floor(num(nx))
         need(sp.Rational(1, 10) <= frac <= sp.Rational(9, 10), "the crossing is too near a whole year")
         want = qr_norm(ans, {"v": str(int(sp.ceiling(num(nx))))})
+        wr[T + "#15"] = {qr_norm(ans, {"v": str(int(sp.floor(num(nx))))})}  # rounded down
     elif u == "factor-from-two-values":
         if rep == "table":
             (t1, t2), (V1, V2) = [int(x) for x in q["table"]["rows"][0][1]], [el_num(x) for x in q["table"]["rows"][1][1]]
@@ -6821,6 +6887,10 @@ def check_link_growth(q):
         f = sp.nsimplify((V2 / V1) ** sp.Rational(1, t2 - t1))
         need(f.is_rational, "the factor is not exact")
         want = qr_norm(ans, {"v0": str(f), "v1": str((f - 1) * 100)})
+        wr["SL2.9.exp-model#0"] = {qr_norm(ans, {"v0": str(f - 1), "v1": str((f - 1) * 100)})}
+        whole, even = V2 / V1, (V2 - V1) / V1 / (t2 - t1)
+        wr[T + "#16"] = {qr_norm(ans, {"v0": str(whole), "v1": str((whole - 1) * 100)})}  # no root
+        wr[T + "#17"] = {qr_norm(ans, {"v0": str(1 + even), "v1": str(even * 100)})}  # spread evenly
     elif u == "graph-from-factor":
         m = em_read(r"y = (\d+)\(([\d.]+)\)\^x", asked, "the function")
         P0, f = el_num(m.group(1)), el_num(m.group(2))
@@ -6833,6 +6903,8 @@ def check_link_growth(q):
             for x0, y0 in q["graph"]["curves"][0][::16]:
                 need(abs(float(P0 * f ** sp.Float(x0, 30)) - y0) <= 1e-6 * max(1, abs(y0)), "the curve is not the function")
         want = qr_norm(ans, {"v": right})
+        wr[T + "#18"] = {qr_norm(ans, {"v": f"starts at (0, {frac_text(P0)}) and {'falls' if f > 1 else 'rises'} towards y = 0"})}  # direction swapped
+        wr[T + "#19"] = {qr_norm(ans, {"v": f"starts at (0, 0) and {'rises' if f > 1 else 'falls'}"})}  # from the origin
     elif u == "sum-to-infinity-link":
         if rep == "words":
             qv = el_num(em_read(r"common ratio (−?\d+(?:\.\d+)?(?:/\d+)?)\.$", L[0], "the ratio").group(1))
@@ -6853,6 +6925,7 @@ def check_link_growth(q):
         e = sp.exp(kc)
         m3(e), m3((e - 1) * 100)
         want = (ext_sf(e), ext_sf((e - 1) * 100))
+        wr[T + "#20"] = {(ext_sf(1 + kc), ext_sf(100 * kc)), (ext_sf(e), ext_sf(100 * kc))}  # k taken as the yearly rate
     else:
         raise Fail(f"the checker has no solver for {u}")
     qr_check_common(q, want, wr)
@@ -15839,6 +15912,7 @@ LR_AB_SWAP, LR_AB_BARE = "SL4.4.interpret-ab#0", "SL4.4.interpret-ab#1"
 LR_SIGN, LR_UNITS = "SL5.1.interpret-derivative#1", "SL5.1.interpret-derivative#2"
 LR_ONE_CHORD, LR_F_NOT_DF = "SL5.1.chord-to-tangent#1", "SL5.3.gradient-at-point#0"
 LR_SUB = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+LR = "fn-link-rate-of-change#"  # its own slips (FAL-820)
 # x, its unit, y, its unit, a step of x, y's change, the total slip, the exact slip, the sign
 LR_REG = [
     ("the distance driven", "km", "the fuel used", "litres", "km", "litres more fuel", "The total fuel used is {} litres", "Each extra km adds exactly {} litres of fuel, every time", 1),
@@ -15970,7 +16044,7 @@ def check_link_rate(q):
     if u == "sequence-as-line":
         u1, d = lr_sequence(q)
         want = lc_sl(d, u1 - d)
-        wr = {LR_SWAP: {lc_sl(u1, d)}, LR_NTH: {lc_sl(d, u1)}}
+        wr = {LR_SWAP: {lc_sl(u1, d)}, LR_NTH: {lc_sl(d, u1)}, LR + "13": {lc_sl(d, u1 + d)}}  # stepped forward for c
     elif u == "sequence-from-line":
         if rep == "graph":
             pts = lc_coords(q["graph"])
@@ -15981,6 +16055,8 @@ def check_link_rate(q):
             m, c = lc_line(L[0])
         need(m != 0 and m.q == 1 and c.q == 1, "the line is not whole")
         want = lr_two(m + c, m, ("u₁", "d"))
+        wr = {LR + "14": {lr_two(c, m, ("u₁", "d"))},  # the intercept as u₁
+              LR_SWAP: {lr_two(m, c, ("u₁", "d"))}, LR_NTH: {lr_two(2 * m + c, m, ("u₁", "d"))}}
     elif u == "d-from-two-terms":
         p, up, r, ur = lr_du1(q)
         d = (ur - up) / (r - p)
@@ -15988,7 +16064,10 @@ def check_link_rate(q):
         names = ("d", "u₁")
         slip = lambda v: {lr_two(v, up - (p - 1) * v, names)}
         want = lr_two(d, up - (p - 1) * d, names)
-        wr = {LR_RUN_RISE: slip((r - p) / (ur - up)), LR_ORDER: slip(-d), LR_TERMS: slip((ur - up) / (r - p + 1))}
+        wr = {LR_RUN_RISE: slip((r - p) / (ur - up)), LR_ORDER: slip(-d), LR_TERMS: slip((ur - up) / (r - p + 1)),
+              LR + "15": {lr_two(d, up, names)},  # the given term as u₁
+              LR + "16": {lr_two(d, up - p * d, names)},  # one gap too many
+              LR + "17": {lr_two(up - (p - 1) * d, d, names)}}  # the two swapped
     elif u == "match-rate-kind":
         f = re.search(r"goes up by (\d) per step", asked)
         need(f is not None and [t[:3] for t in L] == ["A: ", "B: ", "C: ", "D: "], f"can't read {L}")
@@ -15996,13 +16075,20 @@ def check_link_rate(q):
         need({k[1] for k in kinds} == {lc_q(f.group(1))}, "the four don't share one rate")
         need(len({k[0] for k in kinds}) == 4, "one of each kind")
         want = "; ".join(f"{a}: {k[0]}" for a, k in zip("ABCD", kinds))
+        names = [k[0] for k in kinds]
+        def swap(k1, k2):
+            w = [k2 if n_ == k1 else (k1 if n_ == k2 else n_) for n_ in names]
+            return "; ".join(f"{a}: {n_}" for a, n_ in zip("ABCD", w))
+        wr = {LR + "18": {swap("fitted model", "exact, every x")}, LR + "19": {swap("one instant", "exact, every x")},
+              LR + "20": {swap("exact, whole steps", "exact, every x")}}
     elif u == "interpret-regression-gradient":
         i, a, b = lr_regression(q)
         c = LR_REG[i]
         need((a > 0) == (c[8] > 0), "the gradient has the wrong sign for its story")
         v = dec_text(abs(a))
         want = f"Each extra {c[4]} goes with about {v} {c[5]} on average; real points sit above and below the line"
-        wr = {LR_TOTAL: {c[6].format(v)}, LR_AB_SWAP: {f"Each extra {c[4]} goes with about {dec_text(b)} {c[5]} on average, from a start of {v}"}, LR_AB_BARE: {f"{dec_text(a)} is the gradient"}}
+        wr = {LR_TOTAL: {c[6].format(v)}, LR_AB_SWAP: {f"Each extra {c[4]} goes with about {dec_text(b)} {c[5]} on average, from a start of {v}"}, LR_AB_BARE: {f"{dec_text(a)} is the gradient"},
+              LR + "18": {c[7].format(v)}}  # the fitted gradient read as exact
     elif u == "derivative-in-context":
         f = re.fullmatch(r"([A-Za-z])\(t\) is (.+), in (.+), t (minutes|seconds) after .+\.", L[0])
         g = re.fullmatch(r"([A-Za-z])′\((\d)\) = (−?\d+)", L[1])
@@ -16014,7 +16100,9 @@ def check_link_rate(q):
         way, other = ("falling", "rising") if k < 0 else ("rising", "falling")
         say = lambda w, un: f"At t = {g.group(2)}, {of} is {w} at {abs(k)} {un}, at that instant only"
         want = say(way, per)
-        wr = {LR_UNITS: {say(way, unit)}}
+        wr = {LR_UNITS: {say(way, unit)},
+              LR + "19": {f"{of[0].upper()}{of[1:]} {'falls' if k < 0 else 'rises'} at {abs(k)} {per} at every time, like a straight line"},
+              LR + "21": {f"At t = {g.group(2)}, {of} is {abs(k)} {unit}"}}  # the rate read as the value
         if k < 0:
             wr[LR_SIGN] = {say(other, per)}
     elif u in ("chord-to-limit", "tangent-gradient-methods"):
@@ -16034,7 +16122,8 @@ def check_link_rate(q):
             df = sp.diff(fn, X).subs(X, x0)
             need(df.q == 1 and x0 != 0, "the tangent gradient is not whole")
             want = lr_two(grad, df, ("chord", "tangent"))
-            wr = {LR_ONE_CHORD: {lr_two(grad, grad, ("chord", "tangent"))}}
+            wr = {LR_ONE_CHORD: {lr_two(grad, grad, ("chord", "tangent"))}, LR_F_NOT_DF: {lr_two(grad, fn.subs(X, x0), ("chord", "tangent"))},
+                  LR + "22": {lr_two(fn.subs(X, x1) - fn.subs(X, x0), df, ("chord", "tangent"))}}  # rise not divided by run
             if rep == "table":
                 rows = q["table"]["rows"]
                 for hh, gg in zip(rows[0][1], rows[1][1]):
@@ -16056,11 +16145,11 @@ def check_link_rate(q):
                 need(gc_rounds(df), "a Paper 2 gradient that needs no calculator")
                 want = "gradient = " + gc_s(df)
                 trap = "gradient = " + gc_s2(df)
-                wr = {LR_ONE_CHORD: {"gradient = " + gc_s(one)}, LR_F_NOT_DF: {"gradient = " + gc_s(fn.subs(X, x0))}}
+                wr = {LR_ONE_CHORD: {"gradient = " + gc_s(one), "gradient = " + gc_s(fn.subs(X, x0 + 1) - fn.subs(X, x0))}, LR_F_NOT_DF: {"gradient = " + gc_s(fn.subs(X, x0))}}
             else:
                 need(df.q == 1, "a Paper 1 gradient that is not whole")
                 want = "gradient = " + dec_text(df)
-                wr = {LR_ONE_CHORD: {"gradient = " + dec_text(one)}, LR_F_NOT_DF: {"gradient = " + dec_text(fn.subs(X, x0))}}
+                wr = {LR_ONE_CHORD: {"gradient = " + dec_text(one), "gradient = " + dec_text(fn.subs(X, x0 + 1) - fn.subs(X, x0))}, LR_F_NOT_DF: {"gradient = " + dec_text(fn.subs(X, x0))}}
             if rep == "graph":
                 need(lc_coords(q["graph"]) == [(x0, fn.subs(X, x0))], "the mark is not the point on the curve")
                 lr_marks_on(q["graph"], fn)
@@ -16076,6 +16165,7 @@ def check_link_rate(q):
             need(f is not None, f"can't read {L[0]!r}")
             m, x0, y0 = lc_q(f.group(1)), lc_q(f.group(2)), lc_q(f.group(3))
         want = lc_sl(m, y0 - m * x0)
+        wr = {LR + "23": {lc_sl(m, y0)}, LR + "24": {lc_sl(m, y0 + m * x0)}, LR_SWAP: {lc_sl(y0, m)}}  # y₀ as c; + for −
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wr, trap)
@@ -18600,6 +18690,9 @@ def lt_sand(q, first, second):
     tc_curves_are(gr, gr["curves"][k:], second)
 
 
+LT = "fn-link-transformations#"  # its own slips (FAL-820)
+
+
 def lt_feature(q):
     L, rep = q["lines"], q["view"]["rep"]
     if rep == "graph":
@@ -18619,16 +18712,17 @@ def lt_feature(q):
     if par == X**2:
         x0 = sp.solve(sp.diff(g, X), X)[0]
         want = pair(x0, g.subs(X, x0))
-        wr = {"SL2.11.translate#0": {pair(-a, b)}, "SL2.11.translate#1": {pair(a - b, 0)}}
+        wr = {"SL2.11.translate#0": {pair(-a, b)}, "SL2.11.translate#1": {pair(a - b, 0)}, LT + "14": {pair(a, -b)}, LT + "15": {pair(b, a)}}  # up's sign; swapped
     elif par == 1 / X:
         x0 = sp.solve(sp.denom(sp.together(g)), X)[0]
         y0 = sp.limit(g, X, sp.oo)
         named = lambda u, v: f"x = {d(u)}, y = {d(v)}"
         want = named(x0, y0)
-        wr = {"SL2.11.translate#0": {named(-a, b)}, "SL2.11.translate#1": {named(a - b, 0)}, "SL2.11.translate#2": {named(a, 0)}}
+        wr = {"SL2.11.translate#0": {named(-a, b)}, "SL2.11.translate#1": {named(a - b, 0)}, "SL2.11.translate#2": {named(a, 0)},
+              LT + "15": {named(b, a)}}  # swapped
     elif par == sp.exp(X):
         want = f"y = {d(sp.limit(g, X, -sp.oo))}"
-        wr = {"SL2.11.translate#2": {"y = 0"}}
+        wr = {"SL2.11.translate#2": {"y = 0"}, LT + "14": {f"y = {d(-b)}"}, LT + "15": {f"y = {d(a)}"}}  # up's sign; across for up
     else:
         need(par == sp.sin(X), f"parent {par}")
         need("(π/2, 1)" in q["asked"] and sp.diff(par, X).subs(X, sp.pi / 2) == 0 and par.subs(X, sp.pi / 2) == 1, "(π/2, 1) is not the maximum")
@@ -18637,7 +18731,8 @@ def lt_feature(q):
         tail = lambda v: "π/2" + ("" if v == 0 else f" {'+' if v > 0 else '−'} {d(abs(v))}")
         pip = lambda v, y: f"({tail(v)}, {d(y)})"
         want = pip(a, 1 + b)
-        wr = {"SL3.7.transformations#2": {pip(-a, 1 + b)}, "SL2.11.translate#1": {pip(a - b, 1)}}
+        wr = {"SL3.7.transformations#2": {pip(-a, 1 + b)}, "SL2.11.translate#1": {pip(a - b, 1)},
+              LT + "16": {pip(a, b)}, LT + "17": {pip(0, 1 + b)}, LT + "15": {pip(b, 1 + a)}}  # b as the height; no across; swapped
     gc_check_common(q, want, wr)
 
 
@@ -18660,7 +18755,8 @@ def lt_gap(q):
         c1, c2 = G.subs(X, 0), H.subs(X, 0)
     gap = sp.expand(H - G)
     need(gap.is_number and gap != 0, "the two curves are not a vertical move apart")
-    gc_check_common(q, f"(0, {lt_d(gap)})", {"SL5.5.boundary-condition#1": {f"(0, {lt_d(c2)})"}})
+    gc_check_common(q, f"(0, {lt_d(gap)})", {"SL5.5.boundary-condition#1": {f"(0, {lt_d(c2)})"},
+                                            LT + "18": {f"(0, {lt_d(-gap)})"}, LT + "15": {f"({lt_d(gap)}, 0)"}})  # C₁ − C₂; swapped
 
 
 def lt_through(q):
@@ -18683,7 +18779,8 @@ def lt_through(q):
     c = py - F.subs(X, px)
     need(c != 0, "C is 0")
     t = lambda v: f"C = {lt_d(v)}"
-    gc_check_common(q, t(c), {"SL5.5.boundary-condition#1": {t(0)}, "SL5.5.boundary-condition#0": {t(py - fd.subs(X, px))}})
+    gc_check_common(q, t(c), {"SL5.5.boundary-condition#1": {t(0)}, "SL5.5.boundary-condition#0": {t(py - fd.subs(X, px))},
+                              LT + "19": {t(-c)}, LT + "20": {t(py + F.subs(X, px))}})  # F(a) − b; b + F(a)
 
 
 def lt_stats_line(text, names):
@@ -18748,7 +18845,9 @@ def lt_shifted(q):
     moved = [x + k for x in xs]
     say = lambda v: ", ".join(f"{n} = {lt_d(x)}" for n, x in zip(LT_STATS, v))
     mean, med, sd, iqr = lt_data_stats(moved)
-    gc_check_common(q, say((mean, med, sd, iqr)), {"SL4.3.constant-changes#0": {say((mean, med, sd + k, iqr))}, "SL4.3.constant-changes#2": {say((mean, med, sd, iqr + k))}})
+    gc_check_common(q, say((mean, med, sd, iqr)), {"SL4.3.constant-changes#0": {say((mean, med, sd + k, iqr))}, "SL4.3.constant-changes#2": {say((mean, med, sd, iqr + k))},
+                                                   LT + "21": {say((mean, lt_data_stats(xs)[1], sd, iqr))},  # the median left
+                                                   LT + "22": {say((mean, med, sd + k, iqr + k))}})  # k added to all four
 
 
 def lt_stretched(q):
@@ -18764,7 +18863,8 @@ def lt_stretched(q):
     a, b = (mean - sd) * f + k, (mean + sd) * f + k
     nm, ns = (a + b) / 2, abs(b - a) / 2
     say = lambda u, v, w: f"mean = {lt_d(u)}, standard deviation = {lt_d(v)}, variance = {lt_d(w)}"
-    gc_check_common(q, say(nm, ns, ns**2), {"SL4.3.constant-changes#1": {say(nm, ns, sd**2 * f)}, "SL4.3.constant-changes#0": {say(nm, ns + k, ns**2)}})
+    gc_check_common(q, say(nm, ns, ns**2), {"SL4.3.constant-changes#1": {say(nm, ns, sd**2 * f)}, "SL4.3.constant-changes#0": {say(nm, ns + k, ns**2)},
+                                            LT + "23": {say((mean + k) * f, ns, ns**2)}, LT + "24": {say(nm, ns, ns)}})  # + k before × m; not squared
 
 
 def lt_change(q):
@@ -18780,7 +18880,10 @@ def lt_change(q):
         need(m is not None, f"can't read {t!r}")
         v = tc_num(m[2])
         return {"increased by": (m1 + v, s1), "decreased by": (m1 - v, s1), "multiplied by": (m1 * v, s1 * v)}[m[1]]
-    tc_opts(q, rd, lambda v: v == (m2, s2), {})
+    tc_opts(q, rd, lambda v: v == (m2, s2), {LT + "25": lambda v: v == (m2, s1 * m2 / m1),  # the means' ratio
+                                             LT + "26": lambda v: v == (m1 + abs(m2 - m1), s1),  # the means' gap added
+                                             LT + "27": lambda v: v == (m1 * s1 / s2, s1 * s1 / s2),  # 1/m
+                                             LT + "28": lambda v: v == (m1 + abs(s2 - s1), s1)})  # the SDs' gap added
 
 
 def lt_standardise_moves(q):
@@ -18804,7 +18907,14 @@ def lt_standardise_moves(q):
         # z = B⁻¹-free: the map sends x to x/B + C, which must be (x − μ)/σ at every x.
         z = sp.Symbol("z")
         return (sp.expand(z / B + C - (z - mu) / sg) == 0 and A == 1 and D == 0, why == keep)
-    tc_opts(q, rd, lambda v: v == (True, True), {"SL2.11.stretch#0": lambda v: v == (False, True), "SL2.11.stretch#2": lambda v: v is None})
+    tc_opts(q, rd, lambda v: v == (True, True), {"SL2.11.stretch#0": lambda v: v == (False, True), "SL2.11.stretch#2": lambda v: v is None,
+                                                 LT + "29": lambda v: v == (False, True), LT + "30": lambda v: v == (False, True), LT + "31": lambda v: v == (True, False)})
+    exact = {LT + "29": f"a horizontal stretch with scale factor 1/{sg}, then a translation by the vector ({lt_d(-mu)}, 0); {keep}",  # stretch first
+             LT + "30": f"a translation by the vector ({lt_d(mu)}, 0), then a horizontal stretch with scale factor 1/{sg}; {keep}",  # + μ
+             LT + "31": want.replace(keep, "the curve gets narrower, so the probability gets smaller")}  # narrower is less
+    for o in q["choices"]:
+        if o["ref"] in exact:
+            need(o["text"] == exact[o["ref"]], f"{o['text']!r} is not what {o['ref']} gives")
     need(any(o["text"] == want for o in q["choices"]), "no option says the moves")
     for o in q["choices"]:
         if o["ref"] == "SL2.11.stretch#0":
@@ -18832,7 +18942,8 @@ def lt_standardise_bounds(q):
     z = (x - mu) / sg
     need((z * 100).q == 1, f"z = {z} doesn't end in 2 d.p.")
     p = lambda r, v: f"P(Z {r} {lt_d(v)})"
-    gc_check_common(q, p(rel, z), {"SL4.12.standardise#1": {p(rel, (x - mu) / sg**2)}, "SL4.12.standardise#0": {p(">" if rel == "<" else "<", z)}})
+    gc_check_common(q, p(rel, z), {"SL4.12.standardise#1": {p(rel, (x - mu) / sg**2)}, "SL4.12.standardise#0": {p(">" if rel == "<" else "<", z)},
+                                   LT + "32": {p(rel, x / sg)}, LT + "33": {p(rel, (x + mu) / sg)}, LT + "34": {p(rel, -z)}})  # no μ; + μ; μ − x
     ph = nu_phi(z) if rel == "<" else 1 - nu_phi(z)
     gdc = next(s for s in q["solutions"] if s["angle"] == "gdc-both")
     for st in gdc["steps"][1:3]:
@@ -18870,7 +18981,8 @@ def lt_translated(q):
         gr = q["graph"]
         lt_sand(q, f, g)
         need(sorted(v["at"] for v in gr["vlines"]) == sorted(float(v) for v in (p, r, lo, hi)), "the limits drawn")
-    gc_check_common(q, f"Area = {lt_d(sp.integrate(g, (X, lo, hi)))}", {})
+    gc_check_common(q, f"Area = {lt_d(sp.integrate(g, (X, lo, hi)))}", {LT + "35": {f"Area = {lt_d(sp.integrate(f, (X, lo, hi)))}"},  # f, not moved
+                                                                        LT + "36": {f"Area = {lt_d(area + a)}"}})  # the shift added
 
 
 def lt_raised(q):
@@ -18894,7 +19006,9 @@ def lt_raised(q):
         trap = sum((c[i + 1][0] - c[i][0]) * (c[i + 1][1] + c[i][1]) / 2 for i in range(len(c) - 1))
         need(c[0][0] == float(p) and c[-1][0] == float(r) and abs(trap - float(area)) < 1e-2 * max(1, float(area)), f"the curve drawn has area {trap}")
     say = lambda u, v: f"{names[0]} = {lt_d(u)}, {names[1]} = {lt_d(v)}"
-    gc_check_common(q, say(area + b * (r - p), f * area), {"SL5.11.integral-properties#0": {say(area + b, f * area)}})
+    gc_check_common(q, say(area + b * (r - p), f * area), {"SL5.11.integral-properties#0": {say(area + b, f * area)},
+                                                           LT + "37": {say(area + b * (r - p), area + f)},  # m added
+                                                           LT + "38": {say(area + b * r, f * area)}})  # width taken as the upper limit
 
 
 LT_CHECKS = {"moved-feature": lt_feature, "antiderivative-gap": lt_gap, "curve-through-point": lt_through, "shifted-data": lt_shifted,
@@ -18920,13 +19034,18 @@ def lv_point_on(par, x, y):
     need(par.subs(X, x) == y, f"({x}, {y}) is not on {par}")
 
 
+LV = "fn-link-vectors#"  # its own slips (FAL-820)
+
+
 def lv_eq_vector(q):
     L, rep = q["lines"], q["view"]["rep"]
     m = re.fullmatch(r"The graph of y = (.+) is moved (.+)\.", L[0]) if rep == "words" else None
     par, (a, b) = (tm_expr(m[1]), lt_moved_by(m[2])) if m else (tm_expr(rhs(L[0])), lt_moved_by(L[1]))
     g = lt_move(par, a, b)
     tc_opts(q, lambda t: tm_expr(rhs(t)), lambda e: tc_same(e, g),
-            {"SL2.11.translate#0": lambda e: tc_same(e, lt_move(par, -a, b)), "SL2.11.translate#1": lambda e: tc_same(e, par.subs(X, X - a + b))})
+            {"SL2.11.translate#0": lambda e: tc_same(e, lt_move(par, -a, b)), "SL2.11.translate#1": lambda e: tc_same(e, par.subs(X, X - a + b)),
+             LV + "12": lambda e: tc_same(e, lt_move(par, a, -b)),  # the vertical sign changed
+             LV + "13": lambda e: tc_same(e, lt_move(par, b, a))})  # the components swapped
 
 
 def lv_image_undo(q):
@@ -18944,7 +19063,9 @@ def lv_image_undo(q):
         p = lt_pts(t)
         need(len(p) == 2, f"can't read {t!r}")
         return tuple(p)
-    tc_opts(q, rd, lambda v: v == want, {})
+    tc_opts(q, rd, lambda v: v == want, {LV + "14": lambda v: v == ((x + a, y + b), (a, b)),  # the same vector back
+                                         "SL2.11.image-point#0": lambda v: v == ((x - a, y + b), (-a, -b)),
+                                         LV + "15": lambda v: v == ((x - a, y - b), (a, b))})  # the vector subtracted
 
 
 def lv_image_eq(q):
@@ -18954,7 +19075,7 @@ def lv_image_eq(q):
     a = R(m[2]) * (1 if m[1] == "−" else -1)
     b = R(m[4]) * (1 if m[3] == "+" else -1)
     pair = lambda u, v: f"({lt_d(u)}, {lt_d(v)})"
-    gc_check_common(q, pair(x + a, y + b), {"SL2.11.image-point#0": {pair(x - a, y + b)}})
+    gc_check_common(q, pair(x + a, y + b), {"SL2.11.image-point#0": {pair(x - a, y + b)}, LV + "12": {pair(x + a, y - b)}})  # the vertical sign changed
 
 
 def lv_from_images(q):
@@ -18971,7 +19092,10 @@ def lv_from_images(q):
     def rd(t):
         m = re.fullmatch(r"the vector is (\(.+\)), so y = (.+)", t)
         return lt_vec(m[1]), tm_expr(m[2])
-    tc_opts(q, rd, lambda v: v[0] == (a, b) and tc_same(v[1], g), {})
+    tc_opts(q, rd, lambda v: v[0] == (a, b) and tc_same(v[1], g),
+            {"SL2.11.translate#0": lambda v: v[0] == (a, b) and tc_same(v[1], lt_move(par, -a, b)),
+             LV + "16": lambda v: v[0] == (-a, -b) and tc_same(v[1], lt_move(par, -a, -b)),  # point minus image
+             LV + "13": lambda v: v[0] == (b, a) and tc_same(v[1], lt_move(par, b, a))})  # the components swapped
 
 
 def lv_from_vertex(q):
@@ -18988,7 +19112,7 @@ def lv_from_vertex(q):
     c = e.subs(X, h)
     need(sp.expand(lt_move(plain, h, c) - e) == 0, "it isn't the plain parabola moved")
     pair = lambda u, v: f"({lt_d(u)}, {lt_d(v)})"
-    gc_check_common(q, pair(h, c), {"SL2.6.vertex#0": {pair(-h, c)}})
+    gc_check_common(q, pair(h, c), {"SL2.6.vertex#0": {pair(-h, c)}, LV + "13": {pair(c, h)}})  # the components swapped
 
 
 def lv_vertex_form(q):
@@ -19001,7 +19125,9 @@ def lv_vertex_form(q):
         m = re.fullmatch(r"y = (.+), with vertex (\(.+\))", t)
         return parse(m[1]), lt_vec(m[2])
     tc_opts(q, rd, lambda v: sp.expand(v[0] - g) == 0 and v[1] == (h, c),
-            {"SL2.11.translate#0": lambda v: sp.expand(v[0] - lt_move(plain, -h, c)) == 0, "SL2.6.vertex#0": lambda v: sp.expand(v[0] - g) == 0 and v[1] == (-h, c)})
+            {"SL2.11.translate#0": lambda v: sp.expand(v[0] - lt_move(plain, -h, c)) == 0, "SL2.6.vertex#0": lambda v: sp.expand(v[0] - g) == 0 and v[1] == (-h, c),
+             LV + "12": lambda v: sp.expand(v[0] - lt_move(plain, h, -c)) == 0 and v[1] == (h, -c),  # the vertical sign changed
+             LV + "13": lambda v: sp.expand(v[0] - lt_move(plain, c, h)) == 0 and v[1] == (c, h)})  # the components swapped
 
 
 def lv_direction(q):
@@ -19036,7 +19162,8 @@ def lv_gradient(q):
     def rd(text):
         k = re.fullmatch(rf"gradient ({LT_NUM}), and y = (.+)", text)
         return tc_num(k[1]), tm_expr(k[2])
-    tc_opts(q, rd, lambda o: o[0] == m and tc_same(o[1], line), {"SL2.1.gradient#1": lambda o: o[0] == -m})
+    tc_opts(q, rd, lambda o: o[0] == m and tc_same(o[1], line), {"SL2.1.gradient#1": lambda o: o[0] == -m, "SL2.1.gradient#0": lambda o: o[0] == 1 / m,
+                                                                 LV + "17": lambda o: o[0] == m and tc_same(o[1], m * X + y0 + m * x0)})  # + for − in c
 
 
 def lv_pi(t):
@@ -19067,7 +19194,8 @@ def lv_wave(q):
     def same(v):
         moved = lt_move(base, v[0] * sp.pi, v[1])
         return all(abs(sp.N((moved - f).subs(X, sp.Rational(n, 7)))) < 1e-9 for n in (1, 5, 9, 13, 22))
-    tc_opts(q, rd, same, {"SL3.7.transformations#0": lambda v: v == (-E, D), "SL3.7.transformations#2": lambda v: v == (E / B, D)})
+    tc_opts(q, rd, same, {"SL3.7.transformations#0": lambda v: v == (-E, D), "SL3.7.transformations#2": lambda v: v == (E / B, D),
+                          LV + "12": lambda v: v == (-E / B, -D), LV + "18": lambda v: v == (-E / B, A)})  # the vertical sign; the amplitude
     need(rd(q["answer_text"]) == (-E / B, D), "the answer is not −E/B")
 
 
@@ -19095,7 +19223,10 @@ def lv_step(q):
             w[i] = B[i] + A[i]
             bad.add(say(w, [u + v / 2 for u, v in zip(A, w)], root(sum(v**2 for v in w))))
     need(bad, "no coordinate where a negative can be mishandled")
-    gc_check_common(q, say(st, mid, lt_d(d)), {"SL3.1.distance-3d#0": {say(st, mid, lt_d(abs(sum(st))))}, "SL3.1.distance-3d#1": bad})
+    gc_check_common(q, say(st, mid, lt_d(d)), {"SL3.1.distance-3d#0": {say(st, mid, lt_d(abs(sum(st))))}, "SL3.1.distance-3d#1": bad,
+                                               LV + "19": {say(st, B, lt_d(d))},  # B as the midpoint
+                                               LV + "20": {say(st, mid, lt_d(d**2))},  # no square root
+                                               LV + "16": {say([-v for v in st], mid, lt_d(d))}})  # A − B
 
 
 def lv_endpoint(q):
@@ -19104,7 +19235,8 @@ def lv_endpoint(q):
     A, M = lv_p3(m[1]), lv_p3(m[2])
     B = tuple(2 * w - u for u, w in zip(A, M))
     say = lambda v: f"x = {lt_d(v[0])}, y = {lt_d(v[1])}, z = {lt_d(v[2])}"
-    gc_check_common(q, say(B), {"SL3.1.midpoint-3d#1": {say([(u + w) / 2 for u, w in zip(A, M)])}, "SL3.1.midpoint-3d#2": {say([w / 2 for w in M])}})
+    gc_check_common(q, say(B), {"SL3.1.midpoint-3d#1": {say([(u + w) / 2 for u, w in zip(A, M)])}, "SL3.1.midpoint-3d#2": {say([w / 2 for w in M])},
+                                LV + "21": {say([w - u for u, w in zip(A, M)])}})  # the step A to M
 
 
 def lv_time(t):
@@ -19127,7 +19259,10 @@ def lv_delay(q):
     def rd(text):
         k = re.fullmatch(r"s_B\(t\) = (.+): B reaches each position (\d+) seconds? (after|before) A", text)
         return lv_time(k[1]), R(k[2]), k[3]
-    tc_opts(q, rd, lambda v: tc_same(v[0], sb) and v[1] == d and v[2] == "after", {})
+    tc_opts(q, rd, lambda v: tc_same(v[0], sb) and v[1] == d and v[2] == "after",
+            {LV + "22": lambda v: tc_same(v[0], sa.subs(X, X + d)) and v[2] == "after",  # t + d
+             LV + "23": lambda v: tc_same(v[0], sb) and v[2] == "before",  # B ahead
+             LV + "24": lambda v: tc_same(v[0], sa + d) and v[2] == "after"})  # added outside
 
 
 LV_CHECKS = {"equation-from-vector": lv_eq_vector, "image-and-undo": lv_image_undo, "image-from-equation": lv_image_eq, "vector-from-images": lv_from_images,

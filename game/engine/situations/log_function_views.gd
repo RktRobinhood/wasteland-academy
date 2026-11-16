@@ -21,6 +21,23 @@ const NEED := {
 	"log-inequality": {"a1": true, "ineq": true},
 }
 
+## fn-log-function-features's own slips (FAL-820).
+const R_NO_DIVIDE := "fn-log-function-features#8"
+const R_C_ASYM := "fn-log-function-features#9"
+const R_PARENT := "fn-log-function-features#10"
+const R_DEFINED := "fn-log-function-features#11"
+const R_EDGE_IN := "fn-log-function-features#12"
+const R_ZERO_IN := "fn-log-function-features#13"
+const R_NO_SHIFT := "fn-log-function-features#14"
+const R_FROM_ORIGIN := "fn-log-function-features#15"
+const R_NO_TURN := "fn-log-function-features#16"
+const R_LOG_VALUE := "fn-log-function-features#17"
+const R_INPUT_VALUE := "fn-log-function-features#18"
+const R_SHIFTS_SWAPPED := "fn-log-function-features#19"
+const R_NOT_SWAPPED := "fn-log-function-features#20"
+const R_NO_POWER := "fn-log-function-features#21"
+const R_SIGN := "SL2.9.log-graph#1"
+
 
 func has(unknown: String) -> bool:
 	return NEED.has(unknown)
@@ -40,9 +57,17 @@ func merge_need(a: Dictionary, b: Dictionary) -> Variant:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	# choice() is shared with other views and names its last list `generic`: here
+	# every one of them is a filler, the slips being tagged wrongs (FAL-820).
+	if out.has("generic"):
+		out.fillers = out.generic
+		out.erase("generic")
+	# More slips than places: which three are offered is the stream's choice.
+	if out.has("wrongs") and out.wrongs.size() > 3:
+		out.wrongs = rng.shuffled(out.wrongs)
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	out.given = LogFunctionSituation.export(s)
 	out.trap = {}
 	out.asked = M(out.asked)
@@ -121,8 +146,13 @@ func u_asymptote_from_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var x0: Q = s.x0
 	var n: Q = s.n
 	var bad: Q = n.div(Q.new(s.m))
-	var out := choice("x = " + N(x0), [wrong({"v": "x = " + N(bad)}, "SL2.9.log-graph#1"), wrong({"v": N(x0)}, "SL2.4.asymptotes#0")],
-		["x = " + N(n.neg()), "y = " + N(x0), "x = " + N(n), "x = " + N(x0.add(Q.new(1))), "y = %d" % s.c, "x = 0"])
+	var ws := [wrong({"v": "x = " + N(bad)}, "SL2.9.log-graph#1"), wrong({"v": N(x0)}, "SL2.4.asymptotes#0"), wrong({"v": "y = " + N(x0)}, "SL2.4.asymptotes#1"),
+		wrong({"v": "y = %d" % s.c}, R_C_ASYM)]
+	if s.m != 1:
+		ws.append(wrong({"v": "x = " + N(n.neg())}, R_NO_DIVIDE))
+	if not x0.is_zero():
+		ws.append(wrong({"v": "x = 0"}, R_PARENT))
+	var out := choice("x = " + N(x0), ws, ["x = " + N(n), "x = " + N(x0.add(Q.new(1)))])
 	var right: String = out.answer.values.v
 	var final := "So the asymptote is " + right + "."
 	out.merge({
@@ -147,19 +177,25 @@ func u_sign_of_log_expression(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var denom := "x" + Fmt.sup(pw)
 	var expr := "f(x) = ln(%s)/%s" % [Answer.x_minus(h), denom]
 	var ans: Dictionary
+	var ws: Array
 	var gen: Array
 	if rel == ">":
 		ans = Answer.make("bound", {"rel": ">", "v": Q.new(h + 1)}, {"var": "x"})
-		gen = [{"rel": ">", "v": Q.new(h)}, {"rel": "≥", "v": Q.new(h + 1)}, {"rel": "<", "v": Q.new(h + 1)}, {"rel": ">", "v": Q.new(1)}]
+		ws = [wrong({"rel": ">", "v": Q.new(h)}, R_DEFINED), wrong({"rel": "≥", "v": Q.new(h + 1)}, R_ZERO_IN)]
+		if h != 0:
+			ws.append(wrong({"rel": ">", "v": Q.new(1)}, R_NO_SHIFT))
+		gen = [{"rel": "<", "v": Q.new(h + 1)}]
 	else:
 		ans = Answer.make("range2", {"lo": Q.new(h), "r1": "<", "r2": "<", "hi": Q.new(h + 1)}, {"var": "x"})
-		gen = [{"lo": Q.new(0), "r1": "<", "r2": "<", "hi": Q.new(h + 1)}, {"lo": Q.new(h), "r1": "≤", "r2": "<", "hi": Q.new(h + 1)},
-			{"lo": Q.new(h), "r1": "<", "r2": "<", "hi": Q.new(h + 2)}, {"lo": Q.new(h), "r1": "<", "r2": "≤", "hi": Q.new(h + 1)}]
+		ws = [wrong({"lo": Q.new(h), "r1": "≤", "r2": "<", "hi": Q.new(h + 1)}, R_EDGE_IN), wrong({"lo": Q.new(h), "r1": "<", "r2": "≤", "hi": Q.new(h + 1)}, R_ZERO_IN)]
+		if h != 0:
+			ws.append(wrong({"lo": Q.new(0), "r1": "<", "r2": "<", "hi": Q.new(h + 1)}, R_FROM_ORIGIN))
+		gen = [{"lo": Q.new(h), "r1": "<", "r2": "<", "hi": Q.new(h + 2)}]
 	ans.exact = true
 	var final := "So " + Answer.text(ans) + "."
 	var sign := "positive" if rel == ">" else "negative"
 	return {
-		"asked": "Find the values of x for which f(x) %s 0." % rel, "lines": [expr + ", for x > %d" % h], "answer": ans, "generic": gen,
+		"asked": "Find the values of x for which f(x) %s 0." % rel, "lines": [expr + ", for x > %d" % h], "answer": ans, "wrongs": ws, "fillers": gen,
 		"methods": {
 			"key-points": {"result": ans.values, "steps": [
 				"%s > 0 on the domain, so f has the sign of ln(%s)." % [denom, Answer.x_minus(h)],
@@ -179,8 +215,10 @@ func u_domain_from_equation(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var other := "≥" if s.m > 0 else "≤"
 	return {
 		"asked": "Find the largest possible domain.", "lines": lines, "answer": ans,
-		"wrongs": [wrong({"rel": ">", "v": Q.new(0)}, "SL2.2.domain#1")] if not s.x0.is_zero() or s.m < 0 else [],
-		"generic": [{"rel": other, "v": s.x0}, {"rel": "<" if s.m > 0 else ">", "v": s.x0}, {"rel": ans.values.rel, "v": s.x0.neg()}, {"rel": ans.values.rel, "v": s.n.neg()}],
+		"wrongs": ([wrong({"rel": ">", "v": Q.new(0)}, "SL2.2.domain#1")] if not s.x0.is_zero() or s.m < 0 else []) + [wrong({"rel": other, "v": s.x0}, R_EDGE_IN)]
+			+ ([wrong({"rel": ">", "v": s.x0}, R_NO_TURN)] if s.m < 0 else []) + ([] if s.x0.is_zero() else [wrong({"rel": ans.values.rel, "v": s.x0.neg()}, R_SIGN)])
+			+ ([] if s.m == 1 else [wrong({"rel": ans.values.rel, "v": s.n.neg()}, R_NO_DIVIDE)]),
+		"fillers": [] if s.m < 0 else [{"rel": "<", "v": s.x0}],
 		"methods": {
 			"restriction-rules": {"result": ans.values, "steps": [
 				"A log needs a positive input: %s > 0." % inside(s),
@@ -194,8 +232,10 @@ func u_domain_from_equation(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 
 func u_domain_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := domain_text(s)
-	var out := choice(right, [wrong({"v": "all real values of y"}, "SL2.2.domain#2")],
-		["x %s %s" % ["≥" if s.m > 0 else "≤", N(s.x0)], "x %s %s" % ["<" if s.m > 0 else ">", N(s.x0)], "x > 0"])
+	var ws := [wrong({"v": "all real values of y"}, "SL2.2.domain#2"), wrong({"v": "x %s %s" % ["≥" if s.m > 0 else "≤", N(s.x0)]}, R_EDGE_IN)]
+	if not s.x0.is_zero() or s.m < 0:
+		ws.append(wrong({"v": "x > 0"}, "SL2.2.domain#1"))
+	var out := choice(right, ws, ["x %s %s" % ["<" if s.m > 0 else ">", N(s.x0)]])
 	var final: String = "So the domain is " + out.answer.values.v + "."
 	out.merge({
 		"asked": "Write down the domain of the function whose graph is shown.", "lines": ["The graph of %s is shown." % fn_text(s)],
@@ -208,9 +248,10 @@ func u_domain_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 
 func u_asymptote_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x0: Q = s.x0
-	var out := choice("x = " + N(x0), [wrong({"v": "y = " + N(x0)}, "SL2.4.asymptotes#1"), wrong({"v": "y = 0"}, "SL2.9.log-graph#0")],
-		["x = " + N(x0.neg()), "x = 0", "y = %d" % s.c, "x = " + N(x0.add(Q.new(1))), "x = %d" % s.c,
-			"x = " + N(x0.sub(Q.new(1))), "y = %d" % (s.c + 1)])
+	var ws := [wrong({"v": "y = " + N(x0)}, "SL2.4.asymptotes#1"), wrong({"v": "y = 0"}, "SL2.9.log-graph#0"), wrong({"v": "y = %d" % s.c}, R_C_ASYM)]
+	if not x0.is_zero():
+		ws += [wrong({"v": "x = " + N(x0.neg())}, R_SIGN), wrong({"v": "x = 0"}, R_PARENT)]
+	var out := choice("x = " + N(x0), ws, ["x = " + N(x0.add(Q.new(1))), "x = %d" % s.c, "x = " + N(x0.sub(Q.new(1))), "y = %d" % (s.c + 1)])
 	var final: String = "So the asymptote is " + out.answer.values.v + "."
 	out.merge({
 		"asked": "Write down the equation of the asymptote of the graph shown.", "lines": ["The graph of %s is shown." % fn_text(s)],
@@ -229,8 +270,8 @@ func u_x_intercept(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b: int = s.b
 	var v := LogFunctionSituation.bpow(b, e)
 	var out := {"asked": "Find where the graph crosses the x-axis.", "lines": [fn_text(s)], "answer": ans,
-		"wrongs": [wrong({"v": s.x0}, "SL2.9.log-graph#2")],
-		"generic": [{"v": xi.neg()}, {"v": Q.new(e)}, {"v": xi.add(Q.new(1))}, {"v": v}]}
+		"wrongs": [wrong({"v": s.x0}, "SL2.9.log-graph#2"), wrong({"v": Q.new(e)}, R_LOG_VALUE)] + ([] if v.eq(xi) else [wrong({"v": v}, R_INPUT_VALUE)]),
+		"fillers": [{"v": xi.neg()}, {"v": xi.add(Q.new(1))}]}
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown." % fn_text(s)]
 		out.graph = graph(s)
@@ -253,9 +294,12 @@ func u_pick_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := ""
 	if rep == "graph":
 		var right := "y = %s(%s)%s" % [Answer.log_name(b), Answer.x_minus(h), Answer.plus_q(c)]
-		out = choice(right, [], ["y = %s(%s)%s" % [Answer.log_name(b), Answer.x_minus(h.neg()), Answer.plus_q(c)],
-			"y = %s(%s)%s" % [Answer.log_name(b), Answer.x_minus(h), Answer.plus_q(-c - 1)],
-			"y = %s(%s)%s" % [Answer.log_name(b), Answer.x_minus(Q.new(c)), Answer.plus_q(h)],
+		var ws := []
+		if not h.is_zero():
+			ws.append(wrong({"v": "y = %s(%s)%s" % [Answer.log_name(b), Answer.x_minus(h.neg()), Answer.plus_q(c)]}, R_SIGN))
+		if not h.eq(Q.new(c)):
+			ws.append(wrong({"v": "y = %s(%s)%s" % [Answer.log_name(b), Answer.x_minus(Q.new(c)), Answer.plus_q(h)]}, R_SHIFTS_SWAPPED))
+		out = choice(right, ws, ["y = %s(%s)%s" % [Answer.log_name(b), Answer.x_minus(h), Answer.plus_q(-c - 1)],
 			"y = %s(%s)%s" % [Answer.log_name(b + 1), Answer.x_minus(h), Answer.plus_q(c)],
 			"y = %s(%s)%s" % [Answer.log_name(b), Answer.x_minus(h.add(Q.new(1))), Answer.plus_q(c)]])
 		out.asked = "Which equation does the graph show?"
@@ -265,9 +309,11 @@ func u_pick_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		var say := func(asym: Q, a: String, bb: String, up: bool) -> String: return "asymptote x = %s, through %s and %s, %s" % [N(asym), a, bb, "increasing" if up else "decreasing"]
 		var right: String = say.call(h, p1, p2, true)
-		out = choice(right, [wrong({"v": say.call(h, Fmt.point(h, 0), p2, true)}, "SL2.9.log-graph#2")],
-			[say.call(h.neg(), Fmt.point(h.neg().add(Q.new(1)), c), Fmt.point(h.neg().add(Q.new(b)), c + 1), true),
-			say.call(h, p1, p2, false), say.call(h, Fmt.point(h.add(Q.new(1)), c + 1), Fmt.point(h.add(Q.new(b)), c + 2), true)])
+		var ws := [wrong({"v": say.call(h, Fmt.point(h, 0), p2, true)}, "SL2.9.log-graph#2")]
+		if not h.is_zero():
+			ws.append(wrong({"v": say.call(h.neg(), Fmt.point(h.neg().add(Q.new(1)), c), Fmt.point(h.neg().add(Q.new(b)), c + 1), true)}, R_SIGN))
+		out = choice(right, ws,
+			[say.call(h, p1, p2, false), say.call(h, Fmt.point(h.add(Q.new(1)), c + 1), Fmt.point(h.add(Q.new(b)), c + 2), true)])
 		out.asked = "Which description matches the graph of %s?" % ("y = %s(%s)%s" % [Answer.log_name(b), Answer.x_minus(h), Answer.plus_q(c)])
 		out.lines = ["y = %s(%s)%s" % [Answer.log_name(b), Answer.x_minus(h), Answer.plus_q(c)]]
 		final = "So it is: " + out.answer.values.v + "."
@@ -295,7 +341,8 @@ func u_reflect_exponential(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var final := "So it is " + Answer.text(ans) + "."
 	var ex := "y = %s" % Answer.fn_text("exp", b, h, 0)
 	var out := {"asked": "The graph is reflected in the line y = x. Which point on the reflection matches (%d, %d)?" % [h + 1, b], "answer": ans,
-		"generic": [{"x": Q.new(h + 1), "y": Q.new(b)}, {"x": Q.new(-b), "y": Q.new(h + 1)}, {"x": Q.new(b), "y": Q.new(-h - 1)}, {"x": Q.new(1), "y": Q.new(h)}]}
+		"wrongs": [wrong({"x": Q.new(h + 1), "y": Q.new(b)}, R_NOT_SWAPPED)],
+		"fillers": [{"x": Q.new(-b), "y": Q.new(h + 1)}, {"x": Q.new(b), "y": Q.new(-h - 1)}, {"x": Q.new(1), "y": Q.new(h)}]}
 	if rep == "graph":
 		var f := func(x: float) -> float: return pow(float(b), x - h)
 		out.lines = ["The graph of %s is shown, through (%d, 1) and (%d, %d)." % [ex, h, h + 1, b]]
@@ -320,8 +367,9 @@ func u_n_from_asymptote(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	ans.exact = true
 	var final := "So " + Answer.text(ans) + "."
 	var shown := "y = %s(x − n)%s" % [Answer.log_name(b), Answer.plus_q(c)]
-	var out := {"asked": "Find n.", "answer": ans, "wrongs": [wrong({"v": a.neg()}, "SL2.4.asymptotes#2")] if not a.is_zero() else [],
-		"generic": [{"v": Q.new(c)}, {"v": a.add(Q.new(1))}, {"v": a.sub(Q.new(1))}, {"v": Q.new(b)}]}
+	var out := {"asked": "Find n.", "answer": ans, "wrongs": ([wrong({"v": a.neg()}, "SL2.4.asymptotes#2")] if not a.is_zero() else [])
+		+ ([] if a.eq(Q.new(c)) else [wrong({"v": Q.new(c)}, R_C_ASYM)]),
+		"fillers": [{"v": a.add(Q.new(1))}, {"v": a.sub(Q.new(1))}, {"v": Q.new(b)}]}
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown, with its vertical asymptote." % shown]
 		out.graph = graph(s)
@@ -348,22 +396,36 @@ func u_log_inequality(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var r2: String = flip[rel] if m < 0 else rel
 	var x0: Q = s.x0
 	var ans: Dictionary
+	var ws: Array
 	var gen: Array
 	if rel in [">", "≥"]:
 		ans = Answer.make("bound", {"rel": r2, "v": edge}, {"var": "x"})
-		gen = [{"rel": rel if m < 0 else flip[rel], "v": edge}, {"rel": r2, "v": Q.new(k).sub(s.n).div(Q.new(m))}, {"rel": r2, "v": x0}, {"rel": r2, "v": edge.neg()}]
+		ws = [wrong({"rel": r2, "v": Q.new(k).sub(s.n).div(Q.new(m))}, R_NO_POWER)]
+		gen = [{"rel": r2, "v": x0}, {"rel": r2, "v": edge.neg()}]
+		if m < 0:
+			ws.append(wrong({"rel": rel, "v": edge}, R_NO_TURN))
+		else:
+			gen.push_front({"rel": flip[rel], "v": edge})
 	else:
 		var lo: Q = x0 if m > 0 else edge
 		var hi: Q = edge if m > 0 else x0
 		var r_lo: String = "<" if m > 0 else ("<" if rel == "<" else "≤")
 		var r_hi: String = ("<" if rel == "<" else "≤") if m > 0 else "<"
 		ans = Answer.make("range2", {"lo": lo, "r1": r_lo, "r2": r_hi, "hi": hi}, {"var": "x"})
-		gen = [{"lo": lo, "r1": "≤", "r2": "≤", "hi": hi}, {"lo": lo.sub(Q.new(1)), "r1": r_lo, "r2": r_hi, "hi": hi},
-			{"lo": lo, "r1": r_lo, "r2": r_hi, "hi": hi.add(Q.new(1))}, {"lo": Q.new(0), "r1": r_lo, "r2": r_hi, "hi": hi}]
+		var both := {"lo": lo, "r1": "≤", "r2": "≤", "hi": hi}
+		var origin := {"lo": Q.new(0), "r1": r_lo, "r2": r_hi, "hi": hi}
+		# Both ends closed is one slip only when the edge at k was already closed.
+		ws = [wrong(both, R_EDGE_IN)] if rel == "≤" else []
+		gen = ([] if rel == "≤" else [both]) + [{"lo": lo.sub(Q.new(1)), "r1": r_lo, "r2": r_hi, "hi": hi}, {"lo": lo, "r1": r_lo, "r2": r_hi, "hi": hi.add(Q.new(1))}]
+		# The parent's edge x = 0 in place of x0 is a slip; in place of the edge at k it is not.
+		if m > 0 and not x0.is_zero() and Q.new(0).lt(hi):
+			ws.append(wrong(origin, R_FROM_ORIGIN))
+		else:
+			gen.append(origin)
 	ans.exact = true
 	var final := "So " + Answer.text(ans) + "."
 	var ineq := "%s(%s) %s %d" % [Answer.log_name(b), inside(s), rel, k]
-	var out := {"asked": "Solve %s." % ineq, "lines": ["y = %s(%s)" % [Answer.log_name(b), inside(s)]], "answer": ans, "generic": gen}
+	var out := {"asked": "Solve %s." % ineq, "lines": ["y = %s(%s)" % [Answer.log_name(b), inside(s)]], "answer": ans, "wrongs": ws, "fillers": gen}
 	if rep == "graph":
 		var t := s.duplicate()
 		t.c = 0

@@ -22210,7 +22210,10 @@
      "text": "Gets the sign of the vertical asymptote of a log graph wrong",
      "as": "distractor",
      "in": [
-      "asymptote-from-equation"
+      "asymptote-from-equation",
+      "domain-from-equation",
+      "asymptote-from-graph",
+      "pick-graph"
      ],
      "wrong": "x = −2 for ln(x − 2)"
     },
@@ -22238,7 +22241,8 @@
      "text": "Swaps vertical and horizontal, writing the asymptotes the wrong way round",
      "as": "distractor",
      "in": [
-      "asymptote-from-graph"
+      "asymptote-from-graph",
+      "asymptote-from-equation"
      ],
      "wrong": "y = x₀ instead of x = x₀"
     },
@@ -22256,7 +22260,8 @@
      "text": "Copying the domain of √x without the shift",
      "as": "distractor",
      "in": [
-      "domain-from-equation"
+      "domain-from-equation",
+      "domain-from-graph"
      ],
      "wrong": "x > 0 for ln(2x − 6), copied from ln x"
     },
@@ -22268,6 +22273,127 @@
       "domain-from-graph"
      ],
      "wrong": "the set of y-values (all real numbers)"
+    },
+    {
+     "text": "Forgetting to divide by the coefficient of x when finding where the log's input is zero",
+     "as": "distractor",
+     "in": [
+      "asymptote-from-equation",
+      "domain-from-equation"
+     ],
+     "wrong": "x = −n for the input mx + n"
+    },
+    {
+     "text": "Taking the vertical shift c as the position of the asymptote",
+     "as": "distractor",
+     "in": [
+      "asymptote-from-equation",
+      "asymptote-from-graph",
+      "n-from-asymptote"
+     ],
+     "wrong": "the asymptote at c"
+    },
+    {
+     "text": "Giving the y-axis, the parent log's asymptote, and forgetting the shift",
+     "as": "distractor",
+     "in": [
+      "asymptote-from-equation",
+      "asymptote-from-graph"
+     ],
+     "wrong": "x = 0"
+    },
+    {
+     "text": "Treating ln y as positive whenever y is positive, so giving the domain",
+     "as": "distractor",
+     "in": [
+      "sign-of-log-expression"
+     ],
+     "wrong": "x > h"
+    },
+    {
+     "text": "Including the value where the log's input is zero, though the log is undefined there",
+     "as": "distractor",
+     "in": [
+      "sign-of-log-expression",
+      "domain-from-equation",
+      "domain-from-graph",
+      "log-inequality"
+     ],
+     "wrong": "the asymptote's end included"
+    },
+    {
+     "text": "Including the value where f is zero, though the inequality is strict",
+     "as": "distractor",
+     "in": [
+      "sign-of-log-expression"
+     ],
+     "wrong": "x ≥ h + 1"
+    },
+    {
+     "text": "Forgetting the shift inside the log, so taking the edge from ln x alone",
+     "as": "distractor",
+     "in": [
+      "sign-of-log-expression"
+     ],
+     "wrong": "x > 1"
+    },
+    {
+     "text": "Starting the interval at the origin instead of at the edge of the domain",
+     "as": "distractor",
+     "in": [
+      "sign-of-log-expression",
+      "log-inequality"
+     ],
+     "wrong": "the lower end taken as 0"
+    },
+    {
+     "text": "Forgetting to turn the inequality round when dividing by a negative",
+     "as": "distractor",
+     "in": [
+      "domain-from-equation",
+      "log-inequality"
+     ],
+     "wrong": "the inequality the wrong way round"
+    },
+    {
+     "text": "Stopping at the log's value, without undoing the log to find x",
+     "as": "distractor",
+     "in": [
+      "x-intercept"
+     ],
+     "wrong": "x = −c/A"
+    },
+    {
+     "text": "Stopping at the value of the log's input instead of solving it for x",
+     "as": "distractor",
+     "in": [
+      "x-intercept"
+     ],
+     "wrong": "x = b^e"
+    },
+    {
+     "text": "Swapping the horizontal and vertical shifts",
+     "as": "distractor",
+     "in": [
+      "pick-graph"
+     ],
+     "wrong": "y = log_b(x − c) + h"
+    },
+    {
+     "text": "Leaving the point as it is, without swapping its coordinates",
+     "as": "distractor",
+     "in": [
+      "reflect-exponential"
+     ],
+     "wrong": "the point unchanged"
+    },
+    {
+     "text": "Taking the log's value as its input, without raising the base to that power",
+     "as": "distractor",
+     "in": [
+      "log-inequality"
+     ],
+     "wrong": "mx + n compared with k"
     }
    ],
    "parts": [
@@ -72335,7 +72461,9 @@
      "text": "Swaps the signs of the two factors",
      "as": "distractor",
      "in": [
-      "monic-trinomial"
+      "monic-trinomial",
+      "non-monic",
+      "factor-pair"
      ],
      "wrong": "the factor pair with signs swapped, giving +x"
     },
@@ -72362,6 +72490,87 @@
       "non-monic"
      ],
      "wrong": "factor pair of c only"
+    },
+    {
+     "text": "Forgetting to divide the x² term by the common factor",
+     "as": "distractor",
+     "in": [
+      "common-factor"
+     ],
+     "wrong": "gx(Ax + b)"
+    },
+    {
+     "text": "Choosing a pair with the right product without checking its sum",
+     "as": "distractor",
+     "in": [
+      "monic-trinomial",
+      "factor-pair"
+     ],
+     "wrong": "one and the product"
+    },
+    {
+     "text": "Putting b and c straight into the brackets",
+     "as": "distractor",
+     "in": [
+      "monic-trinomial"
+     ],
+     "wrong": "(x + b)(x + c)"
+    },
+    {
+     "text": "Writing it as a perfect square, which brings a middle term",
+     "as": "distractor",
+     "in": [
+      "difference-of-squares"
+     ],
+     "wrong": "(px ± q)²"
+    },
+    {
+     "text": "Forgetting to take the square root of the x² coefficient",
+     "as": "distractor",
+     "in": [
+      "difference-of-squares"
+     ],
+     "wrong": "(x − q)(p²x + q)"
+    },
+    {
+     "text": "Forgetting to take the square root of the number term",
+     "as": "distractor",
+     "in": [
+      "difference-of-squares"
+     ],
+     "wrong": "(px − q²)(px + 1)"
+    },
+    {
+     "text": "Putting the two numbers in the wrong brackets",
+     "as": "distractor",
+     "in": [
+      "non-monic"
+     ],
+     "wrong": "(a₁x + b₂)(a₂x + b₁)"
+    },
+    {
+     "text": "Taking c itself as the missing number, without dividing",
+     "as": "distractor",
+     "in": [
+      "missing-bracket-term"
+     ],
+     "wrong": "□ = c"
+    },
+    {
+     "text": "Adding the bracket's number to b instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "missing-bracket-term"
+     ],
+     "wrong": "□ = b + r"
+    },
+    {
+     "text": "Subtracting the bracket's number from c instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "missing-bracket-term"
+     ],
+     "wrong": "□ = c − r"
     }
    ]
   },
@@ -79496,6 +79705,207 @@
       "raised-area"
      ],
      "wrong": "5 + 2 = 7 instead of 5 + 2 × 3 = 11"
+    },
+    {
+     "text": "Taking the sign of the vertical part the wrong way, as if it were inside the bracket",
+     "as": "distractor",
+     "in": [
+      "moved-feature"
+     ],
+     "wrong": "the vertical part with its sign changed"
+    },
+    {
+     "text": "Swapping the two components of the vector, across for up",
+     "as": "distractor",
+     "in": [
+      "moved-feature",
+      "antiderivative-gap"
+     ],
+     "wrong": "(b, a) for (a, b)"
+    },
+    {
+     "text": "Taking the vertical part as the new height instead of adding it",
+     "as": "distractor",
+     "in": [
+      "moved-feature"
+     ],
+     "wrong": "the maximum at height b"
+    },
+    {
+     "text": "Forgetting the horizontal part of the vector",
+     "as": "distractor",
+     "in": [
+      "moved-feature"
+     ],
+     "wrong": "the maximum moved up only"
+    },
+    {
+     "text": "Subtracting the two constants the wrong way round",
+     "as": "distractor",
+     "in": [
+      "antiderivative-gap"
+     ],
+     "wrong": "(0, C₁ − C₂)"
+    },
+    {
+     "text": "Subtracting the wrong way round when solving for C",
+     "as": "distractor",
+     "in": [
+      "curve-through-point"
+     ],
+     "wrong": "C = F(a) − b"
+    },
+    {
+     "text": "Adding instead of subtracting when solving for C",
+     "as": "distractor",
+     "in": [
+      "curve-through-point"
+     ],
+     "wrong": "C = b + F(a)"
+    },
+    {
+     "text": "Leaving the median where it was, as if only the mean moved",
+     "as": "distractor",
+     "in": [
+      "shifted-data"
+     ],
+     "wrong": "the median unchanged"
+    },
+    {
+     "text": "Adding the constant to every statistic, the spread included",
+     "as": "distractor",
+     "in": [
+      "shifted-data"
+     ],
+     "wrong": "all four increased by k"
+    },
+    {
+     "text": "Adding before multiplying, so the mean is moved and then stretched",
+     "as": "distractor",
+     "in": [
+      "stretched-data"
+     ],
+     "wrong": "mean (μ + k)m"
+    },
+    {
+     "text": "Forgetting to square the standard deviation for the variance",
+     "as": "distractor",
+     "in": [
+      "stretched-data"
+     ],
+     "wrong": "variance = new standard deviation"
+    },
+    {
+     "text": "Reading the ratio of the means as the factor, without checking the spread",
+     "as": "distractor",
+     "in": [
+      "change-from-statistics"
+     ],
+     "wrong": "multiplied by the ratio of the means"
+    },
+    {
+     "text": "Reading the change in the mean as an added constant, though the spread changed",
+     "as": "distractor",
+     "in": [
+      "change-from-statistics"
+     ],
+     "wrong": "increased by the change in the mean"
+    },
+    {
+     "text": "Dividing the old value by the new one, so the factor is upside down",
+     "as": "distractor",
+     "in": [
+      "change-from-statistics"
+     ],
+     "wrong": "multiplied by 1/m"
+    },
+    {
+     "text": "Taking the change in the standard deviation as a constant added to each value",
+     "as": "distractor",
+     "in": [
+      "change-from-statistics"
+     ],
+     "wrong": "increased by the change in σ"
+    },
+    {
+     "text": "Doing the stretch before the translation",
+     "as": "distractor",
+     "in": [
+      "standardise-moves"
+     ],
+     "wrong": "stretch, then translate"
+    },
+    {
+     "text": "Translating by the mean instead of by its negative",
+     "as": "distractor",
+     "in": [
+      "standardise-moves"
+     ],
+     "wrong": "a translation by (μ, 0)"
+    },
+    {
+     "text": "Thinking the narrower curve holds less probability, forgetting it grows taller too",
+     "as": "distractor",
+     "in": [
+      "standardise-moves"
+     ],
+     "wrong": "the probability gets smaller"
+    },
+    {
+     "text": "Leaving out the mean, so x is divided by σ alone",
+     "as": "distractor",
+     "in": [
+      "standardise-bounds"
+     ],
+     "wrong": "z = x/σ"
+    },
+    {
+     "text": "Adding the mean instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "standardise-bounds"
+     ],
+     "wrong": "z = (x + μ)/σ"
+    },
+    {
+     "text": "Subtracting the wrong way round, so z has the wrong sign",
+     "as": "distractor",
+     "in": [
+      "standardise-bounds"
+     ],
+     "wrong": "z = (μ − x)/σ"
+    },
+    {
+     "text": "Integrating the unmoved curve over the moved limits",
+     "as": "distractor",
+     "in": [
+      "translated-area"
+     ],
+     "wrong": "∫f over the new limits"
+    },
+    {
+     "text": "Adding the shift to the area",
+     "as": "distractor",
+     "in": [
+      "translated-area"
+     ],
+     "wrong": "area + a"
+    },
+    {
+     "text": "Adding the factor to the area instead of multiplying by it",
+     "as": "distractor",
+     "in": [
+      "raised-area"
+     ],
+     "wrong": "area + m"
+    },
+    {
+     "text": "Using the upper limit as the width of the rectangle",
+     "as": "distractor",
+     "in": [
+      "raised-area"
+     ],
+     "wrong": "area + bq"
     }
    ]
   },
@@ -79949,7 +80359,8 @@
      "text": "Getting the horizontal sign wrong: a translation by (c, d) gives f(x − c) + d",
      "as": "distractor",
      "in": [
-      "equation-from-vector"
+      "equation-from-vector",
+      "vector-from-images"
      ],
      "wrong": "f(x + a) + b, the horizontal sign wrong"
     },
@@ -79967,7 +80378,8 @@
      "text": "Moves the point the wrong way horizontally: the sign inside the bracket works in reverse",
      "as": "distractor",
      "in": [
-      "image-from-equation"
+      "image-from-equation",
+      "image-and-undo"
      ],
      "wrong": "the point moved a units left instead of right, e.g. (2, 5) to (1, 5) for f(x − 1)"
     },
@@ -79985,7 +80397,8 @@
      "text": "Computes run over rise, (x₂ − x₁)/(y₂ − y₁), giving the reciprocal of the gradient",
      "as": "distractor",
      "in": [
-      "direction-from-gradient"
+      "direction-from-gradient",
+      "gradient-from-vector"
      ],
      "wrong": "(−2, 5) for gradient −2/5, rise and run swapped"
     },
@@ -80051,6 +80464,117 @@
       "step-in-3d"
      ],
      "wrong": "2 − (−2) taken as 0, so the step is (2, 0, 4) and the distance √20"
+    },
+    {
+     "text": "Taking the sign of the vertical part the wrong way, as if it were inside the bracket",
+     "as": "distractor",
+     "in": [
+      "equation-from-vector",
+      "image-from-equation",
+      "vertex-form-from-vector",
+      "wave-shift-vector"
+     ],
+     "wrong": "the vertical part with its sign changed"
+    },
+    {
+     "text": "Swapping the two components of the vector, across for up",
+     "as": "distractor",
+     "in": [
+      "equation-from-vector",
+      "vector-from-images",
+      "vector-from-vertex-form",
+      "vertex-form-from-vector"
+     ],
+     "wrong": "(b, a) for (a, b)"
+    },
+    {
+     "text": "Giving the same vector back instead of its negative",
+     "as": "distractor",
+     "in": [
+      "image-and-undo"
+     ],
+     "wrong": "the vector back as (a, b)"
+    },
+    {
+     "text": "Subtracting the vector from the point instead of adding it",
+     "as": "distractor",
+     "in": [
+      "image-and-undo"
+     ],
+     "wrong": "the image P − (a, b)"
+    },
+    {
+     "text": "Subtracting the wrong way round, so the vector points backwards",
+     "as": "distractor",
+     "in": [
+      "vector-from-images",
+      "step-in-3d"
+     ],
+     "wrong": "the vector from the image back to the point"
+    },
+    {
+     "text": "Adding instead of subtracting when solving for c",
+     "as": "distractor",
+     "in": [
+      "gradient-from-vector"
+     ],
+     "wrong": "c = y₀ + mx₀"
+    },
+    {
+     "text": "Taking the amplitude as the vertical shift",
+     "as": "distractor",
+     "in": [
+      "wave-shift-vector"
+     ],
+     "wrong": "(c, A)"
+    },
+    {
+     "text": "Giving the end point B as the midpoint, forgetting to halve the step",
+     "as": "distractor",
+     "in": [
+      "step-in-3d"
+     ],
+     "wrong": "midpoint B"
+    },
+    {
+     "text": "Forgetting the square root in the distance",
+     "as": "distractor",
+     "in": [
+      "step-in-3d"
+     ],
+     "wrong": "the distance squared"
+    },
+    {
+     "text": "Giving the step from A to M instead of the point B",
+     "as": "distractor",
+     "in": [
+      "endpoint-from-midpoint"
+     ],
+     "wrong": "B = M − A"
+    },
+    {
+     "text": "Replacing t with t plus the delay, which moves the graph the wrong way",
+     "as": "distractor",
+     "in": [
+      "time-delay"
+     ],
+     "wrong": "s_A(t + d)"
+    },
+    {
+     "text": "Reading the delay as B being ahead of A",
+     "as": "distractor",
+     "in": [
+      "time-delay"
+     ],
+     "wrong": "B before A"
+    },
+    {
+     "text": "Adding the delay to the output instead of shifting the input",
+     "as": "distractor",
+     "in": [
+      "time-delay"
+     ],
+     "wrong": "s_A(t) + d"
     }
    ]
   },
@@ -80465,7 +80989,9 @@
      "text": "Swaps the roles of the fixed charge and the rate",
      "as": "distractor",
      "in": [
-      "sequence-as-line"
+      "sequence-as-line",
+      "sequence-from-line",
+      "constant-derivative"
      ],
      "wrong": "y = 7x + 4, the first term and the step swapped"
     },
@@ -80474,7 +81000,8 @@
      "text": "Using u₁ + nd, which counts one step too many",
      "as": "distractor",
      "in": [
-      "sequence-as-line"
+      "sequence-as-line",
+      "sequence-from-line"
      ],
      "wrong": "u_n = 7 + 4n, so the line is given as y = 4x + 7"
     },
@@ -80546,9 +81073,108 @@
      "text": "Substituting into f(x) instead of f′(x)",
      "as": "distractor",
      "in": [
-      "tangent-gradient-methods"
+      "tangent-gradient-methods",
+      "chord-to-limit"
      ],
      "wrong": "f(1) = 2 instead of f′(1) = 4"
+    },
+    {
+     "text": "Stepping forward from the first term instead of back to find c",
+     "as": "distractor",
+     "in": [
+      "sequence-as-line"
+     ],
+     "wrong": "c = u₁ + d"
+    },
+    {
+     "text": "Taking the y-intercept as the first term, though the first term sits a step along the line",
+     "as": "distractor",
+     "in": [
+      "sequence-from-line"
+     ],
+     "wrong": "u₁ = c"
+    },
+    {
+     "text": "Taking the first term given as u₁",
+     "as": "distractor",
+     "in": [
+      "d-from-two-terms"
+     ],
+     "wrong": "u₁ = u_p"
+    },
+    {
+     "text": "Stepping back one gap too many from the given term to find u₁",
+     "as": "distractor",
+     "in": [
+      "d-from-two-terms"
+     ],
+     "wrong": "u₁ = u_p − pd"
+    },
+    {
+     "text": "Giving the two values the wrong way round",
+     "as": "distractor",
+     "in": [
+      "d-from-two-terms"
+     ],
+     "wrong": "d and u₁ swapped"
+    },
+    {
+     "text": "Treating a fitted model as exact, as if every point lay on the line",
+     "as": "distractor",
+     "in": [
+      "match-rate-kind",
+      "interpret-regression-gradient"
+     ],
+     "wrong": "the fitted gradient read as exact"
+    },
+    {
+     "text": "Treating a rate at one instant as holding everywhere, like a line's gradient",
+     "as": "distractor",
+     "in": [
+      "match-rate-kind",
+      "derivative-in-context"
+     ],
+     "wrong": "the instant rate read as constant"
+    },
+    {
+     "text": "Treating a sequence's rule as exact for every x, not just whole steps",
+     "as": "distractor",
+     "in": [
+      "match-rate-kind"
+     ],
+     "wrong": "the sequence read as a line for every x"
+    },
+    {
+     "text": "Reading the derivative's value as the size of the quantity itself",
+     "as": "distractor",
+     "in": [
+      "derivative-in-context"
+     ],
+     "wrong": "f′(a) read as f(a)"
+    },
+    {
+     "text": "Forgetting to divide the rise by the run",
+     "as": "distractor",
+     "in": [
+      "chord-to-limit"
+     ],
+     "wrong": "the rise as the chord gradient"
+    },
+    {
+     "text": "Taking the given y-value as the intercept c",
+     "as": "distractor",
+     "in": [
+      "constant-derivative"
+     ],
+     "wrong": "c = y₀"
+    },
+    {
+     "text": "Adding instead of subtracting when solving for c",
+     "as": "distractor",
+     "in": [
+      "constant-derivative"
+     ],
+     "wrong": "c = y₀ + mx₀"
     }
    ]
   },
@@ -80971,7 +81597,8 @@
      "text": "Confuses the percentage rate with the growth factor, which is one plus the rate",
      "as": "distractor",
      "in": [
-      "percent-to-factor"
+      "percent-to-factor",
+      "factor-from-two-values"
      ],
      "wrong": "0.05 as the factor for 5% growth"
     },
@@ -81026,7 +81653,8 @@
      "text": "Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications",
      "as": "distractor",
      "in": [
-      "sequence-vs-function"
+      "sequence-vs-function",
+      "depreciation-two-ways"
      ],
      "wrong": "the value after t years taken as the tth term, one multiplication too few"
     },
@@ -81044,7 +81672,8 @@
      "text": "Using simple interest instead of compounding",
      "as": "distractor",
      "in": [
-      "compounding-factor"
+      "compounding-factor",
+      "sequence-vs-function"
      ],
      "wrong": "simple interest: 6% of the start added once a year"
     },
@@ -81083,6 +81712,86 @@
       "sum-to-infinity-link"
      ],
      "wrong": "r = 1 or r = −1 said to have a sum to infinity"
+    },
+    {
+     "text": "Dividing the percentage by ten instead of a hundred when writing the factor",
+     "as": "distractor",
+     "in": [
+      "percent-to-factor"
+     ],
+     "wrong": "r = 1 + r/10"
+    },
+    {
+     "text": "Taking the factor for a fall when the value rises",
+     "as": "distractor",
+     "in": [
+      "percent-to-factor"
+     ],
+     "wrong": "r = 1 − r/100 for a rise"
+    },
+    {
+     "text": "Rounding the crossing down, so the value is still above the level that year",
+     "as": "distractor",
+     "in": [
+      "first-below"
+     ],
+     "wrong": "n one year early"
+    },
+    {
+     "text": "Forgetting to take the root over the years between, so the whole ratio is used as the yearly factor",
+     "as": "distractor",
+     "in": [
+      "factor-from-two-values"
+     ],
+     "wrong": "V₂/V₁ as the factor"
+    },
+    {
+     "text": "Spreading the total change evenly over the years instead of taking a root",
+     "as": "distractor",
+     "in": [
+      "factor-from-two-values"
+     ],
+     "wrong": "the percentage change divided by the gap"
+    },
+    {
+     "text": "Mixing up which bases make the graph rise and which make it fall",
+     "as": "distractor",
+     "in": [
+      "graph-from-factor"
+     ],
+     "wrong": "the other direction"
+    },
+    {
+     "text": "Starting the graph at the origin instead of at the start value",
+     "as": "distractor",
+     "in": [
+      "graph-from-factor"
+     ],
+     "wrong": "starts at (0, 0)"
+    },
+    {
+     "text": "Treating the continuous rate k as the yearly percentage rate",
+     "as": "distractor",
+     "in": [
+      "continuous-factor"
+     ],
+     "wrong": "rate 100k%"
+    },
+    {
+     "text": "Compounding once a year at the annual rate, ignoring the periods",
+     "as": "distractor",
+     "in": [
+      "compounding-factor"
+     ],
+     "wrong": "PV(1 + r)^n"
+    },
+    {
+     "text": "Using the rate per period but compounding only once a year",
+     "as": "distractor",
+     "in": [
+      "compounding-factor"
+     ],
+     "wrong": "PV(1 + r/k)^n"
     }
    ]
   },
