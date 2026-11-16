@@ -55,7 +55,6 @@ const UNSORTED := [
 	"fn-ext-rational-model", "fn-ext-transformed-reciprocal", "fn-gdc-features",
 	"fn-graph-table-composite-inverse", "fn-inverse-algebraic", "fn-inverse-reflection",
 	"fn-link-extremes",
-	"fn-link-transformations",
 	"fn-pre-algebraic-fractions", "fn-pre-expand", "fn-pre-factorise", "fn-pre-graph-reading",
 	"fn-pre-linear-equations", "fn-pre-linear-inequalities", "fn-pre-simultaneous", "fn-pre-surds",
 	"fn-rational-asymptotes-intercepts", "fn-rational-sketch", "fn-sketch-from-features",

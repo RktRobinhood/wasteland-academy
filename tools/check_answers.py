@@ -18458,6 +18458,9 @@ def lt_sand(q, first, second):
     tc_curves_are(gr, gr["curves"][k:], second)
 
 
+LT = "fn-link-transformations#"  # its own slips (FAL-820)
+
+
 def lt_feature(q):
     L, rep = q["lines"], q["view"]["rep"]
     if rep == "graph":
@@ -18477,16 +18480,17 @@ def lt_feature(q):
     if par == X**2:
         x0 = sp.solve(sp.diff(g, X), X)[0]
         want = pair(x0, g.subs(X, x0))
-        wr = {"SL2.11.translate#0": {pair(-a, b)}, "SL2.11.translate#1": {pair(a - b, 0)}}
+        wr = {"SL2.11.translate#0": {pair(-a, b)}, "SL2.11.translate#1": {pair(a - b, 0)}, LT + "14": {pair(a, -b)}, LT + "15": {pair(b, a)}}  # up's sign; swapped
     elif par == 1 / X:
         x0 = sp.solve(sp.denom(sp.together(g)), X)[0]
         y0 = sp.limit(g, X, sp.oo)
         named = lambda u, v: f"x = {d(u)}, y = {d(v)}"
         want = named(x0, y0)
-        wr = {"SL2.11.translate#0": {named(-a, b)}, "SL2.11.translate#1": {named(a - b, 0)}, "SL2.11.translate#2": {named(a, 0)}}
+        wr = {"SL2.11.translate#0": {named(-a, b)}, "SL2.11.translate#1": {named(a - b, 0)}, "SL2.11.translate#2": {named(a, 0)},
+              LT + "15": {named(b, a)}}  # swapped
     elif par == sp.exp(X):
         want = f"y = {d(sp.limit(g, X, -sp.oo))}"
-        wr = {"SL2.11.translate#2": {"y = 0"}}
+        wr = {"SL2.11.translate#2": {"y = 0"}, LT + "14": {f"y = {d(-b)}"}, LT + "15": {f"y = {d(a)}"}}  # up's sign; across for up
     else:
         need(par == sp.sin(X), f"parent {par}")
         need("(π/2, 1)" in q["asked"] and sp.diff(par, X).subs(X, sp.pi / 2) == 0 and par.subs(X, sp.pi / 2) == 1, "(π/2, 1) is not the maximum")
@@ -18495,7 +18499,8 @@ def lt_feature(q):
         tail = lambda v: "π/2" + ("" if v == 0 else f" {'+' if v > 0 else '−'} {d(abs(v))}")
         pip = lambda v, y: f"({tail(v)}, {d(y)})"
         want = pip(a, 1 + b)
-        wr = {"SL3.7.transformations#2": {pip(-a, 1 + b)}, "SL2.11.translate#1": {pip(a - b, 1)}}
+        wr = {"SL3.7.transformations#2": {pip(-a, 1 + b)}, "SL2.11.translate#1": {pip(a - b, 1)},
+              LT + "16": {pip(a, b)}, LT + "17": {pip(0, 1 + b)}, LT + "15": {pip(b, 1 + a)}}  # b as the height; no across; swapped
     gc_check_common(q, want, wr)
 
 
@@ -18518,7 +18523,8 @@ def lt_gap(q):
         c1, c2 = G.subs(X, 0), H.subs(X, 0)
     gap = sp.expand(H - G)
     need(gap.is_number and gap != 0, "the two curves are not a vertical move apart")
-    gc_check_common(q, f"(0, {lt_d(gap)})", {"SL5.5.boundary-condition#1": {f"(0, {lt_d(c2)})"}})
+    gc_check_common(q, f"(0, {lt_d(gap)})", {"SL5.5.boundary-condition#1": {f"(0, {lt_d(c2)})"},
+                                            LT + "18": {f"(0, {lt_d(-gap)})"}, LT + "15": {f"({lt_d(gap)}, 0)"}})  # C₁ − C₂; swapped
 
 
 def lt_through(q):
@@ -18541,7 +18547,8 @@ def lt_through(q):
     c = py - F.subs(X, px)
     need(c != 0, "C is 0")
     t = lambda v: f"C = {lt_d(v)}"
-    gc_check_common(q, t(c), {"SL5.5.boundary-condition#1": {t(0)}, "SL5.5.boundary-condition#0": {t(py - fd.subs(X, px))}})
+    gc_check_common(q, t(c), {"SL5.5.boundary-condition#1": {t(0)}, "SL5.5.boundary-condition#0": {t(py - fd.subs(X, px))},
+                              LT + "19": {t(-c)}, LT + "20": {t(py + F.subs(X, px))}})  # F(a) − b; b + F(a)
 
 
 def lt_stats_line(text, names):
@@ -18606,7 +18613,9 @@ def lt_shifted(q):
     moved = [x + k for x in xs]
     say = lambda v: ", ".join(f"{n} = {lt_d(x)}" for n, x in zip(LT_STATS, v))
     mean, med, sd, iqr = lt_data_stats(moved)
-    gc_check_common(q, say((mean, med, sd, iqr)), {"SL4.3.constant-changes#0": {say((mean, med, sd + k, iqr))}, "SL4.3.constant-changes#2": {say((mean, med, sd, iqr + k))}})
+    gc_check_common(q, say((mean, med, sd, iqr)), {"SL4.3.constant-changes#0": {say((mean, med, sd + k, iqr))}, "SL4.3.constant-changes#2": {say((mean, med, sd, iqr + k))},
+                                                   LT + "21": {say((mean, lt_data_stats(xs)[1], sd, iqr))},  # the median left
+                                                   LT + "22": {say((mean, med, sd + k, iqr + k))}})  # k added to all four
 
 
 def lt_stretched(q):
@@ -18622,7 +18631,8 @@ def lt_stretched(q):
     a, b = (mean - sd) * f + k, (mean + sd) * f + k
     nm, ns = (a + b) / 2, abs(b - a) / 2
     say = lambda u, v, w: f"mean = {lt_d(u)}, standard deviation = {lt_d(v)}, variance = {lt_d(w)}"
-    gc_check_common(q, say(nm, ns, ns**2), {"SL4.3.constant-changes#1": {say(nm, ns, sd**2 * f)}, "SL4.3.constant-changes#0": {say(nm, ns + k, ns**2)}})
+    gc_check_common(q, say(nm, ns, ns**2), {"SL4.3.constant-changes#1": {say(nm, ns, sd**2 * f)}, "SL4.3.constant-changes#0": {say(nm, ns + k, ns**2)},
+                                            LT + "23": {say((mean + k) * f, ns, ns**2)}, LT + "24": {say(nm, ns, ns)}})  # + k before × m; not squared
 
 
 def lt_change(q):
@@ -18638,7 +18648,10 @@ def lt_change(q):
         need(m is not None, f"can't read {t!r}")
         v = tc_num(m[2])
         return {"increased by": (m1 + v, s1), "decreased by": (m1 - v, s1), "multiplied by": (m1 * v, s1 * v)}[m[1]]
-    tc_opts(q, rd, lambda v: v == (m2, s2), {})
+    tc_opts(q, rd, lambda v: v == (m2, s2), {LT + "25": lambda v: v == (m2, s1 * m2 / m1),  # the means' ratio
+                                             LT + "26": lambda v: v == (m1 + abs(m2 - m1), s1),  # the means' gap added
+                                             LT + "27": lambda v: v == (m1 * s1 / s2, s1 * s1 / s2),  # 1/m
+                                             LT + "28": lambda v: v == (m1 + abs(s2 - s1), s1)})  # the SDs' gap added
 
 
 def lt_standardise_moves(q):
@@ -18662,7 +18675,14 @@ def lt_standardise_moves(q):
         # z = B⁻¹-free: the map sends x to x/B + C, which must be (x − μ)/σ at every x.
         z = sp.Symbol("z")
         return (sp.expand(z / B + C - (z - mu) / sg) == 0 and A == 1 and D == 0, why == keep)
-    tc_opts(q, rd, lambda v: v == (True, True), {"SL2.11.stretch#0": lambda v: v == (False, True), "SL2.11.stretch#2": lambda v: v is None})
+    tc_opts(q, rd, lambda v: v == (True, True), {"SL2.11.stretch#0": lambda v: v == (False, True), "SL2.11.stretch#2": lambda v: v is None,
+                                                 LT + "29": lambda v: v == (False, True), LT + "30": lambda v: v == (False, True), LT + "31": lambda v: v == (True, False)})
+    exact = {LT + "29": f"a horizontal stretch with scale factor 1/{sg}, then a translation by the vector ({lt_d(-mu)}, 0); {keep}",  # stretch first
+             LT + "30": f"a translation by the vector ({lt_d(mu)}, 0), then a horizontal stretch with scale factor 1/{sg}; {keep}",  # + μ
+             LT + "31": want.replace(keep, "the curve gets narrower, so the probability gets smaller")}  # narrower is less
+    for o in q["choices"]:
+        if o["ref"] in exact:
+            need(o["text"] == exact[o["ref"]], f"{o['text']!r} is not what {o['ref']} gives")
     need(any(o["text"] == want for o in q["choices"]), "no option says the moves")
     for o in q["choices"]:
         if o["ref"] == "SL2.11.stretch#0":
@@ -18690,7 +18710,8 @@ def lt_standardise_bounds(q):
     z = (x - mu) / sg
     need((z * 100).q == 1, f"z = {z} doesn't end in 2 d.p.")
     p = lambda r, v: f"P(Z {r} {lt_d(v)})"
-    gc_check_common(q, p(rel, z), {"SL4.12.standardise#1": {p(rel, (x - mu) / sg**2)}, "SL4.12.standardise#0": {p(">" if rel == "<" else "<", z)}})
+    gc_check_common(q, p(rel, z), {"SL4.12.standardise#1": {p(rel, (x - mu) / sg**2)}, "SL4.12.standardise#0": {p(">" if rel == "<" else "<", z)},
+                                   LT + "32": {p(rel, x / sg)}, LT + "33": {p(rel, (x + mu) / sg)}, LT + "34": {p(rel, -z)}})  # no μ; + μ; μ − x
     ph = nu_phi(z) if rel == "<" else 1 - nu_phi(z)
     gdc = next(s for s in q["solutions"] if s["angle"] == "gdc-both")
     for st in gdc["steps"][1:3]:
@@ -18728,7 +18749,8 @@ def lt_translated(q):
         gr = q["graph"]
         lt_sand(q, f, g)
         need(sorted(v["at"] for v in gr["vlines"]) == sorted(float(v) for v in (p, r, lo, hi)), "the limits drawn")
-    gc_check_common(q, f"Area = {lt_d(sp.integrate(g, (X, lo, hi)))}", {})
+    gc_check_common(q, f"Area = {lt_d(sp.integrate(g, (X, lo, hi)))}", {LT + "35": {f"Area = {lt_d(sp.integrate(f, (X, lo, hi)))}"},  # f, not moved
+                                                                        LT + "36": {f"Area = {lt_d(area + a)}"}})  # the shift added
 
 
 def lt_raised(q):
@@ -18752,7 +18774,9 @@ def lt_raised(q):
         trap = sum((c[i + 1][0] - c[i][0]) * (c[i + 1][1] + c[i][1]) / 2 for i in range(len(c) - 1))
         need(c[0][0] == float(p) and c[-1][0] == float(r) and abs(trap - float(area)) < 1e-2 * max(1, float(area)), f"the curve drawn has area {trap}")
     say = lambda u, v: f"{names[0]} = {lt_d(u)}, {names[1]} = {lt_d(v)}"
-    gc_check_common(q, say(area + b * (r - p), f * area), {"SL5.11.integral-properties#0": {say(area + b, f * area)}})
+    gc_check_common(q, say(area + b * (r - p), f * area), {"SL5.11.integral-properties#0": {say(area + b, f * area)},
+                                                           LT + "37": {say(area + b * (r - p), area + f)},  # m added
+                                                           LT + "38": {say(area + b * r, f * area)}})  # width taken as the upper limit
 
 
 LT_CHECKS = {"moved-feature": lt_feature, "antiderivative-gap": lt_gap, "curve-through-point": lt_through, "shifted-data": lt_shifted,

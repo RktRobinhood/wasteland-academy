@@ -74372,6 +74372,207 @@
 						"raised-area"
 					],
 					"wrong": "5 + 2 = 7 instead of 5 + 2 × 3 = 11"
+				},
+				{
+					"text": "Taking the sign of the vertical part the wrong way, as if it were inside the bracket",
+					"as": "distractor",
+					"in": [
+						"moved-feature"
+					],
+					"wrong": "the vertical part with its sign changed"
+				},
+				{
+					"text": "Swapping the two components of the vector, across for up",
+					"as": "distractor",
+					"in": [
+						"moved-feature",
+						"antiderivative-gap"
+					],
+					"wrong": "(b, a) for (a, b)"
+				},
+				{
+					"text": "Taking the vertical part as the new height instead of adding it",
+					"as": "distractor",
+					"in": [
+						"moved-feature"
+					],
+					"wrong": "the maximum at height b"
+				},
+				{
+					"text": "Forgetting the horizontal part of the vector",
+					"as": "distractor",
+					"in": [
+						"moved-feature"
+					],
+					"wrong": "the maximum moved up only"
+				},
+				{
+					"text": "Subtracting the two constants the wrong way round",
+					"as": "distractor",
+					"in": [
+						"antiderivative-gap"
+					],
+					"wrong": "(0, C₁ − C₂)"
+				},
+				{
+					"text": "Subtracting the wrong way round when solving for C",
+					"as": "distractor",
+					"in": [
+						"curve-through-point"
+					],
+					"wrong": "C = F(a) − b"
+				},
+				{
+					"text": "Adding instead of subtracting when solving for C",
+					"as": "distractor",
+					"in": [
+						"curve-through-point"
+					],
+					"wrong": "C = b + F(a)"
+				},
+				{
+					"text": "Leaving the median where it was, as if only the mean moved",
+					"as": "distractor",
+					"in": [
+						"shifted-data"
+					],
+					"wrong": "the median unchanged"
+				},
+				{
+					"text": "Adding the constant to every statistic, the spread included",
+					"as": "distractor",
+					"in": [
+						"shifted-data"
+					],
+					"wrong": "all four increased by k"
+				},
+				{
+					"text": "Adding before multiplying, so the mean is moved and then stretched",
+					"as": "distractor",
+					"in": [
+						"stretched-data"
+					],
+					"wrong": "mean (μ + k)m"
+				},
+				{
+					"text": "Forgetting to square the standard deviation for the variance",
+					"as": "distractor",
+					"in": [
+						"stretched-data"
+					],
+					"wrong": "variance = new standard deviation"
+				},
+				{
+					"text": "Reading the ratio of the means as the factor, without checking the spread",
+					"as": "distractor",
+					"in": [
+						"change-from-statistics"
+					],
+					"wrong": "multiplied by the ratio of the means"
+				},
+				{
+					"text": "Reading the change in the mean as an added constant, though the spread changed",
+					"as": "distractor",
+					"in": [
+						"change-from-statistics"
+					],
+					"wrong": "increased by the change in the mean"
+				},
+				{
+					"text": "Dividing the old value by the new one, so the factor is upside down",
+					"as": "distractor",
+					"in": [
+						"change-from-statistics"
+					],
+					"wrong": "multiplied by 1/m"
+				},
+				{
+					"text": "Taking the change in the standard deviation as a constant added to each value",
+					"as": "distractor",
+					"in": [
+						"change-from-statistics"
+					],
+					"wrong": "increased by the change in σ"
+				},
+				{
+					"text": "Doing the stretch before the translation",
+					"as": "distractor",
+					"in": [
+						"standardise-moves"
+					],
+					"wrong": "stretch, then translate"
+				},
+				{
+					"text": "Translating by the mean instead of by its negative",
+					"as": "distractor",
+					"in": [
+						"standardise-moves"
+					],
+					"wrong": "a translation by (μ, 0)"
+				},
+				{
+					"text": "Thinking the narrower curve holds less probability, forgetting it grows taller too",
+					"as": "distractor",
+					"in": [
+						"standardise-moves"
+					],
+					"wrong": "the probability gets smaller"
+				},
+				{
+					"text": "Leaving out the mean, so x is divided by σ alone",
+					"as": "distractor",
+					"in": [
+						"standardise-bounds"
+					],
+					"wrong": "z = x/σ"
+				},
+				{
+					"text": "Adding the mean instead of subtracting it",
+					"as": "distractor",
+					"in": [
+						"standardise-bounds"
+					],
+					"wrong": "z = (x + μ)/σ"
+				},
+				{
+					"text": "Subtracting the wrong way round, so z has the wrong sign",
+					"as": "distractor",
+					"in": [
+						"standardise-bounds"
+					],
+					"wrong": "z = (μ − x)/σ"
+				},
+				{
+					"text": "Integrating the unmoved curve over the moved limits",
+					"as": "distractor",
+					"in": [
+						"translated-area"
+					],
+					"wrong": "∫f over the new limits"
+				},
+				{
+					"text": "Adding the shift to the area",
+					"as": "distractor",
+					"in": [
+						"translated-area"
+					],
+					"wrong": "area + a"
+				},
+				{
+					"text": "Adding the factor to the area instead of multiplying by it",
+					"as": "distractor",
+					"in": [
+						"raised-area"
+					],
+					"wrong": "area + m"
+				},
+				{
+					"text": "Using the upper limit as the width of the rectangle",
+					"as": "distractor",
+					"in": [
+						"raised-area"
+					],
+					"wrong": "area + bq"
 				}
 			],
 			"frequency": 0

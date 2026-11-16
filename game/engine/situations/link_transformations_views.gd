@@ -24,6 +24,33 @@ const VARIANCE := "SL4.12.standardise#1"
 const POINT_IN_D := "SL5.5.boundary-condition#0"
 const C_ZERO := "SL5.5.boundary-condition#1"
 const NO_WIDTH := "SL5.11.integral-properties#0"
+## fn-link-transformations's own slips (FAL-820).
+const T := "fn-link-transformations#"
+const UP_SIGN := T + "14"
+const SWAPPED := T + "15"
+const UP_AS_HEIGHT := T + "16"
+const NO_ACROSS := T + "17"
+const GAP_ORDER := T + "18"
+const C_ORDER := T + "19"
+const C_ADDED := T + "20"
+const MEDIAN_STAYS := T + "21"
+const ALL_FOUR := T + "22"
+const ADD_FIRST := T + "23"
+const NO_SQUARE := T + "24"
+const MEAN_RATIO := T + "25"
+const MEAN_GAP := T + "26"
+const UPSIDE_DOWN := T + "27"
+const SD_GAP := T + "28"
+const STRETCH_FIRST := T + "29"
+const PLUS_MEAN := T + "30"
+const NARROWER := T + "31"
+const NO_MEAN := T + "32"
+const ADD_MEAN := T + "33"
+const Z_ORDER := T + "34"
+const UNMOVED := T + "35"
+const SHIFT_ADDED := T + "36"
+const FACTOR_ADDED := T + "37"
+const UPPER_WIDTH := T + "38"
 const STATS := ["mean", "median", "standard deviation", "IQR"]
 
 
@@ -43,6 +70,13 @@ func extra() -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
+	# LogFunctionViews.choice names its last list `generic` (and ExtensionViews.build adds
+	# the key): every option left there is a filler (FAL-820).
+	out.fillers = out.get("fillers", []) + out.generic
+	out.erase("generic")
+	# More slips than places: which three are offered is the stream's choice.
+	if out.wrongs.size() > 3:
+		out.wrongs = rng.shuffled(out.wrongs)
 	out.given = LS.export(s)
 	return out
 
@@ -117,27 +151,32 @@ func u_moved_feature(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			from_text = "(0, 0)"
 			to_text = vec
 			asked = "Find the vertex of the new graph."
-			out = typed(Answer.make("point", {"x": a, "y": b}), [wrong({"x": a.neg(), "y": b}, SIGN), wrong({"x": a.sub(b), "y": Q.new(0)}, INSIDE), wrong({"x": a, "y": b.neg()}), wrong({"x": b, "y": a})],
-				asked, lines, steps.call("the vertex", from_text, to_text), picks)
+			out = typed(Answer.make("point", {"x": a, "y": b}), [wrong({"x": a.neg(), "y": b}, SIGN), wrong({"x": a.sub(b), "y": Q.new(0)}, INSIDE), wrong({"x": a, "y": b.neg()}, UP_SIGN)]
+				+ ([] if a.eq(b) else [wrong({"x": b, "y": a}, SWAPPED)]), asked, lines, steps.call("the vertex", from_text, to_text), picks)
 		"recip":
 			from_text = "x = 0 and y = 0"
 			to_text = "x = %s and y = %s" % [N(a), N(b)]
 			asked = "Find the asymptotes of the new graph."
-			out = typed(Answer.make("named", {"v0": a, "v1": b}, {"names": ["x", "y"]}), [wrong({"v0": a.neg(), "v1": b}, SIGN), wrong({"v0": a, "v1": Q.new(0)}, ASYMPTOTE), wrong({"v0": a.sub(b), "v1": Q.new(0)}, INSIDE), wrong({"v0": b, "v1": a})],
+			out = typed(Answer.make("named", {"v0": a, "v1": b}, {"names": ["x", "y"]}), [wrong({"v0": a.neg(), "v1": b}, SIGN), wrong({"v0": a, "v1": Q.new(0)}, ASYMPTOTE), wrong({"v0": a.sub(b), "v1": Q.new(0)}, INSIDE)]
+				+ ([] if a.eq(b) else [wrong({"v0": b, "v1": a}, SWAPPED)]),
 				asked, lines, steps.call("the pair of asymptotes", from_text, to_text), picks)
 		"exp":
 			from_text = "y = 0"
 			to_text = "y = " + N(b)
 			asked = "Find the asymptote of the new graph."
-			out = typed(Answer.make("axis", {"var": "y", "h": b}), [wrong({"var": "y", "h": Q.new(0)}, ASYMPTOTE), wrong({"var": "y", "h": b.neg()}), wrong({"var": "y", "h": a}), wrong({"var": "x", "h": a})],
-				asked, lines, steps.call("the asymptote", from_text, to_text), picks)
+			out = typed(Answer.make("axis", {"var": "y", "h": b}), [wrong({"var": "y", "h": Q.new(0)}, ASYMPTOTE), wrong({"var": "y", "h": b.neg()}, UP_SIGN)]
+				+ ([] if a.eq(b) else [wrong({"var": "y", "h": a}, SWAPPED)]), asked, lines, steps.call("the asymptote", from_text, to_text), picks)
+			out.fillers = [{"var": "x", "h": a}]
 		_:
 			var y1 := b.add(1)
 			from_text = "(π/2, 1)"
 			to_text = pi_point(a, y1)
 			asked = "y = sin x has a maximum at (π/2, 1). Find where that maximum point lands."
 			var ms: Dictionary = steps.call("the maximum", from_text, to_text)
-			out = LinkExtremesViews.ask(to_text, [[pi_point(a.neg(), y1), WAVE], [pi_point(a.sub(b), Q.new(1)), INSIDE]], [pi_point(a, b), pi_point(Q.new(0), y1), pi_point(a.neg(), Q.new(1).sub(b)), pi_point(b, a.add(1))],
+			var ws: Array = [[pi_point(a.neg(), y1), WAVE], [pi_point(a.sub(b), Q.new(1)), INSIDE], [pi_point(a, b), UP_AS_HEIGHT], [pi_point(Q.new(0), y1), NO_ACROSS]]
+			if not a.eq(b):
+				ws.append([pi_point(b, a.add(1)), SWAPPED])
+			out = LinkExtremesViews.ask(to_text, ws, [pi_point(a.neg(), Q.new(1).sub(b))],
 				asked, lines, ms, "So the maximum lands at %s." % to_text, picks)
 	if rep == "graph":
 		out.lines = [ExpLogPairViews.M("The graphs of %s and its image are shown. The image is the graph translated by the vector %s." % [parent, vec])]
@@ -177,7 +216,7 @@ func u_antiderivative_gap(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var c2: int = s.c2
 	var gap := c2 - c1
 	var lines: Array = ["G(x) = " + F_text(s, c1), "H(x) = " + F_text(s, c2), "Both are antiderivatives of f(x) = %s." % f_text(s)]
-	var out := typed(Answer.make("point", {"x": Q.new(0), "y": Q.new(gap)}), [wrong({"x": Q.new(0), "y": Q.new(c2)}, C_ZERO), wrong({"x": Q.new(0), "y": Q.new(-gap)}), wrong({"x": Q.new(gap), "y": Q.new(0)}), wrong({"x": Q.new(0), "y": Q.new(c1 + c2)})],
+	var out := typed(Answer.make("point", {"x": Q.new(0), "y": Q.new(gap)}), [wrong({"x": Q.new(0), "y": Q.new(c2)}, C_ZERO), wrong({"x": Q.new(0), "y": Q.new(-gap)}, GAP_ORDER), wrong({"x": Q.new(gap), "y": Q.new(0)}, SWAPPED)],
 		"Find the translation vector that maps the graph of y = G(x) onto the graph of y = H(x).", lines, {
 			"substitute": ["H(x) = G(x) %s %d, with no change inside G." % ["+" if gap > 0 else "−", absi(gap)], "A number added outside is a vertical move: y = f(x) + d is a move by (0, d)."],
 			"shift-features": ["The y-intercept moves from %s to %s." % [Fmt.point(0, c1), Fmt.point(0, c2)], "x doesn't change, and y changes by %s − %s = %d." % [N(c2), P(c1), gap]],
@@ -185,6 +224,7 @@ func u_antiderivative_gap(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		}, [pick("Differentiate both and compare", "both derivatives are the same f, so that loses the gap"),
 			pick("Set G(x) = H(x) and solve", "the two curves never meet: they differ by a constant"),
 			pick("Take the second constant as the move", "the move is the gap between the constants, not one of them")])
+	out.fillers = [{"x": Q.new(0), "y": Q.new(c1 + c2)}]
 	if rep == "graph":
 		out.lines = [ExpLogPairViews.M("The graphs of y = G(x) and y = H(x) are shown, with their y-intercepts. Both are antiderivatives of f(x) = %s." % f_text(s))]
 		out.graph = both(F_curve(s, c1, -4.0, 4.0), F_curve(s, c2, -4.0, 4.0), [[0, c1, Fmt.point(0, c1)], [0, c2, Fmt.point(0, c2)]], [-4, 4, mini(c1, c2) - 6, maxi(c1, c2) + 6])
@@ -203,7 +243,8 @@ func u_curve_through_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	if rep == "words":
 		lines = ["The gradient of a curve at any point is %s." % f_text(s), "The curve passes through %s." % pt]
 	var sub := "%s = %s + C, so C = %s − %s = %s." % [N(py), N(fx), N(py), P(fx), N(c)]
-	var out := typed(Answer.make("number", {"v": Q.new(c)}, {}, "C = "), [wrong({"v": Q.new(0)}, C_ZERO), wrong({"v": Q.new(py - dfx)}, POINT_IN_D), wrong({"v": Q.new(-c)}), wrong({"v": Q.new(py + fx)})],
+	var out := typed(Answer.make("number", {"v": Q.new(c)}, {}, "C = "), [wrong({"v": Q.new(0)}, C_ZERO), wrong({"v": Q.new(py - dfx)}, POINT_IN_D), wrong({"v": Q.new(-c)}, C_ORDER)]
+		+ ([] if fx == 0 else [wrong({"v": Q.new(py + fx)}, C_ADDED)]),
 		"Let F(x) be the antiderivative with no constant term. Find C, the vertical move from y = F(x) to the curve.", lines, {
 			"pick-from-family": ["Every antiderivative is F(x) + C, with F(x) = %s: a family of vertical moves." % f0, "F(%s) = %s, but the curve is at height %s there." % [N(px), N(fx), N(py)], sub],
 			"integrate-then-substitute": ["Integrate: y = %s + C." % f0, "Put in the point: " + sub],
@@ -263,8 +304,8 @@ func u_shifted_data(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var lines: Array = ["A data set has %s." % stat_list(STATS, vals), add]
 	var w: Array = [wrong({"v0": s.mean.add(k), "v1": s.median.add(k), "v2": s.sd.add(k), "v3": s.iqr}, SD_K),
 		wrong({"v0": s.mean.add(k), "v1": s.median.add(k), "v2": s.sd, "v3": s.iqr.add(k)}, IQR_K),
-		wrong({"v0": s.mean.add(k), "v1": s.median, "v2": s.sd, "v3": s.iqr}),
-		wrong({"v0": s.mean.add(k), "v1": s.median.add(k), "v2": s.sd.add(k), "v3": s.iqr.add(k)})]
+		wrong({"v0": s.mean.add(k), "v1": s.median, "v2": s.sd, "v3": s.iqr}, MEDIAN_STAYS),
+		wrong({"v0": s.mean.add(k), "v1": s.median.add(k), "v2": s.sd.add(k), "v3": s.iqr.add(k)}, ALL_FOUR)]
 	var location := "The mean and median are places on the number line, so each goes up by %s: %s and %s." % [N(k), Fmt.dec(s.mean.add(k)), Fmt.dec(s.median.add(k))]
 	var spread := "The standard deviation and IQR measure gaps between values, and no gap changes: %s and %s." % [Fmt.dec(s.sd), Fmt.dec(s.iqr)]
 	var out := typed(ans, w, "Find the new mean, median, standard deviation and IQR.", lines, {
@@ -305,7 +346,7 @@ func u_stretched_data(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var how := "Every value is multiplied by %s, then increased by %s." % [N(m), N(k)]
 	var lines: Array = ["A data set has mean %s and standard deviation %s." % [Fmt.dec(mean), Fmt.dec(sd)], how]
 	var w: Array = [wrong({"v0": nm, "v1": ns, "v2": sd.mul(sd).mul(m)}, VAR_M), wrong({"v0": nm, "v1": ns.add(k), "v2": nv}, SD_K),
-		wrong({"v0": mean.add(k).mul(m), "v1": ns, "v2": nv}), wrong({"v0": nm, "v1": ns, "v2": ns})]
+		] + ([] if nm.eq(mean.add(k).mul(m)) else [wrong({"v0": mean.add(k).mul(m), "v1": ns, "v2": nv}, ADD_FIRST)]) + ([] if ns.eq(nv) else [wrong({"v0": nm, "v1": ns, "v2": ns}, NO_SQUARE)])
 	var mean_step := "The mean is stretched, then moved: %s × %s + %s = %s." % [Fmt.dec(mean), N(m), N(k), Fmt.dec(nm)]
 	var sd_step := "The standard deviation is stretched but not moved: %s × %s = %s." % [Fmt.dec(sd), N(m), Fmt.dec(ns)]
 	var var_step := "The variance is its square: %s² = %s, so it is multiplied by %s², not %s." % [Fmt.dec(ns), Fmt.dec(nv), P(m), N(m)]
@@ -335,13 +376,14 @@ func u_change_from_statistics(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var times := func(v: Q) -> String: return "every value was multiplied by %s" % N(v)
 	var right: String = up.call(k) if add else times.call(m)
 	var ratio := after.div(mean)
-	var gen: Array = [times.call(ratio), times.call(k), up.call(k.mul(2)), "every value was decreased by %s" % Fmt.dec(k)] if add else \
-		[up.call(after.sub(mean).abs_q()), times.call(Q.new(1).div(m)), up.call(sd2.sub(sd).abs_q()), times.call(m.mul(2))]
+	var bad: Array = [[times.call(ratio), MEAN_RATIO]] if add else \
+		[[up.call(after.sub(mean).abs_q()), MEAN_GAP], [times.call(Q.new(1).div(m)), UPSIDE_DOWN], [up.call(sd2.sub(sd).abs_q()), SD_GAP]]
+	var gen: Array = [times.call(k), up.call(k.mul(2)), "every value was decreased by %s" % Fmt.dec(k)] if add else [times.call(m.mul(2))]
 	var lines: Array = ["Before a change, a data set has mean %s and standard deviation %s." % [Fmt.dec(mean), Fmt.dec(sd)],
 		"After it, the mean is %s and the standard deviation is %s." % [Fmt.dec(after), Fmt.dec(sd2)]]
 	var spread := "The standard deviation is unchanged, so nothing has stretched the data." if add else "The standard deviation has changed by the factor %s ÷ %s = %s, so the data are stretched." % [Fmt.dec(sd2), Fmt.dec(sd), N(m)]
 	var last := "The mean tells how far they moved: %s − %s = %s." % [Fmt.dec(after), Fmt.dec(mean), Fmt.dec(k)] if add else "The mean has the same factor: %s × %s = %s, so nothing was added." % [Fmt.dec(mean), N(m), Fmt.dec(after)]
-	var out := LinkExtremesViews.ask(right, [], gen, "What was done to every value? Choose one change.", lines, {
+	var out := LinkExtremesViews.ask(right, bad, gen, "What was done to every value? Choose one change.", lines, {
 		"shift-stretch-rules": ["Read the spread first: it ignores added constants.", spread, last],
 		"picture-the-histogram": ["The histogram keeps its width when it only slides, and changes width when it is stretched.", spread, last],
 	}, "So %s." % right, [pick("Compare the means alone", "a mean can't tell an added constant from a factor"),
@@ -379,8 +421,9 @@ func u_standardise_moves(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var moved := "Subtracting %d moves the curve by (%s, 0), so it is centred on 0." % [mu, N(-mu)]
 	var squeezed := "Dividing by %d is a horizontal stretch with scale factor %s, so its standard deviation is 1." % [sg, one_over(sg)]
 	var same := "Each x has one z, and the curve's area stays 1, so matching regions have equal area."
-	var out := LinkExtremesViews.ask(right, [[say.call("%s, then a horizontal stretch with scale factor %d" % [tr, sg], keep), FACTOR], [say.call("%s, then a stretch" % tr, keep), VAGUE]],
-		[say.call("%s, then %s" % [hs, tr], keep), say.call("a translation by the vector (%d, 0), then %s" % [mu, hs], keep), say.call("%s, then %s" % [tr, hs], "the curve gets narrower, so the probability gets smaller")],
+	var out := LinkExtremesViews.ask(right, [[say.call("%s, then a horizontal stretch with scale factor %d" % [tr, sg], keep), FACTOR], [say.call("%s, then a stretch" % tr, keep), VAGUE],
+		[say.call("%s, then %s" % [hs, tr], keep), STRETCH_FIRST], [say.call("a translation by the vector (%d, 0), then %s" % [mu, hs], keep), PLUS_MEAN],
+		[say.call("%s, then %s" % [tr, hs], "the curve gets narrower, so the probability gets smaller"), NARROWER]], [],
 		"Which moves turn the curve of X into the curve of N(0, 1), and why does a probability not change?", lines, {
 			"scale-rule": [moved, squeezed, same],
 			"standardise-bounds": ["z = (x − %d)/%d: take off the mean first, then divide." % [mu, sg], moved, squeezed, same],
@@ -417,8 +460,8 @@ func u_standardise_bounds(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var keep := "Standardising is a translation and a stretch, with no reflection, so the inequality keeps its direction."
 	var gdc := Fmt.sf(s.p)
 	var cdf := "normalcdf"
-	return LinkExtremesViews.ask(right, [[p_z(rel, Q.new(x - mu, sg * sg)), VARIANCE], [p_z(flipped, z), REVERSED]],
-		[p_z(rel, Q.new(x, sg)), p_z(rel, Q.new(x + mu, sg)), p_z(rel, z.neg())], "Write the same probability for Z ~ N(0, 1).", lines, {
+	return LinkExtremesViews.ask(right, [[p_z(rel, Q.new(x - mu, sg * sg)), VARIANCE], [p_z(flipped, z), REVERSED], [p_z(rel, Q.new(x, sg)), NO_MEAN],
+		[p_z(rel, Q.new(x + mu, sg)), ADD_MEAN]] + ([] if z.is_zero() else [[p_z(rel, z.neg()), Z_ORDER]]), [], "Write the same probability for Z ~ N(0, 1).", lines, {
 			"standardise-bounds": ["Take off the mean and divide by the standard deviation.", sub, keep],
 			"gdc-both": [sub, "%s for X with mean %d and standard deviation %d gives %s." % [cdf, mu, sg, gdc], "%s for Z with mean 0 and standard deviation 1 gives %s too." % [cdf, gdc]],
 		}, "So %s = %s." % [px, right], [pick("Divide by the variance", "the standardising divisor is σ, not σ²"),
@@ -477,7 +520,7 @@ func u_translated_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		lines = ["The area under y = %s from x = %d to x = %d is %d." % [f0, p, q, area], "The curve and the two limits are all moved %s." % TransformDescribeViews.across_word(s, s.a)]
 		asked = "Find the area under the moved curve y = %s, from x = %s to x = %s." % [f1, N(lo), N(hi)]
 	var unshifted := area_F(s, hi).sub(area_F(s, lo))
-	var w: Array = [wrong({"v": unshifted}), wrong({"v": Q.new(area + ai)}), wrong({"v": Q.new(area - ai)}), wrong({"v": Q.new(area).mul(absi(ai) + 1)})]
+	var w: Array = [wrong({"v": unshifted}, UNMOVED), wrong({"v": Q.new(area + ai)}, SHIFT_ADDED)]
 	var pic := "The curve moves %s, and both limits move with it." % TransformDescribeViews.across_word(s, s.a)
 	var out := typed(Answer.make("number", {"v": Q.new(area)}, {}, "Area = "), w, asked, lines, {
 		"track-points": ["The point (x, y) goes to (x%s, y), so x = %d goes to %s and x = %d to %s." % [Fmt.plus(s.a), p, N(lo), q, N(hi)], "Every height stays the same over its moved x, so the area is the same."],
@@ -485,6 +528,7 @@ func u_translated_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	}, [pick("Add the shift to the area", "a move along the x-axis changes no heights and no widths"),
 		pick("Integrate f(x) over the new limits", "the curve has moved too, so that is another region"),
 		pick("Multiply the area by the shift", "a translation doesn't scale anything")])
+	out.fillers = [{"v": Q.new(area - ai)}, {"v": Q.new(area).mul(absi(ai) + 1)}]
 	if rep == "graph":
 		var x0 := mini(p, lo) - 1
 		var x1 := maxi(q, hi) + 1
@@ -512,7 +556,8 @@ func u_raised_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var lines: Array = ["%s = %s" % [integral(p, q, "f(x)"), N(area)]]
 	var rect := "Raising the curve by %s adds a rectangle %d wide and %s high: %s + %d × %s = %s." % [N(b), width, N(b), N(area), width, P(b), N(v1)]
 	var tall := "Multiplying by %s stretches every height by %s, so the area is %s × %s = %s." % [N(m), N(m), N(m), N(area), N(v2)]
-	var out := typed(ans, [wrong({"v0": area.add(b), "v1": v2}, NO_WIDTH), wrong({"v0": v1, "v1": area.add(m)}), wrong({"v0": area.add(b.mul(q)), "v1": v2}), wrong({"v0": area.add(b), "v1": area.add(m)})],
+	var out := typed(ans, [wrong({"v0": area.add(b), "v1": v2}, NO_WIDTH)] + ([] if area.add(m).eq(v2) else [wrong({"v0": v1, "v1": area.add(m)}, FACTOR_ADDED)])
+		+ ([] if p == 0 else [wrong({"v0": area.add(b.mul(q)), "v1": v2}, UPPER_WIDTH)]),
 		"Find both integrals.", lines, {
 			"scale-rule": [tall, rect],
 			"area-picture": [rect, tall],
@@ -520,6 +565,7 @@ func u_raised_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		}, [pick("Add b to the area", "b is added at every x, so it counts once for each unit of width"),
 			pick("Add m to the area", "a factor multiplies every height"),
 			pick("Move the limits by b", "b moves the curve up, not along")])
+	out.fillers = [{"v0": area.add(b), "v1": area.add(m)}]
 	if rep == "graph":
 		var fa := func(x: float) -> float: return area_at(s, x)
 		out.lines = [ExpLogPairViews.M("The graph of y = f(x) is shown, from x = %d to x = %d." % [p, q]), ExpLogPairViews.M(lines[0])]
