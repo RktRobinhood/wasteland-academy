@@ -43379,7 +43379,9 @@
 						"compound-quadratic",
 						"rational-disguise",
 						"one-solution",
-						"sum-solutions"
+						"sum-solutions",
+						"tan-zero-root",
+						"double-factor"
 					],
 					"wrong": "the solutions of one root alone"
 				},
@@ -43396,7 +43398,9 @@
 						"surd-coefficient",
 						"rational-disguise",
 						"one-solution",
-						"sum-solutions"
+						"sum-solutions",
+						"compound-quadratic",
+						"tan-zero-root"
 					],
 					"wrong": "each root with its sign changed"
 				},
@@ -43466,7 +43470,8 @@
 					"text": "Forgetting to double a in the denominator of the quadratic formula",
 					"as": "distractor",
 					"in": [
-						"formula-root"
+						"formula-root",
+						"values-of-u"
 					],
 					"wrong": "the root over a instead of 2a"
 				},
@@ -43590,6 +43595,62 @@
 						"gdc-count"
 					],
 					"wrong": "two solutions counted at u = 1 or −1"
+				},
+				{
+					"text": "Replacing the wrong squared term, so the equation still has both functions in it",
+					"as": "distractor",
+					"in": [
+						"identity-to-use"
+					],
+					"wrong": "the square of the function being solved for rewritten instead of the other"
+				},
+				{
+					"text": "Using cos²x − sin²x for cos 2x, which leaves both functions in the equation",
+					"as": "distractor",
+					"in": [
+						"identity-to-use"
+					],
+					"wrong": "cos 2x = cos²x − sin²x"
+				},
+				{
+					"text": "Putting the two numbers in each other's brackets",
+					"as": "distractor",
+					"in": [
+						"factorised-form"
+					],
+					"wrong": "the constants of the brackets swapped"
+				},
+				{
+					"text": "Leaving out the minus sign in front of b in the quadratic formula",
+					"as": "distractor",
+					"in": [
+						"formula-root"
+					],
+					"wrong": "a root with its sign changed"
+				},
+				{
+					"text": "Thinking the larger root is always the one to throw away",
+					"as": "distractor",
+					"in": [
+						"reject-root"
+					],
+					"wrong": "a root rejected for being the larger"
+				},
+				{
+					"text": "Picking a solution of the equation that is not the one asked for",
+					"as": "distractor",
+					"in": [
+						"one-solution"
+					],
+					"wrong": "another solution from the list"
+				},
+				{
+					"text": "Forgetting to change the sign when k is taken to the other side",
+					"as": "distractor",
+					"in": [
+						"constant-from-solution"
+					],
+					"wrong": "k with the wrong sign"
 				}
 			],
 			"chain": [

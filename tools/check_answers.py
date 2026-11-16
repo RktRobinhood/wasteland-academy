@@ -37008,6 +37008,7 @@ E11TQ_LOSE = "SL3.6.double-angle-values#1"
 E11TQ_STOP, E11TQ_MIRROR, E11TQ_BELOW = "SL3.8.solve-basic#0", "SL3.8.solve-basic#1", "SL3.8.solve-basic#2"
 E11TQ_WAVE, E11TQ_BACK = "SL3.8.compound-angle#0", "SL3.8.compound-angle#1"
 E11TQ_CANCEL = "SL3.8.factorise-not-divide#0"
+E11TQ_WRONG_SQ, E11TQ_BOTH, E11TQ_SWAP, E11TQ_MINUS_B, E11TQ_LARGER, E11TQ_OTHER, E11TQ_K_SIGN = (f"t3-trig-quadratic#{i}" for i in range(25, 32))  # FAL-820
 E11TQ_PART, E11TQ_DEG, E11TQ_TWICE = "SL3.8.graphical#0", "SL3.8.graphical#2", "SL3.8.graphical#4"
 E11TQ_LIST = ("all-solutions", "all-solutions-degrees", "double-angle-solve", "surd-coefficient")
 E11TQ_GDC = ("gdc-solve", "gdc-count")
@@ -37278,6 +37279,12 @@ def E11TQ_step_one(q, g, u):
             elif o["ref"] == E11TQ_LOSE:
                 need(not true and a == sp.cos(2 * x), f"{o['text']!r} isn't {o['ref']}")
                 w[o["ref"]].add(o["text"])
+            elif o["ref"] == E11TQ_WRONG_SQ:  # a true square identity, but it rewrites the function solved for
+                need(true and a.is_Pow and a.base == E11TQ_FN[fn](x), f"{o['text']!r} isn't {o['ref']}")
+                w[o["ref"]].add(o["text"])
+            elif o["ref"] == E11TQ_BOTH:  # a true cos 2x that keeps both functions
+                need(true and a == sp.cos(2 * x) and b.has(sp.sin(x)) and b.has(sp.cos(x)), f"{o['text']!r} isn't {o['ref']}")
+                w[o["ref"]].add(o["text"])
             else:
                 need(not o["ref"], f"no check for {o['ref']}")
         need(len(goods) == 1, f"{goods} are right")
@@ -37294,7 +37301,14 @@ def E11TQ_step_one(q, g, u):
             e = sp.expand(rd(o["text"]))
             same = sp.expand(e - (left - right)) == 0
             need(same == o["correct"], f"option {o['text']!r} is marked wrongly")
-            if o["ref"]:
+            if o["ref"] == E11TQ_SWAP:  # the two numbers in each other's brackets
+                mt = re.fullmatch(r"\((\d*) ?(\w+ x) ([+−]) (\d+)\)\((\d*) ?(\w+ x) ([+−]) (\d+)\) = 0", o["text"])
+                need(mt is not None, f"can't read {o['text']!r}")
+                br = lambda l, c: f"({l} {mt[2]} {c})" if l else f"({mt[2]} {c})"
+                back = br(mt[1], f"{mt[7]} {mt[8]}") + br(mt[5], f"{mt[3]} {mt[4]}") + " = 0"
+                need(sp.expand(rd(back) - (left - right)) == 0, f"{o['text']!r} isn't the numbers swapped")
+                w[o["ref"]].add(o["text"])
+            elif o["ref"]:
                 need(o["ref"] == E11TQ_SIGNS, f"no check for {o['ref']}")
                 flipped = sp.expand(e.subs(E11TQ_FN[fn](x), -E11TQ_FN[fn](x)) - (left - right))
                 need(flipped == 0, f"{o['text']!r} isn't each root with its sign changed")
@@ -37304,18 +37318,18 @@ def E11TQ_step_one(q, g, u):
     if u == "values-of-u":
         need(q["asked"] == f"Let u = {name}. Find the two values of u that solve the quadratic this gives.", f"can't read {q['asked']!r}")
         order = lambda a, b: f"u = {frac_text(min(a, b))} or u = {frac_text(max(a, b))}"
-        gc_check_common(q, order(us[0], us[1]), {E11TQ_SIGNS: {order(-us[0], -us[1])}}, steps=(2, 5))
+        gc_check_common(q, order(us[0], us[1]), {E11TQ_SIGNS: {order(-us[0], -us[1])}, E11TQ_HALF: {order(2 * us[0], 2 * us[1])}}, steps=(2, 5))  # ÷ a, not 2a
         return
     if u == "formula-root":
         need(len(kept) == 1 and len(bad) == 1, "not one root in range and one out")
-        tr_common(q, name + " = ", kept[0], {E11TQ_RANGE: [bad[0]], E11TQ_HALF: [2 * kept[0]]}, steps=(2, 5))
+        tr_common(q, name + " = ", kept[0], {E11TQ_RANGE: [bad[0]], E11TQ_HALF: [2 * kept[0]], E11TQ_MINUS_B: [-kept[0], -bad[0]]}, steps=(2, 5))  # −b dropped
         return
     need(u == "reject-root", f"no check for {u}")
     need(len(kept) == 1 and len(bad) == 1, "not one root in range and one out")
     say = lambda v, why: f"{name} = {tr_text(v)} has no solutions, as {why}"
     w = {E11TQ_RANGE: {"Neither: both roots give solutions"}}
-    if kept[0] < 0:
-        w[E11TQ_NEG] = {say(kept[0], "it is negative")}
+    w[E11TQ_NEG] = {say(v, "it is negative") for v in us if v < 0}
+    w[E11TQ_LARGER] = {say(max(us), "it is the larger root")}  # the larger root thrown out
     gc_check_common(q, say(bad[0], f"it is outside the range of {name}"), w, steps=(2, 5))
     if q["view"]["rep"] == "graph":
         E11TQ_lines(q, {}, us)
@@ -37367,6 +37381,7 @@ def E11TQ_one(q, E, fn, ks, xs):
     r = take(E11TQ_mains(E, fn, ks, 1))
     if r:
         w[E11TQ_STOP].add(E11TQ_txt(E, r))
+    w[E11TQ_OTHER] = {E11TQ_txt(E, [r]) for r in xs}  # another solution, not the one asked
     gc_check_common(q, want, w, steps=(2, 5))
 
 
@@ -37398,7 +37413,7 @@ def E11TQ_constant(q, g):
     got = sp.solve(f.subs(x, at), k)
     need(len(got) == 1, f"no one k in {m[2]}")
     slip = sp.solve(f.subs(fn(x)**2, fn(x)).subs(x, at), k)
-    gc_check_common(q, f"k = {frac_text(got[0])}", {E11TQ_NO_SQ: {f"k = {frac_text(slip[0])}"}}, steps=(2, 5))
+    gc_check_common(q, f"k = {frac_text(got[0])}", {E11TQ_NO_SQ: {f"k = {frac_text(slip[0])}"}, E11TQ_K_SIGN: {f"k = {frac_text(-got[0])}"}}, steps=(2, 5))  # k's sign
 
 
 def E11TQ_double_factor(q, E, xs):
@@ -37413,6 +37428,7 @@ def E11TQ_double_factor(q, E, xs):
         pos = E11TQ_on(E, "sin", k)
         zeros = E11TQ_on(E, "cos", sp.Integer(0))
         w[E11TQ_PLUS].add(E11TQ_txt(E, sorted(set(pos) | set(zeros))))
+    w[E11TQ_ONE].add(E11TQ_txt(E, E11TQ_on(E, "cos", sp.Integer(0))))  # only the cos x = 0 bracket
     gc_check_common(q, E11TQ_txt(E, xs), w, steps=(2, 5))
 
 
@@ -37468,7 +37484,9 @@ def E11TQ_check(q):
         E11TQ_sum(q, E, fn, ks, xs)
     elif u == "tan-zero-root":
         nz = [k for k in ks if k != 0]
-        gc_check_common(q, E11TQ_txt(E, xs), {E11TQ_CANCEL: {E11TQ_txt(E, E11TQ_on(E, fn, nz[0]))}}, steps=(2, 5))
+        gc_check_common(q, E11TQ_txt(E, xs), {E11TQ_CANCEL: {E11TQ_txt(E, E11TQ_on(E, fn, nz[0]))},
+                                              E11TQ_ONE: {E11TQ_txt(E, E11TQ_on(E, fn, sp.Integer(0)))},  # only tan x = 0
+                                              E11TQ_SIGNS: {E11TQ_txt(E, E11TQ_flip(E, fn, ks))}}, steps=(2, 5))  # the root's sign
     elif u == "compound-quadratic" or u == "rational-disguise":
         w = defaultdict(set)
         first = [x for x in xs if b * x <= E["hi_r"] + 1e-9]
@@ -37484,10 +37502,9 @@ def E11TQ_check(q):
                 al = E11TQ_mains(E, fn, [k], b)
                 if al:
                     w[E11TQ_BACK].add(E11TQ_txt(E, al))
-        else:
-            r = E11TQ_flip(E, fn, ks, b)
-            if r:
-                w[E11TQ_SIGNS].add(E11TQ_txt(E, r))
+        r = E11TQ_flip(E, fn, ks, b)
+        if r:
+            w[E11TQ_SIGNS].add(E11TQ_txt(E, r))
         gc_check_common(q, E11TQ_txt(E, xs), w, steps=(2, 5))
     elif u in E11TQ_LIST or u in ("plus-minus-root", "tan-squared"):
         one = {"plus-minus-root": E11TQ_PLUS, "tan-squared": E11TQ_TAN_ROOT}.get(u, E11TQ_ONE)
