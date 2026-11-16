@@ -73,18 +73,20 @@ func test_each_representation_shows_what_it_says() -> void:
 func test_every_distractor_misconception_is_an_option() -> void:
 	for id in CELLS:
 		var t := QuestionEngine.type_of(id)
-		for m in t.misconceptions:
+		for i in t.misconceptions.size():
+			var m: Dictionary = t.misconceptions[i]
+			var ref: String = m.get("ref", "%s#%d" % [id, i])
 			for u in m.in:
 				var found := false
 				for c in QuestionEngine.cells(false, [id]).filter(func(x): return x.unknown == u):
 					for seed in range(1, 200):
 						var q := _make(id, u, c.rep, c.angle, seed, "mcq")
-						if q.choices.any(func(o): return o.ref == m.ref):
+						if q.choices.any(func(o): return o.ref == ref):
 							found = true
 							break
 					if found:
 						break
-				check(found, "%s never shows %s on %s" % [id, m.ref, u])
+				check(found, "%s never shows %s on %s" % [id, ref, u])
 
 
 func test_one_step_reads_as_one() -> void:

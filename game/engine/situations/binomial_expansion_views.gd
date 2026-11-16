@@ -32,6 +32,17 @@ const R_NEG_ROOT := "t1-binomial-term#10"
 const R_N_TERMS := "t1-binomial-term#11"
 const R_PLACE := "t1-binomial-term#12"
 const R_OVER := "t1-binomial-term#13"
+## t1-binomial-term's own slips for the options that had no line (FAL-820).
+const R_NO_NCR := "t1-binomial-term#14"
+const R_POWERS_SWAPPED := "t1-binomial-term#15"
+const R_SIGNS_MOVED := "t1-binomial-term#16"
+const R_NCR_ALONE := "t1-binomial-term#17"
+const R_ENTRY_ONE := "t1-binomial-term#18"
+const R_ADD_R := "t1-binomial-term#19"
+const R_ALL_ZERO := "t1-binomial-term#20"
+const R_EDGE_N := "t1-binomial-term#21"
+const R_ABOVE := "t1-binomial-term#22"
+const R_OTHER_LETTER := "t1-binomial-term#23"
 
 const UNKNOWNS := ["ncr-value", "ncr-read-triangle", "ncr-large-r", "ncr-symmetry", "ncr-edge", "ncr-find-n",
 	"ncr-formula-in-n", "pascal-row", "pascal-next-row", "row-from-entries", "number-of-terms", "expand-small",
@@ -272,14 +283,14 @@ static func expansion_options(s: Dictionary, order: Array, rng: Seeded) -> Dicti
 		w.append(alt(Fmt.terms(order.map(func(j): return Q.new(coef(s, j))), ps), R_OVER))
 	else:
 		w.append(wp(s, order, func(j): return C(n, j) * pw(a, j) * pw(b, j), R_POWERS))
+	w.append(wp(s, order, func(j): return pw(a, j) * pw(b, n - j), R_NO_NCR))
+	w.append(wp(s, order, func(j): return C(n, j) * pw(b, j) * pw(a, n - j), R_POWERS_SWAPPED))
+	w.append(wp(s, order, func(j): return coef(s, j) * (-1 if (n - j) % 2 == 1 else 1), R_SIGNS_MOVED))
 	var g: Array = [
-		wp(s, order, func(j): return pw(a, j) * pw(b, n - j)).values,
-		wp(s, order, func(j): return C(n, j) * pw(b, j) * pw(a, n - j)).values,
-		wp(s, order, func(j): return coef(s, j) * (-1 if (n - j) % 2 == 1 else 1)).values,
 		wp(s, order, func(j): return coef(s, j) + (1 if j == order[0] else 0)).values,
 		wp(s, order, func(j): return coef(s, j) * 2).values,
 	]
-	return {"wrongs": rng.shuffled(w), "generic": g}
+	return {"wrongs": rng.shuffled(w), "fillers": g}
 
 
 ## The rows of Pascal's triangle from 0 to n, staggered: blank cells either side of each row.
@@ -339,7 +350,7 @@ func u_ncr_value(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var final := "So %s." % Answer.text(ans)
 	return {"asked": "Find the value of %dC%d." % [n, r], "answer": ans,
 		"wrongs": rng.shuffled([wn(fact(n) / fact(r), R_NO_DENOM), wn(fact(n) / fact(n - r), R_NO_R)]),
-		"generic": pad(v, [C(n, r + 1), C(n, r - 1), C(n - 1, r), C(n + 1, r)]),
+		"fillers": pad(v, [C(n, r + 1), C(n, r - 1), C(n - 1, r), C(n + 1, r)]),
 		"methods": {
 			"factorial-formula": method(formula_steps(n, r) + [final], ans.values),
 			"pascal-build": method(add_steps(n) + ["Counting from 0 at the left, entry %d of that row is %d." % [r, v], final], ans.values),
@@ -353,8 +364,8 @@ func u_ncr_read_triangle(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	var v := C(n, r)
 	var ans := number("%dC%d = " % [n, r], v)
 	return {"asked": "Use Pascal's triangle to find %dC%d." % [n, r], "answer": ans, "table": triangle(n + 1),
-		"wrongs": rng.shuffled([wn(C(n - 1, r), R_ROW_ONE)]),
-		"generic": pad(v, [C(n + 1, r), C(n, r + 1), C(n, r - 1)]),
+		"wrongs": rng.shuffled([wn(C(n - 1, r), R_ROW_ONE)] + ([wn(C(n, r - 1), R_ENTRY_ONE)] if r > 0 else [])),
+		"fillers": pad(v, [C(n + 1, r), C(n, r + 1)]),
 		"methods": {"pascal-build": method(["The top row is row 0, so the row that starts 1, %d is row %d: %s." % [n, n, row_text(n)],
 			"Counting from 0 at the left, entry %d of that row is %d." % [r, v], "So %s." % Answer.text(ans)], ans.values)}}
 
@@ -369,7 +380,7 @@ func u_ncr_large_r(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := formula_steps(n, small)
 	return {"asked": "Find the value of %dC%d." % [n, r], "answer": ans,
 		"wrongs": rng.shuffled([wn(fact(n) / fact(r), R_NO_DENOM)]),
-		"generic": pad(v, [C(n, r - 1), C(n, r + 1), n, C(n - 1, r)]),
+		"fillers": pad(v, [C(n, r - 1), C(n, r + 1), n, C(n - 1, r)]),
 		"methods": {
 			"symmetry": method(["Use nCr = nC(n − r) to choose the smaller r: %dC%d = %dC%d." % [n, r, n, small]] + out + [final], ans.values),
 			"factorial-formula": method(formula_steps(n, r) + [final], ans.values),
@@ -382,9 +393,9 @@ func u_ncr_symmetry(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var r: int = s.r
 	var m := n - r
 	var ans := number("m = ", m)
-	var near: Array = [m + 1, m - 1, n, n + r, r + 1, m + 2].filter(func(x): return x != r and x != m)
+	var near: Array = [m + 1, m - 1, n, r + 1, m + 2].filter(func(x): return x != r and x != m)
 	return {"asked": "%dC%d = %dCm, where m ≠ %d. Find m." % [n, r, n, r], "answer": ans,
-		"generic": near.map(func(x): return wn(x).values),
+		"wrongs": [wn(n + r, R_ADD_R)], "fillers": near.map(func(x): return wn(x).values),
 		"methods": {"symmetry": method(["Choosing %d from %d to take is the same as choosing %d to leave, so nCr = nC(n − r)." % [r, n, m],
 			"%dC%d = %dC(%d − %d) = %dC%d" % [n, r, n, n, r, n, m], "So %s." % Answer.text(ans)], ans.values)}}
 
@@ -395,7 +406,7 @@ func u_ncr_edge(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := number("%dC%d = " % [n, r], 1)
 	var final := "So %s." % Answer.text(ans)
 	return {"asked": "Find the value of %dC%d." % [n, r], "answer": ans,
-		"wrongs": [wn(0, R_ZERO if r == 0 else "")], "generic": pad(1, [n, 0, n + 1, n - 1]),
+		"wrongs": [wn(0, R_ZERO if r == 0 else R_ALL_ZERO), wn(n, R_EDGE_N)], "fillers": pad(1, [n + 1, n - 1]),
 		"methods": {
 			"factorial-formula": method(["%dC%d = %d!/(%d! × %d!)" % [n, r, n, r, n - r], "0! = 1, so the top and the bottom are both %d!." % n, final], ans.values),
 			"pascal-build": method(["Every row of Pascal's triangle starts and ends with 1.", "%dC%d is the %s entry of row %d." % [n, r, "first" if r == 0 else "last", n], final], ans.values),
@@ -412,7 +423,7 @@ func u_ncr_find_n(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		w.append(wn(n + 1, R_ROW_ONE))
 	var entries: Array = range(2, n + 1).map(func(m): return str(C(m, 2)))
 	return {"asked": "nC2 = %d, where n is a whole number. Find n." % v, "answer": ans,
-		"wrongs": rng.shuffled(w), "generic": pad(n, [n + 1, n - 1, v, 2 * v]),
+		"wrongs": rng.shuffled(w), "fillers": pad(n, [n + 1, n - 1, v, 2 * v]),
 		"methods": {
 			"factorial-formula": method(["nC2 = n!/(2! × (n − 2)!) = n(n − 1)/2", "n(n − 1)/2 = %d, so n² − n − %d = 0" % [v, 2 * v],
 				"(n − %d)(n + %d) = 0, so n = %d or n = %s" % [n, n - 1, n, N(1 - n)], "n is a whole number, so it can't be negative. " + final], ans.values),
@@ -459,8 +470,8 @@ func u_ncr_formula_in_n(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var below := inner(c) + inner(c - 1)
 	var low := inner(c - 2)
 	return {"asked": "Write %s as a polynomial in n, for whole numbers n ≥ 3." % name, "answer": ans,
-		"wrongs": rng.shuffled([make.call(-1, 1, R_NO_R)]),
-		"generic": [make.call(1, 2).values, make.call(-2, 2).values, make.call(0, 2).values, make.call(1, 1).values],
+		"wrongs": rng.shuffled([make.call(-1, 1, R_NO_R), make.call(1, 2, R_ABOVE)]),
+		"fillers": [make.call(-2, 2).values, make.call(0, 2).values, make.call(1, 1).values],
 		"methods": {"factorial-formula": method(["%s = %s!/(2! × %s!)" % [name, inner(c), low],
 			"Cancel %s! from the top, which leaves %s." % [low, below], "2! = 2, so %s = %s/2" % [name, below],
 			"Multiply out: %s = %s" % [name, Answer.text(ans)]], ans.values)}}
@@ -500,7 +511,7 @@ func u_pascal_row(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var list: Array = range(n + 1).map(func(r): return "%dC%d = %d" % [n, r, C(n, r)])
 	return {"asked": "Write down the row of Pascal's triangle for n = %d." % n, "answer": ans,
 		"wrongs": [alt(row_text(n - 1), R_ROW_ONE)],
-		"generic": [alt(row_text(n + 1)).values, alt(row_text(n + 2)).values, row_off(ans, n, 2), row_off(ans, n, -1)],
+		"fillers": [alt(row_text(n + 1)).values, alt(row_text(n + 2)).values, row_off(ans, n, 2), row_off(ans, n, -1)],
 		"methods": {
 			"pascal-build": method(add_steps(n).slice(0, 2) + [final], ans.values),
 			"factorial-formula": method(["The entries are nCr for r = 0 to %d, from nCr = n!/(r!(n − r)!)." % n, ", ".join(list), final], ans.values),
@@ -516,7 +527,7 @@ func u_pascal_next_row(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	for r in range(1, m):
 		sums.append("%d + %d" % [C(n, r - 1), C(n, r)])
 	return {"asked": "These are the first rows of Pascal's triangle. Write down the next row.", "answer": ans, "table": triangle(n),
-		"generic": [alt(row_text(n)).values, alt(row_text(m + 1)).values, row_off(ans, m, 2), row_off(ans, m, -1), row_off(ans, m, 1)],
+		"fillers": [alt(row_text(n)).values, alt(row_text(m + 1)).values, row_off(ans, m, 2), row_off(ans, m, -1), row_off(ans, m, 1)],
 		"methods": {"pascal-build": method(["The last row shown is %s." % row_text(n),
 			"Each entry of the next row is the sum of the two above it: %s, with a 1 at each end." % ", ".join(sums),
 			"So the next row is %s." % Answer.text(ans)], ans.values)}}
@@ -527,7 +538,7 @@ func u_row_from_entries(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := number("n = ", n)
 	return {"asked": "This row of Pascal's triangle gives the coefficients of (a + b)^n. Find n.", "answer": ans,
 		"table": {"rows": [["", row(n).map(func(v): return str(v))]]},
-		"wrongs": rng.shuffled([wn(n + 1, R_ROW_ONE)]), "generic": pad(n, [n - 1, n + 2, n - 2]),
+		"wrongs": rng.shuffled([wn(n + 1, R_ROW_ONE)]), "fillers": pad(n, [n - 1, n + 2, n - 2]),
 		"methods": {"pascal-build": method(["The top row, 1, is row 0, and the row that starts 1, n is row n.",
 			"This row starts 1, %d. It has %d entries, one more than n." % [n, n + 1], "So %s." % Answer.text(ans)], ans.values)}}
 
@@ -537,7 +548,7 @@ func u_number_of_terms(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := number("", n + 1)
 	var final := "So the expansion has %d terms." % (n + 1)
 	return {"asked": "Write down the number of terms in the expansion of %s, where %s > 0." % [power_text(s), s.letter], "answer": ans,
-		"wrongs": rng.shuffled([wn(n, R_N_TERMS)]), "generic": pad(n + 1, [n + 2, n - 1, 2 * n]),
+		"wrongs": rng.shuffled([wn(n, R_N_TERMS)]), "fillers": pad(n + 1, [n + 2, n - 1, 2 * n]),
 		"methods": {
 			"binomial-theorem": method(["Each term is nCr × a^(%d − r) × b^r, with one term for each r." % n, "r runs from 0 to %d, which is %d values." % [n, n + 1], final], ans.values),
 			"choose-brackets": method(["Each term is set by how many of the %d brackets give %s." % [n, s.letter], "That can be 0, 1 and so on up to %d brackets: %d choices." % [n, n + 1], final], ans.values),
@@ -770,9 +781,10 @@ func _coefficient(s: Dictionary, asked: String, rng: Seeded) -> Dictionary:
 	var c := coef(s, j)
 	var ans := number("", c)
 	var final := "So the coefficient of %s is %s." % [x_text(power_of(s, j)), N(c)]
-	var w: Array = term_slips(s, j, func(v, ref): return wn(v, ref)) + [alt(full(s, j), R_TERM)]
+	var w: Array = term_slips(s, j, func(v, ref): return wn(v, ref)) + [alt(full(s, j), R_TERM), wn(C(s.n, j), R_NCR_ALONE),
+		wn(pw(s.a, j) * pw(s.b, s.n - j), R_NO_NCR)]
 	return {"asked": asked, "answer": ans, "wrongs": rng.shuffled(w),
-		"generic": pad(c, [coef(s, j + 1), coef(s, j - 1), C(s.n, j), pw(s.a, j) * pw(s.b, s.n - j)]),
+		"fillers": pad(c, [coef(s, j + 1), coef(s, j - 1)]),
 		"methods": {"general-term": method(general_steps(s, j) + [final], ans.values),
 			"pascal-select": method(row_steps(s, j) + [final], ans.values),
 			"choose-brackets": method(choose_steps(s, j) + [final], ans.values)}}
@@ -816,7 +828,7 @@ func u_coefficient_letter(_rep: String, s: Dictionary, rng: Seeded) -> Dictionar
 	var final := "So the coefficient of %s is %s." % [x, Answer.text(ans)]
 	return {"asked": "Find the coefficient of %s in the expansion of %s, in terms of %s." % [x, power_text(s), L], "answer": ans,
 		"wrongs": rng.shuffled([alt(term(c, j, L), R_POWERS), alt(term(c, k, L) + x, R_TERM), alt(term(c, 1, L), R_OTHER)]),
-		"generic": [wt(C(n, j + 1), k, "", L).values, wt(C(n, j - 1), k, "", L).values, wt(c + 1, k, "", L).values, wt(c * 2, k, "", L).values],
+		"fillers": [wt(C(n, j + 1), k, "", L).values, wt(C(n, j - 1), k, "", L).values, wt(c + 1, k, "", L).values, wt(c * 2, k, "", L).values],
 		"methods": {
 			"general-term": method(["The general term of %s is %dCr × x^(%d − r) × %s^r." % [power_text(s), n, n, L],
 				"%s needs %d − r = %d, so r = %d." % [x, n, j, k], "%dC%d × %s × %s = %s%s" % [n, k, x, tail, term(c, k, L), x], final], ans.values),
@@ -831,8 +843,9 @@ func _term_answer(s: Dictionary, j: int, asked: String, say: String, why: String
 	var power: int = power_of(s, j)
 	var ans := with_tail(c, power)
 	var final := "%s is %s." % [say, Answer.text(ans)]
-	var w: Array = term_slips(s, j, func(v, ref): return wt(v, power, ref)) + [alt(N(c), R_TERM)]
-	return {"asked": asked, "answer": ans, "wrongs": rng.shuffled(w), "generic": pad_term(c, power, [C(s.n, j), pw(s.a, j) * pw(s.b, s.n - j)]),
+	var w: Array = term_slips(s, j, func(v, ref): return wt(v, power, ref)) + [alt(N(c), R_TERM), wt(C(s.n, j), power, R_NCR_ALONE),
+		wt(pw(s.a, j) * pw(s.b, s.n - j), power, R_NO_NCR)]
+	return {"asked": asked, "answer": ans, "wrongs": rng.shuffled(w), "fillers": pad_term(c, power),
 		"methods": {"general-term": method(general_steps(s, j, why) + [final], ans.values),
 			"pascal-select": method(row_steps(s, j) + [final], ans.values),
 			"choose-brackets": method(choose_steps(s, j) + [final], ans.values)}}
@@ -850,7 +863,7 @@ func u_term_by_position(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var why := "The first term has r = 0, so the %s term has r = %d." % [name, pos - 1]
 	var out := _term_answer(s, s.j, asked, "So the %s term" % name, why, rng)
 	out.wrongs = rng.shuffled(out.wrongs + [alt(full(s, s.j - 1), R_PLACE)])
-	out.generic = [alt(full(s, s.j + 1)).values] + out.generic
+	out.fillers = [alt(full(s, s.j + 1)).values] + out.fillers
 	return out
 
 
@@ -867,8 +880,10 @@ func u_missing_coefficient(_rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var w: Array = [wn(C(n - 1, pick) * pw(s.b, pick), R_ROW_ONE)]
 	if pick == 2 and s.b > 1:
 		w.append(wn(C(n, pick) * s.b, R_OTHER))
+	w.append(wn(other, R_OTHER_LETTER))
+	w.append(wn(C(n, pick), R_NCR_ALONE))
 	return {"lines": [line], "asked": "Find the value of %s." % name, "answer": ans, "wrongs": rng.shuffled(w),
-		"generic": pad(c, [other, C(n, pick), C(n + 1, pick) * pw(s.b, pick), n]),
+		"fillers": pad(c, [C(n + 1, pick) * pw(s.b, pick), n]),
 		"methods": {"general-term": method(general_steps(s, j) + [final], ans.values),
 			"pascal-select": method(row_steps(s, j) + [final], ans.values)}}
 
