@@ -2627,7 +2627,10 @@ script error happens while it runs. Run one file with
 The "Web" preset uses the single-threaded template, because GitHub Pages can't send
 the cross-origin isolation headers that threads need. Godot's PWA option is off: the
 HTML game's service worker covers the whole site, and it skips `next/` and `classic/`
-(`service-worker.js`, tested in `tests/unit/service-worker.test.mjs`).
+(`service-worker.js`, tested in `tests/unit/service-worker.test.mjs`). With the takeover
+switch on, the root worker is `_takeover/service-worker.js` instead, which keeps the
+export (`index.pck` holds the question catalogue) for offline play after one visit
+(the root README, "Switching to Godot", and `tests/takeover/takeover.spec.mjs`).
 
 Export templates: `./export.sh` looks in `$GODOT_TEMPLATES`, then
 `<data dir>/godot/export_templates/4.7.2.stable/` under `$XDG_DATA_HOME` and
