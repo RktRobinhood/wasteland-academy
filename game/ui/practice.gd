@@ -609,7 +609,23 @@ func _show_feedback(result: Dictionary) -> void:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.TEAL)
 			elif i == _choice:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.PINK)
+	_colour_picks(result.correct)
 	_show_working()
+
+
+## Colours the word choices in an answer's row, as the options in a list are (FAL-1053):
+## the right word teal, a wrong pick pink. A right answer keeps the student's own picks
+## teal, as some are right more than one way (a fall of −5% is a rise of 5%).
+func _colour_picks(right: bool) -> void:
+	for id in _pick_buttons:
+		var want := str(question.answer.values.get(id, ""))
+		for b: Button in _pick_buttons[id]:
+			var text := UiTheme.button_text(b)
+			var picked: bool = text == _picks[id]
+			if (picked if right else text == want):
+				b.add_theme_color_override("font_disabled_color", UiTheme.TEAL)
+			elif picked:
+				b.add_theme_color_override("font_disabled_color", UiTheme.PINK)
 
 
 ## The worked solution, with a tab per method (or a probe's reveal).
