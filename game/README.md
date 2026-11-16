@@ -1271,6 +1271,19 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   symmetry. Not built in these three regions: `match` and `order-steps` (the format isn't built
   yet), and error-spot on `fn-ext-intersection-lines`, `fn-concept-transform-order`, `fn-link-vectors`
   and the exam types.
+- **The E14 extension types** (FAL-777): six types, each on its own situation. `mutually_exclusive.gd`
+  and `conditional_diagram.gd` (a two-way table, a Venn diagram or a tree, drawn) for SL4.6;
+  `z_score.gd` (a normal curve with μ and steps of σ marked) for SL4.12; `sign_at_point.gd`,
+  `gradient_from_graph.gd` (a curve with its tangent ruled, a table either side of x = a, or the
+  GDC) and `rate_of_rate.gd` (a quantity, its rate and the rate of its rate, as signs, a sentence,
+  a curve or a cubic model) for SL5.1, SL5.2 and SL5.7. Choosing the tangent at P is a pick of four
+  graphs (Q13). Built extra formats: true-false-reason on every unknown of the z-score,
+  sign-at-point, mutually-exclusive and rate-of-rate types and on all but pick-tangent of
+  gradient-from-graph; error-spot on z and x of the z-score type and on the table and Venn cells of
+  the conditional type; method-pick on every conditional cell. Not built: `match` on
+  `t4-ext-mutually-exclusive`, `t4-ext-z-scores` and `t5-ext-interpret-second-derivative` (the format
+  isn't built yet). A sign-at-point answer is a direction and its reason, so its `value` format
+  plays as a pick of four.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged

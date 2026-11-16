@@ -11877,8 +11877,8 @@
                 }
               ],
               "misconceptions": [
-                "Mutually exclusive means the same as independent",
-                "If P(A) + P(B) < 1 then A and B must be mutually exclusive"
+                "Treating mutually exclusive as if it meant independent",
+                "Concluding that A and B are mutually exclusive because P(A) + P(B) < 1"
               ],
               "threads": []
             },
@@ -11928,8 +11928,8 @@
                 {
                   "id": "formula",
                   "approach": "formula",
-                  "name": "P(A ∩ B) ÷ P(B)",
-                  "summary": "Divide the probability of both by the probability of the given event."
+                  "name": "P(both) ÷ P(given event)",
+                  "summary": "Divide the probability that both happen by the probability of the given event: P(A ∩ B) ÷ P(B) for P(A | B)."
                 }
               ],
               "misconceptions": [
@@ -14154,8 +14154,8 @@
                 }
               ],
               "misconceptions": [
-                "Using the sign of f(a) instead of f′(a)",
-                "Justifying with 'the graph goes up' without referring to the derivative"
+                "Using the sign of the value at the point instead of the sign of the derivative",
+                "Justifying with 'the graph goes up' or 'goes down' without referring to the derivative"
               ],
               "threads": []
             },
@@ -15905,7 +15905,7 @@
                 }
               ],
               "misconceptions": [
-                "Reading f″ < 0 as 'the quantity is decreasing'",
+                "Reading the sign of f″ as whether the quantity rises or falls",
                 "Treating 'increasing at a decreasing rate' as 'decreasing'"
               ],
               "threads": [
