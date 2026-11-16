@@ -13810,6 +13810,7 @@ BF_P1_D = 12
 BF_R_SQUARE, BF_R_SHIFT, BF_R_TIMES = "SL2.2.evaluate-notation#1", "SL2.2.evaluate-notation#2", "SL2.2.evaluate-notation#0"
 BF_R_NOTHING, BF_R_NEG, BF_R_OUT = "SL2.2.function-model#0", "SL2.2.function-model#1", "SL2.2.function-model#2"
 BF_R_ZY, BF_R_ZS = "SL2.4.zeros-intercepts#0", "SL2.4.zeros-intercepts#1"
+BF_E = "fn-evaluate-function#"  # its own slips (FAL-820)
 
 
 def bf_expr(text, v="x"):
@@ -13932,7 +13933,10 @@ def check_basic(q):
         if rep == "words":
             starts = {"ball": f"The ball leaves the hand {n(y)} m above the ground", "cost": f"The set-up fee is ${n(y)}, before any T-shirts",
                       "pop": f"The colony starts with {n(y)} bacteria", "cool": f"The drink starts at {n(y)} °C"}
-            gc_check_common(q, starts[g["ctx"]], {BF_R_NOTHING: {"There is nothing yet at the start"}})
+            says = {"ball": f"{n(y)} seconds after it is thrown, the ball is 0 m high", "cost": f"An order of {n(y)} T-shirts costs $0",
+                    "pop": f"After {n(y)} hours there are 0 bacteria", "cool": f"After {n(y)} minutes the drink is at 0 °C"}
+            gc_check_common(q, starts[g["ctx"]], {BF_R_NOTHING: {"There is nothing yet at the start"},
+                                                  BF_E + "16": {says[g["ctx"]]}})  # input and output swapped
         else:
             gc_check_common(q, f"{name}(0) = {n(y)}", {BF_R_NOTHING: {f"{name}(0) = 0"}}, bf_trap_num(paper, f"{name}(0) = ", y) if not money else None)
     elif u == "value-at-input":
@@ -13943,6 +13947,9 @@ def check_basic(q):
         wr = {}
         if x0 < 0 and f.is_polynomial(X) and sp.Poly(f, X).coeff_monomial(X**2) < 0:
             wr[BF_R_SQUARE] = {label + n(y - 2 * sp.Poly(f, X).coeff_monomial(X**2) * x0**2)}
+        if x0 < 0 and f.subs(X, -x0).is_real:
+            wr[BF_E + "10"] = {label + t for t in bf_forms(bf_at(f, -x0)) | {n(bf_at(f, -x0))}}  # the input's minus dropped
+        wr[BF_E + "11"] = {label + t for t in bf_forms(bf_at(f, 0)) | {n(bf_at(f, 0))}}  # the constant term, f(0)
         if money:
             gc_check_common(q, label + n(y), wr)
         else:
@@ -13950,7 +13957,9 @@ def check_basic(q):
     elif u == "y-intercept":
         y = bf_at(f, 0)
         zs = bf_real_roots(f)
-        gc_check_common(q, f"(0, {n(y)})", {BF_R_ZY: {f"(0, {dec_text(sp.Rational(sig3(z)))})" if paper == 2 else f"(0, {n(z)})" for z in zs}})
+        b = sp.Poly(f, X).coeff_monomial(X)
+        gc_check_common(q, f"(0, {n(y)})", {BF_R_ZY: {f"(0, {dec_text(sp.Rational(sig3(z)))})" if paper == 2 else f"(0, {n(z)})" for z in zs},
+                                            BF_E + "12": {f"(0, {t})" for t in bf_forms(b)}})  # the coefficient of x
     elif u == "above-or-below":
         x0, py = R(g["px"]), R(g["py"])
         y = bf_at(f, x0)
@@ -13962,12 +13971,15 @@ def check_basic(q):
         need(got.endswith(f"which is {'less' if py > y else 'more'} than {dec_text(py)}"), f"{got!r} compares wrongly")
         val = sp.Rational(re.search(r" = (−?[\d./]+),", got).group(1).replace("−", "-"))
         need(abs(val - y) <= abs(y) * sp.Rational(1, 10**4) + sp.Rational(1, 10**4), f"{got!r} misstates f")
-        gc_check_common(q, got, {})
+        flip = ("Below" if side == "Above" else "Above") + got[len(side):]
+        gc_check_common(q, got, {BF_E + "13": {flip}})  # above and below swapped
     elif u in ("read-from-table", "read-from-graph"):
         x0 = R(g["x0"])
         need(x0.q == 1 and f.subs(X, x0).q == 1, "not a reading on whole numbers")
         need(f"f({frac_text(x0)})" in asked, "the question asks another input")
-        gc_check_common(q, f"f({frac_text(x0)}) = {frac_text(f.subs(X, x0))}", {})
+        lab = f"f({frac_text(x0)}) = "
+        gc_check_common(q, lab + frac_text(f.subs(X, x0)), {BF_E + "14": {lab + frac_text(f.subs(X, x0 + d)) for d in (-1, 1)},  # the next input along
+                                                             BF_E + "15": {lab + frac_text(x0)}})  # the input given back
     elif u == "interpret-value":
         m = re.search(r"mean", asked)
         h = re.search(rf"{name}\((−?[\d.]+)\) = (.+?) mean here", asked)
@@ -13980,13 +13992,19 @@ def check_basic(q):
                 "pop": f"After {xt} hours there are {n(y)} bacteria", "cool": f"After {xt} minutes the drink is at {n(y)} °C"}
         starts = {"ball": f"The ball leaves the hand {n(y)} m above the ground", "cost": f"The set-up fee is ${n(y)}, before any T-shirts",
                   "pop": f"The colony starts with {n(y)} bacteria", "cool": f"The drink starts at {n(y)} °C"}
-        gc_check_common(q, (starts if x0 == 0 else says)[g["ctx"]], {BF_R_NOTHING: {"There is nothing yet at the start"}})
+        swap = {"ball": f"{n(y)} seconds after it is thrown, the ball is {xt} m high", "cost": f"An order of {n(y)} T-shirts costs ${xt}",
+                "pop": f"After {n(y)} hours there are {xt} bacteria", "cool": f"After {n(y)} minutes the drink is at {xt} °C"}
+        gc_check_common(q, (starts if x0 == 0 else says)[g["ctx"]], {BF_R_NOTHING: {"There is nothing yet at the start"},
+                                                                     BF_E + "16": {swap[g["ctx"]]}})  # input and output swapped
     elif u == "input-from-output":
         k = R(g["k"])
         need(k != 0, "no target")
         zs = bf_real_roots(f, k)
         need(len(zs) == 2, "f(x) = k needs two solutions")
-        gc_check_common(q, bf_xs(zs, paper), {BF_R_OUT: {f"x = {t}" for t in bf_forms(k)}}, gc_xs2(zs) if paper == 2 and any(gc_rounds(z) for z in zs) else None)
+        wr = {BF_R_OUT: {f"x = {t}" for t in bf_forms(k)}, BF_E + "17": {bf_xs([z], paper) for z in zs}}  # one solution left out
+        if rep == "equation":
+            wr[BF_R_ZS] = {bf_xs([-z for z in zs], paper)}  # the factors' signs flipped
+        gc_check_common(q, bf_xs(zs, paper), wr, gc_xs2(zs) if paper == 2 and any(gc_rounds(z) for z in zs) else None)
     elif u == "expression-input":
         head = re.search(r"Write (f\(.+?\)) in the form", asked).group(1)
         inner = bf_expr(head[2:-1])
@@ -13994,6 +14012,10 @@ def check_basic(q):
         want = f"{head} = {qr_poly([e.coeff_monomial(X**2), e.coeff_monomial(X), e.coeff_monomial(1)])}"
         shift = inner - X
         wr = {BF_R_SHIFT: {f"{head} = {qr_poly(sp.Poly(f + shift, X).all_coeffs())}"}} if shift.is_number else {}
+        if inner == 2 * X:
+            wr[BF_E + "18"] = {f"{head} = {qr_poly(sp.Poly(2 * f, X).all_coeffs())}"}  # the whole rule doubled
+        if inner == -X:
+            wr[BF_E + "19"] = {f"{head} = {qr_poly(sp.Poly(-f, X).all_coeffs())}"}  # the whole rule negated
         gc_check_common(q, want, wr)
     elif u == "zeros":
         zs = bf_real_roots(f)
@@ -14001,7 +14023,8 @@ def check_basic(q):
         if q["view"]["angle"] == "factorised-read" and paper == 1 and rep == "equation":
             shown = bf_factors(L[0])
             need(sp.expand(shown - f) == 0, f"{L[0]!r} is not the rule")
-        wr = {BF_R_ZS: {bf_xs([-z for z in zs], paper)}, BF_R_ZY: {f"x = {t}" for t in bf_forms(f.subs(X, 0))}}
+        wr = {BF_R_ZS: {bf_xs([-z for z in zs], paper)}, BF_R_ZY: {f"x = {t}" for t in bf_forms(f.subs(X, 0))},
+              BF_E + "17": {bf_xs([z for z in zs if z != w], paper) for w in zs}}  # one zero left out
         gc_check_common(q, bf_xs(zs, paper), wr, gc_xs2(zs) if paper == 2 and any(gc_rounds(z) for z in zs) else None)
     elif u == "time-for-target":
         goal = R(g["target"])
@@ -14036,7 +14059,12 @@ def check_basic(q):
         else:
             want = "t ≥ 0"
             bad = f"P ≥ {n(f.subs(X, 0))}" if ctx == "pop" else f"T ≤ {n(f.subs(X, 0))}"
-        gc_check_common(q, want, {"SL2.2.domain#2": {bad}})
+        wr = {"SL2.2.domain#2": {bad}, BF_E + "20": {"all real numbers"}}  # the bare formula's domain
+        if ctx == "ball":
+            wr[BF_E + "22"] = {"t ≥ 0"}  # no end at the landing
+        if ctx == "cost":
+            wr[BF_E + "21"] = {"n ≥ 0, with any decimal allowed"}  # decimals of a count
+        gc_check_common(q, want, wr)
     else:
         raise Fail(f"no check for {u}")
     return None, None
@@ -14155,6 +14183,7 @@ def check_restricted(q):
         _, _, shown = bf_rule(q)
         need(all(abs(sp.N((shown - f).subs(X, x_), 20)) < 1e-9 for x_ in (sp.Rational(29, 10), sp.Rational(71, 10))), f"the rule shown {shown} is not the situation's {f}")
     W = "SL2.2.range#"
+    D = "fn-domain-range#"  # its own slips (FAL-820)
     trap = None
     if rep == "graph" and u not in ("range-rational",):
         bf_graph(q, f)
@@ -14166,7 +14195,11 @@ def check_restricted(q):
         if rep == "words":
             need(Fmt_point(h, k) in L[0] and ("upwards" in L[0]) == (a > 0), "the words describe another parabola")
         rel = "≥" if a > 0 else "≤"
-        want, wr = f"y {rel} {br_say(k)}", {W + "2": {f"x {rel} {br_say(k)}"}}
+        other = "≤" if a > 0 else "≥"
+        want, wr = f"y {rel} {br_say(k)}", {W + "2": {f"x {rel} {br_say(k)}"},
+                                            D + "9": {f"y {other} {br_say(k)}"},  # opens the other way
+                                            D + "10": {f"y {rel} {br_say(h)}"},  # the vertex's x as the bound
+                                            D + "11": {f"y {rel} {br_say(f.subs(X, 0))}"}}  # the y-intercept as the bound
         if br_trap(k):
             trap = f"y {rel} {gc_s2(k)}"
     elif u == "range-rational":
@@ -14174,14 +14207,19 @@ def check_restricted(q):
         if rep == "graph":
             for c in q["graph"]["curves"]:
                 need(gc_curve_is(c, gc_f(f), 1e-5) or len(c) <= 10, "the graph drawn is not f")
-        want, wr = f"y ≠ {br_say(A)}", {W + "1": {"all real numbers"}}
+        hv = sp.solve(sp.denom(sp.together(f)), X)[0]
+        want, wr = f"y ≠ {br_say(A)}", {W + "1": {"all real numbers"}, W + "2": {f"x ≠ {br_say(A)}"},  # in x
+                                        D + "12": {f"y ≠ {br_say(hv)}"}, D + "13": {"y ≠ 0"}}  # the vertical asymptote; the x-axis
         if br_trap(A):
             trap = f"y ≠ {gc_s2(A)}"
     elif u == "range-exponential":
         c = sp.limit(f, X, -sp.oo)
         up = f.subs(X, 0) > c
         want = f"y {'>' if up else '<'} {br_say(c)}"
-        wr = {W + "1": {f"y {'≥' if up else '≤'} {br_say(c)}"}}
+        rel = ">" if up else "<"
+        y0 = f.subs(X, 0)
+        wr = {W + "1": {f"y {'≥' if up else '≤'} {br_say(c)}"}, W + "2": {f"x {rel} {br_say(c)}"},  # in x
+              D + "14": {f"y {rel} 0"}, D + "11": {f"y {rel} {t}" for t in (br_say(y0), frac_text(y0))}}  # no shift; the y-intercept
     elif u in ("range-restricted", "range-reflected"):
         lo, hi = br_domain(q, g)
         ymin, ymax, turns = br_extremes(f, lo, hi)
@@ -14189,11 +14227,15 @@ def check_restricted(q):
         if u == "range-restricted":
             a_, b_ = sorted([f.subs(X, lo), f.subs(X, hi)])
             need(a_ != b_, "both ends have one height")
-            want, wr = br_iv("y", ymin, ymax), {W + "0": {br_iv("y", a_, b_)}}
+            a2 = sp.Poly(f, X).coeff_monomial(X**2)
+            want, wr = br_iv("y", ymin, ymax), {W + "0": {br_iv("y", a_, b_)}, W + "2": {br_iv("x", ymin, ymax)},  # in x
+                                                D + "15": {f"y {'≥' if a2 > 0 else '≤'} {br_say(f.subs(X, turns[0]))}"},  # the whole parabola
+                                                D + "16": {br_iv("y", lo, hi)}}  # the domain's ends
             if br_trap(ymin, ymax):
                 trap = f"{gc_s2(ymin)} ≤ y ≤ {gc_s2(ymax)}"
         else:
-            want, wr = br_iv("y", -ymax, -ymin), {}
+            want, wr = br_iv("y", -ymax, -ymin), {D + "17": {br_iv("y", ymin, ymax)},  # signs not changed
+                                                  D + "18": {f"{br_say(-ymin)} ≤ y ≤ {br_say(-ymax)}"}}  # ends not swapped
             if br_trap(ymin, ymax):
                 trap = f"{gc_s2(-ymax)} ≤ y ≤ {gc_s2(-ymin)}"
     elif u == "composite-condition":
@@ -14207,7 +14249,8 @@ def check_restricted(q):
         else:
             m = sp.limit(f, X, -sp.oo)
         rel = "≤" if root or not reached else "<"
-        want, wr = f"c {rel} {br_say(m)}", {}
+        want, wr = f"c {rel} {br_say(m)}", {D + "19": {f"c {'<' if rel == '≤' else '≤'} {br_say(m)}"},  # the end case
+                                            D + "20": {f"c ≥ {br_say(m)}"}}  # the inequality reversed
         if br_trap(m):
             trap = f"c {rel} {gc_s2(m)}"
     elif u == "domain-root":
@@ -14215,14 +14258,20 @@ def check_restricted(q):
         c = sp.solve(inner, X)[0]
         left = sp.diff(inner, X) < 0
         rel, strict = ("≤", "<") if left else ("≥", ">")
-        want, wr = f"x {rel} {br_say(c)}", {"SL2.2.domain#0": {f"x {strict} {br_say(c)}"}, "SL2.2.domain#1": {f"x {rel} 0"}}
+        want, wr = f"x {rel} {br_say(c)}", {"SL2.2.domain#0": {f"x {strict} {br_say(c)}"}, "SL2.2.domain#1": {f"x {rel} 0"},
+                                            D + "21": {f"x {rel} {br_say(-c)}"}}  # the end's sign flipped
+        if left:
+            wr[D + "22"] = {f"x ≥ {br_say(c)}"}  # not reversed after dividing by a negative
     elif u == "domain-log-or-fraction":
         logs = list(f.atoms(sp.log))
         if logs:
-            want = f"x > {br_say(sp.solve(logs[0].args[0], X)[0])}"
+            c = sp.solve(logs[0].args[0], X)[0]
+            want = f"x > {br_say(c)}"
+            wr = {D + "23": {f"x ≥ {br_say(c)}"}, D + "24": {"x > 0"}, D + "21": {f"x > {br_say(-c)}"}}  # log of zero; ln x's domain; sign flipped
         else:
-            want = f"x ≠ {br_say(sp.solve(sp.denom(sp.together(f)), X)[0])}"
-        wr = {}
+            c = sp.solve(sp.denom(sp.together(f)), X)[0]
+            want = f"x ≠ {br_say(c)}"
+            wr = {D + "24": {"x ≠ 0"}, D + "21": {f"x ≠ {br_say(-c)}"}}  # one over x's domain; sign flipped
     elif u in ("domain-from-graph", "range-from-graph"):
         lo, hi = R(g["lo"]), R(g["hi"])
         pts = q["graph"]["points"]
@@ -14234,9 +14283,16 @@ def check_restricted(q):
         if u == "domain-from-graph":
             want = br_iv("x", lo, hi, open_at[lo], open_at[hi])
             ymin, ymax, _ = br_extremes(f, lo, hi)
-            wr = {"SL2.2.domain#2": {br_bars(f, lo, hi, open_at)}}
+            ys = br_bars(f, lo, hi, open_at)
+            wr = {"SL2.2.domain#2": {ys, ys.replace(" y ", " x ")},  # the y-values, in y or in x
+                  D + "25": {br_iv("x", lo, hi, not open_at[lo], open_at[hi]), br_iv("x", lo, hi, open_at[lo], not open_at[hi])}}  # a dot misread
         else:
-            want, wr = br_bars(f, lo, hi, open_at), {}
+            want = br_bars(f, lo, hi, open_at)
+            sw = {"≤": "<", "<": "≤"}
+            parts = want.split(" ")
+            need(len(parts) == 5 and parts[2] == "y", f"can't read the range {want!r}")
+            wr = {D + "25": {" ".join(parts[:1] + [sw[parts[1]]] + parts[2:]), " ".join(parts[:3] + [sw[parts[3]]] + parts[4:])},  # an end misread
+                  D + "26": {br_iv("y", lo, hi, open_at[lo], open_at[hi])}, W + "2": {want.replace(" y ", " x ")}}  # the x-values; in x
     elif u == "domain-from-range":
         m = re.search(r"range(?: of f on its domain)? is (−?\d+) ≤ y ≤ (−?\d+)", " ".join(L))
         need(m is not None, "can't read the range")
@@ -14244,7 +14300,8 @@ def check_restricted(q):
         xs = sorted([sp.solve(f - p, X)[0], sp.solve(f - r, X)[0]])
         if rep == "words":
             need(f"gradient {frac_text(sp.diff(f, X))} and y-intercept {frac_text(f.subs(X, 0))}" in L[0], "the words describe another line")
-        want, wr = br_iv("x", xs[0], xs[1]), {}
+        c = f.subs(X, 0)
+        want, wr = br_iv("x", xs[0], xs[1]), {D + "27": {br_iv("x", p, r)}, D + "28": {br_iv("x", p - c, r - c)}}  # the range copied; not divided by m
     elif u == "inverse-domain":
         d1 = R(g["d1"])
         bounded = g["d2"] is not None
@@ -14257,7 +14314,8 @@ def check_restricted(q):
             r1 = f.subs(X, d1)
             dom, ran, dom_i, ran_i = f"x ≥ {br_say(d1)}", f"y ≥ {br_say(r1)}", f"x ≥ {br_say(r1)}", f"y ≥ {br_say(d1)}"
         need(("for " + dom) in " ".join(L), "the domain shown is not the situation's")
-        want, wr = f"domain {dom_i}, range {ran_i}", {"SL2.5.inverse-domain-range#0": {f"domain {dom}, range {ran}"}}
+        want, wr = f"domain {dom_i}, range {ran_i}", {"SL2.5.inverse-domain-range#0": {f"domain {dom}, range {ran}", f"domain {dom}, range {ran_i}"},
+                                                      D + "29": {f"domain {dom_i}, range {ran}"}}  # f's domain kept; f's range kept
     elif u == "restrict-for-inverse":
         p = sp.Poly(f, X)
         h = -p.coeff_monomial(X) / (2 * p.coeff_monomial(X**2))
@@ -14265,7 +14323,9 @@ def check_restricted(q):
         px, py = (R(t.replace("−", "-")) for t in m.groups())
         need(f.subs(X, px) == py and px != h and h != 0, "the point is not a clean point on the curve")
         rel = "≥" if px > h else "≤"
-        want, wr = f"x {rel} {br_say(h)}", {"SL2.5.inverse-domain-range#1": {f"x {rel} 0"}}
+        want, wr = f"x {rel} {br_say(h)}", {"SL2.5.inverse-domain-range#1": {f"x {rel} 0"},
+                                            D + "30": {f"x {'≤' if rel == '≥' else '≥'} {br_say(h)}"}, D + "31": {f"x {rel} {br_say(px)}"},  # the other side; at the point
+                                            D + "32": {f"x {rel} {br_say(f.subs(X, h))}"}}  # at the vertex's y
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wr, trap)

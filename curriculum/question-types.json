@@ -9340,7 +9340,8 @@
      "text": "Gives the zeros with the wrong signs",
      "as": "distractor",
      "in": [
-      "zeros"
+      "zeros",
+      "input-from-output"
      ],
      "wrong": "from (x + 2)(x − 5), gives −5 and 2"
     },
@@ -9361,6 +9362,114 @@
       "model-domain"
      ],
      "wrong": "the possible output values (heights) given instead of the times"
+    },
+    {
+     "text": "Dropping the minus sign of a negative input before putting it in",
+     "as": "distractor",
+     "in": [
+      "value-at-input"
+     ],
+     "wrong": "f(a) given for f(−a)"
+    },
+    {
+     "text": "Giving the constant term, the value at the start, instead of the value at the input",
+     "as": "distractor",
+     "in": [
+      "value-at-input"
+     ],
+     "wrong": "f(0) given for f(a)"
+    },
+    {
+     "text": "Taking the coefficient of x as the y-intercept",
+     "as": "distractor",
+     "in": [
+      "y-intercept"
+     ],
+     "wrong": "(0, b) given for the y-intercept of ax² + bx + c"
+    },
+    {
+     "text": "Reading the comparison the wrong way round, so above and below swap",
+     "as": "distractor",
+     "in": [
+      "above-or-below"
+     ],
+     "wrong": "a point under the curve called above it, or one over it called below"
+    },
+    {
+     "text": "Reading the value from the column or grid line next to the input asked",
+     "as": "distractor",
+     "in": [
+      "read-from-table",
+      "read-from-graph"
+     ],
+     "wrong": "f(a + 1) or f(a − 1) given for f(a)"
+    },
+    {
+     "text": "Giving the input itself as the value, reading x instead of f(x)",
+     "as": "distractor",
+     "in": [
+      "read-from-table",
+      "read-from-graph"
+     ],
+     "wrong": "a given for f(a)"
+    },
+    {
+     "text": "Swapping the input and the output when saying what the value means",
+     "as": "distractor",
+     "in": [
+      "interpret-value",
+      "value-at-zero"
+     ],
+     "wrong": "f(a) = b read as the output a at the input b"
+    },
+    {
+     "text": "Leaving one of the solutions out of the list",
+     "as": "distractor",
+     "in": [
+      "input-from-output",
+      "zeros"
+     ],
+     "wrong": "only some of the solutions given"
+    },
+    {
+     "text": "Writes f(2x) as 2f(x), doubling the whole rule instead of each x",
+     "as": "distractor",
+     "in": [
+      "expression-input"
+     ],
+     "wrong": "2f(x) given for f(2x)"
+    },
+    {
+     "text": "Writes f(−x) as −f(x), changing the sign of the whole rule instead of each x",
+     "as": "distractor",
+     "in": [
+      "expression-input"
+     ],
+     "wrong": "−f(x) given for f(−x)"
+    },
+    {
+     "text": "Giving every real number, the domain of the bare formula, ignoring what the context allows",
+     "as": "distractor",
+     "in": [
+      "model-domain"
+     ],
+     "wrong": "all real numbers"
+    },
+    {
+     "text": "Allowing decimal inputs when the context counts whole items",
+     "as": "distractor",
+     "in": [
+      "model-domain"
+     ],
+     "wrong": "n ≥ 0 with decimals, for a number of T-shirts"
+    },
+    {
+     "text": "Forgetting that the time ends when the ball lands",
+     "as": "distractor",
+     "in": [
+      "model-domain"
+     ],
+     "wrong": "t ≥ 0 for a ball's flight"
     }
    ],
    "parts": [
@@ -9839,7 +9948,11 @@
      "text": "Writes the range in terms of x instead of y or f(x)",
      "as": "distractor",
      "in": [
-      "range-quadratic"
+      "range-quadratic",
+      "range-rational",
+      "range-exponential",
+      "range-restricted",
+      "range-from-graph"
      ],
      "wrong": "x ≥ k, the range written in x"
     },
@@ -9896,6 +10009,201 @@
       "restrict-for-inverse"
      ],
      "wrong": "says f⁻¹ exists on the whole of ℝ, so no restriction is needed"
+    },
+    {
+     "text": "Getting the parabola's direction wrong, so the range runs the wrong way from the vertex",
+     "as": "distractor",
+     "in": [
+      "range-quadratic"
+     ],
+     "wrong": "y ≤ k for a parabola opening upwards"
+    },
+    {
+     "text": "Taking the x-coordinate of the turning point as the bound of the range",
+     "as": "distractor",
+     "in": [
+      "range-quadratic"
+     ],
+     "wrong": "y ≥ h for vertex (h, k)"
+    },
+    {
+     "text": "Taking the y-intercept as the bound of the range",
+     "as": "distractor",
+     "in": [
+      "range-quadratic",
+      "range-exponential"
+     ],
+     "wrong": "y ≥ f(0)"
+    },
+    {
+     "text": "Using the vertical asymptote's value as the value the outputs miss",
+     "as": "distractor",
+     "in": [
+      "range-rational"
+     ],
+     "wrong": "y ≠ the x of the vertical asymptote"
+    },
+    {
+     "text": "Taking the x-axis as the horizontal asymptote, as for one over x",
+     "as": "distractor",
+     "in": [
+      "range-rational"
+     ],
+     "wrong": "y ≠ zero"
+    },
+    {
+     "text": "Forgetting the vertical shift, giving the range of the bare exponential",
+     "as": "distractor",
+     "in": [
+      "range-exponential"
+     ],
+     "wrong": "y > zero for a shifted exponential"
+    },
+    {
+     "text": "Ignoring the restricted domain, giving the range of the whole parabola",
+     "as": "distractor",
+     "in": [
+      "range-restricted"
+     ],
+     "wrong": "y ≥ k with no upper end"
+    },
+    {
+     "text": "Copying the ends of the domain as the range",
+     "as": "distractor",
+     "in": [
+      "range-restricted"
+     ],
+     "wrong": "a ≤ y ≤ b for the domain a ≤ x ≤ b"
+    },
+    {
+     "text": "Forgetting to change the signs, giving the range of f itself",
+     "as": "distractor",
+     "in": [
+      "range-reflected"
+     ],
+     "wrong": "the range of f given for −f"
+    },
+    {
+     "text": "Changing the signs of the ends without swapping them round",
+     "as": "distractor",
+     "in": [
+      "range-reflected"
+     ],
+     "wrong": "−p ≤ y ≤ −q from p ≤ y ≤ q"
+    },
+    {
+     "text": "Mishandling the case where c equals the least output of f",
+     "as": "distractor",
+     "in": [
+      "composite-condition"
+     ],
+     "wrong": "≤ and < swapped at the end value"
+    },
+    {
+     "text": "Reversing the inequality, putting c above the outputs of f instead of below",
+     "as": "distractor",
+     "in": [
+      "composite-condition"
+     ],
+     "wrong": "c ≥ m"
+    },
+    {
+     "text": "Solving for the end value with its sign flipped",
+     "as": "distractor",
+     "in": [
+      "domain-root",
+      "domain-log-or-fraction"
+     ],
+     "wrong": "x ≥ a for √(x + a)"
+    },
+    {
+     "text": "Forgetting to reverse the inequality after dividing by a negative",
+     "as": "distractor",
+     "in": [
+      "domain-root"
+     ],
+     "wrong": "x ≥ c for a root of a decreasing inside"
+    },
+    {
+     "text": "Including the end value, where the log would be of zero",
+     "as": "distractor",
+     "in": [
+      "domain-log-or-fraction"
+     ],
+     "wrong": "x ≥ c for ln(x − c)"
+    },
+    {
+     "text": "Copying the domain of the bare function, ln x or one over x, without the shift",
+     "as": "distractor",
+     "in": [
+      "domain-log-or-fraction"
+     ],
+     "wrong": "x > zero, or x ≠ zero"
+    },
+    {
+     "text": "Reading an open dot as filled, or a filled dot as open",
+     "as": "distractor",
+     "in": [
+      "domain-from-graph",
+      "range-from-graph"
+     ],
+     "wrong": "an end included or left out the wrong way"
+    },
+    {
+     "text": "Describes the x-values the graph covers when the range is asked for",
+     "as": "distractor",
+     "in": [
+      "range-from-graph"
+     ],
+     "wrong": "the domain given as the range"
+    },
+    {
+     "text": "Copying the range as the domain",
+     "as": "distractor",
+     "in": [
+      "domain-from-range"
+     ],
+     "wrong": "p ≤ x ≤ q from the range p ≤ y ≤ q"
+    },
+    {
+     "text": "Forgetting to divide by the gradient when solving for the ends",
+     "as": "distractor",
+     "in": [
+      "domain-from-range"
+     ],
+     "wrong": "p − c ≤ x ≤ q − c"
+    },
+    {
+     "text": "Keeping the range of f as the range of f⁻¹, without swapping it",
+     "as": "distractor",
+     "in": [
+      "inverse-domain"
+     ],
+     "wrong": "the range of f given for f⁻¹"
+    },
+    {
+     "text": "Taking the side of the vertex that does not hold the point",
+     "as": "distractor",
+     "in": [
+      "restrict-for-inverse"
+     ],
+     "wrong": "x ≤ h when the point is to the right"
+    },
+    {
+     "text": "Cutting the domain at the given point instead of at the vertex",
+     "as": "distractor",
+     "in": [
+      "restrict-for-inverse"
+     ],
+     "wrong": "x ≥ the point's x"
+    },
+    {
+     "text": "Cutting the domain at the vertex's y-coordinate instead of its x-coordinate",
+     "as": "distractor",
+     "in": [
+      "restrict-for-inverse"
+     ],
+     "wrong": "x ≥ k for vertex (h, k)"
     }
    ],
    "parts": [
