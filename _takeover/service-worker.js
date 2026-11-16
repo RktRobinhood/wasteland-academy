@@ -14,11 +14,11 @@
 //
 // 2. A browser that played the HTML game at the root still has that game's worker
 //    there. On the next visit the browser fetches this file as that worker's update.
-//    On activation it drops the old game's cached files, keeps those under classic/
-//    (the HTML game's own worker there), and reloads the pages it now controls, so
-//    they come up as Godot.
+//    On activation it drops the HTML game's caches, at the root and those of the
+//    classic/ copy that is no longer published (#197), and reloads the pages it now
+//    controls, so they come up as Godot. register-worker.html unregisters the
+//    classic/ worker.
 const CACHE_NAME = 'wasteland-academy-godot';
-const CLASSIC = new URL('classic/', self.location).href;
 
 // The Web export's files (game/export_presets.cfg, ./export.sh). The takeover dry run
 // checks this covers everything the export writes (tests/takeover/takeover.spec.mjs).
@@ -55,19 +55,12 @@ self.addEventListener('activate', event => {
     // The HTML game names its caches wasteland-academy-v<n>, at the root and at classic/
     let retired = false;
     for (const key of await caches.keys()) {
-      if (!/^wasteland-academy-v\d+$/.test(key)) continue;
-      const cache = await caches.open(key);
-      for (const request of await cache.keys()) {
-        if (!request.url.startsWith(CLASSIC)) { await cache.delete(request); retired = true; }
-      }
-      if ((await cache.keys()).length === 0) await caches.delete(key);
+      if (/^wasteland-academy-v\d+$/.test(key)) { await caches.delete(key); retired = true; }
     }
     await self.clients.claim();
     // A page the old worker served may be the old game, from its cache
     if (retired) {
-      for (const client of await self.clients.matchAll({ type: 'window' })) {
-        if (!client.url.startsWith(CLASSIC)) client.navigate(client.url);
-      }
+      for (const client of await self.clients.matchAll({ type: 'window' })) client.navigate(client.url);
     }
   })());
 });
@@ -79,7 +72,7 @@ self.addEventListener('fetch', event => {
   url.search = url.hash = '';
   // The root page, whatever its ?… (deep links) and #… (map links), is index.html
   const key = url.href === ROOT ? ROOT + 'index.html' : url.href;
-  // Anything else, classic/ and next/ included, goes straight to the network
+  // Anything else, next/ included, goes straight to the network
   if (BUILD.includes(key)) event.respondWith(networkFirst(event, key));
 });
 

@@ -3,9 +3,10 @@
 // this serves them the way GitHub Pages does, at /wasteland-academy/, and checks each.
 //
 // Switch off: the site as it was, the HTML game at the root and Godot at next/.
-// Switch on: Godot at the root, the HTML game at classic/, next/ links sent to the
-// root, a browser that ran the old game's service worker ends up on Godot, and Godot
-// plays offline after one visit and picks up a new deploy.
+// Switch on: Godot at the root with no Classic link, the HTML game not published,
+// next/ links sent to the root, a browser that ran the old game's service worker
+// (at the root or at classic/) ends up on Godot, and Godot plays offline after one
+// visit and picks up a new deploy. In neither is a repository document published (#197).
 import { test, expect } from '@playwright/test';
 import http from 'node:http';
 import fs from 'node:fs';
@@ -31,9 +32,10 @@ const MIME = {
 // Serves $TAKEOVER_SITES/<position> like Pages: a folder without its slash redirects,
 // a folder serves its index.html, and everything has max-age=600. `position` can
 // change mid-test, as a deploy that flips the switch would, and `edit` stands in for
-// a new export: edit(rel, text) is what that file becomes.
+// a new export: edit(rel, text) is what that file becomes. `extra` is files served
+// besides the site, path to text, as an older deploy had them.
 async function startSite(position) {
-  const state = { position, edit: null };
+  const state = { position, edit: null, extra: {} };
   const sockets = new Set();
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://x');
@@ -43,6 +45,10 @@ async function startSite(position) {
     const root = path.join(SITES, state.position);
     let fp = path.join(root, rel);
     if (fp !== root && !fp.startsWith(root + path.sep)) return res.writeHead(404).end('not found');
+    const extra = rel.endsWith('/') ? rel + 'index.html' : rel;
+    if (extra in state.extra) {
+      return res.writeHead(200, { 'content-type': MIME[path.extname(extra)] }).end(state.extra[extra]);
+    }
     if (fs.existsSync(fp) && fs.statSync(fp).isDirectory()) {
       if (rel && !rel.endsWith('/')) return res.writeHead(301, { location: url.pathname + '/' + url.search }).end();
       fp = path.join(fp, 'index.html');
@@ -116,6 +122,12 @@ function shot(page, name) {
   return page.screenshot({ path: path.join(SHOTS, `${name}.png`) });
 }
 
+// From #197: all of these were published under classic/ with the switch on
+const UNPUBLISHED = ['classic/', 'classic/index.html', 'classic/ROADMAP.md', 'classic/game/project.godot',
+  'classic/services/telemetry/wrangler.toml', 'classic/writing/voice-sheets.md', 'ROADMAP.md', 'ROADMAP.html',
+  'README.md', 'game/project.godot', 'services/telemetry/wrangler.toml', 'writing/voice-sheets.md',
+  'assets/audio/CREDITS.md', 'tools/takeover-dry-run', 'package.json'];
+
 let site;
 test.afterEach(async () => { await site?.close(); });
 
@@ -153,58 +165,43 @@ test.describe('switch off: the site as it was', () => {
     expect((await (await request.get(site.url + 'manifest.json')).json()).id).toBe('wasteland-academy');
   });
 
-  test('/classic/ isn\'t published', async ({ request }) => {
-    expect((await request.get(site.url + 'classic/')).status()).toBe(404);
+  test('/classic/ and the repository\'s documents and source aren\'t published', async ({ request }) => {
+    for (const rel of UNPUBLISHED) expect((await request.get(site.url + rel)).status(), rel).toBe(404);
   });
 });
 
-test.describe('switch on: Godot at the root, the HTML game at classic/', () => {
+test.describe('switch on: Godot at the root, the HTML game not published', () => {
   test.beforeEach(async ({ context }) => {
     site = await startSite('on');
     await blockRemote(context, site.origin);
   });
 
   for (const [size, options] of Object.entries(SIZES)) {
-    test(`/ is Godot, with the Classic game link (${size})`, async ({ browser }) => {
+    test(`/ is Godot, with no Classic game link (${size})`, async ({ browser }) => {
       const context = await browser.newContext(options);
       await blockRemote(context, site.origin);
       const page = await context.newPage();
       const errors = trackPageErrors(page);
       await page.goto(site.url);
       await godotBoots(page);
-      await expect(page.locator('meta[name="wa-classic"]')).toHaveAttribute('content', 'classic/');
+      await expect(page.locator('meta[name="wa-classic"]')).toHaveCount(0);
       expect(await page.title()).toBe('Wasteland Academy');
       await shot(page, `on-root-${size}`);
-      // The link is drawn in the canvas, in the bottom right corner
+      // The bottom right corner, where the link was, goes nowhere
       const { width, height } = options.viewport;
       const corner = { x: width - (size === 'pc' ? 60 : 40), y: height - (size === 'pc' ? 32 : 28) };
       if (size === 'pc') await page.mouse.click(corner.x, corner.y);
       else await page.touchscreen.tap(corner.x, corner.y);
-      await page.waitForURL(site.url + 'classic/');
-      await expect(page.locator('#screen-profile')).toBeVisible();
-      errors.expectNone();
-      await context.close();
-    });
-
-    test(`/classic/ is the HTML game, with the New version link (${size})`, async ({ browser }) => {
-      const context = await browser.newContext(options);
-      await blockRemote(context, site.origin);
-      const page = await context.newPage();
-      const errors = trackPageErrors(page);
-      await page.goto(site.url + 'classic/');
-      await createProfile(page);
-      const link = page.locator('#new-version-link');
-      await expect(link).toBeVisible();
-      expect(await link.evaluate(a => a.href)).toBe(site.url);
-      await shot(page, `on-classic-${size}`);
-      await playOneQuestion(page);
-      await waitForWorker(page);
-      // The HTML game's worker lives under classic/ only
-      expect(await workerScopes(page, site)).toEqual(['classic/']);
+      await page.waitForTimeout(1500);
+      expect(page.url()).toBe(site.url);
       errors.expectNone();
       await context.close();
     });
   }
+
+  test('/classic/ and the repository\'s documents and source aren\'t published', async ({ request }) => {
+    for (const rel of UNPUBLISHED) expect((await request.get(site.url + rel)).status(), rel).toBe(404);
+  });
 
   test('next/ links go to the root, keeping their #… and ?…', async ({ page }) => {
     await page.goto(site.url + 'next/#functions/quadratics');
@@ -221,12 +218,6 @@ test.describe('switch on: Godot at the root, the HTML game at classic/', () => {
     // Without the trailing slash, as Pages redirects
     await page.goto(site.url + 'next?play=quadratics&seed=3');
     expect(page.url()).toBe(site.url + '?play=quadratics&seed=3');
-  });
-
-  test('classic/ has its own app id, so an app installed from the old root stays there', async ({ request }) => {
-    const manifest = await (await request.get(site.url + 'classic/manifest.json')).json();
-    expect(manifest.id).toBe('wasteland-academy-classic');
-    expect([manifest.start_url, manifest.scope]).toEqual(['./index.html', './']);
   });
 
   test('a browser that ran the old game ends up on Godot at /, and keeps its save', async ({ page }) => {
@@ -259,29 +250,44 @@ test.describe('switch on: Godot at the root, the HTML game at classic/', () => {
     }, { timeout: 60_000 }).toEqual(['wasteland-academy-godot']);
     await godotBoots(page);
     expect(new URL(page.url()).pathname).toBe(BASE);
-    await expect(page.locator('meta[name="wa-classic"]')).toHaveCount(1);
     await godotCached(page, site);
     // A reload stays on Godot
     await page.reload();
     await godotBoots(page);
     expect(await workerScopes(page, site)).toEqual(['']);
 
-    // Saves: the HTML game's keys are untouched by Godot, and classic/ picks them up
+    // Saves: the HTML game's keys are untouched by Godot
     expect(await page.evaluate(() => localStorage.getItem('wa_save'))).toBe(save);
     const keys = await page.evaluate(() => Object.keys(localStorage).sort());
     expect(keys.every(k => k.startsWith('wa_')), `localStorage keys: ${keys}`).toBe(true);
     const databases = await page.evaluate(async () => (await indexedDB.databases()).map(d => d.name).sort());
     console.log(`localStorage keys: ${keys.join(', ')}; IndexedDB databases: ${databases.join(', ')}`);
     expect(databases).toContain('/userfs');
+  });
 
+  test('a browser that ran the HTML game at classic/ loses its worker and cached copy there', async ({ page }) => {
+    // The last deploy's classic/: a page that registers its worker and caches itself
+    site.state.extra = {
+      'classic/index.html': `<script>
+        navigator.serviceWorker.register('service-worker.js');
+        caches.open('wasteland-academy-v3').then(c => c.put(location.href, new Response('classic')));
+      </script>`,
+      'classic/service-worker.js': `self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+        self.addEventListener('fetch', () => {});`,
+    };
     await page.goto(site.url + 'classic/');
-    await expect(page.locator('#screen-world')).toBeVisible();
-    await expect(page.locator('#world-player-name')).toHaveText('OLDSAVE');
     await waitForWorker(page);
-    await expect.poll(() => workerScopes(page, site)).toEqual(['', 'classic/']);
-    expect(await page.evaluate(async () => (await indexedDB.databases()).map(d => d.name).sort())).toEqual(databases);
-    // The HTML game's worker leaves Godot's offline copy alone
-    expect(Object.keys(await cachedUrls(page)).sort()).toEqual(['wasteland-academy-godot', 'wasteland-academy-v3']);
+    await expect.poll(async () => Object.keys(await cachedUrls(page))).toEqual(['wasteland-academy-v3']);
+    expect(await workerScopes(page, site)).toEqual(['classic/']);
+
+    // This deploy: no classic/. Godot at the root retires the worker and its cache.
+    site.state.extra = {};
+    await page.goto(site.url);
+    await godotBoots(page);
+    await waitForWorker(page);
+    await expect.poll(() => workerScopes(page, site)).toEqual(['']);
+    await expect.poll(async () => Object.keys(await cachedUrls(page))).toEqual(['wasteland-academy-godot']);
+    expect((await page.request.get(site.url + 'classic/')).status()).toBe(404);
   });
 
   // SPEC: "Practice must continue to work offline with the reviewed runtime catalogue."
@@ -293,9 +299,6 @@ test.describe('switch on: Godot at the root, the HTML game at classic/', () => {
     await godotCached(page, site);
 
     await context.setOffline(true);
-    // classic/ isn't the root worker's, so this goes to the network
-    expect(await page.evaluate(() => fetch('classic/manifest.json', { cache: 'no-store' }).then(() => 'online', () => 'offline')))
-      .toBe('offline');
     // The explorer opens on a question from the catalogue and puts it in the URL
     await page.goto(site.url + '?explore');
     await godotBoots(page);

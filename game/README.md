@@ -2,8 +2,8 @@
 
 The Godot 4.7.2 game, planned on FAL-274. It is the game students play: a web build
 published at the main address on GitHub Pages, which is also the testing host. App
-builds come next, for PC first, then Android and iOS (#199). The legacy HTML game is
-still published at `/classic/` until #197 removes it for students. All code is GDScript
+builds come next, for PC first, then Android and iOS (#199). The legacy HTML game isn't
+published for students (#197). All code is GDScript
 (C# can't export to the web), and it uses the Compatibility renderer.
 
 The toolchain is copied from The Unruly Atlas. The question engine has its own

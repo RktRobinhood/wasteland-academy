@@ -1,6 +1,6 @@
 # WASTELAND ACADEMY — Content Schema
 
-> **Legacy.** This file describes the legacy HTML game's hand-written question packs (`content/*.js`), published at `/classic/` until #197 removes it for students. The Godot game generates its questions from `curriculum/question-types.json`: see `curriculum/README.md` and `game/docs/QUESTION-ENGINE.md`.
+> **Legacy.** This file describes the legacy HTML game's hand-written question packs (`content/*.js`). That game isn't published for students (#197). The Godot game generates its questions from `curriculum/question-types.json`: see `curriculum/README.md` and `game/docs/QUESTION-ENGINE.md`.
 
 > Question format reference for all content pack authors.  
 > All content files live in `/content/` and self-register via `WA.registerPack(pack)`.
