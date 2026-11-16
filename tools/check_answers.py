@@ -14048,6 +14048,9 @@ def bf_factors(line):
     return parse_expr(t, transformations=TRANSFORMS, local_dict={"x": X})
 
 
+BF_C = "fn-concept-function-notation#"  # its own slips (FAL-820)
+
+
 def bf_concept(q):
     u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
     if u == "when-equal":
@@ -14057,7 +14060,8 @@ def bf_concept(q):
         need(mm is not None, "can't read when-equal")
         h, d = int(mm.group(1)), int(mm.group(3)) * (1 if mm.group(2) == "+" else -1)
         sol = sp.solve(sp.expand(m_ * (X + h) + c - (m_ * X + c + d)), m_)
-        gc_check_common(q, f"m = {frac_text(sol[0])}", {})
+        gc_check_common(q, f"m = {frac_text(sol[0])}", {BF_C + "8": {f"m = {frac_text(sp.Rational(h, d))}"},  # divided the wrong way
+                                                          BF_C + "9": {f"m = {frac_text(sp.Integer(d))}"}})  # not divided by h
         return None, None
     if rep == "equation":
         _, _, f = bf_rule(q)
@@ -14075,16 +14079,26 @@ def bf_concept(q):
     if u == "inside-or-outside-shift":
         i, o = f.subs(X, a + 1), f.subs(X, a) + 1
         need(i != o, "the two are equal, so the slip is no slip")
-        gc_check_common(q, f"f({a} + 1) = {v(i)}, f({a}) + 1 = {v(o)}", {BF_R_SHIFT: {f"f({a} + 1) = {v(o)}, f({a}) + 1 = {v(o)}"}})
+        gc_check_common(q, f"f({a} + 1) = {v(i)}, f({a}) + 1 = {v(o)}", {BF_R_SHIFT: {f"f({a} + 1) = {v(o)}, f({a}) + 1 = {v(o)}"},
+                                                                         BF_C + "3": {f"f({a} + 1) = {v(o)}, f({a}) + 1 = {v(i)}"},
+                                                                         BF_C + "4": {f"f({a} + 1) = {v(i)}, f({a}) + 1 = {v(i)}"},
+                                                                         BF_C + "6": {f"f({a} + 1) = {v(i)}, f({a}) + 1 = {v(f.subs(X, a))}"}})
     elif u == "inside-or-outside-scale":
         i, o = f.subs(X, 2 * a), 2 * f.subs(X, a)
         need(i != o, "the two are equal, so the slip is no slip")
-        gc_check_common(q, f"f(2 × {a}) = {v(i)}, 2f({a}) = {v(o)}", {BF_R_TIMES: {f"f(2 × {a}) = {v(o)}, 2f({a}) = {v(o)}"}})
+        gc_check_common(q, f"f(2 × {a}) = {v(i)}, 2f({a}) = {v(o)}", {BF_R_TIMES: {f"f(2 × {a}) = {v(o)}, 2f({a}) = {v(o)}"},
+                                                                      BF_C + "3": {f"f(2 × {a}) = {v(o)}, 2f({a}) = {v(i)}"},
+                                                                      BF_C + "5": {f"f(2 × {a}) = {v(i)}, 2f({a}) = {v(i)}"},
+                                                                      BF_C + "6": {f"f(2 × {a}) = {v(i)}, 2f({a}) = {v(f.subs(X, a))}"}})
     elif u == "inverse-or-reciprocal":
         inv = sp.solve(f - a, X)
         need(len(inv) == 1 and inv[0].q == 1, "the inverse value is not whole")
         rec = 1 / f.subs(X, a)
-        gc_check_common(q, f"f⁻¹({a}) = {v(inv[0])}, 1/f({a}) = {v(rec)}", {"SL2.2.inverse-undo#0": {f"f⁻¹({a}) = {v(rec)}, 1/f({a}) = {v(rec)}"}})
+        k, y0 = inv[0], f.subs(X, a)
+        gc_check_common(q, f"f⁻¹({a}) = {v(k)}, 1/f({a}) = {v(rec)}", {"SL2.2.inverse-undo#0": {f"f⁻¹({a}) = {v(rec)}, 1/f({a}) = {v(rec)}"},
+                                                                       BF_C + "3": {f"f⁻¹({a}) = {v(rec)}, 1/f({a}) = {v(k)}"},
+                                                                       BF_C + "6": {f"f⁻¹({a}) = {v(k)}, 1/f({a}) = {v(y0)}"},
+                                                                       BF_C + "7": {f"f⁻¹({a}) = {v(y0)}, 1/f({a}) = {v(rec)}"}})
     elif u == "match-expressions":
         target = R(re.search(r"the value (−?[\d/]+)\?", asked).group(1).replace("−", "-"))
         inv = sp.solve(f - a, X)[0]

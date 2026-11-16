@@ -75832,6 +75832,66 @@
       "inverse-or-reciprocal"
      ],
      "wrong": "1/f(a) given as f⁻¹(a)"
+    },
+    {
+     "text": "Swapping the two values over, so each is given for the other expression",
+     "as": "distractor",
+     "in": [
+      "inside-or-outside-shift",
+      "inside-or-outside-scale",
+      "inverse-or-reciprocal"
+     ],
+     "wrong": "the two values the wrong way round"
+    },
+    {
+     "text": "Writes f(x) + a as f(x + a), adding to the input instead of the output",
+     "as": "distractor",
+     "in": [
+      "inside-or-outside-shift"
+     ],
+     "wrong": "f(a + 1) given as the value of f(a) + 1"
+    },
+    {
+     "text": "Writes 2f(x) as f(2x), doubling the input instead of the output",
+     "as": "distractor",
+     "in": [
+      "inside-or-outside-scale"
+     ],
+     "wrong": "f(2a) given as the value of 2f(a)"
+    },
+    {
+     "text": "Stopping at f(a), forgetting what is done to it outside the bracket",
+     "as": "distractor",
+     "in": [
+      "inside-or-outside-shift",
+      "inside-or-outside-scale",
+      "inverse-or-reciprocal"
+     ],
+     "wrong": "f(a) itself given for the second value"
+    },
+    {
+     "text": "Reading f⁻¹(a) as f(a), the output at a instead of the input that gives a",
+     "as": "distractor",
+     "in": [
+      "inverse-or-reciprocal"
+     ],
+     "wrong": "f(a) given as f⁻¹(a)"
+    },
+    {
+     "text": "Dividing the wrong way round when solving for m",
+     "as": "distractor",
+     "in": [
+      "when-equal"
+     ],
+     "wrong": "m = h/d for hm = d"
+    },
+    {
+     "text": "Forgetting to divide by the step in x, so m is taken as the change in f",
+     "as": "distractor",
+     "in": [
+      "when-equal"
+     ],
+     "wrong": "m = d"
     }
    ]
   },

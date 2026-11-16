@@ -49,7 +49,7 @@ const REPORT_ONLY := []
 ## Types whose views still offer `generic` or untagged `wrongs` options (FAL-815): each
 ## is sorted into slips and `fillers`, then leaves the list. Nothing joins it.
 const UNSORTED := [
-	"fn-concept-function-notation", "fn-concept-growth-patterns", "fn-curve-intersection-quadratic",
+	"fn-concept-growth-patterns", "fn-curve-intersection-quadratic",
 	"fn-domain-range", "fn-evaluate-function", "fn-exponential-model", "fn-ext-inequality-graphical",
 	"fn-ext-intersection-lines", "fn-ext-line-model", "fn-ext-quadratic-model",
 	"fn-ext-rational-model", "fn-ext-transformed-reciprocal", "fn-gdc-features",

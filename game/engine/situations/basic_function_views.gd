@@ -20,6 +20,14 @@ const R_ZERO_SIGN := "SL2.4.zeros-intercepts#1"
 const R_RANGE_DOMAIN := "SL2.2.domain#2"
 const R_TIMES := "SL2.2.evaluate-notation#0"
 const R_RECIPROCAL := "SL2.2.inverse-undo#0"
+## fn-concept-function-notation's own slips (FAL-820).
+const R_SWAP := "fn-concept-function-notation#3"
+const R_SHIFT_BACK := "fn-concept-function-notation#4"
+const R_TIMES_BACK := "fn-concept-function-notation#5"
+const R_STOP := "fn-concept-function-notation#6"
+const R_INV_OUTPUT := "fn-concept-function-notation#7"
+const R_M_FLIPPED := "fn-concept-function-notation#8"
+const R_M_UNDIVIDED := "fn-concept-function-notation#9"
 
 
 func needs() -> Dictionary:
@@ -485,7 +493,8 @@ func u_inside_or_outside_shift(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var ans := named(["f(%d + 1)" % a, "f(%d) + 1" % a], inner, outer)
 	var out := concept_lines(rep, s, range(0, 7))
 	out.merge({"asked": "Find f(%d + 1) and f(%d) + 1." % [a, a], "answer": ans,
-		"wrongs": [wrong({"v0": outer, "v1": outer}, R_SHIFT)], "generic": [{"v0": outer, "v1": inner}, {"v0": inner, "v1": inner}, {"v0": inner, "v1": s.y0}]})
+		"wrongs": [wrong({"v0": outer, "v1": outer}, R_SHIFT), wrong({"v0": outer, "v1": inner}, R_SWAP), wrong({"v0": inner, "v1": inner}, R_SHIFT_BACK),
+			wrong({"v0": inner, "v1": s.y0}, R_STOP)]})
 	var solo := "f(%d + 1) = f(%d) = %s: the 1 is added to the input, before f" % [a, a + 1, Fmt.num(inner)]
 	var twin := "f(%d) + 1 = %s + 1 = %s: the 1 is added to the output, after f" % [a, Fmt.num(s.y0), Fmt.num(outer)]
 	out.methods = ways({"direct-substitution": [solo, twin], "read-graph-table": ["Read f(%d) = %s and f(%d) = %s" % [a, Fmt.num(s.y0), a + 1, Fmt.num(inner)], solo, twin]}, final(ans), ans)
@@ -499,7 +508,8 @@ func u_inside_or_outside_scale(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var ans := named(["f(2 × %d)" % a, "2f(%d)" % a], inner, outer)
 	var out := concept_lines(rep, s, range(0, 7))
 	out.merge({"asked": "Find f(2 × %d) and 2f(%d)." % [a, a], "answer": ans,
-		"wrongs": [wrong({"v0": outer, "v1": outer}, R_TIMES)], "generic": [{"v0": outer, "v1": inner}, {"v0": inner, "v1": inner}, {"v0": inner, "v1": s.y0}]})
+		"wrongs": [wrong({"v0": outer, "v1": outer}, R_TIMES), wrong({"v0": outer, "v1": inner}, R_SWAP), wrong({"v0": inner, "v1": inner}, R_TIMES_BACK),
+			wrong({"v0": inner, "v1": s.y0}, R_STOP)]})
 	var solo := "f(2 × %d) = f(%d) = %s: the input is doubled" % [a, 2 * a, Fmt.num(inner)]
 	var twin := "2f(%d) = 2 × %s = %s: the output is doubled" % [a, Fmt.num(s.y0), Fmt.num(outer)]
 	out.methods = ways({"direct-substitution": [solo, twin], "read-graph-table": ["Read f(%d) = %s and f(%d) = %s" % [a, Fmt.num(s.y0), 2 * a, Fmt.num(inner)], solo, twin]}, final(ans), ans)
@@ -516,7 +526,8 @@ func u_inverse_or_reciprocal(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var xs: Array = range(mini(k.n, a) - 1, maxi(k.n, a) + 2)
 	var out := concept_lines(rep, s, xs)
 	out.merge({"asked": "Find f⁻¹(%d) and 1/f(%d)." % [a, a], "answer": ans,
-		"wrongs": [wrong({"v0": rec, "v1": rec}, R_RECIPROCAL)], "generic": [{"v0": s.y0, "v1": rec}, {"v0": k, "v1": s.y0}, {"v0": rec, "v1": k}]})
+		"wrongs": [wrong({"v0": rec, "v1": rec}, R_RECIPROCAL), wrong({"v0": s.y0, "v1": rec}, R_INV_OUTPUT), wrong({"v0": k, "v1": s.y0}, R_STOP),
+			wrong({"v0": rec, "v1": k}, R_SWAP)]})
 	var over := "1/%s" % Fmt.paren(s.y0)
 	var rcp := "1/f(%d) = %s%s: one over the output" % [a, over, "" if over == Fmt.num(rec) else " = " + Fmt.num(rec)]
 	var hit := "f(%s) = %d, so f⁻¹(%d) = %s" % [Fmt.num(k), a, a, Fmt.num(k)]
@@ -554,6 +565,9 @@ func u_match_expressions(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		_:
 			out.lines = [BasicFunctionSituation.eqn(s)]
 	out.merge(choose(pick[0], [], others))
+	# The other expressions: each is a value of f nobody slipped to (FAL-820).
+	out.fillers = out.generic
+	out.erase("generic")
 	var vals := "f(%d) = %s, f(%d) = %s, f(%d) = %s" % [a, Fmt.num(y), a + 1, Fmt.num(BasicFunctionSituation.at(s.f, a + 1)), 2 * a, Fmt.num(BasicFunctionSituation.at(s.f, 2 * a))]
 	var inv := "f(%s) = %d, so f⁻¹(%d) = %s" % [Fmt.num(s.inv), a, a, Fmt.num(s.inv)]
 	out.methods = ways({"direct-substitution": ["Work out the values: " + vals, "Then 2f(%d) = %s and f(%d) + 1 = %s" % [a, Fmt.num(y.mul(2)), a, Fmt.num(y.add(1))], inv],
@@ -571,7 +585,8 @@ func u_when_equal(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := Answer.make("number", {"v": m}, {}, "m = ")
 	ans.exact = true
 	var out := {"asked": "For which value of m is f(x + %d) = f(x) %s for every x?" % [h, ("+ %d" % d) if d > 0 else ("− %d" % -d)],
-		"lines": ["f(x) = mx%s" % Fmt.plus(c)], "answer": ans, "wrongs": [], "generic": nums([Q.new(h, d), Q.new(d - h), Q.new(1), Q.new(d)]), "given": {"h": h, "d": d}}
+		"lines": ["f(x) = mx%s" % Fmt.plus(c)], "answer": ans, "wrongs": [wrong({"v": Q.new(h, d)}, R_M_FLIPPED), wrong({"v": Q.new(d)}, R_M_UNDIVIDED)],
+		"fillers": nums([Q.new(d - h), Q.new(1)]), "given": {"h": h, "d": d}}
 	out.methods = ways({"direct-substitution": ["Write out the left side: f(x + %d) = m(x + %d)%s = mx + %dm%s" % [h, h, Fmt.plus(c), h, Fmt.plus(c)],
 		"The right side is mx%s%s" % [Fmt.plus(c), Fmt.plus(d)], "The mx and the constant %s cancel, which leaves %dm = %s" % [Fmt.num(c), h, Fmt.num(d)]]}, final(ans), ans)
 	return out
