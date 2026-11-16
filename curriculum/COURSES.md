@@ -8,8 +8,8 @@ A course is a filter over the shared map: every subtopic whose `courses` lists i
 | --- | --- | --: | --: | --: |
 | AA SL: Analysis and Approaches SL | live | 51 | 286 | 120 |
 | AA HL: Analysis and Approaches HL | mapped | 83 | 452 | 210 |
-| AI SL: Applications and Interpretation SL | mapped | 39 | 213 | 120 |
-| AI HL: Applications and Interpretation HL | mapped | 78 | 411 | 210 |
+| AI SL: Applications and Interpretation SL | mapped | 39 | 211 | 120 |
+| AI HL: Applications and Interpretation HL | mapped | 78 | 409 | 210 |
 
 ## AA SL: Analysis and Approaches SL
 
@@ -41,8 +41,8 @@ A course is a filter over the shared map: every subtopic whose `courses` lists i
 | 2. Functions | 6 | 33 | 31 |
 | 3. Geometry and trigonometry | 6 | 31 | 18 |
 | 4. Statistics and probability | 11 | 64 | 36 |
-| 5. Calculus | 8 | 40 | 19 |
-| **Total** | **39** | **213** | **120** |
+| 5. Calculus | 8 | 38 | 19 |
+| **Total** | **39** | **211** | **120** |
 
 ## AI HL: Applications and Interpretation HL
 
@@ -52,8 +52,8 @@ A course is a filter over the shared map: every subtopic whose `courses` lists i
 | 2. Functions | 10 | 55 | 42 |
 | 3. Geometry and trigonometry | 16 | 83 | 46 |
 | 4. Statistics and probability | 19 | 105 | 52 |
-| 5. Calculus | 18 | 89 | 41 |
-| **Total** | **78** | **411** | **210** |
+| 5. Calculus | 18 | 87 | 41 |
+| **Total** | **78** | **409** | **210** |
 
 ## What AA HL adds to AA SL
 
@@ -79,8 +79,8 @@ Where an AI content statement matches the AA one, AI reuses the AA subtopic and 
 
 | Course | Subtopics | Shared with AA | AI-only | Skills | Shared skills | Shared |
 | --- | --: | --: | --: | --: | --: | --: |
-| AI SL | 39 | 26 | 13 | 213 | 148 | 67% of subtopics |
-| AI HL | 78 | 29 | 49 | 411 | 166 | 37% of subtopics |
+| AI SL | 39 | 26 | 13 | 211 | 146 | 67% of subtopics |
+| AI HL | 78 | 29 | 49 | 409 | 164 | 37% of subtopics |
 
 | Topic | AI SL: shared / all | AI HL: shared / all |
 | --- | --: | --: |

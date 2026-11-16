@@ -144,7 +144,7 @@ The game serves four IB courses from this one map: AA SL (live), and AA HL, AI S
 - **IDs are permanent once they are on `main`.** Saves, spaced repetition and student reports all point at them. Never rename or reuse a subtopic, skill, question or template ID. To drop one, mark it `"retired": true`.
 - **AA numbering is the base.** Subtopics use the AA guide's numbers: `SL1.1` to `SL5.11`, and the HL-only subtopics as the guide numbers them (`AHL1.10` to `AHL5.19`).
 - **AI-only content takes an `AI-` prefix**, for example `AI-SL1.6` and `AI-AHL1.9`. Where an AI subtopic's guide text matches the AA one, AI reuses the AA ID instead of making a copy.
-- **Courses live on subtopics, not questions.** Each subtopic lists its `courses` (for example `["aa-sl", "aa-hl"]`), and a question's course follows from its skill.
+- **Courses live on subtopics, not questions.** Each subtopic lists its `courses` (for example `["aa-sl", "aa-hl"]`), and a question's course follows from its skill. A skill can narrow that with its own `courses`, a subset of its subtopic's, where a shared subtopic has a skill one guide doesn't ask for. `SL5.2.show-always-increasing` and `SL5.2.parameter-for-monotonic` are AA only (FAL-952): AI's 5.2 is the graphical reading of f′, and AI doesn't use the discriminant or completing the square to show f′ never changes sign. The tools count and check skills by this field. The engine still filters by subtopic (`game/engine/courses.gd`), so an AI student can draw these skills until it reads the field too.
 - **One file per added layer.** HL-only subtopics go in `aa-hl.json`, and AI-only ones in `ai.json`. That way `aa-sl.json` stays exactly the AA SL syllabus.
 
 ### Which courses a subtopic lists

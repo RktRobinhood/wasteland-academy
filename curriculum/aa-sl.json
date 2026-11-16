@@ -14162,6 +14162,10 @@
             {
               "id": "SL5.2.show-always-increasing",
               "name": "Show that a function is increasing (or decreasing) for all x in its domain",
+              "courses": [
+                "aa-sl",
+                "aa-hl"
+              ],
               "examTypes": [
                 "Show that f is increasing for all x",
                 "Show that f′(x) > 0 for x > 0, and hence explain why f has an inverse",
@@ -14232,6 +14236,10 @@
             {
               "id": "SL5.2.parameter-for-monotonic",
               "name": "Find a parameter so that f is increasing (or decreasing) everywhere",
+              "courses": [
+                "aa-sl",
+                "aa-hl"
+              ],
               "examTypes": [
                 "f(x) = x³ + kx² + 3x. Find the values of k for which f is increasing for all x",
                 "Find the range of values of p for which f′(x) ≥ 0 for all x"

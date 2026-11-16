@@ -71,6 +71,17 @@ export function build() {
           if (!sk.id?.startsWith(st.id + '.')) errors.push(`${where}: skill ID must start with ${st.id}.`);
           if (!sk.name) errors.push(`${where}: no name`);
           if (!ENUMS.paper.includes(sk.paper)) errors.push(`${where}: bad paper ${sk.paper}`);
+          // A skill may narrow its subtopic's courses, where a shared subtopic has a skill one guide doesn't ask for.
+          if ('courses' in sk) {
+            const kc = sk.courses;
+            if (!Array.isArray(kc) || !kc.length) errors.push(`${where}: courses must be a non-empty list`);
+            else {
+              for (const c of kc) if (!cs.includes(c)) errors.push(`${where}: course ${c} is not a course of ${st.id}`);
+              if (kc.length === cs.length) errors.push(`${where}: courses repeats the subtopic's; leave it out`);
+              if (kc.includes('aa-sl') && !kc.includes('aa-hl')) errors.push(`${where}: an AA SL skill is in AA HL too`);
+              if (kc.includes('ai-sl') && !kc.includes('ai-hl')) errors.push(`${where}: an AI SL skill is in AI HL too`);
+            }
+          }
           if (l.key === 'ai' && sk.paper !== 'p2') errors.push(`${where}: AI skills are p2 (every AI paper allows a GDC)`);
           if (sk.difficulty) {
             const [lo, hi] = sk.difficulty;
@@ -154,7 +165,8 @@ export function build() {
     return { 'aa-sl': sl, 'aa-hl': sl + ahl, 'ai-sl': ai.sl, 'ai-hl': ai.sl + ai.ahl }[course];
   };
   const inCourse = (course, n) => live.filter(x => x.topic === n && x.st.courses.includes(course));
-  const skillCount = list => list.reduce((s, x) => s + x.st.skills.length, 0);
+  // A skill is in a course when its subtopic is, unless the skill lists its own courses.
+  const skillCount = (list, course) => list.reduce((s, x) => s + x.st.skills.filter(k => (k.courses || x.st.courses).includes(course)).length, 0);
   const isThin = sk => THIN_FIELDS.some(f => !sk[f]?.length);
 
   // `subtopics` lists the subtopic IDs the course covers, so the engine can tell which
@@ -165,7 +177,7 @@ export function build() {
       ...c,
       topics: [1, 2, 3, 4, 5].map(n => {
         const list = inCourse(c.id, n);
-        return { n, name: topicNames[n], subtopics: list.length, skills: skillCount(list), hours: topicHours(c.id, n) };
+        return { n, name: topicNames[n], subtopics: list.length, skills: skillCount(list, c.id), hours: topicHours(c.id, n) };
       }),
       subtopics: live.filter(x => x.st.courses.includes(c.id)).map(x => x.st.id),
     })),
@@ -198,7 +210,7 @@ export function build() {
     row(['---', '--:', '--:', '--:', '--:', '--:', '--:']));
   for (const n of [1, 2, 3, 4, 5]) {
     const s = inCourse('aa-sl', n), h = inCourse('aa-hl', n).filter(x => x.layer === 'aa-hl');
-    md.push(row([`${n}. ${topicNames[n]}`, s.length, skillCount(s), topicHours('aa-sl', n), h.length, skillCount(h), topicHours('aa-hl', n) - topicHours('aa-sl', n)]));
+    md.push(row([`${n}. ${topicNames[n]}`, s.length, skillCount(s, 'aa-sl'), topicHours('aa-sl', n), h.length, skillCount(h, 'aa-hl'), topicHours('aa-hl', n) - topicHours('aa-sl', n)]));
   }
   md.push('');
   for (const n of [1, 2, 3, 4, 5]) {
@@ -215,7 +227,7 @@ export function build() {
     const all = live.filter(x => x.st.courses.includes(cid));
     const sh = all.filter(x => x.layer !== 'ai');
     const pct = Math.round(100 * sh.length / all.length);
-    md.push(row([COURSES.find(c => c.id === cid).short, all.length, sh.length, all.length - sh.length, skillCount(all), skillCount(sh), `${pct}% of subtopics`]));
+    md.push(row([COURSES.find(c => c.id === cid).short, all.length, sh.length, all.length - sh.length, skillCount(all, cid), skillCount(sh, cid), `${pct}% of subtopics`]));
   }
   md.push('', row(['Topic', 'AI SL: shared / all', 'AI HL: shared / all']), row(['---', '--:', '--:']));
   for (const n of [1, 2, 3, 4, 5]) {

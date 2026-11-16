@@ -131,7 +131,7 @@ The callback lines are in `callbacks.json`, 14 per tutor: `own.watched`, `own.no
 
 ## The script format
 
-Scripts are JSON. Both readers are code: the Godot player parses JSON natively, and the clip renderer is JavaScript. The rest of the game's words are JSON already (`game/data/shopkeeper.json`, `writing/encounters/`). Markdown with fixed headings would read better on GitHub, but it would need a parser that someone keeps up to date, and a stray heading would break it without a warning. JSON can be checked: every move id exists in `curriculum/moves.json`, every speaker is in `teachers.json`, every `use` is in `callbacks.json`. To read a script as a script, pull out the `say` fields in order.
+Scripts are JSON. Both readers are code: the Godot player parses JSON natively, and the clip renderer is JavaScript. The rest of the game's words are JSON already (`game/data/shopkeeper.json`, `writing/encounters/`). Markdown with fixed headings would read better on GitHub, but it would need a parser that someone keeps up to date, and a stray heading would break it without a warning. JSON can be checked: every move id exists in `curriculum/moves.json`, every speaker is in `teachers.json`, every `use` is in `callbacks.json`. `node tools/explainers.mjs` runs these checks on every script (`tools/explainer-scripts.mjs`, FAL-952), along with the map, the arc order, board keys, answer indexes, digits and banned words in captions, and jokes on the board. To read a script as a script, pull out the `say` fields in order.
 
 ### Top level
 
@@ -199,7 +199,6 @@ The editor's pass, done by Writer on every script:
 
 ## Not decided yet
 
-- **The map.** `curriculum/explainers.json` (FAL-935) is in PR #147 and not on `main` yet. The pilots use its ids. Where the map and a pilot differ (pilot 1's prerequisite and skill scope), the script's `notes` say so, and FAL-936 asks Studio Manager to decide.
+- **The map.** `curriculum/explainers.json` now follows the pilots (FAL-952): `ex.algebra.arithmetic-sequence` teaches `SL1.2.nth-term` and builds on `ex.foundations.pre-substitute`, and `ex.algebra.arithmetic-series` teaches `SL1.2.sum`. Working back from terms and from a sum are their own explainers, `ex.algebra.arithmetic-from-terms` and `ex.algebra.arithmetic-sum-unknown`.
 - **Casting.** Every tutor, voice and name is provisional (#18). Mags's block and the five notes above get redone once casting is settled.
 - **Line ids for recording.** For now a recording is named by section and position, frozen at `approved`. If the Audio Designer needs ids that survive edits, add an `id` field to each line.
-- **A checker.** A content test that validates these files (moves, speakers, callbacks, banned words, digits in captions) would be Coder's to add.
