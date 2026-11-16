@@ -1,7 +1,7 @@
 {
   "id": "ex.functions.function-machine",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "One In, One Out",
   "idea": "A function takes each input to exactly one output, and f(3) means the output when the input is 3.",
   "zone": "functions",

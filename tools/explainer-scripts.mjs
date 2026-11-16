@@ -119,6 +119,12 @@ export function checkScript(script, ctx, file = `${script.id}.json`) {
     else if (at <= last) err(w, `${slot} is out of arc order (after ${ARC[last]})`);
     else last = at;
 
+    // The exam example reads its stem first: a board item with no part comes before part (a) (README, "The board").
+    if (s.kind === 'example' && s.level === 'exam') {
+      const board = [...items(s.beats, '')].filter(x => !x.ask).map(x => x.item);
+      const a = board.findIndex(it => it.part === 'a');
+      if (!board.slice(0, a < 0 ? board.length : a).some(it => it.part == null)) err(w, 'an exam example puts its stem on the board, with no part, before part (a)');
+    }
     if (s.kind === 'your-turn' && !ctx.types.has(s.turn?.type)) err(`${w}.turn`, `type ${s.turn?.type} is not in curriculum/question-types.json`);
     if (s.kind === 'recall') {
       for (const b of s.builds_on ? [s.builds_on].flat() : []) if (!(script.builds_on || []).includes(b)) err(w, `builds_on ${b} is not in the script's builds_on`);

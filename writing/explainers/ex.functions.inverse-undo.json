@@ -1,7 +1,7 @@
 {
   "id": "ex.functions.inverse-undo",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Run It Backwards",
   "idea": "An inverse function undoes the original, taking each output back to the input that made it.",
   "zone": "functions",

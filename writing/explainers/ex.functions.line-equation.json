@@ -1,7 +1,7 @@
 {
   "id": "ex.functions.line-equation",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Pin and Swing",
   "idea": "One point and a gradient pin down a line, written as y − y₁ = m(x − x₁), y = mx + c or ax + by + d = 0.",
   "zone": "functions",

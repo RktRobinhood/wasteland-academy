@@ -1,7 +1,7 @@
 {
   "id": "ex.functions.line-model",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Start Plus Rate",
   "idea": "A linear model is a starting value plus a constant rate, so the intercept and the gradient each mean something in context.",
   "zone": "functions",
@@ -38,10 +38,10 @@
     "Uses the model far outside its sensible domain, e.g. negative time"
   ],
   "estimate": {
-    "words_watched": 874,
-    "words_not_watched": 905,
-    "narration_watched": "6 min 02 s",
-    "narration_not_watched": "6 min 15 s",
+    "words_watched": 890,
+    "words_not_watched": 921,
+    "narration_watched": "6 min 08 s",
+    "narration_not_watched": "6 min 21 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
   },
   "notes": [
@@ -542,7 +542,7 @@
         {
           "speaker": "rook-dead-air",
           "clear": true,
-          "say": "A full exam question now. A water truck is filling from the tower's well. After four minutes it holds three eighty litres. After ten, seven seventy.",
+          "say": "A full exam question now. A water truck is filling from the tower's well. After four minutes it holds three eighty litres. After ten, seven seventy. The volume, V litres, after t minutes, is modelled by V equals m t plus c.",
           "board": [
             {
               "write": "t = 4: V = 380 L.   t = 10: V = 770 L.   V = mt + c",

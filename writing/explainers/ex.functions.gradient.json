@@ -1,7 +1,7 @@
 {
   "id": "ex.functions.gradient",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Rise per Step",
   "idea": "The gradient of a line is the change in y for each step of 1 in x, the same everywhere along the line.",
   "zone": "functions",
@@ -33,10 +33,10 @@
     "Subtracts the coordinates in inconsistent order, (y₂ − y₁)/(x₁ − x₂), and gets the wrong sign"
   ],
   "estimate": {
-    "words_watched": 873,
-    "words_not_watched": 873,
-    "narration_watched": "6 min 02 s",
-    "narration_not_watched": "6 min 02 s",
+    "words_watched": 883,
+    "words_not_watched": 883,
+    "narration_watched": "6 min 06 s",
+    "narration_not_watched": "6 min 06 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions; with no prerequisite explainer there is one recall version, so they are the same. Player turns are player-paced and not counted."
   },
   "notes": [
@@ -477,7 +477,7 @@
         {
           "speaker": "rook-dead-air",
           "clear": true,
-          "say": "Now the way a paper would set it. Back to the east track, with coordinates on it. x is the distance across, y is the height, both in metres.",
+          "say": "Now the way a paper would set it. Back to the east track, with coordinates on it. x is the distance across, y is the height, both in metres. It passes through P, twenty, five, and Q, seventy, twenty.",
           "board": [
             {
               "write": "P(20, 5), Q(70, 20): x across, y height, in metres",
