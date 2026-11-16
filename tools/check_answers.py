@@ -43283,6 +43283,225 @@ def check_chain(parts):
         need(c["part"] == "abcdefgh"[prev["part"]], f"part {q['part']} names the wrong part")
 
 
+
+# ── E17 shared (FAL-780) ─────────────────────────────────────
+# Tools the six E17 sections share: a number as the game writes it, and a check that every
+# equation a line of working states holds at the solution, read with SymPy.
+
+E17_X = sp.Symbol("x")
+E17_LEAD = re.compile(r"^(?:So |Then |and |which gives |where |Check: )+")
+
+
+def E17_n(v):
+    """A rational as the game writes it: 3, −4, 8/5, −1/3."""
+    v = sp.Rational(v)
+    s = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + s
+
+
+def E17_expr(text, letters=("x",)):
+    """A side of an equation as SymPy, or None where it has words in it."""
+    t = text.strip().rstrip(".").strip()
+    t = E17_LEAD.sub("", t)
+    if not t or re.search(r"[A-Za-wyz]{2,}", t.replace("ln", "")):
+        return None
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    t = re.sub(r"(?<![\w)])ln (\d+)", r"ln(\1)", t)
+    if not re.fullmatch(r"[0-9a-z+\-*/(). ]+", t):
+        return None
+    local = {"x": E17_X, "ln": sp.log}
+    try:
+        e = parse_expr(t, local_dict=local, transformations=TRANSFORMS, evaluate=True)
+    except Exception:
+        return None
+    if not all(str(s) in letters for s in e.free_symbols):
+        return None
+    return e
+
+
+def E17_fragments(line):
+    """The equations a line states, each as its list of sides."""
+    out = []
+    for part in re.split(r", as |, so |, and |; |: | and |, where |, ", line.rstrip(".")):
+        if " = " not in part:
+            continue
+        out.append(part.split(" = "))
+    return out
+
+
+def E17_holds(line, subs, letters=("x",)):
+    """False if an equation in the line is false at subs; True otherwise (unread ones pass)."""
+    for sides in E17_fragments(line):
+        es = [E17_expr(p, letters) for p in sides]
+        if any(e is None for e in es):
+            continue
+        vals = [e.subs(subs) for e in es]
+        for a, b in zip(vals, vals[1:]):
+            d = sp.N(a - b, 40)
+            if not d.is_real or abs(d) > sp.Float(10) ** -25 * (1 + abs(sp.N(b, 40))):
+                return False
+    return True
+
+
+def E17_no_hyphen(q):
+    """A minus is −, never a hyphen, in anything the student reads."""
+    texts = [q["asked"], q.get("prompt", "")] + q["lines"] + [o["text"] for o in q["choices"]] + [st for sol in q["solutions"] for st in sol["steps"]]
+    for t in texts:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def E17_steps(q, subs, letters=("x",)):
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            need(E17_holds(st, subs, letters), f"{sol['name']}: {st!r} is not true at the answer")
+
+
+def E17_first_false(lines, subs, letters=("x",)):
+    for i, t in enumerate(lines):
+        if not E17_holds(t, subs, letters):
+            return i
+    return None
+
+
+# ── solve-exponential, t1-ext-common-base (FAL-780) ─────────
+# Each equation is read back from its line. Both bases must be powers of one prime, so the
+# exponents are compared on that prime: i(x + c) = j(kx + e) is solved with exact fractions,
+# and the answer is checked in the equation itself. Every tagged option is rebuilt from its
+# slip, every equation in the working must hold at the answer, and an error-spot's first wrong
+# line is the first whose equation fails there.
+
+E17CB_MAP = "SL1.7.common-base#"
+E17CB_OWN = "t1-ext-common-base#"
+E17CB_UNKNOWNS = ("whole-power", "reciprocal-power", "fraction-power", "linear-exponents", "meet-on-graph")
+E17CB_POW = re.compile(r"(\d+)\^(x|\(([^()]*)\))")
+
+
+def E17CB_prime(n):
+    f = sp.factorint(n)
+    need(len(f) == 1, f"{n} is not a power of one prime")
+    (t, p), = f.items()
+    return t, p
+
+
+def E17CB_side(text):
+    """'8^(2x − 2)' -> (8, 2x − 2)."""
+    m = E17CB_POW.fullmatch(text.strip())
+    need(m is not None, f"can't read the power {text!r}")
+    ex = E17_expr(m.group(3) if m.group(3) else "x")
+    need(ex is not None and sp.Poly(ex, E17_X).degree() == 1, f"the exponent of {text!r} is not linear in x")
+    return int(m.group(1)), ex
+
+
+def E17CB_check(q):
+    u, L, paper = q["view"]["unknown"], q["lines"], q["paper"]
+    x = E17_X
+    wr = {}
+    if q["view"]["angle"] == "graph-intersect":
+        need(paper == 2, "a graph-intersect question is not Paper 2")
+    if u in ("whole-power", "reciprocal-power"):
+        m = re.fullmatch(r"(\d+)\^x = (1/)?(\d+)", L[0])
+        need(m is not None and bool(m.group(2)) == (u == "reciprocal-power"), f"can't read {L[0]!r}")
+        b, N = int(m.group(1)), int(m.group(3))
+        j = sp.Integer(sp.log(N, b)) if sp.log(N, b).is_Integer else None
+        need(j is not None and b ** int(j) == N, f"{N} is not a whole power of {b}")
+        need(2 <= j and N <= 1000 and (b, N) != (2, 32), f"{b}^x = {N} is outside the limits or the map's example")
+        sol = j if u == "whole-power" else -j
+        need(b ** sp.Integer(sol) == (N if u == "whole-power" else sp.Rational(1, N)), "the answer doesn't solve it")
+        if u == "whole-power":
+            wr[E17CB_MAP + "0"] = {f"x = {E17_n(sp.Rational(N, b))}"}
+        else:
+            wr[E17CB_MAP + "0"] = {f"x = {E17_n(sp.Rational(1, N * b))}"}
+            wr[E17CB_OWN + "3"] = {f"x = {E17_n(j)}"}
+    elif u == "fraction-power":
+        m = re.fullmatch(r"(\d+)\^x = (\d+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        A, R = int(m.group(1)), int(m.group(2))
+        t, i = E17CB_prime(A)
+        t2, j = E17CB_prime(R)
+        need(t == t2, "the two sides have no common base")
+        need(A <= 27 and R <= 243 and i > 1 and j % i != 0, f"{A}^x = {R} is outside the limits")
+        sol = sp.Rational(j, i)
+        need(sp.Integer(A) ** sol == R, "the answer doesn't solve it")
+        wr[E17CB_MAP + "0"] = {f"x = {E17_n(sp.Rational(R, A))}"}
+        wr[E17CB_OWN + "2"] = {f"x = {E17_n(sp.Rational(i, j))}"}
+    else:
+        if u == "meet-on-graph":
+            m = re.fullmatch(r"The graph shows y = (.+) and y = (.+), which cross at P\.", L[0])
+        else:
+            m = re.fullmatch(r"(.+) = (.+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        A, ex1 = E17CB_side(m.group(1))
+        B, ex2 = E17CB_side(m.group(2))
+        t, i = E17CB_prime(A)
+        t2, j = E17CB_prime(B)
+        need(t == t2 and i != j and sp.gcd(i, j) == 1 and max(A, B) <= 81, f"{A} and {B} break the limits")
+        c, k, e = ex1.subs(x, 0), sp.Poly(ex2, x).LC(), ex2.subs(x, 0)
+        need(sp.Poly(ex1, x).LC() == 1 and c != 0 and e != 0 and k in (1, 2, 3), "the exponents break the limits")
+        roots = sp.solve(sp.Eq(i * ex1, j * ex2), x)
+        need(len(roots) == 1, "not one solution")
+        sol = sp.Rational(roots[0])
+        D = i - j * k
+        need(sol != 0 and abs(D) <= 7, f"x = {sol} or the coefficient {D} breaks the limits")
+        need(sp.simplify(sp.Integer(A) ** ex1.subs(x, sol) - sp.Integer(B) ** ex2.subs(x, sol)) == 0, "the answer doesn't solve it")
+        slip = sp.solve(sp.Eq(i * x + c, j * k * x + e), x)
+        need(len(slip) == 1 and slip[0] != sol, "the x-only slip gives the answer")
+        wr[E17CB_MAP + "1"] = {f"x = {E17_n(slip[0])}"}
+        if k != 1:
+            raw = sp.solve(sp.Eq(ex1, ex2), x)
+            wr[E17CB_OWN + "4"] = {f"x = {E17_n(r)}" for r in raw}
+        if u == "meet-on-graph":
+            need(k == 1 and sol.q == 1 and -3 <= sol <= 4, f"P at x = {sol} is not whole, or outside −3 to 4")
+            y = sp.Integer(A) ** ex1.subs(x, sol)
+            need(2 <= y <= 600, f"P's height {y} is outside 2 to 600")
+            wr[E17CB_OWN + "5"] = {f"x = {E17_n(y)}"}
+            g = q["graph"]
+            need(g is not None and any(p["label"] == "P" and abs(p["x"] - float(sol)) < 1e-9 and abs(p["y"] - float(y)) < 1e-6 for p in g["points"]), "P is not drawn at the crossing")
+            for curve, (base, ex) in zip(g["curves"], ((A, ex1), (B, ex2))):
+                for px, py in curve[::17]:
+                    need(abs(py - float(sp.Integer(base) ** ex.subs(x, sp.nsimplify(px)))) <= 1e-6 * max(1, abs(py)), "a curve drawn is not its equation")
+    want = f"x = {E17_n(sol)}"
+    gc_check_common(q, want, wr)
+    E17_steps(q, {x: sol})
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E17CB_spot(q, lines):
+    u = q["view"]["unknown"]
+    m = re.fullmatch(r"(.+) = (.+)", q["lines"][0])
+    if u == "fraction-power":
+        A, R = int(m.group(1).split("^")[0]), int(m.group(2))
+        t, i = E17CB_prime(A)
+        sol = sp.Rational(E17CB_prime(R)[1], i)
+    else:
+        A, ex1 = E17CB_side(m.group(1))
+        B, ex2 = E17CB_side(m.group(2))
+        t, i = E17CB_prime(A)
+        j = E17CB_prime(B)[1]
+        sol = sp.solve(sp.Eq(i * ex1, j * ex2), E17_X)[0]
+    for t_ in lines:
+        need(any(" = " in p for p in re.split(r", as |, so ", t_)), f"can't judge the line {t_!r}")
+    return E17_first_false(lines, {E17_X: sol})
+
+
+E17CB_PREV = SITUATION_CHECKS["solve-exponential"]
+E17CB_PREV_SPOT = SPOT_CHECKS.get("solve-exponential")
+
+
+def E17CB_entry(q):
+    return E17CB_check(q) if q["view"]["unknown"] in E17CB_UNKNOWNS else E17CB_PREV(q)
+
+
+def E17CB_spot_entry(q, lines):
+    if q["view"]["unknown"] in E17CB_UNKNOWNS:
+        return E17CB_spot(q, lines)
+    return E17CB_PREV_SPOT(q, lines)
+
+
+SITUATION_CHECKS["solve-exponential"] = E17CB_entry
+SPOT_CHECKS["solve-exponential"] = E17CB_spot_entry
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]

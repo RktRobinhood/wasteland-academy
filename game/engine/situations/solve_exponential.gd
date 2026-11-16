@@ -22,11 +22,24 @@ extends RefCounted
 ##   model-meet          A = A₀ e^(kt) and B = B₀ × g^t meet: t = ln(B₀/A₀)/(k − ln g)
 ##     A0, B0 whole, k and g Q decimals;  t  the meeting time, a float
 ##
+## t1-ext-common-base (FAL-780) asks the same situation with both sides powers of one prime t, so
+## the exponents can be equated and x is a whole number or a fraction (x, a Q):
+##   whole-power, reciprocal-power   b^x = N or b^x = 1/N, with N = b^j: x = j or −j
+##   fraction-power                  A^x = R, A = t^i, R = t^j: x = j/i
+##   linear-exponents, meet-on-graph A^(x + c) = B^(kx + e), A = t^i, B = t^j:
+##                                   i(x + c) = j(kx + e), so x = (je − ic)/(i − jk); k = 1 on a graph
+##
 ## The clean limits below are the numbers behind the catalogue's constraints. The SymPy checker
 ## holds its own copy and fails on any breach.
 
 const TRIES := 6000
 const EXACT := ["shift-base-exact", "one-minus-exact", "isolate-e-exact", "model-time-exact"]
+## t1-ext-common-base's unknowns: exact, and Paper 1 unless a calculator method asks for Paper 2.
+const COMMON := ["whole-power", "reciprocal-power", "fraction-power", "linear-exponents", "meet-on-graph"]
+const CB_BASES := [2, 3, 4, 5, 6, 7, 9, 10]
+const PRIMES := [2, 3, 5]
+## The skill map's example, 2^x = 32, left out.
+const MAP_WHOLE := [2, 5]
 const BASES := [2, 3, 5, 6, 7]
 const STORIES := 4
 const PLACES := 6
@@ -56,6 +69,8 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	var draws := SolveExponentialSituation.new()
 	for i in TRIES:
 		var paper: int = need.get("paper", 2) if ask in EXACT else 2
+		if ask in COMMON:
+			paper = need.get("paper", 1)
 		var s := {"paper": paper, "ask": ask, "rep": rep, "ctx": rng.int_in(0, PLACES - 1), "shape": ""}
 		if draws.call("_" + ask.replace("-", "_"), rng, s):
 			return s
@@ -269,6 +284,73 @@ static func _model_meet(rng: Seeded, s: Dictionary) -> bool:
 	s.t = model_meet(s)
 	s.early = early(log(float(s.B0) / s.A0)) / (k - early(lg))
 	return s.t >= 2.0 and s.t <= 40.0 and clean(s.t) and third_off(s.early, s.t)
+
+
+# ── A common base (t1-ext-common-base) ──────────────────────
+
+## b^x = N with N = b^j a whole power: j from 2, N at most 1000, and N ÷ b never j itself.
+static func _whole_power(rng: Seeded, s: Dictionary) -> bool:
+	s.b = rng.pick(CB_BASES)
+	s.j = rng.int_in(2, 9)
+	s.N = ipow(s.b, s.j)
+	if s.N > 1000 or [s.b, s.j] == MAP_WHOLE or s.N / s.b == s.j:
+		return false
+	s.x = Q.new(s.j)
+	return true
+
+
+static func _reciprocal_power(rng: Seeded, s: Dictionary) -> bool:
+	if not _whole_power(rng, s):
+		return false
+	s.x = Q.new(-s.j)
+	return true
+
+
+## A^x = R: A = t^i is 4, 8, 9, 25 or 27, R = t^j at most 243, and j/i is not whole.
+static func _fraction_power(rng: Seeded, s: Dictionary) -> bool:
+	s.t = rng.pick(PRIMES)
+	s.i = rng.int_in(2, 3)
+	s.j = rng.int_in(1, 5)
+	s.A = ipow(s.t, s.i)
+	s.R = ipow(s.t, s.j)
+	if s.j % s.i == 0 or s.A > 27 or s.R > 243:
+		return false
+	s.x = Q.new(s.j, s.i)
+	return true
+
+
+## A^(x + c) = B^(kx + e): A = t^i and B = t^j with i ≠ j and no common factor, both at most 81.
+## D = i − jk is from −7 to 7 and not 0, and x = (je − ic)/D is not 0. The slip that multiplies only
+## the x terms gives (e − c)/D, which must differ; on a graph (k = 1) x is whole, from −3 to 4, and
+## the curves cross at a height from 2 to 600.
+static func _linear_exponents(rng: Seeded, s: Dictionary) -> bool:
+	var graph: bool = s.ask == "meet-on-graph"
+	s.t = rng.pick(PRIMES)
+	s.i = rng.int_in(1, 4)
+	s.j = rng.int_in(1, 4)
+	s.k = 1 if graph else rng.int_in(1, 3)
+	s.c = ExtensionViews.nonzero(rng, -3, 3)
+	s.e = ExtensionViews.nonzero(rng, -3, 3)
+	if s.i == s.j or Q.gcd(s.i, s.j) != 1 or ipow(s.t, maxi(s.i, s.j)) > 81:
+		return false
+	s.A = ipow(s.t, s.i)
+	s.B = ipow(s.t, s.j)
+	var D: int = s.i - s.j * s.k
+	var top: int = s.j * s.e - s.i * s.c
+	if D == 0 or absi(D) > 7 or top == 0 or (s.e - s.c) == top:
+		return false
+	s.x = Q.new(top, D)
+	if graph:
+		if not s.x.is_int() or s.x.to_float() < -3.0 or s.x.to_float() > 4.0:
+			return false
+		var h: int = s.i * (int(s.x.to_float()) + s.c)
+		s.y = Q.new(ipow(s.t, h)) if h >= 0 else Q.new(1, ipow(s.t, -h))
+		return s.y.to_float() >= 2.0 and s.y.to_float() <= 600.0
+	return true
+
+
+static func _meet_on_graph(rng: Seeded, s: Dictionary) -> bool:
+	return _linear_exponents(rng, s)
 
 
 static func export(s: Dictionary) -> Dictionary:
