@@ -31,6 +31,15 @@ const R_COS2_LOSE := "SL3.6.double-angle-values#1"
 const R_DEGREES := "SL3.8.graphical#2"
 const R_PART_TURN := "SL3.8.graphical#0"
 const R_TOUCH_TWICE := "SL3.8.graphical#4"
+## t3-trig-quadratic's own slips, by index (FAL-820).
+const TQ := "t3-trig-quadratic#"
+const R_WRONG_SQUARE := TQ + "25"
+const R_BOTH_FNS := TQ + "26"
+const R_SWAP_NUMS := TQ + "27"
+const R_MINUS_B := TQ + "28"
+const R_LARGER := TQ + "29"
+const R_OTHER_SOL := TQ + "30"
+const R_K_SIGN := TQ + "31"
 
 const M_IF := "identity-then-factorise"
 const M_QF := "quadratic-formula"
@@ -308,6 +317,11 @@ static func slips(a: Dictionary, s: Dictionary, one: String = R_ONE_BRACKET) -> 
 	return turned(out, s)
 
 
+## The roots read with the wrong sign where one root is 0, which slips() leaves out.
+static func zero_signs(a: Dictionary, s: Dictionary) -> Array:
+	return xs_alt(a, s, flipped_roots(s), R_SIGNS) if s.kept.any(func(v): return TrigKit.is_zero(v)) else []
+
+
 # ── Graphs ───────────────────────────────────────────────────
 
 ## The left side at x, once every term is on it.
@@ -419,7 +433,7 @@ func u_quadratic_in_u(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs.append(DifferentiationViews.alt(side([[c[0] / 2, sq_name(s)], [c[1], name], [c[2], ""]]) + " = 0", R_COS2_LOSE))
 	out.wrongs = turned(wrongs, s)
 	var gens: Array = [[-c[1], c[2]], [c[1], -c[2]], [c[1], c[2] + 1], [c[1], c[2] - 1], [-c[1], -c[2]], [c[1] + 1, c[2]]]
-	out.generic = gens.filter(func(g): return g[0] != 0).map(func(g): return quad_alt(s, g[0], g[1]).values)
+	out.fillers = gens.filter(func(g): return g[0] != 0).map(func(g): return quad_alt(s, g[0], g[1]).values)
 	out.methods = {M_IF: method([swapped_step(s), "Bring every term to one side, with %s in front of %s." % [Fmt.num(c[0]), sq_name(s)], say(a)], a.values)}
 	return out
 
@@ -431,11 +445,11 @@ func u_identity_to_use(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var picks: Array
 	if s.dis == "pythag":
 		right = "%s²x = 1 − %s²x" % [o, fn]
-		picks = [wrong({"v": "%s²x = %s²x − 1" % [o, fn]}, R_PYTHAG), wrong({"v": "%s²x = 1 + %s²x" % [o, fn]}, R_PYTHAG), wrong({"v": "%s²x = 1 − %s²x" % [fn, o]})]
+		picks = [wrong({"v": "%s²x = %s²x − 1" % [o, fn]}, R_PYTHAG), wrong({"v": "%s²x = 1 + %s²x" % [o, fn]}, R_PYTHAG), wrong({"v": "%s²x = 1 − %s²x" % [fn, o]}, R_WRONG_SQUARE)]
 	else:
 		right = "cos 2x = " + cos2_form(fn)
 		picks = [wrong({"v": "cos 2x = " + cos2_form(o)}, R_COS2_IN_SIN if fn == "sin" else R_COS2_IN_COS),
-			wrong({"v": "cos 2x = 1 − sin²x" if fn == "sin" else "cos 2x = cos²x − 1"}, R_COS2_LOSE), wrong({"v": "cos 2x = cos²x − sin²x"})]
+			wrong({"v": "cos 2x = 1 − sin²x" if fn == "sin" else "cos 2x = cos²x − 1"}, R_COS2_LOSE), wrong({"v": "cos 2x = cos²x − sin²x"}, R_BOTH_FNS)]
 	var opts: Array = [right]
 	for w in picks:
 		opts.append(w.values.v)
@@ -465,8 +479,11 @@ func u_factorised_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": [eq_text(s)], "asked": "Factorise the left side."}
 	var alt := func(x: int, y: int, ref: String = "") -> Dictionary: return DifferentiationViews.alt(two_brackets(s, x, y), ref, {"p": Q.new(x), "q": Q.new(y)})
 	out.wrongs = [alt.call(-p, -q, R_SIGNS)]
-	var gens: Array = [[q, p], [p, -q], [-p, q], [p + 1, q], [p, q - 1]]
-	out.generic = gens.filter(func(g): return g[0] != 0 and g[1] != 0).map(func(g): return alt.call(g[0], g[1]).values)
+	# The numbers in each other's brackets is the same answer when both brackets start alike.
+	if s.lead[0] != s.lead[1] and p != 0 and q != 0:
+		out.wrongs.append(alt.call(q, p, R_SWAP_NUMS))
+	var gens: Array = [[p, -q], [-p, q], [p + 1, q], [p, q - 1]]
+	out.fillers = gens.filter(func(g): return g[0] != 0 and g[1] != 0).map(func(g): return alt.call(g[0], g[1]).values)
 	var c: Array = s.p
 	out.methods = {M_IF: method(["Let u = %s: %s" % [name, uq(c)], "Two numbers with product %s and sum %s split the middle term, or try brackets: %s = 0" % [Fmt.num(c[0] * c[2]), Fmt.num(c[1]), brackets_text(s)], say(a)], a.values)}
 	return out
@@ -483,8 +500,8 @@ func u_values_of_u(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := DifferentiationViews.form(first.values.text, ["u = ", {"slot": "r1"}, " or u = ", {"slot": "r2"}], {"r1": first.values.r1, "r2": first.values.r2})
 	a.unordered = [["r1", "r2"]]
 	var out := {"answer": a, "lines": [eq_text(s)], "asked": "Let u = %s. Find the two values of u that solve the quadratic this gives." % u_name(s)}
-	out.wrongs = [pair.call(r1.neg(), r2.neg(), R_SIGNS)]
-	out.generic = [pair.call(r1, r2.neg()).values, pair.call(r1.neg(), r2).values, pair.call(r1.add(1), r2).values, pair.call(r1, r2.add(1)).values, pair.call(r1.mul(2), r2.mul(2)).values]
+	out.wrongs = [pair.call(r1.neg(), r2.neg(), R_SIGNS), pair.call(r1.mul(2), r2.mul(2), R_NOT_DOUBLED)]
+	out.fillers = [pair.call(r1, r2.neg()).values, pair.call(r1.neg(), r2).values, pair.call(r1.add(1), r2).values, pair.call(r1, r2.add(1)).values]
 	var plain := s.duplicate()
 	plain.bad = []
 	out.methods = {M_IF: method([to_quadratic(s), factor_step(plain), say(a)], a.values), M_QF: method([to_quadratic(s), formula_step(plain), say(a)], a.values)}
@@ -497,8 +514,9 @@ func u_formula_root(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var bad: Array = s.bad[0]
 	var a := TrigKit.ans(name + " = ", v)
 	var out := {"answer": a, "lines": [eq_text(s)], "asked": "Find the exact value of %s." % name}
-	out.wrongs = turned(TrigKit.like(a, bad, R_RANGE) + TrigKit.like(a, TrigKit.times(v, 2), R_NOT_DOUBLED), s)
-	out.generic = TrigKit.others(a, [TrigKit.neg(v), TrigKit.neg(bad), TrigKit.times(bad, 2), TrigKit.plus(v, TrigKit.V(1)), TrigKit.plus(v, TrigKit.V(-1))])
+	out.wrongs = turned(TrigKit.like(a, bad, R_RANGE) + TrigKit.like(a, TrigKit.times(v, 2), R_NOT_DOUBLED) + TrigKit.like(a, TrigKit.neg(v), R_MINUS_B)
+		+ TrigKit.like(a, TrigKit.neg(bad), R_MINUS_B), s)
+	out.fillers = TrigKit.others(a, [TrigKit.times(bad, 2), TrigKit.plus(v, TrigKit.V(1)), TrigKit.plus(v, TrigKit.V(-1))])
 	var c: Array = s.p
 	out.methods = {M_QF: method([to_quadratic(s), "It has no whole-number factors, so use the formula: u = (%s ± √%d)/%d" % [Fmt.num(-c[1]), discriminant(c), 2 * c[0]],
 		"So u = %s or u = %s.%s" % [T(s.us[0]), T(s.us[1]), reject_tail(s)], say(a)], a.values)}
@@ -523,9 +541,17 @@ func u_reject_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wrongs: Array = [DifferentiationViews.alt(NEITHER, R_RANGE)]
 	if TrigKit.fl(good) < 0.0:
 		wrongs.append(alt.call(good, WHY_NEGATIVE, R_REJECT_NEG))
+	# A reason is a slip only where it is true of the root: the larger one, or a negative one.
+	var fills: Array = [alt.call(good, range_why)]
+	var bad_larger: bool = TrigKit.fl(bad) > TrigKit.fl(good)
+	wrongs.append(alt.call(bad if bad_larger else good, WHY_LARGER, R_LARGER))
+	fills.append(alt.call(good if bad_larger else bad, WHY_LARGER))
+	if TrigKit.fl(bad) < 0.0:
+		wrongs.append(alt.call(bad, WHY_NEGATIVE, R_REJECT_NEG))
+	else:
+		fills.append(alt.call(bad, WHY_NEGATIVE))
 	out.wrongs = turned(wrongs, s)
-	var gens: Array = [alt.call(bad, WHY_LARGER), alt.call(good, range_why), alt.call(good, WHY_LARGER), alt.call(bad, WHY_NEGATIVE)]
-	out.generic = gens.map(func(g): return g.values)
+	out.fillers = fills.map(func(g): return g.values)
 	var plain := s.duplicate()
 	plain.bad = []
 	var last := "%s can't be below −1 or above 1, and %s is outside that." % [u_name(s), T(bad)]
@@ -539,8 +565,8 @@ func _solve_view(rep: String, s: Dictionary) -> Dictionary:
 	var a := xs_ans(s)
 	var out := {"answer": a, "lines": [line(s)], "asked": "Solve the equation, giving exact answers."}
 	fig_whole(out, rep, s)
-	out.wrongs = slips(a, s)
-	out.generic = xs_others(a, s, [flipped_roots(s)] + nudged(s, s.xs))
+	out.wrongs = slips(a, s) + zero_signs(a, s)
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	out.methods = solving(s, a)
 	return out
 
@@ -570,7 +596,7 @@ func u_plus_minus_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": [line(s)], "asked": "Solve the equation, giving exact answers."}
 	fig_whole(out, rep, s)
 	out.wrongs = slips(a, s, R_PLUS_ONLY)
-	out.generic = xs_others(a, s, nudged(s, s.xs))
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	out.methods = {M_IF: method(square_steps(s) + [say(a)], a.values)}
 	return out
 
@@ -584,7 +610,7 @@ func u_tan_squared(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": ["%s, for %s" % [eq, interval(s)]], "asked": "Solve the equation, giving exact answers."}
 	fig_whole(out, rep, s)
 	out.wrongs = slips(a, s, R_ONE_ROOT)
-	out.generic = xs_others(a, s, nudged(s, s.xs))
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	out.methods = {M_IF: method(square_steps(s) + [say(a)], a.values)}
 	return out
 
@@ -594,8 +620,8 @@ func u_tan_zero_root(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": ["%s, for %s" % [to_tan_line("tan²x", "tan x", s.k), interval(s)]], "asked": "Solve the equation, giving exact answers."}
 	var kept := TrigQuadraticSituation.on(s, "tan", s.k)
 	var zeros := TrigQuadraticSituation.on(s, "tan", TrigKit.V(0))
-	out.wrongs = xs_alt(a, s, kept, R_CANCEL)
-	out.generic = xs_others(a, s, [zeros, flipped_roots(s)] + nudged(s, s.xs))
+	out.wrongs = xs_alt(a, s, kept, R_CANCEL) + xs_alt(a, s, zeros, R_ONE_BRACKET) + xs_alt(a, s, flipped_roots(s), R_SIGNS)
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	out.methods = {M_IF: method(["Let u = tan x and bring it to one side: u(u %s) = 0" % _minus(s.k), "Do not cancel u: u = 0 or u = %s" % T(s.k), "u = 0 gives x = %s, and u = %s gives x = %s." % [list_text(s, zeros), T(s.k), list_text(s, kept)], say(a)], a.values)}
 	return out
 
@@ -624,8 +650,8 @@ static func surd_bracket(l: int, v: Array) -> String:
 func u_surd_coefficient(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := xs_ans(s)
 	var out := {"answer": a, "lines": ["%s, for %s" % [surd_line(s, sq_name(s), u_name(s)), interval(s)]], "asked": "Solve the equation, giving exact answers."}
-	out.wrongs = slips(a, s)
-	out.generic = xs_others(a, s, [flipped_roots(s)] + nudged(s, s.xs))
+	out.wrongs = slips(a, s) + zero_signs(a, s)
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	var q: Dictionary = s.surd
 	var let_u := "Let u = %s: %s" % [u_name(s), surd_line({"surd": q}, "u²", "u")]
 	var top := "%s" % T(TrigKit.plus(TrigKit.times(q.right, q.l), TrigKit.times(q.left, q.m)))
@@ -655,8 +681,9 @@ func u_compound_quadratic(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	wrongs += xs_alt(a, s, [principal(s.fn, s.kept[0]).div(s.b)].filter(func(x): return not x.lt(s.lo) and not s.hi.lt(x)), R_ONE_BACK)
 	if s.kept.size() == 2:
 		wrongs += xs_alt(a, s, TrigQuadraticSituation.on(s, s.fn, s.kept[0]), R_ONE_BRACKET)
+	wrongs += xs_alt(a, s, flipped_roots(s), R_SIGNS)
 	out.wrongs = turned(wrongs, s)
-	out.generic = xs_others(a, s, [flipped_roots(s)] + nudged(s, s.xs))
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	out.methods = solving(s, a)
 	out.methods[M_IF].steps.insert(2, wave_note(s))
 	out.methods[M_QF].steps.insert(2, wave_note(s))
@@ -686,7 +713,7 @@ func u_rational_disguise(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		wrongs += xs_alt(a, s, TrigQuadraticSituation.on(s, s.fn, s.kept[0]), R_ONE_BRACKET)
 	wrongs += xs_alt(a, s, flipped_roots(s), R_SIGNS)
 	out.wrongs = turned(wrongs, s)
-	out.generic = xs_others(a, s, nudged(s, s.xs))
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	var e_text := "u %s 1" % ("−" if s.e.sign() > 0 else "+")
 	var c: Array = s.p
 	var top: int = s.top
@@ -732,8 +759,9 @@ func u_double_factor(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wrongs: Array = xs_alt(a, s, rest, R_CANCEL)
 	if s.kind == "square":
 		wrongs += xs_alt(a, s, TrigEquationSituation._merge(zeros, TrigQuadraticSituation.on(s, "sin", s.us[0])), R_PLUS_ONLY)
+	wrongs += xs_alt(a, s, zeros, R_ONE_BRACKET)
 	out.wrongs = turned(wrongs, s)
-	out.generic = xs_others(a, s, [zeros] + nudged(s, s.xs))
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	var head: String
 	var parts: String
 	if s.kind == "tan":
@@ -799,7 +827,7 @@ func u_count_solutions(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": [line(s)], "asked": "How many solutions does the equation have on this interval?"}
 	fig_lines(out, rep, s)
 	out.wrongs = count_wrongs(s, n, false)
-	out.generic = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 1))}, {"v": Q.new(2 * n)}, {"v": Q.new(n + 3)}, {"v": Q.new(n + 4)}]
+	out.fillers = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 1))}, {"v": Q.new(2 * n)}, {"v": Q.new(n + 3)}, {"v": Q.new(n + 4)}]
 	out.methods = solving(s, a, ["Count them: %s." % Answer.text(a)])
 	return out
 
@@ -825,9 +853,10 @@ func u_one_solution(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	wrongs += xs_alt(a, s, pick_or(flipped_roots(s), s.kind), R_SIGNS)
 	if not s.kept.any(func(v): return TrigKit.is_zero(v)):
 		wrongs += xs_alt(a, s, pick_or(mains(s), s.kind), R_PRINCIPAL)
+	for x in s.all:
+		wrongs += xs_alt(a, s, [x], R_OTHER_SOL)
 	out.wrongs = turned(wrongs, s)
-	var others: Array = s.all.map(func(x): return [x])
-	out.generic = xs_others(a, s, others + nudged(s, s.xs))
+	out.fillers = xs_others(a, s, nudged(s, s.xs))
 	out.methods = {M_IF: method([to_quadratic(s), factor_step(s), solve_step(s), say(a)], a.values)}
 	return out
 
@@ -856,7 +885,7 @@ func u_sum_solutions(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	wrongs += sum_alt(s, flipped_roots(s), R_SIGNS)
 	out.wrongs = turned(wrongs, s)
 	var gens: Array = [t.add(Q.new(1, 2)), t.add(1), t.sub(Q.new(1, 2)), t.mul(2), t.add(Q.new(1, 3)), t.add(2)]
-	out.generic = gens.filter(func(g): return not g.is_zero()).map(func(g): return DifferentiationViews.alt(sum_text(s, g), "", {"a": slot_value(s, g)}).values)
+	out.fillers = gens.filter(func(g): return not g.is_zero()).map(func(g): return DifferentiationViews.alt(sum_text(s, g), "", {"a": slot_value(s, g)}).values)
 	var last := "Add them: %s." % Answer.text(a)
 	out.methods = {M_IF: method([to_quadratic(s), factor_step(s), solve_step(s), last], a.values)}
 	return out
@@ -877,8 +906,8 @@ func u_constant_from_solution(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var out := {"answer": a, "lines": ["x = %s is a solution of %s." % [A(s, s.sol), eq]], "asked": "Find the value of k."}
 	var ar := r.mul(c[0])
 	var no_sq: Q = ar.add(r.mul(c[1])).neg() if at_c else ar.add(c[2]).div(r).neg()
-	out.wrongs = [wrong({"v": no_sq}, R_NO_SQUARE)]
-	out.generic = [{"v": k.neg()}, {"v": k.add(1)}, {"v": k.sub(1)}, {"v": k.mul(2)}, {"v": k.add(2)}]
+	out.wrongs = [wrong({"v": no_sq}, R_NO_SQUARE)] + ([] if k.is_zero() else [wrong({"v": k.neg()}, R_K_SIGN)])
+	out.fillers = [{"v": k.add(1)}, {"v": k.sub(1)}, {"v": k.mul(2)}, {"v": k.add(2)}]
 	var put: String
 	var first := "%s(%s)²" % ["" if c[0] == 1 else str(c[0]), Fmt.num(r)]
 	if at_c:
@@ -913,7 +942,8 @@ func u_gdc_solve(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.xs.size() > 1:
 		wrongs.append(wrong(Answer.xs_of(s.xs.slice(0, 1)), R_PRINCIPAL))
 	out.wrongs = turned(wrongs, s)
-	out.generic = dec_others(s)
+	# Only the first solution is the R_PRINCIPAL slip above; the rest have no route.
+	out.fillers = dec_fillers(s)
 	var c := scaled(s)
 	var us: Array = s.u_dec
 	var tail := "" if s.bad_dec.is_empty() else " %s = %s has no solutions, as %s is never below −1 or above 1." % [u_name(s), GdcKit.S(s.bad_dec[0]), u_name(s)]
@@ -929,7 +959,7 @@ func u_gdc_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": [line(s)], "asked": "How many solutions does the equation have on this interval?"}
 	fig_whole(out, rep, s)
 	out.wrongs = count_wrongs(s, n, true)
-	out.generic = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 1))}, {"v": Q.new(2 * n)}, {"v": Q.new(n + 3)}, {"v": Q.new(n + 4)}]
+	out.fillers = [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(maxi(n - 1, 1))}, {"v": Q.new(2 * n)}, {"v": Q.new(n + 3)}, {"v": Q.new(n + 4)}]
 	var ends := at_extremes(s)
 	var seen := "The curve meets the x-axis at 1 point." if n == 1 else "The curve meets the x-axis at %d points." % n
 	if ends == n:

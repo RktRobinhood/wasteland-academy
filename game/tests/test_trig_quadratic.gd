@@ -133,7 +133,9 @@ func test_every_tag_shows_up_as_an_option() -> void:
 			for o in q.choices:
 				if o.ref != "":
 					seen[o.ref] = true
-	for m in t.misconceptions:
-		check(seen.has(m.ref), "%s never shows" % m.ref)
+	for i in t.misconceptions.size():
+		# A line added without a ref of its own is "<type>#<index>" (FAL-820).
+		var ref: String = t.misconceptions[i].get("ref", "%s#%d" % [TYPE, i])
+		check(seen.has(ref), "%s never shows" % ref)
 	for i in 3:
 		check(seen.has("%s#%d" % [SKILL, i]), "%s#%d never shows" % [SKILL, i])

@@ -21874,6 +21874,7 @@ def rt_check(q):
 SD_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
 SD_V = "SL3.1.volume-solids#"
 SD_S = "SL3.1.surface-area#"
+SD_T = "t3-solid-volume-area#"           # FAL-820: the slips that were blank options
 SD_SHAPES = {"a right cone": "cone", "a right pyramid": "pyramid", "a solid sphere": "sphere", "a solid hemisphere": "hemisphere",
              "a solid made of a cone on a hemisphere with the same radius": "cone-hemisphere",
              "a solid made of a cone on a cylinder with the same radius": "cone-cylinder",
@@ -22020,7 +22021,7 @@ def check_solid(q):
     sd_measures(q, m)
     unit = " " + ("m" if u == "paint-cost" else "cm")
     u2, u3 = unit + "²", unit + "³"
-    V, S = SD_V, SD_S
+    V, S, T = SD_V, SD_S, SD_T
     pi = True
     r, h, l, c = m.get("r"), m.get("h"), m.get("l"), m.get("c")
     if shape == "inscribed":
@@ -22048,16 +22049,21 @@ def check_solid(q):
             need(sp.Rational(h).q == 1 if h.is_rational else False, f"h = {h} is not whole")
         x = r * r * h / 3
         if u == "cone-volume":
-            table = {V + "1": [3 * x]}
+            table = {V + "1": [3 * x], T + "6": [r * r * h / 2]}  # a half for the third
             if "d" in m:
                 table[V + "2"] = [4 * x]
             want, trap, wrongs = sd_set(q, "V = ", x, u3, True, table)
         elif u == "height-from-slant":
             x, pi = h, False
-            want, trap, wrongs = sd_set(q, "h = ", h, unit, False, {})
+            table = {T + "8": [l - r]}  # the lengths taken away, not their squares
+            if paper == 2:
+                table[T + "9"] = [pyth(l, r)]  # the squares added
+            else:
+                table[V + "0"] = [l]  # the slant height given as the height
+            want, trap, wrongs = sd_set(q, "h = ", h, unit, False, table)
         elif u == "slant-from-total":
             x, pi = l, False
-            want, trap, wrongs = sd_set(q, "l = ", l, unit, False, {})
+            want, trap, wrongs = sd_set(q, "l = ", l, unit, False, {T + "13": [l + r]})  # A ÷ πr with r not taken away
         else:
             want, trap, wrongs = sd_set(q, "V = ", x, u3, True, {V + "0": [r * r * l / 3], V + "1": [3 * x]})
     elif u in ("cone-curved", "cone-total"):
@@ -22068,12 +22074,18 @@ def check_solid(q):
         need(paper == 2 or l.q == 1, "l is not whole")
         x = r * l + (r * r if u == "cone-total" else 0)
         table = {S + "0": [r * h + (r * r if u == "cone-total" else 0)]} if h is not None else {}
+        if u == "cone-curved":
+            table[T + "10"] = [r * l + r * r]  # the base added
+            table[T + "11"] = [2 * r * l]  # 2πrl
+        else:
+            table[S + "1"] = [r * l]  # the base left out
+            table[T + "12"] = [r * l + 2 * r * r]  # two ends
         want, trap, wrongs = sd_set(q, "area = ", x, u2, True, table)
     elif u == "pyramid-volume":
         a, b = m["a"], m.get("b", m["a"])
         x, pi = a * b * h / 3, False
         need(paper == 2 or x.q == 1, "a Paper 1 pyramid's volume is whole")
-        want, trap, wrongs = sd_set(q, "V = ", x, u3, False, {V + "1": [3 * x]})
+        want, trap, wrongs = sd_set(q, "V = ", x, u3, False, {V + "1": [3 * x], T + "6": [a * b * h / 2]})  # a half for the third
     elif u in ("pyramid-volume-from-slant", "pyramid-volume-from-edge"):
         a = m["a"]
         sl = m["t"] if "slant" in u else m["e"]
@@ -22086,7 +22098,8 @@ def check_solid(q):
         t = pyth(a / 2, h)
         need(paper == 2 or t.is_integer, f"t = {t} is not whole")
         x, pi = a * a + 2 * a * t, False
-        want, trap, wrongs = sd_set(q, "area = ", x, u2, False, {S + "0": [a * a + 2 * a * h]})
+        want, trap, wrongs = sd_set(q, "area = ", x, u2, False, {S + "0": [a * a + 2 * a * h], S + "1": [2 * a * t],  # no base
+                                                                T + "14": [a * a + 4 * a * t]})  # faces not halved
     elif u in ("sphere-volume", "sphere-surface", "hemisphere-volume", "hemisphere-surface"):
         if u == "sphere-volume":
             x = 4 * r ** 3 / 3
@@ -22102,6 +22115,11 @@ def check_solid(q):
         if u == "hemisphere-surface":
             table[S + "1"] = [2 * r * r]
             table[S + "2"] = [4 * r * r]
+        # The other formula: a surface for a volume, a volume for a surface.
+        table[T + "15"] = {"sphere-volume": [4 * r * r], "sphere-surface": [4 * r ** 3 / 3], "hemisphere-volume": [2 * r * r, 3 * r * r],
+                           "hemisphere-surface": [2 * r ** 3 / 3]}[u]
+        if u == "sphere-surface":
+            table[T + "16"] = [r * r]  # a flat circle
         want, trap, wrongs = sd_set(q, "V = " if "volume" in u else "area = ", x, u3 if "volume" in u else u2, True, table)
     elif u == "radius-from-volume":
         Vv, has_pi = sd_given(q, "volume")
@@ -22121,6 +22139,8 @@ def check_solid(q):
             table[V + "1"] = [sp.real_root(3 * W / (4 * sp.pi), 3)]
         if paper == 2 and shape == "cone":
             table[V + "1"] = [sp.sqrt(W / (sp.pi * h))]
+        if shape == "cone":
+            table[T + "17"] = [x * x]  # r² with no root
         want, trap, wrongs = sd_set(q, "r = ", x, unit, False, table)
     elif u == "height-from-volume":
         Vv, has_pi = sd_given(q, "volume")
@@ -22162,6 +22182,11 @@ def check_solid(q):
                     table.setdefault(V + "0", []).append(x + (l - h) * r * r / 3)
             if shape in ("cone-hemisphere", "hemisphere-cylinder"):
                 table.setdefault(V + "1", []).append(x + dome_v)
+            if shape == "cylinder-minus-hemisphere":
+                table[T + "19"] = [big * big * c + dome_v]  # the hole added
+            else:
+                first = cone_v if shape.startswith("cone") else dome_v
+                table[T + "18"] = [first, x - first]  # one piece
             want, trap, wrongs = sd_set(q, "V = ", x, u3, True, table)
         elif u == "composite-surface":
             x = surf
@@ -22170,6 +22195,8 @@ def check_solid(q):
                 table[S + "0"] = [x + r * (h - l)]
             if shape != "cone-cylinder":
                 table[S + "2"] = [x + 2 * r * r]
+            if shape in ("cone-cylinder", "hemisphere-cylinder"):
+                table[S + "1"].append(x - r * r)  # the base left out
             want, trap, wrongs = sd_set(q, "area = ", x, u2, True, table)
         else:
             mt = re.fullmatch(r"Paint costs \$(\d+(?:\.\d\d)?) per m²\.", L[-1])
@@ -22184,6 +22211,7 @@ def check_solid(q):
                 table[S + "0"] = [x + r * (h - l) * price]
             if shape == "hemisphere-cylinder":
                 table[S + "2"] = [x + 2 * r * r * price]
+            table[T + "20"] = [op]  # the area, not the cost
             want, trap, wrongs = sd_set(q, "cost = $", x, "", True, table)
     elif u == "composite-volume-solve":
         need(paper == 2, "the GDC solver is Paper 2")
@@ -22220,6 +22248,8 @@ def check_solid(q):
             base = rx * rx if whole else 0
             want = sd_terms("S = ", [(rx * lx + base, "πx²")])
             wrongs = {S + "0": {sd_terms("S = ", [(rx * hx + base, "πx²")])}}
+            if not whole:
+                wrongs[T + "10"] = {sd_terms("S = ", [(rx * lx + rx * rx, "πx²")])}  # the base added
         elif shape == "hemisphere":
             want = sd_terms("S = ", [(3 * rx * rx, "πx²")])
             wrongs = {S + "1": {sd_terms("S = ", [(2 * rx * rx, "πx²")])}, S + "2": {sd_terms("S = ", [(4 * rx * rx, "πx²")])}}
@@ -22238,7 +22268,11 @@ def check_solid(q):
             S_e = sp.expand(2 * sp.pi * k * r_s * h_s + 2 * sp.pi * r_s * h_s + 2 * sp.pi * ((k * r_s) ** 2 - r_s ** 2))
             a2, a1 = S_e.coeff(r_s, 2) / sp.pi, S_e.coeff(r_s, 1).coeff(h_s, 1) / sp.pi
             want = sd_terms("S = ", [(a2, "πr²"), (a1, "πrh")])
-            wrongs = {S + "1": {sd_terms("S = ", [(2 * a2, "πr²"), (a1, "πrh")])}}
+            outer = 2 * k
+            wrongs = {S + "1": {sd_terms("S = ", [(2 * a2, "πr²"), (a1, "πrh")])},
+                      T + "21": {sd_terms("S = ", [(2 * k * k, "πr²"), (a1, "πrh")])},  # the hole left in the rings
+                      T + "22": {sd_terms("S = ", [(a2, "πr²"), (outer, "πrh")])},  # no inner wall
+                      T + "23": {sd_terms("S = ", [(a2, "πr²"), (outer - 2, "πrh")])}}  # inner wall taken away
         else:
             mt = re.search(r"total surface area is (\d+)π cm²", " ".join(L))
             need(mt is not None, "can't read S")
@@ -22256,7 +22290,8 @@ def check_solid(q):
         need(shape in ("capsule", "hemisphere-cylinder"), shape)
         two = shape == "capsule"
         want = sd_terms("S = ", [(2 * W, "/x"), (4 if two else 3, "πx²")])
-        wrongs = {S + "1": {sd_terms("S = ", [(2 * W, "/x"), (6 if two else 2, "πx²")])}}
+        wrongs = {S + "1": {sd_terms("S = ", [(2 * W, "/x"), (6 if two else 2, "πx²")])},
+                  T + "24": {sd_terms("S = ", [(W, "/x"), (4 if two else 3, "πx²")])}}  # the wall's two dropped
         if not two:
             wrongs[S + "2"] = {sd_terms("S = ", [(2 * W, "/x"), (5, "πx²")])}
         q["_expr"] = True
@@ -22266,10 +22301,11 @@ def check_solid(q):
         need(paper == 2 or R_.is_integer, f"R = {R_} is not whole")
         if u == "inscribed-volume":
             x = R_ * R_ * h
-            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, {V + "0": [r * r * h], V + "1": [x / 3]})
+            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, {V + "0": [r * r * h], V + "1": [x / 3], T + "7": [R_ * h],  # R not squared
+                                                                 T + "25": [4 * r ** 3 / 3 - x]})  # the space left over
         else:
             x = 2 * R_ * R_ + 2 * R_ * h
-            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {S + "0": [2 * r * r + 2 * r * h], S + "1": [R_ * R_ + 2 * R_ * h]})
+            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {S + "0": [2 * r * r + 2 * r * h], S + "1": [R_ * R_ + 2 * R_ * h, 2 * R_ * h]})
     elif u in ("sector-cone-radius", "sector-curved"):
         l, th = m["l"], m["theta"]
         need(60 <= th <= 300, f"θ = {th}")
@@ -22277,10 +22313,10 @@ def check_solid(q):
         if u == "sector-cone-radius":
             x, pi = rr, False
             need(paper == 2 or rr.q == 1, "r is not whole")
-            want, trap, wrongs = sd_set(q, "r = ", rr, unit, False, {})
+            want, trap, wrongs = sd_set(q, "r = ", rr, unit, False, {V + "2": [2 * rr]})  # the diameter
         else:
             x = th / 360 * l * l
-            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {})
+            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {T + "26": [l * l], T + "27": [rr * rr], T + "10": [x + rr * rr]})  # whole circle, base, base added
     elif u == "sector-angle":
         if q["graph"] is not None:
             need(q["graph"]["theta"] == "θ", "the angle is the unknown")
@@ -22293,7 +22329,7 @@ def check_solid(q):
         x, pi = 360 * rr / l, False
         need(60 <= x <= 300, f"θ = {x}")
         need(paper == 2 or x.q == 1, "θ is not whole")
-        want, trap, wrongs = sd_set(q, "θ = ", x, "°", False, {})
+        want, trap, wrongs = sd_set(q, "θ = ", x, "°", False, {T + "28": [360 - x]})  # the part cut away
     else:
         raise Fail(f"no check for {u}")
     if x is not None:
@@ -34589,6 +34625,9 @@ E9TRIG_B, E9TRIG_TAN_AMP, E9TRIG_TAN_SIN, E9TRIG_SIN_TAN, E9TRIG_NO_D, E9TRIG_SW
 E9TRIG_AMP = E9TRIG_RF + "11"
 E9TRIG_AXIS, E9TRIG_MINUS, E9TRIG_SIN_COS, E9TRIG_WHEEL = [E9TRIG_RF + str(i) for i in range(7, 11)]
 E9TRIG_HALF, E9TRIG_DOUBLE = E9TRIG_EF + "0", E9TRIG_EF + "1"
+E9TRIG_NO_ADD_D, E9TRIG_OTHER_FN, E9TRIG_NO_A, E9TRIG_LATER_T, E9TRIG_SHORT, E9TRIG_PAST, E9TRIG_MIN_T, E9TRIG_WORDS, E9TRIG_TWICE_A = (
+    f"t3-trig-model-use#{i}" for i in range(13, 22))  # FAL-820
+E9TRIG_MAX_AMP, E9TRIG_X_AXIS, E9TRIG_BASE_AXIS, E9TRIG_STRICT, E9TRIG_LATER, E9TRIG_FLIP = (f"t3-trig-read-features#{i}" for i in range(15, 21))  # FAL-820
 E9TRIG_DEG, E9TRIG_FIRST, E9TRIG_PERB, E9TRIG_SIDE, E9TRIG_ONE_SIDE, E9TRIG_CYCLE, E9TRIG_C, E9TRIG_D_X = [E9TRIG_MC + str(i) for i in range(8)]
 E9TRIG_DIVIDE, E9TRIG_UNIT, E9TRIG_WHOLE, E9TRIG_SIGN = [E9TRIG_MC + str(i) for i in range(8, 12)]
 E9TRIG_STORIES = {"D": ("The depth of water at the old harbour wall", "m", "hours"), "T": ("The temperature inside the grain store", "°C", "hours"),
@@ -34803,13 +34842,15 @@ def e9trig_read_features(q):
     amp = abs(A)
     if u == "amplitude":
         l = "Amplitude = "
-        gc_check_common(q, l + dec_text(amp), {E9TRIG_AMP: {l + dec_text(A), l + dec_text(A + d)}, E9TRIG_DOUBLE: {l + dec_text(top - low)}})
+        gc_check_common(q, l + dec_text(amp), {E9TRIG_AMP: {l + dec_text(A), l + dec_text(A + d)}, E9TRIG_DOUBLE: {l + dec_text(top - low)},
+                                               E9TRIG_AXIS: {l + dec_text(d)}, E9TRIG_MAX_AMP: {l + dec_text(top)}})  # the axis, the top
     elif u == "period":
         e9trig_period(q, W)
     elif u == "amp-period":
         e9trig_two(q, W, "Amplitude", amp, "period", T, {E9TRIG_HALF: [(amp, T / 2)], E9TRIG_SIN_TAN: [(amp, T / 2)], E9TRIG_DOUBLE: [(top - low, T)], E9TRIG_AMP: [(A, T), (A + d, T)]})
     elif u == "principal-axis":
-        gc_check_common(q, f"y = {dec_text(d)}", {E9TRIG_AXIS: {f"y = {dec_text(amp)}"}})
+        gc_check_common(q, f"y = {dec_text(d)}", {E9TRIG_AXIS: {f"y = {dec_text(amp)}"}, E9TRIG_X_AXIS: {f"x = {dec_text(d)}"},  # x for y
+                                                  E9TRIG_BASE_AXIS: {"y = 0"}})  # d left off
     elif u == "max-value":
         l = "Maximum value = "
         gc_check_common(q, l + dec_text(top), {E9TRIG_NO_D: {l + dec_text(amp)}, E9TRIG_SWAP: {l + dec_text(d + A)}})
@@ -34817,7 +34858,8 @@ def e9trig_read_features(q):
         l = "Minimum value = "
         gc_check_common(q, l + dec_text(low), {E9TRIG_NO_D: {l + dec_text(-amp)}, E9TRIG_SWAP: {l + dec_text(d - A)}})
     elif u == "range":
-        gc_check_common(q, f"{dec_text(low)} ≤ y ≤ {dec_text(top)}", {E9TRIG_NO_D: {f"{dec_text(-amp)} ≤ y ≤ {dec_text(amp)}"}})
+        gc_check_common(q, f"{dec_text(low)} ≤ y ≤ {dec_text(top)}", {E9TRIG_NO_D: {f"{dec_text(-amp)} ≤ y ≤ {dec_text(amp)}"},
+                                                                    E9TRIG_STRICT: {f"{dec_text(low)} < y < {dec_text(top)}"}})  # strict
     elif u == "first-max-x":
         xm = W["xm"]
         wr = {}
@@ -34825,6 +34867,7 @@ def e9trig_read_features(q):
             c = W["c"]
             wr[E9TRIG_MINUS] = [(top, e9trig_peak(-A, fn, c, T))]
             wr[E9TRIG_SIN_COS] = [(top, e9trig_peak(A, "cos" if fn == "sin" else "sin", c, T))]
+        wr[E9TRIG_LATER] = [(top, xm + T)]  # the next peak
         e9trig_two(q, W, "Maximum", top, "x", xm, wr)
     elif u == "tan-period":
         e9trig_period_tan(q, W)
@@ -34838,10 +34881,10 @@ def e9trig_read_features(q):
             b = sp.nsimplify(b)
             gc_check_common(q, f"b = {dec_text(b)}", {E9TRIG_PERB: {"b = " + as_pi(sp.nsimplify(T / sp.pi))}, E9TRIG_HALF: {f"b = {dec_text(2 * b)}"}})
         else:
-            tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b]}, steps=(2, 5))
+            tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b], E9TRIG_SIN_TAN: [sp.pi / T], E9TRIG_FLIP: [T / (2 * sp.pi)]}, steps=(2, 5))  # π ÷ T, T ÷ 2π
     elif u == "a-d-from-graph":
         t = lambda a_, d_: f"a = {dec_text(a_)}, d = {dec_text(d_)}"
-        gc_check_common(q, t(amp, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, amp)}})
+        gc_check_common(q, t(amp, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, amp)}, E9TRIG_MAX_AMP: {t(top, d)}})  # the top for a
     else:
         raise Fail(f"no check for {u}")
 
@@ -34885,9 +34928,9 @@ def e9trig_b_story(q):
     b = 2 * sp.pi / T
     if paper == 1:
         t = lambda v: "b = " + as_pi(sp.Rational(v / sp.pi))
-        gc_check_common(q, t(b), {E9TRIG_PERB: {f"b = {T}"}, E9TRIG_HALF: {t(2 * b)}})
+        gc_check_common(q, t(b), {E9TRIG_PERB: {f"b = {T}"}, E9TRIG_HALF: {t(2 * b)}, E9TRIG_SIN_TAN: {t(sp.pi / T)}})  # π ÷ T
     else:
-        tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b]}, steps=(2, 5))
+        tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b], E9TRIG_SIN_TAN: [sp.pi / T], E9TRIG_FLIP: [T / (2 * sp.pi)]}, steps=(2, 5))  # π ÷ T, T ÷ 2π
 
 
 def e9trig_amp_axis(q):
@@ -34900,7 +34943,7 @@ def e9trig_amp_axis(q):
     need(low > 0 and top > low, "the range is the wrong way round")
     a, d = (top - low) / 2, (top + low) / 2
     t = lambda x, y: f"Amplitude = {dec_text(x)}, principal axis y = {dec_text(y)}"
-    gc_check_common(q, t(a, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, a)}})
+    gc_check_common(q, t(a, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, a)}, E9TRIG_MAX_AMP: {t(top, d)}})  # the top for a
 
 
 def e9trig_wheel(q):
@@ -35032,19 +35075,21 @@ def e9trig_model_use(q):
         m = re.fullmatch(rf"Find {re.escape(what)} when t = (\d+), to 3 significant figures\.", ask)
         need(m is not None, f"can't read {ask!r}")
         t = int(m[1])
-        e9trig_num(q, sym + " = ", e9trig_at(M, t), unit, {E9TRIG_DEG: [e9trig_at(M, t, True)]})
+        e9trig_num(q, sym + " = ", e9trig_at(M, t), unit, {E9TRIG_DEG: [e9trig_at(M, t, True)], E9TRIG_NO_ADD_D: [e9trig_at(M, t) - M["fd"]]})  # d not added
     elif u == "exact-value":
         m = re.fullmatch(rf"Find the exact value of {re.escape(what)} when t = (\d+)\.", ask)
         need(m is not None and paper == 1, f"can't read {ask!r}")
         t = int(m[1])
         fv = (sp.sin if M["fn"] == "sin" else sp.cos)(M["b"] * t)
+        ov = (sp.cos if M["fn"] == "sin" else sp.sin)(M["b"] * t)
         v = M["A"] * fv + M["d"]
-        tr_common(q, sym + " = ", v, {E9TRIG_SIGN: [M["d"] - M["A"] * fv]}, tail=unit, steps=(2, 5))
+        tr_common(q, sym + " = ", v, {E9TRIG_SIGN: [M["d"] - M["A"] * fv], E9TRIG_NO_ADD_D: [M["A"] * fv], E9TRIG_OTHER_FN: [M["A"] * ov + M["d"]],
+                                      E9TRIG_NO_A: [fv + M["d"]]}, tail=unit, steps=(2, 5))  # no d, the other function, no a
     elif u == "first-time-level":
         k = e9trig_level(q, M)
         xs = e9trig_cross(M, float(k), 1e-6, 2.2 * T)
         ds = e9trig_cross(M, float(k), 0.0, 1.01 * 360.0 / M["fb"], True)
-        e9trig_num(q, "t = ", xs[0], time, {E9TRIG_DEG: ds[:1]})
+        e9trig_num(q, "t = ", xs[0], time, {E9TRIG_DEG: ds[:1], E9TRIG_LATER_T: [xs[1], xs[0] + T]})  # a later crossing
     elif u == "all-times":
         m = re.fullmatch(rf"Find every time in 0 ≤ t ≤ (\d+) when {re.escape(what)} is ({E9TRIG_NUM}) {re.escape(M['unit'])}, to 3 significant figures\.", ask)
         need(m is not None, f"can't read {ask!r}")
@@ -35052,7 +35097,8 @@ def e9trig_model_use(q):
         xs = e9trig_cross(M, k, 0.0, L_)
         need(2 <= len(xs) <= 4, f"{len(xs)} times")
         ds = e9trig_cross(M, k, 0.0, 720.0 / M["fb"], True)[:2]
-        gc_check_common(q, e9trig_list(xs), {E9TRIG_FIRST: {e9trig_list(xs[:1])}, E9TRIG_DEG: {e9trig_list(ds)}})
+        gc_check_common(q, e9trig_list(xs), {E9TRIG_FIRST: {e9trig_list(xs[:1])}, E9TRIG_DEG: {e9trig_list(ds)},
+                                             E9TRIG_SHORT: {e9trig_list(xs[:-1])}, E9TRIG_PAST: {e9trig_list(xs + [xs[-1] + T])}})  # last missed, one past the end
     elif u in ("duration-above", "duration-below"):
         k = e9trig_level(q, M)
         w = e9trig_cycle(M, float(k))
@@ -35077,10 +35123,12 @@ def e9trig_model_use(q):
         t = M["tmax"]
         c = M["fc"]
         whole = abs(t - round(t)) < 1e-9
+        later, low_t = M["tmax"] + T, M["tmin"]  # the next peak, the first trough
         if whole:
-            gc_check_common(q, f"t = {round(t)}{time}", {E9TRIG_C: {f"t = {dec_text(sp.Rational(M['c']))}{time}"}})
+            ex = lambda v: f"t = {dec_text(sp.nsimplify(round(v, 9)))}{time}"
+            gc_check_common(q, f"t = {round(t)}{time}", {E9TRIG_C: {f"t = {dec_text(sp.Rational(M['c']))}{time}"}, E9TRIG_LATER_T: {ex(later)}, E9TRIG_MIN_T: {ex(low_t)}})
         else:
-            e9trig_num(q, "t = ", t, time, {E9TRIG_C: [c]})
+            e9trig_num(q, "t = ", t, time, {E9TRIG_C: [c], E9TRIG_LATER_T: [later], E9TRIG_MIN_T: [low_t]})
     elif u == "high-low-gap":
         need(M["dec"], "the gap needs a decimal b")
         e9trig_num(q, "Time = ", T / 2, time, {E9TRIG_WHOLE: [T], E9TRIG_PERB: [M["fb"] / 2]})
@@ -35108,7 +35156,8 @@ def e9trig_model_use(q):
         word = "highest" if big else "lowest"
         ts = lambda x: str(round(x)) if abs(x - round(x)) < 1e-9 else gc_s(e9trig_f(x))
         said = lambda w, y, x: f"The {w} value of {what} is {dec_text(y)}{unit}, first reached at t = {ts(x)}"
-        gc_check_common(q, said(word, v, t), {E9TRIG_D_X: {said(word, M["d"], t)}, E9TRIG_C: {said(word, v, M["fc"])}})
+        gc_check_common(q, said(word, v, t), {E9TRIG_D_X: {said(word, M["d"], t)}, E9TRIG_C: {said(word, v, M["fc"])},
+                                              E9TRIG_WORDS: {said("lowest" if big else "highest", v, t)}})  # the other word
     elif u == "reaches-level":
         m = re.fullmatch(rf"Does {re.escape(what)} ever reach ({E9TRIG_NUM}){re.escape(unit)}\? Which statement is right\?", ask)
         need(m is not None, f"can't read {ask!r}")
@@ -35119,7 +35168,8 @@ def e9trig_model_use(q):
         reach = float(k) < scan
         does = lambda v: f"It reaches {dec_text(k)}, as its largest value is {dec_text(v)}"
         never = lambda v: f"It never reaches {dec_text(k)}, as its largest value is {dec_text(v)}"
-        gc_check_common(q, does(top) if reach else never(top), {E9TRIG_D_X: {never(d)}, E9TRIG_NO_D: {never(a)}, E9TRIG_DOUBLE: {does(top + a)}})
+        gc_check_common(q, does(top) if reach else never(top), {E9TRIG_D_X: {never(d)}, E9TRIG_NO_D: {never(a)}, E9TRIG_DOUBLE: {does(top + a)},
+                                                                 E9TRIG_TWICE_A: {does(top + a)}})  # d + 2a
     else:
         raise Fail(f"no check for {u}")
 
@@ -37644,6 +37694,7 @@ E11TQ_LOSE = "SL3.6.double-angle-values#1"
 E11TQ_STOP, E11TQ_MIRROR, E11TQ_BELOW = "SL3.8.solve-basic#0", "SL3.8.solve-basic#1", "SL3.8.solve-basic#2"
 E11TQ_WAVE, E11TQ_BACK = "SL3.8.compound-angle#0", "SL3.8.compound-angle#1"
 E11TQ_CANCEL = "SL3.8.factorise-not-divide#0"
+E11TQ_WRONG_SQ, E11TQ_BOTH, E11TQ_SWAP, E11TQ_MINUS_B, E11TQ_LARGER, E11TQ_OTHER, E11TQ_K_SIGN = (f"t3-trig-quadratic#{i}" for i in range(25, 32))  # FAL-820
 E11TQ_PART, E11TQ_DEG, E11TQ_TWICE = "SL3.8.graphical#0", "SL3.8.graphical#2", "SL3.8.graphical#4"
 E11TQ_LIST = ("all-solutions", "all-solutions-degrees", "double-angle-solve", "surd-coefficient")
 E11TQ_GDC = ("gdc-solve", "gdc-count")
@@ -37914,6 +37965,12 @@ def E11TQ_step_one(q, g, u):
             elif o["ref"] == E11TQ_LOSE:
                 need(not true and a == sp.cos(2 * x), f"{o['text']!r} isn't {o['ref']}")
                 w[o["ref"]].add(o["text"])
+            elif o["ref"] == E11TQ_WRONG_SQ:  # a true square identity, but it rewrites the function solved for
+                need(true and a.is_Pow and a.base == E11TQ_FN[fn](x), f"{o['text']!r} isn't {o['ref']}")
+                w[o["ref"]].add(o["text"])
+            elif o["ref"] == E11TQ_BOTH:  # a true cos 2x that keeps both functions
+                need(true and a == sp.cos(2 * x) and b.has(sp.sin(x)) and b.has(sp.cos(x)), f"{o['text']!r} isn't {o['ref']}")
+                w[o["ref"]].add(o["text"])
             else:
                 need(not o["ref"], f"no check for {o['ref']}")
         need(len(goods) == 1, f"{goods} are right")
@@ -37930,7 +37987,14 @@ def E11TQ_step_one(q, g, u):
             e = sp.expand(rd(o["text"]))
             same = sp.expand(e - (left - right)) == 0
             need(same == o["correct"], f"option {o['text']!r} is marked wrongly")
-            if o["ref"]:
+            if o["ref"] == E11TQ_SWAP:  # the two numbers in each other's brackets
+                mt = re.fullmatch(r"\((\d*) ?(\w+ x) ([+−]) (\d+)\)\((\d*) ?(\w+ x) ([+−]) (\d+)\) = 0", o["text"])
+                need(mt is not None, f"can't read {o['text']!r}")
+                br = lambda l, c: f"({l} {mt[2]} {c})" if l else f"({mt[2]} {c})"
+                back = br(mt[1], f"{mt[7]} {mt[8]}") + br(mt[5], f"{mt[3]} {mt[4]}") + " = 0"
+                need(sp.expand(rd(back) - (left - right)) == 0, f"{o['text']!r} isn't the numbers swapped")
+                w[o["ref"]].add(o["text"])
+            elif o["ref"]:
                 need(o["ref"] == E11TQ_SIGNS, f"no check for {o['ref']}")
                 flipped = sp.expand(e.subs(E11TQ_FN[fn](x), -E11TQ_FN[fn](x)) - (left - right))
                 need(flipped == 0, f"{o['text']!r} isn't each root with its sign changed")
@@ -37940,18 +38004,18 @@ def E11TQ_step_one(q, g, u):
     if u == "values-of-u":
         need(q["asked"] == f"Let u = {name}. Find the two values of u that solve the quadratic this gives.", f"can't read {q['asked']!r}")
         order = lambda a, b: f"u = {frac_text(min(a, b))} or u = {frac_text(max(a, b))}"
-        gc_check_common(q, order(us[0], us[1]), {E11TQ_SIGNS: {order(-us[0], -us[1])}}, steps=(2, 5))
+        gc_check_common(q, order(us[0], us[1]), {E11TQ_SIGNS: {order(-us[0], -us[1])}, E11TQ_HALF: {order(2 * us[0], 2 * us[1])}}, steps=(2, 5))  # ÷ a, not 2a
         return
     if u == "formula-root":
         need(len(kept) == 1 and len(bad) == 1, "not one root in range and one out")
-        tr_common(q, name + " = ", kept[0], {E11TQ_RANGE: [bad[0]], E11TQ_HALF: [2 * kept[0]]}, steps=(2, 5))
+        tr_common(q, name + " = ", kept[0], {E11TQ_RANGE: [bad[0]], E11TQ_HALF: [2 * kept[0]], E11TQ_MINUS_B: [-kept[0], -bad[0]]}, steps=(2, 5))  # −b dropped
         return
     need(u == "reject-root", f"no check for {u}")
     need(len(kept) == 1 and len(bad) == 1, "not one root in range and one out")
     say = lambda v, why: f"{name} = {tr_text(v)} has no solutions, as {why}"
     w = {E11TQ_RANGE: {"Neither: both roots give solutions"}}
-    if kept[0] < 0:
-        w[E11TQ_NEG] = {say(kept[0], "it is negative")}
+    w[E11TQ_NEG] = {say(v, "it is negative") for v in us if v < 0}
+    w[E11TQ_LARGER] = {say(max(us), "it is the larger root")}  # the larger root thrown out
     gc_check_common(q, say(bad[0], f"it is outside the range of {name}"), w, steps=(2, 5))
     if q["view"]["rep"] == "graph":
         E11TQ_lines(q, {}, us)
@@ -38003,6 +38067,7 @@ def E11TQ_one(q, E, fn, ks, xs):
     r = take(E11TQ_mains(E, fn, ks, 1))
     if r:
         w[E11TQ_STOP].add(E11TQ_txt(E, r))
+    w[E11TQ_OTHER] = {E11TQ_txt(E, [r]) for r in xs}  # another solution, not the one asked
     gc_check_common(q, want, w, steps=(2, 5))
 
 
@@ -38034,7 +38099,7 @@ def E11TQ_constant(q, g):
     got = sp.solve(f.subs(x, at), k)
     need(len(got) == 1, f"no one k in {m[2]}")
     slip = sp.solve(f.subs(fn(x)**2, fn(x)).subs(x, at), k)
-    gc_check_common(q, f"k = {frac_text(got[0])}", {E11TQ_NO_SQ: {f"k = {frac_text(slip[0])}"}}, steps=(2, 5))
+    gc_check_common(q, f"k = {frac_text(got[0])}", {E11TQ_NO_SQ: {f"k = {frac_text(slip[0])}"}, E11TQ_K_SIGN: {f"k = {frac_text(-got[0])}"}}, steps=(2, 5))  # k's sign
 
 
 def E11TQ_double_factor(q, E, xs):
@@ -38049,6 +38114,7 @@ def E11TQ_double_factor(q, E, xs):
         pos = E11TQ_on(E, "sin", k)
         zeros = E11TQ_on(E, "cos", sp.Integer(0))
         w[E11TQ_PLUS].add(E11TQ_txt(E, sorted(set(pos) | set(zeros))))
+    w[E11TQ_ONE].add(E11TQ_txt(E, E11TQ_on(E, "cos", sp.Integer(0))))  # only the cos x = 0 bracket
     gc_check_common(q, E11TQ_txt(E, xs), w, steps=(2, 5))
 
 
@@ -38104,7 +38170,9 @@ def E11TQ_check(q):
         E11TQ_sum(q, E, fn, ks, xs)
     elif u == "tan-zero-root":
         nz = [k for k in ks if k != 0]
-        gc_check_common(q, E11TQ_txt(E, xs), {E11TQ_CANCEL: {E11TQ_txt(E, E11TQ_on(E, fn, nz[0]))}}, steps=(2, 5))
+        gc_check_common(q, E11TQ_txt(E, xs), {E11TQ_CANCEL: {E11TQ_txt(E, E11TQ_on(E, fn, nz[0]))},
+                                              E11TQ_ONE: {E11TQ_txt(E, E11TQ_on(E, fn, sp.Integer(0)))},  # only tan x = 0
+                                              E11TQ_SIGNS: {E11TQ_txt(E, E11TQ_flip(E, fn, ks))}}, steps=(2, 5))  # the root's sign
     elif u == "compound-quadratic" or u == "rational-disguise":
         w = defaultdict(set)
         first = [x for x in xs if b * x <= E["hi_r"] + 1e-9]
@@ -38120,10 +38188,9 @@ def E11TQ_check(q):
                 al = E11TQ_mains(E, fn, [k], b)
                 if al:
                     w[E11TQ_BACK].add(E11TQ_txt(E, al))
-        else:
-            r = E11TQ_flip(E, fn, ks, b)
-            if r:
-                w[E11TQ_SIGNS].add(E11TQ_txt(E, r))
+        r = E11TQ_flip(E, fn, ks, b)
+        if r:
+            w[E11TQ_SIGNS].add(E11TQ_txt(E, r))
         gc_check_common(q, E11TQ_txt(E, xs), w, steps=(2, 5))
     elif u in E11TQ_LIST or u in ("plus-minus-root", "tan-squared"):
         one = {"plus-minus-root": E11TQ_PLUS, "tan-squared": E11TQ_TAN_ROOT}.get(u, E11TQ_ONE)

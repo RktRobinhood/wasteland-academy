@@ -58,11 +58,10 @@ const UNSORTED := [
 	"fn-sketch-from-features", "fn-sketch-gdc", "t1-algebraic-proof",
 	"t1-arithmetic-sequence", "t1-compound-interest", "t1-depreciation",
 	"t1-solve-exponential", "t3-distance-midpoint", "t3-identity-values",
-	"t3-solid-volume-area", "t3-trig-model-parameters", "t3-trig-model-use",
-	"t3-trig-quadratic", "t3-trig-read-features", "t4-discrete-distribution",
-	"t4-expected-occurrences", "t4-expected-value", "t4-independence", "t4-inverse-normal",
-	"t4-normal-probability", "t4-normal-properties", "t4-regression-gdc", "t4-tree-diagram",
-	"t5-concavity", "t5-derivative-graph"
+	"t3-trig-model-parameters", "t4-discrete-distribution", "t4-expected-occurrences",
+	"t4-expected-value", "t4-independence", "t4-inverse-normal", "t4-normal-probability",
+	"t4-normal-properties", "t4-regression-gdc", "t4-tree-diagram", "t5-concavity",
+	"t5-derivative-graph"
 ]
 
 ## Two full stops, but not an ellipsis.
