@@ -940,7 +940,7 @@ const TRAP_KINDS := ["number", "xval", "axis", "yint", "xint"]
 ## The rounding trap for a multiple-choice question (Q7): the answer's value rounded to
 ## 2 significant figures, a glancing hit if picked. {} where it doesn't fit: the answer
 ## is exact-only, has more than one number, or its number needs no rounding. Every
-## situation's views offer it as `trap` (see game/README.md).
+## situation's views offer it as `trap` (see game/docs/QUESTION-ENGINE.md).
 static func rounding_trap(ans: Dictionary) -> Dictionary:
 	if ans.get("exact", false) or not ans.kind in TRAP_KINDS:
 		return {}
