@@ -2,8 +2,9 @@ class_name TrigQuadraticSituation
 extends RefCounted
 ## The `trig-quadratic` situation (curriculum/question-types.json): one trig equation that is a
 ## quadratic in sin x, cos x or tan x, for t3-trig-quadratic (SL3.8.quadratic-in-trig, FAL-753). It is
-## built forward from its roots in u, so it factorises cleanly, then disguised. Every question is
-## Paper 1, with exact answers, but for the two GDC unknowns.
+## built forward from its roots in u, so it factorises cleanly, then disguised. Every answer is
+## exact, but for the two GDC unknowns, which are Paper 2. A list of exact solutions takes the paper
+## it is told (need.paper); the rest is Paper 1.
 ##
 ## need.ask is the unknown (see TrigQuadraticViews). generate() returns a Dictionary:
 ##   paper, ask, rep, form    "pi" or "deg"
@@ -38,11 +39,18 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	var ask: String = need.get("ask", "all-solutions")
 	var rep: String = need.get("rep", "equation")
 	for i in TRIES:
-		var s := {"paper": 2 if ask in TrigQuadraticViews.P2 else 1, "ask": ask, "rep": rep, "form": "pi", "fn": rng.pick(["sin", "cos"]), "b": Q.new(1), "phi": Q.new(0),
+		var s := {"paper": _paper(ask, need), "ask": ask, "rep": rep, "form": "pi", "fn": rng.pick(["sin", "cos"]), "b": Q.new(1), "phi": Q.new(0),
 			"lo": Q.new(0), "hi": Q.new(2), "open_hi": false, "dis": "direct", "sc": 1, "lay": rng.int_in(0, 2), "spin": rng.int_in(0, 59), "bad": [], "xs": []}
 		if new().call("_" + ask.replace("-", "_"), rng, s) and _clean(s):
 			return s
 	return {}
+
+
+## Paper 2 for a GDC unknown, the paper it is told for a list of exact solutions, else Paper 1.
+static func _paper(ask: String, need: Dictionary) -> int:
+	if ask in TrigQuadraticViews.P2:
+		return 2
+	return int(need.get("paper", 1)) if ask in TrigQuadraticViews.EITHER else 1
 
 
 static func _clean(s: Dictionary) -> bool:
@@ -53,7 +61,7 @@ static func _clean(s: Dictionary) -> bool:
 	var n: int = s.xs.size()
 	if n < 1 or n > (MAX_COUNT if s.ask in TrigQuadraticViews.COUNTS else MAX_SOLUTIONS):
 		return false
-	return s.paper == 1 or s.ask == "gdc-count" or s.xs.all(func(x): return Answer.rounds_clearly(x.to_float(), 0.03) and absf(x.to_float()) > 0.05)
+	return not s.ask in TrigQuadraticViews.P2 or s.ask == "gdc-count" or s.xs.all(func(x): return Answer.rounds_clearly(x.to_float(), 0.03) and absf(x.to_float()) > 0.05)
 
 
 # ── The roots and the quadratic ──────────────────────────────

@@ -4,7 +4,8 @@ extends ExtensionViews
 ## t5-increasing-decreasing (FAL-723). An interval is a `form` answer: the student picks
 ## between or outside and types the two ends, so neither shape is given away. Whether the
 ## ends are in or out isn't asked: both are accepted in an exam, unless the question is about
-## a boundary (a parameter), where the closed form is the answer.
+## a boundary (a parameter), where the closed form is the answer. The sign of a quotient's f′ is a
+## pick of four written arguments, as in AlwaysIncreasingViews.
 ##
 ## Representations: "equation", "words" (a curve in words), "graph" and "table".
 
@@ -19,25 +20,32 @@ const R_INTERCEPTS := SG + "1"
 const R_DISC_F := SP + "0"
 const R_TWO_ROOTS := SP + "1"
 const R_ONE_SIDE := SP + "2"
+const SA := "SL5.2.show-always-increasing#"
+const R_POINTS := SA + "0"
+const R_SQUARE_POSITIVE := SA + "2"
+const R_QUOTIENT_ORDER := "SL5.6.quotient-rule#0"
 const SHAPES := ["between", "outside"]
+## These make either paper: the bank asks each on Paper 2 as well (FAL-817), with the same working.
+const EITHER := ["interval-from-equation", "interval-from-derivative-graph", "quotient-sign"]
 
 
 func needs() -> Dictionary:
 	var out := {}
 	for u in ["interval-from-equation", "interval-from-table", "quadratic-interval", "interval-from-derivative-graph", "interval-gdc",
-			"sign-at-points", "intervals-from-graph", "negative-and-increasing", "parameter-discriminant", "parameter-shift"]:
+			"sign-at-points", "intervals-from-graph", "negative-and-increasing", "parameter-discriminant", "parameter-shift", "quotient-sign"]:
 		out[u] = {"ask": u}
 	return out
 
 
-## The GDC methods are Paper 2. Reading f′'s graph makes both, so the type lands on the
-## bank's share; the rest is Paper 1, as most of the bank is.
+## The GDC methods are Paper 2. A cubic's intervals by hand, reading f′'s graph and the sign of a
+## quotient's f′ make both, so the type lands on the bank's share; the rest is Paper 1, as most of
+## the bank is.
 func papers(unknown: String, _rep: String, angle: String) -> Array:
 	if not has(unknown):
 		return []
 	if unknown == "interval-gdc" or angle in ["gdc-turning-points", "gdc-slider"]:
 		return [2]
-	return [1, 2] if unknown == "interval-from-derivative-graph" else [1]
+	return [1, 2] if unknown in EITHER else [1]
 
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -437,3 +445,40 @@ func u_parameter_shift(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"Its discriminant is %s(d%s), which must be ≤ 0." % [Fmt.num(4 * a), Fmt.plus(-k)],
 			"Since %s > 0, d%s ≤ 0." % [Fmt.num(4 * a), Fmt.plus(-k)],
 			Answer.text(ans)], ans.values)}}
+
+
+# ── The sign of a quotient's f′ ──────────────────────────────
+
+func u_quotient_sign(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var a: int = s.a
+	var b: int = s.b
+	var c: int = s.c
+	var d: int = s.d
+	var D: int = s.D
+	var up := D > 0
+	var top := Fmt.poly([a, b])
+	var bot := Fmt.poly([c, d])
+	var sq := "(%s)²" % bot
+	var gap := N(Q.new(-d, c))
+	# One statement, with the sign of the top, what the square is said to be, and where.
+	var say := func(n: int, square: String, where: String) -> String:
+		var pos := n > 0
+		return "f′(x) = %s/%s: the top is %s and %s > 0 for %s, so f′(x) %s 0 for all %s, and f is %s" % [N(n), sq,
+			"positive" if pos else "negative", sq, square, ">" if pos else "<", where, "increasing" if pos else "decreasing"]
+	var right: String = say.call(D, "x ≠ " + gap, "x ≠ " + gap)
+	var sign := "positive" if up else "negative"
+	var points := "f′(0) = %s and f′(1) = %s are both %s, so f′(x) %s 0 for all x ≠ %s, and f is %s" % [N(Q.new(D, d * d)),
+		N(Q.new(D, (c + d) * (c + d))), sign, ">" if up else "<", gap, s.want]
+	var out := {"lines": ["f(x) = (%s)/(%s), for x ≠ %s" % [top, bot, gap]],
+		"asked": "Which statement gives the sign of f′(x), and so shows whether f is increasing or decreasing?",
+		"titles": {"sum-of-positive-terms": "Argue from the sign of the top and of the bottom"}}
+	out.merge(InverseRuleViews.choose(right, [InverseRuleViews.tag(points, R_POINTS), InverseRuleViews.tag(say.call(D, "all x", "x"), R_SQUARE_POSITIVE),
+		InverseRuleViews.tag(say.call(-D, "x ≠ " + gap, "x ≠ " + gap), R_QUOTIENT_ORDER)], []))
+	var vu := "%s(%s)" % [Fmt.lead(a), bot]
+	var uv := "%s(%s)" % [Fmt.lead(c), top]
+	out.methods = {"sum-of-positive-terms": method([
+		"Quotient rule, with u = %s and v = %s: f′(x) = (vu′ − uv′)/v² = (%s − %s)/%s." % [top, bot, vu, uv, sq],
+		"The x terms cancel: (%s) − (%s) = %s, so f′(x) = %s/%s." % [Fmt.poly([a * c, a * d]), Fmt.poly([a * c, b * c]), N(D), N(D), sq],
+		"A square is never negative, and %s is 0 only at x = %s, where f is not defined, so the bottom is positive for every other x." % [sq, gap],
+		right + "."], {"v": right})}
+	return out

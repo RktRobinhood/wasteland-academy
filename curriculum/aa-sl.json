@@ -9025,7 +9025,7 @@
               ],
               "misconceptions": [
                 "Using cos 120° = +½, which gives a side that is too short",
-                "Simplifying √(16 + 9) as 4 + 3",
+                "Splitting a square root over a sum or difference, as if √(p + q) were √p + √q",
                 "Giving a decimal when an exact surd is required"
               ],
               "threads": [
@@ -10110,8 +10110,8 @@
               ],
               "singleMethod": true,
               "misconceptions": [
-                "The population is the people who answered the survey (that is the sample)",
-                "Choosing whoever walks past is 'random' (it is a convenience sample: not everyone has an equal chance)"
+                "Taking the people who answered the survey as the population (they are the sample)",
+                "Calling a sample of whoever walks past random (it is a convenience sample: not everyone has an equal chance)"
               ],
               "threads": []
             },
@@ -10151,8 +10151,8 @@
                 }
               ],
               "misconceptions": [
-                "Any data with decimals is continuous (money in cents and shoe size 7.5 are discrete)",
-                "Data recorded to the nearest whole number must be discrete (height to the nearest cm is still continuous)"
+                "Assuming any data with decimals is continuous (money in cents and half shoe sizes are discrete)",
+                "Assuming data recorded to the nearest whole number must be discrete (height to the nearest cm is still continuous)"
               ],
               "threads": []
             },
@@ -10381,7 +10381,7 @@
                 }
               ],
               "misconceptions": [
-                "Putting a value of exactly 20 into the class 10 ≤ x < 20",
+                "Putting a value that lies on a class boundary into the class that ends there",
                 "Leaving gaps between bars, as in a bar chart, for continuous data"
               ],
               "threads": []
@@ -11131,9 +11131,9 @@
                 }
               ],
               "misconceptions": [
-                "r = −0.9 shows weak correlation because it is negative",
-                "Strong correlation proves that one variable causes the other",
-                "r ≈ 0 means there is no relationship at all (there may be a non-linear one)"
+                "Reading a negative r as weak correlation, when its sign gives only the direction",
+                "Assuming strong correlation proves that one variable causes the other",
+                "Assuming r near 0 means no relationship at all (there may be a non-linear one)"
               ],
               "threads": []
             },

@@ -459,6 +459,29 @@ func test_the_walk_matches_the_ground() -> void:
 		s.free()
 
 
+## Nugget (FAL-943) is drawn at his sheet's display_height, 48 px, and walks at his own
+## stride, so the ground matches his 4-frame walk; the Learners stay at LEARNER_H (FAL-960).
+func test_the_dog_has_its_own_height_and_stride() -> void:
+	check_eq(JourneyLink.avatar_for({"profile": {"avatar": "dog"}}), "learner-dog", "the save's dog")
+	var s := _stage()
+	tree.root.add_child(s)
+	s.start_run("signal-tower", "learner-dog", "rebar", 1)
+	check(s.active, "the dog has a sheet")
+	check_eq(s._disp_h("learner-dog"), 48.0, "the dog's height")
+	for avatar in ["learner-female", "learner-male"]:
+		check_eq(s._disp_h(avatar), JourneyStage.LEARNER_H, "%s unchanged" % avatar)
+	var sheet: Dictionary = s.assets.sheets["learner-dog"]
+	check_eq(sheet.anims.walk.frames.size(), 4, "a 4-frame walk")
+	check(is_equal_approx(s._speed, 0.08 * 48.0 * 8.0), "the dog's ground speed: %.2f" % s._speed)
+	for fr in sheet.frames:
+		check(not fr.has("hand"), "%s: no hand, so no weapon" % fr.id)
+	s.advance(1.0)
+	var L: Dictionary = s.snapshot().sprites[0]
+	check_eq(L.sheet, "learner-dog")
+	check_eq(L.weapon, "rebar", "the save's weapon is kept, but no frame can hold it")
+	s.free()
+
+
 func test_no_sheet_for_the_avatar_hides_the_strip() -> void:
 	var s := _stage()
 	tree.root.add_child(s)
@@ -474,10 +497,10 @@ func test_no_sheet_for_the_avatar_hides_the_strip() -> void:
 	s.free()
 
 
-## Every kind of beat and outcome plays for both Learners with no script errors, and
+## Every kind of beat and outcome plays for both Learners and the dog with no script errors, and
 ## each kind shows what it should.
 func test_every_beat_plays() -> void:
-	for avatar in ["learner-female", "learner-male"]:
+	for avatar in ["learner-female", "learner-male", "learner-dog"]:
 		var s := _stage()
 		tree.root.add_child(s)
 		s.start_run("signal-tower", avatar, "rebar", 3)

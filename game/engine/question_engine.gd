@@ -96,6 +96,7 @@ static var SITUATIONS := {
 	"binomial-unknown": [BinomialUnknownSituation, BinomialUnknownViews],
 	"log-laws": [LogLawsSituation, LogLawsViews],
 	"log-exp-form": [LogExpFormSituation, LogExpFormViews],
+	"log-equation": [LogEquationSituation, LogEquationViews],
 	"rational-exponents": [RationalExponentsSituation, RationalExponentsViews],
 	"solve-exponential": [SolveExponentialSituation, SolveExponentialViews],
 	"algebraic-proof": [AlgebraicProofSituation, AlgebraicProofViews],
@@ -167,6 +168,12 @@ static var SITUATIONS := {
 	"hence-integral": [HenceIntegralSituation, HenceIntegralViews],
 	"integral-gdc": [IntegralGdcSituation, IntegralGdcViews],
 	"area-under-curve": [AreaUnderCurveSituation, AreaUnderCurveViews],
+	"variable-kind": [VariableKindSituation, VariableKindViews],
+	"study": [StudySituation, StudyViews],
+	"stratified-sample": [StratifiedSampleSituation, StratifiedSampleViews],
+	"histogram": [HistogramSituation, HistogramViews],
+	"correlation": [CorrelationSituation, CorrelationViews],
+	"exact-triangle": [ExactTriangleSituation, ExactTriangleViews],
 }
 
 static var _cat: Dictionary = {}

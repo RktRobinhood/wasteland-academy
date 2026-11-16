@@ -41,12 +41,12 @@ var answered := false
 ## Plan from this region only ("" for every built type).
 var practice_region := ""
 
-var _slots := {}        # slot id -> LineEdit
+var _slots := {}        # slot id -> MathEntry
 var _picks := {}        # pick id -> chosen option ("" until chosen)
 var _pick_buttons := {} # pick id -> Array of Buttons
 var _choice := -1
 var _choice_buttons: Array = []
-var _focus: LineEdit
+var _focus: MathEntry
 var _press_at := Vector2.ZERO
 
 var margin: MarginContainer
@@ -378,19 +378,17 @@ func _add_slots() -> void:
 				l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 				flow.add_child(l)
 		elif item.has("slot"):
-			var e := LineEdit.new()
+			# Typed in maths notation (FAL-812): the fraction key stacks a fraction.
+			var e := MathEntry.new()
 			e.name = "Slot_" + item.slot
 			e.custom_minimum_size = Vector2(150, 0)
 			# Grows as it's typed in, so every digit shows and the box says nothing about the
 			# answer's length. Not past the card: 0.00000842 hid its zeros at a fixed width.
-			e.expand_to_text_length = true
 			e.max_length = SLOT_CHARS
-			e.alignment = HORIZONTAL_ALIGNMENT_CENTER
-			e.placeholder_text = "?"
-			e.virtual_keyboard_enabled = false
-			# A LineEdit keeps every touch, so on a touch screen the row hears it instead.
-			if DisplayServer.is_touchscreen_available():
-				e.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			e.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			# The row hears every touch and puts the cursor where a tap lands, so a swipe that
+			# starts on a box still scrolls the card.
+			e.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			e.focus_entered.connect(func(): _focus = e)
 			e.text_submitted.connect(func(_t): check_answer())
 			flow.add_child(e)
@@ -411,9 +409,10 @@ func _add_slots() -> void:
 			_pick_buttons[item.pick] = buttons
 	flow.gui_input.connect(func(e: InputEvent):
 		if _tapped(e):
-			for box: LineEdit in _slots.values():
-				if box.get_rect().has_point(e.position):
-					box.grab_focus())
+			for box: MathEntry in _slots.values():
+				if box.editable and box.get_rect().has_point(e.position):
+					box.grab_focus()
+					box.tap_at(e.position - box.position))
 	card.add_child(flow)
 	# A long answer wraps on a line of its own, not off the side of a phone. Measured
 	# here, in the card, where the buttons have their font.
@@ -438,7 +437,7 @@ func _grab(e: Variant) -> void:
 
 ## Number keys, so a phone needs no system keyboard: the keypad the calculator shares.
 func _keypad() -> Control:
-	var pad := Keypad.make()
+	var pad := Keypad.make_answer()
 	pad.key.connect(_on_key)
 	return pad
 
@@ -446,11 +445,7 @@ func _keypad() -> Control:
 func _on_key(k: String) -> void:
 	if answered or _focus == null:
 		return
-	if k == "Del":
-		_focus.text = _focus.text.left(-1)
-	else:
-		_focus.text += "-" if k == "−" else k
-	_focus.caret_column = _focus.text.length()
+	_focus.press(k)
 
 
 func _add_options(texts: Array) -> void:
@@ -492,10 +487,10 @@ func _add_graph_options() -> void:
 		g.mouse_filter = Control.MOUSE_FILTER_STOP
 		g.set_spec(question.graphs[i])
 		var b := Button.new()
-		b.text = question.choices[i].text
 		b.toggle_mode = true
 		b.button_group = group
 		b.add_theme_font_size_override("font_size", UiTheme.BODY)
+		UiTheme.math_button(b, question.choices[i].text)
 		b.pressed.connect(func(): _choice = i)
 		g.gui_input.connect(func(e: InputEvent):
 			if _tapped(e) and not b.disabled:
@@ -723,7 +718,7 @@ func autoplay(right: bool) -> void:
 			for id in _picks:
 				_picks[id] = values[id]
 				for b in _pick_buttons[id]:
-					b.button_pressed = b.text == values[id]
+					b.button_pressed = UiTheme.button_text(b) == values[id]
 		_:
 			var pick := -1
 			var items: Array = question.choices if question.format != "probe" else question.options

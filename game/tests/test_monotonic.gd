@@ -1,11 +1,12 @@
 extends "res://tests/test_case.gd"
 ## The monotonic situation (FAL-723): t5-increasing-decreasing is built with every catalogue
-## cell, the GDC methods are Paper 2, an interval gives neither shape away, and a parameter's
-## bound is whole. The SymPy checker (tools/check-answers) checks the maths.
+## cell, the GDC methods are Paper 2, an interval gives neither shape away, a parameter's bound
+## is whole, and a quotient's f′ keeps the sign of its top. The SymPy checker
+## (tools/check-answers) checks the maths.
 
 const TYPE := "t5-increasing-decreasing"
-const CELLS := 24
-const SKILLS := 3
+const CELLS := 25
+const SKILLS := 4
 
 
 func _make(unknown: String, rep: String, angle: String, seed: int, format: String = "mcq") -> Dictionary:
@@ -66,3 +67,15 @@ func test_a_parameter_keeps_f_prime_on_one_side() -> void:
 		var q := _make("parameter-discriminant", "equation", "discriminant-condition", seed)
 		var n: int = q.situation.n
 		check_eq(q.answer_text, "−%d ≤ k ≤ %d" % [3 * n, 3 * n])
+
+
+func test_a_quotient_keeps_the_sign_of_its_top() -> void:
+	# f(x) = (ax + b)/(cx + d) has f′(x) = (ad − bc)/(cx + d)²: one sign either side of the gap.
+	var t := QuestionEngine.type_of(TYPE)
+	check_eq(QuestionEngine.cell_papers(t, "quotient-sign", "equation", "sum-of-positive-terms"), [1, 2])
+	for seed in range(1, 25):
+		var q := _make("quotient-sign", "equation", "sum-of-positive-terms", seed)
+		var s: Dictionary = q.situation
+		check_eq(s.D, s.a * s.d - s.b * s.c)
+		check(q.answer_text.begins_with("f′(x) = %s/" % Fmt.num(s.D)), q.answer_text)
+		check(q.answer_text.ends_with("f is " + ("increasing" if s.D > 0 else "decreasing")), q.answer_text)
