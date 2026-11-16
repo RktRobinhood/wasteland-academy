@@ -175,12 +175,18 @@ func layout(font: Font, s: int, base: int = -1, in_power := false) -> void:
 			w = 0.0
 			asc = s * INK_ASCENT
 			desc = s * INK_DESCENT
+			var before: MathBox = null
 			for c in children:
 				c.layout(font, s, base, in_power)
 				c.at = Vector2(w, 0.0)
+				# A power after a fraction or a root sits at its top right, as (3/4)² does
+				# on paper, not at the line's.
+				if c.kind == Kind.POWER and before != null and before.asc > s * INK_ASCENT:
+					c.at.y = s * INK_ASCENT - before.asc
 				w += c.w
-				asc = maxf(asc, c.asc)
-				desc = maxf(desc, c.desc)
+				asc = maxf(asc, c.asc - c.at.y)
+				desc = maxf(desc, c.desc + c.at.y)
+				before = c
 		Kind.POWER:
 			_layout_power(font, s, base)
 		Kind.SUB:

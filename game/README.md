@@ -34,6 +34,7 @@ game/
 ├── engine/step.gd       ← a worked-solution step: a String, or {move, board} with a move tag (see "Question engine")
 ├── engine/math_text.gd  ← cuts shown maths into text, powers, roots and stacked fractions (FAL-797)
 ├── ui/math_box.gd       ← maths as a box tree (row, text, fraction, power, root): layout, drawing, to_text() for Expr; ui/math_label.gd draws one and wraps it
+├── ui/math_entry.gd     ← a box typed in notation (FAL-812, FAL-813): stacked fractions, powers, roots, ◀ ▶, text in the syntax Answer and Expr read
 ├── engine/expr.gd       ← the expression engine (TinyExpr port): the calculator and every typed answer
 ├── engine/brent.gd, graph_tools.gd ← Brent's root finder and minimiser (SciPy port); zeros, extrema, intersections
 ├── ui/calculator.gd     ← the in-game calculator (see "The calculator"); ui/calc_graph.gd its graph, ui/keypad.gd the keys
@@ -355,6 +356,66 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   catalogue's `match`, `order-steps` and `multipart` formats are not built in the engine, so these
   types don't offer them. The checker's sections are prefixed `E13PC_`, `E13AI_`, `E13HI_`, `E13IG_`
   and `E13AU_`.
+- **The data, sampling and exact-triangle extension types** (FAL-778, batch E15): six types on six
+  situations of their own, each with views that extend `extension_views.gd`, so the exam types' files
+  and checks are untouched. They cover syllabus skills no exam type lists, so they carry no exam parts.
+  `variable_kind.gd` is `t4-ext-data-type` (SL4.1): a bank of counted, stepped (half shoe sizes, cents,
+  half points) and measured variables, some recorded to the nearest whole unit, in words or as a row of
+  recorded values; the answer is the one true claim of kind and reason, or the one variable of the
+  asked kind among four. `study.gd` is `t4-ext-population-sample` (SL4.1): a surveyor who asks some of
+  a place's people, chosen by a numbered draw, at a spot, by a notice or from one group; it asks the
+  population, the sample, whether the sample is random and what would make it random.
+  `stratified_sample.gd` is `t4-ext-stratified-numbers` (SL4.1): three groups and a sample, with each
+  share G × n ÷ N whole, or rounded (at least 0.1 from a half), the third group set so the sample adds
+  up when the rounded shares don't, the sample size from one group's number, and shares from
+  percentages. `histogram.gd` is `t4-ext-frequency-histogram` (SL4.2): 4 to 6 equal classes from 0,
+  as a table or as a histogram drawn by GraphView, each bar a shaded strip with its outline and the
+  class boundaries as `x_ticks`; it asks a missing frequency (a missing bar is marked ?), a bar's
+  height, counts over classes, the class a boundary value goes in, the total, and which of four
+  histogram cards shows a table (the wrong cards have gaps, two bars swapped or one bar too tall).
+  `correlation.gd` is `t4-ext-describe-correlation` (SL4.4): 10 to 14 points made to a band of r
+  (strong 0.85 to 0.98, moderate 0.5 to 0.72, weak 0.2 to 0.4, none up to 0.12, and a curve with r
+  near 0 whose points fit a parabola), drawn as a GraphView scatter; it asks a description from the
+  scatter or from r, whether the correlation shows cause (each story names the third thing both
+  follow), what r near 0 says about a curve, which scatter card has a given r, and the strongest of
+  four values of r. `exact_triangle.gd` is `t3-ext-exact-triangle` (SL3.5, Paper 1): two sides and an
+  angle of 30°, 45°, 60°, 120°, 135° or 150°, or three sides, for an exact area, third side (m√r),
+  cosine, side from an exact area, and a height drawn as PlotView's `sketch` with its right angle at
+  the foot. Built formats: true-false-reason on the data-type, population-sample and correlation
+  types, error-spot on stratified-numbers (an equal split, or the sample size where the population
+  belongs) and exact-triangle (an area left as a decimal, a square root taken term by term), and
+  pick-the-graph for `graph-pick`. The catalogue's `match` and `order-steps` formats are not built in
+  the engine, so these types don't offer them. The six types' steps are not in
+  `curriculum/moves-map.json` yet, as no type from E12 on is. The checker's sections are prefixed
+  `E15DT_`, `E15PS_`, `E15SN_`, `E15FH_`, `E15DC_` and `E15ET_`.
+- **The exponent, show-that and standard-form extension types** (FAL-780, batch E17): six types that
+  cover syllabus skills no exam type lists, so they carry no exam parts. Four share an exam type's
+  situation, adding unknowns to it, so the exam type's own cells, numbers and checks are unchanged:
+  `t1-ext-common-base` (SL1.7) on `solve-exponential` asks b^x = N or 1/N, A^x = R and
+  A^(x + c) = B^(kx + e) with both sides powers of one prime, and the x-coordinate where two such
+  curves cross on a graph drawn by PlotView, solved exactly by equating the exponents, with logs or
+  from a list of powers; `t1-ext-standard-form-add` (SL1.1) and `t1-ext-standard-form-powers` (SL1.1)
+  on `standard-form` add and subtract two numbers 1 or 2 powers apart (with a carry past 10, a drop
+  below 1, and a difference in a story), and square, cube, square-root or cube-root one, adjusting an
+  odd power or one that isn't a multiple of 3, every answer exact; `t1-ext-real-value` (SL1.4) on
+  `compound-interest` adds an inflation rate to an annual account and asks the real rate, the real
+  value by the real rate and by deflating (the two at least a dollar apart, so each method gives its
+  own), and whether the account keeps pace. Two have situations of their own: `integer_powers.gd` is
+  `t1-ext-exponent-laws` (SL1.5): b^(−n) and (s/t)^(−n), c^0 + b^(−n), c/x^n and 1/(cx^n) as ax^p,
+  (ax^m)^p × bx^n as cx^e, a quotient of a and b with positive exponents, and A^m × B^n as one power of
+  a prime; `show_that.gd` is `t1-ext-numerical-show-that` (SL1.6): a log difference, an arithmetic
+  sum, a common difference, an investment's value to the cent and a quadratic's root to verify, each
+  answered by picking the one working that reaches the given result. Built formats: method-pick on
+  common-base and real-value, error-spot on common-base (a power of a power added, the base's power on
+  the x term only), exponent laws (the power on the x alone), standard form (the power moved without
+  the point, a cube of the power of ten only, an odd power raised the wrong way), real value (the
+  rates added, the inflation factor for one year) and show-that (starting from the given value, a
+  value rounded to the dollar), and true-false-reason on exponent laws and show-that. The catalogue's
+  `match` and `order-steps` formats are not built in the engine, so these types don't offer them.
+  Their steps are not in `curriculum/moves-map.json` yet, as no type from E12 on is. The checker's
+  sections are prefixed `E17CB_`, `E17EL_`, `E17SF_` (both standard-form types), `E17RV_` and
+  `E17ST_`, with the tools they share prefixed `E17_`; on a shared situation the checker sends the
+  new unknowns to its section and every other unknown to the exam type's checks as before.
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
@@ -1555,8 +1616,8 @@ run plays the same with the strip on, off or broken (`test_journey.gd` checks al
 ### Powers, fractions and answer boxes on the card
 
 Questions are written with a caret (`e^(4x − 3)`, `a × 10^k`) and a slash (`(x + 1)/(x − 1)`), as
-`tools/check_answers.py` parses them back and Unicode has no superscript `.` or `/`. A typed answer
-still takes `/`. `UiTheme.math()` draws them as on paper (FAL-743, FAL-797): `MathText` cuts the
+`tools/check_answers.py` parses them back and Unicode has no superscript `.` or `/`.
+`UiTheme.math()` draws them as on paper (FAL-743, FAL-797): `MathText` cuts the
 text into powers, roots and fractions, `MathBox` lays them out, and a `MathLabel` draws them, with
 powers raised, roots under a radical sign and fractions stacked over a bar. Text with none stays a
 plain `Label`. A sign stays in front of the bar (−3/4), a bracket round a whole top or bottom goes,
@@ -1577,6 +1638,17 @@ at the `FitBox` floor (4.3% of cells at 390x844, from 3.6%); none is wider than 
 An answer box starts 150 wide and grows as it's typed in, up to `Practice.SLOT_CHARS`, which still
 fits the fight's card on a 360 px phone. It isn't sized from the answer, as that would give away
 how long the answer is.
+
+An answer box is typed in notation, as on a TI-84 Plus CE in MathPrint mode (`ui/math_entry.gd`,
+FAL-812): a `MathEntry` holds a `MathBox` tree and draws it with a cursor, so a typed fraction looks
+like a shown one. The fraction key (or `/` on a keyboard) makes a number just before the cursor the
+top and moves to the bottom; with no number there the fraction starts empty, cursor in the top. An
+empty part shows a dashed box. ◀ ▶ (and the arrow keys) move through the top, then the bottom, then
+out; ↑ ↓ move between top and bottom, and a tap puts the cursor where it lands. Del at the start of
+an empty bottom removes the fraction and keeps the top. Minus shows as a true minus. Marking is
+unchanged: `text` is the tree in the syntax `Answer.parse_number` reads, a fraction as `(n)/(d)`,
+and setting `text` (tests, autoplay) builds the same tree, so `3/2` shows stacked.
+`test_math_entry.gd` has the key sequences.
 
 ### Deep links
 
@@ -1916,6 +1988,18 @@ calculator").
   function rows above them), recent results (tap one to use it again), Ans, degrees or
   radians, and results to 6 significant figures (`engine/calc_format.gd`), so the
   student still rounds to 3 s.f.
+- **Typed in notation** (FAL-813), as a TI-84 Plus CE in MathPrint mode: the input is a
+  `MathEntry` (`ui/math_entry.gd`). The fraction key stacks a fraction (what is before
+  the cursor, a number, Ans, π, a bracket or a power, becomes its top), `^` raises a
+  power to type into and `√` puts a bar over what is typed under it; ◀ ▶ (or a `)` with
+  no bracket open) leave them, and Del at the start of a power or root takes it away and
+  keeps what is in it. A function or Ans is one key, which Del takes away whole. Each
+  recent result shows what was typed, in notation, with the result to the right below
+  it. An exact result that is a fraction (bottom under 10000) shows stacked; S⇔D
+  switches the last result between the fraction and its decimal, and finds a fraction
+  for a decimal that has one, as the TI's ►F◄►D. The input gives `Expr` the same text
+  it read before: a fraction as `(n)/(d)`, a power `^(…)`, a root `√(…)`. The graph
+  lines (y1, y2) stay one-line.
 - **Graph mode**: y1 and y2 (`ui/calc_graph.gd`), drag to pan, wheel, pinch or + − to
   zoom, Std for −10 to 10, tap to trace. A curve has a gap where it jumps
   (`GraphTools.jumps`). Zero, Max, Min and Intersect find every one in the window with
@@ -2112,8 +2196,8 @@ all-regions dungeon, `all-<island>` for another island's, and `thunderdome` work
 - Engine Core (`calculus`): `kinematics`, `stationary-points`, `tangents-normals`,
   `definite-integrals`, `derivative-rules`, `derivative-basics`, `integration`
 
-Only the Signal Tower's regions have backdrops so far. A region with no `backdrop` shows
-a close-up of its island cut from the overworld painting (the arena for the
+Only the Signal Tower's and the Scrap Fields' regions have backdrops so far. A region
+with no `backdrop` shows a close-up of its island cut from the overworld painting (the arena for the
 Thunderdome) under the same wash (`backdrop_for()` in `ui/map.gd`), so it reads as that
 island rather than a blank screen.
 

@@ -103,6 +103,68 @@ func test_scientific_mode() -> void:
 	c.free()
 
 
+## FAL-813: keys typed in notation give text Expr works out to the one-line form's value.
+func test_notation_keys_give_the_one_line_value() -> void:
+	var c := _calc()
+	tree.root.add_child(c)
+	c.open("sci")
+	var cases := [
+		[["√", "2", "▶", "^", "2"], "√(2)^(2)", "√(2)^2"],
+		[["2", "^", "1", "/", "2"], "2^((1)/(2))", "2^(1/2)"],
+		[["sin", "π", "/", "6", "▶", ")"], "sin((π)/(6))", "sin(π/6)"],
+		[["1", "/", "1", "/", "3"], "(1)/((1)/(3))", "1/(1/3)"],
+		[["Ans", "/", "4"], "(Ans)/(4)", "Ans/4"],
+		[["2", "^", "3", "▶", "/", "4"], "(2^(3))/(4)", "2^3/4"],
+	]
+	for t in cases:
+		c.input.clear()
+		_type(c, t[0])
+		check_eq(c.input.text, t[1], str(t[0]))
+		var a := Expr.evaluate(c.input.text, {"ans": 2.0})
+		var b := Expr.evaluate(t[2], {"ans": 2.0})
+		check(a.ok and b.ok and is_equal_approx(a.value, b.value), "%s is %s: %s, %s" % [t[1], t[2], a, b])
+	# ")" with no bracket open leaves a root; Del at its start takes the root away.
+	c.input.clear()
+	_type(c, ["√", "9", ")", "+", "1"])
+	check_eq(c.input.text, "√(9)+1")
+	c.free()
+
+
+## FAL-813: an exact fraction shows stacked, and S⇔D switches it and its decimal.
+func test_fraction_results_and_the_switch() -> void:
+	var c := _calc()
+	tree.root.add_child(c)
+	c.open("sci")
+	_type(c, ["1", "/", "3", "EXE"])
+	var row: Button = c.history_box.get_child(c.history_box.get_child_count() - 1)
+	var result: MathLabel = row.get_node("Lines/Result")
+	var typed: MathLabel = row.get_node("Lines/Typed")
+	check_eq(typed.box.to_text(), "(1)/(3)", "what was typed, in notation")
+	check_eq(typed.box.children[0].kind, MathBox.Kind.FRACTION, "typed as a stacked fraction")
+	check_eq(result.box.to_text(), "(1)/(3)", "1/3 shows as a fraction")
+	check_eq(result.horizontal_alignment, HORIZONTAL_ALIGNMENT_RIGHT, "the result on the right")
+	c.press("S⇔D")
+	check_eq(result.box.to_text(), "0.333333", "S⇔D: the decimal")
+	c.press("S⇔D")
+	check_eq(result.box.to_text(), "(1)/(3)", "and back")
+	# A whole result and an irrational one stay decimals; a decimal with a fraction gets one.
+	_type(c, ["1", "/", "(", "1", "/", "3", ")", "EXE"])
+	check_eq(c.history[-1].shown, "decimal", "1/(1/3) is 3")
+	_type(c, ["−", "0", ".", "7", "5", "EXE"])
+	check_eq(c.history[-1].shown, "fraction", "−0.75 is exact: −3/4")
+	check_eq(Calculator.result_box(c.history[-1]).to_text(), "−(3)/(4)")
+	_type(c, ["π", "EXE"])
+	c.press("S⇔D")
+	check(c.message.visible and c.history[-1].shown == "decimal", "π has no fraction")
+	check_eq(Calculator.fraction_of(0.1 + 0.2).text(), "3/10", "a float near a fraction")
+	# A fraction result taps back in as a fraction.
+	var rows := c.history_box.get_children().filter(func(n): return n is Button)
+	c.input.clear()
+	(rows[0] as Button).pressed.emit()
+	check_eq(c.input.text, "(1)/(3)", "tapped back in, stacked")
+	c.free()
+
+
 func test_six_significant_figures() -> void:
 	var cases := {0.0: "0", 512.0: "512", 2.0 / 3.0: "0.666667", -1.0 / 3.0: "−0.333333", 1234567.0: "1234570",
 		0.000123456789: "0.000123457", 1.0e12: "1E12", 6.02214076e23: "6.02214E23", 1.5e-7: "1.5E−7", 999999.7: "1000000"}

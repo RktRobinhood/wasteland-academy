@@ -195,7 +195,7 @@ func test_an_answer_box_stays_on_the_card() -> void:
 	f.question = QuestionEngine.make({"type": "t1-standard-form", "unknown": "to-ordinary-small", "rep": "equation", "angle": "place-shift", "format": "value", "seed": 1})
 	f.render_question()
 	await tree.process_frame
-	var box: LineEdit = f.card.find_children("Slot_*", "LineEdit", true, false)[0]
+	var box: MathEntry = f.card.find_children("Slot_*", "MathEntry", true, false)[0]
 	box.text = "8".repeat(40)
 	await tree.process_frame
 	await tree.process_frame

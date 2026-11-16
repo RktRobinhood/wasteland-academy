@@ -90,6 +90,26 @@ func test_a_circle_is_drawn_for_a_chord_and_for_a_rectangle() -> void:
 	plot.free()
 
 
+func test_the_asked_chord_is_measured_end_to_end() -> void:
+	# FAL-968: M is the middle of AB, so a "?" beside AB sat beside AM. A line through a named
+	# point is measured with a dimension line instead.
+	for c in [["chord-length", "AB"], ["edge-from-span", "QV"]]:
+		for seed in range(1, 6):
+			var cell: Dictionary = QuestionEngine.cells(false, [TYPE]).filter(func(x): return x.unknown == c[0] and x.rep == "diagram")[0]
+			var g: Dictionary = _make(cell, seed).graph
+			var asked: Array = g.lines.filter(func(ln): return ln.label == "?")
+			check_eq(asked.size(), 1, c[0])
+			check_eq(asked[0].a + asked[0].b, c[1], c[0])
+			var plot := PlotView.new()
+			plot.set_spec(g)
+			plot.size = Vector2(1000, 660)
+			var at := {}
+			for n in g.pts:
+				at[n] = Vector2(g.pts[n][0], -g.pts[n][1]) * 100.0
+			check(plot._passes_a_name(asked[0], at), "%s %d: %s is drawn as a dimension" % [c[0], seed, c[1]])
+			plot.free()
+
+
 func test_an_exact_answer_is_only_right_exactly() -> void:
 	for seed in range(1, 30):
 		var q := _make({"unknown": "side-special", "rep": "diagram", "angle": "special-triangle"}, seed, "value", 1)

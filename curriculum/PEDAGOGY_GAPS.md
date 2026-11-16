@@ -1662,7 +1662,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
-- **Situation:** Numbers in standard form.
+- **Situation:** Numbers in standard form, shared with `t1-ext-standard-form-add`, `t1-ext-standard-form-powers`.
 - **Representations:** **equation**, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given an ordinary large number → a × 10^k
@@ -1868,7 +1868,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Compound interest: value, rate or time, with different compounding periods (`t1-compound-interest`, exam, 18 bank parts)
 
-- **Situation:** Money invested at a nominal annual rate, compounded k times a year.
+- **Situation:** Money invested at a nominal annual rate, compounded k times a year, shared with `t1-ext-real-value`.
 - **Representations:** **words**, **table** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L2: given the amount; the rate; the compounding; the years → the value after the years, to the nearest cent
@@ -1973,7 +1973,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Solve an exponential equation exactly with logarithms (`t1-solve-exponential`, exam, 1 bank parts)
 
-- **Situation:** An exponential equation solved with logarithms, in symbols or in a story.
+- **Situation:** An exponential equation solved with logarithms, in symbols or in a story, shared with `t1-ext-common-base`.
 - **Representations:** **equation**, words, graph (bold: the exam uses it)
 - **Unknowns:**
   - new L3: given a^(x + p) = b^x or a^x = b^(c − x), or their curves crossing at P → x to 3 s.f.
@@ -2142,7 +2142,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 | `t1-ext-standard-form-powers` Powers and roots in standard form | skill | powers-roots | 2–3 | The bank's standard-form parts (t1-standard-form) never raise a number in standard form to a power or take its root. | Square, cube or take a root of a number in standard form, adjusting the power of ten so that the root comes out whole. |
 | `t1-ext-sigma-arithmetic` Sigma notation for arithmetic series | skill | sigma | 2–3 | In the bank, sigma notation appears only with geometric series (t1-geometric-sequence); no part uses it with an arithmetic series. | Read a sigma sum: count its terms, evaluate it as an arithmetic series, write a series in sigma form, or find the upper limit from the total. |
 | `t1-ext-real-value` Real value after inflation | skill | real-value | 3–4 | None of the 16 compound-interest parts in the bank (t1-compound-interest) adjusts for inflation. | Find the real value of an investment by using the interest rate minus the inflation rate, and decide whether it keeps up with prices. |
-| `t1-ext-exponent-laws` Integer exponent laws | skill | integer-exponent-laws, zero-negative | 1–3 | Index laws are used as steps inside calculus and log questions; no bank part tests them on their own. | Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/xⁿ as ax⁻ⁿ. |
+| `t1-ext-exponent-laws` Integer exponent laws | skill | integer-exponent-laws, zero-negative | 1–3 | Index laws are used as steps inside calculus and log questions; no bank part tests them on their own. | Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/x^n as ax^(−n). |
 | `t1-ext-logs-with-technology` Logs and exponential equations on the GDC | skill | evaluate-tech | 1–2 | The bank uses the GDC for logs only as a step inside model and finance questions; no part asks for it on its own. | Evaluate log and ln values on the GDC and solve aˣ = b to 3 significant figures, choosing the right log key. |
 | `t1-ext-identity-constants` Identities and unknown constants | skill | identity-constants | 1–3 | Bank proofs (t1-algebraic-proof) go from one side to the other; none asks for unknown constants in an identity or what ≡ means. | Tell an identity from an equation, and find the constants that make two expressions identical by comparing coefficients or substituting values. |
 | `t1-ext-numerical-show-that` Numerical "show that" | skill | numerical-show-that | 1–3 | Show-that lines occur across the bank but are tagged with the skill they show; writing one is never a type of its own. | Complete a "show that" with a given number, setting out each step so that the given answer is reached rather than assumed. |

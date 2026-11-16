@@ -117,10 +117,10 @@ move. Their dialogue portraits are in `assets/portraits/` (see its README).
 
 | File | Frames (w×h shipped px) | Anims (fps) | Anchors | Bytes |
 |---|---|---|---|---|
-| `cast/b0-lt.webp` + `b0-lt.json` | idle 44×220, talk 44×220 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 12,004 |
-| `cast/dax.webp` + `dax.json` | idle 72×220, talk 72×220 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 12,258 |
-| `cast/gear-mira.webp` + `gear-mira.json` | idle 62×220, talk 62×220 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 13,492 |
-| `cast/noma.webp` + `noma.json` | idle 74×220, talk 74×220 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 14,582 |
+| `cast/b0-lt.webp` + `b0-lt.json` | idle 46×223, talk 46×223 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 9,476 |
+| `cast/dax.webp` + `dax.json` | idle 76×223, talk 76×223 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 10,882 |
+| `cast/gear-mira.webp` + `gear-mira.json` | idle 65×222, talk 65×222 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 11,228 |
+| `cast/noma.webp` + `noma.json` | idle 77×221, talk 77×221 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 12,250 |
 | `encounters/cell/backdrop.webp` | opaque 864×256 | static | strip origin (0, 0) | 25,926 |
 | `encounters/cell/bars.webp` + `.json` | shut 864×256, loose 864×256, open 864×256 | shut/loose/open, one frame each (1, once) | feet point | 360,974 |
 | `encounters/cell/guard.webp` + `.json` | idle 110×252, talk 110×252 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 13,000 |
@@ -213,3 +213,11 @@ batch lands, that sheet is still in the painted style.
   arms are the same pixels). The mast-climber's mast is drawn on the CPU behind the rendered climber, at the old
   mast's width and positions: a slim pole and back rail in one steel grey with one shadow tone, and the boxes,
   panels and cable runs as closed, filled, inked shapes.
+- Batch 3, FAL-829: the journey cast (`cast/gear-mira`, `dax`, `noma`, `b0-lt`, idle and talk) and their 16
+  dialogue portraits in `assets/portraits/`. Gear Mira's idle is the accepted FAL-792 test frame. The other idles are
+  the old idles redrawn in the new look. Each talk is the new idle with only the raised arm redrawn (B0-LT's talk
+  changes only the screen, to a dark screen with an amber waveform). Frame ids, anims and the feet-point convention
+  are unchanged; only `x`, `y`, `w`, `h`, `ox`, `oy` were re-measured (heights 220 → 221-223 px). The frames sit on the 16 px WebP block grid (`x` = 0, 64-96), so idle and talk decode to the same pixels outside the arm. The look is
+  louder than the painted cast: Noma's tunic is bright teal with a magenta sash, and B0-LT is chrome grey with a
+  teal chest plate. Dax's portraits now match his sheet (brown hat with teal goggles, dark hair and beard) instead
+  of the old portraits' cap and grey hair.

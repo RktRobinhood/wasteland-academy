@@ -174,6 +174,14 @@ static var SITUATIONS := {
 	"sign-at-point": [SignAtPointSituation, SignAtPointViews],
 	"gradient-from-graph": [GradientFromGraphSituation, GradientFromGraphViews],
 	"rate-of-rate": [RateOfRateSituation, RateOfRateViews],
+	"variable-kind": [VariableKindSituation, VariableKindViews],
+	"study": [StudySituation, StudyViews],
+	"stratified-sample": [StratifiedSampleSituation, StratifiedSampleViews],
+	"histogram": [HistogramSituation, HistogramViews],
+	"correlation": [CorrelationSituation, CorrelationViews],
+	"exact-triangle": [ExactTriangleSituation, ExactTriangleViews],
+	"integer-powers": [IntegerPowersSituation, IntegerPowersViews],
+	"show-that-value": [ShowThatSituation, ShowThatViews],
 }
 
 static var _cat: Dictionary = {}

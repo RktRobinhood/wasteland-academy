@@ -24,6 +24,13 @@ extends RefCounted
 ##   r, rb    Q, the annual rates in per cent;  k, kb  compounding periods a year;  n  the years
 ##   target   the amount to reach (time-needed);  years  the answer to time-needed
 ##
+## t1-ext-real-value (FAL-780) asks the situation with an annual inflation rate f too, compounded
+## annually (k = 1):
+##   real-rate           r, f: the real rate r − f
+##   real-value-rate     pv, r, f, n: pv(1 + (r − f)/100)^n, to the nearest cent
+##   real-value-deflate  pv, r, f, n: pv(1 + r/100)^n ÷ (1 + f/100)^n, to the nearest cent
+##   keeps-pace          r, f: whether the real value rises (r > f) or falls
+##
 ## The clean limits below are the numbers behind the catalogue's `clean` text. The SymPy
 ## checker holds its own copy and fails on any breach.
 
@@ -66,6 +73,8 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 				ok = _time(rng, s)
 			"compare-options":
 				ok = _compare(rng, s)
+			"real-rate", "real-value-rate", "real-value-deflate", "keeps-pace":
+				ok = _real(rng, s)
 		if ok:
 			return s
 	return {}
@@ -230,6 +239,50 @@ static func _compare(rng: Seeded, s: Dictionary) -> bool:
 	var a1 := value(pv, s.r.to_float(), 1, s.n)
 	var b1 := value(pv, s.rb.to_float(), 1, s.n)
 	return cents_clear(a1 - b1) and a1 - b1 >= 1.0 and absf(a1 - b1 - d) >= 1.0
+
+
+# ── Real value (t1-ext-real-value) ───────────────────────────
+
+## The inflation rate, in tenths: 1.0 to 6.0 in steps of 0.5.
+const F_TENTHS := [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+const RV_N := [3, 12]
+
+
+static func real_rate_value(s: Dictionary) -> float:
+	return value(s.pv.to_float(), s.r.to_float() - s.f.to_float(), 1, s.n)
+
+
+static func deflated(s: Dictionary) -> float:
+	return value(s.pv.to_float(), s.r.to_float(), 1, s.n) / pow(1.0 + s.f.to_float() / 100.0, s.n)
+
+
+## r from 2.0 to 8.0 and f from 1.0 to 6.0, in steps of 0.5 and different. A value asked for has
+## r > f, and it and every slip offered (the rates added, the nominal value, the inflation factor
+## once, multiplying by it) leave a cent clear of the edge; the real-rate and deflated values are at
+## least a dollar apart, so each method gives its own answer.
+static func _real(rng: Seeded, s: Dictionary) -> bool:
+	s.k = 1
+	s.pv = Q.new(rng.int_in(2, 40) * 500)
+	s.r = _pick_r(rng, [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80], 10)
+	s.f = _pick_r(rng, F_TENTHS, 10)
+	s.n = rng.int_in(RV_N[0], RV_N[1])
+	if s.r.eq(s.f):
+		return false
+	if s.ask == "real-rate" or s.ask == "keeps-pace":
+		return true
+	if s.f.lt(s.r) == false:
+		return false
+	var pv: float = s.pv.to_float()
+	var r: float = s.r.to_float()
+	var f: float = s.f.to_float()
+	var nominal := value(pv, r, 1, s.n)
+	var real := real_rate_value(s)
+	var defl := deflated(s)
+	if absf(real - defl) < 1.0:
+		return false
+	if s.ask == "real-value-rate":
+		return cents_clear(real) and cents_clear(value(pv, r + f, 1, s.n)) and cents_clear(nominal)
+	return cents_clear(defl) and cents_clear(nominal / (1.0 + f / 100.0)) and cents_clear(nominal) and cents_clear(nominal * pow(1.0 + f / 100.0, s.n))
 
 
 static func export(s: Dictionary) -> Dictionary:
