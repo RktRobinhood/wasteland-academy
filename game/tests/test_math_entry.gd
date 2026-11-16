@@ -165,3 +165,49 @@ func test_enter_submits() -> void:
 
 func test_the_arrow_keys_have_glyphs() -> void:
 	check_eq(UiTheme.missing_glyphs("◀▶"), "", "◀ ▶")
+
+
+## FAL-813: the power and root keys make boxes to type into, ◀ ▶ and Del go through them,
+## and text with carets and roots builds them.
+func test_powers_and_roots() -> void:
+	_same(["2", "^", "3"], "2^(3)", "2^3")
+	var e := _typed(["√", "2", "▶", "+", "1"])
+	check_eq(e.text, "√(2)+1", "▶ leaves the root")
+	for i in 3:
+		e.press("◀")
+	check(e.row == e.root.children[0].children[0] and e.at == 1, "◀ goes back under the bar")
+	e.press("◀")
+	e.press("Del")
+	check_eq(e.text, "2+1", "Del at the start of a root keeps what is in it")
+	e.free()
+	e = _typed(["2", "^", "Del"])
+	check_eq(e.text, "2", "Del in an empty power takes it away")
+	e.free()
+	e = _typed(["2", "^", "(", "1", ")", ")", "+"])
+	check_eq(e.text, "2^((1))+", "a bracket closes first, then ) leaves the power")
+	e.free()
+	e = MathEntry.new()
+	e.text = "e^(-0.2x)+√(3)/2"
+	check_eq(e.text, "e^(-0.2x)+(√(3))/(2)", "text builds powers and roots")
+	check_eq(e.root.children[1].kind, MathBox.Kind.POWER)
+	e.text = "2^-1"
+	check_eq(e.text, "2^(-1)")
+	check(Answer.parse_number(e.text).ok and Answer.parse_number(e.text).q.eq(Q.new(1, 2)), "2^(-1) reads as 1/2")
+	e.clear()
+	e.paste("(1)/(3)")
+	check_eq(e.root.children[0].kind, MathBox.Kind.FRACTION, "paste builds the tree")
+	e.free()
+
+
+## FAL-813: a power after a root or a fraction sits at its top right, not on the line.
+func test_a_power_after_a_tall_box_rises() -> void:
+	var f := MathBox.fraction(MathBox.row([MathBox.text_box("3")]), MathBox.row([MathBox.text_box("4")]))
+	var r := MathBox.row([MathBox.root(MathBox.row([f])), MathBox.power(MathBox.row([MathBox.text_box("2")]))])
+	r.layout(ThemeDB.fallback_font, 40)
+	var root: MathBox = r.children[0]
+	var p: MathBox = r.children[1]
+	check(p.at.y < -10.0, "raised: %s" % p.at.y)
+	check_eq(r.asc, maxf(root.asc, p.asc - p.at.y), "the row is as tall as the raised power")
+	var plain := MathBox.row([MathBox.text_box("2"), MathBox.power(MathBox.row([MathBox.text_box("3")]))])
+	plain.layout(ThemeDB.fallback_font, 40)
+	check_eq(plain.children[1].at.y, 0.0, "after a number, as before")
