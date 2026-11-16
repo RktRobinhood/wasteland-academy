@@ -502,7 +502,12 @@ func u_show_self_inverse(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var c: int = f.c
 	var d: int = f.d
 	var right := finv(f) + ", which is f(x)"
-	var pick := pick_of(right, rat_tag(d, b, -c, a, R_ONE_SIGN, "f⁻¹(x) = %s, which is not f(x)"), [finv(f) + ", which is not f(x)", "f⁻¹(x) = %s, which is f(x)" % rat_text(d, -b, c, a)])
+	var slip := rat_tag(d, b, -c, a, R_ONE_SIGN, "f⁻¹(x) = %s, which is not f(x)")
+	var plain := [finv(f) + ", which is not f(x)", "f⁻¹(x) = %s, which is f(x)" % rat_text(d, -b, c, a)]
+	# With the slip gone (a² = bc), a third filler keeps four options: it cancels only when a² = −bc.
+	if slip.is_empty():
+		plain.append("f⁻¹(x) = %s, which is not f(x)" % rat_text(a, b, -c, a))
+	var pick := pick_of(right, slip, plain)
 	var out := {"asked": "Find f⁻¹(x), and show that f is its own inverse.", "lines": [InverseRuleSituation.rule_line(f)]}
 	out.merge(pick)
 	var swapped := "Swap x and y: x = " + rt(f).replace("x", "y")

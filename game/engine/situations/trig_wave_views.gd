@@ -927,10 +927,10 @@ func u_all_times(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var set := m_setup(rep, s, s.L, s.level)
 	var out := {"answer": a, "lines": set.lines, "graph": set.graph, "asked": "Find every time in 0 ≤ t ≤ %d when %s is %s%s, to 3 significant figures." % [s.L, what(s), D(s.level), unit_of(s)]}
 	var like := func(vals: Array) -> Dictionary: return Answer.xs_of(vals.map(func(x): return GdcKit.qf(x)))
-	out.wrongs = [wrong(like.call([xs[0]]), R_FIRST_ONLY)]
+	# The first time alone is always offered; the other slips share the last two places.
 	# In degree mode the first two solutions are far along, as the angles are read as small.
-	out.wrongs.append(wrong(like.call(crossings(s, s.level.to_float(), 720.0 / s.B, true).slice(0, 2)), R_DEGREES))
-	out.wrongs = mixed(out.wrongs + [wrong(like.call(xs.slice(0, xs.size() - 1)), R_SHORT_LIST), wrong(like.call(xs + [xs[xs.size() - 1] + s.T]), R_PAST_END)], _rng)
+	out.wrongs = [wrong(like.call([xs[0]]), R_FIRST_ONLY)] + mixed([wrong(like.call(crossings(s, s.level.to_float(), 720.0 / s.B, true).slice(0, 2)), R_DEGREES),
+		wrong(like.call(xs.slice(0, xs.size() - 1)), R_SHORT_LIST), wrong(like.call(xs + [xs[xs.size() - 1] + s.T]), R_PAST_END)], _rng)
 	out.fillers = [like.call(xs.map(func(x): return x + 1.0)), like.call(xs.map(func(x): return x + s.T / 4.0))]
 	var last := "The times in 0 ≤ t ≤ %d are %s." % [s.L, list(xs)]
 	var peak := peak_around(s, s.level.to_float())

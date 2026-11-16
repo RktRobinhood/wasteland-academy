@@ -117,8 +117,10 @@ func test_every_tag_shows_up_as_an_option() -> void:
 			for o in q.choices:
 				if o.ref != "":
 					seen[o.ref] = true
-	for m in t.misconceptions:
-		check(seen.has(m.ref), "%s never shows" % m.ref)
+	for i in t.misconceptions.size():
+		# A line added without a ref has the engine's own id, type#index.
+		var ref: String = t.misconceptions[i].get("ref", "%s#%d" % [TYPE, i])
+		check(seen.has(ref), "%s never shows" % ref)
 
 
 func test_no_wrong_option_types_as_right() -> void:

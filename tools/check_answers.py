@@ -22640,7 +22640,9 @@ def tr_read(text):
 
 def tr_text(v):
     """The checker's own writing of a + b√r, with the root on top."""
-    v = sp.nsimplify(sp.radsimp(sp.expand(sp.simplify(v))))
+    v = sp.radsimp(sp.expand(sp.simplify(v)))
+    if v.has(sp.Float):  # only a float needs it: on 24 − 3√3/2, nsimplify gives a power tower
+        v = sp.nsimplify(v)
     a, b, r = sp.Integer(0), sp.Integer(0), None
     for term in sp.Add.make_args(sp.expand(v)):
         if term.is_Rational:
