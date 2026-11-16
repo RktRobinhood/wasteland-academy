@@ -1,0 +1,840 @@
+{
+  "id": "ex.functions.inverse-undo",
+  "format": 1,
+  "status": "draft",
+  "title": "Run It Backwards",
+  "idea": "An inverse function undoes the original, taking each output back to the input that made it.",
+  "zone": "functions",
+  "tutor": "rook-dead-air",
+  "courses": [
+    "aa-sl",
+    "aa-hl",
+    "ai-sl",
+    "ai-hl"
+  ],
+  "syllabus": [
+    "SL2.2"
+  ],
+  "skills": [
+    "SL2.2.inverse-undo"
+  ],
+  "builds_on": [
+    "ex.functions.function-machine"
+  ],
+  "leads_to": [
+    "ex.functions.inverse-reflection",
+    "ex.functions.log-undoes-power"
+  ],
+  "terms": [
+    "inverse function",
+    "f⁻¹(x)"
+  ],
+  "misconceptions": [
+    "Reads f⁻¹(x) as the reciprocal of f(x)",
+    "Computes f(a) when f⁻¹(a) is asked for"
+  ],
+  "estimate": {
+    "words_watched": 875,
+    "words_not_watched": 907,
+    "narration_watched": "6 min 03 s",
+    "narration_not_watched": "6 min 15 s",
+    "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
+  },
+  "notes": [
+    "Builds on ex.functions.function-machine, Rook's own, so the recall uses his own.watched, own.not-watched, short-version and after lines.",
+    "No second-method section: the map lists no methods. Three of the skill's four methods are in the script: reversing the flow diagram is the big idea and example 1, solving f(x) = a is example 2 and example 3(c), and swapping coordinates is the end of the big idea and example 3(b).",
+    "The skill's fourth method, reflecting the graph in y = x, is the map's next explainer, ex.functions.inverse-reflection (The Mirror Line), so the recap points there and the reflection misconception is left to it. Finding f⁻¹(x) as a formula is ex.functions.swap-and-solve (AA, and AI HL).",
+    "The turns use fn-graph-table-composite-inverse, the only question type with SL2.2.inverse-undo whose chain reads an inverse value. Its live version gives a graph or a table, so turn 1 may arrive as a table rather than a rule. Phase 2 (turns and the engine, with Coder) should check that the twin still mirrors example 1. The fallbacks are fixed and worked below."
+  ],
+  "sections": [
+    {
+      "id": "cold-open",
+      "kind": "cold-open",
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "say": "Signal Tower, this is Rook. The tower doubles whatever comes in, and adds three."
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "This morning it sent out seventeen. Nobody logged what went in.",
+          "board": [
+            {
+              "write": "Tower: × 2, then + 3. Out: 17. In: ?",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "The log for this morning is one coffee ring and the word seventeen.",
+          "joke": true
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "What went in? Over.",
+          "pause": 0.5
+        }
+      ]
+    },
+    {
+      "id": "recall",
+      "kind": "recall",
+      "builds_on": "ex.functions.function-machine",
+      "watched": [
+        {
+          "use": "rook-dead-air.own.watched"
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "f(x) = 2x + 3. Find f(5).",
+            "choices": [
+              "13",
+              "16",
+              "1"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Thirteen. Five in, thirteen out. Today we go the other way."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "f of five is the output when five goes in. Two fives are ten, plus three, thirteen. Today we go the other way."
+              }
+            ]
+          }
+        }
+      ],
+      "not_watched": [
+        {
+          "speaker": "rook-dead-air",
+          "say": "Before we start, one check. Tap one."
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "f(x) = 2x + 3. Find f(5).",
+            "choices": [
+              "13",
+              "16",
+              "1"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Thirteen. Good."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "It's thirteen. Here's how."
+              }
+            ]
+          }
+        },
+        {
+          "use": "rook-dead-air.own.not-watched"
+        },
+        {
+          "use": "rook-dead-air.short-version"
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "A function takes each input to one output. f of five means the output when five goes in. Five goes where x was. Two fives are ten, plus three, thirteen.",
+          "board": [
+            {
+              "write": "f(5) = 2(5) + 3",
+              "move": "substitute"
+            },
+            {
+              "write": "= 13",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "use": "rook-dead-air.after"
+        }
+      ]
+    },
+    {
+      "id": "big-idea",
+      "kind": "big-idea",
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "Here's the tower's rule. Signal comes in. Doubled. Three added. Out it goes.",
+          "board": [
+            {
+              "write": "f(x) = 2x + 3",
+              "kind": "step"
+            },
+            {
+              "write": "input → × 2 → + 3 → output",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Seventeen came out. To find what went in, run the line backwards. Two things flip. The order flips, so the last thing done is the first undone. And each step flips: add becomes take away, times becomes divide.",
+          "board": [
+            {
+              "write": "Backwards: undo + 3 first, then undo × 2",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Seventeen, take away three, fourteen. Fourteen, halved, seven. Seven went in.",
+          "board": [
+            {
+              "write": "17 → − 3 → 14 → ÷ 2 → 7",
+              "move": "reverse-operations"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Check it forwards. Seven doubled is fourteen, plus three, seventeen. Loud and clear.",
+          "board": [
+            {
+              "write": "Check: f(7) = 2(7) + 3 = 17 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "The machine that runs f backwards is the inverse function. It's written f, with a small minus one up top, and you say f inverse. f inverse of seventeen is seven.",
+          "board": [
+            {
+              "write": "inverse function: undoes f, taking each output back to its input",
+              "kind": "term"
+            },
+            {
+              "write": "f⁻¹(17) = 7: the input that f turns into 17",
+              "kind": "term"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "That minus one isn't a power. f inverse of seventeen isn't one over f of seventeen. It's a label. It means run f backwards.",
+          "board": [
+            {
+              "write": "f⁻¹(17) is not 1/f(17)",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "And if f sends seven to seventeen, f inverse sends seventeen back to seven, so every pair swaps round, input for output, and a table for f inverse is f's table with its two rows swapped. Sorry. Back on frequency.",
+          "board": [
+            {
+              "write": "f: 7 → 17     f⁻¹: 17 → 7",
+              "move": "swap-x-and-y"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "My oupa said undoing is like getting dressed for the cold. Socks, then boots. So boots come off first. He tested it the other way once.",
+          "cue": "chuckles",
+          "cue_at": "end",
+          "joke": true,
+          "pause": 0.5
+        }
+      ]
+    },
+    {
+      "id": "example-1",
+      "kind": "example",
+      "level": "full",
+      "problem": {
+        "setup": "f(x) = 4x − 5. Find f⁻¹(23)."
+      },
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "On paper. Step one: what we're finding. f inverse of twenty-three, the input that f turns into twenty-three.",
+          "board": [
+            {
+              "write": "Find f⁻¹(23): the input that f turns into 23.",
+              "kind": "heading",
+              "label": "Step 1: what are we finding?"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Step two: the rule as a line of operations. Times four, then take away five.",
+          "board": [
+            {
+              "write": "f(x) = 4x − 5:   input → × 4 → − 5 → output",
+              "move": "read-givens",
+              "label": "Step 2: the flow"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Step three: run it backwards. Undo the minus five first. Twenty-three plus five, twenty-eight.",
+          "board": [
+            {
+              "write": "23 → + 5 → 28",
+              "move": "reverse-operations",
+              "label": "Step 3: run it backwards"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why add 5 before dividing by 4?",
+            "choices": [
+              "− 5 was done last, so it's undone first",
+              "Adding always comes before dividing",
+              "The order doesn't matter when you undo"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Copy that. Last on, first off."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Going forwards, the five comes off last. Running it backwards, it's the first thing you meet, so it's the first thing you undo."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Then undo the times four. Twenty-eight over four, seven. f inverse of twenty-three is seven.",
+          "board": [
+            {
+              "write": "28 → ÷ 4 → 7",
+              "move": "reverse-operations"
+            },
+            {
+              "write": "f⁻¹(23) = 7",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Step four: check it forwards. Four sevens are twenty-eight. Take away five, twenty-three. Seven in, twenty-three out, so f inverse sends twenty-three back to seven. Out.",
+          "board": [
+            {
+              "write": "Check: f(7) = 4(7) − 5 = 23 ✓",
+              "move": "check",
+              "kind": "check",
+              "label": "Step 4: check forwards"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-1",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "twin",
+        "like": "example-1",
+        "type": "fn-graph-table-composite-inverse",
+        "skills": [
+          "SL2.2.inverse-undo"
+        ],
+        "intro": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Your channel. Backwards, last thing first, then check it forwards. Over."
+          }
+        ],
+        "fallback": {
+          "setup": "f(x) = 3x + 8.",
+          "parts": [
+            {
+              "text": "Find f⁻¹(29).",
+              "answer": "7"
+            }
+          ],
+          "working": [
+            "input → × 3 → + 8 → output",
+            "29 → − 8 → 21 → ÷ 3 → 7",
+            "f⁻¹(29) = 7",
+            "Check: f(7) = 3(7) + 8 = 29 ✓"
+          ]
+        },
+        "right": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Loud and clear. Backwards, and checked forwards."
+          },
+          {
+            "speaker": "rook-dead-air",
+            "say": "Last on, first off. Copy that."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Crossed wire. That's f of the value. The question wants the input that gives it."
+          },
+          {
+            "speaker": "rook-dead-air",
+            "say": "Check the order. Which operation did f do last?"
+          }
+        ]
+      }
+    },
+    {
+      "id": "example-2",
+      "kind": "example",
+      "level": "faded",
+      "problem": {
+        "setup": "g(x) = 10 − 3x. Find g⁻¹(−5)."
+      },
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "Now a rule that's harder to run backwards. g of x is ten minus three x, and we want g inverse of minus five.",
+          "board": [
+            {
+              "write": "g(x) = 10 − 3x.  Find g⁻¹(−5).",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "You could run the flow backwards, but the minus three x hides the order. So go straight to what the label means. g inverse of minus five is the input that gives minus five."
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "You set it up. I'll keep the channel open."
+        },
+        {
+          "ask": {
+            "kind": "fill",
+            "prompt": "Which equation finds g⁻¹(−5)?",
+            "choices": [
+              "10 − 3x = −5",
+              "g(−5) = 10 − 3(−5)",
+              "1 ÷ (10 − 3(−5))"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Lekker. Output set to minus five, and solve for the input."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "g inverse of minus five is an input. So set the output, ten minus three x, equal to minus five, and solve for x."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Take ten off both sides. Minus three x is minus fifteen. Divide by minus three. x is five.",
+          "board": [
+            {
+              "write": "10 − 3x = −5",
+              "move": "apply-condition"
+            },
+            {
+              "write": "−3x = −15",
+              "move": "isolate"
+            },
+            {
+              "write": "x = 5",
+              "move": "isolate"
+            },
+            {
+              "write": "g⁻¹(−5) = 5",
+              "move": "state-answer",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Check forwards. Three fives are fifteen, and ten minus fifteen is minus five.",
+          "board": [
+            {
+              "write": "Check: g(5) = 10 − 15 = −5 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-3",
+      "kind": "example",
+      "level": "exam",
+      "problem": {
+        "setup": "The table shows some values of a function f. x: −1, 0, 2, 3, 5. f(x): 7, 4, −2, −5, −11.",
+        "parts": [
+          {
+            "part": "a",
+            "command": "Write down",
+            "text": "Write down f(2)."
+          },
+          {
+            "part": "b",
+            "command": "Write down",
+            "text": "Write down f⁻¹(4)."
+          },
+          {
+            "part": "c",
+            "command": "Find",
+            "text": "The function is f(x) = 4 − 3x. Find f⁻¹(25)."
+          }
+        ]
+      },
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "Paper style now. A table of values for a function f. Inputs on the top row, outputs on the bottom.",
+          "board": [
+            {
+              "write": "x:      −1    0    2    3     5",
+              "move": "read-givens",
+              "kind": "heading"
+            },
+            {
+              "write": "f(x):    7    4   −2   −5   −11",
+              "move": "read-givens",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Part a. Write down f of two. Find two in the input row, and read down. Two in, minus two out. Write down means no working needed.",
+          "board": [
+            {
+              "write": "(a)  f(2) = −2",
+              "move": "state-answer",
+              "part": "a",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Part b. Write down f inverse of four."
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "For f⁻¹(4), which row do you find 4 in?",
+            "choices": [
+              "The f(x) row",
+              "The x row",
+              "Neither: work out 1/4"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "The output row. Four came out, so find it there and read up. Copy that."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "f inverse of four is the input that gives four. Four is an output, so find it in the f of x row and read up to the input."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Four is in the output row, under zero. f of zero is four, so f inverse of four is zero.",
+          "board": [
+            {
+              "write": "(b)  f(0) = 4, so f⁻¹(4) = 0",
+              "move": "swap-x-and-y",
+              "part": "b",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Part c. Twenty-five isn't in the table, so we use the rule. Before solving, a prediction. The outputs go up as the inputs go down, so an output of twenty-five should come from an input below minus one. f inverse of twenty-five is the input that gives twenty-five.",
+          "board": [
+            {
+              "write": "(c)  4 − 3x = 25",
+              "move": "apply-condition",
+              "part": "c"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Take four off both sides. Minus three x is twenty-one. Divide by minus three. x is minus seven.",
+          "board": [
+            {
+              "write": "−3x = 21",
+              "move": "isolate",
+              "part": "c"
+            },
+            {
+              "write": "x = −7",
+              "move": "isolate",
+              "part": "c"
+            },
+            {
+              "write": "f⁻¹(25) = −7",
+              "move": "state-answer",
+              "part": "c",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Check forwards. Minus three times minus seven is twenty-one. Four plus twenty-one, twenty-five. And minus seven is below minus one, as predicted. Out.",
+          "board": [
+            {
+              "write": "Check: f(−7) = 4 − 3(−7) = 4 + 21 = 25 ✓",
+              "move": "check",
+              "part": "c",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "second-method",
+      "kind": "second-method",
+      "skipped": "The map lists no second method for this idea; see notes."
+    },
+    {
+      "id": "spot-the-slip",
+      "kind": "spot-the-slip",
+      "misconception": "Reads f⁻¹(x) as the reciprocal of f(x)",
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "Found this in the log. f of x is two x plus four, find f inverse of ten. One line has a crossed wire.",
+          "board": [
+            {
+              "write": "f(x) = 2x + 4.  Find f⁻¹(10).",
+              "kind": "heading"
+            },
+            {
+              "write": "f⁻¹(10) = 1/f(10)",
+              "kind": "slip",
+              "key": "s1"
+            },
+            {
+              "write": "f(10) = 2(10) + 4 = 24",
+              "kind": "step",
+              "key": "s2"
+            },
+            {
+              "write": "f⁻¹(10) = 1/24",
+              "kind": "step",
+              "key": "s3"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "tap-line",
+            "prompt": "Tap the line with the slip.",
+            "choices": [
+              "s1",
+              "s2",
+              "s3"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "That's the one. The minus one is a label, not a power."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Look at the first line. What does f inverse mean? Is it one over anything?"
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "The check that catches it: run it forwards. One over twenty-four goes in, and out comes four and a bit. Not ten.",
+          "board": [
+            {
+              "write": "Check: f(1/24) = 1/12 + 4 = 4.083…, not 10 ✗",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "One line through it. f inverse of ten is the input that gives ten. Two x plus four is ten. x is three. Forwards: six plus four, ten.",
+          "board": [
+            {
+              "strike": "s1"
+            },
+            {
+              "write": "2x + 4 = 10,  2x = 6,  x = 3,  so f⁻¹(10) = 3",
+              "move": "apply-condition",
+              "kind": "answer"
+            },
+            {
+              "write": "Check: f(3) = 6 + 4 = 10 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "I wrote that line myself once, on the back of a weather report. Eish. I keep it pinned over the desk.",
+          "joke": true,
+          "cue": "sighs",
+          "cue_at": "start"
+        }
+      ]
+    },
+    {
+      "id": "turn-2",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "exam",
+        "like": "example-3",
+        "type": "fn-graph-table-composite-inverse",
+        "skills": [
+          "SL2.2.inverse-undo"
+        ],
+        "intro": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Your channel, no help on the first try. Input or output, every time, and check it forwards. Over."
+          }
+        ],
+        "fallback": {
+          "setup": "The table shows some values of a function g. x: −2, 0, 1, 4, 6. g(x): −3, 1, 3, 9, 13.",
+          "parts": [
+            {
+              "part": "a",
+              "text": "Write down g(4).",
+              "answer": "9"
+            },
+            {
+              "part": "b",
+              "text": "Write down g⁻¹(1).",
+              "answer": "0"
+            },
+            {
+              "part": "c",
+              "text": "The function is g(x) = 2x + 1. Find g⁻¹(31).",
+              "answer": "15"
+            }
+          ],
+          "working": [
+            "(a) g(4) = 9",
+            "(b) g(0) = 1, so g⁻¹(1) = 0",
+            "(c) 2x + 1 = 31",
+            "2x = 30",
+            "x = 15, so g⁻¹(31) = 15",
+            "Check: g(15) = 2(15) + 1 = 31 ✓"
+          ]
+        },
+        "right": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Loud and clear. Input, output, and you kept them apart."
+          },
+          {
+            "speaker": "rook-dead-air",
+            "say": "Read up for the inverse, and checked forwards. Copy that."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Crossed wire. That's an output. The inverse wants the input."
+          },
+          {
+            "speaker": "rook-dead-air",
+            "say": "Find the value in the output row, then read up."
+          }
+        ]
+      }
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "So. An inverse runs a function backwards. f inverse of a is the input that f turns into a. Undo the last thing first, or solve f of x equals a. Then check it forwards.",
+          "board": [
+            {
+              "write": "f⁻¹(a): the input that f turns into a",
+              "kind": "answer"
+            },
+            {
+              "write": "1. Undo the last operation first, or solve f(x) = a",
+              "kind": "note"
+            },
+            {
+              "write": "2. In a table, find a in the output row and read up",
+              "kind": "note"
+            },
+            {
+              "write": "3. Check forwards: f(your input) = a",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Next time, f and its inverse on the same graph. There's a mirror between them. Later on, logs undo powers the same way."
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Seventeen out, seven in. Rook, out."
+        }
+      ]
+    }
+  ]
+}

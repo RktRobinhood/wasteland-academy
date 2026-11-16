@@ -15,6 +15,11 @@ Read [`../../TONE.md`](../../TONE.md) and [`../voice-sheets.md`](../voice-sheets
 | `ex.foundations.pre-read-and-round.json` | Read the Gauge. Tess, about 5½ minutes. |
 | `ex.foundations.pre-percent-multiplier.json` | One Multiplication. Tess, about 5 minutes. |
 | `ex.foundations.pre-expand.json` | Fill the Rectangle. Tess, about 5½ minutes. |
+| `ex.functions.function-machine.json` | One In, One Out, built on Brackets Round Negatives. Rook, about 6¼ minutes. |
+| `ex.functions.gradient.json` | Rise per Step. Rook, about 6 minutes. |
+| `ex.functions.line-equation.json` | Pin and Swing, built on Rise per Step and Keep the Scales Level. Rook, about 7 minutes. |
+| `ex.functions.line-model.json` | Start Plus Rate, built on Pin and Swing. Rook, about 6 minutes. |
+| `ex.functions.inverse-undo.json` | Run It Backwards, built on One In, One Out. Rook, about 6 minutes. |
 
 Nothing here is recorded. The board chose each tutor's voice on FAL-927 (`tools/explainer-clips/teachers.json`), but GitHub #18 is still open, so the voice blocks below stay provisional until casting is settled there.
 
@@ -63,7 +68,7 @@ Matt's target: "mathematical knowledge presented in an academic manner so studen
 
 ### The tutors
 
-The tutors come from `tools/explainer-clips/teachers.json`. Mags and Tess have full voice blocks, below, and both are provisional (GitHub #18). Each of the other four gets a block in the same form before their first script is written, as `../README.md` requires. The notes after Tess's block are the starting direction.
+The tutors come from `tools/explainer-clips/teachers.json`. All six have full voice blocks, below, and all six are provisional (GitHub #18).
 
 #### Mags the Ledger (algebra, Scrap Fields), provisional
 
@@ -116,13 +121,6 @@ Runs the Scrapworks, the yard where everything broken in the Bazaar ends up, and
 **Samples:** cold open, "A trader brought this counting drum back this morning. Says it's broken, because it told him minus three squared is minus nine." Family story, "My brother took an engine apart once and put it back in the order he liked best. Lovely noise. Didn't go anywhere." Sign-off, "And if a trader says half off, today only? Ask what it cost yesterday."
 
 **Not the others:** Mags and Tess are both from down under, so keep them apart. Mags is Australian, says little and writes everything down; Tess is a New Zealander, talks the whole time and hands you things to hold. Gear Mira measures and reads numbers back with their units, and her sentences get shorter under pressure; Tess pulls things apart and puts them back, and her sentences stay long and get warmer. Bodge wanders off about her stock; every story Tess tells comes back to the maths within a sentence.
-
-#### The other four, in brief
-
-- **Rook Dead-Air** (functions, Signal Tower). Precise, and gets more excited as the lesson builds. His words come from radio: input, output, signal, static, "come in", "over". South African English shows in word choice. Watch B0-LT, who will also live at the Signal Tower.
-- **Kara Meridian** (geometry, Dry Flats). Measured and sure of herself. Surveying words: baseline, bearing, level, sight line. She speaks slowly and states things plainly. She sits near Noma (maps, distance), so Kara measures today's ground and Noma tells its stories.
-- **Lucien "Lucky" Lenoir** (statistics, Radio Spires). A theatrical gamesmaster who keeps losing to probability, and the joke is always that the maths was right and he bet against it. French-accented English comes through in syntax (fewer contractions, "I bet you remember it") and a rare French word. Never spell his accent phonetically.
-- **C.A.L.C.** (calculus, Engine Core). A damaged reactor AI that cares about rates of change. Clipped, formal and literal: "Record found", "Recommend you go". Glitches are a cue, never misspelt words in the caption. It must not sound like Spark, who is warm and sarcastic. Spoken and captioned as "Calc".
 
 #### Rook Dead-Air (functions, Signal Tower), provisional
 

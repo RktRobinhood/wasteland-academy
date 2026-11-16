@@ -1,0 +1,952 @@
+{
+  "id": "ex.functions.line-equation",
+  "format": 1,
+  "status": "draft",
+  "title": "Pin and Swing",
+  "idea": "One point and a gradient pin down a line, written as y − y₁ = m(x − x₁), y = mx + c or ax + by + d = 0.",
+  "zone": "functions",
+  "tutor": "rook-dead-air",
+  "courses": [
+    "aa-sl",
+    "aa-hl",
+    "ai-sl",
+    "ai-hl"
+  ],
+  "syllabus": [
+    "SL2.1"
+  ],
+  "skills": [
+    "SL2.1.equation-of-line",
+    "SL2.1.intercepts"
+  ],
+  "builds_on": [
+    "ex.functions.gradient",
+    "ex.foundations.pre-balance"
+  ],
+  "leads_to": [
+    "ex.functions.line-model",
+    "ex.functions.perpendicular"
+  ],
+  "terms": [
+    "point-gradient form",
+    "y-intercept",
+    "x-intercept"
+  ],
+  "misconceptions": [
+    "Writes y − y₁ = m(x + x₁), which puts the line through (−x₁, y₁)",
+    "Leaves fractions, or drops the '= 0', when integer coefficients in ax + by + d = 0 are required",
+    "Sets y = 0 to find the y-intercept (swaps the two conditions)"
+  ],
+  "estimate": {
+    "words_watched": 1010,
+    "words_not_watched": 1049,
+    "narration_watched": "6 min 56 s",
+    "narration_not_watched": "7 min 12 s",
+    "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
+  },
+  "notes": [
+    "The map gives two prerequisites. The recall version is chosen by ex.functions.gradient, Rook's own, because the gradient is what this script stands on. The balancing from ex.foundations.pre-balance is used in every rearrangement but has no recall of its own, so a player who skipped it meets it worked in full.",
+    "Second method: the map lists point-gradient and slope-intercept. Point-gradient is the lesson and example 3; the second-method section does example 3(b) again by putting the point into y = mx + c and solving for c (the skill's solve-for-c method), side by side.",
+    "Three forms of one line, and only one of them gets a new name (point-gradient form). The other two are named by their shape, \"y = mx + c\" and \"ax + by + d = 0\", the way exam questions name them. The three terms are point-gradient form and the two intercepts. Not split: the intercepts come straight out of y = mx + c and y = 0, and the script runs inside 8 minutes.",
+    "The third equation-of-line misconception (the gradient of the wrong line) needs perpendicular lines, which is ex.functions.perpendicular. The third intercepts misconception (−d/b) is covered in passing by example 3(c), which finds both intercepts from ax + by + d = 0 by setting x or y to zero.",
+    "The turns use fn-line-from-conditions. Its fallbacks are fixed and worked below."
+  ],
+  "sections": [
+    {
+      "id": "cold-open",
+      "kind": "cold-open",
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "say": "Signal Tower, this is Rook. There's an aerial on the mast that turns on a single pin."
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Loosen the nut and it swings round. Tighten it at one angle and it points one way, for good."
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "My oupa loosened it once in a gale. We found the aerial two farms over, pointing at a cow.",
+          "joke": true,
+          "cue": "chuckles",
+          "cue_at": "end"
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "One point, one steepness. Is that enough to pin down a whole line? Over.",
+          "pause": 0.5,
+          "board": [
+            {
+              "write": "One point + one gradient = one line?",
+              "kind": "heading"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recall",
+      "kind": "recall",
+      "builds_on": "ex.functions.gradient",
+      "watched": [
+        {
+          "use": "rook-dead-air.own.watched"
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "Find the gradient of the line through (1, 2) and (3, 8).",
+            "choices": [
+              "3",
+              "1/3",
+              "−3"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Three. Rise six, run two. We need that today."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Rise over run. Eight minus two is six. Three minus one is two. Six over two, three. We need that today."
+              }
+            ]
+          }
+        }
+      ],
+      "not_watched": [
+        {
+          "speaker": "rook-dead-air",
+          "say": "A quick check before we go on air. Tap one."
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "Find the gradient of the line through (1, 2) and (3, 8).",
+            "choices": [
+              "3",
+              "1/3",
+              "−3"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Three. Good."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "It's three. Here's how."
+              }
+            ]
+          }
+        },
+        {
+          "use": "rook-dead-air.own.not-watched"
+        },
+        {
+          "use": "rook-dead-air.short-version"
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Gradient is the change in y for each step of one in x. Rise over run. Eight minus two is six, three minus one is two, and six over two is three.",
+          "board": [
+            {
+              "write": "m = (y₂ − y₁)/(x₂ − x₁)",
+              "move": "recall-formula"
+            },
+            {
+              "write": "m = (8 − 2)/(3 − 1) = 6/2 = 3",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "use": "rook-dead-air.after"
+        }
+      ]
+    },
+    {
+      "id": "big-idea",
+      "kind": "big-idea",
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "Here's the aerial on the board. The pin is at one, four. With the nut loose, every line through that point is possible.",
+          "board": [
+            {
+              "write": "Pin: the point (1, 4). Every angle goes through it.",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Lock the gradient at two. Now there's only one line.",
+          "board": [
+            {
+              "write": "(1, 4) and m = 2 → one line",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Take any point x, y on it. Its gradient back to the pin is y minus four, over x minus one. And that has to be two.",
+          "board": [
+            {
+              "write": "(y − 4)/(x − 1) = 2",
+              "move": "apply-condition"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Multiply both sides by x minus one. y minus four equals two lots of x minus one. That's point-gradient form.",
+          "board": [
+            {
+              "write": "y − 4 = 2(x − 1)",
+              "move": "point-gradient-line"
+            },
+            {
+              "write": "point-gradient form: y − y₁ = m(x − x₁)",
+              "kind": "term"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Expand, add four to both sides, and y is on its own. y equals two x plus two.",
+          "board": [
+            {
+              "write": "y = 2x + 2",
+              "move": "rearrange"
+            },
+            {
+              "write": "y = mx + c",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "In y equals m x plus c, m is the gradient, and c is where the line crosses the y-axis. That point is the y-intercept. Here, zero, two.",
+          "board": [
+            {
+              "write": "y-intercept: where the line crosses the y-axis. x = 0, so (0, 2)",
+              "kind": "term"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Where it crosses the x-axis is the x-intercept. y is zero there. Zero equals two x plus two, so x is minus one.",
+          "board": [
+            {
+              "write": "x-intercept: where the line crosses the x-axis. y = 0: 0 = 2x + 2, x = −1, so (−1, 0)",
+              "kind": "term"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "And some questions want every term on one side, whole numbers, equals zero. Two x minus y plus two equals zero, and that's the same line again, three ways of writing it, and each one shows you something different, the point, the intercept, the whole numbers. Sorry. Back on frequency.",
+          "board": [
+            {
+              "write": "2x − y + 2 = 0",
+              "move": "rewrite-form"
+            },
+            {
+              "write": "One line, three forms.",
+              "kind": "note"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-1",
+      "kind": "example",
+      "level": "full",
+      "problem": {
+        "setup": "Find the equation of the line through (3, −2) with gradient 4. Give your answer in the form y = mx + c."
+      },
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "On paper. Step one: what we're finding. The line through three, minus two, with gradient four, as y equals m x plus c.",
+          "board": [
+            {
+              "write": "Find the line through (3, −2) with m = 4, as y = mx + c.",
+              "kind": "heading",
+              "label": "Step 1: what are we finding?"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Step two: the givens. x one is three, y one is minus two, m is four.",
+          "board": [
+            {
+              "write": "x₁ = 3,  y₁ = −2,  m = 4",
+              "move": "read-givens",
+              "label": "Step 2: givens"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Step three: the form, before the values. y minus y one equals m lots of x minus x one.",
+          "board": [
+            {
+              "write": "y − y₁ = m(x − x₁)",
+              "move": "recall-formula",
+              "label": "Step 3: the form"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Step four: substitute. y minus minus two equals four lots of x minus three.",
+          "board": [
+            {
+              "write": "y − (−2) = 4(x − 3)",
+              "move": "point-gradient-line",
+              "label": "Step 4: substitute"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why is it y − (−2), not y − 2?",
+            "choices": [
+              "y₁ is −2, and the form takes y₁ away",
+              "Two minus signs always cancel out",
+              "−2 is the gradient"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Copy that. The form takes y one away, whatever y one is."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "The form is y minus y one, and y one is minus two. Taking away minus two gives y plus two."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Step five: rearrange. y plus two equals four x minus twelve. Take two off both sides. y equals four x minus fourteen.",
+          "board": [
+            {
+              "write": "y + 2 = 4x − 12",
+              "move": "expand",
+              "label": "Step 5: rearrange"
+            },
+            {
+              "write": "y = 4x − 14",
+              "move": "rearrange",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Check: put the point back in. Four threes are twelve, minus fourteen, minus two. That's y one.",
+          "board": [
+            {
+              "write": "Check: x = 3 gives 4(3) − 14 = −2 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-1",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "twin",
+        "like": "example-1",
+        "type": "fn-line-from-conditions",
+        "skills": [
+          "SL2.1.equation-of-line"
+        ],
+        "intro": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Your channel. Givens, the form, then the values. Over."
+          }
+        ],
+        "fallback": {
+          "setup": "Find the equation of the line through (−1, 5) with gradient −2. Give your answer in the form y = mx + c.",
+          "parts": [
+            {
+              "text": "Find the equation of the line.",
+              "answer": "y = −2x + 3"
+            }
+          ],
+          "working": [
+            "x₁ = −1, y₁ = 5, m = −2",
+            "y − y₁ = m(x − x₁)",
+            "y − 5 = −2(x − (−1))",
+            "y − 5 = −2x − 2",
+            "y = −2x + 3",
+            "Check: x = −1 gives 2 + 3 = 5 ✓"
+          ]
+        },
+        "right": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Loud and clear. The point checks out."
+          },
+          {
+            "speaker": "rook-dead-air",
+            "say": "Givens, form, values. Copy that."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Check the sign inside the bracket. It's x minus x one, whatever sign x one has."
+          },
+          {
+            "speaker": "rook-dead-air",
+            "say": "Put the point back into your line. Does it come out?"
+          }
+        ]
+      }
+    },
+    {
+      "id": "example-2",
+      "kind": "example",
+      "level": "faded",
+      "problem": {
+        "setup": "Find the equation of the line through A(1, 3) and B(4, 9). Give your answer in the form y = mx + c."
+      },
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "This time there's no gradient given. Two points instead: A, one, three, and B, four, nine.",
+          "board": [
+            {
+              "write": "Line through A(1, 3) and B(4, 9), as y = mx + c",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Gradient first. Rise six, run three. m is two.",
+          "board": [
+            {
+              "write": "m = (9 − 3)/(4 − 1) = 6/3 = 2",
+              "move": "find-gradient"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Now pin it at A. You set it up, and I'll keep the channel open."
+        },
+        {
+          "ask": {
+            "kind": "fill",
+            "prompt": "With m = 2 through A(1, 3), which line is right?",
+            "choices": [
+              "y − 3 = 2(x − 1)",
+              "y − 1 = 2(x − 3)",
+              "y + 3 = 2(x + 1)"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Lekker. y one is three, x one is one, and both get taken away."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "y minus y one, x minus x one. A is one, three, so x one is one and y one is three. y minus three equals two lots of x minus one."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Expand and add three. y equals two x plus one.",
+          "board": [
+            {
+              "write": "y − 3 = 2(x − 1)",
+              "move": "point-gradient-line"
+            },
+            {
+              "write": "y = 2x + 1",
+              "move": "rearrange",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Check with the other point, the one we didn't use. Two fours are eight, plus one, nine. That's B.",
+          "board": [
+            {
+              "write": "Check: x = 4 gives 2(4) + 1 = 9, which is B ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-3",
+      "kind": "example",
+      "level": "exam",
+      "problem": {
+        "setup": "The line L passes through P(−2, 7) and Q(4, −2).",
+        "parts": [
+          {
+            "part": "a",
+            "command": "Find",
+            "text": "Find the gradient of L."
+          },
+          {
+            "part": "b",
+            "command": "Find",
+            "text": "Find the equation of L, giving your answer in the form ax + by + d = 0, where a, b, d ∈ ℤ."
+          },
+          {
+            "part": "c",
+            "command": "Find",
+            "text": "Find the coordinates of the points where L meets the x-axis and the y-axis."
+          }
+        ]
+      },
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "A full exam question. The line L goes through P, minus two, seven, and Q, four, minus two. Three parts.",
+          "board": [
+            {
+              "write": "L through P(−2, 7) and Q(4, −2)",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Part a. Rise, minus two minus seven, minus nine. Run, four minus minus two, six. Minus nine over six is minus three over two.",
+          "board": [
+            {
+              "write": "(a)  m = (−2 − 7)/(4 − (−2))",
+              "move": "substitute",
+              "part": "a"
+            },
+            {
+              "write": "= −9/6 = −3/2",
+              "move": "evaluate",
+              "part": "a",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Part b. Pin it at P. y minus seven equals minus three over two, lots of x plus two.",
+          "board": [
+            {
+              "write": "(b)  y − 7 = −3/2 (x + 2)",
+              "move": "point-gradient-line",
+              "part": "b",
+              "key": "pg"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "They want whole numbers. So multiply both sides by two and the fraction goes. Two y minus fourteen equals minus three x minus six.",
+          "board": [
+            {
+              "write": "2y − 14 = −3(x + 2) = −3x − 6",
+              "move": "clear-fractions",
+              "part": "b"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Everything to the left. Three x plus two y minus eight equals zero. Keep the equals zero. It's part of the form.",
+          "board": [
+            {
+              "write": "3x + 2y − 8 = 0",
+              "move": "rewrite-form",
+              "part": "b",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Check both points. P: minus six plus fourteen minus eight, zero. Q: twelve minus four minus eight, zero.",
+          "board": [
+            {
+              "write": "Check: P: −6 + 14 − 8 = 0 ✓   Q: 12 − 4 − 8 = 0 ✓",
+              "move": "check",
+              "part": "b",
+              "kind": "check"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Part c. Both intercepts."
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "To find where L meets the y-axis, which do you set to zero?",
+            "choices": [
+              "x",
+              "y",
+              "Both"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "x. On the y-axis you haven't moved across at all. Copy that."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Check the order. On the y-axis you haven't moved across, so x is zero there. The y-axis is x equals zero."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "x equals zero: two y minus eight is zero, y is four. y equals zero: three x minus eight is zero, x is eight over three. Leave it exact.",
+          "board": [
+            {
+              "write": "(c)  x = 0:  2y − 8 = 0,  y = 4",
+              "move": "apply-condition",
+              "part": "c"
+            },
+            {
+              "write": "y = 0:  3x − 8 = 0,  x = 8/3",
+              "move": "apply-condition",
+              "part": "c"
+            },
+            {
+              "write": "L meets the y-axis at (0, 4) and the x-axis at (8/3, 0).",
+              "move": "state-answer",
+              "part": "c",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Check: from zero, four, the line drops three for every two across. Eight over three across drops four. Zero.",
+          "board": [
+            {
+              "write": "Check: 4 − (3/2)(8/3) = 4 − 4 = 0 ✓",
+              "move": "check",
+              "part": "c",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "second-method",
+      "kind": "second-method",
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "Part b, again, another way. Same line. Put P straight into y equals m x plus c, and solve for c.",
+          "board": [
+            {
+              "write": "METHOD 1: point-gradient",
+              "method": "1",
+              "kind": "heading"
+            },
+            {
+              "write": "y − 7 = −3/2 (x + 2)",
+              "move": "point-gradient-line",
+              "method": "1"
+            },
+            {
+              "write": "3x + 2y − 8 = 0",
+              "move": "rewrite-form",
+              "method": "1"
+            },
+            {
+              "write": "METHOD 2: y = mx + c, solve for c",
+              "method": "2",
+              "kind": "heading"
+            },
+            {
+              "write": "7 = −3/2 (−2) + c",
+              "move": "substitute",
+              "method": "2"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Minus three over two, times minus two, is three. So seven equals three plus c, and c is four.",
+          "board": [
+            {
+              "write": "7 = 3 + c,  c = 4",
+              "move": "isolate",
+              "method": "2"
+            },
+            {
+              "write": "y = −3/2 x + 4",
+              "move": "rewrite-form",
+              "method": "2"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Times two, and everything to the left. Three x plus two y minus eight equals zero. Same line. And c is four, the y-intercept from part c.",
+          "board": [
+            {
+              "write": "2y = −3x + 8,  so  3x + 2y − 8 = 0",
+              "move": "rewrite-form",
+              "method": "2",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "When do you pick each? Point-gradient goes straight from a point to a line, with nothing to solve. Solving for c gives you the y-intercept on the way. My pick is point-gradient, every time, unless the question wants c. Then solve for c. Out."
+        }
+      ]
+    },
+    {
+      "id": "spot-the-slip",
+      "kind": "spot-the-slip",
+      "misconception": "Writes y − y₁ = m(x + x₁), which puts the line through (−x₁, y₁)",
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "A settlement down the valley sent me this. The line through minus three, two, with gradient two. One step has a crossed wire.",
+          "board": [
+            {
+              "write": "y − y₁ = m(x − x₁)",
+              "kind": "step",
+              "key": "s1"
+            },
+            {
+              "write": "y − 2 = 2(x − 3)",
+              "kind": "slip",
+              "key": "s2"
+            },
+            {
+              "write": "y − 2 = 2x − 6",
+              "kind": "step",
+              "key": "s3"
+            },
+            {
+              "write": "y = 2x − 4",
+              "kind": "step",
+              "key": "s4"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "tap-line",
+            "prompt": "Tap the line with the slip.",
+            "choices": [
+              "s1",
+              "s2",
+              "s3",
+              "s4"
+            ],
+            "answer": 1,
+            "right": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "That's the one. x one is minus three, so x minus x one is x plus three."
+              }
+            ],
+            "not_yet": [
+              {
+                "speaker": "rook-dead-air",
+                "say": "Look at what went in for x one. The point is minus three, two."
+              }
+            ]
+          }
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "The check that catches it. Put the point into the final line. Two lots of minus three, minus four, is minus ten. Not two.",
+          "board": [
+            {
+              "write": "Check: x = −3 gives 2(−3) − 4 = −10, not 2 ✗",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "One line through it. x minus minus three is x plus three. y equals two x plus eight. Minus six plus eight, two.",
+          "board": [
+            {
+              "strike": "s2"
+            },
+            {
+              "write": "y − 2 = 2(x + 3),  so  y = 2x + 8",
+              "move": "point-gradient-line",
+              "kind": "answer"
+            },
+            {
+              "write": "Check: x = −3 gives −6 + 8 = 2 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-2",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "exam",
+        "like": "example-3",
+        "type": "fn-line-from-conditions",
+        "skills": [
+          "SL2.1.equation-of-line",
+          "SL2.1.intercepts"
+        ],
+        "intro": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Your channel, no help on the first try. Whole numbers, equals zero, and check both points. Over."
+          }
+        ],
+        "fallback": {
+          "setup": "The line L passes through A(−2, −1) and B(2, 5).",
+          "parts": [
+            {
+              "part": "a",
+              "text": "Find the gradient of L.",
+              "answer": "3/2"
+            },
+            {
+              "part": "b",
+              "text": "Find the equation of L, giving your answer in the form ax + by + d = 0, where a, b, d ∈ ℤ.",
+              "answer": "3x − 2y + 4 = 0"
+            },
+            {
+              "part": "c",
+              "text": "Find the coordinates of the points where L meets the x-axis and the y-axis.",
+              "answer": "(−4/3, 0) and (0, 2)"
+            }
+          ],
+          "working": [
+            "(a) m = (5 − (−1))/(2 − (−2)) = 6/4 = 3/2",
+            "(b) y − (−1) = 3/2 (x − (−2))",
+            "y + 1 = 3/2 (x + 2)",
+            "2y + 2 = 3x + 6",
+            "3x − 2y + 4 = 0",
+            "Check: A: −6 + 2 + 4 = 0 ✓  B: 6 − 10 + 4 = 0 ✓",
+            "(c) y = 0: 3x + 4 = 0, x = −4/3, so (−4/3, 0)",
+            "x = 0: −2y + 4 = 0, y = 2, so (0, 2)"
+          ]
+        },
+        "right": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "Whole numbers, equals zero, both points checked. Loud and clear."
+          },
+          {
+            "speaker": "rook-dead-air",
+            "say": "Ja. Both intercepts, and the right zero for each. Lekker."
+          }
+        ],
+        "not_yet": [
+          {
+            "speaker": "rook-dead-air",
+            "say": "On the y-axis, x is zero. Which did you set to zero? Come in again."
+          },
+          {
+            "speaker": "rook-dead-air",
+            "say": "Put both points into your line. Does each one come out zero?"
+          }
+        ]
+      }
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "beats": [
+        {
+          "speaker": "rook-dead-air",
+          "clear": true,
+          "say": "So. One point and a gradient pin down a line. Point-gradient form first, then rearrange into whatever form the question asks for. Intercepts: x is zero on the y-axis, y is zero on the x-axis.",
+          "board": [
+            {
+              "write": "y − y₁ = m(x − x₁)",
+              "kind": "answer"
+            },
+            {
+              "write": "1. Gradient, then a point",
+              "kind": "note"
+            },
+            {
+              "write": "2. Rearrange to the form asked for",
+              "kind": "note"
+            },
+            {
+              "write": "3. Check a point, ideally one you didn't use",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "Next time the line goes to work. The gradient becomes a rate, and the intercept becomes where things start."
+        },
+        {
+          "speaker": "rook-dead-air",
+          "say": "A line's like a rumour at the Bazaar. Give it one place and one direction, and it ends up everywhere. Rook, out.",
+          "joke": true,
+          "cue": "chuckles",
+          "cue_at": "end"
+        }
+      ]
+    }
+  ]
+}
