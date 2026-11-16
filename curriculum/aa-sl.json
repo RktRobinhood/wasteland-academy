@@ -678,9 +678,9 @@
                 }
               ],
               "misconceptions": [
-                "Counting terms as upper − lower: 25 terms from r = 5 to 30 instead of 26",
-                "Treating the constant in Σ(3r + 2) as contributing 2 rather than 2n",
-                "Taking the coefficient 3 as the first term instead of substituting r = 1"
+                "Counting the terms as the upper limit minus the lower limit, which is one too few",
+                "Adding the constant term once, instead of once for every term",
+                "Taking the coefficient of r as the first term instead of substituting the lower limit"
               ],
               "threads": [
                 {

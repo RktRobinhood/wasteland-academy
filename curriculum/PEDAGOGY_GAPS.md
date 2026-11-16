@@ -1758,7 +1758,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 24 bank parts)
 
-- **Situation:** One arithmetic sequence and its sums.
+- **Situation:** One arithmetic sequence and its sums, shared with `t1-ext-sigma-arithmetic`.
 - **Representations:** **notation**, **terms**, table, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given u₁; d; n → the term uₙ
@@ -1811,7 +1811,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Geometric sequence: find r, u1, a term or S_n (`t1-geometric-sequence`, exam, 9 bank parts)
 
-- **Situation:** One geometric sequence and its sums, shared with `t1-sum-to-infinity`.
+- **Situation:** One geometric sequence and its sums, shared with `t1-sum-to-infinity`, `t1-ext-partial-vs-infinite`.
 - **Representations:** **notation**, **terms**, **words**, **equation**, table, graph, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given the first terms, as a list, a table or dots on a graph → the common ratio r
@@ -2038,7 +2038,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Sum to infinity: convergence, value, or an unknown from it (`t1-sum-to-infinity`, exam, 6 bank parts)
 
-- **Situation:** One geometric sequence and its sums, shared with `t1-geometric-sequence`.
+- **Situation:** One geometric sequence and its sums, shared with `t1-geometric-sequence`, `t1-ext-partial-vs-infinite`.
 - **Representations:** **notation**, **terms**, **equation**, **words**, table, graph, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L2: given the first terms, or u₁ and r → whether S∞ exists, and why
