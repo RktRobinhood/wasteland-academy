@@ -46252,7 +46252,8 @@
 					"as": "distractor",
 					"in": [
 						"plot-point",
-						"pick-curve"
+						"pick-curve",
+						"curve-start"
 					],
 					"wrong": "the point at the middle of the class"
 				},
@@ -46266,9 +46267,167 @@
 						"frequency-from-graph",
 						"p-q-from-graph",
 						"plot-point",
-						"pick-curve"
+						"pick-curve",
+						"last-frequency"
 					],
 					"wrong": "the running total for the frequency, or the frequency for the running total"
+				},
+				{
+					"text": "Reading across from the wrong fraction of the total, so giving another quartile or the median",
+					"as": "distractor",
+					"in": [
+						"median-from-graph",
+						"quartile-from-graph"
+					],
+					"wrong": "a quartile for the median, or the other quartile or the median for a quartile"
+				},
+				{
+					"text": "Giving one quartile as the interquartile range, without taking the lower quartile from the upper",
+					"as": "distractor",
+					"in": [
+						"iqr-from-graph",
+						"iqr-from-table"
+					],
+					"wrong": "Q1 or Q3 alone"
+				},
+				{
+					"text": "Adding the two readings instead of taking one from the other",
+					"as": "distractor",
+					"in": [
+						"iqr-from-graph",
+						"iqr-from-table",
+						"range-from-graph",
+						"count-between",
+						"count-between-table",
+						"frequency-from-cf",
+						"frequency-from-graph"
+					],
+					"wrong": "the sum of the two readings"
+				},
+				{
+					"text": "Giving where the curve ends as the range, forgetting to take off where it starts",
+					"as": "distractor",
+					"in": [
+						"range-from-graph"
+					],
+					"wrong": "the largest value"
+				},
+				{
+					"text": "Giving the interquartile range when the range is asked for",
+					"as": "distractor",
+					"in": [
+						"range-from-graph"
+					],
+					"wrong": "Q3 − Q1"
+				},
+				{
+					"text": "Taking the reading from the total, so counting those above the value instead of those at or below it",
+					"as": "distractor",
+					"in": [
+						"count-below",
+						"count-below-table"
+					],
+					"wrong": "n − the reading"
+				},
+				{
+					"text": "Using only the reading at the upper value, forgetting to take off those below the lower one",
+					"as": "distractor",
+					"in": [
+						"count-between",
+						"count-between-table"
+					],
+					"wrong": "the reading at the upper value"
+				},
+				{
+					"text": "Counting those outside the two values instead of those between them",
+					"as": "distractor",
+					"in": [
+						"count-between",
+						"count-between-table"
+					],
+					"wrong": "n − (b − a)"
+				},
+				{
+					"text": "Giving the count itself, without turning it into a percentage of the total",
+					"as": "distractor",
+					"in": [
+						"percent-above",
+						"percentile-of-value"
+					],
+					"wrong": "the count, not the percentage"
+				},
+				{
+					"text": "Giving the percentage above the value instead of the percentage at or below it",
+					"as": "distractor",
+					"in": [
+						"percentile-of-value"
+					],
+					"wrong": "the complement of the percentile"
+				},
+				{
+					"text": "Forgetting to scale the sample's count up to the whole group",
+					"as": "distractor",
+					"in": [
+						"scale-to-population"
+					],
+					"wrong": "the count in the sample"
+				},
+				{
+					"text": "Copying the total so far, without adding on this class's frequency",
+					"as": "distractor",
+					"in": [
+						"cf-entry"
+					],
+					"wrong": "the cumulative frequency before the class"
+				},
+				{
+					"text": "Stopping at the sum of the other frequencies, without taking it from the total",
+					"as": "distractor",
+					"in": [
+						"last-frequency"
+					],
+					"wrong": "the sum of the other frequencies"
+				},
+				{
+					"text": "Giving the cumulative frequency at the lower boundary of the class instead of the difference of the two",
+					"as": "distractor",
+					"in": [
+						"frequency-from-cf",
+						"frequency-from-graph"
+					],
+					"wrong": "the running total before the class"
+				},
+				{
+					"text": "Swapping p and q over",
+					"as": "distractor",
+					"in": [
+						"p-q-from-graph"
+					],
+					"wrong": "p and q the wrong way round"
+				},
+				{
+					"text": "Plotting the running total at the lower boundary of the class instead of the upper",
+					"as": "distractor",
+					"in": [
+						"plot-point"
+					],
+					"wrong": "the point at the lower boundary"
+				},
+				{
+					"text": "Starting the curve at the origin instead of at the lower boundary of the first class",
+					"as": "distractor",
+					"in": [
+						"curve-start"
+					],
+					"wrong": "(0, 0)"
+				},
+				{
+					"text": "Starting the curve at the first class's plotted point instead of at zero on its lower boundary",
+					"as": "distractor",
+					"in": [
+						"curve-start"
+					],
+					"wrong": "the first class's upper boundary and frequency"
 				}
 			],
 			"chain": [
@@ -48904,6 +49063,105 @@
 						"choose-average"
 					],
 					"wrong": "the mode, for measurements that are all different"
+				},
+				{
+					"text": "Giving a different average from the one asked for",
+					"as": "distractor",
+					"in": [
+						"mean-of-data",
+						"median-of-data",
+						"mode-of-data"
+					],
+					"wrong": "the median or the mean in place of the average asked"
+				},
+				{
+					"text": "Taking halfway between the least and greatest values as the average",
+					"as": "distractor",
+					"in": [
+						"mean-of-data",
+						"median-of-data"
+					],
+					"wrong": "the midrange"
+				},
+				{
+					"text": "Giving half of n, a position in the list, as the median instead of the value there",
+					"as": "distractor",
+					"in": [
+						"median-of-data"
+					],
+					"wrong": "n ÷ 2"
+				},
+				{
+					"text": "Giving the greatest value as the range, forgetting to take off the least",
+					"as": "distractor",
+					"in": [
+						"range-of-data"
+					],
+					"wrong": "the greatest value"
+				},
+				{
+					"text": "Adding the greatest and least values instead of subtracting",
+					"as": "distractor",
+					"in": [
+						"range-of-data"
+					],
+					"wrong": "greatest + least"
+				},
+				{
+					"text": "Giving the least and greatest values instead of the quartiles",
+					"as": "distractor",
+					"in": [
+						"quartiles-of-data"
+					],
+					"wrong": "the minimum and maximum"
+				},
+				{
+					"text": "Giving the range instead of the interquartile range",
+					"as": "distractor",
+					"in": [
+						"iqr-of-data"
+					],
+					"wrong": "greatest − least"
+				},
+				{
+					"text": "Giving one quartile on its own as the interquartile range",
+					"as": "distractor",
+					"in": [
+						"iqr-of-data"
+					],
+					"wrong": "Q₁ or Q₃ alone"
+				},
+				{
+					"text": "Multiplying the mean by the number of known values, one too few, to get the total",
+					"as": "distractor",
+					"in": [
+						"missing-value-from-mean"
+					],
+					"wrong": "mean × (n − 1) − the known sum"
+				},
+				{
+					"text": "Taking the missing value to be the mean itself",
+					"as": "distractor",
+					"in": [
+						"missing-value-from-mean"
+					],
+					"wrong": "the mean"
+				},
+				{
+					"text": "Forgetting to divide the combined total by the number of values",
+					"as": "distractor",
+					"in": [
+						"combined-mean"
+					],
+					"wrong": "the combined total"
+				},
+				{
+					"text": "Thinking the standard deviation is least affected because it averages over every value",
+					"as": "distractor",
+					"in": [
+						"choose-spread"
+					],
+					"wrong": "the standard deviation"
 				}
 			],
 			"chain": [

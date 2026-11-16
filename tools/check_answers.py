@@ -8787,6 +8787,23 @@ def ds_num(x, label):
     return label + sig3(x).replace("-", "−"), label + dec_text(sp.Rational(sig3(x, 2)))
 
 
+DS_T = "t4-summary-statistics#"  # its own slips (FAL-820)
+
+
+def ds_tidy(x):
+    """A wrong option as the views tidy it: as it is to two decimals, else to one."""
+    x = sp.Rational(x)
+    return x if (x * 100).q == 1 else sp.Rational(int(sp.floor(x * 10 + sp.Rational(1, 2))), 10)
+
+
+def ds_opt(q, label, x):
+    """A wrong number option's text, written as the answer is (exactly, or to 3 s.f.)."""
+    x = ds_tidy(x)
+    if q["answer"].get("show") == "sf":
+        return label + sig3(x).replace("-", "−")
+    return label + dec_text(x)
+
+
 def ds_numbers(text):
     return [R(v) for v in re.findall(r"\d+(?:\.\d+)?", text.replace("−", "-"))]
 
@@ -8838,6 +8855,8 @@ def check_data_summary(q):
         need(R(g["mean"]) == mean, "the mean given is not the mean of the data shown")
         need(asked == ("Find the mean of the data." if paper == 1 else "Find the mean of the data, to 3 s.f."), f"asked {asked!r}")
         want, trap = ds_num(mean, "mean = ")
+        wrongs[DS_T + "9"] = {ds_opt(q, "mean = ", ds_median(data))}  # the median
+        wrongs[DS_T + "10"] = {ds_opt(q, "mean = ", (data[0] + data[-1]) / 2)}  # the midrange
         sol = next((s for s in q["solutions"] if s["angle"] == "sum-over-n"), None)
         if sol is not None and rep == "terms":
             need(sol["steps"][0].endswith(f"= {dec_text(sum(data))}"), f"the sum in {sol['steps'][0]!r}")
@@ -8850,6 +8869,9 @@ def check_data_summary(q):
             need(5 <= n <= (11 if paper == 1 else 18), f"n = {n}")
             wrongs[DS_SKILL + "mean-median-mode#0"] = {"median = " + dec_text(ds_median(xs))}
         wrongs[DS_SKILL + "mean-median-mode#1"] = {"median = " + dec_text(sp.Rational(n + 1, 2))}
+        wrongs[DS_T + "9"] = {ds_opt(q, "median = ", sum(data) / n)}  # the mean
+        wrongs[DS_T + "10"] = {ds_opt(q, "median = ", (data[0] + data[-1]) / 2)}  # the midrange
+        wrongs[DS_T + "11"] = {ds_opt(q, "median = ", sp.Rational(n, 2))}  # n/2, a position
         for sol in q["solutions"]:
             if sol["angle"] == "ordered-position" and rep == "terms":
                 need(sol["steps"][0] == "Put the values in order: " + ", ".join(dec_text(x) for x in data), f"order step {sol['steps'][0]!r}")
@@ -8861,9 +8883,12 @@ def check_data_summary(q):
         need(asked == "Write down the mode of the data.", f"asked {asked!r}")
         want = "mode = " + dec_text(modes[0])
         wrongs[DS_SKILL + "mean-median-mode#2"] = {"mode = " + str(top)}
+        wrongs[DS_T + "9"] = {ds_opt(q, "mode = ", ds_median(data)), ds_opt(q, "mode = ", sum(data) / len(data))}  # the median or the mean
     elif u == "range-of-data":
         need(asked == "Find the range of the data.", f"asked {asked!r}")
         want = "range = " + dec_text(data[-1] - data[0])
+        wrongs[DS_T + "12"] = {ds_opt(q, "range = ", data[-1])}  # the greatest only
+        wrongs[DS_T + "13"] = {ds_opt(q, "range = ", data[-1] + data[0])}  # added
     elif u in ("quartiles-of-data", "iqr-of-data"):
         q1, q3 = ds_quartiles(data)
         need(q1 < q3, "Q1 is not below Q3")
@@ -8872,6 +8897,7 @@ def check_data_summary(q):
         if u == "quartiles-of-data":
             need(asked == "Find the lower quartile and the upper quartile of the data.", f"asked {asked!r}")
             want = f"Q₁ = {dec_text(q1)}, Q₃ = {dec_text(q3)}"
+            wrongs[DS_T + "14"] = {f"Q₁ = {dec_text(data[0])}, Q₃ = {dec_text(data[-1])}"}  # the ends
             if rep == "terms":
                 h = n // 2
                 wrongs[DS_SKILL + "quartiles-discrete#1"] = {f"Q₁ = {dec_text(ds_median(xs[:h]))}, Q₃ = {dec_text(ds_median(xs[h + n % 2:]))}"}
@@ -8879,6 +8905,8 @@ def check_data_summary(q):
             need(asked == "Find the interquartile range of the data.", f"asked {asked!r}")
             want = "IQR = " + dec_text(q3 - q1)
             wrongs[DS_SKILL + "quartiles-discrete#0"] = {"IQR = " + dec_text(q1 + q3)}
+            wrongs[DS_T + "15"] = {ds_opt(q, "IQR = ", data[-1] - data[0])}  # the range
+            wrongs[DS_T + "16"] = {ds_opt(q, "IQR = ", q1), ds_opt(q, "IQR = ", q3)}  # one quartile
     elif u == "missing-value-from-mean":
         if rep == "terms":
             items = L[0].split(", ")
@@ -8908,6 +8936,8 @@ def check_data_summary(q):
         need(all(x == int(x) and 2 <= x <= 40 for x in known), "a known value is outside 2 to 40")
         need(R(g["k"]) == k, "the k given is not the missing value")
         want = label + dec_text(k)
+        wrongs[DS_T + "17"] = {ds_opt(q, label, M * (n - 1) - sum(known))}  # the total from n − 1 values
+        wrongs[DS_T + "18"] = {ds_opt(q, label, M)}  # the mean itself
     elif u == "missing-frequency-from-mean":
         need(rep == "table" and asked == "Find p.", f"asked {asked!r}")
         mt = re.fullmatch(r"The mean of the data is (\d+(?:\.\d)?)\.", L[0])
@@ -8945,6 +8975,7 @@ def check_data_summary(q):
         need(mean != sp.Rational(mu1 + mu2, 2), "the combined mean is the mean of the means")
         want = "mean = " + dec_text(mean)
         wrongs[DS_SKILL + "mean-totals#0"] = {"mean = " + dec_text(sp.Rational(mu1 + mu2, 2))}
+        wrongs[DS_T + "19"] = {"mean = " + str(n1 * mu1 + n2 * mu2)}  # not divided
     elif u in ("choose-average", "choose-spread"):
         gi = int(g["ctx"])
         need(L[0] == DS_SPREADS[gi], f"the story {L[0]!r}")
@@ -8966,6 +8997,8 @@ def check_data_summary(q):
         else:
             need(asked == "One value is an outlier. Which measure of spread is least affected by it?", f"asked {asked!r}")
             want = DS_MEASURES[1]
+            wrongs[DS_T + "20"] = {DS_MEASURES[2]}  # the standard deviation
+
             need({o["text"] for o in q["choices"]} <= set(DS_MEASURES), "an option is not a measure of spread")
     else:
         raise Fail(f"no check for {u}")
@@ -19254,6 +19287,7 @@ def check_sampling(q):
 CF_Q = "SL4.2.cumfreq-quartiles#"
 CF_C = "SL4.2.cumfreq-count#"
 CF_B = "SL4.2.cumfreq-build#"
+CF_T = "t4-cumulative-frequency#"  # its own slips (FAL-820)
 CF_SQUARES = 20
 # (who, what the curve shows, the axis, the noun, letter, unit, more than, at most, square across, limit)
 CF_CTX = [("scavengers", "the hours worked last week by {} scavengers", "hours worked", "hours worked", "h", "hours", "worked more than {} hours", "worked at most {} hours", 2, None),
@@ -19435,13 +19469,19 @@ def check_cumulative_frequency(q):
             med = rx(sp.Rational(n, 2))
             need(med != 10 * dx, "the median is at the middle of the axis")
             want = "median = " + cf_val(med, c)
-            wrongs = {CF_Q + "0": {"median = " + cf_val(10 * dx, c)}}
+            wrongs = {CF_Q + "0": {"median = " + cf_val(10 * dx, c)},
+                      CF_T + "7": {"median = " + cf_val(rx(sp.Rational(k * n, 4)), c) for k in (1, 3)}}  # a quartile's height
         elif u == "quartile-from-graph":
             low = "lower quartile" in asked
-            want = ("Q1 = " if low else "Q3 = ") + cf_val(rx(sp.Rational(n, 4) * (1 if low else 3)), c)
+            lab = "Q1 = " if low else "Q3 = "
+            want = lab + cf_val(rx(sp.Rational(n, 4) * (1 if low else 3)), c)
+            wrongs = {CF_T + "7": {lab + cf_val(rx(sp.Rational(n, 4) * (3 if low else 1)), c), lab + cf_val(rx(sp.Rational(n, 2)), c)}}  # the other quartile's or the median's height
         elif u == "iqr-from-graph":
-            want = "IQR = " + cf_val(rx(sp.Rational(3 * n, 4)) - rx(sp.Rational(n, 4)), c)
-            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)}}
+            a, b = rx(sp.Rational(n, 4)), rx(sp.Rational(3 * n, 4))
+            want = "IQR = " + cf_val(b - a, c)
+            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)},
+                      CF_T + "8": {"IQR = " + cf_val(a, c), "IQR = " + cf_val(b, c)},  # one quartile alone
+                      CF_T + "9": {"IQR = " + cf_val(a + b, c)}}  # added
         elif u == "percentile-from-graph":
             k = int(re.match(r"Use the curve to estimate the (\d+)", asked).group(1))
             need(n != 100, "k and k% of n are the same when n is 100")
@@ -19449,6 +19489,9 @@ def check_cumulative_frequency(q):
             wrongs = {CF_Q + "2": {"percentile = " + cf_val(rx(k), c)}}
         elif u == "range-from-graph":
             want = "range = " + cf_val(pts[-1][0] - pts[0][0], c)
+            wrongs = {CF_T + "10": {"range = " + cf_val(pts[-1][0], c)},  # the end only
+                      CF_T + "9": {"range = " + cf_val(pts[-1][0] + pts[0][0], c)},  # added
+                      CF_T + "11": {"range = " + cf_val(rx(sp.Rational(3 * n, 4)) - rx(sp.Rational(n, 4)), c)}}  # the IQR
         elif u in ("count-below", "count-above", "percent-above", "scale-to-population"):
             if u == "count-below":
                 mt = re.fullmatch(rf"Estimate how many {who} " + re.escape(most).replace(r"\{\}", r"(\d+)") + r"\.", asked)
@@ -19462,6 +19505,7 @@ def check_cumulative_frequency(q):
             f = ry(int(mt.group(1)))
             if u == "count-below":
                 want = f"number = {f}"
+                wrongs = {CF_T + "12": {f"number = {n - f}"}}  # those above
             elif u == "count-above":
                 want = f"number = {n - f}"
                 wrongs = {CF_C + "0": {f"number = {f}"}}
@@ -19469,24 +19513,28 @@ def check_cumulative_frequency(q):
                 p = sp.Rational((n - f) * 100, n)
                 need(p.q == 1, "the percentage isn't whole")
                 want = f"percentage = {p}%"
-                wrongs = {CF_C + "0": {f"percentage = {100 - p}%"}}
+                wrongs = {CF_C + "0": {f"percentage = {100 - p}%"}, CF_T + "15": {f"percentage = {n - f}%"}}  # the count, not a percentage
             else:
                 m2 = re.fullmatch(rf"They were chosen at random from (\d+) {who}\.", L[2])
                 need(m2 is not None, f"can't read {L[2]!r}")
                 whole = int(m2.group(1))
                 need(whole % n == 0 and f"all {whole} " in asked, "the whole group isn't a multiple of the sample")
                 want = f"number = {(n - f) * whole // n}"
-                wrongs = {CF_C + "0": {f"number = {f * whole // n}"}}
+                wrongs = {CF_C + "0": {f"number = {f * whole // n}"}, CF_T + "17": {f"number = {n - f}"}}  # not scaled up
         elif u == "count-between":
             mt = re.fullmatch(rf"Estimate how many {who} are between (\d+) {unit} and (\d+) {unit}\.", asked)
             need(mt is not None, f"can't read {asked!r}")
-            want = f"number = {ry(int(mt.group(2))) - ry(int(mt.group(1)))}"
+            a, b = ry(int(mt.group(1))), ry(int(mt.group(2)))
+            want = f"number = {b - a}"
+            wrongs = {CF_T + "13": {f"number = {b}"}, CF_T + "9": {f"number = {a + b}"}, CF_T + "14": {f"number = {n - (b - a)}"}}  # upper only, added, outside
         elif u == "percentile-of-value":
             mt = re.fullmatch(rf"Which percentile of the {noun} is (\d+) {unit}\?", asked)
             need(mt is not None, f"can't read {asked!r}")
-            p = sp.Rational(ry(int(mt.group(1))) * 100, n)
+            f = ry(int(mt.group(1)))
+            p = sp.Rational(f * 100, n)
             need(p.q == 1, "the percentile isn't whole")
             want = f"percentile = {p}"
+            wrongs = {CF_T + "15": {f"percentile = {f}"}, CF_T + "16": {f"percentile = {100 - p}"}}  # the count; the share above
         elif u == "cutoff-top":
             mt = re.fullmatch(rf"The (\d+) {who} with the highest {noun} are set aside\.", L[2])
             need(mt is not None, f"can't read {L[2]!r}")
@@ -19512,7 +19560,7 @@ def check_cumulative_frequency(q):
             need(mt is not None, f"can't read {asked!r}")
             a, b = ry(int(mt.group(1))), ry(int(mt.group(2)))
             want = f"number = {b - a}"
-            wrongs = {CF_B + "1": {f"number = {b}"}}
+            wrongs = {CF_B + "1": {f"number = {b}"}, CF_T + "20": {f"number = {a}"}, CF_T + "9": {f"number = {a + b}"}}  # the lower total; added
         elif u == "p-q-from-graph":
             need(q["asked"] == "Use the curve to find p and q.", f"asked {asked!r}")
             rows = q["table"]["rows"]
@@ -19528,7 +19576,7 @@ def check_cumulative_frequency(q):
                 else:
                     need(int(f) == got, f"the table's {f} isn't what the curve gives ({got})")
             want = f"p = {vals['p']}, q = {vals['q']}"
-            wrongs = {CF_B + "1": {f"p = {tops['p']}, q = {tops['q']}"}}
+            wrongs = {CF_B + "1": {f"p = {tops['p']}, q = {tops['q']}"}, CF_T + "21": {f"p = {vals['q']}, q = {vals['p']}"}}  # swapped
         else:
             raise Fail(f"no check for {u}")
     elif u == "frequency-from-cf":
@@ -19544,7 +19592,7 @@ def check_cumulative_frequency(q):
         a, b = vals[int(mt.group(1))], vals[int(mt.group(2))]
         need(a > 0, "the class is the first one")
         want = f"number = {b - a}"
-        wrongs = {CF_B + "1": {f"number = {b}"}}
+        wrongs = {CF_B + "1": {f"number = {b}"}, CF_T + "20": {f"number = {a}"}, CF_T + "9": {f"number = {a + b}"}}  # the lower total; added
     elif u == "cf-entry":
         rows = q["table"]["rows"]
         need(asked == "Find the cumulative frequency marked ?.", f"asked {asked!r}")
@@ -19554,13 +19602,15 @@ def check_cumulative_frequency(q):
         run = cf_running(fs)
         need(j >= 1 and all(cum[i] == str(run[i]) for i in range(j)) and all(x == "–" for x in cum[j + 1:]), "the shown totals are wrong")
         want = f"? = {run[j]}"
-        wrongs = {CF_B + "1": {f"? = {fs[j]}"}}
+        wrongs = {CF_B + "1": {f"? = {fs[j]}"}, CF_T + "18": {f"? = {run[j - 1]}"}}  # the total so far
     elif u == "last-frequency":
         rows = q["table"]["rows"]
         fs = [r[1][0] for r in rows[1:]]
         n = int(rows[-1][1][1])
         need(fs.count("p") == 1, "no p")
-        want = f"p = {n - sum(int(f) for f in fs if f != 'p')}"
+        others = sum(int(f) for f in fs if f != 'p')
+        want = f"p = {n - others}"
+        wrongs = {CF_T + "19": {f"p = {others}"}, CF_B + "1": {f"p = {n}"}}  # the others' sum; the total
     else:
         n, bs, fs, run = cf_table(q, c)
         val_more = re.escape(more).replace(r"\{\}", r"(\d+)")
@@ -19574,7 +19624,9 @@ def check_cumulative_frequency(q):
         elif u == "iqr-from-table":
             a, b = cf_interp(bs, fs, run, sp.Rational(n, 4)), cf_interp(bs, fs, run, sp.Rational(3 * n, 4))
             want = "IQR = " + cf_val(cf_clean(b - a), c)
-            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)}}
+            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)},
+                      CF_T + "8": {"IQR = " + cf_val(a, c), "IQR = " + cf_val(b, c)},  # one quartile alone
+                      CF_T + "9": {"IQR = " + cf_val(a + b, c)}}  # added
         elif u == "percentile-from-table":
             k = int(re.match(r"Estimate the (\d+)", asked).group(1))
             need(n != 100, "k and k% of n are the same when n is 100")
@@ -19586,6 +19638,7 @@ def check_cumulative_frequency(q):
             f = cf_count(bs, fs, run, int(mt.group(1)))
             need(f.q == 1, "the count isn't whole")
             want = f"number = {f}"
+            wrongs = {CF_T + "12": {f"number = {n - f}"}}  # those above
         elif u == "count-above-table":
             mt = re.fullmatch(rf"Estimate how many {who} {val_more}" + re.escape(spread), asked)
             need(mt is not None, f"can't read {asked!r}")
@@ -19599,6 +19652,7 @@ def check_cumulative_frequency(q):
             a, b = cf_count(bs, fs, run, int(mt.group(1))), cf_count(bs, fs, run, int(mt.group(2)))
             need(a.q == 1 and b.q == 1 and b > a, "the counts aren't whole")
             want = f"number = {b - a}"
+            wrongs = {CF_T + "13": {f"number = {b}"}, CF_T + "9": {f"number = {a + b}"}, CF_T + "14": {f"number = {n - (b - a)}"}}  # upper only, added, outside
         elif u == "cutoff-table":
             mt = re.match(rf"The (\d+) {who} with the highest {noun} are set aside\.", asked)
             need(mt is not None, f"can't read {asked!r}")
@@ -19611,10 +19665,14 @@ def check_cumulative_frequency(q):
             a, b = int(mt.group(1)), int(mt.group(2))
             j = bs.index(b) - 1
             want = f"({b}, {run[j]})"
-            wrongs = {CF_B + "0": {f"({dec_text(sp.Rational(a + b, 2))}, {run[j]})"}, CF_B + "1": {f"({b}, {fs[j]})"}}
+            wrongs = {CF_B + "0": {f"({dec_text(sp.Rational(a + b, 2))}, {run[j]})"}, CF_B + "1": {f"({b}, {fs[j]})"},
+                      CF_T + "22": {f"({a}, {run[j]})"}}  # at the lower boundary
         elif u == "curve-start":
             need(bs[0] > 0, "the curve starts at the origin, so (0, 0) is no wrong option")
             want = f"({bs[0]}, 0)"
+            wrongs = {CF_T + "23": {"(0, 0)"}, CF_T + "24": {f"({bs[1]}, {fs[0]})"},  # from the origin; from the first point
+                      CF_B + "0": {f"({dec_text(sp.Rational(bs[0] + bs[1], 2))}, 0)"}}  # the class's middle
+
         else:
             raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs)
