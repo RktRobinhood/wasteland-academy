@@ -290,3 +290,50 @@ func test_a_two_curves_situation_has_every_crossing_a_fine_scan_finds() -> void:
 			var fine: Array = GdcKit.zeros(func(x: float) -> float: return C.h(s, x), C.lo_x(s), s.d2.to_float(), 4000)
 			check_eq(fine.size(), s.crossings.size(), "%s draw %d: %s" % [need, i, s.crossings.map(func(c): return snappedf(c[0], 0.01))])
 	check(drawn > 300, "only %d situations drawn" % drawn)
+
+
+## A rounding whose last kept figure rounds to 0 (FAL-1051): 0.007296 to 3 s.f. is 0.00730,
+## not 0.0073. The key keeps its zeros, the four options read differently, and only the key
+## has its value, on every seed. Typed, the value is marked: 0.0073 and 0.00730 are one number.
+func test_a_rounding_keeps_its_trailing_zeros() -> void:
+	var views := GraphReadingViews.new()
+	var cases := [["round-small-3sf", "v_small", Q.new(7296, 1000000), 0, "0.00730"], ["round-small-3sf", "v_small", Q.new(9996, 1000000), 0, "0.0100"],
+		["round-small-3sf", "v_small", Q.new(1204, 1000000), 0, "0.00120"], ["round-3sf", "v", Q.new(23996, 10000), 0, "2.40"],
+		["round-3sf", "v", Q.new(12996, 1000), 0, "13.0"], ["round-3sf", "v", Q.new(99996, 10000), 0, "10.0"],
+		["round-3sf", "v", Q.new(99996, 100), 0, "1000"], ["round-dp", "v", Q.new(22963, 10000), 2, "2.30"],
+		["round-dp", "v", Q.new(49612, 10000), 1, "5.0"], ["round-dp", "v", Q.new(10971, 1000), 2, "10.97"]]
+	for c in cases:
+		var s := GraphReadingSituation.generate(Seeded.new("fal-1051"))
+		s[c[1]] = c[2]
+		s.dp = c[3] if c[3] > 0 else s.dp
+		var b := views.build(c[0], "number", s, Seeded.new("fal-1051"))
+		var key := "%s %s" % [c[0], Fmt.dec(c[2])]
+		check_eq(Answer.text(b.answer), c[4], key)
+		for m in b.methods.values():
+			check(m.steps[-1].contains(c[4]), "%s: %s" % [key, m.steps[-1]])
+		for seed in range(1, 25):
+			var opts := QuestionEngine._choices(b.answer, b, Seeded.new("fal-1051|%d" % seed))
+			check_eq(opts.size(), 4, key)
+			var texts := {}
+			for o in opts:
+				texts[o.text] = true
+				check(o.correct == Answer.values_right(b.answer, o.values), "%s seed %d: %s" % [key, seed, o.text])
+			check_eq(texts.size(), 4, "%s seed %d: %s" % [key, seed, texts.keys()])
+			check_eq(opts.filter(func(o): return o.correct).map(func(o): return o.text), [c[4]], key)
+		check(Answer.mark(b.answer, {"v": c[4]}).correct, key + " typed")
+		check(Answer.mark(b.answer, {"v": Fmt.dec(b.answer.values.v)}).correct, key + " typed without its zeros")
+
+
+## Every seed of the rounding cells: the key is the value written to its figures.
+func test_every_rounding_key_is_written_to_its_figures() -> void:
+	for u in ["round-3sf", "round-small-3sf", "round-dp"]:
+		for seed in range(1, 120):
+			var q := _first("fn-pre-graph-reading", u, "mcq", seed)
+			var v: Q = Answer.parse_number(q.lines[0].replace("−", "-")).q
+			var want := Fmt.sf(v, 3)
+			if u == "round-dp":
+				var n := int(RegEx.create_from_string("to (\\d) decimal").search(q.asked).get_string(1))
+				want = GraphReadingViews.places(GraphReadingSituation.dp_q(v, n), n)
+			check_eq(q.answer_text, want, "%s seed %d" % [u, seed])
+			check_eq(q.choices.size(), 4, "%s seed %d" % [u, seed])
+			check_eq(q.choices.filter(func(o): return Answer.values_right(q.answer, o.values)).size(), 1, "%s seed %d" % [u, seed])

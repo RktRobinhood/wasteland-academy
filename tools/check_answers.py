@@ -30,7 +30,7 @@ import math
 import re
 import sys
 from collections import defaultdict
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import ROUND_HALF_UP, Context, Decimal
 from functools import lru_cache
 from itertools import combinations, permutations, product
 from pathlib import Path
@@ -8049,13 +8049,14 @@ GR_T = "fn-pre-graph-reading#"
 
 
 def gr_round(text, places=None, sf=None):
+    """text rounded half up, written with the figures it was rounded to, zeros kept
+    (FAL-1051): 0.007296 to 3 s.f. is 0.00730, 2.2963 to 2 d.p. is 2.30."""
     d = Decimal(text.replace("−", "-"))
     if sf is not None:
-        e = d.copy_abs().adjusted()
-        q = Decimal(1).scaleb(e - sf + 1)
+        r = Context(prec=sf, rounding=ROUND_HALF_UP).plus(d)
     else:
-        q = Decimal(1).scaleb(-places)
-    return dec_text(sp.Rational(str(d.quantize(q, rounding=ROUND_HALF_UP))))
+        r = d.quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP)
+    return format(r, "f").replace("-", "−")
 
 
 def check_graph_reading(q):
@@ -8101,6 +8102,12 @@ def check_graph_reading(q):
         want = f"{dec_text(b - sp.Rational(1, 200))} ≤ x < {dec_text(b + sp.Rational(1, 200))}"
     else:
         raise Fail(f"no check for {u}")
+    if u.startswith("round-"):
+        # A wrong option may read differently from the answer (0.0073 beside 0.00730) but
+        # never have its value.
+        for o in q["choices"]:
+            need(o["correct"] or Decimal(o["text"].replace("−", "-")) != Decimal(want.replace("−", "-")),
+                 f"option {o['text']!r} is marked wrong but is the answer {want!r}")
     gc_check_common(q, want, wr)
     return None, None
 
