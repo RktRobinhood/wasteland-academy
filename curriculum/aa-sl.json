@@ -3238,8 +3238,8 @@
                 }
               ],
               "misconceptions": [
-                "Forgetting that (1/x)^r = x^(−r), so the power is taken as 6 − r instead of 6 − 2r",
-                "Leaving out the factor 2^r from (2/x)^r",
+                "Forgetting that a power of x in the denominator counts as a negative power, so the fraction's x is left out of the general term's power",
+                "Leaving out the number on top of the fraction, which is raised to the power r as well",
                 "Giving r (the term index) as the answer instead of the value of the term"
               ],
               "threads": [
@@ -3344,9 +3344,9 @@
                 }
               ],
               "misconceptions": [
-                "Counting only one contribution, e.g. only 1 × (x² term)",
-                "Multiplying the x² coefficients of the two brackets together",
-                "Sign slips when the bracket contains a negative term"
+                "Counting only one pair of terms: the number in the first bracket times the term of the asked power",
+                "Multiplying the coefficients of the asked power in the two brackets together, instead of pairing terms whose powers add up to it",
+                "Losing a minus sign when a bracket has a negative term"
               ],
               "threads": []
             }

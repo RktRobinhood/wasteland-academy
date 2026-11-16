@@ -2097,7 +2097,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Binomial expansion: a coefficient, a term or the full expansion (`t1-binomial-term`, exam, 6 bank parts)
 
-- **Situation:** One bracket (ax^p + b)^n, or nCr on its own.
+- **Situation:** One bracket (ax^p + b)^n, or nCr on its own, shared with `t1-ext-binomial-constant-term`, `t1-ext-binomial-product`.
 - **Representations:** **equation**, table (bold: the exam uses it)
 - **Unknowns:**
   - new L1: given n; r → the value of nCr

@@ -2982,7 +2982,7 @@
 		},
 		"binomial-expansion": {
 			"name": "One bracket (ax^p + b)^n, or nCr on its own",
-			"summary": "Pick the power n, then the bracket, then which term is asked. Every coefficient is a whole number, worked out exactly. The same numbers give nCr, a row of Pascal's triangle, the full expansion or one term.",
+			"summary": "Pick the power n, then the bracket, then which term is asked. Every coefficient is a whole number, worked out exactly. The same numbers give nCr, a row of Pascal's triangle, the full expansion or one term. For t1-ext-binomial-constant-term both terms of the bracket carry x, (ax^p + k/x^q)^n, so the power of x in the general term is pn − (p + q)r; for t1-ext-binomial-product the expansion (a + bx)^n is multiplied by a short bracket, and the coefficients of two powers are paired.",
 			"quantities": [
 				{
 					"name": "n",
@@ -3013,6 +3013,26 @@
 					"name": "j",
 					"is": "how many brackets give the x term, so the term asked is in x^(p·j)",
 					"pick": "at least 2, and at least 2 left for the other term"
+				},
+				{
+					"name": "q, k",
+					"is": "the fraction k/x^q of a bracket with x in both terms (constant-term)",
+					"pick": "q of 1 or 2, p from 1 to 3, k from −4 to 4 and not −1, 0 or 1; p ≠ q unless the middle term is the method"
+				},
+				{
+					"name": "m",
+					"is": "the power of x asked, with r = (pn − m)/(p + q) a whole number (constant-term), or the power whose coefficient is asked (product)",
+					"pick": "0 for a constant term, otherwise from −6 to 9; r at least 1"
+				},
+				{
+					"name": "f₀, f₁, d",
+					"is": "the first bracket f₀ + f₁x^d of a product",
+					"pick": "f₀ from 1 to 4, f₁ from −4 to 4 and not 0, d of 1 or 2; (x² + c) before (x + k/x)^n"
+				},
+				{
+					"name": "a, b",
+					"is": "the expansion (a + bx)^n of a product",
+					"pick": "a from 1 to 3 and b from −3 to 3, not 0, with no common factor; n from 5 to 9, or 3 or 4 where every term is written out"
 				}
 			],
 			"clean": [
@@ -3020,7 +3040,9 @@
 				"Paper 1 coefficients are at most 20000 in size, Paper 2 at most 200000000",
 				"a row read from the triangle is row 7 at most (row 8 shown for reading nC2)",
 				"a negative is only ever in the second term written",
-				"the numbers are not those of the bank, and the two numbers in a bracket share no factor"
+				"the numbers are not those of the bank, and the two numbers in a bracket share no factor",
+				"constant-term: r is a whole number from 1 to n − 1, every slip gives another value, and the skill map's three brackets are left out",
+				"product: both pairs give a term that isn't 0, the answer isn't 0, and k is a whole number; the skill map's three products are left out"
 			]
 		},
 		"regression": {
@@ -6701,6 +6723,8 @@
 		"SL1.5.integer-exponent-laws": "Simplify expressions using the laws of integer exponents",
 		"SL1.6.numerical-show-that": "Complete a numerical 'show that' with a given answer",
 		"SL1.7.common-base": "Solve exponential equations by writing both sides with a common base",
+		"SL1.9.constant-term": "Find the constant term or a given power when both terms contain x",
+		"SL1.9.product-expansion": "Find a coefficient in the product of a binomial expansion and another bracket",
 		"SL3.5.exact-triangle": "Use exact trig values to find exact lengths and areas in triangles",
 		"SL4.1.population-sample": "Identify the population and the sample, and decide whether a sample is random",
 		"SL4.1.data-type": "Classify data as discrete or continuous",
@@ -79864,6 +79888,7 @@
 			"region": "binomial",
 			"name": "Constant term when both terms contain x",
 			"summary": "In an expansion such as (x² + 3/x)^n, write the general term, find the r that makes the power of x zero (or a given power), and find that term.",
+			"situation": "binomial-expansion",
 			"level": [
 				3,
 				4
@@ -79872,12 +79897,271 @@
 				"mcq",
 				"value",
 				"error-spot",
-				"order-steps",
 				"method-pick"
 			],
-			"frequency": 0,
-			"angles": [],
-			"misconceptions": []
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "the bracket (ax^p + k/x^q) and its power, with x in both terms"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "ct-power-of-x",
+					"given": [
+						"(x^p + k/x^q)^n"
+					],
+					"asked": "the power of x in the general term, in terms of r",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.constant-term"
+					]
+				},
+				{
+					"id": "ct-find-r",
+					"given": [
+						"(x^p + k/x^q)^n with p ≠ q, and its general term"
+					],
+					"asked": "the r of the term independent of x",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.constant-term"
+					]
+				},
+				{
+					"id": "ct-middle-constant",
+					"given": [
+						"(x^p + k/x^p)^n with n even"
+					],
+					"asked": "the constant term",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.constant-term"
+					]
+				},
+				{
+					"id": "ct-constant",
+					"given": [
+						"(x^p + k/x^q)^n with p ≠ q"
+					],
+					"asked": "the constant term",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.constant-term"
+					]
+				},
+				{
+					"id": "ct-constant-raised",
+					"given": [
+						"(ax^p + k/x^q)^n with a number beside x, p ≠ q"
+					],
+					"asked": "the constant term",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.constant-term"
+					]
+				},
+				{
+					"id": "ct-given-power",
+					"given": [
+						"(ax^p + k/x^q)^n",
+						"a power of x other than 0"
+					],
+					"asked": "the coefficient of that power",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.constant-term"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.9.constant-term",
+					"method": "exponent-equation",
+					"suits": [
+						"ct-power-of-x",
+						"ct-find-r",
+						"ct-middle-constant",
+						"ct-constant",
+						"ct-constant-raised",
+						"ct-given-power"
+					],
+					"name": "Collect the power of x in the general term and solve for r",
+					"about": "For (x + 2/x)^6 the general term is 6Cr 2^r x^(6 − 2r); set 6 − 2r = 0 to get r = 3, giving 20 × 8 = 160."
+				},
+				{
+					"skill": "SL1.9.constant-term",
+					"method": "power-table",
+					"suits": [
+						"ct-power-of-x",
+						"ct-find-r",
+						"ct-middle-constant",
+						"ct-constant",
+						"ct-constant-raised",
+						"ct-given-power"
+					],
+					"name": "List the power of x for each r",
+					"about": "Tabulate r = 0, 1, 2, … against the resulting power of x and spot which r gives the target."
+				},
+				{
+					"skill": "SL1.9.constant-term",
+					"method": "middle-term",
+					"suits": [
+						"ct-middle-constant"
+					],
+					"weak": {
+						"kind": "fails",
+						"unknowns": [
+							"ct-find-r",
+							"ct-constant",
+							"ct-constant-raised",
+							"ct-given-power"
+						],
+						"why": "the two terms carry different powers of x, or a power other than 0 is asked, so the term wanted is not the middle one"
+					},
+					"name": "Use the symmetry of the powers",
+					"about": "In (x + k/x)^(2m) the powers run symmetrically from 2m down to −2m, so the constant term is the middle term, r = m."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Every expansion of (x² + k/x)^n has a term independent of x.",
+					"answer": "False. The power of x in the general term is 2n − 3r, which is 0 only when 3r = 2n. For n = 4 that needs r = 8/3, not a whole number, so (x² + k/x)⁴ has no constant term.",
+					"level": 4
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Before working it out, say which term of (x + k/x)^8 is independent of x, and why.",
+					"answer": "The middle one, the fifth: the powers of x fall by 2 each term from x⁸ to x⁻⁸, so they are symmetric about 0 and x⁰ is in the middle, at r = 4.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.9.constant-term#0",
+					"text": "Forgetting that a power of x in the denominator counts as a negative power, so the fraction's x is left out of the general term's power",
+					"as": "distractor",
+					"in": [
+						"ct-power-of-x",
+						"ct-find-r",
+						"ct-middle-constant",
+						"ct-constant",
+						"ct-constant-raised",
+						"ct-given-power"
+					],
+					"wrong": "the power of x taken from the first term alone"
+				},
+				{
+					"ref": "SL1.9.constant-term#1",
+					"text": "Leaving out the number on top of the fraction, which is raised to the power r as well",
+					"as": "distractor",
+					"in": [
+						"ct-middle-constant",
+						"ct-constant",
+						"ct-constant-raised",
+						"ct-given-power"
+					],
+					"wrong": "nCr times the first term's number only"
+				},
+				{
+					"ref": "SL1.9.constant-term#2",
+					"text": "Giving r (the term index) as the answer instead of the value of the term",
+					"as": "distractor",
+					"in": [
+						"ct-middle-constant",
+						"ct-constant",
+						"ct-constant-raised",
+						"ct-given-power"
+					],
+					"wrong": "the r of the term"
+				},
+				{
+					"text": "Counting r along the first term of the bracket, so finding n − r",
+					"as": "distractor",
+					"in": [
+						"ct-find-r"
+					],
+					"wrong": "n − r"
+				},
+				{
+					"text": "Not multiplying the powers in (x^p)^(n − r), so the first term gives x^(n − r)",
+					"as": "distractor",
+					"in": [
+						"ct-power-of-x",
+						"ct-find-r"
+					],
+					"wrong": "the power with p left out of the first term"
+				},
+				{
+					"text": "Losing the minus sign of the fraction when it is raised to an odd power",
+					"as": "distractor",
+					"in": [
+						"ct-constant",
+						"ct-constant-raised",
+						"ct-given-power"
+					],
+					"wrong": "the term with its sign changed"
+				},
+				{
+					"text": "Not raising the number beside x to its power n − r",
+					"as": "distractor",
+					"in": [
+						"ct-constant-raised"
+					],
+					"wrong": "the number beside x used once"
+				},
+				{
+					"text": "Giving the whole term, with its power of x, when only the coefficient is asked",
+					"as": "distractor",
+					"in": [
+						"ct-given-power"
+					],
+					"wrong": "the term with its x"
+				},
+				{
+					"text": "Writing a power of x from the denominator as a positive power in a line of working",
+					"as": "error-spot",
+					"in": [
+						"ct-find-r"
+					],
+					"wrong": "a line writes (k/x^q)^r as k^r x^(qr)"
+				},
+				{
+					"text": "Leaving the number on top of the fraction unraised in a line of working",
+					"as": "error-spot",
+					"in": [
+						"ct-constant"
+					],
+					"wrong": "a line writes (k/x^q)^r as k x^(−qr)"
+				}
+			],
+			"frequency": 0
 		},
 		{
 			"id": "t1-ext-binomial-product",
@@ -79887,6 +80171,7 @@
 			"region": "binomial",
 			"name": "A coefficient in a bracket times an expansion",
 			"summary": "Find one coefficient in (p + qx)(a + bx)^n by pairing each term of the first bracket with the matching term of the expansion and adding.",
+			"situation": "binomial-expansion",
 			"level": [
 				3,
 				4
@@ -79895,12 +80180,247 @@
 				"value",
 				"mcq",
 				"error-spot",
-				"method-pick",
-				"multipart"
+				"method-pick"
 			],
-			"frequency": 0,
-			"angles": [],
-			"misconceptions": []
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "a short bracket times a binomial power, (p + qx)(a + bx)^n, or the coefficients of the expansion given"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "pr-linear",
+					"given": [
+						"(p + qx)(a + bx)^n",
+						"a power of x"
+					],
+					"asked": "its coefficient",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.product-expansion"
+					]
+				},
+				{
+					"id": "pr-same-power",
+					"given": [
+						"(p + qx^d)(a + bx)^n",
+						"the power x^d"
+					],
+					"asked": "its coefficient",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.product-expansion"
+					]
+				},
+				{
+					"id": "pr-hence",
+					"given": [
+						"the coefficients of x^m and x^(m − 1) in (a + bx)^n",
+						"(p + qx)(a + bx)^n"
+					],
+					"asked": "the coefficient of x^m in the product",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.product-expansion"
+					]
+				},
+				{
+					"id": "pr-reciprocal",
+					"given": [
+						"(x² + c)(x + k/x)^n with n even"
+					],
+					"asked": "the constant term",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.product-expansion"
+					]
+				},
+				{
+					"id": "pr-find-k",
+					"given": [
+						"(1 + kx)(a + bx)^n",
+						"the coefficient of one power of x"
+					],
+					"asked": "k",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.product-expansion"
+					]
+				},
+				{
+					"id": "pr-small",
+					"given": [
+						"(p + qx)(a + bx)^n with n of 3 or 4",
+						"a power of x"
+					],
+					"asked": "its coefficient",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.product-expansion"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.9.product-expansion",
+					"method": "pair-contributions",
+					"suits": [
+						"pr-linear",
+						"pr-same-power",
+						"pr-hence",
+						"pr-reciprocal",
+						"pr-find-k",
+						"pr-small"
+					],
+					"name": "List the pairs of terms that multiply to the target power",
+					"about": "x² comes from 1 × (x² term) + 2x × (x term): 270 + 2(−405) = −540."
+				},
+				{
+					"skill": "SL1.9.product-expansion",
+					"method": "partial-expansion",
+					"suits": [
+						"pr-linear",
+						"pr-same-power",
+						"pr-reciprocal",
+						"pr-find-k",
+						"pr-small"
+					],
+					"name": "Expand the binomial up to the needed power, then multiply",
+					"about": "Write the first three terms of (3 − x)^5, multiply by (1 + 2x) and collect the x² terms."
+				},
+				{
+					"skill": "SL1.9.product-expansion",
+					"method": "full-expansion",
+					"suits": [
+						"pr-small"
+					],
+					"weak": {
+						"kind": "slow",
+						"unknowns": [
+							"pr-linear",
+							"pr-same-power",
+							"pr-find-k"
+						],
+						"why": "with n of 5 or more, most of the terms written out never meet a term of the first bracket that gives the power asked"
+					},
+					"name": "Expand everything and collect",
+					"about": "Reliable for small n but slow and error-prone; best kept as a check."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The coefficient of x³ in (2 + x)(1 + x)^n is 2 times the coefficient of x³ in (1 + x)^n.",
+					"answer": "False. The x in the first bracket meets the x² term of (1 + x)^n to give a second x³ term, so the coefficient is 2 × nC3 + nC2.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Before working it out, say how many pairs of terms give the x⁴ term of (3 − x²)(1 + 2x)⁶, and which.",
+					"answer": "Two: 3 times the x⁴ term, and −x² times the x² term. Each term of the first bracket meets the one term of the expansion that tops its power up to 4.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.9.product-expansion#0",
+					"text": "Counting only one pair of terms: the number in the first bracket times the term of the asked power",
+					"as": "distractor",
+					"in": [
+						"pr-linear",
+						"pr-same-power",
+						"pr-hence",
+						"pr-reciprocal",
+						"pr-find-k",
+						"pr-small"
+					],
+					"wrong": "the first bracket's number times the coefficient of the asked power"
+				},
+				{
+					"ref": "SL1.9.product-expansion#1",
+					"text": "Multiplying the coefficients of the asked power in the two brackets together, instead of pairing terms whose powers add up to it",
+					"as": "distractor",
+					"in": [
+						"pr-same-power"
+					],
+					"wrong": "q times the coefficient of x^d in the expansion"
+				},
+				{
+					"ref": "SL1.9.product-expansion#2",
+					"text": "Losing a minus sign when a bracket has a negative term",
+					"as": "distractor",
+					"in": [
+						"pr-linear",
+						"pr-same-power",
+						"pr-reciprocal",
+						"pr-find-k",
+						"pr-small"
+					],
+					"wrong": "the pairs added with every sign positive, or a term moved across without its sign"
+				},
+				{
+					"text": "Pairing the x term with the term of the asked power, so the powers add up to one too many",
+					"as": "distractor",
+					"in": [
+						"pr-linear",
+						"pr-hence",
+						"pr-small"
+					],
+					"wrong": "both terms of the first bracket times the coefficient of the asked power"
+				},
+				{
+					"text": "Adding the two given coefficients without the first bracket's numbers",
+					"as": "distractor",
+					"in": [
+						"pr-hence"
+					],
+					"wrong": "the sum of the two coefficients"
+				},
+				{
+					"text": "Pairing x² with the x² term of the expansion instead of the x⁻² term",
+					"as": "distractor",
+					"in": [
+						"pr-reciprocal"
+					],
+					"wrong": "x² times the x² term"
+				},
+				{
+					"text": "Pairing the x term with the term of the asked power in a line of working",
+					"as": "error-spot",
+					"in": [
+						"pr-linear",
+						"pr-small"
+					],
+					"wrong": "a line multiplies qx by the x^m term"
+				}
+			],
+			"frequency": 0
 		},
 		{
 			"id": "t3-ext-two-observations",
