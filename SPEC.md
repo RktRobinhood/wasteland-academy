@@ -4,7 +4,7 @@
 > Status: Live. The Godot game is at the main address; last checked against it 2026-11-16 (#198)  
 > Target: an app for PC, then Android and iOS (#199). GitHub Pages is the testing host
 
-**How to read this.** This is the design specification. Where it and the Godot game differ, the game and `game/README.md` are right, and this file should be fixed. Sections or paragraphs marked **Legacy** describe the original HTML game, which is still published at `/classic/` until #197 removes it for students.
+**How to read this.** This is the design specification. Where it and the Godot game differ, the game and `game/README.md` are right, and this file should be fixed. Sections or paragraphs marked **Legacy** describe the original HTML game, which isn't published for students (#197).
 
 ---
 

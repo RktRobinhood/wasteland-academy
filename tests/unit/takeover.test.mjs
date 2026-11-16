@@ -1,7 +1,7 @@
 // The takeover switch (README, "Switching to Godot"): scripts/assemble-site.sh lays
-// out each position, and the root worker in _takeover/ keeps Godot playable offline
-// and clears the old game from the root without touching the HTML game at classic/. tools/takeover-dry-run checks
-// the same in a real browser.
+// out each position, publishing no repository document (#197, scripts/check-site.sh),
+// and the root worker in _takeover/ keeps Godot playable offline and clears the HTML
+// game's caches. tools/takeover-dry-run checks the same in a real browser.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -12,6 +12,17 @@ import { REPO } from '../content/packs.mjs';
 
 const SITE = 'https://rktrobinhood.github.io/wasteland-academy/';
 const ASSEMBLE = path.join(REPO, 'scripts/assemble-site.sh');
+const CHECK = path.join(REPO, 'scripts/check-site.sh');
+
+// What Jekyll publishes besides the HTML game: the whole repository, Markdown both as
+// itself and as a page (#197)
+const REPO_FILES = {
+  'site/ROADMAP.md': 'roadmap', 'site/ROADMAP.html': 'roadmap page', 'site/README.html': 'readme page',
+  'site/game/project.godot': 'godot', 'site/services/telemetry/wrangler.toml': 'toml',
+  'site/writing/voice-sheets.md': 'voices', 'site/tools/takeover-dry-run': 'tool', 'site/curriculum/aa-sl.md': 'syllabus',
+  'site/package.json': '{}', 'site/scripts/assemble-site.sh': 'sh',
+  'site/assets/audio/CREDITS.md': 'credits', 'site/assets/audio/CREDITS.html': 'credits page',
+};
 
 // A Jekyll site and a Godot export, in a fresh folder under _scratch/
 function fixture() {
@@ -19,7 +30,8 @@ function fixture() {
   const dir = fs.mkdtempSync(path.join(REPO, '_scratch', 'takeover-unit-'));
   const files = {
     'site/index.html': 'html game', 'site/service-worker.js': 'html worker', 'site/js/engine.js': 'engine',
-    'site/manifest.json': read(REPO, 'manifest.json'),
+    'site/manifest.json': read(REPO, 'manifest.json'), 'site/assets/audio/hit.ogg': 'ogg', 'site/css/game.css': 'css',
+    ...REPO_FILES,
     'export/index.html': '<html>\n<head>\n<meta charset="utf-8">\n<title>godot</title>', 'export/index.pck': 'pck', 'export/index.wasm': 'wasm',
   };
   for (const [rel, text] of Object.entries(files)) {
@@ -31,46 +43,63 @@ function fixture() {
 
 function read(dir, rel) { return fs.readFileSync(path.join(dir, rel), 'utf8'); }
 
-test('switch off: the HTML game at the root, Godot at next/', t => {
+// Every file under dir, relative to it
+function files(dir) {
+  return fs.readdirSync(dir, { recursive: true }).filter(f => fs.statSync(path.join(dir, f)).isFile()).sort();
+}
+
+const check = site => spawnSync(CHECK, [site], { encoding: 'utf8' });
+
+test('switch off: the HTML game at the root, Godot at next/, and nothing else', t => {
   const { dir, site, exp } = fixture();
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   execFileSync(ASSEMBLE, [site, exp, 'off'], { stdio: 'pipe' });
   assert.equal(read(site, 'index.html'), 'html game');
   assert.equal(read(site, 'service-worker.js'), 'html worker');
   assert.equal(read(site, 'next/index.pck'), 'pck');
-  assert.equal(fs.existsSync(path.join(site, 'classic')), false);
+  assert.deepEqual(files(site), ['assets/audio/hit.ogg', 'css/game.css', 'index.html', 'js/engine.js', 'manifest.json',
+    'next/index.html', 'next/index.pck', 'next/index.wasm', 'service-worker.js']);
+  assert.equal(check(site).status, 0, check(site).stderr);
 });
 
-test('switch on: Godot at the root, the HTML game at classic/, next/ a redirect', t => {
+test('switch on: Godot at the root and next/ a redirect, with no HTML game and no classic/', t => {
   const { dir, site, exp } = fixture();
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   execFileSync(ASSEMBLE, [site, exp, 'on'], { stdio: 'pipe' });
   const html = read(site, 'index.html');
-  assert.match(html, /<head>\n<meta name="wa-classic" content="classic\/">\n<meta charset="utf-8">\n<script>/);
+  assert.match(html, /<head>\n<meta charset="utf-8">\n<script>/);
+  assert.doesNotMatch(html, /wa-classic/);
   assert.ok(html.includes(read(REPO, '_takeover/register-worker.html')));
   assert.match(html, /<\/script>\n<title>godot/);
   assert.equal(read(site, 'index.pck'), 'pck');
-  assert.equal(read(site, 'classic/index.html'), 'html game');
-  assert.equal(read(site, 'classic/service-worker.js'), 'html worker');
-  assert.equal(read(site, 'classic/js/engine.js'), 'engine');
   assert.equal(read(site, 'service-worker.js'), read(REPO, '_takeover/service-worker.js'));
   assert.equal(read(site, 'next/index.html'), read(REPO, '_takeover/next.html'));
-  assert.deepEqual(fs.readdirSync(site).sort(),
-    ['classic', 'index.html', 'index.pck', 'index.wasm', 'next', 'service-worker.js']);
+  assert.deepEqual(files(site), ['index.html', 'index.pck', 'index.wasm', 'next/index.html', 'service-worker.js']);
+  assert.equal(check(site).status, 0, check(site).stderr);
 });
 
-test('switch on gives the HTML game its own app id, so an installed app stays at the root', t => {
-  const { dir, site, exp } = fixture();
+test('check-site fails on any repository document or source folder on the site', t => {
+  fs.mkdirSync(path.join(REPO, '_scratch'), { recursive: true });
+  const dir = fs.mkdtempSync(path.join(REPO, '_scratch', 'takeover-unit-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-  execFileSync(ASSEMBLE, [site, exp, 'on'], { stdio: 'pipe' });
-  const classic = JSON.parse(read(site, 'classic/manifest.json'));
-  assert.equal(classic.id, 'wasteland-academy-classic');
-  assert.equal(classic.start_url, './index.html');
-  assert.equal(classic.scope, './');
-  const { id, ...rest } = classic;
-  const { id: repoId, ...repoRest } = JSON.parse(read(REPO, 'manifest.json'));
-  assert.equal(repoId, 'wasteland-academy');
-  assert.deepEqual(rest, repoRest);
+  const site = path.join(dir, 'site');
+  const reset = () => {
+    fs.rmSync(site, { recursive: true, force: true });
+    fs.mkdirSync(path.join(site, 'js'), { recursive: true });
+    fs.writeFileSync(path.join(site, 'index.html'), 'html game');
+  };
+  reset();
+  assert.equal(check(site).status, 0, check(site).stderr);
+  for (const leak of ['ROADMAP.md', 'ROADMAP.html', 'game/project.godot', 'services/telemetry/wrangler.toml',
+    'writing/voice-sheets.md', 'tools/takeover-dry-run', 'curriculum/x.txt', 'assets/audio/CREDITS.html',
+    'classic/index.html', 'next/notes.md']) {
+    reset();
+    fs.mkdirSync(path.dirname(path.join(site, leak)), { recursive: true });
+    fs.writeFileSync(path.join(site, leak), 'x');
+    const run = check(site);
+    assert.notEqual(run.status, 0, leak);
+    assert.match(run.stderr, new RegExp(leak.split('/')[0].replace('.', '\\.')), leak);
+  }
 });
 
 test('switch off keeps the app id', t => {
@@ -79,15 +108,6 @@ test('switch off keeps the app id', t => {
   execFileSync(ASSEMBLE, [site, exp, 'off'], { stdio: 'pipe' });
   assert.equal(read(site, 'manifest.json'), read(REPO, 'manifest.json'));
   assert.equal(JSON.parse(read(site, 'manifest.json')).id, 'wasteland-academy');
-});
-
-test('switch on stops the build if the HTML game\'s manifest has another id', t => {
-  const { dir, site, exp } = fixture();
-  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-  fs.writeFileSync(path.join(site, 'manifest.json'), '{ "id": "something-else" }');
-  const run = spawnSync(ASSEMBLE, [site, exp, 'on'], { encoding: 'utf8' });
-  assert.notEqual(run.status, 0);
-  assert.match(run.stderr, /manifest\.json/);
 });
 
 test('any other switch value, or a published next/, stops the build', t => {
@@ -179,25 +199,23 @@ function rootWorker(cached = {}, online = {}) {
 
 const GET = (url, mode = 'no-cors') => ({ request: { method: 'GET', url, mode } });
 
-test('the root worker clears the old game from the root, keeps classic/, and reloads the old pages', async () => {
+test('the root worker clears the HTML game, classic/ too, and reloads the old pages', async () => {
   const w = rootWorker({
     'wasteland-academy-v3': [SITE, SITE + 'js/engine.js', SITE + 'index.wasm', SITE + 'classic/', SITE + 'classic/js/engine.js'],
     'wasteland-academy-v2': [SITE + 'index.html'],
     'someone-else': [SITE + 'x'],
+    'wasteland-academy-godot': [SITE + 'index.pck'],
   });
   await w.run('activate');
-  assert.deepEqual(w.state(), {
-    'wasteland-academy-v3': [SITE + 'classic/', SITE + 'classic/js/engine.js'],
-    'someone-else': [SITE + 'x'],
-  });
+  assert.deepEqual(w.state(), { 'someone-else': [SITE + 'x'], 'wasteland-academy-godot': [SITE + 'index.pck'] });
   assert.deepEqual(w.calls, ['claim']);
-  assert.deepEqual(w.navigated, [SITE, SITE + '#functions']);
+  assert.deepEqual(w.navigated, [SITE, SITE + '#functions', SITE + 'classic/']);
 });
 
 test('the root worker reloads no page when there was no old game to clear', async () => {
-  const w = rootWorker({ 'wasteland-academy-v3': [SITE + 'classic/'], 'wasteland-academy-godot': [SITE + 'index.pck'] });
+  const w = rootWorker({ 'wasteland-academy-godot': [SITE + 'index.pck'] });
   await w.run('activate');
-  assert.deepEqual(w.state(), { 'wasteland-academy-v3': [SITE + 'classic/'], 'wasteland-academy-godot': [SITE + 'index.pck'] });
+  assert.deepEqual(w.state(), { 'wasteland-academy-godot': [SITE + 'index.pck'] });
   assert.deepEqual(w.navigated, []);
   assert.deepEqual(w.calls, ['claim']);
 });
@@ -227,7 +245,7 @@ test('the root worker is network-first: online gets the new export, offline the 
   assert.ok(await w.run('fetch', GET(SITE + 'index.wasm')) instanceof TypeError);
 });
 
-test('the root worker leaves classic/, next/ and anything outside the build to the network', async () => {
+test('the root worker leaves next/ and anything outside the build to the network', async () => {
   const w = rootWorker();
   for (const url of [SITE + 'classic/', SITE + 'classic/index.html', SITE + 'classic/index.pck', SITE + 'next/',
     SITE + 'service-worker.js', SITE + 'manifest.json', 'https://example.com/index.pck']) {

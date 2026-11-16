@@ -2,7 +2,8 @@
 # The takeover dry run (README, "Switching to Godot"): lays out the site with the
 # switch off and with it on (scripts/assemble-site.sh), serves each the way GitHub
 # Pages does, and checks both in Chromium (tests/takeover/takeover.spec.mjs).
-# Screenshots of / and classic/ with the switch on go to test-results/takeover-shots/.
+# Screenshots with the switch on go to test-results/takeover-shots/. scripts/check-site.sh
+# checks neither position publishes a repository document (#197).
 #
 #   tools/takeover-dry-run [site dir] [export dir]
 #
@@ -29,6 +30,8 @@ fi
 cp -r "$work/off" "$work/on"
 "$ROOT/scripts/assemble-site.sh" "$work/off" "$export_dir" off
 "$ROOT/scripts/assemble-site.sh" "$work/on" "$export_dir" on
+"$ROOT/scripts/check-site.sh" "$work/off"
+"$ROOT/scripts/check-site.sh" "$work/on"
 
 cd "$ROOT"
 TAKEOVER_SITES="$work" npx playwright test -c tests/takeover/playwright.config.mjs

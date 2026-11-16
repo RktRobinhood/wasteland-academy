@@ -4,10 +4,10 @@ extends Control
 ## explorer.gd) goes to the explorer, ?study to the study screen (study.gd), a deep link
 ## to the Bazaar (see bazaar.gd), a run (see fight.gd) or a question (see practice.gd)
 ## goes straight there, and a map link
-## such as #functions/quadratics (see engine/map_link.gd) opens the map there. With the
-## takeover switch on (README, "Switching to Godot"), a small "Classic game" link goes
-## to the HTML game. ?journey=demo opens the journey demo (ui/journey_demo.gd), and
-## ?explain the explainer player (ui/explain_screen.gd).
+## such as #functions/quadratics (see engine/map_link.gd) opens the map there.
+## ?journey=demo opens the journey demo (ui/journey_demo.gd), and
+## ?explain the explainer player (ui/explain_screen.gd). There is no link to the HTML
+## game: it isn't published for students (#197).
 ##
 ## Key art (FAL-470): title/key-art behind the title on a PC (a landscape window) and
 ## title/key-art-phone on a phone (portrait). The title sits in the art's top band and
@@ -54,9 +54,6 @@ func _ready() -> void:
 	var engine := get_node_or_null("Center/Column/Engine") as Button
 	if engine != null:
 		engine.pressed.connect(open_explorer)
-	var classic := classic_url()
-	if classic != "":
-		add_classic_link(classic)
 	add_credits_link()
 	MapLink.listen(get_tree())
 	if _routed:
@@ -112,16 +109,6 @@ func open_bazaar() -> void:
 	get_tree().change_scene_to_file(BAZAAR)
 
 
-## Where the HTML game is, or "" while it's still at the root. The takeover switch
-## (scripts/assemble-site.sh) adds <meta name="wa-classic" content="classic/"> to the
-## page when it puts the HTML game at classic/.
-static func classic_url() -> String:
-	if not OS.has_feature("web"):
-		return ""
-	var url = JavaScriptBridge.eval("document.querySelector('meta[name=\"wa-classic\"]')?.content || ''", true)
-	return url if url is String else ""
-
-
 ## The small "Credits" link, in the bottom left corner: third-party code, fonts and sound
 ## with their licences (FAL-419).
 func add_credits_link() -> LinkButton:
@@ -136,27 +123,5 @@ func add_credits_link() -> LinkButton:
 	link.pressed.connect(func() -> void: add_child(Credits.make()))
 	add_child(link)
 	link.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 48)
-	link.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	return link
-
-
-## The small "Classic game" link, in the bottom right corner. It opens `url` in this tab.
-func add_classic_link(url: String) -> LinkButton:
-	var link := LinkButton.new()
-	link.name = "Classic"
-	link.text = "Classic game"
-	link.underline = LinkButton.UNDERLINE_MODE_ALWAYS
-	link.add_theme_font_size_override("font_size", UiTheme.BODY)
-	link.add_theme_color_override("font_color", UiTheme.DIM)
-	link.add_theme_color_override("font_hover_color", UiTheme.TEAL)
-	link.add_theme_color_override("font_pressed_color", UiTheme.TEAL)
-	link.pressed.connect(func() -> void:
-		if OS.has_feature("web"):
-			JavaScriptBridge.eval("window.location.assign(%s)" % JSON.stringify(url))
-		else:
-			OS.shell_open(url))
-	add_child(link)
-	link.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 48)
-	link.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	link.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	return link

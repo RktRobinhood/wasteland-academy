@@ -24,7 +24,7 @@ Everything labelled [`classroom-release`](https://github.com/RktRobinhood/wastel
 | #192 | Play only verified seeds; the stress sweep runs nightly and gates releases |
 | #193 | Question defects found in review |
 | #194 | Typed answers: decimal comma, exact-answer hints, large whole numbers |
-| #197 | `/classic/` publishes only the HTML game, and students no longer see it |
+| #197 | `/classic/` isn't published, and no repository document is on the site |
 | #203 | Wording: places by name, no "islands", the exam switch, every label |
 
 ### 2. Explainers ready to record

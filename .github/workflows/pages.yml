@@ -2,8 +2,10 @@
 # the Godot web export at next/. Pull requests build the site but don't deploy it.
 #
 # The takeover switch is the GODOT_AT_ROOT line below (README, "Switching to Godot").
-# Off, the site is as above. On, Godot is at the root, the HTML game at classic/, and
-# next/ sends people on to the root. scripts/assemble-site.sh lays out both.
+# Off, the site is as above. On, Godot is at the root, the HTML game isn't published,
+# and next/ sends people on to the root. scripts/assemble-site.sh lays out both, keeping
+# only the HTML game's own files of the repo, and scripts/check-site.sh stops the
+# deploy if a repository document is left on the site (#197).
 #
 # The repo goes through actions/jekyll-build-pages, the same step Pages' "deploy
 # from a branch" runs, so every URL of the HTML game stays exactly as it was.
@@ -44,6 +46,7 @@ jobs:
         run: |
           sudo chown -R "$(id -u):$(id -g)" _site
           scripts/assemble-site.sh _site "$RUNNER_TEMP/next" "$GODOT_AT_ROOT"
+          scripts/check-site.sh _site
           ls -l _site _site/next
       - uses: actions/upload-pages-artifact@v5
         with:
