@@ -26497,7 +26497,7 @@ def e10ss_count(q, f):
     h = len(pairs)
     need(2 <= h <= E10SS_MAX_LISTED and h < f["N"], f"{h} cells")
     say = lambda v: f"number of outcomes = {v}"
-    wrongs = {E10SS_O + "6": {say(len({f['fn'](*p) for p in pairs}))}}
+    wrongs = {E10SS_O + "6": {say(len({f['fn'](*p) for p in pairs}))}, E10SS_O + "20": {say(f["N"] - h)}}  # the cells outside
     if e10ss_distinct(f):
         wrongs[E10SS_G + "0"] = {say(e10ss_one_way(pairs))}
     e10ss_has(q, "grid-count", f"{e10ss_plus(e10ss_rows(f, test))} = {h} cells")
@@ -26511,6 +26511,7 @@ def e10ss_plain_p(q, f, u):
     h, N = len(pairs), f["N"]
     need(2 <= h <= E10SS_MAX_LISTED and h < N, f"{h} cells")
     table = e10ss_fair_table(f, pairs)
+    table[E10SS_O + "7"] = [1 - sp.Rational(h, N)]  # the opposite event
     if other is not None:
         need(e10ss_hits(f, other) != pairs, "the boundary changes nothing")
         table[E10SS_O + "2"] = [sp.Rational(len(e10ss_hits(f, other)), N)]
@@ -26558,7 +26559,8 @@ def e10ss_compare(q, f):
     other = N - h - ties
     need(2 <= h <= E10SS_MAX_LISTED and ties > 0 and other != h and 2 * h != N, "the sides of the grid")
     e10ss_size_steps(q, f, test, h)
-    return e10ss_prob(q, sp.Rational(h, N), {E10SS_O + "8": [sp.Rational(h + ties, N)], E10SS_O + "9": [sp.Rational(1, 2)], E10SS_O + "10": [sp.Rational(other, N)]})
+    return e10ss_prob(q, sp.Rational(h, N), {E10SS_O + "8": [sp.Rational(h + ties, N)], E10SS_O + "9": [sp.Rational(1, 2)], E10SS_O + "10": [sp.Rational(other, N)],
+                                                  E10SS_O + "7": [1 - sp.Rational(h, N)]})  # the opposite event
 
 
 def e10ss_points(q, f):
@@ -26643,7 +26645,9 @@ def e10ss_weighted(q, u):
     need(e10ss_one_way(pairs) != len(pairs), "no pair in the event has a reverse")
     chance = lambda cs: sum((p[a] * p[b] for a, b in cs), sp.Integer(0))
     v = chance(pairs)
-    table = {E10SS_G + "0": [chance([c for c in pairs if c[0] <= c[1]])], E10SS_O + "11": [sp.Rational(len(pairs), f["N"])]}
+    table = {E10SS_G + "0": [chance([c for c in pairs if c[0] <= c[1]])], E10SS_O + "11": [sp.Rational(len(pairs), f["N"])],
+             E10SS_O + "7": [1 - v]}  # the opposite event
+
     if word:
         table[E10SS_O + "2"] = [chance([c for c in f["cells"] if c[0] + c[1] > k])]
     if u == "weighted-target":
@@ -26858,6 +26862,7 @@ def e10ss_check(q):
 PB_EL, PB_CO, PB_RF = "SL4.5.equally-likely#", "SL4.5.complement#", "SL4.5.relative-frequency#"
 PB_T = "t4-probability-basic#"
 PB_REST, PB_OLD_TOTAL, PB_OLD_COUNT, PB_EVENT, PB_BOUNDARY, PB_ONE_RULE, PB_WHOLE_RUN = [PB_T + str(i) for i in range(6, 13)]
+PB_NOT, PB_UNCHANGED, PB_COLUMN, PB_ROW_OR_COL, PB_AVERAGED = [PB_T + str(i) for i in range(13, 18)]  # FAL-820
 PB_EDGE = sp.Rational(3, 100)
 PB_P1_TOTALS = {20, 25, 40, 50, 80, 100, 200}
 PB_COLOURS = "red|blue|green|white|black"
@@ -26978,7 +26983,7 @@ def check_basic_probability(q):
         n, t = sum(cs[c] for c in want), sum(cs.values())
         v = sp.Rational(n, t)
         need(v != sp.Rational(len(want), len(cs)), "counting colours gives the answer")
-        table = {PB_EL + "0": [sp.Rational(len(want), len(cs))], PB_REST: pb_rest(n, t)}
+        table = {PB_EL + "0": [sp.Rational(len(want), len(cs))], PB_REST: pb_rest(n, t), PB_NOT: [1 - v]}
     elif u == "bag-after-change":
         cs = pb_colours(q)
         mt = re.fullmatch(rf"(\d+) ({PB_COLOURS}) .+ (?:is|are) (taken out and not put back|added)\.", L[1])
@@ -26991,7 +26996,7 @@ def check_basic_probability(q):
         after[c] += sign * m
         need(after[c] >= 1, "the bag ran out of the colour")
         v = sp.Rational(after[ask], t0 + sign * m)
-        table = {PB_OLD_TOTAL: [sp.Rational(after[ask], t0)]}
+        table = {PB_OLD_TOTAL: [sp.Rational(after[ask], t0)], PB_UNCHANGED: [sp.Rational(cs[ask], t0)], PB_NOT: [1 - v]}  # the old bag; the other colours
         if ask == c:
             table[PB_OLD_COUNT] = [sp.Rational(cs[ask], t0 + sign * m)]
     elif u == "two-way-whole":
@@ -27011,11 +27016,13 @@ def check_basic_probability(q):
         rowi = next((i for i, r in enumerate(rw) if f" {r} and " in asked), None)
         if rowi is None:
             v = sp.Rational(C[2][found], grand)
-            table = {PB_REST: pb_rest(C[2][found], grand)}
+            table = {PB_REST: pb_rest(C[2][found], grand), PB_NOT: [1 - v], PB_EL + "0": [sp.Rational(1, 3)]}  # not the column; a third each
         else:
             cell = C[rowi][found]
             v = sp.Rational(cell, grand)
-            table = {PB_EL + "1": [sp.Rational(cell, C[rowi][3])], PB_REST: pb_rest(cell, grand)}
+            table = {PB_EL + "1": [sp.Rational(cell, C[rowi][3])], PB_REST: pb_rest(cell, grand), PB_NOT: [1 - v],
+                     PB_COLUMN: [sp.Rational(cell, C[2][found])],  # over the column's total
+                     PB_ROW_OR_COL: [sp.Rational(C[rowi][3], grand), sp.Rational(C[2][found], grand)]}  # the whole row or column
     elif u == "list-data":
         vals = [int(x) for x in L[1].split(", ")]
         need(f"each of {len(vals)} " in L[0], "the list isn't the length the story says")
@@ -27028,7 +27035,7 @@ def check_basic_probability(q):
         n, kinds = sum(1 for x in vals if test(x)), set(vals)
         v = sp.Rational(n, len(vals))
         table = {PB_EL + "0": [sp.Rational(sum(1 for x in kinds if test(x)), len(kinds))], PB_REST: pb_rest(n, len(vals)),
-                 PB_BOUNDARY: [sp.Rational(sum(1 for x in vals if slip(x)), len(vals))]}
+                 PB_BOUNDARY: [sp.Rational(sum(1 for x in vals if slip(x)), len(vals))], PB_NOT: [1 - v]}
     elif u in ("grid-total-equals", "grid-total-at-least", "complement-count") and (u != "complement-count" or rep == "diagram"):
         xs, ys = pb_faces(q)
         pb_grid_check(q, xs, ys, lambda a, b: a + b)
@@ -27043,13 +27050,13 @@ def check_basic_probability(q):
             v = sp.Rational(n, len(ts))
             need(v != sp.Rational(sum(1 for t in ds if t >= k), len(ds)), "counting totals gives the answer")
             table = {PB_EL + "0": [sp.Rational(sum(1 for t in ds if t >= k), len(ds))], PB_REST: pb_rest(n, len(ts)),
-                     PB_BOUNDARY: [sp.Rational(sum(1 for t in ts if t > k), len(ts))]}
+                     PB_BOUNDARY: [sp.Rational(sum(1 for t in ts if t > k), len(ts))], PB_NOT: [1 - v]}
         else:
             n = ts.count(k)
             need(sp.Rational(n, len(ts)) != sp.Rational(1, len(ds)), "counting totals gives the answer")
             if u == "grid-total-equals":
                 v = sp.Rational(n, len(ts))
-                table = {PB_EL + "0": [sp.Rational(1, len(ds))], PB_REST: pb_rest(n, len(ts))}
+                table = {PB_EL + "0": [sp.Rational(1, len(ds))], PB_REST: pb_rest(n, len(ts)), PB_NOT: [1 - v]}
             else:
                 v = 1 - sp.Rational(n, len(ts))
                 table = {PB_EL + "0": [1 - sp.Rational(1, len(ds))], PB_EVENT: [sp.Rational(n, len(ts))]}
@@ -27093,7 +27100,7 @@ def check_basic_probability(q):
             n = sum(1 for x in space if (x > int(ab.group(1)) if ab else x % 2 == 0))
             all_ = len(space)
         v = sp.Rational(n, all_)
-        table.update({PB_REST: pb_rest(n, all_)})
+        table.update({PB_REST: pb_rest(n, all_), PB_NOT: [1 - v]})
     elif u == "complement-given":
         p = R(re.search(rf"({PB_NUM})\.?$", L[0]).group(1))
         need(p != sp.Rational(1, 2), "the event and its complement are equal")
@@ -27137,7 +27144,8 @@ def check_basic_probability(q):
         need(not any(big(a, b) and small(a, b) for a, b in space), "an outcome wins both")
         u_ = len(space)
         v = sp.Rational(u_ - nb - ns, u_)
-        table = {PB_ONE_RULE: [1 - sp.Rational(nb, u_), 1 - sp.Rational(ns, u_)], PB_EVENT: [sp.Rational(nb + ns, u_)]}
+        table = {PB_ONE_RULE: [1 - sp.Rational(nb, u_), 1 - sp.Rational(ns, u_)], PB_EVENT: [sp.Rational(nb + ns, u_)],
+                 PB_EL + "0": [sp.Rational(1, 3)]}  # big, small and nothing taken as equally likely
     elif u in ("at-least-one-same", "at-least-one-different"):
         text = " ".join(L)
         need("independently" in text, "the trials aren't said to be independent")
@@ -27178,7 +27186,7 @@ def check_basic_probability(q):
         s_ = int(re.search(r"a score of (\d+)\.$", asked).group(1))
         f = fs[s_ - 1]
         v = sp.Rational(f, t)
-        table = {PB_EL + "0": [sp.Rational(1, len(fs))], PB_REST: pb_rest(f, t)}
+        table = {PB_EL + "0": [sp.Rational(1, len(fs))], PB_REST: pb_rest(f, t), PB_NOT: [1 - v]}
     elif u == "rf-total-to-find":
         rows = q["table"]["rows"]
         if rows[0][0] == "Score":
@@ -27201,7 +27209,7 @@ def check_basic_probability(q):
             f, first = sum(fs[k:]), fs[k]
         t = sum(fs)
         v = sp.Rational(f, t)
-        table = {PB_REST: pb_rest(f, t)}
+        table = {PB_REST: pb_rest(f, t), PB_NOT: [1 - v]}
         if first is not None:
             table[PB_BOUNDARY] = [sp.Rational(f - first, t)]
     elif u == "rf-graph-estimate":
@@ -27221,7 +27229,7 @@ def check_basic_probability(q):
         v = sp.Rational(round(mean * 50), 50)
         need(all(abs(sp.Rational(int(hits[len(hits) - 10 + i]), int(p[0])) - v) < sp.Rational(3, 100) for i, p in enumerate(last)), "the curve hasn't settled")
         need(v != sp.Rational(1, 2), "the estimate and its complement are equal")
-        table = {PB_RF + "0": [sp.Rational(hits[0], step)]}
+        table = {PB_RF + "0": [sp.Rational(hits[0], step)], PB_NOT: [1 - v]}
     elif u == "more-reliable":
         if rep == "table":
             rows = q["table"]["rows"]
@@ -27235,7 +27243,8 @@ def check_basic_probability(q):
         need(all(0 < h < n for h, n in zip(hs, ns)) and ns[0] != ns[1], f"tests {ns} {hs}")
         i = 0 if ns[0] > ns[1] else 1
         v = sp.Rational(hs[i], ns[i])
-        table = {PB_RF + "0": [sp.Rational(hs[1 - i], ns[1 - i])]}
+        table = {PB_RF + "0": [sp.Rational(hs[1 - i], ns[1 - i])], PB_NOT: [1 - v],
+                 PB_AVERAGED: [(sp.Rational(hs[0], ns[0]) + sp.Rational(hs[1], ns[1])) / 2]}  # the two estimates averaged
     elif u == "gamblers-fallacy":
         mt = re.match(r"A fair coin lands on (heads|tails) (\d+) times in a row\.", L[0])
         if mt:
@@ -27249,7 +27258,8 @@ def check_basic_probability(q):
             need(md is not None or ms is not None, f"can't read {L[0]!r}")
             m, run = (6, int(md.group(1))) if md else (int(ms.group(1)), int(ms.group(2)))
             v = sp.Rational(1, m)
-            table = {PB_RF + "1": [sp.Rational(run + 1, m)]}
+            table = {PB_RF + "1": [sp.Rational(run + 1, m)], PB_NOT: [1 - v]}
+
     else:
         raise Fail(f"no check for {u}")
     want, trap, wrongs = pb_set(q, v, table, label)

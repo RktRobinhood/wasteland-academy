@@ -34,6 +34,7 @@ const R_OTHER_LETTER := OWN + "16"
 const R_FAIR := OWN + "17"
 const R_OTHER_DIE := OWN + "18"
 const R_ALL_Q := OWN + "19"
+const R_COUNT_OUTSIDE := OWN + "20"
 
 const WEIGHTS_TITLE := "Fill a grid of probabilities and add the cells"
 const LETTER_TITLE := "Fill the grid with the letter left in"
@@ -266,8 +267,9 @@ static func fair_wrongs(s: Dictionary, pairs: Array, flip: bool = false) -> Arra
 	return out
 
 
+## The neighbours of h/all, which no slip reaches (the opposite event is a slip: fair_wrongs' callers tag it).
 static func fair_near(s: Dictionary, h: int) -> Array:
-	return near(s, [Q.new(h + 1, s.all), Q.new(h - 1, s.all), Q.new(h + 2, s.all), Q.new(s.all - h, s.all), Q.new(1, s.all)])
+	return near(s, [Q.new(h + 1, s.all), Q.new(h - 1, s.all), Q.new(h + 2, s.all), Q.new(1, s.all)])
 
 
 # ── Worked solutions on a fair grid ──────────────────────────
@@ -324,7 +326,7 @@ func u_fill_cell(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var side := c + 1 if c + 1 < s.ys.size() else c - 1
 	wrongs.append(wrong({"v": Q.new(SampleSpaceSituation.score(s.rule, a, s.ys[side]))}, R_NEXT_CELL))
 	out.wrongs = wrongs
-	out.generic = [{"v": Q.new(v + 1)}, {"v": Q.new(v + 2)}, {"v": Q.new(v + 3)}]
+	out.fillers = [{"v": Q.new(v + 1)}, {"v": Q.new(v + 2)}, {"v": Q.new(v + 3)}]
 	out.methods = {"grid-count": method(["The cell is in the row for %d and the column for %d, so the two numbers are %d and %d." % [a, b, a, b],
 		"The score is %s: %s." % [RULE_TEXT[s.rule], _score_sum(s.rule, a, b, v)], final_step(ans)], ans.values)}
 	return out
@@ -356,7 +358,7 @@ func u_total_outcomes(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 				cells.append([x, y])
 		wrongs.append(wrong({"v": Q.new(SampleSpaceSituation.merged(cells))}, R_ONE_PAIR))
 	out.wrongs = wrongs
-	out.generic = [{"v": Q.new(s.all - 1)}, {"v": Q.new(s.all + m)}, {"v": Q.new(s.all * 2)}]
+	out.fillers = [{"v": Q.new(s.all - 1)}, {"v": Q.new(s.all + m)}, {"v": Q.new(s.all * 2)}]
 	var names_of := names(s)
 	out.methods = {"grid-count": method(["A grid has a row for each of the %d %s and a column for each of the %d %s." % [m, parts_of(names_of[0]), n, parts_of(names_of[1])] + repeat_note(s),
 			"The grid has %d × %d = %d cells." % [m, n, s.all], final_step(ans)], ans.values),
@@ -377,8 +379,9 @@ func u_count_event(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs.append(wrong({"v": Q.new(SampleSpaceSituation.merged(pairs))}, R_ONE_PAIR))
 	var seen: Array = pairs.map(func(p): return SampleSpaceSituation.score(s.rule, p[0], p[1]))
 	wrongs.append(wrong({"v": Q.new(SampleSpaceSituation.distinct(seen).size())}, R_SCORES_NOT_CELLS))
+	wrongs.append(wrong({"v": Q.new(s.all - h)}, R_COUNT_OUTSIDE))
 	out.wrongs = wrongs
-	out.generic = [{"v": Q.new(h + 1)}, {"v": Q.new(h + 2)}, {"v": Q.new(s.all - h)}]
+	out.fillers = [{"v": Q.new(h + 1)}, {"v": Q.new(h + 2)}]
 	out.methods = {"grid-count": method([("In the grid, row by row, " if rep == "table" else "Draw the grid. Row by row, ") + "%s in %s = %d cells." % [event_words(s), plus(by_row(s)), h] + repeat_note(s), final_step(ans)], ans.values),
 		"systematic-list": method([pairs_line(s, pairs) + repeat_note(s), final_step(ans)], ans.values)}
 	return out
@@ -389,8 +392,8 @@ func u_p_score(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	_fair_lines(rep, s, out)
 	var pairs := SampleSpaceSituation.hits(s)
 	out.answer = prob(s, Q.new(pairs.size(), s.all))
-	out.wrongs = fair_wrongs(s, pairs)
-	out.generic = fair_near(s, pairs.size())
+	out.wrongs = fair_wrongs(s, pairs) + wr(s, Q.new(s.all - pairs.size(), s.all), R_THE_EVENT)
+	out.fillers = fair_near(s, pairs.size())
 	out.methods = _fair_methods(rep, s, out.answer)
 	return out
 
@@ -418,7 +421,7 @@ func u_p_complement(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := prob(s, Q.new(s.all - h, s.all))
 	out.answer = ans
 	out.wrongs = wr(s, Q.new(h, s.all), R_THE_EVENT) + fair_wrongs(s, pairs, true)
-	out.generic = near(s, [Q.new(s.all - h - 1, s.all), Q.new(s.all - h + 1, s.all), Q.new(s.all - h - 2, s.all), Q.new(1, s.all)])
+	out.fillers = near(s, [Q.new(s.all - h - 1, s.all), Q.new(s.all - h + 1, s.all), Q.new(s.all - h - 2, s.all), Q.new(1, s.all)])
 	var rest := "P(not %d) = 1 − %d/%d = %s" % [s.k, h, s.all, Q.new(s.all - h, s.all).text()]
 	out.methods = {"grid-count": method([grid_size(rep, s), row_line(s), rest, final_step(ans)], ans.values),
 		"systematic-list": method([pairs_size(s), pairs_line(s, pairs), rest, final_step(ans)], ans.values)}
@@ -447,8 +450,8 @@ func u_p_compare(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	for x in s.xs:
 		ties += s.ys.count(x)
 	out.answer = prob(s, Q.new(h, s.all))
-	out.wrongs = wr(s, Q.new(h + ties, s.all), R_TIES) + wr(s, Q.new(1, 2), R_HALF) + wr(s, Q.new(s.all - h - ties, s.all), R_SWAPPED)
-	out.generic = fair_near(s, h)
+	out.wrongs = wr(s, Q.new(h + ties, s.all), R_TIES) + wr(s, Q.new(1, 2), R_HALF) + wr(s, Q.new(s.all - h - ties, s.all), R_SWAPPED) + wr(s, Q.new(s.all - h, s.all), R_THE_EVENT)
+	out.fillers = fair_near(s, h)
 	var note := "The cells with a positive number are the event." if rep == "table" else "Mark each cell where the row's number is higher than the column's."
 	var p := ratio(h, s.all)
 	out.methods = {"grid-count": method([grid_size(rep, s), note + " " + row_line(s), p, final_step(out.answer)], out.answer.values),
@@ -514,7 +517,7 @@ func u_p_rule_points(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var one_way := SampleSpaceSituation.merged(pairs)
 	var unordered: int = size * (size + 1) / 2
 	out.wrongs = wr(s, Q.new(one_way, s.all), R_ONE_PAIR) + wr(s, Q.new(one_way, unordered), R_ONE_PAIR) + wr(s, Q.new(s.all - h, s.all), R_THE_EVENT)
-	out.generic = fair_near(s, h)
+	out.fillers = fair_near(s, h)
 	var match_line := "The two numbers differ by exactly %d" % s.d if s.case == "mid" else "A player scores points when the numbers match or differ by exactly %d" % s.d
 	var row := "Row by row, that is %s = %d cells." % [plus(by_row(s)), h]
 	var p := ratio(h, s.all)
@@ -579,12 +582,13 @@ func _weighted_methods(s: Dictionary, ans: Dictionary, what: String) -> Dictiona
 ## The wrong options of a chance from two rolls.
 func _weighted_wrongs(s: Dictionary, pairs: Array) -> Array:
 	var once: Array = pairs.filter(func(p): return p[0] <= p[1])
-	return wr(s, SampleSpaceSituation.weighted(s, once), R_ONE_PAIR) + wr(s, Q.new(pairs.size(), s.all), R_EQUAL_CELLS)
+	var v := SampleSpaceSituation.weighted(s, pairs)
+	return wr(s, SampleSpaceSituation.weighted(s, once), R_ONE_PAIR) + wr(s, Q.new(pairs.size(), s.all), R_EQUAL_CELLS) + wr(s, Q.new(1).sub(v), R_THE_EVENT)
 
 
 func _weighted_near(s: Dictionary, v: Q) -> Array:
 	var step := Q.new(1, 100)
-	return near(s, [Q.new(1).sub(v), v.add(step), v.sub(step), v.add(step.mul(Q.new(2)))])
+	return near(s, [v.add(step), v.sub(step), v.add(step.mul(Q.new(2)))])
 
 
 func u_weighted_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -603,7 +607,7 @@ func u_weighted_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var over: Dictionary = s.duplicate()
 		over.rel = ">"
 		out.wrongs = wr(s, SampleSpaceSituation.weighted(over, SampleSpaceSituation.hits(over)), R_BOUNDARY) + out.wrongs
-	out.generic = _weighted_near(s, v)
+	out.fillers = _weighted_near(s, v)
 	out.methods = _weighted_methods(s, out.answer, what)
 	out.titles = {"grid-count": WEIGHTS_TITLE}
 	return out
@@ -629,7 +633,7 @@ func u_weighted_target(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		if s.xs[i] >= s.k:
 			one = one.add(s.px[i])
 	out.wrongs += wr(s, one, R_ONE_ROLL)
-	out.generic = _weighted_near(s, v)
+	out.fillers = _weighted_near(s, v)
 	var what := "the last two numbers add to at least %d" % s.k
 	out.methods = _weighted_methods(s, out.answer, what)
 	var first: String = "The player needs %d − %d = %d more from the last two %s." % [s.goal, s.score, s.k, verb]
@@ -680,7 +684,7 @@ func u_face_from_largest(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	ans.exact = true
 	out.answer = ans
 	out.wrongs = [wrong({"v": Q.new(largest)}, R_LARGEST), wrong({"v": Q.new(largest - low)}, R_SMALL_FACE)]
-	out.generic = [{"v": Q.new(s.b + 1)}, {"v": Q.new(s.b - 1)}, {"v": Q.new(s.b + 2)}]
+	out.fillers = [{"v": Q.new(s.b + 1)}, {"v": Q.new(s.b - 1)}, {"v": Q.new(s.b + 2)}]
 	var read := "The table's largest sum is %d." % largest if rep == "table" else "The largest sum is %d." % largest
 	out.methods = {"systematic-list": method(["Only ordered pairs of the two largest faces reach the largest sum: (%d, b)." % top,
 		read + " So %d + b = %d." % [top, largest], "b = %d − %d = %d" % [largest, top, s.b], final_step(ans)], ans.values)}
@@ -717,7 +721,7 @@ func u_face_from_grid(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		if next > 0:
 			wrongs.append(wrong({"v": Q.new(next)}, R_NEXT_SUM))
 	out.wrongs = wrongs
-	out.generic = [{"v": Q.new(s.a + 1)}, {"v": Q.new(s.a - 1)}, {"v": Q.new(s.b - 1)}, {"v": Q.new(s.a + 2)}, {"v": Q.new(s.b + 1)}]
+	out.fillers = [{"v": Q.new(s.a + 1)}, {"v": Q.new(s.a - 1)}, {"v": Q.new(s.b - 1)}, {"v": Q.new(s.a + 2)}, {"v": Q.new(s.b + 1)}]
 	var grid_steps: Array
 	if rep == "table":
 		var sums := SampleSpaceSituation.sums_of(s.xs, s.ys)
@@ -808,7 +812,7 @@ func u_weight_from_win(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	ans.exact = true
 	out.answer = ans
 	out.wrongs = [wrong({"v": s.ry}, R_OTHER_LETTER), wrong({"v": Q.new(1, n)}, R_FAIR), wrong({"v": s.tie_q}, R_TIES)]
-	out.generic = near(s, [s.qy.add(Q.new(1, s.qy.d)), s.qy.sub(Q.new(1, s.qy.d)), s.qy.mul(Q.new(2))])
+	out.fillers = near(s, [s.qy.add(Q.new(1, s.qy.d)), s.qy.sub(Q.new(1, s.qy.d)), s.qy.mul(Q.new(2))])
 	var w := _win_steps(s)
 	out.methods = {"grid-count": method([w.cells, w.add, w.sub, w.solved, final_step(ans)], ans.values),
 		"systematic-list": method([w.pairs, w.add_groups, w.sub, w.solved, final_step(ans)], ans.values)}
@@ -834,7 +838,8 @@ func u_expected_from_win(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	ans.exact = true
 	out.answer = ans
 	out.wrongs = [wrong({"v": Q.new(n + 1, 2)}, R_FAIR), wrong({"v": ex}, R_OTHER_DIE), wrong({"v": all_q}, R_ALL_Q)]
-	out.generic = [{"v": e.add(Q.new(1, e.d))}, {"v": e.sub(Q.new(1, e.d))}, {"v": e.add(Q.new(2, e.d))}]
+	out.fillers = [{"v": e.add(Q.new(1, e.d))}, {"v": e.sub(Q.new(1, e.d))}, {"v": e.add(Q.new(2, e.d))}]
+
 	var w := _win_steps(s)
 	var last := "So r = 1 − %d × %s = %s, and E(Y) = %s = %s." % [n - 1, s.qy.text(), s.ry.text(), " + ".join(terms), e.text()]
 	out.methods = {"grid-count": method([w.cells + " " + w.add, w.sub, w.solved, last, final_step(ans)], ans.values),

@@ -53353,7 +53353,9 @@
       "list-then-count",
       "complement-table",
       "complement-count",
-      "rf-from-table"
+      "rf-from-table",
+      "two-way-whole",
+      "complement-two-rules"
      ],
      "wrong": "one share per colour, value, total or score, not per equally likely outcome"
     },
@@ -53474,6 +53476,57 @@
       "gamblers-fallacy"
      ],
      "wrong": "the chance of the run with the next toss on the end"
+    },
+    {
+     "text": "Giving the probability that the event does not happen instead of that it does",
+     "as": "distractor",
+     "in": [
+      "bag-counter",
+      "bag-after-change",
+      "two-way-whole",
+      "list-data",
+      "grid-total-equals",
+      "grid-total-at-least",
+      "list-then-count",
+      "rf-from-table",
+      "rf-total-to-find",
+      "rf-graph-estimate",
+      "more-reliable",
+      "gamblers-fallacy"
+     ],
+     "wrong": "1 − P(A)"
+    },
+    {
+     "text": "Ignoring the change and using the bag as it was before",
+     "as": "distractor",
+     "in": [
+      "bag-after-change"
+     ],
+     "wrong": "the old count over the old total"
+    },
+    {
+     "text": "Dividing by a column total when the person is chosen from the whole group",
+     "as": "distractor",
+     "in": [
+      "two-way-whole"
+     ],
+     "wrong": "the cell over its column's total"
+    },
+    {
+     "text": "Counting the whole row or column instead of only the cell where they meet",
+     "as": "distractor",
+     "in": [
+      "two-way-whole"
+     ],
+     "wrong": "a row or column total over the grand total"
+    },
+    {
+     "text": "Averaging the two estimates instead of taking the one from more trials",
+     "as": "distractor",
+     "in": [
+      "more-reliable"
+     ],
+     "wrong": "the mean of the two relative frequencies"
     }
    ],
    "parts": [
@@ -54684,7 +54737,15 @@
      "as": "distractor",
      "in": [
       "p-complement",
-      "p-rule-points"
+      "p-rule-points",
+      "p-score",
+      "p-at-least",
+      "p-property",
+      "p-compare",
+      "p-mirror-score",
+      "p-mirror-at-least",
+      "weighted-sum",
+      "weighted-target"
      ],
      "wrong": "the event's complement"
     },
@@ -54786,6 +54847,14 @@
       "expected-from-win"
      ],
      "wrong": "q × (1 + 2 + … + n)"
+    },
+    {
+     "text": "Counting the outcomes where the event does not happen instead of where it does",
+     "as": "distractor",
+     "in": [
+      "count-event"
+     ],
+     "wrong": "the number of cells outside the event"
     }
    ],
    "parts": [
