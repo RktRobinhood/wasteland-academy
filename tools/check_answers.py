@@ -3557,6 +3557,9 @@ def qe_paper2(q, x):
     need(not q["answer"].get("exact"), "a Paper 2 answer is marked exactly")
 
 
+QE_C = "fn-solve-quadratic#"  # its own slips (FAL-820)
+
+
 def check_qeq(q):
     u = q["view"]["unknown"]
     g = q["given"]
@@ -3578,14 +3581,18 @@ def check_qeq(q):
             h = (rs[0] + rs[1]) / 2
             d = sp.nsimplify(((rs[1] - rs[0]) / 2)**2)
             need(h.is_integer and d.is_integer and int(d) in SURDS, "the surd roots are outside the clean limits")
-            qr_check_common(q, qr_norm(ans, {"h": str(h), "d": str(d)}))
+            disc = R(g["b"]) ** 2 - 4 * R(g["a"]) * R(g["c"])
+            qr_check_common(q, qr_norm(ans, {"h": str(h), "d": str(d)}), {QE_C + "7": {qr_norm(ans, {"h": str(-h), "d": str(d)})},  # −b's minus dropped
+                                                                         QE_C + "8": {qr_norm(ans, {"h": str(h), "d": str(disc)})}})  # √Δ not divided by 2a
     elif u == "solve-no-constant":
         lhs, rhs_ = L[0].split(" = ")
         f = parse(lhs) - parse(rhs_)
         need(sp.expand(f - (R(g["a"]) * X**2 + R(g["b"]) * X)) == 0, "the equation shown is not the givens")
         rs = qe_roots_poly(f)
         need(len(rs) == 2 and 0 in rs, "not two roots with 0 among them")
-        qr_check_common(q, tuple(rs))
+        r2 = [r for r in rs if r != 0][0]
+        qr_check_common(q, tuple(rs), {"SL2.7.solve-equation#1": {tuple(sorted([0, -r2]))},
+                                       QE_C + "6": {tuple(sorted([0, 1 / r2]))}})  # −a/b for −b/a
     elif u == "solve-in-context":
         m = re.match(r"^A rectangular yard is x m wide and \(x \+ (\d+)\) m long\. Its area is (\d+) m²\.$", L[0])
         if m:
@@ -3603,12 +3610,14 @@ def check_qeq(q):
         if g["paper"] == 1:
             need(x.is_integer and ans.get("exact"), "Paper 1 answer is not an exact whole number")
             want = qr_norm(ans, {"v": str(x)})
-            wr = {"SL2.7.solve-equation#1": {qr_norm(ans, {"v": str(-neg[0])})}}
+            wr = {"SL2.7.solve-equation#1": {qr_norm(ans, {"v": str(-neg[0])})}, QE_C + "10": {qr_norm(ans, {"v": str(neg[0])})}}  # the negative root kept
         else:
             need(not x.is_rational, "Paper 2 root doesn't need a calculator")
             need(not on_edge(x), "the answer is on a 3 s.f. rounding edge")
             want = sig3(x)
             wr = {"SL2.7.solve-equation#1": {sig3(-neg[0])}}
+            if L[0].startswith("A rectangular yard"):
+                wr[QE_C + "9"] = {sig3(sp.sqrt(R(m.group(2))))}  # √area, as if square
         qr_check_common(q, want, wr)
     elif u in ("solve-hidden-exponential", "choose-substitution"):
         m = re.match(r"^(\d+)\^\(2x\)(?: ([+−]) (?:(\d+) × )?(\d+)\^x)? ([+−]) (\d+) = 0$", L[0])
@@ -3632,12 +3641,12 @@ def check_qeq(q):
                 need(b in (2, 3) and good[0].is_integer and b ** round(float(sp.log(good[0], b))) != good[0], "Paper 2: x = log_b u should need a calculator")
                 x = sp.log(good[0]) / sp.log(b)
                 qe_paper2(q, x)
-                wr = {"SL2.7.hidden-quadratic#0": {ext_sf(good[0])}, "SL2.7.hidden-quadratic#1": {ext_sf(wrong1)}}
+                wr = {"SL2.7.hidden-quadratic#0": {ext_sf(good[0]), ext_sf(bad[0])}, "SL2.7.hidden-quadratic#1": {ext_sf(wrong1)}}
                 qr_check_common(q, ext_sf(x), wr)
             else:
                 x = sp.nsimplify(sp.log(good[0], b))
                 need(x.is_integer, "x is not a whole number")
-                wr = {"SL2.7.hidden-quadratic#0": {qr_norm(ans, {"v": str(good[0])})},
+                wr = {"SL2.7.hidden-quadratic#0": {qr_norm(ans, {"v": str(good[0])}), qr_norm(ans, {"v": str(bad[0])})},
                       "SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(wrong1)})}}
                 qr_check_common(q, qr_norm(ans, {"v": str(x)}), wr)
     elif u == "solve-hidden-reciprocal":
@@ -3646,7 +3655,7 @@ def check_qeq(q):
         c, t = sgn_num(m.group(1), m.group(2)), RD(m.group(3))
         rs = qe_roots_poly(X**2 - t * X + c)
         need(len(rs) == 2 and 0 not in rs, "not two non-zero solutions")
-        qr_check_common(q, tuple(rs))
+        qr_check_common(q, tuple(rs), {"SL2.7.solve-equation#1": {tuple(sorted([-rs[0], -rs[1]]))}})
     elif u == "solve-hidden-log":
         m = re.match(r"^ln x \+ ln\(x ([+−]) (\d+)\) = ln (\d+)$", L[0])
         need(m is not None, f"can't read {L[0]!r}")
@@ -3674,7 +3683,7 @@ def check_qeq(q):
             rs = [sp.sympify(re.sub(r"sqrt(\d+)", r"sqrt(\1)", p)) for p in parts]
         co = sp.Poly(sp.expand((X - rs[0]) * (X - rs[1])), X).all_coeffs()
         need(all(sp.nsimplify(c).is_integer for c in co), "the coefficients are not integers")
-        qr_check_common(q, (1, sp.nsimplify(co[1]), sp.nsimplify(co[2])))
+        qr_check_common(q, (1, sp.nsimplify(co[1]), sp.nsimplify(co[2])), {QE_C + "11": {(1, -sp.nsimplify(co[1]), sp.nsimplify(co[2]))}})  # b = the sum
     elif u == "coefficient-from-root":
         txt = " ".join(L)
         m = re.search(r"x² \+ kx ([+−]) (\d+) = 0", txt)
@@ -3684,7 +3693,7 @@ def check_qeq(q):
         k = sp.solve(r0**2 + K * r0 + c, K)[0]
         other = [x for x in sp.solve(X**2 + k * X + c, X) if x != r0]
         need(len(other) == 1, "no other root")
-        qr_check_common(q, qr_norm(ans, {"k": str(k), "r": str(other[0])}))
+        qr_check_common(q, qr_norm(ans, {"k": str(k), "r": str(other[0])}), {QE_C + "12": {qr_norm(ans, {"k": str(k), "r": str(c)})}})  # c not divided by the root
     else:
         raise Fail(f"the checker has no solver for {u}")
     return None, None
@@ -9275,6 +9284,45 @@ IR_REFS = {"reciprocal": "SL2.5.find-inverse#0", "order": "SL2.5.find-inverse#1"
            "excluded": "SL2.8.rational-inverse#1", "one": "SL2.5.identity#0", "solve-inverse": "SL2.5.identity#1",
            "reflect": "SL2.11.reflect#1"}
 IR_POINTS = [sp.Rational(n, 2) for n in range(-16, 21)]
+IR_C = "fn-inverse-algebraic#"  # its own slips (FAL-820)
+
+
+def ir_abcd(f):
+    """(a, b, c, d) of f = (ax + b)/(cx + d), up to one common factor."""
+    n_, d_ = sp.fraction(sp.cancel(sp.together(f)))
+    (a_, b_), (c_, d2) = sp.Poly(n_, XR).all_coeffs(), sp.Poly(d_, XR).all_coeffs()
+    return a_, b_, c_, d2
+
+
+def ir_slips(u, f, dom, restriction, rng):
+    """ref -> the functions each of the type's own slips gives for f⁻¹ (FAL-820)."""
+    out = {}
+    if u == "inverse-linear":
+        co = ir_coeffs(f)
+        a_, b_ = co[1], co.get(0, 0)
+        out[IR_C + "13"] = [(XR + b_) / a_]  # b undone with its own sign
+        out[IR_C + "14"] = [a_ * (XR - b_)]  # multiplied by a, not divided
+    elif u == "inverse-rational":
+        a_, b_, c_, d_ = ir_abcd(f)
+        out[IR_C + "15"] = [(d_ * XR + b_) / (-c_ * XR + a_), (d_ * XR - b_) / (c_ * XR + a_)]  # one sign changed of b and c
+        out[IR_C + "16"] = [(a_ * XR - b_) / (-c_ * XR + d_)]  # a and d not swapped
+    elif u == "inverse-root":
+        r_ = f.subs(XR, dom.inf)
+        pc = ir_coeffs((f - r_) ** 2)
+        p_, q_ = pc[1], pc.get(0, 0)
+        out[IR_C + "13"] = [((XR + r_) ** 2 - q_) / p_, ((XR - r_) ** 2 + q_) / p_]  # r or q undone with its own sign
+    elif u == "inverse-restricted-quadratic":
+        h_ = restriction[1]
+        k_ = f.subs(XR, h_)
+        sg = 1 if restriction[0] == "≥" else -1
+        out[IR_C + "13"] = [-h_ + sg * sp.sqrt(XR - k_), h_ + sg * sp.sqrt(XR + k_)]  # h or k undone with its own sign
+        out[IR_C + "17"] = [k_ + sg * sp.sqrt(XR - h_)]  # h and k in each other's place
+    elif u == "inverse-exponential":
+        q_ = rng.inf
+        b_ = sp.nsimplify((f - q_).subs(XR, 1))
+        out[IR_C + "13"] = [sp.log(XR + q_) / sp.log(b_)]  # q undone with its own sign
+        out[IR_C + "18"] = [b_ ** XR - q_]  # q undone, the power left
+    return out
 
 
 def ir_expr(text, letters=()):
@@ -9461,6 +9509,8 @@ def check_inverse(q):
         if q["graph"] is not None:
             ir_graph(q, f, sp.S.Reals)
         wr[IR_REFS["y-intercept"]] = {"k = 0"}
+        wr[IR_C + "21"] = {"k = " + frac_text(-h)}  # the minus of −b/2a dropped
+        wr[IR_C + "22"] = {"k = " + frac_text(f.subs(X, h))}  # the vertex's y
         gc_check_common(q, "k = " + frac_text(h), wr)
         return None, None
     if u == "self-inverse-constant":
@@ -9471,7 +9521,7 @@ def check_inverse(q):
         need(len(vals) == 1, f"k = {vals}")
         k0 = vals.pop()
         need(k0.is_rational and k0.q == 1, f"k = {k0}")
-        gc_check_common(q, "k = " + frac_text(k0), {})
+        gc_check_common(q, "k = " + frac_text(k0), {IR_C + "23": {"k = " + frac_text(-k0)}})  # d = a, not d = −a
         return None, None
     f, restriction = ir_rule(L[0] if not L[0].startswith("f⁻¹(x)") else "f(x) = 0")
     dom = ir_domain(f, restriction) if not L[0].startswith("f⁻¹(x)") else None
@@ -9500,6 +9550,11 @@ def check_inverse(q):
             if o["ref"]:
                 wr.setdefault(o["ref"], set()).add(o["text"])
         need(truth[right] and sum(truth.values()) == 1, f"the options that are inverses of f⁻¹: {[t for t, v in truth.items() if v]}")
+        F0 = ir_expr(right[len("f(x) = "):])
+        same_sign = F0 - 2 * F0.as_independent(XR)[0]  # the constant undone with its own sign
+        for o in ch:
+            if o["ref"] == IR_C + "13":
+                need(ir_same(ir_expr(o["text"][len("f(x) = "):]), same_sign, sp.S.Reals), f"{o['text']!r} is not f with its constant's sign changed")
         gc_check_common(q, right, {k: v for k, v in wr.items() if all(not truth[t] for t in v)})
         return None, None
     need(dom is not None, "no rule")
@@ -9530,7 +9585,12 @@ def check_inverse(q):
             truth[o["text"]] = is_inv and claim == want_claim
             if o["ref"]:
                 ref = o["ref"]
-                if ref == IR_REFS["domain-of-f"]:
+                own = ir_slips(u, f, dom, restriction, rng)
+                if ref in own:
+                    need(not is_inv and any(ir_same(ir_expr(F), e_, sp.S.Reals) for e_ in own[ref]), f"{o['text']!r} is not what {ref} gives")
+                elif ref == IR_C + "19":
+                    need(is_inv and claim == f"x ≥ {frac_text(rng.inf)}", f"{o['text']!r} is not the right inverse with the asymptote's value in its domain")  # ≥ for >
+                elif ref == IR_REFS["domain-of-f"]:
                     need(is_inv and claim == f_claim, f"{o['text']!r} is not the right inverse with f's own domain")
                 elif ref == IR_REFS["reciprocal"]:
                     need(ir_same(ir_expr(F), 1 / f, dom), f"{o['text']!r} is not 1/f(x)")
@@ -9561,6 +9621,9 @@ def check_inverse(q):
     elif u == "rational-inverse-domain":
         want = f"domain {ir_cond(rng, 'x')}, range {ir_cond(dom, 'y')}"
         wr[IR_REFS["excluded"]] = {f"domain {ir_cond(dom, 'x')}, range {ir_cond(rng, 'y')}"}
+        vert = sp.solve(sp.denom(sp.together(f)), XR)
+        need(len(vert) == 1, "f has one excluded value")
+        wr[IR_C + "20"] = {f"domain {ir_cond(rng, 'x')}, range y ≠ {frac_text(-vert[0])}"}  # the minus of −d/c dropped
     elif u == "inverse-asymptotes":
         vert = sp.solve(sp.denom(sp.together(f)), XR)
         ends = {sp.limit(f, XR, sp.oo), sp.limit(f, XR, -sp.oo)}
@@ -9573,7 +9636,8 @@ def check_inverse(q):
         if vert:
             need(len(vert) == 1 and horiz.is_rational, "f has one vertical and one horizontal asymptote")
             want = f"x = {frac_text(horiz)} and y = {frac_text(vert[0])}"
-            wr[IR_REFS["excluded"]] = {f"x = {frac_text(vert[0])} and y = {frac_text(horiz)}"}
+            wr[IR_REFS["excluded"]] = {f"x = {frac_text(vert[0])} and y = {frac_text(horiz)}", f"y = {frac_text(horiz)} and x = {frac_text(vert[0])}"}
+            wr[IR_C + "20"] = {f"x = {frac_text(horiz)} and y = {frac_text(-vert[0])}"}  # the minus of −d/c dropped
         else:
             need(horiz.is_rational, "an exponential has one horizontal asymptote")
             want = f"x = {frac_text(horiz)}"
@@ -9585,8 +9649,13 @@ def check_inverse(q):
             need(mm is not None, f"can't read {o['text']!r}")
             F = ir_expr(mm.group(1))
             truth[o["text"]] = ir_is_inverse(F, f, dom) and ir_same(F, f, dom) == (mm.group(2) == "is")
+            if o["ref"]:
+                a_, b_, c_, d_ = ir_abcd(f)
+                need(o["ref"] == IR_C + "15" and mm.group(2) == "is not" and ir_same(F, (d_ * XR + b_) / (-c_ * XR + a_), sp.S.Reals),
+                     f"{o['text']!r} is not the pattern with b's sign kept")  # one sign changed of b and c
+                wr.setdefault(o["ref"], set()).add(o["text"])
         need(truth[right] and sum(truth.values()) == 1, f"the options that are right: {[t for t, v in truth.items() if v]}")
-        gc_check_common(q, right, {})
+        gc_check_common(q, right, wr)
         return None, None
     elif u == "inverse-as-reflections":
         truth = {}
@@ -9616,6 +9685,9 @@ def check_inverse(q):
         need(ir_inside(rng, n), f"{n} is not in the range of f, so f⁻¹({n}) is not defined")
         want = f"(f∘f⁻¹)({m.group(1)}) = {m.group(1)}"
         wr[IR_REFS["one"]] = {f"(f∘f⁻¹)({m.group(1)}) = 1"}
+        fn_ = sp.nsimplify(f.subs(XR, n))
+        if fn_.is_rational:
+            wr[IR_C + "24"] = {f"(f∘f⁻¹)({m.group(1)}) = {frac_text(fn_)}"}  # f only, f⁻¹ forgotten
     elif u == "solve-inverse-equals":
         m = re.fullmatch(r"Solve f⁻¹\(x\) = (−?\d+)\.", asked)
         need(m is not None, f"can't read {asked!r}")
@@ -9642,6 +9714,9 @@ GT_REFS = {"notation-rule": "SL2.2.evaluate-notation#1", "shifted": "SL2.2.evalu
            "twice": "SL2.5.composite-value#2", "reciprocal": "SL2.2.inverse-undo#0", "axis": "SL2.2.inverse-undo#1",
            "value-not-inverse": "SL2.2.inverse-undo#2", "solve-inverse": "SL2.5.identity#1", "domain-of-f": "SL2.5.inverse-domain-range#0",
            "y-intercept": "SL2.5.inverse-domain-range#1", "every-inverse": "SL2.5.inverse-domain-range#2"}
+
+
+GT_C = "fn-graph-table-composite-inverse#"  # its own slips (FAL-820)
 
 
 def gt_int(text):
@@ -9713,6 +9788,7 @@ def check_graph_table(q):
         v = f.subs(X, mid)
         need(abs(mid) <= 6 and abs(v) <= 99, "the numbers are out of range")
         wr[GT_REFS["product"]] = {gt_num(f"(f∘f)({a}) = ", mid * mid)}
+        wr[GT_C + "17"] = {gt_num(f"(f∘f)({a}) = ", mid)}  # f applied once
         if rep != "equation":
             d = gt_read(q)["f"]
             need(all(d[x] == fn[x] for x in d), "the table or graph is not the rule")
@@ -9725,12 +9801,14 @@ def check_graph_table(q):
     if u == "read-value":
         a = gt_int(re.fullmatch(r"Find f\((−?\d+)\)\.", asked).group(1))
         want = gt_num(f"f({a}) = ", f[a])
+        wr[GT_C + "16"] = {gt_num(f"f({a}) = ", a)}  # the input read back
     elif u == "self-composite-read":
         a = gt_int(re.fullmatch(r"Find \(f∘f\)\((−?\d+)\)\.", asked).group(1))
         gt_monotone(f)
         need(f[a] in f, "f(a) is not an input")
         mid = f[a]
         wr[GT_REFS["product"]] = {gt_num(f"(f∘f)({a}) = ", mid * mid)}
+        wr[GT_C + "17"] = {gt_num(f"(f∘f)({a}) = ", mid)}  # f applied once
         want = gt_num(f"(f∘f)({a}) = ", f[mid])
     elif u == "composite-from-table":
         m = re.fullmatch(r"Find \((f∘g|g∘f)\)\((−?\d+)\)\.", asked)
@@ -9747,6 +9825,7 @@ def check_graph_table(q):
         wr[GT_REFS["product"]] = {gt_num(lab, f[a] * g[a])}
         if inner[a] in inner:
             wr[GT_REFS["twice"]] = {gt_num(lab, inner[inner[a]])}
+        wr[GT_C + "17"] = {gt_num(lab, inner[a])}  # the inner value only
     elif u == "solve-from-table":
         k = gt_int(re.fullmatch(r"Solve f\(x\) = (−?\d+)\.", asked).group(1))
         gt_monotone(f)
@@ -9783,6 +9862,7 @@ def check_graph_table(q):
         x = sp.solve(inner - f[c], X)
         need(len(x) == 1 and x[0].q == 1, f"x = {x}")
         want = "x = " + frac_text(x[0])
+        wr[GT_C + "18"] = {"x = " + frac_text(f[c])}  # f(c), not solved for x
         if c in f.values():
             back = gt_inv(f, c)
             sl = sp.solve(inner - back, X)
@@ -9794,12 +9874,16 @@ def check_graph_table(q):
         need(k + 1 in f, "k + 1 is not an input")
         want = gt_num("f(k + 1) = ", f[k + 1])
         wr[GT_REFS["shifted"]] = {"f(k + 1) = 1"}
+        wr[GT_C + "19"] = {gt_num("f(k + 1) = ", k)}  # k itself
+        if k - 1 in f:
+            wr[GT_C + "20"] = {gt_num("f(k + 1) = ", f[k - 1])}  # one step back
     elif u == "mixed-inverse-composite":
         b = gt_int(re.fullmatch(r"Find \(f∘g⁻¹\)\((−?\d+)\)\.", asked).group(1))
         gt_monotone(f)
         gt_monotone(g)
         lab = f"(f∘g⁻¹)({b}) = "
         want = gt_num(lab, f[gt_inv(g, b)])
+        wr[GT_C + "17"] = {gt_num(lab, gt_inv(g, b))}  # g⁻¹ only
         if b in g:
             wr[GT_REFS["value-not-inverse"]] = {gt_num(lab, f[g[b]] if g[b] in f else f[b])}
     elif u == "missing-entry":
@@ -9809,6 +9893,7 @@ def check_graph_table(q):
         need(a not in g and "?" in " ".join(" ".join(r[1]) for r in q["table"]["rows"]), "the blank is not g(a)")
         gt_monotone(f)
         want = gt_num(f"g({a}) = ", gt_inv(f, v))
+        wr[GT_C + "21"] = {gt_num(f"g({a}) = ", v)}  # the composite's value
     elif u == "inverse-points":
         pts = {}
         for p in q["graph"]["points"]:
@@ -14294,6 +14379,9 @@ def bo_card_is(card, base, fx):
     return len(got) == len(base) and all(abs(a - b) < 1e-9 for p, c in zip(got, base) for a, b in zip(p, fx(c)))
 
 
+BO_C = "fn-inverse-reflection#"  # its own slips (FAL-820)
+
+
 def check_one_to_one(q):
     u, rep, paper, L, asked = q["view"]["unknown"], q["view"]["rep"], q["paper"], q["lines"], q["asked"]
     g = q["given"]
@@ -14337,13 +14425,18 @@ def check_one_to_one(q):
             need(n(half) in L[2], "the given half is wrong")
         want = f"Area = {n(whole)}"
         trap = bf_trap_num(paper, "Area = ", whole)
+        wr[BO_C + "7"] = {f"Area = {n(half)}"}  # not doubled
     elif u == "image-point":
         want, wr = f"({frac_text(q_)}, {frac_text(p_)})", {"SL2.4.symmetry#1": {f"({frac_text(-q_)}, {frac_text(-p_)})", f"({frac_text(q_)}, {frac_text(-p_)})"}}
+        wr[BO_C + "6"] = {f"({frac_text(p_)}, {frac_text(q_)})"}  # not swapped
+        wr["SL2.2.inverse-undo#1"] = {f"({frac_text(-p_)}, {frac_text(q_)})", f"({frac_text(p_)}, {frac_text(-q_)})"}  # an axis for y = x
         if rep == "graph":
             bf_graph(q, f)
     elif u == "point-from-inverse":
         want = f"({frac_text(p_)}, {frac_text(q_)})"
         need(f"({frac_text(q_)}, {frac_text(p_)})" in asked, "the point asked is not on the inverse")
+        wr[BO_C + "6"] = {f"({frac_text(q_)}, {frac_text(p_)})"}  # the given point, not swapped
+        wr["SL2.2.inverse-undo#1"] = {f"({frac_text(-q_)}, {frac_text(p_)})"}  # the y-axis for y = x
         if rep == "graph":
             c = q["graph"]["curves"][0]
             need(gc_curve_is([[y, x] for x, y in c], gc_f(f)), "the graph drawn is not f⁻¹")
@@ -14353,9 +14446,12 @@ def check_one_to_one(q):
         xs = sp.solve(f - a, X)
         need(len(xs) == 1, "not one-to-one")
         want, wr = f"f⁻¹({frac_text(a)}) = {frac_text(xs[0])}", {"SL2.2.inverse-undo#2": {f"f⁻¹({frac_text(a)}) = {frac_text(f.subs(X, a))}"}}
+        if f.subs(X, a) != 0:
+            wr["SL2.2.inverse-undo#0"] = {f"f⁻¹({frac_text(a)}) = {frac_text(1 / f.subs(X, a))}"}  # 1/f(a)
     elif u == "inverse-from-graph":
         bf_graph(q, f)
         want = f"f⁻¹({frac_text(q_)}) = {frac_text(p_)}"
+        wr[BO_C + "8"] = {f"f⁻¹({frac_text(q_)}) = {frac_text(1 / q_)}"}  # one over a
     elif u == "inverse-from-rule":
         a = R(g["a"])
         inv = R(g["inv"]) if paper == 1 else sp.solve(f - a, X)[0]
@@ -14371,13 +14467,16 @@ def check_one_to_one(q):
         xi = sp.solve(f, X)[0]
         yi = f.subs(X, 0)
         want = f"x-intercept ({frac_text(yi)}, 0), y-intercept (0, {frac_text(xi)})"
+        wr[BO_C + "6"] = {f"x-intercept ({frac_text(xi)}, 0), y-intercept (0, {frac_text(yi)})"}  # f's own
     elif u == "asymptotes-of-inverse":
         if g["form"] == "rat":
             h = sp.solve(sp.denom(sp.together(f)), X)[0]
             A = sp.limit(f, X, sp.oo)
             want = f"x = {frac_text(A)} and y = {frac_text(h)}"
+            wr[BO_C + "6"] = {f"x = {frac_text(h)} and y = {frac_text(A)}"}  # f's own
         else:
             want = f"x = {frac_text(sp.limit(f, X, -sp.oo))}"
+            wr[BO_C + "6"] = {f"y = {frac_text(sp.limit(f, X, -sp.oo))}"}  # f's own
     elif u == "meeting-on-y-equals-x":
         need(sp.diff(f, X).subs(X, R(g["p"])) > 0, "f is not increasing")
         fixed = [s_ for s_ in sp.solve(f - X, X) if s_.is_real and f.subs(X, s_) == s_]

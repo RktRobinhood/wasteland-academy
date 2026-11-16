@@ -8361,6 +8361,56 @@
       "why-no-inverse"
      ],
      "wrong": "\"it has one: reflect the graph in y = x\""
+    },
+    {
+     "text": "Giving the input instead of reading its output",
+     "as": "distractor",
+     "in": [
+      "read-value"
+     ],
+     "wrong": "a given as f(a)"
+    },
+    {
+     "text": "Stopping after the inner function, without applying the outer one",
+     "as": "distractor",
+     "in": [
+      "self-composite-read",
+      "composite-from-table",
+      "mixed-inverse-composite"
+     ],
+     "wrong": "the inner value, such as f(a) for f(f(a))"
+    },
+    {
+     "text": "Stopping at f(c), without solving for x",
+     "as": "distractor",
+     "in": [
+      "solve-inverse-equation"
+     ],
+     "wrong": "x = f(c)"
+    },
+    {
+     "text": "Stopping at k, the input where f is zero, without reading the next value",
+     "as": "distractor",
+     "in": [
+      "value-at-shifted-input"
+     ],
+     "wrong": "k given as f(k + 1)"
+    },
+    {
+     "text": "Reading the value one step back from k instead of one step on",
+     "as": "distractor",
+     "in": [
+      "value-at-shifted-input"
+     ],
+     "wrong": "f(k − 1) given as f(k + 1)"
+    },
+    {
+     "text": "Giving the value of the composite as the missing entry of g",
+     "as": "distractor",
+     "in": [
+      "missing-entry"
+     ],
+     "wrong": "(f∘g)(a) given as g(a)"
     }
    ],
    "parts": [
@@ -8765,7 +8815,8 @@
      "text": "Reads f⁻¹(x) as the reciprocal of f(x)",
      "as": "distractor",
      "in": [
-      "inverse-from-rule"
+      "inverse-from-rule",
+      "inverse-from-table"
      ],
      "wrong": "1/f(a)"
     },
@@ -8774,7 +8825,9 @@
      "text": "Reflects in the x-axis or y-axis instead of in the line y = x",
      "as": "distractor",
      "in": [
-      "sketch-inverse"
+      "sketch-inverse",
+      "image-point",
+      "point-from-inverse"
      ],
      "wrong": "f reflected in the x-axis or the y-axis"
     },
@@ -8814,6 +8867,33 @@
       "is-self-inverse"
      ],
      "wrong": "\"yes, it has a turning point on y = x so it must be symmetric\", without checking that swapped points lie on the curve"
+    },
+    {
+     "text": "Keeping the coordinates as they are, without swapping x and y",
+     "as": "distractor",
+     "in": [
+      "image-point",
+      "point-from-inverse",
+      "intercepts-of-inverse",
+      "asymptotes-of-inverse"
+     ],
+     "wrong": "the point or lines of the graph given, unchanged"
+    },
+    {
+     "text": "Stopping at the area between f and y = x, forgetting to double it",
+     "as": "distractor",
+     "in": [
+      "area-by-symmetry"
+     ],
+     "wrong": "half the region's area"
+    },
+    {
+     "text": "Reading the ⁻¹ as a power of the number, so f⁻¹(a) is taken as one over a",
+     "as": "distractor",
+     "in": [
+      "inverse-from-graph"
+     ],
+     "wrong": "1/a"
     }
    ],
    "parts": [
@@ -10456,7 +10536,8 @@
      "text": "Confuses the zeros (x where f(x) = 0) with the y-intercept f(0)",
      "as": "distractor",
      "in": [
-      "label-zeros"
+      "label-zeros",
+      "label-y-intercept"
      ],
      "wrong": "f(0) labelled on the x-axis as a zero"
     },
@@ -10474,7 +10555,8 @@
      "text": "Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa",
      "as": "distractor",
      "in": [
-      "label-turning-point"
+      "label-turning-point",
+      "greatest-on-domain"
      ],
      "wrong": "the turning point labelled with only its x-coordinate, or only its y-value"
     },
@@ -10523,6 +10605,70 @@
       "count-solutions-from-sketch"
      ],
      "wrong": "in asymptote mode, counts y = k at the level the curve approaches as a solution"
+    },
+    {
+     "text": "Swapping the y-values of the two endpoints",
+     "as": "distractor",
+     "in": [
+      "endpoint-coordinates"
+     ],
+     "wrong": "each endpoint given the other's y-value"
+    },
+    {
+     "text": "Giving the x-coordinates of the turning points instead of the zeros",
+     "as": "distractor",
+     "in": [
+      "label-zeros"
+     ],
+     "wrong": "the turning points' x-values given as zeros"
+    },
+    {
+     "text": "Missing one of the zeros, so too few are given",
+     "as": "distractor",
+     "in": [
+      "label-zeros"
+     ],
+     "wrong": "all but one of the zeros"
+    },
+    {
+     "text": "Leaving out one of the terms when working out f(0)",
+     "as": "distractor",
+     "in": [
+      "label-y-intercept"
+     ],
+     "wrong": "f(0) with a term dropped, such as c alone"
+    },
+    {
+     "text": "Writing the coordinates of the turning point the wrong way round",
+     "as": "distractor",
+     "in": [
+      "label-turning-point"
+     ],
+     "wrong": "(y, x) for (x, y)"
+    },
+    {
+     "text": "Giving the other turning point, mixing up the maximum and the minimum",
+     "as": "distractor",
+     "in": [
+      "label-turning-point"
+     ],
+     "wrong": "the local minimum for the local maximum, or the other way round"
+    },
+    {
+     "text": "Swapping the x and y ranges of the window",
+     "as": "distractor",
+     "in": [
+      "window-for-domain"
+     ],
+     "wrong": "the y-range set as Xmin to Xmax"
+    },
+    {
+     "text": "Counting the zeros instead of where the line meets the curve",
+     "as": "distractor",
+     "in": [
+      "count-solutions-from-sketch"
+     ],
+     "wrong": "the number of zeros of f"
     }
    ],
    "parts": [
@@ -11369,7 +11515,8 @@
      "as": "distractor",
      "in": [
       "extreme-value-only",
-      "turning-point-coordinates"
+      "turning-point-coordinates",
+      "greatest-on-domain"
      ],
      "wrong": "the x-coordinate of the maximum when the maximum value is asked"
     },
@@ -11409,6 +11556,107 @@
       "use-stored-zeros"
      ],
      "wrong": "a distance from zeros already rounded to 3 s.f., off in the third figure"
+    },
+    {
+     "text": "Giving the x-coordinates of the turning points instead of the zeros",
+     "as": "distractor",
+     "in": [
+      "zeros-gdc",
+      "solve-as-zeros",
+      "zeros-with-x-factor"
+     ],
+     "wrong": "the turning points' x-values given as zeros"
+    },
+    {
+     "text": "Missing one of the zeros, so too few are given",
+     "as": "distractor",
+     "in": [
+      "zeros-gdc",
+      "solve-as-zeros",
+      "zeros-with-x-factor"
+     ],
+     "wrong": "all but one of the zeros"
+    },
+    {
+     "text": "Writing the coordinates of the turning point the wrong way round",
+     "as": "distractor",
+     "in": [
+      "turning-point-coordinates"
+     ],
+     "wrong": "(y, x) for (x, y)"
+    },
+    {
+     "text": "Giving the other turning point, mixing up the maximum and the minimum",
+     "as": "distractor",
+     "in": [
+      "turning-point-coordinates",
+      "extreme-value-only"
+     ],
+     "wrong": "the local minimum for the local maximum, or the other way round"
+    },
+    {
+     "text": "Leaving out one of the terms when working out f(0)",
+     "as": "distractor",
+     "in": [
+      "y-intercept"
+     ],
+     "wrong": "f(0) with a term dropped, such as c alone"
+    },
+    {
+     "text": "Counting the turning points instead of the zeros",
+     "as": "distractor",
+     "in": [
+      "count-zeros"
+     ],
+     "wrong": "the number of turning points"
+    },
+    {
+     "text": "Stopping at an end of the sign-change interval instead of finding the zero",
+     "as": "distractor",
+     "in": [
+      "zero-from-table"
+     ],
+     "wrong": "a table x-value either side of the zero"
+    },
+    {
+     "text": "Giving the smallest zero instead of the largest",
+     "as": "distractor",
+     "in": [
+      "zero-from-table"
+     ],
+     "wrong": "the smallest zero"
+    },
+    {
+     "text": "Adding the two zeros instead of subtracting them",
+     "as": "distractor",
+     "in": [
+      "use-stored-zeros"
+     ],
+     "wrong": "the size of the sum of the zeros"
+    },
+    {
+     "text": "Measuring from the origin instead of from the other zero",
+     "as": "distractor",
+     "in": [
+      "use-stored-zeros"
+     ],
+     "wrong": "the distance of one zero from the origin"
+    },
+    {
+     "text": "Adding the GDC maximum to the given value instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "constant-from-max"
+     ],
+     "wrong": "c = M + the GDC maximum"
+    },
+    {
+     "text": "Subtracting the given value from the GDC maximum, the wrong way round",
+     "as": "distractor",
+     "in": [
+      "constant-from-max"
+     ],
+     "wrong": "c = the GDC maximum − M"
     }
    ],
    "parts": [
@@ -14082,7 +14330,8 @@
      "text": "Writes f⁻¹(x) = 1/f(x)",
      "as": "distractor",
      "in": [
-      "inverse-linear"
+      "inverse-linear",
+      "inverse-exponential"
      ],
      "wrong": "1/(ax + b)"
     },
@@ -14147,7 +14396,8 @@
      "text": "Gives the domain of f⁻¹ as x ≠ −d/c (f's excluded value) instead of x ≠ a/c",
      "as": "distractor",
      "in": [
-      "rational-inverse-domain"
+      "rational-inverse-domain",
+      "inverse-asymptotes"
      ],
      "wrong": "x ≠ −d/c, the value f excludes, instead of x ≠ a/c"
     },
@@ -14195,6 +14445,108 @@
       "inverse-as-reflections"
      ],
      "wrong": "f(−x) and −f(x) swapped, so the reflections are named in the wrong axes"
+    },
+    {
+     "text": "Undoing an added or subtracted number with the same sign instead of the opposite one",
+     "as": "distractor",
+     "in": [
+      "inverse-linear",
+      "inverse-root",
+      "inverse-restricted-quadratic",
+      "inverse-exponential",
+      "function-from-inverse"
+     ],
+     "wrong": "x + b where x − b is needed"
+    },
+    {
+     "text": "Multiplying by a to undo the multiplication instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "inverse-linear"
+     ],
+     "wrong": "a(x − b) instead of (x − b)/a"
+    },
+    {
+     "text": "Swapping a and d but changing the sign of only one of b and c",
+     "as": "distractor",
+     "in": [
+      "inverse-rational",
+      "show-self-inverse"
+     ],
+     "wrong": "(dx + b)/(−cx + a) or (dx − b)/(cx + a)"
+    },
+    {
+     "text": "Changing the signs of b and c but leaving a and d where they are",
+     "as": "distractor",
+     "in": [
+      "inverse-rational"
+     ],
+     "wrong": "(ax − b)/(−cx + d)"
+    },
+    {
+     "text": "Swapping the roles of h and k, so each is undone in the other's place",
+     "as": "distractor",
+     "in": [
+      "inverse-restricted-quadratic"
+     ],
+     "wrong": "k ± √(x − h)"
+    },
+    {
+     "text": "Undoing the added number but not the power, so no log is taken",
+     "as": "distractor",
+     "in": [
+      "inverse-exponential"
+     ],
+     "wrong": "b^x − q"
+    },
+    {
+     "text": "Including the asymptote's value in the domain of f⁻¹",
+     "as": "distractor",
+     "in": [
+      "inverse-exponential"
+     ],
+     "wrong": "x ≥ q instead of x > q"
+    },
+    {
+     "text": "Dropping the minus sign in −d/c, the value that makes the denominator zero",
+     "as": "distractor",
+     "in": [
+      "rational-inverse-domain",
+      "inverse-asymptotes"
+     ],
+     "wrong": "d/c instead of −d/c"
+    },
+    {
+     "text": "Dropping the minus sign when finding the x-coordinate of the vertex",
+     "as": "distractor",
+     "in": [
+      "restrict-for-inverse"
+     ],
+     "wrong": "k = −h"
+    },
+    {
+     "text": "Giving the y-coordinate of the vertex instead of its x-coordinate",
+     "as": "distractor",
+     "in": [
+      "restrict-for-inverse"
+     ],
+     "wrong": "the minimum value of f as k"
+    },
+    {
+     "text": "Taking d = a instead of d = −a as the condition for being self-inverse",
+     "as": "distractor",
+     "in": [
+      "self-inverse-constant"
+     ],
+     "wrong": "k = a or k = d, without the minus"
+    },
+    {
+     "text": "Working out f at the number, forgetting that f⁻¹ undoes f first",
+     "as": "distractor",
+     "in": [
+      "identity-value"
+     ],
+     "wrong": "f(a) instead of a"
     }
    ],
    "parts": [
@@ -16800,7 +17152,9 @@
      "as": "distractor",
      "in": [
       "solve-factorisable",
-      "solve-in-context"
+      "solve-in-context",
+      "solve-no-constant",
+      "solve-hidden-reciprocal"
      ],
      "wrong": "roots with both signs flipped"
     },
@@ -16841,6 +17195,62 @@
       "choose-substitution"
      ],
      "wrong": "rewrites 4ˣ as 2·2ˣ, so the \"quadratic\" is linear"
+    },
+    {
+     "text": "Dividing the wrong way round when solving the bracket for x",
+     "as": "distractor",
+     "in": [
+      "solve-no-constant"
+     ],
+     "wrong": "x = −a/b instead of x = −b/a"
+    },
+    {
+     "text": "Dropping the minus sign of −b in the quadratic formula",
+     "as": "distractor",
+     "in": [
+      "solve-surd"
+     ],
+     "wrong": "x = −h ± √d"
+    },
+    {
+     "text": "Forgetting to divide the root of the discriminant by twice a",
+     "as": "distractor",
+     "in": [
+      "solve-surd"
+     ],
+     "wrong": "x = h ± √Δ"
+    },
+    {
+     "text": "Taking x as the square root of the area, as if the yard were square",
+     "as": "distractor",
+     "in": [
+      "solve-in-context"
+     ],
+     "wrong": "x = √(area)"
+    },
+    {
+     "text": "Keeping the negative root, though a length cannot be negative",
+     "as": "distractor",
+     "in": [
+      "solve-in-context"
+     ],
+     "wrong": "the negative root given as the length"
+    },
+    {
+     "text": "Taking b as the sum of the roots instead of minus the sum",
+     "as": "distractor",
+     "in": [
+      "equation-from-roots"
+     ],
+     "wrong": "x² + (p + q)x + pq = 0"
+    },
+    {
+     "text": "Taking the other root as c, forgetting to divide by the known root",
+     "as": "distractor",
+     "in": [
+      "coefficient-from-root"
+     ],
+     "wrong": "other root c instead of c ÷ r"
     }
    ],
    "parts": [
