@@ -4039,7 +4039,7 @@
 		},
 		"bearings-elevation": {
 			"name": "Journeys, sightings and connected triangles",
-			"summary": "Points on a map or in a side view, set from real coordinates: bearings and distances, heights and lines of sight, and triangles that share a side. Any bearing, angle or length can be asked, and the sketch keeps the real shape.",
+			"summary": "Points on a map or in a side view, set from real coordinates: bearings and distances, heights and lines of sight, and triangles that share a side. Any bearing, angle or length can be asked, and the sketch keeps the real shape. For t3-ext-two-observations, two observers on level ground a known distance apart see the same top at two angles of elevation, on the same side of the foot or on either side.",
 			"quantities": [
 				{
 					"name": "d1, d2",
@@ -4070,13 +4070,19 @@
 					"name": "v",
 					"is": "a speed",
 					"pick": "whole km/h"
+				},
+				{
+					"name": "d, α, β",
+					"is": "the distance AB between two observers and their angles of elevation of the top (two-observations)",
+					"pick": "d whole metres from 20 to 120 (40 to 200 on either side); α from 15° to 45° and β from α + 10° to 75° on one side, or α and β from 20° to 70° on either side; 30° and 60° with d even from 4 to 60 for an exact height"
 				}
 			],
 			"clean": [
-				"every question is Paper 2",
+				"every question is Paper 2, but for an exact height from two observations, which is Paper 1",
 				"no angle inside a triangle is 90° unless the question says so",
 				"every 3 s.f. value, right or wrong, is at least 0.03 of a unit of its third figure from a rounding edge",
-				"a bearing is written with three figures and lies between 000° and 360°"
+				"a bearing is written with three figures and lies between 000° and 360°",
+				"two-observations: every 3 s.f. value, right or wrong, is clear of a rounding edge, and a value worked from a 5 s.f. figure shown before it rounds the same"
 			]
 		},
 		"solid": {
@@ -5904,7 +5910,7 @@
 		},
 		"solve-exponential": {
 			"name": "An exponential equation solved with logarithms, in symbols or in a story",
-			"summary": "Draws two powers with different bases, an exponential with a number in front and a constant, or one or two growth models, so the solution comes out exactly as a quotient of logs or m ln r, or needs a calculator to 3 s.f. For t1-ext-common-base, both sides are powers of one small prime instead, so the exponents can be equated and the answer is a whole number or a fraction.",
+			"summary": "Draws two powers with different bases, an exponential with a number in front and a constant, or one or two growth models, so the solution comes out exactly as a quotient of logs or m ln r, or needs a calculator to 3 s.f. For t1-ext-common-base, both sides are powers of one small prime instead, so the exponents can be equated and the answer is a whole number or a fraction. For t1-ext-hidden-quadratic, an equation in b^(2x) and b^x is drawn from the roots of the quadratic in u = b^x, positive, negative, zero or repeated, so the solutions are whole, or exact logs.",
 			"quantities": [
 				{
 					"name": "a, b, p, c",
@@ -5935,6 +5941,16 @@
 					"name": "c, k, e",
 					"is": "the exponents x + c and kx + e of A^(x + c) = B^(kx + e) (common-base)",
 					"pick": "c and e from −3 to 3, not 0; k from 1 to 3 (1 on a graph); i ≠ j with no common factor"
+				},
+				{
+					"name": "b, B, C, a",
+					"is": "the base and the coefficients of a b^(2x) + B b^x + C = 0, a quadratic in u = b^x (hidden-quadratic)",
+					"pick": "b from 2, 3, 4, 5, 7 or e; a is 1 unless a root is 1/a; the roots in u are picked first, from −9 to 81"
+				},
+				{
+					"name": "u₁, u₂",
+					"is": "the roots in u = b^x (hidden-quadratic)",
+					"pick": "whole powers of b, 1/b, whole numbers from 3 to 9 with e, a whole number no power of b, negatives, 0 or a repeated root"
 				}
 			],
 			"clean": [
@@ -5944,7 +5960,9 @@
 				"a graph's crossing sits inside the window",
 				"the skill map's example equations are left out",
 				"common-base: the answer is whole or a fraction with a denominator up to 7, and every slip gives another value",
-				"common-base on a graph: the crossing has a whole x from −3 to 4 and a height from 2 to 600"
+				"common-base on a graph: the crossing has a whole x from −3 to 4 and a height from 2 to 600",
+				"hidden-quadratic: every root in u is drawn first, so the coefficients are whole, and the skill map's example equations are left out",
+				"hidden-quadratic: a whole x is from −2 to 4, and every slip gives another value"
 			]
 		},
 		"trig-sketch": {
@@ -6751,9 +6769,11 @@
 		"SL1.5.integer-exponent-laws": "Simplify expressions using the laws of integer exponents",
 		"SL1.6.numerical-show-that": "Complete a numerical 'show that' with a given answer",
 		"SL1.7.common-base": "Solve exponential equations by writing both sides with a common base",
+		"SL1.7.hidden-quadratic": "Solve exponential equations that are quadratics in disguise",
 		"SL1.8.sn-vs-sinf": "Compare partial sums with the sum to infinity",
 		"SL1.9.constant-term": "Find the constant term or a given power when both terms contain x",
 		"SL1.9.product-expansion": "Find a coefficient in the product of a binomial expansion and another bracket",
+		"SL3.3.two-observations": "Find a height from two angles of elevation taken at different points",
 		"SL3.5.exact-triangle": "Use exact trig values to find exact lengths and areas in triangles",
 		"SL4.1.population-sample": "Identify the population and the sample, and decide whether a sample is random",
 		"SL4.1.data-type": "Classify data as discrete or continuous",
@@ -80117,6 +80137,7 @@
 			"region": "exponents-logs",
 			"name": "Exponential equations that are quadratics",
 			"summary": "Spot that an equation in b^(2x) and b^x is a quadratic in u = b^x, solve it, and reject any u that is zero or negative.",
+			"situation": "solve-exponential",
 			"level": [
 				3,
 				4
@@ -80129,9 +80150,268 @@
 				"order-steps",
 				"multipart"
 			],
-			"frequency": 0,
-			"angles": [],
-			"misconceptions": []
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "the equation in b^(2x) (or (b²)^x) and b^x alone, set equal to 0"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "the curve y = e^(2x) + Be^x + C drawn crossing the x-axis at P and Q, with its equation"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "two-powers",
+					"given": [
+						"b^(2x) + B b^x + C = 0, or the same with (b²)^x, whose roots in u = b^x are both whole powers of b (or one is 1/b)"
+					],
+					"asked": "both values of x, whole numbers",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.hidden-quadratic"
+					]
+				},
+				{
+					"id": "reject-negative",
+					"given": [
+						"b^(2x) + B b^x + C = 0 whose roots in u are a whole power of b and a negative number"
+					],
+					"asked": "the one value of x",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.hidden-quadratic"
+					]
+				},
+				{
+					"id": "zero-root",
+					"given": [
+						"a b^(2x) − c b^x = 0, or a b^(2x) = c b^x, with c/a a whole power of b"
+					],
+					"asked": "the one value of x",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.hidden-quadratic"
+					]
+				},
+				{
+					"id": "exact-ln",
+					"given": [
+						"e^(2x) + B e^x + C = 0 whose roots in u are two whole numbers from 3 to 9"
+					],
+					"asked": "both values of x, exactly, as ln u",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL1.7.hidden-quadratic"
+					]
+				},
+				{
+					"id": "exact-log-base",
+					"given": [
+						"b^(2x) + B b^x + C = 0 whose roots in u are a whole number that is no power of b and a negative number"
+					],
+					"asked": "x exactly, as ln u ÷ ln b",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.hidden-quadratic"
+					]
+				},
+				{
+					"id": "solution-count",
+					"given": [
+						"b^(2x) + B b^x + C = 0, or a b^(2x) + B b^x + C = 0, with roots in u of any signs, or a repeated root"
+					],
+					"asked": "the number of real solutions",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.hidden-quadratic"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.7.hidden-quadratic",
+					"method": "substitution",
+					"suits": [
+						"two-powers",
+						"reject-negative",
+						"zero-root",
+						"exact-ln",
+						"exact-log-base",
+						"solution-count"
+					],
+					"name": "Substitute u = a^x and solve the quadratic",
+					"about": "Since a^(2x) = (a^x)², the equation becomes u² − 6u + 8 = 0; solve for u, then solve 2^x = u for each root."
+				},
+				{
+					"skill": "SL1.7.hidden-quadratic",
+					"method": "factorise-directly",
+					"suits": [
+						"two-powers",
+						"reject-negative",
+						"zero-root",
+						"exact-ln",
+						"exact-log-base",
+						"solution-count"
+					],
+					"name": "Factorise in terms of a^x without renaming",
+					"about": "Write (2^x − 2)(2^x − 4) = 0 directly; each bracket gives a simple exponential equation."
+				},
+				{
+					"skill": "SL1.7.hidden-quadratic",
+					"method": "graph-zeros",
+					"suits": [
+						"two-powers",
+						"reject-negative",
+						"zero-root",
+						"solution-count"
+					],
+					"weak": {
+						"kind": "fails",
+						"unknowns": [
+							"exact-ln",
+							"exact-log-base"
+						],
+						"why": "the GDC gives the zeros as decimals, not as exact logs"
+					},
+					"name": "Graph the expression on the GDC and find its zeros",
+					"about": "Plot y = 2^(2x) − 6 × 2^x + 8 and read off the x-intercepts."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "With u = 3^x, the equation 9^x − 2 × 3^x − 15 = 0 becomes u² − 2u − 15 = 0, whose roots are u = 5 and u = −3. A student says the equation has two solutions, one for each root. True or false?",
+					"answer": "False. 3^x = 5 gives x = ln 5/ln 3, but 3^x = −3 has no solution: a power of a positive base is always positive. The equation has one solution.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Before solving 2^(2x) − 10 × 2^x + 16 = 0, decide from the signs of B and C in u² + Bu + C = 0 whether both roots in u are positive. Then solve it.",
+					"answer": "Both are positive: their product C = 16 is positive and their sum −B = 10 is positive. u = 2 and u = 8, so 2^x = 2 and 2^x = 8, and x = 1 or x = 3.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.7.hidden-quadratic#0",
+					"text": "Reading a power 2x as twice the power, instead of the power squared",
+					"as": "distractor",
+					"in": [
+						"exact-ln"
+					],
+					"wrong": "e^(2x) taken as 2e^x, so the equation is linear in e^x"
+				},
+				{
+					"ref": "SL1.7.hidden-quadratic#1",
+					"text": "Keeping a negative value of u, which no power of a positive base can equal",
+					"as": "distractor",
+					"in": [
+						"reject-negative",
+						"exact-log-base",
+						"solution-count"
+					],
+					"wrong": "the negative root's minus sign dropped and solved, or counted as a solution"
+				},
+				{
+					"ref": "SL1.7.hidden-quadratic#2",
+					"text": "Giving the values of u as the solutions, without going on to solve b^x = u",
+					"as": "distractor",
+					"in": [
+						"two-powers",
+						"reject-negative",
+						"zero-root",
+						"exact-ln",
+						"exact-log-base"
+					],
+					"wrong": "the roots in u given as the values of x"
+				},
+				{
+					"text": "Taking b^x = 0 to give x = 0, though b^x is never 0",
+					"as": "distractor",
+					"in": [
+						"zero-root"
+					],
+					"wrong": "x = 0 kept beside the true solution"
+				},
+				{
+					"text": "Rejecting a root u between 0 and 1, when it gives a negative x and is a solution",
+					"as": "distractor",
+					"in": [
+						"two-powers",
+						"solution-count"
+					],
+					"wrong": "only the root u > 1 kept"
+				},
+				{
+					"text": "Counting a repeated root of the quadratic in u as two solutions",
+					"as": "distractor",
+					"in": [
+						"solution-count"
+					],
+					"wrong": "2 for a repeated root"
+				},
+				{
+					"text": "Writing log_b u as ln b ÷ ln u, the logs the wrong way up",
+					"as": "distractor",
+					"in": [
+						"exact-log-base"
+					],
+					"wrong": "x = ln b/ln u"
+				},
+				{
+					"text": "Writing b^(2x) as 2 × b^x in a line of working",
+					"as": "error-spot",
+					"in": [
+						"two-powers"
+					],
+					"wrong": "a line turns b^(2x) into 2u"
+				},
+				{
+					"text": "Solving b^x = −s in a line of working by dropping the minus sign",
+					"as": "error-spot",
+					"in": [
+						"reject-negative"
+					],
+					"wrong": "a line solves b^x = s for the negative root"
+				},
+				{
+					"text": "Taking b^x = 0 to give x = 0 in a line of working",
+					"as": "error-spot",
+					"in": [
+						"zero-root"
+					],
+					"wrong": "a line keeps x = 0 from u = 0"
+				}
+			],
+			"frequency": 0
 		},
 		{
 			"id": "t1-ext-partial-vs-infinite",
@@ -80931,6 +81211,7 @@
 			"region": "triangles",
 			"name": "A height from two angles of elevation",
 			"summary": "Find a height from two angles of elevation taken a known distance apart, with two right-angled triangles or with the sine rule in the triangle between them.",
+			"situation": "bearings-elevation",
 			"level": [
 				3,
 				5
@@ -80941,9 +81222,243 @@
 				"method-pick",
 				"order-steps"
 			],
-			"frequency": 0,
-			"angles": [],
-			"misconceptions": []
+			"representations": [
+				{
+					"rep": "diagram",
+					"exam": false,
+					"how": "the side view: A and B on the ground, a known distance apart, the foot F and the top T, with the two angles of elevation marked"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "angle-at-top",
+					"given": [
+						"AB and the angles of elevation α from A and β from B, with B nearer the foot"
+					],
+					"asked": "angle ATB",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.two-observations"
+					]
+				},
+				{
+					"id": "slant-distance",
+					"given": [
+						"AB and the angles of elevation α from A and β from B, with B nearer the foot"
+					],
+					"asked": "BT, the line of sight from B, to 3 s.f.",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.two-observations"
+					]
+				},
+				{
+					"id": "height-two-angles",
+					"given": [
+						"AB and the angles of elevation α from A and β from B, with B nearer the foot"
+					],
+					"asked": "the height TF, to 3 s.f.",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.two-observations"
+					]
+				},
+				{
+					"id": "ground-distance",
+					"given": [
+						"AB and the angles of elevation α from A and β from B, with B nearer the foot"
+					],
+					"asked": "BF, the distance from B to the foot, to 3 s.f.",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.two-observations"
+					]
+				},
+				{
+					"id": "height-exact",
+					"given": [
+						"AB and the angles of elevation 30° from A and 60° from B"
+					],
+					"asked": "the height TF, exactly",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.two-observations"
+					]
+				},
+				{
+					"id": "height-either-side",
+					"given": [
+						"AB, with the foot F between A and B, and the angles of elevation α from A and β from B"
+					],
+					"asked": "the height TF, to 3 s.f.",
+					"level": 5,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.two-observations"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.3.two-observations",
+					"method": "sine-rule-then-right",
+					"suits": [
+						"angle-at-top",
+						"slant-distance",
+						"height-two-angles",
+						"ground-distance",
+						"height-exact",
+						"height-either-side"
+					],
+					"name": "Sine rule, then right-angled trig",
+					"about": "In the non-right triangle formed by the two observation points and the top, the top angle is β − α; use the sine rule for the sloping side, then SOH CAH TOA for the height."
+				},
+				{
+					"skill": "SL3.3.two-observations",
+					"method": "simultaneous-tan",
+					"suits": [
+						"slant-distance",
+						"height-two-angles",
+						"ground-distance",
+						"height-exact",
+						"height-either-side"
+					],
+					"name": "Two tan equations",
+					"about": "With x the nearer distance, h = x tan β and h = (x + 50) tan α; equate, solve for x, then find h."
+				},
+				{
+					"skill": "SL3.3.two-observations",
+					"method": "gdc-intersection",
+					"suits": [
+						"height-two-angles",
+						"ground-distance",
+						"height-either-side"
+					],
+					"weak": {
+						"kind": "fails",
+						"unknowns": [
+							"height-exact"
+						],
+						"why": "the GDC gives the crossing as a decimal, not as an exact surd"
+					},
+					"name": "Intersect the two height expressions on the GDC",
+					"about": "Graph y = x tan β and y = (x + 50) tan α and read the intersection: x is the distance and y the height."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A and B are on level ground in line with the foot of a mast, B nearer. The angles of elevation of the top are 25° from A and 40° from B. A student says angle ATB, at the top, is 65°. True or false?",
+					"answer": "False. Angle ABT, inside triangle ABT, is 180° − 40° = 140°, so angle ATB = 180° − 25° − 140° = 15°: the difference of the two angles, not their sum.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "From A the angle of elevation of a tower's top is 20°; from B, 30 m nearer, it is 35°. Before working it out, decide whether the tower is taller or shorter than 30 tan 35° m. Then find its height.",
+					"answer": "Taller: B is more than 30 m from the foot, since A is 30 m further back still and the angle from A is smaller. With x = BF, h = x tan 35° = (x + 30) tan 20°, so x = 30 tan 20°/(tan 35° − tan 20°) = 32.47 and h = 22.7 m, more than 30 tan 35° = 21.0 m.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.3.two-observations#0",
+					"text": "Using the distance between the two observers as the distance to the foot of the object",
+					"as": "distractor",
+					"in": [
+						"height-two-angles",
+						"ground-distance",
+						"height-exact",
+						"height-either-side"
+					],
+					"wrong": "AB used as BF"
+				},
+				{
+					"ref": "SL3.3.two-observations#1",
+					"text": "Taking the angle at the top as the sum of the two angles of elevation instead of their difference",
+					"as": "distractor",
+					"in": [
+						"angle-at-top",
+						"slant-distance",
+						"height-two-angles"
+					],
+					"wrong": "α + β for angle ATB"
+				},
+				{
+					"ref": "SL3.3.two-observations#2",
+					"text": "Using a right-triangle ratio in the triangle that has no right angle",
+					"as": "distractor",
+					"in": [
+						"slant-distance"
+					],
+					"wrong": "BT = AB tan α, as if angle ABT were 90°"
+				},
+				{
+					"text": "Using the angle of elevation at B as the angle inside triangle ABT, where the inside angle is 180° minus it",
+					"as": "distractor",
+					"in": [
+						"angle-at-top"
+					],
+					"wrong": "180° − α − β for angle ATB"
+				},
+				{
+					"text": "Stopping at the line of sight BT and giving it as the height",
+					"as": "distractor",
+					"in": [
+						"height-two-angles",
+						"height-exact"
+					],
+					"wrong": "BT given as TF"
+				},
+				{
+					"text": "Using cos where the height, opposite the angle, needs sin",
+					"as": "distractor",
+					"in": [
+						"height-two-angles",
+						"height-exact"
+					],
+					"wrong": "TF = BT cos β"
+				},
+				{
+					"text": "Giving AF, the distance from the farther point, instead of BF",
+					"as": "distractor",
+					"in": [
+						"ground-distance"
+					],
+					"wrong": "AB + BF"
+				},
+				{
+					"text": "Treating two observers on either side of the object as if they stood on the same side",
+					"as": "distractor",
+					"in": [
+						"height-either-side"
+					],
+					"wrong": "the same-side height, with the angle at the top β − α"
+				}
+			],
+			"frequency": 0
 		},
 		{
 			"id": "t3-ext-exact-triangle",
