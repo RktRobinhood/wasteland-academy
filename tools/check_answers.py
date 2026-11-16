@@ -43342,9 +43342,15 @@ def E17_holds(line, subs, letters=("x",)):
         if any(e is None for e in es):
             continue
         vals = [e.subs(subs) for e in es]
+        # A side written as a bare decimal is that value to its last place.
+        tol = sp.Float(10) ** -25
+        for p in sides:
+            mt = re.fullmatch(r"\s*−?\d+\.(\d+)\s*", E17_LEAD.sub("", p.strip().rstrip(".")))
+            if mt:
+                tol = max(tol, sp.Float(10) ** -len(mt.group(1)) / 2 + sp.Float(10) ** -12)
         for a, b in zip(vals, vals[1:]):
             d = sp.N(a - b, 40)
-            if not d.is_real or abs(d) > sp.Float(10) ** -25 * (1 + abs(sp.N(b, 40))):
+            if not d.is_real or abs(d) > tol * (1 + (0 if tol > 1e-20 else abs(sp.N(b, 40)))):
                 return False
     return True
 
@@ -43964,6 +43970,167 @@ def E17RV_spot_entry(q, lines):
 
 SITUATION_CHECKS["compound-interest"] = E17RV_entry
 SPOT_CHECKS["compound-interest"] = E17RV_spot_entry
+
+
+
+# ── show-that-value, t1-ext-numerical-show-that (FAL-780) ───
+# The statement is read back from the question and checked true with SymPy (exactly, or to the
+# nearest cent for an investment). The one valid working is written again here from the givens and
+# its arithmetic redone; each tagged option is rebuilt from its slip and shown not to reach the
+# result, or to reach it without a derivation. An error-spot's first wrong line is the first that
+# starts from the value to be shown, or that rounds before the cents are known.
+
+E17ST_SK = "SL1.6.numerical-show-that#"
+E17ST_OWN = "t1-ext-numerical-show-that#"
+E17ST_SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+E17ST_UNSUB = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+E17ST_WHO = ("Kira", "Tomas", "Ines", "The caravan fund")
+
+
+def E17ST_s(letter, n):
+    return letter + str(n).translate(E17ST_SUB)
+
+
+def E17ST_br(v):
+    return str(v) if v >= 0 else f"(−{-v})"
+
+
+def E17ST_check(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    need(q["asked"] == "Which working shows this?", f"asked {q['asked']!r}")
+    need(q["paper"] == (2 if u == "interest-value" else 1), f"Paper {q['paper']} for {u}")
+    wr = {}
+    if u == "log-difference":
+        m = re.fullmatch(r"Show that log([₀-₉]+) (\d+) − log\1 (\d+) = (\d+)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        b, P, Q_, k = int(m.group(1).translate(E17ST_UNSUB)), int(m.group(2)), int(m.group(3)), int(m.group(4))
+        need(b in (2, 3, 5) and 2 <= Q_ <= 12 and 4 <= b ** k <= 125 and 2 <= k, f"{L[0]} breaks the limits")
+        need(sp.factorint(Q_).keys() != {b}, f"{Q_} is a power of {b}")
+        need(sp.simplify(sp.log(P, b) - sp.log(Q_, b) - k) == 0, "the statement is false")
+        lg = "log" + str(b).translate(E17ST_SUB)
+        stmt = f"{lg} {P} − {lg} {Q_} = {k}"
+        want = f"{lg} {P} − {lg} {Q_} = {lg}({P}/{Q_}) = {lg} {P // Q_} = {lg}({b}^{k}) = {k}"
+        need(P % Q_ == 0 and P // Q_ == b ** k, "the working's quotient is not a power of the base")
+        need(abs(math.log(P) / math.log(Q_) - k) > 1e-6, "dividing the logs gives the answer too")
+        wr[E17ST_SK + "0"] = {f"If it is {k}, then {b}^{k} × {Q_} = {P}, which is true, so the statement holds"}
+        wr[E17ST_SK + "1"] = {f"{stmt}, as required"}
+        wr[E17ST_OWN + "3"] = {f"{lg} {P} − {lg} {Q_} = {lg} {P} ÷ {lg} {Q_} = {k}"}
+    elif u == "series-sum":
+        if q["view"]["rep"] == "words":
+            m1 = re.fullmatch(r"A stack of crates has (\d+) in its top row, and each row below has (\d+) more than the row above\.", L[0])
+            m2 = re.fullmatch(r"Show that (\d+) rows hold (\d+) crates in all\.", L[1])
+            need(m1 is not None and m2 is not None, f"can't read {L!r}")
+            u1, d, n, V = int(m1.group(1)), int(m1.group(2)), int(m2.group(1)), int(m2.group(2))
+        else:
+            m1 = re.fullmatch(r"The sequence (\d+), (\d+), (\d+), … is arithmetic\.", L[0])
+            m2 = re.fullmatch(r"Show that the sum of its first (\d+) terms is (\d+)\.", L[1])
+            need(m1 is not None and m2 is not None, f"can't read {L!r}")
+            t = [int(m1.group(i)) for i in (1, 2, 3)]
+            need(t[1] - t[0] == t[2] - t[1], "the sequence is not arithmetic")
+            u1, d, n, V = t[0], t[1] - t[0], int(m2.group(1)), int(m2.group(2))
+        need(1 <= u1 <= 12 and 2 <= d <= 9 and 8 <= n <= 20, "the sequence breaks the limits")
+        need(sum(u1 + i * d for i in range(n)) == V, "the stated sum is false")
+        inner = 2 * u1 + (n - 1) * d
+        Sn = E17ST_s("S", n)
+        want = f"{Sn} = {n}/2 × (2 × {u1} + {n - 1} × {d}) = {n}/2 × {inner} = {V}"
+        un = u1 + (n - 1) * d
+        need(n * un != V, "the last term times n gives the sum")
+        wr[E17ST_SK + "0"] = {f"Put {Sn} = {V}: {V} = {n}/2 × {inner}, which is true"}
+        wr[E17ST_SK + "1"] = {f"{Sn} = {V}, as required"}
+        wr[E17ST_OWN + "4"] = {f"{Sn} = {n} × {E17ST_s('u', n)} = {n} × {un} = {n * un}"}
+    elif u == "common-difference":
+        m1 = re.fullmatch(r"In an arithmetic sequence, u([₀-₉]+) = (−?\d+) and u([₀-₉]+) = (−?\d+)\.", L[0])
+        m2 = re.fullmatch(r"Show that the common difference is (\d+)\.", L[1])
+        need(m1 is not None and m2 is not None, f"can't read {L!r}")
+        p, A, qq, B = int(m1.group(1).translate(E17ST_UNSUB)), int(m1.group(2).replace("−", "-")), int(m1.group(3).translate(E17ST_UNSUB)), int(m1.group(4).replace("−", "-"))
+        D = int(m2.group(1))
+        need(qq - p >= 3 and sp.Rational(B - A, qq - p) == D, "the stated difference is false")
+        gap, W = qq - p, B - A
+        up, uq = E17ST_s("u", p), E17ST_s("u", qq)
+        want = f"{uq} − {up} = {gap}d, so {gap}d = {E17_n(B)} − {E17ST_br(A)} = {W} and d = {W}/{gap} = {D}"
+        need(sp.Rational(W, qq) != D, "the wrong divisor gives the answer")
+        wr[E17ST_SK + "0"] = {f"With d = {D}, {uq} = {E17_n(A)} + {gap} × {D} = {E17_n(B)}, which is true"}
+        wr[E17ST_SK + "1"] = {f"The terms go up evenly, so d = {D}"}
+        wr[E17ST_OWN + "5"] = {f"d = ({E17_n(B)} − {E17ST_br(A)})/{qq} = {W}/{qq} = {E17_n(sp.Rational(W, qq))}"}
+    elif u == "interest-value":
+        m1 = re.fullmatch(r"(.+) invests \$(\d+) in an account that pays ([\d.]+)% per year, compounded annually\.", L[0])
+        m2 = re.fullmatch(r"Show that the value after (\d+) years is \$([\d.]+), to the nearest cent\.", L[1])
+        need(m1 is not None and m2 is not None, f"can't read {L!r}")
+        need(m1.group(1) in E17ST_WHO, f"who {m1.group(1)!r}")
+        pv, r, n, V = int(m1.group(2)), R(m1.group(3)), int(m2.group(1)), R(m2.group(2))
+        need(pv % 100 == 0 and 500 <= pv <= 5000 and 2 <= r <= 9 and (2 * r).q == 1 and 3 <= n <= 8, "the investment breaks the limits")
+        exact = pv * (1 + r / 100) ** n
+        need(ci_clear(exact) and ci_cents(exact) == V and V.q != 1, f"${V} is not the value to the nearest cent, or is too close to an edge")
+        factor = f"{Decimal((1 + r / 100).p) / Decimal((1 + r / 100).q):.3f}"
+        mr = re.fullmatch(rf"{pv} × {re.escape(factor)}\^{n} = (\d+\.\d{{4}}), which is \${re.escape(ci_money(V))} to the nearest cent", q["answer_text"])
+        need(mr is not None and abs(R(mr.group(1)) - exact) <= sp.Rational(1, 20000) + sp.Rational(1, 10 ** 9), f"the right working {q['answer_text']!r} is not the value to 4 decimal places")
+        want = q["answer_text"]
+        back = ci_cents(V / (1 + r / 100) ** n)
+        need(back == pv, "working back from the given value doesn't land on the amount invested")
+        dollars = int(sp.floor(exact + sp.Rational(1, 2)))
+        wr[E17ST_SK + "0"] = {f"{ci_money(V)} ÷ {factor}^{n} = {pv}.00, the amount invested, so ${ci_money(V)} is right"}
+        wr[E17ST_SK + "1"] = {f"After {n} years the value is ${ci_money(V)}"}
+        wr[E17ST_SK + "2"] = {f"{pv} × {factor}^{n} = {dollars} to the nearest dollar, so the value is ${ci_money(V)}"}
+    else:
+        m = re.fullmatch(r"Verify that x = (−?\d+) is a solution of (.+) = 0\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        r = int(m.group(1).replace("−", "-"))
+        f = E17_expr(m.group(2))
+        need(f is not None and sp.Poly(f, E17_X).degree() == 2 and f.subs(E17_X, r) == 0, "x = r does not solve it")
+        a, b, c = (int(v) for v in sp.Poly(f, E17_X).all_coeffs())
+        need(1 <= a <= 3 and b != 0 and c != 0 and abs(r) <= 6, "the quadratic breaks the limits")
+        sign = lambda v: "+" if v > 0 else "−"
+        coef = lambda v: "" if abs(v) == 1 else str(abs(v))
+        sub_text = f"{'' if a == 1 else a}({E17_n(r)})² {sign(b)} {coef(b)}({E17_n(r)}) {sign(c)} {abs(c)}"
+        t1, t2 = a * r * r, b * r
+        parts = f"{t1} {'+' if t2 >= 0 else '−'} {abs(t2)} {sign(c)} {abs(c)}"
+        want = f"{sub_text} = {parts} = 0, so x = {E17_n(r)} is a solution"
+        need(t1 + t2 != 0, "leaving out c gives 0")
+        no_c = f"{'' if a == 1 else a}({E17_n(r)})² {sign(b)} {coef(b)}({E17_n(r)})"
+        wr[E17ST_SK + "1"] = {f"x = {E17_n(r)} is a solution of the equation"}
+        wr[E17ST_OWN + "6"] = {f"{sub_text}, so x = {E17_n(r)} is a solution"}
+        wr[E17ST_OWN + "7"] = {f"{no_c} = {E17_n(t1 + t2)}, so x = {E17_n(r)} is a solution"}
+    gc_check_common(q, want, wr)
+    E17_steps(q, {})
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E17ST_spot(q, lines):
+    u = q["view"]["unknown"]
+    L = q["lines"][:q["lines"].index("A student's working:")]
+    if u == "series-sum":
+        V = int(re.search(r"(\d+)(?: crates in all|)\.$", L[1]).group(1))
+        for i, t in enumerate(lines):
+            if t.startswith("The first term is"):
+                continue
+            if re.fullmatch(rf"S[₀-₉]+ = {V}", t) or t.startswith(f"{V} = "):
+                return i
+            raise Fail(f"can't judge the line {t!r}")
+        return None
+    m1 = re.fullmatch(r"(.+) invests \$(\d+) in an account that pays ([\d.]+)% per year, compounded annually\.", L[0])
+    n = int(re.search(r"after (\d+) years", L[1]).group(1))
+    pv, r = int(m1.group(2)), R(m1.group(3))
+    exact = pv * (1 + r / 100) ** n
+    for i, t in enumerate(lines):
+        if re.fullmatch(rf"(?:Value = |= ){pv} × (?:\(1 \+ [\d.]+/100\)|[\d.]+)\^{n}", t):
+            ok = E17_holds("x = " + t.split("= ", 1)[1], {E17_X: exact})
+        elif (m := re.fullmatch(r"= ([\d.]+)(?:, as required\.)?", t)):
+            places = len(m.group(1).split(".")[1]) if "." in m.group(1) else 0
+            ok = places >= 4 and abs(R(m.group(1)) - exact) <= sp.Rational(1, 20000)
+        elif t.startswith("So the value is"):
+            ok = True
+        else:
+            raise Fail(f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["show-that-value"] = E17ST_check
+SPOT_CHECKS["show-that-value"] = E17ST_spot
 
 
 def check_questions(data):
