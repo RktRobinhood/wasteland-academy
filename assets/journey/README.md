@@ -221,3 +221,15 @@ batch lands, that sheet is still in the painted style.
   louder than the painted cast: Noma's tunic is bright teal with a magenta sash, and B0-LT is chrome grey with a
   teal chest plate. Dax's portraits now match his sheet (brown hat with teal goggles, dark hair and beard) instead
   of the old portraits' cap and grey hair.
+- Batch 4, FAL-830: the look frame of each enemy and party sheet: `d1-scavenger` and `d2-raider` idle, `d3-enforcer`
+  and `d4-warlord` idle and `s2`, `d5-overseer` idle, `s2` and `s3`, `signal-tower/dishback` idle,
+  `party/learner-female` and `learner-male` walk1 and idle, `party/spark` idle, plus the fight images
+  `game/assets/enemies/d1…d5.png` and `game/assets/avatars/avatar-spark.png` (256×256, 256-colour PNG like before).
+  The other frames of these sheets are still painted until batch 5 (FAL-831), so this batch ships together with it.
+  The female Learner's walk1 and D2's idle are the accepted FAL-792 test frames. The male Learner wears the female
+  Learner's costume (brown leather jacket, dark brown trousers, magenta scarf, chrome shoulder plate, teal pack),
+  with his cap instead of her headband. D5 stays a dark machine: almost-black gunmetal plates with a few rust-orange
+  ones. Stage looks: D3 `s2` adds hot-magenta lines along the plate seams, D4 `s2` turns the shoulder tubes magenta,
+  D5 `s2` opens the chest on a flat magenta core and `s3` strips it to a chrome frame. Glows are flat inked shapes,
+  with no bloom outside the outline. Frame ids, anims, `stages` and `hand` are unchanged; only `x`, `y`, `w`, `h`,
+  `ox`, `oy` were re-measured (each new frame is within 5% of the old size, with the feet on the bottom row).
