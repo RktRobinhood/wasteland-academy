@@ -1,93 +1,78 @@
 # Wasteland Academy
 
-IB Math AA SL gamified review tool. Post-apocalyptic roguelite. Static GitHub Pages PWA.
+A post-apocalyptic roguelite for IB mathematics revision, built in Godot 4.7.2. It covers all of Analysis and Approaches SL, and most of the maths that AA HL, AI SL and AI HL share with it. Students play it in the browser at <https://rktrobinhood.github.io/wasteland-academy/>, on a phone or a laptop.
 
-Wasteland Academy is one presentation of a reusable IB mathematics engine. The
-same question generation, marking, worked solutions and curriculum selection
-should also support more academic educational interfaces. The game remains the
-current product; a separate academic interface is future work.
+The product is an app for PC, Android and iOS. PC comes first, after the web build is ready for a class (#199). GitHub Pages stays the testing host.
 
-The [Math-AA question bank](https://github.com/RktRobinhood/Math-AA---Question-Bank)
-stays in its own repository. Its exam metadata already informs the question-type
-catalogue; planned higher-level and other-course additions should expand that
-coverage and improve generated questions and filtering. See the
-[engine direction](SPEC.md#reusable-mathematics-engine-direction),
-[bank integration plan](curriculum/README.md#question-bank-integration-direction)
-and [implementation follow-up #134](https://github.com/RktRobinhood/wasteland-academy/issues/134).
+Wasteland Academy is one presentation of a reusable IB mathematics engine. The same question generation, marking, worked solutions and curriculum selection should also support more academic interfaces. The game is the current product; a separate academic interface is future work.
+
+The [Math-AA question bank](https://github.com/RktRobinhood/Math-AA---Question-Bank) stays in its own repository. Its exam metadata already informs the question-type catalogue; planned higher-level and other-course additions should expand that coverage and improve generated questions and filtering. See the [engine direction](SPEC.md#reusable-mathematics-engine-direction), [bank integration plan](curriculum/README.md#question-bank-integration-direction) and [implementation follow-up #134](https://github.com/RktRobinhood/wasteland-academy/issues/134).
+
+## For teachers
+
+- [`TEACHERS.md`](TEACHERS.md): what each course can play, what the game doesn't train, how typed answers are marked, and where progress is kept.
+- [`PRIVACY.md`](PRIVACY.md): what the game stores and sends.
 
 ## Docs
 
-- [`SPEC.md`](SPEC.md) — Full design specification
-- [`ROADMAP.md`](ROADMAP.md) — Order of work and target dates
-- [`TONE.md`](TONE.md) — Who the game is for, and the undertone under the writing and art
-- [`ART_REQUIREMENTS.md`](ART_REQUIREMENTS.md) — Asset generation briefs
-- [`CONTENT_SCHEMA.md`](CONTENT_SCHEMA.md) — Question format and subtopic map
+- [`SPEC.md`](SPEC.md): the design specification
+- [`ROADMAP.md`](ROADMAP.md): the order of work and the milestones
+- [`TONE.md`](TONE.md): who the game is for, and the undertone under the writing and art
+- [`game/README.md`](game/README.md): the Godot game: layout, running, testing, export, combat, the map, art slots
+- [`game/docs/QUESTION-ENGINE.md`](game/docs/QUESTION-ENGINE.md): the question engine reference
+- [`game/docs/MATHS-ENGINE.md`](game/docs/MATHS-ENGINE.md): the reusable maths interface
+- [`curriculum/README.md`](curriculum/README.md): the curriculum maps and the question-type catalogue; [`curriculum/COVERAGE.md`](curriculum/COVERAGE.md) is what each course can play
+- [`writing/glossary.md`](writing/glossary.md): every game term a player reads, and the one wording for it
+- [`ART_REQUIREMENTS.md`](ART_REQUIREMENTS.md): asset generation briefs
+- [`CONTENT_SCHEMA.md`](CONTENT_SCHEMA.md): legacy, the HTML game's question packs
 
 ## Structure
 
 ```
 /
-├── index.html          ← Entry point
-├── manifest.json       ← PWA config
-├── service-worker.js   ← Offline caching
-├── css/                ← Design system and screen styles
-├── js/                 ← Game engine modules (js/platform.js is the only file that touches browser storage, links and files)
-├── content/            ← Question packs (one file per topic)
-├── vendor/             ← KaTeX and the two fonts, copied in (see vendor/LICENSES.md)
-├── game/               ← Godot 4.7.2 version, published at the main address (see game/README.md)
-├── services/telemetry/ ← Anonymous telemetry collector, a Cloudflare Worker (see its README.md)
-└── assets/             ← Art assets (avatars, enemies, UI, maps)
+├── game/               ← the Godot game (see game/README.md)
+├── curriculum/         ← curriculum maps, the question-type catalogue, generated reports
+├── tools/              ← answer checker, seed sweep, course audit, explainer clips, generators
+├── writing/            ← glossary, voice sheets, encounters, explainer scripts
+├── assets/             ← source art, audio and their credits
+├── scripts/            ← site assembly, CI helpers, screenshots, the Godot MCP
+├── _takeover/          ← the root service worker and redirects for the Godot site
+├── services/telemetry/ ← an anonymous telemetry collector, not deployed (#133)
+├── tests/              ← Node unit tests, and Playwright tests for the site and the HTML game
+└── index.html, js/, css/, content/, vendor/, manifest.json, service-worker.js
+                        ← the legacy HTML game, published at /classic/ (see below)
 ```
 
-## Offline and app builds
+## Run, test and export
 
-Every file the game loads is in this repo, all linked by relative path, so a
-phone never contacts another host and the game plays fully offline after one
-visit. A test fails if a remote or root-absolute URL creeps into `index.html`,
-`manifest.json`, `service-worker.js`, `js/` or `css/`. The one exception is the
-GitHub link for student reports, in `js/platform.js`.
+```
+./run.sh        # the game in a 540x960 window
+./test.sh       # every Godot test, headless
+./export.sh     # the web export, into build/next/
+```
 
-A store app (e.g. Capacitor) can ship the same files. It only needs its own
-`js/platform.js`, with the same calls for storage, opening a link, and saving
-or loading a file.
+Godot is found on `PATH`, at `~/.local/bin/godot`, or from `GODOT=/path/to/godot`. The node tests need `npm ci` first. `game/README.md` has the rest, including screenshots and the Godot MCP.
+
+GitHub Actions (`.github/workflows/test.yml`) runs nine jobs on every PR and on pushes to `main`:
+
+- `godot`: `./test.sh`.
+- `web`: the export, booted in headless Chromium at phone and PC sizes, with screenshots.
+- `answers-shard` and `answers`: the SymPy answer checker in six shards, then merged.
+- `stress`: the seed sweep, in twelve shards.
+- `feedback`: what a student reads after each wrong option (`tools/feedback-check`).
+- `takeover`: the site laid out as Pages publishes it, checked in a browser (`tools/takeover-dry-run`).
+- `test`: `npm test`, the Node unit tests, the content validator and the HTML game's Playwright tests, plus the telemetry report's tests.
+- `telemetry`: type-check and tests for the collector in `services/telemetry/`.
+
+`.github/workflows/pages.yml` publishes the site on every push to `main`.
 
 ## Saves
 
-The save lives in browser storage under `wa_save`, with a format `version`.
-When the format changes, add a step to `WA.MIGRATIONS` in `js/engine.js` and bump
-`WA.VERSION`; old saves are brought up to date, never wiped. A save that can't be
-read is kept aside under `wa_save_unreadable_<time>` instead of being overwritten.
-Players can export and import their save from the Stats screen.
-
-## Tests
-
-The HTML game has no build step: Pages publishes its files as they are. `package.json` holds test tooling only.
-
-```
-npm ci
-npx playwright install chromium
-npm test
-```
-
-- `tests/content/`: content validator (`node --test`). Known content defects are listed in `tests/content/known-defects.mjs` and show as TODO.
-- `tests/unit/`: unit checks (`node --test`): question generator, spaced repetition, save migrations, and the offline rules above (no remote URLs, everything precached, vendored KaTeX matches `katex@0.16.9`).
-- `tests/e2e/`: Playwright. A full fight in a zone on a phone screen, a small-phone layout check, service-worker checks (a full fight with the network off, and updates), save export/import, and the install button and iOS tip.
-- `tools/explainer-clips/`: short voiced explainer clips in the game's look, built in three.js and rendered to video unattended. See its README for the process.
-- `tools/telemetry/`: the weekly telemetry outlier report (`report.py`), tested on fake events with planted outliers: `python3 -m unittest discover -s tools/telemetry`.
-
-GitHub Actions runs `npm test` on every PR and on pushes to `main`.
-`tests/unit/service-worker.test.mjs` checks the service worker leaves `next/` and
-`classic/` alone, and `tests/unit/takeover.test.mjs` checks the takeover switch (see
-"Switching to Godot").
-
-## Godot version (`game/`)
-
-The Godot 4.7.2 rebuild lives in `game/` and is published at the main address, with
-this HTML game at `/classic/`. See [`game/README.md`](game/README.md) for how to run, test, export,
-screenshot it and use the Godot MCP. In short: `./test.sh`, `./export.sh`, `./run.sh`.
-`.github/workflows/pages.yml` publishes the site and the export on every push to `main`.
+The Godot game keeps progress in `user://save.json` and its settings in `user://settings.cfg`. On the web that is the browser's IndexedDB database `/userfs`, so progress belongs to one browser on one device. There is no account and no sync. Export and import are planned (#185); sync between devices is for later (#202).
 
 ## Switching to Godot
+
+This switch is for the site's maintainers. It has been on since November 4, and #197 decides what stays at `/classic/`.
 
 One switch decides which game is at the main address: the repository variable
 `GODOT_AT_ROOT`, which `.github/workflows/pages.yml` reads. Unset counts as off. It
@@ -156,12 +141,16 @@ Jekyll skips `_takeover/`, so with the switch off none of it is published.
 Storage belongs to the origin, not the path, so a Godot save made at `/next/` is there
 at `/`, and an HTML game save made at `/` is there at `/classic/`.
 
+## The legacy HTML game
+
+> **Legacy.** This section describes the HTML game at `/classic/`, which students will no longer see (#197). The Godot game above is the product.
+
+The HTML game is vanilla JS with no build step: `index.html`, `js/`, `css/`, `content/` (one question pack per topic, see `CONTENT_SCHEMA.md`) and `vendor/` (KaTeX and the two fonts, see `vendor/LICENSES.md`). `js/platform.js` is the only file that touches browser storage, links and files.
+
+- **Offline.** Every file it loads is in this repo, linked by relative path. A test fails if a remote or root-absolute URL creeps into `index.html`, `manifest.json`, `service-worker.js`, `js/` or `css/`. The one exception is the GitHub link for student reports, in `js/platform.js`.
+- **Saves.** The save lives in `localStorage` under `wa_save`, with a format `version`. When the format changes, add a step to `WA.MIGRATIONS` in `js/engine.js` and bump `WA.VERSION`. A save that can't be read is kept aside under `wa_save_unreadable_<time>`. Players can export and import it from the Stats screen.
+- **Tests.** `tests/content/` is the content validator; known defects are in `tests/content/known-defects.mjs`. `tests/e2e/` is Playwright: a full fight on a phone screen, a small-phone layout, the service worker offline and on update, save export and import, and the install button.
+
 ## Status
 
-Playable. The Godot game is live at the main address. All five zones are open, each
-with its regions, runs, mini-bosses and bosses, and so are the Thunderdome (every zone
-mixed), the Bazaar and Practice. The question engine has 148 built question types across
-the five AA SL topics; the HL and AI courses play the ones that cover them. Still to
-come: paintings for four of the zones and backdrops for their regions, the Relic
-Library's lessons, and encounters. See [`ROADMAP.md`](ROADMAP.md) and
-[`game/README.md`](game/README.md).
+Playable, and live at the main address. All five zones are open, each with its topics, runs, mini-bosses and bosses, and so are the Thunderdome, the Bazaar and Practice. The engine has 173 of the 183 catalogued question types built: every AA SL skill is playable, and AA HL, AI SL and AI HL play mostly the parts they share with it (`curriculum/COVERAGE.md`). Still to come: paintings for four zones and backdrops for their topics, explainers with voices, the Relic Library's lessons, encounters, save export and import, and the app builds. See [`ROADMAP.md`](ROADMAP.md).

@@ -1,8 +1,53 @@
 # Roadmap
 
-The order of work and the target dates. The Paperclip tasks named in each row hold the detail. Dates are targets, and each one is checked at the milestone before it.
+The order of work and the milestones. The GitHub issues named in each row hold the detail, and `AGENTS.md`, "Work while the owner is away", holds the decisions already made. No target dates are set: a milestone is done when its issues are closed.
 
-Last updated 2026-11-07 (owner direction; earlier schedule from FAL-722).
+Last updated 2026-11-16 (owner decisions on #199, #18, #197 and #203; review on #198).
+
+## Where things stand
+
+The Godot game took over the main address on November 4 (FAL-721). All five zones are open, with the Thunderdome, the Bazaar and Practice. Every AA SL skill is playable, and AA HL, AI SL and AI HL play the maths they share with AA SL ([`curriculum/COVERAGE.md`](curriculum/COVERAGE.md)). The explainer player is built (FAL-429), Spark's move lines are in, and the sound system plays a loop in every zone with sound off by default (FAL-385, FAL-925).
+
+## Milestones
+
+### 1. Classroom release: the web build a class can use
+
+Everything labelled [`classroom-release`](https://github.com/RktRobinhood/wasteland-academy/labels/classroom-release). The web build at GitHub Pages is what a class uses first.
+
+| Issue | What |
+|---|---|
+| #183 | Cut the first load (music on demand, drop the dev addon, a size budget) |
+| #184 | A pinned build for students, a cache-first worker and a build id |
+| #185 | Saves: never wipe an unreadable save, write atomically, export and import |
+| #186 | First run: course choice, a short "how a fight works", student wording |
+| #187 | Test on Safari and iPhone with real taps, plus a device pass |
+| #192 | Play only verified seeds; the stress sweep runs nightly and gates releases |
+| #193 | Question defects found in review |
+| #194 | Typed answers: decimal comma, exact-answer hints, large whole numbers |
+| #197 | `/classic/` publishes only the HTML game, and students no longer see it |
+| #203 | Wording: places by name, no "islands", the exam switch, every label |
+
+### 2. Explainers ready to record
+
+Labelled [`explainers`](https://github.com/RktRobinhood/wasteland-academy/labels/explainers): #188 to #191, the script format and how maths is spoken. Voices are Gemini text-to-speech with a cost cap, and casting is finished (#18). The approved voice, model and direction for each tutor and character are in `tools/explainer-clips/teachers.json`. No line is generated until the owner approves the cap, which is the card on FAL-1035.
+
+### 3. PC
+
+The first platform after the classroom release (#199): the Windows export in CI, a landscape layout, and full keyboard play. Then macOS and Linux from the same work.
+
+### 4. Android and iOS
+
+After PC (#199): export presets and CI builds, layouts for phones and tablets with safe areas, touch entry against the system keyboard, and store readiness (signing, icons, age rating, a privacy policy, the rules for school apps used by under-18s). Every platform keeps one save format with export and import. Sync between devices is for later (#202).
+
+The umbrella issue #199 closes when each platform has a release build from CI, a recorded test on a real device, and a written release procedure.
+
+### Alongside
+
+- #195: feedback lines for the 78 question types whose wrong options have none.
+- #196: accessibility: an extra-time timer, reduced motion in fights, text size.
+- #198: these documents.
+- #201: map and level art from the owner through ChatGPT, from prompt cards the agents write. The Artist chooses.
+- #62: stacked fractions and symbol coverage in maths notation.
 
 ## Owner direction: engine reuse and question-bank expansion
 
@@ -22,63 +67,29 @@ does not itself build or validate generators. See the
 [integration plan](curriculum/README.md#question-bank-integration-direction).
 
 The November 6 sequencing in
-[#13](https://github.com/RktRobinhood/wasteland-academy/issues/13) takes precedence
-over the historical lesson dates below: complete the mathematics engine, roll
-out question content for the other courses, then implement playable lessons.
-No delivery date for an academic interface or expanded bank ingestion is set.
+[#13](https://github.com/RktRobinhood/wasteland-academy/issues/13) stands: complete the
+mathematics engine, roll out question content for the other courses, then implement
+playable lessons. No delivery date for an academic interface or expanded bank ingestion
+is set.
 
-## Now to November 15: the Functions zone in Godot
+## The Relic: playable lessons
 
-Matt asked for the Godot rebuild after the student trial (GitHub issue #8, planned on FAL-274). Godot took over the main address on November 4 (FAL-721), and the HTML game moved to `/classic/`.
+Matt's spec is GitHub issue #13 (FAL-325). Players find salvaged CRT and VR machines in the world. Each one opens a short lesson: a character has a broken machine, shows the problem, and hands the player the controls. The player learns the idea by fixing the machine, then solves a related problem alone. Lessons come after the engine and the other courses' content (#13).
 
-| By | What | Task |
+| Step | What | Who |
 |---|---|---|
-| Oct 28 | Godot project live at `/next/`. The recipe engine, the SymPy answer checker and the Quadratics region | FAL-321, FAL-322 |
-| Nov 4 | Exponentials and logs, Graphs and key features with the in-game calculator, Composite and inverse, Rational functions | FAL-274 |
-| Nov 8 | Progress check. It decides whether class phase 1 makes the November 15 build | FAL-291 |
-| Nov 11 | Function basics, Lines and Transformations, the calculator skin, then the 9 extra skills | FAL-274 |
-| Nov 13 | Planning check: the zone order and the split between the tracks (see After November 15) | FAL-274 |
-| Nov 15 | The Functions zone in Godot, for mid-term review | FAL-274 |
-
-Art runs alongside: icon animation loops (FAL-323) and a one-region slice of the side-scrolling journey scene (FAL-289, FAL-293).
-
-Explainer prep also runs alongside, after Thursday's demo: the move list, Spark's lines and the voice recordings (see Explainers below). The only explainer code before November 15 is a small change on October 30 that lets a worked step carry a move tag.
-
-## After November 15
-
-The explainer player comes first, November 16–22. Then two tracks run side by side: the four remaining zones, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3), the journey scene (FAL-289) and encounters, the rare talking events on the road (FAL-347, code in FAL-349), fit around them, and so does the soundtrack below. The zone order and the split between the tracks are set at the November 13 planning check. After the explainer player, Coder builds the Male Learner two ways, as a 3D model and as a 2D cut-out rig, and CEO compares them at strip size (FAL-368). The result decides how new characters are posed, including B0-LT's cutout in L3.
-
-### Explainers: chalkboard "videos" that are really the engine
-
-Matt's idea is FAL-375, and the plan there is approved. An explainer looks like a YouTube video on a wasteland chalkboard, with play and pause, a chapter per step, captions and speed. It's really the question engine, so a student can change a number and watch the board redraw. Each worked step gets a general move, such as substitute or isolate x. Spark says each move once, with no numbers in the line, and the board writes the question's numbers. So one recording covers every question, and each new question class gets explainers when its steps carry move tags.
-
-| When | Step | Who |
-|---|---|---|
-| Oct 30 | **Step tags.** A worked step can carry a move. Plain text steps still work (FAL-426). | Coder |
-| Oct 30 – Nov 6 | **E0 Move list.** The shared moves, a plain line for each, and the share of today's worked steps they cover. The target is 9 in 10 (FAL-425). | Curriculum Author |
-| By Nov 9 | **Spark's lines** for every move (FAL-427). | Writer |
-| By Nov 13 | **Voices.** Two takes of every line, made with VoxCPM2 on the local GPU (FAL-428). | Audio Designer |
-| Nov 16–22 | **E1 Player** at `/?explain`, with "Watch it" on every worked solution and a "Your turn" question at the end (FAL-429). | Coder |
-| Ongoing | Each new question class ships with move tags. | Coder |
-
-### The Relic: playable lessons
-
-Matt's spec is GitHub issue #13 (FAL-325). Players find salvaged CRT and VR machines in the world. Each one opens a short lesson: a character has a broken machine, shows the problem, and hands the player the controls. The player learns the idea by fixing the machine, then solves a related problem alone.
-
-| When | Step | Who |
-|---|---|---|
-| Done for Functions | **L0 Design down.** Work back from the exam question types to the ideas and prior skills students need, and group them into a lesson map. Functions first. The Functions map: [`curriculum/LESSONS.md`](curriculum/LESSONS.md). | Curriculum Author |
-| Nov 23–29 | **L1 Architecture.** The lesson state machine (setup, demonstrate, interact, react, apply, complete), the lesson file format, the interaction parts, and lesson progress in the save. | Coder |
-| Nov 30 – Dec 13 | **L2 Pilot: The Broken Conveyor** (SL2.11, graph transformations), with placeholder art. Its demonstrate step uses the explainer player. | Coder |
-| Dec 14–20 | **L3 Presentation.** B0-LT as a cutout character and the CRT and salvaged-VR look. One week, because the explainer player already does narration and captions. | Coder, Artist |
-| Jan 4–17, 2027 | **L4 A second lesson that plays differently,** to prove the lesson engine isn't built around one lesson. Plus a first Relic Library terminal. | Coder |
-| From Jan 18, 2027 | **L5 Scale up** from the lesson map, zone by zone, in the order the zones ship. | Coder, Curriculum Author, Artist |
+| L0 | **Design down,** done for Functions. Work back from the exam question types to the ideas and prior skills students need, and group them into a lesson map: [`curriculum/LESSONS.md`](curriculum/LESSONS.md). | Curriculum Author |
+| L1 | **Architecture.** The lesson state machine (setup, demonstrate, interact, react, apply, complete), the lesson file format, the interaction parts, and lesson progress in the save. | Coder |
+| L2 | **Pilot: The Broken Conveyor** (SL2.11, graph transformations), with placeholder art. Its demonstrate step uses the explainer player. | Coder |
+| L3 | **Presentation.** B0-LT as a cutout character and the CRT and salvaged-VR look. | Coder, Artist |
+| L4 | **A second lesson that plays differently,** to prove the lesson engine isn't built around one lesson, plus a first Relic Library terminal. | Coder |
+| L5 | **Scale up** from the lesson map, zone by zone. | Coder, Curriculum Author, Artist |
 
 The spec's rule stands: build and test two lessons before making more.
 
-### Room for lessons in what we build now
+### Room for lessons in what is built now
 
-No lesson code is written before November 15. The Godot build leaves these places for lessons, so nothing has to be torn out later.
+No lesson code is written yet. The Godot build leaves these places for lessons, so nothing has to be torn out later.
 
 - **Save:** an empty `lessons` record next to `class` and `trees`. It keeps lesson progress (discovered, explored, completed, mastered) apart from question results (FAL-322).
 - **Engine:** any screen can ask for a question by type, unknown, representation, angle and seed, not only a run. A lesson's apply step uses the same recipes and answer checker as runs, so no lesson question is written by hand (FAL-322).
@@ -89,7 +100,7 @@ No lesson code is written before November 15. The Godot build leaves these place
 
 ### Where the lessons live
 
-The spec's six themed locations become Relic stations inside our five zones. The zones' names, art and IDs stay as they are.
+The spec's six themed locations become Relic stations inside the five zones. The zones' names, art and IDs stay as they are.
 
 | Zone | Relic station | Character |
 |---|---|---|
@@ -106,19 +117,13 @@ The maths is much the same in the IB, A-level, GCSE and US high school courses (
 - **Question types and teaching ideas can come from any course.** Recipes write their own numbers and wording, so nothing is copied.
 - **Text, diagrams and videos are copied only when the licence allows a paid release,** such as CC BY. Non-commercial licences (CC BY-NC) are out, and so are exam board papers. This keeps a later Android, iOS or Steam release open.
 
-### Soundtrack and sound effects
+## Soundtrack and sound effects
 
-Matt's ask is FAL-357, and the plan there is approved. The game gets lo-fi study music with a techno layer that fades in when the scene's stakes rise, a toggle to turn it off, and sound effects. It's icing on the cake, so it ships at launch or just after. Nothing is built before November 15.
-
-| When | Step | Who |
-|---|---|---|
-| Nov 16–22 | **S0 Spike, about a day.** Install ACE-Step 1.5 in ComfyUI, render about 30 candidates for the Signal Tower set, cut the loops, build a listening page, and test three synced layers in a web build (FAL-364). | Audio Designer, and Matt listens |
-| Dec 7–20 | **S1 Sound system.** Audio buses, the Music and Sound effects toggles, `set_tension`, about 15 sound effects, and the Signal Tower set in the game. The Voice bus, its toggle and ducking come earlier, with the explainer player (FAL-429). | Coder |
-| As each zone ships | **S2 One music set per zone,** plus a title theme and stingers. Ready by launch or just after. | Audio Designer, and Matt listens |
+Matt's ask is FAL-357, and the plan there is approved: lo-fi study music with a techno layer that fades in when the scene's stakes rise, and sound effects. The sound system is built (FAL-385): the Music, Sound effects and Voice settings, a loop for every zone and the Thunderdome, and the fight effects (FAL-925). Still to come: the tension layer (`set_tension`), a title theme and stingers.
 
 These rules hold for every step:
 
 - **One grid at 120 BPM.** The calm layers play half-time, so they feel like study music. The techno layer plays full-time on the same grid, so it can fade in at any moment.
 - **The music follows the scene, never a miss.** Bosses, encounters and timed questions raise it. A wrong answer or low HP never does (TONE.md).
-- **Music starts on at half volume** after the first tap. A speaker icon on the main screen turns it off, and the game remembers the choice on that device.
+- **Sound starts off,** on a fresh install and for every student in a classroom (`game/audio/audio.gd`). The speaker icon turns it on, and the game remembers the choice on that device.
 - **Licences keep a paid release open.** ACE-Step 1.5 is MIT. MusicGen is out because its model files are CC BY-NC. Sound effects come mostly from CC0 packs and generated retro blips.

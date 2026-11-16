@@ -95,7 +95,7 @@ func need(unknown: String, rep: String) -> Dictionary:
 
 ## The extra formats the views build: error-spot where a view has a `spot`. Extension types
 ## only; the exam types offer none. method-pick and true-false-reason are not built for this
-## region (see game/README.md).
+## region (see game/docs/QUESTION-ENGINE.md).
 func extra() -> Dictionary:
 	return {"split-to-form": ["error-spot"]}
 

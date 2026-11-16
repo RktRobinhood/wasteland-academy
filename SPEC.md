@@ -1,14 +1,16 @@
 # WASTELAND ACADEMY — Full Project Specification
 
-> IB Math AA SL Gamified Review Tool  
-> Status: Pre-production | Version: 1.0  
-> Target: Static GitHub Pages PWA, mobile-first
+> IB mathematics gamified review tool: AA SL in full, and the maths AA HL, AI SL and AI HL share with it  
+> Status: Live. The Godot game is at the main address; last checked against it 2026-11-16 (#198)  
+> Target: an app for PC, then Android and iOS (#199). GitHub Pages is the testing host
+
+**How to read this.** This is the design specification. Where it and the Godot game differ, the game and `game/README.md` are right, and this file should be fixed. Sections or paragraphs marked **Legacy** describe the original HTML game, which is still published at `/classic/` until #197 removes it for students.
 
 ---
 
 ## 1. CONCEPT
 
-A roguelite math review game for IB Mathematics: Analysis and Approaches SL. Students navigate a post-apocalyptic wasteland overworld (Mario World structure), entering topic zones to battle math enemies and visiting a central **Thunderdome** for configurable exam-prep runs. The aesthetic is **Salvage Neon Bazaar** — dark, gritty wasteland punctuated by vibrant neon. Built as a Progressive Web App so students can install it to their phone home screen and play it like a native game.
+A roguelite math review game for IB Mathematics, built first for Analysis and Approaches SL. Students navigate a post-apocalyptic wasteland overworld (Mario World structure), entering topic zones to battle math enemies and visiting a central **Thunderdome** for configurable exam-prep runs. The aesthetic is **Salvage Neon Bazaar** — dark, gritty wasteland punctuated by vibrant neon. Built as a Progressive Web App so students can install it to their phone home screen and play it like a native game.
 
 **Core philosophy**: Productive struggle + flow state + spaced repetition. The game responds to the student's level, rewards being in the right difficulty zone, and circles back to weak spots with breathing room.
 
@@ -52,79 +54,28 @@ This direction guides ongoing engine work. Packaging outside Godot, neutral scen
 wording and expanded bank ingestion remain open in
 [#134](https://github.com/RktRobinhood/wasteland-academy/issues/134); the
 [curriculum integration plan](curriculum/README.md#question-bank-integration-direction)
-records the data requirements. The technical stack below describes the original
-HTML game; `game/README.md` describes the current Godot implementation.
+records the data requirements.
 
 ---
 
 ## 2. PLATFORM & TECHNICAL STACK
 
-### Hosting
-- Static GitHub Pages site (no server, no backend)
-- HTTPS provided by GitHub Pages (required for PWA)
-
-### PWA Requirements
-- `manifest.json` — app name, icons, theme colour (#1F2937), display: standalone, orientation: portrait-primary
-- `service-worker.js` — caches all HTML/CSS/JS/fonts/KaTeX assets on first load; works fully offline after one visit
-- App icons: 192×192 and 512×512 PNG (see ART_REQUIREMENTS.md)
-- "Add to Home Screen" prompt on first visit
+### Platforms
+- **Now:** a Godot web build on GitHub Pages, at the main address. It is the testing host, and the build a class uses first (the `classroom-release` issues).
+- **Next:** an app for PC (Windows first, then macOS and Linux), then Android and iOS (#199). Godot was chosen so one project exports to all of them.
+- **Offline:** every file the game uses ships with it. On the web, `_takeover/service-worker.js` keeps a copy after one visit.
 
 ### Tech Stack
-- **Vanilla JS (ES Modules)** — no framework, no bundler, no build step
-- **CSS Custom Properties** — full design token system, all colours/spacing as variables
-- **KaTeX** 0.16.9 (vendored in `vendor/katex/`, precached by Service Worker) — math rendering
-- **Fonts**: Bangers (display/headings) + Share Tech Mono (body/UI), from Google Fonts, vendored in `vendor/fonts/` (OFL)
-- No CDN and no remote URLs: every file is in the repo, by relative path, so the same files can ship in a store app
-- **localStorage**, through `js/platform.js` — all save data, player stats, spaced repetition state. Saves carry a format version and are migrated, never wiped
-- Export/Import save as JSON file (manual backup, and moving progress to another device or an app build)
+- **Godot 4.7.2**, all code in GDScript (C# can't export to the web), Compatibility renderer, portrait 1080×1920 base with "expand" stretch.
+- **Question engine** in `game/engine/`: seeded recipes generate every question, marking and worked solution from `curriculum/question-types.json`. Reference: `game/docs/QUESTION-ENGINE.md`. Its reusable interface is `MathsEngine` (`game/docs/MATHS-ENGINE.md`).
+- **Maths notation** is drawn by the game (`ui/math_box.gd`), and answers are typed in notation with stacked fractions, powers and roots (`ui/math_entry.gd`). No LaTeX.
+- **Fonts:** Bangers (display) and Share Tech Mono (body), both OFL, plus a DejaVu subset for maths symbols, copied into `game/assets/fonts/`.
+- **Saves:** `user://save.json` and `user://settings.cfg` (IndexedDB on the web). Per device, no accounts. Export and import are planned (#185); sync is for later (#202).
+- **No network calls** beyond the site the game is served from (`PRIVACY.md`).
+- **Checks:** a headless Godot test suite, an independent SymPy answer checker and a seed sweep run in CI on every PR (`README.md`, "Run, test and export").
 
-### Module System
-Each content file registers itself via a global `WA.registerPack(pack)` call. The engine discovers packs dynamically — no hardcoded imports needed. New topic packs can be added by dropping a JS file in `/content/` and adding a `<script>` tag to `index.html`.
-
-### File Structure
-```
-/
-├── index.html              ← Single entry point
-├── manifest.json           ← PWA manifest
-├── service-worker.js       ← Offline caching
-├── SPEC.md                 ← This file
-├── ART_REQUIREMENTS.md     ← Asset generation brief
-├── CONTENT_SCHEMA.md       ← Question format reference
-│
-├── css/
-│   ├── tokens.css          ← Design system variables
-│   ├── base.css            ← Reset, typography, safe areas
-│   ├── screens.css         ← Screen-level layouts
-│   ├── combat.css          ← Battle UI components
-│   ├── map.css             ← Overworld + zone map
-│   └── stats.css           ← Stats/debrief screen
-│
-├── js/
-│   ├── engine.js           ← Core game loop, state management
-│   ├── router.js           ← Screen navigation
-│   ├── combat.js           ← Battle mechanics, damage calc
-│   ├── spaced-rep.js       ← Spaced repetition engine
-│   ├── stats.js            ← Performance tracking, spider diagram
-│   ├── pwa.js              ← Service worker registration, install prompt
-│   ├── platform.js         ← The only file touching browser storage, links, files
-│   └── katex-render.js     ← Math rendering wrapper
-│
-├── vendor/                 ← KaTeX + fonts, copied in (vendor/LICENSES.md)
-│
-├── content/
-│   ├── topic-1-algebra.js
-│   ├── topic-2-functions.js
-│   ├── topic-3-geometry.js
-│   ├── topic-4-stats.js
-│   └── topic-5-calculus.js
-│
-└── assets/
-    ├── icons/              ← PWA icons (192, 512)
-    ├── avatars/            ← Player avatar sprites
-    ├── enemies/            ← Enemy sprites per difficulty tier
-    ├── ui/                 ← Lifeline icons, HP bar frames, buttons
-    └── map/                ← Overworld map, zone backgrounds
-```
+### Legacy: the HTML game
+The original game is vanilla JS with no build step, KaTeX for maths, CSS custom properties for the design tokens, and `localStorage` through `js/platform.js` for saves, with JSON export and import. Each question pack in `content/` registers itself with `WA.registerPack(pack)` (`CONTENT_SCHEMA.md`). The file layout is in `README.md`, "The legacy HTML game".
 
 ---
 
@@ -159,6 +110,8 @@ Post-apocalyptic wasteland world. Dark, desolate base punctuated by vibrant hand
   --col-math:        #9FF0E6;   /* KaTeX math tint */
 }
 ```
+
+The Godot game uses the same background and accent colours, with its own panel shades (`game/ui/ui_theme.gd`). **Legacy:** the CSS blocks below, the KaTeX tinting and the pixel sizes are the HTML game's.
 
 ### Typography
 ```css
@@ -279,11 +232,11 @@ Both modes: high score tracked per configuration, shown on Thunderdome entry scr
 - Worked solution revealed after answer
 - 50-50 lifeline available
 
-**Value Input** (clean integer or simple fraction answers)
-- Calculator-style numpad: digits 0–9, backspace, decimal, negative, fraction (a/b button)
-- LaTeX generated behind the scenes, student never sees it
+**Value Input** (typed answers)
+- On-screen keypad: digits, backspace, decimal point, negative, the fraction key, powers and roots, typed in notation
+- Marked exactly on Paper 1 and to 3 s.f. on Paper 2, with equivalent answers accepted unless the question asks for a form (`TEACHERS.md`, "How typed answers are marked")
 - 50-50 lifeline disabled
-- Time Freeze lifeline available
+- Freeze lifeline available
 
 ### 6.2 Difficulty Calibration Reference
 Use the Math AASL Question Bank repo (read-only reference) at:
@@ -297,8 +250,9 @@ Calibration guide:
 - D5: 10+ mark synoptic, multi-topic questions; reserved for bosses
 
 ### 6.3 Content Coverage
-Full IB AA SL curriculum, thin coverage (~3–5 questions per subtopic), expandable over time.
-See CONTENT_SCHEMA.md for the question data format.
+Every question is generated: a recipe picks the numbers from a seed, and the engine writes the stem, the options, the marking and the worked solution. Every AA SL skill is playable, and so is most of the maths AA HL, AI SL and AI HL share with AA SL. [`curriculum/COVERAGE.md`](curriculum/COVERAGE.md) has the current count, generated from the engine.
+
+**Legacy:** the HTML game used hand-written packs, about 3–5 questions per subtopic (`CONTENT_SCHEMA.md`).
 
 Topic breakdown follows the course scheme of work:
 - **Topic 1**: SL1.1–SL1.8 (Scientific notation, sequences, logs, proof)
@@ -311,7 +265,9 @@ Topic breakdown follows the course scheme of work:
 
 ## 7. SPACED REPETITION ENGINE
 
-### Logic
+In the Godot game the planner (`game/engine/planner.gd`) serves a question cell the student has never seen first, then one they got wrong recently but not within the last few questions, then one weighted by how often the IB asks its type. It has no WANTED board yet.
+
+### Legacy: the HTML game's logic
 - Questions answered with **Failure** are flagged as **WANTED**
 - WANTED questions re-enter the pool with elevated priority
 - **Breathing room rule**: A WANTED question will not resurface until at least 3–5 other questions have been answered first
@@ -327,12 +283,12 @@ Topic breakdown follows the course scheme of work:
 
 ## 8. LIFELINES (Who Wants to Be a Millionaire DNA)
 
-Three lifelines per run. Once used, gone for that run. Spent Scrap to refill between runs.
+Three lifelines per run, one charge of each. Once used, gone for that run. The Bazaar sells extra charges. Names as in `writing/glossary.md`.
 
 | Lifeline | MCQ | Value Input | Effect |
 |----------|-----|-------------|--------|
 | **50-50** | ✅ Enabled | ❌ Disabled | Removes 2 incorrect MCQ options |
-| **Time Freeze** | ✅ Enabled | ✅ Enabled | Doubles remaining time for this question |
+| **Freeze** | ✅ Enabled | ✅ Enabled | Stops the timer for 15 seconds |
 | **Hint** | ✅ Enabled | ✅ Enabled | Reveals first step of worked solution without showing answer |
 
 Lifeline icons: visually distinct, clear enabled/disabled state. See ART_REQUIREMENTS.md.
@@ -368,6 +324,9 @@ In the Godot game (FAL-531), zone maps are hubs: every built region opens in any
 Character plan: FAL-939 (2026-11-15). Classes, traits, action skills and trees: FAL-291, with tree plan v2 from FAL-345.
 
 ### Profile Setup (first launch)
+
+Not built yet. The Godot game has no name step and no character pick, and it asks for no name (#186 covers the first run). The plan below stands, but step 1 clashes with `PRIVACY.md`, which says the game asks for no name. Until that is decided, a callsign is a made-up handle, never a real name.
+
 1. Enter name/callsign
 2. Choose character. The character sets the class:
 
@@ -377,7 +336,7 @@ Character plan: FAL-939 (2026-11-15). Classes, traits, action skills and trees: 
 | **Banjo Brumby** (Male Learner) | **Ranger**: precise typed answers |
 | **The cyber-dog** (name and breed from Writer) | **Tinker**: learning from mistakes |
 
-3. Profile saved to localStorage
+3. Profile saved with the rest of the save
 
 - Switching character in the hub between runs is free. Each character keeps its own skill tree.
 - Lines never gender the player, and class tropes stay on branches, not on the player (TONE.md).
@@ -401,6 +360,8 @@ SPARK (the robot character) is not a pick. It is the companion of every characte
 ---
 
 ## 11. STATS & DEBRIEF SCREEN
+
+**Legacy design.** The Godot game shows a run summary after each run and, on each topic's screen, accuracy, coverage and the three weakest skills (`game/engine/progress.gd`). The radar, trend panel and WANTED board below are not built in it.
 
 Shown after every Thunderdome run and available from the overworld.
 
@@ -446,6 +407,8 @@ See `ART_REQUIREMENTS.md` for full generation briefs.
 
 ## 13. CONTENT AUTHORING NOTES
 
+**Legacy:** these notes are for the HTML game's hand-written packs. Godot questions come from recipes; how to add a type is in `game/docs/QUESTION-ENGINE.md` and `curriculum/README.md`.
+
 - All question text written in plain English; LaTeX used only for math expressions
 - Math wrapped in `$...$` (inline) or `$$...$$` (display block) — KaTeX renders on load
 - Students never see raw LaTeX — numpad generates it invisibly for value-input questions
@@ -459,9 +422,7 @@ See `ART_REQUIREMENTS.md` for full generation briefs.
 
 - Multiplayer / class leaderboards
 - Teacher dashboard
-- HL content
-- Procedurally generated questions
-- Animated sprite movement
-- Cloud save / cross-device sync (localStorage only)
+- Accounts, and cloud save or sync between devices (export and import only, #185; sync later, #202)
+- Telemetry, until the owner approves it (#133)
 
-Music, sound effects and voiced narration aren't out of scope. They're planned after November 15: narration in L3, and the soundtrack in S0 to S2. See ROADMAP.md.
+HL and AI content and generated questions were out of scope for v1 and have shipped. Music, sound effects and voiced explainers are in scope: see ROADMAP.md.

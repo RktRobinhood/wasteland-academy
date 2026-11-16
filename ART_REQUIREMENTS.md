@@ -8,6 +8,8 @@
 
 ## EXACT FILENAME CONVENTIONS (for the art agent)
 
+> **Mostly legacy.** The tree below and the "placeholder CSS" fallback are the legacy HTML game's, except where a line says Godot. The Godot game's art slots, sizes and fallbacks are in `game/README.md`, "Art slots" and "Map art". The style and the briefs apply to both. Map and level art now comes from the owner through ChatGPT, from prompt cards (#201).
+
 The engine references assets by these exact paths. Drop files here with these exact names.
 
 ```
