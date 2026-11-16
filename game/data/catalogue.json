@@ -46558,6 +46558,22 @@
 						"which-measure-moves"
 					],
 					"wrong": "the change in the other direction"
+				},
+				{
+					"text": "Deciding without checking the value against what is possible",
+					"as": "distractor",
+					"in": [
+						"keep-or-remove"
+					],
+					"wrong": "the verdict that ignores the limit"
+				},
+				{
+					"text": "Mixing up L and U, giving the other quartile's least value",
+					"as": "distractor",
+					"in": [
+						"quartile-from-no-outliers"
+					],
+					"wrong": "the least U for L, or the least L for U"
 				}
 			],
 			"chain": [
@@ -47238,7 +47254,8 @@
 					"as": "distractor",
 					"in": [
 						"plot-point",
-						"pick-curve"
+						"pick-curve",
+						"curve-start"
 					],
 					"wrong": "the point at the middle of the class"
 				},
@@ -47252,9 +47269,167 @@
 						"frequency-from-graph",
 						"p-q-from-graph",
 						"plot-point",
-						"pick-curve"
+						"pick-curve",
+						"last-frequency"
 					],
 					"wrong": "the running total for the frequency, or the frequency for the running total"
+				},
+				{
+					"text": "Reading across from the wrong fraction of the total, so giving another quartile or the median",
+					"as": "distractor",
+					"in": [
+						"median-from-graph",
+						"quartile-from-graph"
+					],
+					"wrong": "a quartile for the median, or the other quartile or the median for a quartile"
+				},
+				{
+					"text": "Giving one quartile as the interquartile range, without taking the lower quartile from the upper",
+					"as": "distractor",
+					"in": [
+						"iqr-from-graph",
+						"iqr-from-table"
+					],
+					"wrong": "Q1 or Q3 alone"
+				},
+				{
+					"text": "Adding the two readings instead of taking one from the other",
+					"as": "distractor",
+					"in": [
+						"iqr-from-graph",
+						"iqr-from-table",
+						"range-from-graph",
+						"count-between",
+						"count-between-table",
+						"frequency-from-cf",
+						"frequency-from-graph"
+					],
+					"wrong": "the sum of the two readings"
+				},
+				{
+					"text": "Giving where the curve ends as the range, forgetting to take off where it starts",
+					"as": "distractor",
+					"in": [
+						"range-from-graph"
+					],
+					"wrong": "the largest value"
+				},
+				{
+					"text": "Giving the interquartile range when the range is asked for",
+					"as": "distractor",
+					"in": [
+						"range-from-graph"
+					],
+					"wrong": "Q3 − Q1"
+				},
+				{
+					"text": "Taking the reading from the total, so counting those above the value instead of those at or below it",
+					"as": "distractor",
+					"in": [
+						"count-below",
+						"count-below-table"
+					],
+					"wrong": "n − the reading"
+				},
+				{
+					"text": "Using only the reading at the upper value, forgetting to take off those below the lower one",
+					"as": "distractor",
+					"in": [
+						"count-between",
+						"count-between-table"
+					],
+					"wrong": "the reading at the upper value"
+				},
+				{
+					"text": "Counting those outside the two values instead of those between them",
+					"as": "distractor",
+					"in": [
+						"count-between",
+						"count-between-table"
+					],
+					"wrong": "n − (b − a)"
+				},
+				{
+					"text": "Giving the count itself, without turning it into a percentage of the total",
+					"as": "distractor",
+					"in": [
+						"percent-above",
+						"percentile-of-value"
+					],
+					"wrong": "the count, not the percentage"
+				},
+				{
+					"text": "Giving the percentage above the value instead of the percentage at or below it",
+					"as": "distractor",
+					"in": [
+						"percentile-of-value"
+					],
+					"wrong": "the complement of the percentile"
+				},
+				{
+					"text": "Forgetting to scale the sample's count up to the whole group",
+					"as": "distractor",
+					"in": [
+						"scale-to-population"
+					],
+					"wrong": "the count in the sample"
+				},
+				{
+					"text": "Copying the total so far, without adding on this class's frequency",
+					"as": "distractor",
+					"in": [
+						"cf-entry"
+					],
+					"wrong": "the cumulative frequency before the class"
+				},
+				{
+					"text": "Stopping at the sum of the other frequencies, without taking it from the total",
+					"as": "distractor",
+					"in": [
+						"last-frequency"
+					],
+					"wrong": "the sum of the other frequencies"
+				},
+				{
+					"text": "Giving the cumulative frequency at the lower boundary of the class instead of the difference of the two",
+					"as": "distractor",
+					"in": [
+						"frequency-from-cf",
+						"frequency-from-graph"
+					],
+					"wrong": "the running total before the class"
+				},
+				{
+					"text": "Swapping p and q over",
+					"as": "distractor",
+					"in": [
+						"p-q-from-graph"
+					],
+					"wrong": "p and q the wrong way round"
+				},
+				{
+					"text": "Plotting the running total at the lower boundary of the class instead of the upper",
+					"as": "distractor",
+					"in": [
+						"plot-point"
+					],
+					"wrong": "the point at the lower boundary"
+				},
+				{
+					"text": "Starting the curve at the origin instead of at the lower boundary of the first class",
+					"as": "distractor",
+					"in": [
+						"curve-start"
+					],
+					"wrong": "(0, 0)"
+				},
+				{
+					"text": "Starting the curve at the first class's plotted point instead of at zero on its lower boundary",
+					"as": "distractor",
+					"in": [
+						"curve-start"
+					],
+					"wrong": "the first class's upper boundary and frequency"
 				}
 			],
 			"chain": [
@@ -47856,6 +48031,76 @@
 						"claim-from-box-plots"
 					],
 					"wrong": "the right medians with the other verdict"
+				},
+				{
+					"text": "Taking halfway between the ends of the whiskers as the median",
+					"as": "distractor",
+					"in": [
+						"read-median",
+						"value-at-share"
+					],
+					"wrong": "(min + max) ÷ 2"
+				},
+				{
+					"text": "Reading the wrong line of the plot, another quartile or the median",
+					"as": "distractor",
+					"in": [
+						"read-median",
+						"read-quartile",
+						"read-median-iqr",
+						"value-at-share"
+					],
+					"wrong": "a different line of the box"
+				},
+				{
+					"text": "Taking only half of the box, from the median to a quartile, as the interquartile range",
+					"as": "distractor",
+					"in": [
+						"read-iqr",
+						"read-median-iqr"
+					],
+					"wrong": "Q3 − median or median − Q1"
+				},
+				{
+					"text": "Giving one quartile on its own as the interquartile range",
+					"as": "distractor",
+					"in": [
+						"read-iqr"
+					],
+					"wrong": "Q1 or Q3 alone"
+				},
+				{
+					"text": "Giving the greatest value as the range, forgetting to take off the least",
+					"as": "distractor",
+					"in": [
+						"read-range"
+					],
+					"wrong": "the greatest value"
+				},
+				{
+					"text": "Giving the percentage of the data instead of the number of them",
+					"as": "distractor",
+					"in": [
+						"count-in-section"
+					],
+					"wrong": "25 for each section, as a count"
+				},
+				{
+					"text": "Counting the sections outside the two values instead of those between them",
+					"as": "distractor",
+					"in": [
+						"count-in-section",
+						"percent-in-section"
+					],
+					"wrong": "the other sections"
+				},
+				{
+					"text": "Leaving the outlier off the plot altogether",
+					"as": "distractor",
+					"in": [
+						"pick-box-with-outlier"
+					],
+					"wrong": "the plot with no cross"
 				}
 			],
 			"chain": [
@@ -49890,6 +50135,105 @@
 						"choose-average"
 					],
 					"wrong": "the mode, for measurements that are all different"
+				},
+				{
+					"text": "Giving a different average from the one asked for",
+					"as": "distractor",
+					"in": [
+						"mean-of-data",
+						"median-of-data",
+						"mode-of-data"
+					],
+					"wrong": "the median or the mean in place of the average asked"
+				},
+				{
+					"text": "Taking halfway between the least and greatest values as the average",
+					"as": "distractor",
+					"in": [
+						"mean-of-data",
+						"median-of-data"
+					],
+					"wrong": "the midrange"
+				},
+				{
+					"text": "Giving half of n, a position in the list, as the median instead of the value there",
+					"as": "distractor",
+					"in": [
+						"median-of-data"
+					],
+					"wrong": "n ÷ 2"
+				},
+				{
+					"text": "Giving the greatest value as the range, forgetting to take off the least",
+					"as": "distractor",
+					"in": [
+						"range-of-data"
+					],
+					"wrong": "the greatest value"
+				},
+				{
+					"text": "Adding the greatest and least values instead of subtracting",
+					"as": "distractor",
+					"in": [
+						"range-of-data"
+					],
+					"wrong": "greatest + least"
+				},
+				{
+					"text": "Giving the least and greatest values instead of the quartiles",
+					"as": "distractor",
+					"in": [
+						"quartiles-of-data"
+					],
+					"wrong": "the minimum and maximum"
+				},
+				{
+					"text": "Giving the range instead of the interquartile range",
+					"as": "distractor",
+					"in": [
+						"iqr-of-data"
+					],
+					"wrong": "greatest − least"
+				},
+				{
+					"text": "Giving one quartile on its own as the interquartile range",
+					"as": "distractor",
+					"in": [
+						"iqr-of-data"
+					],
+					"wrong": "Q₁ or Q₃ alone"
+				},
+				{
+					"text": "Multiplying the mean by the number of known values, one too few, to get the total",
+					"as": "distractor",
+					"in": [
+						"missing-value-from-mean"
+					],
+					"wrong": "mean × (n − 1) − the known sum"
+				},
+				{
+					"text": "Taking the missing value to be the mean itself",
+					"as": "distractor",
+					"in": [
+						"missing-value-from-mean"
+					],
+					"wrong": "the mean"
+				},
+				{
+					"text": "Forgetting to divide the combined total by the number of values",
+					"as": "distractor",
+					"in": [
+						"combined-mean"
+					],
+					"wrong": "the combined total"
+				},
+				{
+					"text": "Thinking the standard deviation is least affected because it averages over every value",
+					"as": "distractor",
+					"in": [
+						"choose-spread"
+					],
+					"wrong": "the standard deviation"
 				}
 			],
 			"chain": [
@@ -51173,7 +51517,9 @@
 						"list-then-count",
 						"complement-table",
 						"complement-count",
-						"rf-from-table"
+						"rf-from-table",
+						"two-way-whole",
+						"complement-two-rules"
 					],
 					"wrong": "one share per colour, value, total or score, not per equally likely outcome"
 				},
@@ -51294,6 +51640,57 @@
 						"gamblers-fallacy"
 					],
 					"wrong": "the chance of the run with the next toss on the end"
+				},
+				{
+					"text": "Giving the probability that the event does not happen instead of that it does",
+					"as": "distractor",
+					"in": [
+						"bag-counter",
+						"bag-after-change",
+						"two-way-whole",
+						"list-data",
+						"grid-total-equals",
+						"grid-total-at-least",
+						"list-then-count",
+						"rf-from-table",
+						"rf-total-to-find",
+						"rf-graph-estimate",
+						"more-reliable",
+						"gamblers-fallacy"
+					],
+					"wrong": "1 − P(A)"
+				},
+				{
+					"text": "Ignoring the change and using the bag as it was before",
+					"as": "distractor",
+					"in": [
+						"bag-after-change"
+					],
+					"wrong": "the old count over the old total"
+				},
+				{
+					"text": "Dividing by a column total when the person is chosen from the whole group",
+					"as": "distractor",
+					"in": [
+						"two-way-whole"
+					],
+					"wrong": "the cell over its column's total"
+				},
+				{
+					"text": "Counting the whole row or column instead of only the cell where they meet",
+					"as": "distractor",
+					"in": [
+						"two-way-whole"
+					],
+					"wrong": "a row or column total over the grand total"
+				},
+				{
+					"text": "Averaging the two estimates instead of taking the one from more trials",
+					"as": "distractor",
+					"in": [
+						"more-reliable"
+					],
+					"wrong": "the mean of the two relative frequencies"
 				}
 			],
 			"chain": [
@@ -52394,7 +52791,15 @@
 					"as": "distractor",
 					"in": [
 						"p-complement",
-						"p-rule-points"
+						"p-rule-points",
+						"p-score",
+						"p-at-least",
+						"p-property",
+						"p-compare",
+						"p-mirror-score",
+						"p-mirror-at-least",
+						"weighted-sum",
+						"weighted-target"
 					],
 					"wrong": "the event's complement"
 				},
@@ -52496,6 +52901,14 @@
 						"expected-from-win"
 					],
 					"wrong": "q × (1 + 2 + … + n)"
+				},
+				{
+					"text": "Counting the outcomes where the event does not happen instead of where it does",
+					"as": "distractor",
+					"in": [
+						"count-event"
+					],
+					"wrong": "the number of cells outside the event"
 				}
 			],
 			"chain": [
@@ -53802,7 +54215,8 @@
 					"text": "Using np as the variance, forgetting the factor 1 − p",
 					"as": "distractor",
 					"in": [
-						"variance-from-parameters"
+						"variance-from-parameters",
+						"std-deviation"
 					],
 					"wrong": "np for the variance"
 				},
@@ -53859,6 +54273,104 @@
 						"conditional-probability"
 					],
 					"wrong": "P(X = j) × P(X ≥ 1)"
+				},
+				{
+					"text": "Taking p as the probability of the other outcome, one minus the one given",
+					"as": "distractor",
+					"in": [
+						"n-and-p-from-words",
+						"mean-from-parameters"
+					],
+					"wrong": "1 − p used for p"
+				},
+				{
+					"text": "Giving the probability of exactly the boundary value instead of the cumulative probability",
+					"as": "distractor",
+					"in": [
+						"at-most-probability",
+						"at-least-probability"
+					],
+					"wrong": "P(X = k) alone"
+				},
+				{
+					"text": "Giving the probability of the opposite event, one minus the one asked for",
+					"as": "distractor",
+					"in": [
+						"at-most-probability"
+					],
+					"wrong": "1 − P(X ≤ k)"
+				},
+				{
+					"text": "Leaving the boundary value out of 'at most', as if it said 'fewer than'",
+					"as": "distractor",
+					"in": [
+						"at-most-probability"
+					],
+					"wrong": "P(X ≤ k − 1) for P(X ≤ k)"
+				},
+				{
+					"text": "Giving the cumulative probability below the boundary, forgetting to take it from one",
+					"as": "distractor",
+					"in": [
+						"at-least-probability"
+					],
+					"wrong": "P(X ≤ k − 1) for P(X ≥ k)"
+				},
+				{
+					"text": "Forgetting to subtract the cumulative probability below the lower end",
+					"as": "distractor",
+					"in": [
+						"between-probability"
+					],
+					"wrong": "P(X ≤ b) alone"
+				},
+				{
+					"text": "Giving the variance when E(X) is asked for",
+					"as": "distractor",
+					"in": [
+						"mean-from-parameters"
+					],
+					"wrong": "np(1 − p) for np"
+				},
+				{
+					"text": "Leaving p out of the variance, giving n times the chance of failure",
+					"as": "distractor",
+					"in": [
+						"variance-from-parameters"
+					],
+					"wrong": "n(1 − p)"
+				},
+				{
+					"text": "Forgetting to multiply by n in the variance",
+					"as": "distractor",
+					"in": [
+						"variance-from-parameters"
+					],
+					"wrong": "p(1 − p)"
+				},
+				{
+					"text": "Taking E(X) as n instead of dividing it by p",
+					"as": "distractor",
+					"in": [
+						"n-and-p-from-mean-variance"
+					],
+					"wrong": "n = E(X)"
+				},
+				{
+					"text": "Forgetting to multiply by p for the success on the last trial",
+					"as": "distractor",
+					"in": [
+						"kth-success-trial"
+					],
+					"wrong": "P(k − 1 successes in m − 1 trials)"
+				},
+				{
+					"text": "Forgetting to divide by the probability of at least one success",
+					"as": "distractor",
+					"in": [
+						"conditional-probability"
+					],
+					"wrong": "P(X = k) alone"
 				}
 			],
 			"chain": [

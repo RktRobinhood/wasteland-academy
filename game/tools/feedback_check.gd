@@ -60,11 +60,10 @@ const UNSORTED := [
 	"t1-geometric-sequence", "t1-log-exp-form", "t1-solve-exponential", "t1-sum-to-infinity",
 	"t3-distance-midpoint", "t3-identity-values", "t3-solid-volume-area",
 	"t3-trig-model-parameters", "t3-trig-model-use", "t3-trig-quadratic",
-	"t3-trig-read-features", "t4-binomial", "t4-box-plot", "t4-cumulative-frequency",
-	"t4-discrete-distribution", "t4-expected-occurrences", "t4-expected-value",
-	"t4-independence", "t4-inverse-normal", "t4-normal-probability", "t4-normal-properties",
-	"t4-outlier-rule", "t4-probability-basic", "t4-regression-gdc", "t4-sample-space",
-	"t4-summary-statistics", "t4-tree-diagram", "t5-concavity", "t5-derivative-graph"
+	"t3-trig-read-features", "t4-discrete-distribution", "t4-expected-occurrences",
+	"t4-expected-value", "t4-independence", "t4-inverse-normal", "t4-normal-probability",
+	"t4-normal-properties", "t4-regression-gdc", "t4-tree-diagram", "t5-concavity",
+	"t5-derivative-graph"
 ]
 
 ## Two full stops, but not an ellipsis.

@@ -17,6 +17,26 @@ const R_AT_MOST := SC + "0"
 const R_TOP := SC + "1"
 const R_MIDPOINT := SB + "0"
 const R_SINGLE := SB + "1"
+## t4-cumulative-frequency's own slips (FAL-820).
+const T := "t4-cumulative-frequency#"
+const R_WRONG_HEIGHT := T + "7"
+const R_ONE_QUARTILE := T + "8"
+const R_ADDED := T + "9"
+const R_END_ONLY := T + "10"
+const R_IQR_FOR_RANGE := T + "11"
+const R_ABOVE_FOR_BELOW := T + "12"
+const R_UPPER_ONLY := T + "13"
+const R_OUTSIDE := T + "14"
+const R_NOT_PERCENT := T + "15"
+const R_PCT_ABOVE := T + "16"
+const R_NOT_SCALED := T + "17"
+const R_TOTAL_SO_FAR := T + "18"
+const R_OTHERS_SUM := T + "19"
+const R_LOWER_TOTAL := T + "20"
+const R_PQ_SWAP := T + "21"
+const R_LOWER_BOUND := T + "22"
+const R_ORIGIN := T + "23"
+const R_FIRST_POINT := T + "24"
 
 ## The stories, in the order of CumulativeFrequencySituation.DX: who is counted, what the curve
 ## shows, its axis, a letter, the units, and how to say more than or at most.
@@ -93,6 +113,14 @@ static func wr(v: Variant, ref: String) -> Array:
 	return [wrong({"v": Q.of(v)}, ref)] if Q.of(v).sign() > 0 else []
 
 
+## The same slip for several values.
+static func wrs(vs: Array, ref: String) -> Array:
+	var out: Array = []
+	for v in vs:
+		out += wr(v, ref)
+	return out
+
+
 ## Near a reading: a square or two along the axis.
 static func near(s: Dictionary, v: int) -> Array:
 	return nums([v + s.dx, v - s.dx, v + 2 * s.dx, v - 2 * s.dx, v + 3 * s.dx])
@@ -109,7 +137,7 @@ static func graph_lines(s: Dictionary) -> Array:
 
 
 static func graph_q(s: Dictionary, asked: String, ans: Dictionary) -> Dictionary:
-	return {"lines": graph_lines(s), "graph": curve_spec(s), "asked": asked, "answer": ans, "wrongs": [], "generic": []}
+	return {"lines": graph_lines(s), "graph": curve_spec(s), "asked": asked, "answer": ans, "wrongs": [], "fillers": []}
 
 
 ## "20 < h ≤ 30"
@@ -147,7 +175,7 @@ static func table_line(s: Dictionary) -> String:
 
 
 static func table_q(s: Dictionary, asked: String, ans: Dictionary, table: Dictionary = {}) -> Dictionary:
-	return {"lines": [table_line(s)], "table": table if not table.is_empty() else class_table(s, true), "asked": asked, "answer": ans, "wrongs": [], "generic": []}
+	return {"lines": [table_line(s)], "table": table if not table.is_empty() else class_table(s, true), "asked": asked, "answer": ans, "wrongs": [], "fillers": []}
 
 
 ## The two lines of working that find a value in a class from a cumulative frequency t.
@@ -177,8 +205,8 @@ static func count_steps(s: Dictionary, v: int) -> Array:
 func u_median_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := ans_of(s, "median = ", s.med)
 	var out := graph_q(s, "Use the curve to estimate the median %s." % ctx(s).noun, ans)
-	out.wrongs = wr(10 * s.dx, R_MIDDLE)
-	out.generic = nums([s.q1, s.q3]) + near(s, s.med)
+	out.wrongs = wr(10 * s.dx, R_MIDDLE) + wrs([s.q1, s.q3], R_WRONG_HEIGHT)
+	out.fillers = near(s, s.med)
 	out.methods = {"across-and-down": method(["The median is at %d ÷ 2 = %d on the vertical axis." % [s.n, s.n / 2],
 		"Go across to the curve, then down: %s." % val(s, s.med), final_step(ans)], ans.values)}
 	return out
@@ -190,7 +218,8 @@ func u_quartile_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var ans := ans_of(s, s.which + " = ", v)
 	var word := "lower" if low else "upper"
 	var out := graph_q(s, "Use the curve to estimate the %s quartile of the %s." % [word, ctx(s).noun], ans)
-	out.generic = nums([s.q3 if low else s.q1, s.med]) + near(s, v)
+	out.wrongs = wrs([s.q3 if low else s.q1, s.med], R_WRONG_HEIGHT)
+	out.fillers = near(s, v)
 	var t: int = s.n / 4 if low else 3 * s.n / 4
 	out.methods = {"across-and-down": method(["The %s quartile is at %s of %d = %d on the vertical axis." % [word, "¼" if low else "¾", s.n, t],
 		"Go across to the curve, then down: %s." % val(s, v), final_step(ans)], ans.values)}
@@ -201,8 +230,8 @@ func u_iqr_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var iqr: int = s.q3 - s.q1
 	var ans := ans_of(s, "IQR = ", iqr)
 	var out := graph_q(s, "Use the curve to estimate the interquartile range of the %s." % ctx(s).noun, ans)
-	out.wrongs = wr(s.n / 2, R_IQR_UP)
-	out.generic = nums([s.q3, s.q1, s.q3 + s.q1]) + near(s, iqr)
+	out.wrongs = wr(s.n / 2, R_IQR_UP) + wrs([s.q3, s.q1], R_ONE_QUARTILE) + wr(s.q3 + s.q1, R_ADDED)
+	out.fillers = near(s, iqr)
 	out.methods = {"across-and-down": method(["Q1 is at %d and Q3 at %d on the vertical axis." % [s.n / 4, 3 * s.n / 4],
 		"Across and down gives Q1 = %s and Q3 = %s." % [val(s, s.q1), val(s, s.q3)], "IQR = %d − %d = %d" % [s.q3, s.q1, iqr], final_step(ans)], ans.values)}
 	return out
@@ -214,7 +243,7 @@ func u_percentile_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var ans := ans_of(s, "percentile = ", v)
 	var out := graph_q(s, "Use the curve to estimate the %s percentile of the %s." % [SamplingViews.ordinal(s.pct), ctx(s).noun], ans)
 	out.wrongs = wr(CumulativeFrequencySituation.x_at(s, s.pct), R_PERCENT_UP)
-	out.generic = nums([s.med]) + near(s, v)
+	out.fillers = nums([s.med]) + near(s, v)
 	out.methods = {"across-and-down": method(["The %s percentile is %d%% of %d: %d on the vertical axis." % [SamplingViews.ordinal(s.pct), s.pct, s.n, t],
 		"Go across to the curve, then down: %s." % val(s, v), final_step(ans)], ans.values)}
 	return out
@@ -225,9 +254,8 @@ func u_range_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var last: int = s.knots[-1][0]
 	var ans := ans_of(s, "range = ", last - first)
 	var out := graph_q(s, "Use where the curve starts and ends to estimate the range of the %s." % ctx(s).noun, ans)
-	out.generic = nums([first + last, last + s.dx, s.q3 - s.q1, last - first + s.dx, last - first + 2 * s.dx])
-	if first > 0:
-		out.generic.insert(0, {"v": Q.new(last)})
+	out.wrongs = (wr(last, R_END_ONLY) if first > 0 else []) + wr(first + last, R_ADDED) + wr(s.q3 - s.q1, R_IQR_FOR_RANGE)
+	out.fillers = nums([last + s.dx, last - first + s.dx, last - first + 2 * s.dx])
 	out.methods = {"across-and-down": method(["The curve leaves 0 at %s and reaches %d at %s." % [val(s, first), s.n, val(s, last)],
 		"%d − %d = %d" % [last, first, last - first], final_step(ans)], ans.values)}
 	return out
@@ -242,7 +270,7 @@ func u_median_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var out := table_q(s, "Estimate the median %s, taking each class as evenly spread." % ctx(s).noun, ans)
 	var mid: Q = Q.new(s.bs[0] + s.bs[-1], 2)
 	out.wrongs = wr(mid, R_MIDDLE)
-	out.generic = nums([v.add(Q.new(s.dx)), v.sub(Q.new(s.dx)), v.add(Q.new(2 * s.dx)), v.sub(Q.new(2 * s.dx)), v.add(Q.new(3 * s.dx))])
+	out.fillers = nums([v.add(Q.new(s.dx)), v.sub(Q.new(s.dx)), v.add(Q.new(2 * s.dx)), v.sub(Q.new(2 * s.dx)), v.add(Q.new(3 * s.dx))])
 	out.methods = {"interpolate-table": method(["The median is at %d ÷ 2 = %d." % [s.n, t]] + interp_steps(s, t) + [final_step(ans)], ans.values)}
 	return out
 
@@ -254,7 +282,7 @@ func u_quartile_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var ans := ans_of(s, s.which + " = ", v)
 	var word := "lower" if low else "upper"
 	var out := table_q(s, "Estimate the %s quartile of the %s, taking each class as evenly spread." % [word, ctx(s).noun], ans)
-	out.generic = nums([v.add(Q.new(s.dx)), v.sub(Q.new(s.dx)), v.add(Q.new(2 * s.dx)), v.sub(Q.new(2 * s.dx)), v.add(Q.new(3 * s.dx))])
+	out.fillers = nums([v.add(Q.new(s.dx)), v.sub(Q.new(s.dx)), v.add(Q.new(2 * s.dx)), v.sub(Q.new(2 * s.dx)), v.add(Q.new(3 * s.dx))])
 	out.methods = {"interpolate-table": method(["The %s quartile is at %s of %d = %d." % [word, "¼" if low else "¾", s.n, t]] + interp_steps(s, t) + [final_step(ans)], ans.values)}
 	return out
 
@@ -265,8 +293,8 @@ func u_iqr_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var iqr := b.sub(a)
 	var ans := ans_of(s, "IQR = ", iqr)
 	var out := table_q(s, "Estimate the interquartile range of the %s, taking each class as evenly spread." % ctx(s).noun, ans)
-	out.wrongs = wr(s.n / 2, R_IQR_UP)
-	out.generic = nums([a, b, iqr.add(Q.new(s.dx)), iqr.sub(Q.new(s.dx)), iqr.add(Q.new(2 * s.dx))])
+	out.wrongs = wr(s.n / 2, R_IQR_UP) + wrs([a, b], R_ONE_QUARTILE) + wr(a.add(b), R_ADDED)
+	out.fillers = nums([iqr.add(Q.new(s.dx)), iqr.sub(Q.new(s.dx)), iqr.add(Q.new(2 * s.dx))])
 	out.methods = {"interpolate-table": method(["Q1 is at %d and Q3 at %d." % [s.n / 4, 3 * s.n / 4],
 		"In their classes they come to Q1 = %s and Q3 = %s." % [Fmt.dec(a), Fmt.dec(b)], "IQR = %s − %s = %s" % [Fmt.dec(b), Fmt.dec(a), Fmt.dec(iqr)], final_step(ans)], ans.values)}
 	return out
@@ -278,7 +306,7 @@ func u_percentile_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var ans := ans_of(s, "percentile = ", v)
 	var out := table_q(s, "Estimate the %s percentile of the %s, taking each class as evenly spread." % [SamplingViews.ordinal(s.pct), ctx(s).noun], ans)
 	out.wrongs = wr(CumulativeFrequencySituation.interp(s, s.pct), R_PERCENT_UP)
-	out.generic = nums([v.add(Q.new(s.dx)), v.sub(Q.new(s.dx)), v.add(Q.new(2 * s.dx)), v.sub(Q.new(2 * s.dx)), v.add(Q.new(3 * s.dx))])
+	out.fillers = nums([v.add(Q.new(s.dx)), v.sub(Q.new(s.dx)), v.add(Q.new(2 * s.dx)), v.sub(Q.new(2 * s.dx)), v.add(Q.new(3 * s.dx))])
 	out.methods = {"interpolate-table": method(["%d%% of %d is %d." % [s.pct, s.n, t]] + interp_steps(s, t) + [final_step(ans)], ans.values)}
 	return out
 
@@ -290,7 +318,8 @@ func u_count_below(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var f := CumulativeFrequencySituation.y_at(s, s.v)
 	var ans := count_ans("number = ", f)
 	var out := graph_q(s, "Estimate how many %s %s." % [c.who, c.most % s.v], ans)
-	out.generic = nums([s.n - f, f + s.dy, f - s.dy, f + 2 * s.dy, f - 2 * s.dy])
+	out.wrongs = wr(s.n - f, R_ABOVE_FOR_BELOW)
+	out.fillers = nums([f + s.dy, f - s.dy, f + 2 * s.dy, f - 2 * s.dy])
 	out.methods = {"read-and-subtract": method(["Go up from %s to the curve." % val(s, s.v), "Go across: %d." % f, final_step(ans)], ans.values)}
 	return out
 
@@ -301,7 +330,7 @@ func u_count_above(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := count_ans("number = ", s.n - f)
 	var out := graph_q(s, "Estimate how many %s %s." % [c.who, c.more % s.v], ans)
 	out.wrongs = wr(f, R_AT_MOST)
-	out.generic = nums([s.n - f + s.dy, s.n - f - s.dy, s.n - f + 2 * s.dy, s.n - f - 2 * s.dy])
+	out.fillers = nums([s.n - f + s.dy, s.n - f - s.dy, s.n - f + 2 * s.dy, s.n - f - 2 * s.dy])
 	out.methods = {"read-and-subtract": method(["Go up from %s to the curve, then across: %d are at or below it." % [val(s, s.v), f],
 		"%d − %d = %d" % [s.n, f, s.n - f], final_step(ans)], ans.values)}
 	return out
@@ -313,7 +342,8 @@ func u_count_between(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b := CumulativeFrequencySituation.y_at(s, s.v2)
 	var ans := count_ans("number = ", b - a)
 	var out := graph_q(s, "Estimate how many %s are between %s and %s." % [c.who, val(s, s.v), val(s, s.v2)], ans)
-	out.generic = nums([b, a + b, s.n - b + a, b - a + s.dy, b - a - s.dy, b - a + 2 * s.dy])
+	out.wrongs = wr(b, R_UPPER_ONLY) + wr(a + b, R_ADDED) + wr(s.n - b + a, R_OUTSIDE)
+	out.fillers = nums([b - a + s.dy, b - a - s.dy, b - a + 2 * s.dy])
 	out.methods = {"read-and-subtract": method(["Up from %s and across: %d." % [val(s, s.v), a], "Up from %s and across: %d." % [val(s, s.v2), b],
 		"%d − %d = %d" % [b, a, b - a], final_step(ans)], ans.values)}
 	return out
@@ -325,8 +355,8 @@ func u_percent_above(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var pct: int = (s.n - f) * 100 / s.n
 	var ans := count_ans("percentage = ", pct, "%")
 	var out := graph_q(s, "Estimate the percentage of the %s that %s." % [c.who, c.more % s.v], ans)
-	out.wrongs = wr(100 - pct, R_AT_MOST)
-	out.generic = nums([s.n - f, pct + 5, pct - 5, pct + 10, pct - 10])
+	out.wrongs = wr(100 - pct, R_AT_MOST) + ([] if s.n - f == pct else wr(s.n - f, R_NOT_PERCENT))
+	out.fillers = nums([pct + 5, pct - 5, pct + 10, pct - 10])
 	out.methods = {"read-and-subtract": method(["Up from %s and across: %d are at or below it, so %d − %d = %d are above it." % [val(s, s.v), f, s.n, f, s.n - f],
 		"%d ÷ %d × 100 = %d" % [s.n - f, s.n, pct], final_step(ans)], ans.values)}
 	return out
@@ -337,7 +367,8 @@ func u_percentile_of_value(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var pct: int = f * 100 / s.n
 	var ans := count_ans("percentile = ", pct)
 	var out := graph_q(s, "Which percentile of the %s is %s?" % [ctx(s).noun, val(s, s.v)], ans)
-	out.generic = nums([f, 100 - pct, pct + 5, pct - 5, pct + 10])
+	out.wrongs = ([] if f == pct else wr(f, R_NOT_PERCENT)) + ([] if 100 - pct == pct else wr(100 - pct, R_PCT_ABOVE))
+	out.fillers = nums([pct + 5, pct - 5, pct + 10])
 	out.methods = {"read-and-subtract": method(["Up from %s and across: %d are at or below it." % [val(s, s.v), f],
 		"%d ÷ %d × 100 = %d" % [f, s.n, pct], final_step(ans)], ans.values)}
 	return out
@@ -350,7 +381,7 @@ func u_cutoff_top(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := graph_q(s, "Estimate the lowest %s of those set aside." % c.noun, ans)
 	out.lines = out.lines + ["The %d %s with the highest %s are set aside." % [s.top, c.who, c.noun]]
 	out.wrongs = wr(CumulativeFrequencySituation.x_at(s, s.top), R_TOP)
-	out.generic = nums([s.med]) + near(s, v)
+	out.fillers = nums([s.med]) + near(s, v)
 	out.methods = {"read-and-subtract": method(["The top %d leave %d − %d = %d below them." % [s.top, s.n, s.top, s.n - s.top],
 		"Go across from %d to the curve, then down: %s." % [s.n - s.top, val(s, v)], final_step(ans)], ans.values)}
 	return out
@@ -363,7 +394,7 @@ func u_cutoff_percent(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := ans_of(s, "k = ", v)
 	var out := graph_q(s, "%d%% of the %s %s. Find k." % [s.pct, c.who, c.more % "k"], ans)
 	out.wrongs = wr(CumulativeFrequencySituation.x_at(s, top), R_TOP)
-	out.generic = nums([s.med]) + near(s, v)
+	out.fillers = nums([s.med]) + near(s, v)
 	out.methods = {"read-and-subtract": method(["%d%% of %d is %d, which leaves %d − %d = %d below k." % [s.pct, s.n, top, s.n, top, s.n - top],
 		"Go across from %d to the curve, then down: %s." % [s.n - top, val(s, v)], final_step(ans)], ans.values)}
 	return out
@@ -377,7 +408,7 @@ func u_share_of_limit(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := graph_q(s, "Estimate how many %s are above %d%% of that limit." % [c.who, s.pct], ans)
 	out.lines = out.lines + [c.limit % limit]
 	out.wrongs = wr(f, R_AT_MOST)
-	out.generic = nums([s.n - f + s.dy, s.n - f - s.dy, s.n - f + 2 * s.dy, s.n - f - 2 * s.dy])
+	out.fillers = nums([s.n - f + s.dy, s.n - f - s.dy, s.n - f + 2 * s.dy, s.n - f - 2 * s.dy])
 	out.methods = {"read-and-subtract": method(["%d%% of %d is %d." % [s.pct, limit, s.v], "Up from %s and across: %d are at or below it." % [val(s, s.v), f],
 		"%d − %d = %d" % [s.n, f, s.n - f], final_step(ans)], ans.values)}
 	return out
@@ -391,8 +422,8 @@ func u_scale_to_population(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var ans := count_ans("number = ", v)
 	var out := graph_q(s, "Estimate how many of all %d %s %s." % [whole, c.who, c.more % s.v], ans)
 	out.lines = out.lines + ["They were chosen at random from %d %s." % [whole, c.who]]
-	out.wrongs = wr(f * s.r, R_AT_MOST)
-	out.generic = nums([s.n - f, (s.n - f + s.dy) * s.r, (s.n - f - s.dy) * s.r, v + s.r])
+	out.wrongs = wr(f * s.r, R_AT_MOST) + wr(s.n - f, R_NOT_SCALED)
+	out.fillers = nums([(s.n - f + s.dy) * s.r, (s.n - f - s.dy) * s.r, v + s.r])
 	out.methods = {"read-and-subtract": method(["Up from %s and across: %d of the %d are at or below it, so %d are above it." % [val(s, s.v), f, s.n, s.n - f],
 		"The whole group is %d ÷ %d = %d times as large." % [whole, s.n, s.r], "%d × %d = %d" % [s.n - f, s.r, v], final_step(ans)], ans.values)}
 	return out
@@ -405,7 +436,8 @@ func u_count_below_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var f := CumulativeFrequencySituation.count_at(s, s.v)
 	var ans := count_ans("number = ", f)
 	var out := table_q(s, "Estimate how many %s %s, taking each class as evenly spread." % [c.who, c.most % s.v], ans)
-	out.generic = nums([Q.new(s.n).sub(f), f.add(Q.new(1)), f.add(Q.new(2)), f.sub(Q.new(1)), f.sub(Q.new(2))])
+	out.wrongs = wr(Q.new(s.n).sub(f), R_ABOVE_FOR_BELOW)
+	out.fillers = nums([f.add(Q.new(1)), f.add(Q.new(2)), f.sub(Q.new(1)), f.sub(Q.new(2))])
 	out.methods = {"interpolate-table": method(count_steps(s, s.v) + [final_step(ans)], ans.values)}
 	return out
 
@@ -417,7 +449,7 @@ func u_count_above_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var ans := count_ans("number = ", v)
 	var out := table_q(s, "Estimate how many %s %s, taking each class as evenly spread." % [c.who, c.more % s.v], ans)
 	out.wrongs = wr(f, R_AT_MOST)
-	out.generic = nums([v.add(Q.new(1)), v.add(Q.new(2)), v.sub(Q.new(1)), v.sub(Q.new(2))])
+	out.fillers = nums([v.add(Q.new(1)), v.add(Q.new(2)), v.sub(Q.new(1)), v.sub(Q.new(2))])
 	out.methods = {"interpolate-table": method(count_steps(s, s.v) + ["%d − %s = %s" % [s.n, Fmt.num(f), Fmt.num(v)], final_step(ans)], ans.values)}
 	return out
 
@@ -429,7 +461,8 @@ func u_count_between_table(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var v := b.sub(a)
 	var ans := count_ans("number = ", v)
 	var out := table_q(s, "Estimate how many %s are between %s and %s, taking each class as evenly spread." % [c.who, val(s, s.v), val(s, s.v2)], ans)
-	out.generic = nums([b, a.add(b), v.add(Q.new(1)), v.add(Q.new(2)), v.sub(Q.new(1)), v.sub(Q.new(2))])
+	out.wrongs = wr(b, R_UPPER_ONLY) + wr(a.add(b), R_ADDED) + wr(Q.new(s.n).sub(v), R_OUTSIDE)
+	out.fillers = nums([v.add(Q.new(1)), v.add(Q.new(2)), v.sub(Q.new(1)), v.sub(Q.new(2))])
 	out.methods = {"interpolate-table": method(["At or below %s: %s." % [val(s, s.v), Fmt.num(a)], "At or below %s: %s." % [val(s, s.v2), Fmt.num(b)],
 		"%s − %s = %s" % [Fmt.num(b), Fmt.num(a), Fmt.num(v)], final_step(ans)], ans.values)}
 	return out
@@ -442,7 +475,7 @@ func u_cutoff_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := ans_of(s, "%s = " % c.noun, v)
 	var out := table_q(s, "The %d %s with the highest %s are set aside. Estimate the lowest %s of those set aside." % [s.top, c.who, c.noun, c.noun], ans)
 	out.wrongs = wr(CumulativeFrequencySituation.interp(s, s.top), R_TOP)
-	out.generic = nums([v.add(Q.new(s.dx)), v.sub(Q.new(s.dx)), v.add(Q.new(2 * s.dx)), v.sub(Q.new(2 * s.dx)), v.add(Q.new(3 * s.dx))])
+	out.fillers = nums([v.add(Q.new(s.dx)), v.sub(Q.new(s.dx)), v.add(Q.new(2 * s.dx)), v.sub(Q.new(2 * s.dx)), v.add(Q.new(3 * s.dx))])
 	out.methods = {"interpolate-table": method(["The top %d leave %d − %d = %d below them." % [s.top, s.n, s.top, t]] + interp_steps(s, t) + [final_step(ans)], ans.values)}
 	return out
 
@@ -456,8 +489,8 @@ func u_cf_entry(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		hide[-1 - i] = "–"
 	var ans := count_ans("? = ", s.cf[j])
 	var out := table_q(s, "Find the cumulative frequency marked ?.", ans, class_table(s, true, hide))
-	out.wrongs = wr(s.fs[j], R_SINGLE)
-	out.generic = nums([s.cf[j - 1], s.cf[j] + 1, s.cf[j] + 2, s.cf[j] - 1, s.cf[j] + s.fs[j]])
+	out.wrongs = wr(s.fs[j], R_SINGLE) + wr(s.cf[j - 1], R_TOTAL_SO_FAR)
+	out.fillers = nums([s.cf[j] + 1, s.cf[j] + 2, s.cf[j] - 1, s.cf[j] + s.fs[j]])
 	out.methods = {"running-total": method(["Add this class's frequency to the total so far.", "%d + %d = %d" % [s.cf[j - 1], s.fs[j], s.cf[j]], final_step(ans)], ans.values)}
 	return out
 
@@ -470,7 +503,8 @@ func u_last_frequency(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := count_ans("p = ", s.fs[j])
 	var known: int = s.n - s.fs[j]
 	var out := table_q(s, "Find p.", ans, class_table(s, true, hide))
-	out.generic = nums([known, s.n, s.fs[j] + 1, s.fs[j] + 2, s.fs[j] - 1, s.fs[j] + 3])
+	out.wrongs = wr(known, R_OTHERS_SUM) + wr(s.n, R_SINGLE)
+	out.fillers = nums([s.fs[j] + 1, s.fs[j] + 2, s.fs[j] - 1, s.fs[j] + 3])
 	out.methods = {"running-total": method(["The last cumulative frequency is the total, %d." % s.n, "The other frequencies add to %d." % known,
 		"%d − %d = %d" % [s.n, known, s.fs[j]], final_step(ans)], ans.values)}
 	return out
@@ -480,8 +514,8 @@ func u_frequency_from_cf(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var j: int = s.j
 	var ans := count_ans("number = ", s.fs[j])
 	var out := table_q(s, "Find the number of %s in the class %s." % [ctx(s).who, class_text(s, j)], ans, cum_table(s))
-	out.wrongs = wr(s.cf[j], R_SINGLE)
-	out.generic = nums([s.cf[j - 1], s.cf[j] + s.cf[j - 1], s.fs[j] + 1, s.fs[j] + 2, s.fs[j] - 1])
+	out.wrongs = wr(s.cf[j], R_SINGLE) + wr(s.cf[j - 1], R_LOWER_TOTAL) + wr(s.cf[j] + s.cf[j - 1], R_ADDED)
+	out.fillers = nums([s.fs[j] + 1, s.fs[j] + 2, s.fs[j] - 1])
 	out.methods = {"difference-back": method(["Take the cumulative frequency before the class from the one at its end.", "%d − %d = %d" % [s.cf[j], s.cf[j - 1], s.fs[j]], final_step(ans)], ans.values)}
 	return out
 
@@ -490,8 +524,8 @@ func u_frequency_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var j: int = s.j
 	var ans := count_ans("number = ", s.fs[j])
 	var out := graph_q(s, "Find the number of %s in the class %s." % [ctx(s).who, class_text(s, j)], ans)
-	out.wrongs = wr(s.cf[j], R_SINGLE)
-	out.generic = nums([s.cf[j - 1], s.cf[j] + s.cf[j - 1], s.fs[j] + s.dy, s.fs[j] - s.dy, s.fs[j] + 2 * s.dy])
+	out.wrongs = wr(s.cf[j], R_SINGLE) + wr(s.cf[j - 1], R_LOWER_TOTAL) + wr(s.cf[j] + s.cf[j - 1], R_ADDED)
+	out.fillers = nums([s.fs[j] + s.dy, s.fs[j] - s.dy, s.fs[j] + 2 * s.dy])
 	out.methods = {"difference-back": method(["Up from %d and across: %d." % [s.bs[j], s.cf[j - 1]], "Up from %d and across: %d." % [s.bs[j + 1], s.cf[j]],
 		"%d − %d = %d" % [s.cf[j], s.cf[j - 1], s.fs[j]], final_step(ans)], ans.values)}
 	return out
@@ -505,8 +539,8 @@ func u_p_q_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := graph_q(s, "Use the curve to find p and q.", ans)
 	out.lines = out.lines + ["The table shows the same %s." % ctx(s).who]
 	out.table = class_table(s, false, {s.j: "p", s.j2: "q"})
-	out.wrongs = [wrong({"p": Q.new(s.cf[s.j]), "q": Q.new(s.cf[s.j2])}, R_SINGLE), wrong({"p": Q.new(q), "q": Q.new(p)})]
-	out.generic = [{"p": Q.new(p + s.dy), "q": Q.new(q)}, {"p": Q.new(p), "q": Q.new(q + s.dy)}]
+	out.wrongs = [wrong({"p": Q.new(s.cf[s.j]), "q": Q.new(s.cf[s.j2])}, R_SINGLE)] + ([] if p == q else [wrong({"p": Q.new(q), "q": Q.new(p)}, R_PQ_SWAP)])
+	out.fillers = [{"p": Q.new(p + s.dy), "q": Q.new(q)}, {"p": Q.new(p), "q": Q.new(q + s.dy)}]
 	var read := func(j: int) -> String:
 		return "%d − %d = %d" % [s.cf[j], s.cf[j] - s.fs[j], s.fs[j]]
 	out.methods = {"difference-back": method(["Read the curve at both ends of each class.", "p = " + read.call(s.j), "q = " + read.call(s.j2), Answer.text(ans)], ans.values)}
@@ -521,7 +555,7 @@ func u_plot_point(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var lo: int = s.bs[j]
 	var pt := func(x: Variant, y: int) -> String: return "(%s, %d)" % [Fmt.dec(Q.of(x)), y]
 	var right: String = pt.call(hi, s.cf[j])
-	var built := DerivativeMeaningViews.claim_answer(right, [[pt.call(Q.new(lo + hi, 2), s.cf[j]), R_MIDPOINT], [pt.call(hi, s.fs[j]), R_SINGLE], [pt.call(lo, s.cf[j]), ""]])
+	var built := DerivativeMeaningViews.claim_answer(right, [[pt.call(Q.new(lo + hi, 2), s.cf[j]), R_MIDPOINT], [pt.call(hi, s.fs[j]), R_SINGLE], [pt.call(lo, s.cf[j]), R_LOWER_BOUND]])
 	return {"lines": [table_line(s)], "table": class_table(s, true), "asked": "Which point is plotted on the curve for the class %s?" % class_text(s, j), "answer": built.answer, "wrongs": built.wrongs,
 		"methods": {"plot-upper-bounds": method(["%d is the total at the upper boundary of the class, %d." % [s.cf[j], hi], "So it is plotted there, not at the middle of the class.", right], built.answer.values)}}
 
@@ -530,7 +564,8 @@ func u_curve_start(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var first: int = s.bs[0]
 	var pt := func(x: Variant, y: int) -> String: return "(%s, %d)" % [Fmt.dec(Q.of(x)), y]
 	var right: String = pt.call(first, 0)
-	var built := DerivativeMeaningViews.claim_answer(right, [[pt.call(0, 0), ""], [pt.call(s.bs[1], s.fs[0]), ""], [pt.call(Q.new(first + s.bs[1], 2), 0), ""]])
+	var built := DerivativeMeaningViews.claim_answer(right, [[pt.call(0, 0), R_ORIGIN], [pt.call(s.bs[1], s.fs[0]), R_FIRST_POINT], [pt.call(Q.new(first + s.bs[1], 2), 0), R_MIDPOINT]])
+
 	return {"lines": [table_line(s)], "table": class_table(s, true), "asked": "At which point does the cumulative frequency curve start?", "answer": built.answer, "wrongs": built.wrongs,
 		"methods": {"plot-upper-bounds": method(["Nothing is below the first class, whose lower boundary is %d." % first, "So the curve starts on that boundary at 0.", right], built.answer.values)}}
 

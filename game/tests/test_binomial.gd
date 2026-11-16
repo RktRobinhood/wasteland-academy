@@ -153,19 +153,21 @@ func test_the_mean_and_variance_ask_exact_and_the_deviation_3_sf() -> void:
 
 func test_every_distractor_misconception_is_an_option() -> void:
 	var t := QuestionEngine.type_of(TYPE)
-	for m in t.misconceptions:
-		check_eq(m.as, "distractor", m.ref)
+	for mi in t.misconceptions.size():
+		var m: Dictionary = t.misconceptions[mi]
+		var mref: String = m.get("ref", "%s#%d" % [TYPE, mi])
+		check_eq(m.as, "distractor", mref)
 		for u in m["in"]:
 			var found := false
 			for c in QuestionEngine.cells(false, [TYPE]).filter(func(x): return x.unknown == u):
 				for seed in range(1, 40):
 					var q := _make(u, c.rep, c.angle, seed, "mcq")
-					if q.choices.any(func(o): return o.ref == m.ref):
+					if q.choices.any(func(o): return o.ref == mref):
 						found = true
 						break
 				if found:
 					break
-			check(found, "%s never appears on %s" % [m.ref, u])
+			check(found, "%s never appears on %s" % [mref, u])
 
 
 func test_a_typed_answer_is_marked_to_3_sf_and_2_sf_is_glancing() -> void:

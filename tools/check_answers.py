@@ -8744,6 +8744,7 @@ def check_binomial(q):
         need(rep == "words" and f"{n} " in L[0] and f"probability {ptxt}" in L[0], "the story doesn't give n and p")
         want = f"n = {n}, p = {ptxt}"
         wrongs[BN_SKILL + "identify#0"] = {f"n = {ptxt}, p = {n}"}
+        wrongs[T + "#14"] = {f"n = {n}, p = {dec_text(qq)}"}  # the other outcome's chance
     elif u in ("exact-probability", "at-most-probability", "at-least-probability", "between-probability"):
         need(form == {"exact-probability": ""}.get(u, form) and form in {"exact-probability": [""], "at-most-probability": ["le", "lt"],
              "at-least-probability": ["ge", "gt"], "between-probability": ["in", "lo-open"]}[u] or u == "exact-probability" and form == "", f"form {form!r}")
@@ -8770,13 +8771,20 @@ def check_binomial(q):
             wrongs[BN_SKILL + "exact-probability#1"] = {bn_prob_text(label, sp.binomial(n, k) * p**(n - k) * qq**k)}
             wrongs[BN_SKILL + "exact-probability#2"] = {bn_prob_text(label, bn_cdf(n, p, k))}
         elif u == "at-most-probability":
+            wrongs[T + "#15"] = {bn_prob_text(label, bn_pmf(n, p, hi))}  # the boundary alone
+            wrongs[T + "#16"] = {bn_prob_text(label, 1 - x)}  # the opposite event
             if form == "lt":
                 wrongs[BN_SKILL + "cumulative-probability#1"] = {bn_prob_text(label, bn_cdf(n, p, k))}
+            else:
+                wrongs[T + "#17"] = {bn_prob_text(label, bn_cdf(n, p, k - 1))}  # k left out
         elif u == "at-least-probability":
             wrongs[BN_SKILL + "cumulative-probability#0"] = {bn_prob_text(label, 1 - bn_cdf(n, p, k if form == "ge" else k - 1))}
+            wrongs[T + "#18"] = {bn_prob_text(label, bn_cdf(n, p, lo - 1))}  # not taken from 1
+            wrongs[T + "#15"] = {bn_prob_text(label, bn_pmf(n, p, lo))}  # the boundary alone
         else:
-            if form == "lo-open":
-                wrongs[BN_SKILL + "cumulative-probability#2"] = {bn_prob_text(label, bn_cdf(n, p, b) - bn_cdf(n, p, lo))}
+            # a < X ≤ b less P(X ≤ a + 1), or a ≤ X ≤ b less P(X ≤ a): the wrong cumulative
+            wrongs[BN_SKILL + "cumulative-probability#2"] = {bn_prob_text(label, bn_cdf(n, p, b) - bn_cdf(n, p, lo))}
+            wrongs[T + "#19"] = {bn_prob_text(label, bn_cdf(n, p, b))}  # nothing subtracted
     elif u in ("mean-from-parameters", "variance-from-parameters", "std-deviation"):
         if rep == "equation":
             need(asked == {"mean-from-parameters": "Find E(X).", "variance-from-parameters": "Find Var(X).",
@@ -8791,10 +8799,14 @@ def check_binomial(q):
             want = f"E(X) = {dec_text(mean)}"
             if mean.q != 1:
                 wrongs[BN_SKILL + "mean-variance#2"] = {f"E(X) = {dec_text(sp.Integer(sp.floor(mean + sp.Rational(1, 2))))}"}
+            wrongs[T + "#14"] = {f"E(X) = {dec_text(n * qq)}"}  # n(1 − p)
+            wrongs[T + "#20"] = {f"E(X) = {dec_text(var)}"}  # the variance
         elif u == "variance-from-parameters":
             need((p * 10).q == 1, "p is not a multiple of 0.1 for a variance")
             want = f"Var(X) = {dec_text(var)}"
             wrongs[BN_SKILL + "mean-variance#0"] = {f"Var(X) = {dec_text(mean)}"}
+            wrongs[T + "#21"] = {f"Var(X) = {dec_text(n * qq)}"}  # p left out
+            wrongs[T + "#22"] = {f"Var(X) = {dec_text(p * qq)}"}  # n left out
         else:
             need((p * 10).q == 1, "p is not a multiple of 0.1 for a standard deviation")
             sd = sp.sqrt(var)
@@ -8802,6 +8814,7 @@ def check_binomial(q):
             label = "standard deviation = "
             want, trap = bn_prob_text(label, sd), bn_trap(label, sd) if not sd.is_rational or sp.Rational(sig3(sd)) != sd else None
             wrongs[BN_SKILL + "mean-variance#1"] = {bn_prob_text(label, var)}
+            wrongs[BN_SKILL + "mean-variance#0"] = {bn_prob_text(label, sp.sqrt(mean))}  # √(np)
     elif u == "n-and-p-from-mean-variance":
         eline = L[-1]
         mt = re.fullmatch(r"E\(X\) = ([\d.]+) and Var\(X\) = ([\d.]+)", eline)
@@ -8816,6 +8829,7 @@ def check_binomial(q):
         need(asked == "Find n and p.", f"asked {asked!r}")
         want = f"n = {n}, p = {dec_text(p)}"
         wrongs[BN_SKILL + "find-n-or-p#2"] = {f"n = {n}, p = {dec_text(1 - p)}"}
+        wrongs[T + "#23"] = {f"n = {dec_text(E)}, p = {dec_text(p)}"}  # n taken as E(X)
     elif u == "least-trials":
         c = R(g["c"])
         if rep == "equation":
@@ -8847,6 +8861,7 @@ def check_binomial(q):
         need(bn_clear(x, *BN_RANGES[u]), f"the probability {float(x):.6f} is out of range or on a rounding edge")
         want, trap = bn_prob_text(label, x), bn_trap(label, x)
         wrongs[BN_SKILL + "binomial-in-context#1"] = {bn_prob_text(label, bn_pmf(m, p, k))}
+        wrongs[T + "#24"] = {bn_prob_text(label, bn_pmf(m - 1, p, k - 1))}  # no last success
     elif u == "conditional-probability":
         j = k
         if rep == "equation":
@@ -8860,6 +8875,8 @@ def check_binomial(q):
         need(1 <= j <= n - 1 and bn_clear(x, *BN_RANGES[u]), f"the probability {float(x):.6f} is out of range or on a rounding edge")
         want, trap = bn_prob_text(label, x), bn_trap(label, x)
         wrongs[BN_SKILL + "binomial-in-context#2"] = {bn_prob_text(label, bn_pmf(n, p, j) * at_one)}
+        wrongs[T + "#25"] = {bn_prob_text(label, bn_pmf(n, p, j))}  # not divided
+
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs, trap)
@@ -8928,6 +8945,23 @@ def ds_num(x, label):
     return label + sig3(x).replace("-", "−"), label + dec_text(sp.Rational(sig3(x, 2)))
 
 
+DS_T = "t4-summary-statistics#"  # its own slips (FAL-820)
+
+
+def ds_tidy(x):
+    """A wrong option as the views tidy it: as it is to two decimals, else to one."""
+    x = sp.Rational(x)
+    return x if (x * 100).q == 1 else sp.Rational(int(sp.floor(x * 10 + sp.Rational(1, 2))), 10)
+
+
+def ds_opt(q, label, x):
+    """A wrong number option's text, written as the answer is (exactly, or to 3 s.f.)."""
+    x = ds_tidy(x)
+    if q["answer"].get("show") == "sf":
+        return label + sig3(x).replace("-", "−")
+    return label + dec_text(x)
+
+
 def ds_numbers(text):
     return [R(v) for v in re.findall(r"\d+(?:\.\d+)?", text.replace("−", "-"))]
 
@@ -8979,6 +9013,8 @@ def check_data_summary(q):
         need(R(g["mean"]) == mean, "the mean given is not the mean of the data shown")
         need(asked == ("Find the mean of the data." if paper == 1 else "Find the mean of the data, to 3 s.f."), f"asked {asked!r}")
         want, trap = ds_num(mean, "mean = ")
+        wrongs[DS_T + "9"] = {ds_opt(q, "mean = ", ds_median(data))}  # the median
+        wrongs[DS_T + "10"] = {ds_opt(q, "mean = ", (data[0] + data[-1]) / 2)}  # the midrange
         sol = next((s for s in q["solutions"] if s["angle"] == "sum-over-n"), None)
         if sol is not None and rep == "terms":
             need(sol["steps"][0].endswith(f"= {dec_text(sum(data))}"), f"the sum in {sol['steps'][0]!r}")
@@ -8991,6 +9027,9 @@ def check_data_summary(q):
             need(5 <= n <= (11 if paper == 1 else 18), f"n = {n}")
             wrongs[DS_SKILL + "mean-median-mode#0"] = {"median = " + dec_text(ds_median(xs))}
         wrongs[DS_SKILL + "mean-median-mode#1"] = {"median = " + dec_text(sp.Rational(n + 1, 2))}
+        wrongs[DS_T + "9"] = {ds_opt(q, "median = ", sum(data) / n)}  # the mean
+        wrongs[DS_T + "10"] = {ds_opt(q, "median = ", (data[0] + data[-1]) / 2)}  # the midrange
+        wrongs[DS_T + "11"] = {ds_opt(q, "median = ", sp.Rational(n, 2))}  # n/2, a position
         for sol in q["solutions"]:
             if sol["angle"] == "ordered-position" and rep == "terms":
                 need(sol["steps"][0] == "Put the values in order: " + ", ".join(dec_text(x) for x in data), f"order step {sol['steps'][0]!r}")
@@ -9002,9 +9041,12 @@ def check_data_summary(q):
         need(asked == "Write down the mode of the data.", f"asked {asked!r}")
         want = "mode = " + dec_text(modes[0])
         wrongs[DS_SKILL + "mean-median-mode#2"] = {"mode = " + str(top)}
+        wrongs[DS_T + "9"] = {ds_opt(q, "mode = ", ds_median(data)), ds_opt(q, "mode = ", sum(data) / len(data))}  # the median or the mean
     elif u == "range-of-data":
         need(asked == "Find the range of the data.", f"asked {asked!r}")
         want = "range = " + dec_text(data[-1] - data[0])
+        wrongs[DS_T + "12"] = {ds_opt(q, "range = ", data[-1])}  # the greatest only
+        wrongs[DS_T + "13"] = {ds_opt(q, "range = ", data[-1] + data[0])}  # added
     elif u in ("quartiles-of-data", "iqr-of-data"):
         q1, q3 = ds_quartiles(data)
         need(q1 < q3, "Q1 is not below Q3")
@@ -9013,6 +9055,7 @@ def check_data_summary(q):
         if u == "quartiles-of-data":
             need(asked == "Find the lower quartile and the upper quartile of the data.", f"asked {asked!r}")
             want = f"Q₁ = {dec_text(q1)}, Q₃ = {dec_text(q3)}"
+            wrongs[DS_T + "14"] = {f"Q₁ = {dec_text(data[0])}, Q₃ = {dec_text(data[-1])}"}  # the ends
             if rep == "terms":
                 h = n // 2
                 wrongs[DS_SKILL + "quartiles-discrete#1"] = {f"Q₁ = {dec_text(ds_median(xs[:h]))}, Q₃ = {dec_text(ds_median(xs[h + n % 2:]))}"}
@@ -9020,6 +9063,8 @@ def check_data_summary(q):
             need(asked == "Find the interquartile range of the data.", f"asked {asked!r}")
             want = "IQR = " + dec_text(q3 - q1)
             wrongs[DS_SKILL + "quartiles-discrete#0"] = {"IQR = " + dec_text(q1 + q3)}
+            wrongs[DS_T + "15"] = {ds_opt(q, "IQR = ", data[-1] - data[0])}  # the range
+            wrongs[DS_T + "16"] = {ds_opt(q, "IQR = ", q1), ds_opt(q, "IQR = ", q3)}  # one quartile
     elif u == "missing-value-from-mean":
         if rep == "terms":
             items = L[0].split(", ")
@@ -9049,6 +9094,8 @@ def check_data_summary(q):
         need(all(x == int(x) and 2 <= x <= 40 for x in known), "a known value is outside 2 to 40")
         need(R(g["k"]) == k, "the k given is not the missing value")
         want = label + dec_text(k)
+        wrongs[DS_T + "17"] = {ds_opt(q, label, M * (n - 1) - sum(known))}  # the total from n − 1 values
+        wrongs[DS_T + "18"] = {ds_opt(q, label, M)}  # the mean itself
     elif u == "missing-frequency-from-mean":
         need(rep == "table" and asked == "Find p.", f"asked {asked!r}")
         mt = re.fullmatch(r"The mean of the data is (\d+(?:\.\d)?)\.", L[0])
@@ -9086,6 +9133,7 @@ def check_data_summary(q):
         need(mean != sp.Rational(mu1 + mu2, 2), "the combined mean is the mean of the means")
         want = "mean = " + dec_text(mean)
         wrongs[DS_SKILL + "mean-totals#0"] = {"mean = " + dec_text(sp.Rational(mu1 + mu2, 2))}
+        wrongs[DS_T + "19"] = {"mean = " + str(n1 * mu1 + n2 * mu2)}  # not divided
     elif u in ("choose-average", "choose-spread"):
         gi = int(g["ctx"])
         need(L[0] == DS_SPREADS[gi], f"the story {L[0]!r}")
@@ -9107,6 +9155,8 @@ def check_data_summary(q):
         else:
             need(asked == "One value is an outlier. Which measure of spread is least affected by it?", f"asked {asked!r}")
             want = DS_MEASURES[1]
+            wrongs[DS_T + "20"] = {DS_MEASURES[2]}  # the standard deviation
+
             need({o["text"] for o in q["choices"]} <= set(DS_MEASURES), "an option is not a measure of spread")
     else:
         raise Fail(f"no check for {u}")
@@ -19716,6 +19766,7 @@ def check_sampling(q):
 CF_Q = "SL4.2.cumfreq-quartiles#"
 CF_C = "SL4.2.cumfreq-count#"
 CF_B = "SL4.2.cumfreq-build#"
+CF_T = "t4-cumulative-frequency#"  # its own slips (FAL-820)
 CF_SQUARES = 20
 # (who, what the curve shows, the axis, the noun, letter, unit, more than, at most, square across, limit)
 CF_CTX = [("scavengers", "the hours worked last week by {} scavengers", "hours worked", "hours worked", "h", "hours", "worked more than {} hours", "worked at most {} hours", 2, None),
@@ -19897,13 +19948,19 @@ def check_cumulative_frequency(q):
             med = rx(sp.Rational(n, 2))
             need(med != 10 * dx, "the median is at the middle of the axis")
             want = "median = " + cf_val(med, c)
-            wrongs = {CF_Q + "0": {"median = " + cf_val(10 * dx, c)}}
+            wrongs = {CF_Q + "0": {"median = " + cf_val(10 * dx, c)},
+                      CF_T + "7": {"median = " + cf_val(rx(sp.Rational(k * n, 4)), c) for k in (1, 3)}}  # a quartile's height
         elif u == "quartile-from-graph":
             low = "lower quartile" in asked
-            want = ("Q1 = " if low else "Q3 = ") + cf_val(rx(sp.Rational(n, 4) * (1 if low else 3)), c)
+            lab = "Q1 = " if low else "Q3 = "
+            want = lab + cf_val(rx(sp.Rational(n, 4) * (1 if low else 3)), c)
+            wrongs = {CF_T + "7": {lab + cf_val(rx(sp.Rational(n, 4) * (3 if low else 1)), c), lab + cf_val(rx(sp.Rational(n, 2)), c)}}  # the other quartile's or the median's height
         elif u == "iqr-from-graph":
-            want = "IQR = " + cf_val(rx(sp.Rational(3 * n, 4)) - rx(sp.Rational(n, 4)), c)
-            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)}}
+            a, b = rx(sp.Rational(n, 4)), rx(sp.Rational(3 * n, 4))
+            want = "IQR = " + cf_val(b - a, c)
+            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)},
+                      CF_T + "8": {"IQR = " + cf_val(a, c), "IQR = " + cf_val(b, c)},  # one quartile alone
+                      CF_T + "9": {"IQR = " + cf_val(a + b, c)}}  # added
         elif u == "percentile-from-graph":
             k = int(re.match(r"Use the curve to estimate the (\d+)", asked).group(1))
             need(n != 100, "k and k% of n are the same when n is 100")
@@ -19911,6 +19968,9 @@ def check_cumulative_frequency(q):
             wrongs = {CF_Q + "2": {"percentile = " + cf_val(rx(k), c)}}
         elif u == "range-from-graph":
             want = "range = " + cf_val(pts[-1][0] - pts[0][0], c)
+            wrongs = {CF_T + "10": {"range = " + cf_val(pts[-1][0], c)},  # the end only
+                      CF_T + "9": {"range = " + cf_val(pts[-1][0] + pts[0][0], c)},  # added
+                      CF_T + "11": {"range = " + cf_val(rx(sp.Rational(3 * n, 4)) - rx(sp.Rational(n, 4)), c)}}  # the IQR
         elif u in ("count-below", "count-above", "percent-above", "scale-to-population"):
             if u == "count-below":
                 mt = re.fullmatch(rf"Estimate how many {who} " + re.escape(most).replace(r"\{\}", r"(\d+)") + r"\.", asked)
@@ -19924,6 +19984,7 @@ def check_cumulative_frequency(q):
             f = ry(int(mt.group(1)))
             if u == "count-below":
                 want = f"number = {f}"
+                wrongs = {CF_T + "12": {f"number = {n - f}"}}  # those above
             elif u == "count-above":
                 want = f"number = {n - f}"
                 wrongs = {CF_C + "0": {f"number = {f}"}}
@@ -19931,24 +19992,28 @@ def check_cumulative_frequency(q):
                 p = sp.Rational((n - f) * 100, n)
                 need(p.q == 1, "the percentage isn't whole")
                 want = f"percentage = {p}%"
-                wrongs = {CF_C + "0": {f"percentage = {100 - p}%"}}
+                wrongs = {CF_C + "0": {f"percentage = {100 - p}%"}, CF_T + "15": {f"percentage = {n - f}%"}}  # the count, not a percentage
             else:
                 m2 = re.fullmatch(rf"They were chosen at random from (\d+) {who}\.", L[2])
                 need(m2 is not None, f"can't read {L[2]!r}")
                 whole = int(m2.group(1))
                 need(whole % n == 0 and f"all {whole} " in asked, "the whole group isn't a multiple of the sample")
                 want = f"number = {(n - f) * whole // n}"
-                wrongs = {CF_C + "0": {f"number = {f * whole // n}"}}
+                wrongs = {CF_C + "0": {f"number = {f * whole // n}"}, CF_T + "17": {f"number = {n - f}"}}  # not scaled up
         elif u == "count-between":
             mt = re.fullmatch(rf"Estimate how many {who} are between (\d+) {unit} and (\d+) {unit}\.", asked)
             need(mt is not None, f"can't read {asked!r}")
-            want = f"number = {ry(int(mt.group(2))) - ry(int(mt.group(1)))}"
+            a, b = ry(int(mt.group(1))), ry(int(mt.group(2)))
+            want = f"number = {b - a}"
+            wrongs = {CF_T + "13": {f"number = {b}"}, CF_T + "9": {f"number = {a + b}"}, CF_T + "14": {f"number = {n - (b - a)}"}}  # upper only, added, outside
         elif u == "percentile-of-value":
             mt = re.fullmatch(rf"Which percentile of the {noun} is (\d+) {unit}\?", asked)
             need(mt is not None, f"can't read {asked!r}")
-            p = sp.Rational(ry(int(mt.group(1))) * 100, n)
+            f = ry(int(mt.group(1)))
+            p = sp.Rational(f * 100, n)
             need(p.q == 1, "the percentile isn't whole")
             want = f"percentile = {p}"
+            wrongs = {CF_T + "15": {f"percentile = {f}"}, CF_T + "16": {f"percentile = {100 - p}"}}  # the count; the share above
         elif u == "cutoff-top":
             mt = re.fullmatch(rf"The (\d+) {who} with the highest {noun} are set aside\.", L[2])
             need(mt is not None, f"can't read {L[2]!r}")
@@ -19974,7 +20039,7 @@ def check_cumulative_frequency(q):
             need(mt is not None, f"can't read {asked!r}")
             a, b = ry(int(mt.group(1))), ry(int(mt.group(2)))
             want = f"number = {b - a}"
-            wrongs = {CF_B + "1": {f"number = {b}"}}
+            wrongs = {CF_B + "1": {f"number = {b}"}, CF_T + "20": {f"number = {a}"}, CF_T + "9": {f"number = {a + b}"}}  # the lower total; added
         elif u == "p-q-from-graph":
             need(q["asked"] == "Use the curve to find p and q.", f"asked {asked!r}")
             rows = q["table"]["rows"]
@@ -19990,7 +20055,7 @@ def check_cumulative_frequency(q):
                 else:
                     need(int(f) == got, f"the table's {f} isn't what the curve gives ({got})")
             want = f"p = {vals['p']}, q = {vals['q']}"
-            wrongs = {CF_B + "1": {f"p = {tops['p']}, q = {tops['q']}"}}
+            wrongs = {CF_B + "1": {f"p = {tops['p']}, q = {tops['q']}"}, CF_T + "21": {f"p = {vals['q']}, q = {vals['p']}"}}  # swapped
         else:
             raise Fail(f"no check for {u}")
     elif u == "frequency-from-cf":
@@ -20006,7 +20071,7 @@ def check_cumulative_frequency(q):
         a, b = vals[int(mt.group(1))], vals[int(mt.group(2))]
         need(a > 0, "the class is the first one")
         want = f"number = {b - a}"
-        wrongs = {CF_B + "1": {f"number = {b}"}}
+        wrongs = {CF_B + "1": {f"number = {b}"}, CF_T + "20": {f"number = {a}"}, CF_T + "9": {f"number = {a + b}"}}  # the lower total; added
     elif u == "cf-entry":
         rows = q["table"]["rows"]
         need(asked == "Find the cumulative frequency marked ?.", f"asked {asked!r}")
@@ -20016,13 +20081,15 @@ def check_cumulative_frequency(q):
         run = cf_running(fs)
         need(j >= 1 and all(cum[i] == str(run[i]) for i in range(j)) and all(x == "–" for x in cum[j + 1:]), "the shown totals are wrong")
         want = f"? = {run[j]}"
-        wrongs = {CF_B + "1": {f"? = {fs[j]}"}}
+        wrongs = {CF_B + "1": {f"? = {fs[j]}"}, CF_T + "18": {f"? = {run[j - 1]}"}}  # the total so far
     elif u == "last-frequency":
         rows = q["table"]["rows"]
         fs = [r[1][0] for r in rows[1:]]
         n = int(rows[-1][1][1])
         need(fs.count("p") == 1, "no p")
-        want = f"p = {n - sum(int(f) for f in fs if f != 'p')}"
+        others = sum(int(f) for f in fs if f != 'p')
+        want = f"p = {n - others}"
+        wrongs = {CF_T + "19": {f"p = {others}"}, CF_B + "1": {f"p = {n}"}}  # the others' sum; the total
     else:
         n, bs, fs, run = cf_table(q, c)
         val_more = re.escape(more).replace(r"\{\}", r"(\d+)")
@@ -20036,7 +20103,9 @@ def check_cumulative_frequency(q):
         elif u == "iqr-from-table":
             a, b = cf_interp(bs, fs, run, sp.Rational(n, 4)), cf_interp(bs, fs, run, sp.Rational(3 * n, 4))
             want = "IQR = " + cf_val(cf_clean(b - a), c)
-            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)}}
+            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)},
+                      CF_T + "8": {"IQR = " + cf_val(a, c), "IQR = " + cf_val(b, c)},  # one quartile alone
+                      CF_T + "9": {"IQR = " + cf_val(a + b, c)}}  # added
         elif u == "percentile-from-table":
             k = int(re.match(r"Estimate the (\d+)", asked).group(1))
             need(n != 100, "k and k% of n are the same when n is 100")
@@ -20048,6 +20117,7 @@ def check_cumulative_frequency(q):
             f = cf_count(bs, fs, run, int(mt.group(1)))
             need(f.q == 1, "the count isn't whole")
             want = f"number = {f}"
+            wrongs = {CF_T + "12": {f"number = {n - f}"}}  # those above
         elif u == "count-above-table":
             mt = re.fullmatch(rf"Estimate how many {who} {val_more}" + re.escape(spread), asked)
             need(mt is not None, f"can't read {asked!r}")
@@ -20061,6 +20131,7 @@ def check_cumulative_frequency(q):
             a, b = cf_count(bs, fs, run, int(mt.group(1))), cf_count(bs, fs, run, int(mt.group(2)))
             need(a.q == 1 and b.q == 1 and b > a, "the counts aren't whole")
             want = f"number = {b - a}"
+            wrongs = {CF_T + "13": {f"number = {b}"}, CF_T + "9": {f"number = {a + b}"}, CF_T + "14": {f"number = {n - (b - a)}"}}  # upper only, added, outside
         elif u == "cutoff-table":
             mt = re.match(rf"The (\d+) {who} with the highest {noun} are set aside\.", asked)
             need(mt is not None, f"can't read {asked!r}")
@@ -20073,10 +20144,14 @@ def check_cumulative_frequency(q):
             a, b = int(mt.group(1)), int(mt.group(2))
             j = bs.index(b) - 1
             want = f"({b}, {run[j]})"
-            wrongs = {CF_B + "0": {f"({dec_text(sp.Rational(a + b, 2))}, {run[j]})"}, CF_B + "1": {f"({b}, {fs[j]})"}}
+            wrongs = {CF_B + "0": {f"({dec_text(sp.Rational(a + b, 2))}, {run[j]})"}, CF_B + "1": {f"({b}, {fs[j]})"},
+                      CF_T + "22": {f"({a}, {run[j]})"}}  # at the lower boundary
         elif u == "curve-start":
             need(bs[0] > 0, "the curve starts at the origin, so (0, 0) is no wrong option")
             want = f"({bs[0]}, 0)"
+            wrongs = {CF_T + "23": {"(0, 0)"}, CF_T + "24": {f"({bs[1]}, {fs[0]})"},  # from the origin; from the first point
+                      CF_B + "0": {f"({dec_text(sp.Rational(bs[0] + bs[1], 2))}, 0)"}}  # the class's middle
+
         else:
             raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs)
@@ -26901,7 +26976,7 @@ def e10ss_count(q, f):
     h = len(pairs)
     need(2 <= h <= E10SS_MAX_LISTED and h < f["N"], f"{h} cells")
     say = lambda v: f"number of outcomes = {v}"
-    wrongs = {E10SS_O + "6": {say(len({f['fn'](*p) for p in pairs}))}}
+    wrongs = {E10SS_O + "6": {say(len({f['fn'](*p) for p in pairs}))}, E10SS_O + "20": {say(f["N"] - h)}}  # the cells outside
     if e10ss_distinct(f):
         wrongs[E10SS_G + "0"] = {say(e10ss_one_way(pairs))}
     e10ss_has(q, "grid-count", f"{e10ss_plus(e10ss_rows(f, test))} = {h} cells")
@@ -26915,6 +26990,7 @@ def e10ss_plain_p(q, f, u):
     h, N = len(pairs), f["N"]
     need(2 <= h <= E10SS_MAX_LISTED and h < N, f"{h} cells")
     table = e10ss_fair_table(f, pairs)
+    table[E10SS_O + "7"] = [1 - sp.Rational(h, N)]  # the opposite event
     if other is not None:
         need(e10ss_hits(f, other) != pairs, "the boundary changes nothing")
         table[E10SS_O + "2"] = [sp.Rational(len(e10ss_hits(f, other)), N)]
@@ -26962,7 +27038,8 @@ def e10ss_compare(q, f):
     other = N - h - ties
     need(2 <= h <= E10SS_MAX_LISTED and ties > 0 and other != h and 2 * h != N, "the sides of the grid")
     e10ss_size_steps(q, f, test, h)
-    return e10ss_prob(q, sp.Rational(h, N), {E10SS_O + "8": [sp.Rational(h + ties, N)], E10SS_O + "9": [sp.Rational(1, 2)], E10SS_O + "10": [sp.Rational(other, N)]})
+    return e10ss_prob(q, sp.Rational(h, N), {E10SS_O + "8": [sp.Rational(h + ties, N)], E10SS_O + "9": [sp.Rational(1, 2)], E10SS_O + "10": [sp.Rational(other, N)],
+                                                  E10SS_O + "7": [1 - sp.Rational(h, N)]})  # the opposite event
 
 
 def e10ss_points(q, f):
@@ -27047,7 +27124,9 @@ def e10ss_weighted(q, u):
     need(e10ss_one_way(pairs) != len(pairs), "no pair in the event has a reverse")
     chance = lambda cs: sum((p[a] * p[b] for a, b in cs), sp.Integer(0))
     v = chance(pairs)
-    table = {E10SS_G + "0": [chance([c for c in pairs if c[0] <= c[1]])], E10SS_O + "11": [sp.Rational(len(pairs), f["N"])]}
+    table = {E10SS_G + "0": [chance([c for c in pairs if c[0] <= c[1]])], E10SS_O + "11": [sp.Rational(len(pairs), f["N"])],
+             E10SS_O + "7": [1 - v]}  # the opposite event
+
     if word:
         table[E10SS_O + "2"] = [chance([c for c in f["cells"] if c[0] + c[1] > k])]
     if u == "weighted-target":
@@ -27262,6 +27341,7 @@ def e10ss_check(q):
 PB_EL, PB_CO, PB_RF = "SL4.5.equally-likely#", "SL4.5.complement#", "SL4.5.relative-frequency#"
 PB_T = "t4-probability-basic#"
 PB_REST, PB_OLD_TOTAL, PB_OLD_COUNT, PB_EVENT, PB_BOUNDARY, PB_ONE_RULE, PB_WHOLE_RUN = [PB_T + str(i) for i in range(6, 13)]
+PB_NOT, PB_UNCHANGED, PB_COLUMN, PB_ROW_OR_COL, PB_AVERAGED = [PB_T + str(i) for i in range(13, 18)]  # FAL-820
 PB_EDGE = sp.Rational(3, 100)
 PB_P1_TOTALS = {20, 25, 40, 50, 80, 100, 200}
 PB_COLOURS = "red|blue|green|white|black"
@@ -27382,7 +27462,7 @@ def check_basic_probability(q):
         n, t = sum(cs[c] for c in want), sum(cs.values())
         v = sp.Rational(n, t)
         need(v != sp.Rational(len(want), len(cs)), "counting colours gives the answer")
-        table = {PB_EL + "0": [sp.Rational(len(want), len(cs))], PB_REST: pb_rest(n, t)}
+        table = {PB_EL + "0": [sp.Rational(len(want), len(cs))], PB_REST: pb_rest(n, t), PB_NOT: [1 - v]}
     elif u == "bag-after-change":
         cs = pb_colours(q)
         mt = re.fullmatch(rf"(\d+) ({PB_COLOURS}) .+ (?:is|are) (taken out and not put back|added)\.", L[1])
@@ -27395,7 +27475,7 @@ def check_basic_probability(q):
         after[c] += sign * m
         need(after[c] >= 1, "the bag ran out of the colour")
         v = sp.Rational(after[ask], t0 + sign * m)
-        table = {PB_OLD_TOTAL: [sp.Rational(after[ask], t0)]}
+        table = {PB_OLD_TOTAL: [sp.Rational(after[ask], t0)], PB_UNCHANGED: [sp.Rational(cs[ask], t0)], PB_NOT: [1 - v]}  # the old bag; the other colours
         if ask == c:
             table[PB_OLD_COUNT] = [sp.Rational(cs[ask], t0 + sign * m)]
     elif u == "two-way-whole":
@@ -27415,11 +27495,13 @@ def check_basic_probability(q):
         rowi = next((i for i, r in enumerate(rw) if f" {r} and " in asked), None)
         if rowi is None:
             v = sp.Rational(C[2][found], grand)
-            table = {PB_REST: pb_rest(C[2][found], grand)}
+            table = {PB_REST: pb_rest(C[2][found], grand), PB_NOT: [1 - v], PB_EL + "0": [sp.Rational(1, 3)]}  # not the column; a third each
         else:
             cell = C[rowi][found]
             v = sp.Rational(cell, grand)
-            table = {PB_EL + "1": [sp.Rational(cell, C[rowi][3])], PB_REST: pb_rest(cell, grand)}
+            table = {PB_EL + "1": [sp.Rational(cell, C[rowi][3])], PB_REST: pb_rest(cell, grand), PB_NOT: [1 - v],
+                     PB_COLUMN: [sp.Rational(cell, C[2][found])],  # over the column's total
+                     PB_ROW_OR_COL: [sp.Rational(C[rowi][3], grand), sp.Rational(C[2][found], grand)]}  # the whole row or column
     elif u == "list-data":
         vals = [int(x) for x in L[1].split(", ")]
         need(f"each of {len(vals)} " in L[0], "the list isn't the length the story says")
@@ -27432,7 +27514,7 @@ def check_basic_probability(q):
         n, kinds = sum(1 for x in vals if test(x)), set(vals)
         v = sp.Rational(n, len(vals))
         table = {PB_EL + "0": [sp.Rational(sum(1 for x in kinds if test(x)), len(kinds))], PB_REST: pb_rest(n, len(vals)),
-                 PB_BOUNDARY: [sp.Rational(sum(1 for x in vals if slip(x)), len(vals))]}
+                 PB_BOUNDARY: [sp.Rational(sum(1 for x in vals if slip(x)), len(vals))], PB_NOT: [1 - v]}
     elif u in ("grid-total-equals", "grid-total-at-least", "complement-count") and (u != "complement-count" or rep == "diagram"):
         xs, ys = pb_faces(q)
         pb_grid_check(q, xs, ys, lambda a, b: a + b)
@@ -27447,13 +27529,13 @@ def check_basic_probability(q):
             v = sp.Rational(n, len(ts))
             need(v != sp.Rational(sum(1 for t in ds if t >= k), len(ds)), "counting totals gives the answer")
             table = {PB_EL + "0": [sp.Rational(sum(1 for t in ds if t >= k), len(ds))], PB_REST: pb_rest(n, len(ts)),
-                     PB_BOUNDARY: [sp.Rational(sum(1 for t in ts if t > k), len(ts))]}
+                     PB_BOUNDARY: [sp.Rational(sum(1 for t in ts if t > k), len(ts))], PB_NOT: [1 - v]}
         else:
             n = ts.count(k)
             need(sp.Rational(n, len(ts)) != sp.Rational(1, len(ds)), "counting totals gives the answer")
             if u == "grid-total-equals":
                 v = sp.Rational(n, len(ts))
-                table = {PB_EL + "0": [sp.Rational(1, len(ds))], PB_REST: pb_rest(n, len(ts))}
+                table = {PB_EL + "0": [sp.Rational(1, len(ds))], PB_REST: pb_rest(n, len(ts)), PB_NOT: [1 - v]}
             else:
                 v = 1 - sp.Rational(n, len(ts))
                 table = {PB_EL + "0": [1 - sp.Rational(1, len(ds))], PB_EVENT: [sp.Rational(n, len(ts))]}
@@ -27497,7 +27579,7 @@ def check_basic_probability(q):
             n = sum(1 for x in space if (x > int(ab.group(1)) if ab else x % 2 == 0))
             all_ = len(space)
         v = sp.Rational(n, all_)
-        table.update({PB_REST: pb_rest(n, all_)})
+        table.update({PB_REST: pb_rest(n, all_), PB_NOT: [1 - v]})
     elif u == "complement-given":
         p = R(re.search(rf"({PB_NUM})\.?$", L[0]).group(1))
         need(p != sp.Rational(1, 2), "the event and its complement are equal")
@@ -27541,7 +27623,8 @@ def check_basic_probability(q):
         need(not any(big(a, b) and small(a, b) for a, b in space), "an outcome wins both")
         u_ = len(space)
         v = sp.Rational(u_ - nb - ns, u_)
-        table = {PB_ONE_RULE: [1 - sp.Rational(nb, u_), 1 - sp.Rational(ns, u_)], PB_EVENT: [sp.Rational(nb + ns, u_)]}
+        table = {PB_ONE_RULE: [1 - sp.Rational(nb, u_), 1 - sp.Rational(ns, u_)], PB_EVENT: [sp.Rational(nb + ns, u_)],
+                 PB_EL + "0": [sp.Rational(1, 3)]}  # big, small and nothing taken as equally likely
     elif u in ("at-least-one-same", "at-least-one-different"):
         text = " ".join(L)
         need("independently" in text, "the trials aren't said to be independent")
@@ -27582,7 +27665,7 @@ def check_basic_probability(q):
         s_ = int(re.search(r"a score of (\d+)\.$", asked).group(1))
         f = fs[s_ - 1]
         v = sp.Rational(f, t)
-        table = {PB_EL + "0": [sp.Rational(1, len(fs))], PB_REST: pb_rest(f, t)}
+        table = {PB_EL + "0": [sp.Rational(1, len(fs))], PB_REST: pb_rest(f, t), PB_NOT: [1 - v]}
     elif u == "rf-total-to-find":
         rows = q["table"]["rows"]
         if rows[0][0] == "Score":
@@ -27605,7 +27688,7 @@ def check_basic_probability(q):
             f, first = sum(fs[k:]), fs[k]
         t = sum(fs)
         v = sp.Rational(f, t)
-        table = {PB_REST: pb_rest(f, t)}
+        table = {PB_REST: pb_rest(f, t), PB_NOT: [1 - v]}
         if first is not None:
             table[PB_BOUNDARY] = [sp.Rational(f - first, t)]
     elif u == "rf-graph-estimate":
@@ -27625,7 +27708,7 @@ def check_basic_probability(q):
         v = sp.Rational(round(mean * 50), 50)
         need(all(abs(sp.Rational(int(hits[len(hits) - 10 + i]), int(p[0])) - v) < sp.Rational(3, 100) for i, p in enumerate(last)), "the curve hasn't settled")
         need(v != sp.Rational(1, 2), "the estimate and its complement are equal")
-        table = {PB_RF + "0": [sp.Rational(hits[0], step)]}
+        table = {PB_RF + "0": [sp.Rational(hits[0], step)], PB_NOT: [1 - v]}
     elif u == "more-reliable":
         if rep == "table":
             rows = q["table"]["rows"]
@@ -27639,7 +27722,8 @@ def check_basic_probability(q):
         need(all(0 < h < n for h, n in zip(hs, ns)) and ns[0] != ns[1], f"tests {ns} {hs}")
         i = 0 if ns[0] > ns[1] else 1
         v = sp.Rational(hs[i], ns[i])
-        table = {PB_RF + "0": [sp.Rational(hs[1 - i], ns[1 - i])]}
+        table = {PB_RF + "0": [sp.Rational(hs[1 - i], ns[1 - i])], PB_NOT: [1 - v],
+                 PB_AVERAGED: [(sp.Rational(hs[0], ns[0]) + sp.Rational(hs[1], ns[1])) / 2]}  # the two estimates averaged
     elif u == "gamblers-fallacy":
         mt = re.match(r"A fair coin lands on (heads|tails) (\d+) times in a row\.", L[0])
         if mt:
@@ -27653,7 +27737,8 @@ def check_basic_probability(q):
             need(md is not None or ms is not None, f"can't read {L[0]!r}")
             m, run = (6, int(md.group(1))) if md else (int(ms.group(1)), int(ms.group(2)))
             v = sp.Rational(1, m)
-            table = {PB_RF + "1": [sp.Rational(run + 1, m)]}
+            table = {PB_RF + "1": [sp.Rational(run + 1, m)], PB_NOT: [1 - v]}
+
     else:
         raise Fail(f"no check for {u}")
     want, trap, wrongs = pb_set(q, v, table, label)
@@ -32777,6 +32862,7 @@ def npr_check(q):
 
 BXP_B, BXP_C, BXP_T, BXP_D = "SL4.2.box-plot#", "SL4.2.compare-distributions#", "SL4.2.outlier-test#", "SL4.1.outlier-decision#"
 BXP_SPAN, BXP_EVERY = 25, 5
+BXP_O, BXP_OR = "t4-box-plot#", "t4-outlier-rule#"  # the types' own slips (FAL-820)
 BXP_EDGE = sp.Rational(3, 100)
 BXP_IS, BXP_NOT = "is an outlier", "is not an outlier"
 BXP_NORMAL, BXP_SKEWED = "are symmetric and could be normal", "are skewed and unlikely to be normal"
@@ -33108,16 +33194,21 @@ def bxp_box_plot(q):
     if u == "read-median":
         f, name = bxp_chosen(q)
         need(asked == f"Write down the median {c[2]}{name}.", f"asked {asked!r}")
-        bxp_common(q, f"median = {bxp_u(c, f['med'])}", {BXP_B + "5": {f"median = {bxp_u(c, (f['q1'] + f['q3']) / 2)}"}})
+        s = lambda v: f"median = {bxp_u(c, v)}"
+        bxp_common(q, s(f["med"]), {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2)}, BXP_O + "22": {s((f["min"] + f["max"]) / 2)},  # the whiskers' middle
+                                    BXP_O + "23": {s(f["q1"]), s(f["q3"])}})  # an edge of the box
     elif u == "read-quartile":
         f, _ = bxp_chosen(q)
         low = "lower quartile" in asked
-        bxp_common(q, f"{'Q1' if low else 'Q3'} = {bxp_u(c, f['q1'] if low else f['q3'])}", {})
+        s = lambda v: f"{'Q1' if low else 'Q3'} = {bxp_u(c, v)}"
+        bxp_common(q, s(f["q1"] if low else f["q3"]), {BXP_O + "23": {s(f["q3"] if low else f["q1"]), s(f["med"])}})  # the other edge or the median
     elif u == "read-iqr":
         f, name = bxp_chosen(q)
         need(asked == f"Find the interquartile range{name}.", f"asked {asked!r}")
         s = lambda v: f"IQR = {bxp_u(c, v)}"
-        bxp_common(q, s(f["q3"] - f["q1"]), {BXP_B + "6": {s(f["max"] - f["min"])}, "SL4.3.quartiles-discrete#0": {s(f["q1"] + f["q3"])}})
+        bxp_common(q, s(f["q3"] - f["q1"]), {BXP_B + "6": {s(f["max"] - f["min"])}, "SL4.3.quartiles-discrete#0": {s(f["q1"] + f["q3"])},
+                                             BXP_O + "24": {s(f["q3"] - f["med"]), s(f["med"] - f["q1"])},  # half the box
+                                             BXP_O + "25": {s(f["q1"]), s(f["q3"])}})  # one quartile
     elif u == "read-range":
         rows = bxp_fig(q)
         bxp_plot_line(q)
@@ -33131,13 +33222,15 @@ def bxp_box_plot(q):
             top = f["out"][0]
             need(top > hi and lo <= f["min"] and f["max"] <= hi, "the cross is not the one outlier")
             wrongs[BXP_B + "7"] = {s(f["max"] - f["min"])}
+        wrongs[BXP_O + "26"] = {s(top)}  # the greatest value only
         bxp_common(q, s(top - f["min"]), wrongs)
     elif u == "read-median-iqr":
         f, name = bxp_chosen(q)
         need(asked == f"Write down the median and the interquartile range{name}.", f"asked {asked!r}")
         s = lambda a, b: f"median = {bxp_u(c, a)}, IQR = {bxp_u(c, b)}"
         iq = f["q3"] - f["q1"]
-        bxp_common(q, s(f["med"], iq), {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2, iq)}, BXP_B + "6": {s(f["med"], f["max"] - f["min"])}})
+        bxp_common(q, s(f["med"], iq), {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2, iq)}, BXP_B + "6": {s(f["med"], f["max"] - f["min"])},
+                                        BXP_O + "24": {s(f["med"], f["q3"] - f["med"])}, BXP_O + "23": {s(f["q1"], iq)}})  # half the box; Q1 read as the median
     elif u == "five-number-from-data":
         need(BXP_HALVES in L, "the quartile convention isn't stated")
         xs, fs, v = bxp_data(q)
@@ -33173,7 +33266,7 @@ def bxp_box_plot(q):
         iq, lo, hi, _ = bxp_fence(f)
         need(v[-1] > hi and v[-2] <= hi and v[0] >= lo, "one high outlier")
         right = dict(f, max=v[-2], out=[v[-1]])
-        bxp_pick(q, right, {BXP_B + "1": dict(f, max=v[-1]), BXP_B + "16": dict(f, max=hi, out=[v[-1]])})
+        bxp_pick(q, right, {BXP_B + "1": dict(f, max=v[-1]), BXP_B + "16": dict(f, max=hi, out=[v[-1]]), BXP_O + "29": dict(f, max=v[-2])})  # no cross at all
     elif u in ("count-in-section", "percent-in-section"):
         if rep == "words":
             mt = re.fullmatch(rf"For {re.escape(c[1])} (\d+) {c[0]}:", L[0])
@@ -33193,12 +33286,13 @@ def bxp_box_plot(q):
             slip = sp.Rational(n) * (b - a) / whole
             need(slip.q == 1 and slip != sp.Rational(n * k, 4), "the slip by length")
             s = lambda v: f"number = {dec_text(v)} {c[0]}"
-            bxp_common(q, s(sp.Rational(n * k, 4)), {BXP_B + "0": {s(slip)}})
+            bxp_common(q, s(sp.Rational(n * k, 4)), {BXP_B + "0": {s(slip)}, BXP_O + "27": {s(sp.Integer(25 * k))},  # the percentage
+                                                     BXP_O + "28": {s(sp.Rational(n * (4 - k), 4))}})  # the other sections
         else:
             slip = 100 * (b - a) / whole
             need(slip.q == 1 and slip != 25 * k, "the slip by length")
             s = lambda v: f"percentage = {dec_text(v)}%"
-            bxp_common(q, s(sp.Integer(25 * k)), {BXP_B + "0": {s(slip)}})
+            bxp_common(q, s(sp.Integer(25 * k)), {BXP_B + "0": {s(slip)}, BXP_O + "28": {s(sp.Integer(25 * (4 - k)))}})  # the other sections
     elif u == "value-at-share":
         f = bxp_fig(q)[0]
         bxp_plot_line(q)
@@ -33209,7 +33303,8 @@ def bxp_box_plot(q):
             below = 1 - below
         key = {sp.Rational(1, 4): "q1", sp.Rational(1, 2): "med", sp.Rational(3, 4): "q3"}[below]
         s = lambda v: f"a = {bxp_u(c, v)}"
-        wrongs = {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2)}} if key == "med" else {BXP_B + "11": {s(f["q3" if key == "q1" else "q1"])}}
+        wrongs = {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2)}, BXP_O + "22": {s((f["min"] + f["max"]) / 2)}} if key == "med" else {BXP_B + "11": {s(f["q3" if key == "q1" else "q1"])}}
+        wrongs[BXP_O + "23"] = {s(f[o]) for o in ("q1", "med", "q3") if o != key}  # another line of the box
         bxp_common(q, s(f[key]), wrongs)
     elif u == "could-be-normal":
         f = bxp_fig(q)[0]
@@ -33317,10 +33412,10 @@ def bxp_outlier(q):
         which = re.fullmatch(r"Find the minimum possible value of ([UL])\.", asked).group(1)
         s = lambda v: f"{which} = {bxp_u(c, v)}"
         if which == "U":
-            wrongs = {BXP_T + "5": {s(hi - iq)}, BXP_T + "0": {s(hi / sp.Rational(3, 2))}}
+            wrongs = {BXP_T + "5": {s(hi - iq)}, BXP_T + "0": {s(hi / sp.Rational(3, 2))}, BXP_OR + "16": {s(lmin)}}  # L given for U
             bxp_common(q, s(umin), wrongs)
         else:
-            bxp_common(q, s(lmin), {BXP_T + "5": {s(hi - 2 * iq)}})
+            bxp_common(q, s(lmin), {BXP_T + "5": {s(hi - 2 * iq)}, BXP_OR + "16": {s(umin)}})  # U given for L
     elif u == "outliers-in-data":
         need(BXP_HALVES in L and BXP_RULE in L, "the rule isn't stated")
         xs, fs, v = bxp_data(q)
@@ -33350,7 +33445,9 @@ def bxp_outlier(q):
         far = f"Remove it: {dec_text(x)} is far above the rest of the data, so it must be a recording error."
         need(x != lim, "the value is on the limit")
         bxp_common(q, remove if x > lim else keep, {BXP_D + "0": {"Remove it: every outlier must be deleted, because it fails the test."},
-                                                    BXP_D + "2": {"Keep it: an outlier is always part of the data, whatever its value."}})
+                                                    BXP_D + "2": {"Keep it: an outlier is always part of the data, whatever its value."},
+                                                    BXP_OR + "15": {keep if x > lim else far}})  # the limit not checked
+
         need({keep, remove if x > lim else far} <= {o["text"] for o in q["choices"]}, "both verdicts must be options")
     elif u in ("effect-of-removing", "which-measure-moves"):
         _, _, v = bxp_data(q)
