@@ -2636,7 +2636,7 @@
                 {
                   "id": "graph-zeros",
                   "approach": "graphical",
-                  "name": "Graph the expression and find its zeros",
+                  "name": "Graph the expression on the GDC and find its zeros",
                   "summary": "Plot y = 2^(2x) − 6 × 2^x + 8 and read off the x-intercepts."
                 }
               ],
