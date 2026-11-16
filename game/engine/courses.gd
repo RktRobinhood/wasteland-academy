@@ -4,7 +4,9 @@ extends RefCounted
 ## is a filter over the shared skills, not a separate game (curriculum/README.md,
 ## "Courses and IDs"). data/courses.json lists, for each course, the subtopics it covers;
 ## a skill belongs to the subtopic named by the first two parts of its id (SL2.6.vertex
-## is in SL2.6, AI-SL1.6.bounds in AI-SL1.6).
+## is in SL2.6, AI-SL1.6.bounds in AI-SL1.6). A skill can narrow its subtopic's courses
+## (courses.json `skills`): SL5.2.show-always-increasing is AA's only, though AI shares
+## SL5.2 (FAL-982).
 ##
 ##   Courses.of(save)                       # "aa-sl" until the student picks another
 ##   QuestionEngine.cells(false, [], "ai-sl")   # the coverage cells of that course
@@ -20,12 +22,15 @@ const DEFAULT := "aa-sl"
 
 ## Course id -> {"id", "short", "name", "status", "subtopics": {subtopic id: true}}.
 static var _index: Dictionary = {}
+## Skill id -> {course id: true}, for the skills that list their own courses.
+static var _skills: Dictionary = {}
 static var _loaded := false
 
 
 static func _load(path: String = PATH) -> void:
 	_loaded = true
 	_index = {}
+	_skills = {}
 	var f := FileAccess.open(path, FileAccess.READ)
 	var data = JSON.parse_string(f.get_as_text()) if f != null else null
 	if not data is Dictionary or not data.get("courses") is Array:
@@ -37,6 +42,12 @@ static func _load(path: String = PATH) -> void:
 			subs[id] = true
 		_index[c.id] = {"id": c.id, "short": c.get("short", c.id), "name": c.get("name", c.id),
 			"status": c.get("status", ""), "subtopics": subs}
+	var skills = data.get("skills", {})
+	for id in skills if skills is Dictionary else {}:
+		var cs := {}
+		for c in skills[id]:
+			cs[c] = true
+		_skills[id] = cs
 
 
 static func _courses() -> Dictionary:
@@ -75,9 +86,12 @@ static func subtopic_of(skill: String) -> String:
 	return skill if parts.size() < 2 else "%s.%s" % [parts[0], parts[1]]
 
 
+## Whether a skill is in a course: its own courses when it lists them, else its subtopic's.
 static func covers_skill(course: String, skill: String) -> bool:
 	if course == "" or _courses().is_empty():
 		return true
+	if _skills.has(skill):
+		return has(course) and _skills[skill].has(course)
 	return _courses().get(course, {}).get("subtopics", {}).has(subtopic_of(skill))
 
 

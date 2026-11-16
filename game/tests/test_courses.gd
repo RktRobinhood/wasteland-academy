@@ -57,6 +57,10 @@ func test_which_course_covers_which_skill() -> void:
 		["AHL1.10.binomial", [false, true, false, false]],
 		["AI-SL1.6.bounds", [false, false, true, true]],
 		["AI-AHL1.9.anything", [false, false, false, true]],
+		# AI shares SL5.2, but these two skills list AA only (FAL-982).
+		["SL5.2.show-always-increasing", [true, true, false, false]],
+		["SL5.2.parameter-for-monotonic", [true, true, false, false]],
+		["SL5.2.sign-from-graph", [true, true, true, true]],
 	]
 	for row in rows:
 		for i in COURSES.size():
@@ -115,6 +119,35 @@ func test_every_cell_of_a_course_uses_only_skills_the_course_covers() -> void:
 				check(Courses.covers_skill(course, s), "%s on %s: skill %s" % [c.key, course, s])
 			var m := QuestionEngine.angle_info(t, c.unknown, c.angle, course)
 			check(Courses.covers_method(course, m), "%s on %s: method %s" % [c.key, course, c.angle])
+
+
+## The SL5.2 skills that are AA's only: AI reads 5.2 graphically (FAL-982).
+const AA_ONLY_SKILLS := ["SL5.2.show-always-increasing", "SL5.2.parameter-for-monotonic"]
+
+
+## How many of a course's cells use each AA-only skill, in their unknown or their method.
+func _aa_only_uses(course: String) -> Dictionary:
+	var out := {}
+	for s in AA_ONLY_SKILLS:
+		out[s] = 0
+	for c in QuestionEngine.cells(false, [], course):
+		var t := QuestionEngine.type_of(c.type)
+		var used: Array = QuestionEngine.unknown_of(t, c.unknown).get("skills", []).duplicate()
+		used.append(QuestionEngine.angle_info(t, c.unknown, c.angle, course).get("skill", ""))
+		for s in AA_ONLY_SKILLS:
+			if s in used:
+				out[s] += 1
+	return out
+
+
+func test_a_skill_with_its_own_courses_is_off_the_other_courses() -> void:
+	for course in ["ai-sl", "ai-hl"]:
+		for s in AA_ONLY_SKILLS:
+			check_eq(_aa_only_uses(course)[s], 0, "%s has no cell on %s" % [course, s])
+	for course in ["aa-sl", "aa-hl"]:
+		var uses := _aa_only_uses(course)
+		for s in AA_ONLY_SKILLS:
+			check(uses[s] > 0, "%s still has %s (%d cells)" % [course, s, uses[s]])
 
 
 func test_a_method_the_course_does_not_cover_is_not_offered() -> void:

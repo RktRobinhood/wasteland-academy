@@ -431,5 +431,15 @@
         "AI-AHL5.18"
       ]
     }
-  ]
+  ],
+  "skills": {
+    "SL5.2.show-always-increasing": [
+      "aa-sl",
+      "aa-hl"
+    ],
+    "SL5.2.parameter-for-monotonic": [
+      "aa-sl",
+      "aa-hl"
+    ]
+  }
 }
