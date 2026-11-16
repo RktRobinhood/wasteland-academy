@@ -416,6 +416,30 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   sections are prefixed `E17CB_`, `E17EL_`, `E17SF_` (both standard-form types), `E17RV_` and
   `E17ST_`, with the tools they share prefixed `E17_`; on a shared situation the checker sends the
   new unknowns to its section and every other unknown to the exam type's checks as before.
+- **The binomial extension types** (FAL-779, batch E16): two types on `binomial-expansion`, the
+  situation of `t1-binomial-term`, that cover SL1.9 skills no exam type lists, so they carry no exam
+  parts. Each adds unknowns of its own (`BinomialExpansionSituation.CONSTANT` and `PRODUCT`), so the
+  exam type's cells, numbers and checks are unchanged. `t1-ext-binomial-constant-term`
+  (SL1.9.constant-term, 6 unknowns, 13 cells) has x in both terms of the bracket, (ax^p ± k/x^q)^n:
+  the power of x in the general term as pn − (p + q)r, the r of the term independent of x, the
+  constant term with p = q (where the middle term is a method), with p ≠ q, with a number beside x,
+  and the coefficient of a power other than 0; solved by setting the power, by listing the powers
+  for each r, or by symmetry, which the catalogue says fails wherever p ≠ q or the power isn't 0.
+  `t1-ext-binomial-product` (SL1.9.product-expansion, 6 unknowns, 12 cells) multiplies
+  (a + bx)^n by a short bracket: a coefficient of (p + qx)(a + bx)^n, the power the first bracket's
+  x term carries (where multiplying the two coefficients is the slip), the same "hence" from the two
+  coefficients given, the constant term of (x² + c)(x + k/x)^n, k from a given coefficient of
+  (1 + kx)(a + bx)^n, and n of 3 or 4, where expanding everything is a method too; every answer comes
+  from two pairs of terms, neither 0. Every answer is exact. Built formats: method-pick on every
+  cell, error-spot on the r of the constant term (the fraction's power of x written as positive), the
+  constant term (the top of the fraction left unraised) and the product's coefficient (the x term
+  paired with the term of the asked power). Wrong options are slips or declared fillers, never
+  `generic`. The catalogue's `order-steps` and `multipart` formats are not built in the engine, so
+  these types don't offer them. Their steps are not in `curriculum/moves-map.json` yet. The skill
+  map's misconceptions for both skills no longer quote an example's numbers, and "Sign slips" now
+  names the slip. The checker's sections are prefixed `E16BC_` and `E16BP_`, with the tools they
+  share prefixed `E16A_`; `binomial-expansion`'s checks send the new unknowns there and every other
+  unknown to the exam type's checks as before.
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
@@ -2345,6 +2369,11 @@ script error happens while it runs. Run one file with
   extra format, four different options, the GDC on Paper 2 only, hand values, the bracket as the
   exam writes it, the staggered triangle, a term against a coefficient, a typed expansion and row,
   every misconception as an option, the three concept probes and AA courses only.
+- `test_binomial_constant_term.gd` and `test_binomial_product.gd` (FAL-779): the two binomial
+  extension types built with every cell in every format they offer, the r found giving the power
+  asked, the middle term only for symmetric powers, each product's answer as two pairs of terms
+  multiplied out the long way, the skill map's examples left out, hand values, the exam type's
+  cells untouched, and every tag shown.
 - `test_prove_identity.gd` (FAL-753): `t3-prove-identity`: every cell on Paper 1, four different options, hand
   values, each chain reaching its right side, hidden and spoiled lines where they should be, no exam
   statement or HL ratio, typed slips detected, and every tag shown.
