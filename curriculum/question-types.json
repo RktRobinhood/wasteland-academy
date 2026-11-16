@@ -62398,6 +62398,75 @@
       "quotient-sign"
      ],
      "wrong": "the top of f′ with the opposite sign, and the opposite conclusion"
+    },
+    {
+     "text": "Answering for increasing when decreasing is asked, or the other way round",
+     "as": "distractor",
+     "in": [
+      "interval-from-equation",
+      "interval-from-table",
+      "quadratic-interval",
+      "interval-from-derivative-graph",
+      "intervals-from-graph",
+      "negative-and-increasing"
+     ],
+     "wrong": "the interval for the other word"
+    },
+    {
+     "text": "Reading the roots off the factors with the wrong signs",
+     "as": "distractor",
+     "in": [
+      "interval-from-equation"
+     ],
+     "wrong": "the roots of f′ with their signs flipped"
+    },
+    {
+     "text": "Using the end x-values of the table instead of the zeros of f′",
+     "as": "distractor",
+     "in": [
+      "interval-from-table"
+     ],
+     "wrong": "the first and last x in the table"
+    },
+    {
+     "text": "Dropping the minus sign when finding the vertex's x-coordinate",
+     "as": "distractor",
+     "in": [
+      "quadratic-interval"
+     ],
+     "wrong": "the vertex's x with its sign flipped"
+    },
+    {
+     "text": "Using the turning point of f′ as an end instead of its zero",
+     "as": "distractor",
+     "in": [
+      "interval-gdc"
+     ],
+     "wrong": "where f′ turns, as an end"
+    },
+    {
+     "text": "Turning the inequality round when solving for d",
+     "as": "distractor",
+     "in": [
+      "parameter-shift"
+     ],
+     "wrong": "d ≥ k"
+    },
+    {
+     "text": "Taking the vertex's height with the wrong sign",
+     "as": "distractor",
+     "in": [
+      "parameter-shift"
+     ],
+     "wrong": "d ≤ −k"
+    },
+    {
+     "text": "Using the vertex's x-coordinate instead of its height",
+     "as": "distractor",
+     "in": [
+      "parameter-shift"
+     ],
+     "wrong": "d ≤ h"
     }
    ],
    "parts": [
@@ -63013,6 +63082,15 @@
       "normal-meets-again"
      ],
      "wrong": "the line through P with gradient −m or 1/m, followed to the axis, the triangle or the curve"
+    },
+    {
+     "text": "Forgetting to halve base times height for the triangle's area",
+     "as": "distractor",
+     "in": [
+      "tangent-triangle-area",
+      "normal-triangle-area"
+     ],
+     "wrong": "OA × OB, not halved"
     }
    ],
    "parts": [
@@ -65029,6 +65107,86 @@
       "other-dimension"
      ],
      "wrong": "the free length x or r given as y or h"
+    },
+    {
+     "text": "Getting the signs wrong when moving a term across the equals sign",
+     "as": "distractor",
+     "in": [
+      "constraint-rearrange"
+     ],
+     "wrong": "y = nx − F"
+    },
+    {
+     "text": "Treating the area as a sum of lengths instead of a product",
+     "as": "distractor",
+     "in": [
+      "constraint-rearrange"
+     ],
+     "wrong": "y = A − nx"
+    },
+    {
+     "text": "Dividing by r instead of r squared when undoing the area of the circle",
+     "as": "distractor",
+     "in": [
+      "constraint-rearrange"
+     ],
+     "wrong": "h = V/(πr)"
+    },
+    {
+     "text": "Multiplying only one term of the bracket when expanding",
+     "as": "distractor",
+     "in": [
+      "build-objective"
+     ],
+     "wrong": "one term of the bracket not doubled"
+    },
+    {
+     "text": "Swapping the two rates, so each stretch gets the other's speed or cost",
+     "as": "distractor",
+     "in": [
+      "build-objective"
+     ],
+     "wrong": "the two rates swapped"
+    },
+    {
+     "text": "Forgetting to square the sides when using Pythagoras",
+     "as": "distractor",
+     "in": [
+      "build-objective"
+     ],
+     "wrong": "√(a + x)"
+    },
+    {
+     "text": "Subtracting the squares in Pythagoras instead of adding them",
+     "as": "distractor",
+     "in": [
+      "build-objective"
+     ],
+     "wrong": "√(a² − x²)"
+    },
+    {
+     "text": "Swapping p and q, so each number goes in the other's place",
+     "as": "distractor",
+     "in": [
+      "show-objective"
+     ],
+     "wrong": "p and q swapped"
+    },
+    {
+     "text": "Swapping the two gradients over, so the sign change reads the wrong way round",
+     "as": "distractor",
+     "in": [
+      "justify-sign-change"
+     ],
+     "wrong": "the two values swapped"
+    },
+    {
+     "text": "Getting the sign wrong when solving for x after differentiating",
+     "as": "distractor",
+     "in": [
+      "closest-point"
+     ],
+     "wrong": "x = a + k/2"
     }
    ],
    "parts": [
@@ -65762,7 +65920,8 @@
      "in": [
       "distance-before-turning",
       "race-gap",
-      "ridge-distance"
+      "ridge-distance",
+      "total-distance-gdc"
      ],
      "wrong": "one velocity times the time"
     },
@@ -65857,6 +66016,159 @@
       "distance-between-times"
      ],
      "wrong": "the size of one integral across a rest, in a story"
+    },
+    {
+     "text": "Taking the value given at a later time as the constant of integration",
+     "as": "distractor",
+     "in": [
+      "position-expression",
+      "velocity-from-acceleration"
+     ],
+     "wrong": "C set to the value given, not solved for"
+    },
+    {
+     "text": "Forgetting to divide each term by its new power when integrating",
+     "as": "distractor",
+     "in": [
+      "position-expression",
+      "velocity-from-acceleration"
+     ],
+     "wrong": "the powers raised, the coefficients kept"
+    },
+    {
+     "text": "Giving the velocity at that time instead of the displacement",
+     "as": "distractor",
+     "in": [
+      "position-at-time",
+      "position-at-max-velocity"
+     ],
+     "wrong": "v at the time"
+    },
+    {
+     "text": "Substituting the times into v instead of into its integral",
+     "as": "distractor",
+     "in": [
+      "displacement-between"
+     ],
+     "wrong": "v(b) − v(a)"
+    },
+    {
+     "text": "Deciding from the change of direction alone, without working out the displacement",
+     "as": "distractor",
+     "in": [
+      "does-it-return"
+     ],
+     "wrong": "a turn read as never coming back"
+    },
+    {
+     "text": "Checking the displacement only at the end, not whether it passed the start on the way",
+     "as": "distractor",
+     "in": [
+      "does-it-return"
+     ],
+     "wrong": "the end alone checked"
+    },
+    {
+     "text": "Taking cos of zero as zero instead of one",
+     "as": "distractor",
+     "in": [
+      "initial-displacement"
+     ],
+     "wrong": "the constant term alone"
+    },
+    {
+     "text": "Giving an interval where v is negative, so the displacement is falling",
+     "as": "distractor",
+     "in": [
+      "displacement-increasing"
+     ],
+     "wrong": "a stretch with v < 0"
+    },
+    {
+     "text": "Stopping at the time found on the way, giving it as the displacement or distance",
+     "as": "distractor",
+     "in": [
+      "race-gap",
+      "displacement-at-turn",
+      "distance-before-turning",
+      "distance-from-position"
+     ],
+     "wrong": "the time, given as a length"
+    },
+    {
+     "text": "Using the end of the interval instead of the time it changes direction",
+     "as": "distractor",
+     "in": [
+      "displacement-at-turn"
+     ],
+     "wrong": "s at the end"
+    },
+    {
+     "text": "Counting only one leg of the trip, so part of the distance is left out",
+     "as": "distractor",
+     "in": [
+      "total-distance-positions",
+      "total-distance-split",
+      "total-distance-gdc",
+      "distance-between-times"
+     ],
+     "wrong": "one leg's length"
+    },
+    {
+     "text": "Integrating to the end of the interval instead of stopping where it turns",
+     "as": "distractor",
+     "in": [
+      "distance-before-turning"
+     ],
+     "wrong": "the whole trip's distance"
+    },
+    {
+     "text": "Starting the integral at the start of the motion instead of at the first time asked for",
+     "as": "distractor",
+     "in": [
+      "distance-between-times"
+     ],
+     "wrong": "the distance from the start to t₂"
+    },
+    {
+     "text": "Giving the final displacement as the distance travelled",
+     "as": "distractor",
+     "in": [
+      "distance-from-position"
+     ],
+     "wrong": "s at the end"
+    },
+    {
+     "text": "Subtracting the integral where v is positive instead of the one where it is negative",
+     "as": "distractor",
+     "in": [
+      "distance-expression"
+     ],
+     "wrong": "the two pieces the wrong way round"
+    },
+    {
+     "text": "Splitting at the time of greatest velocity instead of where v is zero",
+     "as": "distractor",
+     "in": [
+      "distance-expression"
+     ],
+     "wrong": "split where a = 0"
+    },
+    {
+     "text": "Giving the whole distance travelled, not only the part while speeding up",
+     "as": "distractor",
+     "in": [
+      "speeding-distance-expression"
+     ],
+     "wrong": "the total distance"
+    },
+    {
+     "text": "Forgetting to add the time of the rest back on, giving only the time after it",
+     "as": "distractor",
+     "in": [
+      "time-for-distance"
+     ],
+     "wrong": "k minus the rest time"
     }
    ],
    "parts": [
@@ -67959,7 +68271,8 @@
      "as": "distractor",
      "in": [
       "standard-terms",
-      "chain-function"
+      "chain-function",
+      "product-functions"
      ],
      "wrong": "cos x differentiated to sin x"
     },
@@ -67992,7 +68305,8 @@
       "chain-function",
       "chain-log-split",
       "gradient-chain",
-      "parameter-derivative"
+      "parameter-derivative",
+      "quotient-functions"
      ],
      "wrong": "the outer derivative with no inner factor"
     },
@@ -68010,7 +68324,8 @@
      "text": "Replacing the inside of the bracket by its derivative",
      "as": "distractor",
      "in": [
-      "chain-power"
+      "chain-power",
+      "chain-function"
      ],
      "wrong": "the inner derivative in the bracket"
     },
@@ -68056,7 +68371,8 @@
       "quotient-functions",
       "quotient-split",
       "gradient-quotient",
-      "parameter-derivative"
+      "parameter-derivative",
+      "show-form"
      ],
      "wrong": "the top with its sign flipped"
     },
@@ -68093,6 +68409,101 @@
       "show-form"
      ],
      "wrong": "a sign slipped on the top"
+    },
+    {
+     "text": "Putting a minus sign on the derivative of sin x",
+     "as": "distractor",
+     "in": [
+      "standard-terms",
+      "chain-function",
+      "product-functions"
+     ],
+     "wrong": "sin x differentiated to −cos x"
+    },
+    {
+     "text": "Lowering the power without multiplying by it",
+     "as": "distractor",
+     "in": [
+      "root-powers",
+      "log-power-terms",
+      "product-powers"
+     ],
+     "wrong": "a term's coefficient left as it was"
+    },
+    {
+     "text": "Adding one to a negative power instead of taking one off",
+     "as": "distractor",
+     "in": [
+      "root-powers"
+     ],
+     "wrong": "the negative power moved towards zero"
+    },
+    {
+     "text": "Losing the minus sign when differentiating a negative power",
+     "as": "distractor",
+     "in": [
+      "root-powers",
+      "quotient-split"
+     ],
+     "wrong": "that term's sign flipped"
+    },
+    {
+     "text": "Keeping the old power after bringing it down",
+     "as": "distractor",
+     "in": [
+      "chain-power",
+      "product-powers"
+     ],
+     "wrong": "the power not lowered"
+    },
+    {
+     "text": "Forgetting to bring the power down in front of the bracket",
+     "as": "distractor",
+     "in": [
+      "chain-power"
+     ],
+     "wrong": "no factor n"
+    },
+    {
+     "text": "Multiplying only the first term of the bracket by the factor in front",
+     "as": "distractor",
+     "in": [
+      "chain-small-power"
+     ],
+     "wrong": "2a²x + b"
+    },
+    {
+     "text": "Leaving the power out of the inner derivative, so x squared gives x",
+     "as": "distractor",
+     "in": [
+      "chain-function"
+     ],
+     "wrong": "the inner derivative without its 2"
+    },
+    {
+     "text": "Forgetting the power in front of the log after splitting it",
+     "as": "distractor",
+     "in": [
+      "chain-log-split"
+     ],
+     "wrong": "the inner derivative alone over the bracket"
+    },
+    {
+     "text": "Adding the two parts of the quotient rule's top instead of subtracting them",
+     "as": "distractor",
+     "in": [
+      "quotient-linear",
+      "quotient-functions"
+     ],
+     "wrong": "vu′ + uv′ on top"
+    },
+    {
+     "text": "Leaving the shared power uncancelled between the top and the bottom",
+     "as": "distractor",
+     "in": [
+      "show-form"
+     ],
+     "wrong": "the bottom's power not reduced"
     }
    ],
    "parts": [
@@ -69342,6 +69753,14 @@
       "accumulate-graph"
      ],
      "wrong": "the change alone, with the start left out"
+    },
+    {
+     "text": "Subtracting the accumulated change from the start instead of adding it",
+     "as": "distractor",
+     "in": [
+      "rate-model"
+     ],
+     "wrong": "the start minus the change"
     }
    ],
    "parts": [
@@ -69986,7 +70405,8 @@
       "evaluate-roots",
       "evaluate-log",
       "evaluate-exp",
-      "evaluate-linear"
+      "evaluate-linear",
+      "evaluate-odd-even"
      ],
      "wrong": "the two ends the wrong way round"
     },
@@ -70055,7 +70475,12 @@
      "in": [
       "unknown-upper-limit",
       "unknown-limit-log",
-      "unknown-stretch"
+      "unknown-stretch",
+      "evaluate-polynomial",
+      "evaluate-roots",
+      "evaluate-log",
+      "evaluate-linear",
+      "region-line-curve"
      ],
      "wrong": "F(lower) not subtracted"
     },
@@ -70092,7 +70517,8 @@
      "text": "Evaluating the rate at the end time instead of integrating",
      "as": "distractor",
      "in": [
-      "total-from-rate"
+      "total-from-rate",
+      "amount-with-start"
      ],
      "wrong": "the rate at the end time"
     },
@@ -70114,6 +70540,163 @@
       "interpret-integral"
      ],
      "wrong": "the total in rate units"
+    },
+    {
+     "text": "Substituting the limits into f itself instead of into its antiderivative",
+     "as": "distractor",
+     "in": [
+      "evaluate-polynomial",
+      "evaluate-linear"
+     ],
+     "wrong": "f(upper) − f(lower)"
+    },
+    {
+     "text": "Using the wrong sign for the antiderivative of sin x or cos x",
+     "as": "distractor",
+     "in": [
+      "evaluate-trig"
+     ],
+     "wrong": "the trig part's sign flipped"
+    },
+    {
+     "text": "Writing ln a − ln b as ln(a − b)",
+     "as": "distractor",
+     "in": [
+      "evaluate-log"
+     ],
+     "wrong": "ln of the difference of the limits"
+    },
+    {
+     "text": "Forgetting to divide by the coefficient of x when integrating an exponential",
+     "as": "distractor",
+     "in": [
+      "evaluate-exp"
+     ],
+     "wrong": "k(eⁿ − 1), not divided by a"
+    },
+    {
+     "text": "Multiplying by the coefficient of x instead of dividing by it, as when differentiating",
+     "as": "distractor",
+     "in": [
+      "evaluate-exp"
+     ],
+     "wrong": "ka(eⁿ − 1)"
+    },
+    {
+     "text": "Treating every term as odd, so the whole integral is taken as zero",
+     "as": "distractor",
+     "in": [
+      "evaluate-odd-even"
+     ],
+     "wrong": "zero"
+    },
+    {
+     "text": "Forgetting to double the even terms' integral from zero",
+     "as": "distractor",
+     "in": [
+      "evaluate-odd-even"
+     ],
+     "wrong": "half the value"
+    },
+    {
+     "text": "Doubling the odd terms as well, instead of letting them cancel",
+     "as": "distractor",
+     "in": [
+      "evaluate-odd-even"
+     ],
+     "wrong": "the odd terms doubled too"
+    },
+    {
+     "text": "Treating the trapezium as a rectangle, with one parallel side as its height",
+     "as": "distractor",
+     "in": [
+      "evaluate-linear"
+     ],
+     "wrong": "a rectangle of one end's height"
+    },
+    {
+     "text": "Leaving out one of the regions, so only part of the area is counted",
+     "as": "distractor",
+     "in": [
+      "area-across-root",
+      "area-gdc",
+      "area-symmetry",
+      "region-line-curve"
+     ],
+     "wrong": "one region's area only"
+    },
+    {
+     "text": "Forgetting to take the square root at the end, so k squared is given as k",
+     "as": "distractor",
+     "in": [
+      "unknown-limit-log"
+     ],
+     "wrong": "k²"
+    },
+    {
+     "text": "Reading the angle from its cosine instead of its sine",
+     "as": "distractor",
+     "in": [
+      "unknown-limit-trig"
+     ],
+     "wrong": "the complementary angle"
+    },
+    {
+     "text": "Taking the area itself as k, without dividing by the integral of x squared",
+     "as": "distractor",
+     "in": [
+      "unknown-stretch"
+     ],
+     "wrong": "k = the area"
+    },
+    {
+     "text": "Forgetting to halve when finding the triangle's area",
+     "as": "distractor",
+     "in": [
+      "region-line-curve"
+     ],
+     "wrong": "the triangle as base × height"
+    },
+    {
+     "text": "Multiplying the rate at the end time by the whole time, as if the rate were constant",
+     "as": "distractor",
+     "in": [
+      "total-from-rate",
+      "total-from-rate-graph"
+     ],
+     "wrong": "r(T) × T"
+    },
+    {
+     "text": "Subtracting the starting amount instead of adding it",
+     "as": "distractor",
+     "in": [
+      "amount-with-start"
+     ],
+     "wrong": "the change minus the start"
+    },
+    {
+     "text": "Treating the rate as constant at its starting value",
+     "as": "distractor",
+     "in": [
+      "time-to-reach"
+     ],
+     "wrong": "the amount over r(0)"
+    },
+    {
+     "text": "Treating the integral as the amount present, forgetting the starting amount",
+     "as": "distractor",
+     "in": [
+      "interpret-integral"
+     ],
+     "wrong": "the amount in it at time T"
+    },
+    {
+     "text": "Reading the integral as the average amount added per unit of time",
+     "as": "distractor",
+     "in": [
+      "interpret-integral"
+     ],
+     "wrong": "the average per unit of time"
     }
    ],
    "parts": [
@@ -71503,6 +72086,30 @@
       "area-exp-lines"
      ],
      "wrong": "e⁰ taken as 0"
+    },
+    {
+     "text": "Reading the roots off the factors with the wrong signs",
+     "as": "distractor",
+     "in": [
+      "meeting-limits"
+     ],
+     "wrong": "the meeting points' signs flipped"
+    },
+    {
+     "text": "Using the ends of the domain as the limits instead of the outer meeting points",
+     "as": "distractor",
+     "in": [
+      "split-expression"
+     ],
+     "wrong": "the domain's ends as the limits"
+    },
+    {
+     "text": "Stopping at q, leaving out the change across the second region",
+     "as": "distractor",
+     "in": [
+      "derivative-areas"
+     ],
+     "wrong": "the value at q"
     }
    ],
    "parts": [

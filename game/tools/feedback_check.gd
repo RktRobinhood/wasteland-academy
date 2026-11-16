@@ -64,10 +64,7 @@ const UNSORTED := [
 	"t4-discrete-distribution", "t4-expected-occurrences", "t4-expected-value",
 	"t4-independence", "t4-inverse-normal", "t4-normal-probability", "t4-normal-properties",
 	"t4-outlier-rule", "t4-probability-basic", "t4-regression-gdc", "t4-sample-space",
-	"t4-summary-statistics", "t4-tree-diagram", "t5-antiderivative-condition",
-	"t5-area-between-curves", "t5-concavity", "t5-definite-integral-area",
-	"t5-derivative-graph", "t5-differentiation-rules", "t5-increasing-decreasing",
-	"t5-kinematics-distance", "t5-normal-meets-curve", "t5-optimisation-modelling"
+	"t4-summary-statistics", "t4-tree-diagram", "t5-concavity", "t5-derivative-graph"
 ]
 
 ## Two full stops, but not an ellipsis.

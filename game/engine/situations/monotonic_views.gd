@@ -24,6 +24,17 @@ const SA := "SL5.2.show-always-increasing#"
 const R_POINTS := SA + "0"
 const R_SQUARE_POSITIVE := SA + "2"
 const R_QUOTIENT_ORDER := "SL5.6.quotient-rule#0"
+## The type's own slips (FAL-820). R_OPPOSITE is the other side where f′'s leading term is
+## positive: R_WAY_ROUND is kept for a negative one, as the checker has it.
+const OWN := "t5-increasing-decreasing#"
+const R_OPPOSITE := OWN + "11"
+const R_ROOT_SIGNS := OWN + "12"
+const R_TABLE_ENDS := OWN + "13"
+const R_VERTEX_SIGN := OWN + "14"
+const R_F2_TURN := OWN + "15"
+const R_INEQ_TURNED := OWN + "16"
+const R_K_SIGN := OWN + "17"
+const R_H_FOR_K := OWN + "18"
 const SHAPES := ["between", "outside"]
 ## These make either paper: the bank asks each on Paper 2 as well (FAL-817), with the same working.
 const EITHER := ["interval-from-equation", "interval-from-derivative-graph", "quotient-sign"]
@@ -154,8 +165,10 @@ func u_interval_from_equation(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var word: String = s.want
 	var yp := MonotonicSituation.f_at(s, Q.new(p))
 	var yq := MonotonicSituation.f_at(s, Q.new(q))
-	var wr: Array = [alt_iv(other(shape), p, q, R_WAY_ROUND if A < 0 else ""), alt_iv(shape, yp if yp.lt(yq) else yq, yq if yp.lt(yq) else yp, R_Y_VALUES)]
-	var gen: Array = [alt_iv(shape, p - 1, q).values, alt_iv(shape, p, q + 1).values, alt_iv(other(shape), p - 1, q + 1).values, alt_iv(shape, -q, -p).values]
+	var wr: Array = [alt_iv(other(shape), p, q, R_WAY_ROUND if A < 0 else R_OPPOSITE), alt_iv(shape, yp if yp.lt(yq) else yq, yq if yp.lt(yq) else yp, R_Y_VALUES)]
+	if p != -q:
+		wr.append(alt_iv(shape, -q, -p, R_ROOT_SIGNS))
+	var gen: Array = [alt_iv(shape, p - 1, q).values, alt_iv(shape, p, q + 1).values, alt_iv(other(shape), p - 1, q + 1).values]
 	var lines: Array
 	var asked: String
 	if rep == "words":
@@ -166,7 +179,7 @@ func u_interval_from_equation(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		asked = "Find the values of x for which f is %s." % word
 	var factored := "%s(x%s)(x%s)" % [Fmt.lead(3 * A), Fmt.plus(-p), Fmt.plus(-q)]
 	var rel := "> 0" if word == "increasing" else "< 0"
-	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": wr, "generic": gen,
+	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": wr, "fillers": gen,
 		"methods": {"solve-inequality": method([
 			"f′(x) = %s = %s." % [df, factored],
 			"f is %s where f′(x) %s." % [word, rel],
@@ -195,8 +208,8 @@ func u_interval_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	return {"lines": ["The table gives values of f′(x). Its only zeros are the two shown."],
 		"table": {"rows": [["x", xs.map(func(x): return Fmt.num(x))], ["f′(x)", ys.map(func(y): return Fmt.num(y))]]},
 		"asked": "Find the values of x for which f is %s." % word, "answer": ans,
-		"wrongs": [alt_iv(other(shape), p, q, R_WAY_ROUND if s.A < 0 else "")],
-		"generic": [alt_iv(shape, p - 1, q + 1).values, alt_iv(other(shape), p - 1, q + 1).values, alt_iv(shape, p - 1, q).values, alt_iv(shape, p, q + 1).values],
+		"wrongs": [alt_iv(other(shape), p, q, R_WAY_ROUND if s.A < 0 else R_OPPOSITE), alt_iv(shape, p - 1, q + 1, R_TABLE_ENDS)],
+		"fillers": [alt_iv(other(shape), p - 1, q + 1).values, alt_iv(shape, p - 1, q).values, alt_iv(shape, p, q + 1).values],
 		"methods": {"sign-table": method([
 			"f′ changes sign at x = %s and x = %s." % [Fmt.num(p), Fmt.num(q)],
 			"Between them f′ is %s; outside them it is %s." % [sign_text(ys[2]), sign_text(ys[0])],
@@ -221,12 +234,22 @@ func u_quadratic_interval(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var flip := "<" if up_side else ">"
 	var ans := side(rel, h)
 	var df := Fmt.poly([2 * a, -2 * a * h])
-	var wr: Array = [wrong(side(flip, h).values, R_WAY_ROUND if a < 0 else ""),
-		DifferentiationViews.alt("y %s %s" % [rel, Fmt.num(k)], R_Y_VALUES),
-		DifferentiationViews.alt(interval_text("between", s.r, s.s), R_F_NOT_DF if (a > 0) == (word == "decreasing") else "")]
+	var wr: Array = [wrong(side(flip, h).values, R_WAY_ROUND if a < 0 else R_OPPOSITE),
+		DifferentiationViews.alt("y %s %s" % [rel, Fmt.num(k)], R_Y_VALUES)]
+	var fill: Array = [side(rel, h + 1).values, side(rel, h - 1).values, side(flip, h + 1).values]
+	# Between the roots is where f is below the axis only when a > 0: otherwise no slip gives it.
+	var roots := DifferentiationViews.alt(interval_text("between", s.r, s.s), R_F_NOT_DF)
+	if (a > 0) == (word == "decreasing"):
+		wr.append(roots)
+	else:
+		fill.append(roots.values)
+	if h != 0:
+		wr.append(wrong(side(rel, -h).values, R_VERTEX_SIGN))
+	else:
+		fill.append(side(rel, 2).values)
 	var r := "> 0" if word == "increasing" else "< 0"
 	return {"lines": ["f(x) = %s" % Fmt.poly(s.coeffs)], "asked": "Find the values of x for which f is %s." % word, "answer": ans, "wrongs": wr,
-		"generic": [side(rel, h + 1).values, side(rel, h - 1).values, side(rel, -h).values if h != 0 else side(rel, 2).values, side(flip, h + 1).values],
+		"fillers": fill,
 		"methods": {"vertex-shortcut": method([
 			"The vertex is at x = −b/(2a) = %s." % Fmt.num(h),
 			"A parabola opening %s %s on the right of its vertex." % ["up" if a > 0 else "down", "rises" if a > 0 else "falls"],
@@ -250,8 +273,8 @@ func u_interval_from_derivative_graph(_rep: String, s: Dictionary, _rng: Seeded)
 	var g := graph_of(quad_fn(s), r - 2.0, t + 2.0, [[float(r), 0.0, Fmt.point(r, 0)], [float(t), 0.0, Fmt.point(t, 0)]])
 	var yup: String = "above" if word == "increasing" else "below"
 	return {"lines": ["The graph shows y = f′(x), the derivative of f."], "graph": g, "asked": "Find the values of x for which f is %s." % word, "answer": ans,
-		"wrongs": [alt_iv(other(shape), r, t, R_WAY_ROUND if a < 0 else "")],
-		"generic": [alt_iv(shape, r - 1, t).values, alt_iv(shape, r, t + 1).values, alt_iv(other(shape), r - 1, t + 1).values, alt_iv(shape, r - 1, t + 1).values],
+		"wrongs": [alt_iv(other(shape), r, t, R_WAY_ROUND if a < 0 else R_OPPOSITE)],
+		"fillers": [alt_iv(shape, r - 1, t).values, alt_iv(shape, r, t + 1).values, alt_iv(other(shape), r - 1, t + 1).values, alt_iv(shape, r - 1, t + 1).values],
 		"methods": {"graph-of-derivative": method([
 			"This is the graph of f′, so read the sign, not the slope: f is %s where f′ is %s the x-axis." % [word, yup],
 			"The curve crosses the axis at x = %s and x = %s." % [Fmt.num(r), Fmt.num(t)],
@@ -268,10 +291,10 @@ func u_interval_gdc(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := interval(shape, r1, r2, true)
 	var line := "f′(x) = %d + %s − %se^x" % [s.a, DifferentiationViews.T(s.b, "x"), Fmt.lead(s.c)]
 	var turn: float = log(float(s.b) / s.c)
-	var gen: Array = [alt_iv(shape, r1 - 1.0, r2, "", true).values, alt_iv(shape, r1, r2 + 1.0, "", true).values, alt_iv(shape, turn, r2, "", true).values, alt_iv(other(shape), r1 - 1.0, r2 + 1.0, "", true).values]
+	var gen: Array = [alt_iv(shape, r1 - 1.0, r2, "", true).values, alt_iv(shape, r1, r2 + 1.0, "", true).values, alt_iv(other(shape), r1 - 1.0, r2 + 1.0, "", true).values]
 	var text := Answer.text(ans)
 	return {"lines": [line], "asked": "Find the values of x for which f is %s. Give the ends to 3 s.f." % word, "answer": ans,
-		"wrongs": [alt_iv(other(shape), r1, r2, R_WAY_ROUND, true)], "generic": gen,
+		"wrongs": [alt_iv(other(shape), r1, r2, R_WAY_ROUND, true), alt_iv(shape, turn, r2, R_F2_TURN, true)], "fillers": gen,
 		"methods": {"gdc-turning-points": method([
 			"f has its turning points where f′(x) = 0. GDC, zeros of f′: x = %s and x = %s." % [GdcKit.W(r1), GdcKit.W(r2)],
 			"Because of the −%se^x term, f′ is positive between them and negative outside." % Fmt.lead(s.c),
@@ -314,7 +337,7 @@ func u_sign_at_points(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var walk := func(d: Q) -> String:
 		return "going up" if d.sign() > 0 else ("going down" if d.sign() < 0 else "flat, at a turning point")
 	return {"lines": ["The graph shows y = f(x), with its turning points. A has x = %s and B has x = %s." % [Fmt.num(x1), Fmt.num(x2)]], "graph": g,
-		"asked": "Write down the sign of f′ at A and at B.", "answer": ans, "wrongs": wr, "generic": gen,
+		"asked": "Write down the sign of f′ at A and at B.", "answer": ans, "wrongs": wr, "fillers": gen,
 		"methods": {"walk-the-curve": method([
 			"Walk along the curve from left to right. At A you are %s." % walk.call(d1),
 			"At B you are %s." % walk.call(d2),
@@ -344,8 +367,9 @@ func u_intervals_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var above := interval_text("outside", r, t) if a > 0 else interval_text("between", r, t)
 	var bin := "< 0" if neg else "> 0"
 	return {"lines": ["The graph shows y = f(x)."], "graph": g, "asked": "Write down the values of x for which f′(x) %s." % bin, "answer": ans,
-		"wrongs": [DifferentiationViews.alt(below if neg else above, R_BELOW_AXIS), DifferentiationViews.alt(above if neg else below, R_INTERCEPTS), wrong(side(flip, h).values, "")],
-		"generic": [side(rel, h + 1).values, side(rel, h - 1).values, side(flip, h + 1).values, side(rel, r).values],
+		"wrongs": [DifferentiationViews.alt(below if neg else above, R_BELOW_AXIS), DifferentiationViews.alt(above if neg else below, R_INTERCEPTS), wrong(side(flip, h).values, R_OPPOSITE),
+			wrong(side(rel, r).values, R_INTERCEPTS)],
+		"fillers": [side(rel, h + 1).values, side(rel, h - 1).values, side(flip, h + 1).values],
 		"methods": {"walk-the-curve": method([
 			"f′(x) %s where the curve is going %s as you walk left to right." % [bin, "down" if neg else "up"],
 			"It turns at the vertex, x = %s, not at the x-intercepts." % Fmt.num(h),
@@ -368,8 +392,8 @@ func u_negative_and_increasing(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var bit: String = "negative" if a > 0 else "positive"
 	var turn: String = "increasing" if a > 0 else "decreasing"
 	return {"lines": ["f(x) = %s(x%s)(x%s)" % [Fmt.lead(a), Fmt.plus(-r), Fmt.plus(-t)]], "asked": "Find the values of x for which f is both %s." % word, "answer": ans,
-		"wrongs": [sl.call(r, t, R_F_NOT_DF), sl.call(r, h)],
-		"generic": [sl.call(h, t + 1).values, sl.call(h - 1, t).values, sl.call(r - 1, h).values, sl.call(h + 1, t + 1).values],
+		"wrongs": [sl.call(r, t, R_F_NOT_DF), sl.call(r, h, R_OPPOSITE)],
+		"fillers": [sl.call(h, t + 1).values, sl.call(h - 1, t).values, sl.call(r - 1, h).values, sl.call(h + 1, t + 1).values],
 		"methods": {"sign-table": method([
 			"f is %s between its roots: %s." % [bit, interval_text("between", r, t)],
 			"f′(x) = %s, so f is %s for x > %s." % [Fmt.poly([2 * a, -2 * a * h]), turn, Fmt.num(h)],
@@ -401,7 +425,7 @@ func u_parameter_discriminant(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var text := Answer.text(ans)
 	return {"lines": ["f(x) = " + f], "asked": "Find the values of k for which f is %s for all x." % s.want, "answer": ans, "wrongs": wr,
 		"titles": {"complete-square-condition": "Require the maximum of f′ to be ≤ 0"} if sgn < 0 else {},
-		"generic": [sl.call(-m - 1, m + 1).values, sl.call(-c, c).values, sl.call(-m, m + 1).values],
+		"fillers": [sl.call(-m - 1, m + 1).values, sl.call(-c, c).values, sl.call(-m, m + 1).values],
 		"methods": {"discriminant-condition": method([
 			"f′(x) = %s. It must not change sign, so it has at most one root." % dfp,
 			"Discriminant ≤ 0: (2k)² − 4(%s)(%s) ≤ 0, so 4k² ≤ %d." % [Fmt.num(3 * sgn), Fmt.num(c * sgn), 12 * c],
@@ -433,8 +457,8 @@ func u_parameter_shift(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sl := func(rel: String, v: int, ref: String = "") -> Dictionary:
 		return DifferentiationViews.alt(w.call(rel, v), ref, {"rel": rel, "v": Q.new(v)})
 	return {"lines": [line, "A function g has derivative g′(x) = f(x) − d."], "asked": "Find the values of d for which g is an increasing function.", "answer": ans,
-		"wrongs": [sl.call(">", k, R_TWO_ROOTS), sl.call("≥", k)],
-		"generic": [sl.call("≤", -k).values, sl.call("≤", k + 1).values, sl.call("≤", h if h != k else k + 2).values, sl.call("≥", -k).values],
+		"wrongs": [sl.call(">", k, R_TWO_ROOTS), sl.call("≥", k, R_INEQ_TURNED)] + ([] if k == 0 else [sl.call("≤", -k, R_K_SIGN)]) + ([] if h == k else [sl.call("≤", h, R_H_FOR_K)]),
+		"fillers": [sl.call("≤", k + 1).values, sl.call("≥", -k).values] + ([sl.call("≤", k + 2).values] if h == k else []),
 		"methods": {"complete-square-condition": method([
 			"g is increasing when g′(x) ≥ 0 for all x.",
 			"f is already in vertex form, so the least value of g′ is %s − d." % Fmt.num(k),

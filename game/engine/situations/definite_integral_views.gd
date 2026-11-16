@@ -27,6 +27,27 @@ const R_SAME_LOWER := SR + "2"
 const R_AT_END := SS + "0"
 const R_NO_START := SS + "1"
 const R_RATE_UNITS := SS + "2"
+## The type's own slips (FAL-820).
+const DI := "t5-definite-integral-area#"
+const R_INTO_F := DI + "14"
+const R_TRIG_SIGN := DI + "15"
+const R_LOG_DIFF := DI + "16"
+const R_EXP_UNDIVIDED := DI + "17"
+const R_EXP_TIMES := DI + "18"
+const R_ALL_ODD := DI + "19"
+const R_NOT_DOUBLED := DI + "20"
+const R_ODD_DOUBLED := DI + "21"
+const R_RECTANGLE := DI + "22"
+const R_ONE_REGION := DI + "23"
+const R_NO_ROOT := DI + "24"
+const R_COS_ANGLE := DI + "25"
+const R_K_AREA := DI + "26"
+const R_NOT_HALVED := DI + "27"
+const R_END_TIMES := DI + "28"
+const R_START_OFF := DI + "29"
+const R_FLAT_RATE := DI + "30"
+const R_PRESENT := DI + "31"
+const R_AVERAGE := DI + "32"
 static var HYPHEN := RegEx.create_from_string("(?<![A-Za-z])-(?=[0-9])")
 const UNKNOWNS := ["evaluate-polynomial", "evaluate-roots", "evaluate-trig", "evaluate-log", "evaluate-exp", "evaluate-odd-even",
 	"evaluate-linear", "area-above-axis", "area-below-axis", "area-across-root", "area-gdc", "area-symmetry",
@@ -153,7 +174,9 @@ static func minus(t: String) -> String:
 	return HYPHEN.sub(t, "−", true)
 
 
-static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, gen: Array, methods: Dictionary, graph: Variant = null) -> Dictionary:
+## `fill` is the fillers: wrong values with no slip behind them (FAL-820). The answer's own
+## nudges come after them.
+static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, fill: Array, methods: Dictionary, graph: Variant = null) -> Dictionary:
 	var ms := {}
 	for id in methods:
 		ms[id] = method(methods[id].map(minus) + [say(ans)], ans.values)
@@ -161,7 +184,7 @@ static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, gen: A
 	if ans.values.has("v"):
 		var v: Q = ans.values.v
 		more = vals(ans, [v.add(1), v.sub(1), v.add(2), v.mul(3)])
-	return {"lines": lines.map(minus), "asked": minus(asked), "answer": ans, "wrongs": wr, "generic": gen + more, "methods": ms, "graph": graph}
+	return {"lines": lines.map(minus), "asked": minus(asked), "answer": ans, "wrongs": wr, "fillers": fill + more, "methods": ms, "graph": graph}
 
 
 # ── Evaluate a definite integral ─────────────────────────────
@@ -173,9 +196,12 @@ func u_evaluate_polynomial(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var hi_only := DefiniteIntegralSituation.integral(co, 0, s.hi)
 	var p2: bool = s.paper == 2
 	var ans := val(v, p2)
-	var gen := vals(ans, [hi_only, v.add(DefiniteIntegralSituation.at(co, s.lo)), DefiniteIntegralSituation.at(co, s.hi).sub(DefiniteIntegralSituation.at(co, s.lo)), v.mul(2), v.add(1)])
+	var gen := vals(ans, [v.add(DefiniteIntegralSituation.at(co, s.lo)), v.mul(2), v.add(1)])
+	var wr: Array = [like(ans, v.neg(), R_FLIPPED), like(ans, DefiniteIntegralSituation.at(co, s.hi).sub(DefiniteIntegralSituation.at(co, s.lo)), R_INTO_F)]
+	if s.lo != 0:
+		wr.append(like(ans, hi_only, R_NO_LOWER))
 	var asked := "Find the value of the integral%s." % (", to 3 s.f" if p2 else "")
-	return pack([integral_text(f, s.lo, s.hi)], asked, ans, [like(ans, v.neg(), R_FLIPPED)], gen,
+	return pack([integral_text(f, s.lo, s.hi)], asked, ans, wr, gen,
 		{"antiderivative-substitute": [
 			"F(x) = %s." % anti(co),
 			"F(%s) = %s and F(%s) = %s." % [N(s.hi), N(hi_only), N(s.lo), N(DefiniteIntegralSituation.integral(co, 0, s.lo))],
@@ -198,8 +224,8 @@ func u_evaluate_roots(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var dn := c0.mul(m * m * m).add(2 * b * m)
 	var v := up.sub(dn)
 	var ans := val(v, false)
-	return pack([integral_text(f, lo, hi)], "Find the exact value of the integral.", ans, [like(ans, v.neg(), R_FLIPPED)],
-		vals(ans, [up, Q.new(a * (n - m)).add(b * (hi - lo)), c0.mul(hi).add(2 * b * n).sub(dn), v.add(2 * b), v.add(1)]),
+	return pack([integral_text(f, lo, hi)], "Find the exact value of the integral.", ans, [like(ans, v.neg(), R_FLIPPED), like(ans, up, R_NO_LOWER)],
+		vals(ans, [Q.new(a * (n - m)).add(b * (hi - lo)), c0.mul(hi).add(2 * b * n).sub(dn), v.add(2 * b), v.add(1)]),
 		{"antiderivative-substitute": [
 			"Write the terms as powers: %s." % SUM([[a, "x^(1/2)"], [b, "x^(−1/2)"]]),
 			"F(x) = %s." % SUM([[c0, "x^(3/2)"], [2 * b, "x^(1/2)"]]),
@@ -224,10 +250,11 @@ func u_evaluate_trig(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wr: Array = []
 	if sn:
 		wr.append(wrong(mk.call(c0, bad).values, R_LOWER_ZERO))
+	wr.append(wrong(mk.call(c0, -c1).values, R_TRIG_SIGN))
 	var f := SUM([[a, ""], [b, trig]])
 	var F := SUM([[a, "x"], [-b if sn else b, "cos x" if sn else "sin x"]])
 	return pack([integral_text(f, 0, word)], "Find the exact value of the integral.", ans, wr,
-		[mk.call(c0, -c1).values, mk.call(c0.neg(), c1).values, mk.call(Q.of(a), c1).values, mk.call(c0, c1 + 1).values, mk.call(c0.mul(2), c1).values],
+		[mk.call(c0.neg(), c1).values, mk.call(Q.of(a), c1).values, mk.call(c0, c1 + 1).values, mk.call(c0.mul(2), c1).values],
 		{"antiderivative-substitute": [
 			"F(x) = %s." % F,
 			"F(%s) = %s." % [word, SUM([[c0, "π"], [(0 if top == 2 else b) if sn else b, ""]])],
@@ -246,8 +273,9 @@ func u_evaluate_log(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		return DifferentiationViews.form(head + v.text() + ")", [head, {"slot": "m"}, ")"], {"m": v})
 	var ans: Dictionary = mk.call(m)
 	return pack([integral_text("%s/(x%s)" % [N(k), Fmt.plus(c)], lo, hi)], "Find the exact value of the integral.", ans,
-		[wrong(mk.call(Q.new(lo + c, hi + c)).values, R_FLIPPED), other(head + m.text() + ") + C", R_PLUS_C)],
-		[mk.call(Q.new(hi + c)).values, mk.call(Q.new(hi - lo)).values, mk.call(m.add(1)).values, mk.call(Q.new(hi + c + lo + c)).values],
+		[wrong(mk.call(Q.new(lo + c, hi + c)).values, R_FLIPPED), other(head + m.text() + ") + C", R_PLUS_C), wrong(mk.call(Q.new(hi - lo)).values, R_LOG_DIFF)]
+		+ ([] if lo + c == 1 else [wrong(mk.call(Q.new(hi + c)).values, R_NO_LOWER)]),
+		[mk.call(m.add(1)).values, mk.call(Q.new(hi + c + lo + c)).values],
 		{"antiderivative-substitute": [
 			"F(x) = %s." % T(k, "ln|x%s|" % Fmt.plus(c)),
 			"Upper minus lower: %s(ln %d − ln %d)." % [Fmt.lead(k), hi + c, lo + c],
@@ -267,8 +295,9 @@ func u_evaluate_exp(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans: Dictionary = mk.call(c0)
 	var f := T(k, DifferentiationViews.E(a))
 	return pack([integral_text(f, 0, n)], "Find the exact value of the integral.", ans,
-		[wrong(mk.call(c0.neg()).values, R_FLIPPED), other(T(c0, DifferentiationViews.EN(top)), R_LOWER_ZERO)],
-		[mk.call(k).values, mk.call(k * a).values, mk.call(c0.mul(2)).values, mk.call(c0.add(1)).values],
+		[wrong(mk.call(c0.neg()).values, R_FLIPPED), other(T(c0, DifferentiationViews.EN(top)), R_LOWER_ZERO)]
+		+ ([] if a == 1 else [wrong(mk.call(k).values, R_EXP_UNDIVIDED), wrong(mk.call(k * a).values, R_EXP_TIMES)]),
+		[mk.call(c0.mul(2)).values, mk.call(c0.add(1)).values],
 		{"antiderivative-substitute": [
 			"F(x) = %s." % T(c0, DifferentiationViews.E(a)),
 			"F(%d) = %s, and F(0) = %s since e⁰ = 1, not 0." % [n, T(c0, DifferentiationViews.EN(top)), c0.text()],
@@ -282,8 +311,12 @@ func u_evaluate_odd_even(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var half := DefiniteIntegralSituation.integral([s.q, 0, s.t], 0, a)
 	var v := half.mul(2)
 	var ans := val(v, false)
-	return pack([integral_text(f, -a, a)], "Find the value of the integral.", ans, [],
-		vals(ans, [0, half, v.add(DefiniteIntegralSituation.integral([s.p, 0, s.r, 0], 0, a).mul(2)), v.neg(), v.mul(2), v.add(1)]),
+	var odd := DefiniteIntegralSituation.integral([s.p, 0, s.r, 0], 0, a).mul(2)
+	var wr: Array = [] if v.is_zero() else [like(ans, 0, R_ALL_ODD), like(ans, half, R_NOT_DOUBLED), like(ans, v.neg(), R_FLIPPED)]
+	if not odd.is_zero():
+		wr.append(like(ans, v.add(odd), R_ODD_DOUBLED))
+	return pack([integral_text(f, -a, a)], "Find the value of the integral.", ans, wr,
+		vals(ans, [v.mul(2), v.add(1)]),
 		{"odd-even-symmetry": [
 			"The odd terms, %s, cancel from −%d to %d: their areas on the two sides are equal and opposite." % [SUM([[s.p, "x³"], [s.r, "x"]]), a, a],
 			"The even terms, %s, give twice the integral from 0 to %d." % [SUM([[s.q, "x²"], [s.t, ""]]), a],
@@ -303,8 +336,10 @@ func u_evaluate_linear(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var y0: int = s.m * lo + s.c
 	var y1: int = s.m * hi + s.c
 	return pack([integral_text(Fmt.poly(co), lo, hi)], "Find the value of the integral.", ans,
-		[like(ans, v.neg(), R_FLIPPED), other(N(v) + " + C", R_PLUS_C)],
-		vals(ans, [DefiniteIntegralSituation.integral(co, 0, hi), Q.new(y1 - y0), Q.new(y1 * (hi - lo)), Q.new(y0 * (hi - lo)), v.add(1)]),
+		[like(ans, v.neg(), R_FLIPPED), other(N(v) + " + C", R_PLUS_C), like(ans, Q.new(y1 - y0), R_INTO_F)]
+		+ ([] if y0 == y1 else [like(ans, Q.new(y1 * (hi - lo)), R_RECTANGLE), like(ans, Q.new(y0 * (hi - lo)), R_RECTANGLE)])
+		+ ([] if lo == 0 else [like(ans, DefiniteIntegralSituation.integral(co, 0, hi), R_NO_LOWER)]),
+		vals(ans, [v.add(1)]),
 		{"geometric-area": [
 			"The line is above the axis here, so the integral is the area of a trapezium.",
 			"Its parallel sides are %d and %d, and its width is %d." % [y0, y1, hi - lo],
@@ -377,8 +412,8 @@ func u_area_across_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			[[r, 0, Fmt.point(r, 0)], [t, 0, Fmt.point(t, 0)], [hi, DefiniteIntegralSituation.at(co, hi).to_float(), Fmt.point(hi, DefiniteIntegralSituation.at(co, hi))]])
 	var txt := "The shaded regions lie between the curve, the x-axis and the line x = %d." % hi if rep == "graph" else "Two regions lie between the curve, the x-axis and the line x = %d, from x = %d." % [hi, r]
 	var asked := "Find the total area of the regions%s." % (", to 3 s.f" if sf else "")
-	var wr: Array = [like(ans, net.abs_q(), R_CANCEL), like(ans, bad, R_AT_TURN)]
-	return pack(region_lines(rep, f, txt), asked, ans, wr, vals(ans, [area.add(1), area.mul(2), p1.abs_q(), p2.abs_q(), area.sub(1)]),
+	var wr: Array = [like(ans, net.abs_q(), R_CANCEL), like(ans, bad, R_AT_TURN), like(ans, p1.abs_q(), R_ONE_REGION), like(ans, p2.abs_q(), R_ONE_REGION)]
+	return pack(region_lines(rep, f, txt), asked, ans, wr, vals(ans, [area.add(1), area.mul(2), area.sub(1)]),
 		{"split-at-roots": [
 			"The curve crosses the x-axis at x = %d, so split the integral there." % t,
 			"∫ from %d to %d gives %s." % [r, t, N(p1)],
@@ -403,8 +438,9 @@ func u_area_gdc(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var g := figure(fn, float(lo), float(hi), [[float(lo), z], [z, float(hi)]], [[z, 0, "(" + Fmt.sf(z) + ", 0)"]])
 	var lines: Array = ["The diagram shows the curve y = %s, for %d ≤ x ≤ %d. The shaded regions lie between the curve and the x-axis." % [f, lo, hi]]
 	var a1 := DefiniteIntegralSituation.simpson(fn, float(lo), z)
-	return pack(lines, "Find the total area of the shaded regions, to 3 s.f.", ans, [like(ans, s.net, R_CANCEL)],
-		vals(ans, [absf(a1), s.area - absf(a1), s.area * 2.0, s.area + 1.0, s.area * 0.5]),
+	return pack(lines, "Find the total area of the shaded regions, to 3 s.f.", ans,
+		[like(ans, s.net, R_CANCEL), like(ans, absf(a1), R_ONE_REGION), like(ans, s.area - absf(a1), R_ONE_REGION)],
+		vals(ans, [s.area * 2.0, s.area + 1.0, s.area * 0.5]),
 		{"gdc-absolute": [
 			"Part of the curve is below the x-axis, so integrate |f(x)|, not f(x).",
 			"Enter |%s| in the GDC's ∫dx template, from %d to %d." % [f, lo, hi],
@@ -418,8 +454,8 @@ func u_area_symmetry(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var ans := val(4 * k, false, "Area = ")
 		var g := figure(fn, 0.0, 7.0, [[0.0, PI], [PI, TAU]], [[PI, 0, "π"], [TAU, 0, "2π"]])
 		return pack(["The diagram shows the curve y = %s, for 0 ≤ x ≤ 2π. The shaded regions lie between the curve and the x-axis." % T(k, "sin x")],
-			"Find the total area of the shaded regions.", ans, [like(ans, 0, R_CANCEL)],
-			vals(ans, [2 * k, k, 8 * k, 4 * k + 1, 2 * k + 2]),
+			"Find the total area of the shaded regions.", ans, [like(ans, 0, R_CANCEL), like(ans, 2 * k, R_ONE_REGION)],
+			vals(ans, [k, 8 * k, 4 * k + 1, 2 * k + 2]),
 			{"symmetry-shortcut": [
 				"The two humps are congruent, so the area is 2 × ∫ from 0 to π of %s dx." % T(k, "sin x"),
 				"∫ from 0 to π of sin x dx = [−cos x] = 1 − (−1) = 2.",
@@ -438,8 +474,8 @@ func u_area_symmetry(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var g2 := figure(fc, float(-a) - 1.0, float(a) + 1.0, [[float(-a), 0.0], [0.0, float(a)]], [[-a, 0, Fmt.point(-a, 0)], [a, 0, Fmt.point(a, 0)]])
 	var fs := SUM([[k2, "x³"], [-k2 * a * a, "x"]])
 	return pack(["The diagram shows the curve y = %s. The shaded regions lie between the curve and the x-axis." % fs],
-		"Find the total area of the shaded regions.", ans2, [like(ans2, 0, R_CANCEL)],
-		vals(ans2, [one, area.mul(2), area.add(1), one.add(1)]),
+		"Find the total area of the shaded regions.", ans2, [like(ans2, 0, R_CANCEL), like(ans2, one, R_ONE_REGION)],
+		vals(ans2, [area.mul(2), area.add(1), one.add(1)]),
 		{"symmetry-shortcut": [
 			"f is odd, so the two regions are congruent: the area is 2 × ∫ from −%d to 0." % a,
 			"∫ from −%d to 0 of %s dx = %s." % [a, fs, N(one)],
@@ -493,8 +529,10 @@ func u_unknown_limit_log(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		var rt := roundi(sqrt(float(bad.n)))
 		if rt * rt == bad.n and rt != k:
 			wr.append(like(ans, rt, R_NO_LOWER))
+	if k != 1:
+		wr.append(like(ans, k * k, R_NO_ROOT))
 	return pack(["%s = (1/2) ln(%s), where k > 0." % [integral_text("x/(%s)" % IntegrationViews.quad(a), 0, "k"), m.text()]], "Find the value of k.", ans, wr,
-		vals(ans, [top, k * k, k + 1, 2 * k, k + 2]),
+		vals(ans, [top, k + 1, 2 * k, k + 2]),
 		{"integrate-then-solve": [
 			"F(x) = (1/2) ln(%s), by the reverse chain rule." % IntegrationViews.quad(a),
 			"F(k) − F(0) = (1/2)(ln(k² + %d) − ln %d) = (1/2) ln((k² + %d)/%d)." % [a, a, a, a],
@@ -519,11 +557,14 @@ func u_unknown_limit_trig(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var ans: Dictionary = mk.call(d)
 	var f := "cos x sin%s x" % Fmt.sup(n) if n > 1 else "cos x sin x"
 	var sn: String = {6: "1/2", 4: "√2/2", 3: "√3/2"}[d]
+	# The angle with that cosine is the complement: π/3 for π/6, and the other way round.
+	var co_d: int = {6: 3, 3: 6, 4: 4}[d]
+	var wr: Array = [] if co_d == d else [wrong(mk.call(co_d).values, R_COS_ANGLE)]
 	var gen: Array = []
 	for c in [2, 12, 3, 4, 6, 8]:
-		if c != d:
+		if c != d and c != co_d:
 			gen.append(mk.call(c).values)
-	return pack(["%s = %s, where 0 < m < π/2." % [integral_text(f, 0, "m"), v.text()]], "Find the value of m.", ans, [], gen,
+	return pack(["%s = %s, where 0 < m < π/2." % [integral_text(f, 0, "m"), v.text()]], "Find the value of m.", ans, wr, gen,
 		{"integrate-then-solve": [
 			"F(x) = %s, by the reverse chain rule." % T(Q.new(1, n + 1), "sin%s x" % Fmt.sup(n + 1)),
 			"F(m) − F(0) = (1/%d) sin%s m, as sin 0 = 0." % [n + 1, Fmt.sup(n + 1)],
@@ -545,9 +586,11 @@ func u_unknown_stretch(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wr: Array = []
 	if lo != 0:
 		wr.append(like(ans, area.mul(3).div(hi * hi * hi), R_NO_LOWER))
+	if not unit.eq(Q.new(1)):
+		wr.append(like(ans, area, R_K_AREA))
 	var where := "The shaded region lies" if rep == "graph" else "A region lies"
 	var lines: Array = ["%s between y = kx², where k > 0, the x-axis and the lines x = %d and x = %d. Its area is %s." % [where, lo, hi, N(area)]]
-	return pack(lines, "Find the value of k.", ans, wr, vals(ans, [area, area.div(hi), area.div(hi * hi), Q.new(k + 1), Q.new(k + 2)]),
+	return pack(lines, "Find the value of k.", ans, wr, vals(ans, [area.div(hi), area.div(hi * hi), Q.new(k + 1), Q.new(k + 2)]),
 		{"integrate-then-solve": [
 			"∫ from %d to %d of kx² dx = k[x³/3] = %s k." % [lo, hi, unit.text()],
 			"Set that equal to %s and solve." % N(area),
@@ -621,11 +664,11 @@ func u_region_line_curve(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var wr: Array
 	var gen: Array
 	if sf:
-		wr = [like(ans, k * log(r.to_float()) - tri.to_float(), R_ADDED)]
-		gen = vals(ans, [k * log(r.to_float()), tri.to_float() + k * log(float(q2)), value + 1.0, value * 2.0])
+		wr = [like(ans, k * log(r.to_float()) - tri.to_float(), R_ADDED), like(ans, k * log(r.to_float()), R_ONE_REGION), like(ans, tri.to_float() + k * log(float(q2)), R_NO_LOWER)]
+		gen = vals(ans, [value + 1.0, value * 2.0])
 	else:
-		wr = [other("%s + %s" % [N(tri.neg()), T(k, "ln(%s)" % r.text())], R_ADDED)]
-		gen = [mk.call(tri, k, Q.new(q2)).values, mk.call(k, k, r).values, mk.call(tri, m, r).values, mk.call(tri.add(1), k, r).values, mk.call(tri, k, r.add(1)).values, mk.call(tri.sub(1), k, r).values]
+		wr = [other("%s + %s" % [N(tri.neg()), T(k, "ln(%s)" % r.text())], R_ADDED), wrong(mk.call(tri, k, Q.new(q2)).values, R_NO_LOWER), wrong(mk.call(k, k, r).values, R_NOT_HALVED)]
+		gen = [mk.call(tri, m, r).values, mk.call(tri.add(1), k, r).values, mk.call(tri, k, r.add(1)).values, mk.call(tri.sub(1), k, r).values]
 	var f := func(x: float) -> float: return float(k) / x
 	var line := func(x: float) -> float: return float(m) * x
 	var py := m * p
@@ -705,7 +748,8 @@ func u_total_from_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wr = [other("%s %s" % [endt, rate_unit(c)], R_AT_END), other("%s %s" % [shown, rate_unit(c)], R_RATE_UNITS)]
 	else:
 		wr = [like(ans, end, R_AT_END)]
-	var gen := vals(ans, [total.mul(2), total.add(1), end.mul(T_), total.sub(end), total.add(end)])
+	wr.append(like(ans, end.mul(T_), R_END_TIMES))
+	var gen := vals(ans, [total.mul(2), total.add(1), total.sub(end), total.add(end)])
 	var lines: Array = [story(s)] if words else ["r(t) = %s" % rate_text(s)]
 	var asked: String = "Find the amount of %s added in the first %d %s" % [c.what, T_, c.time] if words else "Find %s" % integral_text("r(t)", 0, T_).replace(" dx", " dt")
 	asked += ", to 3 s.f." if p2 else "."
@@ -728,8 +772,9 @@ func u_amount_with_start(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var v := total.add(start)
 	var ans := val(v, false, "", " " + c.y)
 	return pack([story(s), "At t = 0 there are %d %s of %s %s." % [start, c.y, c.what, c.where]],
-		"Find the amount of %s %s at t = %d." % [c.what, c.where, T_], ans, [like(ans, total, R_NO_START)],
-		vals(ans, [DefiniteIntegralSituation.at(s.coeffs, T_).add(start), total.sub(start).abs_q(), v.add(1), v.mul(2)]),
+		"Find the amount of %s %s at t = %d." % [c.what, c.where, T_], ans,
+		[like(ans, total, R_NO_START), like(ans, DefiniteIntegralSituation.at(s.coeffs, T_).add(start), R_AT_END), like(ans, total.sub(start).abs_q(), R_START_OFF)],
+		vals(ans, [v.add(1), v.mul(2)]),
 		{"antiderivative-of-rate": [
 			"The change is the integral of the rate, from 0 to %d." % T_,
 			"An antiderivative is %s, which gives %s." % [anti(s.coeffs, "t"), N(total)],
@@ -761,8 +806,9 @@ func u_total_from_rate_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var ans := val(total, false, "", " " + c.y)
 	var peak := Q.new(top * T_)
 	return pack(["%s. The graph shows the rate r, in %s, t %s after the start." % [c.say, rate_unit(c), c.time]],
-		"Find the amount of %s added in the first %d %s." % [c.what, T_, c.time], ans, [other("%s %s" % [N(total), rate_unit(c)], R_RATE_UNITS)],
-		vals(ans, [peak, Q.new(ys[-1] * T_), total.add(2), total.mul(2), total.sub(2)]),
+		"Find the amount of %s added in the first %d %s." % [c.what, T_, c.time], ans,
+		[other("%s %s" % [N(total), rate_unit(c)], R_RATE_UNITS), like(ans, Q.new(ys[-1] * T_), R_END_TIMES)],
+		vals(ans, [peak, total.add(2), total.mul(2), total.sub(2)]),
 		{"area-under-rate-graph": [
 			"The total is the area under the rate graph.",
 			"Split it at the corners into trapezia. Their areas are %s." % ", ".join(pieces),
@@ -780,8 +826,8 @@ func u_time_to_reach(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var flat := total.div(b)
 	var root: int = -2 * b / a - T_ if (2 * b) % a == 0 else 0
 	return pack(["%s at a rate of r(t) %s, t %s after the start, where r(t) = %s. At t = 0 no %s has been added." % [c.say, rate_unit(c), c.time, Fmt.poly(co, "t"), c.what]],
-		"Find the time when %s %s have been added." % [N(total), c.y], ans, [],
-		vals(ans, [flat, Q.new(T_ + 1), Q.new(T_ + 2), total.div(a + b), Q.new(T_ * 2), Q.new(T_ - 1)]),
+		"Find the time when %s %s have been added." % [N(total), c.y], ans, [like(ans, flat, R_FLAT_RATE)],
+		vals(ans, [Q.new(T_ + 1), Q.new(T_ + 2), total.div(a + b), Q.new(T_ * 2), Q.new(T_ - 1)]),
 		{"antiderivative-of-rate": [
 			"The amount added by time T is %s." % anti(co, "T"),
 			"Set that equal to %s and solve the quadratic." % N(total),
@@ -795,10 +841,10 @@ func u_interpret_integral(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var v: String = Fmt.sf(total) if s.paper == 2 else N(total)
 	var built := DerivativeMeaningViews.claim_answer("%s %s of %s were added in the first %d %s." % [v, c.y, c.what, T_, c.time], [
 		["At t = %d, %s was being added at %s %s." % [T_, c.what, v, rate_unit(c)], R_RATE_UNITS],
-		["At t = %d, there were exactly %s %s of %s %s, whatever the start." % [T_, v, c.y, c.what, c.where], ""],
-		["On average, %s %s of %s were added in each of the first %d %s." % [v, c.y, c.what, T_, c.time], ""]])
+		["At t = %d, there were exactly %s %s of %s %s, whatever the start." % [T_, v, c.y, c.what, c.where], R_PRESENT],
+		["On average, %s %s of %s were added in each of the first %d %s." % [v, c.y, c.what, T_, c.time], R_AVERAGE]])
 	return {"lines": [story(s), "%s = %s" % [integral_text("r(t)", 0, T_).replace(" dx", " dt"), v]],
-		"asked": "Which sentence says what this integral means here?", "answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"asked": "Which sentence says what this integral means here?", "answer": built.answer, "wrongs": built.wrongs, "fillers": [],
 		"methods": {"area-under-rate-graph": method([
 			"The integral is the area under the graph of the rate, from t = 0 to t = %d." % T_,
 			"Rate × time is an amount, so the area is the %s added, in %s, not a rate." % [c.what, c.y],
