@@ -50,7 +50,7 @@ The finish matches the Signal Tower parallax layers (`assets/journey/signal-towe
 (`assets/journey/encounters/cell/backdrop.webp`). Each region's colour lead is from the FAL-474 brief.
 
 The Scrap Fields backdrops (FAL-963) were made the same way, with FAL-474's style text: one round of 18 renders
-(6 backdrops × 3 seeds), each prompt describing the same place as the island painting (`map/algebra/background.webp`). A
+(6 backdrops × 3 seeds), each prompt describing its place from the FAL-963 place table (the island painting was dropped on FAL-972). A
 second round of 3 tried to re-stack the crate pyramid by masked repaint and wasn't used. Two came out with the wrong counts
 (crate rows, crusher columns), so Pillow cleared them and re-stacked the render's own crates and cubes: rows of 1, 2, 4, 8 and
 columns of 1 to 6. Method, counters and review sheets are on FAL-963.
