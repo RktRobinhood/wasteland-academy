@@ -1662,7 +1662,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
-- **Situation:** Numbers in standard form.
+- **Situation:** Numbers in standard form, shared with `t1-ext-standard-form-add`, `t1-ext-standard-form-powers`.
 - **Representations:** **equation**, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given an ordinary large number → a × 10^k
@@ -1868,7 +1868,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Compound interest: value, rate or time, with different compounding periods (`t1-compound-interest`, exam, 18 bank parts)
 
-- **Situation:** Money invested at a nominal annual rate, compounded k times a year.
+- **Situation:** Money invested at a nominal annual rate, compounded k times a year, shared with `t1-ext-real-value`.
 - **Representations:** **words**, **table** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L2: given the amount; the rate; the compounding; the years → the value after the years, to the nearest cent
@@ -1973,7 +1973,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Solve an exponential equation exactly with logarithms (`t1-solve-exponential`, exam, 1 bank parts)
 
-- **Situation:** An exponential equation solved with logarithms, in symbols or in a story.
+- **Situation:** An exponential equation solved with logarithms, in symbols or in a story, shared with `t1-ext-common-base`.
 - **Representations:** **equation**, words, graph (bold: the exam uses it)
 - **Unknowns:**
   - new L3: given a^(x + p) = b^x or a^x = b^(c − x), or their curves crossing at P → x to 3 s.f.
