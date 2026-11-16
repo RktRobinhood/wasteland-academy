@@ -21337,6 +21337,7 @@ def rt_check(q):
 SD_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
 SD_V = "SL3.1.volume-solids#"
 SD_S = "SL3.1.surface-area#"
+SD_T = "t3-solid-volume-area#"           # FAL-820: the slips that were blank options
 SD_SHAPES = {"a right cone": "cone", "a right pyramid": "pyramid", "a solid sphere": "sphere", "a solid hemisphere": "hemisphere",
              "a solid made of a cone on a hemisphere with the same radius": "cone-hemisphere",
              "a solid made of a cone on a cylinder with the same radius": "cone-cylinder",
@@ -21483,7 +21484,7 @@ def check_solid(q):
     sd_measures(q, m)
     unit = " " + ("m" if u == "paint-cost" else "cm")
     u2, u3 = unit + "²", unit + "³"
-    V, S = SD_V, SD_S
+    V, S, T = SD_V, SD_S, SD_T
     pi = True
     r, h, l, c = m.get("r"), m.get("h"), m.get("l"), m.get("c")
     if shape == "inscribed":
@@ -21511,16 +21512,21 @@ def check_solid(q):
             need(sp.Rational(h).q == 1 if h.is_rational else False, f"h = {h} is not whole")
         x = r * r * h / 3
         if u == "cone-volume":
-            table = {V + "1": [3 * x]}
+            table = {V + "1": [3 * x], T + "6": [r * r * h / 2]}  # a half for the third
             if "d" in m:
                 table[V + "2"] = [4 * x]
             want, trap, wrongs = sd_set(q, "V = ", x, u3, True, table)
         elif u == "height-from-slant":
             x, pi = h, False
-            want, trap, wrongs = sd_set(q, "h = ", h, unit, False, {})
+            table = {T + "8": [l - r]}  # the lengths taken away, not their squares
+            if paper == 2:
+                table[T + "9"] = [pyth(l, r)]  # the squares added
+            else:
+                table[V + "0"] = [l]  # the slant height given as the height
+            want, trap, wrongs = sd_set(q, "h = ", h, unit, False, table)
         elif u == "slant-from-total":
             x, pi = l, False
-            want, trap, wrongs = sd_set(q, "l = ", l, unit, False, {})
+            want, trap, wrongs = sd_set(q, "l = ", l, unit, False, {T + "13": [l + r]})  # A ÷ πr with r not taken away
         else:
             want, trap, wrongs = sd_set(q, "V = ", x, u3, True, {V + "0": [r * r * l / 3], V + "1": [3 * x]})
     elif u in ("cone-curved", "cone-total"):
@@ -21531,12 +21537,18 @@ def check_solid(q):
         need(paper == 2 or l.q == 1, "l is not whole")
         x = r * l + (r * r if u == "cone-total" else 0)
         table = {S + "0": [r * h + (r * r if u == "cone-total" else 0)]} if h is not None else {}
+        if u == "cone-curved":
+            table[T + "10"] = [r * l + r * r]  # the base added
+            table[T + "11"] = [2 * r * l]  # 2πrl
+        else:
+            table[S + "1"] = [r * l]  # the base left out
+            table[T + "12"] = [r * l + 2 * r * r]  # two ends
         want, trap, wrongs = sd_set(q, "area = ", x, u2, True, table)
     elif u == "pyramid-volume":
         a, b = m["a"], m.get("b", m["a"])
         x, pi = a * b * h / 3, False
         need(paper == 2 or x.q == 1, "a Paper 1 pyramid's volume is whole")
-        want, trap, wrongs = sd_set(q, "V = ", x, u3, False, {V + "1": [3 * x]})
+        want, trap, wrongs = sd_set(q, "V = ", x, u3, False, {V + "1": [3 * x], T + "6": [a * b * h / 2]})  # a half for the third
     elif u in ("pyramid-volume-from-slant", "pyramid-volume-from-edge"):
         a = m["a"]
         sl = m["t"] if "slant" in u else m["e"]
@@ -21549,7 +21561,8 @@ def check_solid(q):
         t = pyth(a / 2, h)
         need(paper == 2 or t.is_integer, f"t = {t} is not whole")
         x, pi = a * a + 2 * a * t, False
-        want, trap, wrongs = sd_set(q, "area = ", x, u2, False, {S + "0": [a * a + 2 * a * h]})
+        want, trap, wrongs = sd_set(q, "area = ", x, u2, False, {S + "0": [a * a + 2 * a * h], S + "1": [2 * a * t],  # no base
+                                                                T + "14": [a * a + 4 * a * t]})  # faces not halved
     elif u in ("sphere-volume", "sphere-surface", "hemisphere-volume", "hemisphere-surface"):
         if u == "sphere-volume":
             x = 4 * r ** 3 / 3
@@ -21565,6 +21578,11 @@ def check_solid(q):
         if u == "hemisphere-surface":
             table[S + "1"] = [2 * r * r]
             table[S + "2"] = [4 * r * r]
+        # The other formula: a surface for a volume, a volume for a surface.
+        table[T + "15"] = {"sphere-volume": [4 * r * r], "sphere-surface": [4 * r ** 3 / 3], "hemisphere-volume": [2 * r * r, 3 * r * r],
+                           "hemisphere-surface": [2 * r ** 3 / 3]}[u]
+        if u == "sphere-surface":
+            table[T + "16"] = [r * r]  # a flat circle
         want, trap, wrongs = sd_set(q, "V = " if "volume" in u else "area = ", x, u3 if "volume" in u else u2, True, table)
     elif u == "radius-from-volume":
         Vv, has_pi = sd_given(q, "volume")
@@ -21584,6 +21602,8 @@ def check_solid(q):
             table[V + "1"] = [sp.real_root(3 * W / (4 * sp.pi), 3)]
         if paper == 2 and shape == "cone":
             table[V + "1"] = [sp.sqrt(W / (sp.pi * h))]
+        if shape == "cone":
+            table[T + "17"] = [x * x]  # r² with no root
         want, trap, wrongs = sd_set(q, "r = ", x, unit, False, table)
     elif u == "height-from-volume":
         Vv, has_pi = sd_given(q, "volume")
@@ -21625,6 +21645,11 @@ def check_solid(q):
                     table.setdefault(V + "0", []).append(x + (l - h) * r * r / 3)
             if shape in ("cone-hemisphere", "hemisphere-cylinder"):
                 table.setdefault(V + "1", []).append(x + dome_v)
+            if shape == "cylinder-minus-hemisphere":
+                table[T + "19"] = [big * big * c + dome_v]  # the hole added
+            else:
+                first = cone_v if shape.startswith("cone") else dome_v
+                table[T + "18"] = [first, x - first]  # one piece
             want, trap, wrongs = sd_set(q, "V = ", x, u3, True, table)
         elif u == "composite-surface":
             x = surf
@@ -21633,6 +21658,8 @@ def check_solid(q):
                 table[S + "0"] = [x + r * (h - l)]
             if shape != "cone-cylinder":
                 table[S + "2"] = [x + 2 * r * r]
+            if shape in ("cone-cylinder", "hemisphere-cylinder"):
+                table[S + "1"].append(x - r * r)  # the base left out
             want, trap, wrongs = sd_set(q, "area = ", x, u2, True, table)
         else:
             mt = re.fullmatch(r"Paint costs \$(\d+(?:\.\d\d)?) per m²\.", L[-1])
@@ -21647,6 +21674,7 @@ def check_solid(q):
                 table[S + "0"] = [x + r * (h - l) * price]
             if shape == "hemisphere-cylinder":
                 table[S + "2"] = [x + 2 * r * r * price]
+            table[T + "20"] = [op]  # the area, not the cost
             want, trap, wrongs = sd_set(q, "cost = $", x, "", True, table)
     elif u == "composite-volume-solve":
         need(paper == 2, "the GDC solver is Paper 2")
@@ -21683,6 +21711,8 @@ def check_solid(q):
             base = rx * rx if whole else 0
             want = sd_terms("S = ", [(rx * lx + base, "πx²")])
             wrongs = {S + "0": {sd_terms("S = ", [(rx * hx + base, "πx²")])}}
+            if not whole:
+                wrongs[T + "10"] = {sd_terms("S = ", [(rx * lx + rx * rx, "πx²")])}  # the base added
         elif shape == "hemisphere":
             want = sd_terms("S = ", [(3 * rx * rx, "πx²")])
             wrongs = {S + "1": {sd_terms("S = ", [(2 * rx * rx, "πx²")])}, S + "2": {sd_terms("S = ", [(4 * rx * rx, "πx²")])}}
@@ -21701,7 +21731,11 @@ def check_solid(q):
             S_e = sp.expand(2 * sp.pi * k * r_s * h_s + 2 * sp.pi * r_s * h_s + 2 * sp.pi * ((k * r_s) ** 2 - r_s ** 2))
             a2, a1 = S_e.coeff(r_s, 2) / sp.pi, S_e.coeff(r_s, 1).coeff(h_s, 1) / sp.pi
             want = sd_terms("S = ", [(a2, "πr²"), (a1, "πrh")])
-            wrongs = {S + "1": {sd_terms("S = ", [(2 * a2, "πr²"), (a1, "πrh")])}}
+            outer = 2 * k
+            wrongs = {S + "1": {sd_terms("S = ", [(2 * a2, "πr²"), (a1, "πrh")])},
+                      T + "21": {sd_terms("S = ", [(2 * k * k, "πr²"), (a1, "πrh")])},  # the hole left in the rings
+                      T + "22": {sd_terms("S = ", [(a2, "πr²"), (outer, "πrh")])},  # no inner wall
+                      T + "23": {sd_terms("S = ", [(a2, "πr²"), (outer - 2, "πrh")])}}  # inner wall taken away
         else:
             mt = re.search(r"total surface area is (\d+)π cm²", " ".join(L))
             need(mt is not None, "can't read S")
@@ -21719,7 +21753,8 @@ def check_solid(q):
         need(shape in ("capsule", "hemisphere-cylinder"), shape)
         two = shape == "capsule"
         want = sd_terms("S = ", [(2 * W, "/x"), (4 if two else 3, "πx²")])
-        wrongs = {S + "1": {sd_terms("S = ", [(2 * W, "/x"), (6 if two else 2, "πx²")])}}
+        wrongs = {S + "1": {sd_terms("S = ", [(2 * W, "/x"), (6 if two else 2, "πx²")])},
+                  T + "24": {sd_terms("S = ", [(W, "/x"), (4 if two else 3, "πx²")])}}  # the wall's two dropped
         if not two:
             wrongs[S + "2"] = {sd_terms("S = ", [(2 * W, "/x"), (5, "πx²")])}
         q["_expr"] = True
@@ -21729,10 +21764,11 @@ def check_solid(q):
         need(paper == 2 or R_.is_integer, f"R = {R_} is not whole")
         if u == "inscribed-volume":
             x = R_ * R_ * h
-            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, {V + "0": [r * r * h], V + "1": [x / 3]})
+            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, {V + "0": [r * r * h], V + "1": [x / 3], T + "7": [R_ * h],  # R not squared
+                                                                 T + "25": [4 * r ** 3 / 3 - x]})  # the space left over
         else:
             x = 2 * R_ * R_ + 2 * R_ * h
-            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {S + "0": [2 * r * r + 2 * r * h], S + "1": [R_ * R_ + 2 * R_ * h]})
+            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {S + "0": [2 * r * r + 2 * r * h], S + "1": [R_ * R_ + 2 * R_ * h, 2 * R_ * h]})
     elif u in ("sector-cone-radius", "sector-curved"):
         l, th = m["l"], m["theta"]
         need(60 <= th <= 300, f"θ = {th}")
@@ -21740,10 +21776,10 @@ def check_solid(q):
         if u == "sector-cone-radius":
             x, pi = rr, False
             need(paper == 2 or rr.q == 1, "r is not whole")
-            want, trap, wrongs = sd_set(q, "r = ", rr, unit, False, {})
+            want, trap, wrongs = sd_set(q, "r = ", rr, unit, False, {V + "2": [2 * rr]})  # the diameter
         else:
             x = th / 360 * l * l
-            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {})
+            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {T + "26": [l * l], T + "27": [rr * rr], T + "10": [x + rr * rr]})  # whole circle, base, base added
     elif u == "sector-angle":
         if q["graph"] is not None:
             need(q["graph"]["theta"] == "θ", "the angle is the unknown")
@@ -21756,7 +21792,7 @@ def check_solid(q):
         x, pi = 360 * rr / l, False
         need(60 <= x <= 300, f"θ = {x}")
         need(paper == 2 or x.q == 1, "θ is not whole")
-        want, trap, wrongs = sd_set(q, "θ = ", x, "°", False, {})
+        want, trap, wrongs = sd_set(q, "θ = ", x, "°", False, {T + "28": [360 - x]})  # the part cut away
     else:
         raise Fail(f"no check for {u}")
     if x is not None:

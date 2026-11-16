@@ -35784,7 +35784,8 @@
       "pyramid-volume-from-edge",
       "composite-volume",
       "inscribed-volume",
-      "sector-cone-volume"
+      "sector-cone-volume",
+      "height-from-slant"
      ],
      "wrong": "the slant height, slant edge or the sphere's radius used as the height"
     },
@@ -35821,7 +35822,8 @@
       "hemisphere-volume",
       "hemisphere-surface",
       "radius-from-volume",
-      "height-from-volume"
+      "height-from-volume",
+      "sector-cone-radius"
      ],
      "wrong": "the diameter put where the radius goes, or the diameter given for the radius"
     },
@@ -35851,7 +35853,9 @@
       "surface-in-terms",
       "hollow-surface",
       "surface-from-volume",
-      "inscribed-surface"
+      "inscribed-surface",
+      "cone-total",
+      "pyramid-surface"
      ],
      "wrong": "a flat face left out, or a hidden face or the unpainted base counted"
     },
@@ -35867,6 +35871,196 @@
       "surface-from-volume"
      ],
      "wrong": "4πr² in place of the hemisphere's 2πr²"
+    },
+    {
+     "text": "Using a half in place of the third in the volume formula",
+     "as": "distractor",
+     "in": [
+      "cone-volume",
+      "pyramid-volume"
+     ],
+     "wrong": "half of base area times height"
+    },
+    {
+     "text": "Forgetting to square the cylinder's radius",
+     "as": "distractor",
+     "in": [
+      "inscribed-volume"
+     ],
+     "wrong": "πRh for πR²h"
+    },
+    {
+     "text": "Subtracting the lengths themselves instead of their squares",
+     "as": "distractor",
+     "in": [
+      "height-from-slant"
+     ],
+     "wrong": "l − r"
+    },
+    {
+     "text": "Adding the squares instead of subtracting them, as if the height were the longest side",
+     "as": "distractor",
+     "in": [
+      "height-from-slant"
+     ],
+     "wrong": "√(l² + r²)"
+    },
+    {
+     "text": "Adding a base circle when only the curved surface is asked for",
+     "as": "distractor",
+     "in": [
+      "cone-curved",
+      "surface-in-terms",
+      "sector-curved"
+     ],
+     "wrong": "πrl + πr²"
+    },
+    {
+     "text": "Doubling πrl, as if the curved surface were a cylinder's wall",
+     "as": "distractor",
+     "in": [
+      "cone-curved"
+     ],
+     "wrong": "2πrl"
+    },
+    {
+     "text": "Counting two circular ends, as on a cylinder",
+     "as": "distractor",
+     "in": [
+      "cone-total"
+     ],
+     "wrong": "πrl + 2πr²"
+    },
+    {
+     "text": "Dividing the area by πr and stopping there, without taking away the r from the base",
+     "as": "distractor",
+     "in": [
+      "slant-from-total"
+     ],
+     "wrong": "l + r"
+    },
+    {
+     "text": "Forgetting the half in each triangular face's area",
+     "as": "distractor",
+     "in": [
+      "pyramid-surface"
+     ],
+     "wrong": "a² + 4at"
+    },
+    {
+     "text": "Mixing up the volume formula and the surface area formula",
+     "as": "distractor",
+     "in": [
+      "sphere-volume",
+      "sphere-surface",
+      "hemisphere-volume",
+      "hemisphere-surface"
+     ],
+     "wrong": "a surface area given for a volume, or a volume for a surface area"
+    },
+    {
+     "text": "Using the area of a flat circle for the sphere's surface",
+     "as": "distractor",
+     "in": [
+      "sphere-surface"
+     ],
+     "wrong": "πr²"
+    },
+    {
+     "text": "Stopping at r squared without taking the square root",
+     "as": "distractor",
+     "in": [
+      "radius-from-volume"
+     ],
+     "wrong": "r²"
+    },
+    {
+     "text": "Giving the volume of only one of the two pieces",
+     "as": "distractor",
+     "in": [
+      "composite-volume"
+     ],
+     "wrong": "the cone, hemisphere or cylinder alone"
+    },
+    {
+     "text": "Adding the hollowed-out hemisphere instead of taking it away",
+     "as": "distractor",
+     "in": [
+      "composite-volume"
+     ],
+     "wrong": "cylinder plus hemisphere"
+    },
+    {
+     "text": "Stopping at the area to paint, without multiplying by the price",
+     "as": "distractor",
+     "in": [
+      "paint-cost"
+     ],
+     "wrong": "the area given as the cost"
+    },
+    {
+     "text": "Forgetting to take the hole out of the top and bottom rings",
+     "as": "distractor",
+     "in": [
+      "hollow-surface"
+     ],
+     "wrong": "two whole circles of the outer radius"
+    },
+    {
+     "text": "Leaving out the inner wall of the hole",
+     "as": "distractor",
+     "in": [
+      "hollow-surface"
+     ],
+     "wrong": "the outer wall only"
+    },
+    {
+     "text": "Taking the inner wall away instead of adding it",
+     "as": "distractor",
+     "in": [
+      "hollow-surface"
+     ],
+     "wrong": "outer wall minus inner wall"
+    },
+    {
+     "text": "Forgetting the two in the cylinder wall's area, writing πrh",
+     "as": "distractor",
+     "in": [
+      "surface-from-volume"
+     ],
+     "wrong": "V/x for the wall"
+    },
+    {
+     "text": "Taking the cylinder away from the sphere, which gives the space left over",
+     "as": "distractor",
+     "in": [
+      "inscribed-volume"
+     ],
+     "wrong": "sphere minus cylinder"
+    },
+    {
+     "text": "Using the whole circle of radius l, forgetting the sector's share of it",
+     "as": "distractor",
+     "in": [
+      "sector-curved"
+     ],
+     "wrong": "πl²"
+    },
+    {
+     "text": "Using the base circle's area for the curved surface",
+     "as": "distractor",
+     "in": [
+      "sector-curved"
+     ],
+     "wrong": "πr²"
+    },
+    {
+     "text": "Giving the angle of the part of the circle that is cut away",
+     "as": "distractor",
+     "in": [
+      "sector-angle"
+     ],
+     "wrong": "360° − θ"
     }
    ],
    "parts": [
