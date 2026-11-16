@@ -24,6 +24,19 @@ const R_SIGN := "SL5.1.interpret-derivative#1"
 const R_UNITS := "SL5.1.interpret-derivative#2"
 const R_ONE_CHORD := "SL5.1.chord-to-tangent#1"
 const R_F_NOT_DF := "SL5.3.gradient-at-point#0"
+## fn-link-rate-of-change's own slips (FAL-820).
+const R_C_FORWARD := "fn-link-rate-of-change#13"
+const R_INTERCEPT_U1 := "fn-link-rate-of-change#14"
+const R_GIVEN_U1 := "fn-link-rate-of-change#15"
+const R_GAP_TOO_MANY := "fn-link-rate-of-change#16"
+const R_PAIR_SWAP := "fn-link-rate-of-change#17"
+const R_FIT_EXACT := "fn-link-rate-of-change#18"
+const R_NOW_ALWAYS := "fn-link-rate-of-change#19"
+const R_SEQ_EVERY_X := "fn-link-rate-of-change#20"
+const R_VALUE := "fn-link-rate-of-change#21"
+const R_NO_RUN := "fn-link-rate-of-change#22"
+const R_Y0_AS_C := "fn-link-rate-of-change#23"
+const R_C_ADDED := "fn-link-rate-of-change#24"
 const KIND_WHOLE := "exact, whole steps"
 const KIND_ALL := "exact, every x"
 const KIND_FIT := "fitted model"
@@ -63,6 +76,13 @@ func papers(_unknown: String, _rep: String, angle_id: String) -> Array:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
+	# InverseRuleViews.choose names its plain options `generic` (and ExtensionViews.build
+	# adds the key): every one left there is a filler (FAL-820).
+	out.fillers = out.get("fillers", []) + out.generic
+	out.erase("generic")
+	# More slips than places: which three are offered is the stream's choice.
+	if out.wrongs.size() > 3:
+		out.wrongs = rng.shuffled(out.wrongs)
 	out.given = LinkRateSituation.export(s)
 	out.pick_wrongs = NOT_RATE
 	return out
@@ -140,7 +160,8 @@ func u_sequence_as_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		_:
 			out.lines = [rule(s)]
 	out.wrongs = [wrong({"m": Q.new(s.u1), "c": Q.new(s.m)}, R_SWAP), wrong({"m": Q.new(s.m), "c": Q.new(s.u1)}, R_NTH)]
-	out.generic = [{"m": Q.new(-s.m), "c": Q.new(s.u1 + s.m)}, {"m": Q.new(s.m), "c": Q.new(s.u1 + s.m)}, {"m": Q.new(s.m), "c": Q.new(-s.c)}]
+	out.wrongs.append(wrong({"m": Q.new(s.m), "c": Q.new(s.u1 + s.m)}, R_C_FORWARD))
+	out.fillers = [{"m": Q.new(-s.m), "c": Q.new(s.u1 + s.m)}, {"m": Q.new(s.m), "c": Q.new(-s.c)}]
 	var read: String = "From uₙ, u₁ = %s and d = %s." % [N(s.u1), N(s.m)] if rep == "equation" else "The terms start at u₁ = %s and change by d = %s each step." % [N(s.u1), N(s.m)]
 	var back := "Step back one from (1, %s): the line is at %s when x = 0, so c = %s." % [N(s.u1), N(s.c), N(s.c)]
 	var expand := "So uₙ = %s + %s(n − 1) = %s." % [N(s.u1), P(s.m), Fmt.poly([s.m, s.c], "n")]
@@ -167,7 +188,8 @@ func u_sequence_from_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		out.graph = Plot.spec([curve], [[0, s.c, "(0, %s)" % N(s.c)], [4, far, "(4, %s)" % N(far)]], 0, 4, lo, hi)
 	else:
 		out.lines = [line_text(s.m, s.c)]
-	out.generic = [v2(s.c, s.m), v2(s.m, s.c), v2(s.u1 + s.m, s.m), v2(s.u1, -s.m)]
+	out.wrongs = [wrong(v2(s.c, s.m), R_INTERCEPT_U1), wrong(v2(s.m, s.c), R_SWAP), wrong(v2(s.u1 + s.m, s.m), R_NTH)]
+	out.fillers = [v2(s.u1, -s.m)]
 	var first: String = "The line has gradient %s and y-intercept %s." % [N(s.m), N(s.c)]
 	if rep == "graph":
 		first = "The gradient is (%s − %s)/(4 − 0) = %s, and the y-intercept is %s." % [N(s.c + 4 * s.m), P(s.c), N(s.m), N(s.c)]
@@ -203,7 +225,7 @@ func u_d_from_two_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	# Each slip finds its own d, and u₁ from it.
 	var from := func(d: Q) -> Dictionary: return {"v0": d, "v1": d.mul(1 - p).add(up)}
 	out.wrongs = [wrong(from.call(Q.new(run, rise)), R_RUN_RISE), wrong(from.call(Q.new(-s.m)), R_ORDER), wrong(from.call(Q.new(rise, run + 1)), R_TERMS)]
-	out.generic = [v2(s.m, up), v2(s.m, s.c), v2(s.u1, s.m)]
+	out.wrongs += [wrong(v2(s.m, up), R_GIVEN_U1), wrong(v2(s.m, s.c), R_GAP_TOO_MANY), wrong(v2(s.u1, s.m), R_PAIR_SWAP)]
 	var u1_step := "Then u₁ = %s − %d × %s = %s." % [N(up), p - 1, P(s.m), N(s.u1)]
 	var points := "On the points (%d, %s) and (%d, %s), " % [p, N(up), q, N(uq)]
 	out.methods = {
@@ -265,7 +287,8 @@ func u_match_rate_kind(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		w[at.call(k2)] = k1
 		return matching(letters, w)
 	var out := {"asked": "Each of A to D goes up by %d per step. Say which is an exact rule for whole steps, which is an exact rule for every x, which is a fitted model, and which is a rate at one instant." % m, "lines": lines}
-	out.merge(InverseRuleViews.choose(right, [], [swapped.call(KIND_FIT, KIND_ALL), swapped.call(KIND_NOW, KIND_ALL), swapped.call(KIND_WHOLE, KIND_ALL), swapped.call(KIND_FIT, KIND_NOW)]))
+	out.merge(InverseRuleViews.choose(right, [InverseRuleViews.tag(swapped.call(KIND_FIT, KIND_ALL), R_FIT_EXACT), InverseRuleViews.tag(swapped.call(KIND_NOW, KIND_ALL), R_NOW_ALWAYS),
+		InverseRuleViews.tag(swapped.call(KIND_WHOLE, KIND_ALL), R_SEQ_EVERY_X)], [swapped.call(KIND_FIT, KIND_NOW)]))
 	var seq_says := "The sequence has a term only at whole n, so its rule is exact for whole steps."
 	var line_says := "The line is exact at every x."
 	var reg_says := "The regression line is fitted to scattered data, so its gradient is an average."
@@ -299,7 +322,8 @@ func u_interpret_regression_gradient(rep: String, s: Dictionary, rng: Seeded) ->
 	if rng.chance(0.5):
 		bad.append(InverseRuleViews.tag("%s is the gradient" % D(s.a), R_AB_BARE))
 	var out := {"asked": "What does the gradient mean?", "lines": lines}
-	out.merge(InverseRuleViews.choose(right, bad, [exact]))
+	bad.append(InverseRuleViews.tag(exact, R_FIT_EXACT))
+	out.merge(InverseRuleViews.choose(right, bad, []))
 	var unit: String = "The gradient's units are %s per %s." % [r.yu, r.each.split(" ")[0]]
 	out.methods = {
 		"rate-and-start": method(["%s is the number multiplying x, so it is the rate, and %s is the start." % [D(s.a), bv], unit, right + "."], {"v": right}),
@@ -324,7 +348,8 @@ func u_derivative_in_context(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		bad.push_front(InverseRuleViews.tag(say.call(other, c.per), R_SIGN))
 	var line := "%s%s %s at %d %s at every time, like a straight line" % [c.of.left(1).to_upper(), c.of.substr(1), "falls" if s.k < 0 else "rises", size, c.per]
 	var value := "At t = %d, %s is %d %s" % [at, c.of, size, c.u]
-	out.merge(InverseRuleViews.choose(right, bad, [line, value, say.call(other, c.per)]))
+	bad += [InverseRuleViews.tag(line, R_NOW_ALWAYS), InverseRuleViews.tag(value, R_VALUE)]
+	out.merge(InverseRuleViews.choose(right, bad, [say.call(other, c.per)]))
 	var differs := "A line's gradient is the same at every point; this rate holds at t = %d only." % at
 	out.methods = {
 		"units-ratio": method(["%s′ is a change in %s over a change in t, so its units are %s." % [c.f, c.f, c.per], differs, right + "."], {"v": right}),
@@ -395,7 +420,8 @@ func u_chord_to_limit(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var y1: Q = f_at(s, x1)
 	var rise: Q = y1.sub(y0)
 	out.wrongs = [wrong(v2(g, g), R_ONE_CHORD)]
-	out.generic = [v2(g, y0), v2(rise, s.A), v2(g, s.A.add(s.B)), v2(g, s.A.div(2))]
+	out.wrongs += [wrong(v2(g, y0), R_F_NOT_DF), wrong(v2(rise, s.A), R_NO_RUN)]
+	out.fillers = [v2(g, s.A.add(s.B)), v2(g, s.A.div(2))]
 	var limit := "In general the chord gradient is %s, which tends to %s as h shrinks to 0." % [chord_form(s), N(s.A)]
 	var run := "The run is %s and the rise is %s − %s = %s." % [D(h), D(y1), PD(y0), D(rise)]
 	var inner := "%s(%s + h)² − %s" % [Fmt.lead(s.k), N(x0), PD(y0)]
@@ -423,7 +449,8 @@ func u_tangent_gradient_methods(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 		out.graph = curve_plot(s, x0.add(1), [[x0, y0]])
 	var one: Q = chord(s, Q.new(1, 10))
 	out.wrongs = [wrong({"v": one}, R_ONE_CHORD), wrong({"v": y0}, R_F_NOT_DF)]
-	out.generic = [{"v": s.A.div(2)}, {"v": s.A.neg()}, {"v": chord(s, 1)}, {"v": s.A.add(s.B)}]
+	out.wrongs.append(wrong({"v": chord(s, 1)}, R_ONE_CHORD))
+	out.fillers = [{"v": s.A.div(2)}, {"v": s.A.neg()}, {"v": s.A.add(s.B)}]
 	var deriv: String = "f′(x) = %s" % (Fmt.terms([s.p.mul(3), s.q], [2, 0], "x", true) if s.cubic else Fmt.poly([s.k * 2, 0]))
 	var sub: String = "f′(%s) = %s = %s" % [D(x0), _at_text(s), A]
 	var two: Q = chord(s, Q.new(1, 100))
@@ -455,7 +482,8 @@ func u_constant_derivative(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	else:
 		out.asked = "Find f. Give it in the form y = mx + c."
 		out.lines = ["f′(x) = %s for every x, and f(%s) = %s." % [N(m), N(s.x0), N(s.y0)]]
-	out.generic = [{"m": Q.new(m), "c": Q.new(s.y0)}, {"m": Q.new(m), "c": Q.new(s.y0 + m * s.x0)}, {"m": Q.new(-m), "c": Q.new(s.y0 + m * s.x0)}, {"m": Q.new(s.y0), "c": Q.new(m)}]
+	out.wrongs = ([] if s.x0 == 0 else [wrong({"m": Q.new(m), "c": Q.new(s.y0)}, R_Y0_AS_C), wrong({"m": Q.new(m), "c": Q.new(s.y0 + m * s.x0)}, R_C_ADDED)]) + [wrong({"m": Q.new(s.y0), "c": Q.new(m)}, R_SWAP)]
+	out.fillers = [{"m": Q.new(-m), "c": Q.new(s.y0 + m * s.x0)}]
 	var c_step := "Put in the point: %s = %s × %s + c, so c = %s." % [N(s.y0), P(m), P(s.x0), N(s.c)]
 	out.methods = {
 		"rate-and-start": method(["The gradient is %s at every x, so the graph is a straight line with m = %s." % [N(m), N(m)], c_step, fin(ans)], ans.values),

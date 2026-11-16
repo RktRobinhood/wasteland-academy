@@ -9,6 +9,17 @@ extends ExtensionViews
 ## gives both factors.
 
 const T := "fn-link-multiplicative-growth"
+## Its own slips (FAL-820).
+const R_TENTH := T + "#13"
+const R_FALL_FACTOR := T + "#14"
+const R_ROUND_DOWN := T + "#15"
+const R_NO_ROOT := T + "#16"
+const R_SPREAD := T + "#17"
+const R_DIRECTION := T + "#18"
+const R_ORIGIN := T + "#19"
+const R_K_AS_RATE := T + "#20"
+const R_ANNUAL := T + "#21"
+const R_ONCE_A_YEAR := T + "#22"
 
 
 func needs() -> Dictionary:
@@ -26,6 +37,13 @@ func extra() -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
+	# ExpModelViews.generic_x fills `generic` (and ExtensionViews.build adds the key):
+	# every option it holds here is a filler (FAL-820).
+	out.fillers = out.get("fillers", []) + out.generic
+	out.erase("generic")
+	# More slips than places: which three are offered is the stream's choice.
+	if out.wrongs.size() > 3:
+		out.wrongs = rng.shuffled(out.wrongs)
 	out.given = LinkGrowthSituation.export(s)
 	for key in ["asked"]:
 		out[key] = ExpLogPairViews.M(out[key])
@@ -63,8 +81,7 @@ func u_percent_to_factor(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
 	var out := {"asked": "Write down the factor r of the model V = V₀r^t, and whether its graph rises or falls.",
 		"lines": ["A value %s." % rate_text(s)], "answer": ans,
-		"wrongs": [wrong({"v": w0}, "SL2.9.exp-model#0")] + ([wrong({"v": w1}, "SL1.3.model#1")] if not s.up else []),
-		"generic": [{"v": opts[3]}] + ([{"v": w1}] if s.up else []),
+		"wrongs": [wrong({"v": w0}, "SL2.9.exp-model#0"), wrong({"v": w1}, "SL1.3.model#1" if not s.up else R_FALL_FACTOR), wrong({"v": opts[3]}, R_TENTH)],
 		"methods": {
 			"multiplier": method(["%s by %d%% leaves 100%% %s %d%% = %d%% each year." % ["Rising" if s.up else "Falling", r, "+" if s.up else "−", r, 100 + (r if s.up else -r)], "So r = %s." % D(f), "So " + right + "."], ans.values),
 			"repeated-multiplication": method(["After one year V = V₀ × %s, after two V₀ × %s², and so on." % [D(f), D(f)], "The factor is %s, %s 1." % [D(f), "above" if s.up else "below"], "So " + right + "."], ans.values),
@@ -83,12 +100,11 @@ func u_sequence_vs_function(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 		else ["An investment of %s %s." % [D(P0), rate_text(s)]]
 	var less := P0.to_float() * pow(f.to_float(), n - 1)
 	var tagged := [[P0.to_float() * f.to_float() * n, "SL2.9.exp-model#1"], [less, "SL2.9.exp-model#2"], [less, "SL1.3.model#2"],
-		[P0.to_float() * pow(f.to_float(), n + 1), "SL1.3.nth-term#0"]]
+		[P0.to_float() * pow(f.to_float(), n + 1), "SL1.3.nth-term#0"], [P0.to_float() + P0.to_float() * (f.to_float() - 1.0) * n, "SL1.4.future-value#1"]]
 	# Two refs give r^(n − 1); which one the option is logged as is the stream's choice.
 	for t in rng.shuffled(tagged):
 		wrong_x(out, t[0], t[1])
-	ExpModelViews.generic_x(out, [P0.to_float() + P0.to_float() * (f.to_float() - 1.0) * n, x * 1.1, x * 0.9,
-		P0.to_float() * pow(f.to_float(), n + 2)])
+	ExpModelViews.generic_x(out, [x * 1.1, x * 0.9, P0.to_float() * pow(f.to_float(), n + 2)])
 	var final := "So " + Answer.text(out.answer) + "."
 	var v: Dictionary = out.answer.values
 	out.methods = {
@@ -110,7 +126,8 @@ func u_first_below(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("number", {"v": Q.new(nb)}, {}, "n = ")
 	ans.exact = true
 	var out := {"asked": "Find the first whole number of years n after which the value is below %s." % D(T_), "answer": ans,
-		"generic": [{"v": Q.new(nb - 1)}, {"v": Q.new(nb + 1)}, {"v": Q.new(nb + 2)}, {"v": Q.new(roundi(nx * 2))}],
+		"wrongs": [wrong({"v": Q.new(nb - 1)}, R_ROUND_DOWN)],
+		"fillers": [{"v": Q.new(nb + 1)}, {"v": Q.new(nb + 2)}, {"v": Q.new(roundi(nx * 2))}],
 		"pick_wrongs": [{"name": "Divide the gap by the yearly loss", "why": "the loss shrinks each year, so the gap isn't closed at a steady rate"},
 			{"name": "Round the crossing to the nearest year", "why": "the value is still above it at the year before"},
 			{"name": "Solve a linear equation", "why": "the model is a power, not a line"}]}
@@ -146,8 +163,10 @@ func u_factor_from_two_values(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	ans.show = "dec"
 	ans.exact = true
 	var out := {"asked": "Find the factor per year and the percentage rate.", "answer": ans,
-		"generic": [{"v0": f.sub(Q.new(1)), "v1": pc}, {"v0": f, "v1": pc.neg()}, {"v0": s.V2.div(s.V1), "v1": s.V2.div(s.V1).sub(Q.new(1)).mul(Q.new(100))},
-			{"v0": Q.new(1).add(s.V2.sub(s.V1).div(s.V1).div(Q.new(gap))), "v1": s.V2.sub(s.V1).div(s.V1).div(Q.new(gap)).mul(Q.new(100))}]}
+		"wrongs": [wrong({"v0": f.sub(Q.new(1)), "v1": pc}, "SL2.9.exp-model#0")] + ([] if gap == 1 else [
+			wrong({"v0": s.V2.div(s.V1), "v1": s.V2.div(s.V1).sub(Q.new(1)).mul(Q.new(100))}, R_NO_ROOT),
+			wrong({"v0": Q.new(1).add(s.V2.sub(s.V1).div(s.V1).div(Q.new(gap))), "v1": s.V2.sub(s.V1).div(s.V1).div(Q.new(gap)).mul(Q.new(100))}, R_SPREAD)]),
+		"fillers": [{"v0": f, "v1": pc.neg()}]}
 	if rep == "table":
 		out.lines = ["The table shows a value that changes by the same factor each year."]
 		out.table = {"rows": [["year", [str(s.t1), str(s.t2)]], ["value", [D(s.V1), D(s.V2)]]]}
@@ -169,7 +188,8 @@ func u_graph_from_factor(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var opts := [right, w2, say.call(D(P0), "rises" if not grows else "falls"), "starts at (0, 0) and %s" % ("rises" if grows else "falls")]
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
 	var out := {"asked": "Which describes the graph of y = %s(%s)^x?" % [D(P0), D(f)], "lines": ["y = %s(%s)^x" % [D(P0), D(f)]], "answer": ans,
-		"wrongs": [wrong({"v": w2}, "SL2.9.exp-graph#2")] if not grows else [], "generic": opts.slice(1).map(func(o): return {"v": o}),
+		"wrongs": ([wrong({"v": w2}, "SL2.9.exp-graph#2")] if not grows else []) + [wrong({"v": opts[2]}, R_DIRECTION), wrong({"v": opts[3]}, R_ORIGIN)],
+		"fillers": [{"v": w2}] if grows else [],
 		"methods": {
 			"base-comparison": method(["The base %s is %s 1, so the graph %s." % [D(f), "above" if grows else "between 0 and", "rises" if grows else "falls"], "A positive start keeps every value above 0: y = 0 is the asymptote.", "So it " + right + "."], ans.values),
 			"key-points": method(["At x = 0, y = %s." % D(P0), "At x = 1, y = %s; far %s, y → 0." % [D(P0.mul(f)), "left" if grows else "right"], "So it " + right + "."], ans.values),
@@ -200,7 +220,7 @@ func u_sum_to_infinity_link(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var lines := ["A geometric series has first term 8 and common ratio %s." % D(q)] if rep == "words" else [ExpLogPairViews.M(series)]
 	var parts: Array = range(1, 6).map(func(m): return D(Q.new(8).mul(Q.new(1).sub(ExpModelSituation.pow_q(q, m))).div(Q.new(1).sub(q))) if not q.eq(Q.new(1)) else D(Q.new(8 * m)))
 	return {"asked": "Does the series have a sum to infinity?", "lines": lines, "answer": ans, "wrongs": wrongs,
-		"generic": opts.slice(1).filter(func(o): return not wrongs.any(func(w): return w.values.v == o)).map(func(o): return {"v": o}),
+		"fillers": opts.slice(1).filter(func(o): return not wrongs.any(func(w): return w.values.v == o)).map(func(o): return {"v": o}),
 		"methods": {
 			"test-ratio": method(["r = %s, so |r| = %s." % [D(q), D(q.abs_q())], "r^n → 0 exactly when |r| < 1; then S∞ = u₁/(1 − r).", "So " + right + "."], ans.values),
 			"partial-sums": method([ExpLogPairViews.M("Partial sums: %s, …" % ", ".join(parts)), "They can look settled, so test the ratio: |r| = %s." % D(q.abs_q()), "So " + right + "."], ans.values),
@@ -228,7 +248,8 @@ func u_depreciation_two_ways(rep: String, s: Dictionary, rng: Seeded) -> Diction
 	wrong_x(out, P0.to_float() * pow(1.0 + r / 100.0, n), "SL1.4.depreciation#0")
 	if P0.to_float() * pow(r / 100.0, n) >= 1.0:
 		wrong_x(out, P0.to_float() * pow(r / 100.0, n), "SL1.4.depreciation#0")
-	ExpModelViews.generic_x(out, [P0.to_float() * pow(fd.to_float(), n - 1), x * 1.2, x * 0.8])
+	wrong_x(out, P0.to_float() * pow(fd.to_float(), n - 1), "SL1.3.model#2")
+	ExpModelViews.generic_x(out, [x * 1.2, x * 0.8])
 	var final := "So " + Answer.text(out.answer) + "."
 	var v: Dictionary = out.answer.values
 	out.methods = {
@@ -247,8 +268,8 @@ func u_continuous_factor(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var ans := Answer.make("named", {"v0": TriangleViews.qf(e), "v1": TriangleViews.qf((e - 1.0) * 100.0)}, {"names": ["factor", "rate"], "units": ["", "%"]})
 	ans.show = "sf"
 	var out := {"asked": "Find the factor per year and the equivalent percentage rate.", "lines": ["P = 500e^(%st), t in years" % D(kc)], "answer": ans,
-		"generic": [{"v0": TriangleViews.qf(1.0 + kc.to_float()), "v1": kc.mul(Q.new(100))}, {"v0": TriangleViews.qf(e), "v1": kc.mul(Q.new(100))},
-			{"v0": TriangleViews.qf(exp(-kc.to_float())), "v1": TriangleViews.qf((exp(-kc.to_float()) - 1.0) * 100.0)}],
+		"wrongs": [wrong({"v0": TriangleViews.qf(1.0 + kc.to_float()), "v1": kc.mul(Q.new(100))}, R_K_AS_RATE), wrong({"v0": TriangleViews.qf(e), "v1": kc.mul(Q.new(100))}, R_K_AS_RATE)],
+		"fillers": [{"v0": TriangleViews.qf(exp(-kc.to_float())), "v1": TriangleViews.qf((exp(-kc.to_float()) - 1.0) * 100.0)}],
 		"methods": {"substitute-model": method(["Each year P is multiplied by e^(%s) = %s." % [D(kc), W(e)], "%s − 1 = %s: %s%%." % [W(e), W(e - 1.0), W((e - 1.0) * 100.0)], "So " + Answer.text(ans) + "."], ans.values)}}
 	return out
 
@@ -268,7 +289,9 @@ func u_compounding_factor(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 			{"name": "Add the interest once a year", "why": "it is added %s, so the balance earns interest sooner" % how}]}
 	wrong_x(out, P0.to_float() * pow(1.0 + R / 100.0, k * N), "SL1.4.future-value#0")
 	wrong_x(out, P0.to_float() * (1.0 + R * N / 100.0), "SL1.4.future-value#1")
-	ExpModelViews.generic_x(out, [P0.to_float() * pow(1.0 + R / 100.0, N), P0.to_float() * pow(per, N), x * 1.1, x * 0.9,
+	wrong_x(out, P0.to_float() * pow(1.0 + R / 100.0, N), R_ANNUAL)
+	wrong_x(out, P0.to_float() * pow(per, N), R_ONCE_A_YEAR)
+	ExpModelViews.generic_x(out, [x * 1.1, x * 0.9,
 		P0.to_float() * pow(per, k * (N + 1))])
 	var final := "So " + Answer.text(out.answer) + "."
 	var v: Dictionary = out.answer.values
