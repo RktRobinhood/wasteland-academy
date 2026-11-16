@@ -313,8 +313,12 @@ func _button(id: String, text: String) -> Button:
 
 func _fit() -> void:
 	var wide := size.x > size.y
-	var w := minf(size.x - 48.0, 1900.0 if wide else 1040.0)
-	var h := minf(size.y - 48.0, 1200.0 if wide else 1780.0)
+	# A landscape window is always 1920 units tall (the "expand" stretch), so the frame
+	# takes its full height there, as on a phone: capped at 1200 the board was a third of
+	# a 1440 × 900 screen and its first lines scrolled away (FAL-970). Full height, it
+	# stays clear of the speaker and gear in the top corner by its width.
+	var w := minf(size.x - AudioHud.RESERVED_RIGHT * 2.0, 1900.0) if wide else minf(size.x - 48.0, 1040.0)
+	var h := size.y - 48.0 if wide else minf(size.y - 48.0, 1780.0)
 	# Anchored offsets, not a set size: a size set while the chalk lines had no width yet
 	# (and wrapped a word to a line) would stay that tall once they had.
 	frame.set_anchors_preset(Control.PRESET_CENTER)

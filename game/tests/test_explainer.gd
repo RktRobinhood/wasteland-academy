@@ -106,7 +106,7 @@ func test_the_player_plays_a_chapter_per_step() -> void:
 ## a phone and on a PC (a frame sized before the chalk lines had a width once grew to
 ## four screens tall, with only the slate showing).
 func test_the_player_fits_the_screen() -> void:
-	for window in [Vector2i(390, 844), Vector2i(1280, 800)]:
+	for window in [Vector2i(390, 844), Vector2i(1280, 800), Vector2i(1440, 900), Vector2i(1100, 1000)]:
 		var base := Vector2(1080, 1920)
 		var area := Vector2(window) / minf(window.x / base.x, window.y / base.y)
 		var holder := Control.new()
@@ -120,6 +120,12 @@ func test_the_player_fits_the_screen() -> void:
 		for n in [e.frame, e.title, e.caption_box, e.scrub, e.play_button, e.cc_button]:
 			var c: Control = n
 			check(screen.encloses(c.get_global_rect()), "%s: %s is off the screen at %s" % [window, c.name, c.get_global_rect()])
+		# FAL-970: the board grows to the window, on a PC as on a phone (it was a third of
+		# a 1440 × 900 screen), and the frame keeps clear of the speaker and gear.
+		var board: Rect2 = e.frame.find_child("BoardHolder", true, false).get_global_rect()
+		check(board.size.y >= area.y * 0.45, "%s: the board is %.0f of %.0f tall" % [window, board.size.y, area.y])
+		if area.x > area.y:
+			check(e.frame.get_global_rect().end.x <= area.x - AudioHud.RESERVED_RIGHT + 1.0, "%s: the frame runs under the speaker" % window)
 		holder.free()
 
 
