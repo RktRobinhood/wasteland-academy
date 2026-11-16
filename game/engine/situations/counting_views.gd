@@ -18,6 +18,23 @@ const R_DOUBLE_COUNT := SKILL + "combinations#1"
 const R_PERM_FOR_COMB := SKILL + "combinations#2"
 const R_NO_BLOCK_ORDER := SKILL + "restricted-arrangements#0"
 const R_APART_MINUS_2 := SKILL + "restricted-arrangements#1"
+## The type's own slips (FAL-820).
+const OWN := "t1-ahl-counting#"
+const R_ALL_LETTERS := OWN + "11"
+const R_ANY_SYMBOL := OWN + "12"
+const R_TIMES_PLACES := OWN + "13"
+const R_DIGIT_AGAIN := OWN + "14"
+const R_NO_ZERO := OWN + "15"
+const R_NO_CONDITION := OWN + "16"
+const R_LAST_CHOICES := OWN + "17"
+const R_N_TIMES_R := OWN + "18"
+const R_TWICE_N := OWN + "19"
+const R_FULL_SIZE := OWN + "20"
+const R_NONE_LEFT_IN := OWN + "21"
+const R_NONE_COUNT := OWN + "22"
+const R_EXACTLY_ONE := OWN + "23"
+const R_BLOCK_OUT := OWN + "24"
+const R_TOGETHER_COUNT := OWN + "25"
 
 func needs() -> Dictionary:
 	var out := {}
@@ -30,6 +47,9 @@ func needs() -> Dictionary:
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
 	out.given = CountingSituation.export(s)
+	# More slips than places: each gets its turn (FAL-820).
+	if out.wrongs.size() > 3:
+		out.wrongs = rng.shuffled(out.wrongs)
 	return out
 
 
@@ -93,8 +113,8 @@ func u_code_count(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var d := "%d digits" % b
 	var n := int(pow(26, a)) * int(pow(10, b))
 	return {"asked": "How many different codes are possible?", "lines": [CODE_STORIES[s.ctx % 3] % [l, d]], "answer": ans,
-		"wrongs": tagged([26 * a + 10 * b], n, R_ADD_STAGES),
-		"generic": vs([int(pow(26, a)) + int(pow(10, b)), int(pow(26, a + b)), int(pow(36, a + b)), int(pow(26, a)) * 10 * b], n),
+		"wrongs": tagged([26 * a + 10 * b, int(pow(26, a)) + int(pow(10, b))], n, R_ADD_STAGES) + tagged([int(pow(26, a + b))], n, R_ALL_LETTERS)
+			+ tagged([int(pow(36, a + b))], n, R_ANY_SYMBOL) + tagged([int(pow(26, a)) * 10 * b], n, R_TIMES_PLACES),
 		"methods": {"slot-boxes": method(["Draw a box for each place: %d letter boxes, then %d digit boxes." % [a, b],
 			"Each letter box has 26 choices and each digit box 10, and the stages happen together, so the choices multiply: 26^%d × 10^%d." % [a, b],
 			"26^%d = %s and 10^%d = %s, so %s × %s = %s" % [a, I(int(pow(26, a))), b, I(int(pow(10, b))), I(int(pow(26, a))), I(int(pow(10, b))), I(n)],
@@ -110,8 +130,8 @@ func u_no_repeat_number(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	for i in d - 1:
 		boxes.append(str(9 - i))
 	return {"asked": "How many %d-digit numbers have no repeated digit?" % d, "lines": ["A %d-digit number does not start with 0." % d], "answer": ans,
-		"wrongs": tagged([no_zero_rule], n, R_LEADING_ZERO),
-		"generic": vs([int(pow(9, d)), 9 * int(pow(10, d - 1)), CountingSituation.perm(9, d), CountingSituation.perm(10, d - 1)], n),
+		"wrongs": tagged([no_zero_rule], n, R_LEADING_ZERO) + tagged([9 * int(pow(10, d - 1))], n, R_DIGIT_AGAIN) + tagged([CountingSituation.perm(9, d)], n, R_NO_ZERO),
+		"fillers": vs([int(pow(9, d)), CountingSituation.perm(10, d - 1)], n),
 		"methods": {
 			"slot-boxes": method(["Draw %d boxes. The first digit can't be 0, so it has 9 choices." % d,
 				"Each later box can use any digit not used yet, 0 included: %s." % ", ".join(boxes.slice(1)),
@@ -133,8 +153,9 @@ func u_even_numbers(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var free_first := CountingSituation.perm(m, d - 1) * evens
 	return {"asked": "How many even %d-digit numbers can be made?" % d,
 		"lines": ["The digits are 1 to %d, and each is used at most once." % m], "answer": ans,
-		"wrongs": tagged([free_first], n, R_FREE_FIRST),
-		"generic": vs([CountingSituation.perm(m, d), int(pow(evens, d)), evens * int(pow(m, d - 1)), CountingSituation.perm(m - 1, d - 1)], n),
+		"wrongs": tagged([free_first], n, R_FREE_FIRST) + tagged([CountingSituation.perm(m, d)], n, R_NO_CONDITION)
+			+ tagged([evens * int(pow(m, d - 1))], n, R_DIGIT_AGAIN) + tagged([CountingSituation.perm(m - 1, d - 1)], n, R_LAST_CHOICES),
+		"fillers": vs([int(pow(evens, d))], n),
 		"methods": {"slot-boxes": method(["Draw %d boxes and fill the restricted one first: the last digit must be even, so it has %d choices." % [d, evens],
 			"The other %d boxes use the digits left, in turn: %s." % [d - 1, ", ".join(rest)],
 			"%d × %s = %s" % [evens, " × ".join(rest), I(n)], final(ans)], ans.values)}}
@@ -152,8 +173,8 @@ func u_arrange_all(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var steps := PackedStringArray()
 	for i in n:
 		steps.append(str(n - i))
-	return {"asked": asked, "lines": lines, "answer": ans, "wrongs": [],
-		"generic": vs([int(pow(n, n)), n * n, CountingSituation.fact(n - 1), CountingSituation.fact(n) / 2], v),
+	return {"asked": asked, "lines": lines, "answer": ans, "wrongs": tagged([int(pow(n, n))], v, R_REPEATS),
+		"fillers": vs([n * n, CountingSituation.fact(n - 1), CountingSituation.fact(n) / 2], v),
 		"methods": {
 			"npr-formula": method(["n objects in a row can be arranged in nPn = n!/0! = n! ways.", "%d! = %s" % [n, " × ".join(steps)], "= %s" % I(v), final(ans)], ans.values),
 			"slot-product": method(["Draw %d places. The first can be filled %d ways, the next %d, and so on down to 1." % [n, n, n - 1],
@@ -175,8 +196,9 @@ func u_award_places(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	for i in r:
 		terms.append(str(n - i))
 	return {"asked": asked, "lines": lines, "answer": ans,
-		"wrongs": tagged([CountingSituation.comb(n, r)], v, R_COMB_FOR_PERM) + tagged([int(pow(n, r))], v, R_REPEATS) + tagged([CountingSituation.fact(n) / CountingSituation.fact(r)], v, R_PERM_OVER_R),
-		"generic": vs([CountingSituation.perm(n, r - 1), CountingSituation.perm(n + 1, r), CountingSituation.perm(n, r + 1), n * r], v),
+		"wrongs": tagged([CountingSituation.comb(n, r)], v, R_COMB_FOR_PERM) + tagged([int(pow(n, r))], v, R_REPEATS) + tagged([CountingSituation.fact(n) / CountingSituation.fact(r)], v, R_PERM_OVER_R)
+			+ tagged([n * r], v, R_N_TIMES_R),
+		"fillers": vs([CountingSituation.perm(n, r - 1), CountingSituation.perm(n + 1, r), CountingSituation.perm(n, r + 1)], v),
 		"methods": {
 			"npr-formula": method(["Order matters and nobody wins twice, so the count is %dP%d = %d!/%d!." % [n, r, n, n - r],
 				"%d!/%d! = %s (the first %d terms of %d!)" % [n, n - r, " × ".join(terms), r, n], "= %s" % I(v), final(ans)], ans.values),
@@ -190,8 +212,8 @@ func u_find_n_from_npr(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v: int = s.v
 	var ans := ways("n = ", n)
 	var lines: Array = ["nP2 = %d" % v] if rep == "equation" else ["A race has n runners. There are %d ways to award first and second place." % v]
-	return {"asked": "Find n.", "lines": lines, "answer": ans, "wrongs": [],
-		"generic": vs([n - 1, n + 1, v / 2, v - n], n),
+	return {"asked": "Find n.", "lines": lines, "answer": ans, "wrongs": tagged([v / 2], n, R_TWICE_N),
+		"fillers": vs([n - 1, n + 1, v - n], n),
 		"methods": {"quadratic-in-n": method(["nP2 = n(n − 1) = %d, so n² − n − %d = 0." % [v, v],
 			"Factorise: (n − %d)(n + %d) = 0, so n = %d or n = −%d." % [n, n - 1, n, n - 1],
 			"n counts runners, so it is positive: n = %d." % n, final(ans)], ans.values)}}
@@ -211,7 +233,7 @@ func u_committee(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var asked := "Find the value." if rep == "equation" else "How many different committees are possible?"
 	return {"asked": asked, "lines": lines, "answer": ans,
 		"wrongs": tagged([CountingSituation.perm(n, k)], v, R_PERM_FOR_COMB),
-		"generic": vs([CountingSituation.comb(n, k - 1), CountingSituation.comb(n, k + 1), int(pow(n, k)), CountingSituation.comb(n + 1, k)], v),
+		"fillers": vs([CountingSituation.comb(n, k - 1), CountingSituation.comb(n, k + 1), int(pow(n, k)), CountingSituation.comb(n + 1, k)], v),
 		"methods": {"gdc-ncr": method(["The order of choosing doesn't matter, so use nCr on the GDC with n = %d and r = %d." % [n, k],
 			"%dC%d = %s" % [n, k, I(v)], final(ans)], ans.values)}}
 
@@ -232,8 +254,9 @@ func u_committee_mixed(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var cw := CountingSituation.comb(women, j)
 	var cm := CountingSituation.comb(men, k - j)
 	return {"asked": "How many committees have exactly %d %s?" % [j, g[1]], "lines": _mixed_lines(s), "answer": ans,
-		"wrongs": tagged([cw + cm], v, R_ADD_GROUPS),
-		"generic": vs([CountingSituation.comb(men + women, k), CountingSituation.comb(women, j) * CountingSituation.comb(men, k), CountingSituation.comb(women, j) * CountingSituation.comb(men, k - j + 1), CountingSituation.perm(women, j) * CountingSituation.perm(men, k - j)], v),
+		"wrongs": (tagged([cw + cm], v, R_ADD_GROUPS) + tagged([CountingSituation.comb(men + women, k)], v, R_NO_CONDITION)
+			+ tagged([cw * CountingSituation.comb(men, k)], v, R_FULL_SIZE) + tagged([CountingSituation.perm(women, j) * CountingSituation.perm(men, k - j)], v, R_PERM_FOR_COMB)),
+		"fillers": vs([cw * CountingSituation.comb(men, k - j + 1)], v),
 		"methods": {
 			"product-of-choices": method(["Choose the %s and the %s separately: %d %s from %d, and %d %s from %d." % [g[1], g[0], j, g[1], women, k - j, g[0], men],
 				"%dC%d = %s and %dC%d = %s" % [women, j, I(cw), men, k - j, I(cm)],
@@ -258,8 +281,9 @@ func u_committee_at_least_one(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 			terms.append("%dC%d × %dC%d" % [women, j, men, k - j])
 			parts.append(I(CountingSituation.comb(women, j) * CountingSituation.comb(men, k - j)))
 	return {"asked": "How many committees have at least one of the %s?" % g[1], "lines": _mixed_lines(s), "answer": ans,
-		"wrongs": tagged([women * CountingSituation.comb(men + women - 1, k - 1)], v, R_DOUBLE_COUNT),
-		"generic": vs([all, none, women * CountingSituation.comb(men, k - 1), CountingSituation.comb(women, 1) + CountingSituation.comb(men, k - 1)], v),
+		"wrongs": (tagged([women * CountingSituation.comb(men + women - 1, k - 1)], v, R_DOUBLE_COUNT) + tagged([all], v, R_NONE_LEFT_IN)
+			+ tagged([none], v, R_NONE_COUNT) + tagged([women * CountingSituation.comb(men, k - 1)], v, R_EXACTLY_ONE)),
+		"fillers": vs([CountingSituation.comb(women, 1) + CountingSituation.comb(men, k - 1)], v),
 		"methods": {
 			"complement": method(["Count every committee, then take away the ones with none of the %s." % g[1],
 				"All: %dC%d = %s. None of the %s: %dC%d = %s." % [men + women, k, I(all), g[1], men, k, I(none)],
@@ -282,8 +306,9 @@ func u_together(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v: int = s.count
 	var ans := _ans("number of ways = ", s)
 	return {"asked": "In how many ways can they be arranged?", "lines": _row_lines(s, true), "answer": ans,
-		"wrongs": tagged([CountingSituation.fact(n - 1)], v, R_NO_BLOCK_ORDER),
-		"generic": vs([CountingSituation.fact(n), CountingSituation.fact(n) / 2, 2 * CountingSituation.fact(n), CountingSituation.fact(n - 2) * 2], v),
+		"wrongs": tagged([CountingSituation.fact(n - 1)], v, R_NO_BLOCK_ORDER) + tagged([CountingSituation.fact(n)], v, R_NO_CONDITION)
+			+ tagged([CountingSituation.fact(n - 2) * 2], v, R_BLOCK_OUT),
+		"fillers": vs([CountingSituation.fact(n) / 2, 2 * CountingSituation.fact(n)], v),
 		"methods": {"glue-block": method(["Treat the two who must be together as one block: there are %d things to arrange, in %d! = %s ways." % [n - 1, n - 1, I(CountingSituation.fact(n - 1))],
 			"The two can swap places inside the block: 2! = 2 ways.",
 			"%s × 2 = %s" % [I(CountingSituation.fact(n - 1)), I(v)], final(ans)], ans.values)}}
@@ -295,8 +320,9 @@ func u_apart(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := _ans("number of ways = ", s)
 	var together := 2 * CountingSituation.fact(n - 1)
 	return {"asked": "In how many ways can they be arranged?", "lines": _row_lines(s, false), "answer": ans,
-		"wrongs": tagged([CountingSituation.fact(n) - 2], v, R_APART_MINUS_2),
-		"generic": vs([together, CountingSituation.fact(n) / 2, CountingSituation.fact(n) - CountingSituation.fact(n - 1), CountingSituation.fact(n - 1) * (n - 2)], v),
+		"wrongs": tagged([CountingSituation.fact(n) - 2], v, R_APART_MINUS_2) + tagged([together], v, R_TOGETHER_COUNT)
+			+ tagged([CountingSituation.fact(n) - CountingSituation.fact(n - 1)], v, R_NO_BLOCK_ORDER),
+		"fillers": vs([CountingSituation.fact(n) / 2], v),
 		"methods": {"complement": method(["All arrangements: %d! = %s." % [n, I(CountingSituation.fact(n))],
 			"With the two together, glue them into a block: 2 × %d! = %s." % [n - 1, I(together)],
 			"%s − %s = %s" % [I(CountingSituation.fact(n)), I(together), I(v)], final(ans)], ans.values)}}

@@ -37974,6 +37974,7 @@ def E11CM_check(q):
 # are not trusted. The engine's limits are in game/engine/situations/counting.gd.
 
 CT_SKILL = "AHL1.10."
+CT_OWN = "t1-ahl-counting#"  # the type's own slips (FAL-820)
 CT_CODE_STORIES = ["A locker code is {l} followed by {d}. Letters and digits can repeat.",
                    "A radio password is {l} then {d}, with repeats allowed.",
                    "A vault code has {l} followed by {d}. Any letter or digit can be used again."]
@@ -38006,24 +38007,33 @@ def check_counting(q):
         need(asked == "How many different codes are possible?", f"asked {asked!r}")
         need(2 <= a <= 3 and 2 <= b <= 4, "the code has an unusual size")
         val = 26**a * 10**b          # each of the a + b places is filled independently
-        wrongs[CT_SKILL + "counting-principle#1"] = {f"{label}{26 * a + 10 * b}"}
+        wrongs[CT_SKILL + "counting-principle#1"] = {f"{label}{26 * a + 10 * b}", f"{label}{26**a + 10**b}"}
+        wrongs[CT_OWN + "11"] = {f"{label}{26**(a + b)}"}  # every place a letter
+        wrongs[CT_OWN + "12"] = {f"{label}{36**(a + b)}"}  # every place either
+        wrongs[CT_OWN + "13"] = {f"{label}{26**a * 10 * b}"}  # times b, not to the power b
     elif u == "no-repeat-number":
         line0(f"A {d}-digit number does not start with 0.")
         need(asked == f"How many {d}-digit numbers have no repeated digit?", f"asked {asked!r}")
         need(3 <= d <= 5, "the number has an unusual length")
         val = sum(1 for p in itertools.permutations(range(10), d) if p[0] != 0)
         wrongs[CT_SKILL + "counting-principle#0"] = {f"{label}{math.perm(10, d)}"}
+        wrongs[CT_OWN + "14"] = {f"{label}{sum(1 for p in itertools.product(range(10), repeat=d) if p[0] != 0)}"}  # repeats let in
+        wrongs[CT_OWN + "15"] = {f"{label}{sum(1 for _ in itertools.permutations(range(1, 10), d))}"}  # no 0 anywhere
     elif u == "even-numbers":
         line0(f"The digits are 1 to {m}, and each is used at most once.")
         need(asked == f"How many even {d}-digit numbers can be made?", f"asked {asked!r}")
         need(m in (6, 8) and d in (3, 4), "the pool or length is unusual")
         val = sum(1 for p in itertools.permutations(range(1, m + 1), d) if p[-1] % 2 == 0)
         wrongs[CT_SKILL + "counting-principle#2"] = {f"{label}{math.perm(m, d - 1) * (m // 2)}"}
+        wrongs[CT_OWN + "16"] = {f"{label}{sum(1 for _ in itertools.permutations(range(1, m + 1), d))}"}  # even or not
+        wrongs[CT_OWN + "14"] = {f"{label}{sum(1 for p in itertools.product(range(1, m + 1), repeat=d) if p[-1] % 2 == 0)}"}  # repeats let in
+        wrongs[CT_OWN + "17"] = {f"{label}{math.perm(m - 1, d - 1)}"}  # the last digit's choices left out
     elif u == "arrange-all":
         line0(f"Evaluate {n}!" if rep == "equation" else f"{n} different {CT_ITEMS[ctx % 6]} are arranged in a row.")
         need(asked == ("Find the value." if rep == "equation" else "In how many ways can this be done?"), f"asked {asked!r}")
         need(5 <= n <= 8, "n is outside 5 to 8")
         val = sum(1 for _ in itertools.permutations(range(n)))
+        wrongs[CT_SKILL + "permutations#1"] = {f"{label}{n**n}"}  # repeats let in
     elif u == "award-places":
         line0(f"Evaluate {n}P{r}" if rep == "equation" else CT_PLACES[r].format(n=n))
         need(asked == ("Find the value." if rep == "equation" else "How many different results are possible?"), f"asked {asked!r}")
@@ -38032,6 +38042,7 @@ def check_counting(q):
         wrongs[CT_SKILL + "permutations#0"] = {f"{label}{math.comb(n, r)}"}
         wrongs[CT_SKILL + "permutations#1"] = {f"{label}{n**r}"}
         wrongs[CT_SKILL + "permutations#2"] = {f"{label}{math.factorial(n) // math.factorial(r)}"}
+        wrongs[CT_OWN + "18"] = {f"{label}{n * r}"}  # n × r
     elif u == "find-n-from-npr":
         line0(f"nP2 = {v}" if rep == "equation" else f"A race has n runners. There are {v} ways to award first and second place.")
         need(asked == "Find n.", f"asked {asked!r}")
@@ -38042,6 +38053,7 @@ def check_counting(q):
         val = int(pos[0])
         need(6 <= val <= 15, f"n = {val} is outside 6 to 15")
         need(sum(1 for _ in itertools.permutations(range(val), 2)) == v, "nP2 is not the value shown")
+        wrongs[CT_OWN + "19"] = {f"{label}{sp.solve(2 * sp.Symbol('n') - v)[0]}"}  # 2n = v
     elif u == "committee":
         line0(f"Evaluate {n}C{k}" if rep == "equation" else f"A committee of {k} is chosen from {n} people.")
         need(asked == ("Find the value." if rep == "equation" else "How many different committees are possible?"), f"asked {asked!r}")
@@ -38058,11 +38070,17 @@ def check_counting(q):
             need(2 <= j < k and j <= women and k - j <= men, "j is outside its limits")
             val = sum(1 for x in w if x == j)
             wrongs[CT_SKILL + "combinations#0"] = {f"{label}{math.comb(women, j) + math.comb(men, k - j)}"}
+            wrongs[CT_OWN + "16"] = {f"{label}{len(w)}"}  # any committee
+            wrongs[CT_OWN + "20"] = {f"{label}{math.comb(women, j) * math.comb(men, k)}"}  # k from the others too
+            wrongs[CT_SKILL + "combinations#2"] = {f"{label}{math.perm(women, j) * math.perm(men, k - j)}"}  # in order
         else:
             need(asked == f"How many committees have at least one of the {g1}?", f"asked {asked!r}")
             need(k <= men, "k is above the men")
             val = sum(1 for x in w if x >= 1)
             wrongs[CT_SKILL + "combinations#1"] = {f"{label}{women * math.comb(men + women - 1, k - 1)}"}
+            wrongs[CT_OWN + "21"] = {f"{label}{len(w)}"}  # none not taken away
+            wrongs[CT_OWN + "22"] = {f"{label}{sum(1 for x in w if x == 0)}"}  # the none count
+            wrongs[CT_OWN + "23"] = {f"{label}{sum(1 for x in w if x == 1)}"}  # exactly one
     elif u in ("together", "apart"):
         who = CT_WHO[ctx % 6]
         line0(f"{n} {who} sit in a row. Two particular {who} {'must' if u == 'together' else 'must not'} sit next to each other.")
@@ -38072,6 +38090,12 @@ def check_counting(q):
         val = sum(1 for p in itertools.permutations(range(n)) if adjacent(p) == (u == "together"))
         wrongs[CT_SKILL + ("restricted-arrangements#0" if u == "together" else "restricted-arrangements#1")] = \
             {f"{label}{math.factorial(n - 1) if u == 'together' else math.factorial(n) - 2}"}
+        if u == "together":
+            wrongs[CT_OWN + "16"] = {f"{label}{math.factorial(n)}"}  # anywhere
+            wrongs[CT_OWN + "24"] = {f"{label}{2 * math.factorial(n - 2)}"}  # the block left out
+        else:
+            wrongs[CT_OWN + "25"] = {f"{label}{sum(1 for p in itertools.permutations(range(n)) if adjacent(p))}"}  # together
+            wrongs[CT_SKILL + "restricted-arrangements#0"] = {f"{label}{math.factorial(n) - math.factorial(n - 1)}"}  # block order lost
     else:
         raise Fail(f"no check for {u}")
     need(0 < val < CT_COUNT_MAX, f"the count {val} is out of range")

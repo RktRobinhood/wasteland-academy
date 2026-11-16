@@ -29763,6 +29763,72 @@
       "multiple-k"
      ],
      "wrong": "both brackets written with the plus"
+    },
+    {
+     "text": "Dividing only one of the terms by the factor taken out",
+     "as": "distractor",
+     "in": [
+      "consecutive-sum",
+      "finish-divisibility"
+     ],
+     "wrong": "m((big/m)n + tail) or m(big n + tail/m)"
+    },
+    {
+     "text": "Using two numbers next to each other in the pattern, so not every pair is covered",
+     "as": "distractor",
+     "in": [
+      "represent-integers"
+     ],
+     "wrong": "mu + r and mu + r + m"
+    },
+    {
+     "text": "Pointing to a later line, which only carries the first slip forward",
+     "as": "distractor",
+     "in": [
+      "flawed-step"
+     ],
+     "wrong": "the line after the first wrong one"
+    },
+    {
+     "text": "Forgetting to divide by the factor taken out",
+     "as": "distractor",
+     "in": [
+      "multiple-k",
+      "consecutive-sum"
+     ],
+     "wrong": "k = E, or S = m × S"
+    },
+    {
+     "text": "Multiplying by the factor instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "multiple-k"
+     ],
+     "wrong": "k = mE"
+    },
+    {
+     "text": "Taking the number of terms as the divisor",
+     "as": "distractor",
+     "in": [
+      "greatest-divisor"
+     ],
+     "wrong": "the count of terms"
+    },
+    {
+     "text": "Flipping the signs of the numbers in both brackets",
+     "as": "distractor",
+     "in": [
+      "consecutive-factors"
+     ],
+     "wrong": "(n − m)(n − m − 1)"
+    },
+    {
+     "text": "Picking two numbers with the right sum but the wrong product",
+     "as": "distractor",
+     "in": [
+      "consecutive-factors"
+     ],
+     "wrong": "(n + m − 1)(n + m + 2)"
     }
    ],
    "parts": [
@@ -90788,7 +90854,8 @@
      "text": "Allowing repeats when each person can fill only one place.",
      "as": "distractor",
      "in": [
-      "award-places"
+      "award-places",
+      "arrange-all"
      ],
      "wrong": "n^r: one runner winning twice"
     },
@@ -90824,7 +90891,8 @@
      "text": "Using permutations for a committee, even though changing the order does not change its members.",
      "as": "distractor",
      "in": [
-      "committee"
+      "committee",
+      "committee-mixed"
      ],
      "wrong": "nPk for a committee"
     },
@@ -90833,7 +90901,8 @@
      "text": "Forgetting the arrangements within the block: the people who sit together can exchange places inside it.",
      "as": "distractor",
      "in": [
-      "together"
+      "together",
+      "apart"
      ],
      "wrong": "(n − 1)!: the block's own order forgotten"
     },
@@ -90845,6 +90914,129 @@
       "apart"
      ],
      "wrong": "n! − 2"
+    },
+    {
+     "text": "Treating the digit places as letter places too",
+     "as": "distractor",
+     "in": [
+      "code-count"
+     ],
+     "wrong": "26^(a + b)"
+    },
+    {
+     "text": "Letting every place take any letter or digit",
+     "as": "distractor",
+     "in": [
+      "code-count"
+     ],
+     "wrong": "36^(a + b)"
+    },
+    {
+     "text": "Multiplying by the number of digit places instead of raising ten to that power",
+     "as": "distractor",
+     "in": [
+      "code-count"
+     ],
+     "wrong": "26^a × 10b"
+    },
+    {
+     "text": "Allowing a digit to be used again when each can be used only once",
+     "as": "distractor",
+     "in": [
+      "no-repeat-number",
+      "even-numbers"
+     ],
+     "wrong": "repeats allowed"
+    },
+    {
+     "text": "Leaving zero out altogether instead of only from the first place",
+     "as": "distractor",
+     "in": [
+      "no-repeat-number"
+     ],
+     "wrong": "9Pd"
+    },
+    {
+     "text": "Ignoring the condition and counting every case",
+     "as": "distractor",
+     "in": [
+      "even-numbers",
+      "committee-mixed",
+      "together"
+     ],
+     "wrong": "the count with no condition"
+    },
+    {
+     "text": "Forgetting to multiply by the choices for the last digit",
+     "as": "distractor",
+     "in": [
+      "even-numbers"
+     ],
+     "wrong": "(m − 1)P(d − 1)"
+    },
+    {
+     "text": "Multiplying n by r instead of working out nPr",
+     "as": "distractor",
+     "in": [
+      "award-places"
+     ],
+     "wrong": "n × r"
+    },
+    {
+     "text": "Taking the number of ways as twice n instead of n times the number below it",
+     "as": "distractor",
+     "in": [
+      "find-n-from-npr"
+     ],
+     "wrong": "n = v/2"
+    },
+    {
+     "text": "Choosing the rest of the committee at its full size from the other group",
+     "as": "distractor",
+     "in": [
+      "committee-mixed"
+     ],
+     "wrong": "C(w, j) × C(m, k)"
+    },
+    {
+     "text": "Forgetting to take away the committees with none of them",
+     "as": "distractor",
+     "in": [
+      "committee-at-least-one"
+     ],
+     "wrong": "every committee"
+    },
+    {
+     "text": "Giving the number of committees with none of them instead",
+     "as": "distractor",
+     "in": [
+      "committee-at-least-one"
+     ],
+     "wrong": "C(m, k)"
+    },
+    {
+     "text": "Counting committees with exactly one of them instead of at least one",
+     "as": "distractor",
+     "in": [
+      "committee-at-least-one"
+     ],
+     "wrong": "w × C(m, k − 1)"
+    },
+    {
+     "text": "Leaving the block out when arranging the rest",
+     "as": "distractor",
+     "in": [
+      "together"
+     ],
+     "wrong": "2 × (n − 2)!"
+    },
+    {
+     "text": "Giving the count with the two together instead of apart",
+     "as": "distractor",
+     "in": [
+      "apart"
+     ],
+     "wrong": "2 × (n − 1)!"
     }
    ]
   }

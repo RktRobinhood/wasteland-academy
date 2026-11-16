@@ -59,7 +59,7 @@ const UNSORTED := [
 	"fn-pre-algebraic-fractions", "fn-pre-expand", "fn-pre-factorise", "fn-pre-graph-reading",
 	"fn-pre-linear-equations", "fn-pre-linear-inequalities", "fn-pre-simultaneous", "fn-pre-surds",
 	"fn-rational-asymptotes-intercepts", "fn-rational-sketch", "fn-sketch-from-features",
-	"fn-sketch-gdc", "fn-solve-quadratic", "t1-ahl-counting", "t1-algebraic-proof",
+	"fn-sketch-gdc", "fn-solve-quadratic", "t1-algebraic-proof",
 	"t1-arithmetic-sequence", "t1-compound-interest", "t1-depreciation",
 	"t1-solve-exponential",
 	"t3-distance-midpoint", "t3-identity-values", "t3-solid-volume-area", "t3-trig-model-parameters",
