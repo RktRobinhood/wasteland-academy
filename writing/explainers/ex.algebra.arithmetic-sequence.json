@@ -1,7 +1,7 @@
 {
   "id": "ex.algebra.arithmetic-sequence",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Add the Same Each Step",
   "idea": "An arithmetic sequence adds the same amount d every time, so term n is the first term plus n − 1 lots of d.",
   "zone": "algebra",
@@ -42,7 +42,7 @@
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
   },
   "notes": [
-    "builds_on is ex.foundations.pre-substitute from the explainer map in PR #147 (FAL-935), because the recall is substitution. The map lists ex.foundations.pre-balance as this explainer's prerequisite, and also gives it SL1.2.find-u1-d and SL1.2.find-n. This pilot teaches SL1.2.nth-term only; adding the other two would push it past 8 minutes. Raised on FAL-936.",
+    "builds_on is ex.foundations.pre-substitute, as in the explainer map (FAL-952), because the recall is substitution. This pilot teaches SL1.2.nth-term only, which is now the map's whole entry; finding u₁, d or n from given terms is ex.algebra.arithmetic-from-terms.",
     "No second-method section. The map lists four methods for SL1.2.nth-term: the formula is the lesson, counting on is the concrete case in the big idea, the linear form uₙ = dn + (u₁ − d) appears in example 3(b), and the GDC table is a method explainer under plan decision 4.",
     "Numbers in the examples come from the arithmetic-context stories in game/engine/situations/arithmetic_context.gd (fight pit rows, failing well, sandbag barricade), inside their ranges."
   ],
