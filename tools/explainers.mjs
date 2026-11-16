@@ -2,7 +2,8 @@
 // ── EXPLAINER MAP CHECK ──────────────────────────────────────
 // Checks curriculum/explainers.json, the map of every explainer across AA SL, AA HL,
 // AI SL and AI HL (FAL-935), against the three course maps, the Relic lessons, the
-// question-type catalogue and the concept threads.
+// question-type catalogue and the concept threads. Then it checks the scripts in
+// writing/explainers/ (tools/explainer-scripts.mjs).
 //
 //   node tools/explainers.mjs            check, print the counts (same as --check)
 //   node tools/explainers.mjs --check    check only
@@ -15,6 +16,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { format } from './lessons.mjs';
+import { checkScripts } from './explainer-scripts.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJSON = f => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
@@ -72,7 +74,7 @@ export function index({ maps }) {
   for (const m of maps) for (const t of m.topics) for (const st of t.subtopics) {
     if (st.retired) continue;
     subtopics.set(st.id, { id: st.id, title: st.title, topic: t.topic, courses: st.courses, skills: st.skills.map(s => s.id) });
-    for (const s of st.skills) skills.set(s.id, { id: s.id, name: s.name, subtopic: st.id, topic: t.topic, courses: st.courses,
+    for (const s of st.skills) skills.set(s.id, { id: s.id, name: s.name, subtopic: st.id, topic: t.topic, courses: s.courses || st.courses,
       threads: (s.threads || []).map(x => x.thread).filter(Boolean) });
   }
   return { subtopics, skills };
@@ -503,6 +505,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`${pad('course', 8)}${pad('explainers', 12)}${pad('subtopics', 12)}skills`);
   for (const k of COURSES) { const v = counts.coverage[k]; console.log(`${pad(COURSE_NAME[k], 8)}${pad(counts.course[k], 12)}${pad(`${v.subtopicsCovered}/${v.subtopics}`, 12)}${v.skillsTaught}/${v.skills}`); }
   console.log('Layers: ' + LAYERS.map(l => `${l.id} ${counts.layer[l.id]}`).join(', '));
+  const scripts = checkScripts();
+  console.log(`Scripts: ${scripts.count} in writing/explainers/ checked`);
+  errors.push(...scripts.errors);
   if (warnings.length) console.log(`\n${warnings.length} warning(s):\n  ` + warnings.join('\n  '));
   if (errors.length) { console.error(`\n${errors.length} error(s):\n  ` + errors.join('\n  ')); process.exit(1); }
   console.log('\nOK.');

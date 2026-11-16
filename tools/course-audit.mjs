@@ -37,7 +37,8 @@ export function build(report) {
         if (st.retired) continue;
         const sub = { id: st.id, title: st.title, topic: t.topic, topicName: t.name, layer, courses: st.courses, skills: st.skills.map(s => s.id) };
         subtopics.push(sub);
-        for (const s of st.skills) skills.set(s.id, sub);
+        // a skill may narrow its subtopic's courses (curriculum/README.md, "Courses and IDs")
+        for (const s of st.skills) skills.set(s.id, { ...sub, courses: s.courses || st.courses });
       }
   }
 
@@ -67,7 +68,7 @@ export function build(report) {
     playableBy[c.id] = { inCourse, playable };
     for (const n of [1, 2, 3, 4, 5]) {
       const subs = subtopics.filter(s => s.topic === n && s.courses.includes(c.id));
-      const ids = subs.flatMap(s => s.skills);
+      const ids = subs.flatMap(s => s.skills).filter(s => inCourse.has(s));
       rows.push({
         course: c.id, topic: n, name: subs[0]?.topicName ?? '', subtopics: subs.length, skills: ids.length,
         catalogued: ids.filter(s => catalogued.has(s)).length, playable: ids.filter(s => playable.has(s)).length,
