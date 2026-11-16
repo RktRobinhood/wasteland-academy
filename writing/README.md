@@ -9,7 +9,10 @@ Read [`../TONE.md`](../TONE.md) before you write anything. It says who we're wri
 | `voice-sheets.md` | One block per speaking character: wants, vocabulary, rhythm, tic and avoidance, praise and correction lines, samples. Write every line against it. |
 | `voice-briefs.md` | Voice descriptions and audition scripts for Spark, Gear Mira, Noma and Nugget, for VoxCPM2 on the shared GPU. |
 | `explainers/` | Explainer scripts (one lesson per idea, narrated by the zone's tutor), the reusable callback lines, and the style guide and script format in `explainers/README.md`. |
-| `encounters/` | Speech-bubble lines for the rare road encounters (Meet, Deal, Standoff) and the Cell, one JSON file per island. Format and rules in `encounters/README.md`. Never voiced. |
+| `glossary.md`, `glossary.json` | Every game term the player reads, with its one wording, and the banned and replaced words (#203). `glossary.json` is the copy a test reads. |
+| `string-audit.md` | Every player-facing string, its file and line, its screen and the wording to use. Coder applies it. |
+| `first-run.md` | A new student's first minutes: the course choice and the four "how a fight works" cards (#186). |
+| `encounters/` | Speech-bubble lines for the rare road encounters (Meet, Deal, Standoff) and the Cell, one JSON file per zone. Format and rules in `encounters/README.md`. Never voiced. |
 
 ## How text gets written here
 

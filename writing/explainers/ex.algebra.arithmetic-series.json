@@ -34,10 +34,10 @@
     "Finding u_n when the question asks for S_n (or the reverse)"
   ],
   "estimate": {
-    "words_watched": 1134,
-    "words_not_watched": 1204,
-    "narration_watched": "7 min 50 s",
-    "narration_not_watched": "8 min 18 s",
+    "words_watched": 1142,
+    "words_not_watched": 1212,
+    "narration_watched": "7 min 53 s",
+    "narration_not_watched": "8 min 21 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
   },
   "notes": [
@@ -634,19 +634,28 @@
         {
           "speaker": "mags-the-ledger",
           "clear": true,
-          "say": "Now one laid out like the old exam papers. Write each letter down, and keep each part's working under it."
+          "say": "Old exam layout now: letters down, each part's working under it. A barricade of eighteen layers, ninety-six sandbags at the bottom and four fewer in each layer up.",
+          "board": [
+            {
+              "write": "u₁ = 96 sandbags (bottom layer)",
+              "move": "read-givens"
+            },
+            {
+              "write": "d = −4 sandbags per layer",
+              "move": "read-givens"
+            },
+            {
+              "write": "n = 18 layers",
+              "move": "read-givens"
+            }
+          ]
         },
         {
           "speaker": "mags-the-ledger",
           "say": "Part a. The top layer is layer eighteen. Ninety-six, plus seventeen lots of minus four. Seventeen fours are sixty-eight, so that's twenty-eight.",
           "board": [
             {
-              "write": "(a)  u₁ = 96, d = −4, n = 18",
-              "part": "a",
-              "move": "read-givens"
-            },
-            {
-              "write": "u₁₈ = 96 + (18 − 1)(−4)",
+              "write": "(a)  u₁₈ = 96 + (18 − 1)(−4)",
               "part": "a",
               "move": "substitute"
             },

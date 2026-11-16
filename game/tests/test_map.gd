@@ -11,6 +11,9 @@ extends "res://tests/test_case.gd"
 ## region screen over its backdrop. Every island open (FAL-925): each region routes on its
 ## own island, island_of() for every region, each island's spots laid out with no overlap,
 ## the Thunderdome's screen and the Relic Library's card.
+## The world map as a fast-travel map (FAL-988): zones from the painting with none
+## overlapping, a pin and an always-shown name banner per place, the pin states and the
+## "you are here" marker.
 
 const MAP := "res://scenes/map.tscn"
 const FIGHT := "res://scenes/fight.tscn"
@@ -372,9 +375,9 @@ func test_the_world_map_opens_the_bazaar_and_leaving_it_goes_back() -> void:
 	check_eq(_card_of(m, shop), "Bazaar · 1240 Scrap", "the Scrap to spend")
 	check_eq(shop.tooltip_text, "Bazaar · 1240 Scrap")
 	check_eq((m.world.get_node("Header").get_child(0).get_node("Scrap") as Label).text, "Scrap: 1240")
-	# The Bazaar's zone, as the FAL-783 plan has it.
+	# The Bazaar's zone, the caravan on the FAL-986 painting, trimmed clear of the Engine Core.
 	var zone: Rect2 = preload("res://ui/map.gd").BAZAAR_ZONE
-	check_eq(zone, Rect2(17, 90, 26, 14))
+	check_eq(zone, Rect2(22, 70.75, 40, 10.5))
 	check(Rect2(Vector2.ZERO, m.BOARD).encloses(Rect2(shop.position, shop.size)), "the Bazaar is on the board")
 	# A click goes in, zooming into the Bazaar first.
 	shop.pressed.emit()
@@ -398,6 +401,171 @@ func test_the_world_map_opens_the_bazaar_and_leaving_it_goes_back() -> void:
 	check_eq(MapLink.current, {"screen": "world"})
 	tree.unload_current_scene()
 	await tree.process_frame
+	_done(made)
+
+
+# ── The world map as a fast-travel map (FAL-988) ───────────
+
+## Every world-map place's [button name, zone, pin], from map.gd.
+func _world_places() -> Array:
+	var map_script := preload("res://ui/map.gd")
+	var out: Array = []
+	for i in map_script.ISLANDS:
+		out.append(["Island_" + i.id, i.zone, i.pin])
+	out.append(["Thunderdome", map_script.THUNDERDOME_ZONE, map_script.THUNDERDOME_PIN])
+	out.append(["RelicLibrary", map_script.RELIC_LIBRARY_ZONE, map_script.RELIC_LIBRARY_PIN])
+	out.append(["Bazaar", map_script.BAZAAR_ZONE, map_script.BAZAAR_PIN])
+	return out
+
+
+## A zone (centre and size) as a Rect2 of its corner and size, in %.
+func _rect(zone: Rect2) -> Rect2:
+	return Rect2(zone.position - zone.size / 2.0, zone.size)
+
+
+## WCAG contrast of two opaque colours.
+func _contrast(a: Color, b: Color) -> float:
+	var lum := func(c: Color) -> float:
+		var ch := [c.r, c.g, c.b].map(func(v): return v / 12.92 if v <= 0.04045 else pow((v + 0.055) / 1.055, 2.4))
+		return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
+	var la: float = lum.call(a)
+	var lb: float = lum.call(b)
+	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
+
+
+func test_the_world_zones_come_from_the_painting_with_no_two_overlapping() -> void:
+	var places := _world_places()
+	check_eq(places.size(), 8)
+	for p in places:
+		var r := _rect(p[1])
+		check(Rect2(0, 0, 100, 100).encloses(r), "%s: its zone %s is on the board" % [p[0], r])
+		check(r.has_point(p[2]) and p[2].x < r.end.x and p[2].y < r.end.y, "%s: its pin %s inside its zone %s" % [p[0], p[2], r])
+		for q in places:
+			if q[0] != p[0]:
+				check(not r.intersects(_rect(q[1])), "%s and %s overlap" % [p[0], q[0]])
+	var made: Array = await _map({"screen": "world"})
+	var m: Control = made[1]
+	for p in places:
+		var b := m.world_board.get_node(p[0]) as Button
+		var pin := b.get_node("Pin") as Control
+		check((b.position + pin.position + pin.size / 2.0).distance_to(p[2] * m.BOARD / 100.0) < 0.5, "%s: the pin at its point" % p[0])
+	check(m.world_board.find_children("*", "Line2D", true, false).is_empty(), "no route lines on the world map")
+	_done(made)
+
+
+func test_the_world_map_names_every_place_on_a_banner() -> void:
+	var made: Array = await _map({"screen": "world"})
+	var m: Control = made[1]
+	var board: Control = m.world_board
+	var shown := _board_text(board)
+	var banners: Array = []
+	for p in _world_places():
+		var b := board.get_node(p[0]) as Button
+		var banner := b.get_node("Banner") as PanelContainer
+		var name := (b.get_meta("card") as Array)[0] as String
+		check(banner.is_visible_in_tree(), "%s: its banner shows with nothing hovered" % p[0])
+		check_eq((banner.get_node("Name") as Label).text, name.to_upper())
+		check(name.to_upper() in shown, "%s: its name on the board" % p[0])
+		var label := banner.get_node("Name") as Label
+		check(label.get_theme_font("font") == UiTheme.TITLE_FONT, "%s: in the title font" % p[0])
+		check(label.get_theme_font_size("font_size") >= 40, "%s: readable on a phone" % p[0])
+		var plate := banner.get_theme_stylebox("panel") as StyleBoxFlat
+		check_eq(plate.border_color, UiTheme.SAND, "%s: a sand edge" % p[0])
+		var ratio := _contrast(label.get_theme_color("font_color"), Color(plate.bg_color, 1.0))
+		check(ratio >= 4.5, "%s: text on its plate at %.1f:1" % [p[0], ratio])
+		var r := Rect2(b.position + banner.position, banner.size)
+		check(Rect2(Vector2.ZERO, m.BOARD).encloses(r), "%s: its banner %s on the board" % [p[0], r])
+		var pin := b.get_node("Pin") as Control
+		check(r.position.y >= b.position.y + pin.position.y + pin.size.y - 1.0, "%s: the banner under its pin" % p[0])
+		for other in banners:
+			check(not r.intersects(other[1]), "%s's banner covers %s's" % [p[0], other[0]])
+		banners.append([p[0], r])
+	# Hover still brings the card with the second line.
+	var dome := board.get_node("Thunderdome") as Button
+	check_eq(_card_of(m, dome), "Thunderdome · Every island mixed")
+	check(not (board.get_node("Card") as Control).visible, "no card until a place is looked at")
+	_done(made)
+
+
+## A click on a place's banner goes into that place, even where the banner hangs past its
+## zone (the Engine Core's over the Relic Library's).
+func test_a_click_on_a_banner_goes_into_its_place() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	var made: Array = await _map({"screen": "world"}, save)
+	var m: Control = made[1]
+	var lib := m.world_board.get_node("RelicLibrary/Banner") as Control
+	check_eq(lib.mouse_filter, Control.MOUSE_FILTER_STOP, "a banner takes its own clicks")
+	lib.gui_input.emit(_release())
+	check(m.card_for == m.world_board.get_node("RelicLibrary"), "a closed place's banner shows its card")
+	check_eq(MapLink.current, {"screen": "world"}, "and goes nowhere")
+	m._hide_card()
+	(m.world_board.get_node("Island_calculus/Banner") as Control).gui_input.emit(_release())
+	check_eq(MapLink.current, {"screen": "island", "island": "calculus"}, "the Engine Core opens")
+	_done(made)
+
+
+func _release() -> InputEventMouseButton:
+	var e := InputEventMouseButton.new()
+	e.button_index = MOUSE_BUTTON_LEFT
+	e.pressed = false
+	return e
+
+
+func test_each_world_pin_shows_its_state() -> void:
+	var map_script := preload("res://ui/map.gd")
+	var save := SaveData.blank()
+	Dungeon.note_floor(save, Dungeon.all_of("calculus"), Tuning.MIX_FROM_FLOOR - 1, true)
+	var made: Array = await _map({"screen": "world"}, save)
+	var m: Control = made[1]
+	var want := {"Island_algebra": "open", "Island_functions": "open", "Island_geometry": "open", "Island_stats": "open",
+		"Island_calculus": "cleared", "Thunderdome": "open", "RelicLibrary": "locked", "Bazaar": "open"}
+	for n in want:
+		var pin := m.world_board.get_node(n + "/Pin") as Control
+		check_eq(pin.kind, want[n], n)
+		check(map_script.STATE_COLOR.has(pin.kind), n)
+	check(m.world_board.get_node("RelicLibrary").disabled, "the Relic Library stays locked")
+	check(map_script.thunderdome_open() == (MapLink.OPEN_ISLANDS.size() >= 2), "the Thunderdome waits for a second island")
+	_done(made)
+
+
+func test_you_are_here_starts_at_the_bazaar_and_follows_the_player() -> void:
+	check_eq(SaveData.blank().here, "bazaar", "a new save starts at the Bazaar")
+	var made: Array = await _map({"screen": "world"})
+	var m: Control = made[1]
+	var marks: Array = m.world_board.find_children("Here", "", true, false)
+	check_eq(marks.size(), 1, "one marker")
+	check_eq(String(marks[0].get_parent().name), "Bazaar")
+	check(marks[0].pulsing, "it pulses")
+	check(m.world_board.get_node("Bazaar").accessibility_name.ends_with("You are here"), "said to screen readers")
+	_done(made)
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	made = await _map({"screen": "world"}, save)
+	m = made[1]
+	(m.world_board.get_node("Island_geometry") as Button).pressed.emit()
+	check_eq(MapLink.current, {"screen": "island", "island": "geometry"})
+	check_eq(SaveData.load_from(SAVE).here, "geometry", "the save records where the player went")
+	MapLink.go(m.get_tree(), MapLink.WORLD)
+	await tree.process_frame
+	m.show_route(MapLink.WORLD)
+	marks = m.world_board.find_children("Here", "", true, false)
+	check_eq(marks.size(), 1)
+	check_eq(String(marks[0].get_parent().name), "Island_geometry", "the marker moved to the Dry Flats")
+	check(not marks[0].pulsing, "no pulse with reduced motion")
+	_done(made)
+
+
+func test_a_save_from_before_the_marker_starts_at_the_bazaar() -> void:
+	var v5 := SaveData.blank()
+	v5.version = 5
+	v5.erase("here")
+	var s := SaveData.migrate(v5)
+	check_eq(s.version, SaveData.VERSION)
+	check_eq(s.here, "bazaar")
+	var made: Array = await _map({"screen": "world"}, {"version": 6, "here": "relic_library", "settings": {}})
+	check_eq(String(made[1].world_board.find_children("Here", "", true, false)[0].get_parent().name), "Bazaar",
+		"a place that can't be gone into falls back to the Bazaar")
 	_done(made)
 
 
@@ -532,10 +700,12 @@ func test_no_roads_on_the_island() -> void:
 	_done(made)
 
 
+## On an island; the world map names its places on banners (FAL-988), and its card works
+## the same way (test_the_world_map_names_every_place_on_a_banner).
 func test_names_hide_until_a_place_is_hovered_focused_or_tapped() -> void:
 	var save := SaveData.blank()
 	save.scrap = 75
-	for r in [{"screen": "world"}, {"screen": "island", "island": "functions"}]:
+	for r in [{"screen": "island", "island": "functions"}]:
 		var made: Array = await _map(r, save)
 		var m: Control = made[1]
 		var board: Control = m.world_board if r.screen == "world" else m.island_board

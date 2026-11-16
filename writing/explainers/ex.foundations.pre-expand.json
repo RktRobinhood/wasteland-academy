@@ -31,10 +31,10 @@
     "Multiplies d by k as well in k(x + r)² + d"
   ],
   "estimate": {
-    "words_watched": 796,
-    "words_not_watched": 796,
-    "narration_watched": "5 min 33 s",
-    "narration_not_watched": "5 min 33 s",
+    "words_watched": 810,
+    "words_not_watched": 810,
+    "narration_watched": "5 min 38 s",
+    "narration_not_watched": "5 min 38 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions; with no prerequisite explainer there is one recall version, so they are the same. Player turns are player-paced and not counted."
   },
   "notes": [
@@ -426,6 +426,16 @@
           "speaker": "tin-can-tess",
           "clear": true,
           "say": "Last one's set out like the exam papers. Two parts, letters down first."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Here's f. Take x minus three, square it, times by two, then add one.",
+          "board": [
+            {
+              "write": "f(x) = 2(x − 3)² + 1",
+              "move": "read-givens"
+            }
+          ]
         },
         {
           "speaker": "tin-can-tess",

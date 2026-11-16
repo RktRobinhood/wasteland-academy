@@ -33,10 +33,10 @@
     "Gives too few significant figures, such as dropping a needed final zero"
   ],
   "estimate": {
-    "words_watched": 810,
-    "words_not_watched": 810,
-    "narration_watched": "5 min 37 s",
-    "narration_not_watched": "5 min 37 s",
+    "words_watched": 857,
+    "words_not_watched": 857,
+    "narration_watched": "5 min 56 s",
+    "narration_not_watched": "5 min 56 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions; with no prerequisite explainer there is one recall version, so they are the same. Player turns are player-paced and not counted."
   },
   "notes": [
@@ -448,6 +448,28 @@
           "speaker": "tin-can-tess",
           "clear": true,
           "say": "This one's laid out like the exam papers. Two parts, so write the letters down as you go."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "The tank's a cylinder, radius zero point nine metres. The gauge has marks at one metre and one point five, five equal steps between them, and the needle's three steps past the one. The volume, V, is pi, times zero point nine squared, times the depth d.",
+          "board": [
+            {
+              "write": "tank: cylinder, r = 0.9 m",
+              "move": "read-givens"
+            },
+            {
+              "write": "gauge: 1.0 m to 1.5 m in 5 equal steps",
+              "move": "read-givens"
+            },
+            {
+              "write": "needle: 3 steps past 1.0 m",
+              "move": "read-givens"
+            },
+            {
+              "write": "V = π × 0.9² × d m³, d = depth in m",
+              "move": "read-givens"
+            }
+          ]
         },
         {
           "speaker": "tin-can-tess",

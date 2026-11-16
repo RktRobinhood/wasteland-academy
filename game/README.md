@@ -2136,10 +2136,16 @@ closer look at the place picked on the one above:
   is open too, a mixed run of every island: it opens its own region screen
   (`#thunderdome`), whose back button goes to the world map. The Relic Library is
   locked; its card says it opens after the maths engine. The **Bazaar** is a place too,
-  at zone centre (17, 90), 26 × 14 (% of the board, `BAZAAR_ZONE`), painted into the
+  at zone centre (22, 70.75), 40 × 10.5 (% of the board, `BAZAAR_ZONE`), painted into the
   overworld (FAL-791, `BAZAAR_PAINTED`; while that's false a coded stall marker shows).
   It opens the Bazaar (see "The Bazaar"). There is no bar under the board: the Scrap
-  there is to spend is in the header.
+  there is to spend is in the header. It reads as a fast-travel map (FAL-988): each
+  place has a pin in its state's colour (`STATE_COLOR`: a padlock when locked, a flag
+  when cleared, an island once its all-regions dungeon is cleared) and its name on a
+  banner under the pin, always shown, and a click on the banner goes in like one on the
+  place. A "you are here" marker stands by the pin of the place the player last went
+  into from the world map (the save's `here`; a new save starts at the Bazaar); it
+  pulses, and holds still with reduced motion. No roads or route lines.
 - **An island**: its regions (`MapLink.region_ids(island)`, in the catalogue's `order`:
   most-examined first), its all-regions dungeon and a locked Relic device spot, as places
   with no roads between them: any region in any order. Each catalogue region is on the
@@ -2166,8 +2172,9 @@ closer look at the place picked on the one above:
   "Courses"); the cell records stay. It sits on the region screen for now, a scrolling
   column that has room, until character setup gives it a place beside the class pick.
 
-**Names on a card.** No name or state shows on a board until a place is hovered,
-focused or tapped. Then a card by the place shows its name and one line: the topic, the
+**Names on a card.** No name or state shows on an island's board until a place is
+hovered, focused or tapped (the world map names its places on banners, FAL-988, and
+keeps the card for the second line). Then a card by the place shows its name and one line: the topic, the
 progress line (`spot_line()`: "Floor 2 · 64%", "Not tried yet · SPARK's pick"), "Coming
 soon" or "Locked"; the Bazaar's says "Bazaar · 120 Scrap". On an island the card sits
 beside its place, on the side with more room, its text shrunk to fit (down to
@@ -2223,9 +2230,14 @@ gets a pink beacon drawn round its place, art or not, so leave the place readabl
 a ring.
 
 The world map's places are zones of `assets/map/overworld.png` (`ISLANDS`,
-`THUNDERDOME_ZONE`, `RELIC_LIBRARY_ZONE`, `BAZAAR_ZONE` in `ui/map.gd`). When the
+`THUNDERDOME_ZONE`, `RELIC_LIBRARY_ZONE`, `BAZAAR_ZONE` in `ui/map.gd`), with a pin
+point each (`pin` in `ISLANDS`, `THUNDERDOME_PIN`, `RELIC_LIBRARY_PIN`, `BAZAAR_PIN`),
+measured from the painting on FAL-986 and trimmed where landmarks overlap so no two
+zones do. `js/router.js` has the same island and Thunderdome zones. When the
 painting has the Bazaar's stalls painted in at its zone (FAL-791), set `BAZAAR_PAINTED`
 to drop the coded marker.
+
+Overworld painted by Matt Prokock with ChatGPT, 2026-11-16 (FAL-981); sky and dust bands extended locally with Qwen Image (FAL-986).
 
 ## Art slots
 

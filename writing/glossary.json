@@ -1,0 +1,35 @@
+{
+  "about": "Banned and replaced words in player-facing text (GitHub #203, FAL-1032). writing/glossary.md is the human copy; keep the two in step. Each pattern is a case-insensitive regular expression unless case_sensitive is true. scope 'ui' means string literals in game/ui/*.gd, game/audio/*.gd, game/scenes/*.tscn and the player-facing names in game/engine/bazaar.gd and game/engine/dungeon.gd; 'all' adds the player-facing text fields in game/data/*.json and assets/journey/**/*.json (name, taunt, label, hit, done, lines). Comments, ids, save keys, routes, node names and dictionary keys are never checked. 'allow' lists exact strings that may match.",
+  "banned": [
+    {"id": "island", "pattern": "\\bislands?\\b", "scope": "all", "use": "the place's own name (Scrap Fields, Signal Tower, Dry Flats, Radio Spires, Engine Core, Thunderdome, Bazaar); 'zone' in docs only", "allow": []},
+    {"id": "location", "pattern": "\\blocations?\\b", "scope": "ui", "use": "the place's own name", "allow": []},
+    {"id": "region", "pattern": "\\bregions?\\b", "scope": "ui", "use": "the topic's name, or 'topic'", "allow": []},
+    {"id": "zone", "pattern": "\\bzones?\\b", "scope": "ui", "use": "the place's own name; 'zone' is the docs word", "allow": []},
+    {"id": "world-map", "pattern": "\\b(world map|overworld)\\b", "scope": "ui", "use": "The Wasteland", "allow": []},
+    {"id": "map-label", "pattern": "^(Map|Back to the map)$", "scope": "ui", "case_sensitive": true, "use": "◂ The Wasteland, or ◂ and the topic's name", "allow": []},
+    {"id": "floor", "pattern": "\\bfloors?\\b", "scope": "ui", "use": "mile (Furthest mile, Mile 2, Next mile)", "allow": []},
+    {"id": "exam-style", "pattern": "\\bexam[- ]style\\b", "scope": "ui", "use": "Exam question; Exam questions only / Exam questions plus training", "allow": []},
+    {"id": "coverage", "pattern": "\\bcoverage\\b|\\bchecked\\b", "scope": "ui", "use": "Different questions tried: N of M", "allow": []},
+    {"id": "weakest", "pattern": "\\bweakest\\b", "scope": "ui", "use": "Skills to work on", "allow": []},
+    {"id": "missed", "pattern": "\\bmiss(ed)?\\b", "scope": "ui", "use": "Wrong answer. You take N damage.", "allow": []},
+    {"id": "minus-hp", "pattern": "[−-]\\s*%?d?\\d*\\s*HP\\b", "scope": "ui", "use": "You take N damage.", "allow": []},
+    {"id": "maths-engine", "pattern": "\\bmaths? engine\\b|\\blessons later\\b", "scope": "ui", "use": "Closed for now: lessons coming", "allow": []},
+    {"id": "engine-button", "pattern": "\\bEngine\\b(?! Core)", "scope": "ui", "case_sensitive": true, "use": "hidden from students, or 'Question explorer'", "allow": []},
+    {"id": "time-freeze", "pattern": "\\bTime Freeze\\b", "scope": "ui", "use": "Freeze", "allow": []},
+    {"id": "walk-on", "pattern": "^(Walk on|Next fight)$", "scope": "ui", "case_sensitive": true, "use": "Next stop", "allow": []},
+    {"id": "all-regions", "pattern": "\\bAll regions\\b", "scope": "ui", "use": "All topics", "allow": []}
+  ],
+  "submit_verb": {
+    "use": "Lock in",
+    "replaces": ["Attack", "Check", "Work", "Thump", "Pry", "Turn", "Dig", "Heave", "Cut"],
+    "note": "The answer button's text on fights, jobs, bosses and Practice. A test can check check_button.text after a question opens. The study screen (?study) keeps 'Mark my answer'."
+  },
+  "places": ["The Wasteland", "Scrap Fields", "Signal Tower", "Dry Flats", "Radio Spires", "Engine Core", "Thunderdome", "Bazaar", "Relic Library"],
+  "lifelines": {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"},
+  "exam_switch": {
+    "only": "Exam questions only",
+    "plus": "Exam questions plus training",
+    "help": "Training adds concept checks and warm-ups you won't see on a paper.",
+    "default": "plus"
+  }
+}

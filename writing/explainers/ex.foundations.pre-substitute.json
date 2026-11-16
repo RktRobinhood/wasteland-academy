@@ -31,10 +31,10 @@
     "Drops the sign of the input"
   ],
   "estimate": {
-    "words_watched": 805,
-    "words_not_watched": 805,
-    "narration_watched": "5 min 35 s",
-    "narration_not_watched": "5 min 35 s",
+    "words_watched": 839,
+    "words_not_watched": 839,
+    "narration_watched": "5 min 49 s",
+    "narration_not_watched": "5 min 49 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions; with no prerequisite explainer there is one recall version, so they are the same. Player turns are player-paced and not counted."
   },
   "notes": [
@@ -431,6 +431,16 @@
           "speaker": "tin-can-tess",
           "clear": true,
           "say": "Now one laid out the way the exam papers do it, with a part a and a part b. Write each letter down before you start on it, so whoever marks it can find your working."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "Bits on the bench first. f of x names a rule: whatever goes in for x, f of x is what comes out. Here the rule is four, plus two x, minus x squared.",
+          "board": [
+            {
+              "write": "f(x) = 4 + 2x − x²",
+              "move": "read-givens"
+            }
+          ]
         },
         {
           "speaker": "tin-can-tess",
