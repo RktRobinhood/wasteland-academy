@@ -21,6 +21,13 @@ const R_SOLVE_INVERSE := "SL2.5.identity#1"
 const R_DOMAIN_OF_F := "SL2.5.inverse-domain-range#0"
 const R_Y_INTERCEPT := "SL2.5.inverse-domain-range#1"
 const R_EVERY_INVERSE := "SL2.5.inverse-domain-range#2"
+## fn-graph-table-composite-inverse's own slips (FAL-820).
+const R_INPUT := "fn-graph-table-composite-inverse#16"
+const R_INNER := "fn-graph-table-composite-inverse#17"
+const R_FC := "fn-graph-table-composite-inverse#18"
+const R_K := "fn-graph-table-composite-inverse#19"
+const R_BACK := "fn-graph-table-composite-inverse#20"
+const R_COMPOSITE := "fn-graph-table-composite-inverse#21"
 
 
 func needs() -> Dictionary:
@@ -198,7 +205,7 @@ func u_read_value(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var v := y_of(s, "f", a)
 	var ans := number("f(%s) = " % N(a), v)
 	var words_inputs := [a, s.xs[(s.xs.find(a) + 2) % s.xs.size()], s.xs[(s.xs.find(a) + 4) % s.xs.size()]]
-	var out := {"asked": "Find f(%s)." % N(a), "answer": ans, "wrongs": [], "generic": [{"v": Q.new(a)}, {"v": Q.new(-v)}, {"v": Q.new(v + 1)}, {"v": Q.new(v - 1)}]}
+	var out := {"asked": "Find f(%s)." % N(a), "answer": ans, "wrongs": [wrong({"v": Q.new(a)}, R_INPUT)], "fillers": [{"v": Q.new(-v)}, {"v": Q.new(v + 1)}, {"v": Q.new(v - 1)}]}
 	out.merge(show(rep, s, words_inputs))
 	var final := "So %s." % Answer.text(ans)
 	var where := "Find x = %s in the sentence" % N(a) if rep == "words" else ("Find x = %s in the top row of the table" % N(a) if rep == "table" else "Find x = %s on the horizontal axis" % N(a))
@@ -213,7 +220,7 @@ func u_value_from_rule(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var v := rule_at(s, a)
 	var ans := number("f(%s) = " % N(a), v)
 	var rule := "f(x) = %s" % poly_text(s.co)
-	var out := {"asked": "Find f(%s)." % N(a), "answer": ans, "lines": [rule], "wrongs": [], "generic": [{"v": Q.new(a)}, {"v": Q.new(-v)}, {"v": Q.new(s.co[0].n)}, {"v": Q.new(v + 1)}]}
+	var out := {"asked": "Find f(%s)." % N(a), "answer": ans, "lines": [rule], "wrongs": [], "fillers": [{"v": Q.new(a)}, {"v": Q.new(-v)}, {"v": Q.new(s.co[0].n)}, {"v": Q.new(v + 1)}]}
 	# The sign of the squared term lost: −x² read as (−x)² (or the other way round).
 	if a != 0 and s.co[2].n != 0:
 		var slip: int = s.co[0].n + s.co[1].n * a - s.co[2].n * a * a
@@ -251,8 +258,8 @@ func u_self_composite_read(rep: String, s: Dictionary, rng: Seeded) -> Dictionar
 		mid = y_of(s, "f", a)
 		v = y_of(s, "f", mid)
 	ans = number("(f∘f)(%s) = " % N(a), v)
-	out = {"asked": "Find (f∘f)(%s)." % N(a), "answer": ans, "wrongs": [wrong({"v": Q.new(mid * mid)}, R_PRODUCT)],
-		"generic": [{"v": Q.new(mid)}, {"v": Q.new(a)}, {"v": Q.new(-v)}, {"v": Q.new(v + 1)}]}
+	out = {"asked": "Find (f∘f)(%s)." % N(a), "answer": ans, "wrongs": [wrong({"v": Q.new(mid * mid)}, R_PRODUCT), wrong({"v": Q.new(mid)}, R_INNER)],
+		"fillers": [{"v": Q.new(a)}, {"v": Q.new(-v)}, {"v": Q.new(v + 1)}]}
 	if s.mode == "rule":
 		out.lines = ["f(x) = %s" % poly_text(s.co)]
 		if rep == "graph":
@@ -301,7 +308,7 @@ func u_composite_from_table(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var v := y_of(s, outer, mid)
 	var lab := "(%s∘%s)" % [outer, inner]
 	var ans := number("%s(%s) = " % [lab, N(a)], v)
-	var out := {"asked": "Find %s(%s)." % [lab, N(a)], "answer": ans, "wrongs": [], "generic": []}
+	var out := {"asked": "Find %s(%s)." % [lab, N(a)], "answer": ans, "wrongs": [], "fillers": []}
 	out.merge(show(rep, s, [], true))
 	# The other order, the product and one function twice.
 	if has_x(s, y_of(s, outer, a)):
@@ -309,7 +316,8 @@ func u_composite_from_table(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	out.wrongs.append(wrong({"v": Q.new(y_of(s, "f", a) * y_of(s, "g", a))}, R_PRODUCT))
 	if has_x(s, y_of(s, inner, a)):
 		out.wrongs.append(wrong({"v": Q.new(y_of(s, inner, y_of(s, inner, a)))}, R_TWICE))
-	out.generic = [{"v": Q.new(mid)}, {"v": Q.new(v + 1)}, {"v": Q.new(-v)}]
+	out.wrongs.append(wrong({"v": Q.new(mid)}, R_INNER))
+	out.fillers = [{"v": Q.new(v + 1)}, {"v": Q.new(-v)}]
 	var final := "So %s." % Answer.text(ans)
 	var steps := ["Start inside: %s(%s) = %s" % [inner, N(a), N(mid)], "Now apply %s to that: %s(%s) = %s" % [outer, outer, N(mid), N(v)], final]
 	out.methods = _methods("composite-from-table", {}, steps, ans.values)
@@ -324,13 +332,13 @@ func u_solve_from_table(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var k: int = s.fy[i]
 	var ans := Answer.make("xval", {"v": Q.new(a)})
 	ans.exact = true
-	var out := {"asked": "Solve f(x) = %s." % N(k), "answer": ans, "wrongs": [], "generic": []}
+	var out := {"asked": "Solve f(x) = %s." % N(k), "answer": ans, "wrongs": [], "fillers": []}
 	out.merge(show(rep, s, [a, s.xs[(i + 1) % s.xs.size()], s.xs[(i + 3) % s.xs.size()]]))
 	# f(k), the output at input k, when k is an input.
 	# (A sentence lists only some values, so the slip is offered only from a table or a graph.)
 	if rep != "words" and has_x(s, k) and k != a:
 		out.wrongs.append(wrong({"v": Q.new(y_of(s, "f", k))}, R_SOLVE_AS_VALUE))
-	out.generic = [{"v": Q.new(k)}, {"v": Q.new(a + 1)}, {"v": Q.new(a - 1)}]
+	out.fillers = [{"v": Q.new(k)}, {"v": Q.new(a + 1)}, {"v": Q.new(a - 1)}]
 	var final := "So %s." % Answer.text(ans)
 	var where := "the %s" % ("graph" if rep == "graph" else "table" if rep == "table" else "sentence")
 	out.methods = _methods("solve-from-table", {
@@ -352,7 +360,7 @@ func u_inverse_value_read(rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	var b := _output_in_inputs(s, rng)
 	var a: int = s.xs[s.fy.find(b)]
 	var ans := number("f⁻¹(%s) = " % N(b), a)
-	var out := {"asked": "Find f⁻¹(%s)." % N(b), "answer": ans, "wrongs": [], "generic": [{"v": Q.new(b)}, {"v": Q.new(-a)}, {"v": Q.new(a + 1)}]}
+	var out := {"asked": "Find f⁻¹(%s)." % N(b), "answer": ans, "wrongs": [], "fillers": [{"v": Q.new(b)}, {"v": Q.new(-a)}, {"v": Q.new(a + 1)}]}
 	out.merge(show(rep, s, [a, s.xs[(s.xs.find(a) + 1) % s.xs.size()], s.xs[(s.xs.find(a) + 3) % s.xs.size()]]))
 	if rep != "words" and has_x(s, b):
 		out.wrongs.append(wrong({"v": Q.new(y_of(s, "f", b))}, R_VALUE_NOT_INVERSE))
@@ -370,7 +378,7 @@ func u_inverse_domain_read(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var lo: int = s.fy.min()
 	var hi: int = s.fy.max()
 	var ans := Answer.make("range2", {"lo": Q.new(lo), "r1": "≤", "r2": "≤", "hi": Q.new(hi)}, {"var": "x"})
-	var out := {"asked": "Write down the domain of f⁻¹.", "answer": ans, "wrongs": [wrong({"lo": Q.new(s.xs.min()), "r1": "≤", "r2": "≤", "hi": Q.new(s.xs.max())}, R_DOMAIN_OF_F)], "generic": []}
+	var out := {"asked": "Write down the domain of f⁻¹.", "answer": ans, "wrongs": [wrong({"lo": Q.new(s.xs.min()), "r1": "≤", "r2": "≤", "hi": Q.new(s.xs.max())}, R_DOMAIN_OF_F)], "fillers": []}
 	out.merge(show("graph", s, []))
 	out.lines = ["The graph of f is shown, for %s ≤ x ≤ %s." % [N(s.xs.min()), N(s.xs.max())]]
 	var final := "So the domain of f⁻¹ is %s." % Answer.text(ans)
@@ -384,7 +392,7 @@ func u_inverse_range_read(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var lo: int = s.xs.min()
 	var hi: int = s.xs.max()
 	var ans := Answer.make("range2", {"lo": Q.new(lo), "r1": "≤", "r2": "≤", "hi": Q.new(hi)}, {"var": "y"})
-	var out := {"asked": "Write down the range of f⁻¹.", "answer": ans, "wrongs": [wrong({"lo": Q.new(s.fy.min()), "r1": "≤", "r2": "≤", "hi": Q.new(s.fy.max())}, R_DOMAIN_OF_F)], "generic": []}
+	var out := {"asked": "Write down the range of f⁻¹.", "answer": ans, "wrongs": [wrong({"lo": Q.new(s.fy.min()), "r1": "≤", "r2": "≤", "hi": Q.new(s.fy.max())}, R_DOMAIN_OF_F)], "fillers": []}
 	out.merge(show("graph", s, []))
 	out.lines = ["The graph of f is shown, for %s ≤ x ≤ %s." % [N(lo), N(hi)]]
 	var final := "So the range of f⁻¹ is %s." % Answer.text(ans)
@@ -401,7 +409,7 @@ func u_solve_inverse_equation(rep: String, s: Dictionary, rng: Seeded) -> Dictio
 	var q := fc - p * x
 	var ans := Answer.make("xval", {"v": Q.new(x)})
 	ans.exact = true
-	var out := {"asked": "Solve f⁻¹(%s) = %s." % [Fmt.poly([p, q]), N(c)], "answer": ans, "wrongs": [], "generic": [{"v": Q.new(c)}, {"v": Q.new(fc)}, {"v": Q.new(x + 1)}]}
+	var out := {"asked": "Solve f⁻¹(%s) = %s." % [Fmt.poly([p, q]), N(c)], "answer": ans, "wrongs": [wrong({"v": Q.new(fc)}, R_FC)], "fillers": [{"v": Q.new(c)}, {"v": Q.new(x + 1)}]}
 	out.merge(show(rep, s, [c, s.xs[(i + 1) % s.xs.size()], s.xs[(i + 2) % s.xs.size()]]))
 	# px + q = f⁻¹(c) instead of f(c): needs f⁻¹(c), when c is an output.
 	if c in s.fy:
@@ -421,8 +429,12 @@ func u_value_at_shifted_input(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var k: int = s.k
 	var v := y_of(s, "f", k + 1)
 	var ans := number("f(k + 1) = ", v)
-	var out := {"asked": "Given that f(k) = 0, find f(k + 1).", "answer": ans, "wrongs": [wrong({"v": Q.new(1)}, R_SHIFTED)],
-		"generic": [{"v": Q.new(k)}, {"v": Q.new(y_of(s, "f", k - 1) if has_x(s, k - 1) else v + 2)}, {"v": Q.new(-v)}]}
+	var out := {"asked": "Given that f(k) = 0, find f(k + 1).", "answer": ans, "wrongs": [wrong({"v": Q.new(1)}, R_SHIFTED), wrong({"v": Q.new(k)}, R_K)],
+		"fillers": [{"v": Q.new(-v)}]}
+	if has_x(s, k - 1):
+		out.wrongs.append(wrong({"v": Q.new(y_of(s, "f", k - 1))}, R_BACK))
+	else:
+		out.fillers.append({"v": Q.new(v + 2)})
 	out.merge(show(rep, s, [k, k + 1, s.xs[0] if s.xs[0] != k else s.xs[2]]))
 	var final := "So %s." % Answer.text(ans)
 	out.methods = _methods("value-at-shifted-input", {
@@ -438,7 +450,7 @@ func u_mixed_inverse_composite(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 	var a: int = s.xs[s.gy.find(b)]
 	var v := y_of(s, "f", a)
 	var ans := number("(f∘g⁻¹)(%s) = " % N(b), v)
-	var out := {"asked": "Find (f∘g⁻¹)(%s)." % N(b), "answer": ans, "wrongs": [], "generic": [{"v": Q.new(a)}, {"v": Q.new(b)}, {"v": Q.new(-v)}, {"v": Q.new(v + 1)}]}
+	var out := {"asked": "Find (f∘g⁻¹)(%s)." % N(b), "answer": ans, "wrongs": [wrong({"v": Q.new(a)}, R_INNER)], "fillers": [{"v": Q.new(b)}, {"v": Q.new(-v)}, {"v": Q.new(v + 1)}]}
 	out.merge(show(rep, s, [], true))
 	if has_x(s, b):
 		out.wrongs.append(wrong({"v": Q.new(y_of(s, "f", y_of(s, "g", b)) if has_x(s, y_of(s, "g", b)) else y_of(s, "f", b))}, R_VALUE_NOT_INVERSE))
@@ -455,7 +467,8 @@ func u_missing_entry(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var v := y_of(s, "f", ga)
 	var ans := number("g(%s) = " % N(a), ga)
 	var out := {"asked": "The table has one entry missing. Given that (f∘g)(%s) = %s, find g(%s)." % [N(a), N(v), N(a)], "answer": ans, "wrongs": [],
-		"generic": [{"v": Q.new(v)}, {"v": Q.new(a)}, {"v": Q.new(-ga)}, {"v": Q.new(ga + 1)}]}
+		"fillers": [{"v": Q.new(a)}, {"v": Q.new(-ga)}, {"v": Q.new(ga + 1)}]}
+	out.wrongs.append(wrong({"v": Q.new(v)}, R_COMPOSITE))
 	out.table = table_of(s, true, a)
 	out.lines = ["The table gives f and g, but g(%s) is missing." % N(a)]
 	var final := "So %s." % Answer.text(ans)
@@ -476,7 +489,7 @@ func u_inverse_points(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		wrong_axis["y%d" % j] = Q.new(-s.fy[i])
 	var ans := Answer.make("pts", vals, {})
 	var out := {"asked": "Two points on the graph of f are labelled A and B. Write down the matching points on the graph of f⁻¹.", "answer": ans,
-		"wrongs": [wrong(wrong_axis, R_AXIS)], "generic": []}
+		"wrongs": [wrong(wrong_axis, R_AXIS)], "fillers": []}
 	var g := graph_of(s)
 	g.points = g.points.map(func(p): return p)
 	for j in 2:
@@ -504,7 +517,7 @@ func u_count_solutions(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := Answer.make("xs", vals, {"var": "x"})
 	ans.exact = true
 	var out := {"asked": "Find every solution of f(x) = %s." % N(k), "answer": ans,
-		"wrongs": [wrong({"n": Q.new(1), "x0": Q.new(p + d)}, R_ONE_CROSSING)], "generic": [{"n": Q.new(2), "x0": Q.new(p - d), "x1": Q.new(p + d + 1)}, {"n": Q.new(2), "x0": Q.new(-p - d), "x1": Q.new(-p + d)}]}
+		"wrongs": [wrong({"n": Q.new(1), "x0": Q.new(p + d)}, R_ONE_CROSSING)], "fillers": [{"n": Q.new(2), "x0": Q.new(p - d), "x1": Q.new(p + d + 1)}, {"n": Q.new(2), "x0": Q.new(-p - d), "x1": Q.new(-p + d)}]}
 	out.merge(show("graph", s, []))
 	out.lines = ["The graph of f turns back at x = %s." % N(p)]
 	var final := "So %s." % Answer.text(ans)
@@ -524,7 +537,7 @@ func u_why_no_inverse(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var opts: Array = [right, every] + plain
 	var ans := Answer.make("choice", {"v": right}, {"options": opts.slice(0, 4)})
 	var out := {"asked": "Explain why f has no inverse on the domain shown.", "answer": ans, "wrongs": [wrong({"v": every}, R_EVERY_INVERSE)],
-		"generic": plain.map(func(t): return {"v": t})}
+		"fillers": plain.map(func(t): return {"v": t})}
 	out.merge(show("graph", s, []))
 	out.lines = ["The graph of f turns back at x = %s." % N(p)]
 	var final := right + "."
@@ -537,7 +550,7 @@ func u_restrict_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var p: int = s.p
 	var ans := number("k = ", p)
 	var out := {"asked": "Find the largest value of k for which f has an inverse on the domain x ≤ k.", "answer": ans,
-		"wrongs": [wrong({"v": Q.new(0)}, R_Y_INTERCEPT)], "generic": [{"v": Q.new(p + 1)}, {"v": Q.new(-p)}, {"v": Q.new(p - 1)}]}
+		"wrongs": [wrong({"v": Q.new(0)}, R_Y_INTERCEPT)], "fillers": [{"v": Q.new(p + 1)}, {"v": Q.new(-p)}, {"v": Q.new(p - 1)}]}
 	out.merge(show("graph", s, []))
 	out.lines = ["The graph of f is shown, for %s ≤ x ≤ %s." % [N(s.xs.min()), N(s.xs.max())]]
 	var final := "So %s." % Answer.text(ans)
