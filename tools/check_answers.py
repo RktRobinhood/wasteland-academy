@@ -43283,6 +43283,856 @@ def check_chain(parts):
         need(c["part"] == "abcdefgh"[prev["part"]], f"part {q['part']} names the wrong part")
 
 
+
+# ── E17 shared (FAL-780) ─────────────────────────────────────
+# Tools the six E17 sections share: a number as the game writes it, and a check that every
+# equation a line of working states holds at the solution, read with SymPy.
+
+E17_X = sp.Symbol("x")
+E17_LEAD = re.compile(r"^(?:So |Then |and |which gives |where |Check: )+")
+
+
+def E17_n(v):
+    """A rational as the game writes it: 3, −4, 8/5, −1/3."""
+    v = sp.Rational(v)
+    s = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + s
+
+
+def E17_expr(text, letters=("x",)):
+    """A side of an equation as SymPy, or None where it has words in it."""
+    t = text.strip().rstrip(".").strip()
+    t = E17_LEAD.sub("", t)
+    if "a" in letters and "b" in letters:
+        t = re.sub(r"(?<=[ab)])(?=[ab])", "*", t)
+    if not t or re.search(r"[A-Za-wyz]{2,}", t.replace("ln", "")):
+        return None
+    t = re.sub(r"(?<=\d) (?=\d{3}(?!\d))", "", t)
+    t = re.sub("[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+", lambda mt: "**(" + mt.group(0).translate(SF_SUP) + ")", t)
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    t = t.replace("√", "sqrt").replace("∛", "cbrt")
+    t = re.sub(r"(sqrt|cbrt)([\d.]+)", r"\1(\2)", t)
+    t = re.sub(r"(?<![\w)])ln (\d+)", r"ln(\1)", t)
+    if not re.fullmatch(r"[0-9a-z+\-*/(). ]+", t):
+        return None
+    local = {"x": E17_X, "ln": sp.log, "sqrt": sp.sqrt, "cbrt": lambda v: sp.root(v, 3)}
+    try:
+        e = parse_expr(t, local_dict=local, transformations=TRANSFORMS + (rationalize,), evaluate=True)
+    except Exception:
+        return None
+    if not all(str(s) in letters for s in e.free_symbols):
+        return None
+    return e
+
+
+def E17_fragments(line):
+    """The equations a line states, each as its list of sides."""
+    out = []
+    for part in re.split(r", as |, so |, and |; |: | and |, where |, ", line.rstrip(".")):
+        if " = " not in part:
+            continue
+        out.append(part.split(" = "))
+    return out
+
+
+def E17_holds(line, subs, letters=("x",)):
+    """False if an equation in the line is false at subs; True otherwise (unread ones pass)."""
+    for sides in E17_fragments(line):
+        es = [E17_expr(p, letters) for p in sides]
+        if any(e is None for e in es):
+            continue
+        vals = [e.subs(subs) for e in es]
+        # A side written as a bare decimal is that value to its last place.
+        tol = sp.Float(10) ** -25
+        for p in sides:
+            mt = re.fullmatch(r"\s*−?\d+\.(\d+)\s*", E17_LEAD.sub("", p.strip().rstrip(".")))
+            if mt:
+                tol = max(tol, sp.Float(10) ** -len(mt.group(1)) / 2 + sp.Float(10) ** -12)
+        for a, b in zip(vals, vals[1:]):
+            d = sp.N(a - b, 40)
+            if not d.is_real or abs(d) > tol * (1 + (0 if tol > 1e-20 else abs(sp.N(b, 40)))):
+                return False
+    return True
+
+
+def E17_no_hyphen(q):
+    """A minus is −, never a hyphen, in anything the student reads."""
+    texts = [q["asked"], q.get("prompt", "")] + q["lines"] + [o["text"] for o in q["choices"]] + [st for sol in q["solutions"] for st in sol["steps"]]
+    for t in texts:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def E17_steps(q, subs, letters=("x",)):
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            need(E17_holds(st, subs, letters), f"{sol['name']}: {st!r} is not true at the answer")
+
+
+def E17_first_false(lines, subs, letters=("x",)):
+    for i, t in enumerate(lines):
+        if not E17_holds(t, subs, letters):
+            return i
+    return None
+
+
+# ── solve-exponential, t1-ext-common-base (FAL-780) ─────────
+# Each equation is read back from its line. Both bases must be powers of one prime, so the
+# exponents are compared on that prime: i(x + c) = j(kx + e) is solved with exact fractions,
+# and the answer is checked in the equation itself. Every tagged option is rebuilt from its
+# slip, every equation in the working must hold at the answer, and an error-spot's first wrong
+# line is the first whose equation fails there.
+
+E17CB_MAP = "SL1.7.common-base#"
+E17CB_OWN = "t1-ext-common-base#"
+E17CB_UNKNOWNS = ("whole-power", "reciprocal-power", "fraction-power", "linear-exponents", "meet-on-graph")
+E17CB_POW = re.compile(r"(\d+)\^(x|\(([^()]*)\))")
+
+
+def E17CB_prime(n):
+    f = sp.factorint(n)
+    need(len(f) == 1, f"{n} is not a power of one prime")
+    (t, p), = f.items()
+    return t, p
+
+
+def E17CB_side(text):
+    """'8^(2x − 2)' -> (8, 2x − 2)."""
+    m = E17CB_POW.fullmatch(text.strip())
+    need(m is not None, f"can't read the power {text!r}")
+    ex = E17_expr(m.group(3) if m.group(3) else "x")
+    need(ex is not None and sp.Poly(ex, E17_X).degree() == 1, f"the exponent of {text!r} is not linear in x")
+    return int(m.group(1)), ex
+
+
+def E17CB_check(q):
+    u, L, paper = q["view"]["unknown"], q["lines"], q["paper"]
+    x = E17_X
+    wr = {}
+    if q["view"]["angle"] == "graph-intersect":
+        need(paper == 2, "a graph-intersect question is not Paper 2")
+    if u in ("whole-power", "reciprocal-power"):
+        m = re.fullmatch(r"(\d+)\^x = (1/)?(\d+)", L[0])
+        need(m is not None and bool(m.group(2)) == (u == "reciprocal-power"), f"can't read {L[0]!r}")
+        b, N = int(m.group(1)), int(m.group(3))
+        j = sp.Integer(sp.log(N, b)) if sp.log(N, b).is_Integer else None
+        need(j is not None and b ** int(j) == N, f"{N} is not a whole power of {b}")
+        need(2 <= j and N <= 1000 and (b, N) != (2, 32), f"{b}^x = {N} is outside the limits or the map's example")
+        sol = j if u == "whole-power" else -j
+        need(b ** sp.Integer(sol) == (N if u == "whole-power" else sp.Rational(1, N)), "the answer doesn't solve it")
+        if u == "whole-power":
+            wr[E17CB_MAP + "0"] = {f"x = {E17_n(sp.Rational(N, b))}"}
+        else:
+            wr[E17CB_MAP + "0"] = {f"x = {E17_n(sp.Rational(1, N * b))}"}
+            wr[E17CB_OWN + "3"] = {f"x = {E17_n(j)}"}
+    elif u == "fraction-power":
+        m = re.fullmatch(r"(\d+)\^x = (\d+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        A, R = int(m.group(1)), int(m.group(2))
+        t, i = E17CB_prime(A)
+        t2, j = E17CB_prime(R)
+        need(t == t2, "the two sides have no common base")
+        need(A <= 27 and R <= 243 and i > 1 and j % i != 0, f"{A}^x = {R} is outside the limits")
+        sol = sp.Rational(j, i)
+        need(sp.Integer(A) ** sol == R, "the answer doesn't solve it")
+        wr[E17CB_MAP + "0"] = {f"x = {E17_n(sp.Rational(R, A))}"}
+        wr[E17CB_OWN + "2"] = {f"x = {E17_n(sp.Rational(i, j))}"}
+    else:
+        if u == "meet-on-graph":
+            m = re.fullmatch(r"The graph shows y = (.+) and y = (.+), which cross at P\.", L[0])
+        else:
+            m = re.fullmatch(r"(.+) = (.+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        A, ex1 = E17CB_side(m.group(1))
+        B, ex2 = E17CB_side(m.group(2))
+        t, i = E17CB_prime(A)
+        t2, j = E17CB_prime(B)
+        need(t == t2 and i != j and sp.gcd(i, j) == 1 and max(A, B) <= 81, f"{A} and {B} break the limits")
+        c, k, e = ex1.subs(x, 0), sp.Poly(ex2, x).LC(), ex2.subs(x, 0)
+        need(sp.Poly(ex1, x).LC() == 1 and c != 0 and e != 0 and k in (1, 2, 3), "the exponents break the limits")
+        roots = sp.solve(sp.Eq(i * ex1, j * ex2), x)
+        need(len(roots) == 1, "not one solution")
+        sol = sp.Rational(roots[0])
+        D = i - j * k
+        need(sol != 0 and abs(D) <= 7, f"x = {sol} or the coefficient {D} breaks the limits")
+        need(sp.simplify(sp.Integer(A) ** ex1.subs(x, sol) - sp.Integer(B) ** ex2.subs(x, sol)) == 0, "the answer doesn't solve it")
+        slip = sp.solve(sp.Eq(i * x + c, j * k * x + e), x)
+        need(len(slip) == 1 and slip[0] != sol, "the x-only slip gives the answer")
+        wr[E17CB_MAP + "1"] = {f"x = {E17_n(slip[0])}"}
+        if k != 1:
+            raw = sp.solve(sp.Eq(ex1, ex2), x)
+            wr[E17CB_OWN + "4"] = {f"x = {E17_n(r)}" for r in raw}
+        if u == "meet-on-graph":
+            need(k == 1 and sol.q == 1 and -3 <= sol <= 4, f"P at x = {sol} is not whole, or outside −3 to 4")
+            y = sp.Integer(A) ** ex1.subs(x, sol)
+            need(2 <= y <= 600, f"P's height {y} is outside 2 to 600")
+            wr[E17CB_OWN + "5"] = {f"x = {E17_n(y)}"}
+            g = q["graph"]
+            need(g is not None and any(p["label"] == "P" and abs(p["x"] - float(sol)) < 1e-9 and abs(p["y"] - float(y)) < 1e-6 for p in g["points"]), "P is not drawn at the crossing")
+            for curve, (base, ex) in zip(g["curves"], ((A, ex1), (B, ex2))):
+                for px, py in curve[::17]:
+                    need(abs(py - float(sp.Integer(base) ** ex.subs(x, sp.nsimplify(px)))) <= 1e-6 * max(1, abs(py)), "a curve drawn is not its equation")
+    want = f"x = {E17_n(sol)}"
+    gc_check_common(q, want, wr)
+    E17_steps(q, {x: sol})
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E17CB_spot(q, lines):
+    u = q["view"]["unknown"]
+    m = re.fullmatch(r"(.+) = (.+)", q["lines"][0])
+    if u == "fraction-power":
+        A, R = int(m.group(1).split("^")[0]), int(m.group(2))
+        t, i = E17CB_prime(A)
+        sol = sp.Rational(E17CB_prime(R)[1], i)
+    else:
+        A, ex1 = E17CB_side(m.group(1))
+        B, ex2 = E17CB_side(m.group(2))
+        t, i = E17CB_prime(A)
+        j = E17CB_prime(B)[1]
+        sol = sp.solve(sp.Eq(i * ex1, j * ex2), E17_X)[0]
+    for t_ in lines:
+        need(any(" = " in p for p in re.split(r", as |, so ", t_)), f"can't judge the line {t_!r}")
+    return E17_first_false(lines, {E17_X: sol})
+
+
+E17CB_PREV = SITUATION_CHECKS["solve-exponential"]
+E17CB_PREV_SPOT = SPOT_CHECKS.get("solve-exponential")
+
+
+def E17CB_entry(q):
+    return E17CB_check(q) if q["view"]["unknown"] in E17CB_UNKNOWNS else E17CB_PREV(q)
+
+
+def E17CB_spot_entry(q, lines):
+    if q["view"]["unknown"] in E17CB_UNKNOWNS:
+        return E17CB_spot(q, lines)
+    return E17CB_PREV_SPOT(q, lines)
+
+
+SITUATION_CHECKS["solve-exponential"] = E17CB_entry
+SPOT_CHECKS["solve-exponential"] = E17CB_spot_entry
+
+
+
+# ── integer-powers, t1-ext-exponent-laws (FAL-780) ──────────
+# Each number or expression is read back from the question and worked out with SymPy: a value
+# exactly, a term as its coefficient and exponent of x, a quotient as the exponents of a and b, and
+# a product of powers of one prime as that prime's exponent. Every tagged option is rebuilt from its
+# slip, every equation in the working must hold (at x = 2, or a = 2 and b = 3, where it has letters),
+# and an error-spot's first wrong line is the first whose equation fails.
+
+E17EL_IL = "SL1.5.integer-exponent-laws#"
+E17EL_ZN = "SL1.5.zero-negative#"
+E17EL_OWN = "t1-ext-exponent-laws#"
+E17EL_A, E17EL_B = sp.Symbol("a"), sp.Symbol("b")
+
+
+def E17EL_pw(base, e):
+    """'2^3', '2^(−3)', '(2/3)^(−2)', 'x^4'."""
+    b = base if isinstance(base, str) else (str(base) if sp.Rational(base).q == 1 and base > 0 else f"({E17_n(base)})")
+    return f"{b}^{e}" if e >= 0 else f"{b}^(−{-e})"
+
+
+def E17EL_mono(c, e, letter="x"):
+    c = sp.Rational(c)
+    if e == 0:
+        return E17_n(c)
+    if c == 1:
+        head = ""
+    elif c == -1:
+        head = "−"
+    elif c.q == 1:
+        head = E17_n(c)
+    else:
+        head = ("−" if c < 0 else "") + f"({E17_n(abs(c))})"
+    return head + (letter if e == 1 else E17EL_pw(letter, e))
+
+
+def E17EL_ab(ea, eb):
+    top, bottom = [], []
+    for letter, e in (("a", ea), ("b", eb)):
+        if e > 0:
+            top.append(letter if e == 1 else E17EL_pw(letter, e))
+        elif e < 0:
+            bottom.append(letter if e == -1 else E17EL_pw(letter, -e))
+    t = "".join(top) or "1"
+    if not bottom:
+        return t
+    return f"{t}/{bottom[0]}" if len(bottom) == 1 else f"{t}/({''.join(bottom)})"
+
+
+def E17EL_read(text, letters=("x",)):
+    e = E17_expr(text, letters)
+    need(e is not None, f"can't read {text!r}")
+    return e
+
+
+def E17EL_term(e):
+    """c·x^k as (c, k)."""
+    c, k = sp.expand(e).as_coeff_exponent(E17_X)
+    need(c.free_symbols == set() and k.is_Integer, f"{e} is not a single term")
+    return sp.Rational(c), int(k)
+
+
+def E17EL_check(q):
+    u, asked = q["view"]["unknown"], q["asked"]
+    need(q["paper"] == 1, "an exponent-laws question is Paper 1")
+    X = E17_X
+    wr = {}
+    subs = {X: 2}
+    letters = ("x",)
+    if u in ("negative-power", "zero-and-negative"):
+        m = re.fullmatch(r"Find the exact value of (.+)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        text = m.group(1)
+        if u == "negative-power":
+            mm = re.fullmatch(r"(\d+|\((\d+)/(\d+)\))\^\(−(\d)\)", text)
+            need(mm is not None, f"can't read {text!r}")
+            base = sp.Integer(mm.group(1)) if mm.group(2) is None else sp.Rational(int(mm.group(2)), int(mm.group(3)))
+            n = int(mm.group(4))
+            need(1 <= n <= 3 and (base.q == 1 and 2 <= base <= 6 and base ** n <= 216 or base.q != 1 and 2 <= n and max(base.p, base.q) <= 5), f"{text} breaks the limits")
+            v = base ** -n
+            wr[E17EL_ZN + "0"] = {f"value = {E17_n(-(base ** n))}"}
+            wr[E17EL_OWN + "6"] = {f"value = {E17_n(base ** n)}"}
+            if base.q == 1:
+                wr[E17EL_OWN + "7"] = {f"value = {E17_n(-base * n)}"}
+        else:
+            mm = re.fullmatch(r"(\d)\^0 \+ (\d)\^\(−(\d)\)", text)
+            need(mm is not None, f"can't read {text!r}")
+            c, b, n = (int(mm.group(i)) for i in (1, 2, 3))
+            need(c != b and 4 <= b ** n <= 216, f"{text} breaks the limits")
+            v = 1 + sp.Rational(1, b ** n)
+            wr[E17EL_ZN + "1"] = {f"value = {E17_n(sp.Rational(1, b ** n))}"}
+            wr[E17EL_ZN + "0"] = {f"value = {E17_n(1 - b ** n)}"}
+            wr[E17EL_OWN + "8"] = {f"value = {E17_n(c + sp.Rational(1, b ** n))}"}
+            wr[E17EL_OWN + "6"] = {f"value = {E17_n(1 + b ** n)}"}
+        need(E17_expr(text) is not None and sp.Rational(E17_expr(text)) == v, "the value read back is not the one worked out")
+        want = f"value = {E17_n(v)}"
+        subs = {}
+    elif u == "to-index-form":
+        m = re.fullmatch(r"Write (.+) in the form ax\^p, where a and p are constants\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        text = m.group(1)
+        a, p = E17EL_term(E17EL_read(text))
+        need(p < 0, "the power is not negative")
+        top = re.fullmatch(r"(\d)/x(?:\^\d)?", text) is not None
+        need(top or re.fullmatch(r"1/\((\d)x(?:\^\d)?\)", text), f"{text} is not c/xⁿ or 1/(cxⁿ)")
+        want = E17EL_mono(a, p)
+        wr[E17EL_OWN + "9"] = {E17EL_mono(a, -p)}
+        wr[E17EL_ZN + "0"] = {E17EL_mono(-a, -p)}
+        if not top:
+            wr[E17EL_ZN + "2"] = {E17EL_mono(1 / a, p)}
+    elif u == "power-of-product":
+        m = re.fullmatch(r"Simplify (\((\d)x\^(\d)\)\^(\d) × (\d?)x(?:\^\(?(−?\d)\)?)?), giving your answer in the form cx\^e\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        a, mm, p = int(m.group(2)), int(m.group(3)), int(m.group(4))
+        b = int(m.group(5) or 1)
+        n = int((m.group(6) or "1").replace("−", "-"))
+        C, e = E17EL_term(E17EL_read(m.group(1)))
+        need(C == a ** p * b and e == mm * p + n, "the term read back is not (axᵐ)ᵖ × bxⁿ")
+        need(e not in (0, 1) and mm * p <= 12 and e <= 10 and C <= 250, f"{m.group(1)} breaks the limits")
+        want = E17EL_mono(C, e)
+        wr[E17EL_IL + "0"] = {E17EL_mono(C, mm + p + n)}
+        wr[E17EL_IL + "1"] = {E17EL_mono(a * b, e)}
+        if a * p != a ** p:
+            wr[E17EL_OWN + "10"] = {E17EL_mono(a * p * b, e)}
+        if n < 0:
+            wr[E17EL_OWN + "11"] = {E17EL_mono(C, mm * p - n)}
+    elif u == "two-letter-quotient":
+        m = re.fullmatch(r"Simplify \((.+)\)/\((.+)\), giving your answer with positive exponents only\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        letters = ("a", "b")
+        top, bot = E17EL_read(m.group(1), letters), E17EL_read(m.group(2), letters)
+        pt, pb = top.as_powers_dict(), bot.as_powers_dict()
+        p, qq, r, s_ = (int(d.get(L_, 0)) for d, L_ in ((pt, E17EL_A), (pt, E17EL_B), (pb, E17EL_A), (pb, E17EL_B)))
+        need(all(v != 0 and -4 <= v <= 5 for v in (p, qq, r, s_)), "an exponent breaks the limits")
+        ea, eb = p - r, qq - s_
+        need(ea * eb < 0, "the answer does not have one letter on each line")
+        need(sp.simplify(top / bot - E17EL_A ** ea * E17EL_B ** eb) == 0, "the exponents worked out don't give the quotient")
+        want = E17EL_ab(ea, eb)
+        wr[E17EL_OWN + "12"] = {E17EL_ab(-ea, -eb)}
+        wr[E17EL_OWN + "13"] = {E17EL_ab(p + r, qq + s_)}
+        subs = {E17EL_A: 2, E17EL_B: 3}
+    else:
+        m = re.fullmatch(r"(\d+)\^\(?(−?\d)\)? ([×÷]) (\d+)\^\(?(−?\d)\)?", q["lines"][0])
+        need(m is not None, f"can't read {q['lines'][0]!r}")
+        A, mm, op, B, n = int(m.group(1)), int(m.group(2).replace("−", "-")), m.group(3), int(m.group(4)), int(m.group(5).replace("−", "-"))
+        t, i = E17CB_prime(A)
+        t2, j = E17CB_prime(B)
+        need(t == t2 and i != j and min(i, j) >= 2 and max(A, B) <= 125, f"{A} and {B} break the limits")
+        sgn = 1 if op == "×" else -1
+        k = i * mm + sgn * j * n
+        need(sp.Integer(A) ** mm * sp.Integer(B) ** (sgn * n) == sp.Integer(t) ** k, "the power worked out is not the number")
+        need(k != 0 and abs(k) <= 20, f"k = {k} breaks the limits")
+        need(re.search(rf"single power of {t}, in the form {t}\^k\.", asked), "the question asks for another base")
+        want = E17EL_pw(t, k)
+        wr[E17EL_OWN + "14"] = {E17EL_pw(t, mm + sgn * n)}
+        if op == "×":
+            need(sp.Integer(A * B) ** (mm + n) != sp.Integer(t) ** k, "combining the bases gives the answer's value")
+            wr[E17EL_IL + "2"] = {E17EL_pw(A * B, mm + n)}
+        subs = {}
+    gc_check_common(q, want, wr)
+    E17_steps(q, subs, letters)
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E17EL_spot(q, lines):
+    for t in lines:
+        need(" = " in t or t.startswith("Raise the bracket"), f"can't judge the line {t!r}")
+    return E17_first_false(lines, {E17_X: 2})
+
+
+SITUATION_CHECKS["integer-powers"] = E17EL_check
+SPOT_CHECKS["integer-powers"] = E17EL_spot
+
+
+
+# ── standard-form, t1-ext-standard-form-add and -powers (FAL-780) ──
+# The numbers are read back from the lines (p and q, or a story) or from the question, and the sum,
+# difference, power or root is worked out exactly with SymPy, then written in standard form. Every
+# tagged option is rebuilt from its slip, every equation in the working must hold, and an
+# error-spot's first wrong line is the first whose equation fails.
+
+E17SF_SA = "SL1.1.add-subtract#"
+E17SF_SP = "SL1.1.powers-roots#"
+E17SF_OA = "t1-ext-standard-form-add#"
+E17SF_OP = "t1-ext-standard-form-powers#"
+E17SF_ADD = ("add-forms", "add-carry", "subtract-forms", "subtract-renormalise", "difference-context")
+E17SF_POW = ("square-form", "cube-form", "root-even", "root-odd", "cube-root")
+E17SF_GAPS = (
+    "The salt road to the coast is (.+) metres long and the track to the mine is (.+) metres long.",
+    "A dust storm carried (.+) kilograms of sand and a gale carried (.+) kilograms.",
+    "The reservoir holds (.+) litres and the camp's cistern holds (.+) litres.",
+    "A relay mast is (.+) metres from the base and a drone is (.+) metres from it.",
+    "The old dam's turbines gave (.+) watts and a wind rig gives (.+) watts.",
+    "A grain of dust is (.+) metres wide and a grain of pollen is (.+) metres wide.",
+)
+
+
+def E17SF_text(v, e=None):
+    """v × 10^e, or v itself when e is None, normalised and written as the game writes it."""
+    a, k = sf_norm(sp.Rational(v) * (sp.Rational(10) ** e if e is not None else 1))
+    return sf_text(a, k, False), a, k
+
+
+def E17SF_raw(a, e):
+    """a × 10^e with a left as it is (a slip may leave it outside 1 to 10)."""
+    return sf_text(sp.Rational(a), e, False)
+
+
+def E17SF_one(text):
+    got = sf_read(text)
+    need(len(got) == 1, f"can't read one number in {text!r}")
+    return got[0]
+
+
+def E17SF_check(q):
+    u, L, asked, paper = q["view"]["unknown"], q["lines"], q["asked"], q["paper"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    need(not q["view"]["angle"].startswith("gdc-") or paper == 2, "a GDC method is not Paper 2")
+    wr = {}
+    if u in E17SF_ADD:
+        minus = u != "add-forms" and u != "add-carry"
+        if q["view"]["rep"] == "words":
+            m = next((re.fullmatch(g, L[0]) for g in E17SF_GAPS if re.fullmatch(g, L[0])), None)
+            need(m is not None, f"can't read the story {L[0]!r}")
+            (a, mm), (b, n) = E17SF_one(m.group(1)), E17SF_one(m.group(2))
+            small = E17SF_GAPS.index(m.re.pattern) == len(E17SF_GAPS) - 1
+            need((max(mm, n) < 0) == small, "a story's powers of ten have the wrong sign for what it measures")
+        else:
+            need(len(L) == 2 and L[0].startswith("p = ") and L[1].startswith("q = "), "p and q")
+            (a, mm), (b, n) = E17SF_one(L[0]), E17SF_one(L[1])
+            need(asked.startswith("Find p − q." if minus else "Find p + q."), f"the question asks {asked!r}")
+        big = max(mm, n)
+        need(mm != n and abs(mm - n) in (1, 2), "the powers are not 1 or 2 apart")
+        need(all(1 <= v < 10 and (v * (10 if paper == 1 else 100)).q == 1 for v in (a, b)), f"{a} or {b} breaks the limits")
+        if minus:
+            need(mm > n, "the larger number comes second")
+        P_, Q_ = a * sp.Rational(10) ** mm, b * sp.Rational(10) ** n
+        v = P_ - Q_ if minus else P_ + Q_
+        need(v > 0, "the difference is not positive")
+        c = v / sp.Rational(10) ** big
+        want, r, k = E17SF_text(v)
+        need(abs(k) >= 2 and (r * 1000).q == 1, f"{want} breaks the limits")
+        need((c >= 10) == (u == "add-carry") and (c < 1) == (u == "subtract-renormalise"), f"{u} with a coefficient of {c} at the larger power")
+        raw = a - b if minus else a + b
+        if minus and u != "subtract-renormalise":
+            need(raw >= 1, "the coefficients are less than 1 apart")
+        if raw > 0:
+            wr[E17SF_SA + "0"] = {E17SF_raw(raw, mm + n)}
+            wr[E17SF_SA + "1"] = {E17SF_raw(raw, big)}
+            if minus:
+                wr[E17SF_OA + "4"] = {E17SF_raw(raw, mm - n)}
+        if u == "add-carry":
+            wr[E17SF_OA + "2"] = {E17SF_raw(c, big)}
+        if u == "subtract-renormalise":
+            wr[E17SF_OA + "3"] = {E17SF_raw(c, big)}
+    else:
+        if u in ("square-form", "cube-form"):
+            m = re.fullmatch(r"Find \((.+)\)([²³])\. Give your answer .*", asked)
+            need(m is not None and (m.group(2) == "²") == (u == "square-form"), f"can't read {asked!r}")
+            a, mm = E17SF_one(m.group(1))
+            p = 2 if m.group(2) == "²" else 3
+            need((a * 10).q == 1 and 1 <= a < (10 if p == 2 else sp.Rational(51, 10)) and 2 <= abs(mm) <= 6, f"{a} × 10^{mm} breaks the limits")
+            v = (a * sp.Rational(10) ** mm) ** p
+            want, r, k = E17SF_text(v)
+            wr[E17SF_SP + "0"] = {E17SF_raw(a, p * mm)}
+            wr[E17SF_SP + "1"] = {E17SF_text(a ** p, mm + p)[0]}
+            wr[E17SF_OP + "3"] = {E17SF_text(a * p, p * mm)[0]}
+        else:
+            m = re.fullmatch(r"Find ([√∛])\((.+)\)\. Give your answer .*", asked)
+            need(m is not None and (m.group(1) == "∛") == (u == "cube-root"), f"can't read {asked!r}")
+            a, mm = E17SF_one(m.group(2))
+            deg = 3 if m.group(1) == "∛" else 2
+            need(1 <= a < 10, f"a = {a} is not in standard form")
+            v = sp.root(a * sp.Rational(10) ** mm, deg)
+            need(v.is_Rational, f"the root of {a} × 10^{mm} is not exact")
+            want, r, k = E17SF_text(v)
+            sh = mm - deg * k
+            need(sh in range(deg) and (u != "root-even" or sh == 0) and (u != "root-odd" or sh == 1), f"{u} with the power adjusted by {sh}")
+            need(abs(k) >= 2 and (r * 10).q == 1, f"{want} breaks the limits")
+            big_a = a * 10 ** sh
+            wr[E17SF_SP + "2"] = {E17SF_raw(r, mm - sh)}
+            if deg == 2:
+                wr[E17SF_OP + "4"] = {E17SF_text(big_a / 2, k)[0]}
+            else:
+                wr[E17SF_OP + "5"] = {E17SF_text(big_a / 3, k)[0]}
+    gc_check_common(q, want, wr)
+    E17_steps(q, {})
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E17SF_spot(q, lines):
+    for t in lines:
+        need(" = " in t or re.match(r"(Write [pq] with|Cube the number|Make the power|Check: \d|[\d.]+ is between)", t), f"can't judge the line {t!r}")
+    return E17_first_false(lines, {})
+
+
+E17SF_PREV = SITUATION_CHECKS["standard-form"]
+
+
+def E17SF_entry(q):
+    return E17SF_check(q) if q["view"]["unknown"] in E17SF_ADD + E17SF_POW else E17SF_PREV(q)
+
+
+SITUATION_CHECKS["standard-form"] = E17SF_entry
+SPOT_CHECKS["standard-form"] = E17SF_spot
+
+
+
+# ── compound-interest, t1-ext-real-value (FAL-780) ──────────
+# The amount, the interest and inflation rates and the years are read from the story, and each value
+# is worked out with exact rationals: the real rate r − f, the value at that rate, the nominal value
+# divided by (1 + f/100)^n, and whether r > f. Every tagged option is rebuilt from its slip, every
+# offered value is clear of a rounding edge, the working's sums are redone, and an error-spot's lines
+# are judged by what each one claims.
+
+E17RV_MAP = "SL1.4.real-value#"
+E17RV_OWN = "t1-ext-real-value#"
+E17RV_UNKNOWNS = ("real-rate", "real-value-rate", "real-value-deflate", "keeps-pace")
+E17RV_LINE = re.compile(r"(.+) puts (?:\$(\d+)|money) into an account that pays ([\d.]+)% interest per year(?:, compounded annually)?\. Prices rise by ([\d.]+)% per year\.")
+
+
+def E17RV_read(q):
+    m = E17RV_LINE.fullmatch(q["lines"][0])
+    need(m is not None, f"can't read {q['lines'][0]!r}")
+    need(m.group(1) in CI_WHO and CI_WHO.index(m.group(1)) == int(q["given"]["ctx"]), f"the story's name {m.group(1)!r}")
+    pv = sp.Integer(m.group(2)) if m.group(2) else None
+    r, f = R(m.group(3)), R(m.group(4))
+    need(r in {sp.Rational(t, 10) for t in range(20, 81, 5)} and f in {sp.Rational(t, 10) for t in range(10, 61, 5)} and r != f, f"rates {r}% and {f}% break the limits")
+    n = None
+    mn = re.search(r"after (\d+) years", q["asked"])
+    if mn:
+        n = int(mn.group(1))
+        need(3 <= n <= 12, f"n = {n}")
+    if pv is not None:
+        need(pv % 500 == 0 and 1000 <= pv <= 20000, f"PV {pv}")
+    return pv, r, f, n
+
+
+def E17RV_money(x):
+    need(ci_clear(x), f"{float(x)} is too close to a rounding edge of a cent")
+    return ci_money(ci_cents(x))
+
+
+def E17RV_check(q):
+    u = q["view"]["unknown"]
+    need(q["paper"] == 2, "a real-value question is Paper 2")
+    pv, r, f, n = E17RV_read(q)
+    wr = {}
+    if u == "real-rate":
+        need(q["asked"] == "Write down the real interest rate.", f"asked {q['asked']!r}")
+        want = f"real rate = {dec_text(r - f)}%"
+        wr[E17RV_MAP + "0"] = {f"real rate = {dec_text(r + f)}%"}
+        wr[E17RV_OWN + "3"] = {f"real rate = {dec_text(f - r)}%"}
+    elif u == "keeps-pace":
+        up = r > f
+        want = ("Yes: the interest rate is more than the inflation rate, so its value in today's money rises." if up
+                else "No: the interest rate is less than the inflation rate, so its value in today's money falls, though its balance rises.")
+        wr[E17RV_MAP + "2"] = set() if up else {"Yes: its balance rises every year, so it keeps pace."}
+        wr[E17RV_OWN + "6"] = {"No: prices rise every year, so its real value must fall."} if up else set()
+        need(sp.Rational(1) + r / 100 > (1 + f / 100) if up else (1 + r / 100) < (1 + f / 100), "the factors disagree with the rates")
+    else:
+        need(pv is not None and n is not None and r > f, "a value needs an amount, the years and r > f")
+        nominal = ci_value(pv, r, 1, n)
+        real = ci_value(pv, r - f, 1, n)
+        defl = nominal / (1 + f / 100) ** n
+        need(abs(real - defl) >= 1, "the real-rate and deflated values are less than a dollar apart")
+        if u == "real-value-rate":
+            need(q["asked"] == f"Using the real interest rate, find the real value of the investment after {n} years, to the nearest cent.", f"asked {q['asked']!r}")
+            want = f"real value = ${E17RV_money(real)}"
+            wr[E17RV_MAP + "0"] = {f"real value = ${E17RV_money(ci_value(pv, r + f, 1, n))}"}
+            wr[E17RV_OWN + "4"] = {f"real value = ${E17RV_money(nominal)}"}
+        else:
+            need(q["asked"] == f"By dividing by the rise in prices, find the value of the investment after {n} years in today's money, to the nearest cent.", f"asked {q['asked']!r}")
+            want = f"real value = ${E17RV_money(defl)}"
+            wr[E17RV_MAP + "1"] = {f"real value = ${E17RV_money(nominal / (1 + f / 100))}"}
+            wr[E17RV_OWN + "4"] = {f"real value = ${E17RV_money(nominal)}"}
+            wr[E17RV_OWN + "5"] = {f"real value = ${E17RV_money(nominal * (1 + f / 100) ** n)}"}
+    gc_check_common(q, want, wr)
+    E17RV_steps(q, pv, r, f, n)
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E17RV_close(a, b, places):
+    return abs(sp.Rational(a) - sp.Rational(b)) <= sp.Rational(1, 2) * sp.Rational(1, 10) ** places + sp.Rational(1, 10 ** 9)
+
+
+def E17RV_steps(q, pv, r, f, n):
+    """Each figure the working writes, against the exact value it stands for."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for a, b, c in re.findall(r"([\d.]+) − ([\d.]+) = (−?[\d.]+)", st):
+                need(R(a) - R(b) == R(c.replace("−", "-")), f"{sol['name']}: {st!r}")
+            for base, e, val in re.findall(r"(?<![\d.])(?<!× )([\d.]+)\^(\d+) = ([\d.]+)", st):
+                places = len(val.split(".")[1]) if "." in val else 0
+                need(E17RV_close(R(base) ** int(e), R(val), places), f"{sol['name']}: {st!r}")
+            if (m := re.search(r"FV = (\d+) × ([\d.]+)\^(\d+) = ([\d.]+)", st)):
+                need(E17RV_close(R(m.group(1)) * R(m.group(2)) ** int(m.group(3)), R(m.group(4)), 4), f"{sol['name']}: {st!r}")
+            if (m := re.search(r"Solve for FV: FV = ([\d.]+)", st)):
+                need(E17RV_close(ci_value(pv, r - f, 1, n), R(m.group(1)), 4), f"{sol['name']}: {st!r}")
+            if (m := re.search(r"Real value = ([\d.]+) ÷ ([\d.]+) = ([\d.]+)", st)):
+                need(E17RV_close(ci_value(pv, r, 1, n) / (1 + f / 100) ** n, R(m.group(3)), 4) and E17RV_close((1 + f / 100) ** n, R(m.group(2)), 6), f"{sol['name']}: {st!r}")
+            if (m := re.search(r"After (\d+) years: (\d+) × ([\d.]+)\^(\d+) = ([\d.]+)", st)):
+                g = (1 + (r - f) / 100) if q["view"]["unknown"] == "real-value-rate" else (1 + r / 100) / (1 + f / 100)
+                need(int(m.group(1)) == n and E17RV_close(g, R(m.group(3)), 6) and E17RV_close(pv * g ** n, R(m.group(5)), 4), f"{sol['name']}: {st!r}")
+            if (m := re.search(r"([\d.]+) ÷ ([\d.]+) = ([\d.]+), (more|less) than 1", st)):
+                g = (1 + r / 100) / (1 + f / 100)
+                need(E17RV_close(g, R(m.group(3)), 6) and (m.group(4) == "more") == (g > 1), f"{sol['name']}: {st!r}")
+
+
+def E17RV_spot(q, lines):
+    pv, r, f, n = E17RV_read(q)
+    nominal = ci_value(pv, r, 1, n)
+    for i, t in enumerate(lines):
+        if t.startswith(("Use the real rate", "Divide the value after")):
+            ok = True
+        elif (m := re.fullmatch(r"Real rate = ([\d.]+) ([+−]) ([\d.]+) = ([\d.]+)%", t)):
+            ok = m.group(2) == "−" and R(m.group(4)) == r - f
+        elif (m := re.fullmatch(r"Value = (\d+) × \(1 \+ ([\d.]+)/100\)\^(\d+)(?: = ([\d.]+))?", t)):
+            ok = R(m.group(2)) == r - f and (m.group(4) is None or E17RV_close(ci_value(pv, r - f, 1, n), R(m.group(4)), 4))
+        elif (m := re.fullmatch(r"= ([\d.]+)", t)):
+            ok = E17RV_close(ci_value(pv, r - f, 1, n), R(m.group(1)), 4)
+        elif (m := re.fullmatch(r"FV = (\d+) × ([\d.]+)\^(\d+) = ([\d.]+)(?:, and prices rise by a factor of ([\d.]+))?", t)):
+            ok = E17RV_close(nominal, R(m.group(4)), 4) and (m.group(5) is None or E17RV_close((1 + f / 100) ** n, R(m.group(5)), 4))
+        elif (m := re.fullmatch(r"Prices rise by a factor of ([\d.]+)", t)):
+            ok = E17RV_close((1 + f / 100) ** n, R(m.group(1)), 4)
+        elif (m := re.fullmatch(r"Real value = ([\d.]+) ÷ ([\d.]+) = ([\d.]+)", t)):
+            ok = E17RV_close(nominal / (1 + f / 100) ** n, R(m.group(3)), 4)
+        elif (m := re.fullmatch(r"So the real value is \$([\d.]+)\.", t)):
+            want = ci_value(pv, r - f, 1, n) if q["view"]["unknown"] == "real-value-rate" else nominal / (1 + f / 100) ** n
+            ok = m.group(1) == ci_money(ci_cents(want))
+        else:
+            raise Fail(f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+E17RV_PREV = SITUATION_CHECKS["compound-interest"]
+E17RV_PREV_SPOT = SPOT_CHECKS.get("compound-interest")
+
+
+def E17RV_entry(q):
+    return E17RV_check(q) if q["view"]["unknown"] in E17RV_UNKNOWNS else E17RV_PREV(q)
+
+
+def E17RV_spot_entry(q, lines):
+    if q["view"]["unknown"] in E17RV_UNKNOWNS:
+        return E17RV_spot(q, lines)
+    return E17RV_PREV_SPOT(q, lines)
+
+
+SITUATION_CHECKS["compound-interest"] = E17RV_entry
+SPOT_CHECKS["compound-interest"] = E17RV_spot_entry
+
+
+
+# ── show-that-value, t1-ext-numerical-show-that (FAL-780) ───
+# The statement is read back from the question and checked true with SymPy (exactly, or to the
+# nearest cent for an investment). The one valid working is written again here from the givens and
+# its arithmetic redone; each tagged option is rebuilt from its slip and shown not to reach the
+# result, or to reach it without a derivation. An error-spot's first wrong line is the first that
+# starts from the value to be shown, or that rounds before the cents are known.
+
+E17ST_SK = "SL1.6.numerical-show-that#"
+E17ST_OWN = "t1-ext-numerical-show-that#"
+E17ST_SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+E17ST_UNSUB = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+E17ST_WHO = ("Kira", "Tomas", "Ines", "The caravan fund")
+
+
+def E17ST_s(letter, n):
+    return letter + str(n).translate(E17ST_SUB)
+
+
+def E17ST_br(v):
+    return str(v) if v >= 0 else f"(−{-v})"
+
+
+def E17ST_check(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    need(q["asked"] == "Which working shows this?", f"asked {q['asked']!r}")
+    need(q["paper"] == (2 if u == "interest-value" else 1), f"Paper {q['paper']} for {u}")
+    wr = {}
+    if u == "log-difference":
+        m = re.fullmatch(r"Show that log([₀-₉]+) (\d+) − log\1 (\d+) = (\d+)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        b, P, Q_, k = int(m.group(1).translate(E17ST_UNSUB)), int(m.group(2)), int(m.group(3)), int(m.group(4))
+        need(b in (2, 3, 5) and 2 <= Q_ <= 12 and 4 <= b ** k <= 125 and 2 <= k, f"{L[0]} breaks the limits")
+        need(sp.factorint(Q_).keys() != {b}, f"{Q_} is a power of {b}")
+        need(sp.simplify(sp.log(P, b) - sp.log(Q_, b) - k) == 0, "the statement is false")
+        lg = "log" + str(b).translate(E17ST_SUB)
+        stmt = f"{lg} {P} − {lg} {Q_} = {k}"
+        want = f"{lg} {P} − {lg} {Q_} = {lg}({P}/{Q_}) = {lg} {P // Q_} = {lg}({b}^{k}) = {k}"
+        need(P % Q_ == 0 and P // Q_ == b ** k, "the working's quotient is not a power of the base")
+        need(abs(math.log(P) / math.log(Q_) - k) > 1e-6, "dividing the logs gives the answer too")
+        wr[E17ST_SK + "0"] = {f"If it is {k}, then {b}^{k} × {Q_} = {P}, which is true, so the statement holds"}
+        wr[E17ST_SK + "1"] = {f"{stmt}, as required"}
+        wr[E17ST_OWN + "3"] = {f"{lg} {P} − {lg} {Q_} = {lg} {P} ÷ {lg} {Q_} = {k}"}
+    elif u == "series-sum":
+        if q["view"]["rep"] == "words":
+            m1 = re.fullmatch(r"A stack of crates has (\d+) in its top row, and each row below has (\d+) more than the row above\.", L[0])
+            m2 = re.fullmatch(r"Show that (\d+) rows hold (\d+) crates in all\.", L[1])
+            need(m1 is not None and m2 is not None, f"can't read {L!r}")
+            u1, d, n, V = int(m1.group(1)), int(m1.group(2)), int(m2.group(1)), int(m2.group(2))
+        else:
+            m1 = re.fullmatch(r"The sequence (\d+), (\d+), (\d+), … is arithmetic\.", L[0])
+            m2 = re.fullmatch(r"Show that the sum of its first (\d+) terms is (\d+)\.", L[1])
+            need(m1 is not None and m2 is not None, f"can't read {L!r}")
+            t = [int(m1.group(i)) for i in (1, 2, 3)]
+            need(t[1] - t[0] == t[2] - t[1], "the sequence is not arithmetic")
+            u1, d, n, V = t[0], t[1] - t[0], int(m2.group(1)), int(m2.group(2))
+        need(1 <= u1 <= 12 and 2 <= d <= 9 and 8 <= n <= 20, "the sequence breaks the limits")
+        need(sum(u1 + i * d for i in range(n)) == V, "the stated sum is false")
+        inner = 2 * u1 + (n - 1) * d
+        Sn = E17ST_s("S", n)
+        want = f"{Sn} = {n}/2 × (2 × {u1} + {n - 1} × {d}) = {n}/2 × {inner} = {V}"
+        un = u1 + (n - 1) * d
+        need(n * un != V, "the last term times n gives the sum")
+        wr[E17ST_SK + "0"] = {f"Put {Sn} = {V}: {V} = {n}/2 × {inner}, which is true"}
+        wr[E17ST_SK + "1"] = {f"{Sn} = {V}, as required"}
+        wr[E17ST_OWN + "4"] = {f"{Sn} = {n} × {E17ST_s('u', n)} = {n} × {un} = {n * un}"}
+    elif u == "common-difference":
+        m1 = re.fullmatch(r"In an arithmetic sequence, u([₀-₉]+) = (−?\d+) and u([₀-₉]+) = (−?\d+)\.", L[0])
+        m2 = re.fullmatch(r"Show that the common difference is (\d+)\.", L[1])
+        need(m1 is not None and m2 is not None, f"can't read {L!r}")
+        p, A, qq, B = int(m1.group(1).translate(E17ST_UNSUB)), int(m1.group(2).replace("−", "-")), int(m1.group(3).translate(E17ST_UNSUB)), int(m1.group(4).replace("−", "-"))
+        D = int(m2.group(1))
+        need(qq - p >= 3 and sp.Rational(B - A, qq - p) == D, "the stated difference is false")
+        gap, W = qq - p, B - A
+        up, uq = E17ST_s("u", p), E17ST_s("u", qq)
+        want = f"{uq} − {up} = {gap}d, so {gap}d = {E17_n(B)} − {E17ST_br(A)} = {W} and d = {W}/{gap} = {D}"
+        need(sp.Rational(W, qq) != D, "the wrong divisor gives the answer")
+        wr[E17ST_SK + "0"] = {f"With d = {D}, {uq} = {E17_n(A)} + {gap} × {D} = {E17_n(B)}, which is true"}
+        wr[E17ST_SK + "1"] = {f"The terms go up evenly, so d = {D}"}
+        wr[E17ST_OWN + "5"] = {f"d = ({E17_n(B)} − {E17ST_br(A)})/{qq} = {W}/{qq} = {E17_n(sp.Rational(W, qq))}"}
+    elif u == "interest-value":
+        m1 = re.fullmatch(r"(.+) invests \$(\d+) in an account that pays ([\d.]+)% per year, compounded annually\.", L[0])
+        m2 = re.fullmatch(r"Show that the value after (\d+) years is \$([\d.]+), to the nearest cent\.", L[1])
+        need(m1 is not None and m2 is not None, f"can't read {L!r}")
+        need(m1.group(1) in E17ST_WHO, f"who {m1.group(1)!r}")
+        pv, r, n, V = int(m1.group(2)), R(m1.group(3)), int(m2.group(1)), R(m2.group(2))
+        need(pv % 100 == 0 and 500 <= pv <= 5000 and 2 <= r <= 9 and (2 * r).q == 1 and 3 <= n <= 8, "the investment breaks the limits")
+        exact = pv * (1 + r / 100) ** n
+        need(ci_clear(exact) and ci_cents(exact) == V and V.q != 1, f"${V} is not the value to the nearest cent, or is too close to an edge")
+        factor = dec_text(1 + r / 100)
+        mr = re.fullmatch(rf"{pv} × {re.escape(factor)}\^{n} = (\d+\.\d{{4}}), which is \${re.escape(ci_money(V))} to the nearest cent", q["answer_text"])
+        need(mr is not None and abs(R(mr.group(1)) - exact) <= sp.Rational(1, 20000) + sp.Rational(1, 10 ** 9), f"the right working {q['answer_text']!r} is not the value to 4 decimal places")
+        want = q["answer_text"]
+        back = ci_cents(V / (1 + r / 100) ** n)
+        need(back == pv, "working back from the given value doesn't land on the amount invested")
+        dollars = int(sp.floor(exact + sp.Rational(1, 2)))
+        wr[E17ST_SK + "0"] = {f"{ci_money(V)} ÷ {factor}^{n} = {pv}.00, the amount invested, so ${ci_money(V)} is right"}
+        wr[E17ST_SK + "1"] = {f"After {n} years the value is ${ci_money(V)}"}
+        wr[E17ST_SK + "2"] = {f"{pv} × {factor}^{n} = {dollars} to the nearest dollar, so the value is ${ci_money(V)}"}
+    else:
+        m = re.fullmatch(r"Verify that x = (−?\d+) is a solution of (.+) = 0\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        r = int(m.group(1).replace("−", "-"))
+        f = E17_expr(m.group(2))
+        need(f is not None and sp.Poly(f, E17_X).degree() == 2 and f.subs(E17_X, r) == 0, "x = r does not solve it")
+        a, b, c = (int(v) for v in sp.Poly(f, E17_X).all_coeffs())
+        need(1 <= a <= 3 and b != 0 and c != 0 and abs(r) <= 6, "the quadratic breaks the limits")
+        sign = lambda v: "+" if v > 0 else "−"
+        coef = lambda v: "" if abs(v) == 1 else str(abs(v))
+        sub_text = f"{'' if a == 1 else a}({E17_n(r)})² {sign(b)} {coef(b)}({E17_n(r)}) {sign(c)} {abs(c)}"
+        t1, t2 = a * r * r, b * r
+        parts = f"{t1} {'+' if t2 >= 0 else '−'} {abs(t2)} {sign(c)} {abs(c)}"
+        want = f"{sub_text} = {parts} = 0, so x = {E17_n(r)} is a solution"
+        need(t1 + t2 != 0, "leaving out c gives 0")
+        no_c = f"{'' if a == 1 else a}({E17_n(r)})² {sign(b)} {coef(b)}({E17_n(r)})"
+        wr[E17ST_SK + "1"] = {f"x = {E17_n(r)} is a solution of the equation"}
+        wr[E17ST_OWN + "6"] = {f"{sub_text}, so x = {E17_n(r)} is a solution"}
+        wr[E17ST_OWN + "7"] = {f"{no_c} = {E17_n(t1 + t2)}, so x = {E17_n(r)} is a solution"}
+    gc_check_common(q, want, wr)
+    E17_steps(q, {})
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E17ST_spot(q, lines):
+    u = q["view"]["unknown"]
+    L = q["lines"][:q["lines"].index("A student's working:")]
+    if u == "series-sum":
+        V = int(re.search(r"(\d+)(?: crates in all|)\.$", L[1]).group(1))
+        for i, t in enumerate(lines):
+            if t.startswith("The first term is"):
+                continue
+            if re.fullmatch(rf"S[₀-₉]+ = {V}", t) or t.startswith(f"{V} = "):
+                return i
+            raise Fail(f"can't judge the line {t!r}")
+        return None
+    m1 = re.fullmatch(r"(.+) invests \$(\d+) in an account that pays ([\d.]+)% per year, compounded annually\.", L[0])
+    n = int(re.search(r"after (\d+) years", L[1]).group(1))
+    pv, r = int(m1.group(2)), R(m1.group(3))
+    exact = pv * (1 + r / 100) ** n
+    for i, t in enumerate(lines):
+        if re.fullmatch(rf"(?:Value = |= ){pv} × (?:\(1 \+ [\d.]+/100\)|[\d.]+)\^{n}", t):
+            ok = E17_holds("x = " + t.split("= ", 1)[1], {E17_X: exact})
+        elif (m := re.fullmatch(r"= ([\d.]+)(?:, as required\.)?", t)):
+            places = len(m.group(1).split(".")[1]) if "." in m.group(1) else 0
+            ok = places >= 4 and abs(R(m.group(1)) - exact) <= sp.Rational(1, 20000)
+        elif t.startswith("So the value is"):
+            ok = True
+        else:
+            raise Fail(f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+SITUATION_CHECKS["show-that-value"] = E17ST_check
+SPOT_CHECKS["show-that-value"] = E17ST_spot
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]

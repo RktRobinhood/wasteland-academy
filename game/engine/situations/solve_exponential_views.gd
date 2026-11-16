@@ -13,6 +13,12 @@ extends ExtensionViews
 ## "graph" (the two curves, or a curve and a line, drawn crossing at P). The GDC methods
 ## (graph-intersect, gdc-solver) are Paper 2 only, and every exact cell is solved by hand.
 ## Misconceptions are the map's first, then the type's own, which are "<type id>#<index>".
+##
+## t1-ext-common-base (FAL-780) is built here too: b^x = N or 1/N, A^x = R and A^(x + c) = B^(kx + e)
+## with both sides powers of one prime t, solved exactly by equating the exponents (or with logs,
+## or from a list of powers). Its answers are whole numbers or fractions, typed exactly, and its
+## wrong options are SL1.7.common-base's slips and the type's own. It builds error-spot and
+## method-pick; order-steps isn't built in the engine.
 
 const MAP := "SL1.7.solve-with-logs#"
 const OWN := "t1-solve-exponential#"
@@ -30,6 +36,23 @@ const R_BASE := OWN + "10"
 const R_DROP_START := OWN + "11"
 const R_PERCENT := OWN + "12"
 const R_PRODUCT := OWN + "13"
+
+const CB := "SL1.7.common-base#"
+const CO := "t1-ext-common-base#"
+const R_DIVIDE := CB + "0"
+const R_X_ONLY := CB + "1"
+const R_UPSIDE := CO + "2"
+const R_NO_MINUS := CO + "3"
+const R_NO_BASE := CO + "4"
+const R_HEIGHT := CO + "5"
+const R_SPOT_ADD := CO + "6"
+const R_SPOT_X_ONLY := CO + "7"
+## Methods that don't work on any common-base equation, for method-pick.
+const CB_PICK_WRONGS := [
+	{"name": "Divide the right side by the base", "why": "x is the power the base is raised to, not a quotient"},
+	{"name": "Equate the bases", "why": "the bases are numbers, so equating them has no x in it to find"},
+	{"name": "Take the square root of both sides", "why": "that only halves each exponent, so x is still unknown"},
+]
 
 const BOTH := "log-both-sides"
 const ISOLATE := "isolate-then-log"
@@ -55,7 +78,14 @@ func needs() -> Dictionary:
 	var out := {}
 	for u in ["two-bases-3sf", "shift-base-exact", "one-minus-exact", "isolate-e-exact", "isolate-3sf", "model-time-exact", "model-meet"]:
 		out[u] = {"ask": u}
+	for u in SolveExponentialSituation.COMMON:
+		out[u] = {"ask": u}
 	return out
+
+
+func extra() -> Dictionary:
+	return {"whole-power": ["method-pick"], "reciprocal-power": ["method-pick"], "fraction-power": ["error-spot", "method-pick"],
+		"linear-exponents": ["error-spot", "method-pick"], "meet-on-graph": ["method-pick"]}
 
 
 ## An exact cell needs no calculator, so it can be either paper; the bank's part is Paper 2, so
@@ -63,6 +93,8 @@ func needs() -> Dictionary:
 func papers(unknown: String, _rep: String, _angle_id: String) -> Array:
 	if not has(unknown):
 		return []
+	if unknown in SolveExponentialSituation.COMMON:
+		return [2] if _angle_id == GRAPH else [1, 2]
 	return [1, 2] if unknown in SolveExponentialSituation.EXACT else [2]
 
 
@@ -550,3 +582,244 @@ static func _meet_figure(s: Dictionary) -> Dictionary:
 	var x1 := ceili(t * 1.4)
 	var g2 := figure([fa, fb], ["A", "B"], 0, x1, 0, Plot.nice_top(y * 1.7), t, y)
 	return g2.merged({"x_name": "t"})
+
+
+# ── A common base (t1-ext-common-base) ──────────────────────
+
+## x, typed exactly: a whole number or a fraction.
+static func x_ans(x: Q) -> Dictionary:
+	var ans := Answer.make("number", {"v": x}, {}, "x = ")
+	ans.exact = true
+	return ans
+
+
+static func xv(x: Variant) -> Dictionary:
+	return {"v": Q.of(x)}
+
+
+## Wrong options [value, ref], each kept once and only where it isn't the answer.
+static func cb_wrongs(x: Q, list: Array) -> Array:
+	var out: Array = []
+	var seen := {x.key(): true}
+	for e in list:
+		var v := Q.of(e[0])
+		if seen.has(v.key()):
+			continue
+		seen[v.key()] = true
+		out.append(wrong(xv(v), e[1]))
+	return out
+
+
+## Fillers that aren't the answer or a slip already offered.
+static func cb_fillers(x: Q, wrongs: Array, list: Array) -> Array:
+	var seen := {x.key(): true}
+	for w in wrongs:
+		seen[Q.of(w.values.v).key()] = true
+	var out: Array = []
+	for v in list:
+		var q := Q.of(v)
+		if not seen.has(q.key()):
+			seen[q.key()] = true
+			out.append(xv(q))
+	return out
+
+
+## 2^4, 3^(−2): a whole-number power, as the question writes it.
+static func pn(b: Variant, e: int) -> String:
+	var base: String = b if b is String else N(b)
+	return "%s^%d" % [base, e] if e >= 0 else "%s^(−%d)" % [base, -e]
+
+
+## "2x + 1", "x − 3", "3x", "−x + 2": the exponent kx + c.
+static func lin(k: int, c: int) -> String:
+	var head := "x" if k == 1 else ("−x" if k == -1 else "%dx" % k)
+	if c == 0:
+		return head
+	return "%s %s %d" % [head, "+" if c > 0 else "−", absi(c)]
+
+
+## "3(x + 2)", "x + 2": a whole exponent times the base's power.
+static func times_lin(i: int, k: int, c: int) -> String:
+	return lin(k, c) if i == 1 else "%d(%s)" % [i, lin(k, c)]
+
+
+## "A = 2³ and B = 2²", or "A is 2 itself" where the power is 1.
+static func as_power(n: int, t: int, p: int) -> String:
+	return "%d = %s" % [n, pn(t, p)] if p > 1 else "%d is %d itself" % [n, t]
+
+
+## The powers of b from b¹ up to b^j, as a list.
+static func power_list(b: int, j: int) -> String:
+	var parts: Array = []
+	for p in range(1, j + 1):
+		parts.append("%s = %d" % [pn(b, p), SolveExponentialSituation.ipow(b, p)])
+	return ", ".join(parts)
+
+
+func _cb_pack(lines: Array, asked: String, ans: Dictionary, wrongs: Array, fillers: Array, steps: Dictionary) -> Dictionary:
+	var out := {"lines": lines, "asked": asked, "answer": ans, "wrongs": wrongs, "fillers": fillers, "methods": {}, "pick_wrongs": CB_PICK_WRONGS}
+	for m in steps:
+		out.methods[m] = method(steps[m], ans.values)
+	return out
+
+
+func u_whole_power(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var b: int = s.b
+	var j: int = s.j
+	var N: int = s.N
+	var ans := x_ans(s.x)
+	var w := cb_wrongs(s.x, [[Q.new(N, b), R_DIVIDE]])
+	var fill := cb_fillers(s.x, w, [j + 1, j - 1, 2 * j, j + 2])
+	var eq := "%s = %d" % [pw(b, "x"), N]
+	return _cb_pack([eq], "Solve the equation.", ans, w, fill, {
+		"equate-exponents": ["Write %d as a power of %d: %d = %s." % [N, b, N, pn(b, j)], "So %s = %s, and the exponents are equal: x = %d." % [pw(b, "x"), pn(b, j), j], say(ans)],
+		"take-logs": ["Take ln of both sides: x ln %d = ln %d." % [b, N], "ln %d = ln(%s) = %d ln %d, so x = %d ln %d ÷ ln %d = %d." % [N, pn(b, j), j, b, j, b, b, j], say(ans)],
+		"inspection": ["List the powers of %d: %s." % [b, power_list(b, j)], "%s = %d, so x = %d." % [pn(b, j), N, j], say(ans)],
+	})
+
+
+func u_reciprocal_power(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var b: int = s.b
+	var j: int = s.j
+	var N: int = s.N
+	var ans := x_ans(s.x)
+	var w := cb_wrongs(s.x, [[Q.new(j), R_NO_MINUS], [Q.new(1, N * b), R_DIVIDE]])
+	var fill := cb_fillers(s.x, w, [-j - 1, -j + 1, -2 * j, -j - 2])
+	var eq := "%s = 1/%d" % [pw(b, "x"), N]
+	return _cb_pack([eq], "Solve the equation.", ans, w, fill, {
+		"equate-exponents": ["Write 1/%d as a power of %d: %d = %s, so 1/%d = %s." % [N, b, N, pn(b, j), N, pn(b, -j)],
+			"So %s = %s, and the exponents are equal: x = −%d." % [pw(b, "x"), pn(b, -j), j], say(ans)],
+		"take-logs": ["Take ln of both sides: x ln %d = ln(1/%d) = −ln %d." % [b, N, N], "ln %d = %d ln %d, so x = −%d ln %d ÷ ln %d = −%d." % [N, j, b, j, b, b, j], say(ans)],
+		"inspection": ["List the powers of %d: %s." % [b, power_list(b, j)], "%s = %d, so %s = 1/%d and x = −%d." % [pn(b, j), N, pn(b, -j), N, j], say(ans)],
+	})
+
+
+func u_fraction_power(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var t: int = s.t
+	var i: int = s.i
+	var j: int = s.j
+	var ans := x_ans(s.x)
+	var w := cb_wrongs(s.x, [[Q.new(i, j), R_UPSIDE], [Q.new(s.R, s.A), R_DIVIDE]])
+	var fill := cb_fillers(s.x, w, [Q.new(j + 1, i), Q.new(j, i + 1), Q.new(j * i), Q.new(j + i, i)])
+	var out := _cb_pack(["%s = %d" % [pw(s.A, "x"), s.R]], "Solve the equation, giving x exactly.", ans, w, fill, {
+		"equate-exponents": ["Write both sides as powers of %d: %s and %s." % [t, as_power(s.A, t, i), as_power(s.R, t, j)],
+			"So %s = %s, and the exponents are equal: %dx = %d." % [pw(t, "%dx" % i), pn(t, j), i, j], say(ans)],
+		"take-logs": ["Take ln of both sides: x ln %d = ln %d." % [s.A, s.R],
+			"%s, so %dx = %d." % [("ln %d = %d ln %d and ln %d = %d ln %d" % [s.A, i, t, s.R, j, t]) if j > 1 else "ln %d = %d ln %d" % [s.A, i, t], i, j], say(ans)],
+	})
+	# The working with a power of a power whose exponents are added: first at line 2, or at line 1.
+	var lines: Array = ["%s and %s, so %s = %s." % [as_power(s.A, t, i), as_power(s.R, t, j), pw(P_pow(t, i), "x"), pn(t, j)],
+		"%s = %s" % [pw(P_pow(t, i), "x"), pw(t, "x + %d" % i)], "So x + %d = %d." % [i, j], "x = " + N(j - i)]
+	var bad := 1
+	if rng.chance(0.5):
+		lines = ["%s = %s, as %s" % [pw(s.A, "x"), pw(t, "x + %d" % i), as_power(s.A, t, i)], "%s = %s" % [pw(t, "x + %d" % i), pn(t, j)], "So x + %d = %d." % [i, j], "x = " + N(j - i)]
+		bad = 0
+	out.spot = {"lines": lines, "bad": bad, "ref": R_SPOT_ADD, "why": "a power of a power multiplies the exponents, so %s = %s" % [pw(P_pow(t, i), "x"), pw(t, "%dx" % i)]}
+	return out
+
+
+## (2³), the power of a prime in brackets, as a base.
+static func P_pow(t: int, i: int) -> String:
+	return "(%s)" % pn(t, i)
+
+
+## A^(x + c) = B^(kx + e): the equation, and the step equating the exponents.
+static func lin_eq(s: Dictionary) -> String:
+	return "%s = %s" % [pw(s.A, lin(1, s.c)), pw(s.B, lin(s.k, s.e))]
+
+
+static func expanded(s: Dictionary) -> String:
+	return "%s = %s" % [lin(s.i, s.i * s.c), lin(s.j * s.k, s.j * s.e)]
+
+
+func _linear_steps(s: Dictionary) -> Dictionary:
+	var t: int = s.t
+	var D: int = s.i - s.j * s.k
+	var top: int = s.j * s.e - s.i * s.c
+	var ans := x_ans(s.x)
+	var solve := "Collect the x terms: %s." % collected(D, top)
+	var powers := "Write both sides as powers of %d: %s and %s." % [t, as_power(s.A, t, s.i), as_power(s.B, t, s.j)]
+	return {
+		"equate-exponents": [powers, "So %s = %s, and the exponents are equal: %s." % [pw(t, times_lin(s.i, 1, s.c)), pw(t, times_lin(s.j, s.k, s.e)), expanded(s)],
+			solve, say(ans)],
+		"take-logs": ["Take ln of both sides: (%s) ln %d = (%s) ln %d." % [lin(1, s.c), s.A, lin(s.k, s.e), s.B],
+			"%s; divide by ln %d: %s." % [_ln_rewrite(s), t, expanded(s)], solve, say(ans)],
+	}
+
+
+## "ln 9 = 2 ln 3 and ln 27 = 3 ln 3", leaving out a base that is t itself.
+static func _ln_rewrite(s: Dictionary) -> String:
+	var parts: Array = []
+	for pair in [[s.A, s.i], [s.B, s.j]]:
+		if pair[1] > 1:
+			parts.append("ln %d = %s" % [pair[0], _ln_power(s.t, pair[1])])
+	return " and ".join(parts)
+
+
+## Dx = top, with the x term's coefficient made positive: "5x = 8", "x = −4".
+static func collected(D: int, top: int) -> String:
+	var g := 1 if D > 0 else -1
+	return "%s = %s" % [lin(D * g, 0), N(top * g)]
+
+
+static func _ln_power(t: int, p: int) -> String:
+	return "ln %d" % t if p == 1 else "%d ln %d" % [p, t]
+
+
+## The slips of A^(x + c) = B^(kx + e): the base's power on the x terms only, and the exponents
+## equated with the bases left different.
+static func linear_slips(s: Dictionary) -> Array:
+	var D: int = s.i - s.j * s.k
+	var list: Array = [[Q.new(s.e - s.c, D), R_X_ONLY]]
+	if s.k != 1:
+		list.append([Q.new(s.e - s.c, 1 - s.k), R_NO_BASE])
+	return list
+
+
+func u_linear_exponents(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var x: Q = s.x
+	var ans := x_ans(x)
+	var w := cb_wrongs(x, linear_slips(s))
+	var fill := cb_fillers(x, w, [x.neg(), x.add(1), x.sub(1), x.mul(2)])
+	var out := _cb_pack([lin_eq(s)], "Solve the equation, giving x exactly.", ans, w, fill, _linear_steps(s))
+	var t: int = s.t
+	var D: int = s.i - s.j * s.k
+	var bad_eq := "%s = %s" % [pw(t, lin(s.i, s.c)), pw(t, lin(s.j * s.k, s.e))]
+	var slip := Q.new(s.e - s.c, D)
+	var lines: Array
+	var bad: int
+	if rng.chance(0.5):
+		lines = ["%s and %s." % [as_power(s.A, t, s.i), as_power(s.B, t, s.j)], "So " + bad_eq + ".", "%s = %s" % [lin(s.i, s.c), lin(s.j * s.k, s.e)],
+			"x = " + N(slip)]
+		bad = 1
+	else:
+		lines = [bad_eq + ", as %s and %s" % [as_power(s.A, t, s.i), as_power(s.B, t, s.j)], "So %s = %s." % [lin(s.i, s.c), lin(s.j * s.k, s.e)],
+			collected(D, s.e - s.c), "x = " + N(slip)]
+		bad = 0
+	var whole := "%s = %s" % [pw(s.A, lin(1, s.c)), pw(t, times_lin(s.i, 1, s.c))] if s.i > 1 else "%s = %s" % [pw(s.B, lin(s.k, s.e)), pw(t, times_lin(s.j, s.k, s.e))]
+	out.spot = {"lines": lines, "bad": bad, "ref": R_SPOT_X_ONLY, "why": "the base's power multiplies the whole exponent, so " + whole}
+	return out
+
+
+func u_meet_on_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var x: Q = s.x
+	var ans := x_ans(x)
+	var w := cb_wrongs(x, linear_slips(s) + [[s.y, R_HEIGHT]])
+	var fill := cb_fillers(x, w, [x.add(1), x.sub(1), x.neg(), x.add(2)])
+	var left := pw(s.A, lin(1, s.c))
+	var right := pw(s.B, lin(1, s.e))
+	var steps := _linear_steps(s)
+	var out := _cb_pack(["The graph shows y = %s and y = %s, which cross at P." % [left, right]], "Find the x-coordinate of P exactly.", ans, w, fill, {
+		"equate-exponents": ["At P the two are equal: %s." % lin_eq(s)] + steps["equate-exponents"],
+		GRAPH: ["Graph y = %s and y = %s." % [left, right], "They meet at x = %s, where y = %s." % [N(x), N(s.y)], say(ans)],
+	})
+	var A: float = s.A
+	var B: float = s.B
+	var c: float = s.c
+	var e: float = s.e
+	var f1 := func(v: float) -> float: return pow(A, v + c)
+	var f2 := func(v: float) -> float: return pow(B, v + e)
+	var px := x.to_float()
+	var py: float = s.y.to_float()
+	out.graph = figure([f1, f2], ["y = " + left, "y = " + right], mini(-1, int(px) - 2), maxi(int(px) + 2, 2), 0, Plot.nice_top(py * 1.6), px, py)
+	return out

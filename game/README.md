@@ -388,6 +388,34 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   the engine, so these types don't offer them. The six types' steps are not in
   `curriculum/moves-map.json` yet, as no type from E12 on is. The checker's sections are prefixed
   `E15DT_`, `E15PS_`, `E15SN_`, `E15FH_`, `E15DC_` and `E15ET_`.
+- **The exponent, show-that and standard-form extension types** (FAL-780, batch E17): six types that
+  cover syllabus skills no exam type lists, so they carry no exam parts. Four share an exam type's
+  situation, adding unknowns to it, so the exam type's own cells, numbers and checks are unchanged:
+  `t1-ext-common-base` (SL1.7) on `solve-exponential` asks b^x = N or 1/N, A^x = R and
+  A^(x + c) = B^(kx + e) with both sides powers of one prime, and the x-coordinate where two such
+  curves cross on a graph drawn by PlotView, solved exactly by equating the exponents, with logs or
+  from a list of powers; `t1-ext-standard-form-add` (SL1.1) and `t1-ext-standard-form-powers` (SL1.1)
+  on `standard-form` add and subtract two numbers 1 or 2 powers apart (with a carry past 10, a drop
+  below 1, and a difference in a story), and square, cube, square-root or cube-root one, adjusting an
+  odd power or one that isn't a multiple of 3, every answer exact; `t1-ext-real-value` (SL1.4) on
+  `compound-interest` adds an inflation rate to an annual account and asks the real rate, the real
+  value by the real rate and by deflating (the two at least a dollar apart, so each method gives its
+  own), and whether the account keeps pace. Two have situations of their own: `integer_powers.gd` is
+  `t1-ext-exponent-laws` (SL1.5): b^(−n) and (s/t)^(−n), c^0 + b^(−n), c/x^n and 1/(cx^n) as ax^p,
+  (ax^m)^p × bx^n as cx^e, a quotient of a and b with positive exponents, and A^m × B^n as one power of
+  a prime; `show_that.gd` is `t1-ext-numerical-show-that` (SL1.6): a log difference, an arithmetic
+  sum, a common difference, an investment's value to the cent and a quadratic's root to verify, each
+  answered by picking the one working that reaches the given result. Built formats: method-pick on
+  common-base and real-value, error-spot on common-base (a power of a power added, the base's power on
+  the x term only), exponent laws (the power on the x alone), standard form (the power moved without
+  the point, a cube of the power of ten only, an odd power raised the wrong way), real value (the
+  rates added, the inflation factor for one year) and show-that (starting from the given value, a
+  value rounded to the dollar), and true-false-reason on exponent laws and show-that. The catalogue's
+  `match` and `order-steps` formats are not built in the engine, so these types don't offer them.
+  Their steps are not in `curriculum/moves-map.json` yet, as no type from E12 on is. The checker's
+  sections are prefixed `E17CB_`, `E17EL_`, `E17SF_` (both standard-form types), `E17RV_` and
+  `E17ST_`, with the tools they share prefixed `E17_`; on a shared situation the checker sends the
+  new unknowns to its section and every other unknown to the exam type's checks as before.
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.

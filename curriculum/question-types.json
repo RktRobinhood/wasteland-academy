@@ -3192,7 +3192,7 @@
   },
   "compound-interest": {
    "name": "Money invested at a nominal annual rate, compounded k times a year",
-   "summary": "Pick an amount, an annual rate, how often it is compounded and a number of years. The value after those years, the interest earned, the amount to invest now, the rate, the time to reach a target and a second account to compare it with are then all known.",
+   "summary": "Pick an amount, an annual rate, how often it is compounded and a number of years. The value after those years, the interest earned, the amount to invest now, the rate, the time to reach a target and a second account to compare it with are then all known. t1-ext-real-value adds an inflation rate, so the value in today's money is known too.",
    "quantities": [
     {
      "name": "PV",
@@ -3228,6 +3228,11 @@
      "name": "second account",
      "is": "a rate rb and a compounding kb for the same PV and n",
      "pick": "different from the first, A worth at least 20 dollars more than B, and the difference in cents the same whether the two values are rounded first or not"
+    },
+    {
+     "name": "f",
+     "is": "the annual inflation rate, in per cent (real-value)",
+     "pick": "from 1.0 to 6.0 in steps of 0.5, different from r; the interest is compounded annually"
     }
    ],
    "clean": [
@@ -3235,7 +3240,8 @@
     "money answers are to the nearest cent, exactly, and every value, and every wrong option that is offered, leaves a fraction of a cent at least 0.15 from the rounding edge at 0.5",
     "a rate asked for is a quarter of a per cent, and its 3 s.f. value is clear of an edge, so the answer and its 2 s.f. rounding trap read differently",
     "a time asked for is the first whole number of years that passes the target, with the real solution at least 0.15 from a whole number",
-    "the slips (the annual rate over kn periods, simple interest, the root without the 1 taken off, the total growth shared over n years, the time rounded to the nearest year) each read differently from the answer"
+    "the slips (the annual rate over kn periods, simple interest, the root without the 1 taken off, the total growth shared over n years, the time rounded to the nearest year) each read differently from the answer",
+    "real-value: every money value and every offered slip leaves a fraction of a cent at least 0.15 from the rounding edge, and the real-rate and deflated values differ by at least a dollar"
    ]
   },
   "depreciation": {
@@ -4135,7 +4141,7 @@
   },
   "standard-form": {
    "name": "Numbers in standard form",
-   "summary": "One or two numbers a × 10^k. Convert them to and from ordinary numbers, multiply and divide them, bring a back between 1 and 10, or use them in a story with large or small amounts.",
+   "summary": "One or two numbers a × 10^k. Convert them to and from ordinary numbers, multiply and divide them, bring a back between 1 and 10, or use them in a story with large or small amounts. The extension types add and subtract two numbers with different powers (t1-ext-standard-form-add) and square, cube or root one (t1-ext-standard-form-powers).",
    "quantities": [
     {
      "name": "a, m",
@@ -4171,6 +4177,16 @@
      "name": "shift",
      "is": "a change of unit",
      "pick": "±3, as km to m or g to kg"
+    },
+    {
+     "name": "c",
+     "is": "the root of a perfect-power coefficient: √(c² × 10^(2j)), or ∛(c³ × 10^(3j)) (powers-roots)",
+     "pick": "c with one decimal place for a square root, a whole number from 2 to 9 where the power must be adjusted"
+    },
+    {
+     "name": "p",
+     "is": "the power a number is raised to (powers-roots)",
+     "pick": "2 or 3"
     }
    ],
    "clean": [
@@ -4178,7 +4194,9 @@
     "Paper 2 answers that need rounding have a to 3 s.f., at least 0.06 of a unit of its third figure from a rounding edge, and a stays below 9.9",
     "k is at least 2 from 0 in size wherever it is an answer",
     "m and n are nonzero and different, and mn ≠ m + n, so multiplying the powers is a different answer",
-    "the four numbers of order-mixed have different values"
+    "the four numbers of order-mixed have different values",
+    "add-subtract: the answer is exact, with at most four figures in a, and the powers differ by 1 or 2",
+    "powers-roots: every answer is exact, and each slip reads differently from the answer"
    ]
   },
   "exact-trig": {
@@ -5822,7 +5840,7 @@
   },
   "solve-exponential": {
    "name": "An exponential equation solved with logarithms, in symbols or in a story",
-   "summary": "Draws two powers with different bases, an exponential with a number in front and a constant, or one or two growth models, so the solution comes out exactly as a quotient of logs or m ln r, or needs a calculator to 3 s.f.",
+   "summary": "Draws two powers with different bases, an exponential with a number in front and a constant, or one or two growth models, so the solution comes out exactly as a quotient of logs or m ln r, or needs a calculator to 3 s.f. For t1-ext-common-base, both sides are powers of one small prime instead, so the exponents can be equated and the answer is a whole number or a fraction.",
    "quantities": [
     {
      "name": "a, b, p, c",
@@ -5843,6 +5861,16 @@
      "name": "B₀, g",
      "is": "a second model B₀ × g^t",
      "pick": "B₀ larger than A₀, g from 1.05 to 1.25, so the faster model catches up"
+    },
+    {
+     "name": "t, i, j",
+     "is": "the common base and the powers of t on each side: A = tⁱ, R = tʲ (common-base)",
+     "pick": "t is 2, 3 or 5; A up to 27 and R up to 243, j not a multiple of i where the answer is a fraction"
+    },
+    {
+     "name": "c, k, e",
+     "is": "the exponents x + c and kx + e of A^(x + c) = B^(kx + e) (common-base)",
+     "pick": "c and e from −3 to 3, not 0; k from 1 to 3 (1 on a graph); i ≠ j with no common factor"
     }
    ],
    "clean": [
@@ -5850,7 +5878,9 @@
     "a 3 s.f. answer is clear of a rounding edge and doesn't end in a zero",
     "the logs rounded to 2 d.p. move the answer in its third figure only",
     "a graph's crossing sits inside the window",
-    "the skill map's example equations are left out"
+    "the skill map's example equations are left out",
+    "common-base: the answer is whole or a fraction with a denominator up to 7, and every slip gives another value",
+    "common-base on a graph: the crossing has a whole x from −3 to 4 and a height from 2 to 600"
    ]
   },
   "trig-sketch": {
@@ -6319,6 +6349,78 @@
     "a linear root is a fraction with a denominator at most 4, nonzero and at most 20 in size",
     "a quadratic has two distinct whole or half roots, each at most 12 in size, and exactly one makes every argument positive",
     "a slip is offered as an option only when its x is at most 60 in size, with a denominator at most 12"
+   ]
+  },
+  "integer-powers": {
+   "name": "Numbers and terms with whole-number exponents",
+   "summary": "Pick bases and whole-number exponents, some zero or negative, so that each value, each simplified term and each power of a prime is exact.",
+   "quantities": [
+    {
+     "name": "b, n",
+     "is": "a base and a power for b^(−n)",
+     "pick": "b from 2 to 6 with b^n at most 216; or a fraction s/t from 2 to 5 with no common factor and n of 2 or 3"
+    },
+    {
+     "name": "c",
+     "is": "the number raised to the power zero, or the coefficient of x^n",
+     "pick": "2 to 9"
+    },
+    {
+     "name": "a, m, p, b, n",
+     "is": "the term (ax^m)^p × bx^n",
+     "pick": "a from 2 to 5, m from 2 to 5, p of 2 or 3, b from 1 to 4, n from −7 to 4, not 0; mp at most 12, mp + n at most 10 and a^p × b at most 250, so x = 2 checks it by hand"
+    },
+    {
+     "name": "p, q, r, s",
+     "is": "the exponents of (a^p b^q)/(a^r b^s)",
+     "pick": "−4 to 5, not 0, with p − r and q − s of opposite signs"
+    },
+    {
+     "name": "t, i, j, m, n",
+     "is": "A^m × B^n with A = t^i, B = t^j",
+     "pick": "t of 2, 3 or 5; A and B different powers of t from t² to 125; m and n from −3 to 4, not 0, with k from −20 to 20"
+    }
+   ],
+   "clean": [
+    "every value is exact, a fraction with a denominator at most 1000",
+    "a simplified exponent is not 0 or 1",
+    "every slip reads differently from the answer and from each other"
+   ]
+  },
+  "show-that-value": {
+   "name": "A numerical result to show, with the working that reaches it",
+   "summary": "Pick the numbers of a log statement, an arithmetic sequence, an investment or a quadratic's root, so the stated result is true; the working that reaches it and the slips that only seem to are then all known.",
+   "quantities": [
+    {
+     "name": "b, Q, k",
+     "is": "log_b P − log_b Q = k, with P = Q × bᵏ",
+     "pick": "b of 2, 3 or 5, Q from 2 to 12 not a power of b, bᵏ at most 125"
+    },
+    {
+     "name": "u₁, d, n",
+     "is": "an arithmetic sequence and the number of terms summed",
+     "pick": "u₁ from 1 to 12, d from 2 to 9, n from 8 to 20"
+    },
+    {
+     "name": "p, q",
+     "is": "the positions of two given terms",
+     "pick": "p from 2 to 6, q from p + 3 to 15"
+    },
+    {
+     "name": "PV, r, n",
+     "is": "an amount, a rate in per cent and years for an annual investment",
+     "pick": "PV a multiple of 100 from 500 to 5000, r from 2 to 9 in steps of 0.5, n from 3 to 8"
+    },
+    {
+     "name": "a, b, c, r",
+     "is": "a quadratic ax² + bx + c = 0 and one of its roots r",
+     "pick": "whole roots from −6 to 6, a from 1 to 3"
+    }
+   ],
+   "clean": [
+    "the stated result is exactly true, or true to the nearest cent",
+    "a value to the cent leaves a fraction of a cent at least 0.15 from the rounding edge, and the whole dollars differ from the value",
+    "no two options read the same"
    ]
   }
  },
@@ -22205,7 +22307,10 @@
     "mcq"
    ],
    "situation": "standard-form",
-   "sharesSituation": null,
+   "sharesSituation": [
+    "t1-ext-standard-form-add",
+    "t1-ext-standard-form-powers"
+   ],
    "representations": [
     {
      "rep": "equation",
@@ -27212,7 +27317,9 @@
     "mcq"
    ],
    "situation": "compound-interest",
-   "sharesSituation": null,
+   "sharesSituation": [
+    "t1-ext-real-value"
+   ],
    "representations": [
     {
      "rep": "words",
@@ -29754,7 +29861,9 @@
     "mcq"
    ],
    "situation": "solve-exponential",
-   "sharesSituation": null,
+   "sharesSituation": [
+    "t1-ext-common-base"
+   ],
    "representations": [
     {
      "rep": "equation",
@@ -82095,7 +82204,7 @@
    "topic": 1,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "exponents-logs",
    "name": "Add and subtract in standard form",
    "summary": "Add or subtract two numbers in standard form with different powers of ten, and give the answer in standard form.",
@@ -82111,6 +82220,205 @@
     "mcq",
     "value",
     "error-spot"
+   ],
+   "situation": "standard-form",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the two numbers p and q in standard form"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "two amounts in standard form in a story, with the sum or difference asked"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "add-forms",
+     "given": [
+      "p = a × 10^m and q = b × 10^n, with m ≠ n"
+     ],
+     "asked": "p + q in standard form",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.1.add-subtract"
+     ]
+    },
+    {
+     "id": "add-carry",
+     "given": [
+      "p and q in standard form whose sum has a coefficient of 10 or more at the larger power"
+     ],
+     "asked": "p + q in standard form",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.1.add-subtract"
+     ]
+    },
+    {
+     "id": "subtract-forms",
+     "given": [
+      "p = a × 10^m and q = b × 10^n, with m > n"
+     ],
+     "asked": "p − q in standard form",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.1.add-subtract"
+     ]
+    },
+    {
+     "id": "subtract-renormalise",
+     "given": [
+      "p and q in standard form whose difference has a coefficient below 1 at the larger power"
+     ],
+     "asked": "p − q in standard form",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.1.add-subtract"
+     ]
+    },
+    {
+     "id": "difference-context",
+     "given": [
+      "two distances or masses in standard form, in a story"
+     ],
+     "asked": "how much more one is, in standard form",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.1.add-subtract"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.1.add-subtract",
+     "method": "match-powers",
+     "suits": [
+      "add-forms",
+      "add-carry",
+      "subtract-forms",
+      "subtract-renormalise",
+      "difference-context"
+     ]
+    },
+    {
+     "skill": "SL1.1.add-subtract",
+     "method": "ordinary-numbers",
+     "suits": [
+      "add-forms",
+      "add-carry",
+      "subtract-forms",
+      "subtract-renormalise",
+      "difference-context"
+     ]
+    },
+    {
+     "skill": "SL1.1.add-subtract",
+     "method": "gdc-ee",
+     "suits": [
+      "add-forms",
+      "add-carry",
+      "subtract-forms",
+      "subtract-renormalise",
+      "difference-context"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "5 × 10⁴ + 5 × 10⁴ = 10 × 10⁴, which is the sum in standard form. True or false?",
+     "answer": "False. The value is right, but standard form needs 1 ≤ a < 10: 10 × 10⁴ = 1 × 10⁵.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.1.add-subtract#0",
+     "text": "Adding the powers of ten, as if the numbers were multiplied",
+     "as": "distractor",
+     "in": [
+      "add-forms",
+      "add-carry",
+      "subtract-forms",
+      "subtract-renormalise",
+      "difference-context"
+     ],
+     "wrong": "the coefficients combined and the powers of ten added"
+    },
+    {
+     "ref": "SL1.1.add-subtract#1",
+     "text": "Adding the coefficients while the powers of ten are different",
+     "as": "distractor",
+     "in": [
+      "add-forms",
+      "add-carry",
+      "subtract-forms",
+      "subtract-renormalise",
+      "difference-context"
+     ],
+     "wrong": "the coefficients combined at the larger power"
+    },
+    {
+     "text": "Leaving a coefficient of 10 or more, which is not standard form",
+     "as": "distractor",
+     "in": [
+      "add-carry"
+     ],
+     "wrong": "the sum of the coefficients, 10 or more, at the larger power"
+    },
+    {
+     "text": "Leaving a coefficient below 1, which is not standard form",
+     "as": "distractor",
+     "in": [
+      "subtract-renormalise"
+     ],
+     "wrong": "the difference of the coefficients, below 1, at the larger power"
+    },
+    {
+     "text": "Subtracting the powers of ten as well as the coefficients",
+     "as": "distractor",
+     "in": [
+      "subtract-forms",
+      "subtract-renormalise",
+      "difference-context"
+     ],
+     "wrong": "the coefficients subtracted and the powers subtracted"
+    },
+    {
+     "text": "Changing the power of ten without moving the decimal point, in a line of working",
+     "as": "error-spot",
+     "in": [
+      "add-forms"
+     ],
+     "wrong": "a line writes b × 10^n as b × 10^m"
+    }
+   ],
+   "sharesSituation": [
+    "t1-ext-standard-form-powers",
+    "t1-standard-form"
    ]
   },
   {
@@ -82118,7 +82426,7 @@
    "topic": 1,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "exponents-logs",
    "name": "Powers and roots in standard form",
    "summary": "Square, cube or take a root of a number in standard form, adjusting the power of ten so that the root comes out whole.",
@@ -82134,6 +82442,217 @@
     "mcq",
     "value",
     "error-spot"
+   ],
+   "situation": "standard-form",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the number in standard form, with the power or root to take"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "square-form",
+     "given": [
+      "(a × 10^k)^2"
+     ],
+     "asked": "the square in standard form",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.1.powers-roots"
+     ]
+    },
+    {
+     "id": "cube-form",
+     "given": [
+      "(a × 10^k)^3"
+     ],
+     "asked": "the cube in standard form",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.1.powers-roots"
+     ]
+    },
+    {
+     "id": "root-even",
+     "given": [
+      "√(a × 10^k), with k even and a a perfect square"
+     ],
+     "asked": "the square root in standard form",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.1.powers-roots"
+     ]
+    },
+    {
+     "id": "root-odd",
+     "given": [
+      "√(a × 10^k), with k odd and 10a a perfect square"
+     ],
+     "asked": "the square root in standard form",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.1.powers-roots"
+     ]
+    },
+    {
+     "id": "cube-root",
+     "given": [
+      "∛(a × 10^k), with the power of ten to adjust to a multiple of 3"
+     ],
+     "asked": "the cube root in standard form",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.1.powers-roots"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.1.powers-roots",
+     "method": "distribute-power",
+     "suits": [
+      "square-form",
+      "cube-form",
+      "root-even"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "root-odd",
+       "cube-root"
+      ],
+      "why": "the root of the power of ten is not a whole power of ten until the power is adjusted"
+     }
+    },
+    {
+     "skill": "SL1.1.powers-roots",
+     "method": "adjust-exponent",
+     "suits": [
+      "root-even",
+      "root-odd",
+      "cube-root"
+     ]
+    },
+    {
+     "skill": "SL1.1.powers-roots",
+     "method": "gdc-root",
+     "suits": [
+      "square-form",
+      "cube-form",
+      "root-even",
+      "root-odd",
+      "cube-root"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "√(9 × 10⁸) = 3 × 10⁸, since the square root of 9 is 3. True or false?",
+     "answer": "False. The root applies to the whole product: √(9 × 10⁸) = √9 × √(10⁸) = 3 × 10⁴. Squaring 3 × 10⁸ gives 9 × 10¹⁶, not 9 × 10⁸.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.1.powers-roots#0",
+     "text": "Applying the power to the power of ten but not to the coefficient",
+     "as": "distractor",
+     "in": [
+      "square-form",
+      "cube-form"
+     ],
+     "wrong": "a × 10^(pk), the coefficient left as it is"
+    },
+    {
+     "ref": "SL1.1.powers-roots#1",
+     "text": "Adding the power to the exponent of ten instead of multiplying them",
+     "as": "distractor",
+     "in": [
+      "square-form",
+      "cube-form"
+     ],
+     "wrong": "a^p × 10^(k + p)"
+    },
+    {
+     "ref": "SL1.1.powers-roots#2",
+     "text": "Taking the root of the coefficient but not of the power of ten",
+     "as": "distractor",
+     "in": [
+      "root-even",
+      "root-odd",
+      "cube-root"
+     ],
+     "wrong": "the root of the coefficient, with the power of ten left as it is"
+    },
+    {
+     "text": "Multiplying the coefficient by the power instead of raising it to the power",
+     "as": "distractor",
+     "in": [
+      "square-form",
+      "cube-form"
+     ],
+     "wrong": "(a × p) × 10^(pk)"
+    },
+    {
+     "text": "Halving the coefficient instead of taking its square root",
+     "as": "distractor",
+     "in": [
+      "root-even",
+      "root-odd"
+     ],
+     "wrong": "the coefficient halved, with the power halved"
+    },
+    {
+     "text": "Taking a third of the coefficient instead of its cube root",
+     "as": "distractor",
+     "in": [
+      "cube-root"
+     ],
+     "wrong": "the coefficient divided by three, with the power divided by three"
+    },
+    {
+     "text": "Cubing the power of ten but leaving the coefficient as it is, in a line of working",
+     "as": "error-spot",
+     "in": [
+      "cube-form"
+     ],
+     "wrong": "a line writes (a × 10^k)^3 as a × 10^(3k)"
+    },
+    {
+     "text": "Raising the power of ten when the coefficient is multiplied by 10, instead of lowering it",
+     "as": "error-spot",
+     "in": [
+      "root-odd"
+     ],
+     "wrong": "a line writes a × 10^k as 10a × 10^(k + 1)"
+    }
+   ],
+   "sharesSituation": [
+    "t1-ext-standard-form-add",
+    "t1-standard-form"
    ]
   },
   {
@@ -82165,7 +82684,7 @@
    "topic": 1,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "finance",
    "name": "Real value after inflation",
    "summary": "Find the real value of an investment by using the interest rate minus the inflation rate, and decide whether it keeps up with prices.",
@@ -82182,6 +82701,207 @@
     "mcq",
     "method-pick",
     "error-spot"
+   ],
+   "situation": "compound-interest",
+   "representations": [
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "an investment in a story: the amount, the annual interest rate, the inflation rate and the years"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "real-rate",
+     "given": [
+      "an annual interest rate and an annual inflation rate"
+     ],
+     "asked": "the real interest rate, in per cent",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.4.real-value"
+     ]
+    },
+    {
+     "id": "real-value-rate",
+     "given": [
+      "an amount, an annual interest rate, an annual inflation rate and n years"
+     ],
+     "asked": "the real value after n years, using the real interest rate, to the nearest cent",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.4.real-value"
+     ]
+    },
+    {
+     "id": "real-value-deflate",
+     "given": [
+      "an amount, an annual interest rate, an annual inflation rate and n years"
+     ],
+     "asked": "the value after n years in today's money, found by dividing by the inflation factor, to the nearest cent",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.4.real-value"
+     ]
+    },
+    {
+     "id": "keeps-pace",
+     "given": [
+      "an annual interest rate and an annual inflation rate"
+     ],
+     "asked": "whether the investment keeps pace with inflation, and why",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.4.real-value"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.4.real-value",
+     "method": "real-rate-tvm",
+     "suits": [
+      "real-rate",
+      "real-value-rate",
+      "keeps-pace"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "real-value-deflate"
+      ],
+      "why": "interest rate minus inflation only approximates the real rate, so the value comes out a few dollars off the deflated one"
+     }
+    },
+    {
+     "skill": "SL1.4.real-value",
+     "method": "deflate",
+     "suits": [
+      "real-value-deflate",
+      "keeps-pace"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "real-value-rate"
+      ],
+      "why": "dividing by the inflation factor gives the exact real value, not the one the real interest rate gives"
+     }
+    },
+    {
+     "skill": "SL1.4.real-value",
+     "method": "year-by-year",
+     "suits": [
+      "real-value-rate",
+      "real-value-deflate"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "predict-check",
+     "prompt": "An account pays 2% a year while prices rise 3% a year. Its balance grows every year. Predict whether its real value rises or falls, then check with the real rate.",
+     "answer": "Falls. The real rate is 2% − 3% = −1%, so each year the money buys about 1% less, though the balance itself rises.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.4.real-value#0",
+     "text": "Adding the inflation rate to the interest rate",
+     "as": "distractor",
+     "in": [
+      "real-rate",
+      "real-value-rate"
+     ],
+     "wrong": "interest rate plus inflation rate"
+    },
+    {
+     "ref": "SL1.4.real-value#1",
+     "text": "Dividing by the inflation factor once instead of once per year",
+     "as": "distractor",
+     "in": [
+      "real-value-deflate"
+     ],
+     "wrong": "the future value divided by (1 + f/100) once"
+    },
+    {
+     "ref": "SL1.4.real-value#2",
+     "text": "Assuming the real value must rise whenever the nominal value rises",
+     "as": "distractor",
+     "in": [
+      "keeps-pace"
+     ],
+     "wrong": "says yes because the balance rises"
+    },
+    {
+     "text": "Subtracting the interest rate from the inflation rate",
+     "as": "distractor",
+     "in": [
+      "real-rate"
+     ],
+     "wrong": "inflation minus interest"
+    },
+    {
+     "text": "Using the interest rate and ignoring inflation",
+     "as": "distractor",
+     "in": [
+      "real-value-rate",
+      "real-value-deflate"
+     ],
+     "wrong": "the nominal future value"
+    },
+    {
+     "text": "Multiplying by the inflation factor instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "real-value-deflate"
+     ],
+     "wrong": "the future value times (1 + f/100)^n"
+    },
+    {
+     "text": "Assuming any positive inflation makes the real value fall",
+     "as": "distractor",
+     "in": [
+      "keeps-pace"
+     ],
+     "wrong": "says no whenever inflation is positive"
+    },
+    {
+     "text": "Dividing by the inflation factor for one year only, in a line of working",
+     "as": "error-spot",
+     "in": [
+      "real-value-deflate"
+     ],
+     "wrong": "a line uses (1 + f/100) where (1 + f/100)^n belongs"
+    },
+    {
+     "text": "Adding the inflation rate to the interest rate, in a line of working",
+     "as": "error-spot",
+     "in": [
+      "real-value-rate"
+     ],
+     "wrong": "a line uses i + f as the real rate"
+    }
+   ],
+   "sharesSituation": [
+    "t1-compound-interest"
    ]
   },
   {
@@ -82189,10 +82909,10 @@
    "topic": 1,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "exponents-logs",
    "name": "Integer exponent laws",
-   "summary": "Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/xⁿ as ax⁻ⁿ.",
+   "summary": "Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/x^n as ax^(−n).",
    "gap": "Index laws are used as steps inside calculus and log questions; no bank part tests them on their own.",
    "skills": [
     "SL1.5.integer-exponent-laws",
@@ -82209,6 +82929,317 @@
     "error-spot",
     "order-steps",
     "true-false-reason"
+   ],
+   "situation": "integer-powers",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the number or expression to evaluate or simplify, in symbols"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "negative-power",
+     "given": [
+      "a whole number or a fraction to a negative whole power"
+     ],
+     "asked": "its exact value",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.zero-negative"
+     ]
+    },
+    {
+     "id": "zero-and-negative",
+     "given": [
+      "c^0 + b^(−n), with whole numbers c, b and n"
+     ],
+     "asked": "its exact value",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.zero-negative"
+     ]
+    },
+    {
+     "id": "to-index-form",
+     "given": [
+      "c/x^n or 1/(cx^n)"
+     ],
+     "asked": "a and p, with the expression written as ax^p",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.zero-negative"
+     ]
+    },
+    {
+     "id": "power-of-product",
+     "given": [
+      "(ax^m)^p × bx^n, n possibly negative"
+     ],
+     "asked": "the expression simplified to cx^e",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.integer-exponent-laws",
+      "SL1.5.zero-negative"
+     ]
+    },
+    {
+     "id": "two-letter-quotient",
+     "given": [
+      "(a^p b^q)/(a^r b^s), with some exponents negative"
+     ],
+     "asked": "the quotient with positive exponents",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.integer-exponent-laws",
+      "SL1.5.zero-negative"
+     ]
+    },
+    {
+     "id": "single-prime-power",
+     "given": [
+      "A^m × B^n or A^m ÷ B^n, where A and B are powers of one prime t"
+     ],
+     "asked": "k, with the number written as t^k",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.integer-exponent-laws"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.5.zero-negative",
+     "method": "reciprocal-rule",
+     "suits": [
+      "negative-power",
+      "zero-and-negative",
+      "to-index-form"
+     ]
+    },
+    {
+     "skill": "SL1.5.zero-negative",
+     "method": "pattern-down",
+     "suits": [
+      "negative-power",
+      "zero-and-negative"
+     ]
+    },
+    {
+     "skill": "SL1.5.zero-negative",
+     "method": "quotient-law",
+     "suits": [
+      "to-index-form"
+     ]
+    },
+    {
+     "skill": "SL1.5.integer-exponent-laws",
+     "method": "apply-laws",
+     "suits": [
+      "power-of-product",
+      "two-letter-quotient"
+     ]
+    },
+    {
+     "skill": "SL1.5.integer-exponent-laws",
+     "method": "expand-definition",
+     "suits": [
+      "power-of-product"
+     ]
+    },
+    {
+     "skill": "SL1.5.integer-exponent-laws",
+     "method": "substitute-check",
+     "suits": [
+      "power-of-product",
+      "two-letter-quotient"
+     ]
+    },
+    {
+     "skill": "SL1.5.integer-exponent-laws",
+     "method": "common-base",
+     "suits": [
+      "single-prime-power"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "(2x)³ = 2x³, because the power belongs to the x. True or false?",
+     "answer": "False. The bracket makes the whole product the base, so (2x)³ = 2x × 2x × 2x = 8x³. Only 2x³ without a bracket cubes the x alone.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "For a whole number b ≥ 2 and a whole number n ≥ 1, b^(−n) is negative.",
+     "answer": "Never. b^(−n) = 1/b^n, a positive number less than 1. The minus sign in the exponent means a reciprocal, not a negative.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.5.integer-exponent-laws#0",
+     "text": "Adding the exponents for a power of a power, where they multiply",
+     "as": "distractor",
+     "in": [
+      "power-of-product"
+     ],
+     "wrong": "the exponent inside the bracket plus the outside power"
+    },
+    {
+     "ref": "SL1.5.integer-exponent-laws#1",
+     "text": "Applying a power to only part of a product in a bracket",
+     "as": "distractor",
+     "in": [
+      "power-of-product"
+     ],
+     "wrong": "the outside power applied to the x but not to the number in the bracket"
+    },
+    {
+     "ref": "SL1.5.integer-exponent-laws#2",
+     "text": "Multiplying different bases and adding their exponents, as if the bases were the same",
+     "as": "distractor",
+     "in": [
+      "single-prime-power"
+     ],
+     "wrong": "the two numbers multiplied together, with their exponents added"
+    },
+    {
+     "ref": "SL1.5.zero-negative#0",
+     "text": "Assuming a negative exponent makes the number negative",
+     "as": "distractor",
+     "in": [
+      "negative-power",
+      "zero-and-negative",
+      "to-index-form"
+     ],
+     "wrong": "b^(−n) taken as −b^n"
+    },
+    {
+     "ref": "SL1.5.zero-negative#1",
+     "text": "Assuming a number to the power zero is zero",
+     "as": "distractor",
+     "in": [
+      "zero-and-negative"
+     ],
+     "wrong": "c⁰ taken as 0"
+    },
+    {
+     "ref": "SL1.5.zero-negative#2",
+     "text": "Moving the coefficient to the top along with the variable, instead of only the variable",
+     "as": "distractor",
+     "in": [
+      "to-index-form"
+     ],
+     "wrong": "1/(cx^n) written as cx^(−n)"
+    },
+    {
+     "text": "Ignoring the minus sign in the exponent",
+     "as": "distractor",
+     "in": [
+      "negative-power",
+      "zero-and-negative"
+     ],
+     "wrong": "b^(−n) taken as b^n"
+    },
+    {
+     "text": "Multiplying the base by the exponent",
+     "as": "distractor",
+     "in": [
+      "negative-power"
+     ],
+     "wrong": "b^(−n) taken as −nb"
+    },
+    {
+     "text": "Assuming a number to the power zero is the number itself",
+     "as": "distractor",
+     "in": [
+      "zero-and-negative"
+     ],
+     "wrong": "c⁰ taken as c"
+    },
+    {
+     "text": "Keeping the exponent positive when the power moves to the top",
+     "as": "distractor",
+     "in": [
+      "to-index-form"
+     ],
+     "wrong": "c/x^n written as cx^n"
+    },
+    {
+     "text": "Multiplying the number in the bracket by the power instead of raising it to the power",
+     "as": "distractor",
+     "in": [
+      "power-of-product"
+     ],
+     "wrong": "(ax)^p with a × p in front"
+    },
+    {
+     "text": "Subtracting a negative exponent when multiplying, instead of adding it",
+     "as": "distractor",
+     "in": [
+      "power-of-product"
+     ],
+     "wrong": "the exponents mp − n where n is negative"
+    },
+    {
+     "text": "Subtracting the exponents the wrong way round when dividing",
+     "as": "distractor",
+     "in": [
+      "two-letter-quotient"
+     ],
+     "wrong": "the top's exponent taken from the bottom's"
+    },
+    {
+     "text": "Adding the exponents when dividing",
+     "as": "distractor",
+     "in": [
+      "two-letter-quotient"
+     ],
+     "wrong": "the exponents of each letter added"
+    },
+    {
+     "text": "Leaving out the prime's power over the base when an exponent is multiplied",
+     "as": "distractor",
+     "in": [
+      "single-prime-power"
+     ],
+     "wrong": "k = m + n"
+    },
+    {
+     "text": "Applying a power to only part of a product, in one line of working",
+     "as": "error-spot",
+     "in": [
+      "power-of-product"
+     ],
+     "wrong": "a line raises the x to the power but not the number"
+    }
    ]
   },
   {
@@ -82265,7 +83296,7 @@
    "topic": 1,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "proof",
    "name": "Numerical \"show that\"",
    "summary": "Complete a \"show that\" with a given number, setting out each step so that the given answer is reached rather than assumed.",
@@ -82282,6 +83313,240 @@
     "error-spot",
     "true-false-reason",
     "mcq"
+   ],
+   "situation": "show-that-value",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the statement to be shown, in symbols, with its numbers"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the statement in a short story: a sequence of rows of crates, or money in an account"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "log-difference",
+     "given": [
+      "log_b P − log_b Q = k, with P = Q × b^k"
+     ],
+     "asked": "the working that shows it",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.numerical-show-that"
+     ]
+    },
+    {
+     "id": "series-sum",
+     "given": [
+      "an arithmetic sequence and the sum Sₙ = V"
+     ],
+     "asked": "the working that shows it",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.numerical-show-that"
+     ]
+    },
+    {
+     "id": "common-difference",
+     "given": [
+      "two terms of an arithmetic sequence, and the common difference d = D"
+     ],
+     "asked": "the working that shows it",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.numerical-show-that"
+     ]
+    },
+    {
+     "id": "interest-value",
+     "given": [
+      "an amount invested at r% a year, compounded annually, and its value V to the nearest cent after n years"
+     ],
+     "asked": "the working that shows it",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.6.numerical-show-that"
+     ]
+    },
+    {
+     "id": "verify-solution",
+     "given": [
+      "a quadratic equation and a value x = r"
+     ],
+     "asked": "the working that verifies that r is a solution",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.numerical-show-that"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.6.numerical-show-that",
+     "method": "forward-derivation",
+     "suits": [
+      "log-difference",
+      "series-sum",
+      "common-difference",
+      "interest-value"
+     ]
+    },
+    {
+     "skill": "SL1.6.numerical-show-that",
+     "method": "both-sides",
+     "suits": [
+      "log-difference",
+      "verify-solution"
+     ]
+    },
+    {
+     "skill": "SL1.6.numerical-show-that",
+     "method": "verify",
+     "suits": [
+      "verify-solution"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "log-difference",
+       "series-sum",
+       "common-difference",
+       "interest-value"
+      ],
+      "why": "a 'show that' needs a derivation, and putting the given value back in earns no marks"
+     }
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Asked to show that the value is $1500.36, a student writes 1000 × 1.07⁶ = 1500. Since 1500 is close, the 'show that' is done. True or false?",
+     "answer": "False. A value rounded to fewer figures than the given one could come from many workings. The student must show more figures, 1500.730…, and then round, which here gives 1500.73: the given value is not even right.",
+     "level": 4
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "Why does 'verify that x = 2 is a solution' accept substituting x = 2, when 'show that x = 2' does not?",
+     "answer": "Verify asks only whether the value works, so substituting it and getting a true statement answers it. Show that asks you to reach the value from the givens, so it must come at the end of the working, not at the start.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.6.numerical-show-that#0",
+     "text": "Substituting the given answer and checking it, which earns no marks on a 'show that'",
+     "as": "distractor",
+     "in": [
+      "log-difference",
+      "series-sum",
+      "common-difference",
+      "interest-value"
+     ],
+     "wrong": "starts from the given value and checks it"
+    },
+    {
+     "ref": "SL1.6.numerical-show-that#1",
+     "text": "Jumping straight to the given answer without the step that produces it",
+     "as": "distractor",
+     "in": [
+      "log-difference",
+      "series-sum",
+      "common-difference",
+      "interest-value",
+      "verify-solution"
+     ],
+     "wrong": "states the given result with no working"
+    },
+    {
+     "ref": "SL1.6.numerical-show-that#2",
+     "text": "Showing only a value rounded to the given answer, instead of a more accurate value that rounds to it",
+     "as": "distractor",
+     "in": [
+      "interest-value"
+     ],
+     "wrong": "the working stops at a value rounded to fewer figures than the given one"
+    },
+    {
+     "text": "Dividing the logs instead of taking the log of the quotient",
+     "as": "distractor",
+     "in": [
+      "log-difference"
+     ],
+     "wrong": "log P ÷ log Q in place of log(P/Q)"
+    },
+    {
+     "text": "Using the last term times the number of terms as the sum",
+     "as": "distractor",
+     "in": [
+      "series-sum"
+     ],
+     "wrong": "Sₙ = n × uₙ"
+    },
+    {
+     "text": "Dividing the gap between the terms by the later term's position",
+     "as": "distractor",
+     "in": [
+      "common-difference"
+     ],
+     "wrong": "d = (u_q − u_p)/q"
+    },
+    {
+     "text": "Leaving the substituted expression without working it out",
+     "as": "distractor",
+     "in": [
+      "verify-solution"
+     ],
+     "wrong": "stops at the expression with r put in"
+    },
+    {
+     "text": "Leaving out the constant term when substituting",
+     "as": "distractor",
+     "in": [
+      "verify-solution"
+     ],
+     "wrong": "ar² + br only"
+    },
+    {
+     "text": "Starting the working from the value that is to be shown",
+     "as": "error-spot",
+     "in": [
+      "series-sum"
+     ],
+     "wrong": "a line puts the given sum on the left before it is worked out"
+    },
+    {
+     "text": "Writing a value rounded to fewer figures than the given one as a step of a 'show that'",
+     "as": "error-spot",
+     "in": [
+      "interest-value"
+     ],
+     "wrong": "a line rounds the value to the nearest dollar"
+    }
    ]
   },
   {
@@ -82289,7 +83554,7 @@
    "topic": 1,
    "source": "extension",
    "kind": "skill",
-   "detail": "catalogue",
+   "detail": "full",
    "region": "exponents-logs",
    "name": "Exponential equations with a common base",
    "summary": "Solve an exponential equation exactly by writing both sides as powers of the same base and equating the exponents.",
@@ -82307,6 +83572,231 @@
     "error-spot",
     "method-pick",
     "order-steps"
+   ],
+   "situation": "solve-exponential",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the exponential equation alone, its bases powers of one small prime"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the two sides drawn as curves that cross at P, each named by its equation"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "whole-power",
+     "given": [
+      "b^x = N, where N is a whole power of b"
+     ],
+     "asked": "x, a whole number",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.common-base"
+     ]
+    },
+    {
+     "id": "reciprocal-power",
+     "given": [
+      "b^x = 1/N, where N is a whole power of b"
+     ],
+     "asked": "x, a negative whole number",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.common-base"
+     ]
+    },
+    {
+     "id": "fraction-power",
+     "given": [
+      "A^x = R, where A and R are powers of one prime"
+     ],
+     "asked": "x, exactly, as a fraction",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.common-base"
+     ]
+    },
+    {
+     "id": "linear-exponents",
+     "given": [
+      "A^(x + c) = B^(kx + e), where A and B are powers of one prime"
+     ],
+     "asked": "x, exactly",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.common-base"
+     ]
+    },
+    {
+     "id": "meet-on-graph",
+     "given": [
+      "the curves y = A^(x + c) and y = B^(x + e), A and B powers of one prime, crossing at P"
+     ],
+     "asked": "the x-coordinate of P, exactly",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL1.7.common-base"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.7.common-base",
+     "method": "equate-exponents",
+     "suits": [
+      "whole-power",
+      "reciprocal-power",
+      "fraction-power",
+      "linear-exponents",
+      "meet-on-graph"
+     ]
+    },
+    {
+     "skill": "SL1.7.common-base",
+     "method": "take-logs",
+     "suits": [
+      "whole-power",
+      "reciprocal-power",
+      "fraction-power",
+      "linear-exponents"
+     ]
+    },
+    {
+     "skill": "SL1.7.common-base",
+     "method": "inspection",
+     "suits": [
+      "whole-power",
+      "reciprocal-power"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "fraction-power",
+       "linear-exponents"
+      ],
+      "why": "the answer is not a whole number, so no power in the list is the right side"
+     }
+    },
+    {
+     "skill": "SL1.7.common-base",
+     "method": "graph-intersect",
+     "suits": [
+      "meet-on-graph"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "To solve 4^x = 8, write both sides as powers of 2. Then 2x = 3, so x = 1.5. A student says 4^1.5 cannot be 8, because 4 × 1.5 is 6. True or false?",
+     "answer": "False. 4^1.5 is not 4 × 1.5: it is (√4)³ = 2³ = 8, so x = 1.5 is right. A power counts multiplications, not a product with the base.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Before solving 9^x = 1/27, decide whether x is positive or negative. Then solve it.",
+     "answer": "Negative: 1/27 is less than 1, and 9^x is less than 1 only for x < 0. Writing 9 = 3² and 1/27 = 3⁻³ gives 2x = −3, so x = −1.5.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.7.common-base#0",
+     "text": "Dividing by the base instead of finding the power it is raised to",
+     "as": "distractor",
+     "in": [
+      "whole-power",
+      "reciprocal-power",
+      "fraction-power"
+     ],
+     "wrong": "x = the right side divided by the base"
+    },
+    {
+     "ref": "SL1.7.common-base#1",
+     "text": "Multiplying only the x term of an exponent when rewriting the base, instead of the whole exponent",
+     "as": "distractor",
+     "in": [
+      "linear-exponents",
+      "meet-on-graph"
+     ],
+     "wrong": "the base's power multiplies only the x term of each exponent"
+    },
+    {
+     "text": "Writing the exponents of the common base the wrong way up",
+     "as": "distractor",
+     "in": [
+      "fraction-power"
+     ],
+     "wrong": "x = i/j where it is j/i"
+    },
+    {
+     "text": "Leaving out the minus sign that a reciprocal brings",
+     "as": "distractor",
+     "in": [
+      "reciprocal-power"
+     ],
+     "wrong": "x = j where it is −j"
+    },
+    {
+     "text": "Equating the exponents before writing both sides with the same base",
+     "as": "distractor",
+     "in": [
+      "linear-exponents",
+      "meet-on-graph"
+     ],
+     "wrong": "x + c = kx + e solved as it stands"
+    },
+    {
+     "text": "Giving the y-coordinate of the crossing point instead of its x-coordinate",
+     "as": "distractor",
+     "in": [
+      "meet-on-graph"
+     ],
+     "wrong": "the height of P"
+    },
+    {
+     "text": "Adding the exponents of a power of a power in a line of working, where they multiply",
+     "as": "error-spot",
+     "in": [
+      "fraction-power"
+     ],
+     "wrong": "a line writes (t^i)^x as t^(i + x)"
+    },
+    {
+     "text": "Multiplying only the x term of an exponent in a line of working, when the base is rewritten",
+     "as": "error-spot",
+     "in": [
+      "linear-exponents"
+     ],
+     "wrong": "a line rewrites A^(x + c) as t^(ix + c)"
+    }
+   ],
+   "sharesSituation": [
+    "t1-solve-exponential"
    ]
   },
   {
