@@ -12082,6 +12082,7 @@ DR_CHAIN = "SL5.6.chain-rule#"
 DR_PROD = "SL5.6.product-rule#"
 DR_QUOT = "SL5.6.quotient-rule#"
 DR_STD = "SL5.6.standard-derivatives#"
+DR_OWN = "t5-differentiation-rules#"     # the type's own slips (FAL-820)
 
 
 def dr_wrongs(u, fam, g, f, df):
@@ -12095,28 +12096,45 @@ def dr_wrongs(u, fam, g, f, df):
         w[DR_STD + "1"] = [a * x * sp.exp(x - 1) + b / x + c * dtr]
         if fam == "cos":
             w[DR_STD + "0"] = [a * sp.exp(x) + b / x + c * sp.sin(x)]
+        else:
+            w[DR_OWN + "13"] = [a * sp.exp(x) + b / x - c * sp.cos(x)]  # sin x to −cos x
     elif u == "root-powers":
         r = {"sqrt": sp.Rational(1, 2), "cbrt": sp.Rational(1, 3), "invsqrt": -sp.Rational(1, 2), "invcbrt": -sp.Rational(1, 3)}[fam]
         w[DR_STD + "2"] = [a * r * x ** (r + 1) - n * b * x ** (-n - 1)]
+        w[DR_OWN + "14"] = [a * x ** (r - 1) - n * b * x ** (-n - 1), a * r * x ** (r - 1) + b * x ** (-n - 1)]  # a power not brought down
+        w[DR_OWN + "15"] = [a * r * x ** (r - 1) - n * b * x ** (-n + 1)]  # −n moved up, not down
+        w[DR_OWN + "16"] = [a * r * x ** (r - 1) + n * b * x ** (-n - 1)]  # the minus lost
     elif u == "log-power-terms":
         if fam == "power":
             w[DR_CHAIN + "0"] = [a / x ** n + b * m * x ** (m - 1)]
         else:
             w[DR_CHAIN + "1"] = [a / (d * x) + b * m * x ** (m - 1)]
+        w[DR_OWN + "14"] = [sp.diff(f - b * x ** m, x) + b * x ** (m - 1)]  # the power m not brought down
     elif u == "chain-power":
         inn = a * x ** m + b
         w[DR_CHAIN + "0"] = [c * n * inn ** (n - 1)]
         w[DR_CHAIN + "2"] = [c * n * sp.diff(inn, x) ** (n - 1)]
+        w[DR_OWN + "17"] = [c * n * sp.diff(inn, x) * inn ** n]  # the power not lowered
+        w[DR_OWN + "18"] = [c * sp.diff(inn, x) * inn ** (n - 1)]  # no n brought down
     elif u == "chain-small-power":
         w[DR_CHAIN + "0"] = [2 * (a * x + b)]
+        w[DR_OWN + "19"] = [2 * a * a * x + b]  # 2a times the x term only
     elif u == "chain-function":
         lin = a * x + b
         w[DR_CHAIN + "0"] = [{"exp-quad": sp.exp(a * x ** 2 + b), "exp-lin": sp.exp(lin), "ln-quad": 1 / (x ** 2 + b), "ln-lin": 1 / lin,
                               "sin-lin": sp.cos(lin), "cos-lin": -sp.sin(lin), "sqrt-lin": 1 / (2 * sp.sqrt(lin))}[fam]]
         if fam == "cos-lin":
             w[DR_STD + "0"] = [a * sp.sin(lin)]
+        if fam == "sin-lin":
+            w[DR_OWN + "13"] = [-a * sp.cos(lin)]  # sin to −cos
+        if fam == "exp-quad":
+            w[DR_CHAIN + "2"] = [2 * a * x * sp.exp(2 * a * x)]  # the inside replaced by its derivative
+            w[DR_OWN + "20"] = [a * x * sp.exp(a * x ** 2 + b)]  # x² taken to x inside
+        if fam == "ln-quad":
+            w[DR_OWN + "20"] = [x / (x ** 2 + b)]
     elif u == "chain-log-split":
         w[DR_CHAIN + "0"] = [(n if fam == "power" else sp.Rational(1, 2)) / (a * x + b)]
+        w[DR_OWN + "21"] = [a / (a * x + b)]  # the log's power left off
     elif u == "product-functions":
         U, V = {"exp": (x ** n, sp.exp(a * x)), "ln": (x ** n, sp.log(x)), "sin": (x ** n, sp.sin(x)), "cos": (x ** n, sp.cos(x)),
                 "exp-sin": (sp.exp(x), sp.sin(x))}[fam]
@@ -12124,6 +12142,10 @@ def dr_wrongs(u, fam, g, f, df):
         w[DR_PROD + "1"] = [sp.diff(U, x) * V, U * sp.diff(V, x)]
         if fam == "ln":
             w[DR_PROD + "2"] = [x ** (n - 1) * n * sp.log(x)]
+        if fam in ("sin", "exp-sin"):
+            w[DR_OWN + "13"] = [sp.diff(U, x) * V - U * sp.cos(x)]  # sin x to −cos x
+        if fam == "cos":
+            w[DR_STD + "0"] = [sp.diff(U, x) * V + U * sp.sin(x)]  # cos x to sin x
     elif u == "product-polys":
         U, V = a * x + b, c * x ** 2 + d
         w[DR_PROD + "0"] = [sp.diff(U, x) * sp.diff(V, x)]
@@ -12132,6 +12154,9 @@ def dr_wrongs(u, fam, g, f, df):
         U, V = a * x ** m, sp.sqrt(x)
         w[DR_PROD + "0"] = [sp.diff(U, x) * sp.diff(V, x)]
         w[DR_PROD + "1"] = [sp.diff(U, x) * V, U * sp.diff(V, x)]
+        pw = m + sp.Rational(1, 2)
+        w[DR_OWN + "14"] = [a * x ** (pw - 1)]  # the power not brought down
+        w[DR_OWN + "17"] = [a * pw * x ** pw]  # the power not lowered
     elif u in ("quotient-linear", "quotient-functions", "quotient-split"):
         U, V = {"quotient-linear": (a * x + b, c * x + d), "quotient-split": (a * x ** 2 + b * x + c, x)}.get(u) or \
             {"ln": (sp.log(x), x ** n), "exp": (sp.exp(a * x), x), "sin": (sp.sin(x), x)}[fam]
@@ -12139,6 +12164,11 @@ def dr_wrongs(u, fam, g, f, df):
         w[DR_QUOT + "0"] = [(U * dv - V * du) / V ** 2]
         w[DR_QUOT + "1"] = [(V * du - U * dv) / V]
         w[DR_QUOT + "2"] = [du / dv]
+        w[DR_OWN + "22"] = [(V * du + U * dv) / V ** 2]  # the top added
+        if u == "quotient-split":
+            w[DR_OWN + "16"] = [a + c / x ** 2]  # c/x to +c/x²
+        if u == "quotient-functions" and fam == "exp":
+            w[DR_CHAIN + "0"] = [(x * sp.exp(a * x) - sp.exp(a * x)) / x ** 2]  # e^(ax) to e^(ax)
         if u == "quotient-functions" and fam == "ln":
             # The bracket's common factor cancelled as in the right answer, with v left unsquared.
             w[DR_QUOT + "1"].append((1 - n * sp.log(x)) / x ** n)
@@ -12192,9 +12222,18 @@ def check_differentiation(q):
                 right = {k: int(R(ans["values"]["v%d" % i])) for i, k in enumerate(["p", "q", "r"][:len(vals)])}
                 if o["ref"].endswith("show-derivative-form#2"):
                     slip = {"ln": ("q", -right.get("q", 0)), "linear": ("p", -right["p"]), "alg": ("q", -right.get("q", 0) - 2)}[fam]
-                    need(nb[slip[0]] == slip[1], f"{o['text']!r} is not a sign slip")
+                    if fam == "linear":
+                        top_, bot_ = sp.fraction(sp.together(f))
+                        if sp.expand(bot_).coeff(CX, 1) < 0:
+                            top_, bot_ = -top_, -bot_
+                        a_, b_, c_ = sp.expand(top_).coeff(CX, 1), top_.subs(CX, 0), sp.solve(bot_, CX)[0]
+                        need(nb["p"] in (slip[1], b_ - a_ * c_), f"{o['text']!r} is not a sign slip")  # or on b alone
+                    else:
+                        need(nb[slip[0]] == slip[1], f"{o['text']!r} is not a sign slip")
+                elif o["ref"] == DR_QUOT + "0":
+                    need(all(nb[k] == -right[k] for k in ("p", "q")) and nb["r"] == right["r"], f"{o['text']!r} is not the top reversed")
                 else:
-                    need(o["ref"] == DR_QUOT + "1" and nb["r"] == 2 * (right["r"] - 1), f"{o['text']!r} is not the bottom left unsimplified")
+                    need(o["ref"] == DR_OWN + "23" and nb["r"] == 2 * (right["r"] - 1), f"{o['text']!r} is not the bottom left uncancelled")
         return None, None
 
     if u.startswith("gradient-"):
@@ -12399,6 +12438,7 @@ def check_derivative_meaning(q):
 MO_I = "SL5.2.increasing-decreasing-intervals#"
 MO_G = "SL5.2.sign-from-graph#"
 MO_P = "SL5.2.parameter-for-monotonic#"
+MO_OWN = "t5-increasing-decreasing#"     # the type's own slips (FAL-820)
 
 
 def mo_iv(shape, lo, hi, s=dm_num):
@@ -12437,7 +12477,9 @@ def check_monotonic(q):
         shape = mo_where(df, word, p, r2)
         want = mo_iv(shape, p, r2)
         ys = sorted([f.subs(CX, p), f.subs(CX, r2)])
-        wrongs = {MO_I + "0": {mo_iv(shape, ys[0], ys[1])}, MO_I + "2": {mo_iv("outside" if shape == "between" else "between", p, r2)}}
+        other_side = {mo_iv("outside" if shape == "between" else "between", p, r2)}
+        wrongs = {MO_I + "0": {mo_iv(shape, ys[0], ys[1])}, MO_I + "2": other_side, MO_OWN + "11": other_side,  # the other word answered
+                  MO_OWN + "12": {mo_iv(shape, -r2, -p)}}  # the roots' signs flipped
         need(sp.Poly(df, CX).LC() < 0 or not any(o["ref"] == MO_I + "2" for o in q["choices"]), "a wrong way round is only for a negative leading coefficient")
     elif u == "interval-from-table":
         rows = q["table"]["rows"]
@@ -12453,7 +12495,8 @@ def check_monotonic(q):
         need(between != 0 and ys[0] * between < 0 and ys[4] * between < 0, "f′ doesn't change sign at the zeros")
         shape = "between" if (between > 0) == (word == "increasing") else "outside"
         want = mo_iv(shape, zs[0], zs[1])
-        wrongs = {MO_I + "2": {mo_iv("outside" if shape == "between" else "between", zs[0], zs[1])}}
+        other_side = {mo_iv("outside" if shape == "between" else "between", zs[0], zs[1])}
+        wrongs = {MO_I + "2": other_side, MO_OWN + "11": other_side, MO_OWN + "13": {mo_iv(shape, xs[0], xs[-1])}}  # the table's ends
     elif u == "quadratic-interval":
         f = calc_expr(L[0].split(" = ", 1)[1])
         df = sp.diff(f, CX)
@@ -12463,7 +12506,8 @@ def check_monotonic(q):
         want = f"x {rel} {dm_num(h)}"
         rs = sorted(sp.Poly(f, CX).ground_roots().keys())
         wrongs = {MO_I + "0": {f"y {rel} {dm_num(f.subs(CX, h))}"}, MO_I + "1": {f"{dm_num(rs[0])} < x < {dm_num(rs[1])}"},
-                  MO_I + "2": {f"x {'<' if rel == '>' else '>'} {dm_num(h)}"}}
+                  MO_I + "2": {f"x {'<' if rel == '>' else '>'} {dm_num(h)}"}, MO_OWN + "11": {f"x {'<' if rel == '>' else '>'} {dm_num(h)}"},
+                  MO_OWN + "14": {f"x {rel} {dm_num(-h)}"}}  # −b/(2a) without its minus
     elif u == "interval-from-derivative-graph":
         gp = q["graph"]
         pts = gp["points"]
@@ -12478,7 +12522,8 @@ def check_monotonic(q):
             need(abs(sg) < 1e-3 or abs(b / sg - (mid / ((xm - float(r1)) * (xm - float(r2))))) < 1e-6, "the curve is not a parabola through its marked points")
         shape = "between" if (mid > 0) == (word == "increasing") else "outside"
         want = mo_iv(shape, r1, r2)
-        wrongs = {MO_I + "2": {mo_iv("outside" if shape == "between" else "between", r1, r2)}}
+        other_side = {mo_iv("outside" if shape == "between" else "between", r1, r2)}
+        wrongs = {MO_I + "2": other_side, MO_OWN + "11": other_side}
     elif u == "interval-gdc":
         need(q["paper"] == 2, "f′ with an exponential is Paper 2")
         df = calc_expr(L[0].split(" = ", 1)[1])
@@ -12489,7 +12534,9 @@ def check_monotonic(q):
         up = fn((zs[0] + zs[1]) / 2) > 0
         shape = "between" if up == (word == "increasing") else "outside"
         want = mo_iv(shape, zs[0], zs[1], gc_s)
-        wrongs = {MO_I + "2": {mo_iv("outside" if shape == "between" else "between", zs[0], zs[1], gc_s)}}
+        turn = [sp.Float(sp.N(t, 30), 30) for t in sp.solve(sp.diff(df, CX), CX) if t.is_real]
+        wrongs = {MO_I + "2": {mo_iv("outside" if shape == "between" else "between", zs[0], zs[1], gc_s)},
+                  MO_OWN + "15": {mo_iv(shape, t, zs[1], gc_s) for t in turn}}  # f′'s turning point as an end
     elif u == "sign-at-points":
         x1, x2 = int(g["x1"]), int(g["x2"])
         co = [int(c) for c in g["coeffs"]]
@@ -12515,7 +12562,8 @@ def check_monotonic(q):
         want = f"x {rel} {dm_num(h)}"
         below = mo_iv("between" if a > 0 else "outside", r1, r2)
         above = mo_iv("outside" if a > 0 else "between", r1, r2)
-        wrongs = {MO_G + "0": {below if neg else above}, MO_G + "1": {above if neg else below}}
+        wrongs = {MO_G + "0": {below if neg else above}, MO_G + "1": {above if neg else below, f"x {rel} {dm_num(r1)}"},  # or cut at a root
+                  MO_OWN + "11": {f"x {'<' if rel == '>' else '>'} {dm_num(h)}"}}
     elif u == "negative-and-increasing":
         f = calc_expr(L[0].split(" = ", 1)[1])
         df = sp.diff(f, CX)
@@ -12528,7 +12576,7 @@ def check_monotonic(q):
         sign_ok = lambda x: (f.subs(CX, x) < 0 and df.subs(CX, x) > 0) if a > 0 else (f.subs(CX, x) > 0 and df.subs(CX, x) < 0)
         hit = [x for x in good if sign_ok(x)]
         want = f"{dm_num(min(hit) - sp.Rational(1, 2))} < x < {dm_num(max(hit) + sp.Rational(1, 2))}"
-        wrongs = {MO_I + "1": {f"{dm_num(rs[0])} < x < {dm_num(rs[1])}"}}
+        wrongs = {MO_I + "1": {f"{dm_num(rs[0])} < x < {dm_num(rs[1])}"}, MO_OWN + "11": {f"{dm_num(rs[0])} < x < {dm_num(h)}"}}  # the other side of the vertex
     elif u == "parameter-discriminant":
         K = sp.Symbol("k")
         m = re.fullmatch(r"f\(x\) = (−?)x³ \+ kx² ([+−]) (\d*)x(?: ([+−]) (\d+))?", L[0])
@@ -12550,7 +12598,8 @@ def check_monotonic(q):
         k = f.subs(CX, h)
         need(sp.Poly(f, CX).LC() > 0, "g′ opens down, so g can't increase everywhere")
         want = f"d ≤ {dm_num(k)}"
-        wrongs = {MO_P + "1": {f"d > {dm_num(k)}"}}
+        wrongs = {MO_P + "1": {f"d > {dm_num(k)}"}, MO_OWN + "16": {f"d ≥ {dm_num(k)}"},  # the inequality turned
+                  MO_OWN + "17": {f"d ≤ {dm_num(-k)}"}, MO_OWN + "18": {f"d ≤ {dm_num(h)}"}}  # k's sign; h for k
     elif u == "quotient-sign":
         m = re.fullmatch(r"f\(x\) = \((.+)\)/\((.+)\), for x ≠ (.+)", L[0])
         need(m is not None and len(L) == 1, f"can't read {L}")
@@ -12960,6 +13009,7 @@ DI_S = "SL5.5.total-change-from-rate#"
 DI_CONTEXTS = [("water", "in the tank", "litres", "minute", "minutes"), ("fuel", "in the tanker", "litres", "minute", "minutes"),
                ("charge", "in the bank", "kilowatt-hours", "hour", "hours"), ("grain", "in the silo", "kilograms", "minute", "minutes")]
 DI_K_SYM = sp.Symbol("K")
+DI_OWN = "t5-definite-integral-area#"     # the type's own slips (FAL-820)
 
 
 def di_num(text):
@@ -13050,42 +13100,63 @@ def check_definite_integral(q):
     x = CX
     if u == "evaluate-polynomial":
         lo, hi, f = di_read(L[0])
-        v = sp.integrate(f, (x, di_num(lo), di_num(hi)))
-        di_common(q, di_text(v, sf), {DI_E + "0": {di_text(-v, sf)}})
+        a, b = di_num(lo), di_num(hi)
+        v = sp.integrate(f, (x, a, b))
+        di_common(q, di_text(v, sf), {DI_E + "0": {di_text(-v, sf)},
+                                      DI_OWN + "14": {di_text(f.subs(x, b) - f.subs(x, a), sf)},  # f, not F, at the limits
+                                      DI_K + "1": {di_text(sp.integrate(f, (x, 0, b)), sf)}})  # F(lower) left out
     elif u == "evaluate-roots":
         lo, hi, f = di_read(L[0])
         a, b = di_num(lo), di_num(hi)
         need(sp.sqrt(a).is_integer and sp.sqrt(b).is_integer and a < b, "the limits are not perfect squares")
         v = sp.integrate(f, (x, a, b))
-        di_common(q, dm_num(v), {DI_E + "0": {dm_num(-v)}})
+        di_common(q, dm_num(v), {DI_E + "0": {dm_num(-v)}, DI_K + "1": {dm_num(sp.integrate(f, (x, 0, b)))}})  # F(lower) left out
     elif u == "evaluate-trig":
         lo, hi, f = di_read(L[0])
         a, b = di_num(lo), di_num(hi)
         need(a == 0 and b in (sp.pi, sp.pi / 2), "the limits are not 0 and π or π/2")
         v = sp.integrate(f, (x, a, b))
         F = sp.integrate(f, x)
-        di_symbolic(q, v, {DI_E + "1": [F.subs(x, b)]})
+        cst, trig = f.as_independent(x)
+        di_symbolic(q, v, {DI_E + "1": [F.subs(x, b)],
+                           DI_OWN + "15": [sp.integrate(cst, (x, a, b)) - sp.integrate(trig, (x, a, b))]})  # the trig part's sign flipped
     elif u == "evaluate-log":
         lo, hi, f = di_read(L[0])
         a, b = di_num(lo), di_num(hi)
         v = sp.integrate(f, (x, a, b))
-        di_symbolic(q, v, {DI_E + "0": [-v]})
+        den = sp.denom(sp.together(f))
+        k_ = sp.simplify(f * den)
+        di_symbolic(q, v, {DI_E + "0": [-v], DI_OWN + "16": [k_ * sp.log(b - a)],  # ln a − ln b as ln(a − b)
+                           DI_K + "1": [k_ * sp.log(den.subs(x, b))]})  # F(lower) left out
         di_refs(q, {})
     elif u == "evaluate-exp":
         lo, hi, f = di_read(L[0])
         a, b = di_num(lo), di_num(hi)
         v = sp.integrate(f, (x, a, b))
-        di_symbolic(q, v, {DI_E + "0": [-v], DI_E + "1": [sp.integrate(f, x).subs(x, b)]})
+        k_ = f.subs(x, 0)
+        a_ = sp.diff(f, x).subs(x, 0) / k_
+        di_symbolic(q, v, {DI_E + "0": [-v], DI_E + "1": [sp.integrate(f, x).subs(x, b)],
+                           DI_OWN + "17": [k_ * (sp.exp(a_ * b) - 1)],  # not divided by a
+                           DI_OWN + "18": [k_ * a_ * (sp.exp(a_ * b) - 1)]})  # times a, as in differentiating
     elif u == "evaluate-odd-even":
         lo, hi, f = di_read(L[0])
         need(di_num(lo) == -di_num(hi), "the limits are not −a and a")
-        di_common(q, dm_num(sp.integrate(f, (x, di_num(lo), di_num(hi)))), {})
+        a = di_num(hi)
+        v = sp.integrate(f, (x, -a, a))
+        fe, fo = (f + f.subs(x, -x)) / 2, (f - f.subs(x, -x)) / 2
+        di_common(q, dm_num(v), {DI_OWN + "19": {"0"},  # all of it taken as odd
+                                 DI_OWN + "20": {dm_num(sp.integrate(fe, (x, 0, a)))},  # the even part not doubled
+                                 DI_OWN + "21": {dm_num(v + 2 * sp.integrate(fo, (x, 0, a)))},  # the odd part doubled too
+                                 DI_E + "0": {dm_num(-v)}})
     elif u == "evaluate-linear":
         lo, hi, f = di_read(L[0])
         a, b = di_num(lo), di_num(hi)
         need(f.subs(x, a) > 0 and f.subs(x, b) > 0, "the line is not above the axis")
         v = sp.integrate(f, (x, a, b))
-        di_common(q, dm_num(v), {DI_E + "0": {dm_num(-v)}, DI_E + "2": {dm_num(v) + " + C"}})
+        di_common(q, dm_num(v), {DI_E + "0": {dm_num(-v)}, DI_E + "2": {dm_num(v) + " + C"},
+                                 DI_OWN + "14": {dm_num(f.subs(x, b) - f.subs(x, a))},  # f, not F, at the limits
+                                 DI_OWN + "22": {dm_num(f.subs(x, b) * (b - a)), dm_num(f.subs(x, a) * (b - a))},  # a rectangle
+                                 DI_K + "1": {dm_num(sp.integrate(f, (x, 0, b)))}})  # F(lower) left out
     elif u in ("area-above-axis", "area-below-axis"):
         f = in_expr(re.search(r"curve y = (.+?)\. ", L[0]).group(1))
         r, t = sorted(sp.roots(sp.Poly(f, x)))
@@ -13109,7 +13180,9 @@ def check_definite_integral(q):
             di_figure(q, f)
             di_shade(q, f, sp.Integer(0), r, t, 0)
             di_shade(q, f, sp.Integer(0), t, hi, 1)
-        di_common(q, "Area = " + di_text(v, sf), {DI_N + "0": {"Area = " + di_text(net, sf)}, DI_N + "2": {"Area = " + di_text(bad, sf)}})
+        di_common(q, "Area = " + di_text(v, sf), {DI_N + "0": {"Area = " + di_text(net, sf)}, DI_N + "2": {"Area = " + di_text(bad, sf)},
+                                                  DI_OWN + "23": {"Area = " + di_text(abs(sp.integrate(f, (x, r, t))), sf),
+                                                                  "Area = " + di_text(abs(sp.integrate(f, (x, t, hi))), sf)}})  # one region only
     elif u == "area-gdc":
         m = re.search(r"curve y = (.+?), for (\d+) ≤ x ≤ (\d+)\.", L[0])
         f = in_expr(m.group(1))
@@ -13123,7 +13196,8 @@ def check_definite_integral(q):
         di_figure(q, f)
         di_shade(q, f, sp.Integer(0), lo, zs[0], 0)
         di_shade(q, f, sp.Integer(0), zs[0], hi, 1)
-        di_common(q, "Area = " + gc_s(sp.Float(str(area), 30)), {DI_N + "0": {"Area = " + gc_s(sp.Float(str(net), 30))}})
+        di_common(q, "Area = " + gc_s(sp.Float(str(area), 30)), {DI_N + "0": {"Area = " + gc_s(sp.Float(str(net), 30))},
+                                                                 DI_OWN + "23": {"Area = " + gc_s(sp.Float(str(abs(p1)), 30)), "Area = " + gc_s(sp.Float(str(abs(p2)), 30))}})  # one region only
     elif u == "area-symmetry":
         f = in_expr(re.search(r"curve y = (.+?)(, for|\. )", L[0]).group(1))
         if f.has(sp.sin):
@@ -13138,7 +13212,7 @@ def check_definite_integral(q):
             di_shade(q, f, sp.Integer(0), rs[0], 0, 0)
             di_shade(q, f, sp.Integer(0), 0, rs[2], 1)
         di_figure(q, f)
-        di_common(q, f"Area = {dm_num(v)}", {DI_N + "0": {"Area = 0"}})
+        di_common(q, f"Area = {dm_num(v)}", {DI_N + "0": {"Area = 0"}, DI_OWN + "23": {f"Area = {dm_num(v / 2)}"}})  # one of the two congruent regions
     elif u == "unknown-upper-limit":
         lo, hi, f = di_read(L[0])
         need(hi == "k", "the upper limit is not k")
@@ -13162,7 +13236,7 @@ def check_definite_integral(q):
         need(len(sol) == 1 and sol[0].is_integer, f"k is {sol}")
         need(di_same(check_F.subs(x, sol[0]) - check_F.subs(x, 0), sp.log(M) / 2), "the value shown is not the integral")
         bad = [r for r in sp.solve(y ** 2 + a - M, y) if r.is_integer]
-        di_common(q, f"k = {sol[0]}", {DI_K + "1": {f"k = {r}" for r in bad}})
+        di_common(q, f"k = {sol[0]}", {DI_K + "1": {f"k = {r}" for r in bad}, DI_OWN + "24": {f"k = {sol[0] ** 2}"}})  # no square root
     elif u == "unknown-limit-trig":
         lo, hi, f = di_read(L[0])
         need(lo == "0" and hi == "m", "the limits are not 0 and m")
@@ -13174,7 +13248,7 @@ def check_definite_integral(q):
         want = f"m = π/{sp.nsimplify(d)}"
         for o in q["choices"]:
             need(di_same(sp.integrate(f, (x, 0, sp.pi / di_num(o["text"].split("/")[1]))), V) == o["correct"], f"{o['text']} against the integral")
-        di_common(q, want, {})
+        di_common(q, want, {DI_OWN + "25": {f"m = π/{sp.nsimplify(sp.pi / sp.acos(sp.sin(m_)))}"}})  # the angle with that cosine
     elif u == "unknown-stretch":
         m = re.search(r"lines x = (\d+) and x = (\d+)\. Its area is (.+?)\.", L[0])
         lo, hi, A = int(m.group(1)), int(m.group(2)), di_num(m.group(3))
@@ -13182,7 +13256,9 @@ def check_definite_integral(q):
         if rep == "graph":
             di_figure(q, k * x ** 2)
             di_shade(q, k * x ** 2, sp.Integer(0), lo, hi)
-        di_common(q, f"k = {dm_num(k)}", {DI_K + "1": {f"k = {dm_num(A / sp.integrate(x ** 2, (x, 0, hi)))}"}} if lo else {})
+        wr = {DI_K + "1": {f"k = {dm_num(A / sp.integrate(x ** 2, (x, 0, hi)))}"}} if lo else {}
+        wr[DI_OWN + "26"] = {f"k = {dm_num(A)}"}  # the area itself taken as k
+        di_common(q, f"k = {dm_num(k)}", wr)
     elif u == "region-tangent":
         f = in_expr(re.search(r"curve y = (.+?) touches", L[0]).group(1))
         pts = {p["label"][0]: p for p in q["graph"]["points"]}
@@ -13219,9 +13295,12 @@ def check_definite_integral(q):
         for s_, lo_, hi_ in strips:
             need(abs(hi_ - (fl(s_) if s_ <= p else fc(s_))) < 1e-6 and lo_ == 0, f"the shading at x = {s_} is not the region")
         if sf:
-            di_common(q, "Area = " + gc_s(sp.N(v, 40)), {DI_R + "1": {"Area = " + gc_s(sp.N(rest - tri, 40))}})
+            di_common(q, "Area = " + gc_s(sp.N(v, 40)), {DI_R + "1": {"Area = " + gc_s(sp.N(rest - tri, 40))},
+                                                         DI_OWN + "23": {"Area = " + gc_s(sp.N(rest, 40))},  # the triangle left out
+                                                         DI_K + "1": {"Area = " + gc_s(sp.N(tri + sp.integrate(cv, x).subs(x, b), 40))}})  # F(lower) left out
         else:
-            di_symbolic(q, v, {DI_R + "1": [rest - tri]})
+            di_symbolic(q, v, {DI_R + "1": [rest - tri], DI_K + "1": [tri + sp.integrate(cv, x).subs(x, b)],  # F(lower) left out
+                               DI_OWN + "27": [2 * tri + rest]})  # the triangle not halved
     elif u in ("total-from-rate", "amount-with-start", "interpret-integral"):
         what, where, y, per, time = DI_CONTEXTS[int(g["ctx"])]
         unit = f"{y} per {per}"
@@ -13244,22 +13323,27 @@ def check_definite_integral(q):
             wr = {DI_S + "0": {f"{tx(end)} {unit}"} if words else {tx(end)}}
             if words:
                 wr[DI_S + "2"] = {f"{tx(total)} {unit}"}
+            wr[DI_OWN + "28"] = {tx(end * T) + tail}  # the end rate for the whole time
             di_common(q, tx(total) + tail, wr)
         elif u == "amount-with-start":
             need(not sf, "a start is a Paper 1 question")
             st = int(re.search(r"there are (\d+) ", L[1]).group(1))
-            di_common(q, f"{dm_num(total + st)} {y}", {DI_S + "1": {f"{dm_num(total)} {y}"}})
+            di_common(q, f"{dm_num(total + st)} {y}", {DI_S + "1": {f"{dm_num(total)} {y}"}, DI_S + "0": {f"{dm_num(end + st)} {y}"},  # the end rate, not the integral
+                                                      DI_OWN + "29": {f"{dm_num(abs(total - st))} {y}"}})  # the start taken off
         else:
             v = L[1].rsplit(" = ", 1)[1]
             need(v == tx(total), f"the integral shown, {v}, is not {tx(total)}")
-            di_common(q, f"{v} {y} of {what} were added in the first {T} {time}.", {DI_S + "2": {f"At t = {T}, {what} was being added at {v} {unit}."}})
+            di_common(q, f"{v} {y} of {what} were added in the first {T} {time}.", {DI_S + "2": {f"At t = {T}, {what} was being added at {v} {unit}."},
+                                                                                   DI_OWN + "31": {f"At t = {T}, there were exactly {v} {y} of {what} {where}, whatever the start."},
+                                                                                   DI_OWN + "32": {f"On average, {v} {y} of {what} were added in each of the first {T} {time}."}})
     elif u == "total-from-rate-graph":
         what, where, y, per, time = DI_CONTEXTS[int(g["ctx"])]
         c = q["graph"]["curves"][0]
         total = sum((sp.nsimplify(a[1]) + sp.nsimplify(b[1])) * (sp.nsimplify(b[0]) - sp.nsimplify(a[0])) / 2 for a, b in zip(c, c[1:]))
         need(sp.nsimplify(c[0][0]) == 0 and sp.nsimplify(c[-1][0]) == int(re.search(r"first (\d+)", asked).group(1)), "the graph doesn't cover the time asked")
         need(all(b[0] > a[0] and b[1] >= 0 for a, b in zip(c, c[1:])), "the rate graph is not a function above the axis")
-        di_common(q, f"{dm_num(total)} {y}", {DI_S + "2": {f"{dm_num(total)} {y} per {per}"}})
+        di_common(q, f"{dm_num(total)} {y}", {DI_S + "2": {f"{dm_num(total)} {y} per {per}"},
+                                              DI_OWN + "28": {f"{dm_num(sp.nsimplify(c[-1][1]) * sp.nsimplify(c[-1][0]))} {y}"}})  # the end rate for the whole time
     elif u == "time-to-reach":
         what, where, y, per, time = DI_CONTEXTS[int(g["ctx"])]
         f = in_expr(re.search(r"r\(t\) = (.+?)\. At", L[0]).group(1))
@@ -13267,7 +13351,7 @@ def check_definite_integral(q):
         Y = sp.Symbol("Y", positive=True)
         sol = sp.solve(sp.integrate(f, (x, 0, Y)) - N_, Y)
         need(len(sol) == 1 and sol[0].is_integer, f"the time is {sol}")
-        di_common(q, f"t = {sol[0]} {time}", {})
+        di_common(q, f"t = {sol[0]} {time}", {DI_OWN + "30": {f"t = {dm_num(N_ / f.subs(x, 0))} {time}"}})  # the start rate held
     else:
         raise Fail(f"no check for {u}")
     return None, None
@@ -13575,7 +13659,8 @@ def kd_ridge(q):
     need(period == 2 * k, f"the period is {period}")
     gap = kd_integral(v, c, c + period, True)
     need(gap.is_integer, "the distance is not whole")
-    gc_check_common(q, f"Distance = {dm_num(gap)} m", {KD_ME + "12": {f"Distance = {dm_num(gap / 2)} m"}, KD_ME + "9": {f"Distance = {dm_num((A + B) * period)} m"}})
+    gc_check_common(q, f"Distance = {dm_num(gap)} m", {KD_ME + "12": {f"Distance = {dm_num(gap / 2)} m"},
+                                                       KD_ME + "9": {f"Distance = {dm_num((A + B) * period)} m", f"Distance = {dm_num((B - A) * period)} m"}})  # fastest or slowest speed held
 
 
 def kd_race(q):
@@ -13596,7 +13681,7 @@ def kd_race(q):
     kd_fair(tf, x2, gap)
     flat = D - A2 * tf
     txt = lambda y: f"Distance = {gc_s(sp.Float(y, 30))} m"
-    gc_check_common(q, txt(gap), {KD_ME + "13": {txt(x2)}, KD_ME + "9": {txt(flat)}})
+    gc_check_common(q, txt(gap), {KD_ME + "13": {txt(x2)}, KD_ME + "9": {txt(flat)}, KD_ME + "29": {txt(tf)}})  # P's time given as the gap
 
 
 def kd_return(q, v, T):
@@ -13614,6 +13699,8 @@ def kd_return(q, v, T):
     turn = f"it changes direction at t = {r}, so it "
     gc_check_common(q, yes if back else no, {
         KD_ME + "14": set() if back else {f"Yes: {turn}comes back to where it began."},
+        KD_ME + "25": {f"No: {turn}never comes back to where it began."} if back else set(),  # the turn alone decides
+        KD_ME + "26": {no} if back else set(),  # only the end checked
         KD_ME + "15": {f"No: it travels {dist} m in all, not 0 m." if back else f"Yes: it travels {dist} m in all, more than the {abs(first)} m out, so it is back."}}, steps=(2, 5))
 
 
@@ -13626,7 +13713,7 @@ def kd_from_s(q, u, f, T, sf, rep):
         need(sf, "this model is Paper 2")
         s0 = f.subs(x, 0)
         need(s0.is_integer, "s(0) is not whole")
-        gc_check_common(q, f"s = {s0} m", {})
+        gc_check_common(q, f"s = {s0} m", {KD_ME + "27": {f"s = {dm_num(f.replace(sp.cos, lambda _: 0).subs(x, 0))} m"}})  # cos 0 taken as 0
     elif u == "distance-from-position":
         need(len(Z) >= 2, "fewer than two rests")
         sq = [mt_at(f, 0), mt_at(f, Z[0]), mt_at(f, Z[1])]
@@ -13636,7 +13723,9 @@ def kd_from_s(q, u, f, T, sf, rep):
         # The same trip again, as ∫|v|.
         check = sum(abs(y) for y in kd_legs(v, sp.Integer(0), sp.Float(Z[1], 30), [sp.Float(Z[0], 30)], False))
         need(abs(check - dist) < 1e-15, "the positions and ∫|v| disagree")
-        gc_check_common(q, f"Distance = {tx(dist)} m", {KD_ME + "18": {f"Distance = {tx(net)} m"}, KD_ME + "19": {f"Distance = {tx(abs(net))} m"}})
+        gc_check_common(q, f"Distance = {tx(dist)} m", {KD_ME + "18": {f"Distance = {tx(net)} m"}, KD_ME + "19": {f"Distance = {tx(abs(net))} m"},
+                                                       KD_ME + "29": {f"Distance = {tx(Z[1])} m"},  # the time q given
+                                                       KD_ME + "34": {f"Distance = {tx(sq[2])} m"}})  # s at q
     else:
         need(not sf and sp.Poly(f, x).degree() == 2, "this is a quadratic on Paper 1")
         need(f.subs(x, 0) == 0 and len(Z) == 1, "not a trip out from the origin with one turn")
@@ -13645,11 +13734,12 @@ def kd_from_s(q, u, f, T, sf, rep):
         need(end < 0, "it doesn't pass the origin")
         dist = abs(top) + abs(end - top)
         if u == "displacement-at-turn":
-            gc_check_common(q, f"s = {top} m", {})
+            gc_check_common(q, f"s = {top} m", {KD_ME + "29": {f"s = {q0} m"}, KD_ME + "30": {f"s = {dm_num(end)} m"}})  # the time; s at the end
         elif u == "distance-from-origin":
             gc_check_common(q, f"Distance = {abs(end)} m", {KD_ME + "7": {f"Distance = {dm_num(end)} m"}, KD_ME + "8": {f"Distance = {dist} m"}})
         else:
-            gc_check_common(q, f"Distance = {dist} m", {KD_ME + "18": {f"Distance = {dm_num(end)} m"}, KD_ME + "19": {f"Distance = {abs(end)} m"}})
+            gc_check_common(q, f"Distance = {dist} m", {KD_ME + "18": {f"Distance = {dm_num(end)} m"}, KD_ME + "19": {f"Distance = {abs(end)} m"},
+                                                        KD_ME + "31": {f"Distance = {abs(top)} m", f"Distance = {abs(end - top)} m"}})  # one leg
     if rep == "graph":
         dm_graph_curve(q, f)
 
@@ -13680,10 +13770,12 @@ def check_motion_distance(q):
         a, V, t0 = kd_expr(m.group(1)), el_num(m.group(2)), int(m.group(3))
         anti = sp.integrate(a, x)
         want = anti + V - anti.subs(x, t0)
+        tags = {KD_ME + "16": anti, KD_ME + "21": anti + V,  # C set to the v given
+                KD_ME + "22": sum(c * x ** (k + 1) for (k,), c in sp.Poly(a, x).terms()) + want.subs(x, 0)}  # not divided by the new power
         for o in q["choices"]:
             need(calc_same(in_expr(calc_rhs(o["text"])), want) == o["correct"], f"option {o['text']!r} against {want}")
             if o["ref"]:
-                need(o["ref"] == KD_ME + "16" and calc_same(in_expr(calc_rhs(o["text"])), anti), f"{o['ref']} on {o['text']!r}")
+                need(o["ref"] in tags and calc_same(in_expr(calc_rhs(o["text"])), tags[o["ref"]]), f"{o['ref']} on {o['text']!r}")
         need(calc_same(kd_template(q["answer"]), want), "the slots don't make the expression shown")
         return None, None
     if u == "time-for-distance":
@@ -13695,7 +13787,7 @@ def check_motion_distance(q):
         need(d > D, "the distance stops short of the rest")
         ks = [k for k in sp.solve(D - sp.integrate(v, (x, r, x)) - d, x) if k > r]
         need(len(ks) == 1 and ks[0].is_integer, f"k is {ks}")
-        gc_check_common(q, f"k = {ks[0]}", {})
+        gc_check_common(q, f"k = {ks[0]}", {KD_ME + "38": {f"k = {ks[0] - r}"}})  # the rest time not added back
         return None, None
     if u in KD_S_UNKNOWNS:
         m = KD_READ_S.search(L[0])
@@ -13723,7 +13815,8 @@ def check_motion_distance(q):
         K, t0 = el_num(m.group(1)), int(m.group(2))
         anti = sp.integrate(v, x)
         want = anti + K - anti.subs(x, t0)
-        tags = {KD_D + "0" if t0 == 0 else KD_ME + "16": anti, KD_D + "1": a}
+        tags = {KD_D + "0" if t0 == 0 else KD_ME + "16": anti, KD_D + "1": a, KD_ME + "21": anti + K,  # C set to the s given
+                KD_ME + "22": sum(c * x ** (k + 1) for (k,), c in sp.Poly(v, x).terms()) + want.subs(x, 0)}  # not divided by the new power
         for o in q["choices"]:
             e = in_expr(calc_rhs(o["text"]))
             need(calc_same(e, want) == o["correct"], f"option {o['text']!r} against {want}")
@@ -13736,19 +13829,21 @@ def check_motion_distance(q):
         net = I(0, t0)
         if sf:
             kd_fair(net, s0 + net)
-        gc_check_common(q, f"s = {tx(s0 + net)} m", {KD_D + "0": {f"s = {tx(net)} m"}, KD_D + "1": {f"s = {tx(mt_at(a, t0))} m"}})
+        gc_check_common(q, f"s = {tx(s0 + net)} m", {KD_D + "0": {f"s = {tx(net)} m"}, KD_D + "1": {f"s = {tx(mt_at(a, t0))} m"},
+                                                     KD_ME + "23": {f"s = {tx(mt_at(v, t0))} m"}})  # v at the time
     elif u == "displacement-between":
         p, r = (int(g) for g in re.search(r"between t = (\d+) and t = (\d+)", asked).groups())
         need(0 < p < r <= T, "the times are out of order")
         net = I(p, r)
-        gc_check_common(q, f"Displacement = {tx(net)} m", {KD_D + "2": {f"Displacement = {tx(s0 + I(0, r))} m"}})
+        gc_check_common(q, f"Displacement = {tx(net)} m", {KD_D + "2": {f"Displacement = {tx(s0 + I(0, r))} m"},
+                                                           KD_ME + "24": {f"Displacement = {tx(mt_at(v, r) - mt_at(v, p))} m"}})  # v, not s, at the times
     elif u == "position-at-max-velocity":
         ex = mt_extremes(v, a, T, exact)
         tm = max(ex, key=lambda p: p[1])[0]
         need(0 < tm < T, "the greatest velocity is at an end")
         mt_one_top(ex)
         net = I(0, tm)
-        gc_check_common(q, f"s = {tx(s0 + net)} m", {KD_D + "0": {f"s = {tx(net)} m"}})
+        gc_check_common(q, f"s = {tx(s0 + net)} m", {KD_D + "0": {f"s = {tx(net)} m"}, KD_ME + "23": {f"s = {tx(mt_at(v, tm))} m"}})  # the top velocity
     elif u == "does-it-return":
         need(exact, "this is Paper 1")
         kd_return(q, v, T)
@@ -13756,11 +13851,15 @@ def check_motion_distance(q):
         need(len(Z) == 2, f"{len(Z)} rests")
         lo, hi = Z
         need(mt_at(v, 0) < 0 and mt_at(v, (lo + hi) / 2) > 0 and mt_at(v, T) < 0, "v is not negative, positive, negative")
-        gc_check_common(q, f"{tx(lo)} < t < {tx(hi)}", {KD_ME + "10": {f"0 < t < {tx(A[0])}"}})
+        gc_check_common(q, f"{tx(lo)} < t < {tx(hi)}", {KD_ME + "10": {f"0 < t < {tx(A[0])}"},
+                                                         KD_ME + "28": {f"0 < t < {tx(lo)}", f"{tx(hi)} < t < {tx(sp.Integer(T))}"}})  # where v < 0
     elif u == "distance-before-turning":
         t1 = Z[0]
         net = I(0, t1)
-        gc_check_common(q, f"Distance = {tx(abs(net))} m", {KD_ME + "9": {f"Distance = {tx(abs(mt_at(v, 0)) * t1)} m"}})
+        whole = sum(abs(y) for y in kd_legs(v, sp.Integer(0), sp.Integer(T), Z, exact))
+        gc_check_common(q, f"Distance = {tx(abs(net))} m", {KD_ME + "9": {f"Distance = {tx(abs(mt_at(v, 0)) * t1)} m"},
+                                                           KD_ME + "32": {f"Distance = {tx(whole)} m"},  # on past the turn
+                                                           KD_ME + "29": {f"Distance = {tx(t1)} m"}})  # the time given
     elif u in ("total-distance-split", "total-distance-gdc"):
         need(len(Z) >= 1, "no rest to split at")
         legs = kd_legs(v, sp.Integer(0), sp.Integer(T), Z, exact)
@@ -13770,7 +13869,10 @@ def check_motion_distance(q):
         no = {tx(abs(net))}
         if len(legs) == 3:
             no.add(tx(abs(legs[0]) + abs(legs[1] + legs[2])))
-        gc_check_common(q, f"Distance = {tx(dist)} m", {KD_T + "0": {f"Distance = {tx(net)} m"}, no_split: {f"Distance = {y} m" for y in no}})
+        wr = {KD_T + "0": {f"Distance = {tx(net)} m"}, no_split: {f"Distance = {y} m" for y in no}, KD_ME + "31": {f"Distance = {tx(abs(legs[0]))} m"}}  # one leg
+        if u == "total-distance-gdc":
+            wr[KD_ME + "9"] = {f"Distance = {tx(max(abs(y) for _, y in mt_extremes(v, a, T, exact)) * T)} m"}  # top speed × time
+        gc_check_common(q, f"Distance = {tx(dist)} m", wr)
     elif u == "distance-between-times":
         nth = ["first", "second", "third"].index(re.search(r"t₂ the (\w+) time", L[1]).group(1))
         t1, t2 = A[0], Z[nth]
@@ -13778,12 +13880,18 @@ def check_motion_distance(q):
         need(len(legs) >= 2, "no rest between t₁ and t₂")
         net, dist = sum(legs), sum(abs(y) for y in legs)
         kd_fair(dist, net, t1)
-        gc_check_common(q, f"Distance = {tx(dist)} m", {KD_T + "0": {f"Distance = {tx(net)} m"}, no_split: {f"Distance = {tx(abs(net))} m"}})
+        whole = sum(abs(y) for y in kd_legs(v, sp.Integer(0), t2, Z, False))
+        gc_check_common(q, f"Distance = {tx(dist)} m", {KD_T + "0": {f"Distance = {tx(net)} m"}, no_split: {f"Distance = {tx(abs(net))} m"},
+                                                       KD_ME + "33": {f"Distance = {tx(whole)} m"},  # from t = 0
+                                                       KD_ME + "31": {f"Distance = {tx(abs(legs[0]))} m"}})  # one leg
     elif u == "distance-expression":
         need(len(Z) == 1, "one rest")
         r = Z[0]
         dist = abs(I(0, r)) + abs(I(r, T))
-        kd_expressions(q, v, dist, {KD_T + "0": {f"Distance = ∫ from 0 to {T} of v(t) dt"}})
+        I_ = lambda p, r_: f"∫ from {p} to {r_} of v(t) dt"
+        kd_expressions(q, v, dist, {KD_T + "0": {f"Distance = ∫ from 0 to {T} of v(t) dt"},
+                                    KD_ME + "35": {f"Distance = {I_(r, T)} − {I_(0, r)}"},  # the positive piece subtracted
+                                    KD_ME + "36": {f"Distance = {I_(0, A[0])} − {I_(A[0], T)}"} if len(A) == 1 else set()})  # split where a = 0
     elif u == "speeding-distance-expression":
         need(len(Z) == 1 and len(A) == 1, "one rest and one turn")
         cuts = sorted([sp.Integer(0), sp.Integer(T), Z[0], A[0]])
@@ -13791,7 +13899,8 @@ def check_motion_distance(q):
         need(len(rising) == 2, f"speed rises on {rising}")
         dist = sum(abs(I(p, r)) for p, r in rising)
         (p0, r0), (p1, r1) = rising
-        kd_expressions(q, v, dist, {KD_ME + "11": {f"Distance = ∫ from {p0} to {r0} of v(t) dt"}, KD_ME + "17": {f"Distance = ∫ from {p0} to {r0} of v(t) dt + ∫ from {p1} to {r1} of v(t) dt"}})
+        kd_expressions(q, v, dist, {KD_ME + "11": {f"Distance = ∫ from {p0} to {r0} of v(t) dt"}, KD_ME + "17": {f"Distance = ∫ from {p0} to {r0} of v(t) dt + ∫ from {p1} to {r1} of v(t) dt"},
+                                    KD_ME + "37": {f"Distance = ∫ from 0 to {Z[0]} of v(t) dt − ∫ from {Z[0]} to {T} of v(t) dt"}})  # the whole trip
     else:
         raise Fail(f"no check for {u}")
     if rep == "graph":
@@ -27502,11 +27611,11 @@ def check_optimisation(q):
         need(fam in ("pen", "paddock", "can", "bin"), "no constraint on this family")
         slips = {}
         if fam == "pen":
-            slips = {OM_T + "6": [(p["T"] - p["n"] * x) / 2], OM_T + "7": [p["T"] - x]}
+            slips = {OM_T + "6": [(p["T"] - p["n"] * x) / 2], OM_T + "7": [p["T"] - x], OM_T + "30": [p["n"] * x - p["T"]]}  # signs moved wrongly
         elif fam == "paddock":
-            slips = {OM_T + "8": [x / p["T"]]}
+            slips = {OM_T + "8": [x / p["T"]], OM_T + "31": [p["T"] - p["n"] * x]}  # the area as nx + y
         elif fam == "can":
-            slips = {OM_T + "9": [p["V"] / (2 * sp.pi * x)]}
+            slips = {OM_T + "9": [p["V"] / (2 * sp.pi * x)], OM_T + "32": [p["V"] / (sp.pi * x)]}  # r, not r²
         else:
             slips = {OM_T + "10": [(p["T"] - x**2) / (2 * x)], OM_T + "11": [(p["T"] - 2 * x**2) / (4 * x)]}
         forms(Y, slips)
@@ -27515,13 +27624,19 @@ def check_optimisation(q):
         if fam == "box":
             forms(F, {OM_T + "14": [x * (p["w"] - x) * (p["h"] - x)], OM_T + "15": [(p["w"] - 2 * x) * (p["h"] - 2 * x)]})
         elif fam == "arch":
-            forms(F, {OM_T + "16": [F / 2]})
+            forms(F, {OM_T + "16": [F / 2], OM_T + "33": [2 * p["c"] * x - p["a"] * x**3, p["c"] * x - 2 * p["a"] * x**3]})  # one term doubled
         else:
             b, a, f, v = p["b"], p["a"], p["f"], p["v"]
             if p["cost"]:
-                forms(F, {OM_T + "17": [f * (a + x) + v * (b - x)], OM_T + "19": [f * p["leg"] + v * x]})
+                forms(F, {OM_T + "17": [f * (a + x) + v * (b - x)], OM_T + "19": [f * p["leg"] + v * x],
+                          OM_T + "34": [v * p["leg"] + f * (b - x)],  # the rates swapped
+                          OM_T + "35": [f * sp.sqrt(a + x) + v * (b - x)],  # nothing squared
+                          OM_T + "36": [f * sp.sqrt(a**2 - x**2) + v * (b - x)]})  # the squares subtracted
             else:
-                forms(F, {OM_T + "17": [(a + x) / f + (b - x) / v], OM_T + "18": [f * p["leg"] + v * (b - x)], OM_T + "19": [p["leg"] / f + x / v]})
+                forms(F, {OM_T + "17": [(a + x) / f + (b - x) / v], OM_T + "18": [f * p["leg"] + v * (b - x)], OM_T + "19": [p["leg"] / f + x / v],
+                          OM_T + "34": [p["leg"] / v + (b - x) / f],  # the speeds swapped
+                          OM_T + "35": [sp.sqrt(a + x) / f + (b - x) / v],  # nothing squared
+                          OM_T + "36": [sp.sqrt(a**2 - x**2) / f + (b - x) / v]})  # the squares subtracted
     elif u == "show-objective":
         line = next(l for l in q["lines"] if l.startswith("Show that "))
         tgt = re.match(r"Show that . = (.+), where p and q are whole numbers\.", line).group(1)
@@ -27544,6 +27659,7 @@ def check_optimisation(q):
             w[OM_T + "13"] = {nm(pv, qv / 2)}
         else:
             w[OM_T + "10"] = {nm(pv, 2)}
+        w[OM_T + "37"] = {nm(qv, pv)}  # p and q swapped
         gc_check_common(q, nm(pv, qv), w, None, steps)
         return None, None
     elif u == "derivative-of-objective":
@@ -27624,6 +27740,7 @@ def check_optimisation(q):
             need(om_clear(dl) and om_clear(dh), "a derivative is on a rounding edge")
         w[OM_SWAP] = {mk(dl, dh, no)}
         w[OM_SIGN_F] = {mk(F.subs(x, lo), F.subs(x, hi), ok_)}
+        w[OM_T + "38"] = {mk(dh, dl, no)}  # the two gradients swapped
         gc_check_common(q, mk(dl, dh, ok_), w, None, steps)
         return None, None
     elif u in ("optimum-value", "quadratic-optimum", "route-least-value"):
@@ -27665,6 +27782,7 @@ def check_optimisation(q):
         if p["kind"] == "root":
             w[OM_T + "27"] = {f"x = {p['a']}"}
             w[OM_T + "28"] = {f"x = {om_num(p['a'] - p['k'])}"}
+            w[OM_T + "39"] = {f"x = {om_num(p['a'] + sp.Rational(p['k'], 2))}"}  # the sign lost in solving
         else:
             w[OM_T + "23"] = {f"x = {om_num(x0**2)}"}
             need(sp.simplify(p["c"] - p["k"] * sp.log(x0)).is_positive, "the closest point is off the curve")
@@ -31596,7 +31714,8 @@ def check_antiderivative_condition(q):
         sym, T, P0, A, k, v, change, decay = adc_rate(q)
         label = f"{sym}({T}) = "
         gc_check_common(q, label + gc_s(v), {ADC_SAME_RATE: {label + gc_s(sp.Float(P0 + A * T, 40))}, ADC_NO_START: {label + gc_s(change)},
-                                             ADC_AT_END: {label + gc_s(sp.Float(A * decay, 40))}, ADC_NO_A: {label + gc_s(sp.Float(P0 + A * (1 - decay), 40))}})
+                                             ADC_AT_END: {label + gc_s(sp.Float(A * decay, 40))}, ADC_NO_A: {label + gc_s(sp.Float(P0 + A * (1 - decay), 40))},
+                                             "t5-antiderivative-condition#23": {label + gc_s(sp.Float(P0 - change, 40))}})  # the change taken off
         adc_steps(q)
         return None, None
     raise Fail(f"no check for {u}")
@@ -33601,7 +33720,8 @@ def check_area_between(q):
         if u == "meeting-limits":
             texts = lambda a, b: f"x = {dm_num(min(a, b))} and x = {dm_num(max(a, b))}"
             ya, yb = f.subs(x, p), f.subs(x, r2)
-            e9area_opts(q, texts(p, r2), {AB + "1": {texts(*rs)}, AB + "3": {texts(ya, yb)}})
+            e9area_opts(q, texts(p, r2), {AB + "1": {texts(*rs)}, AB + "3": {texts(ya, yb)},
+                                          "t5-area-between-curves#17": {texts(-p, -r2)}})  # the factors' signs read wrongly
         elif u == "area-line-curve":
             side = abs(sp.integrate(gap, (x, rs[0], rs[1])))
             added = sp.integrate(f + g, (x, p, r2))
@@ -33655,7 +33775,7 @@ def check_area_between(q):
             calc_options(q)
             calc_steps(q)
         else:
-            e9area_opts(q, e9area_a(area), {AB + "0": {e9area_a(-area)}, AB + "2": {e9area_a(abs(p1 + p2))}, AB + "6": {e9area_a(abs(p1))}})
+            e9area_opts(q, e9area_a(area), {AB + "0": {e9area_a(-area)}, AB + "2": {e9area_a(abs(p1 + p2))}, AB + "6": {e9area_a(abs(p1)), e9area_a(abs(p2))}})
         return None, None
 
     if u == "area-trig":
@@ -33777,7 +33897,8 @@ def check_area_between(q):
             g1, g2, f0 = sp.Integer(m.group(1)), sp.Integer(m.group(2)), sp.Integer(m.group(3).replace("−", "-"))
             need((g1, g2) == (A1, A2), "the areas given are not the areas drawn")
             lab = f"{name}(r) = "
-            e9area_opts(q, lab + dm_num(f0 + d1 + d2), {AB + "12": {lab + dm_num(f0 + d1 - d2)}})
+            e9area_opts(q, lab + dm_num(f0 + d1 + d2), {AB + "12": {lab + dm_num(f0 + d1 - d2), lab + dm_num(f0 + A1 + A2)},  # or every area a rise
+                                                        "t5-area-between-curves#19": {lab + dm_num(f0 + d1)}})  # stopped at q
         return None, None
 
     if u in ("gdc-meeting-limits", "gdc-area"):
@@ -33819,11 +33940,12 @@ def check_area_between(q):
         if u == "split-expression":
             s_ = lambda v: gc_s(e9area_s(v))
             one = lambda a, b: f"Area = ∫ from {s_(a)} to {s_(b)} of |f(x) − g(x)| dx"
-            e9area_opts(q, one(zs[0], zs[2]), {AB + "2": {f"Area = ∫ from {s_(zs[0])} to {s_(zs[2])} of (f(x) − g(x)) dx"}, AB + "6": {one(zs[0], zs[1])}})
+            e9area_opts(q, one(zs[0], zs[2]), {AB + "2": {f"Area = ∫ from {s_(zs[0])} to {s_(zs[2])} of (f(x) − g(x)) dx"}, AB + "6": {one(zs[0], zs[1]), one(zs[1], zs[2])},
+                                               "t5-area-between-curves#18": {one(lo, hi)}})  # the domain's ends
             return None, None
         q["e9area_true"] = e9area_s(area)
         need(not on_edge(e9area_s(area)), "the area sits on a rounding edge")
-        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), {AB + "2": {"Area = " + gc_s(e9area_s(abs(p1 + p2)))}, AB + "6": {"Area = " + gc_s(e9area_s(abs(p1)))}})
+        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), {AB + "2": {"Area = " + gc_s(e9area_s(abs(p1 + p2)))}, AB + "6": {"Area = " + gc_s(e9area_s(abs(p1))), "Area = " + gc_s(e9area_s(abs(p2)))}})
         return None, None
 
     if u == "inverse-area":
@@ -33868,7 +33990,7 @@ def check_area_between(q):
         e9area_shade(dict(q, graph=dict(q["graph"], shade=q["graph"]["shade"][1:])), f, L_, [(float(xp), float(xq))])
         q["e9area_true"] = e9area_s(area)
         need(not on_edge(e9area_s(area)), "the area sits on a rounding edge")
-        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), {AB + "14": {"Area = " + gc_s(e9area_s(whole))}, AB + "6": {"Area = " + gc_s(e9area_s(p2))}})
+        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), {AB + "14": {"Area = " + gc_s(e9area_s(whole))}, AB + "6": {"Area = " + gc_s(e9area_s(p2)), "Area = " + gc_s(e9area_s(p1))}})
         return None, None
 
     need(False, f"no check for {u}")
@@ -39206,6 +39328,7 @@ def E12NM_check(q):
             want = "area = " + show(area)
             trap = gc_trap([area if exact else E12NM_n(area)], "area = " + gc_s2(E12NM_n(area) if not exact else area))
             wrongs[E12NM_NEGATIVE] = ["area = " + show(xa * yb / 2)]
+            wrongs["t5-normal-meets-curve#6"] = ["area = " + show(abs(xa * yb))]  # not halved
             wrongs[E12NM_NORMAL] = []
             for g in wrong_lines:
                 c = y0 - g * x0

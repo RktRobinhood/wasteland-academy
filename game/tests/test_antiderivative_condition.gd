@@ -131,9 +131,12 @@ func test_every_distractor_shows_up() -> void:
 			for o in _make(c, seed).choices:
 				if o.ref != "":
 					seen["%s|%s" % [c.unknown, o.ref]] = true
-	for m in QuestionEngine.type_of(TYPE).misconceptions:
-		for u in m.in:
-			check(seen.has("%s|%s" % [u, m.ref]), "%s never comes up on %s" % [m.ref, u])
+	var ms: Array = QuestionEngine.type_of(TYPE).misconceptions
+	for i in ms.size():
+		# An entry added without a ref key is known by its place (FAL-820).
+		var ref: String = ms[i].get("ref", "%s#%d" % [TYPE, i])
+		for u in ms[i].in:
+			check(seen.has("%s|%s" % [u, ref]), "%s never comes up on %s" % [ref, u])
 
 
 func test_hand_values() -> void:

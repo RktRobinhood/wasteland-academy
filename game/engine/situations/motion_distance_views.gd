@@ -33,6 +33,25 @@ const R_ADDED := ME + "17"
 const R_CHANGE := ME + "18"
 const R_CHANGE_SIZE := ME + "19"
 const R_NO_SPLIT_STORY := ME + "20"
+## FAL-820's slips.
+const R_GIVEN_AS_C := ME + "21"
+const R_UNDIVIDED := ME + "22"
+const R_VELOCITY := ME + "23"
+const R_INTO_V := ME + "24"
+const R_TURN_ALONE := ME + "25"
+const R_END_ONLY := ME + "26"
+const R_COS_ZERO := ME + "27"
+const R_V_NEGATIVE := ME + "28"
+const R_TIME := ME + "29"
+const R_AT_END := ME + "30"
+const R_ONE_LEG := ME + "31"
+const R_PAST_TURN := ME + "32"
+const R_FROM_ZERO := ME + "33"
+const R_FINAL_S := ME + "34"
+const R_WRONG_PIECE := ME + "35"
+const R_SPLIT_AT_TOP := ME + "36"
+const R_WHOLE := ME + "37"
+const R_NO_REST_TIME := ME + "38"
 
 const UNKNOWNS := ["position-expression", "velocity-from-acceleration", "position-at-time", "displacement-between",
 	"position-at-max-velocity", "does-it-return", "initial-displacement", "displacement-increasing", "ridge-distance",
@@ -80,8 +99,9 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 
 # ── Writing things ───────────────────────────────────────────
 
-static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, gen: Array, methods: Dictionary, graph: Variant = null) -> Dictionary:
-	var out := DefiniteIntegralViews.pack(lines, asked, ans, wr, gen, methods, graph)
+## `fill` is the fillers, as in DefiniteIntegralViews.pack (FAL-820).
+static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, fill: Array, methods: Dictionary, graph: Variant = null) -> Dictionary:
+	var out := DefiniteIntegralViews.pack(lines, asked, ans, wr, fill, methods, graph)
 	# "So Distance = 60 m." reads wrongly: these answers already start like a sentence.
 	for id in out.methods:
 		var steps: Array = out.methods[id].steps
@@ -199,10 +219,13 @@ func u_position_expression(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var fix := "When t = 0, s = C, so C = %d." % co[3]
 	if t0 != 0:
 		fix = "Put in t = %d, s = %d: %d + C = %d, so C = %d." % [t0, shown, part, shown, co[3]]
-	var wr: Array = [DifferentiationViews.alt(head + Fmt.poly(MotionSituation.diff(s.vc), "t"), R_DIFFERENTIATED), wrong(mk.call(co[0], co[1], co[2], 0).values, R_NO_START if t0 == 0 else R_NO_C)]
+	var wr: Array = [DifferentiationViews.alt(head + Fmt.poly(MotionSituation.diff(s.vc), "t"), R_DIFFERENTIATED), wrong(mk.call(co[0], co[1], co[2], 0).values, R_NO_START if t0 == 0 else R_NO_C),
+		wrong(mk.call(3 * int(co[0]), 2 * int(co[1]), co[2], co[3]).values, R_UNDIVIDED)]
+	if t0 != 0:
+		wr.append(wrong(mk.call(co[0], co[1], co[2], shown).values, R_GIVEN_AS_C))
 	return pack([v_line(s, rep), "s is its displacement, in metres, from a fixed point, and s = %d when t = %d." % [shown, t0]],
 		"Find an expression for s(t).", ans, wr,
-		[mk.call(co[0], co[1], co[2], shown).values, mk.call(3 * int(co[0]), 2 * int(co[1]), co[2], co[3]).values, mk.call(-int(co[0]), -int(co[1]), -int(co[2]), co[3]).values, mk.call(co[0], co[1], co[2], int(co[3]) + 1).values],
+		[mk.call(-int(co[0]), -int(co[1]), -int(co[2]), co[3]).values, mk.call(co[0], co[1], co[2], int(co[3]) + 1).values],
 		{"integrate-with-constant": [
 			"s is the integral of v, one power up on each term: s(t) = %s + C." % anti_text(s),
 			fix]})
@@ -220,8 +243,11 @@ func u_velocity_from_acceleration(rep: String, s: Dictionary, _rng: Seeded) -> D
 	var part: int = vt - c
 	var ans: Dictionary = mk.call(p, q, c)
 	var line := "%s Its acceleration, in m/s², t seconds after it starts is a(t) = %s, and v = %d when t = %d." % [opening(s, rep), Fmt.poly(s.ac, "t"), vt, t0]
-	return pack([line], "Find an expression for the velocity, v(t).", ans, [wrong(mk.call(p, q, 0).values, R_NO_C)],
-		[mk.call(p, q, vt).values, mk.call(2 * p, q, c).values, mk.call(-p, -q, c).values, mk.call(p, q, c + 1).values, mk.call(p, 2 * q, c).values],
+	var wr: Array = [wrong(mk.call(p, q, 0).values, R_NO_C), wrong(mk.call(2 * p, q, c).values, R_UNDIVIDED)]
+	if t0 != 0:
+		wr.append(wrong(mk.call(p, q, vt).values, R_GIVEN_AS_C))
+	return pack([line], "Find an expression for the velocity, v(t).", ans, wr,
+		[mk.call(-p, -q, c).values, mk.call(p, q, c + 1).values, mk.call(p, 2 * q, c).values],
 		{"integrate-with-constant": [
 			"v is the integral of a, one power up on each term: v(t) = %s + C." % Fmt.poly([p, q, 0], "t"),
 			"Put in t = %d, v = %d: %d + C = %d, so C = %d." % [t0, vt, part, vt, c]]})
@@ -233,7 +259,7 @@ func u_position_at_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var pos: float = net + float(s.s0)
 	var ans := val(s, pos, "s = ")
 	var acc: float = MotionSituation.a_of(s).call(float(t0))
-	var wr: Array = [like(ans, net, R_NO_START), like(ans, acc, R_DIFFERENTIATED)]
+	var wr: Array = [like(ans, net, R_NO_START), like(ans, acc, R_DIFFERENTIATED), like(ans, at(s, float(t0)), R_VELOCITY)]
 	var ms := {}
 	if not p2(s):
 		var sc: Array = s.sc
@@ -250,7 +276,7 @@ func u_position_at_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"Enter ∫ from 0 to %d of v(t) dt on the GDC: %s." % [t0, GdcKit.W(net)],
 			"Add the start: %d + %s." % [s.s0, "(%s)" % GdcKit.W(net) if net < 0.0 else GdcKit.W(net)]]
 	return pack(lines_for(s, rep, [start_line(s)]), "Find the displacement from O when t = %d%s." % [t0, sf3(s)], ans, wr,
-		fl(ans, [at(s, float(t0)), -pos, pos + float(s.s0), pos + 1.0, pos * 2.0]), ms, graph_for(s, rep))
+		fl(ans, [-pos, pos + float(s.s0), pos + 1.0, pos * 2.0]), ms, graph_for(s, rep))
 
 
 func u_displacement_between(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -267,8 +293,8 @@ func u_displacement_between(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 			"The displacement between two times is ∫ from %d to %d of v(t) dt." % [a, b],
 			"The GDC gives %s." % GdcKit.W(net)]
 	return pack(lines_for(s, rep, [start_line(s)]), "Find the displacement of %s between t = %d and t = %d%s." % [it(s, rep), a, b, sf3(s)], ans,
-		[like(ans, s.pos, R_POSITION)],
-		fl(ans, [at(s, float(b)) - at(s, float(a)), -net, net + 2.0, net * 2.0]), ms, graph_for(s, rep))
+		[like(ans, s.pos, R_POSITION), like(ans, at(s, float(b)) - at(s, float(a)), R_INTO_V)],
+		fl(ans, [-net, net + 2.0, net * 2.0]), ms, graph_for(s, rep))
 
 
 func u_position_at_max_velocity(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -282,8 +308,8 @@ func u_position_at_max_velocity(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	if p2(s):
 		ms["gdc-integral"] = [find, "Enter ∫ from 0 to %s of v(t) dt: %s." % [GdcKit.W(t), GdcKit.W(net)], add]
 	return pack(lines_for(s, rep, [start_line(s)]), "Find the displacement from O at the time when the velocity is greatest%s." % sf3(s), ans,
-		[like(ans, net, R_NO_START)],
-		fl(ans, [at(s, t), pos + float(s.s0), -pos, pos + 2.0, pos * 2.0]), ms)
+		[like(ans, net, R_NO_START), like(ans, at(s, t), R_VELOCITY)],
+		fl(ans, [pos + float(s.s0), -pos, pos + 2.0, pos * 2.0]), ms)
 
 
 func u_does_it_return(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -298,9 +324,10 @@ func u_does_it_return(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var flip_no := "No: it changes direction at t = %d, so it never comes back to where it began." % r
 	var by_dist := ("Yes: it travels %d m in all, more than the %d m out, so it is back." % [dist, absi(first)]) if not s.back else ("No: it travels %d m in all, not 0 m." % dist)
 	var other := no if s.back else yes
-	var built := DerivativeMeaningViews.claim_answer(DefiniteIntegralViews.minus(yes if s.back else no),
-		[[DefiniteIntegralViews.minus(flip_yes if not s.back else flip_no), R_REST_IS_BACK if not s.back else ""], [DefiniteIntegralViews.minus(by_dist), R_USED_DISTANCE],
-		[DefiniteIntegralViews.minus(other), ""]])
+	# Saying "yes" for a trip that never passes the start has no step behind it: a filler.
+	var built := DerivativeMeaningViews.claim_split(DefiniteIntegralViews.minus(yes if s.back else no),
+		[[DefiniteIntegralViews.minus(flip_yes if not s.back else flip_no), R_REST_IS_BACK if not s.back else R_TURN_ALONE], [DefiniteIntegralViews.minus(by_dist), R_USED_DISTANCE],
+		[DefiniteIntegralViews.minus(other), R_END_ONLY if s.back else ""]])
 	var sums := "It moves one way until v = 0 at t = %d, then back, so check s at t = %d and at t = %d." % [r, r, T]
 	var read := "s changes sign, so it crossed 0." if s.back else "s has the same sign both times, and it only moves back after t = %d, so it never reaches 0." % r
 	var ms := {
@@ -310,7 +337,7 @@ func u_does_it_return(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	}
 	var lines := lines_for(s, rep, ["The particle starts at a fixed point O."])
 	return {"lines": lines.map(DefiniteIntegralViews.minus), "asked": "Determine whether the particle gets back to O during 0 ≤ t ≤ %d." % T, "answer": built.answer,
-		"wrongs": built.wrongs, "generic": [], "graph": graph_for(s, rep),
+		"wrongs": built.wrongs, "fillers": built.fillers, "graph": graph_for(s, rep),
 		"methods": {"start-plus-change": method(ms["start-plus-change"].map(DefiniteIntegralViews.minus), built.answer.values)}}
 
 
@@ -330,8 +357,8 @@ static func s_line(s: Dictionary, rep: String) -> String:
 func u_initial_displacement(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var start: int = int(s.A) + int(s.C)
 	var ans := DefiniteIntegralViews.val(Q.new(start), false, "s = ", M)
-	return pack([s_line(s, rep)], "Find the displacement of %s from the fixed point when t = 0." % it(s, rep), ans, [],
-		DefiniteIntegralViews.vals(ans, [Q.new(s.C), Q.new(int(s.B)), Q.new(int(s.A)), Q.new(int(s.A) + int(s.B) + int(s.C)), Q.new(start - int(s.B))]),
+	return pack([s_line(s, rep)], "Find the displacement of %s from the fixed point when t = 0." % it(s, rep), ans, [DefiniteIntegralViews.like(ans, Q.new(s.C), R_COS_ZERO)],
+		DefiniteIntegralViews.vals(ans, [Q.new(int(s.B)), Q.new(int(s.A)), Q.new(int(s.A) + int(s.B) + int(s.C)), Q.new(start - int(s.B))]),
 		{"substitute-zero": [
 			"Put t = 0 in s(t). The term in t is 0, and cos 0 = 1.",
 			"s(0) = %d + %d." % [s.A, s.C]]})
@@ -350,10 +377,10 @@ func u_displacement_increasing(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		return ans
 	var ans: Dictionary = mk.call(lo, hi)
 	var turn: float = s.turns[0]
-	var wr: Array = [wrong(mk.call(0.0, turn).values, R_V_RISING)]
 	var T := float(s.T)
+	var wr: Array = [wrong(mk.call(0.0, turn).values, R_V_RISING), wrong(mk.call(0.0, lo).values, R_V_NEGATIVE), wrong(mk.call(hi, T).values, R_V_NEGATIVE)]
 	return pack(lines_for(s, rep), "Find the interval of t for which the displacement of the particle is increasing%s." % (", with the ends to 3 s.f" if sf else ""), ans, wr,
-		[mk.call(0.0, lo).values, mk.call(hi, T).values, mk.call(lo, T).values, mk.call(0.0, hi).values, mk.call(turn, T).values],
+		[mk.call(lo, T).values, mk.call(0.0, hi).values, mk.call(turn, T).values],
 		{"positive-velocity": [
 			"Displacement increases when ds/dt = v is positive.",
 			"v = 0 at t = %s and t = %s." % [Wr(s, lo), Wr(s, hi)],
@@ -372,8 +399,8 @@ func u_ridge_distance(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var line := "A convoy truck crawls over a row of evenly spaced rubble ridges on a straight road. It is slowest on each ridge and reaches its slowest point on the first ridge at t = %d." % c
 	var model := "Its velocity, in m/s, t seconds after it sets off is v(t) = %s − %s cos(π(t − %d)/%d)." % [Fmt.dec(B), Fmt.dec(A), c, k]
 	return pack([line, model], "Find the distance between two neighbouring ridges.", ans,
-		[DefiniteIntegralViews.like(ans, B.mul(k), R_HALF), DefiniteIntegralViews.like(ans, B.add(A).mul(2 * k), R_FLAT)],
-		DefiniteIntegralViews.vals(ans, [B.sub(A).mul(2 * k), A.mul(2 * k), gap.add(10)]),
+		[DefiniteIntegralViews.like(ans, B.mul(k), R_HALF), DefiniteIntegralViews.like(ans, B.add(A).mul(2 * k), R_FLAT), DefiniteIntegralViews.like(ans, B.sub(A).mul(2 * k), R_FLAT)],
+		DefiniteIntegralViews.vals(ans, [A.mul(2 * k), gap.add(10)]),
 		{"gdc-integral": [
 			"The truck is slowest once each period, so the ridges are one period apart.",
 			"The period is 2π ÷ (π/%d) = %d s, and v is always positive, so the distance is an integral." % [k, 2 * k],
@@ -388,8 +415,8 @@ func u_race_gap(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := DefiniteIntegralViews.val(gap, true, DIST, M)
 	var line := "Two buggies, P and Q, race %d metres along a straight causeway. t seconds after the start, the velocity of P, in m/s, is v(t) = %s(1 − e^(−%st)) and the velocity of Q is w(t) = %s(1 − e^(−%st))." % [D, Fmt.dec(s.A), Fmt.dec(s.k), Fmt.dec(s.A2), Fmt.dec(s.k2)]
 	return pack([line, "P crosses the finishing line first."], "Find how far Q is from the finishing line when P finishes, to 3 s.f.", ans,
-		[DefiniteIntegralViews.like(ans, x2, R_GONE), DefiniteIntegralViews.like(ans, s.flat, R_FLAT)],
-		DefiniteIntegralViews.vals(ans, [tf, gap + 2.0, gap * 2.0]),
+		[DefiniteIntegralViews.like(ans, x2, R_GONE), DefiniteIntegralViews.like(ans, s.flat, R_FLAT), DefiniteIntegralViews.like(ans, tf, R_TIME)],
+		DefiniteIntegralViews.vals(ans, [gap + 2.0, gap * 2.0]),
 		{"gdc-integral": [
 			"P finishes when ∫ from 0 to T of v(t) dt = %d." % D,
 			"Solve that on the GDC: T = %s." % GdcKit.W(tf),
@@ -427,8 +454,9 @@ static func fall_v(s: Dictionary) -> String:
 
 func u_displacement_at_turn(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := val(s, float(s.top), "s = ")
-	return pack(fall_lines(s, rep), "Find the displacement of the particle from the origin at the time it changes direction.", ans, [],
-		fl(ans, [float(s.q), 2.0 * s.c * s.q, float(s.end), float(s.top) + float(s.c), float(s.dist)]),
+	return pack(fall_lines(s, rep), "Find the displacement of the particle from the origin at the time it changes direction.", ans,
+		[like(ans, float(s.q), R_TIME), like(ans, float(s.end), R_AT_END)],
+		fl(ans, [2.0 * s.c * s.q, float(s.top) + float(s.c), float(s.dist)]),
 		{"track-positions": [
 			"It changes direction where v = 0: " + fall_v(s),
 			"s(%d) = %d." % [s.q, s.top]]}, fall_graph(s) if rep == "graph" else null)
@@ -450,8 +478,8 @@ func u_total_distance_positions(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var end: int = s.end
 	var ans := val(s, float(s.dist), DIST)
 	return pack(fall_lines(s, rep), "Find the total distance travelled by the particle.", ans,
-		[like(ans, float(end), R_CHANGE), like(ans, float(-end), R_CHANGE_SIZE)],
-		fl(ans, [float(top), float(top - end + top + 1), float(top - end), float(2 * top)]),
+		[like(ans, float(end), R_CHANGE), like(ans, float(-end), R_CHANGE_SIZE), like(ans, float(top), R_ONE_LEG), like(ans, float(top - end), R_ONE_LEG)],
+		fl(ans, [float(top - end + top + 1), float(2 * top)]),
 		{"track-positions": [
 			fall_v(s).replace("v = s′(t)", "It turns where v = 0: v = s′(t)"),
 			"s(0) = 0, s(%d) = %d and s(%d) = %d." % [s.q, top, s.T, end],
@@ -479,8 +507,8 @@ func u_distance_before_turning(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		ms["gdc-abs-integral"] = [find, "Enter ∫ from 0 to %s of |v(t)| dt on the GDC: %s." % [GdcKit.W(t), GdcKit.W(d)]]
 	var whole := MotionDistanceSituation.total(MotionDistanceSituation.legs(s, 0.0, float(s.T)))
 	return pack(lines_for(s, rep), "Find the distance %s travels before it first changes direction%s." % [it(s, rep), sf3(s)], ans,
-		[like(ans, absf(at(s, 0.0)) * t, R_FLAT)],
-		fl(ans, [whole, t, absf(at(s, 0.0)) + 1.0, d * 2.0, d + 2.0]), ms, graph_for(s, rep))
+		[like(ans, absf(at(s, 0.0)) * t, R_FLAT), like(ans, whole, R_PAST_TURN), like(ans, t, R_TIME)],
+		fl(ans, [absf(at(s, 0.0)) + 1.0, d * 2.0, d + 2.0]), ms, graph_for(s, rep))
 
 
 func u_total_distance_split(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -491,13 +519,14 @@ func u_total_distance_split(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var wr: Array = [like(ans, net, R_NET)]
 	# A trip with two rests, split at the first only, is what "not splitting" gives there too.
 	wr.append(like(ans, absf(legs[0]) + absf(legs[1] + legs[2]) if legs.size() == 3 else absf(net), R_NO_SPLIT))
+	wr.append(like(ans, absf(legs[0]), R_ONE_LEG))
 	var rests := rest_list(s, s.z)
 	var co: Array = (s.sc as Array).slice(0, 3) + [0]
 	var positions: Array = [0.0]
 	for x in legs:
 		positions.append(positions[-1] + x)
 	return pack(lines_for(s, rep), "Find the total distance travelled by %s." % it(s, rep), ans, wr,
-		fl(ans, [absf(legs[0]), absf(at(s, float(s.T))), dist + 2.0, dist * 2.0]),
+		fl(ans, [absf(at(s, float(s.T))), dist + 2.0, dist * 2.0]),
 		{"split-at-rest": [
 			"v = %s, which is 0 at %s, so the direction changes there." % [v_factors(s), rests],
 			"Integrate over each piece, using ∫ v dt = %s: %s." % [Fmt.poly(co, "t"), leg_list(s, legs)],
@@ -515,8 +544,8 @@ func u_total_distance_gdc(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var legs: Array = s.legs
 	var ans := val(s, dist, DIST)
 	return pack(lines_for(s, rep), "Find the total distance travelled by %s, to 3 s.f." % it(s, rep), ans,
-		[like(ans, net, R_NET), like(ans, absf(net), no_split(rep))],
-		fl(ans, [absf(legs[0]), dist + 2.0, dist * 2.0, s.smax * float(T)]),
+		[like(ans, net, R_NET), like(ans, absf(net), no_split(rep)), like(ans, absf(legs[0]), R_ONE_LEG), like(ans, s.smax * float(T), R_FLAT)],
+		fl(ans, [dist + 2.0, dist * 2.0]),
 		{"gdc-abs-integral": [
 			"Speed is |v|, so the distance is ∫ from 0 to %d of |v(t)| dt." % T,
 			"The GDC gives %s." % GdcKit.W(dist)],
@@ -535,8 +564,8 @@ func u_distance_between_times(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var whole := MotionDistanceSituation.total(MotionDistanceSituation.legs(s, 0.0, t2))
 	return pack(lines_for(s, rep, ["Let t₁ be the first time the acceleration of %s is 0, and t₂ the %s time it is at rest." % [it(s, rep), nth]]),
 		"Find the distance travelled between t = t₁ and t = t₂, to 3 s.f.", ans,
-		[like(ans, s.net, R_NET), like(ans, absf(s.net), no_split(rep))],
-		fl(ans, [whole, absf(s.legs[0]), dist + 2.0, dist * 2.0]),
+		[like(ans, s.net, R_NET), like(ans, absf(s.net), no_split(rep)), like(ans, whole, R_FROM_ZERO), like(ans, absf(s.legs[0]), R_ONE_LEG)],
+		fl(ans, [dist + 2.0, dist * 2.0]),
 		{"gdc-abs-integral": [
 			"The GDC's first zero of v′(t) is t₁ = %s." % GdcKit.W(t1),
 			"Its zeros of v: %s, so t₂ = %s." % [rest_list(s, s.z), GdcKit.W(t2)],
@@ -550,8 +579,8 @@ func u_distance_from_position(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var z: Array = s.z
 	var find := "v = s′(t) = %s. Its zeros on the GDC are t = %s and t = %s." % [ds_text(s), GdcKit.W(z[0]), GdcKit.W(z[1])]
 	return pack([s_line(s, rep), "%s comes to rest for the second time at t = q." % cap(it(s, rep))], "Find the total distance travelled by %s in the first q seconds, to 3 s.f." % it(s, rep), ans,
-		[like(ans, s.net, R_CHANGE), like(ans, absf(s.net), R_CHANGE_SIZE)],
-		fl(ans, [q, s.s_2, dist + 2.0, dist * 2.0]),
+		[like(ans, s.net, R_CHANGE), like(ans, absf(s.net), R_CHANGE_SIZE), like(ans, q, R_TIME), like(ans, s.s_2, R_FINAL_S)],
+		fl(ans, [dist + 2.0, dist * 2.0]),
 		{"gdc-abs-integral": [
 			find,
 			"Enter ∫ from 0 to %s of |v(t)| dt: %s." % [GdcKit.W(q), GdcKit.W(dist)]],
@@ -585,8 +614,8 @@ func u_distance_expression(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var T: int = s.T
 	var ans := two_integrals(0, r, r, T)
 	return pack(lines_for(s, rep), "Write down an expression for the total distance travelled by %s. Do not evaluate it." % it(s, rep), ans,
-		[DifferentiationViews.alt(one_integral(0, T), R_NET)],
-		[two_integrals(r, T, 0, r).values, two_integrals(0, T, 0, r).values, two_integrals(0, r, 0, T).values, two_integrals(0, s.m, s.m, T).values],
+		[DifferentiationViews.alt(one_integral(0, T), R_NET), wrong(two_integrals(r, T, 0, r).values, R_WRONG_PIECE), wrong(two_integrals(0, s.m, s.m, T).values, R_SPLIT_AT_TOP)],
+		[two_integrals(0, T, 0, r).values, two_integrals(0, r, 0, T).values],
 		{"split-at-rest": [
 			"v = %s, so v changes from positive to negative at t = %d." % [v_factors(s), r],
 			"After that v is negative, so its integral is negative. Subtracting it adds a positive distance."]}, graph_for(s, rep))
@@ -601,8 +630,8 @@ func u_speeding_distance_expression(rep: String, s: Dictionary, _rng: Seeded) ->
 	if rep == "graph":
 		g.points.append({"x": float(m), "y": float(s.vmax), "label": Fmt.point(m, roundi(s.vmax))})
 	return pack(lines_for(s, rep), "Write down an expression for the distance travelled while the speed of %s is increasing. Do not evaluate it." % it(s, rep), ans,
-		[DifferentiationViews.alt(one_integral(0, m), R_A_ONLY), DifferentiationViews.alt(added(0, m, r, T), R_ADDED)],
-		[two_integrals(m, r, r, T).values, two_integrals(0, m, m, r).values, two_integrals(0, r, r, T).values, two_integrals(m, r, 0, m).values],
+		[DifferentiationViews.alt(one_integral(0, m), R_A_ONLY), DifferentiationViews.alt(added(0, m, r, T), R_ADDED), wrong(two_integrals(0, r, r, T).values, R_WHOLE)],
+		[two_integrals(m, r, r, T).values, two_integrals(0, m, m, r).values, two_integrals(m, r, 0, m).values],
 		{"split-at-rest": [
 			"a = v′(t) = %s, which is 0 at t = %d, and v = 0 at t = %d." % [MotionViews.a_text(s), m, r],
 			"Speed rises when v and a have the same sign: both positive for 0 < t < %d, both negative for %d < t < %d." % [m, r, T],
@@ -617,8 +646,8 @@ func u_time_for_distance(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var line := "A particle moves in a straight line. Its velocity, in m/s, t seconds after it starts is v(t) = %s, for t ≥ 0." % Fmt.poly(s.vc, "t")
 	var ans := DefiniteIntegralViews.val(Q.new(k), false, "k = ", "")
 	var half := Q.new(s.b, 2)
-	return pack([line, "When t = k, the total distance it has travelled is %d m." % d], "Find the value of k.", ans, [],
-		DefiniteIntegralViews.vals(ans, [Q.new(r), Q.new(j), Q.new(k + 1), Q.new(r + 2 * j), Q.new(2 * r)]),
+	return pack([line, "When t = k, the total distance it has travelled is %d m." % d], "Find the value of k.", ans, [DefiniteIntegralViews.like(ans, Q.new(j), R_NO_REST_TIME)],
+		DefiniteIntegralViews.vals(ans, [Q.new(r), Q.new(k + 1), Q.new(r + 2 * j), Q.new(2 * r)]),
 		{"split-at-rest": [
 			"v = 0 at t = %d. Up to then it travels ∫ from 0 to %d of v(t) dt = %d m." % [r, r, s.first],
 			"That leaves %d − %d = %d m, travelled after it turns." % [d, s.first, s.more],

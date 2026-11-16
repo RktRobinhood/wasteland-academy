@@ -16,6 +16,9 @@ const R_NEGATIVE := SK + "2"
 const R_P := SK + "3"
 const R_SWAP := SK + "4"
 const R_NORMAL := "SL5.4.normal-equation#0"
+## FAL-820: the type's own slip. The other wrong options are fillers: the value nudged, scaled
+## or its sign flipped, or a point on the curve near Q.
+const R_NOT_HALVED := "t5-normal-meets-curve#6"
 const UNKNOWNS := ["tangent-x-intercept", "tangent-y-intercept", "normal-x-intercept", "normal-y-intercept",
 	"tangent-triangle-area", "normal-triangle-area", "tangent-meets-again", "tangent-meets-again-gdc", "normal-meets-again"]
 
@@ -41,7 +44,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	if not out.trap.is_empty() and Answer.values_right(ans, out.trap):
 		out.trap = {}
 	out.wrongs = out.wrongs.filter(func(w): return not Answer.values_right(ans, w.values, true))
-	out.generic = out.generic.filter(func(g): return not Answer.values_right(ans, g, true))
+	out.fillers = out.fillers.filter(func(g): return not Answer.values_right(ans, g, true))
 	return out
 
 
@@ -265,7 +268,7 @@ func _intercept(rep: String, s: Dictionary, rng: Seeded, axis: String) -> Dictio
 	var put := "Put %s = 0 in the %s: %s = %s." % ["y" if on_x else "x", word, "x" if on_x else "y", T(at)]
 	var steps := [point_step(s), line_step(s), put, "So %s is %s." % [name, Answer.text(ans)]]
 	var mark := [TangentMeetsSituation.fl(s.xa), 0.0, "A"] if on_x else [0.0, TangentMeetsSituation.fl(s.yb), "B"]
-	var out := {"lines": lines_for(rep, s, sketch), "asked": asked, "answer": ans, "wrongs": wrongs, "generic": generic,
+	var out := {"lines": lines_for(rep, s, sketch), "asked": asked, "answer": ans, "wrongs": wrongs, "fillers": generic,
 		"methods": {"set-axes-zero": method(steps, ans.values)}, "graph": figure(rep, s, [mark], true)}
 	if word == "normal":
 		out.titles = {"set-axes-zero": "Put x = 0 and y = 0 in the normal"}
@@ -310,9 +313,11 @@ func _area(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var a: Variant = s.area
 	var generic: Array = []
 	if a is Q:
-		generic = [{"v": a.mul(2)}, {"v": a.div(2)}, {"v": a.add(1)}]
+		wrongs.append(wrong_of({"v": a.mul(2)}, R_NOT_HALVED))
+		generic = [{"v": a.div(2)}, {"v": a.add(1)}]
 	else:
-		generic = [{"v": V(a * 2.0)}, {"v": V(a / 2.0)}, {"v": V(a + 1.0)}]
+		wrongs.append(wrong_of({"v": a * 2.0}, R_NOT_HALVED))
+		generic = [{"v": V(a / 2.0)}, {"v": V(a + 1.0)}]
 	var xa: Variant = s.xa
 	var yb: Variant = s.yb
 	var oa := T(xa.abs_q() if xa is Q else absf(xa))
@@ -324,7 +329,7 @@ func _area(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var asked := "The %s to the curve at P meets the x-axis at A and the y-axis at B. Find the area of the triangle OAB, where O is the origin%s." % [word, ", to 3 s.f" if s.sf else ""]
 	var marks := [[TangentMeetsSituation.fl(xa), 0.0, "A"], [0.0, TangentMeetsSituation.fl(yb), "B"]]
 	var out := {"lines": lines_for(rep, s, ", which meets the axes at A and B"), "asked": asked, "answer": ans, "wrongs": wrongs,
-		"generic": generic, "methods": {"set-axes-zero": method(steps, ans.values)}, "graph": figure(rep, s, marks, true, true)}
+		"fillers": generic, "methods": {"set-axes-zero": method(steps, ans.values)}, "graph": figure(rep, s, marks, true, true)}
 	if word == "normal":
 		out.titles = {"set-axes-zero": "Put x = 0 and y = 0 in the normal"}
 	return out
@@ -408,7 +413,7 @@ func _again(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			"Compare the x² terms: %s(2 × %s + r) = %s, so r = %s." % [Fmt.lead(lead.neg()), Fmt.paren(s.x0), Fmt.dec(x2[0]), T(s.qx)],
 			"f(%s) = %s, so Q is %s." % [T(s.qx), T(s.qy), Answer.text(ans)]], ans.values)
 	var sketch := ", which meets the curve again at Q"
-	return {"lines": lines_for(rep, s, sketch), "asked": asked, "answer": ans, "wrongs": wrongs, "generic": generic,
+	return {"lines": lines_for(rep, s, sketch), "asked": asked, "answer": ans, "wrongs": wrongs, "fillers": generic,
 		"methods": methods, "graph": figure(rep, s, [[qx, qy, "Q"]], false)}
 
 

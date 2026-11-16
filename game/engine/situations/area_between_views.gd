@@ -26,6 +26,10 @@ const R_NO_DOUBLE := AB + "13"
 const R_ONE_TOP := AB + "14"
 const R_MULT_K := "SL5.10.linear-composites#0"
 const R_LOWER_ZERO := "SL5.11.evaluate-definite#1"
+## The type's own slips (FAL-820).
+const R_ROOT_SIGNS := "t5-area-between-curves#17"
+const R_DOMAIN_ENDS := "t5-area-between-curves#18"
+const R_AT_Q := "t5-area-between-curves#19"
 
 const UNKNOWNS := ["meeting-limits", "integral-expression", "split-expression", "area-line-curve", "area-two-parabolas",
 	"area-split-cubic", "area-split-bounded", "area-trig", "area-trig-split", "area-exp-lines", "find-shift", "find-parameter",
@@ -125,12 +129,13 @@ static func two(rep: String, f: String, g: String, eq_tail: String, graph_tail: 
 	return ["f(x) = " + f, "g(x) = " + g, graph_tail]
 
 
-static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, gen: Array, methods: Dictionary, graph: Variant = null, titles: Dictionary = {}) -> Dictionary:
+## `fill` is the fillers: wrong values with no slip behind them (FAL-820).
+static func pack(lines: Array, asked: String, ans: Dictionary, wr: Array, fill: Array, methods: Dictionary, graph: Variant = null, titles: Dictionary = {}) -> Dictionary:
 	var ms := {}
 	for id in methods:
 		ms[id] = method(methods[id].map(DefiniteIntegralViews.minus) + [say(ans)], ans.values)
 	var out := {"lines": lines.map(DefiniteIntegralViews.minus), "asked": DefiniteIntegralViews.minus(asked), "answer": ans, "wrongs": wr,
-		"generic": gen, "methods": ms, "graph": graph}
+		"fillers": fill, "methods": ms, "graph": graph}
 	if not titles.is_empty():
 		out.titles = titles
 	return out
@@ -277,7 +282,9 @@ func u_meeting_limits(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wr: Array = [lim.call(s.r, s.t, R_X_INTERCEPTS)]
 	if not yp.eq(yq):
 		wr.append(lim.call(yp, yq, R_Y_VALUES))
-	var gen: Array = [lim.call(-p, -q).values, lim.call(p, q + 1).values, lim.call(p - 1, q).values, lim.call(p + 1, q + 1).values]
+	if p != -q:
+		wr.append(lim.call(-p, -q, R_ROOT_SIGNS))
+	var gen: Array = [lim.call(p, q + 1).values, lim.call(p - 1, q).values, lim.call(p + 1, q + 1).values]
 	var g_spec: Variant = null
 	if rep == "graph":
 		g_spec = _line_curve_figure(s, [[p, yp.to_float(), "A"], [q, yq.to_float(), "B"]])
@@ -363,7 +370,9 @@ func u_split_expression(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			{"l1": Q.new(l1), "h1": Q.new(h1), "l2": Q.new(l2), "h2": Q.new(h2)})
 	var ans: Dictionary = mk.call(a, b, b, c, one, two_)
 	var wr: Array = [alt("%s%s to %s of %s dx" % [AV, N(a), N(c), one], R_NO_SPLIT), alt(ans.values.text.replace(one, "@").replace(two_, one).replace("@", two_), R_NEGATIVE)]
-	var gen: Array = [mk.call(a, c, b, c, one, two_).values, mk.call(a, b, a, c, one, two_).values, mk.call(b, c, a, b, one, two_).values, mk.call(a, b + 1, b + 1, c, one, two_).values]
+	# Each integrand on the other's piece: lower minus upper on both, as R_NEGATIVE.
+	wr.append(wrong(mk.call(b, c, a, b, one, two_).values, R_NEGATIVE))
+	var gen: Array = [mk.call(a, c, b, c, one, two_).values, mk.call(a, b, a, c, one, two_).values, mk.call(a, b + 1, b + 1, c, one, two_).values]
 	var graph: Variant = null
 	if rep == "graph":
 		graph = _swap_figure(s, float(a), float(c), [float(a), float(b), float(c)], [a, b, c])
@@ -387,8 +396,9 @@ func _split_expression_gdc(rep: String, s: Dictionary) -> Dictionary:
 		ans.exact = false
 		return ans
 	var ans: Dictionary = mk.call(z[0], z[2])
-	var wr: Array = [alt("%s%s to %s of (f(x) − g(x)) dx" % [AV, Fmt.sf(z[0]), Fmt.sf(z[2])], R_NO_SPLIT), wrong(mk.call(z[0], z[1]).values, R_ONE_PIECE)]
-	var gen: Array = [mk.call(z[1], z[2]).values, mk.call(s.lo, s.hi).values, mk.call(z[0], z[2] + 1.0).values, mk.call(z[0] - 1.0, z[2]).values]
+	var wr: Array = [alt("%s%s to %s of (f(x) − g(x)) dx" % [AV, Fmt.sf(z[0]), Fmt.sf(z[2])], R_NO_SPLIT), wrong(mk.call(z[0], z[1]).values, R_ONE_PIECE),
+		wrong(mk.call(z[1], z[2]).values, R_ONE_PIECE), wrong(mk.call(s.lo, s.hi).values, R_DOMAIN_ENDS)]
+	var gen: Array = [mk.call(z[0], z[2] + 1.0).values, mk.call(z[0] - 1.0, z[2]).values]
 	var graph: Variant = null
 	if rep == "graph":
 		graph = _gdc_swap_figure(s)
@@ -552,10 +562,10 @@ func _split_area(rep: String, s: Dictionary, lo: int, cut: int, hi: int, lines: 
 	var area := p1.abs_q().add(p2.abs_q())
 	var net := p1.add(p2).abs_q()
 	var ans := ex(area)
-	var wr: Array = [like(ans, net, R_NO_SPLIT), like(ans, p1.abs_q(), R_ONE_PIECE), like(ans, area.neg(), R_NEGATIVE)]
+	var wr: Array = [like(ans, net, R_NO_SPLIT), like(ans, p1.abs_q(), R_ONE_PIECE), like(ans, area.neg(), R_NEGATIVE), like(ans, p2.abs_q(), R_ONE_PIECE)]
 	var gap: Array = s.gap
 	var diff: String = "The curve minus the line" if rep == "equation" else "f − g"
-	return pack(lines, "Find the total area of the two regions.", ans, wr, vals(ans, [area.mul(2), area.add(1), area.add(2), p2.abs_q()]),
+	return pack(lines, "Find the total area of the two regions.", ans, wr, vals(ans, [area.mul(2), area.add(1), area.add(2)]),
 		{"split-at-crossings": [
 			"The curve and the line swap over at x = %d, so each side gets its own integral." % cut,
 			"%s is %s, with antiderivative %s." % [diff, fp(gap), anti(gap)],
@@ -821,9 +831,10 @@ func u_derivative_areas(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans2 := DefiniteIntegralViews.val(f_r, false, "%s(r) = " % name_)
 	var d1 := a1 if up else a1.neg()
 	var d2 := a2.neg() if up else a2
-	var wr2: Array = [like(ans2, f_p.add(d1).add(d2.neg()), R_RISE_FALL)]
+	# Every area taken as a rise is R_RISE_FALL too: the same as its option when p to q is above.
+	var wr2: Array = [like(ans2, f_p.add(d1).add(d2.neg()), R_RISE_FALL), like(ans2, f_p.add(a1).add(a2), R_RISE_FALL), like(ans2, f_p.add(d1), R_AT_Q)]
 	return pack([head, "The region from p to q has area %s, the region from q to r has area %s, and %s(p) = %s." % [N(a1), N(a2), name_, N(f_p)]],
-		"Find the value of %s(r)." % name_, ans2, wr2, vals(ans2, [f_p.add(a1).add(a2), a1.add(a2), f_p.add(d1), f_r.add(1), f_r.add(2)]),
+		"Find the value of %s(r)." % name_, ans2, wr2, vals(ans2, [a1.add(a2), f_r.add(1), f_r.add(2)]),
 		{"split-at-crossings": [
 			"The graph of %s′ crosses the axis at x = q, so split there." % name_,
 			"From p to q it is %s the axis, so %s changes by %s." % [here, name_, N(d1)],
@@ -888,13 +899,13 @@ func u_gdc_area_split(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := sf(area)
 	var a1 := absf(s.p1)
 	var a2 := absf(s.p2)
-	var wr: Array = [like(ans, s.net, R_NO_SPLIT), like(ans, a1, R_ONE_PIECE)]
+	var wr: Array = [like(ans, s.net, R_NO_SPLIT), like(ans, a1, R_ONE_PIECE), like(ans, a2, R_ONE_PIECE)]
 	var graph: Variant = null
 	if rep == "graph":
 		graph = _gdc_swap_figure(s)
 	var meet := "The intersect tool gives x = %s, x = %s and x = %s." % [GdcKit.W(z[0]), GdcKit.W(z[1]), GdcKit.W(z[2])]
 	return pack(two(rep, f, g, "The curves cross three times, %s, and enclose two regions." % dom, "The diagram shows the graphs of f and g, %s, and the two regions they enclose are shaded." % dom),
-		"Find the total area of the two regions, to 3 s.f.", ans, wr, vals(ans, [a2, area * 2.0, area + 1.0, area * 0.5]),
+		"Find the total area of the two regions, to 3 s.f.", ans, wr, vals(ans, [area * 2.0, area + 1.0, area * 0.5]),
 		{"gdc-abs-difference": [
 			meet,
 			"The modulus keeps both pieces positive: ∫ from %s to %s of |(%s) − (%s)| dx." % [GdcKit.W(z[0]), GdcKit.W(z[2]), f, g],
@@ -944,7 +955,7 @@ func u_region_two_lines(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var lm := AreaBetweenSituation.text(s.cm)
 	var ll := AreaBetweenSituation.text(s.cl)
 	var ans := sf(area)
-	var wr: Array = [like(ans, s.whole, R_ONE_TOP), like(ans, s.p2, R_ONE_PIECE)]
+	var wr: Array = [like(ans, s.whole, R_ONE_TOP), like(ans, s.p2, R_ONE_PIECE), like(ans, s.p1, R_ONE_PIECE)]
 	var ff := AreaBetweenSituation.fn(s.cf)
 	var fm := AreaBetweenSituation.fn(s.cm)
 	var fl := AreaBetweenSituation.fn(s.cl)
@@ -956,7 +967,7 @@ func u_region_two_lines(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var corners := "The intersect tool gives R at x = %s, P at x = %s and Q at x = %s." % [GdcKit.W(xr), GdcKit.W(xp), GdcKit.W(xq)]
 	var lines: Array = ["f(x) = " + f, "M: y = " + lm, "L: y = " + ll,
 		"The diagram shows the graph of f and the lines L and M. The shaded region, with corners P, Q and R, is enclosed by all three."]
-	return pack(lines, "Find the area of the shaded region, to 3 s.f.", ans, wr, vals(ans, [area * 2.0, s.p1, area + 1.0, area + 2.0]),
+	return pack(lines, "Find the area of the shaded region, to 3 s.f.", ans, wr, vals(ans, [area * 2.0, area + 1.0, area + 2.0]),
 		{"split-at-crossings": [
 			corners,
 			"The top edge changes at P, so split there: M is on top before P and f after it, and L is below both.",
