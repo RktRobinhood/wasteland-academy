@@ -4,14 +4,23 @@
 // and prints how every tagged part is assigned.
 //
 //   node tools/question-types.mjs --bank <path>          check and print the counts
-//   node tools/question-types.mjs --bank <path> --write  also refresh the stats in the JSON
-//                                                         and rewrite curriculum/QUESTION_TYPES.md
+//   node tools/question-types.mjs --bank <path> --write  also refresh the stats in the JSON, pin the
+//                                                         bank commit, rewrite curriculum/QUESTION_TYPES.md
+//                                                         and merge the bank's catalogue fragments
+//                                                         into curriculum/bank-types.json
+//   --commit <sha>                                       the bank commit to pin, when <path> is not a
+//                                                         git checkout (an export, say)
 //
 // The bank is RktRobinhood/Math-AA---Question-Bank. --bank defaults to $QBANK,
 // then to a sibling checkout ../Math-AA---Question-Bank. Exit 1 on any error.
+//
+// The bank serves four courses (its data/courses.json). Every AA SL part from the sessions
+// in `bank.assigned` must have a type; parts of the other courses, and AA SL parts from later
+// sessions, are counted per course as unassigned and do not fail the run.
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -21,41 +30,96 @@ const opt = n => { const i = argv.indexOf(n); return i >= 0 ? argv[i + 1] : unde
 const BANK = path.resolve(opt('--bank') || process.env.QBANK || path.join(ROOT, '..', 'Math-AA---Question-Bank'));
 
 const readJSON = f => JSON.parse(fs.readFileSync(f, 'utf8'));
+const inBank = f => path.join(BANK, f);
 const TYPES_FILE = path.join(ROOT, 'curriculum/question-types.json');
+const BANK_TYPES_FILE = path.join(ROOT, 'curriculum/bank-types.json');
 const doc = readJSON(TYPES_FILE);
 // Extension types (source: extension) have no bank parts; tools/pedagogy.mjs checks them.
 const examTypes = doc.types.filter(t => t.source !== 'extension');
 const map = readJSON(path.join(ROOT, 'curriculum/aa-sl.json'));
-if (!fs.existsSync(path.join(BANK, 'data/tags.json'))) {
+if (!fs.existsSync(inBank('data/tags.json'))) {
   console.error(`No question bank at ${BANK}. Pass --bank <path to Math-AA---Question-Bank>.`);
   process.exit(1);
 }
-const tags = readJSON(path.join(BANK, 'data/tags.json')).questions;
-const crops = readJSON(path.join(BANK, 'data/crops.json'));
-const statements = readJSON(path.join(BANK, 'data/syllabus.json')).statements;
+const statements = readJSON(inBank('data/syllabus.json')).statements;
+const errors = [];
+
+// ── Bank courses ─────────────────────────────────────────────
+// Each course names its tags and crops files and its papers. A paper's identity (P1 to P3) is
+// kept apart from its calculator policy: AI Paper 1 allows a GDC, AA Paper 1 does not. A bank
+// from before data/courses.json has AA SL only.
+const COURSES = fs.existsSync(inBank('data/courses.json')) ? readJSON(inBank('data/courses.json')).courses : [
+  { id: 'aa-sl', short: 'AA SL', subject: 'aa', tags: 'data/tags.json', crops: 'data/crops.json',
+    papers: [{ id: 'P1', calculator: false }, { id: 'P2', calculator: true }] },
+];
+// A question on both the SL and the HL paper of an exam is stored once, under its SL id;
+// data/shared.json lists each HL appearance. Its parts are counted once, under the SL course.
+const shared = fs.existsSync(inBank('data/shared.json')) ? readJSON(inBank('data/shared.json')).appearances : {};
+
+// Syllabus code -> statement id, per subject. AA HL tags use SL and AHL codes. AI tags use AI
+// guide codes; `shared` in syllabus-ai.json maps those that equal an AA statement to its id.
+const codeIds = { aa: new Map(), ai: new Map() };
+for (const s of statements) codeIds.aa.set(s.code, s.id || `SL${s.code}`);
+const optional = f => fs.existsSync(inBank(f)) ? readJSON(inBank(f)) : null;
+for (const s of optional('data/syllabus-aa-hl.json')?.statements || []) codeIds.aa.set(s.code, s.id);
+const aiSyllabus = optional('data/syllabus-ai.json');
+for (const s of aiSyllabus?.statements || []) codeIds.ai.set(s.code, s.id);
+for (const s of aiSyllabus?.shared || []) codeIds.ai.set(s.code, s.id);
+
+// Sessions in order: 2025-nov is after 2025-may.
+const ID_RE = /^([a-z]+-[a-z]+)-(\d{4})-(may|nov)-.*-(p[123])-q(\d+)$/;
+const sessionKey = s => { const [y, m] = s.split('-'); return Number(y) * 2 + (m === 'nov' ? 1 : 0); };
+const assignedThrough = doc.bank?.assigned || {};
+const mustAssign = p => p.course in assignedThrough && sessionKey(p.session) <= sessionKey(assignedThrough[p.course]);
+
+// ── Bank parts ───────────────────────────────────────────────
+const all = new Map();    // part ID -> { course, session, tags, main, paper, calculator, section, marks, unresolved }
+const questions = {};     // course -> its stored question IDs
+const missingCourses = [];
+let tags = {}, crops = {}; // AA SL, for the AA SL report below
+for (const c of COURSES) {
+  if (!fs.existsSync(inBank(c.tags))) { missingCourses.push(c.id); continue; }
+  const ctags = readJSON(inBank(c.tags)).questions;
+  const ccrops = readJSON(inBank(c.crops));
+  const papers = new Map(c.papers.map(p => [p.id.toLowerCase(), p]));
+  const ids = codeIds[c.subject || c.id.split('-')[0]] || new Map();
+  questions[c.id] = Object.keys(ctags);
+  if (c.id === 'aa-sl') crops = ccrops;
+  for (const [qid, q] of Object.entries(ctags)) {
+    const m = qid.match(ID_RE);
+    if (!m || m[1] !== c.id) { errors.push(`bank question ${qid} does not fit ${c.id} <year>-<may|nov>-…-p<n>-q<n>`); continue; }
+    const [, , year, month, paper, qn] = m;
+    if (!papers.has(paper)) errors.push(`bank question ${qid}: ${c.id} has no paper ${paper.toUpperCase()}`);
+    if (shared[qid]) errors.push(`bank question ${qid} is stored and also listed in shared.json`);
+    const marks = Object.fromEntries((ccrops[qid]?.parts || []).map(p => [p.label, p.marks]));
+    for (const p of q.parts) {
+      const id = p.label ? `${qid}.${p.label}` : qid;
+      all.set(id, {
+        course: c.id, session: `${year}-${month}`,
+        tags: p.syllabus, main: p.syllabus[0], paper, calculator: papers.get(paper)?.calculator,
+        // AA SL: questions 1 to 6 are Section A. Elsewhere the crop says, or there are no sections.
+        section: c.id === 'aa-sl' ? (Number(qn) <= 6 ? 'A' : 'B') : ccrops[qid]?.section ?? null,
+        marks: p.label ? marks[p.label] : ccrops[qid]?.marks,
+        unresolved: p.syllabus.filter(code => !ids.has(code)),
+      });
+    }
+  }
+  if (c.id === 'aa-sl') tags = Object.fromEntries(Object.entries(ctags).filter(([qid]) => {
+    const m = qid.match(ID_RE);
+    return m && mustAssign({ course: c.id, session: `${m[2]}-${m[3]}` });
+  }));
+}
+for (const [hid, a] of Object.entries(shared))
+  if (!missingCourses.some(c => a.canonical.startsWith(`${c}-`)) && !Object.values(questions).some(qs => qs.includes(a.canonical))) errors.push(`shared.json: ${hid} points at ${a.canonical}, which is not in the bank`);
+// The parts the catalogue must assign: AA SL up to bank.assigned.
+const parts = new Map([...all].filter(([, p]) => mustAssign(p)));
 
 const FORMATS = ['mcq', 'value', 'multipart', 'error-spot', 'method-pick', 'match',
                  'order-steps', 'graph-pick', 'true-false-reason'];
 const FULL_FIELDS = ['name', 'summary', 'syllabus', 'skills', 'skillFit', 'chain', 'given', 'asked',
                      'answerForms', 'randomise', 'constraints', 'formats', 'parts'];
 
-// ── Bank parts ───────────────────────────────────────────────
-const parts = new Map();   // part ID -> { tags, main, paper, section, marks }
-for (const [qid, q] of Object.entries(tags)) {
-  const marks = Object.fromEntries((crops[qid]?.parts || []).map(p => [p.label, p.marks]));
-  const [, paper, qn] = qid.match(/-(p[12])-q(\d+)$/);
-  for (const p of q.parts) {
-    const id = p.label ? `${qid}.${p.label}` : qid;
-    parts.set(id, {
-      tags: p.syllabus, main: p.syllabus[0], paper,
-      section: Number(qn) <= 6 ? 'A' : 'B',
-      marks: p.label ? marks[p.label] : crops[qid]?.marks,
-    });
-  }
-}
-
 // ── Validate ─────────────────────────────────────────────────
-const errors = [];
 const skillIds = new Map();
 for (const t of map.topics) for (const st of t.subtopics) for (const sk of st.skills) skillIds.set(sk.id, st.id);
 const codes = new Set(statements.map(s => s.code));
@@ -81,14 +145,15 @@ for (const t of examTypes) {
   for (const f of t.formats || []) if (!FORMATS.includes(f)) errors.push(`${where}: bad format ${f}`);
   if (!t.parts?.length) errors.push(`${where}: no parts`);
   for (const p of t.parts || []) {
-    if (!parts.has(p)) errors.push(`${where}: part ${p} is not in the bank`);
+    if (!all.has(p)) errors.push(`${where}: part ${p} is not in the bank`);
+    else if (!parts.has(p)) errors.push(`${where}: part ${p} is outside bank.assigned; widen it first`);
     if (owner.has(p)) errors.push(`${p} is in both ${owner.get(p)} and ${t.id}`);
     owner.set(p, t.id);
   }
-  for (const p of t.alsoSeenIn || []) if (!parts.has(p)) errors.push(`${where}: alsoSeenIn ${p} is not in the bank`);
+  for (const p of t.alsoSeenIn || []) if (!all.has(p)) errors.push(`${where}: alsoSeenIn ${p} is not in the bank`);
 }
 for (const u of doc.unclassified || []) {
-  if (!parts.has(u.part)) errors.push(`unclassified ${u.part} is not in the bank`);
+  if (!parts.has(u.part)) errors.push(`unclassified ${u.part} is ${all.has(u.part) ? 'outside bank.assigned' : 'not in the bank'}`);
   if (!u.reason) errors.push(`unclassified ${u.part} has no reason`);
   if (owner.has(u.part)) errors.push(`${u.part} is unclassified and in ${owner.get(u.part)}`);
   owner.set(u.part, 'unclassified');
@@ -99,7 +164,7 @@ for (const p of missing) errors.push(`part ${p} has no type`);
 // ── Stats ────────────────────────────────────────────────────
 const median = a => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.floor((s.length - 1) / 2)] : null; };
 function statsFor(ids) {
-  const ps = ids.map(id => parts.get(id)).filter(Boolean);
+  const ps = ids.map(id => all.get(id)).filter(Boolean);
   const count = (k, v) => ps.filter(p => p[k] === v).length;
   const m = ps.map(p => p.marks).filter(x => x != null);
   const mainTags = {};
@@ -149,6 +214,39 @@ console.log(`  Functions: ${fnTouch} parts carry a 2.x tag, ${fnMain} as the mai
 console.log('');
 for (const t of examTypes) console.log(`  ${t.id.padEnd(36)} ${String(t.parts.length).padStart(3)}  P1 ${t.stats.paper.p1} / P2 ${t.stats.paper.p2}  A ${t.stats.section.A} / B ${t.stats.section.B}`);
 
+
+// ── Per course ───────────────────────────────────────────────
+const bankCommit = (() => {
+  // Only when BANK is the top of a checkout, not an export inside some other repository
+  const git = (...a) => execFileSync('git', ['-C', BANK, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  try { return fs.realpathSync(git('rev-parse', '--show-toplevel')) === fs.realpathSync(BANK) ? git('rev-parse', 'HEAD') : null; }
+  catch { return null; }
+})();
+const courseStats = Object.fromEntries(COURSES.filter(c => questions[c.id]).map(c => {
+  const ps = [...all].filter(([, p]) => p.course === c.id);
+  const kind = id => owner.get(id) === 'unclassified' ? 'unclassified' : owner.has(id) ? 'assigned' : 'unassigned';
+  const n = k => ps.filter(([id]) => kind(id) === k).length;
+  const appearances = Object.entries(shared).filter(([hid]) => hid.startsWith(`${c.id}-`)).map(([, a]) => a);
+  return [c.id, {
+    questions: questions[c.id].length, parts: ps.length,
+    assigned: n('assigned'), unclassified: n('unclassified'), unassigned: n('unassigned'),
+    papers: Object.fromEntries(c.papers.map(pp => [pp.id, { calculator: pp.calculator, parts: ps.filter(([, p]) => p.paper === pp.id.toLowerCase()).length }])),
+    shared: { questions: appearances.length, parts: [...all].filter(([id]) => appearances.some(a => id === a.canonical || id.startsWith(`${a.canonical}.`))).length },
+    unknownCodes: ps.filter(([, p]) => p.unresolved.length).length,
+  }];
+}));
+console.log(`\nCourses (bank ${bankCommit ? bankCommit.slice(0, 8) : 'not a git checkout'}${doc.bank?.commit ? `, catalogue pinned to ${doc.bank.commit.slice(0, 8)}` : ''}):`);
+for (const c of COURSES) {
+  const s = courseStats[c.id];
+  if (!s) { console.log(`  ${c.short.padEnd(6)} not in this bank`); continue; }
+  const later = c.id in assignedThrough ? ` (sessions after ${assignedThrough[c.id]})` : '';
+  console.log(`  ${c.short.padEnd(6)} ${s.questions} questions, ${s.parts} parts: ${s.assigned} assigned, ${s.unclassified} unclassified, ${s.unassigned} unassigned${s.unassigned ? later : ''}`);
+  const papers = Object.entries(s.papers).map(([id, x]) => `${id} ${x.calculator ? 'GDC' : 'no GDC'} ${x.parts}`).join(', ');
+  const sh = s.shared.questions ? `; also ${s.shared.questions} SL questions (${s.shared.parts} parts) on its papers, counted under SL` : '';
+  console.log(`  ${''.padEnd(6)} ${papers}${sh}${s.unknownCodes ? `; ${s.unknownCodes} parts carry a code that is in no syllabus file` : ''}`);
+}
+if (bankCommit && doc.bank?.commit && bankCommit !== doc.bank.commit) console.log(`  Note: the bank is at ${bankCommit.slice(0, 8)}; --write re-pins the catalogue to it.`);
+
 if (errors.length) {
   console.error(`\n${errors.length} error(s):\n  ` + errors.join('\n  '));
   process.exit(1);
@@ -158,11 +256,62 @@ console.log('\nOK: every part is assigned exactly once.');
 if (!flag('--write')) process.exit(0);
 
 // ── Write ────────────────────────────────────────────────────
-doc.bank = { ...doc.bank, questions: Object.keys(tags).length, parts: parts.size };
+const commit = opt('--commit') || bankCommit;
+if (!/^[0-9a-f]{40}$/.test(commit || '')) {
+  console.error(`--write pins the bank commit: ${BANK} is not a git checkout, so pass --commit <full sha>.`);
+  process.exit(1);
+}
+if (missingCourses.length) {
+  console.error(`--write needs all four courses; this bank has no ${missingCourses.join(', ')}.`);
+  process.exit(1);
+}
+doc.bank = { ...doc.bank, commit, questions: Object.keys(tags).length, parts: parts.size, courses: courseStats };
 doc.coverage = coverage;
+const bankTypes = mergeFragments(commit);
 fs.writeFileSync(TYPES_FILE, JSON.stringify(doc, null, 1) + '\n');
 fs.writeFileSync(path.join(ROOT, 'curriculum/QUESTION_TYPES.md'), renderMarkdown());
-console.log('Wrote curriculum/question-types.json and curriculum/QUESTION_TYPES.md');
+fs.writeFileSync(BANK_TYPES_FILE, JSON.stringify(bankTypes, null, 1) + '\n');
+console.log(`Wrote curriculum/question-types.json, curriculum/QUESTION_TYPES.md and curriculum/bank-types.json (${bankTypes.types.length} unbuilt types), pinned to ${commit.slice(0, 8)}`);
+
+// The bank's HL and AI catalogue fragments (data/question-types/*.json), as unbuilt types.
+// Their ids are the bank's and stay as they are; a type moves to question-types.json when it
+// is built. Each gets `courses` (the fragment's `home` unless it says), the statement ids its
+// `syllabus` codes name, and the fragment it came from. Skills the curriculum maps don't have
+// yet are the bank's sub-tags; `skills` lists them with the bank's name for each.
+function mergeFragments(commit) {
+  const dir = inBank('data/question-types');
+  const files = fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort();
+  const mapSkills = new Set();
+  for (const f of ['aa-sl', 'aa-hl', 'ai'])
+    for (const t of readJSON(path.join(ROOT, `curriculum/${f}.json`)).topics)
+      for (const st of t.subtopics) for (const sk of st.skills) mapSkills.add(sk.id);
+  const subtags = new Map();
+  for (const f of ['data/syllabus.json', 'data/syllabus-aa-hl.json', 'data/syllabus-ai.json'])
+    for (const s of readJSON(inBank(f)).statements) for (const x of s.subtags || []) subtags.set(x.id, x);
+  const fragSkills = new Map();
+  const types = [];
+  for (const f of files) {
+    const frag = readJSON(path.join(dir, f));
+    for (const v of Object.values(frag.subtopics || {})) for (const sk of v.skills || []) fragSkills.set(sk.id, sk);
+    for (const t of frag.types) {
+      const home = t.home || frag.home || 'aa-sl';
+      const ids = codeIds[home.split('-')[0]];
+      types.push({ ...t, home, courses: t.courses || [home], subtopics: (t.syllabus || []).map(code => ids.get(code) ?? null), fragment: f });
+    }
+  }
+  const named = [...new Set(types.flatMap(t => [...(t.skills || []), ...(t.unknowns || []).flatMap(u => u.skills || [])]))].sort();
+  const skills = {};
+  for (const id of named) {
+    if (mapSkills.has(id)) continue;
+    const st = subtags.get(id), fr = fragSkills.get(id);
+    skills[id] = { name: st?.name ?? null, ...(fr?.levels && { levels: fr.levels }), ...(fr?.paper && { paper: fr.paper }) };
+  }
+  return {
+    about: 'Unbuilt AA HL, AI SL and AI HL question types from the Math-AA question bank\'s catalogue fragments (data/question-types/*.json), merged by node tools/question-types.mjs --write. Not read at runtime. Type ids are the bank\'s; `courses`, `subtopics` and `fragment` are added. `skills` lists the bank sub-tags these types name that the curriculum maps do not have yet, with the bank\'s name for each. Checked by tools/courses.mjs (courses and subtopics) and tools/pedagogy.mjs (the type fields). Edit the bank, not this file.',
+    bank: { repo: doc.bank.repo, commit, fragments: files },
+    types, skills,
+  };
+}
 
 function renderMarkdown() {
   const L = [];
@@ -190,6 +339,16 @@ function renderMarkdown() {
   L.push('- A part normally goes to a type of its first (main) syllabus tag. A few parts follow the pattern instead: for example, twin-paper parts whose taggers listed the same two tags in opposite orders are kept together, and log-law steps inside an exponential model go with the model.');
   L.push('- `alsoSeenIn` on a Functions type lists parts from other topics that use it as a step (a quadratic solved inside a probability question, a GDC intersection inside a kinematics question).');
   L.push(`- This file covers the exam types only. The ${doc.types.length - examTypes.length} extension types, and the unknowns, representations and methods of every Functions type, are in \`PEDAGOGY_GAPS.md\`.`, '');
+
+  L.push('## All four courses in the bank', '');
+  L.push(`The bank at \`${doc.bank.commit.slice(0, 8)}\` (the pinned commit) holds all four courses. This catalogue assigns the AA SL parts up to ${assignedThrough['aa-sl']}; the rest are unassigned until types are built for them. The bank's own HL and AI type briefs are in \`bank-types.json\`, unbuilt. A question on both an SL and an HL paper is stored once, under its SL id, so its parts are counted under the SL course only. Paper and calculator are kept apart: every AI paper allows a GDC.`, '');
+  L.push('| Course | Questions | Parts | Assigned | Unassigned | Parts per paper | SL questions also on its papers |', '|---|--:|--:|--:|--:|---|--:|');
+  for (const c of COURSES) {
+    const s = doc.bank.courses[c.id];
+    const papers = Object.entries(s.papers).map(([id, x]) => `${id} (${x.calculator ? 'GDC' : 'no GDC'}) ${x.parts}`).join(', ');
+    L.push(`| ${c.short} | ${s.questions} | ${s.parts} | ${s.assigned + s.unclassified} | ${s.unassigned} | ${papers} | ${s.shared.questions ? `${s.shared.questions} (${s.shared.parts} parts)` : '–'} |`);
+  }
+  L.push('');
 
   L.push('## Section A and Section B', '');
   L.push('| | Section A (questions 1 to 6) | Section B (questions 7 to 9) |', '|---|---|---|');

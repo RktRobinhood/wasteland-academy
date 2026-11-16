@@ -321,6 +321,10 @@ static func graph_for(spec: Dictionary) -> Control:
 	var g: Control = PlotView.new() if spec.get("kind", "") != "" else GraphView.new()
 	g.name = "Graph"
 	g.set_spec(spec)
+	# A curve drawn to its box: in the fight's card it gives up to a quarter of its height
+	# before Attack goes off the bottom (ui/fit_box.gd, FAL-970).
+	if g is GraphView:
+		g.set_meta(FitBox.LEAST, roundf(g.custom_minimum_size.y * 0.75))
 	return g
 
 

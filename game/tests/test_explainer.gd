@@ -106,7 +106,7 @@ func test_the_player_plays_a_chapter_per_step() -> void:
 ## a phone and on a PC (a frame sized before the chalk lines had a width once grew to
 ## four screens tall, with only the slate showing).
 func test_the_player_fits_the_screen() -> void:
-	for window in [Vector2i(390, 844), Vector2i(1280, 800)]:
+	for window in [Vector2i(390, 844), Vector2i(1280, 800), Vector2i(1440, 900), Vector2i(1100, 1000)]:
 		var base := Vector2(1080, 1920)
 		var area := Vector2(window) / minf(window.x / base.x, window.y / base.y)
 		var holder := Control.new()
@@ -120,6 +120,12 @@ func test_the_player_fits_the_screen() -> void:
 		for n in [e.frame, e.title, e.caption_box, e.scrub, e.play_button, e.cc_button]:
 			var c: Control = n
 			check(screen.encloses(c.get_global_rect()), "%s: %s is off the screen at %s" % [window, c.name, c.get_global_rect()])
+		# FAL-970: the board grows to the window, on a PC as on a phone (it was a third of
+		# a 1440 × 900 screen), and the frame keeps clear of the speaker and gear.
+		var board: Rect2 = e.frame.find_child("BoardHolder", true, false).get_global_rect()
+		check(board.size.y >= area.y * 0.45, "%s: the board is %.0f of %.0f tall" % [window, board.size.y, area.y])
+		if area.x > area.y:
+			check(e.frame.get_global_rect().end.x <= area.x - AudioHud.RESERVED_RIGHT + 1.0, "%s: the frame runs under the speaker" % window)
 		holder.free()
 
 
@@ -161,3 +167,49 @@ func test_voice_bus_and_ducking() -> void:
 	check(not audio.ducked(), "and comes back after")
 	audio.sound_enabled = false
 	audio.reset_settings()
+
+
+## A method name with maths in it is drawn as maths, not in Bangers' capitals, and the
+## line saying what's asked draws S₁₂'s subscript digits (FAL-969).
+func test_the_header_draws_a_series_question() -> void:
+	var view := {"type": "t1-arithmetic-sequence", "unknown": "sum-from-u1-d", "rep": "notation", "angle": "formula-d", "format": "value", "seed": 1}
+	var e := Explainer.make(preload("res://ui/explain_screen.gd").question_for(view), 0)
+	tree.root.add_child(e)
+	await tree.process_frame
+	check_eq(e.title.get_parsed_text(), "Use Sn = n/2(2u1 + (n − 1)d)", "the subscripts are lowered")
+	check(e.title.drawn().any(func(d): return d.has("bar")), "n/2 is stacked")
+	check(e.title.get_theme_font("font") != UiTheme.TITLE_FONT, "not in Bangers, which has capitals only")
+	var text: String = e.asked.get_parsed_text()
+	check(text.contains("Find S"), text)
+	var font: Font = e.asked.get_theme_font("font")
+	for i in text.length():
+		check(text.unicode_at(i) <= 32 or font.has_char(text.unicode_at(i)), "the asked line can't draw %s" % text[i])
+	e.free()
+
+
+func test_only_plain_words_are_set_in_bangers() -> void:
+	for s in ["Worked solution", "Complete the square", "Use the cosine rule", "Find a common factor", "Don't expand: factorise"]:
+		check(Explainer.plain_words(s), s)
+	for s in ["Use S_n = n/2(u_1 + u_n)", "Factor out x", "Use x = 3", "Square both sides²", "Use u₁"]:
+		check(not Explainer.plain_words(s), s)
+
+
+## Every cell's method names and asked line, as the explainer draws them: no underscore
+## or caret shows in a title, and the asked line's font has every character it needs.
+func test_every_header_draws() -> void:
+	var font := Explainer.mono_with_fallback()
+	for c in QuestionEngine.cells():
+		var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": 1})
+		if q.has("error"):
+			continue
+		var asked := MathBox.parse(str(q.get("asked", ""))).plain()
+		var missing := ""
+		for i in asked.length():
+			if asked.unicode_at(i) > 32 and not font.has_char(asked.unicode_at(i)) and not missing.contains(asked[i]):
+				missing += asked[i]
+		check_eq(missing, "", "%s: the asked line" % c.key)
+		for sol in q.solutions:
+			if Explainer.plain_words(sol.name):
+				continue
+			var shown := MathBox.parse(sol.name).plain()
+			check(not shown.contains("^") and not shown.contains("_"), "%s: the title %s shows as %s" % [c.key, sol.name, shown])

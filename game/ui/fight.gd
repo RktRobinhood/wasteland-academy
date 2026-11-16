@@ -736,8 +736,10 @@ func _update_progress() -> void:
 		return
 	var what := "%s %d of %d" % ["fight" if job.is_empty() else "stop", run.fight, Tuning.FIGHTS_PER_FLOOR]
 	if not run.boss.is_empty():
+		# The part on the card: the one just answered until Next part opens the next (FAL-970).
+		var at: int = run.boss.part - (1 if run.state == "result" else 0)
 		what += " · %s part (%s) of %d" % ["boss" if run.kind == "boss" else "mini-boss",
-			QuestionEngine.part_letter(mini(run.boss.part, run.boss.parts.size() - 1)), run.boss.parts.size()]
+			QuestionEngine.part_letter(clampi(at, 0, run.boss.parts.size() - 1)), run.boss.parts.size()]
 	else:
 		what += " · question %d" % run.question_no
 	progress.text = "Floor %d · %s · a miss costs %d HP" % [run.floor_no, what, run.enemy.damage]
@@ -850,14 +852,18 @@ func _show_result(r: Dictionary) -> void:
 	SaveData.store(save, save_path)
 	feedback.visible = true
 	var color := UiTheme.TEAL
+	# A boss's bar counts parts, not HP: every part answered takes one, right or not (Q9).
+	var boss_part: bool = int(r.get("part", -1)) >= 0
 	match r.outcome:
 		"right":
-			if job.is_empty():
+			if boss_part:
+				feedback.text = "Hit! +%d Scrap" % (r.scrap + r.bonus)
+			elif job.is_empty():
 				feedback.text = "Hit! −%d enemy HP · +%d Scrap" % [r.enemy_damage, r.scrap + r.bonus]
 			else:
 				feedback.text = "%s +%d Scrap" % [job.hit, r.scrap + r.bonus]
 		"glancing":
-			feedback.text = "%s %s %s" % ["Glancing hit: half damage." if job.is_empty() else "It barely moves: half the work.",
+			feedback.text = "%s %s %s" % ["Glancing hit." if boss_part else ("Glancing hit: half damage." if job.is_empty() else "It barely moves: half the work."),
 				r.note, QuestionEngine.answer_sentence(question)]
 			color = UiTheme.SAND
 		"late":
@@ -879,6 +885,10 @@ func _show_result(r: Dictionary) -> void:
 		feedback.text += "\nWatch out: " + why + "."
 	if question.has("reason") and r.outcome != "right":
 		feedback.text += "\n" + question.reason
+	if boss_part and not r.defeated and not r.dead:
+		var left: int = run.boss.parts.size() - run.boss.part
+		feedback.text += "\nPart (%s) done · %d of %d %s to go." % [QuestionEngine.part_letter(r.part), left,
+			run.boss.parts.size(), "part" if left == 1 else "parts"]
 	if r.get("carry", "") != "" and r.outcome in ["wrong", "timeout", "glancing"]:
 		feedback.text += "\nPart (%s) carries on from %s." % [QuestionEngine.part_letter(r.part + 1), r.carry]
 	if r.defeated:
@@ -920,7 +930,8 @@ func _show_result(r: Dictionary) -> void:
 			b.disabled = true
 	_update_hud()
 	_reveal_result()
-	if r.enemy_damage > 0:
+	# A boss part missed still uses the part up, but it isn't a hit.
+	if r.enemy_damage > 0 and r.outcome in ["right", "glancing", "late"]:
 		flash_hurt()
 
 

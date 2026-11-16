@@ -298,3 +298,14 @@ static func draw_piece(ci: CanvasItem, font: Font, d: Dictionary, color: Color) 
 		ci.draw_polyline(d.radical, color, d.width, true)
 	else:
 		ci.draw_string(font, d.at, d.text, HORIZONTAL_ALIGNMENT_LEFT, -1, d.size, color)
+
+
+## Draws a piece's outline, outline wide, as a Label's "outline_size" draws one. Draw every
+## piece's outline before any piece, so no outline lies over its neighbour.
+static func draw_piece_outline(ci: CanvasItem, font: Font, d: Dictionary, outline: int, color: Color) -> void:
+	if d.has("bar"):
+		ci.draw_rect(d.bar.grow(outline / 2.0), color)
+	elif d.has("radical"):
+		ci.draw_polyline(d.radical, color, d.width + outline, true)
+	else:
+		ci.draw_string_outline(font, d.at, d.text, HORIZONTAL_ALIGNMENT_LEFT, -1, d.size, outline, color)

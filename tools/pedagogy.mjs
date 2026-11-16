@@ -27,9 +27,10 @@ const CATALOGUE = ['name', 'summary', 'skills', 'level', 'gap'];
 // `map` is AA SL, the syllabus every exam type comes from (and the one every skill must have a
 // type for). `more` is the HL-only and AI-only layers: a type built for them may name their
 // skills, methods and misconceptions (FAL-695).
+// `bank` is curriculum/bank-types.json, the question bank's unbuilt HL and AI types.
 export function load() {
   return { doc: readJSON('curriculum/question-types.json'), map: readJSON('curriculum/aa-sl.json'), threads: readJSON('curriculum/threads.json'),
-    more: ['aa-hl', 'ai'].map(f => readJSON(`curriculum/${f}.json`)) };
+    more: ['aa-hl', 'ai'].map(f => readJSON(`curriculum/${f}.json`)), bank: readJSON('curriculum/bank-types.json') };
 }
 
 // The topic (island) a region is on: the topic of its syllabus subtopics ("2.6" is topic 2).
@@ -51,7 +52,7 @@ export function cells(t) {
 // AA HL counting (FAL-796). `source` stays the provenance either way.
 export const examStyle = t => t.source === 'exam' || (typeof t.examStyle === 'string' && t.examStyle !== '');
 
-export function check({ doc, map, threads, more = [] }, { region } = {}) {
+export function check({ doc, map, threads, more = [], bank }, { region } = {}) {
   const errors = [], warnings = [];
   const skills = new Map(), subOf = new Map();
   for (const t of map.topics) for (const st of t.subtopics) for (const s of st.skills) { skills.set(s.id, { ...s, topic: t.topic }); subOf.set(s.id, st.id); }
@@ -204,7 +205,52 @@ export function check({ doc, map, threads, more = [] }, { region } = {}) {
     if (new Set((doc.regions || []).map(r => r.id)).size !== (doc.regions || []).length) errors.push('region ids must be unique');
     for (const t of fnTypes) if (!t.region) errors.push(`${t.id}: Functions type with no region`);
   }
+  if (bank && !region) checkBank(bank, { known, typeIds: new Set(all.map(t => t.id)) }, errors, warnings);
   return { errors, warnings, counts: countAll(doc, skills, used) };
+}
+
+// The bank's unbuilt types are briefs, not recipes: they need a kind, a name, skills, and
+// unknowns that say what is asked, at what level, in which representations. A skill is a
+// curriculum-map skill or a bank sub-tag listed in `skills`. Their ids are permanent too, so
+// none may clash with question-types.json.
+export function checkBank(bank, { known, typeIds }, errors, warnings) {
+  const seen = new Set();
+  const isLevel = n => Number.isInteger(n) && n >= 0 && n <= 5;
+  for (const [id, s] of Object.entries(bank.skills || {})) {
+    if (known.has(id)) errors.push(`bank-types skill ${id} is in the curriculum maps now; rerun tools/question-types.mjs --write`);
+    if (!s.name) warnings.push(`bank-types skill ${id} is in neither the curriculum maps nor the bank's sub-tags`);
+  }
+  for (const t of bank.types || []) {
+    const w = `bank-types ${t.id}`;
+    if (typeIds.has(t.id)) errors.push(`${w}: id is also in question-types.json`);
+    if (seen.has(t.id)) errors.push(`${w}: duplicate id`);
+    seen.add(t.id);
+    if (t.source !== 'extension') errors.push(`${w}: source must be extension`);
+    if (!KINDS.includes(t.kind)) errors.push(`${w}: kind must be one of ${KINDS}`);
+    if (!t.name) errors.push(`${w}: no name`);
+    if (!t.skills?.length) errors.push(`${w}: no skills`);
+    // `level` is [min, max] as in question-types.json; the bank also writes `levels`, a list.
+    if (t.level != null && !(Array.isArray(t.level) && t.level.length === 2 && t.level.every(isLevel) && t.level[0] <= t.level[1])) errors.push(`${w}: level must be [min, max] within 0-5`);
+    if (t.levels != null && !(Array.isArray(t.levels) && t.levels.length && t.levels.every((n, i) => isLevel(n) && (!i || n > t.levels[i - 1])))) errors.push(`${w}: levels must be rising levels within 0-5`);
+    const reps = new Set();
+    for (const r of t.representations || []) {
+      if (!REPS.includes(r.rep)) errors.push(`${w}: bad representation ${r.rep}`);
+      reps.add(r.rep);
+    }
+    if (!reps.size) errors.push(`${w}: no representations`);
+    if (!t.unknowns?.length) errors.push(`${w}: no unknowns`);
+    const uids = new Set();
+    for (const u of t.unknowns || []) {
+      const uw = `${w}/${u.id}`;
+      if (uids.has(u.id)) errors.push(`${uw}: duplicate unknown`);
+      uids.add(u.id);
+      if (!u.asked) errors.push(`${uw}: needs asked`);
+      if (!isLevel(u.level)) errors.push(`${uw}: level must be 0-5`);
+      for (const r of u.reps || []) if (!reps.has(r)) errors.push(`${uw}: representation ${r} is not listed on the type`);
+    }
+    for (const sk of [...(t.skills || []), ...(t.unknowns || []).flatMap(u => u.skills || [])])
+      if (!known.has(sk) && !(sk in (bank.skills || {}))) errors.push(`${w}: unknown skill ${sk}`);
+  }
 }
 
 export function countAll(doc, skills, used) {
