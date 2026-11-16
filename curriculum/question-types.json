@@ -18105,6 +18105,95 @@
       "equate-to-quadratic"
      ],
      "wrong": "multiplies only the fraction side by (x − r) when clearing the denominator"
+    },
+    {
+     "text": "Adding the line to the curve instead of taking it away",
+     "as": "distractor",
+     "in": [
+      "equate-to-quadratic"
+     ],
+     "wrong": "(B + m)x + (C + n)"
+    },
+    {
+     "text": "Changing the sign of the line's x term but not of its constant",
+     "as": "distractor",
+     "in": [
+      "equate-to-quadratic"
+     ],
+     "wrong": "(B − m)x + (C + n)"
+    },
+    {
+     "text": "Giving the y-coordinates instead of the x-coordinates",
+     "as": "distractor",
+     "in": [
+      "meeting-x"
+     ],
+     "wrong": "the y-values of the meeting points"
+    },
+    {
+     "text": "Pairing each x-coordinate with the other point's y-coordinate",
+     "as": "distractor",
+     "in": [
+      "meeting-points"
+     ],
+     "wrong": "the y-values swapped between the points"
+    },
+    {
+     "text": "Using only the change in x for the length, forgetting the change in y",
+     "as": "distractor",
+     "in": [
+      "chord-length"
+     ],
+     "wrong": "AB = Δx"
+    },
+    {
+     "text": "Taking the change in x out of the root without square-rooting it",
+     "as": "distractor",
+     "in": [
+      "chord-length"
+     ],
+     "wrong": "Δx² √r for Δx √r"
+    },
+    {
+     "text": "Forgetting to square the change in y",
+     "as": "distractor",
+     "in": [
+      "chord-length"
+     ],
+     "wrong": "√(Δx² + Δy)"
+    },
+    {
+     "text": "Writing the coordinates the wrong way round",
+     "as": "distractor",
+     "in": [
+      "normal-meets-again"
+     ],
+     "wrong": "(y, x) for (x, y)"
+    },
+    {
+     "text": "Dividing the change in x by the change in y for the gradient",
+     "as": "distractor",
+     "in": [
+      "line-from-meeting-points"
+     ],
+     "wrong": "one over m"
+    },
+    {
+     "text": "Taking the y-values in one order and the x-values in the other, so the gradient's sign flips",
+     "as": "distractor",
+     "in": [
+      "line-from-meeting-points"
+     ],
+     "wrong": "−m"
+    },
+    {
+     "text": "Taking a meeting point's y-coordinate as the intercept",
+     "as": "distractor",
+     "in": [
+      "line-from-meeting-points",
+      "intercept-from-one-point"
+     ],
+     "wrong": "n = y at a meeting point"
     }
    ],
    "parts": [
@@ -20966,7 +21055,9 @@
      "text": "Computes P₀ × r × t (linear growth) instead of P₀ × r^t",
      "as": "distractor",
      "in": [
-      "predict-value"
+      "predict-value",
+      "initial-from-later",
+      "change-over-period"
      ],
      "wrong": "P₀ × a × t, or P₀(1 + rt): growth added each step instead of multiplied"
     },
@@ -21072,6 +21163,225 @@
       "log-model-solve"
      ],
      "wrong": "log₁₀ x = 3 turned into x = 3¹⁰ instead of 10³"
+    },
+    {
+     "text": "Adding the start value to the power instead of multiplying by it",
+     "as": "distractor",
+     "in": [
+      "predict-value"
+     ],
+     "wrong": "P₀ + a^t"
+    },
+    {
+     "text": "Getting the direction wrong, calling a factor above one a fall or below one a rise",
+     "as": "distractor",
+     "in": [
+      "interpret-factor"
+     ],
+     "wrong": "a fall of r% for a factor of one plus r"
+    },
+    {
+     "text": "Giving the start value instead of the value in the long run",
+     "as": "distractor",
+     "in": [
+      "long-run-value"
+     ],
+     "wrong": "C + A, the value at the start"
+    },
+    {
+     "text": "Forgetting the added constant, as if the whole model fell to zero",
+     "as": "distractor",
+     "in": [
+      "long-run-value"
+     ],
+     "wrong": "zero"
+    },
+    {
+     "text": "Getting the sign of k wrong, so growth and decay swap",
+     "as": "distractor",
+     "in": [
+      "k-from-half-life",
+      "k-from-data-point",
+      "predict-from-data-point"
+     ],
+     "wrong": "−k for k"
+    },
+    {
+     "text": "Multiplying by the half-life instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "k-from-half-life"
+     ],
+     "wrong": "k = −T ln two"
+    },
+    {
+     "text": "Swapping the half-life and the two inside the log",
+     "as": "distractor",
+     "in": [
+      "k-from-half-life"
+     ],
+     "wrong": "k = −(ln T)/two"
+    },
+    {
+     "text": "Taking the log of the later value without dividing by the start first",
+     "as": "distractor",
+     "in": [
+      "k-from-data-point"
+     ],
+     "wrong": "k = ln(P)/t"
+    },
+    {
+     "text": "Forgetting to take the log, dividing the ratio by the time",
+     "as": "distractor",
+     "in": [
+      "k-from-data-point"
+     ],
+     "wrong": "k = (P/A)/t"
+    },
+    {
+     "text": "Multiplying by the time instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "k-from-data-point"
+     ],
+     "wrong": "k = t ln(P/A)"
+    },
+    {
+     "text": "Joining the two readings with a straight line instead of the exponential",
+     "as": "distractor",
+     "in": [
+      "predict-from-data-point"
+     ],
+     "wrong": "a linear prediction through the two readings"
+    },
+    {
+     "text": "Starting from the later reading instead of from the start value",
+     "as": "distractor",
+     "in": [
+      "predict-from-data-point"
+     ],
+     "wrong": "P·e^(kt) with the later reading in front"
+    },
+    {
+     "text": "Multiplying by ten instead of raising ten to the power",
+     "as": "distractor",
+     "in": [
+      "log-model-solve"
+     ],
+     "wrong": "x₀ × ten × e for x₀ × ten to the e"
+    },
+    {
+     "text": "Dividing by the reference value instead of multiplying by it",
+     "as": "distractor",
+     "in": [
+      "log-model-solve"
+     ],
+     "wrong": "ten to the e over x₀"
+    },
+    {
+     "text": "Forgetting to multiply back by the reference value",
+     "as": "distractor",
+     "in": [
+      "log-model-solve"
+     ],
+     "wrong": "ten to the e alone"
+    },
+    {
+     "text": "Forgetting to divide by the multiplier in front of the log first",
+     "as": "distractor",
+     "in": [
+      "log-model-solve"
+     ],
+     "wrong": "x₀ × ten to the R"
+    },
+    {
+     "text": "Using one minus the rate for growth, or one plus the rate for decay",
+     "as": "distractor",
+     "in": [
+      "factor-from-percent"
+     ],
+     "wrong": "a factor below one for growth"
+    },
+    {
+     "text": "Misplacing the decimal point, so the percentage is read as tenths",
+     "as": "distractor",
+     "in": [
+      "factor-from-percent"
+     ],
+     "wrong": "one point four for a growth of four percent"
+    },
+    {
+     "text": "Dividing the wrong way, so the factor is upside down",
+     "as": "distractor",
+     "in": [
+      "model-from-table"
+     ],
+     "wrong": "one over a"
+    },
+    {
+     "text": "Multiplying by the factor to step back to the start instead of dividing",
+     "as": "distractor",
+     "in": [
+      "model-from-table",
+      "initial-from-later"
+     ],
+     "wrong": "the start multiplied up instead of divided down"
+    },
+    {
+     "text": "Taking the difference between entries as the factor instead of their ratio",
+     "as": "distractor",
+     "in": [
+      "model-from-table"
+     ],
+     "wrong": "the common difference as a"
+    },
+    {
+     "text": "Taking the start value as A, without taking away the asymptote",
+     "as": "distractor",
+     "in": [
+      "model-from-graph"
+     ],
+     "wrong": "A = C + A, the start itself"
+    },
+    {
+     "text": "Dropping the log, so kt is set equal to one half",
+     "as": "distractor",
+     "in": [
+      "half-life-from-k"
+     ],
+     "wrong": "one over twice k"
+    },
+    {
+     "text": "Giving the number of half-lives or doubling times instead of the time they take",
+     "as": "distractor",
+     "in": [
+      "time-from-graph"
+     ],
+     "wrong": "n for n half-lives"
+    },
+    {
+     "text": "Writing the overall factor as the percentage change, without taking away one",
+     "as": "distractor",
+     "in": [
+      "change-over-period"
+     ],
+     "wrong": "a^n × a hundred percent"
+    },
+    {
+     "text": "Giving the change over one period instead of over the whole time",
+     "as": "distractor",
+     "in": [
+      "change-over-period"
+     ],
+     "wrong": "r% for one step"
+    },
+    {
+     "text": "Dividing the ratios without taking logs",
+     "as": "distractor",
+     "in": [
+      "two-models-equal"
+     ],
+     "wrong": "t = (Q₀/P₀)/(a/b)"
     }
    ],
    "parts": [

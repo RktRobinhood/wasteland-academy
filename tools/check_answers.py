@@ -3457,6 +3457,9 @@ def cl_read(q):
     return seen
 
 
+CLQ = "fn-curve-intersection-quadratic#"  # its own slips (FAL-820)
+
+
 def check_curve_line(q):
     u = q["view"]["unknown"]
     g = q["given"]
@@ -3483,12 +3486,17 @@ def check_curve_line(q):
     if u == "equate-to-quadratic":
         co = sp.Poly(diff, X).all_coeffs()
         need(R(ans["fixed"]["A"]) == co[0], "the leading coefficient given is not the equated quadratic's")
-        qr_check_common(q, (co[0], co[1], co[2]))
+        A_, B_, C_ = R(g["A"]), R(g["B"]), R(g["C"])
+        qr_check_common(q, (co[0], co[1], co[2]), {CLQ + "6": {(co[0], B_ + m, C_ + n)},  # the line added
+                                                   CLQ + "7": {(co[0], B_ - m, C_ + n)}})  # only the x term's sign changed
     elif u == "meeting-x":
         need(len(xs) == 2, "not two meeting points")
-        qr_check_common(q, tuple(xs), {"SL2.7.solve-equation#1": {tuple(sorted([-xs[0], -xs[1]]))}})
+        qr_check_common(q, tuple(xs), {"SL2.7.solve-equation#1": {tuple(sorted([-xs[0], -xs[1]]))},
+                                       CLQ + "8": {tuple(sorted(line.subs(X, x) for x in xs))}})  # the y-values
     elif u == "meeting-points":
-        qr_check_common(q, tuple(sorted((x, line.subs(X, x)) for x in xs)))
+        need(len(xs) == 2, "not two meeting points")
+        ys = [line.subs(X, x) for x in xs]
+        qr_check_common(q, tuple(sorted((x, line.subs(X, x)) for x in xs)), {CLQ + "9": {tuple(sorted([(xs[0], ys[1]), (xs[1], ys[0])]))}})  # ys swapped
     elif u == "chord-length":
         need(len(xs) == 2, "not two meeting points")
         L = sp.sqrt((xs[1] - xs[0])**2 + (line.subs(X, xs[1]) - line.subs(X, xs[0]))**2)
@@ -3499,7 +3507,11 @@ def check_curve_line(q):
         for o in q["choices"]:
             val = R(o["values"]["m"]) * sp.sqrt(R(o["values"]["r"]))
             need((sp.simplify(val - L) == 0) == o["correct"], f"option {o['text']!r} is marked wrong/right wrongly")
-        qr_check_common(q, want)
+        dx, dy = xs[1] - xs[0], line.subs(X, xs[1]) - line.subs(X, xs[0])
+        sq = lambda mm, rr: qr_norm(ans, {"m": str(mm), "r": str(rr)})
+        qr_check_common(q, want, {CLQ + "10": {sq(dx, 1)},  # Δx alone
+                                  CLQ + "11": {sq(dx**2, 1 + m**2)},  # Δx² left outside the root
+                                  CLQ + "12": {sq(1, dx**2 + abs(dy))}})  # Δy not squared
     elif u == "normal-meets-again":
         px, py = RD(seen["px"]), RD(seen["py"])
         need(curve.subs(X, px) == py, "P is not on the curve")
@@ -3507,19 +3519,25 @@ def check_curve_line(q):
         need(slope != 0 and m == -1 / slope and line.subs(X, px) == py, "the line is not the normal at P")
         others = [x for x in xs if x != px]
         need(len(others) == 1, "the normal doesn't meet the curve again once")
-        qr_check_common(q, qr_norm(ans, {"x": str(others[0]), "y": str(line.subs(X, others[0]))}))
+        qx, qy = others[0], line.subs(X, others[0])
+        qr_check_common(q, qr_norm(ans, {"x": str(qx), "y": str(qy)}), {CLQ + "13": {qr_norm(ans, {"x": str(qy), "y": str(qx)})}})  # x and y swapped
     elif u == "line-from-meeting-points":
         xa, xb = RD(seen["xa"]), RD(seen["xb"])
         ya, yb = curve.subs(X, xa), curve.subs(X, xb)
         mm = (yb - ya) / (xb - xa)
-        qr_check_common(q, qr_norm(ans, {"m": str(mm), "c": str(ya - mm * xa)}))
+        L_ = lambda mv, cv: qr_norm(ans, {"m": str(mv), "c": str(cv)})
+        cc = ya - mm * xa
+        qr_check_common(q, L_(mm, cc), {CLQ + "14": {L_(1 / mm, cc)}, CLQ + "15": {L_(-mm, cc)},  # Δx/Δy; the order mixed
+                                        CLQ + "16": {L_(mm, ya), L_(mm, yb)}})  # a point's y as the intercept
     elif u == "intercept-from-one-point":
         xg = RD(seen["xg"])
         nn = curve.subs(X, xg) - m * xg
         need(nn == n, "n from the given point is not the givens'")
         others = [x for x in sp.solve(curve - (m * X + nn), X) if x != xg]
         need(len(others) == 1, "no single other point")
-        qr_check_common(q, qr_norm(ans, {"n": str(nn), "x": str(others[0]), "y": str(m * others[0] + nn)}))
+        oy = m * others[0] + nn
+        qr_check_common(q, qr_norm(ans, {"n": str(nn), "x": str(others[0]), "y": str(oy)}),
+                        {CLQ + "16": {qr_norm(ans, {"n": str(curve.subs(X, xg)), "x": str(others[0]), "y": str(oy)})}})  # the given point's y as n
     elif u == "count-from-sketch":
         cnt = len(set(xs)) if xs else 0
         wr = {}
@@ -5525,6 +5543,7 @@ def check_exp_model(q):
     asked = q["asked"]
     em_clean(g)
     M, CA, LG, FP = "SL2.9.exp-model", "SL2.10.context-apply", "SL1.7.solve-with-logs", "SL2.9.find-parameters"
+    E = "fn-exponential-model#"  # its own slips (FAL-820)
     wr = {}
     m3 = lambda x: (need(not on_edge(abs(num(x))), f"{u}: {num(x)} is on a rounding edge"), el_m(x))[1]
     if "t2" in g and g["form"] not in ("log10", "two"):
@@ -5545,6 +5564,7 @@ def check_exp_model(q):
         want = m3(P0 * a**t2)
         wr[f"{M}#1"] = {el_m(P0 * a * t2), el_m(P0 * (1 + sp.Rational(r, 100) * t2))}
         wr[f"{M}#2"] = {el_m(P0 * a ** (t2 - 1))}
+        wr[E + "13"] = {el_m(P0 + a**t2)}  # P₀ added to the power
         if rep == "graph":
             em_graph(q, g, [em_f(g)])
     elif u == "interpret-factor":
@@ -5553,20 +5573,32 @@ def check_exp_model(q):
         need(ans.get("exact") and f"the {dec_text(a)} in the model" in asked, "the factor asked is not the model's")
         want = (d, abs(a - 1) * 100)
         wr[f"{M}#0"] = {(d, a * 100)}
+        wr[E + "14"] = {("fall" if d == "rise" else "rise", abs(a - 1) * 100)}  # the direction wrong
     elif u == "long-run-value":
         need(ans.get("exact"), "the long-run value is not marked exactly")
         want = qr_norm(ans, {"v": g["C"]})
+        wr[E + "15"] = {qr_norm(ans, {"v": str(R(g["C"]) + R(g["A"]))})}  # the start value
+        wr[E + "16"] = {qr_norm(ans, {"v": "0"})}  # the constant forgotten
         if rep == "graph":
             gr = em_graph(q, g, [em_f(g)])
             need(any(R(sp.nsimplify(h["at"])) == R(g["C"]) for h in gr["hlines"]), "the asymptote is not drawn at C")
     elif u == "k-from-half-life":
         need(ans.get("exact") and "exact" in asked, "an exact k is not asked exactly")
-        want = round(float(em_k(g)), 9)
+        k, T = em_k(g), int(g["T"])
+        want = round(float(k), 9)
+        wr[E + "17"] = {round(float(-k), 9)}  # the sign of k
+        wr[E + "18"] = {round(float(k * T * T), 9)}  # times T, not over T
+        wr[E + "19"] = {round(float(sp.sign(k) * sp.log(T) / 2), 9)}  # T and 2 swapped
     elif u == "k-from-data-point":
         if rep == "table":
             rows = q["table"]["rows"]
             need(rows[0][1] == ["0", str(g["t1"])] and rows[1][1] == [frac_text(g["A"]), frac_text(g["P1"])], "the table is not the reading")
-        want = m3(em_k(g))
+        k, t1, P1, A = em_k(g), int(g["t1"]), R(g["P1"]), R(g["A"])
+        want = m3(k)
+        wr[E + "17"] = {el_m(-k)}  # the sign of k
+        wr[E + "20"] = {el_m(sp.log(P1) / t1)}  # ln of the reading, not of the ratio
+        wr[E + "21"] = {el_m(P1 / A / t1)}  # no log
+        wr[E + "22"] = {el_m(sp.log(P1 / A) * t1)}  # times t, not over t
     elif u == "predict-from-data-point":
         if rep == "table":
             rows = q["table"]["rows"]
@@ -5576,6 +5608,10 @@ def check_exp_model(q):
         want = m3(R(g["A"]) * sp.exp(k * t2))
         k2 = sp.Rational(sig3(k, 2))
         wr[f"{LG}#2"] = {el_m(R(g["A"]) * sp.exp(k2 * t2))}
+        A, P1, t1 = R(g["A"]), R(g["P1"]), int(g["t1"])
+        wr[E + "23"] = {el_m(A + (P1 - A) * sp.Rational(t2, t1))}  # a straight line
+        wr[E + "24"] = {el_m(P1 * sp.exp(k * t2))}  # from the later reading
+        wr[E + "17"] = {el_m(A * sp.exp(-k * t2))}  # the sign of k
     elif u in ("time-to-level", "whole-units-inequality"):
         lv = el_num(em_read(r"(?:= |than )(\d+)\.", asked, "the level").group(1))
         need(lv == R(g["L"]), "the level asked is not L")
@@ -5595,13 +5631,19 @@ def check_exp_model(q):
             need(ans.get("exact"), "a whole number of periods is not marked exactly")
             first = int(sp.ceiling(tn))
             want = qr_norm(ans, {"v": str(first)})
-            wr[f"{CA}#0"] = {qr_norm(ans, {"v": str(int(sp.floor(tn + sp.Rational(1, 2))))})}
+            wr[f"{CA}#0"] = {qr_norm(ans, {"v": str(int(sp.floor(tn + sp.Rational(1, 2))))}), qr_norm(ans, {"v": str(first - 1)})}  # rounded down
     elif u == "log-model-solve":
         Rv = el_num(em_read(r"when \w = ([\d.]+)\.", asked, "the reading").group(1))
         need(Rv == R(g["R"]), "the reading asked is not R")
         e = Rv / R(g["m"])
         want = m3(R(g["x0"]) * 10**e)
-        wr["SL1.5.exp-log-form#1"] = {el_m(R(g["x0"]) * e**10)}
+        x0, mm = R(g["x0"]), R(g["m"])
+        wr["SL1.5.exp-log-form#1"] = {el_m(x0 * e**10)}
+        wr[E + "25"] = {el_m(x0 * e * 10)}  # times ten, not ten to the power
+        wr[E + "26"] = {el_m(10**e / x0)}  # divided by x₀
+        wr[E + "27"] = {el_m(10**e)}  # x₀ forgotten
+        if mm != 1:
+            wr[E + "28"] = {el_m(x0 * 10**Rv)}  # not divided by m
     elif u == "factor-from-percent":
         m = em_read(r"is (\d+) at t = 0, and it (grows|falls) by (\d+)% each (\w+)\.", q["lines"][0], "the start and rate")
         P0, pr = el_num(m.group(1)), sp.Rational(int(m.group(3)), 100)
@@ -5610,6 +5652,9 @@ def check_exp_model(q):
         need(ans.get("exact"), "the model is not marked exactly")
         want = (P0, a)
         wr[f"{M}#0"] = {(P0, pr)}
+        wr[E + "29"] = {(P0, 2 - a)}  # one minus for growth, or one plus for decay
+        if m.group(2) == "grows":
+            wr[E + "30"] = {(P0, 1 + 10 * pr)}  # the point misplaced
     elif u == "model-from-table":
         rows = q["table"]["rows"]
         need(rows[0][1] == ["1", "2", "3", "4"], "the table is not t = 1 to 4")
@@ -5619,6 +5664,9 @@ def check_exp_model(q):
         need((vs[0] / a, a) == (R(g["P0"]), R(g["a"])), "the table is not the givens' model")
         want = (vs[0] / a, a)
         wr[f"{M}#2"] = {(vs[0], a)}
+        wr[E + "31"] = {(vs[0] / a, 1 / a)}  # the ratio upside down
+        wr[E + "32"] = {(vs[0] * a, a)}  # stepped up, not back
+        wr[E + "33"] = {(vs[0] / a, vs[1] - vs[0])}  # the difference, not the ratio
     elif u == "model-from-graph":
         gr = em_graph(q, g, [em_f(g)])
         Cs = [R(sp.nsimplify(h["at"])) for h in gr["hlines"]]
@@ -5631,6 +5679,7 @@ def check_exp_model(q):
         want = (C, A, m3(k))
         kw = -sp.log((P1 - start) / (C - start)) / t1
         wr[f"{FP}#1"] = {(start, C - start, el_m(kw))}
+        wr[E + "34"] = {(C, start, el_m(k))}  # the start as A
     elif u == "initial-from-later":
         L = " / ".join(q["lines"])
         a = el_num(em_read(r"P₀\(([\d.]+)\)\^t", L, "the factor").group(1))
@@ -5639,9 +5688,12 @@ def check_exp_model(q):
         need((a, t1, P1) == (R(g["a"]), int(g["t1"]), R(g["P1"])), "the reading shown is not the givens")
         want = m3(P1 / a**t1)
         wr[f"{M}#2"] = {el_m(P1 / a ** (t1 - 1))}
+        wr[E + "32"] = {el_m(P1 * a**t1)}  # multiplied, not divided
+        wr[f"{M}#1"] = {el_m(P1 / (1 + (a - 1) * t1))}  # linear growth
     elif u == "half-life-from-k":
         need(R(g["k"]) < 0, "a half-life of a growing model")
         want = m3(sp.log(2) / abs(R(g["k"])))
+        wr[E + "35"] = {el_m(1 / (2 * abs(R(g["k"]))))}  # kt = ½, no log
     elif u == "time-from-graph":
         gr = em_graph(q, g, [em_f(g)])
         need(f"The graph of {em_model_text(g)} is shown" in q["lines"][0], "the model named is not the givens")
@@ -5651,10 +5703,16 @@ def check_exp_model(q):
         need(t.is_integer and 0 < t <= 24, f"the level is not reached at a whole number of half-lives (t = {t})")
         need(ans.get("exact"), "a time read off the grid is not marked exactly")
         want = qr_norm(ans, {"v": str(t)})
+        wr[E + "36"] = {qr_norm(ans, {"v": str(t / int(g["T"]))})}  # the count of half-lives
     elif u == "change-over-period":
         n = int(em_read(r"over (\d+) ", asked, "the period").group(1))
         gf = R(g["a"]) ** n
-        want = ("rise" if gf > 1 else "fall", m3(abs(gf - 1) * 100))
+        d = "rise" if gf > 1 else "fall"
+        want = (d, m3(abs(gf - 1) * 100))
+        r = abs(R(g["a"]) - 1) * 100
+        wr[f"{M}#1"] = {(d, el_m(r * n))}  # added each step
+        wr[E + "37"] = {(d, el_m(gf * 100))}  # the factor as the percentage
+        wr[E + "38"] = {(d, el_m(r))}  # one step only
     elif u == "two-models-equal":
         L = q["lines"]
         P0, a = [el_num(x) for x in em_read(r"^P\(t\) = (\d+)\(([\d.]+)\)\^t$", L[1], "P").groups()]
@@ -5664,6 +5722,7 @@ def check_exp_model(q):
         need(2 < num(t) < 40, "the models meet out of range")
         want = m3(t)
         wr[f"{CA}#1"] = {el_m(-t)}
+        wr[E + "39"] = {el_m((Pb / P0) / (a / ab))}  # no logs
         if rep == "graph":
             em_graph(q, g, [P0 * a**T_, Pb * ab**T_])
     else:
