@@ -174,6 +174,7 @@ static var SITUATIONS := {
 	"histogram": [HistogramSituation, HistogramViews],
 	"correlation": [CorrelationSituation, CorrelationViews],
 	"exact-triangle": [ExactTriangleSituation, ExactTriangleViews],
+	"integer-powers": [IntegerPowersSituation, IntegerPowersViews],
 }
 
 static var _cat: Dictionary = {}

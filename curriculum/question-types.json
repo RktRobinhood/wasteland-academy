@@ -6357,28 +6357,28 @@
    "quantities": [
     {
      "name": "b, n",
-     "is": "a base and a power for b⁻ⁿ",
-     "pick": "b from 2 to 6 with bⁿ at most 216; or a fraction s/t from 2 to 5 with no common factor and n of 2 or 3"
+     "is": "a base and a power for b^(−n)",
+     "pick": "b from 2 to 6 with b^n at most 216; or a fraction s/t from 2 to 5 with no common factor and n of 2 or 3"
     },
     {
      "name": "c",
-     "is": "the number raised to the power zero, or the coefficient of xⁿ",
+     "is": "the number raised to the power zero, or the coefficient of x^n",
      "pick": "2 to 9"
     },
     {
      "name": "a, m, p, b, n",
-     "is": "the term (axᵐ)ᵖ × bxⁿ",
-     "pick": "a from 2 to 5, m from 2 to 5, p of 2 or 3, b from 1 to 4, n from −7 to 4, not 0"
+     "is": "the term (ax^m)^p × bx^n",
+     "pick": "a from 2 to 5, m from 2 to 5, p of 2 or 3, b from 1 to 4, n from −7 to 4, not 0; mp at most 12, mp + n at most 10 and a^p × b at most 250, so x = 2 checks it by hand"
     },
     {
      "name": "p, q, r, s",
-     "is": "the exponents of (aᵖbᵍ)/(aʳbˢ)",
+     "is": "the exponents of (a^p b^q)/(a^r b^s)",
      "pick": "−4 to 5, not 0, with p − r and q − s of opposite signs"
     },
     {
      "name": "t, i, j, m, n",
-     "is": "Aᵐ × Bⁿ with A = tⁱ, B = tʲ",
-     "pick": "t of 2, 3 or 5, A and B different, m and n from −3 to 4, not 0"
+     "is": "A^m × B^n with A = t^i, B = t^j",
+     "pick": "t of 2, 3 or 5; A and B different powers of t from t² to 125; m and n from −3 to 4, not 0, with k from −20 to 20"
     }
    ],
    "clean": [
@@ -82238,7 +82238,7 @@
     {
      "id": "add-forms",
      "given": [
-      "p = a × 10ᵐ and q = b × 10ⁿ, with m ≠ n"
+      "p = a × 10^m and q = b × 10^n, with m ≠ n"
      ],
      "asked": "p + q in standard form",
      "level": 1,
@@ -82268,7 +82268,7 @@
     {
      "id": "subtract-forms",
      "given": [
-      "p = a × 10ᵐ and q = b × 10ⁿ, with m > n"
+      "p = a × 10^m and q = b × 10^n, with m > n"
      ],
      "asked": "p − q in standard form",
      "level": 2,
@@ -82413,7 +82413,7 @@
      "in": [
       "add-forms"
      ],
-     "wrong": "a line writes b × 10ⁿ as b × 10ᵐ"
+     "wrong": "a line writes b × 10^n as b × 10^m"
     }
    ],
    "sharesSituation": [
@@ -82455,7 +82455,7 @@
     {
      "id": "square-form",
      "given": [
-      "(a × 10ᵏ)²"
+      "(a × 10^k)^2"
      ],
      "asked": "the square in standard form",
      "level": 2,
@@ -82470,7 +82470,7 @@
     {
      "id": "cube-form",
      "given": [
-      "(a × 10ᵏ)³"
+      "(a × 10^k)^3"
      ],
      "asked": "the cube in standard form",
      "level": 2,
@@ -82485,7 +82485,7 @@
     {
      "id": "root-even",
      "given": [
-      "√(a × 10ᵏ), with k even and a a perfect square"
+      "√(a × 10^k), with k even and a a perfect square"
      ],
      "asked": "the square root in standard form",
      "level": 2,
@@ -82500,7 +82500,7 @@
     {
      "id": "root-odd",
      "given": [
-      "√(a × 10ᵏ), with k odd and 10a a perfect square"
+      "√(a × 10^k), with k odd and 10a a perfect square"
      ],
      "asked": "the square root in standard form",
      "level": 3,
@@ -82515,7 +82515,7 @@
     {
      "id": "cube-root",
      "given": [
-      "∛(a × 10ᵏ), with the power of ten to adjust to a multiple of 3"
+      "∛(a × 10^k), with the power of ten to adjust to a multiple of 3"
      ],
      "asked": "the cube root in standard form",
      "level": 3,
@@ -82594,7 +82594,7 @@
       "square-form",
       "cube-form"
      ],
-     "wrong": "aᵖ × 10^(k + p)"
+     "wrong": "a^p × 10^(k + p)"
     },
     {
      "ref": "SL1.1.powers-roots#2",
@@ -82639,7 +82639,7 @@
      "in": [
       "cube-form"
      ],
-     "wrong": "a line writes (a × 10ᵏ)³ as a × 10^(3k)"
+     "wrong": "a line writes (a × 10^k)^3 as a × 10^(3k)"
     },
     {
      "text": "Raising the power of ten when the coefficient is multiplied by 10, instead of lowering it",
@@ -82647,7 +82647,7 @@
      "in": [
       "root-odd"
      ],
-     "wrong": "a line writes a × 10ᵏ as 10a × 10^(k + 1)"
+     "wrong": "a line writes a × 10^k as 10a × 10^(k + 1)"
     }
    ],
    "sharesSituation": [
@@ -82873,7 +82873,7 @@
      "in": [
       "real-value-deflate"
      ],
-     "wrong": "the future value times (1 + f/100)ⁿ"
+     "wrong": "the future value times (1 + f/100)^n"
     },
     {
      "text": "Assuming any positive inflation makes the real value fall",
@@ -82889,7 +82889,7 @@
      "in": [
       "real-value-deflate"
      ],
-     "wrong": "a line uses (1 + f/100) where (1 + f/100)ⁿ belongs"
+     "wrong": "a line uses (1 + f/100) where (1 + f/100)^n belongs"
     },
     {
      "text": "Adding the inflation rate to the interest rate, in a line of working",
@@ -82912,7 +82912,7 @@
    "detail": "full",
    "region": "exponents-logs",
    "name": "Integer exponent laws",
-   "summary": "Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/xⁿ as ax⁻ⁿ.",
+   "summary": "Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/x^n as ax^(−n).",
    "gap": "Index laws are used as steps inside calculus and log questions; no bank part tests them on their own.",
    "skills": [
     "SL1.5.integer-exponent-laws",
@@ -82957,7 +82957,7 @@
     {
      "id": "zero-and-negative",
      "given": [
-      "c⁰ + b⁻ⁿ, with whole numbers c, b and n"
+      "c^0 + b^(−n), with whole numbers c, b and n"
      ],
      "asked": "its exact value",
      "level": 1,
@@ -82972,9 +82972,9 @@
     {
      "id": "to-index-form",
      "given": [
-      "c/xⁿ or 1/(cxⁿ)"
+      "c/x^n or 1/(cx^n)"
      ],
-     "asked": "a and p, with the expression written as axᵖ",
+     "asked": "a and p, with the expression written as ax^p",
      "level": 2,
      "exam": false,
      "reps": [
@@ -82987,9 +82987,9 @@
     {
      "id": "power-of-product",
      "given": [
-      "(axᵐ)ᵖ × bxⁿ, n possibly negative"
+      "(ax^m)^p × bx^n, n possibly negative"
      ],
-     "asked": "the expression simplified to cxᵉ",
+     "asked": "the expression simplified to cx^e",
      "level": 2,
      "exam": false,
      "reps": [
@@ -83003,7 +83003,7 @@
     {
      "id": "two-letter-quotient",
      "given": [
-      "(aᵖbᵍ)/(aʳbˢ), with some exponents negative"
+      "(a^p b^q)/(a^r b^s), with some exponents negative"
      ],
      "asked": "the quotient with positive exponents",
      "level": 3,
@@ -83019,9 +83019,9 @@
     {
      "id": "single-prime-power",
      "given": [
-      "Aᵐ × Bⁿ or Aᵐ ÷ Bⁿ, where A and B are powers of one prime t"
+      "A^m × B^n or A^m ÷ B^n, where A and B are powers of one prime t"
      ],
-     "asked": "k, with the number written as tᵏ",
+     "asked": "k, with the number written as t^k",
      "level": 2,
      "exam": false,
      "reps": [
@@ -83097,8 +83097,8 @@
     },
     {
      "kind": "always-sometimes-never",
-     "prompt": "For a whole number b ≥ 2 and a whole number n ≥ 1, b⁻ⁿ is negative.",
-     "answer": "Never. b⁻ⁿ = 1/bⁿ, a positive number less than 1. The minus sign in the exponent means a reciprocal, not a negative.",
+     "prompt": "For a whole number b ≥ 2 and a whole number n ≥ 1, b^(−n) is negative.",
+     "answer": "Never. b^(−n) = 1/b^n, a positive number less than 1. The minus sign in the exponent means a reciprocal, not a negative.",
      "level": 3
     }
    ],
@@ -83139,7 +83139,7 @@
       "zero-and-negative",
       "to-index-form"
      ],
-     "wrong": "b⁻ⁿ taken as −bⁿ"
+     "wrong": "b^(−n) taken as −b^n"
     },
     {
      "ref": "SL1.5.zero-negative#1",
@@ -83157,7 +83157,7 @@
      "in": [
       "to-index-form"
      ],
-     "wrong": "1/(cxⁿ) written as cx⁻ⁿ"
+     "wrong": "1/(cx^n) written as cx^(−n)"
     },
     {
      "text": "Ignoring the minus sign in the exponent",
@@ -83166,7 +83166,7 @@
       "negative-power",
       "zero-and-negative"
      ],
-     "wrong": "b⁻ⁿ taken as bⁿ"
+     "wrong": "b^(−n) taken as b^n"
     },
     {
      "text": "Multiplying the base by the exponent",
@@ -83174,7 +83174,7 @@
      "in": [
       "negative-power"
      ],
-     "wrong": "b⁻ⁿ taken as −nb"
+     "wrong": "b^(−n) taken as −nb"
     },
     {
      "text": "Assuming a number to the power zero is the number itself",
@@ -83190,7 +83190,7 @@
      "in": [
       "to-index-form"
      ],
-     "wrong": "c/xⁿ written as cxⁿ"
+     "wrong": "c/x^n written as cx^n"
     },
     {
      "text": "Multiplying the number in the bracket by the power instead of raising it to the power",
@@ -83198,10 +83198,10 @@
      "in": [
       "power-of-product"
      ],
-     "wrong": "(ax)ᵖ with a × p in front"
+     "wrong": "(ax)^p with a × p in front"
     },
     {
-     "text": "Subtracting the size of a negative exponent when the terms are multiplied",
+     "text": "Subtracting a negative exponent when multiplying, instead of adding it",
      "as": "distractor",
      "in": [
       "power-of-product"
@@ -83331,7 +83331,7 @@
     {
      "id": "log-difference",
      "given": [
-      "log_b P − log_b Q = k, with P = Q × bᵏ"
+      "log_b P − log_b Q = k, with P = Q × b^k"
      ],
      "asked": "the working that shows it",
      "level": 1,

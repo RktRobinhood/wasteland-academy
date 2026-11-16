@@ -6383,17 +6383,17 @@
 				{
 					"name": "a, m, p, b, n",
 					"is": "the term (ax^m)^p × bx^n",
-					"pick": "a from 2 to 5, m from 2 to 5, p of 2 or 3, b from 1 to 4, n from −7 to 4, not 0"
+					"pick": "a from 2 to 5, m from 2 to 5, p of 2 or 3, b from 1 to 4, n from −7 to 4, not 0; mp at most 12, mp + n at most 10 and a^p × b at most 250, so x = 2 checks it by hand"
 				},
 				{
 					"name": "p, q, r, s",
-					"is": "the exponents of (a^pb^g)/(a^rb^s)",
+					"is": "the exponents of (a^p b^q)/(a^r b^s)",
 					"pick": "−4 to 5, not 0, with p − r and q − s of opposite signs"
 				},
 				{
 					"name": "t, i, j, m, n",
 					"is": "A^m × B^n with A = t^i, B = t^j",
-					"pick": "t of 2, 3 or 5, A and B different, m and n from −3 to 4, not 0"
+					"pick": "t of 2, 3 or 5; A and B different powers of t from t² to 125; m and n from −3 to 4, not 0, with k from −20 to 20"
 				}
 			],
 			"clean": [
@@ -78434,7 +78434,7 @@
 				{
 					"id": "square-form",
 					"given": [
-						"(a × 10^k)²"
+						"(a × 10^k)^2"
 					],
 					"asked": "the square in standard form",
 					"level": 2,
@@ -78449,7 +78449,7 @@
 				{
 					"id": "cube-form",
 					"given": [
-						"(a × 10^k)³"
+						"(a × 10^k)^3"
 					],
 					"asked": "the cube in standard form",
 					"level": 2,
@@ -78624,7 +78624,7 @@
 					"in": [
 						"cube-form"
 					],
-					"wrong": "a line writes (a × 10^k)³ as a × 10^(3k)"
+					"wrong": "a line writes (a × 10^k)^3 as a × 10^(3k)"
 				},
 				{
 					"text": "Raising the power of ten when the coefficient is multiplied by 10, instead of lowering it",
@@ -78930,7 +78930,7 @@
 				{
 					"id": "zero-and-negative",
 					"given": [
-						"c⁰ + b^(−n), with whole numbers c, b and n"
+						"c^0 + b^(−n), with whole numbers c, b and n"
 					],
 					"asked": "its exact value",
 					"level": 1,
@@ -78976,7 +78976,7 @@
 				{
 					"id": "two-letter-quotient",
 					"given": [
-						"(a^pb^g)/(a^rb^s), with some exponents negative"
+						"(a^p b^q)/(a^r b^s), with some exponents negative"
 					],
 					"asked": "the quotient with positive exponents",
 					"level": 3,
@@ -79188,7 +79188,7 @@
 					"wrong": "(ax)^p with a × p in front"
 				},
 				{
-					"text": "Subtracting the size of a negative exponent when the terms are multiplied",
+					"text": "Subtracting a negative exponent when multiplying, instead of adding it",
 					"as": "distractor",
 					"in": [
 						"power-of-product"

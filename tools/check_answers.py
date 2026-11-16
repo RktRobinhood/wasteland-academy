@@ -43303,6 +43303,8 @@ def E17_expr(text, letters=("x",)):
     """A side of an equation as SymPy, or None where it has words in it."""
     t = text.strip().rstrip(".").strip()
     t = E17_LEAD.sub("", t)
+    if "a" in letters and "b" in letters:
+        t = re.sub(r"(?<=[ab)])(?=[ab])", "*", t)
     if not t or re.search(r"[A-Za-wyz]{2,}", t.replace("ln", "")):
         return None
     t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
@@ -43500,6 +43502,180 @@ def E17CB_spot_entry(q, lines):
 
 SITUATION_CHECKS["solve-exponential"] = E17CB_entry
 SPOT_CHECKS["solve-exponential"] = E17CB_spot_entry
+
+
+
+# ── integer-powers, t1-ext-exponent-laws (FAL-780) ──────────
+# Each number or expression is read back from the question and worked out with SymPy: a value
+# exactly, a term as its coefficient and exponent of x, a quotient as the exponents of a and b, and
+# a product of powers of one prime as that prime's exponent. Every tagged option is rebuilt from its
+# slip, every equation in the working must hold (at x = 2, or a = 2 and b = 3, where it has letters),
+# and an error-spot's first wrong line is the first whose equation fails.
+
+E17EL_IL = "SL1.5.integer-exponent-laws#"
+E17EL_ZN = "SL1.5.zero-negative#"
+E17EL_OWN = "t1-ext-exponent-laws#"
+E17EL_A, E17EL_B = sp.Symbol("a"), sp.Symbol("b")
+
+
+def E17EL_pw(base, e):
+    """'2^3', '2^(−3)', '(2/3)^(−2)', 'x^4'."""
+    b = base if isinstance(base, str) else (str(base) if sp.Rational(base).q == 1 and base > 0 else f"({E17_n(base)})")
+    return f"{b}^{e}" if e >= 0 else f"{b}^(−{-e})"
+
+
+def E17EL_mono(c, e, letter="x"):
+    c = sp.Rational(c)
+    if e == 0:
+        return E17_n(c)
+    if c == 1:
+        head = ""
+    elif c == -1:
+        head = "−"
+    elif c.q == 1:
+        head = E17_n(c)
+    else:
+        head = ("−" if c < 0 else "") + f"({E17_n(abs(c))})"
+    return head + (letter if e == 1 else E17EL_pw(letter, e))
+
+
+def E17EL_ab(ea, eb):
+    top, bottom = [], []
+    for letter, e in (("a", ea), ("b", eb)):
+        if e > 0:
+            top.append(letter if e == 1 else E17EL_pw(letter, e))
+        elif e < 0:
+            bottom.append(letter if e == -1 else E17EL_pw(letter, -e))
+    t = "".join(top) or "1"
+    if not bottom:
+        return t
+    return f"{t}/{bottom[0]}" if len(bottom) == 1 else f"{t}/({''.join(bottom)})"
+
+
+def E17EL_read(text, letters=("x",)):
+    e = E17_expr(text, letters)
+    need(e is not None, f"can't read {text!r}")
+    return e
+
+
+def E17EL_term(e):
+    """c·x^k as (c, k)."""
+    c, k = sp.expand(e).as_coeff_exponent(E17_X)
+    need(c.free_symbols == set() and k.is_Integer, f"{e} is not a single term")
+    return sp.Rational(c), int(k)
+
+
+def E17EL_check(q):
+    u, asked = q["view"]["unknown"], q["asked"]
+    need(q["paper"] == 1, "an exponent-laws question is Paper 1")
+    X = E17_X
+    wr = {}
+    subs = {X: 2}
+    letters = ("x",)
+    if u in ("negative-power", "zero-and-negative"):
+        m = re.fullmatch(r"Find the exact value of (.+)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        text = m.group(1)
+        if u == "negative-power":
+            mm = re.fullmatch(r"(\d+|\((\d+)/(\d+)\))\^\(−(\d)\)", text)
+            need(mm is not None, f"can't read {text!r}")
+            base = sp.Integer(mm.group(1)) if mm.group(2) is None else sp.Rational(int(mm.group(2)), int(mm.group(3)))
+            n = int(mm.group(4))
+            need(1 <= n <= 3 and (base.q == 1 and 2 <= base <= 6 and base ** n <= 216 or base.q != 1 and 2 <= n and max(base.p, base.q) <= 5), f"{text} breaks the limits")
+            v = base ** -n
+            wr[E17EL_ZN + "0"] = {f"value = {E17_n(-(base ** n))}"}
+            wr[E17EL_OWN + "6"] = {f"value = {E17_n(base ** n)}"}
+            if base.q == 1:
+                wr[E17EL_OWN + "7"] = {f"value = {E17_n(-base * n)}"}
+        else:
+            mm = re.fullmatch(r"(\d)\^0 \+ (\d)\^\(−(\d)\)", text)
+            need(mm is not None, f"can't read {text!r}")
+            c, b, n = (int(mm.group(i)) for i in (1, 2, 3))
+            need(c != b and 4 <= b ** n <= 216, f"{text} breaks the limits")
+            v = 1 + sp.Rational(1, b ** n)
+            wr[E17EL_ZN + "1"] = {f"value = {E17_n(sp.Rational(1, b ** n))}"}
+            wr[E17EL_ZN + "0"] = {f"value = {E17_n(1 - b ** n)}"}
+            wr[E17EL_OWN + "8"] = {f"value = {E17_n(c + sp.Rational(1, b ** n))}"}
+            wr[E17EL_OWN + "6"] = {f"value = {E17_n(1 + b ** n)}"}
+        need(E17_expr(text) is not None and sp.Rational(E17_expr(text)) == v, "the value read back is not the one worked out")
+        want = f"value = {E17_n(v)}"
+        subs = {}
+    elif u == "to-index-form":
+        m = re.fullmatch(r"Write (.+) in the form ax\^p, where a and p are constants\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        text = m.group(1)
+        a, p = E17EL_term(E17EL_read(text))
+        need(p < 0, "the power is not negative")
+        top = re.fullmatch(r"(\d)/x(?:\^\d)?", text) is not None
+        need(top or re.fullmatch(r"1/\((\d)x(?:\^\d)?\)", text), f"{text} is not c/xⁿ or 1/(cxⁿ)")
+        want = E17EL_mono(a, p)
+        wr[E17EL_OWN + "9"] = {E17EL_mono(a, -p)}
+        wr[E17EL_ZN + "0"] = {E17EL_mono(-a, -p)}
+        if not top:
+            wr[E17EL_ZN + "2"] = {E17EL_mono(1 / a, p)}
+    elif u == "power-of-product":
+        m = re.fullmatch(r"Simplify (\((\d)x\^(\d)\)\^(\d) × (\d?)x(?:\^\(?(−?\d)\)?)?), giving your answer in the form cx\^e\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        a, mm, p = int(m.group(2)), int(m.group(3)), int(m.group(4))
+        b = int(m.group(5) or 1)
+        n = int((m.group(6) or "1").replace("−", "-"))
+        C, e = E17EL_term(E17EL_read(m.group(1)))
+        need(C == a ** p * b and e == mm * p + n, "the term read back is not (axᵐ)ᵖ × bxⁿ")
+        need(e not in (0, 1) and mm * p <= 12 and e <= 10 and C <= 250, f"{m.group(1)} breaks the limits")
+        want = E17EL_mono(C, e)
+        wr[E17EL_IL + "0"] = {E17EL_mono(C, mm + p + n)}
+        wr[E17EL_IL + "1"] = {E17EL_mono(a * b, e)}
+        if a * p != a ** p:
+            wr[E17EL_OWN + "10"] = {E17EL_mono(a * p * b, e)}
+        if n < 0:
+            wr[E17EL_OWN + "11"] = {E17EL_mono(C, mm * p - n)}
+    elif u == "two-letter-quotient":
+        m = re.fullmatch(r"Simplify \((.+)\)/\((.+)\), giving your answer with positive exponents only\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        letters = ("a", "b")
+        top, bot = E17EL_read(m.group(1), letters), E17EL_read(m.group(2), letters)
+        pt, pb = top.as_powers_dict(), bot.as_powers_dict()
+        p, qq, r, s_ = (int(d.get(L_, 0)) for d, L_ in ((pt, E17EL_A), (pt, E17EL_B), (pb, E17EL_A), (pb, E17EL_B)))
+        need(all(v != 0 and -4 <= v <= 5 for v in (p, qq, r, s_)), "an exponent breaks the limits")
+        ea, eb = p - r, qq - s_
+        need(ea * eb < 0, "the answer does not have one letter on each line")
+        need(sp.simplify(top / bot - E17EL_A ** ea * E17EL_B ** eb) == 0, "the exponents worked out don't give the quotient")
+        want = E17EL_ab(ea, eb)
+        wr[E17EL_OWN + "12"] = {E17EL_ab(-ea, -eb)}
+        wr[E17EL_OWN + "13"] = {E17EL_ab(p + r, qq + s_)}
+        subs = {E17EL_A: 2, E17EL_B: 3}
+    else:
+        m = re.fullmatch(r"(\d+)\^\(?(−?\d)\)? ([×÷]) (\d+)\^\(?(−?\d)\)?", q["lines"][0])
+        need(m is not None, f"can't read {q['lines'][0]!r}")
+        A, mm, op, B, n = int(m.group(1)), int(m.group(2).replace("−", "-")), m.group(3), int(m.group(4)), int(m.group(5).replace("−", "-"))
+        t, i = E17CB_prime(A)
+        t2, j = E17CB_prime(B)
+        need(t == t2 and i != j and min(i, j) >= 2 and max(A, B) <= 125, f"{A} and {B} break the limits")
+        sgn = 1 if op == "×" else -1
+        k = i * mm + sgn * j * n
+        need(sp.Integer(A) ** mm * sp.Integer(B) ** (sgn * n) == sp.Integer(t) ** k, "the power worked out is not the number")
+        need(k != 0 and abs(k) <= 20, f"k = {k} breaks the limits")
+        need(re.search(rf"single power of {t}, in the form {t}\^k\.", asked), "the question asks for another base")
+        want = E17EL_pw(t, k)
+        wr[E17EL_OWN + "14"] = {E17EL_pw(t, mm + sgn * n)}
+        if op == "×":
+            need(sp.Integer(A * B) ** (mm + n) != sp.Integer(t) ** k, "combining the bases gives the answer's value")
+            wr[E17EL_IL + "2"] = {E17EL_pw(A * B, mm + n)}
+        subs = {}
+    gc_check_common(q, want, wr)
+    E17_steps(q, subs, letters)
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E17EL_spot(q, lines):
+    for t in lines:
+        need(" = " in t or t.startswith("Raise the bracket"), f"can't judge the line {t!r}")
+    return E17_first_false(lines, {E17_X: 2})
+
+
+SITUATION_CHECKS["integer-powers"] = E17EL_check
+SPOT_CHECKS["integer-powers"] = E17EL_spot
 
 
 def check_questions(data):
