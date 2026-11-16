@@ -1463,7 +1463,9 @@ dungeon part of `Tuning`. Q4, Q6, Q9 and Q14 are on the FAL-274 plan.
   (`merge_needs`). Each part has its own clock from its own marks. A wrong part costs HP
   and shows the right value, and the next part carries it (`carried`: the part before's
   right answer, shown in a box above the question), whatever was answered. The enemy bar
-  counts parts; surviving every part beats it. A boss ends with one link question where
+  counts parts; surviving every part beats it. The result says so ("Part (a) done · 4 of 5
+  parts to go"), a hit without enemy HP and a miss without a hit, and the floor line keeps
+  the part answered until Next part (FAL-970). A boss ends with one link question where
   the region has one built (`Tuning.BOSS_LINK_PART`). A floor with no chain built has a
   normal fight at the boss's tier instead.
 - **The "boss beaten" event.** The heal `Tuning.BOSS_HEAL` (0) goes through
@@ -1592,7 +1594,10 @@ is sized to it. Graph labels still show the caret, as `draw_string` draws them.
 
 A `MathLabel` wraps at spaces, never inside a fraction or a power. A root too wide for its line is
 written `√(…)` so it wraps. A line with a fraction is taller, so a few more fight cards need a swipe
-at the `FitBox` floor (4.3% of cells at 390x844, from 3.6%); none is wider than its card.
+at the `FitBox` floor (4.3% of cells at 390x844, from 3.6%); none is wider than its card. Before
+a card scrolls, a control tagged `FitBox.LEAST` gives up height to that least, when that lets the
+whole card fit: a curve graph (`GraphView`) gives up to a quarter, so a 4-option graph question
+shows Attack whole on a 390x844 phone (FAL-970).
 
 An answer box starts 150 wide and grows as it's typed in, up to `Practice.SLOT_CHARS`, which still
 fits the fight's card on a 360 px phone. It isn't sized from the answer, as that would give away
