@@ -296,6 +296,12 @@ static func rat_text(a: int, b: int, c: int, d: int) -> String:
 	return InverseRuleSituation.frac(Fmt.poly([a, b]), Fmt.poly([c, d]))
 
 
+## A slip's (ax + b)/(cx + d) as a tagged option, or none when it cancels to a number,
+## as (x − 1)/(x − 1) does: that is no rule a student would write.
+static func rat_tag(a: int, b: int, c: int, d: int, ref: String, label: String = "f⁻¹(x) = %s") -> Array:
+	return [] if a * d == b * c else [tag(label % rat_text(a, b, c, d), ref)]
+
+
 # ── The unknowns ─────────────────────────────────────────────
 
 func u_inverse_linear(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -320,8 +326,7 @@ func u_inverse_rational(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var c: int = f.c
 	var d: int = f.d
 	var right := finv(f)
-	var pick := pick_of(right, [tag("f⁻¹(x) = " + rat_text(d, b, -c, a), R_ONE_SIGN), tag("f⁻¹(x) = " + rat_text(d, -b, c, a), R_ONE_SIGN),
-		tag("f⁻¹(x) = " + rat_text(a, -b, -c, d), R_NO_SWAP)],
+	var pick := pick_of(right, rat_tag(d, b, -c, a, R_ONE_SIGN) + rat_tag(d, -b, c, a, R_ONE_SIGN) + rat_tag(a, -b, -c, d, R_NO_SWAP),
 		["f⁻¹(x) = " + rat_text(d, -b, -c, -a), "f⁻¹(x) = " + rat_text(d, b + 1, -c, a), "f⁻¹(x) = " + rat_text(b, -d, -c, a)])
 	var out := {"asked": "Find f⁻¹(x).", "lines": [InverseRuleSituation.rule_line(f)]}
 	out.merge(pick)
@@ -396,13 +401,14 @@ func u_inverse_restricted_quadratic(rep: String, s: Dictionary, _rng: Seeded) ->
 	return out
 
 
-func u_inverse_exponential(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_inverse_exponential(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var f: Dictionary = s.f
 	var q: int = f.q
 	var right := "%s, domain x > %s" % [finv(f), N(q)]
-	var pick := pick_of(right, [tag("%s, domain all real x" % finv(f), R_DOMAIN_OF_F),
+	# Up to four slips for three places: shuffled, so each one is shown.
+	var pick := pick_of(right, rng.shuffled([tag("%s, domain all real x" % finv(f), R_DOMAIN_OF_F),
 		tag("%s, domain x > %s" % [finv({"fam": "exp", "base": f.base, "q": -q}), N(-q)], R_SAME_SIGN) if q != 0 else tag("f⁻¹(x) = 1/%s^x, domain x > 0" % InverseRuleSituation.base_text(f.base), R_RECIPROCAL),
-		tag("%s, domain x ≥ %s" % [finv(f), N(q)], R_ASYMPTOTE_IN)] + ([tag("%s, domain x > %s" % ["f⁻¹(x) = %s^x%s" % [InverseRuleSituation.base_text(f.base), Fmt.plus(-q)], N(q)], R_NO_LOG)] if q != 0 else []),
+		tag("%s, domain x ≥ %s" % [finv(f), N(q)], R_ASYMPTOTE_IN)] + ([tag("%s, domain x > %s" % ["f⁻¹(x) = %s^x%s" % [InverseRuleSituation.base_text(f.base), Fmt.plus(-q)], N(q)], R_NO_LOG)] if q != 0 else [])),
 		[] if q != 0 else ["f⁻¹(x) = %s^x, domain x > 0" % InverseRuleSituation.base_text(f.base)])
 	var out := {"asked": "Find f⁻¹(x) and its domain.", "lines": [InverseRuleSituation.rule_line(f)]}
 	out.merge(pick)
@@ -496,7 +502,7 @@ func u_show_self_inverse(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var c: int = f.c
 	var d: int = f.d
 	var right := finv(f) + ", which is f(x)"
-	var pick := pick_of(right, [tag("f⁻¹(x) = %s, which is not f(x)" % rat_text(d, b, -c, a), R_ONE_SIGN)], [finv(f) + ", which is not f(x)", "f⁻¹(x) = %s, which is f(x)" % rat_text(d, -b, c, a)])
+	var pick := pick_of(right, rat_tag(d, b, -c, a, R_ONE_SIGN, "f⁻¹(x) = %s, which is not f(x)"), [finv(f) + ", which is not f(x)", "f⁻¹(x) = %s, which is f(x)" % rat_text(d, -b, c, a)])
 	var out := {"asked": "Find f⁻¹(x), and show that f is its own inverse.", "lines": [InverseRuleSituation.rule_line(f)]}
 	out.merge(pick)
 	var swapped := "Swap x and y: x = " + rt(f).replace("x", "y")

@@ -171,8 +171,8 @@ func u_image_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := exact("point", {"x": Q.new(q), "y": Q.new(p)})
 	var pt := Fmt.point(p, q)
 	var out := {"asked": "The point %s is on the graph of f. Find the matching point on the graph of f⁻¹." % pt, "answer": ans,
-		"wrongs": [wrong({"x": Q.new(-q), "y": Q.new(-p)}, R_SIDE), wrong({"x": Q.new(q), "y": Q.new(-p)}, R_SIDE), wrong({"x": Q.new(p), "y": Q.new(q)}, R_NO_SWAP),
-			wrong({"x": Q.new(-p), "y": Q.new(q)}, R_AXIS), wrong({"x": Q.new(p), "y": Q.new(-q)}, R_AXIS)], "fillers": []}
+		"wrongs": [wrong({"x": Q.new(-q), "y": Q.new(-p)}, R_SIDE), wrong({"x": Q.new(p), "y": Q.new(q)}, R_NO_SWAP), wrong({"x": Q.new(-p), "y": Q.new(q)}, R_AXIS),
+			wrong({"x": Q.new(q), "y": Q.new(-p)}, R_SIDE), wrong({"x": Q.new(p), "y": Q.new(-q)}, R_AXIS)], "fillers": []}
 	match rep:
 		"graph":
 			out.lines = ["The graph of y = f(x) is shown."]

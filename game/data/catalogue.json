@@ -10885,8 +10885,7 @@
 					"text": "Confuses the zeros (x where f(x) = 0) with the y-intercept f(0)",
 					"as": "distractor",
 					"in": [
-						"label-zeros",
-						"label-y-intercept"
+						"label-zeros"
 					],
 					"wrong": "f(0) labelled on the x-axis as a zero"
 				},
@@ -10904,8 +10903,7 @@
 					"text": "Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa",
 					"as": "distractor",
 					"in": [
-						"label-turning-point",
-						"greatest-on-domain"
+						"label-turning-point"
 					],
 					"wrong": "the turning point labelled with only its x-coordinate, or only its y-value"
 				},
@@ -10954,70 +10952,6 @@
 						"count-solutions-from-sketch"
 					],
 					"wrong": "in asymptote mode, counts y = k at the level the curve approaches as a solution"
-				},
-				{
-					"text": "Swapping the y-values of the two endpoints",
-					"as": "distractor",
-					"in": [
-						"endpoint-coordinates"
-					],
-					"wrong": "each endpoint given the other's y-value"
-				},
-				{
-					"text": "Giving the x-coordinates of the turning points instead of the zeros",
-					"as": "distractor",
-					"in": [
-						"label-zeros"
-					],
-					"wrong": "the turning points' x-values given as zeros"
-				},
-				{
-					"text": "Missing one of the zeros, so too few are given",
-					"as": "distractor",
-					"in": [
-						"label-zeros"
-					],
-					"wrong": "all but one of the zeros"
-				},
-				{
-					"text": "Leaving out one of the terms when working out f(0)",
-					"as": "distractor",
-					"in": [
-						"label-y-intercept"
-					],
-					"wrong": "f(0) with a term dropped, such as c alone"
-				},
-				{
-					"text": "Writing the coordinates of the turning point the wrong way round",
-					"as": "distractor",
-					"in": [
-						"label-turning-point"
-					],
-					"wrong": "(y, x) for (x, y)"
-				},
-				{
-					"text": "Giving the other turning point, mixing up the maximum and the minimum",
-					"as": "distractor",
-					"in": [
-						"label-turning-point"
-					],
-					"wrong": "the local minimum for the local maximum, or the other way round"
-				},
-				{
-					"text": "Swapping the x and y ranges of the window",
-					"as": "distractor",
-					"in": [
-						"window-for-domain"
-					],
-					"wrong": "the y-range set as Xmin to Xmax"
-				},
-				{
-					"text": "Counting the zeros instead of where the line meets the curve",
-					"as": "distractor",
-					"in": [
-						"count-solutions-from-sketch"
-					],
-					"wrong": "the number of zeros of f"
 				}
 			],
 			"chain": [
@@ -11802,8 +11736,7 @@
 					"as": "distractor",
 					"in": [
 						"extreme-value-only",
-						"turning-point-coordinates",
-						"greatest-on-domain"
+						"turning-point-coordinates"
 					],
 					"wrong": "the x-coordinate of the maximum when the maximum value is asked"
 				},
@@ -11843,107 +11776,6 @@
 						"use-stored-zeros"
 					],
 					"wrong": "a distance from zeros already rounded to 3 s.f., off in the third figure"
-				},
-				{
-					"text": "Giving the x-coordinates of the turning points instead of the zeros",
-					"as": "distractor",
-					"in": [
-						"zeros-gdc",
-						"solve-as-zeros",
-						"zeros-with-x-factor"
-					],
-					"wrong": "the turning points' x-values given as zeros"
-				},
-				{
-					"text": "Missing one of the zeros, so too few are given",
-					"as": "distractor",
-					"in": [
-						"zeros-gdc",
-						"solve-as-zeros",
-						"zeros-with-x-factor"
-					],
-					"wrong": "all but one of the zeros"
-				},
-				{
-					"text": "Writing the coordinates of the turning point the wrong way round",
-					"as": "distractor",
-					"in": [
-						"turning-point-coordinates"
-					],
-					"wrong": "(y, x) for (x, y)"
-				},
-				{
-					"text": "Giving the other turning point, mixing up the maximum and the minimum",
-					"as": "distractor",
-					"in": [
-						"turning-point-coordinates",
-						"extreme-value-only"
-					],
-					"wrong": "the local minimum for the local maximum, or the other way round"
-				},
-				{
-					"text": "Leaving out one of the terms when working out f(0)",
-					"as": "distractor",
-					"in": [
-						"y-intercept"
-					],
-					"wrong": "f(0) with a term dropped, such as c alone"
-				},
-				{
-					"text": "Counting the turning points instead of the zeros",
-					"as": "distractor",
-					"in": [
-						"count-zeros"
-					],
-					"wrong": "the number of turning points"
-				},
-				{
-					"text": "Stopping at an end of the sign-change interval instead of finding the zero",
-					"as": "distractor",
-					"in": [
-						"zero-from-table"
-					],
-					"wrong": "a table x-value either side of the zero"
-				},
-				{
-					"text": "Giving the smallest zero instead of the largest",
-					"as": "distractor",
-					"in": [
-						"zero-from-table"
-					],
-					"wrong": "the smallest zero"
-				},
-				{
-					"text": "Adding the two zeros instead of subtracting them",
-					"as": "distractor",
-					"in": [
-						"use-stored-zeros"
-					],
-					"wrong": "the size of the sum of the zeros"
-				},
-				{
-					"text": "Measuring from the origin instead of from the other zero",
-					"as": "distractor",
-					"in": [
-						"use-stored-zeros"
-					],
-					"wrong": "the distance of one zero from the origin"
-				},
-				{
-					"text": "Adding the GDC maximum to the given value instead of subtracting it",
-					"as": "distractor",
-					"in": [
-						"constant-from-max"
-					],
-					"wrong": "c = M + the GDC maximum"
-				},
-				{
-					"text": "Subtracting the given value from the GDC maximum, the wrong way round",
-					"as": "distractor",
-					"in": [
-						"constant-from-max"
-					],
-					"wrong": "c = the GDC maximum − M"
 				}
 			],
 			"chain": [

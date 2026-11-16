@@ -534,30 +534,32 @@ static func concept_lines(rep: String, s: Dictionary, xs: Array) -> Dictionary:
 	return {"lines": [BasicFunctionSituation.eqn(s)]}
 
 
-func u_inside_or_outside_shift(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_inside_or_outside_shift(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var a: int = s.a.n
 	var inner := BasicFunctionSituation.at(s.f, a + 1)
 	var outer: Q = s.y0.add(1)
 	var ans := named(["f(%d + 1)" % a, "f(%d) + 1" % a], inner, outer)
 	var out := concept_lines(rep, s, range(0, 7))
 	out.merge({"asked": "Find f(%d + 1) and f(%d) + 1." % [a, a], "answer": ans,
-		"wrongs": [wrong({"v0": outer, "v1": outer}, R_SHIFT), wrong({"v0": outer, "v1": inner}, R_SWAP), wrong({"v0": inner, "v1": inner}, R_SHIFT_BACK),
-			wrong({"v0": inner, "v1": s.y0}, R_STOP)]})
+		# Four slips for three places: shuffled, so each one is shown.
+		"wrongs": rng.shuffled([wrong({"v0": outer, "v1": outer}, R_SHIFT), wrong({"v0": outer, "v1": inner}, R_SWAP), wrong({"v0": inner, "v1": inner}, R_SHIFT_BACK),
+			wrong({"v0": inner, "v1": s.y0}, R_STOP)])})
 	var solo := "f(%d + 1) = f(%d) = %s: the 1 is added to the input, before f" % [a, a + 1, Fmt.num(inner)]
 	var twin := "f(%d) + 1 = %s + 1 = %s: the 1 is added to the output, after f" % [a, Fmt.num(s.y0), Fmt.num(outer)]
 	out.methods = ways({"direct-substitution": [solo, twin], "read-graph-table": ["Read f(%d) = %s and f(%d) = %s" % [a, Fmt.num(s.y0), a + 1, Fmt.num(inner)], solo, twin]}, final(ans), ans)
 	return out
 
 
-func u_inside_or_outside_scale(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_inside_or_outside_scale(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var a: int = s.a.n
 	var inner := BasicFunctionSituation.at(s.f, 2 * a)
 	var outer: Q = s.y0.mul(2)
 	var ans := named(["f(2 × %d)" % a, "2f(%d)" % a], inner, outer)
 	var out := concept_lines(rep, s, range(0, 7))
 	out.merge({"asked": "Find f(2 × %d) and 2f(%d)." % [a, a], "answer": ans,
-		"wrongs": [wrong({"v0": outer, "v1": outer}, R_TIMES), wrong({"v0": outer, "v1": inner}, R_SWAP), wrong({"v0": inner, "v1": inner}, R_TIMES_BACK),
-			wrong({"v0": inner, "v1": s.y0}, R_STOP)]})
+		# Four slips for three places: shuffled, so each one is shown.
+		"wrongs": rng.shuffled([wrong({"v0": outer, "v1": outer}, R_TIMES), wrong({"v0": outer, "v1": inner}, R_SWAP), wrong({"v0": inner, "v1": inner}, R_TIMES_BACK),
+			wrong({"v0": inner, "v1": s.y0}, R_STOP)])})
 	var solo := "f(2 × %d) = f(%d) = %s: the input is doubled" % [a, 2 * a, Fmt.num(inner)]
 	var twin := "2f(%d) = 2 × %s = %s: the output is doubled" % [a, Fmt.num(s.y0), Fmt.num(outer)]
 	out.methods = ways({"direct-substitution": [solo, twin], "read-graph-table": ["Read f(%d) = %s and f(%d) = %s" % [a, Fmt.num(s.y0), 2 * a, Fmt.num(inner)], solo, twin]}, final(ans), ans)
