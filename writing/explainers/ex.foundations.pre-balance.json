@@ -1,7 +1,7 @@
 {
   "id": "ex.foundations.pre-balance",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Keep the Scales Level",
   "idea": "An equation is a balance: do the same thing to both sides, undoing the last operation first, until the unknown stands alone, then substitute back to check.",
   "zone": "foundations",

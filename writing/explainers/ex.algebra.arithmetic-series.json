@@ -1,7 +1,7 @@
 {
   "id": "ex.algebra.arithmetic-series",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "Adding Up an Arithmetic Sequence",
   "idea": "Write an arithmetic series forwards and backwards and every column adds to first plus last, so Sₙ = n/2 (u₁ + uₙ); putting in uₙ = u₁ + (n − 1)d gives the second form, Sₙ = n/2 (2u₁ + (n − 1)d).",
   "zone": "algebra",

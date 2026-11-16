@@ -1,7 +1,7 @@
 {
   "id": "ex.foundations.pre-percent-multiplier",
   "format": 1,
-  "status": "draft",
+  "status": "approved",
   "title": "One Multiplication",
   "idea": "A rise of r% is one multiplication by 1 + r/100 and a fall of r% is one multiplication by 1 − r/100, so changes in a row multiply: a 4% rise is ×1.04 and a 4% fall is ×0.96.",
   "zone": "foundations",
