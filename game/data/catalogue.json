@@ -67074,7 +67074,9 @@
 					"text": "Swaps the signs of the two factors",
 					"as": "distractor",
 					"in": [
-						"monic-trinomial"
+						"monic-trinomial",
+						"non-monic",
+						"factor-pair"
 					],
 					"wrong": "the factor pair with signs swapped, giving +x"
 				},
@@ -67101,6 +67103,87 @@
 						"non-monic"
 					],
 					"wrong": "factor pair of c only"
+				},
+				{
+					"text": "Forgetting to divide the x² term by the common factor",
+					"as": "distractor",
+					"in": [
+						"common-factor"
+					],
+					"wrong": "gx(Ax + b)"
+				},
+				{
+					"text": "Choosing a pair with the right product without checking its sum",
+					"as": "distractor",
+					"in": [
+						"monic-trinomial",
+						"factor-pair"
+					],
+					"wrong": "one and the product"
+				},
+				{
+					"text": "Putting b and c straight into the brackets",
+					"as": "distractor",
+					"in": [
+						"monic-trinomial"
+					],
+					"wrong": "(x + b)(x + c)"
+				},
+				{
+					"text": "Writing it as a perfect square, which brings a middle term",
+					"as": "distractor",
+					"in": [
+						"difference-of-squares"
+					],
+					"wrong": "(px ± q)²"
+				},
+				{
+					"text": "Forgetting to take the square root of the x² coefficient",
+					"as": "distractor",
+					"in": [
+						"difference-of-squares"
+					],
+					"wrong": "(x − q)(p²x + q)"
+				},
+				{
+					"text": "Forgetting to take the square root of the number term",
+					"as": "distractor",
+					"in": [
+						"difference-of-squares"
+					],
+					"wrong": "(px − q²)(px + 1)"
+				},
+				{
+					"text": "Putting the two numbers in the wrong brackets",
+					"as": "distractor",
+					"in": [
+						"non-monic"
+					],
+					"wrong": "(a₁x + b₂)(a₂x + b₁)"
+				},
+				{
+					"text": "Taking c itself as the missing number, without dividing",
+					"as": "distractor",
+					"in": [
+						"missing-bracket-term"
+					],
+					"wrong": "□ = c"
+				},
+				{
+					"text": "Adding the bracket's number to b instead of subtracting it",
+					"as": "distractor",
+					"in": [
+						"missing-bracket-term"
+					],
+					"wrong": "□ = b + r"
+				},
+				{
+					"text": "Subtracting the bracket's number from c instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"missing-bracket-term"
+					],
+					"wrong": "□ = c − r"
 				}
 			],
 			"methods": [

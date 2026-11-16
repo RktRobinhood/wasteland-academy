@@ -8,6 +8,16 @@ const REF_SIGNS := "fn-pre-factorise#0"
 const REF_SUM_OF_SQUARES := "fn-pre-factorise#1"
 const REF_FIRST_ONLY := "fn-pre-factorise#2"
 const REF_IGNORE_A := "fn-pre-factorise#3"
+const REF_SECOND_ONLY := "fn-pre-factorise#4"
+const REF_PRODUCT_ONLY := "fn-pre-factorise#5"
+const REF_B_AND_C := "fn-pre-factorise#6"
+const REF_SQUARE := "fn-pre-factorise#7"
+const REF_ROOT_A := "fn-pre-factorise#8"
+const REF_ROOT_C := "fn-pre-factorise#9"
+const REF_WRONG_BRACKETS := "fn-pre-factorise#10"
+const REF_C_ITSELF := "fn-pre-factorise#11"
+const REF_B_PLUS := "fn-pre-factorise#12"
+const REF_C_MINUS := "fn-pre-factorise#13"
 const NO_FACTORS := "It does not factorise"
 
 ## Methods that don't work, for method-pick (the catalogue marks none as failing here).
@@ -33,6 +43,16 @@ func needs() -> Dictionary:
 func extra() -> Dictionary:
 	return {"common-factor": ["method-pick"], "monic-trinomial": ["method-pick"], "difference-of-squares": ["method-pick"],
 		"non-monic": ["error-spot", "method-pick"], "factor-pair": ["method-pick"], "missing-bracket-term": ["method-pick"]}
+
+
+## Every wrong option is a tagged slip or a filler (FAL-820): ExtensionViews.build's empty
+## `generic` goes, and a slip that lands on the answer for these numbers is no slip.
+func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var out := super.build(unknown, rep, s, rng)
+	out.erase("generic")
+	var right := Answer.canon(out.answer, out.answer.values)
+	out.wrongs = out.wrongs.filter(func(w): return Answer.canon(out.answer, w.values) != right)
+	return out
 
 
 # ── Helpers ──────────────────────────────────────────────────
@@ -73,8 +93,8 @@ func u_common_factor(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"%s ÷ %s = %s and %s ÷ %s = %s" % [Fmt.term(s.A, 2, true), gx, Fmt.term(s.a, 1, true), Fmt.term(s.B, 1, true), gx, N(s.b)],
 		"So %s." % Answer.text(ans)]
 	return {"asked": "Factorise fully.", "lines": [expr(s)], "given": given_of(s), "answer": ans,
-		"wrongs": [wrong({"g": s.g, "a": s.a, "b": s.B}, REF_FIRST_ONLY)],
-		"generic": [{"g": Q.new(1), "a": s.A, "b": s.B}, {"g": s.g, "a": s.a, "b": s.b.neg()}, {"g": s.g, "a": s.A, "b": s.b}, {"g": s.g.neg(), "a": s.a, "b": s.b}],
+		"wrongs": [wrong({"g": s.g, "a": s.a, "b": s.B}, REF_FIRST_ONLY), wrong({"g": s.g, "a": s.A, "b": s.b}, REF_SECOND_ONLY)],
+		"fillers": [{"g": Q.new(1), "a": s.A, "b": s.B}, {"g": s.g, "a": s.a, "b": s.b.neg()}, {"g": s.g.neg(), "a": s.a, "b": s.b}],
 		"methods": {"recognise-pattern": method(steps, ans.values)},
 		"pick_wrongs": [NOT_SPLIT, NOT_DIVIDE_X, NOT_ROOT_TERMS, NOT_DOS]}
 
@@ -92,8 +112,8 @@ func u_monic_trinomial(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"expand-check": method(["Try %s and %s (product %s, sum %s)" % [N(s.r), N(s.s), N(s.C), N(s.B)],
 			"Expand to check: %s = %s" % [Answer.text(ans), expr(s)], final], ans.values),
 	}
-	out.wrongs = [wrong({"r": s.r.neg(), "s": s.s.neg()}, REF_SIGNS)]
-	out.generic = [{"r": s.r.neg(), "s": s.s}, {"r": s.r, "s": s.s.neg()}, {"r": s.C, "s": Q.new(1)}, {"r": s.B, "s": s.C}]
+	out.wrongs = [wrong({"r": s.r.neg(), "s": s.s.neg()}, REF_SIGNS), wrong({"r": s.C, "s": Q.new(1)}, REF_PRODUCT_ONLY), wrong({"r": s.B, "s": s.C}, REF_B_AND_C)]
+	out.fillers = [{"r": s.r.neg(), "s": s.s}, {"r": s.r, "s": s.s.neg()}]
 	out.pick_wrongs = [NOT_COMMON, NOT_DOS, NOT_ROOT_TERMS, NOT_DIVIDE_X]
 	return out
 
@@ -108,8 +128,8 @@ func u_difference_of_squares(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		var opts := [NO_FACTORS, fake, "(%s + %s)²" % [px, N(s.q)], "(%s − %s)²" % [px, N(s.q)]]
 		var ans := Answer.make("choice", {"v": NO_FACTORS}, {"options": opts})
 		out.answer = ans
-		out.wrongs = [wrong({"v": fake}, REF_SUM_OF_SQUARES)]
-		out.generic = opts.slice(2).map(func(o): return {"v": o})
+		out.wrongs = [wrong({"v": fake}, REF_SUM_OF_SQUARES), wrong({"v": opts[2]}, REF_SQUARE)]
+		out.fillers = [{"v": opts[3]}]
 		out.methods = {"recognise-pattern": method([
 			"%s = %s + %s² is a sum of two squares, not a difference" % [expr(s), pxsq, N(s.q)],
 			"%s = %s − %s, and (%s ± %s)² has a middle term ±%s, so none of them is %s" % [fake, Fmt.term(s.A, 2, true), N(s.C), px, N(s.q), Fmt.term(s.p.mul(s.q).mul(2), 1, true), expr(s)],
@@ -123,7 +143,9 @@ func u_difference_of_squares(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		"%s = %s − %s², a difference of two squares" % [expr(s), pxsq, N(s.q)],
 		"a² − b² = (a − b)(a + b) with a = %s and b = %s" % [px, N(s.q)],
 		"So %s." % Answer.text(ans)], ans.values)}
-	out.generic = [b2(s.p, s.q.neg(), s.p, s.q.neg()), b2(s.p, s.q, s.p, s.q), b2(Q.new(1), s.q.neg(), s.A, s.q), b2(s.p, s.C, s.p, Q.new(1))]
+	out.wrongs = [wrong(b2(s.p, s.q.neg(), s.p, s.q.neg()), REF_SQUARE)] + ([] if s.p.eq(1) else [wrong(b2(Q.new(1), s.q.neg(), s.A, s.q), REF_ROOT_A)]) \
+		+ ([] if s.q.eq(1) else [wrong(b2(s.p, s.C, s.p, Q.new(1)), REF_ROOT_C)])
+	out.fillers = [b2(s.p, s.q, s.p, s.q)]
 	return out
 
 
@@ -155,8 +177,11 @@ func u_non_monic(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"expand-check": method(["%s = %s × %s and %s = %s × %s: try %s%s" % [N(s.A), N(s.a1), N(s.a2), N(s.C), P(s.b1), P(s.b2), lin(s.a1, s.b1), lin(s.a2, s.b2)],
 			"Expand to check: %s%s = %s = %s" % [lin(s.a1, s.b1), lin(s.a2, s.b2), split, expr(s)], final], ans.values),
 	}
-	out.wrongs = [wrong(b2(Q.new(1), s.b1, Q.new(1), s.b2), REF_IGNORE_A)]
-	out.generic = [b2(s.a1, s.b1.neg(), s.a2, s.b2.neg()), b2(s.a1, s.b2, s.a2, s.b1), b2(s.A, s.b1, Q.new(1), s.b2), b2(s.a1, s.b1.neg(), s.a2, s.b2)]
+	out.wrongs = [wrong(b2(Q.new(1), s.b1, Q.new(1), s.b2), REF_IGNORE_A), wrong(b2(s.a1, s.b1.neg(), s.a2, s.b2.neg()), REF_SIGNS)]
+	# The numbers swapped between brackets is a slip only where it changes the brackets.
+	if not s.a1.eq(s.a2) and not s.b1.eq(s.b2):
+		out.wrongs.append(wrong(b2(s.a1, s.b2, s.a2, s.b1), REF_WRONG_BRACKETS))
+	out.fillers = [b2(s.A, s.b1, Q.new(1), s.b2), b2(s.a1, s.b1.neg(), s.a2, s.b2)]
 	out.pick_wrongs = [NOT_C_ONLY, NOT_COMMON, NOT_DOS, NOT_ROOT_TERMS]
 	out.spot = _spot_ignore_a(s, rng)
 	return out
@@ -192,7 +217,8 @@ func u_factor_pair(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"The pair that adds to %s is %s and %s" % [N(s.S), N(s.m), N(s.n)], "So %s." % Answer.text(ans)]
 	return {"asked": "Find the two numbers.", "lines": ["Two numbers have product %s and sum %s." % [N(s.P), N(s.S)]],
 		"given": {"form": "pair", "P": s.P.key(), "S": s.S.key()}, "answer": ans,
-		"generic": [{"r1": s.m.neg(), "r2": s.n.neg()}, {"r1": s.m.neg(), "r2": s.n}, {"r1": Q.new(1), "r2": s.P}, {"r1": s.S, "r2": Q.new(1)}],
+		"wrongs": [wrong({"r1": s.m.neg(), "r2": s.n.neg()}, REF_SIGNS), wrong({"r1": Q.new(1), "r2": s.P}, REF_PRODUCT_ONLY)],
+		"fillers": [{"r1": s.m.neg(), "r2": s.n}, {"r1": s.S, "r2": Q.new(1)}],
 		"methods": {"product-sum": method(steps, ans.values)},
 		"pick_wrongs": [{"name": "Halve the sum", "why": "that gives two equal numbers, whose product is not %s" % N(s.P)},
 			{"name": "Square root the product", "why": "that gives two equal numbers too"},
@@ -207,7 +233,8 @@ func u_missing_bracket_term(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		"So %s." % Answer.text(ans)]
 	return {"asked": "Find the missing number.", "lines": ["%s(x + □) = %s" % [Fmt.factor(s.r.neg()), expr(s)]],
 		"given": given_of(s).merged({"r": s.r.key()}), "answer": ans,
-		"generic": [{"v": s.s.neg()}, {"v": s.C}, {"v": s.B}, {"v": s.B.add(s.r)}, {"v": s.C.sub(s.r)}],
+		"wrongs": [wrong({"v": s.C}, REF_C_ITSELF), wrong({"v": s.B.add(s.r)}, REF_B_PLUS), wrong({"v": s.C.sub(s.r)}, REF_C_MINUS)],
+		"fillers": [{"v": s.s.neg()}, {"v": s.B}],
 		"methods": {"expand-check": method(steps, ans.values)},
 		"pick_wrongs": [{"name": "Subtract the number in the bracket from c", "why": "the numbers in the brackets multiply to c, they don't add to it"},
 			{"name": "Divide b by the number in the bracket", "why": "the numbers in the brackets add to b, they don't multiply to it"},

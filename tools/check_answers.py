@@ -4522,7 +4522,8 @@ def check_factorise(q):
         need(L[0] == f"Two numbers have product {frac_text(P)} and sum {frac_text(S)}.", "the product and sum shown are not the givens")
         m, n = sorted(sp.solve(X**2 - S * X + P, X))
         need(m.is_integer and n.is_integer and m != n and m != 0 and n != 0, "the two numbers are not different nonzero whole numbers")
-        qr_check_common(q, qr_norm(ans, {"r1": str(m), "r2": str(n)}))
+        qr_check_common(q, qr_norm(ans, {"r1": str(m), "r2": str(n)}), {f"{T}#0": {qr_norm(ans, {"r1": str(-m), "r2": str(-n)})},  # signs swapped
+                                                                       f"{T}#5": {qr_norm(ans, {"r1": "1", "r2": str(P)})}})  # product only
         return None, None
     A, B, C = R(g["A"]), R(g["B"]), R(g["C"])
     f = A * X**2 + B * X + C
@@ -4533,7 +4534,9 @@ def check_factorise(q):
         sol = sp.solve(sp.Poly(sp.expand((X + r) * (X + S_) - f), X).coeffs(), S_, dict=True)
         need(len(sol) == 1 and sol[0][S_].is_integer, "no whole number fills the bracket")
         need(ans.get("exact"), "a missing whole number must be marked exactly")
-        qr_check_common(q, qr_norm(ans, {"v": str(sol[0][S_])}))
+        qr_check_common(q, qr_norm(ans, {"v": str(sol[0][S_])}), {f"{T}#11": {qr_norm(ans, {"v": str(C)})},  # c itself
+                                                                  f"{T}#12": {qr_norm(ans, {"v": str(B + r)})},  # b + r
+                                                                  f"{T}#13": {qr_norm(ans, {"v": str(C - r)})}})  # c − r
         return None, None
     need(parse(L[0]) == sp.expand(f), f"the expression shown {L[0]!r} is not the givens")
     need(all(c.q == 1 and abs(c) <= 81 for c in (A, B, C)), "coefficients are not small whole numbers")
@@ -4546,6 +4549,7 @@ def check_factorise(q):
             fake = f"({qr_lead(p_)}x + {q_})({qr_lead(p_)}x − {q_})"
             need(ans["kind"] == "choice" and fake in ans["fixed"]["options"], "the sum of squares is not offered as a difference")
             wr[f"{T}#1"] = {qr_norm(ans, {"v": fake})}
+            wr[f"{T}#7"] = {qr_norm(ans, {"v": f"({qr_lead(p_)}x + {q_})²"})}  # a perfect square
             qr_check_common(q, qr_norm(ans, {"v": "It does not factorise"}), wr)
             return None, None
     if u == "common-factor":
@@ -4554,6 +4558,7 @@ def check_factorise(q):
         a_, b_ = A / gg, B / gg
         need(gg >= 2, "the highest common factor is only x")
         wr[f"{T}#2"] = {qr_norm(ans, {"g": str(gg), "a": str(a_), "b": str(B)})}
+        wr[f"{T}#4"] = {qr_norm(ans, {"g": str(gg), "a": str(A), "b": str(b_)})}  # the x² term not divided
         qr_check_common(q, qr_norm(ans, {"g": str(gg), "a": str(a_), "b": str(b_)}), wr)
         return None, None
     # The factors, by SymPy: each linear factor written with a positive x term.
@@ -4575,6 +4580,8 @@ def check_factorise(q):
         need(A == 1, "not monic")
         (_, r), (_, s_) = lin
         wr[f"{T}#0"] = {qr_norm(ans, {"r": str(-r), "s": str(-s_)})}
+        wr[f"{T}#5"] = {qr_norm(ans, {"r": str(C), "s": "1"})}  # product only
+        wr[f"{T}#6"] = {qr_norm(ans, {"r": str(B), "s": str(C)})}  # b and c in the brackets
         qr_check_common(q, qr_norm(ans, {"r": str(r), "s": str(s_)}), wr)
         return None, None
     (a1, b1), (a2, b2) = lin
@@ -4582,6 +4589,13 @@ def check_factorise(q):
         need(A >= 2, "a is not more than 1")
         # The pair of c only, in brackets with x: (x + b1)(x + b2).
         wr[f"{T}#3"] = {qr_norm(ans, {"a1": "1", "b1": str(b1), "a2": "1", "b2": str(b2)})}
+        wr[f"{T}#0"] = {qr_norm(ans, {"a1": str(a1), "b1": str(-b1), "a2": str(a2), "b2": str(-b2)})}  # signs swapped
+        wr[f"{T}#10"] = {qr_norm(ans, {"a1": str(a1), "b1": str(b2), "a2": str(a2), "b2": str(b1)})}  # numbers in the wrong brackets
+    elif u == "difference-of-squares":
+        p_, q_ = sp.sqrt(A), sp.sqrt(-C)
+        wr[f"{T}#7"] = {qr_norm(ans, {"a1": str(p_), "b1": str(-q_), "a2": str(p_), "b2": str(-q_)})}  # a perfect square
+        wr[f"{T}#8"] = {qr_norm(ans, {"a1": "1", "b1": str(-q_), "a2": str(A), "b2": str(q_)})}  # a not rooted
+        wr[f"{T}#9"] = {qr_norm(ans, {"a1": str(p_), "b1": str(C), "a2": str(p_), "b2": "1"})}  # c not rooted
     qr_check_common(q, qr_norm(ans, {"a1": str(a1), "b1": str(b1), "a2": str(a2), "b2": str(b2)}), wr)
     return None, None
 
