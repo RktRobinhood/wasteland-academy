@@ -76,3 +76,12 @@ test('the markdown has the headline table, a table per course and the build list
   assert.match(markdown, /## Subtopics with no question type/);
   assert.match(markdown, /## Types to build next/);
 });
+
+test('COVERAGE.md lists every subtopic once and every type not built', () => {
+  const { coverage, bySubtopic, notBuilt } = build(nothing);
+  assert.ok(coverage.startsWith('# Curriculum coverage\n'));
+  assert.ok(coverage.includes('tools/course-audit --write'));
+  assert.equal(new Set(bySubtopic.map(s => s.id)).size, bySubtopic.length);
+  assert.equal(notBuilt.length, types.length, 'with nothing built, every type is listed');
+  for (const t of notBuilt) assert.ok(coverage.includes(`\`${t.id}\``), t.id);
+});

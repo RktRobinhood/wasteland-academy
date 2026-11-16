@@ -49,7 +49,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	# More slips than the options have room for: a stream order, so each can show.
 	if out.wrongs.size() > 2:
 		out.wrongs = rng.shuffled(out.wrongs)
-	# Q7's rounding trap, where the answer needs rounding (see game/README.md).
+	# Q7's rounding trap, where the answer needs rounding (see game/docs/QUESTION-ENGINE.md).
 	out.trap = Answer.rounding_trap(out.answer)
 	return out
 

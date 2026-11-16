@@ -54,7 +54,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	for key in ["lines", "graph", "table", "wrongs", "generic"]:
 		if not out.has(key):
 			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
-	# Q7's rounding trap, where the answer needs rounding (see game/README.md).
+	# Q7's rounding trap, where the answer needs rounding (see game/docs/QUESTION-ENGINE.md).
 	out.trap = Answer.rounding_trap(out.answer)
 	return out
 

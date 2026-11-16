@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // ── CURRICULUM COVERAGE REPORT ───────────────────────────────
-// Checks the curriculum map, then measures the content packs against it.
+// Checks the curriculum map, then measures the legacy HTML game's content packs against it.
+// curriculum/COVERAGE.md comes from the Godot engine instead: tools/course-audit --write.
 //
-//   node tools/coverage.mjs           print the report to stdout
-//   node tools/coverage.mjs --write   also write curriculum/COVERAGE.md and curriculum/THREADS.md
+//   node tools/coverage.mjs           print the legacy pack report to stdout
+//   node tools/coverage.mjs --write   also write curriculum/THREADS.md
 //   node tools/coverage.mjs --check   map validation only; exit 1 on any error
 //
 // A question counts toward a skill through `skill` (content schema v2) or,
@@ -161,10 +162,8 @@ for (const t of threads) {
 }
 
 const report = out.join('\n');
+console.log(report);
 if (args.has('--write')) {
-  fs.writeFileSync(path.join(ROOT, 'curriculum/COVERAGE.md'), report);
   fs.writeFileSync(path.join(ROOT, 'curriculum/THREADS.md'), th.join('\n'));
-  console.log('Wrote curriculum/COVERAGE.md and curriculum/THREADS.md');
-} else {
-  console.log(report);
+  console.log('Wrote curriculum/THREADS.md');
 }

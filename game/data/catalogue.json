@@ -18830,8 +18830,8 @@
 				},
 				{
 					"kind": "interpret-parameter",
-					"prompt": "In f(x) = log_k(g(x)), the base k is changed (k > 1). What changes on the graph and what stays fixed?",
-					"answer": "The domain, the asymptotes and the zeros stay fixed, because log_k 1 = 0 for every base. Only the heights change: the maximum log_k G gets smaller as k grows.",
+					"prompt": "In f(x) = log_k(g(x)), g is a downward quadratic whose vertex height G is greater than 1. The base k (k > 1) is made larger. What changes on the graph and what stays fixed?",
+					"answer": "The domain, the asymptotes and the zeros stay fixed: they come from g(x) > 0 and g(x) = 1, and log_k 1 = 0 for every base. Only the heights change. Each value log_k g(x) is ln g(x) ÷ ln k, so the whole graph is squashed towards the x-axis, and the maximum log_k G, which is positive because G > 1, gets smaller.",
 					"level": 4
 				}
 			],
@@ -43219,8 +43219,8 @@
 				},
 				{
 					"kind": "predict-check",
-					"prompt": "In degree mode, is a value of a radian model usually right, nearly right or nothing like it? Predict whether the error can be positive, then try one.",
-					"answer": "Positive: the angle is read as far smaller than it is, so the answer can be off by nearly the whole height of the wave.",
+					"prompt": "A tide's height is h(t) = 6 + 2 sin(πt/6) metres, t hours after midnight. Predict whether h(7) − 6 is positive or negative: is the tide above or below its mean level at 7 am? Then work it out.",
+					"answer": "Negative. The period is 2π ÷ (π/6) = 12 hours, so the tide is above its mean for 0 < t < 6 and below it for 6 < t < 12. Check: h(7) = 6 + 2 sin(7π/6) = 6 + 2 × (−½) = 5, which is 1 m below the mean.",
 					"level": 3
 				}
 			],

@@ -106,3 +106,15 @@ func test_hand_values() -> void:
 	check_eq(LogEquationViews.factors(2, [Q.new(-1), Q.new(3)]), "2(x + 1)(x − 3)")
 	check_eq(LogEquationViews.poly(1, -1, -12), "x² − x − 12")
 	check_eq(LogEquationViews.bound([[2, 3], [1, -1]]).text(), "1")
+
+
+func test_the_reject_step_only_calls_the_square_positive_when_it_is() -> void:
+	# #193: (x + 2)² = 2x + 4 has roots 0 and −2; at x = −2, x + 2 = 0, so (x + 2)² is 0 there.
+	var zero := {"shape": "equal", "one": [1, 2], "two": [2, 4], "bad": Q.new(-2), "x": Q.new(0)}
+	var line := LogEquationViews.reject_line(zero, [zero.one, zero.two])
+	check(not line.contains("positive there"), line)
+	check(line.contains("zero"), line)
+	# (x + 1)² = x + 7 has roots 2 and −3; at x = −3, x + 1 = −2 and (x + 1)² = 4 is positive.
+	var neg := {"shape": "equal", "one": [1, 1], "two": [1, 7], "bad": Q.new(-3), "x": Q.new(2)}
+	line = LogEquationViews.reject_line(neg, [neg.one, neg.two])
+	check(line.contains("though (x + 1)² is positive there"), line)

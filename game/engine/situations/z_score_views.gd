@@ -233,11 +233,15 @@ func u_compare_scores(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		right = "%s: %s of the class scored below %s there, more than %s in %s" % [cap(sub[1]), pct(s.z1), who, pct(s.z2), sub[2]]
 	else:
 		right = "%s: %s's z-value there, %s, is higher than %s in %s" % [cap(sub[1]), who, D(s.z1), D(s.z2), sub[2]]
+	# The filler names the same measure as the key, so "z-value" or "%" alone doesn't give it away (#193).
+	var neither := "Neither: %s's z-values, %s in %s and %s in %s, are both positive, so both marks are equally good" % [who, D(s.z1), sub[1], D(s.z2), sub[2]]
+	if angle == "compare-percentiles":
+		neither = "Neither: %s scored above %s of the class in %s and above %s in %s, so both marks are equally good" % [who, pct(s.z1), sub[1], pct(s.z2), sub[2]]
 	var out := {"lines": [line.call(2), line.call(1)] if s.swap else [line.call(1), line.call(2)],
 		"asked": "In which subject did %s do better relative to the class? Give a reason." % who}
 	out.merge(pick(right, [tag("%s: %s's mark there, %s, is higher than %s" % [cap(sub[2]), who, D(s.x2), D(s.x1)], R_RAW),
 		tag("%s: %s is %s marks above the mean there, more than %s" % [cap(sub[2]), who, D(d2), D(d1)], R_GAP)],
-		["Neither: both marks are above the mean"]))
+		[neither]))
 	var zline := func(k: int) -> String:
 		return "%s: z = (%s − %d)/%d = %s." % [cap(sub[k]), D(s["x%d" % k]), s["mu%d" % k], s["sg%d" % k], D(s["z%d" % k])]
 	var pline := func(k: int) -> String:

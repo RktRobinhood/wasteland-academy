@@ -13786,7 +13786,12 @@ def check_motion(q):
         need(L[1] == f"When t = {t0}, v = {tx(V)} and a = {tx(A0)}.", f"the values shown in {L[1]!r}")
         same = (V > 0) == (A0 > 0)
         only = "Speeding up: a is positive." if A0 > 0 else "Slowing down: a is negative."
-        gc_check_common(q, "Speeding up: v and a have the same sign." if same else "Slowing down: v and a have opposite signs.", {MT_D + "1": {only}})
+        key = "Speeding up: v and a have the same sign." if same else "Slowing down: v and a have opposite signs."
+        # The sign of a alone is a slip only where it gives the wrong verdict, which is when v < 0 (#193).
+        gc_check_common(q, key, {MT_D + "1": {only}} if V < 0 else {})
+        verdict = key.split(":")[0]
+        for o in q["choices"]:
+            need(o["correct"] or not o["text"].startswith(verdict + ":"), f"wrong option {o['text']!r} states the right verdict")
     elif u == "max-velocity-quadratic":
         need(sp.Poly(v, x).LC() < 0, "v doesn't open down")
         ex = mt_extremes(v, a, T, exact)
@@ -43599,7 +43604,10 @@ def E14ZS_compare(q, times):
             right = f"{E14ZS_cap(k1)}: {who}'s z-value there, {dec_text(a['z'])}, is higher than {dec_text(b['z'])} in {k2}"
         tagged = {E14ZS_CZ + "0": {f"{E14ZS_cap(k2)}: {who}'s mark there, {b['x']}, is higher than {a['x']}"},
                   E14ZS_CZ + "1": {f"{E14ZS_cap(k2)}: {who} is {b['gap']} marks above the mean there, more than {a['gap']}"}}
-        plain = {"Neither: both marks are above the mean"}
+        if perc:
+            plain = {f"Neither: {who} scored above {E14ZS_pct(a['z'])} of the class in {k1} and above {E14ZS_pct(b['z'])} in {k2}, so both marks are equally good"}
+        else:
+            plain = {f"Neither: {who}'s z-values, {dec_text(a['z'])} in {k1} and {dec_text(b['z'])} in {k2}, are both positive, so both marks are equally good"}
     gc_check_common(q, right, tagged)
     for o in q["choices"]:
         need(o["correct"] or o["ref"] or o.get("trap") or o["text"] in plain, f"the checker can't say why {o['text']!r} is wrong")
