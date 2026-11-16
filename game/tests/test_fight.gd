@@ -195,7 +195,7 @@ func test_an_answer_box_stays_on_the_card() -> void:
 	f.question = QuestionEngine.make({"type": "t1-standard-form", "unknown": "to-ordinary-small", "rep": "equation", "angle": "place-shift", "format": "value", "seed": 1})
 	f.render_question()
 	await tree.process_frame
-	var box: LineEdit = f.card.find_children("Slot_*", "LineEdit", true, false)[0]
+	var box: MathEntry = f.card.find_children("Slot_*", "MathEntry", true, false)[0]
 	box.text = "8".repeat(40)
 	await tree.process_frame
 	await tree.process_frame
@@ -583,9 +583,15 @@ func test_a_boss_part_shows_the_value_carried_on() -> void:
 		"the part shows")
 	check(f.card.get_node_or_null("Carried") == null, "part (a) carries nothing")
 	var a: Dictionary = f.run.question
+	var n: int = f.run.boss.parts.size()
 	f.autoplay(false)
 	check(f.feedback.text.contains("carries on from " + a.answer_text), f.feedback.text)
 	check_eq(f.next_button.text, "Next part")
+	# FAL-970: the bar counts parts, so the feedback says so, and a miss isn't a hit.
+	check(not f.feedback.text.contains("Hit") and not f.feedback.text.contains("enemy HP"), f.feedback.text)
+	check(f.feedback.text.contains("Part (a) done · %d of %d parts to go." % [n - 1, n]), f.feedback.text)
+	check_eq(f.enemy_hp.text, "%d/%d" % [n - 1, n], "the bar")
+	check(f.progress.text.contains("part (a)"), "the header stays on part (a) until Next part: " + f.progress.text)
 	f.next_question()
 	await tree.process_frame
 	var carried: Node = f.card.get_node_or_null("Carried")
@@ -596,6 +602,44 @@ func test_a_boss_part_shows_the_value_carried_on() -> void:
 	check_eq(f.enemy_hp.text, "%d/%d" % [f.run.boss.parts.size() - 1, f.run.boss.parts.size()], "parts left")
 	check(not f.run.records, "a jumped run records nothing")
 	_done(made)
+
+
+## A right boss part (FAL-970): a hit, told as the bar shows it, in parts, not enemy HP.
+func test_a_right_boss_part_counts_a_part() -> void:
+	var made: Array = await _screen(_area(Vector2i(390, 844)), 3, false, {}, 10)
+	var f: Control = made[1]
+	var n: int = f.run.boss.parts.size()
+	f.autoplay(true)
+	check(f.feedback.text.begins_with("Hit!") and not f.feedback.text.contains("enemy HP"), f.feedback.text)
+	check(f.feedback.text.contains("Part (a) done · %d of %d parts to go." % [n - 1, n]), f.feedback.text)
+	check_eq(f.enemy_hp.text, "%d/%d" % [n - 1, n], "the bar")
+	_done(made)
+
+
+## A graph question with 4 options on a phone (FAL-970, Engine Core's dy/dx): the card at
+## its smallest was still taller than its room, so Attack sat half under the frame. The
+## graph gives up some height instead, and Attack shows whole.
+func test_attack_shows_under_a_graph_question() -> void:
+	for window in [Vector2i(390, 844), Vector2i(360, 780)]:
+		var made: Array = await _screen(_area(window))
+		var f: Control = made[1]
+		await _fitted(f)
+		f.question = QuestionEngine.make({"type": "t5-derivative-model-gdc", "unknown": "rising-or-falling", "rep": "graph",
+			"angle": "tangent-picture", "format": "mcq", "seed": 1})
+		f.run.question = f.question
+		f._show_question()
+		await _fitted(f)
+		for i in 3:
+			await tree.process_frame
+		check_eq(f.question.choices.size(), 4, "4 options")
+		var graph := f.card.find_child("Graph", true, false) as Control
+		check(graph != null and graph.custom_minimum_size.y < 760.0, "%s: the graph gives some height" % window)
+		var room: Rect2 = f.scroll.get_global_rect()
+		var attack: Rect2 = f.check_button.get_global_rect()
+		check(room.grow(1.0).encloses(attack), "%s: Attack %s shows whole in %s" % [window, attack, room])
+		f.fit_box.reset()
+		check_eq(graph.custom_minimum_size.y, 760.0, "a new window size starts the graph at full height again")
+		_done(made)
 
 
 func test_the_boss_screens_fit() -> void:

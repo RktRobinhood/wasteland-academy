@@ -9,6 +9,12 @@ extends Control
 ## It reads what is typed with the expression engine (engine/expr.gd, the same one that
 ## marks typed answers) and finds points with Brent's methods (engine/graph_tools.gd).
 ##
+## Scientific mode types in maths notation, as a TI-84 Plus CE in MathPrint mode
+## (FAL-813): the input is a MathEntry with stacked fractions, raised powers and roots,
+## each recent result shows what was typed that way with its result to the right, and an
+## exact fraction shows stacked until S⇔D switches it to a decimal. The graph lines are
+## one-line LineEdits still.
+##
 ## The look is the Salvage Neon Bazaar style (the themed-look table on the FAL-274
 ## Functions recipes): a dark riveted casing with a neon border and a stamped crown, a
 ## charcoal screen with the maths in mint, worn keys that glow Scrap Teal when pressed,
@@ -42,12 +48,16 @@ const TEXT_WIDTH := 880
 const HISTORY := 30
 ## The recent-results box is about this tall; _fit_history trims it to whole rows.
 const HISTORY_HEIGHT := 380
+## S⇔D finds a fraction for a decimal with a bottom under this, as the TI's ►Frac does.
+const FRACTION_LIMIT := 10000
 const TITLE_FONT := preload("res://assets/fonts/bangers-latin.woff2")
 
 var mode := "sci"
 var deg := false
 var ans := 0.0
-## Recent results, newest last: {"expr", "value", "text"}.
+## Recent results, newest last: {"expr" (the text Expr read), "box" (what was typed, as
+## a MathBox tree), "value", "text" (to 6 s.f.), "fraction" (a Q that isn't whole, or
+## null), "shown" ("fraction" or "decimal")}.
 var history: Array = []
 
 var casing: PanelContainer
@@ -57,7 +67,7 @@ var close_button: Button
 var sci_box: VBoxContainer
 var history_box: VBoxContainer
 var history_scroll: ScrollContainer
-var input: LineEdit
+var input: MathEntry
 var message: Label
 var graph_box: VBoxContainer
 var fn_edits: Array = []
@@ -66,8 +76,8 @@ var on_button: Button
 var tool_buttons := {}
 var readout: Label
 var keypad: Keypad
-## The line the keypad types into.
-var focus: LineEdit
+## The line the keypad types into: the input, or a graph line.
+var focus: Control
 
 static var _mono: Font
 
@@ -165,6 +175,7 @@ func _build() -> void:
 	keypad = Keypad.make(Keypad.CALC_ROWS, Keypad.CALC_LAST)
 	keypad.key.connect(press)
 	_skin_keys()
+	keypad.fraction_face()
 	col.add_child(keypad)
 	resized.connect(_fit)
 	# A mode switch or a longer readout changes the casing's height: fit it again.
@@ -208,11 +219,18 @@ func _sci() -> Control:
 	sci_box = VBoxContainer.new()
 	sci_box.name = "Scientific"
 	sci_box.add_theme_constant_override("separation", 8)
+	# The results sit at the bottom of a box of fixed height, as on the TI, so a taller
+	# row (a stacked fraction) never moves the casing.
+	var frame := VBoxContainer.new()
+	frame.name = "HistoryFrame"
+	frame.custom_minimum_size = Vector2(0, HISTORY_HEIGHT)
+	frame.alignment = BoxContainer.ALIGNMENT_END
+	sci_box.add_child(frame)
 	history_scroll = ScrollContainer.new()
 	history_scroll.name = "History"
 	history_scroll.custom_minimum_size = Vector2(0, HISTORY_HEIGHT)
 	history_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	sci_box.add_child(history_scroll)
+	frame.add_child(history_scroll)
 	history_box = VBoxContainer.new()
 	history_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	history_box.add_theme_constant_override("separation", 4)
@@ -221,10 +239,47 @@ func _sci() -> Control:
 	hint.name = "Hint"
 	hint.autowrap_mode = TextServer.AUTOWRAP_OFF
 	history_box.add_child(hint)
-	input = _line("Input")
+	input = _entry()
 	input.text_submitted.connect(func(_t): evaluate())
 	sci_box.add_child(input)
 	return sci_box
+
+
+## The input: a MathEntry with the lines' look, given as a theme of its own because a
+## MathEntry draws with the LineEdit theme items.
+func _entry() -> MathEntry:
+	var e := MathEntry.new()
+	e.name = "Input"
+	e.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	e.placeholder_text = ""
+	var t := Theme.new()
+	t.set_font("font", "LineEdit", mono())
+	t.set_font_size("font_size", "LineEdit", UiTheme.BIG)
+	t.set_color("font_color", "LineEdit", MINT)
+	var sb := _line_style()
+	# Room above a root's bar and below a fraction's bottom.
+	sb.content_margin_top = 14
+	sb.content_margin_bottom = 14
+	t.set_stylebox("normal", "LineEdit", sb)
+	var f := sb.duplicate()
+	f.border_color = TEAL
+	t.set_stylebox("focus", "LineEdit", f)
+	e.theme = t
+	e.focus_entered.connect(func(): focus = e)
+	return e
+
+
+static func _line_style() -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0, 0, 0, 0.25)
+	sb.border_color = Color(MINT, 0.25)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(8)
+	sb.content_margin_left = 14
+	sb.content_margin_right = 14
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	return sb
 
 
 func _graph() -> Control:
@@ -293,15 +348,7 @@ func _line(id: String) -> LineEdit:
 	e.add_theme_font_size_override("font_size", UiTheme.BIG)
 	e.add_theme_color_override("font_color", MINT)
 	e.add_theme_color_override("caret_color", TEAL)
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0, 0, 0, 0.25)
-	sb.border_color = Color(MINT, 0.25)
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(8)
-	sb.content_margin_left = 14
-	sb.content_margin_right = 14
-	sb.content_margin_top = 8
-	sb.content_margin_bottom = 8
+	var sb := _line_style()
 	e.add_theme_stylebox_override("normal", sb)
 	var f := sb.duplicate()
 	f.border_color = TEAL
@@ -431,7 +478,7 @@ func _fit() -> void:
 
 # ── Keys and typing ──────────────────────────────────────────
 
-func _focus_line(e: LineEdit) -> void:
+func _focus_line(e: Control) -> void:
 	focus = e
 	if is_inside_tree() and visible:
 		e.grab_focus.call_deferred()
@@ -442,28 +489,60 @@ func press(k: String) -> void:
 	if focus == null:
 		focus = input
 	match k:
-		"Del":
-			var c := focus.caret_column
-			if c > 0:
-				focus.text = focus.text.substr(0, c - 1) + focus.text.substr(c)
-				focus.caret_column = c - 1
 		"AC":
-			focus.text = ""
+			if focus == input:
+				input.clear()
+			else:
+				(focus as LineEdit).text = ""
 			message.visible = false
 		"EXE":
 			if mode == "sci":
 				evaluate()
 			else:
 				_refresh_graph()
+		Keypad.TOGGLE:
+			if mode == "sci":
+				switch_result()
 		_:
 			if k == "x" and mode != "graph":
 				return
-			var t := Keypad.typed(k)
-			var c := focus.caret_column
-			focus.text = focus.text.substr(0, c) + t + focus.text.substr(c)
-			focus.caret_column = c + t.length()
+			if focus == input:
+				_press_entry(k)
+			else:
+				_press_line(focus as LineEdit, k)
 	if focus in fn_edits:
 		_refresh_graph()
+
+
+## The input types in notation: the fraction key stacks a fraction, ^ raises a power, √
+## puts a bar over what follows, and a function or Ans goes in as one key, which Del takes
+## away whole.
+func _press_entry(k: String) -> void:
+	match k:
+		"Del", MathEntry.FRACTION, MathEntry.POWER, MathEntry.ROOT, MathEntry.LEFT, MathEntry.RIGHT, ")":
+			input.press(k)
+		_:
+			var t := Keypad.typed(k)
+			if t != "":
+				input.insert(t)
+
+
+## A graph line types on one line.
+func _press_line(e: LineEdit, k: String) -> void:
+	var c := e.caret_column
+	match k:
+		"Del":
+			if c > 0:
+				e.text = e.text.substr(0, c - 1) + e.text.substr(c)
+				e.caret_column = c - 1
+		"◀":
+			e.caret_column = c - 1
+		"▶":
+			e.caret_column = c + 1
+		_:
+			var t := Keypad.typed(k)
+			e.text = e.text.substr(0, c) + t + e.text.substr(c)
+			e.caret_column = c + t.length()
 
 
 ## Works out the input line (Scientific mode), adds it to the recent results and
@@ -478,31 +557,117 @@ func evaluate() -> float:
 		return NAN
 	message.visible = false
 	ans = r.value
-	var entry := {"expr": text, "value": r.value, "text": CalcFormat.sf6(r.value)}
+	var exact: Q = r.exact
+	var frac: Q = exact if exact != null and not exact.is_int() and exact.d < FRACTION_LIMIT else null
+	var entry := {"expr": text, "box": input.tree(), "value": r.value, "text": CalcFormat.sf6(r.value),
+		"fraction": frac, "shown": "fraction" if frac != null else "decimal"}
 	history.append(entry)
 	if history.size() > HISTORY:
 		history.pop_front()
 	_add_history_row(entry)
-	input.text = ""
+	input.clear()
 	return r.value
 
 
+## S⇔D: the last result switches between a stacked fraction and a decimal. A decimal with
+## no exact fraction gets one when a fraction with a bottom under 10000 is the same to
+## the float's precision, as on the TI; otherwise it says so.
+func switch_result() -> void:
+	if history.is_empty():
+		return
+	var entry: Dictionary = history[-1]
+	if entry.fraction == null:
+		entry.fraction = fraction_of(entry.value)
+		if entry.fraction == null:
+			_say("No fraction for this result.")
+			return
+	message.visible = false
+	entry.shown = "decimal" if entry.shown == "fraction" else "fraction"
+	var b := history_box.get_child(history_box.get_child_count() - 1)
+	(b.get_node("Lines/Result") as MathLabel).box = result_box(entry)
+	_scroll_down.call_deferred()
+
+
+## v as a fraction that isn't whole, with a bottom under FRACTION_LIMIT, found by
+## continued fractions; null when there is none that close.
+static func fraction_of(v: float) -> Q:
+	var x := absf(v)
+	if not is_finite(v) or x > 1e9:
+		return null
+	var h0 := 0
+	var h1 := 1
+	var k0 := 1
+	var k1 := 0
+	var r := x
+	for i in 30:
+		var a := floori(r)
+		var h2 := a * h1 + h0
+		var k2 := a * k1 + k0
+		if k2 >= FRACTION_LIMIT:
+			break
+		h0 = h1
+		h1 = h2
+		k0 = k1
+		k1 = k2
+		if absf(x - float(h1) / k1) <= 1e-9 * maxf(1.0, x):
+			return null if k1 == 1 else Q.new(h1 if v >= 0.0 else -h1, k1)
+		if r - a < 1e-12:
+			break
+		r = 1.0 / (r - a)
+	return null
+
+
+## The result as shown: a stacked fraction (with a true minus before it), or the 6 s.f.
+## decimal.
+static func result_box(entry: Dictionary) -> MathBox:
+	if entry.shown == "fraction" and entry.fraction != null:
+		var q: Q = entry.fraction
+		var f := MathBox.fraction(MathBox.row([MathBox.text_box(str(absi(q.n)))]), MathBox.row([MathBox.text_box(str(q.d))]))
+		return MathBox.row([MathBox.text_box("−"), f] if q.n < 0 else [f])
+	return MathBox.row([MathBox.text_box(entry.text)])
+
+
+## The result as Expr reads it, to type in again: (1)/(3), or the decimal, with E as ×10^.
+static func result_text(entry: Dictionary) -> String:
+	if entry.shown == "fraction" and entry.fraction != null:
+		var q: Q = entry.fraction
+		return "%s(%d)/(%d)" % ["-" if q.n < 0 else "", absi(q.n), q.d]
+	var t: String = entry.text.replace("−", "-")
+	if t.contains("E"):
+		var parts := t.split("E")
+		return "%s*10^(%s)" % [parts[0], parts[1]]
+	return t
+
+
+## A recent result, as on the TI: what was typed, in notation, on the left, and the result
+## on the right below it. Tap it to type the result in again.
 func _add_history_row(entry: Dictionary) -> void:
 	var b := Button.new()
 	b.name = "Result%d" % history.size()
 	b.flat = true
 	b.focus_mode = Control.FOCUS_NONE
-	b.alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	b.text = "%s\n= %s" % [entry.expr, entry.text]
-	b.add_theme_font_override("font", mono())
-	b.add_theme_font_size_override("font_size", UiTheme.BODY)
-	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		b.add_theme_color_override(c, MINT)
+	b.clip_contents = true
+	var lines := VBoxContainer.new()
+	lines.name = "Lines"
+	lines.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lines.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lines.add_theme_constant_override("separation", 2)
+	b.add_child(lines)
+	for part in [["Typed", entry.box, HORIZONTAL_ALIGNMENT_LEFT], ["Result", result_box(entry), HORIZONTAL_ALIGNMENT_RIGHT]]:
+		var m := MathLabel.new()
+		m.name = part[0]
+		m.add_theme_font_override("font", mono())
+		m.add_theme_font_size_override("font_size", UiTheme.BODY)
+		m.add_theme_color_override("font_color", MINT)
+		m.horizontal_alignment = part[2]
+		m.box = part[1]
+		lines.add_child(m)
+	# A button doesn't size to its children: it takes their height.
+	var fit := func(): b.custom_minimum_size.y = lines.get_combined_minimum_size().y
+	lines.minimum_size_changed.connect(fit)
+	fit.call()
 	b.pressed.connect(func():
-		var t: String = entry.text.replace("−", "-").replace("E", "*10^")
-		var c := input.caret_column
-		input.text = input.text.substr(0, c) + t + input.text.substr(c)
-		input.caret_column = c + t.length()
+		input.paste(result_text(entry))
 		_focus_line(input))
 	history_box.add_child(b)
 	while history_box.get_child_count() > HISTORY + 1:
@@ -511,29 +676,42 @@ func _add_history_row(entry: Dictionary) -> void:
 	_scroll_down.call_deferred()
 
 
-## Sizes the recent-results box to a whole number of rows, so the oldest row showing is
-## never cut off at the top of the screen (FAL-512). The hint shares the box while the
-## results all fit, and goes once they fill it.
+## Sizes the recent-results box to the newest rows that fit whole in HISTORY_HEIGHT, so
+## the oldest row showing is never cut off at the top of the screen (FAL-512); rows with
+## a stacked fraction are taller. The box sits at the bottom of its frame. The hint shares
+## the box while the results all fit, and goes once they fill it.
 func _fit_history() -> void:
-	var rows := history_box.get_children().filter(func(n): return n is Button)
+	var rows := history_box.get_children().filter(func(n): return n is Button and not n.is_queued_for_deletion())
 	if rows.is_empty():
 		return
 	var sep: int = history_box.get_theme_constant("separation")
-	var step: float = (rows[0] as Button).get_combined_minimum_size().y + sep
-	var fit := maxi(1, int((HISTORY_HEIGHT + sep) / step))
-	history_scroll.custom_minimum_size.y = fit * step - sep
-	history_box.get_node("Hint").visible = rows.size() < fit
+	var h := -sep
+	var shown := 0
+	for i in range(rows.size() - 1, -1, -1):
+		var next: float = h + sep + (rows[i] as Button).get_combined_minimum_size().y
+		if next > HISTORY_HEIGHT and shown > 0:
+			break
+		h = next
+		shown += 1
+	var hint: Control = history_box.get_node("Hint")
+	var with_hint: float = h + sep + hint.get_combined_minimum_size().y
+	hint.visible = shown == rows.size() and with_hint <= HISTORY_HEIGHT
+	history_scroll.custom_minimum_size.y = with_hint if hint.visible else h
 
 
 func _scroll_down() -> void:
 	if is_instance_valid(history_scroll):
 		_fit_history()
-		# The scroll bar's range is a frame behind a row just added, and scrolling to its
-		# old max left the oldest row cut off. Wait one frame, then scroll by the content's
-		# own size.
-		await get_tree().process_frame
-		if not is_instance_valid(history_scroll):
-			return
+		# A row's maths takes its height once it is laid out at its width, and the scroll
+		# bar's range is a frame behind a row just added; scrolling to its old max left the
+		# oldest row cut off. Fit again a frame on, wait one more, then scroll by the
+		# content's own size.
+		for i in 2:
+			await get_tree().process_frame
+			if not is_instance_valid(history_scroll):
+				return
+			if i == 0:
+				_fit_history()
 		var over := history_box.get_combined_minimum_size().y - history_scroll.custom_minimum_size.y
 		history_scroll.scroll_vertical = maxi(0, ceili(over))
 

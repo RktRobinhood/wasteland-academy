@@ -163,7 +163,7 @@ The callback lines are in `callbacks.json`, 14 per tutor: `own.watched`, `own.no
 
 ## The script format
 
-Scripts are JSON. Both readers are code: the Godot player parses JSON natively, and the clip renderer is JavaScript. The rest of the game's words are JSON already (`game/data/shopkeeper.json`, `writing/encounters/`). Markdown with fixed headings would read better on GitHub, but it would need a parser that someone keeps up to date, and a stray heading would break it without a warning. JSON can be checked: every move id exists in `curriculum/moves.json`, every speaker is in `teachers.json`, every `use` is in `callbacks.json`. To read a script as a script, pull out the `say` fields in order.
+Scripts are JSON. Both readers are code: the Godot player parses JSON natively, and the clip renderer is JavaScript. The rest of the game's words are JSON already (`game/data/shopkeeper.json`, `writing/encounters/`). Markdown with fixed headings would read better on GitHub, but it would need a parser that someone keeps up to date, and a stray heading would break it without a warning. JSON can be checked: every move id exists in `curriculum/moves.json`, every speaker is in `teachers.json`, every `use` is in `callbacks.json`. `node tools/explainers.mjs` runs these checks on every script (`tools/explainer-scripts.mjs`, FAL-952), along with the map, the arc order, board keys, answer indexes, digits and banned words in captions, and jokes on the board. To read a script as a script, pull out the `say` fields in order.
 
 ### Top level
 
@@ -231,11 +231,9 @@ The editor's pass, done by Writer on every script:
 
 ## Not decided yet
 
-The CEO settled the pilot questions on [FAL-953](/FAL/issues/FAL-953): the map follows the scripts, the length rule is the one in "The arc", and Gauss stays as pilot 2's story. What's still open:
+The CEO settled the pilot questions on [FAL-953](/FAL/issues/FAL-953): the map follows the scripts, the length rule is the one in "The arc", and Gauss stays as pilot 2's story. The map follows the pilots now (FAL-952): `ex.algebra.arithmetic-sequence` teaches `SL1.2.nth-term` and builds on `ex.foundations.pre-substitute`, and `ex.algebra.arithmetic-series` teaches `SL1.2.sum`. Working back from terms and from a sum are their own explainers, `ex.algebra.arithmetic-from-terms` and `ex.algebra.arithmetic-sum-unknown`. What's still open:
 
-- **The map's split entries.** The map is on `main` (PR #147). Where a pilot teaches less than its map entry, the map changes to match: the Curriculum Author splits those entries on [FAL-952](/FAL/issues/FAL-952). Until that lands, pilot 1's `notes` still describe the difference.
 - **Casting.** The board chose the voices on FAL-927, but GitHub #18 is still open. Mags's and Tess's blocks and the four notes above can change when casting is settled there.
 - **Turns, the engine and recording ids.** How a `turn` maps to the maths engine, and whether lines need ids that survive edits, are phase 2, with Coder. Until then a recording is named by section and position, frozen at `approved`.
 - **How symbols are said.** "u n" or "u sub n", and the like, is decided with the voice, at recording.
 - **Pictures on the board.** The board is text only, so a gauge, an axis or an area grid is written as text (the Foundations scripts do this). A drawn figure would teach some ideas better. A `figure` board item would be a phase 2 question for Coder and Artist.
-- **A checker.** The Curriculum Author is adding a script checker on [FAL-952](/FAL/issues/FAL-952) (moves, speakers, callbacks, banned words, digits in captions).

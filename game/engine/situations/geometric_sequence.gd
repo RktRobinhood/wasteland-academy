@@ -31,6 +31,12 @@ extends RefCounted
 ##   cut, shaded, area     a square cut into cut² squares, with `shaded` of them shaded
 ##   target                what a story's total has to reach
 ##
+## t1-ext-partial-vs-infinite (FAL-779) asks the same situation on Paper 2, with 0 < r < 1:
+##   eps, real             least-n-gap: S∞ − Sₙ < eps, which holds from n > real (a float)
+##   pct, real             least-n-percent: Sₙ > pct% of S∞, from n > real
+##   term_n                the least n with uₙ below the tolerance, the slip of comparing one term
+##   k                     share-of-sinf and gap-after-n: the number of terms summed
+##
 ## The clean limits are the numbers behind the catalogue's `clean` text. The SymPy checker
 ## (tools/check_answers.py) holds its own copy and fails on any breach.
 
@@ -63,6 +69,16 @@ const INTERIOR := [[2, 1], [3, 1], [4, 1], [5, 1], [1, 2], [1, 3], [3, 2], [2, 3
 const COEFF_POWERS := [[2, 3, 5], [1, 3, 4], [2, 4, 5], [1, 2, 5], [1, 3, 6], [2, 3, 6]]
 ## 1/√m is the ratio of a log series; a square m gives a rational one.
 const LOG_M := [2, 5, 7, 4, 9, 25]
+## t1-ext-partial-vs-infinite's unknowns, all Paper 2 (the skill is a calculator one).
+const PVI := ["least-n-gap", "least-n-percent", "share-of-sinf", "gap-after-n"]
+## Its ratios, in hundredths: 0 < r < 1, so S∞ exists and every gap is positive.
+const PVI_R := [20, 25, 30, 40, 50, 60, 65, 70, 75, 80, 85, 90]
+## The gaps, as [top, bottom], and the percentages in tenths of a per cent.
+const PVI_EPS := [[1, 1], [1, 2], [1, 10], [1, 20], [1, 100], [1, 200], [1, 1000]]
+const PVI_PCT := [900, 950, 980, 990, 995, 999]
+## A crossing is at least this far from a whole n, so the least n is clear on a GDC's screen.
+const PVI_EDGE := 0.1
+const PVI_N := [4, 40]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
@@ -71,6 +87,8 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		paper = 1
 	var ask: String = need.get("ask", "term-from-u1-r")
 	var rep: String = need.get("rep", "notation")
+	if ask in PVI:
+		paper = 2
 	for i in TRIES:
 		var s := _draw(rng, ask, rep, paper)
 		if s.is_empty():
@@ -349,6 +367,8 @@ static func _draw(rng: Seeded, ask: String, rep: String, paper: int) -> Dictiona
 			return s if paper == 2 or s.v.is_int() else {}
 		"story-target":
 			return _story_target(rng, paper)
+		"least-n-gap", "least-n-percent", "share-of-sinf", "gap-after-n":
+			return _partial_vs_infinite(rng, ask)
 		"deposit-for-target":
 			var r: Q = hundredths(rng, [50, 60, 70, 75, 80, 90])
 			var n := rng.int_in(3, 8)
@@ -651,6 +671,70 @@ static func _story_target(rng: Seeded, paper: int) -> Dictionary:
 	if target.to_float() <= u1.to_float() or (kind == "under" and target.to_float() <= near) or (kind == "over" and target.to_float() >= near):
 		return {}
 	return {"u1": u1, "r": r, "kind": kind, "target": target, "sinf": limit, "v": Q.new(1)}
+
+
+# ── Partial sums against S∞ (t1-ext-partial-vs-infinite) ───
+
+## Whether a real crossing is at least PVI_EDGE from a whole number.
+static func _clear(x: float) -> bool:
+	return absf(x - roundf(x)) >= PVI_EDGE
+
+
+## The least whole n with n > x, for a crossing x that is not whole.
+static func _above(x: float) -> int:
+	return floori(x) + 1
+
+
+## u₁ a multiple of 20 and r from PVI_R. The gap after n terms is S∞ × rⁿ, so S∞ − Sₙ < eps
+## from n > ln(eps/S∞)/ln r, and Sₙ > p% of S∞ from n > ln(1 − p/100)/ln r. The least n is from 4
+## to 40, and the slip that compares one term with the tolerance gives its own n (term_n). The
+## share (at most 99%) and the gap after k terms, and each slip's value, are clear of a rounding
+## edge at 3 s.f.
+static func _partial_vs_infinite(rng: Seeded, ask: String) -> Dictionary:
+	var r := hundredths(rng, PVI_R)
+	var s := {"u1": Q.new(rng.int_in(1, 25) * 20), "r": r}
+	var sinf := to_infinity(s.u1, r)
+	var lr := log(r.to_float())
+	var tol: Q
+	match ask:
+		"least-n-gap":
+			s.eps = from_pair(rng, PVI_EPS)
+			tol = s.eps
+		"least-n-percent":
+			s.pct = Q.new(rng.pick(PVI_PCT), 10)
+			tol = Q.new(1).sub(s.pct.div(100)).mul(sinf)
+		_:
+			s.k = rng.int_in(3, 8)
+			var share := Q.new(100).mul(Q.new(1).sub(power(r, s.k)))
+			var gap: Q = sinf.mul(power(r, s.k))
+			if ask == "share-of-sinf":
+				s.v = share
+				var shares := [Q.new(100).mul(Q.new(1).sub(power(r, s.k - 1))), Q.new(100).mul(power(r, s.k)), Q.new(10000).div(share)]
+				return s if _all_clear(shares + [share]) and share.to_float() <= 99.0 and not power(r, s.k).eq(Q.new(1, 2)) else {}
+			s.v = gap
+			var gaps := [sinf.mul(power(r, s.k - 1)), s.u1.mul(power(r, s.k)), sum(s, s.k)]
+			return s if _all_clear(gaps + [gap]) and not power(r, s.k).eq(Q.new(1, 2)) else {}
+	# tol is the size S∞ − Sₙ must get below.
+	s.real = log(tol.div(sinf).to_float()) / lr
+	if not _clear(s.real) or _above(s.real) < PVI_N[0] or _above(s.real) > PVI_N[1]:
+		return {}
+	s.n = _above(s.real)
+	s.v = Q.new(s.n)
+	# u₁r^(m − 1) < tol: from m − 1 > ln(tol/u₁)/ln r, or m = 1 when u₁ is below it already.
+	var lt := log(tol.div(s.u1).to_float()) / lr
+	if not _clear(lt):
+		return {}
+	s.term_n = 1 if lt < 0.0 else _above(lt) + 1
+	return s
+
+
+## Every value clear of a rounding edge at 3 s.f., so each option reads one way. A little past
+## EDGE, so a float's last place can't put a value the checker finds on the edge past it.
+static func _all_clear(vals: Array) -> bool:
+	for v in vals:
+		if Answer.needs_rounding(v) and not Answer.rounds_clearly(v.to_float(), EDGE + 0.001):
+			return false
+	return true
 
 
 ## The situation as plain strings, for the answer export.

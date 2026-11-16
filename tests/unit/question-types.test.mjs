@@ -51,3 +51,27 @@ test('full-detail types carry every field a recipe needs', () => {
     assert.equal(t.stats.parts, t.parts.length, `${t.id}: stats are stale; rerun tools/question-types.mjs --write`);
   }
 });
+
+// The exchange with the bank (GH #134): one pinned commit for the catalogue and the bank's
+// unbuilt HL and AI types, and per-course counts in which every part is counted once.
+const bankTypes = read('curriculum/bank-types.json');
+
+test('the catalogue and the unbuilt bank types are pinned to one bank commit', () => {
+  assert.match(doc.bank.commit, /^[0-9a-f]{40}$/);
+  assert.equal(bankTypes.bank.commit, doc.bank.commit, 'rerun tools/question-types.mjs --write');
+  assert.ok(bankTypes.types.length > 0);
+});
+
+test('per-course counts add up, and AA SL is assigned up to bank.assigned', () => {
+  assert.deepEqual(Object.keys(doc.bank.courses), ['aa-sl', 'aa-hl', 'ai-sl', 'ai-hl']);
+  for (const [id, c] of Object.entries(doc.bank.courses)) {
+    assert.equal(c.assigned + c.unclassified + c.unassigned, c.parts, id);
+    assert.equal(Object.values(c.papers).reduce((n, p) => n + p.parts, 0), c.parts, `${id}: parts per paper`);
+  }
+  assert.equal(doc.bank.courses['aa-sl'].assigned + doc.bank.courses['aa-sl'].unclassified, doc.bank.parts);
+  assert.ok(doc.bank.assigned['aa-sl']);
+  // Paper and calculator are separate: AI Paper 1 allows a GDC, AA Paper 1 does not; Paper 3 is HL only.
+  assert.equal(doc.bank.courses['aa-sl'].papers.P1.calculator, false);
+  assert.equal(doc.bank.courses['ai-sl'].papers.P1.calculator, true);
+  assert.ok(doc.bank.courses['aa-hl'].papers.P3 && doc.bank.courses['ai-hl'].papers.P3 && !doc.bank.courses['aa-sl'].papers.P3);
+});

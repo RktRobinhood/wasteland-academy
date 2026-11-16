@@ -62,7 +62,7 @@ func test_the_gdc_is_paper_2_and_nowhere_else() -> void:
 			for sol in _make(c, seed, "mcq", 1).solutions:
 				check(sol.angle != GDC, "%s: a GDC method on Paper 1" % c.key)
 				for st in sol.steps:
-					check(not String(st).contains("Y1"), "%s: %s" % [c.key, st])
+					check(not Step.text(st).contains("Y1"), "%s: %s" % [c.key, Step.text(st)])
 
 
 func test_a_power_with_n_in_it_has_only_the_gdc() -> void:

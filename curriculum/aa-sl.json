@@ -176,8 +176,8 @@
                 }
               ],
               "misconceptions": [
-                "Adding exponents as if multiplying: 3 × 10^4 + 2 × 10^3 = 5 × 10^7",
-                "Adding coefficients across different powers: 3.2 × 10^5 + 4.5 × 10^4 = 7.7 × 10^5"
+                "Adding the powers of ten, as if the numbers were multiplied",
+                "Adding the coefficients while the powers of ten are different"
               ],
               "threads": []
             },
@@ -223,9 +223,9 @@
                 }
               ],
               "misconceptions": [
-                "Applying the power only to 10^k: (2 × 10^3)^3 = 2 × 10^9",
-                "Adding instead of multiplying exponents: (10^3)^3 = 10^6",
-                "Rooting only the coefficient: √(9 × 10^8) = 3 × 10^8"
+                "Applying the power to the power of ten but not to the coefficient",
+                "Adding the power to the exponent of ten instead of multiplying them",
+                "Taking the root of the coefficient but not of the power of ten"
               ],
               "threads": []
             },
@@ -678,9 +678,9 @@
                 }
               ],
               "misconceptions": [
-                "Counting terms as upper − lower: 25 terms from r = 5 to 30 instead of 26",
-                "Treating the constant in Σ(3r + 2) as contributing 2 rather than 2n",
-                "Taking the coefficient 3 as the first term instead of substituting r = 1"
+                "Counting the terms as the upper limit minus the lower limit, which is one too few",
+                "Adding the constant term once, instead of once for every term",
+                "Taking the coefficient of r as the first term instead of substituting the lower limit"
               ],
               "threads": [
                 {
@@ -1608,9 +1608,9 @@
                 }
               ],
               "misconceptions": [
-                "Adding exponents for a power of a power: (x^3)^4 = x^7",
-                "Applying the power to only part of a product: (2x)^3 = 2x^3",
-                "Combining different bases: 2^3 × 3^2 = 6^5"
+                "Adding the exponents for a power of a power, where they multiply",
+                "Applying a power to only part of a product in a bracket",
+                "Multiplying different bases and adding their exponents, as if the bases were the same"
               ],
               "threads": [
                 {
@@ -1664,8 +1664,8 @@
                 }
               ],
               "misconceptions": [
-                "A negative exponent makes the number negative: 2^−3 = −8",
-                "Thinking a^0 = 0",
+                "Assuming a negative exponent makes the number negative",
+                "Assuming a number to the power zero is zero",
                 "Moving the coefficient to the top along with the variable, instead of only the variable"
               ],
               "threads": [
@@ -2077,7 +2077,7 @@
               "misconceptions": [
                 "Substituting the given answer and checking it, which earns no marks on a 'show that'",
                 "Jumping straight to the given answer without the step that produces it",
-                "Showing only a value rounded to the given answer (e.g. 1389) instead of a more accurate value (1389.15…)"
+                "Showing only a value rounded to the given answer, instead of a more accurate value that rounds to it"
               ],
               "threads": []
             },
@@ -2454,8 +2454,8 @@
                 }
               ],
               "misconceptions": [
-                "Dividing instead of finding the power: 2^x = 32 gives x = 16",
-                "Writing 4^(x + 1) as 2^(2x + 1) instead of 2^(2x + 2): the whole exponent must be doubled",
+                "Dividing by the base instead of finding the power it is raised to",
+                "Multiplying only the x term of an exponent when rewriting the base, instead of the whole exponent",
                 "Equating the bases instead of the exponents"
               ],
               "threads": [
@@ -2636,14 +2636,14 @@
                 {
                   "id": "graph-zeros",
                   "approach": "graphical",
-                  "name": "Graph the expression and find its zeros",
+                  "name": "Graph the expression on the GDC and find its zeros",
                   "summary": "Plot y = 2^(2x) − 6 × 2^x + 8 and read off the x-intercepts."
                 }
               ],
               "misconceptions": [
-                "Treating 2^(2x) as 2 × 2^x instead of (2^x)²",
-                "Keeping a root such as e^x = −3, which has no real solution",
-                "Stopping at u = 2 and u = 4 and forgetting to solve 2^x = u"
+                "Reading a power 2x as twice the power, instead of the power squared",
+                "Keeping a negative value of u, which no power of a positive base can equal",
+                "Giving the values of u as the solutions, without going on to solve b^x = u"
               ],
               "threads": [
                 {
@@ -3238,8 +3238,8 @@
                 }
               ],
               "misconceptions": [
-                "Forgetting that (1/x)^r = x^(−r), so the power is taken as 6 − r instead of 6 − 2r",
-                "Leaving out the factor 2^r from (2/x)^r",
+                "Forgetting that a power of x in the denominator counts as a negative power, so the fraction's x is left out of the general term's power",
+                "Leaving out the number on top of the fraction, which is raised to the power r as well",
                 "Giving r (the term index) as the answer instead of the value of the term"
               ],
               "threads": [
@@ -3344,9 +3344,9 @@
                 }
               ],
               "misconceptions": [
-                "Counting only one contribution, e.g. only 1 × (x² term)",
-                "Multiplying the x² coefficients of the two brackets together",
-                "Sign slips when the bracket contains a negative term"
+                "Counting only one of the two pairs of terms that give the asked power",
+                "Multiplying the coefficients of the asked power in the two brackets together, instead of pairing terms whose powers add up to it",
+                "Losing a minus sign when a bracket has a negative term"
               ],
               "threads": []
             }
@@ -8349,13 +8349,13 @@
                 {
                   "id": "gdc-intersection",
                   "approach": "gdc",
-                  "name": "Intersect the two height expressions",
+                  "name": "Intersect the two height expressions on the GDC",
                   "summary": "Graph y = x tan β and y = (x + 50) tan α and read the intersection: x is the distance and y the height."
                 }
               ],
               "misconceptions": [
-                "Using the 50 m between observers as the distance to the foot of the tower",
-                "Taking the angle at the top as α + β instead of β − α",
+                "Using the distance between the two observers as the distance to the foot of the object",
+                "Taking the angle at the top as the sum of the two angles of elevation instead of their difference",
                 "Using a right-triangle ratio in the triangle that has no right angle"
               ],
               "threads": [
@@ -9025,7 +9025,7 @@
               ],
               "misconceptions": [
                 "Using cos 120° = +½, which gives a side that is too short",
-                "Simplifying √(16 + 9) as 4 + 3",
+                "Splitting a square root over a sum or difference, as if √(p + q) were √p + √q",
                 "Giving a decimal when an exact surd is required"
               ],
               "threads": [
@@ -10110,8 +10110,8 @@
               ],
               "singleMethod": true,
               "misconceptions": [
-                "The population is the people who answered the survey (that is the sample)",
-                "Choosing whoever walks past is 'random' (it is a convenience sample: not everyone has an equal chance)"
+                "Taking the people who answered the survey as the population (they are the sample)",
+                "Calling a sample of whoever walks past random (it is a convenience sample: not everyone has an equal chance)"
               ],
               "threads": []
             },
@@ -10151,8 +10151,8 @@
                 }
               ],
               "misconceptions": [
-                "Any data with decimals is continuous (money in cents and shoe size 7.5 are discrete)",
-                "Data recorded to the nearest whole number must be discrete (height to the nearest cm is still continuous)"
+                "Assuming any data with decimals is continuous (money in cents and half shoe sizes are discrete)",
+                "Assuming data recorded to the nearest whole number must be discrete (height to the nearest cm is still continuous)"
               ],
               "threads": []
             },
@@ -10381,7 +10381,7 @@
                 }
               ],
               "misconceptions": [
-                "Putting a value of exactly 20 into the class 10 ≤ x < 20",
+                "Putting a value that lies on a class boundary into the class that ends there",
                 "Leaving gaps between bars, as in a bar chart, for continuous data"
               ],
               "threads": []
@@ -11131,9 +11131,9 @@
                 }
               ],
               "misconceptions": [
-                "r = −0.9 shows weak correlation because it is negative",
-                "Strong correlation proves that one variable causes the other",
-                "r ≈ 0 means there is no relationship at all (there may be a non-linear one)"
+                "Reading a negative r as weak correlation, when its sign gives only the direction",
+                "Assuming strong correlation proves that one variable causes the other",
+                "Assuming r near 0 means no relationship at all (there may be a non-linear one)"
               ],
               "threads": []
             },
@@ -11877,8 +11877,8 @@
                 }
               ],
               "misconceptions": [
-                "Mutually exclusive means the same as independent",
-                "If P(A) + P(B) < 1 then A and B must be mutually exclusive"
+                "Treating mutually exclusive as if it meant independent",
+                "Concluding that A and B are mutually exclusive because P(A) + P(B) < 1"
               ],
               "threads": []
             },
@@ -11928,8 +11928,8 @@
                 {
                   "id": "formula",
                   "approach": "formula",
-                  "name": "P(A ∩ B) ÷ P(B)",
-                  "summary": "Divide the probability of both by the probability of the given event."
+                  "name": "P(both) ÷ P(given event)",
+                  "summary": "Divide the probability that both happen by the probability of the given event: P(A ∩ B) ÷ P(B) for P(A | B)."
                 }
               ],
               "misconceptions": [
@@ -14154,14 +14154,18 @@
                 }
               ],
               "misconceptions": [
-                "Using the sign of f(a) instead of f′(a)",
-                "Justifying with 'the graph goes up' without referring to the derivative"
+                "Using the sign of the value at the point instead of the sign of the derivative",
+                "Justifying with 'the graph goes up' or 'goes down' without referring to the derivative"
               ],
               "threads": []
             },
             {
               "id": "SL5.2.show-always-increasing",
               "name": "Show that a function is increasing (or decreasing) for all x in its domain",
+              "courses": [
+                "aa-sl",
+                "aa-hl"
+              ],
               "examTypes": [
                 "Show that f is increasing for all x",
                 "Show that f′(x) > 0 for x > 0, and hence explain why f has an inverse",
@@ -14232,6 +14236,10 @@
             {
               "id": "SL5.2.parameter-for-monotonic",
               "name": "Find a parameter so that f is increasing (or decreasing) everywhere",
+              "courses": [
+                "aa-sl",
+                "aa-hl"
+              ],
               "examTypes": [
                 "f(x) = x³ + kx² + 3x. Find the values of k for which f is increasing for all x",
                 "Find the range of values of p for which f′(x) ≥ 0 for all x"
@@ -15905,7 +15913,7 @@
                 }
               ],
               "misconceptions": [
-                "Reading f″ < 0 as 'the quantity is decreasing'",
+                "Reading the sign of f″ as whether the quantity rises or falls",
                 "Treating 'increasing at a decreasing rate' as 'decreasing'"
               ],
               "threads": [

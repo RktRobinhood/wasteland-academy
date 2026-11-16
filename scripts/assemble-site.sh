@@ -7,8 +7,9 @@
 # <site dir> is the HTML game as Jekyll built it, <export dir> the Godot web export.
 #   off  the HTML game at the root, Godot at next/ (the site before the takeover)
 #   on   Godot at the root, the HTML game at classic/, next/ a redirect to the root,
-#        the root service-worker.js the retiring worker from _takeover/, and
-#        classic/manifest.json the app id wasteland-academy-classic
+#        the root service-worker.js Godot's offline worker from _takeover/ (it also
+#        retires the HTML game's worker there), registered from the Godot index.html,
+#        and classic/manifest.json the app id wasteland-academy-classic
 #
 # .github/workflows/pages.yml runs this. tools/takeover-dry-run runs it for both
 # positions and checks each in Chromium.
@@ -37,9 +38,12 @@ on)
 	cp "$takeover/service-worker.js" "$site/service-worker.js"
 	mkdir "$site/next"
 	cp "$takeover/next.html" "$site/next/index.html"
-	# Godot's title screen shows its "Classic game" link only with this (game/ui/main.gd)
-	sed -i 's|<head>|<head>\n<meta name="wa-classic" content="classic/">|' "$site/index.html"
+	# Godot's title screen shows its "Classic game" link only with this (game/ui/main.gd),
+	# and the page registers the root worker, so it plays offline after one visit
+	sed -i -e 's|<head>|<head>\n<meta name="wa-classic" content="classic/">|' \
+		-e "/<meta charset=/r $takeover/register-worker.html" "$site/index.html"
 	grep -q 'name="wa-classic"' "$site/index.html" || { echo "no <head> in the Godot index.html" >&2; exit 1; }
+	grep -q "register('service-worker.js')" "$site/index.html" || { echo "no <meta charset> in the Godot index.html, for the worker registration" >&2; exit 1; }
 	# A new app id, so opening classic/ inside an app installed from the old root
 	# doesn't move that app's start_url and scope to classic/
 	sed -i 's|"id": "wasteland-academy"|"id": "wasteland-academy-classic"|' "$site/classic/manifest.json"

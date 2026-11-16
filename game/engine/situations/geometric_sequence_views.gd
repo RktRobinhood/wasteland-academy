@@ -12,6 +12,11 @@ extends ExtensionViews
 ## or Sₙ), "graph" (dots, or the line r(x) in the band −1 < y < 1), "equation" (a Σ, a series or
 ## r in x), "words" and "diagram" (PlotView's `bounce` and `squares`, with the story in words).
 ## `given` holds the situation as plain strings, for the SymPy checker.
+##
+## t1-ext-partial-vs-infinite (FAL-779) is built here too, on Paper 2: the least n that brings
+## Sₙ within a gap of S∞, or past a percentage of it, the share of S∞ the first k terms give, and
+## the gap S∞ − Sₖ still to come. Its wrong options are SL1.8.sn-vs-sinf's slips and the type's
+## own; it builds error-spot (the inequality kept after dividing by ln r) and method-pick.
 
 const S13 := "SL1.3."
 const S18 := "SL1.8."
@@ -61,6 +66,22 @@ const SAVERS := [
 	{"who": "A caravan caches %s litres of fuel on its first run.", "next": "Each run it caches %s of what it cached on the run before.", "per": "run", "unit": " litres"},
 	{"who": "A clinic stockpiles %s doses in the first month.", "next": "Each month it adds %s of what it added the month before.", "per": "month", "unit": " doses"},
 ]
+const SN := "SL1.8.sn-vs-sinf#"
+const PV := "t1-ext-partial-vs-infinite#"
+const R_FLIP := SN + "0"
+const R_ROUND_DOWN := SN + "1"
+const R_ONE_TERM := SN + "2"
+const R_ONE_OUT := PV + "3"
+const R_STILL := PV + "4"
+const R_UPSIDE := PV + "5"
+const R_NEXT_ONLY := PV + "6"
+const R_SO_FAR := PV + "7"
+## Methods that don't work on any of the type's questions, for method-pick.
+const PVI_PICK_WRONGS := [
+	{"name": "Solve Sₙ = S∞ for n", "why": "Sₙ never reaches S∞, so that equation has no solution"},
+	{"name": "Compare the nth term with the target", "why": "one term is only part of what is still to come, S∞ − Sₙ"},
+	{"name": "Find S∞ and stop there", "why": "S∞ has no n in it, so it can't say how far the partial sums have got"},
+]
 const SUBS := {"0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄", "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉"}
 
 
@@ -72,9 +93,14 @@ func needs() -> Dictionary:
 			"sigma-evaluate", "sigma-write", "exists-claim", "exists-table", "x-interval", "sinf-value", "sinf-sigma",
 			"sinf-shaded", "x-from-log-series", "u1-from-sinf", "r-from-sinf", "r-from-multiple", "r-from-u2-reject",
 			"r-from-u2-both", "bounce-total", "bounce-multiple", "recurring-decimal", "nested-squares", "story-total",
-			"story-target", "deposit-for-target"]:
+			"story-target", "deposit-for-target"] + GeometricSequenceSituation.PVI:
 		out[u] = {"ask": u}
 	return out
+
+
+func extra() -> Dictionary:
+	return {"least-n-gap": ["error-spot", "method-pick"], "least-n-percent": ["error-spot", "method-pick"],
+		"share-of-sinf": ["method-pick"], "gap-after-n": ["method-pick"]}
 
 
 func papers(unknown: String, _rep: String, method_id: String) -> Array:
@@ -82,6 +108,8 @@ func papers(unknown: String, _rep: String, method_id: String) -> Array:
 		return []
 	if unknown in P1_ONLY:
 		return [1]
+	if unknown in GeometricSequenceSituation.PVI:
+		return [2]
 	if unknown in P2_ONLY or method_id in P2_ANGLES:
 		return [2]
 	return [1, 2]
@@ -1210,7 +1238,7 @@ func u_bounce_multiple(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"methods": {
 			"split-series": method(["Down: x/(1 − %s). Up: %sx/(1 − %s)." % [B(s, r), B(s, r), B(s, r)], "Total = x(1 + %s)/(1 − %s) = x × %s/%s" % [B(s, r), B(s, r), B(s, top), B(s, one)], "k = %s ÷ %s = %s" % [X(s, top), B(s, one), X(s, s.v)], say(ans)], ans.values),
 			"model-series": method(["The path is x + 2 × %sx + 2 × %s²x + …: one drop, then a geometric series." % [B(s, r), B(s, r)], "|r| < 1, so the rebounds add to 2 × %sx/(1 − %s)." % [B(s, r), B(s, r)],
-				"Total = x(1 + 2 × %s/%s) = %sx" % [B(s, r), B(s, one), X(s, s.v)], say(ans)], ans.values),
+				"Total = x(1 + 2 × %s/%s) = %sx" % [B(s, r), B(s, one), B(s, s.v)], say(ans)], ans.values),
 		}})
 
 
@@ -1331,3 +1359,204 @@ func u_deposit_for_target(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 				"S%s = u₁(1 − %s)/(1 − %s) = %s" % [sub(s.n), pow_text(s, r, s.n), B(s, r), X(s, s.target)],
 				"u₁ = %s × (1 − %s)/(1 − %s) = %s" % [X(s, s.target), B(s, r), pow_text(s, r, s.n), X(s, s.v)], say(ans)], ans.values),
 		}}
+
+
+# ── Partial sums against S∞ (t1-ext-partial-vs-infinite) ───
+
+## A working value to 6 s.f., and the Q it reads as, so the next step works from what is shown.
+## A value that ends within six figures is written as it is; a rounded one keeps its zeros
+## ("1381.00"), so it never reads as exact.
+static func w6(v: Variant) -> String:
+	var t := Fmt.work(v, 6)
+	var back: Q = Answer.parse_number(t.replace("−", "-")).q
+	var same: bool = back.eq(v) if v is Q else back.to_float() == float(v)
+	return t if same else Fmt.sf(v, 6)
+
+
+static func q6(v: Variant) -> Q:
+	return Answer.parse_number(w6(v).replace("−", "-")).q
+
+
+## The series shown, the read line its working opens with, and the words before the question.
+static func pvi_shown(rep: String, s: Dictionary) -> Dictionary:
+	if rep == "terms":
+		return {"lines": [terms_line(s)], "intro": "These are the first four terms of a geometric series.",
+			"read": ["u₁ = %s and r = %s ÷ %s = %s." % [X(s, s.u1), X(s, term(s, 2)), X(s, s.u1), X(s, s.r)]]}
+	return {"lines": [notation(s)], "intro": "A geometric series has the first term and common ratio shown.", "read": []}
+
+
+## The answer, a whole n.
+static func n_ans(n: int) -> Dictionary:
+	var ans := Answer.make("number", {"v": Q.new(n)}, {}, "n = ")
+	ans.exact = true
+	return ans
+
+
+## Wrong options [value, ref] that are not the answer, each value once.
+static func pvi_wrongs(v: Q, list: Array) -> Array:
+	var out: Array = []
+	var seen := {v.key(): true}
+	for e in list:
+		var q := Q.of(e[0])
+		if seen.has(q.key()):
+			continue
+		seen[q.key()] = true
+		out.append(wrong({"v": q}, e[1]))
+	return out
+
+
+## Fillers: positive values that are not the answer or a slip already offered.
+static func pvi_fillers(v: Q, wrongs: Array, list: Array) -> Array:
+	var seen := {v.key(): true}
+	for w in wrongs:
+		seen[Q.of(w.values.v).key()] = true
+	var out: Array = []
+	for e in list:
+		var q := Q.of(e)
+		if q.sign() > 0 and not seen.has(q.key()):
+			seen[q.key()] = true
+			out.append({"v": q})
+	return out
+
+
+func _pvi_pack(sh: Dictionary, asked: String, ans: Dictionary, wrongs: Array, fillers: Array, steps: Dictionary) -> Dictionary:
+	var out := {"lines": sh.lines, "asked": "%s %s" % [sh.intro, asked], "answer": ans, "wrongs": wrongs, "fillers": fillers,
+		"methods": {}, "pick_wrongs": PVI_PICK_WRONGS}
+	for m in steps:
+		out.methods[m] = method(sh.read + steps[m], ans.values)
+	return out
+
+
+## The least-n slips: n rounded down, one term out, and the least n with one term below the tolerance.
+static func least_n_wrongs(s: Dictionary) -> Array:
+	return pvi_wrongs(s.v, [[s.n - 1, R_ROUND_DOWN], [s.n + 1, R_ONE_OUT], [s.term_n, R_ONE_TERM]])
+
+
+func u_least_n_gap(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var n: int = s.n
+	var ans := n_ans(n)
+	var sh := pvi_shown(rep, s)
+	var r := X(s, s.r)
+	var u1 := X(s, s.u1)
+	var e := X(s, s.eps)
+	var si := X(s, inf(s.u1, s.r))
+	var gap := "%s × %s^n" % [si, r]
+	var below := "%s^n < %s/%s" % [r, e, si]
+	var cross := Fmt.work(s.real, 4)
+	var lo := far_gap(s, n - 1)
+	var hi := far_gap(s, n)
+	var w := least_n_wrongs(s)
+	var out := _pvi_pack(sh, "Find the least n for which S∞ − Sₙ < %s." % e, ans, w, pvi_fillers(s.v, w, [n + 2, n - 2, n + 3, 2 * n]), {
+		"tail-series": ["The terms after uₙ are a geometric series with first term %s × %s^n, so S∞ − Sₙ = %s × %s^n/(1 − %s) = %s." % [u1, r, u1, r, r, gap],
+			"Need %s < %s, so %s." % [gap, e, below],
+			"%s × %s^%d = %s > %s, but %s × %s^%d = %s < %s." % [si, r, n - 1, Fmt.work(lo, 4), e, si, r, n, Fmt.work(hi, 4), e], say(ans)],
+		"logs": ["S∞ − Sₙ = u₁/(1 − r) − u₁(1 − r^n)/(1 − r) = u₁r^n/(1 − r) = %s." % gap,
+			"%s < %s, so n ln %s < ln(%s/%s)." % [gap, e, r, e, si],
+			"ln %s < 0, so dividing by it turns < into >: n > ln(%s/%s)/ln %s = %s." % [r, e, si, r, cross], say(ans)],
+		"gdc-table": ["S∞ = %s/(1 − %s) = %s, so tabulate S∞ − Sₙ on the GDC." % [u1, r, si],
+			"S∞ − S%s = %s > %s, but S∞ − S%s = %s < %s." % [sub(n - 1), Fmt.work(lo, 4), e, sub(n), Fmt.work(hi, 4), e], say(ans)],
+		"graph-intersect": ["Graph y = %s − %s(1 − %s^x)/(1 − %s) and y = %s." % [si, u1, r, r, e],
+			"They cross at x = %s, and the gap is below %s to the right of the crossing." % [cross, e], say(ans)],
+	})
+	var lines: Array
+	var bad: int
+	if rng.chance(0.5):
+		lines = ["S∞ − Sₙ = %s, so %s < %s." % [gap, gap, e], "%s, so n ln %s < ln(%s/%s)." % [below, r, e, si],
+			"n < ln(%s/%s)/ln %s = %s" % [e, si, r, cross], "So n = %d." % (n - 1)]
+		bad = 2
+	else:
+		lines = ["S∞ = %s/(1 − %s) = %s, and S∞ − Sₙ = %s." % [u1, r, si, gap], "%s < %s, so n ln %s < ln(%s/%s), and n < ln(%s/%s)/ln %s." % [gap, e, r, e, si, e, si, r],
+			"ln(%s/%s)/ln %s = %s" % [e, si, r, cross], "So n = %d." % (n - 1)]
+		bad = 1
+	out.spot = {"lines": lines, "bad": bad, "ref": R_FLIP, "why": "ln %s is negative, so dividing by it turns < into >" % r}
+	return out
+
+
+## S∞ − Sₖ = S∞ × r^k, as a float: k can be too large for an exact power.
+static func far_gap(s: Dictionary, k: int) -> float:
+	return inf(s.u1, s.r).to_float() * pow(s.r.to_float(), k)
+
+
+func u_least_n_percent(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var n: int = s.n
+	var ans := n_ans(n)
+	var sh := pvi_shown(rep, s)
+	var r := X(s, s.r)
+	var u1 := X(s, s.u1)
+	var pct := Fmt.dec(s.pct) + "%"
+	var share: Q = s.pct.div(100)
+	var pd := Fmt.dec(share)
+	var c := Fmt.dec(Q.new(1).sub(share))
+	var sinf := inf(s.u1, s.r)
+	var si := X(s, sinf)
+	var cross := Fmt.work(s.real, 4)
+	var rn := "%s^n < %s" % [r, c]
+	var need := "1 − %s^n > %s, so %s" % [r, pd, rn]
+	var target := q6(q6(sinf).mul(share))
+	var w := least_n_wrongs(s)
+	var out := _pvi_pack(sh, "Find the least n for which Sₙ is more than %s of S∞." % pct, ans, w, pvi_fillers(s.v, w, [n + 2, n - 2, n + 3, 2 * n]), {
+		"tail-series": ["What is still to come after n terms is S∞ − Sₙ = S∞ × %s^n, so Sₙ = S∞(1 − %s^n)." % [r, r],
+			"Sₙ > %s S∞ needs %s." % [pd, need],
+			"%s^%d = %s > %s, but %s^%d = %s < %s." % [r, n - 1, Fmt.work(pow(s.r.to_float(), n - 1), 4), c, r, n, Fmt.work(pow(s.r.to_float(), n), 4), c], say(ans)],
+		"logs": ["Sₙ = S∞(1 − %s^n), and Sₙ > %s S∞ means %s." % [r, pd, need],
+			"n ln %s < ln %s" % [r, c],
+			"ln %s < 0, so dividing by it turns < into >: n > ln %s/ln %s = %s." % [r, c, r, cross], say(ans)],
+		"gdc-table": ["S∞ = %s/(1 − %s) = %s, so Sₙ must pass %s × %s = %s." % [u1, r, si, pd, w6(q6(sinf)), w6(target)],
+			"S%s = %s < %s, but S%s = %s > %s." % [sub(n - 1), w6(far_sum(s.u1, s.r, n - 1)), w6(target), sub(n), w6(far_sum(s.u1, s.r, n)), w6(target)], say(ans)],
+	})
+	var lines: Array
+	var bad: int
+	if rng.chance(0.5):
+		lines = ["Sₙ > %s S∞, so %s." % [pd, need], "n ln %s < ln %s" % [r, c], "n < ln %s/ln %s = %s" % [c, r, cross], "So n = %d." % (n - 1)]
+		bad = 2
+	else:
+		lines = ["Sₙ = S∞(1 − %s^n) > %s S∞ gives %s." % [r, pd, need], "n ln %s < ln %s, so n < ln %s/ln %s." % [r, c, c, r],
+			"ln %s/ln %s = %s" % [c, r, cross], "So n = %d." % (n - 1)]
+		bad = 1
+	out.spot = {"lines": lines, "bad": bad, "ref": R_FLIP, "why": "ln %s is negative, so dividing by it turns < into >" % r}
+	return out
+
+
+func u_share_of_sinf(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var k: int = s.k
+	var ans := val(s, "", s.v, "%")
+	var sh := pvi_shown(rep, s)
+	var r := X(s, s.r)
+	var u1 := X(s, s.u1)
+	var left := Q.new(1).sub(power(s.r, k))
+	var si_t := w6(inf(s.u1, s.r))
+	var sk_t := w6(partial(s.u1, s.r, k))
+	var ratio := q6(q6(partial(s.u1, s.r, k)).div(q6(inf(s.u1, s.r))))
+	var said := "so the first %d terms give %s of S∞." % [k, Answer.text(ans)]
+	var w := pvi_wrongs(s.v, [[Q.new(100).mul(Q.new(1).sub(power(s.r, k - 1))), R_ONE_OUT], [Q.new(100).mul(power(s.r, k)), R_STILL],
+		[Q.new(10000).div(s.v), R_UPSIDE]])
+	return _pvi_pack(sh, "Find the percentage of S∞ that the first %d terms give." % k, ans, w,
+		pvi_fillers(s.v, w, [s.v.add(10), s.v.sub(10), s.v.add(5), s.v.sub(5)].filter(func(x): return x.to_float() < 100.0)), {
+		"tail-series": ["After %d terms, what is still to come is S∞ × %s^%d, so S%s = S∞(1 − %s^%d)." % [k, r, k, sub(k), r, k],
+			"1 − %s^%d = %s" % [r, k, w6(left)], "%s × 100 = %s, %s" % [w6(left), w6(q6(left).mul(100)), said]],
+		"formula": ["S∞ = %s/(1 − %s) = %s" % [u1, r, si_t], "S%s = %s(1 − %s^%d)/(1 − %s) = %s" % [sub(k), u1, r, k, r, sk_t],
+			"S%s ÷ S∞ = %s ÷ %s = %s, %s" % [sub(k), sk_t, si_t, w6(ratio), said]],
+	})
+
+
+func u_gap_after_n(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var k: int = s.k
+	var ans := val(s, "S∞ − S%s = " % sub(k), s.v)
+	var sh := pvi_shown(rep, s)
+	var r := X(s, s.r)
+	var u1 := X(s, s.u1)
+	var nxt := q6(s.u1.mul(power(s.r, k)))
+	# S∞ and Sₖ to enough figures that their difference keeps six.
+	var figs: int = 6 + maxi(0, floori(log(inf(s.u1, s.r).to_float()) / log(10.0)) - floori(log(s.v.to_float()) / log(10.0)))
+	var si_t := Fmt.work(inf(s.u1, s.r), figs)
+	var sk_t := Fmt.work(partial(s.u1, s.r, k), figs)
+	var si: Q = Answer.parse_number(si_t.replace("−", "-")).q
+	var sk: Q = Answer.parse_number(sk_t.replace("−", "-")).q
+	var w := pvi_wrongs(s.v, [[s.u1.mul(power(s.r, k)), R_NEXT_ONLY], [inf(s.u1, s.r).mul(power(s.r, k - 1)), R_ONE_OUT], [partial(s.u1, s.r, k), R_SO_FAR]])
+	return _pvi_pack(sh, "Find S∞ − S%s, the part of S∞ still to come after the first %d terms." % [sub(k), k], ans, w,
+		pvi_fillers(s.v, w, [s.v.mul(2), s.v.div(2), s.v.mul(3), s.v.div(3)]), {
+		"tail-series": ["The terms after u%s are a geometric series with first term u%s = %s × %s^%d = %s." % [sub(k), sub(k + 1), u1, r, k, w6(nxt)],
+			"S∞ − S%s = %s/(1 − %s) = %s" % [sub(k), w6(nxt), r, w6(nxt.div(Q.new(1).sub(s.r)))], say(ans)],
+		"formula": ["S∞ = %s/(1 − %s) = %s" % [u1, r, si_t], "S%s = %s(1 − %s^%d)/(1 − %s) = %s" % [sub(k), u1, r, k, r, sk_t],
+			"S∞ − S%s = %s − %s = %s" % [sub(k), si_t, sk_t, w6(si.sub(sk))], say(ans)],
+	})

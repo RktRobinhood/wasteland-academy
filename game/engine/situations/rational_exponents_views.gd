@@ -36,6 +36,8 @@ const R_ADD_COEF := SK + "17"
 const R_COEF_DIV := SK + "18"
 const R_SQUARE_ROOT := SK + "19"
 const R_SAME_POWER := SK + "20"
+## The type's own, with no skill ref: logged by index.
+const R_X_KEPT := "t1-rational-exponents#21"
 
 const ROOT_FIRST := "root-then-power"
 const POWER_FIRST := "power-then-root"
@@ -207,7 +209,7 @@ static func sv(cs: Array, ps: Array) -> Dictionary:
 ## Options for a number: wrongs first (shuffled), then fillers.
 func _number(lines: Array, asked: String, ans: Dictionary, w: Array, gen: Array, rng: Seeded, methods: Dictionary) -> Dictionary:
 	said_once(methods, ans)
-	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": rng.shuffled(w), "generic": gen, "methods": methods}
+	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen, "methods": methods}
 
 
 ## Fillers near a value, never the value itself.
@@ -464,7 +466,8 @@ func u_bracket_power(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var w: Array = [wm(Q.new(c), pw_x, R_COEF), wm(co, e.add(q), R_ADD_BRACKET), wm(Q.new(c).mul(e), pw_x, R_TIMES)]
 	if neg:
 		w.append(wm(Q.new(bm), pw_x.neg(), R_NO_RECIP))
-	var gen: Array = [mv(co, Q.new(q)), mv(co.mul(2), pw_x), mv(Q.new(b) if not neg else Q.new(1, b), pw_x), mv(co, pw_x.add(1)), mv(co, e)]
+	w.append(wm(co, Q.new(q), R_X_KEPT))
+	var gen: Array = [mv(co.mul(2), pw_x), mv(Q.new(b) if not neg else Q.new(1, b), pw_x), mv(co, pw_x.add(1)), mv(co, e)]
 	return _number([expr], "Simplify this, in the form ax^n.", ans, w, gen, rng,
 		{ROOT_FIRST: method(m_root, ans.values), POWER_FIRST: method(m_power, ans.values), PRIME: method(m_prime, ans.values)})
 

@@ -511,7 +511,7 @@ func _class_list() -> void:
 	if split[0].is_empty():
 		list.add_child(UiTheme.label("No question class is built in this topic yet.", UiTheme.BODY, UiTheme.DIM))
 	for t in split[0]:
-		var b := _toggle(t.name, t.id == type_id, _choose.bind("type", t.id), UiTheme.BODY)
+		var b := _toggle(t.name, t.id == type_id, _choose.bind("type", t.id), UiTheme.BODY, true)
 		b.name = "Class_" + t.id
 		list.add_child(b)
 	if split[1].is_empty():
@@ -524,7 +524,7 @@ func _class_list() -> void:
 	if show_unbuilt:
 		for t in split[1]:
 			var why := "not built yet" if not t.id in QuestionEngine.built_types() else "not in " + String(_course().get("short", course))
-			var g := _toggle(t.get("name", t.id) + " · " + why, false, func(): pass, UiTheme.SMALL)
+			var g := _toggle(t.get("name", t.id) + " · " + why, false, func(): pass, UiTheme.SMALL, true)
 			g.disabled = true
 			list.add_child(g)
 
@@ -532,7 +532,7 @@ func _class_list() -> void:
 func _pickers() -> void:
 	var t := QuestionEngine.type_of(type_id)
 	if t.get("summary", "") != "":
-		choices.add_child(UiTheme.label(t.summary, UiTheme.SMALL, UiTheme.DIM))
+		choices.add_child(UiTheme.math(t.summary, UiTheme.SMALL, UiTheme.DIM))
 	var us := _unknowns()
 	if us.is_empty():
 		choices.add_child(UiTheme.label("No exam-style questions in this class. Switch exam-style off to see them.",
@@ -543,7 +543,7 @@ func _pickers() -> void:
 	ulist.name = "AskedFor"
 	ulist.add_theme_constant_override("separation", 8)
 	for u in us:
-		var b := _toggle(unknown_name(t, u), u == unknown, _choose.bind("unknown", u), UiTheme.SMALL)
+		var b := _toggle(unknown_name(t, u), u == unknown, _choose.bind("unknown", u), UiTheme.SMALL, true)
 		b.name = "Unknown_" + u
 		ulist.add_child(b)
 	choices.add_child(ulist)
@@ -559,7 +559,7 @@ func _pickers() -> void:
 	mlist.name = "Method"
 	mlist.add_theme_constant_override("separation", 8)
 	for a in _angles_for(unknown):
-		var b := _toggle(angle_name(t, unknown, a), a == angle, _choose.bind("angle", a), UiTheme.SMALL)
+		var b := _toggle(angle_name(t, unknown, a), a == angle, _choose.bind("angle", a), UiTheme.SMALL, true)
 		b.name = "Angle_" + a
 		mlist.add_child(b)
 	choices.add_child(mlist)
@@ -595,15 +595,20 @@ func _flow(node_name: String) -> HFlowContainer:
 	return f
 
 
-func _toggle(text: String, on: bool, on_press: Callable, font: int = UiTheme.SMALL) -> Button:
+## With maths, the text is drawn as maths: a class, unknown or method name can hold it,
+## "Substitute into u_n = u_1 + (n − 1)d". A topic tab's "12 / 20" is a count, not a fraction.
+func _toggle(text: String, on: bool, on_press: Callable, font: int = UiTheme.SMALL, maths := false) -> Button:
 	var b := Button.new()
-	b.text = text
 	b.toggle_mode = true
 	b.button_pressed = on
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b.add_theme_font_size_override("font_size", font)
+	if maths:
+		UiTheme.math_button(b, text)
+	else:
+		b.text = text
 	b.pressed.connect(on_press)
 	return b
 
@@ -638,7 +643,7 @@ func _show_versions() -> void:
 		return
 	question = first
 	_clear_card()
-	card.add_child(UiTheme.label("%s · %d versions" % [first.type_name, VERSIONS], UiTheme.SMALL, UiTheme.DIM))
+	card.add_child(UiTheme.math("%s · %d versions" % [first.type_name, VERSIONS], UiTheme.SMALL, UiTheme.DIM))
 	card.add_child(UiTheme.math(first.prompt, UiTheme.BODY))
 	var list := VBoxContainer.new()
 	list.name = "Versions"
@@ -665,7 +670,7 @@ func _show_versions() -> void:
 				inner.add_child(g)
 			if q.table != null:
 				inner.add_child(_table(q.table))
-			inner.add_child(UiTheme.label("Answer: " + q.answer_text, UiTheme.BODY, UiTheme.TEAL))
+			inner.add_child(UiTheme.math("Answer: " + q.answer_text, UiTheme.BODY, UiTheme.TEAL))
 		list.add_child(box)
 	answered = true
 

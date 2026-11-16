@@ -16,6 +16,9 @@ extends RefCounted
 ##   v1, v2      ints: speeds in km/h;  which  which length or route is asked
 ##   ab, ad, bc, a_angle, dbc  shared-side and quadrilateral-area: B and D are joined
 ##   rule, sides  rule-to-use: what is known about the triangle PQR
+##   d, al, be   t3-ext-two-observations (FAL-779): AB in whole metres and the angles of elevation
+##               of the top T from A and from B, whole degrees; B is between A and F, or (either
+##               side) F is between A and B. An exact height has al 30 and be 60, on Paper 1.
 ##
 ## The clean limits are the numbers behind the catalogue's `clean` text. The checker holds its
 ## own copy.
@@ -24,6 +27,9 @@ const TRIES := 6000
 const EDGE := 0.03
 const CONTEXTS := 6
 const RULES := ["sas", "sss", "aas", "right"]
+## t3-ext-two-observations' unknowns on one side of the foot, and all of them.
+const SAME_SIDE := ["angle-at-top", "slant-distance", "height-two-angles", "ground-distance"]
+const TWO_OBS := SAME_SIDE + ["height-exact", "height-either-side"]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
@@ -56,6 +62,16 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 				ok = _split(rng, s)
 			"rule-to-use":
 				ok = _rule(rng, s)
+			"angle-at-top", "slant-distance", "height-two-angles", "ground-distance":
+				ok = _two_obs(rng, s)
+			"height-exact":
+				s.paper = 1
+				s.al = 30
+				s.be = 60
+				s.d = Q.new(rng.int_in(2, 30) * 2)
+				ok = true
+			"height-either-side":
+				ok = _either_side(rng, s)
 		if ok and clear(s):
 			return s
 	return {}
@@ -69,7 +85,7 @@ static func clear(s: Dictionary) -> bool:
 	var vs: Array = [out.answer.values.v]
 	for w in out.wrongs:
 		vs.append(w.values.v)
-	for g in out.generic:
+	for g in out.fillers:
 		vs.append(g.v)
 	return vs.all(func(v): return v.to_float() <= 0.0 or Answer.rounds_clearly(v.to_float(), EDGE))
 
@@ -191,6 +207,38 @@ static func _rule(rng: Seeded, s: Dictionary) -> bool:
 	var b: int = s.sides[1]
 	var c: int = s.sides[2]
 	return a != b and b != c and a != c and a + b > c + 2 and a + c > b + 2 and b + c > a + 2
+
+
+# ── Two observations (t3-ext-two-observations) ───────────────
+
+## A shown 5 s.f. figure worked on gives the answer's 3 s.f.: the working is worked from what
+## it shows.
+static func same_3sf(shown_from: float, factor: float, exact: float) -> bool:
+	return Fmt.sf(BearingsViews.back(BearingsViews.W(shown_from)) * factor) == Fmt.sf(exact)
+
+
+static func _two_obs(rng: Seeded, s: Dictionary) -> bool:
+	s.al = rng.int_in(15, 45)
+	s.be = s.al + rng.int_in(10, 30)
+	s.d = Q.new(rng.int_in(20, 120))
+	if s.be > 75:
+		return false
+	var t := BearingsViews.two_sides(s)
+	var be := deg_to_rad(float(s.be))
+	# Each route's last step, from the figure the line before it shows.
+	return same_3sf(t.BT, sin(be), t.h) and same_3sf(t.BT, cos(be), t.BF) and same_3sf(t.BF, tan(be), t.h) \
+		and same_3sf(t.BF, 1.0 / cos(be), t.BT) and t.h < 150.0
+
+
+static func _either_side(rng: Seeded, s: Dictionary) -> bool:
+	s.al = rng.int_in(20, 70)
+	s.be = rng.int_in(20, 70)
+	s.d = Q.new(rng.int_in(40, 200))
+	if s.al == s.be or absi(s.al - s.be) < 8 or s.al + s.be > 140:
+		return false
+	var t := BearingsViews.either_sides(s)
+	var be := deg_to_rad(float(s.be))
+	return same_3sf(t.BT, sin(be), t.h) and same_3sf(t.BF, tan(be), t.h) and t.h < 150.0
 
 
 static func export(s: Dictionary) -> Dictionary:

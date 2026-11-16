@@ -16,6 +16,16 @@ const R_VARIANCE := SKILL + "standardise#1"
 const R_BOTH_POS := SKILL + "unknown-mean-and-sd#0"
 const R_PROB_Z := SKILL + "unknown-mean-and-sd#1"
 const R_ROUND_Z := SKILL + "unknown-mean-and-sd#2"
+const T := "t4-normal-unknown-parameter"
+const R_CDF := T + "#7"
+const R_SIGN_Z := T + "#8"
+const R_ONE_BOUND := T + "#9"
+const R_TIMES_Z := T + "#10"
+const R_WHOLE_WIDTH := T + "#11"
+const R_CENTRAL_LEFT := T + "#12"
+const R_NO_HALF := T + "#13"
+const R_MIDPOINT := T + "#14"
+const R_SIGMA := T + "#15"
 const INF := "10^99"
 
 ## The stories: what is normally distributed, and its unit.
@@ -152,8 +162,8 @@ func u_z_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"lines": ["Z ~ N(0, 1)", "P(Z %s k) = %s" % [rel(s.side), D(s.p)]], "asked": "Find k.", "answer": ans, "table": null}
 	if rep == "diagram":
 		out.graph = curve(0.0, 1.0, side_shade(z, s.side), [{"at": z, "label": "k"}, {"at": 0.0, "label": "0"}])
-	out.wrongs = [wrong({"v": qf(-z)}, R_UPPER)] if s.side == "gt" else []
-	out.generic = vs([-z, s.pz, z * 1.1, z + 0.5, z * 0.9])
+	out.wrongs = ([wrong({"v": qf(-z)}, R_UPPER)] if s.side == "gt" else []) + [wrong({"v": qf(s.pz)}, R_CDF)]
+	out.fillers = vs([-z, z * 1.1, z + 0.5, z * 0.9])
 	var left := left_q(s)
 	out.methods = {"invnorm-z-then-solve": method([_left_text(s), "k = invNorm(%s, 0, 1) = %s" % [D(left), W(z)], final_step(ans)], ans.values),
 		"gdc-solver": method(["Solve normalcdf(−%s, k, 0, 1) = %s for k: graph the left side and y = %s, or use the solver." % [INF, D(left), D(left)], "The graphs meet at k = %s." % W(z), final_step(ans)], ans.values)}
@@ -182,7 +192,8 @@ func u_standardise_event(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var flip := "<" if s.side == "gt" else ">"
 	var other := func(rr: String, v: Q) -> Dictionary: return {"rel": rr, "v": v, "text": "P(Z %s %s)" % [rr, D(v)]}
 	out.wrongs = [wrong(other.call(flip, s.zq), R_REVERSED), wrong(other.call(r, s.zv), R_VARIANCE)]
-	out.generic = [other.call(r, s.zq.neg()), other.call(flip, s.zq.neg()), other.call(r, s.zq.add(Q.new(1)))]
+	out.wrongs.append(wrong(other.call(r, s.zq.neg()), R_SIGN_Z))
+	out.fillers = [other.call(flip, s.zq.neg()), other.call(r, s.zq.add(Q.new(1)))]
 	var a: float = s.area
 	var line := "z = (x − μ) ÷ σ = (%d − %d) ÷ %d = %s" % [s.x, s.mu, s.sg, D(s.zq)]
 	var gdc_x := "normalcdf(%s) = %s" % [_bounds(s, str(s.x), "%d, %d" % [s.mu, s.sg]), W(a)]
@@ -207,7 +218,8 @@ func u_within_k_sd(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		asked = "Find the probability that a value is within %s standard deviations of the mean." % D(s.k)
 	var out := {"lines": lines, "asked": asked, "answer": ans, "table": null}
 	var pos: float = NormalUnknownSituation.phi(k)
-	out.generic = vs([pos, x / 2.0, 1.0 - x, x * 0.9])
+	out.wrongs = [wrong({"v": qf(pos)}, R_ONE_BOUND)]
+	out.fillers = vs([x / 2.0, 1.0 - x, x * 0.9])
 	out.methods = {"standardise-bounds": method(["μ − %sσ gives z = −%s and μ + %sσ gives z = %s, whatever μ and σ are." % [D(s.k), D(s.k), D(s.k), D(s.k)],
 			"P(−%s < Z < %s) = normalcdf(−%s, %s, 0, 1) = %s" % [D(s.k), D(s.k), D(s.k), D(s.k), W(x)], final_step(ans)], ans.values),
 		"gdc-both": method(["Try any values: μ = 0 and σ = 1, or μ = 50 and σ = 10.", "normalcdf(−%s, %s, 0, 1) = %s, and the other pair gives the same area." % [D(s.k), D(s.k), W(x)], final_step(ans)], ans.values)}
@@ -223,8 +235,8 @@ func u_unknown_sd(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = curve(float(s.mu), sg, side_shade(float(s.x), s.side), [{"at": float(s.x), "label": str(s.x)}, {"at": float(s.mu), "label": str(s.mu)}])
 	var gap := absi(s.x - s.mu)
-	out.wrongs = [wrong({"v": qf(-sg)}, R_NEG_SD)]
-	out.generic = vs([gap * absf(s.z), gap / s.p.to_float(), sg * 1.1, sg * 0.9])
+	out.wrongs = [wrong({"v": qf(-sg)}, R_NEG_SD), wrong({"v": qf(gap * absf(s.z))}, R_TIMES_Z), wrong({"v": qf(gap / s.p.to_float())}, R_PROB_Z)]
+	out.fillers = vs([sg * 1.1, sg * 0.9])
 	var left := left_q(s)
 	out.methods = {"invnorm-z-then-solve": method([left_step(s, s.x), "z = invNorm(%s, 0, 1) = %s" % [D(left), W(s.z)],
 			"z = (x − μ) ÷ σ, so σ = (%d − %d) ÷ %s" % [s.x, s.mu, _paren(s.z)], final_step(ans)], ans.values),
@@ -238,8 +250,8 @@ func u_unknown_mean(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"lines": [model(rep, s, null, s.sg), tail_line(rep, s, s.x, s.side, s.p)], "asked": find(rep, "μ", "mean"), "answer": ans, "table": null}
 	if rep == "diagram":
 		out.graph = curve(mu, float(s.sg), side_shade(float(s.x), s.side), [{"at": float(s.x), "label": str(s.x)}, {"at": mu, "label": "μ"}])
-	out.wrongs = [wrong({"v": qf(s.mw)}, R_UPPER)]
-	out.generic = vs([s.x - s.p.to_float() * s.sg, s.x + s.p.to_float() * s.sg, mu * 1.1, mu * 0.9])
+	out.wrongs = [wrong({"v": qf(s.mw)}, R_UPPER), wrong({"v": qf(s.x - s.p.to_float() * s.sg)}, R_PROB_Z)]
+	out.fillers = vs([s.x + s.p.to_float() * s.sg, mu * 1.1, mu * 0.9])
 	var left := left_q(s)
 	out.methods = {"invnorm-z-then-solve": method([left_step(s, s.x), "z = invNorm(%s, 0, 1) = %s" % [D(left), W(s.z)],
 			"z = (x − μ) ÷ σ, so μ = %d − %s × %d" % [s.x, _paren(s.z), s.sg], final_step(ans)], ans.values),
@@ -257,7 +269,8 @@ func u_sd_from_iqr(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var half: Q = s.iqr.div(Q.new(2))
 	var line: String = "The interquartile range of X is %s." % D(s.iqr) if rep != "words" else "The interquartile range is %s%s." % [D(s.iqr), ctx(s).unit]
 	var out := {"lines": [model(rep, s, s.mu, null), line], "asked": find(rep, "σ", "standard deviation"), "answer": ans, "table": null}
-	out.generic = vs([sg * 2.0, s.iqr.to_float() / 4.0 / s.z, s.iqr.to_float() / 2.0, s.iqr.to_float(), sg * 1.1])
+	out.wrongs = [wrong({"v": qf(sg * 2.0)}, R_WHOLE_WIDTH)]
+	out.fillers = vs([s.iqr.to_float() / 4.0 / s.z, s.iqr.to_float() / 2.0, s.iqr.to_float(), sg * 1.1])
 	var q3: Q = Q.new(s.mu).add(half)
 	out.methods = {"invnorm-z-then-solve": method(["The quartiles sit equally either side of the mean, so Q₃ = %d + %s = %s, and 75%% of values are below it." % [s.mu, D(half), D(q3)],
 			"z = invNorm(0.75, 0, 1) = %s" % W(s.z), "z = (x − μ) ÷ σ, so σ = %s ÷ %s" % [D(half), W(s.z)], final_step(ans)], ans.values),
@@ -276,7 +289,8 @@ func u_sd_from_central_area(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	if rep == "diagram":
 		out.graph = curve(float(s.mu), sg, [[float(lo), float(hi)]], [{"at": float(lo), "label": str(lo)}, {"at": float(s.mu), "label": str(s.mu)}, {"at": float(hi), "label": str(hi)}])
 	# With a central area of 0.5 the one-tail slip divides by z = 0, up to rounding.
-	out.generic = vs(([s.sw] if not s.c.eq(Q.new(1, 2)) else []) + [sg * 2.0, s.a * s.z, sg * 1.1, sg * 0.9])
+	out.wrongs = ([wrong({"v": qf(s.sw)}, R_CENTRAL_LEFT)] if not s.c.eq(Q.new(1, 2)) else []) + [wrong({"v": qf(s.a * s.z)}, R_TIMES_Z)]
+	out.fillers = vs([sg * 2.0, sg * 1.1, sg * 0.9])
 	var tails: Q = Q.new(1).sub(s.c).div(Q.new(2))
 	var left: Q = Q.new(1).sub(tails)
 	out.methods = {"invnorm-z-then-solve": method(["The two tails share 1 − %s, so each is %s, and the area to the left of %d is %s." % [D(s.c), D(tails), hi, D(left)],
@@ -302,7 +316,7 @@ func u_mean_and_sd(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong(two.call(s.prb), R_PROB_Z), wrong(two.call(s.dp1), R_ROUND_Z)]
 	if not s.pos.is_empty():
 		out.wrongs.insert(0, wrong(two.call(s.pos), R_BOTH_POS))
-	out.generic = [{"v0": qf(s.sg), "v1": qf(s.mu)}, {"v0": qf(s.mu * 1.1), "v1": qf(s.sg)}, {"v0": qf(s.mu), "v1": qf(s.sg * 1.1)}]
+	out.fillers = [{"v0": qf(s.sg), "v1": qf(s.mu)}, {"v0": qf(s.mu * 1.1), "v1": qf(s.sg)}, {"v0": qf(s.mu), "v1": qf(s.sg * 1.1)}]
 	var a1 := D(s.p1)
 	var a2 := D(Q.new(1).sub(s.p2)) if s.form == "tails" else D(s.p2)
 	var eq1 := "μ %s σ = %d" % [_z_term(s.z1), s.x1]
@@ -329,7 +343,8 @@ func u_mean_from_equal_tails(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	if rep == "diagram":
 		var sg: float = s.half / 1.2
 		out.graph = curve(float(s.mu), sg, [[null, float(s.a1)], [float(s.b1), null]], [{"at": float(s.a1), "label": str(s.a1)}, {"at": float(s.b1), "label": str(s.b1)}])
-	out.generic = [{"v": Q.new(s.b1 - s.a1)}, {"v": Q.new(s.half)}, {"v": Q.new(s.a1 + s.b1)}, {"v": Q.new(s.mu + 1)}]
+	out.wrongs = [wrong({"v": Q.new(s.a1 + s.b1)}, R_NO_HALF)]
+	out.fillers = [{"v": Q.new(s.b1 - s.a1)}, {"v": Q.new(s.half)}, {"v": Q.new(s.mu + 1)}]
 	out.methods = {"symmetric-tails": method(["Equal tails sit equally far either side of the mean.", "μ = (%d + %d) ÷ 2 = %d" % [s.a1, s.b1, s.mu], final_step(ans)], ans.values)}
 	return out
 
@@ -341,7 +356,8 @@ func u_sd_from_equal_tails(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	if rep == "words":
 		line = "%s%% of them are below %d%s, and %s%% are above %d%s." % [pct(s.p), s.a1, ctx(s).unit, pct(s.p), s.b1, ctx(s).unit]
 	var out := {"lines": [model(rep, s, null, null) if rep == "words" else "X ~ N(μ, σ²)", line], "asked": find(rep, "σ", "standard deviation"), "answer": ans, "table": null}
-	out.generic = vs([s.half * 2.0 / s.z, s.half * s.z, sg * 1.1, sg * 0.9])
+	out.wrongs = [wrong({"v": qf(s.half * 2.0 / s.z)}, R_WHOLE_WIDTH), wrong({"v": qf(s.half * s.z)}, R_TIMES_Z)]
+	out.fillers = vs([sg * 1.1, sg * 0.9])
 	var left: Q = Q.new(1).sub(s.p)
 	out.methods = {"symmetric-tails": method(["Equal tails put μ in the middle: μ = (%d + %d) ÷ 2 = %d." % [s.a1, s.b1, s.mu], "z = invNorm(%s, 0, 1) = %s" % [D(left), W(s.z)],
 			"%d = %d + zσ, so σ = %d ÷ %s" % [s.b1, s.mu, s.half, W(s.z)], final_step(ans)], ans.values),
@@ -360,7 +376,8 @@ func u_mean_from_two_z(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		lines = ["X ~ N(μ, σ²)", "x = %s has z = %s" % [D(s.x1), D(s.z1)], "x = %s has z = %s" % [D(s.x2), D(s.z2)]]
 	var out := {"lines": lines, "asked": find(rep, "μ", "mean"), "answer": ans, "table": null}
 	var mid: Q = s.x1.add(s.x2).div(Q.new(2))
-	out.generic = [{"v": mid}, {"v": Q.new(s.sg)}, {"v": s.x1.sub(s.z1)}, {"v": Q.new(s.mu + s.sg)}]
+	out.wrongs = [wrong({"v": mid}, R_MIDPOINT), wrong({"v": Q.new(s.sg)}, R_SIGMA)]
+	out.fillers = [{"v": s.x1.sub(s.z1)}, {"v": Q.new(s.mu + s.sg)}]
 	var dz: Q = s.z2.sub(s.z1)
 	var dx: Q = s.x2.sub(s.x1)
 	var eq1 := "μ %s %sσ = %s" % ["−" if s.z1.sign() < 0 else "+", D(s.z1.abs_q()), D(s.x1)]

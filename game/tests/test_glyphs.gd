@@ -37,12 +37,12 @@ func test_powers_are_cut_out_of_the_text() -> void:
 	check_eq(Fmt.power_runs("e^x + 1"), [["e", false], ["x", true], [" + 1", false]])
 
 
-func test_only_text_with_a_power_is_rich_text() -> void:
+func test_only_text_with_a_power_is_drawn_as_maths() -> void:
 	var plain := UiTheme.math("x² + 1")
 	check(plain is Label, "plain text stays a label")
 	plain.free()
 	var rich := UiTheme.math("e^(2x)", UiTheme.BODY, UiTheme.SAND, true)
-	check(rich is RichTextLabel, "a power is rich text")
+	check(rich is MathLabel, "a power is drawn raised (FAL-797: a MathLabel, not rich text)")
 	check_eq(rich.mouse_filter, Control.MOUSE_FILTER_IGNORE, "a swipe starts on it, as on a label")
 	check_eq(rich.get_parsed_text(), "e2x")
 	rich.free()

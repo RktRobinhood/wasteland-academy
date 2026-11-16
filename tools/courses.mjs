@@ -71,6 +71,17 @@ export function build() {
           if (!sk.id?.startsWith(st.id + '.')) errors.push(`${where}: skill ID must start with ${st.id}.`);
           if (!sk.name) errors.push(`${where}: no name`);
           if (!ENUMS.paper.includes(sk.paper)) errors.push(`${where}: bad paper ${sk.paper}`);
+          // A skill may narrow its subtopic's courses, where a shared subtopic has a skill one guide doesn't ask for.
+          if ('courses' in sk) {
+            const kc = sk.courses;
+            if (!Array.isArray(kc) || !kc.length) errors.push(`${where}: courses must be a non-empty list`);
+            else {
+              for (const c of kc) if (!cs.includes(c)) errors.push(`${where}: course ${c} is not a course of ${st.id}`);
+              if (kc.length === cs.length) errors.push(`${where}: courses repeats the subtopic's; leave it out`);
+              if (kc.includes('aa-sl') && !kc.includes('aa-hl')) errors.push(`${where}: an AA SL skill is in AA HL too`);
+              if (kc.includes('ai-sl') && !kc.includes('ai-hl')) errors.push(`${where}: an AI SL skill is in AI HL too`);
+            }
+          }
           if (l.key === 'ai' && sk.paper !== 'p2') errors.push(`${where}: AI skills are p2 (every AI paper allows a GDC)`);
           if (sk.difficulty) {
             const [lo, hi] = sk.difficulty;
@@ -127,6 +138,23 @@ export function build() {
     if (layer !== 'ai' && coursesOf(id).some(c => c.startsWith('ai-')) && !sharedIds.has(id))
       errors.push(`${id} lists an AI course but is not in ai.json shared`);
 
+  // curriculum/bank-types.json: the bank's unbuilt HL and AI types (tools/question-types.mjs
+  // merges them). Each course a type names is one of the four, and every subtopic its syllabus
+  // codes and skills land in is a live subtopic of each of those courses.
+  const bankTypes = fs.existsSync(path.join(ROOT, 'curriculum/bank-types.json')) ? readJSON('curriculum/bank-types.json').types : [];
+  for (const t of bankTypes) {
+    const w = `bank-types ${t.id}`;
+    if (!t.courses?.length) errors.push(`${w}: no courses`);
+    for (const c of t.courses || []) if (!COURSE_IDS.includes(c)) errors.push(`${w}: unknown course ${c}`);
+    (t.subtopics || []).forEach((s, i) => { if (s == null) errors.push(`${w}: syllabus ${t.syllabus[i]} names no statement in the bank`); });
+    const skillIds = [...(t.skills || []), ...(t.unknowns || []).flatMap(u => u.skills || [])];
+    const subs = new Set([...(t.subtopics || []).filter(Boolean), ...skillIds.map(s => s.split('.').slice(0, 2).join('.'))]);
+    for (const s of subs) {
+      if (!subtopics.has(s) || subtopics.get(s).st.retired) { errors.push(`${w}: unknown subtopic ${s}`); continue; }
+      for (const c of t.courses || []) if (!coursesOf(s).includes(c)) errors.push(`${w}: ${s} is not in ${c}`);
+    }
+  }
+
   // ── 2. Count ─────────────────────────────────────────────────
   const live = [...subtopics.values()].filter(x => !x.st.retired);
   const topicNames = Object.fromEntries(byKey['aa-sl'].map.topics.map(t => [t.topic, t.name]));
@@ -137,21 +165,24 @@ export function build() {
     return { 'aa-sl': sl, 'aa-hl': sl + ahl, 'ai-sl': ai.sl, 'ai-hl': ai.sl + ai.ahl }[course];
   };
   const inCourse = (course, n) => live.filter(x => x.topic === n && x.st.courses.includes(course));
-  const skillCount = list => list.reduce((s, x) => s + x.st.skills.length, 0);
+  // A skill is in a course when its subtopic is, unless the skill lists its own courses.
+  const skillCount = (list, course) => list.reduce((s, x) => s + x.st.skills.filter(k => (k.courses || x.st.courses).includes(course)).length, 0);
   const isThin = sk => THIN_FIELDS.some(f => !sk[f]?.length);
 
   // `subtopics` lists the subtopic IDs the course covers, so the engine can tell which
   // questions a student on that course may be asked (a skill's subtopic is its first two
-  // dot-separated parts, as in engine/courses.gd).
+  // dot-separated parts, as in engine/courses.gd). `skills` lists the skills that narrow
+  // their subtopic's courses, each with its own; the engine reads those first.
   const index = {
     courses: COURSES.map(c => ({
       ...c,
       topics: [1, 2, 3, 4, 5].map(n => {
         const list = inCourse(c.id, n);
-        return { n, name: topicNames[n], subtopics: list.length, skills: skillCount(list), hours: topicHours(c.id, n) };
+        return { n, name: topicNames[n], subtopics: list.length, skills: skillCount(list, c.id), hours: topicHours(c.id, n) };
       }),
       subtopics: live.filter(x => x.st.courses.includes(c.id)).map(x => x.st.id),
     })),
+    skills: Object.fromEntries(live.flatMap(x => x.st.skills.filter(k => k.courses).map(k => [k.id, k.courses]))),
   };
   for (const c of index.courses) for (const t of c.topics)
     if (!Number.isFinite(t.hours)) errors.push(`${c.id} topic ${t.n}: no hours`);
@@ -181,7 +212,7 @@ export function build() {
     row(['---', '--:', '--:', '--:', '--:', '--:', '--:']));
   for (const n of [1, 2, 3, 4, 5]) {
     const s = inCourse('aa-sl', n), h = inCourse('aa-hl', n).filter(x => x.layer === 'aa-hl');
-    md.push(row([`${n}. ${topicNames[n]}`, s.length, skillCount(s), topicHours('aa-sl', n), h.length, skillCount(h), topicHours('aa-hl', n) - topicHours('aa-sl', n)]));
+    md.push(row([`${n}. ${topicNames[n]}`, s.length, skillCount(s, 'aa-sl'), topicHours('aa-sl', n), h.length, skillCount(h, 'aa-hl'), topicHours('aa-hl', n) - topicHours('aa-sl', n)]));
   }
   md.push('');
   for (const n of [1, 2, 3, 4, 5]) {
@@ -198,7 +229,7 @@ export function build() {
     const all = live.filter(x => x.st.courses.includes(cid));
     const sh = all.filter(x => x.layer !== 'ai');
     const pct = Math.round(100 * sh.length / all.length);
-    md.push(row([COURSES.find(c => c.id === cid).short, all.length, sh.length, all.length - sh.length, skillCount(all), skillCount(sh), `${pct}% of subtopics`]));
+    md.push(row([COURSES.find(c => c.id === cid).short, all.length, sh.length, all.length - sh.length, skillCount(all, cid), skillCount(sh, cid), `${pct}% of subtopics`]));
   }
   md.push('', row(['Topic', 'AI SL: shared / all', 'AI HL: shared / all']), row(['---', '--:', '--:']));
   for (const n of [1, 2, 3, 4, 5]) {
@@ -233,7 +264,7 @@ export function build() {
   const mdText = md.join('\n');
   const jsonText = JSON.stringify(index, null, 2) + '\n';
   const line = index.courses.map(c => `${c.short} ${sum(c.topics, 'subtopics')}/${sum(c.topics, 'skills')}`).join(', ');
-  return { errors, warnings, index, thin, jsonText, mdText, line };
+  return { errors, warnings, index, thin, jsonText, mdText, line, bankTypes: bankTypes.length };
 }
 
 // ── 4. Output ────────────────────────────────────────────────
@@ -241,7 +272,7 @@ export const OUT = { json: 'game/data/courses.json', md: 'curriculum/COURSES.md'
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = new Set(process.argv.slice(2));
-  const { errors, warnings, thin, jsonText, mdText, line } = build();
+  const { errors, warnings, thin, jsonText, mdText, line, bankTypes } = build();
   if (errors.length) {
     console.error(`Course map has ${errors.length} error(s):\n  ` + errors.join('\n  '));
     process.exit(1);
@@ -253,7 +284,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       console.error(`Out of date: ${stale.join(', ')}. Run node tools/courses.mjs --write`);
       process.exit(1);
     }
-    console.log(`Courses OK (subtopics/skills): ${line}. ${thin.length} thin skills, ${warnings.length} cross-course prereqs.`);
+    console.log(`Courses OK (subtopics/skills): ${line}. ${thin.length} thin skills, ${warnings.length} cross-course prereqs, ${bankTypes} unbuilt bank types.`);
     process.exit(0);
   }
   if (args.has('--write')) {

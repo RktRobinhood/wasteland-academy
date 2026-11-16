@@ -120,7 +120,7 @@ var timer_label: Label
 var timer_fill: StyleBoxFlat
 var lifeline_buttons := {}
 var badge: Control
-var hint_label: Label
+var hint_label: MathLabel
 var summary_box: VBoxContainer
 var floor_box: VBoxContainer
 ## The deep link's jump to a fight (1: none).
@@ -685,7 +685,7 @@ func _show_question() -> void:
 		taunt.name = "Taunt"
 		card.add_child(taunt)
 		card.move_child(taunt, 0)
-	hint_label = UiTheme.label("", UiTheme.BODY, UiTheme.SAND)
+	hint_label = UiTheme.math_label("", UiTheme.BODY, UiTheme.SAND)
 	hint_label.name = "Hint"
 	hint_label.visible = false
 	card.add_child(hint_label)
@@ -714,7 +714,7 @@ func _show_boss_part() -> void:
 			var right: bool = answers[i].outcome in ["right", "late", "glancing"]
 			var pv: Dictionary = b.parts[i].view
 			var asked: String = QuestionEngine.unknown_of(QuestionEngine.type_of(pv.type), pv.unknown).get("asked", "")
-			done.add_child(UiTheme.label("(%s) %s · %s: %s" % [QuestionEngine.part_letter(i), "right" if right else "missed",
+			done.add_child(UiTheme.math("(%s) %s · %s: %s" % [QuestionEngine.part_letter(i), "right" if right else "missed",
 				asked, b.parts[i].answer_text], UiTheme.SMALL, UiTheme.TEAL if right else UiTheme.DIM))
 		card.add_child(done)
 		card.move_child(done, at)
@@ -724,7 +724,7 @@ func _show_boss_part() -> void:
 		var box := PanelContainer.new()
 		box.name = "Carried"
 		box.add_theme_stylebox_override("panel", UiTheme.panel())
-		var l := UiTheme.label("From part (%s): %s. Carry on from this." % [q.carried.part, q.carried.text], UiTheme.BODY, UiTheme.SAND)
+		var l := UiTheme.math("From part (%s): %s. Carry on from this." % [q.carried.part, q.carried.text], UiTheme.BODY, UiTheme.SAND)
 		box.add_child(l)
 		card.add_child(box)
 		card.move_child(box, at)
@@ -736,8 +736,10 @@ func _update_progress() -> void:
 		return
 	var what := "%s %d of %d" % ["fight" if job.is_empty() else "stop", run.fight, Tuning.FIGHTS_PER_FLOOR]
 	if not run.boss.is_empty():
+		# The part on the card: the one just answered until Next part opens the next (FAL-970).
+		var at: int = run.boss.part - (1 if run.state == "result" else 0)
 		what += " · %s part (%s) of %d" % ["boss" if run.kind == "boss" else "mini-boss",
-			QuestionEngine.part_letter(mini(run.boss.part, run.boss.parts.size() - 1)), run.boss.parts.size()]
+			QuestionEngine.part_letter(clampi(at, 0, run.boss.parts.size() - 1)), run.boss.parts.size()]
 	else:
 		what += " · question %d" % run.question_no
 	progress.text = "Floor %d · %s · a miss costs %d HP" % [run.floor_no, what, run.enemy.damage]
@@ -850,14 +852,18 @@ func _show_result(r: Dictionary) -> void:
 	SaveData.store(save, save_path)
 	feedback.visible = true
 	var color := UiTheme.TEAL
+	# A boss's bar counts parts, not HP: every part answered takes one, right or not (Q9).
+	var boss_part: bool = int(r.get("part", -1)) >= 0
 	match r.outcome:
 		"right":
-			if job.is_empty():
+			if boss_part:
+				feedback.text = "Hit! +%d Scrap" % (r.scrap + r.bonus)
+			elif job.is_empty():
 				feedback.text = "Hit! −%d enemy HP · +%d Scrap" % [r.enemy_damage, r.scrap + r.bonus]
 			else:
 				feedback.text = "%s +%d Scrap" % [job.hit, r.scrap + r.bonus]
 		"glancing":
-			feedback.text = "%s %s %s" % ["Glancing hit: half damage." if job.is_empty() else "It barely moves: half the work.",
+			feedback.text = "%s %s %s" % ["Glancing hit." if boss_part else ("Glancing hit: half damage." if job.is_empty() else "It barely moves: half the work."),
 				r.note, QuestionEngine.answer_sentence(question)]
 			color = UiTheme.SAND
 		"late":
@@ -879,6 +885,10 @@ func _show_result(r: Dictionary) -> void:
 		feedback.text += "\nWatch out: " + why + "."
 	if question.has("reason") and r.outcome != "right":
 		feedback.text += "\n" + question.reason
+	if boss_part and not r.defeated and not r.dead:
+		var left: int = run.boss.parts.size() - run.boss.part
+		feedback.text += "\nPart (%s) done · %d of %d %s to go." % [QuestionEngine.part_letter(r.part), left,
+			run.boss.parts.size(), "part" if left == 1 else "parts"]
 	if r.get("carry", "") != "" and r.outcome in ["wrong", "timeout", "glancing"]:
 		feedback.text += "\nPart (%s) carries on from %s." % [QuestionEngine.part_letter(r.part + 1), r.carry]
 	if r.defeated:
@@ -920,7 +930,8 @@ func _show_result(r: Dictionary) -> void:
 			b.disabled = true
 	_update_hud()
 	_reveal_result()
-	if r.enemy_damage > 0:
+	# A boss part missed still uses the part up, but it isn't a hit.
+	if r.enemy_damage > 0 and r.outcome in ["right", "glancing", "late"]:
 		flash_hurt()
 
 
@@ -1010,7 +1021,7 @@ func _show_summary(s: Dictionary) -> void:
 	list.name = "Missed"
 	list.add_theme_constant_override("separation", 8)
 	for m in s.missed:
-		list.add_child(UiTheme.label("• " + m, UiTheme.BODY))
+		list.add_child(UiTheme.math("• " + m, UiTheme.BODY))
 	summary_box.add_child(list)
 	var again := Button.new()
 	again.name = "PlayAgain"

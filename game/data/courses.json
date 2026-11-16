@@ -262,7 +262,7 @@
           "n": 5,
           "name": "Calculus",
           "subtopics": 8,
-          "skills": 40,
+          "skills": 38,
           "hours": 19
         }
       ],
@@ -346,7 +346,7 @@
           "n": 5,
           "name": "Calculus",
           "subtopics": 18,
-          "skills": 89,
+          "skills": 87,
           "hours": 41
         }
       ],
@@ -431,5 +431,15 @@
         "AI-AHL5.18"
       ]
     }
-  ]
+  ],
+  "skills": {
+    "SL5.2.show-always-increasing": [
+      "aa-sl",
+      "aa-hl"
+    ],
+    "SL5.2.parameter-for-monotonic": [
+      "aa-sl",
+      "aa-hl"
+    ]
+  }
 }

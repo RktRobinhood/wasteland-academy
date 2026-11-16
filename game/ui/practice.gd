@@ -30,6 +30,8 @@ const LAYOUT_FRAMES := 3
 
 ## The region the map asked for, read once by _ready().
 static var launch_region := ""
+## A view to open on, read once by _ready(): the explainer's "Your turn" (FAL-429).
+static var launch_view := {}
 
 ## Where the save lives. Tests point this somewhere else.
 var save_path := SaveData.PATH
@@ -39,12 +41,12 @@ var answered := false
 ## Plan from this region only ("" for every built type).
 var practice_region := ""
 
-var _slots := {}        # slot id -> LineEdit
+var _slots := {}        # slot id -> MathEntry
 var _picks := {}        # pick id -> chosen option ("" until chosen)
 var _pick_buttons := {} # pick id -> Array of Buttons
 var _choice := -1
 var _choice_buttons: Array = []
-var _focus: LineEdit
+var _focus: MathEntry
 var _press_at := Vector2.ZERO
 
 var margin: MarginContainer
@@ -57,7 +59,7 @@ var scroll: ScrollContainer
 var card: VBoxContainer
 var check_button: Button
 var next_button: Button
-var feedback: Label
+var feedback: MathLabel
 var working: VBoxContainer
 ## The in-game calculator (FAL-419), made the first time a Paper 2 question opens it.
 var calculator: Calculator
@@ -76,7 +78,11 @@ func _ready() -> void:
 	resized.connect(_fit)
 	_fit()
 	var deep := deep_link()
-	if not deep.is_empty():
+	if not launch_view.is_empty():
+		var v := launch_view
+		launch_view = {}
+		show_view(v)
+	elif not deep.is_empty():
 		show_view(deep.view)
 		if deep.autoplay != "":
 			autoplay(deep.autoplay == "right")
@@ -143,6 +149,10 @@ func _build() -> void:
 	scroll.name = "Scroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# The bar's width kept whether it shows or not: a card just about a screen tall
+	# otherwise flips the bar on and off, rewrapping its text each time, until the
+	# message queue runs out (FAL-429, with "Watch it" under the working).
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
 	scroll.scroll_deadzone = SWIPE_DEADZONE
 	col.add_child(scroll)
 	card = VBoxContainer.new()
@@ -200,7 +210,8 @@ func render_question() -> void:
 	var meta_row := HBoxContainer.new()
 	meta_row.name = "MetaRow"
 	meta_row.add_theme_constant_override("separation", 16)
-	var meta_label := UiTheme.label(meta, UiTheme.SMALL, UiTheme.DIM)
+	# A type name can hold maths: "Asymptotes and intercepts of (ax + b)/(cx + d)".
+	var meta_label := UiTheme.math(meta, UiTheme.SMALL, UiTheme.DIM)
 	meta_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	meta_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	meta_row.add_child(meta_label)
@@ -230,7 +241,7 @@ func render_question() -> void:
 	check_button.add_theme_font_size_override("font_size", UiTheme.BIG)
 	check_button.pressed.connect(check_answer)
 	card.add_child(check_button)
-	feedback = UiTheme.label("", UiTheme.BODY)
+	feedback = UiTheme.math_label("", UiTheme.BODY)
 	feedback.name = "Feedback"
 	feedback.visible = false
 	card.add_child(feedback)
@@ -310,6 +321,10 @@ static func graph_for(spec: Dictionary) -> Control:
 	var g: Control = PlotView.new() if spec.get("kind", "") != "" else GraphView.new()
 	g.name = "Graph"
 	g.set_spec(spec)
+	# A curve drawn to its box: in the fight's card it gives up to a quarter of its height
+	# before Attack goes off the bottom (ui/fit_box.gd, FAL-970).
+	if g is GraphView:
+		g.set_meta(FitBox.LEAST, roundf(g.custom_minimum_size.y * 0.75))
 	return g
 
 
@@ -326,13 +341,11 @@ func _table(t: Dictionary) -> Control:
 	grid.add_theme_constant_override("h_separation", 6)
 	grid.add_theme_constant_override("v_separation", 10)
 	for row in rows:
-		var head := UiTheme.label(row[0], UiTheme.BODY, UiTheme.SAND)
-		head.autowrap_mode = TextServer.AUTOWRAP_OFF
+		var head := _one_line(UiTheme.math(row[0], UiTheme.BODY, UiTheme.SAND))
 		grid.add_child(head)
 		for v in row[1]:
-			var cell := UiTheme.label(v, UiTheme.BODY)
-			cell.autowrap_mode = TextServer.AUTOWRAP_OFF
-			cell.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			var cell := _one_line(UiTheme.math(v, UiTheme.BODY, UiTheme.TEXT, true))
+			cell.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			grid.add_child(cell)
 	box.add_child(grid)
@@ -346,6 +359,15 @@ func _table(t: Dictionary) -> Control:
 	return wrap
 
 
+## A table cell's maths on one line, as a Label with autowrap off.
+static func _one_line(c: Control) -> Control:
+	if c is Label:
+		c.autowrap_mode = TextServer.AUTOWRAP_OFF
+	else:
+		c.autowrap = false
+	return c
+
+
 ## The answer as slots: text with boxes to type numbers in and buttons for words.
 func _add_slots() -> void:
 	var flow := HFlowContainer.new()
@@ -355,24 +377,22 @@ func _add_slots() -> void:
 	for item in question.answer.template:
 		if item is String:
 			if item != "":
-				var l := UiTheme.label(item, UiTheme.BIG)
-				l.autowrap_mode = TextServer.AUTOWRAP_OFF
+				# The text round the boxes is maths too: 10^(x/2) + [ ], dy/dx = [ ].
+				var l := _one_line(UiTheme.math(item, UiTheme.BIG))
 				l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 				flow.add_child(l)
 		elif item.has("slot"):
-			var e := LineEdit.new()
+			# Typed in maths notation (FAL-812): the fraction key stacks a fraction.
+			var e := MathEntry.new()
 			e.name = "Slot_" + item.slot
 			e.custom_minimum_size = Vector2(150, 0)
 			# Grows as it's typed in, so every digit shows and the box says nothing about the
 			# answer's length. Not past the card: 0.00000842 hid its zeros at a fixed width.
-			e.expand_to_text_length = true
 			e.max_length = SLOT_CHARS
-			e.alignment = HORIZONTAL_ALIGNMENT_CENTER
-			e.placeholder_text = "?"
-			e.virtual_keyboard_enabled = false
-			# A LineEdit keeps every touch, so on a touch screen the row hears it instead.
-			if DisplayServer.is_touchscreen_available():
-				e.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			e.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			# The row hears every touch and puts the cursor where a tap lands, so a swipe that
+			# starts on a box still scrolls the card.
+			e.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			e.focus_entered.connect(func(): _focus = e)
 			e.text_submitted.connect(func(_t): check_answer())
 			flow.add_child(e)
@@ -383,19 +403,20 @@ func _add_slots() -> void:
 			_picks[item.pick] = ""
 			for opt in item.options:
 				var b := Button.new()
-				b.text = opt
 				b.toggle_mode = true
 				b.button_group = group
 				b.add_theme_font_size_override("font_size", UiTheme.BIG)
+				UiTheme.math_button(b, opt)
 				b.pressed.connect(func(): _picks[item.pick] = opt)
 				flow.add_child(b)
 				buttons.append(b)
 			_pick_buttons[item.pick] = buttons
 	flow.gui_input.connect(func(e: InputEvent):
 		if _tapped(e):
-			for box: LineEdit in _slots.values():
-				if box.get_rect().has_point(e.position):
-					box.grab_focus())
+			for box: MathEntry in _slots.values():
+				if box.editable and box.get_rect().has_point(e.position):
+					box.grab_focus()
+					box.tap_at(e.position - box.position))
 	card.add_child(flow)
 	# A long answer wraps on a line of its own, not off the side of a phone. Measured
 	# here, in the card, where the buttons have their font.
@@ -405,6 +426,7 @@ func _add_slots() -> void:
 				b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 				b.custom_minimum_size.x = PICK_WIDE
+				UiTheme.fit_math_button(b)
 	if not _slots.is_empty():
 		card.add_child(_keypad())
 		_focus = _slots.values()[0]
@@ -419,7 +441,7 @@ func _grab(e: Variant) -> void:
 
 ## Number keys, so a phone needs no system keyboard: the keypad the calculator shares.
 func _keypad() -> Control:
-	var pad := Keypad.make()
+	var pad := Keypad.make_answer()
 	pad.key.connect(_on_key)
 	return pad
 
@@ -427,11 +449,7 @@ func _keypad() -> Control:
 func _on_key(k: String) -> void:
 	if answered or _focus == null:
 		return
-	if k == "Del":
-		_focus.text = _focus.text.left(-1)
-	else:
-		_focus.text += "-" if k == "−" else k
-	_focus.caret_column = _focus.text.length()
+	_focus.press(k)
 
 
 func _add_options(texts: Array) -> void:
@@ -441,12 +459,12 @@ func _add_options(texts: Array) -> void:
 	var group := ButtonGroup.new()
 	for i in texts.size():
 		var b := Button.new()
-		b.text = texts[i]
 		b.toggle_mode = true
 		b.button_group = group
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.add_theme_font_size_override("font_size", UiTheme.BIG if question.format == "probe" else UiTheme.BODY)
+		UiTheme.math_button(b, texts[i])
 		b.pressed.connect(func(): _choice = i)
 		box.add_child(b)
 		_choice_buttons.append(b)
@@ -473,10 +491,10 @@ func _add_graph_options() -> void:
 		g.mouse_filter = Control.MOUSE_FILTER_STOP
 		g.set_spec(question.graphs[i])
 		var b := Button.new()
-		b.text = question.choices[i].text
 		b.toggle_mode = true
 		b.button_group = group
 		b.add_theme_font_size_override("font_size", UiTheme.BODY)
+		UiTheme.math_button(b, question.choices[i].text)
 		b.pressed.connect(func(): _choice = i)
 		g.gui_input.connect(func(e: InputEvent):
 			if _tapped(e) and not b.disabled:
@@ -610,12 +628,12 @@ func _show_working() -> void:
 	for i in question.solutions.size():
 		var sol: Dictionary = question.solutions[i]
 		var b := Button.new()
-		b.text = sol.name if i == 0 else "Another way: " + sol.name
 		b.toggle_mode = true
 		b.button_group = group
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.add_theme_font_size_override("font_size", UiTheme.SMALL)
+		UiTheme.math_button(b, sol.name if i == 0 else "Another way: " + sol.name)
 		b.pressed.connect(_show_steps.bind(steps, i))
 		tabs.add_child(b)
 		if i == 0:
@@ -635,6 +653,25 @@ func _show_steps(box: VBoxContainer, i: int) -> void:
 	box.add_child(UiTheme.math(sol.name, UiTheme.SMALL, UiTheme.DIM))
 	for st in sol.steps:
 		box.add_child(UiTheme.math(Step.text(st), UiTheme.BODY))
+	# The explainer (FAL-429), for a solution with a move to watch.
+	if Explainer.can_play(sol):
+		var watch := Button.new()
+		watch.name = "WatchIt"
+		watch.text = "Watch it"
+		watch.add_theme_font_size_override("font_size", UiTheme.SMALL)
+		watch.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		watch.pressed.connect(watch_it.bind(i))
+		box.add_child(watch)
+
+
+## Play worked solution i in the explainer, over this screen. On the practice screen,
+## "Your turn" at its end asks the same view with new numbers; a fight has its own next
+## question, so there it only closes.
+func watch_it(i: int) -> Explainer:
+	var e := Explainer.make(question, i, get_script().resource_path == "res://ui/practice.gd")
+	e.your_turn.connect(show_view)
+	add_child(e)
+	return e
 
 
 func _update_progress() -> void:
@@ -685,7 +722,7 @@ func autoplay(right: bool) -> void:
 			for id in _picks:
 				_picks[id] = values[id]
 				for b in _pick_buttons[id]:
-					b.button_pressed = b.text == values[id]
+					b.button_pressed = UiTheme.button_text(b) == values[id]
 		_:
 			var pick := -1
 			var items: Array = question.choices if question.format != "probe" else question.options

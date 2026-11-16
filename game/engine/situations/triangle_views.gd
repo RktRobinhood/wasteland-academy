@@ -40,6 +40,12 @@ const CM2 := " cm²"
 const DEG := "°"
 ## Answers keep this many decimal places, far more than 3 s.f. needs.
 const SCALE := 1000000000
+## The types' own slips, with no skill ref: logged by index.
+const R_PLUS_COS := "t3-sine-cosine-rule#8"
+const R_PYTHAGORAS := "t3-sine-cosine-rule#9"
+const R_NO_DIVIDE := "t3-sine-cosine-rule#10"
+const R_COS_AREA := "t3-triangle-area#3"
+const R_NO_SINE := "t3-triangle-area#4"
 
 
 func has(unknown: String) -> bool:
@@ -62,9 +68,9 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	if int(s.get("paper", 2)) == 1 and has_method(name + "_p1"):
 		name += "_p1"
 	var out: Dictionary = call(name, rep, s, rng)
-	for key in ["lines", "graph", "table", "diagram", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "diagram", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	return out
 
 
@@ -176,10 +182,11 @@ static func wrong(out: Dictionary, x: float, ref: String = "") -> void:
 		out.wrongs.append({"values": {"v": qf(x)}, "ref": ref})
 
 
-static func generic(out: Dictionary, xs: Array) -> void:
+## Fillers: wrong options with no slip behind them, kept only when real and positive.
+static func fillers(out: Dictionary, xs: Array) -> void:
 	for x in xs:
 		if is_finite(x) and x > 0.0:
-			out.generic.append({"v": qf(x)})
+			out.fillers.append({"v": qf(x)})
 
 
 ## The question as the student sees it: lines (words), or a caption and a diagram.
@@ -289,7 +296,7 @@ func u_side_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sz: float = s.sides[lo(Z)]
 	var ax: float = s.angles[X]
 	var ans := side_answer(X, s.value)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_side(X)
 	var ty := whole(sy)
@@ -328,7 +335,9 @@ func u_side_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrong(out, sqrt((sy * sy + sz * sz - 2.0 * sy * sz) * cos(rad(ax))), "SL3.2.cosine-rule-side#0")
 	wrong(out, sx2, "SL3.2.cosine-rule-side#1")
 	wrong(out, sqrt(sy * sy + sz * sz - 2.0 * sy * sz * cos(ax)), "SL3.2.right-side#2")
-	generic(out, [sqrt(sy * sy + sz * sz + 2.0 * sy * sz * cos(rad(ax))), sqrt(sy * sy + sz * sz), sy + sz - sx])
+	wrong(out, sqrt(sy * sy + sz * sz + 2.0 * sy * sz * cos(rad(ax))), R_PLUS_COS)
+	wrong(out, sqrt(sy * sy + sz * sz), R_PYTHAGORAS)
+	fillers(out, [sy + sz - sx])
 	return out
 
 
@@ -352,7 +361,7 @@ func u_angle_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var sy: int = s.shown.sides[lo(Y)]
 	var sz: int = s.shown.sides[lo(Z)]
 	var ans := angle_answer(X, s.value)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_angle(X)
 	var top := sy * sy + sz * sz - sx * sx
@@ -385,7 +394,7 @@ func u_angle_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	wrong(out, s.angles[Z], "SL3.2.cosine-rule-angle#0")
 	if top < 0:
 		wrong(out, 180.0 - x, "SL3.2.cosine-rule-angle#1")
-	generic(out, [180.0 - x, deg(acos(clampf(float(sx * sx + sy * sy - sz * sz) / (2 * sx * sy), -1.0, 1.0))) + 5.0])
+	fillers(out, [180.0 - x, deg(acos(clampf(float(sx * sx + sy * sy - sz * sz) / (2 * sx * sy), -1.0, 1.0))) + 5.0])
 	return out
 
 
@@ -398,7 +407,7 @@ func u_side_sine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ay: float = s.angles[Y]
 	var az: float = s.angles[Z]
 	var ans := side_answer(Y, s.value)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_side(Y)
 	var first: Array = [names([X, Y])]
@@ -428,7 +437,8 @@ func u_side_sine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	wrong(out, sx * sin(rad(az)) / sin(rad(ax)), "SL3.2.sine-rule#0")
 	wrong(out, sx * sin(rad(ax)) / sin(rad(ay)), "SL3.2.sine-rule#1")
 	wrong(out, sx * sin(ay) / sin(ax), "SL3.2.right-side#2")
-	generic(out, [sx * sin(rad(ay)), sx / sin(rad(ay)), sx * sin(rad(ax))])
+	wrong(out, sx * sin(rad(ay)), R_NO_DIVIDE)
+	fillers(out, [sx / sin(rad(ay)), sx * sin(rad(ax))])
 	return out
 
 
@@ -440,7 +450,7 @@ func u_angle_sine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sy: float = s.sides[lo(Y)]
 	var ax: float = s.angles[X]
 	var ans := angle_answer(Y, s.value)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_angle(Y)
 	var tx := whole(sx)
@@ -476,7 +486,7 @@ func u_angle_sine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if swapped < 1.0:
 		wrong(out, deg(asin(swapped)), "SL3.2.sine-rule#0")
 	wrong(out, 180.0 - x, "SL3.5.ambiguous-case#1")
-	generic(out, [s.angles[Z], deg(asin(sy / sx)), ax * sy / sx])
+	fillers(out, [s.angles[Z], deg(asin(sy / sx)), ax * sy / sx])
 	return out
 
 
@@ -496,10 +506,10 @@ static func wrong2(out: Dictionary, x: float, y: float, ref: String = "") -> voi
 		out.wrongs.append({"values": res2(x, y), "ref": ref})
 
 
-static func generic2(out: Dictionary, pairs: Array) -> void:
+static func fillers2(out: Dictionary, pairs: Array) -> void:
 	for p in pairs:
 		if is_finite(p[0]) and p[0] > 0.0 and is_finite(p[1]) and p[1] > 0.0:
-			out.generic.append(res2(p[0], p[1]))
+			out.fillers.append(res2(p[0], p[1]))
 
 
 ## The option that stops at one value (SL3.5.ambiguous-case#0).
@@ -583,7 +593,7 @@ func u_both_angles(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var f := angle_figures(sy * sin(rad(ax)) / sx)
 	var x: float = f.acute
 	var ans := two_measures(angle(Y) + " = ", x, 180.0 - x, DEG)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	var t := s.duplicate()
 	t.ask = Y
 	show(rep, t, out)
@@ -603,7 +613,7 @@ func u_both_angles(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	wrong2(out, w, 180.0 - w, "SL3.2.sine-rule#0")
 	var az: float = s.angles[Z]
 	var az2: float = s.second.angles[Z]
-	generic2(out, [[x, az], [az2, 180.0 - az2], [az, az2], [x, 90.0 + x]])
+	fillers2(out, [[x, az], [az2, 180.0 - az2], [az, az2], [x, 90.0 + x]])
 	return out
 
 
@@ -631,7 +641,7 @@ func u_both_sides(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var z1: float = s.sides[lo(Z)]
 	var z2: float = s.second.sides[lo(Z)]
 	var ans := two_measures(side(Z) + " = ", z2, z1, CM)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	var t := s.duplicate()
 	t.ask = lo(Z)
 	show(rep, t, out)
@@ -672,7 +682,7 @@ func u_both_sides(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	only(out, z1)
 	var ay: float = s.angles[Y]
 	wrong2(out, sx * sin(rad(s.angles[Z])) / sin(rad(ay)), sx * sin(rad(s.second.angles[Z])) / sin(rad(ay)), "SL3.2.sine-rule#0")
-	generic2(out, [[z1 - z2, z1 + z2], [z1, sy], [z2, sy], [z1, sx], [z2, sx]])
+	fillers2(out, [[z1 - z2, z1 + z2], [z1, sy], [z2, sy], [z1, sx], [z2, sx]])
 	return out
 
 
@@ -686,7 +696,7 @@ func u_largest_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var f := angle_figures(sy * sin(rad(ax)) / sx)
 	var x: float = f.acute
 	var ans := angle_answer(Y, s.value)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = "Find the largest possible value of %s, to 3 significant figures." % angle(Y)
 	var pick := ("%s₂ is the larger of the two." % Y) if two else ("%s₁ is the only value of %s." % [Y, Y])
@@ -703,7 +713,7 @@ func u_largest_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var swapped := sx * sin(rad(ax)) / sy
 	if swapped < 1.0:
 		wrong(out, deg(asin(swapped)), "SL3.2.sine-rule#0")
-	generic(out, [s.angles[s.Z], x + 90.0, 180.0 - ax, absf(x - ax) + 20.0])
+	fillers(out, [s.angles[s.Z], x + 90.0, 180.0 - ax, absf(x - ax) + 20.0])
 	return out
 
 
@@ -717,7 +727,7 @@ func u_area_from_two_sides(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var sz: float = s.sides[lo(Z)]
 	var ax: float = s.angles[X]
 	var ans := measure("Area = ", s.value, CM2)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = "Find the area of triangle ABC, to 3 significant figures."
 	var ty := whole(sy)
@@ -738,7 +748,11 @@ func u_area_from_two_sides(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	out.methods = {"half-ab-sinc": {"steps": half, "result": res(area)}, "base-height": {"steps": base, "result": res(area2)}}
 	wrong(out, 2.0 * area, "SL3.2.area-sine#2")
 	wrong(out, 0.5 * sy * sz * sin(ax), "SL3.2.right-side#2")
-	generic(out, [0.5 * sy * sz * absf(cos(rad(ax))), 0.5 * sy * sz, sy * sz * absf(cos(rad(ax)))])
+	# cos for sin is a slip only where cos is positive: the filler takes its size.
+	if cos(rad(ax)) > 0.0:
+		wrong(out, 0.5 * sy * sz * cos(rad(ax)), R_COS_AREA)
+	wrong(out, 0.5 * sy * sz, R_NO_SINE)
+	fillers(out, ([] if cos(rad(ax)) > 0.0 else [0.5 * sy * sz * absf(cos(rad(ax)))]) + [sy * sz * absf(cos(rad(ax)))])
 	return out
 
 
@@ -750,7 +764,7 @@ func u_side_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ax: float = s.angles[X]
 	var area: int = s.shown.area
 	var ans := side_answer(Z, s.value)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_side(Z)
 	var ty := whole(sy)
@@ -771,7 +785,8 @@ func u_side_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"So %s." % Answer.text(ans, res(r2))]
 	out.methods = {"half-ab-sinc": {"steps": half, "result": res(sz)}, "base-height": {"steps": base, "result": res(r2)}}
 	wrong(out, sz / 2.0, "SL3.2.area-sine#2")
-	generic(out, [2.0 * area / sy, sz * sin(rad(ax)), area / sy])
+	wrong(out, 2.0 * area / sy, R_NO_SINE)
+	fillers(out, [sz * sin(rad(ax)), area / sy])
 	return out
 
 
@@ -784,7 +799,7 @@ func u_angle_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var area: int = s.shown.area
 	var obtuse: bool = s.shown.obtuse
 	var ans := angle_answer(X, s.value)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_angle(X)
 	var ty := whole(sy)
@@ -832,7 +847,7 @@ func u_angle_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrong(out, acute, "SL3.2.area-sine#1")
 	var no_half := deg(asin(ratio / 2.0))
 	wrong(out, 180.0 - no_half if obtuse else no_half, "SL3.2.area-sine#2")
-	generic(out, [180.0 - x, deg(acos(ratio)), 90.0 - acute if not obtuse else 90.0 + acute / 2.0])
+	fillers(out, [180.0 - x, deg(acos(ratio)), 90.0 - acute if not obtuse else 90.0 + acute / 2.0])
 	return out
 
 
@@ -891,11 +906,11 @@ static func ex_wrong(out: Dictionary, e: Array, ref: String = "") -> void:
 		out.wrongs.append({"values": v, "ref": ref})
 
 
-static func ex_generic(out: Dictionary, es: Array) -> void:
+static func ex_fillers(out: Dictionary, es: Array) -> void:
 	for e in es:
 		var v := ex_values(out.answer, e)
 		if not v.is_empty():
-			out.generic.append(v)
+			out.fillers.append(v)
 
 
 ## Spare wrong options near an exact answer, so four are always found without nudging
@@ -943,7 +958,7 @@ func u_side_cosine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var d: int = s.shown.angles[X]
 	var e: Array = s.exact
 	var ans := exact_answer(side(X) + " = ", CM, e)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_side_p1(X)
 	var c := TriangleSituation.cos_of(d)
@@ -975,8 +990,8 @@ func u_side_cosine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"drop-perpendicular": {"steps": perp, "result": ans.values}}
 	ex_wrong(out, [Q.new(x2), 1], "SL3.2.cosine-rule-side#1")
 	var flipped: int = y * y + z * z + (Q.new(2 * y * z).mul(c[0])).n
-	ex_generic(out, [[Q.new(y + z - x), 1], [Q.new(y + z), 1], [Q.new(flipped), 1]])
-	ex_generic(out, near(e))
+	ex_fillers(out, [[Q.new(y + z - x), 1], [Q.new(y + z), 1], [Q.new(flipped), 1]])
+	ex_fillers(out, near(e))
 	return out
 
 
@@ -990,7 +1005,7 @@ func u_angle_cosine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var e: Array = s.exact
 	var d: int = (e[0] as Q).n
 	var ans := exact_answer(angle(X) + " = ", DEG, e)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_angle_p1(X)
 	var top := sy * sy + sz * sz - sx * sx
@@ -1020,7 +1035,7 @@ func u_angle_cosine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	out.titles = titles(X)
 	if top < 0:
 		ex_wrong(out, [Q.new(180 - d), 1], "SL3.2.cosine-rule-angle#1")
-	ex_generic(out, near_angles(d))
+	ex_fillers(out, near_angles(d))
 	return out
 
 
@@ -1034,7 +1049,7 @@ func u_side_sine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var dZ := roundi(s.angles[Z])
 	var e: Array = s.exact
 	var ans := exact_answer(side(Y) + " = ", CM, e)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_side_p1(Y)
 	var first: Array = [names([X, Y])]
@@ -1061,8 +1076,9 @@ func u_side_sine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	if dZ in TriangleSituation.NICE:
 		ex_wrong(out, TriangleSituation.ex_div(TriangleSituation.ex_mul(xe, TriangleSituation.sin_of(dZ)), sX), "SL3.2.sine-rule#0")
 	ex_wrong(out, TriangleSituation.ex_div(TriangleSituation.ex_mul(xe, sX), sY), "SL3.2.sine-rule#1")
-	ex_generic(out, [top_e, TriangleSituation.ex_div(xe, sY), TriangleSituation.ex_mul(xe, sX)])
-	ex_generic(out, near(e))
+	ex_wrong(out, top_e, R_NO_DIVIDE)
+	ex_fillers(out, [TriangleSituation.ex_div(xe, sY), TriangleSituation.ex_mul(xe, sX)])
+	ex_fillers(out, near(e))
 	return out
 
 
@@ -1077,7 +1093,7 @@ func u_area_from_two_sides_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var d: int = s.shown.angles[X]
 	var e: Array = s.exact
 	var ans := exact_answer("Area = ", CM2, e)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = "Find the exact area of triangle ABC."
 	var sX := TriangleSituation.sin_of(d)
@@ -1095,9 +1111,12 @@ func u_area_from_two_sides_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	ex_wrong(out, TriangleSituation.ex_mul(e, [Q.new(2), 1]), "SL3.2.area-sine#2")
 	var cX := TriangleSituation.cos_of(d)
 	var half_yz: Array = [Q.new(y * z, 2), 1]
-	ex_generic(out, [half_yz, TriangleSituation.ex_mul(half_yz, [(cX[0] as Q).abs_q(), cX[1]]),
-		TriangleSituation.ex_mul([Q.new(y * z), 1], [(cX[0] as Q).abs_q(), cX[1]])])
-	ex_generic(out, near(e))
+	ex_wrong(out, half_yz, R_NO_SINE)
+	var half_cos := TriangleSituation.ex_mul(half_yz, [(cX[0] as Q).abs_q(), cX[1]])
+	if (cX[0] as Q).sign() > 0:
+		ex_wrong(out, half_cos, R_COS_AREA)
+	ex_fillers(out, ([] if (cX[0] as Q).sign() > 0 else [half_cos]) + [TriangleSituation.ex_mul([Q.new(y * z), 1], [(cX[0] as Q).abs_q(), cX[1]])])
+	ex_fillers(out, near(e))
 	return out
 
 
@@ -1110,7 +1129,7 @@ func u_side_from_area_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var area: int = s.shown.area
 	var e: Array = s.exact
 	var ans := exact_answer(side(Z) + " = ", CM, e)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_side_p1(Z)
 	var sX := TriangleSituation.sin_of(d)
@@ -1127,8 +1146,9 @@ func u_side_from_area_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"So %s." % Answer.text(ans)]
 	out.methods = {"half-ab-sinc": {"steps": half, "result": ans.values}, "base-height": {"steps": base, "result": ans.values}}
 	ex_wrong(out, TriangleSituation.ex_mul(e, [Q.new(1, 2), 1]), "SL3.2.area-sine#2")
-	ex_generic(out, [[Q.new(2 * area, y), 1], TriangleSituation.ex_mul(e, sX), [Q.new(area, y), 1]])
-	ex_generic(out, near(e))
+	ex_wrong(out, [Q.new(2 * area, y), 1], R_NO_SINE)
+	ex_fillers(out, [TriangleSituation.ex_mul(e, sX), [Q.new(area, y), 1]])
+	ex_fillers(out, near(e))
 	return out
 
 
@@ -1143,7 +1163,7 @@ func u_angle_from_area_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var d: int = (e[0] as Q).n
 	var acute := 180 - d if obtuse else d
 	var ans := exact_answer(angle(X) + " = ", DEG, e)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = ask_angle_p1(X)
 	var at := area_text(s.shown)
@@ -1174,5 +1194,5 @@ func u_angle_from_area_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		"reverse-two-angles": {"steps": both, "result": ans.values}}
 	if obtuse:
 		ex_wrong(out, [Q.new(acute), 1], "SL3.2.area-sine#1")
-	ex_generic(out, near_angles(d))
+	ex_fillers(out, near_angles(d))
 	return out

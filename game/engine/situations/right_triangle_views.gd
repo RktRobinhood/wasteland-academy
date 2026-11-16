@@ -37,6 +37,11 @@ const R_DIAMETER := RT_TYPE + "25"
 const R_APEX := RT_TYPE + "26"
 const R_OTHER_TOWER := RT_TYPE + "27"
 const R_ADD_DISTANCES := RT_TYPE + "28"
+## The slips FAL-815 named: the right sides with the wrong one of sin, cos and tan; the two given
+## legs divided with no hypotenuse; and dividing by the ratio when the side wanted is on top.
+const R_WRONG_FN := RT_TYPE + "29"
+const R_NO_HYP := RT_TYPE + "30"
+const R_DIVIDE := RT_TYPE + "31"
 
 const RT_UNKNOWNS := ["ratio-from-sides", "ratio-needs-pythagoras", "ratio-in-letters", "side-in-letters", "side-from-angle",
 	"side-under-ratio", "side-either-angle", "chord-length", "side-special", "angle-from-sides", "angle-special",
@@ -245,7 +250,10 @@ func u_ratio_from_sides(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var mine: Q = a if fn == "sin" else b
 		if mine.lt(other):
 			out.wrongs.append(ex_like(ans, TrigKit.V(mine.div(other)), R_LONG_LEG))
-	out.generic = ex_others(ans, [TrigKit.V(a.div(c)), TrigKit.V(b.div(c)), TrigKit.V(a.div(b)), TrigKit.V(b.div(a))])
+	# Another function's ratio of the sides (an earlier tag wins a tie); its flip is a filler.
+	for r in [a.div(c), b.div(c), a.div(b)]:
+		out.wrongs.append(ex_like(ans, TrigKit.V(r), R_WRONG_FN))
+	out.fillers = ex_others(ans, [TrigKit.V(b.div(a))])
 	out.methods = {
 		"label-soh-cah-toa": method(["The hypotenuse is opposite the right angle: %s = %s." % [hyp(s), D(c)],
 			"Opposite θ is %s = %s, and adjacent to θ is %s = %s." % [opp(s), D(a), adj(s), D(b)],
@@ -281,7 +289,9 @@ func u_ratio_needs_pythagoras(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	out.wrongs = [ex_like(ans, TrigKit.over(h, TrigKit.V(top)), R_UPSIDE), ex_like(ans, TrigKit.over(TrigKit.V(other), h), R_WRONG_ANGLE)]
 	if top < other:
 		out.wrongs.append(ex_like(ans, TrigKit.V(Q.new(top, other)), R_LONG_LEG))
-	out.generic = ex_others(ans, [TrigKit.V(Q.new(top, other)), TrigKit.V(Q.new(other, top)), TrigKit.times(v, 2), TrigKit.V(Q.new(top, a + b))])
+	if top > other:
+		out.wrongs.append(ex_like(ans, TrigKit.V(Q.new(top, other)), R_NO_HYP))
+	out.fillers = ex_others(ans, [TrigKit.V(Q.new(other, top)), TrigKit.times(v, 2), TrigKit.V(Q.new(top, a + b))])
 	var surd := TrigKit.text(h)
 	var named := "√%d" % n
 	var hyp_line := "so the hypotenuse is %s." % named if surd == named else "so the hypotenuse is %s, which is %s." % [named, surd]
@@ -328,7 +338,11 @@ func u_ratio_in_letters(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var longer: bool = s.b.to_float() > s.a.to_float() if fn == "sin" else s.a.to_float() > s.b.to_float()
 		if rep == "diagram" and longer:
 			out.wrongs.append(slip.call(mine, other, R_LONG_LEG))
-	out.generic = [slip.call(o, h).values, slip.call(a, h).values, slip.call(o, a).values, slip.call(a, o).values, slip.call(h, a).values, slip.call(h, o).values]
+	# Another function's ratio of the sides (an earlier tag wins a tie); the flips are fillers.
+	for pr in [[o, h], [a, h], [o, a]]:
+		if pr != pair:
+			out.wrongs.append(slip.call(pr[0], pr[1], R_WRONG_FN))
+	out.fillers = [slip.call(a, o).values, slip.call(h, a).values, slip.call(h, o).values]
 	out.methods = {"label-soh-cah-toa": method(["The hypotenuse is opposite the right angle: %s = %s." % [hyp(s), h],
 		"Opposite θ is %s = %s, and adjacent to θ is %s = %s." % [opp(s), o, adj(s), a],
 		"%s θ = %s." % [fn, ratio_words(fn)], say(ans)], ans.values)}
@@ -359,7 +373,7 @@ func u_side_in_letters(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		return DifferentiationViews.alt(text.call(k, f), ref, {"k": Q.new(k), "f": f})
 	var other := "cos θ" if fn == "sin" else "sin θ"
 	out.wrongs = [slip.call(1, mine, R_DIAMETER), slip.call(2, other, R_WRONG_ANGLE), slip.call(2, "tan θ", R_HYP_ADJ)]
-	out.generic = [slip.call(1, other).values, slip.call(4, mine).values, DifferentiationViews.alt("%s2r/%s" % [head, mine]).values]
+	out.fillers = [slip.call(1, other).values, slip.call(4, mine).values, DifferentiationViews.alt("%s2r/%s" % [head, mine]).values]
 	out.methods = {"choose-ratio-rearrange": method(["PR is a diameter, so PR = 2r.",
 		"In triangle PRS the right angle is at S, and PR is the hypotenuse.",
 		"%s is %s θ, so %s θ = %s ÷ 2r." % [asked_side, "opposite" if fn == "sin" else "adjacent to", fn, asked_side], say(ans)], ans.values)}
@@ -408,7 +422,13 @@ func u_side_from_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = bad(slip_mode, R_MODE)
 	if fn == "sin":
 		out.wrongs += bad(x * tan(t), R_HYP_ADJ)
-	out.generic = gens([x * cos(t) if fn != "cos" else x * sin(t), x / fnv(fn, t), x * tan(t) if fn != "tan" else x * sin(t), v + 2.0, v * 1.5])
+	# sin and cos swapped, or tan with the other two's sides; dividing by the ratio; then the
+	# third function with the right sides (for sin that is x tan θ, tagged above).
+	out.wrongs += bad(x * cos(t) if fn != "cos" else x * sin(t), R_WRONG_FN if fn == "tan" else R_WRONG_ANGLE)
+	out.wrongs += bad(x / fnv(fn, t), R_DIVIDE)
+	if fn != "sin":
+		out.wrongs += bad(x * tan(t) if fn != "tan" else x * sin(t), R_WRONG_FN)
+	out.fillers = gens([v + 2.0, v * 1.5])
 	out.methods = {"choose-ratio-rearrange": method(["You know %s and want %s, so use %s θ = %s." % [known, want, fn, ratio_words(fn)],
 		"The side you want is on top, so multiply: %s = %s × %s %s° = %s" % [name, D(s.x), fn, D(s.e), W(v)], say(ans)], ans.values)}
 	return out
@@ -434,7 +454,8 @@ func u_side_under_ratio(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = bad(x * fnv(fn, t), R_REARRANGE) + bad(x / fnv(fn, deg_of(s)), R_MODE)
 	if fn == "sin":
 		out.wrongs += bad(x / tan(t), R_HYP_ADJ)
-	out.generic = gens([x * tan(t), x / (cos(t) if fn == "sin" else sin(t)), x + 2.0, v + 2.0, v * 1.5])
+	out.wrongs += bad(x / (cos(t) if fn == "sin" else sin(t)), R_WRONG_ANGLE)
+	out.fillers = gens([x * tan(t), x + 2.0, v + 2.0, v * 1.5])
 	var known := "the opposite side" if fn == "sin" else "the adjacent side"
 	out.methods = {"choose-ratio-rearrange": method(["You know %s and want the hypotenuse, so use %s θ = %s." % [known, fn, ratio_words(fn)],
 		"%s %s° = %s ÷ %s: the side you want is underneath." % [fn, D(s.e), D(s.x), hyp(s)],
@@ -452,7 +473,8 @@ func u_side_either_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var g := ground_sketch(s, x, v, m(s.x), "?", "", D(s.e) + "°")
 	var out := frame(rep, lines, sf3("Find %s, the distance from the peg to the foot of the %s." % [adj(s), TALL[s.ctx]]), ans, g)
 	out.wrongs = bad(x * tan(t), R_REARRANGE) + bad(x / tan(deg_of(s)), R_MODE)
-	out.generic = gens([x / sin(t), x / cos(t), x * sin(t), v + 2.0, v * 1.5])
+	out.wrongs += bad(x / sin(t), R_WRONG_FN) + bad(x / cos(t), R_WRONG_FN)
+	out.fillers = gens([x * sin(t), v + 2.0, v * 1.5])
 	var other: int = 90 - int(deg_of(s))
 	out.methods = {
 		"choose-ratio-rearrange": method(["You know the opposite side and want the adjacent one, so use tan θ = opposite ÷ adjacent.",
@@ -477,7 +499,7 @@ func u_chord_length(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var g := sketch(pts, [side("S", "M", D(s.d) + " km"), side("M", "B"), side("S", "A", D(s.r) + " km"), side("A", "B", "?")], [], [], {"right": ["M"], "circles": [{"at": "S", "through": "A"}]})
 	var out := frame(rep, lines, sf3("Find AB, the length of road within range."), ans, g)
 	out.wrongs = bad(half, R_HALF) + bad(2.0 * sqrt(r * r + d * d), R_HYP_ADJ)
-	out.generic = gens([2.0 * (r - d), r * r - d * d, 2.0 * r, v + 2.0, v * 1.5])
+	out.fillers = gens([2.0 * (r - d), r * r - d * d, 2.0 * r, v + 2.0, v * 1.5])
 	var at_s := rad_to_deg(acos(d / r))
 	var aw := W(at_s)
 	var hw := W(r * sin(rad(back(aw))))
@@ -524,11 +546,11 @@ func u_side_special(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := frame(rep, lines, "Find the exact length of %s." % name, ans, g)
 	var other: Array = TrigKit.of("cos" if fn == "sin" else "sin", t)
 	if s.mode == "hyp":
-		out.wrongs = [ex_like(ans, TrigKit.times(ratio, k), R_REARRANGE)]
-		out.generic = ex_others(ans, [TrigKit.over(TrigKit.V(k), other), TrigKit.times(other, k), TrigKit.V(2 * k), TrigKit.V(k), TrigKit.times(TrigKit.root(2), k), TrigKit.times(TrigKit.root(3), k)])
+		out.wrongs = [ex_like(ans, TrigKit.times(ratio, k), R_REARRANGE), ex_like(ans, TrigKit.over(TrigKit.V(k), other), R_WRONG_ANGLE)]
+		out.fillers = ex_others(ans, [TrigKit.times(other, k), TrigKit.V(2 * k), TrigKit.V(k), TrigKit.times(TrigKit.root(2), k), TrigKit.times(TrigKit.root(3), k)])
 	else:
-		out.wrongs = []
-		out.generic = ex_others(ans, [TrigKit.over(TrigKit.V(k), ratio), TrigKit.times(other, k), TrigKit.V(k), TrigKit.times(TrigKit.root(2), k), TrigKit.times(TrigKit.root(3), k), TrigKit.V(2 * k)])
+		out.wrongs = [ex_like(ans, TrigKit.over(TrigKit.V(k), ratio), R_DIVIDE), ex_like(ans, TrigKit.times(other, k), R_WRONG_ANGLE)]
+		out.fillers = ex_others(ans, [TrigKit.V(k), TrigKit.times(TrigKit.root(2), k), TrigKit.times(TrigKit.root(3), k), TrigKit.V(2 * k)])
 	var shape := "1 : 1 : √2, with the hypotenuse √2" if deg == 45 else "1 : √3 : 2, with the side opposite 30° as 1 and the hypotenuse 2"
 	var value := TrigKit.text(ratio)
 	var build_line := "%s = %d × %s" % [name, k, value] if s.mode == "leg" else "%s = %d ÷ %s" % [name, k, "(%s)" % value if value.contains("/") else value]
@@ -599,9 +621,9 @@ func u_angle_from_sides(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := ans_of("angle = ", deg, "°")
 	var out := frame(rep, lines, sf3("Find the angle the %s makes with the ground." % thing), ans, g)
 	out.wrongs = bad(fnv(fn, rad(r)), R_NO_INVERSE) + bad(1.0 / fnv(fn, rad(r)), R_ONE_OVER)
-	if fn == "tan":
-		out.wrongs += bad(90.0 - deg, R_OTHER_ACUTE)
-	out.generic = gens([90.0 - deg, deg / 2.0, deg + 10.0, deg * 1.5])
+	# The other acute angle: adjacent ÷ opposite for tan, or sin and cos swapped.
+	out.wrongs += bad(90.0 - deg, R_OTHER_ACUTE if fn == "tan" else R_WRONG_ANGLE)
+	out.fillers = gens([deg / 2.0, deg + 10.0, deg * 1.5])
 	var ratio := "%s ÷ %s" % [D(s.a), D(s.b)]
 	var third := W(o if fn == "cos" else (ad if fn == "sin" else sqrt(a * a + b * b)))
 	var pyth: String
@@ -647,8 +669,9 @@ func u_angle_special(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var g := tri_sketch(s, o, a, labels[opp(s)], labels[adj(s)], labels[hyp(s)], "θ")
 	var out := frame(rep, lines, "Find the size of θ.", ans, g)
 	var mirror := 90 - deg
-	out.wrongs = [whole_wrong(ans, mirror, R_OTHER_ACUTE, false)] if fn == "tan" and deg != 45 else []
-	out.generic = [whole_wrong(ans, mirror, "", false).values, whole_wrong(ans, 30, "", false).values, whole_wrong(ans, 45, "", false).values, whole_wrong(ans, 60, "", false).values, whole_wrong(ans, 90, "", false).values]
+	# The other acute angle: adjacent ÷ opposite for tan, or sin and cos swapped.
+	out.wrongs = [whole_wrong(ans, mirror, R_OTHER_ACUTE if fn == "tan" else R_WRONG_ANGLE, false)] if deg != 45 else []
+	out.fillers = [whole_wrong(ans, 30, "", false).values, whole_wrong(ans, 45, "", false).values, whole_wrong(ans, 60, "", false).values, whole_wrong(ans, 90, "", false).values]
 	var value := TrigKit.text(TrigKit.of(fn, t))
 	out.methods = {
 		"recognise-special": method(["%s θ = %s, which is %s ÷ %s." % [fn, ratio_words(fn), top, bot], "That simplifies to %s, which is %s %d° in the special triangles." % [value, fn, deg], say(ans)], ans.values),
@@ -666,7 +689,7 @@ func u_gradient_from_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var g := ground_sketch(s, v, 1.0, "", "", "", D(s.e) + "°")
 	var out := frame(rep, ["A straight %s %s rises at an angle of %s° above the horizontal." % [thing, hyp(s), D(s.e)]], sf3("Find the gradient of the %s." % thing), ans, g)
 	out.wrongs = bad(sin(t), R_GRAD_SIN) + bad(1.0 / v, R_GRAD_FLIP)
-	out.generic = gens([cos(t), deg_of(s) / 90.0, deg_of(s) / 100.0, v * 2.0, v + 0.5])
+	out.fillers = gens([cos(t), deg_of(s) / 90.0, deg_of(s) / 100.0, v * 2.0, v + 0.5])
 	out.methods = {"gradient-tan": method(["Gradient is the rise ÷ the run.",
 		"In a right-angled triangle under the slope, the rise is opposite the angle and the run is adjacent to it, so gradient = tan θ.",
 		"tan %s° = %s" % [D(s.e), W(v)], say(ans)], ans.values)}
@@ -694,7 +717,7 @@ func u_angle_from_gradient(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		[arc(t_of(s), r_of(s), o_of(s), "?")], [], {"right": [r_of(s)]})
 	var out := frame(rep, ["A straight %s %s has a gradient of %s." % [thing, hyp(s), grad(s)]], sf3("Find the angle between the %s and the horizontal." % thing), ans, g)
 	out.wrongs = (bad(rad_to_deg(asin(r)), R_GRAD_ARCSIN) if r < 1.0 else []) + bad(90.0 - deg, R_OTHER_ACUTE) + bad(tan(rad(r)), R_NO_INVERSE)
-	out.generic = gens([rad_to_deg(acos(r)) if r < 1.0 else 0.0, deg + 10.0, deg / 2.0, deg * 1.5])
+	out.fillers = gens([rad_to_deg(acos(r)) if r < 1.0 else 0.0, deg + 10.0, deg / 2.0, deg * 1.5])
 	out.methods = {"gradient-inverse-tan": method(["Gradient is rise ÷ run, which is tan θ, so tan θ = %s." % grad(s), "θ = tan⁻¹(%s) = %s°" % [grad(s), W(deg)], say(ans)], ans.values)}
 	return out
 
@@ -713,7 +736,7 @@ func u_angle_with_vertical(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		[arc("A", "B", "M", "?")], [], {"right": ["M"]})
 	var out := frame(rep, lines, sf3("Find the size of angle BAM."), ans, g)
 	out.wrongs = bad(rise, R_HORIZONTAL) + bad(2.0 * deg, R_APEX)
-	out.generic = gens([rise + 10.0, deg + 10.0, deg / 2.0, deg * 1.5])
+	out.fillers = gens([rise + 10.0, deg + 10.0, deg / 2.0, deg * 1.5])
 	out.methods = {
 		"gradient-inverse-tan": method(["Gradient is tan of the angle with the horizontal, so that angle is tan⁻¹(%s) = %s°" % [grad(s), W(rise)],
 			"Triangle BAM has a right angle at M, so angle BAM = 90° − %s° = %s°" % [W(rise), W(90.0 - back(W(rise)))], say(ans)], ans.values),
@@ -756,7 +779,7 @@ func u_edge_from_span(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := ans_of("QV = ", v, " m")
 	var out := frame(rep, beam_lines(s), sf3("Find QV, the length of the lower edge."), ans, beam_sketch(s, "QV"))
 	out.wrongs = bad(2.0 * half / cos(al) + over, R_WHOLE_SPAN) + bad(half / cos(al), R_NO_OVERHANG) + bad(half / sin(al) + over, R_WRONG_ANGLE)
-	out.generic = gens([half * cos(al) + over, half + over, half / tan(al) + over, v + 2.0])
+	out.fillers = gens([half * cos(al) + over, half + over, half / tan(al) + over, v + 2.0])
 	var aw := W(rad_to_deg(al))
 	var mv := W(half / cos(rad(back(aw))))
 	out.methods = {"choose-ratio-rearrange": method(["The angle of the edge to the horizontal is tan⁻¹(%s) = %s°" % [grad(s), aw],
@@ -777,7 +800,7 @@ func u_upper_edge(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := ans_of("PU = ", v, " m")
 	var out := frame(rep, beam_lines(s), sf3("Find PU, the length of the top edge."), ans, beam_sketch(s, "PU"))
 	out.wrongs = bad(lower, R_NO_EXTRA) + bad(lower + t, R_EXTRA_T) + bad(lower + t / r, R_WRONG_ANGLE)
-	out.generic = gens([half / cos(al), lower - t * r, v + 2.0, v * 1.2])
+	out.fillers = gens([half / cos(al), lower - t * r, v + 2.0, v * 1.2])
 	var lw := W(lower)
 	var ew := W(t * r)
 	out.methods = {"choose-ratio-rearrange": method(["The lower edge is half of MN ÷ the cosine of its angle, plus QM: %s ÷ cos(tan⁻¹(%s)) + %s = %s" % [D(s.span.div(2)), grad(s), D(s.over), lw],
@@ -798,7 +821,8 @@ func u_height_from_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var out := frame(rep, lines, sf3("Find the height of T above the ground."), ans, side_view(h, x, false, "?", m(s.x), _angle_label(s), {"right": ["F"]}))
 	var slip := x * (tan(rad(s.e.to_float())) if s.form == "rad" else tan(s.e.to_float()))
 	out.wrongs = bad(slip, R_MODE)
-	out.generic = gens([x * sin(t), x * cos(t), x / tan(t), h + 2.0, h * 1.5])
+	out.wrongs += bad(x * sin(t), R_WRONG_FN) + bad(x / tan(t), R_DIVIDE) + bad(x * cos(t), R_WRONG_FN)
+	out.fillers = gens([h + 2.0, h * 1.5])
 	out.methods = {"right-triangle": method(["The angle sits at P, between the ground and the line of sight, so tan θ = height ÷ distance.", "height = %s × %s = %s" % [D(s.x), tan_text(s), W(h)], say(ans)], ans.values)}
 	return out
 
@@ -822,7 +846,9 @@ func u_elevation_after_walk(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var out := frame(rep, lines, sf3("Find the angle of elevation of T from B%s." % (", in radians" if is_rad else "")), ans, g)
 	var conv := func(x: float) -> float: return x if is_rad else rad_to_deg(x)
 	out.wrongs = bad(conv.call(atan(h / w)), R_WALKED)
-	out.generic = gens([conv.call(t) * d / left, conv.call(t) + conv.call(atan(w / d)), conv.call(atan(left / h)), val * 1.5, val / 2.0])
+	# Adjacent ÷ opposite gives the angle at T, the other acute angle.
+	out.wrongs += bad(conv.call(atan(left / h)), R_OTHER_ACUTE)
+	out.fillers = gens([conv.call(t) * d / left, conv.call(t) + conv.call(atan(w / d)), val * 1.5, val / 2.0])
 	var hw := W(h)
 	var unit := " radians" if is_rad else "°"
 	var again: float = atan(back(hw) / left)
@@ -848,7 +874,9 @@ func u_equal_elevations(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		[arc("P", "A", "B", "%d°" % s.phi), arc("P", "F", "A", "θ"), arc("P", "G", "B", "θ")], [], {"right": ["F", "G"]})
 	var out := frame(rep, lines, sf3("Find the height of the taller %s." % tall(s)), ans, g)
 	out.wrongs = bad(l * sin(rad(float(s.phi) / 2.0)), R_HALF_PHI) + bad(x * sin(t), R_OTHER_TOWER)
-	out.generic = gens([l * cos(t), l * tan(t), l, h + 2.0, h * 1.2])
+	# l cos θ is l sin(φ/2), R_HALF_PHI's value; tan for sin is the wrong function.
+	out.wrongs += bad(l * tan(t), R_WRONG_FN)
+	out.fillers = gens([l * cos(t), l, h + 2.0, h * 1.2])
 	out.methods = {"choose-ratio-rearrange": method(["The angles at P on the straight ground add to 180°: θ + %d° + θ = 180°, so θ = %d°." % [s.phi, deg],
 		"In the taller triangle, PA is the hypotenuse and the height is opposite θ, so use sin θ = opposite ÷ hypotenuse.",
 		"The side you want is on top, so multiply: height = %s × sin %d° = %s" % [D(s.l), deg, W(h)], say(ans)], ans.values)}
@@ -877,7 +905,8 @@ func u_cone_from_eye_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		[arc("E", "_L", "T", D(s.e) + "°")], [], {"note": "not to scale"})
 	var out := frame(rep, lines, sf3("Find the radius of the base of the %s." % thing), ans, g)
 	out.wrongs = bad(hh / tan(t) - d, R_NO_EYE) + bad(across, R_CENTRE)
-	out.generic = gens([rise * tan(t) - d, rise / sin(t) - d, rise / tan(t) + d, v + 2.0, v * 1.5])
+	out.wrongs += bad(rise * tan(t) - d, R_REARRANGE) + bad(rise / sin(t) - d, R_WRONG_FN)
+	out.fillers = gens([rise / tan(t) + d, v + 2.0, v * 1.5])
 	var rw := W(across)
 	out.methods = {"right-triangle": method(["From eye level up to T is %s − %s = %s m." % [D(s.h), D(s.eye), D(s.h.sub(s.eye))],
 		"The horizontal from E to the axis of the cone is %s ÷ tan %s° = %s" % [D(s.h.sub(s.eye)), D(s.e), rw],
@@ -900,7 +929,8 @@ func u_depression_sight_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var lines := ["The top T of a %s is %s above level ground. TH is horizontal." % [tall(s), m(s.h)], "A lookout at T sees %s at P on the ground. The angle of depression of P from T is %s°." % [SEEN[s.ctx], D(s.e)]]
 	var out := frame(rep, lines, sf3("Find TP, the distance along the line of sight."), ans, drop_sketch(h, h / tan(t), m(s.h), "?", D(s.e) + "°"))
 	out.wrongs = bad(h / cos(t), R_AT_TOP)
-	out.generic = gens([h * sin(t), h / tan(t), h * tan(t), v + 2.0, v * 1.5])
+	out.wrongs += bad(h * sin(t), R_REARRANGE) + bad(h / tan(t), R_WRONG_FN)
+	out.fillers = gens([h * tan(t), v + 2.0, v * 1.5])
 	var inside_t := "The horizontals at T and F are parallel, so the angle at P inside the triangle is also %s°." % D(s.e)
 	out.methods = {
 		"choose-ratio-rearrange": method(["The angle lies between TH and TP, so the angle at T inside the triangle is 90° − %s° = %s°." % [D(s.e), D(90 - s.e.n)],
@@ -919,7 +949,8 @@ func u_depression_from_sight_line(rep: String, s: Dictionary, _rng: Seeded) -> D
 	var lines := ["The top T of a %s is %s above level ground. TH is horizontal." % [tall(s), m(s.h)], "A lookout at T sees %s at P on the ground, and TP = %s." % [SEEN[s.ctx], m(s.l)]]
 	var out := frame(rep, lines, sf3("Find the angle of depression of P from T."), ans, drop_sketch(h, x, m(s.h), m(s.l), "?"))
 	out.wrongs = bad(90.0 - deg, R_FROM_VERTICAL)
-	out.generic = gens([rad_to_deg(atan(h / l)), deg + 10.0, deg / 2.0, deg * 1.5])
+	out.wrongs += bad(rad_to_deg(atan(h / l)), R_WRONG_FN)
+	out.fillers = gens([deg + 10.0, deg / 2.0, deg * 1.5])
 	var top := W(rad_to_deg(acos(h / l)))
 	out.methods = {
 		"inverse-ratio": method(["At T, inside the triangle, the height is adjacent and TP is the hypotenuse: angle FTP = cos⁻¹(%s ÷ %s) = %s°" % [D(s.h), D(s.l), top],
@@ -944,7 +975,7 @@ func u_depression_two_points(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		[arc("T", "H", "Q", D(s.e2) + "°"), arc("T", "H", "P", D(s.e) + "°")], [], {"right": ["F"]})
 	var out := frame(rep, lines, sf3("Find PQ, the distance between the carts."), ans, g)
 	out.wrongs = bad(absf(h * tan(near) - h * tan(far)), R_AT_TOP) + bad(x1 + x2, R_ADD_DISTANCES)
-	out.generic = gens([h * (tan(near) + tan(far)), h / sin(far) - h / sin(near), x2, v + 2.0, v * 1.5])
+	out.fillers = gens([h * (tan(near) + tan(far)), h / sin(far) - h / sin(near), x2, v + 2.0, v * 1.5])
 	var aw := W(x1)
 	var bw := W(x2)
 	out.methods = {
@@ -973,7 +1004,7 @@ func u_name_the_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [pick.call("angle FPT" if dep else "angle HTP", R_AT_GROUND)]
 	if dep:
 		out.wrongs.append(pick.call("angle FTP", R_FROM_VERTICAL))
-	out.generic = [pick.call("angle FTP").values, pick.call("angle HTF").values]
+	out.fillers = [pick.call("angle FTP").values, pick.call("angle HTF").values]
 	var horizontal := "An angle of depression is measured down from the horizontal at the eye, and the eye is at T." if dep else "An angle of elevation is measured up from the horizontal at the eye, and the eye is at P."
 	var between := "The horizontal there is TH, and the line of sight is TP." if dep else "The horizontal there is the ground PF, and the line of sight is PT."
 	out.methods = {"angle-from-horizontal": method([horizontal, between, "So it is %s." % right], ans.values)}

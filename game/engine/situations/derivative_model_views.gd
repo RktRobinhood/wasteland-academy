@@ -23,6 +23,15 @@ const R_DERIV_READ := SR + "2"
 const R_DIVIDE := SR + "3"
 const R_ORDER := SR + "4"
 const R_NO_INNER := SR + "5"
+## The type's own misconceptions, with no ref of their own (FAL-815).
+const OWN := "t5-derivative-model-gdc#"
+const R_NO_SQUARE := OWN + "12"
+const R_TRUE_VALUE := OWN + "13"
+const R_NO_STEP := OWN + "14"
+const R_CHANGE_ONLY := OWN + "15"
+const R_OTHER_WAY := OWN + "16"
+const R_PRODUCT_MINUS := OWN + "17"
+const R_TIMES_UNITS := OWN + "18"
 
 ## The stories, by family (DerivativeModelSituation): sym names the quantity, what says what it
 ## is, y its units, per one unit of t. A wave's story also names two of them for a comparison.
@@ -209,10 +218,10 @@ static func claim(tag: String, text: String) -> Dictionary:
 	return {"form": tag, "vals": [], "text": text}
 
 
-## The right sentence, and the wrong ones with their tags.
+## The right sentence, the wrong ones with their tags, and the fillers (a "" tag).
 static func claims(right: String, wrongs_in: Array) -> Dictionary:
-	var built := DerivativeMeaningViews.claim_answer(right, wrongs_in)
-	return {"answer": built.answer, "wrongs": built.wrongs}
+	var built := DerivativeMeaningViews.claim_split(right, wrongs_in)
+	return {"answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers}
 
 
 ## The model on 0 ≤ t ≤ T, with a mark at each time, and its tangent there if asked.
@@ -296,7 +305,7 @@ func u_rate_at_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		slips.append(wv(-r, R_SIGN))
 	slips.append_array(_rule_slips(s.mod, s.t0))
 	var out := {"lines": model_lines(rep, s), "asked": asked, "answer": ans, "wrongs": slips,
-		"generic": gv([-r, r * 2.0, r * 0.5, r * 1.5]),
+		"fillers": gv([-r, r * 2.0, r * 0.5, r * 1.5]),
 		"methods": {"gdc-derivative": method(["The rate of change is the derivative.", gdc_line(s), Answer.text(ans)], ans.values),
 			"rule-then-substitute": method(rule_lines(s) + [Answer.text(ans)], ans.values)}}
 	if rep == "graph":
@@ -321,7 +330,7 @@ func u_rate_with_units(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var flip: Array = ["%s %s" % [Fmt.sf(-r), unit(c)], R_SIGN if r < 0.0 else ""]
 	var built := claims(right, [["%s %s" % [Fmt.sf(r), c.y], R_UNITS], ["%s %s" % [Fmt.sf(s.v), unit(c)], R_VALUE], flip])
 	var out := {"lines": [story(s)], "asked": "Find the rate of change of the %s when t = %d, with its units." % [c.what, s.t0],
-		"answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"gdc-derivative": method([gdc_line(s), "The rate takes the units of %s per the units of t." % c.sym, right], built.answer.values),
 			"units-ratio": method(["%s is in %s and t is in %s, so d%s/dt is in %s." % [c.sym, c.y, c.time, c.sym, unit(c)], gdc_line(s), right], built.answer.values)}}
 	if rep == "graph":
@@ -338,7 +347,7 @@ func u_rate_other_unit(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := sf_answer("rate = ", r / div, " %s per %s" % [c.y, to.to])
 	var line: String = "There are %d %ss in a %s, so divide by %d: %s ÷ %d = %s." % [div, to.to, c.per, div, GdcKit.W(r), div, GdcKit.W(r / div)]
 	return {"lines": [story(s)], "asked": "Find the rate of change of the %s when t = %d, in %s per %s, to 3 s.f." % [c.what, s.t0, c.y, to.to],
-		"answer": ans, "wrongs": [wv(r, R_OLD_UNIT), wv(s.v / div, R_VALUE)], "generic": gv([r * div, -r / div, r / (div * 2.0)]),
+		"answer": ans, "wrongs": [wv(r, R_OLD_UNIT), wv(s.v / div, R_VALUE), wv(r * div, R_TIMES_UNITS)], "fillers": gv([-r / div, r / (div * 2.0)]),
 		"methods": {"gdc-derivative": method([gdc_line(s), line, Answer.text(ans)], ans.values),
 			"units-ratio": method(["%s′(t) is in %s per %s, and a %s is the shorter unit." % [c.sym, c.y, c.per, to.to], gdc_line(s), line, Answer.text(ans)], ans.values)}}
 
@@ -363,7 +372,7 @@ func u_time_at_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var asked := "Find the %stime at which the %s is %s at %s %s, to 3 s.f." % [word, c.what, "increasing" if kf > 0.0 else "decreasing", D(k.abs_q()), unit(c)]
 	if rep == "equation":
 		asked = "Find the %svalue of t for which %s′(t) = %s, to 3 s.f." % [word, c.sym, D(k)]
-	var out := {"lines": model_lines(rep, s), "asked": asked, "answer": ans, "wrongs": slips, "generic": gv([x * 1.25, x * 0.75, x + 1.0, x + 0.5]),
+	var out := {"lines": model_lines(rep, s), "asked": asked, "answer": ans, "wrongs": slips, "fillers": gv([x * 1.25, x * 0.75, x + 1.0, x + 0.5]),
 		"methods": {"gdc-derivative": method(["The rate is %s, so %s′(t) = %s." % [D(k), c.sym, D(k)],
 				"Graph y = %s′(t) and y = %s, and find where they first meet: t = %s." % [c.sym, D(k), GdcKit.W(x)], Answer.text(ans)], ans.values),
 			"rule-then-substitute": method(["%s: %s′(t) = %s." % [rule_name(s.mod), c.sym, derivative(s.mod)],
@@ -390,7 +399,7 @@ func u_greatest_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var slips: Array = [wv(DerivativeModelSituation.y(s.mod, s.top.t), R_VALUE), wv(p.y, R_PEAK)]
 	if s.mod.fam == "wave":
 		slips.append(wv(s.mod.m.to_float() + s.mod.B.to_float(), R_NO_INNER))
-	var out := {"lines": named_lines(rep, s), "asked": asked, "answer": ans, "wrongs": slips, "generic": gv([r * 2.0, r * 0.5, r * 1.5]),
+	var out := {"lines": named_lines(rep, s), "asked": asked, "answer": ans, "wrongs": slips, "fillers": gv([r * 2.0, r * 0.5, r * 1.5]),
 		"methods": {"gdc-derivative": method(_greatest_lines(s, "the greatest size of the rate") + [Answer.text(ans)], ans.values)}}
 	if rep == "graph":
 		out.graph = model_graph(s, [], false)
@@ -404,7 +413,7 @@ func u_time_of_greatest_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var p := DerivativeModelSituation.peak_of(s)
 	var ans := sf_answer("t = ", t)
 	var asked := "Find the time at which the %s is %s fastest, to 3 s.f." % [c.what, "falling" if s.fall else "rising"]
-	var out := {"lines": named_lines(rep, s), "asked": asked, "answer": ans, "wrongs": [wv(p.t, R_PEAK)], "generic": gv([t * 0.5, t * 1.5, t + 1.0, t - 0.5]),
+	var out := {"lines": named_lines(rep, s), "asked": asked, "answer": ans, "wrongs": [wv(p.t, R_PEAK)], "fillers": gv([t * 0.5, t * 1.5, t + 1.0, t - 0.5]),
 		"methods": {"gdc-derivative": method(_greatest_lines(s, "where the model is steepest") + [Answer.text(ans)], ans.values)}}
 	if rep == "graph":
 		out.graph = model_graph(s, [], false)
@@ -425,7 +434,7 @@ func u_rising_or_falling(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		["%s at %s %s" % [word.capitalize(), Fmt.sf(s.v), unit(c)], R_VALUE],
 		["%s by %s %s" % ["Up" if r > 0.0 else "Down", mag, c.y], R_UNITS]])
 	var out := {"lines": named_lines(rep, s), "asked": "At t = %d, which way is the %s going, and how fast?" % [s.t0, c.what],
-		"answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"gdc-derivative": method([gdc_line(s), "Its sign says %s; its size says how fast." % word, right], built.answer.values),
 			"sign-direction": method(["The sign of %s′(%d) gives the direction: %s, so %s." % [c.sym, s.t0, GdcKit.W(r), word],
 				"The size gives the speed, in %s." % unit(c), right], built.answer.values),
@@ -449,7 +458,7 @@ func u_interpret_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		["The %s has %s by %s %s since the start." % [c.what, "gone up" if r > 0.0 else "gone down", mag, c.y], R_UNITS],
 		["In the next %s the %s %s by exactly %s %s." % [c.per, c.what, "goes up" if r > 0.0 else "goes down", mag, c.y], R_NEXT]])
 	var out := {"lines": model_lines(rep, s), "asked": "Find %s′(%d). Which sentence says what it means here?" % [c.sym, s.t0],
-		"answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"gdc-derivative": method([gdc_line(s), "It is a rate at one instant, not an amount.", right], built.answer.values),
 			"units-ratio": method([gdc_line(s), "%s′(t) is in %s, at that instant." % [c.sym, unit(c)], right], built.answer.values),
 			"sign-direction": method([gdc_line(s), "A %s value means the %s is %s." % ["positive" if r > 0.0 else "negative", c.what, way], right], built.answer.values)}}
@@ -481,11 +490,11 @@ func u_compare_models(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var built := claims(right, [
 		["The %s is rising faster in model %s, because that model is higher at t = %d (%s)." % [c.what, slow, t0, Fmt.sf(high)], R_VALUE],
 		["%s, so the %s is rising faster in model %s." % [nums, c.what, slow], ""],
-		["Model %s is %s %s ahead at t = %d." % [fast, gap, c.y, t0], ""]])
+		["Model %s is %s %s ahead at t = %d." % [fast, gap, c.y, t0], R_UNITS]])
 	var lines: Array = ["Two models of the %s, in %s, t %s after the start, for %s:" % [c.what, c.y, c.time, domain(s)],
 		"A(t) = %s" % model(ms.A), "B(t) = %s" % model(ms.B)]
 	var out := {"lines": lines, "asked": "Compare the two models at t = %d. Which sentence is true?" % t0,
-		"answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"gdc-derivative": method(["Use the GDC's dy/dx at t = %d on each model: A′(%d) = %s and B′(%d) = %s." % [t0, t0, GdcKit.W(ra), t0, GdcKit.W(rb)],
 				"The greater derivative rises faster, whichever model is higher.", right], built.answer.values),
 			"sign-direction": method(["Both derivatives are positive, so both models rise; the size says how fast.",
@@ -514,6 +523,7 @@ func u_time_rate_greater(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var slips: Array = []
 	if s.above > 0.0:
 		slips.append(wv(s.above, R_VALUE))
+	slips.append(wv(s.T - x, R_OTHER_WAY))
 	var a := model(s.mod)
 	var b := model(s.mod2)
 	var lines: Array = ["A(t) = %s" % a, "B(t) = %s" % b, "Both are for %s." % domain(s)]
@@ -524,7 +534,7 @@ func u_time_rate_greater(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var cuts := "Find where y = A′(t) meets the line y = %s: t = %s." % [D(s.mod2.m), ", ".join(s.cross.map(func(t): return GdcKit.W(t)))]
 	var parts := "A′(t) is below B′(t) from %s." % pieces_text(s.pieces)
 	var sum := "Add the stretches: %s." % GdcKit.W(x)
-	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": slips, "generic": gv([s.T - x, x * 0.5, x * 1.5]),
+	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": slips, "fillers": gv([x * 0.5, x * 1.5]),
 		"methods": {"gdc-derivative": method(["Graph the two derivatives with the GDC: B′(t) is the line y = %s." % D(s.mod2.m), cuts, parts, sum, Answer.text(ans)], ans.values),
 			"rule-then-substitute": method(["Differentiate: A′(t) = %s and B′(t) = %s." % [derivative(s.mod), D(s.mod2.m)],
 				"Solve %s = %s on the domain: t = %s." % [derivative(s.mod), D(s.mod2.m), ", ".join(s.cross.map(func(t): return GdcKit.W(t)))], parts, sum, Answer.text(ans)], ans.values)}}
@@ -548,7 +558,7 @@ func u_steeper_tangent(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var tq: float = s.t2 if not s.flip else s.t1
 	return {"lines": [bare(s), "The graph shows %s against t, with the tangents at P (t = %d) and Q (t = %d)." % [c.sym, tp, tq]],
 		"graph": model_graph(s, marks, true, names),
-		"asked": "At which point is the %s rising faster?" % c.what, "answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"asked": "At which point is the %s rising faster?" % c.what, "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"tangent-picture": method(["The gradient of each tangent is the rate there: %s at %s and %s at %s." % [Fmt.sf(ra), fast, Fmt.sf(rb), slow],
 			"Rising faster means the greater gradient, with its sign, not the higher point.", right], built.answer.values)}}
 
@@ -561,10 +571,11 @@ func u_tangent_estimate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var slips: Array = []
 	if s.r < 0.0:
 		slips.append(wv(s.v - s.r * s.h.to_float(), R_SIGN))
+	slips.append_array([wv(DerivativeModelSituation.y(s.mod, t1), R_TRUE_VALUE), wv(s.v + s.r, R_NO_STEP), wv(s.r * s.h.to_float(), R_CHANGE_ONLY)])
 	var line := "The tangent at t = %d passes through (%d, %s) with gradient %s." % [s.t0, s.t0, GdcKit.W(s.v), GdcKit.W(s.r)]
 	var step := "At t = %s: %s + %s × %s = %s." % [D(Q.new(s.t0).add(s.h)), GdcKit.W(s.v), GdcKit.W(s.r), D(s.h), GdcKit.W(est)]
 	var out := {"lines": model_lines(rep, s), "asked": "Use the tangent at t = %d to estimate %s when t = %s, to 3 s.f." % [s.t0, c.sym, D(Q.new(s.t0).add(s.h))],
-		"answer": ans, "wrongs": slips, "generic": gv([DerivativeModelSituation.y(s.mod, t1), s.v + s.r, s.r * s.h.to_float(), est * 1.1, est * 0.9]),
+		"answer": ans, "wrongs": slips, "fillers": gv([est * 1.1, est * 0.9]),
 		"methods": {"gdc-derivative": method(["With the GDC: %s(%d) = %s and %s′(%d) = %s." % [c.sym, s.t0, GdcKit.W(s.v), c.sym, s.t0, GdcKit.W(s.r)], step, Answer.text(ans)], ans.values),
 			"tangent-picture": method([line, step, Answer.text(ans)], ans.values)}}
 	if rep == "graph":
@@ -622,7 +633,8 @@ func u_product_from_table(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	out.asked = "Find the rate of change of the %s when t = %d, in %s per %s." % [st.h, a, st.hu, st.per]
 	out.answer = ans
 	out.wrongs = [wrong({"v": Q.new(df * dg)}, R_PRODUCT), wrong({"v": Q.new(df * dg + f * dg)}, R_DERIV_READ), wrong({"v": Q.new(f * g)}, R_VALUE)]
-	out.generic = gx([df * g - f * dg, f * dg - df * g, r + 10, r - 10])
+	out.wrongs.append(wrong({"v": Q.new(df * g - f * dg)}, R_PRODUCT_MINUS))
+	out.fillers = gx([f * dg - df * g, r + 10, r - 10])
 	out.methods = {"rule-then-substitute": method(["The product rule: %s′ = %s′%s + %s%s′." % [st.H, st.F, st.G, st.F, st.G],
 		"At t = %d: %s = %d, %s = %d, %s′ = %s and %s′ = %s." % [a, st.F, f, st.G, g, st.F, Fmt.num(df), st.G, Fmt.num(dg)],
 		"%s′(%d) = %s × %s + %s × %s = %s." % [st.H, a, paren(df), paren(g), paren(f), paren(dg), Fmt.num(r)], Answer.text(ans)], ans.values)}
@@ -641,8 +653,8 @@ func u_quotient_from_table(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var out := _rule_lines(rep, s, st, "÷")
 	out.asked = "Find the rate of change of the %s when t = %d, in %s per %s." % [st.h, a, st.hu, st.per]
 	out.answer = ans
-	out.wrongs = [wrong({"v": Q.new(df, dg)}, R_DIVIDE), wrong({"v": r.neg()}, R_ORDER), wrong({"v": Q.new(df * g - f * dg, g)}, "")]
-	out.generic = gx([r.add(1), r.sub(1), r.mul(2)])
+	out.wrongs = [wrong({"v": Q.new(df, dg)}, R_DIVIDE), wrong({"v": r.neg()}, R_ORDER), wrong({"v": Q.new(df * g - f * dg, g)}, R_NO_SQUARE)]
+	out.fillers = gx([r.add(1), r.sub(1), r.mul(2)])
 	out.methods = {"rule-then-substitute": method(["The quotient rule: %s′ = (%s′%s − %s%s′)/%s²." % [st.H, st.F, st.G, st.F, st.G, st.G],
 		"At t = %d: %s = %d, %s = %d, %s′ = %s and %s′ = %s." % [a, st.F, f, st.G, g, st.F, Fmt.num(df), st.G, Fmt.num(dg)],
 		"%s′(%d) = (%s × %s − %s × %s)/%s² = %s." % [st.H, a, paren(df), paren(g), paren(f), paren(dg), paren(g), D(r)], Answer.text(ans)], ans.values)}
@@ -659,7 +671,7 @@ func u_chain_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	return {"lines": ["h(x) = f(g(x)). The table gives values of f, g and their derivatives."], "table": rule_table(s, "f", "g", "x"),
 		"asked": "Find h′(%d)." % a, "answer": ans,
 		"wrongs": [wrong({"v": Q.new(s.df[a - 1] * c)}, R_INPUT), wrong({"v": Q.new(s.df[c - 1] * c)}, R_DERIV_READ), wrong({"v": Q.new(fb)}, R_NO_INNER)],
-		"generic": gx([-r, r + 2, r - 2]),
+		"fillers": gx([-r, r + 2, r - 2]),
 		"methods": {"rule-then-substitute": method(["The chain rule: h′(x) = f′(g(x)) × g′(x).", "From the table, g(%d) = %d and g′(%d) = %d." % [a, b, a, c],
 			"So h′(%d) = f′(%d) × %d = %s × %d = %s." % [a, b, c, paren(fb), c, Fmt.num(r)], Answer.text(ans)], ans.values)}}
 
@@ -686,7 +698,7 @@ func u_composite_with_model(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	if dg > 0:
 		slips.append(wv(DerivativeModelSituation.composite(s, dg, dg), R_DERIV_READ))
 	return {"lines": ["h(t) = %s. The table gives values of g and g′." % txt.h], "table": table, "asked": "Find h′(%d), to 3 s.f." % a, "answer": ans, "wrongs": slips,
-		"generic": gv([-r, r * 2.0, r * 0.5, r * 1.5]),
+		"fillers": gv([-r, r * 2.0, r * 0.5, r * 1.5]),
 		"methods": {"rule-then-substitute": method(["The chain rule: h′(t) = %s." % txt.dh, "From the table, g(%d) = %d and g′(%d) = %s." % [a, g, a, Fmt.num(dg)],
 			"Substitute: h′(%d) = %s." % [a, GdcKit.W(r)], Answer.text(ans)], ans.values)}}
 
@@ -712,7 +724,7 @@ func u_rising_from_table(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.asked = "When t = %d, which way is the %s going, and how fast?" % [a, st.h]
 	out.answer = built.answer
 	out.wrongs = built.wrongs
-	out.generic = []
+	out.fillers = built.fillers
 	var sum := "%s′(%d) = %s × %s + %s × %s = %s." % [st.H, a, paren(df), paren(g), paren(f), paren(dg), Fmt.num(r)]
 	out.methods = {"rule-then-substitute": method(["The product rule: %s′ = %s′%s + %s%s′." % [st.H, st.F, st.G, st.F, st.G], sum, right], built.answer.values),
 		"sign-direction": method([sum, "It is %s, so the total is %s." % ["positive" if r > 0 else "negative", word], right], built.answer.values)}
@@ -748,8 +760,9 @@ func u_product_from_graphs(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var r := df * g + f * dg
 	var ans := exact_answer("h′(%d) = " % a, r)
 	return {"lines": ["The graph shows y = f(x) and y = g(x), each made of straight pieces.", "h(x) = f(x)g(x)"], "graph": pieces_graph(s), "asked": "Find h′(%d)." % a, "answer": ans,
-		"wrongs": [wrong({"v": Q.new(df * dg)}, R_PRODUCT), wrong({"v": Q.new(df * dg + f * dg)}, R_DERIV_READ), wrong({"v": Q.new(f * g)}, R_VALUE)],
-		"generic": gx([df * g - f * dg, r + 2, r - 2, -r]),
+		"wrongs": [wrong({"v": Q.new(df * dg)}, R_PRODUCT), wrong({"v": Q.new(df * dg + f * dg)}, R_DERIV_READ), wrong({"v": Q.new(f * g)}, R_VALUE),
+			wrong({"v": Q.new(df * g - f * dg)}, R_PRODUCT_MINUS)],
+		"fillers": gx([r + 2, r - 2, -r]),
 		"methods": {"read-from-graphs": method(read_lines(a, f, g, df, dg) + ["The product rule: h′(%d) = %s × %s + %s × %s = %s." % [a, paren(df), paren(g), paren(f), paren(dg), Fmt.num(r)], Answer.text(ans)], ans.values)}}
 
 
@@ -762,7 +775,7 @@ func u_quotient_from_graphs(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var r: Q = DerivativeModelSituation.quotient(f, g, df, dg)
 	var ans := exact_answer("h′(%d) = " % a, r)
 	return {"lines": ["The graph shows y = f(x) and y = g(x), each made of straight pieces.", "h(x) = f(x)/g(x)"], "graph": pieces_graph(s), "asked": "Find h′(%d)." % a, "answer": ans,
-		"wrongs": [wrong({"v": Q.new(df, dg)}, R_DIVIDE), wrong({"v": r.neg()}, R_ORDER)], "generic": gx([r.add(1), r.sub(1), r.mul(2), r.add(2)]),
+		"wrongs": [wrong({"v": Q.new(df, dg)}, R_DIVIDE), wrong({"v": r.neg()}, R_ORDER)], "fillers": gx([r.add(1), r.sub(1), r.mul(2), r.add(2)]),
 		"methods": {"read-from-graphs": method(read_lines(a, f, g, df, dg) + ["The quotient rule: h′(%d) = (%s × %s − %s × %s)/%s² = %s." % [a, paren(df), paren(g), paren(f), paren(dg), paren(g), D(r)], Answer.text(ans)], ans.values)}}
 
 
@@ -775,7 +788,7 @@ func u_chain_from_graphs(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var r := fb * c
 	var ans := exact_answer("h′(%d) = " % a, r)
 	return {"lines": ["The graph shows y = f(x) and y = g(x), each made of straight pieces.", "h(x) = f(g(x))"], "graph": pieces_graph(s), "asked": "Find h′(%d)." % a, "answer": ans,
-		"wrongs": [wrong({"v": Q.new(fa * c)}, R_INPUT), wrong({"v": Q.new(fb)}, R_NO_INNER)], "generic": gx([-r, r + 1, r - 1, r + 2]),
+		"wrongs": [wrong({"v": Q.new(fa * c)}, R_INPUT), wrong({"v": Q.new(fb)}, R_NO_INNER)], "fillers": gx([-r, r + 1, r - 1, r + 2]),
 		"methods": {"read-from-graphs": method(["At x = %d read g: g(%d) = %d, and its gradient g′(%d) = %s." % [a, a, b, a, Fmt.num(c)],
 			"Read the gradient of f where x = %d: f′(%d) = %s." % [b, b, Fmt.num(fb)],
 			"The chain rule: h′(%d) = f′(%d) × g′(%d) = %s × %s = %s." % [a, b, a, paren(fb), paren(c), Fmt.num(r)], Answer.text(ans)], ans.values)}}

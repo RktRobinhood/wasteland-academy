@@ -8,6 +8,12 @@ extends RefCounted
 ## Representations: "notation" (u₁ = 7,  d = 3), "terms" (7, 10, 13, 16, …), "table"
 ## (n against uₙ) and "words". Every answer is a whole number and is marked exactly.
 ##
+## t1-ext-sigma-arithmetic (FAL-779) is built here too: a Σ (r = a to b) (pr + q) to count, to
+## evaluate from r = 1 or from a higher lower limit, a series to write in Σ form, and the upper
+## limit k from the total. Its wrong options are SL1.2.sigma's slips and the type's own; it builds
+## error-spot on the two evaluations (the constant added once, the terms counted as b − a). A
+## GDC Σ is Paper 2, as every calculator method is; the rest is Paper 1.
+##
 ## Paper 2 (FAL-419, papers()): in words, a savings plan in dollars and cents or a
 ## training plan in km, with a decimal u₁ and d, worked with a GDC. A term or a sum is
 ## a decimal that ends, written as money (2 d.p.) or a decimal and still marked exactly
@@ -29,7 +35,16 @@ const NEED := {
 	"n-from-sum": {"n": "sum", "sum_root": true},
 	"d-from-sum": {"n": "sum"},
 	"u1-from-sum": {"n": "sum"},
+	# t1-ext-sigma-arithmetic (FAL-779): each its own Σ.
+	"count-terms": {"n": "sum", "sigma": "count"},
+	"evaluate-sigma": {"n": "sum", "sigma": "one"},
+	"evaluate-shifted": {"n": "sum", "sigma": "shifted"},
+	"write-sigma": {"n": "sum", "sigma": "write"},
+	"upper-from-total": {"n": "sum", "sigma": "upper"},
 }
+## The sigma unknowns' extra formats (QuestionEngine.extra_formats).
+const SIGMA_EXTRA := {"evaluate-sigma": ["error-spot"], "evaluate-shifted": ["error-spot"]}
+const SIGMA_OWN := "t1-ext-sigma-arithmetic#"
 
 const SUBS := "₀₁₂₃₄₅₆₇₈₉"
 ## The unknowns with a Paper 2 version, asked in words.
@@ -43,6 +58,12 @@ func has(unknown: String) -> bool:
 
 func need(unknown: String, _rep: String) -> Dictionary:
 	return NEED[unknown].duplicate()
+
+
+## The extra formats a cell's builder supports: the sigma unknowns' error-spots only, so
+## t1-arithmetic-sequence's cells are as before.
+func formats(unknown: String) -> Array:
+	return SIGMA_EXTRA.get(unknown, [])
 
 
 ## The papers a cell can be asked on (QuestionEngine.cell_papers).
@@ -611,3 +632,204 @@ func p2_n_from_sum(s: Dictionary) -> Dictionary:
 	out.wrongs = [wrong(q3(neg), "sum-unknown#1"), wrong(x, "sum-unknown#2")]
 	out.generic = gen([Q.new(n - 1), q3(r), s.n.add(1)])
 	return out
+
+
+# ── Sigma notation (t1-ext-sigma-arithmetic) ─────────────────
+
+## "3r + 2", "−2r + 41", "r − 3": the general term pr + q.
+static func gen_term(s: Dictionary) -> String:
+	return Fmt.poly([s.p, s.q]).replace("x", "r")
+
+
+## Σ (r = a to b) (pr + q), with the upper limit a number or a letter.
+static func sigma(s: Dictionary, a: Variant, b: Variant) -> String:
+	return "Σ (r = %s to %s) (%s)" % [str(a) if a is String else N(a), str(b) if b is String else N(b), gen_term(s)]
+
+
+## "3 × 5 + 2": the term at r = k, as a sum to work out.
+static func at(s: Dictionary, k: Variant) -> String:
+	return "%s × %s%s" % [N(s.p), N(k), Fmt.plus(s.q)]
+
+
+static func t_at(s: Dictionary, k: Variant) -> Q:
+	return s.p.mul(k).add(s.q)
+
+
+## n/2 (first + last) as a value: the sum of n terms of the sequence from `first` to `last`.
+static func pair_sum(n: Variant, first: Q, last: Q) -> Q:
+	return Q.of(n).mul(first.add(last)).div(2)
+
+
+## Σ(pr + q) = pΣr + Σq, split; with q < 0, "pΣr − Σ|q|".
+static func split_line(s: Dictionary, q_part: String = "") -> String:
+	var lhs := "Σ(%s)" % gen_term(s)
+	var head := "%sΣr" % Fmt.lead(s.p)
+	var tail := q_part if q_part != "" else "Σ%s" % N(s.q.abs_q())
+	return "%s = %s %s %s" % [lhs, head, "−" if s.q.sign() < 0 else "+", tail]
+
+
+## p × Σr ± Σ|q| as numbers: "3 × 210 + 40".
+static func combine(s: Dictionary, sr: Q, sq: Q) -> String:
+	return "%s × %s %s %s" % [N(s.p), N(sr), "−" if s.q.sign() < 0 else "+", N(sq)]
+
+
+func _sigma_out(lines: Array, asked: String, ans: Dictionary, s: Dictionary, wrongs: Array, fillers: Array, methods: Dictionary) -> Dictionary:
+	var out := {"lines": lines, "asked": asked, "answer": ans, "wrongs": wrongs, "fillers": fillers,
+		"given": ArithmeticSequenceSituation.export(s), "methods": {}}
+	for m in methods:
+		out.methods[m] = {"steps": methods[m], "result": ans.values}
+	return out
+
+
+## Wrong options [value, ref], each value once and never the answer.
+static func sigma_wrongs(v: Q, list: Array) -> Array:
+	var out: Array = []
+	var seen := {v.key(): true}
+	for e in list:
+		var q := Q.of(e[0])
+		if seen.has(q.key()):
+			continue
+		seen[q.key()] = true
+		out.append({"values": {"v": q}, "ref": e[1]})
+	return out
+
+
+static func sigma_fillers(v: Q, wrongs: Array, list: Array) -> Array:
+	var seen := {v.key(): true}
+	for w in wrongs:
+		seen[Q.of(w.values.v).key()] = true
+	var out: Array = []
+	for e in list:
+		var q := Q.of(e)
+		if not seen.has(q.key()):
+			seen[q.key()] = true
+			out.append({"v": q})
+	return out
+
+
+func u_count_terms(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var a: int = s.lower.n
+	var b: int = s.upper.n
+	var n: int = b - a + 1
+	var ans := Answer.make("number", {"v": Q.new(n)}, {}, "", " terms")
+	var said := "So there are %s." % Answer.text(ans)
+	var before := "The term at r = 1 comes before the sum starts." if a == 2 else "The %d terms from r = 1 to %d come before the sum starts." % [a - 1, a - 1]
+	var w := sigma_wrongs(Q.new(n), [[b - a, REF + "sigma#0"]])
+	return _sigma_out([sigma(s, s.lower, s.upper)], "How many terms does this sum have?", ans, s, w, sigma_fillers(Q.new(n), w, [n + 1, b, n + 2]), {
+		"list-and-formula": ["r takes every whole number from %d to %d, with one term for each." % [a, b], "n = %d − %d + 1 = %d" % [b, a, n], said],
+		"difference-of-sums": ["From r = 1 to %d there would be %d terms." % [b, b], before, "n = %d − %d = %d, so there are %s." % [b, a - 1, n, Answer.text(ans)]],
+	})
+
+
+func u_evaluate_sigma(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var n: int = s.upper.n
+	var ans := Answer.make("number", {"v": s.sn}, {}, "")
+	var said := "So the sum is %s." % N(s.sn)
+	var sr := Q.new(n * (n + 1), 2)
+	var sq: Q = s.q.abs_q().mul(n)
+	var w := sigma_wrongs(s.sn, [[s.p.mul(sr).add(s.q), REF + "sigma#1"], [s.p.mul(sr), REF + "sigma#2"],
+		[Q.new(n, 2).mul(s.u1.mul(2).add(s.d.mul(n))), REF + "sum#0"]])
+	var first: Q = s.u1
+	var last: Q = s.un
+	var out := _sigma_out([sigma(s, 1, n)], "Find the value of this sum.", ans, s, w, sigma_fillers(s.sn, w, [s.sn.mul(2), s.sn.add(10), s.sn.sub(10)]), {
+		"list-and-formula": ["The first term is %s = %s and the last is %s = %s." % [at(s, 1), N(first), at(s, n), N(last)],
+			"There are %d terms, so Sum = %d/2 × (%s + %s) = %s" % [n, n, N(first), P(last), N(s.sn)], said],
+		"split-sum": [split_line(s), "Σr = 1 + 2 + … + %d = %d × %d/2 = %s" % [n, n, n + 1, N(sr)],
+			"Σ%s = %s × %d = %s, as each of the %d terms is %s" % [N(s.q.abs_q()), N(s.q.abs_q()), n, N(sq), n, N(s.q.abs_q())],
+			"%s = %s" % [combine(s, sr, sq), N(s.sn)], said],
+		"gdc-sigma": ["Enter %s in the GDC's Σ template, as it stands: the GDC gives %s." % [sigma(s, 1, n), N(s.sn)], said],
+	})
+	var q_abs := N(s.q.abs_q())
+	var once: Q = s.p.mul(sr).add(s.q)
+	if rng.chance(0.5):
+		out.spot = {"lines": [split_line(s), "Σr = %d × %d/2 = %s" % [n, n + 1, N(sr)], "Σ%s = %s" % [q_abs, q_abs],
+			"So the sum is %s = %s." % [combine(s, sr, s.q.abs_q()), N(once)]], "bad": 2}
+	else:
+		out.spot = {"lines": [split_line(s, q_abs), "Σr = %d × %d/2 = %s" % [n, n + 1, N(sr)], "%s = %s" % [combine(s, sr, s.q.abs_q()), N(once)],
+			"So the sum is %s." % N(once)], "bad": 0}
+	out.spot.ref = SIGMA_OWN + "8"
+	out.spot.why = "the constant is added once for every term, so Σ%s = %s × %d" % [q_abs, q_abs, n]
+	return out
+
+
+func u_evaluate_shifted(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var a: int = s.lower.n
+	var b: int = s.upper.n
+	var n: int = b - a + 1
+	var ans := Answer.make("number", {"v": s.sn}, {}, "")
+	var said := "So the sum is %s." % N(s.sn)
+	var first: Q = s.u1
+	var last: Q = s.un
+	var t1 := t_at(s, 1)
+	var ta := t_at(s, a - 1)
+	var upto_b := pair_sum(b, t1, last)
+	var upto_a := pair_sum(a - 1, t1, ta)
+	var sr := Q.new(b * (b + 1) - (a - 1) * a, 2)
+	var w := sigma_wrongs(s.sn, [[pair_sum(n - 1, first, last), REF + "sigma#0"], [upto_b, SIGMA_OWN + "5"],
+		[pair_sum(n, s.p, s.p.mul(n)), REF + "sigma#2"], [s.p.mul(sr).add(s.q), REF + "sigma#1"]])
+	var ends := "The first term is %s = %s and the last is %s = %s." % [at(s, a), N(first), at(s, b), N(last)]
+	var out := _sigma_out([sigma(s, s.lower, s.upper)], "Find the value of this sum.", ans, s, w, sigma_fillers(s.sn, w, [s.sn.mul(2), s.sn.add(10), s.sn.sub(10)]), {
+		"list-and-formula": [ends, "n = %d − %d + 1 = %d, the number of terms." % [b, a, n], "Sum = %d/2 × (%s + %s) = %s" % [n, N(first), P(last), N(s.sn)], said],
+		"difference-of-sums": ["%s = %d/2 × (%s + %s) = %s" % [sigma(s, 1, b), b, N(t1), P(last), N(upto_b)],
+			"%s = %d/2 × (%s + %s) = %s" % [sigma(s, 1, a - 1), a - 1, N(t1), P(ta), N(upto_a)],
+			"Sum = %s − %s = %s" % [N(upto_b), P(upto_a), N(s.sn)], said],
+		"gdc-sigma": ["Enter %s in the GDC's Σ template, as it stands: the GDC gives %s." % [sigma(s, s.lower, s.upper), N(s.sn)], said],
+	})
+	var short := pair_sum(n - 1, first, last)
+	var spot_sum := "Sum = %d/2 × (%s + %s) = %s" % [n - 1, N(first), P(last), N(short)]
+	if rng.chance(0.5):
+		out.spot = {"lines": [ends, "n = %d − %d = %d, the number of terms." % [b, a, n - 1], spot_sum, "So the sum is %s." % N(short)], "bad": 1}
+	else:
+		out.spot = {"lines": ["n = %d − %d = %d, and the first term is %s = %s." % [b, a, n - 1, at(s, a), N(first)], "The last term is %s = %s." % [at(s, b), N(last)],
+			spot_sum, "So the sum is %s." % N(short)], "bad": 0}
+	out.spot.ref = SIGMA_OWN + "9"
+	out.spot.why = "r runs from %d to %d, which is %d − %d + 1 = %d terms" % [a, b, b, a, n]
+	return out
+
+
+## The series written out: its first three terms, …, and its last.
+static func series_line(s: Dictionary) -> String:
+	var out := N(s.u1)
+	for v in [ArithmeticSequenceSituation.term(s, 2), ArithmeticSequenceSituation.term(s, 3)]:
+		out += Fmt.plus(v)
+	return out + " + …" + Fmt.plus(s.un)
+
+
+func u_write_sigma(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var n: int = s.upper.n
+	var vals := {"v0": s.p, "v1": s.q, "v2": Q.new(n)}
+	var ans := Answer.make("named", vals, {"names": ["p", "q", "n"]})
+	var said := "So %s." % Answer.text(ans)
+	var u2: Q = ArithmeticSequenceSituation.term(s, 2)
+	var last := "The last term is %s: %sn%s = %s, so n = %d." % [N(s.un), Fmt.lead(s.p), Fmt.plus(s.q), N(s.un), n]
+	var named := func(p: Q, q: Q, k: Variant) -> Dictionary: return {"v0": p, "v1": q, "v2": Q.of(k)}
+	var wrongs: Array = [{"values": named.call(s.p, s.u1, n), "ref": SIGMA_OWN + "6"}, {"values": named.call(s.p, s.q, n - 1), "ref": REF + "sum#1"}]
+	if s.un.sign() > 0 and s.un.n != n and s.un.n != n - 1:
+		wrongs.append({"values": named.call(s.p, s.q, s.un), "ref": REF + "sum#1"})
+	var out := _sigma_out([series_line(s)], "Write this series as Σ (r = 1 to n) (pr + q). Find p, q and n.", ans, s, wrongs,
+		[named.call(s.p, s.q, n + 1), named.call(s.p.neg(), s.q, n), named.call(s.q, s.p, n)], {
+		"list-and-formula": ["u₁ = %s and d = %s − %s = %s." % [N(s.u1), N(u2), P(s.u1), N(s.d)],
+			"u₁ + (r − 1)d = %s + (r − 1) × %s = %s, so p = %s and q = %s." % [N(s.u1), P(s.d), gen_term(s), N(s.p), N(s.q)], last, said],
+		"linear-function": ["The terms change by %s each time, so the general term is %sr + q." % [N(s.d), Fmt.lead(s.p)],
+			"The first term is %s: %s × 1 + q = %s, so q = %s." % [N(s.u1), N(s.p), N(s.u1), N(s.q)], last, said],
+	})
+	return out
+
+
+func u_upper_from_total(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var k: int = s.upper.n
+	var T: Q = s.sn
+	var ans := Answer.make("number", {"v": Q.new(k)}, {}, "k = ")
+	var b: Q = s.p.add(s.q.mul(2))
+	var quad := "%s = 0" % Fmt.poly([s.p, b, T.mul(-2)]).replace("x", "k")
+	var fact := "%s%s%s = 0" % [Fmt.lead(s.p), Fmt.factor(k).replace("x", "k"), Fmt.factor(s.other).replace("x", "k")]
+	var close := "%s, so k = %d, as k counts terms and can't be %s." % [fact, k, N(s.other)]
+	var sk := "%sk(k + 1)/2 %s %sk" % [Fmt.lead(s.p), "−" if s.q.sign() < 0 else "+", Fmt.lead(s.q.abs_q())]
+	var w := sigma_wrongs(Q.new(k), [[s.other, SIGMA_OWN + "7"]])
+	return _sigma_out(["%s = %s" % [sigma(s, 1, "k"), N(T)]], "Find k.", ans, s, w, sigma_fillers(Q.new(k), w, [k + 1, k - 1, 2 * k]), {
+		"list-and-formula": ["The first term is %s = %s, and the terms go up by %s." % [at(s, 1), N(s.u1), N(s.p)],
+			"k/2 × (2 × %s + (k − 1) × %s) = %s" % [P(s.u1), P(s.p), N(T)], "Multiply out: " + quad, close],
+		"split-sum": ["%s = %s" % [split_line(s), sk], "%s = %s" % [sk, N(T)], "Multiply by 2 and collect: " + quad, close],
+		"gdc-sigma": ["Try upper limits in the GDC's Σ template: %s = %s and %s = %s." % [sigma(s, 1, k - 1), N(pair_sum(k - 1, s.u1, t_at(s, k - 1))), sigma(s, 1, k), N(T)],
+			"So k = %d." % k],
+	})

@@ -7,6 +7,12 @@ extends ExtensionViews
 ## number is a `number` written as a decimal, and order-mixed is a `choice`.
 ##
 ## Representations: "equation" (the numbers alone) and "words" (a story).
+##
+## The extension types t1-ext-standard-form-add and t1-ext-standard-form-powers (FAL-780) are built
+## here too: two numbers added or subtracted with different powers of ten, and one number squared,
+## cubed or rooted. Their answers are exact `form` answers on both papers, and their wrong options
+## are SL1.1.add-subtract's and SL1.1.powers-roots' slips and the types' own. Each builds error-spot
+## on one unknown; order-steps isn't built in the engine.
 
 const SC := "SL1.1.convert#"
 const SM := "SL1.1.multiply-divide#"
@@ -20,6 +26,48 @@ const R_SIGN := SM + "2"
 const R_DISPLAY := SX + "0"
 const R_EARLY := SX + "1"
 const R_WRONG_WAY := SX + "2"
+## FAL-815: the slips that were blank options, numbered in the type's misconceptions.
+const ST := "t1-standard-form#"
+const R_POINT_ONLY := ST + "9"
+const R_BACKWARDS := ST + "10"
+const R_UNIT_BACKWARDS := ST + "11"
+const R_SQUARE_A := ST + "12"
+const R_NO_KM := ST + "13"
+const R_DIAMETER := ST + "14"
+const R_SPEED_OVER := ST + "15"
+const R_SPEED_TIMES := ST + "16"
+const R_DIVIDE_UNIT := ST + "17"
+
+const SA := "SL1.1.add-subtract#"
+const SP := "SL1.1.powers-roots#"
+const OA := "t1-ext-standard-form-add#"
+const OP := "t1-ext-standard-form-powers#"
+const R_ADD_POWERS := SA + "0"
+const R_ACROSS := SA + "1"
+const R_LEAVE_10 := OA + "2"
+const R_LEAVE_1 := OA + "3"
+const R_SUB_POWERS := OA + "4"
+const R_SPOT_SHIFT := OA + "5"
+const R_TEN_ONLY := SP + "0"
+const R_ADD_EXP := SP + "1"
+const R_ROOT_A := SP + "2"
+const R_COEF_P := OP + "3"
+const R_HALVE := OP + "4"
+const R_THIRD := OP + "5"
+const R_SPOT_CUBE := OP + "6"
+const R_SPOT_RAISE := OP + "7"
+const ADD := ["add-forms", "add-carry", "subtract-forms", "subtract-renormalise", "difference-context"]
+const POWERS := ["square-form", "cube-form", "root-even", "root-odd", "cube-root"]
+## Stories for difference-context: [what the two are, the question], with the two numbers. The last
+## is of small things (negative powers of ten), the rest of large ones.
+const GAPS := [
+	["The salt road to the coast is %s metres long and the track to the mine is %s metres long.", "How much longer is the salt road than the track?", " metres"],
+	["A dust storm carried %s kilograms of sand and a gale carried %s kilograms.", "How much more sand did the dust storm carry?", " kilograms"],
+	["The reservoir holds %s litres and the camp's cistern holds %s litres.", "How much more does the reservoir hold?", " litres"],
+	["A relay mast is %s metres from the base and a drone is %s metres from it.", "How much farther away is the mast?", " metres"],
+	["The old dam's turbines gave %s watts and a wind rig gives %s watts.", "How much more power did the turbines give?", " watts"],
+	["A grain of dust is %s metres wide and a grain of pollen is %s metres wide.", "How much wider is the grain of dust?", " metres"],
+]
 
 const UNKNOWNS := ["to-form-large", "to-form-small", "to-ordinary-large", "to-ordinary-small", "renormalise", "order-mixed", "display-to-form",
 	"multiply", "multiply-renormalise", "divide", "divide-renormalise", "power-product",
@@ -70,9 +118,13 @@ const CLOUDS := ["A storm cell", "A dust cloud", "A pocket of marsh gas", "A clo
 
 func needs() -> Dictionary:
 	var out := {}
-	for u in UNKNOWNS:
+	for u in UNKNOWNS + ADD + POWERS:
 		out[u] = {"ask": u}
 	return out
+
+
+func extra() -> Dictionary:
+	return {"add-forms": ["error-spot"], "cube-form": ["error-spot"], "root-odd": ["error-spot"]}
 
 
 ## The GDC methods are Paper 2. The by-hand arithmetic is Paper 1.
@@ -81,6 +133,8 @@ func papers(unknown: String, _rep: String, angle: String) -> Array:
 		return []
 	if angle.begins_with("gdc-"):
 		return [2]
+	if unknown in POWERS:
+		return [1, 2]
 	return [1] if angle in ["group-and-index", "ordinary-numbers"] else [1, 2]
 
 
@@ -225,7 +279,7 @@ func _to_form(rep: String, s: Dictionary, big: bool) -> Dictionary:
 	out.wrongs = options(ans, [[a, -k, R_POSITIVE], [a, digits, R_DIGITS], [a.mul(10), k - 1, R_OUTSIDE], [a.div(10), k + 1, R_OUTSIDE]])
 	if s.paper == 2:
 		out.wrongs.append(DifferentiationViews.alt(display(a, k), R_DISPLAY))
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+	out.fillers = options(ans, spares(s)).map(func(w): return w.values)
 	var tail: Array = [say(ans)]
 	var round_it: Array = ["To 3 s.f., a = %s." % Fmt.sf(a)] if s.paper == 2 else []
 	out.methods = {"place-shift": method([moved(s, big), "Each place %s k by 1, so k = %s." % ["left raises" if big else "right lowers", N(k)]] + round_it + tail, ans.values),
@@ -254,7 +308,7 @@ func _to_ordinary(rep: String, s: Dictionary, big: bool) -> Dictionary:
 	out.asked = "Write this number in full." if rep == "words" else "Write %s as an ordinary number." % shown
 	var flip := q_of(a, -k)
 	out.wrongs = [wrong({"v": flip}, R_POSITIVE), wrong({"v": q_of(a, k + 1 if big else k - 1)}, R_DIGITS)]
-	out.generic = [{"v": q_of(a, k - 1 if big else k + 1)}, {"v": q_of(a, k + 2 if big else k - 2)}, {"v": q_of(a, k - 2 if big else k + 2)}]
+	out.fillers = [{"v": q_of(a, k - 1 if big else k + 1)}, {"v": q_of(a, k + 2 if big else k - 2)}, {"v": q_of(a, k - 2 if big else k + 2)}]
 	out.methods = {"place-shift": method(["The power is %s, so the point moves %d places %s." % [N(k), absi(k), "right" if big else "left"], say(ans)], ans.values),
 		"factor-powers": method(["%s = %s" % [ten(k), plain(Q.new(1), k)], "%s × %s = %s" % [Fmt.dec(a), plain(Q.new(1), k), plain(a, k)], say(ans)], ans.values)}
 	return out
@@ -268,8 +322,8 @@ func u_renormalise(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var shown_k: int = s.k - j
 	out.asked = "Write %s × %s correctly in standard form, a × 10^k, where 1 ≤ a < 10 and k is an integer." % [Fmt.dec(shown), ten(shown_k)]
 	var other: int = 1 if j < 0 else -1
-	out.wrongs = options(ans, [[q_of(s.r, other), s.k - other, R_OUTSIDE], [s.r, shown_k - j]])
-	out.generic = options(ans, [[s.r, shown_k]] + spares(s)).map(func(w): return w.values)
+	out.wrongs = options(ans, [[q_of(s.r, other), s.k - other, R_OUTSIDE], [s.r, shown_k - j, R_BACKWARDS], [s.r, shown_k, R_POINT_ONLY]])
+	out.fillers = options(ans, spares(s)).map(func(w): return w.values)
 	var f := "%s = %s × %s" % [Fmt.dec(shown), Fmt.dec(s.r), ten(j)]
 	out.methods = {"factor-powers": method([f, "%s × %s = %s" % [ten(j), ten(shown_k), ten(s.k)], say(ans)], ans.values),
 		"place-shift": method(["Move the point %d place%s %s to bring a between 1 and 10: a = %s." % [absi(j), "" if absi(j) == 1 else "s", "left" if j > 0 else "right", Fmt.dec(s.r)],
@@ -301,12 +355,14 @@ func u_order_mixed(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": ans, "table": null, "lines": ["The four numbers are " + ",  ".join(texts) + "."]}
 	out.asked = "Which number is the %s?" % ("largest" if s.big else "smallest")
 	out.wrongs = []
-	out.generic = []
+	out.fillers = []
 	for row in s.list:
 		if not row[0].eq(s.r):
-			# The one that looks largest by its power alone.
-			var ref: String = R_OUTSIDE if row[2] == ("under" if s.big else "over") else ""
-			out.wrongs.append(wrong({"v": listed(row)}, ref))
+			# The one that looks largest by its power alone. The others are just the other numbers.
+			if row[2] == ("under" if s.big else "over"):
+				out.wrongs.append(wrong({"v": listed(row)}, R_OUTSIDE))
+			else:
+				out.fillers.append({"v": listed(row)})
 	var rows: Array = s.list.map(func(row): return "%s = %s" % [listed(row), sci(row[0], row[1])])
 	var steps: Array = ["Write each in standard form: " + "; ".join(rows.slice(0, 2)), "and " + "; ".join(rows.slice(2)),
 		"All have the same power, so compare a: the %s is %s." % ["largest" if s.big else "smallest", Fmt.dec(s.r)], say(ans)]
@@ -319,7 +375,7 @@ func u_display_to_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": ans, "table": null, "lines": ["A GDC shows %s." % display(s.r, s.k)]}
 	out.asked = "Write this number in the form a × 10^k, where 1 ≤ a < 10 and k is an integer."
 	out.wrongs = [DifferentiationViews.alt(display(s.r, s.k), R_DISPLAY)] + options(ans, [[s.r, -s.k, R_POSITIVE]])
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+	out.fillers = options(ans, spares(s)).map(func(w): return w.values)
 	out.methods = {"gdc-sci": method(["E%s means × %s." % [str(s.k).replace("-", "−"), ten(s.k)], say(ans)], ans.values)}
 	return out
 
@@ -376,8 +432,8 @@ func _times(_rep: String, s: Dictionary) -> Dictionary:
 	list.append([s.r, s.k - e + s.m - s.n, R_SIGN])
 	out.wrongs = options(ans, list)
 	if not v.eq(s.r):
-		out.wrongs += options(ans, [[s.r, e]])
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+		out.wrongs += options(ans, [[s.r, e, R_POINT_ONLY]])
+	out.fillers = options(ans, spares(s)).map(func(w): return w.values)
 	var group := ["(%s × %s) × (%s × %s) = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), ten(s.m), ten(s.n), Fmt.dec(v), ten(e)]]
 	out.methods = {"group-and-index": method(["Multiply the a-values and add the powers of ten."] + group + tidy_sf(s, v, e) + [say(ans)], ans.values)}
 	gdc(out, s, "(%s) × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
@@ -395,8 +451,14 @@ func _over(_rep: String, s: Dictionary) -> Dictionary:
 	if not v.eq(s.r):
 		list.append([v, e, R_NO_NORM])
 	out.wrongs = options(ans, list)
-	out.wrongs += options(ans, [[s.r, e + 1 if v.lt(Q.new(1)) else e - 1]])
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+	out.fillers = []
+	# Brought between 1 and 10 with the power moved the wrong way. A quotient already there
+	# needs no move, so its k − 1 is only a near miss.
+	if v.lt(Q.new(1)):
+		out.wrongs += options(ans, [[s.r, e + 1, R_BACKWARDS]])
+	else:
+		out.fillers = options(ans, [[s.r, e - 1]]).map(func(w): return w.values)
+	out.fillers += options(ans, spares(s)).map(func(w): return w.values)
 	var group := "(%s ÷ %s) × 10^(%s − %s) = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), N(s.m), P(s.n), Fmt.work(v, 5) if s.paper == 2 or Fmt.dec(v).contains("/") else Fmt.dec(v), ten(e)]
 	out.methods = {"group-and-index": method(["Divide the a-values and subtract the powers of ten.", group] + tidy_sf(s, v, e) + [say(ans)], ans.values)}
 	gdc(out, s, "(%s) ÷ (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
@@ -411,11 +473,11 @@ func u_power_product(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var e: int = 2 * s.m + s.n
 	var out := {"answer": ans, "table": null, "lines": pq_lines(s)}
 	out.asked = "Find p²q. " + FORM + (THREE if s.paper == 2 else "")
-	var list: Array = [[s.r, s.k - e + s.m * s.m + s.n, R_POWERS], [s.r, s.k - e + s.m + s.n]]
+	var list: Array = [[s.r, s.k - e + s.m * s.m + s.n, R_POWERS], [s.r, s.k - e + s.m + s.n, R_SQUARE_A]]
 	if not v.eq(s.r):
 		list.insert(1, [v, e, R_NO_NORM])
 	out.wrongs = options(ans, list)
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+	out.fillers = options(ans, spares(s)).map(func(w): return w.values)
 	out.methods = {"group-and-index": method(["p² = %s² × (%s)² = %s × %s" % [Fmt.dec(s.a), ten(s.m), Fmt.dec(sq), ten(2 * s.m)],
 		"p²q = (%s × %s) × %s = %s × %s" % [Fmt.dec(sq), Fmt.dec(s.b), ten(2 * s.m + s.n), Fmt.dec(v), ten(e)]] + tidy_sf(s, v, e) + [say(ans)], ans.values)}
 	gdc(out, s, "(%s)² × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
@@ -449,7 +511,7 @@ func u_times_larger(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.asked = story[1] + " " + FORM + (THREE if s.paper == 2 else "")
 	var flip := StandardFormSituation.norm(s.b.div(s.a), s.n - s.m)
 	out.wrongs = options(ans, [[flip[0], flip[1], R_WRONG_WAY]]) + slips(s, ans, early(s.a).div(early(s.b)), s.m - s.n, rng)
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+	out.fillers = options(ans, spares(s)).map(func(w): return w.values)
 	var v: Q = s.a.div(s.b)
 	var e: int = s.m - s.n
 	out.methods = {"form-expression": method(["How many times larger means divide the larger by the smaller: (%s) ÷ (%s)" % [sci(s.a, s.m), sci(s.b, s.n)],
@@ -472,8 +534,8 @@ func u_time_from_rate(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.asked = "Find the time it takes, in seconds. " + FORM + (THREE if s.paper == 2 else "")
 	var flip := StandardFormSituation.norm(s.a.div(s.b), s.m - s.n)
 	var times := StandardFormSituation.norm(s.a.mul(s.b), s.m + s.n)
-	out.wrongs = slips(s, ans, early(s.b).div(early(s.a)), s.n - s.m, rng) + options(ans, [[flip[0], flip[1]], [times[0], times[1]]])
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+	out.wrongs = slips(s, ans, early(s.b).div(early(s.a)), s.n - s.m, rng) + options(ans, [[flip[0], flip[1], R_SPEED_OVER], [times[0], times[1], R_SPEED_TIMES]])
+	out.fillers = options(ans, spares(s)).map(func(w): return w.values)
 	var v: Q = s.b.div(s.a)
 	var e: int = s.n - s.m
 	out.methods = {"form-expression": method(["Time = distance ÷ speed = (%s) ÷ (%s)" % [sci(s.b, s.n), sci(s.a, s.m)],
@@ -488,8 +550,8 @@ func u_total_from_unit(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := {"answer": ans, "table": null, "lines": [story[0] % [sci(s.b, s.n), sci(s.a, s.m)]]}
 	out.asked = story[1] + " " + FORM + (THREE if s.paper == 2 else "")
 	var flip := StandardFormSituation.norm(s.a.div(s.b), s.m - s.n)
-	out.wrongs = slips(s, ans, early(s.a).mul(early(s.b)), s.m + s.n, rng) + options(ans, [[flip[0], flip[1]]])
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+	out.wrongs = slips(s, ans, early(s.a).mul(early(s.b)), s.m + s.n, rng) + options(ans, [[flip[0], flip[1], R_DIVIDE_UNIT]])
+	out.fillers = options(ans, spares(s)).map(func(w): return w.values)
 	var v: Q = s.a.mul(s.b)
 	var e: int = s.m + s.n
 	out.methods = {"form-expression": method(["The total is the number times each one: (%s) × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)],
@@ -503,8 +565,8 @@ func u_unit_shift(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var story: Array = SHIFTS[s.ctx]
 	var out := {"answer": ans, "table": null, "lines": [story[0] % sci(s.a, s.m)]}
 	out.asked = story[1] + " " + FORM
-	out.wrongs = options(ans, [[s.r, s.m - s.shift]])
-	out.generic = options(ans, [[s.r, s.m]] + spares(s)).map(func(w): return w.values)
+	out.wrongs = options(ans, [[s.r, s.m - s.shift, R_UNIT_BACKWARDS]])
+	out.fillers = options(ans, [[s.r, s.m]] + spares(s)).map(func(w): return w.values)
 	out.methods = {"unit-shift": method([story[2] + ", so the power of ten changes by %s." % signed(s.shift), "%s + %s = %s" % [N(s.m), P(s.shift), N(s.k)], say(ans)], ans.values)}
 	return out
 
@@ -515,8 +577,8 @@ func u_rate_unit_shift(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	out.lines = ["%s travels at %s m s⁻¹. It has to reach %s, %s kilometres away." % [SIGNALS[s.ctx], sci(s.a, s.m), PROBES[s.ctx], sci(s.b, s.n)]]
 	out.asked = "Find the time it takes, in seconds. " + FORM + (THREE if s.paper == 2 else "")
 	var same := StandardFormSituation.norm(s.b.div(s.a), s.n - s.m)
-	out.wrongs = slips(s, ans, early(s.b).div(early(s.a)), s.n + 3 - s.m, rng) + options(ans, [[same[0], same[1]]])
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+	out.wrongs = slips(s, ans, early(s.b).div(early(s.a)), s.n + 3 - s.m, rng) + options(ans, [[same[0], same[1], R_NO_KM]])
+	out.fillers = options(ans, spares(s)).map(func(w): return w.values)
 	var metres := "%s metres" % sci(s.b, s.n + 3)
 	var v: Q = s.b.div(s.a)
 	var e: int = s.n + 3 - s.m
@@ -534,9 +596,8 @@ func u_scale_value(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var list: Array = []
 	if not v.eq(s.r):
 		list.append([v, s.m, R_NO_NORM])
-	list.append([s.a, s.m + s.f if s.a.eq(1) else s.m])
 	out.wrongs = options(ans, list)
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+	out.fillers = options(ans, [[s.a, s.m + s.f if s.a.eq(1) else s.m]] + spares(s)).map(func(w): return w.values)
 	out.methods = {"form-expression": method(["%d times as much: %d × %s = %s × %s" % [s.f, s.f, sci(s.a, s.m), Fmt.dec(v), ten(s.m)]] + tidy_sf(s, v, s.m) + [say(ans)], ans.values)}
 	return out
 
@@ -550,11 +611,265 @@ func u_sphere_volume_pi(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var cube: Q = r.mul(r).mul(r).mul(Q.new(4, 3))
 	var e: int = 3 * s.m
 	var wrong_d := StandardFormSituation.norm(s.a.mul(s.a).mul(s.a).mul(Q.new(4, 3)), e)
-	var list: Array = [[wrong_d[0], wrong_d[1]], [s.r, s.m + 3]]
+	var list: Array = [[wrong_d[0], wrong_d[1], R_DIAMETER]]
 	if not cube.eq(s.r):
 		list.insert(0, [cube, e, R_NO_NORM])
 	out.wrongs = options(ans, list)
-	out.generic = options(ans, spares(s)).map(func(w): return w.values)
+	out.fillers = options(ans, [[s.r, s.m + 3]] + spares(s)).map(func(w): return w.values)
 	out.methods = {"form-expression": method(["The radius is half the diameter: %s × %s" % [Fmt.dec(r), ten(s.m)], "V = (4/3)πr³, and r³ = %s × %s" % [written(r.mul(r).mul(r), s.paper == 2, 5), ten(e)],
 		"(4/3) × %s = %s, so V = π(%s × %s)" % [written(r.mul(r).mul(r), s.paper == 2, 5), written(cube, s.paper == 2, 5), written(cube, s.paper == 2, 5), ten(e)], say(ans)], ans.values)}
 	return out
+
+
+# ── Adding and subtracting (t1-ext-standard-form-add) ────────
+
+## a × 10^e as the working writes it, the coefficient exactly: "0.45 × 10⁵", "12.3 × 10⁴".
+static func sci_any(a: Q, e: int) -> String:
+	return "%s × %s" % [Fmt.dec(a), ten(e)]
+
+
+## The GDC's working for an exact answer: the display shows every figure.
+static func exact_gdc(out: Dictionary, s: Dictionary, entry: String) -> void:
+	out.methods["gdc-ee" if s.ask in ADD else "gdc-root"] = method(["Enter %s with the EE key, in brackets." % entry,
+		"The GDC shows %sE%s." % [Fmt.dec(s.r), str(s.k).replace("-", "−")], "Write the display as a × 10^k.", say(out.answer)], out.answer.values)
+
+
+## The exact answer of an extension unknown: a × 10^k, both typed.
+static func exact_ans(r: Q, k: int) -> Dictionary:
+	return form_ans(r, k, false)
+
+
+## Wrong options [a, k, ref], kept once each by text and never the answer's.
+static func ext_options(ans: Dictionary, list: Array) -> Array:
+	var seen := {Answer.text(ans): true}
+	var out: Array = []
+	for w in list:
+		var a: Q = w[0]
+		if a.sign() <= 0:
+			continue
+		var o: Dictionary = wrong(form_ans(a, w[1], false).values, w[2] if w.size() > 2 else "")
+		if not seen.has(o.values.text):
+			seen[o.values.text] = true
+			out.append(o)
+	return out
+
+
+static func ext_fillers(ans: Dictionary, wrongs: Array, list: Array) -> Array:
+	var seen := {Answer.text(ans): true}
+	for w in wrongs:
+		seen[w.values.text] = true
+	var out: Array = []
+	for w in ext_options(ans, list):
+		if not seen.has(w.values.text):
+			seen[w.values.text] = true
+			out.append(w.values)
+	return out
+
+
+func _add_core(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var minus: bool = s.ask.begins_with("subtract") or s.ask == "difference-context"
+	var op := "−" if minus else "+"
+	var a: Q = s.a
+	var b: Q = s.b
+	var m: int = s.m
+	var n: int = s.n
+	var big: int = s.big
+	var ans := exact_ans(s.r, s.k)
+	var out := {"answer": ans, "table": null}
+	if rep == "words":
+		var st: Array = GAPS[s.ctx]
+		out.lines = [st[0] % [sci(a, m), sci(b, n)]]
+		out.asked = st[1] + " " + FORM
+	else:
+		out.lines = pq_lines(s)
+		out.asked = "Find p %s q. %s" % [op, FORM]
+	var raw: Q = a.sub(b) if minus else a.add(b)
+	var list: Array = [[raw, m + n, R_ADD_POWERS], [raw, big, R_ACROSS]]
+	if minus:
+		list.append([raw, m - n, R_SUB_POWERS])
+	if s.ask == "add-carry":
+		list.append([s.c, big, R_LEAVE_10])
+	if s.ask == "subtract-renormalise":
+		list.append([s.c, big, R_LEAVE_1])
+	out.wrongs = ext_options(ans, list)
+	out.fillers = ext_fillers(ans, out.wrongs, [[s.r, s.k + 1], [s.r, s.k - 1], [s.r, s.k + 2], [raw, big + 1]])
+	# The working: the smaller-power number rewritten at the larger power, then the coefficients.
+	var small_first: bool = m == big
+	var lo_a: Q = b if small_first else a
+	var lo_e: int = n if small_first else m
+	var moved := lo_a.div(int(pow(10.0, big - lo_e)))
+	var rewrite := "%s = %s" % [sci(lo_a, lo_e), sci_any(moved, big)]
+	var sum_line := "(%s %s %s) × %s = %s" % [Fmt.dec(a if small_first else moved), op, Fmt.dec(moved if small_first else b), ten(big), sci_any(s.c, big)]
+	var tidy_line: Array = tidy(s.c, big, s.r, s.k)
+	out.methods = {
+		"match-powers": method(["Write the number with the smaller power at the larger one, moving its point: " + rewrite + ".", sum_line] + tidy_line + [say(ans)], ans.values),
+		"ordinary-numbers": method(["As ordinary numbers: %s = %s and %s = %s." % [sci(a, m), plain(a, m), sci(b, n), plain(b, n)],
+			"%s %s %s = %s" % [plain(a, m), op, plain(b, n), plain(s.r, s.k)], "In standard form, %s = %s." % [plain(s.r, s.k), sci(s.r, s.k)], say(ans)], ans.values),
+	}
+	exact_gdc(out, s, "(%s) %s (%s)" % [sci(a, m), op, sci(b, n)])
+	if s.ask == "add-forms":
+		out.spot = _shift_spot(s, rng)
+	return out
+
+
+## A working that moves the power of ten but not the point: first at line 1, or at line 2 after
+## the plan.
+func _shift_spot(s: Dictionary, rng: Seeded) -> Dictionary:
+	var small_first: bool = s.m == s.big
+	var lo_a: Q = s.b if small_first else s.a
+	var lo_e: int = s.n if small_first else s.m
+	var hi_a: Q = s.a if small_first else s.b
+	var wrong_sum: Q = hi_a.add(lo_a)
+	var bad_line := "%s = %s" % [sci(lo_a, lo_e), sci_any(lo_a, s.big)]
+	var lines: Array = [bad_line, "%s + %s = %s" % [sci_any(hi_a, s.big), sci_any(lo_a, s.big), sci_any(wrong_sum, s.big)],
+		"So p + q = %s." % sci_any(wrong_sum, s.big), "Check: %s is between 1 and 10, so it is in standard form." % Fmt.dec(wrong_sum)]
+	var bad := 0
+	if rng.chance(0.5):
+		lines = ["Write q with the same power of ten as p, then add." if small_first else "Write p with the same power of ten as q, then add.", bad_line,
+			"%s + %s = %s" % [sci_any(hi_a, s.big), sci_any(lo_a, s.big), sci_any(wrong_sum, s.big)], "So p + q = %s." % sci_any(wrong_sum, s.big)]
+		bad = 1
+	return {"lines": lines, "bad": bad, "ref": R_SPOT_SHIFT,
+		"why": "moving to a larger power of ten moves the point left, so %s = %s" % [sci(lo_a, lo_e), sci_any(lo_a.div(int(pow(10.0, s.big - lo_e))), s.big)]}
+
+
+func u_add_forms(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _add_core(rep, s, rng)
+
+
+func u_add_carry(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _add_core(rep, s, rng)
+
+
+func u_subtract_forms(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _add_core(rep, s, rng)
+
+
+func u_subtract_renormalise(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _add_core(rep, s, rng)
+
+
+func u_difference_context(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _add_core(rep, s, rng)
+
+
+# ── Powers and roots (t1-ext-standard-form-powers) ───────────
+
+func _power_core(s: Dictionary, rng: Seeded) -> Dictionary:
+	var a: Q = s.a
+	var m: int = s.m
+	var pw: int = s.pw
+	var ans := exact_ans(s.r, s.k)
+	var shown := "(%s)%s" % [sci(a, m), "²" if pw == 2 else "³"]
+	var out := {"answer": ans, "table": null, "lines": []}
+	out.asked = "Find %s. %s" % [shown, FORM]
+	var v: Q = a.mul(a) if pw == 2 else a.mul(a).mul(a)
+	var added := StandardFormSituation.norm(v, m + pw)
+	var times := StandardFormSituation.norm(a.mul(pw), pw * m)
+	out.wrongs = ext_options(ans, [[a, pw * m, R_TEN_ONLY], [added[0], added[1], R_ADD_EXP], [times[0], times[1], R_COEF_P]])
+	out.fillers = ext_fillers(ans, out.wrongs, [[s.r, s.k + 1], [s.r, s.k - 1], [v, m], [s.r, s.k + 2]])
+	var word := "Square" if pw == 2 else "Cube"
+	out.methods = {
+		"distribute-power": method(["%s both factors: %s = %s%s × (%s)%s." % [word, shown, Fmt.dec(a), "²" if pw == 2 else "³", ten(m), "²" if pw == 2 else "³"],
+			"%s%s = %s and (%s)%s = %s, multiplying the exponents: %s × %s." % [Fmt.dec(a), "²" if pw == 2 else "³", Fmt.dec(v), ten(m), "²" if pw == 2 else "³", ten(pw * m), Fmt.dec(v), ten(pw * m)]]
+			+ tidy(v, pw * m, s.r, s.k) + [say(ans)], ans.values),
+	}
+	exact_gdc(out, s, shown)
+	if pw == 3:
+		out.spot = _cube_spot(s, rng)
+	return out
+
+
+func _cube_spot(s: Dictionary, rng: Seeded) -> Dictionary:
+	var a: Q = s.a
+	var m: int = s.m
+	var shown := "(%s)³" % sci(a, m)
+	var bad := "%s = %s" % [shown, sci(a, 3 * m)]
+	var lines: Array = [bad, "%s is between 1 and 10, so this is in standard form." % Fmt.dec(a), "So %s = %s." % [shown, sci(a, 3 * m)],
+		"Check: %s × 3 = %s, the new power." % [N(m), N(3 * m)]]
+	var at := 0
+	if rng.chance(0.5):
+		lines = ["Cube the number, writing the power of ten as one power.", bad, "%s is between 1 and 10, so this is in standard form." % Fmt.dec(a),
+			"So %s = %s." % [shown, sci(a, 3 * m)]]
+		at = 1
+	var v: Q = a.mul(a).mul(a)
+	return {"lines": lines, "bad": at, "ref": R_SPOT_CUBE, "why": "the coefficient is cubed too: %s³ = %s, so %s = %s × %s" % [Fmt.dec(a), Fmt.dec(v), shown, Fmt.dec(v), ten(3 * m)]}
+
+
+func u_square_form(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _power_core(s, rng)
+
+
+func u_cube_form(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _power_core(s, rng)
+
+
+func _root_core(s: Dictionary, rng: Seeded) -> Dictionary:
+	var cube: bool = s.ask == "cube-root"
+	var a: Q = s.a
+	var m: int = s.m
+	var c: Q = s.c
+	var j: int = s.j
+	var sh: int = s.sh
+	var sign := "∛" if cube else "√"
+	var shown := "%s(%s)" % [sign, sci(a, m)]
+	var ans := exact_ans(c, j)
+	var out := {"answer": ans, "table": null, "lines": []}
+	out.asked = "Find %s. %s" % [shown, FORM]
+	var big_a: Q = a.mul(int(pow(10.0, sh)))
+	var even: int = m - sh
+	var list: Array = [[c, even, R_ROOT_A]]
+	if cube:
+		var third := StandardFormSituation.norm(big_a.div(3), j)
+		list.append([third[0], third[1], R_THIRD])
+	else:
+		var half := StandardFormSituation.norm(big_a.div(2), j)
+		list.append([half[0], half[1], R_HALVE])
+	out.wrongs = ext_options(ans, list)
+	out.fillers = ext_fillers(ans, out.wrongs, [[c, j + 1], [c, j - 1], [big_a, j], [c.mul(c), j]])
+	var root_word := "cube root" if cube else "square root"
+	var adjust: Array = []
+	if sh > 0:
+		adjust = ["Make the power of ten %s: %s = %s." % ["a multiple of 3" if cube else "even", sci(a, m), sci_any(big_a, even)]]
+	var roots := "%s%s = %s and %s(%s) = %s" % [sign, Fmt.dec(big_a), Fmt.dec(c), sign, ten(even), ten(j)]
+	out.methods = {
+		"adjust-exponent": method(adjust + ["Take the %s of each factor: %s." % [root_word, roots], say(ans)], ans.values),
+	}
+	if s.ask == "root-even":
+		out.methods["distribute-power"] = method(["A square root is the power 1/2, applied to both factors: %s = %s^(1/2) × (%s)^(1/2)." % [shown, Fmt.dec(a), ten(m)],
+			"%s^(1/2) = %s and (%s)^(1/2) = 10^(%s ÷ 2) = %s." % [Fmt.dec(a), Fmt.dec(c), ten(m), N(m), ten(j)], say(ans)], ans.values)
+	exact_gdc(out, s, shown)
+	if s.ask == "root-odd":
+		out.spot = _raise_spot(s, rng)
+	return out
+
+
+## A working that multiplies the coefficient by 10 and raises the power too.
+func _raise_spot(s: Dictionary, rng: Seeded) -> Dictionary:
+	var a: Q = s.a
+	var m: int = s.m
+	var c: Q = s.c
+	var big_a := a.mul(10)
+	var shown := "√(%s)" % sci(a, m)
+	var half: int = (m + 1) / 2
+	var bad := "%s = %s" % [sci(a, m), sci_any(big_a, m + 1)]
+	var lines: Array = [bad, "√%s = %s and √(%s) = %s" % [Fmt.dec(big_a), Fmt.dec(c), ten(m + 1), ten(half)], "So %s = %s." % [shown, sci(c, half)],
+		"%s is between 1 and 10, so this is in standard form." % Fmt.dec(c)]
+	var at := 0
+	if rng.chance(0.5):
+		lines = ["Make the power of ten even, so that its square root is a whole power.", bad,
+			"√%s = %s and √(%s) = %s" % [Fmt.dec(big_a), Fmt.dec(c), ten(m + 1), ten(half)], "So %s = %s." % [shown, sci(c, half)]]
+		at = 1
+	return {"lines": lines, "bad": at, "ref": R_SPOT_RAISE,
+		"why": "multiplying the coefficient by 10 lowers the power of ten by 1, so %s = %s" % [sci(a, m), sci_any(big_a, m - 1)]}
+
+
+func u_root_even(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _root_core(s, rng)
+
+
+func u_root_odd(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _root_core(s, rng)
+
+
+func u_cube_root(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _root_core(s, rng)

@@ -1,7 +1,8 @@
 class_name SettingsPanel
 extends Control
 ## The sound settings screen (FAL-385): all sound on or off, a level for the
-## background music and a separate one for the effects.
+## background music, a separate one for the effects, and one for Spark's voice in the
+## explainers (FAL-429).
 ##
 ## It lives in the AudioHud autoload, so the gear icon opens it from anywhere.
 ## Changes reach Audio as the player drags, and Audio saves them.
@@ -13,6 +14,8 @@ extends Control
 @onready var _music_value: Label = %MusicValue
 @onready var _sfx: HSlider = %SfxSlider
 @onready var _sfx_value: Label = %SfxValue
+@onready var _voice: HSlider = %VoiceSlider
+@onready var _voice_value: Label = %VoiceValue
 @onready var _hint: Label = %Hint
 @onready var _close: Button = %Close
 
@@ -26,6 +29,7 @@ func _ready() -> void:
 	_sfx.value_changed.connect(_on_sfx_changed)
 	# One blip when the drag ends, so the level can be judged without a stutter.
 	_sfx.drag_ended.connect(_on_sfx_drag_ended)
+	_voice.value_changed.connect(func(value: float) -> void: Audio.voice_volume = value)
 	_close.pressed.connect(close)
 	Audio.settings_changed.connect(_show_current)
 	_show_current()
@@ -59,6 +63,8 @@ func _show_current() -> void:
 	_music_value.text = _percent(Audio.music_volume)
 	_sfx.set_value_no_signal(Audio.sfx_volume)
 	_sfx_value.text = _percent(Audio.sfx_volume)
+	_voice.set_value_no_signal(Audio.voice_volume)
+	_voice_value.text = _percent(Audio.voice_volume)
 	_hint.visible = not Audio.sound_enabled
 	_showing = false
 

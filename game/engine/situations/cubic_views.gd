@@ -5,7 +5,7 @@ extends RefCounted
 ## t5-tangent-condition and t5-stationary-points in curriculum/question-types.json).
 ##
 ## A builder returns the same fields as the quadratic builders (quadratic_views.gd):
-## asked, lines, given, answer, wrongs, generic and methods. The equation
+## asked, lines, given, answer, wrongs, fillers and methods. The equation
 ## representation uses function notation (f(x), f′(x)); the words representation says
 ## "the curve y = …", "dy/dx" and "the tangent is parallel to the line …".
 ##
@@ -30,6 +30,17 @@ const NEED := {
 	"inflexion-point": {"even": true},
 	"max-value": {},
 }
+
+## The slips FAL-815 named, misconceptions with no ref of their own.
+const R_NO_POWER := "t5-differentiate-polynomial#6"
+const R_C_SIGN := "t5-tangent-normal-equation#6"
+const R_C_IS_Y := "t5-tangent-normal-equation#7"
+const R_X2_NO_POWER := "t5-tangent-condition#1"
+const R_NO_DIVIDE := "t5-tangent-condition#2"
+const R_SOLVE_ZERO := "t5-tangent-condition#3"
+const R_ROOT_SIGNS := "t5-tangent-condition#4"
+const R_Y_ZERO := "t5-stationary-points#3"
+const R_OTHER_POINT := "t5-stationary-points#4"
 
 const MAX := "local maximum"
 const MIN := "local minimum"
@@ -57,15 +68,15 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	if p2(s) and unknown in PAPER_2:
 		name += "_p2"
 	var out: Dictionary = call(name, rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	if p2(s):
 		# Q7's rounding trap, where one number to 3 s.f. is the answer.
 		out.trap = Answer.rounding_trap(out.answer)
 		# Every option's numbers are clear of a 3 s.f. rounding edge.
 		out.wrongs = out.wrongs.filter(func(w): return clear_values(w.values))
-		out.generic = out.generic.filter(func(g): return clear_values(g))
+		out.fillers = out.fillers.filter(func(g): return clear_values(g))
 	return out
 
 
@@ -215,8 +226,9 @@ func u_derivative(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"wrongs": [
 			wrong({"u2": s.a.sub(1), "u1": s.b.sub(1), "u0": s.c.sub(1)}, "SL5.3.power-rule#0"),
 			wrong({"u2": dc[0], "u1": dc[1], "u0": s.c.add(s.d)}, "SL5.3.power-rule#2"),
+			wrong({"u2": s.a, "u1": s.b, "u0": s.c}, R_NO_POWER),
 		],
-		"generic": [{"u2": s.a, "u1": s.b, "u0": s.c}, {"u2": dc[0], "u1": dc[1], "u0": Q.new(0)}, {"u2": dc[0], "u1": s.b, "u0": s.c}],
+		"fillers": [{"u2": dc[0], "u1": dc[1], "u0": Q.new(0)}, {"u2": dc[0], "u1": s.b, "u0": s.c}],
 		"methods": {"power-rule": {"steps": st, "result": ans.values}},
 	}
 
@@ -231,8 +243,9 @@ func u_derivative_from_fraction(_rep: String, s: Dictionary, _rng: Seeded) -> Di
 	return {
 		"asked": "Find f′(x).",
 		"lines": ["f(x) = (%s)/x,  x ≠ 0" % top], "given": given(s).merged({"fraction": true}), "answer": ans,
-		"wrongs": [wrong({"u2": s.a.add(s.b).mul(3), "u1": s.c.mul(2), "u0": s.d}, "SL5.3.negative-powers#2")],
-		"generic": [{"u2": s.a.mul(4), "u1": s.b.mul(3), "u0": s.c.mul(2)}, {"u2": s.a, "u1": s.b, "u0": s.c}, {"u2": dc[0], "u1": dc[1], "u0": s.c.add(s.d)}],
+		"wrongs": [wrong({"u2": s.a.add(s.b).mul(3), "u1": s.c.mul(2), "u0": s.d}, "SL5.3.negative-powers#2"),
+			wrong({"u2": s.a, "u1": s.b, "u0": s.c}, R_NO_POWER), wrong({"u2": dc[0], "u1": dc[1], "u0": s.c.add(s.d)}, "SL5.3.power-rule#2")],
+		"fillers": [{"u2": s.a.mul(4), "u1": s.b.mul(3), "u0": s.c.mul(2)}],
 		"methods": {"split-fraction": {"steps": st, "result": ans.values}},
 	}
 
@@ -251,8 +264,9 @@ func u_gradient_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		wrongs.append(wrong({"v": s.a.mul(3).mul(s.x0.sq()).neg().add(s.b.mul(2).mul(s.x0)).add(s.c)}, "SL5.3.gradient-at-point#2"))
 	return {
 		"asked": asked, "lines": f_lines(rep, s), "given": given(s).merged({"x0": s.x0.key()}), "answer": ans,
-		"wrongs": wrongs,
-		"generic": [{"v": CubicSituation.f1(s, s.x0.neg())}, {"v": CubicSituation.f2(s, s.x0)}, {"v": value([s.a, s.b, s.c], s.x0)}],
+		# The powers lowered with no multiplying, then x₀ put in.
+		"wrongs": wrongs + [wrong({"v": value([s.a, s.b, s.c], s.x0)}, R_NO_POWER)],
+		"fillers": [{"v": CubicSituation.f1(s, s.x0.neg())}, {"v": CubicSituation.f2(s, s.x0)}],
 		"methods": {"differentiate-substitute": {"steps": st, "result": ans.values}},
 	}
 
@@ -288,8 +302,9 @@ func u_tangent_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"wrongs": [
 			wrong({"m": m, "c": m.sub(m.mul(s.x0))}, "SL5.4.tangent-equation#1"),
 			wrong({"m": mn, "c": s.y0.sub(mn.mul(s.x0))}, "SL5.4.tangent-equation#2"),
+			wrong({"m": m, "c": s.y0.add(m.mul(s.x0))}, R_C_SIGN), wrong({"m": m, "c": s.y0}, R_C_IS_Y),
 		],
-		"generic": [{"m": m, "c": s.y0.add(m.mul(s.x0))}, {"m": m, "c": s.y0}, {"m": s.y0, "c": c}],
+		"fillers": [{"m": s.y0, "c": c}],
 		"methods": {
 			"point-gradient": {"steps": pg, "result": ans.values},
 			"find-c": {"steps": fc, "result": ans.values},
@@ -331,7 +346,7 @@ func u_normal_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			wrong({"m": Q.new(1).div(m), "c": s.y0.sub(s.x0.div(m))}, "SL5.4.normal-equation#0"),
 			wrong({"m": mn, "c": ct}, "SL5.4.normal-equation#1"),
 		],
-		"generic": [{"m": m, "c": ct}, {"m": mn, "c": s.y0}],
+		"fillers": [{"m": m, "c": ct}, {"m": mn, "c": s.y0}],
 		"methods": {
 			"negative-reciprocal": {"steps": nr, "result": ans.values},
 			"rearranged-form": {"steps": rf, "result": ans.values},
@@ -358,7 +373,7 @@ func u_read_from_tangent(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	return {
 		"asked": asked, "lines": lines, "given": {"x0": s.x0.key(), "line": [m.key(), c.key()], "f": given(s).f}, "answer": ans,
 		"wrongs": [wrong({"m": m, "y": c}, "SL5.4.read-from-tangent#0"), wrong({"m": s.y0, "y": m}, "SL5.4.read-from-tangent#1")],
-		"generic": [{"m": c, "y": s.y0}, {"m": m, "y": m.add(c)}, {"m": m.neg(), "y": s.y0}],
+		"fillers": [{"m": c, "y": s.y0}, {"m": m, "y": m.add(c)}, {"m": m.neg(), "y": s.y0}],
 		"methods": {"substitute-point": {"steps": st, "result": ans.values}},
 	}
 
@@ -390,7 +405,9 @@ func u_x_for_gradient(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	mg.append("So " + Answer.text(ans) + ".")
 	return {
 		"asked": asked, "lines": lines, "given": given_q, "answer": ans,
-		"generic": [{"r1": s.p, "r2": s.q}, {"r1": s.r1.neg(), "r2": s.r2.neg()}, {"r1": s.r1, "r2": s.r2.neg()}, {"r1": s.r1.neg(), "r2": s.r2}],
+		# f′(x) = 0 solved, and the roots read off the factors with the wrong signs.
+		"wrongs": [wrong({"r1": s.p, "r2": s.q}, R_SOLVE_ZERO), wrong({"r1": s.r1.neg(), "r2": s.r2.neg()}, R_ROOT_SIGNS)],
+		"fillers": [{"r1": s.r1, "r2": s.r2.neg()}, {"r1": s.r1.neg(), "r2": s.r2}],
 		"methods": {
 			"solve-f-prime": {"steps": sf, "result": ans.values},
 			"match-gradients": {"steps": mg, "result": ans.values},
@@ -467,16 +484,16 @@ func u_coefficient_from_tangent(rep: String, s: Dictionary, rng: Seeded) -> Dict
 		var others: Q = s.a.mul(x0.sq().mul(x0)).add(s.d)
 		others = others.add(s.c.mul(x0)) if hid == "b" else others.add(s.b.mul(x0.sq()))
 		wrongs.append(wrong({"v": g.sub(others).div(xp)}, "SL5.3.point-with-given-gradient#0"))
-	var generic: Array = []
+	# The x² term differentiated without its 2, and coef·k left undivided (that is k itself
+	# when the coefficient is 1, and drops out).
 	if hid == "b":
-		generic.append({"v": g.sub(rest).div(x0)})
+		wrongs.append(wrong({"v": g.sub(rest).div(x0)}, R_X2_NO_POWER))
 	else:
-		generic.append({"v": g.sub(s.a.mul(3).mul(x0.sq())).sub(s.b.mul(x0))})
-	generic.append({"v": k.neg()})
-	generic.append({"v": g.sub(rest)})
+		wrongs.append(wrong({"v": g.sub(s.a.mul(3).mul(x0.sq())).sub(s.b.mul(x0))}, R_X2_NO_POWER))
+	wrongs.append(wrong({"v": g.sub(rest)}, R_NO_DIVIDE))
 	return {
 		"asked": asked, "lines": lines, "given": given_q, "answer": ans,
-		"wrongs": wrongs, "generic": generic,
+		"wrongs": wrongs, "fillers": [{"v": k.neg()}],
 		"methods": {"form-equations": {"steps": st, "result": ans.values}},
 	}
 
@@ -502,7 +519,7 @@ func u_stationary_points(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	return {
 		"asked": asked, "lines": f_lines(rep, s), "given": given(s), "answer": ans,
 		"wrongs": [wrong({"x1": s.p, "y1": Q.new(0), "x2": s.q, "y2": Q.new(0)}, "SL5.8.find-stationary-points#2")],
-		"generic": [{"x1": s.p, "y1": s.fq, "x2": s.q, "y2": s.fp}, {"x1": s.p.neg(), "y1": s.fp, "x2": s.q.neg(), "y2": s.fq},
+		"fillers": [{"x1": s.p, "y1": s.fq, "x2": s.q, "y2": s.fp}, {"x1": s.p.neg(), "y1": s.fp, "x2": s.q.neg(), "y2": s.fq},
 			{"x1": s.p, "y1": s.fp.neg(), "x2": s.q, "y2": s.fq.neg()}],
 		"methods": {"solve-f-prime-zero": {"steps": st, "result": ans.values}},
 	}
@@ -545,7 +562,7 @@ func u_nature(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {
 		"asked": asked, "lines": lines, "given": given(s).merged({"xs": [s.p.key(), s.q.key()]}), "answer": ans,
 		"wrongs": [wrong({"k1": k2, "k2": k1}, "SL5.8.classify-stationary-points#0")],
-		"generic": [{"k1": MAX, "k2": MAX}, {"k1": MIN, "k2": MIN}],
+		"fillers": [{"k1": MAX, "k2": MAX}, {"k1": MIN, "k2": MIN}],
 		"methods": {
 			"second-derivative-test": {"steps": sd, "result": ans.values},
 			"first-derivative-sign-table": {"steps": ft, "result": ans.values},
@@ -571,8 +588,8 @@ func u_inflexion_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	cm.append("So the point of inflexion is " + Answer.text(ans) + ".")
 	return {
 		"asked": asked, "lines": f_lines(rep, s), "given": given(s), "answer": ans,
-		"generic": [{"x": s.xi, "y": CubicSituation.f1(s, s.xi)}, {"x": s.xi, "y": Q.new(0)}, {"x": s.xi, "y": s.d},
-			{"x": s.xi.neg(), "y": CubicSituation.f(s, s.xi.neg())}],
+		"wrongs": [wrong({"x": s.xi, "y": CubicSituation.f1(s, s.xi)}, "SL5.8.find-stationary-points#2"), wrong({"x": s.xi, "y": Q.new(0)}, R_Y_ZERO)],
+		"fillers": [{"x": s.xi, "y": s.d}, {"x": s.xi.neg(), "y": CubicSituation.f(s, s.xi.neg())}],
 		"methods": {
 			"second-derivative-sign-change": {"steps": sc, "result": ans.values},
 			"cubic-midpoint": {"steps": cm, "result": ans.values},
@@ -598,8 +615,8 @@ func u_max_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	st.append("So %s." % Answer.text(ans))
 	return {
 		"asked": asked, "lines": f_lines(rep, s), "given": given(s), "answer": ans,
-		"wrongs": [wrong({"v": xm}, "SL5.8.optimise-given-function#0")],
-		"generic": [{"v": CubicSituation.f(s, xn)}, {"v": s.d}, {"v": ym.neg()}],
+		"wrongs": [wrong({"v": xm}, "SL5.8.optimise-given-function#0"), wrong({"v": CubicSituation.f(s, xn)}, R_OTHER_POINT)],
+		"fillers": [{"v": s.d}, {"v": ym.neg()}],
 		"methods": {"derivative-zero-and-test": {"steps": st, "result": ans.values}},
 	}
 
@@ -702,8 +719,9 @@ func u_tangent_at_point_p2(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"wrongs": [
 			wrong({"m": m, "c": m.sub(m.mul(x0))}, "SL5.4.tangent-equation#1"),
 			wrong({"m": mn, "c": s.y0.sub(mn.mul(x0))}, "SL5.4.tangent-equation#2"),
+			wrong({"m": m, "c": s.y0.add(m.mul(x0))}, R_C_SIGN), wrong({"m": m, "c": s.y0}, R_C_IS_Y),
 		],
-		"generic": [{"m": m, "c": s.y0.add(m.mul(x0))}, {"m": m, "c": s.y0}, {"m": s.y0, "c": c}, {"m": m.neg(), "c": c}],
+		"fillers": [{"m": s.y0, "c": c}, {"m": m.neg(), "c": c}],
 		"methods": {
 			"point-gradient": {"steps": pg, "result": ans.values},
 			"find-c": {"steps": fc, "result": ans.values},
@@ -737,7 +755,7 @@ func u_normal_at_point_p2(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 			wrong({"m": qf(1.0 / mf), "c": qf(s.y0.to_float() - x0.to_float() / mf)}, "SL5.4.normal-equation#0"),
 			wrong({"m": qf(mn), "c": ct}, "SL5.4.normal-equation#1"),
 		],
-		"generic": [{"m": m, "c": ct}, {"m": qf(mn), "c": s.y0}, {"m": qf(mn), "c": qf(-cn)}],
+		"fillers": [{"m": m, "c": ct}, {"m": qf(mn), "c": s.y0}, {"m": qf(mn), "c": qf(-cn)}],
 		"methods": {
 			"negative-reciprocal": {"steps": nr, "result": ans.values},
 			"rearranged-form": {"steps": rf, "result": ans.values},
@@ -769,14 +787,15 @@ func u_x_for_gradient_p2(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		sf.append("%s So %s = 0" % [why, lhs])
 	sf.append_array([gdc, final])
 	var mg: Array = [why, "%s = %s, so solve %s = %s: %s = 0" % [dname(rep), deriv(s), deriv(s), N(g), lhs], gdc, final]
-	var generic: Array = [{"r1": s.p, "r2": s.q}]
+	# f′(x) = 0 solved; the rest are fillers (a GDC finds the roots, so no sign is read off).
+	var fillers: Array = []
 	var opp := CubicSituation.irrational_roots(dc[0], dc[1], dc[2].add(g))
 	if opp.size() == 2:
-		generic.append({"r1": qf(opp[0]), "r2": qf(opp[1])})
-	generic.append_array([{"r1": s.r1.neg(), "r2": s.r2.neg()}, {"r1": s.r1, "r2": s.r2.neg()}, {"r1": s.r1.neg(), "r2": s.r2}])
+		fillers.append({"r1": qf(opp[0]), "r2": qf(opp[1])})
+	fillers.append_array([{"r1": s.r1.neg(), "r2": s.r2.neg()}, {"r1": s.r1, "r2": s.r2.neg()}, {"r1": s.r1.neg(), "r2": s.r2}])
 	return {
 		"asked": asked, "lines": f_lines(rep, s), "given": given_q, "answer": ans,
-		"generic": generic,
+		"wrongs": [wrong({"r1": s.p, "r2": s.q}, R_SOLVE_ZERO)], "fillers": fillers,
 		"methods": {
 			"solve-f-prime": {"steps": sf, "result": ans.values},
 			"match-gradients": {"steps": mg, "result": ans.values},
@@ -808,7 +827,7 @@ func u_stationary_points_p2(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	return {
 		"asked": asked, "lines": f_lines(rep, s), "given": given(s), "answer": ans,
 		"wrongs": [wrong({"x1": s.p, "y1": Q.new(0), "x2": s.q, "y2": Q.new(0)}, "SL5.8.find-stationary-points#2")],
-		"generic": [{"x1": s.p, "y1": s.fq, "x2": s.q, "y2": s.fp}, {"x1": s.p.neg(), "y1": s.fp, "x2": s.q.neg(), "y2": s.fq},
+		"fillers": [{"x1": s.p, "y1": s.fq, "x2": s.q, "y2": s.fp}, {"x1": s.p.neg(), "y1": s.fp, "x2": s.q.neg(), "y2": s.fq},
 			{"x1": s.p, "y1": s.fp.neg(), "x2": s.q, "y2": s.fq.neg()}],
 		"methods": {"solve-f-prime-zero": {"steps": st, "result": ans.values}},
 	}
@@ -833,7 +852,7 @@ func u_max_value_p2(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	st.append("%s = %s, so %s." % [at, W(ym), Answer.text(ans)])
 	return {
 		"asked": asked, "lines": f_lines(rep, s), "given": given(s), "answer": ans,
-		"wrongs": [wrong({"v": qf(xm)}, "SL5.8.optimise-given-function#0")],
-		"generic": [{"v": qf(CubicSituation.f_float(s, xn))}, {"v": s.d}, {"v": qf(-ym)}, {"v": qf(ym + 1.0)}],
+		"wrongs": [wrong({"v": qf(xm)}, "SL5.8.optimise-given-function#0"), wrong({"v": qf(CubicSituation.f_float(s, xn))}, R_OTHER_POINT)],
+		"fillers": [{"v": s.d}, {"v": qf(-ym)}, {"v": qf(ym + 1.0)}],
 		"methods": {"derivative-zero-and-test": {"steps": st, "result": ans.values}},
 	}

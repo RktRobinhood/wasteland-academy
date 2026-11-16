@@ -10,6 +10,7 @@ const read = f => fs.readFileSync(new URL('../../' + f, import.meta.url), 'utf8'
 
 test('aa-sl.json, aa-hl.json and ai.json pass tools/courses.mjs', () => {
   assert.deepEqual(result.errors, []);
+  assert.ok(result.bankTypes > 0, 'the unbuilt bank types in curriculum/bank-types.json are checked too');
 });
 
 test('the course index lists the four courses, every one with five topics', () => {
@@ -30,6 +31,15 @@ test('AA HL contains all of AA SL, and AI HL all of AI SL', () => {
   const by = Object.fromEntries(result.index.courses.map(c => [c.id, c]));
   for (const [sl, hl] of [['aa-sl', 'aa-hl'], ['ai-sl', 'ai-hl']])
     for (const t of by[sl].topics) assert.ok(by[hl].topics[t.n - 1].skills > t.skills, `${hl} topic ${t.n}`);
+});
+
+test('the index carries the skills that narrow their subtopic, for the engine', () => {
+  assert.deepEqual(result.index.skills['SL5.2.show-always-increasing'], ['aa-sl', 'aa-hl']);
+  assert.deepEqual(result.index.skills['SL5.2.parameter-for-monotonic'], ['aa-sl', 'aa-hl']);
+  assert.ok(!('SL5.2.sign-from-graph' in result.index.skills), 'a skill without its own courses is left out');
+  const by = Object.fromEntries(result.index.courses.map(c => [c.id, c.topics.reduce((s, t) => s + t.skills, 0)]));
+  assert.equal(by['ai-sl'], 211);
+  assert.equal(by['ai-hl'], 409);
 });
 
 test('game/data/courses.json and curriculum/COURSES.md are up to date', () => {

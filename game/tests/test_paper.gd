@@ -12,8 +12,12 @@ const CALCULATOR_WORDS := "(?i)\\b(gdc|calculators?|linreg\\w*|l1|l2|y1|y2|solve
 ## method on some of their cells. Those cells can't be Paper 1 (FAL-758), and no other
 ## cell can make up for them. The value is the most the type's Paper 2 share may be.
 const OVER_SHARE := {"fn-sketch-from-features": 0.08, "fn-curve-intersection-quadratic": 0.07,
-	"fn-log-of-quadratic": 0.12, "fn-rational-sketch": 0.24, "fn-log-function-features": 0.14, "t1-log-laws": 0.13, "t3-trig-quadratic": 0.13,
+	"fn-log-of-quadratic": 0.12, "fn-rational-sketch": 0.24, "fn-log-function-features": 0.14, "t1-log-laws": 0.13,
 	"t3-trig-sketch": 0.24}
+## Types whose cells can't reach the Paper 2 share the bank has, as when new bank parts land
+## (FAL-817). The value is the least the type's Paper 2 share may be. Remove an entry once the
+## type's views are recalibrated (FAL-956 did the last ones).
+const UNDER_SHARE := {}
 
 
 ## The Paper 2 share of 1,000 questions of a type, across its cells in turn.
@@ -54,6 +58,9 @@ func test_the_paper_ratio_matches_the_exam() -> void:
 		if OVER_SHARE.has(id):
 			check(got <= OVER_SHARE[id], "%s: %d%% Paper 2" % [id, roundi(got * 100)])
 			continue
+		if UNDER_SHARE.has(id):
+			check(got >= UNDER_SHARE[id], "%s: %d%% Paper 2" % [id, roundi(got * 100)])
+			continue
 		check(absf(got - want) <= WITHIN, "%s: %d%% Paper 2, the exam has %d%%" % [id, roundi(got * 100), roundi(want * 100)])
 
 
@@ -76,6 +83,8 @@ func _strings(v: Variant, out: Array) -> void:
 	elif v is Array:
 		for e in v:
 			_strings(e, out)
+	elif v is Dictionary and v.has("move") and v.has("board"):
+		out.append(Step.text(v))  # a tagged step: its board, not its move id
 	elif v is Dictionary:
 		for e in v.values():
 			_strings(e, out)

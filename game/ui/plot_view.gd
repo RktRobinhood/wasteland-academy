@@ -896,9 +896,16 @@ func _plate() -> void:
 
 const NORTH_LEN := 112.0
 const SKETCH_ARC := 54.0
+## Below this width a sketch draws its text, gaps and marks smaller, in step (FAL-973): at phone
+## width the full size left the figure a few pixels across under labels that covered it.
+const SKETCH_FULL_W := 760.0
+
+## The sketch's scale: 1 at full width, down to 0.6.
+var _k := 1.0
 
 
 func _sketch() -> void:
+	_k = clampf(size.x / SKETCH_FULL_W, 0.6, 1.0)
 	var names: Array = spec.pts.keys()
 	var lo := Vector2(INF, INF)
 	var hi := Vector2(-INF, -INF)
@@ -906,8 +913,8 @@ func _sketch() -> void:
 		var p := Vector2(spec.pts[n][0], spec.pts[n][1])
 		lo = lo.min(p)
 		hi = hi.max(p)
-	var top := 60.0 + (NORTH_LEN if not spec.north.is_empty() else 0.0)
-	var box := Rect2(Vector2(92, top), size - Vector2(184, top + 70))
+	var top := (60.0 + (NORTH_LEN if not spec.north.is_empty() else 0.0)) * _k
+	var box := Rect2(Vector2(92 * _k, top), size - Vector2(184 * _k, top + 70 * _k))
 	var span := (hi - lo).max(Vector2(0.01, 0.01))
 	var k := minf(box.size.x / span.x, box.size.y / span.y)
 	var off := box.position + (box.size - span * k) / 2.0
@@ -920,10 +927,10 @@ func _sketch() -> void:
 	mid /= names.size()
 	for n in spec.north:
 		var p: Vector2 = at[n]
-		var tip := p - Vector2(0, NORTH_LEN)
+		var tip := p - Vector2(0, NORTH_LEN * _k)
 		_dashes(p, tip, UiTheme.DIM)
 		draw_colored_polygon(PackedVector2Array([tip - Vector2(0, 10), tip + Vector2(-8, 8), tip + Vector2(8, 8)]), UiTheme.DIM)
-		_text("N", tip + Vector2(26, 8), UiTheme.DIM, FONT_SIZE - 6)
+		_text("N", tip + Vector2(26, 8) * _k, UiTheme.DIM, _fs(6))
 	for c in spec.get("circles", []):
 		draw_arc(at[c.at], at[c.at].distance_to(at[c.through]), 0.0, TAU, 96, UiTheme.DIM, 3.0, true)
 	for ln in spec.lines:
@@ -938,18 +945,25 @@ func _sketch() -> void:
 	# Names first, then angles, then lengths: each label takes a place clear of those before it.
 	var taken: Array = []
 	for n in spec.north:
-		taken.append(_label_box("N", at[n] - Vector2(-26, NORTH_LEN - 8), FONT_SIZE - 6))
+		taken.append(_label_box("N", at[n] - Vector2(-26, NORTH_LEN - 8) * _k, _fs(6)))
 	for n in names:
 		if String(n).begins_with("_"):
 			continue
 		var p: Vector2 = at[n]
-		draw_circle(p, DOT * 0.55, UiTheme.TEXT)
+		draw_circle(p, DOT * 0.55 * _k, UiTheme.TEXT)
 		var away := (p - mid).normalized()
 		if n in spec.north and away.y < 0.0:
 			away = Vector2(signf(away.x) if away.x != 0.0 else 1.0, 0.3).normalized()
-		var spot := p + away * 36.0 + Vector2(0, 12)
-		_chip(n, spot, UiTheme.TEXT)
-		taken.append(_label_box(n, spot, FONT_SIZE))
+		# Away from the middle, or turned from there until clear of the names before it and the points.
+		var spot := p + away * 36.0 * _k + Vector2(0, 12) * _k
+		for turn in [0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8, PI]:
+			var t: Vector2 = p + away.rotated(turn) * 36.0 * _k + Vector2(0, 12) * _k
+			var tb := _label_box(n, t, _fs())
+			if not taken.any(func(r): return r.intersects(tb)) and not at.values().any(func(o): return o != p and tb.grow(2.0).has_point(o)):
+				spot = t
+				break
+		_chip(n, spot, UiTheme.TEXT, _fs())
+		taken.append(_label_box(n, spot, _fs()))
 	var used := {}
 	for a in spec.arcs:
 		_sketch_arc(a, at, used, taken)
@@ -961,18 +975,116 @@ func _sketch() -> void:
 		var normal := (q - p).orthogonal().normalized()
 		if normal.dot((p + q) / 2.0 - mid) < 0.0:
 			normal = -normal
-		var w := get_theme_default_font().get_string_size(ln.label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 2).x
-		var gap := 20.0 + absf(normal.x) * w / 2.0 + absf(normal.y) * FONT_SIZE / 2.0
+		if _passes_a_name(ln, at):
+			_sketch_span(ln, p, q, normal, at, taken)
+			continue
+		var w := get_theme_default_font().get_string_size(ln.label, HORIZONTAL_ALIGNMENT_LEFT, -1, _fs(2)).x
+		var gap := 20.0 * _k + absf(normal.x) * w / 2.0 + absf(normal.y) * _fs() / 2.0
 		var tries: Array = []
 		for t in [0.5, 0.35, 0.65, 0.22, 0.78]:
-			tries.append(p.lerp(q, t) + normal * gap + Vector2(0, 10))
+			tries.append(p.lerp(q, t) + normal * gap + Vector2(0, 10) * _k)
 		for t in [0.5, 0.35, 0.65]:
-			tries.append(p.lerp(q, t) - normal * gap + Vector2(0, 10))
-		var spot := _clear_spot(tries, ln.label, FONT_SIZE - 2, at, taken, ln)
-		_chip(ln.label, spot, UiTheme.PINK if ln.label == "?" else UiTheme.SAND, FONT_SIZE - 2)
-		taken.append(_label_box(ln.label, spot, FONT_SIZE - 2))
+			tries.append(p.lerp(q, t) - normal * gap + Vector2(0, 10) * _k)
+		for t in [0.5, 0.3, 0.7]:
+			tries.append(p.lerp(q, t) + normal * (gap + 30.0 * _k) + Vector2(0, 10) * _k)
+		var spot := _clear_spot(tries, ln.label, _fs(2), at, taken, ln)
+		_chip(ln.label, spot, UiTheme.PINK if ln.label == "?" else UiTheme.SAND, _fs(2))
+		taken.append(_label_box(ln.label, spot, _fs(2)))
 	if spec.has("note"):
-		_chip(spec.note, Vector2(size.x - 120, 34), UiTheme.DIM, FONT_SIZE - 8)
+		_chip(spec.note, Vector2(size.x - 120 * _k, 34 * _k), UiTheme.DIM, _fs(8))
+
+
+## The sketch's font size, FONT_SIZE less `less`, at its scale.
+func _fs(less: int = 0) -> int:
+	return roundi((FONT_SIZE - less) * _k)
+
+
+## Whether a named point lies inside the line, between its ends (M in the middle of a chord AB).
+func _passes_a_name(ln: Dictionary, at: Dictionary) -> bool:
+	var p: Vector2 = at[ln.a]
+	var q: Vector2 = at[ln.b]
+	for n in at:
+		if String(n).begins_with("_") or n == ln.a or n == ln.b:
+			continue
+		var c: Vector2 = at[n]
+		if c.distance_to(p) > 8.0 and c.distance_to(q) > 8.0 and c.distance_to(Geometry2D.get_closest_point_to_segment(c, p, q)) < 2.0:
+			return true
+	return false
+
+
+## A measure of a line that passes a named point (FAL-968): a label beside the line would sit
+## beside one part of it (AM, not AB), so it goes on a dimension line beside the whole of it,
+## with an arrow to each end.
+func _sketch_span(ln: Dictionary, p: Vector2, q: Vector2, normal: Vector2, at: Dictionary, taken: Array) -> void:
+	var fs := _fs(2)
+	var col := UiTheme.PINK if ln.label == "?" else UiTheme.SAND
+	var lift := Vector2(0, fs * 0.3)
+	var outs := [64.0, 88.0, 112.0, 140.0, 170.0, 200.0, -64.0, -88.0, -112.0, -140.0, -170.0, -200.0].map(func(d): return d * _k)
+	var gap: float = outs[0]
+	# First clear of everything; else at least crossed by no line, its label on the page.
+	for strict in [true, false]:
+		var found := outs.filter(func(d): return _span_clear(ln, p, q, normal * d, _label_box(ln.label, (p + q) / 2.0 + normal * d + lift, fs), at, taken, strict))
+		if not found.is_empty():
+			gap = found[0]
+			break
+	var side := normal * signf(gap)
+	var u := (q - p).normalized()
+	var p2 := p + normal * gap
+	var q2 := q + normal * gap
+	draw_line(p + side * 10.0 * _k, p2 + side * 10.0 * _k, UiTheme.DIM, 2.0, true)
+	draw_line(q + side * 10.0 * _k, q2 + side * 10.0 * _k, UiTheme.DIM, 2.0, true)
+	draw_line(p2, q2, col, 3.0, true)
+	for end in [[p2, u], [q2, -u]]:
+		var tip: Vector2 = end[0]
+		var dir: Vector2 = end[1]
+		draw_colored_polygon(PackedVector2Array([tip, tip + dir * 16.0 * _k + dir.orthogonal() * 7.0 * _k, tip + dir * 16.0 * _k - dir.orthogonal() * 7.0 * _k]), col)
+	var spot := (p2 + q2) / 2.0 + lift
+	_chip(ln.label, spot, col, fs)
+	taken.append(_label_box(ln.label, spot, fs))
+	# The dimension line keeps the labels placed after it off itself.
+	for i in 21:
+		taken.append(Rect2(p2.lerp(q2, i / 20.0) - Vector2(6, 6), Vector2(12, 12)))
+
+
+## Whether a dimension line `off` from pq, with its label in `box`, is clear: on the page, off
+## every label and circle, and crossed by no line, so it can't be read as another line's. A dashed line
+## (a level, a span) may cross the two short lines out to it. Not `strict`: only no line crossing
+## it, with its label and ends on the page.
+func _span_clear(ln: Dictionary, p: Vector2, q: Vector2, off: Vector2, box: Rect2, at: Dictionary, taken: Array, strict: bool = true) -> bool:
+	if box.position.x < 4.0 or box.end.x > size.x - 4.0 or box.position.y < 4.0 or box.end.y > size.y - 4.0:
+		return false
+	var p2 := p + off
+	var q2 := q + off
+	if not Rect2(Vector2.ZERO, size).has_point(p2) or not Rect2(Vector2.ZERO, size).has_point(q2):
+		return false
+	if strict and taken.any(func(r): return r.intersects(box)):
+		return false
+	for c in spec.get("circles", []) if strict else []:
+		var o: Vector2 = at[c.at]
+		for i in 96:
+			if box.grow(4.0).has_point(o + Vector2.from_angle(TAU * i / 96.0) * o.distance_to(at[c.through])):
+				return false
+	for i in 41:
+		var on: Vector2 = p2.lerp(q2, i / 40.0)
+		if strict and taken.any(func(r): return r.has_point(on)):
+			return false
+	var out := off.normalized() * 10.0 * _k
+	var grow := (q - p).normalized() * 16.0 * _k
+	for other in spec.lines:
+		if other == ln:
+			continue
+		var a: Vector2 = at[other.a]
+		var b: Vector2 = at[other.b]
+		for i in 41:
+			if strict and box.has_point(a.lerp(b, i / 40.0)):
+				return false
+		if Geometry2D.segment_intersects_segment(a, b, p2 - grow, q2 + grow) != null:
+			return false
+		if not other.dash:
+			for e in [[p + out, p2], [q + out, q2]]:
+				if Geometry2D.segment_intersects_segment(a, b, e[0], e[1]) != null:
+					return false
+	return true
 
 
 ## The box a chip takes up at `at`, with a little room around it.
@@ -999,7 +1111,16 @@ func _clear_spot(tries: Array, s: String, fs: int, at: Dictionary, taken: Array,
 					break
 		if not hit:
 			return spot
-	return tries[0]
+	# None clear: the one over the fewest names and labels, so that it doesn't hide a name (FAL-973).
+	var best: Vector2 = tries[0]
+	var least := INF
+	for spot in tries:
+		var box := _label_box(s, spot, fs)
+		var over := taken.filter(func(r): return r.intersects(box)).size()
+		if over < least:
+			least = over
+			best = spot
+	return best
 
 
 ## A small square in the corner at point n, between the two lines that meet there.
@@ -1013,15 +1134,15 @@ func _right_mark(n: String, at: Dictionary) -> void:
 	if dirs.size() < 2:
 		return
 	var p: Vector2 = at[n]
-	var u: Vector2 = dirs[0] * 24.0
-	var v: Vector2 = dirs[1] * 24.0
+	var u: Vector2 = dirs[0] * 24.0 * _k
+	var v: Vector2 = dirs[1] * 24.0 * _k
 	draw_polyline(PackedVector2Array([p + u, p + u + v, p + v]), UiTheme.SAND, 3.0, true)
 
 
 ## An angle at a point: a bearing clockwise from north, or the shorter way between two points.
 func _sketch_arc(a: Dictionary, at: Dictionary, used: Dictionary, taken: Array) -> void:
 	var p: Vector2 = at[a.at]
-	var r: float = SKETCH_ARC + 34.0 * used.get(a.at, 0)
+	var r: float = (SKETCH_ARC + 34.0 * used.get(a.at, 0)) * _k
 	used[a.at] = used.get(a.at, 0) + 1
 	var to: Vector2 = at[a.to] - p
 	var a1 := atan2(-to.y, to.x)
@@ -1033,13 +1154,13 @@ func _sketch_arc(a: Dictionary, at: Dictionary, used: Dictionary, taken: Array) 
 		sweep = wrapf(a1 - a0, -PI, PI)
 	draw_polyline(_arc_points(p, r, a0, sweep), UiTheme.SAND, 3.0, true)
 	var half := minf(absf(sweep), PI) / 2.0
-	var reach: float = r + 38.0 + 10.0 / maxf(sin(half), 0.12)
+	var reach: float = r + (38.0 + 10.0 / maxf(sin(half), 0.12)) * _k
 	var tries: Array = []
 	for pair in [[0.5, 0.0], [0.5, 34.0], [0.35, 0.0], [0.65, 0.0], [0.5, 70.0], [0.25, 20.0], [0.75, 20.0]]:
-		tries.append(_on_circle(p, reach + pair[1], a0 + sweep * pair[0]) + Vector2(0, 10))
-	var spot := _clear_spot(tries, a.label, FONT_SIZE - 4, at, taken)
-	_chip(a.label, spot, UiTheme.PINK if a.label == "?" else UiTheme.SAND, FONT_SIZE - 4)
-	taken.append(_label_box(a.label, spot, FONT_SIZE - 4))
+		tries.append(_on_circle(p, reach + pair[1] * _k, a0 + sweep * pair[0]) + Vector2(0, 10) * _k)
+	var spot := _clear_spot(tries, a.label, _fs(4), at, taken)
+	_chip(a.label, spot, UiTheme.PINK if a.label == "?" else UiTheme.SAND, _fs(4))
+	taken.append(_label_box(a.label, spot, _fs(4)))
 # ── Solids ───────────────────────────────────────────────────
 
 ## Part of an ellipse from angle a to b, solid or dashed. Angles run clockwise from the right

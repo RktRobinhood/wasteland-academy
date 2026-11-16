@@ -63,7 +63,7 @@ func test_paper_1_has_no_calculator_work() -> void:
 		check_eq(q.paper, 1, c.key)
 		for sol in q.solutions:
 			for step in sol.steps:
-				check(not ("normalcdf" in String(step) or "invNorm" in String(step)), "%s: %s" % [c.key, step])
+				check(not ("normalcdf" in Step.text(step) or "invNorm" in Step.text(step)), "%s: %s" % [c.key, Step.text(step)])
 
 
 func test_figures_show_the_numbers() -> void:

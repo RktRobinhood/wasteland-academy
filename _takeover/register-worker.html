@@ -1,0 +1,16 @@
+<script>
+// The root service worker (_takeover/service-worker.js): Godot plays offline after one
+// visit. Registered once the engine is running, so the worker's install copies index.pck
+// and index.wasm from the HTTP cache instead of downloading them a second time.
+if ('serviceWorker' in navigator) {
+	const register = () => navigator.serviceWorker.register('service-worker.js');
+	addEventListener('load', () => {
+		if (!document.getElementById('status')) return register();
+		new MutationObserver((_, observer) => {
+			if (document.getElementById('status')) return;
+			observer.disconnect();
+			register();
+		}).observe(document.body, { childList: true });
+	});
+}
+</script>
