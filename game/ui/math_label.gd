@@ -8,7 +8,8 @@ extends Control
 ## fraction, a power or a root, and is sized like one: no minimum width, and the height
 ## its lines need at its width. Its font, size and colour come from the theme as a
 ## Label's do, and "font_color" and "font_size" overrides work the same, so code that
-## recolours a feedback line needs no change.
+## recolours a feedback line needs no change. An "outline_size" override draws an outline
+## in its "font_outline_color", as a Label's does.
 ##
 ## Inside a Button (UiTheme.math_button), it takes the button's text colour for its state
 ## (hover, pressed, disabled) and the button's font size, as the button's own text would.
@@ -251,5 +252,11 @@ func _layout() -> void:
 func _draw() -> void:
 	var font := _font()
 	var color := _color()
-	for d in drawn():
+	var pieces := drawn()
+	if has_theme_constant_override("outline_size") and get_theme_constant("outline_size") > 0:
+		var outline := get_theme_constant("outline_size")
+		var outline_color := get_theme_color("font_outline_color") if has_theme_color_override("font_outline_color") else Color.BLACK
+		for d in pieces:
+			MathBox.draw_piece_outline(self, font, d, outline, outline_color)
+	for d in pieces:
 		MathBox.draw_piece(self, font, d, color)
