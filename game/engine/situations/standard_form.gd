@@ -17,6 +17,17 @@ extends RefCounted
 ##   list     order-mixed: four [a, k, how] numbers, how being "form", "plain", "over" or "under"
 ##   big      order-mixed: true for the largest, false for the smallest
 ##
+## t1-ext-standard-form-add and t1-ext-standard-form-powers (FAL-780) share the situation:
+##   add-forms, add-carry, subtract-forms, subtract-renormalise, difference-context
+##            p = a × 10^m and q = b × 10^n with m and n 1 apart (2 on Paper 1 at times); the sum
+##            or difference r × 10^k is exact. add-carry has a coefficient sum of 10 or more at the
+##            larger power, subtract-renormalise a difference below 1 there
+##   square-form, cube-form   (a × 10^m)^pw, pw = 2 or 3
+##   root-even                √(c² × 10^(2j)), c with one decimal place
+##   root-odd                 √(a × 10^(2j + 1)) with 10a = c², c from 4 to 9
+##   cube-root                ∛(a × 10^m) with a × 10^sh = c³, m = 3j + sh
+##   c, j     the root c × 10^j;  pw  the power;  sh  how far the root's power is adjusted
+##
 ## The clean limits are the numbers behind the catalogue's `clean` text. The checker holds its
 ## own copy.
 
@@ -142,6 +153,12 @@ static func _draw(rng: Seeded, s: Dictionary) -> bool:
 			return _scale(rng, s)
 		"sphere-volume-pi":
 			return _sphere(rng, s)
+		"add-forms", "add-carry", "subtract-forms", "subtract-renormalise", "difference-context":
+			return _add(rng, s)
+		"square-form", "cube-form":
+			return _raise(rng, s)
+		"root-even", "root-odd", "cube-root":
+			return _root(rng, s)
 	return false
 
 
@@ -223,6 +240,86 @@ static func _sphere(rng: Seeded, s: Dictionary) -> bool:
 	s.r = pair[0]
 	s.k = pair[1]
 	return s.paper == 1 or clear(s.r)
+
+
+# ── Adding, subtracting, powers and roots (FAL-780) ──────────
+
+## p ± q with m ≠ n: a and b have one decimal place on Paper 1 (two on Paper 2), the powers are 1
+## apart (or 2 on Paper 1, half the time), and the answer power is at least 2 from 0. A sum carries
+## past 10 at the larger power only on add-carry; a difference drops below 1 only on
+## subtract-renormalise. The answer r has at most four figures.
+static func _add(rng: Seeded, s: Dictionary) -> bool:
+	s.a = Q.new(rng.int_in(11, 99), 10) if s.paper == 1 else Q.new(rng.int_in(101, 999), 100)
+	s.b = Q.new(rng.int_in(11, 99), 10) if s.paper == 1 else Q.new(rng.int_in(101, 999), 100)
+	var big: int = rng.int_in(3, 8) if rng.chance(0.65) else rng.int_in(-7, -2)
+	# A story's numbers are large, except the last story's (grains of dust and pollen).
+	if s.ask == "difference-context":
+		big = rng.int_in(-7, -3) if s.ctx == CONTEXTS - 1 else rng.int_in(3, 8)
+	var gap: int = 2 if s.paper == 1 and rng.chance(0.5) and not s.ask in ["add-carry", "subtract-renormalise"] else 1
+	var minus: bool = s.ask.begins_with("subtract") or s.ask == "difference-context"
+	# The larger power is p's, except that an add question may give it to q.
+	s.m = big
+	s.n = big - gap
+	if not minus and rng.chance(0.4):
+		s.m = big - gap
+		s.n = big
+	var hi: Q = s.a if s.m == big else s.b
+	var lo: Q = (s.b if s.m == big else s.a).div(int(pow(10.0, gap)))
+	var c: Q = hi.sub(lo) if minus else hi.add(lo)
+	if minus and not c.lt(Q.new(10)) or c.sign() <= 0:
+		return false
+	var carry := not c.lt(Q.new(10))
+	var drop := c.lt(Q.new(1))
+	if carry != (s.ask == "add-carry") or drop != (s.ask == "subtract-renormalise"):
+		return false
+	# A subtraction's slips need the larger coefficient on top, by at least 1.
+	if minus and s.a.sub(s.b).lt(Q.new(1)) and s.ask != "subtract-renormalise":
+		return false
+	s.c = c
+	s.big = big
+	var pair := norm(c, big)
+	s.r = pair[0]
+	s.k = pair[1]
+	return absi(s.k) >= 2 and s.r.mul(1000).is_int()
+
+
+## (a × 10^m)^pw: a with one decimal place (at most 5.0 for a cube), m from 2 to 6 either way.
+static func _raise(rng: Seeded, s: Dictionary) -> bool:
+	s.pw = 2 if s.ask == "square-form" else 3
+	s.a = Q.new(rng.int_in(11, 99 if s.pw == 2 else 50), 10)
+	s.m = rng.int_in(2, 6) * (1 if rng.chance(0.65) else -1)
+	var v: Q = s.a
+	for i in s.pw - 1:
+		v = v.mul(s.a)
+	# The slips (only the power of ten raised, the power added) must read differently.
+	if s.a.mul(s.pw).eq(v):
+		return false
+	return answer(s, v, s.pw * s.m)
+
+
+static func _root(rng: Seeded, s: Dictionary) -> bool:
+	s.j = rng.int_in(2, 5) * (1 if rng.chance(0.65) else -1)
+	match s.ask:
+		"root-even":
+			s.c = Q.new(rng.int_in(11, 31), 10)
+			s.a = s.c.mul(s.c)
+			s.m = 2 * s.j
+			s.sh = 0
+		"root-odd":
+			s.c = Q.new(rng.int_in(4, 9))
+			s.a = s.c.mul(s.c).div(10)
+			s.m = 2 * s.j + 1
+			s.sh = 1
+		_:
+			var cube: int = rng.pick([2, 3, 4, 5, 6, 7, 8, 9])
+			s.c = Q.new(cube)
+			var c3 := cube * cube * cube
+			s.sh = 0 if c3 < 10 else (1 if c3 < 100 else 2)
+			s.a = Q.new(c3, int(pow(10.0, s.sh)))
+			s.m = 3 * s.j + s.sh
+	s.r = s.c
+	s.k = s.j
+	return true
 
 
 static func export(s: Dictionary) -> Dictionary:

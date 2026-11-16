@@ -82626,12 +82626,12 @@
      "wrong": "the coefficient halved, with the power halved"
     },
     {
-     "text": "Dividing the coefficient by 3 instead of taking its cube root",
+     "text": "Taking a third of the coefficient instead of its cube root",
      "as": "distractor",
      "in": [
       "cube-root"
      ],
-     "wrong": "the coefficient divided by 3, with the power divided by 3"
+     "wrong": "the coefficient divided by three, with the power divided by three"
     },
     {
      "text": "Cubing the power of ten but leaving the coefficient as it is, in a line of working",

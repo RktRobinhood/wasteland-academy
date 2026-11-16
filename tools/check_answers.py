@@ -43307,13 +43307,17 @@ def E17_expr(text, letters=("x",)):
         t = re.sub(r"(?<=[ab)])(?=[ab])", "*", t)
     if not t or re.search(r"[A-Za-wyz]{2,}", t.replace("ln", "")):
         return None
+    t = re.sub(r"(?<=\d) (?=\d{3}(?!\d))", "", t)
+    t = re.sub("[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+", lambda mt: "**(" + mt.group(0).translate(SF_SUP) + ")", t)
     t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    t = t.replace("√", "sqrt").replace("∛", "cbrt")
+    t = re.sub(r"(sqrt|cbrt)([\d.]+)", r"\1(\2)", t)
     t = re.sub(r"(?<![\w)])ln (\d+)", r"ln(\1)", t)
     if not re.fullmatch(r"[0-9a-z+\-*/(). ]+", t):
         return None
-    local = {"x": E17_X, "ln": sp.log}
+    local = {"x": E17_X, "ln": sp.log, "sqrt": sp.sqrt, "cbrt": lambda v: sp.root(v, 3)}
     try:
-        e = parse_expr(t, local_dict=local, transformations=TRANSFORMS, evaluate=True)
+        e = parse_expr(t, local_dict=local, transformations=TRANSFORMS + (rationalize,), evaluate=True)
     except Exception:
         return None
     if not all(str(s) in letters for s in e.free_symbols):
@@ -43676,6 +43680,141 @@ def E17EL_spot(q, lines):
 
 SITUATION_CHECKS["integer-powers"] = E17EL_check
 SPOT_CHECKS["integer-powers"] = E17EL_spot
+
+
+
+# ── standard-form, t1-ext-standard-form-add and -powers (FAL-780) ──
+# The numbers are read back from the lines (p and q, or a story) or from the question, and the sum,
+# difference, power or root is worked out exactly with SymPy, then written in standard form. Every
+# tagged option is rebuilt from its slip, every equation in the working must hold, and an
+# error-spot's first wrong line is the first whose equation fails.
+
+E17SF_SA = "SL1.1.add-subtract#"
+E17SF_SP = "SL1.1.powers-roots#"
+E17SF_OA = "t1-ext-standard-form-add#"
+E17SF_OP = "t1-ext-standard-form-powers#"
+E17SF_ADD = ("add-forms", "add-carry", "subtract-forms", "subtract-renormalise", "difference-context")
+E17SF_POW = ("square-form", "cube-form", "root-even", "root-odd", "cube-root")
+E17SF_GAPS = (
+    "The salt road to the coast is (.+) metres long and the track to the mine is (.+) metres long.",
+    "A dust storm carried (.+) kilograms of sand and a gale carried (.+) kilograms.",
+    "The reservoir holds (.+) litres and the camp's cistern holds (.+) litres.",
+    "A relay mast is (.+) metres from the base and a drone is (.+) metres from it.",
+    "The old dam's turbines gave (.+) watts and a wind rig gives (.+) watts.",
+    "A grain of dust is (.+) metres wide and a grain of pollen is (.+) metres wide.",
+)
+
+
+def E17SF_text(v, e=None):
+    """v × 10^e, or v itself when e is None, normalised and written as the game writes it."""
+    a, k = sf_norm(sp.Rational(v) * (sp.Rational(10) ** e if e is not None else 1))
+    return sf_text(a, k, False), a, k
+
+
+def E17SF_raw(a, e):
+    """a × 10^e with a left as it is (a slip may leave it outside 1 to 10)."""
+    return sf_text(sp.Rational(a), e, False)
+
+
+def E17SF_one(text):
+    got = sf_read(text)
+    need(len(got) == 1, f"can't read one number in {text!r}")
+    return got[0]
+
+
+def E17SF_check(q):
+    u, L, asked, paper = q["view"]["unknown"], q["lines"], q["asked"], q["paper"]
+    if "A student's working:" in L:
+        L = L[:L.index("A student's working:")]
+    need(not q["view"]["angle"].startswith("gdc-") or paper == 2, "a GDC method is not Paper 2")
+    wr = {}
+    if u in E17SF_ADD:
+        minus = u != "add-forms" and u != "add-carry"
+        if q["view"]["rep"] == "words":
+            m = next((re.fullmatch(g, L[0]) for g in E17SF_GAPS if re.fullmatch(g, L[0])), None)
+            need(m is not None, f"can't read the story {L[0]!r}")
+            (a, mm), (b, n) = E17SF_one(m.group(1)), E17SF_one(m.group(2))
+            small = E17SF_GAPS.index(m.re.pattern) == len(E17SF_GAPS) - 1
+            need((max(mm, n) < 0) == small, "a story's powers of ten have the wrong sign for what it measures")
+        else:
+            need(len(L) == 2 and L[0].startswith("p = ") and L[1].startswith("q = "), "p and q")
+            (a, mm), (b, n) = E17SF_one(L[0]), E17SF_one(L[1])
+            need(asked.startswith("Find p − q." if minus else "Find p + q."), f"the question asks {asked!r}")
+        big = max(mm, n)
+        need(mm != n and abs(mm - n) in (1, 2), "the powers are not 1 or 2 apart")
+        need(all(1 <= v < 10 and (v * (10 if paper == 1 else 100)).q == 1 for v in (a, b)), f"{a} or {b} breaks the limits")
+        if minus:
+            need(mm > n, "the larger number comes second")
+        P_, Q_ = a * sp.Rational(10) ** mm, b * sp.Rational(10) ** n
+        v = P_ - Q_ if minus else P_ + Q_
+        need(v > 0, "the difference is not positive")
+        c = v / sp.Rational(10) ** big
+        want, r, k = E17SF_text(v)
+        need(abs(k) >= 2 and (r * 1000).q == 1, f"{want} breaks the limits")
+        need((c >= 10) == (u == "add-carry") and (c < 1) == (u == "subtract-renormalise"), f"{u} with a coefficient of {c} at the larger power")
+        raw = a - b if minus else a + b
+        if minus and u != "subtract-renormalise":
+            need(raw >= 1, "the coefficients are less than 1 apart")
+        if raw > 0:
+            wr[E17SF_SA + "0"] = {E17SF_raw(raw, mm + n)}
+            wr[E17SF_SA + "1"] = {E17SF_raw(raw, big)}
+            if minus:
+                wr[E17SF_OA + "4"] = {E17SF_raw(raw, mm - n)}
+        if u == "add-carry":
+            wr[E17SF_OA + "2"] = {E17SF_raw(c, big)}
+        if u == "subtract-renormalise":
+            wr[E17SF_OA + "3"] = {E17SF_raw(c, big)}
+    else:
+        if u in ("square-form", "cube-form"):
+            m = re.fullmatch(r"Find \((.+)\)([²³])\. Give your answer .*", asked)
+            need(m is not None and (m.group(2) == "²") == (u == "square-form"), f"can't read {asked!r}")
+            a, mm = E17SF_one(m.group(1))
+            p = 2 if m.group(2) == "²" else 3
+            need((a * 10).q == 1 and 1 <= a < (10 if p == 2 else sp.Rational(51, 10)) and 2 <= abs(mm) <= 6, f"{a} × 10^{mm} breaks the limits")
+            v = (a * sp.Rational(10) ** mm) ** p
+            want, r, k = E17SF_text(v)
+            wr[E17SF_SP + "0"] = {E17SF_raw(a, p * mm)}
+            wr[E17SF_SP + "1"] = {E17SF_text(a ** p, mm + p)[0]}
+            wr[E17SF_OP + "3"] = {E17SF_text(a * p, p * mm)[0]}
+        else:
+            m = re.fullmatch(r"Find ([√∛])\((.+)\)\. Give your answer .*", asked)
+            need(m is not None and (m.group(1) == "∛") == (u == "cube-root"), f"can't read {asked!r}")
+            a, mm = E17SF_one(m.group(2))
+            deg = 3 if m.group(1) == "∛" else 2
+            need(1 <= a < 10, f"a = {a} is not in standard form")
+            v = sp.root(a * sp.Rational(10) ** mm, deg)
+            need(v.is_Rational, f"the root of {a} × 10^{mm} is not exact")
+            want, r, k = E17SF_text(v)
+            sh = mm - deg * k
+            need(sh in range(deg) and (u != "root-even" or sh == 0) and (u != "root-odd" or sh == 1), f"{u} with the power adjusted by {sh}")
+            need(abs(k) >= 2 and (r * 10).q == 1, f"{want} breaks the limits")
+            big_a = a * 10 ** sh
+            wr[E17SF_SP + "2"] = {E17SF_raw(r, mm - sh)}
+            if deg == 2:
+                wr[E17SF_OP + "4"] = {E17SF_text(big_a / 2, k)[0]}
+            else:
+                wr[E17SF_OP + "5"] = {E17SF_text(big_a / 3, k)[0]}
+    gc_check_common(q, want, wr)
+    E17_steps(q, {})
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E17SF_spot(q, lines):
+    for t in lines:
+        need(" = " in t or re.match(r"(Write [pq] with|Cube the number|Make the power|Check: \d|[\d.]+ is between)", t), f"can't judge the line {t!r}")
+    return E17_first_false(lines, {})
+
+
+E17SF_PREV = SITUATION_CHECKS["standard-form"]
+
+
+def E17SF_entry(q):
+    return E17SF_check(q) if q["view"]["unknown"] in E17SF_ADD + E17SF_POW else E17SF_PREV(q)
+
+
+SITUATION_CHECKS["standard-form"] = E17SF_entry
+SPOT_CHECKS["standard-form"] = E17SF_spot
 
 
 def check_questions(data):
