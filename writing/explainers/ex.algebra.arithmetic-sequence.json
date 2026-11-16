@@ -35,10 +35,10 @@
     "Confusing the position n with the value u_n"
   ],
   "estimate": {
-    "words_watched": 978,
-    "words_not_watched": 1024,
-    "narration_watched": "6 min 45 s",
-    "narration_not_watched": "7 min 04 s",
+    "words_watched": 1005,
+    "words_not_watched": 1051,
+    "narration_watched": "6 min 56 s",
+    "narration_not_watched": "7 min 15 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
   },
   "notes": [
@@ -623,6 +623,28 @@
           "speaker": "mags-the-ledger",
           "clear": true,
           "say": "This one's laid out like the old exam papers: parts a, b and c. Write each letter down before you start the part, so whoever marks it can find your working."
+        },
+        {
+          "speaker": "mags-the-ledger",
+          "say": "A barricade of sandbags, in layers. Ninety-six in layer one at the bottom, ninety-two in layer two, eighty-eight in layer three. The numbers make an arithmetic sequence.",
+          "board": [
+            {
+              "write": "uₙ = sandbags in layer n",
+              "move": "read-givens"
+            },
+            {
+              "write": "u₁ = 96 sandbags (bottom layer)",
+              "move": "read-givens"
+            },
+            {
+              "write": "u₂ = 92 sandbags",
+              "move": "read-givens"
+            },
+            {
+              "write": "u₃ = 88 sandbags",
+              "move": "read-givens"
+            }
+          ]
         },
         {
           "speaker": "mags-the-ledger",

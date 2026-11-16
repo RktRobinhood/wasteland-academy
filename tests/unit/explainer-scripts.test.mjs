@@ -51,3 +51,21 @@ const RULES = [
 ];
 
 for (const [name, edit, want] of RULES) test(`the check catches ${name}`, () => assert.match(broken(edit), want));
+
+// Each exam example reads its stem before part (a) (FAL-995). Rook's function-machine has a two-line stem;
+// with it taken off the board, or labelled as part (a), the check fails.
+const STEM = 'ex.functions.function-machine.json';
+const stemmed = scripts.find(s => s.file === STEM).script;
+const exam = s => s.sections.find(x => x.kind === 'example' && x.level === 'exam');
+const stemErrors = s => checkScript(s, ctx, STEM).filter(e => /stem/.test(e));
+test('an exam example with its stem on the board before part (a) passes', () => assert.deepEqual(stemErrors(stemmed), []));
+test('the check catches an exam example with no stem before part (a)', () => {
+  const s = structuredClone(stemmed);
+  for (const b of exam(s).beats) if (b.board) b.board = b.board.filter(x => x.part);
+  assert.match(stemErrors(s).join('\n'), /puts its stem on the board, with no part, before part \(a\)/);
+});
+test('the check catches a stem labelled as part (a)', () => {
+  const s = structuredClone(stemmed);
+  for (const b of exam(s).beats) for (const x of b.board || []) x.part ??= 'a';
+  assert.match(stemErrors(s).join('\n'), /before part \(a\)/);
+});

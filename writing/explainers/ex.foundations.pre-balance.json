@@ -33,10 +33,10 @@
     "Multiplies only the first term in a bracket"
   ],
   "estimate": {
-    "words_watched": 782,
-    "words_not_watched": 818,
-    "narration_watched": "5 min 27 s",
-    "narration_not_watched": "5 min 41 s",
+    "words_watched": 801,
+    "words_not_watched": 837,
+    "narration_watched": "5 min 35 s",
+    "narration_not_watched": "5 min 49 s",
     "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
   },
   "notes": [
@@ -502,6 +502,16 @@
           "speaker": "tin-can-tess",
           "clear": true,
           "say": "Right, one set out like the exam papers now. Two parts, and the letter goes down before each one."
+        },
+        {
+          "speaker": "tin-can-tess",
+          "say": "The question gives us a line and calls it L. Its equation is y equals three x, minus four.",
+          "board": [
+            {
+              "write": "L: y = 3x − 4",
+              "move": "read-givens"
+            }
+          ]
         },
         {
           "speaker": "tin-can-tess",
