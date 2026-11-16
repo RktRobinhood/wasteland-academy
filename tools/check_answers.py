@@ -43817,6 +43817,155 @@ SITUATION_CHECKS["standard-form"] = E17SF_entry
 SPOT_CHECKS["standard-form"] = E17SF_spot
 
 
+
+# ── compound-interest, t1-ext-real-value (FAL-780) ──────────
+# The amount, the interest and inflation rates and the years are read from the story, and each value
+# is worked out with exact rationals: the real rate r − f, the value at that rate, the nominal value
+# divided by (1 + f/100)^n, and whether r > f. Every tagged option is rebuilt from its slip, every
+# offered value is clear of a rounding edge, the working's sums are redone, and an error-spot's lines
+# are judged by what each one claims.
+
+E17RV_MAP = "SL1.4.real-value#"
+E17RV_OWN = "t1-ext-real-value#"
+E17RV_UNKNOWNS = ("real-rate", "real-value-rate", "real-value-deflate", "keeps-pace")
+E17RV_LINE = re.compile(r"(.+) puts (?:\$(\d+)|money) into an account that pays ([\d.]+)% interest per year(?:, compounded annually)?\. Prices rise by ([\d.]+)% per year\.")
+
+
+def E17RV_read(q):
+    m = E17RV_LINE.fullmatch(q["lines"][0])
+    need(m is not None, f"can't read {q['lines'][0]!r}")
+    need(m.group(1) in CI_WHO and CI_WHO.index(m.group(1)) == int(q["given"]["ctx"]), f"the story's name {m.group(1)!r}")
+    pv = sp.Integer(m.group(2)) if m.group(2) else None
+    r, f = R(m.group(3)), R(m.group(4))
+    need(r in {sp.Rational(t, 10) for t in range(20, 81, 5)} and f in {sp.Rational(t, 10) for t in range(10, 61, 5)} and r != f, f"rates {r}% and {f}% break the limits")
+    n = None
+    mn = re.search(r"after (\d+) years", q["asked"])
+    if mn:
+        n = int(mn.group(1))
+        need(3 <= n <= 12, f"n = {n}")
+    if pv is not None:
+        need(pv % 500 == 0 and 1000 <= pv <= 20000, f"PV {pv}")
+    return pv, r, f, n
+
+
+def E17RV_money(x):
+    need(ci_clear(x), f"{float(x)} is too close to a rounding edge of a cent")
+    return ci_money(ci_cents(x))
+
+
+def E17RV_check(q):
+    u = q["view"]["unknown"]
+    need(q["paper"] == 2, "a real-value question is Paper 2")
+    pv, r, f, n = E17RV_read(q)
+    wr = {}
+    if u == "real-rate":
+        need(q["asked"] == "Write down the real interest rate.", f"asked {q['asked']!r}")
+        want = f"real rate = {dec_text(r - f)}%"
+        wr[E17RV_MAP + "0"] = {f"real rate = {dec_text(r + f)}%"}
+        wr[E17RV_OWN + "3"] = {f"real rate = {dec_text(f - r)}%"}
+    elif u == "keeps-pace":
+        up = r > f
+        want = ("Yes: the interest rate is more than the inflation rate, so its value in today's money rises." if up
+                else "No: the interest rate is less than the inflation rate, so its value in today's money falls, though its balance rises.")
+        wr[E17RV_MAP + "2"] = set() if up else {"Yes: its balance rises every year, so it keeps pace."}
+        wr[E17RV_OWN + "6"] = {"No: prices rise every year, so its real value must fall."} if up else set()
+        need(sp.Rational(1) + r / 100 > (1 + f / 100) if up else (1 + r / 100) < (1 + f / 100), "the factors disagree with the rates")
+    else:
+        need(pv is not None and n is not None and r > f, "a value needs an amount, the years and r > f")
+        nominal = ci_value(pv, r, 1, n)
+        real = ci_value(pv, r - f, 1, n)
+        defl = nominal / (1 + f / 100) ** n
+        need(abs(real - defl) >= 1, "the real-rate and deflated values are less than a dollar apart")
+        if u == "real-value-rate":
+            need(q["asked"] == f"Using the real interest rate, find the real value of the investment after {n} years, to the nearest cent.", f"asked {q['asked']!r}")
+            want = f"real value = ${E17RV_money(real)}"
+            wr[E17RV_MAP + "0"] = {f"real value = ${E17RV_money(ci_value(pv, r + f, 1, n))}"}
+            wr[E17RV_OWN + "4"] = {f"real value = ${E17RV_money(nominal)}"}
+        else:
+            need(q["asked"] == f"By dividing by the rise in prices, find the value of the investment after {n} years in today's money, to the nearest cent.", f"asked {q['asked']!r}")
+            want = f"real value = ${E17RV_money(defl)}"
+            wr[E17RV_MAP + "1"] = {f"real value = ${E17RV_money(nominal / (1 + f / 100))}"}
+            wr[E17RV_OWN + "4"] = {f"real value = ${E17RV_money(nominal)}"}
+            wr[E17RV_OWN + "5"] = {f"real value = ${E17RV_money(nominal * (1 + f / 100) ** n)}"}
+    gc_check_common(q, want, wr)
+    E17RV_steps(q, pv, r, f, n)
+    E17_no_hyphen(q)
+    return None, None
+
+
+def E17RV_close(a, b, places):
+    return abs(sp.Rational(a) - sp.Rational(b)) <= sp.Rational(1, 2) * sp.Rational(1, 10) ** places + sp.Rational(1, 10 ** 9)
+
+
+def E17RV_steps(q, pv, r, f, n):
+    """Each figure the working writes, against the exact value it stands for."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for a, b, c in re.findall(r"([\d.]+) − ([\d.]+) = (−?[\d.]+)", st):
+                need(R(a) - R(b) == R(c.replace("−", "-")), f"{sol['name']}: {st!r}")
+            for base, e, val in re.findall(r"(?<![\d.])(?<!× )([\d.]+)\^(\d+) = ([\d.]+)", st):
+                places = len(val.split(".")[1]) if "." in val else 0
+                need(E17RV_close(R(base) ** int(e), R(val), places), f"{sol['name']}: {st!r}")
+            if (m := re.search(r"FV = (\d+) × ([\d.]+)\^(\d+) = ([\d.]+)", st)):
+                need(E17RV_close(R(m.group(1)) * R(m.group(2)) ** int(m.group(3)), R(m.group(4)), 4), f"{sol['name']}: {st!r}")
+            if (m := re.search(r"Solve for FV: FV = ([\d.]+)", st)):
+                need(E17RV_close(ci_value(pv, r - f, 1, n), R(m.group(1)), 4), f"{sol['name']}: {st!r}")
+            if (m := re.search(r"Real value = ([\d.]+) ÷ ([\d.]+) = ([\d.]+)", st)):
+                need(E17RV_close(ci_value(pv, r, 1, n) / (1 + f / 100) ** n, R(m.group(3)), 4) and E17RV_close((1 + f / 100) ** n, R(m.group(2)), 6), f"{sol['name']}: {st!r}")
+            if (m := re.search(r"After (\d+) years: (\d+) × ([\d.]+)\^(\d+) = ([\d.]+)", st)):
+                g = (1 + (r - f) / 100) if q["view"]["unknown"] == "real-value-rate" else (1 + r / 100) / (1 + f / 100)
+                need(int(m.group(1)) == n and E17RV_close(g, R(m.group(3)), 6) and E17RV_close(pv * g ** n, R(m.group(5)), 4), f"{sol['name']}: {st!r}")
+            if (m := re.search(r"([\d.]+) ÷ ([\d.]+) = ([\d.]+), (more|less) than 1", st)):
+                g = (1 + r / 100) / (1 + f / 100)
+                need(E17RV_close(g, R(m.group(3)), 6) and (m.group(4) == "more") == (g > 1), f"{sol['name']}: {st!r}")
+
+
+def E17RV_spot(q, lines):
+    pv, r, f, n = E17RV_read(q)
+    nominal = ci_value(pv, r, 1, n)
+    for i, t in enumerate(lines):
+        if t.startswith(("Use the real rate", "Divide the value after")):
+            ok = True
+        elif (m := re.fullmatch(r"Real rate = ([\d.]+) ([+−]) ([\d.]+) = ([\d.]+)%", t)):
+            ok = m.group(2) == "−" and R(m.group(4)) == r - f
+        elif (m := re.fullmatch(r"Value = (\d+) × \(1 \+ ([\d.]+)/100\)\^(\d+)(?: = ([\d.]+))?", t)):
+            ok = R(m.group(2)) == r - f and (m.group(4) is None or E17RV_close(ci_value(pv, r - f, 1, n), R(m.group(4)), 4))
+        elif (m := re.fullmatch(r"= ([\d.]+)", t)):
+            ok = E17RV_close(ci_value(pv, r - f, 1, n), R(m.group(1)), 4)
+        elif (m := re.fullmatch(r"FV = (\d+) × ([\d.]+)\^(\d+) = ([\d.]+)(?:, and prices rise by a factor of ([\d.]+))?", t)):
+            ok = E17RV_close(nominal, R(m.group(4)), 4) and (m.group(5) is None or E17RV_close((1 + f / 100) ** n, R(m.group(5)), 4))
+        elif (m := re.fullmatch(r"Prices rise by a factor of ([\d.]+)", t)):
+            ok = E17RV_close((1 + f / 100) ** n, R(m.group(1)), 4)
+        elif (m := re.fullmatch(r"Real value = ([\d.]+) ÷ ([\d.]+) = ([\d.]+)", t)):
+            ok = E17RV_close(nominal / (1 + f / 100) ** n, R(m.group(3)), 4)
+        elif (m := re.fullmatch(r"So the real value is \$([\d.]+)\.", t)):
+            want = ci_value(pv, r - f, 1, n) if q["view"]["unknown"] == "real-value-rate" else nominal / (1 + f / 100) ** n
+            ok = m.group(1) == ci_money(ci_cents(want))
+        else:
+            raise Fail(f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+E17RV_PREV = SITUATION_CHECKS["compound-interest"]
+E17RV_PREV_SPOT = SPOT_CHECKS.get("compound-interest")
+
+
+def E17RV_entry(q):
+    return E17RV_check(q) if q["view"]["unknown"] in E17RV_UNKNOWNS else E17RV_PREV(q)
+
+
+def E17RV_spot_entry(q, lines):
+    if q["view"]["unknown"] in E17RV_UNKNOWNS:
+        return E17RV_spot(q, lines)
+    return E17RV_PREV_SPOT(q, lines)
+
+
+SITUATION_CHECKS["compound-interest"] = E17RV_entry
+SPOT_CHECKS["compound-interest"] = E17RV_spot_entry
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]
