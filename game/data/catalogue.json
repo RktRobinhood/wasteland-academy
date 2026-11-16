@@ -2692,7 +2692,7 @@
 		},
 		"arithmetic-sequence": {
 			"name": "One arithmetic sequence and its sums",
-			"summary": "Pick u₁, d and n, then derive uₙ, Sₙ, two later terms and the first few terms, so any of them can be hidden and any shown.",
+			"summary": "Pick u₁, d and n, then derive uₙ, Sₙ, two later terms and the first few terms, so any of them can be hidden and any shown. t1-ext-sigma-arithmetic writes the same sequence as Σ (r = a to b) (pr + q), with p = d and the first term pa + q, so its terms, its count and its sum are known too.",
 			"quantities": [
 				{
 					"name": "u₁",
@@ -2733,13 +2733,29 @@
 					"name": "other root",
 					"is": "the second root of dn² + (2u₁ − d)n − 2Sₙ = 0, when n is found from Sₙ",
 					"pick": "1 − 2u₁/d − n: a negative whole number, so d divides 2u₁"
+				},
+				{
+					"name": "p, q",
+					"is": "the general term pr + q of a Σ (sigma)",
+					"pick": "p a non-zero whole number from −5 to 9, mostly positive, and q a non-zero whole number from −9 to 12"
+				},
+				{
+					"name": "a, b",
+					"is": "the lower and upper limits of a Σ (sigma)",
+					"pick": "a = 1, or 2 to 12 for a shifted sum (to 20 for a count); b from a + 5 to a + 30 (a + 60 for a count)"
+				},
+				{
+					"name": "k, T",
+					"is": "an unknown upper limit and the total it gives (sigma)",
+					"pick": "k from 5 to 30, p positive and a factor of 2q, so pk² + (p + 2q)k − 2T = 0 has a negative whole second root"
 				}
 			],
 			"clean": [
 				"Paper 1: every value is a whole number and every answer is exact",
 				"d is never 0 and can be negative",
 				"when n is found from Sₙ, the quadratic in n has one positive whole root and one negative whole root",
-				"two given terms are at least two steps apart, and neither is u₁ when u₁ is asked"
+				"two given terms are at least two steps apart, and neither is u₁ when u₁ is asked",
+				"sigma: every value is a whole number or a half, and every slip reads differently from the answer; |Σ| ≤ 4000 and the last term within ±400"
 			]
 		},
 		"arithmetic-context": {
@@ -4610,7 +4626,7 @@
 		},
 		"geometric-sequence": {
 			"name": "One geometric sequence and its sums",
-			"summary": "Pick u₁ and r (or the two terms, the expressions in k, the Σ, the story), then derive every term, Sₙ and S∞, so any of them can be hidden and any shown.",
+			"summary": "Pick u₁ and r (or the two terms, the expressions in k, the Σ, the story), then derive every term, Sₙ and S∞, so any of them can be hidden and any shown. t1-ext-partial-vs-infinite compares Sₙ with S∞ on it: the least n within a gap of S∞ or past a percentage of it, and the share or the gap after k terms.",
 			"quantities": [
 				{
 					"name": "u₁",
@@ -4646,13 +4662,24 @@
 					"name": "story",
 					"is": "what the series counts",
 					"pick": "a ball's path, a well's yield, a growing store, a recurring block, or squares"
+				},
+				{
+					"name": "ε, p",
+					"is": "the gap S∞ − Sₙ must get below, or the percentage of S∞ that Sₙ must pass (partial-vs-infinite)",
+					"pick": "ε from 1, 0.5, 0.1, 0.05, 0.01, 0.005 and 0.001; p from 90, 95, 98, 99, 99.5 and 99.9"
+				},
+				{
+					"name": "k",
+					"is": "the number of terms whose share of S∞, or whose gap to it, is asked (partial-vs-infinite)",
+					"pick": "3 to 8"
 				}
 			],
 			"clean": [
 				"Paper 1: every value exact, with denominators no larger than 6561 and sizes up to 200 000",
 				"Paper 2: sizes up to 5 000 000, each clear of a rounding edge at 3 s.f.",
 				"terms shown are whole on Paper 1 and end in decimals on Paper 2",
-				"a graph's dots are small whole numbers"
+				"a graph's dots are small whole numbers",
+				"partial-vs-infinite: Paper 2, u₁ a multiple of 20 up to 500 and r from 0.2 to 0.9; the least n is 4 to 40, its crossing at least 0.1 from a whole number; the share is at most 99%, and the share, the gap and every slip's value are clear of a rounding edge at 3 s.f."
 			]
 		},
 		"geometric-context": {
@@ -6697,10 +6724,12 @@
 		"SL1.5.evaluate-tech": "Evaluate logarithms and solve simple exponential equations with technology",
 		"SL1.1.add-subtract": "Add and subtract numbers in standard form",
 		"SL1.1.powers-roots": "Raise numbers in standard form to powers and take roots",
+		"SL1.2.sigma": "Interpret and evaluate sigma notation for arithmetic series",
 		"SL1.4.real-value": "Find the real value of an investment allowing for inflation",
 		"SL1.5.integer-exponent-laws": "Simplify expressions using the laws of integer exponents",
 		"SL1.6.numerical-show-that": "Complete a numerical 'show that' with a given answer",
 		"SL1.7.common-base": "Solve exponential equations by writing both sides with a common base",
+		"SL1.8.sn-vs-sinf": "Compare partial sums with the sum to infinity",
 		"SL3.5.exact-triangle": "Use exact trig values to find exact lengths and areas in triangles",
 		"SL4.1.population-sample": "Identify the population and the sample, and decide whether a sample is random",
 		"SL4.1.data-type": "Classify data as discrete or continuous",
@@ -78645,6 +78674,7 @@
 			"region": "sequences",
 			"name": "Sigma notation for arithmetic series",
 			"summary": "Read a sigma sum: count its terms, evaluate it as an arithmetic series, write a series in sigma form, or find the upper limit from the total.",
+			"situation": "arithmetic-sequence",
 			"level": [
 				2,
 				3
@@ -78655,9 +78685,255 @@
 				"match",
 				"error-spot"
 			],
-			"frequency": 0,
-			"angles": [],
-			"misconceptions": []
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "a sum in Σ notation, Σ (r = a to b) (pr + q), or the same sum with its total and an unknown upper limit"
+				},
+				{
+					"rep": "terms",
+					"exam": false,
+					"how": "the series written out: its first three terms, …, and its last term"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "count-terms",
+					"given": [
+						"Σ (r = a to b) (pr + q)"
+					],
+					"asked": "the number of terms",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.2.sigma"
+					]
+				},
+				{
+					"id": "evaluate-sigma",
+					"given": [
+						"Σ (r = 1 to n) (pr + q)"
+					],
+					"asked": "its value",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.2.sigma"
+					]
+				},
+				{
+					"id": "evaluate-shifted",
+					"given": [
+						"Σ (r = a to b) (pr + q), with a lower limit above 1"
+					],
+					"asked": "its value",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.2.sigma"
+					]
+				},
+				{
+					"id": "write-sigma",
+					"given": [
+						"an arithmetic series u₁ + u₂ + u₃ + … + uₙ"
+					],
+					"asked": "the series as Σ (r = 1 to n) (pr + q): p, q and n",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL1.2.sigma"
+					]
+				},
+				{
+					"id": "upper-from-total",
+					"given": [
+						"Σ (r = 1 to k) (pr + q) = T"
+					],
+					"asked": "k",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.2.sigma"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.2.sigma",
+					"method": "list-and-formula",
+					"suits": [
+						"count-terms",
+						"evaluate-sigma",
+						"evaluate-shifted",
+						"write-sigma",
+						"upper-from-total"
+					],
+					"name": "Write out terms, identify u_1, d and n, then use S_n",
+					"about": "Substitute the lower and upper limits to get the first and last terms, count terms as upper − lower + 1, then apply the sum formula."
+				},
+				{
+					"skill": "SL1.2.sigma",
+					"method": "split-sum",
+					"suits": [
+						"evaluate-sigma",
+						"upper-from-total"
+					],
+					"name": "Split the sigma into simpler sums",
+					"about": "Σ(3r + 2) = 3Σr + Σ2, using Σ2 = 2n and 1 + 2 + … + n = n(n + 1)/2."
+				},
+				{
+					"skill": "SL1.2.sigma",
+					"method": "difference-of-sums",
+					"suits": [
+						"count-terms",
+						"evaluate-shifted"
+					],
+					"name": "Subtract two sums that start at r = 1",
+					"about": "The sum from r = 5 to 30 equals the sum from 1 to 30 minus the sum from 1 to 4."
+				},
+				{
+					"skill": "SL1.2.sigma",
+					"method": "gdc-sigma",
+					"suits": [
+						"evaluate-sigma",
+						"evaluate-shifted",
+						"upper-from-total"
+					],
+					"name": "Use the GDC Σ template",
+					"about": "Enter the expression and both limits directly and evaluate."
+				},
+				{
+					"skill": "SL1.2.nth-term",
+					"method": "linear-function",
+					"suits": [
+						"write-sigma"
+					],
+					"name": "Treat u_n as a linear function of n",
+					"about": "Simplify to u_n = dn + (u_1 − d); the coefficient of n is d, and showing u_(n+1) − u_n is constant proves the sequence is arithmetic."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A student says that Σ (r = 1 to n) 5 is 5, because the expression has no r in it. True or false?",
+					"answer": "False. Each of the n terms is 5, so the sum is 5n. A constant is added once for every value of r, not once in all.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Before evaluating Σ (r = 4 to 15) (2r + 1), predict how many terms it has and what its first term is. Then check.",
+					"answer": "12 terms, as 15 − 4 + 1 = 12, and the first term is 2 × 4 + 1 = 9, not 1 or 3. The last term is 31, so the sum is 12/2 × (9 + 31) = 240.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.2.sigma#0",
+					"text": "Counting the terms as the upper limit minus the lower limit, which is one too few",
+					"as": "distractor",
+					"in": [
+						"count-terms",
+						"evaluate-shifted"
+					],
+					"wrong": "b − a terms, or the sum of b − a terms"
+				},
+				{
+					"ref": "SL1.2.sigma#1",
+					"text": "Adding the constant term once, instead of once for every term",
+					"as": "distractor",
+					"in": [
+						"evaluate-sigma",
+						"evaluate-shifted"
+					],
+					"wrong": "pΣr + q"
+				},
+				{
+					"ref": "SL1.2.sigma#2",
+					"text": "Taking the coefficient of r as the first term instead of substituting the lower limit",
+					"as": "distractor",
+					"in": [
+						"evaluate-sigma",
+						"evaluate-shifted"
+					],
+					"wrong": "a sum with first term p and difference p"
+				},
+				{
+					"ref": "SL1.2.sum#0",
+					"text": "Using n instead of n − 1 inside the formula: n/2(2u_1 + nd)",
+					"as": "distractor",
+					"in": [
+						"evaluate-sigma"
+					],
+					"wrong": "n/2(2u₁ + nd)"
+				},
+				{
+					"ref": "SL1.2.sum#1",
+					"text": "Using the wrong n, such as the last term's value or the number of gaps",
+					"as": "distractor",
+					"in": [
+						"write-sigma"
+					],
+					"wrong": "n = the number of gaps, or the last term"
+				},
+				{
+					"text": "Starting the sum at r = 1 when its lower limit is higher",
+					"as": "distractor",
+					"in": [
+						"evaluate-shifted"
+					],
+					"wrong": "Σ (r = 1 to b)"
+				},
+				{
+					"text": "Writing the general term as u₁ + dr, which is one term further along",
+					"as": "distractor",
+					"in": [
+						"write-sigma"
+					],
+					"wrong": "p = d and q = u₁"
+				},
+				{
+					"text": "Keeping the negative root of the quadratic in k, which can't count terms",
+					"as": "distractor",
+					"in": [
+						"upper-from-total"
+					],
+					"wrong": "the negative root"
+				},
+				{
+					"text": "Adding the constant once in a line of working, where it is added once for every term",
+					"as": "error-spot",
+					"in": [
+						"evaluate-sigma"
+					],
+					"wrong": "a line writes Σq as q"
+				},
+				{
+					"text": "Counting the terms as the upper limit minus the lower limit in a line of working",
+					"as": "error-spot",
+					"in": [
+						"evaluate-shifted"
+					],
+					"wrong": "a line writes the number of terms as b − a"
+				}
+			],
+			"frequency": 0
 		},
 		{
 			"id": "t1-ext-real-value",
@@ -79841,6 +80117,7 @@
 			"region": "sequences",
 			"name": "Partial sums against the sum to infinity",
 			"summary": "Compare S_n with S∞: find the least n that brings S_n within a given gap of S∞, or the share of S∞ that the first few terms give.",
+			"situation": "geometric-sequence",
 			"level": [
 				3,
 				4
@@ -79852,9 +80129,231 @@
 				"error-spot",
 				"multipart"
 			],
-			"frequency": 0,
-			"angles": [],
-			"misconceptions": []
+			"representations": [
+				{
+					"rep": "notation",
+					"exam": false,
+					"how": "u₁ and r of a geometric series with 0 < r < 1, as decimals"
+				},
+				{
+					"rep": "terms",
+					"exam": false,
+					"how": "the first four terms of the series, decimals that end"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "least-n-gap",
+					"given": [
+						"u₁ and r, or the first four terms",
+						"a small gap ε"
+					],
+					"asked": "the least n with S∞ − Sₙ < ε",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.8.sn-vs-sinf"
+					]
+				},
+				{
+					"id": "least-n-percent",
+					"given": [
+						"u₁ and r, or the first four terms",
+						"a percentage p of S∞"
+					],
+					"asked": "the least n with Sₙ more than p% of S∞",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.8.sn-vs-sinf"
+					]
+				},
+				{
+					"id": "share-of-sinf",
+					"given": [
+						"u₁ and r, or the first four terms",
+						"a number of terms k"
+					],
+					"asked": "the percentage of S∞ that the first k terms give, to 3 s.f.",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.8.sn-vs-sinf"
+					]
+				},
+				{
+					"id": "gap-after-n",
+					"given": [
+						"u₁ and r, or the first four terms",
+						"a number of terms k"
+					],
+					"asked": "S∞ − Sₖ, the part of S∞ still to come after k terms, to 3 s.f.",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.8.sn-vs-sinf"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.8.sn-vs-sinf",
+					"method": "tail-series",
+					"suits": [
+						"least-n-gap",
+						"least-n-percent",
+						"share-of-sinf",
+						"gap-after-n"
+					],
+					"name": "Recognise S∞ − S_n as the tail of the series",
+					"about": "The tail is itself an infinite geometric series: S∞ − S_n = u_1 r^n/(1 − r), so the condition reduces to one on r^n."
+				},
+				{
+					"skill": "SL1.8.sn-vs-sinf",
+					"method": "logs",
+					"suits": [
+						"least-n-gap",
+						"least-n-percent"
+					],
+					"name": "Solve the inequality in r^n with logarithms",
+					"about": "Take ln of both sides, divide by ln r < 0 and flip the inequality, then round up."
+				},
+				{
+					"skill": "SL1.8.sn-vs-sinf",
+					"method": "gdc-table",
+					"suits": [
+						"least-n-gap",
+						"least-n-percent"
+					],
+					"name": "Tabulate S_n or S∞ − S_n on the GDC",
+					"about": "Scroll to the first n that meets the condition."
+				},
+				{
+					"skill": "SL1.8.sn-vs-sinf",
+					"method": "graph-intersect",
+					"suits": [
+						"least-n-gap"
+					],
+					"name": "Graph the gap and the tolerance and intersect",
+					"about": "Plot y = S∞ − S_x and y = 0.001, then round the x-coordinate up."
+				},
+				{
+					"skill": "SL1.8.sum-to-infinity",
+					"method": "formula",
+					"suits": [
+						"share-of-sinf",
+						"gap-after-n"
+					],
+					"name": "Use S∞ = u_1/(1 − r)",
+					"about": "Identify u_1 and r, state that |r| < 1, then substitute."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A student says that each new term of a convergent geometric series halves the gap S∞ − Sₙ, whatever the common ratio is. True or false?",
+					"answer": "False. The gap after n terms is u₁r^n/(1 − r), which is S∞ × r^n, so each new term multiplies the gap by r. It halves only when r = 1/2; with r = 0.9 it shrinks by just a tenth.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Before working it out, decide whether a series with r = 0.9 needs more or fewer terms than one with r = 0.5 before Sₙ is more than 99% of S∞. Then check.",
+					"answer": "More. The share still to come is r^n, and 0.9^n falls far more slowly than 0.5^n: 0.5^n < 0.01 first at n = 7, but 0.9^n < 0.01 only at n = 44.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.8.sn-vs-sinf#0",
+					"text": "Not flipping the inequality after dividing by ln r, which is negative for 0 < r < 1",
+					"as": "error-spot",
+					"in": [
+						"least-n-gap",
+						"least-n-percent"
+					],
+					"wrong": "a line keeps < after dividing by ln r"
+				},
+				{
+					"ref": "SL1.8.sn-vs-sinf#1",
+					"text": "Rounding n down",
+					"as": "distractor",
+					"in": [
+						"least-n-gap",
+						"least-n-percent"
+					],
+					"wrong": "the whole number below the crossing"
+				},
+				{
+					"ref": "SL1.8.sn-vs-sinf#2",
+					"text": "Comparing one term u_n with the tolerance instead of S∞ − S_n",
+					"as": "distractor",
+					"in": [
+						"least-n-gap",
+						"least-n-percent"
+					],
+					"wrong": "the least n with uₙ below the tolerance"
+				},
+				{
+					"text": "Using r^(n − 1) in place of r^n in Sₙ or in the gap S∞ − Sₙ, which is one term out",
+					"as": "distractor",
+					"in": [
+						"least-n-gap",
+						"least-n-percent",
+						"share-of-sinf",
+						"gap-after-n"
+					],
+					"wrong": "the working for one term fewer: n one too many, or the share or gap after k − 1 terms"
+				},
+				{
+					"text": "Giving the share of S∞ still to come instead of the share the first terms give",
+					"as": "distractor",
+					"in": [
+						"share-of-sinf"
+					],
+					"wrong": "100r^k %"
+				},
+				{
+					"text": "Dividing S∞ by Sₖ, so the fraction is the wrong way up",
+					"as": "distractor",
+					"in": [
+						"share-of-sinf"
+					],
+					"wrong": "100 ÷ (1 − r^k) %"
+				},
+				{
+					"text": "Taking the gap S∞ − Sₖ to be the next term alone",
+					"as": "distractor",
+					"in": [
+						"gap-after-n"
+					],
+					"wrong": "u₁r^k"
+				},
+				{
+					"text": "Giving Sₖ, the sum so far, instead of the gap S∞ − Sₖ",
+					"as": "distractor",
+					"in": [
+						"gap-after-n"
+					],
+					"wrong": "Sₖ"
+				}
+			],
+			"frequency": 0
 		},
 		{
 			"id": "t1-ext-binomial-constant-term",
