@@ -35,6 +35,15 @@ const R_TOP := TYPE + "11"
 const R_GAPS := TYPE + "12"
 const R_COEF := TYPE + "13"
 const R_DOTS := TYPE + "14"
+## The type's own slips for options that had no line (FAL-820).
+const R_ONE_TERM := "t1-algebraic-proof#15"
+const R_NEIGHBOURS := "t1-algebraic-proof#16"
+const R_LATER_LINE := "t1-algebraic-proof#17"
+const R_UNDIVIDED := "t1-algebraic-proof#18"
+const R_TIMES_FACTOR := "t1-algebraic-proof#19"
+const R_COUNT_TERMS := "t1-algebraic-proof#20"
+const R_SIGNS_FLIPPED := "t1-algebraic-proof#21"
+const R_SUM_ONLY := "t1-algebraic-proof#22"
 
 ## The slip numbers of chain(): statement -> the slip each number makes.
 const SLIPS := {
@@ -537,7 +546,7 @@ static func pick_answer(right_text: String, wrongs_in: Array) -> Dictionary:
 	var ws: Array = []
 	for i in wrongs_in.size():
 		ws.append(wrong(claim_of("w%d" % i, wrongs_in[i][0]), wrongs_in[i][1]))
-	return {"answer": Answer.make("claim", claim_of("right", right_text)), "wrongs": ws, "generic": []}
+	return {"answer": Answer.make("claim", claim_of("right", right_text)), "wrongs": ws, "fillers": []}
 
 
 ## The working of a chain: one step per line, up to line `upto`.
@@ -601,7 +610,7 @@ func u_simplify_left_side(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var ans := form(good, nm + " = ")
 	var asked: String = {"combine": "Write L as a single fraction.", "triple": "Write L as a single fraction.", "reciprocal": "Write L as a single fraction.",
 		"split": "Write L as separate terms."}.get(s.fam, "Simplify L.")
-	return {"asked": asked, "lines": numbers_shown(s, rep, nm), "answer": ans, "wrongs": slip_options(s, angle, i, good), "generic": bumps(good).map(func(w): return w.values),
+	return {"asked": asked, "lines": numbers_shown(s, rep, nm), "answer": ans, "wrongs": slip_options(s, angle, i, good), "fillers": bumps(good).map(func(w): return w.values),
 		"methods": every_method(s, ans, func(m): return walk(steps_of(s, m), done(s, m), nm) + [say(ans)])}
 
 
@@ -632,7 +641,7 @@ func u_common_expression(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	steps.append("Both sides reach the same expression, so LHS ≡ RHS.")
 	steps.append("The common expression is %s." % good.text)
 	return {"asked": "Simplify each side on its own. Which expression do both sides reach?", "lines": [claim_line(s, rhs[0].text)], "answer": ans,
-		"wrongs": opts, "generic": bumps(good).map(func(w): return w.values), "methods": {"common-form": method(steps, ans.values)}}
+		"wrongs": opts, "fillers": bumps(good).map(func(w): return w.values), "methods": {"common-form": method(steps, ans.values)}}
 
 
 func u_missing_line(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -641,7 +650,7 @@ func u_missing_line(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var good: Dictionary = c[hide]
 	var ans := form(good, "Line %d: " % (hide + 1))
 	return {"asked": "Line %d of this proof is missing. What does it say?" % (hide + 1), "lines": statement(s, rep) + numbered(c, "LHS", hide), "answer": ans,
-		"wrongs": slip_options(s, angle, hide, good, true), "generic": bumps(good).map(func(w): return w.values),
+		"wrongs": slip_options(s, angle, hide, good, true), "fillers": bumps(good).map(func(w): return w.values),
 		"methods": asked_method(s, walk(c, c.size() - 1, "LHS") + [picked("So the missing line is", ans)], ans), "shown": {"hide": hide}}
 
 
@@ -657,7 +666,10 @@ func u_next_step(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		["Put %s = %d: both sides equal %s." % [x, at_x, Fmt.num(side_value(s, at_x))], R_VALUES]]
 	for w in rng.shuffled(slip_options(s, angle, at, good, true)) + bumps(good):
 		wrongs_in.append(["= " + str(w.values.text), w.ref])
+	# The first three options; a nudged line among them is a filler, with no slip behind it.
 	var out := pick_answer("= " + good.text, wrongs_in.slice(0, 3))
+	out.fillers = out.wrongs.filter(func(w): return w.ref == "").map(func(w): return w.values)
+	out.wrongs = out.wrongs.filter(func(w): return w.ref != "")
 	var ans: Dictionary = out.answer
 	out.asked = "Which line comes next in this proof?"
 	out.lines = [claim_line(s, rhs)] + numbered(c, "LHS", -1, at - 1)
@@ -746,16 +758,17 @@ func u_flawed_step(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			wrongs.append(fix.call(at, other[at], slip_ref(s, how, k)))
 	# A later line is wrong too, but it only follows the first mistake.
 	if at + 1 < bad.size() and at + 1 < c.size():
-		wrongs.append(fix.call(at + 1, c[at + 1]))
+		wrongs.append(fix.call(at + 1, c[at + 1], R_LATER_LINE))
+	var fillers: Array = []
 	for d in [1, -1, 2]:
-		wrongs.append(fix.call(at, bump(good, d)))
-		wrongs.append(fix.call(at, bump(good, d, good.v.size() - 1)))
+		fillers.append(fix.call(at, bump(good, d)).values)
+		fillers.append(fix.call(at, bump(good, d, good.v.size() - 1)).values)
 	var lines: Array = statement(s, "equation") + ["A student's proof has one slip, carried down to the end:"] + numbered(bad, nm)
 	var steps: Array = ["Check each line against the one before. Line %d says %s, which does not follow from line %d." % [at + 1, bad[at].text, at]]
 	for i in range(at, c.size()):
 		steps.append("%s: %s = %s" % [c[i].why, nm, c[i].text])
 	steps.append(say(ans))
-	return {"asked": "Find the first line that goes wrong, and correct it.", "lines": lines, "answer": ans, "wrongs": wrongs, "generic": [],
+	return {"asked": "Find the first line that goes wrong, and correct it.", "lines": lines, "answer": ans, "wrongs": wrongs, "fillers": fillers,
 		"methods": asked_method(s, steps, ans), "shown": {"at": at, "slip": slip}}
 
 
@@ -771,10 +784,12 @@ func u_multiple_k(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var items: Array = steps_of(s, angle, k)[3].items.map(func(it): return T("k" if it.rest == "n" else "c", it.c.div(Q.new(m)), it.rest))
 		wrongs.append(line_option(ln(items), good, slip_ref(s, angle, k)))
 	var nm := name_of(s)
-	var generic: Array = [ln([T("k", big, "n")]), ln([T("k", big / m + 1, "n")]), ln([T("k", big / m + 2, "n")]), ln([T("k", big * m, "n")])]
+	wrongs.append(line_option(ln([T("k", big, "n")]), good, R_UNDIVIDED))
+	wrongs.append(line_option(ln([T("k", big * m, "n")]), good, R_TIMES_FACTOR))
+	var fillers: Array = [ln([T("k", big / m + 1, "n")]), ln([T("k", big / m + 2, "n")])]
 	var given: Array = [] if rep == "words" else ["n is an integer."]
 	return {"asked": "Find k in terms of n.", "lines": numbers_shown(s, rep) + given + ["%s is a multiple of %d: %s = %dk." % [nm, m, nm, m]], "answer": ans, "wrongs": wrongs,
-		"generic": generic.map(func(w): return line_option(w, good).values),
+		"fillers": fillers.map(func(w): return line_option(w, good).values),
 		"methods": every_method(s, ans, func(meth): return walk(steps_of(s, meth), 4, nm) + ["%s is an integer, so %s is %d times an integer." % [good.text, nm, m], say(ans)])}
 
 
@@ -784,13 +799,14 @@ func u_consecutive_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := form(good, "S = ")
 	var tail: int = s.tail
 	var m: int = s.m
-	var generic: Array = [ln([K(m), "(", T("u", s.big, "n"), T("b", tail), ")"]), ln([K(m), "(", T("u", s.big / m, "n"), T("b", tail), ")"]),
-		ln([K(m), "(", T("u", s.big, "n"), T("b", tail / m), ")"])]
+	var tagged: Array = [line_option(ln([K(m), "(", T("u", s.big, "n"), T("b", tail), ")"]), good, R_UNDIVIDED),
+		line_option(ln([K(m), "(", T("u", s.big / m, "n"), T("b", tail), ")"]), good, R_ONE_TERM),
+		line_option(ln([K(m), "(", T("u", s.big, "n"), T("b", tail / m), ")"]), good, R_ONE_TERM)]
 	var lines: Array = numbers_shown(s, rep)
 	if rep != "words":
 		lines.append("n is an integer.")
-	return {"asked": "Write S as %d times an integer expression in n." % m, "lines": lines, "answer": ans, "wrongs": slip_options(s, "algebraic-form", 2, good),
-		"generic": (generic.map(func(w): return line_option(w, good)) + bumps(good)).map(func(w): return w.values),
+	return {"asked": "Write S as %d times an integer expression in n." % m, "lines": lines, "answer": ans, "wrongs": slip_options(s, "algebraic-form", 2, good) + tagged,
+		"fillers": bumps(good).map(func(w): return w.values),
 		"methods": {"algebraic-form": method(walk(c, 2, "S") + ["n is an integer, so the bracket is an integer, and S is a multiple of %d." % m, say(ans)], ans.values)}}
 
 
@@ -806,8 +822,8 @@ func u_greatest_divisor(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var bracket: String = c[2].text
 	var lines: Array = numbers_shown(s, rep)
 	return {"asked": "Find the largest whole number that divides S for every positive integer n.", "lines": lines, "answer": ans,
-		"wrongs": [wrong({"v": Q.new(big)}, R_BRACKET), wrong({"v": Q.new(one)}, R_EXAMPLES)],
-		"generic": [{"v": Q.new(m + 1)}, {"v": Q.new(2 * m)}, {"v": Q.new(tail)}, {"v": Q.new(s.c)}, {"v": Q.new(3 * m)}],
+		"wrongs": [wrong({"v": Q.new(big)}, R_BRACKET), wrong({"v": Q.new(one)}, R_EXAMPLES), wrong({"v": Q.new(s.c)}, R_COUNT_TERMS)],
+		"fillers": [{"v": Q.new(m + 1)}, {"v": Q.new(2 * m)}, {"v": Q.new(tail)}, {"v": Q.new(3 * m)}],
 		"methods": {"algebraic-form": method(walk(c, 1, "S") + ["The hcf of %d and %d is %d, so S = %s. The bracket is an integer, so %d divides S for every n." % [big, tail, m, bracket, m],
 			"No larger number works: at n = 1 and n = 2, S is %d and %d, and their hcf is %d." % [one, two, Q.gcd(one, two)], say(ans)], ans.values)}}
 
@@ -824,7 +840,7 @@ func u_finish_divisibility(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var out := pick_answer("S = %d(%s), and %s is an integer." % [m, inner, inner], [
 		["S = %d(n + %s), and %d is a multiple of %d." % [big, Q.new(tail, big).text(), big, m], R_BRACKET],
 		["S = %d when n = 1 and %d when n = 2, and both are multiples of %d." % [one, two, m], R_EXAMPLES],
-		["S = %d(%s), and %s is an integer." % [m, off, off], ""]])
+		["S = %d(%s), and %s is an integer." % [m, off, off], R_ONE_TERM]])
 	var ans: Dictionary = out.answer
 	out.asked = "Which line proves that S is a multiple of %d for every positive integer n?" % m
 	out.lines = numbers_shown(s, rep) + ["S = %s" % c[1].text]
@@ -892,7 +908,7 @@ func u_represent_integers(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var out := pick_answer("Let them be %s and %s, for integers %s and %s." % [pair_text(s, a), pair_text(s, b), a, b], [
 		["Let them be %s and %s, for an integer %s." % [pair_text(s, a), pair_text(s, a), a], R_SAME_LETTER],
 		["Take %d and %d, and check that the claim holds for them." % [one, other], R_EXAMPLES],
-		["Let them be %s and %s, for an integer %s." % [pair_text(s, a), pair_text(s, a, m), a], ""]])
+		["Let them be %s and %s, for an integer %s." % [pair_text(s, a), pair_text(s, a, m), a], R_NEIGHBOURS]])
 	var ans: Dictionary = out.answer
 	out.asked = "Which opening starts a proof that covers every pair?"
 	out.lines = ["Prove that %s." % pair_claim(s)]
@@ -921,7 +937,7 @@ func u_case_bracket(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	steps.append("The other case, n = %s, gives E = %s, so E is even for every integer n." % ["2k + 1" if s.part == "even" else "2k", parity_chain(other).back().text])
 	steps.append(say(ans))
 	return {"asked": "Write E as 2 times an integer expression in k.", "lines": lines, "answer": ans, "wrongs": slips,
-		"generic": bumps(good).map(func(w): return w.values), "methods": {"cases": method(steps, ans.values)}}
+		"fillers": bumps(good).map(func(w): return w.values), "methods": {"cases": method(steps, ans.values)}}
 
 
 ## n² + an + b at n = 2k or 2k + 1, as lines.
@@ -960,8 +976,9 @@ func u_consecutive_factors(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var steps: Array = ["Find two numbers that add to %s and multiply to %s: %s and %s." % [Fmt.num(sum), Fmt.num(prod), Fmt.num(m), Fmt.num(m + 1)],
 		"E = %s" % good.text, "n%s and n%s are consecutive integers, so one of them is even." % [Fmt.plus(m), Fmt.plus(m + 1)],
 		"A product with an even factor is even, so E is even for every integer n.", say(ans)]
-	return {"asked": "Write E as a product of two consecutive integers.", "lines": lines, "answer": ans, "wrongs": [],
-		"generic": slips.map(func(w): return line_option(w, good).values), "methods": {"consecutive-product": method(steps, ans.values)}}
+	return {"asked": "Write E as a product of two consecutive integers.", "lines": lines, "answer": ans,
+		"wrongs": [line_option(slips[0], good, R_SIGNS_FLIPPED), line_option(slips[1], good, R_SUM_ONLY)],
+		"fillers": slips.slice(2).map(func(w): return line_option(w, good).values), "methods": {"consecutive-product": method(steps, ans.values)}}
 
 
 ## A sum of squares as lines, down to its remainder.
@@ -997,5 +1014,5 @@ func u_remainder_form(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	steps.append("The bracket is an integer, so S is %d more than a multiple of %d, and is never divisible by %d." % [s.r, m, m])
 	steps.append(say(ans))
 	return {"asked": "Write S as %d times an integer expression, plus a remainder r with 0 < r < %d." % [m, m], "lines": lines, "answer": ans, "wrongs": wrongs,
-		"generic": [bump(good, 1, good.v.size() - 1), bump(good, 1), bump(good, -1), bump(good, 2)].map(func(w): return line_option(w, good).values),
+		"fillers": [bump(good, 1, good.v.size() - 1), bump(good, 1), bump(good, -1), bump(good, 2)].map(func(w): return line_option(w, good).values),
 		"methods": {"algebraic-form": method(steps, ans.values)}}

@@ -21,6 +21,20 @@ const AVERAGED := "SL3.1.midpoint-3d#1"
 const HALVED := "SL3.1.midpoint-3d#2"
 const SUMMED := "SL3.1.distance-3d#0"
 const NEGATIVE := "SL3.1.distance-3d#1"
+## fn-link-vectors's own slips (FAL-820).
+const UP_SIGN := "fn-link-vectors#12"
+const SWAPPED := "fn-link-vectors#13"
+const SAME_BACK := "fn-link-vectors#14"
+const SUBTRACTED := "fn-link-vectors#15"
+const BACKWARDS := "fn-link-vectors#16"
+const C_ADDED := "fn-link-vectors#17"
+const AMPLITUDE := "fn-link-vectors#18"
+const B_AS_MID := "fn-link-vectors#19"
+const NO_ROOT := "fn-link-vectors#20"
+const STEP_AS_B := "fn-link-vectors#21"
+const T_PLUS := "fn-link-vectors#22"
+const AHEAD := "fn-link-vectors#23"
+const OUTPUT := "fn-link-vectors#24"
 
 
 func needs() -> Dictionary:
@@ -32,12 +46,19 @@ func needs() -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
+	# LogFunctionViews.choice names its last list `generic` (and ExtensionViews.build adds
+	# the key): every option left there is a filler (FAL-820).
+	out.fillers = out.get("fillers", []) + out.generic
+	out.erase("generic")
+	# More slips than places: which three are offered is the stream's choice.
+	if out.wrongs.size() > 3:
+		out.wrongs = rng.shuffled(out.wrongs)
 	out.given = LS.export(s)
 	return out
 
 
-static func ask(right: String, wrongs: Array, generic: Array, asked: String, lines: Array, methods: Dictionary, final: String) -> Dictionary:
-	return LinkExtremesViews.ask(right, wrongs, generic, asked, lines, methods, final, [])
+static func ask(right: String, wrongs: Array, fillers: Array, asked: String, lines: Array, methods: Dictionary, final: String) -> Dictionary:
+	return LinkExtremesViews.ask(right, wrongs, fillers, asked, lines, methods, final, [])
 
 
 static func typed(ans: Dictionary, wrongs: Array, asked: String, lines: Array, methods: Dictionary) -> Dictionary:
@@ -96,8 +117,12 @@ func u_equation_from_vector(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	if rep == "words":
 		lines = ["The graph of y = %s is moved %s." % [parent(s), words(s)]]
 	var inner := "y = f(x − a) + b with a = %s: replace x with %s." % [N(a), TC.x_minus(s, a)]
-	return ask(right, [["y = " + moved(s, a.neg(), b), SIGN], ["y = " + inside(s, a, b), INSIDE]],
-		["y = " + moved(s, a, b.neg()), "y = " + moved(s, a.neg(), b.neg()), "y = " + moved(s, b, a)],
+	var ws: Array = [["y = " + moved(s, a.neg(), b), SIGN], ["y = " + inside(s, a, b), INSIDE]]
+	if not b.is_zero():
+		ws.append(["y = " + moved(s, a, b.neg()), UP_SIGN])
+	if not a.eq(b):
+		ws.append(["y = " + moved(s, b, a), SWAPPED])
+	return ask(right, ws, ["y = " + moved(s, a.neg(), b.neg())],
 		"Find the equation of the new graph.", lines, {
 			"substitute": [inner, "Add %s outside for the vertical part." % P(b)],
 			"shift-features": ["Across goes inside, with the opposite sign: %s." % TC.x_minus(s, a), "Up goes outside: add %s." % P(b)],
@@ -119,7 +144,8 @@ func u_image_and_undo(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		lines = ["The point P%s is on y = %s." % [p, parent(s)], "The graph is moved %s." % words(s)]
 	var add := "Add the vector: (%s + %s, %s + %s) = %s." % [N(x), P(a), N(y), P(b), vec(ix, iy)]
 	var back := "Undoing a move means going the same way backwards, so the vector back is %s." % vec(a.neg(), b.neg())
-	var out := ask(right, [], [say.call(ix, iy, a, b), say.call(x.sub(a), iy, a.neg(), b.neg()), say.call(x.sub(a), y.sub(b), a, b), say.call(x.sub(a), y.sub(b), a.neg(), b.neg())],
+	var out := ask(right, [[say.call(ix, iy, a, b), SAME_BACK], [say.call(x.sub(a), iy, a.neg(), b.neg()), POINT_LEFT], [say.call(x.sub(a), y.sub(b), a, b), SUBTRACTED]],
+		[say.call(x.sub(a), y.sub(b), a.neg(), b.neg())],
 		"Find the image of P, and the vector that moves it back.", lines, {
 			"track-points": ["Every point moves by the same vector, so follow P.", add, back],
 			"mapping-rule": ["The mapping is (x, y) to (x + a, y + b), with a = %s and b = %s." % [N(a), N(b)], add, back],
@@ -140,11 +166,11 @@ func u_image_from_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var y: Q = s.py
 	var ix := x.add(a)
 	var iy := y.add(b)
-	return typed(Answer.make("point", {"x": ix, "y": iy}), [wrong({"x": x.sub(a), "y": iy}, POINT_LEFT), wrong({"x": ix, "y": y.sub(b)}), wrong({"x": x.sub(a), "y": y.sub(b)}), wrong({"x": iy, "y": ix})],
+	return typed(Answer.make("point", {"x": ix, "y": iy}), [wrong({"x": x.sub(a), "y": iy}, POINT_LEFT)] + ([] if b.is_zero() else [wrong({"x": ix, "y": y.sub(b)}, UP_SIGN)]),
 		"Find the image of the point on the new graph.", ["The point %s lies on y = f(x)." % vec(x, y), "The new graph is y = f(%s)%s." % [Answer.x_minus(a), Fmt.plus(b)]], {
 			"mapping-rule": ["y = f(x − a) + b is a translation by (a, b), with a = %s and b = %s." % [N(a), N(b)], "So (x, y) goes to (x + a, y + b): (%s + %s, %s + %s)." % [N(x), P(a), N(y), P(b)]],
 			"solve-for-input": ["f reads %s when %s = %s, so x = %s." % [N(x), Answer.x_minus(a), N(x), N(ix)], "There f gives %s, and adding %s gives y = %s." % [N(y), P(b), N(iy)]],
-		})
+		}).merged({"fillers": [{"x": x.sub(a), "y": y.sub(b)}, {"x": iy, "y": ix}]})
 
 
 func u_vector_from_images(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -159,8 +185,10 @@ func u_vector_from_images(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var lines: Array = ["The point P%s on y = %s goes to P′%s under a translation." % [vec(x, y), parent(s), vec(ix, iy)]]
 	var diff := "Across: %s − %s = %s. Up: %s − %s = %s." % [N(ix), P(x), N(a), N(iy), P(y), N(b)]
 	var new_eq := "The new graph is y = %s." % moved(s, a, b)
-	var wrongs: Array = ["the vector is %s, so y = %s" % [vec(a, b), moved(s, a.neg(), b)], say.call(a.neg(), b.neg()), say.call(b, a), say.call(a, b.neg())]
-	var out := ask(right, [], wrongs, "Find the vector, then the equation of the new graph.", lines, {
+	var wrongs: Array = [["the vector is %s, so y = %s" % [vec(a, b), moved(s, a.neg(), b)], SIGN], [say.call(a.neg(), b.neg()), BACKWARDS]]
+	if not a.eq(b):
+		wrongs.append([say.call(b, a), SWAPPED])
+	var out := ask(right, wrongs, [say.call(a, b.neg())], "Find the vector, then the equation of the new graph.", lines, {
 		"substitute": [diff, "Replace x with %s and add %s." % [TC.x_minus(s, a), P(b)], new_eq],
 		"mapping-rule": ["The mapping is (x, y) to (x + a, y + b), so a and b are the differences.", diff, new_eq],
 	}, "So: %s." % right)
@@ -183,12 +211,13 @@ func u_vector_from_vertex_form(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var b_coef := k.mul(h).mul(-2)
 	var c_coef := k.mul(h).mul(h).add(c)
 	var expanded := "y = " + Fmt.poly([k, b_coef, c_coef])
-	var out := typed(Answer.make("point", {"x": h, "y": c}), [wrong({"x": h.neg(), "y": c}, VERTEX_SIGN), wrong({"x": h, "y": c.neg()}), wrong({"x": c, "y": h}), wrong({"x": h.neg(), "y": c.neg()})],
+	var out := typed(Answer.make("point", {"x": h, "y": c}), [wrong({"x": h.neg(), "y": c}, VERTEX_SIGN)] + ([] if h.eq(c) else [wrong({"x": c, "y": h}, SWAPPED)]),
 		"Find the vector that carries %s onto the graph." % plain, [form], {
 			"shift-features": ["The vertex of %s is (0, 0), and the whole graph moves with it." % plain, "Here the vertex is %s, so that is the vector." % vec(h, c)],
 			"read-vertex-form": ["y = k(x − h)² + c has vertex (h, c).", "Here %s is x − h with h = %s, and c = %s." % [Answer.x_minus(h), N(h), N(c)]],
 			"formula-then-substitute": ["Expanded, %s." % expanded, "x = −b/(2a) = %s, and substituting gives y = %s." % [N(h), N(c)], "The vertex moved from (0, 0) to there."],
 		})
+	out.fillers = [{"x": h, "y": c.neg()}, {"x": h.neg(), "y": c.neg()}]
 	if rep == "graph":
 		var fk := k.to_float()
 		var fh := h.to_float()
@@ -207,7 +236,12 @@ func u_vertex_form_from_vector(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var say := func(fh: Q, fc: Q, vh: Q, vc: Q) -> String: return "y = %s, with vertex %s" % [Fmt.vertex(k, fh, fc), vec(vh, vc)]
 	var right: String = say.call(h, c, h, c)
 	var plain := "y = %sx²" % Fmt.lead(k)
-	return ask(right, [[say.call(h.neg(), c, h, c), SIGN], [say.call(h, c, h.neg(), c), VERTEX_SIGN]], [say.call(h, c.neg(), h, c.neg()), say.call(c, h, c, h)],
+	var ws: Array = [[say.call(h.neg(), c, h, c), SIGN], [say.call(h, c, h.neg(), c), VERTEX_SIGN]]
+	if not c.is_zero():
+		ws.append([say.call(h, c.neg(), h, c.neg()), UP_SIGN])
+	if not h.eq(c):
+		ws.append([say.call(c, h, c, h), SWAPPED])
+	return ask(right, ws, [],
 		"Find the vertex form of the new graph, and its vertex.", ["The graph of %s is moved by the vector %s." % [plain, vec(h, c)]], {
 			"read-vertex-form": ["The vector is the new vertex, as (0, 0) moves to %s." % vec(h, c), "y = k(x − h)² + c has vertex (h, c), and k stays %s." % N(k)],
 		}, "So %s." % right)
@@ -269,7 +303,10 @@ func u_gradient_from_vector(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 		("The rise is %s − %s = %s and the run is %s − %s = %s, so the gradient is %s." % [N(y1), P(y0), N(p), N(x1), P(x0), N(q), N(grad)])
 	var c := y0.sub(grad.mul(x0))
 	var through := "Through %s: c = %s − %s × %s = %s." % [vec(x0, y0), N(y0), P(grad), P(x0), N(c)]
-	var out := ask(right, [[say.call(grad.neg()), GRAD_SIGN]], [say.call(Q.new(q.n, p.n)), say.call(Q.new(-q.n, p.n)), "gradient %s, and %s" % [N(grad), line_through(grad, x0, y0.neg())], "gradient %s, and %s" % [N(grad), line_through(grad, x0.neg(), y0)]],
+	var ws: Array = [[say.call(grad.neg()), GRAD_SIGN], [say.call(Q.new(q.n, p.n)), FLIPPED]]
+	if not x0.is_zero():
+		ws.append(["gradient %s, and %s" % [N(grad), line_through(grad, x0.neg(), y0)], C_ADDED])
+	var out := ask(right, ws, [say.call(Q.new(-q.n, p.n)), "gradient %s, and %s" % [N(grad), line_through(grad, x0, y0.neg())]],
 		"Find the gradient, and the equation of the line.", lines, {
 			"rise-over-run": [rise, through],
 			"two-point-formula": ["m = (y₂ − y₁)/(x₂ − x₁) = (%s − %s)/(%s − %s) = %s." % [N(y1), P(y0), N(x1), P(x0), N(grad)], through],
@@ -303,7 +340,12 @@ func u_wave_shift_vector(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var factored := "%s(x %s %s)" % [N(B), "+" if E.sign() > 0 else "−", Fmt.pi(sh.abs_q())]
 	var fact := "Take %s out of the bracket: %s = %s." % [N(B), inside_e, factored]
 	var read := "So the graph of %s moves %s across and %s up." % [base, Fmt.pi(sh), N(D)]
-	var out := ask(pi_vec(sh, D), [[pi_vec(E.neg(), D), WAVE_B], [pi_vec(sh.neg(), D), WAVE_SIGN]], [pi_vec(sh, D.neg()), pi_vec(sh, A), pi_vec(sh.mul(2), D)],
+	var ws: Array = [[pi_vec(E.neg(), D), WAVE_B], [pi_vec(sh.neg(), D), WAVE_SIGN]]
+	if not D.is_zero():
+		ws.append([pi_vec(sh, D.neg()), UP_SIGN])
+	if not A.eq(D):
+		ws.append([pi_vec(sh, A), AMPLITUDE])
+	var out := ask(pi_vec(sh, D), ws, [pi_vec(sh.mul(2), D)],
 		"The graph of %s is mapped onto this graph by a translation. Find its vector." % base, [text], {
 			"factor-b-first": [fact, read],
 			"translation-vector": ["The form is y = A sin(B(x − c)) + d, moved by (c, d).", fact, read],
@@ -365,8 +407,8 @@ func u_step_in_3d(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var steps := "The step is B − A: %s." % p3(st)
 	var midline := "The midpoint is A plus half the step: %s." % p3(mid)
 	var sum := "%d² + %d² + %d²" % [absi(st[0].n), absi(st[1].n), absi(st[2].n)]
-	return ask(right, [[say.call(st, mid, str(absi(total))), SUMMED], [say.call(bad, plus3(a, bad, half), root_text(bad_len)), NEGATIVE]],
-		[say.call(st, b, str(s.len)), say.call(st, mid, str(s.len * s.len)), say.call(plus3(st, st, Q.new(-2)), mid, str(s.len))],
+	return ask(right, [[say.call(st, mid, str(absi(total))), SUMMED], [say.call(bad, plus3(a, bad, half), root_text(bad_len)), NEGATIVE],
+		[say.call(st, b, str(s.len)), B_AS_MID], [say.call(st, mid, str(s.len * s.len)), NO_ROOT], [say.call(plus3(st, st, Q.new(-2)), mid, str(s.len)), BACKWARDS]], [],
 		"Find the step from A to B, the midpoint of AB, and the distance AB.", lines, {
 			"repeat-the-step": [steps, midline, "The distance is the length of the step: √(%s) = %d." % [sum, s.len]],
 			"average-coordinates": [steps, "Average each coordinate of A and B: %s." % p3(mid), "The distance is √(%s) = %d." % [sum, s.len]],
@@ -383,11 +425,11 @@ func u_endpoint_from_midpoint(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var tuple := func(v: Array) -> Dictionary: return {"v0": v[0], "v1": v[1], "v2": v[2]}
 	var avg := plus3(a, half, Q.new(1, 2))
 	var ans := Answer.make("named", tuple.call(b), {"names": ["x", "y", "z"]})
-	return typed(ans, [wrong(tuple.call(avg), AVERAGED), wrong(tuple.call(mid.map(func(v): return v.div(2))), HALVED), wrong(tuple.call(half)), wrong(tuple.call(plus3(a, half, Q.new(-1))))],
+	return typed(ans, [wrong(tuple.call(avg), AVERAGED), wrong(tuple.call(mid.map(func(v): return v.div(2))), HALVED), wrong(tuple.call(half), STEP_AS_B)],
 		"Find the coordinates of B.", ["A%s and M%s are points in 3D." % [p3(a), p3(mid)], "M is the midpoint of AB."], {
 			"repeat-the-step": ["The step from A to M is %s." % p3(half), "M is halfway, so the same step again reaches B: %s + %s." % [p3(mid), p3(half)]],
 			"solve-each-coordinate": ["Each coordinate of M is the average of A's and B's: M = (A + B)/2.", "So B = 2M − A, one coordinate at a time."],
-		})
+		}).merged({"fillers": [tuple.call(plus3(a, half, Q.new(-1)))]})
 
 
 # ── A delay ──────────────────────────────────────────────────
@@ -415,7 +457,7 @@ func u_time_delay(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var plain := "Moving by (%d, 0) replaces t with %s." % [d, late]
 	var meaning := "What A does at time t, B does at time t + %d, so B is %s behind." % [d, secs]
 	var up := "s_B(t) = %s + %d: B reaches each position %s after A" % [s_rule(s, "t"), d, secs]
-	var out := ask(right, [], [say.call(soon, "before"), say.call(soon, "after"), say.call(late, "before"), up],
+	var out := ask(right, [[say.call(soon, "after"), T_PLUS], [say.call(late, "before"), AHEAD], [up, OUTPUT]], [say.call(soon, "before")],
 		"Find s_B(t), and say what the vector means for B.", lines, {
 			"substitute": [plain, "s_B(t) = s_A(%s) = %s." % [late, s_rule(s, late)], meaning],
 			"track-points": ["A point (t, s) on A's graph goes to (t + %d, s) on B's." % d, "So the same s comes %s later." % secs, "That is the rule s_A(%s) = %s." % [late, s_rule(s, late)]],

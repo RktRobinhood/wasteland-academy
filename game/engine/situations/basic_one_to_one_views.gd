@@ -11,6 +11,10 @@ const R_VALUE := "SL2.2.inverse-undo#2"
 const R_Y_INTERCEPT := "SL2.4.symmetry#0"
 const R_SIDE := "SL2.4.symmetry#1"
 const R_TURNING := "SL2.4.symmetry#2"
+## fn-inverse-reflection's own slips (FAL-820).
+const R_NO_SWAP := "fn-inverse-reflection#6"
+const R_HALF := "fn-inverse-reflection#7"
+const R_POWER := "fn-inverse-reflection#8"
 
 
 func needs() -> Dictionary:
@@ -144,8 +148,8 @@ func u_area_by_symmetry(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var lines: Array = ["%s, for x ≥ 0" % eqn(s), meet]
 	if give:
 		lines.append("The area between the graph of f and the line y = x is %s." % say.call(s.half))
-	var out := {"asked": "Find the area of the region between the graphs of f and f⁻¹.", "lines": lines, "answer": ans, "wrongs": [],
-		"generic": BasicFunctionViews.nums([s.half, s.area.mul(2), m.sq().div(2)], s.area)}
+	var out := {"asked": "Find the area of the region between the graphs of f and f⁻¹.", "lines": lines, "answer": ans, "wrongs": [wrong({"v": s.half}, R_HALF)],
+		"fillers": BasicFunctionViews.nums([s.area.mul(2), m.sq().div(2)], s.area)}
 	if rep == "graph":
 		var g := Plot.spec([Plot.sample(func(x): return s.a.to_float() * x * x, 0.0, m.to_float()), Plot.sample(func(x): return sqrt(x / s.a.to_float()), 0.0, m.to_float()),
 			Plot.sample(func(x): return x, 0.0, m.to_float())], [[m.to_float(), m.to_float(), ""]], -1, ceili(m.to_float()) + 1, -1, ceili(m.to_float()) + 1)
@@ -167,8 +171,8 @@ func u_image_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := exact("point", {"x": Q.new(q), "y": Q.new(p)})
 	var pt := Fmt.point(p, q)
 	var out := {"asked": "The point %s is on the graph of f. Find the matching point on the graph of f⁻¹." % pt, "answer": ans,
-		"wrongs": [wrong({"x": Q.new(-q), "y": Q.new(-p)}, R_SIDE), wrong({"x": Q.new(q), "y": Q.new(-p)}, R_SIDE)],
-		"generic": [{"x": Q.new(p), "y": Q.new(q)}, {"x": Q.new(-p), "y": Q.new(q)}, {"x": Q.new(p), "y": Q.new(-q)}]}
+		"wrongs": [wrong({"x": Q.new(-q), "y": Q.new(-p)}, R_SIDE), wrong({"x": Q.new(p), "y": Q.new(q)}, R_NO_SWAP), wrong({"x": Q.new(-p), "y": Q.new(q)}, R_AXIS),
+			wrong({"x": Q.new(q), "y": Q.new(-p)}, R_SIDE), wrong({"x": Q.new(p), "y": Q.new(-q)}, R_AXIS)], "fillers": []}
 	match rep:
 		"graph":
 			out.lines = ["The graph of y = f(x) is shown."]
@@ -191,8 +195,8 @@ func u_point_from_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var q: int = s.q
 	var ans := exact("point", {"x": Q.new(p), "y": Q.new(q)})
 	var pt := Fmt.point(q, p)
-	var out := {"asked": "The point %s is on the graph of f⁻¹. Find the matching point on the graph of f." % pt, "answer": ans, "wrongs": [],
-		"generic": [{"x": Q.new(q), "y": Q.new(p)}, {"x": Q.new(-p), "y": Q.new(-q)}, {"x": Q.new(-q), "y": Q.new(p)}, {"x": Q.new(p), "y": Q.new(-q)}]}
+	var out := {"asked": "The point %s is on the graph of f⁻¹. Find the matching point on the graph of f." % pt, "answer": ans, "wrongs": [wrong({"x": Q.new(q), "y": Q.new(p)}, R_NO_SWAP), wrong({"x": Q.new(-q), "y": Q.new(p)}, R_AXIS)],
+		"fillers": [{"x": Q.new(-p), "y": Q.new(-q)}, {"x": Q.new(p), "y": Q.new(-q)}]}
 	if rep == "graph":
 		out.lines = ["The graph of y = f⁻¹(x) is shown."]
 		var pts: Array = BasicOneToOneSituation.points(s).map(func(c): return [c[1], c[0]])
@@ -211,7 +215,8 @@ func u_inverse_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var at_a := BasicFunctionSituation.at(s.f, a)
 	var t := BasicFunctionViews.table_of(s, s.xs)
 	var out := {"asked": "Find f⁻¹(%s)." % N(a), "lines": ["The table gives values of the one-to-one function f."], "table": t, "answer": ans,
-		"wrongs": [wrong({"v": at_a}, R_VALUE)], "generic": BasicFunctionViews.nums([Q.new(a), Q.new(s.inv).add(1), Q.new(1).div(at_a) if not at_a.is_zero() else Q.new(-a), Q.new(s.inv).neg()])}
+		"wrongs": [wrong({"v": at_a}, R_VALUE)] + ([] if at_a.is_zero() else [wrong({"v": Q.new(1).div(at_a)}, R_RECIPROCAL)]),
+		"fillers": BasicFunctionViews.nums([Q.new(a), Q.new(s.inv).add(1)] + ([Q.new(-a)] if at_a.is_zero() else []) + [Q.new(s.inv).neg()])}
 	out.methods = ways({"swap-coordinates": ["f⁻¹(%s) asks which input gives the output %s" % [N(a), N(a)], "Find %s in the f(x) row and read the x above it: %s" % [N(a), N(s.inv)]]}, "So %s." % Answer.text(ans), ans)
 	return out
 
@@ -219,8 +224,8 @@ func u_inverse_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 func u_inverse_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a: int = s.q
 	var ans := exact("number", {"v": Q.new(s.p)}, "f⁻¹(%s) = " % N(a))
-	var out := {"asked": "Find f⁻¹(%s)." % N(a), "lines": ["The graph of y = f(x) is shown."], "graph": plot(s), "answer": ans, "wrongs": [],
-		"generic": BasicFunctionViews.nums([Q.new(a), Q.new(s.p).add(1), Q.new(s.p).neg(), Q.new(1, a)])}
+	var out := {"asked": "Find f⁻¹(%s)." % N(a), "lines": ["The graph of y = f(x) is shown."], "graph": plot(s), "answer": ans, "wrongs": [wrong({"v": Q.new(1, a)}, R_POWER)],
+		"fillers": BasicFunctionViews.nums([Q.new(a), Q.new(s.p).add(1), Q.new(s.p).neg()])}
 	out.methods = ways({"solve-f-equals": ["f⁻¹(%s) is the x with f(x) = %s" % [N(a), N(a)], "Go across from y = %s to the curve, then down to the x-axis: x = %s" % [N(a), N(s.p)]]}, "So %s." % Answer.text(ans), ans)
 	return out
 
@@ -239,7 +244,7 @@ func u_inverse_from_rule(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		elif at_a.d <= 1000:
 			wrongs = [wrong({"v": at_a}, R_VALUE), wrong({"v": Q.new(1).div(at_a)}, R_RECIPROCAL)]
 	var out := {"asked": "Find f⁻¹(%s), without finding f⁻¹(x)." % N(a), "lines": [eqn(s)], "answer": ans, "wrongs": wrongs,
-		"generic": BasicFunctionViews.nums([a, GdcKit.qf(inv.to_float() + 1.0), inv.neg()], inv)}
+		"fillers": BasicFunctionViews.nums([a, GdcKit.qf(inv.to_float() + 1.0), inv.neg()], inv)}
 	var w := BasicFunctionViews.W(inv)
 	var solve := "f⁻¹(%s) is the x with f(x) = %s: %s = %s" % [N(a), N(a), BasicFunctionSituation.text(s.f), N(a)]
 	out.methods = ways({"solve-f-equals": [solve, "Solve it: x = %s" % w], "reverse-flow": undo_steps(s, a)}, "So %s." % Answer.text(ans), ans)
@@ -252,7 +257,7 @@ func u_intercepts_of_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var txt := func(x: int, y: int) -> String: return "x-intercept (%s, 0), y-intercept (0, %s)" % [N(x), N(y)]
 	var right: String = txt.call(q, p)
 	var out := {"asked": "Find the intercepts of the graph of f⁻¹."}
-	out.merge(BasicFunctionViews.choose(right, [], [txt.call(p, q), txt.call(-q, -p), txt.call(-p, -q), txt.call(q, -p)]))
+	out.merge(InverseRuleViews.pick_of(right, [BasicFunctionViews.tag(txt.call(p, q), R_NO_SWAP)], [txt.call(-q, -p), txt.call(-p, -q), txt.call(q, -p)]))
 	if rep == "graph":
 		out.lines = ["The straight-line graph of y = f(x) is shown."]
 		out.graph = Plot.spec([[[-9.0, BasicFunctionSituation.fl(s.f, -9.0)], [9.0, BasicFunctionSituation.fl(s.f, 9.0)]]], [dot(p, 0), dot(0, q)], -8, 8, -8, 8)
@@ -270,7 +275,7 @@ func u_asymptotes_of_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		var h: int = s.h
 		var big: int = s.A
 		right = "x = %s and y = %s" % [N(big), N(h)]
-		out.merge(BasicFunctionViews.choose(right, [], ["x = %s and y = %s" % [N(h), N(big)], "x = %s and y = %s" % [N(-big), N(-h)], "x = %s and y = %s" % [N(-h), N(-big)], "x = %s and y = %s" % [N(big), N(-h)], "x = %s and y = %s" % [N(-big), N(h)], "x = %s and y = %s" % [N(big + 1), N(h)]]))
+		out.merge(InverseRuleViews.pick_of(right, [BasicFunctionViews.tag("x = %s and y = %s" % [N(h), N(big)], R_NO_SWAP)], ["x = %s and y = %s" % [N(-big), N(-h)], "x = %s and y = %s" % [N(-h), N(-big)], "x = %s and y = %s" % [N(big), N(-h)], "x = %s and y = %s" % [N(-big), N(h)], "x = %s and y = %s" % [N(big + 1), N(h)]]))
 		steps = ["f has asymptotes x = %s and y = %s" % [N(h), N(big)], "Swapping x and y swaps the two lines"]
 		match rep:
 			"graph":
@@ -283,7 +288,7 @@ func u_asymptotes_of_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	else:
 		var c: int = s.c
 		right = "x = %s" % N(c)
-		out.merge(BasicFunctionViews.choose(right, [], ["y = %s" % N(c), "x = %s" % N(-c), "y = %s" % N(-c), "x = 0"]))
+		out.merge(InverseRuleViews.pick_of(right, [BasicFunctionViews.tag("y = %s" % N(c), R_NO_SWAP)], ["x = %s" % N(-c), "y = %s" % N(-c), "x = 0"]))
 		steps = ["f has the asymptote y = %s" % N(c), "Swapping x and y gives a vertical line"]
 		match rep:
 			"graph":
@@ -311,7 +316,7 @@ func u_meeting_on_y_equals_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 			wrongs = [wrong({"x": Q.new(0), "y": Q.new(start)}, R_Y_INTERCEPT)]
 	var out := {"asked": "f is increasing. Find where the graphs of f and f⁻¹ meet.", "answer": ans, "wrongs": wrongs,
 		"titles": {"solve-f-equals": "Solve f(x) = x"},
-		"generic": [{"x": Q.new(-p), "y": Q.new(-p)}, {"x": Q.new(p), "y": Q.new(0)}, {"x": Q.new(p + 1), "y": Q.new(p + 1)}, {"x": Q.new(0), "y": Q.new(p)}]}
+		"fillers": [{"x": Q.new(-p), "y": Q.new(-p)}, {"x": Q.new(p), "y": Q.new(0)}, {"x": Q.new(p + 1), "y": Q.new(p + 1)}, {"x": Q.new(0), "y": Q.new(p)}]}
 	if rep == "graph":
 		out.lines = ["The graph of y = f(x) is shown."]
 		var lo: float = -8.0 if s.form == "line" else -float(s.f.n.n) / float(s.f.m.n)
@@ -340,7 +345,7 @@ func u_is_self_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.inverse:
 		bad.append(BasicFunctionViews.tag("No: f(x) and 1/f(x) are different", R_RECIPROCAL))
 	var out := {"asked": "Is f its own inverse?", "titles": {"midpoint-of-pair": "Check the midpoint of a point and its image"}}
-	out.merge(BasicFunctionViews.choose(right, bad, [wrong_verdict, yes if not s.inverse else "No: f has no inverse"]))
+	out.merge(InverseRuleViews.pick_of(right, bad, [wrong_verdict, yes if not s.inverse else "No: f has no inverse"]))
 	if rep == "graph":
 		out.lines = ["The graph of y = f(x) is shown."]
 		var curves: Array

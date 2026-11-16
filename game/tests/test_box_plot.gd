@@ -150,8 +150,10 @@ func test_every_distractor_shows_up() -> void:
 				for o in _make(t, c, seed).choices:
 					if o.ref != "":
 						seen[o.ref] = true
-		for m in QuestionEngine.type_of(t).misconceptions:
-			check(seen.has(m.ref), "%s never comes up" % m.ref)
+		var ms: Array = QuestionEngine.type_of(t).misconceptions
+		for mi in ms.size():
+			var mref: String = ms[mi].get("ref", "%s#%d" % [t, mi])
+			check(seen.has(mref), "%s never comes up" % mref)
 
 
 func test_hand_values() -> void:

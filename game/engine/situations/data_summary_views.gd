@@ -19,6 +19,20 @@ const R_IQR_SUM := SKILL + "quartiles-discrete#0"
 const R_UNORDERED_QUARTILES := SKILL + "quartiles-discrete#1"
 const R_MEAN_BEST := SKILL + "choose-measure#0"
 const R_MODE_BEST := SKILL + "choose-measure#1"
+## t4-summary-statistics's own slips (FAL-820).
+const T := "t4-summary-statistics#"
+const R_OTHER_AVERAGE := T + "9"
+const R_MIDRANGE := T + "10"
+const R_HALF_N := T + "11"
+const R_HI_ONLY := T + "12"
+const R_HI_PLUS_LO := T + "13"
+const R_ENDS := T + "14"
+const R_RANGE_FOR_IQR := T + "15"
+const R_ONE_QUARTILE := T + "16"
+const R_TOTAL_SHORT := T + "17"
+const R_MEAN_AS_VALUE := T + "18"
+const R_UNDIVIDED := T + "19"
+const R_SD_BEST := T + "20"
 
 ## The stories for a missing value: what the numbers are, and one of them.
 const CONTEXTS := [
@@ -151,6 +165,11 @@ static func vs(xs: Array) -> Array:
 	return xs.map(func(x): return {"v": tidy(x)})
 
 
+## A tagged wrong option, tidied as vs() does.
+static func tw(x: Q, ref: String) -> Dictionary:
+	return wrong({"v": tidy(x)}, ref)
+
+
 ## A wrong option for an exact answer: as it is if it ends within two decimal places, else to
 ## one place, so no option reads as a fraction.
 static func tidy(x: Q) -> Q:
@@ -207,9 +226,9 @@ func u_mean_of_data(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find the mean of the data." if ans.show == "dec" else "Find the mean of the data, to 3 s.f."
 	out.answer = ans
 	var sorted: Array = s.data
-	out.wrongs = []
-	out.generic = vs([DataSummarySituation.median_of(sorted), DataSummarySituation.total_of(sorted).div(Q.new(s.n - 1)),
-		DataSummarySituation.total_of(sorted).div(Q.new(s.n + 1)), sorted[0].add(sorted[s.n - 1]).div(Q.new(2)), mean.add(Q.new(1)),
+	out.wrongs = [tw(DataSummarySituation.median_of(sorted), R_OTHER_AVERAGE), tw(sorted[0].add(sorted[s.n - 1]).div(Q.new(2)), R_MIDRANGE)]
+	out.fillers = vs([DataSummarySituation.total_of(sorted).div(Q.new(s.n - 1)),
+		DataSummarySituation.total_of(sorted).div(Q.new(s.n + 1)), mean.add(Q.new(1)),
 		mean.sub(Q.new(1)), mean.mul(Q.new(2))])
 	var total := DataSummarySituation.total_of(sorted)
 	var shown_mean: String = D(mean) if ans.show == "dec" else W(mean)
@@ -245,8 +264,8 @@ func u_median_of_data(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var shown_mid := DataSummarySituation.median_of(s.xs)
 		out.wrongs.append(wrong({"v": shown_mid}, R_UNORDERED_MEDIAN))
 	out.wrongs.append(wrong({"v": Q.new(n + 1, 2)}, R_POSITION))
-	out.generic = vs([DataSummarySituation.mean_of(s.data), median.add(Q.new(1)), median.sub(Q.new(1)), s.data[0].add(s.data[n - 1]).div(Q.new(2)),
-		Q.new(n, 2)])
+	out.wrongs += [tw(DataSummarySituation.mean_of(s.data), R_OTHER_AVERAGE), tw(s.data[0].add(s.data[n - 1]).div(Q.new(2)), R_MIDRANGE), tw(Q.new(n, 2), R_HALF_N)]
+	out.fillers = vs([median.add(Q.new(1)), median.sub(Q.new(1))])
 	var ps := mid_positions(1, n)
 	var pos_text: String
 	if ps.size() == 1:
@@ -276,7 +295,8 @@ func u_mode_of_data(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = [wrong({"v": Q.new(s.mode_count)}, R_COUNT_AS_MODE)]
 	var sorted: Array = s.data
-	out.generic = vs([DataSummarySituation.median_of(sorted), sorted[s.n - 1], sorted[0], DataSummarySituation.mean_of(sorted)])
+	out.wrongs += [tw(DataSummarySituation.median_of(sorted), R_OTHER_AVERAGE), tw(DataSummarySituation.mean_of(sorted), R_OTHER_AVERAGE)]
+	out.fillers = vs([sorted[s.n - 1], sorted[0]])
 	var steps: Array
 	if rep == "table":
 		steps = ["The mode is the value with the greatest frequency.", "The greatest frequency is %d, in the column x = %s." % [s.mode_count, D(s.mode)],
@@ -304,8 +324,8 @@ func u_range_of_data(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := data_view(s)
 	out.asked = "Find the range of the data."
 	out.answer = ans
-	out.wrongs = []
-	out.generic = vs([hi, lo, hi.add(lo), r.add(Q.new(1)), r.sub(Q.new(1)), DataSummarySituation.median_of(sorted)])
+	out.wrongs = [tw(hi, R_HI_ONLY), tw(hi.add(lo), R_HI_PLUS_LO)]
+	out.fillers = vs([lo, r.add(Q.new(1)), r.sub(Q.new(1)), DataSummarySituation.median_of(sorted)])
 	var first := "The greatest value is %s and the least is %s." % [D(hi), D(lo)] if rep != "table" else \
 			"The values run from %s to %s." % [D(lo), D(hi)]
 	out.methods = {"any": method([first, "range = greatest − least = %s − %s = %s" % [D(hi), D(lo), D(r)], final_step(ans)], ans.values)}
@@ -364,8 +384,8 @@ func u_quartiles_of_data(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		var uq3 := DataSummarySituation.median_of(s.xs.slice(h + odd, n))
 		out.wrongs.append(wrong({"v0": uq1, "v1": uq3}, R_UNORDERED_QUARTILES))
 	var med := DataSummarySituation.median_of(s.data)
-	out.generic = [{"v0": q1, "v1": med}, {"v0": med, "v1": q3}, {"v0": q1.sub(Q.new(1)), "v1": q3.add(Q.new(1))},
-		{"v0": s.data[0], "v1": s.data[s.n - 1]}]
+	out.wrongs.append(wrong({"v0": s.data[0], "v1": s.data[s.n - 1]}, R_ENDS))
+	out.fillers = [{"v0": q1, "v1": med}, {"v0": med, "v1": q3}, {"v0": q1.sub(Q.new(1)), "v1": q3.add(Q.new(1))}]
 	var halves := _quartile_steps(rep, s)
 	var gdc: Array = ["Enter the values (and the frequencies in L2) and run 1-Var Stats.", "Read off Q1 = %s and Q3 = %s" % [D(q1), D(q3)], final_step(ans)]
 	out.methods = {"median-of-halves": method(halves + [final_step(ans)], ans.values), "gdc-1var": method(gdc, ans.values)}
@@ -382,7 +402,8 @@ func u_iqr_of_data(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = [wrong({"v": q1.add(q3)}, R_IQR_SUM)]
 	var rng_all: Q = s.data[s.n - 1].sub(s.data[0])
-	out.generic = vs([rng_all, q3, q1, iqr.add(Q.new(1)), iqr.sub(Q.new(1)), iqr.mul(Q.new(2))])
+	out.wrongs += [tw(rng_all, R_RANGE_FOR_IQR), tw(q3, R_ONE_QUARTILE), tw(q1, R_ONE_QUARTILE)]
+	out.fillers = vs([iqr.add(Q.new(1)), iqr.sub(Q.new(1)), iqr.mul(Q.new(2))])
 	var calc := "IQR = Q₃ − Q₁ = %s − %s = %s" % [D(q3), D(q1), D(iqr)]
 	var gdc: Array = ["Enter the values (and the frequencies in L2) and run 1-Var Stats.", "Q1 = %s and Q3 = %s, so IQR = Q3 − Q1 = %s" % [D(q1), D(q3), D(iqr)],
 		final_step(ans)]
@@ -419,9 +440,9 @@ func u_missing_value_from_mean(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	out.answer = ans
 	var total := mean.mul(Q.new(n))
 	var known_sum := DataSummarySituation.total_of(known)
-	out.wrongs = []
-	# A value one off, the mean of the values already there, the mean itself, and dividing by one too few.
-	out.generic = vs([k.add(Q.new(1)), k.sub(Q.new(1)), known_sum.div(Q.new(n - 1)), mean, mean.mul(Q.new(n - 1)).sub(known_sum)])
+	# The total taken as the mean times the known values only, and the mean itself; the rest are fillers.
+	out.wrongs = [tw(mean.mul(Q.new(n - 1)).sub(known_sum), R_TOTAL_SHORT), tw(mean, R_MEAN_AS_VALUE)]
+	out.fillers = vs([k.add(Q.new(1)), k.sub(Q.new(1)), known_sum.div(Q.new(n - 1))])
 	var steps_total := ["The total of all %d values is %s × %d = %s." % [n, D(mean), n, D(total)],
 		"The other %d values add to %s = %s." % [n - 1, plus(known), D(known_sum)],
 		"The missing value is the difference: %s − %s = %s." % [D(total), D(known_sum), D(k)], final_step(ans)]
@@ -462,7 +483,7 @@ func u_missing_frequency_from_mean(_rep: String, s: Dictionary, _rng: Seeded) ->
 	var slip: Q = mean.mul(Q.new(f_known)).sub(fx_known).div(xp)
 	if slip.sign() > 0 and Q.new(100).mul(slip).is_int():
 		out.wrongs.append(wrong({"v": slip}, R_NO_P_DENOMINATOR))
-	out.generic = vs([p.add(Q.new(1)), p.sub(Q.new(1)), Q.new(f_known), p.mul(Q.new(2))])
+	out.fillers = vs([p.add(Q.new(1)), p.sub(Q.new(1)), Q.new(f_known), p.mul(Q.new(2))])
 	var diff := xp.sub(mean)
 	var rhs := mean.mul(Q.new(f_known)).sub(fx_known)
 	var eq := ["Σfx = %s + %sp and Σf = %d + p." % [D(fx_known), D(xp), f_known],
@@ -486,8 +507,8 @@ func u_combined_mean(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"asked": "Find the mean %s of all %d %s." % [g.what, s.n, g.all], "answer": ans, "table": null}
 	var t1: int = s.n1 * s.m1
 	var t2: int = s.n2 * s.m2
-	out.wrongs = [wrong({"v": Q.new(s.m1 + s.m2, 2)}, R_AVERAGE_MEANS)]
-	out.generic = vs([mean.add(Q.new(1)), mean.sub(Q.new(1)), Q.new(t1 + t2, s.n + 2), Q.new(t1 + t2, s.n - 1), Q.new(maxi(s.m1, s.m2)), Q.new(t1 + t2)])
+	out.wrongs = [wrong({"v": Q.new(s.m1 + s.m2, 2)}, R_AVERAGE_MEANS), tw(Q.new(t1 + t2), R_UNDIVIDED)]
+	out.fillers = vs([mean.add(Q.new(1)), mean.sub(Q.new(1)), Q.new(t1 + t2, s.n + 2), Q.new(t1 + t2, s.n - 1), Q.new(maxi(s.m1, s.m2))])
 	out.methods = {"total-from-mean": method(["The first group's total is %d × %d = %d and the second's is %d × %d = %d." % [s.n1, s.m1, t1, s.n2, s.m2, t2],
 		"All %d + %d = %d values add to %d + %d = %d." % [s.n1, s.n2, s.n, t1, t2, t1 + t2],
 		"The mean is %d ÷ %d = %s." % [t1 + t2, s.n, D(mean)], final_step(ans)], ans.values)}
@@ -507,7 +528,7 @@ func u_choose_average(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var mean: Q = s.mean
 	var total := DataSummarySituation.total_of(s.data)
 	var out := {"lines": outlier_lines(s), "asked": "Which is the most appropriate measure of the centre of these data?", "answer": ans, "table": null,
-		"wrongs": [wrong({"v": CENTRES[0]}, R_MEAN_BEST), wrong({"v": CENTRES[2]}, R_MODE_BEST)], "generic": [{"v": CENTRES[3]}]}
+		"wrongs": [wrong({"v": CENTRES[0]}, R_MEAN_BEST), wrong({"v": CENTRES[2]}, R_MODE_BEST)], "fillers": [{"v": CENTRES[3]}]}
 	var final := "So the most appropriate measure of the centre is %s." % CENTRES[1]
 	out.methods = {
 		"outlier-skew-check": method(["%s is far above the other values, so the data are skewed by an outlier." % D(big),
@@ -524,7 +545,8 @@ func u_choose_spread(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var big: Q = s.data[s.n - 1]
 	var iqr: Q = s.q3.sub(s.q1)
 	var out := {"lines": outlier_lines(s), "asked": "One value is an outlier. Which measure of spread is least affected by it?", "answer": ans, "table": null,
-		"wrongs": [], "generic": [{"v": SPREAD_MEASURES[0]}, {"v": SPREAD_MEASURES[2]}, {"v": SPREAD_MEASURES[3]}]}
+		"wrongs": [wrong({"v": SPREAD_MEASURES[2]}, R_SD_BEST)], "fillers": [{"v": SPREAD_MEASURES[0]}, {"v": SPREAD_MEASURES[3]}]}
+
 	out.methods = {"outlier-skew-check": method(["%s is far from the other values: it stretches the range (%s) and the standard deviation." % [D(big), D(DataSummarySituation.range_of(s.data))],
 		"The interquartile range uses only the middle half of the ordered values: Q₁ = %s and Q₃ = %s, so IQR = %s, whatever the outlier is." % [D(s.q1), D(s.q3), D(iqr)],
 		"So the measure of spread least affected is %s." % SPREAD_MEASURES[1]], ans.values)}

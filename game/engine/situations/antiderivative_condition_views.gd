@@ -35,6 +35,9 @@ const R_NO_A := "SL5.10.linear-composites#1"
 const R_NO_HALF := "SL5.10.inspection-substitution#1"
 const R_AT_END := "SL5.5.total-change-from-rate#0"
 const R_NO_START := "SL5.5.total-change-from-rate#1"
+## FAL-820: the type's own slip. Every other wrong option here is a filler: the constant
+## nudged or its sign flipped (nudged()), or the value scaled, in DefiniteIntegralViews.pack.
+const R_CHANGE_OFF := "t5-antiderivative-condition#23"
 
 const UNKNOWNS := ["poly-function", "poly-decimal-point", "curve-through-point", "find-constant", "further-value", "negative-power",
 	"trig-chain", "trig-shift", "reciprocal-linear", "exp-and-power", "trig-and-exp", "exp-linear-decimal", "log-inspection",
@@ -638,7 +641,8 @@ func u_rate_model(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var factor := "%d/%s" % [A, Fmt.dec(kq)]
 	var after: float = P0 + sg * A / k
 	var end_step := "So %s(%d) = %d + %s = %s, to 6 s.f." % [sym, T, P0, "(%s)" % GdcKit.W(change) if change < 0 else GdcKit.W(change), GdcKit.W(v)]
-	var gen: Array = [P0 - change, v * 1.1, v * 0.9, v + 100.0, v - 100.0].map(func(x): return DefiniteIntegralViews.val(x, true, "%s(%d) = " % [sym, T]).values)
+	wr.append(DefiniteIntegralViews.like(ans, P0 - change, R_CHANGE_OFF))
+	var gen: Array = [v * 1.1, v * 0.9, v + 100.0, v - 100.0].map(func(x): return DefiniteIntegralViews.val(x, true, "%s(%d) = " % [sym, T]).values)
 	return DefiniteIntegralViews.pack(["The number of %s changes at the rate d%s/dt = %s per %s, where t is measured in %s from the moment %s." % [c[0], sym, rate, c[2], c[3], c[4]],
 		"At that moment %s(0) = %d." % [sym, P0]],
 		"Use the model to find %s(%d), to 3 s.f." % [sym, T], ans, wr, gen,

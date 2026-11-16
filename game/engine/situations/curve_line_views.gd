@@ -7,6 +7,20 @@ extends RefCounted
 ## "equation" shows both equations, "graph" sketches the curve and the line (the meeting
 ## points marked A and B, their coordinates not given), "words" says it in a sentence.
 
+## fn-curve-intersection-quadratic's own slips, by index (FAL-820).
+const CL := "fn-curve-intersection-quadratic#"
+const R_ADD_LINE := CL + "6"
+const R_HALF_SIGN := CL + "7"
+const R_YS := CL + "8"
+const R_PAIRS := CL + "9"
+const R_DX_ONLY := CL + "10"
+const R_NO_ROOT := CL + "11"
+const R_DY_UNSQUARED := CL + "12"
+const R_XY_SWAP := CL + "13"
+const R_UPSIDE := CL + "14"
+const R_ORDER := CL + "15"
+const R_Y_AS_N := CL + "16"
+
 const NEED := {
 	"equate-to-quadratic": {"mode": "int"},
 	"meeting-x": {"mode": "int"},
@@ -29,9 +43,12 @@ func need(unknown: String, _rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
+	# More slips than the options have room for: a stream order, so each can show.
+	if out.wrongs.size() > 2:
+		out.wrongs = rng.shuffled(out.wrongs)
 	# Q7's rounding trap, where the answer needs rounding (see game/docs/QUESTION-ENGINE.md).
 	out.trap = Answer.rounding_trap(out.answer)
 	return out
@@ -117,8 +134,8 @@ func u_equate_to_quadratic(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"asked": "Find the quadratic equation, %s = 0, that the x-coordinates of the meeting points satisfy." % (Fmt.lead(s.A) + "x² + bx + c")}
 	_reps(rep, s, out, "")
 	var final := "So " + Answer.text(ans) + "."
-	out.generic = [{"B": s.B.add(s.m), "C": s.C.add(s.n)}, {"B": c[1], "C": s.C.add(s.n)}, {"B": s.B.add(s.m), "C": c[2]},
-		{"B": s.B, "C": c[2]}, {"B": c[1], "C": s.C}]
+	out.wrongs = [wrong({"B": s.B.add(s.m), "C": s.C.add(s.n)}, R_ADD_LINE), wrong({"B": c[1], "C": s.C.add(s.n)}, R_HALF_SIGN)]
+	out.fillers = [{"B": s.B.add(s.m), "C": c[2]}, {"B": s.B, "C": c[2]}, {"B": c[1], "C": s.C}]
 	out.methods = {
 		"equate-and-solve": {"result": ans.values, "steps": [
 			"Where they meet, the y-values are equal: %s = %s" % [curve_rhs(s), line_rhs(s)],
@@ -139,7 +156,8 @@ func u_meeting_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var fs := QuadraticViews.formula_steps(c[0], c[1], c[2])
 	var res: Dictionary = ans.values
 	out.wrongs = [wrong({"r1": s.x1.neg(), "r2": s.x2.neg()}, "SL2.7.solve-equation#1")]
-	out.generic = [{"r1": s.y1, "r2": s.y2}, {"r1": s.x1, "r2": s.x2.neg()}, {"r1": s.x1.neg(), "r2": s.x2}, {"r1": s.x1.add(1), "r2": s.x2.add(1)}]
+	out.wrongs.append(wrong({"r1": s.y1, "r2": s.y2}, R_YS))
+	out.fillers = [{"r1": s.x1, "r2": s.x2.neg()}, {"r1": s.x1.neg(), "r2": s.x2}, {"r1": s.x1.add(1), "r2": s.x2.add(1)}]
 	out.methods = {
 		"equate-and-solve": {"result": res, "steps": [equate_step(s), "Factorise: " + factor_step(s), final]},
 		"sketch-and-count": {"result": res, "steps": [
@@ -161,7 +179,8 @@ func u_meeting_points(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So " + Answer.text(ans) + "."
 	var ys := "On the line: y = %s × %s%s = %s and y = %s × %s%s = %s" % [N(s.m), Fmt.paren(s.x1), Fmt.plus(s.n), N(s.y1), N(s.m), Fmt.paren(s.x2), Fmt.plus(s.n), N(s.y2)]
 	var res: Dictionary = ans.values
-	out.generic = [{"x1": s.x1, "y1": s.y2, "x2": s.x2, "y2": s.y1}, {"x1": s.x1, "y1": s.y1.neg(), "x2": s.x2, "y2": s.y2.neg()},
+	out.wrongs = [wrong({"x1": s.x1, "y1": s.y2, "x2": s.x2, "y2": s.y1}, R_PAIRS)]
+	out.fillers = [{"x1": s.x1, "y1": s.y1.neg(), "x2": s.x2, "y2": s.y2.neg()},
 		{"x1": s.x1.neg(), "y1": s.y1, "x2": s.x2.neg(), "y2": s.y2}, {"x1": s.x1, "y1": s.y1.sub(s.n.mul(2)), "x2": s.x2, "y2": s.y2.sub(s.n.mul(2))}]
 	out.methods = {
 		"equate-and-solve": {"result": res, "steps": [equate_step(s), factor_step(s), ys, final]},
@@ -206,8 +225,9 @@ func u_chord_length(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var half: Q = s.x2.sub(s.x1).div(2)
 	var res: Dictionary = ans.values
 	var s0 := simplify_surd(1, dx * dx)
-	out.generic = [{"m": Q.new(dx), "r": Q.new(1)}, {"m": Q.new(dx * dx), "r": Q.new(r)}, {"m": Q.new(sv[0]), "r": Q.new(sv[1] + 1)},
-		{"m": Q.new(1), "r": Q.new(dx * dx + absi(dy.n))}, {"m": Q.new(s0[0] * 2), "r": Q.new(r)}]
+	out.wrongs = [wrong({"m": Q.new(dx), "r": Q.new(1)}, R_DX_ONLY), wrong({"m": Q.new(dx * dx), "r": Q.new(r)}, R_NO_ROOT),
+		wrong({"m": Q.new(1), "r": Q.new(dx * dx + absi(dy.n))}, R_DY_UNSQUARED)]
+	out.fillers = [{"m": Q.new(sv[0]), "r": Q.new(sv[1] + 1)}, {"m": Q.new(s0[0] * 2), "r": Q.new(r)}]
 	out.methods = {
 		"quadratic-formula": {"result": res, "steps": [equate_step(s), Step.text(fs.steps[0]) + ", so x = " + Step.text(fs.steps[3]).trim_prefix("x = "), dist, final]},
 		"complete-square": {"result": res, "steps": [equate_step(s),
@@ -229,8 +249,9 @@ func u_normal_meets_again(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		out.lines = ["Curve: y = " + curve_rhs(s), "Normal at P%s: y = %s" % [P, line_rhs(s)]]
 	var c := eq_coeffs(s)
 	var res: Dictionary = ans.values
-	out.generic = [{"x": s.qx.neg(), "y": s.qy}, {"x": s.qx, "y": s.qy.neg()}, {"x": s.qx, "y": CurveLineSituation.curve_at(s, s.qx.neg())},
-		{"x": s.qy, "y": s.qx}, {"x": s.qx.add(1), "y": s.m.mul(s.qx.add(1)).add(s.n)}]
+	out.wrongs = [wrong({"x": s.qy, "y": s.qx}, R_XY_SWAP)]
+	out.fillers = [{"x": s.qx.neg(), "y": s.qy}, {"x": s.qx, "y": s.qy.neg()}, {"x": s.qx, "y": CurveLineSituation.curve_at(s, s.qx.neg())},
+		{"x": s.qx.add(1), "y": s.m.mul(s.qx.add(1)).add(s.n)}]
 	var qy := "y = %s × %s%s = %s" % [N(s.m), Fmt.paren(s.qx), Fmt.plus(s.n), N(s.qy)]
 	out.methods = {
 		"equate-and-solve": {"result": res, "steps": [equate_step(s), factor_step(s),
@@ -251,8 +272,8 @@ func u_line_from_meeting_points(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 		out.lines = ["A line meets the curve y = %s at the points where x = %s and x = %s." % [curve_rhs(s), N(s.x1), N(s.x2)]]
 	else:
 		out.lines = ["Curve: y = " + curve_rhs(s), "A line meets the curve at x = %s and x = %s." % [N(s.x1), N(s.x2)]]
-	out.generic = [{"m": Q.new(1).div(s.m), "c": s.n}, {"m": s.m, "c": s.n.neg()}, {"m": s.m.neg(), "c": s.n}, {"m": s.m.neg(), "c": s.n.neg()},
-		{"m": s.m, "c": s.y1}]
+	out.wrongs = [wrong({"m": Q.new(1).div(s.m), "c": s.n}, R_UPSIDE), wrong({"m": s.m.neg(), "c": s.n}, R_ORDER), wrong({"m": s.m, "c": s.y1}, R_Y_AS_N)]
+	out.fillers = [{"m": s.m, "c": s.n.neg()}, {"m": s.m.neg(), "c": s.n.neg()}]
 	out.methods = {"two-point-formula": {"result": ans.values, "steps": [
 		"On the curve: at x = %s, y = %s; at x = %s, y = %s" % [N(s.x1), N(s.y1), N(s.x2), N(s.y2)],
 		"Gradient m = (%s − %s)/(%s − %s) = %s" % [N(s.y2), Fmt.paren(s.y1), N(s.x2), Fmt.paren(s.x1), N(s.m)],
@@ -277,8 +298,8 @@ func u_intercept_from_one_point(rep: String, s: Dictionary, rng: Seeded) -> Dict
 		out.lines = ["The line y = %s meets the curve y = %s where x = %s, and at one other point." % [line, curve_rhs(s), N(gx)]]
 	else:
 		out.lines = ["Curve: y = " + curve_rhs(s), "Line: y = " + line, "They meet where x = %s." % N(gx)]
-	out.generic = [{"n": s.n.neg(), "x": ox, "y": oy}, {"n": s.n, "x": ox.neg(), "y": oy}, {"n": s.n, "x": ox, "y": oy.neg()},
-		{"n": gy, "x": ox, "y": oy}]
+	out.wrongs = [wrong({"n": gy, "x": ox, "y": oy}, R_Y_AS_N)]
+	out.fillers = [{"n": s.n.neg(), "x": ox, "y": oy}, {"n": s.n, "x": ox.neg(), "y": oy}, {"n": s.n, "x": ox, "y": oy.neg()}]
 	out.methods = {"equate-and-solve": {"result": ans.values, "steps": [
 		"At x = %s the curve has y = %s" % [N(gx), N(gy)],
 		"The line passes through %s: %s = %s × %s + n, so n = %s" % [Fmt.point(gx, gy), N(gy), N(s.m), Fmt.paren(gx), N(s.n)],
@@ -328,7 +349,7 @@ func u_count_from_sketch(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	if hidden:
 		wrongs.append(wrong({"v": Q.new(1)}, "SL2.4.intersection#1"))
 	out.wrongs = wrongs
-	out.generic = [0, 1, 2, 3].filter(func(v): return v != count).map(func(v): return {"v": Q.new(v)})
+	out.fillers = [0, 1, 2, 3].filter(func(v): return v != count).map(func(v): return {"v": Q.new(v)})
 	out.methods = {
 		"sketch-and-count": {"result": ans.values, "steps": [seen, alg + (", so the second point is off the window" if hidden else ""), final]},
 		"graph-check": {"result": ans.values, "steps": [alg, "Sketch both graphs, far enough out to show every meeting point.", final]},

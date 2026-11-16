@@ -57,6 +57,7 @@ const R_GROUPED := OWN + "39"
 const R_NO_TERM := OWN + "40"
 const R_KEPT_TERM := OWN + "41"
 const R_ORDER := OWN + "42"
+const R_ADD_CONSTANT := OWN + "43"
 
 const POWER := "what-power"
 const REWRITE := "rewrite-exponential"
@@ -403,9 +404,15 @@ func u_to_exponential_form(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var w_list: Array = [wrong(exp_form(s.x, s.e, b), R_SWAP_BASE), wrong(exp_form(b, s.x, s.e), R_SWAP_POWER)]
 	if s.e.is_int() and s.e.sign() > 0:
 		w_list.append(wrong(exp_form(s.e, b, s.x), R_BASE_EXP))
+	# The power's minus dropped is a slip; a minus put on a positive power is not.
+	var fillers: Array = [exp_form(b, s.e.add(1), s.x), exp_form(s.e, s.x, b)]
+	if s.e.sign() < 0:
+		w_list.append(wrong(exp_form(b, s.e.neg(), s.x), R_LOST_MINUS))
+	else:
+		fillers.append(exp_form(b, s.e.neg(), s.x))
 	return {"lines": [line if rep == "equation" else "The logarithm of %s to base %d is %s." % [N(s.x), s.b, N(s.e)]],
 		"asked": "Write this in exponential form.", "answer": ans, "wrongs": w_list,
-		"generic": [exp_form(b, s.e.add(1), s.x), exp_form(b, s.e.neg(), s.x), exp_form(s.e, s.x, b)],
+		"fillers": fillers,
 		"methods": {REWRITE: method(["log_a b = c means exactly a^c = b: the log is the power.", "Here the base is %d, the power is %s and the number is %s." % [s.b, N(s.e), N(s.x)], say(ans)], ans.values)}}
 
 
@@ -413,9 +420,14 @@ func u_to_log_form(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b := Q.new(s.b)
 	var ans := DifferentiationViews.form(log_form(b, s.e, s.x).text, ["log base ", {"slot": "a"}, " of ", {"slot": "x"}, " = ", {"slot": "e"}], {"a": b, "e": s.e, "x": s.x})
 	var w_list: Array = [wrong(log_form(s.x, s.e, b), R_SWAP_BASE), wrong(log_form(b, s.x, s.e), R_SWAP_POWER)]
+	var fillers: Array = [log_form(b, s.e.add(1), s.x), log_form(b, s.e.mul(2), s.x)]
+	if s.e.sign() < 0:
+		w_list.append(wrong(log_form(b, s.e.neg(), s.x), R_LOST_MINUS))
+	else:
+		fillers.push_front(log_form(b, s.e.neg(), s.x))
 	return {"lines": ["%s = %s" % [pw(s.b, s.e), N(s.x)] if rep == "equation" else "The power of %d that gives %s is %s." % [s.b, N(s.x), N(s.e)]],
 		"asked": "Write this in logarithmic form.", "answer": ans, "wrongs": w_list,
-		"generic": [log_form(b, s.e.neg(), s.x), log_form(b, s.e.add(1), s.x), log_form(b, s.e.mul(2), s.x)],
+		"fillers": fillers,
 		"methods": {REWRITE: method(["a^c = b means exactly log_a b = c: the power is the log.", "Here the base is %d, the power is %s and the number is %s." % [s.b, N(s.e), N(s.x)], say(ans)], ans.values)}}
 
 
@@ -449,7 +461,7 @@ func u_solve_exp_as_log(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	steps.append("In log form, a^x = b means x = log_a b, so x is the power of %s that gives %d." % [base, r])
 	steps.append(say(ans))
 	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": w_list,
-		"generic": [x_log(b, r + 1), x_log(b, r + 2), x_log(b, r + 3)], "methods": {REWRITE: method(steps, ans.values)}}
+		"fillers": [x_log(b, r + 1), x_log(b, r + 2), x_log(b, r + 3)], "methods": {REWRITE: method(steps, ans.values)}}
 
 
 # ── Exact values ─────────────────────────────────────────────
@@ -469,7 +481,7 @@ func u_value_whole_power(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	if rep == "words":
 		lines = ["Each relay on the line multiplies a signal's strength by %d. A signal arrives %d times as strong as it left." % [b, x]]
 		line = "Find %s, the number of relays it passed through." % lg(b, x)
-	return {"lines": lines, "asked": line, "answer": ans, "wrongs": w_list, "generic": gv("", near(s.val)),
+	return {"lines": lines, "asked": line, "answer": ans, "wrongs": w_list, "fillers": gv("", near(s.val)),
 		"methods": {
 			POWER: method(["%s asks: what power of %d gives %d?" % [lg(b, x), b, x], "%s = %d" % [pw(b, s.e), x], say(ans)], ans.values),
 			REWRITE: method(["Let y = %s. In exponential form, %d^y = %d." % [lg(b, x), b, x], "%d = %s, so y = %d." % [x, pw(b, s.e), e], say(ans)], ans.values)}}
@@ -481,7 +493,7 @@ func u_value_negative_power(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var ans := exact_ans("", s.val)
 	var k: Q = s.val.neg()
 	var w_list: Array = [wv("", k, R_LOST_MINUS), wv("", Q.new(1).div(k), R_RECIPROCAL), wv("", s.x.div(Q.new(b)), R_DIVIDE)]
-	return {"lines": [lg(b, xt)], "asked": "Find the exact value.", "answer": ans, "wrongs": w_list, "generic": gv("", near(s.val)),
+	return {"lines": [lg(b, xt)], "asked": "Find the exact value.", "answer": ans, "wrongs": w_list, "fillers": gv("", near(s.val)),
 		"methods": {
 			POWER: method(["%s asks: what power of %d gives %s?" % [lg(b, xt), b, xt], "The number is below 1, so the power is negative: %s = %s" % [pw(b, s.val), xt], say(ans)], ans.values),
 			REWRITE: method(["Let y = %s. In exponential form, %d^y = %s." % [lg(b, xt), b, xt], "%s = %s, so y = %s." % [pw(b, s.val), xt, N(s.val)], say(ans)], ans.values)}}
@@ -510,8 +522,12 @@ func u_value_fractional_power(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var w_list: Array = [wv("", Q.new(1).div(val), R_FLIP)]
 	if s.shape == "family":
 		w_list.append(wv("", s.x.div(Q.new(b)), R_DIVIDE))
-	var gen: Array = [val.add(1), val.sub(1), val.neg(), val.mul(2), val.add(2)]
-	return {"lines": [line], "asked": "Find the exact value.", "answer": ans, "wrongs": w_list, "generic": gv("", gen),
+	var gen: Array = [val.add(1), val.sub(1), val.mul(2), val.add(2)]
+	if val.sign() < 0:
+		w_list.append(wv("", val.neg(), R_LOST_MINUS))
+	else:
+		gen.insert(2, val.neg())
+	return {"lines": [line], "asked": "Find the exact value.", "answer": ans, "wrongs": w_list, "fillers": gv("", gen),
 		"methods": {
 			POWER: method(["%s asks: what power of %d gives %s?" % [line, b, xt], note, say(ans)], ans.values),
 			REWRITE: method(["Let y = %s. In exponential form, %d^y = %s." % [line, b, xt], "%s, so y = %s." % [note, N(val)], say(ans)], ans.values)}}
@@ -531,7 +547,7 @@ func u_log_of_power(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		w_list.append(DifferentiationViews.alt(N(k) + "e" if k.is_int() else "(%s)e" % N(k), R_TIMES_BASE))
 	var word := "e" if b == 0 else str(b)
-	return {"lines": [line], "asked": "Find the exact value.", "answer": ans, "wrongs": w_list, "generic": gv("", near(k)),
+	return {"lines": [line], "asked": "Find the exact value.", "answer": ans, "wrongs": w_list, "fillers": gv("", near(k)),
 		"methods": {
 			INVERSE: method(["A log and a power of the same base undo each other: log_a(a^x) = x.", "The base of both here is %s, and x = %s." % [word, N(k)], say(ans)], ans.values),
 			POWER: method(["%s asks: what power of %s gives %s?" % [line, word, inner], "The power is written there already: %s." % N(k), say(ans)], ans.values)}}
@@ -559,7 +575,7 @@ func u_power_of_log(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			steps = ["A multiple of a log is the log of a power: %s = %s." % [head, lg(b, N(s.val))],
 				"A power and a log of the same base undo each other, so %s^(%s) = %s." % [word, lg(b, N(s.val)), N(s.val)]]
 	steps.append(say(ans))
-	return {"lines": [line], "asked": "Find the exact value.", "answer": ans, "wrongs": w_list, "generic": gv("", near(s.val)),
+	return {"lines": [line], "asked": "Find the exact value.", "answer": ans, "wrongs": w_list, "fillers": gv("", near(s.val)),
 		"methods": {INVERSE: method(steps, ans.values)}}
 
 
@@ -579,7 +595,7 @@ func u_solve_log_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var line := "%s = %s" % [lg(b, "x"), N(c)]
 	var body := "x = %s" % pw(b, c)
 	return {"lines": [line if rep == "equation" else "The logarithm of x to base %d is %s." % [b, N(c)]], "asked": "Find the exact value of x.", "answer": ans,
-		"wrongs": w_list, "generic": gv("x = ", [s.x.add(1), s.x.mul(2), s.x.add(2), s.x.sub(1)].filter(func(v): return not v.is_zero())),
+		"wrongs": w_list, "fillers": gv("x = ", [s.x.add(1), s.x.mul(2), s.x.add(2), s.x.sub(1)].filter(func(v): return not v.is_zero())),
 		"methods": {REWRITE: method(["log_a x = c means a^c = x. Here that is %s." % body, "%s = %s" % [pw(b, c), N(s.x)], say(ans)], ans.values)}}
 
 
@@ -593,7 +609,7 @@ func _solve_ln(s: Dictionary) -> Dictionary:
 		w_list.append(wrong({"v": c.neg(), "text": "x = " + pw(0, c.neg())}, R_LOST_MINUS))
 	var gen: Array = [c.add(1), c.sub(1), c.add(2), c.neg()].filter(func(v): return not v.is_zero())
 	return {"lines": ["ln x = %s" % N(c)], "asked": "Find the exact value of x.", "answer": ans, "wrongs": w_list,
-		"generic": gen.map(func(v): return {"v": v, "text": "x = " + pw(0, v)}),
+		"fillers": gen.map(func(v): return {"v": v, "text": "x = " + pw(0, v)}),
 		"methods": {REWRITE: method(["ln is the log to base e, so ln x = c means e^c = x.", "Here c = %s." % N(c), say(ans)], ans.values)}}
 
 
@@ -609,10 +625,11 @@ func u_solve_log_linear(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var w_list: Array = [wv("x = ", by.call(Q.new(c)), R_NO_LOG), wv("x = ", by.call(Q.new(b * c)), R_DIVIDE)]
 	if c >= 1:
 		w_list.append(wv("x = ", by.call(LogExpFormSituation.qpow(c, b)), R_BASE_EXP))
-	var gen: Array = [power.add(Q.new(q)).div(Q.new(p)), by.call(power.add(1)), by.call(power.sub(1)), s.val.add(1), s.val.add(2)]
+	w_list.append(wv("x = ", power.add(Q.new(q)).div(Q.new(p)), R_ADD_CONSTANT))
+	var gen: Array = [by.call(power.add(1)), by.call(power.sub(1)), s.val.add(1), s.val.add(2)]
 	var last := "x = %s − %s = %s" % [N(power), P(q), N(s.val)] if p == 1 else "x = (%s − %s) ÷ %d = %s" % [N(power), P(q), p, N(s.val)]
 	var two := "%s = %s = %s" % [ins, pw(b, Q.new(c)), N(power)]
-	return {"lines": ["%s(%s) = %d" % [name_of(b), ins, c]], "asked": "Find the exact value of x.", "answer": ans, "wrongs": w_list, "generic": gv("x = ", gen),
+	return {"lines": ["%s(%s) = %d" % [name_of(b), ins, c]], "asked": "Find the exact value of x.", "answer": ans, "wrongs": w_list, "fillers": gv("x = ", gen),
 		"methods": {REWRITE: method(["In exponential form, log_a A = c means A = a^c: " + two, last, say(ans)], ans.values)}}
 
 
@@ -628,7 +645,7 @@ func u_solve_log_square(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var w_list: Array = [DifferentiationViews.alt("%s−√%d" % [label, r], R_NEG_ROOT), wrong(root_values(label, k), R_INSIDE_ZERO), DifferentiationViews.alt(label + str(r), R_STOP_SQUARE)]
 	if c != 0:
 		w_list.append(wrong(root_values(label, c + k), R_NO_LOG))
-	var out := {"answer": ans, "wrongs": w_list, "generic": [r + 1, r + 2, r + 3].map(func(n): return root_values(label, n))}
+	var out := {"answer": ans, "wrongs": w_list, "fillers": [r + 1, r + 2, r + 3].map(func(n): return root_values(label, n))}
 	var power := 1 if c == 0 else LogExpFormSituation.ipow(b, c)
 	var bound: String = root_values("", k).text
 	var rewrite := "In exponential form: %s = %s = %d" % [ins, pw(b, Q.new(c)), power]
@@ -670,7 +687,7 @@ func u_solve_log_base(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		w_list.append(DifferentiationViews.alt(label + D(Q.new(roundi(pow(n.to_float(), c.to_float())))), R_NO_ROOT_TAKEN))
 	var line := "log base x of %s = %s" % [N(n), N(c)]
 	var letter := "x"
-	var out := {"answer": ans, "wrongs": w_list, "generic": gv(label, [val.add(1), val.add(2), val.mul(2), val.add(3)])}
+	var out := {"answer": ans, "wrongs": w_list, "fillers": gv(label, [val.add(1), val.add(2), val.mul(2), val.add(3)])}
 	if rep == "graph":
 		letter = "a"
 		out.lines = ["The graph shows y = log_a x, for a base a > 1. It passes through P(%s, %s)." % [N(n), N(c)]]
@@ -723,7 +740,7 @@ func u_no_real_log(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	ans.exact = true
 	steps.append("So the answer is %s." % right)
 	return {"lines": ["The four logs are " + ",  ".join(options) + "."], "asked": asked, "answer": ans,
-		"wrongs": others.map(func(o): return wrong({"v": o[0]}, o[1])), "generic": [], "methods": {POWER: method(steps, ans.values)}}
+		"wrongs": others.map(func(o): return wrong({"v": o[0]}, o[1])), "fillers": [], "methods": {POWER: method(steps, ans.values)}}
 
 
 # ── Scales: a reading from an amount ─────────────────────────
@@ -754,7 +771,7 @@ func u_reading_from_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		list.append([A * u, R_NO_CONSTANT])
 	if A < 0.0:
 		list.append([d - A * u, R_NO_MINUS])
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, s.y), "table": null, "lines": [rule_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, s.y), "table": null, "lines": [rule_line(rep, s)]}
 	if rep == "table":
 		out.lines.append("The table shows the %s of a %s at each of three places." % [c.amount, c.thing])
 		out.table = _table_of(s, "%s (%s)" % [c.x, c.unit.strip_edges()], [amt(s.rows[0]), amt(s.rows[1]), xt])
@@ -776,7 +793,7 @@ func u_reading_after_multiple(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var list: Array = [[m * y1, R_LINEAR], [y1 + m, R_ADD_FACTOR], [y1 + A * log(m), R_LOG_KEY]]
 	if absf(A) != 1.0:
 		list.append([y1 + signf(A) * lm, R_NO_MULTIPLIER])
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, s.y2), "table": null, "lines": [rule_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, s.y2), "table": null, "lines": [rule_line(rep, s)]}
 	var xt := w(x2)
 	if rep == "table":
 		out.lines.append("The table shows two of them, A and B.")
@@ -806,7 +823,7 @@ func u_acid_reading(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := amount_ans(y_label(rep, s), s.y)
 	var at := place(s, 2) if rep == "table" else place(s)
 	var list: Array = [[log(x) / log(10.0), R_NO_MINUS], [-log(x), R_LOG_KEY], [float(-s.x.k), R_ONLY_POWER]]
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, s.y), "table": null, "lines": [rule_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, s.y), "table": null, "lines": [rule_line(rep, s)]}
 	if rep == "table":
 		out.lines.append("The table shows the acid content of three water samples.")
 		out.table = _table_of(s, "c (moles per litre)", [amt(s.rows[0]), amt(s.rows[1]), xt])
@@ -842,7 +859,7 @@ func u_value_from_reading(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	if A < 0.0:
 		list.append([pow(b, -u) / k, R_NO_MINUS])
 	var at := place(s, 2) if rep == "table" else place(s)
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, x), "table": null, "lines": [rule_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, x), "table": null, "lines": [rule_line(rep, s)]}
 	match rep:
 		"table":
 			out.lines.append("The table shows the %s at three places." % c.name)
@@ -874,7 +891,7 @@ func u_acid_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := amount_ans(x_label(rep, s), x, c.unit)
 	var at := place(s, 2) if rep == "table" else place(s)
 	var list: Array = [[-pow(10.0, y), R_MINUS_FRONT], [pow(10.0, y), R_NO_MINUS], [exp(-y), R_LOG_KEY]]
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, x), "table": null, "lines": [rule_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, x), "table": null, "lines": [rule_line(rep, s)]}
 	if rep == "table":
 		out.lines.append("The table shows the Bite of three water samples.")
 		out.table = _table_of(s, "Bite", [D(s.rows[0]), D(s.rows[1]), D(s.y)])
@@ -902,7 +919,7 @@ func u_ratio_two_readings(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var list: Array = [[maxf(y1, y2) / minf(y1, y2), R_LINEAR], [absf(dy), R_DIFFERENCE], [pow(other_base(s), u), R_LOG_KEY]]
 	if A != 1.0:
 		list.append([pow(b, absf(dy)), R_NO_MULTIPLIER])
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, f), "table": null, "lines": [rule_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, f), "table": null, "lines": [rule_line(rep, s)]}
 	var first := place(s)
 	var second := place(s, 1)
 	if rep == "table":
@@ -940,7 +957,7 @@ func u_rise_for_factor(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var word := "fall" if s.A.sign() < 0 else "rise"
 	var ans := amount_ans(word + " = ", size)
 	var list: Array = [[A * m, R_TIMES_FACTOR], [lm, R_NO_MULTIPLIER], [A * other(s, m), R_LOG_KEY]]
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, size), "table": null, "lines": [rule_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, size), "table": null, "lines": [rule_line(rep, s)]}
 	out.lines.append("The %s of a %s is multiplied by %s." % [c.amount, c.thing, D(s.m)])
 	out.asked = "Find the %s in its %s.%s" % [word, c.name, THREE]
 	var name := "ln" if s.nat else Answer.log_name(10)
@@ -965,7 +982,7 @@ func u_value_after_steps(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var list: Array = [[x1 * (y2 / y1), R_LINEAR], [x1 * dy, R_DIFFERENCE], [x1 + f, R_ADD_FACTOR]]
 	if absf(A) != 1.0:
 		list.append([x1 * pow(10.0, dy), R_NO_MULTIPLIER])
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, x2), "table": null, "lines": [rule_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, x2), "table": null, "lines": [rule_line(rep, s)]}
 	if rep == "table":
 		out.lines.append("The table shows a %s at dawn and at noon." % c.thing)
 		out.table = {"rows": [["Time", ["Dawn", "Noon"]], ["%s (%s)" % [c.x, c.unit.strip_edges()], [amt(s.x), "?"]], [c.name, [D(s.y), D(s.y2)]]]}
@@ -994,7 +1011,7 @@ func u_percent_rise(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if A != 1.0:
 		list.append([100.0 * (pow(LogExpFormSituation.base(s), dy) - 1.0), R_NO_MULTIPLIER])
 	list.append([100.0 * (pow(other_base(s), dy / A) - 1.0), R_LOG_KEY])
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, pct), "table": null, "lines": [rule_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, pct), "table": null, "lines": [rule_line(rep, s)]}
 	out.lines.append("A %s has a %s of %s. Its %s rises by %s." % [c.thing, c.name, D(s.y), c.name, D(s.delta)])
 	out.asked = "Find the percentage increase in its %s.%s" % [c.amount, THREE]
 	var u := dy / A
@@ -1019,7 +1036,7 @@ func u_find_scale_constant(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var ans := amount_ans("k = ", s.found)
 	var list: Array = [[y * lv, R_TIMES_LOG], [y - lv, R_MINUS_LOG], [y / inner, R_NO_LOG], [y / other(s, inner), R_LOG_KEY]]
 	var shape := "%s = k %s" % [c.y, log_of(s, c.x)]
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, s.found), "table": null}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, s.found), "table": null}
 	var words: String = {LogExpFormSituation.HOWL: "%s, where I units is its sound power" % ("The Howl rating of a dust storm is k times the base-10 log of I × " + StandardFormViews.ten(s.ten)),
 		LogExpFormSituation.RAD: "The Rad index of a ruin is k times the natural log of C/%d, where C clicks a minute is its count" % s.over}[s.scale]
 	out.lines = [(words + ".") if rep == "words" else "On an old chart, the %s %s of a %s and its %s %s%s are linked by %s, where k is a constant." % [c.name, c.y, c.thing, c.amount, c.x, c.unit, shape]]
@@ -1060,7 +1077,7 @@ func u_model_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var h := LogExpFormSituation.level(s, t)
 	var ans := amount_ans((m.what if rep == "words" else "h") + " = ", h, m.unit)
 	var list: Array = [[(p + q) * log(inner), R_GROUPED], [p + q * log(r * t), R_NO_TERM], [q * log(inner), R_NO_CONSTANT], [p + q * log(inner) / log(10.0), R_LOG_KEY]]
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, h), "table": null, "lines": [model_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, h), "table": null, "lines": [model_line(rep, s)]}
 	if rep == "table":
 		out.lines.append("The table shows the %s on three days." % m.what)
 		out.table = {"rows": [["t (days)", [str(s.rows[0]), str(s.rows[1]), str(s.t)]], ["h (%s)" % m.unit.strip_edges(), [Fmt.sf(LogExpFormSituation.level(s, s.rows[0])), Fmt.sf(LogExpFormSituation.level(s, s.rows[1])), "?"]]]}
@@ -1081,7 +1098,7 @@ func u_model_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var t := LogExpFormSituation.time_to(s, T)
 	var ans := amount_ans("t = ", t, " days")
 	var list: Array = [[u, R_NOT_UNDONE], [(pow(10.0, u) - 1.0) / r, R_LOG_KEY], [exp(u) / r, R_KEPT_TERM], [exp(u) / r - 1.0, R_ORDER]]
-	var out := {"answer": ans, "wrongs": opts(ans, list), "generic": spare(ans, t), "table": null, "lines": [model_line(rep, s)]}
+	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, t), "table": null, "lines": [model_line(rep, s)]}
 	if rep == "graph":
 		out.lines.append("The graph shows h against t, and the line h = %s." % D(s.T))
 		out.graph = _model_figure(s, t)

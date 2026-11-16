@@ -16,6 +16,31 @@ const R_DIA := SV + "2"
 const R_H_FOR_L := SA + "0"
 const R_FLAT := SA + "1"
 const R_FOUR := SA + "2"
+## t3-solid-volume-area's own slips, by index (FAL-820).
+const ST := "t3-solid-volume-area#"
+const R_HALF := ST + "6"
+const R_UNSQUARED := ST + "7"
+const R_LEGS := ST + "8"
+const R_ADD_SQ := ST + "9"
+const R_BASE_ADDED := ST + "10"
+const R_DOUBLE_RL := ST + "11"
+const R_TWO_ENDS := ST + "12"
+const R_L_PLUS_R := ST + "13"
+const R_NO_HALF := ST + "14"
+const R_FORMULA := ST + "15"
+const R_CIRCLE := ST + "16"
+const R_NO_ROOT := ST + "17"
+const R_ONE_PIECE := ST + "18"
+const R_ADD_HOLE := ST + "19"
+const R_NO_PRICE := ST + "20"
+const R_RING := ST + "21"
+const R_NO_INNER := ST + "22"
+const R_INNER_OFF := ST + "23"
+const R_WALL_TWO := ST + "24"
+const R_LEFT_OVER := ST + "25"
+const R_WHOLE_CIRCLE := ST + "26"
+const R_BASE_AREA := ST + "27"
+const R_CUT_AWAY := ST + "28"
 
 const UNKNOWNS := ["cone-volume", "cone-volume-from-slant", "height-from-slant", "cone-curved", "cone-total", "slant-from-total",
 	"cone-volume-from-total", "pyramid-volume", "pyramid-volume-from-slant", "pyramid-volume-from-edge", "pyramid-surface",
@@ -114,15 +139,15 @@ static func val(s: Dictionary, head: String, x: float, unit: String, pi: bool) -
 
 
 ## The start of a builder's result: the answer, its wrong options as [value, ref], and some
-## more, each only if it is positive and differs from the answer.
+## fillers (no slip behind them), each only if it is positive and differs from the answer.
 static func pack(s: Dictionary, head: String, unit: String, pi: bool, x: float, wrongs: Array, more: Array = []) -> Dictionary:
-	var out := {"answer": val(s, head, x, unit, pi), "table": null, "wrongs": [], "generic": []}
+	var out := {"answer": val(s, head, x, unit, pi), "table": null, "wrongs": [], "fillers": []}
 	for item in wrongs:
 		if item[0] > 0.0 and absf(item[0] - x) > 1e-9:
 			out.wrongs.append(wrong(val(s, head, item[0], unit, pi).values, item[1]))
 	for v in more + [x * 2.0, x / 2.0, x * 1.5, x * 3.0, x * 0.75, x * 4.0]:
 		if v > 0.0 and absf(v - x) > 1e-9:
-			out.generic.append(val(s, head, v, unit, pi).values)
+			out.fillers.append(val(s, head, v, unit, pi).values)
 	return out
 
 
@@ -227,10 +252,10 @@ static func u3(s: Dictionary) -> String:
 
 func u_cone_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x: float = s.r * s.r * s.h / 3.0
-	var wrongs: Array = [[s.r * s.r * s.h, R_THIRD]]
+	var wrongs: Array = [[s.r * s.r * s.h, R_THIRD], [s.r * s.r * s.h / 2.0, R_HALF]]
 	if s.dia:
 		wrongs.append([4.0 * x, R_DIA])
-	var out := pack(s, "V = ", u3(s), true, x, wrongs, [s.r * s.h, s.r * s.r * s.h / 2.0])
+	var out := pack(s, "V = ", u3(s), true, x, wrongs, [s.r * s.h])
 	show(out, s, rep, "%s is %s" % [thing(s, "cone"), PHRASE.cone], [rk(s), "h"])
 	out.asked = "Find the volume of the cone."
 	out.methods = {"booklet-formula": method(half_step(s) + ["V = (1/3)πr²h = %s = %s" % [cone_v_text(s), E(s, x)], final_step(out.answer)], out.answer.values)}
@@ -248,7 +273,8 @@ func u_cone_volume_from_slant(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 
 func u_height_from_slant(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var unit: String = " " + s.unit
-	var out := pack(s, "h = ", unit, false, s.h, [], [s.l + s.r, s.l - s.r, sqrt(s.l * s.l + s.r * s.r) if s.paper == 2 else s.l])
+	var wrongs: Array = [[s.l - s.r, R_LEGS], [sqrt(s.l * s.l + s.r * s.r), R_ADD_SQ] if s.paper == 2 else [s.l, R_SLANT]]
+	var out := pack(s, "h = ", unit, false, s.h, wrongs, [s.l + s.r])
 	show(out, s, rep, "%s is %s" % [thing(s, "cone"), PHRASE.cone], ["r", "l"])
 	out.asked = "Find the perpendicular height of the cone."
 	out.methods = {"height-by-pythagoras": method(["The height, the radius and the slant height make a right triangle, with l the longest side.", h_step(s), final_step(out.answer)], out.answer.values)}
@@ -258,7 +284,8 @@ func u_height_from_slant(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 func u_cone_curved(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x: float = s.r * s.l
 	var wrongs: Array = [[s.r * s.h, R_H_FOR_L]] if s.given == "h" else []
-	var out := pack(s, "area = ", u2(s), true, x, wrongs, [s.r * s.r + x, 2.0 * x])
+	wrongs += [[s.r * s.r + x, R_BASE_ADDED], [2.0 * x, R_DOUBLE_RL]]
+	var out := pack(s, "area = ", u2(s), true, x, wrongs)
 	show(out, s, rep, "%s is %s" % [thing(s, "cone"), PHRASE.cone], ["r", s.given])
 	out.asked = "Find the curved surface area of the cone."
 	var first: Array = [l_step(s)] if s.given == "h" else []
@@ -272,7 +299,8 @@ func u_cone_curved(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 func u_cone_total(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x: float = s.r * s.l + s.r * s.r
 	var wrongs: Array = [[s.r * s.h + s.r * s.r, R_H_FOR_L]] if s.given == "h" else []
-	var out := pack(s, "area = ", u2(s), true, x, wrongs, [s.r * s.l, s.r * s.l + 2.0 * s.r * s.r])
+	wrongs += [[s.r * s.l, R_FLAT], [s.r * s.l + 2.0 * s.r * s.r, R_TWO_ENDS]]
+	var out := pack(s, "area = ", u2(s), true, x, wrongs)
 	show(out, s, rep, "%s is %s, closed by a flat circular base" % [thing(s, "cone"), PHRASE.cone], ["r", s.given])
 	out.asked = "Find the total surface area of the cone."
 	var first: Array = [l_step(s)] if s.given == "h" else []
@@ -290,7 +318,7 @@ static func area_line(s: Dictionary) -> String:
 
 func u_slant_from_total(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var unit: String = " " + s.unit
-	var out := pack(s, "l = ", unit, false, s.l, [], [s.h, s.l + s.r, absf(s.l - s.r)])
+	var out := pack(s, "l = ", unit, false, s.l, [[s.l + s.r, R_L_PLUS_R]], [s.h, absf(s.l - s.r)])
 	show(out, s, rep, "%s is %s, closed by a flat circular base" % [thing(s, "cone"), PHRASE.cone], ["r"], [area_line(s)])
 	out.asked = "Find the slant height of the cone."
 	var a: String = Fmt.lead(qk(s.area)) + "π" if s.paper == 1 else M(s.area)
@@ -317,7 +345,7 @@ static func pyr_v_text(s: Dictionary) -> String:
 
 func u_pyramid_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x: float = s.a * s.b * s.h / 3.0
-	var out := pack(s, "V = ", u3(s), false, x, [[s.a * s.b * s.h, R_THIRD]], [(s.a + s.b) * s.h / 3.0, s.a * s.b * s.h / 2.0])
+	var out := pack(s, "V = ", u3(s), false, x, [[s.a * s.b * s.h, R_THIRD], [s.a * s.b * s.h / 2.0, R_HALF]], [(s.a + s.b) * s.h / 3.0])
 	var kind := "a square base" if s.a == s.b else "a rectangular base"
 	show(out, s, rep, "%s is %s with %s" % [thing(s, "pyramid"), PHRASE.pyramid, kind], ["a", "h"] if s.a == s.b else ["a", "b", "h"])
 	out.asked = "Find the volume of the pyramid."
@@ -348,7 +376,7 @@ func u_pyramid_volume_from_edge(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 
 func u_pyramid_surface(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x: float = s.a * s.a + 2.0 * s.a * s.t
-	var out := pack(s, "area = ", u2(s), false, x, [[s.a * s.a + 2.0 * s.a * s.h, R_H_FOR_L]], [2.0 * s.a * s.t, s.a * s.a + 4.0 * s.a * s.t])
+	var out := pack(s, "area = ", u2(s), false, x, [[s.a * s.a + 2.0 * s.a * s.h, R_H_FOR_L], [2.0 * s.a * s.t, R_FLAT], [s.a * s.a + 4.0 * s.a * s.t, R_NO_HALF]])
 	show(out, s, rep, "%s is %s with a square base" % [thing(s, "pyramid"), PHRASE.pyramid], ["a", "h"])
 	out.asked = "Find the total surface area of the pyramid."
 	out.methods = {"net-face-by-face": method(["Each face's slant height: √(%s² + %s²) = %s" % [M(s.h), M(s.a / 2.0), M(s.t)],
@@ -362,7 +390,8 @@ func u_pyramid_surface(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 func u_sphere_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x: float = 4.0 * pow(s.r, 3.0) / 3.0
 	var wrongs: Array = [[8.0 * x, R_DIA]] if s.dia else []
-	var out := pack(s, "V = ", u3(s), true, x, wrongs, [4.0 * s.r * s.r, x / 2.0])
+	wrongs.append([4.0 * s.r * s.r, R_FORMULA])
+	var out := pack(s, "V = ", u3(s), true, x, wrongs, [x / 2.0])
 	show(out, s, rep, "%s is %s" % [thing(s, "sphere"), PHRASE.sphere], [rk(s)])
 	out.asked = "Find the volume of the sphere."
 	out.methods = {"booklet-formula": method(half_step(s) + ["V = (4/3)πr³ = (4/3) × π × %s³ = %s" % [M(s.r), E(s, x)], final_step(out.answer)], out.answer.values)}
@@ -372,7 +401,8 @@ func u_sphere_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 func u_sphere_surface(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x: float = 4.0 * s.r * s.r
 	var wrongs: Array = [[4.0 * x, R_DIA]] if s.dia else []
-	var out := pack(s, "area = ", u2(s), true, x, wrongs, [x / 2.0, s.r * s.r, 4.0 * pow(s.r, 3.0) / 3.0])
+	wrongs += [[s.r * s.r, R_CIRCLE], [4.0 * pow(s.r, 3.0) / 3.0, R_FORMULA]]
+	var out := pack(s, "area = ", u2(s), true, x, wrongs, [x / 2.0])
 	show(out, s, rep, "%s is %s" % [thing(s, "sphere"), PHRASE.sphere], [rk(s)])
 	out.asked = "Find the surface area of the sphere."
 	out.methods = {"booklet-formula": method(half_step(s) + ["A = 4πr² = 4 × π × %s² = %s" % [M(s.r), E(s, x)], final_step(out.answer)], out.answer.values)}
@@ -384,7 +414,8 @@ func u_hemisphere_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var wrongs: Array = [[2.0 * x, R_THIRD]]
 	if s.dia:
 		wrongs.append([8.0 * x, R_DIA])
-	var out := pack(s, "V = ", u3(s), true, x, wrongs, [2.0 * s.r * s.r, 3.0 * s.r * s.r])
+	wrongs += [[2.0 * s.r * s.r, R_FORMULA], [3.0 * s.r * s.r, R_FORMULA]]
+	var out := pack(s, "V = ", u3(s), true, x, wrongs)
 	show(out, s, rep, "%s is %s" % [thing(s, "hemisphere"), PHRASE.hemisphere], [rk(s)])
 	out.asked = "Find the volume of the hemisphere."
 	out.methods = {"booklet-formula": method(half_step(s) + ["A hemisphere is half a sphere: V = (2/3)πr³", "V = (2/3) × π × %s³ = %s" % [M(s.r), E(s, x)], final_step(out.answer)], out.answer.values)}
@@ -396,7 +427,8 @@ func u_hemisphere_surface(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var wrongs: Array = [[2.0 * s.r * s.r, R_FLAT], [4.0 * s.r * s.r, R_FOUR]]
 	if s.dia:
 		wrongs.append([4.0 * x, R_DIA])
-	var out := pack(s, "area = ", u2(s), true, x, wrongs, [s.r * s.r, 2.0 * pow(s.r, 3.0) / 3.0])
+	wrongs.append([2.0 * pow(s.r, 3.0) / 3.0, R_FORMULA])
+	var out := pack(s, "area = ", u2(s), true, x, wrongs, [s.r * s.r])
 	show(out, s, rep, "%s is %s" % [thing(s, "hemisphere"), PHRASE.hemisphere], [rk(s)])
 	out.asked = "Find the total surface area of the hemisphere."
 	out.methods = {"booklet-formula": method(half_step(s) + ["A = 2πr² + πr² = 3πr²", "A = 3 × π × %s² = %s" % [M(s.r), E(s, x)], final_step(out.answer)], out.answer.values),
@@ -420,7 +452,10 @@ func u_radius_from_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 			wrongs.append([pow(3.0 * s.vol / (4.0 * PI), 1.0 / 3.0), R_THIRD])
 		elif s.shape == "cone":
 			wrongs.append([sqrt(s.vol / (PI * s.h)), R_THIRD])
-	var out := pack(s, "r = ", unit, false, s.r, wrongs, [s.r * s.r, s.r + 1.0, s.r + 2.0, s.r + 3.0])
+	# r² is the step before the root on a cone; on a sphere it is no step at all.
+	if s.shape == "cone":
+		wrongs.append([s.r * s.r, R_NO_ROOT])
+	var out := pack(s, "r = ", unit, false, s.r, wrongs, ([] if s.shape == "cone" else [s.r * s.r]) + [s.r + 1.0, s.r + 2.0, s.r + 3.0])
 	show(out, s, rep, "%s is %s" % [thing(s, family(s.shape)), PHRASE[s.shape]], ["h"] if s.shape == "cone" else [], [vol_line(s)])
 	if rep == "diagram":
 		out.graph.r = "r"
@@ -495,8 +530,11 @@ func u_composite_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			wrongs.append([x + (s.l - s.h) * s.r * s.r / 3.0, R_SLANT])
 	if s.shape in ["cone-hemisphere", "hemisphere-cylinder"]:
 		wrongs.append([x + 2.0 * pow(s.r, 3.0) / 3.0, R_THIRD])
-	var more: Array = [ps[0][2] + ps[1][2]] if s.shape == "cylinder-minus-hemisphere" else [ps[0][2], ps[1][2]]
-	var out := pack(s, "V = ", u3(s), true, x, wrongs, more)
+	if s.shape == "cylinder-minus-hemisphere":
+		wrongs.append([ps[0][2] + ps[1][2], R_ADD_HOLE])
+	else:
+		wrongs += [[ps[0][2], R_ONE_PIECE], [ps[1][2], R_ONE_PIECE]]
+	var out := pack(s, "V = ", u3(s), true, x, wrongs)
 	show(out, s, rep, "%s is %s" % [thing(s, "composite"), PHRASE[s.shape]], keys_of(s))
 	out.asked = "Find the volume of the solid."
 	var steps: Array = [h_step(s)] if s.has("h") and s.get("given", "") == "l" and s.shape.begins_with("cone") else []
@@ -546,7 +584,11 @@ func u_composite_surface(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		wrongs.append([x + s.r * (s.h - s.l), R_H_FOR_L])
 	if s.shape != "cone-cylinder":
 		wrongs.append([x + 2.0 * s.r * s.r, R_FOUR])
-	var out := pack(s, "area = ", u2(s), true, x, wrongs, [x - s.r * s.r, SolidSituation.vol_k(s)])
+	# Without the base circle, on the two solids that stand on one of radius r.
+	var based: bool = s.shape in ["cone-cylinder", "hemisphere-cylinder"]
+	if based:
+		wrongs.append([x - s.r * s.r, R_FLAT])
+	var out := pack(s, "area = ", u2(s), true, x, wrongs, ([] if based else [x - s.r * s.r]) + [SolidSituation.vol_k(s)])
 	show(out, s, rep, "%s is %s" % [thing(s, "composite"), PHRASE[s.shape]], keys_of(s))
 	out.asked = "Find the total surface area of the solid."
 	var steps := face_steps(s, faces(s, false))
@@ -564,7 +606,8 @@ func u_paint_cost(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs.append([x + s.r * (s.h - s.l) * s.price, R_H_FOR_L])
 	if s.shape == "hemisphere-cylinder":
 		wrongs.append([(open + 2.0 * s.r * s.r) * s.price, R_FOUR])
-	var out := pack(s, "cost = $", "", true, x, wrongs, [open])
+	wrongs.append([open, R_NO_PRICE])
+	var out := pack(s, "cost = $", "", true, x, wrongs)
 	show(out, s, rep, "%s is %s, with its base on the ground" % [thing(s, "tank"), PHRASE[s.shape]], keys_of(s),
 		["Paint costs $%s per m²." % ("%d" % s.price if s.paper == 1 else "%.2f" % s.price)])
 	out.asked = "Find the cost of painting the outside of the tank. The base is not painted."
@@ -649,22 +692,22 @@ func u_volume_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			keys.append("h")
 			over.h = in_x(s, s.hx)
 			out.wrongs = [expr_wrong(head, [[third.mul(3), "πx³"]], R_THIRD)]
-			out.generic = [expr(head, [[third.mul(2), "πx³"]]).values, expr(head, [[third.add(1), "πx³"]]).values, expr(head, [[third.add(2), "πx³"]]).values, expr(head, [[third.add(4), "πx³"]]).values, expr(head, [[third.add(5), "πx³"]]).values]
+			out.fillers = [expr(head, [[third.mul(2), "πx³"]]).values, expr(head, [[third.add(1), "πx³"]]).values, expr(head, [[third.add(2), "πx³"]]).values, expr(head, [[third.add(4), "πx³"]]).values, expr(head, [[third.add(5), "πx³"]]).values]
 		"sphere":
 			terms = [[dome.mul(2), "πx³"]]
 			out.wrongs = []
-			out.generic = [expr(head, [[dome, "πx³"]]).values, expr(head, [[dome.mul(3), "πx³"]]).values, expr(head, [[dome.mul(4), "πx³"]]).values]
+			out.fillers = [expr(head, [[dome, "πx³"]]).values, expr(head, [[dome.mul(3), "πx³"]]).values, expr(head, [[dome.mul(4), "πx³"]]).values]
 		"hemisphere":
 			terms = [[dome, "πx³"]]
 			out.wrongs = [expr_wrong(head, [[dome.mul(2), "πx³"]], R_THIRD)]
-			out.generic = [expr(head, [[dome.mul(8), "πx³"]]).values, expr(head, [[dome.mul(3), "πx³"]]).values, expr(head, [[dome.mul(4), "πx³"]]).values]
+			out.fillers = [expr(head, [[dome.mul(8), "πx³"]]).values, expr(head, [[dome.mul(3), "πx³"]]).values, expr(head, [[dome.mul(4), "πx³"]]).values]
 		"hemisphere-cylinder":
 			var drum := Q.new(rx * rx * s.tail)
 			terms = [[dome, "πx³"], [drum, "πx²"]]
 			keys.append("c")
 			over.c = "%d %s" % [s.tail, s.unit]
 			out.wrongs = [expr_wrong(head, [[dome.mul(2), "πx³"], [drum, "πx²"]], R_THIRD)]
-			out.generic = [expr(head, [[dome, "πx³"], [drum.mul(2), "πx²"]]).values, swapped(head, [[dome, "πx²"], [drum, "πx³"]]), expr(head, [[dome.mul(3), "πx³"], [drum, "πx²"]]).values]
+			out.fillers = [expr(head, [[dome, "πx³"], [drum.mul(2), "πx²"]]).values, swapped(head, [[dome, "πx²"], [drum, "πx³"]]), expr(head, [[dome.mul(3), "πx³"], [drum, "πx²"]]).values]
 		"cone-cylinder":
 			var drum := Q.new(rx * rx * s.tail)
 			terms = [[third, "πx³"], [drum, "πx²"]]
@@ -673,7 +716,7 @@ func u_volume_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			over.h = in_x(s, s.hx)
 			over.c = "%d %s" % [s.tail, s.unit]
 			out.wrongs = [expr_wrong(head, [[third.mul(3), "πx³"], [drum, "πx²"]], R_THIRD)]
-			out.generic = [expr(head, [[third, "πx³"], [drum.mul(2), "πx²"]]).values, swapped(head, [[third, "πx²"], [drum, "πx³"]]), expr(head, [[third.mul(2), "πx³"], [drum, "πx²"]]).values]
+			out.fillers = [expr(head, [[third, "πx³"], [drum.mul(2), "πx²"]]).values, swapped(head, [[third, "πx²"], [drum, "πx³"]]), expr(head, [[third.mul(2), "πx³"], [drum, "πx²"]]).values]
 	out.answer = expr(head, terms)
 	show(out, s, rep, "%s is %s" % [thing(s, family(s.shape)), PHRASE[s.shape]], keys, [], over)
 	out.asked = "Find an expression for the volume V, in terms of x."
@@ -716,16 +759,16 @@ func u_surface_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			if total:
 				steps.append("Base: π%s² = %sπx²" % [r_t, Fmt.lead(Q.new(rx * rx))])
 			out.wrongs = [expr_wrong(head, [[Q.new(rx * hx + extra), "πx²"]], R_H_FOR_L)]
-			out.generic = [expr(head, [[c.add(1), "πx²"]]).values, expr(head, [[c.add(2), "πx²"]]).values, expr(head, [[c.mul(2), "πx²"]]).values]
+			out.fillers = [expr(head, [[c.add(1), "πx²"]]).values, expr(head, [[c.add(2), "πx²"]]).values, expr(head, [[c.mul(2), "πx²"]]).values]
 			if not total:
-				out.generic.push_front(expr(head, [[Q.new(rx * lx + rx * rx), "πx²"]]).values)
+				out.wrongs.append(expr_wrong(head, [[Q.new(rx * lx + rx * rx), "πx²"]], R_BASE_ADDED))
 		"hemisphere":
 			var r2 := Q.new(rx * rx)
 			terms = [[r2.mul(3), "πx²"]]
 			steps.append("Curved part: 2π%s² = %dπx²" % [r_t, 2 * rx * rx])
 			steps.append("Flat circle: π%s² = %sπx²" % [r_t, Fmt.lead(r2)])
 			out.wrongs = [expr_wrong(head, [[r2.mul(2), "πx²"]], R_FLAT), expr_wrong(head, [[r2.mul(4), "πx²"]], R_FOUR)]
-			out.generic = [expr(head, [[r2, "πx²"]]).values, expr(head, [[r2.mul(5), "πx²"]]).values]
+			out.fillers = [expr(head, [[r2, "πx²"]]).values, expr(head, [[r2.mul(5), "πx²"]]).values]
 		_:
 			var r2 := Q.new(rx * rx)
 			var wall := Q.new(2 * rx * s.tail)
@@ -735,7 +778,7 @@ func u_surface_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			steps.append("Hemisphere and base: 2π%s² + π%s² = %dπx²" % [r_t, r_t, 3 * rx * rx])
 			steps.append("Cylinder wall: 2π%s × %d = %dπx" % [r_t, s.tail, 2 * rx * s.tail])
 			out.wrongs = [expr_wrong(head, [[r2.mul(2), "πx²"], [wall, "πx"]], R_FLAT), expr_wrong(head, [[r2.mul(5), "πx²"], [wall, "πx"]], R_FOUR)]
-			out.generic = [expr(head, [[r2.mul(3), "πx²"], [wall.mul(2), "πx"]]).values, expr(head, [[r2, "πx²"], [wall, "πx"]]).values]
+			out.fillers = [expr(head, [[r2.mul(3), "πx²"], [wall.mul(2), "πx"]]).values, expr(head, [[r2, "πx²"], [wall, "πx"]]).values]
 	out.answer = expr(head, terms)
 	var opening := "%s is %s" % [thing(s, family(s.shape)), PHRASE[s.shape]]
 	if s.shape == "cone" and s.get("total", false):
@@ -754,9 +797,12 @@ func u_hollow_surface(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ends := Q.new(2 * (k * k - 1))
 	var walls := Q.new(2 * (k + 1))
 	var out := {"table": null, "answer": expr(head, [[ends, "πr²"], [walls, "πrh"]])}
-	out.wrongs = [expr_wrong(head, [[ends.mul(2), "πr²"], [walls, "πrh"]], R_FLAT)]
-	out.generic = [expr(head, [[Q.new(2 * k * k), "πr²"], [walls, "πrh"]]).values, expr(head, [[ends, "πr²"], [Q.new(2 * k), "πrh"]]).values,
-		expr(head, [[ends, "πr²"], [Q.new(2 * (k - 1)), "πrh"]]).values, expr(head, [[ends, "πr²"], [walls.mul(2), "πrh"]]).values]
+	out.wrongs = [expr_wrong(head, [[ends.mul(2), "πr²"], [walls, "πrh"]], R_FLAT), expr_wrong(head, [[Q.new(2 * k * k), "πr²"], [walls, "πrh"]], R_RING),
+		expr_wrong(head, [[ends, "πr²"], [Q.new(2 * k), "πrh"]], R_NO_INNER), expr_wrong(head, [[ends, "πr²"], [Q.new(2 * (k - 1)), "πrh"]], R_INNER_OFF)]
+	# Four slips for three places: a stream order, so each one shows.
+	if _rng != null:
+		out.wrongs = _rng.shuffled(out.wrongs)
+	out.fillers = [expr(head, [[ends, "πr²"], [walls.mul(2), "πrh"]]).values]
 	var labels := {"r": "r", "big": "%dr" % k, "h": "h"}
 	var fig := {"kind": "solid", "shape": "hollow", "r": labels.r, "big": labels.big, "h": labels.h}
 	var opening := "%s is %s" % [thing(s, "hollow"), PHRASE.hollow]
@@ -779,7 +825,7 @@ func u_hollow_volume_from_surface(rep: String, s: Dictionary, _rng: Seeded) -> D
 	var cub := Q.new((k - 1) * (k * k - 1))
 	var out := {"table": null, "answer": expr(head, [[lin, "πr"], [cub, "πr³"]], true)}
 	out.wrongs = []
-	out.generic = [expr(head, [[lin.mul(2), "πr"], [cub, "πr³"]], true).values, expr(head, [[lin, "πr"], [cub.mul(2), "πr³"]], true).values,
+	out.fillers = [expr(head, [[lin.mul(2), "πr"], [cub, "πr³"]], true).values, expr(head, [[lin, "πr"], [cub.mul(2), "πr³"]], true).values,
 		swapped(head, [[lin, "πr²"], [cub, "πr³"]], true), expr(head, [[lin.add(1), "πr"], [cub.add(1), "πr³"]], true).values]
 	var opening := "%s is %s" % [thing(s, "hollow"), PHRASE.hollow]
 	var line2 := "Its total surface area is %dπ cm²." % m
@@ -805,7 +851,8 @@ func u_surface_from_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	out.wrongs = [expr_wrong(head, [[two, "/x"], [Q.new(6 if ends == 2 else 2), "πx²"]], R_FLAT)]
 	if ends == 1:
 		out.wrongs.append(expr_wrong(head, [[two, "/x"], [Q.new(5), "πx²"]], R_FOUR))
-	out.generic = [expr(head, [[Q.new(roundi(s.vol)), "/x"], [sq, "πx²"]]).values, expr(head, [[two.mul(2), "/x"], [sq, "πx²"]]).values,
+	out.wrongs.append(expr_wrong(head, [[Q.new(roundi(s.vol)), "/x"], [sq, "πx²"]], R_WALL_TWO))
+	out.fillers = [expr(head, [[two.mul(2), "/x"], [sq, "πx²"]]).values,
 		expr(head, [[two, "/x"], [sq.add(1), "πx²"]]).values, expr(head, [[two.add(1), "/x"], [sq, "πx²"]]).values]
 	var opening := "%s is %s" % [thing(s, "composite"), PHRASE[s.shape]]
 	var line2 := "The cylinder has radius x cm and height h cm, and its volume is %d cm³." % roundi(s.vol)
@@ -825,7 +872,7 @@ func u_surface_from_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 
 func u_inscribed_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x: float = s.big * s.big * s.h
-	var out := pack(s, "V = ", u3(s), true, x, [[s.r * s.r * s.h, R_SLANT], [x / 3.0, R_THIRD]], [s.big * s.h, 4.0 * pow(s.r, 3.0) / 3.0 - x])
+	var out := pack(s, "V = ", u3(s), true, x, [[s.r * s.r * s.h, R_SLANT], [x / 3.0, R_THIRD], [s.big * s.h, R_UNSQUARED], [4.0 * pow(s.r, 3.0) / 3.0 - x, R_LEFT_OVER]])
 	show(out, s, rep, "%s is %s" % [thing(s, "composite"), PHRASE.inscribed], ["r", "h"])
 	out.asked = "Find the volume of the cylinder."
 	out.methods = {"height-by-pythagoras": method(["The cylinder's radius R, half its height and the sphere's radius make a right triangle.",
@@ -835,7 +882,7 @@ func u_inscribed_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 func u_inscribed_surface(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x: float = 2.0 * s.big * s.big + 2.0 * s.big * s.h
-	var out := pack(s, "area = ", u2(s), true, x, [[2.0 * s.r * s.r + 2.0 * s.r * s.h, R_H_FOR_L], [s.big * s.big + 2.0 * s.big * s.h, R_FLAT]], [2.0 * s.big * s.h])
+	var out := pack(s, "area = ", u2(s), true, x, [[2.0 * s.r * s.r + 2.0 * s.r * s.h, R_H_FOR_L], [s.big * s.big + 2.0 * s.big * s.h, R_FLAT], [2.0 * s.big * s.h, R_FLAT]])
 	show(out, s, rep, "%s is %s" % [thing(s, "composite"), PHRASE.inscribed], ["r", "h"])
 	out.asked = "Find the total surface area of the cylinder."
 	out.methods = {"net-face-by-face": method(["The cylinder's radius: R = √(%s² − %s²) = %s" % [M(s.r), M(s.h / 2.0), M(s.big)],
@@ -864,7 +911,7 @@ const ROLL := "its straight edges are joined to make a cone with no base."
 
 func u_sector_cone_radius(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var unit: String = " " + s.unit
-	var out := pack(s, "r = ", unit, false, s.r, [], [s.l * s.theta / 180.0, s.l - s.r, s.l * s.theta / 720.0])
+	var out := pack(s, "r = ", unit, false, s.r, [[s.l * s.theta / 180.0, R_DIA]], [s.l - s.r, s.l * s.theta / 720.0])
 	sheet(out, s, rep, ["l", "theta"], ROLL)
 	out.asked = "Find the base radius of the cone."
 	out.methods = {"unrolled-sector": method(["The arc of the sector becomes the circle at the base: 2πr = (%s/360) × 2π × %s" % [M(s.theta), M(s.l)],
@@ -873,7 +920,7 @@ func u_sector_cone_radius(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 
 
 func u_sector_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var out := pack(s, "θ = ", "°", false, s.theta, [], [s.theta / 2.0, 360.0 - s.theta, s.theta * 1.5])
+	var out := pack(s, "θ = ", "°", false, s.theta, [[360.0 - s.theta, R_CUT_AWAY]], [s.theta / 2.0, s.theta * 1.5])
 	var opening := "A cone with no base has %s and %s." % [("radius %s" % sized(s, s.r)), ("slant height %s" % sized(s, s.l))]
 	out.lines = [opening, "It is cut along a slant edge and opened out into a flat sector."]
 	if rep == "diagram":
@@ -887,7 +934,7 @@ func u_sector_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 func u_sector_curved(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var x: float = s.r * s.l
-	var out := pack(s, "area = ", u2(s), true, x, [], [s.r * s.r, s.l * s.l, x + s.r * s.r])
+	var out := pack(s, "area = ", u2(s), true, x, [[s.l * s.l, R_WHOLE_CIRCLE], [s.r * s.r, R_BASE_AREA], [x + s.r * s.r, R_BASE_ADDED]])
 	sheet(out, s, rep, ["l", "theta"], ROLL)
 	out.asked = "Find the curved surface area of the cone."
 	out.methods = {"unrolled-sector": method(["The curved surface is the sector itself, a fraction %s/360 of a circle of radius %s." % [M(s.theta), M(s.l)],

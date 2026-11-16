@@ -24,6 +24,20 @@ const R_ROUND_DOWN := SKILL + "find-n-or-p#1"
 const R_P_IS_Q := SKILL + "find-n-or-p#2"
 const R_KTH_AS_PDF := SKILL + "binomial-in-context#1"
 const R_COND_PRODUCT := SKILL + "binomial-in-context#2"
+## t4-binomial's own slips (FAL-820).
+const T := "t4-binomial#"
+const R_OTHER_P := T + "14"
+const R_POINT := T + "15"
+const R_OPPOSITE := T + "16"
+const R_LE_AS_LT := T + "17"
+const R_NOT_FROM_ONE := T + "18"
+const R_NO_LOWER := T + "19"
+const R_VAR_FOR_MEAN := T + "20"
+const R_NO_P := T + "21"
+const R_NO_N := T + "22"
+const R_N_IS_MEAN := T + "23"
+const R_NO_LAST := T + "24"
+const R_NOT_DIVIDED := T + "25"
 
 ## The stories. {n} and {p} are put in; `good` is the plural verb phrase ("germinate"),
 ## `good1` the singular ("germinates"), `x` what X counts.
@@ -210,6 +224,11 @@ static func pad(x: float, xs: Array) -> Array:
 	return vs(xs + [x * 0.5, x * 0.7, x * 1.4, x * 1.8, (1.0 + x) / 2.0, x * 0.25])
 
 
+## A slip's probability as a tagged wrong option, where it is a fair one.
+static func tag(xs: Array, ref: String) -> Array:
+	return vs(xs).map(func(w): return wrong(w, ref))
+
+
 # ── n and p from a story ─────────────────────────────────────
 
 func u_n_and_p_from_words(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -219,8 +238,8 @@ func u_n_and_p_from_words(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var c := ctx(s)
 	var final := "So %s, and X ~ B(%d, %s)." % [Answer.text(ans), s.n, pw(s)]
 	return {"asked": "Write down n and p, so that X ~ B(n, p).", "lines": [intro(s), "Let X be %s." % c.x], "answer": ans,
-		"wrongs": [wrong({"v0": s.p, "v1": Q.new(s.n)}, R_SWAP)],
-		"generic": [{"v0": Q.new(s.n + 1), "v1": s.p}, {"v0": Q.new(s.n), "v1": s.q}, {"v0": Q.new(s.n - 1), "v1": s.q}],
+		"wrongs": [wrong({"v0": s.p, "v1": Q.new(s.n)}, R_SWAP), wrong({"v0": Q.new(s.n), "v1": s.q}, R_OTHER_P)],
+		"fillers": [{"v0": Q.new(s.n + 1), "v1": s.p}, {"v0": Q.new(s.n - 1), "v1": s.q}],
 		"methods": {"four-conditions": method([
 			"A fixed number of trials, two outcomes each time, a constant probability and independent trials: all four hold, so X is binomial.",
 			"There are %d %s, so n = %d, and each %s %s with probability %s, so p = %s." % [s.n, c.unit, s.n, c.sing, c.good1, pw(s), pw(s)],
@@ -243,7 +262,7 @@ func u_exact_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var cum := BinomialSituation.cdf(n, p, k)
 	out.wrongs = vs([no_ncr]).map(func(w): return wrong(w, R_NO_NCR)) + vs([swapped]).map(func(w): return wrong(w, R_SWAP_POWERS)) \
 			+ vs([cum]).map(func(w): return wrong(w, R_CDF_FOR_PDF))
-	out.generic = pad(x, [BinomialSituation.pmf(n, p, k + 1), BinomialSituation.pmf(n, p, k - 1), 1.0 - x, BinomialSituation.pmf(n, 1.0 - p, k)])
+	out.fillers = pad(x, [BinomialSituation.pmf(n, p, k + 1), BinomialSituation.pmf(n, p, k - 1), 1.0 - x, BinomialSituation.pmf(n, 1.0 - p, k)])
 	var final := "So " + Answer.text(ans) + "."
 	var ways := D(Q.new(roundi(c)))
 	out.methods = {
@@ -281,9 +300,13 @@ func u_at_most_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var ans := prob_ans("P(%s) = " % event(s), x)
 	out.answer = ans
 	var le_k := BinomialSituation.cdf(n, p, s.k)
+	out.wrongs = tag([BinomialSituation.pmf(n, p, s.hi)], R_POINT) + tag([1.0 - x], R_OPPOSITE)
 	if s.form == "lt":
-		out.wrongs = vs([le_k]).map(func(w): return wrong(w, R_LT_AS_LE))
-	out.generic = pad(x, [BinomialSituation.pmf(n, p, s.hi), 1.0 - x, BinomialSituation.cdf(n, p, s.hi - 1), BinomialSituation.cdf(n, p, s.hi + 1)])
+		out.wrongs += vs([le_k]).map(func(w): return wrong(w, R_LT_AS_LE))
+		out.fillers = pad(x, [BinomialSituation.cdf(n, p, s.hi - 1), BinomialSituation.cdf(n, p, s.hi + 1)])
+	else:
+		out.wrongs += tag([BinomialSituation.cdf(n, p, s.hi - 1)], R_LE_AS_LT)
+		out.fillers = pad(x, [BinomialSituation.cdf(n, p, s.hi + 1)])
 	var final := "So " + Answer.text(ans) + "."
 	var first: String
 	if s.form == "lt":
@@ -308,8 +331,8 @@ func u_at_least_probability(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var below: int = s.lo - 1
 	# The slip: subtracting P(X <= k) for 'at least k', or P(X <= k - 1) for 'more than k'.
 	var slip := 1.0 - BinomialSituation.cdf(n, p, s.k) if s.form == "ge" else 1.0 - BinomialSituation.cdf(n, p, s.k - 1)
-	out.wrongs = vs([slip]).map(func(w): return wrong(w, R_AT_LEAST))
-	out.generic = pad(x, [BinomialSituation.cdf(n, p, below), BinomialSituation.pmf(n, p, s.lo), BinomialSituation.cdf(n, p, s.lo), 1.0 - BinomialSituation.pmf(n, p, s.lo)])
+	out.wrongs = vs([slip]).map(func(w): return wrong(w, R_AT_LEAST)) + tag([BinomialSituation.cdf(n, p, below)], R_NOT_FROM_ONE) + tag([BinomialSituation.pmf(n, p, s.lo)], R_POINT)
+	out.fillers = pad(x, [BinomialSituation.cdf(n, p, s.lo), 1.0 - BinomialSituation.pmf(n, p, s.lo)])
 	var final := "So " + Answer.text(ans) + "."
 	var why := "'At least %d' starts at %d, so it is everything except X ≤ %d." % [s.k, s.k, below] if s.form == "ge" \
 			else "'More than %d' starts at %d, so it is everything except X ≤ %d." % [s.k, s.lo, below]
@@ -333,9 +356,9 @@ func u_between_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var below: int = s.lo - 1
 	# The slip: subtracting P(X <= a + 1) for a < X <= b, or P(X <= a) for a <= X <= b.
 	var slip := BinomialSituation.cdf(n, p, s.b) - BinomialSituation.cdf(n, p, s.lo)
-	if s.form == "lo-open":
-		out.wrongs = vs([slip]).map(func(w): return wrong(w, R_BETWEEN))
-	out.generic = pad(x, [slip, BinomialSituation.cdf(n, p, s.b) - BinomialSituation.cdf(n, p, below - 1), BinomialSituation.cdf(n, p, s.b),
+	# For a ≤ X ≤ b the same slip subtracts P(X ≤ a), the wrong cumulative too (FAL-820).
+	out.wrongs = vs([slip]).map(func(w): return wrong(w, R_BETWEEN)) + tag([BinomialSituation.cdf(n, p, s.b)], R_NO_LOWER)
+	out.fillers = pad(x, [BinomialSituation.cdf(n, p, s.b) - BinomialSituation.cdf(n, p, below - 1),
 		BinomialSituation.cdf(n, p, s.b - 1) - BinomialSituation.cdf(n, p, below)])
 	var final := "So " + Answer.text(ans) + "."
 	var start := "%d ≤ X means X starts at %d" % [s.a, s.a] if s.form == "in" else "%d < X means X starts at %d" % [s.a, s.lo]
@@ -366,7 +389,8 @@ func u_mean_from_parameters(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	out.wrongs = []
 	if not mean.is_int():
 		out.wrongs.append(wrong({"v": Q.new(roundi(mean.to_float()))}, R_ROUND_MEAN))
-	out.generic = [{"v": s.q.mul(Q.new(s.n))}, {"v": s.p.mul(s.q).mul(Q.new(s.n))}, {"v": mean.add(Q.new(1))}, {"v": mean.sub(Q.new(1))}, {"v": mean.mul(Q.new(2))}]
+	out.wrongs += [wrong({"v": s.q.mul(Q.new(s.n))}, R_OTHER_P), wrong({"v": s.p.mul(s.q).mul(Q.new(s.n))}, R_VAR_FOR_MEAN)]
+	out.fillers = [{"v": mean.add(Q.new(1))}, {"v": mean.sub(Q.new(1))}, {"v": mean.mul(Q.new(2))}]
 	out.methods = {"np-npq": method(["E(X) = np.", "%d × %s = %s" % [s.n, pw(s), D(mean)], "So " + Answer.text(ans) + "."], ans.values)}
 	return out
 
@@ -376,8 +400,8 @@ func u_variance_from_parameters(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var ans := dec_ans("Var(X) = ", variance)
 	var out := _params_question(rep, s, "Find Var(X).", "Find the variance of X.")
 	out.answer = ans
-	out.wrongs = [wrong({"v": s.mean}, R_VAR_NP)]
-	out.generic = [{"v": s.q.mul(Q.new(s.n))}, {"v": s.p.mul(s.p).mul(Q.new(s.n))}, {"v": variance.mul(Q.new(2))}, {"v": s.p.mul(s.q)}]
+	out.wrongs = [wrong({"v": s.mean}, R_VAR_NP), wrong({"v": s.q.mul(Q.new(s.n))}, R_NO_P), wrong({"v": s.p.mul(s.q)}, R_NO_N)]
+	out.fillers = [{"v": s.p.mul(s.p).mul(Q.new(s.n))}, {"v": variance.mul(Q.new(2))}]
 	out.methods = {"np-npq": method(["Var(X) = np(1 − p).", "%d × %s × %s = %s" % [s.n, pw(s), D(s.q), D(variance)], "So " + Answer.text(ans) + "."], ans.values)}
 	return out
 
@@ -388,8 +412,8 @@ func u_std_deviation(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := prob_ans("standard deviation = ", sd)
 	var out := _params_question(rep, s, "Find the standard deviation of X, to 3 s.f.", "Find the standard deviation of X, to 3 s.f.")
 	out.answer = ans
-	out.wrongs = [wrong({"v": variance}, R_SD_VAR)]
-	out.generic = [{"v": qf(sqrt(s.mean.to_float()))}, {"v": s.mean}, {"v": qf(sqrt(s.q.mul(Q.new(s.n)).to_float()))}, {"v": qf(sqrt(variance.to_float() * 2.0))}]
+	out.wrongs = [wrong({"v": variance}, R_SD_VAR), wrong({"v": qf(sqrt(s.mean.to_float()))}, R_VAR_NP)]
+	out.fillers = [{"v": s.mean}, {"v": qf(sqrt(s.q.mul(Q.new(s.n)).to_float()))}, {"v": qf(sqrt(variance.to_float() * 2.0))}]
 	out.methods = {"np-npq": method(["Var(X) = np(1 − p) = %d × %s × %s = %s." % [s.n, pw(s), D(s.q), D(variance)],
 		"The standard deviation is √%s = %s." % [D(variance), W(sd)], "So " + Answer.text(ans) + "."], ans.values)}
 	return out
@@ -410,8 +434,8 @@ func u_n_and_p_from_mean_variance(rep: String, s: Dictionary, _rng: Seeded) -> D
 			"E(X) = %s and Var(X) = %s" % [D(s.mean), D(s.variance)]]
 	var final := "So " + Answer.text(ans) + "."
 	return {"asked": "Find n and p.", "lines": lines, "answer": ans,
-		"wrongs": [wrong({"v0": Q.new(s.n), "v1": s.q}, R_P_IS_Q)],
-		"generic": [{"v0": Q.new(s.n + 1), "v1": s.p}, {"v0": s.mean, "v1": s.p}, {"v0": Q.new(s.n), "v1": s.q.mul(s.q)}],
+		"wrongs": [wrong({"v0": Q.new(s.n), "v1": s.q}, R_P_IS_Q), wrong({"v0": s.mean, "v1": s.p}, R_N_IS_MEAN)],
+		"fillers": [{"v0": Q.new(s.n + 1), "v1": s.p}, {"v0": Q.new(s.n), "v1": s.q.mul(s.q)}],
 		"methods": {"divide-var-by-mean": method(["E(X) = np and Var(X) = np(1 − p), so Var(X) ÷ E(X) = 1 − p.",
 			"1 − p = %s ÷ %s = %s, so p = %s." % [D(s.variance), D(s.mean), D(s.q), D(s.p)],
 			"n = E(X) ÷ p = %s ÷ %s = %d." % [D(s.mean), D(s.p), s.n], final], ans.values)}}
@@ -432,7 +456,7 @@ func u_least_trials(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		asked = "How many %s are needed so that the probability that at least one %s %s is greater than %s?" % [c.unit, c.sing, c.good1, D(s.c)]
 	var one_minus: float = 1.0 - s.c.to_float()
 	var out := {"asked": asked, "lines": lines, "answer": ans, "wrongs": [],
-		"generic": [{"v": Q.new(nn + 1)}, {"v": Q.new(maxi(1, nn - 2))}, {"v": Q.new(nn + 4)}, {"v": Q.new(maxi(1, roundi(x * 2.0)))}]}
+		"fillers": [{"v": Q.new(nn + 1)}, {"v": Q.new(maxi(1, nn - 2))}, {"v": Q.new(nn + 4)}, {"v": Q.new(maxi(1, roundi(x * 2.0)))}]}
 	if nn > 1:
 		out.wrongs.append(wrong({"v": Q.new(nn - 1)}, R_ROUND_DOWN))
 	var fell := 1.0 - pow(s.q.to_float(), nn - 1)
@@ -468,8 +492,8 @@ func u_kth_success_trial(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var in_m := BinomialSituation.pmf(m, p, k)
 	var first := BinomialSituation.pmf(m - 1, p, k - 1)
 	var out := {"asked": asked, "lines": lines, "answer": ans,
-		"wrongs": vs([in_m]).map(func(w): return wrong(w, R_KTH_AS_PDF)),
-		"generic": pad(x, [first, BinomialSituation.pmf(m - 1, p, k), BinomialSituation.pmf(m, p, k - 1), BinomialSituation.pmf(m - 1, p, k - 1) * (1.0 - p)])}
+		"wrongs": vs([in_m]).map(func(w): return wrong(w, R_KTH_AS_PDF)) + tag([first], R_NO_LAST),
+		"fillers": pad(x, [BinomialSituation.pmf(m - 1, p, k), BinomialSituation.pmf(m, p, k - 1), BinomialSituation.pmf(m - 1, p, k - 1) * (1.0 - p)])}
 	var final := "So " + Answer.text(ans) + "."
 	out.methods = {"split-last-trial": method([
 		"The %s success is on trial %d, so the first %d trials have exactly %s, and trial %d is a success." % [ordinal(k), m, m - 1, successes(k - 1), m],
@@ -496,8 +520,9 @@ func u_conditional_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var at_one := 1.0 - pow(1.0 - p, n)
 	var pj := BinomialSituation.pmf(n, p, j)
 	var out := {"asked": asked, "lines": lines, "answer": ans,
-		"wrongs": vs([pj * at_one]).map(func(w): return wrong(w, R_COND_PRODUCT)),
-		"generic": pad(x, [pj, pj / (1.0 - p), at_one, BinomialSituation.pmf(n, p, j) / BinomialSituation.cdf(n, p, j)])}
+		"wrongs": vs([pj * at_one]).map(func(w): return wrong(w, R_COND_PRODUCT)) + tag([pj], R_NOT_DIVIDED),
+		"fillers": pad(x, [pj / (1.0 - p), at_one, BinomialSituation.pmf(n, p, j) / BinomialSituation.cdf(n, p, j)])}
+
 	var final := "So " + Answer.text(ans) + "."
 	out.methods = {"conditional-ratio": method([
 		"P(X = %d | X ≥ 1) = P(X = %d and X ≥ 1) ÷ P(X ≥ 1) = P(X = %d) ÷ P(X ≥ 1), since X = %d already has X ≥ 1." % [j, j, j, j],

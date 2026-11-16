@@ -45,6 +45,16 @@ const R_DIRECT := TYPE + "26"
 const R_ABOVE := TYPE + "27"
 const R_CHAIN := TYPE + "28"
 const R_FIRST := TYPE + "29"
+const R_MOVED_SIGN := TYPE + "30"
+const R_AREA_SUM := TYPE + "31"
+const R_R_NOT_R2 := TYPE + "32"
+const R_ONE_TERM := TYPE + "33"
+const R_RATES_SWAPPED := TYPE + "34"
+const R_NO_SQUARES := TYPE + "35"
+const R_PYTH_MINUS := TYPE + "36"
+const R_PQ_SWAP := TYPE + "37"
+const R_GRAD_SWAP := TYPE + "38"
+const R_SOLVE_SIGN := TYPE + "39"
 
 const FENCED := ["pen", "paddock", "can", "bin"]
 const CURVED := ["paddock", "can", "bin", "arch"]
@@ -495,21 +505,21 @@ func u_constraint_rearrange(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 			ans = DifferentiationViews.form(r.values.text, ["y = ", {"slot": "a"}, " − ", {"slot": "b"}, "x"], {"a": Q.new(s.F), "b": Q.new(s.n)})
 			var slip: Dictionary = mk.call(s.F, 1)
 			slip.ref = R_ONE_X
-			ws = [other("y = (%d − %sx)/2" % [s.F, Fmt.lead(s.n)], R_WALL), slip]
-			gen = [mk.call(s.F, 2 * s.n).values, mk.call(s.F, s.n + 1).values, mk.call(2 * s.F, s.n).values, other("y = %s − %d" % [Fmt.lead(s.n) + "x", s.F]).values]
+			ws = [other("y = (%d − %sx)/2" % [s.F, Fmt.lead(s.n)], R_WALL), slip, other("y = %s − %d" % [Fmt.lead(s.n) + "x", s.F], R_MOVED_SIGN)]
+			gen = [mk.call(s.F, 2 * s.n).values, mk.call(s.F, s.n + 1).values, mk.call(2 * s.F, s.n).values]
 			steps = ["The fence is %d lengths of x and one of y: %dx + y = %d." % [s.n, s.n, s.F], "Take %dx from both sides." % s.n]
 		"paddock":
 			ans = DifferentiationViews.form("y = %d/x" % s.P, ["y = ", {"slot": "a"}, "/x"], {"a": Q.new(s.P)})
-			ws = [other("y = x/%d" % s.P, R_FLIP)]
-			gen = [typed("y = %d/x" % (2 * s.P), {"a": Q.new(2 * s.P)}).values, other("y = %d − %sx" % [s.P, Fmt.lead(s.n)]).values, other("y = %d/(%dx)" % [s.P, s.n]).values, typed("y = %d/x" % (s.P + s.n), {"a": Q.new(s.P + s.n)}).values]
+			ws = [other("y = x/%d" % s.P, R_FLIP), other("y = %d − %sx" % [s.P, Fmt.lead(s.n)], R_AREA_SUM)]
+			gen = [typed("y = %d/x" % (2 * s.P), {"a": Q.new(2 * s.P)}).values, other("y = %d/(%dx)" % [s.P, s.n]).values, typed("y = %d/x" % (s.P + s.n), {"a": Q.new(s.P + s.n)}).values]
 			steps = ["The plot is a rectangle x by y, so xy = %d." % s.P, "Divide both sides by x."]
 		"can":
 			var pi1: bool = s.paper == 1
 			var m: int = s.k if pi1 else s.V
 			var below := "/r²" if pi1 else "/(πr²)"
 			ans = DifferentiationViews.form("h = %d%s" % [m, below], ["h = ", {"slot": "a"}, below], {"a": Q.new(m)})
-			ws = [other(("h = %d/(2r)" % m) if pi1 else ("h = %d/(2πr)" % m), R_CIRC)]
-			gen = [typed("h = %d%s" % [2 * m, below], {"a": Q.new(2 * m)}).values, other(("h = %d/r" % m) if pi1 else ("h = %d/(πr)" % m)).values,
+			ws = [other(("h = %d/(2r)" % m) if pi1 else ("h = %d/(2πr)" % m), R_CIRC), other(("h = %d/r" % m) if pi1 else ("h = %d/(πr)" % m), R_R_NOT_R2)]
+			gen = [typed("h = %d%s" % [2 * m, below], {"a": Q.new(2 * m)}).values,
 				other(("h = %d/(2r²)" % m) if pi1 else ("h = %d/(2πr²)" % m)).values, typed("h = %d%s" % [m + 1, below], {"a": Q.new(m + 1)}).values]
 			steps = ["The volume of a cylinder is πr²h, so πr²h = %s." % ("%dπ" % m if pi1 else str(m)), "Divide both sides by πr²."]
 		"bin":
@@ -525,14 +535,14 @@ func u_constraint_rearrange(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	out.answer = ans
 	out.asked = "Find an expression for %s in terms of %s." % [second(s), vr(s)]
 	out.wrongs = ws
-	out.generic = gen
+	out.fillers = gen
 	out.methods = {"constraint-substitution": method(steps + [say(ans)], ans.values)}
 	return out
 
 
 # ── Reading the function off the figure ──────────────────────
 
-func u_build_objective(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_build_objective(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := setup(rep, s)
 	var ws: Array = []
 	var gen: Array = []
@@ -563,8 +573,12 @@ func u_build_objective(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			ans = DifferentiationViews.form(mk.call(2 * c, 2 * a).values.text, ["A = ", {"slot": "a"}, "x − ", {"slot": "b"}, "x³"], {"a": Q.new(2 * c), "b": Q.new(2 * a)})
 			var half: Dictionary = mk.call(c, a)
 			half.ref = R_HALF
-			ws = [half]
-			gen = [mk.call(2 * c, a).values, mk.call(c, 2 * a).values, mk.call(4 * c, 4 * a).values, mk.call(2 * c, 2 * a + 1).values, mk.call(2 * c + 1, 2 * a).values]
+			var first_only: Dictionary = mk.call(2 * c, a)
+			first_only.ref = R_ONE_TERM
+			var last_only: Dictionary = mk.call(c, 2 * a)
+			last_only.ref = R_ONE_TERM
+			ws = [half, first_only, last_only]
+			gen = [mk.call(4 * c, 4 * a).values, mk.call(2 * c, 2 * a + 1).values, mk.call(2 * c + 1, 2 * a).values]
 			steps = ["The corners are at x and −x, so the width is 2x, and the height is y = %s." % arch_text(s), "A = 2x(%s). Expand the bracket." % arch_text(s)]
 			out.asked = "Find an expression for A, the area of the %s in m², in terms of x." % ARCH[s.ctx][1]
 		"route":
@@ -577,9 +591,10 @@ func u_build_objective(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 					return "C = %d√(%d + x²) + %d(%d − x)" % [p, q, v, b]
 				ans = DifferentiationViews.form(mk.call(f, a2), ["C = ", {"slot": "f"}, "√(", {"slot": "a"}, " + x²) + ", {"slot": "v"}, "(", {"slot": "b"}, " − x)"],
 					{"f": Q.new(f), "a": Q.new(a2), "v": Q.new(v), "b": Q.new(b)})
-				ws = [other("C = %d(%d + x) + %d(%d − x)" % [f, s.a, v, b], R_PYTH), other("C = %d√(%d + x²) + %dx" % [f, a2, v], R_ROAD)]
-				gen = [other("C = %d√(%d + x²) + %d(%d − x)" % [v, a2, f, b]).values, other("C = %d√(%d + x) + %d(%d − x)" % [f, s.a, v, b]).values,
-					other("C = %d√(%d + x²) + %d(%d + x)" % [f, a2, v, b]).values, other("C = %d√(%d − x²) + %d(%d − x)" % [f, a2, v, b]).values]
+				ws = [other("C = %d(%d + x) + %d(%d − x)" % [f, s.a, v, b], R_PYTH), other("C = %d√(%d + x²) + %dx" % [f, a2, v], R_ROAD),
+					other("C = %d√(%d + x²) + %d(%d − x)" % [v, a2, f, b], R_RATES_SWAPPED), other("C = %d√(%d + x) + %d(%d − x)" % [f, s.a, v, b], R_NO_SQUARES),
+					other("C = %d√(%d − x²) + %d(%d − x)" % [f, a2, v, b], R_PYTH_MINUS)]
+				gen = [other("C = %d√(%d + x²) + %d(%d + x)" % [f, a2, v, b]).values]
 				out.asked = "Find an expression for C, the total cost in scrap, in terms of x."
 				steps = ["M, P and D make a right triangle, so MD = √(%d² + x²) = √(%d + x²) km." % [s.a, a2], "D is x km from P, so DB = %d − x km." % b, "Multiply each length by its cost per km, and add."]
 			else:
@@ -589,13 +604,16 @@ func u_build_objective(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 					{"f": Q.new(f), "a": Q.new(a2), "v": Q.new(v), "b": Q.new(b)})
 				ws = [other("T = (%d + x)/%d + (%d − x)/%d" % [s.a, f, b, v], R_PYTH), other("T = %d√(%d + x²) + %d(%d − x)" % [f, a2, v, b], R_RATE),
 					other("T = √(%d + x²)/%d + x/%d" % [a2, f, v], R_ROAD)]
-				gen = [other("T = √(%d + x²)/%d + (%d − x)/%d" % [a2, v, b, f]).values, other("T = √(%d + x)/%d + (%d − x)/%d" % [s.a, f, b, v]).values,
-					other("T = √(%d − x²)/%d + (%d − x)/%d" % [a2, f, b, v]).values, other("T = √(%d + x²)/%d + (%d + x)/%d" % [a2, f, b, v]).values]
+				ws += [other("T = √(%d + x²)/%d + (%d − x)/%d" % [a2, v, b, f], R_RATES_SWAPPED), other("T = √(%d + x)/%d + (%d − x)/%d" % [s.a, f, b, v], R_NO_SQUARES),
+					other("T = √(%d − x²)/%d + (%d − x)/%d" % [a2, f, b, v], R_PYTH_MINUS)]
+				gen = [other("T = √(%d + x²)/%d + (%d + x)/%d" % [a2, f, b, v]).values]
 				out.asked = "Find an expression for T, the total time in hours, in terms of x."
 				steps = ["M, P and D make a right triangle, so MD = √(%d² + x²) = √(%d + x²) km." % [s.a, a2], "D is x km from P, so DB = %d − x km." % b, "Time = distance ÷ speed for each stretch, and the two times add."]
 	out.answer = ans
-	out.wrongs = ws
-	out.generic = gen
+	# A route has more slips than the three options that fit, and the engine takes the first it
+	# finds: shuffled, each of them comes up (FAL-820).
+	out.wrongs = rng.shuffled(ws) if s.fam == "route" else ws
+	out.fillers = gen
 	if rep == "words":
 		out.titles = {"model-from-figure": "Write each length in terms of x"}
 	out.methods = {"model-from-figure": method(steps + [say(ans)], ans.values)}
@@ -619,16 +637,16 @@ func u_show_objective(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			target = "A = px − qx²"
 			p = s.F
 			q = s.n
-			ws = [pair.call(Q.new(s.F, 2), Q.new(s.n, 2), R_WALL)]
-			gen = [{"v0": Q.new(s.n), "v1": Q.new(s.F)}, {"v0": Q.new(s.F), "v1": Q.new(2 * s.n)}, {"v0": Q.new(2 * s.F), "v1": Q.new(s.n)}, {"v0": Q.new(s.F), "v1": Q.new(s.n + 1)}]
+			ws = [pair.call(Q.new(s.F, 2), Q.new(s.n, 2), R_WALL), pair.call(s.n, s.F, R_PQ_SWAP)]
+			gen = [{"v0": Q.new(s.F), "v1": Q.new(2 * s.n)}, {"v0": Q.new(2 * s.F), "v1": Q.new(s.n)}, {"v0": Q.new(s.F), "v1": Q.new(s.n + 1)}]
 			steps = ["Area is xy, and the fence gives %dx + y = %d, so y = %d − %sx." % [s.n, s.F, s.F, Fmt.lead(s.n)],
 				"Substitute: A = x(%d − %sx) = %dx − %sx²." % [s.F, Fmt.lead(s.n), s.F, Fmt.lead(s.n)]]
 		"paddock":
 			target = "L = px + q/x"
 			p = s.n
 			q = s.P
-			ws = [pair.call(s.n, 2 * s.P, R_WALL)]
-			gen = [{"v0": Q.new(s.P), "v1": Q.new(s.n)}, {"v0": Q.new(2 * s.n), "v1": Q.new(s.P)}, {"v0": Q.new(s.n + 1), "v1": Q.new(s.P)}, {"v0": Q.new(s.n), "v1": Q.new(s.P + s.n)}]
+			ws = [pair.call(s.n, 2 * s.P, R_WALL), pair.call(s.P, s.n, R_PQ_SWAP)]
+			gen = [{"v0": Q.new(2 * s.n), "v1": Q.new(s.P)}, {"v0": Q.new(s.n + 1), "v1": Q.new(s.P)}, {"v0": Q.new(s.n), "v1": Q.new(s.P + s.n)}]
 			steps = ["The fence is L = %sx + y, and the area gives xy = %d, so y = %d/x." % [Fmt.lead(s.n), s.P, s.P],
 				"Substitute: L = %sx + %d/x." % [Fmt.lead(s.n), s.P]]
 		"can":
@@ -639,8 +657,8 @@ func u_show_objective(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			p = s.e
 			q = side
 			var other_ends: int = s.rate_end * (3 - s.ends)
-			ws = [pair.call(other_ends, side, R_ENDS), pair.call(s.e, side / 2, R_SIDE)]
-			gen = [{"v0": Q.new(side), "v1": Q.new(s.e)}, {"v0": Q.new(s.e), "v1": Q.new(2 * side)}, {"v0": Q.new(s.e + 1), "v1": Q.new(side)}, {"v0": Q.new(s.e), "v1": Q.new(side + 2)}]
+			ws = [pair.call(other_ends, side, R_ENDS), pair.call(s.e, side / 2, R_SIDE), pair.call(side, s.e, R_PQ_SWAP)]
+			gen = [{"v0": Q.new(s.e), "v1": Q.new(2 * side)}, {"v0": Q.new(s.e + 1), "v1": Q.new(side)}, {"v0": Q.new(s.e), "v1": Q.new(side + 2)}]
 			var below := "%d/r²" % m if pi1 else "%d/(πr²)" % m
 			var flat := "%sπr²" % Fmt.lead(s.e)
 			var round_ := "2πrh" if s.rate_side == 1 else "%dπrh" % (2 * s.rate_side)
@@ -651,8 +669,8 @@ func u_show_objective(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			target = "V = (px − x³)/q"
 			p = s.P
 			q = 4
-			ws = [pair.call(s.P, 2, R_FACES)]
-			gen = [{"v0": Q.new(4), "v1": Q.new(s.P)}, {"v0": Q.new(s.P), "v1": Q.new(8)}, {"v0": Q.new(2 * s.P), "v1": Q.new(4)}, {"v0": Q.new(s.P), "v1": Q.new(3)}]
+			ws = [pair.call(s.P, 2, R_FACES), pair.call(4, s.P, R_PQ_SWAP)]
+			gen = [{"v0": Q.new(s.P), "v1": Q.new(8)}, {"v0": Q.new(2 * s.P), "v1": Q.new(4)}, {"v0": Q.new(s.P), "v1": Q.new(3)}]
 			steps = ["The base has area x², and each of the 4 sides has area xh: x² + 4xh = %d, so h = (%d − x²)/(4x)." % [s.P, s.P], "V = x²h = x² × (%d − x²)/(4x)." % s.P, "Cancel an x: V = x(%d − x²)/4 = (%dx − x³)/4." % [s.P, s.P]]
 	var ans := Answer.make("named", {"v0": Q.of(p), "v1": Q.of(q)}, {"names": ["p", "q"]})
 	ans.exact = true
@@ -660,7 +678,7 @@ func u_show_objective(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "State the values of p and q."
 	out.answer = ans
 	out.wrongs = ws
-	out.generic = gen
+	out.fillers = gen
 	out.methods = {"constraint-substitution": method(steps + ["So " + Answer.text(ans) + "."], ans.values)}
 	return out
 
@@ -767,7 +785,7 @@ func u_derivative_of_objective(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	steps.append("So %s." % Answer.text(ans))
 	out.answer = ans
 	out.wrongs = ws
-	out.generic = gen
+	out.fillers = gen
 	out.methods = {"differentiate-and-test": method(steps, ans.values)}
 	return out
 
@@ -844,7 +862,7 @@ func u_solve_stationary(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"can":
 			ws.append(like(ans, _no_root(s), R_NO_ROOT))
 	out.wrongs = ws
-	out.generic = spread(ans, s.x)
+	out.fillers = spread(ans, s.x)
 	var steps: Array = ["%s." % d_text(s)]
 	steps += solve_lines(s)
 	steps.append(test_line(s))
@@ -927,7 +945,7 @@ func u_exact_stationary(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	steps.append(say(ans))
 	out.answer = ans
 	out.wrongs = ws
-	out.generic = gen
+	out.fillers = gen
 	out.methods = {"differentiate-and-test": method(steps, ans.values)}
 	return out
 
@@ -980,7 +998,7 @@ func u_justify_second_derivative(_rep: String, s: Dictionary, _rng: Seeded) -> D
 		return typed(txt.call(v, kind), {"v": as_q.call(v), "kind": kind}, ref)
 	out.answer = ans
 	out.wrongs = [mk.call(s.d2, nature_of(s, true), R_SWAP)]
-	out.generic = [mk.call(scaled(s.d2, 2), nature_of(s)).values, mk.call(scaled(s.d2, 1, 2), nature_of(s)).values,
+	out.fillers = [mk.call(scaled(s.d2, 2), nature_of(s)).values, mk.call(scaled(s.d2, 1, 2), nature_of(s)).values,
 		mk.call(scaled(s.d2, 2), nature_of(s, true)).values, mk.call(scaled(s.d2, 1, 2), nature_of(s, true)).values, mk.call(scaled(s.d2, 3), nature_of(s)).values]
 	var sign_ := "negative" if s.big else "positive"
 	out.methods = {"second-derivative-test": method([d_text(s) + ".", dd_text(s) + ".",
@@ -1013,9 +1031,10 @@ func u_justify_sign_change(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var ts := OptimisationSituation.terms(s)
 	var f_lo: Variant = OptimisationSituation.at(s, ts, s.lo)
 	var f_hi: Variant = OptimisationSituation.at(s, ts, s.hi)
-	out.wrongs = [mk.call(s.dlo, s.dhi, nature_of(s, true), R_SWAP), mk.call(f_lo, f_hi, nature_of(s), R_SIGN_F)]
-	out.generic = [mk.call(scaled(s.dlo, 2), s.dhi, nature_of(s)).values, mk.call(s.dlo, scaled(s.dhi, 2), nature_of(s)).values,
-		mk.call(scaled(s.dlo, -1), scaled(s.dhi, -1), nature_of(s, true)).values, mk.call(scaled(s.dhi, 1), scaled(s.dlo, 1), nature_of(s, true)).values]
+	out.wrongs = [mk.call(s.dlo, s.dhi, nature_of(s, true), R_SWAP), mk.call(f_lo, f_hi, nature_of(s), R_SIGN_F),
+		mk.call(scaled(s.dhi, 1), scaled(s.dlo, 1), nature_of(s, true), R_GRAD_SWAP)]
+	out.fillers = [mk.call(scaled(s.dlo, 2), s.dhi, nature_of(s)).values, mk.call(s.dlo, scaled(s.dhi, 2), nature_of(s)).values,
+		mk.call(scaled(s.dlo, -1), scaled(s.dhi, -1), nature_of(s, true)).values]
 	var change := "positive to negative" if s.big else "negative to positive"
 	out.methods = {"first-derivative-sign-table": method([d_text(s) + ".",
 		"At %s = %s it is %s, and at %s = %s it is %s." % [v, W(s.lo), P_(s, s.dlo), v, W(s.hi), P_(s, s.dhi)],
@@ -1069,7 +1088,7 @@ func u_optimum_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if c != "" and rep != "equation":
 		ws.append(other(c, R_X))
 	out.wrongs = ws
-	out.generic = spread(ans, s.best)
+	out.fillers = spread(ans, s.best)
 	var steps: Array = ["%s." % d_text(s)]
 	steps += solve_lines(s, rep)
 	steps.append(test_line(s))
@@ -1123,7 +1142,7 @@ func u_other_dimension(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := amount(s, w + " = ", s.y, " " + unit(s))
 	out.answer = ans
 	out.wrongs = [like(ans, s.x, R_FIRST)]
-	out.generic = spread(ans, s.y)
+	out.fillers = spread(ans, s.y)
 	var steps: Array = [_one_variable_line(s), "%s." % d_text(s)]
 	steps += solve_lines(s)
 	steps.append(test_line(s))
@@ -1149,7 +1168,7 @@ func u_quadratic_optimum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var y0: int = s.F
 	var fence_all: Variant = scaled(s.best, 1, 2)
 	out.wrongs = [other("x = %s m" % _sf(s.x), R_X), like(ans, fence_all, R_WALL)]
-	out.generic = spread(ans, s.best)
+	out.fillers = spread(ans, s.best)
 	var fx := "A = x(%d − %sx)" % [y0, Fmt.lead(s.n)]
 	var area_line := "A = %s × (%d − %d × %s) = %s." % [W(s.x), s.F, s.n, W(s.x), W(s.best)]
 	out.methods = {
@@ -1171,7 +1190,7 @@ func u_box_best_cut(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.answer = ans
 	var half: Q = Q.new(mini(s.w, s.h), 2)
 	out.wrongs = [like(ans, s.other, R_DOMAIN), like(ans, half if s.x is Q else half.to_float(), R_ROOT)]
-	out.generic = spread(ans, s.x)
+	out.fillers = spread(ans, s.x)
 	var steps: Array = ["V = %s." % show(OptimisationSituation.terms(s), "x"), "%s." % d_text(s)]
 	steps += solve_lines(s)
 	steps.append(test_line(s))
@@ -1203,7 +1222,7 @@ func u_route_best_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := amount(s, "x = ", s.x, " km")
 	out.answer = ans
 	out.wrongs = [like(ans, s.b - s.x, R_FROM_B)]
-	out.generic = spread(ans, s.x)
+	out.fillers = spread(ans, s.x)
 	out.methods = {"gdc-graph-optimum": method(["Graph the function on the GDC, for 0 ≤ x ≤ %d." % s.b, "The minimum tool gives x = %s." % W(s.x), say(ans)], ans.values)}
 	return out
 
@@ -1214,7 +1233,7 @@ func u_route_least_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := amount(s, obj(s) + " = ", s.best, value_tail(s))
 	out.answer = ans
 	out.wrongs = [other("x = %s km" % Fmt.sf(s.x), R_X), like(ans, OptimisationSituation.route_value(s, float(s.b)), R_DIRECT)]
-	out.generic = spread(ans, s.best)
+	out.fillers = spread(ans, s.best)
 	out.methods = {"gdc-graph-optimum": method(["Graph the function on the GDC, for 0 ≤ x ≤ %d." % s.b, "The minimum tool gives x = %s and %s = %s." % [W(s.x), obj(s), W(s.best)], say(ans)], ans.values)}
 	return out
 
@@ -1232,7 +1251,8 @@ func u_closest_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.wrongs = [like(ans, Q.new(s.px), R_ABOVE)]
 		if s.px > s.k:
 			out.wrongs.append(like(ans, Q.new(s.px - s.k), R_CHAIN))
-		out.generic = [like(ans, Q.new(s.px).add(Q.new(s.k, 2))).values, like(ans, s.x.add(1)).values, like(ans, s.x.mul(2)).values, like(ans, s.x.add(2)).values]
+		out.wrongs.append(like(ans, Q.new(s.px).add(Q.new(s.k, 2)), R_SOLVE_SIGN))
+		out.fillers = [like(ans, s.x.add(1)).values, like(ans, s.x.mul(2)).values, like(ans, s.x.add(2)).values]
 		var sq := "(x − %d)² + %sx" % [s.px, Fmt.lead(s.k)]
 		out.methods = {"differentiate-and-test": method(["PQ² = (x − %d)² + y² = %s. The distance is least where PQ² is least." % [s.px, sq],
 			"d(PQ²)/dx = 2(x − %d) + %d." % [s.px, s.k], "2(x − %d) + %d = 0, so x = %s." % [s.px, s.k, W(s.x)],
@@ -1243,7 +1263,7 @@ func u_closest_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.lines = ["A curve is y = √(%d − %s ln x), for 0 < x ≤ %s." % [s.c, Fmt.lead(s.k), up], "Q(x, y) is a point on the curve, and O is the origin."]
 	out.asked = "Find the x-coordinate of the point Q that is closest to O."
 	out.wrongs = [] if m == 1 else [like(ans, Q.new(m * m), R_NO_ROOT)]
-	out.generic = [like(ans, Q.new(m + 1)).values, like(ans, Q.new(s.k)).values, like(ans, Q.new(2 * m + 1)).values, like(ans, Q.new(m + 2)).values, like(ans, Q.new(1, m + 1)).values]
+	out.fillers = [like(ans, Q.new(m + 1)).values, like(ans, Q.new(s.k)).values, like(ans, Q.new(2 * m + 1)).values, like(ans, Q.new(m + 2)).values, like(ans, Q.new(1, m + 1)).values]
 	out.methods = {"differentiate-and-test": method(["OQ² = x² + y² = x² + %d − %s ln x. The distance is least where OQ² is least." % [s.c, Fmt.lead(s.k)],
 		"d(OQ²)/dx = 2x − %d/x." % s.k, "2x − %d/x = 0, so x² = %d and x = %d, as x > 0." % [s.k, s.k / 2, m],
 		"The second derivative is 2 + %d/x², which is positive, so this is a minimum." % s.k, say(ans)], ans.values)}

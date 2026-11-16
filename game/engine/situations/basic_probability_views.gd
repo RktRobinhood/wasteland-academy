@@ -28,6 +28,12 @@ const R_EVENT := "t4-probability-basic#9"
 const R_BOUNDARY := "t4-probability-basic#10"
 const R_ONE_RULE := "t4-probability-basic#11"
 const R_WHOLE_RUN := "t4-probability-basic#12"
+## FAL-820.
+const R_NOT_EVENT := "t4-probability-basic#13"
+const R_UNCHANGED := "t4-probability-basic#14"
+const R_COLUMN := "t4-probability-basic#15"
+const R_ROW_OR_COL := "t4-probability-basic#16"
+const R_AVERAGED := "t4-probability-basic#17"
 
 const UNKNOWNS := ["bag-counter", "bag-after-change", "two-way-whole", "list-data", "grid-total-equals", "grid-total-at-least",
 	"list-then-count", "complement-given", "complement-table", "complement-count", "complement-two-rules", "at-least-one-same",
@@ -101,12 +107,12 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var v: Q = out.answer.values.v
 	var unit := near_unit(s, v)
 	for k in [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7]:
-		out.generic.append_array(fair(s, [v.add(unit.mul(Q.new(k)))]))
+		out.fillers.append_array(fair(s, [v.add(unit.mul(Q.new(k)))]))
 	# A small denominator has few near values, so nearby denominators fill in.
 	if s.form == "frac":
 		for den in [v.d + 1, v.d + 2, v.d * 2, v.d + 3]:
 			for k in range(1, den):
-				out.generic.append_array(fair(s, [Q.new(k, den)]))
+				out.fillers.append_array(fair(s, [Q.new(k, den)]))
 	return out
 
 
@@ -230,8 +236,8 @@ func u_bag_counter(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.table = {"rows": [["Colour", heads], ["Number", s.counts.map(func(c): return str(c))]]}
 	else:
 		out.lines = [bag_line(s)]
-	out.wrongs = wr(s, Q.new(s.target.size(), s.counts.size()), R_SAME_SHARE) + wr(s, Q.new(n, total - n), R_REST)
-	out.generic = fair(s, [Q.new(total - n, total), Q.new(1, total), Q.new(n + 1, total)])
+	out.wrongs = wr(s, Q.new(s.target.size(), s.counts.size()), R_SAME_SHARE) + wr(s, Q.new(n, total - n), R_REST) + wr(s, Q.new(total - n, total), R_NOT_EVENT)
+	out.fillers = fair(s, [Q.new(1, total), Q.new(n + 1, total)])
 	var have := "%d of them are %s." % [n, event] if s.target.size() == 1 else "%s = %d of them are %s." % [plus(s.target.map(func(t): return s.counts[t])), n, event]
 	out.methods = {"count-ratio": method(["Every %s is equally likely, so count %s, not colours: %s = %d in all." % [b[2], b[1], plus(s.counts), total],
 		have, "P = n(A) ÷ n(U): " + ratio(s, n, total), final_step(ans)], ans.values)}
@@ -252,7 +258,8 @@ func u_bag_after_change(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.wrongs = wr(s, Q.new(left, total), R_OLD_TOTAL)
 	if s.target == s.changed:
 		out.wrongs += wr(s, Q.new(had, total + step), R_OLD_COUNT)
-	out.generic = fair(s, [Q.new(had, total), Q.new(total + step - left, total + step), Q.new(left, total + step + 1)])
+	out.wrongs += wr(s, Q.new(had, total), R_UNCHANGED) + wr(s, Q.new(total + step - left, total + step), R_NOT_EVENT)
+	out.fillers = fair(s, [Q.new(left, total + step + 1)])
 	var new_total := total + step
 	var count_step := "The %s stay at %d." % [colour(s, s.target) + " " + b[1], had] if s.target != s.changed else "The %s go from %d to %d." % [colour(s, s.target) + " " + b[1], had, left]
 	out.methods = {"count-ratio": method(["There were %s = %d %s, and now there are %d %s %d = %d." % [plus(s.counts), total, b[1], total, "−" if step < 0 else "+", absi(step), new_total],
@@ -287,13 +294,14 @@ func u_two_way_whole(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": ans, "table": two_way(s), "lines": ["The table shows the %s at an outpost." % c.who],
 		"asked": "One %s is chosen at random from the whole table. Find the probability that the %s %s." % [c.one, c.one, event]}
 	if s.what == "cell":
-		out.wrongs = wr(s, Q.new(cell, row_total), R_ROW) + wr(s, Q.new(cell, grand - cell), R_REST)
-		out.generic = fair(s, [Q.new(cell, col_total), Q.new(row_total, grand), Q.new(col_total, grand), Q.new(grand - cell, grand)])
+		out.wrongs = wr(s, Q.new(cell, row_total), R_ROW) + wr(s, Q.new(cell, grand - cell), R_REST) + wr(s, Q.new(cell, col_total), R_COLUMN) \
+			+ wr(s, Q.new(row_total, grand), R_ROW_OR_COL) + wr(s, Q.new(col_total, grand), R_ROW_OR_COL) + wr(s, Q.new(grand - cell, grand), R_NOT_EVENT)
+		out.fillers = []
 		out.methods = {"count-ratio": method(["The %s comes from the whole table, so n(U) is the grand total, %d." % [c.one, grand],
 			"The row '%s' meets the column '%s' at %d, so n(A) = %d." % [c.rows[s.r], c.cols[s.c], cell, cell], "P = n(A) ÷ n(U): " + ratio(s, cell, grand), final_step(ans)], ans.values)}
 	else:
-		out.wrongs = wr(s, Q.new(col_total, grand - col_total), R_REST)
-		out.generic = fair(s, [Q.new(cell, col_total), Q.new(cell, grand), Q.new(grand - col_total, grand), Q.new(1, 3)])
+		out.wrongs = wr(s, Q.new(col_total, grand - col_total), R_REST) + wr(s, Q.new(grand - col_total, grand), R_NOT_EVENT) + wr(s, Q.new(1, 3), R_SAME_SHARE)
+		out.fillers = fair(s, [Q.new(cell, col_total), Q.new(cell, grand)])
 		out.methods = {"count-ratio": method(["The %s comes from the whole table, so n(U) is the grand total, %d." % [c.one, grand],
 			"The total of the column '%s' is %d, so n(A) = %d." % [c.cols[s.c], col_total, col_total], "P = n(A) ÷ n(U): " + ratio(s, col_total, grand), final_step(ans)], ans.values)}
 	return out
@@ -322,8 +330,8 @@ func u_list_data(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"asked": "One of these %s is chosen at random. Find the probability that %s %s on that %s." % [l[3], op_words(s.op, s.k), l[4], l[2]]}
 	var boundary: int = s.vals.filter(func(x): return int(x) == s.k).size()
 	var slip: int = hit + boundary if s.op != "least" else hit - boundary
-	out.wrongs = wr(s, Q.new(inside, kinds.size()), R_SAME_SHARE) + wr(s, Q.new(hit, n - hit), R_REST) + wr(s, Q.new(slip, n), R_BOUNDARY)
-	out.generic = fair(s, [Q.new(n - hit, n), Q.new(hit + 1, n), Q.new(hit, n + 1)])
+	out.wrongs = wr(s, Q.new(inside, kinds.size()), R_SAME_SHARE) + wr(s, Q.new(hit, n - hit), R_REST) + wr(s, Q.new(slip, n), R_BOUNDARY) + wr(s, Q.new(n - hit, n), R_NOT_EVENT)
+	out.fillers = fair(s, [Q.new(hit + 1, n), Q.new(hit, n + 1)])
 	var hits: Array = s.vals.filter(func(x): return BasicProbabilitySituation.list_test(s.op, int(x), s.k))
 	var note := ", so a value of %d does not count" % s.k if s.op != "least" else ", so a value of %d counts" % s.k
 	out.methods = {"count-ratio": method(["There are %d %s in the list, each equally likely, so n(U) = %d." % [n, l[3], n],
@@ -408,8 +416,8 @@ func u_grid_total_equals(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	_grid_question(rep, s, out)
 	var test := func(x: int, y: int) -> bool: return x + y == s.k
 	var kinds := BasicProbabilitySituation.distinct(ts).size()
-	out.wrongs = wr(s, Q.new(1, kinds), R_SAME_SHARE) + wr(s, Q.new(n, all - n), R_REST)
-	out.generic = fair(s, [Q.new(all - n, all), Q.new(n + 1, all), Q.new(n, kinds + all), Q.new(1, all)])
+	out.wrongs = wr(s, Q.new(1, kinds), R_SAME_SHARE) + wr(s, Q.new(n, all - n), R_REST) + wr(s, Q.new(all - n, all), R_NOT_EVENT)
+	out.fillers = fair(s, [Q.new(n + 1, all), Q.new(n, kinds + all), Q.new(1, all)])
 	var pairs := pairs_of(s, test)
 	out.methods = _grid_methods(rep, s, ans, n, all, by_row(s, test), "The total is %d for %s." % [s.k, listing(pairs)])
 	return out
@@ -427,8 +435,8 @@ func u_grid_total_at_least(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var ans := prob_ans(s, v)
 	var out := {"answer": ans, "asked": "Find the probability that the total is at least %d." % s.k}
 	_grid_question(rep, s, out)
-	out.wrongs = wr(s, Q.new(kinds, ds.size()), R_SAME_SHARE) + wr(s, Q.new(above, all), R_BOUNDARY) + wr(s, Q.new(n, all - n), R_REST)
-	out.generic = fair(s, [Q.new(all - n, all), Q.new(n + 1, all), Q.new(n, all + ds.size())])
+	out.wrongs = wr(s, Q.new(kinds, ds.size()), R_SAME_SHARE) + wr(s, Q.new(above, all), R_BOUNDARY) + wr(s, Q.new(n, all - n), R_REST) + wr(s, Q.new(all - n, all), R_NOT_EVENT)
+	out.fillers = fair(s, [Q.new(n + 1, all), Q.new(n, all + ds.size())])
 	var rows := by_row(s, test)
 	out.methods = _grid_methods(rep, s, ans, n, all, rows, "A total of %d itself counts. Taking each first result in turn, there are %s = %d such outcomes." % [s.k, plus(rows), n])
 	return out
@@ -512,8 +520,8 @@ func u_list_then_count(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			hits_text = "The number is %s for %s." % [want, listing(ok.map(func(x): return str(x)))]
 	var v := Q.new(hit, all)
 	var ans := prob_ans(s, v)
-	var out := {"answer": ans, "lines": lines, "asked": asked, "wrongs": wrongs + wr(s, Q.new(hit, all - hit), R_REST)}
-	out.generic = fair(s, [Q.new(all - hit, all), Q.new(hit + 1, all), Q.new(hit, all + 1), Q.new(hit, all * 2)])
+	var out := {"answer": ans, "lines": lines, "asked": asked, "wrongs": wrongs + wr(s, Q.new(hit, all - hit), R_REST) + wr(s, Q.new(all - hit, all), R_NOT_EVENT)}
+	out.fillers = fair(s, [Q.new(hit + 1, all), Q.new(hit, all + 1), Q.new(hit, all * 2)])
 	out.methods = {"list-sample-space": method([space, hits_text, "P = n(A) ÷ n(U): " + ratio(s, hit, all), final_step(ans)], ans.values)}
 	return out
 
@@ -543,7 +551,7 @@ func u_complement_given(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = ["The probability that %s is %s." % [e[0], shown]]
 		out.asked = "Find the probability that %s." % e[1]
 	out.wrongs = wr(s, s.p, R_EVENT)
-	out.generic = []
+	out.fillers = []
 	out.methods = {"one-minus": method(["A and A′ cover every outcome without overlapping, so P(A′) = 1 − P(A).", "1 − %s = %s" % [shown, T(s, v)], final_step(ans)], ans.values)}
 	return out
 
@@ -577,7 +585,7 @@ func u_complement_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		out.methods = {"one-minus": method(["There are %s = %d %s, so P(%s) = %s." % [plus(s.counts), u, c[1], name, ratio(s, f, u)], "P(not %s) = 1 − %s = %s" % [name, T(s, Q.new(f, u)), T(s, v)], final_step(ans)], ans.values),
 			"count-complement": method(["There are %s = %d %s in all." % [plus(s.counts), u, c[1]], "%s = %d of them are not %s." % [plus(others), u - f, name], "P = n(A′) ÷ n(U): " + ratio(s, u - f, u), final_step(ans)], ans.values)}
 	out.wrongs = wr(s, Q.new(f, u), R_EVENT) + wr(s, Q.new(s.counts.size() - 1, s.counts.size()), R_SAME_SHARE)
-	out.generic = fair(s, [Q.new(f, u - f), Q.new(u - f, u + 1)])
+	out.fillers = fair(s, [Q.new(f, u - f), Q.new(u - f, u + 1)])
 	return out
 
 
@@ -610,7 +618,7 @@ func u_complement_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := prob_ans(s, v)
 	out.answer = ans
 	out.wrongs = out.wrongs + wr(s, Q.new(n, all), R_EVENT)
-	out.generic = fair(s, [Q.new(n, all - n), Q.new(all - n, all + 1), Q.new(all - n - 1, all), Q.new(all - n + 1, all)])
+	out.fillers = fair(s, [Q.new(n, all - n), Q.new(all - n, all + 1), Q.new(all - n - 1, all), Q.new(all - n + 1, all)])
 	out.methods = {"one-minus": method([space, "%s, so P(A) = %s." % [event, ratio(s, n, all)], "P(A′) = 1 − %s = %s" % [T(s, Q.new(n, all)), T(s, v)], final_step(ans)], ans.values),
 		"count-complement": method([space, "%s, which leaves %d − %d = %d outcomes." % [event, all, n, all - n], "P = n(A′) ÷ n(U): " + ratio(s, all - n, all), final_step(ans)], ans.values)}
 	return out
@@ -635,8 +643,8 @@ func u_complement_two_rules(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		out.table = totals_grid(s) if s.rule == "ends" else gaps_grid(s)
 	else:
 		out.lines = ["A stall runs a game. " + faces_line(s)] + rule_lines(s)
-	out.wrongs = wr(s, Q.new(all - int(w[0]), all), R_ONE_RULE) + wr(s, Q.new(all - int(w[1]), all), R_ONE_RULE) + wr(s, Q.new(int(w[0]) + int(w[1]), all), R_EVENT)
-	out.generic = fair(s, [Q.new(1, 3), Q.new(none + 1, all), Q.new(none, all + 1)])
+	out.wrongs = wr(s, Q.new(all - int(w[0]), all), R_ONE_RULE) + wr(s, Q.new(all - int(w[1]), all), R_ONE_RULE) + wr(s, Q.new(int(w[0]) + int(w[1]), all), R_EVENT) + wr(s, Q.new(1, 3), R_SAME_SHARE)
+	out.fillers = fair(s, [Q.new(none + 1, all), Q.new(none, all + 1)])
 	var space := "There are %d × %d = %d equally likely outcomes." % [s.xs.size(), s.ys.size(), all]
 	var big := "A big prize: %s = %d outcomes." % [plus(by_row(s, _big_test(s))), w[0]]
 	var small := "A small prize: %s = %d outcomes." % [plus(by_row(s, _small_test(s))), w[1]]
@@ -668,7 +676,7 @@ func _at_least_one(s: Dictionary, ps: Array, out: Dictionary) -> Dictionary:
 	var product := Q.new(1)
 	for p in ps:
 		product = product.mul(p)
-	out.generic = fair(s, [product, ps[0], Q.new(1).sub(ps[0])])
+	out.fillers = fair(s, [product, ps[0], Q.new(1).sub(ps[0])])
 	var qs: Array = ps.map(func(p): return T(s, Q.new(1).sub(p)))
 	var miss := "The chance that it doesn't happen on one go is %s" % qs[0] if s.ask == "at-least-one-same" else "The chances that it doesn't happen are %s" % listing(qs)
 	out.methods = {"at-least-one": method(["'At least one' is every case except 'none', so P(at least one) = 1 − P(none).",
@@ -739,8 +747,8 @@ func u_rf_from_table(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		out.lines = ["%s is %s %d times. The table shows the frequency of each score." % [c[0], c[1], total]]
 		out.table = score_rows(s)
-	out.wrongs = wr(s, Q.new(1, s.counts.size()), R_SAME_SHARE) + wr(s, Q.new(f, total - f), R_REST)
-	out.generic = fair(s, [Q.new(total - f, total), Q.new(f + 1, total), Q.new(f, total * 2)])
+	out.wrongs = wr(s, Q.new(1, s.counts.size()), R_SAME_SHARE) + wr(s, Q.new(f, total - f), R_REST) + wr(s, Q.new(total - f, total), R_NOT_EVENT)
+	out.fillers = fair(s, [Q.new(f + 1, total), Q.new(f, total * 2)])
 	out.methods = {"freq-over-trials": method(["The relative frequency is the frequency ÷ the number of trials.", "A score of %d has frequency %d, out of %d trials." % [score, f, total],
 		ratio(s, f, total), final_step(ans)], ans.values)}
 	return out
@@ -774,7 +782,8 @@ func u_rf_total_to_find(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.wrongs = wr(s, Q.new(f, total - f), R_REST)
 	if s.least:
 		out.wrongs += wr(s, Q.new(f - first, total), R_BOUNDARY)
-	out.generic = fair(s, [Q.new(total - f, total), Q.new(first, total), Q.new(f + 1, total), Q.new(f, total + 1)])
+	out.wrongs += wr(s, Q.new(total - f, total), R_NOT_EVENT)
+	out.fillers = fair(s, [Q.new(first, total), Q.new(f + 1, total), Q.new(f, total + 1)])
 	out.methods = {"freq-over-trials": method(["The table has no total, so add the frequencies: %s = %d." % [plus(s.counts), total], hit_step,
 		("Frequency ÷ total: " if s.grouped else "The estimate is frequency ÷ trials: ") + ratio(s, f, total), final_step(ans)], ans.values)}
 	return out
@@ -786,8 +795,8 @@ func u_rf_graph_estimate(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var out := {"answer": ans, "lines": [c.line], "asked": "Use the graph to estimate the probability that %s." % c.event}
 	var x1: int = s.curve[-1][0]
 	out.graph = {"kind": "cumfreq", "x0": 0, "x1": x1, "dx": s.dx, "y1": 1, "dy": 0.02, "curve": s.curve, "x_name": c.x, "y_name": "relative frequency"}
-	out.wrongs = wr(s, s.early, R_SHORT_RUN)
-	out.generic = fair(s, [Q.new(1).sub(s.settle), s.settle.add(Q.new(1, 10)), s.settle.sub(Q.new(1, 10)), s.settle.add(Q.new(6, 100))])
+	out.wrongs = wr(s, s.early, R_SHORT_RUN) + wr(s, Q.new(1).sub(s.settle), R_NOT_EVENT)
+	out.fillers = fair(s, [s.settle.add(Q.new(1, 10)), s.settle.sub(Q.new(1, 10)), s.settle.add(Q.new(6, 100))])
 	out.methods = {"long-run": method(["The early points swing about, because a few trials say little. The first plotted point is %s." % D(s.early),
 		"With many trials the curve settles: by %d trials it stays at about %s." % [x1, D(s.settle)],
 		"The long-run value is the best estimate of the probability.", final_step(ans)], ans.values)}
@@ -810,7 +819,8 @@ func u_more_reliable(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = ["%s and %s each test %s." % [who[0], who[1], c.of], "%s %s." % [who[0], c.test % [s.ns[0], s.hits[0]]], "%s %s." % [who[1], c.test % [s.ns[1], s.hits[1]]]]
 	out.wrongs = wr(s, slip, R_SHORT_RUN)
 	var mean: Q = v.add(slip).mul(Q.new(1, 2))
-	out.generic = fair(s, [mean, Q.new(1).sub(v), Q.new(s.ns[big] - s.hits[big], s.ns[big]), v.add(Q.new(1, 20))])
+	out.wrongs += wr(s, mean, R_AVERAGED) + wr(s, Q.new(1).sub(v), R_NOT_EVENT)
+	out.fillers = fair(s, [v.add(Q.new(1, 20))])
 	out.methods = {"freq-over-trials": method(["More trials give a more reliable estimate: %s's %d beat %s's %d." % [who[big], s.ns[big], who[small], s.ns[small]],
 		"The estimate is frequency ÷ trials: " + ratio(s, s.hits[big], s.ns[big]), final_step(ans)], ans.values)}
 	return out
@@ -849,6 +859,8 @@ func u_gamblers_fallacy(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 			out.wrongs = wr(s, Q.new(run + 1, m), R_DUE)
 			why = "Each spin is independent: the spinner has no memory of the last %d." % run
 			count = "One of the %d equally likely sectors is red, so P = 1/%d." % [m, m]
-	out.generic = fair(s, [Q.new(1, m + 1), Q.new(m - 1, m), Q.new(1, m * 2), Q.new(1, m + run), Q.new(1, m * m)])
+	out.wrongs += wr(s, Q.new(m - 1, m), R_NOT_EVENT)
+	out.fillers = fair(s, [Q.new(1, m + 1), Q.new(1, m * 2), Q.new(1, m + run), Q.new(1, m * m)])
+
 	out.methods = {"count-ratio": method([why, count, final_step(ans)], ans.values)}
 	return out

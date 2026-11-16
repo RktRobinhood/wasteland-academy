@@ -30,6 +30,38 @@ const NEED := {
 }
 
 
+## fn-exponential-model's own slips, by index (FAL-820).
+const EM := "fn-exponential-model#"
+const R_ADD_P0 := EM + "13"
+const R_DIRECTION := EM + "14"
+const R_START := EM + "15"
+const R_NO_C := EM + "16"
+const R_K_SIGN := EM + "17"
+const R_TIMES_T := EM + "18"
+const R_T_SWAP := EM + "19"
+const R_LOG_FIRST := EM + "20"
+const R_NO_LOG := EM + "21"
+const R_TIMES_TIME := EM + "22"
+const R_LINE := EM + "23"
+const R_FROM_LATER := EM + "24"
+const R_TIMES_TEN := EM + "25"
+const R_DIVIDE_X0 := EM + "26"
+const R_NO_X0 := EM + "27"
+const R_NO_M := EM + "28"
+const R_ONE_MINUS := EM + "29"
+const R_TENTHS := EM + "30"
+const R_UPSIDE := EM + "31"
+const R_STEP_UP := EM + "32"
+const R_DIFF := EM + "33"
+const R_A_START := EM + "34"
+const R_HALF_NO_LOG := EM + "35"
+const R_COUNT := EM + "36"
+const R_WHOLE_FACTOR := EM + "37"
+const R_ONE_STEP := EM + "38"
+const R_RATIO_NO_LOG := EM + "39"
+const R_LINEAR := "SL2.9.exp-model#1"
+const R_ROUNDED := "SL2.10.context-apply#0"
+
 ## The largest wrong option: bigger ones overflow the exact marking of a typed answer.
 const MAX_OPTION := 1e6
 
@@ -44,9 +76,12 @@ func need(unknown: String, rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
+	# More slips than the options have room for: a stream order, so each can show.
+	if out.wrongs.size() > 2:
+		out.wrongs = rng.shuffled(out.wrongs)
 	out.trap = trap(out.answer)
 	return out
 
@@ -93,10 +128,18 @@ static func wrong_x(out: Dictionary, x: float, ref: String = "") -> void:
 		out.wrongs.append(wrong({"v": qf(x)}, ref))
 
 
+## Plain wrong measures, still unsorted, for the views that share this helper.
 static func generic_x(out: Dictionary, xs: Array) -> void:
 	for x in xs:
 		if is_finite(x) and x > 0.0 and x < MAX_OPTION:
 			out.generic.append({"v": qf(x)})
+
+
+## Wrong measures with no slip behind them (FAL-820).
+static func filler_x(out: Dictionary, xs: Array) -> void:
+	for x in xs:
+		if is_finite(x) and x > 0.0 and x < MAX_OPTION:
+			out.fillers.append({"v": qf(x)})
 
 
 ## Q7's rounding trap: the answer to 2 s.f., for a measure or a percentage change that
@@ -255,7 +298,7 @@ func u_initial_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {
 		"asked": "Find the initial value, %s(0)." % y, "lines": lines(rep, s), "given": given_of(s), "answer": ans,
 		"wrongs": [wrong({"v": s.A}, "SL2.9.find-parameters#0"), wrong({"v": s.C}, "SL2.9.find-parameters#1")],
-		"generic": [{"v": s.C.sub(s.A)}, {"v": s.A.neg()}],
+		"fillers": [{"v": s.C.sub(s.A)}, {"v": s.A.neg()}],
 		"methods": {
 			"substitute-model": {"result": ans.values, "steps": [
 				"Put t = 0: e⁰ = 1.", "%s(0) = %s %s %s × 1 = %s" % [y, N(s.C), "+" if s.A.sign() > 0 else "−", N(s.A.abs_q()), N(start)], final]},
@@ -270,14 +313,15 @@ func u_predict_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var y := sym(s)
 	var x := ExpModelSituation.value(s, s.t2)
 	var out := {"asked": "Find %s(%d), the value after %d %s." % [y, s.t2, s.t2, s.ctx.time], "lines": lines(rep, s),
-		"given": given_of(s), "answer": measure("%s(%d) = " % [y, s.t2], x), "wrongs": [], "generic": []}
+		"given": given_of(s), "answer": measure("%s(%d) = " % [y, s.t2], x), "wrongs": [], "fillers": []}
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown." % model(s), "t is the time in %s." % s.ctx.time]
 		out.graph = model_graph(s, s.t2 * 1.3, [[0, s.P0.to_float(), Fmt.point(0, s.P0)]], false)
 	wrong_x(out, s.P0.to_float() * s.a.to_float() * s.t2, "SL2.9.exp-model#1")
 	wrong_x(out, s.P0.to_float() * (1.0 + s.r / 100.0 * s.t2), "SL2.9.exp-model#1")
 	wrong_x(out, ExpModelSituation.value(s, s.t2 - 1), "SL2.9.exp-model#2")
-	generic_x(out, [ExpModelSituation.value(s, s.t2 + 1), s.P0.to_float() + pow(s.a.to_float(), s.t2),
+	wrong_x(out, s.P0.to_float() + pow(s.a.to_float(), s.t2), R_ADD_P0)
+	filler_x(out, [ExpModelSituation.value(s, s.t2 + 1),
 		s.P0.to_float() * pow(s.a.to_float(), s.t2 + 2), s.P0.to_float() * pow(s.a.to_float(), maxf(s.t2 - 2, 1))])
 	var final := "So " + Answer.text(out.answer) + "."
 	out.methods = {"substitute-model": {"result": out.answer.values, "steps": [
@@ -298,8 +342,8 @@ func u_interpret_factor(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {
 		"asked": "What does the %s in the model tell you about %s? Give it as a percentage change." % [D(s.a), y],
 		"lines": lines(rep, s), "given": given_of(s), "answer": ans,
-		"wrongs": [wrong({"dir": v.dir, "v": s.a.mul(100)}, "SL2.9.exp-model#0")],
-		"generic": [{"dir": other, "v": v.v}, {"dir": other, "v": s.a.mul(100)}, {"dir": v.dir, "v": v.v.div(100)}],
+		"wrongs": [wrong({"dir": v.dir, "v": s.a.mul(100)}, "SL2.9.exp-model#0"), wrong({"dir": other, "v": v.v}, R_DIRECTION)],
+		"fillers": [{"dir": other, "v": s.a.mul(100)}, {"dir": v.dir, "v": v.v.div(100)}],
 		"methods": {"substitute-model": {"result": v, "steps": [
 			"Each %s, %s is multiplied by %s." % [s.ctx.one, y, D(s.a)],
 			"%s = 1 %s %s, so %s %s %d%% of its value %s." % [D(s.a), "+" if up else "−", D(Q.new(absi(s.r), 100)), y,
@@ -312,7 +356,8 @@ func u_long_run_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("number", {"v": s.C}, {}, "%s(t) → " % y)
 	ans.exact = true
 	var out := {"asked": "Find the value %s(t) approaches in the long run." % y, "lines": lines(rep, s), "given": given_of(s),
-		"answer": ans, "generic": [{"v": s.C.add(s.A)}, {"v": s.A.abs_q()}, {"v": Q.new(0)}]}
+		"answer": ans, "wrongs": [wrong({"v": s.C.add(s.A)}, R_START)] + ([] if s.C.is_zero() else [wrong({"v": Q.new(0)}, R_NO_C)]),
+		"fillers": [{"v": s.A.abs_q()}]}
 	var etext := "e^(−kt)" if not s.k is Q else "e^(−%st)" % D(s.k)
 	if rep == "graph":
 		var t1 := 3.0 / ExpModelSituation.kf(s)
@@ -337,8 +382,9 @@ func u_k_from_half_life(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var lnf := "ln ½ = −ln 2" if half else "ln 2"
 	return {
 		"asked": "Find the exact value of k.", "lines": lines(rep, s, false), "given": given_of(s), "answer": ans,
-		"generic": [{"m": m.neg(), "r": Q.new(2)}, {"m": Q.new(s.T * (-1 if half else 1)), "r": Q.new(2)},
-			{"m": Q.new(-1 if half else 1, 2), "r": Q.new(s.T)}, {"m": m.mul(2), "r": Q.new(2)}],
+		"wrongs": [wrong({"m": m.neg(), "r": Q.new(2)}, R_K_SIGN), wrong({"m": Q.new(s.T * (-1 if half else 1)), "r": Q.new(2)}, R_TIMES_T),
+			wrong({"m": Q.new(-1 if half else 1, 2), "r": Q.new(s.T)}, R_T_SWAP)],
+		"fillers": [{"m": m.mul(2), "r": Q.new(2)}],
 		"methods": {
 			"logs-for-unknown": {"result": ans.values, "steps": [
 				"After %d %s, %s(%d) = %s: %se^(%dk) = %s" % [s.T, s.ctx.time, y, s.T, target, N(s.A), s.T, target],
@@ -365,12 +411,16 @@ func u_k_from_data_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var k := ExpModelSituation.kf(s)
 	var ratio: Q = s.P1.div(s.A)
 	var out := {"asked": "Find the value of k.", "lines": _data_lines(rep, s), "given": given_of(s),
-		"answer": measure("k = ", k, "", true), "wrongs": [], "generic": []}
+		"answer": measure("k = ", k, "", true), "wrongs": [], "fillers": []}
 	if rep == "table":
 		out.table = _data_table(s)
-	generic_x(out, [log(s.P1.to_float()) / s.t1, ratio.to_float() / s.t1, absf(log(ratio.to_float())) * s.t1, -k])
+	wrong_x(out, log(s.P1.to_float()) / s.t1, R_LOG_FIRST)
+	wrong_x(out, ratio.to_float() / s.t1, R_NO_LOG)
+	wrong_x(out, log(ratio.to_float()) * s.t1, R_TIMES_TIME)
+	wrong_x(out, -k, R_K_SIGN)
+	# The size of k × t² for a decay: the time multiplied and the sign lost, no one step.
 	if k < 0.0:
-		out.generic.append({"v": qf(log(ratio.to_float()) * s.t1)})
+		filler_x(out, [absf(log(ratio.to_float())) * s.t1])
 	var final := "So " + Answer.text(out.answer) + "."
 	var kx := "k = ln(%s)/%d = %s" % [N(ratio), s.t1, W(k)]
 	out.methods = {
@@ -392,14 +442,17 @@ func u_predict_from_data_point(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var ratio: Q = s.P1.div(s.A)
 	var x := ExpModelSituation.value(s, s.t2)
 	var out := {"asked": "Find %s(%d)." % [y, s.t2], "lines": _data_lines(rep, s), "given": given_of(s),
-		"answer": measure("%s(%d) = " % [y, s.t2], x), "wrongs": [], "generic": []}
+		"answer": measure("%s(%d) = " % [y, s.t2], x), "wrongs": [], "fillers": []}
 	if rep == "table":
 		out.table = _data_table(s)
 	var k2 := float(Fmt.sf(k, 2).replace("−", "-"))
 	if Fmt.sf(s.A.to_float() * exp(k2 * s.t2)) != Fmt.sf(x):
 		wrong_x(out, s.A.to_float() * exp(k2 * s.t2), "SL1.7.solve-with-logs#2")
-	generic_x(out, [s.A.to_float() + (s.P1.to_float() - s.A.to_float()) * s.t2 / s.t1, s.P1.to_float() * exp(k * s.t2),
-		s.A.to_float() * exp(k * (s.t2 - s.t1)), s.A.to_float() * exp(-k * s.t2), ExpModelSituation.value(s, s.t2 + 1),
+	for w in [[s.A.to_float() + (s.P1.to_float() - s.A.to_float()) * s.t2 / s.t1, R_LINE], [s.P1.to_float() * exp(k * s.t2), R_FROM_LATER],
+			[s.A.to_float() * exp(-k * s.t2), R_K_SIGN]]:
+		if w[0] > 0.0:
+			wrong_x(out, w[0], w[1])
+	filler_x(out, [s.A.to_float() * exp(k * (s.t2 - s.t1)), ExpModelSituation.value(s, s.t2 + 1),
 		ExpModelSituation.value(s, maxf(s.t2 - 1, 1))])
 	var final := "So " + Answer.text(out.answer) + "."
 	out.methods = {
@@ -419,12 +472,12 @@ func u_time_to_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sl := solve_lines(s, lv)
 	var unit: String = " " + s.ctx.time
 	var out := {"asked": "Find the value of t when %s(t) = %s." % [sym(s), N(lv)], "lines": lines(rep, s, s.form != "data"),
-		"given": given_of(s), "answer": measure("t = ", t, unit, true), "wrongs": [], "generic": []}
+		"given": given_of(s), "answer": measure("t = ", t, unit, true), "wrongs": [], "fillers": []}
 	wrong_x(out, -t, "SL2.10.context-apply#1")
 	wrong_x(out, lv.to_float(), "SL2.10.context-apply#2")
 	if s.form == "shift":
 		wrong_x(out, log(lv.div(s.P0).to_float()) + s.t0 * log(s.a.to_float()), "SL1.7.solve-with-logs#0")
-	generic_x(out, [t * 2.0, t / 2.0, t + 1.5])
+	filler_x(out, [t * 2.0, t / 2.0, t + 1.5])
 	var final := "So " + Answer.text(out.answer) + "."
 	var at := "%s = %s" % [sl.expr, W(t)]
 	out.methods = {
@@ -452,13 +505,11 @@ func u_whole_units_inequality(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var past := "more than" if up else "less than"
 	var out := {"asked": "Find the first whole number of %s after which %s(t) is %s %s." % [s.ctx.time, y, past, N(lv)],
 		"lines": lines(rep, s, s.form != "data"), "given": given_of(s), "answer": ans, "wrongs": []}
-	if roundi(t) != first:
-		out.wrongs.append(wrong({"v": Q.new(roundi(t))}, "SL2.10.context-apply#0"))
-	else:
-		out.generic = [{"v": Q.new(first - 1)}]
-	out.generic = out.get("generic", []) + [{"v": Q.new(first + 1)}, {"v": Q.new(first + 2)}]
+	# Rounding down, or to the nearest when that is down: the whole number before the crossing.
+	out.wrongs.append(wrong({"v": Q.new(first - 1)}, R_ROUNDED))
+	out.fillers = [{"v": Q.new(first + 1)}, {"v": Q.new(first + 2)}]
 	if first > 2:
-		out.generic.append({"v": Q.new(first - 2)})
+		out.fillers.append({"v": Q.new(first - 2)})
 	var sl := solve_lines(s, lv)
 	var lo := ExpModelSituation.value(s, first - 1)
 	var hi := ExpModelSituation.value(s, first)
@@ -492,11 +543,15 @@ func u_log_model_solve(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var e: Q = s.R.div(s.m)
 	var x := ExpModelSituation.log_x(s)
 	var out := {"asked": "Find x when %s = %s." % [y, D(s.R)], "lines": lines(rep, s), "given": given_of(s),
-		"answer": measure("x = ", x), "wrongs": [], "generic": []}
+		"answer": measure("x = ", x), "wrongs": [], "fillers": []}
 	wrong_x(out, s.x0.to_float() * pow(e.to_float(), 10.0), "SL1.5.exp-log-form#1")
 	var p10 := pow(10.0, e.to_float())
-	generic_x(out, [s.x0.to_float() * e.to_float() * 10.0, p10 / s.x0.to_float(), s.x0.to_float() + p10, p10,
-		s.x0.to_float() * p10 / 10.0, s.x0.to_float() * pow(10.0, s.R.to_float()) if not s.m.eq(1) else s.x0.to_float() * p10 * 10.0])
+	wrong_x(out, s.x0.to_float() * e.to_float() * 10.0, R_TIMES_TEN)
+	wrong_x(out, p10 / s.x0.to_float(), R_DIVIDE_X0)
+	wrong_x(out, p10, R_NO_X0)
+	if not s.m.eq(1):
+		wrong_x(out, s.x0.to_float() * pow(10.0, s.R.to_float()), R_NO_M)
+	filler_x(out, [s.x0.to_float() + p10, s.x0.to_float() * p10 / 10.0] + ([] if not s.m.eq(1) else [s.x0.to_float() * p10 * 10.0]))
 	var final := "So " + Answer.text(out.answer) + "."
 	var first := "%s = %slog₁₀(x/%s), so log₁₀(x/%s) = %s" % [D(s.R), "" if s.m.eq(1) else N(s.m) + " ", N(s.x0), N(s.x0), D(e)]
 	out.methods = {"substitute-model": {"result": out.answer.values, "steps": [
@@ -516,8 +571,10 @@ func u_factor_from_percent(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		"asked": "Write down %s(t), where t is the time in %s." % [y, s.ctx.time],
 		"lines": ["%s is %s at t = 0, and it %s by %d%% each %s." % [s.ctx.what, N(s.P0), "grows" if up else "falls", absi(s.r), s.ctx.one]],
 		"given": given_of(s), "answer": ans,
-		"wrongs": [wrong({"p0": s.P0, "a": pr}, "SL2.9.exp-model#0")],
-		"generic": [{"p0": s.P0, "a": Q.new(1).sub(s.a.sub(1))}, {"p0": s.P0, "a": Q.new(1).add(pr.mul(10))}, {"p0": s.a, "a": s.P0}],
+		"wrongs": [wrong({"p0": s.P0, "a": pr}, "SL2.9.exp-model#0"), wrong({"p0": s.P0, "a": Q.new(1).sub(s.a.sub(1))}, R_ONE_MINUS)] \
+			+ ([wrong({"p0": s.P0, "a": Q.new(1).add(pr.mul(10))}, R_TENTHS)] if up else []),
+		# One plus ten times the rate is the misplaced point only for growth; for decay it has no route.
+		"fillers": ([] if up else [{"p0": s.P0, "a": Q.new(1).add(pr.mul(10))}]) + [{"p0": s.a, "a": s.P0}],
 		"methods": {"substitute-model": {"result": ans.values, "steps": [
 			"%s %d%% means multiplying by 1 %s %s = %s each %s." % ["Growing by" if up else "Falling by", absi(s.r), "+" if up else "−", D(pr), D(s.a), s.ctx.one],
 			"It starts at %s, so P₀ = %s and a = %s." % [N(s.P0), N(s.P0), D(s.a)], final]}},
@@ -537,8 +594,8 @@ func u_model_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"lines": ["%s t %s after it was first measured grows or falls by the same factor each %s." % [s.ctx.what, s.ctx.time, s.ctx.one]],
 		"table": {"rows": [["t", ["1", "2", "3", "4"]], ["%s(t)" % y, vals.map(func(v): return D(v))]]},
 		"given": given_of(s), "answer": ans,
-		"wrongs": [wrong({"p0": vals[0], "a": s.a}, "SL2.9.exp-model#2")],
-		"generic": [{"p0": s.P0, "a": Q.new(1).div(s.a)}, {"p0": vals[0].mul(s.a), "a": s.a}, {"p0": s.P0, "a": vals[1].sub(vals[0])}],
+		"wrongs": [wrong({"p0": vals[0], "a": s.a}, "SL2.9.exp-model#2"), wrong({"p0": s.P0, "a": Q.new(1).div(s.a)}, R_UPSIDE),
+			wrong({"p0": vals[0].mul(s.a), "a": s.a}, R_STEP_UP), wrong({"p0": s.P0, "a": vals[1].sub(vals[0])}, R_DIFF)],
 		"methods": {
 			"repeated-multiplication": {"result": ans.values, "steps": [
 				"Each step multiplies by %s/%s = %s." % [D(vals[1]), D(vals[0]), D(s.a)],
@@ -568,8 +625,8 @@ func u_model_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"graph": model_graph(s, t_max, [[0, start.to_float(), Fmt.point(0, start)], [s.t1, s.P1.to_float(), Fmt.point(s.t1, s.P1)]], false) \
 			.merged({"hlines": [{"at": s.C.to_float(), "label": "y = %s" % N(s.C)}]}, true),
 		"given": given_of(s), "answer": ans,
-		"wrongs": [wrong({"C": start, "A": s.C.sub(start), "k": qf(kw)}, "SL2.9.find-parameters#1")],
-		"generic": [{"C": s.C, "A": start, "k": qf(k)}, {"C": s.C, "A": s.A.neg(), "k": qf(k)}, {"C": s.C, "A": s.A, "k": qf(k * s.t1)}],
+		"wrongs": [wrong({"C": start, "A": s.C.sub(start), "k": qf(kw)}, "SL2.9.find-parameters#1"), wrong({"C": s.C, "A": start, "k": qf(k)}, R_A_START)],
+		"fillers": [{"C": s.C, "A": s.A.neg(), "k": qf(k)}, {"C": s.C, "A": s.A, "k": qf(k * s.t1)}],
 		"methods": {
 			"asymptote-first": {"result": ans.values, "steps": [
 				"The asymptote is y = %s, so C = %s." % [N(s.C), N(s.C)],
@@ -591,10 +648,12 @@ func u_initial_from_later(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var said := ["%s t %s after it was first measured is modelled by %s. After %d %s it is %s." % [s.ctx.what, s.ctx.time, shown, s.t1, s.ctx.time, N(s.P1)]] \
 		if rep == "words" else [shown, "%s(%d) = %s" % [y, s.t1, N(s.P1)], "t is the time in %s." % s.ctx.time]
 	var out := {"asked": "Find the start value P₀.", "lines": said, "given": given_of(s), "answer": measure("P₀ = ", x),
-		"wrongs": [], "generic": []}
+		"wrongs": [], "fillers": []}
 	wrong_x(out, s.P1.to_float() / pow(s.a.to_float(), s.t1 - 1), "SL2.9.exp-model#2")
-	generic_x(out, [s.P1.to_float() * g, s.P1.to_float() / s.a.to_float() / s.t1, s.P1.to_float() / g * s.a.to_float() * s.a.to_float(),
-		s.P1.to_float() / g / s.a.to_float(), s.P1.to_float() / (1.0 + (s.a.to_float() - 1.0) * s.t1)])
+	wrong_x(out, s.P1.to_float() * g, R_STEP_UP)
+	wrong_x(out, s.P1.to_float() / (1.0 + (s.a.to_float() - 1.0) * s.t1), R_LINEAR)
+	filler_x(out, [s.P1.to_float() / s.a.to_float() / s.t1, s.P1.to_float() / g * s.a.to_float() * s.a.to_float(),
+		s.P1.to_float() / g / s.a.to_float()])
 	var final := "So " + Answer.text(out.answer) + "."
 	out.methods = {"logs-for-unknown": {"result": out.answer.values, "steps": [
 		"P₀ × %s^%d = %s" % [D(s.a), s.t1, N(s.P1)], "Divide by the growth, don't multiply: P₀ = %s ÷ %s = %s" % [N(s.P1), W(g), W(x)], final]}}
@@ -606,8 +665,9 @@ func u_half_life_from_k(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var x := log(2.0) / kk
 	var unit: String = " " + s.ctx.time
 	var out := {"asked": "Find the half-life of the model, in %s." % s.ctx.time, "lines": lines("equation", s), "given": given_of(s),
-		"answer": measure("half-life = ", x, unit), "wrongs": [], "generic": []}
-	generic_x(out, [1.0 / (2.0 * kk), 1.0 / kk, 2.0 / kk, log(2.0) * kk * 100.0])
+		"answer": measure("half-life = ", x, unit), "wrongs": [], "fillers": []}
+	wrong_x(out, 1.0 / (2.0 * kk), R_HALF_NO_LOG)
+	filler_x(out, [1.0 / kk, 2.0 / kk, log(2.0) * kk * 100.0])
 	var final := "So " + Answer.text(out.answer) + "."
 	out.methods = {
 		"logs-for-unknown": {"result": out.answer.values, "steps": [
@@ -639,7 +699,8 @@ func u_time_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"lines": ["The graph of %s(t) = %se^(kt) is shown, where t is the time in %s." % [y, N(s.A), s.ctx.time]],
 		"graph": model_graph(s, t + s.T, [[0, s.A.to_float(), Fmt.point(0, s.A)]], false, lv),
 		"given": given_of(s), "answer": ans,
-		"generic": [{"v": Q.new(n)}, {"v": Q.new(s.T)}, {"v": Q.new(t + s.T)}, {"v": Q.new(maxi(t - s.T, 1) if t - s.T != n else t + 2 * s.T)}],
+		"wrongs": [wrong({"v": Q.new(n)}, R_COUNT)],
+		"fillers": [{"v": Q.new(s.T)}, {"v": Q.new(t + s.T)}, {"v": Q.new(maxi(t - s.T, 1) if t - s.T != n else t + 2 * s.T)}],
 		"methods": {"gdc-intersect": {"result": ans.values, "steps": [
 			"Go across from %s on the y-axis to the curve, then down to the t-axis." % N(lv),
 			"The curve %s every %d %s: %s, so it reaches %s after %d × %d = %d %s." % [word, s.T, s.ctx.time, " → ".join(steps), N(lv), n, s.T, t, s.ctx.time],
@@ -653,12 +714,12 @@ func u_change_over_period(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var per := "over %d %s" % [s.n, s.ctx.time]
 	var ans := Answer.make("pct", {"dir": "rise" if up else "fall", "v": qf(absf(g - 1.0) * 100.0)}, {"per": per})
 	var out := {"asked": "Find the percentage change in %s over %d %s." % [sym(s), s.n, s.ctx.time], "lines": lines(rep, s),
-		"given": given_of(s), "answer": ans, "wrongs": [], "generic": []}
+		"given": given_of(s), "answer": ans, "wrongs": [], "fillers": []}
 	var dir: String = ans.values.dir
-	for x in [absi(s.r) * s.n, g * 100.0, absi(s.r)]:
-		if is_finite(x) and x > 0.0:
-			out.generic.append({"dir": dir, "v": qf(x)})
-	out.generic.append({"dir": "fall" if up else "rise", "v": ans.values.v})
+	for w in [[absi(s.r) * s.n, R_LINEAR], [g * 100.0, R_WHOLE_FACTOR], [absi(s.r), R_ONE_STEP]]:
+		if is_finite(w[0]) and w[0] > 0.0:
+			out.wrongs.append(wrong({"dir": dir, "v": qf(w[0])}, w[1]))
+	out.fillers.append({"dir": "fall" if up else "rise", "v": ans.values.v})
 	var final := "So it is " + Answer.text(ans) + "."
 	out.methods = {"repeated-multiplication": {"result": ans.values, "steps": [
 		"Each %s multiplies %s by %s, so %d %s multiply it by %s^%d = %s." % [s.ctx.one, sym(s), D(s.a), s.n, s.ctx.time, D(s.a), s.n, W(g)],
@@ -672,7 +733,7 @@ func u_two_models_equal(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var p := "%s(%s)^t" % [N(s.P0), D(s.a)]
 	var q := "%s(%s)^t" % [N(s.P0b), D(s.ab)]
 	var out := {"asked": "Find the value of t when P(t) = Q(t).", "lines": [s.ctx.what, "P(t) = " + p, "Q(t) = " + q],
-		"given": given_of(s), "answer": measure("t = ", t, unit, true), "wrongs": [], "generic": []}
+		"given": given_of(s), "answer": measure("t = ", t, unit, true), "wrongs": [], "fillers": []}
 	if rep == "graph":
 		var fp := func(x: float) -> float: return s.P0.to_float() * pow(s.a.to_float(), x)
 		var fq := func(x: float) -> float: return s.P0b.to_float() * pow(s.ab.to_float(), x)
@@ -682,7 +743,8 @@ func u_two_models_equal(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ratio: Q = s.P0b.div(s.P0)
 	var fr: Q = s.a.div(s.ab)
 	wrong_x(out, -t, "SL2.10.context-apply#1")
-	generic_x(out, [log(ratio.to_float()) / (s.a.to_float() - s.ab.to_float()), ratio.to_float() / fr.to_float(), t + 1.5])
+	wrong_x(out, ratio.to_float() / fr.to_float(), R_RATIO_NO_LOG)
+	filler_x(out, [log(ratio.to_float()) / (s.a.to_float() - s.ab.to_float()), t + 1.5])
 	var final := "So " + Answer.text(out.answer) + "."
 	var at := "t = ln(%s)/ln(%s) = %s" % [N(ratio), N(fr), W(t)]
 	out.methods = {

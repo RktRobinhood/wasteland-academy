@@ -14,6 +14,32 @@ const R_NO_SHIFT := "SL2.2.domain#1"
 const R_RANGE_ASKED := "SL2.2.domain#2"
 const R_SAME_DOMAIN := "SL2.5.inverse-domain-range#0"
 const R_Y_AXIS := "SL2.5.inverse-domain-range#1"
+## fn-domain-range's own slips, by index (FAL-820).
+const DR := "fn-domain-range#"
+const R_WRONG_WAY := DR + "9"
+const R_VERTEX_X := DR + "10"
+const R_Y_INT := DR + "11"
+const R_VERT_ASYM := DR + "12"
+const R_X_AXIS := DR + "13"
+const R_NO_LIFT := DR + "14"
+const R_WHOLE := DR + "15"
+const R_DOMAIN_ENDS := DR + "16"
+const R_NO_FLIP := DR + "17"
+const R_NO_SWAP := DR + "18"
+const R_EDGE := DR + "19"
+const R_C_ABOVE := DR + "20"
+const R_SIGN := DR + "21"
+const R_NEG_DIVIDE := DR + "22"
+const R_LOG_END := DR + "23"
+const R_BARE := DR + "24"
+const R_DOTS := DR + "25"
+const R_X_VALUES := DR + "26"
+const R_RANGE_COPY := DR + "27"
+const R_NO_DIVIDE := DR + "28"
+const R_SAME_RANGE := DR + "29"
+const R_OTHER_SIDE := DR + "30"
+const R_AT_POINT := DR + "31"
+const R_AT_K := DR + "32"
 
 
 func needs() -> Dictionary:
@@ -109,6 +135,16 @@ static func tag(text: String, ref: String) -> Dictionary:
 	return BasicFunctionViews.tag(text, ref)
 
 
+## choose(), with the plain options declared fillers and the slips in a stream order, so
+## each can show when there are more than the question has room for (FAL-820).
+static func sort(right: String, bad: Array, plain: Array, rng: Seeded) -> Dictionary:
+	var out := choose(right, bad, plain)
+	out.fillers = out.generic
+	out.erase("generic")
+	out.wrongs = rng.shuffled(out.wrongs)
+	return out
+
+
 ## The arc of f on its domain, with the ends and any turning point as filled dots.
 static func arc_graph(s: Dictionary) -> Dictionary:
 	var lo: float = s.lo.to_float()
@@ -152,7 +188,13 @@ func u_range_quadratic(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var k: Q = s.k
 	var right := "y %s %s" % [rel, say(k)]
 	var out := {"asked": "State the range of f."}
-	out.merge(choose(right, [tag("x %s %s" % [rel, say(k)], R_IN_X)], ["y %s %s" % [other, say(k)], "y %s %s" % [rel, say(s.h)] if not s.h.eq(k) else "y > %s" % say(k), "y %s %s" % [rel, say(s.f.co[0])], "all real numbers"]))
+	var bad := [tag("x %s %s" % [rel, say(k)], R_IN_X), tag("y %s %s" % [other, say(k)], R_WRONG_WAY), tag("y %s %s" % [rel, say(s.f.co[0])], R_Y_INT)]
+	var plain := ["all real numbers"]
+	if s.h.eq(k):
+		plain.push_front("y > %s" % say(k))
+	else:
+		bad.append(tag("y %s %s" % [rel, say(s.h)], R_VERTEX_X))
+	out.merge(sort(right, bad, plain, _rng))
 	trap_of(out, "y %s %s" % [rel, s2(k)], rounds(k))
 	match rep:
 		"graph":
@@ -173,7 +215,10 @@ func u_range_rational(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := "y ≠ %s" % say(big)
 	var out := {"asked": "State the range of f."}
 	var hv: Q = s.hv
-	out.merge(choose(right, [tag("all real numbers", R_ASYMPTOTE)], ["y ≠ %s" % say(hv) if not hv.eq(big) else "y ≠ 0", "x ≠ %s" % say(big), "y > %s" % say(big), "y ≠ 0"]))
+	var bad := [tag("all real numbers", R_ASYMPTOTE), tag("x ≠ %s" % say(big), R_IN_X), tag("y ≠ 0", R_X_AXIS)]
+	if not hv.eq(big):
+		bad.append(tag("y ≠ %s" % say(hv), R_VERT_ASYM))
+	out.merge(sort(right, bad, ["y > %s" % say(big)], _rng))
 	trap_of(out, "y ≠ %s" % s2(big), rounds(big))
 	if rep == "graph":
 		out.lines = ["The graph of y = f(x) is shown, with its asymptotes dashed."]
@@ -194,7 +239,8 @@ func u_range_exponential(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var rel := ">" if s.up else "<"
 	var right := "y %s %s" % [rel, N(c)]
 	var out := {"asked": "State the range of f."}
-	out.merge(choose(right, [tag("y %s %s" % ["≥" if s.up else "≤", N(c)], R_ASYMPTOTE)], ["y %s 0" % rel, "y %s %s" % [rel, N(s.y_int)], "all real numbers", "x %s %s" % [rel, N(c)]]))
+	out.merge(sort(right, [tag("y %s %s" % ["≥" if s.up else "≤", N(c)], R_ASYMPTOTE), tag("y %s 0" % rel, R_NO_LIFT), tag("y %s %s" % [rel, N(s.y_int)], R_Y_INT),
+		tag("x %s %s" % [rel, N(c)], R_IN_X)], ["all real numbers"], _rng))
 	var why := "A power of a positive number is always positive, so the first term is never 0"
 	var hit := "That leaves the value %s out: y = %s is the asymptote" % [N(c), N(c)]
 	if rep == "graph":
@@ -217,7 +263,8 @@ func u_range_restricted(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var near: Q = s.fa if s.fa.to_float() < s.fb.to_float() else s.fb
 	var far: Q = s.fb if s.fa.to_float() < s.fb.to_float() else s.fa
 	var out := {"asked": "State the range of f."}
-	out.merge(choose(right, [tag(iv("y", near, far), R_TURN)], [iv("x", s.ymin, s.ymax), "y %s %s" % ["≥" if s.a.sign() > 0 else "≤", say(s.k)], iv("y", s.lo, s.hi), iv("y", s.fa, s.ymax if s.a.sign() < 0 else s.fb)]))
+	out.merge(sort(right, [tag(iv("y", near, far), R_TURN), tag(iv("x", s.ymin, s.ymax), R_IN_X), tag("y %s %s" % ["≥" if s.a.sign() > 0 else "≤", say(s.k)], R_WHOLE),
+		tag(iv("y", s.lo, s.hi), R_DOMAIN_ENDS)], [iv("y", s.fa, s.ymax if s.a.sign() < 0 else s.fb)], _rng))
 	var keep := rounds(s.ymin) or rounds(s.ymax)
 	trap_of(out, "%s ≤ y ≤ %s" % [s2(s.ymin), s2(s.ymax)], keep)
 	if rep == "graph":
@@ -241,7 +288,8 @@ func u_range_reflected(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var hi: Q = s.ymin.neg()
 	var right := iv("y", lo, hi)
 	var out := {"asked": "g(x) = −f(x). State the range of g."}
-	out.merge(choose(right, [], [iv("y", s.ymin, s.ymax), "%s ≤ y ≤ %s" % [say(hi), say(lo)], iv("y", hi, s.ymax), iv("y", lo, s.ymin), "y ≤ %s" % say(hi)]))
+	out.merge(sort(right, [tag(iv("y", s.ymin, s.ymax), R_NO_FLIP), tag("%s ≤ y ≤ %s" % [say(hi), say(lo)], R_NO_SWAP)],
+		[iv("y", hi, s.ymax), iv("y", lo, s.ymin), "y ≤ %s" % say(hi)], _rng))
 	trap_of(out, "%s ≤ y ≤ %s" % [s2(lo), s2(hi)], rounds(lo) or rounds(hi))
 	if rep == "graph":
 		out.lines = ["The graph of f on its domain is shown."]
@@ -266,7 +314,7 @@ func u_composite_condition(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var other := "≤" if strict else "<"
 	var g: String = "g(x) = √(x − c)" if s.form == "root" else "g(x) = ln(x − c)"
 	var out := {"asked": "For which values of c is g(f(x)) defined for every real x?", "lines": [eqn(s), g]}
-	out.merge(choose(right, [], ["c %s %s" % [other, say(m)], "c ≥ %s" % say(m), "c > %s" % say(m), "c ≤ 0"]))
+	out.merge(sort(right, [tag("c %s %s" % [other, say(m)], R_EDGE), tag("c ≥ %s" % say(m), R_C_ABOVE)], ["c > %s" % say(m), "c ≤ 0"], _rng))
 	trap_of(out, "c %s %s" % [rel, s2(m)], rounds(m))
 	var need_txt: String = "x − c ≥ 0, so x ≥ c" if s.form == "root" else "x − c > 0, so x > c"
 	var range_txt: String = "y ≥ %s, from the vertex" % say(m) if s.of == "quad" else "y > %s, from the asymptote" % say(m)
@@ -288,7 +336,14 @@ func u_domain_root(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := "x %s %s" % [rel, N(c)]
 	var inside := "The number under the root must not be negative: %s ≥ 0" % Fmt.terms([s.f.m, s.f.n], [1, 0], "x", true)
 	var out := {"asked": "State the largest possible domain of f.", "lines": [eqn(s)], "titles": SKETCH_TITLES}
-	out.merge(choose(right, [tag("x %s %s" % [strict, N(c)], R_OPEN_END), tag("x %s 0" % rel, R_NO_SHIFT)], ["x %s %s" % [rel, N(c.neg())], "x %s %s" % ["≥" if s.left else "≤", N(c)], "all real numbers"]))
+	var bad := [tag("x %s %s" % [strict, N(c)], R_OPEN_END), tag("x %s 0" % rel, R_NO_SHIFT), tag("x %s %s" % [rel, N(c.neg())], R_SIGN)]
+	var plain := ["all real numbers"]
+	# The other way round is the unflipped inequality only when the inside decreases.
+	if s.left:
+		bad.append(tag("x ≥ %s" % N(c), R_NEG_DIVIDE))
+	else:
+		plain.push_front("x ≤ %s" % N(c))
+	out.merge(sort(right, bad, plain, _rng))
 	out.methods = ways({"restriction-rules": [inside, "Solve it: x %s %s, and 0 under the root is allowed" % [rel, N(c)]], "graph-extent": ["Sketch f: the graph starts at x = %s, where the root is 0" % N(c), "It runs off to the %s from there, with that end included" % ("left" if s.left else "right")]}, right, out.answer)
 	return out
 
@@ -299,11 +354,11 @@ func u_domain_log_or_fraction(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var right: String
 	if s.form == "log":
 		right = "x > %s" % N(c)
-		out.merge(choose(right, [], ["x ≥ %s" % N(c), "x > 0", "x > %s" % N(c.neg()), "x ≠ %s" % N(c)]))
+		out.merge(sort(right, [tag("x ≥ %s" % N(c), R_LOG_END), tag("x > 0", R_BARE), tag("x > %s" % N(c.neg()), R_SIGN)], ["x ≠ %s" % N(c)], _rng))
 		out.methods = ways({"restriction-rules": ["ln needs a positive input: %s > 0" % Fmt.terms([s.f.m, s.f.n], [1, 0], "x", true), "Solve it, and leave the end out: ln 0 is not defined"]}, right, out.answer)
 	else:
 		right = "x ≠ %s" % N(c)
-		out.merge(choose(right, [], ["x ≠ 0", "x ≠ %s" % N(c.neg()), "x > %s" % N(c), "all real numbers"]))
+		out.merge(sort(right, [tag("x ≠ 0", R_BARE), tag("x ≠ %s" % N(c.neg()), R_SIGN)], ["x > %s" % N(c), "all real numbers"], _rng))
 		out.methods = ways({"restriction-rules": ["A fraction needs a bottom that is not 0: %s ≠ 0" % Fmt.terms([s.f.c, s.f.d], [1, 0], "x", true), "That rules out one value, and only that one"]}, right, out.answer)
 	return out
 
@@ -311,7 +366,8 @@ func u_domain_log_or_fraction(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 func u_domain_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := iv("x", s.lo, s.hi, s.lo_open, s.hi_open)
 	var out := {"asked": "State the domain of f.", "lines": ["The graph of f is shown. A filled dot is part of the graph; an open dot is not."], "graph": piece_graph(s)}
-	out.merge(choose(right, [tag(iv("y", s.ylo, s.yhi, s.ylo_open, s.yhi_open), R_RANGE_ASKED)], [iv("x", s.lo, s.hi, not s.lo_open, s.hi_open), iv("x", s.lo, s.hi, s.lo_open, not s.hi_open), iv("x", s.ylo, s.yhi, s.ylo_open, s.yhi_open)]))
+	out.merge(sort(right, [tag(iv("y", s.ylo, s.yhi, s.ylo_open, s.yhi_open), R_RANGE_ASKED), tag(iv("x", s.lo, s.hi, not s.lo_open, s.hi_open), R_DOTS),
+		tag(iv("x", s.lo, s.hi, s.lo_open, not s.hi_open), R_DOTS), tag(iv("x", s.ylo, s.yhi, s.ylo_open, s.yhi_open), R_RANGE_ASKED)], [], _rng))
 	out.methods = ways({"graph-extent": ["The domain is how far the graph runs from side to side", "Left end x = %s (%s), right end x = %s (%s)" % [N(s.lo), "open" if s.lo_open else "filled", N(s.hi), "open" if s.hi_open else "filled"]]}, right, out.answer)
 	return out
 
@@ -319,7 +375,8 @@ func u_domain_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 func u_range_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := iv("y", s.ylo, s.yhi, s.ylo_open, s.yhi_open)
 	var out := {"asked": "State the range of f.", "lines": ["The graph of f is shown. A filled dot is part of the graph; an open dot is not."], "graph": piece_graph(s)}
-	out.merge(choose(right, [], [iv("y", s.ylo, s.yhi, not s.ylo_open, s.yhi_open), iv("y", s.ylo, s.yhi, s.ylo_open, not s.yhi_open), iv("y", s.lo, s.hi, s.lo_open, s.hi_open), iv("x", s.ylo, s.yhi, s.ylo_open, s.yhi_open)]))
+	out.merge(sort(right, [tag(iv("y", s.ylo, s.yhi, not s.ylo_open, s.yhi_open), R_DOTS), tag(iv("y", s.ylo, s.yhi, s.ylo_open, not s.yhi_open), R_DOTS),
+		tag(iv("y", s.lo, s.hi, s.lo_open, s.hi_open), R_X_VALUES), tag(iv("x", s.ylo, s.yhi, s.ylo_open, s.yhi_open), R_IN_X)], [], _rng))
 	out.methods = ways({"graph-height": ["The range is how far the graph runs from bottom to top", "Lowest y = %s (%s), highest y = %s (%s)" % [N(s.ylo), "left out" if s.ylo_open else "included", N(s.yhi), "left out" if s.yhi_open else "included"]]}, right, out.answer)
 	return out
 
@@ -333,7 +390,8 @@ func u_domain_from_range(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		out.lines = ["f is a straight line with gradient %s and y-intercept %s. Its domain is an interval, and its range is %s." % [N(s.m), N(c), range_txt]]
 	else:
 		out.lines = [eqn(s), "The range of f on its domain is %s." % range_txt]
-	out.merge(choose(right, [], [iv("x", s.p, s.q), iv("x", s.lo.add(1), s.hi), iv("x", s.lo, s.hi.add(1)), iv("x", s.p.sub(c), s.q.sub(c)), iv("x", s.lo.sub(1), s.hi)]))
+	out.merge(sort(right, [tag(iv("x", s.p, s.q), R_RANGE_COPY), tag(iv("x", s.p.sub(c), s.q.sub(c)), R_NO_DIVIDE)],
+		[iv("x", s.lo.add(1), s.hi), iv("x", s.lo, s.hi.add(1)), iv("x", s.lo.sub(1), s.hi)], _rng))
 	out.methods = ways({"endpoint-evaluation": ["Solve f(x) = %s: %s = %s gives x = %s" % [N(s.p), BasicFunctionSituation.text(s.f), N(s.p), N(s.p.sub(c).div(s.m))],
 		"Solve f(x) = %s: %s = %s gives x = %s" % [N(s.q), BasicFunctionSituation.text(s.f), N(s.q), N(s.q.sub(c).div(s.m))], "The smaller x is the lower end of the domain"]}, right, out.answer)
 	return out
@@ -346,8 +404,9 @@ func u_inverse_domain(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ran_inv := _span("y", s.d1, s.d2)
 	var right := "domain %s, range %s" % [dom_inv, ran_inv]
 	var out := {"asked": "State the domain and the range of f⁻¹."}
-	out.merge(choose(right, [tag("domain %s, range %s" % [dom_f, ran_f], R_SAME_DOMAIN)], ["domain %s, range %s" % [dom_f, ran_inv], "domain %s, range %s" % [dom_inv, ran_f], "domain all real numbers, range %s" % ran_inv,
-		"domain %s, range %s" % [_span("x", s.r1.add(1), s.r2.add(1) if s.r2 != null else null), ran_inv], "domain %s, range %s" % [dom_inv, _span("y", s.d1.add(1), s.d2.add(1) if s.d2 != null else null)]]))
+	out.merge(sort(right, [tag("domain %s, range %s" % [dom_f, ran_f], R_SAME_DOMAIN), tag("domain %s, range %s" % [dom_f, ran_inv], R_SAME_DOMAIN),
+		tag("domain %s, range %s" % [dom_inv, ran_f], R_SAME_RANGE)], ["domain all real numbers, range %s" % ran_inv,
+		"domain %s, range %s" % [_span("x", s.r1.add(1), s.r2.add(1) if s.r2 != null else null), ran_inv], "domain %s, range %s" % [dom_inv, _span("y", s.d1.add(1), s.d2.add(1) if s.d2 != null else null)]], _rng))
 	var dom_text := "for %s" % dom_f
 	if rep == "graph":
 		out.lines = ["The graph of f, one-to-one on its domain, is shown (%s)." % dom_text]
@@ -375,7 +434,8 @@ func u_restrict_for_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var right := "x %s %s" % [rel, N(h)]
 	var pt := Fmt.point(s.px, s.py)
 	var out := {"asked": "Find the largest domain containing the point %s on which f has an inverse." % pt}
-	out.merge(choose(right, [tag("x %s 0" % rel, R_Y_AXIS)], ["x %s %s" % [other, N(h)], "x %s %s" % [rel, N(s.px)], "x %s %s" % [rel, N(s.k)]]))
+	out.merge(sort(right, [tag("x %s 0" % rel, R_Y_AXIS), tag("x %s %s" % [other, N(h)], R_OTHER_SIDE), tag("x %s %s" % [rel, N(s.px)], R_AT_POINT),
+		tag("x %s %s" % [rel, N(s.k)], R_AT_K)], [], _rng))
 	if rep == "graph":
 		out.lines = ["The graph of the parabola y = f(x) is shown, with the point marked."]
 		out.graph = BasicFunctionViews.graph_of(s, h.to_float() - 4.0, h.to_float() + 4.0, [[s.px.to_float(), s.py.to_float(), pt]])

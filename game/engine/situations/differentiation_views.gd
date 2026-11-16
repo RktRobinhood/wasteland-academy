@@ -27,6 +27,19 @@ const R_NOT_SQUARED := QUOT + "#1"
 const R_U_V := QUOT + "#2"
 const R_SIGN := SHOW + "#2"
 const R_CANCEL := SHOW + "#1"
+## The type's own slips (FAL-820).
+const OWN := "t5-differentiation-rules#"
+const R_SIN_SIGN := OWN + "13"
+const R_UNMULT := OWN + "14"
+const R_NEG_UP := OWN + "15"
+const R_NEG_SIGN := OWN + "16"
+const R_OLD_POWER := OWN + "17"
+const R_NO_N := OWN + "18"
+const R_FIRST_ONLY := OWN + "19"
+const R_INNER_POWER := OWN + "20"
+const R_NO_LOG_POWER := OWN + "21"
+const R_ADDED_TOP := OWN + "22"
+const R_UNCANCELLED := OWN + "23"
 
 
 func needs() -> Dictionary:
@@ -150,8 +163,11 @@ func u_standard_terms(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		ws.append(alt(dh + SUM([[a, "e^x"], [b, "/x"], [c, dtrig]]), R_COS, {"c0": Q.new(a), "c1": Q.new(b), "c2": Q.new(c)}))
 	var g := func(x: int, y: int, z: int) -> Dictionary:
 		return alt(dh + SUM([[x, "e^x"], [y, "/x"], [z, dtrig]]), "", {"c0": Q.new(x), "c1": Q.new(y), "c2": Q.new(z)}).values
+	# The trig term's sign flipped: for cos x that is R_COS's option already.
+	if not cos:
+		ws.append(alt(dh + SUM([[a, "e^x"], [b, "/x"], [-dc, dtrig]]), R_SIN_SIGN, {"c0": Q.new(a), "c1": Q.new(b), "c2": Q.new(-dc)}))
 	return {"lines": ["f(x) = %s, for x > 0" % f], "asked": "Find f′(x).", "answer": ans, "wrongs": ws,
-		"generic": [g.call(a, -b, dc), g.call(-a, b, dc), g.call(a, b, -dc), g.call(a + 1, b, dc), g.call(a, b + 1, dc)],
+		"fillers": [g.call(a, -b, dc), g.call(-a, b, dc), g.call(a + 1, b, dc), g.call(a, b + 1, dc)],
 		"methods": {"booklet-rules": method([
 			"Term by term: e^x stays e^x, ln x gives 1/x, and %s gives %s." % [trig, ("−" if cos else "") + dtrig],
 			"%s is a constant, so it gives 0." % Fmt.num(s.d) if s.d != 0 else "The sum has no constant term to drop.",
@@ -184,10 +200,12 @@ func u_root_powers(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sl := func(p: Q, q: Q, u: Q, v: Q) -> Dictionary:
 		return {"c0": p, "e0": q, "c1": u, "e1": v}
 	var ws: Array = [alt(w.call(c0, r.add(1), c1, e1), R_FRAC, sl.call(c0, r.add(1), c1, e1))]
+	for t in [[a, e0, c1, e1, R_UNMULT], [c0, e0, b, e1, R_UNMULT], [c0, e0, c1, Q.new(-n + 1), R_NEG_UP], [c0, e0, c1.neg(), e1, R_NEG_SIGN]]:
+		ws.append(alt(w.call(t[0], t[1], t[2], t[3]), t[4], sl.call(t[0], t[1], t[2], t[3])))
 	var gen: Array = []
-	for t in [[a, e0, c1, e1], [c0, e0, b, e1], [c0, e0, c1, Q.new(-n + 1)], [c0.neg(), e0, c1, e1], [c0, e0, c1.neg(), e1], [c0.add(1), e0, c1, e1]]:
+	for t in [[c0.neg(), e0, c1, e1], [c0.add(1), e0, c1, e1]]:
 		gen.append(alt(w.call(t[0], t[1], t[2], t[3]), "", sl.call(t[0], t[1], t[2], t[3])).values)
-	return {"lines": ["f(x) = %s, for x > 0" % f], "asked": "Find f′(x). Write each term as a power of x.", "answer": ans, "wrongs": ws, "generic": gen,
+	return {"lines": ["f(x) = %s, for x > 0" % f], "asked": "Find f′(x). Write each term as a power of x.", "answer": ans, "wrongs": ws, "fillers": gen,
 		"methods": {"index-form": method([
 			"Write each term as a power of x: f(x) = %s." % SUM([[a, XQ(r)], [b, XQ(Q.new(-n))]]),
 			"Bring the power down and take 1 off it: %s becomes %s, and %s becomes %s." % [XQ(r), T(r, XQ(e0)), XQ(Q.new(-n)), T(Q.new(-n), XQ(e1))],
@@ -215,14 +233,16 @@ func u_log_power_terms(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		ws.append(alt(dh + SUM([[a, "/" + X(n)], [c1, tail]]), R_NO_INNER))
 	else:
 		ws.append(alt(dh + SUM([[a, "/(%dx)" % d], [c1, tail]]), R_LN_SCALE))
+	if m != 1:
+		ws.append(alt(w.call(c0, b), R_UNMULT, {"c0": Q.new(c0), "c1": Q.new(b)}))
 	var gen: Array = []
-	for t in [[c0 + 1, c1], [-c0, c1], [c0, b], [c0, -c1], [c0, c1 + 1]]:
+	for t in [[c0 + 1, c1], [-c0, c1], [c0, -c1], [c0, c1 + 1]]:
 		gen.append(alt(w.call(t[0], t[1]), "", {"c0": Q.new(t[0]), "c1": Q.new(t[1])}).values)
 	var law := "ln(%s) = %d ln x" % [inner, n] if power else "ln(%s) = ln %d + ln x, and ln %d is a constant" % [inner, d, d]
 	var inner_d := "%sx%s" % [n, Fmt.sup(n - 1)] if n > 2 else "%dx" % n
 	if not power:
 		inner_d = str(d)
-	return {"lines": ["y = %s, for x > 0" % f], "asked": "Find dy/dx.", "answer": ans, "wrongs": ws, "generic": gen,
+	return {"lines": ["y = %s, for x > 0" % f], "asked": "Find dy/dx.", "answer": ans, "wrongs": ws, "fillers": gen,
 		"methods": {"log-laws-first": method([
 			"Use the log laws first: " + law + ".",
 			"So y = %s, and each term is a standard result." % SUM([[c0, "ln x"], [b, X(m)]] if power else [[a, "ln %d" % d], [a, "ln x"], [b, X(m)]]),
@@ -259,10 +279,13 @@ func u_chain_power(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var forgot: String = w.call(c * n, n - 1, "")
 	ws.append(alt(forgot, R_NO_INNER, {"k": Q.new(c * n), "p": Q.new(n - 1)} if m == 1 else {}))
 	ws.append(alt(dh + "%s(%s)%s" % [Fmt.lead(c * n), dinner, Fmt.sup(n - 1)], R_INSIDE))
+	ws.append(alt(w.call(k, n), R_OLD_POWER, {"k": Q.new(k), "p": Q.new(n)}))
+	if n != 1:
+		ws.append(alt(w.call(c * a * m, n - 1), R_NO_N, {"k": Q.new(c * a * m), "p": Q.new(n - 1)}))
 	var gen: Array = []
-	for t in [[k, n], [-k, n - 1], [k + c, n - 1], [k * 2, n - 1], [c * a * m, n - 1]]:
+	for t in [[-k, n - 1], [k + c, n - 1], [k * 2, n - 1]]:
 		gen.append(alt(w.call(t[0], t[1]), "", {"k": Q.new(t[0]), "p": Q.new(t[1])}).values)
-	return {"lines": ["y = %s" % y], "asked": "Find dy/dx.", "answer": ans, "wrongs": ws, "generic": gen,
+	return {"lines": ["y = %s" % y], "asked": "Find dy/dx.", "answer": ans, "wrongs": ws, "fillers": gen,
 		"methods": {"outer-times-inner": method([
 			"The outside is %s(…)%s, which gives %s(…)%s." % [Fmt.lead(c), Fmt.sup(n), T(c * n, ""), Fmt.sup(n - 1)],
 			"The inside is %s, which gives %s." % [inn, dinner],
@@ -288,8 +311,8 @@ func u_chain_small_power(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var sl := func(p: int, q: int) -> Dictionary:
 		return alt(w.call(p, q), "", {"c1": Q.new(p), "c0": Q.new(q)}).values
 	return {"lines": ["y = " + y], "asked": "Find dy/dx. Write your answer in the form px + q.", "answer": ans,
-		"wrongs": [alt(w.call(2 * a, 2 * b), R_NO_INNER, {"c1": Q.new(2 * a), "c0": Q.new(2 * b)})],
-		"generic": [sl.call(2 * a * a, b), sl.call(a * a, 2 * a * b), sl.call(c1, -c0), sl.call(c1 + 1, c0), sl.call(c1, c0 + 1)],
+		"wrongs": [alt(w.call(2 * a, 2 * b), R_NO_INNER, {"c1": Q.new(2 * a), "c0": Q.new(2 * b)}), alt(w.call(2 * a * a, b), R_FIRST_ONLY, {"c1": Q.new(2 * a * a), "c0": Q.new(b)})],
+		"fillers": [sl.call(a * a, 2 * a * b), sl.call(c1, -c0), sl.call(c1 + 1, c0), sl.call(c1, c0 + 1)],
 		"methods": {"outer-times-inner": method([
 			"The outside gives 2(…), and the inside %s gives %d." % [SUM([[a, "x"], [b, ""]]), a],
 			"dy/dx = 2 × %d × %s." % [a, B(a, b)],
@@ -324,9 +347,10 @@ func u_chain_function(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			parts = [dh, {"slot": "k"}, tail]
 			slots = {"k": Q.new(2 * a)}
 			wr.append(alt(dh + y, R_NO_INNER))
-			for q in [a, 2 * a + 1, -2 * a, 2 * a * a]:
+			wr.append(alt(dh + T(a, tail), R_INNER_POWER, {"k": Q.new(a)}))
+			wr.append(alt(dh + "%s e^(%s)" % [T(2 * a, "x"), T(2 * a, "x")], R_INSIDE))
+			for q in [2 * a + 1, -2 * a, 2 * a * a]:
 				gen.append(alt(dh + T(q, tail), "", {"k": Q.new(q)}).values)
-			gen.append(alt(dh + "%s e^(%s)" % [T(2 * a, "x"), T(2 * a, "x")]).values)
 		"exp-lin":
 			inn = SUM([[a, "x"], [b, ""]])
 			dinn = str(a)
@@ -348,7 +372,8 @@ func u_chain_function(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			parts = [dh, {"slot": "k"}, "x/(" + inn + ")"]
 			slots = {"k": Q.new(2)}
 			wr.append(alt(dh + "1/(%s)" % inn, R_NO_INNER))
-			for q in [1, 4, -2, 3]:
+			wr.append(alt(dh + "x/(%s)" % inn, R_INNER_POWER, {"k": Q.new(1)}))
+			for q in [4, -2, 3]:
 				gen.append(alt(dh + "%sx/(%s)" % [Fmt.lead(q), inn], "", {"k": Q.new(q)}).values)
 		"ln-lin":
 			inn = SUM([[a, "x"], [b, ""]])
@@ -376,7 +401,10 @@ func u_chain_function(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			wr.append(alt(dh + T(signi(k), other), R_NO_INNER, {"k": Q.new(signi(k))}))
 			if cos:
 				wr.append(alt(dh + T(a, other), R_COS, {"k": Q.new(a)}))
-			for q in [-k, k + 1, 2 * k, k - 1]:
+			elif absi(k) != 1:
+				wr.append(alt(dh + T(-k, other), R_SIN_SIGN, {"k": Q.new(-k)}))
+			# −k: for cos(…) that is R_COS's option already.
+			for q in [k + 1, 2 * k, k - 1]:
 				if absi(q) != 1:
 					gen.append(alt(dh + T(q, other), "", {"k": Q.new(q)}).values)
 		"sqrt-lin":
@@ -398,7 +426,7 @@ func u_chain_function(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var line := "y = %s" % y
 	if s.fam.begins_with("ln") or s.fam == "sqrt-lin":
 		line += ", where the expression is defined"
-	return {"lines": [line], "asked": "Find dy/dx.", "answer": ans, "wrongs": wr, "generic": gen,
+	return {"lines": [line], "asked": "Find dy/dx.", "answer": ans, "wrongs": wr, "fillers": gen,
 		"methods": {"outer-times-inner": method([
 			"The outside function gives %s, with u left as it is." % out_d,
 			"The inside %s gives %s." % [inn, dinn],
@@ -428,12 +456,13 @@ func u_chain_log_split(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sl := func(q: Q) -> Dictionary:
 		return alt(w.call(q), "", {"k": q}).values
 	var gen: Array = [sl.call(c.add(1)), sl.call(c.neg()), sl.call(c.mul(2)), sl.call(c.add(2))]
+	var wr: Array = [alt(w.call(outer), R_NO_INNER, {"k": outer})]
 	if not c.eq(a):
-		gen.append(sl.call(Q.new(a)))
+		wr.append(alt(w.call(Q.new(a)), R_NO_LOG_POWER, {"k": Q.new(a)}))
 	var law := "y = %d ln%s" % [n, den] if power else "y = ½ ln%s" % den
 	var dy2 := "(1/u) × du/dx"
 	return {"lines": ["y = %s, where the expression is defined" % y], "asked": "Find dy/dx.", "answer": ans,
-		"wrongs": [alt(w.call(outer), R_NO_INNER, {"k": outer})], "generic": gen,
+		"wrongs": wr, "fillers": gen,
 		"methods": {"log-laws-first": method([
 			"Split the log first: " + law + ".",
 			"ln%s gives %d/%s by the chain rule." % [den, a, den],
@@ -508,7 +537,9 @@ func u_product_functions(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 			slots = {"p": Q.new(n), "q": Q.new(sgn)}
 			wr.append(alt(dh + "%s %s" % [T(n * sgn, xm), o], R_UV))
 			wr.append(alt(dh + "%s %s" % [T(n, xm), v], R_ONE_TERM))
-			for t in [[n, -sgn], [-n, sgn], [n + 1, sgn], [n - 1, sgn], [n, 2 * sgn]]:
+			# The trig term's sign flipped: sin x to −cos x, or cos x to sin x.
+			wr.append(alt(w.call(n, -sgn), R_COS if cos else R_SIN_SIGN, {"p": Q.new(n), "q": Q.new(-sgn)}))
+			for t in [[-n, sgn], [n + 1, sgn], [n - 1, sgn], [n, 2 * sgn]]:
 				gen.append(alt(w.call(t[0], t[1]), "", {"p": Q.new(t[0]), "q": Q.new(t[1])}).values)
 		"exp-sin":
 			u = "e^x"
@@ -523,11 +554,12 @@ func u_product_functions(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 			slots = {"p": Q.new(1), "q": Q.new(1)}
 			wr.append(alt(dh + "e^x cos x", R_UV))
 			wr.append(alt(dh + "e^x sin x", R_ONE_TERM))
-			for t in [[1, -1], [-1, 1], [2, 1], [1, 2]]:
+			wr.append(alt(w.call(1, -1), R_SIN_SIGN, {"p": Q.new(1), "q": Q.new(-1)}))
+			for t in [[-1, 1], [2, 1], [1, 2]]:
 				gen.append(alt(w.call(t[0], t[1]), "", {"p": Q.new(t[0]), "q": Q.new(t[1])}).values)
 	var ans := form(text, parts, slots)
 	var line := "y = " + y + (", for x > 0" if s.fam == "ln" else "")
-	return {"lines": [line], "asked": "Find dy/dx.", "answer": ans, "wrongs": wr, "generic": gen,
+	return {"lines": [line], "asked": "Find dy/dx.", "answer": ans, "wrongs": wr, "fillers": gen,
 		"methods": {"product-rule": method([
 			"Let u = %s and v = %s, so u′ = %s and v′ = %s." % [u, v, du, dv],
 			"dy/dx = u′v + uv′ = (%s)(%s) + (%s)(%s)." % [du, v, u, dv],
@@ -553,7 +585,7 @@ func u_product_polys(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		return alt(w.call(p, q, r), ref, {"u2": Q.new(p), "u1": Q.new(q), "u0": Q.new(r)})
 	return {"lines": ["y = " + y], "asked": "Find dy/dx. Write your answer in the form px² + qx + r.", "answer": ans,
 		"wrongs": [alt(dh + T(2 * a * c, "x"), R_UV), sl.call(a * c, 0, a * d, R_ONE_TERM)],
-		"generic": [sl.call(u2, -u1, u0).values, sl.call(u2, u1, -u0).values, sl.call(u2 + 1, u1, u0).values, sl.call(2 * a * c, u1, u0).values, sl.call(u2, u1 + 1, u0).values],
+		"fillers": [sl.call(u2, -u1, u0).values, sl.call(u2, u1, -u0).values, sl.call(u2 + 1, u1, u0).values, sl.call(2 * a * c, u1, u0).values, sl.call(u2, u1 + 1, u0).values],
 		"methods": {"product-rule": method([
 			"Let u = %s and v = %s, so u′ = %d and v′ = %s." % [SUM([[a, "x"], [b, ""]]), inside(c, 2, d), a, T(2 * c, "x")],
 			"dy/dx = u′v + uv′ = %d(%s) + %s%s." % [a, inside(c, 2, d), T(2 * c, "x"), B(a, b)],
@@ -580,8 +612,8 @@ func u_product_powers(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var y := "%s √x" % T(a, X(m))
 	var uv := a.mul(m).div(2)
 	return {"lines": ["y = %s, for x > 0" % y], "asked": "Find dy/dx. Write your answer as a power of x.", "answer": ans,
-		"wrongs": [sl.call(uv, Q.new(2 * m - 3, 2), R_UV), sl.call(a.mul(m), e, R_ONE_TERM)],
-		"generic": [sl.call(a, e).values, sl.call(c, p).values, sl.call(c.neg(), e).values, sl.call(c.add(1), e).values, sl.call(c, e.add(1)).values],
+		"wrongs": [sl.call(uv, Q.new(2 * m - 3, 2), R_UV), sl.call(a.mul(m), e, R_ONE_TERM), sl.call(a, e, R_UNMULT), sl.call(c, p, R_OLD_POWER)],
+		"fillers": [sl.call(c.neg(), e).values, sl.call(c.add(1), e).values, sl.call(c, e.add(1)).values],
 		"methods": {"product-rule": method([
 			"Let u = %s and v = √x = x^(1/2), so u′ = %s and v′ = (1/2)x^(−1/2)." % [T(a, X(m)), T(a.mul(m), X(m - 1))],
 			"dy/dx = u′v + uv′ = %s + %s." % [T(a.mul(m), XQ(e)), T(a.div(2), XQ(e))],
@@ -610,11 +642,14 @@ func u_quotient_linear(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := form(w.call(k), [dh, {"slot": "k"}, "/" + den], {"k": Q.new(k)})
 	var ac := Q.new(a, c)
 	var wr: Array = [alt(w.call(-k), R_FLIP, {"k": Q.new(-k)}), alt(dh + "%s/(%s)" % [Fmt.num(k), bot], R_NOT_SQUARED), alt(dh + ac.text(), R_U_V)]
+	var added: int = a * d + b * c
+	if added != k and added != -k and added != 0:
+		wr.append(alt(w.call(added), R_ADDED_TOP, {"k": Q.new(added)}))
 	var gen: Array = []
-	for q in [a * d + b * c, k + 1, k - 1, 2 * k]:
+	for q in [k + 1, k - 1, 2 * k]:
 		if q != k and q != -k and q != 0:
 			gen.append(alt(w.call(q), "", {"k": Q.new(q)}).values)
-	return {"lines": ["y = (%s)/(%s), for x ≠ %s" % [top, bot, Q.new(-d, c).text()]], "asked": "Find dy/dx.", "answer": ans, "wrongs": wr, "generic": gen,
+	return {"lines": ["y = (%s)/(%s), for x ≠ %s" % [top, bot, Q.new(-d, c).text()]], "asked": "Find dy/dx.", "answer": ans, "wrongs": wr, "fillers": gen,
 		"methods": {"quotient-rule": method([
 			"Let u = %s and v = %s, so u′ = %s and v′ = %s." % [top, bot, N(a), N(c)],
 			"dy/dx = (vu′ − uv′)/v² = (%s(%s) − %s(%s))/%s." % [N(a), bot, N(c), top, den],
@@ -656,7 +691,8 @@ func u_quotient_functions(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 			wr.append(alt(w.call(-1, n), R_FLIP, {"p": Q.new(-1), "q": Q.new(n)}))
 			wr.append(alt(dh + "(1 − %d ln x)/%s" % [n, X(n)], R_NOT_SQUARED))
 			wr.append(alt(dh + "1/(%s)" % T(n, X(n)), R_U_V))
-			for t in [[1, n], [n, -1], [1, -n - 1], [1, 1 - n], [2, -n]]:
+			wr.append(alt(w.call(1, n), R_ADDED_TOP, {"p": Q.new(1), "q": Q.new(n)}))
+			for t in [[n, -1], [1, -n - 1], [1, 1 - n], [2, -n]]:
 				if t[1] != 0:
 					gen.append(alt(w.call(t[0], t[1]), "", {"p": Q.new(t[0]), "q": Q.new(t[1])}).values)
 			neg = "x^(−%d) ln x" % n
@@ -675,7 +711,10 @@ func u_quotient_functions(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 			wr.append(alt(w.call(-a, 1), R_FLIP, {"p": Q.new(-a), "q": Q.new(1)}))
 			wr.append(alt(dh + "%s(%s)/x" % [e, SUM([[a, "x"], [-1, ""]])], R_NOT_SQUARED))
 			wr.append(alt(dh + T(a, e), R_U_V))
-			for t in [[a, 1], [1, -1], [a + 1, -1], [a, -2]]:
+			wr.append(alt(w.call(a, 1), R_ADDED_TOP, {"p": Q.new(a), "q": Q.new(1)}))
+			if a != 1:
+				wr.append(alt(w.call(1, -1), R_NO_INNER, {"p": Q.new(1), "q": Q.new(-1)}))
+			for t in [[a + 1, -1], [a, -2]]:
 				gen.append(alt(w.call(t[0], t[1]), "", {"p": Q.new(t[0]), "q": Q.new(t[1])}).values)
 			neg = "%s x⁻¹" % e
 		"sin":
@@ -692,12 +731,13 @@ func u_quotient_functions(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 			wr.append(alt(w.call(-1, 1), R_FLIP, {"p": Q.new(-1), "q": Q.new(1)}))
 			wr.append(alt(dh + "(x cos x − sin x)/x", R_NOT_SQUARED))
 			wr.append(alt(dh + "cos x", R_U_V))
-			for t in [[1, 1], [2, -1], [1, -2], [-1, -1]]:
+			wr.append(alt(w.call(1, 1), R_ADDED_TOP, {"p": Q.new(1), "q": Q.new(1)}))
+			for t in [[2, -1], [1, -2], [-1, -1]]:
 				gen.append(alt(w.call(t[0], t[1]), "", {"p": Q.new(t[0]), "q": Q.new(t[1])}).values)
 			neg = "x⁻¹ sin x"
 	var ans := form(text, parts, slots)
 	var line := "y = " + y + ", for x > 0"
-	return {"lines": [line], "asked": "Find dy/dx.", "answer": ans, "wrongs": wr, "generic": gen,
+	return {"lines": [line], "asked": "Find dy/dx.", "answer": ans, "wrongs": wr, "fillers": gen,
 		"methods": {"quotient-rule": method([
 			"Let u = %s and v = %s, so u′ = %s and v′ = %s." % [u, v, du, dv],
 			"dy/dx = (vu′ − uv′)/v².",
@@ -722,8 +762,8 @@ func u_quotient_split(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sl := func(p: int, q: int, ref: String = "") -> Dictionary:
 		return alt(w.call(p, q), ref, {"p": Q.new(p), "q": Q.new(q)})
 	return {"lines": ["y = (%s)/x, for x ≠ 0" % top], "asked": "Find dy/dx.", "answer": ans,
-		"wrongs": [sl.call(-a, c, R_FLIP), alt(dh + SUM([[a, "x"], [-c, "/x"]]), R_NOT_SQUARED), alt(dh + Fmt.poly([2 * a, b]), R_U_V)],
-		"generic": [sl.call(a, c).values, sl.call(b, -c).values, sl.call(a + 1, -c).values, sl.call(a, -c + 1).values],
+		"wrongs": [sl.call(-a, c, R_FLIP), alt(dh + SUM([[a, "x"], [-c, "/x"]]), R_NOT_SQUARED), alt(dh + Fmt.poly([2 * a, b]), R_U_V), sl.call(a, c, R_NEG_SIGN)],
+		"fillers": [sl.call(b, -c).values, sl.call(a + 1, -c).values, sl.call(a, -c + 1).values],
 		"methods": {"quotient-rule": method([
 			"Let u = %s and v = x, so u′ = %s and v′ = 1." % [top, Fmt.poly([2 * a, b])],
 			"dy/dx = (x(%s) − (%s))/x²." % [Fmt.poly([2 * a, b]), top],
@@ -757,8 +797,8 @@ func u_show_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			target = "dy/dx = (p + q ln x)/x^r"
 			names = ["p", "q", "r"]
 			vals = [1, -n, n + 1]
-			wr = [[[1, n, n + 1], R_SIGN], [[1, -n, 2 * n], ""]]
-			gen = [[1, -n, n], [n, -1, n + 1], [-1, n, n + 1], [1, -n - 1, n + 1]]
+			wr = [[[1, n, n + 1], R_SIGN], [[1, -n, 2 * n], R_UNCANCELLED], [[-1, n, n + 1], R_FLIP]]
+			gen = [[1, -n, n], [n, -1, n + 1], [1, -n - 1, n + 1]]
 			ds = ["The quotient rule, with u = ln x and v = %s: dy/dx = (%s × 1/x − %s ln x)/%s." % [X(n), X(n), T(n, X(n - 1)), X(2 * n)],
 				"Take out %s on top: (%s)/%s." % [X(n - 1), SUM([[1, ""], [-n, "ln x"]]), X(n + 1)]]
 			alt_rule = ["The product rule lands closer: y = x^(−%d) ln x." % n,
@@ -774,7 +814,10 @@ func u_show_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			vals = [-b - a * c]
 			var k: int = vals[0]
 			wr = [[[-k], R_SIGN]]
-			gen = [[k + 1], [k - 1], [2 * k], [a - b], [b - a * c]]
+			# b − ac: the sign slipped on b alone, expanding −(ax + b).
+			if b - a * c != k and b - a * c != -k:
+				wr.append([[b - a * c], R_SIGN])
+			gen = [[k + 1], [k - 1], [2 * k], [a - b]]
 			ds = ["The quotient rule, with u = %s and v = x − %d: f′(x) = (%d(x − %d) − (%s))/(x − %d)²." % [SUM([[a, "x"], [b, ""]]), c, a, c, SUM([[a, "x"], [b, ""]]), c],
 				"The x terms cancel on top, leaving %s." % Fmt.num(k)]
 			alt_rule = ["Split the top first: (%s)/(x − %d) = %d + %s/(x − %d)." % [SUM([[a, "x"], [b, ""]]), c, a, Fmt.num(b + a * c), c],
@@ -786,7 +829,7 @@ func u_show_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			target = "f′(x) = %d(p − qx²)/(x² + %d)^r" % [a, b]
 			names = ["p", "q", "r"]
 			vals = [b, 2 * n - 1, n + 1]
-			wr = [[[b, -2 * n - 1, n + 1], R_SIGN], [[b, 2 * n - 1, 2 * n], ""]]
+			wr = [[[b, -2 * n - 1, n + 1], R_SIGN], [[b, 2 * n - 1, 2 * n], R_UNCANCELLED]]
 			gen = [[b, 2 * n, n + 1], [b, n, n + 1], [2 * b, 2 * n - 1, n + 1], [b + 1, 2 * n - 1, n + 1]]
 			ds = ["The quotient rule, with u = %s and v = (x² + %d)%s: v′ = %s(x² + %d)%s." % [T(a, "x"), b, Fmt.sup(n), T(2 * n, "x"), b, Fmt.sup(n - 1)],
 				"Take out %d(x² + %d)%s on top, leaving x² + %d − %s." % [a, b, Fmt.sup(n - 1), b, T(2 * n, "x²")],
@@ -811,7 +854,7 @@ func u_show_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wrs: Array = wr.map(func(p): return wrong(one.call(p[0]), p[1]))
 	var noun := "the value of p" if names.size() == 1 else "the values of " + ("p, q and r")
 	return {"lines": [line, "Show that %s, and state %s." % [target, noun]], "asked": "State %s." % noun, "answer": ans,
-		"wrongs": wrs, "generic": gen.map(func(t): return one.call(t)),
+		"wrongs": wrs, "fillers": gen.map(func(t): return one.call(t)),
 		"methods": {"differentiate-simplify": method(ds + [say(ans)], ans.values),
 			"alternate-rule": method(alt_rule + [say(ans)], ans.values),
 			"both-ends": method(ends + [say(ans)], ans.values)}}
@@ -866,10 +909,14 @@ func _gradient_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 				nums = [[(log(x) - (x + c) / x) / pow(x + c, 2), R_FLIP], [(1.0 / x * (x + c) - log(x)) / (x + c), R_NOT_SQUARED], [1.0 / x, R_U_V]]
 				steps = ["u = ln x and v = x + %d, so dy/dx = ((x + %d)/x − ln x)/(x + %d)²." % [c, c, c],
 					"Put x = %s, on the GDC: %s." % [kt, GdcKit.W(v)]]
+		gen = [{"v": GdcKit.qf(v * 2.0)}, {"v": GdcKit.qf(-v)}, {"v": GdcKit.qf(v * 0.5)}, {"v": GdcKit.qf(v * 1.5)}]
+		# A slip with no line (the chain's a·x, half the inner derivative) is a filler.
 		for w in nums:
 			if GdcKit.fair(w[0]):
-				wr.append(wrong({"v": GdcKit.qf(w[0])}, w[1]))
-		gen = [{"v": GdcKit.qf(v * 2.0)}, {"v": GdcKit.qf(-v)}, {"v": GdcKit.qf(v * 0.5)}, {"v": GdcKit.qf(v * 1.5)}]
+				if w[1] == "":
+					gen.append({"v": GdcKit.qf(w[0])})
+				else:
+					wr.append(wrong({"v": GdcKit.qf(w[0])}, w[1]))
 	else:
 		var kn: int = k.n
 		var val: Q
@@ -930,7 +977,7 @@ func _gradient_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		asked = "Find f′(%s)%s." % [kt, ", to 3 s.f" if p2 else ""]
 	var st: Array = steps + [say(ans)]
 	var key: String = {"chain": "outer-times-inner", "product": "product-rule", "quotient": "quotient-rule"}[s.fam]
-	return {"lines": [line], "asked": asked, "answer": ans, "wrongs": wr, "generic": gen, "methods": {key: method(st, ans.values)}}
+	return {"lines": [line], "asked": asked, "answer": ans, "wrongs": wr, "fillers": gen, "methods": {key: method(st, ans.values)}}
 
 
 ## A gradient as an exact number, typed.
@@ -959,7 +1006,7 @@ func u_parameter_derivative(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		return alt(w.call(x, y, z), ref, {"c1": Q.new(x), "c0": Q.new(y), "cp": Q.new(z)})
 	return {"lines": [f + ", for x ≠ −%d" % c], "asked": "Find an expression for f′(x), in terms of p.", "answer": ans,
 		"wrongs": [sl.call(-c1, -c0, 2, R_FLIP), sl.call(3 - 2 * a, 3 * c, -2, R_NO_INNER), alt("%s(%s)²(%s)/(%s)²" % [dh, lin, SUM([[c1, "x"], [c0, ""], [-2, "p"]]), bot], R_NOT_SQUARED)],
-		"generic": [sl.call(c1, c0, 2).values, sl.call(c1 + 1, c0, -2).values, sl.call(c1, c0 + 1, -2).values, sl.call(c1, c0, -3).values],
+		"fillers": [sl.call(c1, c0, 2).values, sl.call(c1 + 1, c0, -2).values, sl.call(c1, c0 + 1, -2).values, sl.call(c1, c0, -3).values],
 		"methods": {"quotient-rule": method([
 			"u = (%s)³, so u′ = %d(%s)² by the chain rule. v = (%s)², so v′ = 2(%s)." % [lin, 3 * a, lin, bot, bot],
 			"f′(x) = (vu′ − uv′)/v², and v² = (%s)⁴." % bot,
