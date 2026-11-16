@@ -16,6 +16,7 @@ const R_NEGATIVE := "SL3.5.related-angles#2"
 const R_COORDS := "SL3.5.unit-circle#0"
 const R_CLOCKWISE := "SL3.5.unit-circle#1"
 const R_TAN_ZERO := "SL3.5.unit-circle#2"
+const R_UNSQUARED := "t3-exact-values#9"
 
 const UNKNOWNS := ["special-value", "scaled-value", "special-sum", "related-value", "related-sum", "given-related",
 	"point-at-angle", "ratio-from-point", "tan-from-point", "sign-in-quadrant", "tan-undefined"]
@@ -117,7 +118,7 @@ func u_special_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := TrigKit.ans("%s θ = " % s.fn if rep == "diagram" else call_of(s) + " = ", v)
 	var out := {"answer": a, "asked": "Find the exact value of %s." % call_of(s), "lines": [call_of(s)]}
 	out.wrongs = first_wrongs(a, s.fn, s.t)
-	out.generic = TrigKit.others(a, landmark_values())
+	out.fillers = TrigKit.others(a, landmark_values())
 	if rep == "table":
 		out.lines = ["The table lists the landmark angles. Fill in the cell with the question mark."]
 		out.table = _table(s)
@@ -169,7 +170,7 @@ func u_scaled_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = ["A rope %d m long runs up from a peg at %s, so its top end is h = %d %s θ metres above the peg." % [k, at, k, s.fn]]
 		out.asked = "Find the exact value of h when θ = %s." % ang
 	out.wrongs = first_wrongs(a, s.fn, s.t, k)
-	out.generic = TrigKit.others(a, landmark_values(k) + landmark_values(1))
+	out.fillers = TrigKit.others(a, landmark_values(k) + landmark_values(1))
 	var name := "%s(%s)" % [s.fn, ang]
 	var m := {}
 	for id in ["special-triangles", "unit-circle-points", "root-pattern"]:
@@ -199,8 +200,9 @@ func u_special_sum(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sg := two if s.plus else TrigKit.neg(two)
 	if s.fn != "tan" and s.t.key() == "1/4":
 		out.wrongs = TrigKit.like(a, TrigKit.plus(TrigKit.times(TrigKit.V(Q.new(1, 4)), s.first), sg), R_SIN_FOUR)
-	var gens: Array = [TrigKit.plus(TrigKit.times(one, s.first), sg), TrigKit.plus(sq, TrigKit.neg(sg)), TrigKit.plus(TrigKit.times(sq, 2), sg), TrigKit.plus(sq, TrigKit.times(sg, 2))]
-	out.generic = TrigKit.others(a, gens.filter(func(g): return not g.is_empty()) + [TrigKit.plus(v, TrigKit.V(1)), TrigKit.plus(v, TrigKit.V(Q.new(1, 2))), TrigKit.plus(v, TrigKit.V(2))])
+	out.wrongs += TrigKit.like(a, TrigKit.plus(TrigKit.times(one, s.first), sg), R_UNSQUARED)
+	var gens: Array = [TrigKit.plus(sq, TrigKit.neg(sg)), TrigKit.plus(TrigKit.times(sq, 2), sg), TrigKit.plus(sq, TrigKit.times(sg, 2))]
+	out.fillers = TrigKit.others(a, gens.filter(func(g): return not g.is_empty()) + [TrigKit.plus(v, TrigKit.V(1)), TrigKit.plus(v, TrigKit.V(Q.new(1, 2))), TrigKit.plus(v, TrigKit.V(2))])
 	var steps := func(head: String) -> Array:
 		return ["%s %s = %s and %s = %s." % [head, TrigKit.call_text(s.fn, s.t, "pi"), T(one), TrigKit.call_text(s.fn2, s.t2, "pi"), T(two)],
 			"Square the first: %s%s²(%s) = %s" % ["" if s.first == 1 else str(s.first), s.fn, Fmt.pi(s.t), T(sq)],
@@ -274,7 +276,9 @@ func u_related_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if r.key() != "1/4":
 		var y := TrigKit.of(s.fn, Q.new(1, 2).sub(r))
 		out.wrongs += TrigKit.like(a, y if v[0].add(v[1]).sign() > 0 else TrigKit.neg(y), R_Y_AXIS)
-	out.generic = TrigKit.others(a, landmark_values() + landmark_values(-1))
+	elif s.fn != "tan":
+		out.wrongs += TrigKit.like(a, TrigKit.times(TrigKit.V(Q.new(1, 2)), 1 if v[0].add(v[1]).sign() > 0 else -1), R_SIN_FOUR)
+	out.fillers = TrigKit.others(a, landmark_values() + landmark_values(-1))
 	var m := {}
 	for id in ["unit-circle-reflection", "reference-angle-cast", "graph-symmetry", "identity"]:
 		m[id] = method(round_steps(id, s.fn, s.t) + [say(a)], a.values)
@@ -289,8 +293,8 @@ func u_related_sum(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := TrigKit.ans("", v)
 	var left := "%s + %s" % [TrigKit.call_text(s.fn, s.t, "pi"), TrigKit.call_text(s.fn2, s.t2, "pi")]
 	var out := {"answer": a, "lines": [left], "asked": "Find the exact value."}
-	out.wrongs = TrigKit.like(a, TrigKit.plus(TrigKit.neg(one), two), R_SIGN)
-	out.generic = TrigKit.others(a, [TrigKit.plus(one, TrigKit.neg(two)), TrigKit.neg(v), TrigKit.plus(v, TrigKit.V(1)), TrigKit.plus(v, TrigKit.V(Q.new(1, 2))), TrigKit.plus(v, TrigKit.V(-1)), TrigKit.plus(v, TrigKit.V(2))].filter(func(g): return not g.is_empty()))
+	out.wrongs = TrigKit.like(a, TrigKit.plus(TrigKit.neg(one), two), R_SIGN) + TrigKit.like(a, TrigKit.plus(one, TrigKit.neg(two)), R_SIGN) + TrigKit.like(a, TrigKit.neg(v), R_SIGN)
+	out.fillers = TrigKit.others(a, [TrigKit.plus(v, TrigKit.V(1)), TrigKit.plus(v, TrigKit.V(Q.new(1, 2))), TrigKit.plus(v, TrigKit.V(-1)), TrigKit.plus(v, TrigKit.V(2))].filter(func(g): return not g.is_empty()))
 	var add := "%s = %s" % [TrigKit.sum_text(one, two), T(v)]
 	out.methods = {"reference-angle-cast": method(round_steps("reference-angle-cast", s.fn, s.t).slice(0, 2) + ["%s = %s" % [TrigKit.call_text(s.fn, s.t, "pi"), T(one)]] + round_steps("reference-angle-cast", s.fn2, s.t2).slice(0, 2) + ["%s = %s" % [TrigKit.call_text(s.fn2, s.t2, "pi"), T(two)], add, say(a)], a.values),
 		"identity": method(round_steps("identity", s.fn, s.t) + round_steps("identity", s.fn2, s.t2) + [add, say(a)], a.values)}
@@ -336,7 +340,7 @@ func u_given_related(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.answer = a
 	out.wrongs = TrigKit.like(a, TrigKit.neg(v), R_SIGN)
 	var rest := Q.new(1).sub(g)
-	out.generic = TrigKit.others(a, [TrigKit.V(rest), TrigKit.V(rest.neg()), TrigKit.V(g.div(2)), TrigKit.V(g.mul(2)), TrigKit.V(Q.new(1).div(g)), TrigKit.sqrt_q(Q.new(1).sub(g.sq()))])
+	out.fillers = TrigKit.others(a, [TrigKit.V(rest), TrigKit.V(rest.neg()), TrigKit.V(g.div(2)), TrigKit.V(g.mul(2)), TrigKit.V(Q.new(1).div(g)), TrigKit.sqrt_q(Q.new(1).sub(g.sq()))])
 	var word := "%s(%s)" % [s.fn, related_angle(s.rule)]
 	var st := "%s = %s%s θ" % [word, "" if sg > 0 else "−", s.fn]
 	if rep == "diagram":
@@ -380,7 +384,7 @@ func u_point_at_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = ["The diagram shows the unit circle, with P at angle %s." % at]
 		out.graph = {"kind": "unit-circle", "points": [TrigKit.point(ang, "P")], "angle": ang, "angle_label": at, "radius": true}
 	out.wrongs = [_pair_alt(a, y, x, R_COORDS), _pair_alt(a, x, TrigKit.neg(y), R_CLOCKWISE)]
-	out.generic = [_pair_alt(a, TrigKit.neg(x), y).values, _pair_alt(a, TrigKit.neg(x), TrigKit.neg(y)).values, _pair_alt(a, TrigKit.neg(y), x).values, _pair_alt(a, y, TrigKit.neg(x)).values]
+	out.fillers = [_pair_alt(a, TrigKit.neg(x), y).values, _pair_alt(a, TrigKit.neg(x), TrigKit.neg(y)).values, _pair_alt(a, TrigKit.neg(y), x).values, _pair_alt(a, y, TrigKit.neg(x)).values]
 	out.methods = {"read-coordinates": method(["cos θ is the x-coordinate and sin θ the y-coordinate.", "cos(%s) = %s and sin(%s) = %s" % [at, T(x), at, T(y)], say(a)], a.values)}
 	return out
 
@@ -407,7 +411,7 @@ func u_ratio_from_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var show := _point_show(rep, s)
 	var out := {"answer": a, "lines": show.lines, "graph": show.graph, "asked": "Write down the exact value of %s θ." % s.fn}
 	out.wrongs = TrigKit.like(a, TrigKit.V(o), R_COORDS)
-	out.generic = _qs(a, [v.neg(), o.neg(), v.div(o), o.div(v), v.mul(o)])
+	out.fillers = _qs(a, [v.neg(), o.neg(), v.div(o), o.div(v), v.mul(o)])
 	out.methods = {"read-coordinates": method(["The point is (cos θ, sin θ).", "sin is the y-coordinate: %s" % Fmt.num(v) if sin_ else "cos is the x-coordinate: %s" % Fmt.num(v), say(a)], a.values)}
 	return out
 
@@ -418,7 +422,7 @@ func u_tan_from_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var show := _point_show(rep, s)
 	var out := {"answer": a, "lines": show.lines, "graph": show.graph, "asked": "Write down the exact value of tan θ."}
 	out.wrongs = TrigKit.like(a, TrigKit.V(s.x.div(s.y)), R_COORDS)
-	out.generic = _qs(a, [v.neg(), s.x.div(s.y).neg(), s.y, s.x, s.y.mul(s.x)])
+	out.fillers = _qs(a, [v.neg(), s.x.div(s.y).neg(), s.y, s.x, s.y.mul(s.x)])
 	var xt := Fmt.num(s.x)
 	var yt := Fmt.num(s.y)
 	out.methods = {"read-coordinates": method(["cos θ = %s and sin θ = %s, reading x and y." % [xt, yt], "tan θ = sin θ ÷ cos θ = %s ÷ %s" % [P(s.y), P(s.x)], say(a)], a.values),
@@ -447,7 +451,8 @@ func u_sign_in_quadrant(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			wrongs_in.append([signs_text(s.fn, s.fn2, pair[0], pair[1]), R_CLOCKWISE if pair == [ma, mb] else ""])
 	var c := DerivativeMeaningViews.claim_answer(signs_text(s.fn, s.fn2, sa, sb), wrongs_in)
 	var a: Dictionary = c.answer
-	var out := {"answer": a, "wrongs": c.wrongs, "lines": ["%s" % BOUNDS[q - 1]], "asked": "Which statement is true of θ?"}
+	var out := {"answer": a, "wrongs": c.wrongs.filter(func(w): return w.ref != ""), "lines": ["%s" % BOUNDS[q - 1]], "asked": "Which statement is true of θ?"}
+	out.fillers = c.wrongs.filter(func(w): return w.ref == "").map(func(w): return w.values)
 	if rep == "diagram":
 		out.lines = ["%s: θ ends in the shaded quadrant of the unit circle." % BOUNDS[q - 1]]
 		out.graph = {"kind": "unit-circle", "quadrant": q}
@@ -469,7 +474,7 @@ func u_tan_undefined(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var at := Fmt.pi(s.t)
 	var right := "cos(%s) = 0, so sin ÷ cos divides by zero" % at
 	var c := DerivativeMeaningViews.claim_answer(right, [["tan(%s) = 0, because the angle is on an axis" % at, R_TAN_ZERO], ["tan(%s) = 1, because sin and cos are equal there" % at, R_TAN_ZERO],
-		["sin(%s) = 0, so tan has no value" % at, ""]])
+		["sin(%s) = 0, so tan has no value" % at, R_COORDS]])
 	var a: Dictionary = c.answer
 	var out := {"answer": a, "wrongs": c.wrongs, "asked": "Why does tan(%s) have no value?" % at}
 	var ang: float = s.t.to_float() * PI

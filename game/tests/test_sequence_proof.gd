@@ -185,5 +185,6 @@ func test_every_tag_shows_up_as_an_option() -> void:
 			for o in _make(c, seed).choices:
 				if o.ref != "":
 					seen[o.ref] = true
-	for m in t.misconceptions:
-		check(seen.has(m.ref), "no option is tagged %s" % m.ref)
+	for i in t.misconceptions.size():
+		var ref: String = t.misconceptions[i].get("ref", "%s#%d" % [TYPE, i])
+		check(seen.has(ref), "no option is tagged %s" % ref)

@@ -2,8 +2,8 @@ class_name MathBox
 extends RefCounted
 ## Maths laid out as on paper (FAL-797): a tree of boxes. A ROW holds boxes side by side,
 ## a TEXT box is a run of text, a FRACTION holds two rows (its top and its bottom) stacked
-## over a bar, a POWER holds one row, raised and smaller, and a ROOT holds one row under a
-## radical sign and its bar. MathLabel draws a tree cut from text by MathText; typed
+## over a bar, a POWER holds one row, raised and smaller, a SUB holds one row, lowered and
+## as small (u₁, log_b), and a ROOT holds one row under a radical sign and its bar. MathLabel draws a tree cut from text by MathText; typed
 ## answers (FAL-812) and the calculator (FAL-813) build and edit one, so what is typed
 ## looks like what is shown.
 ##
@@ -15,7 +15,7 @@ extends RefCounted
 ## fraction shrinks again, but never below a power's size, so the smallest numbers stay
 ## readable on a phone. In a power, a fraction keeps the power's size.
 
-enum Kind { TEXT, ROW, FRACTION, POWER, ROOT }
+enum Kind { TEXT, ROW, FRACTION, POWER, ROOT, SUB }
 
 ## The line's size for a fraction's top and bottom.
 const FRACTION_SCALE := 0.85
@@ -31,6 +31,8 @@ const SIDE := 0.05
 ## size. An empty row is this tall too, so an empty fraction part keeps its place.
 const INK_ASCENT := 0.8
 const INK_DESCENT := 0.24
+## How far a subscript's baseline sits below the line's, as a share of the size.
+const SUB_DROP := 0.22
 ## A radical sign's width, and the space between it and what is under it.
 const RADICAL := 0.5
 const RADICAL_GAP := 0.06
@@ -75,6 +77,10 @@ static func power(inner: MathBox) -> MathBox:
 	return _with(Kind.POWER, [inner])
 
 
+static func sub(inner: MathBox) -> MathBox:
+	return _with(Kind.SUB, [inner])
+
+
 static func root(inner: MathBox) -> MathBox:
 	return _with(Kind.ROOT, [inner])
 
@@ -103,6 +109,8 @@ static func from_node(n) -> MathBox:
 		return power(from_nodes(n.pow))
 	if n.has("root"):
 		return root(from_nodes(n.root))
+	if n.has("sub"):
+		return sub(from_nodes(n.sub))
 	return fraction(from_nodes(n.num), from_nodes(n.den))
 
 
@@ -118,6 +126,8 @@ func to_text() -> String:
 			return "^(%s)" % children[0].to_text()
 		Kind.ROOT:
 			return "√(%s)" % children[0].to_text()
+		Kind.SUB:
+			return "_(%s)" % children[0].to_text()
 	var out := ""
 	for c in children:
 		out += c.to_text()
@@ -133,7 +143,7 @@ func plain() -> String:
 			return text
 		Kind.FRACTION:
 			return _bracketed(children[0].plain(), " ") + "/" + _bracketed(children[1].plain(), " ")
-		Kind.POWER:
+		Kind.POWER, Kind.SUB:
 			return children[0].plain()
 		Kind.ROOT:
 			return "√" + _bracketed(children[0].plain(), " +−-×·/")
@@ -165,14 +175,22 @@ func layout(font: Font, s: int, base: int = -1, in_power := false) -> void:
 			w = 0.0
 			asc = s * INK_ASCENT
 			desc = s * INK_DESCENT
+			var before: MathBox = null
 			for c in children:
 				c.layout(font, s, base, in_power)
 				c.at = Vector2(w, 0.0)
+				# A power after a fraction or a root sits at its top right, as (3/4)² does
+				# on paper, not at the line's.
+				if c.kind == Kind.POWER and before != null and before.asc > s * INK_ASCENT:
+					c.at.y = s * INK_ASCENT - before.asc
 				w += c.w
-				asc = maxf(asc, c.asc)
-				desc = maxf(desc, c.desc)
+				asc = maxf(asc, c.asc - c.at.y)
+				desc = maxf(desc, c.desc + c.at.y)
+				before = c
 		Kind.POWER:
 			_layout_power(font, s, base)
+		Kind.SUB:
+			_layout_sub(font, s, base)
 		Kind.FRACTION:
 			_layout_fraction(font, s, base, in_power)
 		Kind.ROOT:
@@ -189,6 +207,16 @@ func _layout_power(font: Font, s: int, base: int) -> void:
 	w = inner.w
 	asc = maxf(s * INK_ASCENT, rise + inner.asc)
 	desc = maxf(0.0, inner.desc - rise)
+
+
+func _layout_sub(font: Font, s: int, base: int) -> void:
+	var inner: MathBox = children[0]
+	inner.layout(font, roundi(s * UiTheme.POWER_SCALE), base, true)
+	var drop := s * SUB_DROP
+	inner.at = Vector2(0.0, drop)
+	w = inner.w
+	asc = maxf(s * INK_ASCENT, inner.asc - drop)
+	desc = maxf(s * INK_DESCENT, inner.desc + drop)
 
 
 func _layout_fraction(font: Font, s: int, base: int, in_power: bool) -> void:

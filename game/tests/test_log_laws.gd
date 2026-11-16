@@ -74,7 +74,7 @@ func test_a_gdc_check_is_not_a_proof() -> void:
 	for u in ["single-log-letters", "expand-letters"]:
 		for seed in range(1, 21):
 			var sol: Dictionary = _make(_cell(u, "gdc-check"), seed).solutions[0]
-			var text := " ".join(sol.steps)
+			var text := " ".join(Step.texts(sol.steps))
 			check(text.contains("both forms show"), text)
 			check(text.contains("a check, not a proof"), text)
 			check(text.contains("the laws are the proof"), text)

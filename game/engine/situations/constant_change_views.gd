@@ -28,6 +28,10 @@ const R_AGAIN := CC + "11"
 const R_MEAN_GAP := CC + "12"
 const R_MEAN_RATIO := CC + "13"
 const R_SWAP := CC + "14"
+## Misconceptions with no ref of their own, logged by index (FAL-815).
+const R_ADD_FACTOR := "t4-constant-changes#15"
+const R_MEAN_SQ := "t4-constant-changes#16"
+const R_B_ORDER := "t4-constant-changes#17"
 
 const RULES := "shift-stretch-rules"
 const PICTURE := "picture-the-histogram"
@@ -502,7 +506,7 @@ func stats_question(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		_:
 			out.lines = stat_lines(s)
 	out.wrongs = wrong_options(s)
-	out.generic = fillers(s)
+	out.fillers = fillers(s)
 	if rep == "terms":
 		out.methods = list_methods(s, ans)
 	else:
@@ -524,13 +528,13 @@ func u_add_centre_spread(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 
 func u_multiply_mean(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := stats_question(rep, s, rng)
-	out.generic = [{"v": s.old.mean.add(s.a)}, {"v": s.old.mean.mul(s.a.sq())}].filter(func(g): return fits(g.v)) + out.generic
+	out.wrongs = out.wrongs + [wrong({"v": s.old.mean.add(s.a)}, R_ADD_FACTOR), wrong({"v": s.old.mean.mul(s.a.sq())}, R_MEAN_SQ)].filter(func(w): return fits(w.values.v))
 	return out
 
 
 func u_multiply_variance(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := stats_question(rep, s, rng)
-	out.generic = [{"v": s.old.variance.add(s.a)}].filter(func(g): return fits(g.v)) + out.generic
+	out.fillers = [{"v": s.old.variance.add(s.a)}].filter(func(g): return fits(g.v)) + out.fillers
 	return out
 
 
@@ -668,7 +672,8 @@ func u_find_a_and_b(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var k: Q = s.new.variance.div(s.old.variance)
 		wrongs.append(wrong({"v0": k, "v1": big_m.sub(k.mul(m))}, R_VAR_K))
 	out.wrongs = wrongs.filter(func(w): return ConstantChangeSituation.ends(w.values.v1, 2) and ConstantChangeSituation.ends(w.values.v0, 2))
-	out.generic = [{"v0": s.a.add(1), "v1": s.b}, {"v0": s.a, "v1": s.b.neg()}, {"v0": s.a, "v1": s.b.add(1)}]
+	out.wrongs.append(wrong({"v0": s.a, "v1": s.b.neg()}, R_B_ORDER))
+	out.fillers = [{"v0": s.a.add(1), "v1": s.b}, {"v0": s.a, "v1": s.b.add(1)}]
 	var am: Q = s.a.mul(m)
 	var first := "Only the factor changes the standard deviation, so a = %s ÷ %s = %s." % [D(big_s), D(sd), D(s.a)]
 	if s.given_var:
@@ -699,7 +704,7 @@ func u_factor_from_variance(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	else:
 		out.lines = ["A data set has variance %s." % D(v), change_line(s, ["k"]), "The new values have variance %s." % D(big_v)]
 	out.wrongs = [wrong({"v": k2}, R_VAR_K)].filter(func(w): return fits(w.values.v) and not w.values.v.eq(s.a))
-	out.generic = [{"v": s.a.add(1)}, {"v": s.a.mul(2)}, {"v": s.a.add(Q.new(1, 2))}]
+	out.fillers = [{"v": s.a.add(1)}, {"v": s.a.mul(2)}, {"v": s.a.add(Q.new(1, 2))}]
 	var root := "k > 0, so k = √%s = %s." % [D(k2), D(s.a)]
 	out.methods = {RULES: method(["Multiplying every value by k multiplies the variance by k², so k² = %s ÷ %s = %s." % [D(big_v), D(v), D(k2)], root, final_step(ans)], ans.values),
 		PICTURE: method(["Stretching the histogram by a factor of k makes every width, and so the standard deviation, k times as big.",
@@ -751,7 +756,7 @@ func u_effect_statement(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	for ref in st:
 		if ref != "right":
 			out.wrongs.append(wrong(claim(ref, st[ref]), ref))
-	out.generic = []
+	out.fillers = []
 	var c: String = s.asked[0]
 	var sp: String = s.asked[1]
 	var centre := "The %s takes the whole change" % c

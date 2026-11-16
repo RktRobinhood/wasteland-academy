@@ -6,7 +6,8 @@ extends TrigEquationViews
 ## quadratic in u, the identity, the brackets, the values of u, the root to reject.
 ##
 ## Paper 1 is exact. The two gdc- unknowns are Paper 2, to 3 s.f., and are the only cells where the
-## map's GDC method can be asked.
+## map's GDC method can be asked. A list of exact solutions (EITHER) can be on Paper 2 too, with
+## the same exact working.
 ##
 ## Representations: "equation" (written out) and "graph". A graph of the whole equation is
 ## y = the left side once every term is on it, with the crossings marked for gdc-solve. For a count
@@ -39,6 +40,10 @@ const ASKS := ["quadratic-in-u", "identity-to-use", "factorised-form", "values-o
 	"double-angle-solve", "plus-minus-root", "tan-squared", "tan-zero-root", "surd-coefficient", "compound-quadratic", "rational-disguise", "double-factor",
 	"count-solutions", "one-solution", "sum-solutions", "constant-from-solution", "gdc-solve", "gdc-count"]
 const P2 := ["gdc-solve", "gdc-count"]
+## These ask for every solution, exactly. The bank asks that on Paper 2 as well (FAL-817), and a
+## calculator doesn't change the working, so they make either paper.
+const EITHER := ["all-solutions", "all-solutions-degrees", "double-angle-solve", "plus-minus-root", "tan-squared", "tan-zero-root",
+	"surd-coefficient", "compound-quadratic", "rational-disguise", "double-factor"]
 ## These ask for one step, so no list of solutions is made.
 const NO_LIST := ["quadratic-in-u", "identity-to-use", "factorised-form", "values-of-u", "formula-root", "reject-root", "constant-from-solution"]
 const COUNTS := ["count-solutions", "gdc-count"]
@@ -65,11 +70,14 @@ func needs() -> Dictionary:
 	return out
 
 
-## Every bank part is Paper 1, and only the two gdc- unknowns need a calculator.
+## Only the two gdc- unknowns need a calculator. A whole solution, exact, is either paper, and
+## the engine's paper_chance balances it against them; a step or a count is Paper 1.
 func papers(unknown: String, _rep: String, _method_id: String) -> Array:
 	if not has(unknown):
 		return []
-	return [2] if unknown in P2 else [1]
+	if unknown in P2:
+		return [2]
+	return [1, 2] if unknown in EITHER else [1]
 
 
 # ── Writing the equation ─────────────────────────────────────

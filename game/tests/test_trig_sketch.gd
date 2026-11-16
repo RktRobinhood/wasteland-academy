@@ -64,7 +64,7 @@ func test_paper_1_is_worked_by_hand() -> void:
 			check_eq(q.paper, 1, c.key)
 			for sol in q.solutions:
 				for st in sol.steps:
-					check(rx.search(st) == null, "%s: %s" % [c.key, st])
+					check(rx.search(Step.text(st)) == null, "%s: %s" % [c.key, Step.text(st)])
 
 
 func test_the_sums_match_hand_values() -> void:

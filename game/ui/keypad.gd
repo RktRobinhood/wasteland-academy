@@ -4,21 +4,27 @@ extends VBoxContainer
 ## answers (ANSWER_KEYS) and the calculator, which puts its function rows above the same
 ## answer keys. A key press emits `key` with the key's text.
 ##
-##   var pad := Keypad.make()                              # typed answers
+##   var pad := Keypad.make_answer()                       # typed answers
 ##   var pad := Keypad.make(Keypad.CALC_ROWS, Keypad.CALC_LAST)  # the calculator
 ##   pad.key.connect(func(k): ...)
 
 signal key(k: String)
 
-## The answer keys: two rows of seven.
+## The answer keys: two rows of seven. "/" is the fraction key (MathEntry, FAL-812), drawn
+## as a fraction of two empty boxes, in an answer box and the calculator (FAL-813).
 const ANSWER_KEYS := ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".", "/", "−", "Del"]
+## Below the answer keys in an answer box: the cursor keys.
+const ANSWER_LAST := ["◀", "▶"]
 const COLUMNS := 7
-## The calculator's function rows, above the answer keys, and its last row below them.
+## The calculator's function rows, above the answer keys, and its last row below them:
+## the cursor keys and S⇔D, which switches the last result between a fraction and a
+## decimal, as the TI's ►F◄►D.
 const CALC_ROWS := [["sin", "cos", "tan", "ln", "log", "√", "^"], ["(", ")", "π", "e", "x", "Ans", "×"]]
-const CALC_LAST := ["+", "AC", "EXE"]
+const CALC_LAST := ["+", "◀", "▶", "S⇔D", "AC", "EXE"]
+const TOGGLE := "S⇔D"
 ## Keys that are functions or operations, not digits (the calculator draws them orange).
 const FUNCTION_KEYS := ["sin", "cos", "tan", "ln", "log", "√", "^", "(", ")", "π", "e", "x", "Ans", "×", "+",
-	"/", "−", "AC"]
+	"/", "−", "AC", "◀", "▶", "S⇔D"]
 const KEY_SIZE := Vector2(120, 104)
 
 ## key text -> Button
@@ -52,6 +58,25 @@ static func make(rows_above: Array = [], last_row: Array = []) -> Keypad:
 	return pad
 
 
+## The typed-answer keypad: the answer keys, the fraction key drawn as a fraction, and
+## ◀ ▶ below them.
+static func make_answer() -> Keypad:
+	var pad := make([], ANSWER_LAST)
+	pad.fraction_face()
+	return pad
+
+
+## Draws the "/" key as a fraction of two empty boxes.
+func fraction_face() -> void:
+	var b: Button = buttons["/"]
+	b.text = ""
+	var icon := FractionIcon.new()
+	icon.name = "Fraction"
+	icon.button = b
+	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	b.add_child(icon)
+
+
 func _button(k: String) -> Button:
 	var b := Button.new()
 	b.name = "Key_" + k
@@ -66,7 +91,7 @@ func _button(k: String) -> Button:
 
 
 ## What a key types into a line: − as -, × as *, √ as √(, a function as its name and
-## "(". "" for keys that aren't text (Del, AC, EXE).
+## "(". "" for keys that aren't text (Del, AC, EXE, the cursor keys, S⇔D).
 static func typed(k: String) -> String:
 	match k:
 		"−":
@@ -77,6 +102,39 @@ static func typed(k: String) -> String:
 			return "√("
 		"sin", "cos", "tan", "ln", "log":
 			return k + "("
-		"Del", "AC", "EXE":
+		"Del", "AC", "EXE", "◀", "▶", TOGGLE:
 			return ""
 	return k
+
+
+## The fraction key's face: two dashed boxes over a bar, in the button's text colour.
+class FractionIcon extends Control:
+	var button: Button
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _ready() -> void:
+		button.draw.connect(queue_redraw)
+
+	func _draw() -> void:
+		var name := "font_color"
+		match button.get_draw_mode():
+			BaseButton.DRAW_PRESSED, BaseButton.DRAW_HOVER_PRESSED:
+				name = "font_pressed_color"
+			BaseButton.DRAW_HOVER:
+				name = "font_hover_color"
+			BaseButton.DRAW_DISABLED:
+				name = "font_disabled_color"
+		var color := button.get_theme_color(name)
+		var s := minf(size.y * 0.24, size.x * 0.24)
+		var c := size / 2.0
+		var bar := maxf(3.0, s * 0.14)
+		draw_rect(Rect2(c.x - s * 0.8, c.y - bar / 2.0, s * 1.6, bar), color)
+		for y in [c.y - bar - s * 1.15, c.y + bar + s * 0.15]:
+			_dashed(Rect2(c.x - s * 0.45, y, s * 0.9, s), color)
+
+	func _dashed(r: Rect2, color: Color) -> void:
+		var corners := [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]
+		for i in 4:
+			draw_dashed_line(corners[i], corners[(i + 1) % 4], color, 3.0, maxf(4.0, r.size.y * 0.2))

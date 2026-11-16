@@ -18,6 +18,23 @@ const R_NO_EYE := SKILL + "elevation-depression#2"
 const R_ROUND_EARLY := SKILL + "multi-triangle#0"
 const R_LOOKS_RIGHT := SKILL + "multi-triangle#1"
 const R_SINE_NO_PAIR := SKILL + "multi-triangle#2"
+## t3-bearings-elevation's own misconceptions, by index (FAL-815).
+const BE_T3 := "t3-bearings-elevation#"
+const BE_ADD_LEGS := BE_T3 + "9"
+const BE_WRONG_PAIR := BE_T3 + "10"
+const BE_WRONG_RATIO := BE_T3 + "11"
+const BE_DIVIDE_TAN := BE_T3 + "12"
+const BE_MODE := BE_T3 + "13"
+const BE_SLANT := BE_T3 + "14"
+const BE_EYE_TAKEN := BE_T3 + "15"
+const BE_NO_GAP := BE_T3 + "16"
+const BE_ARM := BE_T3 + "17"
+const BE_MINUTES := BE_T3 + "18"
+const BE_BOTH_LEGS := BE_T3 + "19"
+const BE_ONE_SPEED := BE_T3 + "20"
+const BE_OTHER_SPEED := BE_T3 + "21"
+const BE_ONE_TRIANGLE := BE_T3 + "22"
+const BE_NO_HALF := BE_T3 + "23"
 
 ## Who travels, and what stands tall.
 const WHO := ["A caravan", "A scout drone", "A courier", "A salvage truck", "A patrol", "A water cart"]
@@ -102,6 +119,12 @@ static func whole_wrong(ans: Dictionary, n: int, ref: String = "", three: bool =
 ## Positive wrong values only, each a wrong option.
 static func bad(x: float, ref: String = "") -> Array:
 	return [wrong({"v": q(x)}, ref)] if x > 0.0 and is_finite(x) else []
+
+
+## Tagged wrong options in a stream order, so each can show when there are more than the
+## question has room for (clear() builds with no stream, and only reads them).
+static func be_mix(w: Array, rng: Seeded) -> Array:
+	return w if rng == null else rng.shuffled(w)
 
 
 static func gens(xs: Array) -> Array:
@@ -231,7 +254,7 @@ func u_back_bearing(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := frame(rep, ["From a camp at A, a tower at B is on a bearing of %s." % B(b)], "Find the bearing of A from B.", ans,
 		sketch(pts, [side("A", "B")], [arc("A", "N", "B", B(b))], ["A", "B"]))
 	out.wrongs = [whole_wrong(ans, b, R_FROM_TO), whole_wrong(ans, posmod(360 - b, 360), R_WRONG_WAY)]
-	out.generic = [whole_wrong(ans, posmod(b + 90, 360)).values, whole_wrong(ans, posmod(180 - b, 360)).values, whole_wrong(ans, posmod(b - 90, 360)).values]
+	out.fillers = [whole_wrong(ans, posmod(b + 90, 360)).values, whole_wrong(ans, posmod(180 - b, 360)).values, whole_wrong(ans, posmod(b - 90, 360)).values]
 	var line := "%s + 180° = %s" % [B(b), B(b + 180)] if b < 180 else "%s − 180° = %s" % [B(b), B(b - 180)]
 	out.methods = {"back-bearing": method(["The way back is the opposite direction, so add or take away 180°.", line, say(ans)], ans.values)}
 	return out
@@ -246,7 +269,7 @@ func u_angle_from_bearing(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var out := frame(rep, _east_lines(s, false), "Find angle ACB.", ans,
 		sketch(pts, [side("A", "B", D(s.d1) + " km"), side("A", "C"), side("B", "C")], [arc("A", "N", "C", B(s.b1)), arc("B", "A", "C", "%d°" % s.phi)], ["A"]))
 	out.wrongs = [whole_wrong(ans, 180 - s.b1 - s.phi, R_BEARING_INSIDE, false)]
-	out.generic = [whole_wrong(ans, at_a, "", false).values, whole_wrong(ans, 90 - s.phi, "", false).values, whole_wrong(ans, c + 10, "", false).values, whole_wrong(ans, c - 10, "", false).values]
+	out.fillers = [whole_wrong(ans, at_a, "", false).values, whole_wrong(ans, 90 - s.phi, "", false).values, whole_wrong(ans, c + 10, "", false).values, whole_wrong(ans, c - 10, "", false).values]
 	out.methods = {"angle-chase-cosine": method(["East is 90° from north, so angle CAB = 90° − %d° = %d°" % [s.b1, at_a], "The angles of a triangle add to 180°: 180° − %d° − %d° = %d°" % [at_a, s.phi, c], "So " + Answer.text(ans) + "."], ans.values)}
 	return out
 
@@ -275,8 +298,8 @@ func u_two_leg_distance(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var t: int = turn(s)
 	var b: int = inside(s)
 	var slip := sqrt(d1 * d1 + d2 * d2 - 2.0 * d1 * d2 * cos(rad(t)))
-	out.wrongs = bad(slip, R_BEARING_INSIDE)
-	out.generic = gens([d1 + d2, sqrt(d1 * d1 + d2 * d2), absf(d1 - d2), x + 2.0, x * 1.5])
+	out.wrongs = be_mix(bad(slip, R_BEARING_INSIDE) + bad(d1 + d2, BE_ADD_LEGS) + bad(sqrt(d1 * d1 + d2 * d2), R_LOOKS_RIGHT), _rng)
+	out.fillers = gens([absf(d1 - d2), x + 2.0, x * 1.5])
 	var line := "AC² = %s² + %s² − 2 × %s × %s × cos %d°" % [D(s.d1), D(s.d2), D(s.d1), D(s.d2), b]
 	var sq2 := W(d1 * d1 + d2 * d2 - 2.0 * d1 * d2 * cos(rad(b)))
 	var e1: Array = step(s.b1, d1)
@@ -327,7 +350,7 @@ func u_two_leg_bearing(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := ans_of("bearing = ", b, "°")
 	var out := frame(rep, journey_lines(s), sf3("Find the bearing of the depot from camp."), ans, journey_sketch(s, ""))
 	out.wrongs = bad(fposmod(b + 180.0, 360.0), R_FROM_TO) + bad(360.0 - b, R_WRONG_WAY)
-	out.generic = gens([fposmod(b + 90.0, 360.0), fposmod(450.0 - b, 360.0), float(s.b1 + s.b2) / 2.0, b - 20.0])
+	out.fillers = gens([fposmod(b + 90.0, 360.0), fposmod(450.0 - b, 360.0), float(s.b1 + s.b2) / 2.0, b - 20.0])
 	var both := _both_bearing(s)
 	out.methods = {"angle-chase-cosine": method(both.chase + [say(ans)], ans.values),
 		"components": method([both.note, "tan⁻¹ of east ÷ north gives the angle from the north line, then put it in the right quarter.", say(ans)], ans.values)}
@@ -339,8 +362,8 @@ func u_return_bearing(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b := fposmod(there + 180.0, 360.0)
 	var ans := ans_of("bearing = ", b, "°")
 	var out := frame(rep, journey_lines(s), sf3("Find the bearing it must take to go straight back to camp from the depot."), ans, journey_sketch(s, ""))
-	out.wrongs = bad(there, R_FROM_TO)
-	out.generic = gens([360.0 - b, fposmod(b + 90.0, 360.0), fposmod(b - 90.0, 360.0), b - 20.0])
+	out.wrongs = bad(there, R_FROM_TO) + bad(360.0 - b, R_WRONG_WAY)
+	out.fillers = gens([fposmod(b + 90.0, 360.0), fposmod(b - 90.0, 360.0), b - 20.0])
 	var both := _both_bearing(s)
 	var flip := "Add or take away 180°: the way back is %s°." % W(fposmod(back(W(there)) + 180.0, 360.0))
 	out.methods = {"angle-chase-cosine": method(both.chase + [flip, say(ans)], ans.values),
@@ -359,8 +382,8 @@ func u_due_east_distance(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var out := frame(rep, _east_lines(s, true), sf3("Find the distance BC."), ans,
 		sketch(pts, [side("A", "B", D(s.d1) + " km"), side("A", "C", D(s.d2) + " km"), side("B", "C", "?", true)], [arc("A", "N", "C", B(s.b1))], ["A"]))
 	var slip := sqrt(ab * ab + ac * ac - 2.0 * ab * ac * cos(rad(s.b1)))
-	out.wrongs = bad(slip, R_BEARING_INSIDE)
-	out.generic = gens([sqrt(ab * ab + ac * ac), ab + ac, absf(ab - ac), x + 2.0, x * 1.5])
+	out.wrongs = bad(slip, R_BEARING_INSIDE) + bad(sqrt(ab * ab + ac * ac), R_LOOKS_RIGHT)
+	out.fillers = gens([ab + ac, absf(ab - ac), x + 2.0, x * 1.5])
 	var sq2 := W(ab * ab + ac * ac - 2.0 * ab * ac * cos(rad(at_a)))
 	var cx: Array = step(s.b1, ac)
 	var east := W(cx[0] - ab)
@@ -386,8 +409,8 @@ func u_sine_rule_distance(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	# Taking the bearing itself as the angle at A.
 	var c_bad: int = 180 - s.b1 - s.phi
 	var slip := ab * sin(rad(s.phi if asked_ac else s.b1)) / sin(rad(c_bad))
-	out.wrongs = bad(slip, R_BEARING_INSIDE)
-	out.generic = gens([bc if asked_ac else ac, ab * sin(rad(c)), ab * tan(rad(s.phi)), x + 2.0, ab * cos(rad(at_a))])
+	out.wrongs = bad(slip, R_BEARING_INSIDE) + bad(bc if asked_ac else ac, BE_WRONG_PAIR)
+	out.fillers = gens([ab * sin(rad(c)), ab * tan(rad(s.phi)), x + 2.0, ab * cos(rad(at_a))])
 	var opp: int = s.phi if asked_ac else at_a
 	out.methods = {"angle-chase-cosine": method(["East is 90° from north, so angle CAB = 90° − %d° = %d°, and angle ACB = 180° − %d° − %d° = %d°" % [s.b1, at_a, at_a, s.phi, c],
 		"Sine rule: %s ÷ sin %d° = %s ÷ sin %d°" % [s.which, opp, D(s.d1), c], "%s = %s sin %d° ÷ sin %d° = %s" % [s.which, D(s.d1), opp, c, W(x)], say(ans)], ans.values)}
@@ -408,8 +431,8 @@ func u_due_west_side(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b := step(s.b1, ab)
 	var out := frame(rep, lines, sf3("A fence runs straight from B to C. Find its length."), ans,
 		sketch({"A": a, "B": b, "C": c}, [side("A", "B"), side("A", "C", D(s.d1) + " m"), side("B", "C", "?", true)], [arc("A", "N", "B", B(s.b1)), arc("A", "B", "C", "%d°" % s.phi)], ["A"]))
-	out.wrongs = []
-	out.generic = gens([ac * sin(rad(s.phi)), ac * cos(rad(s.phi)), ac * tan(rad(s.phi)), ac * sin(rad(s.phi)) / sin(rad(s.b1)), ac * sin(rad(s.phi)) / sin(rad(acb)), x + 20.0])
+	out.wrongs = bad(ac * sin(rad(s.phi)) / sin(rad(s.b1)), R_BEARING_INSIDE) + bad(ac * sin(rad(s.phi)) / sin(rad(acb)), BE_WRONG_PAIR)
+	out.fillers = gens([ac * sin(rad(s.phi)), ac * cos(rad(s.phi)), ac * tan(rad(s.phi)), x + 20.0])
 	out.methods = {"angle-chase-cosine": method(["BA runs back along the bearing %s, and BC runs due west." % B(s.b1), "So angle ABC = %d° − 90° = %d°" % [s.b1, abc],
 		"Sine rule: BC ÷ sin %d° = %s ÷ sin %d°" % [s.phi, D(s.d1), abc], "BC = %s sin %d° ÷ sin %d° = %s" % [D(s.d1), s.phi, abc, W(x)], say(ans)], ans.values)}
 	return out
@@ -443,9 +466,15 @@ func u_height_from_elevation(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var ans := ans_of("height = ", h, " m")
 	var lines := ["A scavenger stands at P on level ground, %s m from the foot F of a %s." % [D(s.x), tall(s)], "The angle of elevation of the top T from P is %s." % angle_words(s)]
 	var out := frame(rep, lines, sf3("Find the height of the %s." % tall(s)), ans, side_view(h, x, false, "?", D(s.x) + " m", _angle_label(s)))
-	out.wrongs = []
 	var degree_slip: float = x * tan(rad(s.e.to_float())) if s.form == "rad" else x * tan(s.e.to_float())
-	out.generic = gens([x * sin(t), x * cos(t), x / tan(t), absf(degree_slip), h + 2.0])
+	out.wrongs = bad(x * sin(t), BE_WRONG_RATIO) + bad(x * cos(t), BE_WRONG_RATIO) + bad(x / tan(t), BE_DIVIDE_TAN)
+	out.fillers = gens([h + 2.0])
+	# The wrong mode is the slip when it gives a height; its size, when tan comes out negative, is a filler.
+	if degree_slip > 0.0:
+		out.wrongs += bad(degree_slip, BE_MODE)
+	else:
+		out.fillers = gens([absf(degree_slip)]) + out.fillers
+	out.wrongs = be_mix(out.wrongs, _rng)
 	out.methods = {"right-triangle": method(["tan θ = height ÷ distance, so height = distance × tan θ", "height = %s × %s = %s" % [D(s.x), tan_text(s), W(h)], say(ans)], ans.values)}
 	return out
 
@@ -461,8 +490,8 @@ func u_distance_from_depression(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var ans := ans_of("distance = ", x, " m")
 	var lines := ["From the top T of a %s %s m high, a lookout sees %s at P on level ground." % [tall(s), D(s.h), SEEN[s.ctx]], "The angle of depression of P from T is %s." % angle_words(s)]
 	var out := frame(rep, lines, sf3("Find the horizontal distance from the foot of the %s to P." % tall(s)), ans, side_view(h, x, true, D(s.h) + " m", "?", _angle_label(s)))
-	out.wrongs = bad(h * tan(t), R_AT_TOP)
-	out.generic = gens([h * sin(t), h / sin(t), h / cos(t), x + 2.0, x * 1.5])
+	out.wrongs = be_mix(bad(h * tan(t), R_AT_TOP) + bad(h * sin(t), BE_WRONG_RATIO) + bad(h / sin(t), BE_SLANT) + bad(h / cos(t), BE_WRONG_RATIO), _rng)
+	out.fillers = gens([x + 2.0, x * 1.5])
 	out.methods = {"right-triangle": method(["The angle is measured down from the horizontal, so the tangent is height ÷ distance.", "distance = %s ÷ %s = %s" % [D(s.h), tan_text(s), W(x)], say(ans)], ans.values),
 		"alternate-angles": method(["The horizontals at T and F are parallel, so the angle of elevation of T from P is also %s." % angle_words(s), "tan %s = %s ÷ distance" % [angle_words(s), D(s.h)], "distance = %s ÷ %s = %s" % [D(s.h), tan_text(s), W(x)], say(ans)], ans.values)}
 	return out
@@ -477,7 +506,7 @@ func u_angle_of_depression(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var out := frame(rep, lines, sf3("Find the angle of depression of P from T."), ans, side_view(h, x, true, D(s.h) + " m", D(s.x) + " m", "?"))
 	out.wrongs = bad(90.0 - e, R_FROM_VERTICAL)
 	var hyp := sqrt(h * h + x * x)
-	out.generic = gens([rad_to_deg(asin(h / hyp)) + 5.0, rad_to_deg(acos(h / hyp)) + 5.0, e / 2.0, e + 10.0, e * 1.5])
+	out.fillers = gens([rad_to_deg(asin(h / hyp)) + 5.0, rad_to_deg(acos(h / hyp)) + 5.0, e / 2.0, e + 10.0, e * 1.5])
 	var ratio := "tan⁻¹(%s ÷ %s)" % [D(s.h), D(s.x)]
 	out.methods = {"right-triangle": method(["The angle is measured down from the horizontal, so its tangent is height ÷ distance.", "angle = %s = %s°" % [ratio, W(e)], say(ans)], ans.values),
 		"alternate-angles": method(["The horizontals at T and F are parallel, so the angle equals the angle of elevation of T from P.", "In the triangle at P: tan(angle) = %s ÷ %s" % [D(s.h), D(s.x)], "angle = %s = %s°" % [ratio, W(e)], say(ans)], ans.values)}
@@ -494,8 +523,8 @@ func u_height_with_eye_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var g := sketch({"T": [0.0, rise + eye], "F": [0.0, 0.0], "Q": [x, 0.0], "E": [x, eye], "_L": [0.0, eye]},
 		[side("F", "T", "?"), side("F", "Q", D(s.x) + " m"), side("Q", "E", D(s.eye) + " m"), side("E", "_L", "", true), side("E", "T", "", true)], [arc("E", "_L", "T", _angle_label(s))])
 	var out := frame(rep, lines, sf3("Find the height of the %s." % tall(s)), ans, g)
-	out.wrongs = bad(rise, R_NO_EYE)
-	out.generic = gens([x * sin(t) + eye, x * tan(t) - eye, x / tan(t) + eye, rise + 2.0 * eye])
+	out.wrongs = be_mix(bad(rise, R_NO_EYE) + bad(x * sin(t) + eye, BE_WRONG_RATIO) + bad(x * tan(t) - eye, BE_EYE_TAKEN) + bad(x / tan(t) + eye, BE_DIVIDE_TAN), _rng)
+	out.fillers = gens([rise + 2.0 * eye])
 	out.methods = {"right-triangle": method(["From eye level up to the top: %s × %s = %s" % [D(s.x), tan_text(s), W(rise)], "Add the height of the eyes: %s + %s" % [W(rise), D(s.eye)], say(ans)], ans.values)}
 	return out
 
@@ -513,8 +542,8 @@ func u_chain_below_hook(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var g := sketch({"T": [0.0, top], "F": [0.0, 0.0], "P": [x, 0.0], "H": [0.0, eye + gp], "G": [0.0, eye]},
 		[side("F", "G", D(s.eye) + " m"), side("G", "H", D(s.gap) + " m"), side("H", "T", "?"), side("F", "P", D(s.x) + " m"), side("P", "T", "", true)], [arc("P", "F", "T", _angle_label(s))])
 	var out := frame(rep, lines, sf3("Find the length of the chain."), ans, g)
-	out.wrongs = bad(top - gp, R_NO_EYE)
-	out.generic = gens([top - eye, top, x * sin(t) - eye - gp, top + eye + gp, v + 2.0])
+	out.wrongs = be_mix(bad(top - gp, R_NO_EYE) + bad(top - eye, BE_NO_GAP) + bad(top, BE_ARM) + bad(x * sin(t) - eye - gp, BE_WRONG_RATIO), _rng)
+	out.fillers = gens([top + eye + gp, v + 2.0])
 	out.methods = {"right-triangle": method(["The end of the arm is %s × %s = %s m above the ground." % [D(s.x), tan_text(s), W(top)], "The hook is %s + %s m above the ground." % [D(s.eye), D(s.gap)], "length = %s − %s − %s" % [W(top), D(s.eye), D(s.gap)], say(ans)], ans.values)}
 	return out
 
@@ -529,8 +558,8 @@ func u_time_from_depression(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		"A rescue cart leaves the foot of the %s and drives straight to P at %d km/h." % [tall(s), s.v1]]
 	var g := side_view(20.0, 60.0, true, D(s.h) + " m", "", _angle_label(s), {"note": "not to scale"})
 	var out := frame(rep, lines, sf3("Find the time the cart takes, in minutes."), ans, g)
-	out.wrongs = bad(h * tan(t) / 1000.0 / float(s.v1) * 60.0, R_AT_TOP)
-	out.generic = gens([x / 1000.0 / float(s.v1), h / sin(t) / 1000.0 / float(s.v1) * 60.0 * 1.5, x / float(s.v1), mins * 2.0, mins / 2.0])
+	out.wrongs = bad(h * tan(t) / 1000.0 / float(s.v1) * 60.0, R_AT_TOP) + bad(x / 1000.0 / float(s.v1), BE_MINUTES)
+	out.fillers = gens([h / sin(t) / 1000.0 / float(s.v1) * 60.0 * 1.5, x / float(s.v1), mins * 2.0, mins / 2.0])
 	var km := W(x / 1000.0)
 	out.methods = {"right-triangle": method(["distance = %s ÷ %s = %s m" % [D(s.h), tan_text(s), W(x)], "That is %s km, and time = distance ÷ speed." % km, "%s ÷ %d × 60 = %s" % [km, s.v1, W(back(km) / float(s.v1) * 60.0)], say(ans)], ans.values),
 		"alternate-angles": method(["The horizontals are parallel, so the angle at P is also %s." % angle_words(s), "distance = %s ÷ %s = %s m, which is %s km" % [D(s.h), tan_text(s), W(x), km], "%s ÷ %d × 60 = %s" % [km, s.v1, W(back(km) / float(s.v1) * 60.0)], say(ans)], ans.values)}
@@ -551,8 +580,13 @@ func u_route_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var asked := "The courier rides straight across the flats from A to B. Find the time this takes, in hours." if direct else "The courier rides from A to P, then takes the truck from P to B. Find the total time, in hours."
 	var g := sketch({"A": [0.0, a], "P": [0.0, 0.0], "B": [-b, 0.0]}, [side("A", "P", D(s.d1) + " km"), side("P", "B", D(s.d2) + " km"), side("A", "B", "", true)], [], [], {"right": ["P"]})
 	var out := frame(rep, lines, sf3(asked), ans, g)
-	out.wrongs = []
-	out.generic = gens([(a + b) / float(s.v1), hyp / float(s.v2), a / float(s.v2) + b / float(s.v1), (a + b) / float(s.v2), hours * 2.0, hours * 60.0])
+	# Which slips are slips depends on the route asked: straight across, or by both legs.
+	if direct:
+		out.wrongs = bad((a + b) / float(s.v1), BE_BOTH_LEGS) + bad(hyp / float(s.v2), BE_OTHER_SPEED)
+		out.fillers = gens([a / float(s.v2) + b / float(s.v1), (a + b) / float(s.v2), hours * 2.0, hours * 60.0])
+	else:
+		out.wrongs = be_mix(bad((a + b) / float(s.v1), BE_ONE_SPEED) + bad(a / float(s.v2) + b / float(s.v1), BE_OTHER_SPEED) + bad((a + b) / float(s.v2), BE_ONE_SPEED), _rng)
+		out.fillers = gens([hyp / float(s.v2), hours * 2.0, hours * 60.0])
 	var h2 := W(a * a + b * b)
 	var route: Array
 	if direct:
@@ -574,7 +608,7 @@ func u_shared_side(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := frame(rep, lines, sf3("Find CD."), ans, g)
 	var rough: float = float(Fmt.sf(side2, 2))
 	out.wrongs = bad(sqrt(rough * rough + bc * bc - 2.0 * rough * bc * cos(rad(s.dbc))), R_ROUND_EARLY) + bad(sqrt(side2 * side2 + bc * bc), R_LOOKS_RIGHT)
-	out.generic = gens([side2 + bc, x + 2.0, x * 1.5, absf(side2 - bc)])
+	out.fillers = gens([side2 + bc, x + 2.0, x * 1.5, absf(side2 - bc)])
 	var two := W(sq(s.ab) + sq(s.ad))
 	var bdt := W(sqrt(back(two)))
 	var cd2 := W(back(bdt) * back(bdt) + bc * bc - 2.0 * back(bdt) * bc * cos(rad(s.dbc)))
@@ -593,8 +627,8 @@ func u_quadrilateral_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		"BC = %s km and angle DBC = %d°, with C and A on opposite sides of BD." % [D(s.bc), s.dbc]]
 	var g := sketch(quad(s), [side("A", "B", D(s.ab) + " km"), side("A", "D", D(s.ad) + " km"), side("B", "D", "", true), side("B", "C", D(s.bc) + " km"), side("C", "D")], [arc("A", "B", "D", "%d°" % s.a_angle), arc("B", "D", "C", "%d°" % s.dbc)])
 	var out := frame(rep, lines, sf3("Find the area of the field."), ans, g)
-	out.wrongs = []
-	out.generic = gens([a1, a2, 2.0 * (a1 + a2), s.ab.to_float() * s.ad.to_float() * 0.5 + 0.5 * side2 * bc, a1 + a2 + 3.0])
+	out.wrongs = be_mix(bad(a1, BE_ONE_TRIANGLE) + bad(a2, BE_ONE_TRIANGLE) + bad(2.0 * (a1 + a2), BE_NO_HALF), _rng)
+	out.fillers = gens([s.ab.to_float() * s.ad.to_float() * 0.5 + 0.5 * side2 * bc, a1 + a2 + 3.0])
 	var bdsq := W(sq(s.ab) + sq(s.ad) - 2.0 * s.ab.to_float() * s.ad.to_float() * cos(rad(s.a_angle)))
 	var bdt := W(sqrt(back(bdsq)))
 	out.methods = {"either-diagonal": method(["Cut along BD. Triangle ABD: ½ × %s × %s × sin %d° = %s" % [D(s.ab), D(s.ad), s.a_angle, W(a1)],
@@ -613,7 +647,7 @@ func u_perpendicular_split(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var g := sketch({"A": [0.0, 0.0], "B": [ab, 0.0], "C": [ac * c, ac * sin(rad(s.phi))]}, [side("A", "B", D(s.d1) + " km"), side("A", "C", D(s.d2) + " km"), side("B", "C", "?")], [arc("A", "B", "C", "%d°" % s.phi)])
 	var out := frame(rep, lines, sf3("Find the distance from the well to the depot."), ans, g)
 	out.wrongs = bad(sqrt(ab * ab + ac * ac), R_LOOKS_RIGHT)
-	out.generic = gens([ab + ac, absf(ab - ac) + 1.0, x + 2.0, x * 1.5, ab * sin(rad(s.phi))])
+	out.fillers = gens([ab + ac, absf(ab - ac) + 1.0, x + 2.0, x * 1.5, ab * sin(rad(s.phi))])
 	var ht := W(ac * sin(rad(s.phi)))
 	var ft := W(ac * c)
 	var rest := W(ab - back(ft))
@@ -681,9 +715,16 @@ func u_rule_to_use(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := frame(rep, [line], ask, ans, sketch(pts, lines_g, arcs, [], extra))
 	var opts: Array = [cosine, sine, soh, area].filter(func(o): return o != right)
 	out.wrongs = []
+	out.fillers = []
 	for i in opts.size():
 		var ref: String = R_SINE_NO_PAIR if opts[i] == sine and s.rule in ["sas", "sss"] else ""
-		out.wrongs.append(wrong({"form": "w%d" % i, "vals": [], "text": opts[i]}, ref))
-	out.generic = []
+		# A right-angle ratio where there is no right angle.
+		if opts[i] == soh:
+			ref = R_LOOKS_RIGHT
+		var values := {"form": "w%d" % i, "vals": [], "text": opts[i]}
+		if ref == "":
+			out.fillers.append(values)
+		else:
+			out.wrongs.append(wrong(values, ref))
 	out.methods = {"classify-given": method([why, "Use this: " + Answer.text(ans) + "."], ans.values)}
 	return out

@@ -22,7 +22,8 @@ const SHARED := ["party", "enemies", "weapons", "cast", "encounters"]
 const DEFAULT_WORDS := {"verb": "Work", "hit": "It gives.", "done": "Job done."}
 
 var root: String
-## name -> sheet: {name, folder, json, image, figure_height, facing, frames: Array,
+## name -> sheet: {name, folder, json, image, figure_height, facing, display_height and stride
+## (0 when the JSON has none), frames: Array,
 ## by_id: {id: frame}, anims, stages, states, beat, label, verb, hit, done}. Frame rects are atlas px; ox, oy and
 ## hand are shipped px from the feet point.
 var sheets := {}
@@ -93,6 +94,7 @@ func _add(dir: String, rel: String, file: String) -> void:
 		return
 	var s := {"name": name, "folder": rel, "json": path, "image": dir.path_join(data.image),
 			"figure_height": float(data.get("figure_height", 1)), "facing": data.get("facing", "none"),
+			"display_height": float(data.get("display_height", 0)), "stride": float(data.get("stride", 0)),
 			"frames": data.frames, "by_id": {}, "anims": data.get("anims", {}),
 			"stages": data.get("stages", []), "states": data.get("states", {}),
 			"beat": data.get("beat", ""), "dials": data.get("dials", []),

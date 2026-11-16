@@ -26,6 +26,15 @@ const R_NO_HALF := IN + "1"
 const R_IN_U := IN + "2"
 const R_SEPARATE := RW + "0"
 const R_NO_MIDDLE := RW + "1"
+## The type's own misconceptions, with no ref of their own (FAL-815).
+const OWN := "t5-indefinite-integral#"
+const R_NO_DIVIDE := OWN + "14"
+const R_DIFF_RECIPROCAL := OWN + "15"
+const R_COS_SIGN := OWN + "16"
+const R_DIFFERENTIATE := OWN + "17"
+const R_EACH_BRACKET := OWN + "18"
+const R_COS_MINUS := OWN + "19"
+const R_HALF := OWN + "20"
 const UNKNOWNS := ["power-polynomial", "power-negative", "power-product", "standard-exp-trig", "standard-reciprocal", "standard-roots",
 	"linear-exp", "linear-trig", "linear-reciprocal", "linear-power", "linear-square", "inspection-power", "inspection-exp",
 	"inspection-log", "inspection-trig", "rewrite-fraction", "rewrite-square", "rewrite-trig-product"]
@@ -129,13 +138,13 @@ static func say(ans: Dictionary) -> String:
 	return "So the integral is " + Answer.text(ans) + "."
 
 
-## A question: an integrand, its answer, its wrong options and its methods.
-static func out(rep: String, s: Dictionary, integrand: String, ans: Dictionary, wr: Array, gen: Array, methods: Dictionary) -> Dictionary:
+## A question: an integrand, its answer, its wrong options, its fillers and its methods.
+static func out(rep: String, s: Dictionary, integrand: String, ans: Dictionary, wr: Array, fill: Array, methods: Dictionary) -> Dictionary:
 	var a := ask(s, rep, integrand)
 	var ms := {}
 	for id in methods:
 		ms[id] = method(methods[id] + [say(ans)], ans.values)
-	return {"lines": a.lines, "asked": a.asked, "answer": ans, "wrongs": wr, "generic": gen, "methods": ms}
+	return {"lines": a.lines, "asked": a.asked, "answer": ans, "wrongs": wr, "fillers": fill, "methods": ms}
 
 
 # ── Powers ───────────────────────────────────────────────────
@@ -147,8 +156,9 @@ func u_power_polynomial(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var terms: Array = [[q(a, 3), "x³"], [q(b, 2), "x²"], [c, "x"]]
 	var ans := anti(terms)
 	var f: String = Fmt.poly([a, b, c])
-	return out(rep, s, f, ans, [alt([[q(a, 2), "x³"], [b, "x²"], [c, "x"]], R_OLD_POWER), no_c(terms)],
-		[alt([[a, "x³"], [b, "x²"], [c, "x"]]).values, alt([[q(a, 3), "x³"], [q(b, 2), "x²"], [-c, "x"]]).values, alt([[q(-a, 3), "x³"], [q(b, 2), "x²"], [c, "x"]]).values,
+	return out(rep, s, f, ans, [alt([[q(a, 2), "x³"], [b, "x²"], [c, "x"]], R_OLD_POWER), no_c(terms),
+			alt([[a, "x³"], [b, "x²"], [c, "x"]], R_NO_DIVIDE)],
+		[alt([[q(a, 3), "x³"], [q(b, 2), "x²"], [-c, "x"]]).values, alt([[q(-a, 3), "x³"], [q(b, 2), "x²"], [c, "x"]]).values,
 			alt([[q(a, 3), "x³"], [q(b + 1, 2), "x²"], [c, "x"]]).values],
 		{"reverse-power-rule": [
 			"Raise each power by 1 and divide by the new power: %s becomes %s." % [DifferentiationViews.T(a, "x²"), DifferentiationViews.T(q(a, 3), "x³")],
@@ -192,7 +202,7 @@ func u_power_product(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := anti(terms)
 	var f := "(x%s)(x%s)" % [Fmt.plus(p), Fmt.plus(r)]
 	return out(rep, s, f, ans, [no_c(terms),
-		other("((1/2)x²%s)((1/2)x²%s) + C" % [Fmt.plus(p) + "x", Fmt.plus(r) + "x"])],
+		other("((1/2)x²%s)((1/2)x²%s) + C" % [Fmt.plus(p) + "x", Fmt.plus(r) + "x"], R_EACH_BRACKET)],
 		[alt([[Q.new(1, 2), "x³"], [q(mid, 2), "x²"], [last, "x"]]).values, alt([[Q.new(1, 3), "x³"], [mid, "x²"], [last, "x"]]).values, alt([[Q.new(1, 3), "x³"], [q(mid, 2), "x²"], [-last, "x"]]).values, alt([[Q.new(1, 3), "x³"], [q(-mid, 2), "x²"], [last, "x"]]).values],
 		{"rewrite-first": [
 			"Multiply out first: %s = %s." % [f, Fmt.poly([1, mid, last])],
@@ -209,8 +219,9 @@ func u_standard_exp_trig(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var terms: Array = [[a, "e^x"], [-b, "cos x"], [c, "sin x"]]
 	var ans := anti(terms)
 	var f: String = DifferentiationViews.SUM([[a, "e^x"], [b, "sin x"], [c, "cos x"]])
-	return out(rep, s, f, ans, [alt([[a, "e^x"], [b, "cos x"], [c, "sin x"]], R_SIN_SIGN), no_c(terms)],
-		[alt([[a, "e^x"], [-b, "cos x"], [-c, "sin x"]]).values, alt([[a, "e^x"], [b, "cos x"], [-c, "sin x"]]).values, alt([[-a, "e^x"], [-b, "cos x"], [c, "sin x"]]).values, alt([[a + 1, "e^x"], [-b, "cos x"], [c, "sin x"]]).values],
+	return out(rep, s, f, ans, [alt([[a, "e^x"], [b, "cos x"], [c, "sin x"]], R_SIN_SIGN), no_c(terms),
+			alt([[a, "e^x"], [-b, "cos x"], [-c, "sin x"]], R_COS_SIGN), alt([[a, "e^x"], [b, "cos x"], [-c, "sin x"]], R_DIFFERENTIATE)],
+		[alt([[-a, "e^x"], [-b, "cos x"], [c, "sin x"]]).values, alt([[a + 1, "e^x"], [-b, "cos x"], [c, "sin x"]]).values],
 		{"booklet-results": [
 			"Term by term: e^x stays e^x, sin x gives −cos x, and cos x gives sin x.",
 			"Multiply each by its coefficient.",
@@ -230,8 +241,8 @@ func u_standard_reciprocal(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var f: String = DifferentiationViews.SUM([[a, "x"], [b, ""], [c, "/x"]])
 	var two: Array = [[q(a, 2), "x²"], [b, "x"]]
 	return out(rep, s, f, ans, [other(sumc(two + [[c, "x⁰/0"]]), R_POWER_ON_X), no_c(terms),
-		other(sumc(two + [[-c, "/x²"]]))],
-		[alt([[a, "x²"], [b, "x"], [c, "ln|x|"]]).values, alt([[q(a, 2), "x²"], [-b, "x"], [c, "ln|x|"]]).values, alt([[q(a, 2), "x²"], [b, "x"], [-c, "ln|x|"]]).values],
+		other(sumc(two + [[-c, "/x²"]]), R_DIFF_RECIPROCAL), alt([[a, "x²"], [b, "x"], [c, "ln|x|"]], R_NO_DIVIDE)],
+		[alt([[q(a, 2), "x²"], [-b, "x"], [c, "ln|x|"]]).values, alt([[q(a, 2), "x²"], [b, "x"], [-c, "ln|x|"]]).values],
 		{"booklet-results": [
 			"1/x is the one power the power rule can't do: ∫ 1/x dx = ln|x| + C.",
 			"The other terms use the power rule: %s and %s." % [DifferentiationViews.T(q(a, 2), "x²"), DifferentiationViews.T(b, "x")],
@@ -254,8 +265,8 @@ func u_standard_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var terms: Array = [[Q.of(a).div(e0), b0], [Q.of(b).div(e1), b1]]
 	var ans := anti(terms)
 	var f: String = DifferentiationViews.SUM([[a, sym], [b, "/" + sym]])
-	return out(rep, s, f, ans, [alt([[Q.of(a).mul(e0), b0], [Q.of(b).mul(e1), b1]], R_MULT_NEW)],
-		[alt([[a, b0], [b, b1]]).values, alt([[Q.of(a).div(e0), b0], [Q.of(-b).div(e1), b1]]).values, alt([[Q.of(a).div(e1), b0], [Q.of(b).div(e0), b1]]).values, alt([[Q.of(-a).div(e0), b0], [Q.of(b).div(e1), b1]]).values],
+	return out(rep, s, f, ans, [alt([[Q.of(a).mul(e0), b0], [Q.of(b).mul(e1), b1]], R_MULT_NEW), alt([[a, b0], [b, b1]], R_NO_DIVIDE)],
+		[alt([[Q.of(a).div(e0), b0], [Q.of(-b).div(e1), b1]]).values, alt([[Q.of(a).div(e1), b0], [Q.of(b).div(e0), b1]]).values, alt([[Q.of(-a).div(e0), b0], [Q.of(b).div(e1), b1]]).values],
 		{"index-form": [
 			"Write the roots as powers: %s = x^(%s) and 1/%s = x^(%s)." % [sym, e0.sub(1).text(), sym, e1.sub(1).text()],
 			"Raise each power by 1, to %s and %s." % [e0.text(), e1.text()],
@@ -303,8 +314,8 @@ func u_linear_trig(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c0 := q(sgn * k, a)
 	var f: String = DifferentiationViews.T(k, fn("cos" if cos else "sin", a, b))
 	var ans := anti([[c0, body]])
-	return out(rep, s, f, ans, [alt([[sgn * k * a, body]], R_MULT_A), alt([[sgn * k, body]], R_NO_A)],
-		[alt([[c0.neg(), body]]).values, alt([[-sgn * k * a, body]]).values, alt([[q(sgn * k, 2 * a), body]]).values, alt([[-sgn * k, body]]).values],
+	return out(rep, s, f, ans, [alt([[sgn * k * a, body]], R_MULT_A), alt([[sgn * k, body]], R_NO_A), alt([[c0.neg(), body]], R_COS_SIGN if cos else R_SIN_SIGN)],
+		[alt([[-sgn * k * a, body]]).values, alt([[q(sgn * k, 2 * a), body]]).values, alt([[-sgn * k, body]]).values],
 		{"divide-by-a": [
 			"Integrate as if the inside were x: ∫ %s u du = %s u." % ["cos" if cos else "sin", "sin" if cos else "−cos"],
 			"Multiply by %s and divide by %s, the derivative of the inside." % [N(k), N(a)],
@@ -343,8 +354,8 @@ func u_linear_power(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c0 := q(k, a * (n + 1))
 	var ans := anti([[c0, body]])
 	var f: String = DifferentiationViews.T(k, "(%s)%s" % [inner(a, b), Fmt.sup(n)])
-	return out(rep, s, f, ans, [alt([[q(k * a, n + 1), body]], R_MULT_A), alt([[q(k, n + 1), body]], R_NO_A)],
-		[alt([[c0.neg(), body]]).values, alt([[q(k, a * n), body]]).values, alt([[q(2 * k, a * (n + 1)), body]]).values, alt([[q(k, a * (n + 2)), body]]).values],
+	return out(rep, s, f, ans, [alt([[q(k * a, n + 1), body]], R_MULT_A), alt([[q(k, n + 1), body]], R_NO_A), alt([[q(k, a * n), body]], R_OLD_POWER)],
+		[alt([[c0.neg(), body]]).values, alt([[q(2 * k, a * (n + 1)), body]]).values, alt([[q(k, a * (n + 2)), body]]).values],
 		{"divide-by-a": [
 			"Integrate as if the inside were x: raise the power to %s and divide by %s." % [n + 1, n + 1],
 			"Divide by %s as well, the derivative of the inside." % N(a),
@@ -376,8 +387,8 @@ func u_linear_square(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			[alt([[q(a * a, 3), "x³"], [2 * a * b, "x²"], [b * b, "x"]]).values, alt([[q(a * a, 3), "x³"], [-a * b, "x²"], [b * b, "x"]]).values,
 				alt([[a * a, "x³"], [a * b, "x²"], [b * b, "x"]]).values, alt([[q(a * a, 3), "x³"], [a * b, "x²"], [-b * b, "x"]]).values], ways)
 	ways["expand-first"].append("The polynomial %s and this form differ only by a constant." % expanded)
-	return out(rep, s, f, anti([[c0, body]]), [alt([[q(a, 3), body]], R_MULT_A), alt([[Q.new(1, 3), body]], R_NO_A)],
-		[alt([[c0.neg(), body]]).values, alt([[q(1, 2 * a), body]]).values, alt([[q(1, a), body]]).values, alt([[q(2, 3 * a), body]]).values], ways)
+	return out(rep, s, f, anti([[c0, body]]), [alt([[q(a, 3), body]], R_MULT_A), alt([[Q.new(1, 3), body]], R_NO_A), alt([[q(1, 2 * a), body]], R_OLD_POWER)],
+		[alt([[c0.neg(), body]]).values, alt([[q(1, a), body]]).values, alt([[q(2, 3 * a), body]]).values], ways)
 
 
 # ── The reverse chain rule ───────────────────────────────────
@@ -396,8 +407,14 @@ func u_inspection_power(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var terms: Array = [[c0, body]]
 	var ans := anti(terms)
 	var xbody: String = "x" + body if top else "x" + body
-	return out(rep, s, f, ans, [other(sumc([[q(k, e), xbody]]), R_EXTRA_X), alt([[q(k, e), body]], R_NO_HALF), other(sumc([[c0, ubody]]), R_IN_U)],
-		[alt([[c0.neg(), body]]).values, alt([[q(k, 2), body]]).values, alt([[q(k, 2 * (e - 1)), body]]).values if e != 1 else alt([[q(k, 4), body]]).values],
+	var wr: Array = [other(sumc([[q(k, e), xbody]]), R_EXTRA_X), alt([[q(k, e), body]], R_NO_HALF), other(sumc([[c0, ubody]]), R_IN_U)]
+	var fill: Array = [alt([[c0.neg(), body]]).values, alt([[q(k, 2), body]]).values]
+	# Dividing by the bracket's old power, n or −n.
+	if e != 1:
+		wr.append(alt([[q(k, 2 * (e - 1)), body]], R_OLD_POWER))
+	else:
+		fill.append(alt([[q(k, 4), body]]).values)
+	return out(rep, s, f, ans, wr, fill,
 		{"inspection": [
 			"The x outside is a multiple of the derivative of %s, so try a power of the bracket." % inside,
 			"d/dx of %s is %s." % [("(%s)%s" % [inside, Fmt.sup(e)]) if top else "1/(%s)%s" % [inside, Fmt.sup(n - 1) if n > 2 else ""], "%s(%s)%s" % [DifferentiationViews.T(2 * e, "x"), inside, Fmt.sup(e - 1)]],
@@ -457,8 +474,15 @@ func u_inspection_trig(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c0 := q(sgn * k, n + 1)
 	var ans := anti([[c0, body]])
 	var f: String = "%s %s%s x" % [DifferentiationViews.T(k, outer + " x"), inner_fn, Fmt.sup(n)]
-	return out(rep, s, f, ans, [other(sumc([[c0, "%s x %s" % [outer, body]]]), R_EXTRA_X), other(sumc([[c0, "u" + Fmt.sup(n + 1)]]), R_IN_U)],
-		[alt([[c0.neg(), body]]).values, alt([[q(sgn * k, n), body]]).values, alt([[q(sgn * k, n + 2), body]]).values, alt([[sgn * k, body]]).values],
+	var wr: Array = [other(sumc([[c0, "%s x %s" % [outer, body]]]), R_EXTRA_X), other(sumc([[c0, "u" + Fmt.sup(n + 1)]]), R_IN_U),
+		alt([[q(sgn * k, n), body]], R_OLD_POWER), alt([[sgn * k, body]], R_NO_DIVIDE)]
+	var fill: Array = [alt([[q(sgn * k, n + 2), body]]).values]
+	# The minus from d/dx of cos x, dropped. A minus added on sin x has no such route.
+	if sc:
+		wr.append(alt([[c0.neg(), body]], R_COS_MINUS))
+	else:
+		fill.push_front(alt([[c0.neg(), body]]).values)
+	return out(rep, s, f, ans, wr, fill,
 		{"inspection": [
 			"%s x is a multiple of the derivative of %s x, so try %s." % [outer.capitalize(), inner_fn, body],
 			"d/dx of %s is %s %s x %s%s x." % [body, N(sgn * (n + 1)), outer, inner_fn, Fmt.sup(n)],
@@ -480,8 +504,8 @@ func u_rewrite_fraction(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var f := "(%s)/x" % Fmt.poly([a, b, c])
 	var split: String = DifferentiationViews.SUM([[a, "x"], [b, ""], [c, "/x"]])
 	var top: String = DifferentiationViews.SUM([[q(a, 3), "x³"], [q(b, 2), "x²"], [c, "x"]])
-	return out(rep, s, f, ans, [other("(%s)/((1/2)x²) + C" % top, R_SEPARATE), no_c(terms)],
-		[alt([[a, "x²"], [b, "x"], [c, "ln|x|"]]).values, alt([[q(a, 2), "x²"], [b, "x"], [-c, "ln|x|"]]).values, alt([[q(-a, 2), "x²"], [b, "x"], [c, "ln|x|"]]).values],
+	return out(rep, s, f, ans, [other("(%s)/((1/2)x²) + C" % top, R_SEPARATE), no_c(terms), alt([[a, "x²"], [b, "x"], [c, "ln|x|"]], R_NO_DIVIDE)],
+		[alt([[q(a, 2), "x²"], [b, "x"], [-c, "ln|x|"]]).values, alt([[q(-a, 2), "x²"], [b, "x"], [c, "ln|x|"]]).values],
 		{"split-numerator": [
 			"Divide each term of the top by x: %s." % split,
 			"Integrate term by term, with c/x going to c ln|x|.",
@@ -525,8 +549,8 @@ func u_rewrite_trig_product(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 			"∫ sin(2x) dx = −(1/2)cos(2x).", "Multiply by %s. Add + C." % N(c1)]}
 	if angle == "inspection-alternative":
 		ways["identity-substitution"].append("This looks different, but %s and the answer below differ only by a constant." % sumc([[c2, b2]]))
-		return out(rep, s, f, anti([[c1, b1]]), [alt([[k, b1]]), alt([[-k, b1]])],
-			[alt([[q(k, 4), b1]]).values, alt([[c1.neg(), b1]]).values, alt([[2 * k, b1]]).values], ways)
+		return out(rep, s, f, anti([[c1, b1]]), [alt([[k, b1]], R_HALF)],
+			[alt([[-k, b1]]).values, alt([[q(k, 4), b1]]).values, alt([[c1.neg(), b1]]).values, alt([[2 * k, b1]]).values], ways)
 	ways["inspection-alternative"].append("This looks different, but %s and the answer below differ only by a constant." % sumc([[c1, b1]]))
-	return out(rep, s, f, anti([[c2, b2]]), [alt([[c2.neg(), b2]]), alt([[q(-k, 2), b2]])],
+	return out(rep, s, f, anti([[c2, b2]]), [alt([[c2.neg(), b2]], R_SIN_SIGN), alt([[q(-k, 2), b2]], R_HALF)],
 		[alt([[q(k, 2), b2]]).values, alt([[-k, b2]]).values, alt([[q(-k, 8), b2]]).values], ways)

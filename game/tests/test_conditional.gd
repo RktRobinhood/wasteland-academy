@@ -86,15 +86,18 @@ func test_every_option_is_a_probability() -> void:
 
 func test_every_distractor_misconception_is_an_option() -> void:
 	var t := QuestionEngine.type_of(TYPE)
-	for m in t.misconceptions:
+	for i in t.misconceptions.size():
+		var m: Dictionary = t.misconceptions[i]
+		# A misconception with no ref of its own is logged as "<type id>#<index>".
+		var ref: String = m.get("ref", "%s#%d" % [t.id, i])
 		for u in m["in"]:
 			var found := false
 			for c in QuestionEngine.cells(false, [TYPE]).filter(func(x): return x.unknown == u):
 				for seed in range(1, 80):
-					if _make(c, seed).choices.any(func(o): return o.ref == m.ref):
+					if _make(c, seed).choices.any(func(o): return o.ref == ref):
 						found = true
 						break
-			check(found, "%s never appears on %s" % [m.ref, u])
+			check(found, "%s never appears on %s" % [ref, u])
 
 
 func test_only_the_aa_courses_have_it() -> void:

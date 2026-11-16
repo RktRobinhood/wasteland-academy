@@ -208,7 +208,7 @@ func test_numbers_use_a_true_minus() -> void:
 		var q := _make(c.unknown, c.rep, c.angle, 3, "mcq")
 		var texts: Array = [q.prompt] + q.lines + q.choices.map(func(o): return o.text)
 		for sol in q.solutions:
-			texts.append_array(sol.steps)
+			texts.append_array(Step.texts(sol.steps))
 		for x in texts:
 			check(not RegEx.create_from_string("(?<![A-Za-z0-9])-\\d").search(x), "%s: %s" % [c.key, x])
 

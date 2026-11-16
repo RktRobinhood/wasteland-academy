@@ -98,7 +98,7 @@ func u_same_idea(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	}
 	return {"asked": "The vertex of a parabola is halfway between its roots. Which of these uses the same mirror idea?",
 		"lines": ["A parabola is symmetric about its axis: matching points sit the same distance either side."], "given": {"topic": topic, "options": [right] + nots},
-		"answer": ans, "generic": nots.map(func(o): return {"v": o}),
+		"answer": ans, "fillers": nots.map(func(o): return {"v": o}),
 		"methods": steps.keys().reduce(func(acc, k): acc[k] = method(steps[k], ans.values); return acc, {})}
 
 
@@ -128,7 +128,7 @@ func u_mirror_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	}
 	out.wrongs = [wrong({"x": x1.neg(), "y": s.y}, "SL2.4.symmetry#0"), wrong({"x": s.h, "y": s.y}, "SL2.4.symmetry#1"),
 		wrong({"x": s.h.add(s.d.mul(2)), "y": s.y}, "SL2.4.symmetry#1")]
-	out.generic = [{"x": x2, "y": s.y.neg()}, {"x": x1, "y": s.y.neg()}]
+	out.fillers = [{"x": x2, "y": s.y.neg()}, {"x": x1, "y": s.y.neg()}]
 	return out
 
 
@@ -166,8 +166,8 @@ func u_find_the_mirror(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"midpoint-of-pair": method(["x = %s and x = %s give the same y, %s, so they are mirror images" % [N(xa), N(xb), N(yv)], mid, final], ans.values),
 		"symmetry": method(["As nCr = nC(n − r) puts equal values of a row either side of its middle, equal values of y sit either side of the axis", mid, final], ans.values),
 	}
-	out.wrongs = [wrong({"var": "y", "h": p.h}, "SL2.6.axis-symmetry#1")]
-	out.generic = [{"var": "x", "h": p.k}, {"var": "x", "h": xb.sub(xa)}, {"var": "x", "h": p.h.neg()}, {"var": "x", "h": xa.add(xb)}]
+	out.wrongs = [wrong({"var": "y", "h": p.h}, "SL2.6.axis-symmetry#1"), wrong({"var": "x", "h": xa.add(xb)}, "fn-link-symmetry#12")]
+	out.fillers = [{"var": "x", "h": p.k}, {"var": "x", "h": xb.sub(xa)}, {"var": "x", "h": p.h.neg()}]
 	return out
 
 
@@ -194,7 +194,7 @@ func _mirror_ncr(rep: String, c: Dictionary) -> Dictionary:
 		"midpoint-of-pair": method(["r = %d and r = %d give the same value: a mirror pair" % [r, n - r], sum, "So %s." % Answer.text(ans)], ans.values),
 		"midpoint-of-roots": method(["As a parabola's roots sit either side of its axis, the two equal values sit either side of the middle of the row", sum, "So %s." % Answer.text(ans)], ans.values),
 	}
-	out.generic = [{"v": Q.new((n) / 2)}, {"v": Q.new(absi(n - 2 * r))}, {"v": Q.new(n + 1)}, {"v": Q.new(n - 1)}]
+	out.fillers = [{"v": Q.new((n) / 2)}, {"v": Q.new(absi(n - 2 * r))}, {"v": Q.new(n + 1)}, {"v": Q.new(n - 1)}]
 	return out
 
 
@@ -210,7 +210,8 @@ func _mirror_normal(nm: Dictionary) -> Dictionary:
 			"midpoint-of-roots": method(["As a parabola's roots sit either side of its axis, equal tails sit either side of the mean", "μ = (%s + %s)/2 = %s" % [N(lo), N(hi), N(nm.mu)], "So %s." % Answer.text(ans)], ans.values),
 			"symmetry": method(["As nCr = nC(n − r) mirrors a row about its middle, the normal curve mirrors about μ", "μ = (%s + %s)/2 = %s" % [N(lo), N(hi), N(nm.mu)], "So %s." % Answer.text(ans)], ans.values),
 		},
-		"generic": [{"v": hi.sub(lo)}, {"v": lo}, {"v": hi}, {"v": lo.add(hi)}]}
+		"wrongs": [wrong({"v": lo.add(hi)}, "fn-link-symmetry#12")],
+		"fillers": [{"v": hi.sub(lo)}, {"v": lo}, {"v": hi}]}
 
 
 # ── normal-middle and normal-other-tail ──────────────────────
@@ -235,8 +236,9 @@ func u_normal_middle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"shaded-sketch": method(["Sketch: shade the tail beyond %s, then its mirror below %s; each is %s" % [N(hi), N(lo), Fmt.dec(s.p)],
 			"The unshaded middle is 1 − %s = %s" % [Fmt.dec(s.p.mul(2)), Fmt.dec(mid)], final], ans.values),
 	}
-	out.wrongs = [wrong({"v": s.p.mul(2)}, "SL4.9.symmetry-probability#0")]
-	out.generic = [{"v": Q.new(1).sub(s.p)}, {"v": Q.new(1, 2).sub(s.p)}, {"v": s.p}]
+	out.wrongs = [wrong({"v": s.p.mul(2)}, "SL4.9.symmetry-probability#0"), wrong({"v": Q.new(1).sub(s.p)}, "fn-link-symmetry#13"),
+		wrong({"v": Q.new(1, 2).sub(s.p)}, "fn-link-symmetry#14")]
+	out.fillers = [{"v": s.p}]
 	return out
 
 
@@ -258,8 +260,9 @@ func u_normal_other_tail(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"area-bookkeeping": method(["P(X < %s) = 0.5, the half below the mean" % N(s.mu), mirror,
 			"P(X < %s) = 0.5 + (0.5 − %s) = %s" % [N(hi), Fmt.dec(s.p), Fmt.dec(below)], final], ans.values),
 	}
-	out.wrongs = [wrong({"v0": s.p, "v1": s.p.add(Q.new(1, 2))}, "SL4.9.symmetry-probability#1")]
-	out.generic = [{"v0": below, "v1": s.p}, {"v0": s.p, "v1": Q.new(1, 2).sub(s.p)}, {"v0": s.p.mul(2), "v1": Q.new(1).sub(s.p.mul(2))}]
+	out.wrongs = [wrong({"v0": s.p, "v1": s.p.add(Q.new(1, 2))}, "SL4.9.symmetry-probability#1"), wrong({"v0": below, "v1": s.p}, "fn-link-symmetry#15"),
+		wrong({"v0": s.p, "v1": s.p}, "fn-link-symmetry#16")]
+	out.fillers = [{"v0": s.p, "v1": Q.new(1, 2).sub(s.p)}, {"v0": s.p.mul(2), "v1": Q.new(1).sub(s.p.mul(2))}]
 	return out
 
 
@@ -280,7 +283,7 @@ func u_central_interval(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"lines": ["X ~ N(%s, %s²)." % [N(s.mu), N(s.sigma)]],
 		"methods": {"split-tails": method(steps_split, ans.values), "gdc-center": method(steps_gdc, ans.values)},
 		"wrongs": [wrong({"v0": s.wlo, "v1": s.whi}, "SL4.9.central-interval#0")],
-		"generic": [{"v0": s.mu.sub(s.sigma), "v1": s.mu.add(s.sigma)}, {"v0": s.mu.sub(half.div(2)), "v1": s.mu.add(half.div(2))},
+		"fillers": [{"v0": s.mu.sub(s.sigma), "v1": s.mu.add(s.sigma)}, {"v0": s.mu.sub(half.div(2)), "v1": s.mu.add(half.div(2))},
 			{"v0": s.mu.sub(half.mul(2)), "v1": s.mu.add(half.mul(2))}]}
 
 
@@ -314,7 +317,7 @@ func u_related_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	# Slips that keep three different angles: a quadrant off for one of them.
 	var gen: Array = [{"s": same, "o1": o1.add(Q.new(1, 2)), "o2": o2}, {"s": same, "o1": o1, "o2": o2.sub(Q.new(1, 2))},
 		{"s": Q.new(2).sub(t) if sin_fn else Q.new(1).sub(t), "o1": o1, "o2": Q.new(1).sub(t) if sin_fn else Q.new(2).sub(t)}, {"s": same.add(Q.new(1, 2)), "o1": o1, "o2": o2}]
-	out.generic = gen.filter(func(g): return not g.o1.eq(g.o2) and not g.s.eq(g.o1) and not g.s.eq(g.o2) and not Q.new(2).lt(g.o1) and not Q.new(2).lt(g.o2) and not Q.new(2).lt(g.s))
+	out.fillers = gen.filter(func(g): return not g.o1.eq(g.o2) and not g.s.eq(g.o1) and not g.s.eq(g.o2) and not Q.new(2).lt(g.o1) and not Q.new(2).lt(g.o2) and not Q.new(2).lt(g.s))
 	return out
 
 
@@ -340,4 +343,4 @@ func u_ncr_mirror(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 				"Try r = %d: %dC%d = %d!/(%d! × %d!) = %d, the same" % [n - r, n, n - r, n, n - r, r, s.value.n], final], ans.values),
 		},
 		"wrongs": [wrong({"v0": Q.new(n - r), "v1": Q.new(fact.call(n) / fact.call(r))}, "SL1.9.ncr-pascal#0")],
-		"generic": [{"v0": Q.new(n - r - 1), "v1": s.value}, {"v0": Q.new(r + 1), "v1": Q.new(SymmetrySituation.ncr(n, r + 1))}, {"v0": Q.new(n - r), "v1": s.value.mul(2)}]}
+		"fillers": [{"v0": Q.new(n - r - 1), "v1": s.value}, {"v0": Q.new(r + 1), "v1": Q.new(SymmetrySituation.ncr(n, r + 1))}, {"v0": Q.new(n - r), "v1": s.value.mul(2)}]}

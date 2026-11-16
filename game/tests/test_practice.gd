@@ -84,7 +84,7 @@ func test_an_answer_box_shows_all_it_is_given() -> void:
 		var p: Control = made[1]
 		p.show_view({"type": "t1-standard-form", "unknown": "to-ordinary-small", "rep": "equation", "angle": "place-shift", "format": "value", "seed": 1})
 		await tree.process_frame
-		var box: LineEdit = p.card.find_children("Slot_*", "LineEdit", true, false)[0]
+		var box: MathEntry = p.card.find_children("Slot_*", "MathEntry", true, false)[0]
 		var empty: float = box.get_combined_minimum_size().x
 		p._focus = box
 		for k in "0.00000842":

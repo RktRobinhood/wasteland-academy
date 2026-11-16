@@ -7,6 +7,12 @@ extends ExtensionViews
 ##
 ## Representations: "words" (a story, the account in a sentence) and, for two accounts,
 ## "table" (rate and compounding side by side). `given` holds what the student is shown.
+##
+## t1-ext-real-value (FAL-780) is built here too: an account compounded annually while prices rise
+## by an inflation rate. It asks the real interest rate, the real value by the real rate (the IB's
+## approximation) or by deflating, and whether the account keeps pace. Its wrong options are
+## SL1.4.real-value's slips and the type's own; it builds method-pick on every cell and error-spot on
+## the two values.
 
 const SKILL := "SL1.4."
 const R_ANNUAL_RATE := SKILL + "future-value#0"
@@ -21,13 +27,36 @@ const R_NOMINAL_ONLY := SKILL + "compare-options#0"
 const WHO := ["Kira", "Tomas", "The Guild", "A trader", "Ines", "The caravan fund"]
 const FREQ := {1: "annually", 2: "half-yearly", 4: "quarterly", 12: "monthly"}
 const UNKNOWNS := ["future-value", "interest-earned", "present-value", "interest-rate", "time-needed", "compare-options"]
+const REAL := ["real-rate", "real-value-rate", "real-value-deflate", "keeps-pace"]
+const RV := "SL1.4.real-value#"
+const RO := "t1-ext-real-value#"
+const R_ADD_RATES := RV + "0"
+const R_ONCE := RV + "1"
+const R_BALANCE := RV + "2"
+const R_RATES_SWAP := RO + "3"
+const R_NOMINAL := RO + "4"
+const R_TIMES_F := RO + "5"
+const R_ALWAYS_FALL := RO + "6"
+const R_SPOT_ONCE := RO + "7"
+const R_SPOT_ADD := RO + "8"
+## Methods that don't work on any real-value question, for method-pick.
+const RV_PICK_WRONGS := [
+	{"name": "Add the inflation rate to the interest rate", "why": "inflation takes value away, so its rate comes off the interest rate"},
+	{"name": "Divide by the inflation factor for one year", "why": "prices rise every year, so the factor is raised to the number of years"},
+	{"name": "Use the interest rate alone", "why": "that is the balance, which leaves out the rise in prices"},
+]
 
 
 func needs() -> Dictionary:
 	var out := {}
-	for u in UNKNOWNS:
+	for u in UNKNOWNS + REAL:
 		out[u] = {"ask": u}
 	return out
+
+
+func extra() -> Dictionary:
+	return {"real-rate": ["method-pick"], "real-value-rate": ["method-pick", "error-spot"], "real-value-deflate": ["method-pick", "error-spot"],
+		"keeps-pace": ["method-pick"]}
 
 
 ## The GDC does the work, so a cell is Paper 2, but a future value or the interest earned by
@@ -258,3 +287,119 @@ func u_compare_options(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"A − B = %s − %s = %s" % [F(a), F(b), F(d)], final_step(ans)]
 	out.methods = {"compute-both": method(both, ans.values), "annual-factor": method(factors, ans.values)}
 	return out
+
+
+# ── Real value (t1-ext-real-value) ───────────────────────────
+
+func _saves(s: Dictionary) -> String:
+	return "%s puts %s into an account that pays %s%% interest per year, compounded annually. Prices rise by %s%% per year." % [who(s), M(s.pv), D(s.r), D(s.f)]
+
+
+## "2.5%", "−1.5%": a rate in per cent.
+static func pc(v: Q) -> String:
+	return v.text() + "%" if v.is_int() else Fmt.dec(v) + "%"
+
+
+func _rv_pack(lines: Array, asked: String, ans: Dictionary, wrongs: Array, fillers: Array, steps: Dictionary) -> Dictionary:
+	var out := {"lines": lines, "asked": asked, "answer": ans, "wrongs": wrongs, "fillers": fillers, "methods": {}, "table": null, "pick_wrongs": RV_PICK_WRONGS}
+	for m in steps:
+		out.methods[m] = method(steps[m], ans.values)
+	return out
+
+
+func u_real_rate(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var real: Q = s.r.sub(s.f)
+	var ans := Answer.make("number", {"v": real}, {}, "real rate = ", "%")
+	ans.show = "dec"
+	ans.exact = true
+	var wr: Array = [wrong({"v": s.r.add(s.f)}, R_ADD_RATES), wrong({"v": s.f.sub(s.r)}, R_RATES_SWAP)]
+	var fill: Array = [{"v": real.add(1)}, {"v": s.r.div(s.f)}, {"v": real.sub(1)}].filter(func(v): return not v.v.eq(real) and not v.v.eq(s.r.add(s.f)) and not v.v.eq(s.f.sub(s.r)))
+	return _rv_pack(["%s puts money into an account that pays %s%% interest per year. Prices rise by %s%% per year." % [who(s), D(s.r), D(s.f)]],
+		"Write down the real interest rate.", ans, wr, fill, {
+		"real-rate-tvm": ["The real interest rate is the interest rate minus the inflation rate.", "%s − %s = %s" % [D(s.r), D(s.f), Fmt.dec(real)], final_step(ans)],
+	})
+
+
+## The value and slips of a real value, each to the cent.
+func u_real_value_rate(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var pv: float = s.pv.to_float()
+	var r: float = s.r.to_float()
+	var f: float = s.f.to_float()
+	var x: Q = s.r.sub(s.f)
+	var real := CompoundInterestSituation.real_rate_value(s)
+	var ans := money_ans("real value = $", real)
+	var wr: Array = [wrong({"v": CompoundInterestSituation.money(CompoundInterestSituation.value(pv, r + f, 1, s.n))}, R_ADD_RATES),
+		wrong({"v": CompoundInterestSituation.money(CompoundInterestSituation.value(pv, r, 1, s.n))}, R_NOMINAL)]
+	var fill := ms([real + 100.0, real * 1.1, CompoundInterestSituation.value(pv, x.to_float(), 1, s.n + 1)])
+	var g := 1.0 + x.to_float() / 100.0
+	var out := _rv_pack([_saves(s)], "Using the real interest rate, find the real value of the investment after %d years, to the nearest cent." % s.n, ans, wr, fill, {
+		"real-rate-tvm": ["Real rate = %s − %s = %s%%." % [D(s.r), D(s.f), Fmt.dec(x)],
+			"Open the TVM solver: N = %d, I%% = %s, PV = −%s, PMT = 0, P/Y = 1, C/Y = 1." % [s.n, Fmt.dec(x), D(s.pv)], "Solve for FV: FV = %s" % F(real), final_step(ans)],
+		"year-by-year": ["Real rate = %s − %s = %s%%, so each year the real value is multiplied by %s." % [D(s.r), D(s.f), Fmt.dec(x), "%.6f" % g],
+			"Year 1: %s × %s = %s; year 2: %s × %s = %s." % [D(s.pv), "%.6f" % g, F(pv * g), F(pv * g), "%.6f" % g, F(pv * g * g)],
+			"After %d years: %s × %s^%d = %s" % [s.n, D(s.pv), "%.6f" % g, s.n, F(real)], final_step(ans)],
+	})
+	var wrong_rate: Q = s.r.add(s.f)
+	var bad_v := CompoundInterestSituation.value(pv, r + f, 1, s.n)
+	var lines: Array = ["Real rate = %s + %s = %s%%" % [D(s.r), D(s.f), Fmt.dec(wrong_rate)], "Value = %s × (1 + %s/100)^%d" % [D(s.pv), Fmt.dec(wrong_rate), s.n],
+		"= %s" % F(bad_v), "So the real value is %s." % M(CompoundInterestSituation.money(bad_v))]
+	var bad := 0
+	if rng.chance(0.5):
+		lines = ["Use the real rate in the compound interest formula.", "Real rate = %s + %s = %s%%" % [D(s.r), D(s.f), Fmt.dec(wrong_rate)],
+			"Value = %s × (1 + %s/100)^%d = %s" % [D(s.pv), Fmt.dec(wrong_rate), s.n, F(bad_v)], "So the real value is %s." % M(CompoundInterestSituation.money(bad_v))]
+		bad = 1
+	out.spot = {"lines": lines, "bad": bad, "ref": R_SPOT_ADD, "why": "inflation takes value away, so the real rate is %s − %s = %s%%" % [D(s.r), D(s.f), Fmt.dec(x)]}
+	return out
+
+
+func u_real_value_deflate(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var pv: float = s.pv.to_float()
+	var r: float = s.r.to_float()
+	var f: float = s.f.to_float()
+	var nominal := CompoundInterestSituation.value(pv, r, 1, s.n)
+	var prices := pow(1.0 + f / 100.0, s.n)
+	var defl := nominal / prices
+	var ans := money_ans("real value = $", defl)
+	var wr: Array = [wrong({"v": CompoundInterestSituation.money(nominal / (1.0 + f / 100.0))}, R_ONCE), wrong({"v": CompoundInterestSituation.money(nominal)}, R_NOMINAL),
+		wrong({"v": CompoundInterestSituation.money(nominal * prices)}, R_TIMES_F)]
+	var fill := ms([defl + 100.0, defl * 0.9])
+	var g := (1.0 + r / 100.0) / (1.0 + f / 100.0)
+	var out := _rv_pack([_saves(s)], "By dividing by the rise in prices, find the value of the investment after %d years in today's money, to the nearest cent." % s.n, ans, wr, fill, {
+		"deflate": ["Value after %d years: FV = %s × %s^%d = %s" % [s.n, D(s.pv), "%.4f" % (1.0 + r / 100.0), s.n, F(nominal)],
+			"Prices rise by a factor of %s^%d = %s" % ["%.4f" % (1.0 + f / 100.0), s.n, "%.6f" % prices], "Real value = %s ÷ %s = %s" % [F(nominal), "%.6f" % prices, F(defl)], final_step(ans)],
+		"year-by-year": ["Each year the money grows by %s and prices by %s, so its real value is multiplied by %s ÷ %s = %s." % ["%.4f" % (1.0 + r / 100.0), "%.4f" % (1.0 + f / 100.0), "%.4f" % (1.0 + r / 100.0), "%.4f" % (1.0 + f / 100.0), "%.6f" % g],
+			"Year 1: %s × %s = %s; year 2: %s × %s = %s." % [D(s.pv), "%.6f" % g, F(pv * g), F(pv * g), "%.6f" % g, F(pv * g * g)],
+			"After %d years: %s × %s^%d = %s" % [s.n, D(s.pv), "%.6f" % g, s.n, F(defl)], final_step(ans)],
+	})
+	var once := nominal / (1.0 + f / 100.0)
+	var lines: Array = ["FV = %s × %s^%d = %s" % [D(s.pv), "%.4f" % (1.0 + r / 100.0), s.n, F(nominal)], "Prices rise by a factor of %s" % "%.4f" % (1.0 + f / 100.0),
+		"Real value = %s ÷ %s = %s" % [F(nominal), "%.4f" % (1.0 + f / 100.0), F(once)], "So the real value is %s." % M(CompoundInterestSituation.money(once))]
+	out.spot = {"lines": lines, "bad": 1, "ref": R_SPOT_ONCE, "why": "prices rise every year, so over %d years they rise by a factor of %s^%d" % [s.n, "%.4f" % (1.0 + f / 100.0), s.n]}
+	if rng.chance(0.5):
+		out.spot.lines = ["Divide the value after %d years by the rise in prices." % s.n] + [lines[1], lines[2], lines[3]]
+		out.spot.lines[1] = "FV = %s × %s^%d = %s, and prices rise by a factor of %s" % [D(s.pv), "%.4f" % (1.0 + r / 100.0), s.n, F(nominal), "%.4f" % (1.0 + f / 100.0)]
+	return out
+
+
+func u_keeps_pace(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var x: Q = s.r.sub(s.f)
+	var up: bool = x.sign() > 0
+	var a: float = 1.0 + s.r.to_float() / 100.0
+	var b: float = 1.0 + s.f.to_float() / 100.0
+	var right := "Yes: the interest rate is more than the inflation rate, so its value in today's money rises." if up \
+		else "No: the interest rate is less than the inflation rate, so its value in today's money falls, though its balance rises."
+	var ws: Array
+	if up:
+		ws = [["No: prices rise every year, so its real value must fall.", R_ALWAYS_FALL], ["No: the real interest rate is negative.", ""],
+			["No: the account would have to pay more than %s, twice the inflation rate." % pc(s.f.mul(2)), ""]]
+	else:
+		ws = [["Yes: its balance rises every year, so it keeps pace.", R_BALANCE], ["Yes: the real interest rate is positive.", ""],
+			["Yes: the interest rate is more than 0%, so its value grows.", ""]]
+	var built := SamplingViews.claims(right, ws)
+	var verdict := "rises" if up else "falls"
+	return _rv_pack(["%s puts money into an account that pays %s interest per year, compounded annually. Prices rise by %s per year." % [who(s), pc(s.r), pc(s.f)]],
+		"Does the investment keep pace with inflation? Give a reason.", built.answer, built.wrongs, built.fillers, {
+		"real-rate-tvm": ["The real interest rate is %s − %s = %s." % [pc(s.r), pc(s.f), pc(x)], "It is %s, so the value in today's money %s." % ["positive" if up else "negative", verdict], right],
+		"deflate": ["Each year the money is multiplied by %s and prices by %s." % ["%.3f" % a, "%.3f" % b],
+			"%s ÷ %s = %s, %s than 1, so the value in today's money %s." % ["%.3f" % a, "%.3f" % b, "%.6f" % (a / b), "more" if up else "less", verdict], right],
+	})

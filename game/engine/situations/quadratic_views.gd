@@ -12,7 +12,8 @@ extends RefCounted
 ##   given     the given quantities, as plain data, for the SymPy checker
 ##   answer    an Answer (answer.gd)
 ##   wrongs    misconception distractors: [{"values": {...}, "ref": "SL2.6.vertex#0"}]
-##   generic   other wrong options, used when the misconceptions don't give three
+##   fillers   other wrong options with no slip behind them (the key's numbers moved or
+##             swapped), used when the misconceptions don't give three
 ##   trap      the rounding trap (Answer.rounding_trap), {} where it doesn't fit
 ##   methods   angle (method id) -> {"steps": [...], "result": values}. Each method
 ##             works the answer out again from the givens, and its last step states it.
@@ -77,9 +78,9 @@ func need(unknown: String, rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	# Q7's rounding trap, where the answer needs rounding (see game/README.md).
 	out.trap = Answer.rounding_trap(out.answer)
 	return out
@@ -275,7 +276,7 @@ func u_roots_from_factorised(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		"asked": "Find the x-coordinates where the graph of y = f(x) crosses the x-axis.",
 		"lines": [fac_line(s)], "given": given_form("factorised", s), "answer": ans,
 		"wrongs": [wrong({"r1": s.p.neg(), "r2": s.q.neg()}, "SL2.6.factorised-form#0")],
-		"generic": [{"r1": s.p, "r2": s.q.neg()}, {"r1": s.p.neg(), "r2": s.q}, {"r1": s.p.mul(s.a), "r2": s.q.mul(s.a)}],
+		"fillers": [{"r1": s.p, "r2": s.q.neg()}, {"r1": s.p.neg(), "r2": s.q}, {"r1": s.p.mul(s.a), "r2": s.q.mul(s.a)}],
 		"methods": {"factorise": {"steps": st, "result": res}},
 	}
 
@@ -293,7 +294,7 @@ func u_y_intercept_from_factorised(_rep: String, s: Dictionary, _rng: Seeded) ->
 		"asked": "Find the y-intercept of the graph of y = f(x).",
 		"lines": [fac_line(s)], "given": given_form("factorised", s), "answer": ans,
 		"wrongs": [wrong({"y": s.p.mul(s.q)}, "SL2.6.factorised-form#2")],
-		"generic": [{"y": s.c.neg()}, {"y": s.p.add(s.q).mul(s.a)}, {"y": s.p.mul(s.q).neg()}],
+		"fillers": [{"y": s.c.neg()}, {"y": s.p.add(s.q).mul(s.a)}, {"y": s.p.mul(s.q).neg()}],
 		"methods": {"any": {"steps": st, "result": res}},
 	}
 
@@ -310,7 +311,8 @@ func u_y_intercept_from_vertex_form(_rep: String, s: Dictionary, _rng: Seeded) -
 	return {
 		"asked": "Find the y-intercept of the graph of y = f(x).",
 		"lines": [ver_line(s)], "given": given_form("vertex", s), "answer": ans,
-		"generic": [{"y": s.k}, {"y": s.h.sq().add(s.k)}, {"y": s.a.mul(s.h.sq()).sub(s.k)}, {"y": s.a.mul(s.h).add(s.k)}],
+		"wrongs": [wrong({"y": s.k}, "fn-quadratic-features#12"), wrong({"y": s.h.sq().add(s.k)}, "fn-quadratic-features#13")],
+		"fillers": [{"y": s.a.mul(s.h.sq()).sub(s.k)}, {"y": s.a.mul(s.h).add(s.k)}],
 		"methods": {"any": {"steps": st, "result": res}},
 	}
 
@@ -334,8 +336,13 @@ func u_axis_from_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"The roots are x = %s and x = %s. The axis is halfway between them." % [N(s.p), N(s.q)],
 		"x = (%s%s)/2 = %s/2 = %s" % [N(s.p), Fmt.plus(s.q), N(s.p.add(s.q)), N(h)],
 		"So the axis of symmetry is " + Answer.text(ans, res) + "."]}}
-	out.wrongs = [wrong({"var": "y", "h": s.h}, "SL2.6.axis-symmetry#1")]
-	out.generic = [{"var": "x", "h": s.h.neg()}, {"var": "x", "h": s.q.sub(s.p).div(2)}, {"var": "y", "h": s.h.neg()}]
+	out.wrongs = [wrong({"var": "y", "h": s.h}, "SL2.6.axis-symmetry#1"), wrong({"var": "x", "h": s.q.sub(s.p).div(2)}, "fn-quadratic-features#14")]
+	out.fillers = [{"var": "y", "h": s.h.neg()}]
+	# x = −h: the roots read off the factors with their signs wrong, where the factors are shown.
+	if rep == "equation":
+		out.wrongs.append(wrong({"var": "x", "h": s.h.neg()}, "SL2.6.factorised-form#0"))
+	else:
+		out.fillers.push_front({"var": "x", "h": s.h.neg()})
 	return out
 
 
@@ -364,7 +371,8 @@ func u_axis_from_vertex(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	st.append("So the axis of symmetry is " + Answer.text(ans, res) + ".")
 	out.methods = {"vertex-form-read": {"steps": st, "result": res}}
 	out.wrongs = [wrong({"var": "y", "h": s.h}, "SL2.6.axis-symmetry#1"), wrong({"var": "x", "h": s.h.neg()}, "SL2.6.axis-symmetry#2")]
-	out.generic = [{"var": "x", "h": s.k}, {"var": "y", "h": s.k}]
+	out.wrongs.append(wrong({"var": "y", "h": s.k}, "fn-quadratic-features#15"))
+	out.fillers = [{"var": "x", "h": s.k}]
 	return out
 
 
@@ -382,8 +390,9 @@ func u_axis_from_general(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	return {
 		"asked": "Find the equation of the axis of symmetry of the graph of y = f(x).",
 		"lines": [gen_line(s)], "given": given_form("general", s), "answer": ans,
-		"wrongs": [wrong({"var": "x", "h": s.h.neg()}, "SL2.6.axis-symmetry#0")],
-		"generic": [{"var": "y", "h": s.h}, {"var": "x", "h": b.neg().div(a)}, {"var": "x", "h": s.c.neg().div(b)}],
+		"wrongs": [wrong({"var": "x", "h": s.h.neg()}, "SL2.6.axis-symmetry#0"), wrong({"var": "y", "h": s.h}, "SL2.6.axis-symmetry#1"),
+			wrong({"var": "x", "h": b.neg().div(a)}, "fn-quadratic-features#16")],
+		"fillers": [{"var": "x", "h": s.c.neg().div(b)}],
 		"methods": {
 			"minus-b-over-2a": {"result": res, "steps": [
 				"a = %s and b = %s." % [N(a), N(b)],
@@ -434,7 +443,8 @@ func u_axis_from_equal_outputs(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 		"f(%s) = f(%s) = %s: two inputs give the same output, so they are mirror images in the axis." % [N(x1), N(x2), N(y)],
 		"x = (%s%s)/2 = %s" % [N(x1), Fmt.plus(x2), N(h)],
 		"So the axis of symmetry is " + Answer.text(ans, res) + "."]}}
-	out.generic = [{"var": "y", "h": s.h}, {"var": "x", "h": y}, {"var": "x", "h": s.h.neg()}, {"var": "y", "h": y}]
+	out.wrongs = [wrong({"var": "y", "h": s.h}, "SL2.6.axis-symmetry#1")]
+	out.fillers = [{"var": "x", "h": y}, {"var": "x", "h": s.h.neg()}, {"var": "y", "h": y}]
 	return out
 
 
@@ -459,7 +469,8 @@ func u_second_root_from_axis(rep: String, s: Dictionary, rng: Seeded) -> Diction
 		"%s + r = %s" % [N(r), N(s.h.mul(2))],
 		"r = %s%s = %s" % [N(s.h.mul(2)), Fmt.plus(r.neg()), N(v)],
 		"So the other root is " + Answer.text(ans, res) + "."]}}
-	out.generic = [{"v": s.h.sub(r)}, {"v": s.h.mul(2).add(r)}, {"v": r.neg()}, {"v": s.h.add(r)}]
+	out.wrongs = [wrong({"v": s.h.sub(r)}, "fn-quadratic-features#19"), wrong({"v": s.h.mul(2).add(r)}, "fn-quadratic-features#17"), wrong({"v": r.neg()}, "fn-quadratic-features#18")]
+	out.fillers = [{"v": s.h.add(r)}]
 	return out
 
 
@@ -476,7 +487,8 @@ func u_b_from_axis(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"The axis is x = −b/(2a), so −b/(2 × %s) = %s." % [P(s.a), N(s.h)],
 		"−b = %s × %s = %s" % [N(s.a.mul(2)), P(s.h), N(b.neg())],
 		"So " + Answer.text(ans, res) + "."]}}
-	out.generic = [{"v": b.neg()}, {"v": s.a.mul(s.h).neg()}, {"v": s.h.mul(-2)}, {"v": s.h.neg().div(s.a.mul(2))}]
+	out.wrongs = [wrong({"v": b.neg()}, "SL2.6.axis-symmetry#0"), wrong({"v": s.a.mul(s.h).neg()}, "fn-quadratic-features#16")]
+	out.fillers = [{"v": s.h.mul(-2)}, {"v": s.h.neg().div(s.a.mul(2))}]
 	return out
 
 
@@ -493,7 +505,7 @@ func u_vertex_from_vertex_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 		"asked": "Write down the coordinates of the vertex of the graph of y = f(x).",
 		"lines": [ver_line(s)], "given": given_form("vertex", s), "answer": ans,
 		"wrongs": [wrong({"x": s.h.neg(), "y": s.k}, "SL2.6.vertex#0")],
-		"generic": [{"x": s.h, "y": s.k.neg()}, {"x": s.k, "y": s.h}, {"x": s.h.neg(), "y": s.k.neg()}],
+		"fillers": [{"x": s.h, "y": s.k.neg()}, {"x": s.k, "y": s.h}, {"x": s.h.neg(), "y": s.k.neg()}],
 		"methods": {"read-vertex-form": {"steps": st, "result": res}},
 	}
 
@@ -532,7 +544,7 @@ func u_vertex_from_factorised(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		"f(%s) = %s × %s%s = %s" % [N(hf), N(a), P(hf.sq()), Fmt.plus(ex.b.mul(hf)) + Fmt.plus(ex.c), N(kf)],
 		"So the vertex is " + Answer.text(ans, {"x": hf, "y": kf}) + "."])
 	out.methods = {"midpoint-of-roots": {"steps": mid, "result": res}, "formula-then-substitute": {"steps": form, "result": {"x": hf, "y": kf}}}
-	out.generic = [{"x": s.h, "y": s.k.neg()}, {"x": s.h.neg(), "y": s.k}, {"x": s.h, "y": s.c}, {"x": s.h, "y": s.k.div(s.a)}]
+	out.fillers = [{"x": s.h, "y": s.k.neg()}, {"x": s.h.neg(), "y": s.k}, {"x": s.h, "y": s.c}, {"x": s.h, "y": s.k.div(s.a)}]
 	return out
 
 
@@ -551,7 +563,7 @@ func u_vertex_from_general(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	return {
 		"asked": "Find the coordinates of the vertex of the graph of y = f(x).",
 		"lines": [gen_line(s)], "given": given_form("general", s), "answer": ans,
-		"generic": [{"x": h.neg(), "y": k}, {"x": h, "y": c}, {"x": h, "y": k.neg()}, {"x": h.neg(), "y": k.neg()}],
+		"fillers": [{"x": h.neg(), "y": k}, {"x": h, "y": c}, {"x": h, "y": k.neg()}, {"x": h.neg(), "y": k.neg()}],
 		"methods": {
 			"complete-square": {"steps": cs_st, "result": {"x": cs.h, "y": cs.k}},
 			"formula-then-substitute": {"result": res, "steps": [
@@ -577,8 +589,8 @@ func u_vertex_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		"asked": "Find the vertex of the graph of y = f(x), and say whether it is a maximum or a minimum.",
 		"lines": ["The table shows some values of a quadratic function f."], "table": t,
 		"given": {"table": table_given(t)}, "answer": ans,
-		"generic": [{"x": h, "y": k, "kind": "maximum" if kind == "minimum" else "minimum"}, {"x": k, "y": h, "kind": kind},
-			{"x": h.add(1), "y": QuadraticSituation.f(s, h.add(1)), "kind": kind}, {"x": h, "y": y1, "kind": kind}],
+		"wrongs": [wrong({"x": h, "y": k, "kind": "maximum" if kind == "minimum" else "minimum"}, "fn-quadratic-features#20")],
+		"fillers": [{"x": k, "y": h, "kind": kind}, {"x": h.add(1), "y": QuadraticSituation.f(s, h.add(1)), "kind": kind}, {"x": h, "y": y1, "kind": kind}],
 		"methods": {"midpoint-of-roots": {"result": res, "steps": [
 			"f(%s) = f(%s) = %s, so the axis is halfway between: x = %s." % [N(h.sub(1)), N(h.add(1)), N(y1), N(h)],
 			"The vertex is on the axis, and the table gives f(%s) = %s." % [N(h), N(k)],
@@ -606,8 +618,8 @@ func u_max_or_min(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var res := {"kind": kind, "k": s.k}
 	st.append("So f has a " + Answer.text(ans, res) + ".")
 	out.methods = {"read-vertex-form": {"steps": st, "result": res}}
-	out.wrongs = [wrong({"kind": other, "k": s.k}, "SL2.6.vertex#2")]
-	out.generic = [{"kind": kind, "k": s.h}, {"kind": other, "k": s.h}, {"kind": kind, "k": s.k.neg()}]
+	out.wrongs = [wrong({"kind": other, "k": s.k}, "SL2.6.vertex#2"), wrong({"kind": kind, "k": s.h}, "fn-quadratic-features#21")]
+	out.fillers = [{"kind": other, "k": s.h}, {"kind": kind, "k": s.k.neg()}]
 	return out
 
 
@@ -625,7 +637,8 @@ func u_h_k_from_vertex(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"a(x − h)² + k is y = ax² translated by the vector (h, k), so its vertex is (h, k).",
 		"The vertex is %s, so h = %s and k = %s." % [Fmt.point(s.h, s.k), N(s.h), N(s.k)],
 		"So " + Answer.text(ans, res) + "."]}}
-	out.generic = [{"h": s.h.neg(), "k": s.k}, {"h": s.h, "k": s.k.neg()}, {"h": s.k, "k": s.h}, {"h": s.h.neg(), "k": s.k.neg()}]
+	out.wrongs = [wrong({"h": s.h.neg(), "k": s.k}, "SL2.6.vertex#0")]
+	out.fillers = [{"h": s.h, "k": s.k.neg()}, {"h": s.k, "k": s.h}, {"h": s.h.neg(), "k": s.k.neg()}]
 	return out
 
 
@@ -650,7 +663,7 @@ func u_vertex_form_from_general(_rep: String, s: Dictionary, _rng: Seeded) -> Di
 		"wrongs": [wrong({"a": a, "h": s.h, "k": c}, "SL2.6.complete-square#0"),
 			wrong({"a": a, "h": s.h, "k": c.sub(s.h.sq())}, "SL2.6.complete-square#1"),
 			wrong({"a": a, "h": s.h.neg(), "k": s.k}, "SL2.6.complete-square#2")],
-		"generic": [{"a": Q.new(1), "h": s.h, "k": s.k}, {"a": a, "h": s.h, "k": s.k.neg()}],
+		"fillers": [{"a": Q.new(1), "h": s.h, "k": s.k}, {"a": a, "h": s.h, "k": s.k.neg()}],
 		"methods": {
 			"complete-square": {"steps": cs_st, "result": cs_res},
 			"compare-coefficients": {"result": res, "steps": [
@@ -676,7 +689,7 @@ func u_vertex_form_from_factorised(_rep: String, s: Dictionary, _rng: Seeded) ->
 		"asked": "Write f(x) in the form a(x − h)² + k.",
 		"lines": [fac_line(s)], "given": given_form("factorised", s), "answer": ans,
 		"wrongs": [wrong({"a": s.a, "h": s.h.neg(), "k": s.k}, "SL2.6.complete-square#2")],
-		"generic": [{"a": s.a, "h": s.h, "k": s.k.neg()}, {"a": Q.new(1), "h": s.h, "k": s.k}, {"a": s.a, "h": s.h, "k": s.c}],
+		"fillers": [{"a": s.a, "h": s.h, "k": s.k.neg()}, {"a": Q.new(1), "h": s.h, "k": s.k}, {"a": s.a, "h": s.h, "k": s.c}],
 		"methods": {"vertex-first": {"result": res, "steps": [
 			"The roots are %s and %s, so h is their midpoint: h = (%s%s)/2 = %s" % [N(s.p), N(s.q), N(s.p), Fmt.plus(s.q), N(h)],
 			"k = f(%s) = %s(%s%s)(%s%s) = %s" % [N(h), Fmt.lead(s.a) if not s.a.eq(-1) else "−", N(h), Fmt.plus(s.p.neg()), N(h), Fmt.plus(s.q.neg()), N(k)],
@@ -693,8 +706,8 @@ func u_general_from_vertex_form(_rep: String, s: Dictionary, _rng: Seeded) -> Di
 	return {
 		"asked": "Write f(x) in the form ax² + bx + c.",
 		"lines": [ver_line(s)], "given": given_form("vertex", s), "answer": ans,
-		"generic": [{"a": s.a, "b": s.b.neg(), "c": s.c}, {"a": s.a, "b": s.b, "c": s.h.sq().add(s.k)},
-			{"a": s.a, "b": s.b, "c": s.k}, {"a": s.a, "b": s.h.mul(-2), "c": s.c}],
+		"wrongs": [wrong({"a": s.a, "b": s.b, "c": s.h.sq().add(s.k)}, "fn-quadratic-features#22")],
+		"fillers": [{"a": s.a, "b": s.b.neg(), "c": s.c}, {"a": s.a, "b": s.b, "c": s.k}, {"a": s.a, "b": s.h.mul(-2), "c": s.c}],
 		"methods": {"compare-coefficients": {"steps": st, "result": res}},
 	}
 
@@ -722,8 +735,8 @@ func u_factorised_from_general(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	return {
 		"asked": "Write f(x) in the form a(x − p)(x − q).",
 		"lines": [gen_line(s)], "given": given_form("general", s), "answer": ans,
-		"wrongs": [wrong({"a": Q.new(1), "p": s.p, "q": s.q}, "SL2.6.factorised-form#1")],
-		"generic": [{"a": a, "p": s.p.neg(), "q": s.q.neg()}, {"a": a, "p": s.p, "q": s.q.neg()}, {"a": a.neg(), "p": s.p, "q": s.q}],
+		"wrongs": [wrong({"a": Q.new(1), "p": s.p, "q": s.q}, "SL2.6.factorised-form#1"), wrong({"a": a, "p": s.p.neg(), "q": s.q.neg()}, "fn-quadratic-features#23")],
+		"fillers": [{"a": a, "p": s.p, "q": s.q.neg()}, {"a": a.neg(), "p": s.p, "q": s.q}],
 		"methods": {"factorise": {"steps": st, "result": res}, "roots-to-factors": {"steps": st2, "result": res2}},
 	}
 
@@ -744,7 +757,8 @@ func u_factorised_from_vertex_form(_rep: String, s: Dictionary, _rng: Seeded) ->
 	return {
 		"asked": "Write f(x) in the form a(x − p)(x − q).",
 		"lines": [ver_line(s)], "given": given_form("vertex", s), "answer": ans,
-		"generic": [{"a": s.a, "p": s.p.neg(), "q": s.q.neg()}, {"a": Q.new(1), "p": s.p, "q": s.q}, {"a": s.a, "p": s.h, "q": s.k}],
+		"wrongs": [wrong({"a": s.a, "p": s.p.neg(), "q": s.q.neg()}, "fn-quadratic-features#23"), wrong({"a": Q.new(1), "p": s.p, "q": s.q}, "SL2.6.factorised-form#1")],
+		"fillers": [{"a": s.a, "p": s.h, "q": s.k}],
 		"methods": {
 			"complete-square": {"result": res, "steps": [
 				"Set f(x) = 0: %s%s² = %s" % [Fmt.lead(s.a), Fmt.factor(s.h), N(s.k.neg())],
@@ -772,7 +786,8 @@ func u_vertex_form_from_vertex_and_a(rep: String, s: Dictionary, _rng: Seeded) -
 		"Vertex form is f(x) = a(x − h)² + k, with vertex (h, k).",
 		"Put in the vertex %s and a = %s." % [Fmt.point(s.h, s.k), N(s.a)],
 		"So " + Answer.text(ans, res) + "."]}}
-	out.generic = [{"a": s.a, "h": s.h.neg(), "k": s.k}, {"a": s.a, "h": s.h, "k": s.k.neg()}, {"a": s.a, "h": s.k, "k": s.h}]
+	out.wrongs = [wrong({"a": s.a, "h": s.h.neg(), "k": s.k}, "fn-quadratic-from-conditions#5")]
+	out.fillers = [{"a": s.a, "h": s.h, "k": s.k.neg()}, {"a": s.a, "h": s.k, "k": s.h}]
 	return out
 
 
@@ -817,8 +832,9 @@ func u_a_from_vertex_and_point(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		"Put in b = %s: %s = %s, so a = %s" % [lin([s.h.mul(-2)], ["a"]), lin([x1.sq().sub(s.h.sq()).add(x1.sub(s.h).mul(s.h.mul(-2)))], ["a"]), N(y1.sub(s.k)), N(a)],
 		"With vertex %s: %s." % [Fmt.point(s.h, s.k), Answer.text(ans, res)]])
 	out.methods = {"vertex-form-plus-point": {"steps": vf, "result": res}, "simultaneous-equations": {"steps": sim, "result": res}}
-	out.wrongs = [wrong({"a": Q.new(1), "h": s.h, "k": s.k}, "SL2.6.find-equation#0")]
-	out.generic = [{"a": s.a, "h": s.h.neg(), "k": s.k}, {"a": s.a.neg(), "h": s.h, "k": s.k}, {"a": s.a, "h": s.h, "k": s.k.neg()}]
+	out.wrongs = [wrong({"a": Q.new(1), "h": s.h, "k": s.k}, "SL2.6.find-equation#0"), wrong({"a": s.a, "h": s.h.neg(), "k": s.k}, "fn-quadratic-from-conditions#5"),
+		wrong({"a": s.a.neg(), "h": s.h, "k": s.k}, "fn-quadratic-from-conditions#6")]
+	out.fillers = [{"a": s.a, "h": s.h, "k": s.k.neg()}]
 	return out
 
 
@@ -860,8 +876,9 @@ func u_equation_from_vertex_and_root(rep: String, s: Dictionary, rng: Seeded) ->
 			"f(x) = a%s%s, and the vertex gives a." % [Fmt.factor(lo), Fmt.factor(hi)], by_vertex,
 			"So " + Answer.text(ans, res_if) + "."]},
 	}
-	out.generic = [{"a": Q.new(1), "p": s.p, "q": s.q}, {"a": s.a, "p": s.p.neg(), "q": s.q.neg()}, {"a": s.a.neg(), "p": s.p, "q": s.q},
-		{"a": s.a, "p": r, "q": s.h}]
+	out.wrongs = [wrong({"a": Q.new(1), "p": s.p, "q": s.q}, "SL2.6.find-equation#0"), wrong({"a": s.a, "p": s.p.neg(), "q": s.q.neg()}, "SL2.6.find-equation#1"),
+		wrong({"a": s.a.neg(), "p": s.p, "q": s.q}, "fn-quadratic-from-conditions#6")]
+	out.fillers = [{"a": s.a, "p": r, "q": s.h}]
 	return out
 
 
@@ -902,7 +919,8 @@ func u_a_from_roots_and_point(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	# (x − 1) written for a root at x = −1: flip the sign of one root.
 	var flip := {"a": s.a, "p": s.p.neg(), "q": s.q} if s.p.sign() < 0 else {"a": s.a, "p": s.p, "q": s.q.neg()}
 	out.wrongs = [wrong({"a": Q.new(1), "p": s.p, "q": s.q}, "SL2.6.find-equation#0"), wrong(flip, "SL2.6.find-equation#1")]
-	out.generic = [{"a": s.a.neg(), "p": s.p, "q": s.q}, {"a": s.a, "p": s.p.neg(), "q": s.q.neg()}, {"a": s.a.mul(2), "p": s.p, "q": s.q}]
+	out.wrongs.append(wrong({"a": s.a.neg(), "p": s.p, "q": s.q}, "fn-quadratic-from-conditions#6"))
+	out.fillers = [{"a": s.a, "p": s.p.neg(), "q": s.q.neg()}, {"a": s.a.mul(2), "p": s.p, "q": s.q}]
 	return out
 
 
@@ -940,7 +958,9 @@ func u_coefficients_from_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	}
 	out.wrongs = [wrong({"b": s.a.mul(fp.add(fq)).neg(), "c": s.a.mul(fp).mul(fq)}, "SL2.6.find-equation#1"),
 		wrong({"b": s.p.add(s.q).neg(), "c": s.p.mul(s.q)}, "SL2.6.factorised-form#1")]
-	out.generic = [{"b": s.b.neg(), "c": s.c}, {"b": s.b, "c": s.c.neg()}, {"b": s.b.neg(), "c": s.c.neg()}]
+	# Both factors with the root's own sign: (x + p)(x + q) gives −b and the same c.
+	out.wrongs.append(wrong({"b": s.b.neg(), "c": s.c}, "SL2.6.find-equation#1"))
+	out.fillers = [{"b": s.b, "c": s.c.neg()}, {"b": s.b.neg(), "c": s.c.neg()}]
 	return out
 
 
@@ -958,7 +978,8 @@ func u_coefficient_from_axis(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		"The axis is x = −b/(2a), so −b/(2 × %s) = %s." % [P(s.a), N(s.h)],
 		"−b = %s × %s = %s" % [N(s.a.mul(2)), P(s.h), N(b.neg())],
 		"So " + Answer.text(ans, res) + "."]}}
-	out.generic = [{"v": b.neg()}, {"v": s.a.mul(s.h).neg()}, {"v": s.h.mul(-2)}, {"v": s.h.neg()}]
+	out.wrongs = [wrong({"v": b.neg()}, "fn-quadratic-from-conditions#7"), wrong({"v": s.a.mul(s.h).neg()}, "fn-quadratic-from-conditions#8")]
+	out.fillers = [{"v": s.h.mul(-2)}, {"v": s.h.neg()}]
 	return out
 
 
@@ -1039,9 +1060,9 @@ func u_coefficients_from_two_points_and_axis(rep: String, s: Dictionary, rng: Se
 			"So " + Answer.text(ans, res) + "."]
 	out.methods = {"simultaneous-equations": {"steps": st, "result": res}}
 	if with_axis:
-		out.generic = [{"a": s.a, "b": s.b.neg(), "c": s.c}, {"a": s.a.neg(), "b": s.b, "c": s.c}, {"a": s.a, "b": s.b, "c": s.c.neg()}]
+		out.fillers = [{"a": s.a, "b": s.b.neg(), "c": s.c}, {"a": s.a.neg(), "b": s.b, "c": s.c}, {"a": s.a, "b": s.b, "c": s.c.neg()}]
 	else:
-		out.generic = [{"b": s.b.neg(), "c": s.c}, {"b": s.b, "c": s.c.neg()}, {"b": s.c, "c": s.b}]
+		out.fillers = [{"b": s.b.neg(), "c": s.c}, {"b": s.b, "c": s.c.neg()}, {"b": s.c, "c": s.b}]
 	return out
 
 
@@ -1067,8 +1088,9 @@ func u_range_after_finding(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"a %s 0, so the parabola opens %s and %s is its %s value." % [">" if a.sign() > 0 else "<", "upwards" if a.sign() > 0 else "downwards", N(k), "least" if a.sign() > 0 else "greatest"],
 		"So the range is " + Answer.text(ans, res) + "."]}}
 	var flip := "≤" if rel == "≥" else "≥"
-	out.wrongs = [wrong({"var": "x", "rel": rel, "k": s.k}, "SL2.2.range#2")]
-	out.generic = [{"var": "y", "rel": flip, "k": s.k}, {"var": "y", "rel": rel, "k": s.h}, {"var": "y", "rel": rel, "k": s.c}]
+	out.wrongs = [wrong({"var": "x", "rel": rel, "k": s.k}, "SL2.2.range#2"), wrong({"var": "y", "rel": flip, "k": s.k}, "fn-quadratic-from-conditions#11"),
+		wrong({"var": "y", "rel": rel, "k": s.h}, "fn-quadratic-from-conditions#12")]
+	out.fillers = [{"var": "y", "rel": rel, "k": s.c}]
 	return out
 
 
@@ -1119,7 +1141,7 @@ func u_coefficients_from_three_points(rep: String, s: Dictionary, rng: Seeded) -
 	gdc.append("The solver gives a = %s, b = %s, c = %s." % [N(a), N(b), N(c)])
 	gdc.append("So " + Answer.text(ans, res) + ".")
 	out.methods = {"simultaneous-equations": {"steps": sim, "result": res}, "gdc-solve": {"steps": gdc, "result": res}}
-	out.generic = [{"a": s.a.neg(), "b": s.b, "c": s.c}, {"a": s.a, "b": s.b.neg(), "c": s.c}, {"a": s.a, "b": s.b, "c": s.c.neg()}]
+	out.fillers = [{"a": s.a.neg(), "b": s.b, "c": s.c}, {"a": s.a, "b": s.b.neg(), "c": s.c}, {"a": s.a, "b": s.b, "c": s.c.neg()}]
 	return out
 
 
@@ -1155,7 +1177,8 @@ func u_coefficient_from_point(rep: String, s: Dictionary, rng: Seeded) -> Dictio
 		"%s%s = %s" % [lhs, Fmt.plus(rest), N(s.y1)] if not rest.is_zero() else "%s = %s" % [lhs, N(s.y1)],
 		"%s = %s" % [lhs, N(s.y1.sub(rest))],
 		"So " + Answer.text(ans, res) + "."]}}
-	out.generic = [{"v": v.neg()}, {"v": s.y1.add(rest).div(coef[which])}, {"v": s.y1.sub(rest)}]
+	out.wrongs = [wrong({"v": s.y1.add(rest).div(coef[which])}, "fn-quadratic-from-conditions#9"), wrong({"v": s.y1.sub(rest)}, "fn-quadratic-from-conditions#10")]
+	out.fillers = [{"v": v.neg()}]
 	return out
 
 
@@ -1172,7 +1195,9 @@ func u_equation_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		"asked": "Find the equation of f in the form f(x) = a(x − h)² + k.",
 		"lines": ["The table shows values of a quadratic function f."], "table": t,
 		"given": {"table": table_given(t)}, "answer": ans,
-		"generic": [{"a": s.a, "h": s.h.neg(), "k": s.k}, {"a": s.a.neg(), "h": s.h, "k": s.k}, {"a": Q.new(1), "h": s.h, "k": s.k}, {"a": s.a, "h": s.h, "k": s.k.neg()}],
+		"wrongs": [wrong({"a": s.a, "h": s.h.neg(), "k": s.k}, "fn-quadratic-from-conditions#5"), wrong({"a": s.a.neg(), "h": s.h, "k": s.k}, "fn-quadratic-from-conditions#6"),
+			wrong({"a": Q.new(1), "h": s.h, "k": s.k}, "SL2.6.find-equation#0")],
+		"fillers": [{"a": s.a, "h": s.h, "k": s.k.neg()}],
 		"methods": {"vertex-form-plus-point": {"result": res, "steps": [
 			"f(%s) = f(%s), so the axis is x = %s and the vertex is %s." % [N(h.sub(1)), N(h.add(1)), N(h), Fmt.point(h, k)],
 			"f(x) = a%s²%s" % [Fmt.factor(h), Fmt.plus(k)],
@@ -1217,6 +1242,7 @@ func u_match_three_forms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var w1 := right.duplicate()
 	w1.vh = s.h.neg()
 	out.wrongs = [wrong(w1, "SL2.6.vertex#0")]
+	# g1: factors with the roots' own signs; g3: a left out of the factorised form.
 	var g1 := right.duplicate()
 	g1.fp = s.p.neg()
 	g1.fq = s.q.neg()
@@ -1226,7 +1252,8 @@ func u_match_three_forms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	g3.fa = Q.new(1)
 	var g4 := right.duplicate()
 	g4.vk = s.k.neg()
-	out.generic = [g1, g2, g3, g4]
+	out.wrongs.append_array([wrong(g1, "fn-concept-quadratic-forms#2"), wrong(g3, "fn-concept-quadratic-forms#4")])
+	out.fillers = [g2, g4]
 	return out
 
 
@@ -1239,28 +1266,28 @@ func u_form_for_feature(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var forms := "general %s,  factorised %s,  vertex %s" % [Fmt.general(s.a, s.b, s.c), Fmt.factorised(s.a, s.p, s.q), Fmt.vertex(s.a, s.h, s.k)]
 	var right: Dictionary
 	var wrongs: Array = []
-	var generic: Array = []
+	var fillers: Array = []
 	var why := ""
 	match feature:
 		"vertex":
 			right = claim("vertex", feature, [s.h, s.k], "Vertex form: the vertex is %s" % Fmt.point(s.h, s.k))
-			generic = [claim("vertex", feature, [s.h.neg(), s.k], "Vertex form: the vertex is %s" % Fmt.point(s.h.neg(), s.k)),
-				claim("factorised", feature, [s.p, s.q], "Factorised form: the vertex is %s" % Fmt.point(s.p, s.q)),
+			wrongs = [wrong(claim("vertex", feature, [s.h.neg(), s.k], "Vertex form: the vertex is %s" % Fmt.point(s.h.neg(), s.k)), "SL2.6.vertex#0")]
+			fillers = [claim("factorised", feature, [s.p, s.q], "Factorised form: the vertex is %s" % Fmt.point(s.p, s.q)),
 				claim("general", feature, [s.b, s.c], "General form: the vertex is %s" % Fmt.point(s.b, s.c)),
 				claim("vertex", feature, [s.h, s.k.neg()], "Vertex form: the vertex is %s" % Fmt.point(s.h, s.k.neg()))]
 			why = "a(x − h)² + k is y = ax² translated by (h, k), so the vertex %s shows at a glance." % Fmt.point(s.h, s.k)
 		"roots":
 			right = claim("factorised", feature, [s.p, s.q], "Factorised form: the roots are %s and %s" % [N(s.p), N(s.q)])
-			generic = [claim("factorised", feature, [s.p.neg(), s.q.neg()], "Factorised form: the roots are %s and %s" % [N(s.p.neg()), N(s.q.neg())]),
-				claim("vertex", feature, [s.h, s.k], "Vertex form: the roots are %s and %s" % [N(s.h), N(s.k)]),
+			wrongs = [wrong(claim("factorised", feature, [s.p.neg(), s.q.neg()], "Factorised form: the roots are %s and %s" % [N(s.p.neg()), N(s.q.neg())]), "fn-concept-quadratic-forms#2")]
+			fillers = [claim("vertex", feature, [s.h, s.k], "Vertex form: the roots are %s and %s" % [N(s.h), N(s.k)]),
 				claim("general", feature, [s.b, s.c], "General form: the roots are %s and %s" % [N(s.b), N(s.c)]),
 				claim("factorised", feature, [s.p, s.q.neg()], "Factorised form: the roots are %s and %s" % [N(s.p), N(s.q.neg())])]
 			why = "a(x − p)(x − q) is 0 exactly when x = p or x = q, so the roots %s and %s show at a glance." % [N(s.p), N(s.q)]
 		_:
 			right = claim("general", feature, [s.c], "General form: the y-intercept is %s" % Fmt.point(0, s.c))
-			wrongs = [wrong(claim("factorised", feature, [s.p.mul(s.q)], "Factorised form: the y-intercept is %s" % Fmt.point(0, s.p.mul(s.q))), "SL2.6.factorised-form#2")]
-			generic = [claim("vertex", feature, [s.k], "Vertex form: the y-intercept is %s" % Fmt.point(0, s.k)),
-				claim("vertex", feature, [s.h], "Vertex form: the y-intercept is %s" % Fmt.point(0, s.h)),
+			wrongs = [wrong(claim("factorised", feature, [s.p.mul(s.q)], "Factorised form: the y-intercept is %s" % Fmt.point(0, s.p.mul(s.q))), "SL2.6.factorised-form#2"),
+				wrong(claim("vertex", feature, [s.k], "Vertex form: the y-intercept is %s" % Fmt.point(0, s.k)), "fn-concept-quadratic-forms#3")]
+			fillers = [claim("vertex", feature, [s.h], "Vertex form: the y-intercept is %s" % Fmt.point(0, s.h)),
 				claim("general", feature, [s.b], "General form: the y-intercept is %s" % Fmt.point(0, s.b)),
 				claim("factorised", feature, [s.p.add(s.q)], "Factorised form: the y-intercept is %s" % Fmt.point(0, s.p.add(s.q)))]
 			why = "In ax² + bx + c, f(0) = c, so the y-intercept %s shows at a glance. In the other forms it is apq or ah² + k." % Fmt.point(0, s.c)
@@ -1269,7 +1296,7 @@ func u_form_for_feature(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"asked": "Which form shows the %s without any working, and what is it?" % feature,
 		"lines": ["One parabola, three forms: %s." % forms], "answer": ans,
 		"given": {"forms": [given_form("general", s), given_form("factorised", s), given_form("vertex", s)], "feature": feature},
-		"wrongs": wrongs, "generic": generic,
+		"wrongs": wrongs, "fillers": fillers,
 		"methods": {"read-vertex-form": {"steps": [why, "So: " + right.text + "."], "result": right}},
 	}
 
@@ -1279,23 +1306,24 @@ func u_form_for_task(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var forms := "general %s,  factorised %s,  vertex %s" % [Fmt.general(s.a, s.b, s.c), Fmt.factorised(s.a, s.p, s.q), Fmt.vertex(s.a, s.h, s.k)]
 	var rel := "≥" if s.a.sign() > 0 else "≤"
 	var right: Dictionary
-	var generic: Array = []
+	var wrongs: Array = []
+	var fillers: Array = []
 	var asked := ""
 	var why := ""
 	match task:
 		"solve":
 			asked = "To solve f(x) = 0, which form is the best start, and what does it give?"
 			right = claim("factorised", "roots", [s.p, s.q], "Factorised: x = %s or x = %s" % [N(s.p), N(s.q)])
-			generic = [claim("vertex", "roots", [s.h], "Vertex: x = %s" % N(s.h)),
+			wrongs = [wrong(claim("factorised", "roots", [s.p.neg(), s.q.neg()], "Factorised: x = %s or x = %s" % [N(s.p.neg()), N(s.q.neg())]), "fn-concept-quadratic-forms#2")]
+			fillers = [claim("vertex", "roots", [s.h], "Vertex: x = %s" % N(s.h)),
 				claim("general", "roots", [s.c], "General: x = %s" % N(s.c)),
-				claim("factorised", "roots", [s.p.neg(), s.q.neg()], "Factorised: x = %s or x = %s" % [N(s.p.neg()), N(s.q.neg())]),
 				claim("general", "roots", [s.b], "General: x = %s" % N(s.b)),
 				claim("vertex", "roots", [s.k], "Vertex: x = %s" % N(s.k))]
 			why = "a(x − p)(x − q) = 0 needs one bracket to be 0, so the solutions can be read off: x = %s or x = %s." % [N(s.p), N(s.q)]
 		"range":
 			asked = "To find the range of f, which form is the best start, and what does it give?"
 			right = claim("vertex", "range", [s.k], "Vertex: y %s %s" % [rel, N(s.k)])
-			generic = [claim("factorised", "range", [s.p], "Factorised: y %s %s" % [rel, N(s.p)]),
+			fillers = [claim("factorised", "range", [s.p], "Factorised: y %s %s" % [rel, N(s.p)]),
 				claim("general", "range", [s.c], "General: y %s %s" % [rel, N(s.c)]),
 				claim("vertex", "range", [s.h], "Vertex: y %s %s" % [rel, N(s.h)]),
 				claim("general", "range", [s.b], "General: y %s %s" % [rel, N(s.b)]),
@@ -1304,9 +1332,9 @@ func u_form_for_task(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		_:
 			asked = "To find f(0), which form is the best start, and what does it give?"
 			right = claim("general", "f0", [s.c], "General: f(0) = %s" % N(s.c))
-			generic = [claim("factorised", "f0", [s.p.mul(s.q)], "Factorised: f(0) = %s" % N(s.p.mul(s.q))),
-				claim("vertex", "f0", [s.k], "Vertex: f(0) = %s" % N(s.k)),
-				claim("general", "f0", [s.b], "General: f(0) = %s" % N(s.b)),
+			wrongs = [wrong(claim("factorised", "f0", [s.p.mul(s.q)], "Factorised: f(0) = %s" % N(s.p.mul(s.q))), "SL2.6.factorised-form#2"),
+				wrong(claim("vertex", "f0", [s.k], "Vertex: f(0) = %s" % N(s.k)), "fn-concept-quadratic-forms#3")]
+			fillers = [claim("general", "f0", [s.b], "General: f(0) = %s" % N(s.b)),
 				claim("vertex", "f0", [s.h], "Vertex: f(0) = %s" % N(s.h)),
 				claim("factorised", "f0", [s.p.add(s.q)], "Factorised: f(0) = %s" % N(s.p.add(s.q)))]
 			why = "Every x term in ax² + bx + c is 0 at x = 0, so f(0) = c = %s with no working." % N(s.c)
@@ -1314,7 +1342,7 @@ func u_form_for_task(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	return {
 		"asked": asked, "lines": ["One parabola, three forms: %s." % forms], "answer": ans,
 		"given": {"forms": [given_form("general", s), given_form("factorised", s), given_form("vertex", s)], "task": task},
-		"generic": generic,
+		"wrongs": wrongs, "fillers": fillers,
 		"methods": {"read-vertex-form": {"steps": [why, "So: " + right.text + "."], "result": right}},
 	}
 
@@ -1338,7 +1366,7 @@ func u_missing_form(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"Δ = b² − 4ac = %s² − 4 × %s × %s = %s" % [P(ex.b), P(s.a), P(ex.c), N(d2)],
 		"Δ < 0, so f(x) = 0 has no real roots. a(x − p)(x − q) needs real roots p and q.",
 		"So: " + res.text + "."]}}
-	out.generic = [claim("vertex", "missing", [disc], "Vertex form: Δ = %s < 0, so the square can't be completed" % N(disc)),
+	out.fillers = [claim("vertex", "missing", [disc], "Vertex form: Δ = %s < 0, so the square can't be completed" % N(disc)),
 		claim("general", "missing", [disc], "General form: Δ = %s < 0, so b and c can't be found" % N(disc)),
 		claim("factorised", "missing", [disc.neg()], "Factorised form: Δ = %s, which is not a square" % N(disc.neg()))]
 	return out

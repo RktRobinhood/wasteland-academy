@@ -38,7 +38,7 @@ const MIN_W := 342.0
 const LX := 112.0              # the Learner's feet x
 const SX := 54.0               # Spark's
 const SLOTS := [214.0, 262.0, 314.0]   # monster feet x, front to back
-const STRIDE := 36.0 / 880.0   # ground per walk frame, per unit of figure height (README)
+const STRIDE := 36.0 / 880.0   # ground per walk frame, per unit of figure height, unless the sheet sets `stride` (README)
 const CATCH_UP := 2.0          # a leg finishing after an answer, times the walk
 const APPROACH := 8.0          # long enough for a leg on a phone or a PC (the demo waits this)
 const PAST_EDGE := 8.0         # how far past the right edge an encounter starts
@@ -50,7 +50,8 @@ const FLASH := 0.08            # one white flash per hit, 80 ms
 const FLASH_GLOW := 0.55
 const FLASH_PER_SECOND := 3
 const BREATH := 2.4            # idle breathing period, scale 1 to 1.02
-## Display heights in strip units (the README's preview heights; the Learner is 92).
+## Display heights in strip units (the README's preview heights; the Learner is 92). A sheet's
+## own `display_height` comes first.
 const DISP := {"spark": 56, "loot": 14, "dishback": 56, "scrap-pile": 64, "mud-stuck": 52, "hatch-locked": 58,
 		"vault-dials": 104, "cache-vending": 96, "obstacle-livewire": 58}
 const ENEMY_H := {1: 80, 2: 92, 3: 104, 4: 108, 5: 124}
@@ -157,7 +158,9 @@ func start_run(p_region: String, p_avatar: String, p_weapon: String = "rebar", p
 	_roster = assets.roster(region)
 	_build_layers()
 	if active:
-		_speed = STRIDE * LEARNER_H * float(assets.sheets[avatar].anims.walk.fps)
+		var lsheet: Dictionary = assets.sheets[avatar]
+		var stride: float = lsheet.stride if lsheet.stride > 0.0 else STRIDE
+		_speed = stride * _disp_h(avatar) * float(lsheet.anims.walk.fps)
 		_push({"kind": "travel", "d": INF})
 	queue_redraw()
 
@@ -519,6 +522,9 @@ func _build_layers() -> void:
 # ------------------------------------------------------------------ composing a frame
 
 func _disp_h(name: String) -> float:
+	var own: float = assets.sheets.get(name, {}).get("display_height", 0.0)
+	if own > 0.0:
+		return own
 	if name in assets.avatars:
 		return LEARNER_H
 	if DISP.has(name):
