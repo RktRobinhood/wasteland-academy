@@ -42203,7 +42203,9 @@
 					"as": "distractor",
 					"in": [
 						"period",
-						"amp-period"
+						"amp-period",
+						"b-from-graph",
+						"b-from-story"
 					],
 					"wrong": "π ÷ b for a sine or cosine"
 				},
@@ -42235,7 +42237,8 @@
 					"in": [
 						"principal-axis",
 						"a-d-from-graph",
-						"amp-axis-story"
+						"amp-axis-story",
+						"amplitude"
 					],
 					"wrong": "y = |a| as the axis"
 				},
@@ -42311,6 +42314,57 @@
 						"wheel-a-b"
 					],
 					"wrong": "b = the period"
+				},
+				{
+					"text": "Giving the maximum value as the amplitude",
+					"as": "distractor",
+					"in": [
+						"amplitude",
+						"a-d-from-graph",
+						"amp-axis-story"
+					],
+					"wrong": "the highest value given for a"
+				},
+				{
+					"text": "Writing the principal axis as a vertical line x = d instead of y = d",
+					"as": "distractor",
+					"in": [
+						"principal-axis"
+					],
+					"wrong": "x = d"
+				},
+				{
+					"text": "Keeping the base wave's axis, forgetting that d lifts it",
+					"as": "distractor",
+					"in": [
+						"principal-axis"
+					],
+					"wrong": "the x-axis given as the principal axis"
+				},
+				{
+					"text": "Using strict inequalities, although the wave does reach its maximum and minimum",
+					"as": "distractor",
+					"in": [
+						"range"
+					],
+					"wrong": "< in place of ≤"
+				},
+				{
+					"text": "Giving a later peak instead of the first one after zero",
+					"as": "distractor",
+					"in": [
+						"first-max-x"
+					],
+					"wrong": "a peak one period later"
+				},
+				{
+					"text": "Dividing the period by the full turn, instead of the full turn by the period",
+					"as": "distractor",
+					"in": [
+						"b-from-graph",
+						"b-from-story"
+					],
+					"wrong": "b = period ÷ 2π"
 				}
 			],
 			"chain": [

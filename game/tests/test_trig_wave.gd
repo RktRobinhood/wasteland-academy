@@ -151,14 +151,17 @@ func test_paper_1_model_is_exact() -> void:
 func test_every_misconception_shows_up() -> void:
 	for t in TYPES:
 		var ty := QuestionEngine.type_of(t)
-		for m in ty.misconceptions:
+		for i in ty.misconceptions.size():
+			var m: Dictionary = ty.misconceptions[i]
+			# A line added without a ref of its own is "<type>#<index>" (FAL-820).
+			var ref: String = m.get("ref", "%s#%d" % [t, i])
 			for u in m.in:
 				var found := false
 				for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown == u):
 					for seed in range(1, 31):
-						if _make(t, c, seed).choices.any(func(o): return o.ref == m.ref):
+						if _make(t, c, seed).choices.any(func(o): return o.ref == ref):
 							found = true
 							break
 					if found:
 						break
-				check(found, "%s: %s never appears on %s" % [t, m.ref, u])
+				check(found, "%s: %s never appears on %s" % [t, ref, u])

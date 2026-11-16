@@ -33953,6 +33953,7 @@ E9TRIG_B, E9TRIG_TAN_AMP, E9TRIG_TAN_SIN, E9TRIG_SIN_TAN, E9TRIG_NO_D, E9TRIG_SW
 E9TRIG_AMP = E9TRIG_RF + "11"
 E9TRIG_AXIS, E9TRIG_MINUS, E9TRIG_SIN_COS, E9TRIG_WHEEL = [E9TRIG_RF + str(i) for i in range(7, 11)]
 E9TRIG_HALF, E9TRIG_DOUBLE = E9TRIG_EF + "0", E9TRIG_EF + "1"
+E9TRIG_MAX_AMP, E9TRIG_X_AXIS, E9TRIG_BASE_AXIS, E9TRIG_STRICT, E9TRIG_LATER, E9TRIG_FLIP = (f"t3-trig-read-features#{i}" for i in range(15, 21))  # FAL-820
 E9TRIG_DEG, E9TRIG_FIRST, E9TRIG_PERB, E9TRIG_SIDE, E9TRIG_ONE_SIDE, E9TRIG_CYCLE, E9TRIG_C, E9TRIG_D_X = [E9TRIG_MC + str(i) for i in range(8)]
 E9TRIG_DIVIDE, E9TRIG_UNIT, E9TRIG_WHOLE, E9TRIG_SIGN = [E9TRIG_MC + str(i) for i in range(8, 12)]
 E9TRIG_STORIES = {"D": ("The depth of water at the old harbour wall", "m", "hours"), "T": ("The temperature inside the grain store", "°C", "hours"),
@@ -34167,13 +34168,15 @@ def e9trig_read_features(q):
     amp = abs(A)
     if u == "amplitude":
         l = "Amplitude = "
-        gc_check_common(q, l + dec_text(amp), {E9TRIG_AMP: {l + dec_text(A), l + dec_text(A + d)}, E9TRIG_DOUBLE: {l + dec_text(top - low)}})
+        gc_check_common(q, l + dec_text(amp), {E9TRIG_AMP: {l + dec_text(A), l + dec_text(A + d)}, E9TRIG_DOUBLE: {l + dec_text(top - low)},
+                                               E9TRIG_AXIS: {l + dec_text(d)}, E9TRIG_MAX_AMP: {l + dec_text(top)}})  # the axis, the top
     elif u == "period":
         e9trig_period(q, W)
     elif u == "amp-period":
         e9trig_two(q, W, "Amplitude", amp, "period", T, {E9TRIG_HALF: [(amp, T / 2)], E9TRIG_SIN_TAN: [(amp, T / 2)], E9TRIG_DOUBLE: [(top - low, T)], E9TRIG_AMP: [(A, T), (A + d, T)]})
     elif u == "principal-axis":
-        gc_check_common(q, f"y = {dec_text(d)}", {E9TRIG_AXIS: {f"y = {dec_text(amp)}"}})
+        gc_check_common(q, f"y = {dec_text(d)}", {E9TRIG_AXIS: {f"y = {dec_text(amp)}"}, E9TRIG_X_AXIS: {f"x = {dec_text(d)}"},  # x for y
+                                                  E9TRIG_BASE_AXIS: {"y = 0"}})  # d left off
     elif u == "max-value":
         l = "Maximum value = "
         gc_check_common(q, l + dec_text(top), {E9TRIG_NO_D: {l + dec_text(amp)}, E9TRIG_SWAP: {l + dec_text(d + A)}})
@@ -34181,7 +34184,8 @@ def e9trig_read_features(q):
         l = "Minimum value = "
         gc_check_common(q, l + dec_text(low), {E9TRIG_NO_D: {l + dec_text(-amp)}, E9TRIG_SWAP: {l + dec_text(d - A)}})
     elif u == "range":
-        gc_check_common(q, f"{dec_text(low)} ≤ y ≤ {dec_text(top)}", {E9TRIG_NO_D: {f"{dec_text(-amp)} ≤ y ≤ {dec_text(amp)}"}})
+        gc_check_common(q, f"{dec_text(low)} ≤ y ≤ {dec_text(top)}", {E9TRIG_NO_D: {f"{dec_text(-amp)} ≤ y ≤ {dec_text(amp)}"},
+                                                                    E9TRIG_STRICT: {f"{dec_text(low)} < y < {dec_text(top)}"}})  # strict
     elif u == "first-max-x":
         xm = W["xm"]
         wr = {}
@@ -34189,6 +34193,7 @@ def e9trig_read_features(q):
             c = W["c"]
             wr[E9TRIG_MINUS] = [(top, e9trig_peak(-A, fn, c, T))]
             wr[E9TRIG_SIN_COS] = [(top, e9trig_peak(A, "cos" if fn == "sin" else "sin", c, T))]
+        wr[E9TRIG_LATER] = [(top, xm + T)]  # the next peak
         e9trig_two(q, W, "Maximum", top, "x", xm, wr)
     elif u == "tan-period":
         e9trig_period_tan(q, W)
@@ -34202,10 +34207,10 @@ def e9trig_read_features(q):
             b = sp.nsimplify(b)
             gc_check_common(q, f"b = {dec_text(b)}", {E9TRIG_PERB: {"b = " + as_pi(sp.nsimplify(T / sp.pi))}, E9TRIG_HALF: {f"b = {dec_text(2 * b)}"}})
         else:
-            tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b]}, steps=(2, 5))
+            tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b], E9TRIG_SIN_TAN: [sp.pi / T], E9TRIG_FLIP: [T / (2 * sp.pi)]}, steps=(2, 5))  # π ÷ T, T ÷ 2π
     elif u == "a-d-from-graph":
         t = lambda a_, d_: f"a = {dec_text(a_)}, d = {dec_text(d_)}"
-        gc_check_common(q, t(amp, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, amp)}})
+        gc_check_common(q, t(amp, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, amp)}, E9TRIG_MAX_AMP: {t(top, d)}})  # the top for a
     else:
         raise Fail(f"no check for {u}")
 
@@ -34249,9 +34254,9 @@ def e9trig_b_story(q):
     b = 2 * sp.pi / T
     if paper == 1:
         t = lambda v: "b = " + as_pi(sp.Rational(v / sp.pi))
-        gc_check_common(q, t(b), {E9TRIG_PERB: {f"b = {T}"}, E9TRIG_HALF: {t(2 * b)}})
+        gc_check_common(q, t(b), {E9TRIG_PERB: {f"b = {T}"}, E9TRIG_HALF: {t(2 * b)}, E9TRIG_SIN_TAN: {t(sp.pi / T)}})  # π ÷ T
     else:
-        tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b]}, steps=(2, 5))
+        tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b], E9TRIG_SIN_TAN: [sp.pi / T], E9TRIG_FLIP: [T / (2 * sp.pi)]}, steps=(2, 5))  # π ÷ T, T ÷ 2π
 
 
 def e9trig_amp_axis(q):
@@ -34264,7 +34269,7 @@ def e9trig_amp_axis(q):
     need(low > 0 and top > low, "the range is the wrong way round")
     a, d = (top - low) / 2, (top + low) / 2
     t = lambda x, y: f"Amplitude = {dec_text(x)}, principal axis y = {dec_text(y)}"
-    gc_check_common(q, t(a, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, a)}})
+    gc_check_common(q, t(a, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, a)}, E9TRIG_MAX_AMP: {t(top, d)}})  # the top for a
 
 
 def e9trig_wheel(q):

@@ -31,6 +31,14 @@ const R_DIVIDE := "SL3.7.model-context#8"
 const R_UNIT := "SL3.7.model-context#9"
 const R_WHOLE_GAP := "SL3.7.model-context#10"
 const R_SIGN := "SL3.7.model-context#11"
+## t3-trig-read-features's own slips, by index (FAL-820).
+const RF := "t3-trig-read-features#"
+const R_MAX_AMP := RF + "15"
+const R_X_AXIS := RF + "16"
+const R_BASE_AXIS := RF + "17"
+const R_STRICT := RF + "18"
+const R_LATER_PEAK := RF + "19"
+const R_FLIP_DIV := RF + "20"
 
 const RF_UNKNOWNS := ["amplitude", "period", "amp-period", "principal-axis", "max-value", "min-value", "range", "first-max-x",
 	"tan-period", "tan-features", "b-from-graph", "a-d-from-graph", "intercept-gap", "b-from-story", "amp-axis-story", "wheel-a-b"]
@@ -39,6 +47,12 @@ const RF_GDC := ["amplitude", "period", "amp-period", "principal-axis", "max-val
 const MU_UNKNOWNS := ["value-at-time", "exact-value", "first-time-level", "all-times", "duration-above", "duration-below", "duration-span",
 	"first-max-time", "high-low-gap", "count-peaks", "count-lows", "interpret-extreme", "reaches-level"]
 const GDC := "gdc-graph"
+
+
+## Tagged wrong options in a stream order, so each shows when there are more than the question
+## has room for (a build with no stream keeps them as they are).
+static func mixed(w: Array, rng: Seeded) -> Array:
+	return w if rng == null else rng.shuffled(w)
 
 
 func needs() -> Dictionary:
@@ -289,7 +303,8 @@ func u_amplitude(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.a.sign() < 0:
 		out.wrongs.append(wrong({"v": s.a}, R_AMP))
 	out.wrongs.append(wrong({"v": s.a.add(s.d)}, R_AMP))
-	out.generic = [{"v": amp.mul(2)}, {"v": s.d}, {"v": amp.add(1)}, {"v": s.top}]
+	out.wrongs = mixed(out.wrongs + [wrong({"v": s.d}, R_AXIS_AMP), wrong({"v": s.top}, R_MAX_AMP)], _rng)
+	out.fillers = [{"v": amp.mul(2)}, {"v": amp.add(1)}]
 	out.methods = {"read-parameters": method([amp_reads(rep, s), say(a)], a.values), "transform-base": method(amp_base(rep, s) + [say(a)], a.values)}
 	if _can_gdc(rep, s):
 		out.methods[GDC] = method([gdc_step(s), gdc_turns(s), "The amplitude is half the height: (%s − %s) ÷ 2 = %s" % [D(s.top), PD(s.low), D(amp)], say(a)], a.values)
@@ -331,7 +346,7 @@ func u_period(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.wrongs.append(place_like(s, "Period = ", T.div(2), R_SIN_TAN))
 	if s.kind == "dec":
 		out.wrongs.push_front(wrong({"v": GdcKit.qf(360.0 / s.bq.to_float())}, R_DEGREES))
-	out.generic = [place_like(s, "Period = ", T.mul(2)).values, place_like(s, "Period = ", T.mul(3)).values, place_like(s, "Period = ", T.mul(4)).values, place_like(s, "Period = ", T.div(4)).values]
+	out.fillers = [place_like(s, "Period = ", T.mul(2)).values, place_like(s, "Period = ", T.mul(3)).values, place_like(s, "Period = ", T.mul(4)).values, place_like(s, "Period = ", T.div(4)).values]
 	out.methods = per_steps(rep, s, a)
 	if _can_gdc(rep, s):
 		out.methods[GDC] = gdc_period(rep, s, a)
@@ -363,7 +378,7 @@ func u_amp_period(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		if s.a.sign() < 0:
 			out.wrongs.append(opt.call(s.a, T, R_AMP))
 		out.wrongs.append(opt.call(s.a.add(s.d), T, R_AMP))
-	out.generic = [opt.call(amp, T.mul(2)).values, opt.call(amp.add(1), T).values, opt.call(amp.mul(2), T).values]
+	out.fillers = [opt.call(amp, T.mul(2)).values, opt.call(amp.add(1), T).values, opt.call(amp.mul(2), T).values]
 	var st := per_steps(rep, s, a)
 	out.methods = {"read-parameters": method([amp_reads(rep, s)] + st["read-parameters"].steps, a.values), "transform-base": method(amp_base(rep, s).slice(1, 2) + st["transform-base"].steps, a.values)}
 	if _can_gdc(rep, s):
@@ -378,8 +393,10 @@ func u_principal_axis(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	a.exact = true
 	var amp: Q = s.a.abs_q()
 	var out := _read(rep, s, a, "Write down the equation of the principal axis of the graph of f.")
-	out.wrongs = [wrong({"var": "y", "h": amp}, R_AXIS_AMP)]
-	out.generic = [{"var": "x", "h": s.d}, {"var": "y", "h": s.top}, {"var": "y", "h": s.low}, {"var": "y", "h": Q.new(0)}]
+	out.wrongs = [wrong({"var": "y", "h": amp}, R_AXIS_AMP), wrong({"var": "x", "h": s.d}, R_X_AXIS)]
+	if not s.d.is_zero():
+		out.wrongs.append(wrong({"var": "y", "h": Q.new(0)}, R_BASE_AXIS))
+	out.fillers = [{"var": "y", "h": s.top}, {"var": "y", "h": s.low}]
 	var mean := "The axis is halfway up: (%s + %s) ÷ 2 = %s" % [D(s.top), PD(s.low), D(s.d)]
 	var read: String = mean if rep == "graph" else "The principal axis is y = d, the number added on: d = %s" % D(s.d)
 	var base: Array = ["The base wave has the principal axis y = 0.", mean if rep == "graph" else "Adding d lifts the whole wave, so its axis lifts to y = %s." % D(s.d)]
@@ -413,7 +430,7 @@ func u_max_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong({"v": s.a.abs_q()}, R_NO_D)]
 	if s.a.sign() < 0 and rep != "graph":
 		out.wrongs.push_front(wrong({"v": s.d.add(s.a)}, R_MINUS_SWAP))
-	out.generic = [{"v": s.d}, {"v": s.top.add(s.a.abs_q())}, {"v": s.top.add(1)}, {"v": s.low}]
+	out.fillers = [{"v": s.d}, {"v": s.top.add(s.a.abs_q())}, {"v": s.top.add(1)}, {"v": s.low}]
 	out.methods = extreme(rep, s, a, s.top, true)
 	return out
 
@@ -424,7 +441,7 @@ func u_min_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong({"v": s.a.abs_q().neg()}, R_NO_D)]
 	if s.a.sign() < 0 and rep != "graph":
 		out.wrongs.push_front(wrong({"v": s.d.sub(s.a)}, R_MINUS_SWAP))
-	out.generic = [{"v": s.d}, {"v": s.low.sub(s.a.abs_q())}, {"v": s.low.sub(1)}, {"v": s.top}]
+	out.fillers = [{"v": s.d}, {"v": s.low.sub(s.a.abs_q())}, {"v": s.low.sub(1)}, {"v": s.top}]
 	out.methods = extreme(rep, s, a, s.low, false)
 	return out
 
@@ -439,8 +456,8 @@ func u_range(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	a.exact = true
 	var amp: Q = s.a.abs_q()
 	var out := _read(rep, s, a, "Write down the range of f.")
-	out.wrongs = [wrong(range_vals(amp.neg(), amp), R_NO_D)]
-	out.generic = [range_vals(s.low, s.top, "<"), range_vals(s.d, s.top), range_vals(s.low, s.d), range_vals(s.low.sub(amp), s.top.add(amp))]
+	out.wrongs = [wrong(range_vals(amp.neg(), amp), R_NO_D), wrong(range_vals(s.low, s.top, "<"), R_STRICT)]
+	out.fillers = [range_vals(s.d, s.top), range_vals(s.low, s.d), range_vals(s.low.sub(amp), s.top.add(amp))]
 	var both := "The maximum is %s and the minimum is %s." % [D(s.top), D(s.low)]
 	if rep == "graph":
 		var read := "The lowest and highest marked points are at heights %s and %s." % [D(s.low), D(s.top)]
@@ -506,13 +523,15 @@ func u_first_max_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		other = along(s, other, -1)
 	out.wrongs = []
 	if rep == "graph":
-		out.generic = [opt.call(s.top, other).values, opt.call(s.low, x).values, opt.call(s.top, along(s, x, 1)).values, opt.call(s.d, x).values]
+		out.wrongs.append(opt.call(s.top, along(s, x, 1), R_LATER_PEAK))
+		out.fillers = [opt.call(s.top, other).values, opt.call(s.low, x).values, opt.call(s.d, x).values]
 	else:
 		var sign_slip: bool = s.a.sign() < 0
 		if sign_slip:
 			out.wrongs.append(opt.call(s.top, next_peak(s, false, s.fn), R_IGNORE_MINUS))
 		out.wrongs.append(opt.call(s.top, next_peak(s, sign_slip, "cos" if s.fn == "sin" else "sin"), R_SIN_COS))
-		out.generic = [opt.call(s.top, along(s, x, 1)).values, opt.call(s.d, x).values, opt.call(s.low, x).values, opt.call(s.top, along(s, x, 1, 4)).values]
+		out.wrongs.append(opt.call(s.top, along(s, x, 1), R_LATER_PEAK))
+		out.fillers = [opt.call(s.d, x).values, opt.call(s.low, x).values, opt.call(s.top, along(s, x, 1, 4)).values]
 	var fn_top := "1" if s.a.sign() > 0 else "−1"
 	if rep == "graph":
 		var read := "The highest marked point is (%s, %s), the first peak after 0." % [at(s, x), D(s.top)]
@@ -538,7 +557,7 @@ func u_tan_period(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "graph" and _gdc_shown(rep, s):
 		out.lines = ["The graph of y = f(x) is shown, where f(x) = %s. The dashed lines are its asymptotes." % wave_text(s)]
 	out.wrongs = [place_like(s, "Period = ", T.mul(2), R_TAN_SIN), b_as_period(s, "Period = ")]
-	out.generic = [place_like(s, "Period = ", T.div(2)).values, place_like(s, "Period = ", T.mul(3)).values, place_like(s, "Period = ", T.mul(4)).values]
+	out.fillers = [place_like(s, "Period = ", T.div(2)).values, place_like(s, "Period = ", T.mul(3)).values, place_like(s, "Period = ", T.mul(4)).values]
 	if rep == "graph":
 		var read := "The two marked points are on the same part of two branches, %s apart." % at_w(s, T)
 		out.methods = {"read-parameters": method([read, "tan repeats from one branch to the next, so that gap is one period.", say(a)], a.values),
@@ -563,7 +582,7 @@ func u_tan_features(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		[said.call("Its range is %s ≤ y ≤ %s" % [D(s.d.sub(amp)), D(s.d.add(amp))], T), R_TAN_AMP]])
 	var a: Dictionary = cl.answer
 	var eq := "f(x) = " + wave_text(s)
-	var out := {"answer": a, "wrongs": cl.wrongs, "generic": [], "lines": [eq], "graph": null, "asked": "Which statement about f is true?"}
+	var out := {"answer": a, "wrongs": cl.wrongs, "fillers": [], "lines": [eq], "graph": null, "asked": "Which statement about f is true?"}
 	if rep == "graph":
 		out.lines = ["The graph of y = f(x) is shown, where %s. The dashed lines are its asymptotes." % eq]
 		out.graph = tan_graph(s)
@@ -587,13 +606,14 @@ func u_b_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		a = DifferentiationViews.form("b = " + str(w), ["b = ", {"slot": "v"}], {"v": Q.new(w)})
 		out.asked = "Write down the period of the graph, and hence find b."
 		out.wrongs = [DifferentiationViews.alt("b = " + Fmt.pi(T), R_PERIOD_B), DifferentiationViews.alt("b = %d" % (2 * w), R_HALF, {"v": Q.new(2 * w)})]
-		out.generic = [DifferentiationViews.alt("b = %d" % (w + 1), "", {"v": Q.new(w + 1)}).values, DifferentiationViews.alt("b = %d" % (3 * w), "", {"v": Q.new(3 * w)}).values, DifferentiationViews.alt("b = %d" % (w + 2), "", {"v": Q.new(w + 2)}).values]
+		out.fillers = [DifferentiationViews.alt("b = %d" % (w + 1), "", {"v": Q.new(w + 1)}).values, DifferentiationViews.alt("b = %d" % (3 * w), "", {"v": Q.new(3 * w)}).values, DifferentiationViews.alt("b = %d" % (w + 2), "", {"v": Q.new(w + 2)}).values]
 	else:
 		var b: float = TAU / s.period.to_float()
 		a = fnum("b = ", b)
 		out.asked = "Write down the period of the graph, and hence find b to 3 significant figures."
-		out.wrongs = [wrong({"v": s.period}, R_PERIOD_B), wrong({"v": GdcKit.qf(2.0 * b)}, R_HALF)]
-		out.generic = [{"v": GdcKit.qf(b / 2.0)}, {"v": GdcKit.qf(s.period.to_float() / TAU)}, {"v": GdcKit.qf(3.0 * b)}]
+		out.wrongs = mixed([wrong({"v": s.period}, R_PERIOD_B), wrong({"v": GdcKit.qf(2.0 * b)}, R_HALF), wrong({"v": GdcKit.qf(b / 2.0)}, R_SIN_TAN),
+			wrong({"v": GdcKit.qf(s.period.to_float() / TAU)}, R_FLIP_DIV)], _rng)
+		out.fillers = [{"v": GdcKit.qf(3.0 * b)}]
 	out.answer = a
 	var calc := "b = 2π ÷ %s = %s" % [("(%s)" % at(s, T) if at(s, T).contains("/") else at(s, T)), str(w) if s.paper == 1 else GdcKit.W(TAU / s.period.to_float())]
 	out.methods = {"read-parameters": method([read, calc, say(a)], a.values),
@@ -604,8 +624,8 @@ func u_b_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 func u_a_d_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := named(["a", "d"], [s.a, s.d], false)
 	var out := {"answer": a, "graph": read_graph(s), "lines": ["The graph shows part of y = a cos(b(x − c)) + d, with a > 0."], "asked": "Write down the values of a and d."}
-	out.wrongs = [wrong(named_vals([s.top.sub(s.low), s.d]), R_DOUBLE), wrong(named_vals([s.d, s.a]), R_AXIS_AMP)]
-	out.generic = [named_vals([s.a, s.top]), named_vals([s.a, s.low]), named_vals([s.top, s.d])]
+	out.wrongs = [wrong(named_vals([s.top.sub(s.low), s.d]), R_DOUBLE), wrong(named_vals([s.d, s.a]), R_AXIS_AMP), wrong(named_vals([s.top, s.d]), R_MAX_AMP)]
+	out.fillers = [named_vals([s.a, s.top]), named_vals([s.a, s.low])]
 	var r := "a is half the height: (%s − %s) ÷ 2 = %s" % [D(s.top), PD(s.low), D(s.a)]
 	var m := "d is halfway up: (%s + %s) ÷ 2 = %s" % [D(s.top), PD(s.low), D(s.d)]
 	out.methods = {"read-parameters": method([r, m, say(a)], a.values),
@@ -630,7 +650,7 @@ func u_intercept_gap(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	g.y_bare = true
 	var out := {"answer": a, "graph": g, "lines": ["f(x) = sin(qx), with q > 0 and x in radians.", "The graph of f crosses the x-axis at x = 0, x = %s and x = %s." % [rs(n), rs(2 * n)]], "asked": "Find an expression for r in terms of q."}
 	out.wrongs = [DifferentiationViews.alt("r = 2π/q" if n == 1 else "r = 2π/(%dq)" % n, R_HALF)]
-	out.generic = [DifferentiationViews.alt(r_text(2 * n), "", {"n": Q.new(2 * n)}).values, DifferentiationViews.alt(r_text(n + 1), "", {"n": Q.new(n + 1)}).values, DifferentiationViews.alt(r_text(3 * n + 1), "", {"n": Q.new(3 * n + 1)}).values]
+	out.fillers = [DifferentiationViews.alt(r_text(2 * n), "", {"n": Q.new(2 * n)}).values, DifferentiationViews.alt(r_text(n + 1), "", {"n": Q.new(n + 1)}).values, DifferentiationViews.alt(r_text(3 * n + 1), "", {"n": Q.new(3 * n + 1)}).values]
 	var cycle := "One full cycle runs from x = 0 to x = %s, so the period is %s." % [rs(2 * n), rs(2 * n)]
 	var solve := "%s = 2π/q" % rs(2 * n)
 	out.methods = {"read-parameters": method([cycle, "The period of sin(qx) is 2π/q, so %s." % solve, say(a)], a.values),
@@ -648,15 +668,17 @@ func u_b_from_story(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var b: Q = Q.new(2).div(T)
 		a = DifferentiationViews.form("b = " + Fmt.pi(b), ["b = ", {"slot": "b"}, "π"], {"b": b})
 		out.asked = "Find the exact value of b."
-		out.wrongs = [DifferentiationViews.alt("b = " + D(T), R_PERIOD_B), DifferentiationViews.alt("b = " + Fmt.pi(b.mul(2)), R_HALF, {"b": b.mul(2)})]
-		out.generic = [DifferentiationViews.alt("b = " + Fmt.pi(b.div(2)), "", {"b": b.div(2)}).values, DifferentiationViews.alt("b = " + Fmt.pi(T), "", {"b": T}).values, DifferentiationViews.alt("b = " + Fmt.pi(b.mul(3)), "", {"b": b.mul(3)}).values]
+		out.wrongs = [DifferentiationViews.alt("b = " + D(T), R_PERIOD_B), DifferentiationViews.alt("b = " + Fmt.pi(b.mul(2)), R_HALF, {"b": b.mul(2)}),
+			DifferentiationViews.alt("b = " + Fmt.pi(b.div(2)), R_SIN_TAN, {"b": b.div(2)})]
+		out.fillers = [DifferentiationViews.alt("b = " + Fmt.pi(T), "", {"b": T}).values, DifferentiationViews.alt("b = " + Fmt.pi(b.mul(3)), "", {"b": b.mul(3)}).values]
 		out.methods = {"read-parameters": method([p, "b = 2π ÷ %s = %s" % [D(T), Fmt.pi(b)], say(a)], a.values)}
 	else:
 		var b: float = TAU / T.to_float()
 		a = fnum("b = ", b)
 		out.asked = "Find b, to 3 significant figures."
-		out.wrongs = [wrong({"v": T}, R_PERIOD_B), wrong({"v": GdcKit.qf(2.0 * b)}, R_HALF)]
-		out.generic = [{"v": GdcKit.qf(b / 2.0)}, {"v": GdcKit.qf(T.to_float() / TAU)}, {"v": GdcKit.qf(3.0 * b)}]
+		out.wrongs = mixed([wrong({"v": T}, R_PERIOD_B), wrong({"v": GdcKit.qf(2.0 * b)}, R_HALF), wrong({"v": GdcKit.qf(b / 2.0)}, R_SIN_TAN),
+			wrong({"v": GdcKit.qf(T.to_float() / TAU)}, R_FLIP_DIV)], _rng)
+		out.fillers = [{"v": GdcKit.qf(3.0 * b)}]
 		out.methods = {"read-parameters": method([p, "b = 2π ÷ %s = %s" % [D(T), GdcKit.W(b)], say(a)], a.values)}
 	out.answer = a
 	return out
@@ -671,8 +693,8 @@ func u_amp_axis_story(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := DifferentiationViews.form(axis_text(s.a, s.d), ["Amplitude = ", {"slot": "a"}, ", principal axis y = ", {"slot": "d"}], {"a": s.a, "d": s.d})
 	var opt := func(v: Q, d: Q, ref: String = "") -> Dictionary: return DifferentiationViews.alt(axis_text(v, d), ref, {"a": v, "d": d})
 	var out := {"answer": a, "lines": ["%s is modelled by a sine wave." % c.thing, "It runs between a lowest value of %s %s and a highest value of %s %s." % [D(s.low), c.unit, D(s.top), c.unit]], "asked": "Find the amplitude and the equation of the principal axis of the wave."}
-	out.wrongs = [opt.call(s.top.sub(s.low), s.d, R_DOUBLE), opt.call(s.d, s.a, R_AXIS_AMP)]
-	out.generic = [opt.call(s.a, s.top).values, opt.call(s.a, s.low).values, opt.call(s.top, s.d).values]
+	out.wrongs = [opt.call(s.top.sub(s.low), s.d, R_DOUBLE), opt.call(s.d, s.a, R_AXIS_AMP), opt.call(s.top, s.d, R_MAX_AMP)]
+	out.fillers = [opt.call(s.a, s.top).values, opt.call(s.a, s.low).values]
 	var r := "The amplitude is half the range: (%s − %s) ÷ 2 = %s" % [D(s.top), PD(s.low), D(s.a)]
 	var m := "The axis is halfway between: (%s + %s) ÷ 2 = %s" % [D(s.top), PD(s.low), D(s.d)]
 	out.methods = {"read-parameters": method([r, m, say(a)], a.values),
@@ -695,14 +717,14 @@ func u_wheel_a_b(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.asked = "Find the exact values of a and b."
 		var opt := func(v: Q, w: Q, ref: String = "") -> Dictionary: return DifferentiationViews.alt(t.call(v, w), ref, {"a": v, "b": w})
 		out.wrongs = [opt.call(s.a, b, R_WHEEL_SIGN), DifferentiationViews.alt("a = %s, b = %s" % [D(a_v), D(T)], R_PERIOD_B), opt.call(a_v, b.mul(2), R_HALF)]
-		out.generic = [opt.call(a_v.mul(2), b).values, opt.call(s.a, b.mul(2)).values, opt.call(s.d.neg(), b).values]
+		out.fillers = [opt.call(a_v.mul(2), b).values, opt.call(s.a, b.mul(2)).values, opt.call(s.d.neg(), b).values]
 		out.methods = {"read-parameters": method([first, "One turn is %s minutes, so b = 2π ÷ %s = %s" % [D(T), D(T), Fmt.pi(b)], say(a)], a.values)}
 	else:
 		var b: float = TAU / T.to_float()
 		a = named(["a", "b"], [a_v, b], true)
 		out.asked = "Find a and b, to 3 significant figures."
 		out.wrongs = [wrong(named_vals([s.a, b]), R_WHEEL_SIGN), wrong(named_vals([a_v, T]), R_PERIOD_B), wrong(named_vals([a_v, 2.0 * b]), R_HALF)]
-		out.generic = [named_vals([a_v.mul(2), b]), named_vals([s.a, 2.0 * b]), named_vals([s.d.neg(), b])]
+		out.fillers = [named_vals([a_v.mul(2), b]), named_vals([s.a, 2.0 * b]), named_vals([s.d.neg(), b])]
 		out.methods = {"read-parameters": method([first, "One turn is %s minutes, so b = 2π ÷ %s = %s" % [D(T), D(T), GdcKit.W(b)], say(a)], a.values)}
 	out.answer = a
 	return out
