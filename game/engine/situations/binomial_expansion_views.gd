@@ -10,6 +10,12 @@ extends ExtensionViews
 ## (ncr-read-triangle and so on), as the cells of a type are unknown by representation by method.
 ##
 ## Misconceptions come from SL1.9, then the type's own, which are "<type id>#<index>".
+##
+## t1-ext-binomial-constant-term and t1-ext-binomial-product (FAL-779) are built here too, as
+## unknowns of their own (BinomialExpansionSituation.CONSTANT and PRODUCT), so t1-binomial-term's
+## cells and numbers are as before. Their wrong options are wrongs with a slip or declared
+## fillers, never `generic`. They build method-pick, and error-spot where the catalogue has one;
+## order-steps and multipart aren't built in the engine.
 
 const SKILL := "SL1.9."
 const R_NO_DENOM := SKILL + "ncr-pascal#0"
@@ -37,7 +43,7 @@ const UNKNOWNS := ["ncr-value", "ncr-read-triangle", "ncr-large-r", "ncr-symmetr
 
 func needs() -> Dictionary:
 	var out := {}
-	for u in UNKNOWNS:
+	for u in UNKNOWNS + BinomialExpansionSituation.CONSTANT + BinomialExpansionSituation.PRODUCT:
 		out[u] = {"ask": u}
 	return out
 
@@ -865,3 +871,534 @@ func u_missing_coefficient(_rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 		"generic": pad(c, [other, C(n, pick), C(n + 1, pick) * pw(s.b, pick), n]),
 		"methods": {"general-term": method(general_steps(s, j) + [final], ans.values),
 			"pascal-select": method(row_steps(s, j) + [final], ans.values)}}
+
+
+# ── x in both terms (t1-ext-binomial-constant-term, FAL-779) ─
+# (ax^p + k/x^q)^n: the term with the fraction to the power r is nCr a^(n − r) k^r x^(pn − (p + q)r).
+# Its answers are whole numbers (r, a coefficient) or the power of x in r, and its wrong options
+# are SL1.9.constant-term's slips and the type's own.
+
+const CT_MAPREF := "SL1.9.constant-term#"
+const CT_OWN := "t1-ext-binomial-constant-term#"
+const R_CT_NEG := CT_MAPREF + "0"
+const R_CT_TOP := CT_MAPREF + "1"
+const R_CT_R := CT_MAPREF + "2"
+const R_CT_FIRST := CT_OWN + "3"
+const R_CT_POW := CT_OWN + "4"
+const R_CT_SIGN := CT_OWN + "5"
+const R_CT_UNRAISED := CT_OWN + "6"
+const R_CT_TERM := CT_OWN + "7"
+const R_CT_SPOT_UP := CT_OWN + "8"
+const R_CT_SPOT_TOP := CT_OWN + "9"
+## Methods that don't work on any of these brackets, for method-pick.
+const CT_PICK_WRONGS := [
+	{"name": "Set the power of the first term alone to the power asked", "why": "the fraction carries x too, so the first term's power is not the power of the term"},
+	{"name": "Raise both terms to the power n and multiply them", "why": "each term of the expansion takes the two terms to powers that add up to n, not both to n"},
+	{"name": "Read the answer from row n of Pascal's triangle alone", "why": "the numbers in the bracket are raised to their powers too, so nCr is only part of the term"},
+]
+
+# ── A bracket times an expansion (t1-ext-binomial-product, FAL-779) ─
+
+const PR_MAPREF := "SL1.9.product-expansion#"
+const PR_OWN := "t1-ext-binomial-product#"
+const R_PR_ONE := PR_MAPREF + "0"
+const R_PR_SAME := PR_MAPREF + "1"
+const R_PR_SIGN := PR_MAPREF + "2"
+const R_PR_PAIR := PR_OWN + "3"
+const R_PR_ADD := PR_OWN + "4"
+const R_PR_X2 := PR_OWN + "5"
+const R_PR_SPOT := PR_OWN + "6"
+const PR_PICK_WRONGS := [
+	{"name": "Multiply the coefficients of the asked power in the two brackets", "why": "the terms that multiply are those whose powers add up to the power asked"},
+	{"name": "Find the coefficient in the expansion alone", "why": "each term of the first bracket pairs with a different term of the expansion, and both pairs count"},
+	{"name": "Put x = 1 in both brackets", "why": "that gives the sum of all the coefficients, not one of them"},
+]
+
+
+func extra() -> Dictionary:
+	var out := {}
+	for u in BinomialExpansionSituation.CONSTANT + BinomialExpansionSituation.PRODUCT:
+		out[u] = ["method-pick"]
+	for u in ["ct-find-r", "ct-constant", "pr-linear", "pr-small"]:
+		out[u] = ["error-spot", "method-pick"]
+	return out
+
+
+## A wrong whole number, or a wrong r, kept once and only where it isn't the answer.
+static func ext_wrongs(v: int, list: Array) -> Array:
+	var seen := {v: true}
+	var out: Array = []
+	for e in list:
+		if seen.has(e[0]):
+			continue
+		seen[e[0]] = true
+		out.append(wn(e[0], e[1]))
+	return out
+
+
+## Fillers: the answer scaled or nudged, never a slip already offered.
+static func ext_fillers(v: int, wrongs: Array, list: Array) -> Array:
+	var seen := {v: true}
+	for w in wrongs:
+		if w.values.has("v"):
+			seen[int(Q.of(w.values.v).to_float())] = true
+	var out: Array = []
+	for x in list:
+		if not seen.has(x):
+			seen[x] = true
+			out.append(wn(x).values)
+	return out
+
+
+## A term wrapped in brackets when it is negative, to multiply by: (−3x), 60x².
+static func par(t: String) -> String:
+	return "(%s)" % t if t.begins_with("−") else t
+
+
+static func ct_xq(s: Dictionary) -> String:
+	return x_text(s.q)
+
+
+## (x² + 3/x)⁹, (2x − 3/x²)⁶.
+static func ct_bracket(s: Dictionary) -> String:
+	return "(%s %s %d/%s)%s" % [term(s.a, s.p), "+" if s.b > 0 else "−", absi(s.b), ct_xq(s), Fmt.sup(s.n)]
+
+
+static func ct_first_base(s: Dictionary) -> String:
+	return "x" if s.a == 1 and s.p == 1 else "(%s)" % term(s.a, s.p)
+
+
+static func ct_frac_base(s: Dictionary) -> String:
+	return "(%s/%s)" % [N(s.b), ct_xq(s)]
+
+
+## 3r, r.
+static func times_r(c: int) -> String:
+	return "r" if c == 1 else "%dr" % c
+
+
+## The power of x in the general term: 18 − 3r.
+static func ct_expo(s: Dictionary) -> String:
+	return "%d − %s" % [s.p * s.n, times_r(s.p + s.q)]
+
+
+## 9Cr × (x²)^(9 − r) × (3/x)^r
+static func ct_general(s: Dictionary) -> String:
+	return "%dCr × %s^(%d − r) × %s^r" % [s.n, ct_first_base(s), s.n, ct_frac_base(s)]
+
+
+## The general term with its powers of x collected: 9Cr × 3^r × x^(18 − 3r).
+static func ct_collected(s: Dictionary) -> String:
+	var bits: Array = ["%dCr" % s.n]
+	if s.a != 1:
+		bits.append("%d^(%d − r)" % [s.a, s.n])
+	bits.append("%s^r" % P(s.b))
+	bits.append("x^(%s)" % ct_expo(s))
+	return " × ".join(bits)
+
+
+## "The constant term", "The term in x³".
+static func ct_name(m: int) -> String:
+	return "the constant term" if m == 0 else "the term in %s" % x_text(m)
+
+
+## 9C6 × 3⁶ = 84 × 729 = 61236, with the number beside x where there is one.
+static func ct_value_line(s: Dictionary, r: int) -> String:
+	var parts: Array = ["%dC%d" % [s.n, r]]
+	var nums: Array = [str(C(s.n, r))]
+	if s.a != 1:
+		parts.append(raised(str(s.a), s.n - r))
+		nums.append(str(pw(s.a, s.n - r)))
+	parts.append(raised(P(s.b), r))
+	nums.append(bare(pw(s.b, r)))
+	return "%s = %s = %s" % [" × ".join(parts), " × ".join(nums), N(BinomialExpansionSituation.ct_coef(s, r))]
+
+
+## The steps to r by setting the power of x: the general term collected, then the equation.
+static func ct_eq_steps(s: Dictionary) -> Array:
+	return ["The general term is %s = %s." % [ct_general(s), ct_collected(s)],
+		"%s needs %s = %s, so r = %d." % [_cap(ct_name(s.m)), ct_expo(s), N(s.m), s.r]]
+
+
+static func _cap(t: String) -> String:
+	return t.substr(0, 1).to_upper() + t.substr(1)
+
+
+## The steps to r by listing the power of x for each r.
+static func ct_table_steps(s: Dictionary) -> Array:
+	var start := "The first term has %s" % x_text(s.p * s.n)
+	var powers: Array = range(s.r + 1).map(func(r): return N(BinomialExpansionSituation.ct_power(s, r)))
+	return ["%s; each step up in r swaps one %s for one %s/%s, so the power falls by %d + %d = %d." % [start, term(s.a, s.p), N(s.b), ct_xq(s), s.p, s.q, s.p + s.q],
+		"The powers run %s, so %s is at r = %d." % [", ".join(powers), ct_name(s.m), s.r]]
+
+
+## The steps by symmetry: the powers fall from x^(pn) to x^(−pn) evenly.
+static func ct_middle_steps(s: Dictionary) -> Array:
+	return ["The powers of x fall by %d from %s to %s, symmetric about 0, so the constant term is the middle one." % [s.p + s.q, x_text(s.p * s.n), x_text(-s.q * s.n)],
+		"There are %d terms, so the middle one has r = %d." % [s.n + 1, s.r]]
+
+
+## The coefficient's slips: the fraction's x left out, the top unraised, r given, the sign lost,
+## the number beside x unraised.
+static func ct_slips(s: Dictionary) -> Array:
+	var n: int = s.n
+	var r: int = s.r
+	var c := BinomialExpansionSituation.ct_coef(s, r)
+	var list: Array = []
+	if s.m % s.p == 0:
+		var r2: int = n - s.m / s.p
+		if r2 >= 0 and r2 <= n and r2 != r:
+			list.append([BinomialExpansionSituation.ct_coef(s, r2), R_CT_NEG])
+	list.append([C(n, r) * pw(s.a, n - r), R_CT_TOP])
+	list.append([r, R_CT_R])
+	if c < 0:
+		list.append([-c, R_CT_SIGN])
+	if s.a > 1:
+		list.append([C(n, r) * s.a * pw(s.b, r), R_CT_UNRAISED])
+	return list
+
+
+func _ct_pack(s: Dictionary, asked: String, ans: Dictionary, wrongs: Array, fillers: Array, steps: Dictionary) -> Dictionary:
+	var out := {"asked": asked, "answer": ans, "wrongs": wrongs, "fillers": fillers, "methods": {}, "pick_wrongs": CT_PICK_WRONGS}
+	for m in steps:
+		out.methods[m] = method(steps[m], ans.values)
+	return out
+
+
+## The power of x as a typed pn − cr.
+static func expo_values(top: int, c: int) -> Dictionary:
+	return {"c": Q.new(top), "d": Q.new(c), "text": "%d − %s" % [top, times_r(c)]}
+
+
+func u_ct_power_of_x(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var top: int = s.p * s.n
+	var c: int = s.p + s.q
+	var ans := Answer.make("form", expo_values(top, c), {"parts": [{"slot": "c"}, " − ", {"slot": "d"}, "r"]})
+	ans.exact = true
+	var w: Array = [wrong(expo_values(top, s.p), R_CT_NEG)]
+	if s.p > 1:
+		w.append(wrong(expo_values(s.n, 1 + s.q), R_CT_POW))
+	var fill: Array = [expo_values(top, c + 1), expo_values(top + 1, c), expo_values(2 * top, c), expo_values(top, 2 * c)]
+	var first := "%s^(%d − r) = x^(%d − %s)" % [ct_first_base(s), s.n, top, times_r(s.p)] if s.p > 1 else "x^(%d − r)" % s.n
+	var final := "So the power of x is %s." % Answer.text(ans)
+	return _ct_pack(s, "The general term of the expansion of %s is %s. Find the power of x in this term, in terms of r." % [ct_bracket(s), ct_general(s)],
+		ans, rng.shuffled(w), fill, {
+		"exponent-equation": ["%s, and %s^r = %s^r × x^(−%s)." % [first, ct_frac_base(s), P(s.b), times_r(s.q)],
+			"Add the powers of x: %d − %s − %s = %s." % [top, times_r(s.p), times_r(s.q), ct_expo(s)], final],
+		"power-table": [ct_table_steps(s)[0], "After r steps the power is %d − %d × r = %s." % [top, c, ct_expo(s)], final],
+	})
+
+
+func u_ct_find_r(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var n: int = s.n
+	var r: int = s.r
+	var ans := number("r = ", r)
+	var list: Array = [[n, R_CT_NEG], [n - r, R_CT_FIRST]]
+	if s.p > 1 and n % (1 + s.q) == 0:
+		list.append([n / (1 + s.q), R_CT_POW])
+	var w := ext_wrongs(r, list)
+	var final := "So %s." % Answer.text(ans)
+	var out := _ct_pack(s, "The general term of the expansion of %s is %s. Find the value of r for which the term is independent of x." % [ct_bracket(s), ct_general(s)],
+		ans, rng.shuffled(w), ext_fillers(r, w, [r + 1, r - 1, r + 2, 2 * r]), {
+		"exponent-equation": ct_eq_steps(s) + [final],
+		"power-table": ct_table_steps(s) + [final],
+	})
+	out.spot = _ct_spot_up(s, rng)
+	return out
+
+
+## The working that writes the fraction's power of x as positive: on its own line, or with the
+## powers collected.
+static func _ct_spot_up(s: Dictionary, rng: Seeded) -> Dictionary:
+	var top: int = s.p * s.n
+	var diff: int = s.p - s.q
+	var bad_expo := "%d − %s" % [top, times_r(diff)] if diff > 0 else "%d + %s" % [top, times_r(-diff)]
+	var bad_r := Q.new(top, diff)
+	var first := "The general term is %s" % ct_general(s)
+	var up := "x^r" if s.q == 1 else "x^(%s)" % times_r(s.q)
+	var lines: Array
+	var bad: int
+	if rng.chance(0.5):
+		lines = [first, "%s^r = %s^r × %s" % [ct_frac_base(s), P(s.b), up],
+			"The power of x is %d − %s + %s = %s" % [top, times_r(s.p), times_r(s.q), bad_expo], "%s = 0, so r = %s" % [bad_expo, N(bad_r)]]
+		bad = 1
+	else:
+		var solve := "r = %s" % N(bad_r) if absi(diff) == 1 else "%s = %s, so r = %s" % [times_r(absi(diff)), N(top if diff > 0 else -top), N(bad_r)]
+		lines = ["%s^(%d − r) × %s^r = %s^r × x^(%s)" % [ct_first_base(s), s.n, ct_frac_base(s), P(s.b), bad_expo],
+			"So the power of x is %s" % bad_expo, "The constant term needs %s = 0" % bad_expo, solve]
+		bad = 0
+	return {"lines": lines, "bad": bad, "ref": R_CT_SPOT_UP, "why": "a power of x in the denominator is a negative power, so %s^r = %s^r × x^(−%s)" % [ct_frac_base(s), P(s.b), times_r(s.q)]}
+
+
+func _ct_coefficient(s: Dictionary, asked: String, rng: Seeded, middle: bool) -> Dictionary:
+	var c := BinomialExpansionSituation.ct_coef(s, s.r)
+	var ans := number("", c)
+	var w := ext_wrongs(c, ct_slips(s))
+	var final := "So %s is %s." % [ct_name(s.m), N(c)]
+	var value := ct_value_line(s, s.r)
+	var steps := {
+		"exponent-equation": ct_eq_steps(s) + [value, final],
+		"power-table": ct_table_steps(s) + [value, final],
+	}
+	if middle:
+		steps["middle-term"] = ct_middle_steps(s) + [value, final]
+	return _ct_pack(s, asked, ans, rng.shuffled(w), ext_fillers(c, w, [2 * c, c + 1, c - 1, 3 * c]), steps)
+
+
+func u_ct_middle_constant(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _ct_coefficient(s, "Find the constant term in the expansion of %s." % ct_bracket(s), rng, true)
+
+
+func u_ct_constant(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var out := _ct_coefficient(s, "Find the term independent of x in the expansion of %s." % ct_bracket(s), rng, false)
+	out.spot = _ct_spot_top(s, rng)
+	return out
+
+
+## The working that leaves the top of the fraction unraised: in the general term, or in the term found.
+static func _ct_spot_top(s: Dictionary, rng: Seeded) -> Dictionary:
+	var r: int = s.r
+	var slip: int = C(s.n, r) * s.b
+	var gen := "%s^(%d − r) × %s^r" % [ct_first_base(s), s.n, ct_frac_base(s)]
+	var lines: Array
+	var bad: int
+	if rng.chance(0.5):
+		lines = ["%s = %s^r × x^(%s)" % [gen, P(s.b), ct_expo(s)], "%s = 0, so r = %d" % [ct_expo(s), r],
+			"%s%s = %s/%s" % [ct_frac_base(s), Fmt.sup(r), N(s.b), x_text(s.q * r)], "The constant term is %dC%d × %s = %s" % [s.n, r, P(s.b), N(slip)]]
+		bad = 2
+	else:
+		lines = ["%s = %s × x^(%s)" % [gen, P(s.b), ct_expo(s)], "%s = 0, so r = %d" % [ct_expo(s), r],
+			"%dC%d = %d" % [s.n, r, C(s.n, r)], "The constant term is %d × %s = %s" % [C(s.n, r), P(s.b), N(slip)]]
+		bad = 0
+	return {"lines": lines, "bad": bad, "ref": R_CT_SPOT_TOP, "why": "the top of the fraction is raised to the power too, so %s^r = %s^r × x^(−%s)" % [ct_frac_base(s), P(s.b), times_r(s.q)]}
+
+
+func u_ct_constant_raised(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _ct_coefficient(s, "Find the constant term in the expansion of %s." % ct_bracket(s), rng, false)
+
+
+func u_ct_given_power(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var out := _ct_coefficient(s, "Find the coefficient of %s in the expansion of %s." % [x_text(s.m), ct_bracket(s)], rng, false)
+	var c := BinomialExpansionSituation.ct_coef(s, s.r)
+	out.wrongs = rng.shuffled(out.wrongs + [alt(term(c, s.m), R_CT_TERM)])
+	for m in out.methods.values():
+		m.steps[-1] = "So the coefficient of %s is %s." % [x_text(s.m), N(c)]
+	return out
+
+
+# ── A bracket times an expansion (t1-ext-binomial-product) ─────
+
+static func pr_first(s: Dictionary) -> String:
+	if s.ask == "pr-reciprocal":
+		return "(%s)" % Fmt.terms([1, s.fa], [2, 0])
+	return "(%s)" % Fmt.terms([s.fa, s.fb], [0, s.d])
+
+
+static func pr_exp(s: Dictionary) -> String:
+	if s.ask == "pr-reciprocal":
+		return "(x %s %d/x)%s" % ["+" if s.rk > 0 else "−", absi(s.rk), Fmt.sup(s.n)]
+	return "(%s)%s" % [Fmt.terms([s.ea, s.eb], [0, 1]), Fmt.sup(s.n)]
+
+
+static func pr_text(s: Dictionary) -> String:
+	return pr_first(s) + pr_exp(s)
+
+
+static func pc(s: Dictionary, j: int) -> int:
+	return BinomialExpansionSituation.pr_coef(s, j)
+
+
+## "the x³ term", "the constant term".
+static func pr_name(j: int) -> String:
+	return "the constant term" if j == 0 else "the %s term" % x_text(j)
+
+
+## 6C3 × 2² × (−x)³ = −160x³: the term in x^j of (ea + eb·x)^n.
+static func pr_term_eq(s: Dictionary, j: int) -> String:
+	var bits: Array = ["%dC%d" % [s.n, j]]
+	if s.ea != 1 and s.n > j:
+		bits.append(raised(str(s.ea), s.n - j))
+	if j > 0:
+		bits.append(raised("x" if s.eb == 1 else "(%s)" % term(s.eb, 1), j))
+	return "%s = %s" % [" × ".join(bits), term(pc(s, j), j)]
+
+
+## The two pairs multiplied and added: 2 × 160x³ + (−3x) × 60x² = 320x³ − 180x³.
+static func pr_pair_sum(s: Dictionary) -> String:
+	var m: int = s.m
+	var j: int = m - s.d
+	return "%s × %s + %s × %s = %s" % [N(s.fa), par(term(pc(s, m), m)), par(term(s.fb, s.d)), par(term(pc(s, j), j)),
+		Fmt.terms([s.fa * pc(s, m), s.fb * pc(s, j)], [m, m])]
+
+
+## The expansion from the constant up to x^m: 1 + 12x + 60x² + 160x³ + …
+static func pr_upto(s: Dictionary, m: int) -> String:
+	var cs: Array = range(m + 1).map(func(j): return Q.new(pc(s, j)))
+	return Fmt.terms(cs, range(m + 1))
+
+
+static func pr_full_poly(s: Dictionary) -> Array:
+	var out: Array = []
+	for j in s.n + s.d + 1:
+		out.append(s.fa * pc(s, j) + s.fb * pc(s, j - s.d))
+	return out
+
+
+func _pr_pack(asked: String, ans: Dictionary, wrongs: Array, fillers: Array, steps: Dictionary, lines: Array = []) -> Dictionary:
+	var out := {"lines": lines, "asked": asked, "answer": ans, "wrongs": wrongs, "fillers": fillers, "methods": {}, "pick_wrongs": PR_PICK_WRONGS}
+	for m in steps:
+		out.methods[m] = method(steps[m], ans.values)
+	return out
+
+
+## The slips of one coefficient of (fa + fb·x^d)(ea + eb·x)^n.
+static func pr_slips(s: Dictionary) -> Array:
+	var p := BinomialExpansionSituation.pr_pairs(s)
+	var m: int = s.m
+	var list: Array = [[p[0], R_PR_ONE]]
+	if s.ask == "pr-same-power":
+		list.append([s.fb * pc(s, m), R_PR_SAME])
+	else:
+		list.append([(s.fa + s.fb) * pc(s, m), R_PR_PAIR])
+	list.append([absi(p[0]) + absi(p[1]), R_PR_SIGN])
+	return list
+
+
+func _pr_coefficient(s: Dictionary, rng: Seeded, full: bool) -> Dictionary:
+	var m: int = s.m
+	var j: int = m - s.d
+	var v := BinomialExpansionSituation.pr_answer(s)
+	var ans := number("", v)
+	var w := ext_wrongs(v, pr_slips(s))
+	var final := "So the coefficient of %s is %s." % [x_text(m), N(v)]
+	var steps := {
+		"pair-contributions": ["The %s terms come from %s × %s and %s × %s of %s." % [x_text(m), N(s.fa), pr_name(m), term(s.fb, s.d), pr_name(j), pr_exp(s)],
+			"%s is %s, and %s is %s." % [_cap(pr_name(m)), pr_term_eq(s, m), pr_name(j), pr_term_eq(s, j)],
+			"%s = %s" % [pr_pair_sum(s), term(v, m)], final],
+		"partial-expansion": ["Up to %s: %s = %s%s" % [x_text(m), pr_exp(s), pr_upto(s, m), "" if m == s.n else " + ..."],
+			"Multiply by %s and keep the %s terms: %s = %s." % [pr_first(s), x_text(m), pr_pair_sum(s), term(v, m)], final],
+	}
+	if full:
+		var all: Array = range(s.n + 1).map(func(i): return Q.new(pc(s, i)))
+		var poly: Array = pr_full_poly(s).map(func(c): return Q.new(c))
+		steps["full-expansion"] = ["%s = %s" % [pr_exp(s), Fmt.terms(all, range(s.n + 1))],
+			"%s(%s) = %s" % [pr_first(s), Fmt.terms(all, range(s.n + 1)), Fmt.terms(poly, range(poly.size()))], final]
+	return _pr_pack("Find the coefficient of %s in the expansion of %s." % [x_text(m), pr_text(s)], ans, rng.shuffled(w),
+		ext_fillers(v, w, [2 * v, v + 1, v - 1, -v]), steps)
+
+
+func u_pr_linear(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var out := _pr_coefficient(s, rng, false)
+	out.spot = _pr_spot(s, rng)
+	return out
+
+
+func u_pr_small(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var out := _pr_coefficient(s, rng, true)
+	out.spot = _pr_spot(s, rng)
+	return out
+
+
+func u_pr_same_power(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	return _pr_coefficient(s, rng, false)
+
+
+## The working that pairs the x term with the term of the asked power: on its own line, or in the sum.
+static func _pr_spot(s: Dictionary, rng: Seeded) -> Dictionary:
+	var m: int = s.m
+	var cm: int = pc(s, m)
+	var slip: int = (s.fa + s.fb) * cm
+	var x := x_text(m)
+	var first := "%s of %s is %s" % [_cap(pr_name(m)), pr_exp(s), pr_term_eq(s, m)]
+	var lines: Array
+	var bad: int
+	if rng.chance(0.5):
+		lines = [first, "%s × %s = %s" % [par(term(s.fb, 1)), par(term(cm, m)), term(s.fb * cm, m)],
+			"The %s terms add to %s × %s + %s = %s" % [x, N(s.fa), par(term(cm, m)), par(term(s.fb * cm, m)), term(slip, m)],
+			"So the coefficient of %s is %s" % [x, N(slip)]]
+		bad = 1
+	else:
+		lines = [first, "%s of %s is %s" % [_cap(pr_name(m - 1)), pr_exp(s), pr_term_eq(s, m - 1)],
+			"%s × %s + %s × %s = %s" % [N(s.fa), par(term(cm, m)), par(term(s.fb, 1)), par(term(cm, m)), term(slip, m)],
+			"So the coefficient of %s is %s" % [x, N(slip)]]
+		bad = 2
+	return {"lines": lines, "bad": bad, "ref": R_PR_SPOT, "why": "%s times the %s term gives a power of x one too high, so %s pairs with %s" % [term(s.fb, 1), x, term(s.fb, 1), pr_name(m - 1)]}
+
+
+func u_pr_hence(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var m: int = s.m
+	var cm: int = pc(s, m)
+	var c1: int = pc(s, m - 1)
+	var v := BinomialExpansionSituation.pr_answer(s)
+	var ans := number("", v)
+	var w := ext_wrongs(v, [[s.fa * cm, R_PR_ONE], [(s.fa + s.fb) * cm, R_PR_PAIR], [cm + c1, R_PR_ADD]])
+	var line := "In the expansion of %s, the coefficient of %s is %s and the coefficient of %s is %s." % [pr_exp(s), x_text(m), N(cm), x_text(m - 1), N(c1)]
+	return _pr_pack("Hence find the coefficient of %s in the expansion of %s." % [x_text(m), pr_text(s)], ans, rng.shuffled(w),
+		ext_fillers(v, w, [2 * v, v + 1, v - 1, -v]), {
+		"pair-contributions": ["The %s terms come from %s × %s and %s × %s." % [x_text(m), N(s.fa), par(term(cm, m)), term(s.fb, 1), par(term(c1, m - 1))],
+			"%s × %s + %s × %s = %s" % [N(s.fa), P(cm), P(s.fb), P(c1), N(v)], "So the coefficient of %s is %s." % [x_text(m), N(v)]],
+	}, [line])
+
+
+func u_pr_reciprocal(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var n: int = s.n
+	var k: int = s.rk
+	var mid := BinomialExpansionSituation.rec_coef(s, 0)
+	var low := BinomialExpansionSituation.rec_coef(s, -2)
+	var v := BinomialExpansionSituation.pr_answer(s)
+	var ans := number("", v)
+	var w := ext_wrongs(v, [[s.fa * mid, R_PR_ONE], [BinomialExpansionSituation.rec_coef(s, 2) + s.fa * mid, R_PR_X2],
+		[absi(low) + absi(s.fa * mid), R_PR_SIGN]])
+	var fr := "(%s/x)" % N(k)
+	var r0: int = n / 2
+	var sum := "x² × %s + %s × %s = %s" % [par(term(low, -2)), P(s.fa), P(mid), Fmt.terms([low, s.fa * mid], [0, 0])]
+	var down: Array = range(r0 + 2).map(func(r): return Q.new(C(n, r) * pw(k, r)))
+	var final := "So the constant term is %s." % N(v)
+	return _pr_pack("Find the constant term in the expansion of %s." % pr_text(s), ans, rng.shuffled(w),
+		ext_fillers(v, w, [2 * v, v + 1, v - 1, -v]), {
+		"pair-contributions": ["The general term of %s is %dCr × x^(%d − r) × %s^r = %dCr × %s^r × x^(%d − 2r)." % [pr_exp(s), n, n, fr, n, P(k), n],
+			"x⁰ needs r = %d: %dC%d × %s = %s; x⁻² needs r = %d: %dC%d × %s = %s." % [r0, n, r0, raised(P(k), r0), N(mid), r0 + 1, n, r0 + 1, raised(P(k), r0 + 1), N(low)],
+			"%s = %s" % [sum, N(v)], final],
+		"partial-expansion": ["Down to x⁻²: %s = %s + ..." % [pr_exp(s), Fmt.terms(down, range(r0 + 2).map(func(r): return n - 2 * r))],
+			"Multiply by %s and keep the constant terms: %s = %s." % [pr_first(s), sum, N(v)], final],
+	})
+
+
+func u_pr_find_k(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var m: int = s.m
+	var cm: int = pc(s, m)
+	var c1: int = pc(s, m - 1)
+	var V: int = s.V
+	var k: int = s.fb
+	var ans := Answer.make("number", {"v": Q.new(k)}, {}, "k = ")
+	ans.exact = true
+	var list: Array = [[Q.new(V, c1), R_PR_ONE], [Q.new(V - cm, cm), R_PR_PAIR]]
+	# The expansion's negative term made positive: both coefficients worked with |eb|.
+	if s.eb < 0:
+		var pos := s.duplicate()
+		pos.eb = -s.eb
+		var pm := pc(pos, m)
+		var p1 := pc(pos, m - 1)
+		if p1 != 0:
+			list.append([Q.new(V - pm, p1), R_PR_SIGN])
+	var w: Array = []
+	var seen := {Q.new(k).key(): true}
+	for e in list:
+		if not seen.has(e[0].key()):
+			seen[e[0].key()] = true
+			w.append(wrong({"v": e[0]}, e[1]))
+	var fill: Array = []
+	for x in [-k, k + 1, k - 1, 2 * k]:
+		if not seen.has(Q.new(x).key()):
+			seen[Q.new(x).key()] = true
+			fill.append({"v": Q.new(x)})
+	var eq := "%s = %s" % [Fmt.terms([cm, c1], [0, 1], "k"), N(V)]
+	var solve := "%s = %s" % [term(c1, 1, "k"), N(V - cm)]
+	var final := "So k = %s." % N(k)
+	return _pr_pack("The coefficient of %s in the expansion of (1 + kx)%s is %s. Find the value of k." % [x_text(m), pr_exp(s), N(V)], ans, rng.shuffled(w), fill, {
+		"pair-contributions": ["The %s terms come from 1 × %s and kx × %s of %s." % [x_text(m), pr_name(m), pr_name(m - 1), pr_exp(s)],
+			"%s is %s, and %s is %s." % [_cap(pr_name(m)), pr_term_eq(s, m), pr_name(m - 1), pr_term_eq(s, m - 1)],
+			"So %s, which gives %s." % [eq, solve], final],
+		"partial-expansion": ["Up to %s: %s = %s + ..." % [x_text(m), pr_exp(s), pr_upto(s, m)],
+			"Multiply by (1 + kx): the %s terms give %s, so %s." % [x_text(m), eq, solve], final],
+	})

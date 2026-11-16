@@ -3027,7 +3027,7 @@
 				{
 					"name": "f₀, f₁, d",
 					"is": "the first bracket f₀ + f₁x^d of a product",
-					"pick": "f₀ from 1 to 4, f₁ from −4 to 4 and not 0, d of 1 or 2; (x² + c) before (x + k/x)^n"
+					"pick": "f₀ from 1 to 4, f₁ from −4 to 4 and not 0, with no common factor and f₀ + f₁ not 0, d of 1 or 2; (x² + c) before (x + k/x)^n, with k of ±2 or ±3"
 				},
 				{
 					"name": "a, b",
@@ -3041,8 +3041,8 @@
 				"a row read from the triangle is row 7 at most (row 8 shown for reading nC2)",
 				"a negative is only ever in the second term written",
 				"the numbers are not those of the bank, and the two numbers in a bracket share no factor",
-				"constant-term: r is a whole number from 1 to n − 1, every slip gives another value, and the skill map's three brackets are left out",
-				"product: both pairs give a term that isn't 0, the answer isn't 0, and k is a whole number; the skill map's three products are left out"
+				"constant-term: r is a whole number from 1 to n − 1, Paper 1 coefficients are at most 20000 in size and Paper 2 at most 200000, and the skill map's three brackets are left out",
+				"product: both pairs give a term that isn't 0, the answer isn't 0, the two coefficients an x term could pair with differ, k is a whole number, and the skill map's three products are left out"
 			]
 		},
 		"regression": {
@@ -80122,6 +80122,7 @@
 					"text": "Losing the minus sign of the fraction when it is raised to an odd power",
 					"as": "distractor",
 					"in": [
+						"ct-middle-constant",
 						"ct-constant",
 						"ct-constant-raised",
 						"ct-given-power"
@@ -80350,7 +80351,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL1.9.product-expansion#0",
-					"text": "Counting only one pair of terms: the number in the first bracket times the term of the asked power",
+					"text": "Counting only one of the two pairs of terms that give the asked power",
 					"as": "distractor",
 					"in": [
 						"pr-linear",
@@ -80360,7 +80361,7 @@
 						"pr-find-k",
 						"pr-small"
 					],
-					"wrong": "the first bracket's number times the coefficient of the asked power"
+					"wrong": "one pair's product alone: the first bracket's number times the x^m term, or the x term's pair alone"
 				},
 				{
 					"ref": "SL1.9.product-expansion#1",
@@ -80382,7 +80383,7 @@
 						"pr-find-k",
 						"pr-small"
 					],
-					"wrong": "the pairs added with every sign positive, or a term moved across without its sign"
+					"wrong": "the pairs added with every sign positive, or worked with the bracket's negative term made positive"
 				},
 				{
 					"text": "Pairing the x term with the term of the asked power, so the powers add up to one too many",
@@ -80390,6 +80391,7 @@
 					"in": [
 						"pr-linear",
 						"pr-hence",
+						"pr-find-k",
 						"pr-small"
 					],
 					"wrong": "both terms of the first bracket times the coefficient of the asked power"

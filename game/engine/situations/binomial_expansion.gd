@@ -25,6 +25,21 @@ extends RefCounted
 ## A negative number is only ever in the second term written: (2x − 3), (3 − 2x), never (−2x + 3).
 ## The bank's own brackets are left out ((2x − 5) and (x + k)^8, (x + k)^11), so no question
 ## repeats one.
+##
+## t1-ext-binomial-constant-term (FAL-779) asks the same situation with x in both terms of the
+## bracket, (ax^p + k/x^q)^n, so the term with the fraction to the power r has x^(p(n − r) − qr):
+##   a, p     the x term ax^p, a from 1 to 3
+##   b        k, the top of the fraction k/x^q, from −4 to 4 and not −1, 0 or 1
+##   q        the power of x under the fraction, 1 or 2
+##   m        the power asked: 0 for a constant term
+##   r        the r of the term asked, (pn − m)/(p + q), a whole number from 1 to n − 1
+## t1-ext-binomial-product (FAL-779) multiplies an expansion by a short bracket, and asks the
+## coefficient of x^m, which comes from two pairs of terms:
+##   fa, fb, d  the first bracket fa + fb·x^d; for pr-find-k fa = 1 and fb is the k to find
+##   ea, eb     the expansion (ea + eb·x)^n
+##   rk         pr-reciprocal: (x² + fa)(x + rk/x)^n, whose constant term is asked
+##   m          the power of x asked
+##   V          pr-find-k: the coefficient of x^m that is given
 ## The clean limits are the numbers behind the catalogue's `clean` text. The checker holds its own
 ## copy.
 
@@ -38,6 +53,16 @@ const LETTERS := ["k", "m", "t"]
 ## Methods that read a row, so n stays small. An empty angle is a shared situation, which any
 ## method may be asked of.
 const READS_A_ROW := ["pascal-build", "pascal-row", "pascal-select", ""]
+## t1-ext-binomial-constant-term's and t1-ext-binomial-product's unknowns.
+const CONSTANT := ["ct-power-of-x", "ct-find-r", "ct-middle-constant", "ct-constant", "ct-constant-raised", "ct-given-power"]
+const PRODUCT := ["pr-linear", "pr-same-power", "pr-hence", "pr-reciprocal", "pr-find-k", "pr-small"]
+## The tops of a fraction k/x^q: ±1 would leave nothing to raise.
+const TOPS := [-4, -3, -2, 2, 3, 4]
+## The largest coefficient a Paper 2 extension question works with by hand.
+const EXT_MOST := 200000
+## The skill map's example brackets, left out: [a, p, k, q, n, m] and [fa, fb, d, ea, eb, n, m].
+const CT_MAP := [[1, 1, 2, 1, 6, 0], [1, 2, -1, 1, 9, 0], [2, 2, 1, 1, 6, 3]]
+const PR_MAP := [[1, 2, 1, 3, -1, 5, 2], [2, -1, 1, 1, 1, 6, 3]]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
@@ -188,6 +213,10 @@ static func _draw(rng: Seeded, s: Dictionary) -> bool:
 			return not (s.n == 7 and s.b == 1)
 		"term-by-position":
 			return _term_by_position(rng, s)
+	if s.ask in CONSTANT:
+		return _constant(rng, s)
+	if s.ask in PRODUCT:
+		return _product(rng, s)
 	return false
 
 
@@ -346,6 +375,151 @@ static func _term_by_position(rng: Seeded, s: Dictionary) -> bool:
 	s.a = rng.int_in(1, 3)
 	s.b = rng.pick([-3, -2, 2, 3])
 	return absi(coef(s, s.j)) <= (HAND if s.paper == 1 else MOST)
+
+
+# ── x in both terms (t1-ext-binomial-constant-term) ──────────
+
+## The power of x in the term with the fraction to the power r: p(n − r) − qr.
+static func ct_power(s: Dictionary, r: int) -> int:
+	return s.p * (s.n - r) - s.q * r
+
+
+## The coefficient of that term: nCr a^(n − r) k^r.
+static func ct_coef(s: Dictionary, r: int) -> int:
+	return ncr(s.n, r) * power(s.a, s.n - r) * power(s.b, r)
+
+
+## The largest coefficient a question may work with.
+static func ext_most(s: Dictionary) -> int:
+	return HAND if s.paper == 1 else EXT_MOST
+
+
+static func _constant(rng: Seeded, s: Dictionary) -> bool:
+	var ask: String = s.ask
+	s.q = rng.int_in(1, 2)
+	s.p = rng.int_in(1, 3)
+	s.a = 1
+	s.b = rng.pick(TOPS)
+	s.n = rng.int_in(3, 9)
+	s.m = 0
+	match ask:
+		"ct-power-of-x":
+			s.n = rng.int_in(4, 9)
+			s.r = 0
+			return [1, s.p, s.b, s.q, s.n, 0] not in CT_MAP
+		"ct-middle-constant":
+			s.p = s.q
+			s.n = 2 * rng.int_in(2, 5)
+		"ct-constant-raised":
+			s.a = rng.int_in(2, 3)
+		"ct-given-power":
+			s.a = rng.int_in(1, 3)
+			s.n = rng.int_in(4, 9)
+			var r: int = rng.int_in(1, s.n - 1)
+			s.m = ct_power(s, r)
+			if s.m == 0 or absi(s.m) > 9:
+				return false
+	if ask != "ct-middle-constant" and s.p == s.q:
+		return false
+	var top: int = s.p * s.n - s.m
+	if top % (s.p + s.q) != 0:
+		return false
+	s.r = top / (s.p + s.q)
+	if s.r < 1 or s.r > s.n - 1 or [s.a, s.p, s.b, s.q, s.n, s.m] in CT_MAP:
+		return false
+	# The number beside x is raised to n − r, at least 2, so leaving it unraised is a slip.
+	if ask == "ct-constant-raised" and s.n - s.r < 2:
+		return false
+	# A working that leaves the top of the fraction unraised must go wrong: k^r is not k.
+	if ask == "ct-constant" and s.r < 2:
+		return false
+	return ask == "ct-find-r" or absi(ct_coef(s, s.r)) <= ext_most(s)
+
+
+# ── A bracket times an expansion (t1-ext-binomial-product) ──
+
+## The coefficient of x^j in (ea + eb·x)^n.
+static func pr_coef(s: Dictionary, j: int) -> int:
+	if j < 0 or j > s.n:
+		return 0
+	return ncr(s.n, j) * power(s.ea, s.n - j) * power(s.eb, j)
+
+
+## The coefficient of x^j in (x + rk/x)^n: the term with rk/x to the power r has x^(n − 2r).
+static func rec_coef(s: Dictionary, j: int) -> int:
+	if (s.n - j) % 2 != 0:
+		return 0
+	var r: int = (s.n - j) / 2
+	return ncr(s.n, r) * power(s.rk, r) if r >= 0 and r <= s.n else 0
+
+
+## The two pairs that give x^m: [the first bracket's number with x^m, its x^d term with x^(m − d)].
+static func pr_pairs(s: Dictionary) -> Array:
+	if s.ask == "pr-reciprocal":
+		return [s.fa * rec_coef(s, 0), rec_coef(s, -2)]
+	return [s.fa * pr_coef(s, s.m), s.fb * pr_coef(s, s.m - s.d)]
+
+
+static func pr_answer(s: Dictionary) -> int:
+	var p := pr_pairs(s)
+	return p[0] + p[1]
+
+
+static func _product(rng: Seeded, s: Dictionary) -> bool:
+	var ask: String = s.ask
+	s.d = 1
+	s.fa = rng.int_in(1, 4)
+	s.fb = ExtensionViews.nonzero(rng, -4, 4)
+	s.ea = rng.int_in(1, 3)
+	s.eb = ExtensionViews.nonzero(rng, -3, 3)
+	s.n = rng.int_in(5, 8)
+	s.rk = 0
+	s.V = 0
+	match ask:
+		"pr-small":
+			s.n = rng.int_in(3, 4)
+			s.m = rng.int_in(1, s.n)
+		"pr-same-power":
+			s.d = rng.int_in(1, 2)
+			s.m = s.d
+		"pr-reciprocal":
+			s.n = 2 * rng.int_in(2, 4)
+			s.d = 2
+			s.ea = 0
+			s.eb = 0
+			s.fb = 1
+			s.fa = ExtensionViews.nonzero(rng, -4, 4)
+			# ±1 would make the x² and x⁻² terms alike, so pairing the wrong one would go unseen.
+			s.rk = rng.pick([-3, -2, 2, 3])
+			s.m = 0
+			if s.fa == 1 and s.rk == -2 and s.n == 4:
+				return false
+		"pr-find-k":
+			s.fa = 1
+			s.fb = rng.pick([-5, -4, -3, -2, 2, 3, 4, 5])
+			s.m = rng.int_in(2, s.n - 1)
+		_:
+			s.m = rng.int_in(2, s.n - 1)
+	if ask != "pr-reciprocal":
+		if Q.gcd(s.ea, absi(s.eb)) != 1 or (s.ea == 1 and absi(s.eb) == 1 and ask != "pr-small"):
+			return false
+		if [s.fa, s.fb, s.d, s.ea, s.eb, s.n, s.m] in PR_MAP:
+			return false
+		# The first bracket has no common factor, and its two numbers don't cancel (1 − x).
+		if Q.gcd(s.fa, absi(s.fb)) != 1 or s.fa + s.fb == 0:
+			return false
+		# Pairing the x term with the x^m term must give another value: the two coefficients differ.
+		if s.d == 1 and ask != "pr-same-power" and pr_coef(s, s.m) == pr_coef(s, s.m - 1):
+			return false
+	var p := pr_pairs(s)
+	var most := ext_most(s)
+	if p[0] == 0 or p[1] == 0 or p[0] + p[1] == 0:
+		return false
+	if absi(p[0]) > most or absi(p[1]) > most or absi(p[0] + p[1]) > most:
+		return false
+	if ask == "pr-find-k":
+		s.V = p[0] + p[1]
+	return true
 
 
 static func export(s: Dictionary) -> Dictionary:

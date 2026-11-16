@@ -44133,6 +44133,452 @@ SITUATION_CHECKS["show-that-value"] = E17ST_check
 SPOT_CHECKS["show-that-value"] = E17ST_spot
 
 
+# ── binomial-expansion, t1-ext-binomial-constant-term and t1-ext-binomial-product (FAL-779) ──
+# The checker's own copy of the clean limits: the engine's is in
+# game/engine/situations/binomial_expansion.gd. Each bracket is read back from the question's
+# words, expanded with SymPy, and the coefficient asked is read off the expansion, so nothing is
+# taken from the engine. Every tagged option is rebuilt from its slip, every equation in the
+# working must hold (at the r found, where there is one), and an error-spot's first wrong line is
+# the first whose equation or claim fails. Every other unknown goes to the exam type's checks.
+
+E16A_X, E16A_R, E16A_K = sp.symbols("x r k")
+E16A_SUPS = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻", "0123456789-")
+E16A_SUP = "[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+"
+E16A_HAND, E16A_MOST = 20000, 200000
+E16A_SPLIT = re.compile(r", so |, and |, which gives |; |: | gives |, which is ")
+
+
+def E16A_stop(t):
+    """A full stop off the end, but not the dots of '+ ...'."""
+    t = t.strip()
+    return t if t.endswith("...") else t.rstrip(".").strip()
+
+
+def E16A_sup(t):
+    return int(t.translate(E16A_SUPS)) if t else 1
+
+
+def E16A_n(v):
+    """A rational as the game writes it: 3, −4, 8/5."""
+    v = sp.Rational(v)
+    s = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + s
+
+
+def E16A_term(c, j):
+    """c·x^j as the game writes it: 810x⁷, −80x, x⁻³, 45."""
+    c = sp.Integer(c)
+    if j == 0:
+        return E16A_n(c)
+    sup = "" if j == 1 else str(j).translate(str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"))
+    head = "" if abs(c) == 1 else str(abs(c))
+    return ("−" if c < 0 else "") + head + "x" + sup
+
+
+def E16A_expr(text, letters=("x", "r", "k")):
+    """A piece of working as SymPy, or None where it has words in it or a letter not allowed."""
+    t = text.strip().rstrip(".").strip()
+    if not t or re.search(r"[A-Z]", re.sub(r"(\d+)C(\d+|r)", "", t)):
+        return None
+    t = re.sub(E16A_SUP, lambda mt: "**(" + mt.group(0).translate(E16A_SUPS) + ")", t)
+    t = re.sub(r"(\d+)C(\d+|r)", r"binomial(\1,\2)", t)
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    if not re.fullmatch(r"[0-9a-z+\-*/(), ]+", t.replace("binomial", "")):
+        return None
+    if any(ch not in letters for ch in set(re.findall(r"[a-z]", t.replace("binomial", "")))):
+        return None
+    local = {"x": E16A_X, "r": E16A_R, "k": E16A_K, "binomial": sp.binomial}
+    try:
+        e = parse_expr(t, local_dict=local, transformations=TRANSFORMS, evaluate=True)
+    except Exception:
+        return None
+    if not all(str(s) in letters for s in e.free_symbols):
+        return None
+    return e
+
+
+def E16A_series(text, letters):
+    """A side that ends '+ ...': its terms, as {power: coefficient}, and that it is cut short."""
+    t = E16A_stop(text)
+    cut = t.endswith("+ ...")
+    e = E16A_expr(t[:-5] if cut else t, letters)
+    return e, cut
+
+
+def E16A_powers(e):
+    out = {}
+    for t in sp.Add.make_args(sp.expand(e)):
+        c, p = t.as_coeff_exponent(E16A_X)
+        out[p] = out.get(p, 0) + c
+    return {p: c for p, c in out.items() if c != 0}
+
+
+def E16A_sides(frag, letters):
+    """The sides of 'A = B = C' as SymPy: the first side its longest readable end, the last its
+    longest readable start; None when a side can't be read."""
+    parts = frag.split(" = ")
+    out = []
+    for i, p in enumerate(parts):
+        words = E16A_stop(p).split(" ")
+        got = None
+        if i == 0:
+            for s in range(len(words)):
+                cand = " ".join(words[s:])
+                got = E16A_series(cand, letters)
+                if got[0] is not None:
+                    break
+        elif i == len(parts) - 1:
+            for s in range(len(words), 0, -1):
+                cand = " ".join(words[:s])
+                got = E16A_series(cand, letters)
+                if got[0] is not None:
+                    break
+        else:
+            got = E16A_series(p, letters)
+        if got is None or got[0] is None:
+            return None
+        out.append(got)
+    return out
+
+
+def E16A_judge(line, subs, letters=("x", "r", "k")):
+    """(judged, true): every readable equation in the line, at each of subs."""
+    judged = 0
+    for frag in E16A_SPLIT.split(E16A_stop(line)):
+        if " = " not in frag:
+            continue
+        sides = E16A_sides(frag, letters)
+        if sides is None:
+            continue
+        judged += 1
+        for (a, ca), (b, cb) in zip(sides, sides[1:]):
+            if ca or cb:
+                full, part = (b, a) if ca else (a, b)
+                for sb in subs:
+                    pf = E16A_powers(full.subs({k: v for k, v in sb.items() if k != E16A_X}))
+                    pp = E16A_powers(part.subs({k: v for k, v in sb.items() if k != E16A_X}))
+                    if not pp or any(pf.get(p) != c for p, c in pp.items()):
+                        return judged, False
+                    lo, hi = min(pp), max(pp)
+                    if any(lo <= p <= hi and p not in pp for p in pf):
+                        return judged, False
+                continue
+            for sb in subs:
+                d = sp.simplify((a - b).subs(sb))
+                if d != 0:
+                    return judged, False
+    return judged, True
+
+
+def E16A_steps(q, subs, letters=("x", "r", "k")):
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            need(E16A_judge(st, subs, letters)[1], f"{sol['name']}: {st!r} is not true")
+
+
+def E16A_no_hyphen(q):
+    texts = [q["asked"], q.get("prompt", "")] + q["lines"] + [o["text"] for o in q["choices"]] + [st for sol in q["solutions"] for st in sol["steps"]]
+    for t in texts:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def E16A_coef(e, j):
+    return E16A_powers(e).get(j, sp.Integer(0))
+
+
+# ── t1-ext-binomial-constant-term ──
+
+E16BC_MAP = "SL1.9.constant-term#"
+E16BC_OWN = "t1-ext-binomial-constant-term#"
+E16BC_UNKNOWNS = ("ct-power-of-x", "ct-find-r", "ct-middle-constant", "ct-constant", "ct-constant-raised", "ct-given-power")
+E16BC_BRACKET = re.compile(rf"\((\d*)x({E16A_SUP})? ([+−]) (\d+)/x({E16A_SUP})?\)({E16A_SUP})")
+# The skill map's examples: (a, p, k, q, n, m).
+E16BC_SKILL_MAP = {(1, 1, 2, 1, 6, 0), (1, 2, -1, 1, 9, 0), (2, 2, 1, 1, 6, 3)}
+
+
+def E16BC_read(q):
+    m = E16BC_BRACKET.search(q["asked"])
+    need(m is not None, f"no bracket in {q['asked']!r}")
+    a = int(m.group(1)) if m.group(1) else 1
+    p, qq, n = E16A_sup(m.group(2)), E16A_sup(m.group(5)), E16A_sup(m.group(6))
+    k = int(m.group(4)) * (1 if m.group(3) == "+" else -1)
+    return a, p, k, qq, n
+
+
+def E16BC_general(a, p, k, qq, n):
+    return sp.binomial(n, E16A_R) * (a * E16A_X**p)**(n - E16A_R) * (k / E16A_X**qq)**E16A_R
+
+
+def E16BC_check(q):
+    u, paper = q["view"]["unknown"], q["paper"]
+    a, p, k, qq, n = E16BC_read(q)
+    x, r = E16A_X, E16A_R
+    most = E16A_HAND if paper == 1 else E16A_MOST
+    need(1 <= p <= 3 and qq in (1, 2) and 2 <= abs(k) <= 4 and 3 <= n <= 10 and 1 <= a <= 3, f"the bracket ({a}, {p}, {k}, {qq}, {n}) breaks the limits")
+    need(not (a % 2 == 0 and k % 2 == 0) and not (a % 3 == 0 and k % 3 == 0), "the bracket has a common factor")
+    expansion = sp.expand((a * x**p + k / x**qq)**n)
+    power = p * (n - r) - qq * r
+    wr = {}
+    if u == "ct-power-of-x":
+        mt = re.search(r" is (.+)\. Find the power of x", q["asked"])
+        need(mt is not None, "no general term")
+        g = E16A_expr(mt.group(1))
+        need(g is not None and all(sp.simplify(g.subs(r, v) - E16BC_general(a, p, k, qq, n).subs(r, v)) == 0 for v in range(n + 1)), "the general term shown is not the bracket's")
+        need(a == 1 and (a, p, k, qq, n, 0) not in E16BC_SKILL_MAP, "a number beside x, or the skill map's example")
+        fmt = lambda top, c: f"{top} − {'' if c == 1 else c}r"
+        want = fmt(p * n, p + qq)
+        need(sp.expand(E16A_expr(want) - power) == 0, "the power of x is not the general term's")
+        wr[E16BC_MAP + "0"] = {fmt(p * n, p)}
+        if p > 1:
+            wr[E16BC_OWN + "4"] = {fmt(n, 1 + qq)}
+        gc_check_common(q, want, wr)
+        E16A_steps(q, [{x: 2, r: 3}, {x: 3, r: 5}])
+        E16A_no_hyphen(q)
+        return None, None
+    m = 0
+    if u == "ct-given-power":
+        mt = re.search(rf"coefficient of x({E16A_SUP})? in", q["asked"])
+        need(mt is not None, "no power asked")
+        m = E16A_sup(mt.group(1))
+        need(m != 0 and abs(m) <= 9, f"x^{m} breaks the limits")
+    roots = sp.solve(sp.Eq(power, m), r)
+    need(len(roots) == 1 and roots[0].is_Integer and 1 <= roots[0] <= n - 1, f"no whole r from 1 to n − 1 gives x^{m}")
+    r0 = int(roots[0])
+    need((a, p, k, qq, n, m) not in E16BC_SKILL_MAP, "the skill map's example")
+    need((p == qq) == (u == "ct-middle-constant"), "symmetric powers only for the middle term")
+    if u == "ct-middle-constant":
+        need(a == 1 and n % 2 == 0 and r0 == n // 2, "the middle term is not at r = n/2")
+    if u in ("ct-find-r", "ct-constant", "ct-middle-constant"):
+        need(a == 1, "a number beside x")
+    if u == "ct-constant-raised":
+        need(a >= 2 and n - r0 >= 2, "the number beside x is not raised to at least 2")
+    if u == "ct-constant":
+        need(r0 >= 2, "r is 1, so the top unraised is no slip")
+    c = E16A_coef(expansion, m)
+    need(c == sp.binomial(n, r0) * a**(n - r0) * k**r0, "the coefficient is not nCr a^(n − r) k^r")
+    if u == "ct-find-r":
+        want = f"r = {r0}"
+        wr[E16BC_MAP + "0"] = {f"r = {n - sp.Rational(m, p)}"}
+        wr[E16BC_OWN + "3"] = {f"r = {n - r0}"}
+        if p > 1:
+            wr[E16BC_OWN + "4"] = {f"r = {E16A_n(v)}" for v in sp.solve(sp.Eq(n - r - qq * r, 0), r)}
+    else:
+        need(abs(c) <= most, f"the coefficient {c} is too large for Paper {paper}")
+        want = E16A_n(c)
+        slip = n - sp.Rational(m, p)
+        if slip.is_Integer and 0 <= slip <= n:
+            # The fraction's x left out: p(n − r) = m.
+            wr[E16BC_MAP + "0"] = {E16A_n(E16A_coef(sp.expand((a * x**p + k)**n), p * (n - slip)))}
+        wr[E16BC_MAP + "1"] = {E16A_n(sp.binomial(n, r0) * a**(n - r0))}
+        wr[E16BC_MAP + "2"] = {E16A_n(r0)}
+        if c < 0:
+            wr[E16BC_OWN + "5"] = {E16A_n(-c)}
+        if a > 1:
+            wr[E16BC_OWN + "6"] = {E16A_n(sp.binomial(n, r0) * a * k**r0)}
+        if u == "ct-given-power":
+            wr[E16BC_OWN + "7"] = {E16A_term(c, m)}
+    gc_check_common(q, want, wr)
+    E16A_steps(q, [{x: 2, r: r0}, {x: 3, r: r0}])
+    E16A_no_hyphen(q)
+    return None, None
+
+
+def E16BC_spot(q, lines):
+    a, p, k, qq, n = E16BC_read(q)
+    x, r = E16A_X, E16A_R
+    power = p * (n - r) - qq * r
+    r0 = int(sp.solve(sp.Eq(power, 0), r)[0])
+    const = sp.binomial(n, r0) * a**(n - r0) * k**r0
+    gen = E16BC_general(a, p, k, qq, n)
+    for i, t in enumerate(lines):
+        ok = True
+        judged, holds = E16A_judge(t, [{x: 2, r: r0}, {x: 3, r: r0}])
+        ok = ok and holds
+        if (mt := re.fullmatch(r"The general term is (.+)", t)):
+            g = E16A_expr(mt.group(1))
+            ok = ok and g is not None and all(sp.simplify(g.subs(r, v) - gen.subs(r, v)) == 0 for v in range(n + 1))
+            judged += 1
+        if (mt := re.fullmatch(r"(?:So the|The) power of x is (.+?)(?: = .*)?", t)):
+            e = E16A_expr(mt.group(1))
+            ok = ok and e is not None and sp.expand(e - power) == 0
+            judged += 1
+        if (mt := re.fullmatch(r"The constant term needs (.+) = 0", t)):
+            e = E16A_expr(mt.group(1))
+            ok = ok and e is not None and sp.expand(e - power) == 0
+            judged += 1
+        if (mt := re.fullmatch(r"The constant term is (?:.+ = )?(−?\d+)", t)):
+            ok = ok and int(mt.group(1).replace("−", "-")) == const
+            judged += 1
+        need(judged > 0, f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+# ── t1-ext-binomial-product ──
+
+E16BP_MAP = "SL1.9.product-expansion#"
+E16BP_OWN = "t1-ext-binomial-product#"
+E16BP_UNKNOWNS = ("pr-linear", "pr-same-power", "pr-hence", "pr-reciprocal", "pr-find-k", "pr-small")
+E16BP_PRODUCT = re.compile(rf"\(([^()]+)\)\(([^()]+)\)({E16A_SUP})")
+# The skill map's examples: (first bracket, expansion's bracket, n, m).
+E16BP_SKILL_MAP = {("1 + 2x", "3 − x", 5, 2), ("2 − x", "1 + x", 6, 3), ("x² + 1", "x − 2/x", 4, 0)}
+
+
+def E16BP_read(q):
+    m = E16BP_PRODUCT.search(q["asked"])
+    need(m is not None, f"no product in {q['asked']!r}")
+    first = E16A_expr(m.group(1), ("x", "k"))
+    inner = E16A_expr(m.group(2), ("x",))
+    need(first is not None and inner is not None, f"can't read {m.group(0)!r}")
+    return m.group(1), m.group(2), first, inner, E16A_sup(m.group(3))
+
+
+def E16BP_check(q):
+    u, paper = q["view"]["unknown"], q["paper"]
+    x, k = E16A_X, E16A_K
+    ftext, itext, first, inner, n = E16BP_read(q)
+    most = E16A_HAND if paper == 1 else E16A_MOST
+    mt = re.search(rf"(?:coefficient of x({E16A_SUP})?|constant term) in", q["asked"])
+    need(mt is not None, "no power asked")
+    m = 0 if "constant term in" in mt.group(0) else E16A_sup(mt.group(1))
+    need((ftext, itext, n, m) not in E16BP_SKILL_MAP, "the skill map's example")
+    ex = sp.expand(inner**n)
+    c = lambda j: E16A_coef(ex, j)
+    wr = {}
+    if u == "pr-reciprocal":
+        need(n in (4, 6, 8), f"n = {n} is not even from 4 to 8")
+        fp = E16A_powers(first)
+        need(set(fp) == {2, 0} and fp[2] == 1, f"{ftext} is not x² + c")
+        ip = E16A_powers(inner)
+        need(set(ip) == {1, -1} and ip[1] == 1 and abs(ip[-1]) in (2, 3), f"{itext} is not x + k/x")
+        cc = fp[0]
+        pairs = [c(-2), cc * c(0)]
+        v = E16A_coef(sp.expand(first * ex), 0)
+        need(v == sum(pairs), "the two pairs don't add up to the constant term")
+        wr[E16BP_MAP + "0"] = {E16A_n(cc * c(0))}
+        wr[E16BP_OWN + "5"] = {E16A_n(c(2) + cc * c(0))}
+        wr[E16BP_MAP + "2"] = {E16A_n(abs(pairs[0]) + abs(pairs[1]))}
+        want = E16A_n(v)
+        letters = ("x",)
+    else:
+        ip = E16A_powers(inner)
+        need(set(ip) == {0, 1}, f"{itext} is not a + bx")
+        ea, eb = ip[0], ip[1]
+        need(1 <= ea <= 3 and 1 <= abs(eb) <= 3 and sp.gcd(ea, eb) == 1, f"{itext} breaks the limits")
+        need(u == "pr-small" or not (ea == 1 and abs(eb) == 1), "(1 ± x) outside the small expansions")
+        need((3 <= n <= 4) if u == "pr-small" else (5 <= n <= 8), f"n = {n} breaks the limits")
+        if u == "pr-find-k":
+            fp = E16A_powers(first.subs(k, 0))
+            need(set(fp) == {0} and fp[0] == 1 and sp.expand(first - 1 - k * x) == 0, f"{ftext} is not 1 + kx")
+            mv = re.search(r" is (−?\d+)\. Find the value of k\.", q["asked"])
+            V = int(mv.group(1).replace("−", "-"))
+            sol = sp.solve(sp.Eq(E16A_coef(sp.expand(first * ex), m), V), k)
+            need(len(sol) == 1 and sol[0].is_Integer and 2 <= abs(sol[0]) <= 5, f"k = {sol} is not a whole number from 2 to 5 in size")
+            K = sol[0]
+            need(2 <= m <= n - 1 and c(m) != c(m - 1) and c(m) + K * c(m - 1) == V and K * c(m - 1) != 0, "the pairs break the limits")
+            need(all(abs(t) <= most for t in (c(m), K * c(m - 1), V)), "a coefficient is too large")
+            wr[E16BP_MAP + "0"] = {f"k = {E16A_n(sp.Rational(V, c(m - 1)))}"}
+            if eb < 0:
+                pos = sp.expand((ea - eb * x)**n)
+                wr[E16BP_MAP + "2"] = {f"k = {E16A_n(sp.Rational(V - E16A_coef(pos, m), E16A_coef(pos, m - 1)))}"}
+            wr[E16BP_OWN + "3"] = {f"k = {E16A_n(sp.Rational(V - c(m), c(m)))}"}
+            want = f"k = {E16A_n(K)}"
+            letters = ("x", "k")
+            gc_check_common(q, want, wr)
+            E16A_steps(q, [{x: 2, k: K}, {x: 3, k: K}], letters)
+            E16A_no_hyphen(q)
+            return None, None
+        fp = E16A_powers(first)
+        need(len(fp) == 2 and 0 in fp, f"{ftext} is not p + qx^d")
+        d = max(fp)
+        fa, fb = fp[0], fp[d]
+        need(1 <= fa <= 4 and 1 <= abs(fb) <= 4 and sp.gcd(fa, fb) == 1 and fa + fb != 0, f"{ftext} breaks the limits")
+        need(d == 1 or u == "pr-same-power", "x² in the first bracket")
+        if u == "pr-same-power":
+            need(m == d, "the power asked is not the first bracket's")
+        else:
+            need((1 <= m <= n) if u == "pr-small" else (2 <= m <= n - 1), f"x^{m} breaks the limits")
+            need(c(m) != c(m - 1), "pairing x with the x^m term gives the answer")
+        pairs = [fa * c(m), fb * c(m - d)]
+        v = E16A_coef(sp.expand(first * ex), m)
+        need(v == sum(pairs) and pairs[0] != 0 and pairs[1] != 0 and v != 0, "a pair or the answer is 0")
+        need(all(abs(t) <= most for t in pairs + [v]), "a coefficient is too large")
+        wr[E16BP_MAP + "0"] = {E16A_n(pairs[0])}
+        wr[E16BP_MAP + "2"] = {E16A_n(abs(pairs[0]) + abs(pairs[1]))}
+        if u == "pr-same-power":
+            wr[E16BP_MAP + "1"] = {E16A_n(fb * c(m))}
+        else:
+            wr[E16BP_OWN + "3"] = {E16A_n((fa + fb) * c(m))}
+        if u == "pr-hence":
+            ml = re.fullmatch(rf"In the expansion of \({re.escape(itext)}\){E16A_SUP}, the coefficient of x({E16A_SUP})? is (−?\d+) and the coefficient of x({E16A_SUP})? is (−?\d+)\.", q["lines"][0])
+            need(ml is not None, f"can't read {q['lines'][0]!r}")
+            need(E16A_sup(ml.group(1)) == m and E16A_sup(ml.group(3)) == m - 1, "the coefficients given are not of x^m and x^(m − 1)")
+            given = [int(ml.group(2).replace("−", "-")), int(ml.group(4).replace("−", "-"))]
+            need(given == [c(m), c(m - 1)], f"the coefficients given {given} are not the expansion's")
+            wr[E16BP_OWN + "4"] = {E16A_n(c(m) + c(m - 1))}
+        want = E16A_n(v)
+        letters = ("x",)
+    gc_check_common(q, want, wr)
+    E16A_steps(q, [{x: 2}, {x: 3}], letters)
+    E16A_no_hyphen(q)
+    return None, None
+
+
+def E16BP_spot(q, lines):
+    x = E16A_X
+    ftext, itext, first, inner, n = E16BP_read(q)
+    m = E16A_sup(re.search(rf"coefficient of x({E16A_SUP})? in", q["asked"]).group(1))
+    ex = sp.expand(inner**n)
+    v = E16A_coef(sp.expand(first * ex), m)
+    for i, t in enumerate(lines):
+        judged, ok = E16A_judge(t, [{x: 2}, {x: 3}], ("x",))
+        if (mt := re.fullmatch(rf"The (x{E16A_SUP}?|constant) term of \((.+?)\)({E16A_SUP}) is (.+)", t)):
+            j = 0 if mt.group(1) == "constant" else E16A_sup(mt.group(1)[1:])
+            e = E16A_expr(mt.group(2), ("x",))
+            last = E16A_expr(mt.group(4).split(" = ")[-1], ("x",))
+            ok = ok and e is not None and last is not None and sp.expand(last - E16A_coef(sp.expand(e**E16A_sup(mt.group(3))), j) * x**j) == 0
+            judged += 1
+        if (mt := re.fullmatch(rf"The (x{E16A_SUP}?) terms add to (.+)", t)):
+            last = E16A_expr(mt.group(2).split(" = ")[-1], ("x",))
+            ok = ok and last is not None and sp.expand(last - v * x**m) == 0
+            judged += 1
+        if (mt := re.fullmatch(rf"So the coefficient of x({E16A_SUP})? is (−?\d+)", t)):
+            ok = ok and E16A_sup(mt.group(1)) == m and int(mt.group(2).replace("−", "-")) == v
+            judged += 1
+        need(judged > 0, f"can't judge the line {t!r}")
+        if not ok:
+            return i
+    return None
+
+
+E16A_PREV = SITUATION_CHECKS["binomial-expansion"]
+E16A_PREV_SPOT = SPOT_CHECKS.get("binomial-expansion")
+
+
+def E16A_entry(q):
+    u = q["view"]["unknown"]
+    if u in E16BC_UNKNOWNS:
+        return E16BC_check(q)
+    if u in E16BP_UNKNOWNS:
+        return E16BP_check(q)
+    return E16A_PREV(q)
+
+
+def E16A_spot_entry(q, lines):
+    u = q["view"]["unknown"]
+    if u in E16BC_UNKNOWNS:
+        return E16BC_spot(q, lines)
+    if u in E16BP_UNKNOWNS:
+        return E16BP_spot(q, lines)
+    need(E16A_PREV_SPOT is not None, "the checker has no error-spot checks for this unknown")
+    return E16A_PREV_SPOT(q, lines)
+
+
+SITUATION_CHECKS["binomial-expansion"] = E16A_entry
+SPOT_CHECKS["binomial-expansion"] = E16A_spot_entry
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]

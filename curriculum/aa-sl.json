@@ -3344,7 +3344,7 @@
                 }
               ],
               "misconceptions": [
-                "Counting only one pair of terms: the number in the first bracket times the term of the asked power",
+                "Counting only one of the two pairs of terms that give the asked power",
                 "Multiplying the coefficients of the asked power in the two brackets together, instead of pairing terms whose powers add up to it",
                 "Losing a minus sign when a bracket has a negative term"
               ],
