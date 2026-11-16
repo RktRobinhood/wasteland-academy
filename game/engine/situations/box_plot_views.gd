@@ -52,6 +52,17 @@ const R_OLD_N := DEC + "3"
 const R_MEDIAN_FIXED := DEC + "4"
 const R_SWAP_MEASURES := DEC + "5"
 const R_DIRECTION := DEC + "6"
+## The two types' own slips (FAL-820).
+const R_MIDRANGE := "t4-box-plot#22"
+const R_WRONG_LINE := "t4-box-plot#23"
+const R_HALF_BOX := "t4-box-plot#24"
+const R_ONE_QUARTILE := "t4-box-plot#25"
+const R_TOP_ONLY := "t4-box-plot#26"
+const R_PERCENT_COUNT := "t4-box-plot#27"
+const R_OUTSIDE := "t4-box-plot#28"
+const R_DROPPED := "t4-box-plot#29"
+const R_NO_LIMIT := "t4-outlier-rule#15"
+const R_OTHER_QUARTILE := "t4-outlier-rule#16"
 
 const IS := "is an outlier"
 const NOT := "is not an outlier"
@@ -264,7 +275,7 @@ func u_read_median(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := num(s, "median = ", f.med)
 	var mid: Q = f.q1.add(f.q3).div(Q.new(2))
 	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "Write down the median %s%s." % [story(s).noun, of_group(s)],
-		"wrongs": wr(mid, R_BOX_MIDDLE), "generic": nums([f.min.add(f.max).div(Q.new(2)), f.q1, f.q3, f.min, f.max]),
+		"wrongs": wr(mid, R_BOX_MIDDLE) + wr(f.min.add(f.max).div(Q.new(2)), R_MIDRANGE) + wr(f.q1, R_WRONG_LINE) + wr(f.q3, R_WRONG_LINE), "fillers": nums([f.min, f.max]),
 		"methods": {"any": method(["The median is the line inside %s. It is at %s on the scale." % [which_box(s), D(f.med)], final_step(ans)], ans.values)}}
 
 
@@ -275,16 +286,18 @@ func u_read_quartile(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := num(s, "%s = " % s.which, v)
 	var word := "lower" if low else "upper"
 	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "Write down the %s quartile of the %s." % [word, story(s).noun],
-		"wrongs": [], "generic": nums([f.q3 if low else f.q1, f.med, f.min if low else f.max, f.max if low else f.min]),
+		"wrongs": wr(f.q3 if low else f.q1, R_WRONG_LINE) + wr(f.med, R_WRONG_LINE), "fillers": nums([f.min if low else f.max, f.max if low else f.min]),
 		"methods": {"any": method(["The %s quartile is the %s edge of the box, at %s." % [word, "left" if low else "right", D(v)], final_step(ans)], ans.values)}}
 
 
-func u_read_iqr(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_read_iqr(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var f := chosen(s)
 	var v: Q = f.q3.sub(f.q1)
 	var ans := num(s, "IQR = ", v)
 	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "Find the interquartile range%s." % of_group(s),
-		"wrongs": wr(f.max.sub(f.min), R_WHOLE) + wr(f.q1.add(f.q3), "SL4.3.quartiles-discrete#0"), "generic": nums([f.q3.sub(f.med), f.med.sub(f.q1), f.q3, f.q1]),
+		# More slips than places, so which show varies by seed (FAL-820).
+		"wrongs": rng.shuffled(wr(f.max.sub(f.min), R_WHOLE) + wr(f.q1.add(f.q3), "SL4.3.quartiles-discrete#0") + wr(f.q3.sub(f.med), R_HALF_BOX) + wr(f.med.sub(f.q1), R_HALF_BOX)
+			+ wr(f.q3, R_ONE_QUARTILE) + wr(f.q1, R_ONE_QUARTILE)), "fillers": [],
 		"methods": {"any": method(["Read the edges of %s: Q1 = %s and Q3 = %s." % [which_box(s), D(f.q1), D(f.q3)], "IQR = Q3 − Q1 = %s − %s = %s" % [D(f.q3), D(f.q1), D(v)], final_step(ans)], ans.values)}}
 
 
@@ -302,8 +315,8 @@ func u_read_range(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		w = wr(f.max.sub(f.min), R_NO_CROSS) + w
 	var read := "The least value is %s. The greatest is the cross, at %s: an outlier is still a value of the data." % [D(f.min), D(top)] if crossed \
 		else "The whiskers end at the least value, %s, and the greatest, %s." % [D(f.min), D(top)]
-	return {"answer": ans, "lines": lines, "graph": figure(s), "asked": "Find the range of the %s." % story(s).noun, "wrongs": w,
-		"generic": nums([top, f.q3.sub(f.min), top.sub(f.q1), top.sub(f.med)]),
+	return {"answer": ans, "lines": lines, "graph": figure(s), "asked": "Find the range of the %s." % story(s).noun,
+		"wrongs": w + wr(top, R_TOP_ONLY), "fillers": nums([f.q3.sub(f.min), top.sub(f.q1), top.sub(f.med)]),
 		"methods": {"any": method([read, "range = %s − %s = %s" % [D(top), D(f.min), D(v)], final_step(ans)], ans.values)}}
 
 
@@ -326,9 +339,9 @@ func u_read_median_iqr(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var mid: Q = f.q1.add(f.q3).div(Q.new(2))
 	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "Write down the median and the interquartile range%s." % of_group(s),
 		"wrongs": [two_wrong(s, "median", mid, "IQR", iq, R_BOX_MIDDLE), two_wrong(s, "median", f.med, "IQR", f.max.sub(f.min), R_WHOLE),
-			wrong({"l": f.med, "r": f.q3.sub(f.med), "text": "median = %s, IQR = %s" % [U(s, f.med), U(s, f.q3.sub(f.med))]}, ""),
-			wrong({"l": f.q1, "r": iq, "text": "median = %s, IQR = %s" % [U(s, f.q1), U(s, iq)]}, "")],
-		"generic": [], "methods": {"any": method(["The median is the line inside %s: %s." % [which_box(s), D(f.med)],
+			wrong({"l": f.med, "r": f.q3.sub(f.med), "text": "median = %s, IQR = %s" % [U(s, f.med), U(s, f.q3.sub(f.med))]}, R_HALF_BOX),
+			wrong({"l": f.q1, "r": iq, "text": "median = %s, IQR = %s" % [U(s, f.q1), U(s, iq)]}, R_WRONG_LINE)],
+		"fillers": [], "methods": {"any": method(["The median is the line inside %s: %s." % [which_box(s), D(f.med)],
 			"The IQR is the width of the box: %s − %s = %s" % [D(f.q3), D(f.q1), D(iq)], final_step(ans)], ans.values)}}
 
 
@@ -370,12 +383,12 @@ func u_five_number_from_data(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		wrongs.append(wrong(five_values(slip[0]), slip[1]))
 	var bump := func(v: Q, by: int) -> Q:
 		return v.add(by)
-	var generic: Array = [five_values(BoxPlotSituation.five(a.min, a.q1, bump.call(a.med, 1), a.q3, a.max)),
+	var fillers: Array = [five_values(BoxPlotSituation.five(a.min, a.q1, bump.call(a.med, 1), a.q3, a.max)),
 		five_values(BoxPlotSituation.five(a.min, bump.call(a.q1, 1), a.med, bump.call(a.q3, -1), a.max)),
 		five_values(BoxPlotSituation.five(a.min, bump.call(a.q1, -1), a.med, bump.call(a.q3, 1), a.max))]
 	var name := data_name(s)
 	return {"answer": ans, "lines": data_lines(s, name) + [HALVES], "table": data_table(s), "asked": "Find the five-number summary of the data.",
-		"wrongs": wrongs, "generic": generic,
+		"wrongs": wrongs, "fillers": fillers,
 		"methods": {"five-number-summary": method(hand_steps(s) + ["The least value is %s and the greatest is %s. %s." % [D(a.min), D(a.max), Answer.text(ans)]], ans.values),
 			"gdc-stats": method(gdc_steps(s) + [final_step(ans)], ans.values)}}
 
@@ -393,7 +406,7 @@ func u_five_number_from_cumfreq(_rep: String, s: Dictionary, _rng: Seeded) -> Di
 		wrong(five_values(BoxPlotSituation.five(Q.new(0), a.q1, a.med, a.q3, x1)), R_ENDS)]
 	var g := CumulativeFrequencyViews.curve_spec(s)
 	return {"answer": ans, "lines": CumulativeFrequencyViews.graph_lines(s), "graph": g, "asked": "Find the five numbers of a box plot of the data, min, Q1, median, Q3 and max, from the curve.",
-		"wrongs": wrongs, "generic": [five_values(BoxPlotSituation.five(a.min, a.q1.add(s.dx), a.med, a.q3.sub(s.dx), a.max))], "methods": {"from-cumfreq": method([
+		"wrongs": wrongs, "fillers": [five_values(BoxPlotSituation.five(a.min, a.q1.add(s.dx), a.med, a.q3.sub(s.dx), a.max))], "methods": {"from-cumfreq": method([
 			"There are %d %s, so read across at %d ÷ 4 = %s, %d ÷ 2 = %s and 3 × %d ÷ 4 = %s." % [n, c.who, n, D(Q.new(n, 4)), n, D(Q.new(n, 2)), n, D(Q.new(3 * n, 4))],
 			"Down to the axis, these give Q1 = %s, median = %s and Q3 = %s." % [D(a.q1), D(a.med), D(a.q3)],
 			"The curve leaves 0 at %s and reaches %d at %s: the least and greatest values." % [D(a.min), n, D(a.max)], final_step(ans)], ans.values)}}
@@ -405,14 +418,18 @@ static func pick_figure(s: Dictionary, rng: Seeded, tags: Dictionary) -> Diction
 	var rows: Array = []
 	var right := ""
 	var wrongs: Array = []
+	# A row no slip draws (the whisker cut short) is a filler (FAL-820).
+	var fillers: Array = []
 	for i in order.size():
 		rows.append(row(order[i].five, LETTERS[i]))
 		if order[i].ref == "right":
 			right = PLOTS[i]
+		elif tags.has(order[i].mistake):
+			wrongs.append(wrong({"v": PLOTS[i]}, tags[order[i].mistake]))
 		else:
-			wrongs.append(wrong({"v": PLOTS[i]}, tags.get(order[i].mistake, "")))
+			fillers.append({"v": PLOTS[i]})
 	var ans := Answer.make("choice", {"v": right}, {"options": PLOTS})
-	return {"answer": ans, "graph": fig(s, rows), "wrongs": wrongs}
+	return {"answer": ans, "graph": fig(s, rows), "wrongs": wrongs, "fillers": fillers}
 
 
 func u_pick_box_from_data(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -423,7 +440,6 @@ func u_pick_box_from_data(_rep: String, s: Dictionary, rng: Seeded) -> Dictionar
 	out.lines = data_lines(s, data_name(s)) + [HALVES]
 	out.table = data_table(s)
 	out.asked = "Which box plot shows these data?"
-	out.generic = []
 	var match_step := "%s has its box from %s to %s, its line at %s and its whiskers to %s and %s." % [ans.values.v, D(a.q1), D(a.q3), D(a.med), D(a.min), D(a.max)]
 	out.methods = {"five-number-summary": method(hand_steps(s) + ["The least value is %s and the greatest is %s." % [D(a.min), D(a.max)], match_step], ans.values),
 		"gdc-stats": method(gdc_steps(s) + [match_step], ans.values)}
@@ -433,12 +449,11 @@ func u_pick_box_from_data(_rep: String, s: Dictionary, rng: Seeded) -> Dictionar
 func u_pick_box_with_outlier(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var a: Dictionary = s.a
 	var inside: Q = s.data[s.data.size() - 2]
-	var out := pick_figure(s, rng, {"whisker": R_WHISKER, "fence": R_TO_FENCE})
+	var out := pick_figure(s, rng, {"whisker": R_WHISKER, "fence": R_TO_FENCE, "dropped": R_DROPPED})
 	var ans: Dictionary = out.answer
 	out.lines = data_lines(s, data_name(s)) + [HALVES, RULE]
 	out.table = null
 	out.asked = "Which box plot shows these data, with any outlier as a cross?"
-	out.generic = []
 	var fence := "Q3 + 1.5 × IQR = %s + 1.5 × %s = %s, and %s is above it, so it is an outlier." % [D(a.q3), D(s.iqr), D(s.hi_f), D(s.x)]
 	var end := "%s has a cross at %s and its upper whisker at %s, the greatest value that is not an outlier." % [ans.values.v, D(s.x), D(inside)]
 	var hand: Array = hand_steps(s)
@@ -464,7 +479,8 @@ func u_count_in_section(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	ans.show = "dec"
 	var slip: Q = hi.sub(lo).div(s.a.max.sub(s.a.min)).mul(Q.new(s.n))
 	var out := {"answer": ans, "asked": "Estimate the number of %s with %s between %s and %s." % [c.who, c.a, D(lo), D(hi)],
-		"wrongs": wr(slip, R_LONGER), "generic": nums([Q.new(s.n * ((k % 4) + 1), 4), Q.new(25 * k), Q.new(s.n, 4), Q.new(s.n * (4 - k), 4), Q.new(s.n, 2)])}
+		"wrongs": wr(slip, R_LONGER) + ([] if s.n == 100 else wr(Q.new(25 * k), R_PERCENT_COUNT)) + wr(Q.new(s.n * (4 - k), 4), R_OUTSIDE),
+		"fillers": nums([Q.new(s.n * ((k % 4) + 1), 4), Q.new(s.n, 4), Q.new(s.n, 2)])}
 	if rep == "words":
 		out.lines = ["For %s %d %s:" % [c.by, s.n, c.who], five_line(s.a)]
 	else:
@@ -486,7 +502,7 @@ func u_percent_in_section(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	ans.exact = true
 	var slip: Q = hi.sub(lo).div(s.a.max.sub(s.a.min)).mul(Q.new(100))
 	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "Estimate the percentage of the %s with %s between %s and %s." % [c.who, c.a, D(lo), D(hi)],
-		"wrongs": wr(slip, R_LONGER), "generic": nums([Q.new(25 * ((k % 4) + 1)), Q.new(25 * (4 - k)), Q.new(10), Q.new(100 - 10 * k)]),
+		"wrongs": wr(slip, R_LONGER) + wr(Q.new(25 * (4 - k)), R_OUTSIDE), "fillers": nums([Q.new(25 * ((k % 4) + 1)), Q.new(10), Q.new(100 - 10 * k)]),
 		"methods": {"any": method(["Each section of a box plot holds a quarter of the data, however long it looks.",
 			"From %s to %s is %d section%s, so %d × 25 = %d" % [D(lo), D(hi), k, "" if k == 1 else "s", k, 25 * k], final_step(ans)], ans.values)}}
 
@@ -501,13 +517,16 @@ func u_value_at_share(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := num(s, "a = ", v)
 	var w: Array = []
 	if mark == "med":
-		w = wr(f.q1.add(f.q3).div(Q.new(2)), R_BOX_MIDDLE)
+		w = wr(f.q1.add(f.q3).div(Q.new(2)), R_BOX_MIDDLE) + wr(f.min.add(f.max).div(Q.new(2)), R_MIDRANGE)
 	else:
 		w = wr(f.q3 if mark == "q1" else f.q1, R_SIDE)
+	for other in ["q1", "med", "q3"]:
+		if other != mark:
+			w += wr(f[other], R_WRONG_LINE)
 	var name: String = {"med": "the median", "q1": "the lower quartile", "q3": "the upper quartile"}[mark]
 	var share_words: String = {"Half": "half", "A quarter": "a quarter", "Three quarters": "three quarters"}[words]
 	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "%s of the %s have %s %s a %s. Estimate the value of a." % [words, c.who, c.a, side, c.unit],
-		"wrongs": w, "generic": nums([f.med, f.q1, f.q3, f.min.add(f.max).div(Q.new(2)), f.min, f.max]),
+		"wrongs": w, "fillers": nums([f.min.add(f.max).div(Q.new(2)), f.min, f.max]),
 		"methods": {"any": method(["%s lies with %s of the data %s it." % [cap(name), share_words, side], "On the plot, %s is at %s." % [name, D(v)], final_step(ans)], ans.values)}}
 
 
@@ -532,7 +551,7 @@ func u_could_be_normal(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "State, with a reason, whether the data could be normally distributed.",
 		"wrongs": [wrong({"l": l, "r": r, "verdict": other, "text": said.call(other)}, R_SHAPE_BACK),
 			wrong({"text": one + NORMAL, "shape": "one number"}, R_RANGE_SHAPE), wrong({"text": one + SKEWED, "shape": "one number"}, R_RANGE_SHAPE)],
-		"generic": [], "methods": {"any": method(["In the box, median − Q1 = %s − %s = %s and Q3 − median = %s − %s = %s." % [D(f.med), D(f.q1), D(l), D(f.q3), D(f.med), D(r)],
+		"fillers": [], "methods": {"any": method(["In the box, median − Q1 = %s − %s = %s and Q3 − median = %s − %s = %s." % [D(f.med), D(f.q1), D(l), D(f.q3), D(f.med), D(r)],
 			"The whiskers are %s and %s long." % [D(w1), D(w2)], why, Answer.text(ans) + "."], ans.values)}}
 
 
@@ -546,11 +565,11 @@ func u_mean_against_median(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var w: Array = [["The mean is likely to be %s than the median: the long %s whisker holds more of the data." % [less, tail], R_LONGER],
 		["The mean and the median are likely to be equal: half of the data lie on each side of the median.", R_EQUAL],
 		["The mean is likely to be %s than the median: the box is longer than either whisker." % more, ""]]
-	var made := DerivativeMeaningViews.claim_answer(right, w)
+	var made := DerivativeMeaningViews.claim_split(right, w)
 	var ans: Dictionary = made.answer
 	var f: Dictionary = s.a
 	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "State how the mean is likely to compare with the median, with a reason.",
-		"wrongs": made.wrongs, "generic": [], "methods": {"any": method([
+		"wrongs": made.wrongs, "fillers": made.fillers, "methods": {"any": method([
 			"The upper whisker is %s long and the lower is %s long. The median is off centre in the box." % [D(f.max.sub(f.q3)), D(f.q1.sub(f.min))],
 			"The median depends only on the middle of the data, but the mean uses every value, so the few values far along the %s whisker pull it that way." % tail,
 			right], ans.values)}}
@@ -589,7 +608,7 @@ func u_compare_box_plots(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var ib: Q = b.q3.sub(b.q1)
 	var cl := compare_claims(s, "median", "IQR", [a.med, b.med, ia, ib, a.max, b.max])
 	var ans: Dictionary = cl.made.answer
-	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "Compare the two groups, in context.", "wrongs": cl.made.wrongs, "generic": [],
+	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "Compare the two groups, in context.", "wrongs": cl.made.wrongs, "fillers": [],
 		"methods": {"median-iqr": method(["The medians, for the centre, are %s and %s." % [U(s, a.med), U(s, b.med)],
 			"The IQRs, for the spread, are %s − %s = %s and %s − %s = %s." % [D(a.q3), D(a.q1), D(ia), D(b.q3), D(b.q1), D(ib)],
 			"A higher median means a higher typical value, and a smaller IQR means more consistent values.", cl.right], ans.values)}}
@@ -601,7 +620,7 @@ func u_compare_summary(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var cl := compare_claims(s, "mean", "standard deviation", [s.ma, s.mb, s.sa, s.sb, s.ta, s.tb])
 	var ans: Dictionary = cl.made.answer
 	var table := {"rows": [["", [g[0], g[1]]], ["Mean", [D(s.ma), D(s.mb)]], ["Standard deviation", [D(s.sa), D(s.sb)]], ["Maximum", [D(s.ta), D(s.tb)]]]}
-	return {"answer": ans, "lines": ["The table summarises %s two groups, in %s." % [c.by, c["in"]]], "table": table, "asked": "Compare the two groups, in context.", "wrongs": cl.made.wrongs, "generic": [],
+	return {"answer": ans, "lines": ["The table summarises %s two groups, in %s." % [c.by, c["in"]]], "table": table, "asked": "Compare the two groups, in context.", "wrongs": cl.made.wrongs, "fillers": [],
 		"methods": {"mean-sd": method(["The means, for the centre, are %s and %s." % [U(s, s.ma), U(s, s.mb)],
 			"The standard deviations, for the spread, are %s and %s." % [U(s, s.sa), U(s, s.sb)],
 			"A higher mean means a higher typical value, and a smaller standard deviation means more consistent values. The maximum is one value and says little about either.", cl.right], ans.values)}}
@@ -633,7 +652,7 @@ func u_claim_from_box_plots(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		"wrongs": [wrong({"l": a.med, "r": b.med, "verdict": flip, "text": said.call("median", a.med, b.med, flip)}, R_CLAIM_BACK),
 			wrong({"text": said.call("maximum", a.max, b.max, flip), "shape": "the maxima"}, R_ENDS_ONLY),
 			wrong({"text": said.call("IQR", ia, ib, verdict), "shape": "the IQRs"}, R_SPREAD_AVG)],
-		"generic": [], "methods": {"median-iqr": method(["The typical value of a group is its median: the line in each box.",
+		"fillers": [], "methods": {"median-iqr": method(["The typical value of a group is its median: the line in each box.",
 			"The median is %s for the %s and %s for the %s." % [D(a.med), g[0], D(b.med), g[1]],
 			"The claim is about the %s, whose median is the %s." % [name_a, "higher" if holds else "lower"], Answer.text(ans) + "."], ans.values)}}
 
@@ -683,7 +702,7 @@ func u_find_fences(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	rule_lines(rep, s, out)
 	out.wrongs = [wrong(fences_said(s, a.med.sub(d), a.med.add(d)), R_FROM_MEDIAN), wrong(fences_said(s, a.q1.sub(s.iqr), a.q3.add(s.iqr)), R_NO_FACTOR),
 		wrong(fences_said(s, s.lo_f, onehalf(a.q3)), R_THREE)]
-	out.generic = [fences_said(s, s.lo_f.add(s.iqr), s.hi_f), fences_said(s, s.lo_f, s.hi_f.add(s.iqr))]
+	out.fillers = [fences_said(s, s.lo_f.add(s.iqr), s.hi_f), fences_said(s, s.lo_f, s.hi_f.add(s.iqr))]
 	out.methods = {"fences": method([quartile_step(rep, s), "1.5 × IQR = 1.5 × %s = %s" % [D(s.iqr), D(d)],
 		"Lower fence: %s − %s = %s. Upper fence: %s + %s = %s." % [D(a.q1), D(d), D(s.lo_f), D(a.q3), D(d), D(s.hi_f)], final_step(ans)], ans.values)}
 	return out
@@ -744,7 +763,7 @@ func u_decide_outlier(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := {"l": cmp.lv, "r": cmp.rv, "verdict": verdict, "text": test_text(s, cmp, cmp.lv, cmp.rv, verdict)}
 	var ans := Answer.make("form", v, {"parts": [cmp.ln + " = ", {"slot": "l"}, " and " + cmp.rn + " = ", {"slot": "r"}, ", so %s " % D(s.x), {"pick": "verdict", "options": [IS, NOT]}]})
 	ans.exact = true
-	var out := {"answer": ans, "table": null, "asked": "Determine whether %s is an outlier, with a valid reason." % D(s.x), "generic": []}
+	var out := {"answer": ans, "table": null, "asked": "Determine whether %s is an outlier, with a valid reason." % D(s.x), "fillers": []}
 	rule_lines(rep, s, out)
 	out.wrongs = test_wrongs(s, cmp)
 	var d := onehalf(s.iqr)
@@ -771,7 +790,7 @@ func u_show_max_outlier(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := {"l": cmp.lv, "r": cmp.rv, "text": said.call(cmp.lv, cmp.rv)}
 	var ans := Answer.make("form", v, {"parts": [cmp.ln + " = ", {"slot": "l"}, " and " + cmp.rn + " = ", {"slot": "r"}, end]})
 	ans.exact = true
-	var out := {"answer": ans, "table": null, "asked": "Show that the greatest value, %s, is an outlier." % D(s.x), "generic": []}
+	var out := {"answer": ans, "table": null, "asked": "Show that the greatest value, %s, is an outlier." % D(s.x), "fillers": []}
 	rule_lines(rep, s, out)
 	var w: Array
 	if angle == "fences":
@@ -779,7 +798,7 @@ func u_show_max_outlier(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		w = [[s.x.sub(a.med), d, R_FROM_MEDIAN], [cmp.lv, onehalf(a.q3), R_THREE], [cmp.lv, s.iqr, R_NO_FACTOR]]
 	out.wrongs = w.map(func(e): return wrong({"l": e[0], "r": e[1], "text": said.call(e[0], e[1])}, e[2]))
-	out.generic = [cmp.lv.add(s.iqr), cmp.rv.add(s.iqr)].map(func(e): return {"l": cmp.lv, "r": e, "text": said.call(cmp.lv, e)})
+	out.fillers = [cmp.lv.add(s.iqr), cmp.rv.add(s.iqr)].map(func(e): return {"l": cmp.lv, "r": e, "text": said.call(cmp.lv, e)})
 	var dist: Q = s.x.sub(a.q3)
 	out.methods = {"fences": method([quartile_step(rep, s), "The upper fence is %s + 1.5 × %s = %s" % [D(a.q3), D(s.iqr), D(s.hi_f)],
 			"%s is above %s, so it is an outlier." % [D(s.x), D(s.hi_f)], final_step(ans)], ans.values),
@@ -795,7 +814,7 @@ func u_largest_not_outlier(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var out := {"answer": ans, "table": null, "asked": "Find the largest value that would not be an outlier."}
 	rule_lines(rep, s, out)
 	out.wrongs = wr(onehalf(a.q3), R_THREE) + wr(a.med.add(d), R_FROM_MEDIAN) + wr(a.q3.add(s.iqr), R_NO_FACTOR)
-	out.generic = nums([a.q3.add(s.iqr.mul(2)), s.hi_f.add(Q.new(1)), s.hi_f.add(s.tick) if s.has("tick") else s.hi_f.add(2)])
+	out.fillers = nums([a.q3.add(s.iqr.mul(2)), s.hi_f.add(Q.new(1)), s.hi_f.add(s.tick) if s.has("tick") else s.hi_f.add(2)])
 	out.methods = {"fences": method([quartile_step(rep, s), "Only a value above the upper fence is an outlier, so the fence itself is the largest that is not.",
 			"Q3 + 1.5 × IQR = %s + 1.5 × %s = %s" % [D(a.q3), D(s.iqr), D(s.hi_f)], final_step(ans)], ans.values),
 		"distance-from-quartile": method([quartile_step(rep, s), "A value can lie up to 1.5 × IQR above Q3: 1.5 × %s = %s" % [D(s.iqr), D(d)],
@@ -815,7 +834,7 @@ func u_smallest_outlier(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var whole := func(x: Q) -> Q:
 		return Q.new(floori(x.to_float())).add(1)
 	out.wrongs = wr(top, R_ON_FENCE) + wr(whole.call(onehalf(a.q3)), R_THREE) + wr(whole.call(a.med.add(d)), R_FROM_MEDIAN) + wr(whole.call(a.q3.add(s.iqr)), R_NO_FACTOR)
-	out.generic = nums([v.add(1), v.add(2)])
+	out.fillers = nums([v.add(1), v.add(2)])
 	var next := "A value must be above %s to be an outlier, so the smallest whole number that is above it is %s." % [D(f), D(v)]
 	out.methods = {"fences": method([quartile_step(rep, s), "The upper fence is %s + 1.5 × %s = %s" % [D(a.q3), D(s.iqr), D(f)], next, final_step(ans)], ans.values),
 		"distance-from-quartile": method([quartile_step(rep, s), "An outlier lies more than 1.5 × %s = %s above Q3." % [D(s.iqr), D(d)],
@@ -843,7 +862,8 @@ func u_quartile_from_no_outliers(rep: String, s: Dictionary, _rng: Seeded) -> Di
 		out.lines = ["For %s a group of %s, the least value is %s, the median is %s and the greatest value is %s. %s" % [c.by, c.who, D(a.min), D(a.med), D(a.max), names], facts, RULE]
 	var slip_u: Q = a.max.div(Q.new(3, 2))
 	out.wrongs = (wr(a.max.sub(iq), R_NO_FACTOR) + (wr(slip_u, R_THREE) if not D(slip_u).contains("/") else [])) if is_u else (wr(a.max.sub(iq).sub(iq), R_NO_FACTOR))
-	out.generic = nums([low_l if is_u else low_u, a.max.sub(iq.mul(2)), low_u.add(iq), a.med.add(d), v.add(a.med.sub(a.min))])
+	out.wrongs += wr(low_l if is_u else low_u, R_OTHER_QUARTILE)
+	out.fillers = nums([a.max.sub(iq.mul(2)), low_u.add(iq), a.med.add(d), v.add(a.med.sub(a.min))])
 	var hence := [] if is_u else ["L = U − IQR, and the smallest U gives the smallest L: %s − %s = %s" % [D(low_u), D(iq), D(low_l)]]
 	out.methods = {"fences": method(["The greatest value, %s, is no outlier, so it is at most the upper fence: %s ≤ U + 1.5 × %s." % [D(a.max), D(a.max), D(iq)],
 			"1.5 × %s = %s, so %s ≤ U + %s." % [D(iq), D(d), D(a.max), D(d)], "So U ≥ %s − %s = %s" % [D(a.max), D(d), D(low_u)]] + hence + [final_step(ans)], ans.values),
@@ -867,7 +887,7 @@ func u_outliers_in_data(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.k_q != s.k:
 		w.append(wrong({"v": Q.new(s.k_q)}, R_THREE))
 	out.wrongs = w
-	out.generic = [0, 1, 2, 3, 4, 5].map(func(i): return {"v": Q.new(i)})
+	out.fillers = [0, 1, 2, 3, 4, 5].map(func(i): return {"v": Q.new(i)})
 	var name_far := "None of the values is beyond a fence." if far.is_empty() else "Beyond a fence: %s." % ", ".join(far.map(func(x): return D(x)))
 	var fences_line := "The fences are %s − 1.5 × %s = %s and %s + 1.5 × %s = %s." % [D(a.q1), D(s.iqr), D(s.lo_f), D(a.q3), D(s.iqr), D(s.hi_f)]
 	var enter := "Enter the values in list L1 and the frequencies in list L2." if rep == "table" else "Enter the %d values in list L1." % s.n
@@ -890,12 +910,13 @@ func u_keep_or_remove(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var keep := "Keep it: %s is unusually high but it is possible, so it is a genuine value." % x
 	var right: String = remove if s.error else keep
 	var other: String = keep if s.error else "Remove it: %s is far above the rest of the data, so it must be a recording error." % x
-	var w: Array = [[other, ""], ["Remove it: every outlier must be deleted, because it fails the test.", R_DELETE], ["Keep it: an outlier is always part of the data, whatever its value.", R_KEEP_ALL]]
+	var w: Array = [[other, R_NO_LIMIT], ["Remove it: every outlier must be deleted, because it fails the test.", R_DELETE], ["Keep it: an outlier is always part of the data, whatever its value.", R_KEEP_ALL]]
 	var made := DerivativeMeaningViews.claim_answer(right, w)
 	var ans: Dictionary = made.answer
 	var why := "%s is above that limit, so it can't be a true reading." % x if s.error else "%s is within that limit, so nothing says it is a mistake." % x
 	return {"answer": ans, "lines": ["A camp has %d readings of %s." % [s.n, l[0]], l[1] % lim, "Q1 = %s and Q3 = %s, and the value %s is an outlier by the 1.5 × IQR rule." % [D(a.q1), D(a.q3), x]],
-		"asked": "Suggest whether %s should be removed. Justify your answer." % x, "wrongs": made.wrongs, "generic": [], "table": null,
+		"asked": "Suggest whether %s should be removed. Justify your answer." % x, "wrongs": made.wrongs, "fillers": [], "table": null,
+
 		"methods": {"plausibility": method(["An outlier is removed only if it can't be true. The limit here is %s." % lim, why, right], ans.values)}}
 
 
@@ -923,7 +944,7 @@ func u_effect_of_removing(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var w: Array = [wrong(effect_said(s, s.mean1, s.med0), R_MEDIAN_FIXED), wrong(effect_said(s, s.mean1, s.med0.add(moved)), R_SAME_MOVE),
 		wrong(effect_said(s, total.div(Q.new(s.n)), s.med1), R_OLD_N)]
 	var lines: Array = data_lines(s, data_name(s)) + ["The value %s is an outlier and is removed." % D(s.x)]
-	return {"answer": ans, "lines": lines, "table": null, "asked": "Find the mean and the median of the %d values left%s" % [m, ", to 3 s.f." if s.paper == 2 else "."], "wrongs": w, "generic": [],
+	return {"answer": ans, "lines": lines, "table": null, "asked": "Find the mean and the median of the %d values left%s" % [m, ", to 3 s.f." if s.paper == 2 else "."], "wrongs": w, "fillers": [],
 		"methods": {"effect-on-measures": method(["%d values are left, and their total is %s." % [m, D(total)], "The new mean is %s ÷ %d = %s." % [D(total), m, short(s, s.mean1)],
 			"In order, the values left are %s, so the new median is %s: %s." % [", ".join(s.rest.map(func(x): return D(x))), place(1, m), D(s.med1)], final_step(ans)], ans.values)}}
 
@@ -948,6 +969,6 @@ func u_which_measure_moves(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var was: Q = s.med0 if centre else s.iqr
 	var now: Q = s.med1 if centre else s.iqr1
 	var lines: Array = data_lines(s, data_name(s)) + ["The value %s is an outlier and is removed." % D(s.x)]
-	return {"answer": ans, "lines": lines, "table": null, "asked": "Which statement describes the effect on the %s and the %s?" % [big, small], "wrongs": made.wrongs, "generic": [],
+	return {"answer": ans, "lines": lines, "table": null, "asked": "Which statement describes the effect on the %s and the %s?" % [big, small], "wrongs": made.wrongs, "fillers": [],
 		"methods": {"effect-on-measures": method(["The %s goes from %s to %s." % [big, short(s, before), short(s, after)],
 			"The %s goes from %s to %s." % [small, short(s, was), short(s, now)], right], ans.values)}}

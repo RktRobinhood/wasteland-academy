@@ -8603,6 +8603,7 @@ def check_binomial(q):
         need(rep == "words" and f"{n} " in L[0] and f"probability {ptxt}" in L[0], "the story doesn't give n and p")
         want = f"n = {n}, p = {ptxt}"
         wrongs[BN_SKILL + "identify#0"] = {f"n = {ptxt}, p = {n}"}
+        wrongs[T + "#14"] = {f"n = {n}, p = {dec_text(qq)}"}  # the other outcome's chance
     elif u in ("exact-probability", "at-most-probability", "at-least-probability", "between-probability"):
         need(form == {"exact-probability": ""}.get(u, form) and form in {"exact-probability": [""], "at-most-probability": ["le", "lt"],
              "at-least-probability": ["ge", "gt"], "between-probability": ["in", "lo-open"]}[u] or u == "exact-probability" and form == "", f"form {form!r}")
@@ -8629,13 +8630,20 @@ def check_binomial(q):
             wrongs[BN_SKILL + "exact-probability#1"] = {bn_prob_text(label, sp.binomial(n, k) * p**(n - k) * qq**k)}
             wrongs[BN_SKILL + "exact-probability#2"] = {bn_prob_text(label, bn_cdf(n, p, k))}
         elif u == "at-most-probability":
+            wrongs[T + "#15"] = {bn_prob_text(label, bn_pmf(n, p, hi))}  # the boundary alone
+            wrongs[T + "#16"] = {bn_prob_text(label, 1 - x)}  # the opposite event
             if form == "lt":
                 wrongs[BN_SKILL + "cumulative-probability#1"] = {bn_prob_text(label, bn_cdf(n, p, k))}
+            else:
+                wrongs[T + "#17"] = {bn_prob_text(label, bn_cdf(n, p, k - 1))}  # k left out
         elif u == "at-least-probability":
             wrongs[BN_SKILL + "cumulative-probability#0"] = {bn_prob_text(label, 1 - bn_cdf(n, p, k if form == "ge" else k - 1))}
+            wrongs[T + "#18"] = {bn_prob_text(label, bn_cdf(n, p, lo - 1))}  # not taken from 1
+            wrongs[T + "#15"] = {bn_prob_text(label, bn_pmf(n, p, lo))}  # the boundary alone
         else:
-            if form == "lo-open":
-                wrongs[BN_SKILL + "cumulative-probability#2"] = {bn_prob_text(label, bn_cdf(n, p, b) - bn_cdf(n, p, lo))}
+            # a < X ≤ b less P(X ≤ a + 1), or a ≤ X ≤ b less P(X ≤ a): the wrong cumulative
+            wrongs[BN_SKILL + "cumulative-probability#2"] = {bn_prob_text(label, bn_cdf(n, p, b) - bn_cdf(n, p, lo))}
+            wrongs[T + "#19"] = {bn_prob_text(label, bn_cdf(n, p, b))}  # nothing subtracted
     elif u in ("mean-from-parameters", "variance-from-parameters", "std-deviation"):
         if rep == "equation":
             need(asked == {"mean-from-parameters": "Find E(X).", "variance-from-parameters": "Find Var(X).",
@@ -8650,10 +8658,14 @@ def check_binomial(q):
             want = f"E(X) = {dec_text(mean)}"
             if mean.q != 1:
                 wrongs[BN_SKILL + "mean-variance#2"] = {f"E(X) = {dec_text(sp.Integer(sp.floor(mean + sp.Rational(1, 2))))}"}
+            wrongs[T + "#14"] = {f"E(X) = {dec_text(n * qq)}"}  # n(1 − p)
+            wrongs[T + "#20"] = {f"E(X) = {dec_text(var)}"}  # the variance
         elif u == "variance-from-parameters":
             need((p * 10).q == 1, "p is not a multiple of 0.1 for a variance")
             want = f"Var(X) = {dec_text(var)}"
             wrongs[BN_SKILL + "mean-variance#0"] = {f"Var(X) = {dec_text(mean)}"}
+            wrongs[T + "#21"] = {f"Var(X) = {dec_text(n * qq)}"}  # p left out
+            wrongs[T + "#22"] = {f"Var(X) = {dec_text(p * qq)}"}  # n left out
         else:
             need((p * 10).q == 1, "p is not a multiple of 0.1 for a standard deviation")
             sd = sp.sqrt(var)
@@ -8661,6 +8673,7 @@ def check_binomial(q):
             label = "standard deviation = "
             want, trap = bn_prob_text(label, sd), bn_trap(label, sd) if not sd.is_rational or sp.Rational(sig3(sd)) != sd else None
             wrongs[BN_SKILL + "mean-variance#1"] = {bn_prob_text(label, var)}
+            wrongs[BN_SKILL + "mean-variance#0"] = {bn_prob_text(label, sp.sqrt(mean))}  # √(np)
     elif u == "n-and-p-from-mean-variance":
         eline = L[-1]
         mt = re.fullmatch(r"E\(X\) = ([\d.]+) and Var\(X\) = ([\d.]+)", eline)
@@ -8675,6 +8688,7 @@ def check_binomial(q):
         need(asked == "Find n and p.", f"asked {asked!r}")
         want = f"n = {n}, p = {dec_text(p)}"
         wrongs[BN_SKILL + "find-n-or-p#2"] = {f"n = {n}, p = {dec_text(1 - p)}"}
+        wrongs[T + "#23"] = {f"n = {dec_text(E)}, p = {dec_text(p)}"}  # n taken as E(X)
     elif u == "least-trials":
         c = R(g["c"])
         if rep == "equation":
@@ -8706,6 +8720,7 @@ def check_binomial(q):
         need(bn_clear(x, *BN_RANGES[u]), f"the probability {float(x):.6f} is out of range or on a rounding edge")
         want, trap = bn_prob_text(label, x), bn_trap(label, x)
         wrongs[BN_SKILL + "binomial-in-context#1"] = {bn_prob_text(label, bn_pmf(m, p, k))}
+        wrongs[T + "#24"] = {bn_prob_text(label, bn_pmf(m - 1, p, k - 1))}  # no last success
     elif u == "conditional-probability":
         j = k
         if rep == "equation":
@@ -8719,6 +8734,8 @@ def check_binomial(q):
         need(1 <= j <= n - 1 and bn_clear(x, *BN_RANGES[u]), f"the probability {float(x):.6f} is out of range or on a rounding edge")
         want, trap = bn_prob_text(label, x), bn_trap(label, x)
         wrongs[BN_SKILL + "binomial-in-context#2"] = {bn_prob_text(label, bn_pmf(n, p, j) * at_one)}
+        wrongs[T + "#25"] = {bn_prob_text(label, bn_pmf(n, p, j))}  # not divided
+
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs, trap)
@@ -32373,6 +32390,7 @@ def npr_check(q):
 
 BXP_B, BXP_C, BXP_T, BXP_D = "SL4.2.box-plot#", "SL4.2.compare-distributions#", "SL4.2.outlier-test#", "SL4.1.outlier-decision#"
 BXP_SPAN, BXP_EVERY = 25, 5
+BXP_O, BXP_OR = "t4-box-plot#", "t4-outlier-rule#"  # the types' own slips (FAL-820)
 BXP_EDGE = sp.Rational(3, 100)
 BXP_IS, BXP_NOT = "is an outlier", "is not an outlier"
 BXP_NORMAL, BXP_SKEWED = "are symmetric and could be normal", "are skewed and unlikely to be normal"
@@ -32704,16 +32722,21 @@ def bxp_box_plot(q):
     if u == "read-median":
         f, name = bxp_chosen(q)
         need(asked == f"Write down the median {c[2]}{name}.", f"asked {asked!r}")
-        bxp_common(q, f"median = {bxp_u(c, f['med'])}", {BXP_B + "5": {f"median = {bxp_u(c, (f['q1'] + f['q3']) / 2)}"}})
+        s = lambda v: f"median = {bxp_u(c, v)}"
+        bxp_common(q, s(f["med"]), {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2)}, BXP_O + "22": {s((f["min"] + f["max"]) / 2)},  # the whiskers' middle
+                                    BXP_O + "23": {s(f["q1"]), s(f["q3"])}})  # an edge of the box
     elif u == "read-quartile":
         f, _ = bxp_chosen(q)
         low = "lower quartile" in asked
-        bxp_common(q, f"{'Q1' if low else 'Q3'} = {bxp_u(c, f['q1'] if low else f['q3'])}", {})
+        s = lambda v: f"{'Q1' if low else 'Q3'} = {bxp_u(c, v)}"
+        bxp_common(q, s(f["q1"] if low else f["q3"]), {BXP_O + "23": {s(f["q3"] if low else f["q1"]), s(f["med"])}})  # the other edge or the median
     elif u == "read-iqr":
         f, name = bxp_chosen(q)
         need(asked == f"Find the interquartile range{name}.", f"asked {asked!r}")
         s = lambda v: f"IQR = {bxp_u(c, v)}"
-        bxp_common(q, s(f["q3"] - f["q1"]), {BXP_B + "6": {s(f["max"] - f["min"])}, "SL4.3.quartiles-discrete#0": {s(f["q1"] + f["q3"])}})
+        bxp_common(q, s(f["q3"] - f["q1"]), {BXP_B + "6": {s(f["max"] - f["min"])}, "SL4.3.quartiles-discrete#0": {s(f["q1"] + f["q3"])},
+                                             BXP_O + "24": {s(f["q3"] - f["med"]), s(f["med"] - f["q1"])},  # half the box
+                                             BXP_O + "25": {s(f["q1"]), s(f["q3"])}})  # one quartile
     elif u == "read-range":
         rows = bxp_fig(q)
         bxp_plot_line(q)
@@ -32727,13 +32750,15 @@ def bxp_box_plot(q):
             top = f["out"][0]
             need(top > hi and lo <= f["min"] and f["max"] <= hi, "the cross is not the one outlier")
             wrongs[BXP_B + "7"] = {s(f["max"] - f["min"])}
+        wrongs[BXP_O + "26"] = {s(top)}  # the greatest value only
         bxp_common(q, s(top - f["min"]), wrongs)
     elif u == "read-median-iqr":
         f, name = bxp_chosen(q)
         need(asked == f"Write down the median and the interquartile range{name}.", f"asked {asked!r}")
         s = lambda a, b: f"median = {bxp_u(c, a)}, IQR = {bxp_u(c, b)}"
         iq = f["q3"] - f["q1"]
-        bxp_common(q, s(f["med"], iq), {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2, iq)}, BXP_B + "6": {s(f["med"], f["max"] - f["min"])}})
+        bxp_common(q, s(f["med"], iq), {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2, iq)}, BXP_B + "6": {s(f["med"], f["max"] - f["min"])},
+                                        BXP_O + "24": {s(f["med"], f["q3"] - f["med"])}, BXP_O + "23": {s(f["q1"], iq)}})  # half the box; Q1 read as the median
     elif u == "five-number-from-data":
         need(BXP_HALVES in L, "the quartile convention isn't stated")
         xs, fs, v = bxp_data(q)
@@ -32769,7 +32794,7 @@ def bxp_box_plot(q):
         iq, lo, hi, _ = bxp_fence(f)
         need(v[-1] > hi and v[-2] <= hi and v[0] >= lo, "one high outlier")
         right = dict(f, max=v[-2], out=[v[-1]])
-        bxp_pick(q, right, {BXP_B + "1": dict(f, max=v[-1]), BXP_B + "16": dict(f, max=hi, out=[v[-1]])})
+        bxp_pick(q, right, {BXP_B + "1": dict(f, max=v[-1]), BXP_B + "16": dict(f, max=hi, out=[v[-1]]), BXP_O + "29": dict(f, max=v[-2])})  # no cross at all
     elif u in ("count-in-section", "percent-in-section"):
         if rep == "words":
             mt = re.fullmatch(rf"For {re.escape(c[1])} (\d+) {c[0]}:", L[0])
@@ -32789,12 +32814,13 @@ def bxp_box_plot(q):
             slip = sp.Rational(n) * (b - a) / whole
             need(slip.q == 1 and slip != sp.Rational(n * k, 4), "the slip by length")
             s = lambda v: f"number = {dec_text(v)} {c[0]}"
-            bxp_common(q, s(sp.Rational(n * k, 4)), {BXP_B + "0": {s(slip)}})
+            bxp_common(q, s(sp.Rational(n * k, 4)), {BXP_B + "0": {s(slip)}, BXP_O + "27": {s(sp.Integer(25 * k))},  # the percentage
+                                                     BXP_O + "28": {s(sp.Rational(n * (4 - k), 4))}})  # the other sections
         else:
             slip = 100 * (b - a) / whole
             need(slip.q == 1 and slip != 25 * k, "the slip by length")
             s = lambda v: f"percentage = {dec_text(v)}%"
-            bxp_common(q, s(sp.Integer(25 * k)), {BXP_B + "0": {s(slip)}})
+            bxp_common(q, s(sp.Integer(25 * k)), {BXP_B + "0": {s(slip)}, BXP_O + "28": {s(sp.Integer(25 * (4 - k)))}})  # the other sections
     elif u == "value-at-share":
         f = bxp_fig(q)[0]
         bxp_plot_line(q)
@@ -32805,7 +32831,8 @@ def bxp_box_plot(q):
             below = 1 - below
         key = {sp.Rational(1, 4): "q1", sp.Rational(1, 2): "med", sp.Rational(3, 4): "q3"}[below]
         s = lambda v: f"a = {bxp_u(c, v)}"
-        wrongs = {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2)}} if key == "med" else {BXP_B + "11": {s(f["q3" if key == "q1" else "q1"])}}
+        wrongs = {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2)}, BXP_O + "22": {s((f["min"] + f["max"]) / 2)}} if key == "med" else {BXP_B + "11": {s(f["q3" if key == "q1" else "q1"])}}
+        wrongs[BXP_O + "23"] = {s(f[o]) for o in ("q1", "med", "q3") if o != key}  # another line of the box
         bxp_common(q, s(f[key]), wrongs)
     elif u == "could-be-normal":
         f = bxp_fig(q)[0]
@@ -32913,10 +32940,10 @@ def bxp_outlier(q):
         which = re.fullmatch(r"Find the minimum possible value of ([UL])\.", asked).group(1)
         s = lambda v: f"{which} = {bxp_u(c, v)}"
         if which == "U":
-            wrongs = {BXP_T + "5": {s(hi - iq)}, BXP_T + "0": {s(hi / sp.Rational(3, 2))}}
+            wrongs = {BXP_T + "5": {s(hi - iq)}, BXP_T + "0": {s(hi / sp.Rational(3, 2))}, BXP_OR + "16": {s(lmin)}}  # L given for U
             bxp_common(q, s(umin), wrongs)
         else:
-            bxp_common(q, s(lmin), {BXP_T + "5": {s(hi - 2 * iq)}})
+            bxp_common(q, s(lmin), {BXP_T + "5": {s(hi - 2 * iq)}, BXP_OR + "16": {s(umin)}})  # U given for L
     elif u == "outliers-in-data":
         need(BXP_HALVES in L and BXP_RULE in L, "the rule isn't stated")
         xs, fs, v = bxp_data(q)
@@ -32946,7 +32973,9 @@ def bxp_outlier(q):
         far = f"Remove it: {dec_text(x)} is far above the rest of the data, so it must be a recording error."
         need(x != lim, "the value is on the limit")
         bxp_common(q, remove if x > lim else keep, {BXP_D + "0": {"Remove it: every outlier must be deleted, because it fails the test."},
-                                                    BXP_D + "2": {"Keep it: an outlier is always part of the data, whatever its value."}})
+                                                    BXP_D + "2": {"Keep it: an outlier is always part of the data, whatever its value."},
+                                                    BXP_OR + "15": {keep if x > lim else far}})  # the limit not checked
+
         need({keep, remove if x > lim else far} <= {o["text"] for o in q["choices"]}, "both verdicts must be options")
     elif u in ("effect-of-removing", "which-measure-moves"):
         _, _, v = bxp_data(q)
