@@ -92,6 +92,8 @@ static func make() -> Theme:
 	t.set_stylebox("focus", "LineEdit", lf)
 	t.set_color("font_color", "LineEdit", TEXT)
 	t.set_font_size("font_size", "LineEdit", BIG)
+	# An answer box typed in notation (MathEntry, FAL-812) looks like a LineEdit.
+	t.set_type_variation("MathEntry", "LineEdit")
 	return t
 
 

@@ -205,7 +205,7 @@ func test_a_tap_works_the_keypad_and_the_slots() -> void:
 	for path in SCREENS:
 		var made: Array = await _screen(path, TABLE_VALUE)
 		var s: Control = made[1]
-		var second: LineEdit = s._slots.values()[-1]
+		var second: MathEntry = s._slots.values()[-1]
 		var key: Control = s.find_child("Key_5", true, false)
 		await _tall(s)
 		await _in_view(s, key)
