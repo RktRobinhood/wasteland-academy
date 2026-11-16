@@ -26,12 +26,15 @@ extends RefCounted
 ##              "perk": {} or {"id", "lifeline"} for the next run, "owned": cosmetic
 ##              ids, "frame" and "tint" worn ("" for none), "spent": Scrap spent,
 ##              "met": true once the store owner has said their first-visit line}
+##   here       the place on the world map the player last went into (FAL-988): an
+##              island id, "thunderdome" or "bazaar", where the map's "you are here"
+##              marker stands. A new save starts at the Bazaar
 ##
 ## When a wrong answer matches a multiple-choice distractor, the distractor's
 ## misconception ref is recorded on the cell, so lesson feedback and suggestions can
 ## use it later.
 
-const VERSION := 5
+const VERSION := 6
 const PATH := "user://save.json"
 const HISTORY := MathsEngine.HISTORY
 
@@ -40,7 +43,7 @@ static func blank() -> Dictionary:
 	return {"version": VERSION, "settings": {"exam_only": false, "reduced_motion": false}, "course": Courses.DEFAULT, "cells": {}, "probes": {}, "history": [],
 		"seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
 		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}, "dungeon": {},
-		"bazaar": blank_bazaar()}
+		"bazaar": blank_bazaar(), "here": "bazaar"}
 
 
 static func blank_bazaar() -> Dictionary:
@@ -101,6 +104,12 @@ static func call_step(v: int, data: Dictionary) -> Dictionary:
 			# only course built, so that is the course it keeps.
 			var out := data.duplicate(true)
 			out["course"] = Courses.DEFAULT
+			return out
+		5:
+			# Version 5 to 6 (FAL-988): where the player is on the world map. No save
+			# recorded it before, so every one starts at the Bazaar, as a new save does.
+			var out := data.duplicate(true)
+			out["here"] = "bazaar"
 			return out
 	return data
 

@@ -74,14 +74,15 @@ const ProfileScreen = {
 const WorldScreen = {
   // `zone` is where the island sits on the overworld art, in % of the map: the
   // centre (x, y) and the size (w, h) of its button, measured from the art
+  // (FAL-986) and trimmed so no two overlap; game/ui/map.gd has the same zones
   ISLANDS: [
-    { id: 'topic-1-algebra',   name: 'Scrap Fields',    topic: 'Numbers & Algebra',       icon: '⚙️',  art: 'scrap-fields',  zone: { x: 30, y: 18, w: 52, h: 24 } },
-    { id: 'topic-2-functions', name: 'Signal Tower',    topic: 'Functions',                icon: '📡', art: 'signal-tower',  zone: { x: 80, y: 18, w: 26, h: 26 } },
-    { id: 'topic-3-geometry',  name: 'Dry Flats',       topic: 'Geometry & Trig',         icon: '📐', art: 'dry-flats',     zone: { x: 15, y: 49, w: 28, h: 30 } },
-    { id: 'topic-4-stats',     name: 'Radio Spires',    topic: 'Stats & Probability',     icon: '📊', art: 'radio-spires',  zone: { x: 85, y: 51, w: 26, h: 26 } },
-    { id: 'topic-5-calculus',  name: 'Engine Core',     topic: 'Calculus',                icon: '⚡', art: 'engine-core',   zone: { x: 50, y: 78, w: 60, h: 24 } },
+    { id: 'topic-1-algebra',   name: 'Scrap Fields',    topic: 'Numbers & Algebra',       icon: '⚙️',  art: 'scrap-fields',  zone: { x: 21, y: 24, w: 38, h: 18 } },
+    { id: 'topic-2-functions', name: 'Signal Tower',    topic: 'Functions',                icon: '📡', art: 'signal-tower',  zone: { x: 84.5, y: 24, w: 29, h: 18 } },
+    { id: 'topic-3-geometry',  name: 'Dry Flats',       topic: 'Geometry & Trig',         icon: '📐', art: 'dry-flats',     zone: { x: 16, y: 42.5, w: 32, h: 15 } },
+    { id: 'topic-4-stats',     name: 'Radio Spires',    topic: 'Stats & Probability',     icon: '📊', art: 'radio-spires',  zone: { x: 83, y: 41.5, w: 32, h: 17 } },
+    { id: 'topic-5-calculus',  name: 'Engine Core',     topic: 'Calculus',                icon: '⚡', art: 'engine-core',   zone: { x: 50.5, y: 57.75, w: 58, h: 15.5 } },
   ],
-  THUNDERDOME_ZONE: { x: 50, y: 46, w: 38, h: 18 },
+  THUNDERDOME_ZONE: { x: 50.5, y: 40.5, w: 31, h: 12 },
   MAP_ART: 'assets/map/overworld.png',
 
   render() {
