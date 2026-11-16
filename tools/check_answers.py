@@ -25875,6 +25875,8 @@ PF_ID, PF_INT, PF_T = "SL1.6.identity-lhs-rhs#", "SL1.6.integer-proof#", "t1-alg
 PF_ASSUME, PF_VALUES, PF_NO_END = PF_ID + "0", PF_ID + "1", PF_ID + "2"
 PF_SAME, PF_EXAMPLES, PF_BRACKET = PF_T + "3", PF_INT + "1", PF_INT + "2"
 PF_MID, PF_SQ, PF_SIGN, PF_PART, PF_SPLIT, PF_TOP, PF_GAPS, PF_COEF, PF_DOTS = (PF_T + str(i) for i in range(6, 15))
+# The type's own slips for options that had no line (FAL-820).
+PF_ONE_TERM, PF_NEIGHBOURS, PF_LATER, PF_UNDIVIDED, PF_TIMES, PF_COUNT, PF_FLIPPED, PF_SUM_ONLY = (PF_T + str(i) for i in range(15, 23))
 PF_IDENTITY = ("simplify-left-side", "common-expression", "missing-line", "next-step", "valid-proof")
 PF_FACTOR = ("square-diff", "sym", "sym-mult")
 PF_N, PF_XV, PF_K = sp.Symbol("n"), sp.Symbol("x"), sp.Symbol("k")
@@ -26056,7 +26058,8 @@ def pf_options(q, label, value, slips, want, steps=(2, 14), read=pf_read, side_s
             need(not pf_same(v, value), f"the wrong option {o['text']!r} has the right value")
             if o["ref"]:
                 need(o["ref"] in slips, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
-                need(pf_same(v, slips[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives ({slips[o['ref']]})")
+                vals = slips[o["ref"]] if isinstance(slips[o["ref"]], tuple) else (slips[o["ref"]],)
+                need(any(pf_same(v, x) for x in vals), f"option {o['text']!r} is not what {o['ref']} gives ({slips[o['ref']]})")
     pf_shared(q, want, steps)
 
 
@@ -26266,7 +26269,9 @@ def pf_flawed(q, g, angle):
             need(no == first and pf_same(val, lhs), f"the right option {o['text']!r} doesn't correct line {first}")
         else:
             need(no != first or not pf_same(val, lhs), f"the wrong option {o['text']!r} is a correction of line {first}")
-            if o["ref"]:
+            if o["ref"] == PF_LATER:
+                need(no == first + 1 and pf_same(val, lhs), f"{o['text']!r} is not the line after the first slip")
+            elif o["ref"]:
                 need(o["ref"] in slips and pf_same(val, slips[o["ref"]]), f"{o['text']!r} is not what {o['ref']} gives")
     pf_shared(q, q["answer_text"])
     pf_steps(q, {nm: lhs})
@@ -26283,6 +26288,7 @@ def pf_multiple(q, g, rep, angle):
     need(pf_int_coeffs(k, n), "k has a fraction in it")
     need(q["lines"] == pf_named(g, rep, "E", left_text) + ([] if rep == "words" else ["n is an integer."]) + [f"E is a multiple of {m}: E = {m}k."], f"can't read {q['lines']}")
     slips = {r: sp.expand(v) / m for r, v in pf_slips(g, angle == "factorise").items()}
+    slips[PF_UNDIVIDED], slips[PF_TIMES] = sp.expand(e), m * sp.expand(e)
     pf_options(q, "k = ", k, slips, "k = " + pf_poly(k, n))
     pf_steps(q, {"E": e})
 
@@ -26311,7 +26317,8 @@ def check_algebraic_proof(q):
         need(pf_divides_all(s, m, n), f"{m} does not divide S for every integer")
         need(q["lines"][:len(shown)] == shown, f"can't read {q['lines']}")
         if u == "consecutive-sum":
-            pf_options(q, "S = ", s, pf_slips(g), f"S = {m}({pf_poly(s / m, n)})")
+            slips = dict(pf_slips(g), **{PF_UNDIVIDED: m * s, PF_ONE_TERM: (big * n + m * tail, m * big * n + tail)})
+            pf_options(q, "S = ", s, slips, f"S = {m}({pf_poly(s / m, n)})")
             pf_steps(q, {"S": s})
         elif u == "greatest-divisor":
             need(big > m, "the coefficient of n is the answer")
@@ -26325,6 +26332,8 @@ def check_algebraic_proof(q):
                     need(x == big and tail % big != 0, f"{x} is not the coefficient that leaves a fraction")
                 elif o["ref"] == PF_EXAMPLES:
                     need(x == s.subs(n, 1), f"{x} is not the value at n = 1")
+                elif o["ref"] == PF_COUNT:
+                    need(x == int(g["c"]), f"{x} is not the number of terms")
             pf_shared(q, label + str(m))
             pf_steps(q, {"S": s})
         else:
@@ -26346,6 +26355,10 @@ def check_algebraic_proof(q):
                     inner = pf_read(r.group(1))
                     need(pf_int_coeffs(inner, n), f"{t!r}: the bracket has a fraction")
                     need(pf_same(m * inner, s) == o["correct"], f"{t!r} is marked {o['correct']}")
+                    if o["ref"] == PF_ONE_TERM:
+                        need(pf_same(inner, (big // m) * n + tail), f"{t!r}: the bracket is not big/m·n + tail")
+                    else:
+                        need(not o["ref"], f"{t!r}: the checker can't confirm {o['ref']}")
             pf_shared(q, q["answer_text"])
             pf_steps(q, {"S": s})
     elif u == "represent-integers":
@@ -26375,14 +26388,13 @@ def pf_represent(q, g):
     need(all(holds(x, y) for x in pool for y in pool), f"the claim {claim} is false for {m}k + {r}")
     tx = lambda letter, shift=0: f"{'' if m == 1 else m}{letter}" + (pf_plus(r + shift) if r + shift else "")
     want = f"Let them be {tx(a)} and {tx(b)}, for integers {a} and {b}."
-    wrongs = {PF_SAME: f"Let them be {tx(a)} and {tx(a)}, for an integer {a}.", PF_EXAMPLES: f"Take {m + r} and {2 * m + r}, and check that the claim holds for them."}
+    wrongs = {PF_SAME: f"Let them be {tx(a)} and {tx(a)}, for an integer {a}.", PF_EXAMPLES: f"Take {m + r} and {2 * m + r}, and check that the claim holds for them.",
+              PF_NEIGHBOURS: f"Let them be {tx(a)} and {tx(a, m)}, for an integer {a}."}
     for o in q["choices"]:
-        if o["ref"]:
-            need(o["text"] == wrongs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
-        elif not o["correct"]:
-            need(o["text"] == f"Let them be {tx(a)} and {tx(a, m)}, for an integer {a}.", f"can't read {o['text']!r}")
+        if not o["correct"]:
+            need(o["ref"] in wrongs and o["text"] == wrongs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
     # Which pairs each opening reaches. Only two letters reach every pair of this kind.
-    need({o["ref"] for o in q["choices"]} == {"", PF_SAME, PF_EXAMPLES}, "the options are not the three openings")
+    need({o["ref"] for o in q["choices"]} == {"", PF_SAME, PF_EXAMPLES, PF_NEIGHBOURS}, "the options are not the four openings")
     pairs = [(x, y) for x in pool for y in pool]
     need(all((x - r) % m == 0 and (y - r) % m == 0 for x, y in pairs), "two letters miss a pair")
     need(any(x != y for x, y in pairs) and any(y - x not in (0, m) for x, y in pairs), "the one-letter openings reach every pair")
@@ -26433,7 +26445,7 @@ def pf_product(q, g, rep):
     first = f"E = {pf_poly(e, n)}, where n is an integer." if rep != "words" else f"Take an integer n. Square it, add {frac_text(a)} times n, and add {frac_text(b)}. Call the result E."
     need(q["lines"] == [first], f"can't read {q['lines']}")
     need(pf_divides_all(e, 2, n), "E is not always even")
-    pf_options(q, "E = ", e, {}, f"E = (n{pf_plus(m)})(n{pf_plus(m + 1)})")
+    pf_options(q, "E = ", e, {PF_FLIPPED: (n - m) * (n - m - 1), PF_SUM_ONLY: (n + m - 1) * (n + m + 2)}, f"E = (n{pf_plus(m)})(n{pf_plus(m + 1)})")
     need(q["answer"]["unordered"] == [["p", "q"]], "the brackets can't be typed in either order")
 
 

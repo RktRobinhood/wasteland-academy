@@ -55,7 +55,7 @@ const UNSORTED := [
 	"fn-pre-algebraic-fractions", "fn-pre-expand", "fn-pre-graph-reading",
 	"fn-pre-linear-equations", "fn-pre-linear-inequalities", "fn-pre-simultaneous",
 	"fn-pre-surds", "fn-rational-asymptotes-intercepts", "fn-rational-sketch",
-	"fn-sketch-from-features", "fn-sketch-gdc", "t1-algebraic-proof",
+	"fn-sketch-from-features", "fn-sketch-gdc",
 	"t1-arithmetic-sequence", "t1-compound-interest", "t1-depreciation",
 	"t1-solve-exponential", "t3-distance-midpoint", "t3-identity-values",
 	"t3-trig-model-parameters", "t4-discrete-distribution", "t4-expected-occurrences",
