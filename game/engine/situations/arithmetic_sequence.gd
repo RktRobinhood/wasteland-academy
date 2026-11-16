@@ -20,6 +20,11 @@ extends RefCounted
 ##              and a round threshold: Y for the first term over it (need.n "term"), X
 ##              for the first sum over it ("sum"). Paper 1 draws exactly as before.
 ##
+##   sigma      t1-ext-sigma-arithmetic (FAL-779): the sequence as Σ (r = a to b) (pr + q), with
+##              d = p and u₁ = pa + q (see _draw_sigma). "count", "one" (a = 1), "shifted"
+##              (a > 1), "write" (a = 1, shown as a series) or "upper" (Σ (r = 1 to k) = T, k
+##              found). It adds p, q, lower and upper, and for "upper" the other root.
+##
 ## The clean limits below are the numbers behind the catalogue's `clean` text. The
 ## SymPy checker (tools/check_answers.py) holds its own copy and fails on any breach.
 
@@ -42,12 +47,21 @@ const P2 := {
 	"km": {"u1": [200, 800, 10], "d": [10, 50, 5], "step_term": 100, "step_sum": 500},
 }
 const EDGE := 0.15
+## Σ limits: the lower limit of a shifted sum or a count, and how far past it the upper one is.
+const SIGMA_LOWER := {"count": [2, 20], "shifted": [2, 12]}
+const SIGMA_SPAN := {"count": [5, 60], "shifted": [5, 30]}
+const SIGMA_N := [8, 40]
+const SIGMA_K := [5, 30]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	var paper: int = need.get("paper", 0)
 	for i in TRIES:
-		var s := _draw_p2(rng, need) if paper == 2 else _draw(rng, need)
+		var s: Dictionary
+		if need.has("sigma"):
+			s = _draw_sigma(rng, need.sigma)
+		else:
+			s = _draw_p2(rng, need) if paper == 2 else _draw(rng, need)
 		if not s.is_empty():
 			if paper > 0:
 				s.paper = paper
@@ -104,6 +118,48 @@ static func _draw(rng: Seeded, need: Dictionary) -> Dictionary:
 		if other >= 0:
 			return {}
 		s.other = Q.new(other)
+	return s
+
+
+## Σ (r = a to b) (pr + q): p mostly positive, q never 0, and u₁ = pa + q, d = p, n = b − a + 1,
+## uₙ = pb + q and Sₙ as for any arithmetic sequence. The skill map's examples are left out. For
+## "upper", p > 0 divides 2q, so pk² + (p + 2q)k − 2T = 0 has a negative whole second root.
+static func _draw_sigma(rng: Seeded, kind: String) -> Dictionary:
+	var p := rng.int_in(1, 9) if kind == "upper" or rng.chance(0.85) else -rng.int_in(1, 5)
+	var q := ExtensionViews.nonzero(rng, -9, 12)
+	var a := 1
+	var b: int
+	if kind in SIGMA_LOWER:
+		a = rng.int_in(SIGMA_LOWER[kind][0], SIGMA_LOWER[kind][1])
+		b = a + rng.int_in(SIGMA_SPAN[kind][0], SIGMA_SPAN[kind][1])
+	elif kind == "upper":
+		b = rng.int_in(SIGMA_K[0], SIGMA_K[1])
+	else:
+		b = rng.int_in(SIGMA_N[0], SIGMA_N[1])
+	var s := {"u1": Q.new(p * a + q), "d": Q.new(p), "n": Q.new(b - a + 1), "p": Q.new(p), "q": Q.new(q),
+		"lower": Q.new(a), "upper": Q.new(b), "up": null, "uq": null, "other": null, "sigma": kind}
+	s.un = Q.new(p * b + q)
+	s.sn = sum(s, b - a + 1)
+	# A count needs no sum, so only its terms are held to the limits.
+	if absi(s.un.n) > UN_MAX or absi(s.u1.n) > UN_MAX or s.u1.is_zero() or (kind != "count" and (absi(s.sn.n) > SN_MAX or s.sn.is_zero())):
+		return {}
+	match kind:
+		"one":
+			if [p, q, b] == [3, 2, 20]:
+				return {}
+		"count":
+			if [a, b] == [5, 30]:
+				return {}
+		"write":
+			if [p, q, b] == [3, 1, 20]:
+				return {}
+		"upper":
+			if (2 * q) % p != 0 or s.sn.sign() <= 0 or [p, q, s.sn.n] == [2, -1, 225]:
+				return {}
+			var other: int = -(p + 2 * q) / p - b
+			if other >= 0:
+				return {}
+			s.other = Q.new(other)
 	return s
 
 

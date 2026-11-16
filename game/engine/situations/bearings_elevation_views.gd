@@ -4,6 +4,13 @@ extends ExtensionViews
 ## t3-bearings-elevation (FAL-726). Every question is Paper 2: measures are to 3 s.f. with the
 ## rounding trap, and a bearing or angle that comes out whole is exact.
 ##
+## t3-ext-two-observations (FAL-779) is built here too: two observers A and B on level ground a known
+## distance apart see the top T of a tall thing at two angles of elevation, on one side of its foot
+## F or on either side, always with the side view drawn to scale. It asks angle ATB, BT, the height
+## and BF, by the sine rule in ABT and then the right triangle BFT, by two tan equations, or by the
+## GDC's intersection of the two height lines; with 30° and 60° the height is exact, on Paper 1.
+## It builds method-pick; the catalogue's multipart and order-steps aren't built in the engine.
+##
 ## Representations: "words" (a story) and "diagram" (the same story with a sketch from PlotView's
 ## `sketch`: real coordinates, a north line at each point with a bearing, or a side view).
 ## Worked figures are five significant figures, each worked from the figures shown before it.
@@ -35,6 +42,22 @@ const BE_ONE_SPEED := BE_T3 + "20"
 const BE_OTHER_SPEED := BE_T3 + "21"
 const BE_ONE_TRIANGLE := BE_T3 + "22"
 const BE_NO_HALF := BE_T3 + "23"
+## t3-ext-two-observations (FAL-779): SL3.3.two-observations' slips and the type's own.
+const R_TO_AB := "SL3.3.two-observations#0"
+const R_TO_SUM := "SL3.3.two-observations#1"
+const R_TO_RIGHT := "SL3.3.two-observations#2"
+const TO := "t3-ext-two-observations#"
+const TO_INSIDE := TO + "3"
+const TO_SLANT := TO + "4"
+const TO_COS := TO + "5"
+const TO_FAR := TO + "6"
+const TO_ONE_SIDE := TO + "7"
+## Methods that don't find a height from two observations, for method-pick.
+const TO_PICK_WRONGS := [
+	{"name": "Pythagoras in triangle ABT", "why": "triangle ABT has no right angle, and only one of its sides is known"},
+	{"name": "One tan equation, with AB as the distance to the foot", "why": "AB is the distance between the two observers, not the distance from either one to the foot"},
+	{"name": "Add the two angles of elevation and use tan once", "why": "the two angles are at different points, so their sum is no angle of a triangle in the figure"},
+]
 
 ## Who travels, and what stands tall.
 const WHO := ["A caravan", "A scout drone", "A courier", "A salvage truck", "A patrol", "A water cart"]
@@ -49,13 +72,23 @@ const UNKNOWNS := ["back-bearing", "angle-from-bearing", "two-leg-distance", "tw
 
 func needs() -> Dictionary:
 	var out := {}
-	for u in UNKNOWNS:
+	for u in UNKNOWNS + BearingsSituation.TWO_OBS:
 		out[u] = {"ask": u}
 	return out
 
 
-## Every cell is Paper 2: every bank part of this type is.
+func extra() -> Dictionary:
+	var out := {}
+	for u in BearingsSituation.TWO_OBS:
+		out[u] = ["method-pick"]
+	return out
+
+
+## Every cell is Paper 2: every bank part of this type is. t3-ext-two-observations' exact
+## height (30° and 60°) is Paper 1.
 func papers(unknown: String, _rep: String, _angle: String) -> Array:
+	if unknown == "height-exact":
+		return [1]
 	return [2] if has(unknown) else []
 
 
@@ -727,4 +760,196 @@ func u_rule_to_use(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		else:
 			out.wrongs.append(wrong(values, ref))
 	out.methods = {"classify-given": method([why, "Use this: " + Answer.text(ans) + "."], ans.values)}
+	return out
+
+
+# ── Two observations (t3-ext-two-observations, FAL-779) ─────
+
+## BT, the height TF and BF for two observers on one side of the foot: the sine rule in ABT, whose
+## angle at T is β − α, then the right triangle BFT.
+static func two_sides(s: Dictionary) -> Dictionary:
+	var d: float = s.d.to_float()
+	var al := rad(s.al)
+	var be := rad(s.be)
+	var bt := d * sin(al) / sin(be - al)
+	return {"BT": bt, "h": bt * sin(be), "BF": bt * cos(be)}
+
+
+## The same with F between A and B: the angle at T is 180° − α − β.
+static func either_sides(s: Dictionary) -> Dictionary:
+	var d: float = s.d.to_float()
+	var al := rad(s.al)
+	var be := rad(s.be)
+	var bt := d * sin(al) / sin(al + be)
+	return {"BT": bt, "h": bt * sin(be), "BF": bt * cos(be)}
+
+
+## "35°"
+static func dg(v: Variant) -> String:
+	return "%d°" % int(v)
+
+
+## The side view, to scale: A, B and F on the ground and T above F, with each angle of
+## elevation marked. ask is the length or angle marked ?, if any.
+static func two_sketch(s: Dictionary, either: bool, ask: String) -> Dictionary:
+	var d: float = s.d.to_float()
+	var t := either_sides(s) if either else two_sides(s)
+	var f: float = d - t.BF if either else d + t.BF
+	var pts := {"A": [0.0, 0.0], "B": [d, 0.0], "F": [f, 0.0], "T": [f, t.h]}
+	var lines: Array = [side("A", "B", D(s.d) + " m"), side("F", "T", "?" if ask == "TF" else ""), side("A", "T", "", true), side("B", "T", "?" if ask == "BT" else "", true)]
+	if not either:
+		lines.insert(1, side("B", "F", "?" if ask == "BF" else ""))
+	var arcs: Array = [arc("A", "F", "T", dg(s.al)), arc("B", "F", "T", dg(s.be))]
+	if ask == "ATB":
+		arcs.append(arc("T", "A", "B", "?"))
+	return sketch(pts, lines, arcs, [], {"right": ["F"]})
+
+
+static func two_lines(s: Dictionary) -> Array:
+	return ["A and B are points on level ground, in a straight line with the foot F of a vertical %s, and B is between A and F." % tall(s),
+		"AB = %s m. The angle of elevation of the top T is %s from A and %s from B." % [D(s.d), dg(s.al), dg(s.be)]]
+
+
+## The angle chase and the sine rule, as the sine-rule-then-right working writes them.
+static func two_chase(s: Dictionary) -> String:
+	return "Angle ABT = 180° − %s = %s, so angle ATB = 180° − %s − %s = %s." % [dg(s.be), dg(180 - s.be), dg(s.al), dg(180 - s.be), dg(s.be - s.al)]
+
+
+static func two_sine(s: Dictionary, bt: String) -> String:
+	return "Sine rule in triangle ABT: BT/sin %s = %s/sin %s, so BT = %s × sin %s ÷ sin %s = %s." % [dg(s.al), D(s.d), dg(s.be - s.al), D(s.d), dg(s.al), dg(s.be - s.al), bt]
+
+
+## With x = BF: x tan β = (x + d) tan α, so x = d tan α ÷ (tan β − tan α).
+static func two_tan(s: Dictionary, bf: String) -> Array:
+	return ["Let BF = x m. In triangle BFT, TF = x tan %s; in triangle AFT, TF = (x + %s) tan %s." % [dg(s.be), D(s.d), dg(s.al)],
+		"So x tan %s = (x + %s) tan %s, and x = %s tan %s ÷ (tan %s − tan %s) = %s." % [dg(s.be), D(s.d), dg(s.al), D(s.d), dg(s.al), dg(s.be), dg(s.al), bf]]
+
+
+static func two_gdc(s: Dictionary, bf: String, h: String) -> Array:
+	return ["With x = BF, graph y = x tan %s and y = (x + %s) tan %s on the GDC." % [dg(s.be), D(s.d), dg(s.al)],
+		"They meet at x = %s, y = %s: x is BF and y is the height TF." % [bf, h]]
+
+
+func u_angle_at_top(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var c: int = s.be - s.al
+	var ans := DifferentiationViews.form("angle ATB = %d°" % c, ["angle ATB = ", {"slot": "v"}, "°"], {"v": Q.new(c)})
+	ans.head = "angle ATB = "
+	var out := frame("diagram", two_lines(s), "Find angle ATB.", ans, two_sketch(s, false, "ATB"))
+	out.wrongs = [whole_wrong(ans, s.al + s.be, R_TO_SUM, false), whole_wrong(ans, 180 - s.al - s.be, TO_INSIDE, false)]
+	out.fillers = [whole_wrong(ans, s.be, "", false).values, whole_wrong(ans, 180 - s.be, "", false).values, whole_wrong(ans, c + 10, "", false).values]
+	out.methods = {"sine-rule-then-right": method([two_chase(s), say(ans)], ans.values)}
+	out.pick_wrongs = TO_PICK_WRONGS
+	return out
+
+
+func u_slant_distance(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var t := two_sides(s)
+	var d: float = s.d.to_float()
+	var al := rad(s.al)
+	var be := rad(s.be)
+	var ans := ans_of("BT = ", t.BT, " m")
+	var out := frame("diagram", two_lines(s), sf3("Find the distance BT."), ans, two_sketch(s, false, "BT"))
+	out.wrongs = be_mix(bad(d * sin(al) / sin(al + be), R_TO_SUM) + bad(d * tan(al), R_TO_RIGHT), rng)
+	out.fillers = gens([t.h, t.BT + 2.0, t.BT * 1.5])
+	var bf := W(t.BF)
+	out.methods = {
+		"sine-rule-then-right": method([two_chase(s), two_sine(s, W(t.BT)), say(ans)], ans.values),
+		"simultaneous-tan": method(two_tan(s, bf) + ["Triangle BFT has a right angle at F: BT = BF ÷ cos %s = %s ÷ cos %s = %s." % [dg(s.be), bf, dg(s.be), W(back(bf) / cos(be))], say(ans)], ans.values),
+	}
+	out.pick_wrongs = TO_PICK_WRONGS
+	return out
+
+
+func u_height_two_angles(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var t := two_sides(s)
+	var d: float = s.d.to_float()
+	var al := rad(s.al)
+	var be := rad(s.be)
+	var ans := ans_of("height = ", t.h, " m")
+	var out := frame("diagram", two_lines(s), sf3("Find the height of the %s." % tall(s)), ans, two_sketch(s, false, "TF"))
+	var sum_bt := d * sin(al) / sin(al + be)
+	out.wrongs = be_mix(bad(d * tan(be), R_TO_AB) + bad(sum_bt * sin(be), R_TO_SUM) + bad(t.BT, TO_SLANT) + bad(t.BT * cos(be), TO_COS), rng)
+	out.fillers = gens([t.h + 2.0, t.h * 1.5, t.h * 0.75])
+	var bt := W(t.BT)
+	var bf := W(t.BF)
+	out.methods = {
+		"sine-rule-then-right": method([two_chase(s), two_sine(s, bt),
+			"Triangle BFT has a right angle at F: TF = BT sin %s = %s × sin %s = %s." % [dg(s.be), bt, dg(s.be), W(back(bt) * sin(be))], say(ans)], ans.values),
+		"simultaneous-tan": method(two_tan(s, bf) + ["TF = x tan %s = %s × tan %s = %s." % [dg(s.be), bf, dg(s.be), W(back(bf) * tan(be))], say(ans)], ans.values),
+		"gdc-intersection": method(two_gdc(s, bf, W(t.h)) + [say(ans)], ans.values),
+	}
+	out.pick_wrongs = TO_PICK_WRONGS
+	return out
+
+
+func u_ground_distance(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var t := two_sides(s)
+	var d: float = s.d.to_float()
+	var be := rad(s.be)
+	var ans := ans_of("BF = ", t.BF, " m")
+	var out := frame("diagram", two_lines(s), sf3("Find the distance BF."), ans, two_sketch(s, false, "BF"))
+	out.wrongs = be_mix(bad(d, R_TO_AB) + bad(d + t.BF, TO_FAR), rng)
+	out.fillers = gens([t.BF + 2.0, t.BF * 1.5, t.h])
+	var bt := W(t.BT)
+	var bf := W(t.BF)
+	out.methods = {
+		"sine-rule-then-right": method([two_chase(s), two_sine(s, bt),
+			"Triangle BFT has a right angle at F: BF = BT cos %s = %s × cos %s = %s." % [dg(s.be), bt, dg(s.be), W(back(bt) * cos(be))], say(ans)], ans.values),
+		"simultaneous-tan": method(two_tan(s, bf) + [say(ans)], ans.values),
+		"gdc-intersection": method(two_gdc(s, bf, W(t.h)) + [say(ans)], ans.values),
+	}
+	out.pick_wrongs = TO_PICK_WRONGS
+	return out
+
+
+func u_height_exact(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var d: int = int(s.d.to_float())
+	var e := [Q.new(d, 2), 3]
+	var ans := TriangleViews.exact_answer("height = ", " m", e)
+	var out := frame("diagram", two_lines(s), "Find the exact height of the %s." % tall(s), ans, two_sketch(s, false, "TF"))
+	out.wrongs = []
+	out.fillers = []
+	TriangleViews.ex_wrong(out, [Q.new(d), 3], R_TO_AB)
+	TriangleViews.ex_wrong(out, [Q.new(d, 2), 1], TO_COS)
+	TriangleViews.ex_wrong(out, [Q.new(d), 1], TO_SLANT)
+	TriangleViews.ex_fillers(out, [[Q.new(d, 2).add(1), 3], [Q.new(d).add(1), 3], [Q.new(d, 2).add(2), 3]])
+	var h := TriangleSituation.ex_text(e)
+	out.methods = {
+		"sine-rule-then-right": method(["Angle ABT = 180° − 60° = 120°, so angle ATB = 180° − 30° − 120° = 30°.",
+			"Angle BAT = angle ATB = 30°, so triangle ABT is isosceles and BT = AB = %d m." % d,
+			"Triangle BFT has a right angle at F: TF = BT sin 60° = %d × √3/2 = %s." % [d, h], say(ans)], ans.values),
+		"simultaneous-tan": method(["Let BF = x m. tan 60° = √3 and tan 30° = 1/√3, so TF = √3x and TF = (x + %d)/√3." % d,
+			"So 3x = x + %d, x = %s, and TF = √3 × %s = %s." % [d, N(Q.new(d, 2)), N(Q.new(d, 2)), h], say(ans)], ans.values),
+	}
+	out.pick_wrongs = TO_PICK_WRONGS
+	return out
+
+
+func u_height_either_side(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var t := either_sides(s)
+	var d: float = s.d.to_float()
+	var al := rad(s.al)
+	var be := rad(s.be)
+	var ans := ans_of("height = ", t.h, " m")
+	var lines := ["A and B are points on level ground, %s m apart, and the foot F of a vertical %s is on the line between them." % [D(s.d), tall(s)],
+		"The angle of elevation of the top T is %s from A and %s from B." % [dg(s.al), dg(s.be)]]
+	var out := frame("diagram", lines, sf3("Find the height of the %s." % tall(s)), ans, two_sketch(s, true, "TF"))
+	var lo := minf(al, be)
+	var hi := maxf(al, be)
+	out.wrongs = be_mix(bad(d * sin(lo) / sin(hi - lo) * sin(hi), TO_ONE_SIDE) + bad(d * tan(be), R_TO_AB), rng)
+	out.fillers = gens([t.h + 2.0, t.h * 1.5, t.h * 0.5])
+	var top: int = 180 - s.al - s.be
+	var bt := W(t.BT)
+	var bf := W(t.BF)
+	out.methods = {
+		"sine-rule-then-right": method(["Angle ATB = 180° − %s − %s = %s." % [dg(s.al), dg(s.be), dg(top)],
+			"Sine rule in triangle ABT: BT/sin %s = %s/sin %s, so BT = %s × sin %s ÷ sin %s = %s." % [dg(s.al), D(s.d), dg(top), D(s.d), dg(s.al), dg(top), bt],
+			"Triangle BFT has a right angle at F: TF = BT sin %s = %s × sin %s = %s." % [dg(s.be), bt, dg(s.be), W(back(bt) * sin(be))], say(ans)], ans.values),
+		"simultaneous-tan": method(["Let BF = x m, so AF = (%s − x) m. TF = x tan %s and TF = (%s − x) tan %s." % [D(s.d), dg(s.be), D(s.d), dg(s.al)],
+			"So x tan %s = (%s − x) tan %s, and x = %s tan %s ÷ (tan %s + tan %s) = %s." % [dg(s.be), D(s.d), dg(s.al), D(s.d), dg(s.al), dg(s.al), dg(s.be), bf],
+			"TF = x tan %s = %s × tan %s = %s." % [dg(s.be), bf, dg(s.be), W(back(bf) * tan(be))], say(ans)], ans.values),
+		"gdc-intersection": method(["With x = BF, graph y = x tan %s and y = (%s − x) tan %s on the GDC." % [dg(s.be), D(s.d), dg(s.al)],
+			"They meet at x = %s, y = %s: x is BF and y is the height TF." % [bf, W(t.h)], say(ans)], ans.values),
+	}
+	out.pick_wrongs = TO_PICK_WRONGS
 	return out
