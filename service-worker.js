@@ -86,10 +86,12 @@ self.addEventListener('install', event => {
 });
 
 // ── Activate — delete old caches ──────────────────────────────
+// Only this game's own (wasteland-academy-v<n>): with the takeover switch on, the
+// Godot build at the root keeps its offline copy in the same origin (_takeover/).
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => /^wasteland-academy-v\d+$/.test(k) && k !== CACHE_NAME).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });

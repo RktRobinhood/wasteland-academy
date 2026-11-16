@@ -116,6 +116,7 @@ Or set it in Settings > Secrets and variables > Actions > Variables, then run th
 - `/classic/` shows the HTML game, with "NEW VERSION ▸" on the world screen.
 - `/next/#functions/quadratics` opens the Quadratics region, at `/#functions/quadratics`.
 - In a browser that played the old game, `/` shows Godot. The page reloads once.
+- After one visit, `/` plays offline.
 
 **Turn it off:** set the variable to `off` (or delete it) and run `pages` again. The
 site goes back to the HTML game at `/` and Godot at `/next/`. Links to `/classic/` stop
@@ -126,9 +127,13 @@ What the switch changes, in `scripts/assemble-site.sh`:
 - The HTML game's files move into `classic/` as they are. Every path in it is relative,
   so its routes work there unchanged, and its service worker registers with scope
   `classic/`.
-- The root `service-worker.js` becomes `_takeover/service-worker.js`. A browser that
-  ran the old game at `/` fetches it as that worker's update. It deletes the old game's
-  cached files (keeping `classic/`'s), unregisters, and reloads the page.
+- The root `service-worker.js` becomes `_takeover/service-worker.js`, and Godot's
+  `index.html` registers it (`_takeover/register-worker.html`). It keeps a copy of the
+  export in the cache `wasteland-academy-godot`, so Godot plays offline after one visit.
+  Each file is network-first and revalidated, so a player who is online always gets
+  the latest deploy. A browser that ran the old game at `/` fetches the worker as that
+  game's worker's update: it deletes the old game's cached files (keeping
+  `classic/`'s) and reloads the page.
 - `next/index.html` becomes `_takeover/next.html`, the redirect.
 - `classic/manifest.json` gets the app id `wasteland-academy-classic`. Without it, a
   student who opens `/classic/` inside the app they installed from the old `/` would
@@ -142,9 +147,11 @@ Jekyll skips `_takeover/`, so with the switch off none of it is published.
 **Saves.** Both games are on one origin, and neither reads or deletes the other's:
 
 - HTML game: `localStorage` keys `wa_save`, `wa_save_unreadable_<time>` and
-  `wa_ios_install_tip_seen`, and the Cache Storage cache `wasteland-academy-v3`.
+  `wa_ios_install_tip_seen`, and the Cache Storage cache `wasteland-academy-v3`. Its
+  worker deletes only its own old caches (`wasteland-academy-v<n>`).
 - Godot: `user://save.json` and `user://settings.cfg`, in the IndexedDB database
-  `/userfs`. It doesn't use `localStorage`.
+  `/userfs`. It doesn't use `localStorage`. Its offline copy is the Cache Storage
+  cache `wasteland-academy-godot`.
 
 Storage belongs to the origin, not the path, so a Godot save made at `/next/` is there
 at `/`, and an HTML game save made at `/` is there at `/classic/`.

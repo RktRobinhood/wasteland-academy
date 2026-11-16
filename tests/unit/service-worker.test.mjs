@@ -51,3 +51,20 @@ test('the HTML game is still served by the worker, including look-alike paths', 
 test('other hosts are still left to the network', () => {
   assert.equal(worker()('https://example.com/next/index.wasm'), false);
 });
+
+test('activation deletes only the HTML game\'s old caches, not the Godot build\'s', async () => {
+  const listeners = {};
+  const keys = ['wasteland-academy-v1', 'wasteland-academy-v2', 'wasteland-academy-v3', 'wasteland-academy-godot', 'someone-else'];
+  const deleted = [];
+  const ctx = vm.createContext({
+    self: { location: new URL('classic/service-worker.js', SITE), addEventListener: (type, fn) => { listeners[type] = fn; },
+      clients: { claim: async () => {} } },
+    URL, Request: class {}, Response: class {},
+    caches: { keys: async () => keys, delete: async k => deleted.push(k) },
+  });
+  vm.runInContext(fs.readFileSync(path.join(REPO, 'service-worker.js'), 'utf8'), ctx);
+  let done;
+  listeners.activate({ waitUntil: p => { done = p; } });
+  await done;
+  assert.deepEqual(deleted, ['wasteland-academy-v1', 'wasteland-academy-v2']);
+});
