@@ -8,5 +8,7 @@ path, r = sys.argv[1], float(sys.argv[2])
 sheet = Image.open(path).convert("RGBA")
 for fr in json.load(open(path[:-4] + ".json"))["frames"].values():
     f = fr["frame"]; box = (f["x"], f["y"], f["x"] + f["w"], f["y"] + f["h"])
-    sheet.paste(sheet.crop(box).filter(ImageFilter.GaussianBlur(r)), box)
+    # Blur premultiplied ("RGBa"): blurring straight RGBA pulls the black of transparent
+    # pixels into the edges and leaves a dark ring round every puff.
+    sheet.paste(sheet.crop(box).convert("RGBa").filter(ImageFilter.GaussianBlur(r)).convert("RGBA"), box)
 sheet.save(path, optimize=True)
