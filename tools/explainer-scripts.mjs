@@ -304,7 +304,7 @@ function checkTurn(turn, w, script, ctx, err, fix) {
         err(`${w}.cell`, `method ${cell.angle} does not suit ${u.id}`);
     }
     if (cell.format != null && !['value', 'mcq'].includes(cell.format)) err(`${w}.cell`, `format ${cell.format} is value or mcq`);
-    // The engine serves one part, asked with one command term; tests/…/test_explainer_turns.gd
+    // The engine serves one part, asked with one command term; game/tests/test_explainer_turns.gd
     // makes the cell's questions and checks the term.
     if (typeof turn.command !== 'string' || !/^[A-Z]/.test(turn.command)) err(w, 'an engine turn names the command term its lines assume (command)');
     if (parts.length > 1) err(`${w}.fallback`, `the engine serves one part, but the fallback has ${parts.length}; serve it from the fallback, or make it one part`);
