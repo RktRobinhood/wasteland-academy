@@ -1,0 +1,3 @@
+{"command":"comp.new","params":{"name":"dust","width":420,"height":200,"frameRate":12,"duration":8,"background":"#000000"}}
+{"command":"layer.newSolid","params":{"name":"emitter","color":"#000000"}}
+{"command":"effect.apply","params":{"effect":"Particle Emitter 2D"}}

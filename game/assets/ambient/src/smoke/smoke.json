@@ -1,0 +1,1479 @@
+[
+{
+"cmd": "file.new",
+"params": {
+"width": 150,
+"height": 160,
+"fps": 12
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 13,
+"y": 111,
+"w": 14,
+"h": 14,
+"fill": "#7A7068",
+"stroke": "#7A706800",
+"object": true
+}
+},
+{
+"cmd": "timeline.insert_frame",
+"params": {
+"frame": 23
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 20.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 118.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 100.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 100.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 75.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 43.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 270.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 270.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 32.1,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 106.8,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 125.5,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 125.5,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 41.0,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 95.5,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 151.0,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 151.0,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 7
+}
+},
+{
+"cmd": "layer.new",
+"params": {}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 13,
+"y": 111,
+"w": 14,
+"h": 14,
+"fill": "#7A7068",
+"stroke": "#7A706800",
+"object": true
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 12
+}
+},
+{
+"cmd": "timeline.insert_blank_keyframe",
+"params": {
+"frame": 12
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 13,
+"y": 111,
+"w": 14,
+"h": 14,
+"fill": "#7A7068",
+"stroke": "#7A706800",
+"object": true
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 51.6,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 80.5,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 185.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 185.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 64.3,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 75.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 43.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 270.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 270.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 11
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 20.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 118.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 100.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 100.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 51.6,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 80.5,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 185.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 185.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 64.3,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 32.1,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 106.8,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 125.5,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 125.5,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 41.0,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 95.5,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 151.0,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 151.0,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 19
+}
+},
+{
+"cmd": "layer.new",
+"params": {}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 49,
+"y": 129,
+"w": 14,
+"h": 14,
+"fill": "#7A7068",
+"stroke": "#7A706800",
+"object": true
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 56.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 136.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 100.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 100.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 111.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 61.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 270.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 270.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 68.1,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 124.8,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 125.5,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 125.5,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 77.0,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 113.5,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 151.0,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 151.0,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 7
+}
+},
+{
+"cmd": "layer.new",
+"params": {}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 49,
+"y": 129,
+"w": 14,
+"h": 14,
+"fill": "#7A7068",
+"stroke": "#7A706800",
+"object": true
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 12
+}
+},
+{
+"cmd": "timeline.insert_blank_keyframe",
+"params": {
+"frame": 12
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 49,
+"y": 129,
+"w": 14,
+"h": 14,
+"fill": "#7A7068",
+"stroke": "#7A706800",
+"object": true
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 87.6,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 98.5,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 185.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 185.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 64.3,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 111.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 61.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 270.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 270.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 11
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 56.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 136.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 100.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 100.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 87.6,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 98.5,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 185.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 185.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 64.3,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 68.1,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 124.8,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 125.5,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 125.5,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 77.0,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 113.5,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 151.0,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 151.0,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 19
+}
+},
+{
+"cmd": "layer.new",
+"params": {}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 76,
+"y": 140,
+"w": 14,
+"h": 14,
+"fill": "#7A7068",
+"stroke": "#7A706800",
+"object": true
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 83.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 147.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 100.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 100.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 138.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 72.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 270.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 270.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 95.1,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 135.8,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 125.5,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 125.5,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 3
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 104.0,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 124.5,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 151.0,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 151.0,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 7
+}
+},
+{
+"cmd": "layer.new",
+"params": {}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 76,
+"y": 140,
+"w": 14,
+"h": 14,
+"fill": "#7A7068",
+"stroke": "#7A706800",
+"object": true
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 12
+}
+},
+{
+"cmd": "timeline.insert_blank_keyframe",
+"params": {
+"frame": 12
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 76,
+"y": 140,
+"w": 14,
+"h": 14,
+"fill": "#7A7068",
+"stroke": "#7A706800",
+"object": true
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 114.6,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 109.5,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 185.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 185.0,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 64.3,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 138.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 72.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 270.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 270.0,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 11
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 83.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 147.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 100.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 100.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0.0,
+"frame": 12
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 114.6,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 109.5,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 185.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 185.0,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 64.3,
+"frame": 23
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 95.1,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 135.8,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 125.5,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 125.5,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 15
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "x",
+"value": 104.0,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "y",
+"value": 124.5,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 151.0,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 151.0,
+"frame": 19
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 90,
+"frame": 19
+}
+},
+{
+"cmd": "file.export_sprite_sheet",
+"params": {
+"path": "../../engine-smoke-sheet.png",
+"columns": 6,
+"background": false,
+"confirm": true
+}
+}
+]

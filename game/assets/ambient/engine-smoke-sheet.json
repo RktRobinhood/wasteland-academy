@@ -1,0 +1,520 @@
+{
+  "frames": {
+    "engine-smoke-sheet_0001": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0002": {
+      "duration": 90,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 150,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0003": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 300,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0004": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 450,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0005": {
+      "duration": 90,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 600,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0006": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 750,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0007": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0008": {
+      "duration": 90,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 150,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0009": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 300,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0010": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 450,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0011": {
+      "duration": 90,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 600,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0012": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 750,
+        "y": 160
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0013": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0014": {
+      "duration": 90,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 150,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0015": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 300,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0016": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 450,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0017": {
+      "duration": 90,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 600,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0018": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 750,
+        "y": 320
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0019": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0020": {
+      "duration": 90,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 150,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0021": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 300,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0022": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 450,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0023": {
+      "duration": 90,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 600,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "engine-smoke-sheet_0024": {
+      "duration": 80,
+      "frame": {
+        "h": 160,
+        "w": 150,
+        "x": 750,
+        "y": 480
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 160,
+        "w": 150
+      },
+      "spriteSourceSize": {
+        "h": 160,
+        "w": 150,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    }
+  },
+  "meta": {
+    "app": "AniCraft",
+    "format": "RGBA8888",
+    "frameRate": 12.0,
+    "image": "engine-smoke-sheet.png",
+    "scale": "1",
+    "size": {
+      "h": 640,
+      "w": 900
+    },
+    "version": "0.2.1"
+  }
+}

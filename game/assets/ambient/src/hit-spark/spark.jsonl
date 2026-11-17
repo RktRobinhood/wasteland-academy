@@ -1,0 +1,5 @@
+{"command":"comp.new","params":{"name":"spark","width":256,"height":256,"frameRate":12,"duration":1,"background":"#000000"}}
+{"command":"layer.newSolid","params":{"name":"flash","color":"#000000"}}
+{"command":"effect.apply","params":{"effect":"Particle Emitter 2D"}}
+{"command":"layer.newSolid","params":{"name":"streaks","color":"#000000"}}
+{"command":"effect.apply","params":{"effect":"Particle Emitter 2D"}}
