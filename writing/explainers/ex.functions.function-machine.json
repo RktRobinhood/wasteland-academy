@@ -1,7 +1,7 @@
 {
   "id": "ex.functions.function-machine",
-  "format": 1,
-  "status": "approved",
+  "format": 2,
+  "status": "draft",
   "title": "One In, One Out",
   "idea": "A function takes each input to exactly one output, and f(3) means the output when the input is 3.",
   "zone": "functions",
@@ -50,7 +50,8 @@
     "No second-method section: the map lists no methods. Of the skills' methods, direct substitution is the lesson, solve-for-input is example 3(c), and reading a graph or table and the GDC are left to later explainers (ex.functions.how-high-and-where).",
     "The first misconception (f(x) as f × x) is the spot-the-slip, written as f(2) + f(3) = f(5). The −x² misconception is example 2's fill. 'Output when the input is asked for' is example 3(c)'s why question, and 'P(0) as zero' is example 3(a).",
     "The terms are input and output (a pair, defined together), function and the notation f(x). The picture of a machine with an input and an output is the relay in the cold open.",
-    "The turns use fn-evaluate-function (situation basic-function). Its live numbers come from the engine, and the fallbacks are fixed and worked below."
+    "The turns use fn-evaluate-function (situation basic-function). Its live numbers come from the engine, and the fallbacks are fixed and worked below.",
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes."
   ],
   "sections": [
     {
@@ -58,14 +59,17 @@
       "kind": "cold-open",
       "beats": [
         {
+          "line": "fja93x",
           "speaker": "rook-dead-air",
           "say": "Signal Tower, this is Rook. At the top of the mast there's a relay, and it does the same thing to every signal it gets."
         },
         {
+          "line": "lzepas",
           "speaker": "rook-dead-air",
           "say": "It squares the signal, takes away four, and sends what's left out to the settlements."
         },
         {
+          "line": "jey6g7",
           "speaker": "rook-dead-air",
           "say": "A runner's brought up minus three. What goes out? Over.",
           "pause": 0.5,
@@ -87,6 +91,7 @@
           "use": "rook-dead-air.tin-can-tess.watched"
         },
         {
+          "line": "znn81s",
           "speaker": "rook-dead-air",
           "say": "Before we go on air, a quick check. Tap one."
         },
@@ -102,14 +107,18 @@
             "answer": 0,
             "right": [
               {
+                "line": "huslmx",
                 "speaker": "rook-dead-air",
-                "say": "Ten. Minus three in brackets, squared, is nine, and one more is ten. Keep those brackets. We need them today."
+                "say": "Ten. Minus three in brackets, squared, is nine, and one more is ten. Keep those brackets. We need them today.",
+                "caption": "Ten. (−3)² is 9, and one more is ten. Keep those brackets. We need them today."
               }
             ],
             "not_yet": [
               {
+                "line": "hew0b6",
                 "speaker": "rook-dead-air",
-                "say": "Minus three goes in inside brackets. Minus three times minus three is plus nine. Add one, and it's ten. Keep those brackets. We need them today."
+                "say": "Minus three goes in inside brackets. Minus three times minus three is plus nine. Add one, and it's ten. Keep those brackets. We need them today.",
+                "caption": "−3 goes in inside brackets. (−3) × (−3) is +9. Add one, and it's ten. Keep those brackets. We need them today."
               }
             ]
           }
@@ -117,6 +126,7 @@
       ],
       "not_watched": [
         {
+          "line": "hhpsio",
           "speaker": "rook-dead-air",
           "say": "Before we go on air, a quick check. Tap one."
         },
@@ -132,12 +142,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "d9m001",
                 "speaker": "rook-dead-air",
                 "say": "Ten. Good."
               }
             ],
             "not_yet": [
               {
+                "line": "wc4nxp",
                 "speaker": "rook-dead-air",
                 "say": "It's ten. Here's how."
               }
@@ -148,8 +160,10 @@
           "use": "rook-dead-air.short-version"
         },
         {
+          "line": "bzsppd",
           "speaker": "rook-dead-air",
           "say": "Wherever the letter is, put the value in, inside brackets. Minus three in brackets, squared, is minus three times minus three. That's plus nine. Add one. Ten.",
+          "caption": "Wherever the letter is, put the value in, inside brackets. (−3)² is (−3) × (−3). That's +9. Add one. Ten.",
           "board": [
             {
               "write": "(−3)² + 1",
@@ -166,6 +180,7 @@
           ]
         },
         {
+          "line": "k5k6a9",
           "speaker": "rook-dead-air",
           "say": "Keep those brackets. We need them today."
         },
@@ -179,9 +194,10 @@
       "kind": "big-idea",
       "beats": [
         {
+          "line": "h0d03z",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "Here's the relay. The signal comes in on the left and goes out on the right, and what happens in between is the rule.",
+          "clear": true,
           "board": [
             {
               "write": "in → [ square it, then − 4 ] → out",
@@ -190,6 +206,7 @@
           ]
         },
         {
+          "line": "b4ml81",
           "speaker": "rook-dead-air",
           "say": "What goes in is the input. What comes out is the output. I'll use those two words all lesson, and I won't swap them. Swap them on air and a message goes to the wrong settlement.",
           "board": [
@@ -200,8 +217,10 @@
           ]
         },
         {
+          "line": "npkltq",
           "speaker": "rook-dead-air",
           "say": "Minus three goes in. In brackets, squared, nine. Take away four. Five goes out.",
+          "caption": "−3 goes in. In brackets, squared, 9. Take away four. Five goes out.",
           "board": [
             {
               "write": "input −3:  (−3)² − 4 = 9 − 4 = 5",
@@ -210,6 +229,7 @@
           ]
         },
         {
+          "line": "eans3o",
           "speaker": "rook-dead-air",
           "say": "Send minus three again tomorrow, and five goes out again. Every time. Each input gives exactly one output. That's a function.",
           "board": [
@@ -220,6 +240,7 @@
           ]
         },
         {
+          "line": "jydltf",
           "speaker": "rook-dead-air",
           "say": "My oupa had a radio where one spot on the dial gave you two stations at once. Rugby and the news, on top of each other. One input, two outputs. That's no function.",
           "cue": "chuckles",
@@ -228,8 +249,10 @@
           "pause": 0.5
         },
         {
+          "line": "hocy8g",
           "speaker": "rook-dead-air",
           "say": "On paper we give the machine a name, f, and write its rule. f of x equals x squared minus four.",
+          "caption": "On paper we give the machine a name, f, and write its rule. f(x) = x² − 4.",
           "board": [
             {
               "write": "f(x) = x² − 4",
@@ -238,8 +261,10 @@
           ]
         },
         {
+          "line": "t9lqux",
           "speaker": "rook-dead-air",
           "say": "f of x means the output when the input is x. So f of minus three is the output when minus three goes in, and the input goes in brackets, and the rule runs on it, and out comes five. Sorry. Back on frequency.",
+          "caption": "f(x) means the output when the input is x. So f(−3) is the output when −3 goes in, and the input goes in brackets, and the rule runs on it, and out comes five. Sorry. Back on frequency.",
           "board": [
             {
               "write": "f(x): the output when the input is x",
@@ -257,8 +282,10 @@
           ]
         },
         {
+          "line": "wbm9rk",
           "speaker": "rook-dead-air",
           "say": "One warning. Those brackets aren't a times. f of three isn't f times three. It's the name of the machine, then its input.",
+          "caption": "One warning. Those brackets aren't a times. f(3) isn't f × 3. It's the name of the machine, then its input.",
           "board": [
             {
               "write": "f(3) is not f × 3",
@@ -277,9 +304,11 @@
       },
       "beats": [
         {
+          "line": "zz7zxs",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "On paper now. Step one: what we're finding. f of minus four, the output when the input is minus four.",
+          "caption": "On paper now. Step one: what we're finding. f(−4), the output when the input is −4.",
+          "clear": true,
           "board": [
             {
               "write": "Find f(−4): the output when the input is −4.",
@@ -289,8 +318,10 @@
           ]
         },
         {
+          "line": "le6irf",
           "speaker": "rook-dead-air",
           "say": "Step two: the rule, before any numbers. f of x equals six minus two x.",
+          "caption": "Step two: the rule, before any numbers. f(x) = 6 − 2x.",
           "board": [
             {
               "write": "f(x) = 6 − 2x",
@@ -300,8 +331,10 @@
           ]
         },
         {
+          "line": "sruww1",
           "speaker": "rook-dead-air",
           "say": "Step three: substitute. Every x becomes minus four, inside brackets.",
+          "caption": "Step three: substitute. Every x becomes −4, inside brackets.",
           "board": [
             {
               "write": "f(−4) = 6 − 2(−4)",
@@ -322,21 +355,27 @@
             "answer": 0,
             "right": [
               {
+                "line": "fvz8xj",
                 "speaker": "rook-dead-air",
-                "say": "Copy that. Two lots of minus four, sign and all."
+                "say": "Copy that. Two lots of minus four, sign and all.",
+                "caption": "Copy that. 2(−4), sign and all."
               }
             ],
             "not_yet": [
               {
+                "line": "pplb5e",
                 "speaker": "rook-dead-air",
-                "say": "Without brackets, six minus two minus four looks like a subtraction. The two has to multiply all of minus four, sign included."
+                "say": "Without brackets, six minus two minus four looks like a subtraction. The two has to multiply all of minus four, sign included.",
+                "caption": "Without brackets, 6 − 2 − 4 looks like a subtraction. The two has to multiply all of −4, sign included."
               }
             ]
           }
         },
         {
+          "line": "n4oa3j",
           "speaker": "rook-dead-air",
           "say": "Step four: evaluate. Two lots of minus four is minus eight. Six take away minus eight is fourteen.",
+          "caption": "Step four: evaluate. 2(−4) is −8. 6 − (−8) is 14.",
           "board": [
             {
               "write": "= 6 + 8",
@@ -351,8 +390,10 @@
           ]
         },
         {
+          "line": "cg4k9n",
           "speaker": "rook-dead-air",
           "say": "Step five: say it. f of minus four is fourteen. Input minus four, output fourteen.",
+          "caption": "Step five: say it. f(−4) = 14. Input −4, output 14.",
           "board": [
             {
               "write": "f(−4) = 14: input −4, output 14",
@@ -363,8 +404,10 @@
           ]
         },
         {
+          "line": "aja926",
           "speaker": "rook-dead-air",
           "say": "Check: a negative input makes minus two x positive, so the output should be more than six. Fourteen is.",
+          "caption": "Check: a negative input makes −2x positive, so the output should be more than six. Fourteen is.",
           "board": [
             {
               "write": "Check: −2x > 0 when x < 0, so f(−4) > 6 ✓",
@@ -381,12 +424,20 @@
       "turn": {
         "kind": "twin",
         "like": "example-1",
-        "type": "fn-evaluate-function",
+        "serve": "engine",
+        "cell": {
+          "type": "fn-evaluate-function",
+          "unknown": "value-at-input",
+          "rep": "equation",
+          "angle": "direct-substitution"
+        },
+        "command": "Find",
         "skills": [
           "SL2.2.evaluate-notation"
         ],
         "intro": [
           {
+            "line": "rwww0h",
             "speaker": "rook-dead-air",
             "say": "Your channel. Rule first, input in brackets, then evaluate. Over."
           }
@@ -408,20 +459,24 @@
         },
         "right": [
           {
+            "line": "ozpwe8",
             "speaker": "rook-dead-air",
             "say": "Loud and clear. Input, output, and you kept them apart."
           },
           {
+            "line": "fqalba",
             "speaker": "rook-dead-air",
             "say": "Brackets and all. Copy that."
           }
         ],
         "not_yet": [
           {
+            "line": "upaeqh",
             "speaker": "rook-dead-air",
             "say": "Put the input in brackets first, then multiply. Come in again."
           },
           {
+            "line": "uxmvt8",
             "speaker": "rook-dead-air",
             "say": "Check the sign. A positive times a negative is negative, and taking a negative away adds."
           }
@@ -437,9 +492,11 @@
       },
       "beats": [
         {
+          "line": "p2otqm",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "One thing harder. A square, with a minus in front of it. h of x equals five minus x squared. Find h of minus two.",
+          "caption": "One thing harder. A square, with a minus in front of it. h(x) = 5 − x². Find h(−2).",
+          "clear": true,
           "board": [
             {
               "write": "h(x) = 5 − x².  Find h(−2).",
@@ -448,8 +505,10 @@
           ]
         },
         {
+          "line": "n9wo8l",
           "speaker": "rook-dead-air",
           "say": "In x squared, the square belongs to x. Not to the minus. So the input gets squared first, and then it's taken away.",
+          "caption": "In x², the square belongs to x. Not to the minus. So the input gets squared first, and then it's taken away.",
           "board": [
             {
               "write": "5 − x² means 5 − (x²)",
@@ -458,6 +517,7 @@
           ]
         },
         {
+          "line": "r2gfjg",
           "speaker": "rook-dead-air",
           "say": "You do the substitution. I'll keep the channel open."
         },
@@ -473,21 +533,27 @@
             "answer": 0,
             "right": [
               {
+                "line": "xbsbk1",
                 "speaker": "rook-dead-air",
-                "say": "One. Minus two in brackets, squared, is four, and five take away four is one. Lekker."
+                "say": "One. Minus two in brackets, squared, is four, and five take away four is one. Lekker.",
+                "caption": "One. (−2)² is 4, and 5 − 4 is 1. Lekker."
               }
             ],
             "not_yet": [
               {
+                "line": "rmkki8",
                 "speaker": "rook-dead-air",
-                "say": "Square the input first: minus two in brackets, squared, is plus four. Then take it away from five. One."
+                "say": "Square the input first: minus two in brackets, squared, is plus four. Then take it away from five. One.",
+                "caption": "Square the input first: (−2)² is +4. Then take it away from five. One."
               }
             ]
           }
         },
         {
+          "line": "dyxgw1",
           "speaker": "rook-dead-air",
           "say": "Written out: five minus four, one. h of minus two is one.",
+          "caption": "Written out: 5 − 4, 1. h(−2) = 1.",
           "board": [
             {
               "write": "h(−2) = 5 − (−2)²",
@@ -505,8 +571,10 @@
           ]
         },
         {
+          "line": "tkvfcg",
           "speaker": "rook-dead-air",
           "say": "Check: x squared is never negative, so h of x can never be more than five. One is under five. Out.",
+          "caption": "Check: x² is never negative, so h(x) can never be more than five. One is under five. Out.",
           "board": [
             {
               "write": "Check: x² ≥ 0, so h(x) ≤ 5, and 1 ≤ 5 ✓",
@@ -543,13 +611,16 @@
       },
       "beats": [
         {
+          "line": "qe2mzg",
           "speaker": "rook-dead-air",
-          "clear": true,
-          "say": "Now the way an exam sets it. The tower runs on a battery bank, and a solar panel charges it through the day."
+          "say": "Now the way an exam sets it. The tower runs on a battery bank, and a solar panel charges it through the day.",
+          "clear": true
         },
         {
+          "line": "h6ceei",
           "speaker": "rook-dead-air",
           "say": "The charge, as a percentage, t hours after sunrise, is C of t equals twenty plus twelve t. The model holds from zero to six hours.",
+          "caption": "The charge, as a percentage, t hours after sunrise, is C(t) = 20 + 12t. The model holds from zero to six hours.",
           "board": [
             {
               "write": "C(t) = 20 + 12t,  0 ≤ t ≤ 6",
@@ -562,8 +633,10 @@
           ]
         },
         {
+          "line": "mhv7q5",
           "speaker": "rook-dead-air",
           "say": "Part a. Write down C of zero. Zero hours, so sunrise. Twenty plus zero is twenty.",
+          "caption": "Part a. Write down C(0). Zero hours, so sunrise. 20 + 0 = 20.",
           "board": [
             {
               "write": "(a)  C(0) = 20 + 12(0) = 20",
@@ -573,8 +646,10 @@
           ]
         },
         {
+          "line": "osi3av",
           "speaker": "rook-dead-air",
           "say": "Then say what it means. C of zero isn't zero charge. It's the charge at the start: twenty percent at sunrise.",
+          "caption": "Then say what it means. C(0) isn't zero charge. It's the charge at the start: 20% at sunrise.",
           "board": [
             {
               "write": "At sunrise the battery bank holds 20% charge.",
@@ -585,8 +660,10 @@
           ]
         },
         {
+          "line": "uzsy6i",
           "speaker": "rook-dead-air",
           "say": "Part b. Find C of five. Five goes in for t. Twelve fives are sixty, and twenty more is eighty. Eighty percent, five hours after sunrise.",
+          "caption": "Part b. Find C(5). Five goes in for t. Twelve fives are sixty, and twenty more is eighty. 80%, five hours after sunrise.",
           "board": [
             {
               "write": "(b)  C(5) = 20 + 12(5)",
@@ -607,8 +684,10 @@
           ]
         },
         {
+          "line": "fbhqk5",
           "speaker": "rook-dead-air",
-          "say": "Part c. The time when it's at seventy-four percent."
+          "say": "Part c. The time when it's at seventy-four percent.",
+          "caption": "Part c. The time when it's at 74%."
         },
         {
           "ask": {
@@ -622,21 +701,27 @@
             "answer": 0,
             "right": [
               {
+                "line": "hg5e9e",
                 "speaker": "rook-dead-air",
-                "say": "Output. Seventy-four is a charge, so it's C of t. The time is the input, and that's what they want."
+                "say": "Output. Seventy-four is a charge, so it's C of t. The time is the input, and that's what they want.",
+                "caption": "Output. Seventy-four is a charge, so it's C(t). The time is the input, and that's what they want."
               }
             ],
             "not_yet": [
               {
+                "line": "r09bso",
                 "speaker": "rook-dead-air",
-                "say": "Crossed wire. Seventy-four is a charge, and charge is what comes out. So C of t is seventy-four, and t is what you're finding."
+                "say": "Crossed wire. Seventy-four is a charge, and charge is what comes out. So C of t is seventy-four, and t is what you're finding.",
+                "caption": "Crossed wire. Seventy-four is a charge, and charge is what comes out. So C(t) = 74, and t is what you're finding."
               }
             ]
           }
         },
         {
+          "line": "npaty4",
           "speaker": "rook-dead-air",
           "say": "So set the output to seventy-four and solve for the input. Take twenty off both sides. Fifty-four equals twelve t. Divide by twelve. t is four point five.",
+          "caption": "So set the output to seventy-four and solve for the input. Take twenty off both sides. 54 = 12t. Divide by twelve. t = 4.5.",
           "board": [
             {
               "write": "(c)  20 + 12t = 74",
@@ -656,6 +741,7 @@
           ]
         },
         {
+          "line": "p7c0ee",
           "speaker": "rook-dead-air",
           "say": "In words: four and a half hours after sunrise. That's inside zero to six, so the model holds there.",
           "board": [
@@ -668,8 +754,10 @@
           ]
         },
         {
+          "line": "gv7qmt",
           "speaker": "rook-dead-air",
           "say": "Check: twelve lots of four point five is fifty-four, and twenty more is seventy-four. Out.",
+          "caption": "Check: 12 × 4.5 = 54, and twenty more is seventy-four. Out.",
           "board": [
             {
               "write": "Check: C(4.5) = 20 + 54 = 74 ✓",
@@ -692,9 +780,10 @@
       "misconception": "Treats f(x) as f × x, so a factor inside the bracket comes out",
       "beats": [
         {
+          "line": "qn4hdo",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "This came in over the line last night. Somebody's working, and one line has a crossed wire. Have a look.",
+          "clear": true,
           "board": [
             {
               "write": "f(x) = 3x + 2.  Find f(2) + f(3).",
@@ -735,12 +824,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "taxdom",
                 "speaker": "rook-dead-air",
                 "say": "That's the one. They treated f like a number you can take out of a bracket. f is a machine, not a multiplier."
               }
             ],
             "not_yet": [
               {
+                "line": "u6isa0",
                 "speaker": "rook-dead-air",
                 "say": "Look at the first line. Can two signals go through the machine as one?"
               }
@@ -748,8 +839,10 @@
           }
         },
         {
+          "line": "rgufr9",
           "speaker": "rook-dead-air",
           "say": "Here's how you catch it. Run each input through on its own. f of two is eight. f of three is eleven. Together, nineteen. Not seventeen.",
+          "caption": "Here's how you catch it. Run each input through on its own. f(2) = 8. f(3) = 11. Together, 19. Not 17.",
           "board": [
             {
               "write": "Check: f(2) = 8, f(3) = 11, and 8 + 11 = 19, not 17 ✗",
@@ -759,6 +852,7 @@
           ]
         },
         {
+          "line": "ylen1l",
           "speaker": "rook-dead-air",
           "say": "So one line through it. Two inputs, two outputs, then add the outputs. Nineteen.",
           "board": [
@@ -773,6 +867,7 @@
           ]
         },
         {
+          "line": "ug8rex",
           "speaker": "rook-dead-air",
           "say": "Took me a week to find out who sent that one. It was me, a year ago.",
           "joke": true,
@@ -787,13 +882,17 @@
       "turn": {
         "kind": "exam",
         "like": "example-3",
-        "type": "fn-evaluate-function",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-evaluate-function"
+        },
         "skills": [
           "SL2.2.evaluate-notation",
           "SL2.2.function-model"
         ],
         "intro": [
           {
+            "line": "xqw813",
             "speaker": "rook-dead-air",
             "say": "Your channel, and no help on the first try. Label the parts, and say what each value means. Over."
           }
@@ -830,20 +929,24 @@
         },
         "right": [
           {
+            "line": "wilzpn",
             "speaker": "rook-dead-air",
             "say": "Loud and clear. Every part labelled, and every value said in words."
           },
           {
+            "line": "pp94wv",
             "speaker": "rook-dead-air",
             "say": "Every value with what it means. Copy that."
           }
         ],
         "not_yet": [
           {
+            "line": "h0quul",
             "speaker": "rook-dead-air",
             "say": "Crossed wire. Check whether the part wants an input or an output."
           },
           {
+            "line": "gdomnv",
             "speaker": "rook-dead-air",
             "say": "When a part gives you the output, set the rule equal to it and solve for the input."
           }
@@ -855,9 +958,11 @@
       "kind": "recap",
       "beats": [
         {
+          "line": "shxoyu",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "So. A function takes each input to exactly one output. f of x is the output when the input is x. Input in brackets, run the rule, and say which one you've got.",
+          "caption": "So. A function takes each input to exactly one output. f(x) is the output when the input is x. Input in brackets, run the rule, and say which one you've got.",
+          "clear": true,
           "board": [
             {
               "write": "f(a): the output when the input is a",
@@ -878,10 +983,12 @@
           ]
         },
         {
+          "line": "d1ax0c",
           "speaker": "rook-dead-air",
           "say": "Next time we run the relay backwards. Output in, input out."
         },
         {
+          "line": "lgs46l",
           "speaker": "rook-dead-air",
           "say": "That's the transmission. Input, output, keep them apart. Rook, out."
         }

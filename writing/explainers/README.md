@@ -21,7 +21,7 @@ Read [`../../TONE.md`](../../TONE.md) and [`../voice-sheets.md`](../voice-sheets
 | `ex.functions.line-model.json` | Start Plus Rate, built on Pin and Swing. Rook, about 6 minutes. |
 | `ex.functions.inverse-undo.json` | Run It Backwards, built on One In, One Out. Rook, about 6 minutes. |
 
-Nothing here is recorded. The board chose each tutor's voice on FAL-927 (`tools/explainer-clips/teachers.json`), but GitHub #18 is still open, so the voice blocks below stay provisional until casting is settled there.
+Nothing here is recorded yet. Casting is done: the board approved all six tutors' voices on FAL-927, each one Gemini text-to-speech with a fixed model, voice and direction (`tools/explainer-clips/teachers.json`, GitHub #18). The owner auditions again only when a new character is added. Every script is a `draft` in format 2 until it passes the checks below (#188 to #191).
 
 ## The arc
 
@@ -70,9 +70,9 @@ Matt's target: "mathematical knowledge presented in an academic manner so studen
 
 ### The tutors
 
-The tutors come from `tools/explainer-clips/teachers.json`. All six have full voice blocks, below, and all six are provisional (GitHub #18).
+The tutors come from `tools/explainer-clips/teachers.json`. All six have full voice blocks, below, and all six voices are approved (FAL-927, GitHub #18).
 
-#### Mags the Ledger (algebra, Scrap Fields), provisional
+#### Mags the Ledger (algebra, Scrap Fields)
 
 Keeps the Ledger for the Scrap Fields: every debt, deal and seat sold at the fight pit. Rugged outback Australian, quick, in charge.
 
@@ -98,7 +98,7 @@ Keeps the Ledger for the Scrap Fields: every debt, deal and seat sold at the fig
 
 **Not the others:** Dax talks fast, drops names and sells. Mags says less and writes everything down. Gear Mira makes you read a measurement back with its unit; Mags makes you put the working in order and keep it. Bodge talks nonsense about her stock; Mags never wanders off the point for more than one sentence.
 
-#### Tin-Can Tess (foundations, the Scrapworks), provisional
+#### Tin-Can Tess (foundations, the Scrapworks)
 
 Runs the Scrapworks, the yard where everything broken in the Bazaar ends up, and most of it goes back out the gate working. A New Zealander, as the voice approved on FAL-927 is: lively, wry and warm, and quick to laugh at her own jokes. She teaches the basics with whatever junk is to hand: a bolt and its washer, the scrap scales, a sheet of tin, a gauge that won't agree with the next one.
 
@@ -124,7 +124,7 @@ Runs the Scrapworks, the yard where everything broken in the Bazaar ends up, and
 
 **Not the others:** Mags and Tess are both from down under, so keep them apart. Mags is Australian, says little and writes everything down; Tess is a New Zealander, talks the whole time and hands you things to hold. Gear Mira measures and reads numbers back with their units, and her sentences get shorter under pressure; Tess pulls things apart and puts them back, and her sentences stay long and get warmer. Bodge wanders off about her stock; every story Tess tells comes back to the maths within a sentence.
 
-#### Rook Dead-Air (functions, Signal Tower), provisional
+#### Rook Dead-Air (functions, Signal Tower)
 
 Runs the Signal Tower, the last mast still standing that reaches the far settlements. He keeps the traffic moving: messages in, messages out, every one logged by channel and time. A South African radio man, as the voice approved on FAL-927 is: precise and dry, and the faster he talks, the more he's enjoying himself. To him every function is a transmitter. Something goes in, one thing comes out, and his job is knowing which.
 
@@ -150,7 +150,7 @@ Runs the Signal Tower, the last mast still standing that reaches the far settlem
 
 **Not the others:** Mags also talks in short orders, but hers are about the book: write it down, keep it. Rook's are about the line: say it back, call and answer, and he runs on when he's excited, which Mags never does. Calc is clipped too, but Calc is a machine with no contractions and no slang; Rook is a person, and the excitement gets through. Spark trash-talks the question; Rook never does, because a signal can't help being noisy. B0-LT will also live at the Signal Tower and has no sheet yet. Keep radio procedure (over, out, copy, come in) for Rook alone, so B0-LT has to sound broken some other way.
 
-#### Kara Meridian (geometry, Dry Flats), provisional
+#### Kara Meridian (geometry, Dry Flats)
 
 Surveys the Dry Flats, the wide salt pan where nothing stands still long enough to put on a map. She builds her own instruments out of salvage: a sighting scope from a camera lens, a level from a jar of oil, a measuring chain from a hundred welded links. A Nigerian surveyor, as the voice approved on FAL-927 is: measured, warm and calm.
 
@@ -176,7 +176,7 @@ Surveys the Dry Flats, the wide salt pan where nothing stands still long enough 
 
 **Not the others:** Noma and Kara both work with ground and distance. Kara measures today's ground, and Noma tells its stories. Noma's sentences wander and land, and she names places for what happened there; Kara's sentences go straight, and she names places by their station and bearing. Gear Mira makes you read a number back with its unit; Kara makes you say what an angle is measured from. Lucky performs, and Kara never does.
 
-#### Lucien "Lucky" Lenoir (statistics, Radio Spires), provisional
+#### Lucien "Lucky" Lenoir (statistics, Radio Spires)
 
 Runs the games at the Radio Spires: dice, cards, a wheel with forty slots, the night market's tables. A Frenchman, as the voice approved on FAL-927 is: theatrical, warm and charming, a showman down to his last bottle cap. He knows his probability perfectly, and he loses anyway, because he bets against it. The joke is always the same: the maths was right, and Lucky wasn't. Stakes are scrap, never money: bottle caps, batteries, a good hat. The lesson never makes a bet look like a way to win.
 
@@ -202,7 +202,7 @@ Runs the games at the Radio Spires: dice, cards, a wheel with forty slots, the n
 
 **Not the others:** Dax and Lucky both talk a lot and love a deal. Dax is fast and closes with a short line; Lucky takes his time, enjoys the build, and he's the one who loses. Spark's jokes land on the question; Lucky's land on Lucky. Tess laughs at her own jokes, and Lucky laughs at his own losses. Calc has never lost a bet to anyone, because it has never placed one.
 
-#### C.A.L.C. (calculus, Engine Core), provisional
+#### C.A.L.C. (calculus, Engine Core)
 
 The maintenance intelligence of the reactor under the Engine Core. Most of it is damaged: the cooling logs, the speech module, the clock. What still works best is the part that watches rates of change, so that's what it teaches. Spoken and captioned as "Calc". The voice approved on FAL-927 is even, synthetic and deadpan, with the glitch effect added after recording. Every reading the core gives is a rate, and nothing excites Calc more.
 
@@ -247,7 +247,7 @@ Dad jokes, well-known maths jokes and stories, and lines from the tutor's own li
 
 A cue is a sound the voice makes that isn't a word: `chuckles`, `laughs`, `coughs`, `sighs`, `clears-throat`, `sniffs`, `hums`, and `glitch` for C.A.L.C. The list is in `callbacks.json` (`cues`), and a new cue goes there first.
 
-- A cue sits in the line's `cue` field, with `cue_at` set to `start` or `end`. It never goes inside `say`, so the caption stays word-for-word with what is spoken.
+- A cue sits in the line's `cue` field, with `cue_at` set to `start` or `end`. It never goes inside `say` or `caption`, so the caption stays word-for-word with what is spoken.
 - A voice that can't perform a cue skips it. The line has to work without it.
 - A pause is `pause`, in seconds, after the line.
 - Use about one cue per section, and no more than two coughs in a whole explainer.
@@ -267,15 +267,29 @@ The callback lines are in `callbacks.json`, 14 per tutor: `own.watched`, `own.no
 
 ## The script format
 
-Scripts are JSON. Both readers are code: the Godot player parses JSON natively, and the clip renderer is JavaScript. The rest of the game's words are JSON already (`game/data/shopkeeper.json`, `writing/encounters/`). Markdown with fixed headings would read better on GitHub, but it would need a parser that someone keeps up to date, and a stray heading would break it without a warning. JSON can be checked: every move id exists in `curriculum/moves.json`, every speaker is in `teachers.json`, every `use` is in `callbacks.json`. `node tools/explainers.mjs` runs these checks on every script (`tools/explainer-scripts.mjs`, FAL-952), along with the map, the arc order, board keys, answer indexes, digits and banned words in captions, and jokes on the board. To read a script as a script, pull out the `say` fields in order.
+Scripts are JSON. Both readers are code: the Godot player parses JSON natively, and the clip renderer is JavaScript. The rest of the game's words are JSON already (`game/data/shopkeeper.json`, `writing/encounters/`). Markdown with fixed headings would read better on GitHub, but it would need a parser that someone keeps up to date, and a stray heading would break it without a warning. JSON can be checked.
+
+`node tools/explainers.mjs` checks every script, and `node tools/explainer-scripts.mjs --todo` lists what each draft still needs (FAL-952, FAL-1043). The checks are the map, the arc order, board keys, answer indexes, every move, speaker, `use`, cue and question cell the script names, line ids and the manifest, caption against say, the turn rules, figures and repeats across scripts. A finding is one of two kinds:
+
+- **An error** breaks the format, and always fails.
+- **A to-do** is something the words still need: a digit in `say`, a caption that says something else, a number word in a turn line, a repeated joke. A draft may have to-dos, and `tools/explainers.mjs` counts them. An `approved` or `recorded` script with a to-do fails.
+
+`tests/unit/explainer-scripts.test.mjs` breaks each rule once. `game/tests/test_explainer_turns.gd` (in `./test.sh`) makes every engine turn's questions and checks them against the turn. To read a script as a script, pull out the `caption` fields in order (or `say` where there's no caption).
+
+| File | What it is |
+|---|---|
+| `pronunciation.json` | How each symbol and abbreviation is said, per tutor (see "Writing the words"). |
+| `stock.json` | Each tutor's tics: the phrases that may repeat across scripts (see "Repeats"). |
+| `manifest.json` | One entry per spoken line, for recording (see "Line ids and the manifest"). Written by `node tools/explainer-scripts.mjs --write-manifest`. |
 
 ### Top level
 
 | Field | What it holds |
 |---|---|
 | `id` | `ex.<zone>.<idea>`, as in the map. Permanent once on `main`, because the watched record stores it. |
-| `format` | `1`. |
-| `status` | `draft`, `approved` (Writer and Curriculum Author have passed it) or `recorded`. Once a script is `approved`, its line order is frozen, because recordings are named by section and position. |
+| `format` | `2`. |
+| `status` | `draft`, `approved` (Writer and Curriculum Author have passed it, and the checker lists no to-dos) or `recorded`. |
+| `waits_for` | Optional: `["figure"]` while the script still draws a table, grid or gauge in text (see "Figures"). An approved script waits for nothing. |
 | `title`, `idea` | The title card, and the idea in one sentence. |
 | `zone`, `tutor` | The map zone, and its tutor's id in `teachers.json`. |
 | `courses`, `syllabus`, `skills` | From the map and `curriculum/*.json`. |
@@ -283,16 +297,22 @@ Scripts are JSON. Both readers are code: the Godot player parses JSON natively, 
 | `terms` | The new terms, three at most. |
 | `misconceptions` | The map's misconceptions this script addresses, in the curriculum's words. |
 | `estimate` | Word counts and narration time for both recall versions, and how they were worked out. |
-| `notes` | Anything a reviewer needs: a skipped section, a provisional id. |
+| `notes` | Anything a reviewer needs: a skipped section, an edit declined and why. |
 | `sections` | In arc order. Each has an `id`, a `kind` from the arc table and its `beats`. A recall section has `watched` and `not_watched` instead of `beats`, unless the explainer has no prerequisite (see Callback lines). An example has `level` and `problem`. A your-turn section has `turn`. |
 
 ### Beats
 
 A beat is one of four things.
 
-**A spoken line.** `speaker` (a tutor id), `say` (the caption, which is exactly the words spoken), and optional `cue`, `cue_at`, `pause`, `joke`, `clear` (wipe the board first) and `board`. Board items attached to a line are written while it is spoken.
+**A spoken line.** `line` (its id), `speaker` (a tutor id), `caption` and `say`, and optional `cue`, `cue_at`, `pause`, `joke`, `clear` (wipe the board first) and `board`. Board items attached to a line are written while it is spoken.
 
-**A board item.** `write` (the text as it appears on the board), plus optional fields:
+- `caption` is what the player reads, in the board's notation: "The term in row n is uₙ, so u₁ is twenty-two."
+- `say` is what the voice is sent, written the way it is spoken: "The term in row n is u n, so u one is twenty-two."
+- Where the two would be the same, give only `say`. The other defaults to it.
+
+One audio clip is made per line. The player shows the line's caption while its clip plays, and writes the line's board items with it, so no word timings are needed (#190).
+
+**A board item.** `write` (the text as it appears on the board), or `figure` (see "Figures"), plus optional fields:
 
 - `move`, a move id from `curriculum/moves.json`, for any line that is a working step;
 - `label`, the step label shown above it, which defaults to the move's name;
@@ -305,39 +325,104 @@ A beat is one of four things.
 
 **A tap question.** `ask`, holding `kind` (`recall`, `why`, `fill`, `choose` or `tap-line`), `prompt` (on screen), `choices`, `answer` (the index of the right choice), and `right` and `not_yet` lines. For `tap-line`, the choices are board keys.
 
-**A callback.** `{ "use": "<tutor>.<key>" }`, played from `callbacks.json`.
+**A callback.** `{ "use": "<tutor>.<key>" }`, played from `callbacks.json`. An approved script uses callbacks only once `callbacks.json` is approved too (#189).
 
-A `your-turn` section holds a `turn` instead of beats. It names the question type (`type`, from `curriculum/question-types.json`) and the `skills`, so the player can draw live numbers. `like` names the example it mirrors. `fallback` is a fixed version with checked answers and working, for the clip renderer and for testing. `intro`, `right` and `not_yet` are spoken lines with no numbers in them, because the numbers change every time.
+### Turns
+
+A `your-turn` section holds a `turn` instead of beats. Its lines are recorded once and heard with every question the turn can serve, so the turn says exactly which questions those are (#188).
+
+| Field | What it holds |
+|---|---|
+| `kind`, `like` | `twin` or `exam`, and the example it mirrors. |
+| `serve` | `engine`: the game draws a live question from one engine cell. `fallback`: the game asks the fixed `fallback`, and nothing else. |
+| `cell` | For `engine`, the exact cell: `type` (from `curriculum/question-types.json`), `unknown`, `rep` and, where the method matters, `angle`; `format` (`value` or `mcq`) if only one will do. For `fallback`, only `type`. |
+| `command` | For `engine`, the command term every question of the cell is asked with ("Find", "Solve", "Expand"). |
+| `skills` | The skills the turn credits. |
+| `intro`, `right`, `not_yet` | Spoken lines. |
+| `fallback` | A fixed question with checked answers and working: `setup`, `parts` (each with `text`, `answer`, and optional `part` and `wrong`) and `working`. The clip renderer and the tests use it, and a `fallback` turn plays it. |
+
+The engine serves one part at a time, asked with one command term, so a turn in parts (most `exam` turns) is served from its fallback until the engine can make it. The engine can't pin a question's story either, so no turn line may need one: a turn whose lines need a particular story is a fallback turn.
+
+**The checker confirms:** the cell exists (the unknown is one of the type's, the representation one of the unknown's, the method one that suits it); an engine turn's fallback is one part, starting with `command`; and `game/tests/test_explainer_turns.gd` makes forty of the cell's questions and checks each is asked with `command` and offers every misconception a not-yet line names.
+
+**Turn lines have no numbers and no story.** Every `intro`, `right` and `not_yet` line is a to-do if it says a number word other than "one" and "zero", names something from the fallback's story ("the east stand", "how many weeks?"), or, in an engine turn, talks about parts.
+
+**Which not-yet line plays.** Each not-yet line but one names a `misconception`: its id in `question-types.json`, which is the misconception's `ref`, or `<type id>#<index>` when it has none (as `SL1.2.nth-term#0`, or `fn-pre-substitute#0`). The one line with no `misconception` is the neutral line. When an answer is wrong, the game marks it (`QuestionEngine.mark`), and:
+
+1. if the mark names a misconception and a not-yet line is keyed to it, that line plays;
+2. otherwise the neutral line plays.
+
+A keyed line can say what went wrong, because it only plays when that slip was made. The neutral line can't assume any slip ("Put your answer back in. Does it come out level?"). For a fallback turn, each keyed misconception is the `misconception` of one of its parts' `wrong` answers (`{ "answer": "…", "misconception": "…" }`), and the game matches the typed answer against those.
+
+### Line ids and the manifest
+
+Every spoken line has a `line` id: six lower-case letters and digits, unique in its file, made once and never changed (#189). It doesn't come from the line's place or its text, so lines can be edited, inserted and reordered and every recording still knows its line. Audio is filed by script id and line id.
+
+`manifest.json` has one entry per line, keyed by script id (or `callbacks`) and line id: the speaker, `say` (a hash of the speaker, `say`, `cue` and `cue_at`) and `take`. The caption is not in the hash, so a caption edit never asks for a new take. `take` is null until a take is accepted, then holds the hash it was made from, the provider, model, voice, direction, date, file and the speech-to-text transcript the pronunciation check compared (Explainers E5). A line whose `say` has changed since its take needs a new one: a to-do in a draft, an error in a recorded script.
+
+After editing lines, run `node tools/explainer-scripts.mjs --write-manifest`. A line that leaves a script moves to `retired`, and its id is never used again, because saves and takes point at it. Making ids: any six random lower-case letters and digits not already in the manifest.
+
+### Figures
+
+A text drawing (a table lined up with spaces, a grid of │, a gauge described in words) relies on a fixed-width font and won't hold on a phone (#191). The checker lists any board line lined up with wide gaps as a to-do. Draw it as a `figure` item instead:
+
+```json
+{ "figure": { "kind": "table", "rows": [["n", "1", "2", "3"], ["uₙ", "22", "26", "30"]] }, "alt": "A table: row 1 has 22 seats, row 2 has 26, row 3 has 30." }
+```
+
+| `kind` | Fields |
+|---|---|
+| `table` | `rows`: lists of cells, all the same length; the first cell of each row is its header. |
+| `area-grid` | `top` and `side`: the terms of each bracket; `cells`: one row per side term, one cell per top term. |
+| `gauge` | `marks`: at least two `{ "at": <step>, "label": "…" }`; `steps` between the first and last mark; `needle`: steps past the first mark; `unit`. |
+| `axes` | `x` and `y`: `[min, max]`; optional `points` (`{ "x", "y", "label" }`) and `lines` (`{ "through": [[x, y], [x, y]], "label" }`). |
+| `number-line` | `from`, `to`; optional `marks` and `points`. |
+| `balance` | `left`, `right`: what is on each pan; optional `level`. |
+
+Every figure has `alt`, the words a screen reader reads, which are also shown if the figure can't be drawn. Labels use the board's notation. The game doesn't draw figures yet: that is a player change for Coder, on the task that builds the explainer player. Until then, a script that needs one has `"waits_for": ["figure"]` and a note saying which drawing; the six scripts that draw in text are marked that way.
+
+### Repeats
+
+With 336 explainers planned, a frame said in every one turns into wallpaper (#191). The checker compares every pair of scripts and lists, as a to-do in both:
+
+- **a joke** that shares four or more content words with a joke in another script (the tin of stripped bolts);
+- **a stock frame**: the same five words in a row in the frames of two scripts. The frames are the cold open's first line, the spot-the-slip's first line, the recap's last line, every tap question's right line, and every turn line.
+
+A tutor's tics may repeat. They are in `stock.json`, taken from the voice blocks above ("Bits on the bench", "Into the book it goes", "Loud and clear"), and a phrase goes there only when its tutor's block names it. Everything else in a frame is said once: give each tutor a small bank of openers, slip intros, turn intros and praise, and use each once.
 
 ### Writing the words
 
-- **Captions are the spoken words.** Numbers go in words, the way the tutor says them: "one hundred and seventy-eight", or "four eighty" once the number is on the board.
-- **Symbols are spoken plainly and the same way every time.** uₙ is "u n", u₁ is "u one", Sₙ is "S n", (n − 1)d is "n minus one lots of d", n/2 is "n over two", n² is "n squared".
-- **The board is plain text with Unicode maths**, like the worked steps in the game (`game/engine/step.gd`): subscripts ₁ₙ, the minus sign −, ×, ÷, ≠ and ✓. No KaTeX, no markup.
+- **`say` is words only.** Numbers in words, the way the tutor says them: "one hundred and seventy-eight", or "four eighty" once the number is on the board. No digits, no symbols, and abbreviations spelt as said ("G D C"). The voice gets nothing it has to guess.
+- **`caption` is notation.** The board's plain text with Unicode maths, drawn by the same maths display the game uses for worked steps: uₙ, (−3)², 0.0045678, Sₙ = n/2 (u₁ + uₙ), the minus sign −, ×, ÷, ≠, ✓. No KaTeX, no markup. Inside maths, numbers are digits; in a story, they can stay in words ("Ten panels, so he bought ten posts").
+- **The two say the same thing, word for word.** The checker reads the caption through `pronunciation.json` and needs some choice of agreed spoken forms that gives exactly the words of `say`: every symbol said, every number the same number, nothing added or dropped. `(−3)²` must be said with "in brackets" ("minus three, in brackets, squared"), so it can't be heard as −3² ("minus three squared").
+- **The pronunciation sheet** has a default and one entry per tutor. Subscripts are said with no "sub": uₙ is "u n", u₁ is "u one", Sₙ is "S n". (n − 1)d is "n minus one lots of d", n/2 is "n over two", n² is "n squared". A tutor's entry replaces a default: Tess says "percent", never "per cent"; Rook says "zero", never "nought"; Calc says "d y by d x". A new symbol goes in the sheet before it goes in a caption. The Audio Designer's speech-to-text check (Explainers E5) compares each take with `say`, and a line that keeps failing gets a better `say`, or a sheet entry, before it goes to the owner.
+- **Both texts follow the rules.** The banned words, the joke rules and the rule that no line genders the player apply to `caption` and `say` alike.
 - **Say the step label** when the board shows one, so ear and eye stay together.
 - **Mind SPARK players.** A tutor can talk about the world freely, but a line about the player has to work for a robot on treads (`../voice-sheets.md`).
+- **Add a caption wherever a line has maths.** A `say` with maths in words and no caption ("x squared", "u n", "f of x") is a to-do.
 
 ### How each reader uses it
 
-- **The Godot player** ([FAL-429](/FAL/issues/FAL-429)) plays beats in order. Each board item with a `move` is the same object as a worked step, `{"move": …, "board": …}` (`Step.tagged`), so the player can highlight a step and replay its move line. Tap questions and turns pause the narration. The watched record picks the recall version.
-- **The clip renderer** (`tools/explainer-clips/`) needs 3 to 5 beats and 10 to 25 seconds, so a clip takes one section, usually the big idea, and only the beats that change the board. Each chosen line's `say` becomes a `VOICE` line, and its slot is the word count × 0.45 s. The renderer's banned words are the same as ours.
+- **The Godot player** ([FAL-429](/FAL/issues/FAL-429)) plays beats in order: one clip per line, the line's `caption` on screen while it plays, and its board items written with it. Each board item with a `move` is the same object as a worked step, `{"move": …, "board": …}` (`Step.tagged`), so the player can highlight a step and replay its move line. Tap questions and turns pause the narration. The watched record picks the recall version, the turn's `serve` and `cell` pick its question, and the marked answer picks the not-yet line.
+- **The clip renderer** (`tools/explainer-clips/`) needs 3 to 5 beats and 10 to 25 seconds, so a clip takes one section, usually the big idea, and only the beats that change the board. Each chosen line becomes a `VOICE` line with its `say`, which is recorded, and its `caption`, which goes in the `.vtt`. Its slot is the word count of `say` × 0.45 s. The renderer's banned words are the same as ours.
 
 ## Before a script ships
 
 The editor's pass, done by Writer on every script:
 
-1. Read every `say` aloud in order, in the tutor's voice, as a tired seventeen-year-old would hear it. Cut what they would tune out.
+1. Read every `say` aloud in order, in the tutor's voice, as a tired seventeen-year-old would hear it. Cut what they would tune out. Then read every caption on its own.
 2. Work every number and every step by hand, including the wrong solution in the slip and the turn fallbacks.
 3. Check the length against the arc. Under 8 minutes, or split it.
 4. Check the joke placement and budget, and that no line names "IB".
 5. Check that each callback version works without the other.
-6. List anything unsure under `notes`, and on the task.
+6. Run `node tools/explainer-scripts.mjs --todo` and clear every to-do, or move the script back to `draft`. An edit declined goes in `notes` with its reason.
+7. Run `node tools/explainer-scripts.mjs --write-manifest` and commit the manifest with the script.
+8. List anything unsure under `notes`, and on the task.
 
 ## Not decided yet
 
-The CEO settled the pilot questions on [FAL-953](/FAL/issues/FAL-953): the map follows the scripts, the length rule is the one in "The arc", and Gauss stays as pilot 2's story. The map follows the pilots now (FAL-952): `ex.algebra.arithmetic-sequence` teaches `SL1.2.nth-term` and builds on `ex.foundations.pre-substitute`, and `ex.algebra.arithmetic-series` teaches `SL1.2.sum`. Working back from terms and from a sum are their own explainers, `ex.algebra.arithmetic-from-terms` and `ex.algebra.arithmetic-sum-unknown`. What's still open:
+The CEO settled the pilot questions on [FAL-953](/FAL/issues/FAL-953): the map follows the scripts, the length rule is the one in "The arc", and Gauss stays as pilot 2's story. The map follows the pilots now (FAL-952): `ex.algebra.arithmetic-sequence` teaches `SL1.2.nth-term` and builds on `ex.foundations.pre-substitute`, and `ex.algebra.arithmetic-series` teaches `SL1.2.sum`. Working back from terms and from a sum are their own explainers, `ex.algebra.arithmetic-from-terms` and `ex.algebra.arithmetic-sum-unknown`. Format 2 settled turns, line ids and how symbols are said (FAL-1043). What's still open:
 
-- **Casting.** The board chose the voices on FAL-927, but GitHub #18 is still open. Mags's and Tess's blocks and the four notes above can change when casting is settled there.
-- **Turns, the engine and recording ids.** How a `turn` maps to the maths engine, and whether lines need ids that survive edits, are phase 2, with Coder. Until then a recording is named by section and position, frozen at `approved`.
-- **How symbols are said.** "u n" or "u sub n", and the like, is decided with the voice, at recording.
-- **Pictures on the board.** The board is text only, so a gauge, an axis or an area grid is written as text (the Foundations scripts do this). A drawn figure would teach some ideas better. A `figure` board item would be a phase 2 question for Coder and Artist.
+- **Drawing figures.** The `figure` item is designed above, but nothing draws it yet. The Godot player needs it before any script that waits for it can be approved.
+- **Turns in parts, and stories.** The engine serves one part and picks its own story, so exam turns are fallback turns for now. A turn could be served live once the engine can make a question in parts, or pin a context, on request from the explainer player's task.
+- **Word timings.** One clip per line needs none. A caption that highlights word by word, or a board item that appears mid-line, would; then check whether the voice's response includes timings, and use a forced aligner on the known `say` if not (#190).

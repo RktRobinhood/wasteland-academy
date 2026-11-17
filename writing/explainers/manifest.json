@@ -1,0 +1,3988 @@
+{
+  "format": 1,
+  "about": "One entry per spoken line of every explainer script and callbacks.json, keyed by script id and line id (README, \"Line ids\"). say is a hash of the speaker, say, cue and cue_at: the caption is left out, so a caption edit never asks for a new take. take is null until a take is accepted, then {say, provider, model, voice, direction, date, file, transcript}: say is the hash it was recorded from. A line that leaves a script moves to retired, and its id is never used again. Written by node tools/explainer-scripts.mjs --write-manifest.",
+  "lines": {
+    "ex.algebra.arithmetic-sequence": {
+      "m0ju4u": {
+        "speaker": "mags-the-ledger",
+        "say": "564b91d166ceb95f",
+        "take": null
+      },
+      "opbzy1": {
+        "speaker": "mags-the-ledger",
+        "say": "2167718682390c13",
+        "take": null
+      },
+      "ze6u1n": {
+        "speaker": "mags-the-ledger",
+        "say": "621c9f0b877e5782",
+        "take": null
+      },
+      "uvzvfi": {
+        "speaker": "mags-the-ledger",
+        "say": "d2fc1cb15387ed14",
+        "take": null
+      },
+      "xphuia": {
+        "speaker": "mags-the-ledger",
+        "say": "406f67cde5d9e506",
+        "take": null
+      },
+      "t0i0ge": {
+        "speaker": "mags-the-ledger",
+        "say": "134c39f153c3349e",
+        "take": null
+      },
+      "ipf3or": {
+        "speaker": "mags-the-ledger",
+        "say": "d2fc1cb15387ed14",
+        "take": null
+      },
+      "n1aqxb": {
+        "speaker": "mags-the-ledger",
+        "say": "a33fcb1afa9c7680",
+        "take": null
+      },
+      "zmbhk6": {
+        "speaker": "mags-the-ledger",
+        "say": "3cbf7ad58ef89ecb",
+        "take": null
+      },
+      "buq5ls": {
+        "speaker": "mags-the-ledger",
+        "say": "4e2968c2a7586e33",
+        "take": null
+      },
+      "j1ytyx": {
+        "speaker": "mags-the-ledger",
+        "say": "9c9e9e6cfa81f9ea",
+        "take": null
+      },
+      "xaaoi9": {
+        "speaker": "mags-the-ledger",
+        "say": "0769ff01ab76d6ff",
+        "take": null
+      },
+      "wtwddt": {
+        "speaker": "mags-the-ledger",
+        "say": "9930d19cc47edced",
+        "take": null
+      },
+      "kc5duy": {
+        "speaker": "mags-the-ledger",
+        "say": "9ceba4bdf4410c0d",
+        "take": null
+      },
+      "w5qpzy": {
+        "speaker": "mags-the-ledger",
+        "say": "aea2e8605f40009f",
+        "take": null
+      },
+      "nxgfji": {
+        "speaker": "mags-the-ledger",
+        "say": "49afcff33715c6d5",
+        "take": null
+      },
+      "nj2v9e": {
+        "speaker": "mags-the-ledger",
+        "say": "18176c8cfca6226e",
+        "take": null
+      },
+      "zwa6ps": {
+        "speaker": "mags-the-ledger",
+        "say": "bd39c8a507984859",
+        "take": null
+      },
+      "kpgpau": {
+        "speaker": "mags-the-ledger",
+        "say": "967f957b2d4ebc92",
+        "take": null
+      },
+      "x320qu": {
+        "speaker": "mags-the-ledger",
+        "say": "e9ed78aa44adebfd",
+        "take": null
+      },
+      "w1apkg": {
+        "speaker": "mags-the-ledger",
+        "say": "bae0d2db8bf02ad8",
+        "take": null
+      },
+      "ykfoi7": {
+        "speaker": "mags-the-ledger",
+        "say": "e385b82db5d3b6f4",
+        "take": null
+      },
+      "du4dl3": {
+        "speaker": "mags-the-ledger",
+        "say": "bbd1a352e4a5baf6",
+        "take": null
+      },
+      "sm9jdt": {
+        "speaker": "mags-the-ledger",
+        "say": "bbbb13ab4a9c01c1",
+        "take": null
+      },
+      "ss156v": {
+        "speaker": "mags-the-ledger",
+        "say": "5615d9925e51caff",
+        "take": null
+      },
+      "gdjml0": {
+        "speaker": "mags-the-ledger",
+        "say": "9edf129d1e9fba84",
+        "take": null
+      },
+      "d80ukr": {
+        "speaker": "mags-the-ledger",
+        "say": "f0fb5489e06f6ab2",
+        "take": null
+      },
+      "ysyhcm": {
+        "speaker": "mags-the-ledger",
+        "say": "47d8585ad48cae9d",
+        "take": null
+      },
+      "gs1tif": {
+        "speaker": "mags-the-ledger",
+        "say": "76c27beacaceb04e",
+        "take": null
+      },
+      "oaqhht": {
+        "speaker": "mags-the-ledger",
+        "say": "4ad0354904aa4e2c",
+        "take": null
+      },
+      "hlwd4i": {
+        "speaker": "mags-the-ledger",
+        "say": "da58806f233120ab",
+        "take": null
+      },
+      "jtuqjw": {
+        "speaker": "mags-the-ledger",
+        "say": "8e4352f038542fa4",
+        "take": null
+      },
+      "axvkm8": {
+        "speaker": "mags-the-ledger",
+        "say": "9d8caa481fe8aec3",
+        "take": null
+      },
+      "m3mhhe": {
+        "speaker": "mags-the-ledger",
+        "say": "ff27806b4c43c2df",
+        "take": null
+      },
+      "kd529z": {
+        "speaker": "mags-the-ledger",
+        "say": "47a66ddd53b02821",
+        "take": null
+      },
+      "wmc2rf": {
+        "speaker": "mags-the-ledger",
+        "say": "e19654f24acebfad",
+        "take": null
+      },
+      "xy5x2p": {
+        "speaker": "mags-the-ledger",
+        "say": "b03177d3a9b5e5dd",
+        "take": null
+      },
+      "xnagtn": {
+        "speaker": "mags-the-ledger",
+        "say": "1d258f1b35f96216",
+        "take": null
+      },
+      "u5hrtc": {
+        "speaker": "mags-the-ledger",
+        "say": "8fb98fffc669850a",
+        "take": null
+      },
+      "f08mqv": {
+        "speaker": "mags-the-ledger",
+        "say": "08b0a7f65425893e",
+        "take": null
+      },
+      "xiggsv": {
+        "speaker": "mags-the-ledger",
+        "say": "1430843edf3536c3",
+        "take": null
+      },
+      "mlzgdl": {
+        "speaker": "mags-the-ledger",
+        "say": "3afdc81f4ff0c8b3",
+        "take": null
+      },
+      "siaw54": {
+        "speaker": "mags-the-ledger",
+        "say": "31aeb412441ed723",
+        "take": null
+      },
+      "xduxt9": {
+        "speaker": "mags-the-ledger",
+        "say": "c236f2b2bacfe6bc",
+        "take": null
+      },
+      "b1doye": {
+        "speaker": "mags-the-ledger",
+        "say": "765967d75a930541",
+        "take": null
+      },
+      "oa4xwe": {
+        "speaker": "mags-the-ledger",
+        "say": "2ef5f38ef7c47a41",
+        "take": null
+      },
+      "uzdjd3": {
+        "speaker": "mags-the-ledger",
+        "say": "b69420d7b2445dff",
+        "take": null
+      },
+      "gbq1b0": {
+        "speaker": "mags-the-ledger",
+        "say": "deddd84ab2ade281",
+        "take": null
+      },
+      "x3tqls": {
+        "speaker": "mags-the-ledger",
+        "say": "d43ab7e38f95bd67",
+        "take": null
+      },
+      "pbsyck": {
+        "speaker": "mags-the-ledger",
+        "say": "a96687b9c11f6c55",
+        "take": null
+      },
+      "enqh64": {
+        "speaker": "mags-the-ledger",
+        "say": "3a907ae4c155f51e",
+        "take": null
+      },
+      "v38wfi": {
+        "speaker": "mags-the-ledger",
+        "say": "1bb7ae9e5e1d957d",
+        "take": null
+      },
+      "slqvrz": {
+        "speaker": "mags-the-ledger",
+        "say": "857588a8e3b749de",
+        "take": null
+      },
+      "ba1c9c": {
+        "speaker": "mags-the-ledger",
+        "say": "69e9e6e9c6589d40",
+        "take": null
+      },
+      "odwdb3": {
+        "speaker": "mags-the-ledger",
+        "say": "2108bf0ea895d25d",
+        "take": null
+      },
+      "mz96qm": {
+        "speaker": "mags-the-ledger",
+        "say": "be44d89f2a423937",
+        "take": null
+      },
+      "rmiu7q": {
+        "speaker": "mags-the-ledger",
+        "say": "353255b71e7ceb17",
+        "take": null
+      },
+      "i60a0w": {
+        "speaker": "mags-the-ledger",
+        "say": "5bada59ab09c6503",
+        "take": null
+      },
+      "fdygx5": {
+        "speaker": "mags-the-ledger",
+        "say": "fc5e15bf54bf5546",
+        "take": null
+      },
+      "lx5w8g": {
+        "speaker": "mags-the-ledger",
+        "say": "d96d63f18052d5f3",
+        "take": null
+      },
+      "s0oe7a": {
+        "speaker": "mags-the-ledger",
+        "say": "9004ee9bf3a42934",
+        "take": null
+      },
+      "yllpr5": {
+        "speaker": "mags-the-ledger",
+        "say": "7e5d24551837eff3",
+        "take": null
+      },
+      "huly91": {
+        "speaker": "mags-the-ledger",
+        "say": "6aea186a40f567f2",
+        "take": null
+      },
+      "wh58v1": {
+        "speaker": "mags-the-ledger",
+        "say": "c20ce08ae7b68d21",
+        "take": null
+      },
+      "ajgy75": {
+        "speaker": "mags-the-ledger",
+        "say": "604424778075684e",
+        "take": null
+      },
+      "nqkgt2": {
+        "speaker": "mags-the-ledger",
+        "say": "8f50d35fc886f4c8",
+        "take": null
+      }
+    },
+    "ex.algebra.arithmetic-series": {
+      "oh5pdp": {
+        "speaker": "mags-the-ledger",
+        "say": "f03e1f967c229fe2",
+        "take": null
+      },
+      "awga06": {
+        "speaker": "mags-the-ledger",
+        "say": "624f800a40ed5fc5",
+        "take": null
+      },
+      "w3sgnu": {
+        "speaker": "mags-the-ledger",
+        "say": "98f165c4ce7f3541",
+        "take": null
+      },
+      "mr3k5v": {
+        "speaker": "mags-the-ledger",
+        "say": "2be32ed80c8113cd",
+        "take": null
+      },
+      "hz0e66": {
+        "speaker": "mags-the-ledger",
+        "say": "68dec010f4fe83b0",
+        "take": null
+      },
+      "dydbte": {
+        "speaker": "mags-the-ledger",
+        "say": "d2fc1cb15387ed14",
+        "take": null
+      },
+      "hot8ws": {
+        "speaker": "mags-the-ledger",
+        "say": "3c50cd49c0bb82f0",
+        "take": null
+      },
+      "q5jvkt": {
+        "speaker": "mags-the-ledger",
+        "say": "ee9198a6c8c7d619",
+        "take": null
+      },
+      "ef27xa": {
+        "speaker": "mags-the-ledger",
+        "say": "1b765965544a9f21",
+        "take": null
+      },
+      "dyctao": {
+        "speaker": "mags-the-ledger",
+        "say": "fb8ce10241063498",
+        "take": null
+      },
+      "qpkffu": {
+        "speaker": "mags-the-ledger",
+        "say": "abbeb692c6fc041a",
+        "take": null
+      },
+      "ckbles": {
+        "speaker": "mags-the-ledger",
+        "say": "6cc8ee3fcfeeca41",
+        "take": null
+      },
+      "bncnnc": {
+        "speaker": "mags-the-ledger",
+        "say": "43569106d5757828",
+        "take": null
+      },
+      "pslff5": {
+        "speaker": "mags-the-ledger",
+        "say": "f03d3f6e77f307e3",
+        "take": null
+      },
+      "wgf17o": {
+        "speaker": "mags-the-ledger",
+        "say": "fc8a9b70903ca7f8",
+        "take": null
+      },
+      "kb5f4v": {
+        "speaker": "mags-the-ledger",
+        "say": "2c12bb5016c0cb90",
+        "take": null
+      },
+      "p7cp5h": {
+        "speaker": "mags-the-ledger",
+        "say": "90ad05563bf16048",
+        "take": null
+      },
+      "bdauqh": {
+        "speaker": "mags-the-ledger",
+        "say": "3d04b088873af3d0",
+        "take": null
+      },
+      "y6e51s": {
+        "speaker": "mags-the-ledger",
+        "say": "2e49a237ef014e0d",
+        "take": null
+      },
+      "su6pse": {
+        "speaker": "mags-the-ledger",
+        "say": "c8bb951f013c0031",
+        "take": null
+      },
+      "hdr0y9": {
+        "speaker": "mags-the-ledger",
+        "say": "758e637b85a4a8bd",
+        "take": null
+      },
+      "a1ek68": {
+        "speaker": "mags-the-ledger",
+        "say": "520bda9d768dd705",
+        "take": null
+      },
+      "acx6kl": {
+        "speaker": "mags-the-ledger",
+        "say": "0f8a72051e9e72b0",
+        "take": null
+      },
+      "neyqcq": {
+        "speaker": "mags-the-ledger",
+        "say": "7e0b6de51083477e",
+        "take": null
+      },
+      "by3n2j": {
+        "speaker": "mags-the-ledger",
+        "say": "60e56e90e3bfbf0e",
+        "take": null
+      },
+      "ku01vt": {
+        "speaker": "mags-the-ledger",
+        "say": "99d02018cf93ed31",
+        "take": null
+      },
+      "cnim7q": {
+        "speaker": "mags-the-ledger",
+        "say": "ae7519294ae02e04",
+        "take": null
+      },
+      "hfvdua": {
+        "speaker": "mags-the-ledger",
+        "say": "b32a9a8d1e97cac5",
+        "take": null
+      },
+      "y85ih3": {
+        "speaker": "mags-the-ledger",
+        "say": "c1c0d6007413e437",
+        "take": null
+      },
+      "evjduv": {
+        "speaker": "mags-the-ledger",
+        "say": "767990a7f0204cb8",
+        "take": null
+      },
+      "njg162": {
+        "speaker": "mags-the-ledger",
+        "say": "a22f40cacc373e64",
+        "take": null
+      },
+      "kszb97": {
+        "speaker": "mags-the-ledger",
+        "say": "3951753e2da5d32a",
+        "take": null
+      },
+      "i1uae1": {
+        "speaker": "mags-the-ledger",
+        "say": "0b90ebbeffc74994",
+        "take": null
+      },
+      "ym0bly": {
+        "speaker": "mags-the-ledger",
+        "say": "cff06d4285cf40da",
+        "take": null
+      },
+      "jw3l88": {
+        "speaker": "mags-the-ledger",
+        "say": "8cefd65c7bfe8ad4",
+        "take": null
+      },
+      "pu0ott": {
+        "speaker": "mags-the-ledger",
+        "say": "44d4c35f0accf899",
+        "take": null
+      },
+      "bokipa": {
+        "speaker": "mags-the-ledger",
+        "say": "cce0ebe080ca473b",
+        "take": null
+      },
+      "tm44yf": {
+        "speaker": "mags-the-ledger",
+        "say": "792c0d26ca872f7c",
+        "take": null
+      },
+      "tguj8l": {
+        "speaker": "mags-the-ledger",
+        "say": "95f4790dd2305eab",
+        "take": null
+      },
+      "k3h0pf": {
+        "speaker": "mags-the-ledger",
+        "say": "686b7a6fb820627a",
+        "take": null
+      },
+      "nlr6yv": {
+        "speaker": "mags-the-ledger",
+        "say": "a4328c0c54bf2dec",
+        "take": null
+      },
+      "e8vf5k": {
+        "speaker": "mags-the-ledger",
+        "say": "58b76f4f3f850330",
+        "take": null
+      },
+      "ezfcm2": {
+        "speaker": "mags-the-ledger",
+        "say": "64f1f120734abaa5",
+        "take": null
+      },
+      "hqjgbp": {
+        "speaker": "mags-the-ledger",
+        "say": "3b75e7847aeab2a1",
+        "take": null
+      },
+      "u6lyub": {
+        "speaker": "mags-the-ledger",
+        "say": "319793903e237ba9",
+        "take": null
+      },
+      "u96m6w": {
+        "speaker": "mags-the-ledger",
+        "say": "7a2eec3af25d34a4",
+        "take": null
+      },
+      "w5ixj6": {
+        "speaker": "mags-the-ledger",
+        "say": "2623f10de3485ea4",
+        "take": null
+      },
+      "oe7st8": {
+        "speaker": "mags-the-ledger",
+        "say": "9d1c2218a1788075",
+        "take": null
+      },
+      "pe4aa7": {
+        "speaker": "mags-the-ledger",
+        "say": "679e688bf75dc985",
+        "take": null
+      },
+      "p10lus": {
+        "speaker": "mags-the-ledger",
+        "say": "1f7d996caf401297",
+        "take": null
+      },
+      "ajp79s": {
+        "speaker": "mags-the-ledger",
+        "say": "56d2d557ed8e19be",
+        "take": null
+      },
+      "vhet6z": {
+        "speaker": "mags-the-ledger",
+        "say": "ea3ac7fc4cde51a2",
+        "take": null
+      },
+      "glcsb7": {
+        "speaker": "mags-the-ledger",
+        "say": "23ebcec88379d792",
+        "take": null
+      },
+      "oqrkx7": {
+        "speaker": "mags-the-ledger",
+        "say": "08a87b69d8fb4602",
+        "take": null
+      },
+      "sa50wp": {
+        "speaker": "mags-the-ledger",
+        "say": "4af5028c65cfd157",
+        "take": null
+      },
+      "rc0oos": {
+        "speaker": "mags-the-ledger",
+        "say": "7d0416ad28e82a0a",
+        "take": null
+      },
+      "ke674j": {
+        "speaker": "mags-the-ledger",
+        "say": "1ecb39c9e22a9595",
+        "take": null
+      },
+      "ckw5nw": {
+        "speaker": "mags-the-ledger",
+        "say": "a6b80d2b9cb8bad2",
+        "take": null
+      },
+      "dual3s": {
+        "speaker": "mags-the-ledger",
+        "say": "a038da4fb4a7de2d",
+        "take": null
+      },
+      "ptjcx5": {
+        "speaker": "mags-the-ledger",
+        "say": "931dde6174a891fc",
+        "take": null
+      },
+      "cvd27h": {
+        "speaker": "mags-the-ledger",
+        "say": "c8cafc70d228e3f5",
+        "take": null
+      },
+      "nah1wn": {
+        "speaker": "mags-the-ledger",
+        "say": "804f93fa6afd348e",
+        "take": null
+      },
+      "a924a1": {
+        "speaker": "mags-the-ledger",
+        "say": "e015c7e9c6216217",
+        "take": null
+      },
+      "s7xadi": {
+        "speaker": "mags-the-ledger",
+        "say": "5a7e2a8fd133f1d4",
+        "take": null
+      },
+      "kdu6y9": {
+        "speaker": "mags-the-ledger",
+        "say": "118725d13f79603d",
+        "take": null
+      },
+      "y9mowt": {
+        "speaker": "mags-the-ledger",
+        "say": "558d68fe0b35a452",
+        "take": null
+      },
+      "cnqlou": {
+        "speaker": "mags-the-ledger",
+        "say": "c4c12686f88e5f70",
+        "take": null
+      },
+      "r9y65i": {
+        "speaker": "mags-the-ledger",
+        "say": "07f07357066c888d",
+        "take": null
+      },
+      "uc87nv": {
+        "speaker": "mags-the-ledger",
+        "say": "2a958b92b488980a",
+        "take": null
+      },
+      "ezz0ch": {
+        "speaker": "mags-the-ledger",
+        "say": "bdc2276d2b3c0397",
+        "take": null
+      },
+      "hahilc": {
+        "speaker": "mags-the-ledger",
+        "say": "28742d2499f5ff2c",
+        "take": null
+      }
+    },
+    "ex.foundations.pre-balance": {
+      "pgqrqq": {
+        "speaker": "tin-can-tess",
+        "say": "a4226f7c8d38c5f2",
+        "take": null
+      },
+      "dxc5yj": {
+        "speaker": "tin-can-tess",
+        "say": "b108a1d26078dbf4",
+        "take": null
+      },
+      "pehkjp": {
+        "speaker": "tin-can-tess",
+        "say": "f8ae4422750a2c33",
+        "take": null
+      },
+      "jwplrn": {
+        "speaker": "tin-can-tess",
+        "say": "e89954bf936ee60d",
+        "take": null
+      },
+      "n8nb6l": {
+        "speaker": "tin-can-tess",
+        "say": "54d60bf5233d678b",
+        "take": null
+      },
+      "v46l2g": {
+        "speaker": "tin-can-tess",
+        "say": "cf63986ecb9fcf5a",
+        "take": null
+      },
+      "w7u65q": {
+        "speaker": "tin-can-tess",
+        "say": "972733fa32b83b56",
+        "take": null
+      },
+      "ncedv0": {
+        "speaker": "tin-can-tess",
+        "say": "ce2f75ca146d9b9c",
+        "take": null
+      },
+      "oc67g6": {
+        "speaker": "tin-can-tess",
+        "say": "2e32db2b1e901030",
+        "take": null
+      },
+      "gq3e0a": {
+        "speaker": "tin-can-tess",
+        "say": "890164d432e3d336",
+        "take": null
+      },
+      "hpp7p1": {
+        "speaker": "tin-can-tess",
+        "say": "e27793fd66628679",
+        "take": null
+      },
+      "gx8obk": {
+        "speaker": "tin-can-tess",
+        "say": "b84964383fc079cb",
+        "take": null
+      },
+      "a6xywi": {
+        "speaker": "tin-can-tess",
+        "say": "33cd2c6fe41a7cb5",
+        "take": null
+      },
+      "x5pqd2": {
+        "speaker": "tin-can-tess",
+        "say": "8a559c60b20e585f",
+        "take": null
+      },
+      "o5rujx": {
+        "speaker": "tin-can-tess",
+        "say": "961b2ea918a829d9",
+        "take": null
+      },
+      "chevkb": {
+        "speaker": "tin-can-tess",
+        "say": "2ab444345947cff3",
+        "take": null
+      },
+      "br40df": {
+        "speaker": "tin-can-tess",
+        "say": "1d48ecefe90c0752",
+        "take": null
+      },
+      "ua34fi": {
+        "speaker": "tin-can-tess",
+        "say": "a3f287ecfe6e74e1",
+        "take": null
+      },
+      "xtl7qe": {
+        "speaker": "tin-can-tess",
+        "say": "7eb5344ba150ac37",
+        "take": null
+      },
+      "v3jqra": {
+        "speaker": "tin-can-tess",
+        "say": "d8647cc57d56fc65",
+        "take": null
+      },
+      "wlflbh": {
+        "speaker": "tin-can-tess",
+        "say": "d809c76822d78d45",
+        "take": null
+      },
+      "swlixq": {
+        "speaker": "tin-can-tess",
+        "say": "b6d0875ac8c9e4f0",
+        "take": null
+      },
+      "lv2y1j": {
+        "speaker": "tin-can-tess",
+        "say": "7377fe0fc936e61f",
+        "take": null
+      },
+      "at656m": {
+        "speaker": "tin-can-tess",
+        "say": "f7fcb21c5e84753a",
+        "take": null
+      },
+      "tkqjjj": {
+        "speaker": "tin-can-tess",
+        "say": "1295116150eeceaa",
+        "take": null
+      },
+      "lbcysh": {
+        "speaker": "tin-can-tess",
+        "say": "8e919430000b9bdc",
+        "take": null
+      },
+      "rgg2tx": {
+        "speaker": "tin-can-tess",
+        "say": "4f115e30b6bfe044",
+        "take": null
+      },
+      "mwwxuh": {
+        "speaker": "tin-can-tess",
+        "say": "eda24e5d2b1a41d4",
+        "take": null
+      },
+      "oovtt9": {
+        "speaker": "tin-can-tess",
+        "say": "7e21933ddd6a87ad",
+        "take": null
+      },
+      "hlwqbm": {
+        "speaker": "tin-can-tess",
+        "say": "99fc099b457b1bb2",
+        "take": null
+      },
+      "t607gg": {
+        "speaker": "tin-can-tess",
+        "say": "d7d4e5c6963cbc46",
+        "take": null
+      },
+      "didfk1": {
+        "speaker": "tin-can-tess",
+        "say": "eebd3aaea1f2e3ce",
+        "take": null
+      },
+      "m6f3ob": {
+        "speaker": "tin-can-tess",
+        "say": "e0dfeafa3553a430",
+        "take": null
+      },
+      "c9uqmu": {
+        "speaker": "tin-can-tess",
+        "say": "2600f2402e15776b",
+        "take": null
+      },
+      "y8zo63": {
+        "speaker": "tin-can-tess",
+        "say": "7d65c3e6f0d3efa5",
+        "take": null
+      },
+      "tlz5ou": {
+        "speaker": "tin-can-tess",
+        "say": "a2a9044192b2c1a4",
+        "take": null
+      },
+      "u243xd": {
+        "speaker": "tin-can-tess",
+        "say": "d1c33a4a1d653046",
+        "take": null
+      },
+      "fv6ttv": {
+        "speaker": "tin-can-tess",
+        "say": "5d7bb578a70a068e",
+        "take": null
+      },
+      "pyvcko": {
+        "speaker": "tin-can-tess",
+        "say": "8733745e3ede7810",
+        "take": null
+      },
+      "pbakil": {
+        "speaker": "tin-can-tess",
+        "say": "efe578c9a551ee33",
+        "take": null
+      },
+      "dlyxb1": {
+        "speaker": "tin-can-tess",
+        "say": "7bbe152b76497e33",
+        "take": null
+      },
+      "uyb1k4": {
+        "speaker": "tin-can-tess",
+        "say": "1fdfbfec49bc8abf",
+        "take": null
+      },
+      "hcm7vz": {
+        "speaker": "tin-can-tess",
+        "say": "4837b55eb0be73a7",
+        "take": null
+      },
+      "ej1sop": {
+        "speaker": "tin-can-tess",
+        "say": "f1011964ce8d67a1",
+        "take": null
+      },
+      "d1j0y5": {
+        "speaker": "tin-can-tess",
+        "say": "5d8b3eb5c9befd2c",
+        "take": null
+      },
+      "uzsp2d": {
+        "speaker": "tin-can-tess",
+        "say": "920f69d574b966a0",
+        "take": null
+      },
+      "h1xa4n": {
+        "speaker": "tin-can-tess",
+        "say": "ce748f59ccc08bf9",
+        "take": null
+      },
+      "oa6knd": {
+        "speaker": "tin-can-tess",
+        "say": "679292ee20d75e23",
+        "take": null
+      },
+      "v1xnkj": {
+        "speaker": "tin-can-tess",
+        "say": "34496844c7c34205",
+        "take": null
+      },
+      "jcqv3o": {
+        "speaker": "tin-can-tess",
+        "say": "83ddd58fb954a893",
+        "take": null
+      },
+      "wwt9z2": {
+        "speaker": "tin-can-tess",
+        "say": "4bb70a989bb22add",
+        "take": null
+      },
+      "gq0dqw": {
+        "speaker": "tin-can-tess",
+        "say": "769e02add3fe7ee4",
+        "take": null
+      },
+      "sgfai7": {
+        "speaker": "tin-can-tess",
+        "say": "e29a063edb7f5112",
+        "take": null
+      },
+      "j9vrxh": {
+        "speaker": "tin-can-tess",
+        "say": "4402339936725390",
+        "take": null
+      },
+      "e209cg": {
+        "speaker": "tin-can-tess",
+        "say": "9e989963e604c26c",
+        "take": null
+      }
+    },
+    "ex.foundations.pre-expand": {
+      "zo1o6e": {
+        "speaker": "tin-can-tess",
+        "say": "3e5357e386e5585a",
+        "take": null
+      },
+      "qi1up9": {
+        "speaker": "tin-can-tess",
+        "say": "0256172a9baf2c6d",
+        "take": null
+      },
+      "h9p0fr": {
+        "speaker": "tin-can-tess",
+        "say": "9b720d6a60b616f7",
+        "take": null
+      },
+      "h919p0": {
+        "speaker": "tin-can-tess",
+        "say": "87112c7765f0df47",
+        "take": null
+      },
+      "e4zowa": {
+        "speaker": "tin-can-tess",
+        "say": "5292cc3dfbc3fd9c",
+        "take": null
+      },
+      "q6xl9r": {
+        "speaker": "tin-can-tess",
+        "say": "a73f685dc59265d0",
+        "take": null
+      },
+      "l70ua7": {
+        "speaker": "tin-can-tess",
+        "say": "86f17bfe8bedee63",
+        "take": null
+      },
+      "jfp0pk": {
+        "speaker": "tin-can-tess",
+        "say": "f43718032f255130",
+        "take": null
+      },
+      "uavg7h": {
+        "speaker": "tin-can-tess",
+        "say": "3f08ef4a73efbea0",
+        "take": null
+      },
+      "wt6vu0": {
+        "speaker": "tin-can-tess",
+        "say": "951e97454b1a7ee8",
+        "take": null
+      },
+      "orlokd": {
+        "speaker": "tin-can-tess",
+        "say": "f419185a830f2150",
+        "take": null
+      },
+      "xdd63i": {
+        "speaker": "tin-can-tess",
+        "say": "35785e193e144206",
+        "take": null
+      },
+      "ts2tp5": {
+        "speaker": "tin-can-tess",
+        "say": "4178b61383ad58a6",
+        "take": null
+      },
+      "l5iqh2": {
+        "speaker": "tin-can-tess",
+        "say": "6d7e24916fbd8dbb",
+        "take": null
+      },
+      "n2u6go": {
+        "speaker": "tin-can-tess",
+        "say": "b580a996cb0b0753",
+        "take": null
+      },
+      "l92wfh": {
+        "speaker": "tin-can-tess",
+        "say": "21e9e49a451299de",
+        "take": null
+      },
+      "ya5nfi": {
+        "speaker": "tin-can-tess",
+        "say": "2956db0cf7c84e65",
+        "take": null
+      },
+      "x27kkb": {
+        "speaker": "tin-can-tess",
+        "say": "2cc4e148a31dcda1",
+        "take": null
+      },
+      "jw99gs": {
+        "speaker": "tin-can-tess",
+        "say": "65fb178f579ae120",
+        "take": null
+      },
+      "p04saf": {
+        "speaker": "tin-can-tess",
+        "say": "9aa635f9369d1e6c",
+        "take": null
+      },
+      "lnx1it": {
+        "speaker": "tin-can-tess",
+        "say": "b7c8d8f6c64bf3de",
+        "take": null
+      },
+      "jdclor": {
+        "speaker": "tin-can-tess",
+        "say": "4d9744d09ab41db7",
+        "take": null
+      },
+      "fbo6qv": {
+        "speaker": "tin-can-tess",
+        "say": "1295116150eeceaa",
+        "take": null
+      },
+      "g8d4g0": {
+        "speaker": "tin-can-tess",
+        "say": "a00794c936186b0e",
+        "take": null
+      },
+      "etefza": {
+        "speaker": "tin-can-tess",
+        "say": "f94027c5a0b1578c",
+        "take": null
+      },
+      "fn4xhb": {
+        "speaker": "tin-can-tess",
+        "say": "56a94d0da7127c28",
+        "take": null
+      },
+      "hrg9ld": {
+        "speaker": "tin-can-tess",
+        "say": "cb5e069c7d78082c",
+        "take": null
+      },
+      "xbmtx0": {
+        "speaker": "tin-can-tess",
+        "say": "947b57c8eccd7c42",
+        "take": null
+      },
+      "o5rjk4": {
+        "speaker": "tin-can-tess",
+        "say": "e55f8c90f906d201",
+        "take": null
+      },
+      "pzkgas": {
+        "speaker": "tin-can-tess",
+        "say": "e891c9da9ebc476e",
+        "take": null
+      },
+      "whdt40": {
+        "speaker": "tin-can-tess",
+        "say": "4db73f4cdaf97524",
+        "take": null
+      },
+      "hvwdjh": {
+        "speaker": "tin-can-tess",
+        "say": "a655fd2420a0bbaa",
+        "take": null
+      },
+      "wr5o9z": {
+        "speaker": "tin-can-tess",
+        "say": "8d22d945559116a8",
+        "take": null
+      },
+      "scp1mq": {
+        "speaker": "tin-can-tess",
+        "say": "c9cd894b765209a6",
+        "take": null
+      },
+      "xlussf": {
+        "speaker": "tin-can-tess",
+        "say": "d5bd94d127cdde86",
+        "take": null
+      },
+      "rfdgdp": {
+        "speaker": "tin-can-tess",
+        "say": "5497736b59809ed0",
+        "take": null
+      },
+      "n0jk1j": {
+        "speaker": "tin-can-tess",
+        "say": "00b8aeb2c3b16ff0",
+        "take": null
+      },
+      "cy39ls": {
+        "speaker": "tin-can-tess",
+        "say": "034515a48660839f",
+        "take": null
+      },
+      "we7ajo": {
+        "speaker": "tin-can-tess",
+        "say": "cea75d5d7d2964f7",
+        "take": null
+      },
+      "z1jqsz": {
+        "speaker": "tin-can-tess",
+        "say": "17f555e996b7cd6d",
+        "take": null
+      },
+      "derjbe": {
+        "speaker": "tin-can-tess",
+        "say": "7e9a1406fe2966ad",
+        "take": null
+      },
+      "wyoxuw": {
+        "speaker": "tin-can-tess",
+        "say": "861eadd1da7db5e6",
+        "take": null
+      },
+      "ts3xni": {
+        "speaker": "tin-can-tess",
+        "say": "da224c5e3055d9db",
+        "take": null
+      },
+      "cgb608": {
+        "speaker": "tin-can-tess",
+        "say": "9dd1ef8d1db8c33b",
+        "take": null
+      },
+      "g9ced4": {
+        "speaker": "tin-can-tess",
+        "say": "f162a191f1bac312",
+        "take": null
+      },
+      "tw4pla": {
+        "speaker": "tin-can-tess",
+        "say": "3fbfdb65f5fc1a4a",
+        "take": null
+      },
+      "cbwflg": {
+        "speaker": "tin-can-tess",
+        "say": "8d6fa5a4edd0d8f9",
+        "take": null
+      },
+      "s6tvcr": {
+        "speaker": "tin-can-tess",
+        "say": "fd34c9cfa3f96fc4",
+        "take": null
+      },
+      "fkbbgz": {
+        "speaker": "tin-can-tess",
+        "say": "c12c1a98695dbb84",
+        "take": null
+      },
+      "e29rd4": {
+        "speaker": "tin-can-tess",
+        "say": "9e14bdf3ccc72d4e",
+        "take": null
+      },
+      "qxokck": {
+        "speaker": "tin-can-tess",
+        "say": "85aec014f35e482d",
+        "take": null
+      },
+      "vhyidd": {
+        "speaker": "tin-can-tess",
+        "say": "b57c42b5630c9c9d",
+        "take": null
+      }
+    },
+    "ex.foundations.pre-percent-multiplier": {
+      "wpzx11": {
+        "speaker": "tin-can-tess",
+        "say": "0936e944b309f9e9",
+        "take": null
+      },
+      "vfevxy": {
+        "speaker": "tin-can-tess",
+        "say": "2c1952e4a9f30940",
+        "take": null
+      },
+      "fextbw": {
+        "speaker": "tin-can-tess",
+        "say": "5ec294a51c647510",
+        "take": null
+      },
+      "vy2h1s": {
+        "speaker": "tin-can-tess",
+        "say": "87112c7765f0df47",
+        "take": null
+      },
+      "u28q4x": {
+        "speaker": "tin-can-tess",
+        "say": "a25cc6fd3e3163fc",
+        "take": null
+      },
+      "veragx": {
+        "speaker": "tin-can-tess",
+        "say": "49193df14eebd445",
+        "take": null
+      },
+      "ixkt21": {
+        "speaker": "tin-can-tess",
+        "say": "eae2eee285c16d7d",
+        "take": null
+      },
+      "engpap": {
+        "speaker": "tin-can-tess",
+        "say": "d91cbe50db35d9d2",
+        "take": null
+      },
+      "q8mtdn": {
+        "speaker": "tin-can-tess",
+        "say": "e2c39c7415e11da8",
+        "take": null
+      },
+      "qtngia": {
+        "speaker": "tin-can-tess",
+        "say": "551ae04e4da2dd6c",
+        "take": null
+      },
+      "z4vye6": {
+        "speaker": "tin-can-tess",
+        "say": "c0306d630741c8af",
+        "take": null
+      },
+      "eqau7h": {
+        "speaker": "tin-can-tess",
+        "say": "1a9edfa906214e52",
+        "take": null
+      },
+      "dszdv7": {
+        "speaker": "tin-can-tess",
+        "say": "4bce8f61cf0947d9",
+        "take": null
+      },
+      "girhiq": {
+        "speaker": "tin-can-tess",
+        "say": "840be91f871144e1",
+        "take": null
+      },
+      "q3aem3": {
+        "speaker": "tin-can-tess",
+        "say": "a39a343d07fea3de",
+        "take": null
+      },
+      "fvvv58": {
+        "speaker": "tin-can-tess",
+        "say": "7dad1b693aad1b28",
+        "take": null
+      },
+      "aa6pu6": {
+        "speaker": "tin-can-tess",
+        "say": "c71c9d891275442d",
+        "take": null
+      },
+      "qqyhqm": {
+        "speaker": "tin-can-tess",
+        "say": "ddd73f2358121aa3",
+        "take": null
+      },
+      "gzn3oa": {
+        "speaker": "tin-can-tess",
+        "say": "2db25e725d91533f",
+        "take": null
+      },
+      "a0vjkt": {
+        "speaker": "tin-can-tess",
+        "say": "a7eb61cb83b60f45",
+        "take": null
+      },
+      "qy16rf": {
+        "speaker": "tin-can-tess",
+        "say": "dcf09d6c2a3241b4",
+        "take": null
+      },
+      "pc4dj9": {
+        "speaker": "tin-can-tess",
+        "say": "57094125a64c7478",
+        "take": null
+      },
+      "pwx2fx": {
+        "speaker": "tin-can-tess",
+        "say": "3d3f1d8dab82d071",
+        "take": null
+      },
+      "h4819u": {
+        "speaker": "tin-can-tess",
+        "say": "c161c4f5c9ebad5f",
+        "take": null
+      },
+      "ia1hwt": {
+        "speaker": "tin-can-tess",
+        "say": "9391c3fe297a9beb",
+        "take": null
+      },
+      "b6a9ac": {
+        "speaker": "tin-can-tess",
+        "say": "57fe698ce2e0653e",
+        "take": null
+      },
+      "qakhii": {
+        "speaker": "tin-can-tess",
+        "say": "80a8f6e33cf99911",
+        "take": null
+      },
+      "ydisje": {
+        "speaker": "tin-can-tess",
+        "say": "6f133b7cbf8f01f0",
+        "take": null
+      },
+      "rmovdv": {
+        "speaker": "tin-can-tess",
+        "say": "d9389005d46448f4",
+        "take": null
+      },
+      "u691ox": {
+        "speaker": "tin-can-tess",
+        "say": "e76911f6479a83b4",
+        "take": null
+      },
+      "ul28oc": {
+        "speaker": "tin-can-tess",
+        "say": "f225f540dfc6d5e1",
+        "take": null
+      },
+      "x5no0c": {
+        "speaker": "tin-can-tess",
+        "say": "277589db3782cea2",
+        "take": null
+      },
+      "l8dake": {
+        "speaker": "tin-can-tess",
+        "say": "7123d017f770f7b4",
+        "take": null
+      },
+      "ubo31y": {
+        "speaker": "tin-can-tess",
+        "say": "8afa8dcdcf84b734",
+        "take": null
+      },
+      "hg8z4v": {
+        "speaker": "tin-can-tess",
+        "say": "bffb61d73cf3a08c",
+        "take": null
+      },
+      "z142aa": {
+        "speaker": "tin-can-tess",
+        "say": "055b04292ec0bdc9",
+        "take": null
+      },
+      "u8oxk9": {
+        "speaker": "tin-can-tess",
+        "say": "6e6ce946217eb6b9",
+        "take": null
+      },
+      "bv3edd": {
+        "speaker": "tin-can-tess",
+        "say": "5b05efa176dd1818",
+        "take": null
+      },
+      "tzrmh7": {
+        "speaker": "tin-can-tess",
+        "say": "e403a25cb6b87aac",
+        "take": null
+      },
+      "aix9zd": {
+        "speaker": "tin-can-tess",
+        "say": "7ea2413df48c9aaa",
+        "take": null
+      },
+      "dvyqs5": {
+        "speaker": "tin-can-tess",
+        "say": "9406fb7f9b714e49",
+        "take": null
+      },
+      "e02wr3": {
+        "speaker": "tin-can-tess",
+        "say": "f895102a6099f809",
+        "take": null
+      },
+      "faji2n": {
+        "speaker": "tin-can-tess",
+        "say": "838b5c14091da123",
+        "take": null
+      },
+      "uvr1gm": {
+        "speaker": "tin-can-tess",
+        "say": "c0235b0e16844a4d",
+        "take": null
+      },
+      "wmbokd": {
+        "speaker": "tin-can-tess",
+        "say": "7b55b8d9c4beb2f2",
+        "take": null
+      },
+      "d6ynbm": {
+        "speaker": "tin-can-tess",
+        "say": "abd5fb94baaeadfe",
+        "take": null
+      },
+      "drd0w4": {
+        "speaker": "tin-can-tess",
+        "say": "43b19d4caa7bd5a5",
+        "take": null
+      },
+      "bsw3a5": {
+        "speaker": "tin-can-tess",
+        "say": "28655830a97a5cd4",
+        "take": null
+      },
+      "mcemnt": {
+        "speaker": "tin-can-tess",
+        "say": "9d3345b53a414f39",
+        "take": null
+      },
+      "ff6ck4": {
+        "speaker": "tin-can-tess",
+        "say": "17d89159bf785ca5",
+        "take": null
+      },
+      "o2g4jy": {
+        "speaker": "tin-can-tess",
+        "say": "236aba4ee6054466",
+        "take": null
+      }
+    },
+    "ex.foundations.pre-read-and-round": {
+      "rg2z0b": {
+        "speaker": "tin-can-tess",
+        "say": "fcfb31c9c7369732",
+        "take": null
+      },
+      "tjvv6t": {
+        "speaker": "tin-can-tess",
+        "say": "d10790eb001aaa56",
+        "take": null
+      },
+      "ybkgso": {
+        "speaker": "tin-can-tess",
+        "say": "b07c891faeca2790",
+        "take": null
+      },
+      "d1w0ez": {
+        "speaker": "tin-can-tess",
+        "say": "87112c7765f0df47",
+        "take": null
+      },
+      "cht92d": {
+        "speaker": "tin-can-tess",
+        "say": "3ffb39536281e921",
+        "take": null
+      },
+      "p7f8ri": {
+        "speaker": "tin-can-tess",
+        "say": "2682234445381287",
+        "take": null
+      },
+      "iihx1o": {
+        "speaker": "tin-can-tess",
+        "say": "958a7536ffa940e0",
+        "take": null
+      },
+      "yd9fw6": {
+        "speaker": "tin-can-tess",
+        "say": "d2db7ae7243893b9",
+        "take": null
+      },
+      "l2zddf": {
+        "speaker": "tin-can-tess",
+        "say": "fb0e06650d09709a",
+        "take": null
+      },
+      "xa3rbr": {
+        "speaker": "tin-can-tess",
+        "say": "7a5528b295a6f049",
+        "take": null
+      },
+      "rgt7hg": {
+        "speaker": "tin-can-tess",
+        "say": "2f1f6a6aedf1cb70",
+        "take": null
+      },
+      "esa53o": {
+        "speaker": "tin-can-tess",
+        "say": "aa8550b064eb27e8",
+        "take": null
+      },
+      "b4aa97": {
+        "speaker": "tin-can-tess",
+        "say": "97f4474ee0f23126",
+        "take": null
+      },
+      "ado0zi": {
+        "speaker": "tin-can-tess",
+        "say": "229ef5fdbe9679f6",
+        "take": null
+      },
+      "rw9y8v": {
+        "speaker": "tin-can-tess",
+        "say": "c3a695528d83f8fb",
+        "take": null
+      },
+      "upjsi2": {
+        "speaker": "tin-can-tess",
+        "say": "cd9ef1f92272cce5",
+        "take": null
+      },
+      "n3364d": {
+        "speaker": "tin-can-tess",
+        "say": "5af6abf44844aed4",
+        "take": null
+      },
+      "q186g3": {
+        "speaker": "tin-can-tess",
+        "say": "ef4549dd81d6aeaf",
+        "take": null
+      },
+      "h1gpcf": {
+        "speaker": "tin-can-tess",
+        "say": "8eac641bd2a05f5c",
+        "take": null
+      },
+      "a14cps": {
+        "speaker": "tin-can-tess",
+        "say": "b26b7ebccf60443b",
+        "take": null
+      },
+      "uka0xn": {
+        "speaker": "tin-can-tess",
+        "say": "7ae61a6a55372e82",
+        "take": null
+      },
+      "bl80m5": {
+        "speaker": "tin-can-tess",
+        "say": "f31a18ed9ac69c77",
+        "take": null
+      },
+      "cgo8ne": {
+        "speaker": "tin-can-tess",
+        "say": "4fe3564189d19854",
+        "take": null
+      },
+      "ahksm6": {
+        "speaker": "tin-can-tess",
+        "say": "afa633685df25c1d",
+        "take": null
+      },
+      "oce5dl": {
+        "speaker": "tin-can-tess",
+        "say": "ba2c0f71d1702d95",
+        "take": null
+      },
+      "tsfa7g": {
+        "speaker": "tin-can-tess",
+        "say": "36dcd00227f15dff",
+        "take": null
+      },
+      "uwtytc": {
+        "speaker": "tin-can-tess",
+        "say": "c838789ad0a7e416",
+        "take": null
+      },
+      "xydhox": {
+        "speaker": "tin-can-tess",
+        "say": "81900652f61df12d",
+        "take": null
+      },
+      "b0vs2w": {
+        "speaker": "tin-can-tess",
+        "say": "ecb2558fb8e10424",
+        "take": null
+      },
+      "xarw5m": {
+        "speaker": "tin-can-tess",
+        "say": "9d6c204ea695aa49",
+        "take": null
+      },
+      "c8sqxi": {
+        "speaker": "tin-can-tess",
+        "say": "91afa8dd8e8b0525",
+        "take": null
+      },
+      "od7ye5": {
+        "speaker": "tin-can-tess",
+        "say": "6c1398b146b9b456",
+        "take": null
+      },
+      "g5i2g5": {
+        "speaker": "tin-can-tess",
+        "say": "908a4555804c448d",
+        "take": null
+      },
+      "jgrx8i": {
+        "speaker": "tin-can-tess",
+        "say": "86199acdb8a2041d",
+        "take": null
+      },
+      "sa4rbu": {
+        "speaker": "tin-can-tess",
+        "say": "c8b675d198e2d56f",
+        "take": null
+      },
+      "x7wn1n": {
+        "speaker": "tin-can-tess",
+        "say": "6231a4fea9d6cb23",
+        "take": null
+      },
+      "jm3j4c": {
+        "speaker": "tin-can-tess",
+        "say": "b42867a4416abefa",
+        "take": null
+      },
+      "z5k8ta": {
+        "speaker": "tin-can-tess",
+        "say": "1f7f7118fd1a30eb",
+        "take": null
+      },
+      "v4nrqr": {
+        "speaker": "tin-can-tess",
+        "say": "9377d8498ce5aae9",
+        "take": null
+      },
+      "z34pcb": {
+        "speaker": "tin-can-tess",
+        "say": "38f4640ff7c08c66",
+        "take": null
+      },
+      "dd2px4": {
+        "speaker": "tin-can-tess",
+        "say": "3aac976ca80f3e73",
+        "take": null
+      },
+      "q8spas": {
+        "speaker": "tin-can-tess",
+        "say": "8f566be9e346bdd6",
+        "take": null
+      },
+      "rexr3n": {
+        "speaker": "tin-can-tess",
+        "say": "5765ce0bf5afe64f",
+        "take": null
+      },
+      "tqhzml": {
+        "speaker": "tin-can-tess",
+        "say": "e920cf98be0d5ed4",
+        "take": null
+      },
+      "xq1lds": {
+        "speaker": "tin-can-tess",
+        "say": "beb3b8cc5950a5dd",
+        "take": null
+      },
+      "d21ctp": {
+        "speaker": "tin-can-tess",
+        "say": "fff6952d353f8cf5",
+        "take": null
+      },
+      "dvo53f": {
+        "speaker": "tin-can-tess",
+        "say": "83ddd58fb954a893",
+        "take": null
+      },
+      "rji24l": {
+        "speaker": "tin-can-tess",
+        "say": "736210c503e9096b",
+        "take": null
+      },
+      "dr3o1d": {
+        "speaker": "tin-can-tess",
+        "say": "633b64ea2fc4a105",
+        "take": null
+      },
+      "br62e1": {
+        "speaker": "tin-can-tess",
+        "say": "5473b30c12c6ae59",
+        "take": null
+      },
+      "mpo8la": {
+        "speaker": "tin-can-tess",
+        "say": "19cb12e9e4afd789",
+        "take": null
+      },
+      "lysjzn": {
+        "speaker": "tin-can-tess",
+        "say": "5a820db383507c67",
+        "take": null
+      }
+    },
+    "ex.foundations.pre-substitute": {
+      "x6qfnk": {
+        "speaker": "tin-can-tess",
+        "say": "bd4d7c0c66676ade",
+        "take": null
+      },
+      "er01ad": {
+        "speaker": "tin-can-tess",
+        "say": "20483c4a9a65c434",
+        "take": null
+      },
+      "dkfovq": {
+        "speaker": "tin-can-tess",
+        "say": "371c3668b3d7314e",
+        "take": null
+      },
+      "inr0wu": {
+        "speaker": "tin-can-tess",
+        "say": "bcb8a18e8287a621",
+        "take": null
+      },
+      "waef0t": {
+        "speaker": "tin-can-tess",
+        "say": "87112c7765f0df47",
+        "take": null
+      },
+      "fltzav": {
+        "speaker": "tin-can-tess",
+        "say": "6ece65c5c3c0e771",
+        "take": null
+      },
+      "mrm2sg": {
+        "speaker": "tin-can-tess",
+        "say": "cfc84644ba7aae12",
+        "take": null
+      },
+      "tplmnz": {
+        "speaker": "tin-can-tess",
+        "say": "05e52ac54c3fcf14",
+        "take": null
+      },
+      "push2s": {
+        "speaker": "tin-can-tess",
+        "say": "e40e8971ef384981",
+        "take": null
+      },
+      "n6bzfc": {
+        "speaker": "tin-can-tess",
+        "say": "114fb61a317084c8",
+        "take": null
+      },
+      "v4rog0": {
+        "speaker": "tin-can-tess",
+        "say": "5c4dd689fad1c7bb",
+        "take": null
+      },
+      "g6cnq5": {
+        "speaker": "tin-can-tess",
+        "say": "9206483f27e3de4c",
+        "take": null
+      },
+      "zxw50a": {
+        "speaker": "tin-can-tess",
+        "say": "5e2a6990c6c89ca4",
+        "take": null
+      },
+      "pd51n6": {
+        "speaker": "tin-can-tess",
+        "say": "a76edceba784132e",
+        "take": null
+      },
+      "bjodbi": {
+        "speaker": "tin-can-tess",
+        "say": "9c0bf8a5ff4ed9c5",
+        "take": null
+      },
+      "b5fxtk": {
+        "speaker": "tin-can-tess",
+        "say": "b3beff4755d205aa",
+        "take": null
+      },
+      "yeuota": {
+        "speaker": "tin-can-tess",
+        "say": "9846d50ff82ac0fe",
+        "take": null
+      },
+      "gzl7b5": {
+        "speaker": "tin-can-tess",
+        "say": "81102c9bd50e250f",
+        "take": null
+      },
+      "tr0kh6": {
+        "speaker": "tin-can-tess",
+        "say": "4fda5f95209dd282",
+        "take": null
+      },
+      "kjr7wr": {
+        "speaker": "tin-can-tess",
+        "say": "2c40b258289387c7",
+        "take": null
+      },
+      "ikaa8r": {
+        "speaker": "tin-can-tess",
+        "say": "1ca8104b6e7e9261",
+        "take": null
+      },
+      "k9bbj5": {
+        "speaker": "tin-can-tess",
+        "say": "5e2487124a2be28c",
+        "take": null
+      },
+      "vogcm3": {
+        "speaker": "tin-can-tess",
+        "say": "15cb1ea704daf736",
+        "take": null
+      },
+      "p9p6pm": {
+        "speaker": "tin-can-tess",
+        "say": "aab52ae2d9f36db4",
+        "take": null
+      },
+      "kmwv57": {
+        "speaker": "tin-can-tess",
+        "say": "4d9744d09ab41db7",
+        "take": null
+      },
+      "k0qklt": {
+        "speaker": "tin-can-tess",
+        "say": "da7000d235a7a48b",
+        "take": null
+      },
+      "vnm06n": {
+        "speaker": "tin-can-tess",
+        "say": "e13f58ae237aeb61",
+        "take": null
+      },
+      "t092d7": {
+        "speaker": "tin-can-tess",
+        "say": "8868238fca45d57c",
+        "take": null
+      },
+      "iqco7y": {
+        "speaker": "tin-can-tess",
+        "say": "084067812288d32e",
+        "take": null
+      },
+      "xd7nc4": {
+        "speaker": "tin-can-tess",
+        "say": "cde4590bc48483a6",
+        "take": null
+      },
+      "l6mv2n": {
+        "speaker": "tin-can-tess",
+        "say": "54bd426d34d00692",
+        "take": null
+      },
+      "qspnrb": {
+        "speaker": "tin-can-tess",
+        "say": "f1732801401c9ac7",
+        "take": null
+      },
+      "g9v35x": {
+        "speaker": "tin-can-tess",
+        "say": "43080938fce5b8ff",
+        "take": null
+      },
+      "hjhc9i": {
+        "speaker": "tin-can-tess",
+        "say": "7f9a4208d3a993c7",
+        "take": null
+      },
+      "epdmq6": {
+        "speaker": "tin-can-tess",
+        "say": "61f3ce91190e56a2",
+        "take": null
+      },
+      "vjm5da": {
+        "speaker": "tin-can-tess",
+        "say": "5b408cda88151d59",
+        "take": null
+      },
+      "wh73x8": {
+        "speaker": "tin-can-tess",
+        "say": "4b6d5e9b5ee18ea0",
+        "take": null
+      },
+      "n5j7aw": {
+        "speaker": "tin-can-tess",
+        "say": "1cbdfc2fa0704667",
+        "take": null
+      },
+      "xo630g": {
+        "speaker": "tin-can-tess",
+        "say": "44c811ee1bc4ed8e",
+        "take": null
+      },
+      "pgi74u": {
+        "speaker": "tin-can-tess",
+        "say": "82ee2cbc77aab285",
+        "take": null
+      },
+      "y03u06": {
+        "speaker": "tin-can-tess",
+        "say": "390c8369719a988c",
+        "take": null
+      },
+      "bnsgjp": {
+        "speaker": "tin-can-tess",
+        "say": "c4fab0180bd084a2",
+        "take": null
+      },
+      "xgu4tn": {
+        "speaker": "tin-can-tess",
+        "say": "db20181906e5b86d",
+        "take": null
+      },
+      "nc9r3y": {
+        "speaker": "tin-can-tess",
+        "say": "a8cd6d56d4066a6d",
+        "take": null
+      },
+      "f67qa8": {
+        "speaker": "tin-can-tess",
+        "say": "c5dd5070ee9907a4",
+        "take": null
+      },
+      "gzdnqp": {
+        "speaker": "tin-can-tess",
+        "say": "4552c5904c39bfda",
+        "take": null
+      },
+      "kx02ni": {
+        "speaker": "tin-can-tess",
+        "say": "7b55b8d9c4beb2f2",
+        "take": null
+      },
+      "o7874r": {
+        "speaker": "tin-can-tess",
+        "say": "f33ebdb2c0496b80",
+        "take": null
+      },
+      "w0r9zx": {
+        "speaker": "tin-can-tess",
+        "say": "83ab42a56c2b16c1",
+        "take": null
+      },
+      "uvrjzu": {
+        "speaker": "tin-can-tess",
+        "say": "18d92f5eea953263",
+        "take": null
+      },
+      "l8nocv": {
+        "speaker": "tin-can-tess",
+        "say": "e3b3724a3d4c0232",
+        "take": null
+      },
+      "edvxv8": {
+        "speaker": "tin-can-tess",
+        "say": "8d66d227e9fc530c",
+        "take": null
+      }
+    },
+    "ex.functions.function-machine": {
+      "fja93x": {
+        "speaker": "rook-dead-air",
+        "say": "bd32546794c022d8",
+        "take": null
+      },
+      "lzepas": {
+        "speaker": "rook-dead-air",
+        "say": "c45d74e6165806ee",
+        "take": null
+      },
+      "jey6g7": {
+        "speaker": "rook-dead-air",
+        "say": "36641b7e89f9238f",
+        "take": null
+      },
+      "znn81s": {
+        "speaker": "rook-dead-air",
+        "say": "16eaf409e6f8d52c",
+        "take": null
+      },
+      "huslmx": {
+        "speaker": "rook-dead-air",
+        "say": "6585b195241d9fd4",
+        "take": null
+      },
+      "hew0b6": {
+        "speaker": "rook-dead-air",
+        "say": "3924e607450ad3c6",
+        "take": null
+      },
+      "hhpsio": {
+        "speaker": "rook-dead-air",
+        "say": "16eaf409e6f8d52c",
+        "take": null
+      },
+      "d9m001": {
+        "speaker": "rook-dead-air",
+        "say": "f28d37ea70106bfb",
+        "take": null
+      },
+      "wc4nxp": {
+        "speaker": "rook-dead-air",
+        "say": "9633c6e4ba89e0e9",
+        "take": null
+      },
+      "bzsppd": {
+        "speaker": "rook-dead-air",
+        "say": "6097699cba923e65",
+        "take": null
+      },
+      "k5k6a9": {
+        "speaker": "rook-dead-air",
+        "say": "b526c97bb439dbc3",
+        "take": null
+      },
+      "h0d03z": {
+        "speaker": "rook-dead-air",
+        "say": "8fe00f0448f7e3a2",
+        "take": null
+      },
+      "b4ml81": {
+        "speaker": "rook-dead-air",
+        "say": "6c4ab8e5191f83ae",
+        "take": null
+      },
+      "npkltq": {
+        "speaker": "rook-dead-air",
+        "say": "9368b245e902a163",
+        "take": null
+      },
+      "eans3o": {
+        "speaker": "rook-dead-air",
+        "say": "5d543300c6765824",
+        "take": null
+      },
+      "jydltf": {
+        "speaker": "rook-dead-air",
+        "say": "59cf738d49744af6",
+        "take": null
+      },
+      "hocy8g": {
+        "speaker": "rook-dead-air",
+        "say": "be7554fee1f69ad4",
+        "take": null
+      },
+      "t9lqux": {
+        "speaker": "rook-dead-air",
+        "say": "1b052fc15eca4a3a",
+        "take": null
+      },
+      "wbm9rk": {
+        "speaker": "rook-dead-air",
+        "say": "6f6eccb71790ea39",
+        "take": null
+      },
+      "zz7zxs": {
+        "speaker": "rook-dead-air",
+        "say": "6d7c38945e3ccccf",
+        "take": null
+      },
+      "le6irf": {
+        "speaker": "rook-dead-air",
+        "say": "b9518192fc637ddb",
+        "take": null
+      },
+      "sruww1": {
+        "speaker": "rook-dead-air",
+        "say": "e889075c9d626750",
+        "take": null
+      },
+      "fvz8xj": {
+        "speaker": "rook-dead-air",
+        "say": "b3561cdf9fd3c964",
+        "take": null
+      },
+      "pplb5e": {
+        "speaker": "rook-dead-air",
+        "say": "c8dbe1f7d5d0e702",
+        "take": null
+      },
+      "n4oa3j": {
+        "speaker": "rook-dead-air",
+        "say": "06df76fd0aff2aba",
+        "take": null
+      },
+      "cg4k9n": {
+        "speaker": "rook-dead-air",
+        "say": "68813849d5c4fdc6",
+        "take": null
+      },
+      "aja926": {
+        "speaker": "rook-dead-air",
+        "say": "303fc101ae2ff5c4",
+        "take": null
+      },
+      "rwww0h": {
+        "speaker": "rook-dead-air",
+        "say": "93cb9bb6ae83d96c",
+        "take": null
+      },
+      "ozpwe8": {
+        "speaker": "rook-dead-air",
+        "say": "106daebbc17f8bf0",
+        "take": null
+      },
+      "fqalba": {
+        "speaker": "rook-dead-air",
+        "say": "9e1f4b2290c09f52",
+        "take": null
+      },
+      "upaeqh": {
+        "speaker": "rook-dead-air",
+        "say": "9c14800f200f6a79",
+        "take": null
+      },
+      "uxmvt8": {
+        "speaker": "rook-dead-air",
+        "say": "130a1cd5791c75f9",
+        "take": null
+      },
+      "p2otqm": {
+        "speaker": "rook-dead-air",
+        "say": "67830b2ca30a9085",
+        "take": null
+      },
+      "n9wo8l": {
+        "speaker": "rook-dead-air",
+        "say": "91c3b08c6a2b65e5",
+        "take": null
+      },
+      "r2gfjg": {
+        "speaker": "rook-dead-air",
+        "say": "e145f4b11f486eaa",
+        "take": null
+      },
+      "xbsbk1": {
+        "speaker": "rook-dead-air",
+        "say": "f7e4f7e3c3103e63",
+        "take": null
+      },
+      "rmkki8": {
+        "speaker": "rook-dead-air",
+        "say": "e31c72a1af5e0b7e",
+        "take": null
+      },
+      "dyxgw1": {
+        "speaker": "rook-dead-air",
+        "say": "35ebea78f750337e",
+        "take": null
+      },
+      "tkvfcg": {
+        "speaker": "rook-dead-air",
+        "say": "4e953c7c1f5d3756",
+        "take": null
+      },
+      "qe2mzg": {
+        "speaker": "rook-dead-air",
+        "say": "74bf7f3575f4a0cf",
+        "take": null
+      },
+      "h6ceei": {
+        "speaker": "rook-dead-air",
+        "say": "e83dc92c1f640a6f",
+        "take": null
+      },
+      "mhv7q5": {
+        "speaker": "rook-dead-air",
+        "say": "5010c7228cecd167",
+        "take": null
+      },
+      "osi3av": {
+        "speaker": "rook-dead-air",
+        "say": "2720702dcf0247de",
+        "take": null
+      },
+      "uzsy6i": {
+        "speaker": "rook-dead-air",
+        "say": "87df95e2eef24a4c",
+        "take": null
+      },
+      "fbhqk5": {
+        "speaker": "rook-dead-air",
+        "say": "32d0b6a86bebb921",
+        "take": null
+      },
+      "hg5e9e": {
+        "speaker": "rook-dead-air",
+        "say": "be028aa66a5f4c79",
+        "take": null
+      },
+      "r09bso": {
+        "speaker": "rook-dead-air",
+        "say": "43dbcfe2753f6e0f",
+        "take": null
+      },
+      "npaty4": {
+        "speaker": "rook-dead-air",
+        "say": "9825c6a789bf0237",
+        "take": null
+      },
+      "p7c0ee": {
+        "speaker": "rook-dead-air",
+        "say": "5eadf646fe84890c",
+        "take": null
+      },
+      "gv7qmt": {
+        "speaker": "rook-dead-air",
+        "say": "9e1b358a5840a720",
+        "take": null
+      },
+      "qn4hdo": {
+        "speaker": "rook-dead-air",
+        "say": "bc7ce678fd06cb66",
+        "take": null
+      },
+      "taxdom": {
+        "speaker": "rook-dead-air",
+        "say": "7e8c31d13cc5d979",
+        "take": null
+      },
+      "u6isa0": {
+        "speaker": "rook-dead-air",
+        "say": "b924bc5be86149d7",
+        "take": null
+      },
+      "rgufr9": {
+        "speaker": "rook-dead-air",
+        "say": "85d1172d565f6625",
+        "take": null
+      },
+      "ylen1l": {
+        "speaker": "rook-dead-air",
+        "say": "bbda76bbd11b03e0",
+        "take": null
+      },
+      "ug8rex": {
+        "speaker": "rook-dead-air",
+        "say": "d6127e908d32efc7",
+        "take": null
+      },
+      "xqw813": {
+        "speaker": "rook-dead-air",
+        "say": "eae1937ebf5fa69b",
+        "take": null
+      },
+      "wilzpn": {
+        "speaker": "rook-dead-air",
+        "say": "c6f29598fcdb52e1",
+        "take": null
+      },
+      "pp94wv": {
+        "speaker": "rook-dead-air",
+        "say": "11879fa342f7cf4e",
+        "take": null
+      },
+      "h0quul": {
+        "speaker": "rook-dead-air",
+        "say": "96761471fdeea70b",
+        "take": null
+      },
+      "gdomnv": {
+        "speaker": "rook-dead-air",
+        "say": "7cdd4a42eb73e59e",
+        "take": null
+      },
+      "shxoyu": {
+        "speaker": "rook-dead-air",
+        "say": "b0e5e820397b7a2d",
+        "take": null
+      },
+      "d1ax0c": {
+        "speaker": "rook-dead-air",
+        "say": "52f4cd3df151c39f",
+        "take": null
+      },
+      "lgs46l": {
+        "speaker": "rook-dead-air",
+        "say": "15ed3010a19826d1",
+        "take": null
+      }
+    },
+    "ex.functions.gradient": {
+      "frzt37": {
+        "speaker": "rook-dead-air",
+        "say": "39bccca5c7ee2f2f",
+        "take": null
+      },
+      "guswmw": {
+        "speaker": "rook-dead-air",
+        "say": "f889c3fab504651a",
+        "take": null
+      },
+      "ytkd94": {
+        "speaker": "rook-dead-air",
+        "say": "5033e040d8abb423",
+        "take": null
+      },
+      "zusfmb": {
+        "speaker": "rook-dead-air",
+        "say": "f9dcdf25b7d064fb",
+        "take": null
+      },
+      "tt44us": {
+        "speaker": "rook-dead-air",
+        "say": "0b120fddab9609cb",
+        "take": null
+      },
+      "q6d14x": {
+        "speaker": "rook-dead-air",
+        "say": "b02f6d0dd6d2c7ed",
+        "take": null
+      },
+      "qldiur": {
+        "speaker": "rook-dead-air",
+        "say": "307fcd8d11a06098",
+        "take": null
+      },
+      "ne97fi": {
+        "speaker": "rook-dead-air",
+        "say": "90e030e9a7523abe",
+        "take": null
+      },
+      "r8ii6w": {
+        "speaker": "rook-dead-air",
+        "say": "45222967319930ff",
+        "take": null
+      },
+      "zrlj2o": {
+        "speaker": "rook-dead-air",
+        "say": "fc08e67576faba3d",
+        "take": null
+      },
+      "v73i9j": {
+        "speaker": "rook-dead-air",
+        "say": "e109d6cb249dfd0e",
+        "take": null
+      },
+      "wwmx2p": {
+        "speaker": "rook-dead-air",
+        "say": "c1804c33bea59740",
+        "take": null
+      },
+      "c4l4x8": {
+        "speaker": "rook-dead-air",
+        "say": "72def01bcbe248b5",
+        "take": null
+      },
+      "x280op": {
+        "speaker": "rook-dead-air",
+        "say": "88800b3a0a2809a5",
+        "take": null
+      },
+      "xpl5zn": {
+        "speaker": "rook-dead-air",
+        "say": "60147bcc5eb5ac87",
+        "take": null
+      },
+      "tr0f2f": {
+        "speaker": "rook-dead-air",
+        "say": "50b7066781d02f61",
+        "take": null
+      },
+      "n14siy": {
+        "speaker": "rook-dead-air",
+        "say": "fdf774fb2f495fd9",
+        "take": null
+      },
+      "ubar2q": {
+        "speaker": "rook-dead-air",
+        "say": "48462f645b81c89f",
+        "take": null
+      },
+      "pxlir0": {
+        "speaker": "rook-dead-air",
+        "say": "c898a258373665f4",
+        "take": null
+      },
+      "dtqzyu": {
+        "speaker": "rook-dead-air",
+        "say": "4d0c358f80e8daf9",
+        "take": null
+      },
+      "p4cs74": {
+        "speaker": "rook-dead-air",
+        "say": "f7e64c7b4624ded1",
+        "take": null
+      },
+      "b01pdm": {
+        "speaker": "rook-dead-air",
+        "say": "caa0c92cf5dab34d",
+        "take": null
+      },
+      "ain09x": {
+        "speaker": "rook-dead-air",
+        "say": "51030d0ab6f60bda",
+        "take": null
+      },
+      "hoapei": {
+        "speaker": "rook-dead-air",
+        "say": "2a17e1f8246ab9fa",
+        "take": null
+      },
+      "dnl038": {
+        "speaker": "rook-dead-air",
+        "say": "04291f54b6931de2",
+        "take": null
+      },
+      "h0cg4q": {
+        "speaker": "rook-dead-air",
+        "say": "80e62b8c99dcf49c",
+        "take": null
+      },
+      "omz7h8": {
+        "speaker": "rook-dead-air",
+        "say": "b7b6a73abf2cca45",
+        "take": null
+      },
+      "tjpida": {
+        "speaker": "rook-dead-air",
+        "say": "18c10d885f7f5cf2",
+        "take": null
+      },
+      "aapq0g": {
+        "speaker": "rook-dead-air",
+        "say": "ef0bb294206ca958",
+        "take": null
+      },
+      "bdqxpm": {
+        "speaker": "rook-dead-air",
+        "say": "21f27b68159f702f",
+        "take": null
+      },
+      "wvakvm": {
+        "speaker": "rook-dead-air",
+        "say": "fbbdd838637fe0d3",
+        "take": null
+      },
+      "swk178": {
+        "speaker": "rook-dead-air",
+        "say": "b66ff93217fa147f",
+        "take": null
+      },
+      "mxvmmw": {
+        "speaker": "rook-dead-air",
+        "say": "5613b5a869a1723a",
+        "take": null
+      },
+      "kydmg6": {
+        "speaker": "rook-dead-air",
+        "say": "ab3b8f9168387337",
+        "take": null
+      },
+      "q1lwx2": {
+        "speaker": "rook-dead-air",
+        "say": "da90af078242d887",
+        "take": null
+      },
+      "wtopvo": {
+        "speaker": "rook-dead-air",
+        "say": "55a60e38cf8850d7",
+        "take": null
+      },
+      "mycaxg": {
+        "speaker": "rook-dead-air",
+        "say": "a2b7e2dba30f03d3",
+        "take": null
+      },
+      "pc88uk": {
+        "speaker": "rook-dead-air",
+        "say": "b48d29413f892f25",
+        "take": null
+      },
+      "w6ncbz": {
+        "speaker": "rook-dead-air",
+        "say": "4f1cdb5b119f980b",
+        "take": null
+      },
+      "zmybd3": {
+        "speaker": "rook-dead-air",
+        "say": "07dbc0687e462398",
+        "take": null
+      },
+      "zhzu77": {
+        "speaker": "rook-dead-air",
+        "say": "7d78561b2760eaaf",
+        "take": null
+      },
+      "lk0ukj": {
+        "speaker": "rook-dead-air",
+        "say": "f65602d139f1ff7e",
+        "take": null
+      },
+      "pquwxd": {
+        "speaker": "rook-dead-air",
+        "say": "9e893128e6c85bf6",
+        "take": null
+      },
+      "l221x0": {
+        "speaker": "rook-dead-air",
+        "say": "6d99335ad5584f85",
+        "take": null
+      },
+      "rq2rll": {
+        "speaker": "rook-dead-air",
+        "say": "02941b6064e34d95",
+        "take": null
+      },
+      "dcgscf": {
+        "speaker": "rook-dead-air",
+        "say": "f21938ae666439f9",
+        "take": null
+      },
+      "zx2fhx": {
+        "speaker": "rook-dead-air",
+        "say": "cb3f0e53fe87031f",
+        "take": null
+      },
+      "cn64rd": {
+        "speaker": "rook-dead-air",
+        "say": "1ace9b059b1e11b8",
+        "take": null
+      },
+      "rp1fyy": {
+        "speaker": "rook-dead-air",
+        "say": "6ece0a42abffa9a4",
+        "take": null
+      },
+      "wez6bn": {
+        "speaker": "rook-dead-air",
+        "say": "642b05018d3e4335",
+        "take": null
+      },
+      "mx1ek9": {
+        "speaker": "rook-dead-air",
+        "say": "4796e0c7fba8381a",
+        "take": null
+      },
+      "xvfwka": {
+        "speaker": "rook-dead-air",
+        "say": "a601a2832322a8fa",
+        "take": null
+      },
+      "bw3qv6": {
+        "speaker": "rook-dead-air",
+        "say": "9ad4438014ac0eaa",
+        "take": null
+      },
+      "steosf": {
+        "speaker": "rook-dead-air",
+        "say": "c423910cb8005b7c",
+        "take": null
+      },
+      "qvx7qo": {
+        "speaker": "rook-dead-air",
+        "say": "8f727c44722d179b",
+        "take": null
+      },
+      "hzyxij": {
+        "speaker": "rook-dead-air",
+        "say": "5560d52a39e0d7be",
+        "take": null
+      },
+      "eg7zxw": {
+        "speaker": "rook-dead-air",
+        "say": "88cef53c2e46d33c",
+        "take": null
+      },
+      "loc2cf": {
+        "speaker": "rook-dead-air",
+        "say": "7e3a99be9384480d",
+        "take": null
+      }
+    },
+    "ex.functions.inverse-undo": {
+      "e3p5p9": {
+        "speaker": "rook-dead-air",
+        "say": "d71c27c7319f73be",
+        "take": null
+      },
+      "kit96m": {
+        "speaker": "rook-dead-air",
+        "say": "6c16b3c1ae8230a2",
+        "take": null
+      },
+      "uvai4x": {
+        "speaker": "rook-dead-air",
+        "say": "6870bdadeb788b39",
+        "take": null
+      },
+      "tnaeev": {
+        "speaker": "rook-dead-air",
+        "say": "42a50dd54172ddfb",
+        "take": null
+      },
+      "uf6x8b": {
+        "speaker": "rook-dead-air",
+        "say": "2b9e044bd3ec0f05",
+        "take": null
+      },
+      "hsup7i": {
+        "speaker": "rook-dead-air",
+        "say": "fac7d54a03ebcc39",
+        "take": null
+      },
+      "q8nzzn": {
+        "speaker": "rook-dead-air",
+        "say": "7bab4389e8356ea3",
+        "take": null
+      },
+      "i8bs13": {
+        "speaker": "rook-dead-air",
+        "say": "dec3bc19732a9dcc",
+        "take": null
+      },
+      "uac9ot": {
+        "speaker": "rook-dead-air",
+        "say": "839b428b71284cc2",
+        "take": null
+      },
+      "enogoh": {
+        "speaker": "rook-dead-air",
+        "say": "7adc459f91d25f45",
+        "take": null
+      },
+      "gwxbd3": {
+        "speaker": "rook-dead-air",
+        "say": "b3887eec360ac7d3",
+        "take": null
+      },
+      "ov7cn8": {
+        "speaker": "rook-dead-air",
+        "say": "d3fb46bd2c051c7e",
+        "take": null
+      },
+      "s1bea3": {
+        "speaker": "rook-dead-air",
+        "say": "a735b9262cbdd410",
+        "take": null
+      },
+      "zmmers": {
+        "speaker": "rook-dead-air",
+        "say": "d910bb665ee37e5b",
+        "take": null
+      },
+      "cmamov": {
+        "speaker": "rook-dead-air",
+        "say": "be73b815bb627b44",
+        "take": null
+      },
+      "za4gbf": {
+        "speaker": "rook-dead-air",
+        "say": "b357fc13a5aab69a",
+        "take": null
+      },
+      "u1oe0v": {
+        "speaker": "rook-dead-air",
+        "say": "f866341062d0fc6f",
+        "take": null
+      },
+      "wdldvw": {
+        "speaker": "rook-dead-air",
+        "say": "76013c241662e2d9",
+        "take": null
+      },
+      "y4vex1": {
+        "speaker": "rook-dead-air",
+        "say": "43727f32c7a32c5b",
+        "take": null
+      },
+      "lvq7yj": {
+        "speaker": "rook-dead-air",
+        "say": "45176529af7895eb",
+        "take": null
+      },
+      "ojsn6f": {
+        "speaker": "rook-dead-air",
+        "say": "521ed1e9c950e4d8",
+        "take": null
+      },
+      "gnbbjr": {
+        "speaker": "rook-dead-air",
+        "say": "6f9a235bcd418d0e",
+        "take": null
+      },
+      "wkfza2": {
+        "speaker": "rook-dead-air",
+        "say": "3f23aed9dc1e0b5a",
+        "take": null
+      },
+      "iovzp0": {
+        "speaker": "rook-dead-air",
+        "say": "6918ff5e79fab34d",
+        "take": null
+      },
+      "j4mcy8": {
+        "speaker": "rook-dead-air",
+        "say": "418caa55d2a9311a",
+        "take": null
+      },
+      "p1djmc": {
+        "speaker": "rook-dead-air",
+        "say": "40e736c1a4bf9479",
+        "take": null
+      },
+      "dmeffi": {
+        "speaker": "rook-dead-air",
+        "say": "13208e350bb3b111",
+        "take": null
+      },
+      "e08ooi": {
+        "speaker": "rook-dead-air",
+        "say": "f547dcb429a75997",
+        "take": null
+      },
+      "ajmnnp": {
+        "speaker": "rook-dead-air",
+        "say": "77d8e9e9f9998ea1",
+        "take": null
+      },
+      "t2c2jk": {
+        "speaker": "rook-dead-air",
+        "say": "767f1e5523f4a173",
+        "take": null
+      },
+      "khsgr6": {
+        "speaker": "rook-dead-air",
+        "say": "b19e50bb3566a875",
+        "take": null
+      },
+      "tog459": {
+        "speaker": "rook-dead-air",
+        "say": "eec058fab1e913f1",
+        "take": null
+      },
+      "ag8tgs": {
+        "speaker": "rook-dead-air",
+        "say": "dfd804488dedff66",
+        "take": null
+      },
+      "ay95cy": {
+        "speaker": "rook-dead-air",
+        "say": "7f766d58c74318ae",
+        "take": null
+      },
+      "n3ppxk": {
+        "speaker": "rook-dead-air",
+        "say": "b89cb8ad2aba3d71",
+        "take": null
+      },
+      "vqlf4p": {
+        "speaker": "rook-dead-air",
+        "say": "0a3794c5e1730f44",
+        "take": null
+      },
+      "goiva7": {
+        "speaker": "rook-dead-air",
+        "say": "f33b5e7bf11595ce",
+        "take": null
+      },
+      "z427ry": {
+        "speaker": "rook-dead-air",
+        "say": "fbcabeb3479e0637",
+        "take": null
+      },
+      "ovp6l2": {
+        "speaker": "rook-dead-air",
+        "say": "aa9b4ebd0aeecc99",
+        "take": null
+      },
+      "btngsl": {
+        "speaker": "rook-dead-air",
+        "say": "cddddcaeee520c50",
+        "take": null
+      },
+      "t7exxh": {
+        "speaker": "rook-dead-air",
+        "say": "c968c949280f9408",
+        "take": null
+      },
+      "slaswh": {
+        "speaker": "rook-dead-air",
+        "say": "7890bd8c8e3db220",
+        "take": null
+      },
+      "n6k27s": {
+        "speaker": "rook-dead-air",
+        "say": "dc385cf42dcc75c3",
+        "take": null
+      },
+      "otjcgw": {
+        "speaker": "rook-dead-air",
+        "say": "aceff76ec72f0375",
+        "take": null
+      },
+      "so3871": {
+        "speaker": "rook-dead-air",
+        "say": "d5ad35c77fc9f1c4",
+        "take": null
+      },
+      "v7w0fw": {
+        "speaker": "rook-dead-air",
+        "say": "73563f1913f7fd8f",
+        "take": null
+      },
+      "oru0of": {
+        "speaker": "rook-dead-air",
+        "say": "3129124a982da2bc",
+        "take": null
+      },
+      "o1k7z5": {
+        "speaker": "rook-dead-air",
+        "say": "a96d376537dbfb05",
+        "take": null
+      },
+      "bevc1v": {
+        "speaker": "rook-dead-air",
+        "say": "563b6d5ba86eca35",
+        "take": null
+      },
+      "e71kn9": {
+        "speaker": "rook-dead-air",
+        "say": "f8d978808d6213f0",
+        "take": null
+      },
+      "c234ym": {
+        "speaker": "rook-dead-air",
+        "say": "467e07a8a0f38c77",
+        "take": null
+      },
+      "fnqeox": {
+        "speaker": "rook-dead-air",
+        "say": "28e6f4d0d27c1bd3",
+        "take": null
+      },
+      "gg6fcf": {
+        "speaker": "rook-dead-air",
+        "say": "671a3bdbcb79756a",
+        "take": null
+      },
+      "fpyvm5": {
+        "speaker": "rook-dead-air",
+        "say": "106daebbc17f8bf0",
+        "take": null
+      },
+      "ec1ne1": {
+        "speaker": "rook-dead-air",
+        "say": "04f545331fc25f7c",
+        "take": null
+      },
+      "b9q0cj": {
+        "speaker": "rook-dead-air",
+        "say": "93f3dfbae636df09",
+        "take": null
+      },
+      "q29wl6": {
+        "speaker": "rook-dead-air",
+        "say": "0d565af76d04e739",
+        "take": null
+      },
+      "nfqawm": {
+        "speaker": "rook-dead-air",
+        "say": "f6d8d81c61f82cbd",
+        "take": null
+      },
+      "oasj68": {
+        "speaker": "rook-dead-air",
+        "say": "226778002a858bf9",
+        "take": null
+      },
+      "nu2ed6": {
+        "speaker": "rook-dead-air",
+        "say": "261f4895ee3a32c3",
+        "take": null
+      }
+    },
+    "ex.functions.line-equation": {
+      "mor3n6": {
+        "speaker": "rook-dead-air",
+        "say": "6b4571533a2aa050",
+        "take": null
+      },
+      "fgmv6k": {
+        "speaker": "rook-dead-air",
+        "say": "9babba12be78d42e",
+        "take": null
+      },
+      "hp639t": {
+        "speaker": "rook-dead-air",
+        "say": "83589681ed46387a",
+        "take": null
+      },
+      "bnt7bv": {
+        "speaker": "rook-dead-air",
+        "say": "6bcdaf821558ce43",
+        "take": null
+      },
+      "kr1cr9": {
+        "speaker": "rook-dead-air",
+        "say": "46cedc8d67926b0c",
+        "take": null
+      },
+      "eemfkq": {
+        "speaker": "rook-dead-air",
+        "say": "996f88aff28cf0a5",
+        "take": null
+      },
+      "nsgrh8": {
+        "speaker": "rook-dead-air",
+        "say": "5917d3921373c89d",
+        "take": null
+      },
+      "g2xl1e": {
+        "speaker": "rook-dead-air",
+        "say": "cb0abf35b48a5f71",
+        "take": null
+      },
+      "btbex5": {
+        "speaker": "rook-dead-air",
+        "say": "469a66e7b33b37bc",
+        "take": null
+      },
+      "e0u20n": {
+        "speaker": "rook-dead-air",
+        "say": "e85810c0c23730c4",
+        "take": null
+      },
+      "fzf0ft": {
+        "speaker": "rook-dead-air",
+        "say": "4ae3b5c9ea6949f4",
+        "take": null
+      },
+      "vx1g5u": {
+        "speaker": "rook-dead-air",
+        "say": "33d97f8924061dc5",
+        "take": null
+      },
+      "le8q5j": {
+        "speaker": "rook-dead-air",
+        "say": "80c5744449793827",
+        "take": null
+      },
+      "zwdwca": {
+        "speaker": "rook-dead-air",
+        "say": "0edef9c07afb7af7",
+        "take": null
+      },
+      "noebnv": {
+        "speaker": "rook-dead-air",
+        "say": "718e374c478b8fa9",
+        "take": null
+      },
+      "vm6ktb": {
+        "speaker": "rook-dead-air",
+        "say": "fe9b361405cc5f41",
+        "take": null
+      },
+      "ysqsct": {
+        "speaker": "rook-dead-air",
+        "say": "2e6fc94219d6c6ab",
+        "take": null
+      },
+      "n35m5f": {
+        "speaker": "rook-dead-air",
+        "say": "c24ef400dc675bba",
+        "take": null
+      },
+      "m06pfs": {
+        "speaker": "rook-dead-air",
+        "say": "ea1cd1e967443d23",
+        "take": null
+      },
+      "in1hcs": {
+        "speaker": "rook-dead-air",
+        "say": "4e41c44bece9b269",
+        "take": null
+      },
+      "wey9o6": {
+        "speaker": "rook-dead-air",
+        "say": "20eef4c047b24161",
+        "take": null
+      },
+      "n47jlb": {
+        "speaker": "rook-dead-air",
+        "say": "8ed0a7e14dd160eb",
+        "take": null
+      },
+      "ckq70b": {
+        "speaker": "rook-dead-air",
+        "say": "d1a8d98a42b61849",
+        "take": null
+      },
+      "yw2hvv": {
+        "speaker": "rook-dead-air",
+        "say": "52094890158aa5e1",
+        "take": null
+      },
+      "f5zt22": {
+        "speaker": "rook-dead-air",
+        "say": "1bfe6bf9c8d093ea",
+        "take": null
+      },
+      "ynb736": {
+        "speaker": "rook-dead-air",
+        "say": "cf0e8d0e878e84e1",
+        "take": null
+      },
+      "i5xzo0": {
+        "speaker": "rook-dead-air",
+        "say": "1db090a183f25d15",
+        "take": null
+      },
+      "j8jvwb": {
+        "speaker": "rook-dead-air",
+        "say": "c716da2e71ec3d10",
+        "take": null
+      },
+      "csjo9v": {
+        "speaker": "rook-dead-air",
+        "say": "ca6a3a26c51ca658",
+        "take": null
+      },
+      "f3yo1c": {
+        "speaker": "rook-dead-air",
+        "say": "4328f43f769e79a8",
+        "take": null
+      },
+      "a8lxxd": {
+        "speaker": "rook-dead-air",
+        "say": "94ba442a6ff5fc4b",
+        "take": null
+      },
+      "l8n2j1": {
+        "speaker": "rook-dead-air",
+        "say": "0b719b5872dc06d9",
+        "take": null
+      },
+      "ib8g2m": {
+        "speaker": "rook-dead-air",
+        "say": "190894681008b7d0",
+        "take": null
+      },
+      "smy5zr": {
+        "speaker": "rook-dead-air",
+        "say": "12b8c8df3b4545dd",
+        "take": null
+      },
+      "avkbfl": {
+        "speaker": "rook-dead-air",
+        "say": "df4ad0f09b9d6b68",
+        "take": null
+      },
+      "mawdb8": {
+        "speaker": "rook-dead-air",
+        "say": "b87466b77d84cb3a",
+        "take": null
+      },
+      "bcz2yw": {
+        "speaker": "rook-dead-air",
+        "say": "9556297aa045bf34",
+        "take": null
+      },
+      "li8eed": {
+        "speaker": "rook-dead-air",
+        "say": "562dc73df71e9cf8",
+        "take": null
+      },
+      "ob84ix": {
+        "speaker": "rook-dead-air",
+        "say": "ecc3a6cb687da3e1",
+        "take": null
+      },
+      "acepjq": {
+        "speaker": "rook-dead-air",
+        "say": "4157aa1b05ad493d",
+        "take": null
+      },
+      "yxn5ae": {
+        "speaker": "rook-dead-air",
+        "say": "26776690dbdb16b0",
+        "take": null
+      },
+      "chs6gv": {
+        "speaker": "rook-dead-air",
+        "say": "0b457f5b67fecc4b",
+        "take": null
+      },
+      "x84fey": {
+        "speaker": "rook-dead-air",
+        "say": "f958949020316269",
+        "take": null
+      },
+      "j12ge2": {
+        "speaker": "rook-dead-air",
+        "say": "3db46dfed0d53cf5",
+        "take": null
+      },
+      "dtd1gk": {
+        "speaker": "rook-dead-air",
+        "say": "9190ebf80d9e9fc6",
+        "take": null
+      },
+      "j8ixe7": {
+        "speaker": "rook-dead-air",
+        "say": "cff09afd46b2cf52",
+        "take": null
+      },
+      "so39p0": {
+        "speaker": "rook-dead-air",
+        "say": "500e597b0c0cf163",
+        "take": null
+      },
+      "bfel4m": {
+        "speaker": "rook-dead-air",
+        "say": "ae58a939e4d922b2",
+        "take": null
+      },
+      "hl90kb": {
+        "speaker": "rook-dead-air",
+        "say": "d1de220109d09109",
+        "take": null
+      },
+      "n0am9t": {
+        "speaker": "rook-dead-air",
+        "say": "302dc2c11be5cfe4",
+        "take": null
+      },
+      "f7bnma": {
+        "speaker": "rook-dead-air",
+        "say": "e9ca4f44ec14d2d9",
+        "take": null
+      },
+      "ai1rus": {
+        "speaker": "rook-dead-air",
+        "say": "2046ee1bb71b257c",
+        "take": null
+      },
+      "kxi4at": {
+        "speaker": "rook-dead-air",
+        "say": "d74a088e979e179c",
+        "take": null
+      },
+      "sj9ii7": {
+        "speaker": "rook-dead-air",
+        "say": "e1badbbee1b4625a",
+        "take": null
+      },
+      "hvgfqb": {
+        "speaker": "rook-dead-air",
+        "say": "a9945a4512c8cd1d",
+        "take": null
+      },
+      "gyvly5": {
+        "speaker": "rook-dead-air",
+        "say": "89cb12c40cbd293b",
+        "take": null
+      },
+      "v5cu5l": {
+        "speaker": "rook-dead-air",
+        "say": "c0d49d23a338d8f8",
+        "take": null
+      },
+      "sqj9ed": {
+        "speaker": "rook-dead-air",
+        "say": "ac6ea149ba25e711",
+        "take": null
+      },
+      "hzks54": {
+        "speaker": "rook-dead-air",
+        "say": "5b6aa91c3dbb7feb",
+        "take": null
+      },
+      "bj3jq7": {
+        "speaker": "rook-dead-air",
+        "say": "ffd87180cdbc116e",
+        "take": null
+      },
+      "e2glet": {
+        "speaker": "rook-dead-air",
+        "say": "40002469983371f7",
+        "take": null
+      },
+      "iecvgm": {
+        "speaker": "rook-dead-air",
+        "say": "410106f814851b4e",
+        "take": null
+      },
+      "w4pp6q": {
+        "speaker": "rook-dead-air",
+        "say": "b8b47a603560f15b",
+        "take": null
+      },
+      "vx24q3": {
+        "speaker": "rook-dead-air",
+        "say": "72f003ba25e83d63",
+        "take": null
+      },
+      "ui6am7": {
+        "speaker": "rook-dead-air",
+        "say": "383bbc14551bc395",
+        "take": null
+      },
+      "on92q9": {
+        "speaker": "rook-dead-air",
+        "say": "65118637891e3bc9",
+        "take": null
+      }
+    },
+    "ex.functions.line-model": {
+      "n051hj": {
+        "speaker": "rook-dead-air",
+        "say": "3ed2b33a52ef7e5e",
+        "take": null
+      },
+      "plysvn": {
+        "speaker": "rook-dead-air",
+        "say": "33f8b6e83fd96073",
+        "take": null
+      },
+      "gdv7qk": {
+        "speaker": "rook-dead-air",
+        "say": "75dc22e27d6d68cd",
+        "take": null
+      },
+      "qstjqc": {
+        "speaker": "rook-dead-air",
+        "say": "6f0010ca0cb64b98",
+        "take": null
+      },
+      "d0fh4z": {
+        "speaker": "rook-dead-air",
+        "say": "9da9a7e48b0a11a5",
+        "take": null
+      },
+      "zvtlx1": {
+        "speaker": "rook-dead-air",
+        "say": "2f108772fda08055",
+        "take": null
+      },
+      "z3fg42": {
+        "speaker": "rook-dead-air",
+        "say": "52df104ef4b6e4ba",
+        "take": null
+      },
+      "md0udi": {
+        "speaker": "rook-dead-air",
+        "say": "f698145263f44397",
+        "take": null
+      },
+      "ntktxf": {
+        "speaker": "rook-dead-air",
+        "say": "c16ae6d57395e571",
+        "take": null
+      },
+      "ur1j21": {
+        "speaker": "rook-dead-air",
+        "say": "9c9f5d348ab208ca",
+        "take": null
+      },
+      "p6nnmp": {
+        "speaker": "rook-dead-air",
+        "say": "ab9c37e798cb4017",
+        "take": null
+      },
+      "fifdn9": {
+        "speaker": "rook-dead-air",
+        "say": "1d3150a8041e1f08",
+        "take": null
+      },
+      "tb465r": {
+        "speaker": "rook-dead-air",
+        "say": "42bcf6f6ec775568",
+        "take": null
+      },
+      "box9cw": {
+        "speaker": "rook-dead-air",
+        "say": "fd895b766a58462f",
+        "take": null
+      },
+      "r1zpuo": {
+        "speaker": "rook-dead-air",
+        "say": "b0b612b1f8017daa",
+        "take": null
+      },
+      "vtptpw": {
+        "speaker": "rook-dead-air",
+        "say": "83883d85ba9ad7fa",
+        "take": null
+      },
+      "v5yz1e": {
+        "speaker": "rook-dead-air",
+        "say": "03ff10fd7b8738c2",
+        "take": null
+      },
+      "at60ki": {
+        "speaker": "rook-dead-air",
+        "say": "d63b4f26f805608b",
+        "take": null
+      },
+      "ii1fh8": {
+        "speaker": "rook-dead-air",
+        "say": "cf0c9bc31544d119",
+        "take": null
+      },
+      "xa4qiq": {
+        "speaker": "rook-dead-air",
+        "say": "874c2ad586fcd87a",
+        "take": null
+      },
+      "b6j9eu": {
+        "speaker": "rook-dead-air",
+        "say": "88bd4f2f2950c3e6",
+        "take": null
+      },
+      "x0mro5": {
+        "speaker": "rook-dead-air",
+        "say": "fe1148361546e345",
+        "take": null
+      },
+      "pg5ix9": {
+        "speaker": "rook-dead-air",
+        "say": "3fea97d6b5ffd850",
+        "take": null
+      },
+      "qzkqvg": {
+        "speaker": "rook-dead-air",
+        "say": "dd70ffc29239a34a",
+        "take": null
+      },
+      "mzqxf4": {
+        "speaker": "rook-dead-air",
+        "say": "a886bfed0cd8d2d3",
+        "take": null
+      },
+      "rnxpz8": {
+        "speaker": "rook-dead-air",
+        "say": "2d18b847ba0ce95c",
+        "take": null
+      },
+      "torrmt": {
+        "speaker": "rook-dead-air",
+        "say": "1b5a1fe2fd085429",
+        "take": null
+      },
+      "zm5c2n": {
+        "speaker": "rook-dead-air",
+        "say": "7f39ae543968eefa",
+        "take": null
+      },
+      "y4o6nq": {
+        "speaker": "rook-dead-air",
+        "say": "1046aede2b886720",
+        "take": null
+      },
+      "gsld9h": {
+        "speaker": "rook-dead-air",
+        "say": "adc99bc114e43365",
+        "take": null
+      },
+      "vlz84e": {
+        "speaker": "rook-dead-air",
+        "say": "4d12af197b438241",
+        "take": null
+      },
+      "rdx6au": {
+        "speaker": "rook-dead-air",
+        "say": "a20be85bd8a56906",
+        "take": null
+      },
+      "mldbdm": {
+        "speaker": "rook-dead-air",
+        "say": "38f407f03ae40b35",
+        "take": null
+      },
+      "mp1kn5": {
+        "speaker": "rook-dead-air",
+        "say": "64b057b334e5e092",
+        "take": null
+      },
+      "yu1xzt": {
+        "speaker": "rook-dead-air",
+        "say": "6c5108cbb9b6beba",
+        "take": null
+      },
+      "y5hyjr": {
+        "speaker": "rook-dead-air",
+        "say": "4273267e554d7d6f",
+        "take": null
+      },
+      "gxfl5f": {
+        "speaker": "rook-dead-air",
+        "say": "6d3082edc89ac7fa",
+        "take": null
+      },
+      "yr7dxf": {
+        "speaker": "rook-dead-air",
+        "say": "c6f0e7364b232277",
+        "take": null
+      },
+      "k2buwi": {
+        "speaker": "rook-dead-air",
+        "say": "0ef5a650e364c121",
+        "take": null
+      },
+      "b703y8": {
+        "speaker": "rook-dead-air",
+        "say": "32e13c25e336a0f2",
+        "take": null
+      },
+      "zl4whl": {
+        "speaker": "rook-dead-air",
+        "say": "da12beaebfdbbb42",
+        "take": null
+      },
+      "w6q7oq": {
+        "speaker": "rook-dead-air",
+        "say": "7023ebf9378cae15",
+        "take": null
+      },
+      "iw7t9q": {
+        "speaker": "rook-dead-air",
+        "say": "9bf1005c85cb3825",
+        "take": null
+      },
+      "xivs5b": {
+        "speaker": "rook-dead-air",
+        "say": "a27e08df90244095",
+        "take": null
+      },
+      "aoooxa": {
+        "speaker": "rook-dead-air",
+        "say": "8d8cea58ae2c8634",
+        "take": null
+      },
+      "xnwagi": {
+        "speaker": "rook-dead-air",
+        "say": "80d9c80606b05751",
+        "take": null
+      },
+      "hp9cx1": {
+        "speaker": "rook-dead-air",
+        "say": "859e8c02f503a6eb",
+        "take": null
+      },
+      "zvww4m": {
+        "speaker": "rook-dead-air",
+        "say": "8de8b420694eda03",
+        "take": null
+      },
+      "n4hrq7": {
+        "speaker": "rook-dead-air",
+        "say": "75ffab5fe09ae1cd",
+        "take": null
+      },
+      "amgb29": {
+        "speaker": "rook-dead-air",
+        "say": "cc37f27a3480311b",
+        "take": null
+      },
+      "ug0kdj": {
+        "speaker": "rook-dead-air",
+        "say": "3d896c41077b9384",
+        "take": null
+      },
+      "vnvjzw": {
+        "speaker": "rook-dead-air",
+        "say": "2541207a68e36f7d",
+        "take": null
+      },
+      "plz9qx": {
+        "speaker": "rook-dead-air",
+        "say": "484a7e817e8f9d05",
+        "take": null
+      },
+      "hnclt2": {
+        "speaker": "rook-dead-air",
+        "say": "073eff453678eadf",
+        "take": null
+      },
+      "cpu737": {
+        "speaker": "rook-dead-air",
+        "say": "cd4c25a27dadf5ed",
+        "take": null
+      },
+      "p9zw0v": {
+        "speaker": "rook-dead-air",
+        "say": "d700d2a3e17d5e77",
+        "take": null
+      },
+      "f01wn6": {
+        "speaker": "rook-dead-air",
+        "say": "6a5c545f10fe90ec",
+        "take": null
+      },
+      "g8fxq1": {
+        "speaker": "rook-dead-air",
+        "say": "ad203564e5806d58",
+        "take": null
+      },
+      "qvu05l": {
+        "speaker": "rook-dead-air",
+        "say": "f92c0477be34bb87",
+        "take": null
+      },
+      "l6bxen": {
+        "speaker": "rook-dead-air",
+        "say": "3fa8b6289cf3cc18",
+        "take": null
+      }
+    },
+    "callbacks": {
+      "c04b7s": {
+        "speaker": "mags-the-ledger",
+        "say": "403ec1c5a50b526d",
+        "take": null
+      },
+      "mx9tnl": {
+        "speaker": "mags-the-ledger",
+        "say": "60dbbfe11e393b41",
+        "take": null
+      },
+      "zp7a9a": {
+        "speaker": "mags-the-ledger",
+        "say": "8d94fe8f7a657ac1",
+        "take": null
+      },
+      "xtokhe": {
+        "speaker": "mags-the-ledger",
+        "say": "508d586b5b3d24a6",
+        "take": null
+      },
+      "gl7dtl": {
+        "speaker": "mags-the-ledger",
+        "say": "5ffa568a5ea4af74",
+        "take": null
+      },
+      "la4942": {
+        "speaker": "mags-the-ledger",
+        "say": "c76aa20363810619",
+        "take": null
+      },
+      "zd08l4": {
+        "speaker": "mags-the-ledger",
+        "say": "25608dbc1eab3094",
+        "take": null
+      },
+      "ektz83": {
+        "speaker": "mags-the-ledger",
+        "say": "a27f20789c40f702",
+        "take": null
+      },
+      "u60y2n": {
+        "speaker": "mags-the-ledger",
+        "say": "7be542347e64edf8",
+        "take": null
+      },
+      "zwbeac": {
+        "speaker": "mags-the-ledger",
+        "say": "d181b44a66c2b24a",
+        "take": null
+      },
+      "okt7kg": {
+        "speaker": "mags-the-ledger",
+        "say": "06f08fdd9957cf4e",
+        "take": null
+      },
+      "b59dm4": {
+        "speaker": "mags-the-ledger",
+        "say": "d9fb2af53c4bf488",
+        "take": null
+      },
+      "y2pesi": {
+        "speaker": "mags-the-ledger",
+        "say": "a2e64fc8132ff6d6",
+        "take": null
+      },
+      "ah2ux1": {
+        "speaker": "mags-the-ledger",
+        "say": "d69cdaae2974e231",
+        "take": null
+      },
+      "va53qs": {
+        "speaker": "tin-can-tess",
+        "say": "04537aae1f260412",
+        "take": null
+      },
+      "y1spef": {
+        "speaker": "tin-can-tess",
+        "say": "1d0aefa9790f501e",
+        "take": null
+      },
+      "b80hrn": {
+        "speaker": "tin-can-tess",
+        "say": "25403a97ccae29ff",
+        "take": null
+      },
+      "bheneg": {
+        "speaker": "tin-can-tess",
+        "say": "110b68b948eeebc1",
+        "take": null
+      },
+      "g8o2ay": {
+        "speaker": "tin-can-tess",
+        "say": "eee059d02736bb78",
+        "take": null
+      },
+      "a8a6uc": {
+        "speaker": "tin-can-tess",
+        "say": "d72eee2a6bd9e00e",
+        "take": null
+      },
+      "am0al9": {
+        "speaker": "tin-can-tess",
+        "say": "e00bbbb613374467",
+        "take": null
+      },
+      "zp1z2g": {
+        "speaker": "tin-can-tess",
+        "say": "b99d764a6dde015c",
+        "take": null
+      },
+      "u43pd0": {
+        "speaker": "tin-can-tess",
+        "say": "b5a043e5525ba20b",
+        "take": null
+      },
+      "wg201a": {
+        "speaker": "tin-can-tess",
+        "say": "ed82410533430427",
+        "take": null
+      },
+      "zf3b4q": {
+        "speaker": "tin-can-tess",
+        "say": "0fdbea7e1b8756d0",
+        "take": null
+      },
+      "jwrf1g": {
+        "speaker": "tin-can-tess",
+        "say": "7a50412651eab0a6",
+        "take": null
+      },
+      "irkd4i": {
+        "speaker": "tin-can-tess",
+        "say": "2dd09d88a0d102a1",
+        "take": null
+      },
+      "ib8twp": {
+        "speaker": "tin-can-tess",
+        "say": "66309860e6f10ac3",
+        "take": null
+      },
+      "ut8s7q": {
+        "speaker": "rook-dead-air",
+        "say": "bf3c218e5503fb82",
+        "take": null
+      },
+      "l16wmu": {
+        "speaker": "rook-dead-air",
+        "say": "20c1eada882e7683",
+        "take": null
+      },
+      "teu16s": {
+        "speaker": "rook-dead-air",
+        "say": "3560ba5f24c7f0fb",
+        "take": null
+      },
+      "iyzz2i": {
+        "speaker": "rook-dead-air",
+        "say": "74ae9bfcf6bce8c1",
+        "take": null
+      },
+      "n2gvfk": {
+        "speaker": "rook-dead-air",
+        "say": "bac427d942419ef1",
+        "take": null
+      },
+      "efxyqj": {
+        "speaker": "rook-dead-air",
+        "say": "1cd6f031d08cc8f2",
+        "take": null
+      },
+      "do9yfj": {
+        "speaker": "rook-dead-air",
+        "say": "7d4519b200d3c61a",
+        "take": null
+      },
+      "z7nx3b": {
+        "speaker": "rook-dead-air",
+        "say": "272afaa12e2d9944",
+        "take": null
+      },
+      "uo4qot": {
+        "speaker": "rook-dead-air",
+        "say": "200cde96d3847c59",
+        "take": null
+      },
+      "fdovjn": {
+        "speaker": "rook-dead-air",
+        "say": "2e03e88e44e04e59",
+        "take": null
+      },
+      "ai7rkl": {
+        "speaker": "rook-dead-air",
+        "say": "708c6756dbde6698",
+        "take": null
+      },
+      "iumjzl": {
+        "speaker": "rook-dead-air",
+        "say": "bdd912726f525707",
+        "take": null
+      },
+      "ln0w32": {
+        "speaker": "rook-dead-air",
+        "say": "d8c3fe338231a86b",
+        "take": null
+      },
+      "xd8iw1": {
+        "speaker": "rook-dead-air",
+        "say": "bab3dcb09d590a42",
+        "take": null
+      },
+      "wgf1er": {
+        "speaker": "kara-meridian",
+        "say": "9677a3033c25d72e",
+        "take": null
+      },
+      "ufxmro": {
+        "speaker": "kara-meridian",
+        "say": "f7061e8dc7cae712",
+        "take": null
+      },
+      "oahrim": {
+        "speaker": "kara-meridian",
+        "say": "156585ac5d246b05",
+        "take": null
+      },
+      "ba66t1": {
+        "speaker": "kara-meridian",
+        "say": "476b3393e588e3c2",
+        "take": null
+      },
+      "h4qm7n": {
+        "speaker": "kara-meridian",
+        "say": "f7408bca0d31d2ce",
+        "take": null
+      },
+      "sw2aoy": {
+        "speaker": "kara-meridian",
+        "say": "728af61a3aaea5ce",
+        "take": null
+      },
+      "a5xac8": {
+        "speaker": "kara-meridian",
+        "say": "5593d96be3072658",
+        "take": null
+      },
+      "njgjnl": {
+        "speaker": "kara-meridian",
+        "say": "7295aff54cdcd024",
+        "take": null
+      },
+      "iqtbyc": {
+        "speaker": "kara-meridian",
+        "say": "d1e34e5db5ae6e26",
+        "take": null
+      },
+      "r15qbx": {
+        "speaker": "kara-meridian",
+        "say": "160c22f535524cc2",
+        "take": null
+      },
+      "zzl6am": {
+        "speaker": "kara-meridian",
+        "say": "1ed868704215c60a",
+        "take": null
+      },
+      "k6l33d": {
+        "speaker": "kara-meridian",
+        "say": "21e1582e312b140f",
+        "take": null
+      },
+      "ogqj02": {
+        "speaker": "kara-meridian",
+        "say": "c59d4870caca061c",
+        "take": null
+      },
+      "z9ank5": {
+        "speaker": "kara-meridian",
+        "say": "32e8136703107999",
+        "take": null
+      },
+      "iuc4by": {
+        "speaker": "lucky-lenoir",
+        "say": "f04b452b563a2fdf",
+        "take": null
+      },
+      "yyfiz5": {
+        "speaker": "lucky-lenoir",
+        "say": "ff63c50fc5b23f05",
+        "take": null
+      },
+      "gu8esa": {
+        "speaker": "lucky-lenoir",
+        "say": "c221d92812e8446d",
+        "take": null
+      },
+      "zj8b8j": {
+        "speaker": "lucky-lenoir",
+        "say": "c147b73b2d77473e",
+        "take": null
+      },
+      "bmokj5": {
+        "speaker": "lucky-lenoir",
+        "say": "a7bbeb82f5f80452",
+        "take": null
+      },
+      "m8nchx": {
+        "speaker": "lucky-lenoir",
+        "say": "8864c5d99ad758ef",
+        "take": null
+      },
+      "h5bvsg": {
+        "speaker": "lucky-lenoir",
+        "say": "e2d1a1fda1cc7b26",
+        "take": null
+      },
+      "yz66km": {
+        "speaker": "lucky-lenoir",
+        "say": "447576336a5ae67a",
+        "take": null
+      },
+      "divgo1": {
+        "speaker": "lucky-lenoir",
+        "say": "a6c93b579cec763b",
+        "take": null
+      },
+      "damnxl": {
+        "speaker": "lucky-lenoir",
+        "say": "b9749dd89e72509b",
+        "take": null
+      },
+      "xmcam8": {
+        "speaker": "lucky-lenoir",
+        "say": "f42fecca54673c5d",
+        "take": null
+      },
+      "b7e2jc": {
+        "speaker": "lucky-lenoir",
+        "say": "8e14f72d1f96bea8",
+        "take": null
+      },
+      "ibi7nd": {
+        "speaker": "lucky-lenoir",
+        "say": "d9f78fafd1799a3a",
+        "take": null
+      },
+      "ocvbwv": {
+        "speaker": "lucky-lenoir",
+        "say": "00d37efaa64ec615",
+        "take": null
+      },
+      "j15an9": {
+        "speaker": "calc",
+        "say": "8c9205d3442c91b5",
+        "take": null
+      },
+      "l06ng5": {
+        "speaker": "calc",
+        "say": "e81a1e10138f2c4e",
+        "take": null
+      },
+      "egerp4": {
+        "speaker": "calc",
+        "say": "668307a3117e2cfd",
+        "take": null
+      },
+      "bf9sg3": {
+        "speaker": "calc",
+        "say": "6a4031e47caa8fde",
+        "take": null
+      },
+      "cancww": {
+        "speaker": "calc",
+        "say": "3b4c2ca2f80dd1e7",
+        "take": null
+      },
+      "xxkpsr": {
+        "speaker": "calc",
+        "say": "1a46f397e412ca91",
+        "take": null
+      },
+      "y9dawk": {
+        "speaker": "calc",
+        "say": "4774785e0fe61b89",
+        "take": null
+      },
+      "ow9ffb": {
+        "speaker": "calc",
+        "say": "5f90a50b1d843a75",
+        "take": null
+      },
+      "rtuuw3": {
+        "speaker": "calc",
+        "say": "035756aec77d2e8d",
+        "take": null
+      },
+      "jwrnyp": {
+        "speaker": "calc",
+        "say": "337ff407a9890512",
+        "take": null
+      },
+      "e9z8a6": {
+        "speaker": "calc",
+        "say": "b2f12f4df5ec5b6c",
+        "take": null
+      },
+      "yl1cu9": {
+        "speaker": "calc",
+        "say": "d6685709a3e1055c",
+        "take": null
+      },
+      "aaqxxd": {
+        "speaker": "calc",
+        "say": "a366756f9520524c",
+        "take": null
+      },
+      "a3zmuk": {
+        "speaker": "calc",
+        "say": "947ac0c210c9a6ff",
+        "take": null
+      }
+    }
+  },
+  "retired": {}
+}

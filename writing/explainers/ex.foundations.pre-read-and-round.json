@@ -1,7 +1,10 @@
 {
   "id": "ex.foundations.pre-read-and-round",
-  "format": 1,
-  "status": "approved",
+  "format": 2,
+  "status": "draft",
+  "waits_for": [
+    "figure"
+  ],
   "title": "Read the Gauge",
   "idea": "Work out what one step on a scale is worth before reading it, keep the full calculator value, and round once at the end to three significant figures, counting from the first non-zero digit.",
   "zone": "foundations",
@@ -46,7 +49,9 @@
     "The board is text only, so a gauge is written as its two labelled marks and the number of steps between them. A drawn gauge or axis would teach the scale better. That needs a figure board item, which the format doesn't have yet; raised on FAL-953 for phase 2.",
     "The misconception \"Plots (x, y) as (y, x)\" belongs to plotting, which this script doesn't teach.",
     "Example 3 is a two-part course-style item (a reading, then a GDC value given to 3 s.f.), as FAL-953 allows for Foundations. Its volume formula is given in the question, so no area-and-volume knowledge is needed.",
-    "Live numbers for the turns come from fn-pre-graph-reading (game/engine/situations/graph_reading.gd); the fallbacks are fixed and worked below."
+    "Live numbers for the turns come from fn-pre-graph-reading (game/engine/situations/graph_reading.gd); the fallbacks are fixed and worked below.",
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes, and the figure.",
+    "Waits for the figure board item (README, \"Figures\"): the gauges, which are described in words and never drawn are text drawings."
   ],
   "sections": [
     {
@@ -54,10 +59,12 @@
       "kind": "cold-open",
       "beats": [
         {
+          "line": "rg2z0b",
           "speaker": "tin-can-tess",
           "say": "Tess here. Every machine in this yard has a gauge on it, eh, and no two gauges agree on anything."
         },
         {
+          "line": "tjvv6t",
           "speaker": "tin-can-tess",
           "say": "The boiler counts in fours, the fuel tank counts in two point fives, and the water tank counts in whatever mood it's in that day.",
           "cue": "laughs",
@@ -65,6 +72,7 @@
           "joke": true
         },
         {
+          "line": "ybkgso",
           "speaker": "tin-can-tess",
           "say": "So today: read any gauge, and write the number down with the right number of figures.",
           "pause": 0.5,
@@ -83,6 +91,7 @@
       "builds_on": null,
       "beats": [
         {
+          "line": "d1w0ez",
           "speaker": "tin-can-tess",
           "say": "First, one you brought with you from school. Tap the answer."
         },
@@ -98,14 +107,18 @@
             "answer": 0,
             "right": [
               {
+                "line": "cht92d",
                 "speaker": "tin-can-tess",
-                "say": "Three point five. The seven after the four rounds it up."
+                "say": "Three point five. The seven after the four rounds it up.",
+                "caption": "3.5. The seven after the four rounds it up."
               }
             ],
             "not_yet": [
               {
+                "line": "p7f8ri",
                 "speaker": "tin-can-tess",
-                "say": "Look at the next digit along. It's a seven, which is five or more, so the four goes up to five. Three point five."
+                "say": "Look at the next digit along. It's a seven, which is five or more, so the four goes up to five. Three point five.",
+                "caption": "Look at the next digit along. It's a seven, which is five or more, so the four goes up to five. 3.5."
               }
             ]
           }
@@ -117,9 +130,10 @@
       "kind": "big-idea",
       "beats": [
         {
+          "line": "iihx1o",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "First, the scale. Here's the boiler gauge. Two marks with numbers on, twenty and forty, and five small steps between them.",
+          "clear": true,
           "board": [
             {
               "write": "Marks: 20 and 40, with 5 steps between",
@@ -128,8 +142,10 @@
           ]
         },
         {
+          "line": "yd9fw6",
           "speaker": "tin-can-tess",
           "say": "Never assume a step is worth one. Work it out: forty take twenty is twenty, and that's shared over five steps, so each step is four.",
+          "caption": "Never assume a step is worth one. Work it out: 40 − 20 is 20, and that's shared over five steps, so each step is four.",
           "board": [
             {
               "write": "scale: what one step is worth",
@@ -142,6 +158,7 @@
           ]
         },
         {
+          "line": "l2zddf",
           "speaker": "tin-can-tess",
           "say": "The needle sits three steps past twenty. Three fours, twelve, so the reading's thirty-two.",
           "board": [
@@ -152,10 +169,13 @@
           ]
         },
         {
+          "line": "xa3rbr",
           "speaker": "tin-can-tess",
-          "say": "Now, rounding. A GDC gives you heaps of digits, more than anybody measured, and most answers want three significant figures."
+          "say": "Now, rounding. A G D C gives you heaps of digits, more than anybody measured, and most answers want three significant figures.",
+          "caption": "Now, rounding. A GDC gives you heaps of digits, more than anybody measured, and most answers want three significant figures."
         },
         {
+          "line": "rgt7hg",
           "speaker": "tin-can-tess",
           "say": "Significant figures start at the first digit that isn't zero. Count three from there, then look at the next one. Five or more, and the last figure goes up.",
           "board": [
@@ -166,8 +186,10 @@
           ]
         },
         {
+          "line": "esa53o",
           "speaker": "tin-can-tess",
           "say": "One point four nine seven two, to three significant figures. One, four, nine, and the next digit is a seven, so the nine goes up. That makes one point five zero.",
+          "caption": "1.4972, to 3 s.f. One, four, nine, and the next digit is a seven, so the nine goes up. That makes 1.50.",
           "board": [
             {
               "write": "1.4972 = 1.50 (3 s.f.)",
@@ -176,8 +198,10 @@
           ]
         },
         {
+          "line": "b4aa97",
           "speaker": "tin-can-tess",
           "say": "Keep the zero on the end. One point five is only two significant figures. The zero says you measured that far.",
+          "caption": "Keep the zero on the end. 1.5 is only 2 s.f. The zero says you measured that far.",
           "board": [
             {
               "write": "1.5 is only 2 s.f., so keep the 0",
@@ -186,8 +210,10 @@
           ]
         },
         {
+          "line": "ado0zi",
           "speaker": "tin-can-tess",
-          "say": "And you round once, at the very end, from the full value the GDC gave you.",
+          "say": "And you round once, at the very end, from the full value the G D C gave you.",
+          "caption": "And you round once, at the very end, from the full value the GDC gave you.",
           "board": [
             {
               "write": "Round once, at the end",
@@ -196,6 +222,7 @@
           ]
         },
         {
+          "line": "rw9y8v",
           "speaker": "tin-can-tess",
           "say": "My nan rounded everything. Her prices, her age, her recipes. Her scones were famous, for all the wrong reasons.",
           "cue": "laughs",
@@ -214,9 +241,10 @@
       },
       "beats": [
         {
+          "line": "upjsi2",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "Here's the fuel tank. Step one: what we're finding, which is the amount of fuel in it, in litres.",
+          "clear": true,
           "board": [
             {
               "write": "Find the fuel reading, in litres.",
@@ -226,8 +254,10 @@
           ]
         },
         {
+          "line": "n3364d",
           "speaker": "tin-can-tess",
           "say": "Step two: the givens. Marks at ten litres and twenty litres, four steps apart. The needle's three steps past ten.",
+          "caption": "Step two: the givens. Marks at 10 litres and 20 litres, four steps apart. The needle's three steps past ten.",
           "board": [
             {
               "write": "Marks: 10 L and 20 L, 4 steps apart",
@@ -241,8 +271,10 @@
           ]
         },
         {
+          "line": "q186g3",
           "speaker": "tin-can-tess",
           "say": "Step three: what's one step worth? Twenty take ten is ten, over four steps. Each step is two point five litres.",
+          "caption": "Step three: what's one step worth? 20 − 10 is 10, over four steps. Each step is 2.5 litres.",
           "board": [
             {
               "write": "one step = (20 − 10) ÷ 4 = 2.5 L",
@@ -263,12 +295,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "h1gpcf",
                 "speaker": "tin-can-tess",
                 "say": "Right. The marks tell you what the steps are worth. Don't assume."
               }
             ],
             "not_yet": [
               {
+                "line": "a14cps",
                 "speaker": "tin-can-tess",
                 "say": "Look at the marks. Ten litres from one to the next, over four steps. So each step is more than one."
               }
@@ -276,8 +310,10 @@
           }
         },
         {
+          "line": "uka0xn",
           "speaker": "tin-can-tess",
           "say": "Step four: read it. Ten, plus three steps of two point five. Seventeen point five litres.",
+          "caption": "Step four: read it. 10, plus three steps of 2.5. 17.5 litres.",
           "board": [
             {
               "write": "reading = 10 + 3 × 2.5 = 17.5 L",
@@ -292,8 +328,10 @@
           ]
         },
         {
+          "line": "bl80m5",
           "speaker": "tin-can-tess",
           "say": "Check: the needle's past halfway between ten and twenty, and so is seventeen point five.",
+          "caption": "Check: the needle's past halfway between 10 and 20, and so is 17.5.",
           "board": [
             {
               "write": "Check: 3 of 4 steps is past halfway, and 17.5 > 15 ✓",
@@ -310,10 +348,14 @@
       "turn": {
         "kind": "twin",
         "like": "example-1",
-        "type": "fn-pre-graph-reading",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-pre-graph-reading"
+        },
         "skills": [],
         "intro": [
           {
+            "line": "cgo8ne",
             "speaker": "tin-can-tess",
             "say": "Your go. Work out what one step is worth before you read anything."
           }
@@ -334,20 +376,24 @@
         },
         "right": [
           {
+            "line": "ahksm6",
             "speaker": "tin-can-tess",
             "say": "Scale first, then the count. That's the way."
           },
           {
+            "line": "oce5dl",
             "speaker": "tin-can-tess",
             "say": "Choice. Bang on."
           }
         ],
         "not_yet": [
           {
+            "line": "tsfa7g",
             "speaker": "tin-can-tess",
             "say": "What's one step worth? Share the gap between the marks over the steps."
           },
           {
+            "line": "uwtytc",
             "speaker": "tin-can-tess",
             "say": "Count on from the labelled mark, not from zero."
           }
@@ -363,9 +409,11 @@
       },
       "beats": [
         {
+          "line": "xydhox",
           "speaker": "tin-can-tess",
+          "say": "Now a small one. My G D C says this sheet of tin is zero point zero zero four five six seven eight metres thick, which is thin enough to see through, nearly.",
+          "caption": "Now a small one. My GDC says this sheet of tin is 0.0045678 metres thick, which is thin enough to see through, nearly.",
           "clear": true,
-          "say": "Now a small one. My GDC says this sheet of tin is zero point zero zero four five six seven eight metres thick, which is thin enough to see through, nearly.",
           "board": [
             {
               "write": "Write 0.0045678 m to 3 s.f.",
@@ -374,6 +422,7 @@
           ]
         },
         {
+          "line": "b0vs2w",
           "speaker": "tin-can-tess",
           "say": "The zeros at the front only put the decimal point in the right place. They don't count. Start at the four.",
           "board": [
@@ -395,21 +444,27 @@
             "answer": 0,
             "right": [
               {
+                "line": "xarw5m",
                 "speaker": "tin-can-tess",
-                "say": "Zero point zero zero four five seven. Four, five, six, and the seven after them rounds the six up."
+                "say": "Zero point zero zero four five seven. Four, five, six, and the seven after them rounds the six up.",
+                "caption": "0.00457. Four, five, six, and the seven after them rounds the six up."
               }
             ],
             "not_yet": [
               {
+                "line": "c8sqxi",
                 "speaker": "tin-can-tess",
-                "say": "Start counting at the four: four, five, six. The next digit is a seven, so the six goes up. Zero point zero zero four five seven."
+                "say": "Start counting at the four: four, five, six. The next digit is a seven, so the six goes up. Zero point zero zero four five seven.",
+                "caption": "Start counting at the four: four, five, six. The next digit is a seven, so the six goes up. 0.00457."
               }
             ]
           }
         },
         {
+          "line": "od7ye5",
           "speaker": "tin-can-tess",
-          "say": "Three decimal places would give zero point zero zero five. That's only one significant figure, and it throws away most of what the GDC told you.",
+          "say": "Three decimal places would give zero point zero zero five. That's only one significant figure, and it throws away most of what the G D C told you.",
+          "caption": "3 d.p. would give 0.005. That's only 1 s.f., and it throws away most of what the GDC told you.",
           "board": [
             {
               "write": "0.0045678 m = 0.00457 m (3 s.f.)",
@@ -445,13 +500,16 @@
       },
       "beats": [
         {
+          "line": "g5i2g5",
           "speaker": "tin-can-tess",
-          "clear": true,
-          "say": "This one's laid out like the exam papers. Two parts, so write the letters down as you go."
+          "say": "This one's laid out like the exam papers. Two parts, so write the letters down as you go.",
+          "clear": true
         },
         {
+          "line": "jgrx8i",
           "speaker": "tin-can-tess",
           "say": "The tank's a cylinder, radius zero point nine metres. The gauge has marks at one metre and one point five, five equal steps between them, and the needle's three steps past the one. The volume, V, is pi, times zero point nine squared, times the depth d.",
+          "caption": "The tank's a cylinder, radius 0.9 metres. The gauge has marks at 1 metre and 1.5, five equal steps between them, and the needle's three steps past the one. The volume, V, is π × 0.9² × the depth d.",
           "board": [
             {
               "write": "tank: cylinder, r = 0.9 m",
@@ -472,8 +530,10 @@
           ]
         },
         {
+          "line": "sa4rbu",
           "speaker": "tin-can-tess",
           "say": "Part a says write down. The marks are half a metre apart, over five steps, so a step is zero point one. Three steps past one metre is one point three metres.",
+          "caption": "Part a says write down. The marks are half a metre apart, over five steps, so a step is 0.1. Three steps past one metre is 1.3 metres.",
           "board": [
             {
               "write": "(a)  one step = (1.5 − 1.0) ÷ 5 = 0.1 m",
@@ -489,6 +549,7 @@
           ]
         },
         {
+          "line": "x7wn1n",
           "speaker": "tin-can-tess",
           "say": "Part b says find. Formula first, then the depth goes in.",
           "board": [
@@ -505,8 +566,10 @@
           ]
         },
         {
+          "line": "jm3j4c",
           "speaker": "tin-can-tess",
-          "say": "On the GDC that's three point three zero eight zero nine, and it keeps going. Write down what it gives you, with dots on the end.",
+          "say": "On the G D C that's three point three zero eight zero nine, and it keeps going. Write down what it gives you, with dots on the end.",
+          "caption": "On the GDC that's 3.30809, and it keeps going. Write down what it gives you, with dots on the end.",
           "board": [
             {
               "write": "= 3.30809… m³",
@@ -527,12 +590,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "z5k8ta",
                 "speaker": "tin-can-tess",
                 "say": "Yes. Round once, at the end, from the full value."
               }
             ],
             "not_yet": [
               {
+                "line": "v4nrqr",
                 "speaker": "tin-can-tess",
                 "say": "Every early rounding nudges the number a little. Do it a few times and the last figure moves. So you round once, at the end."
               }
@@ -540,8 +605,10 @@
           }
         },
         {
+          "line": "z34pcb",
           "speaker": "tin-can-tess",
           "say": "Three significant figures: three, three, zero, and the next digit is an eight. So the zero goes up. Three point three one cubic metres.",
+          "caption": "3 s.f.: three, three, zero, and the next digit is an eight. So the zero goes up. 3.31 m³.",
           "board": [
             {
               "write": "V = 3.31 m³ (3 s.f.)",
@@ -569,9 +636,10 @@
       "misconception": "Rounds in two steps: 2.0449 becomes 2.045, then 2.05",
       "beats": [
         {
+          "line": "dd2px4",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "This is from my own log book, from before I knew better. One line's off. Which?",
+          "clear": true,
           "board": [
             {
               "write": "GDC: x = 2.0449",
@@ -602,21 +670,26 @@
             "answer": 2,
             "right": [
               {
+                "line": "q8spas",
                 "speaker": "tin-can-tess",
                 "say": "That's it. I rounded a number that was already rounded."
               }
             ],
             "not_yet": [
               {
+                "line": "rexr3n",
                 "speaker": "tin-can-tess",
-                "say": "Look at the last line. Which number did I round from: the GDC's, or my own?"
+                "say": "Look at the last line. Which number did I round from: the G D C's, or my own?",
+                "caption": "Look at the last line. Which number did I round from: the GDC's, or my own?"
               }
             ]
           }
         },
         {
+          "line": "tqhzml",
           "speaker": "tin-can-tess",
           "say": "Here's the check. Go back to the full value, two point zero four four nine. Three figures: two, zero, four. The next digit is a four, so nothing goes up. Two point zero four.",
+          "caption": "Here's the check. Go back to the full value, 2.0449. Three figures: two, zero, four. The next digit is a four, so nothing goes up. 2.04.",
           "board": [
             {
               "write": "Check: 2.0449, and the digit after 2.04 is a 4, so 2.04 ✓",
@@ -640,10 +713,14 @@
       "turn": {
         "kind": "exam",
         "like": "example-3",
-        "type": "fn-pre-graph-reading",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-pre-graph-reading"
+        },
         "skills": [],
         "intro": [
           {
+            "line": "xq1lds",
             "speaker": "tin-can-tess",
             "say": "Your go, and no help on the first try. Scale first, and round once, at the end."
           }
@@ -672,22 +749,27 @@
         },
         "right": [
           {
+            "line": "d21ctp",
             "speaker": "tin-can-tess",
             "say": "Parts labelled, and rounded once at the end. That'd hold."
           },
           {
+            "line": "dvo53f",
             "speaker": "tin-can-tess",
             "say": "Heaps better than I did my first time."
           }
         ],
         "not_yet": [
           {
+            "line": "rji24l",
             "speaker": "tin-can-tess",
             "say": "What's one step worth? Work that out before you read the needle."
           },
           {
+            "line": "dr3o1d",
             "speaker": "tin-can-tess",
-            "say": "Round from the full GDC value, not from one you've already rounded."
+            "say": "Round from the full G D C value, not from one you've already rounded.",
+            "caption": "Round from the full GDC value, not from one you've already rounded."
           }
         ]
       }
@@ -697,9 +779,11 @@
       "kind": "recap",
       "beats": [
         {
+          "line": "br62e1",
           "speaker": "tin-can-tess",
+          "say": "So. Before you read a gauge, work out what one step is worth. Keep every digit the G D C gives you, and round once, at the end, counting from the first digit that isn't zero.",
+          "caption": "So. Before you read a gauge, work out what one step is worth. Keep every digit the GDC gives you, and round once, at the end, counting from the first digit that isn't zero.",
           "clear": true,
-          "say": "So. Before you read a gauge, work out what one step is worth. Keep every digit the GDC gives you, and round once, at the end, counting from the first digit that isn't zero.",
           "board": [
             {
               "write": "one step = (gap between the marks) ÷ (number of steps)",
@@ -716,10 +800,12 @@
           ]
         },
         {
+          "line": "mpo8la",
           "speaker": "tin-can-tess",
           "say": "Mags wants every answer in her book to three significant figures, so you'll be using this next door."
         },
         {
+          "line": "lysjzn",
           "speaker": "tin-can-tess",
           "say": "That water tank gauge, by the way? Fixed it. The mood turned out to be a moth.",
           "cue": "laughs",

@@ -1,7 +1,10 @@
 {
   "id": "ex.algebra.arithmetic-sequence",
-  "format": 1,
-  "status": "approved",
+  "format": 2,
+  "status": "draft",
+  "waits_for": [
+    "figure"
+  ],
   "title": "Add the Same Each Step",
   "idea": "An arithmetic sequence adds the same amount d every time, so term n is the first term plus n − 1 lots of d.",
   "zone": "algebra",
@@ -44,7 +47,9 @@
   "notes": [
     "builds_on is ex.foundations.pre-substitute, as in the explainer map (FAL-952), because the recall is substitution. This pilot teaches SL1.2.nth-term only, which is now the map's whole entry; finding u₁, d or n from given terms is ex.algebra.arithmetic-from-terms.",
     "No second-method section. The map lists four methods for SL1.2.nth-term: the formula is the lesson, counting on is the concrete case in the big idea, the linear form uₙ = dn + (u₁ − d) appears in example 3(b), and the GDC table is a method explainer under plan decision 4.",
-    "Numbers in the examples come from the arithmetic-context stories in game/engine/situations/arithmetic_context.gd (fight pit rows, failing well, sandbag barricade), inside their ranges."
+    "Numbers in the examples come from the arithmetic-context stories in game/engine/situations/arithmetic_context.gd (fight pit rows, failing well, sandbag barricade), inside their ranges.",
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes, and the figure.",
+    "Waits for the figure board item (README, \"Figures\"): the two tables of rows and seats, and days and litres are text drawings."
   ],
   "sections": [
     {
@@ -52,10 +57,12 @@
       "kind": "cold-open",
       "beats": [
         {
+          "line": "m0ju4u",
           "speaker": "mags-the-ledger",
           "say": "Righto. I'm Mags, and I keep the Ledger. Every debt, every deal, every seat sold at the fight pit."
         },
         {
+          "line": "opbzy1",
           "speaker": "mags-the-ledger",
           "say": "The pit boss wants to know how many seats are in row forty. He's been counting since sunrise. He's up to row nine.",
           "cue": "chuckles",
@@ -63,6 +70,7 @@
           "joke": true
         },
         {
+          "line": "ze6u1n",
           "speaker": "mags-the-ledger",
           "say": "By the end of this you'll have it without counting a single seat.",
           "pause": 0.5,
@@ -84,6 +92,7 @@
           "use": "mags-the-ledger.tin-can-tess.watched"
         },
         {
+          "line": "uvzvfi",
           "speaker": "mags-the-ledger",
           "say": "Quick one before we start. Tap the answer."
         },
@@ -99,14 +108,17 @@
             "answer": 0,
             "right": [
               {
+                "line": "xphuia",
                 "speaker": "mags-the-ledger",
                 "say": "Twenty-six. Brackets, then the times, then the plus. Hang on to that shape. It's back in a minute."
               }
             ],
             "not_yet": [
               {
+                "line": "t0i0ge",
                 "speaker": "mags-the-ledger",
-                "say": "Brackets first: eight minus one is seven. Seven threes are twenty-one. Add the five. Twenty-six. Hang on to that shape."
+                "say": "Brackets first: eight minus one is seven. Seven threes are twenty-one. Add the five. Twenty-six. Hang on to that shape.",
+                "caption": "Brackets first: 8 − 1 = 7. Seven threes are twenty-one. Add the five. Twenty-six. Hang on to that shape."
               }
             ]
           }
@@ -114,6 +126,7 @@
       ],
       "not_watched": [
         {
+          "line": "ipf3or",
           "speaker": "mags-the-ledger",
           "say": "Quick one before we start. Tap the answer."
         },
@@ -129,12 +142,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "n1aqxb",
                 "speaker": "mags-the-ledger",
                 "say": "Twenty-six. Good."
               }
             ],
             "not_yet": [
               {
+                "line": "zmbhk6",
                 "speaker": "mags-the-ledger",
                 "say": "It's twenty-six. Here's how."
               }
@@ -145,8 +160,10 @@
           "use": "mags-the-ledger.short-version"
         },
         {
+          "line": "buq5ls",
           "speaker": "mags-the-ledger",
           "say": "Put the number in where the letter was. Then work the brackets first, multiply next, and add last. So with n as eight: eight minus one is seven, seven threes are twenty-one, and five more makes twenty-six.",
+          "caption": "Put the number in where the letter was. Then work the brackets first, multiply next, and add last. So with n as eight: 8 − 1 = 7, seven threes are twenty-one, and five more makes twenty-six.",
           "board": [
             {
               "write": "5 + (8 − 1) × 3",
@@ -167,6 +184,7 @@
           ]
         },
         {
+          "line": "j1ytyx",
           "speaker": "mags-the-ledger",
           "say": "Hang on to that shape. It's back in a minute."
         },
@@ -180,9 +198,10 @@
       "kind": "big-idea",
       "beats": [
         {
+          "line": "xaaoi9",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "Here's the pit, from the side. Row one, at the front, has twenty-two seats. Then twenty-six, thirty, thirty-four.",
+          "clear": true,
           "board": [
             {
               "write": "Row n:    1    2    3    4",
@@ -195,6 +214,7 @@
           ]
         },
         {
+          "line": "wtwddt",
           "speaker": "mags-the-ledger",
           "say": "Every row has four more than the one in front. A list that changes by the same amount every time is an arithmetic sequence.",
           "board": [
@@ -205,8 +225,10 @@
           ]
         },
         {
+          "line": "kc5duy",
           "speaker": "mags-the-ledger",
           "say": "Each number in it is a term. The term in row n is u n, so u one is twenty-two. The little number says which row. The u says how many seats.",
+          "caption": "Each number in it is a term. The term in row n is uₙ, so u₁ is twenty-two. The little number says which row. The u says how many seats.",
           "board": [
             {
               "write": "term: uₙ is the term in position n",
@@ -219,12 +241,15 @@
           ]
         },
         {
+          "line": "w5qpzy",
           "speaker": "mags-the-ledger",
           "say": "Two columns in my book: which row, and what's in it. Don't mix them up."
         },
         {
+          "line": "nxgfji",
           "speaker": "mags-the-ledger",
           "say": "What you add each time is the common difference, d. Later term minus earlier term. Twenty-six minus twenty-two: d is four seats per row.",
+          "caption": "What you add each time is the common difference, d. Later term minus earlier term. 26 − 22: d = 4 seats per row.",
           "board": [
             {
               "write": "common difference: d = later term − earlier term",
@@ -237,6 +262,7 @@
           ]
         },
         {
+          "line": "nj2v9e",
           "speaker": "mags-the-ledger",
           "say": "Now the trick. From row one to row four, you add the four three times, not four times. Count the hops.",
           "board": [
@@ -251,6 +277,7 @@
           ]
         },
         {
+          "line": "zwa6ps",
           "speaker": "mags-the-ledger",
           "say": "My uncle Wal fenced a paddock once. Ten panels, so he bought ten posts. There's still a gap at the end you could drive a ute through.",
           "cue": "chuckles",
@@ -258,8 +285,10 @@
           "joke": true
         },
         {
+          "line": "kpgpau",
           "speaker": "mags-the-ledger",
           "say": "The rows are the posts and the steps are the gaps. Row n is n minus one steps from row one.",
+          "caption": "The rows are the posts and the steps are the gaps. Row n is n − 1 steps from row one.",
           "board": [
             {
               "write": "row n is n − 1 steps from row 1",
@@ -268,8 +297,10 @@
           ]
         },
         {
+          "line": "x320qu",
           "speaker": "mags-the-ledger",
           "say": "So u n is the first term, plus n minus one lots of d.",
+          "caption": "So uₙ is the first term, plus (n − 1)d.",
           "board": [
             {
               "write": "uₙ = u₁ + (n − 1)d",
@@ -279,6 +310,7 @@
           ]
         },
         {
+          "line": "w1apkg",
           "speaker": "mags-the-ledger",
           "say": "It's in the formula book, but you still need to know what every letter means. Half the folk out here sleep with that book under the pillow.",
           "joke": true,
@@ -295,9 +327,10 @@
       },
       "beats": [
         {
+          "line": "ykfoi7",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "Back to the pit boss. Row forty. Step one: write down what you're finding.",
+          "clear": true,
           "board": [
             {
               "write": "Find u₄₀, the number of seats in row 40.",
@@ -307,8 +340,10 @@
           ]
         },
         {
+          "line": "du4dl3",
           "speaker": "mags-the-ledger",
           "say": "Step two: put the givens in the book, with their units. First term, twenty-two seats. Common difference, four seats per row. And n is forty, because we want row forty.",
+          "caption": "Step two: put the givens in the book, with their units. First term, 22 seats. Common difference, 4 seats per row. And n = 40, because we want row forty.",
           "board": [
             {
               "write": "u₁ = 22 seats",
@@ -326,6 +361,7 @@
           ]
         },
         {
+          "line": "sm9jdt",
           "speaker": "mags-the-ledger",
           "say": "Step three: the formula, written down clean before any numbers touch it.",
           "board": [
@@ -337,8 +373,10 @@
           ]
         },
         {
+          "line": "ss156v",
           "speaker": "mags-the-ledger",
           "say": "Step four: substitute. Twenty-two, plus forty minus one lots of four.",
+          "caption": "Step four: substitute. 22 + (40 − 1) × 4.",
           "board": [
             {
               "write": "u₄₀ = 22 + (40 − 1) × 4",
@@ -359,12 +397,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "gdjml0",
                 "speaker": "mags-the-ledger",
                 "say": "That's it. Thirty-nine hops from the front row to row forty."
               }
             ],
             "not_yet": [
               {
+                "line": "d80ukr",
                 "speaker": "mags-the-ledger",
                 "say": "Count the hops. Row one to row two is one hop. Row one to row forty is thirty-nine."
               }
@@ -372,6 +412,7 @@
           }
         },
         {
+          "line": "ysyhcm",
           "speaker": "mags-the-ledger",
           "say": "Step five: work it out. Brackets first, thirty-nine. Thirty-nine fours are one hundred and fifty-six. Add the twenty-two: one hundred and seventy-eight.",
           "board": [
@@ -391,6 +432,7 @@
           ]
         },
         {
+          "line": "gs1tif",
           "speaker": "mags-the-ledger",
           "say": "Step six: say it in words, with the unit. Row forty has one hundred and seventy-eight seats.",
           "board": [
@@ -403,6 +445,7 @@
           ]
         },
         {
+          "line": "oaqhht",
           "speaker": "mags-the-ledger",
           "say": "Does it make sense? The back of the pit is the big end, so row forty should hold more than row one. It does.",
           "board": [
@@ -421,12 +464,20 @@
       "turn": {
         "kind": "twin",
         "like": "example-1",
-        "type": "t1-arithmetic-in-context",
+        "serve": "engine",
+        "cell": {
+          "type": "t1-arithmetic-in-context",
+          "unknown": "term-in-context",
+          "rep": "words",
+          "angle": "identify-parameters"
+        },
+        "command": "Find",
         "skills": [
           "SL1.2.nth-term"
         ],
         "intro": [
           {
+            "line": "hlwd4i",
             "speaker": "mags-the-ledger",
             "say": "Your turn. Same job, different stand. Givens first."
           }
@@ -449,20 +500,25 @@
         },
         "right": [
           {
+            "line": "jtuqjw",
             "speaker": "mags-the-ledger",
             "say": "Givens, formula, then the numbers. That's how I'd have done it."
           },
           {
+            "line": "axvkm8",
             "speaker": "mags-the-ledger",
             "say": "Into the book it goes."
           }
         ],
         "not_yet": [
           {
+            "line": "m3mhhe",
             "speaker": "mags-the-ledger",
-            "say": "Check your n minus one. Count the hops, not the rows."
+            "say": "Check your n minus one. Count the hops, not the rows.",
+            "caption": "Check your n − 1. Count the hops, not the rows."
           },
           {
+            "line": "kd529z",
             "speaker": "mags-the-ledger",
             "say": "Write the givens out first, each with its unit, and go again."
           }
@@ -478,13 +534,15 @@
       },
       "beats": [
         {
+          "line": "wmc2rf",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "Dry out there.",
+          "clear": true,
           "cue": "coughs",
           "cue_at": "start"
         },
         {
+          "line": "xy5x2p",
           "speaker": "mags-the-ledger",
           "say": "A harder one. There's a well past the scrap heaps that's drying up. Day one it gave four hundred and eighty litres. Day two, four sixty-five. Day three, four fifty. What does it give on day twenty?",
           "board": [
@@ -503,8 +561,10 @@
           ]
         },
         {
+          "line": "xnagtn",
           "speaker": "mags-the-ledger",
           "say": "Givens. u one is four hundred and eighty litres. n is twenty. You find d.",
+          "caption": "Givens. u₁ = 480 litres. n = 20. You find d.",
           "board": [
             {
               "write": "u₁ = 480 litres",
@@ -528,19 +588,24 @@
             "answer": 0,
             "right": [
               {
+                "line": "u5hrtc",
                 "speaker": "mags-the-ledger",
-                "say": "Minus fifteen. The well gives less each day, so d had better be negative."
+                "say": "Minus fifteen. The well gives less each day, so d had better be negative.",
+                "caption": "−15. The well gives less each day, so d had better be negative."
               }
             ],
             "not_yet": [
               {
+                "line": "f08mqv",
                 "speaker": "mags-the-ledger",
-                "say": "Later minus earlier: four sixty-five take away four eighty. The water's going down, so d is negative. Minus fifteen."
+                "say": "Later minus earlier: four sixty-five take away four eighty. The water's going down, so d is negative. Minus fifteen.",
+                "caption": "Later minus earlier: 465 − 480. The water's going down, so d is negative. −15."
               }
             ]
           }
         },
         {
+          "line": "xiggsv",
           "speaker": "mags-the-ledger",
           "say": "Formula, then substitute. The minus sign travels with the fifteen.",
           "board": [
@@ -559,8 +624,10 @@
           ]
         },
         {
+          "line": "mlzgdl",
           "speaker": "mags-the-ledger",
           "say": "Nineteen lots of minus fifteen is minus two hundred and eighty-five. Four eighty take away two eighty-five leaves one hundred and ninety-five.",
+          "caption": "19 × (−15) = −285. 480 − 285 leaves 195.",
           "board": [
             {
               "write": "= 480 + 19 × (−15)",
@@ -577,8 +644,10 @@
           ]
         },
         {
+          "line": "siaw54",
           "speaker": "mags-the-ledger",
           "say": "On day twenty the well gives a hundred and ninety-five litres. Less than day one, which is what a drying well does.",
+          "caption": "On day twenty the well gives 195 litres. Less than day one, which is what a drying well does.",
           "board": [
             {
               "write": "On day 20 the well gives 195 litres.",
@@ -620,11 +689,13 @@
       },
       "beats": [
         {
+          "line": "xduxt9",
           "speaker": "mags-the-ledger",
-          "clear": true,
-          "say": "This one's laid out like the old exam papers: parts a, b and c. Write each letter down before you start the part, so whoever marks it can find your working."
+          "say": "This one's laid out like the old exam papers: parts a, b and c. Write each letter down before you start the part, so whoever marks it can find your working.",
+          "clear": true
         },
         {
+          "line": "b1doye",
           "speaker": "mags-the-ledger",
           "say": "A barricade of sandbags, in layers. Ninety-six in layer one at the bottom, ninety-two in layer two, eighty-eight in layer three. The numbers make an arithmetic sequence.",
           "board": [
@@ -647,8 +718,10 @@
           ]
         },
         {
+          "line": "oa4xwe",
           "speaker": "mags-the-ledger",
           "say": "Part a says write down. Write down means the answer can stand on its own, no working needed. Ninety-two minus ninety-six. Minus four.",
+          "caption": "Part a says write down. Write down means the answer can stand on its own, no working needed. 92 − 96. −4.",
           "board": [
             {
               "write": "(a)  d = −4",
@@ -659,8 +732,10 @@
           ]
         },
         {
+          "line": "uzdjd3",
           "speaker": "mags-the-ledger",
           "say": "Part b says find, and find means show your working. Formula first. Then in go ninety-six and minus four.",
+          "caption": "Part b says find, and find means show your working. Formula first. Then in go 96 and −4.",
           "board": [
             {
               "write": "(b)  uₙ = u₁ + (n − 1)d",
@@ -675,8 +750,10 @@
           ]
         },
         {
+          "line": "gbq1b0",
           "speaker": "mags-the-ledger",
           "say": "Expand the bracket: minus four n, plus four. Then collect the numbers. Ninety-six and four make a hundred. So u n is a hundred minus four n.",
+          "caption": "Expand the bracket: −4n, + 4. Then collect the numbers. 96 and 4 make 100. So uₙ = 100 − 4n.",
           "board": [
             {
               "write": "= 96 − 4n + 4",
@@ -703,21 +780,27 @@
             "answer": 0,
             "right": [
               {
+                "line": "x3tqls",
                 "speaker": "mags-the-ledger",
-                "say": "Ninety-six. A hundred minus four. It gives the bottom layer back, so I trust it."
+                "say": "Ninety-six. A hundred minus four. It gives the bottom layer back, so I trust it.",
+                "caption": "96. 100 − 4. It gives the bottom layer back, so I trust it."
               }
             ],
             "not_yet": [
               {
+                "line": "pbsyck",
                 "speaker": "mags-the-ledger",
-                "say": "Put one in for n. A hundred minus four is ninety-six, and that's the bottom layer. So the expression checks out."
+                "say": "Put one in for n. A hundred minus four is ninety-six, and that's the bottom layer. So the expression checks out.",
+                "caption": "Put one in for n. 100 − 4 = 96, and that's the bottom layer. So the expression checks out."
               }
             ]
           }
         },
         {
+          "line": "enqh64",
           "speaker": "mags-the-ledger",
           "say": "And look at the number in front of n. Minus four. That's d, and it always will be, so there's a second check sitting right there.",
+          "caption": "And look at the number in front of n. −4. That's d, and it always will be, so there's a second check sitting right there.",
           "board": [
             {
               "write": "Check: n = 1 gives 100 − 4 = 96 = u₁ ✓",
@@ -734,8 +817,10 @@
           ]
         },
         {
+          "line": "v38wfi",
           "speaker": "mags-the-ledger",
           "say": "Part c says hence. Hence means use what you've already found. Put eighteen into part b. Four eighteens are seventy-two, and a hundred minus seventy-two is twenty-eight.",
+          "caption": "Part c says hence. Hence means use what you've already found. Put 18 into part b. Four eighteens are seventy-two, and 100 − 72 = 28.",
           "board": [
             {
               "write": "(c)  u₁₈ = 100 − 4 × 18",
@@ -755,6 +840,7 @@
           ]
         },
         {
+          "line": "slqvrz",
           "speaker": "mags-the-ledger",
           "say": "Layer eighteen has twenty-eight sandbags. Fewer than the bottom layer and still more than none, so the barricade stands.",
           "board": [
@@ -779,9 +865,10 @@
       "misconception": "Using u₁ + nd, which counts one step too many",
       "beats": [
         {
+          "line": "ba1c9c",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "Somebody left this in my book. One line's off. Find it.",
+          "clear": true,
           "board": [
             {
               "write": "u₁ = 22, d = 4, n = 40",
@@ -818,12 +905,14 @@
             "answer": 1,
             "right": [
               {
+                "line": "odwdb3",
                 "speaker": "mags-the-ledger",
                 "say": "That's the one. They added d forty times."
               }
             ],
             "not_yet": [
               {
+                "line": "mz96qm",
                 "speaker": "mags-the-ledger",
                 "say": "Look at the second line. How many lots of four are in it, and how many should there be?"
               }
@@ -831,8 +920,10 @@
           }
         },
         {
+          "line": "rmiu7q",
           "speaker": "mags-the-ledger",
           "say": "Here's the check that catches it. Put n equals one into their rule. Twenty-two plus one lot of four is twenty-six. That's row two. Their rule can't get the front row right, so every row comes out one row too far.",
+          "caption": "Here's the check that catches it. Put n = 1 into their rule. Twenty-two plus one lot of four is twenty-six. That's row two. Their rule can't get the front row right, so every row comes out one row too far.",
           "board": [
             {
               "write": "Check n = 1: 22 + 1 × 4 = 26 ≠ 22 ✗",
@@ -842,6 +933,7 @@
           ]
         },
         {
+          "line": "i60a0w",
           "speaker": "mags-the-ledger",
           "say": "I don't rub it out, mind. One line through it, and the right working beside it. A mistake you can still read is one you won't make twice.",
           "board": [
@@ -862,12 +954,16 @@
       "turn": {
         "kind": "exam",
         "like": "example-3",
-        "type": "t1-arithmetic-sequence",
+        "serve": "fallback",
+        "cell": {
+          "type": "t1-arithmetic-sequence"
+        },
         "skills": [
           "SL1.2.nth-term"
         ],
         "intro": [
           {
+            "line": "fdygx5",
             "speaker": "mags-the-ledger",
             "say": "Your turn, and no help on the first go. Label your parts, and write the formula before the numbers."
           }
@@ -900,20 +996,25 @@
         },
         "right": [
           {
+            "line": "lx5w8g",
             "speaker": "mags-the-ledger",
             "say": "Every part labelled and checked. I'd sign that."
           },
           {
+            "line": "s0oe7a",
             "speaker": "mags-the-ledger",
             "say": "Clean books. That's what I like to see."
           }
         ],
         "not_yet": [
           {
+            "line": "yllpr5",
             "speaker": "mags-the-ledger",
-            "say": "Go back to part b and put n equals one in. Does the first term come back?"
+            "say": "Go back to part b and put n equals one in. Does the first term come back?",
+            "caption": "Go back to part b and put n = 1 in. Does the first term come back?"
           },
           {
+            "line": "huly91",
             "speaker": "mags-the-ledger",
             "say": "Hence means use part b. Put the number into your expression."
           }
@@ -925,9 +1026,11 @@
       "kind": "recap",
       "beats": [
         {
+          "line": "wh58v1",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "So. An arithmetic sequence adds the same d every time. To get term n, start at the first term and add d, n minus one times. You count the steps, not the terms.",
+          "caption": "So. An arithmetic sequence adds the same d every time. To get term n, start at the first term and add d, n − 1 times. You count the steps, not the terms.",
+          "clear": true,
           "board": [
             {
               "write": "uₙ = u₁ + (n − 1)d",
@@ -948,10 +1051,12 @@
           ]
         },
         {
+          "line": "ajgy75",
           "speaker": "mags-the-ledger",
           "say": "Next time, the pit boss wants every seat in the house added up, not one row. That's a series. Bring your book."
         },
         {
+          "line": "nqkgt2",
           "speaker": "mags-the-ledger",
           "say": "Arithmetic sequences are the only honest traders in the Bazaar. Same difference, every single time.",
           "cue": "chuckles",
