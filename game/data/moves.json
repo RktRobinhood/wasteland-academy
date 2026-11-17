@@ -424,8 +424,8 @@
   },
   "fn-exp-log-inverse-composite/evaluate-inverse/inverse-identities": {
    "3": [
-    "use-identity",
-    "state-answer",
+    "isolate",
+    "apply-inverse",
     "state-answer"
    ],
    "4": [
@@ -479,7 +479,7 @@
   },
   "fn-exp-log-inverse-composite/simplify-composite/numeric-check": {
    "3": [
-    "test-point",
+    "use-identity",
     "check",
     "state-answer"
    ]
@@ -612,8 +612,8 @@
   },
   "fn-exp-log-inverse-composite/composite-order/numeric-check": {
    "3": [
-    "test-point",
     "compose",
+    "check",
     "state-answer"
    ]
   },
@@ -3365,8 +3365,8 @@
   },
   "fn-concept-quadratic-forms/match-three-forms/compare-coefficients": {
    "3": [
-    "expand",
-    "expand",
+    "compare-coefficients",
+    "compare-coefficients",
     "state-answer"
    ],
    "4": [
@@ -3377,6 +3377,14 @@
    ]
   },
   "fn-concept-quadratic-forms/match-three-forms/roots-to-factors": {
+   "6": [
+    "read-givens",
+    "roots-to-factors",
+    "substitute",
+    "expand",
+    "rewrite-form",
+    "state-answer"
+   ],
    "7": [
     "apply-condition",
     "compute-discriminant",
@@ -4382,6 +4390,20 @@
   }
  },
  "branches": [
+  {
+   "key": "fn-solve-quadratic/equation-from-roots/complete-square",
+   "steps": "4",
+   "index": 0,
+   "match": "^Each root gives a factor",
+   "move": "roots-to-factors"
+  },
+  {
+   "key": "fn-solve-quadratic/equation-from-roots/complete-square",
+   "steps": "4",
+   "index": 1,
+   "match": "^The product is 0",
+   "move": "zero-product"
+  },
   {
    "key": "fn-exp-log-inverse-composite/transformations-between/common-base-power",
    "steps": "3",

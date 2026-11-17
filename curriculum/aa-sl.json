@@ -6422,8 +6422,8 @@
                 {
                   "id": "translate-parent",
                   "approach": "transformation",
-                  "name": "Translate ln x by its vector",
-                  "summary": "ln(x − a) + b is ln x moved by (a, b): the asymptote becomes x = a and (1, 0) moves to (1 + a, b)."
+                  "name": "Transform the parent log graph",
+                  "summary": "Build the curve from y = log_b x: a multiple stretches it, and a negative one reflects it in the x-axis; a shift right by a moves the asymptote to x = a and (1, 0) to (1 + a, 0); a shift up by c then takes that point to (1 + a, c)."
                 },
                 {
                   "id": "gdc-transfer",
@@ -6499,7 +6499,7 @@
                 {
                   "id": "gdc-intersect",
                   "approach": "gdc",
-                  "name": "Intersect y = e^(2x) with y = 7",
+                  "name": "Intersect the two sides on a GDC",
                   "summary": "A graphical solution gives a decimal to check against the exact answer."
                 }
               ],

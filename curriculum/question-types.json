@@ -17391,6 +17391,22 @@
       "coefficient-from-root"
      ],
      "wrong": "other root c instead of c ÷ r"
+    },
+    {
+     "text": "Forgetting the division in the quadratic formula, so the root is taken as −b + √Δ",
+     "as": "distractor",
+     "in": [
+      "solve-in-context"
+     ],
+     "wrong": "x = −b + √Δ, twice the root"
+    },
+    {
+     "text": "Using b² + 4ac for the discriminant, with the sign of 4ac wrong",
+     "as": "distractor",
+     "in": [
+      "solve-surd"
+     ],
+     "wrong": "x = h ± √d with d from b² + 4ac"
     }
    ],
    "parts": [
@@ -17838,7 +17854,8 @@
      "in": [
       "nature-from-equation",
       "delta-in-k",
-      "roots-from-k"
+      "roots-from-k",
+      "k-for-equal-roots"
      ],
      "wrong": "b² + 4ac, or √(b² − 4ac)"
     },
@@ -17921,6 +17938,14 @@
       "same-sign-roots"
      ],
      "wrong": "the values from a positive product alone"
+    },
+    {
+     "text": "Forgetting the 4 in b² − 4ac, so the discriminant is taken as b² − ac",
+     "as": "distractor",
+     "in": [
+      "k-for-equal-roots"
+     ],
+     "wrong": "the k that makes b² − ac zero"
     }
    ],
    "parts": [
@@ -18352,7 +18377,8 @@
      "text": "Adding the line to the curve instead of taking it away",
      "as": "distractor",
      "in": [
-      "equate-to-quadratic"
+      "equate-to-quadratic",
+      "meeting-x"
      ],
      "wrong": "(B + m)x + (C + n)"
     },
@@ -22199,7 +22225,8 @@
      "text": "Stopping at the value of the log's input instead of solving it for x",
      "as": "distractor",
      "in": [
-      "x-intercept"
+      "x-intercept",
+      "log-inequality"
      ],
      "wrong": "x = b^e"
     },
@@ -22226,6 +22253,14 @@
       "log-inequality"
      ],
      "wrong": "mx + n compared with k"
+    },
+    {
+     "text": "Taking the x-intercept as n, instead of the vertical asymptote",
+     "as": "distractor",
+     "in": [
+      "n-from-asymptote"
+     ],
+     "wrong": "n = 3 for y = log₂(x − n) with x-intercept 3 and asymptote x = 2"
     }
    ],
    "parts": [
@@ -29888,7 +29923,8 @@
       "solve-log-x",
       "to-exponential-form",
       "to-log-form",
-      "value-fractional-power"
+      "value-fractional-power",
+      "solve-log-base"
      ],
      "wrong": "the positive power"
     },
@@ -29962,7 +29998,8 @@
      "text": "Keeping the negative root, which is outside the domain",
      "as": "distractor",
      "in": [
-      "solve-log-square"
+      "solve-log-square",
+      "solve-log-base"
      ],
      "wrong": "the negative root"
     },

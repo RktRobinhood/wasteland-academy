@@ -14,6 +14,8 @@ const R_SQRT_AREA := "fn-solve-quadratic#9"
 const R_NEG_LEN := "fn-solve-quadratic#10"
 const R_SUM := "fn-solve-quadratic#11"
 const R_PRODUCT := "fn-solve-quadratic#12"
+const R_NO_DIVIDE := "fn-solve-quadratic#13"
+const R_PLUS_4AC := "fn-solve-quadratic#14"
 
 const NEED := {
 	"solve-factorisable": {"wrapper": "plain"},
@@ -141,17 +143,30 @@ func u_solve_surd(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var disc: Q = s.disc
 	var two_a := a.mul(2)
 	var res: Dictionary = ans.values
+	# 2a = ±1 (a = ±½): Δ is the surd itself, so "√Δ = √(1 × d)" would say nothing, and
+	# leaving out the ÷ 2a gives the answer (or the −b slip) back. So the step says Δ has
+	# no square factor, and Δ with + 4ac is the slip in place of the ÷ 2a one.
+	var unit := two_a.sq().eq(1)
+	var steps: Array = ["Δ = b² − 4ac = %s² − 4 × %s × %s = %s" % [Fmt.paren(s.b), Fmt.paren(a), Fmt.paren(s.c), N(disc)]]
+	var wrongs: Array = [wrong({"h": s.h.neg(), "d": s.surd}, R_MINUS_B)]
+	if unit:
+		steps.append("%s has no square factor, so √%s stays as it is" % [N(disc), N(disc)])
+		steps.append("x = (−b ± √Δ)/(2a) = (%s ± √%s)/%s = %s ± √%s" % [N(s.b.neg()), N(disc), Fmt.paren(two_a), N(s.h), N(s.surd)])
+		var plus_d: Q = s.surd.add(s.c.mul(2).div(a))
+		if plus_d.sign() > 0:
+			wrongs.append(wrong({"h": s.h, "d": plus_d}, R_PLUS_4AC))
+	else:
+		steps.append("√%s = √(%s × %s) = %s√%s" % [N(disc), N(two_a.sq()), N(s.surd), N(two_a.abs_q()), N(s.surd)])
+		steps.append("x = (%s ± %s√%s)/%s = %s ± √%s" % [N(s.b.neg()), N(two_a.abs_q()), N(s.surd), Fmt.paren(two_a), N(s.h), N(s.surd)])
+		wrongs.append(wrong({"h": s.h, "d": disc}, R_NO_2A))
+	steps.append(final)
 	return {
 		"asked": "Solve the equation, giving the exact roots in the form x = h ± √d.", "lines": [Fmt.general(a, s.b, s.c) + " = 0"],
 		"given": {"a": a.key(), "b": s.b.key(), "c": s.c.key()}, "answer": ans,
-		"wrongs": [wrong({"h": s.h.neg(), "d": s.surd}, R_MINUS_B), wrong({"h": s.h, "d": disc}, R_NO_2A)],
+		"wrongs": wrongs,
 		"fillers": [{"h": s.h, "d": s.surd.mul(4)}, {"h": s.h.mul(2), "d": s.surd}],
 		"methods": {
-			"quadratic-formula": {"result": res, "steps": [
-				"Δ = b² − 4ac = %s² − 4 × %s × %s = %s" % [Fmt.paren(s.b), Fmt.paren(a), Fmt.paren(s.c), N(disc)],
-				"√%s = √(%s × %s) = %s√%s" % [N(disc), N(two_a.sq()), N(s.surd), N(two_a.abs_q()) if not two_a.abs_q().eq(1) else "", N(s.surd)],
-				"x = (%s ± %s√%s)/%s = %s ± √%s" % [N(s.b.neg()), N(two_a.abs_q()) if not two_a.abs_q().eq(1) else "", N(s.surd), Fmt.paren(two_a), N(s.h), N(s.surd)],
-				final]},
+			"quadratic-formula": {"result": res, "steps": steps},
 			"complete-square": {"result": res, "steps": [
 				"Complete the square: %s = 0" % Fmt.vertex(a, s.h, s.k),
 				"%s² = %s" % [Fmt.factor(s.h), N(s.surd)],
@@ -185,8 +200,10 @@ func u_solve_in_context(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		var other := Fmt.sf(s.xneg)
 		return {
 			"asked": "Find x, correct to 3 significant figures.", "lines": [line], "given": given, "answer": ans,
-			"wrongs": [wrong({"v": x.add(s.d)}, "SL2.7.solve-equation#1")] + ([wrong({"v": Q.new(int(round(sqrt(float(s.area.n)) * SCALE_I)), SCALE_I)}, R_SQRT_AREA)] if s.kind == "rect" else []),
-			"fillers": [{"v": x.mul(2)}, {"v": x.add(1)}, {"v": x.div(2)}] + ([] if s.kind == "rect" else [{"v": Q.new(int(round(sqrt(float(s.area.n)) * SCALE_I)), SCALE_I)}]),
+			"wrongs": [wrong({"v": x.add(s.d)}, "SL2.7.solve-equation#1"), wrong({"v": Q.new(int(round(sqrt(float(s.area.n)) * SCALE_I)), SCALE_I)}, R_SQRT_AREA),
+				wrong({"v": x.mul(2)}, R_NO_DIVIDE)],
+			# x² + d = A, the bracket not multiplied out, and x/2.
+			"fillers": [{"v": QuadraticEquationSituation.approx(sqrt(float(s.area.n - s.d.n)))}, {"v": x.div(2)}],
 			"methods": {
 				"factorise": {"result": res, "steps": [setup,
 					"Δ = %s is not a square number, so there are no whole-number factors: factorising fails here." % N(disc),
@@ -206,8 +223,9 @@ func u_solve_in_context(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var fs := QuadraticViews.formula_steps(Q.new(1), s.B, s.C)
 	return {
 		"asked": "Find x.", "lines": [line], "given": given, "answer": ans,
-		"wrongs": [wrong({"v": s.r2.neg()}, "SL2.7.solve-equation#1"), wrong({"v": s.r2}, R_NEG_LEN)],
-		"fillers": [{"v": s.r1.mul(2)}, {"v": s.r1.add(1)}, {"v": s.r1.sub(1)}],
+		"wrongs": [wrong({"v": s.r2.neg()}, "SL2.7.solve-equation#1"), wrong({"v": s.r2}, R_NEG_LEN), wrong({"v": s.r1.mul(2)}, R_NO_DIVIDE)],
+		# √Δ (the formula stopped before −b and ÷ 2) and −c (the constant read as the root).
+		"fillers": [{"v": s.r1.sub(s.r2)}, {"v": s.C.neg()}],
 		"methods": {
 			"factorise": {"result": res, "steps": [setup, "(x%s)(x%s) = 0" % [Fmt.plus(s.r1.neg()), Fmt.plus(s.r2.neg())], reject, final]},
 			"quadratic-formula": {"result": res, "steps": [setup, Step.text(fs.steps[0]) + ", " + Step.text(fs.steps[1]), reject, final]},
@@ -276,7 +294,9 @@ func _hidden_exponential_p2(s: Dictionary) -> Dictionary:
 
 func u_choose_substitution(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("quad_in", {"B": s.B, "C": s.C}, {"A": Q.new(1), "var": "u", "tail": " = 0"}, "With u = %s: " % bx(s.base))
-	var final := "So " + Answer.text(ans) + "."
+	# The answer reads "With u = …", so the last step lower-cases it after "So, ".
+	var said := Answer.text(ans)
+	var final := "So, " + said.left(1).to_lower() + said.substr(1) + "."
 	return {
 		"asked": "Choose a substitution u that turns the equation into a quadratic, and write the quadratic in u.",
 		"lines": [exp_line(s)], "given": {"base": s.base.key(), "B": s.B.key(), "C": s.C.key()}, "answer": ans,
@@ -369,10 +389,9 @@ func u_equation_from_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		c = s.p.mul(s.q)
 		said = "%s and %s" % [N(s.p), N(s.q)]
 		given = {"roots": [s.p.key(), s.q.key()]}
-		var h: Q = s.p.add(s.q).div(2)
-		var half: Q = s.q.sub(s.p).div(2)
-		st = ["The roots are %s ± %s, so x%s = ±%s" % [N(h), N(half), Fmt.plus(h.neg()) if not h.is_zero() else "", N(half)],
-			"Square both sides: %s² = %s" % [Fmt.factor(h), N(half.sq())]]
+		# Whole-number roots give the factors directly (#193), not h ± half.
+		st = ["Each root gives a factor: x = %s gives %s and x = %s gives %s" % [N(s.p), Fmt.factor(s.p), N(s.q), Fmt.factor(s.q)],
+			"The product is 0 at both roots: %s%s = 0" % [Fmt.factor(s.p), Fmt.factor(s.q)]]
 	var ans := Answer.make("quad_in", {"B": b, "C": c}, {"A": Q.new(1), "var": "x", "tail": " = 0"})
 	var final := "So " + Answer.text(ans) + "."
 	st.append("Expand and collect: " + Answer.text(ans))
@@ -382,9 +401,16 @@ func u_equation_from_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"asked": "Find a quadratic equation x² + bx + c = 0 with these roots and integer coefficients.", "lines": lines,
 		"given": given, "answer": ans,
 		"wrongs": [wrong({"B": b.neg(), "C": c}, R_SUM)],
-		"fillers": [{"B": b, "C": c.neg()}, {"B": b, "C": c.add(s.surd.mul(2)) if surd else c.add(1)}, {"B": b.div(2), "C": c}],
+		"fillers": [{"B": b, "C": c.neg()}, {"B": b, "C": c.add(s.surd.mul(2))} if surd else {"B": b.neg(), "C": c.neg()}, {"B": b.div(2), "C": c}],
+		"titles": {} if surd else {"complete-square": "Write the factors and expand"},
 		"methods": {"complete-square": {"result": ans.values, "steps": st}},
 	}
+
+
+## r·k as a signed term after r²: "+ k", "− k", "+ 3k", "− 3k".
+static func kterm(r: Q) -> String:
+	var size := "" if r.abs_q().eq(1) else N(r.abs_q())
+	return ("− " if r.sign() < 0 else "+ ") + size + "k"
 
 
 func u_coefficient_from_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -394,10 +420,12 @@ func u_coefficient_from_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var lines := [eq, "One root is x = %s." % N(s.r1)] if rep == "equation" else ["The equation %s has x = %s as one of its roots." % [eq, N(s.r1)]]
 	return {
 		"asked": "Find k and the other root.", "lines": lines, "given": {"c": s.c.key(), "root": s.r1.key()}, "answer": ans,
+		# The steps substitute the root and use the product; factorising is only the check.
+		"titles": {"factorise": "Substitute the root, then use the product of the roots"},
 		"wrongs": [wrong({"k": s.k, "r": s.c}, R_PRODUCT)],
 		"fillers": [{"k": s.k.neg(), "r": s.r2}, {"k": s.k, "r": s.r2.neg()}, {"k": s.k.neg(), "r": s.r2.neg()}],
 		"methods": {"factorise": {"result": ans.values, "steps": [
-			"x = %s is a root: %s² + %sk%s = 0, so k = %s" % [N(s.r1), Fmt.paren(s.r1), Fmt.paren(s.r1), Fmt.plus(s.c), N(s.k)],
+			"x = %s is a root: %s² %s%s = 0, so k = %s" % [N(s.r1), Fmt.paren(s.r1), kterm(s.r1), Fmt.plus(s.c), N(s.k)],
 			"The product of the roots is %s, so the other root is %s ÷ %s = %s" % [N(s.c), N(s.c), Fmt.paren(s.r1), N(s.r2)],
 			"Check: %s = (x%s)(x%s)" % [Fmt.poly([1, s.k, s.c]), Fmt.plus(s.r1.neg()), Fmt.plus(s.r2.neg())], final]}},
 	}

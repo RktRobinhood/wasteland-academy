@@ -95,7 +95,17 @@ static func equate_step(s: Dictionary) -> String:
 
 
 static func factor_step(s: Dictionary) -> String:
-	return "%s(x%s)(x%s) = 0, so x = %s or x = %s" % [Fmt.lead(s.a), Fmt.plus(s.x1.neg()) if not s.x1.is_zero() else "", Fmt.plus(s.x2.neg()) if not s.x2.is_zero() else "", N(s.x1), N(s.x2)]
+	return "%s%s = 0, so x = %s or x = %s" % [Fmt.lead(s.a), xfactors(s.x1, s.x2), N(s.x1), N(s.x2)]
+
+
+## (x − r) for a root r, or x for r = 0.
+static func xfactor(r: Q) -> String:
+	return "x" if r.is_zero() else "(x%s)" % Fmt.plus(r.neg())
+
+
+## The two factors with a zero root's x first: "x(x − 3)", not "(x)(x − 3)".
+static func xfactors(r1: Q, r2: Q) -> String:
+	return xfactor(r2) + xfactor(r1) if r2.is_zero() else xfactor(r1) + xfactor(r2)
 
 
 ## The sketch: the curve and the line, bounds that hold the points given (or, for the
@@ -136,6 +146,8 @@ func u_equate_to_quadratic(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var final := "So " + Answer.text(ans) + "."
 	out.wrongs = [wrong({"B": s.B.add(s.m), "C": s.C.add(s.n)}, R_ADD_LINE), wrong({"B": c[1], "C": s.C.add(s.n)}, R_HALF_SIGN)]
 	out.fillers = [{"B": s.B.add(s.m), "C": c[2]}, {"B": s.B, "C": c[2]}, {"B": c[1], "C": s.C}]
+	# Nothing is solved here, though the method's catalogue name says so (#193).
+	out.titles = {"equate-and-solve": "Set the curve equal to the line and rearrange"}
 	out.methods = {
 		"equate-and-solve": {"result": ans.values, "steps": [
 			"Where they meet, the y-values are equal: %s = %s" % [curve_rhs(s), line_rhs(s)],
@@ -157,7 +169,15 @@ func u_meeting_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var res: Dictionary = ans.values
 	out.wrongs = [wrong({"r1": s.x1.neg(), "r2": s.x2.neg()}, "SL2.7.solve-equation#1")]
 	out.wrongs.append(wrong({"r1": s.y1, "r2": s.y2}, R_YS))
-	out.fillers = [{"r1": s.x1, "r2": s.x2.neg()}, {"r1": s.x1.neg(), "r2": s.x2}, {"r1": s.x1.add(1), "r2": s.x2.add(1)}]
+	# The roots after adding the line to the curve, where they are two whole numbers.
+	var added := QuadraticParameterSituation.roots_of(s.A, s.B.add(s.m), s.C.add(s.n))
+	if added.size() == 2 and added.all(func(x): return x.is_int()):
+		out.wrongs.append(wrong({"r1": added[0], "r2": added[1]}, R_ADD_LINE))
+	# Two different x-values only: the sketch shows two points, and when x1 = −x2 the
+	# one-sign flips are a repeated root (#193).
+	var fill: Array = [{"r1": s.x1, "r2": s.x2.neg()}, {"r1": s.x1.neg(), "r2": s.x2}, {"r1": s.x1.add(1), "r2": s.x2.add(1)},
+		{"r1": s.x1.sub(1), "r2": s.x2.sub(1)}, {"r1": s.x1.sub(1), "r2": s.x2.add(1)}]
+	out.fillers = fill.filter(func(f): return not f.r1.eq(f.r2))
 	out.methods = {
 		"equate-and-solve": {"result": res, "steps": [equate_step(s), "Factorise: " + factor_step(s), final]},
 		"sketch-and-count": {"result": res, "steps": [
@@ -225,13 +245,17 @@ func u_chord_length(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var half: Q = s.x2.sub(s.x1).div(2)
 	var res: Dictionary = ans.values
 	var s0 := simplify_surd(1, dx * dx)
+	# Δy left unsquared, in simplest form as the key is (#193: "√4", "√90" for 3√10); a
+	# whole number when the radicand is a square.
+	var su := simplify_surd(1, dx * dx + absi(dy.n))
 	out.wrongs = [wrong({"m": Q.new(dx), "r": Q.new(1)}, R_DX_ONLY), wrong({"m": Q.new(dx * dx), "r": Q.new(r)}, R_NO_ROOT),
-		wrong({"m": Q.new(1), "r": Q.new(dx * dx + absi(dy.n))}, R_DY_UNSQUARED)]
+		wrong({"m": Q.new(su[0]), "r": Q.new(su[1])}, R_DY_UNSQUARED)]
 	out.fillers = [{"m": Q.new(sv[0]), "r": Q.new(sv[1] + 1)}, {"m": Q.new(s0[0] * 2), "r": Q.new(r)}]
 	out.methods = {
 		"quadratic-formula": {"result": res, "steps": [equate_step(s), Step.text(fs.steps[0]) + ", so x = " + Step.text(fs.steps[3]).trim_prefix("x = "), dist, final]},
 		"complete-square": {"result": res, "steps": [equate_step(s),
-			"Complete the square: %s(x%s)² = %s, so x = %s ± %s" % [Fmt.lead(s.a), Fmt.plus(h.neg()) if not h.is_zero() else "", N(s.a.mul(half.sq())), N(h), N(half)],
+			("Complete the square: %s(x%s)² = %s, so x = %s ± %s" % [Fmt.lead(s.a), Fmt.plus(h.neg()), N(s.a.mul(half.sq())), N(h), N(half)]) if not h.is_zero()
+				else "Complete the square: %sx² = %s, so x = ±%s" % [Fmt.lead(s.a), N(s.a.mul(half.sq())), N(half)],
 			dist, final]},
 	}
 	return out
@@ -257,8 +281,9 @@ func u_normal_meets_again(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		"equate-and-solve": {"result": res, "steps": [equate_step(s), factor_step(s),
 			"x = %s is P, so Q has x = %s and %s" % [N(s.px), N(s.qx), qy], final]},
 		"factorise": {"result": res, "steps": [
-			"P is on both, so x = %s is a root of %s: (x%s) is a factor." % [N(s.px), eq_text(s), Fmt.plus(s.px.neg()) if not s.px.is_zero() else ""],
-			"%s = %s(x%s)(x%s)" % [Fmt.general(c[0], c[1], c[2]), Fmt.lead(s.a), Fmt.plus(s.px.neg()) if not s.px.is_zero() else "", Fmt.plus(s.qx.neg()) if not s.qx.is_zero() else ""],
+			# Equate first: the quadratic comes from there (#193).
+			equate_step(s) + ". P is on both, so x = %s is a root: %s is a factor." % [N(s.px), xfactor(s.px)],
+			"%s = %s%s" % [Fmt.general(c[0], c[1], c[2]), Fmt.lead(s.a), xfactors(s.px, s.qx)],
 			"The other root is x = %s, and %s" % [N(s.qx), qy], final]},
 	}
 	return out
@@ -277,7 +302,7 @@ func u_line_from_meeting_points(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	out.methods = {"two-point-formula": {"result": ans.values, "steps": [
 		"On the curve: at x = %s, y = %s; at x = %s, y = %s" % [N(s.x1), N(s.y1), N(s.x2), N(s.y2)],
 		"Gradient m = (%s − %s)/(%s − %s) = %s" % [N(s.y2), Fmt.paren(s.y1), N(s.x2), Fmt.paren(s.x1), N(s.m)],
-		"y − %s = %s(x − %s), so n = %s − %s × %s = %s" % [Fmt.paren(s.y1), N(s.m), Fmt.paren(s.x1), N(s.y1), N(s.m), Fmt.paren(s.x1), N(s.n)],
+		"The line is y = mx + n through %s, so n = y − mx = %s − %s × %s = %s" % [Fmt.point(s.x1, s.y1), N(s.y1), Fmt.paren(s.m), Fmt.paren(s.x1), N(s.n)],
 		final]}}
 	return out
 
@@ -344,7 +369,7 @@ func u_count_from_sketch(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	var alg := "Check with algebra: %s has Δ = %s, %s" % [eq_text(s), N(disc), ["so no real roots", "so one repeated root", "so two real roots"][count]]
 	var out := {"answer": ans, "given": given_of(s), "graph": g,
 		"lines": shown(s) + ["The sketch shows part of the curve and the line."],
-		"asked": "How many points do the curve and the line meet at? Confirm with algebra."}
+		"asked": "Write down the number of points where the line meets the curve. Use the discriminant to confirm your answer."}
 	var wrongs: Array = []
 	if hidden:
 		wrongs.append(wrong({"v": Q.new(1)}, "SL2.4.intersection#1"))

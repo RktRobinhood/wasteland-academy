@@ -15,7 +15,7 @@ extends RefCounted
 ##   A, k             cont (k a Q, 3 d.p.), half (k a float; T, dir "half"/"double"),
 ##                    data (k a float; t1, P1), limited (C; A signed; k a Q, or a float
 ##                    from the reading (t1, P1) when need.kpoint)
-##   t2     a later time for a prediction
+##   t2     a later time for a prediction (after t1, for data)
 ##   L, tL  a level strictly between the start and the long run, and when it is reached
 ##   t1, P1 a later reading: for factor, P1 is P(t1) to the nearest whole number
 ##   n      a number of whole periods (the change over n periods)
@@ -101,7 +101,8 @@ static func _draw(rng: Seeded, form: String, need: Dictionary) -> Dictionary:
 			s.k = (1.0 if grow else -1.0) * log(2.0) / s.T
 			s.ctx = _ctx(rng, GROW if grow else DECAY)
 			if need.get("grid", false):
-				s.halvings = rng.int_in(1, 3)
+				# Two or more halvings, so no option reads "t = 1 days" (#193).
+				s.halvings = rng.int_in(2, 3)
 				if s.halvings * s.T > 24:
 					return {}
 		"data":
@@ -211,6 +212,9 @@ static func _clean(s: Dictionary, need: Dictionary) -> bool:
 	var t0: int = s.get("t0", 0)
 	if not is_finite(t) or t <= t0 + 0.5 or t > 60.0 or not rounds_clear(t):
 		return false
+	# A whole-units answer and the slips below it stay above 1, so none reads "1 hours" (#193).
+	if need.get("whole", false) and t < 3.1:
+		return false
 	# Whole-period answers must not sit on a whole number.
 	if s.form != "half" or not s.has("halvings"):
 		var f := t - floorf(t)
@@ -232,7 +236,8 @@ static func _clean(s: Dictionary, need: Dictionary) -> bool:
 			if not rounds_clear(absf(pow(s.a.to_float(), s.n) - 1.0) * 100.0):
 				return false
 		"data":
-			if not rounds_clear(s.k):
+			# The prediction is at a later time than the reading, never the reading itself.
+			if not rounds_clear(s.k) or s.t2 <= s.t1:
 				return false
 		"limited":
 			if need.get("kpoint", false) and (s.k < 0.02 or s.k > 0.6 or not rounds_clear(s.k)):

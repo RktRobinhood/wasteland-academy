@@ -220,8 +220,50 @@ static func log_table(s: Dictionary, hide: int) -> Dictionary:
 	return {"rows": [["x", xs], ["g(x)", ys]]}
 
 
+## log_b(x − h) as written: "log₂(x − 5)", or "log₂ x" when h = 0.
+static func log_in(b: int, h: int) -> String:
+	return "%s x" % LG(b) if h == 0 else "%s(%s)" % [LG(b), Answer.x_minus(h)]
+
+
 static func c_step(c: int) -> String:
 	return "" if c == 0 else " %s %d" % ["+" if c > 0 else "−", absi(c)]
+
+
+## "add 4" / "subtract 4" ("adds" / "subtracts" with third) for adding k, or "" for 0.
+static func add_k(k: int, third: bool = false) -> String:
+	if k == 0:
+		return ""
+	if k > 0:
+		return ("adds %d" if third else "add %d") % k
+	return ("subtracts %d" if third else "subtract %d") % -k
+
+
+## Steps in order, the empty (zero) ones left out: "a, b, then c".
+static func op_list(parts: Array) -> String:
+	var ps := parts.filter(func(p): return p != "")
+	if ps.size() == 1:
+		return ps[0]
+	return ", ".join(ps.slice(0, ps.size() - 1)) + ", then " + ps[-1]
+
+
+## A bracket to a rational power: "(3^(log₃ x))²", "(…)^(1/2)" (#193).
+static func RAISE(inner: String, n: Q) -> String:
+	return "(%s)%s" % [inner, Fmt.sup(n.n)] if n.is_int() and n.n > 1 else "(%s)^(%s)" % [inner, N(n)]
+
+
+## x to a rational power: "x²", "x^(1/2)".
+static func XP(n: Q) -> String:
+	return "x" + Fmt.sup(n.n) if n.is_int() and n.n > 1 else "x^(%s)" % N(n)
+
+
+## b^e as an exact number, for a whole e of either sign.
+static func qpow(b: int, e: int) -> Q:
+	return Q.new(ipow(b, e)) if e >= 0 else Q.new(1, ipow(b, -e))
+
+
+## "k log 3", with the coefficient 1 left out.
+static func k_log(k: int, logn: String, p: int) -> String:
+	return "%s %d" % [logn, p] if k == 1 else "%d %s %d" % [k, logn, p]
 
 
 # ── fn-exp-log-inverse-composite ─────────────────────────────
@@ -282,6 +324,7 @@ func u_inverse_of_exponential(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var xc := Answer.x_minus(c)
 	return {
 		"asked": "Find f⁻¹(x).", "lines": [exp_fn(s)], "answer": ans,
+		"titles": {"take-logs": "Take %s of both sides" % LG(b)},
 		"wrongs": [wrong(fn_wrong("recip", h, c), "SL2.5.find-inverse#0"), wrong(fn_wrong("log", h, c), KEEP_SHIFTS),
 			wrong(fn_wrong("log", -c, -h), SHIFT_SIGNS)],
 		"fillers": [fn_wrong("exp", c, h), fn_wrong("log", c, -h)],
@@ -290,8 +333,8 @@ func u_inverse_of_exponential(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 				"Swap x and y: x = %s^(%s)%s" % [bb, yh, Answer.plus_q(c)],
 				"%s = %s^(%s), so %s = %s(%s)" % [xc, bb, yh, yh, LG(b), xc], final]},
 			"reverse-operations": {"result": ans.values, "steps": [
-				"f takes x, subtracts %d, raises %d to that power, then adds %d." % [h, b, c],
-				"Undo them in reverse order: subtract %d, take %s, then add %d." % [c, LG(b), h], final]},
+				"f takes x, %s." % op_list([add_k(-h, true), "raises %d to that power" % b, add_k(c, true)]),
+				"Undo them in reverse order: %s." % op_list([add_k(-c), "take " + LG(b), add_k(h)]), final]},
 			"convert-form": {"result": ans.values, "steps": [
 				"y%s = %s^(%s) is the same statement as %s = %s(y%s)." % [Answer.plus_q(-c), bb, Answer.x_minus(h), Answer.x_minus(h), LG(b), Answer.plus_q(-c)],
 				"So x = %s(y%s)%s; swap x and y." % [LG(b), Answer.plus_q(-c), Answer.plus_q(h)], final]},
@@ -316,14 +359,14 @@ func u_inverse_of_log(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"fillers": [fn_wrong("log", c, h), fn_wrong("exp", c, -h)],
 		"methods": {
 			"swap-then-solve": {"result": ans.values, "steps": [
-				"Swap x and y: x = %s(%s)%s" % [LG(b), Answer.x_minus(h).replace("x", "y"), Answer.plus_q(c)],
-				"%s = %s(%s), so %s = %s^(%s)" % [Answer.x_minus(c), LG(b), Answer.x_minus(h).replace("x", "y"), Answer.x_minus(h).replace("x", "y"), bb, Answer.x_minus(c)],
+				"Swap x and y: x = %s%s" % [log_in(b, h).replace("x", "y"), Answer.plus_q(c)],
+				"%s = %s, so %s = %s^(%s)" % [Answer.x_minus(c), log_in(b, h).replace("x", "y"), Answer.x_minus(h).replace("x", "y"), bb, Answer.x_minus(c)],
 				final]},
 			"reverse-operations": {"result": ans.values, "steps": [
-				"g subtracts %d, takes %s, then adds %d." % [h, LG(b), c],
-				"Undo them in reverse order: subtract %d, raise %d to that power, then add %d." % [c, b, h], final]},
+				"g %s." % op_list([add_k(-h, true), "takes " + LG(b), add_k(c, true)]),
+				"Undo them in reverse order: %s." % op_list([add_k(-c), "raise %d to that power" % b, add_k(h)]), final]},
 			"rewrite-exponential": {"result": ans.values, "steps": [
-				"y%s = %s(%s) means %s^(y%s) = %s." % [Answer.plus_q(-c), LG(b), Answer.x_minus(h), bb, Answer.plus_q(-c), Answer.x_minus(h)],
+				"y%s = %s means %s^(y%s) = %s." % [Answer.plus_q(-c), log_in(b, h), bb, Answer.plus_q(-c), Answer.x_minus(h)],
 				"So x = %s^(y%s)%s; swap x and y." % [bb, Answer.plus_q(-c), Answer.plus_q(h)], final]},
 		},
 	}
@@ -357,14 +400,16 @@ func u_evaluate_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		chain.append("%d%s = %d" % [ipow(b, m), c_step(h), x])
 	out.methods = {
 		"reverse-operations": {"result": ans.values, "steps": [
-			"g⁻¹ undoes g: subtract %d, raise %d to that power, then add %d." % [c, b, h],
+			"g⁻¹ undoes g: %s." % op_list([add_k(-c), "raise %d to that power" % b, add_k(h)]),
 			", ".join(chain), final]},
 		"convert-form": {"result": ans.values, "steps": [
-			"g⁻¹(%d) is the x with g(x) = %d: %s(%s) = %d" % [a, a, LG(b), Answer.x_minus(h), m],
-			"In exponential form: %s = %s = %d, so x = %d" % [Answer.x_minus(h), PW(b, m), ipow(b, m), x], final]},
+			"g⁻¹(%d) is the x with g(x) = %d: %s = %d" % [a, a, log_in(b, h), m],
+			"In exponential form: %s = %s = %d%s" % [Answer.x_minus(h), PW(b, m), ipow(b, m), ", so x = %d" % x if h != 0 else ""], final]},
+		# Found from g(x) = a, not assumed: the check comes after.
 		"inverse-identities": {"result": ans.values, "steps": [
-			"g(g⁻¹(%d)) = %d, and g(%d) = %s(%d) = %s." % [a, a, x, LG(b), ipow(b, m), Fmt.equals("%d%s" % [m, c_step(c)], str(a))],
-			"So g⁻¹(%d) = %d." % [a, x], final]},
+			"g⁻¹(%d) is the x with g(x) = %d: %s = %s" % [a, a, log_in(b, h), Fmt.equals("%d%s" % [a, c_step(-c)], str(m))],
+			"Raise %d to both sides, as %d^(%s A) = A with A = %s: %s = %s = %d%s. Check: g(%d) = %s %d%s = %s." % [b, b, LG(b), Answer.x_minus(h), Answer.x_minus(h), PW(b, m), ipow(b, m),
+				", so x = %d" % x if h != 0 else "", x, LG(b), ipow(b, m), c_step(c), Fmt.equals("%d%s" % [m, c_step(c)], str(a))], final]},
 	}
 	return out
 
@@ -386,7 +431,7 @@ func u_inverse_awkward_base(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		"methods": {
 			"change-of-base": {"result": ans.values, "steps": [
 				"f⁻¹(%d) = %s %d, the power of %d that gives %d." % [v, LG(b1), v, b1, v],
-				"%s %d = ln %d / ln %d = (%d ln %d)/(%d ln %d)" % [LG(b1), v, v, b1, k, p, i, p], final]},
+				"%s %d = ln %d / ln %d = (%s)/(%s)" % [LG(b1), v, v, b1, k_log(k, "ln", p), k_log(i, "ln", p)], final]},
 			"what-power": {"result": ans.values, "steps": [
 				"Ask: %d to what power gives %d?" % [b1, v],
 				"%d = %s and %d = %s, so %s = %d." % [b1, PW(p, i), v, PW(p, k), QP(b1, Q.new(k, i)), v], final]},
@@ -394,8 +439,8 @@ func u_inverse_awkward_base(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 				"Write both as powers of %d: (%s)^y = %s" % [p, PW(p, i), PW(p, k)],
 				"%dy = %d" % [i, k], final]},
 			"cob-formula": {"result": ans.values, "steps": [
-				"%s %d = log %d / log %d = log %s / log %s" % [LG(b1), v, v, b1, PW(p, k), PW(p, i)],
-				"= (%d log %d)/(%d log %d)" % [k, p, i, p], final]},
+				"%s %d = log %d / log %d = log %s / log %s" % [LG(b1), v, v, b1, PW(p, k) if k != 1 else str(p), PW(p, i)],
+				"= (%s)/(%s)" % [k_log(k, "log", p), k_log(i, "log", p)], final]},
 			"gdc-logbase": {"result": ans.values, "steps": [
 				"The GDC's log-base template gives %s %d = %s." % [LG(b1), v, dec],
 				"As a fraction that is %s, but Paper 1 needs it worked out: %d = %s, %d = %s." % [N(Q.new(k, i)), b1, PW(p, i), v, PW(p, k)], final]},
@@ -423,16 +468,19 @@ func u_simplify_composite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	out.methods = {
 		"inverse-identities": {"result": ans.values, "steps": [
 			"f(g(x)) = %d^(%s x), and %d = %s." % [b1, LG(b2), b1, QP(b2, n)],
-			"So f(g(x)) = (%d^(%s x))^(%s), and %d^(%s x) = x." % [b2, LG(b2), N(n), b2, LG(b2)], final]},
+			"So f(g(x)) = %s, and %d^(%s x) = x, so it is %s." % [RAISE("%d^(%s x)" % [b2, LG(b2)], n), b2, LG(b2), XP(n)], final]},
 		"substitute-whole": {"result": ans.values, "steps": [
 			"Put g(x) in place of x in f: f(g(x)) = %d^(%s x)." % [b1, LG(b2)],
-			"%d = %s, so this is (%d^(%s x))^(%s) = x^(%s)." % [b1, QP(b2, n), b2, LG(b2), N(n), N(n)], final]},
+			"%d = %s, so this is %s = %s." % [b1, QP(b2, n), RAISE("%d^(%s x)" % [b2, LG(b2)], n), XP(n)], final]},
+		# Derived first, then checked at x = b2², where g(x) = 2: that point separates
+		# x^n (b1²) from the slip n·x (n·b2²), which x = b2 does not when n = 2.
 		"numeric-check": {"result": ans.values, "steps": [
-			"Try x = %d: g(%d) = 1, so f(g(%d)) = %d." % [b2, b2, b2, b1],
-			"x^(%s) at x = %d is %d^(%s) = %d too, and %d^(%s x) = x^(%s) for every x > 0." % [N(n), b2, b2, N(n), b1, b1, LG(b2), N(n)], final]},
+			"%d = %s, so f(g(x)) = %s = %s." % [b1, QP(b2, n), RAISE("%d^(%s x)" % [b2, LG(b2)], n), XP(n)],
+			"Check at x = %d, where g(x) = 2: f(2) = %d² = %d, and %s at x = %d is %d too." % [b2 * b2, b1, b1 * b1, XP(n), b2 * b2, b1 * b1], final]},
 		"common-base-power": {"result": ans.values, "steps": [
 			"Both bases are powers of %d: %d = %s, %d = %s." % [p, b1, PW(p, i), b2, PW(p, j)],
-			"%s x = (%s x)/%d, so f(g(x)) = %d^((%d/%d)%s x) = x^(%s)." % [LG(b2), LG(p), j, p, i, j, LG(p), N(n)], final]},
+			("%s x is already base %d, so f(g(x)) = %d^(%d %s x) = %s." % [LG(b2), p, p, i, LG(p), XP(n)]) if j == 1 else
+				"%s x = (%s x)/%d, so f(g(x)) = %d^(%s %s x) = %s." % [LG(b2), LG(p), j, p, Fmt.paren(n) if not n.is_int() else N(n), LG(p), XP(n)], final]},
 	}
 	return out
 
@@ -626,11 +674,11 @@ func u_solve_log_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"fillers": [{"v": Q.new(ipow(b, m) - h)}] + ([] if d >= 0 else [{"v": Q.new(ipow(b, d) + h)}]) + [{"v": Q.new(m + h)}],
 		"methods": {
 			"convert-form": {"result": ans.values, "steps": [
-				"%s(%s) = %d" % [LG(b), Answer.x_minus(h), m], "In exponential form: %s = %s = %d" % [Answer.x_minus(h), PW(b, m), ipow(b, m)], final]},
+				"%s = %d" % [log_in(b, h), m], "In exponential form: %s = %s = %d" % [Answer.x_minus(h), PW(b, m), ipow(b, m)], final]},
 			"rewrite-exponential": {"result": ans.values, "steps": [
 				"log_b A = m means b^m = A: here %s = %s." % [Answer.x_minus(h), PW(b, m)], "x = " + Fmt.equals("%d%s" % [ipow(b, m), c_step(h)], str(x)), final]},
 			"apply-inverse": {"result": ans.values, "steps": [
-				"%s%s(%s) = %d" % ["" if c == 0 else ("Subtract %d: " % c if c > 0 else "Add %d: " % -c), LG(b), Answer.x_minus(h), m],
+				"%s%s = %d" % ["" if c == 0 else ("Subtract %d: " % c if c > 0 else "Add %d: " % -c), log_in(b, h), m],
 				"Raise %d to each side: %s = %d" % [b, Answer.x_minus(h), ipow(b, m)], final]},
 		},
 	}
@@ -665,9 +713,24 @@ func u_composite_order(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			wrong({"v": opts[3]}, "SL2.5.composite-expression#2")]
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
 	var final := "So " + Answer.text(ans) + "."
-	var test := 1 if not eq else b
-	var fgv := pow(float(b), test + p) if not eq else float(test)
-	var gfv := pow(float(b), test) + p if not eq else float(test)
+	# The check point: x = 1, or the first of 2, 3 where the two differ (b = 2, p = −1
+	# gives 1 at x = 1 both ways).
+	var test := b
+	if not eq:
+		for t in [1, 2, 3]:
+			test = t
+			if not qpow(b, t + p).eq(Q.new(ipow(b, t) + p)):
+				break
+	var check := ""
+	if eq:
+		check = "Check at x = %d: f(g(%d)) = %d^(%s %d) = %d and g(f(%d)) = %s %s = %d, the same." % [test, test, b, LG(b), test, test, test, LG(b), PW(b, test), test]
+	else:
+		var fg_at := str(b) if test + p == 1 else "%d^(%d)" % [b, test + p] if test + p <= 0 else PW(b, test + p)
+		var gf_at := (str(b) if test == 1 else PW(b, test)) + Answer.plus_q(p)
+		check = "Check at x = %d: f(g(%d)) = %s and g(f(%d)) = %s, which differ." % [test, test,
+			Fmt.equals(fg_at, N(qpow(b, test + p))), test, Fmt.equals(gf_at, N(Q.new(ipow(b, test) + p)))]
+	var put_g := "f(g(x)) = f(%s x) = %d^(%s x) = x" % [LG(b), b, LG(b)] if eq else "f(g(x)) = f(%s) = %s" % [Fmt.poly([1, p]), fg]
+	var put_f := "g(f(x)) = g(%d^x) = %s(%d^x) = x" % [b, LG(b), b] if eq else "g(f(x)) = g(%d^x) = %s" % [b, gf]
 	return {
 		"asked": "Find f(g(x)) and g(f(x)). Are they equal?", "lines": lines, "answer": ans, "wrongs": wrongs,
 		"fillers": opts.slice(1).filter(func(o): return not wrongs.any(func(w): return w.values.v == o)).map(func(o): return {"v": o}),
@@ -675,8 +738,7 @@ func u_composite_order(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"substitute-whole": {"result": ans.values, "steps": [
 				"f(g(x)): put g(x) into f, giving %s." % fg, "g(f(x)): put f(x) into g, giving %s." % gf, final]},
 			"numeric-check": {"result": ans.values, "steps": [
-				"Try x = %d: f(g(%d)) = %s and g(f(%d)) = %s." % [test, test, String.num(fgv, 3), test, String.num(gfv, 3)],
-				"The rules are f(g(x)) = %s and g(f(x)) = %s." % [fg, gf], final]},
+				"Work out each: %s, and %s." % [put_g, put_f], check, final]},
 		},
 	}
 
@@ -739,9 +801,9 @@ func u_function_from_inverse(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		"methods": {
 			"swap-then-solve": {"result": ans.values, "steps": [
 				"f is the inverse of f⁻¹. Swap x and y in y = %s: x = %s" % [Answer.fn_text("log", b, h, c), Answer.fn_text("log", b, h, c).replace("x", "y")],
-				"%s = %s(%s), so y = %d^(%s)%s" % [Answer.x_minus(c), LG(b), Answer.x_minus(h).replace("x", "y"), b, Answer.x_minus(c), Answer.plus_q(h)], final]},
+				"%s = %s, so y = %d^(%s)%s" % [Answer.x_minus(c), log_in(b, h).replace("x", "y"), b, Answer.x_minus(c), Answer.plus_q(h)], final]},
 			"rewrite-exponential": {"result": ans.values, "steps": [
-				"y = f⁻¹(x) means x = f(y): y%s = %s(%s)." % [Answer.plus_q(-c), LG(b), Answer.x_minus(h)],
+				"y = f⁻¹(x) means x = f(y): y%s = %s." % [Answer.plus_q(-c), log_in(b, h)],
 				"In exponential form: %s = %d^(y%s), so f(x) = %d^(%s)%s" % [Answer.x_minus(h), b, Answer.plus_q(-c), b, Answer.x_minus(c), Answer.plus_q(h)], final]},
 		},
 	}
@@ -804,15 +866,15 @@ func p2_evaluate_inverse(s: Dictionary) -> Dictionary:
 	var add_h: Array = ["%s%s = %s" % [W(bt), c_step(h), W(x)]] if h != 0 else []
 	out.methods = {
 		"reverse-operations": {"result": ans.values, "steps": [
-			"g⁻¹ undoes g: subtract %d, raise %d to that power, then add %d." % [c, b, h],
+			"g⁻¹ undoes g: %s." % op_list([add_k(-c), "raise %d to that power" % b, add_k(h)]),
 			("%s%s = %s, and with a GDC %s = %s" % [D(a), c_step(-c), D(t), pw, W(bt)]) if c != 0 else "With a GDC %s = %s" % [pw, W(bt)]] + add_h + [final]},
 		"convert-form": {"result": ans.values, "steps": [
-			"g⁻¹(%s) is the x with g(x) = %s: %s(%s) = %s" % [D(a), D(a), LG(b), Answer.x_minus(h), D(t)],
+			"g⁻¹(%s) is the x with g(x) = %s: %s = %s" % [D(a), D(a), log_in(b, h), D(t)],
 			"In exponential form: %s = %s = %s (GDC)" % [Answer.x_minus(h), pw, W(bt)],
 			"x = " + Fmt.equals(W(bt) + c_step(h), W(x)), final]},
 		"inverse-identities": {"result": ans.values, "steps": [
-			"g(g⁻¹(%s)) = %s, so %s(x%s) = %s, where x = g⁻¹(%s)." % [D(a), D(a), LG(b), c_step(-h), D(t), D(a)],
-			"%s^(%s x) = x, so x%s = %s; with a GDC that is %s." % [b, LG(b), c_step(-h), pw, W(bt)],
+			"Let x = g⁻¹(%s), so g(x) = %s: %s = %s" % [D(a), D(a), log_in(b, h), Fmt.equals(D(a) + c_step(-c), D(t))],
+			"%d^(%s A) = A with A = %s, so %s = %s; with a GDC that is %s." % [b, LG(b), Answer.x_minus(h), Answer.x_minus(h), pw, W(bt)],
 			"x = %s" % W(x), final]},
 	}
 	return out
@@ -872,13 +934,13 @@ func p2_solve_log_equation(s: Dictionary) -> Dictionary:
 	var pw := "%d^(%s)" % [b, D(t)]
 	out.methods = {
 		"convert-form": {"result": ans.values, "steps": [
-			"%s(%s) = %s" % [LG(b), Answer.x_minus(h), D(t)],
+			"%s = %s" % [log_in(b, h), D(t)],
 			"In exponential form: %s = %s = %s (GDC)" % [Answer.x_minus(h), pw, W(bt)], final]},
 		"rewrite-exponential": {"result": ans.values, "steps": [
 			"log_b A = m means b^m = A: here %s = %s." % [Answer.x_minus(h), pw],
 			"With a GDC: x = " + Fmt.equals(W(bt) + c_step(h), W(x)), final]},
 		"apply-inverse": {"result": ans.values, "steps": [
-			"%s%s(%s) = %s" % ["" if c == 0 else ("Subtract %d: " % c if c > 0 else "Add %d: " % -c), LG(b), Answer.x_minus(h), D(t)],
+			"%s%s = %s" % ["" if c == 0 else ("Subtract %d: " % c if c > 0 else "Add %d: " % -c), log_in(b, h), D(t)],
 			"Raise %d to each side: %s = %s = %s on a GDC" % [b, Answer.x_minus(h), pw, W(bt)], final]},
 	}
 	return out
@@ -929,6 +991,21 @@ func u_y_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		}}
 
 
+## "; the reflection and the shift in x don't move it", naming only the moves y = A·b^(x − h) + c has.
+static func others_text(s: Dictionary) -> String:
+	var A: Q = s.A
+	var parts: Array = []
+	if A.sign() < 0:
+		parts.append("the reflection" if A.eq(Q.new(-1)) else "the reflection and stretch")
+	elif not A.eq(Q.new(1)):
+		parts.append("the stretch")
+	if s.h != 0:
+		parts.append("the shift in x")
+	if parts.is_empty():
+		return ""
+	return "; %s %s move it" % [" and ".join(parts), "don't" if parts.size() > 1 or "and" in parts[0] else "doesn't"]
+
+
 func u_asymptote(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c: int = s.c
 	var ans := Answer.make("axis", {"var": "y", "h": Q.new(c)})
@@ -939,7 +1016,7 @@ func u_asymptote(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"fillers": [{"var": "y", "h": Q.new(-c)}, {"var": "y", "h": s.A.add(Q.new(c))}, {"var": "x", "h": Q.new(s.h)}],
 		"methods": {
 			"key-points": {"result": ans.values, "steps": ["As x → −∞, %d^x → 0, so the A·b^(x − h) part → 0." % s.b, "y → %d" % c, final]},
-			"transform-parent": {"result": ans.values, "steps": ["y = %d^x has asymptote y = 0." % s.b, "The + %d moves it %s to y = %d; the stretch and the shift in x don't move it." % [c, "up" if c > 0 else "down", c], final]},
+			"transform-parent": {"result": ans.values, "steps": ["y = %d^x has asymptote y = 0." % s.b, "The%s moves it %s %d to y = %d%s." % [Answer.plus_q(c), "up" if c > 0 else "down", absi(c), c, others_text(s)], final]},
 		}}
 	if rep == "graph":
 		out.lines = ["The graph of y = %s is shown." % eg_text(s)]
@@ -1053,9 +1130,34 @@ func u_moves_from_parent(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	return {"asked": "Where does the point (0, 1) on y = %d^x go?" % s.b, "lines": [said], "answer": ans,
 		"wrongs": [wrong({"x": Q.new(-s.h), "y": top}, SHIFT_WAY), wrong({"x": Q.new(s.h), "y": Q.new(1 + c)}, NO_A)],
 		"fillers": [{"x": Q.new(s.h), "y": s.A.mul(Q.new(c))}, {"x": Q.new(0), "y": eg_y0(s)}],
-		"methods": {"transform-parent": {"result": ans.values, "steps": [
-			"x − %d inside moves it %d to the right; the %s in front stretches the y-value 1 to %s." % [s.h, s.h, N(s.A), N(s.A)],
-			"The + %d moves it up %d: (%d, %s); the asymptote y = 0 goes to y = %d." % [c, c, s.h, N(top), c], final]}}}
+		"methods": {"transform-parent": {"result": ans.values, "steps": [moves_text(s), up_text(s), final]}}}
+
+
+## How x − h and A move (0, 1): each clause only for a move there is.
+static func moves_text(s: Dictionary) -> String:
+	var h: int = s.h
+	var A: Q = s.A
+	var parts: Array = []
+	if h != 0:
+		parts.append("%s inside moves it %d to the %s" % [Answer.x_minus(h), absi(h), "right" if h > 0 else "left"])
+	if A.eq(Q.new(-1)):
+		parts.append("the − in front reflects it in the x-axis: the y-value 1 goes to −1")
+	elif A.sign() < 0:
+		parts.append("the %s in front reflects it in the x-axis and stretches it: the y-value 1 goes to %s" % [N(A), N(A)])
+	elif not A.eq(Q.new(1)):
+		parts.append("the %s in front stretches it vertically: the y-value 1 goes to %s" % [N(A), N(A)])
+	if parts.is_empty():
+		return "There is no shift in x and nothing in front, so (0, 1) stays put until the vertical shift."
+	var out: String = "; ".join(parts)
+	return out[0].to_upper() + out.substr(1) + ": (%d, %s)." % [h, N(A)] if not out.begins_with("x") else out + ": (%d, %s)." % [h, N(A)]
+
+
+static func up_text(s: Dictionary) -> String:
+	var c: int = s.c
+	var at := Fmt.point(s.h, s.A.add(Q.new(c)))
+	if c == 0:
+		return "There is no vertical shift: %s, and the asymptote stays y = 0." % at
+	return "The%s moves it %s %d: %s; the asymptote y = 0 goes to y = %d." % [Answer.plus_q(c), "up" if c > 0 else "down", absi(c), at, c]
 
 
 func u_equation_from_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -1077,11 +1179,18 @@ func u_equation_from_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		out.graph = eg_graph(s, [[0, y0.to_float(), Fmt.point(0, y0)], [1, y1.to_float(), Fmt.point(1, y1)]])
 	var final := "So " + Answer.text(ans) + "."
 	var steps_c := "The asymptote is y = %d, so c = %d." % [c, c]
-	var steps_a := "At x = 0, b⁰ = 1: A + %s = %s, so A = %s." % [N(c), N(y0), N(A)]
-	var steps_b := "At x = 1: %s·b + %s = %s, so b = %d." % [N(A), N(c), N(y1), b]
+	var steps_a := "At x = 0, b⁰ = 1: A%s = %s, so A = %s." % [Answer.plus_q(c), N(y0), N(A)]
+	var steps_b := "At x = 1: %sb%s = %s, so b = %d." % [Fmt.lead(A), Answer.plus_q(c), N(y1), b]
+	var ab := y1.sub(Q.new(c))
 	out.methods = {
-		"transform-parent": {"result": ans.values, "steps": [steps_c, steps_a + " " + steps_b, final]},
-		"gdc-transfer": {"result": ans.values, "steps": [steps_c + " " + steps_a, "Check b on the GDC: y = %s·%d^x + %d passes through (1, %s)." % [N(A), b, c, N(y1)], final]},
+		# The parent y = b^x through (0, 1) and (1, b), asymptote y = 0: ×A, then + c.
+		"transform-parent": {"result": ans.values, "steps": [
+			"Start from y = b^x: asymptote y = 0, through (0, 1) and (1, b). Adding c moves the asymptote to y = c, so c = %d." % c,
+			"Multiplying by A sends (0, 1) to (0, A), then + c to (0, A%s) = %s: A = %s. (1, b) goes to (1, %sb%s) = %s: %s." % [
+				Answer.plus_q(c), Fmt.point(0, y0), N(A), Fmt.lead(A), Answer.plus_q(c), Fmt.point(1, y1),
+				# With A = 1 this is b = 3 already, not "b = 3, so b = 3" (#193).
+				("b = %d" % b) if A.eq(Q.new(1)) else "%sb = %s, so b = %d" % [Fmt.lead(A), N(ab), b]], final]},
+		"gdc-transfer": {"result": ans.values, "steps": [steps_c + " " + steps_a, "Check b on the GDC: y = %s passes through (1, %s)." % [eg_text(s), N(y1)], final]},
 		"asymptote-first": {"result": ans.values, "steps": [steps_c, steps_a, steps_b, final]},
 	}
 	return out
