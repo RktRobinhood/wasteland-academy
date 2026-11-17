@@ -11848,11 +11848,14 @@ def check_algfrac(q):
         h = sp.nsimplify(sp.solve(b, X)[0])
         common = sp.Poly(sp.gcd(t, b), X).degree()
         if common == 0:
-            want = "it cannot be simplified"
+            # The stem asks for the excluded value, so the answer gives it (FAL-1052).
+            want = f"it cannot be simplified (x ≠ {ft(h)})"
             need(sp.Poly(t, X).degree() == 1 and sp.Poly(b, X).degree() == 1, "a cancel that is not one bracket over one bracket")
             a_, b_ = sp.Poly(t, X).all_coeffs()[1], sp.Poly(b, X).all_coeffs()[1]
             need(a_ != b_, "the brackets are the same")
-            wr = {AF + "0": {ft(sp.Rational(a_, b_))}}
+            wr = {AF + "0": {f"{ft(sp.Rational(a_, b_))} (x ≠ {ft(h)})"}}
+            for o in q["choices"]:
+                need(re.search(r" \(x ≠ [^)]+\)$", o["text"]) is not None, f"option {o['text']!r} gives no excluded value")
         else:
             need(common == 1, "more than one common factor")
             want = f"{af_poly_text(sp.cancel(t / b))} (x ≠ {ft(h)})"

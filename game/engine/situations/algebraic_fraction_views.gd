@@ -99,11 +99,13 @@ func u_simplify_by_cancelling(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 			ex = -s.a
 		_:
 			frac = AlgebraicFractionSituation.over(Fmt.poly([1, s.a]), Fmt.poly([1, s.b]))
-			right = "it cannot be simplified"
-			bad = [tag(N(Q.new(s.a, s.b)), R_CANCEL_TERMS)]
-			plain = ["x (x ≠ %s)" % N(-s.b), "%s (x ≠ %s)" % [Fmt.poly([1, s.a - s.b]), N(-s.b)], "%s" % N(Q.new(s.b, s.a))]
+			# The stem asks for the excluded value too, so every option carries one (FAL-1052).
+			right = "it cannot be simplified (x ≠ %s)" % N(-s.b)
+			bad = [tag("%s (x ≠ %s)" % [N(Q.new(s.a, s.b)), N(-s.b)], R_CANCEL_TERMS)]
+			plain = ["it cannot be simplified (x ≠ %s)" % N(-s.a), "x (x ≠ %s)" % N(-s.b), "%s (x ≠ %s)" % [Fmt.poly([1, s.a - s.b]), N(-s.b)], "%s (x ≠ %s)" % [N(Q.new(s.b, s.a)), N(-s.b)]]
 			steps = ["The top %s and the bottom %s have no common factor: they are different brackets." % [Fmt.poly([1, s.a]), Fmt.poly([1, s.b])],
-				"Cancelling the x's would be cancelling terms, which is not allowed (it would give %s)." % N(Q.new(s.a, s.b)), "So the fraction %s." % right]
+				"Cancelling the x's would be cancelling terms, which is not allowed (it would give %s)." % N(Q.new(s.a, s.b)),
+				"The bottom is 0 when x = %s, so x ≠ %s. " % [N(-s.b), N(-s.b)] + "So %s." % right]
 			ex = -s.b
 	out.lines = [frac]
 	out.merge(pick(right, bad, plain))
