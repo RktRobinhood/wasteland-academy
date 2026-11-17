@@ -1,5 +1,17 @@
 {
-  "about": "Who narrates explainer clips, and the voice of every cast character. A clip names its map zone (the island ids in game/ui/map.gd, plus foundations) and is narrated by that zone's tutor; recordings go in game/assets/audio/voice/<tutor>/clips/<clip id>/. Tutors are the regional cast from GitHub issue #18; story characters are under 'characters'. Casting was decided by the board on FAL-927 (2026-11-15). An approved voice is fixed: every line is recorded with the same provider, model, voice and direction (word for word) and the same processing. Changing any of them means re-recording every line for that character. Nothing may be recorded for a clip until its tutor is approved. Credit each clip as 'Generated with Gemini text-to-speech (<model>, voice <voice>) via the Gemini API', with the direction and the date.",
+  "about": "Who narrates explainer clips, and the voice of every cast character. A clip names its map zone (the island ids in game/ui/map.gd, plus foundations) and is narrated by that zone's tutor; recordings go in game/assets/audio/voice/<tutor>/clips/<clip id>/, and explainer lines in game/assets/audio/voice/explainers/<script id>/<line id>.ogg. Tutors are the regional cast from GitHub issue #18; story characters are under 'characters'. The board cast each voice on Gemini text-to-speech (FAL-927, 2026-11-15). On FAL-1110 (2026-11-17) Matt moved every voice to a local VoxCPM2 clone in 'ultimate' mode: each voice's Gemini reference take (reference) is cloned on our own GPU for every line, so lines cost nothing and the voice stays the same from line to line. An approved voice is fixed: every line is recorded with the same provider, model, mode, reference take, settings and processing. Changing any of them means re-recording every line for that character. Nothing may be recorded for a clip until its tutor is approved. Credit each line as 'Generated locally with VoxCPM2 by OpenBMB (Apache-2.0), cloned from a reference recorded with Gemini text-to-speech (<reference.recorded.model>, voice <reference.recorded.voice>) via the Gemini API', with the seed and the date. The recording tool is falcon-voice clone/ (record.py, post.sh, check.py).",
+  "voice_template": "Right, gather round, this is the one thing worth knowing out here. Last August a thick cloud of red dust rolled over the bazaar, and the big water pump choked and quit. We measured the pressure, checked the gauge twice, and found the fault: a worn valve, jammed solid with sand and old oil. Would you believe it? Four squared is sixteen, and a half plus a quarter makes three quarters. Fix the valve, get the sums right, and everybody drinks again. So here's my choice, and I'm sure of it: keep your tools sharp, your thoughts clear, and never guess when you can work it out.",
+  "clone_settings": {
+    "about": "Every voice is cloned the same way: reference_wav_path and prompt_wav_path are its reference take, prompt_text is voice_template (VoxCPM2 \"ultimate\" mode).",
+    "reference_wav_path": "the reference",
+    "prompt_wav_path": "the reference",
+    "prompt_text": "voice_template",
+    "cfg_value": 2.0,
+    "inference_timesteps": 10,
+    "denoise": false,
+    "normalize": false,
+    "seeds": "1099 first; 1100, 1101 and 1102 for a line that fails its word check"
+  },
   "zones": {
     "foundations": "tin-can-tess",
     "algebra": "mags-the-ledger",
@@ -12,68 +24,124 @@
     "tin-can-tess": {
       "name": "Tin-Can Tess",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "en-nz-commercial-3",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "tin-can-tess reference dde85ad76bb4ceae",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/tin-can-tess.wav",
+        "sha256": "dde85ad76bb4ceae6bd5f6eae379fb4afbea786778d8762da051c19080cb6b7f",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-nz-commercial-3",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 39.16
+        }
+      },
       "direction": "A woman in her thirties with a strong, natural New Zealand English accent, clearly Kiwi on every line. A scrapyard mechanic: lively, wry and approachable, a bright voice with a bit of grit, quick to laugh at her own jokes. Grounded and natural, not theatrical. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "gemini_cast_take": {
         "task": "FAL-940",
         "date": "2026-11-15",
         "sha256_16": "3faee72f957a9379"
       },
-      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)",
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 card bf4fcd36 (2026-11-15)",
       "sheet": null,
       "brief": null
     },
     "mags-the-ledger": {
       "name": "Mags the Ledger",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "en-au-tutor-3",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "mags-the-ledger reference 86e05455afd9e60c",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/mags-the-ledger.wav",
+        "sha256": "86e05455afd9e60c211e88464fadc3dc0e6c21c46bbb20f901286d26eb7ce9a1",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-tutor-3",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 37.96
+        }
+      },
       "direction": "A woman in her forties with a strong, natural rural Australian accent, clearly Australian on every line. A low, confident, warm voice with a dry edge, quick-witted and commanding, a trader who enjoys a hard bargain. Grounded and natural, not theatrical or spooky. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "gemini_cast_take": {
         "task": "FAL-937",
         "date": "2026-11-15",
         "sha256_16": "d6d945a1b6e203fe"
       },
-      "approved_on": "FAL-927 round-6 card 59f9e885 (2026-11-15)",
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 round-6 card 59f9e885 (2026-11-15)",
       "sheet": null,
       "brief": null
     },
     "rook-dead-air": {
       "name": "Rook Dead-Air",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "en-za-storyteller-1",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "rook-dead-air reference 9025fd9f9e86a863",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/rook-dead-air.wav",
+        "sha256": "9025fd9f9e86a863f5939b8063002875eb0bc7cb40ff65bc14b03e0f1cf489c6",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-za-storyteller-1",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 39.4
+        }
+      },
       "direction": "A man in his forties with a strong, unmistakable South African English accent, clearly South African on every line, the flat clipped vowels and crisp consonants of a Johannesburg radio man. A mid-low voice with a slight radio-operator rasp, precise clipped diction, dry and steady, speeds up a little when he gets excited. Grounded and natural, not theatrical. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "gemini_cast_take": {
         "task": "FAL-927",
         "date": "2026-11-15",
         "sha256_16": "110fe8d3bd65082f"
       },
-      "approved_on": "FAL-927 round-7 card e466bd05 (2026-11-15)",
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 round-7 card e466bd05 (2026-11-15)",
       "sheet": null,
       "brief": null
     },
     "kara-meridian": {
       "name": "Kara Meridian",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "gacrux",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "kara-meridian reference 7a0d95e26f05ede8",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/kara-meridian.wav",
+        "sha256": "7a0d95e26f05ede81516a2fdbf223fee1fcad006cc7df7dfa3d1276807291c8f",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "gacrux",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 41.68
+        }
+      },
       "direction": "A woman in her forties with a strong, natural Nigerian English accent, clearly Nigerian on every line, the warm, rhythmic, clearly articulated English of Lagos. A desert surveyor who builds her own instruments: measured, confident and calm, a rich mid-low voice. Grounded and natural, not theatrical. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "gemini_cast_take": {
         "task": "FAL-940",
         "date": "2026-11-15",
         "sha256_16": "884e1c574aba64bf"
       },
-      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)",
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 card bf4fcd36 (2026-11-15)",
       "sheet": null,
       "brief": null,
       "direction_note": "Nigerian English comes from the direction only; the voice library has no Nigerian voice. Check each take for drift towards another accent."
@@ -81,17 +149,31 @@
     "lucky-lenoir": {
       "name": "Lucien \"Lucky\" Lenoir",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "fr-fr-podcaster-8",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "lucky-lenoir reference 34170409f48d168d",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/lucky-lenoir.wav",
+        "sha256": "34170409f48d168d16076ce05ff8ac3784eef7ad1f0f99b6f66d0da095e927bd",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "fr-fr-podcaster-8",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 42.08
+        }
+      },
       "direction": "A man in his thirties speaking English with a strong, natural French accent, clearly French on every line, but every word easy to understand. A charming wasteland gamesmaster who keeps losing to probability: playful, theatrical and warm, a smooth mid-low voice with a showman's flourish. Natural, not a caricature. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "gemini_cast_take": {
         "task": "FAL-940",
         "date": "2026-11-15",
         "sha256_16": "3efb7341a0346bdc"
       },
-      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)",
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 card bf4fcd36 (2026-11-15)",
       "sheet": null,
       "brief": null,
       "direction_note": "A French voice reading English; the accent comes from the voice."
@@ -99,17 +181,31 @@
     "calc": {
       "name": "C.A.L.C.",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "charon",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "calc reference f9ac204277eaef20",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/calc.wav",
+        "sha256": "f9ac204277eaef2023d892f408f3f7b8bf8e9add7666061e5692b3e9f6f94475",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "charon",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 46.64
+        }
+      },
       "direction": "A damaged reactor-maintenance AI. An even, precise, synthetic-sounding voice, slightly flat and clipped, with a dry, deadpan wit and sudden bursts of enthusiasm about rates of change. Clear and steady, every word distinct. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then glitch FX (acrusher=bits=8:samples=2:mix=0.45:mode=log,aecho=0.8:0.6:4|9:0.35|0.25,flanger=delay=2:depth=2:regen=50:width=70:speed=0.15), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then glitch FX (acrusher=bits=8:samples=2:mix=0.45:mode=log,aecho=0.8:0.6:4|9:0.35|0.25,flanger=delay=2:depth=2:regen=50:width=70:speed=0.15), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "gemini_cast_take": {
         "task": "FAL-940",
         "date": "2026-11-15",
         "sha256_16": "9085a11b6119a9b1"
       },
-      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)",
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 card bf4fcd36 (2026-11-15)",
       "sheet": null,
       "brief": null
     }
@@ -118,77 +214,147 @@
     "bodge": {
       "name": "Bodge",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "en-au-storyteller-1",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "bodge reference ef8086ebb2233cd3",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/bodge.wav",
+        "sha256": "ef8086ebb2233cd37389752baee5d31aafc41765c1c5634febaead2754f7cb83",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-storyteller-1",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 41.8
+        }
+      },
       "direction": "An older woman in her sixties, weathered and gruff, with a husky, lived-in rasp and a strong, broad Australian accent. Cheerful and slightly unhinged, with sudden flat deadpan asides, warm underneath. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "gemini_cast_take": {
         "task": "FAL-937",
         "date": "2026-11-15",
         "sha256_16": "b0e0c22d944b746c"
       },
-      "approved_on": "FAL-927 round-6 card 59f9e885 (2026-11-15)"
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 round-6 card 59f9e885 (2026-11-15)"
     },
     "gear-mira": {
       "name": "Gear Mira",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "en-gb-csagent-9",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "gear-mira reference 0621d3d73f53d9b7",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/gear-mira.wav",
+        "sha256": "0621d3d73f53d9b7a59202a6dfe8ad21a752f6ebe97ca6b62f65eb0081deb3c1",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-gb-csagent-9",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 41.32
+        }
+      },
       "direction": "A young woman in her late twenties, a practical, patient mechanic and teacher. A warm, grounded voice, calm and clear, who finishes every sentence. Under pressure her sentences get shorter, not louder. Natural, not theatrical. Speaks with a natural Glasgow Scottish accent. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "gemini_cast_take": {
         "task": "FAL-940",
         "date": "2026-11-15",
         "sha256_16": "6c51f5549fb1b64e"
       },
-      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)"
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 card bf4fcd36 (2026-11-15)"
     },
     "dax": {
       "name": "Dax",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "en-gb-concierge-12",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "dax reference 11ad08b429401a17",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/dax.wav",
+        "sha256": "11ad08b429401a175c1c6397101f5eeb8a6c3a5684f4df5f711180b737e613bd",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-gb-concierge-12",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 42.16
+        }
+      },
       "direction": "An older man in his late fifties, a friendly, fast-talking wasteland trader. A warm, slightly rough voice, talky and persuasive, long sentences tumbling one into the next, then a short line to close the deal. Natural, not theatrical. Speaks with a natural Newcastle Geordie accent. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "gemini_cast_take": {
         "task": "FAL-940",
         "date": "2026-11-15",
         "sha256_16": "273f8e17a4ff1288"
       },
-      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)"
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 card bf4fcd36 (2026-11-15)"
     },
     "noma": {
       "name": "Noma",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "en-in-storyteller-9",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "noma reference 86d3271b2d8a84b5",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/noma.wav",
+        "sha256": "86d3271b2d8a84b53cc8c9bb5c736cf8e7d700fb3628e796f4a9d0fbe7486703",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-in-storyteller-9",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 50
+        }
+      },
       "direction": "An elderly woman in her seventies, the wise map-keeper of the bazaar. A warm, slow, unhurried voice, a little weathered, sentences that wander and then land exactly. Never hurries, even when the news is bad. Natural, not theatrical. Speaks with a natural Indian English accent. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1.2 dBTP)",
+      "gemini_cast_take": {
         "task": "FAL-940",
         "date": "2026-11-15",
         "sha256_16": "f041751a2f2c7913"
       },
-      "approved_on": "FAL-927 card bf4fcd36 (2026-11-15)"
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 card bf4fcd36 (2026-11-15)"
     },
     "spark": {
       "name": "Spark",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "leda",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "spark reference a456ce468559a8da",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/spark.wav",
+        "sha256": "a456ce468559a8da7a6b060a1b90cea785533581abf52f7ec71978e1066ff151",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "leda",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 42.6
+        }
+      },
       "direction": "A small robot companion with a bright, light, youthful voice, gender-neutral, quick pace with short sudden pauses, crisp clear consonants, dry amused tone with real warmth underneath, a little mischievous, lively but never shouting. Quick on the jokes, slower and clearer on every maths word. Fond, never mocking. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop.",
-      "processing": "Robot effect 'sheen': falcon-voice fx/spark-sheen.sh (2% tape-style slowdown asetrate=23520,aresample=24000 on the 24 kHz take; rubberband=pitch=1.189:formant=shifted; fx/vocoder.py at 15% wet; highpass 200 Hz, lowpass 7500 Hz), then -16 LUFS through a true-peak limit (falcon-voice master.sh). Dry: no echo, flanger or flutter.",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: robot effect 'sheen': falcon-voice fx/spark-sheen.sh (2% tape-style slowdown asetrate=23520,aresample=24000 on the 24 kHz take; rubberband=pitch=1.189:formant=shifted; fx/vocoder.py at 15% wet; highpass 200 Hz, lowpass 7500 Hz), then -16 LUFS through a true-peak limit (falcon-voice master.sh). Dry: no echo, flanger or flutter.",
+      "gemini_cast_take": {
         "task": "FAL-940",
         "date": "2026-11-15",
         "sha256_16": "67e1bb4b33198c56"
       },
-      "approved_on": "FAL-927 card 33e55bc6 (2026-11-15), voice leda chosen on card 31790857",
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 card 33e55bc6 (2026-11-15), voice leda chosen on card 31790857",
       "note": "The 162 shipped move clips are still local VoxCPM2 (FAL-428). Re-record them with this voice in the paid production pass.",
       "sheet": null,
       "brief": null
@@ -196,17 +362,31 @@
     "nugget": {
       "name": "Nugget Bullant",
       "status": "approved",
-      "provider": "gemini",
-      "model": "gemini-3.8-flash-tts",
-      "voice": "en-au-techagent-3",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "nugget reference a06c5b768dad978e",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/nugget.wav",
+        "sha256": "a06c5b768dad978ed8871d3491f2c9660f549406eef593c42b87ba08f32fc528",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-techagent-3",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1099",
+          "date": "2026-11-17",
+          "seconds": 40.68
+        }
+      },
       "direction": "A young voice, gender-neutral, mid-low pitch with a slightly rough, dry texture, a clear Australian accent, speaking in short bursts of two to five words with a full stop after each, flat and even like each word is read off a card, keen and earnest underneath, steady volume. Short bursts with a real full stop after each one; the dots mark a hard stop, then the second phrase lands firmer.",
-      "processing": "Implant effect preset A 'cheap speaker': falcon-voice fx/nugget-implant.sh (2% tape-style slowdown asetrate=23520,aresample=24000 on the 24 kHz take; fx/nugget-implant.py: 450-3400 Hz speaker band, cone peaks +6 dB at 1.8 kHz and +3 dB at 900 Hz, 0.9 ms tin-ring comb, mild asymmetric overdrive, 400-4000 Hz band, short crackle at each burst onset, seed 942), then falcon-voice fx/level-wav.sh (HP 70 Hz, 3:1 compressor, edge-silence trim, -16 LUFS through a -2 dBFS limiter). Not master.sh: it lands short of -16 LUFS on this effect.",
-      "cast_take": {
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the approved chain: implant effect preset A 'cheap speaker': falcon-voice fx/nugget-implant.sh (2% tape-style slowdown asetrate=23520,aresample=24000 on the 24 kHz take; fx/nugget-implant.py: 450-3400 Hz speaker band, cone peaks +6 dB at 1.8 kHz and +3 dB at 900 Hz, 0.9 ms tin-ring comb, mild asymmetric overdrive, 400-4000 Hz band, short crackle at each burst onset, seed 942), then falcon-voice fx/level-wav.sh (HP 70 Hz, 3:1 compressor, edge-silence trim, -16 LUFS through a -2 dBFS limiter). Not master.sh: it lands short of -16 LUFS on this effect.",
+      "gemini_cast_take": {
         "task": "FAL-942",
         "date": "2026-11-15",
         "sha256_16": "1eb24c8674dbaf52"
       },
-      "approved_on": "FAL-942 card cecae42f (voice techagent-3, 2026-11-15), effect A chosen on card eade3d32 (2026-11-15)",
+      "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-942 card cecae42f (voice techagent-3, 2026-11-15), effect A chosen on card eade3d32 (2026-11-15)",
       "sheet": "writing/voice-sheets.md",
       "brief": "writing/voice-briefs.md"
     }

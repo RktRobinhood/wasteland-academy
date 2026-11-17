@@ -2015,297 +2015,1123 @@
       "6y6unb": {
         "speaker": "rook-dead-air",
         "say": "1d3f3225578f9aa1",
-        "take": null
+        "take": {
+          "say": "1d3f3225578f9aa1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1102,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/6y6unb.ogg",
+          "sha256": "c7c0a6161d21b94d7cc3470d498c519c4fa3ce9efe393df3cd3ee4e9b45d6eb5",
+          "transcript": "Signal Tower. This is Rook. The relay at the top of this mast squares whatever comes in, takes away four and sends the rest out to the settlements.",
+          "word_check": "passed"
+        }
       },
       "h2fzl4": {
         "speaker": "rook-dead-air",
         "say": "72f2db3fa5bc1b30",
-        "take": null
+        "take": {
+          "say": "72f2db3fa5bc1b30",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/h2fzl4.ogg",
+          "sha256": "93987aac1356c7c57ae52ef6303f4dd4fb70d6464836f6eff48efbea2b42e417",
+          "transcript": "A runner's brought up minus 3. Before I throw the switch, what goes out? Your call over.",
+          "word_check": "passed"
+        }
       },
       "olmxem": {
         "speaker": "rook-dead-air",
         "say": "2f122a7e31dad0aa",
-        "take": null
+        "take": {
+          "say": "2f122a7e31dad0aa",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/olmxem.ogg",
+          "sha256": "620ac5823bda883d6449afeb72b43064a86ea55e9ec4425e1667064747745788",
+          "transcript": "Logged, we'll find out.",
+          "word_check": "passed"
+        }
       },
       "32gfjc": {
         "speaker": "rook-dead-air",
         "say": "e235d9347c3bc361",
-        "take": null
+        "take": {
+          "say": "e235d9347c3bc361",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/32gfjc.ogg",
+          "sha256": "5cdf63e9b7806a70bbd5edc20bc11bc5b6b4601f5f9c5ac8e72666414ec3aa6f",
+          "transcript": "Dial a signal in, throw the switch, see what comes out, send me three, over.",
+          "word_check": "passed"
+        }
       },
       "dpsdof": {
         "speaker": "rook-dead-air",
         "say": "020001ce18a56f16",
-        "take": null
+        "take": {
+          "say": "020001ce18a56f16",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/dpsdof.ogg",
+          "sha256": "f326c3e617fe43c441427603da7a6f2ed24dc57d51035c20429d8829f9dc6bab",
+          "transcript": "What you dial in is the input. What comes out is the output. I never swap those two words. Swap them on air and a message lands at the wrong settlement.",
+          "word_check": "passed"
+        }
       },
       "p1wrwn": {
         "speaker": "rook-dead-air",
         "say": "21324e067fcfa401",
-        "take": null
+        "take": {
+          "say": "21324e067fcfa401",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/p1wrwn.ogg",
+          "sha256": "48e94990eb3bf715bdcea048a7df8cb007560b19b18db444cbce2103667fa813",
+          "transcript": "Now send the runner's signal minus 3 over.",
+          "word_check": "passed"
+        }
       },
       "9ns3id": {
         "speaker": "rook-dead-air",
         "say": "1075010fba010867",
-        "take": null
+        "take": {
+          "say": "1075010fba010867",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/9ns3id.ogg",
+          "sha256": "0d066ce5f12267aa9be9fb48f9b224b699f7c5dd07e8090465049ce38e209260",
+          "transcript": "5. Same as your call.",
+          "word_check": "passed"
+        }
       },
       "iyz9tu": {
         "speaker": "rook-dead-air",
         "say": "b0474a2488b1db12",
-        "take": null
+        "take": {
+          "say": "b0474a2488b1db12",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/iyz9tu.ogg",
+          "sha256": "e7d94446a32d01d2b581635ce7cd5a1bd63cb9ef2a65bd76ebe9c80bc20ac9ba",
+          "transcript": "Five minus three in brackets squared is plus nine take away four",
+          "word_check": "passed"
+        }
       },
       "rkgn8h": {
         "speaker": "rook-dead-air",
         "say": "afe3095e52df0beb",
-        "take": null
+        "take": {
+          "say": "afe3095e52df0beb",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/rkgn8h.ogg",
+          "sha256": "de813fd27a5449f05ccb239b2a39789320e6da25ff3754e9619ddb10c5ca2ea5",
+          "transcript": "Send it again, same input over.",
+          "word_check": "passed"
+        }
       },
       "m9zwlf": {
         "speaker": "rook-dead-air",
         "say": "889ef2b15d5698c8",
-        "take": null
+        "take": {
+          "say": "889ef2b15d5698c8",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/m9zwlf.ogg",
+          "sha256": "9690994e63010bd5a38325769ae4afef4c71506ddd8bebb67824711d14bac021",
+          "transcript": "Five again. Tomorrow five again. Each input gives exactly one output. That's a function.",
+          "word_check": "passed"
+        }
       },
       "utbhru": {
         "speaker": "rook-dead-air",
         "say": "026cbd8a1f88477f",
-        "take": null
+        "take": {
+          "say": "026cbd8a1f88477f",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/utbhru.ogg",
+          "sha256": "81ee088971513ce2c051d16a85fba0fdfb3b8ff60a95ce92f681381340708fd3",
+          "transcript": "Scrap Fields wants a 12. What do you send over?",
+          "word_check": "passed"
+        }
       },
       "pcw8sz": {
         "speaker": "rook-dead-air",
         "say": "288316e55186b7d1",
-        "take": null
+        "take": {
+          "say": "288316e55186b7d1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/pcw8sz.ogg",
+          "sha256": "636c901dc6a17c74d5d8f9671da1ee583f925bf6d74b18ac1f8c45dbdf77af3e",
+          "transcript": "4 does it. So does minus 4. Two inputs. One output. That's allowed. One input. Two outputs. Never.",
+          "word_check": "passed"
+        }
       },
       "b7n1cv": {
         "speaker": "rook-dead-air",
         "say": "cfde7b1aa97b36b2",
-        "take": null
+        "take": {
+          "say": "cfde7b1aa97b36b2",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1101,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/b7n1cv.ogg",
+          "sha256": "d433f8050e3b2fa3ab7fbfed06633a0bbca5482d7943a561375c2ebd86339127",
+          "transcript": "My Oopah had a radio where one spot on the dial played two stations at once. Rugby and the news on top of each other. That's no function.",
+          "word_check": "accepted on review: oupa -> oopah"
+        }
       },
       "8n3avo": {
         "speaker": "rook-dead-air",
         "say": "8d134885f44217c4",
-        "take": null
+        "take": {
+          "say": "8d134885f44217c4",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/8n3avo.ogg",
+          "sha256": "20827b7965bfa01e75ed81d8610a8c0b62d673560cde3acf0ad53f9fc66225c4",
+          "transcript": "On paper, the relay is called f. f of x equals x squared minus 4.",
+          "word_check": "passed"
+        }
       },
       "nz3crl": {
         "speaker": "rook-dead-air",
         "say": "3584064d9087aeba",
-        "take": null
+        "take": {
+          "say": "3584064d9087aeba",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/nz3crl.ogg",
+          "sha256": "e31f9a892109080aeedbfb04b4d20ea9ff81b6fe66ffe872c1e44b9a2d440741",
+          "transcript": "f of x means the output when the input is x, so f of minus 3 is 5, you've already sent it.",
+          "word_check": "passed"
+        }
       },
       "mnghoh": {
         "speaker": "rook-dead-air",
         "say": "112321fc027fc340",
-        "take": null
+        "take": {
+          "say": "112321fc027fc340",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/mnghoh.ogg",
+          "sha256": "56929b2466b615e880d98161dea53ab17e076ec4ece4ef6b1051f0316bad4813",
+          "transcript": "Copy that, the name of the machine, then its input.",
+          "word_check": "passed"
+        }
       },
       "vnrkur": {
         "speaker": "rook-dead-air",
         "say": "bb784cd6610118e7",
-        "take": null
+        "take": {
+          "say": "bb784cd6610118e7",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/vnrkur.ogg",
+          "sha256": "6aed7e6a1bb5adcae835b0fcb0d1722b1030231e920c7545c37d071876d154bb",
+          "transcript": "Those brackets aren't at times. F is the machine's name and 3 is its input.",
+          "word_check": "accepted on review: a -> at"
+        }
       },
       "9mnd1e": {
         "speaker": "rook-dead-air",
         "say": "4b47a498f3f18b48",
-        "take": null
+        "take": {
+          "say": "4b47a498f3f18b48",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/9mnd1e.ogg",
+          "sha256": "f6eb9d42f529619b328d36eec0123b562ad75daeca5e909672f8179c2f37b008",
+          "transcript": "The East mast runs a different rule. G of x equals 6 minus 2x. Find G of minus 4, the output when minus 4 goes in.",
+          "word_check": "passed"
+        }
       },
       "ae40hw": {
         "speaker": "rook-dead-air",
         "say": "0b6165404bf53732",
-        "take": null
+        "take": {
+          "say": "0b6165404bf53732",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/ae40hw.ogg",
+          "sha256": "c0f47157f75fc422441b6daef032c3f9e8b72c7132b6c8a21f38df5c2bad5855",
+          "transcript": "Substitute every x becomes minus 4 inside brackets.",
+          "word_check": "passed"
+        }
       },
       "j7nxs0": {
         "speaker": "rook-dead-air",
         "say": "62eff59086f4f60a",
-        "take": null
+        "take": {
+          "say": "62eff59086f4f60a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/j7nxs0.ogg",
+          "sha256": "273f251307533b2f853d6074a7e1d1867586dd86ae719918280ebcba8959244b",
+          "transcript": "Yeah, 2 lots of minus 4 sign and all.",
+          "word_check": "accepted on review: ja -> yeah"
+        }
       },
       "9yz3t9": {
         "speaker": "rook-dead-air",
         "say": "dd2598136c8353a1",
-        "take": null
+        "take": {
+          "say": "dd2598136c8353a1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/9yz3t9.ogg",
+          "sha256": "a5e5b6dbba0546f8434d4ce86c55c380ab1fab9304438b69021fb35b8eaea32f",
+          "transcript": "Without brackets, it reads 6 minus 2 minus 4, a subtraction. The 2 has to multiply the whole minus 4.",
+          "word_check": "passed"
+        }
       },
       "r8sxff": {
         "speaker": "rook-dead-air",
         "say": "32c8cf237a4facf6",
-        "take": null
+        "take": {
+          "say": "32c8cf237a4facf6",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/r8sxff.ogg",
+          "sha256": "b547298d395b2279d4c373afb9fe2b007ba9ac34f1a41d134640f3fb6a024255",
+          "transcript": "Evaluate two lots of minus four is minus eight. Six. Take away minus eight is fourteen.",
+          "word_check": "passed"
+        }
       },
       "vcsdru": {
         "speaker": "rook-dead-air",
         "say": "bb57bf6d98fbdde8",
-        "take": null
+        "take": {
+          "say": "bb57bf6d98fbdde8",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/vcsdru.ogg",
+          "sha256": "b86c7565538d0292f8d55f74b962da2e89cfe0b915c9ff2204ccd0b4ebdb6906",
+          "transcript": "Say it, G of minus 4 is 14, input minus 4 output 14 over 6 and a negative input should push it over.",
+          "word_check": "passed"
+        }
       },
       "rwww0h": {
         "speaker": "rook-dead-air",
         "say": "93cb9bb6ae83d96c",
-        "take": null
+        "take": {
+          "say": "93cb9bb6ae83d96c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/rwww0h.ogg",
+          "sha256": "64f0d15ef58caca3fdb5d0a12af2694c6619bc012aeff6428bce0bbc722d04d9",
+          "transcript": "Your channel rule first, input in brackets then evaluate over.",
+          "word_check": "passed"
+        }
       },
       "ozpwe8": {
         "speaker": "rook-dead-air",
         "say": "106daebbc17f8bf0",
-        "take": null
+        "take": {
+          "say": "106daebbc17f8bf0",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/ozpwe8.ogg",
+          "sha256": "05f319859c424eae6ef8ddf23757d460894532b9ce07aaeac07ad831454d47df",
+          "transcript": "Loud and clear, input, output and you kept them apart.",
+          "word_check": "passed"
+        }
       },
       "fqalba": {
         "speaker": "rook-dead-air",
         "say": "9e1f4b2290c09f52",
-        "take": null
+        "take": {
+          "say": "9e1f4b2290c09f52",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/fqalba.ogg",
+          "sha256": "e7bc7a0ee35792df011886cbd1ea2cb04f03eaf62e7bd0b38a5cde7ab422573a",
+          "transcript": "Brackets and all. Copy that.",
+          "word_check": "passed"
+        }
       },
       "upaeqh": {
         "speaker": "rook-dead-air",
         "say": "9c14800f200f6a79",
-        "take": null
+        "take": {
+          "say": "9c14800f200f6a79",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/upaeqh.ogg",
+          "sha256": "8d3ea3adbfd78f9190b82053035c979aad5207a2534eec58a8c6484f0a7ee221",
+          "transcript": "Put the input in brackets first, then multiply. Come in again.",
+          "word_check": "passed"
+        }
       },
       "uxmvt8": {
         "speaker": "rook-dead-air",
         "say": "130a1cd5791c75f9",
-        "take": null
+        "take": {
+          "say": "130a1cd5791c75f9",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/uxmvt8.ogg",
+          "sha256": "f65b137772d264ef4c5cf8ef1b17c75760addcd9612f192a8ae120359b97d8b7",
+          "transcript": "Check the sign. A positive times a negative is negative and taking a negative away adds.",
+          "word_check": "passed"
+        }
       },
       "8pg7zc": {
         "speaker": "rook-dead-air",
         "say": "0fe9563290db7497",
-        "take": null
+        "take": {
+          "say": "0fe9563290db7497",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/8pg7zc.ogg",
+          "sha256": "cea6722fdd04043dc020e02ac629d2b0b01472e377349344f2422211f94d1333",
+          "transcript": "One thing harder, a square with a minus in front. h of x equals 5 minus x squared. The square belongs to x, not to the minus.",
+          "word_check": "passed"
+        }
       },
       "k4e8xl": {
         "speaker": "rook-dead-air",
         "say": "5bc6a57f9e7bd447",
-        "take": null
+        "take": {
+          "say": "5bc6a57f9e7bd447",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1102,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/k4e8xl.ogg",
+          "sha256": "4c0f31f080e0f320c897ecf545dd766aaf1055d20909d9e470543e06961bec50",
+          "transcript": "Your build, H of minus 2, one line at a time. Channels open. Over.",
+          "word_check": "accepted on review: channel's -> channels"
+        }
       },
       "xquulc": {
         "speaker": "rook-dead-air",
         "say": "44b6dd88645ab47d",
-        "take": null
+        "take": {
+          "say": "44b6dd88645ab47d",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/xquulc.ogg",
+          "sha256": "4356fd7c00562a557c0c7c4899de45bf2e1bde399c7f715bb9412e583432fcd2",
+          "transcript": "Input in brackets, then the square. Come in again.",
+          "word_check": "passed"
+        }
       },
       "q1vsxs": {
         "speaker": "rook-dead-air",
         "say": "dd1132ad44f7146b",
-        "take": null
+        "take": {
+          "say": "dd1132ad44f7146b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1101,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/q1vsxs.ogg",
+          "sha256": "7c8847bf239369b26e1f5c3c2a75a75fd13a0b55422ddfb73e003efaeafa0206",
+          "transcript": "Minus 2 in brackets squared is plus 4. Then take it away.",
+          "word_check": "passed"
+        }
       },
       "25tykc": {
         "speaker": "rook-dead-air",
         "say": "6ee7ad1dd0973286",
-        "take": null
+        "take": {
+          "say": "6ee7ad1dd0973286",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1102,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/25tykc.ogg",
+          "sha256": "aa7038f3f5cf68e079fdea470a429409ff618d56ae0f29c842da6b86815cd460",
+          "transcript": "1. Licker. X squared is never negative. So h of x can never pass 5. One's under 5. Out.",
+          "word_check": "accepted on review: lekker -> licker"
+        }
       },
       "cuomiv": {
         "speaker": "rook-dead-air",
         "say": "6b2dbd502c6c1e29",
-        "take": null
+        "take": {
+          "say": "6b2dbd502c6c1e29",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/cuomiv.ogg",
+          "sha256": "5dd79ec7af0a21b76d15b9c2a8071f2a9dcceb844e6b9f79bcaef54b9d5da6f1",
+          "transcript": "Now, exam style. The tower's battery bank charges off a solar panel. The charge in percent T hours after sunrise is C of T equals 20 plus 12 T for T from 0 to 6.",
+          "word_check": "passed"
+        }
       },
       "wjnpvb": {
         "speaker": "rook-dead-air",
         "say": "7b2842acedd5fd4c",
-        "take": null
+        "take": {
+          "say": "7b2842acedd5fd4c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/wjnpvb.ogg",
+          "sha256": "a5cc6cead616d0fdca78229b6f7f02488381712f4d93ee6d38dbe17660994e4a",
+          "transcript": "Part A, write down C of 0 and say what it means. 0 hours is sunrise so C of 0 is 20, 20% at sunrise, not an empty battery.",
+          "word_check": "passed"
+        }
       },
       "nr0gxp": {
         "speaker": "rook-dead-air",
         "say": "f65297107eead613",
-        "take": null
+        "take": {
+          "say": "f65297107eead613",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/nr0gxp.ogg",
+          "sha256": "887e71e0f549374c8bad9cd3cbaf847f65855c95010bd4b843da9cc7d13c1131",
+          "transcript": "Part B. Find C of 5. Yours. Over.",
+          "word_check": "passed"
+        }
       },
       "st498u": {
         "speaker": "rook-dead-air",
         "say": "f32ffc31bf59d12c",
-        "take": null
+        "take": {
+          "say": "f32ffc31bf59d12c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/st498u.ogg",
+          "sha256": "53b75a6b615ed94c3e4183ff20d65537110ae87cc718cdb850ac5dc7ae78e163",
+          "transcript": "80% 5 hours after sunrise. Copy.",
+          "word_check": "passed"
+        }
       },
       "exxlak": {
         "speaker": "rook-dead-air",
         "say": "b0965d309fb9b3c6",
-        "take": null
+        "take": {
+          "say": "b0965d309fb9b3c6",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/exxlak.ogg",
+          "sha256": "7f565465f8c6096cc110e692d1ca72670b08e0d7da6d0743abfe74dd524fdfad",
+          "transcript": "5 goes in for T, 12 lots of 5, then add 20. Come in again.",
+          "word_check": "passed"
+        }
       },
       "814c8q": {
         "speaker": "rook-dead-air",
         "say": "245a94ab64641d37",
-        "take": null
+        "take": {
+          "say": "245a94ab64641d37",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1102,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/814c8q.ogg",
+          "sha256": "3f1d69b30ca7d710486826236c21015ed18fb2d8c50c819017471ab147708cf7",
+          "transcript": "Part C. Find the time when it's at 74%.",
+          "word_check": "passed"
+        }
       },
       "kpmso6": {
         "speaker": "rook-dead-air",
         "say": "bc79fcd484497dc9",
-        "take": null
+        "take": {
+          "say": "bc79fcd484497dc9",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/kpmso6.ogg",
+          "sha256": "fddbf0f0e84dafb7f08049fb3da383542831f1914b6996c2bad55818d8883d5a",
+          "transcript": "Output 74 is a charge, the time is the input and that's what they want.",
+          "word_check": "passed"
+        }
       },
       "3lrx6r": {
         "speaker": "rook-dead-air",
         "say": "539f6322b744accb",
-        "take": null
+        "take": {
+          "say": "539f6322b744accb",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/3lrx6r.ogg",
+          "sha256": "9d88b16adb979a0fe54be72faeb134ccb4de9439dd24a4654d8b3288552cf299",
+          "transcript": "Crossed wire 74 is a charge and charge is what comes out. T is what you're finding",
+          "word_check": "passed"
+        }
       },
       "m3jh3m": {
         "speaker": "rook-dead-air",
         "say": "45e0633f233ade9b",
-        "take": null
+        "take": {
+          "say": "45e0633f233ade9b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/m3jh3m.ogg",
+          "sha256": "42a0bfa343a4ce2c1afa6545f884c9c9f64fe1516efbdfb6ff0ef79b1dd81506",
+          "transcript": "So, C of t equals 74 and solve for t. 20 off both sides, 54 equals 12t. Divide by 12, t is 4.5.",
+          "word_check": "passed"
+        }
       },
       "a13oav": {
         "speaker": "rook-dead-air",
         "say": "ad8b222097b0b64d",
-        "take": null
+        "take": {
+          "say": "ad8b222097b0b64d",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/a13oav.ogg",
+          "sha256": "b07c38ad24cbae3cb4f8a9d03c22a554bb67b02ffd067df58d8e55c8ce0bcbf3",
+          "transcript": "4 and a half hours after sunrise inside 0 to 6 so the model holds. Check 12 lots of 4.5 is 54 plus 20 74 out.",
+          "word_check": "passed"
+        }
       },
       "i461et": {
         "speaker": "rook-dead-air",
         "say": "37ed1ac934e3261f",
-        "take": null
+        "take": {
+          "say": "37ed1ac934e3261f",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/i461et.ogg",
+          "sha256": "c7c5317d7a75e93f2b2d61a3dd85f0139b00c6aae2ffafc758f4341ff3366580",
+          "transcript": "This came in over the line last night. One line of it has a crossed wire. Find it over.",
+          "word_check": "passed"
+        }
       },
       "taxdom": {
         "speaker": "rook-dead-air",
         "say": "7e8c31d13cc5d979",
-        "take": null
+        "take": {
+          "say": "7e8c31d13cc5d979",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/taxdom.ogg",
+          "sha256": "9dc4a999a9d28ca33bdc23f074c24bb34a237ef7fd1f8ca528ae4252c2b94f60",
+          "transcript": "That's the one. They treated f like a number. You can take out of a bracket, f is a machine not a multiplier.",
+          "word_check": "passed"
+        }
       },
       "u6isa0": {
         "speaker": "rook-dead-air",
         "say": "b924bc5be86149d7",
-        "take": null
+        "take": {
+          "say": "b924bc5be86149d7",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/u6isa0.ogg",
+          "sha256": "8ba03f16f5cbd971f91e789665a17cd77425a3e3280567577fc4249aab44e571",
+          "transcript": "Look at the first line, can two signals go through the machine as one?",
+          "word_check": "passed"
+        }
       },
       "600tj9": {
         "speaker": "rook-dead-air",
         "say": "facb7f976e60036c",
-        "take": null
+        "take": {
+          "say": "facb7f976e60036c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/600tj9.ogg",
+          "sha256": "a1c6c63ac8c0876423631f8e6f446d7ef6a64bf4318025b3ba2e5c1c3559e281",
+          "transcript": "Run each input through on its own f of 2 is 8 f of 3 is 11 together 19 not 17",
+          "word_check": "passed"
+        }
       },
       "ug8rex": {
         "speaker": "rook-dead-air",
         "say": "d6127e908d32efc7",
-        "take": null
+        "take": {
+          "say": "d6127e908d32efc7",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/ug8rex.ogg",
+          "sha256": "13e406134483940d90c6faa0e25d19ed68ac87731bc48a00ca641e9c6be87268",
+          "transcript": "Took me a week to find out who sent that one. It was me a year ago",
+          "word_check": "passed"
+        }
       },
       "xqw813": {
         "speaker": "rook-dead-air",
         "say": "eae1937ebf5fa69b",
-        "take": null
+        "take": {
+          "say": "eae1937ebf5fa69b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/xqw813.ogg",
+          "sha256": "72ad5618a056751ee8ff1e9ef355485bb1c12bb3b98bf610787a763c0423be6b",
+          "transcript": "your channel and no help on the first try. Label the parts and say what each value means over.",
+          "word_check": "passed"
+        }
       },
       "wilzpn": {
         "speaker": "rook-dead-air",
         "say": "c6f29598fcdb52e1",
-        "take": null
+        "take": {
+          "say": "c6f29598fcdb52e1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/wilzpn.ogg",
+          "sha256": "0afdc2d9e4a3a1c6ed33dffdd2e93a3f14836ed07089dcf1a856ff2d73137c69",
+          "transcript": "Loud and clear, every part labeled and every value said in words.",
+          "word_check": "passed"
+        }
       },
       "pp94wv": {
         "speaker": "rook-dead-air",
         "say": "11879fa342f7cf4e",
-        "take": null
+        "take": {
+          "say": "11879fa342f7cf4e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/pp94wv.ogg",
+          "sha256": "966e24e96fe5c9cfda319354c89f3df9e18a3f531e17b90846285cdf8f3be76f",
+          "transcript": "Every value with what it means. Copy that.",
+          "word_check": "passed"
+        }
       },
       "h0quul": {
         "speaker": "rook-dead-air",
         "say": "96761471fdeea70b",
-        "take": null
+        "take": {
+          "say": "96761471fdeea70b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/h0quul.ogg",
+          "sha256": "efae5c7c2cb345c1d264e66f9d5019c4d101fe9f66fe032bf8840b2993094400",
+          "transcript": "crossed wire. Check whether the part wants an input or an output.",
+          "word_check": "passed"
+        }
       },
       "gdomnv": {
         "speaker": "rook-dead-air",
         "say": "7cdd4a42eb73e59e",
-        "take": null
+        "take": {
+          "say": "7cdd4a42eb73e59e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/gdomnv.ogg",
+          "sha256": "3f79db1a6d25c88ab055df4f72beee5dc019ec5389f696c4df88173f007a2327",
+          "transcript": "When a part gives you the output, set the rule equal to it and solve for the input.",
+          "word_check": "passed"
+        }
       },
       "shxoyu": {
         "speaker": "rook-dead-air",
         "say": "b0e5e820397b7a2d",
-        "take": null
+        "take": {
+          "say": "b0e5e820397b7a2d",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/shxoyu.ogg",
+          "sha256": "1db81324354133a8d10bf86dd58230d886a8489b40f980771d0ae6fa615acc4c",
+          "transcript": "So, a function takes each input to exactly one output. f of x is the output when the input is x. Input in brackets, run the rule and say which one you've got.",
+          "word_check": "passed"
+        }
       },
       "fuqb8v": {
         "speaker": "rook-dead-air",
         "say": "9a1f99d16b49b25c",
-        "take": null
+        "take": {
+          "say": "9a1f99d16b49b25c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/fuqb8v.ogg",
+          "sha256": "76707f8c94fce0a3bdb0f2cc1edcb7c25f5393063df65d69eb0ffa47c86ff067",
+          "transcript": "You called 5 before I threw the switch. Now, you can say why.",
+          "word_check": "passed"
+        }
       },
       "tdtylw": {
         "speaker": "rook-dead-air",
         "say": "2feac9bc80bb64cb",
-        "take": null
+        "take": {
+          "say": "2feac9bc80bb64cb",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/tdtylw.ogg",
+          "sha256": "2b4ad015a4289741023421a5fd07b2337c2cc5e3d865b3489ca535ee08aad2a9",
+          "transcript": "You called minus 13 at the start square minus 3 without its brackets and that's what comes out. Half the map makes that call once.",
+          "word_check": "passed"
+        }
       },
       "4xrt6n": {
         "speaker": "rook-dead-air",
         "say": "575bf88dc85b1dd3",
-        "take": null
+        "take": {
+          "say": "575bf88dc85b1dd3",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/4xrt6n.ogg",
+          "sha256": "0de7515adde68d2c82d4640528f178a71c62317f5edf8e944666a2e1505fcac6",
+          "transcript": "Your call from the start is still in the log. Now you'd call five and you could say why.",
+          "word_check": "passed"
+        }
       },
       "d1ax0c": {
         "speaker": "rook-dead-air",
         "say": "52f4cd3df151c39f",
-        "take": null
+        "take": {
+          "say": "52f4cd3df151c39f",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/d1ax0c.ogg",
+          "sha256": "49dcfe6d10164bd0156d0682ce260fb264a6e767d145f5c70bc8c1a6b4a568fd",
+          "transcript": "Next time we run the relay backwards. Output in, input out.",
+          "word_check": "passed"
+        }
       },
       "pqbbvg": {
         "speaker": "rook-dead-air",
         "say": "7258ec44a1c8d2cd",
-        "take": null
+        "take": {
+          "say": "7258ec44a1c8d2cd",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/ex.functions.function-machine/pqbbvg.ogg",
+          "sha256": "c002c66bc8f37296a197cef486c103cc6896f49bd33dbd589d3a6c000094d52a",
+          "transcript": "That's the transmission. Rook out.",
+          "word_check": "passed"
+        }
       }
     },
     "ex.functions.gradient": {
@@ -3540,464 +4366,1752 @@
       "c04b7s": {
         "speaker": "mags-the-ledger",
         "say": "403ec1c5a50b526d",
-        "take": null
+        "take": {
+          "say": "403ec1c5a50b526d",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/c04b7s.ogg",
+          "sha256": "697b7e198e13ab92e276ea7dcafc9109dc655fb2a732460cebb7b372892e9cc1",
+          "transcript": "You did this one with me. Let's see what's stuck.",
+          "word_check": "accepted on review: what -> what's"
+        }
       },
       "mx9tnl": {
         "speaker": "mags-the-ledger",
         "say": "60dbbfe11e393b41",
-        "take": null
+        "take": {
+          "say": "60dbbfe11e393b41",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/mx9tnl.ogg",
+          "sha256": "102c7201cd668cf3025e62121cba96ab1b7cea9d7d8a185613b695118f123d8a",
+          "transcript": "You've not done my lesson on this one yet, it's up on the board.",
+          "word_check": "passed"
+        }
       },
       "zp7a9a": {
         "speaker": "mags-the-ledger",
         "say": "8d94fe8f7a657ac1",
-        "take": null
+        "take": {
+          "say": "8d94fe8f7a657ac1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/zp7a9a.ogg",
+          "sha256": "45b833d70bc8d57e7abd14dc7ff6334bc25100d5c7be9f5b8d6858fee6e5c8d8",
+          "transcript": "Here's the short version. Write it down.",
+          "word_check": "passed"
+        }
       },
       "xtokhe": {
         "speaker": "mags-the-ledger",
         "say": "508d586b5b3d24a6",
-        "take": null
+        "take": {
+          "say": "508d586b5b3d24a6",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/xtokhe.ogg",
+          "sha256": "3e5be294c8fbe6530c5a5b73fdb86df56af63a3cdda4733d48fccdeddde78a4e",
+          "transcript": "Do the full lesson after this. You'll want it in your book.",
+          "word_check": "passed"
+        }
       },
       "gl7dtl": {
         "speaker": "mags-the-ledger",
         "say": "5ffa568a5ea4af74",
-        "take": null
+        "take": {
+          "say": "5ffa568a5ea4af74",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/gl7dtl.ogg",
+          "sha256": "d9d3f5301415d1e15a24335d1ae7f9b65de7d4824b15307c79b5af149465860f",
+          "transcript": "Tess showed you this at her yard.",
+          "word_check": "passed"
+        }
       },
       "la4942": {
         "speaker": "mags-the-ledger",
         "say": "c76aa20363810619",
-        "take": null
+        "take": {
+          "say": "c76aa20363810619",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/la4942.ogg",
+          "sha256": "20ba179e7921463c36017229655181149a69651d657f7a49890ba9fd7f79d942",
+          "transcript": "You haven't been round to Tess's yard yet. She teaches this, and you'll want it.",
+          "word_check": "passed"
+        }
       },
       "zd08l4": {
         "speaker": "mags-the-ledger",
         "say": "25608dbc1eab3094",
-        "take": null
+        "take": {
+          "say": "25608dbc1eab3094",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/zd08l4.ogg",
+          "sha256": "b7c0ee597720376cfdb62294ee9ca3a5af654b7898fc7b1eb7efe4e197cd9ceb",
+          "transcript": "Rook went through this with you up the signal tower.",
+          "word_check": "passed"
+        }
       },
       "ektz83": {
         "speaker": "mags-the-ledger",
         "say": "a27f20789c40f702",
-        "take": null
+        "take": {
+          "say": "a27f20789c40f702",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ektz83.ogg",
+          "sha256": "941eb6bcc576e572b703164c7280672c0b10bd1c07f0425fdc001e71457db761",
+          "transcript": "You haven't been up the Signal Tower to see Rook yet, he covers this, worth the trip.",
+          "word_check": "passed"
+        }
       },
       "u60y2n": {
         "speaker": "mags-the-ledger",
         "say": "7be542347e64edf8",
-        "take": null
+        "take": {
+          "say": "7be542347e64edf8",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/u60y2n.ogg",
+          "sha256": "83c54a2485e98821a143af8d57d6424733bddbcf7c2dafb919f87bc674b43ab7",
+          "transcript": "Kara took you through this out on the dry flats.",
+          "word_check": "passed"
+        }
       },
       "zwbeac": {
         "speaker": "mags-the-ledger",
         "say": "d181b44a66c2b24a",
-        "take": null
+        "take": {
+          "say": "d181b44a66c2b24a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/zwbeac.ogg",
+          "sha256": "66b0135eb032086a2eeee77d9dbc4ef98059c29453b23561dad0a1b6697ef9b4",
+          "transcript": "You haven't been out to the dry flats to see Kara yet. She teaches this and she teaches it properly.",
+          "word_check": "passed"
+        }
       },
       "okt7kg": {
         "speaker": "mags-the-ledger",
         "say": "06f08fdd9957cf4e",
-        "take": null
+        "take": {
+          "say": "06f08fdd9957cf4e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/okt7kg.ogg",
+          "sha256": "c0e89c752b82abcec9d4d8b8276697fac0ada62e196e896ed9f419b0f70ea26a",
+          "transcript": "Lucky showed you this at the Radio Spires, hope he didn't bet you on it.",
+          "word_check": "passed"
+        }
       },
       "b59dm4": {
         "speaker": "mags-the-ledger",
         "say": "d9fb2af53c4bf488",
-        "take": null
+        "take": {
+          "say": "d9fb2af53c4bf488",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/b59dm4.ogg",
+          "sha256": "54d0a9018353608baf67e1f1030077ce73bca24c4963cb85559bf996d761af87",
+          "transcript": "You haven't met Lucky at the Radio Spires yet. He teaches this. Don't play cards with him.",
+          "word_check": "passed"
+        }
       },
       "y2pesi": {
         "speaker": "mags-the-ledger",
         "say": "a2e64fc8132ff6d6",
-        "take": null
+        "take": {
+          "say": "a2e64fc8132ff6d6",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/y2pesi.ogg",
+          "sha256": "7e3cf25099600265d79f231e1d1e4adce3d5dc2ccec85173b4dc17458fcb62a6",
+          "transcript": "Calc took you through this down in the engine core.",
+          "word_check": "passed"
+        }
       },
       "ah2ux1": {
         "speaker": "mags-the-ledger",
         "say": "d69cdaae2974e231",
-        "take": null
+        "take": {
+          "say": "d69cdaae2974e231",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ah2ux1.ogg",
+          "sha256": "d195036c301249686039925abbd185a846c82e29f91414207eba65060741acb6",
+          "transcript": "You haven't been down the engine core to see Calc yet. It covers this and you'll want it.",
+          "word_check": "passed"
+        }
       },
       "va53qs": {
         "speaker": "tin-can-tess",
         "say": "04537aae1f260412",
-        "take": null
+        "take": {
+          "say": "04537aae1f260412",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/va53qs.ogg",
+          "sha256": "b0875af19eaabaccfc0bd68938d059ab26215c89b7c06a9b1624b66fad288bda",
+          "transcript": "Oh, you've done this one with me. Good. Quick warm-up then.",
+          "word_check": "passed"
+        }
       },
       "y1spef": {
         "speaker": "tin-can-tess",
         "say": "1d0aefa9790f501e",
-        "take": null
+        "take": {
+          "say": "1d0aefa9790f501e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/y1spef.ogg",
+          "sha256": "d7769725b0877b327cfdd2f3147fafcf8ace76f41d254909b24fc43349c26cd0",
+          "transcript": "We haven't done my lesson on this yet. You and me. No stress.",
+          "word_check": "passed"
+        }
       },
       "b80hrn": {
         "speaker": "tin-can-tess",
         "say": "25403a97ccae29ff",
-        "take": null
+        "take": {
+          "say": "25403a97ccae29ff",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/b80hrn.ogg",
+          "sha256": "731c933360444d42071641f1698c2ab47533db980f99ea9e676a37d4e6f65074",
+          "transcript": "Short version, then. Quick as I can.",
+          "word_check": "passed"
+        }
       },
       "bheneg": {
         "speaker": "tin-can-tess",
         "say": "110b68b948eeebc1",
-        "take": null
+        "take": {
+          "say": "110b68b948eeebc1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/bheneg.ogg",
+          "sha256": "f38bd5b8bf5ae11bb1ef066945a160e9c62a87da49a1e2e217ee7d9174854057",
+          "transcript": "Come back and do the whole thing with me later. Worth it? Promise.",
+          "word_check": "passed"
+        }
       },
       "g8o2ay": {
         "speaker": "tin-can-tess",
         "say": "eee059d02736bb78",
-        "take": null
+        "take": {
+          "say": "eee059d02736bb78",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/g8o2ay.ogg",
+          "sha256": "fe49611e99491de91469253e7205d4263c00539d2701d25e3bdbd93efd6e0070",
+          "transcript": "Mags showed you this in the scrap fields. She'll be pleased you kept it.",
+          "word_check": "passed"
+        }
       },
       "a8a6uc": {
         "speaker": "tin-can-tess",
         "say": "d72eee2a6bd9e00e",
-        "take": null
+        "take": {
+          "say": "d72eee2a6bd9e00e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/a8a6uc.ogg",
+          "sha256": "bdd8f0c6a2b87475186932c0c973484cd1f4a337e7cf6b144c2fdf1903e5fb3a",
+          "transcript": "You haven't been out to see mags in the scrap fields yet. She does this one and you'll want it.",
+          "word_check": "passed"
+        }
       },
       "am0al9": {
         "speaker": "tin-can-tess",
         "say": "e00bbbb613374467",
-        "take": null
+        "take": {
+          "say": "e00bbbb613374467",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/am0al9.ogg",
+          "sha256": "a5ff07448810e572383727a06faa6d68d3cf831e2e31166a89cacb614ae94083",
+          "transcript": "Rook did this with you at the Signal Tower. Did he get excited? He gets excited.",
+          "word_check": "passed"
+        }
       },
       "zp1z2g": {
         "speaker": "tin-can-tess",
         "say": "b99d764a6dde015c",
-        "take": null
+        "take": {
+          "say": "b99d764a6dde015c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/zp1z2g.ogg",
+          "sha256": "3d88b518611313f710598dfc577315c1342f2a0c06176f1ac66c9a1fc36cbe25",
+          "transcript": "You haven't been up to see Rook at the Signal Tower yet. He teaches this one. He gets loud.",
+          "word_check": "passed"
+        }
       },
       "u43pd0": {
         "speaker": "tin-can-tess",
         "say": "b5a043e5525ba20b",
-        "take": null
+        "take": {
+          "say": "b5a043e5525ba20b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/u43pd0.ogg",
+          "sha256": "63eac96c3f51151b92dfc8f40d056c6c47eaa1e3ed66089692416afcbb3047e3",
+          "transcript": "Kara went through this with you on the dry flats.",
+          "word_check": "passed"
+        }
       },
       "wg201a": {
         "speaker": "tin-can-tess",
         "say": "ed82410533430427",
-        "take": null
+        "take": {
+          "say": "ed82410533430427",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/wg201a.ogg",
+          "sha256": "94502cddd4f19e5fe2f0ca5fbe5b2081a8a723b77db807b412c2e2163740862d",
+          "transcript": "You haven't been out to Kara on the dry flats yet. She covers this and you'll want it.",
+          "word_check": "passed"
+        }
       },
       "zf3b4q": {
         "speaker": "tin-can-tess",
         "say": "0fdbea7e1b8756d0",
-        "take": null
+        "take": {
+          "say": "0fdbea7e1b8756d0",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/zf3b4q.ogg",
+          "sha256": "a9e2d291310c6951e8b57c35f94411872cce86ef454be1f6fed390633a545496",
+          "transcript": "Lucky showed you this at the Radio Spires. Did he lose a bet on it? He usually does.",
+          "word_check": "passed"
+        }
       },
       "jwrf1g": {
         "speaker": "tin-can-tess",
         "say": "7a50412651eab0a6",
-        "take": null
+        "take": {
+          "say": "7a50412651eab0a6",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/jwrf1g.ogg",
+          "sha256": "91c770eb4d56c173a85ca749bf4a6f653ae593ffb0a973279e06777a0bce7bb7",
+          "transcript": "You haven't met Lucky at the Radio Spires yet, he teaches this one and he's good fun.",
+          "word_check": "passed"
+        }
       },
       "irkd4i": {
         "speaker": "tin-can-tess",
         "say": "2dd09d88a0d102a1",
-        "take": null
+        "take": {
+          "say": "2dd09d88a0d102a1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/irkd4i.ogg",
+          "sha256": "9930732ba4528bb117904878c941803bb1a8bf0b4e48fdcdbab3de7f2b5e5c74",
+          "transcript": "Calc did this with you in the engine core. Bit of a talker for a machine.",
+          "word_check": "passed"
+        }
       },
       "ib8twp": {
         "speaker": "tin-can-tess",
         "say": "66309860e6f10ac3",
-        "take": null
+        "take": {
+          "say": "66309860e6f10ac3",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ib8twp.ogg",
+          "sha256": "4fad5aca184e2bb15d9e18c738045976c6b4624dc843ac0884205b619214cb83",
+          "transcript": "You haven't been down to Calc in the engine core yet. It teaches this and you'll want it.",
+          "word_check": "passed"
+        }
       },
       "ut8s7q": {
         "speaker": "rook-dead-air",
         "say": "bf3c218e5503fb82",
-        "take": null
+        "take": {
+          "say": "bf3c218e5503fb82",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ut8s7q.ogg",
+          "sha256": "855fcbeca761ac9176c6a218c780061a250a5f339f73555425b6941e7ae08882",
+          "transcript": "We've had this one on my frequency already. Let's check the signal still clear.",
+          "word_check": "accepted on review: signal's -> signal"
+        }
       },
       "l16wmu": {
         "speaker": "rook-dead-air",
         "say": "20c1eada882e7683",
-        "take": null
+        "take": {
+          "say": "20c1eada882e7683",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/l16wmu.ogg",
+          "sha256": "7a6869c13267835ccb86abc83132e29ea1203872aa7267040c1f384bad30b3bb",
+          "transcript": "My lesson on this hasn't reached you yet. Fix that soon.",
+          "word_check": "passed"
+        }
       },
       "teu16s": {
         "speaker": "rook-dead-air",
         "say": "3560ba5f24c7f0fb",
-        "take": null
+        "take": {
+          "say": "3560ba5f24c7f0fb",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/teu16s.ogg",
+          "sha256": "f843d5fd9144f8bbee4134dc0016a74cac0e51c6f4e821b7431c2aa21a5a1c94",
+          "transcript": "Short transmission, then listen close.",
+          "word_check": "passed"
+        }
       },
       "iyzz2i": {
         "speaker": "rook-dead-air",
         "say": "74ae9bfcf6bce8c1",
-        "take": null
+        "take": {
+          "say": "74ae9bfcf6bce8c1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/iyzz2i.ogg",
+          "sha256": "0cdb34f6493cfbef13d61bb9dd155523acb1782a3d4030a8bb59311153b489a1",
+          "transcript": "Tune in to the full lesson after this. You'll want it out.",
+          "word_check": "passed"
+        }
       },
       "n2gvfk": {
         "speaker": "rook-dead-air",
         "say": "bac427d942419ef1",
-        "take": null
+        "take": {
+          "say": "bac427d942419ef1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/n2gvfk.ogg",
+          "sha256": "e068b1bacabc332bfe2d34f09defefd93eeb47ac457aa580c60f37be870c10eb",
+          "transcript": "Mags covered this with you in the scrap fields. Good? Saves me a broadcast.",
+          "word_check": "passed"
+        }
       },
       "efxyqj": {
         "speaker": "rook-dead-air",
         "say": "1cd6f031d08cc8f2",
-        "take": null
+        "take": {
+          "say": "1cd6f031d08cc8f2",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/efxyqj.ogg",
+          "sha256": "68315aa7f14ef9f15304856840b85f00c66648220ad1642aeaad35af3a8dc512",
+          "transcript": "You haven't been to see mags in the scrap fields yet. She teaches this and it's worth the trip.",
+          "word_check": "passed"
+        }
       },
       "do9yfj": {
         "speaker": "rook-dead-air",
         "say": "7d4519b200d3c61a",
-        "take": null
+        "take": {
+          "say": "7d4519b200d3c61a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/do9yfj.ogg",
+          "sha256": "3f95450d9f49ac94ebb57c3f3be7ee13f93316a5266a37a38946bd7b90a834f8",
+          "transcript": "Tess gave you this at her yard clean signal, Tess.",
+          "word_check": "passed"
+        }
       },
       "z7nx3b": {
         "speaker": "rook-dead-air",
         "say": "272afaa12e2d9944",
-        "take": null
+        "take": {
+          "say": "272afaa12e2d9944",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/z7nx3b.ogg",
+          "sha256": "95282f2f6c455ff318f18398cca49dc5269d1f6eb9f8a9788f90b1ba49085240",
+          "transcript": "You haven't been round to Tess's yard yet. She covers this. Go and see her.",
+          "word_check": "passed"
+        }
       },
       "uo4qot": {
         "speaker": "rook-dead-air",
         "say": "200cde96d3847c59",
-        "take": null
+        "take": {
+          "say": "200cde96d3847c59",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/uo4qot.ogg",
+          "sha256": "29657a871e9171f29a3cb16f4221b78a32541472ac46284e395c02c0ced41b2d",
+          "transcript": "Kara walked you through this on the dry flats, precise as ever, I bet.",
+          "word_check": "passed"
+        }
       },
       "fdovjn": {
         "speaker": "rook-dead-air",
         "say": "2e03e88e44e04e59",
-        "take": null
+        "take": {
+          "say": "2e03e88e44e04e59",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/fdovjn.ogg",
+          "sha256": "84b9da62e8d4bbeac2021a289ad34b31f1897c3393cc3f0ec7f31d16a0518451",
+          "transcript": "You haven't been out to Kara on the dry flats yet. She teaches this and you'll want it.",
+          "word_check": "passed"
+        }
       },
       "ai7rkl": {
         "speaker": "rook-dead-air",
         "say": "708c6756dbde6698",
-        "take": null
+        "take": {
+          "say": "708c6756dbde6698",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ai7rkl.ogg",
+          "sha256": "8d2e35f8bb75405546ead5d0d3f4cb3feb48408a4b375e47256b0cde0e0dbc38",
+          "transcript": "Lucky ran this with you at the Radio Spires. Our signals cross, I hear everything.",
+          "word_check": "passed"
+        }
       },
       "iumjzl": {
         "speaker": "rook-dead-air",
         "say": "bdd912726f525707",
-        "take": null
+        "take": {
+          "say": "bdd912726f525707",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/iumjzl.ogg",
+          "sha256": "255c209b401d36fd91d3b8fd63bdb1369afcb728a2ffd8ab07e52946bb967d1b",
+          "transcript": "You haven't been over to lucky at the radio spires yet. He covers this ignore his odds",
+          "word_check": "passed"
+        }
       },
       "ln0w32": {
         "speaker": "rook-dead-air",
         "say": "d8c3fe338231a86b",
-        "take": null
+        "take": {
+          "say": "d8c3fe338231a86b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ln0w32.ogg",
+          "sha256": "b0a06dc86ed313bb35eb42f64279a61a1d4e5cfae265ef12c2447f2669d0b220",
+          "transcript": "Calc sent you this from the engine core. Strong signal, that machine.",
+          "word_check": "passed"
+        }
       },
       "xd8iw1": {
         "speaker": "rook-dead-air",
         "say": "bab3dcb09d590a42",
-        "take": null
+        "take": {
+          "say": "bab3dcb09d590a42",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/xd8iw1.ogg",
+          "sha256": "019123675b7f136e7036d73a8df2ffc517bcc1038613c01d533fda48fc7719ab",
+          "transcript": "You haven't been down to calc in the engine core yet. It teaches this and you'll need it.",
+          "word_check": "passed"
+        }
       },
       "wgf1er": {
         "speaker": "kara-meridian",
         "say": "9677a3033c25d72e",
-        "take": null
+        "take": {
+          "say": "9677a3033c25d72e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1102,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/wgf1er.ogg",
+          "sha256": "82f3acf916d96c2f395b5fcea0e28044a8e8326934476e554b1ee73af565e1ec",
+          "transcript": "we measured this one out together. Let's see if it still holds.",
+          "word_check": "passed"
+        }
       },
       "ufxmro": {
         "speaker": "kara-meridian",
         "say": "f7061e8dc7cae712",
-        "take": null
+        "take": {
+          "say": "f7061e8dc7cae712",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ufxmro.ogg",
+          "sha256": "eaa795d30f27f4954db38c3685e400f80bf9ad22a1822472938a57fbe4b41c9a",
+          "transcript": "We haven't done my lesson on this yet. We will.",
+          "word_check": "passed"
+        }
       },
       "oahrim": {
         "speaker": "kara-meridian",
         "say": "156585ac5d246b05",
-        "take": null
+        "take": {
+          "say": "156585ac5d246b05",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/oahrim.ogg",
+          "sha256": "4c01ba4dca12858904ae6570396ce8a5de6f48966c65bfdfa620c952f5c3ea2a",
+          "transcript": "The short version then. One line at a time.",
+          "word_check": "passed"
+        }
       },
       "ba66t1": {
         "speaker": "kara-meridian",
         "say": "476b3393e588e3c2",
-        "take": null
+        "take": {
+          "say": "476b3393e588e3c2",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ba66t1.ogg",
+          "sha256": "ea392f3b52113bca42e042320ca1641f40ff51d4823d2f1b274357ad1bbae80f",
+          "transcript": "Come back for the full lesson after this. You'll want it.",
+          "word_check": "passed"
+        }
       },
       "h4qm7n": {
         "speaker": "kara-meridian",
         "say": "f7408bca0d31d2ce",
-        "take": null
+        "take": {
+          "say": "f7408bca0d31d2ce",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/h4qm7n.ogg",
+          "sha256": "308c0e7e2b8f026a84a640d7672ce78e358a4406754e5a9c0093500ab9364b99",
+          "transcript": "Mags taught you this in the scrap fields. I'll build on her work.",
+          "word_check": "passed"
+        }
       },
       "sw2aoy": {
         "speaker": "kara-meridian",
         "say": "728af61a3aaea5ce",
-        "take": null
+        "take": {
+          "say": "728af61a3aaea5ce",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1101,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/sw2aoy.ogg",
+          "sha256": "97cf3938aabb24551ea0a44f0f27f7ef3d24e8c12bfdb094af3fa259540fce37",
+          "transcript": "You haven't been to see Mags in the scrapfields yet. She teaches this and you'll want it.",
+          "word_check": "passed"
+        }
       },
       "a5xac8": {
         "speaker": "kara-meridian",
         "say": "5593d96be3072658",
-        "take": null
+        "take": {
+          "say": "5593d96be3072658",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/a5xac8.ogg",
+          "sha256": "46e3bb19312f666418a8b09e138b2a58ee24e30a047c4a38f4dea4915aa5cfd4",
+          "transcript": "Tess showed you this at her yard. Good foundations.",
+          "word_check": "passed"
+        }
       },
       "njgjnl": {
         "speaker": "kara-meridian",
         "say": "7295aff54cdcd024",
-        "take": null
+        "take": {
+          "say": "7295aff54cdcd024",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/njgjnl.ogg",
+          "sha256": "dec22f797330627045e0a4a02cb03a404ea48a3fda69ce953b9a322f4f65381c",
+          "transcript": "You haven't been round to Tess's yard yet. She covers this. Start there.",
+          "word_check": "passed"
+        }
       },
       "iqtbyc": {
         "speaker": "kara-meridian",
         "say": "d1e34e5db5ae6e26",
-        "take": null
+        "take": {
+          "say": "d1e34e5db5ae6e26",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/iqtbyc.ogg",
+          "sha256": "8b0808fdcfc7e5c342ca124c9ee6259fe360729bc37e997cf9502bf07ee30a71",
+          "transcript": "Rook went over this with you at the signal tower.",
+          "word_check": "passed"
+        }
       },
       "r15qbx": {
         "speaker": "kara-meridian",
         "say": "160c22f535524cc2",
-        "take": null
+        "take": {
+          "say": "160c22f535524cc2",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1101,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/r15qbx.ogg",
+          "sha256": "6db0ab44d6dfff065d8fb2caae5d1e6e05277e897e9a2274b0cb03b9c783c079",
+          "transcript": "You haven't been up the signal tower to see rook yet. He teaches this and you'll want it",
+          "word_check": "passed"
+        }
       },
       "zzl6am": {
         "speaker": "kara-meridian",
         "say": "1ed868704215c60a",
-        "take": null
+        "take": {
+          "say": "1ed868704215c60a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/zzl6am.ogg",
+          "sha256": "08f5f6b67ccf8dccdb21aacac4fcd178985f1d75bf1020badff274ff31c23c2d",
+          "transcript": "Lucky showed you this at the Radio Spires. He's right more often than he wins.",
+          "word_check": "passed"
+        }
       },
       "k6l33d": {
         "speaker": "kara-meridian",
         "say": "21e1582e312b140f",
-        "take": null
+        "take": {
+          "say": "21e1582e312b140f",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/k6l33d.ogg",
+          "sha256": "111d2a33669eb6629164bf3483954dfe4c1caa4b095ddec0a98382c671d367b6",
+          "transcript": "You haven't met Lucky at the Radio Spires yet, he covers this, and you'll want it.",
+          "word_check": "passed"
+        }
       },
       "ogqj02": {
         "speaker": "kara-meridian",
         "say": "c59d4870caca061c",
-        "take": null
+        "take": {
+          "say": "c59d4870caca061c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ogqj02.ogg",
+          "sha256": "55aa60d3ad63ce3672cad34f013afbcac7c2a20f209572faa4edb82c523e3e57",
+          "transcript": "Calc took you through this in the engine core.",
+          "word_check": "passed"
+        }
       },
       "z9ank5": {
         "speaker": "kara-meridian",
         "say": "32e8136703107999",
-        "take": null
+        "take": {
+          "say": "32e8136703107999",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/z9ank5.ogg",
+          "sha256": "3a8e807228cbbbfd2647209196c9beada5cd8021be5b6e490222e2d6d3d16ea8",
+          "transcript": "You haven't been down to calc in the engine core yet. It teaches this go when you're ready.",
+          "word_check": "passed"
+        }
       },
       "iuc4by": {
         "speaker": "lucky-lenoir",
         "say": "f04b452b563a2fdf",
-        "take": null
+        "take": {
+          "say": "f04b452b563a2fdf",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/iuc4by.ogg",
+          "sha256": "29bdfa1d550b6cfd5bf43d99e3055f0653eb9e58fbc04347e55356649b41a177",
+          "transcript": "Ah, you have seen my lesson on this. I bet you remember it. I lose most bets.",
+          "word_check": "passed"
+        }
       },
       "yyfiz5": {
         "speaker": "lucky-lenoir",
         "say": "ff63c50fc5b23f05",
-        "take": null
+        "take": {
+          "say": "ff63c50fc5b23f05",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/yyfiz5.ogg",
+          "sha256": "0b25a1894d5834d508f5e1e22d1ee9b1e7a9c68eab46223eee06a89655e2627f",
+          "transcript": "You have not seen my lesson on this yet a pity. It is one of my best",
+          "word_check": "passed"
+        }
       },
       "gu8esa": {
         "speaker": "lucky-lenoir",
         "say": "c221d92812e8446d",
-        "take": null
+        "take": {
+          "say": "c221d92812e8446d",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/gu8esa.ogg",
+          "sha256": "8e155e943c572a6ccc5fe04fb8cd8dfc996524c8a79b7a9aac2c514b0af04610",
+          "transcript": "Voila, the short version. Watch closely.",
+          "word_check": "passed"
+        }
       },
       "zj8b8j": {
         "speaker": "lucky-lenoir",
         "say": "c147b73b2d77473e",
-        "take": null
+        "take": {
+          "say": "c147b73b2d77473e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/zj8b8j.ogg",
+          "sha256": "eaef03d460f283074132ce66f8a4c30650ce6d9399a93837e7a2f59e0be42654",
+          "transcript": "See the whole lesson after this. You will want it. I promise. And I keep my promises mostly.",
+          "word_check": "passed"
+        }
       },
       "bmokj5": {
         "speaker": "lucky-lenoir",
         "say": "a7bbeb82f5f80452",
-        "take": null
+        "take": {
+          "say": "a7bbeb82f5f80452",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/bmokj5.ogg",
+          "sha256": "a0c6ca120e0c60310b9715d7a668786b32f156d0012507186d725731a83341d7",
+          "transcript": "Mags taught you this in the scrap fields. She keeps a record of my debts too.",
+          "word_check": "passed"
+        }
       },
       "m8nchx": {
         "speaker": "lucky-lenoir",
         "say": "8864c5d99ad758ef",
-        "take": null
+        "take": {
+          "say": "8864c5d99ad758ef",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/m8nchx.ogg",
+          "sha256": "76680796a8bbfafd3bb08f0315c50dc6d3c8bec929bf1c599b1066889dadf238",
+          "transcript": "You have not been to see Mags in the scrapfields yet, she teaches this, you will want it.",
+          "word_check": "passed"
+        }
       },
       "h5bvsg": {
         "speaker": "lucky-lenoir",
         "say": "e2d1a1fda1cc7b26",
-        "take": null
+        "take": {
+          "say": "e2d1a1fda1cc7b26",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/h5bvsg.ogg",
+          "sha256": "3612dc2a4abdabbdfda981b69be31ffb8d2b72ed20674b4e849dca7efde507fa",
+          "transcript": "Tess showed you this at her yard, a fine teacher, Tess.",
+          "word_check": "passed"
+        }
       },
       "yz66km": {
         "speaker": "lucky-lenoir",
         "say": "447576336a5ae67a",
-        "take": null
+        "take": {
+          "say": "447576336a5ae67a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/yz66km.ogg",
+          "sha256": "e70af075e522960bf909138b1efc3603d9877de289ba780c6a0058a35f07c4a0",
+          "transcript": "You have not been to Tess's yard yet. She covers this. Go. Go.",
+          "word_check": "passed"
+        }
       },
       "divgo1": {
         "speaker": "lucky-lenoir",
         "say": "a6c93b579cec763b",
-        "take": null
+        "take": {
+          "say": "a6c93b579cec763b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/divgo1.ogg",
+          "sha256": "b33594a32cf889b1fa36c6baaa883b4685465abfae70a460182614adf8992ad0",
+          "transcript": "Rook gave you this at the signal tower. Loudly, I imagine.",
+          "word_check": "passed"
+        }
       },
       "damnxl": {
         "speaker": "lucky-lenoir",
         "say": "b9749dd89e72509b",
-        "take": null
+        "take": {
+          "say": "b9749dd89e72509b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/damnxl.ogg",
+          "sha256": "8a4a1967c24fcf056e1f72d6d1818ddb4fcf4c0667707d16852a780559e2e171",
+          "transcript": "You have not been up to Rook at the Signal Tower yet, he teaches this and you will need it.",
+          "word_check": "passed"
+        }
       },
       "xmcam8": {
         "speaker": "lucky-lenoir",
         "say": "f42fecca54673c5d",
-        "take": null
+        "take": {
+          "say": "f42fecca54673c5d",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/xmcam8.ogg",
+          "sha256": "a686c01d91ab61c2d28090922467b9c908d8b5f82f31efed58cbb3081252fcd4",
+          "transcript": "Kara walked you through this on the dry flats, she never bets, very wise.",
+          "word_check": "passed"
+        }
       },
       "b7e2jc": {
         "speaker": "lucky-lenoir",
         "say": "8e14f72d1f96bea8",
-        "take": null
+        "take": {
+          "say": "8e14f72d1f96bea8",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/b7e2jc.ogg",
+          "sha256": "f8c3039177e25f7a930f218f0f0f02aded8bcfb77b0ff0acba9772ca7597f9b3",
+          "transcript": "You have not been out to Kara on the dry flats yet. She teaches this. You will want it",
+          "word_check": "passed"
+        }
       },
       "ibi7nd": {
         "speaker": "lucky-lenoir",
         "say": "d9f78fafd1799a3a",
-        "take": null
+        "take": {
+          "say": "d9f78fafd1799a3a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ibi7nd.ogg",
+          "sha256": "7c4285f5fb54b33a403a0f0bd3aa044f0616c0ea7a9e9f7dd2e924c5ff883162",
+          "transcript": "Calc showed you this in the engine core. That machine has never lost a bet.",
+          "word_check": "passed"
+        }
       },
       "ocvbwv": {
         "speaker": "lucky-lenoir",
         "say": "00d37efaa64ec615",
-        "take": null
+        "take": {
+          "say": "00d37efaa64ec615",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ocvbwv.ogg",
+          "sha256": "c1960a4b6c14a43d2e6a2a063314a7209a22f54947e4237f86ec06feff22a7c7",
+          "transcript": "You have not been down to calc in the engine core yet, it teaches this and you will want it.",
+          "word_check": "passed"
+        }
       },
       "j15an9": {
         "speaker": "calc",
         "say": "8c9205d3442c91b5",
-        "take": null
+        "take": {
+          "say": "8c9205d3442c91b5",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/j15an9.ogg",
+          "sha256": "e234e196ccccfe62968cad94bc3213cd723015afe860fedf02df0fad8bdaf070",
+          "transcript": "Record found. You completed my lesson on this. Confirming retention.",
+          "word_check": "passed"
+        }
       },
       "l06ng5": {
         "speaker": "calc",
         "say": "e81a1e10138f2c4e",
-        "take": null
+        "take": {
+          "say": "e81a1e10138f2c4e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/l06ng5.ogg",
+          "sha256": "dd363be845bda9137fc50a29241b4d1a778a38489d01bfb4a8c37d372642b9db",
+          "transcript": "No record you have not completed my lesson on this",
+          "word_check": "passed"
+        }
       },
       "egerp4": {
         "speaker": "calc",
         "say": "668307a3117e2cfd",
-        "take": null
+        "take": {
+          "say": "668307a3117e2cfd",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/egerp4.ogg",
+          "sha256": "6aed0856b5f34edf4fc79b98dd7fef2c89236f2df0e5ba639dc75f08826a4fb7",
+          "transcript": "Compressed version follows.",
+          "word_check": "passed"
+        }
       },
       "bf9sg3": {
         "speaker": "calc",
         "say": "6a4031e47caa8fde",
-        "take": null
+        "take": {
+          "say": "6a4031e47caa8fde",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/bf9sg3.ogg",
+          "sha256": "0f43c4ef0e977d80f05d417ded2d6aac5299656712731a267d8cb170ae84593b",
+          "transcript": "Recommend the full lesson after this one. Probability, you will need it, high.",
+          "word_check": "passed"
+        }
       },
       "cancww": {
         "speaker": "calc",
         "say": "3b4c2ca2f80dd1e7",
-        "take": null
+        "take": {
+          "say": "3b4c2ca2f80dd1e7",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/cancww.ogg",
+          "sha256": "c4b648a4d57e6ac05ce60e4d3ff90241ffe2a5e519800233a4137952763ece2d",
+          "transcript": "Record found. Mags taught you this in the scrap fields.",
+          "word_check": "passed"
+        }
       },
       "xxkpsr": {
         "speaker": "calc",
         "say": "1a46f397e412ca91",
-        "take": null
+        "take": {
+          "say": "1a46f397e412ca91",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/xxkpsr.ogg",
+          "sha256": "3874a7cb81c3fa11f398cd1c896e70aacf7f249ac053901e4bb41444bee4a591",
+          "transcript": "No record of a visit to mags in the scrap fields. She teaches this. Recommend you go.",
+          "word_check": "passed"
+        }
       },
       "y9dawk": {
         "speaker": "calc",
         "say": "4774785e0fe61b89",
-        "take": null
+        "take": {
+          "say": "4774785e0fe61b89",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/y9dawk.ogg",
+          "sha256": "f56dc85d3c4cbf728aa2199d1c8be8133c4bc897a482c919dd7e998efee2f1a9",
+          "transcript": "Record found, Tess taught you this at her yard.",
+          "word_check": "passed"
+        }
       },
       "ow9ffb": {
         "speaker": "calc",
         "say": "5f90a50b1d843a75",
-        "take": null
+        "take": {
+          "say": "5f90a50b1d843a75",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/ow9ffb.ogg",
+          "sha256": "9052f556c9ad3b4a482ea91295f74c79753f734cb03cad87fd32be03588b74fd",
+          "transcript": "No record of a visit to Tess's yard. She teaches this. Recommend you go.",
+          "word_check": "passed"
+        }
       },
       "rtuuw3": {
         "speaker": "calc",
         "say": "035756aec77d2e8d",
-        "take": null
+        "take": {
+          "say": "035756aec77d2e8d",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/rtuuw3.ogg",
+          "sha256": "e011aa7b88c3bffb9e5f24da6a4a8401fa31e6a2122ee3f12225f9d6bfc0417a",
+          "transcript": "Record found. Rook transmitted this to you at the signal tower.",
+          "word_check": "passed"
+        }
       },
       "jwrnyp": {
         "speaker": "calc",
         "say": "337ff407a9890512",
-        "take": null
+        "take": {
+          "say": "337ff407a9890512",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/jwrnyp.ogg",
+          "sha256": "9ea2b00a1b1876b49cb6039475bd2e1260bd2493e0da9d8762b13898dc680907",
+          "transcript": "No record of a visit to Rook at the signal tower. He teaches this. Recommend you go.",
+          "word_check": "passed"
+        }
       },
       "e9z8a6": {
         "speaker": "calc",
         "say": "b2f12f4df5ec5b6c",
-        "take": null
+        "take": {
+          "say": "b2f12f4df5ec5b6c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/e9z8a6.ogg",
+          "sha256": "f49585a5bac5c10f62c016d002d72fc777bd2a1bd54baef92c84fa1dd9804db3",
+          "transcript": "Record found. Kara taught you this on the dry flats.",
+          "word_check": "passed"
+        }
       },
       "yl1cu9": {
         "speaker": "calc",
         "say": "d6685709a3e1055c",
-        "take": null
+        "take": {
+          "say": "d6685709a3e1055c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/yl1cu9.ogg",
+          "sha256": "181e5a9d8f00cdef6133a76a73d14c927aa4d6ee6bf932622c7c85d1292eb5d9",
+          "transcript": "No record of a visit to Kara on the dry flats. She teaches this recommend you go",
+          "word_check": "passed"
+        }
       },
       "aaqxxd": {
         "speaker": "calc",
         "say": "a366756f9520524c",
-        "take": null
+        "take": {
+          "say": "a366756f9520524c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/aaqxxd.ogg",
+          "sha256": "024697628b5715db8a79af77736256a738b270a98e77324235b57222fd74f4d4",
+          "transcript": "Record found. Lucky taught you this at the radio spires. He also owes me a battery.",
+          "word_check": "passed"
+        }
       },
       "a3zmuk": {
         "speaker": "calc",
         "say": "947ac0c210c9a6ff",
-        "take": null
+        "take": {
+          "say": "947ac0c210c9a6ff",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/callbacks/a3zmuk.ogg",
+          "sha256": "3189f8e09997a2eb788e66f51903a6e864410e31c13cc63bdd2b068bdfec0a7a",
+          "transcript": "No record of a visit to Lucky at the radio spires. He teaches this. Recommend you go.",
+          "word_check": "passed"
+        }
       }
     },
     "reactions": {
       "9rzsaa": {
         "speaker": "rook-dead-air",
         "say": "a85777dea3225854",
-        "take": null
+        "take": {
+          "say": "a85777dea3225854",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/reactions/9rzsaa.ogg",
+          "sha256": "68ee2492008a772592d18f389e1c465c39b00a13e62e3fb1e672968e8d905c03",
+          "transcript": "copy",
+          "word_check": "passed"
+        }
       },
       "ml2cxq": {
         "speaker": "rook-dead-air",
         "say": "4185c452b87d5f4a",
-        "take": null
+        "take": {
+          "say": "4185c452b87d5f4a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1103,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/reactions/ml2cxq.ogg",
+          "sha256": "b9cbb034a51cf60b795753400e2316cc4747ff963444d67fdc673bfa51e9e36c",
+          "transcript": "Sent",
+          "word_check": "passed"
+        }
       },
       "1c8kk4": {
         "speaker": "rook-dead-air",
         "say": "062f04bda5c59e26",
-        "take": null
+        "take": {
+          "say": "062f04bda5c59e26",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/reactions/1c8kk4.ogg",
+          "sha256": "045cb68ff88dcd0967f1193929b8240d8367800d632ca7efbfb7fa1633a75398",
+          "transcript": "received.",
+          "word_check": "passed"
+        }
       },
       "i2jaqx": {
         "speaker": "rook-dead-air",
         "say": "23feb5b7a7af498c",
-        "take": null
+        "take": {
+          "say": "23feb5b7a7af498c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/reactions/i2jaqx.ogg",
+          "sha256": "07222365b5ad878ae47c8ffa3855d67d102fbe886fb11f01fabe0e2b033fc023",
+          "transcript": "Static. Come in again.",
+          "word_check": "passed"
+        }
       },
       "8oguve": {
         "speaker": "rook-dead-air",
         "say": "9f55a433027ed4ea",
-        "take": null
+        "take": {
+          "say": "9f55a433027ed4ea",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/reactions/8oguve.ogg",
+          "sha256": "a4c1d7c306fa087f03d3d92b90f9d5fce1c491db6ba5bb9b0b60b1ea6a901dcb",
+          "transcript": "Eish? That one's gone to the wrong settlement. They'll cope.",
+          "word_check": "passed"
+        }
       },
       "daxuz2": {
         "speaker": "rook-dead-air",
         "say": "450c144c41499081",
-        "take": null
+        "take": {
+          "say": "450c144c41499081",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/reactions/daxuz2.ogg",
+          "sha256": "c883beff8ecb7ef7e5b41812693589446147166ac72b952ed188361420e96236",
+          "transcript": "Shame. The relay didn't like that.",
+          "word_check": "passed"
+        }
       },
       "5ena6n": {
         "speaker": "rook-dead-air",
         "say": "ffc396e303fd379d",
-        "take": null
+        "take": {
+          "say": "ffc396e303fd379d",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/reactions/5ena6n.ogg",
+          "sha256": "fd01ce5a3a463c48259cc0992c94b787b0726a9d5a13f47088443775ed2c6bab",
+          "transcript": "Hold on. Something's smoking up there. Go again.",
+          "word_check": "passed"
+        }
       },
       "z1xu8j": {
         "speaker": "rook-dead-air",
         "say": "af26d398ae304e22",
-        "take": null
+        "take": {
+          "say": "af26d398ae304e22",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-17",
+          "task": "FAL-1110",
+          "file": "game/assets/audio/voice/explainers/reactions/z1xu8j.ogg",
+          "sha256": "484efebf4719cbad4a91b383a7e8ef6634a4d773be898c2a265210886b76feb5",
+          "transcript": "There goes a fuse. I've got spares. Come in again.",
+          "word_check": "passed"
+        }
       }
     }
   },

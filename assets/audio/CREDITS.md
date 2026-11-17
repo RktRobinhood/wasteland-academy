@@ -837,3 +837,180 @@ Rights basis: VoxCPM2 (OpenBMB) code and weights are released under the [Apache 
 | `use-symmetry_2.ogg` | `4280394` | -16.18 | -1.95 | `c8100306595192e625c54952b2fb2c1678bb57e1451a47a0e3f5ca412cc46f2f` |
 | `zero-product_1.ogg` | `4280231` | -16.14 | -1.96 | `637a6751a32fe9e4b2c599ddc6f51718ff3b7d3662355cc54f59f798cc973ca4` |
 | `zero-product_2.ogg` | `4280232` | -16.19 | -1.90 | `74ef2c85385e5cb8976613b724f87b866e0831c04ba7d960386ede37f4a49247` |
+
+## FAL-1110 — explainer lines, local voice clones (voice)
+
+151 voice files in `game/assets/audio/voice/explainers/`, where the lesson player looks for them (`<script id>/<line id>.ogg`): every spoken line of One In, One Out (`ex.functions.function-machine/`, 59 lines, Rook Dead-Air), Rook's stock reactions (`reactions/`, 8) and the callback lines of all six tutors (`callbacks/`, 84). The words are each line's `say` text exactly, from `writing/explainers/`. Each take is also recorded in `writing/explainers/manifest.json`. Generated locally with VoxCPM2 on 2026-11-17. No recordings of any real person went in.
+
+Rights basis: VoxCPM2 (OpenBMB) code and weights are released under the [Apache License 2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE), which allows commercial use; model card https://huggingface.co/openbmb/VoxCPM2. Package `voxcpm` 2.0.3, weights `openbmb/VoxCPM2` from the local Hugging Face cache. Each voice is cloned from one reference take: that voice reading the same template paragraph, generated with Gemini text-to-speech (`gemini-3.8-flash-tts`) via the Gemini API on 2026-11-17 (FAL-1099), with the voice and direction the board approved on FAL-927. FAL-1035 confirmed Gemini output may ship in paid releases. FAL-1099 read Google's terms on using it as a clone reference, and no clause forbids it (report on FAL-1099). The references stay in the local falcon-voice repo (`voices/wasteland-academy/`) and don't ship. No model was trained or fine-tuned.
+
+Matt chose the clones, in "ultimate" mode, on FAL-1110 after hearing them side by side with Gemini.
+
+| Voice | Reference: Gemini voice | Reference SHA-256 |
+|---|---|---|
+| C.A.L.C. (`calc`) | `charon` | `f9ac204277eaef2023d892f408f3f7b8bf8e9add7666061e5692b3e9f6f94475` |
+| Kara Meridian (`kara-meridian`) | `gacrux` | `7a0d95e26f05ede81516a2fdbf223fee1fcad006cc7df7dfa3d1276807291c8f` |
+| Lucien "Lucky" Lenoir (`lucky-lenoir`) | `fr-fr-podcaster-8` | `34170409f48d168d16076ce05ff8ac3784eef7ad1f0f99b6f66d0da095e927bd` |
+| Mags the Ledger (`mags-the-ledger`) | `en-au-tutor-3` | `86e05455afd9e60c211e88464fadc3dc0e6c21c46bbb20f901286d26eb7ce9a1` |
+| Rook Dead-Air (`rook-dead-air`) | `en-za-storyteller-1` | `9025fd9f9e86a863f5939b8063002875eb0bc7cb40ff65bc14b03e0f1cf489c6` |
+| Tin-Can Tess (`tin-can-tess`) | `en-nz-commercial-3` | `dde85ad76bb4ceae6bd5f6eae379fb4afbea786778d8762da051c19080cb6b7f` |
+
+- **Cloning:** VoxCPM2 "ultimate" mode: the reference is both `reference_wav_path` and `prompt_wav_path`, and its words are `prompt_text`. cfg 2.0, 10 inference timesteps, denoiser off, text normalisation off. Seed per file below (`torch.manual_seed`): 1099 first, then 1100 to 1102 for a line whose words didn't match. `reactions/ml2cxq` ("Sent.") needed a fifth seed, 1103, because the first four added sound after the word.
+- **Text fed to the model** is the `say` line. Delivery cues (`chuckles`, `glitch`) are not sent: VoxCPM2 has no cue control, and the script format says a voice that can't perform a cue skips it. C.A.L.C.'s glitch is in its effect chain anyway.
+- **Changes, every file** (falcon-voice `clone/post.sh`): resample the 48 kHz clone to 24 kHz mono; trim silence below −50 dB at both ends; 10 ms fade-in and 40 ms fade-out; 30 ms lead-in and 60 ms tail; then the voice's approved chain from `teachers.json`: the 2% tape slowdown (`asetrate=23520,aresample=24000`), plus C.A.L.C.'s glitch filters; then falcon-voice `master.sh` (two-pass loudnorm to −16 LUFS, true peak at or below −1 dBTP, 44.1 kHz mono OGG Vorbis q5). Takes that `master.sh` left below −17 LUFS (sharp peaks) first went through a 4× oversampled `alimiter` (`clone/prelimit.sh`, from FAL-992). `reactions/ml2cxq` then had +0.7 dB of static gain.
+- **Checks:** every take transcribed with faster-whisper small (CPU) and compared word by word with `say`, numbers included. 144 matched ("Sent." on seed 1103, with a second of silence either side, since a 0.8 s clip is too short for the transcriber alone). These 7 differ only where the transcriber can't follow, and were accepted on reading the diff: `callbacks/c04b7s` (what stuck heard as what's stuck); `callbacks/ut8s7q` (signal's still heard as signal still); `ex.functions.function-machine/25tykc` (Lekker (Afrikaans) heard as Licker); `ex.functions.function-machine/b7n1cv` (oupa (Afrikaans) heard as Oopah); `ex.functions.function-machine/j7nxs0` (Ja (Afrikaans) heard as Yeah); `ex.functions.function-machine/k4e8xl` (channel's heard as channels); `ex.functions.function-machine/vnrkur` (a times heard as at times on all four seeds).
+- **Measured across all 151** (music-tools `bin/check`, 4× oversampled true peak): -17.10 to -15.37 LUFS-I, -3.18 to -1.44 dBTP, 0.78 to 12.26 s long, 12.8 minutes in all. The first and last 20 ms of every file are at least 76 dB below its peak.
+
+| File (`game/assets/audio/voice/explainers/`) | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|
+| `callbacks/a3zmuk.ogg` | `1099` | 7.7 | -16.2 | -1.5 | all | `3189f8e09997a2eb788e66f51903a6e864410e31c13cc63bdd2b068bdfec0a7a` |
+| `callbacks/a5xac8.ogg` | `1099` | 3.52 | -16.4 | -1.6 | all | `46e3bb19312f666418a8b09e138b2a58ee24e30a047c4a38f4dea4915aa5cfd4` |
+| `callbacks/a8a6uc.ogg` | `1099` | 5.2 | -16.5 | -1.7 | all | `bdd8f0c6a2b87475186932c0c973484cd1f4a337e7cf6b144c2fdf1903e5fb3a` |
+| `callbacks/aaqxxd.ogg` | `1099` | 6.9 | -16.4 | -1.7 | all | `024697628b5715db8a79af77736256a738b270a98e77324235b57222fd74f4d4` |
+| `callbacks/ah2ux1.ogg` | `1099` | 5.2 | -16.2 | -1.8 | all | `d195036c301249686039925abbd185a846c82e29f91414207eba65060741acb6` |
+| `callbacks/ai7rkl.ogg` | `1099` | 6.2 | -16.5 | -1.8 | all | `8d2e35f8bb75405546ead5d0d3f4cb3feb48408a4b375e47256b0cde0e0dbc38` |
+| `callbacks/am0al9.ogg` | `1099` | 5.3 | -16.2 | -1.5 | all | `a5ff07448810e572383727a06faa6d68d3cf831e2e31166a89cacb614ae94083` |
+| `callbacks/b59dm4.ogg` | `1099` | 5.6 | -16.9 | -1.6 | all | `54d0a9018353608baf67e1f1030077ce73bca24c4963cb85559bf996d761af87` |
+| `callbacks/b7e2jc.ogg` | `1099` | 5.3 | -16.4 | -1.6 | all | `f8c3039177e25f7a930f218f0f0f02aded8bcfb77b0ff0acba9772ca7597f9b3` |
+| `callbacks/b80hrn.ogg` | `1100` | 2.45 | -16.0 | -2.6 | all | `731c933360444d42071641f1698c2ab47533db980f99ea9e676a37d4e6f65074` |
+| `callbacks/ba66t1.ogg` | `1099` | 4.3 | -16.2 | -1.8 | all | `ea392f3b52113bca42e042320ca1641f40ff51d4823d2f1b274357ad1bbae80f` |
+| `callbacks/bf9sg3.ogg` | `1099` | 6.2 | -16.2 | -1.8 | all | `0f43c4ef0e977d80f05d417ded2d6aac5299656712731a267d8cb170ae84593b` |
+| `callbacks/bheneg.ogg` | `1099` | 4.0 | -16.7 | -1.7 | all | `f38bd5b8bf5ae11bb1ef066945a160e9c62a87da49a1e2e217ee7d9174854057` |
+| `callbacks/bmokj5.ogg` | `1099` | 4.9 | -16.6 | -1.7 | all | `a0c6ca120e0c60310b9715d7a668786b32f156d0012507186d725731a83341d7` |
+| `callbacks/c04b7s.ogg` | `1099` | 2.56 | -16.3 | -1.6 | accepted on review | `697b7e198e13ab92e276ea7dcafc9109dc655fb2a732460cebb7b372892e9cc1` |
+| `callbacks/cancww.ogg` | `1099` | 4.3 | -16.2 | -1.8 | all | `c4b648a4d57e6ac05ce60e4d3ff90241ffe2a5e519800233a4137952763ece2d` |
+| `callbacks/damnxl.ogg` | `1099` | 6.2 | -16.8 | -1.8 | all | `8a4a1967c24fcf056e1f72d6d1818ddb4fcf4c0667707d16852a780559e2e171` |
+| `callbacks/divgo1.ogg` | `1099` | 5.2 | -16.9 | -1.4 | all | `b33594a32cf889b1fa36c6baaa883b4685465abfae70a460182614adf8992ad0` |
+| `callbacks/do9yfj.ogg` | `1099` | 3.81 | -16.0 | -1.9 | all | `3f95450d9f49ac94ebb57c3f3be7ee13f93316a5266a37a38946bd7b90a834f8` |
+| `callbacks/e9z8a6.ogg` | `1099` | 4.3 | -16.2 | -1.6 | all | `f49585a5bac5c10f62c016d002d72fc777bd2a1bd54baef92c84fa1dd9804db3` |
+| `callbacks/efxyqj.ogg` | `1099` | 5.9 | -16.1 | -1.9 | all | `68315aa7f14ef9f15304856840b85f00c66648220ad1642aeaad35af3a8dc512` |
+| `callbacks/egerp4.ogg` | `1099` | 2.02 | -16.0 | -1.7 | all | `6aed0856b5f34edf4fc79b98dd7fef2c89236f2df0e5ba639dc75f08826a4fb7` |
+| `callbacks/ektz83.ogg` | `1099` | 4.9 | -16.5 | -1.7 | all | `941eb6bcc576e572b703164c7280672c0b10bd1c07f0425fdc001e71457db761` |
+| `callbacks/fdovjn.ogg` | `1099` | 5.0 | -16.0 | -2.0 | all | `84b9da62e8d4bbeac2021a289ad34b31f1897c3393cc3f0ec7f31d16a0518451` |
+| `callbacks/g8o2ay.ogg` | `1099` | 3.62 | -16.5 | -1.7 | all | `fe49611e99491de91469253e7205d4263c00539d2701d25e3bdbd93efd6e0070` |
+| `callbacks/gl7dtl.ogg` | `1099` | 1.74 | -16.0 | -1.8 | all | `d9d3f5301415d1e15a24335d1ae7f9b65de7d4824b15307c79b5af149465860f` |
+| `callbacks/gu8esa.ogg` | `1100` | 3.22 | -16.8 | -1.8 | all | `8e155e943c572a6ccc5fe04fb8cd8dfc996524c8a79b7a9aac2c514b0af04610` |
+| `callbacks/h4qm7n.ogg` | `1099` | 4.4 | -15.9 | -1.6 | all | `308c0e7e2b8f026a84a640d7672ce78e358a4406754e5a9c0093500ab9364b99` |
+| `callbacks/h5bvsg.ogg` | `1099` | 4.7 | -16.4 | -1.7 | all | `3612dc2a4abdabbdfda981b69be31ffb8d2b72ed20674b4e849dca7efde507fa` |
+| `callbacks/ib8twp.ogg` | `1099` | 5.1 | -16.5 | -1.8 | all | `4fad5aca184e2bb15d9e18c738045976c6b4624dc843ac0884205b619214cb83` |
+| `callbacks/ibi7nd.ogg` | `1099` | 5.4 | -16.4 | -1.7 | all | `7c4285f5fb54b33a403a0f0bd3aa044f0616c0ea7a9e9f7dd2e924c5ff883162` |
+| `callbacks/iqtbyc.ogg` | `1099` | 2.68 | -16.0 | -2.5 | all | `8b0808fdcfc7e5c342ca124c9ee6259fe360729bc37e997cf9502bf07ee30a71` |
+| `callbacks/irkd4i.ogg` | `1099` | 4.7 | -16.4 | -1.8 | all | `9930732ba4528bb117904878c941803bb1a8bf0b4e48fdcdbab3de7f2b5e5c74` |
+| `callbacks/iuc4by.ogg` | `1099` | 6.3 | -17.0 | -1.7 | all | `29bdfa1d550b6cfd5bf43d99e3055f0653eb9e58fbc04347e55356649b41a177` |
+| `callbacks/iumjzl.ogg` | `1099` | 4.8 | -16.0 | -1.9 | all | `255c209b401d36fd91d3b8fd63bdb1369afcb728a2ffd8ab07e52946bb967d1b` |
+| `callbacks/iyzz2i.ogg` | `1099` | 3.42 | -15.9 | -1.8 | all | `0cdb34f6493cfbef13d61bb9dd155523acb1782a3d4030a8bb59311153b489a1` |
+| `callbacks/j15an9.ogg` | `1099` | 5.9 | -16.3 | -1.7 | all | `e234e196ccccfe62968cad94bc3213cd723015afe860fedf02df0fad8bdaf070` |
+| `callbacks/jwrf1g.ogg` | `1099` | 4.4 | -16.8 | -1.8 | all | `91c770eb4d56c173a85ca749bf4a6f653ae593ffb0a973279e06777a0bce7bb7` |
+| `callbacks/jwrnyp.ogg` | `1099` | 7.6 | -16.3 | -1.7 | all | `9ea2b00a1b1876b49cb6039475bd2e1260bd2493e0da9d8762b13898dc680907` |
+| `callbacks/k6l33d.ogg` | `1100` | 5.1 | -15.9 | -1.8 | all | `111d2a33669eb6629164bf3483954dfe4c1caa4b095ddec0a98382c671d367b6` |
+| `callbacks/l06ng5.ogg` | `1099` | 4.1 | -16.4 | -1.6 | all | `dd363be845bda9137fc50a29241b4d1a778a38489d01bfb4a8c37d372642b9db` |
+| `callbacks/l16wmu.ogg` | `1099` | 3.29 | -15.9 | -1.9 | all | `7a6869c13267835ccb86abc83132e29ea1203872aa7267040c1f384bad30b3bb` |
+| `callbacks/la4942.ogg` | `1100` | 5.0 | -16.4 | -1.7 | all | `20ba179e7921463c36017229655181149a69651d657f7a49890ba9fd7f79d942` |
+| `callbacks/ln0w32.ogg` | `1100` | 5.6 | -16.0 | -1.8 | all | `b0a06dc86ed313bb35eb42f64279a61a1d4e5cfae265ef12c2447f2669d0b220` |
+| `callbacks/m8nchx.ogg` | `1100` | 6.2 | -17.0 | -1.7 | all | `76680796a8bbfafd3bb08f0315c50dc6d3c8bec929bf1c599b1066889dadf238` |
+| `callbacks/mx9tnl.ogg` | `1099` | 2.99 | -16.1 | -1.8 | all | `102c7201cd668cf3025e62121cba96ab1b7cea9d7d8a185613b695118f123d8a` |
+| `callbacks/n2gvfk.ogg` | `1099` | 5.9 | -15.9 | -1.8 | all | `e068b1bacabc332bfe2d34f09defefd93eeb47ac457aa580c60f37be870c10eb` |
+| `callbacks/njgjnl.ogg` | `1100` | 4.8 | -16.3 | -1.7 | all | `dec22f797330627045e0a4a02cb03a404ea48a3fda69ce953b9a322f4f65381c` |
+| `callbacks/oahrim.ogg` | `1099` | 4.1 | -15.6 | -1.8 | all | `4c01ba4dca12858904ae6570396ce8a5de6f48966c65bfdfa620c952f5c3ea2a` |
+| `callbacks/ocvbwv.ogg` | `1099` | 6.2 | -16.9 | -1.8 | all | `c1960a4b6c14a43d2e6a2a063314a7209a22f54947e4237f86ec06feff22a7c7` |
+| `callbacks/ogqj02.ogg` | `1099` | 2.06 | -15.9 | -2.7 | all | `55aa60d3ad63ce3672cad34f013afbcac7c2a20f209572faa4edb82c523e3e57` |
+| `callbacks/okt7kg.ogg` | `1099` | 3.09 | -16.1 | -1.5 | all | `c0e89c752b82abcec9d4d8b8276697fac0ada62e196e896ed9f419b0f70ea26a` |
+| `callbacks/ow9ffb.ogg` | `1099` | 6.6 | -16.3 | -1.6 | all | `9052f556c9ad3b4a482ea91295f74c79753f734cb03cad87fd32be03588b74fd` |
+| `callbacks/r15qbx.ogg` | `1101` | 6.0 | -16.1 | -1.8 | all | `6db0ab44d6dfff065d8fb2caae5d1e6e05277e897e9a2274b0cb03b9c783c079` |
+| `callbacks/rtuuw3.ogg` | `1099` | 4.9 | -16.3 | -1.5 | all | `e011aa7b88c3bffb9e5f24da6a4a8401fa31e6a2122ee3f12225f9d6bfc0417a` |
+| `callbacks/sw2aoy.ogg` | `1101` | 5.6 | -16.0 | -1.9 | all | `97cf3938aabb24551ea0a44f0f27f7ef3d24e8c12bfdb094af3fa259540fce37` |
+| `callbacks/teu16s.ogg` | `1099` | 2.95 | -16.0 | -2.7 | all | `f843d5fd9144f8bbee4134dc0016a74cac0e51c6f4e821b7431c2aa21a5a1c94` |
+| `callbacks/u43pd0.ogg` | `1099` | 2.62 | -16.4 | -1.7 | all | `63eac96c3f51151b92dfc8f40d056c6c47eaa1e3ed66089692416afcbb3047e3` |
+| `callbacks/u60y2n.ogg` | `1099` | 3.03 | -16.3 | -1.8 | all | `83c54a2485e98821a143af8d57d6424733bddbcf7c2dafb919f87bc674b43ab7` |
+| `callbacks/ufxmro.ogg` | `1099` | 3.55 | -15.6 | -1.8 | all | `eaa795d30f27f4954db38c3685e400f80bf9ad22a1822472938a57fbe4b41c9a` |
+| `callbacks/uo4qot.ogg` | `1099` | 4.0 | -16.3 | -1.8 | all | `29657a871e9171f29a3cb16f4221b78a32541472ac46284e395c02c0ced41b2d` |
+| `callbacks/ut8s7q.ogg` | `1099` | 3.73 | -16.0 | -2.1 | accepted on review | `855fcbeca761ac9176c6a218c780061a250a5f339f73555425b6941e7ae08882` |
+| `callbacks/va53qs.ogg` | `1099` | 3.28 | -17.0 | -1.6 | all | `b0875af19eaabaccfc0bd68938d059ab26215c89b7c06a9b1624b66fad288bda` |
+| `callbacks/wg201a.ogg` | `1099` | 4.2 | -16.8 | -1.7 | all | `94502cddd4f19e5fe2f0ca5fbe5b2081a8a723b77db807b412c2e2163740862d` |
+| `callbacks/wgf1er.ogg` | `1102` | 4.5 | -16.0 | -1.9 | all | `82f3acf916d96c2f395b5fcea0e28044a8e8326934476e554b1ee73af565e1ec` |
+| `callbacks/xd8iw1.ogg` | `1099` | 5.3 | -16.1 | -1.8 | all | `019123675b7f136e7036d73a8df2ffc517bcc1038613c01d533fda48fc7719ab` |
+| `callbacks/xmcam8.ogg` | `1099` | 5.4 | -16.3 | -1.7 | all | `a686c01d91ab61c2d28090922467b9c908d8b5f82f31efed58cbb3081252fcd4` |
+| `callbacks/xtokhe.ogg` | `1099` | 2.62 | -16.1 | -1.7 | all | `3e5be294c8fbe6530c5a5b73fdb86df56af63a3cdda4733d48fccdeddde78a4e` |
+| `callbacks/xxkpsr.ogg` | `1099` | 7.3 | -16.2 | -1.7 | all | `3874a7cb81c3fa11f398cd1c896e70aacf7f249ac053901e4bb41444bee4a591` |
+| `callbacks/y1spef.ogg` | `1099` | 3.54 | -16.2 | -1.8 | all | `d7769725b0877b327cfdd2f3147fafcf8ace76f41d254909b24fc43349c26cd0` |
+| `callbacks/y2pesi.ogg` | `1099` | 2.43 | -16.0 | -2.0 | all | `7e3cf25099600265d79f231e1d1e4adce3d5dc2ccec85173b4dc17458fcb62a6` |
+| `callbacks/y9dawk.ogg` | `1099` | 3.58 | -16.3 | -1.8 | all | `f56dc85d3c4cbf728aa2199d1c8be8133c4bc897a482c919dd7e998efee2f1a9` |
+| `callbacks/yl1cu9.ogg` | `1099` | 7.5 | -16.2 | -1.7 | all | `181e5a9d8f00cdef6133a76a73d14c927aa4d6ee6bf932622c7c85d1292eb5d9` |
+| `callbacks/yyfiz5.ogg` | `1099` | 5.5 | -16.6 | -1.7 | all | `0b25a1894d5834d508f5e1e22d1ee9b1e7a9c68eab46223eee06a89655e2627f` |
+| `callbacks/yz66km.ogg` | `1099` | 5.4 | -16.3 | -1.7 | all | `e70af075e522960bf909138b1efc3603d9877de289ba780c6a0058a35f07c4a0` |
+| `callbacks/z7nx3b.ogg` | `1099` | 4.4 | -15.9 | -2.0 | all | `95282f2f6c455ff318f18398cca49dc5269d1f6eb9f8a9788f90b1ba49085240` |
+| `callbacks/z9ank5.ogg` | `1099` | 6.3 | -16.0 | -1.7 | all | `3a8e807228cbbbfd2647209196c9beada5cd8021be5b6e490222e2d6d3d16ea8` |
+| `callbacks/zd08l4.ogg` | `1099` | 2.51 | -16.0 | -1.9 | all | `b7c0ee597720376cfdb62294ee9ca3a5af654b7898fc7b1eb7efe4e197cd9ceb` |
+| `callbacks/zf3b4q.ogg` | `1099` | 4.5 | -16.4 | -1.7 | all | `a9e2d291310c6951e8b57c35f94411872cce86ef454be1f6fed390633a545496` |
+| `callbacks/zj8b8j.ogg` | `1099` | 6.2 | -17.0 | -1.8 | all | `eaef03d460f283074132ce66f8a4c30650ce6d9399a93837e7a2f59e0be42654` |
+| `callbacks/zp1z2g.ogg` | `1099` | 4.9 | -16.7 | -1.6 | all | `3d88b518611313f710598dfc577315c1342f2a0c06176f1ac66c9a1fc36cbe25` |
+| `callbacks/zp7a9a.ogg` | `1099` | 2.31 | -16.4 | -1.8 | all | `45b833d70bc8d57e7abd14dc7ff6334bc25100d5c7be9f5b8d6858fee6e5c8d8` |
+| `callbacks/zwbeac.ogg` | `1099` | 5.7 | -16.6 | -1.7 | all | `66b0135eb032086a2eeee77d9dbc4ef98059c29453b23561dad0a1b6697ef9b4` |
+| `callbacks/zzl6am.ogg` | `1099` | 5.5 | -16.0 | -1.8 | all | `08f5f6b67ccf8dccdb21aacac4fcd178985f1d75bf1020badff274ff31c23c2d` |
+| `ex.functions.function-machine/25tykc.ogg` | `1102` | 8.8 | -16.4 | -1.9 | accepted on review | `aa7038f3f5cf68e079fdea470a429409ff618d56ae0f29c842da6b86815cd460` |
+| `ex.functions.function-machine/32gfjc.ogg` | `1099` | 5.2 | -16.0 | -2.0 | all | `5cdf63e9b7806a70bbd5edc20bc11bc5b6b4601f5f9c5ac8e72666414ec3aa6f` |
+| `ex.functions.function-machine/3lrx6r.ogg` | `1099` | 6.6 | -16.2 | -1.8 | all | `9d88b16adb979a0fe54be72faeb134ccb4de9439dd24a4654d8b3288552cf299` |
+| `ex.functions.function-machine/4xrt6n.ogg` | `1099` | 6.1 | -16.1 | -1.9 | all | `0de7515adde68d2c82d4640528f178a71c62317f5edf8e944666a2e1505fcac6` |
+| `ex.functions.function-machine/600tj9.ogg` | `1099` | 9.6 | -16.2 | -1.7 | all | `a1c6c63ac8c0876423631f8e6f446d7ef6a64bf4318025b3ba2e5c1c3559e281` |
+| `ex.functions.function-machine/6y6unb.ogg` | `1102` | 10.1 | -16.1 | -1.7 | all | `c7c0a6161d21b94d7cc3470d498c519c4fa3ce9efe393df3cd3ee4e9b45d6eb5` |
+| `ex.functions.function-machine/814c8q.ogg` | `1102` | 4.4 | -15.7 | -1.8 | all | `3f1d69b30ca7d710486826236c21015ed18fb2d8c50c819017471ab147708cf7` |
+| `ex.functions.function-machine/8n3avo.ogg` | `1099` | 6.6 | -16.0 | -1.8 | all | `20827b7965bfa01e75ed81d8610a8c0b62d673560cde3acf0ad53f9fc66225c4` |
+| `ex.functions.function-machine/8pg7zc.ogg` | `1099` | 10.3 | -16.1 | -1.9 | all | `cea6722fdd04043dc020e02ac629d2b0b01472e377349344f2422211f94d1333` |
+| `ex.functions.function-machine/9mnd1e.ogg` | `1099` | 10.6 | -16.0 | -1.7 | all | `f6eb9d42f529619b328d36eec0123b562ad75daeca5e909672f8179c2f37b008` |
+| `ex.functions.function-machine/9ns3id.ogg` | `1099` | 2.54 | -16.9 | -1.9 | all | `0d066ce5f12267aa9be9fb48f9b224b699f7c5dd07e8090465049ce38e209260` |
+| `ex.functions.function-machine/9yz3t9.ogg` | `1099` | 7.8 | -16.1 | -1.7 | all | `a5e5b6dbba0546f8434d4ce86c55c380ab1fab9304438b69021fb35b8eaea32f` |
+| `ex.functions.function-machine/a13oav.ogg` | `1100` | 11.2 | -16.1 | -1.7 | all | `b07c38ad24cbae3cb4f8a9d03c22a554bb67b02ffd067df58d8e55c8ce0bcbf3` |
+| `ex.functions.function-machine/ae40hw.ogg` | `1099` | 4.3 | -16.3 | -1.7 | all | `c0f47157f75fc422441b6daef032c3f9e8b72c7132b6c8a21f38df5c2bad5855` |
+| `ex.functions.function-machine/b7n1cv.ogg` | `1101` | 9.3 | -16.0 | -1.9 | accepted on review | `d433f8050e3b2fa3ab7fbfed06633a0bbca5482d7943a561375c2ebd86339127` |
+| `ex.functions.function-machine/cuomiv.ogg` | `1099` | 12.3 | -16.0 | -1.9 | all | `5dd79ec7af0a21b76d15b9c2a8071f2a9dcceb844e6b9f79bcaef54b9d5da6f1` |
+| `ex.functions.function-machine/d1ax0c.ogg` | `1099` | 4.9 | -15.9 | -2.1 | all | `49dcfe6d10164bd0156d0682ce260fb264a6e767d145f5c70bc8c1a6b4a568fd` |
+| `ex.functions.function-machine/dpsdof.ogg` | `1099` | 8.9 | -16.2 | -1.9 | all | `f326c3e617fe43c441427603da7a6f2ed24dc57d51035c20429d8829f9dc6bab` |
+| `ex.functions.function-machine/exxlak.ogg` | `1099` | 5.9 | -16.2 | -1.9 | all | `7f565465f8c6096cc110e692d1ca72670b08e0d7da6d0743abfe74dd524fdfad` |
+| `ex.functions.function-machine/fqalba.ogg` | `1099` | 2.95 | -16.4 | -1.5 | all | `e7bc7a0ee35792df011886cbd1ea2cb04f03eaf62e7bd0b38a5cde7ab422573a` |
+| `ex.functions.function-machine/fuqb8v.ogg` | `1099` | 4.5 | -15.8 | -1.7 | all | `76707f8c94fce0a3bdb0f2cc1edcb7c25f5393063df65d69eb0ffa47c86ff067` |
+| `ex.functions.function-machine/gdomnv.ogg` | `1099` | 5.2 | -16.1 | -2.0 | all | `3f79db1a6d25c88ab055df4f72beee5dc019ec5389f696c4df88173f007a2327` |
+| `ex.functions.function-machine/h0quul.ogg` | `1100` | 4.6 | -15.9 | -1.9 | all | `efae5c7c2cb345c1d264e66f9d5019c4d101fe9f66fe032bf8840b2993094400` |
+| `ex.functions.function-machine/h2fzl4.ogg` | `1100` | 5.9 | -15.9 | -1.8 | all | `93987aac1356c7c57ae52ef6303f4dd4fb70d6464836f6eff48efbea2b42e417` |
+| `ex.functions.function-machine/i461et.ogg` | `1099` | 5.1 | -16.1 | -1.9 | all | `c7c5317d7a75e93f2b2d61a3dd85f0139b00c6aae2ffafc758f4341ff3366580` |
+| `ex.functions.function-machine/iyz9tu.ogg` | `1099` | 5.7 | -16.4 | -1.7 | all | `e7d94446a32d01d2b581635ce7cd5a1bd63cb9ef2a65bd76ebe9c80bc20ac9ba` |
+| `ex.functions.function-machine/j7nxs0.ogg` | `1099` | 3.31 | -15.9 | -2.0 | accepted on review | `273f251307533b2f853d6074a7e1d1867586dd86ae719918280ebcba8959244b` |
+| `ex.functions.function-machine/k4e8xl.ogg` | `1102` | 6.5 | -16.2 | -1.8 | accepted on review | `4c0f31f080e0f320c897ecf545dd766aaf1055d20909d9e470543e06961bec50` |
+| `ex.functions.function-machine/kpmso6.ogg` | `1099` | 4.9 | -16.3 | -1.8 | all | `fddbf0f0e84dafb7f08049fb3da383542831f1914b6996c2bad55818d8883d5a` |
+| `ex.functions.function-machine/m3jh3m.ogg` | `1099` | 10.7 | -16.2 | -1.8 | all | `42a0bfa343a4ce2c1afa6545f884c9c9f64fe1516efbdfb6ff0ef79b1dd81506` |
+| `ex.functions.function-machine/m9zwlf.ogg` | `1099` | 6.9 | -16.0 | -1.8 | all | `9690994e63010bd5a38325769ae4afef4c71506ddd8bebb67824711d14bac021` |
+| `ex.functions.function-machine/mnghoh.ogg` | `1099` | 3.72 | -15.9 | -1.9 | all | `56929b2466b615e880d98161dea53ab17e076ec4ece4ef6b1051f0316bad4813` |
+| `ex.functions.function-machine/nr0gxp.ogg` | `1099` | 3.87 | -15.7 | -1.7 | all | `887e71e0f549374c8bad9cd3cbaf847f65855c95010bd4b843da9cc7d13c1131` |
+| `ex.functions.function-machine/nz3crl.ogg` | `1099` | 6.8 | -16.0 | -1.8 | all | `e31f9a892109080aeedbfb04b4d20ea9ff81b6fe66ffe872c1e44b9a2d440741` |
+| `ex.functions.function-machine/olmxem.ogg` | `1099` | 1.92 | -16.1 | -1.9 | all | `620ac5823bda883d6449afeb72b43064a86ea55e9ec4425e1667064747745788` |
+| `ex.functions.function-machine/ozpwe8.ogg` | `1100` | 4.6 | -16.0 | -1.9 | all | `05f319859c424eae6ef8ddf23757d460894532b9ce07aaeac07ad831454d47df` |
+| `ex.functions.function-machine/p1wrwn.ogg` | `1099` | 3.89 | -15.9 | -1.9 | all | `48e94990eb3bf715bdcea048a7df8cb007560b19b18db444cbce2103667fa813` |
+| `ex.functions.function-machine/pcw8sz.ogg` | `1099` | 8.0 | -16.3 | -1.9 | all | `636c901dc6a17c74d5d8f9671da1ee583f925bf6d74b18ac1f8c45dbdf77af3e` |
+| `ex.functions.function-machine/pp94wv.ogg` | `1099` | 2.67 | -16.0 | -3.2 | all | `966e24e96fe5c9cfda319354c89f3df9e18a3f531e17b90846285cdf8f3be76f` |
+| `ex.functions.function-machine/pqbbvg.ogg` | `1099` | 2.54 | -16.0 | -1.8 | all | `c002c66bc8f37296a197cef486c103cc6896f49bd33dbd589d3a6c000094d52a` |
+| `ex.functions.function-machine/q1vsxs.ogg` | `1101` | 4.5 | -16.0 | -2.0 | all | `7c8847bf239369b26e1f5c3c2a75a75fd13a0b55422ddfb73e003efaeafa0206` |
+| `ex.functions.function-machine/r8sxff.ogg` | `1099` | 6.5 | -16.0 | -1.9 | all | `b547298d395b2279d4c373afb9fe2b007ba9ac34f1a41d134640f3fb6a024255` |
+| `ex.functions.function-machine/rkgn8h.ogg` | `1099` | 2.13 | -16.6 | -2.0 | all | `de813fd27a5449f05ccb239b2a39789320e6da25ff3754e9619ddb10c5ca2ea5` |
+| `ex.functions.function-machine/rwww0h.ogg` | `1099` | 5.1 | -16.0 | -1.8 | all | `64f0d15ef58caca3fdb5d0a12af2694c6619bc012aeff6428bce0bbc722d04d9` |
+| `ex.functions.function-machine/shxoyu.ogg` | `1099` | 11.6 | -16.1 | -1.7 | all | `1db81324354133a8d10bf86dd58230d886a8489b40f980771d0ae6fa615acc4c` |
+| `ex.functions.function-machine/st498u.ogg` | `1099` | 3.88 | -16.2 | -1.8 | all | `53b75a6b615ed94c3e4183ff20d65537110ae87cc718cdb850ac5dc7ae78e163` |
+| `ex.functions.function-machine/taxdom.ogg` | `1099` | 8.0 | -16.1 | -1.7 | all | `9dc4a999a9d28ca33bdc23f074c24bb34a237ef7fd1f8ca528ae4252c2b94f60` |
+| `ex.functions.function-machine/tdtylw.ogg` | `1099` | 8.7 | -16.4 | -1.8 | all | `2b4ad015a4289741023421a5fd07b2337c2cc5e3d865b3489ca535ee08aad2a9` |
+| `ex.functions.function-machine/u6isa0.ogg` | `1099` | 4.2 | -15.9 | -2.0 | all | `8ba03f16f5cbd971f91e789665a17cd77425a3e3280567577fc4249aab44e571` |
+| `ex.functions.function-machine/ug8rex.ogg` | `1099` | 4.3 | -16.6 | -1.8 | all | `13e406134483940d90c6faa0e25d19ed68ac87731bc48a00ca641e9c6be87268` |
+| `ex.functions.function-machine/upaeqh.ogg` | `1100` | 3.87 | -15.8 | -1.9 | all | `8d3ea3adbfd78f9190b82053035c979aad5207a2534eec58a8c6484f0a7ee221` |
+| `ex.functions.function-machine/utbhru.ogg` | `1099` | 3.15 | -15.8 | -1.6 | all | `81ee088971513ce2c051d16a85fba0fdfb3b8ff60a95ce92f681381340708fd3` |
+| `ex.functions.function-machine/uxmvt8.ogg` | `1099` | 6.2 | -16.0 | -1.9 | all | `f65b137772d264ef4c5cf8ef1b17c75760addcd9612f192a8ae120359b97d8b7` |
+| `ex.functions.function-machine/vcsdru.ogg` | `1099` | 9.7 | -16.1 | -1.8 | all | `b86c7565538d0292f8d55f74b962da2e89cfe0b915c9ff2204ccd0b4ebdb6906` |
+| `ex.functions.function-machine/vnrkur.ogg` | `1099` | 5.3 | -16.3 | -1.9 | accepted on review | `6aed7e6a1bb5adcae835b0fcb0d1722b1030231e920c7545c37d071876d154bb` |
+| `ex.functions.function-machine/wilzpn.ogg` | `1099` | 5.1 | -16.0 | -1.7 | all | `0afdc2d9e4a3a1c6ed33dffdd2e93a3f14836ed07089dcf1a856ff2d73137c69` |
+| `ex.functions.function-machine/wjnpvb.ogg` | `1100` | 10.5 | -16.1 | -1.8 | all | `a5cc6cead616d0fdca78229b6f7f02488381712f4d93ee6d38dbe17660994e4a` |
+| `ex.functions.function-machine/xquulc.ogg` | `1099` | 3.85 | -15.8 | -1.8 | all | `4356fd7c00562a557c0c7c4899de45bf2e1bde399c7f715bb9412e583432fcd2` |
+| `ex.functions.function-machine/xqw813.ogg` | `1099` | 7.1 | -16.0 | -1.9 | all | `72ad5618a056751ee8ff1e9ef355485bb1c12bb3b98bf610787a763c0423be6b` |
+| `reactions/1c8kk4.ogg` | `1099` | 0.85 | -16.2 | -2.9 | all | `045cb68ff88dcd0967f1193929b8240d8367800d632ca7efbfb7fa1633a75398` |
+| `reactions/5ena6n.ogg` | `1100` | 3.36 | -15.8 | -2.0 | all | `fd01ce5a3a463c48259cc0992c94b787b0726a9d5a13f47088443775ed2c6bab` |
+| `reactions/8oguve.ogg` | `1100` | 4.3 | -15.8 | -1.8 | all | `a4c1d7c306fa087f03d3d92b90f9d5fce1c491db6ba5bb9b0b60b1ea6a901dcb` |
+| `reactions/9rzsaa.ogg` | `1099` | 0.78 | -15.9 | -2.1 | all | `68ee2492008a772592d18f389e1c465c39b00a13e62e3fb1e672968e8d905c03` |
+| `reactions/daxuz2.ogg` | `1099` | 2.22 | -16.0 | -1.9 | all | `c883beff8ecb7ef7e5b41812693589446147166ac72b952ed188361420e96236` |
+| `reactions/i2jaqx.ogg` | `1099` | 2.38 | -16.0 | -2.3 | all | `07222365b5ad878ae47c8ffa3855d67d102fbe886fb11f01fabe0e2b033fc023` |
+| `reactions/ml2cxq.ogg` | `1103` | 0.81 | -16.6 | -1.6 | all | `b9cbb034a51cf60b795753400e2316cc4747ff963444d67fdc673bfa51e9e36c` |
+| `reactions/z1xu8j.ogg` | `1099` | 3.84 | -15.3 | -1.9 | all | `484efebf4719cbad4a91b383a7e8ef6634a4d773be898c2a265210886b76feb5` |
