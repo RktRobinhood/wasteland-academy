@@ -641,6 +641,24 @@ to drop the coded marker.
 
 Overworld painted by Matt Prokock with ChatGPT, 2026-11-16 (FAL-981); sky and dust bands extended locally with Qwen Image (FAL-986).
 
+### Moving pieces (FAL-1075)
+
+The world board has an ambient layer (`ui/ambient_layer.gd`, ported from The Unruly
+Atlas) between the painting and the buttons: the crow, the Signal Tower beacon, the
+Engine Core smoke, the Thunderdome neon and the Dry Flats dust (art from FAL-1074). Its
+pieces are listed in `data/ambient.json` under `"map"`, bottom to top, in the schema at
+the top of the script: a sheet, a board position and anchor, a frame mode and a motion.
+A sheet is `assets/ambient/<id>-sheet.png` with the `<id>-sheet.json` frame map beside
+it; the sources and rebuild commands are in `assets/ambient/src/`. The layer takes no
+taps. With reduced motion each piece holds the frame in its `"still"`, or is hidden
+without one.
+
+The fight screen plays the same file's `"fight"` effects over the enemy's portrait,
+scaled with it: the hit spark on a hit (`spark_hit()`, beside `flash_hurt()`) and the
+dust burst at its feet while the portrait fades when it falls (`enemy_falls()`). They
+don't play over the journey strip. With reduced motion there is no spark and a fallen
+enemy just goes.
+
 ## Art slots
 
 The game loads its art by file name (FAL-470, `engine/art_slots.gd`), so each art batch
