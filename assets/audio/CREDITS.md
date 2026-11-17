@@ -660,180 +660,180 @@ play the same palette under the same cue names. All Kenney CC0 1.0, unedited.
 - `game/assets/audio/sfx/encounter-open-01.wav` — cue `open`. Byte-for-byte copy of `assets/audio/proposed/fal-372/encounter-open-01.wav`, whose Kenney CC0 source, URL and edits are recorded above. SHA-256 `496caa309b931e901cbb6b69e5f41106ee5caddcfcd2bf5c163f457e9d27f94c`, unchanged.
 - `game/assets/audio/sfx/encounter-clear-01.wav` — cue `clear`. Byte-for-byte copy of `assets/audio/proposed/fal-372/encounter-clear-01.wav`, whose Kenney CC0 source, URL and edits are recorded above. SHA-256 `227bee690a3fa9d1e80d3646d37289662c05ee7a039331ea1a392c6310bcc9b1`, unchanged.
 
-## FAL-428 — Spark's explainer move lines (voice)
+## FAL-992 — Spark's explainer move lines (voice, locked Gemini voice)
 
-162 voice files: two takes of every move line in `curriculum/moves.json` (81 moves). The words are each move's `say` text exactly, because the explainer captions show them. Generated locally with VoxCPM2 on 2026-10-30. No recordings of any real person went in: the voice was designed from a text description, then that designed take was used as the reference for every line, so all 162 sound like the same Spark.
+162 voice files: two takes of every move line in `curriculum/moves.json` (81 moves), re-recorded in Spark's voice as locked on 2026-11-15 (FAL-927). They replace the VoxCPM2 takes recorded on 2026-10-30 for FAL-428, under the same file names; that entry is in this file's git history. The words are each move's `say` text exactly, as confirmed by FAL-991, because the explainer captions show them.
 
-Rights basis: VoxCPM2 (OpenBMB) code and weights are released under the [Apache License 2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE), which allows commercial use; model card https://huggingface.co/openbmb/VoxCPM2, checked 2026-10-30. Package `voxcpm` 2.0.3, weights `openbmb/VoxCPM2` from the local Hugging Face cache. No library recordings and no AI input audio other than the designed reference below.
+Generated with Gemini text-to-speech (`gemini-3.8-flash-tts`, voice `leda`) via the Gemini API, recorded 2026-11-16 and 2026-11-17 on the paid key with the falcon-voice ledger on. One request per take, so each take is its own performance. Only the scripted lines were sent; no recording of any real person went in, and the direction does not imitate anyone.
 
-- **Voice design (reference take):** VoxCPM2 voice-design mode with the Spark control string from `writing/voice-briefs.md`: "A small robot companion with a bright, light, youthful voice, gender-neutral, quick pace with short sudden pauses, crisp clear consonants, dry amused tone with real warmth underneath, a little mischievous, lively but never shouting." Audition line 3 ("Your b squared came out negative. Squares can't do that. Minus five, squared, is twenty-five."), seed `42801`, chosen from the six-line audition at seeds 42801–42803. That reference stays in the task's scratch folder and does not ship.
-- **Move lines:** VoxCPM2 cloning with that take as both `reference_wav_path` and `prompt_wav_path`, and its words as `prompt_text`; cfg 2.0, 10 inference timesteps, text normalisation off, denoiser off. Seed per file below (`torch.manual_seed`).
-- **Text fed to the model** is the `say` line, except both `factorise` takes, which were fed "Factorize, and take out any common factor first." as a pronunciation hint (seeds fed "Factorise" kept stressing it like "factories"). It sounds the same; the caption stays the British spelling.
-- **Checks:** every take transcribed with faster-whisper small (CPU). Takes that matched only on a homophone (sine/sign, whole/hole, weight/wait, maths/mass, root/route, surd) or a dropped possessive were confirmed by a second pass with the maths vocabulary in the prompt.
-- **Changes, every file:** high-pass 70 Hz; compressor 3:1 above −24 dBFS (5 ms attack, 80 ms release); trim silence below −50 dB at both ends; 30 ms lead-in and 60 ms tail; static gain to −16 LUFS-I through an `alimiter` at −2 dBFS (two measuring passes); 10 ms fade-in and 40 ms fade-out; resample 48 → 44.1 kHz; mono OGG Vorbis q5. No speed or pitch change.
-- **Measured across all 162:** −16.36 to −16.04 LUFS-I, −2.66 to −1.23 dBTP, 1.20 to 3.69 s long.
+- **Direction (word for word from Spark's entry in `tools/explainer-clips/teachers.json`):** "A small robot companion with a bright, light, youthful voice, gender-neutral, quick pace with short sudden pauses, crisp clear consonants, dry amused tone with real warmth underneath, a little mischievous, lively but never shouting. Quick on the jokes, slower and clearer on every maths word. Fond, never mocking. A natural conversational pace, a touch unhurried, with a short natural beat at each comma and full stop."
+- **Text sent** is the `say` line, unchanged for every move (including `factorise`, sent with the British spelling).
+- **Processing, every file:** edge-silence trim below −50 dB, then a 30 ms lead-in and 60 ms tail (sox); `fx/spark-sheen.sh` (Spark's approved effect: 2% slowdown, +3 semitones with formants shifted, 15% vocoder, 200–7500 Hz band); `master.sh` (−16 LUFS through a true-peak limit, mono 44.1 kHz OGG Vorbis).
+- **Added for 15 peaky takes** (marked below): where `master.sh` left a take below −17 LUFS because its true-peak limit capped the gain, a peak limiter ran on the sheen output before `master.sh` ran again (ffmpeg `alimiter`, 4× oversampled, 5 ms attack, 50 ms release, limit set from the take's measured loudness). This is on top of the `processing` recorded in `teachers.json`.
+- **Checks:** every take transcribed with faster-whisper small (CPU) and compared word by word. Takes that matched only on a homophone or spelling (weight/wait, whole/hole, by/buy, factorise/factorize, calculator's/calculator, right-angled/right angle, surd) were confirmed by a second pass with the maths vocabulary in the prompt. Five takes were re-recorded after a real miss (`evaluate_1`, `test-point_1`, `perpendicular-gradient_1`, and `introduce-letter_1` twice).
+- **Measured on the shipped files (ffmpeg `ebur128`, matching what `master.sh` printed):** -16.6 to -15.5 LUFS-I, -3.1 to -1.3 dBTP, 1.94 to 5.76 s long. The first and last 20 ms of every file are at least 37 dB below its loudest 50 ms.
 
-| File (`game/assets/audio/voice/spark/moves/`) | Seed | LUFS-I | dBTP | SHA-256 |
-|---|---|---|---|---|
-| `add-probabilities_1.ogg` | `4280691` | -16.22 | -1.77 | `80c1f602af7ac9bac7758a186d4d35758b419fe8e81d26b43cff1083fe598a75` |
-| `add-probabilities_2.ogg` | `4280692` | -16.11 | -2.04 | `d63808857abdc70ec6ab8bdda83a41de41588325c06ad8a333de04e90ee5aa6c` |
-| `angle-sum_1.ogg` | `4280561` | -16.24 | -1.86 | `524711ef199c055847c612133cf4442c1f3b9130af77ef821b76fc2a3770320e` |
-| `angle-sum_2.ogg` | `4280562` | -16.20 | -1.70 | `19a02aa6e9f5ed64cab0f1d241ef5b2b78e8033b19022362597d56b6ffd0fb53` |
-| `apply-condition_1.ogg` | `4280081` | -16.13 | -2.14 | `c2eeeb970a40a129d0c3731837ebc7f5e1ca8619027efbdae476796ad7b723c5` |
-| `apply-condition_2.ogg` | `4280082` | -16.14 | -1.93 | `5b8dba3c8c13155dd9062c83e554c36b983d9edaba29585a36e0123365d83e8d` |
-| `apply-inverse_1.ogg` | `4280441` | -16.11 | -1.78 | `6f071ae9c2eb95d15f9e5bf8969cb1535cdd70b906c10054b1f8fa66094a0985` |
-| `apply-inverse_2.ogg` | `4280442` | -16.13 | -1.90 | `af730b33f24d1a991a6a31edbadc9b768173f22d5ef7e12c1b865973da0f0d6d` |
-| `ask-what-power_1.ogg` | `4280451` | -16.10 | -1.83 | `433ade5c2e54445d6472b6774e90125db046f8b6fb07cb883ce7393bf89210b1` |
-| `ask-what-power_2.ogg` | `4280452` | -16.08 | -1.76 | `387d3bd419ff1b971490cda646e6cded605cd40f37799be4ce52f0b038794fdb` |
-| `change-of-base_1.ogg` | `4280431` | -16.17 | -1.64 | `54624e23701826b7c790496951d19bb8eae81018ec15f41979c7302ab1de2aa4` |
-| `change-of-base_2.ogg` | `4280432` | -16.16 | -2.36 | `407c0df4e01faeee18d05e1f050490e17862bcde59597dbe86ea8bda394b7f65` |
-| `check_1.ogg` | `4280141` | -16.32 | -1.82 | `0c0edb1cf8725d44473ba5ab77e1dca9803f7ea7807eb3f147b4499531a7527f` |
-| `check_2.ogg` | `4280142` | -16.11 | -1.80 | `58a8990bb1de5c75311fc53d421e9f7b7502c75cc548b12fb30625f3e267cc03` |
-| `choose-rule_1.ogg` | `4280071` | -16.15 | -1.50 | `5e360f0958979be5453c231587b16176474acff1f92ca20b424f54e60b8a1e66` |
-| `choose-rule_2.ogg` | `4280072` | -16.29 | -1.47 | `07e086a790f6947942a20cfc48ab1b2ebd49cd2e692fc9ce5a7a759a173bf06b` |
-| `classify-turning-point_1.ogg` | `4280651` | -16.05 | -2.00 | `7ec0bf4fc92aabc04628086815ca77540ef45d20e544e4e3e58c64e75ee9344a` |
-| `classify-turning-point_2.ogg` | `4280652` | -16.24 | -1.91 | `25a023846f32e6ecd9640b8e1529909cdf4ca90e2c9e2b3d5739ab252ecb48ef` |
-| `clear-fractions_1.ogg` | `4280271` | -16.14 | -2.05 | `aac0189e9ed65395c207db543f4aed992417921114e4917bb008781b46226382` |
-| `clear-fractions_2.ogg` | `4280272` | -16.19 | -1.90 | `976b548e5d58ab901f1604bc259be0047c776a3886b7593d73708a98abab1185` |
-| `compare-coefficients_1.ogg` | `4280281` | -16.26 | -1.29 | `fb757cb4c675944dd42b55b3d13fb6f570345a08a0b5c278e466057bb3e24591` |
-| `compare-coefficients_2.ogg` | `4280282` | -16.22 | -1.69 | `393504a71e5d374b4109161703a9508437948293dd2480f1fef39ac73459fc2e` |
-| `compare-neighbours_1.ogg` | `4280511` | -16.18 | -1.83 | `f42d39eb70821989e4099dd9c7008576f94f8e0051b9d92e31e146154f2b9c6f` |
-| `compare-neighbours_2.ogg` | `4280512` | -16.11 | -1.81 | `f6f16fb542106efffc229b2266f2fcb272ce98f7ad5a15d6c12ac13f043374d7` |
-| `complete-square_1.ogg` | `4280251` | -16.18 | -1.23 | `0d3c455af4ea099ef354ed5cdd6083a5611acbb8f1a84770fca10d855ee282ab` |
-| `complete-square_2.ogg` | `4280252` | -16.14 | -1.79 | `e1b38353df40def0d359c6081318e1f2afc245a02d83222ad17e6128131028a6` |
-| `compose_1.ogg` | `4280481` | -16.20 | -2.44 | `30902b9d067b1e23520ef4abe4f0edb24ffd0397e04e7dfc5c98b8b3b9541f84` |
-| `compose_2.ogg` | `4280482` | -16.16 | -2.32 | `b3f4198b186358d6c7cb97579c6915e062aa7f9f87c852234def57cb07907a80` |
-| `compute-discriminant_1.ogg` | `4280301` | -16.12 | -1.64 | `68240e6aa20e6ce49a399727b34f3a80f3f7f2f3ed745b67172a3678c6783683` |
-| `compute-discriminant_2.ogg` | `4280302` | -16.15 | -1.91 | `be2d99c534aca1fb2646c7e12165f8468fc2bad6a5db854687112d2b58f22035` |
-| `convert-log-exp_1.ogg` | `4280411` | -16.10 | -1.65 | `5d42e7c2d0493382ba34891deaa34c1930909711e50337bb3a1f185550c5345e` |
-| `convert-log-exp_2.ogg` | `4280412` | -16.15 | -1.71 | `5884df3917d7bc0e88e445ab65fc96d57060e783c1f79d69e43a0e47e5a30313` |
-| `count-steps_1.ogg` | `4280521` | -16.33 | -2.04 | `16a4ff717eac78746a3aef2d19a31824e5b1cf978c6ce4432ce04aa74a7b350a` |
-| `count-steps_2.ogg` | `4280522` | -16.16 | -1.84 | `8543b543ce064452b04c3ee4fed9bd9647cc65383cb46b9191fdcbe1d789ffd9` |
-| `definite-integral_1.ogg` | `4280671` | -16.14 | -1.79 | `953abebde8b4a136beb66f8f36ae98465e117e894f86927ef7bea16c94214d96` |
-| `definite-integral_2.ogg` | `4280672` | -16.15 | -1.82 | `04779213e94b25cb5dd289aec74097c0f018bacb5603765c0e5d806ef31881c3` |
-| `describe-transformation_1.ogg` | `4280501` | -16.15 | -1.91 | `bc4c84d564163df3ca2965416390f8fe2ef29d099f0ba25705cbfdc410ea8158` |
-| `describe-transformation_2.ogg` | `4280502` | -16.25 | -1.96 | `7e2a16b78fbbf337f36098af0ae29344ee0eb6054fb96757f535ed2773a407cf` |
-| `differentiate_1.ogg` | `4280641` | -16.16 | -1.75 | `8de4f0e2eacfda71624ce37473cec7db6f787fb440778d6e81298bf2cb3ad6cc` |
-| `differentiate_2.ogg` | `4280642` | -16.19 | -2.07 | `b0bc4379561f37dd98eafe1ee1d01696474892b1a0157c6c0411924444b1763a` |
-| `draw-construction_1.ogg` | `4280021` | -16.05 | -1.91 | `e88d41f728a5b2cc338da02b82a97429594dfe5032954089f137d88ad37d7888` |
-| `draw-construction_2.ogg` | `4280022` | -16.09 | -1.99 | `09c216ed93132f7997927349a05607323008ce648fdd7aa4a720a7a0931ec7c2` |
-| `eliminate_1.ogg` | `4280341` | -16.15 | -2.15 | `f074d36762bf7f50780ea2f88ac0fbe0de6b31360f0d312c76bcf44c01548778` |
-| `eliminate_2.ogg` | `4280342` | -16.16 | -1.87 | `690beefc8162772037c0d07638d03b8a015bf5f2fe1fdb77c5c74d3afee27af8` |
-| `end-behaviour_1.ogg` | `4280381` | -16.34 | -1.80 | `16bec4a5c779450479fd933f8f5f204892b0fa6cf95dc58ec26e5388e8c9c59c` |
-| `end-behaviour_2.ogg` | `4280382` | -16.31 | -1.87 | `1fc4ac71f9b5cc9c708cf06d9d518e48ab94b75c7bf88fb0b1b5ef61083e75ec` |
-| `equate_1.ogg` | `4280331` | -16.29 | -1.58 | `24c9af81ebb881cf5adaee9290e9e0062654d5762b5e22f096fcfa79f2b34bfd` |
-| `equate_2.ogg` | `4280332` | -16.21 | -1.73 | `6f2d295f3dee9437629113df635293011bd2001383a231738dfb75fd348ba8af` |
-| `evaluate_1.ogg` | `4280121` | -16.12 | -2.25 | `6ee4e399566802edb06516cc80c31fa4d81576865d07c91dd4e4a5696ef456a3` |
-| `evaluate_2.ogg` | `4280122` | -16.08 | -1.70 | `bac4eec693db24d78ac463a82d1cd3c3e27c61e9a2ad6aa12ff593a8fc9d56a8` |
-| `exact-value_1.ogg` | `4280591` | -16.14 | -1.41 | `791d89ca3da43c190d6ec885b442770e46f7305f3e6d92f9bd7d594c1397831f` |
-| `exact-value_2.ogg` | `4280592` | -16.09 | -1.71 | `3de3755973fcc38adbba49385a2e5eed94f832608174f8be2618f17d3c98e27e` |
-| `expand_1.ogg` | `4280201` | -16.04 | -2.02 | `82ed5edf15069faa6005300af2c964bb49514051961af5b6c137833c99db4550` |
-| `expand_2.ogg` | `4280202` | -16.08 | -1.72 | `1d2b89c3e87508573c6f67cc44ee16dd452742a077f33ab5922da7670cc26368` |
-| `expected-count_1.ogg` | `4280721` | -16.25 | -2.16 | `7f49c28463681bcdf2e3e6a4f5a6ad19262fe36bdb69b59b65123bbad5ae0188` |
-| `expected-count_2.ogg` | `4280722` | -16.26 | -2.13 | `4c76b35db9c3fb56171dea95cc11e9ce82d66bdc27603a4942efee7214bbed45` |
-| `expected-value_1.ogg` | `4280711` | -16.16 | -1.80 | `ff4086aeae2968d705f3b51805e489e21acba0fdb0a9a5b949d079a6dfd007c1` |
-| `expected-value_2.ogg` | `4280712` | -16.12 | -1.80 | `b24b1b267049c837b057f1cee4de3abb671739c748e2cbd705798980c4eb3390` |
-| `factorise_1.ogg` | `4280224` | -16.16 | -1.83 | `45aa7a55d7e0e99a8b4b0ce7d91cc9d9391f43e8f0f95896df343633d5f349c7` |
-| `factorise_2.ogg` | `4280225` | -16.13 | -1.51 | `9e24e8663295e534ab9c5e035badceca7d3e7380d3d4822fdfa30f4ad018f681` |
-| `find-all-angles_1.ogg` | `4280601` | -16.26 | -2.07 | `eb5f90b8a7711fd4f789b5ecb00970e4f8563e0887bb0c8925cfdf67ec32db48` |
-| `find-all-angles_2.ogg` | `4280602` | -16.21 | -1.88 | `a3f8c4428534d981d3d684ed350ffbce00e79d2527c0edbc6326b9f83cae4596` |
-| `find-factor-pair_1.ogg` | `4280221` | -16.27 | -1.73 | `472568efc4110d90e62365b51d047e1b12c2acd4c189f4fae9e3e754a6ae1f0e` |
-| `find-factor-pair_2.ogg` | `4280222` | -16.19 | -1.67 | `b56fe2438b21f7ecc5d0c4a881721087233cfe5fd53eb41c42d98e91d82212be` |
-| `find-gradient_1.ogg` | `4280611` | -16.12 | -2.04 | `148d603b45664f23bac2c2333b2ca41033abb7b6491eb0c11f94868d9c57cfb8` |
-| `find-gradient_2.ogg` | `4280612` | -16.20 | -2.11 | `1de74edfc58d205df537c4c33c85efe224b4c414a5080e5f1368af1b43610680` |
-| `find-midpoint_1.ogg` | `4280151` | -16.16 | -1.83 | `4fc55a18d8e8a24fac77d7bcbcb466d9ee44f5fad17f894b5caa449e7b00ceac` |
-| `find-midpoint_2.ogg` | `4280152` | -16.10 | -1.64 | `2294aeb3dbab919d17fcfb6fffb73597915d3678d74d41db9ef01a94997ce04f` |
-| `gauss-pair_1.ogg` | `4280551` | -16.23 | -1.68 | `11191b4f052bacfe55954a5c76127152c5c6f01aa0803c59feb147c3fc2dbbb9` |
-| `gauss-pair_2.ogg` | `4280552` | -16.20 | -1.56 | `b768a15126b6cd74da927061d209c423e8be050edea827e5f2720026d1d3601a` |
-| `gdc-graph_1.ogg` | `4280741` | -16.23 | -1.67 | `20d566ad2c246513285d854c9ad6c2e1365561704ed1194a339e5ffd3b5107c1` |
-| `gdc-graph_2.ogg` | `4280742` | -16.14 | -2.06 | `09301f952f3d69e44910fb42317a76aa3b50feb247de775dec6aefce5cda83f4` |
-| `gdc-solver_1.ogg` | `4280751` | -16.06 | -1.91 | `533f34972694a25ed46aa897b1798988539d0507f099f48123387d610d9d6f58` |
-| `gdc-solver_2.ogg` | `4280754` | -16.10 | -2.20 | `fee043625c66e8b104af1bdd733f9ef8561c849878ab35d69b290f7011e64019` |
-| `gdc-stats_1.ogg` | `4280761` | -16.13 | -1.88 | `001839ffb081a30c9f08fdf6cb22841477060c76951b77f8b1899151ca15583d` |
-| `gdc-stats_2.ogg` | `4280762` | -16.31 | -1.82 | `51ac973492882b472e6e42af96ec32e44e490eb158628aada351d2186d859593` |
-| `integrate_1.ogg` | `4280661` | -16.17 | -2.01 | `d304fff5c27fb4e133897ed69e975a0155b1efb8b57190d5452dc2320424052d` |
-| `integrate_2.ogg` | `4280662` | -16.10 | -1.86 | `f4a10349b11decf2e4b9d96f7655e0fae273063ced16c86034d0d3216c0ee4b8` |
-| `interpret_1.ogg` | `4280775` | -16.28 | -2.33 | `8b577ffc60418e84070d18abf353b66539c52481f0c598963d2885a0b75325fb` |
-| `interpret_2.ogg` | `4280774` | -16.22 | -2.01 | `c3effcae193c791767cc30ba6941ecfc33d31cd8225069e3baf9bfa9f3b06849` |
-| `introduce-letter_1.ogg` | `4280031` | -16.04 | -2.44 | `3973fc7de7506601c8396c4e77396621ade3358cfa5d7afdcaf047dd239d3659` |
-| `introduce-letter_2.ogg` | `4280034` | -16.25 | -2.35 | `68c86c1508bbce6710abb1f5583422cbdc2b2bbea23cc4e9d46a1fc394e890aa` |
-| `isolate_1.ogg` | `4280171` | -16.20 | -2.02 | `221a3cb0d6a318fb565d188affd0209f7ef34d907f0c8762bd5f4904ed81acad` |
-| `isolate_2.ogg` | `4280172` | -16.18 | -2.19 | `cd6f317b225a96c7a04080ba30e1f7d92a0c85306914f61000bb308989644693` |
-| `keep-valid-solutions_1.ogg` | `4280781` | -16.15 | -1.56 | `26dd9465539a7d7868824d2405a91f0a14e84116f17cfae76986d079cdaff1be` |
-| `keep-valid-solutions_2.ogg` | `4280782` | -16.17 | -1.83 | `443b039c7d37141c516d60669c2b23d21f0c5847905d8fceafa96feee3f11084` |
-| `label-diagram_1.ogg` | `4280011` | -16.08 | -1.88 | `1e96225074f769507a16f64749d91beae5025298fb0d88a9b03ee2c8db58f35b` |
-| `label-diagram_2.ogg` | `4280012` | -16.20 | -1.59 | `8a8123ecc1ce1b04dd43419731685bf513926364d6c71719c5f22bb5779f5ac9` |
-| `list-outcomes_1.ogg` | `4280683` | -16.14 | -1.93 | `00102b9b4537f969f1c76268f08b22ab319ac6adde0e43a728531dd3b43b2a40` |
-| `list-outcomes_2.ogg` | `4280682` | -16.13 | -1.88 | `e1f98bc0198009256b38edb00f5fa6d9b2f54691de67a2c0741bc5ecc302c3bb` |
-| `model-from-context_1.ogg` | `4280041` | -16.13 | -2.05 | `88973bc62c11fcfad919fdbabbac3409d4e4ee47c51ed3b7e1ea09a0253a7ba4` |
-| `model-from-context_2.ogg` | `4280044` | -16.14 | -1.86 | `3390c904e9003b9154cf5b418ed0e5a2a3d39daeb4f9f7605446cc7ae6730d56` |
-| `percent-multiplier_1.ogg` | `4280541` | -16.19 | -1.95 | `9d1bc6d1ffaf2e0b3a3311a9f67b4b89f57721c02208e129f2e9e459cd9abf60` |
-| `percent-multiplier_2.ogg` | `4280542` | -16.16 | -1.74 | `16cfdb503e74a23edc68645b0d8d5f9c0f5ca0d5d2abfa4427a34d7a61b2c20c` |
-| `perpendicular-gradient_1.ogg` | `4280631` | -16.15 | -1.73 | `c8efa386853275aaf9c37d0d063cc414a0eb61cc2cf7923280268c8d5a7a9e0c` |
-| `perpendicular-gradient_2.ogg` | `4280632` | -16.14 | -1.73 | `f557754024182a5452c136f00b789a5472e1c4c052abbf900c0f04b97647a768` |
-| `pick-region_1.ogg` | `4280361` | -16.22 | -1.79 | `1e03d5581089fe6eb5db7c70dd43a07e0703e3c6c1c5916d7ad4d69db7940dbb` |
-| `pick-region_2.ogg` | `4280362` | -16.24 | -1.97 | `0e0d4b863407309bb3deb94825dba2b625809ebe145886fbe026fc9528e5b94d` |
-| `point-gradient-line_1.ogg` | `4280621` | -16.21 | -1.93 | `63c1f18f569863e6e2409b309ebffa8a8dedfe95742c574b700b2df134c6a476` |
-| `point-gradient-line_2.ogg` | `4280622` | -16.10 | -2.17 | `d6e76c681d930a6a25c0249d0076d359b458a42242e14706cdd8611a2074a8f0` |
-| `pythagoras_1.ogg` | `4280581` | -16.13 | -1.97 | `2aa0d3a11555045989f92d402e30db7ec31bd3b455d5368889ec6b95253c0b5d` |
-| `pythagoras_2.ogg` | `4280582` | -16.23 | -1.88 | `ddd4ccded7f41b0ee0fb978dcd43dc4b0af471522daf7e16a5be04f62bbff2b2` |
-| `quadratic-formula_1.ogg` | `4280311` | -16.07 | -1.79 | `7d2944b6f320aa6652e101224107308e5bfc6a95435785cc63669aa059622df3` |
-| `quadratic-formula_2.ogg` | `4280312` | -16.11 | -1.72 | `d71dbcdcdcf31f880eaa65e5811fb3b2fc4fa4905bfbb690eb903f73d6c3d782` |
-| `read-givens_1.ogg` | `4280001` | -16.17 | -1.72 | `7e94c115436b5cfb5d20a25038ecd2bf5fc5edd608087437687cc6d052be98ee` |
-| `read-givens_2.ogg` | `4280002` | -16.13 | -1.94 | `fd30c818d337721d003f0ebc26ee8223e3cc468317761f8474bcc21568bce963` |
-| `rearrange_1.ogg` | `4280161` | -16.16 | -2.12 | `6a78dedd0c6dbd85465e8ddb88978e77511ab2e94cf2015821e5aafeb668048c` |
-| `rearrange_2.ogg` | `4280162` | -16.22 | -2.32 | `f1e94afcc4ce3f6c18d3dbcf9418b8845c3849d9dfd147f9f1b5c64c1b81c343` |
-| `reason-from-shape_1.ogg` | `4280371` | -16.36 | -1.57 | `521b238005d197ca1928cc3dc80ae4cc14d642cae2014169cd9683e41f8cb685` |
-| `reason-from-shape_2.ogg` | `4280372` | -16.18 | -1.64 | `8e39f2b9205d9a47a1cec257cdab0da1f93e9d54511a27a17a5a1a5e6f87a8cc` |
-| `recall-fact_1.ogg` | `4280061` | -16.13 | -1.84 | `dd39533e8d9c6148612212e987abe7843e4ba33cb2c23144402d1ae9f5f395c5` |
-| `recall-fact_2.ogg` | `4280062` | -16.24 | -1.71 | `ac5244bec238c09b0bb7d33ad824cdce7b0b9552b9222e6b57035fae5ebfbc3f` |
-| `recall-formula_1.ogg` | `4280051` | -16.16 | -1.85 | `4d0842b4aebf564f5be268e2a65aa5bb07b9b0d21b3bd7d814767776d71b46e2` |
-| `recall-formula_2.ogg` | `4280052` | -16.10 | -1.94 | `29e5b18e31c94a3881943d6d536f9e1bf276bb6cf77d18f5d36cc38657356dcb` |
-| `repeat-multiplier_1.ogg` | `4280531` | -16.30 | -2.44 | `5db3cee5a764f7800b6af93729745d285783ea1c4ca51de6d634c765156b9dbf` |
-| `repeat-multiplier_2.ogg` | `4280532` | -16.22 | -2.03 | `5d8b7b22451ee33d112823168ad14b8cbf9dd5705226148315941e6f97d14452` |
-| `reverse-operations_1.ogg` | `4280471` | -16.12 | -1.86 | `8ab58698c30ee3623e9503e0880d3d1bf637a0f1fe17ed9befbc75e033e9cca9` |
-| `reverse-operations_2.ogg` | `4280472` | -16.09 | -1.95 | `e3b9a26aa763dea2ee684ce073e251f6ecc156f40892f1213b84a73bb5d153ff` |
-| `rewrite-form_1.ogg` | `4280291` | -16.10 | -1.89 | `cb1e72e1096287588af897e503dbffe614686b4b3563407698631f1c0804e68a` |
-| `rewrite-form_2.ogg` | `4280292` | -16.07 | -2.19 | `69375f205b0f8cdb16679efe017c0942672e2b6ac9408c13a26b92ed4bdd081d` |
-| `roots-to-factors_1.ogg` | `4280241` | -16.26 | -1.65 | `7878c7386ca116a20a795e3bb7226766e211d5e146ff48b9f636c8f011434b6a` |
-| `roots-to-factors_2.ogg` | `4280246` | -16.07 | -1.61 | `dc39786695dff573c7ab179836a6328933a85d2cfb75d2894ef42fb18a4db820` |
-| `round-for-context_1.ogg` | `4280791` | -16.27 | -1.86 | `f703e1888c11b5ecc10d2ae51f61ee7b8e57b8e033d1280a475bf5621cb98c2f` |
-| `round-for-context_2.ogg` | `4280792` | -16.15 | -1.79 | `92f9cd7ebc2b9f6dc41ae1ce471b9f3c21ca7eba00441684da7cd5f642bcc154` |
-| `sign-table_1.ogg` | `4280351` | -16.29 | -1.87 | `1c3da66d25d575153f7fe0100af148e559100a11b797b9b6fa885a93da40a164` |
-| `sign-table_2.ogg` | `4280352` | -16.17 | -1.76 | `0af6984c314f65cd053d900796d259bc3853c6a1d5a190f98bbb2fd555e02e57` |
-| `simplify-surd_1.ogg` | `4280321` | -16.23 | -2.02 | `738876f816b5b755badbe74f6391e69d74b98422eea9063350872db2f6d178e1` |
-| `simplify-surd_2.ogg` | `4280322` | -16.15 | -1.82 | `63e8d78255c49fcc9e45f9ebfab11857f8b656675bbb8341af05c010355e79eb` |
-| `simplify_1.ogg` | `4280191` | -16.20 | -1.69 | `03a0d3703dd7216b8a6b5579cde86cc3f5d43858ce59442a7413b5127f0348ec` |
-| `simplify_2.ogg` | `4280192` | -16.15 | -1.49 | `309615668d93b7938f1fd559448055d642c0b1779171daba46e511f5b6ed0fc8` |
-| `solve-equation_1.ogg` | `4280181` | -16.13 | -1.88 | `d9ad037e9bc0943147433afc2aff9063b83c618e233c5f0cb9b91cabee7db641` |
-| `solve-equation_2.ogg` | `4280184` | -16.29 | -1.80 | `42b06a1c2c3575e0791994087f4e0de987caf953d87f9f16aea060e03701e42f` |
-| `square-root-both-sides_1.ogg` | `4280261` | -16.32 | -1.57 | `cd10654f365755e309914a477f9fc0562b00d870718545591149bc24dab8c0ab` |
-| `square-root-both-sides_2.ogg` | `4280262` | -16.26 | -1.45 | `f40bcd8cebabdf5e4662eaf88598e89c248d79bbad87ef637b6c6d7254a4d915` |
-| `standardise_1.ogg` | `4280731` | -16.15 | -1.72 | `87ec5d632e7d1f593a7f8d766339eeb601e0d1aaf290c72e5722c2da8253334e` |
-| `standardise_2.ogg` | `4280732` | -16.11 | -2.66 | `f99f5f05bf018c3c4010b96dcb10629531d27ddbefe701335472d464229e4141` |
-| `state-answer_1.ogg` | `4280801` | -16.16 | -1.82 | `a7e75ac500a9407173a225b76c29f915d4644bf30cc3f246b610f9a99a74aeba` |
-| `state-answer_2.ogg` | `4280802` | -16.15 | -1.79 | `cb419f10435f170ac0674c2f3c76720ce4475ad2b0e9039316c61ceded56d0a7` |
-| `substitute-back_1.ogg` | `4280111` | -16.25 | -1.60 | `6e36432c7c9ad9fb28d2ca5fec2654541c5f72cd7979f5b63d9ec66c513a8d81` |
-| `substitute-back_2.ogg` | `4280112` | -16.13 | -1.83 | `d387474c12ef0be8b867d0c82105d9fa23b0b8b75a9b2e112f4d3b12ff8057e7` |
-| `substitute_1.ogg` | `4280101` | -16.33 | -2.21 | `454b04d1924f956c7dc95020d88fedcbb6c2b366bf19150103b1e8a795136558` |
-| `substitute_2.ogg` | `4280102` | -16.30 | -2.44 | `ed769c911f5cc76f1ebf182bf6ddd94937384687734a7950757058b3294d448e` |
-| `swap-x-and-y_1.ogg` | `4280461` | -16.17 | -2.26 | `00fdc43f5a79d27a547320c87bf829ea8c9b5f23dfc97870a30f35c9d38d47b1` |
-| `swap-x-and-y_2.ogg` | `4280462` | -16.23 | -1.64 | `0ff9380952908e4f935f3b84923f37a7d259b5d12fc8b4c75dce87ed040326ca` |
-| `take-logs_1.ogg` | `4280401` | -16.20 | -1.61 | `5f1589ab253dd60c9bb7a28d27d938e6e8dcff33bb43db07c3d94c7e30f9e840` |
-| `take-logs_2.ogg` | `4280402` | -16.20 | -1.78 | `79cd186eb7c0c8ebf65697bc6d39e8efcef8c1204592875cecd18eefec668cf4` |
-| `test-point_1.ogg` | `4280131` | -16.13 | -1.75 | `078a4bf3dc266bdb258922784c7c9d2ceca5bfe91e751e8111e7cd2c7a823b00` |
-| `test-point_2.ogg` | `4280132` | -16.31 | -1.90 | `1e3e5ed5d712a67059d40d6ecfc35ead0bbe0e5b2fe3698382db50e4ef491964` |
-| `transform-point_1.ogg` | `4280491` | -16.16 | -1.91 | `75284c95030463a8f26f553b7df24b15d36bd6587464bf31d3bd64a8e27e234c` |
-| `transform-point_2.ogg` | `4280492` | -16.16 | -1.81 | `40c53fbc3348c8ffef08835a8c8ca6295c0eb933a8191920c0fce99cd5c5ff86` |
-| `use-complement_1.ogg` | `4280701` | -16.08 | -2.22 | `90f302750ce4f82cbc621bb38212deff3c5d5e2647b312b0dd5f88a482e9c667` |
-| `use-complement_2.ogg` | `4280702` | -16.04 | -2.04 | `cea06a7dd55633c0f0d3f115491ca28e56c1d6a33d32b18bd44fb79c0a0c5144` |
-| `use-identity_1.ogg` | `4280091` | -16.20 | -2.24 | `c3c12ceca7ecf3ab4f7f03dd09d87a6d1e97b68f17f898c8611ddbab0532aa83` |
-| `use-identity_2.ogg` | `4280094` | -16.15 | -2.16 | `17a5e4a0adc163ec5e57a3e244d44d749c1548fc90bfa7511c7c80d85b9f2fdb` |
-| `use-log-law_1.ogg` | `4280421` | -16.29 | -1.80 | `ed7a513455c600616571e306094c4aed9560482108d25212ade22f76d1dd1520` |
-| `use-log-law_2.ogg` | `4280422` | -16.10 | -1.74 | `3f842fcad433bed49cef306d4fdf1527ec61613586721574f7f082a2698ace07` |
-| `use-right-triangle_1.ogg` | `4280571` | -16.17 | -2.01 | `6f9f2bbe0f4fd778480081da77a2dafb39e87bf5196c7b129fe7dfef5d3eae8d` |
-| `use-right-triangle_2.ogg` | `4280572` | -16.13 | -2.55 | `12a4223af13ecb184bc3ade9d85b7c6e82fd79c201cb2d5b21ed01db7827c66a` |
-| `use-symmetry_1.ogg` | `4280391` | -16.23 | -1.93 | `2d06c1812f7484c9154d96addf3136ff2b157c44615339017af0b7ed61b36184` |
-| `use-symmetry_2.ogg` | `4280394` | -16.18 | -1.95 | `c8100306595192e625c54952b2fb2c1678bb57e1451a47a0e3f5ca412cc46f2f` |
-| `zero-product_1.ogg` | `4280231` | -16.14 | -1.96 | `637a6751a32fe9e4b2c599ddc6f51718ff3b7d3662355cc54f59f798cc973ca4` |
-| `zero-product_2.ogg` | `4280232` | -16.19 | -1.90 | `74ef2c85385e5cb8976613b724f87b866e0831c04ba7d960386ede37f4a49247` |
+| File (`game/assets/audio/voice/spark/moves/`) | Recorded | Limiter | Seconds | LUFS-I | dBTP | SHA-256 |
+|---|---|---|---|---|---|---|
+| `add-probabilities_1.ogg` | 2026-11-17 |  | 3.10 | -16.2 | -1.7 | `64a63fa8955c0fe8df3c0e2fb5ced6cf85a5799cc3369bc68cf76ea89255f46d` |
+| `add-probabilities_2.ogg` | 2026-11-17 |  | 3.21 | -16.1 | -1.9 | `cee36441e0885ccf5ea2e73e5326a79b3246b7a74bfa6e5ff94cc759489ffb3e` |
+| `angle-sum_1.ogg` | 2026-11-17 |  | 4.51 | -16.1 | -1.8 | `8220307f6afd8f2103ea3bd0391ce97322225e893a2c4b1b65d0776637432589` |
+| `angle-sum_2.ogg` | 2026-11-17 |  | 4.61 | -16.0 | -1.7 | `c41bf9585dd20c83a82094e299023cfef7ed92ebee214ddfcf4e57867fd7e58d` |
+| `apply-condition_1.ogg` | 2026-11-16 |  | 3.33 | -16.0 | -1.7 | `6c8028657d568d25a5ccdfdb51d0fbdcf919073243a6080e7e5bed5958e441cd` |
+| `apply-condition_2.ogg` | 2026-11-16 |  | 3.33 | -16.2 | -1.7 | `637f0196f0ad80ff672f5cc9467e8fe1bd670a10579a7f5c5ddf9eb1124fcc20` |
+| `apply-inverse_1.ogg` | 2026-11-16 |  | 4.55 | -16.2 | -1.7 | `4afa870967a90b7706a6da1ba6a17d941b77ef8d2ff45f6d7bccc52c70f88c57` |
+| `apply-inverse_2.ogg` | 2026-11-16 |  | 4.35 | -16.1 | -1.6 | `76e762b72feb856f9d339761c502b78a0d91326f56b73927699514f090ae85ab` |
+| `ask-what-power_1.ogg` | 2026-11-16 |  | 3.50 | -16.1 | -1.8 | `ac611eb2d472c9e9f7a17a844333e72eb2f555a2360c1c24c2e6619cd0bb79c8` |
+| `ask-what-power_2.ogg` | 2026-11-16 |  | 3.24 | -16.3 | -1.7 | `3f81639840aa50e26b6caccb64c6a07d32728ba06fdf8255565cdaa9df2d7712` |
+| `change-of-base_1.ogg` | 2026-11-16 |  | 3.17 | -16.1 | -1.8 | `19abfb7603d46ee56e1f898bef3dfb82c4880822f4b5cf6b747e7b9c2c5e05dc` |
+| `change-of-base_2.ogg` | 2026-11-16 |  | 3.15 | -16.0 | -1.8 | `8779862148f8e57e6edc8bc67b9a7bd4b608d308384745aa7ec298977b4d07ff` |
+| `check_1.ogg` | 2026-11-16 | yes | 2.04 | -16.3 | -1.7 | `a1395f528fb122160e6c995238a8a8b308a549f31c3006f35b9e0d7286a487c4` |
+| `check_2.ogg` | 2026-11-16 | yes | 2.34 | -16.0 | -2.5 | `2e190db2518436a28d7e7f09f53948ede9fb366bfea03994a07bc4de9ad8f51d` |
+| `choose-rule_1.ogg` | 2026-11-16 |  | 3.83 | -16.1 | -1.8 | `4be793afd41b77f5e48e1abdf6881e2ce16501765f5f5700702cbfd59dea1f9f` |
+| `choose-rule_2.ogg` | 2026-11-16 |  | 3.87 | -16.2 | -1.5 | `b4602467b5348de24762f395f11f12c7a56b5c341b65c8a9e68e3380ae95563a` |
+| `classify-turning-point_1.ogg` | 2026-11-17 |  | 3.67 | -15.8 | -1.7 | `ffe0e5586342fade5fe5e4c1db75ef133dfb7d77445b5257e785a0a88a005c46` |
+| `classify-turning-point_2.ogg` | 2026-11-17 |  | 3.75 | -15.5 | -1.9 | `2f6de228fc43fcb235b43a9b1b421d8160f1a5b021c3eddfed87fa2659393973` |
+| `clear-fractions_1.ogg` | 2026-11-16 |  | 3.67 | -16.0 | -2.0 | `e1de275c9d1b2558911ff7fa4daec9364b4a5689bd8f7e903c78d83b3eacd008` |
+| `clear-fractions_2.ogg` | 2026-11-16 |  | 3.75 | -16.2 | -1.8 | `6d238cbb536deddacc5a6cc0849da2dc354bf8fac85cb6d1b9a99675bf52dd05` |
+| `compare-coefficients_1.ogg` | 2026-11-16 |  | 4.99 | -15.9 | -1.8 | `484db73b9834ce49fa2558774442772d64396f0c180de6982798742f3d5430c2` |
+| `compare-coefficients_2.ogg` | 2026-11-16 |  | 4.61 | -16.1 | -1.7 | `f3533043580885d7bbef9f24f289be420761f2ef7637bfb22426965c95cf1738` |
+| `compare-neighbours_1.ogg` | 2026-11-17 |  | 4.65 | -16.0 | -1.8 | `85a25a23c686e16f6021f9bf45da9f15c00a1fbd4239e1897b602d5e2c904ecf` |
+| `compare-neighbours_2.ogg` | 2026-11-17 |  | 4.64 | -16.1 | -1.8 | `603eb8f4e6348c54968932a7b0ace186b64ce15444998b9cf2ec2bb9612e43ee` |
+| `complete-square_1.ogg` | 2026-11-16 | yes | 2.92 | -16.0 | -2.1 | `4eff23c8ae2ab3a674942fc20219cf2340f2009a3ed0ea74a5bb9c4381e1502d` |
+| `complete-square_2.ogg` | 2026-11-16 | yes | 2.85 | -16.0 | -2.5 | `36ce992d4fc00c8603c87e6a7f324d9a8af6d2f9eed9435525084478f7ec6022` |
+| `compose_1.ogg` | 2026-11-16 |  | 4.06 | -16.0 | -1.9 | `306bffffdd4baffd67c92a65ece89bcfa9b30feed23989b744b6682c3fc6e35e` |
+| `compose_2.ogg` | 2026-11-16 |  | 3.50 | -16.0 | -1.9 | `a5be14f441f08b151640b73ddd04c5e1ad30073cbc097b0a7e564c93843afc83` |
+| `compute-discriminant_1.ogg` | 2026-11-16 |  | 4.74 | -16.1 | -1.7 | `29e261dbfc7b5210c9a3d167aa06131b7d8c869b71bee0b6fae96382b28219db` |
+| `compute-discriminant_2.ogg` | 2026-11-16 |  | 4.46 | -16.2 | -1.7 | `8a4b4263ead3149eb266432b2dfba6008b21352db47da3f6f583811c9b6411c5` |
+| `convert-log-exp_1.ogg` | 2026-11-16 |  | 5.07 | -16.2 | -1.9 | `fc808958fd2166ed2c6fa7050cb4d160332d7785f5a563b22950d3d7a35beb97` |
+| `convert-log-exp_2.ogg` | 2026-11-16 |  | 4.76 | -16.1 | -1.8 | `7747141c23e45ab231877556af40c3a3132fab58b37909dcfc03884e0550056b` |
+| `count-steps_1.ogg` | 2026-11-17 |  | 4.15 | -16.1 | -1.6 | `53dfb24e0055e19e8a921f1e0a54f63e4c01e91c6f1a92648b6cac92686411a8` |
+| `count-steps_2.ogg` | 2026-11-17 |  | 4.50 | -16.0 | -2.0 | `cf220425d19b6333a2d2997e8939988a0c993e171f4d436b912f680809490fc3` |
+| `definite-integral_1.ogg` | 2026-11-17 |  | 4.87 | -16.2 | -1.6 | `c8ac3a2d437ab16a0f86e8503a3519aa29c98a55f936114743fe954f137afe1d` |
+| `definite-integral_2.ogg` | 2026-11-17 |  | 5.30 | -16.4 | -1.7 | `9a038e2cfc3bea8dca50a80a87b71683630617fb6a73930908ae39a1d6f4db15` |
+| `describe-transformation_1.ogg` | 2026-11-17 |  | 4.04 | -16.0 | -2.0 | `828405019f9aae8afc6e83d2f6b5dc3ebd745b93cfaf9dee922cb97eb70aec7d` |
+| `describe-transformation_2.ogg` | 2026-11-17 |  | 4.23 | -15.9 | -2.3 | `c739eaadc7d7d429d36aa9cc2fdf45247936decf4e579f285ba4382efc3ff161` |
+| `differentiate_1.ogg` | 2026-11-17 |  | 3.30 | -16.1 | -1.8 | `5c1e394692c1ecc3bb0db19f592cef162d02c6e26e93538289452af87a30220a` |
+| `differentiate_2.ogg` | 2026-11-17 |  | 3.19 | -16.3 | -1.8 | `9a9ec02a05fe931b547568e3d4d9c2e8fc73b4744104729827cf53ee7ef192a4` |
+| `draw-construction_1.ogg` | 2026-11-16 |  | 3.32 | -16.2 | -1.8 | `273b5dc2f08d9119991b965da1fca857ae351d58706fb532a62e5dc278091be3` |
+| `draw-construction_2.ogg` | 2026-11-16 | yes | 2.97 | -16.0 | -2.4 | `ab3e80f316a9416be24dfa700f611832072cf488d5e06b84dad75052fcca7c52` |
+| `eliminate_1.ogg` | 2026-11-16 |  | 3.16 | -16.0 | -2.0 | `4462e1d9176a9c4a58511e9923c4d98ab616f776e988eac4798a1bfd1f31dd04` |
+| `eliminate_2.ogg` | 2026-11-16 |  | 3.44 | -16.3 | -2.0 | `c617fc6b579c832e40f7f465a5ce4770169517d445d07a4f7629f7131524b974` |
+| `end-behaviour_1.ogg` | 2026-11-16 |  | 4.93 | -16.3 | -1.6 | `91a858652885b4076017cb233be6024b35819f36b28b0e1bc63a8968827b4741` |
+| `end-behaviour_2.ogg` | 2026-11-16 |  | 4.58 | -16.0 | -1.8 | `76b37f7e852d5177de75e8cadc81e8d381613949858c3b211a35e87f7a33dfb3` |
+| `equate_1.ogg` | 2026-11-16 |  | 3.64 | -16.2 | -1.8 | `3ab88b84f3d5c7bd2f819ebb68a686a31171e8d9495c29ad49c32921d1bc5245` |
+| `equate_2.ogg` | 2026-11-16 |  | 3.30 | -16.2 | -1.8 | `e0fdfcfff50a1a3b08d3ca3810a4be401bdc6fbf395ef93d9cce7b2ea8cc38ec` |
+| `evaluate_1.ogg` | 2026-11-17 | yes | 2.05 | -16.0 | -2.8 | `53371923a3c1c8e03a8fc7cef2e60d832206933157e9162b2ef0c05361354b05` |
+| `evaluate_2.ogg` | 2026-11-16 | yes | 1.94 | -16.0 | -2.2 | `b807b6b8616d286a93723e13e2d6fdd9df282472278bea04975bdb578c3a3e56` |
+| `exact-value_1.ogg` | 2026-11-17 |  | 3.82 | -16.2 | -1.8 | `d5851c03bf9a50faf8bff59cdff700d4fea4afd606699a941c6b585625cb9f0c` |
+| `exact-value_2.ogg` | 2026-11-17 |  | 4.33 | -16.1 | -1.7 | `1601c7738e95336eae8dcc18d5a9485519e84c281b23dab9743d063c9b2f88dd` |
+| `expand_1.ogg` | 2026-11-16 |  | 3.94 | -16.2 | -1.9 | `b41a9e527e48879c9c2a6639b974e647f87a69b3fc63193895642100886b8a37` |
+| `expand_2.ogg` | 2026-11-16 |  | 3.53 | -16.2 | -1.8 | `3349dee44c89ce765aa995eb6d49b206208b22ec4cb237331a0d631edbe0150a` |
+| `expected-count_1.ogg` | 2026-11-17 |  | 4.05 | -16.0 | -2.2 | `357b739dde4f75c72cea066b769875a922c6f99e22f3e67cc3f178e37a947a31` |
+| `expected-count_2.ogg` | 2026-11-17 |  | 3.80 | -16.0 | -2.0 | `70e80e6462e3a6cdb727aea7500c7f40618146c097734dbf11617c954826aa64` |
+| `expected-value_1.ogg` | 2026-11-17 |  | 4.65 | -16.2 | -1.7 | `0b41059c07ef48890408fbf5ef05ad846bbb8940cef560dff3272522c4be9558` |
+| `expected-value_2.ogg` | 2026-11-17 |  | 4.39 | -16.2 | -1.8 | `814dd80fa541fdab5a64c8301b0c5ec4146b4ab62280ce5e527a94daedfa0072` |
+| `factorise_1.ogg` | 2026-11-16 |  | 3.95 | -16.3 | -1.8 | `fdb764401acbf36181f7851c9d461b1bb94e107b64466c8963b72b427c159836` |
+| `factorise_2.ogg` | 2026-11-16 |  | 4.47 | -16.0 | -1.3 | `89096f308a51fc7d9102d07045c7888db43f3ceec8cc304310b2fb70638ec825` |
+| `find-all-angles_1.ogg` | 2026-11-17 |  | 5.27 | -16.3 | -1.6 | `7c91b5e6cb45564cda6a7f415bc77c96ec749dfcd1ab904aaac4cd7f19b62d15` |
+| `find-all-angles_2.ogg` | 2026-11-17 |  | 5.19 | -16.0 | -1.8 | `49790ea70ba23e690d5989c83d1a32373aa8c01b2250a3326609d2b88b21accf` |
+| `find-factor-pair_1.ogg` | 2026-11-16 |  | 3.97 | -16.1 | -1.7 | `25ad3e7926e5e689e8552dfb81274ec2d68da9afb94596f75852cc7d0b1bc6ae` |
+| `find-factor-pair_2.ogg` | 2026-11-16 |  | 4.12 | -16.1 | -1.8 | `fcf3b1e50a6c86ee60999fb301fb6b28c6e3d7c0e680edf3f7942414a3ffa8d9` |
+| `find-gradient_1.ogg` | 2026-11-17 |  | 4.39 | -15.9 | -2.0 | `864ed65482f049e59456b1a5be9bda73aecf43a67ddbfda7af873d41f8d943b3` |
+| `find-gradient_2.ogg` | 2026-11-17 |  | 4.92 | -16.1 | -1.8 | `812ab68f695e17d058cbcb718e58ce7620c768d8bb25f7e8b4efb0588c2dee58` |
+| `find-midpoint_1.ogg` | 2026-11-16 | yes | 2.77 | -16.0 | -2.9 | `d4c7aa6e3ba2bae093f86df9e08b2dc096efe10441c5d5e139e9948867a5674d` |
+| `find-midpoint_2.ogg` | 2026-11-16 |  | 2.83 | -15.9 | -2.7 | `2c5f975c979c12d34e1d11c0179e241bc642ede68329b6c4740bca579b3bff53` |
+| `gauss-pair_1.ogg` | 2026-11-17 |  | 5.76 | -16.1 | -1.4 | `12327fdf498aee6f871cfe409963ca35c0fb3370bc37b76625f8572b01ec0775` |
+| `gauss-pair_2.ogg` | 2026-11-17 |  | 5.68 | -16.2 | -1.7 | `8c69fb63e8fa25d39d30c5011de37e9bcb10a284942ef916dfd0c859af23e10e` |
+| `gdc-graph_1.ogg` | 2026-11-17 |  | 4.65 | -15.9 | -1.7 | `9cb4f900c2990f27187257277fd414a134204a5a23f9623da2b669f69c8d8b0b` |
+| `gdc-graph_2.ogg` | 2026-11-17 |  | 4.83 | -16.2 | -1.7 | `fee730b53186efbd0e2fcd72f2eb7b0833409d984c9728011b453964ae28d711` |
+| `gdc-solver_1.ogg` | 2026-11-17 |  | 4.09 | -16.1 | -1.9 | `af26da2816c4424bef10a2ffeacb8c6f907c3b2061c4ec4445030ff06b5fe218` |
+| `gdc-solver_2.ogg` | 2026-11-17 |  | 3.57 | -16.0 | -1.9 | `8cb5cb3084af51fc68f676c890ce9d4ae95295311852a1f9282af08b2cfaf43b` |
+| `gdc-stats_1.ogg` | 2026-11-17 |  | 3.61 | -16.1 | -1.6 | `11319200c14934cc5fd804a9c16e3fc4496da3c4a800511ee035382d824225fc` |
+| `gdc-stats_2.ogg` | 2026-11-17 |  | 3.58 | -16.2 | -1.8 | `ce1476bf7edb8c8aa86453e2770b0677210eaf99899f8eb3e8b7c572b3839f12` |
+| `integrate_1.ogg` | 2026-11-17 |  | 4.27 | -16.0 | -1.8 | `bb33edb757c7e558d1f32291565d120fd21c26478b274cfacf44d4dc3f81fdd8` |
+| `integrate_2.ogg` | 2026-11-17 |  | 4.06 | -15.7 | -1.6 | `001211f0dea13fe07fc4f72c1d49cd05e493e5e1d69c4e2af3e89ad228d6aca1` |
+| `interpret_1.ogg` | 2026-11-17 |  | 3.11 | -16.0 | -1.9 | `6cadded4993b88713ce866aa738f532a4ca4b01450d4218ee466f5515e7efbf7` |
+| `interpret_2.ogg` | 2026-11-17 |  | 3.14 | -16.6 | -1.7 | `108f8c3755146dfdb5c5068f2ed8becf61c6bb82eeb0766bab38969cbe2f81e8` |
+| `introduce-letter_1.ogg` | 2026-11-17 | yes | 2.59 | -16.0 | -3.0 | `2b5a5ee23c50d620d08a87a46fc27a22c00f230facf08e39ce413d9c4f04d667` |
+| `introduce-letter_2.ogg` | 2026-11-16 |  | 3.20 | -15.9 | -1.8 | `747d10cc7b47c63b186ca4efa87a65c5a79b6d3b11a18de79b68111e0882ddaf` |
+| `isolate_1.ogg` | 2026-11-16 |  | 5.33 | -15.9 | -1.7 | `f245907d1e54aa796918d1a9a0f5d36fac4e9f2a7346a28720f7e3f692bf2bc7` |
+| `isolate_2.ogg` | 2026-11-16 |  | 4.65 | -16.1 | -1.9 | `86b33de3d1d88210760b9a1cb1a50a51e1bbbfca028f1a8b51d41c39cb35a8ee` |
+| `keep-valid-solutions_1.ogg` | 2026-11-17 |  | 4.70 | -16.4 | -1.8 | `a4683f245ecfd307d6537ec00c65ad11baf0f0b2d446ec9f58f7d2055d7902cf` |
+| `keep-valid-solutions_2.ogg` | 2026-11-17 |  | 4.36 | -16.4 | -1.9 | `644c2585d2d82eff356201f700f291c6826f401b9afd823382804989a6bea991` |
+| `label-diagram_1.ogg` | 2026-11-16 |  | 3.48 | -16.0 | -2.0 | `8e10808f088bc3e2664ecdbb5e9d4524ca17c975813f58a563c498509ffd29be` |
+| `label-diagram_2.ogg` | 2026-11-16 |  | 2.92 | -16.3 | -1.8 | `4f54ba385cd768f3ec7d8cb3cc0c03598c494d4ffc1f32a4678381f05352f4ab` |
+| `list-outcomes_1.ogg` | 2026-11-17 |  | 4.33 | -16.2 | -1.7 | `90982327e8f3e135922e48f76fc34189ebf783cfd48b1a309276509691b089b5` |
+| `list-outcomes_2.ogg` | 2026-11-17 |  | 4.97 | -16.0 | -1.8 | `a9be8d0ce61313a845dd063e9b8676c302881058c78db5df1b3e86e08f9827ab` |
+| `model-from-context_1.ogg` | 2026-11-16 |  | 3.25 | -16.0 | -2.1 | `b564e12fdc8eef9a4cb60876e1602fe73c7b8b84bcd05d8a4227d9493b32afd4` |
+| `model-from-context_2.ogg` | 2026-11-16 |  | 3.36 | -16.0 | -1.8 | `febb60e6a79a2ff61b3c58bdfa05cd7a575ab7b69a8b17edb8abda5dbf8ab9d0` |
+| `percent-multiplier_1.ogg` | 2026-11-17 |  | 4.83 | -16.3 | -1.6 | `f90ad99095f5a55418089aa39c98aa7558645b32193ef34a7a31c0dc334004b5` |
+| `percent-multiplier_2.ogg` | 2026-11-17 |  | 4.54 | -15.8 | -1.4 | `17cea834c09feb0bfb314d5f56b88b5329fb93bddd65dfad6f18fea78d242254` |
+| `perpendicular-gradient_1.ogg` | 2026-11-17 |  | 4.28 | -16.1 | -1.7 | `2a6c6d15d3e77ed47960f182f2623cf566edc81ce517844d93d1f6412df9a10d` |
+| `perpendicular-gradient_2.ogg` | 2026-11-17 |  | 4.07 | -16.0 | -1.9 | `67d2dce02ac57d407098a70e9f50b16fc253cb245f8e39c1205d0016085c6720` |
+| `pick-region_1.ogg` | 2026-11-16 |  | 5.19 | -16.0 | -1.7 | `21cb00852a7cce32ceda6dbf69ab4971b1d980466a34964d0ef1e65c3be592b5` |
+| `pick-region_2.ogg` | 2026-11-16 |  | 5.17 | -16.1 | -1.7 | `6f4c427c7d8b85803aa5b570a14fbf812e52bac1b6c846e2658a8d54cdf53aee` |
+| `point-gradient-line_1.ogg` | 2026-11-17 |  | 3.11 | -15.9 | -2.1 | `1efcdcc99db10185725db1906f37a29f85ce08e36a7433af9fe09e1b81ccf496` |
+| `point-gradient-line_2.ogg` | 2026-11-17 |  | 3.09 | -16.3 | -1.9 | `b779185f16c8f8f33e124820734cd703577a30733615fd3049c4e039b4494867` |
+| `pythagoras_1.ogg` | 2026-11-17 |  | 3.82 | -15.9 | -1.8 | `0d2a836864600ed7c25d6c0454b1501225d05d534ac550b991366e861b27e545` |
+| `pythagoras_2.ogg` | 2026-11-17 |  | 4.01 | -15.9 | -1.9 | `a29d0a164577aa8b71ca55e850fa060454b885cb1c9039a32cf62dec55960a5d` |
+| `quadratic-formula_1.ogg` | 2026-11-16 |  | 4.44 | -16.1 | -1.8 | `f5b1a813ece5393a866bf89b56661ca81cad299903682025b3e98da91f454cf1` |
+| `quadratic-formula_2.ogg` | 2026-11-16 |  | 4.65 | -16.1 | -1.8 | `01de4ea56497d3299ef9bd2ce84a83c5f3cab5fe880496ca89e90f268d273cff` |
+| `read-givens_1.ogg` | 2026-11-16 |  | 3.54 | -16.3 | -1.6 | `99dc8e290f3a046f16a6961d7dc90c30f3ba3f04ea4eec1417fc9b7d8f10026b` |
+| `read-givens_2.ogg` | 2026-11-16 |  | 5.03 | -16.4 | -1.6 | `30345814f0bd17a6253d20e994999fe3831ace3bb20affc7661afc1eda1ea40f` |
+| `rearrange_1.ogg` | 2026-11-16 |  | 3.90 | -16.0 | -1.9 | `3651e94ccc4aebe18b23cbfd77aada7a09b98c6d9efbbd3c3dd584240a446fcb` |
+| `rearrange_2.ogg` | 2026-11-16 |  | 3.74 | -16.0 | -1.8 | `9c9a59ef6d9b2a4f5cf43f9a03c04e2b59b46ad1a35d77dda9c09d5e5f69d672` |
+| `reason-from-shape_1.ogg` | 2026-11-16 |  | 3.92 | -16.1 | -1.6 | `c8adc41e5bcd0c915741fdbdcc057a76de6ee790791410fce143b9ace9f1319c` |
+| `reason-from-shape_2.ogg` | 2026-11-16 |  | 3.30 | -16.2 | -1.8 | `848f1c48c053e6df7c4f7505e9864d8eb006d30a823dfe11ad37b6a93f25a948` |
+| `recall-fact_1.ogg` | 2026-11-16 | yes | 2.47 | -16.0 | -2.7 | `c505f0d3976689ec457862e8b682729d0cf60b5bfa63da332c4f39e0b5839e4e` |
+| `recall-fact_2.ogg` | 2026-11-16 | yes | 2.29 | -16.0 | -2.5 | `8aadc0d06920a223e8707327b853ec156a13752389d254e7cd8bb643676671b6` |
+| `recall-formula_1.ogg` | 2026-11-16 |  | 4.31 | -15.8 | -1.9 | `cb9e88b4ed9bfeaa9be552c78417633d87a37e4421bb6afeaf59423e2496afff` |
+| `recall-formula_2.ogg` | 2026-11-16 |  | 4.35 | -15.7 | -1.8 | `d3675ebc55852092eab6a2979d1f3f4bd35d3fe838de047e37e348ac695d165e` |
+| `repeat-multiplier_1.ogg` | 2026-11-17 |  | 3.25 | -16.1 | -1.8 | `a576524ed41147306b455c826ed87bac8e0df417b655b41c0eb320f8d0b252db` |
+| `repeat-multiplier_2.ogg` | 2026-11-17 | yes | 2.87 | -16.0 | -2.7 | `81140b53035c22bc6a85a5e6a726919eaf85c3f63d9e15993345b751853f94c2` |
+| `reverse-operations_1.ogg` | 2026-11-16 |  | 4.52 | -15.9 | -1.7 | `a8bc01e8eaab618c8f8ef04ca7c11e276ff8287f4fbe79f7c123f4d3f66e8dca` |
+| `reverse-operations_2.ogg` | 2026-11-16 |  | 4.57 | -16.0 | -1.7 | `a434d4c9fa7138cad9eba7d53c52e108a91593873b9419bccf62735d22585226` |
+| `rewrite-form_1.ogg` | 2026-11-16 |  | 3.58 | -16.0 | -1.8 | `683433a7101b6a41f88912a9eb95007c3e698052e4e8c8fabf27d60d5753a477` |
+| `rewrite-form_2.ogg` | 2026-11-16 |  | 3.64 | -16.0 | -1.9 | `13c7ca7656cfa5e62d6a31b4a68e5f72545541106f11879a58bb0a5116673bfa` |
+| `roots-to-factors_1.ogg` | 2026-11-16 |  | 4.29 | -16.0 | -1.4 | `7db65037cf26216fd23ff511bbccb2189bf6a5fde3c787af51e1cfcf6a67ea5b` |
+| `roots-to-factors_2.ogg` | 2026-11-16 |  | 3.85 | -16.3 | -1.5 | `f1ce12aff35fc7b54297cd3c2f0011b56cf61dcbca4850720544dacb727e588e` |
+| `round-for-context_1.ogg` | 2026-11-17 |  | 4.42 | -16.4 | -1.8 | `4ff68769d769f588feb562e7f9b00f0e7d74f6f0efe73887c03bd6ac29184c7b` |
+| `round-for-context_2.ogg` | 2026-11-17 |  | 4.22 | -16.0 | -1.8 | `762b2f422364e56c9b19c449dca8f4c59b62e0dae56e9e8fdcd4e2e5f9e0b851` |
+| `sign-table_1.ogg` | 2026-11-16 |  | 3.65 | -16.0 | -1.7 | `4f8cad766322ec32c5bc1360f01341f76477aa6a0d1a13d973214f9916f2b84b` |
+| `sign-table_2.ogg` | 2026-11-16 |  | 3.54 | -16.0 | -1.7 | `92e66d3afc7e0adb22036563683181ebda5dbb4767067e5da18010bef01d209c` |
+| `simplify-surd_1.ogg` | 2026-11-16 |  | 4.85 | -16.0 | -1.8 | `5282b198a2a5b58b392f7aba1eaaafdcc80d9111c8e5d0a7a182976aea0a650f` |
+| `simplify-surd_2.ogg` | 2026-11-16 |  | 5.06 | -16.0 | -1.7 | `580eb7777c843aa78ba7ca4918fc71111d9dcb8247cb040cb935a4410e1b280c` |
+| `simplify_1.ogg` | 2026-11-16 | yes | 2.87 | -16.1 | -2.7 | `be4c7c4aec58fb18aabdd9f29d3abb100fad37f1c84cfc54c725a29518318cd7` |
+| `simplify_2.ogg` | 2026-11-16 |  | 3.04 | -16.2 | -1.7 | `cfbb05fbfd58d2bcd627b3c8fa004de2de5601df2c6d9d1d02d9bfcef59ed3f0` |
+| `solve-equation_1.ogg` | 2026-11-16 |  | 3.34 | -16.1 | -1.6 | `1fbfbb9bdb1187983b987e068db4eaced709ec0958d648712d3859143e9e97fc` |
+| `solve-equation_2.ogg` | 2026-11-16 |  | 3.89 | -16.0 | -1.9 | `28fc756e2f217a5c2b3502791714755959a98eeab3f6021bbd1f550b3ee83886` |
+| `square-root-both-sides_1.ogg` | 2026-11-16 |  | 4.46 | -16.0 | -1.8 | `3ca177a7b7e4dac5ba3ad145e09a63d4735342c17fa7895f795cfbc420d1b013` |
+| `square-root-both-sides_2.ogg` | 2026-11-16 |  | 4.49 | -16.2 | -1.6 | `0e5a52cfb7d50dc1ce64897c5d977809956a8bc66fdaf4bc066ed9ccfa12804a` |
+| `standardise_1.ogg` | 2026-11-17 |  | 3.75 | -16.0 | -1.8 | `4b5feec69bca93c068cec9df00f5693b6d2a8c1d1db9fb31810d68bdac8d52b9` |
+| `standardise_2.ogg` | 2026-11-17 |  | 3.77 | -16.0 | -1.9 | `7a27140529c125485aa921e4621d53d6509dedc3ac43196917ee7d76a9d604f9` |
+| `state-answer_1.ogg` | 2026-11-17 |  | 3.50 | -16.1 | -1.8 | `eaa1b4e1f54dc452fea6c3be2155b4f3a8b79a99ee853de8a8bdffe2fd93262a` |
+| `state-answer_2.ogg` | 2026-11-17 |  | 3.22 | -16.4 | -1.7 | `a802943ac9085029c819c04bce5431b5900de89e60eb104f6082987868372e32` |
+| `substitute-back_1.ogg` | 2026-11-16 | yes | 2.95 | -16.0 | -2.6 | `5e41c996206ad53a3824b43ac39e8ad8b49ff9431f17c89589969cb119a26a1f` |
+| `substitute-back_2.ogg` | 2026-11-16 |  | 3.07 | -16.6 | -1.8 | `866402b588991b6982551828c7811fa64b455ee885a21b94f6a8a33103d41cbb` |
+| `substitute_1.ogg` | 2026-11-16 |  | 2.60 | -16.4 | -2.0 | `17fb6cdc6f578fbc013ea464159c803b03399ede8f847c41c759a41ca1272f2f` |
+| `substitute_2.ogg` | 2026-11-16 | yes | 2.43 | -16.0 | -3.1 | `449b39a25fed8eb31aba6ead339ad62b272e0a89c7df1b7df56866b76d1b1fed` |
+| `swap-x-and-y_1.ogg` | 2026-11-16 |  | 3.82 | -16.0 | -1.4 | `7eaf7ecf53b4867aa01c8d7f2f105ac05552df9ab1ff02ca725b9f3287818c47` |
+| `swap-x-and-y_2.ogg` | 2026-11-16 |  | 3.51 | -16.3 | -1.8 | `67faf7da7f9137afbee0fd7d16891f380060f38de3744538dc0632b8ee38f69b` |
+| `take-logs_1.ogg` | 2026-11-16 |  | 3.56 | -16.0 | -1.8 | `1e846a8fb8880abac22d9fa047e933021f5a50007eb87fa47181f9efc6a58d07` |
+| `take-logs_2.ogg` | 2026-11-16 |  | 3.98 | -16.0 | -1.8 | `6f4ccf1c9550826c2daf5ca10c88d5ce71b031d83133ae48a40c459191e5d43a` |
+| `test-point_1.ogg` | 2026-11-17 |  | 3.62 | -16.1 | -1.8 | `77615570165bf7c56f35b8616af25f3c666a6085b930b3caf82d0d198d8ae5a7` |
+| `test-point_2.ogg` | 2026-11-16 |  | 3.42 | -16.0 | -1.8 | `2592b53a666acdec00a633c8a7159525d0a8b545ed224656cf8e45c4a566d273` |
+| `transform-point_1.ogg` | 2026-11-16 |  | 4.30 | -15.8 | -1.8 | `de74c0483feb61ac8122c7687f013d1563e112bbd693d911023c1b0019902d65` |
+| `transform-point_2.ogg` | 2026-11-17 |  | 4.30 | -16.0 | -1.7 | `700bbbd38ebb8f53b71fe64b85ddd83f5c5858b66183572777d83c941543ee57` |
+| `use-complement_1.ogg` | 2026-11-17 |  | 3.86 | -16.3 | -1.6 | `3da8dcc27da1d571e1b009b44289a22e56220c61d8b133450fbbe56deb9932cd` |
+| `use-complement_2.ogg` | 2026-11-17 |  | 4.07 | -16.0 | -1.7 | `664ac8672b0d566188c9217d2e0cfc787d889a706b5ea229ee0b3b38fa29ba61` |
+| `use-identity_1.ogg` | 2026-11-16 |  | 4.28 | -15.9 | -1.8 | `f23a7d6ea810078d51b9a296d47d194bebbfea6363b4e5c01aeeb428cbae352e` |
+| `use-identity_2.ogg` | 2026-11-16 |  | 4.40 | -15.9 | -1.8 | `05fe8c6e69eae4af1b3df173c6ec9724fe15783391b7889f5f8c9f597e4a9b1f` |
+| `use-log-law_1.ogg` | 2026-11-16 |  | 4.43 | -16.0 | -1.9 | `ed506c203ef61d4efb235bb76f7793a4887119a8af04cac09dff73331acb1a04` |
+| `use-log-law_2.ogg` | 2026-11-16 |  | 4.84 | -16.1 | -1.8 | `aeda01a393bdc37ecc248488ebec2b01a89ce2dfbd139686d76b4525272cbc93` |
+| `use-right-triangle_1.ogg` | 2026-11-17 |  | 5.51 | -15.9 | -1.8 | `0f51dd61af4dc5f4bc5cb14a031cb32e83286e34301ea2937ccd323ae5655554` |
+| `use-right-triangle_2.ogg` | 2026-11-17 |  | 5.42 | -16.1 | -1.8 | `eaf454820e057e3818b9dff8f23ac74c889c5c04fd834b0c73b9917099d849be` |
+| `use-symmetry_1.ogg` | 2026-11-16 |  | 5.54 | -15.9 | -1.7 | `5dc36babcf5ba3175f47316f71eaef8583c2bf617a12ea0c1284d55492cba2a9` |
+| `use-symmetry_2.ogg` | 2026-11-16 |  | 5.65 | -16.2 | -1.6 | `d564b626ea8ce3db06c36ce91902c21d1df1cc49bac57550d80eb6787b868c7a` |
+| `zero-product_1.ogg` | 2026-11-16 |  | 3.72 | -16.3 | -1.7 | `bef52c13aa0812e38b59250a93a749f2ecfb438a4305e13e805bb0482d06dd00` |
+| `zero-product_2.ogg` | 2026-11-16 |  | 3.52 | -16.1 | -1.8 | `854fda5590ea71507902036c5ca32b2cdda881191f184a84a22699e027e40fbd` |
