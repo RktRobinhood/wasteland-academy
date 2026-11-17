@@ -1,0 +1,1033 @@
+{
+  "id": "ex.functions.function-machine",
+  "status": "draft",
+  "title": "One In, One Out",
+  "idea": "A function takes each input to exactly one output, and f(3) means the output when the input is 3.",
+  "zone": "functions",
+  "tutor": "rook-dead-air",
+  "courses": [
+    "aa-sl",
+    "aa-hl",
+    "ai-sl",
+    "ai-hl"
+  ],
+  "syllabus": [
+    "SL2.2"
+  ],
+  "skills": [
+    "SL2.2.evaluate-notation",
+    "SL2.2.function-model"
+  ],
+  "builds_on": [
+    "ex.foundations.pre-substitute"
+  ],
+  "leads_to": [
+    "ex.functions.inverse-undo",
+    "ex.functions.domain-range",
+    "ex.functions.is-function"
+  ],
+  "terms": [
+    "input and output",
+    "function",
+    "f(x)"
+  ],
+  "misconceptions": [
+    "Treats f(x) as f × x, so a factor inside the bracket comes out",
+    "Squares the minus sign too: −x² is −(x²), not (−x)²",
+    "Answers with the output when the input is asked for (e.g. a height when a time is asked)",
+    "Interprets P(0) as 'zero population' instead of the initial value",
+    "Squares without brackets, so the sign comes out wrong",
+    "Works left to right, ignoring the order of operations"
+  ],
+  "format": 3,
+  "estimate": {
+    "words_recorded": 961,
+    "words_main_path": 781,
+    "narration_main_path": "5 min 14 s",
+    "player_actions": 14,
+    "longest_run": 95,
+    "words_before_first_action": 45,
+    "basis": "Worked out by tools/explainer-scripts.mjs (runs, recordedWords). Recorded words count every line in the file, every branch included, and leave out callbacks.json and reactions.json, which are recorded once for every lesson. The main path takes the longest branch at each action, and the time is 150 spoken words a minute plus the pause and the cue. Player actions are player-paced and not counted."
+  },
+  "notes": [
+    "Format 3 (FAL-1087, #216): the Writer's edited proposal (writing/explainers/proposals/one-in-one-out.interactive.md, FAL-1086) as JSON, in the four acts. The id is unchanged, so the watched record and the manifest still point here.",
+    "Line ids: a line whose say is word for word the approved script's keeps its id: the two turns (10 lines), the slip's tap-line right and not-yet lines, the slip joke, the recap's first line and \"Next time we run the relay backwards\". Every other line is new, and the approved script's lines are retired in the manifest.",
+    "The recap's last line in the proposal, \"Next time we run the relay backwards. Output in, input out. That's the transmission. Rook, out.\", is two lines here, so the first keeps its recorded-once id (d1ax0c).",
+    "No recall section, as in the proposal: the Writer left that to the format (#216). builds_on still names ex.foundations.pre-substitute. The opener's call and the send of −3 teach the bracket, and the \"any other call\" line says (−3)² is +9, so a player who hasn't watched Tess can carry on. Adding Rook's tin-can-tess callback lines back is a Writer decision.",
+    "The build is two steps, not the proposal's three. The third step's wrong tiles (= 9, = −1 after = 5 − 4) had no misconception in the map for −1, and a wrong tile is keyed to one (#216). Rook's closing line now writes = 1 as he says \"One.\". The not-yet line \"Five, take away four. Come in again.\" went with the step.",
+    "Misconception keys: the call's −13 is fn-pre-substitute#0 (squares without brackets: −3² − 4 = −13). Build tiles: 5 − −2² is fn-pre-substitute#0, (5 − −2)² is fn-pre-substitute#3 (works left to right), 5 + 4 is SL2.2.evaluate-notation#1 (the minus of −x² lost), 5 − (−4) is fn-pre-substitute#0.",
+    "Oupa's radio is the relay's broken variant, optional, with a second rule x² + 4, so every input gives two outputs (in 2 → out 0 and 8). The proposal gives no numbers for it. It plays after the oupa line and adds no words.",
+    "The first worked example is set at the east mast (problem.setting). The exam example keeps exam wording.",
+    "Every number was worked by the checker or by hand: (−3)² − 4 = 5, −3² − 4 = −13, x² − 4 = 12 at x = ±4 (both on the dial), g(−4) = 6 + 8 = 14, h(−2) = 5 − 4 = 1, C(0) = 20, C(5) = 80, 20 + 12t = 74 at t = 4.5 (inside 0 ≤ t ≤ 6), f(2) + f(3) = 8 + 11 = 19 against f(5) = 17.",
+    "The two turns are unchanged from the approved script, and still have their format 2 to-dos (not-yet lines to key to misconceptions). They are listed by --todo."
+  ],
+  "sections": [
+    {
+      "id": "opener",
+      "act": "signal",
+      "kind": "opener",
+      "beats": [
+        {
+          "line": "6y6unb",
+          "speaker": "rook-dead-air",
+          "say": "Signal Tower, this is Rook. The relay at the top of this mast squares whatever comes in, takes away four, and sends the rest out to the settlements."
+        },
+        {
+          "line": "h2fzl4",
+          "speaker": "rook-dead-air",
+          "caption": "A runner's brought up −3. Before I throw the switch: what goes out? Your call. Over.",
+          "say": "A runner's brought up minus three. Before I throw the switch: what goes out? Your call. Over.",
+          "board": [
+            {
+              "write": "Relay: square it, then − 4. In: −3. Out: ?",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "predict": {
+            "id": "call",
+            "kind": "type",
+            "prompt": "What goes out when −3 goes in?",
+            "answer": "5",
+            "check": "(−3)² − 4",
+            "values": [
+              {
+                "value": "−13",
+                "misconception": "fn-pre-substitute#0",
+                "check": "−3² − 4"
+              }
+            ]
+          }
+        },
+        {
+          "line": "olmxem",
+          "speaker": "rook-dead-air",
+          "say": "Logged. We'll find out."
+        }
+      ]
+    },
+    {
+      "id": "play",
+      "act": "play",
+      "kind": "play",
+      "beats": [
+        {
+          "line": "32gfjc",
+          "speaker": "rook-dead-air",
+          "say": "Dial a signal in, throw the switch, see what comes out. Send me three. Over.",
+          "clear": true
+        },
+        {
+          "toy": "relay",
+          "rule": "x² − 4",
+          "dial": [
+            -5,
+            5
+          ],
+          "places": {
+            "12": "Scrap Fields"
+          },
+          "tasks": [
+            {
+              "kind": "free",
+              "count": 3,
+              "then": [
+                {
+                  "line": "dpsdof",
+                  "speaker": "rook-dead-air",
+                  "say": "What you dial in is the input. What comes out is the output. I never swap those two words. Swap them on air and a message lands at the wrong settlement.",
+                  "board": [
+                    {
+                      "write": "input: what goes in.   output: what comes out",
+                      "kind": "term"
+                    }
+                  ]
+                },
+                {
+                  "line": "p1wrwn",
+                  "speaker": "rook-dead-air",
+                  "caption": "Now send the runner's signal. −3. Over.",
+                  "say": "Now send the runner's signal. Minus three. Over."
+                }
+              ]
+            },
+            {
+              "kind": "send",
+              "input": -3,
+              "then": [
+                {
+                  "write": "input −3:  (−3)² − 4 = 9 − 4 = 5",
+                  "move": "evaluate"
+                },
+                {
+                  "back_to": {
+                    "predict": "call",
+                    "match": [
+                      {
+                        "line": "9ns3id",
+                        "speaker": "rook-dead-air",
+                        "say": "Five. Same as your call."
+                      }
+                    ],
+                    "other": [
+                      {
+                        "line": "iyz9tu",
+                        "speaker": "rook-dead-air",
+                        "caption": "Five. (−3)² is +9. Take away four.",
+                        "say": "Five. Minus three in brackets, squared, is plus nine. Take away four."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "line": "rkgn8h",
+                  "speaker": "rook-dead-air",
+                  "say": "Send it again. Same input. Over."
+                }
+              ]
+            },
+            {
+              "kind": "send",
+              "input": -3,
+              "then": [
+                {
+                  "line": "m9zwlf",
+                  "speaker": "rook-dead-air",
+                  "say": "Five again. Tomorrow, five again. Each input gives exactly one output. That's a function.",
+                  "board": [
+                    {
+                      "write": "function: each input gives exactly one output",
+                      "kind": "term"
+                    }
+                  ]
+                },
+                {
+                  "line": "utbhru",
+                  "speaker": "rook-dead-air",
+                  "caption": "Scrap Fields wants a 12. What do you send? Over.",
+                  "say": "Scrap Fields wants a twelve. What do you send? Over."
+                }
+              ]
+            },
+            {
+              "kind": "find",
+              "output": 12,
+              "place": "Scrap Fields",
+              "then": [
+                {
+                  "line": "pcw8sz",
+                  "speaker": "rook-dead-air",
+                  "caption": "Four does it. So does −4. Two inputs, one output: that's allowed. One input, two outputs: never.",
+                  "say": "Four does it. So does minus four. Two inputs, one output: that's allowed. One input, two outputs: never."
+                },
+                {
+                  "line": "b7n1cv",
+                  "speaker": "rook-dead-air",
+                  "say": "My oupa had a radio where one spot on the dial played two stations at once. Rugby and the news, on top of each other. That's no function.",
+                  "cue": "chuckles",
+                  "cue_at": "end",
+                  "joke": true,
+                  "pause": 0.5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "toy": "relay",
+          "optional": true,
+          "rule": "x² − 4",
+          "broken": "x² + 4",
+          "dial": [
+            -5,
+            5
+          ],
+          "tasks": [
+            {
+              "kind": "free",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "the-name",
+      "act": "paper",
+      "kind": "idea",
+      "beats": [
+        {
+          "line": "8n3avo",
+          "speaker": "rook-dead-air",
+          "caption": "On paper, the relay is called f. f(x) = x² − 4.",
+          "say": "On paper, the relay is called f. f of x equals x squared minus four.",
+          "clear": true,
+          "board": [
+            {
+              "write": "f(x) = x² − 4",
+              "kind": "step"
+            }
+          ]
+        },
+        {
+          "line": "nz3crl",
+          "speaker": "rook-dead-air",
+          "caption": "f(x) means the output when the input is x. So f(−3) is five. You've already sent it.",
+          "say": "f of x means the output when the input is x. So f of minus three is five. You've already sent it.",
+          "board": [
+            {
+              "write": "f(x): the output when the input is x",
+              "kind": "term"
+            },
+            {
+              "write": "f(−3) = 5",
+              "move": "evaluate",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "choose",
+            "prompt": "What does f(3) mean?",
+            "choices": [
+              "The output when the input is 3",
+              "f times 3",
+              "The input when the output is 3"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "line": "mnghoh",
+                "speaker": "rook-dead-air",
+                "say": "Copy that. The name of the machine, then its input."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "vnrkur",
+                "speaker": "rook-dead-air",
+                "say": "Those brackets aren't a times. f is the machine's name, and three is its input."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "example-1",
+      "act": "paper",
+      "kind": "example",
+      "level": "full",
+      "problem": {
+        "setup": "g(x) = 6 − 2x. Find g(−4).",
+        "setting": "The Signal Tower's east mast, which runs a relay with its own rule."
+      },
+      "beats": [
+        {
+          "line": "9mnd1e",
+          "speaker": "rook-dead-air",
+          "caption": "The east mast runs a different rule. g(x) = 6 − 2x. Find g(−4): the output when −4 goes in.",
+          "say": "The east mast runs a different rule. g of x equals six minus two x. Find g of minus four: the output when minus four goes in.",
+          "clear": true,
+          "board": [
+            {
+              "write": "Find g(−4): the output when the input is −4.",
+              "kind": "heading"
+            },
+            {
+              "write": "g(x) = 6 − 2x",
+              "move": "read-givens"
+            }
+          ]
+        },
+        {
+          "line": "ae40hw",
+          "speaker": "rook-dead-air",
+          "caption": "Substitute. Every x becomes −4, inside brackets.",
+          "say": "Substitute. Every x becomes minus four, inside brackets.",
+          "board": [
+            {
+              "write": "g(−4) = 6 − 2(−4)",
+              "move": "substitute"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why does −4 go in brackets?",
+            "choices": [
+              "So the 2 multiplies all of −4, sign included",
+              "Brackets show the input is negative",
+              "g(x) always needs brackets"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "line": "j7nxs0",
+                "speaker": "rook-dead-air",
+                "caption": "Ja. 2(−4), sign and all.",
+                "say": "Ja. Two lots of minus four, sign and all."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "9yz3t9",
+                "speaker": "rook-dead-air",
+                "caption": "Without brackets it reads 6 − 2 − 4, a subtraction. The two has to multiply the whole −4.",
+                "say": "Without brackets it reads six minus two minus four, a subtraction. The two has to multiply the whole minus four."
+              }
+            ]
+          }
+        },
+        {
+          "line": "r8sxff",
+          "speaker": "rook-dead-air",
+          "caption": "Evaluate. 2(−4) is −8. 6 − (−8) is 14.",
+          "say": "Evaluate. Two lots of minus four is minus eight. Six take away minus eight is fourteen.",
+          "board": [
+            {
+              "write": "= 6 + 8",
+              "move": "evaluate"
+            },
+            {
+              "write": "= 14",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "line": "vcsdru",
+          "speaker": "rook-dead-air",
+          "caption": "Say it. g(−4) = 14. Input −4, output 14. Over six, and a negative input should push it over.",
+          "say": "Say it. g of minus four is fourteen. Input minus four, output fourteen. Over six, and a negative input should push it over.",
+          "board": [
+            {
+              "write": "g(−4) = 14: input −4, output 14",
+              "move": "state-answer",
+              "kind": "answer"
+            },
+            {
+              "write": "Check: −2x > 0 when x < 0, so g(−4) > 6 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-1",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "twin",
+        "like": "example-1",
+        "serve": "engine",
+        "cell": {
+          "type": "fn-evaluate-function",
+          "unknown": "value-at-input",
+          "rep": "equation",
+          "angle": "direct-substitution"
+        },
+        "command": "Find",
+        "skills": [
+          "SL2.2.evaluate-notation"
+        ],
+        "intro": [
+          {
+            "line": "rwww0h",
+            "speaker": "rook-dead-air",
+            "say": "Your channel. Rule first, input in brackets, then evaluate. Over."
+          }
+        ],
+        "fallback": {
+          "setup": "f(x) = 10 − 3x.",
+          "parts": [
+            {
+              "text": "Find f(−2).",
+              "answer": "16"
+            }
+          ],
+          "working": [
+            "f(x) = 10 − 3x",
+            "f(−2) = 10 − 3(−2)",
+            "= 10 + 6",
+            "= 16"
+          ]
+        },
+        "right": [
+          {
+            "line": "ozpwe8",
+            "speaker": "rook-dead-air",
+            "say": "Loud and clear. Input, output, and you kept them apart."
+          },
+          {
+            "line": "fqalba",
+            "speaker": "rook-dead-air",
+            "say": "Brackets and all. Copy that."
+          }
+        ],
+        "not_yet": [
+          {
+            "line": "upaeqh",
+            "speaker": "rook-dead-air",
+            "say": "Put the input in brackets first, then multiply. Come in again."
+          },
+          {
+            "line": "uxmvt8",
+            "speaker": "rook-dead-air",
+            "say": "Check the sign. A positive times a negative is negative, and taking a negative away adds."
+          }
+        ]
+      },
+      "act": "paper"
+    },
+    {
+      "id": "example-2",
+      "act": "paper",
+      "kind": "example",
+      "level": "build",
+      "problem": {
+        "setup": "h(x) = 5 − x². Find h(−2)."
+      },
+      "beats": [
+        {
+          "line": "8pg7zc",
+          "speaker": "rook-dead-air",
+          "caption": "One thing harder: a square with a minus in front. h(x) = 5 − x². The square belongs to x, not to the minus.",
+          "say": "One thing harder: a square with a minus in front. h of x equals five minus x squared. The square belongs to x, not to the minus.",
+          "clear": true,
+          "board": [
+            {
+              "write": "h(x) = 5 − x².  Find h(−2).",
+              "kind": "heading"
+            },
+            {
+              "write": "5 − x² means 5 − (x²)",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "line": "k4e8xl",
+          "speaker": "rook-dead-air",
+          "caption": "Your build. h(−2), one line at a time. Channel's open. Over.",
+          "say": "Your build. h of minus two, one line at a time. Channel's open. Over."
+        },
+        {
+          "build": {
+            "steps": [
+              {
+                "tiles": [
+                  {
+                    "write": "h(−2) = 5 − (−2)²",
+                    "move": "substitute"
+                  },
+                  {
+                    "write": "h(−2) = 5 − −2²",
+                    "misconception": "fn-pre-substitute#0"
+                  },
+                  {
+                    "write": "h(−2) = (5 − −2)²",
+                    "misconception": "fn-pre-substitute#3"
+                  }
+                ],
+                "answer": 0,
+                "not_yet": [
+                  {
+                    "line": "xquulc",
+                    "speaker": "rook-dead-air",
+                    "say": "Input in brackets, then the square. Come in again.",
+                    "for": [
+                      1,
+                      2
+                    ]
+                  }
+                ]
+              },
+              {
+                "tiles": [
+                  {
+                    "write": "= 5 − 4",
+                    "move": "evaluate"
+                  },
+                  {
+                    "write": "= 5 + 4",
+                    "misconception": "SL2.2.evaluate-notation#1"
+                  },
+                  {
+                    "write": "= 5 − (−4)",
+                    "misconception": "fn-pre-substitute#0"
+                  }
+                ],
+                "answer": 0,
+                "not_yet": [
+                  {
+                    "line": "q1vsxs",
+                    "speaker": "rook-dead-air",
+                    "caption": "(−2)² is +4. Then take it away.",
+                    "say": "Minus two in brackets, squared, is plus four. Then take it away.",
+                    "for": [
+                      1,
+                      2
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "line": "25tykc",
+          "speaker": "rook-dead-air",
+          "caption": "One. Lekker. x² is never negative, so h(x) can never pass five. One's under five. Out.",
+          "say": "One. Lekker. x squared is never negative, so h of x can never pass five. One's under five. Out.",
+          "board": [
+            {
+              "write": "= 1",
+              "move": "evaluate",
+              "kind": "answer"
+            },
+            {
+              "write": "Check: x² ≥ 0, so h(x) ≤ 5, and 1 ≤ 5 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-3",
+      "act": "paper",
+      "kind": "example",
+      "level": "exam",
+      "problem": {
+        "setup": "The charge in the tower's battery bank, as a percentage, t hours after sunrise is modelled by C(t) = 20 + 12t, for 0 ≤ t ≤ 6.",
+        "parts": [
+          {
+            "part": "a",
+            "command": "Write down",
+            "text": "Write down C(0), and interpret it in context."
+          },
+          {
+            "part": "b",
+            "command": "Find",
+            "text": "Find C(5)."
+          },
+          {
+            "part": "c",
+            "command": "Find",
+            "text": "Find the time when the battery bank is at 74% charge."
+          }
+        ]
+      },
+      "beats": [
+        {
+          "line": "cuomiv",
+          "speaker": "rook-dead-air",
+          "caption": "Now, exam style. The tower's battery bank charges off a solar panel. The charge, in percent, t hours after sunrise, is C(t) = 20 + 12t, for t from zero to six.",
+          "say": "Now, exam style. The tower's battery bank charges off a solar panel. The charge, in percent, t hours after sunrise, is C of t equals twenty plus twelve t, for t from zero to six.",
+          "clear": true,
+          "board": [
+            {
+              "write": "C(t) = 20 + 12t,  0 ≤ t ≤ 6",
+              "kind": "heading"
+            },
+            {
+              "write": "t = hours after sunrise.  C = charge, %",
+              "move": "read-givens"
+            }
+          ]
+        },
+        {
+          "line": "wjnpvb",
+          "speaker": "rook-dead-air",
+          "caption": "Part a. Write down C(0), and say what it means. Zero hours is sunrise, so C(0) is twenty. 20% at sunrise, not an empty battery.",
+          "say": "Part a. Write down C of zero, and say what it means. Zero hours is sunrise, so C of zero is twenty. Twenty percent at sunrise, not an empty battery.",
+          "board": [
+            {
+              "write": "(a)  C(0) = 20 + 12(0) = 20",
+              "move": "substitute",
+              "part": "a"
+            },
+            {
+              "write": "At sunrise the battery bank holds 20% charge.",
+              "move": "interpret",
+              "part": "a",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "line": "nr0gxp",
+          "speaker": "rook-dead-air",
+          "caption": "Part b. Find C(5). Yours. Over.",
+          "say": "Part b. Find C of five. Yours. Over."
+        },
+        {
+          "typed": {
+            "part": "b",
+            "prompt": "Find C(5).",
+            "answer": "80",
+            "accept": [
+              "80%"
+            ],
+            "check": "20 + 12 × 5",
+            "right": [
+              {
+                "line": "st498u",
+                "speaker": "rook-dead-air",
+                "caption": "80%, five hours after sunrise. Copy.",
+                "say": "Eighty percent, five hours after sunrise. Copy."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "exxlak",
+                "speaker": "rook-dead-air",
+                "say": "Five goes in for t. Twelve lots of five, then add twenty. Come in again."
+              }
+            ]
+          }
+        },
+        {
+          "write": "(b)  C(5) = 20 + 12(5)",
+          "move": "substitute",
+          "part": "b"
+        },
+        {
+          "write": "= 80",
+          "move": "evaluate",
+          "part": "b"
+        },
+        {
+          "write": "C(5) = 80: 80% charge, 5 hours after sunrise.",
+          "move": "state-answer",
+          "part": "b",
+          "kind": "answer"
+        },
+        {
+          "line": "814c8q",
+          "speaker": "rook-dead-air",
+          "caption": "Part c. Find the time when it's at 74%.",
+          "say": "Part c. Find the time when it's at seventy-four percent."
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "In part c, is 74 an input or an output?",
+            "choices": [
+              "An output: C(t) = 74",
+              "An input: t = 74",
+              "Neither: it's a percentage"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "line": "kpmso6",
+                "speaker": "rook-dead-air",
+                "say": "Output. Seventy-four is a charge. The time is the input, and that's what they want."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "3lrx6r",
+                "speaker": "rook-dead-air",
+                "say": "Crossed wire. Seventy-four is a charge, and charge is what comes out. t is what you're finding."
+              }
+            ]
+          }
+        },
+        {
+          "line": "m3jh3m",
+          "speaker": "rook-dead-air",
+          "caption": "So C(t) = 74, and solve for t. Twenty off both sides: 54 = 12t. Divide by twelve. t = 4.5.",
+          "say": "So C of t equals seventy-four, and solve for t. Twenty off both sides: fifty-four equals twelve t. Divide by twelve. t is four point five.",
+          "board": [
+            {
+              "write": "(c)  20 + 12t = 74",
+              "move": "apply-condition",
+              "part": "c"
+            },
+            {
+              "write": "12t = 54",
+              "move": "isolate",
+              "part": "c"
+            },
+            {
+              "write": "t = 4.5",
+              "move": "isolate",
+              "part": "c"
+            }
+          ]
+        },
+        {
+          "line": "a13oav",
+          "speaker": "rook-dead-air",
+          "caption": "Four and a half hours after sunrise. Inside zero to six, so the model holds. Check: 12 × 4.5 is 54, plus twenty, seventy-four. Out.",
+          "say": "Four and a half hours after sunrise. Inside zero to six, so the model holds. Check: twelve lots of four point five is fifty-four, plus twenty, seventy-four. Out.",
+          "board": [
+            {
+              "write": "74% charge, 4.5 hours after sunrise.",
+              "move": "state-answer",
+              "part": "c",
+              "kind": "answer"
+            },
+            {
+              "write": "Check: C(4.5) = 74 ✓",
+              "move": "check",
+              "part": "c",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "spot-the-slip",
+      "act": "apply",
+      "kind": "spot-the-slip",
+      "misconception": "Treats f(x) as f × x, so a factor inside the bracket comes out",
+      "beats": [
+        {
+          "line": "i461et",
+          "speaker": "rook-dead-air",
+          "say": "This came in over the line last night. One line of it has a crossed wire. Find it. Over.",
+          "clear": true,
+          "board": [
+            {
+              "write": "f(x) = 3x + 2.  Find f(2) + f(3).",
+              "kind": "heading"
+            },
+            {
+              "write": "f(2) + f(3) = f(2 + 3)",
+              "kind": "slip",
+              "key": "s1"
+            },
+            {
+              "write": "= f(5)",
+              "kind": "step",
+              "key": "s2"
+            },
+            {
+              "write": "= 3(5) + 2",
+              "kind": "step",
+              "key": "s3"
+            },
+            {
+              "write": "= 17",
+              "kind": "step",
+              "key": "s4"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "tap-line",
+            "prompt": "Tap the line with the slip.",
+            "choices": [
+              "s1",
+              "s2",
+              "s3",
+              "s4"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "line": "taxdom",
+                "speaker": "rook-dead-air",
+                "say": "That's the one. They treated f like a number you can take out of a bracket. f is a machine, not a multiplier."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "u6isa0",
+                "speaker": "rook-dead-air",
+                "say": "Look at the first line. Can two signals go through the machine as one?"
+              }
+            ]
+          }
+        },
+        {
+          "line": "600tj9",
+          "speaker": "rook-dead-air",
+          "caption": "Run each input through on its own. f(2) = 8. f(3) = 11. Together, 19. Not 17.",
+          "say": "Run each input through on its own. f of two is eight. f of three is eleven. Together, nineteen. Not seventeen.",
+          "board": [
+            {
+              "strike": "s1"
+            },
+            {
+              "write": "f(2) + f(3) = 8 + 11 = 19",
+              "move": "evaluate",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "line": "ug8rex",
+          "speaker": "rook-dead-air",
+          "say": "Took me a week to find out who sent that one. It was me, a year ago.",
+          "joke": true,
+          "cue": "chuckles",
+          "cue_at": "end"
+        }
+      ]
+    },
+    {
+      "id": "turn-2",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "exam",
+        "like": "example-3",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-evaluate-function"
+        },
+        "skills": [
+          "SL2.2.evaluate-notation",
+          "SL2.2.function-model"
+        ],
+        "intro": [
+          {
+            "line": "xqw813",
+            "speaker": "rook-dead-air",
+            "say": "Your channel, and no help on the first try. Label the parts, and say what each value means. Over."
+          }
+        ],
+        "fallback": {
+          "setup": "The water in a tank, in litres, t minutes after a tap is opened is modelled by W(t) = 300 − 8t, for 0 ≤ t ≤ 30.",
+          "parts": [
+            {
+              "part": "a",
+              "text": "Write down W(0), and interpret it in context.",
+              "answer": "300; the tank holds 300 litres when the tap is opened"
+            },
+            {
+              "part": "b",
+              "text": "Find W(12).",
+              "answer": "204"
+            },
+            {
+              "part": "c",
+              "text": "Find the time when the tank holds 140 litres.",
+              "answer": "20 minutes"
+            }
+          ],
+          "working": [
+            "(a) W(0) = 300 − 8(0) = 300",
+            "When the tap is opened, the tank holds 300 litres.",
+            "(b) W(12) = 300 − 8(12) = 300 − 96 = 204",
+            "(c) 300 − 8t = 140",
+            "160 = 8t",
+            "t = 20, inside 0 ≤ t ≤ 30",
+            "20 minutes after the tap is opened.",
+            "Check: W(20) = 300 − 160 = 140 ✓"
+          ]
+        },
+        "right": [
+          {
+            "line": "wilzpn",
+            "speaker": "rook-dead-air",
+            "say": "Loud and clear. Every part labelled, and every value said in words."
+          },
+          {
+            "line": "pp94wv",
+            "speaker": "rook-dead-air",
+            "say": "Every value with what it means. Copy that."
+          }
+        ],
+        "not_yet": [
+          {
+            "line": "h0quul",
+            "speaker": "rook-dead-air",
+            "say": "Crossed wire. Check whether the part wants an input or an output."
+          },
+          {
+            "line": "gdomnv",
+            "speaker": "rook-dead-air",
+            "say": "When a part gives you the output, set the rule equal to it and solve for the input."
+          }
+        ]
+      },
+      "act": "apply"
+    },
+    {
+      "id": "recap",
+      "act": "apply",
+      "kind": "recap",
+      "beats": [
+        {
+          "line": "shxoyu",
+          "speaker": "rook-dead-air",
+          "say": "So. A function takes each input to exactly one output. f of x is the output when the input is x. Input in brackets, run the rule, and say which one you've got.",
+          "caption": "So. A function takes each input to exactly one output. f(x) is the output when the input is x. Input in brackets, run the rule, and say which one you've got.",
+          "clear": true,
+          "board": [
+            {
+              "write": "f(a): the output when the input is a",
+              "kind": "answer"
+            },
+            {
+              "write": "1. Write the rule",
+              "kind": "note"
+            },
+            {
+              "write": "2. Input in brackets, everywhere x was",
+              "kind": "note"
+            },
+            {
+              "write": "3. Evaluate, and say it: input, output",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "back_to": {
+            "predict": "call",
+            "match": [
+              {
+                "line": "fuqb8v",
+                "speaker": "rook-dead-air",
+                "say": "You called five before I threw the switch. Now you can say why."
+              }
+            ],
+            "values": [
+              {
+                "value": "−13",
+                "lines": [
+                  {
+                    "line": "tdtylw",
+                    "speaker": "rook-dead-air",
+                    "caption": "You called −13 at the start. Square −3 without its brackets and that's what comes out. Half the map makes that call once.",
+                    "say": "You called minus thirteen at the start. Square minus three without its brackets and that's what comes out. Half the map makes that call once."
+                  }
+                ]
+              }
+            ],
+            "other": [
+              {
+                "line": "4xrt6n",
+                "speaker": "rook-dead-air",
+                "say": "Your call from the start is still in the log. Now you'd call five, and you could say why."
+              }
+            ]
+          }
+        },
+        {
+          "line": "d1ax0c",
+          "speaker": "rook-dead-air",
+          "say": "Next time we run the relay backwards. Output in, input out."
+        },
+        {
+          "line": "pqbbvg",
+          "speaker": "rook-dead-air",
+          "say": "That's the transmission. Rook, out."
+        }
+      ]
+    }
+  ]
+}

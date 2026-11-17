@@ -16,7 +16,7 @@ the rest is #221.
 
 ## What the lesson player does with a toy
 
-The script's `toy` item names the toy by id and carries its set-up and its tasks. The
+The lesson player is `ui/lesson/lesson_player.gd` (`docs/LESSONS.md`). The script's `toy` item names the toy by id and carries its set-up and its tasks. The
 player hands the item to `Toys.make`, sizes the toy into the board, and gives it the tasks
 one at a time. It never looks at which toy it has.
 
@@ -36,6 +36,8 @@ toy.start(item.tasks[0])
 - **`task_done(result)`** fires once the task is met: `{"kind", "actions", "misses"}` plus
   the toy's own fields. The player moves the lesson on. Between tasks the toy still
   answers, as free play.
+- **`then` and `optional`** belong to the player, not the toy: it plays a task's `then`
+  beats once the task is met, and offers "Try it" or "Skip" before an optional toy.
 - **No fail state.** A toy never ends a task on a miss, never counts down and keeps no
   score. A miss happens in the world and the player goes again.
 
