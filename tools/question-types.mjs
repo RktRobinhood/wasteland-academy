@@ -16,7 +16,9 @@
 //
 // The bank serves four courses (its data/courses.json). Every AA SL part from the sessions
 // in `bank.assigned` must have a type; parts of the other courses, and AA SL parts from later
-// sessions, are counted per course as unassigned and do not fail the run.
+// sessions, are counted per course as unassigned and do not fail the run. A type may own parts
+// of a course that bank.assigned doesn't list (the AI types, FAL-999): those count as assigned.
+// Such a type gives its `home` course, and its `syllabus` codes are that course's guide codes.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -37,6 +39,8 @@ const doc = readJSON(TYPES_FILE);
 // Extension types (source: extension) have no bank parts; tools/pedagogy.mjs checks them.
 const examTypes = doc.types.filter(t => t.source !== 'extension');
 const map = readJSON(path.join(ROOT, 'curriculum/aa-sl.json'));
+// Every skill a type may name: AA SL's and the AA HL and AI layers (FAL-999).
+const layers = ['aa-sl', 'aa-hl', 'ai'].map(f => readJSON(path.join(ROOT, `curriculum/${f}.json`)));
 if (!fs.existsSync(inBank('data/tags.json'))) {
   console.error(`No question bank at ${BANK}. Pass --bank <path to Math-AA---Question-Bank>.`);
   process.exit(1);
@@ -71,6 +75,8 @@ const ID_RE = /^([a-z]+-[a-z]+)-(\d{4})-(may|nov)-.*-(p[123])-q(\d+)$/;
 const sessionKey = s => { const [y, m] = s.split('-'); return Number(y) * 2 + (m === 'nov' ? 1 : 0); };
 const assignedThrough = doc.bank?.assigned || {};
 const mustAssign = p => p.course in assignedThrough && sessionKey(p.session) <= sessionKey(assignedThrough[p.course]);
+// A part a type may own: one that must be assigned, or one of a course bank.assigned doesn't list.
+const mayAssign = p => mustAssign(p) || !(p.course in assignedThrough);
 
 // ── Bank parts ───────────────────────────────────────────────
 const all = new Map();    // part ID -> { course, session, tags, main, paper, calculator, section, marks, unresolved }
@@ -122,7 +128,10 @@ const FULL_FIELDS = ['name', 'summary', 'syllabus', 'skills', 'skillFit', 'chain
 // ── Validate ─────────────────────────────────────────────────
 const skillIds = new Map();
 for (const t of map.topics) for (const st of t.subtopics) for (const sk of st.skills) skillIds.set(sk.id, st.id);
+const known = new Set(layers.flatMap(l => l.topics.flatMap(t => t.subtopics.flatMap(st => st.skills.map(sk => sk.id)))));
 const codes = new Set(statements.map(s => s.code));
+// A type's syllabus codes are its home course's: AA's unless it says (an AI type's 1.6 is AI SL 1.6).
+const homeCodes = t => (t.home || 'aa-sl').startsWith('ai-') ? codeIds.ai : null;
 const owner = new Map();
 const typeIds = new Set();
 for (const t of doc.types) {
@@ -140,13 +149,14 @@ for (const t of examTypes) {
     }
     if (t.skillFit === 'partial' && !t.skillGap) errors.push(`${where}: partial skillFit needs a skillGap`);
   }
-  for (const s of t.syllabus || []) if (!codes.has(s)) errors.push(`${where}: unknown statement ${s}`);
-  for (const s of t.skills || []) if (!skillIds.has(s)) errors.push(`${where}: unknown skill ${s}`);
+  if (t.home && !COURSES.some(c => c.id === t.home)) errors.push(`${where}: unknown home course ${t.home}`);
+  for (const s of t.syllabus || []) if (!(homeCodes(t) ? homeCodes(t).has(s) : codes.has(s))) errors.push(`${where}: unknown statement ${s}`);
+  for (const s of t.skills || []) if (!known.has(s)) errors.push(`${where}: unknown skill ${s}`);
   for (const f of t.formats || []) if (!FORMATS.includes(f)) errors.push(`${where}: bad format ${f}`);
   if (!t.parts?.length) errors.push(`${where}: no parts`);
   for (const p of t.parts || []) {
     if (!all.has(p)) errors.push(`${where}: part ${p} is not in the bank`);
-    else if (!parts.has(p)) errors.push(`${where}: part ${p} is outside bank.assigned; widen it first`);
+    else if (!mayAssign(all.get(p))) errors.push(`${where}: part ${p} is outside bank.assigned; widen it first`);
     if (owner.has(p)) errors.push(`${p} is in both ${owner.get(p)} and ${t.id}`);
     owner.set(p, t.id);
   }
@@ -172,6 +182,8 @@ function statsFor(ids) {
   return {
     parts: ps.length,
     paper: { p1: count('paper', 'p1'), p2: count('paper', 'p2') },
+    // Whether the paper allows a GDC, which the game's Paper 1 and 2 stand for: every AI paper does.
+    calculator: { without: count('calculator', false), with: count('calculator', true) },
     section: { A: count('section', 'A'), B: count('section', 'B') },
     marks: { min: Math.min(...m), median: median(m), max: Math.max(...m) },
     mainTags,
@@ -185,7 +197,7 @@ const coverage = statements.map(s => {
   const sub = `SL${s.code}`;
   const tagged = [...parts.values()].filter(p => p.tags.includes(s.code)).length;
   const main = [...parts.values()].filter(p => p.main === s.code).length;
-  const types = examTypes.filter(t => (t.syllabus || []).includes(s.code)).map(t => t.id);
+  const types = examTypes.filter(t => !homeCodes(t) && (t.syllabus || []).includes(s.code)).map(t => t.id);
   const skills = [...skillIds].filter(([, st]) => st === sub).map(([id]) => id);
   return {
     statement: s.code, title: s.title, partsTagged: tagged, partsMain: main, types,
@@ -196,7 +208,8 @@ const coverage = statements.map(s => {
 });
 
 // ── Report ───────────────────────────────────────────────────
-const assigned = examTypes.reduce((n, t) => n + (t.parts?.length || 0), 0);
+// The parts that must be assigned and are: types may own other courses' parts too.
+const assigned = examTypes.reduce((n, t) => n + (t.parts || []).filter(p => parts.has(p)).length, 0);
 const unclassified = (doc.unclassified || []).length;
 console.log(`Bank: ${Object.keys(tags).length} questions, ${parts.size} parts (${BANK})`);
 console.log(`Types: ${examTypes.length} (${examTypes.filter(t => t.detail === 'full').length} in full detail)`);
@@ -294,6 +307,8 @@ function mergeFragments(commit) {
     const frag = readJSON(path.join(dir, f));
     for (const v of Object.values(frag.subtopics || {})) for (const sk of v.skills || []) fragSkills.set(sk.id, sk);
     for (const t of frag.types) {
+      // A type built here has moved to question-types.json with the bank's id (FAL-999).
+      if (typeIds.has(t.id)) continue;
       const home = t.home || frag.home || 'aa-sl';
       const ids = codeIds[home.split('-')[0]];
       types.push({ ...t, home, courses: t.courses || [home], subtopics: (t.syllabus || []).map(code => ids.get(code) ?? null), fragment: f });

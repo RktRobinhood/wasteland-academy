@@ -144,6 +144,9 @@ func _hand_count(region: String, exam_only: bool) -> int:
 		for u in t.get("unknowns", []):
 			if exam_only and not u.exam:
 				continue
+			# The AI courses' own skills (AI-SL1.6 and 1.7, FAL-999) are on no AA course.
+			if u.get("skills", []).any(func(sk): return str(sk).begins_with("AI-")):
+				continue
 			var methods := {}
 			for a in t.get("angles", []):
 				if u.id in a.suits:

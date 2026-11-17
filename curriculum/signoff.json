@@ -794,6 +794,30 @@
    "note": "t1-log-equation reject step: called (x + p)² positive where it is 0. Fixed in FAL-1033. Only the units named in #193 are confirmed read."
   },
   {
+   "situation": "approximation",
+   "types": [
+    "t1-ai-percentage-error",
+    "t1-ai-approx-bounds"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author (FAL-999)",
+   "date": "2026-11-17",
+   "note": "FAL-999 author's read on building the type: one question per unknown, representation and method (prompt, options and the wrong options' feedback, worked steps), against tools/check-answers. Every cell read once; not every seed."
+  },
+  {
+   "situation": "tvm",
+   "types": [
+    "t1-ai-amortization",
+    "t1-ai-annuity"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author (FAL-999)",
+   "date": "2026-11-17",
+   "note": "FAL-999 author's read on building the type: one question per unknown, representation and method (prompt, options and the wrong options' feedback, worked steps), against tools/check-answers. Every cell read once; not every seed."
+  },
+  {
    "situation": "quadratic-model",
    "types": [
     "fn-ext-quadratic-model"
@@ -1202,6 +1226,17 @@
    ],
    "exam": false,
    "status": "unread"
+  },
+  {
+   "situation": "log-technology",
+   "types": [
+    "t1-ext-logs-with-technology"
+   ],
+   "exam": false,
+   "status": "review-read",
+   "readBy": "Curriculum Author (FAL-999)",
+   "date": "2026-11-17",
+   "note": "FAL-999 author's read on building the type: one question per unknown, representation and method (prompt, options and the wrong options' feedback, worked steps), against tools/check-answers. Every cell read once; not every seed."
   }
  ]
 }
