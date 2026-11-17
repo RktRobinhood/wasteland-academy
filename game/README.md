@@ -22,6 +22,8 @@ game/
 ├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /?explore
 ├── scenes/explain.tscn  ← the explainer player on its own (ui/explain_screen.gd), at /?explain (see "Explainers")
 ├── ui/explainer.gd      ← the explainer player, an overlay any screen can open ("Watch it" on a worked solution)
+├── ui/toys/             ← lesson toys (#217): LessonToy, the Toys registry, the relay (docs/TOYS.md)
+├── scenes/toy.tscn      ← a toy on its own (ui/toy_screen.gd), at /?toy=relay
 ├── engine/moves.gd, data/moves.json ← the explainer moves and the step map, tagged onto steps at runtime
 ├── scenes/study.tscn    ← the academic study screen (ui/study.gd), at /?study: MathsEngine only
 ├── engine/              ← the question engine: situations, views, marking, planner, save (docs/QUESTION-ENGINE.md)
@@ -60,6 +62,7 @@ game/
 ├── tools/bazaar_sim.gd, bazaar_balance.gd  ← the Bazaar's balance check and price table
 ├── addons/godot_mcp_toolkit/  ← editor plugin for the Godot MCP (see docs/MCP-NOTES.md)
 ├── docs/QUESTION-ENGINE.md ← the question engine reference
+├── docs/TOYS.md         ← the interface every lesson toy shares
 └── docs/MCP-NOTES.md
 ```
 
