@@ -8,6 +8,8 @@ Read [`../../TONE.md`](../../TONE.md) and [`../voice-sheets.md`](../voice-sheets
 |---|---|
 | `ex.<zone>.<idea>.json` | One script. The id matches the explainer map, `curriculum/explainers.json` (FAL-935). |
 | `callbacks.json` | Reusable "builds on" lines for every tutor, recorded once and used by any script. |
+| `reactions.json` | Each tutor's stock acknowledgements and slip reactions, recorded once and played in any lesson (see "Reactions"). |
+| `toys.json` | The toys a lesson can name, and the tasks each takes (see "Toys"). |
 | `ex.algebra.arithmetic-sequence.json` | Pilot 1: the nth term. Mags, about 7 minutes. |
 | `ex.algebra.arithmetic-series.json` | Pilot 2: the sum Sₙ, built on pilot 1. Mags, about 8 minutes. |
 | `ex.foundations.pre-substitute.json` | Brackets Round Negatives. Tess, about 5½ minutes. |
@@ -15,35 +17,56 @@ Read [`../../TONE.md`](../../TONE.md) and [`../voice-sheets.md`](../voice-sheets
 | `ex.foundations.pre-read-and-round.json` | Read the Gauge. Tess, about 5½ minutes. |
 | `ex.foundations.pre-percent-multiplier.json` | One Multiplication. Tess, about 5 minutes. |
 | `ex.foundations.pre-expand.json` | Fill the Rectangle. Tess, about 5½ minutes. |
-| `ex.functions.function-machine.json` | One In, One Out, built on Brackets Round Negatives. Rook, about 6¼ minutes. |
+| `ex.functions.function-machine.json` | One In, One Out, built on Brackets Round Negatives. Rook, about 5¼ minutes. The first script in format 3, the four acts: the exemplar. |
 | `ex.functions.gradient.json` | Rise per Step. Rook, about 6 minutes. |
 | `ex.functions.line-equation.json` | Pin and Swing, built on Rise per Step and Keep the Scales Level. Rook, about 7 minutes. |
 | `ex.functions.line-model.json` | Start Plus Rate, built on Pin and Swing. Rook, about 6 minutes. |
 | `ex.functions.inverse-undo.json` | Run It Backwards, built on One In, One Out. Rook, about 6 minutes. |
 
-Nothing here is recorded yet. Casting is done: the board approved all six tutors' voices on FAL-927, each one Gemini text-to-speech with a fixed model, voice and direction (`tools/explainer-clips/teachers.json`, GitHub #18). The owner auditions again only when a new character is added. Every script is a `draft` in format 2 until it passes the checks below (#188 to #191).
+Nothing here is recorded yet. Casting is done: the board approved all six tutors' voices on FAL-927, each one Gemini text-to-speech with a fixed model, voice and direction (`tools/explainer-clips/teachers.json`, GitHub #18). The owner auditions again only when a new character is added. Every script is a `draft`. One In, One Out is in format 3, the four acts below (#216). The other eleven are still in format 2 and its nine-part arc (see "Format 2 scripts") until each is rewritten in acts. The checker reads both.
 
-## The arc
+## The four acts
 
-This is the plan's nine-part arc as the research brief on [FAL-934](/FAL/issues/FAL-934) changed it. The brief made four changes: a "your turn" straight after example 1, a recall question in place of a recap, a concrete case before the definitions, and the common slip turned into a spot-the-error item.
+A lesson is four acts (#216). The player does something in every one of them. The tutor never talks for long before handing the player something to do, and the idea is found by playing before it is written down.
 
-| # | Section (`kind`) | Narration | What it does |
+| Act (`act`) | What happens | The player | Section kinds |
 |---|---|---|---|
-| 1 | `cold-open` | 15–20 s | Who the tutor is, and a question set in the zone that this idea answers. A joke can go here if it is about the hook. |
-| 2 | `recall` | 30–45 s | One tap question on the prerequisite, in two versions (see Callback lines). |
-| 3 | `big-idea` | 45–75 s | A concrete case first, then the picture, then the symbols. At most three new terms, each written on the board as it is defined. |
-| 4 | `example`, `level: full` | 60–90 s | The easiest version, fully worked, every step labelled out loud ("Step three: the formula"). |
-| 5 | `your-turn`, `kind: twin` | player-paced | The same structure as example 1 with new numbers. |
-| 6 | `example`, `level: faded` | 45–60 s | Harder by one thing. The tutor does most of it and the player fills in the key step. |
-| 7 | `example`, `level: exam` | 90–120 s | First the stem, read out in one or two plain lines (10–15 s) with its givens going on the board. Then parts (a), (b), (c) with command terms, and every board habit on show. |
-| 8 | `second-method` | 60–90 s | Only when the map lists a second method. The same problem as example 3, side by side, then "when would you pick each?" Otherwise the section is there with `skipped` and a reason. |
-| 9 | `spot-the-slip` | 30–45 s | A wrong worked solution built from one of the map's misconceptions. The player taps the bad line, and the tutor shows the check that catches it. |
-| 10 | `your-turn`, `kind: exam` | player-paced | Exam style, live numbers, no help on the first try. |
-| 11 | `recap` | 20–30 s | The idea in one or two sentences, the steps, what comes next, sign-off. |
+| 1. The signal (`signal`) | A situation in the zone, and a question about it | Makes a call (`predict`). Nothing is marked. | `opener` |
+| 2. Play (`play`) | The idea, found by using the zone's toy | Does the toy's tasks | `play`, and `recall` if it fits here |
+| 3. Put it on paper (`paper`) | The notation, then worked examples that fade: watch one, build one, then the exam layout | Taps, builds the working, types a part | `recall`, `idea`, `example`, `your-turn` (twin), `second-method` |
+| 4. Apply (`apply`) | Spot the slip, an exam-style turn, then back to the call | Finds the bad line, answers a live question | `spot-the-slip`, `your-turn` (exam), `recap` |
 
-Narration runs 6 to 8 minutes. The version for a player who watched the prerequisite stays under 8 minutes, and the not-watched version may run up to 30 seconds over. Foundations explainers teach prior learning, so they run 4 to 6 minutes: every section is still there, but any of them can be short, and the exam-style example can be a two-part item that puts the idea inside a course-style question. If a script runs past about 8 minutes, or needs a second new idea, more than three new terms or more than two methods, split it at a natural seam and have the second half recall the first.
+The first section is the `opener` and the last is the `recap`. Within an act, sections go in the order that teaches best. Examples get harder one thing at a time. The `level` of an example is `full` (the tutor works it), `build` (the player builds it with tiles), `faded` (the tutor works most of it and the player fills in the key step) or `exam` (the full exam layout, stem first).
+
+**Know, then do, then apply.** The player plays with the toy, watches one worked example, builds the next one, and only then meets the exam layout. A turn comes after the example it mirrors.
+
+**Short segments.** Interaction replaces talk; it isn't added on top. The checker holds every script to these:
+
+- at most 60 spoken words before the first player action;
+- at most 100 spoken words on the main path between two player actions;
+- at most 1,000 recorded words in the script, every branch counted, or 800 for a Foundations lesson. A script that needs more says why in `exceptions.recorded_words`.
 
 How examples get harder: change one thing at a time. Add a step, take away the signposting, put it in words, make d negative, fold in an earlier skill, or switch to the full exam layout. Keep the method and change the surface (the story, the letters, the kind of number). Each worked example gets one "why this step?" tap question.
+
+If a script needs a second new idea, more than three new terms or more than two methods, split it at a natural seam and have the second half recall the first.
+
+### The opener
+
+The opener is act 1 (#219). It has three parts, all inside 60 spoken words:
+
+1. **A situation in the tutor's zone.** Something is happening in the Signal Tower, the Scrapworks or the Dry Flats, and it needs a number.
+2. **A question** the lesson can answer. The lesson's own toy or first example must settle it, so act 1 leads into act 2 with no change of subject. A question the player can't answer yet is fine, because the call isn't marked.
+3. **A call from the player** (`predict`): a typed number or a dial. It is stored and never marked, and no line calls it a guess (`TONE.md`). Rook says "Your call. Over."; each tutor has their own way of asking.
+
+The lesson comes back to the call. In the recap there is always a `back_to` with a line for a call that matched, a line for each value a named misconception would give, and a line for anything else. A call of −13 for (−3)² − 4 gets its own line, because −13 is what squaring without the brackets gives. A `back_to` can come earlier too, when the toy settles the question ("Five. Same as your call.").
+
+The opener never teaches something false to get a hook. Curriculum Author checks every situation against the maths it leads to.
+
+The first worked example has a setting from the zone too (`problem.setting`), or `exceptions.first_example_setting` says why not. Exam-style examples keep exam wording.
+
+### Format 2 scripts
+
+The other eleven scripts use format 2's arc: `cold-open`, `recall`, `big-idea`, `example` (full), `your-turn` (twin), `example` (faded), `example` (exam), `second-method`, `spot-the-slip`, `your-turn` (exam), `recap`, in that order. The checker still reads them, and they get the new findings as to-dos (word runs, recorded words, a setting for the first example). Each one moves to format 3 when it is rewritten in acts.
 
 ## The board
 
@@ -232,7 +255,7 @@ The maintenance intelligence of the reactor under the Engine Core. Most of it is
 
 Dad jokes, well-known maths jokes and stories, and lines from the tutor's own life all work. A family story or a little analogy for how they remember something works best, because the joke then carries the idea (Uncle Wal's fence is the n − 1).
 
-**Where they go:** the cold open, the gaps between sections, after a right answer, and the sign-off. **Where they never go:** inside a step that carries the maths, on the board, in feedback on a wrong answer, or at the expense of whoever made the slip. A joke is one sentence, two at most. Mark it `"joke": true`, and keep jokes to about a tenth of the spoken words. The pilots run at 9% and 4%.
+**Where they go:** the opener, the gaps between sections, after a right answer, and the sign-off. **Where they never go:** inside a step that carries the maths, on the board, in feedback on a wrong answer, or at the expense of whoever made the slip. A joke is one sentence, two at most. Mark it `"joke": true`, and keep jokes to about a tenth of the spoken words. The pilots run at 9% and 4%.
 
 **Where the line falls.** Wasteland grit is fine: dust, rust, scrap, hunger, bad deals, broken machines, losing at cards, a fence with a gap in it, a cough from the dust. These are not fine:
 
@@ -265,16 +288,44 @@ An explainer with no prerequisite (`builds_on` empty, as most Foundations explai
 
 The callback lines are in `callbacks.json`, 14 per tutor: `own.watched`, `own.not-watched`, `short-version` and `after`, then a `watched` and `not-watched` line for each of the other five tutors. A script uses one with `{ "use": "mags-the-ledger.tin-can-tess.not-watched" }`. They never name the topic, so each can be recorded once and reused anywhere. The game shows the prerequisite's title card while the line plays. Matt's examples, Old Mama Ode and a bubble bot at the Bazaar, aren't tutors, so they have no lines yet. They get lines if casting on #18 adds them.
 
+In format 3 the recall section is optional, and goes in act 2 or act 3, where the prerequisite is first needed. If a script has none, its `notes` say how a player who hasn't watched the prerequisite still gets what they need.
+
+## Reactions
+
+A slip costs something small and funny, and nothing more (#220). The toy shows the cost in its world: static and a pin on the wrong settlement, or a tile sparking off the board. The tutor reacts to the thing that broke, never to the player. There is no fail state, no lost progress and no score that goes down.
+
+`reactions.json` holds each tutor's stock set, recorded once and played in any lesson, as `callbacks.json` is. Each tutor has:
+
+- **`ack`**: two or three short acknowledgements ("Copy.", "Sent.");
+- **`slip`**: five or so reactions to a slip ("Static. Come in again.", "There goes a fuse. I've got spares.").
+
+No line names a number, a topic or the player's mistake, and each keeps its tutor's rules: Tess never says "wrong", Calc never says "now", and Rook never says "over and out". The checker lists any of those as a to-do. Rook's set is the first. The other five tutors' sets come with #220, and the Writer approves every line.
+
+**When a reaction plays.** The lesson player chooses, by these rules:
+
+- An `ack` can play on a free toy send, or on a right build tile that has no line of its own. It doesn't play every time.
+- A `slip` plays on the first miss of a toy task, a build step or a typed answer. A second miss on the same item gets no reaction.
+- Never the same reaction twice running.
+- Never in place of the line that helps. When the item has a not-yet line, the reaction plays first and the not-yet line follows.
+
+A script never names a reaction line. A lesson with a toy, a build or a typed answer needs its tutor's set, and the checker lists a to-do when the set is missing. An approved script plays reactions only once `reactions.json` is approved too.
+
+## Toys
+
+Each topic has something the player can play with (#217, #221). A toy belongs to its zone and its tutor, and many lessons reuse it: the relay serves every Functions lesson that has a rule. `toys.json` lists every toy with what the player moves, what it shows, the task kinds it takes, the lessons that use it and where it trades rigour for play. The relay sends whole numbers only, for example, so the lesson makes it exact on paper. A toy goes in `toys.json` before a script names it, and the Curriculum Author passes its maths. The lesson player hosts every toy through one interface (`game/docs/TOYS.md`), so it never needs to know which toy it has.
+
+A toy can be wrong on purpose. The relay's `broken` variant gives two outputs for every input: oupa's radio, the "that's no function" moment.
+
 ## The script format
 
 Scripts are JSON. Both readers are code: the Godot player parses JSON natively, and the clip renderer is JavaScript. The rest of the game's words are JSON already (`game/data/shopkeeper.json`, `writing/encounters/`). Markdown with fixed headings would read better on GitHub, but it would need a parser that someone keeps up to date, and a stray heading would break it without a warning. JSON can be checked.
 
-`node tools/explainers.mjs` checks every script, and `node tools/explainer-scripts.mjs --todo` lists what each draft still needs (FAL-952, FAL-1043). The checks are the map, the arc order, board keys, answer indexes, every move, speaker, `use`, cue and question cell the script names, line ids and the manifest, caption against say, the turn rules, figures and repeats across scripts. A finding is one of two kinds:
+`node tools/explainers.mjs` checks every script, and `node tools/explainer-scripts.mjs --todo` lists what each draft still needs (FAL-952, FAL-1043, FAL-1087). The checks are the map, the acts (or the arc), board keys, answer indexes, every move, speaker, `use`, cue, toy and question cell the script names, line ids and the manifest, caption against say, the turn rules, the player actions (`tools/explainer-items.mjs`), the words between them, figures and repeats across scripts. A finding is one of two kinds:
 
 - **An error** breaks the format, and always fails.
-- **A to-do** is something the words still need: a digit in `say`, a caption that says something else, a number word in a turn line, a repeated joke. A draft may have to-dos, and `tools/explainers.mjs` counts them. An `approved` or `recorded` script with a to-do fails.
+- **A to-do** is something the words still need: a digit in `say`, a caption that says something else, a number word in a turn line, a repeated joke, a run of more than 100 words. A draft may have to-dos, and `tools/explainers.mjs` counts them. An `approved` or `recorded` script with a to-do fails.
 
-`tests/unit/explainer-scripts.test.mjs` breaks each rule once. `game/tests/test_explainer_turns.gd` (in `./test.sh`) makes every engine turn's questions and checks them against the turn. To read a script as a script, pull out the `caption` fields in order (or `say` where there's no caption).
+`tests/unit/explainer-scripts.test.mjs` breaks each rule once, on pilot 1 for format 2 and on the exemplar for format 3. `game/tests/test_explainer_turns.gd` (in `./test.sh`) makes every engine turn's questions and checks them against the turn. To read a script as a script, pull out the `caption` fields in order (or `say` where there's no caption).
 
 | File | What it is |
 |---|---|
@@ -286,8 +337,8 @@ Scripts are JSON. Both readers are code: the Godot player parses JSON natively, 
 
 | Field | What it holds |
 |---|---|
-| `id` | `ex.<zone>.<idea>`, as in the map. Permanent once on `main`, because the watched record stores it. |
-| `format` | `2`. |
+| `id` | `ex.<zone>.<idea>`, as in the map. Permanent once on `main`, because the watched record stores it. A script moved to format 3 keeps its id. |
+| `format` | `3`, or `2` for a script not yet rewritten in acts. |
 | `status` | `draft`, `approved` (Writer and Curriculum Author have passed it, and the checker lists no to-dos) or `recorded`. |
 | `waits_for` | Optional: `["figure"]` while the script still draws a table, grid or gauge in text (see "Figures"). An approved script waits for nothing. |
 | `title`, `idea` | The title card, and the idea in one sentence. |
@@ -296,13 +347,14 @@ Scripts are JSON. Both readers are code: the Godot player parses JSON natively, 
 | `builds_on`, `leads_to` | Explainer ids. `builds_on` drives the recall section. `leads_to` is what the recap points at. |
 | `terms` | The new terms, three at most. |
 | `misconceptions` | The map's misconceptions this script addresses, in the curriculum's words. |
-| `estimate` | Word counts and narration time for both recall versions, and how they were worked out. |
+| `estimate` | Word counts and narration time, and how they were worked out. In format 3: recorded words, main-path words and time, player actions, the longest run and the words before the first action. |
+| `exceptions` | Optional. `recorded_words`: why the script needs more than the word budget. `first_example_setting`: why the first worked example has no setting from the zone. |
 | `notes` | Anything a reviewer needs: a skipped section, an edit declined and why. |
-| `sections` | In arc order. Each has an `id`, a `kind` from the arc table and its `beats`. A recall section has `watched` and `not_watched` instead of `beats`, unless the explainer has no prerequisite (see Callback lines). An example has `level` and `problem`. A your-turn section has `turn`. |
+| `sections` | In act order (format 2: arc order). Each has an `id`, a `kind`, its `beats` and, in format 3, its `act`. A recall section has `watched` and `not_watched` instead of `beats`, unless the explainer has no prerequisite (see Callback lines). An example has `level` and `problem`, and the first example's `problem` has `setting`, a few words on where in the zone it happens. A your-turn section has `turn`. Every spoken line lives under `sections`, because that is where the manifest finds them. |
 
 ### Beats
 
-A beat is one of four things.
+A beat is one of four things, or one of the player actions below.
 
 **A spoken line.** `line` (its id), `speaker` (a tutor id), `caption` and `say`, and optional `cue`, `cue_at`, `pause`, `joke`, `clear` (wipe the board first) and `board`. Board items attached to a line are written while it is spoken.
 
@@ -327,6 +379,80 @@ One audio clip is made per line. The player shows the line's caption while its c
 
 **A callback.** `{ "use": "<tutor>.<key>" }`, played from `callbacks.json`. An approved script uses callbacks only once `callbacks.json` is approved too (#189).
 
+A line with no `speaker` is an error, because no check would see it.
+
+### Player actions
+
+Format 3 adds five beats (#216). A misconception is always named by its id in `question-types.json`, as in turns (`fn-pre-substitute#0`, `SL2.2.evaluate-notation#1`). Where a value can be worked out, the item carries a `check` that the checker works out and compares, so the answer key can't drift from the question. A check is arithmetic as the board writes it: `(−3)² − 4`, `20 + 12 × 5`. A unary minus binds looser than a power, so `−3² − 4` is −13, as on paper.
+
+**The call.** `predict`, in the opener:
+
+```json
+{ "predict": { "id": "call", "kind": "type", "prompt": "What goes out when −3 goes in?", "answer": "5", "check": "(−3)² − 4",
+  "values": [ { "value": "−13", "misconception": "fn-pre-substitute#0", "check": "−3² − 4" } ] } }
+```
+
+`kind` is `type` (a typed number), `dial` (with `dial: [min, max]`) or `choose` (a tapped option, with `choices`, for a call that isn't a number: "steeper", "the same"). `answer` is what the lesson will show, or a list when more than one call is right (−3 and 3 both square to 9). Each of `values` is what a named misconception gives. None of them is marked.
+
+**Back to the call.** `back_to` plays one group of lines, chosen by the stored call:
+
+```json
+{ "back_to": { "predict": "call", "match": [lines], "values": [ { "value": "−13", "lines": [lines] } ], "other": [lines] } }
+```
+
+The game compares the call with `answer`, then with each value (as numbers, or as text for `choose`), and plays the first group that matches, or `other`. The recap's `back_to` has all three: `match`, a group for every value of the predict, and `other`.
+
+**A toy.** The toy's id, its set-up and its tasks, as the lesson player reads them (`game/docs/TOYS.md`):
+
+```json
+{ "toy": "relay", "rule": "x² − 4", "dial": [-5, 5], "places": { "12": "Scrap Fields" },
+  "tasks": [ { "kind": "free", "count": 3, "then": [beats] },
+             { "kind": "send", "input": -3, "then": [beats] },
+             { "kind": "find", "output": 12, "place": "Scrap Fields", "then": [beats] } ] }
+```
+
+The player gets the tasks one at a time. `then` is the beats played once a task is met, before the next task starts. A toy item is one machine, and its log stays on the board through all its tasks. `"optional": true` marks a toy the player can skip (oupa's radio), and an optional toy is not on the main path. The relay's tasks are `free` (that many sends of anything), `send` (that input) and `find` (any input that gives that output; 4 and −4 both give 12). The checker confirms that the toy and its task kinds are in `toys.json`, that the rule can be read, that a `send` is on the dial, and that a `find` output comes from at least one whole number on the dial. A miss still goes out, with a reaction (see "Reactions"), and the player goes again.
+
+**A build.** The player writes the working one board line at a time, picking each from three tiles:
+
+```json
+{ "build": { "steps": [ { "tiles": [ { "write": "h(−2) = 5 − (−2)²", "move": "substitute" },
+                                     { "write": "h(−2) = 5 − −2²", "misconception": "fn-pre-substitute#0" },
+                                     { "write": "h(−2) = (5 − −2)²", "misconception": "fn-pre-substitute#3" } ],
+                          "answer": 0,
+                          "not_yet": [ { "line": "…", "speaker": "…", "say": "Input in brackets, then the square. Come in again.", "for": [1, 2] } ] } ] } }
+```
+
+Each step has three tiles, shown shuffled. One is right (`answer`), and it is a board item: it goes on the board when picked. Each wrong tile is keyed to a misconception, and is in the `for` of exactly one not-yet line, which can answer more than one tile. A wrong tile sparks off the board, a reaction plays, then its not-yet line, and the player picks again.
+
+**A typed answer.** Inside an example, for one of its problem's parts:
+
+```json
+{ "typed": { "part": "b", "prompt": "Find C(5).", "answer": "80", "accept": ["80%"], "check": "20 + 12 × 5",
+  "wrong": [ { "answer": "…", "misconception": "…" } ], "right": [lines], "not_yet": [lines] } }
+```
+
+`accept` lists other ways to write the right answer. Not-yet lines work as a turn's do (see "Which not-yet line plays"): one neutral line, and one line for each `wrong` answer's misconception. A not-yet line points at the step and asks again. It never gives the answer away, because the player types it next.
+
+### Player actions and the words between them
+
+The player actions are a call, a tap question, each task of a toy that isn't optional, each build step, a typed answer and a your-turn. The checker walks the main path, the lesson as one player hears it, and counts the spoken words between actions:
+
+- A line inside a branch (right, not yet, a `back_to` group) plays after its action, so it counts towards the next run, and the longest branch is the one counted.
+- After a miss on a build step, a toy task or a typed answer, the player goes again. The not-yet line comes before another action, so only the right line counts towards the next run.
+- A callback line counts. A reaction doesn't, because it is a word or two and plays only on some slips.
+- Each recall version is its own path.
+
+These are findings: a to-do on a draft, and a failure on an approved script.
+
+| Finding | Where |
+|---|---|
+| more than 100 spoken words on the main path between two player actions | the sections the run spans |
+| more than 60 spoken words before the first player action | the opener |
+| a `predict` the recap never returns to, or a recap `back_to` with no line for a match, for a value or for any other call | the recap |
+| more than 1,000 recorded words in the script, every branch counted (800 for Foundations), unless `exceptions.recorded_words` says why | the script |
+| a first worked example with no `problem.setting`, unless `exceptions.first_example_setting` says why | the first example |
+
 ### Turns
 
 A `your-turn` section holds a `turn` instead of beats. Its lines are recorded once and heard with every question the turn can serve, so the turn says exactly which questions those are (#188).
@@ -347,6 +473,8 @@ The engine serves one part at a time, asked with one command term, so a turn in 
 
 **Turn lines have no numbers and no story.** Every `intro`, `right` and `not_yet` line is a to-do if it says a number word other than "one" and "zero", names something from the fallback's story ("the east stand", "how many weeks?"), or, in an engine turn, talks about parts.
 
+**A turn's consequence in the world.** A turn is still part of the lesson's world. A right answer lights the mast and the signal goes out, and a not-yet answer gets static before the player goes again. The consequence lives in the screen and the sound, not in the lines: the game shows it from the turn's result, as it shows a toy's miss. The lines stay as they are, with no numbers and no story, so they hold for every question the turn can serve. A tutor who wants to remark on the consequence uses a reaction, which names nothing either.
+
 **Which not-yet line plays.** Each not-yet line but one names a `misconception`: its id in `question-types.json`, which is the misconception's `ref`, or `<type id>#<index>` when it has none (as `SL1.2.nth-term#0`, or `fn-pre-substitute#0`). The one line with no `misconception` is the neutral line. When an answer is wrong, the game marks it (`QuestionEngine.mark`), and:
 
 1. if the mark names a misconception and a not-yet line is keyed to it, that line plays;
@@ -358,9 +486,9 @@ A keyed line can say what went wrong, because it only plays when that slip was m
 
 Every spoken line has a `line` id: six lower-case letters and digits, unique in its file, made once and never changed (#189). It doesn't come from the line's place or its text, so lines can be edited, inserted and reordered and every recording still knows its line. Audio is filed by script id and line id.
 
-`manifest.json` has one entry per line, keyed by script id (or `callbacks`) and line id: the speaker, `say` (a hash of the speaker, `say`, `cue` and `cue_at`) and `take`. The caption is not in the hash, so a caption edit never asks for a new take. `take` is null until a take is accepted, then holds the hash it was made from, the provider, model, voice, direction, date, file and the speech-to-text transcript the pronunciation check compared (Explainers E5). A line whose `say` has changed since its take needs a new one: a to-do in a draft, an error in a recorded script.
+`manifest.json` has one entry per line, keyed by script id (or `callbacks`, or `reactions`) and line id: the speaker, `say` (a hash of the speaker, `say`, `cue` and `cue_at`) and `take`. The caption is not in the hash, so a caption edit never asks for a new take. `take` is null until a take is accepted, then holds the hash it was made from, the provider, model, voice, direction, date, file and the speech-to-text transcript the pronunciation check compared (Explainers E5). A line whose `say` has changed since its take needs a new one: a to-do in a draft, an error in a recorded script. The same goes for `callbacks.json` and `reactions.json`: once one is `recorded`, every line in it needs a take.
 
-After editing lines, run `node tools/explainer-scripts.mjs --write-manifest`. A line that leaves a script moves to `retired`, and its id is never used again, because saves and takes point at it. Making ids: any six random lower-case letters and digits not already in the manifest.
+After editing lines, run `node tools/explainer-scripts.mjs --write-manifest`. A line that leaves a script moves to `retired`, and its id is never used again, because saves and takes point at it. So don't write the manifest between taking a line out and putting it back: the id would be retired. A line whose `say` is unchanged keeps its id even when it moves within its script, or when the script moves to format 3. Copy the id across, because no tool matches old text to ids. A line moved to another file loses its take. Making ids: any six random lower-case letters and digits not already in the manifest.
 
 ### Figures
 
@@ -403,6 +531,7 @@ A tutor's tics may repeat. They are in `stock.json`, taken from the voice blocks
 
 ### How each reader uses it
 
+- **The lesson player** (#218, [FAL-1088](/FAL/issues/FAL-1088)) plays a format 3 script's beats in order, hosts its toy through `game/docs/TOYS.md`, keeps the call until the recap, and plays reactions by the rules in "Reactions".
 - **The Godot player** ([FAL-429](/FAL/issues/FAL-429)) plays beats in order: one clip per line, the line's `caption` on screen while it plays, and its board items written with it. Each board item with a `move` is the same object as a worked step, `{"move": …, "board": …}` (`Step.tagged`), so the player can highlight a step and replay its move line. Tap questions and turns pause the narration. The watched record picks the recall version, the turn's `serve` and `cell` pick its question, and the marked answer picks the not-yet line.
 - **The clip renderer** (`tools/explainer-clips/`) needs 3 to 5 beats and 10 to 25 seconds, so a clip takes one section, usually the big idea, and only the beats that change the board. Each chosen line becomes a `VOICE` line with its `say`, which is recorded, and its `caption`, which goes in the `.vtt`. Its slot is the word count of `say` × 0.45 s. The renderer's banned words are the same as ours.
 
@@ -412,16 +541,18 @@ The editor's pass, done by Writer on every script:
 
 1. Read every `say` aloud in order, in the tutor's voice, as a tired seventeen-year-old would hear it. Cut what they would tune out. Then read every caption on its own.
 2. Work every number and every step by hand, including the wrong solution in the slip and the turn fallbacks.
-3. Check the length against the arc. Under 8 minutes, or split it.
+3. Check the length: no run over 100 words, 60 before the first action, and the word budget. Otherwise cut, or split the lesson.
 4. Check the joke placement and budget, and that no line names "IB".
-5. Check that each callback version works without the other.
+5. Check that each callback version works without the other, and that every call value has its recap line.
 6. Run `node tools/explainer-scripts.mjs --todo` and clear every to-do, or move the script back to `draft`. An edit declined goes in `notes` with its reason.
 7. Run `node tools/explainer-scripts.mjs --write-manifest` and commit the manifest with the script.
 8. List anything unsure under `notes`, and on the task.
 
 ## Not decided yet
 
-The CEO settled the pilot questions on [FAL-953](/FAL/issues/FAL-953): the map follows the scripts, the length rule is the one in "The arc", and Gauss stays as pilot 2's story. The map follows the pilots now (FAL-952): `ex.algebra.arithmetic-sequence` teaches `SL1.2.nth-term` and builds on `ex.foundations.pre-substitute`, and `ex.algebra.arithmetic-series` teaches `SL1.2.sum`. Working back from terms and from a sum are their own explainers, `ex.algebra.arithmetic-from-terms` and `ex.algebra.arithmetic-sum-unknown`. Format 2 settled turns, line ids and how symbols are said (FAL-1043). What's still open:
+The CEO settled the pilot questions on [FAL-953](/FAL/issues/FAL-953): the map follows the scripts, the length rule is the one in "The arc", and Gauss stays as pilot 2's story. The map follows the pilots now (FAL-952): `ex.algebra.arithmetic-sequence` teaches `SL1.2.nth-term` and builds on `ex.foundations.pre-substitute`, and `ex.algebra.arithmetic-series` teaches `SL1.2.sum`. Working back from terms and from a sum are their own explainers, `ex.algebra.arithmetic-from-terms` and `ex.algebra.arithmetic-sum-unknown`. Format 2 settled turns, line ids and how symbols are said (FAL-1043). Format 3 settled the four acts, the call, toys, builds, typed parts and reactions (FAL-1087, #216). What's still open:
+
+- **Recall in format 3.** The exemplar has no recall section, as the Writer's draft left it. Whether a format 3 lesson keeps the two callback versions, and where, is a Writer decision on the next rewrite.
 
 - **Drawing figures.** The `figure` item is designed above, but nothing draws it yet. The Godot player needs it before any script that waits for it can be approved.
 - **Turns in parts, and stories.** The engine serves one part and picks its own story, so exam turns are fallback turns for now. A turn could be served live once the engine can make a question in parts, or pin a context, on request from the explainer player's task.

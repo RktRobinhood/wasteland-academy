@@ -1,5 +1,7 @@
 # One In, One Out: interactive draft
 
+> **Superseded.** This draft is now the script [`../ex.functions.function-machine.json`](../ex.functions.function-machine.json), in format 3 (FAL-1087, #216). Edit that file, not this one. The script's `notes` list what changed in the conversion: the build is two steps, oupa's radio has numbers, and the recap's last line is split in two so it keeps its id. This file stays as the record of the Writer's pass (FAL-1086).
+
 A proposal, not a script the game or the checker reads. It reworks `ex.functions.function-machine.json` (Rook Dead-Air) to test a lesson shape before any more scripts are written or recorded. The maths, the misconceptions and most of Rook's lines are the approved script's. What changes is what the player does.
 
 ## The shape
