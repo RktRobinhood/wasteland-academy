@@ -1,7 +1,10 @@
 {
   "id": "ex.foundations.pre-expand",
-  "format": 1,
-  "status": "approved",
+  "format": 2,
+  "status": "draft",
+  "waits_for": [
+    "figure"
+  ],
   "title": "Fill the Rectangle",
   "idea": "(x + a)(x + b) is the area of a rectangle split into four pieces, so expanding multiplies every term in one bracket by every term in the other, and (x + a)² has two middle strips.",
   "zone": "foundations",
@@ -44,7 +47,9 @@
     "The rectangle in the big idea is written as a text grid. A drawn one would be better; it needs a figure board item, raised on FAL-953 for phase 2.",
     "The misconception \"multiplies the factor in front into only the first bracket term\" is met in example 3, where the 2 multiplies all three terms, but it is not given its own wrong answer.",
     "Example 3 is a two-part course-style item (SL2.6, vertex form to expanded form, and the y-intercept), as FAL-953 allows for Foundations.",
-    "Live numbers for the turns come from fn-pre-expand (game/engine/situations/expand.gd); the fallbacks are fixed and worked below."
+    "Live numbers for the turns come from fn-pre-expand (game/engine/situations/expand.gd); the fallbacks are fixed and worked below.",
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes, and the figure.",
+    "Waits for the figure board item (README, \"Figures\"): the area grid are text drawings."
   ],
   "sections": [
     {
@@ -52,10 +57,12 @@
       "kind": "cold-open",
       "beats": [
         {
+          "line": "zo1o6e",
           "speaker": "tin-can-tess",
           "say": "Tess again. Somebody's put a hole through the side of my shed, and I'm patching it with a sheet of tin."
         },
         {
+          "line": "qi1up9",
           "speaker": "tin-can-tess",
           "say": "No idea who. The ute parked next to it has a dent the exact same shape, mind.",
           "cue": "laughs",
@@ -63,6 +70,7 @@
           "joke": true
         },
         {
+          "line": "h9p0fr",
           "speaker": "tin-can-tess",
           "say": "To cut the patch I need its area. And the sides have letters in them.",
           "pause": 0.5,
@@ -81,6 +89,7 @@
       "builds_on": null,
       "beats": [
         {
+          "line": "h919p0",
           "speaker": "tin-can-tess",
           "say": "First, one you brought with you from school. Tap the answer."
         },
@@ -96,12 +105,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "e4zowa",
                 "speaker": "tin-can-tess",
                 "say": "Three x plus twelve. The three multiplies everything in the bracket."
               }
             ],
             "not_yet": [
               {
+                "line": "q6xl9r",
                 "speaker": "tin-can-tess",
                 "say": "The three multiplies everything inside the bracket. Three lots of x, and three lots of four. Three x plus twelve."
               }
@@ -115,9 +126,10 @@
       "kind": "big-idea",
       "beats": [
         {
+          "line": "l70ua7",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "Here's the sheet. One side is x plus three, the other is x plus two. Area is one side times the other.",
+          "clear": true,
           "board": [
             {
               "write": "Area = (x + 3)(x + 2)",
@@ -126,6 +138,7 @@
           ]
         },
         {
+          "line": "jfp0pk",
           "speaker": "tin-can-tess",
           "say": "Hard to multiply as it stands, so cut it up. Split each side where the plus is, x and three one way and x and two the other, and you've got four pieces.",
           "board": [
@@ -144,10 +157,12 @@
           ]
         },
         {
+          "line": "uavg7h",
           "speaker": "tin-can-tess",
           "say": "The big square, x by x, is x squared. A strip x by two is two x, a strip three by x is three x, and the little corner, three by two, is six."
         },
         {
+          "line": "wt6vu0",
           "speaker": "tin-can-tess",
           "say": "Add the pieces. When you multiply out brackets like this, you expand them.",
           "board": [
@@ -162,6 +177,7 @@
           ]
         },
         {
+          "line": "orlokd",
           "speaker": "tin-can-tess",
           "say": "Two x and three x are like terms: same letter, same power. So they go together. x squared, plus five x, plus six.",
           "board": [
@@ -177,6 +193,7 @@
           ]
         },
         {
+          "line": "xdd63i",
           "speaker": "tin-can-tess",
           "say": "Every term in one bracket, times every term in the other. Bits on the bench, then bolt them together.",
           "board": [
@@ -187,6 +204,7 @@
           ]
         },
         {
+          "line": "ts2tp5",
           "speaker": "tin-can-tess",
           "say": "Want to know it's right? Try a number. Put x equals one into both, and four times three is twelve, and one plus five plus six is twelve. Same both ways.",
           "board": [
@@ -198,6 +216,7 @@
           ]
         },
         {
+          "line": "l5iqh2",
           "speaker": "tin-can-tess",
           "say": "I patched a roof once without measuring. Lovely job. Covered half the roof and most of the neighbour's.",
           "cue": "laughs",
@@ -216,9 +235,10 @@
       },
       "beats": [
         {
+          "line": "n2u6go",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "Step one: what we're finding. Expand x plus four, times x plus five.",
+          "clear": true,
           "board": [
             {
               "write": "Expand (x + 4)(x + 5).",
@@ -228,6 +248,7 @@
           ]
         },
         {
+          "line": "l92wfh",
           "speaker": "tin-can-tess",
           "say": "Step two: the four pieces. x times x, x squared. x times five, five x. Four times x, four x. Four times five, twenty.",
           "board": [
@@ -250,12 +271,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "ya5nfi",
                 "speaker": "tin-can-tess",
                 "say": "That's it. Two terms times two terms. Four pieces, every time."
               }
             ],
             "not_yet": [
               {
+                "line": "x27kkb",
                 "speaker": "tin-can-tess",
                 "say": "Each of the two terms in the first bracket meets each of the two in the second. Two times two, four pieces."
               }
@@ -263,6 +286,7 @@
           }
         },
         {
+          "line": "jw99gs",
           "speaker": "tin-can-tess",
           "say": "Step three: collect the like terms. Five x and four x make nine x. So it's x squared plus nine x plus twenty.",
           "board": [
@@ -275,6 +299,7 @@
           ]
         },
         {
+          "line": "p04saf",
           "speaker": "tin-can-tess",
           "say": "Step four: check with a number. With x as one, five times six is thirty, and one plus nine plus twenty is thirty.",
           "board": [
@@ -294,10 +319,18 @@
       "turn": {
         "kind": "twin",
         "like": "example-1",
-        "type": "fn-pre-expand",
+        "serve": "engine",
+        "cell": {
+          "type": "fn-pre-expand",
+          "unknown": "double-bracket",
+          "rep": "equation",
+          "angle": "distribute"
+        },
+        "command": "Expand",
         "skills": [],
         "intro": [
           {
+            "line": "lnx1it",
             "speaker": "tin-can-tess",
             "say": "Your go. Four pieces, then collect."
           }
@@ -318,20 +351,24 @@
         },
         "right": [
           {
+            "line": "jdclor",
             "speaker": "tin-can-tess",
             "say": "Sweet as. Bits on the bench, and it all went together."
           },
           {
+            "line": "fbo6qv",
             "speaker": "tin-can-tess",
             "say": "Choice. And you checked it, too."
           }
         ],
         "not_yet": [
           {
+            "line": "g8d4g0",
             "speaker": "tin-can-tess",
             "say": "Count your pieces. Two terms times two terms makes four."
           },
           {
+            "line": "etefza",
             "speaker": "tin-can-tess",
             "say": "Check it with a number. Put x equals one into both. Do they match?"
           }
@@ -347,9 +384,10 @@
       },
       "beats": [
         {
+          "line": "fn4xhb",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "Now a square patch. x plus four on both sides, so it's x plus four, all squared. Squared means times itself, so write it as two brackets first.",
+          "clear": true,
           "board": [
             {
               "write": "Expand (x + 4)².",
@@ -373,12 +411,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "hrg9ld",
                 "speaker": "tin-can-tess",
                 "say": "Eight x. Two strips of four x, one down the side and one along the top."
               }
             ],
             "not_yet": [
               {
+                "line": "xbmtx0",
                 "speaker": "tin-can-tess",
                 "say": "Picture the square. There's a strip of four x down one side, and another along the top. Two strips, eight x."
               }
@@ -386,6 +426,7 @@
           }
         },
         {
+          "line": "o5rjk4",
           "speaker": "tin-can-tess",
           "say": "So it's x squared, plus eight x, plus sixteen. Those two middle strips are the bit everyone leaves out.",
           "board": [
@@ -423,11 +464,13 @@
       },
       "beats": [
         {
+          "line": "pzkgas",
           "speaker": "tin-can-tess",
-          "clear": true,
-          "say": "Last one's set out like the exam papers. Two parts, letters down first."
+          "say": "Last one's set out like the exam papers. Two parts, letters down first.",
+          "clear": true
         },
         {
+          "line": "whdt40",
           "speaker": "tin-can-tess",
           "say": "Here's f. Take x minus three, square it, times by two, then add one.",
           "board": [
@@ -438,10 +481,12 @@
           ]
         },
         {
+          "line": "hvwdjh",
           "speaker": "tin-can-tess",
           "say": "Part a says show that. They've given you the answer, so your job is to get there from f, one step at a time, and land exactly on their line."
         },
         {
+          "line": "wr5o9z",
           "speaker": "tin-can-tess",
           "say": "Square the bracket first. x minus three, times x minus three. x squared, minus three x, minus three x, and minus three times minus three.",
           "board": [
@@ -469,12 +514,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "scp1mq",
                 "speaker": "tin-can-tess",
                 "say": "Right. Negative times negative."
               }
             ],
             "not_yet": [
               {
+                "line": "xlussf",
                 "speaker": "tin-can-tess",
                 "say": "The last piece is minus three times minus three. Negative times negative is positive, so it's plus nine."
               }
@@ -482,6 +529,7 @@
           }
         },
         {
+          "line": "rfdgdp",
           "speaker": "tin-can-tess",
           "say": "That's x squared minus six x plus nine. Now the two in front multiplies all three terms. The plus one goes on after, and the two never touches it.",
           "board": [
@@ -509,10 +557,12 @@
           ]
         },
         {
+          "line": "n0jk1j",
           "speaker": "tin-can-tess",
           "say": "That's their line, so we stop."
         },
         {
+          "line": "cy39ls",
           "speaker": "tin-can-tess",
           "say": "Part b says write down. The y-intercept is where x is zero, so every x term goes and nineteen is left. Zero, nineteen. And it checks against the start: two lots of nine, plus one.",
           "board": [
@@ -543,9 +593,10 @@
       "misconception": "Gets the sign of a product wrong",
       "beats": [
         {
+          "line": "we7ajo",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "Somebody taped this to my shed door. Cheeky. One line's a bit off. Find it.",
+          "clear": true,
           "board": [
             {
               "write": "(x − 5)(x + 2)",
@@ -576,12 +627,14 @@
             "answer": 1,
             "right": [
               {
+                "line": "z1jqsz",
                 "speaker": "tin-can-tess",
                 "say": "That's the one. Minus five times two is minus ten, not plus ten."
               }
             ],
             "not_yet": [
               {
+                "line": "derjbe",
                 "speaker": "tin-can-tess",
                 "say": "Check the sign of each piece on the second line. What's minus five times two?"
               }
@@ -589,6 +642,7 @@
           }
         },
         {
+          "line": "wyoxuw",
           "speaker": "tin-can-tess",
           "say": "Try x equals one. The brackets give minus four times three, minus twelve, and their answer gives one minus three plus ten, which is eight. No match.",
           "board": [
@@ -600,6 +654,7 @@
           ]
         },
         {
+          "line": "ts3xni",
           "speaker": "tin-can-tess",
           "say": "Line through it, and fix the sign. x squared minus three x minus ten. Now x equals one gives minus twelve both ways.",
           "board": [
@@ -619,6 +674,7 @@
           ]
         },
         {
+          "line": "cgb608",
           "speaker": "tin-can-tess",
           "say": "I keep every bolt I've stripped in a tin. Half of them are sign slips.",
           "cue": "laughs",
@@ -633,10 +689,14 @@
       "turn": {
         "kind": "exam",
         "like": "example-3",
-        "type": "fn-pre-expand",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-pre-expand"
+        },
         "skills": [],
         "intro": [
           {
+            "line": "g9ced4",
             "speaker": "tin-can-tess",
             "say": "Your go, and no help on the first try. Square the bracket first, and the number in front multiplies every term."
           }
@@ -666,20 +726,24 @@
         },
         "right": [
           {
+            "line": "tw4pla",
             "speaker": "tin-can-tess",
             "say": "Every term, every sign. That'd hold."
           },
           {
+            "line": "cbwflg",
             "speaker": "tin-can-tess",
             "say": "Choice. You landed right on their line."
           }
         ],
         "not_yet": [
           {
+            "line": "s6tvcr",
             "speaker": "tin-can-tess",
             "say": "Check the last piece of your square. What's negative times negative?"
           },
           {
+            "line": "fkbbgz",
             "speaker": "tin-can-tess",
             "say": "The number in front multiplies every term in the bracket. Did it reach all three?"
           }
@@ -691,9 +755,10 @@
       "kind": "recap",
       "beats": [
         {
+          "line": "e29rd4",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "So. To expand, multiply every term in one bracket by every term in the other, then collect the like terms. A square is two brackets, with two middle strips. Then check with a number.",
+          "clear": true,
           "board": [
             {
               "write": "(x + a)(x + b): every term × every term",
@@ -710,10 +775,12 @@
           ]
         },
         {
+          "line": "qxokck",
           "speaker": "tin-can-tess",
           "say": "Next time we run it backwards. You get the area, and you find the sides."
         },
         {
+          "line": "vhyidd",
           "speaker": "tin-can-tess",
           "say": "The shed's patched, by the way. And the ute's owner has offered to pay for the tin. Funny, that.",
           "cue": "laughs",

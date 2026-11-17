@@ -1,0 +1,85 @@
+{
+  "format": 1,
+  "about": "How each symbol and abbreviation in a caption is said (GitHub #190). tools/explainer-speech.mjs reads a line's caption through this sheet and checks that the line's say text says the same thing, word for word: every symbol has one of its spoken forms here, and every number is the same number. A tutor's entry replaces the default for that symbol, so a tutor can drop a form they never use. The round-trip speech-to-text check (Explainers E5) compares each take with say. See README.md, 'Writing the words'.",
+  "default": {
+    "symbols": {
+      "+": ["plus", "add", "and"],
+      "−": ["minus", "take away", "subtract", "negative", "less"],
+      "×": ["times", "lots of", "multiplied by", "by"],
+      "÷": ["divided by", "over", "shared between"],
+      "/": ["over", "divided by", "per", "out of"],
+      "=": ["equals", "is", "are", "makes", "gives", "that's", "comes to", "is equal to"],
+      "≈": ["is about", "about", "is roughly", "roughly", "is approximately"],
+      "≠": ["is not", "isn't", "is not equal to", "doesn't equal", "does not equal", "not"],
+      "<": ["is less than", "less than", "is under", "under", "is below", "below", "is fewer than", "fewer than", "is smaller than"],
+      ">": ["is more than", "more than", "is greater than", "greater than", "is over", "over", "is above", "above", "is bigger than"],
+      "≤": ["is less than or equal to", "less than or equal to", "is at most", "at most", "is no more than"],
+      "≥": ["is greater than or equal to", "greater than or equal to", "is at least", "at least", "is no less than", "can't be under"],
+      "±": ["plus or minus"],
+      "√": ["root", "the square root of", "square root of", "the root of", "root of"],
+      "π": ["pi"],
+      "%": ["percent", "per cent"],
+      "°": ["degrees", "degree"],
+      "→": ["goes to", "to", "becomes", "gives", "maps to", "then", "into"],
+      "∈": ["is in", "in", "is a member of", "belongs to", "are in"],
+      "ℤ": ["the integers", "integers", "whole numbers"],
+      "ℝ": ["the real numbers", "real numbers", "the reals"],
+      "∞": ["infinity"],
+      "…": ["", "and so on", "dot dot dot"],
+      "✓": ["", "tick", "check", "checks out"],
+      "✗": ["", "cross", "no"],
+      "½": ["a half", "half", "one half"],
+      "(": ["", "bracket", "open bracket", "brackets", "of"],
+      ")": ["", "close bracket", "in brackets", "in a bracket"],
+      "implicit": ["", "times", "lots of", "multiplied by"],
+      "subscript": ["", "sub"],
+      "²": ["squared", "to the power two", "to the power of two"],
+      "³": ["cubed", "to the power three", "to the power of three"],
+      "⁻¹": ["inverse", "to the minus one", "to the power minus one", "to the power of minus one"],
+      "power": ["to the power", "to the power of", "to the"]
+    },
+    "bracket_power": ["in brackets", "in a bracket"],
+    "words": {
+      "GDC": ["g d c"],
+      "s.f.": ["significant figures", "significant figure", "s f"],
+      "d.p.": ["decimal places", "decimal place", "d p"],
+      "L": ["l", "litres", "litre"],
+      "m": ["m", "metres", "metre"],
+      "cm": ["centimetres", "centimetre"],
+      "km": ["kilometres", "kilometre", "k"],
+      "kg": ["kilograms", "kilogram", "kilos", "kilo"],
+      "kWh": ["kilowatt hours", "kilowatt hour"],
+      "m³": ["cubic metres", "cubic metre", "metres cubed"],
+      "m²": ["square metres", "square metre", "metres squared"],
+      "km/h": ["kilometres an hour", "kilometres per hour", "k an hour"]
+    },
+    "zero": ["zero", "nought", "oh"],
+    "avoid": []
+  },
+  "tutors": {
+    "mags-the-ledger": {
+      "about": "Shorthand for a number already on the board is allowed: four eighty for 480. Subscripts are said with no 'sub': u n, u one, S n."
+    },
+    "tin-can-tess": {
+      "about": "Tess says percent as one word (#191). Subscripts with no 'sub'.",
+      "symbols": { "%": ["percent"] },
+      "avoid": ["per cent"]
+    },
+    "rook-dead-air": {
+      "about": "Rook reads numbers as on a radio: zero, never nought or oh.",
+      "zero": ["zero"],
+      "avoid": ["nought"]
+    },
+    "kara-meridian": {
+      "about": "Bearings as three figures: zero four five. Angles in degrees, always said."
+    },
+    "lucky-lenoir": {
+      "about": "Probabilities as fractions spoken plainly, and every probability statement in full: P of A given B.",
+      "symbols": { "|": ["given"] }
+    },
+    "calc": {
+      "about": "Calculus words the same way every time: d y by d x, f prime of x.",
+      "words": { "dy/dx": ["d y by d x"], "f′": ["f prime"], "f″": ["f double prime"] }
+    }
+  }
+}

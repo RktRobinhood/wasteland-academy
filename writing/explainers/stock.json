@@ -1,0 +1,12 @@
+{
+  "format": 1,
+  "about": "Phrases each tutor may say in every script: their tics from README.md, 'The tutors'. The repeat check in tools/explainer-scripts.mjs (#191) ignores these when it looks for the same opener, turn line, praise or sign-off in two scripts. Everything else in those frames is said once across all scripts. Add a tic here only when the README names it.",
+  "tutors": {
+    "mags-the-ledger": { "tics": ["if it's not in the book, it didn't happen", "into the book it goes", "in the book"] },
+    "tin-can-tess": { "tics": ["bits on the bench", "back on the bench"] },
+    "rook-dead-air": { "tics": ["loud and clear", "copy that", "come in again", "back on frequency", "rook, out", "your channel"] },
+    "kara-meridian": { "tics": ["what do we know for sure"] },
+    "lucky-lenoir": { "tics": ["i bet you a cap that"] },
+    "calc": { "tics": ["logging", "record found", "resuming"] }
+  }
+}

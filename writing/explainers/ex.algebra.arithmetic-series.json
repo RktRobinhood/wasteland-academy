@@ -1,7 +1,10 @@
 {
   "id": "ex.algebra.arithmetic-series",
-  "format": 1,
-  "status": "approved",
+  "format": 2,
+  "status": "draft",
+  "waits_for": [
+    "figure"
+  ],
   "title": "Adding Up an Arithmetic Sequence",
   "idea": "Write an arithmetic series forwards and backwards and every column adds to first plus last, so Sₙ = n/2 (u₁ + uₙ); putting in uₙ = u₁ + (n − 1)d gives the second form, Sₙ = n/2 (2u₁ + (n − 1)d).",
   "zone": "algebra",
@@ -43,7 +46,9 @@
   "notes": [
     "leads_to and builds_on match the explainer map (FAL-952). The map's entry is SL1.2.sum only, as this pilot teaches it; example 2 finds n from the last term on the way. Finding an unknown from a given sum is ex.algebra.arithmetic-sum-unknown.",
     "The two forms of the formula are the two methods (task FAL-936). Gauss pairing is the big idea, not a third method, and the GDC routes (sum(seq(…)), cumulative lists) belong in a method explainer under plan decision 4.",
-    "Example 1 uses the fight pit from ex.algebra.arithmetic-sequence, and its check uses row 40 = 178 seats from there, so a player who watched both sees the two lessons join up. A player who didn't still gets every number on the board."
+    "Example 1 uses the fight pit from ex.algebra.arithmetic-sequence, and its check uses row 40 = 178 seats from there, so a player who watched both sees the two lessons join up. A player who didn't still gets every number on the board.",
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes, and the figure.",
+    "Waits for the figure board item (README, \"Figures\"): Gauss's two lined-up rows are text drawings."
   ],
   "sections": [
     {
@@ -51,15 +56,18 @@
       "kind": "cold-open",
       "beats": [
         {
+          "line": "oh5pdp",
           "speaker": "mags-the-ledger",
           "say": "Mags again. The pit boss is selling every seat for the big fight, and he wants the house counted before the gates open."
         },
         {
+          "line": "awga06",
           "speaker": "mags-the-ledger",
           "say": "Last time he counted seats himself, he got as far as row nine and needed a lie-down.",
           "joke": true
         },
         {
+          "line": "w3sgnu",
           "speaker": "mags-the-ledger",
           "say": "Forty rows, every seat, and we won't count one.",
           "pause": 0.5,
@@ -92,12 +100,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "mr3k5v",
                 "speaker": "mags-the-ledger",
                 "say": "One hundred and two. Nineteen hops of five on top of seven. Keep that formula close. We're building on it."
               }
             ],
             "not_yet": [
               {
+                "line": "hz0e66",
                 "speaker": "mags-the-ledger",
                 "say": "Nineteen hops from the first term to the twentieth. Nineteen fives are ninety-five, and seven more is one hundred and two."
               }
@@ -107,6 +117,7 @@
       ],
       "not_watched": [
         {
+          "line": "dydbte",
           "speaker": "mags-the-ledger",
           "say": "Quick one before we start. Tap the answer."
         },
@@ -122,12 +133,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "hot8ws",
                 "speaker": "mags-the-ledger",
                 "say": "One hundred and two. Good."
               }
             ],
             "not_yet": [
               {
+                "line": "q5jvkt",
                 "speaker": "mags-the-ledger",
                 "say": "It's one hundred and two. Here's why."
               }
@@ -141,6 +154,7 @@
           "use": "mags-the-ledger.short-version"
         },
         {
+          "line": "ef27xa",
           "speaker": "mags-the-ledger",
           "say": "An arithmetic sequence adds the same amount, d, every time. To get term n, start at the first term and add d, n minus one times. n minus one, because you count the hops between the terms, not the terms. So u n is u one, plus n minus one lots of d.",
           "board": [
@@ -165,9 +179,10 @@
       "kind": "big-idea",
       "beats": [
         {
+          "line": "dyctao",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "There's an old story from before the dust. A boy called Carl Gauss was told to add up every number from one to a hundred, to keep him quiet.",
+          "clear": true,
           "board": [
             {
               "write": "1 + 2 + 3 + … + 100 = ?",
@@ -176,6 +191,7 @@
           ]
         },
         {
+          "line": "qpkffu",
           "speaker": "mags-the-ledger",
           "say": "The way the story goes, he wrote the sum out forwards, and underneath it, backwards. Then he added each column.",
           "board": [
@@ -194,6 +210,7 @@
           ]
         },
         {
+          "line": "ckbles",
           "speaker": "mags-the-ledger",
           "say": "One and a hundred, a hundred and one. Two and ninety-nine, a hundred and one. Every column comes to a hundred and one."
         },
@@ -209,12 +226,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "bncnnc",
                 "speaker": "mags-the-ledger",
                 "say": "That's it. What the top row gains, the bottom row loses, so the column total holds steady."
               }
             ],
             "not_yet": [
               {
+                "line": "pslff5",
                 "speaker": "mags-the-ledger",
                 "say": "Watch one column to the next. The top number goes up one and the bottom one comes down one. They cancel."
               }
@@ -222,6 +241,7 @@
           }
         },
         {
+          "line": "wgf17o",
           "speaker": "mags-the-ledger",
           "say": "A hundred columns of a hundred and one is ten thousand, one hundred. But every number's in there twice, so halve it. Five thousand and fifty.",
           "board": [
@@ -237,6 +257,7 @@
           ]
         },
         {
+          "line": "kb5f4v",
           "speaker": "mags-the-ledger",
           "say": "It didn't keep him quiet for long.",
           "cue": "chuckles",
@@ -244,6 +265,7 @@
           "joke": true
         },
         {
+          "line": "p7cp5h",
           "speaker": "mags-the-ledger",
           "say": "Two words for the book. Add up the terms of a sequence and you get a series. S n is the sum of the first n terms.",
           "board": [
@@ -258,6 +280,7 @@
           ]
         },
         {
+          "line": "bdauqh",
           "speaker": "mags-the-ledger",
           "say": "The trick works on any arithmetic series. Every column is first plus last, and there are n columns. Then halve it, because everything's written twice.",
           "board": [
@@ -273,6 +296,7 @@
           ]
         },
         {
+          "line": "y6e51s",
           "speaker": "mags-the-ledger",
           "say": "That's one form. Swap u n for what it equals, u one plus n minus one lots of d, and you get the other. n over two, times two u one plus n minus one lots of d.",
           "board": [
@@ -288,6 +312,7 @@
           ]
         },
         {
+          "line": "su6pse",
           "speaker": "mags-the-ledger",
           "say": "Both are in the formula book. Same sum, two doors in. Pick your door by what you've got.",
           "pause": 0.5
@@ -303,9 +328,10 @@
       },
       "beats": [
         {
+          "line": "hdr0y9",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "Back to the pit. Step one: what are we finding? The total of the first forty rows. That's S forty, not u forty.",
+          "clear": true,
           "board": [
             {
               "write": "Find S₄₀, the total number of seats in rows 1 to 40.",
@@ -315,6 +341,7 @@
           ]
         },
         {
+          "line": "a1ek68",
           "speaker": "mags-the-ledger",
           "say": "Step two: the givens, with units. u one, twenty-two seats. d, four seats per row. n, forty rows.",
           "board": [
@@ -334,6 +361,7 @@
           ]
         },
         {
+          "line": "acx6kl",
           "speaker": "mags-the-ledger",
           "say": "Step three: pick the door. We know d, but we haven't worked out the back row, so it's the d form. Formula first.",
           "board": [
@@ -349,6 +377,7 @@
           ]
         },
         {
+          "line": "neyqcq",
           "speaker": "mags-the-ledger",
           "say": "Step four: substitute. Forty over two, times two twenty-twos plus forty minus one lots of four.",
           "board": [
@@ -371,12 +400,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "by3n2j",
                 "speaker": "mags-the-ledger",
                 "say": "That's it. The trick writes the sum down twice, so we halve it."
               }
             ],
             "not_yet": [
               {
+                "line": "ku01vt",
                 "speaker": "mags-the-ledger",
                 "say": "Think back to forwards and backwards. Every seat got written down twice. Halving gives the real total."
               }
@@ -384,6 +415,7 @@
           }
         },
         {
+          "line": "cnim7q",
           "speaker": "mags-the-ledger",
           "say": "Step five: work it out. Two twenty-twos, forty-four. Thirty-nine fours, a hundred and fifty-six. Together that's two hundred. Twenty lots of two hundred: four thousand.",
           "board": [
@@ -403,6 +435,7 @@
           ]
         },
         {
+          "line": "hfvdua",
           "speaker": "mags-the-ledger",
           "say": "Step six, in words: the first forty rows hold four thousand seats.",
           "board": [
@@ -415,6 +448,7 @@
           ]
         },
         {
+          "line": "y85ih3",
           "speaker": "mags-the-ledger",
           "say": "Check it's sensible. Four thousand over forty rows is a hundred a row, on average. That's halfway between twenty-two at the front and a hundred and seventy-eight at the back.",
           "board": [
@@ -433,12 +467,20 @@
       "turn": {
         "kind": "twin",
         "like": "example-1",
-        "type": "t1-arithmetic-in-context",
+        "serve": "engine",
+        "cell": {
+          "type": "t1-arithmetic-in-context",
+          "unknown": "total-in-context",
+          "rep": "words",
+          "angle": "identify-parameters"
+        },
+        "command": "Find",
         "skills": [
           "SL1.2.sum"
         ],
         "intro": [
           {
+            "line": "evjduv",
             "speaker": "mags-the-ledger",
             "say": "Your turn. The east stand this time. Givens first, then pick your formula."
           }
@@ -462,20 +504,24 @@
         },
         "right": [
           {
+            "line": "njg162",
             "speaker": "mags-the-ledger",
             "say": "Right formula, right total. Into the book."
           },
           {
+            "line": "kszb97",
             "speaker": "mags-the-ledger",
             "say": "You picked the formula before you touched a number. Good habit."
           }
         ],
         "not_yet": [
           {
+            "line": "i1uae1",
             "speaker": "mags-the-ledger",
             "say": "Inside the bracket it's n minus one lots of d. Count the hops."
           },
           {
+            "line": "ym0bly",
             "speaker": "mags-the-ledger",
             "say": "That's one row. The question wants every row added up. Use the S formula."
           }
@@ -491,9 +537,10 @@
       },
       "beats": [
         {
+          "line": "jw3l88",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "A harder one. The old well: four hundred and eighty litres on day one, fifteen less each day. The crew stops after the day it gives a hundred and ninety-five. What did they draw, all told?",
+          "clear": true,
           "board": [
             {
               "write": "u₁ = 480 litres",
@@ -514,6 +561,7 @@
           ]
         },
         {
+          "line": "pu0ott",
           "speaker": "mags-the-ledger",
           "say": "We know the last term. We don't know n, the number of days. So first: which term is a hundred and ninety-five? Set the formula for u n equal to it.",
           "board": [
@@ -524,6 +572,7 @@
           ]
         },
         {
+          "line": "bokipa",
           "speaker": "mags-the-ledger",
           "say": "Take four eighty from both sides: minus two hundred and eighty-five. Divide both sides by minus fifteen. n minus one is nineteen.",
           "board": [
@@ -538,6 +587,7 @@
           ]
         },
         {
+          "line": "tm44yf",
           "speaker": "mags-the-ledger",
           "say": "We've got the first term and the last, so it's first plus last. Which number goes in for n?",
           "board": [
@@ -559,12 +609,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "tguj8l",
                 "speaker": "mags-the-ledger",
                 "say": "Twenty. n counts the days. Nineteen hops, twenty days."
               }
             ],
             "not_yet": [
               {
+                "line": "k3h0pf",
                 "speaker": "mags-the-ledger",
                 "say": "Nineteen is the hops, and a hundred and ninety-five is the litres. n counts the days: twenty."
               }
@@ -572,6 +624,7 @@
           }
         },
         {
+          "line": "nlr6yv",
           "speaker": "mags-the-ledger",
           "say": "So n is twenty.",
           "board": [
@@ -586,6 +639,7 @@
           ]
         },
         {
+          "line": "e8vf5k",
           "speaker": "mags-the-ledger",
           "say": "Twenty over two is ten. Four eighty and one ninety-five is six hundred and seventy-five. Ten of those: six thousand, seven hundred and fifty litres.",
           "board": [
@@ -632,9 +686,10 @@
       },
       "beats": [
         {
+          "line": "ezfcm2",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "Old exam layout now: letters down, each part's working under it. A barricade of eighteen layers, ninety-six sandbags at the bottom and four fewer in each layer up.",
+          "clear": true,
           "board": [
             {
               "write": "u₁ = 96 sandbags (bottom layer)",
@@ -651,6 +706,7 @@
           ]
         },
         {
+          "line": "hqjgbp",
           "speaker": "mags-the-ledger",
           "say": "Part a. The top layer is layer eighteen. Ninety-six, plus seventeen lots of minus four. Seventeen fours are sixty-eight, so that's twenty-eight.",
           "board": [
@@ -678,6 +734,7 @@
           ]
         },
         {
+          "line": "u6lyub",
           "speaker": "mags-the-ledger",
           "say": "Part b. We've found the last term, so first plus last is the quick door. Use your answer from part a, even if you're not sure of it. Whoever marks it follows your working through.",
           "board": [
@@ -694,6 +751,7 @@
           ]
         },
         {
+          "line": "u96m6w",
           "speaker": "mags-the-ledger",
           "say": "Eighteen over two is nine. Ninety-six and twenty-eight make a hundred and twenty-four. Nine of those is one thousand, one hundred and sixteen sandbags.",
           "board": [
@@ -716,10 +774,12 @@
           ]
         },
         {
+          "line": "w5ixj6",
           "speaker": "mags-the-ledger",
           "say": "Part c says show that. They've given you the answer. Your job is to get there from the formula, step by step, and land exactly on their line. Keep n as n, and never work backwards."
         },
         {
+          "line": "oe7st8",
           "speaker": "mags-the-ledger",
           "say": "We want it in terms of n, so the d form. Two ninety-sixes are a hundred and ninety-two. The bracket gives minus four n plus four. That's a hundred and ninety-six minus four n.",
           "board": [
@@ -746,6 +806,7 @@
           ]
         },
         {
+          "line": "pe4aa7",
           "speaker": "mags-the-ledger",
           "say": "Multiply through by n over two. Ninety-eight n, minus two n squared. That's their line, so we stop.",
           "board": [
@@ -769,12 +830,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "p10lus",
                 "speaker": "mags-the-ledger",
                 "say": "Right. One number's a check, not a proof. Do the check on scrap, and show it in general on the page."
               }
             ],
             "not_yet": [
               {
+                "line": "ajp79s",
                 "speaker": "mags-the-ledger",
                 "say": "Eighteen only tells you it works for eighteen. Show that wants every n, so you work in general. Eighteen makes a good check on scrap."
               }
@@ -782,6 +845,7 @@
           }
         },
         {
+          "line": "vhet6z",
           "speaker": "mags-the-ledger",
           "say": "On scrap, then. Eighteen gives one thousand, one hundred and sixteen, same as part b. The parts agree.",
           "board": [
@@ -801,9 +865,10 @@
       "about": "Part (b) of example 3 again, the two forms side by side.",
       "beats": [
         {
+          "line": "glcsb7",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "Back to part b, through the other door. Same question, the form with d in it. Side by side.",
+          "clear": true,
           "board": [
             {
               "write": "METHOD 1",
@@ -853,6 +918,7 @@
           ]
         },
         {
+          "line": "oqrkx7",
           "speaker": "mags-the-ledger",
           "say": "Look inside the brackets. One ninety-two take sixty-eight is a hundred and twenty-four, same as first plus last. Two u one plus n minus one lots of d is first plus last, written another way."
         },
@@ -868,12 +934,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "sa50wp",
                 "speaker": "mags-the-ledger",
                 "say": "That's it. Last term in hand, use it."
               }
             ],
             "not_yet": [
               {
+                "line": "rc0oos",
                 "speaker": "mags-the-ledger",
                 "say": "Method one needs u n. Got the last term? Use it."
               }
@@ -881,6 +949,7 @@
           }
         },
         {
+          "line": "ke674j",
           "speaker": "mags-the-ledger",
           "say": "Only d and n? The d form. Want it in terms of n, like part c? The d form again.",
           "board": [
@@ -904,9 +973,10 @@
       "misconception": "Using n instead of n − 1 inside the formula: n/2(2u_1 + nd)",
       "beats": [
         {
+          "line": "ckw5nw",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "Somebody's tallied the pit and got it wrong. One line's off. Find it.",
+          "clear": true,
           "board": [
             {
               "write": "S₄₀ = 40/2 (2 × 22 + 40 × 4)",
@@ -943,12 +1013,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "dual3s",
                 "speaker": "mags-the-ledger",
                 "say": "That one. Forty lots of four, where it should be thirty-nine."
               }
             ],
             "not_yet": [
               {
+                "line": "ptjcx5",
                 "speaker": "mags-the-ledger",
                 "say": "Look inside the bracket on the first line. How many lots of d should there be?"
               }
@@ -956,6 +1028,7 @@
           }
         },
         {
+          "line": "cvd27h",
           "speaker": "mags-the-ledger",
           "say": "Two checks would have caught it. Put n equals one in, and the sum of one term has to be the first term. Their rule gives twenty-four, not twenty-two.",
           "board": [
@@ -967,6 +1040,7 @@
           ]
         },
         {
+          "line": "nah1wn",
           "speaker": "mags-the-ledger",
           "say": "Or work it the other way. First plus last gives four thousand. Two methods, two different answers? Somebody's lying.",
           "board": [
@@ -987,13 +1061,17 @@
       "turn": {
         "kind": "exam",
         "like": "example-3",
-        "type": "t1-arithmetic-in-context",
+        "serve": "fallback",
+        "cell": {
+          "type": "t1-arithmetic-in-context"
+        },
         "skills": [
           "SL1.2.sum",
           "SL1.2.nth-term"
         ],
         "intro": [
           {
+            "line": "a924a1",
             "speaker": "mags-the-ledger",
             "say": "Your turn. No help on the first go. Label every part, and pick your formula before you write a number."
           }
@@ -1026,20 +1104,24 @@
         },
         "right": [
           {
+            "line": "s7xadi",
             "speaker": "mags-the-ledger",
             "say": "Every part labelled, and the parts agree. I'd sign that."
           },
           {
+            "line": "kdu6y9",
             "speaker": "mags-the-ledger",
             "say": "Clean books. Nothing for me to cross out."
           }
         ],
         "not_yet": [
           {
+            "line": "y9mowt",
             "speaker": "mags-the-ledger",
             "say": "Are you after one day, or all of them added up? Check which the part asks for."
           },
           {
+            "line": "cnqlou",
             "speaker": "mags-the-ledger",
             "say": "For the show that, start from the formula with d in it and keep n as n."
           }
@@ -1051,9 +1133,10 @@
       "kind": "recap",
       "beats": [
         {
+          "line": "r9y65i",
           "speaker": "mags-the-ledger",
-          "clear": true,
           "say": "So. A series is a sequence added up. Forwards and backwards, every column is first plus last, so it's n over two, first plus last. No last term? Use the d form.",
+          "clear": true,
           "board": [
             {
               "write": "Sₙ = n/2 (u₁ + uₙ): you know the last term",
@@ -1070,16 +1153,19 @@
           ]
         },
         {
+          "line": "uc87nv",
           "speaker": "mags-the-ledger",
           "say": "Next on my books: sequences that multiply instead of add. That's where debts turn nasty."
         },
         {
+          "line": "ezz0ch",
           "speaker": "mags-the-ledger",
           "say": "Dust. Gets in everything.",
           "cue": "coughs",
           "cue_at": "start"
         },
         {
+          "line": "hahilc",
           "speaker": "mags-the-ledger",
           "say": "The pit boss sold all four thousand seats, by the way. Then he asked me to count the takings. I charge by the column.",
           "joke": true

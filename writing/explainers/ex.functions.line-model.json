@@ -1,7 +1,10 @@
 {
   "id": "ex.functions.line-model",
-  "format": 1,
-  "status": "approved",
+  "format": 2,
+  "status": "draft",
+  "waits_for": [
+    "figure"
+  ],
   "title": "Start Plus Rate",
   "idea": "A linear model is a starting value plus a constant rate, so the intercept and the gradient each mean something in context.",
   "zone": "functions",
@@ -49,7 +52,9 @@
     "No second-method section: the map lists no methods. All three of the skill's methods appear: constant differences in a table is the big idea, rate and start from the words is examples 1 and 2, and two data points is example 3.",
     "AI-SL2.5.linear-model also covers piecewise linear models. Those are ex.functions.piecewise-model (AI HL), which builds on this one, so this script teaches the single straight-line part of the skill and leaves the piecewise misconceptions to that script.",
     "The money in the stories is scrap, the game's currency (SPEC.md).",
-    "The turns use fn-ext-line-model (situation line-model). Its fallbacks are fixed and worked below."
+    "The turns use fn-ext-line-model (situation line-model). Its fallbacks are fixed and worked below.",
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes, and the figure.",
+    "Waits for the figure board item (README, \"Figures\"): the table of t and C are text drawings."
   ],
   "sections": [
     {
@@ -57,10 +62,12 @@
       "kind": "cold-open",
       "beats": [
         {
+          "line": "n051hj",
           "speaker": "rook-dead-air",
           "say": "Signal Tower, this is Rook. Traders book airtime with me to call the far settlements."
         },
         {
+          "line": "plysvn",
           "speaker": "rook-dead-air",
           "say": "Opening a channel costs eight scrap. Every minute on air costs three more.",
           "board": [
@@ -71,6 +78,7 @@
           ]
         },
         {
+          "line": "gdv7qk",
           "speaker": "rook-dead-air",
           "say": "One trader says ten minutes should cost eighty, because it's eight scrap a minute. He's tuned it backwards. What does ten minutes cost? Over.",
           "pause": 0.5
@@ -97,12 +105,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "qstjqc",
                 "speaker": "rook-dead-air",
                 "say": "y equals two x plus five. Gradient in front of x, and five where it crosses. Today those two get jobs."
               }
             ],
             "not_yet": [
               {
+                "line": "d0fh4z",
                 "speaker": "rook-dead-air",
                 "say": "In y equals m x plus c, the gradient goes in front of x and c is where it crosses the y-axis. So y equals two x plus five. Today those two get jobs."
               }
@@ -112,6 +122,7 @@
       ],
       "not_watched": [
         {
+          "line": "zvtlx1",
           "speaker": "rook-dead-air",
           "say": "Before the lesson, one check. Tap one."
         },
@@ -127,12 +138,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "z3fg42",
                 "speaker": "rook-dead-air",
                 "say": "y equals two x plus five. Good."
               }
             ],
             "not_yet": [
               {
+                "line": "md0udi",
                 "speaker": "rook-dead-air",
                 "say": "It's y equals two x plus five. Here's how."
               }
@@ -146,6 +159,7 @@
           "use": "rook-dead-air.short-version"
         },
         {
+          "line": "ntktxf",
           "speaker": "rook-dead-air",
           "say": "A straight line can be written y equals m x plus c. m is the gradient, the climb for each step of one across. c is where the line crosses the y-axis, at zero, c.",
           "board": [
@@ -169,9 +183,10 @@
       "kind": "big-idea",
       "beats": [
         {
+          "line": "ur1j21",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "Here's the airtime bill, minute by minute. Zero minutes, eight scrap. One minute, eleven. Two, fourteen. Three, seventeen.",
+          "clear": true,
           "board": [
             {
               "write": "t (minutes):  0    1    2    3",
@@ -184,6 +199,7 @@
           ]
         },
         {
+          "line": "p6nnmp",
           "speaker": "rook-dead-air",
           "say": "Same jump every time. Three scrap for each minute. A steady jump like that makes a straight line. On a graph it starts at eight on the C-axis and climbs three for every minute across.",
           "board": [
@@ -194,6 +210,7 @@
           ]
         },
         {
+          "line": "fifdn9",
           "speaker": "rook-dead-air",
           "say": "The three is the gradient, and here it's a rate. Three scrap per minute. Per minute. It's not a total. It's what one more minute adds.",
           "board": [
@@ -204,6 +221,7 @@
           ]
         },
         {
+          "line": "tb465r",
           "speaker": "rook-dead-air",
           "say": "The eight is where the line starts, at t equals zero. That's the initial value. Eight scrap before a word goes out.",
           "board": [
@@ -214,6 +232,7 @@
           ]
         },
         {
+          "line": "box9cw",
           "speaker": "rook-dead-air",
           "say": "Put them together. C equals three t plus eight. Rate times input, plus the start. That's a linear model.",
           "board": [
@@ -229,6 +248,7 @@
           ]
         },
         {
+          "line": "r1zpuo",
           "speaker": "rook-dead-air",
           "say": "And our trader? He took the eight as the rate. It's the start. Ten minutes is thirty for the airtime, and eight to open the channel. Thirty-eight scrap.",
           "board": [
@@ -239,6 +259,7 @@
           ]
         },
         {
+          "line": "vtptpw",
           "speaker": "rook-dead-air",
           "say": "He paid, and then he talked for nine minutes about the weather. Shame.",
           "joke": true,
@@ -257,9 +278,10 @@
       },
       "beats": [
         {
+          "line": "v5yz1e",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "On paper. The tower's water tank holds fifty litres, and the pump adds twelve litres a minute. Step one: what we're finding. A model for the volume, then the volume after seven minutes.",
+          "clear": true,
           "board": [
             {
               "write": "Find V in terms of t, then V when t = 7.",
@@ -269,6 +291,7 @@
           ]
         },
         {
+          "line": "at60ki",
           "speaker": "rook-dead-air",
           "say": "Step two: the givens, with units. Initial value, fifty litres. Rate, twelve litres per minute.",
           "board": [
@@ -284,6 +307,7 @@
           ]
         },
         {
+          "line": "ii1fh8",
           "speaker": "rook-dead-air",
           "say": "Step three: the model. Rate times input, plus the start. V equals twelve t plus fifty.",
           "board": [
@@ -306,12 +330,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "xa4qiq",
                 "speaker": "rook-dead-air",
                 "say": "Copy that. Per minute means rate, and rate is gradient."
               }
             ],
             "not_yet": [
               {
+                "line": "b6j9eu",
                 "speaker": "rook-dead-air",
                 "say": "Look for the word per. Twelve litres per minute is what each minute adds, so it's the rate. Fifty is there at the start."
               }
@@ -319,6 +345,7 @@
           }
         },
         {
+          "line": "x0mro5",
           "speaker": "rook-dead-air",
           "say": "Step four: substitute. Seven goes in for t. Twelve sevens are eighty-four. Plus fifty, one hundred and thirty-four.",
           "board": [
@@ -335,6 +362,7 @@
           ]
         },
         {
+          "line": "pg5ix9",
           "speaker": "rook-dead-air",
           "say": "Step five: in words. After seven minutes, the tank holds one hundred and thirty-four litres.",
           "board": [
@@ -347,6 +375,7 @@
           ]
         },
         {
+          "line": "qzkqvg",
           "speaker": "rook-dead-air",
           "say": "Check: seven minutes at twelve a minute is eighty-four litres added. Fifty plus eighty-four.",
           "board": [
@@ -365,12 +394,16 @@
       "turn": {
         "kind": "twin",
         "like": "example-1",
-        "type": "fn-ext-line-model",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-ext-line-model"
+        },
         "skills": [
           "SL2.1.line-model"
         ],
         "intro": [
           {
+            "line": "mzqxf4",
             "speaker": "rook-dead-air",
             "say": "Your channel. Find the start, find the rate, then build it. Over."
           }
@@ -396,20 +429,24 @@
         },
         "right": [
           {
+            "line": "rnxpz8",
             "speaker": "rook-dead-air",
             "say": "Start plus rate, both in the right place. Loud and clear."
           },
           {
+            "line": "torrmt",
             "speaker": "rook-dead-air",
             "say": "Rate with the input, start on its own. Copy that."
           }
         ],
         "not_yet": [
           {
+            "line": "zm5c2n",
             "speaker": "rook-dead-air",
             "say": "Which value is per unit? That one goes with the input."
           },
           {
+            "line": "y4o6nq",
             "speaker": "rook-dead-air",
             "say": "Check the value when the input is zero. That's your start."
           }
@@ -425,9 +462,10 @@
       },
       "beats": [
         {
+          "line": "gsld9h",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "Now one that goes down. The generator holds forty litres of fuel, and it burns two point five litres an hour.",
+          "clear": true,
           "board": [
             {
               "write": "Generator: 40 L of fuel, burns 2.5 L per hour. When does it run out?",
@@ -436,6 +474,7 @@
           ]
         },
         {
+          "line": "vlz84e",
           "speaker": "rook-dead-air",
           "say": "You build the model. I'll keep the channel open."
         },
@@ -451,12 +490,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "rdx6au",
                 "speaker": "rook-dead-air",
                 "say": "Forty at the start, two point five less every hour. Lekker."
               }
             ],
             "not_yet": [
               {
+                "line": "mldbdm",
                 "speaker": "rook-dead-air",
                 "say": "The start is forty litres. Each hour takes two point five away, so the rate is minus two point five. F equals forty minus two point five h."
               }
@@ -464,6 +505,7 @@
           }
         },
         {
+          "line": "mp1kn5",
           "speaker": "rook-dead-air",
           "say": "The gradient is minus two point five. Litres per hour, going down.",
           "board": [
@@ -478,6 +520,7 @@
           ]
         },
         {
+          "line": "yu1xzt",
           "speaker": "rook-dead-air",
           "say": "Runs out means F is zero. Add two point five h to both sides, then divide. h is sixteen. Sixteen hours.",
           "board": [
@@ -502,6 +545,7 @@
           ]
         },
         {
+          "line": "y5hyjr",
           "speaker": "rook-dead-air",
           "say": "So the model only holds from zero to sixteen hours. Past sixteen there's no fuel to burn.",
           "board": [
@@ -540,9 +584,10 @@
       },
       "beats": [
         {
+          "line": "gxfl5f",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "A full exam question now. A water truck is filling from the tower's well. After four minutes it holds three eighty litres. After ten, seven seventy. The volume, V litres, after t minutes, is modelled by V equals m t plus c.",
+          "clear": true,
           "board": [
             {
               "write": "t = 4: V = 380 L.   t = 10: V = 770 L.   V = mt + c",
@@ -552,6 +597,7 @@
           ]
         },
         {
+          "line": "yr7dxf",
           "speaker": "rook-dead-air",
           "say": "Part a. Two points, so the gradient first. Three ninety litres over six minutes. Sixty-five.",
           "board": [
@@ -563,6 +609,7 @@
           ]
         },
         {
+          "line": "k2buwi",
           "speaker": "rook-dead-air",
           "say": "Then c. Put four, three eighty into the model. Three eighty equals two sixty plus c. c is one hundred and twenty.",
           "board": [
@@ -585,6 +632,7 @@
           ]
         },
         {
+          "line": "b703y8",
           "speaker": "rook-dead-air",
           "say": "Part b. Interpret means say what each value means here, with its units. Litres per minute for the rate. Litres for the start."
         },
@@ -600,12 +648,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "zl4whl",
                 "speaker": "rook-dead-air",
                 "say": "Copy that. Sixty-five litres per minute. A rate."
               }
             ],
             "not_yet": [
               {
+                "line": "w6q7oq",
                 "speaker": "rook-dead-air",
                 "say": "Crossed wire. m is a gradient, so it's per minute. The truck gains sixty-five litres for each minute of filling."
               }
@@ -613,6 +663,7 @@
           }
         },
         {
+          "line": "iw7t9q",
           "speaker": "rook-dead-air",
           "say": "m: the truck fills at sixty-five litres per minute. c: when t is zero it already holds one hundred and twenty litres. It wasn't empty when we started.",
           "board": [
@@ -631,6 +682,7 @@
           ]
         },
         {
+          "line": "xivs5b",
           "speaker": "rook-dead-air",
           "say": "Part c. Full is two thousand. Set the output to two thousand and solve for t. Sixty-five t is eighteen eighty.",
           "board": [
@@ -652,6 +704,7 @@
           ]
         },
         {
+          "line": "aoooxa",
           "speaker": "rook-dead-air",
           "say": "t is twenty-eight point nine two three and on. Carry that, round once, at the end. Twenty-eight point nine minutes, to three significant figures.",
           "board": [
@@ -670,6 +723,7 @@
           ]
         },
         {
+          "line": "xnwagi",
           "speaker": "rook-dead-air",
           "say": "Check: about twenty-nine minutes at sixty-five is about nineteen hundred litres, plus the one twenty. Close to two thousand. Out.",
           "board": [
@@ -694,9 +748,10 @@
       "misconception": "Uses the model far outside its sensible domain, e.g. negative time",
       "beats": [
         {
+          "line": "hp9cx1",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "Back to the generator. Somebody worked out the fuel after twenty hours. The sums are fine. One line still has a crossed wire.",
+          "clear": true,
           "board": [
             {
               "write": "F = 40 − 2.5h",
@@ -733,12 +788,14 @@
             "answer": 3,
             "right": [
               {
+                "line": "zvww4m",
                 "speaker": "rook-dead-air",
                 "say": "That's the one. Minus ten litres of fuel isn't a thing."
               }
             ],
             "not_yet": [
               {
+                "line": "n4hrq7",
                 "speaker": "rook-dead-air",
                 "say": "Every sum is right. Read the last line out loud. Can a tank hold less than nothing?"
               }
@@ -746,6 +803,7 @@
           }
         },
         {
+          "line": "amgb29",
           "speaker": "rook-dead-air",
           "say": "The check: does the output make sense in the world? A tank can't hold minus ten litres. The model stopped working at sixteen hours, when the fuel ran out.",
           "board": [
@@ -757,6 +815,7 @@
           ]
         },
         {
+          "line": "ug0kdj",
           "speaker": "rook-dead-air",
           "say": "One line through it. After twenty hours the tank is empty. Zero litres. And the generator went quiet four hours ago.",
           "board": [
@@ -771,6 +830,7 @@
           ]
         },
         {
+          "line": "vnvjzw",
           "speaker": "rook-dead-air",
           "say": "My oupa ran a generator dry once, in the second half of a rugby final. He still says that's why his side lost.",
           "joke": true,
@@ -785,13 +845,17 @@
       "turn": {
         "kind": "exam",
         "like": "example-3",
-        "type": "fn-ext-line-model",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-ext-line-model"
+        },
         "skills": [
           "SL2.1.line-model",
           "AI-SL2.5.linear-model"
         ],
         "intro": [
           {
+            "line": "plz9qx",
             "speaker": "rook-dead-air",
             "say": "Your channel, no help on the first try. Label the parts, and give every value its units. Over."
           }
@@ -827,20 +891,24 @@
         },
         "right": [
           {
+            "line": "hnclt2",
             "speaker": "rook-dead-air",
             "say": "Rate per unit, and the fixed amount at the start. Loud and clear."
           },
           {
+            "line": "cpu737",
             "speaker": "rook-dead-air",
             "say": "Every value with its units. Copy that."
           }
         ],
         "not_yet": [
           {
+            "line": "p9zw0v",
             "speaker": "rook-dead-air",
             "say": "The gradient is per unit, not a total. Say it again with per."
           },
           {
+            "line": "f01wn6",
             "speaker": "rook-dead-air",
             "say": "Check which value is the fixed amount. It's the output when the input is zero."
           }
@@ -852,9 +920,10 @@
       "kind": "recap",
       "beats": [
         {
+          "line": "g8fxq1",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "So. A linear model is a start plus a steady rate. The gradient is the rate, per unit. The intercept is the value at the start. And check the model still makes sense where you use it.",
+          "clear": true,
           "board": [
             {
               "write": "output = rate × input + initial value",
@@ -875,10 +944,12 @@
           ]
         },
         {
+          "line": "qvu05l",
           "speaker": "rook-dead-air",
           "say": "Next time, a model that doesn't add the same each step. It multiplies."
         },
         {
+          "line": "l6bxen",
           "speaker": "rook-dead-air",
           "say": "That's the transmission. Start plus rate. Rook, out."
         }
