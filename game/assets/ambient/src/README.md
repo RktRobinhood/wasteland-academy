@@ -14,3 +14,13 @@ headless on the CPU. Run each step from the piece's own folder.
 | `dust-burst-sheet` | EffectCraft | `burst.jsonl`, `./burst-set.sh`, render `--start 0.083 --end 1.17`, then `pack_loop.py ... 7 12 --fade 4` |
 
 With `anicraft-cli run ... --save`, delete the old `.anicraft` first, because saving over it is refused.
+
+**Edge feather (after packing).** No cell may touch its own edge, or Godot shows a hard straight cut. These ran on the packed sheets:
+
+```
+python3 feather_edges.py ../hit-spark-sheet.png 24 --radial
+python3 feather_edges.py ../flats-dust-sheet.png 16
+python3 feather_edges.py ../engine-smoke-sheet.png 16 --sides R
+python3 feather_edges.py ../dome-neon-sheet.png 4 --sides B
+python3 check_edges.py        # every cell's outer 1 px row must read alpha <= 8; exits 1 otherwise
+```
