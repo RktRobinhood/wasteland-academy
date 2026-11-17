@@ -365,7 +365,8 @@ static func _calc_bound(rng: Seeded, s: Dictionary) -> bool:
 	s.side = "lower" if rng.chance(0.5) else "upper"
 	match s.shape:
 		"rectangle", "cylinder":
-			s.u = rng.pick([Q.new(1, 10), Q.new(1)])
+			# A tank measured to the nearest metre would hold millions of m³: 1 d.p. only.
+			s.u = Q.new(1, 10) if s.shape == "cylinder" else rng.pick([Q.new(1, 10), Q.new(1)])
 			s.xs = [Q.new(rng.int_in(21, 150)).mul(s.u), Q.new(rng.int_in(11, 99)).mul(s.u)]
 			if s.xs[0].eq(s.xs[1]):
 				return false

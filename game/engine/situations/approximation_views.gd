@@ -161,11 +161,13 @@ func u_round_figures(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wr: Array = []
 	if s.mode == "small":
 		wr.append(wrong(rounded_values(v, s.n), R_LEADING))
+	# A slip with the value of one already listed (0.002 and 0.00200) can't be told apart
+	# when it is typed, so only the first is kept.
 	var st := ApproximationSituation.staged(v, s.from, keep)
-	if not st.eq(r):
+	if not st.eq(r) and not wr.any(func(w): return w.values.v.eq(st)):
 		wr.append(wrong({"v": st, "text": written(st, keep)}, R_STAGES))
 	var cut := ApproximationSituation.cut_to(v, keep)
-	if not cut.eq(r):
+	if not cut.eq(r) and not wr.any(func(w): return w.values.v.eq(cut)):
 		wr.append(wrong({"v": cut, "text": written(cut, keep)}, R_CUT))
 	var unit := ApproximationSituation.ten(-keep)
 	var fill: Array = [rounded_values(v, keep + 1)]
