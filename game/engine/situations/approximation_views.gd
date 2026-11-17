@@ -92,6 +92,10 @@ static func W(x: float) -> String:
 	return Fmt.sf(x, 5)
 
 
+static func W7(x: float) -> String:
+	return Fmt.work(x, 7)
+
+
 static func qf(x: float) -> Q:
 	return GdcKit.qf(x)
 
@@ -569,8 +573,9 @@ func u_max_percentage_error(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var qhi: float = q.call(hi.to_float())
 	var pw := "squared" if k == 2 else "cubed"
 	return pack([line, "Its %s is worked out from this measurement." % what], "Find the maximum percentage error in the %s." % what, ans, wr, sfs([vals[0] * 2.0]), {
-		"bound-and-compare": ["The length is from %s to %s. The %s from %s is %s, from %s it is %s and from %s it is %s." % [D(lo), D(hi), what, D(x), W(qx), D(lo), W(qlo), D(hi), W(qhi)],
-			"Taking each bound's %s as exact: %s ÷ %s × 100%% = %s%% and %s ÷ %s × 100%% = %s%%." % [what, W(absf(qx - qlo)), W(qlo), F(vals[0]), W(absf(qx - qhi)), W(qhi), F(vals[2])],
+		# Seven figures, so the differences shown are the differences of the values shown.
+		"bound-and-compare": ["The length is from %s to %s. The %s from %s is %s, from %s it is %s and from %s it is %s." % [D(lo), D(hi), what, D(x), W7(qx), D(lo), W7(qlo), D(hi), W7(qhi)],
+			"Taking each bound's %s as exact: %s ÷ %s × 100%% = %s%% and %s ÷ %s × 100%% = %s%%." % [what, W7(absf(qx - qlo)), W7(qlo), F(vals[0]), W7(absf(qx - qhi)), W7(qhi), F(vals[2])],
 			"The larger is %s%%." % F(vals[0]), final_step(ans)],
 		"scale-factor": ["At most the measured length is %s ÷ %s = %s times the true one." % [D(x), D(lo), "%.6f" % f],
 			"The %s is the length %s, so it is at most %s%s = %s times the true %s." % [what, pw, "%.6f" % f, Fmt.sup(k), "%.6f" % pow(f, k), what],

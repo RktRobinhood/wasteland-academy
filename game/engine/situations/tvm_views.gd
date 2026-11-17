@@ -340,9 +340,17 @@ func u_savings_deposit(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var g := pow(1.0 + i, s.N)
 	return pack(lines, "Find the monthly deposit needed, to the nearest cent.", ans, wr, ms([d * 1.1]), {
 		"tvm-savings": [solver(s.N, s.r, pv_text(s.P0), "", D(s.T), s.c), "Solve for PMT: PMT = −%s, paid in each month." % F(d), final_step(ans)],
-		"geometric-series": [monthly(s), "The deposits must make up %s − %s(1 + i)^%d, and D((1 + i)^N − 1) ÷ i is what deposits of D make." % [D(s.T), D(s.P0), s.N],
-			"(1 + i)^%d = %s, so D = (%s − %s × %s) × %s ÷ %s = %s" % [s.N, "%.8f" % g, D(s.T), D(s.P0), "%.8f" % g, I(i), "%.8f" % (g - 1.0), F(d)], final_step(ans)],
+		"geometric-series": series_deposit(s, i, g, d, p0 > 0.0) + [final_step(ans)],
 	})
+
+
+## The deposit from the geometric series, the opening sum taken off the target when there is one.
+static func series_deposit(s: Dictionary, i: float, g: float, d: float, opening: bool) -> Array:
+	if not opening:
+		return [monthly(s), "Deposits of D make D((1 + i)^N − 1) ÷ i, and this must be %s." % D(s.T),
+			"(1 + i)^%d = %s, so D = %s × %s ÷ %s = %s" % [s.N, "%.8f" % g, D(s.T), I(i), "%.8f" % (g - 1.0), F(d)]]
+	return [monthly(s), "The deposits must make up %s − %s(1 + i)^%d, and D((1 + i)^N − 1) ÷ i is what deposits of D make." % [D(s.T), D(s.P0), s.N],
+		"(1 + i)^%d = %s, so D = (%s − %s × %s) × %s ÷ %s = %s" % [s.N, "%.8f" % g, D(s.T), D(s.P0), "%.8f" % g, I(i), "%.8f" % (g - 1.0), F(d)]]
 
 
 func u_savings_time(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
