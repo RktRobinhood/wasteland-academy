@@ -1778,7 +1778,7 @@
               ],
               "misconceptions": [
                 "Using ln when the question means log base 10, or the reverse",
-                "Bracket errors on the GDC: entering log(5/2) when log 5 ÷ 2 was meant",
+                "Making a bracket error on the GDC, so the log of a quotient is found instead of a quotient of logs",
                 "Rounding an intermediate log value early and losing accuracy"
               ],
               "threads": [

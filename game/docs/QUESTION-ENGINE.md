@@ -460,6 +460,50 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   every log into one base, drops the logs, solves the polynomial, keeps the roots that make every
   argument positive, and rebuilds each tagged option from its slip. `test_log_equation.gd` covers the
   cells, the paper, the rejected root, typed marking and every tag.
+- `engine/situations/approximation.gd` (FAL-999) is the first AI SL situation, `approximation`, for
+  `t1-ai-percentage-error` (AI-SL1.6.round-accuracy, percentage-error and estimate-reasonableness) and
+  `t1-ai-approx-bounds` (AI-SL1.6.bounds and max-percentage-error). Both are exam types (`home` ai-sl),
+  so only the AI courses get them, and every question is Paper 2, as every AI paper allows a GDC. Its
+  views (`approximation_views.gd`) ask 12 unknowns over 20 cells, all in words: a GDC value to n d.p.
+  or n s.f. (the key keeps its zeros, as on FAL-1051), a cost with an allowance for waste to the cent,
+  tins to buy (rounded up) or whole items that fit (rounded down), the percentage error of an estimate
+  or of a rounding, the largest or smallest exact value a largest error allows, an estimate to 1 s.f.,
+  the root of x(x + d) = A that is a width; then a bound of a rounded measurement or count, the least
+  or greatest area, volume or route length, the greatest or least speed or density, and the maximum
+  percentage error in an area or volume (each bound's value taken as exact, so the lower bound gives
+  it). Wrong options are the five skills' slips (leading zeros, rounding in stages, money to 3 s.f.,
+  over the approximate value, no × 100, the sign kept, the exact value rounded first, × for ÷, the
+  negative root, a whole unit, the bound just below, the wrong unit for s.f., the length's own error,
+  one bound, the same bound top and bottom) and the types' own (cut off, the allowance left out, the
+  nearest whole item, the error applied to the measurement, the other end, the measured values, mixed
+  bounds). `r1ap_check` in the SymPy checker reads every value back from the sentence, rounds with
+  Decimal half up and works every value and slip out again exactly. `test_approximation.gd`.
+- `engine/situations/tvm.gd` (FAL-999) is `tvm`, for `t1-ai-amortization` (AI-SL1.7.loan-repayment,
+  loan-term-or-rate, outstanding-balance, total-interest-compare) and `t1-ai-annuity`
+  (AI-SL1.7.savings-annuity, payout-annuity), beside `compound_interest.gd`, which has no payments:
+  monthly payments at the end of each month (P/Y = 12), with interest compounded monthly, quarterly or
+  half-yearly. Its views (`tvm_views.gd`) ask 16 unknowns over 25 cells: a loan's payment (after a
+  deposit or not), the number of payments, the smaller last one, the rate, the balance after k
+  payments, the interest in the first payment or the debt it pays off, the total interest, and two
+  loans compared (in words or a table, as a statement with the dollar amount); the value of monthly
+  deposits with or without an opening sum, the deposit for a target, the months to pass it, the
+  interest earned; the fund for a monthly income, the number of full withdrawals, the balance after
+  some years and the largest withdrawal. Methods: the TVM solver, the annuity and present-value
+  formulas, the geometric series, the spreadsheet's rows, bal(), the amortization table and N × PMT.
+  Money is exact to the cent and kept clear of the half-cent edge, and so is every slip; a payment
+  shown in a question is the solver's payment to the cent, and the working uses it. `r1tv_check`
+  works every value out again at 50 digits, counts the rows of a loan or a fund with exact fractions
+  and solves for a rate. `test_tvm.gd`.
+- `engine/situations/log_technology.gd` (FAL-999) is `log-technology`, for the extension type
+  `t1-ext-logs-with-technology` (SL1.5.evaluate-tech), catalogued since FAL-311 and built here. It is
+  on all four courses, Paper 2: log b or ln b, 10ˣ = b or eˣ = b, aˣ = b and p ln q − log r or
+  p log q + ln r, each to 3 s.f., by the log keys, a graph's intersection or the equation solver. Wrong
+  options: the other log key, log(b ÷ a), the logs the wrong way round, each log rounded first. It
+  builds method-pick on every cell and error-spot on the two equations (the other key, or a bracket
+  slip, on line 1 or line 2). `r1lt_check` and `r1lt_spot` work every value and every working line out
+  again with SymPy. `test_log_technology.gd`. The map's skills list `match`, `multipart` and
+  `order-steps` formats for AI-SL1.6 and AI-SL1.7; the engine doesn't build them, so none of these
+  types offers them.
 - `engine/situations/log_exp_form.gd` (FAL-753) is `t1-log-exp-form` (SL1.5.exp-log-form and
   SL1.5.log-context), the `log-exp-form` situation: 25 unknowns over 73 cells. Paper 1 changes a fact
   between log and exponential form, evaluates a log exactly, solves for the number, the bracket, the

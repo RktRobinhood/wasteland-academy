@@ -943,6 +943,18 @@ script error happens while it runs. Run one file with
 - `test_log_equation.gd` (FAL-956): t1-log-equation built with every cell and all four skills, Paper 1
   only, four distinct options with one right and the answer in each working's last step; the rejected
   root is named in the working; a typed x is marked by its value; hand roots and factors; every tag shows up.
+- `test_approximation.gd` (FAL-999): t1-ai-percentage-error and t1-ai-approx-bounds built with every
+  cell and all five AI-SL1.6 skills, on the AI courses only, Paper 2 only; four distinct options with one
+  right and the answer in each working's last step; every tag shows up; a rounded value keeps its zeros
+  and rounding in stages carries; a typed value is marked by its value; bounds are half a unit away; the
+  largest error is from the lower bound.
+- `test_tvm.gd` (FAL-999): t1-ai-amortization and t1-ai-annuity built with every cell and all six
+  AI-SL1.7 skills, on the AI courses only, Paper 2 only; four distinct options with one right; every tag
+  shows up; the solver's sums against known values; a typed amount is marked to the cent; the cheaper of
+  two loans has the higher payment.
+- `test_log_technology.gd` (FAL-999): t1-ext-logs-with-technology built with every cell on all four
+  courses, Paper 2; method-pick on every cell and error-spot on the two equations, with the slip on
+  either line; every tag shows up; hand values of the logs.
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
