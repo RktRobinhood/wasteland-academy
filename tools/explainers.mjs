@@ -506,7 +506,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   for (const k of COURSES) { const v = counts.coverage[k]; console.log(`${pad(COURSE_NAME[k], 8)}${pad(counts.course[k], 12)}${pad(`${v.subtopicsCovered}/${v.subtopics}`, 12)}${v.skillsTaught}/${v.skills}`); }
   console.log('Layers: ' + LAYERS.map(l => `${l.id} ${counts.layer[l.id]}`).join(', '));
   const scripts = checkScripts();
-  console.log(`Scripts: ${scripts.count} in writing/explainers/ checked, with callbacks.json, the manifest and repeats across scripts`);
+  console.log(`Scripts: ${scripts.count} in writing/explainers/ checked, with callbacks.json, reactions.json, the manifest and repeats across scripts`);
   if (scripts.drafts.size) console.log(`Drafts with words to fix before approval (node tools/explainer-scripts.mjs --todo): ${[...scripts.drafts].map(([f, n]) => `${f.replace(/^ex\.|\.json$/g, '')} ${n}`).join(', ')}`);
   errors.push(...scripts.errors);
   if (warnings.length) console.log(`\n${warnings.length} warning(s):\n  ` + warnings.join('\n  '));

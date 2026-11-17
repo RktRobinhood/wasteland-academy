@@ -1,0 +1,53 @@
+{
+  "format": 3,
+  "status": "draft",
+  "about": "Stock reaction lines, recorded once per tutor and played in any lesson, like callbacks.json (README, \"Reactions\", GitHub #220). ack plays on a free toy send, or a right build tile with no line of its own. slip plays on the first miss of a toy task, build step or typed answer, never twice running, and never in place of the not-yet line. No line names a number, a topic or the player's mistake.",
+  "tutors": {
+    "rook-dead-air": {
+      "ack": [
+        {
+          "line": "9rzsaa",
+          "speaker": "rook-dead-air",
+          "say": "Copy."
+        },
+        {
+          "line": "ml2cxq",
+          "speaker": "rook-dead-air",
+          "say": "Sent."
+        },
+        {
+          "line": "1c8kk4",
+          "speaker": "rook-dead-air",
+          "say": "Received."
+        }
+      ],
+      "slip": [
+        {
+          "line": "i2jaqx",
+          "speaker": "rook-dead-air",
+          "say": "Static. Come in again."
+        },
+        {
+          "line": "8oguve",
+          "speaker": "rook-dead-air",
+          "say": "Eish. That one's gone to the wrong settlement. They'll cope."
+        },
+        {
+          "line": "daxuz2",
+          "speaker": "rook-dead-air",
+          "say": "Shame. The relay didn't like that."
+        },
+        {
+          "line": "5ena6n",
+          "speaker": "rook-dead-air",
+          "say": "Hold on. Something's smoking up there. Go again."
+        },
+        {
+          "line": "z1xu8j",
+          "speaker": "rook-dead-air",
+          "say": "There goes a fuse. I've got spares. Come in again."
+        }
+      ]
+    }
+  }
+}
