@@ -107,14 +107,16 @@
               {
                 "line": "e4zowa",
                 "speaker": "tin-can-tess",
-                "say": "Three x plus twelve. The three multiplies everything in the bracket."
+                "say": "Three x plus twelve. The three multiplies everything in the bracket.",
+                "caption": "3x + 12. The three multiplies everything in the bracket."
               }
             ],
             "not_yet": [
               {
                 "line": "q6xl9r",
                 "speaker": "tin-can-tess",
-                "say": "The three multiplies everything inside the bracket. Three lots of x, and three lots of four. Three x plus twelve."
+                "say": "The three multiplies everything inside the bracket. Three lots of x, and three lots of four. Three x plus twelve.",
+                "caption": "The three multiplies everything inside the bracket. 3 × x, and 3 × 4. 3x + 12."
               }
             ]
           }
@@ -129,6 +131,7 @@
           "line": "l70ua7",
           "speaker": "tin-can-tess",
           "say": "Here's the sheet. One side is x plus three, the other is x plus two. Area is one side times the other.",
+          "caption": "Here's the sheet. One side is x + 3, the other is x + 2. Area is one side times the other.",
           "clear": true,
           "board": [
             {
@@ -159,7 +162,8 @@
         {
           "line": "uavg7h",
           "speaker": "tin-can-tess",
-          "say": "The big square, x by x, is x squared. A strip x by two is two x, a strip three by x is three x, and the little corner, three by two, is six."
+          "say": "The big square, x by x, is x squared. A strip x by two is two x, a strip three by x is three x, and the little corner, three by two, is six.",
+          "caption": "The big square, x × x, is x². A strip x × 2 is 2x, a strip 3 × x is 3x, and the little corner, 3 × 2, is 6."
         },
         {
           "line": "wt6vu0",
@@ -180,6 +184,7 @@
           "line": "orlokd",
           "speaker": "tin-can-tess",
           "say": "Two x and three x are like terms: same letter, same power. So they go together. x squared, plus five x, plus six.",
+          "caption": "2x and 3x are like terms: same letter, same power. So they go together. x² + 5x + 6.",
           "board": [
             {
               "write": "like terms: the same letter to the same power",
@@ -207,6 +212,7 @@
           "line": "ts2tp5",
           "speaker": "tin-can-tess",
           "say": "Want to know it's right? Try a number. Put x equals one into both, and four times three is twelve, and one plus five plus six is twelve. Same both ways.",
+          "caption": "Want to know it's right? Try a number. Put x = 1 into both, and 4 × 3 is 12, and 1 + 5 + 6 is 12. Same both ways.",
           "board": [
             {
               "write": "Check x = 1: (4)(3) = 12 and 1 + 5 + 6 = 12 ✓",
@@ -238,6 +244,7 @@
           "line": "n2u6go",
           "speaker": "tin-can-tess",
           "say": "Step one: what we're finding. Expand x plus four, times x plus five.",
+          "caption": "Step one: what we're finding. Expand (x + 4)(x + 5).",
           "clear": true,
           "board": [
             {
@@ -251,6 +258,7 @@
           "line": "l92wfh",
           "speaker": "tin-can-tess",
           "say": "Step two: the four pieces. x times x, x squared. x times five, five x. Four times x, four x. Four times five, twenty.",
+          "caption": "Step two: the four pieces. x × x, x². x × 5, 5x. 4 × x, 4x. 4 × 5, 20.",
           "board": [
             {
               "write": "(x + 4)(x + 5) = x² + 5x + 4x + 20",
@@ -289,6 +297,7 @@
           "line": "jw99gs",
           "speaker": "tin-can-tess",
           "say": "Step three: collect the like terms. Five x and four x make nine x. So it's x squared plus nine x plus twenty.",
+          "caption": "Step three: collect the like terms. 5x and 4x make 9x. So it's x² + 9x + 20.",
           "board": [
             {
               "write": "= x² + 9x + 20",
@@ -302,6 +311,7 @@
           "line": "p04saf",
           "speaker": "tin-can-tess",
           "say": "Step four: check with a number. With x as one, five times six is thirty, and one plus nine plus twenty is thirty.",
+          "caption": "Step four: check with a number. With x as one, 5 × 6 is 30, and 1 + 9 + 20 is 30.",
           "board": [
             {
               "write": "Check x = 1: (5)(6) = 30 and 1 + 9 + 20 = 30 ✓",
@@ -370,7 +380,8 @@
           {
             "line": "etefza",
             "speaker": "tin-can-tess",
-            "say": "Check it with a number. Put x equals one into both. Do they match?"
+            "say": "Check it with a number. Put x equals one into both. Do they match?",
+            "caption": "Check it with a number. Put x = 1 into both. Do they match?"
           }
         ]
       }
@@ -387,6 +398,7 @@
           "line": "fn4xhb",
           "speaker": "tin-can-tess",
           "say": "Now a square patch. x plus four on both sides, so it's x plus four, all squared. Squared means times itself, so write it as two brackets first.",
+          "caption": "Now a square patch. x + 4 on both sides, so it's (x + 4)². Squared means times itself, so write it as two brackets first.",
           "clear": true,
           "board": [
             {
@@ -413,14 +425,16 @@
               {
                 "line": "hrg9ld",
                 "speaker": "tin-can-tess",
-                "say": "Eight x. Two strips of four x, one down the side and one along the top."
+                "say": "Eight x. Two strips of four x, one down the side and one along the top.",
+                "caption": "8x. Two strips of 4x, one down the side and one along the top."
               }
             ],
             "not_yet": [
               {
                 "line": "xbmtx0",
                 "speaker": "tin-can-tess",
-                "say": "Picture the square. There's a strip of four x down one side, and another along the top. Two strips, eight x."
+                "say": "Picture the square. There's a strip of four x down one side, and another along the top. Two strips, eight x.",
+                "caption": "Picture the square. There's a strip of 4x down one side, and another along the top. Two strips, 8x."
               }
             ]
           }
@@ -429,6 +443,7 @@
           "line": "o5rjk4",
           "speaker": "tin-can-tess",
           "say": "So it's x squared, plus eight x, plus sixteen. Those two middle strips are the bit everyone leaves out.",
+          "caption": "So it's x² + 8x + 16. Those two middle strips are the bit everyone leaves out.",
           "board": [
             {
               "write": "= x² + 4x + 4x + 16",
@@ -473,6 +488,7 @@
           "line": "whdt40",
           "speaker": "tin-can-tess",
           "say": "Here's f. Take x minus three, square it, times by two, then add one.",
+          "caption": "Here's f. Take x − 3, square it, times by two, then add one.",
           "board": [
             {
               "write": "f(x) = 2(x − 3)² + 1",
@@ -489,6 +505,7 @@
           "line": "wr5o9z",
           "speaker": "tin-can-tess",
           "say": "Square the bracket first. x minus three, times x minus three. x squared, minus three x, minus three x, and minus three times minus three.",
+          "caption": "Square the bracket first. (x − 3)(x − 3). x² − 3x − 3x, and −3 × −3.",
           "board": [
             {
               "write": "(a)  (x − 3)² = (x − 3)(x − 3)",
@@ -523,7 +540,8 @@
               {
                 "line": "xlussf",
                 "speaker": "tin-can-tess",
-                "say": "The last piece is minus three times minus three. Negative times negative is positive, so it's plus nine."
+                "say": "The last piece is minus three times minus three. Negative times negative is positive, so it's plus nine.",
+                "caption": "The last piece is −3 × −3. Negative times negative is positive, so it's +9."
               }
             ]
           }
@@ -532,6 +550,7 @@
           "line": "rfdgdp",
           "speaker": "tin-can-tess",
           "say": "That's x squared minus six x plus nine. Now the two in front multiplies all three terms. The plus one goes on after, and the two never touches it.",
+          "caption": "That's x² − 6x + 9. Now the two in front multiplies all three terms. The +1 goes on after, and the two never touches it.",
           "board": [
             {
               "write": "= x² − 6x + 9",
@@ -565,6 +584,7 @@
           "line": "cy39ls",
           "speaker": "tin-can-tess",
           "say": "Part b says write down. The y-intercept is where x is zero, so every x term goes and nineteen is left. Zero, nineteen. And it checks against the start: two lots of nine, plus one.",
+          "caption": "Part b says write down. The y-intercept is where x is 0, so every x term goes and nineteen is left. (0, 19). And it checks against the start: 2 × 9 + 1.",
           "board": [
             {
               "write": "(b)  f(0) = 19, so the y-intercept is (0, 19)",
@@ -629,14 +649,16 @@
               {
                 "line": "z1jqsz",
                 "speaker": "tin-can-tess",
-                "say": "That's the one. Minus five times two is minus ten, not plus ten."
+                "say": "That's the one. Minus five times two is minus ten, not plus ten.",
+                "caption": "That's the one. −5 × 2 is −10, not +10."
               }
             ],
             "not_yet": [
               {
                 "line": "derjbe",
                 "speaker": "tin-can-tess",
-                "say": "Check the sign of each piece on the second line. What's minus five times two?"
+                "say": "Check the sign of each piece on the second line. What's minus five times two?",
+                "caption": "Check the sign of each piece on the second line. What's −5 × 2?"
               }
             ]
           }
@@ -645,6 +667,7 @@
           "line": "wyoxuw",
           "speaker": "tin-can-tess",
           "say": "Try x equals one. The brackets give minus four times three, minus twelve, and their answer gives one minus three plus ten, which is eight. No match.",
+          "caption": "Try x = 1. The brackets give −4 × 3, −12, and their answer gives 1 − 3 + 10, which is 8. No match.",
           "board": [
             {
               "write": "Check x = 1: (−4)(3) = −12, but 1 − 3 + 10 = 8 ✗",
@@ -657,6 +680,7 @@
           "line": "ts3xni",
           "speaker": "tin-can-tess",
           "say": "Line through it, and fix the sign. x squared minus three x minus ten. Now x equals one gives minus twelve both ways.",
+          "caption": "Line through it, and fix the sign. x² − 3x − 10. Now x = 1 gives −12 both ways.",
           "board": [
             {
               "strike": "s2"

@@ -21,7 +21,7 @@ Read [`../../TONE.md`](../../TONE.md) and [`../voice-sheets.md`](../voice-sheets
 | `ex.functions.line-model.json` | Start Plus Rate, built on Pin and Swing. Rook, about 6 minutes. |
 | `ex.functions.inverse-undo.json` | Run It Backwards, built on One In, One Out. Rook, about 6 minutes. |
 
-Nothing here is recorded. The board chose each tutor's voice on FAL-927 (`tools/explainer-clips/teachers.json`), but GitHub #18 is still open, so the voice blocks below stay provisional until casting is settled there.
+Nothing here is recorded yet. Casting is done: the board approved all six tutors' voices on FAL-927, each one Gemini text-to-speech with a fixed model, voice and direction (`tools/explainer-clips/teachers.json`, GitHub #18). The owner auditions again only when a new character is added. Every script is a `draft` in format 2 until it passes the checks below (#188 to #191).
 
 ## The arc
 
@@ -70,9 +70,9 @@ Matt's target: "mathematical knowledge presented in an academic manner so studen
 
 ### The tutors
 
-The tutors come from `tools/explainer-clips/teachers.json`. All six have full voice blocks, below, and all six are provisional (GitHub #18).
+The tutors come from `tools/explainer-clips/teachers.json`. All six have full voice blocks, below, and all six voices are approved (FAL-927, GitHub #18).
 
-#### Mags the Ledger (algebra, Scrap Fields), provisional
+#### Mags the Ledger (algebra, Scrap Fields)
 
 Keeps the Ledger for the Scrap Fields: every debt, deal and seat sold at the fight pit. Rugged outback Australian, quick, in charge.
 
@@ -98,7 +98,7 @@ Keeps the Ledger for the Scrap Fields: every debt, deal and seat sold at the fig
 
 **Not the others:** Dax talks fast, drops names and sells. Mags says less and writes everything down. Gear Mira makes you read a measurement back with its unit; Mags makes you put the working in order and keep it. Bodge talks nonsense about her stock; Mags never wanders off the point for more than one sentence.
 
-#### Tin-Can Tess (foundations, the Scrapworks), provisional
+#### Tin-Can Tess (foundations, the Scrapworks)
 
 Runs the Scrapworks, the yard where everything broken in the Bazaar ends up, and most of it goes back out the gate working. A New Zealander, as the voice approved on FAL-927 is: lively, wry and warm, and quick to laugh at her own jokes. She teaches the basics with whatever junk is to hand: a bolt and its washer, the scrap scales, a sheet of tin, a gauge that won't agree with the next one.
 
@@ -124,7 +124,7 @@ Runs the Scrapworks, the yard where everything broken in the Bazaar ends up, and
 
 **Not the others:** Mags and Tess are both from down under, so keep them apart. Mags is Australian, says little and writes everything down; Tess is a New Zealander, talks the whole time and hands you things to hold. Gear Mira measures and reads numbers back with their units, and her sentences get shorter under pressure; Tess pulls things apart and puts them back, and her sentences stay long and get warmer. Bodge wanders off about her stock; every story Tess tells comes back to the maths within a sentence.
 
-#### Rook Dead-Air (functions, Signal Tower), provisional
+#### Rook Dead-Air (functions, Signal Tower)
 
 Runs the Signal Tower, the last mast still standing that reaches the far settlements. He keeps the traffic moving: messages in, messages out, every one logged by channel and time. A South African radio man, as the voice approved on FAL-927 is: precise and dry, and the faster he talks, the more he's enjoying himself. To him every function is a transmitter. Something goes in, one thing comes out, and his job is knowing which.
 
@@ -150,7 +150,7 @@ Runs the Signal Tower, the last mast still standing that reaches the far settlem
 
 **Not the others:** Mags also talks in short orders, but hers are about the book: write it down, keep it. Rook's are about the line: say it back, call and answer, and he runs on when he's excited, which Mags never does. Calc is clipped too, but Calc is a machine with no contractions and no slang; Rook is a person, and the excitement gets through. Spark trash-talks the question; Rook never does, because a signal can't help being noisy. B0-LT will also live at the Signal Tower and has no sheet yet. Keep radio procedure (over, out, copy, come in) for Rook alone, so B0-LT has to sound broken some other way.
 
-#### Kara Meridian (geometry, Dry Flats), provisional
+#### Kara Meridian (geometry, Dry Flats)
 
 Surveys the Dry Flats, the wide salt pan where nothing stands still long enough to put on a map. She builds her own instruments out of salvage: a sighting scope from a camera lens, a level from a jar of oil, a measuring chain from a hundred welded links. A Nigerian surveyor, as the voice approved on FAL-927 is: measured, warm and calm.
 
@@ -176,7 +176,7 @@ Surveys the Dry Flats, the wide salt pan where nothing stands still long enough 
 
 **Not the others:** Noma and Kara both work with ground and distance. Kara measures today's ground, and Noma tells its stories. Noma's sentences wander and land, and she names places for what happened there; Kara's sentences go straight, and she names places by their station and bearing. Gear Mira makes you read a number back with its unit; Kara makes you say what an angle is measured from. Lucky performs, and Kara never does.
 
-#### Lucien "Lucky" Lenoir (statistics, Radio Spires), provisional
+#### Lucien "Lucky" Lenoir (statistics, Radio Spires)
 
 Runs the games at the Radio Spires: dice, cards, a wheel with forty slots, the night market's tables. A Frenchman, as the voice approved on FAL-927 is: theatrical, warm and charming, a showman down to his last bottle cap. He knows his probability perfectly, and he loses anyway, because he bets against it. The joke is always the same: the maths was right, and Lucky wasn't. Stakes are scrap, never money: bottle caps, batteries, a good hat. The lesson never makes a bet look like a way to win.
 
@@ -202,7 +202,7 @@ Runs the games at the Radio Spires: dice, cards, a wheel with forty slots, the n
 
 **Not the others:** Dax and Lucky both talk a lot and love a deal. Dax is fast and closes with a short line; Lucky takes his time, enjoys the build, and he's the one who loses. Spark's jokes land on the question; Lucky's land on Lucky. Tess laughs at her own jokes, and Lucky laughs at his own losses. Calc has never lost a bet to anyone, because it has never placed one.
 
-#### C.A.L.C. (calculus, Engine Core), provisional
+#### C.A.L.C. (calculus, Engine Core)
 
 The maintenance intelligence of the reactor under the Engine Core. Most of it is damaged: the cooling logs, the speech module, the clock. What still works best is the part that watches rates of change, so that's what it teaches. Spoken and captioned as "Calc". The voice approved on FAL-927 is even, synthetic and deadpan, with the glitch effect added after recording. Every reading the core gives is a rate, and nothing excites Calc more.
 
@@ -247,7 +247,7 @@ Dad jokes, well-known maths jokes and stories, and lines from the tutor's own li
 
 A cue is a sound the voice makes that isn't a word: `chuckles`, `laughs`, `coughs`, `sighs`, `clears-throat`, `sniffs`, `hums`, and `glitch` for C.A.L.C. The list is in `callbacks.json` (`cues`), and a new cue goes there first.
 
-- A cue sits in the line's `cue` field, with `cue_at` set to `start` or `end`. It never goes inside `say`, so the caption stays word-for-word with what is spoken.
+- A cue sits in the line's `cue` field, with `cue_at` set to `start` or `end`. It never goes inside `say` or `caption`, so the caption stays word-for-word with what is spoken.
 - A voice that can't perform a cue skips it. The line has to work without it.
 - A pause is `pause`, in seconds, after the line.
 - Use about one cue per section, and no more than two coughs in a whole explainer.

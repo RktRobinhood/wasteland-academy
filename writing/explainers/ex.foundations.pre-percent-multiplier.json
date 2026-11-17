@@ -102,14 +102,16 @@
               {
                 "line": "u28q4x",
                 "speaker": "tin-can-tess",
-                "say": "Zero point zero four. Percent means out of a hundred, so it's four hundredths."
+                "say": "Zero point zero four. Percent means out of a hundred, so it's four hundredths.",
+                "caption": "0.04. Percent means out of a hundred, so it's four hundredths."
               }
             ],
             "not_yet": [
               {
                 "line": "veragx",
                 "speaker": "tin-can-tess",
-                "say": "Percent means out of a hundred. Four out of a hundred is four hundredths, zero point zero four."
+                "say": "Percent means out of a hundred. Four out of a hundred is four hundredths, zero point zero four.",
+                "caption": "Percent means out of a hundred. Four out of a hundred is four hundredths, 0.04."
               }
             ]
           }
@@ -136,6 +138,7 @@
           "line": "engpap",
           "speaker": "tin-can-tess",
           "say": "The long way first: fifteen percent of eighty is twelve, you add it on, and it's ninety-two.",
+          "caption": "The long way first: 15% of 80 is 12, you add it on, and it's 92.",
           "board": [
             {
               "write": "15% of 80 = 0.15 × 80 = 12",
@@ -151,6 +154,7 @@
           "line": "q8mtdn",
           "speaker": "tin-can-tess",
           "say": "Now the short way. You start with all of it, a hundred percent. Add fifteen and you've got a hundred and fifteen percent, which is one point one five. Eighty times one point one five is ninety-two, in one go.",
+          "caption": "Now the short way. You start with all of it, 100%. Add 15 and you've got 115%, which is 1.15. 80 × 1.15 = 92, in one go.",
           "board": [
             {
               "write": "100% + 15% = 115% = 1.15",
@@ -166,6 +170,7 @@
           "line": "qtngia",
           "speaker": "tin-can-tess",
           "say": "That one point one five is the multiplier: the number you multiply by to make the change.",
+          "caption": "That 1.15 is the multiplier: the number you multiply by to make the change.",
           "board": [
             {
               "write": "multiplier: the number you multiply by to make the change",
@@ -177,6 +182,7 @@
           "line": "z4vye6",
           "speaker": "tin-can-tess",
           "say": "Going down works the same way. Fifteen percent off leaves eighty-five percent, so the multiplier is zero point eight five. Not zero point one five. That's the bit you took away.",
+          "caption": "Going down works the same way. 15% off leaves 85%, so the multiplier is 0.85. Not 0.15. That's the bit you took away.",
           "board": [
             {
               "write": "100% − 15% = 85% = 0.85",
@@ -231,6 +237,7 @@
           "line": "q3aem3",
           "speaker": "tin-can-tess",
           "say": "Step two: the givens. Sixty scrap to start, and a rise of four percent.",
+          "caption": "Step two: the givens. 60 scrap to start, and a rise of 4%.",
           "board": [
             {
               "write": "Old price = 60 scrap",
@@ -247,6 +254,7 @@
           "line": "fvvv58",
           "speaker": "tin-can-tess",
           "say": "Step three: the multiplier. A hundred percent plus four percent is a hundred and four percent. One point zero four.",
+          "caption": "Step three: the multiplier. 100% + 4% = 104%. 1.04.",
           "board": [
             {
               "write": "100% + 4% = 104% = 1.04",
@@ -269,14 +277,16 @@
               {
                 "line": "aa6pu6",
                 "speaker": "tin-can-tess",
-                "say": "That's it. Four percent is four hundredths. One point four would be a forty percent rise."
+                "say": "That's it. Four percent is four hundredths. One point four would be a forty percent rise.",
+                "caption": "That's it. 4% is four hundredths. 1.4 would be a 40% rise."
               }
             ],
             "not_yet": [
               {
                 "line": "qqyhqm",
                 "speaker": "tin-can-tess",
-                "say": "Four percent is zero point zero four. Add it to the one, and you get one point zero four. One point four would be a forty percent rise."
+                "say": "Four percent is zero point zero four. Add it to the one, and you get one point zero four. One point four would be a forty percent rise.",
+                "caption": "4% is 0.04. Add it to the one, and you get 1.04. 1.4 would be a 40% rise."
               }
             ]
           }
@@ -285,6 +295,7 @@
           "line": "gzn3oa",
           "speaker": "tin-can-tess",
           "say": "Step four: one multiplication. Sixty times one point zero four, sixty-two point four. The new price is sixty-two point four scrap.",
+          "caption": "Step four: one multiplication. 60 × 1.04, 62.4. The new price is 62.4 scrap.",
           "board": [
             {
               "write": "60 × 1.04 = 62.4",
@@ -364,7 +375,8 @@
           {
             "line": "h4819u",
             "speaker": "tin-can-tess",
-            "say": "What's a hundred percent plus the rise, as a decimal?"
+            "say": "What's a hundred percent plus the rise, as a decimal?",
+            "caption": "What's 100% plus the rise, as a decimal?"
           },
           {
             "line": "ia1hwt",
@@ -386,6 +398,7 @@
           "line": "b6a9ac",
           "speaker": "tin-can-tess",
           "say": "Now a price going down. A generator part, two hundred and forty scrap, with fifteen percent off in a sale.",
+          "caption": "Now a price going down. A generator part, 240 scrap, with 15% off in a sale.",
           "clear": true,
           "board": [
             {
@@ -408,14 +421,16 @@
               {
                 "line": "qakhii",
                 "speaker": "tin-can-tess",
-                "say": "Zero point eight five. You pay for the eighty-five percent that's left."
+                "say": "Zero point eight five. You pay for the eighty-five percent that's left.",
+                "caption": "0.85. You pay for the 85% that's left."
               }
             ],
             "not_yet": [
               {
                 "line": "ydisje",
                 "speaker": "tin-can-tess",
-                "say": "Fifteen percent off leaves eighty-five percent. As a decimal, that's zero point eight five. Zero point one five is the bit taken off."
+                "say": "Fifteen percent off leaves eighty-five percent. As a decimal, that's zero point eight five. Zero point one five is the bit taken off.",
+                "caption": "15% off leaves 85%. As a decimal, that's 0.85. 0.15 is the bit taken off."
               }
             ]
           }
@@ -424,6 +439,7 @@
           "line": "rmovdv",
           "speaker": "tin-can-tess",
           "say": "One multiplication. Two hundred and forty times zero point eight five is two hundred and four. The sale price is two hundred and four scrap.",
+          "caption": "One multiplication. 240 × 0.85 = 204. The sale price is 204 scrap.",
           "board": [
             {
               "write": "100% − 15% = 85% = 0.85",
@@ -472,6 +488,7 @@
           "line": "ul28oc",
           "speaker": "tin-can-tess",
           "say": "Here's what we're given. A generator's worth two thousand scrap, and it loses ten percent of its value every year.",
+          "caption": "Here's what we're given. A generator's worth 2000 scrap, and it loses 10% of its value every year.",
           "board": [
             {
               "write": "value now = 2000 scrap",
@@ -487,6 +504,7 @@
           "line": "x5no0c",
           "speaker": "tin-can-tess",
           "say": "Part a says write down. Ten percent off leaves ninety percent. Zero point nine.",
+          "caption": "Part a says write down. 10% off leaves 90%. 0.9.",
           "board": [
             {
               "write": "(a)  0.9",
@@ -500,6 +518,7 @@
           "line": "l8dake",
           "speaker": "tin-can-tess",
           "say": "Part b says find. Every year is another times zero point nine, so three years is three of them.",
+          "caption": "Part b says find. Every year is another × 0.9, so three years is three of them.",
           "board": [
             {
               "write": "(b)  2000 × 0.9 × 0.9 × 0.9",
@@ -527,14 +546,16 @@
               {
                 "line": "ubo31y",
                 "speaker": "tin-can-tess",
-                "say": "Right. Year two takes ten percent of what's left, not of the start."
+                "say": "Right. Year two takes ten percent of what's left, not of the start.",
+                "caption": "Right. Year two takes 10% of what's left, not of the start."
               }
             ],
             "not_yet": [
               {
                 "line": "hg8z4v",
                 "speaker": "tin-can-tess",
-                "say": "Each year takes ten percent of what's left by then, and that keeps getting smaller. So three lots of ten percent isn't thirty."
+                "say": "Each year takes ten percent of what's left by then, and that keeps getting smaller. So three lots of ten percent isn't thirty.",
+                "caption": "Each year takes 10% of what's left by then, and that keeps getting smaller. So three lots of 10% isn't thirty."
               }
             ]
           }
@@ -543,6 +564,7 @@
           "line": "z142aa",
           "speaker": "tin-can-tess",
           "say": "Zero point nine cubed is zero point seven two nine. Times two thousand: one thousand, four hundred and fifty-eight scrap.",
+          "caption": "0.9³ = 0.729. Times 2000: 1458 scrap.",
           "board": [
             {
               "write": "= 2000 × 0.729",
@@ -566,6 +588,7 @@
           "line": "u8oxk9",
           "speaker": "tin-can-tess",
           "say": "Check: thirty percent off in one go would give fourteen hundred. Ours is a bit more, because each ten percent came off less.",
+          "caption": "Check: 30% off in one go would give 1400. Ours is a bit more, because each 10% came off less.",
           "board": [
             {
               "write": "Check: 1458 > 2000 × 0.7 = 1400 ✓",
@@ -637,7 +660,8 @@
               {
                 "line": "aix9zd",
                 "speaker": "tin-can-tess",
-                "say": "Look at the line that adds the percentages. Is the second ten percent taken from two hundred?"
+                "say": "Look at the line that adds the percentages. Is the second ten percent taken from two hundred?",
+                "caption": "Look at the line that adds the percentages. Is the second 10% taken from 200?"
               }
             ]
           }
@@ -646,6 +670,7 @@
           "line": "dvyqs5",
           "speaker": "tin-can-tess",
           "say": "Run the numbers and it falls apart. Up ten percent is two hundred and twenty, and ten percent of that is twenty-two, so it comes down to one hundred and ninety-eight.",
+          "caption": "Run the numbers and it falls apart. Up 10% is 220, and 10% of that is 22, so it comes down to 198.",
           "board": [
             {
               "write": "Check: 200 × 1.1 = 220, then 220 × 0.9 = 198 ≠ 200 ✗",
@@ -658,6 +683,7 @@
           "line": "e02wr3",
           "speaker": "tin-can-tess",
           "say": "So multiply the multipliers. One point one times zero point nine is zero point nine nine. One percent down, overall.",
+          "caption": "So multiply the multipliers. 1.1 × 0.9 = 0.99. 1% down, overall.",
           "board": [
             {
               "strike": "s3"
@@ -734,7 +760,8 @@
           {
             "line": "drd0w4",
             "speaker": "tin-can-tess",
-            "say": "What's left after twenty percent goes? Write that as a decimal for part a."
+            "say": "What's left after twenty percent goes? Write that as a decimal for part a.",
+            "caption": "What's left after 20% goes? Write that as a decimal for part a."
           },
           {
             "line": "bsw3a5",
@@ -752,6 +779,7 @@
           "line": "mcemnt",
           "speaker": "tin-can-tess",
           "say": "So. A rise of r percent is times one plus r over a hundred. A fall is times one minus r over a hundred. Changes in a row, you multiply the multipliers. You never add the percentages.",
+          "caption": "So. A rise of r% is × (1 + r/100). A fall is × (1 − r/100). Changes in a row, you multiply the multipliers. You never add the percentages.",
           "clear": true,
           "board": [
             {

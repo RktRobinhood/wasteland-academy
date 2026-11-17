@@ -118,7 +118,8 @@
               {
                 "line": "eemfkq",
                 "speaker": "rook-dead-air",
-                "say": "Rise over run. Eight minus two is six. Three minus one is two. Six over two, three. We need that today."
+                "say": "Rise over run. Eight minus two is six. Three minus one is two. Six over two, three. We need that today.",
+                "caption": "Rise over run. 8 − 2 is 6. 3 − 1 is 2. 6/2, 3. We need that today."
               }
             ]
           }
@@ -166,6 +167,7 @@
           "line": "e0u20n",
           "speaker": "rook-dead-air",
           "say": "Gradient is the change in y for each step of one in x. Rise over run. Eight minus two is six, three minus one is two, and six over two is three.",
+          "caption": "Gradient is the change in y for each step of one in x. Rise over run. 8 − 2 is 6, 3 − 1 is 2, and 6/2 is 3.",
           "board": [
             {
               "write": "m = (y₂ − y₁)/(x₂ − x₁)",
@@ -190,6 +192,7 @@
           "line": "fzf0ft",
           "speaker": "rook-dead-air",
           "say": "Here's the aerial on the board. The pin is at one, four. With the nut loose, every line through that point is possible.",
+          "caption": "Here's the aerial on the board. The pin is at (1, 4). With the nut loose, every line through that point is possible.",
           "clear": true,
           "board": [
             {
@@ -213,6 +216,7 @@
           "line": "le8q5j",
           "speaker": "rook-dead-air",
           "say": "Take any point x, y on it. Its gradient back to the pin is y minus four, over x minus one. And that has to be two.",
+          "caption": "Take any point (x, y) on it. Its gradient back to the pin is (y − 4)/(x − 1). And that has to be 2.",
           "board": [
             {
               "write": "(y − 4)/(x − 1) = 2",
@@ -224,6 +228,7 @@
           "line": "zwdwca",
           "speaker": "rook-dead-air",
           "say": "Multiply both sides by x minus one. y minus four equals two lots of x minus one. That's point-gradient form.",
+          "caption": "Multiply both sides by (x − 1). y − 4 = 2(x − 1). That's point-gradient form.",
           "board": [
             {
               "write": "y − 4 = 2(x − 1)",
@@ -239,6 +244,7 @@
           "line": "noebnv",
           "speaker": "rook-dead-air",
           "say": "Expand, add four to both sides, and y is on its own. y equals two x plus two.",
+          "caption": "Expand, add four to both sides, and y is on its own. y = 2x + 2.",
           "board": [
             {
               "write": "y = 2x + 2",
@@ -254,6 +260,7 @@
           "line": "vm6ktb",
           "speaker": "rook-dead-air",
           "say": "In y equals m x plus c, m is the gradient, and c is where the line crosses the y-axis. That point is the y-intercept. Here, zero, two.",
+          "caption": "In y = mx + c, m is the gradient, and c is where the line crosses the y-axis. That point is the y-intercept. Here, (0, 2).",
           "board": [
             {
               "write": "y-intercept: where the line crosses the y-axis. x = 0, so (0, 2)",
@@ -265,6 +272,7 @@
           "line": "ysqsct",
           "speaker": "rook-dead-air",
           "say": "Where it crosses the x-axis is the x-intercept. y is zero there. Zero equals two x plus two, so x is minus one.",
+          "caption": "Where it crosses the x-axis is the x-intercept. y is zero there. 0 = 2x + 2, so x = −1.",
           "board": [
             {
               "write": "x-intercept: where the line crosses the x-axis. y = 0: 0 = 2x + 2, x = −1, so (−1, 0)",
@@ -276,6 +284,7 @@
           "line": "n35m5f",
           "speaker": "rook-dead-air",
           "say": "And some questions want every term on one side, whole numbers, equals zero. Two x minus y plus two equals zero, and that's the same line again, three ways of writing it, and each one shows you something different, the point, the intercept, the whole numbers. Sorry. Back on frequency.",
+          "caption": "And some questions want every term on one side, whole numbers, equals zero. 2x − y + 2 = 0, and that's the same line again, three ways of writing it, and each one shows you something different, the point, the intercept, the whole numbers. Sorry. Back on frequency.",
           "board": [
             {
               "write": "2x − y + 2 = 0",
@@ -301,6 +310,7 @@
           "line": "m06pfs",
           "speaker": "rook-dead-air",
           "say": "On paper. Step one: what we're finding. The line through three, minus two, with gradient four, as y equals m x plus c.",
+          "caption": "On paper. Step one: what we're finding. The line through (3, −2), with gradient 4, as y = mx + c.",
           "clear": true,
           "board": [
             {
@@ -314,6 +324,7 @@
           "line": "in1hcs",
           "speaker": "rook-dead-air",
           "say": "Step two: the givens. x one is three, y one is minus two, m is four.",
+          "caption": "Step two: the givens. x₁ = 3, y₁ = −2, m = 4.",
           "board": [
             {
               "write": "x₁ = 3,  y₁ = −2,  m = 4",
@@ -326,6 +337,7 @@
           "line": "wey9o6",
           "speaker": "rook-dead-air",
           "say": "Step three: the form, before the values. y minus y one equals m lots of x minus x one.",
+          "caption": "Step three: the form, before the values. y − y₁ = m(x − x₁).",
           "board": [
             {
               "write": "y − y₁ = m(x − x₁)",
@@ -338,6 +350,7 @@
           "line": "n47jlb",
           "speaker": "rook-dead-air",
           "say": "Step four: substitute. y minus minus two equals four lots of x minus three.",
+          "caption": "Step four: substitute. y − (−2) = 4(x − 3).",
           "board": [
             {
               "write": "y − (−2) = 4(x − 3)",
@@ -360,14 +373,16 @@
               {
                 "line": "ckq70b",
                 "speaker": "rook-dead-air",
-                "say": "Copy that. The form takes y one away, whatever y one is."
+                "say": "Copy that. The form takes y one away, whatever y one is.",
+                "caption": "Copy that. The form takes y₁ away, whatever y₁ is."
               }
             ],
             "not_yet": [
               {
                 "line": "yw2hvv",
                 "speaker": "rook-dead-air",
-                "say": "The form is y minus y one, and y one is minus two. Taking away minus two gives y plus two."
+                "say": "The form is y minus y one, and y one is minus two. Taking away minus two gives y plus two.",
+                "caption": "The form is y − y₁, and y₁ is −2. Taking away −2 gives y + 2."
               }
             ]
           }
@@ -376,6 +391,7 @@
           "line": "f5zt22",
           "speaker": "rook-dead-air",
           "say": "Step five: rearrange. y plus two equals four x minus twelve. Take two off both sides. y equals four x minus fourteen.",
+          "caption": "Step five: rearrange. y + 2 = 4x − 12. Take two off both sides. y = 4x − 14.",
           "board": [
             {
               "write": "y + 2 = 4x − 12",
@@ -393,6 +409,7 @@
           "line": "ynb736",
           "speaker": "rook-dead-air",
           "say": "Check: put the point back in. Four threes are twelve, minus fourteen, minus two. That's y one.",
+          "caption": "Check: put the point back in. Four threes are twelve, minus fourteen, minus two. That's y₁.",
           "board": [
             {
               "write": "Check: x = 3 gives 4(3) − 14 = −2 ✓",
@@ -460,7 +477,8 @@
           {
             "line": "f3yo1c",
             "speaker": "rook-dead-air",
-            "say": "Check the sign inside the bracket. It's x minus x one, whatever sign x one has."
+            "say": "Check the sign inside the bracket. It's x minus x one, whatever sign x one has.",
+            "caption": "Check the sign inside the bracket. It's x − x₁, whatever sign x₁ has."
           },
           {
             "line": "a8lxxd",
@@ -482,6 +500,7 @@
           "line": "l8n2j1",
           "speaker": "rook-dead-air",
           "say": "This time there's no gradient given. Two points instead: A, one, three, and B, four, nine.",
+          "caption": "This time there's no gradient given. Two points instead: A(1, 3) and B(4, 9).",
           "clear": true,
           "board": [
             {
@@ -494,6 +513,7 @@
           "line": "ib8g2m",
           "speaker": "rook-dead-air",
           "say": "Gradient first. Rise six, run three. m is two.",
+          "caption": "Gradient first. Rise six, run three. m = 2.",
           "board": [
             {
               "write": "m = (9 − 3)/(4 − 1) = 6/3 = 2",
@@ -520,14 +540,16 @@
               {
                 "line": "avkbfl",
                 "speaker": "rook-dead-air",
-                "say": "Lekker. y one is three, x one is one, and both get taken away."
+                "say": "Lekker. y one is three, x one is one, and both get taken away.",
+                "caption": "Lekker. y₁ is 3, x₁ is 1, and both get taken away."
               }
             ],
             "not_yet": [
               {
                 "line": "mawdb8",
                 "speaker": "rook-dead-air",
-                "say": "y minus y one, x minus x one. A is one, three, so x one is one and y one is three. y minus three equals two lots of x minus one."
+                "say": "y minus y one, x minus x one. A is one, three, so x one is one and y one is three. y minus three equals two lots of x minus one.",
+                "caption": "y − y₁, x − x₁. A is (1, 3), so x₁ is 1 and y₁ is 3. y − 3 = 2(x − 1)."
               }
             ]
           }
@@ -536,6 +558,7 @@
           "line": "bcz2yw",
           "speaker": "rook-dead-air",
           "say": "Expand and add three. y equals two x plus one.",
+          "caption": "Expand and add three. y = 2x + 1.",
           "board": [
             {
               "write": "y − 3 = 2(x − 1)",
@@ -591,6 +614,7 @@
           "line": "ob84ix",
           "speaker": "rook-dead-air",
           "say": "A full exam question. The line L goes through P, minus two, seven, and Q, four, minus two. Three parts.",
+          "caption": "A full exam question. The line L goes through P(−2, 7) and Q(4, −2). Three parts.",
           "clear": true,
           "board": [
             {
@@ -603,6 +627,7 @@
           "line": "acepjq",
           "speaker": "rook-dead-air",
           "say": "Part a. Rise, minus two minus seven, minus nine. Run, four minus minus two, six. Minus nine over six is minus three over two.",
+          "caption": "Part a. Rise, −2 − 7, −9. Run, 4 − (−2), 6. −9/6 = −3/2.",
           "board": [
             {
               "write": "(a)  m = (−2 − 7)/(4 − (−2))",
@@ -621,6 +646,7 @@
           "line": "yxn5ae",
           "speaker": "rook-dead-air",
           "say": "Part b. Pin it at P. y minus seven equals minus three over two, lots of x plus two.",
+          "caption": "Part b. Pin it at P. y − 7 = −(3/2)(x + 2).",
           "board": [
             {
               "write": "(b)  y − 7 = −3/2 (x + 2)",
@@ -634,6 +660,7 @@
           "line": "chs6gv",
           "speaker": "rook-dead-air",
           "say": "They want whole numbers. So multiply both sides by two and the fraction goes. Two y minus fourteen equals minus three x minus six.",
+          "caption": "They want whole numbers. So multiply both sides by two and the fraction goes. 2y − 14 = −3x − 6.",
           "board": [
             {
               "write": "2y − 14 = −3(x + 2) = −3x − 6",
@@ -646,6 +673,7 @@
           "line": "x84fey",
           "speaker": "rook-dead-air",
           "say": "Everything to the left. Three x plus two y minus eight equals zero. Keep the equals zero. It's part of the form.",
+          "caption": "Everything to the left. 3x + 2y − 8 = 0. Keep the equals zero. It's part of the form.",
           "board": [
             {
               "write": "3x + 2y − 8 = 0",
@@ -659,6 +687,7 @@
           "line": "j12ge2",
           "speaker": "rook-dead-air",
           "say": "Check both points. P: minus six plus fourteen minus eight, zero. Q: twelve minus four minus eight, zero.",
+          "caption": "Check both points. P: −6 + 14 − 8, 0. Q: 12 − 4 − 8, 0.",
           "board": [
             {
               "write": "Check: P: −6 + 14 − 8 = 0 ✓   Q: 12 − 4 − 8 = 0 ✓",
@@ -694,7 +723,8 @@
               {
                 "line": "so39p0",
                 "speaker": "rook-dead-air",
-                "say": "Check the order. On the y-axis you haven't moved across, so x is zero there. The y-axis is x equals zero."
+                "say": "Check the order. On the y-axis you haven't moved across, so x is zero there. The y-axis is x equals zero.",
+                "caption": "Check the order. On the y-axis you haven't moved across, so x is zero there. The y-axis is x = 0."
               }
             ]
           }
@@ -703,6 +733,7 @@
           "line": "bfel4m",
           "speaker": "rook-dead-air",
           "say": "x equals zero: two y minus eight is zero, y is four. y equals zero: three x minus eight is zero, x is eight over three. Leave it exact.",
+          "caption": "x = 0: 2y − 8 = 0, y = 4. y = 0: 3x − 8 = 0, x = 8/3. Leave it exact.",
           "board": [
             {
               "write": "(c)  x = 0:  2y − 8 = 0,  y = 4",
@@ -726,6 +757,7 @@
           "line": "hl90kb",
           "speaker": "rook-dead-air",
           "say": "Check: from zero, four, the line drops three for every two across. Eight over three across drops four. Zero.",
+          "caption": "Check: from (0, 4), the line drops three for every two across. 8/3 across drops four. Zero.",
           "board": [
             {
               "write": "Check: 4 − (3/2)(8/3) = 4 − 4 = 0 ✓",
@@ -745,6 +777,7 @@
           "line": "n0am9t",
           "speaker": "rook-dead-air",
           "say": "Part b, again, another way. Same line. Put P straight into y equals m x plus c, and solve for c.",
+          "caption": "Part b, again, another way. Same line. Put P straight into y = mx + c, and solve for c.",
           "clear": true,
           "board": [
             {
@@ -778,6 +811,7 @@
           "line": "f7bnma",
           "speaker": "rook-dead-air",
           "say": "Minus three over two, times minus two, is three. So seven equals three plus c, and c is four.",
+          "caption": "−3/2 × (−2) = 3. So 7 = 3 + c, and c = 4.",
           "board": [
             {
               "write": "7 = 3 + c,  c = 4",
@@ -795,6 +829,7 @@
           "line": "ai1rus",
           "speaker": "rook-dead-air",
           "say": "Times two, and everything to the left. Three x plus two y minus eight equals zero. Same line. And c is four, the y-intercept from part c.",
+          "caption": "Times two, and everything to the left. 3x + 2y − 8 = 0. Same line. And c is four, the y-intercept from part c.",
           "board": [
             {
               "write": "2y = −3x + 8,  so  3x + 2y − 8 = 0",
@@ -820,6 +855,7 @@
           "line": "sj9ii7",
           "speaker": "rook-dead-air",
           "say": "A settlement down the valley sent me this. The line through minus three, two, with gradient two. One step has a crossed wire.",
+          "caption": "A settlement down the valley sent me this. The line through (−3, 2), with gradient 2. One step has a crossed wire.",
           "clear": true,
           "board": [
             {
@@ -859,14 +895,16 @@
               {
                 "line": "hvgfqb",
                 "speaker": "rook-dead-air",
-                "say": "That's the one. x one is minus three, so x minus x one is x plus three."
+                "say": "That's the one. x one is minus three, so x minus x one is x plus three.",
+                "caption": "That's the one. x₁ is −3, so x − x₁ is x + 3."
               }
             ],
             "not_yet": [
               {
                 "line": "gyvly5",
                 "speaker": "rook-dead-air",
-                "say": "Look at what went in for x one. The point is minus three, two."
+                "say": "Look at what went in for x one. The point is minus three, two.",
+                "caption": "Look at what went in for x₁. The point is (−3, 2)."
               }
             ]
           }
@@ -875,6 +913,7 @@
           "line": "v5cu5l",
           "speaker": "rook-dead-air",
           "say": "The check that catches it. Put the point into the final line. Two lots of minus three, minus four, is minus ten. Not two.",
+          "caption": "The check that catches it. Put the point into the final line. 2(−3) − 4 = −10. Not 2.",
           "board": [
             {
               "write": "Check: x = −3 gives 2(−3) − 4 = −10, not 2 ✗",
@@ -887,6 +926,7 @@
           "line": "sqj9ed",
           "speaker": "rook-dead-air",
           "say": "One line through it. x minus minus three is x plus three. y equals two x plus eight. Minus six plus eight, two.",
+          "caption": "One line through it. x − (−3) is x + 3. y = 2x + 8. −6 + 8, 2.",
           "board": [
             {
               "strike": "s2"
@@ -990,6 +1030,7 @@
           "line": "vx24q3",
           "speaker": "rook-dead-air",
           "say": "So. One point and a gradient pin down a line. Point-gradient form first, then rearrange into whatever form the question asks for. Intercepts: x is zero on the y-axis, y is zero on the x-axis.",
+          "caption": "So. One point and a gradient pin down a line. Point-gradient form first, then rearrange into whatever form the question asks for. Intercepts: x = 0 on the y-axis, y = 0 on the x-axis.",
           "clear": true,
           "board": [
             {

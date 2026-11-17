@@ -157,6 +157,7 @@
           "line": "ef27xa",
           "speaker": "mags-the-ledger",
           "say": "An arithmetic sequence adds the same amount, d, every time. To get term n, start at the first term and add d, n minus one times. n minus one, because you count the hops between the terms, not the terms. So u n is u one, plus n minus one lots of d.",
+          "caption": "An arithmetic sequence adds the same amount, d, every time. To get term n, start at the first term and add d, n − 1 times. n − 1, because you count the hops between the terms, not the terms. So uₙ is u₁, plus (n − 1)d.",
           "board": [
             {
               "write": "uₙ = u₁ + (n − 1)d",
@@ -268,6 +269,7 @@
           "line": "p7cp5h",
           "speaker": "mags-the-ledger",
           "say": "Two words for the book. Add up the terms of a sequence and you get a series. S n is the sum of the first n terms.",
+          "caption": "Two words for the book. Add up the terms of a sequence and you get a series. Sₙ is the sum of the first n terms.",
           "board": [
             {
               "write": "series: the terms of a sequence added up",
@@ -299,6 +301,7 @@
           "line": "y6e51s",
           "speaker": "mags-the-ledger",
           "say": "That's one form. Swap u n for what it equals, u one plus n minus one lots of d, and you get the other. n over two, times two u one plus n minus one lots of d.",
+          "caption": "That's one form. Swap uₙ for what it equals, u₁ + (n − 1)d, and you get the other. n/2 × (2u₁ + (n − 1)d).",
           "board": [
             {
               "write": "u₁ + uₙ = u₁ + u₁ + (n − 1)d = 2u₁ + (n − 1)d",
@@ -331,6 +334,7 @@
           "line": "hdr0y9",
           "speaker": "mags-the-ledger",
           "say": "Back to the pit. Step one: what are we finding? The total of the first forty rows. That's S forty, not u forty.",
+          "caption": "Back to the pit. Step one: what are we finding? The total of the first forty rows. That's S₄₀, not u₄₀.",
           "clear": true,
           "board": [
             {
@@ -344,6 +348,7 @@
           "line": "a1ek68",
           "speaker": "mags-the-ledger",
           "say": "Step two: the givens, with units. u one, twenty-two seats. d, four seats per row. n, forty rows.",
+          "caption": "Step two: the givens, with units. u₁, 22 seats. d, 4 seats per row. n, 40 rows.",
           "board": [
             {
               "write": "u₁ = 22 seats",
@@ -518,7 +523,8 @@
           {
             "line": "i1uae1",
             "speaker": "mags-the-ledger",
-            "say": "Inside the bracket it's n minus one lots of d. Count the hops."
+            "say": "Inside the bracket it's n minus one lots of d. Count the hops.",
+            "caption": "Inside the bracket it's (n − 1)d. Count the hops."
           },
           {
             "line": "ym0bly",
@@ -564,6 +570,7 @@
           "line": "pu0ott",
           "speaker": "mags-the-ledger",
           "say": "We know the last term. We don't know n, the number of days. So first: which term is a hundred and ninety-five? Set the formula for u n equal to it.",
+          "caption": "We know the last term. We don't know n, the number of days. So first: which term is 195? Set the formula for uₙ equal to it.",
           "board": [
             {
               "write": "480 + (n − 1)(−15) = 195",
@@ -575,6 +582,7 @@
           "line": "bokipa",
           "speaker": "mags-the-ledger",
           "say": "Take four eighty from both sides: minus two hundred and eighty-five. Divide both sides by minus fifteen. n minus one is nineteen.",
+          "caption": "Take 480 from both sides: −285. Divide both sides by −15. n − 1 = 19.",
           "board": [
             {
               "write": "(n − 1)(−15) = −285",
@@ -627,6 +635,7 @@
           "line": "nlr6yv",
           "speaker": "mags-the-ledger",
           "say": "So n is twenty.",
+          "caption": "So n = 20.",
           "board": [
             {
               "write": "n = 20",
@@ -642,6 +651,7 @@
           "line": "e8vf5k",
           "speaker": "mags-the-ledger",
           "say": "Twenty over two is ten. Four eighty and one ninety-five is six hundred and seventy-five. Ten of those: six thousand, seven hundred and fifty litres.",
+          "caption": "20/2 = 10. 480 + 195 = 675. Ten of those: 6750 litres.",
           "board": [
             {
               "write": "= 10 × 675",
@@ -709,6 +719,7 @@
           "line": "hqjgbp",
           "speaker": "mags-the-ledger",
           "say": "Part a. The top layer is layer eighteen. Ninety-six, plus seventeen lots of minus four. Seventeen fours are sixty-eight, so that's twenty-eight.",
+          "caption": "Part a. The top layer is layer eighteen. 96 + 17 × (−4). Seventeen fours are sixty-eight, so that's 28.",
           "board": [
             {
               "write": "(a)  u₁₈ = 96 + (18 − 1)(−4)",
@@ -754,6 +765,7 @@
           "line": "u96m6w",
           "speaker": "mags-the-ledger",
           "say": "Eighteen over two is nine. Ninety-six and twenty-eight make a hundred and twenty-four. Nine of those is one thousand, one hundred and sixteen sandbags.",
+          "caption": "18/2 = 9. 96 and 28 make 124. Nine of those is 1116 sandbags.",
           "board": [
             {
               "write": "= 9 × 124",
@@ -782,6 +794,7 @@
           "line": "oe7st8",
           "speaker": "mags-the-ledger",
           "say": "We want it in terms of n, so the d form. Two ninety-sixes are a hundred and ninety-two. The bracket gives minus four n plus four. That's a hundred and ninety-six minus four n.",
+          "caption": "We want it in terms of n, so the d form. Two ninety-sixes are a hundred and ninety-two. The bracket gives −4n + 4. That's 196 − 4n.",
           "board": [
             {
               "write": "(c)  Sₙ = n/2 (2u₁ + (n − 1)d)",
@@ -809,6 +822,7 @@
           "line": "pe4aa7",
           "speaker": "mags-the-ledger",
           "say": "Multiply through by n over two. Ninety-eight n, minus two n squared. That's their line, so we stop.",
+          "caption": "Multiply through by n/2. 98n − 2n². That's their line, so we stop.",
           "board": [
             {
               "write": "= 98n − 2n²",
@@ -920,7 +934,8 @@
         {
           "line": "oqrkx7",
           "speaker": "mags-the-ledger",
-          "say": "Look inside the brackets. One ninety-two take sixty-eight is a hundred and twenty-four, same as first plus last. Two u one plus n minus one lots of d is first plus last, written another way."
+          "say": "Look inside the brackets. One ninety-two take sixty-eight is a hundred and twenty-four, same as first plus last. Two u one plus n minus one lots of d is first plus last, written another way.",
+          "caption": "Look inside the brackets. 192 − 68 is 124, same as first plus last. 2u₁ + (n − 1)d is first plus last, written another way."
         },
         {
           "ask": {
@@ -943,7 +958,8 @@
               {
                 "line": "rc0oos",
                 "speaker": "mags-the-ledger",
-                "say": "Method one needs u n. Got the last term? Use it."
+                "say": "Method one needs u n. Got the last term? Use it.",
+                "caption": "Method one needs uₙ. Got the last term? Use it."
               }
             ]
           }
@@ -1031,6 +1047,7 @@
           "line": "cvd27h",
           "speaker": "mags-the-ledger",
           "say": "Two checks would have caught it. Put n equals one in, and the sum of one term has to be the first term. Their rule gives twenty-four, not twenty-two.",
+          "caption": "Two checks would have caught it. Put n = 1 in, and the sum of one term has to be the first term. Their rule gives twenty-four, not twenty-two.",
           "board": [
             {
               "write": "Check n = 1: 1/2 (2 × 22 + 1 × 4) = 24 ≠ 22 ✗",
@@ -1136,6 +1153,7 @@
           "line": "r9y65i",
           "speaker": "mags-the-ledger",
           "say": "So. A series is a sequence added up. Forwards and backwards, every column is first plus last, so it's n over two, first plus last. No last term? Use the d form.",
+          "caption": "So. A series is a sequence added up. Forwards and backwards, every column is first plus last, so it's n/2 (first + last). No last term? Use the d form.",
           "clear": true,
           "board": [
             {

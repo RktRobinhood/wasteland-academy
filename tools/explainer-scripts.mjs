@@ -40,7 +40,7 @@ const GENDERED = /\b(lad|lads|lass|lasses|laddie|sonny|bro|dude|sir|ma'am|madam|
 // "one" and "zero" stay: "the one", "one multiplication", "on the x-axis, y is zero" hold for any question.
 const TURN_NUMBERS = new Set([...NUMBER_WORDS].filter(w => !['one', 'zero', 'point', 'oh'].includes(w)).concat(['half', 'twice']));
 // Maths said in words, which a caption shows in notation: x squared, u n, f of x.
-const SPOKEN_MATHS = /\b(squared|cubed|in brackets|to the power)\b|\b[uSTx] (n|one|two|three)\b|\b[fghCVW] of [a-z]\b/;
+const SPOKEN_MATHS = /\b(squared|cubed|to the power)\b|\b[uSTx] (n|one|two|three)\b|\b[fghCVW] of [a-z]\b/;
 // A board line drawn with spaces or box characters: a text drawing, which a phone can't hold (#191).
 // Columns lined up with a wide gap, or with three or more double spaces, or a box character.
 const TEXT_DRAWING = /\S {4,}\S|(\S+ {2,}){3}\S|[─│┼┌┐└┘├┤┬┴═║]/;

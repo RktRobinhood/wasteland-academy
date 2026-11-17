@@ -4,11 +4,11 @@
   "default": {
     "symbols": {
       "+": ["plus", "add", "and"],
-      "−": ["minus", "take away", "subtract", "negative", "less"],
+      "−": ["minus", "take away", "take", "subtract", "negative", "less"],
       "×": ["times", "lots of", "multiplied by", "by"],
       "÷": ["divided by", "over", "shared between"],
       "/": ["over", "divided by", "per", "out of"],
-      "=": ["equals", "is", "are", "makes", "gives", "that's", "comes to", "is equal to"],
+      "=": ["equals", "is", "are", "makes", "make", "gives", "that's", "comes to", "is equal to", "equal to", "equal"],
       "≈": ["is about", "about", "is roughly", "roughly", "is approximately"],
       "≠": ["is not", "isn't", "is not equal to", "doesn't equal", "does not equal", "not"],
       "<": ["is less than", "less than", "is under", "under", "is below", "below", "is fewer than", "fewer than", "is smaller than"],
@@ -30,7 +30,7 @@
       "✗": ["", "cross", "no"],
       "½": ["a half", "half", "one half"],
       "(": ["", "bracket", "open bracket", "brackets", "of"],
-      ")": ["", "close bracket", "in brackets", "in a bracket"],
+      ")": ["", "close bracket", "in brackets", "in a bracket", "all"],
       "implicit": ["", "times", "lots of", "multiplied by"],
       "subscript": ["", "sub"],
       "²": ["squared", "to the power two", "to the power of two"],

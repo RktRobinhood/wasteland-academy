@@ -102,14 +102,16 @@
               {
                 "line": "jwplrn",
                 "speaker": "tin-can-tess",
-                "say": "Four. Minus two in brackets, times three, add ten. We'll use that today, to check our answers."
+                "say": "Four. Minus two in brackets, times three, add ten. We'll use that today, to check our answers.",
+                "caption": "Four. (−2) × 3 + 10. We'll use that today, to check our answers."
               }
             ],
             "not_yet": [
               {
                 "line": "n8nb6l",
                 "speaker": "tin-can-tess",
-                "say": "Minus two goes in, in brackets. Three lots of minus two is minus six, and ten more is four. We'll use that today, to check our answers."
+                "say": "Minus two goes in, in brackets. Three lots of minus two is minus six, and ten more is four. We'll use that today, to check our answers.",
+                "caption": "−2 goes in, in brackets. 3 × (−2) is −6, and ten more is four. We'll use that today, to check our answers."
               }
             ]
           }
@@ -157,6 +159,7 @@
           "line": "oc67g6",
           "speaker": "tin-can-tess",
           "say": "Put the number in where the letter was, in brackets. Then powers, then times, then plus. Three lots of minus two is minus six, and ten more makes four.",
+          "caption": "Put the number in where the letter was, in brackets. Then powers, then times, then plus. 3 × (−2) is −6, and ten more makes four.",
           "board": [
             {
               "write": "3(−2) + 10",
@@ -197,6 +200,7 @@
           "line": "hpp7p1",
           "speaker": "tin-can-tess",
           "say": "Every bag holds the same number. Call it x. Then three x plus four equals nineteen. Two sides that balance, with an equals sign between them: that's an equation.",
+          "caption": "Every bag holds the same number. Call it x. Then 3x + 4 = 19. Two sides that balance, with an equals sign between them: that's an equation.",
           "board": [
             {
               "write": "x = the number of bolts in one bag",
@@ -246,6 +250,7 @@
           "line": "x5pqd2",
           "speaker": "tin-can-tess",
           "say": "Then split both pans three ways, and one bag balances five bolts. So x is five.",
+          "caption": "Then split both pans three ways, and one bag balances five bolts. So x is 5.",
           "board": [
             {
               "write": "x = 5",
@@ -288,6 +293,7 @@
           "line": "br40df",
           "speaker": "tin-can-tess",
           "say": "Now on paper. Step one: what we're finding. The value of x that makes four x plus seven equal thirty-one.",
+          "caption": "Now on paper. Step one: what we're finding. The value of x that makes 4x + 7 equal 31.",
           "clear": true,
           "board": [
             {
@@ -301,6 +307,7 @@
           "line": "ua34fi",
           "speaker": "tin-can-tess",
           "say": "Step two: undo the last thing first, which is the plus seven. Take seven from both sides. That leaves four x equals twenty-four.",
+          "caption": "Step two: undo the last thing first, which is the +7. Take seven from both sides. That leaves 4x = 24.",
           "board": [
             {
               "write": "4x + 7 − 7 = 31 − 7",
@@ -334,7 +341,8 @@
               {
                 "line": "v3jqra",
                 "speaker": "tin-can-tess",
-                "say": "Think about how four x plus seven got built: times four, then add seven. You undo it backwards, so the seven comes off first."
+                "say": "Think about how four x plus seven got built: times four, then add seven. You undo it backwards, so the seven comes off first.",
+                "caption": "Think about how 4x + 7 got built: times four, then add seven. You undo it backwards, so the seven comes off first."
               }
             ]
           }
@@ -343,6 +351,7 @@
           "line": "wlflbh",
           "speaker": "tin-can-tess",
           "say": "Step three: divide both sides by four, and x is six.",
+          "caption": "Step three: divide both sides by four, and x is 6.",
           "board": [
             {
               "write": "4x ÷ 4 = 24 ÷ 4",
@@ -360,6 +369,7 @@
           "line": "swlixq",
           "speaker": "tin-can-tess",
           "say": "Step four: check it. Six goes back in, in brackets, and four sixes are twenty-four, plus seven is thirty-one. Level.",
+          "caption": "Step four: check it. 6 goes back in, in brackets, and four sixes are 24, + 7 is 31. Level.",
           "board": [
             {
               "write": "Check: 4(6) + 7 = 24 + 7 = 31 ✓",
@@ -384,7 +394,7 @@
           "rep": "equation",
           "angle": "inverse-operations"
         },
-        "command": "Find",
+        "command": "Solve",
         "skills": [],
         "intro": [
           {
@@ -397,7 +407,7 @@
           "setup": "Solve 5x − 8 = 27.",
           "parts": [
             {
-              "text": "Find x.",
+              "text": "Solve for x.",
               "answer": "7"
             }
           ],
@@ -446,6 +456,7 @@
           "line": "mwwxuh",
           "speaker": "tin-can-tess",
           "say": "Harder one. Bags on both pans this time. Five x plus two on the left, two x plus twenty on the right. Get the bags onto one side first.",
+          "caption": "Harder one. Bags on both pans this time. 5x + 2 on the left, 2x + 20 on the right. Get the bags onto one side first.",
           "clear": true,
           "board": [
             {
@@ -468,14 +479,16 @@
               {
                 "line": "oovtt9",
                 "speaker": "tin-can-tess",
-                "say": "Three x plus two equals twenty. Two bags off each pan, and it's still level."
+                "say": "Three x plus two equals twenty. Two bags off each pan, and it's still level.",
+                "caption": "3x + 2 = 20. Two bags off each pan, and it's still level."
               }
             ],
             "not_yet": [
               {
                 "line": "hlwqbm",
                 "speaker": "tin-can-tess",
-                "say": "Take two x off both pans. Five x take away two x is three x, and the right side loses its x. Three x plus two equals twenty."
+                "say": "Take two x off both pans. Five x take away two x is three x, and the right side loses its x. Three x plus two equals twenty.",
+                "caption": "Take 2x off both pans. 5x − 2x is 3x, and the right side loses its x. 3x + 2 = 20."
               }
             ]
           }
@@ -484,6 +497,7 @@
           "line": "t607gg",
           "speaker": "tin-can-tess",
           "say": "From there it's the same as before. Take two off both sides, and three x is eighteen. Divide by three, and x is six.",
+          "caption": "From there it's the same as before. Take two off both sides, and 3x is 18. Divide by three, and x is 6.",
           "board": [
             {
               "write": "5x − 2x + 2 = 2x − 2x + 20",
@@ -548,6 +562,7 @@
           "line": "c9uqmu",
           "speaker": "tin-can-tess",
           "say": "The question gives us a line and calls it L. Its equation is y equals three x, minus four.",
+          "caption": "The question gives us a line and calls it L. Its equation is y = 3x − 4.",
           "board": [
             {
               "write": "L: y = 3x − 4",
@@ -559,6 +574,7 @@
           "line": "y8zo63",
           "speaker": "tin-can-tess",
           "say": "Part a. The point k, eleven sits on the line, so it fits the equation. Eleven goes in for y, and k for x.",
+          "caption": "Part a. The point (k, 11) sits on the line, so it fits the equation. Eleven goes in for y, and k for x.",
           "board": [
             {
               "write": "(a)  11 = 3k − 4",
@@ -571,6 +587,7 @@
           "line": "tlz5ou",
           "speaker": "tin-can-tess",
           "say": "Undo the minus four by adding four to both sides, which gives fifteen equals three k, and divide by three. k is five.",
+          "caption": "Undo the −4 by adding four to both sides, which gives 15 = 3k, and divide by three. k is 5.",
           "board": [
             {
               "write": "15 = 3k",
@@ -618,7 +635,8 @@
               {
                 "line": "pyvcko",
                 "speaker": "tin-can-tess",
-                "say": "Every point on the x-axis is level with zero. Not up, not down. So y is zero there."
+                "say": "Every point on the x-axis is level with zero. Not up, not down. So y is zero there.",
+                "caption": "Every point on the x-axis is level with zero. Not up, not down. So y is 0 there."
               }
             ]
           }
@@ -627,6 +645,7 @@
           "line": "pbakil",
           "speaker": "tin-can-tess",
           "say": "Add four, then divide by three. x is four over three. Leave it as a fraction. It's exact, and nobody asked you to round.",
+          "caption": "Add four, then divide by three. x is 4/3. Leave it as a fraction. It's exact, and nobody asked you to round.",
           "board": [
             {
               "write": "4 = 3x",
@@ -645,6 +664,7 @@
           "line": "dlyxb1",
           "speaker": "tin-can-tess",
           "say": "Check: three lots of four over three is four, take away four, zero.",
+          "caption": "Check: 3 × 4/3 is 4, take away four, zero.",
           "board": [
             {
               "write": "Check: 3 × 4/3 − 4 = 4 − 4 = 0 ✓",
@@ -725,6 +745,7 @@
           "line": "d1j0y5",
           "speaker": "tin-can-tess",
           "say": "Here's how you'd catch it yourself. Put four back into the first line. The left side's four lots of two, which is eight, and the right side's fourteen. Not level.",
+          "caption": "Here's how you'd catch it yourself. Put four back into the first line. The left side's 4 × 2, which is 8, and the right side's fourteen. Not level.",
           "board": [
             {
               "write": "Check x = 4: 4(4 − 2) = 8, but 2(4) + 6 = 14 ✗",
@@ -737,6 +758,7 @@
           "line": "uzsp2d",
           "speaker": "tin-can-tess",
           "say": "So back on the bench. Four lots of x, and four lots of minus two: four x minus eight. That gives x equals seven, and seven checks out.",
+          "caption": "So back on the bench. 4 × x, and 4 × (−2): 4x − 8. That gives x = 7, and seven checks out.",
           "board": [
             {
               "strike": "s2"
@@ -827,7 +849,8 @@
           {
             "line": "gq0dqw",
             "speaker": "tin-can-tess",
-            "say": "On the x-axis, y is zero. Start part b from there."
+            "say": "On the x-axis, y is zero. Start part b from there.",
+            "caption": "On the x-axis, y is 0. Start part b from there."
           }
         ]
       }

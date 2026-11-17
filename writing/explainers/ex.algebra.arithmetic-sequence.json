@@ -117,7 +117,8 @@
               {
                 "line": "t0i0ge",
                 "speaker": "mags-the-ledger",
-                "say": "Brackets first: eight minus one is seven. Seven threes are twenty-one. Add the five. Twenty-six. Hang on to that shape."
+                "say": "Brackets first: eight minus one is seven. Seven threes are twenty-one. Add the five. Twenty-six. Hang on to that shape.",
+                "caption": "Brackets first: 8 − 1 = 7. Seven threes are twenty-one. Add the five. Twenty-six. Hang on to that shape."
               }
             ]
           }
@@ -162,6 +163,7 @@
           "line": "buq5ls",
           "speaker": "mags-the-ledger",
           "say": "Put the number in where the letter was. Then work the brackets first, multiply next, and add last. So with n as eight: eight minus one is seven, seven threes are twenty-one, and five more makes twenty-six.",
+          "caption": "Put the number in where the letter was. Then work the brackets first, multiply next, and add last. So with n as eight: 8 − 1 = 7, seven threes are twenty-one, and five more makes twenty-six.",
           "board": [
             {
               "write": "5 + (8 − 1) × 3",
@@ -226,6 +228,7 @@
           "line": "kc5duy",
           "speaker": "mags-the-ledger",
           "say": "Each number in it is a term. The term in row n is u n, so u one is twenty-two. The little number says which row. The u says how many seats.",
+          "caption": "Each number in it is a term. The term in row n is uₙ, so u₁ is twenty-two. The little number says which row. The u says how many seats.",
           "board": [
             {
               "write": "term: uₙ is the term in position n",
@@ -246,6 +249,7 @@
           "line": "nxgfji",
           "speaker": "mags-the-ledger",
           "say": "What you add each time is the common difference, d. Later term minus earlier term. Twenty-six minus twenty-two: d is four seats per row.",
+          "caption": "What you add each time is the common difference, d. Later term minus earlier term. 26 − 22: d = 4 seats per row.",
           "board": [
             {
               "write": "common difference: d = later term − earlier term",
@@ -284,6 +288,7 @@
           "line": "kpgpau",
           "speaker": "mags-the-ledger",
           "say": "The rows are the posts and the steps are the gaps. Row n is n minus one steps from row one.",
+          "caption": "The rows are the posts and the steps are the gaps. Row n is n − 1 steps from row one.",
           "board": [
             {
               "write": "row n is n − 1 steps from row 1",
@@ -295,6 +300,7 @@
           "line": "x320qu",
           "speaker": "mags-the-ledger",
           "say": "So u n is the first term, plus n minus one lots of d.",
+          "caption": "So uₙ is the first term, plus (n − 1)d.",
           "board": [
             {
               "write": "uₙ = u₁ + (n − 1)d",
@@ -337,6 +343,7 @@
           "line": "du4dl3",
           "speaker": "mags-the-ledger",
           "say": "Step two: put the givens in the book, with their units. First term, twenty-two seats. Common difference, four seats per row. And n is forty, because we want row forty.",
+          "caption": "Step two: put the givens in the book, with their units. First term, 22 seats. Common difference, 4 seats per row. And n = 40, because we want row forty.",
           "board": [
             {
               "write": "u₁ = 22 seats",
@@ -369,6 +376,7 @@
           "line": "ss156v",
           "speaker": "mags-the-ledger",
           "say": "Step four: substitute. Twenty-two, plus forty minus one lots of four.",
+          "caption": "Step four: substitute. 22 + (40 − 1) × 4.",
           "board": [
             {
               "write": "u₄₀ = 22 + (40 − 1) × 4",
@@ -506,7 +514,8 @@
           {
             "line": "m3mhhe",
             "speaker": "mags-the-ledger",
-            "say": "Check your n minus one. Count the hops, not the rows."
+            "say": "Check your n minus one. Count the hops, not the rows.",
+            "caption": "Check your n − 1. Count the hops, not the rows."
           },
           {
             "line": "kd529z",
@@ -555,6 +564,7 @@
           "line": "xnagtn",
           "speaker": "mags-the-ledger",
           "say": "Givens. u one is four hundred and eighty litres. n is twenty. You find d.",
+          "caption": "Givens. u₁ = 480 litres. n = 20. You find d.",
           "board": [
             {
               "write": "u₁ = 480 litres",
@@ -580,14 +590,16 @@
               {
                 "line": "u5hrtc",
                 "speaker": "mags-the-ledger",
-                "say": "Minus fifteen. The well gives less each day, so d had better be negative."
+                "say": "Minus fifteen. The well gives less each day, so d had better be negative.",
+                "caption": "−15. The well gives less each day, so d had better be negative."
               }
             ],
             "not_yet": [
               {
                 "line": "f08mqv",
                 "speaker": "mags-the-ledger",
-                "say": "Later minus earlier: four sixty-five take away four eighty. The water's going down, so d is negative. Minus fifteen."
+                "say": "Later minus earlier: four sixty-five take away four eighty. The water's going down, so d is negative. Minus fifteen.",
+                "caption": "Later minus earlier: 465 − 480. The water's going down, so d is negative. −15."
               }
             ]
           }
@@ -615,6 +627,7 @@
           "line": "mlzgdl",
           "speaker": "mags-the-ledger",
           "say": "Nineteen lots of minus fifteen is minus two hundred and eighty-five. Four eighty take away two eighty-five leaves one hundred and ninety-five.",
+          "caption": "19 × (−15) = −285. 480 − 285 leaves 195.",
           "board": [
             {
               "write": "= 480 + 19 × (−15)",
@@ -634,6 +647,7 @@
           "line": "siaw54",
           "speaker": "mags-the-ledger",
           "say": "On day twenty the well gives a hundred and ninety-five litres. Less than day one, which is what a drying well does.",
+          "caption": "On day twenty the well gives 195 litres. Less than day one, which is what a drying well does.",
           "board": [
             {
               "write": "On day 20 the well gives 195 litres.",
@@ -707,6 +721,7 @@
           "line": "oa4xwe",
           "speaker": "mags-the-ledger",
           "say": "Part a says write down. Write down means the answer can stand on its own, no working needed. Ninety-two minus ninety-six. Minus four.",
+          "caption": "Part a says write down. Write down means the answer can stand on its own, no working needed. 92 − 96. −4.",
           "board": [
             {
               "write": "(a)  d = −4",
@@ -720,6 +735,7 @@
           "line": "uzdjd3",
           "speaker": "mags-the-ledger",
           "say": "Part b says find, and find means show your working. Formula first. Then in go ninety-six and minus four.",
+          "caption": "Part b says find, and find means show your working. Formula first. Then in go 96 and −4.",
           "board": [
             {
               "write": "(b)  uₙ = u₁ + (n − 1)d",
@@ -737,6 +753,7 @@
           "line": "gbq1b0",
           "speaker": "mags-the-ledger",
           "say": "Expand the bracket: minus four n, plus four. Then collect the numbers. Ninety-six and four make a hundred. So u n is a hundred minus four n.",
+          "caption": "Expand the bracket: −4n, + 4. Then collect the numbers. 96 and 4 make 100. So uₙ = 100 − 4n.",
           "board": [
             {
               "write": "= 96 − 4n + 4",
@@ -765,14 +782,16 @@
               {
                 "line": "x3tqls",
                 "speaker": "mags-the-ledger",
-                "say": "Ninety-six. A hundred minus four. It gives the bottom layer back, so I trust it."
+                "say": "Ninety-six. A hundred minus four. It gives the bottom layer back, so I trust it.",
+                "caption": "96. 100 − 4. It gives the bottom layer back, so I trust it."
               }
             ],
             "not_yet": [
               {
                 "line": "pbsyck",
                 "speaker": "mags-the-ledger",
-                "say": "Put one in for n. A hundred minus four is ninety-six, and that's the bottom layer. So the expression checks out."
+                "say": "Put one in for n. A hundred minus four is ninety-six, and that's the bottom layer. So the expression checks out.",
+                "caption": "Put one in for n. 100 − 4 = 96, and that's the bottom layer. So the expression checks out."
               }
             ]
           }
@@ -781,6 +800,7 @@
           "line": "enqh64",
           "speaker": "mags-the-ledger",
           "say": "And look at the number in front of n. Minus four. That's d, and it always will be, so there's a second check sitting right there.",
+          "caption": "And look at the number in front of n. −4. That's d, and it always will be, so there's a second check sitting right there.",
           "board": [
             {
               "write": "Check: n = 1 gives 100 − 4 = 96 = u₁ ✓",
@@ -800,6 +820,7 @@
           "line": "v38wfi",
           "speaker": "mags-the-ledger",
           "say": "Part c says hence. Hence means use what you've already found. Put eighteen into part b. Four eighteens are seventy-two, and a hundred minus seventy-two is twenty-eight.",
+          "caption": "Part c says hence. Hence means use what you've already found. Put 18 into part b. Four eighteens are seventy-two, and 100 − 72 = 28.",
           "board": [
             {
               "write": "(c)  u₁₈ = 100 − 4 × 18",
@@ -902,6 +923,7 @@
           "line": "rmiu7q",
           "speaker": "mags-the-ledger",
           "say": "Here's the check that catches it. Put n equals one into their rule. Twenty-two plus one lot of four is twenty-six. That's row two. Their rule can't get the front row right, so every row comes out one row too far.",
+          "caption": "Here's the check that catches it. Put n = 1 into their rule. Twenty-two plus one lot of four is twenty-six. That's row two. Their rule can't get the front row right, so every row comes out one row too far.",
           "board": [
             {
               "write": "Check n = 1: 22 + 1 × 4 = 26 ≠ 22 ✗",
@@ -988,7 +1010,8 @@
           {
             "line": "yllpr5",
             "speaker": "mags-the-ledger",
-            "say": "Go back to part b and put n equals one in. Does the first term come back?"
+            "say": "Go back to part b and put n equals one in. Does the first term come back?",
+            "caption": "Go back to part b and put n = 1 in. Does the first term come back?"
           },
           {
             "line": "huly91",
@@ -1006,6 +1029,7 @@
           "line": "wh58v1",
           "speaker": "mags-the-ledger",
           "say": "So. An arithmetic sequence adds the same d every time. To get term n, start at the first term and add d, n minus one times. You count the steps, not the terms.",
+          "caption": "So. An arithmetic sequence adds the same d every time. To get term n, start at the first term and add d, n − 1 times. You count the steps, not the terms.",
           "clear": true,
           "board": [
             {

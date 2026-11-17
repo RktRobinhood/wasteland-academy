@@ -52,7 +52,7 @@ function below1000(n, a = false) {
 }
 // Every way an integer may be said: 178 is "one hundred and seventy eight" or "a hundred and
 // seventy eight"; 480 is also "four eighty" (shorthand for a number on the board); 1400 is
-// also "fourteen hundred".
+// also "fourteen hundred", and 1880 "eighteen eighty".
 export function intWords(n) {
   if (n < 1000) {
     const out = below1000(n, true);
@@ -67,6 +67,8 @@ export function intWords(n) {
       else for (const x of below1000(r)) out.push(`${head}${r < 100 ? ' and' : ''} ${x}`);
     }
     if (n % 100 === 0 && n < 10000 && Math.floor(n / 100) % 10) out.push(`${below100(Math.floor(n / 100))} hundred`);
+    // 1880 is also "eighteen eighty".
+    if (n < 10000 && n % 100 >= 10 && Math.floor(n / 100) % 10) out.push(`${below100(Math.floor(n / 100))} ${below100(n % 100)}`);
     return out;
   }
   if (n % 1e6 === 0 && n < 1e9) return below1000(n / 1e6).map(x => `${x} million`);
@@ -107,7 +109,7 @@ export function tokens(caption, sheet) {
       if (ab) {
         // GDC's: the possessive goes on the last spoken word.
         const poss = /^['’]s\b/.exec(text.slice(p + ab.length));
-        push('word', ab, sheet.words[ab].map(x => split(poss ? `${x}'s` : x)), glued);
+        push(ab.length === 1 ? 'letter' : 'word', ab, sheet.words[ab].map(x => split(poss ? `${x}'s` : x)), glued);
         glued = true; p += ab.length + (poss ? 2 : 0); continue;
       }
       if (LETTER.test(ch)) {
