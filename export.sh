@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Web export of game/ (the "Web" preset: Compatibility renderer, no threads, no PWA)
-# into build/next/, or the folder given. Fetches the Web export templates first if
+# into build/next/, or the folder given, with the music and voice lines in audio.pck
+# beside it (the "Web audio" preset, #183). Fetches the Web export templates first if
 # Godot can't find them.
 #
 #   ./export.sh [out dir]
@@ -46,7 +47,7 @@ import_project
 
 echo "== export =="
 log="$ROOT/_scratch/export.log"
-rm -f "$out"/index.*
+rm -f "$out"/index.* "$out/audio.pck"
 if ! XDG_DATA_HOME="$data" "$GODOT" --headless --path "$GAME" --export-release Web "$out/index.html" >"$log" 2>&1; then
 	cat "$log"
 	echo "export failed" >&2
@@ -57,6 +58,15 @@ if grep -E "(^|\s)(SCRIPT )?ERROR:" "$log" >/dev/null || [ ! -f "$out/index.pck"
 	echo "export reported errors (above)" >&2
 	exit 1
 fi
+# The music and Spark's voice lines, loaded only once sound is on (#183, game/audio/audio.gd)
+if ! XDG_DATA_HOME="$data" "$GODOT" --headless --path "$GAME" --export-pack "Web audio" "$out/audio.pck" >>"$log" 2>&1 \
+	|| grep -E "(^|\s)(SCRIPT )?ERROR:" "$log" >/dev/null || [ ! -f "$out/audio.pck" ]; then
+	grep -v "^\[ *[0-9]*% \]" "$log"
+	echo "audio pack export failed" >&2
+	exit 1
+fi
+# The size budget (#183): fails the export, and so CI, when the first load grows past it
+python3 -I "$ROOT/scripts/check_pack.py" "$out"
 # Link previews point at the share card, when there is one (FAL-470).
 "$ROOT/scripts/share-card.sh" "$out"
 ls -l "$out"

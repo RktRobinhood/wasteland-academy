@@ -101,9 +101,10 @@ async function cachedUrls(page) {
 // The root worker controls the page and has copied the whole export
 async function godotCached(page, site) {
   await waitForWorker(page);
-  // Every file the export put at the root: the worker's list must cover them all
+  // Every file the export put at the root: the worker's list must cover them all,
+  // less audio.pck, which waits until sound is on (#183)
   const root = path.join(SITES, 'on');
-  const exported = fs.readdirSync(root).filter(f => f !== 'service-worker.js' && fs.statSync(path.join(root, f)).isFile());
+  const exported = fs.readdirSync(root).filter(f => !['service-worker.js', 'audio.pck'].includes(f) && fs.statSync(path.join(root, f)).isFile());
   await expect.poll(async () => (await cachedUrls(page))['wasteland-academy-godot'] || [], { timeout: 60_000 })
     .toEqual(exported.map(f => site.url + f).sort());
 }

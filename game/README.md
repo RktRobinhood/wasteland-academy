@@ -14,7 +14,7 @@ reference, [`docs/QUESTION-ENGINE.md`](docs/QUESTION-ENGINE.md).
 ```
 game/
 ├── project.godot        ← portrait 1080x1920 base, "expand" stretch, Compatibility renderer
-├── export_presets.cfg   ← one preset, "Web": no threads, no PWA
+├── export_presets.cfg   ← "Web": no threads, no PWA; "Web audio": the music and voice lines (audio.pck)
 ├── scenes/main.tscn     ← title screen (title, Spark, Play, Practice, Engine)
 ├── scenes/map.tscn      ← the map (ui/map.gd): world, zone, region screen (see "The map")
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
@@ -144,7 +144,7 @@ Godot is found on `PATH`, at `~/.local/bin/godot`, or from `GODOT=/path/to/godot
 |---|---|
 | `./run.sh` | Opens the game in a 540x960 window |
 | `./test.sh` | Headless import, then every `game/tests/test_*.gd`. Exits non-zero on any failure |
-| `./export.sh [dir]` | Web export into `build/next/` (or `dir`). Fetches the Web export templates first if Godot can't find them |
+| `./export.sh [dir]` | Web export into `build/next/` (or `dir`), with `audio.pck` beside it, then the size budget (`scripts/check_pack.py`). Fetches the Web export templates first if Godot can't find them |
 | `./screenshot.sh [out.png] [scene]` | Renders a scene at 1080x1920 in a private Xvfb display |
 | `node scripts/web-screenshot.mjs [export dir] [out dir] [name=?query ...]` | Serves an export at `/wasteland-academy/next/` and screenshots it in headless Chromium at 390x844 and 1280x800, plus each named deep link. Fails if the page logs an error |
 | `tools/check-answers` | The SymPy answer checker (see docs/QUESTION-ENGINE.md) |
@@ -1082,7 +1082,8 @@ script error happens while it runs. Run one file with
 - `test_step.gd`: a worked-solution step as a String or a tagged `{move, board}`: the
   practice screen and Hint show the board, and the export writes text with the moves.
 - `test_audio.gd`: a loop per location at the length the review measured, only the
-  wired-in loops in `assets/audio/music/`, the effects mirrored from the HTML game, the
+  wired-in loops in `assets/audio/music/`, the music, voice lines and dev addon kept
+  out of the "Web" preset and the music and voice lines in the "Web audio" one, the effects mirrored from the HTML game, the
   two buses, sound off on a fresh install, settings that survive a reload, and the
   settings screen with the three settings and none of the old playtest rows.
 - `test_art.gd`: every art slot loads its file when it's there and falls back when it
@@ -1133,6 +1134,28 @@ out of the 1.3 GB official archive with HTTP range requests, into
 dir, for that command only. Then `scripts/share-card.sh` adds the link-preview tags
 when there is a share card (see "Art slots"). It takes the page's address as its second
 argument, for a build published somewhere other than `/next/`.
+
+### What the first load downloads (#183)
+
+Sound starts off, so the music and Spark's voice lines are not in `index.pck`. The
+"Web audio" preset writes them to `audio.pck` beside it, and `./export.sh` exports both.
+The first time sound is on, `game/audio/audio.gd` loads that pack: a web build fetches
+it from beside the page into the page's memory, and the root worker keeps it for
+offline play once it has been fetched, but never fetches it at install. A native build
+reads `audio.pck` from beside the executable, so a PC or phone preset either ships that
+file beside the game or drops the two `assets/audio/` folders from its exclude filter.
+In the editor and the tests the files are already there. The effects stay in the main
+pack. Until the pack has loaded, the music waits and an explainer is silent.
+
+The dev addon `addons/godot_mcp_toolkit` is in every preset's exclude filter; its own
+export plugin removes the `MCPRuntimeServer` autoload from the exported project, and it
+stays enabled in the editor.
+
+`scripts/check_pack.py` runs at the end of every export and fails it, and so CI, when
+`index.pck` holds the addon, a music loop or a voice line, when `audio.pck` is missing,
+or when `index.pck` gzipped (as GitHub Pages sends it) is over its budget, 15 MB. It
+prints the sizes. On 2026-11-16 `index.pck` went from 49.7 MB (46.1 MB gzipped) to
+14.5 MB (12.2 MB gzipped), with `index.wasm` 10.1 MB gzipped and `audio.pck` 34.7 MB.
 
 `.github/workflows/pages.yml` deploys on every push to `main`: the repo through
 `actions/jekyll-build-pages`, plus the export, which `scripts/assemble-site.sh` puts at

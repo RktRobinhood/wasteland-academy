@@ -34,6 +34,9 @@ const BUILD = [
   'index.apple-touch-icon.png',
   'share-card.png',
 ].map(f => new URL(f, self.location).href);
+// The music and voice lines (#183): fetched by the game only once sound is on, so not
+// at install. Kept like the files above once fetched, so sound works offline too.
+const ON_DEMAND = ['audio.pck'].map(f => new URL(f, self.location).href);
 const ROOT = new URL('./', self.location).href;
 
 self.addEventListener('install', event => {
@@ -73,7 +76,7 @@ self.addEventListener('fetch', event => {
   // The root page, whatever its ?… (deep links) and #… (map links), is index.html
   const key = url.href === ROOT ? ROOT + 'index.html' : url.href;
   // Anything else, next/ included, goes straight to the network
-  if (BUILD.includes(key)) event.respondWith(networkFirst(event, key));
+  if (BUILD.includes(key) || ON_DEMAND.includes(key)) event.respondWith(networkFirst(event, key));
 });
 
 async function networkFirst(event, key) {

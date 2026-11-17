@@ -261,3 +261,32 @@ func test_the_settings_screen_shows_the_levels_and_no_playtest_rows() -> void:
 	panel.queue_free()
 	await tree.process_frame
 	_restore(audio)
+
+
+## #183: the first load leaves out what sound-off players never hear, and the dev addon.
+func test_the_web_pack_leaves_out_the_music_voice_and_dev_addon() -> void:
+	var cfg := ConfigFile.new()
+	check_eq(cfg.load("res://export_presets.cfg"), OK, "export_presets.cfg")
+	var presets := {}
+	for section in cfg.get_sections():
+		if section.begins_with("preset.") and not section.ends_with(".options"):
+			presets[str(cfg.get_value(section, "name"))] = section
+	check(presets.has("Web") and presets.has("Web audio"), "presets: %s" % [presets.keys()])
+	if not (presets.has("Web") and presets.has("Web audio")):
+		return
+	for name: String in presets:
+		var exclude := str(cfg.get_value(presets[name], "exclude_filter"))
+		check(exclude.contains("addons/godot_mcp_toolkit/*"), "%s ships the dev addon" % name)
+	var web := str(cfg.get_value(presets["Web"], "exclude_filter"))
+	var audio := str(cfg.get_value(presets["Web audio"], "include_filter"))
+	for dir in ["assets/audio/music/", "assets/audio/voice/"]:
+		check(web.contains(dir + "*"), "the Web pack ships %s" % dir)
+		check(audio.contains(dir), "audio.pck lacks %s" % dir)
+	check_eq(str(cfg.get_value(presets["Web audio"], "export_filter")), "resources", "Web audio filter")
+
+
+## In the editor and the tests the loops are already there, so no pack is fetched.
+func test_the_audio_pack_is_not_needed_from_the_project() -> void:
+	var audio := _audio()
+	check(audio.ensure_pack(), "the music and voice lines need audio.pck from res://")
+	check(not audio.pack_loading(), "a pack download started from res://")
