@@ -62,24 +62,34 @@ function checkValue(check, value, what) {
 }
 
 // ── The call ──
+// kind type or dial: a number, compared as a number. kind choose: a tapped option, compared
+// as text, from choices. answer is one value, or a list when more than one call is right.
+const answersOf = p => [p.answer].flat();
 export function checkPredict(p, where, refs, err) {
   if (typeof p.id !== 'string' || !p.id) err(where, 'a predict has an id, for the back_to lines that return to it');
-  if (!['type', 'dial'].includes(p.kind)) err(where, `predict kind is type or dial, not ${p.kind}`);
+  if (!['type', 'dial', 'choose'].includes(p.kind)) err(where, `predict kind is type, dial or choose, not ${p.kind}`);
   if (typeof p.prompt !== 'string' || !p.prompt) err(where, 'a predict has a prompt, shown on screen');
-  if (Number.isNaN(numberOf(p.answer))) err(where, `a predict's answer is the number the lesson shows, not ${JSON.stringify(p.answer)}`);
-  const c = checkValue(p.check, p.answer, 'the answer'); if (c) err(where, c);
+  const choose = p.kind === 'choose';
+  const key = choose ? v => String(v) : numberOf;
+  const answers = answersOf(p);
+  if (!answers.length) err(where, 'a predict has an answer, the value the lesson will show');
+  if (choose) {
+    if (!Array.isArray(p.choices) || p.choices.length < 2 || new Set(p.choices).size !== p.choices.length) err(where, 'a choose predict has two or more different choices');
+    for (const v of [...answers, ...(p.values || []).map(x => x.value)]) if (!(p.choices || []).includes(v)) err(where, `${v} is not one of the choices`);
+  } else for (const a of answers) if (Number.isNaN(numberOf(a))) err(where, `a predict's answer is the number the lesson shows, not ${JSON.stringify(a)}`);
+  if (answers.length === 1) { const c = checkValue(p.check, answers[0], 'the answer'); if (c) err(where, c); }
+  else if (p.check != null) err(where, 'a predict with more than one answer has no single check');
   if (p.kind === 'dial') {
     const d = p.dial;
     if (!Array.isArray(d) || d.length !== 2 || !d.every(Number.isInteger) || d[0] >= d[1]) err(where, 'a dial predict has dial: two whole numbers, least first');
-    else if (!(numberOf(p.answer) >= d[0] && numberOf(p.answer) <= d[1])) err(where, `the answer ${p.answer} is off the dial`);
+    else for (const a of answers) if (!(numberOf(a) >= d[0] && numberOf(a) <= d[1])) err(where, `the answer ${a} is off the dial`);
   }
-  const seen = new Set([numberOf(p.answer)]);
+  const seen = new Set(answers.map(key));
   for (const [i, v] of (p.values || []).entries()) {
     const w = `${where}.values[${i}]`;
-    const n = numberOf(v.value);
-    if (Number.isNaN(n)) { err(w, `a value is a number, not ${JSON.stringify(v.value)}`); continue; }
-    if (seen.has(n)) err(w, `the value ${v.value} is the answer or another value`);
-    seen.add(n);
+    if (!choose && Number.isNaN(numberOf(v.value))) { err(w, `a value is a number, not ${JSON.stringify(v.value)}`); continue; }
+    if (seen.has(key(v.value))) err(w, `the value ${v.value} is the answer or another value`);
+    seen.add(key(v.value));
     if (!refs.has(v.misconception)) err(w, `misconception ${v.misconception} is not in curriculum/question-types.json`);
     const vc = checkValue(v.check, v.value, `the value ${v.value}`); if (vc) err(w, vc);
   }
@@ -88,16 +98,17 @@ export function checkPredict(p, where, refs, err) {
 export function checkBackTo(b, where, predicts, err, fix, inRecap) {
   const p = predicts.get(b.predict);
   if (!p) return err(where, `back_to ${b.predict} is not a predict earlier in the script`);
+  const key = p.kind === 'choose' ? v => String(v) : numberOf;
   const has = g => Array.isArray(g) && g.length > 0;
-  const values = new Map((b.values || []).map(v => [numberOf(v.value), v]));
+  const values = new Set((b.values || []).map(v => key(v.value)));
   for (const [i, v] of (b.values || []).entries()) {
-    if (!(p.values || []).some(x => numberOf(x.value) === numberOf(v.value))) err(`${where}.values[${i}]`, `${v.value} is not one of predict ${p.id}'s values`);
+    if (!(p.values || []).some(x => key(x.value) === key(v.value))) err(`${where}.values[${i}]`, `${v.value} is not one of predict ${p.id}'s values`);
     if (!has(v.lines)) err(`${where}.values[${i}]`, 'a back_to value has lines');
   }
   if (!inRecap) return;
   if (!has(b.match)) fix(where, `the recap's back_to ${p.id} has no line for a call that matched`);
   if (!has(b.other)) fix(where, `the recap's back_to ${p.id} has no line for any other call`);
-  for (const v of p.values || []) if (!values.has(numberOf(v.value))) fix(where, `the recap's back_to ${p.id} has no line for a call of ${v.value} (${v.misconception})`);
+  for (const v of p.values || []) if (!values.has(key(v.value))) fix(where, `the recap's back_to ${p.id} has no line for a call of ${v.value} (${v.misconception})`);
 }
 
 // ── Toys ──

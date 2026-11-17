@@ -392,7 +392,7 @@ Format 3 adds five beats (#216). A misconception is always named by its id in `q
   "values": [ { "value": "−13", "misconception": "fn-pre-substitute#0", "check": "−3² − 4" } ] } }
 ```
 
-`kind` is `type` (a typed number) or `dial` (with `dial: [min, max]`). `answer` is what the lesson will show, and each of `values` is what a named misconception gives. None of them is marked.
+`kind` is `type` (a typed number), `dial` (with `dial: [min, max]`) or `choose` (a tapped option, with `choices`, for a call that isn't a number: "steeper", "the same"). `answer` is what the lesson will show, or a list when more than one call is right (−3 and 3 both square to 9). Each of `values` is what a named misconception gives. None of them is marked.
 
 **Back to the call.** `back_to` plays one group of lines, chosen by the stored call:
 
@@ -400,7 +400,7 @@ Format 3 adds five beats (#216). A misconception is always named by its id in `q
 { "back_to": { "predict": "call", "match": [lines], "values": [ { "value": "−13", "lines": [lines] } ], "other": [lines] } }
 ```
 
-The game compares the call with `answer`, then with each value, as numbers, and plays the first group that matches, or `other`. The recap's `back_to` has all three: `match`, a group for every value of the predict, and `other`.
+The game compares the call with `answer`, then with each value (as numbers, or as text for `choose`), and plays the first group that matches, or `other`. The recap's `back_to` has all three: `match`, a group for every value of the predict, and `other`.
 
 **A toy.** The toy's id, its set-up and its tasks, as the lesson player reads them (`game/docs/TOYS.md`):
 

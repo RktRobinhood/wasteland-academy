@@ -279,7 +279,10 @@ const RULES3 = [
   ['a say with no speaker', s => { delete opener(s).beats[0].speaker; }, /a spoken line has a speaker/],
   ['a spoken line outside sections', s => { s.extra = [say(3)]; }, /a spoken line goes under sections/],
   // The call
-  ['a predict of an unknown kind', s => { call(s).kind = 'shout'; }, /predict kind is type or dial, not shout/],
+  ['a predict of an unknown kind', s => { call(s).kind = 'shout'; }, /predict kind is type, dial or choose, not shout/],
+  ['a choose predict whose answer is not a choice', s => { Object.assign(call(s), { kind: 'choose', choices: ['5', '13'] }); }, /−13 is not one of the choices/],
+  ['a predict with two answers and one check', s => { call(s).answer = ['5', '−5']; }, /more than one answer has no single check/],
+  ['a dial predict whose answer is off the dial', s => { Object.assign(call(s), { kind: 'dial', dial: [-3, 3] }); }, /the answer 5 is off the dial/],
   ['a predict whose check gives another answer', s => { call(s).answer = '13'; }, /the answer is 13, but its check "\(−3\)² − 4" gives 5/],
   ['a predict value that is the answer', s => { call(s).values[0].value = '5'; delete call(s).values[0].check; }, /the value 5 is the answer or another value/],
   ['a predict value with an unknown misconception', s => { call(s).values[0].misconception = 'fn-nothing#9'; }, /misconception fn-nothing#9 is not in curriculum\/question-types\.json/],
@@ -327,6 +330,11 @@ const TODOS3 = [
 ];
 for (const [name, edit, want] of TODOS3) test(`the check lists ${name} as a to-do`, () => assert.match(todo3(edit), want));
 
+test('a call can be a tapped option, or have more than one right answer', () => {
+  const ok = edit => assert.deepEqual(broken3(edit), '');
+  ok(s => { Object.assign(call(s), { kind: 'choose', choices: ['5', '13', '−13'] }); });
+  ok(s => { delete call(s).check; call(s).answer = ['5', '−5']; });
+});
 test('a note in exceptions lets a long script or an example with no setting through', () => {
   const quiet = s => { s.exceptions = { recorded_words: 'Two worked examples need the full stem.', first_example_setting: 'Exam wording.' }; };
   assert.doesNotMatch(todo3(s => { quiet(s); section(s, 'recap').beats.push(...Array.from({ length: 6 }, (_, i) => say(10, `zzzz1${i}`))); }), /recorded words/);
