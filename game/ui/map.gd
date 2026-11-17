@@ -12,7 +12,9 @@ extends Control
 ##   fast-travel map (FAL-988): every place has a pin in its state's colour (a padlock when
 ##   locked) and its name on a banner under the pin, always shown, and a "you are here"
 ##   marker stands at the place the player last went into (the save's "here"). No roads.
-##   The header shows the Scrap there is to spend.
+##   The header shows the Scrap there is to spend. Between the painting and the buttons,
+##   the ambient layer (FAL-1075, ui/ambient_layer.gd, pieces in AMBIENT) plays a crow,
+##   the beacon, smoke, neon and dust; it takes no taps, and holds still with reduced motion.
 ## - An island is a hub (FAL-531 plan): its all-regions dungeon in the middle and its
 ##   regions (MapLink.region_ids(island)) around it, any of them in any order. No roads:
 ##   the places are fast-travel points. A locked spot waits for a Relic device. A region
@@ -42,6 +44,8 @@ const FIGHT := "res://scenes/fight.tscn"
 const PRACTICE := "res://scenes/practice.tscn"
 const MAIN := "res://scenes/main.tscn"
 const OVERWORLD := preload("res://assets/map/overworld.png")
+## The world board's moving pieces (FAL-1075), drawn by ui/ambient_layer.gd.
+const AMBIENT := "res://data/ambient.json"
 ## Each island's art is in its own folder here: MAP_ART/<island id>/ (island_art_dir()).
 const MAP_ART := "res://assets/map/"
 ## Both maps are drawn on a portrait board of this size, scaled to fit under the header.
@@ -258,11 +262,7 @@ func go(r: Dictionary) -> void:
 ## True when the game should cut instead of zooming: the save's reduced-motion setting,
 ## or the browser's prefers-reduced-motion on the web.
 func reduced_motion() -> bool:
-	if bool(save.get("settings", {}).get("reduced_motion", false)):
-		return true
-	if OS.has_feature("web"):
-		return JavaScriptBridge.eval("window.matchMedia('(prefers-reduced-motion: reduce)').matches", true) == true
-	return false
+	return AmbientLayer.motion_reduced(save)
 
 
 static func island_info(id: String) -> Dictionary:
@@ -360,6 +360,13 @@ func _build() -> void:
 	art.size = BOARD
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	world_board.add_child(art)
+	# Over the painting, under the zone buttons and pins; it takes no taps.
+	var ambient := AmbientLayer.new()
+	ambient.name = "Ambient"
+	ambient.size = BOARD
+	ambient.reduced_motion = reduced_motion()
+	world_board.add_child(ambient)
+	ambient.build(AmbientLayer.entries(AMBIENT, "map"))
 	_header(world, "The Wasteland", "Title", func(): MapLink.home(get_tree()))
 	var scrap := UiTheme.label("", UiTheme.SMALL, UiTheme.SAND)
 	scrap.name = "Scrap"
@@ -764,7 +771,7 @@ class Glow extends Control:
 # ── The world map ────────────────────────────────────────────
 
 func _fill_world() -> void:
-	_clear(world_board, 1)
+	_clear(world_board, 2)
 	var scrap := int(save.get("scrap", 0))
 	(world.get_node("Header").get_child(0).get_node("Scrap") as Label).text = "Scrap: %d" % scrap
 	for i in ISLANDS:

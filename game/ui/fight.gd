@@ -35,6 +35,11 @@ extends "res://ui/practice.gd"
 ## a hit, "retry" for a miss or a timeout, "clear" when an enemy falls, "hint" for a
 ## lifeline, and "reward" when the summary banks Scrap (sfx_for()).
 ##
+## On a hit the hit spark plays over the enemy's chest, and when an enemy falls its art
+## fades while the dust burst plays at its feet (FAL-1075, data/ambient.json's "fight",
+## ui/ambient_layer.gd). Both play over the enemy's portrait only, not over the strip;
+## with reduced motion there is no spark and a fallen enemy just goes.
+##
 ## Art by file name (FAL-470, engine/art_slots.gd): the region's backdrop behind the
 ## screen, its mini-boss and boss (with a hurt frame that flashes on a hit) and their
 ## taunts, the shared enemy pool, and the run banners and best-floor medals. Each one
@@ -70,6 +75,10 @@ const MAP_SCREEN := "res://ui/map.gd"
 const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"}
 ## How long a hit shows the enemy's hurt frame (one flash, FAL-473).
 const HURT_FLASH := 0.08
+## The hit spark and dust burst (FAL-1075).
+const AMBIENT := "res://data/ambient.json"
+## The size of enemy art the effects' cells were drawn for.
+const EFFECT_ART := 256.0
 const LOOP_THINK := 2.0
 const LOOP_READ := 4.0
 ## Run banners and medals, in base units.
@@ -135,6 +144,8 @@ var job := {}
 var _job_fight := -1
 ## The mini-boss or boss (run.fights) whose "open" effect played, so it plays once a fight.
 var _announced := -1
+## The fallen enemy's fade (enemy_falls()), stopped when the next question opens.
+var _fall: Tween
 
 
 func _ready() -> void:
@@ -665,6 +676,9 @@ func prompt_text() -> String:
 ## Draws the run's open question, with the practice screen's card.
 func _show_question() -> void:
 	question = run.question
+	if _fall != null:
+		_fall.kill()
+	enemy_art.modulate.a = 1.0
 	result = {}
 	if _job_fight != run.fights:
 		_job_fight = run.fights
@@ -933,6 +947,9 @@ func _show_result(r: Dictionary) -> void:
 	# A boss part missed still uses the part up, but it isn't a hit.
 	if r.enemy_damage > 0 and r.outcome in ["right", "glancing", "late"]:
 		flash_hurt()
+		spark_hit()
+	if r.defeated:
+		enemy_falls()
 
 
 ## On a hit, the enemy's hurt frame for HURT_FLASH seconds, where it has one.
@@ -944,6 +961,62 @@ func flash_hurt() -> void:
 	get_tree().create_timer(HURT_FLASH).timeout.connect(func():
 		if is_instance_valid(enemy_art) and run != null and run.enemy.art == art:
 			enemy_art.texture = load(art))
+
+
+## True when nothing should move (AmbientLayer.motion_reduced()).
+func reduced_motion() -> bool:
+	return AmbientLayer.motion_reduced(save)
+
+
+## On a hit, the hit spark over the enemy's chest. Returns it, or null when none plays:
+## reduced motion, or no portrait showing (the strip has the scene).
+func spark_hit() -> Node2D:
+	var fx: Dictionary = AmbientLayer.data(AMBIENT).get("fight", {}).get("hit-spark", {})
+	var drawn := _enemy_drawn()
+	if fx.is_empty() or drawn.is_empty() or reduced_motion():
+		return null
+	var box: Rect2 = drawn[0]
+	var k: float = drawn[1]
+	return _effect(fx, box.get_center() - Vector2(0, float(fx.get("chest", 0)) * k), k)
+
+
+## When an enemy falls: its portrait fades and the dust burst plays at its feet. With
+## reduced motion the portrait just goes. Returns the burst, or null when none plays.
+## _show_question() brings the portrait back for the next fight.
+func enemy_falls() -> Node2D:
+	var fx: Dictionary = AmbientLayer.data(AMBIENT).get("fight", {}).get("dust-burst", {})
+	var drawn := _enemy_drawn()
+	if reduced_motion():
+		enemy_art.modulate.a = 0.0
+		return null
+	if fx.is_empty() or drawn.is_empty():
+		return null
+	_fall = create_tween()
+	_fall.tween_property(enemy_art, "modulate:a", 0.0, float(fx.get("fade", 0.4)))
+	var box: Rect2 = drawn[0]
+	return _effect(fx, Vector2(box.get_center().x, box.end.y), drawn[1])
+
+
+## Where the enemy's portrait is drawn in the scene and its scale against EFFECT_ART,
+## as [Rect2, float], or [] when no portrait shows.
+func _enemy_drawn() -> Array:
+	var tex := enemy_art.texture
+	if tex == null or not enemy_art.is_visible_in_tree() or enemy_art.size.x <= 0.0:
+		return []
+	var ts := tex.get_size()
+	var s := minf(enemy_art.size.x / ts.x, enemy_art.size.y / ts.y)
+	var box := Rect2(enemy_art.position + (enemy_art.size - ts * s) / 2.0, ts * s)
+	return [box, s * ts.x / EFFECT_ART]
+
+
+## Plays an effect once in the scene, above the portrait and under the tags.
+func _effect(fx: Dictionary, at: Vector2, k: float) -> Node2D:
+	var a: Array = fx.get("anchor", [0, 0])
+	var once := AmbientLayer.play_once(scene_box, str(fx.get("sheet", "")), at, Vector2(float(a[0]), float(a[1])),
+		k, float(fx.get("fps", 0)))
+	if once != null:
+		scene_box.move_child(once, enemy_art.get_index() + 1)
+	return once
 
 
 ## The "floor cleared" banner when a boss falls, "boss beaten" when a mini-boss does, or
