@@ -660,6 +660,62 @@ play the same palette under the same cue names. All Kenney CC0 1.0, unedited.
 - `game/assets/audio/sfx/encounter-open-01.wav` — cue `open`. Byte-for-byte copy of `assets/audio/proposed/fal-372/encounter-open-01.wav`, whose Kenney CC0 source, URL and edits are recorded above. SHA-256 `496caa309b931e901cbb6b69e5f41106ee5caddcfcd2bf5c163f457e9d27f94c`, unchanged.
 - `game/assets/audio/sfx/encounter-clear-01.wav` — cue `clear`. Byte-for-byte copy of `assets/audio/proposed/fal-372/encounter-clear-01.wav`, whose Kenney CC0 source, URL and edits are recorded above. SHA-256 `227bee690a3fa9d1e80d3646d37289662c05ee7a039331ea1a392c6310bcc9b1`, unchanged.
 
+## FAL-1132 — Bodge's shop lines, local voice clone (voice)
+
+42 voice files in `game/assets/audio/voice/bodge/lines/`: every line in `game/data/shopkeeper.json` (`lines`: first_visit 3, enter 8, idle 8, buy 8, broke 6, capped 4, leave 5). Each file is named by its text: the first 12 hex characters of the SHA-1 of the exact UTF-8 line, so a line that is later edited stops matching its old take (the rule shared with FAL-1134). The words fed to the model are each line exactly. Generated locally with VoxCPM2 on 2026-11-18. No recordings of any real person went in.
+
+Rights basis: as for FAL-1110 below. VoxCPM2 (OpenBMB) code and weights are released under the [Apache License 2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE), which allows commercial use; model card https://huggingface.co/openbmb/VoxCPM2. Package `voxcpm` 2.0.3, weights `openbmb/VoxCPM2` from the local Hugging Face cache. The voice is cloned from Bodge's one reference take (`bodge`, SHA-256 `ef8086ebb2233cd37389752baee5d31aafc41765c1c5634febaead2754f7cb83`): Bodge reading the template paragraph, generated with Gemini text-to-speech (`gemini-3.8-flash-tts`, voice `en-au-storyteller-1`, the direction in `teachers.json`) via the Gemini API on 2026-11-17 (FAL-1099). The reference stays in the local falcon-voice repo and doesn't ship. No model was trained or fine-tuned. Matt chose this clone for Bodge on FAL-1110.
+
+- **Cloning:** VoxCPM2 "ultimate" mode: the reference is both `reference_wav_path` and `prompt_wav_path`, and its words are `prompt_text`. cfg 2.0, 10 inference timesteps, denoiser off, text normalisation off. Seed per file below (`torch.manual_seed`): 1099 first, then 1100 for the 6 lines whose words didn't match at 1099.
+- **Changes, every file** (falcon-voice `clone/post.sh`): resample the 48 kHz clone to 24 kHz mono; trim silence below −50 dB at both ends; 10 ms fade-in and 40 ms fade-out; 30 ms lead-in and 60 ms tail; then Bodge's approved chain from `teachers.json`, the 2% tape slowdown (`asetrate=23520,aresample=24000`); then falcon-voice `master.sh` (two-pass loudnorm to −16 LUFS, true peak at or below −1 dBTP, 44.1 kHz mono OGG Vorbis q5). No take needed `clone/prelimit.sh`.
+- **Checks:** every take transcribed with faster-whisper small (CPU) and compared word by word with the line. All 42 shipped takes match. The six seed-1099 takes that didn't ("stall" heard as "store", "bet" as "bit", "are" as "of", "or" as "we'll", "looking's" as "lookings", "checked" as "check") were replaced by seed 1100, so no mismatch was accepted.
+- **Measured across all 42** (music-tools `bin/check`, 4× oversampled true peak): −16.97 to −15.83 LUFS-I, −2.62 to −1.38 dBTP, 2.24 to 7.14 s long, 3.6 minutes in all. The first and last 20 ms of every file are at least 88 dB below its loudest 20 ms.
+
+| File (`game/assets/audio/voice/bodge/lines/`) | Line (`shopkeeper.json`) | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `856cc3ac3ce6.ogg` | first_visit 1 | `1099` | 5.4 | -16.6 | -1.6 | all | `d567833328224561b91b1abd7538826b0b0c1cda9fafb4c1b8b6f0092a536ca3` |
+| `34654fd0dd0d.ogg` | first_visit 2 | `1100` | 6.1 | -16.1 | -1.5 | all | `a35bc2f8765de07d982cb80665c8ee3572b18417657b8dc0b40042a85c53eec5` |
+| `2e422429312d.ogg` | first_visit 3 | `1099` | 5.0 | -16.8 | -1.7 | all | `38dbda2c01ca95c6835f0476461dfe382f90410faad2f42d2b204adbdf468462` |
+| `85761829a904.ogg` | enter 1 | `1099` | 4.8 | -16.1 | -1.9 | all | `0c798dc87e45e416135a198cf1a98b44648103f7f975866bc1d7acd6749f5c67` |
+| `b122862a94cc.ogg` | enter 2 | `1099` | 4.1 | -16.1 | -1.4 | all | `4f7900c7f68a20949bb20c92a1e225789ec3e0ff0ddf6749884f8ca44edececd` |
+| `41448294b8c7.ogg` | enter 3 | `1099` | 5.3 | -16.0 | -1.8 | all | `ff9627f6001a7faf2269fc2c5b1f5bf00d74cfe80b70889f149053bf01fd885e` |
+| `880f8bf12150.ogg` | enter 4 | `1099` | 5.1 | -16.5 | -1.7 | all | `7863a56612c1067c468044e749ae37f1354896075a30cee696c9fc9cb1808e3b` |
+| `96be3be7fc41.ogg` | enter 5 | `1099` | 4.6 | -16.2 | -1.6 | all | `f9e9fbca82770751a0d7baefe102f681c0ce80f73c5c360f21a23d1401aa73fe` |
+| `490723d891bd.ogg` | enter 6 | `1099` | 4.9 | -16.2 | -1.8 | all | `c0cfd02e580be77dcb0f4798557fa1a0f7a339cf9844b4eacc510365b5c2a64a` |
+| `7254149d01ee.ogg` | enter 7 | `1099` | 4.6 | -15.8 | -1.8 | all | `582c3403c4afed78267754fc0b47ec594c0e89128821e9924400a09623693aa0` |
+| `53d6e15ba05e.ogg` | enter 8 | `1100` | 4.8 | -15.8 | -1.7 | all | `554253aa3e9f464fa82bfaf1bcee9a46e7f84c7973e25d4ffb86686928d7e9b0` |
+| `f53a9503aeee.ogg` | idle 1 | `1099` | 5.5 | -16.5 | -1.7 | all | `d435be7eabb19fd5c08eaae120d4c6b506e008ce1dee4cf6e25199dc99b0f111` |
+| `60cb4a8dbf26.ogg` | idle 2 | `1099` | 5.9 | -16.9 | -1.7 | all | `4f1c6c40af61504b837da6b36a5097331d5d7ac1498b948da9f6e33bc609a236` |
+| `7c8b4ded913c.ogg` | idle 3 | `1099` | 4.8 | -16.9 | -1.8 | all | `81bb406d49d32308235ea6ff452e216300f60a273bbde84d21d2de98a2518820` |
+| `3c8e592329a6.ogg` | idle 4 | `1099` | 5.8 | -16.0 | -1.8 | all | `4a0f139f3eaeacfa848c777fce25d8ed7c933d844c36203b1f04de3d16a657ae` |
+| `b46c337ab603.ogg` | idle 5 | `1099` | 6.2 | -16.4 | -1.8 | all | `01fa7de1057ee3b1ed054a627900b6c4d050c04e521b0666fb9d04bd1caa442c` |
+| `cee01fc07c48.ogg` | idle 6 | `1099` | 7.2 | -16.4 | -1.8 | all | `1fe40e9558117996c93da7b60cf8f5b3bb3f80a2cbb439954440665632bc82d1` |
+| `9a6dab88811d.ogg` | idle 7 | `1099` | 5.9 | -16.8 | -1.8 | all | `ed34048a628e989f859fd27944ae5484614b016c7c433b74543d985532be0750` |
+| `7ee038d7a7a3.ogg` | idle 8 | `1099` | 6.5 | -16.3 | -1.8 | all | `8cd1a6b6b9529fca4b323f34b330418a80b03cf0ce69b3fd906a68f06fbc76e8` |
+| `24fce716f89e.ogg` | buy 1 | `1099` | 6.3 | -16.2 | -1.6 | all | `720abed78eb76bc870eff74567ec6386fa2034086a1c9230f88b57db707f0e79` |
+| `171f86ab35dc.ogg` | buy 2 | `1099` | 6.1 | -16.4 | -1.7 | all | `ea96a1a9347e62497ebd33b18279837dc76d0be69d24e868b909935591307cff` |
+| `a246eb6fe5e1.ogg` | buy 3 | `1099` | 5.1 | -16.0 | -1.6 | all | `fe9eacd5845beb043ee0a10a5447976eecba4ff73c15a65a16bf8262e1344f74` |
+| `ada695041fc8.ogg` | buy 4 | `1099` | 5.6 | -16.6 | -1.5 | all | `73df3af624fd48729a6d7c90ec64e9cd3fd86143ec80d31f3317ec9009ab8fc5` |
+| `d11947dc06cf.ogg` | buy 5 | `1099` | 6.0 | -16.3 | -1.7 | all | `95bea956f8e82abeaa274b6b821045e8d14cadc88525de644983c9f304d217b2` |
+| `05f58aeb3872.ogg` | buy 6 | `1099` | 6.7 | -16.1 | -1.6 | all | `aec2b39160575574c5384acda99083973b10c629febed33988f60e23b8b9e0b8` |
+| `10a06e76c751.ogg` | buy 7 | `1099` | 6.1 | -16.4 | -1.7 | all | `9d319f1aa440088dcba7afa09814ad52c49fa97744479744c914555cbee81d6b` |
+| `e9a216ea1a2c.ogg` | buy 8 | `1099` | 5.2 | -16.1 | -1.6 | all | `610f84eee9461d9a2b0005412b2692b69b984afb89647ab9dbb7bd61d010a23e` |
+| `0c9d3a927e4f.ogg` | broke 1 | `1099` | 5.5 | -16.6 | -1.5 | all | `29e835c6699d2adfb80428cf6af128ef81acfd395389c76891349172b17b2411` |
+| `acc4e6b1106c.ogg` | broke 2 | `1099` | 4.7 | -16.4 | -1.8 | all | `4e374f77b539a61b61a43d0949501084bea6d0858b6f4664a70bab3d33bb9bc0` |
+| `c401f260929e.ogg` | broke 3 | `1099` | 4.8 | -16.5 | -1.7 | all | `1bd1c3c7b96525ea996f6e1eaa6f08efacefc24728a8e8c9f0971ffd628a9382` |
+| `3e1568f4837b.ogg` | broke 4 | `1100` | 4.7 | -16.6 | -1.8 | all | `1905532151df0fc5ce4fbe306647323ba9e39f6a12cf96c86b17e53a89a54362` |
+| `8853fc6b214a.ogg` | broke 5 | `1100` | 4.9 | -16.3 | -1.4 | all | `1ea6bcd3c04c4e6ba8f1b6ed167db0790476dee7905279dceb27b37bbd6a3bbe` |
+| `acd63e2f0458.ogg` | broke 6 | `1100` | 6.0 | -15.8 | -1.4 | all | `da97a5ef6bd1b4373c6cd5e1a8fcc0c37c8872f6695c3fe658e439a4e487e7a0` |
+| `b83ba6b55d0a.ogg` | capped 1 | `1099` | 4.6 | -16.3 | -1.6 | all | `c7538134c9b7316b6bc9fafe91345d709e4bd9d74ad32a2b2a329406de276bc7` |
+| `2090295d7969.ogg` | capped 2 | `1100` | 5.7 | -16.4 | -1.5 | all | `3895c3b8b0e8a70ed985c6653aa73e6b76cadff2540def996029dba309660e62` |
+| `60bbbc23013a.ogg` | capped 3 | `1099` | 2.24 | -16.0 | -2.6 | all | `b9a8d43afbbed130ff2947b3bd4c8a8e5462fe5137661e800d6faac9f1f6c134` |
+| `17d313d3803b.ogg` | capped 4 | `1099` | 2.97 | -16.0 | -2.5 | all | `a6f247dba9b56788738a54e402a1ea483f30d5fe0f9509af3a8f1eb95f72d111` |
+| `3a05c401105d.ogg` | leave 1 | `1099` | 5.3 | -16.6 | -1.7 | all | `089116adf2fa6851743bf777ea1f02370165bf7b1b1674955c1384ed1fd29c28` |
+| `ccbd0f982e14.ogg` | leave 2 | `1099` | 3.31 | -16.3 | -1.8 | all | `32302ee6bc7db4760acc99422ebe447bf9d89247e8c548e9c3c36428304cf946` |
+| `78a8ce046268.ogg` | leave 3 | `1099` | 3.62 | -15.9 | -1.8 | all | `3f05259cecd4819203f9a503c9321b316f4d91fc635a5641fd85796d63940114` |
+| `312a7f3bfdf6.ogg` | leave 4 | `1099` | 5.3 | -16.6 | -1.6 | all | `963061a6278673e5858d7a806f31abfc6e6fb5ad645f6c6de646b8e65582069a` |
+| `8ca3e4bd0590.ogg` | leave 5 | `1099` | 4.4 | -16.7 | -1.7 | all | `d1b828e06ddbe864a3f7b7e3d14aa9165d174fb579cd67c28ef018b74d995d8d` |
+
 ## FAL-992 — Spark's explainer move lines, local voice clone (voice)
 
 162 voice files in `game/assets/audio/voice/spark/moves/`: two takes (`_1`, `_2`) of every move line in `curriculum/moves.json` (81 moves), with the same names and format the game already loads. The words are each move's `say` text exactly, because the explainer captions show them (FAL-991 found none changed). Generated locally with VoxCPM2 on 2026-11-18, replacing the FAL-428 takes of 2026-10-30. No recordings of any real person went in.
