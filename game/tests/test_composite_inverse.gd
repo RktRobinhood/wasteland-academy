@@ -175,3 +175,30 @@ func test_a_graph_that_turns_back_has_no_inverse_but_a_restriction() -> void:
 		var xs: Array = q.graph.points.map(func(p): return p.x)
 		var turn: int = xs[ys.find(ys.max() if ys[3] > ys[0] else ys.min())]
 		check_eq(int(q.answer.values.v.n), turn, "the turning point")
+
+
+## The seeds the sweep found with three options (#240): f's ad = −bc cancels two of the
+## sign slips, and the fillers ran out. Each now has four different options.
+const RATIONAL_SHORT := {
+	"swap-and-rearrange": [342, 353, 443, 491],
+	"coefficient-pattern": [665, 802, 1022, 2203],
+	"swap-then-solve": [204, 565, 725, 943, 1473],
+}
+const RATIONAL_SHORT_SHARED := [160, 304, 1660, 2052]
+
+
+func test_a_rational_inverse_always_has_four_different_options() -> void:
+	for angle in RATIONAL_SHORT:
+		var views: Array = RATIONAL_SHORT[angle].map(func(s): return {"seed": s})
+		views += RATIONAL_SHORT_SHARED.map(func(s): return {"seed": s, "shared": true})
+		for v in views:
+			var q = QuestionEngine.make(v.merged({"type": "fn-inverse-algebraic", "unknown": "inverse-rational",
+				"rep": "equation", "angle": angle, "format": "value"}))
+			var texts: Array = q.choices.map(func(o): return o.text)
+			var name := "%s seed %d%s %s" % [angle, v.seed, " shared" if v.has("shared") else "", texts]
+			check_eq(texts.size(), 4, name)
+			var seen := {}
+			for t in texts:
+				seen[t] = true
+			check_eq(seen.size(), texts.size(), name + ": options differ")
+			check_eq(q.choices.filter(func(o): return o.correct).size(), 1, name + ": one right option")
