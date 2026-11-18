@@ -2767,6 +2767,9 @@ def dist_show(u, style, paper=1, ans_show=None):
     return dec_text if style == "decimal" else frac_text
 
 
+DD_O, EV_O, EO_O = "t4-discrete-distribution#", "t4-expected-value#", "t4-expected-occurrences#"  # the types' own slips (FAL-1149)
+
+
 def check_distribution(q):
     g = q["given"]
     u = q["view"]["unknown"]
@@ -2805,6 +2808,12 @@ def check_distribution(q):
         rest = 1 - sum(sp.expand(p - c * KSYM) for p, c in zip(ps, coef))
         sxc = sum(x * c for x, c in zip(xs, coef))
         wrongs["SL4.7.find-k#0"] = [rest / v for v in (sxc, sum(xs) if rest == 1 else 0) if v > 0]
+        # Where only multiples of k are given: (Σ multiples) k = 1 read as k = Σ multiples,
+        # and every probability read as plain k, so n k = 1.
+        wrongs[DD_O + "3"] = [sum(coef)] if rest == 1 else []
+        wrongs[DD_O + "4"] = [sp.Rational(1, len(xs))] if rest == 1 else []
+        # Paper 2: what the multiples of k add to, not divided by Σ multiples.
+        wrongs[DD_O + "5"] = [rest] if paper == 2 else []
         ps = [p.subs(KSYM, exp) for p in ps]
         k_val = exp
         label = "k = "
@@ -2815,6 +2824,7 @@ def check_distribution(q):
         ps = [exp if p == MSYM else p for p in ps]
         need(asked == f"Find P(X = {xs[mi]}).", f"asked {asked!r}")
         wrongs["SL4.7.build-distribution#1"] = [sp.Rational(1, len(xs))]
+        wrongs[DD_O + "6"] = [1 - exp]
         label = f"P(X = {xs[mi]}) = "
     elif u == "probabilities-from-mean":
         need(free == {PSYM, QSYM}, "p and q are not the unknowns")
@@ -2833,6 +2843,17 @@ def check_distribution(q):
                 need(DIST_P[0] <= v <= DIST_P[1] and dist_awkward(v), f"{v} is not an awkward decimal from 0.05 to 0.6")
         bad = sp.solve([sp.Eq(sum(ps), 1), sp.Eq(sum(x * p for x, p in zip(xs, ps)), 1)], [PSYM, QSYM], dict=True)
         wrongs["SL4.7.unknowns-from-mean#1"] = [(b[PSYM], b[QSYM]) for b in bad]
+        wrongs[EV_O + "7"] = [(exp_pq[1], exp_pq[0])]
+        known = [(x, p) for x, p in zip(xs, ps) if p not in (PSYM, QSYM)]
+        left = 1 - sum(p for _, p in known)
+        given_xp = sum(x * p for x, p in known)
+        # p + q = 1 with the known products still taken off E(X); p = q = half of what is
+        # left; p + q right but Σ x P = E(X) with the known products left out.
+        one = sp.solve([sp.Eq(PSYM + QSYM, 1), sp.Eq(sum(x * p for x, p in zip(xs, ps) if p in (PSYM, QSYM)), mean - given_xp)], [PSYM, QSYM], dict=True)
+        wrongs[EV_O + "8"] = [(o[PSYM], o[QSYM]) for o in one]
+        wrongs[EV_O + "9"] = [(left / 2, left / 2)]
+        nok = sp.solve([sp.Eq(PSYM + QSYM, left), sp.Eq(sum(x * p for x, p in zip(xs, ps) if p in (PSYM, QSYM)), mean)], [PSYM, QSYM], dict=True)
+        wrongs[EV_O + "10"] = [(o[PSYM], o[QSYM]) for o in nok]
         ps = [p.subs(sol[0]) for p in ps]
         exp = None
         label = None
@@ -2852,6 +2873,9 @@ def check_distribution(q):
                 need(ans_show == "money", "the stake is not shown as money")
             win = sum(x * p for x, p in zip(xs, ps) if x > 0)
             wrongs["SL4.7.fair-game#0"] = [sp.Rational(sp.floor(win / ps[0] * 100 + sp.Rational(1, 2)), 100)]
+            cents = lambda v: sp.Rational(sp.floor(v * 100 + sp.Rational(1, 2)), 100)
+            wrongs[EV_O + "11"] = [cents(sp.Rational(sum(xs), len(xs)))]
+            wrongs[EV_O + "12"] = [cents(xs[-1] * ps[-1])]
             label = "Stake = $"
         elif u == "expected-value":
             exp = sum(x * p for x, p in zip(xs, ps))
@@ -2859,6 +2883,8 @@ def check_distribution(q):
             gaps = sorted((abs(x - exp), x) for x in xs)
             wrongs["SL4.7.expected-value#1"] = [gaps[0][1]] if gaps[0][0] != 0 and gaps[0][0] != gaps[1][0] else []
             wrongs["SL4.7.expected-value#2"] = [exp / len(xs)]
+            wrongs[EV_O + "5"] = [exp - x * p for x, p in zip(xs, ps) if x * p != 0]
+            wrongs[EV_O + "6"] = [sp.Integer(sum(xs))]
             need(asked == "Find E(X).", f"asked {asked!r}")
             label = "E(X) = "
         else:
@@ -2874,6 +2900,10 @@ def check_distribution(q):
                     for end in ([ev[1]] if ev[0] in (">", "<≤") else []) + ([ev[2]] if ev[0] in ("<", "≤<") else []):
                         need(end in xs, f"the strict end {end} is not a value of X")
                     wrongs["SL4.7.table-probabilities#0"] = [dist_event_prob(xs, ps, (strict, ev[1], ev[2]))]
+                wrongs[DD_O + "7"] = [1 - pe]
+                # A ≤ or ≥ end left out: the same event with that end made strict.
+                loose = {"≥": ">", "≤": "<"}.get(ev[0])
+                wrongs[DD_O + "8"] = [dist_event_prob(xs, ps, (loose, ev[1], ev[2]))] if loose else []
                 exp = pe
                 shown_event = re.search(r"P\((.+)\)\.$", asked)
                 need(shown_event, f"asked {asked!r}")
@@ -2890,6 +2920,7 @@ def check_distribution(q):
                     need(exp.q != 1 and ans_show == "sf", f"Paper 2 expected number {exp} is whole or not to 3 s.f.")
                 wrongs["SL4.5.expected-occurrences#0"] = [] if exp.q == 1 else [sp.floor(exp + sp.Rational(1, 2))]
                 wrongs["SL4.5.expected-occurrences#1"] = [pe]
+                wrongs[EO_O + "2"] = [n * (1 - pe)]
                 label = "Expected number = "
             elif u == "trials-for-count":
                 count = sp.Rational(g["count"])
@@ -2897,6 +2928,10 @@ def check_distribution(q):
                 need(m and sp.Rational(m[1]) == count, "the expected number is not shown")
                 exp = count / pe
                 need(exp.q == 1 and DIST_TRIALS[0] <= exp <= DIST_TRIALS[1], f"n = {exp}")
+                # Paper 2 rounds a slip's n to a whole number, as a student would write it.
+                whole = (lambda v: sp.floor(v + sp.Rational(1, 2))) if paper == 2 else (lambda v: v)
+                wrongs[EO_O + "2"] = [whole(count / (1 - pe))]
+                wrongs[EO_O + "3"] = [whole(count * pe)]
                 need(count >= 1, f"expected number {count} is under 1")
                 if paper == 1:
                     need((count * 2).q == 1, f"expected number {count} is not whole or .5")
@@ -10386,6 +10421,7 @@ SPOT_CHECKS["fn-pre-rearrange"] = ra_spot
 # a, b, r and every estimate are found again with exact rationals (r with a square root).
 
 RG_SKILL = "SL4.4."
+RG_O = "t4-regression-gdc#"             # the type's own slips (FAL-1149)
 RG_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
 # The stories, in the engine's order: what x is, what y is, what a row is, and the sign of r.
 RG_CONTEXTS = [("hours of study per week", "test score out of 100", "students", 1),
@@ -10474,15 +10510,19 @@ def check_regression(q):
             need(rg_clear(ay) and rg_clear(by) and sig3(a) != sig3(ay) and sig3(b) != sig3(by), "the swapped line is not clear or reads the same")
             want = "y = " + rg_line(a, b)
             wrongs[RG_SKILL + "regression-y-on-x#0"] = {"y = " + rg_line(ay, by)}
+            wrongs[RG_O + "5"] = {"y = " + rg_line(a, -b)}
+            wrongs[RG_O + "6"] = {"y = " + rg_line(b, a)}
         elif u == "correlation-coefficient":
             need(asked == "Find the value of r, Pearson's product-moment correlation coefficient, to 3 s.f.", f"asked {asked!r}")
             need(rg_clear(r) and rg_clear(r * r), "r or r² is on a rounding edge")
             want, trap = rg_num(r, "r = ")
             wrongs[RG_SKILL + "pearson-r#0"] = {"r = " + rg_s(r * r)}
+            wrongs[RG_O + "7"] = {"r = " + rg_s(-r)}
         elif u == "mean-point":
             need(asked == "Write down the coordinates of the mean point.", f"asked {asked!r}")
             need((mx * 100).q == 1 and (my * 100).q == 1, "a mean ends in more than two decimal places")
             want = f"({dec_text(mx)}, {dec_text(my)})"
+            wrongs[RG_O + "8"] = {f"({dec_text(my)}, {dec_text(mx)})"}
         else:
             mt2 = re.fullmatch(r"Use the regression line of y on x to estimate y when x = (\d+)\. Give your answer to 3 s\.f\.", asked)
             need(mt2 is not None, f"asked {asked!r}")
@@ -10499,6 +10539,8 @@ def check_regression(q):
             want, trap = rg_num(y0, "y = ")
             wrongs[RG_SKILL + "regression-y-on-x#1"] = {"y = " + rg_s(y3)}
             wrongs[RG_SKILL + "predict#1"] = {"y = " + rg_s(xr)}
+            wrongs[RG_O + "5"] = {"y = " + rg_s(a * x0 - b)}
+            wrongs[RG_O + "6"] = {"y = " + rg_s(b * x0 + a)}
     elif u == "c-from-mean-point":
         need(rep == "equation" and asked == "The regression line passes through the mean point. Find c.", f"asked {asked!r}")
         mt = re.fullmatch(r"The mean point of a set of data is \((\d+(?:\.\d)?), (\d+(?:\.\d{1,2})?)\)\.", L[0])
@@ -10513,6 +10555,11 @@ def check_regression(q):
         need(R(g["c"]) == c, "the c given is not the constant")
         want, trap = rg_num(c, "c = ")
         wrongs[RG_SKILL + "mean-point#0"] = {"c = 0"}
+        # ȳ + a x̄, the sign of a x̄ the wrong way; ȳ − a, a not multiplied by x̄. Written
+        # the way the answer is: to 3 s.f., or exactly when the answer is exact.
+        ct = (lambda v: "c = " + rg_s(v)) if trap is not None else (lambda v: "c = " + dec_text(v))
+        wrongs[RG_O + "9"] = {ct(my + a * mx)}
+        wrongs[RG_O + "10"] = {ct(my - a)}
     elif u == "predict-from-line":
         need(rep == "equation", "equation rep")
         ml = re.fullmatch(r"The regression line of y on x is y = (−?\d+\.\d\d?|−?\d+)x ([+−]) (\d+(?:\.\d)?)\.", L[0])
@@ -10530,6 +10577,8 @@ def check_regression(q):
         need(R(g["y0"]) == y0, "the estimate given is not the line at x")
         want, trap = rg_num(y0, "y = ")
         wrongs[RG_SKILL + "predict#1"] = {"y = " + rg_s(xr)}
+        wrongs[RG_O + "5"] = {"y = " + rg_s(a * x0 - b)}
+        wrongs[RG_O + "6"] = {"y = " + rg_s(b * x0 + a)}
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs, trap)
@@ -23380,37 +23429,41 @@ def check_trig_model(q):
     PG, NH, CS = "SL3.7.equation-from-graph#0", "SL3.7.equation-from-graph#1", "SL3.7.equation-from-graph#2"
     SB, ST, RG = "SL3.7.transformations#0", "SL3.7.transformations#1", "SL3.7.transformations#2"
     DG, PB = "SL3.7.model-context#0", "SL3.7.model-context#2"
+    O = lambda i: f"t3-trig-model-parameters#{i}"  # the type's own slips (FAL-1149)
     tr_hyphens(q)
     if u == "amp-axis":
         a, b, d, *_ = tm_wave(q)
-        gc_check_common(q, tm_named([("a", a), ("d", d)], False), {NH: {tm_named([("a", 2 * a), ("d", d)], False)}})
+        gc_check_common(q, tm_named([("a", a), ("d", d)], False), {NH: {tm_named([("a", 2 * a), ("d", d)], False)}, O(8): {tm_named([("a", d), ("d", a)], False)}})
     elif u == "b-from-period":
         a, b, d, xm, xn, per = tm_wave(q)
         if paper == 1:
             gc_check_common(q, f"b = {dec_text(b)}", {PG: {f"b = {dec_text(2 * b)}"}})
         else:
-            tm_num(q, "b = ", b, {PG: [2 * b], PB: [per]})
+            tm_num(q, "b = ", b, {PG: [2 * b], PB: [per], O(9): [per / (2 * sp.pi)]})
     elif u == "c-cos-from-max":
         a, b, d, xm, xn, per = tm_wave(q)
         need(0 < xm < per, "c is not the smallest positive")
-        gc_check_common(q, tm_c_text(paper, xm), {CS: {tm_c_text(paper, -xm)}})
+        gc_check_common(q, tm_c_text(paper, xm), {CS: {tm_c_text(paper, -xm)}, O(10): {tm_c_text(paper, xn)}})
     elif u == "c-sine-shift":
         a, b, d, xm, xn, per = tm_wave(q)
         c = xm - per / 4
         need(0 < c < per, "c is not the smallest positive")
-        gc_check_common(q, tm_c_text(paper, c), {CS: {tm_c_text(paper, -c)}})
+        gc_check_common(q, tm_c_text(paper, c), {CS: {tm_c_text(paper, -c)}, O(11): {tm_c_text(paper, xm)}, O(12): {tm_c_text(paper, xm + per / 4)}})
     elif u == "all-four":
         a, b, d, xm, xn, per = tm_wave(q)
         if paper == 1:
             t = lambda a_, b_, c_, d_: f"a = {dec_text(a_)}, b = {dec_text(b_)}, c = {as_pi(c_)}, d = {dec_text(d_)}"
         else:
             t = lambda a_, b_, c_, d_: tm_named([("a", a_), ("b", b_), ("c", c_), ("d", d_)])
-        gc_check_common(q, t(a, b, xm, d), {NH: {t(2 * a, b, xm, d)}, PG: {t(a, 2 * b, xm, d)}, CS: {t(a, b, -xm, d)}}, steps=(2, 6))
+        gc_check_common(q, t(a, b, xm, d), {NH: {t(2 * a, b, xm, d)}, PG: {t(a, 2 * b, xm, d)}, CS: {t(a, b, -xm, d)},
+                                            O(10): {t(a, b, xn, d)}, O(8): {t(d, b, xm, a)}}, steps=(2, 6))
     elif u == "q-from-minimum":
         p, m, phi, fn = R(g["p"]), R(g["m"]), R(g["phi"]), g["fn"]
         need(L[0] == f"f(x) = {p} {fn}(x + {as_pi(phi)}) + q", f"can't read {L}")
         qv = m + p
-        tr_common(q, "f(0) = ", p * tr_of(fn, phi) + qv, {NH: [p * tr_of(fn, phi) + m]})
+        # q taken as the minimum; the exact value's sign flipped; it not multiplied by p; q alone.
+        tr_common(q, "f(0) = ", p * tr_of(fn, phi) + qv, {O(13): [p * tr_of(fn, phi) + m], O(14): [-p * tr_of(fn, phi) + qv],
+                                                          O(15): [tr_of(fn, phi) + qv], O(16): [qv]})
     elif u == "sum-as-cos":
         p, q0, k = R(g["p"]), R(g["q0"]), R(g["k"])
         ks = "" if k == 1 else str(k)
@@ -23422,7 +23475,7 @@ def check_trig_model(q):
         for t_ in (0.3, 1.1):
             need(abs(float(p) * math.sin(float(k) * t_) + float(q0) * math.cos(float(k) * t_) - float(amp) * math.cos(float(k) * (t_ - float(c)))) < 1e-9, "the two forms differ")
         t = lambda a_, c_: tm_named([("a", a_), ("b", k), ("c", c_)])
-        gc_check_common(q, t(amp, c), {NH: {t(2 * amp, c)}, CS: {t(amp, -c)}}, steps=(2, 6))
+        gc_check_common(q, t(amp, c), {NH: {t(2 * amp, c)}, CS: {t(amp, -c)}, O(17): {t(p + q0, c)}}, steps=(2, 6))
     elif u == "tan-two-points":
         z, h, v = R(g["z"]), R(g["h"]), R(g["v"])
         need(h < z / 2, "the point is past the asymptote")
@@ -23430,14 +23483,15 @@ def check_trig_model(q):
         a = v / sp.tan(b * h)
         b2 = 2 * sp.pi / z
         t = lambda a_, b_: tm_named([("a", a_), ("b", b_)])
-        gc_check_common(q, t(a, b), {PG: {t(v / sp.tan(b2 * h), b2)}}, steps=(2, 6))
+        # tan's period taken as 2π; a = y ÷ x as for a line; tan(bh) worked in degrees.
+        gc_check_common(q, t(a, b), {O(18): {t(v / sp.tan(b2 * h), b2)}, O(19): {t(v / h, b)}, DG: {t(v / sp.tan(b * h * sp.pi / 180), b)}}, steps=(2, 6))
     elif u == "shift-from-bracket":
         bw, phi, right = R(g["bw"]), R(g["phi"]), g["right"]
         c = phi / bw if right else -phi / bw
         phi_s = phi if right else -phi
         need(f"{bw}x {'−' if right else '+'} {tm_x(paper, phi)}" in L[0], f"can't read {L}")
         ct = lambda v: "c = " + tm_x(paper, v)
-        gc_check_common(q, ct(c), {SB: {ct(phi_s)}, RG: {ct(-c)}})
+        gc_check_common(q, ct(c), {SB: {ct(phi_s)}, RG: {ct(-c)}, O(20): {ct(phi_s * bw)}})
     elif u == "image-equation":
         amp, bw, lift, fn = int(g["amp"]), int(g["bw"]), int(g["lift"]), g["fn"]
         need(L[0] == f"f(x) = {amp} {fn}({bw}x) {'+' if lift > 0 else '−'} {abs(lift)}", f"can't read {L}")
@@ -23446,7 +23500,8 @@ def check_trig_model(q):
             c, up = R(g["mv"]), int(g["up"])
             need(f"({tm_x(paper, c)}, {frac_text(up)})" in L[1] or rep == "words", f"can't read {L}")
             img = lambda v: f"g(x) = {amp} {fn}({bw}(x {'−' if v > 0 else '+'} {tm_x(paper, abs(v))})){tail(lift + up)}"
-            gc_check_common(q, img(c), {RG: {img(-c)}})
+            down = f"g(x) = {amp} {fn}({bw}(x {'−' if c > 0 else '+'} {tm_x(paper, abs(c))})){tail(lift - up)}"
+            gc_check_common(q, img(c), {RG: {img(-c)}, O(21): {down}})
         else:
             sf = int(g["sf"])
             d = sp.Rational(bw, sf)
@@ -23468,7 +23523,7 @@ def check_trig_model(q):
         p = phi / bw if right else -phi / bw
         t = lambda p_, q_: f"p = {tm_x(paper, p_)}, q = {frac_text(q_)}"
         need(L[0] == f"f(x) = {amp} {fn}({bw}x)", f"can't read {L}")
-        gc_check_common(q, t(p, up), {SB: {t(phi if right else -phi, up)}, RG: {t(-p, up)}})
+        gc_check_common(q, t(p, up), {SB: {t(phi if right else -phi, up)}, RG: {t(-p, up)}, O(21): {t(p, -up)}})
     elif u == "wheel-model":
         dia, base, per = R(g["dia"]), R(g["base"]), R(g["period"])
         if rep == "words":
@@ -23478,7 +23533,9 @@ def check_trig_model(q):
             need(abs(pts[0]["y"] - float(base)) < 1e-9 and abs(pts[1]["y"] - float(base + dia)) < 1e-9 and abs(pts[1]["x"] - float(per) / 2) < 1e-9, "the figure has other numbers")
         a, b, d = -dia / 2, 2 * sp.pi / per, base + dia / 2
         t = lambda b_: tm_named([("a", a), ("b", b_), ("d", d)])
-        gc_check_common(q, t(b), {PB: {t(per)}, PG: {t(2 * b)}})
+        r_ = dia / 2
+        gc_check_common(q, t(b), {PB: {t(per)}, PG: {t(2 * b)}, NH: {tm_named([("a", -dia), ("b", b), ("d", d)])},
+                                  O(22): {tm_named([("a", r_), ("b", b), ("d", d)])}, O(23): {tm_named([("a", a), ("b", b), ("d", r_)])}})
     elif u == "c-from-crossing":
         top, low, t1, level, per = R(g["top"]), R(g["low"]), R(g["t1"]), R(g["level"]), R(g["period"])
         a, d = (top - low) / 2, (top + low) / 2
@@ -23490,7 +23547,8 @@ def check_trig_model(q):
             cd = t1 - (sp.asin(r) * 180 / sp.pi) / b
             need(abs(sp.N(a * sp.sin(b * (t1 - c)) + d - level)) < 1e-20, "the crossing is wrong")
             need(sp.N(sp.cos(b * (t1 - c))) > 0, "the model is not rising there")
-            tm_num(q, "c = ", c, {DG: [cd]})
+            # The angle added, t − c given as c, and sin⁻¹ left out.
+            tm_num(q, "c = ", c, {DG: [cd], O(24): [t1 + sp.asin(r) / b], O(25): [sp.asin(r) / b], O(26): [t1 - r / b]})
     elif u == "level-from-duration":
         top, low, width, per, xm = R(g["top"]), R(g["low"]), R(g["width"]), R(g["period"]), R(g["xmax"])
         a, d = (top - low) / 2, (top + low) / 2
@@ -23498,7 +23556,8 @@ def check_trig_model(q):
         need(0 < width < per, "the time above k is out of range")
         k = a * sp.cos(b * width / 2) + d
         kd = a * sp.cos(b * width / 2 * sp.pi / 180) + d
-        tm_num(q, "k = ", k, {DG: [kd]})
+        # The whole time from the peak, half of it from the minimum, and sin for cos.
+        tm_num(q, "k = ", k, {DG: [kd], O(27): [a * sp.cos(b * width) + d], O(28): [d - a * sp.cos(b * width / 2)], O(29): [a * sp.sin(b * width / 2) + d]})
     else:
         need(False, f"no check for {u}")
     return None, None
