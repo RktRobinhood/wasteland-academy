@@ -517,7 +517,7 @@ func new_numbers() -> void:
 	var angle: String = question.solutions[solution].angle
 	for i in RETRIES:
 		var v := view.duplicate()
-		v.seed = int(view.get("seed", 0)) + 1 + _rng.randi_range(0, 9999)
+		v.seed = VerifiedSeeds.wrap(int(view.get("seed", 0)) + 1 + _rng.randi_range(0, VerifiedSeeds.LAST - 2))
 		var q := QuestionEngine.make(v)
 		if q.has("error"):
 			continue
@@ -532,7 +532,7 @@ func new_numbers() -> void:
 
 func _on_turn() -> void:
 	var view: Dictionary = question.get("view", {}).duplicate()
-	view.seed = int(view.get("seed", 0)) + 1 + _rng.randi_range(0, 9999)
+	view.seed = VerifiedSeeds.wrap(int(view.get("seed", 0)) + 1 + _rng.randi_range(0, VerifiedSeeds.LAST - 2))
 	view.erase("same_angle")
 	view.erase("shared")
 	your_turn.emit(view)
