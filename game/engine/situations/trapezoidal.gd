@@ -393,16 +393,20 @@ static func _over_under(rng: Seeded, s: Dictionary) -> bool:
 
 # ── Pick the graph ───────────────────────────────────────────
 
-## The roles of the four cards: the right one bends the way the target needs and falls; the
-## slip that decides from the rise rises and bends the other way; a straight line; and one
-## that falls and bends the other way.
+## The roles of the four cards. The slip that decides from the slope reads "rises" as an
+## overestimate and "falls" as an underestimate, so its card has the slope the target suggests
+## and bends the other way; the right card bends the way the target needs, with the other
+## slope, so that slip never picks it; a straight line; and one that bends the other way with
+## the right card's slope.
 static func _pick(rng: Seeded, s: Dictionary) -> bool:
 	s.target = "under" if rng.chance(0.5) else "over"
 	s.a = Q.new(0)
 	s.b = Q.new(rng.pick([4, 5, 6]))
 	var want := "down" if s.target == "under" else "up"
 	var other := "up" if want == "down" else "down"
-	var roles := [["right", want, "falls"], ["rises", other, "rises"], ["line", "line", ""], ["same-way", other, "falls"]]
+	var slip_sl := "falls" if s.target == "under" else "rises"
+	var right_sl := "rises" if s.target == "under" else "falls"
+	var roles := [["right", want, right_sl], ["rises", other, slip_sl], ["line", "line", ""], ["same-way", other, right_sl]]
 	var cards: Array = []
 	for r in roles:
 		var f := card_fn(rng, s, r[1], r[2])
@@ -588,7 +592,8 @@ static func inner(s: Dictionary) -> bool:
 	return s.j > 0 and s.j < s.n
 
 
-## [k, an inner k with weight one (2k), the h/2 left out] and, for an end, k doubled (k/2).
+## [k, an inner k with weight one (2k), the h/2 left out] and, for an end, both end heights
+## doubled ((k − the other end)/2).
 static func missing_slips(s: Dictionary) -> Array:
 	var k: Q = s.ys[s.j]
 	var area := rule_q(s.ys, s.h)
@@ -599,7 +604,7 @@ static func missing_slips(s: Dictionary) -> Array:
 		out.append(k.mul(2))
 	out.append(area.sub(rest).div(w))
 	if not inner(s):
-		out.append(k.div(2))
+		out.append(k.sub(s.ys[s.n - s.j]).div(2))
 	return out
 
 

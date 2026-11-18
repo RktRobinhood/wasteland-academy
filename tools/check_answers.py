@@ -48383,13 +48383,13 @@ def r2tr_check(q):
             need(len(g["curves"]) == 1 and g.get("card"), "a card has one curve")
             bd, sl = kind(g["curves"][0])
             if o["correct"]:
-                need(bd == right_bend, "the right card doesn't bend the right way")
+                need(bd == right_bend and sl == ("rises" if under else "falls"), "the right card doesn't bend the right way, or has the slope the slope slip reads as the target")
                 letter = o["text"]
                 continue
             mk = o.get("mistake", "")
             need(o.get("why", "") != "", "a wrong card doesn't say why")
             if mk == "rises":
-                need(o["ref"] == R2TR_OU + "0" and bd == other and sl == "rises", "the rises card is not a rising curve bending the other way")
+                need(o["ref"] == R2TR_OU + "0" and bd == other and sl == ("falls" if under else "rises"), "the slope slip's card does not have the slope it reads as the target, bending the other way")
                 wrongs.setdefault(R2TR_OU + "0", set()).add(o["text"])
             elif mk == "line":
                 need(o["ref"] == R2TR_OU + "2" and bd == "line", "the line card is not a line")
@@ -48471,7 +48471,10 @@ def r2tr_check(q):
         if inner:
             wrongs[R2TR_MV + "0"] = {"k = " + r2tr_ends(2 * A / h - rest)}
         else:
-            wrongs[R2TR_TD + "2"] = {"k = " + r2tr_ends((2 * A / h - rest) / 2)}
+            # Both end heights doubled: 2A/h = 2(other end) + 2k + 2(inner sum).
+            E = ys[n - j]
+            I = sum(y for i, y in enumerate(ys) if 0 < i < n)
+            wrongs[R2TR_TD + "2"] = {"k = " + r2tr_ends(A / h - E - I)}
         wrongs[R2TR_MV + "1"] = {"k = " + r2tr_ends((A - rest) / w)}
         r2tr_in_every(q, "k = " + dec_text(k), "k")
     else:

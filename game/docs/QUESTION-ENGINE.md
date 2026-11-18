@@ -521,12 +521,13 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   table or from the shape drawn with each width labelled at its distance (`x_ticks`, labels with `name`), a distance, volume or
   channel flow from rates in a table, in words or as dots on whole grid lines of a speed graph (whole speeds; a total that ends
   is exact), the percentage error against the GDC's integral, how to improve the estimate and whether it is over or under (each
-  a `claim`), which of four cards the rule under- or overestimates (pick the graph: the right card falls and bends the needed
-  way, the slip cards rise and bend the other way, are a line, or fall and bend the other way), and a missing height k from a
-  given estimate (exact). Methods: the formula, strip by strip, the GDC's lists with weights {1, 2, …, 2, 1}, the GDC's
+  a `claim`), which of four cards the rule under- or overestimates (pick the graph: the right card bends the needed way; the
+  slope slip's card bends the other way with the slope that slip reads as the target, rising for over and falling for under,
+  and the right card has the other slope, so that slip never picks it; then a line, and one bending the other way with the
+  right card's slope), and a missing height k from a given estimate (exact). Methods: the formula, strip by strip, the GDC's lists with weights {1, 2, …, 2, 1}, the GDC's
   integral, the percentage-error formula, the chords (f″'s sign, or the drawn curve) and the comparison with the GDC, a linear
   equation and the solver. Wrong options are the five skills' slips (h from n + 1, no doubling, no half, the x-values as
-  heights, minutes left in a per-second rate (60 times too small), the ends doubled, over the estimate, the signed error, more
+  heights, minutes left in a per-second rate (60 times too small), the ends doubled (both ends, for an end k too), over the estimate, the signed error, more
   strips worse, deciding from the rise, always over, an error for a line, an inner k counted once, the h/2 left out) and the
   type's own (the strip width makes no difference). `r2tr_check` in the SymPy checker reads f, the limits and n, the table,
   the words or the figure (the drawn widths and dots) back, works the estimate, the integral (SymPy), the bend and every slip

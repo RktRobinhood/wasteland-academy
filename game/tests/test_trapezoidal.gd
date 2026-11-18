@@ -130,11 +130,12 @@ func test_a_missing_height_by_hand() -> void:
 	var s := {"ys": [Q.new(3), Q.new(5), Q.new(4)], "h": Q.new(4), "n": 2, "j": 1}
 	var vals: Array = S.missing_slips(s)
 	check_eq(vals.map(func(v): return Fmt.dec(v)), ["5", "10", "13.5"])
-	# k at the end: 34 = 2(3 + 2 × 5 + k) gives k = 4; doubled as an end it is 2.
+	# k at the end: 34 = 2(3 + 2 × 5 + k) gives k = 4; with both ends doubled,
+	# 17 = 2 × 3 + 2 × 5 + 2k gives k = 0.5.
 	s.j = 2
 	vals = S.missing_slips(s)
 	check_eq(Fmt.dec(vals[0]), "4")
-	check_eq(Fmt.dec(vals[2]), "2")
+	check_eq(Fmt.dec(vals[2]), "0.5")
 
 
 func test_bends_and_how_functions_are_written() -> void:

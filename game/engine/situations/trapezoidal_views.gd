@@ -469,7 +469,7 @@ func u_pick_underestimate_graph(_rep: String, s: Dictionary, rng: Seeded) -> Dic
 				right = card.call(f)
 			"rises":
 				wrongs.append({"graph": card.call(f), "mistake": "rises", "ref": R_RISES,
-					"why": "it rises, but it bends %s, so its chords lie %s it and the rule %s its area" % [other, "above" if under else "below", rule_does]})
+					"why": "it %s, but it bends %s, so its chords lie %s it and the rule %s its area" % ["falls" if under else "rises", other, "above" if under else "below", rule_does]})
 			"line":
 				wrongs.append({"graph": card.call(f), "mistake": "line", "ref": R_LINE_ERROR,
 					"why": "it is a straight line, so the chords lie along it and the rule is exact"})
