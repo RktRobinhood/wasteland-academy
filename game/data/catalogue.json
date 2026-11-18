@@ -15009,7 +15009,7 @@
 						],
 						"why": "Paper 1 wants the exact value, not a decimal"
 					},
-					"name": "Intersect y = e^(2x) with y = 7",
+					"name": "Intersect the two sides on a GDC",
 					"about": "A graphical solution gives a decimal to check against the exact answer."
 				},
 				{
@@ -17175,6 +17175,22 @@
 						"coefficient-from-root"
 					],
 					"wrong": "other root c instead of c ÷ r"
+				},
+				{
+					"text": "Forgetting the division in the quadratic formula, so the root is taken as −b + √Δ",
+					"as": "distractor",
+					"in": [
+						"solve-in-context"
+					],
+					"wrong": "x = −b + √Δ, twice the root"
+				},
+				{
+					"text": "Using b² + 4ac for the discriminant, with the sign of 4ac wrong",
+					"as": "distractor",
+					"in": [
+						"solve-surd"
+					],
+					"wrong": "x = h ± √d with d from b² + 4ac"
 				}
 			],
 			"chain": [
@@ -17566,7 +17582,8 @@
 					"in": [
 						"nature-from-equation",
 						"delta-in-k",
-						"roots-from-k"
+						"roots-from-k",
+						"k-for-equal-roots"
 					],
 					"wrong": "b² + 4ac, or √(b² − 4ac)"
 				},
@@ -17649,6 +17666,14 @@
 						"same-sign-roots"
 					],
 					"wrong": "the values from a positive product alone"
+				},
+				{
+					"text": "Forgetting the 4 in b² − 4ac, so the discriminant is taken as b² − ac",
+					"as": "distractor",
+					"in": [
+						"k-for-equal-roots"
+					],
+					"wrong": "the k that makes b² − ac zero"
 				}
 			],
 			"chain": [
@@ -18043,7 +18068,8 @@
 					"text": "Adding the line to the curve instead of taking it away",
 					"as": "distractor",
 					"in": [
-						"equate-to-quadratic"
+						"equate-to-quadratic",
+						"meeting-x"
 					],
 					"wrong": "(B + m)x + (C + n)"
 				},
@@ -21412,8 +21438,8 @@
 						],
 						"why": "with a stretch inside, as in ln(2x − 6), the bracket does not show the shift: factor to 2(x − 3) first"
 					},
-					"name": "Translate ln x by its vector",
-					"about": "ln(x − a) + b is ln x moved by (a, b): the asymptote becomes x = a and (1, 0) moves to (1 + a, b)."
+					"name": "Transform the parent log graph",
+					"about": "Build the curve from y = log_b x: a multiple stretches it, and a negative one reflects it in the x-axis; a shift right by a moves the asymptote to x = a and (1, 0) to (1 + a, 0); a shift up by c then takes that point to (1 + a, c)."
 				},
 				{
 					"skill": "SL2.9.log-graph",
@@ -21691,7 +21717,8 @@
 					"text": "Stopping at the value of the log's input instead of solving it for x",
 					"as": "distractor",
 					"in": [
-						"x-intercept"
+						"x-intercept",
+						"log-inequality"
 					],
 					"wrong": "x = b^e"
 				},
@@ -21718,6 +21745,14 @@
 						"log-inequality"
 					],
 					"wrong": "mx + n compared with k"
+				},
+				{
+					"text": "Taking the x-intercept as n, instead of the vertical asymptote",
+					"as": "distractor",
+					"in": [
+						"n-from-asymptote"
+					],
+					"wrong": "n = 3 for y = log₂(x − n) with x-intercept 3 and asymptote x = 2"
 				}
 			],
 			"chain": [
@@ -28937,7 +28972,8 @@
 						"solve-log-x",
 						"to-exponential-form",
 						"to-log-form",
-						"value-fractional-power"
+						"value-fractional-power",
+						"solve-log-base"
 					],
 					"wrong": "the positive power"
 				},
@@ -29011,7 +29047,8 @@
 					"text": "Keeping the negative root, which is outside the domain",
 					"as": "distractor",
 					"in": [
-						"solve-log-square"
+						"solve-log-square",
+						"solve-log-base"
 					],
 					"wrong": "the negative root"
 				},

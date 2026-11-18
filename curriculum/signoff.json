@@ -14,7 +14,10 @@
     "fn-concept-quadratic-forms"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-17",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: missing-form filler claimed surd roots when Δ < 0; match-three-forms steps now find the forms and options are no longer a majority vote; form-for-feature key no longer the only option of its form; eight method labels matched to their steps; duplicate and \"1 ×\" glitches in the conditions steps; h-k-from-vertex prompt. Tests: test_reading_quadratic.gd."
   },
   {
    "situation": "quadratic-equation",
@@ -22,7 +25,10 @@
     "fn-solve-quadratic"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-17",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: solve-in-context doubling is a named slip, not a ±1 filler; equation-from-roots with whole roots writes the factors; coefficient-from-root sign glitches; choose-substitution final sentence; solve-surd with 2a = ±1 no longer offers the key as a slip. Tests: test_reading_qeq.gd."
   },
   {
    "situation": "quadratic-parameter",
@@ -30,7 +36,10 @@
     "fn-discriminant"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-17",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: k-for-equal-roots offers the b² + 4ac and forgotten-4 slips; interval steps set the boundary, not the condition; sign tables follow the written factors; the test point tests every region; command terms on the sign prompts; delta-in-k label. Tests: test_reading_qpar.gd."
   },
   {
    "situation": "curve-and-line",
@@ -38,7 +47,10 @@
     "fn-curve-intersection-quadratic"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-17",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: chord-length slip in simplest surd form; meeting-x options are two distinct roots, add-the-line is a named slip; count-from-sketch command term; line-from-points, chord and normal steps read cleanly; equate-to-quadratic label. Tests: test_reading_qpar.gd."
   },
   {
    "situation": "quadratic-inequality",
@@ -46,7 +58,10 @@
     "fn-quadratic-inequality"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-17",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: inequality-from-solution graph drew the wrong vertex; largest-integer fillers are slips, not neighbours; test-point labels match the steps. Tests: test_reading_qeq.gd."
   },
   {
    "situation": "exp-model",
@@ -54,7 +69,10 @@
     "fn-exponential-model"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-17",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: predict-from-data-point predicted backwards in time; limited models rearranged before taking logs; isolate-then-log now works out t; signed decimal k in the working; two method labels; no \"t = 1 days\" option; measure and percentage rounding traps switched off, as they showed padded to 3 s.f. under a false note (engine follow-up). Whole-units neighbours stay: rounding is the slip. Tests: test_reading_expm.gd."
   },
   {
    "situation": "log-laws",
@@ -62,7 +80,10 @@
     "t1-log-laws"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-17",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: number fillers no longer always key + 1; surd-base times-base slip; powers-of-ten named slips; repeated show-number step; \"x = x\" step; simplified inverted change of base. Tests: test_reading_expm.gd."
   },
   {
    "situation": "log-exp-form",
@@ -70,7 +91,10 @@
     "t1-log-exp-form"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-17",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: standard-form slips written as a × 10^k; bases and fractional powers derived, not asserted; exact-value fillers off the key; two beacons not named by the formula letter; solve-log-base step. Tests: test_reading_logf.gd."
   },
   {
    "situation": "exp-log-pair",
@@ -79,7 +103,10 @@
     "fn-ext-exp-graph"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-17",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: evaluate-inverse derived before the check; numeric-check methods derive first and check at a separating point; moves-from-parent wording follows the signs; equation-from-graph transforms the parent, no \"b = 3, so b = 3\"; (…)² instead of (…)^(2); take-logs and gdc labels; asymptote wording. Tests: test_reading_elp.gd."
   },
   {
    "situation": "log-function",
@@ -87,7 +114,10 @@
     "fn-log-function-features"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-17",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: asymptote steps state the shift and the direction; n-from-asymptote is a horizontal shift with an x-intercept slip; transform-parent label and description for any base and a reflection; one restriction, not three; key-point steps; pick-graph moves; log-inequality slips and solving line; sign-of-log glitch. Tests: test_reading_logf.gd."
   },
   {
    "situation": "log-quadratic",

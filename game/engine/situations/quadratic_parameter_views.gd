@@ -23,6 +23,7 @@ const R_NO_REVERSE := "fn-discriminant#8"
 const R_OUTSIDE := "fn-discriminant#9"
 const R_ONLY_DELTA := "fn-discriminant#10"
 const R_ONLY_PRODUCT := "fn-discriminant#11"
+const R_NO_FOUR := "fn-discriminant#12"
 
 const NEED := {
 	"nature-from-equation": {"base": {"mode": "any4", "even": true}},
@@ -220,7 +221,22 @@ static func zero_step(s: Dictionary) -> String:
 		return "%s = 0 gives k = %s" % [dexpr(s), N(c[0])]
 	if s.dB.is_zero():
 		return "%s = 0 gives k² = %s, so k = ±%s" % [dexpr(s), N(s.dC.neg()), N(c[1])]
-	return "%s = (k%s)(k%s) = 0, so k = %s or k = %s" % [dexpr(s), Fmt.plus(c[0].neg()), Fmt.plus(c[1].neg()), N(c[0]), N(c[1])]
+	return "%s = %s = 0, so k = %s or k = %s" % [dexpr(s), kfactors(c), N(c[0]), N(c[1])]
+
+
+## (k − k₁)(k − k₂) with a zero root written as the factor k: "k(k − 8)", not "(k + 0)".
+static func kfactors(c: Array) -> String:
+	var o := kfactor_order(c)
+	return kfactor(o[0]) + kfactor(o[1])
+
+
+static func kfactor(r: Q) -> String:
+	return "k" if r.is_zero() else "(k%s)" % Fmt.plus(r.neg())
+
+
+## The roots in the order their factors are written: a zero root's k first.
+static func kfactor_order(c: Array) -> Array:
+	return [c[1], c[0]] if c[1].is_zero() else [c[0], c[1]]
 
 
 static func crit_answer(s: Dictionary) -> Dictionary:
@@ -334,7 +350,7 @@ func u_delta_sign_from_graph(_rep: String, s: Dictionary, rng: Seeded) -> Dictio
 		"never meets the x-axis, so f(x) = 0 has no real roots and Δ < 0"][i % 3]
 	var others: Array = rng.shuffled(SIGNS.filter(func(o): return o != SIGNS[i]))
 	return {
-		"asked": "The graph of y = ax² + bx + c is shown. What are the signs of a and of the discriminant Δ?",
+		"asked": "Write down the sign of a and the sign of the discriminant Δ.",
 		"lines": ["The graph of y = ax² + bx + c is shown."],
 		"graph": QuadraticViews.graph(s, []),
 		"given": {"a": s.a.key(), "b": s.b.key(), "c": s.c.key()}, "answer": ans,
@@ -353,7 +369,7 @@ func u_graph_from_delta(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := Answer.make("choice", {"v": SKETCH[i]}, {"options": SKETCH})
 	var others: Array = rng.shuffled(SKETCH.filter(func(o): return o != SKETCH[i]))
 	return {
-		"asked": "Which sketch fits the graph of y = ax² + bx + c?",
+		"asked": "State which description fits the graph of y = ax² + bx + c.",
 		"lines": ["For the quadratic y = ax² + bx + c, %s." % SIGNS[i]],
 		"given": {"a": s.a.key(), "b": s.b.key(), "c": s.c.key(), "signs": SIGNS[i]}, "answer": ans,
 		"fillers": others.map(func(o): return {"v": o}),
@@ -433,6 +449,8 @@ func u_delta_in_k(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"asked": "Find the discriminant of the equation %s, in terms of k." % ("for where they meet" if is_line(s) else "f(x) = 0"),
 		"lines": said_lines(s), "given": given_of(s), "answer": ans, "wrongs": wrongs, "fillers": [g1, g2, g3],
 		"methods": {"discriminant-condition": {"result": vals, "steps": st}},
+		# Nothing is set to 0 or solved here, as the catalogue's name for the method says (#193).
+		"titles": {"discriminant-condition": "Compute Δ = b² − 4ac in terms of k"},
 	}
 
 
@@ -468,14 +486,32 @@ func u_k_for_equal_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var wrongs: Array = []
 	if s.family == "icpt" and int(s.p.n) % 2 == 0:
 		wrongs.append(wrong({"v": s.r.sub(s.p.sq().div(4))}, "SL2.7.discriminant-parameter#0"))
+	# b² + 4ac = 0 and b² − ac = 0 solved for k (#193: the options were all fillers round
+	# the key). Each is used only when it gives as many k as the key, all different from
+	# the key's (in "both" with β = 0 they share k = 0, which would be half right), and
+	# whole. The |c| slip (SL2.7.discriminant#0) has no place here: c is k itself, holds
+	# k, or is a positive square.
+	if not p2(s):
+		var slips := [[s.a0.mul(4), "SL2.7.discriminant#2"], [s.a0.neg(), R_NO_FOUR]]
+		for sl in slips:
+			var ks := QuadraticParameterSituation.roots_of(s.b1.sq(), s.b0.mul(s.b1).mul(2).add(sl[0].mul(s.c1)), s.b0.sq().add(sl[0].mul(s.c0)))
+			if ks.size() != s.crit.size() or ks.any(func(k): return not k.is_int() or absi(k.n) > 60 or s.crit.any(func(c): return c.eq(k))):
+				continue
+			wrongs.append(wrong({"v": ks[0]} if one else {"r1": ks[0], "r2": ks[1]}, sl[1]))
 	out.wrongs = wrongs
 	if one:
 		var k: Q = s.crit[0]
-		out.fillers = [{"v": k.neg()}, {"v": k.mul(2)}, {"v": k.add(s.dC.sign())}, {"v": QuadraticParameterSituation.contact_x(s, k)}]
+		# The touching point's x first: a number the working really makes, not one by the key.
+		out.fillers = [{"v": QuadraticParameterSituation.contact_x(s, k)}, {"v": k.neg()}, {"v": k.mul(2)}, {"v": k.add(s.dC.sign())}]
 	else:
 		var k1: Q = s.crit[0]
 		var k2: Q = s.crit[1]
-		out.fillers = [{"r1": k1.neg(), "r2": k2.neg()}, {"r1": k1.div(2), "r2": k2.div(2)}, {"r1": k1.mul(2), "r2": k2.mul(2)}, {"r1": k1.sub(1), "r2": k2.add(1)}]
+		# The touching points' x first, then the sign slip; one ± and one halving/doubling
+		# filler at most get a place once a named slip is in.
+		var x1 := QuadraticParameterSituation.contact_x(s, k1)
+		var x2 := QuadraticParameterSituation.contact_x(s, k2)
+		out.fillers = [{"r1": x1, "r2": x2} if x1.lt(x2) else {"r1": x2, "r2": x1}, {"r1": k1.neg(), "r2": k2.neg()},
+			{"r1": k1.sub(1), "r2": k2.add(1)}, {"r1": k1.div(2), "r2": k2.div(2)}, {"r1": k1.mul(2), "r2": k2.mul(2)}]
 	return out
 
 
@@ -550,6 +586,16 @@ static func cond_answer(s: Dictionary, cond: String) -> Dictionary:
 	return ans
 
 
+## Where Δ meets the condition: for a linear Δ the region the condition asks for, not
+## just where Δ is positive (#193).
+static func region_text(s: Dictionary, cond: String, res: Dictionary) -> String:
+	var c: Array = s.crit
+	if s.dA.is_zero():
+		var want: String = {"two": "positive", "none": "negative", "real": "positive or zero"}[cond]
+		return "%s is a straight line in k with gradient %s, so it is %s for k %s %s" % [dexpr(s), N(s.dB), want, res.rel, N(c[0])]
+	return "Δ is a U-shaped quadratic in k: positive outside %s and %s, negative between them" % [KN(s, c[0]), KN(s, c[1])]
+
+
 static func flip_rel(rel: String) -> String:
 	return {"<": ">", ">": "<", "≤": "≥", "≥": "≤"}[rel]
 
@@ -567,13 +613,9 @@ static func interval_methods(s: Dictionary, cond: String, ans: Dictionary, lead:
 	base.append(delta_step(s))
 	var c: Array = s.crit
 	var lin: bool = s.dA.is_zero()
-	var region := ""
-	if lin:
-		region = "%s is a straight line in k with gradient %s, so it is positive for k %s %s" % [dexpr(s), N(s.dB), ">" if s.dB.sign() > 0 else "<", N(c[0])]
-	else:
-		region = "Δ is a U-shaped quadratic in k: positive outside %s and %s, negative between them" % [KN(s, c[0]), KN(s, c[1])]
+	var region := region_text(s, cond, res)
 	var dcm := base.duplicate()
-	dcm.append("%s: %s" % [sym, zero_step(s)])
+	dcm.append("Need %s. Boundary: %s" % [sym, zero_step(s)])
 	dcm.append(region + ".")
 	dcm.append(final)
 	var sk := base.duplicate()
@@ -590,19 +632,36 @@ static func interval_methods(s: Dictionary, cond: String, ans: Dictionary, lead:
 		tbl.append("With a GDC, Δ = 0 at k = %s and k = %s. Signs: k < %s gives +, %s < k < %s gives −, k > %s gives +." % [
 			Fmt.sf(c[0]), Fmt.sf(c[1]), Fmt.sf(c[0]), Fmt.sf(c[0]), Fmt.sf(c[1]), Fmt.sf(c[1])])
 	else:
-		tbl.append("Δ = (k%s)(k%s). Signs: k < %s gives (−)(−) = +, %s < k < %s gives (+)(−) = −, k > %s gives (+)(+) = +." % [
-			Fmt.plus(c[0].neg()), Fmt.plus(c[1].neg()), N(c[0]), N(c[0]), N(c[1]), N(c[1])])
+		# Each factor's sign in each region, in the order the factors are written.
+		var o := kfactor_order(c)
+		var sg := func(r: Q, i: int) -> String: return "+" if i == 2 or (i == 1 and r.eq(c[0])) else "−"
+		var rows: Array = []
+		for i in 3:
+			rows.append("(%s)(%s)" % [sg.call(o[0], i), sg.call(o[1], i)])
+		tbl.append("Δ = %s. Signs: k < %s gives %s = +, %s < k < %s gives %s = −, k > %s gives %s = +." % [
+			kfactors(c), N(c[0]), rows[0], N(c[0]), N(c[1]), rows[1], N(c[1]), rows[2]])
 	tbl.append("%s picks the %s rows%s." % [sym, "+" if cond != "none" else "−", ", plus the zeros" if cond == "real" else ""])
 	tbl.append(final)
 	var tp := base.duplicate()
-	var t: Q = c[0].add(1) if lin else c[0].add(c[1]).div(2).add(0)
-	if not lin and not t.is_int():
-		t = c[0].add(1)
-	if p2(s):
-		# A whole number between the two irrational zeros.
-		t = Q.new(roundi((s.crit_f[0] + s.crit_f[1]) / 2.0))
-	var dt := QuadraticParameterSituation.delta_at(s, t)
-	tp.append("%sΔ = 0 at %s. Test k = %s: Δ = %s, which is %s." % ["With a GDC, " if p2(s) else "", ("k = " + N(c[0])) if lin else "k = %s and k = %s" % [KN(s, c[0]), KN(s, c[1])], N(t), N(dt), "positive" if dt.sign() > 0 else "negative"])
+	# One k in each region the zeros make (#193: it tested only one), whole numbers where
+	# they fit.
+	var tests: Array = []
+	if lin:
+		tests = [c[0].sub(1), c[0].add(1)]
+	elif p2(s):
+		tests = [Q.new(floori(s.crit_f[0])), Q.new(roundi((s.crit_f[0] + s.crit_f[1]) / 2.0)), Q.new(ceili(s.crit_f[1]))]
+	else:
+		var mid: Q = c[0].add(c[1]).div(2)
+		if not mid.is_int() and c[1].sub(c[0]).to_float() > 1.0:
+			mid = c[0].add(1)
+		tests = [c[0].sub(1), mid, c[1].add(1)]
+	var tried: PackedStringArray = []
+	for t in tests:
+		var dt := QuadraticParameterSituation.delta_at(s, t)
+		tried.append("k = %s: Δ = %s (%s)" % [N(t), N(dt), "positive" if dt.sign() > 0 else "negative"])
+	var want_sign: String = {"two": "positive", "none": "negative", "real": "positive, and at the zeros"}[cond]
+	tp.append("%sΔ = 0 at %s. Test %s. %s holds where Δ is %s." % ["With a GDC, " if p2(s) else "", ("k = " + N(c[0])) if lin else "k = %s and k = %s" % [KN(s, c[0]), KN(s, c[1])],
+		"; ".join(tried), sym, want_sign])
 	tp.append(final)
 	var gs: Array = lead.duplicate()
 	if p2(s):
@@ -696,14 +755,14 @@ func u_always_positive(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So " + Answer.text(ans) + "."
 	var ms := interval_methods(s, "none", ans, [])
 	var why := "%s > 0 for all x needs a > 0 (here a = %s) and no real roots, so Δ < 0." % [kx_text(s), N(s.a0)]
-	var cd: Array = [why, delta_step(s), zero_step(s), final]
+	var cd: Array = [why, delta_step(s), "Boundary: %s. %s." % [zero_step(s), region_text(s, "none", ans.values)], final]
 	var dcm: Array = ms["discriminant-condition"].steps.duplicate()
 	dcm.insert(0, why)
 	var cs: Array = []
 	var parts := cs_parts(s)
 	cs.append("Complete the square: %s = %s" % [kx_text(s), parts[0]])
 	cs.append("With a = %s > 0 the minimum value is %s, and it must be positive." % [N(s.a0), parts[1]])
-	cs.append("Times −4a, that is %s < 0; %s" % [dexpr(s), zero_step(s)])
+	cs.append("Times −4a, that is %s < 0. Boundary: %s" % [dexpr(s), zero_step(s)])
 	cs.append(final)
 	return {
 		"asked": asked, "lines": lines, "given": given_of(s).merged({"cond": "none"}), "answer": ans,
@@ -713,12 +772,22 @@ func u_always_positive(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	}
 
 
+## One test value of k for same-sign roots: Δ and the product k/a there, and whether
+## both hold.
+static func same_sign_test(s: Dictionary, k: Q) -> String:
+	var d := QuadraticParameterSituation.delta_at(s, k)
+	var pr := k.div(s.a0)
+	var ok := d.sign() > 0 and pr.sign() > 0
+	return "%s: Δ = %s, product %s, so %s" % [N(k), N(d), N(pr), "both hold" if ok else ("Δ fails" if d.sign() <= 0 else "the product fails")]
+
+
 func u_same_sign_roots(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var hi: Q = s.crit[0]
 	var ans := Answer.make("interval", {"shape": "between", "lo": Q.new(0), "hi": hi, "ends": "left out"}, {"var": "k"})
 	var final := "So " + Answer.text(ans) + "."
 	var two := "Two distinct roots: Δ = %s > 0, so k < %s." % [dexpr(s), N(hi)]
 	var prod := "Same sign: the product of the roots c/a = %s is positive, so k > 0." % ("k" if s.a0.eq(1) else "k/" + N(s.a0))
+	var pc: String = "k" if s.a0.eq(1) else "k/" + N(s.a0)
 	var res: Dictionary = ans.values
 	return {
 		"asked": "Find the possible values of k.",
@@ -733,9 +802,12 @@ func u_same_sign_roots(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 				"Sketch y = %s: the axis is x = %s, on the %s side of 0." % [kx_text(s), N(s.b0.neg().div(s.a0.mul(2))), "positive" if s.b0.neg().div(s.a0).sign() > 0 else "negative"],
 				"Two crossings need the vertex below the x-axis. " + two,
 				"Both crossings on the same side of 0 need the y-intercept k above 0 (a > 0): k > 0.", final]},
+			# The boundaries first, then one k in each region they make (#193: the test only
+			# checked an interval already found).
 			"test-point": {"result": res, "steps": [
-				two, prod,
-				"Test k = %s, halfway: Δ = %s > 0 and the product is positive, so the answer is the interval between." % [N(hi.div(2)), N(QuadraticParameterSituation.delta_at(s, hi.div(2)))],
+				"Two distinct roots need Δ = %s > 0: Δ = 0 at k = %s." % [dexpr(s), N(hi)],
+				"Same sign needs the product of the roots c/a = %s > 0: it is 0 at k = 0." % pc,
+				"Test k = %s; k = %s; k = %s." % [same_sign_test(s, Q.new(-1)), same_sign_test(s, hi.div(2)), same_sign_test(s, hi.add(1))],
 				final]},
 		},
 	}

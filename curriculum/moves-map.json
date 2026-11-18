@@ -3,6 +3,20 @@
   "about": "The explainer move for every worked step of every built method (FAL-425). Key: type/unknown/angle. Under it, one list per step count (or per representation and step count, as words/4, where that rep lines up differently), with one move ID from moves.json, or null when no move fits, per step index. branches give the move for a step whose numbers take another route at the same step count, matched by a pattern in the step text. Built from game/tools/export_questions.gd; check with node tools/moves.mjs --coverage <questions.json>. See curriculum/README.md.",
   "branches": [
     {
+      "key": "fn-solve-quadratic/equation-from-roots/complete-square",
+      "steps": "4",
+      "index": 0,
+      "match": "^Each root gives a factor",
+      "move": "roots-to-factors"
+    },
+    {
+      "key": "fn-solve-quadratic/equation-from-roots/complete-square",
+      "steps": "4",
+      "index": 1,
+      "match": "^The product is 0",
+      "move": "zero-product"
+    },
+    {
       "key": "fn-exp-log-inverse-composite/transformations-between/common-base-power",
       "steps": "3",
       "index": 0,
@@ -300,7 +314,7 @@
       "4": ["apply-condition", "convert-log-exp", "isolate", "state-answer"]
     },
     "fn-exp-log-inverse-composite/evaluate-inverse/inverse-identities": {
-      "3": ["use-identity", "state-answer", "state-answer"],
+      "3": ["isolate", "apply-inverse", "state-answer"],
       "4": ["use-identity", "apply-inverse", "isolate", "state-answer"]
     },
     "fn-exp-log-inverse-composite/inverse-awkward-base/change-of-base": {
@@ -322,7 +336,7 @@
       "3": ["compose", "use-identity", "state-answer"]
     },
     "fn-exp-log-inverse-composite/simplify-composite/numeric-check": {
-      "3": ["test-point", "check", "state-answer"]
+      "3": ["use-identity", "check", "state-answer"]
     },
     "fn-exp-log-inverse-composite/simplify-composite/common-base-power": {
       "3": ["rewrite-form", "use-identity", "state-answer"]
@@ -375,7 +389,7 @@
       "3": ["compose", "compose", "state-answer"]
     },
     "fn-exp-log-inverse-composite/composite-order/numeric-check": {
-      "3": ["test-point", "compose", "state-answer"]
+      "3": ["compose", "check", "state-answer"]
     },
     "fn-exp-log-inverse-composite/inverse-graph/compare-key-points": {
       "3": ["read-givens", "swap-x-and-y", "state-answer"]
@@ -1334,10 +1348,11 @@
       "4": ["substitute", "substitute", "expand", "state-answer"]
     },
     "fn-concept-quadratic-forms/match-three-forms/compare-coefficients": {
-      "3": ["expand", "expand", "state-answer"],
+      "3": ["compare-coefficients", "compare-coefficients", "state-answer"],
       "4": ["read-givens", "expand", "expand", "state-answer"]
     },
     "fn-concept-quadratic-forms/match-three-forms/roots-to-factors": {
+      "6": ["read-givens", "roots-to-factors", "substitute", "expand", "rewrite-form", "state-answer"],
       "7": ["apply-condition", "compute-discriminant", "evaluate", "quadratic-formula", "evaluate", "state-answer", "state-answer"],
       "8": ["read-givens", "apply-condition", "compute-discriminant", "evaluate", "quadratic-formula", "evaluate", "state-answer", "state-answer"]
     },

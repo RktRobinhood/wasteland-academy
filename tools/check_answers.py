@@ -333,7 +333,10 @@ def solve(q):
 def values_of(kind, vals, fixed):
     """Engine values (strings) -> SymPy values; claims keep form and vals."""
     if kind == "claim":
-        return {"form": vals["form"], "vals": [R(v) for v in vals["vals"]]}
+        # A word among the values is the claim's reason (missing-form's "surds"): it stays a
+        # word, so a claim with the right form for a wrong reason is not the key (FAL-1055).
+        return {"form": vals["form"], "vals": [v if isinstance(v, str) and re.fullmatch(r"[a-z]+", v) else R(v)
+                                               for v in vals["vals"]]}
     out = {}
     for k, v in vals.items():
         if k == "text":
@@ -733,8 +736,11 @@ def quad_slips(q, f):
             return {"SL2.6.factorised-form#2": {claim("factorised", rs[0] * rs[1])}, QK + "3": {claim("vertex", k)}}
         return {}
     if u == "match-three-forms":
-        tri = lambda A, P_, Q_: ("triple", sp.expand(a * X**2 + b * X + c), sp.expand(A * (X - P_) * (X - Q_)), sp.expand(a * (X - h)**2 + k))
-        return {QK + "2": {tri(a, -rs[0], -rs[1])}, QK + "4": {tri(1, rs[0], rs[1])}}
+        tri = lambda A, P_, Q_, H: ("triple", sp.expand(a * X**2 + b * X + c), sp.expand(A * (X - P_) * (X - Q_)), sp.expand(a * (X - H)**2 + k))
+        # The factorised slip with the vertex form right, or with its h flipped as well (the
+        # option that also makes SL2.6.vertex#0's slip, FAL-1055).
+        return {QK + "2": {tri(a, -rs[0], -rs[1], H) for H in (h, -h)}, QK + "4": {tri(1, rs[0], rs[1], H) for H in (h, -h)},
+                "SL2.6.vertex#0": {tri(a, rs[0], rs[1], -h)}}
     return {}
 
 
@@ -3223,7 +3229,11 @@ def qr_check_common(q, want, wrongs=None):
     for sol in q["solutions"]:
         need(qr_norm(ans, sol["result"]) == want, f"{sol['name']}: last step gives {sol['result']}, not the answer")
         need(QR_STEPS[0] <= len(sol["steps"]) <= QR_STEPS[1], f"{sol['name']}: {len(sol['steps'])} steps, not 2 to 5")
-        need(q["answer_text"] in sol["steps"][-1], f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
+        # The whole answer text, or the same after "So, " with only its first letter lower-cased
+        # ("So, with u = 2^x: …", FAL-1055).
+        said = q["answer_text"]
+        need(said in sol["steps"][-1] or "So, " + said[:1].lower() + said[1:] in sol["steps"][-1],
+             f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
     if q["view"]["angle"] != "any":
         need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
 
@@ -3368,6 +3378,17 @@ def check_qparam(q):
             p, r = R(g["p"]), R(g["r"])
             kw = sp.solve(p**2 - 4 * (r - K), K)[0]   # b from the curve alone, c with the line's k
             wr["SL2.7.discriminant-parameter#0"] = {qr_norm(ans, {"v": str(kw)})}
+        # b² + 4ac = 0 and b² − ac = 0 solved for k (#193), with a, b, c read off f.
+        fa, fb, fc = sp.Poly(f, X).all_coeffs()
+        for ref, slip in (("SL2.7.discriminant#2", fb**2 + 4 * fa * fc), ("fn-discriminant#12", fb**2 - fa * fc)):
+            ks = sorted(set(sp.solve(sp.expand(slip), K)), key=lambda v: complex(v).real)
+            # The slip only fits an answer of the same shape: one k, or a pair of them.
+            if not all(v.is_real for v in ks) or len(ks) != (2 if ans["kind"] == "kvals" else 1):
+                continue
+            if len(ks) == 1:
+                wr[ref] = {qr_norm(ans, {"v": str(ks[0])})}
+            else:
+                wr[ref] = {tuple(ext_sf(v) for v in ks) if p2 else tuple(ks)}
         qr_check_common(q, want, wr)
     elif u in ("k-interval", "always-positive", "same-sign-roots"):
         cond = g["cond"]
@@ -3460,6 +3481,12 @@ def cl_read(q):
 CLQ = "fn-curve-intersection-quadratic#"  # its own slips (FAL-820)
 
 
+def cl_simplest_surd(n):
+    """√n as (m, r) with m√r and r square-free, by SymPy: 90 -> (3, 10), 4 -> (2, 1)."""
+    m, rest = sp.sqrt(sp.Integer(n)).as_coeff_Mul()
+    return m, rest**2
+
+
 def check_curve_line(q):
     u = q["view"]["unknown"]
     g = q["given"]
@@ -3491,8 +3518,13 @@ def check_curve_line(q):
                                                    CLQ + "7": {(co[0], B_ - m, C_ + n)}})  # only the x term's sign changed
     elif u == "meeting-x":
         need(len(xs) == 2, "not two meeting points")
-        qr_check_common(q, tuple(xs), {"SL2.7.solve-equation#1": {tuple(sorted([-xs[0], -xs[1]]))},
-                                       CLQ + "8": {tuple(sorted(line.subs(X, x) for x in xs))}})  # the y-values
+        wr = {"SL2.7.solve-equation#1": {tuple(sorted([-xs[0], -xs[1]]))},
+              CLQ + "8": {tuple(sorted(line.subs(X, x) for x in xs))}}  # the y-values
+        # The line added to the curve, not taken away (FAL-1055): curve + line = 0 solved.
+        added = sorted(sp.solveset(sp.expand(curve + line), X, domain=sp.S.Reals))
+        if len(added) == 2:
+            wr[CLQ + "6"] = {tuple(added)}
+        qr_check_common(q, tuple(xs), wr)
     elif u == "meeting-points":
         need(len(xs) == 2, "not two meeting points")
         ys = [line.subs(X, x) for x in xs]
@@ -3511,7 +3543,7 @@ def check_curve_line(q):
         sq = lambda mm, rr: qr_norm(ans, {"m": str(mm), "r": str(rr)})
         qr_check_common(q, want, {CLQ + "10": {sq(dx, 1)},  # Δx alone
                                   CLQ + "11": {sq(dx**2, 1 + m**2)},  # Δx² left outside the root
-                                  CLQ + "12": {sq(1, dx**2 + abs(dy))}})  # Δy not squared
+                                  CLQ + "12": {sq(*cl_simplest_surd(dx**2 + abs(dy)))}})  # Δy not squared, simplified
     elif u == "normal-meets-again":
         px, py = RD(seen["px"]), RD(seen["py"])
         need(curve.subs(X, px) == py, "P is not on the curve")
@@ -3600,8 +3632,13 @@ def check_qeq(q):
             d = sp.nsimplify(((rs[1] - rs[0]) / 2)**2)
             need(h.is_integer and d.is_integer and int(d) in SURDS, "the surd roots are outside the clean limits")
             disc = R(g["b"]) ** 2 - 4 * R(g["a"]) * R(g["c"])
-            qr_check_common(q, qr_norm(ans, {"h": str(h), "d": str(d)}), {QE_C + "7": {qr_norm(ans, {"h": str(-h), "d": str(d)})},  # −b's minus dropped
-                                                                         QE_C + "8": {qr_norm(ans, {"h": str(h), "d": str(disc)})}})  # √Δ not divided by 2a
+            wr = {QE_C + "7": {qr_norm(ans, {"h": str(-h), "d": str(d)})},  # −b's minus dropped
+                  QE_C + "8": {qr_norm(ans, {"h": str(h), "d": str(disc)})}}  # √Δ not divided by 2a
+            # b² + 4ac for Δ (FAL-1055): x = (−b ± √(b² + 4ac))/(2a), so d = (b² + 4ac)/(2a)².
+            d_plus = (R(g["b"]) ** 2 + 4 * R(g["a"]) * R(g["c"])) / (2 * R(g["a"])) ** 2
+            if d_plus > 0:
+                wr[QE_C + "14"] = {qr_norm(ans, {"h": str(h), "d": str(d_plus)})}
+            qr_check_common(q, qr_norm(ans, {"h": str(h), "d": str(d)}), wr)
     elif u == "solve-no-constant":
         lhs, rhs_ = L[0].split(" = ")
         f = parse(lhs) - parse(rhs_)
@@ -3625,15 +3662,19 @@ def check_qeq(q):
         need(len(pos) == 1 and len(neg) == 1, "the context doesn't rule out exactly one root")
         x = pos[0]
         need(g["paper"] == q["paper"], "the context's paper is not the question's")
+        # −b + √Δ with the ÷ 2a left out (FAL-1055), from the context's own quadratic.
+        qa, qb, qc = sp.Poly(sp.expand(f), X).all_coeffs()
+        no_divide = -qb + sp.sqrt(qb**2 - 4 * qa * qc)
         if g["paper"] == 1:
             need(x.is_integer and ans.get("exact"), "Paper 1 answer is not an exact whole number")
             want = qr_norm(ans, {"v": str(x)})
-            wr = {"SL2.7.solve-equation#1": {qr_norm(ans, {"v": str(-neg[0])})}, QE_C + "10": {qr_norm(ans, {"v": str(neg[0])})}}  # the negative root kept
+            wr = {"SL2.7.solve-equation#1": {qr_norm(ans, {"v": str(-neg[0])})}, QE_C + "10": {qr_norm(ans, {"v": str(neg[0])})},  # the negative root kept
+                  QE_C + "13": {qr_norm(ans, {"v": str(sp.nsimplify(no_divide))})}}
         else:
             need(not x.is_rational, "Paper 2 root doesn't need a calculator")
             need(not on_edge(x), "the answer is on a 3 s.f. rounding edge")
             want = sig3(x)
-            wr = {"SL2.7.solve-equation#1": {sig3(-neg[0])}}
+            wr = {"SL2.7.solve-equation#1": {sig3(-neg[0])}, QE_C + "13": {sig3(no_divide)}}
             if L[0].startswith("A rectangular yard"):
                 wr[QE_C + "9"] = {sig3(sp.sqrt(R(m.group(2))))}  # √area, as if square
         qr_check_common(q, want, wr)
@@ -6520,6 +6561,8 @@ def check_log_function(q):
         if a != 0:
             wr["SL2.4.asymptotes#2"] = {qr_norm(ans, {"v": str(-a)})}
         wr[LF + "9"] = {qr_norm(ans, {"v": str(cc)})}  # the vertical shift taken
+        # The x-intercept read as n (FAL-1055): log_b(x − a) + c = 0 at x = a + b^(−c).
+        wr[LF + "22"] = {qr_norm(ans, {"v": str(a + sp.Integer(b) ** (-cc))})}
         qr_check_common(q, want, wr)
         return None, None
     if u == "pick-graph" and rep == "graph":
@@ -6615,6 +6658,14 @@ def check_log_function(q):
             wr[LF + "16"] = {qr_norm(ans, {"rel": rel, "v": str(edge)})}  # not turned round
         else:
             wr[LF + "12"] = {lf_set_want(ans, sp.Interval(sol.inf, sol.sup))}  # both ends closed
+            # The end at k moved (FAL-1055), the end at x0 and both ends' kinds kept: to b^k,
+            # the input's value left unsolved, or to where the input is k, no power taken.
+            k_at_sup = sol.inf == x0
+            for ref, e in ((LF + "18", sp.Integer(b) ** k), (LF + "21", sp.solve(ins - k, X)[0])):
+                moved = (sp.Interval(x0, e, sol.left_open, sol.right_open) if k_at_sup
+                         else sp.Interval(e, x0, sol.left_open, sol.right_open))
+                if isinstance(moved, sp.Interval) and moved.measure > 0:
+                    wr[ref] = {lf_set_want(ans, moved)}
             if sol.sup > 0:
                 wr[LF + "15"] = {lf_set_want(ans, sp.Interval(0, sol.sup, sol.left_open, sol.right_open))}  # from the origin
     else:
@@ -30263,7 +30314,7 @@ def E11LF_paper1(q, u):
             need(m is not None and q["asked"] == "Find the exact value of a.", L[0])
             n, c = E11LF_q(m.group(1)), E11LF_q(m.group(2))
         else:
-            m = re.fullmatch(r"log base x of (\S+) = (\S+)", L[0])
+            m = re.fullmatch(r"logₓ (\S+) = (\S+)", L[0])
             need(m is not None and q["asked"] == "Find the exact value of x, where x > 0.", L[0])
             n, c = E11LF_q(m.group(1)), E11LF_q(m.group(2))
         val = sp.nsimplify(sp.N(n ** (1 / c), DIGITS), rational=True, tolerance=sp.Rational(1, 10**30))
@@ -30272,6 +30323,12 @@ def E11LF_paper1(q, u):
         wrongs = {F + "0": {label + E11LF_n(n / c)}}
         if c.q == 1 and 0 < c <= 4 and n <= 20:
             wrongs[O + "11"] = {label + E11LF_n(n ** c)}
+        # FAL-1055: the root taken with the power's minus dropped, and an even power's
+        # negative root, which no base can be. Each solved again from n and c.
+        if c < 0:
+            wrongs[O + "8"] = {label + E11LF_n(sp.nsimplify(sp.N(n ** (1 / -c), DIGITS), rational=True, tolerance=sp.Rational(1, 10**30)))}
+        if c.q == 1 and c % 2 == 0:
+            wrongs[O + "17"] = {label + E11LF_n(-val)}
         if rep == "graph":
             g = q["graph"]
             need(len(g["points"]) == 1 and abs(g["points"][0]["x"] - float(n)) < 1e-9 and abs(g["points"][0]["y"] - float(c)) < 1e-9, "the marked point")
@@ -30624,16 +30681,19 @@ def E11LF_paper2(q, u):
             need(rows[1][0] == head, "the table's heading")
             x1 = E11LF_amt(rows[1][1][0])
         if u == "reading-after-multiple":
-            need(asked == f"Find the {n} of B." + E11LF_THREE, asked)
+            # The two are A and B, or P and Q where the formula already uses A or B (FAL-1055).
+            one, two = ("P", "Q") if {x_, y_} & {"A", "B"} else ("A", "B")
+            need(asked == f"Find the {n} of {two}." + E11LF_THREE, asked)
             if rep == "table":
+                need(rows[0][1] == [one, two] and L[-1] == f"The table shows two of them, {one} and {two}.", "the table's two names")
                 y1 = E11LF_q(rows[2][1][0])
                 m_ = E11LF_amt(rows[1][1][1]) / x1
                 need(rows[2][1][1] == "?", "the missing reading")
             else:
-                m = re.fullmatch(rf"A {thing}, A, has a {amount} of (.+){unit} and a {n} of (\S+)\.", L[1])
+                m = re.fullmatch(rf"A {thing}, {one}, has a {amount} of (.+){unit} and a {n} of (\S+)\.", L[1])
                 need(m is not None, L[1])
                 x1, y1 = E11LF_amt(m.group(1)), E11LF_q(m.group(2))
-                m2 = re.fullmatch(rf"A second {thing}, B, has (\S+) times the {amount} of A\.", L[2])
+                m2 = re.fullmatch(rf"A second {thing}, {two}, has (\S+) times the {amount} of {one}\.", L[2])
                 need(m2 is not None, L[2])
                 m_ = sp.Rational(m2.group(1))
             need(abs(E11LF_read(f, x1) - y1) < sp.Rational(1, 10**20), "A's reading doesn't fit the scale")
@@ -31324,7 +31384,8 @@ def e9log_evaluate_single(line):
         p, n = int(mt.group(1)), int(mt.group(2))
         t = e9log_powers(n, p)
         need(t, f"{line}")
-        return want, {E9LOG_ROOT_BASE: [mpmath.mpf(t)], E9LOG_INVERT: [1 / want]}, False
+        # √p is p^(1/2): t divided by 1/2 is the key, t times 1/2 the slip (FAL-1055).
+        return want, {E9LOG_ROOT_BASE: [mpmath.mpf(t)], E9LOG_INVERT: [1 / want], E9LOG_TIMES_BASE: [mpmath.mpf(t) / 2]}, False
     mt = re.fullmatch(E9LOG_NAME + r"(?:\(1/(\d+)\)| (\d+))", line)
     need(mt is not None, f"can't read {line!r}")
     B = e9log_base(mt.group(1))
