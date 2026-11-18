@@ -48352,6 +48352,12 @@ def r2sp_check(q):
         need(len(ks) == 1, "f(x) = 0 gives no single k")
         need(r2sp_clear(ks[0]), "the f(x) = 0 slip is on a 3 s.f. edge")
         wrongs[R2SP_SZ + "0"] = {"k = " + r2sp_opt(ks[0], True)}
+        for sol in q["solutions"]:
+            gives = [re.search(r"which gives (.+) = 0\.$", st) for st in sol["steps"]]
+            for g in gives:
+                if g:
+                    need(sp.expand(r2sp_terms(g.group(1), "x", k=True) - sp.diff(f, CX).subs(CX, X)) == 0,
+                         f"{sol['angle']}: {g.group(1)} = 0 is not f′({X}) = 0")
         need(len(r2sp_zeros(sp.diff(f.subs(K, k), CX))) == 2, "f has no two stationary points")
     elif u == "local-extremum-point":
         f, v, fs, lo, hi, story, recip = r2sp_read(q)

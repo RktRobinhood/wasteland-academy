@@ -232,7 +232,8 @@ static func solve_line(s: Dictionary, xs: Array, exact: bool) -> String:
 	if exact:
 		return "%s = %s = 0, so %s = %s or %s = %s." % [poly(dc, v), factored(s, xs), v, Fmt.num(roundi(xs[0])), v, Fmt.num(roundi(xs[1]))]
 	var disc := B.mul(B).sub(A.mul(C).mul(4))
-	return "By the quadratic formula, %s = (%s ± √%s) ÷ %s = %s or %s." % [v, D(B.neg()), D(disc), D(A.mul(2)), W(xs[0]), W(xs[1])]
+	var two_a := D(A.mul(2)) if A.sign() > 0 else "(" + D(A.mul(2)) + ")"
+	return "By the quadratic formula, %s = (%s ± √%s) ÷ %s = %s or %s." % [v, D(B.neg()), D(disc), two_a, W(xs[0]), W(xs[1])]
 
 
 ## "(x − 1)(x − 3)" written cleanly from whole zeros.
@@ -329,7 +330,7 @@ func u_gradient_zero_given_derivative(rep: String, s: Dictionary, _rng: Seeded) 
 		"gdc-equation-solver": ["Enter the coefficients %s of %s into the polynomial solver (degree 2)." % [", ".join(dc.map(func(c): return D(c))), dname(s)],
 			"It shows %s = %s." % [v, both], change, final_step(ans)],
 		"zeros-of-derivative-graph": ["Graph y = %s on the GDC and find its zeros: %s = %s." % [d_rhs(s).replace(v, "x") if v != "x" else d_rhs(s), v, both],
-			"The graph crosses the axis from %s to %s at %s = %s." % ["above" if want == "maximum" else "below", "below" if want == "maximum" else "above", v, V(x, exact) if exact else W(x)],
+			"The graph crosses the axis from %s to %s at %s = %s, so %s changes from %s to %s there: the local %s of %s." % ["above" if want == "maximum" else "below", "below" if want == "maximum" else "above", v, V(x, exact) if exact else W(x), dname(s), l_sign, r_sign, want, fsym(s)],
 			final_step(ans)],
 	}
 	return pack(lines, asked, ans, wr, fill, steps)
@@ -379,13 +380,14 @@ func u_coefficient_from_stationary(_rep: String, s: Dictionary, _rng: Seeded) ->
 	var wr: Array = [num_wrong(slip, false, R_F_ROOTS)]
 	var fill: Array = [{"v": k.neg()}, {"v": k.add(1)}, {"v": k.mul(2)}]
 	var eq := Fmt.terms([Q.new(coef_k), const_k], [1, 0], "k", true) + " = 0"
+	var sub := d_text.replace("x", "(%s)" % X)
 	var lines: Array = ["f(x) = %s, where k is a constant." % f_text, "The graph of f has a stationary point where x = %s." % X]
 	return pack(lines, "Find the value of k.", ans, wr, fill, {
 		"differentiate-and-solve": ["f′(x) = %s" % d_text,
-			"At the stationary point f′(%s) = 0, which gives %s." % [X, eq],
+			"At the stationary point f′(%s) = %s = 0, which gives %s." % [X, sub, eq],
 			("k = %s." % D(k)) if coef_k == 1 else "%s = %s, so k = %s." % [Fmt.terms([Q.new(coef_k)], [1], "k", true), D(const_k.neg()), D(k)]],
 		"gdc-equation-solver": ["f′(x) = %s, and f′(%s) = 0 at the stationary point." % [d_text, X],
-			"Enter %s in the equation solver and solve for k." % eq,
+			"Enter %s = 0 in the equation solver and solve for k." % sub,
 			"The solver shows k = %s." % D(k)],
 	})
 
