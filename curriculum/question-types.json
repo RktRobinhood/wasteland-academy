@@ -35,9 +35,9 @@
    "aa-hl": {
     "questions": 327,
     "parts": 1205,
-    "assigned": 0,
+    "assigned": 20,
     "unclassified": 0,
-    "unassigned": 1205,
+    "unassigned": 1185,
     "papers": {
      "P1": {
       "calculator": false,
@@ -83,9 +83,9 @@
    "ai-hl": {
     "questions": 357,
     "parts": 1485,
-    "assigned": 9,
+    "assigned": 21,
     "unclassified": 0,
-    "unassigned": 1476,
+    "unassigned": 1464,
     "papers": {
      "P1": {
       "calculator": true,
@@ -6914,6 +6914,69 @@
    "clean": [
     "every answer is to 3 s.f., at least 0.04 of its last place from a rounding edge",
     "each slip offered (the other log key, a bracket round the quotient, the logs the wrong way round, each log rounded first) reads differently from the answer"
+   ]
+  },
+  "complex-number": {
+   "name": "Complex numbers in Cartesian form, a + bi, and their points on an Argand diagram",
+   "summary": "Pick one or two complex numbers with small whole-number parts, a power, or a real quadratic with complex roots. Products, quotients, powers, conjugates, moduli, arguments and the points on an Argand diagram are then all known exactly, and an argument to 3 s.f. where the angle is not a standard one.",
+   "quantities": [
+    {
+     "name": "z = a + bi",
+     "is": "the complex number asked about",
+     "pick": "a and b whole numbers from −6 to 6, neither 0 where the question needs both parts"
+    },
+    {
+     "name": "w = c + di",
+     "is": "a second complex number: the other factor, the divisor or a second point",
+     "pick": "c and d from −5 to 5, neither 0, so every slip reads differently"
+    },
+    {
+     "name": "r = e + fi",
+     "is": "the answer of a division or of z(c + di) = e + fi, picked first",
+     "pick": "e and f whole numbers, so the division comes out whole"
+    },
+    {
+     "name": "n, k",
+     "is": "the power of i, or of z, and the number in front of i",
+     "pick": "n from 5 to 99 for iⁿ, 2 to 6 for (a + bi)ⁿ; k from 2 to 3"
+    },
+    {
+     "name": "p, q",
+     "is": "the real coefficients of z² + pz + q = 0, from roots h ± ki",
+     "pick": "h from −5 to 5 and not 0, k from 1 to 6"
+    }
+   ],
+   "modes": [
+    {
+     "id": "exact",
+     "when": "Paper 1, and every Paper 2 question asked by hand",
+     "how": "whole-number parts; a modulus in simplest surd form; an argument a multiple of π from a point on a 30°, 45° or 60° line"
+    },
+    {
+     "id": "gdc",
+     "when": "an argument on Paper 2, or a GDC method",
+     "how": "whole-number parts, the argument in radians to 3 s.f., clear of a rounding edge"
+    }
+   ],
+   "clean": [
+    "the answer and every slip offered read differently",
+    "an argument is in −π < θ ≤ π, and a point is never on an axis when its argument is asked",
+    "every point drawn on an Argand diagram is inside a window from −7 to 7"
+   ]
+  },
+  "complex-number-ai": {
+   "extends": "complex-number",
+   "name": "The same complex numbers, on Paper 2 with a GDC, and a real quadratic with complex roots",
+   "summary": "As complex-number, with every question on Paper 2, the argument to 3 s.f. in radians, and z² + pz + q = 0 built from roots h ± ki.",
+   "quantities": [
+    {
+     "name": "p, q",
+     "is": "the coefficients of z² + pz + q = 0",
+     "pick": "p = −2h and q = h² + k², from h and k"
+    }
+   ],
+   "clean": [
+    "the parabola's vertex (h, k²) is inside the window drawn"
    ]
   }
  },
@@ -96496,6 +96559,1339 @@
     },
     "mainTags": {
      "1.7": 16
+    }
+   }
+  },
+  {
+   "id": "t1-ahl-complex-cartesian",
+   "topic": 1,
+   "source": "exam",
+   "detail": "full",
+   "home": "aa-hl",
+   "region": "exponents-logs",
+   "name": "Complex numbers in Cartesian form (AA HL)",
+   "summary": "Simplify powers of i, multiply, divide and raise a + bi to a power, find a real parameter that makes a product real or imaginary, solve equations by equating real and imaginary parts (with z*, a square root, or a root of a quadratic), find a modulus and an argument, and read numbers, sums and distances from an Argand diagram.",
+   "syllabus": [
+    "1.12"
+   ],
+   "skills": [
+    "AHL1.12.powers-of-i",
+    "AHL1.12.cartesian-arithmetic",
+    "AHL1.12.parts-modulus-argument",
+    "AHL1.12.equate-parts",
+    "AHL1.12.argand-diagram"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "one or two complex numbers in Cartesian form, or a point on an Argand diagram",
+    "a product, quotient or power in the form a + bi, with i² = −1",
+    "a parameter, or an unknown z, found by equating real and imaginary parts",
+    "the modulus and the argument, with the quadrant checked",
+    "a sum, a difference or a distance read from the diagram"
+   ],
+   "given": [
+    "a power of i, or of ki",
+    "two complex numbers z and w",
+    "a product with a real parameter k and a condition on it",
+    "an equation in z and z*, or z(c + di) = e + fi",
+    "a complex number to square-root",
+    "a complex root of a real quadratic with unknown coefficients",
+    "a complex number, or its point on an Argand diagram",
+    "two points on an Argand diagram"
+   ],
+   "asked": "A complex number in the form a + bi, a real parameter, two real coefficients, a modulus, an argument, or a distance.",
+   "answerForms": [
+    "a + bi with exact parts",
+    "a real number",
+    "p and q",
+    "a whole number or m√r",
+    "a multiple of π, or radians to 3 s.f.",
+    "±(a + bi)"
+   ],
+   "randomise": [
+    "the parts of each number",
+    "the power",
+    "the condition on the parameter",
+    "the form of the equation",
+    "the points on the diagram"
+   ],
+   "constraints": [
+    "arguments are in −π < θ ≤ π",
+    "a quotient is found by multiplying by the conjugate of the denominator",
+    "Paper 1 answers are exact; Paper 2 gives an argument to 3 s.f. where it is not a standard angle"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "complex-number",
+   "sharesSituation": [
+    "t1-ai-complex-cartesian"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the numbers written out: z = 3 − 2i and w = 1 + 4i, or an equation such as z + 2z* = 6 − i"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "an Argand diagram: the points labelled A and B on a grid, the real axis across and the imaginary axis up"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "power-of-i",
+     "given": [
+      "a power iⁿ, or (ki)ⁿ"
+     ],
+     "asked": "the power in the form a + bi",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AHL1.12.powers-of-i"
+     ]
+    },
+    {
+     "id": "product",
+     "given": [
+      "two complex numbers z and w"
+     ],
+     "asked": "zw, z², zz* or zw* in the form a + bi",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AHL1.12.cartesian-arithmetic"
+     ]
+    },
+    {
+     "id": "quotient",
+     "given": [
+      "two complex numbers z and w"
+     ],
+     "asked": "z ÷ w in the form a + bi",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AHL1.12.cartesian-arithmetic"
+     ]
+    },
+    {
+     "id": "power",
+     "given": [
+      "a complex number z and a power n"
+     ],
+     "asked": "zⁿ in the form a + bi",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AHL1.12.cartesian-arithmetic"
+     ]
+    },
+    {
+     "id": "real-parameter",
+     "given": [
+      "(k + mi)(c + di), k real",
+      "that it is real, purely imaginary, or has argument π/4"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AHL1.12.cartesian-arithmetic",
+      "AHL1.12.equate-parts"
+     ]
+    },
+    {
+     "id": "solve-linear",
+     "given": [
+      "z(c + di) = e + fi"
+     ],
+     "asked": "z in the form a + bi",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AHL1.12.equate-parts"
+     ]
+    },
+    {
+     "id": "equate-conjugate",
+     "given": [
+      "an equation αz + βz* = e + fi, or αz + βiz* = e + fi"
+     ],
+     "asked": "z in the form a + bi",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AHL1.12.equate-parts"
+     ]
+    },
+    {
+     "id": "square-root",
+     "given": [
+      "a complex number A + Bi"
+     ],
+     "asked": "its two square roots, ±(a + bi)",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AHL1.12.equate-parts"
+     ]
+    },
+    {
+     "id": "root-substitute",
+     "given": [
+      "a complex root m + ni of z² + pz + q = 0, p and q real"
+     ],
+     "asked": "p and q",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AHL1.12.equate-parts",
+      "AHL1.12.cartesian-arithmetic"
+     ]
+    },
+    {
+     "id": "modulus",
+     "given": [
+      "a complex number, or its point on an Argand diagram"
+     ],
+     "asked": "|z|, exactly",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "AHL1.12.parts-modulus-argument"
+     ]
+    },
+    {
+     "id": "argument",
+     "given": [
+      "a complex number, or its point on an Argand diagram"
+     ],
+     "asked": "arg z in −π < θ ≤ π",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "AHL1.12.parts-modulus-argument"
+     ]
+    },
+    {
+     "id": "argand-read",
+     "given": [
+      "a point A on an Argand diagram that represents z"
+     ],
+     "asked": "z, z*, −z or iz in the form a + bi",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "AHL1.12.argand-diagram"
+     ]
+    },
+    {
+     "id": "argand-sum",
+     "given": [
+      "two points A and B on an Argand diagram, for z₁ and z₂"
+     ],
+     "asked": "z₁ + z₂, or z₂ − z₁ (the vector from A to B)",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "AHL1.12.argand-diagram"
+     ]
+    },
+    {
+     "id": "distance",
+     "given": [
+      "two complex numbers, or their points on an Argand diagram"
+     ],
+     "asked": "the distance between them, |z₂ − z₁|, exactly",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "AHL1.12.argand-diagram"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "AHL1.12.powers-of-i",
+     "method": "cycle-of-four",
+     "suits": [
+      "power-of-i"
+     ]
+    },
+    {
+     "skill": "AHL1.12.powers-of-i",
+     "method": "pair-i-squared",
+     "suits": [
+      "power-of-i"
+     ]
+    },
+    {
+     "skill": "AHL1.12.powers-of-i",
+     "method": "quarter-turns",
+     "suits": [
+      "power-of-i"
+     ]
+    },
+    {
+     "skill": "AHL1.12.cartesian-arithmetic",
+     "method": "expand-brackets",
+     "suits": [
+      "product",
+      "power",
+      "real-parameter"
+     ]
+    },
+    {
+     "skill": "AHL1.12.cartesian-arithmetic",
+     "method": "realise-denominator",
+     "suits": [
+      "quotient"
+     ]
+    },
+    {
+     "skill": "AHL1.12.cartesian-arithmetic",
+     "method": "gdc-complex",
+     "suits": [
+      "product",
+      "quotient",
+      "power"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "real-parameter"
+      ],
+      "why": "the GDC can't keep k as a letter: the parts have to be written out and one set to zero"
+     }
+    },
+    {
+     "skill": "AHL1.12.equate-parts",
+     "method": "divide-directly",
+     "suits": [
+      "solve-linear"
+     ]
+    },
+    {
+     "skill": "AHL1.12.equate-parts",
+     "method": "substitute-x-iy",
+     "suits": [
+      "solve-linear",
+      "equate-conjugate",
+      "root-substitute"
+     ]
+    },
+    {
+     "skill": "AHL1.12.equate-parts",
+     "method": "square-root-system",
+     "suits": [
+      "square-root"
+     ]
+    },
+    {
+     "skill": "AHL1.12.parts-modulus-argument",
+     "method": "pythagoras-arctan",
+     "suits": [
+      "modulus",
+      "argument"
+     ]
+    },
+    {
+     "skill": "AHL1.12.parts-modulus-argument",
+     "method": "sketch-first",
+     "suits": [
+      "modulus",
+      "argument"
+     ]
+    },
+    {
+     "skill": "AHL1.12.parts-modulus-argument",
+     "method": "gdc-abs-angle",
+     "suits": [
+      "modulus",
+      "argument"
+     ]
+    },
+    {
+     "skill": "AHL1.12.argand-diagram",
+     "method": "plot-coordinates",
+     "suits": [
+      "argand-read"
+     ]
+    },
+    {
+     "skill": "AHL1.12.argand-diagram",
+     "method": "vector-addition",
+     "suits": [
+      "argand-sum"
+     ]
+    },
+    {
+     "skill": "AHL1.12.argand-diagram",
+     "method": "distance-modulus",
+     "suits": [
+      "distance"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A complex number and its conjugate always have the same modulus.",
+     "answer": "True: z* is z reflected in the real axis, so it is the same distance from 0.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The product of a complex number and its conjugate is a real number.",
+     "answer": "Always: (a + bi)(a − bi) = a² + b², and the imaginary parts cancel.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Predict which quadrant −3 + 3i is in before finding its argument, then check that the argument is between π/2 and π.",
+     "answer": "The second quadrant: the real part is negative and the imaginary part positive, and arg(−3 + 3i) = 3π/4.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "AHL1.12.powers-of-i#0",
+     "text": "Taking the third power of i as i instead of −i",
+     "as": "distractor",
+     "in": [
+      "power-of-i"
+     ],
+     "wrong": "i where the power leaves the third power of i"
+    },
+    {
+     "ref": "AHL1.12.powers-of-i#1",
+     "text": "Raising only i to the power and leaving the number in front of it unpowered",
+     "as": "distractor",
+     "in": [
+      "power-of-i"
+     ],
+     "wrong": "k × iⁿ instead of kⁿ × iⁿ"
+    },
+    {
+     "ref": "AHL1.12.cartesian-arithmetic#0",
+     "text": "Using i squared as plus one instead of minus one when multiplying out",
+     "as": "distractor",
+     "in": [
+      "product",
+      "power",
+      "quotient",
+      "real-parameter",
+      "root-substitute"
+     ],
+     "wrong": "the expansion with i² = 1"
+    },
+    {
+     "ref": "AHL1.12.cartesian-arithmetic#1",
+     "text": "Multiplying only the denominator by its conjugate",
+     "as": "distractor",
+     "in": [
+      "quotient",
+      "solve-linear"
+     ],
+     "wrong": "the numerator divided by |w|²"
+    },
+    {
+     "ref": "AHL1.12.cartesian-arithmetic#2",
+     "text": "Multiplying the real parts together and the imaginary parts together, losing the cross terms",
+     "as": "distractor",
+     "in": [
+      "product",
+      "power"
+     ],
+     "wrong": "ac + bdi, or aⁿ + (bi)ⁿ for a power"
+    },
+    {
+     "ref": "AHL1.12.parts-modulus-argument#1",
+     "text": "Using arctan of the imaginary part over the real part without checking the quadrant",
+     "as": "distractor",
+     "in": [
+      "argument"
+     ],
+     "wrong": "arctan(b/a), with no π added or taken away"
+    },
+    {
+     "ref": "AHL1.12.parts-modulus-argument#2",
+     "text": "Adding the parts, or subtracting their squares, instead of taking the square root of the sum of their squares",
+     "as": "distractor",
+     "in": [
+      "modulus"
+     ],
+     "wrong": "|a| + |b|, or √(a² − b²)"
+    },
+    {
+     "ref": "AHL1.12.equate-parts#1",
+     "text": "Giving only one square root and missing its negative",
+     "as": "distractor",
+     "in": [
+      "square-root"
+     ],
+     "wrong": "a + bi without the ±"
+    },
+    {
+     "ref": "AHL1.12.equate-parts#2",
+     "text": "Treating z* as if it were z, so the conjugate's sign change is lost",
+     "as": "distractor",
+     "in": [
+      "equate-conjugate"
+     ],
+     "wrong": "z from (α + β)z = e + fi"
+    },
+    {
+     "ref": "AHL1.12.argand-diagram#0",
+     "text": "Reading the point with its coordinates swapped, the real part up and the imaginary part across",
+     "as": "distractor",
+     "in": [
+      "argand-read",
+      "argand-sum"
+     ],
+     "wrong": "b + ai read for the point (a, b)"
+    },
+    {
+     "ref": "AHL1.12.argand-diagram#1",
+     "text": "Reflecting in the imaginary axis for the conjugate, so the real part changes sign",
+     "as": "distractor",
+     "in": [
+      "argand-read"
+     ],
+     "wrong": "−a + bi for z*"
+    },
+    {
+     "text": "Dividing part by part, the real part by the real part and the imaginary part by the imaginary part",
+     "as": "distractor",
+     "in": [
+      "quotient",
+      "solve-linear"
+     ],
+     "wrong": "a/c + (b/d)i"
+    },
+    {
+     "text": "Multiplying by the number instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "solve-linear"
+     ],
+     "wrong": "(e + fi)(c + di)"
+    },
+    {
+     "text": "Setting the wrong part to zero: the real part for a real product, or the imaginary part for an imaginary one",
+     "as": "distractor",
+     "in": [
+      "real-parameter"
+     ],
+     "wrong": "k from the other part"
+    },
+    {
+     "text": "Dropping the minus sign when the equation is rearranged to give k",
+     "as": "distractor",
+     "in": [
+      "real-parameter"
+     ],
+     "wrong": "−k"
+    },
+    {
+     "text": "Changing the sign of the real part for the conjugate, so z* is taken as −x + yi",
+     "as": "distractor",
+     "in": [
+      "equate-conjugate"
+     ],
+     "wrong": "z from z* = −x + yi"
+    },
+    {
+     "text": "Swapping the parts of the root, which gives a square root of the number with its real part's sign changed",
+     "as": "distractor",
+     "in": [
+      "square-root"
+     ],
+     "wrong": "±(b + ai)"
+    },
+    {
+     "text": "Giving the imaginary part the wrong sign, so the root squares to the conjugate",
+     "as": "distractor",
+     "in": [
+      "square-root"
+     ],
+     "wrong": "±(a − bi)"
+    },
+    {
+     "text": "Dropping the minus sign when the imaginary part's equation is solved for p",
+     "as": "distractor",
+     "in": [
+      "root-substitute"
+     ],
+     "wrong": "p = 2m, and q from it"
+    },
+    {
+     "text": "Using arctan of the real part over the imaginary part, the angle from the imaginary axis",
+     "as": "distractor",
+     "in": [
+      "argument"
+     ],
+     "wrong": "arctan(a/b)"
+    },
+    {
+     "text": "Turning clockwise for iz instead of anticlockwise",
+     "as": "distractor",
+     "in": [
+      "argand-read"
+     ],
+     "wrong": "−iz"
+    },
+    {
+     "text": "Giving the conjugate when −z is asked, or −z when the conjugate is asked",
+     "as": "distractor",
+     "in": [
+      "argand-read"
+     ],
+     "wrong": "z* for −z, or −z for z*"
+    },
+    {
+     "text": "Adding the two numbers instead of subtracting them before taking the modulus",
+     "as": "distractor",
+     "in": [
+      "distance"
+     ],
+     "wrong": "|z₁ + z₂|"
+    },
+    {
+     "text": "Forgetting the square root, giving the sum of the squares",
+     "as": "distractor",
+     "in": [
+      "distance"
+     ],
+     "wrong": "(Δa)² + (Δb)²"
+    },
+    {
+     "text": "Subtracting the wrong way round, giving the vector from B back to A",
+     "as": "distractor",
+     "in": [
+      "argand-sum"
+     ],
+     "wrong": "z₁ − z₂"
+    },
+    {
+     "text": "Subtracting instead of adding the two numbers",
+     "as": "distractor",
+     "in": [
+      "argand-sum"
+     ],
+     "wrong": "z₁ − z₂ for the sum"
+    },
+    {
+     "text": "Raising only i to the power, as if there were no brackets",
+     "as": "distractor",
+     "in": [
+      "power"
+     ],
+     "wrong": "a + b iⁿ"
+    }
+   ],
+   "parts": [
+    "aa-hl-2021-may-tz2-p2-q08",
+    "aa-hl-2021-may-tz2-p3-q02.b",
+    "aa-hl-2021-may-tz2-p3-q02.d",
+    "aa-hl-2021-nov-tz0-p1-q12.c",
+    "aa-hl-2021-nov-tz0-p1-q12.e",
+    "aa-hl-2022-may-tz1-p1-q09.a",
+    "aa-hl-2022-may-tz1-p1-q09.b",
+    "aa-hl-2022-may-tz1-p3-q02.f(ii)",
+    "aa-hl-2023-may-tz2-p1-q11.a",
+    "aa-hl-2023-may-tz2-p1-q11.d",
+    "aa-hl-2023-nov-tz1-p1-q07",
+    "aa-hl-2023-nov-tz1-p1-q12.a",
+    "aa-hl-2023-nov-tz2-p1-q07",
+    "aa-hl-2023-nov-tz2-p1-q12.a",
+    "aa-hl-2024-may-tz1-p1-q12.a",
+    "aa-hl-2024-may-tz1-p1-q12.b",
+    "aa-hl-2025-nov-tz1-p1-q11.a",
+    "aa-hl-2025-nov-tz1-p1-q11.b",
+    "aa-hl-2025-nov-tz1-p1-q11.d",
+    "aa-hl-2026-may-tz2-p3-q02.b(i)"
+   ],
+   "stats": {
+    "parts": 20,
+    "paper": {
+     "p1": 15,
+     "p2": 1
+    },
+    "calculator": {
+     "without": 15,
+     "with": 5
+    },
+    "section": {
+     "A": 5,
+     "B": 11
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 8
+    },
+    "mainTags": {
+     "1.12": 17,
+     "1.13": 1,
+     "1.9": 2
+    }
+   }
+  },
+  {
+   "id": "t1-ai-complex-cartesian",
+   "topic": 1,
+   "source": "exam",
+   "detail": "full",
+   "home": "ai-hl",
+   "region": "exponents-logs",
+   "name": "Complex numbers in Cartesian form (AI HL)",
+   "summary": "Add, multiply and divide complex numbers by hand and on the GDC, simplify powers of i, find powers with technology, the modulus and the argument in radians, read numbers and distances from an Argand diagram, and solve real quadratics whose roots are complex.",
+   "syllabus": [
+    "1.12"
+   ],
+   "skills": [
+    "AI-AHL1.12.add-multiply",
+    "AI-AHL1.12.divide-conjugate",
+    "AI-AHL1.12.modulus-argument",
+    "AI-AHL1.12.powers-technology",
+    "AI-AHL1.12.argand-diagram",
+    "AI-AHL1.12.complex-quadratic-roots"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "one or two complex numbers in Cartesian form, or a point on an Argand diagram",
+    "a sum, product, quotient or power in the form a + bi",
+    "the modulus and the argument in radians",
+    "the roots of a real quadratic with a negative discriminant"
+   ],
+   "given": [
+    "two complex numbers z and w",
+    "a power of i, or of z",
+    "z(c + di) = e + fi",
+    "a complex number, or its point on an Argand diagram",
+    "two points on an Argand diagram",
+    "a real quadratic, or the graph of y = x² + px + q"
+   ],
+   "asked": "A complex number in the form a + bi, a modulus, an argument in radians, a distance, or the two complex roots of a quadratic.",
+   "answerForms": [
+    "a + bi with exact parts",
+    "a whole number or m√r",
+    "radians to 3 s.f.",
+    "h ± ki"
+   ],
+   "randomise": [
+    "the parts of each number",
+    "the power",
+    "the points on the diagram",
+    "the quadratic's roots"
+   ],
+   "constraints": [
+    "Paper 2: every AI paper allows a GDC",
+    "arguments are principal, in radians, in −π < θ ≤ π",
+    "quadratics have a negative discriminant"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "complex-number-ai",
+   "sharesSituation": [
+    "t1-ahl-complex-cartesian"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the numbers written out: z = 3 − 2i and w = 1 + 4i, or an equation such as z + 2z* = 6 − i"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "an Argand diagram with the points labelled A and B, or the graph of y = x² + px + q above the x-axis"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "power-of-i",
+     "given": [
+      "a power iⁿ, or (ki)ⁿ"
+     ],
+     "asked": "the power in the form a + bi",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AI-AHL1.12.add-multiply"
+     ]
+    },
+    {
+     "id": "product",
+     "given": [
+      "two complex numbers z and w"
+     ],
+     "asked": "zw, z², zz* or zw* in the form a + bi",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AI-AHL1.12.add-multiply"
+     ]
+    },
+    {
+     "id": "quotient",
+     "given": [
+      "two complex numbers z and w"
+     ],
+     "asked": "z ÷ w in the form a + bi",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AI-AHL1.12.divide-conjugate"
+     ]
+    },
+    {
+     "id": "solve-linear",
+     "given": [
+      "z(c + di) = e + fi"
+     ],
+     "asked": "z in the form a + bi",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AI-AHL1.12.divide-conjugate"
+     ]
+    },
+    {
+     "id": "power",
+     "given": [
+      "a complex number z and a power n"
+     ],
+     "asked": "zⁿ in the form a + bi",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AI-AHL1.12.powers-technology"
+     ]
+    },
+    {
+     "id": "modulus",
+     "given": [
+      "a complex number, or its point on an Argand diagram"
+     ],
+     "asked": "|z|, exactly",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "AI-AHL1.12.modulus-argument"
+     ]
+    },
+    {
+     "id": "argument",
+     "given": [
+      "a complex number, or its point on an Argand diagram"
+     ],
+     "asked": "arg z in radians, to 3 s.f.",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "AI-AHL1.12.modulus-argument"
+     ]
+    },
+    {
+     "id": "argand-read",
+     "given": [
+      "a point A on an Argand diagram that represents z"
+     ],
+     "asked": "z, z*, −z or iz in the form a + bi",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "AI-AHL1.12.argand-diagram"
+     ]
+    },
+    {
+     "id": "distance",
+     "given": [
+      "two complex numbers, or their points on an Argand diagram"
+     ],
+     "asked": "the distance between them, |z₂ − z₁|, exactly",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "AI-AHL1.12.modulus-argument"
+     ]
+    },
+    {
+     "id": "quadratic-roots",
+     "given": [
+      "a real quadratic z² + pz + q = 0 with no real roots, or its graph"
+     ],
+     "asked": "its two roots, h ± ki",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "AI-AHL1.12.complex-quadratic-roots"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "AI-AHL1.12.add-multiply",
+     "method": "expand-brackets",
+     "suits": [
+      "product"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.add-multiply",
+     "method": "gdc-complex",
+     "suits": [
+      "product"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.add-multiply",
+     "method": "powers-of-i-cycle",
+     "suits": [
+      "power-of-i"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.divide-conjugate",
+     "method": "multiply-conjugate",
+     "suits": [
+      "quotient",
+      "solve-linear"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.divide-conjugate",
+     "method": "gdc-divide",
+     "suits": [
+      "quotient",
+      "solve-linear"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.divide-conjugate",
+     "method": "equate-parts",
+     "suits": [
+      "solve-linear"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.powers-technology",
+     "method": "gdc-power",
+     "suits": [
+      "power"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.powers-technology",
+     "method": "repeated-squaring",
+     "suits": [
+      "power"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.modulus-argument",
+     "method": "pythag-arctan",
+     "suits": [
+      "modulus",
+      "argument",
+      "distance"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.modulus-argument",
+     "method": "argand-sketch",
+     "suits": [
+      "modulus",
+      "argument"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.modulus-argument",
+     "method": "gdc-abs-angle",
+     "suits": [
+      "modulus",
+      "argument"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.argand-diagram",
+     "method": "plot-coordinates",
+     "suits": [
+      "argand-read"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.argand-diagram",
+     "method": "transformations",
+     "suits": [
+      "argand-read"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.complex-quadratic-roots",
+     "method": "quadratic-formula",
+     "suits": [
+      "quadratic-roots"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.complex-quadratic-roots",
+     "method": "complete-square",
+     "suits": [
+      "quadratic-roots"
+     ]
+    },
+    {
+     "skill": "AI-AHL1.12.complex-quadratic-roots",
+     "method": "gdc-poly-solver",
+     "suits": [
+      "quadratic-roots"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If the graph of y = x² + px + q does not meet the x-axis, the equation z² + pz + q = 0 has no solutions.",
+     "answer": "False: it has no real solutions, but it has two complex ones, a conjugate pair h ± ki.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "The roots of a real quadratic are h ± ki. What does h tell you about the graph of y = x² + px + q?",
+     "answer": "h is the x-coordinate of the vertex: the line x = h is the parabola's axis of symmetry, halfway between the roots.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "AI-AHL1.12.add-multiply#0",
+     "text": "Using i squared as plus one instead of minus one when multiplying out",
+     "as": "distractor",
+     "in": [
+      "product"
+     ],
+     "wrong": "the expansion with i² = 1"
+    },
+    {
+     "ref": "AI-AHL1.12.add-multiply#1",
+     "text": "Multiplying only the matching parts, the real parts together and the imaginary parts together",
+     "as": "distractor",
+     "in": [
+      "product"
+     ],
+     "wrong": "ac + bdi"
+    },
+    {
+     "ref": "AI-AHL1.12.divide-conjugate#0",
+     "text": "Dividing part by part, the real part by the real part and the imaginary part by the imaginary part",
+     "as": "distractor",
+     "in": [
+      "quotient",
+      "solve-linear"
+     ],
+     "wrong": "a/c + (b/d)i"
+    },
+    {
+     "ref": "AI-AHL1.12.divide-conjugate#1",
+     "text": "Taking the denominator times its conjugate as the difference of the squares of its parts",
+     "as": "distractor",
+     "in": [
+      "quotient",
+      "solve-linear"
+     ],
+     "wrong": "z w* ÷ (c² − d²)"
+    },
+    {
+     "ref": "AI-AHL1.12.divide-conjugate#2",
+     "text": "Multiplying only the denominator by its conjugate",
+     "as": "distractor",
+     "in": [
+      "quotient",
+      "solve-linear"
+     ],
+     "wrong": "the numerator divided by |w|²"
+    },
+    {
+     "ref": "AI-AHL1.12.modulus-argument#0",
+     "text": "Using arctan of the imaginary part over the real part straight from the calculator, without checking the quadrant",
+     "as": "distractor",
+     "in": [
+      "argument"
+     ],
+     "wrong": "arctan(b/a), with no π added or taken away"
+    },
+    {
+     "ref": "AI-AHL1.12.modulus-argument#1",
+     "text": "Forgetting the square root, giving the sum of the squares",
+     "as": "distractor",
+     "in": [
+      "modulus",
+      "distance"
+     ],
+     "wrong": "a² + b²"
+    },
+    {
+     "ref": "AI-AHL1.12.modulus-argument#2",
+     "text": "Including i in the imaginary part when squaring it, so its square is subtracted",
+     "as": "distractor",
+     "in": [
+      "modulus"
+     ],
+     "wrong": "√(a² − b²)"
+    },
+    {
+     "ref": "AI-AHL1.12.powers-technology#0",
+     "text": "Raising each part to the power separately",
+     "as": "distractor",
+     "in": [
+      "power"
+     ],
+     "wrong": "aⁿ + (bi)ⁿ"
+    },
+    {
+     "ref": "AI-AHL1.12.powers-technology#1",
+     "text": "Leaving out the brackets, so only i is raised to the power",
+     "as": "distractor",
+     "in": [
+      "power"
+     ],
+     "wrong": "a + b iⁿ"
+    },
+    {
+     "ref": "AI-AHL1.12.argand-diagram#0",
+     "text": "Plotting with the axes swapped, the real part up and the imaginary part across",
+     "as": "distractor",
+     "in": [
+      "argand-read"
+     ],
+     "wrong": "b + ai read for the point (a, b)"
+    },
+    {
+     "ref": "AI-AHL1.12.argand-diagram#1",
+     "text": "Reflecting in the imaginary axis for the conjugate, so the real part changes sign",
+     "as": "distractor",
+     "in": [
+      "argand-read"
+     ],
+     "wrong": "−a + bi for z*"
+    },
+    {
+     "ref": "AI-AHL1.12.argand-diagram#2",
+     "text": "Plotting −z as the conjugate, or the conjugate as −z",
+     "as": "distractor",
+     "in": [
+      "argand-read"
+     ],
+     "wrong": "z* for −z, or −z for z*"
+    },
+    {
+     "ref": "AI-AHL1.12.complex-quadratic-roots#0",
+     "text": "Forgetting to halve the imaginary part of the roots",
+     "as": "distractor",
+     "in": [
+      "quadratic-roots"
+     ],
+     "wrong": "h ± 2ki"
+    },
+    {
+     "ref": "AI-AHL1.12.complex-quadratic-roots#1",
+     "text": "Stopping at no solution because the discriminant is negative",
+     "as": "distractor",
+     "in": [
+      "quadratic-roots"
+     ],
+     "wrong": "no solutions"
+    },
+    {
+     "ref": "AI-AHL1.12.complex-quadratic-roots#2",
+     "text": "Taking the square root of the negative discriminant as a real number, which gives two real roots",
+     "as": "distractor",
+     "in": [
+      "quadratic-roots"
+     ],
+     "wrong": "h − k and h + k"
+    },
+    {
+     "text": "Taking the third power of i as i instead of −i",
+     "as": "distractor",
+     "in": [
+      "power-of-i"
+     ],
+     "wrong": "i where the power leaves the third power of i"
+    },
+    {
+     "text": "Multiplying by the number instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "solve-linear"
+     ],
+     "wrong": "(e + fi)(c + di)"
+    },
+    {
+     "text": "Using arctan of the real part over the imaginary part, the angle from the imaginary axis",
+     "as": "distractor",
+     "in": [
+      "argument"
+     ],
+     "wrong": "arctan(a/b)"
+    },
+    {
+     "text": "Turning clockwise for iz instead of anticlockwise",
+     "as": "distractor",
+     "in": [
+      "argand-read"
+     ],
+     "wrong": "−iz"
+    },
+    {
+     "text": "Adding the two numbers instead of subtracting them before taking the modulus",
+     "as": "distractor",
+     "in": [
+      "distance"
+     ],
+     "wrong": "|z₁ + z₂|"
+    },
+    {
+     "text": "Using +p instead of −p in the quadratic formula, so the real part has the wrong sign",
+     "as": "distractor",
+     "in": [
+      "quadratic-roots"
+     ],
+     "wrong": "−h ± ki"
+    },
+    {
+     "text": "Raising only i to the power and leaving the number in front of it unpowered",
+     "as": "distractor",
+     "in": [
+      "power-of-i"
+     ],
+     "wrong": "k × iⁿ instead of kⁿ × iⁿ"
+    }
+   ],
+   "parts": [
+    "ai-hl-2021-may-tz1-p1-q09.a",
+    "ai-hl-2021-may-tz1-p1-q09.c",
+    "ai-hl-2024-may-tz1-p1-q13.a",
+    "ai-hl-2024-nov-tz0-p1-q09.a",
+    "ai-hl-2024-nov-tz0-p1-q09.b",
+    "ai-hl-2024-nov-tz0-p1-q09.c",
+    "ai-hl-2025-may-tz1-p1-q11.a",
+    "ai-hl-2025-may-tz2-p1-q16.a",
+    "ai-hl-2026-may-tz1-p1-q14.d",
+    "ai-hl-2026-may-tz2-p1-q13.a",
+    "ai-hl-2026-may-tz2-p1-q13.b",
+    "ai-hl-2026-may-tz3-p1-q16.a"
+   ],
+   "stats": {
+    "parts": 12,
+    "paper": {
+     "p1": 12,
+     "p2": 0
+    },
+    "calculator": {
+     "without": 0,
+     "with": 12
+    },
+    "section": {
+     "A": 0,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "1.12": 10,
+     "1.13": 1,
+     "1.3": 1
     }
    }
   }

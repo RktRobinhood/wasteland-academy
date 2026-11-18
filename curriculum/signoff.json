@@ -848,6 +848,28 @@
    "note": "FAL-999 author's read on building the type: one question per unknown, representation and method (prompt, options and the wrong options' feedback, worked steps), against tools/check-answers. Every cell read once; not every seed."
   },
   {
+   "situation": "complex-number",
+   "types": [
+    "t1-ahl-complex-cartesian"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1004",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1004) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
+   "situation": "complex-number-ai",
+   "types": [
+    "t1-ai-complex-cartesian"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1004",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1004) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
    "situation": "quadratic-model",
    "types": [
     "fn-ext-quadratic-model"
