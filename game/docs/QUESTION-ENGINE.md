@@ -549,6 +549,29 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `test_ai_optimisation.gd`.
 
 <!-- R2-TRAPEZOIDAL -->
+- `engine/situations/trapezoidal.gd` (FAL-1000) is `trapezoidal`, for `t5-ai-trapezoidal` (AI-SL5.8.trapezoid-from-function,
+  trapezoid-from-data, compare-with-exact, over-or-under-estimate, find-missing-value): 9 unknowns over 33 cells, all Paper 2. A
+  function is a quadratic, cubic, m√(x + c), m e^(kx) or m/(x + c) on [a, b] with 3 to 6 strips of a tidy width (0.2 to 2),
+  positive and bending one way only (f″ keeps its sign, and the estimate is at least 0.2% off), so over or under is clear; the
+  exact value is worked from an antiderivative. Measurements are 5 to 7 widths or depths of a salvage field, a toxic lake
+  between dams or a flooded canal, a rover's speeds, a pump's flow rates or a channel's depths, every h, whole or to 1 d.p.
+  Its views (`trapezoidal_views.gd`) ask the strip width (from n or from a table's x-values), the estimate from y = f(x), from
+  the curve drawn with its n trapezia (GraphView `curves` and `shade`: the tops and sides as sand polylines, the trapezia shaded,
+  no change to the view) or from a table with p and q to work out (polynomials only, so every height ends), the area from a
+  table or from the shape drawn with each width labelled at its distance (`x_ticks`, labels with `name`), a distance, volume or
+  channel flow from rates in a table, in words or as dots on whole grid lines of a speed graph (whole speeds; a total that ends
+  is exact), the percentage error against the GDC's integral, how to improve the estimate and whether it is over or under (each
+  a `claim`), which of four cards the rule under- or overestimates (pick the graph: the right card bends the needed way; the
+  slope slip's card bends the other way with the slope that slip reads as the target, rising for over and falling for under,
+  and the right card has the other slope, so that slip never picks it; then a line, and one bending the other way with the
+  right card's slope), and a missing height k from a given estimate (exact). Methods: the formula, strip by strip, the GDC's lists with weights {1, 2, …, 2, 1}, the GDC's
+  integral, the percentage-error formula, the chords (f″'s sign, or the drawn curve) and the comparison with the GDC, a linear
+  equation and the solver. Wrong options are the five skills' slips (h from n + 1, no doubling, no half, the x-values as
+  heights, minutes left in a per-second rate (60 times too small), the ends doubled (both ends, for an end k too), over the estimate, the signed error, more
+  strips worse, deciding from the rise, always over, an error for a line, an inner k counted once, the h/2 left out) and the
+  type's own (the strip width makes no difference). `r2tr_check` in the SymPy checker reads f, the limits and n, the table,
+  the words or the figure (the drawn widths and dots) back, works the estimate, the integral (SymPy), the bend and every slip
+  out again exactly, and checks the working's figures. `test_trapezoidal.gd`.
 - `engine/situations/log_exp_form.gd` (FAL-753) is `t1-log-exp-form` (SL1.5.exp-log-form and
   SL1.5.log-context), the `log-exp-form` situation: 25 unknowns over 73 cells. Paper 1 changes a fact
   between log and exponential form, evaluates a log exactly, solves for the number, the bracket, the
