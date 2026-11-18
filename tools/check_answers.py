@@ -30,7 +30,7 @@ import math
 import re
 import sys
 from collections import defaultdict
-from decimal import ROUND_HALF_UP, Context, Decimal
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Context, Decimal
 from functools import lru_cache
 from itertools import combinations, permutations, product
 from pathlib import Path
@@ -4539,7 +4539,9 @@ def check_expand(q):
         need(L[0] == f"(x + r)² = {qr_poly([1, b, 0])} + c", "the identity shown is not the givens")
         r = b / 2
         need(r.q == 1 and r != 0 and abs(r) <= EXP_LIMIT, "r is not a small whole number")
-        qr_check_common(q, qr_norm(ans, {"v0": str(r), "v1": str(r**2)}))
+        # r taken as b (#10), r doubled for c (#7), r's sign wrong (#11).
+        nv = lambda v0, v1: qr_norm(ans, {"v0": str(v0), "v1": str(v1)})
+        qr_check_common(q, nv(r, r**2), {f"{T}#10": {nv(b, b**2)}, f"{T}#7": {nv(r, 2 * r)}, f"{T}#11": {nv(-r, r**2)}})
         return None, None
     k, r, s_, d = (R(g[n]) for n in ["k", "r", "s", "d"])
     for n, v in (("k", k), ("r", r), ("s", s_)):
@@ -4555,15 +4557,39 @@ def check_expand(q):
     def shape(c):
         return qr_norm(ans, ext_poly_values(ans, {p: v for p, v in c.items() if v != 0} | {p: 0 for p in full if p not in c}))
     wr = {}
+    # A product's sign wrong (#2) is confirmed only where a negative goes into it.
+    neg = lambda *vs: any(v < 0 for v in vs)
+    sign = set()
+    if form == "single":
+        wr[f"{T}#4"] = {shape({2: k, 1: r}), shape({2: 1, 1: k * r})}
+        if neg(k, r):
+            sign.add(shape({2: k, 1: -k * r}))
     if form == "double":
-        wr[f"{T}#2"] = {shape({2: 1, 1: -(r + s_), 0: r * s_})}
+        sign.add(shape({2: 1, 1: -(r + s_), 0: r * s_}))
+        if neg(r, s_):
+            sign.add(shape({2: 1, 1: r + s_, 0: -r * s_}))
+        wr[f"{T}#5"] = {shape({2: 1, 1: 0, 0: r * s_})}
     if form == "square":
         wr[f"{T}#0"] = {shape({2: 1, 1: 0, 0: r**2})}
+        wr[f"{T}#6"] = {shape({2: 1, 1: r, 0: r**2})}
+        wr[f"{T}#7"] = {shape({2: 1, 1: 2 * r, 0: 2 * r})}
+        if neg(r):
+            sign |= {shape({2: 1, 1: 2 * r, 0: -r**2}), shape({2: 1, 1: -2 * r, 0: r**2})}
     if form == "scaled":
         wr[f"{T}#1"] = {shape({2: k, 1: r + s_, 0: r * s_})}
+        wr[f"{T}#8"] = {shape({2: k, 1: k * (r + s_), 0: r * s_}), shape({2: k, 1: r + s_, 0: k * r * s_})}
+        if neg(k, r, s_):
+            sign |= {shape({2: k, 1: -k * (r + s_), 0: k * r * s_}), shape({2: k, 1: k * (r + s_), 0: -k * r * s_})}
     if form == "vertex":
         wr[f"{T}#0"] = {shape({2: k, 1: 0, 0: k * r**2 + d})}
         wr[f"{T}#3"] = {shape({2: k, 1: 2 * k * r, 0: k * (r**2 + d)})}
+        wr[f"{T}#6"] = {shape({2: k, 1: k * r, 0: k * r**2 + d})}
+        wr[f"{T}#8"] = {shape({2: k, 1: 2 * k * r, 0: r**2 + d})}
+        wr[f"{T}#9"] = {shape({2: k, 1: 2 * k * r, 0: k * r**2})}
+        if neg(k, r):
+            sign.add(shape({2: k, 1: -2 * k * r, 0: k * r**2 + d}))
+    if sign:
+        wr[f"{T}#2"] = sign
     if q["view"]["rep"] == "graph":
         t = q["table"]["rows"]
         sgn = lambda v: ("+" if v > 0 else "−") + frac_text(abs(v))
@@ -4730,31 +4756,46 @@ def check_surds(q):
         need(m.q == 1 and m > 1 and not sp.isprime(m), "the square factor's root is not a composite whole number")
         f = sp.divisors(m)[1]
         wr[f"{T}#2"] = {qr_norm(ans, {"m": str(f), "r": str(n / f**2)})}
+        # The square factor taken out unrooted (#3): m²√r.
+        wr[f"{T}#3"] = {qr_norm(ans, {"m": str(m**2), "r": str(r)})}
         qr_check_common(q, sv(sp.sqrt(n)), wr)
     elif u == "add-like-surds":
         n1, n2 = R(g["n1"]), R(g["n2"])
         need(L[0] == f"√{n1} + √{n2}", "the sum shown is not the givens")
         need(surd_parts(sp.sqrt(n1))[1] == surd_parts(sp.sqrt(n2))[1] and n1 != n2, "not two different multiples of one surd")
-        wr[f"{T}#0"] = {sv(sp.sqrt(n1 + n2))}
+        # The sum under one root (#0), simplified or not; the numbers in front multiplied (#4);
+        # the roots added too, so √r + √r = √(2r) (#5).
+        (a1, r), (a2, _) = surd_parts(sp.sqrt(n1)), surd_parts(sp.sqrt(n2))
+        wr[f"{T}#0"] = {sv(sp.sqrt(n1 + n2)), qr_norm(ans, {"m": "1", "r": str(n1 + n2)})}
+        wr[f"{T}#4"] = {qr_norm(ans, {"m": str(a1 * a2), "r": str(r)})}
+        wr[f"{T}#5"] = {qr_norm(ans, {"m": str(a1 + a2), "r": str(2 * r)})}
         qr_check_common(q, sv(sp.sqrt(n1) + sp.sqrt(n2)), wr)
     elif u == "multiply-surds":
         m_, n_ = R(g["m"]), R(g["n"])
         need(L[0] == f"√{m_} × √{n_}", "the product shown is not the givens")
         need(not sp.sqrt(m_).is_integer and not sp.sqrt(n_).is_integer, "one of the roots is a whole number")
-        qr_check_common(q, sv(sp.sqrt(m_) * sp.sqrt(n_)))
+        # The numbers under the roots added (#6); the square factor of √(mn) unrooted (#3).
+        mm, r = surd_parts(sp.sqrt(m_ * n_))
+        wr[f"{T}#6"] = {qr_norm(ans, {"m": "1", "r": str(m_ + n_)})}
+        wr[f"{T}#3"] = {qr_norm(ans, {"m": str(mm**2), "r": str(r)})}
+        qr_check_common(q, sv(sp.sqrt(m_) * sp.sqrt(n_)), wr)
     elif u == "formula-fraction":
         m0, n, d = R(g["m0"]), R(g["n"]), R(g["d"])
         need(L[0] == f"({frac_text(m0)} ± √{n})/{d}", "the fraction shown is not the givens")
         h = m0 / d
         m, r = surd_parts(sp.sqrt(n) / d)
         need(h.q == 1 and m.q == 1, "the fraction doesn't simplify to whole numbers")
-        wr[f"{T}#1"] = {qr_norm(ans, {"h": str(m0), "m": str(m), "r": str(r)})}
+        # Only one term divided (#1): the whole number, or the surd, left undivided.
+        wr[f"{T}#1"] = {qr_norm(ans, {"h": str(m0), "m": str(m), "r": str(r)}), qr_norm(ans, {"h": str(h), "m": str(m * d), "r": str(r)})}
         qr_check_common(q, qr_norm(ans, {"h": str(h), "m": str(m), "r": str(r)}), wr)
     elif u == "surd-to-root":
         a, b = R(g["a"]), R(g["b"])
         need(L[0] == qr_surd(a, b) and surd_parts(a * sp.sqrt(b)) == (a, b), "the surd shown is not in simplest form")
         need(ans.get("exact"), "the whole number under the root must be marked exactly")
-        qr_check_common(q, qr_norm(ans, {"v": str(a**2 * b)}))
+        # The number in front moved under the root unsquared (#7), or doubled (#8).
+        wr[f"{T}#7"] = {qr_norm(ans, {"v": str(a * b)})}
+        wr[f"{T}#8"] = {qr_norm(ans, {"v": str(2 * a * b)})}
+        qr_check_common(q, qr_norm(ans, {"v": str(a**2 * b)}), wr)
     else:
         raise Fail(f"the checker has no solver for {u}")
     # Every option is a different value or a different form: none may equal the answer
@@ -4843,9 +4884,13 @@ def check_lineq(q):
         swapped = sp.Interval(lo, hi, not opens.get(lo, False) if lo.is_finite else True, not opens.get(hi, False) if hi.is_finite else True)
         if ans["kind"] == "bound":
             wr[f"{T}#1"] = {swapped}
+            # The shading read the wrong way (#6): the other side of the same circle.
+            v = lo if lo.is_finite else hi
+            wr[f"{T}#6"] = {sp.Interval(-sp.oo, v, True, opens[v]) if lo.is_finite else sp.Interval(v, sp.oo, opens[v], True)}
             qr_check_common(q, S, wr)
         else:
-            wr[f"{T}#1"] = {li_range2(swapped)}
+            # Either circle misread, or both (#1).
+            wr[f"{T}#1"] = {li_range2(swapped), li_range2(sp.Interval(lo, hi, not opens[lo], opens[hi])), li_range2(sp.Interval(lo, hi, opens[lo], not opens[hi]))}
             qr_check_common(q, li_range2(S), wr)
         return None, None
     a, b = R(g["a"]), R(g["b"])
@@ -4860,6 +4905,11 @@ def check_lineq(q):
         S = li_set(LI_REL[rel](e, c))
         if a < 0:
             wr[f"{T}#0"] = {li_set(LI_REL[rel](X, (c - b) / a))}
+        else:
+            # The sign turned round for a positive divisor (#3).
+            wr[f"{T}#3"] = {li_set(LI_REL[LI_FLIP[rel]](X, (c - b) / a))}
+        # b moved across with its sign kept (#4): ax rel c + b, solved properly from there.
+        wr[f"{T}#4"] = {li_set(LI_REL[rel](a * X, c + b))}
         qr_check_common(q, S, wr)
         return None, None
     c1, c2, rel1, rel2 = R(g["c1"]), R(g["c2"]), g["rel1"], g["rel2"]
@@ -4876,12 +4926,18 @@ def check_lineq(q):
         need(2 <= n <= 12, f"{n} whole numbers")
         need(not (S.start.is_integer and S.end.is_integer), "both ends are whole numbers")
         need(ans.get("exact"), "a count must be marked exactly")
-        qr_check_common(q, qr_norm(ans, {"v": str(n)}))
+        # The last whole number take the first, with no + 1 (#7).
+        ints = [k for k in range(int(sp.floor(S.start)) - 1, int(sp.ceiling(S.end)) + 2) if sp.Integer(k) in S]
+        qr_check_common(q, qr_norm(ans, {"v": str(n)}), {f"{T}#7": {qr_norm(ans, {"v": str(ints[-1] - ints[0])})}})
         return None, None
     # two-sided
     if a < 0:
         wr[f"{T}#0"] = {((c1 - b) / a, rel1, rel2, (c2 - b) / a)}
     wr[f"{T}#2"] = {li_range2(li_set(LI_REL[rel1](c1, a * X)).intersect(li_set(LI_REL[rel2](a * X, c2))))}
+    if a < 0:
+        # The ends put in order but the signs left as written (#5).
+        lo_, _, _, hi_ = li_range2(S)
+        wr[f"{T}#5"] = {(lo_, rel1, rel2, hi_)}
     qr_check_common(q, li_range2(S), wr)
     return None, None
 
@@ -8240,12 +8296,13 @@ def check_gdc_inequality(q):
 GR_T = "fn-pre-graph-reading#"
 
 
-def gr_round(text, places=None, sf=None):
+def gr_round(text, places=None, sf=None, mode=ROUND_HALF_UP):
     """text rounded half up, written with the figures it was rounded to, zeros kept
-    (FAL-1051): 0.007296 to 3 s.f. is 0.00730, 2.2963 to 2 d.p. is 2.30."""
+    (FAL-1051): 0.007296 to 3 s.f. is 0.00730, 2.2963 to 2 d.p. is 2.30. mode=ROUND_DOWN
+    cuts it off instead (sf only)."""
     d = Decimal(text.replace("−", "-"))
     if sf is not None:
-        r = Context(prec=sf, rounding=ROUND_HALF_UP).plus(d)
+        r = Context(prec=sf, rounding=mode).plus(d)
     else:
         r = d.quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP)
     return format(r, "f").replace("-", "−")
@@ -8261,12 +8318,15 @@ def check_graph_reading(q):
         x, y = int(p[0]["x"]), int(p[0]["y"])
         want = f"({frac_text(x)}, {frac_text(y)})"
         wr[GR_T + "1"] = {f"({frac_text(y)}, {frac_text(x)})"}
+        # A negative coordinate read as positive (#5).
+        wr[GR_T + "5"] = {f"({frac_text(abs(x))}, {frac_text(y)})", f"({frac_text(x)}, {frac_text(abs(y))})"} - {want}
     elif u == "read-with-scale":
         sc = int(re.search(r"Each grid square on the y-axis is (\d+) units", asked).group(1))
         n = int(re.search(r"The point is (\d+) squares above", L[0]).group(1))
         need(abs(q["graph"]["points"][0]["y"] - n * sc) < 1e-9, "the point drawn is not at that height")
         want = f"y = {n * sc}"
         wr[GR_T + "0"] = {f"y = {n}"}
+        wr[GR_T + "6"] = {f"y = {n + sc}"}
     elif u == "plot-from-table":
         t = q["table"]
         pts = sorted((int(R(x)), int(R(y))) for x, y in zip(t["xs"], t["ys"]))
@@ -8282,16 +8342,31 @@ def check_graph_reading(q):
     elif u in ("round-3sf", "round-small-3sf"):
         v = re.search(r"Write (.+?) correct to 3 significant figures\.", asked).group(1)
         want = gr_round(v, sf=3)
+        wr[GR_T + "4"] = {gr_round(v, sf=2)}
         if u == "round-3sf":
-            wr[GR_T + "4"] = {gr_round(v, sf=2)}
+            # Cut off after 3 figures (#7), or a 4th figure kept (#8).
+            wr[GR_T + "7"] = {gr_round(v, sf=3, mode=ROUND_DOWN)}
+            wr[GR_T + "8"] = {gr_round(v, sf=4)}
         else:
             wr[GR_T + "2"] = {gr_round(v, places=3)}
+            # A zero after the point lost (#9): the answer's figures, ten times too big.
+            wr[GR_T + "9"] = {gr_round(str(Decimal(want) * 10), sf=3)}
     elif u == "round-dp":
         m = re.search(r"Write (.+?) correct to (\d) decimal places?\.", asked)
-        want = gr_round(m.group(1), places=int(m.group(2)))
+        n = int(m.group(2))
+        want = gr_round(m.group(1), places=n)
+        # One place too many (#8); n s.f. for n d.p. (#2).
+        wr[GR_T + "8"] = {gr_round(m.group(1), places=n + 1)}
+        wr[GR_T + "2"] = {gr_round(m.group(1), sf=n)}
     elif u == "which-values-round":
         b = sp.Rational(re.search(r"A value x is (.+?), correct to 3 significant figures", asked).group(1).replace("−", "-"))
-        want = f"{dec_text(b - sp.Rational(1, 200))} ≤ x < {dec_text(b + sp.Rational(1, 200))}"
+        h, one = sp.Rational(1, 200), sp.Rational(1, 100)
+        want = f"{dec_text(b - h)} ≤ x < {dec_text(b + h)}"
+        # The upper bound included (#10), a whole unit either side (#11), the value as a
+        # cut-off start (#12).
+        wr[GR_T + "10"] = {f"{dec_text(b - h)} ≤ x ≤ {dec_text(b + h)}"}
+        wr[GR_T + "11"] = {f"{dec_text(b - one)} ≤ x < {dec_text(b + one)}"}
+        wr[GR_T + "12"] = {f"{dec_text(b)} ≤ x < {dec_text(b + one)}"}
     else:
         raise Fail(f"no check for {u}")
     if u.startswith("round-"):
@@ -11889,7 +11964,11 @@ def check_algfrac(q):
         h = sp.nsimplify(h[0])
         need(sp.simplify(t.subs(X, h)) != 0, "the top is zero where the bottom is")
         want = f"x ≠ {ft(h)}, because the bottom would be 0"
-        wr = {AF + "3": {AF_ZERO_WORDS}}
+        # The top set to zero (#4), and the bottom's zero with its sign flipped (#5).
+        top0 = sp.solve(t, X)
+        need(len(top0) == 1, "the top has one zero")
+        wr = {AF + "3": {AF_ZERO_WORDS}, AF + "4": {f"x ≠ {ft(sp.nsimplify(top0[0]))}, because the top would be 0"},
+              AF + "5": {f"x ≠ {ft(-h)}, because the bottom would be 0"}}
         gc_check_common(q, want, wr)
     elif u == "simplify-by-cancelling":
         top, bot = af_split_frac(L[0])
@@ -11904,14 +11983,20 @@ def check_algfrac(q):
             need(sp.Poly(t, X).degree() == 1 and sp.Poly(b, X).degree() == 1, "a cancel that is not one bracket over one bracket")
             a_, b_ = sp.Poly(t, X).all_coeffs()[1], sp.Poly(b, X).all_coeffs()[1]
             need(a_ != b_, "the brackets are the same")
-            wr = {AF + "0": {f"{ft(sp.Rational(a_, b_))} (x ≠ {ft(h)})"}}
+            wr = {AF + "0": {f"{ft(sp.Rational(a_, b_))} (x ≠ {ft(h)})"},
+                  AF + "4": {f"it cannot be simplified (x ≠ {ft(sp.nsimplify(sp.solve(t, X)[0]))})"}}
             for o in q["choices"]:
                 need(re.search(r" \(x ≠ [^)]+\)$", o["text"]) is not None, f"option {o['text']!r} gives no excluded value")
         else:
             need(common == 1, "more than one common factor")
             want = f"{af_poly_text(sp.cancel(t / b))} (x ≠ {ft(h)})"
             need(sp.Poly(sp.fraction(sp.cancel(t / b))[1], X).degree() == 0, "the simplest form still has x in the bottom")
-            wr = {}
+            # The excluded value's sign flipped (#5); for a factorised top, the bracket that
+            # cancels kept, with the zero of the one that is left (#6).
+            wr = {AF + "5": {f"{af_poly_text(sp.cancel(t / b))} (x ≠ {ft(-h)})"}}
+            left = sp.cancel(t / b)
+            if sp.Poly(left, X).degree() == 1:
+                wr[AF + "6"] = {f"{af_poly_text(b)} (x ≠ {ft(sp.nsimplify(sp.solve(left, X)[0]))})"}
         gc_check_common(q, want, wr)
     elif u == "add-fractions":
         m = re.fullmatch(r"(−?\d+)/\((.+?)\) \+ (−?\d+)/\((.+?)\)", L[0])
@@ -11931,7 +12016,9 @@ def check_algfrac(q):
                     need(not af_same(af_expr(o["text"]), f), f"a wrong option {o['text']!r} is the sum")
                 except ZeroDivisionError:
                     pass
-        gc_check_common(q, want, {AF + "1": {wrong_sum}})
+        # Each top times its own bottom (#7): p(x + a) + q(x + b).
+        own = af_expr(m.group(1)) * af_expr(m.group(2)) + af_expr(m.group(3)) * af_expr(m.group(4))
+        gc_check_common(q, want, {AF + "1": {wrong_sum}, AF + "7": {f"{af_wrap(af_poly_text(own))}/{bot}"}})
     elif u == "clear-and-solve":
         m = re.fullmatch(r"(−?\d+)(?: ([+−]) (\d+))?/\((.+?)\) = (−?\d+)", L[0].replace(" + ", " + ", 1))
         m = re.fullmatch(r"(−?\d+) ([+−]) (\d+)/\((.+?)\) = (−?\d+)", L[0])
@@ -11946,7 +12033,9 @@ def check_algfrac(q):
         need(a + k / bracket.subs(X, x) == c, "the solution doesn't satisfy the equation")
         wrong_x = sp.nsimplify(sp.solve(sp.Eq(a + k, c * bracket), X)[0])
         need(wrong_x != x, "the slip gives the right answer")
-        gc_check_common(q, f"x = {ft(x)}", {AF + "2": {f"x = {ft(wrong_x)}"}})
+        # The zero of the bottom given as the solution (#8).
+        zero = sp.nsimplify(sp.solve(bracket, X)[0])
+        gc_check_common(q, f"x = {ft(x)}", {AF + "2": {f"x = {ft(wrong_x)}"}, AF + "8": {f"x = {ft(zero)}"}})
     elif u == "missing-numerator":
         m = re.fullmatch(r"Fill in the numerator: (.+?) = \(□\)/\((.+?)\)\.", asked)
         need(m is not None, f"can't read {asked!r}")
@@ -11957,7 +12046,15 @@ def check_algfrac(q):
         for o in q["choices"]:
             if not o["correct"]:
                 need(not af_same(af_expr(o["text"]) / bot, top), f"a wrong option {o['text']!r} is the numerator")
-        gc_check_common(q, want, {})
+        # a + k/(x − h): the whole number not over the bottom (#9), a(x − h) as ax (#10), with
+        # the sign of ah flipped (#11), or as ax − h (#12).
+        f = re.fullmatch(r"(−?\d+) ([+−]) (\d+)/\((.+?)\)", m.group(1))
+        need(f is not None, f"can't read {m.group(1)!r}")
+        a = int(f.group(1).replace("−", "-"))
+        k = int(f.group(3)) * (1 if f.group(2) == "+" else -1)
+        h = sp.nsimplify(sp.solve(af_expr(f.group(4)), X)[0])
+        gc_check_common(q, want, {AF + "9": {ft(a + k)}, AF + "10": {af_poly_text(a * X + k)}, AF + "11": {af_poly_text(a * X + k + a * h)},
+                                  AF + "12": {af_poly_text(a * X + k - h)}})
     else:
         raise Fail(f"no check for {u}")
     return None, None
@@ -15862,7 +15959,8 @@ def check_line_model(q):
 # of the question fits it, which a linear equation can only do if it is the same equation.
 
 LEQ = "fn-pre-linear-equations#"
-LEQ_BRACKET, LEQ_SIGN, LEQ_FRACTION, LEQ_DIVIDE = (LEQ + str(i) for i in range(4))
+LEQ_BRACKET, LEQ_SIGN, LEQ_FRACTION, LEQ_DIVIDE, LEQ_NO_DIVIDE, LEQ_DIVIDE_FIRST, LEQ_MULTIPLY, LEQ_DROP_MINUS, LEQ_ADD_FRONT, \
+    LEQ_DROP_FRONT = (LEQ + str(i) for i in range(10))
 LEQ_LIM = 9
 LEQ_DEN = 6
 
@@ -15920,6 +16018,8 @@ def check_linear_equation(q):
         x = (c - b) / a
         need(x.q == 1 and x != 0, f"x = {x} is not whole")
         want, wr[LEQ_SIGN] = leq_x(x), {leq_x((c + b) / a)}
+        # The division left out (#4), c divided before b is taken away (#5), multiplied (#6).
+        wr[LEQ_NO_DIVIDE], wr[LEQ_DIVIDE_FIRST], wr[LEQ_MULTIPLY] = {leq_x(c - b)}, {leq_x(c / a - b)}, {leq_x((c - b) * a)}
     elif u == "both-sides":
         left, right = L[0].split(" = ")
         (a, b), (c, d) = leq_side(left), leq_side(right)
@@ -15929,6 +16029,7 @@ def check_linear_equation(q):
         wr[LEQ_SIGN] = {leq_x((d + b) / (a - c))} | ({leq_x((d - b) / (a + c))} if a + c != 0 else set())
         need(x != 0 and abs(x) <= LEQ_LIM and x.q <= LEQ_DEN, f"x = {x}")
         want = leq_x(x)
+        wr[LEQ_NO_DIVIDE] = {leq_x(d - b)}
     elif u == "brackets":
         f = re.fullmatch(r"(−?\d)\(x ([+−]) (\d)\) = (−?\d)\(x ([+−]) (\d)\)", L[0])
         need(f is not None, f"can't read {L[0]!r}")
@@ -15939,6 +16040,8 @@ def check_linear_equation(q):
         need(x != 0 and abs(x) <= LEQ_LIM and x.q <= LEQ_DEN, f"x = {x}")
         want = leq_x(x)
         wr[LEQ_BRACKET] = {leq_x((t - a) / (p - r)), leq_x((r * t - a) / (p - r))}
+        # The division left out (#4); pa moved across with its sign kept (#1).
+        wr[LEQ_NO_DIVIDE], wr[LEQ_SIGN] = {leq_x(r * t - p * a)}, {leq_x((r * t + p * a) / (p - r))}
     elif u == "fractions":
         shape, p, r, e1, e2 = leq_read_fractions(L[0])
         need(2 <= p <= LEQ_DEN and 2 <= r <= LEQ_DEN and p != r, "the denominators")
@@ -15959,6 +16062,10 @@ def check_linear_equation(q):
         c = k / b
         need(abs(b) >= 2 and c.q == 1 and c != 0 and a != 0, f"c = {c}")
         want, wr[LEQ_DIVIDE] = lc_sl(-a / b, c), {lc_sl(-a / b, k)}
+        # ax carried across unchanged in sign (#1): by = ax + k. Dividing by −b for b < 0 (#7).
+        wr[LEQ_SIGN] = {lc_sl(a / b, c)}
+        if b < 0:
+            wr[LEQ_DROP_MINUS] = {lc_sl(a / b, -c)}
     elif u == "missing-number":
         f = re.fullmatch(r"The solution is x = (−?\d+)\.", L[1])
         need(f is not None and q["asked"] == "Find the missing number.", f"can't read {L[1]!r}")
@@ -15968,13 +16075,20 @@ def check_linear_equation(q):
         if right == "□":
             a, b = leq_side(left)
             v = a * x + b
+            wr[LEQ_ADD_FRONT] = {f"□ = {frac_text(a + x + b)}"}
         elif "□x" in left:
             b = lc_terms(left.replace("□x", "0"))[2]
-            v = (leq_n(right) - b) / x
+            c = leq_n(right)
+            v = (c - b) / x
             need(v.q == 1, f"□ = {v}")
+            # b moved with its sign kept (#1), or the division by x left out (#4).
+            wr[LEQ_SIGN], wr[LEQ_NO_DIVIDE] = {f"□ = {frac_text((c + b) / x)}"}, {f"□ = {frac_text(c - b)}"}
         else:
             a = lc_terms(left.replace(" + □", ""))[0]
-            v = leq_n(right) - a * x
+            c = leq_n(right)
+            v = c - a * x
+            # ax moved with its sign kept (#1), or x put in for ax (#9).
+            wr[LEQ_SIGN], wr[LEQ_DROP_FRONT] = {f"□ = {frac_text(c + a * x)}"}, {f"□ = {frac_text(c - x)}"}
         want = f"□ = {frac_text(v)}"
     else:
         raise Fail(f"no check for {u}")
@@ -16062,6 +16176,14 @@ def check_simultaneous(q):
         p, r = lx_terms(L[0]), lx_terms(L[1])
         need(p[0] * r[1] == r[0] * p[1], "the left sides are not multiples")
         want = SM_MANY if p[0] * r[2] == r[0] * p[2] else SM_NONE
+        # The other count: the right sides not compared (#6), or for the same line, scaled
+        # on the left only (#1); one crossing assumed (#7); the two reasons swapped (#8).
+        wr = {SM + "6": {SM_MANY}, SM + "1": {SM_NONE}, SM + "7": {"Exactly one solution: the two lines cross once"},
+              SM + "8": {"No solution: the two equations are the same line", "Infinitely many solutions: the two lines are parallel"}}
+        if want == SM_MANY:
+            del wr[SM + "6"]
+        else:
+            del wr[SM + "1"]
     elif u == "missing-coefficient":
         f = re.fullmatch(rf"The pair has the solution \(({LC_NUM}), ({LC_NUM})\)\. Find k\.", q["asked"])
         need(f is not None, f"asked {q['asked']!r}")
@@ -16071,8 +16193,14 @@ def check_simultaneous(q):
         left, right = L[0].split(": ")[1].split(" = ")
         need(left.count("k") == 1, f"one k in {left!r}")
         a, b, _ = lc_terms(left.replace("k", "0"))
-        k = (lc_q(right) - a * x) / y if "ky" in left else (lc_q(right) - b * y) / x
+        k1 = lc_q(right)
+        at, off, other = (y, x, a) if "ky" in left else (x, y, b)
+        k = (k1 - other * off) / at
         need(k.q == 1 and k != 0, f"k = {k}")
+        # The known term moved with its sign kept (#9), the division by k's value left out
+        # (#10), x and y put in each other's places (#11).
+        wr = {SM + "9": {f"k = {frac_text((k1 + other * off) / at)}"}, SM + "10": {f"k = {frac_text(k1 - other * off)}"},
+              SM + "11": {f"k = {frac_text((k1 - other * at) / off)}"}}
         want = f"k = {frac_text(k)}"
     else:
         p, r = sm_word(q) if u == "word-problem" else (lx_terms(L[0]), lx_terms(L[1]))
@@ -16081,6 +16209,11 @@ def check_simultaneous(q):
         need(x.q == 1 and y.q == 1 and x != 0 and y != 0, f"the pair ({x}, {y}) is not whole and nonzero")
         want = sm_pair(x, y)
         stop = {f"x = {frac_text(x)}"}
+        # The pair as (y, x) (#4); the sign of the value found second wrong (#5): y after x
+        # in matching-coefficient, x after y when x is eliminated.
+        wr[SM + "4"] = {sm_pair(y, x)}
+        if u != "word-problem":
+            wr[SM + "5"] = {sm_pair(x, -y) if u == "matching-coefficient" else sm_pair(-x, y)}
         if u == "matching-coefficient":
             need(p[1] == 1 and abs(r[1]) == 1, "the y terms don't match")
             if r[1] == 1:

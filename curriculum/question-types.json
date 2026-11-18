@@ -74764,7 +74764,11 @@
      "text": "Gets the sign of a product wrong",
      "as": "distractor",
      "in": [
-      "double-bracket"
+      "double-bracket",
+      "single-bracket",
+      "perfect-square",
+      "scaled-product",
+      "vertex-form-expand"
      ],
      "wrong": "middle term with the wrong sign"
     },
@@ -74775,6 +74779,73 @@
       "vertex-form-expand"
      ],
      "wrong": "constant term k(r² + d)"
+    },
+    {
+     "text": "Multiplies a bracket term by the x in front but leaves out the number in front",
+     "as": "distractor",
+     "in": [
+      "single-bracket"
+     ],
+     "wrong": "one term missing the number in front"
+    },
+    {
+     "text": "Multiplies only the first terms and the last terms, so the x terms are missing",
+     "as": "distractor",
+     "in": [
+      "double-bracket"
+     ],
+     "wrong": "x² and the constant, with no x term"
+    },
+    {
+     "text": "Forgets to double the middle term of a square",
+     "as": "distractor",
+     "in": [
+      "perfect-square",
+      "vertex-form-expand"
+     ],
+     "wrong": "rx where 2rx belongs"
+    },
+    {
+     "text": "Doubles the number in the bracket instead of squaring it for the constant",
+     "as": "distractor",
+     "in": [
+      "perfect-square",
+      "missing-term"
+     ],
+     "wrong": "2r where r² belongs"
+    },
+    {
+     "text": "Multiplies the factor in front into some of the terms but not all of them",
+     "as": "distractor",
+     "in": [
+      "scaled-product",
+      "vertex-form-expand"
+     ],
+     "wrong": "one term left unscaled"
+    },
+    {
+     "text": "Forgets the number added after the bracket",
+     "as": "distractor",
+     "in": [
+      "vertex-form-expand"
+     ],
+     "wrong": "the constant d left off"
+    },
+    {
+     "text": "Takes r as the whole x coefficient instead of half of it",
+     "as": "distractor",
+     "in": [
+      "missing-term"
+     ],
+     "wrong": "r equal to the x coefficient, and c its square"
+    },
+    {
+     "text": "Gets the sign of r wrong when halving the x coefficient",
+     "as": "distractor",
+     "in": [
+      "missing-term"
+     ],
+     "wrong": "r with the wrong sign"
     }
    ]
   },
@@ -75286,6 +75357,55 @@
       "simplify-root"
      ],
      "wrong": "a square factor left inside"
+    },
+    {
+     "text": "Takes the square factor outside the root without square-rooting it",
+     "as": "distractor",
+     "in": [
+      "simplify-root",
+      "multiply-surds"
+     ],
+     "wrong": "the square factor itself in front of the root"
+    },
+    {
+     "text": "Multiplies the numbers in front instead of adding them",
+     "as": "distractor",
+     "in": [
+      "add-like-surds"
+     ],
+     "wrong": "the product of the numbers in front"
+    },
+    {
+     "text": "Adds the roots themselves as well as the numbers in front of them",
+     "as": "distractor",
+     "in": [
+      "add-like-surds"
+     ],
+     "wrong": "the number under the root doubled"
+    },
+    {
+     "text": "Adds the numbers under the roots instead of multiplying them",
+     "as": "distractor",
+     "in": [
+      "multiply-surds"
+     ],
+     "wrong": "the root of the sum"
+    },
+    {
+     "text": "Moves the number in front under the root without squaring it",
+     "as": "distractor",
+     "in": [
+      "surd-to-root"
+     ],
+     "wrong": "the number in front times the number under the root"
+    },
+    {
+     "text": "Doubles the number in front instead of squaring it",
+     "as": "distractor",
+     "in": [
+      "surd-to-root"
+     ],
+     "wrong": "twice the number in front, times the number under the root"
     }
    ]
   },
@@ -75469,6 +75589,46 @@
       "two-sided"
      ],
      "wrong": "the outer numbers left unchanged"
+    },
+    {
+     "text": "Flips the inequality sign when dividing by a positive number",
+     "as": "distractor",
+     "in": [
+      "one-sided"
+     ],
+     "wrong": "the right boundary with the wrong direction"
+    },
+    {
+     "text": "Moves the number to the other side without changing its sign",
+     "as": "distractor",
+     "in": [
+      "one-sided"
+     ],
+     "wrong": "the boundary with the number's sign kept"
+    },
+    {
+     "text": "Swaps the ends after dividing by a negative but leaves the signs where they were",
+     "as": "distractor",
+     "in": [
+      "two-sided"
+     ],
+     "wrong": "the right ends with the two signs in the wrong places"
+    },
+    {
+     "text": "Reads the shading the wrong way, so the inequality points the other way",
+     "as": "distractor",
+     "in": [
+      "read-number-line"
+     ],
+     "wrong": "the right boundary with the wrong direction"
+    },
+    {
+     "text": "Takes the first whole number from the last without adding 1",
+     "as": "distractor",
+     "in": [
+      "count-integers"
+     ],
+     "wrong": "one fewer than the count"
     }
    ]
   },
@@ -77441,7 +77601,8 @@
      "text": "Mixes up significant figures and decimal places",
      "as": "distractor",
      "in": [
-      "round-small-3sf"
+      "round-small-3sf",
+      "round-dp"
      ],
      "wrong": "the value to 3 d.p., 0.005, instead of 0.00457"
     },
@@ -77457,9 +77618,75 @@
      "text": "Gives too few significant figures, such as dropping a needed final zero",
      "as": "distractor",
      "in": [
-      "round-3sf"
+      "round-3sf",
+      "round-small-3sf"
      ],
      "wrong": "1.5, which is only 2 s.f."
+    },
+    {
+     "text": "Counts squares left of or below the origin as positive",
+     "as": "distractor",
+     "in": [
+      "read-coordinates"
+     ],
+     "wrong": "a negative coordinate given as positive"
+    },
+    {
+     "text": "Adds the scale to the number of squares instead of multiplying",
+     "as": "distractor",
+     "in": [
+      "read-with-scale"
+     ],
+     "wrong": "the squares plus the scale"
+    },
+    {
+     "text": "Drops the figures after the last one kept, without rounding",
+     "as": "distractor",
+     "in": [
+      "round-3sf"
+     ],
+     "wrong": "the number truncated, not rounded"
+    },
+    {
+     "text": "Keeps one more figure than the question asks for",
+     "as": "distractor",
+     "in": [
+      "round-3sf",
+      "round-dp"
+     ],
+     "wrong": "one figure too many"
+    },
+    {
+     "text": "Drops one of the zeros after the decimal point",
+     "as": "distractor",
+     "in": [
+      "round-small-3sf"
+     ],
+     "wrong": "the right figures, ten times too big"
+    },
+    {
+     "text": "Includes the upper bound, though a value there rounds up to the next value",
+     "as": "distractor",
+     "in": [
+      "which-values-round"
+     ],
+     "wrong": "≤ at both ends"
+    },
+    {
+     "text": "Uses a whole unit of the last figure either side instead of half a unit",
+     "as": "distractor",
+     "in": [
+      "which-values-round"
+     ],
+     "wrong": "the interval twice as wide"
+    },
+    {
+     "text": "Treats the value as cut off rather than rounded, so the interval starts at it",
+     "as": "distractor",
+     "in": [
+      "which-values-round"
+     ],
+     "wrong": "the value up to one unit above it"
     }
    ]
   },
@@ -79118,6 +79345,80 @@
       "excluded-value"
      ],
      "wrong": "\"none: 6/0 = 0\""
+    },
+    {
+     "text": "Sets the top equal to zero instead of the bottom",
+     "as": "distractor",
+     "in": [
+      "excluded-value",
+      "simplify-by-cancelling"
+     ],
+     "wrong": "the value that makes the top 0"
+    },
+    {
+     "text": "Gets the sign wrong when finding where the bottom is zero",
+     "as": "distractor",
+     "in": [
+      "excluded-value",
+      "simplify-by-cancelling"
+     ],
+     "wrong": "the excluded value with its sign flipped"
+    },
+    {
+     "text": "Cancels the wrong bracket, keeping the one that is also on the bottom",
+     "as": "distractor",
+     "in": [
+      "simplify-by-cancelling"
+     ],
+     "wrong": "the cancelled bracket left as the answer"
+    },
+    {
+     "text": "Multiplies each top by its own bottom instead of by the other fraction's bottom",
+     "as": "distractor",
+     "in": [
+      "add-fractions"
+     ],
+     "wrong": "p(x + a) + q(x + b) on the top"
+    },
+    {
+     "text": "Gives the value where the bottom is zero, the one value x can never take",
+     "as": "distractor",
+     "in": [
+      "clear-and-solve"
+     ],
+     "wrong": "the value that makes the bottom 0"
+    },
+    {
+     "text": "Adds the whole number to the top without first writing it over the bottom",
+     "as": "distractor",
+     "in": [
+      "missing-numerator"
+     ],
+     "wrong": "the whole number and the top added"
+    },
+    {
+     "text": "Multiplies the whole number by x but leaves out the number in the bracket",
+     "as": "distractor",
+     "in": [
+      "missing-numerator"
+     ],
+     "wrong": "ax + k, the bracket's number dropped"
+    },
+    {
+     "text": "Gets a sign wrong when multiplying out the bracket",
+     "as": "distractor",
+     "in": [
+      "missing-numerator"
+     ],
+     "wrong": "the bracket's number with the wrong sign"
+    },
+    {
+     "text": "Multiplies only the x in the bracket by the whole number, not the number after it",
+     "as": "distractor",
+     "in": [
+      "missing-numerator"
+     ],
+     "wrong": "ax + k − h, the bracket's number not multiplied"
     }
    ]
   },
@@ -81055,7 +81356,10 @@
      "as": "distractor",
      "in": [
       "both-sides",
-      "two-step"
+      "two-step",
+      "brackets",
+      "make-y-subject",
+      "missing-number"
      ],
      "wrong": "the number or x term carried across with its sign kept"
     },
@@ -81074,6 +81378,57 @@
       "make-y-subject"
      ],
      "wrong": "the constant left undivided"
+    },
+    {
+     "text": "Forgets the last step, dividing both sides by the number multiplying the unknown",
+     "as": "distractor",
+     "in": [
+      "two-step",
+      "both-sides",
+      "brackets",
+      "missing-number"
+     ],
+     "wrong": "the value before the last division"
+    },
+    {
+     "text": "Divides by the number in front of x first, but leaves the other number undivided",
+     "as": "distractor",
+     "in": [
+      "two-step"
+     ],
+     "wrong": "c/a − b, only the right side divided"
+    },
+    {
+     "text": "Multiplies by the number in front of x instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "two-step"
+     ],
+     "wrong": "the right side times the coefficient"
+    },
+    {
+     "text": "Divides by the y coefficient but drops its minus sign",
+     "as": "distractor",
+     "in": [
+      "make-y-subject"
+     ],
+     "wrong": "both signs wrong, divided by the size of the y coefficient"
+    },
+    {
+     "text": "Adds the number in front of x to the value of x instead of multiplying them",
+     "as": "distractor",
+     "in": [
+      "missing-number"
+     ],
+     "wrong": "a + x in place of ax"
+    },
+    {
+     "text": "Substitutes the value of x but leaves out the number in front of it",
+     "as": "distractor",
+     "in": [
+      "missing-number"
+     ],
+     "wrong": "x in place of ax"
     }
    ]
   },
@@ -81300,7 +81655,8 @@
      "as": "error-spot",
      "in": [
       "scale-one",
-      "scale-both"
+      "scale-both",
+      "special-case"
      ],
      "wrong": "the right-hand side left unscaled"
     },
@@ -81320,6 +81676,75 @@
       "scale-both"
      ],
      "wrong": "a wrong pair that fits one equation but not the other"
+    },
+    {
+     "text": "Writes the pair the wrong way round, as (y, x)",
+     "as": "distractor",
+     "in": [
+      "matching-coefficient",
+      "scale-one",
+      "scale-both",
+      "word-problem"
+     ],
+     "wrong": "x and y swapped"
+    },
+    {
+     "text": "Gets the sign of the second value wrong when substituting back",
+     "as": "distractor",
+     "in": [
+      "matching-coefficient",
+      "scale-one",
+      "scale-both"
+     ],
+     "wrong": "the second value with the wrong sign"
+    },
+    {
+     "text": "Stops once the left sides are multiples, without comparing the right sides",
+     "as": "distractor",
+     "in": [
+      "special-case"
+     ],
+     "wrong": "infinitely many, for parallel lines"
+    },
+    {
+     "text": "Assumes two straight lines always cross at exactly one point",
+     "as": "distractor",
+     "in": [
+      "special-case"
+     ],
+     "wrong": "exactly one solution"
+    },
+    {
+     "text": "Mixes up parallel lines and the same line",
+     "as": "distractor",
+     "in": [
+      "special-case"
+     ],
+     "wrong": "the reason for the other case"
+    },
+    {
+     "text": "Moves the known term across without changing its sign",
+     "as": "distractor",
+     "in": [
+      "missing-coefficient"
+     ],
+     "wrong": "the known term added, not taken away"
+    },
+    {
+     "text": "Forgets to divide by the value that multiplies k",
+     "as": "distractor",
+     "in": [
+      "missing-coefficient"
+     ],
+     "wrong": "k times its value, given as k"
+    },
+    {
+     "text": "Puts the x-value in for y and the y-value in for x",
+     "as": "distractor",
+     "in": [
+      "missing-coefficient"
+     ],
+     "wrong": "the pair substituted the wrong way round"
     }
    ]
   },
