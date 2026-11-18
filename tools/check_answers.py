@@ -48068,6 +48068,420 @@ SPOT_CHECKS["log-technology"] = r1lt_spot
 
 # R2-TRAPEZOIDAL: t5-ai-trapezoidal (trapezoidal), prefix R2TR_ / r2tr_
 
+R2TR_TF = "AI-SL5.8.trapezoid-from-function#"
+R2TR_TD = "AI-SL5.8.trapezoid-from-data#"
+R2TR_CE = "AI-SL5.8.compare-with-exact#"
+R2TR_OU = "AI-SL5.8.over-or-under-estimate#"
+R2TR_MV = "AI-SL5.8.find-missing-value#"
+R2TR_EDGE = sp.Rational(39, 1000)  # the engine's is 0.04
+R2TR_N = r"(−?\d+(?:\.\d+)?)"
+R2TR_WHO = ["Juno", "Ash", "Vex", "Mara", "Rook", "Tess"]
+R2TR_IMPROVE = "Use more strips of smaller width: the chords then follow the curve more closely."
+R2TR_FEWER = "Use fewer, wider strips: each strip adds an error of its own, so fewer strips give a better estimate."
+R2TR_SAME = "Nothing: the strip width makes no difference, since the formula is the same."
+R2TR_ROUND = "Round each height to 1 decimal place first: the bracket is then exact."
+
+
+def r2tr_q(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def r2tr_fn(text):
+    """f(x) as the game writes it: '0.5x² − 2x + 3', '2√(x + 3)', '3e^(−0.4x)', '12/(x + 2)'."""
+    t = text.replace("−", "-").replace("√(", "sqrt(").replace("√x", "sqrt(x)").replace("e^(", "exp(")
+    t = t.replace("x³", "x**3").replace("x²", "x**2")
+    need(re.fullmatch(r"[0-9x+\-*/(). sqrtexp]+", t) is not None, f"can't read the function {text!r}")
+    return sp.nsimplify(parse_expr(t, transformations=TRANSFORMS, local_dict={"x": X, "sqrt": sp.sqrt, "exp": sp.exp}), rational=True)
+
+
+def r2tr_w(x, n=6):
+    """x to n significant figures without the zeros a GDC doesn't show (the engine's Fmt.work)."""
+    t = sig3(x, n)
+    if "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return t.replace("-", "−")
+
+
+def r2tr_clear(x):
+    v = abs(num(x))
+    if v == 0:
+        return False
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= R2TR_EDGE
+
+
+def r2tr_distinct(xs):
+    need(all(r2tr_clear(x) for x in xs), "a value or slip is on a 3 s.f. edge")
+    need(len({gc_s(x) for x in xs}) == len(xs), "two of the values or slips read the same to 3 s.f.")
+
+
+def r2tr_ends(v):
+    """An exact value's option: as it is when it ends, else to 3 s.f."""
+    return sig3(v) if "/" in dec_text(v) else dec_text(v)
+
+
+def r2tr_rule(ys, h, inner=2, ends=1, half=sp.Rational(1, 2)):
+    return half * h * sum(y * (ends if i in (0, len(ys) - 1) else inner) for i, y in enumerate(ys))
+
+
+def r2tr_find(pattern, texts, what):
+    for t in texts:
+        m = re.search(pattern, t)
+        if m:
+            return m
+    raise Fail(f"can't find {what}")
+
+
+def r2tr_bend(fn, a, b):
+    """'up', 'down' or 'line' for f on [a, b]; a bend that changes sign fails."""
+    d2 = sp.simplify(sp.diff(fn, X, 2))
+    if d2 == 0:
+        return "line"
+    f2 = sp.lambdify(X, d2, "mpmath")
+    vals = [f2(mpmath.mpf(a + (b - a) * sp.Rational(i, 60))) for i in range(61)]
+    need(all(v > 0 for v in vals) or all(v < 0 for v in vals), "f″ changes sign on the interval: the estimate is not clearly over or under")
+    return "up" if vals[0] > 0 else "down"
+
+
+def r2tr_slope(fn, a, b):
+    f1 = sp.lambdify(X, sp.diff(fn, X), "mpmath")
+    vals = [f1(mpmath.mpf(a + (b - a) * sp.Rational(i, 60))) for i in range(61)]
+    need(all(v > 0 for v in vals) or all(v < 0 for v in vals), "f turns on the interval")
+    return "rises" if vals[0] > 0 else "falls"
+
+
+def r2tr_function(q):
+    """(f, a, b, n, h, xs, ys, T, I) from what a function question shows."""
+    texts = q["lines"] + [q["asked"]]
+    m = r2tr_find(r"(?:^f\(x\) = |^The graph of y = )(.+?)(?:, for | is shown|$)", texts, "f(x)")
+    fn = r2tr_fn(m.group(1))
+    m = r2tr_find(r"from x = " + R2TR_N + r" to x = " + R2TR_N + r"|for " + R2TR_N + r" ≤ x ≤ " + R2TR_N, texts, "the limits")
+    lims = [g for g in m.groups() if g is not None]
+    m = re.match(r"(.*) (.*)", " ".join(lims))
+    a, b = r2tr_q(m.group(1)), r2tr_q(m.group(2))
+    mn = None
+    for t in texts:
+        mn = re.search(r"using (\d+) strips|the (\d+) trapezia|cut into (\d+) strips", t)
+        if mn:
+            break
+    if mn:
+        n = int(next(g for g in mn.groups() if g))
+    else:
+        need(q["table"] is not None, "no number of strips")
+        n = len(q["table"]["rows"][0][1]) - 1
+    need(3 <= n <= 6 and b > a, "n is not 3 to 6")
+    h = (b - a) / n
+    need(h in (sp.Rational(1, 2), 1, 2, sp.Rational(1, 4), sp.Rational(1, 5), sp.Rational(2, 5), sp.Rational(3, 2)), f"h = {h} is not a tidy decimal")
+    xs = [a + i * h for i in range(n + 1)]
+    ys = [fn.subs(X, x) for x in xs]
+    need(all(sp.N(y) > sp.Rational(49, 100) for y in ys), "a height is not positive")
+    T = r2tr_rule(ys, h)
+    I = sp.integrate(fn, (X, a, b))
+    # Exact where the values are rational (a polynomial), else to 40 digits.
+    T, I = (v if v.is_Rational else sp.N(v, 40) for v in (T, I))
+    ys = [y if y.is_Rational else sp.N(y, 40) for y in ys]
+    return fn, a, b, n, h, xs, ys, T, I
+
+
+def r2tr_curve(curve, fn):
+    f = gc_f(fn)
+    return gc_curve_is(curve, f, 1e-5)
+
+
+def r2tr_steps(q):
+    return [st for sol in q["solutions"] for st in sol["steps"]]
+
+
+def r2tr_in_every(q, text, what):
+    for sol in q["solutions"]:
+        need(any(text in st for st in sol["steps"]), f"{sol['name']}: the working doesn't show {what} {text!r}")
+
+
+def r2tr_shape(q, rows=True):
+    """(kind, h, ys, j) from a measurement question: the story line, then the table, the words
+    or the figure. j is the index of k, or None."""
+    L = q["lines"]
+    m = re.search(r"every " + R2TR_N + r" (m|seconds|minutes)", L[0])
+    need(m is not None, f"can't read the spacing in {L[0]!r}")
+    h = r2tr_q(m.group(1))
+    j, ys, xs = None, None, None
+    if q["table"] is not None:
+        r = q["table"]["rows"]
+        need(len(r) == 2, "the table has two rows")
+        xs = [r2tr_q(t) for t in r[0][1]]
+        ys = []
+        for i, t in enumerate(r[1][1]):
+            if t == "k":
+                j = i
+                ys.append(None)
+            else:
+                ys.append(r2tr_q(t))
+    elif q["graph"] is not None:
+        g = q["graph"]
+        pts = sorted(g["points"], key=lambda p: p["x"])
+        xs = [sp.nsimplify(p["x"]) for p in pts]
+        if all(p["label"] == "" for p in pts):
+            ys = [sp.nsimplify(p["y"]) for p in pts]
+            need(all(y == int(y) and abs(p["y"] - float(y)) < 1e-9 for y, p in zip(ys, pts)), "a plotted speed is not on a whole grid line")
+        else:
+            ys = []
+            for p in pts:
+                mm = re.fullmatch(R2TR_N + r" m", p["label"])
+                need(mm is not None and p.get("name"), f"can't read the label {p['label']!r}")
+                ys.append(r2tr_q(mm.group(1)))
+            # Each labelled width is drawn to its length, at its distance.
+            segs = [c for c in g["curves"] if len(c) == 2 and abs(c[0][0] - c[1][0]) < 1e-9]
+            need(len(segs) == len(ys), "the figure doesn't draw every width")
+            for x, y, sg in zip(xs, ys, sorted(segs, key=lambda c: c[0][0])):
+                need(abs(sg[0][0] - float(x)) < 1e-6 and abs(abs(sg[1][1] - sg[0][1]) - float(y)) < 1e-4, f"the width at {x} is not drawn {y} long")
+            ticks = [(sp.nsimplify(t[0]), t[1]) for t in g.get("x_ticks", [])]
+            need([t[1] for t in ticks] == [dec_text(x) for x in xs], "the distances under the figure are not the widths' distances")
+    else:
+        m2 = re.search(r"are (.+) and " + R2TR_N + r", in ", L[1])
+        need(m2 is not None, f"can't read the values in {L[1]!r}")
+        ys = [r2tr_q(t) for t in m2.group(1).split(", ")] + [r2tr_q(m2.group(2))]
+        m3 = re.search(r"at (?:t = |distances )(.+?) (?:minutes|seconds|m from)", L[1])
+        need(m3 is not None, "can't read the times")
+        xs = [r2tr_q(t) for t in m3.group(1).split(", ")]
+    need(len(xs) == len(ys) and 5 <= len(ys) <= 7, "4 to 6 strips")
+    need(xs == [i * h for i in range(len(xs))], "the measurements are not every h from 0")
+    return h, ys, j
+
+
+def r2tr_check(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    for tx in [asked] + L + r2tr_steps(q) + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    if u == "strip-width":
+        fn, a, b, n, h, xs, ys, T, I = r2tr_function(q)
+        want = "h = " + dec_text(h)
+        wrongs[R2TR_TF + "0"] = {"h = " + r2tr_ends((b - a) / (n + 1))}
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0][1] == [dec_text(x) for x in xs] and rows[1][1] == [dec_text(y) for y in ys], "the table is not x against f(x)")
+            need(asked == "Write down the strip width h.", f"asked {asked!r}")
+        else:
+            need(asked == "Find the strip width h.", f"asked {asked!r}")
+        r2tr_in_every(q, f"h = (b − a)/n = {dec_text(b - a)}/{n} = {dec_text(h)}", "h")
+    elif u == "function-estimate":
+        fn, a, b, n, h, xs, ys, T, I = r2tr_function(q)
+        vals = [T, T * n / (n + 1), r2tr_rule(ys, h, 1), r2tr_rule(ys, h, half=1)]
+        r2tr_distinct(vals)
+        want, trap = r1ap_sf("estimate = ", vals[0])
+        need(gc_rounds(T), "the estimate needs no rounding")
+        wrongs[R2TR_TF + "0"] = {r1ap_sf("estimate = ", vals[1])[0]}
+        wrongs[R2TR_TF + "1"] = {r1ap_sf("estimate = ", vals[2])[0]}
+        wrongs[R2TR_TF + "2"] = {r1ap_sf("estimate = ", vals[3])[0]}
+        if rep == "graph":
+            g = q["graph"]
+            need(r2tr_curve(g["curves"][0], fn), "the graph's curve is not f")
+            tops = g["curves"][1]
+            need(len(tops) == n + 1 and all(abs(p[0] - float(x)) < 1e-6 and abs(p[1] - float(y)) < 1e-6 for p, x, y in zip(tops, xs, ys)), "the trapezia's tops are not the chords")
+            sides = g["curves"][2:]
+            need(len(sides) == n + 1 and all(abs(s[0][0] - float(x)) < 1e-6 and abs(s[0][1]) < 1e-9 and abs(s[1][1] - float(y)) < 1e-6 for s, x, y in zip(sides, xs, ys)), "the trapezia's sides are wrong")
+            need([[round(p[0], 6), round(p[2], 6)] for p in g["shade"][0]] == [[round(float(x), 6), round(float(y), 6)] for x, y in zip(xs, ys)], "the shaded trapezia are wrong")
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0][1] == [dec_text(x) for x in xs], "the table's x-values")
+            blanks = [i for i, t in enumerate(rows[1][1]) if t in ("p", "q")]
+            need(1 <= len(blanks) <= 2 and [rows[1][1][i] for i in blanks] == ["p", "q"][:len(blanks)], "the missing heights are not p (and q)")
+            need(all(rows[1][1][i] == dec_text(ys[i]) for i in range(n + 1) if i not in blanks), "the table's heights are not f(x)")
+            for i, nm in zip(blanks, ["p", "q"]):
+                r2tr_in_every(q, f"{nm} = f({dec_text(xs[i])}) = {dec_text(ys[i])}", "the missing height")
+        for y in ys:
+            r2tr_in_every(q, r2tr_w(y), "the height")
+        r2tr_in_every(q, "= " + r2tr_w(T), "the estimate")
+    elif u == "percentage-error-of-estimate":
+        fn, a, b, n, h, xs, ys, T, I = r2tr_function(q)
+        need(asked == "Find the percentage error in this estimate, against the exact area the GDC's integral gives.", f"asked {asked!r}")
+        e = abs(T - I) / I * 100
+        need(sp.Rational(1, 10) <= e <= 25, "the error is not 0.1% to 25%")
+        T0 = T * n / (n + 1)
+        vals = [e, abs(T - I) / T * 100, abs(T0 - I) / I * 100] + ([(T - I) / I * 100] if T < I else [])
+        r2tr_distinct(vals)
+        want, trap = r1ap_sf("percentage error = ", e, "%")
+        wrongs[R2TR_CE + "0"] = {r1ap_sf("percentage error = ", vals[1], "%")[0]}
+        wrongs[R2TR_TF + "0"] = {r1ap_sf("percentage error = ", vals[2], "%")[0]}
+        if T < I:
+            wrongs[R2TR_CE + "2"] = {r1ap_sf("percentage error = ", vals[3], "%")[0]}
+        t7, i7 = r2tr_w(T, 7), r2tr_w(I, 7)
+        r2tr_in_every(q, f"ε = |{t7} − {i7}| ÷ {i7} × 100% = {r2tr_w(e)}%", "the error")
+        # The error from the figures shown is the answer too.
+        e7 = abs(r2tr_q(t7) - r2tr_q(i7)) / r2tr_q(i7) * 100
+        need(gc_s(e7) == gc_s(e), "the working's figures give another error")
+    elif u == "improve-estimate":
+        fn, a, b, n, h, xs, ys, T, I = r2tr_function(q)
+        need(any(f"using {n} strips, and gets {r2tr_w(T)}. The GDC's integral gives {r2tr_w(I)}." in t for t in L), "the estimate or the integral the question gives")
+        ys2 = [fn.subs(X, a + i * h / 2) for i in range(2 * n + 1)]
+        T2 = sp.N(r2tr_rule(ys2, h / 2), 40)
+        need(abs(T2 - I) < abs(T - I), "more strips are not closer")
+        r2tr_in_every(q, f"it gives {r2tr_w(T2)}: an error of {r2tr_w(abs(T2 - I))}", "the estimate with twice the strips")
+        need(asked == "How could the estimate be made more accurate, and why?", f"asked {asked!r}")
+        want = R2TR_IMPROVE
+        wrongs[R2TR_CE + "1"] = {R2TR_FEWER}
+        wrongs["t5-ai-trapezoidal#14"] = {R2TR_SAME}
+        need(all(o["correct"] or o["text"] in (R2TR_FEWER, R2TR_SAME, R2TR_ROUND) for o in q["choices"]), "an option that isn't one of the claims")
+        if rep == "graph":
+            need(r2tr_curve(q["graph"]["curves"][0], fn), "the graph's curve is not f")
+    elif u == "over-or-under":
+        fn, a, b, n, h, xs, ys, T, I = r2tr_function(q)
+        bd, sl = r2tr_bend(fn, a, b), r2tr_slope(fn, a, b)
+        line = bd == "line"
+        thing = "line" if line else "curve"
+        if bd == "up":
+            need(T > I, "the rule doesn't overestimate a concave-up curve")
+            want = "Overestimate: the curve bends upwards (concave up), so the tops of the trapezia lie above it."
+        elif bd == "down":
+            need(T < I, "the rule doesn't underestimate a concave-down curve")
+            want = "Underestimate: the curve bends downwards (concave down), so the tops of the trapezia lie below it."
+        else:
+            need(T == I, "the rule isn't exact for a line")
+            want = "Neither: the graph is a straight line, so the tops of the trapezia lie along it and the estimate is exact."
+        if not line:
+            need(abs(T - I) / I >= sp.Rational(2, 1000), "the estimate is too close to tell")
+        under_from_rise = bd == "up" or (line and sl == "falls")
+        wrongs[R2TR_OU + "0"] = {(f"Underestimate: the {thing} {sl}, so the tops of the trapezia lie below it." if under_from_rise
+                                  else f"Overestimate: the {thing} {sl}, so the tops of the trapezia lie above it.")}
+        wrongs[R2TR_OU + "1"] = {"Overestimate: the trapezoidal rule always gives an overestimate of an area."}
+        if line:
+            wrongs[R2TR_OU + "2"] = {"Underestimate: the rule is only an approximation, so even under a line it leaves gaps."}
+        r2tr_in_every(q, "So: " + want, "the claim")
+        cmp = "The two are equal" if line else (f"{r2tr_w(T, 7)} {'>' if T > I else '<'} {r2tr_w(I, 7)}")
+        need(any(cmp in st for st in r2tr_steps(q)), "the comparison with the GDC")
+        if rep == "graph":
+            g = q["graph"]
+            need(r2tr_curve(g["curves"][0], fn), "the graph's curve is not f")
+            need([round(v["at"], 6) for v in g["vlines"]] == [round(float(x), 6) for x in xs], "the strip edges are not drawn at the x-values")
+    elif u == "pick-underestimate-graph":
+        m = re.fullmatch(r"The area under each curve from x = " + R2TR_N + r" to x = " + R2TR_N + r" is estimated with the trapezoidal rule\. For which curve is the estimate (an underestimate|an overestimate)\?", asked)
+        need(m is not None, f"asked {asked!r}")
+        a, b, under = float(r2tr_q(m.group(1))), float(r2tr_q(m.group(2))), m.group(3) == "an underestimate"
+        graphs, ch = q["graphs"], q["choices"]
+        need(len(graphs) == 4 and [o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "four cards, A to D")
+        need(len({(g["x0"], g["x1"], g["y0"], g["y1"]) for g in graphs}) == 1, "the cards don't share one window")
+
+        def kind(curve):
+            need(abs(curve[0][0] - a) < 1e-6 and abs(curve[-1][0] - b) < 1e-6, "a card's curve is not on the interval")
+            ys_ = [p[1] for p in curve]
+            d2 = [ys_[i - 1] - 2 * ys_[i] + ys_[i + 1] for i in range(1, len(ys_) - 1)]
+            d1 = [ys_[i + 1] - ys_[i] for i in range(len(ys_) - 1)]
+            sl_ = "rises" if all(d > 0 for d in d1) else ("falls" if all(d < 0 for d in d1) else "")
+            if all(abs(d) < 1e-7 for d in d2):
+                return "line", sl_
+            need(all(d > 0 for d in d2) or all(d < 0 for d in d2), "a card's curve bends both ways")
+            mid = ys_[len(ys_) // 2]
+            need(abs(mid - (ys_[0] + ys_[-1]) / 2) >= 0.39, "a card's bend is too slight to see")
+            return ("up" if d2[0] > 0 else "down"), sl_
+
+        right_bend = "down" if under else "up"
+        other = "up" if under else "down"
+        letter = None
+        for o, g in zip(ch, graphs):
+            need(len(g["curves"]) == 1 and g.get("card"), "a card has one curve")
+            bd, sl = kind(g["curves"][0])
+            if o["correct"]:
+                need(bd == right_bend, "the right card doesn't bend the right way")
+                letter = o["text"]
+                continue
+            mk = o.get("mistake", "")
+            need(o.get("why", "") != "", "a wrong card doesn't say why")
+            if mk == "rises":
+                need(o["ref"] == R2TR_OU + "0" and bd == other and sl == "rises", "the rises card is not a rising curve bending the other way")
+                wrongs.setdefault(R2TR_OU + "0", set()).add(o["text"])
+            elif mk == "line":
+                need(o["ref"] == R2TR_OU + "2" and bd == "line", "the line card is not a line")
+                wrongs.setdefault(R2TR_OU + "2", set()).add(o["text"])
+            elif mk == "same-way":
+                need(o["ref"] == "" and bd == other, "the same-way card doesn't bend the other way")
+            else:
+                raise Fail(f"a card names no mistake ({mk!r})")
+        need(letter is not None, "no right card")
+        want = letter
+    elif u == "data-estimate":
+        h, ys, _ = r2tr_shape(q)
+        m = re.search(r"(salvage field|toxic lake|flooded canal)", L[0])
+        need(m is not None and any(w in L[0] for w in R2TR_WHO), "the story")
+        kind = {"salvage field": "field", "toxic lake": "lake", "flooded canal": "canal"}[m.group(1)]
+        region = {"field": "the field", "lake": "the lake", "canal": "the canal's cross-section"}[kind]
+        need(asked == f"Use the trapezoidal rule to estimate the area of {region}.", f"asked {asked!r}")
+        n = len(ys) - 1
+        xs = [i * h for i in range(n + 1)]
+        T = r2tr_rule(ys, h)
+        vals = [T, r2tr_rule(xs, h), r2tr_rule(ys, h, 2, 2), r2tr_rule(ys, h, 1, 1), 2 * T]
+        r2tr_distinct(vals)
+        want, trap = r1ap_sf("area = ", T, " m²")
+        for ref, v in zip([R2TR_TD + "0", R2TR_TD + "2", R2TR_TF + "1", R2TR_TF + "2"], vals[1:]):
+            wrongs[ref] = {r1ap_sf("area = ", v, " m²")[0]}
+        r2tr_in_every(q, "= " + dec_text(T), "the area")
+    elif u == "accumulated-total":
+        h, ys, _ = r2tr_shape(q)
+        n = len(ys) - 1
+        T = r2tr_rule(ys, h)
+        if L[0].startswith("A scout rover"):
+            mix = "every " + dec_text(h) + " minutes" in L[0]
+            label, unit = "distance = ", " m"
+            need(asked == f"Use the trapezoidal rule to estimate the distance the rover travels in these {dec_text(n * h)} {'minutes' if mix else 'seconds'}, in metres.", f"asked {asked!r}")
+            factor = 60 if mix else 1
+        elif L[0].startswith("Water is pumped"):
+            mix = "litres per second" in L[0]
+            label, unit = "volume = ", " litres"
+            need(asked == f"Use the trapezoidal rule to estimate the volume of water pumped in these {dec_text(n * h)} minutes, in litres.", f"asked {asked!r}")
+            factor = 60 if mix else 1
+        else:
+            m = re.fullmatch(r"A drainage channel is " + R2TR_N + r" m wide\. Its depth is measured every " + R2TR_N + r" m across it, and the water flows through it at " + R2TR_N + r" m/s\.", L[0])
+            need(m is not None and r2tr_q(m.group(1)) == n * h, f"the channel {L[0]!r}")
+            mix, label, unit, factor = False, "flow = ", " m³/s", r2tr_q(m.group(3))
+        if rep == "graph":
+            need(q["graph"]["x_name"] == "t" and q["graph"]["y_name"] == "v", "the graph's axes")
+        total = T * factor
+        vals = [total, 2 * total, r2tr_rule(ys, h, 2, 2) * factor, r2tr_rule(ys, h, 1, 1) * factor] + ([T] if mix else [])
+        r2tr_distinct(vals)
+        exact = not gc_rounds(total)
+        need(not exact or rep == "graph", "a total from a table or words needs rounding")
+        show = (lambda v: label + dec_text(v) + unit) if exact else (lambda v: r1ap_sf(label, v, unit)[0])
+        want = show(total)
+        trap = None if exact else r1ap_sf(label, total, unit)[1]
+        for ref, v in zip([R2TR_TF + "2", R2TR_TD + "2", R2TR_TF + "1"], vals[1:4]):
+            wrongs[ref] = {show(v)}
+        if mix:
+            wrongs[R2TR_TD + "1"] = {show(T)}
+            r2tr_in_every(q, f"h = {dec_text(h)} min = {dec_text(60 * h)} s", "the spacing in seconds")
+        if unit == " m³/s":
+            r2tr_in_every(q, f"= {dec_text(T)} m²", "the cross-section's area")
+            r2tr_in_every(q, f"= {dec_text(T)} × {dec_text(factor)} = {dec_text(total)} m³/s", "the flow")
+        else:
+            r2tr_in_every(q, f"= {dec_text(total)}{unit}", "the total")
+    elif u == "missing-height":
+        h, ys, j = r2tr_shape(q)
+        need(j is not None, "no k in the table")
+        m = re.fullmatch(r"The table gives the (widths|depths), with one of them k\. The trapezoidal rule with these (widths|depths) gives " + R2TR_N + r" m² for the area\.", L[1])
+        need(m is not None, f"can't read the estimate {L[1]!r}")
+        A = r2tr_q(m.group(3))
+        n = len(ys) - 1
+        inner = 0 < j < n
+        w = 2 if inner else 1
+        rest = sum(y * (1 if i in (0, n) else 2) for i, y in enumerate(ys) if i != j)
+        k = (2 * A / h - rest) / w
+        need(k > 0 and (k * 10).q == 1, "k is not a height to 1 d.p.")
+        need(asked == "Find the value of k.", f"asked {asked!r}")
+        want = "k = " + dec_text(k)
+        if inner:
+            wrongs[R2TR_MV + "0"] = {"k = " + r2tr_ends(2 * A / h - rest)}
+        else:
+            wrongs[R2TR_TD + "2"] = {"k = " + r2tr_ends((2 * A / h - rest) / 2)}
+        wrongs[R2TR_MV + "1"] = {"k = " + r2tr_ends((A - rest) / w)}
+        r2tr_in_every(q, "k = " + dec_text(k), "k")
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+SITUATION_CHECKS["trapezoidal"] = r2tr_check
+
 # (end of the R2 markers)
 
 

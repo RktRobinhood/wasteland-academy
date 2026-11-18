@@ -93218,7 +93218,8 @@
 					"as": "distractor",
 					"in": [
 						"function-estimate",
-						"data-estimate"
+						"data-estimate",
+						"accumulated-total"
 					],
 					"wrong": "every height counted once"
 				},
@@ -93257,7 +93258,8 @@
 					"as": "distractor",
 					"in": [
 						"data-estimate",
-						"accumulated-total"
+						"accumulated-total",
+						"missing-height"
 					],
 					"wrong": "the end heights doubled as well"
 				},

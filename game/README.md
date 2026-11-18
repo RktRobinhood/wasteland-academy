@@ -985,6 +985,10 @@ script error happens while it runs. Run one file with
 <!-- R2-OPTIMISATION -->
 
 <!-- R2-TRAPEZOIDAL -->
+- `test_trapezoidal.gd` (FAL-1000): t5-ai-trapezoidal built with every cell and all five AI-SL5.8 skills, on the AI courses
+  only, Paper 2 only; four distinct options with one right and the answer in each working's last step; tables and figures shown;
+  four cards for pick the graph; every tag shows up; typed values marked by value; the rule, the percentage error, the slips, a
+  missing height and the bends against values worked by hand.
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
