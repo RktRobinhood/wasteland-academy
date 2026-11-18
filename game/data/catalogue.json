@@ -92786,8 +92786,7 @@
 					"text": "Including a lid on an open container, so the area has two circles instead of one",
 					"as": "distractor",
 					"in": [
-						"objective-one-variable",
-						"container-optimal-dimension"
+						"objective-one-variable"
 					],
 					"wrong": "a lid counted on the open container"
 				},

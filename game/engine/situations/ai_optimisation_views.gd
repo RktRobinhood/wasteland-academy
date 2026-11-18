@@ -316,7 +316,12 @@ static func vertex_lines(s: Dictionary) -> Array:
 	var b: Q = s.terms[1][0]
 	var opens := "a = %s < 0, so its vertex is the maximum" % dec(a) if s.big else "a = %s > 0, so its vertex is the minimum" % dec(a)
 	return ["%s(x) is a quadratic with %s." % [fname(s), opens],
-		"x = −b/(2a) = −%s ÷ (2 × %s) = %s." % [P(b), P(a), W(s.x)]]
+		"x = −b/(2a) = −%s ÷ (2 × %s) = %s." % [bracket(b), bracket(a), W(s.x)]]
+
+
+## A decimal, in brackets where it is negative.
+static func bracket(v: Q) -> String:
+	return "(%s)" % dec(v) if v.sign() < 0 else dec(v)
 
 
 func _given_methods(s: Dictionary, ans: Dictionary, value: bool) -> Dictionary:
@@ -526,9 +531,12 @@ func _objective_label(s: Dictionary) -> Array:
 		"can":
 			var o := obj(s)
 			var flat := "%sπr²" % Fmt.lead(s.e)
-			var ends := "the two flat ends" if s.ends == 2 else "the base"
-			var rate := "" if not s.cost else ", each m² of it costing %d scrap" % s.rate_end
-			return ["Label r and h: %s give %s%s, and the curved side, a rectangle 2πr by h, gives 2πrh." % [ends, flat, rate],
+			var first := "the two flat ends are circles of area πr², 2πr² in all" if s.ends == 2 else "the base is a circle of area πr²"
+			var side := "the curved side, a rectangle 2πr by h, has area 2πrh"
+			if s.cost:
+				first += ", at %d scrap per m²: %s scrap" % [s.rate_end, flat]
+				side += ", at 1 scrap per m²: 2πrh scrap"
+			return ["Label r and h: %s; %s." % [first, side],
 				"The volume gives πr²h = %d, so h = %d/(πr²)." % [s.V, s.V], "%s = %s + 2πr × %d/(πr²) = %s + %d/r, where %d/r is the term in 1/r." % [o, flat, s.V, flat, 2 * s.V, 2 * s.V]]
 		"bin":
 			return ["Label the base x by x and each of the 4 side faces x by h; there is no lid.",
@@ -644,8 +652,8 @@ func u_container_optimal_dimension(rep: String, s: Dictionary, _rng: Seeded) -> 
 			ws = [lk(ans, sqrt(s.P / 6.0), R_BOX_LID)]
 		"can":
 			ws = [lk(ans, pow(s.V / (2.0 * s.e * PI), 1.0 / 3.0), R_HALF_SIDE)]
-			if s.ends == 1:
-				ws.append(lk(ans, pow(s.V / (2.0 * s.rate_end * PI), 1.0 / 3.0), R_LID_AI))
+			# A lid counted on an open can doubles the πr² term, which gives the same r as the
+			# curved side halved, so only that slip is offered.
 	out.answer = ans
 	# A slip is offered only where it reads clearly at 3 s.f.
 	out.wrongs = ws.filter(func(wr): return AiOptimisationSituation.clear(wr.values.v.to_float()))

@@ -48489,9 +48489,8 @@ def r2op_shape(q, u):
             vals[R2OP_OWN + "16"] = r2op_slip_x(x * (p["T"] - 2 * x**2) / 4, (0, sp.sqrt(p["T"])))   # a lid counted
         elif fam == "can":
             e = p["re"] * p["ends"]
-            vals[R2OP_B + "1"] = r2op_slip_x(e * sp.pi * x**2 + p["V"] / x, (0, sp.oo))           # πrh
-            if p["ends"] == 1:
-                vals[R2OP_B + "2"] = r2op_slip_x(2 * p["re"] * sp.pi * x**2 + 2 * p["V"] / x, (0, sp.oo))
+            # πrh; a lid on an open can gives the same r, so the engine offers only this slip
+            vals[R2OP_B + "1"] = r2op_slip_x(e * sp.pi * x**2 + p["V"] / x, (0, sp.oo))
         for ref, v in vals.items():
             w[ref] = {r2op_sf(f"{letter} = ", v, f" {unit}")[0]}
     elif u == "container-optimum-value":
