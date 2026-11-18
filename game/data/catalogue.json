@@ -93380,8 +93380,7 @@
 					"text": "Assuming the trapezoidal rule always overestimates",
 					"as": "distractor",
 					"in": [
-						"over-or-under",
-						"pick-underestimate-graph"
+						"over-or-under"
 					],
 					"wrong": "an overestimate whatever the curve"
 				},
