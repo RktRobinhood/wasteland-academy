@@ -1174,8 +1174,9 @@ argument, for a build published somewhere other than `/next/`.
 `.github/workflows/pages.yml` deploys on every push to `main`: the repo through
 `actions/jekyll-build-pages`, plus the export, which `scripts/assemble-site.sh` puts at
 the root with the switch on (and at `next/` with it off). Pull requests build it without
-deploying. In `.github/workflows/test.yml` the `godot` job runs `./test.sh`, and the `web`
-job runs the export and the browser screenshots and uploads the screenshots as an artifact.
+deploying. In `.github/workflows/test.yml` the `godot` job runs `./test.sh`, the `export` job
+builds the export once, and the `web` job takes it for the browser screenshots and uploads
+the screenshots as an artifact.
 
 ## Godot MCP
 

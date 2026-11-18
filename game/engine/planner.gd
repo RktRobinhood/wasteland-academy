@@ -53,7 +53,7 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 		if not wanted.is_empty():
 			pool = wanted
 	var recent: Array = (save.history as Array).slice(-SPACING)
-	var seed := rng.int_in(1, 999999)
+	var seed := VerifiedSeeds.cell(rng)
 	var fmt: String = "mcq" if rng.chance(0.5) else "value"
 
 	if not exam_only:
