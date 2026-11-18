@@ -61,9 +61,9 @@
    "ai-sl": {
     "questions": 386,
     "parts": 1349,
-    "assigned": 79,
+    "assigned": 151,
     "unclassified": 0,
-    "unassigned": 1270,
+    "unassigned": 1198,
     "papers": {
      "P1": {
       "calculator": true,
@@ -83,9 +83,9 @@
    "ai-hl": {
     "questions": 357,
     "parts": 1485,
-    "assigned": 9,
+    "assigned": 41,
     "unclassified": 0,
-    "unassigned": 1476,
+    "unassigned": 1444,
     "papers": {
      "P1": {
       "calculator": true,
@@ -6914,6 +6914,105 @@
    "clean": [
     "every answer is to 3 s.f., at least 0.04 of its last place from a rounding edge",
     "each slip offered (the other log key, a bracket round the quotient, the logs the wrong way round, each log rounded first) reads differently from the answer"
+   ]
+  },
+  "ai-stationary": {
+   "name": "A function and its stationary points, worked with technology",
+   "summary": "Pick a function whose derivative has distinct, readable zeros: a cubic built from f′(x) = 3a(x − p)(x − q), a quadratic or cubic model in a story, or ax + b/x + c on x > 0. A domain, a coefficient left as k, or the graph of f′ is added where the view needs it. On the f′ graph views the derivative-graph situation's curves are used.",
+   "quantities": [
+    {
+     "name": "f",
+     "is": "the function or model",
+     "pick": "a cubic with whole or one-decimal coefficients; a quadratic or cubic model of a height, a power or a temperature; or ax + b/x + c with a, b > 0"
+    },
+    {
+     "name": "p, q",
+     "is": "the zeros of f′",
+     "pick": "distinct, inside the window drawn; whole numbers on the hand route, or to 3 s.f. from the GDC"
+    },
+    {
+     "name": "a ≤ x ≤ b",
+     "is": "a domain",
+     "pick": "contains one or both stationary points; the greatest or least value is at an end in about half the questions"
+    },
+    {
+     "name": "k",
+     "is": "an unknown coefficient",
+     "pick": "a whole number or a one-decimal value, found from f′ at the given stationary x"
+    }
+   ],
+   "modes": [
+    "Paper 2: technology allowed"
+   ],
+   "clean": [
+    "f′ has two distinct zeros, or one on x > 0 for ax + b/x + c",
+    "every 3 s.f. answer and slip is clear of a rounding edge and reads differently"
+   ]
+  },
+  "ai-optimisation": {
+   "name": "A quantity to make as large or as small as possible, in context",
+   "summary": "Pick a profit, cost or angle model with its optimum inside the domain; a price and the demand it gives, with fixed and per-item costs; or one of the optimisation-model shapes (a can, an open bin, a tray cut from a sheet, a plot against a wall, a route off a road) on Paper 2.",
+   "quantities": [
+    {
+     "name": "P(x)",
+     "is": "a given model",
+     "pick": "a quadratic or cubic profit, a cost with a term in 1/x, or k sin θ(1 + cos θ) for an angle, with its optimum inside the domain"
+    },
+    {
+     "name": "price, demand",
+     "is": "a revenue model",
+     "pick": "demand falling linearly with price; a fixed cost and a cost per item, so the profit is a quadratic in the price"
+    },
+    {
+     "name": "the shape",
+     "is": "an optimisation-model family on Paper 2",
+     "pick": "as OptimisationSituation picks it: the fixed amount, the free length and its optimum to 3 s.f."
+    },
+    {
+     "name": "x*",
+     "is": "an optimum that is not whole",
+     "pick": "its fractional part between 0.2 and 0.8, and the two whole numbers either side give different values"
+    }
+   ],
+   "modes": [
+    "Paper 2: technology allowed"
+   ],
+   "clean": [
+    "the optimum lies inside the domain of the context",
+    "every 3 s.f. answer and slip is clear of a rounding edge and reads differently"
+   ]
+  },
+  "trapezoidal": {
+   "name": "An area or a total estimated with the trapezoidal rule",
+   "summary": "Pick a function on an interval cut into n equal strips, or a table of measurements at equal spacing in a story (widths of a field or lake, speeds, rates of flow, depths), so the estimate, the exact value from the GDC and the slips can all be worked out.",
+   "quantities": [
+    {
+     "name": "f, a, b, n",
+     "is": "a function and its strips",
+     "pick": "a quadratic, cubic, √, exponential or reciprocal curve on [a, b], n from 3 to 6, h a tidy decimal"
+    },
+    {
+     "name": "x₀ … xₙ, y₀ … yₙ",
+     "is": "a table of measurements",
+     "pick": "equal spacing h, heights to 1 d.p. or whole numbers, in metres, m/s or litres per minute"
+    },
+    {
+     "name": "k",
+     "is": "an unknown height",
+     "pick": "at an end or inside, so the estimate gives it back as a tidy value"
+    },
+    {
+     "name": "the bend",
+     "is": "whether the curve bends up or down on the interval",
+     "pick": "one way only, so the estimate is clearly over or under"
+    }
+   ],
+   "modes": [
+    "Paper 2: technology allowed"
+   ],
+   "clean": [
+    "equal strip widths",
+    "every 3 s.f. answer and slip is clear of a rounding edge and reads differently"
    ]
   }
  },
@@ -96459,6 +96558,1742 @@
     },
     "mainTags": {
      "1.7": 16
+    }
+   }
+  },
+  {
+   "id": "t5-ai-stationary-points",
+   "topic": 5,
+   "source": "exam",
+   "detail": "full",
+   "home": "ai-sl",
+   "region": "stationary-points",
+   "name": "Stationary points: local maxima and minima (AI)",
+   "summary": "Solve f′(x) = 0 by hand or with the GDC, find and classify a local maximum or minimum, find the greatest or least value on a domain, and read the stationary points of f from the graph of f′.",
+   "syllabus": [
+    "5.6"
+   ],
+   "skills": [
+    "AI-SL5.6.solve-gradient-zero",
+    "AI-SL5.6.locate-local-extrema",
+    "AI-SL5.6.classify-by-gradient-sign",
+    "AI-SL5.6.greatest-least-on-domain",
+    "AI-SL5.6.read-from-gradient-graph"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "f′(x), by the power rule or from the GDC",
+    "the values of x where f′(x) = 0",
+    "the y-coordinate from f, and whether the point is a maximum or a minimum",
+    "the greatest or least value on a domain, comparing the ends"
+   ],
+   "given": [
+    "a cubic, a quadratic model or ax + b/x + c",
+    "f′(x) already found, in context",
+    "a domain a ≤ x ≤ b",
+    "the graph of f′"
+   ],
+   "asked": "Where f′(x) = 0, the coordinates or value of a local maximum or minimum, its nature with a reason, the greatest or least value on a domain, a coefficient from a stationary point, or the features of f read from the graph of f′.",
+   "answerForms": [
+    "exact, or 3 s.f. where the GDC gives it",
+    "coordinates (x, y)",
+    "a statement with its reason",
+    "a graph"
+   ],
+   "randomise": [
+    "the function family and its coefficients",
+    "the story for a model",
+    "the domain",
+    "whether a maximum or a minimum is asked"
+   ],
+   "constraints": [
+    "Paper 2: every AI paper allows a GDC",
+    "f′ has distinct zeros, and each 3 s.f. answer and slip is clear of a rounding edge",
+    "on a domain, the greatest or least value is at an end in about half the questions"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "graph-pick"
+   ],
+   "situation": "ai-stationary",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "f(x) or f′(x) written out"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a model in a story, such as a height, a power or a temperature over time"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "the graph of f′ on a grid, or of f on a GDC window"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "values of f′ just either side of a stationary point"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "gradient-zero-x",
+     "given": [
+      "f(x), a polynomial or ax + b/x + c, or a model in a story"
+     ],
+     "asked": "the values of x where the gradient is zero",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "AI-SL5.6.solve-gradient-zero"
+     ]
+    },
+    {
+     "id": "gradient-zero-given-derivative",
+     "given": [
+      "f′(x) already found, often in a story"
+     ],
+     "asked": "the value of x at the local maximum or minimum",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "AI-SL5.6.solve-gradient-zero"
+     ]
+    },
+    {
+     "id": "coefficient-from-stationary",
+     "given": [
+      "f(x) with one unknown coefficient k",
+      "the x-coordinate of a stationary point"
+     ],
+     "asked": "the value of k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AI-SL5.6.solve-gradient-zero"
+     ]
+    },
+    {
+     "id": "local-extremum-point",
+     "given": [
+      "f(x)"
+     ],
+     "asked": "the coordinates of the local maximum or minimum",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "AI-SL5.6.solve-gradient-zero",
+      "AI-SL5.6.locate-local-extrema"
+     ]
+    },
+    {
+     "id": "extremum-value-in-context",
+     "given": [
+      "a model in a story"
+     ],
+     "asked": "the greatest or least value of the model",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "AI-SL5.6.locate-local-extrema"
+     ]
+    },
+    {
+     "id": "classify-stationary",
+     "given": [
+      "f(x), f′(x) as factors, or f′ either side",
+      "a stationary point"
+     ],
+     "asked": "whether it is a local maximum or minimum, with the reason",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "table"
+     ],
+     "skills": [
+      "AI-SL5.6.classify-by-gradient-sign"
+     ]
+    },
+    {
+     "id": "greatest-on-domain",
+     "given": [
+      "f(x)",
+      "a domain a ≤ x ≤ b"
+     ],
+     "asked": "the greatest or least value of f on the domain",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "AI-SL5.6.greatest-least-on-domain"
+     ]
+    },
+    {
+     "id": "local-not-greatest",
+     "given": [
+      "f(x) on a domain, drawn or described"
+     ],
+     "asked": "why the local maximum is not the greatest value",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "AI-SL5.6.greatest-least-on-domain"
+     ]
+    },
+    {
+     "id": "extremum-from-gradient-graph",
+     "given": [
+      "the graph of f′"
+     ],
+     "asked": "the x-coordinate of a local maximum or minimum of f",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "AI-SL5.6.read-from-gradient-graph"
+     ]
+    },
+    {
+     "id": "increasing-from-gradient-graph",
+     "given": [
+      "the graph of f′"
+     ],
+     "asked": "where f is increasing or decreasing",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "AI-SL5.6.read-from-gradient-graph"
+     ]
+    },
+    {
+     "id": "pick-f-from-gradient-graph",
+     "given": [
+      "the graph of f′"
+     ],
+     "asked": "which graph could be y = f(x)",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "AI-SL5.6.read-from-gradient-graph"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "AI-SL5.6.solve-gradient-zero",
+     "method": "differentiate-and-solve",
+     "suits": [
+      "gradient-zero-x",
+      "coefficient-from-stationary"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.solve-gradient-zero",
+     "method": "gdc-equation-solver",
+     "suits": [
+      "gradient-zero-x",
+      "gradient-zero-given-derivative",
+      "coefficient-from-stationary"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.solve-gradient-zero",
+     "method": "zeros-of-derivative-graph",
+     "suits": [
+      "gradient-zero-x",
+      "gradient-zero-given-derivative"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.locate-local-extrema",
+     "method": "solve-then-substitute",
+     "suits": [
+      "local-extremum-point",
+      "extremum-value-in-context"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.locate-local-extrema",
+     "method": "gdc-max-min",
+     "suits": [
+      "local-extremum-point",
+      "extremum-value-in-context"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.locate-local-extrema",
+     "method": "vertex-of-quadratic",
+     "suits": [
+      "extremum-value-in-context"
+     ],
+     "weak": {
+      "kind": "fails",
+      "why": "only a quadratic model has its one stationary point at x = −b/(2a); a cubic model has two",
+      "unknowns": [
+       "extremum-value-in-context"
+      ]
+     }
+    },
+    {
+     "skill": "AI-SL5.6.classify-by-gradient-sign",
+     "method": "gradient-sign-either-side",
+     "suits": [
+      "classify-stationary"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.classify-by-gradient-sign",
+     "method": "gdc-graph-shape",
+     "suits": [
+      "classify-stationary"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.classify-by-gradient-sign",
+     "method": "cubic-shape",
+     "suits": [
+      "classify-stationary"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.greatest-least-on-domain",
+     "method": "compare-endpoints",
+     "suits": [
+      "greatest-on-domain",
+      "local-not-greatest"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.greatest-least-on-domain",
+     "method": "gdc-graph-on-domain",
+     "suits": [
+      "greatest-on-domain",
+      "local-not-greatest"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.read-from-gradient-graph",
+     "method": "sign-of-gradient-graph",
+     "suits": [
+      "extremum-from-gradient-graph",
+      "increasing-from-gradient-graph",
+      "pick-f-from-gradient-graph"
+     ]
+    },
+    {
+     "skill": "AI-SL5.6.read-from-gradient-graph",
+     "method": "sketch-f-from-signs",
+     "suits": [
+      "extremum-from-gradient-graph",
+      "increasing-from-gradient-graph",
+      "pick-f-from-gradient-graph"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If f′(a) = 0, then f has a local maximum or a local minimum at x = a.",
+     "answer": "False: f′ must also change sign at a. Where f′ touches zero without changing sign, as for x³ at 0, the point is neither.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The local maximum of f is the greatest value of f on a closed domain.",
+     "answer": "Sometimes: an end of the domain can be higher than the local maximum, so the ends must be checked too.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "AI-SL5.6.solve-gradient-zero#0",
+     "text": "Solving f(x) = 0 instead of f′(x) = 0, which finds where the curve crosses the x-axis",
+     "as": "distractor",
+     "in": [
+      "gradient-zero-x",
+      "coefficient-from-stationary"
+     ],
+     "wrong": "the roots of f instead of the zeros of f′"
+    },
+    {
+     "ref": "AI-SL5.6.solve-gradient-zero#1",
+     "text": "Keeping the constant term when differentiating, so f′(x) has the wrong zeros",
+     "as": "distractor",
+     "in": [
+      "gradient-zero-x"
+     ],
+     "wrong": "the zeros of f′ with the constant term kept"
+    },
+    {
+     "ref": "AI-SL5.6.solve-gradient-zero#2",
+     "text": "Losing the negative root when solving f′(x) = 0, so only the positive value of x is given",
+     "as": "distractor",
+     "in": [
+      "gradient-zero-x",
+      "gradient-zero-given-derivative"
+     ],
+     "wrong": "the positive root only"
+    },
+    {
+     "ref": "AI-SL5.6.locate-local-extrema#0",
+     "text": "Substituting x into f′ instead of f, so the y-coordinate comes out as zero",
+     "as": "distractor",
+     "in": [
+      "local-extremum-point"
+     ],
+     "wrong": "the point with y = f′(x), which is zero"
+    },
+    {
+     "ref": "AI-SL5.6.locate-local-extrema#1",
+     "text": "Giving only the x-coordinate when the coordinates or the minimum value are asked for",
+     "as": "distractor",
+     "in": [
+      "local-extremum-point",
+      "extremum-value-in-context"
+     ],
+     "wrong": "the x-coordinate instead of the point or the value"
+    },
+    {
+     "ref": "AI-SL5.6.locate-local-extrema#2",
+     "text": "Reading a point where the graph leaves the GDC window as a turning point",
+     "as": "distractor",
+     "in": [
+      "local-extremum-point"
+     ],
+     "wrong": "the point where the graph leaves the window"
+    },
+    {
+     "ref": "AI-SL5.6.classify-by-gradient-sign#0",
+     "text": "Reversing the rule: calling + then − a minimum",
+     "as": "distractor",
+     "in": [
+      "classify-stationary"
+     ],
+     "wrong": "the other nature, with the signs read the wrong way round"
+    },
+    {
+     "ref": "AI-SL5.6.classify-by-gradient-sign#1",
+     "text": "Checking the sign of f, not f′, either side of the point",
+     "as": "distractor",
+     "in": [
+      "classify-stationary"
+     ],
+     "wrong": "a nature argued from the sign of f"
+    },
+    {
+     "ref": "AI-SL5.6.classify-by-gradient-sign#2",
+     "text": "Testing points beyond the next stationary point, so the gradient has the same sign on both sides and the turning point is missed",
+     "as": "distractor",
+     "in": [
+      "classify-stationary"
+     ],
+     "wrong": "no turning point, from test points past the next stationary point"
+    },
+    {
+     "ref": "AI-SL5.6.greatest-least-on-domain#0",
+     "text": "Giving the local maximum as the greatest value, when an end of the domain gives a larger value",
+     "as": "distractor",
+     "in": [
+      "greatest-on-domain",
+      "local-not-greatest"
+     ],
+     "wrong": "the local maximum or minimum value"
+    },
+    {
+     "ref": "AI-SL5.6.greatest-least-on-domain#1",
+     "text": "Including a stationary point that lies outside the given domain",
+     "as": "distractor",
+     "in": [
+      "greatest-on-domain"
+     ],
+     "wrong": "the value at a stationary point outside the domain"
+    },
+    {
+     "ref": "AI-SL5.6.greatest-least-on-domain#2",
+     "text": "Forgetting to evaluate f at the endpoints at all",
+     "as": "distractor",
+     "in": [
+      "greatest-on-domain"
+     ],
+     "wrong": "the best stationary value, with the ends left out"
+    },
+    {
+     "ref": "AI-SL5.6.read-from-gradient-graph#0",
+     "text": "Taking the turning points of the f′ graph as the stationary points of f",
+     "as": "distractor",
+     "in": [
+      "extremum-from-gradient-graph",
+      "pick-f-from-gradient-graph"
+     ],
+     "wrong": "the turning point of the f′ graph"
+    },
+    {
+     "ref": "AI-SL5.6.read-from-gradient-graph#1",
+     "text": "Reading f′ crossing from negative to positive as a maximum",
+     "as": "distractor",
+     "in": [
+      "extremum-from-gradient-graph",
+      "pick-f-from-gradient-graph"
+     ],
+     "wrong": "a maximum where f′ goes from negative to positive"
+    },
+    {
+     "ref": "AI-SL5.6.read-from-gradient-graph#2",
+     "text": "Calling a point where f′ touches the axis without changing sign a maximum or minimum (it is neither)",
+     "as": "distractor",
+     "in": [
+      "extremum-from-gradient-graph",
+      "pick-f-from-gradient-graph"
+     ],
+     "wrong": "a turning point where f′ only touches the axis"
+    },
+    {
+     "text": "Reading where the f′ graph rises instead of where it lies above the x-axis",
+     "as": "distractor",
+     "in": [
+      "increasing-from-gradient-graph"
+     ],
+     "wrong": "where f′ is increasing"
+    },
+    {
+     "text": "Giving the time or input when the greatest value of the model is asked for",
+     "as": "distractor",
+     "in": [
+      "extremum-value-in-context"
+     ],
+     "wrong": "the input at the optimum"
+    },
+    {
+     "text": "Evaluating the model at the end of its domain instead of at the stationary point",
+     "as": "distractor",
+     "in": [
+      "extremum-value-in-context"
+     ],
+     "wrong": "the value at an end"
+    }
+   ],
+   "parts": [
+    "ai-sl-2021-may-tz1-p2-q05.a",
+    "ai-sl-2022-nov-tz0-p1-q13.a",
+    "ai-sl-2022-nov-tz0-p2-q05.a",
+    "ai-sl-2025-nov-tz1-p1-q11.a",
+    "ai-sl-2025-nov-tz1-p2-q02.b",
+    "ai-sl-2025-nov-tz1-p2-q02.d",
+    "ai-sl-2026-may-tz3-p2-q04.c",
+    "ai-hl-2021-may-tz1-p2-q02.a",
+    "ai-hl-2021-nov-tz0-p1-q08.b",
+    "ai-hl-2026-may-tz3-p3-q02.d(ii)"
+   ],
+   "stats": {
+    "parts": 10,
+    "paper": {
+     "p1": 3,
+     "p2": 6
+    },
+    "calculator": {
+     "without": 0,
+     "with": 10
+    },
+    "section": {
+     "A": 0,
+     "B": 0
+    },
+    "marks": {
+     "min": 2,
+     "median": 4,
+     "max": 6
+    },
+    "mainTags": {
+     "5.6": 9,
+     "5.2": 1
+    }
+   }
+  },
+  {
+   "id": "t5-ai-optimisation",
+   "topic": 5,
+   "source": "exam",
+   "detail": "full",
+   "home": "ai-sl",
+   "region": "stationary-points",
+   "name": "Optimisation in context (AI)",
+   "summary": "Optimise a given model of profit, cost or an angle; build a profit from revenue and cost; write a container's area or volume in one variable from a fixed amount; find its best dimension, the optimum and the other dimension; and adjust an optimum to whole items or to the domain of the context.",
+   "syllabus": [
+    "5.7"
+   ],
+   "skills": [
+    "AI-SL5.7.optimise-given-model",
+    "AI-SL5.7.build-model-from-constraint",
+    "AI-SL5.7.optimise-container",
+    "AI-SL5.7.interpret-optimum-in-context"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "the quantity to optimise in one variable, from a constraint or from revenue minus cost",
+    "its derivative, or its graph on the GDC",
+    "the value of the variable at the optimum",
+    "the optimum itself, the other dimension, or the best whole number"
+   ],
+   "given": [
+    "a profit, cost or angle model",
+    "a revenue and a cost, or a price and the demand",
+    "a container or a plot with a fixed volume, area or length of fence",
+    "a suggested value of the variable"
+   ],
+   "asked": "The value of the variable at the optimum, the optimum, the profit built from revenue and cost, the second length from the constraint, the function in one variable, the other dimension at the optimum, the best whole number, the domain in context, or why a suggested value is not optimal.",
+   "answerForms": [
+    "3 s.f., or exact where it ends",
+    "a function in one variable, with its numbers stated",
+    "an interval",
+    "a statement with its reason"
+   ],
+   "randomise": [
+    "the model and its coefficients",
+    "the container and its fixed amount",
+    "maximum or minimum",
+    "the story"
+   ],
+   "constraints": [
+    "Paper 2: every AI paper allows a GDC",
+    "the optimum lies inside the domain of the context",
+    "each 3 s.f. answer and slip is clear of a rounding edge and reads differently"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "ai-optimisation",
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story: what is made or sold, what is fixed, and what is to be as large or as small as possible"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "the container, sheet or plot drawn with its lengths labelled in x or r"
+    },
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the model written out, P(x) = … or V(θ) = …"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "the model's values at whole numbers near the optimum"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "optimal-input-given-model",
+     "given": [
+      "a profit, cost or angle model, or its derivative"
+     ],
+     "asked": "the value of the variable that gives the maximum or minimum",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "AI-SL5.7.optimise-given-model"
+     ]
+    },
+    {
+     "id": "optimum-value-given-model",
+     "given": [
+      "a profit, cost or angle model"
+     ],
+     "asked": "the maximum or minimum value",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "AI-SL5.7.optimise-given-model"
+     ]
+    },
+    {
+     "id": "profit-from-revenue-cost",
+     "given": [
+      "a price and the demand it gives, or a revenue and a cost"
+     ],
+     "asked": "the greatest profit, or the price that gives it",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "AI-SL5.7.optimise-given-model",
+      "AI-SL5.7.build-model-from-constraint"
+     ]
+    },
+    {
+     "id": "suggested-not-optimal",
+     "given": [
+      "a profit model",
+      "a suggested value"
+     ],
+     "asked": "why the suggested value does not give the maximum",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "AI-SL5.7.optimise-given-model"
+     ]
+    },
+    {
+     "id": "constraint-second-length",
+     "given": [
+      "a fixed volume, area or length",
+      "the shape"
+     ],
+     "asked": "the second length in terms of the first",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "AI-SL5.7.build-model-from-constraint"
+     ]
+    },
+    {
+     "id": "objective-one-variable",
+     "given": [
+      "a fixed volume, area or length",
+      "the shape"
+     ],
+     "asked": "the area, volume or length to optimise in one variable, with its numbers stated",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "AI-SL5.7.build-model-from-constraint"
+     ]
+    },
+    {
+     "id": "container-optimal-dimension",
+     "given": [
+      "the function in one variable, or the shape and its constraint"
+     ],
+     "asked": "the length that gives the least material or greatest volume",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "AI-SL5.7.optimise-container"
+     ]
+    },
+    {
+     "id": "container-optimum-value",
+     "given": [
+      "the function in one variable, or the shape and its constraint"
+     ],
+     "asked": "the least area or cost, or the greatest volume or area",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "AI-SL5.7.optimise-container"
+     ]
+    },
+    {
+     "id": "container-other-dimension",
+     "given": [
+      "the shape and its constraint"
+     ],
+     "asked": "the second length at the optimum",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "AI-SL5.7.optimise-container"
+     ]
+    },
+    {
+     "id": "route-least-time",
+     "given": [
+      "a route off a road, with the speed or cost on each part"
+     ],
+     "asked": "the point that gives the least time or cost, or that least value",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "AI-SL5.7.build-model-from-constraint",
+      "AI-SL5.7.optimise-given-model"
+     ]
+    },
+    {
+     "id": "whole-number-optimum",
+     "given": [
+      "a model whose optimum is not a whole number",
+      "whole items only"
+     ],
+     "asked": "the greatest profit or least cost with whole items",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "AI-SL5.7.interpret-optimum-in-context"
+     ]
+    },
+    {
+     "id": "context-domain",
+     "given": [
+      "a box cut from a sheet, or a plot with a fixed fence"
+     ],
+     "asked": "the domain of the function in this context",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "AI-SL5.7.interpret-optimum-in-context"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "AI-SL5.7.optimise-given-model",
+     "method": "derivative-zero",
+     "suits": [
+      "optimal-input-given-model",
+      "optimum-value-given-model",
+      "profit-from-revenue-cost",
+      "suggested-not-optimal",
+      "route-least-time"
+     ]
+    },
+    {
+     "skill": "AI-SL5.7.optimise-given-model",
+     "method": "gdc-maximum",
+     "suits": [
+      "optimal-input-given-model",
+      "optimum-value-given-model",
+      "profit-from-revenue-cost",
+      "suggested-not-optimal",
+      "route-least-time"
+     ]
+    },
+    {
+     "skill": "AI-SL5.7.optimise-given-model",
+     "method": "vertex-of-quadratic-model",
+     "suits": [
+      "optimal-input-given-model",
+      "optimum-value-given-model"
+     ],
+     "weak": {
+      "kind": "fails",
+      "why": "a cubic, reciprocal or angle model is not a quadratic, so it has no vertex formula",
+      "unknowns": [
+       "optimal-input-given-model",
+       "optimum-value-given-model"
+      ]
+     }
+    },
+    {
+     "skill": "AI-SL5.7.build-model-from-constraint",
+     "method": "substitute-constraint",
+     "suits": [
+      "constraint-second-length",
+      "objective-one-variable",
+      "route-least-time"
+     ]
+    },
+    {
+     "skill": "AI-SL5.7.build-model-from-constraint",
+     "method": "label-the-diagram",
+     "suits": [
+      "constraint-second-length",
+      "objective-one-variable"
+     ]
+    },
+    {
+     "skill": "AI-SL5.7.optimise-container",
+     "method": "calculus-route",
+     "suits": [
+      "container-optimal-dimension",
+      "container-optimum-value",
+      "container-other-dimension"
+     ]
+    },
+    {
+     "skill": "AI-SL5.7.optimise-container",
+     "method": "gdc-graph-route",
+     "suits": [
+      "container-optimal-dimension",
+      "container-optimum-value",
+      "container-other-dimension"
+     ]
+    },
+    {
+     "skill": "AI-SL5.7.interpret-optimum-in-context",
+     "method": "test-neighbouring-integers",
+     "suits": [
+      "whole-number-optimum"
+     ]
+    },
+    {
+     "skill": "AI-SL5.7.interpret-optimum-in-context",
+     "method": "gdc-table",
+     "suits": [
+      "whole-number-optimum"
+     ]
+    },
+    {
+     "skill": "AI-SL5.7.interpret-optimum-in-context",
+     "method": "check-domain-ends",
+     "suits": [
+      "context-domain"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If the best number of items from the derivative is 37.6, the best whole number of items is 38.",
+     "answer": "False: the model need not be symmetric about its maximum, so 37 can give more; work out both and keep the better one.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Predict whether a can of fixed volume that uses the least metal is tall and thin, short and wide, or neither, then check from h and r at the optimum.",
+     "answer": "Neither: for a closed can the least area is where h = 2r, so the height equals the diameter.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "AI-SL5.7.optimise-given-model#0",
+     "text": "Giving the value of x when the optimum value itself is asked for",
+     "as": "distractor",
+     "in": [
+      "optimum-value-given-model",
+      "container-optimum-value"
+     ],
+     "wrong": "the value of the variable instead of the optimum"
+    },
+    {
+     "ref": "AI-SL5.7.optimise-given-model#1",
+     "text": "Optimising revenue instead of profit (profit = revenue − cost)",
+     "as": "distractor",
+     "in": [
+      "profit-from-revenue-cost"
+     ],
+     "wrong": "the greatest revenue"
+    },
+    {
+     "ref": "AI-SL5.7.optimise-given-model#2",
+     "text": "Reporting a minimum when a maximum was wanted because the derivative = 0 was not checked",
+     "as": "distractor",
+     "in": [
+      "optimal-input-given-model",
+      "optimum-value-given-model"
+     ],
+     "wrong": "the other stationary point"
+    },
+    {
+     "ref": "AI-SL5.7.build-model-from-constraint#0",
+     "text": "Forgetting that both sides of the box lose a square, so each side is cut by x instead of twice x",
+     "as": "distractor",
+     "in": [
+      "objective-one-variable",
+      "container-optimal-dimension"
+     ],
+     "wrong": "each side cut by x only"
+    },
+    {
+     "ref": "AI-SL5.7.build-model-from-constraint#1",
+     "text": "Using πrh for the curved surface instead of twice that, so the term in 1/r is halved",
+     "as": "distractor",
+     "in": [
+      "objective-one-variable",
+      "constraint-second-length"
+     ],
+     "wrong": "the curved surface as πrh"
+    },
+    {
+     "ref": "AI-SL5.7.build-model-from-constraint#2",
+     "text": "Including a lid on an open container, so the area has two circles instead of one",
+     "as": "distractor",
+     "in": [
+      "objective-one-variable"
+     ],
+     "wrong": "a lid counted on the open container"
+    },
+    {
+     "ref": "AI-SL5.7.optimise-container#0",
+     "text": "Accepting the root that gives zero volume, where the cut uses up the whole side of the sheet",
+     "as": "distractor",
+     "in": [
+      "container-optimal-dimension"
+     ],
+     "wrong": "the root that makes the volume zero"
+    },
+    {
+     "ref": "AI-SL5.7.optimise-container#1",
+     "text": "Rounding r before finding h, so the height and area come out slightly wrong",
+     "as": "distractor",
+     "in": [
+      "container-other-dimension",
+      "container-optimum-value"
+     ],
+     "wrong": "the value worked from r rounded first"
+    },
+    {
+     "ref": "AI-SL5.7.optimise-container#2",
+     "text": "Stopping at the value of r when the question asks for the minimum area",
+     "as": "distractor",
+     "in": [
+      "container-optimum-value"
+     ],
+     "wrong": "the length at the optimum"
+    },
+    {
+     "ref": "AI-SL5.7.interpret-optimum-in-context#0",
+     "text": "Rounding the optimum x to the nearest whole number without checking the neighbouring integer, which can give the smaller value",
+     "as": "distractor",
+     "in": [
+      "whole-number-optimum"
+     ],
+     "wrong": "the value at the nearest whole number, without checking the other"
+    },
+    {
+     "ref": "AI-SL5.7.interpret-optimum-in-context#1",
+     "text": "Giving a negative length, or a cut too big for the sheet, as a valid answer",
+     "as": "distractor",
+     "in": [
+      "context-domain"
+     ],
+     "wrong": "a domain that lets a length go negative"
+    },
+    {
+     "text": "Leaving the profit as revenue minus only the fixed cost, without the cost of each item",
+     "as": "distractor",
+     "in": [
+      "profit-from-revenue-cost"
+     ],
+     "wrong": "the profit with the cost per item left out"
+    },
+    {
+     "text": "Taking the derivative at the suggested value to be the profit there",
+     "as": "distractor",
+     "in": [
+      "suggested-not-optimal"
+     ],
+     "wrong": "a reason that confuses the gradient with the profit"
+    },
+    {
+     "text": "Saying a value is optimal because the profit there is positive",
+     "as": "distractor",
+     "in": [
+      "suggested-not-optimal"
+     ],
+     "wrong": "a reason from the profit being positive"
+    },
+    {
+     "text": "Including an end where the volume or area is zero in the domain",
+     "as": "distractor",
+     "in": [
+      "context-domain"
+     ],
+     "wrong": "a closed domain with the zero-volume ends"
+    },
+    {
+     "text": "Adding the times of the two legs at the same speed",
+     "as": "distractor",
+     "in": [
+      "route-least-time"
+     ],
+     "wrong": "both legs at one speed"
+    }
+   ],
+   "parts": [
+    "ai-sl-2021-may-tz1-p1-q12.c",
+    "ai-sl-2021-may-tz2-p2-q05.b",
+    "ai-sl-2021-may-tz2-p2-q05.e",
+    "ai-sl-2021-may-tz2-p2-q05.f",
+    "ai-sl-2021-nov-tz0-p1-q12.b",
+    "ai-sl-2023-may-tz1-p1-q07.b",
+    "ai-sl-2023-may-tz1-p1-q07.c",
+    "ai-sl-2023-may-tz1-p2-q05.b",
+    "ai-sl-2023-may-tz1-p2-q05.e",
+    "ai-sl-2023-may-tz2-p2-q05.a",
+    "ai-sl-2023-may-tz2-p2-q05.d",
+    "ai-sl-2023-may-tz2-p2-q05.e",
+    "ai-sl-2023-nov-tz1-p2-q05.c",
+    "ai-sl-2023-nov-tz1-p2-q05.e",
+    "ai-sl-2023-nov-tz1-p2-q05.f",
+    "ai-sl-2023-nov-tz1-p2-q05.g",
+    "ai-sl-2023-nov-tz1-p2-q05.h",
+    "ai-sl-2023-nov-tz2-p2-q05.e",
+    "ai-sl-2023-nov-tz2-p2-q05.f",
+    "ai-sl-2023-nov-tz2-p2-q05.g",
+    "ai-sl-2023-nov-tz2-p2-q05.h",
+    "ai-sl-2024-may-tz1-p2-q03.c",
+    "ai-sl-2024-may-tz2-p1-q12.a",
+    "ai-sl-2024-may-tz2-p1-q12.b",
+    "ai-sl-2024-may-tz2-p1-q12.d",
+    "ai-sl-2024-may-tz2-p2-q05.d",
+    "ai-sl-2024-nov-tz1-p2-q04.d",
+    "ai-sl-2024-nov-tz1-p2-q04.e",
+    "ai-sl-2024-nov-tz1-p2-q04.f",
+    "ai-sl-2024-nov-tz2-p2-q04.d",
+    "ai-sl-2024-nov-tz2-p2-q04.e",
+    "ai-sl-2024-nov-tz2-p2-q04.f",
+    "ai-sl-2025-may-tz1-p1-q12.a",
+    "ai-sl-2025-may-tz1-p1-q12.c",
+    "ai-sl-2025-may-tz2-p2-q05.c",
+    "ai-sl-2025-may-tz2-p2-q05.d",
+    "ai-sl-2025-may-tz2-p2-q05.f",
+    "ai-sl-2025-may-tz3-p2-q03.d",
+    "ai-sl-2025-may-tz3-p2-q03.e",
+    "ai-sl-2025-may-tz3-p2-q03.g",
+    "ai-sl-2025-nov-tz3-p1-q13",
+    "ai-sl-2026-may-tz1-p2-q05.c",
+    "ai-sl-2026-may-tz1-p2-q05.d",
+    "ai-sl-2026-may-tz1-p2-q05.e",
+    "ai-sl-2026-may-tz1-p2-q05.f",
+    "ai-sl-2026-may-tz1-p2-q05.g",
+    "ai-sl-2026-may-tz2-p2-q01.d",
+    "ai-sl-2026-may-tz3-p2-q05.d",
+    "ai-hl-2021-may-tz2-p2-q03.b",
+    "ai-hl-2021-may-tz2-p2-q03.e",
+    "ai-hl-2021-may-tz2-p2-q03.f",
+    "ai-hl-2023-may-tz1-p3-q01.c",
+    "ai-hl-2023-may-tz1-p3-q01.d",
+    "ai-hl-2023-may-tz1-p3-q01.e(ii)",
+    "ai-hl-2023-may-tz1-p3-q01.e(iii)",
+    "ai-hl-2023-may-tz2-p2-q03.a",
+    "ai-hl-2023-may-tz2-p2-q03.d",
+    "ai-hl-2023-may-tz2-p2-q03.e",
+    "ai-hl-2023-may-tz2-p3-q01.b(i)",
+    "ai-hl-2023-may-tz2-p3-q01.b(iii)",
+    "ai-hl-2023-may-tz2-p3-q01.b(iv)",
+    "ai-hl-2024-may-tz1-p3-q02.d(ii)",
+    "ai-hl-2024-may-tz2-p2-q03.d",
+    "ai-hl-2024-nov-tz0-p2-q02.d",
+    "ai-hl-2024-nov-tz0-p2-q02.e",
+    "ai-hl-2024-nov-tz0-p2-q02.f",
+    "ai-hl-2025-may-tz2-p2-q03.c",
+    "ai-hl-2025-may-tz2-p2-q03.d",
+    "ai-hl-2025-may-tz2-p2-q03.f",
+    "ai-hl-2025-may-tz3-p2-q01.d",
+    "ai-hl-2025-may-tz3-p2-q01.e",
+    "ai-hl-2025-may-tz3-p2-q01.g",
+    "ai-hl-2025-nov-tz0-p2-q06.d",
+    "ai-hl-2026-may-tz3-p1-q15.a"
+   ],
+   "stats": {
+    "parts": 74,
+    "paper": {
+     "p1": 11,
+     "p2": 55
+    },
+    "calculator": {
+     "without": 0,
+     "with": 74
+    },
+    "section": {
+     "A": 0,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 9
+    },
+    "mainTags": {
+     "5.7": 74
+    }
+   }
+  },
+  {
+   "id": "t5-ai-trapezoidal",
+   "topic": 5,
+   "source": "exam",
+   "detail": "full",
+   "home": "ai-sl",
+   "region": "definite-integrals",
+   "name": "Trapezoidal rule from a table or a function (AI)",
+   "summary": "Estimate an area with the trapezoidal rule from a function or from a table of measurements, a total such as a distance from speeds, the percentage error against the GDC's integral, whether the estimate is over or under, and a missing height from a given estimate.",
+   "syllabus": [
+    "5.8"
+   ],
+   "skills": [
+    "AI-SL5.8.trapezoid-from-function",
+    "AI-SL5.8.trapezoid-from-data",
+    "AI-SL5.8.compare-with-exact",
+    "AI-SL5.8.over-or-under-estimate",
+    "AI-SL5.8.find-missing-value"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "the strip width h = (b − a)/n, or the spacing of the measurements",
+    "the heights at the ends and in between",
+    "the estimate (h/2)[ends + 2 × inner heights]",
+    "the percentage error against the exact value, or whether it is over or under"
+   ],
+   "given": [
+    "a function, its limits and the number of strips",
+    "a table of equally spaced measurements",
+    "a speed, rate or depth recorded at equal intervals",
+    "an estimate with one height unknown"
+   ],
+   "asked": "The strip width, the trapezoidal estimate of an area or a total, the percentage error against the exact value, whether the estimate is an over- or underestimate, how to improve it, or a missing height.",
+   "answerForms": [
+    "3 s.f., or exact where it ends",
+    "a statement with its reason",
+    "a graph"
+   ],
+   "randomise": [
+    "the function or the data",
+    "the limits and the number of strips",
+    "the story and its units",
+    "which height is unknown"
+   ],
+   "constraints": [
+    "Paper 2: every AI paper allows a GDC",
+    "equal strip widths",
+    "each 3 s.f. answer and slip is clear of a rounding edge and reads differently"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "graph-pick"
+   ],
+   "situation": "trapezoidal",
+   "representations": [
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "x against the measured or worked-out heights"
+    },
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "y = f(x) with the limits and the number of strips"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story: what was measured, how often, and in what units"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "the curve with the strips drawn, or points read off a graph"
+    },
+    {
+     "rep": "diagram",
+     "exam": false,
+     "how": "the shape of a field or a lake with its widths drawn at equal spacing"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "strip-width",
+     "given": [
+      "the limits and the number of strips, or the x-values of a table"
+     ],
+     "asked": "the strip width h",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "table"
+     ],
+     "skills": [
+      "AI-SL5.8.trapezoid-from-function"
+     ]
+    },
+    {
+     "id": "function-estimate",
+     "given": [
+      "y = f(x), the limits and the number of strips"
+     ],
+     "asked": "the trapezoidal estimate of the area",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "table"
+     ],
+     "skills": [
+      "AI-SL5.8.trapezoid-from-function"
+     ]
+    },
+    {
+     "id": "data-estimate",
+     "given": [
+      "equally spaced measurements"
+     ],
+     "asked": "the trapezoidal estimate of the area",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table",
+      "diagram"
+     ],
+     "skills": [
+      "AI-SL5.8.trapezoid-from-data"
+     ]
+    },
+    {
+     "id": "accumulated-total",
+     "given": [
+      "a speed, rate or depth at equal intervals"
+     ],
+     "asked": "the estimated distance, total or volume",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "AI-SL5.8.trapezoid-from-data"
+     ]
+    },
+    {
+     "id": "percentage-error-of-estimate",
+     "given": [
+      "y = f(x), the limits and the number of strips"
+     ],
+     "asked": "the percentage error in the estimate against the exact value",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "AI-SL5.8.compare-with-exact",
+      "AI-SL5.8.trapezoid-from-function"
+     ]
+    },
+    {
+     "id": "improve-estimate",
+     "given": [
+      "an estimate with n strips"
+     ],
+     "asked": "how the estimate could be made more accurate, and why",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "AI-SL5.8.compare-with-exact"
+     ]
+    },
+    {
+     "id": "over-or-under",
+     "given": [
+      "the curve, or y = f(x) on an interval"
+     ],
+     "asked": "whether the estimate is an over- or underestimate, with the reason",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph",
+      "equation"
+     ],
+     "skills": [
+      "AI-SL5.8.over-or-under-estimate"
+     ]
+    },
+    {
+     "id": "pick-underestimate-graph",
+     "given": [
+      "four curves on the same interval"
+     ],
+     "asked": "which curve the rule underestimates or overestimates",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "AI-SL5.8.over-or-under-estimate"
+     ]
+    },
+    {
+     "id": "missing-height",
+     "given": [
+      "a table with one height k",
+      "the trapezoidal estimate"
+     ],
+     "asked": "the value of k",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "AI-SL5.8.find-missing-value"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "AI-SL5.8.trapezoid-from-function",
+     "method": "trapezoidal-formula",
+     "suits": [
+      "strip-width",
+      "function-estimate",
+      "percentage-error-of-estimate"
+     ]
+    },
+    {
+     "skill": "AI-SL5.8.trapezoid-from-function",
+     "method": "sum-of-trapezia",
+     "suits": [
+      "function-estimate"
+     ]
+    },
+    {
+     "skill": "AI-SL5.8.trapezoid-from-function",
+     "method": "gdc-list",
+     "suits": [
+      "function-estimate"
+     ]
+    },
+    {
+     "skill": "AI-SL5.8.trapezoid-from-data",
+     "method": "formula-with-data",
+     "suits": [
+      "data-estimate",
+      "accumulated-total"
+     ]
+    },
+    {
+     "skill": "AI-SL5.8.trapezoid-from-data",
+     "method": "strip-by-strip",
+     "suits": [
+      "data-estimate",
+      "accumulated-total"
+     ]
+    },
+    {
+     "skill": "AI-SL5.8.compare-with-exact",
+     "method": "gdc-integral",
+     "suits": [
+      "percentage-error-of-estimate",
+      "improve-estimate"
+     ]
+    },
+    {
+     "skill": "AI-SL5.8.compare-with-exact",
+     "method": "percentage-error-formula",
+     "suits": [
+      "percentage-error-of-estimate"
+     ]
+    },
+    {
+     "skill": "AI-SL5.8.over-or-under-estimate",
+     "method": "chords-above-or-below",
+     "suits": [
+      "over-or-under",
+      "pick-underestimate-graph"
+     ]
+    },
+    {
+     "skill": "AI-SL5.8.over-or-under-estimate",
+     "method": "compare-with-gdc",
+     "suits": [
+      "over-or-under"
+     ]
+    },
+    {
+     "skill": "AI-SL5.8.find-missing-value",
+     "method": "linear-equation",
+     "suits": [
+      "missing-height"
+     ]
+    },
+    {
+     "skill": "AI-SL5.8.find-missing-value",
+     "method": "gdc-solver",
+     "suits": [
+      "missing-height"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "The trapezoidal rule always overestimates the area under an increasing curve.",
+     "answer": "False: it depends on how the curve bends, not whether it rises. Under y = √x, which rises but bends down, the chords lie below the curve and the rule underestimates.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Predict what happens to the estimate's error when the number of strips is doubled, then check on y = x² from 0 to 2.",
+     "answer": "It shrinks to about a quarter: with 4 strips the error is 1/12, and with 8 strips it is 1/48.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "AI-SL5.8.trapezoid-from-function#0",
+     "text": "Dividing by the number of y-values instead of the number of intervals to find h",
+     "as": "distractor",
+     "in": [
+      "strip-width",
+      "function-estimate",
+      "percentage-error-of-estimate"
+     ],
+     "wrong": "h from the number of heights instead of the number of strips"
+    },
+    {
+     "ref": "AI-SL5.8.trapezoid-from-function#1",
+     "text": "Not doubling the inner heights",
+     "as": "distractor",
+     "in": [
+      "function-estimate",
+      "data-estimate"
+     ],
+     "wrong": "every height counted once"
+    },
+    {
+     "ref": "AI-SL5.8.trapezoid-from-function#2",
+     "text": "Leaving out the half in front of the bracket",
+     "as": "distractor",
+     "in": [
+      "function-estimate",
+      "data-estimate",
+      "accumulated-total"
+     ],
+     "wrong": "the bracket times h, without the half"
+    },
+    {
+     "ref": "AI-SL5.8.trapezoid-from-data#0",
+     "text": "Using the spacing values as the heights and the measurements as the widths",
+     "as": "distractor",
+     "in": [
+      "data-estimate"
+     ],
+     "wrong": "the x-values used as the heights"
+    },
+    {
+     "ref": "AI-SL5.8.trapezoid-from-data#1",
+     "text": "Mixing units, such as speeds in metres per second with times recorded in minutes",
+     "as": "distractor",
+     "in": [
+      "accumulated-total"
+     ],
+     "wrong": "the spacing left in the wrong unit"
+    },
+    {
+     "ref": "AI-SL5.8.trapezoid-from-data#2",
+     "text": "Treating the first and last widths as interior values and doubling them",
+     "as": "distractor",
+     "in": [
+      "data-estimate",
+      "accumulated-total"
+     ],
+     "wrong": "the end heights doubled as well"
+    },
+    {
+     "ref": "AI-SL5.8.compare-with-exact#0",
+     "text": "Dividing by the estimate instead of the exact value",
+     "as": "distractor",
+     "in": [
+      "percentage-error-of-estimate"
+     ],
+     "wrong": "the error over the estimate"
+    },
+    {
+     "ref": "AI-SL5.8.compare-with-exact#1",
+     "text": "Thinking that using more strips makes the estimate less accurate",
+     "as": "distractor",
+     "in": [
+      "improve-estimate"
+     ],
+     "wrong": "a claim that more strips make it worse"
+    },
+    {
+     "ref": "AI-SL5.8.compare-with-exact#2",
+     "text": "Giving a negative percentage error instead of using the absolute difference",
+     "as": "distractor",
+     "in": [
+      "percentage-error-of-estimate"
+     ],
+     "wrong": "the signed error"
+    },
+    {
+     "ref": "AI-SL5.8.over-or-under-estimate#0",
+     "text": "Deciding from whether the curve rises or falls, instead of from the way it bends",
+     "as": "distractor",
+     "in": [
+      "over-or-under",
+      "pick-underestimate-graph"
+     ],
+     "wrong": "an answer read from whether the curve rises"
+    },
+    {
+     "ref": "AI-SL5.8.over-or-under-estimate#1",
+     "text": "Assuming the trapezoidal rule always overestimates",
+     "as": "distractor",
+     "in": [
+      "over-or-under",
+      "pick-underestimate-graph"
+     ],
+     "wrong": "an overestimate whatever the curve"
+    },
+    {
+     "ref": "AI-SL5.8.over-or-under-estimate#2",
+     "text": "Thinking a straight-line graph gives an error (the rule is exact for a line)",
+     "as": "distractor",
+     "in": [
+      "over-or-under",
+      "pick-underestimate-graph"
+     ],
+     "wrong": "an error claimed for a straight line"
+    },
+    {
+     "ref": "AI-SL5.8.find-missing-value#0",
+     "text": "Giving an unknown inner height the weight of an end height, so it is counted once instead of twice",
+     "as": "distractor",
+     "in": [
+      "missing-height"
+     ],
+     "wrong": "the unknown inner height given weight one"
+    },
+    {
+     "ref": "AI-SL5.8.find-missing-value#1",
+     "text": "Forgetting the h/2 factor when setting up the equation",
+     "as": "distractor",
+     "in": [
+      "missing-height"
+     ],
+     "wrong": "the equation without h/2"
+    },
+    {
+     "text": "Saying a smaller strip width makes no difference, since the formula is the same",
+     "as": "distractor",
+     "in": [
+      "improve-estimate"
+     ],
+     "wrong": "a claim that the strip width doesn't matter"
+    }
+   ],
+   "parts": [
+    "ai-sl-2021-may-tz1-p2-q05.b",
+    "ai-sl-2021-nov-tz0-p1-q06.a",
+    "ai-sl-2022-may-tz1-p1-q06.a",
+    "ai-sl-2023-may-tz1-p1-q09.a",
+    "ai-sl-2023-may-tz2-p1-q13.a",
+    "ai-sl-2023-nov-tz1-p2-q01.a",
+    "ai-sl-2023-nov-tz1-p2-q01.b",
+    "ai-sl-2023-nov-tz2-p2-q01.b",
+    "ai-sl-2024-may-tz2-p2-q03.a",
+    "ai-sl-2024-nov-tz1-p2-q04.a",
+    "ai-sl-2024-nov-tz2-p2-q04.a",
+    "ai-sl-2025-may-tz3-p2-q05.a",
+    "ai-sl-2025-may-tz3-p2-q05.b",
+    "ai-sl-2025-nov-tz3-p2-q05.c",
+    "ai-sl-2026-may-tz1-p2-q02.c",
+    "ai-sl-2026-may-tz1-p2-q02.d",
+    "ai-sl-2026-may-tz3-p1-q07.a",
+    "ai-hl-2021-may-tz1-p2-q02.c",
+    "ai-hl-2024-nov-tz0-p2-q02.a",
+    "ai-hl-2026-may-tz2-p1-q08.a"
+   ],
+   "stats": {
+    "parts": 20,
+    "paper": {
+     "p1": 6,
+     "p2": 14
+    },
+    "calculator": {
+     "without": 0,
+     "with": 20
+    },
+    "section": {
+     "A": 0,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 5
+    },
+    "mainTags": {
+     "5.8": 20
     }
    }
   }

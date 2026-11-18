@@ -504,6 +504,11 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   again with SymPy. `test_log_technology.gd`. The map's skills list `match`, `multipart` and
   `order-steps` formats for AI-SL1.6 and AI-SL1.7; the engine doesn't build them, so none of these
   types offers them.
+<!-- R2-STATIONARY -->
+
+<!-- R2-OPTIMISATION -->
+
+<!-- R2-TRAPEZOIDAL -->
 - `engine/situations/log_exp_form.gd` (FAL-753) is `t1-log-exp-form` (SL1.5.exp-log-form and
   SL1.5.log-context), the `log-exp-form` situation: 25 unknowns over 73 cells. Paper 1 changes a fact
   between log and exponential form, evaluates a log exactly, solves for the number, the bracket, the

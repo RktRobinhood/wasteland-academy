@@ -980,6 +980,11 @@ script error happens while it runs. Run one file with
 - `test_log_technology.gd` (FAL-999): t1-ext-logs-with-technology built with every cell on all four
   courses, Paper 2; method-pick on every cell and error-spot on the two equations, with the slip on
   either line; every tag shows up; hand values of the logs.
+<!-- R2-STATIONARY -->
+
+<!-- R2-OPTIMISATION -->
+
+<!-- R2-TRAPEZOIDAL -->
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.

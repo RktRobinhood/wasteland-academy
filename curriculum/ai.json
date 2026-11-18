@@ -10588,9 +10588,9 @@
                 }
               ],
               "misconceptions": [
-                "Solving f(x) = 0 instead of f′(x) = 0: for f(x) = x² − 4x this gives x = 0 and x = 4 instead of x = 2",
-                "Keeping the constant when differentiating: f(x) = x³ − 3x + 5 becomes f′(x) = 3x² + 2, which has no zeros, instead of 3x² − 3 with zeros x = ±1",
-                "Losing the negative root: 3x² − 12 = 0 gives only x = 2, missing x = −2"
+                "Solving f(x) = 0 instead of f′(x) = 0, which finds where the curve crosses the x-axis",
+                "Keeping the constant term when differentiating, so f′(x) has the wrong zeros",
+                "Losing the negative root when solving f′(x) = 0, so only the positive value of x is given"
               ],
               "threads": [
                 {
@@ -10647,7 +10647,7 @@
                 }
               ],
               "misconceptions": [
-                "Substituting into f′ instead of f: for f(x) = x³ − 6x² + 9x + 1 this gives (1, 0) instead of the local maximum (1, 5)",
+                "Substituting x into f′ instead of f, so the y-coordinate comes out as zero",
                 "Giving only the x-coordinate when the coordinates or the minimum value are asked for",
                 "Reading a point where the graph leaves the GDC window as a turning point"
               ],
@@ -10705,7 +10705,7 @@
               "misconceptions": [
                 "Reversing the rule: calling + then − a minimum",
                 "Checking the sign of f, not f′, either side of the point",
-                "Testing points beyond the next stationary point: for f′(x) = 3(x − 1)(x − 3), testing x = 0 and x = 4 around x = 1 gives + and +, so the maximum at x = 1 is missed"
+                "Testing points beyond the next stationary point, so the gradient has the same sign on both sides and the turning point is missed"
               ],
               "threads": [
                 {
@@ -10753,7 +10753,7 @@
                 }
               ],
               "misconceptions": [
-                "Giving the local maximum as the greatest value: for f(x) = x³ − 6x² + 9x + 1 on 0 ≤ x ≤ 5, answering 5 when f(5) = 21",
+                "Giving the local maximum as the greatest value, when an end of the domain gives a larger value",
                 "Including a stationary point that lies outside the given domain",
                 "Forgetting to evaluate f at the endpoints at all"
               ],
@@ -10873,7 +10873,7 @@
                 }
               ],
               "misconceptions": [
-                "Giving the x-value when the optimum value is asked: for P(x) = −0.5x² + 40x − 300, answering 40 when the maximum profit is 500",
+                "Giving the value of x when the optimum value itself is asked for",
                 "Optimising revenue instead of profit (profit = revenue − cost)",
                 "Reporting a minimum when a maximum was wanted because the derivative = 0 was not checked"
               ],
@@ -10924,9 +10924,9 @@
                 }
               ],
               "misconceptions": [
-                "Forgetting that both sides of the box lose a square: V = x(20 − x)² instead of x(20 − 2x)²",
-                "Using πrh for the curved surface, giving A = 2πr² + 500/r instead of 2πr² + 1000/r",
-                "Including a lid on an open container: 2πr² + 2V/r instead of πr² + 2V/r"
+                "Forgetting that both sides of the box lose a square, so each side is cut by x instead of twice x",
+                "Using πrh for the curved surface instead of twice that, so the term in 1/r is halved",
+                "Including a lid on an open container, so the area has two circles instead of one"
               ],
               "threads": [
                 {
@@ -10973,8 +10973,8 @@
                 }
               ],
               "misconceptions": [
-                "Accepting the root x = 10 for the 20 cm box, which gives zero volume, instead of x = 10/3 with V ≈ 593 cm³",
-                "Rounding r to 4.3 before finding h, so the height and area come out slightly wrong",
+                "Accepting the root that gives zero volume, where the cut uses up the whole side of the sheet",
+                "Rounding r before finding h, so the height and area come out slightly wrong",
                 "Stopping at the value of r when the question asks for the minimum area"
               ],
               "threads": [
@@ -11030,7 +11030,7 @@
               ],
               "misconceptions": [
                 "Rounding the optimum x to the nearest whole number without checking the neighbouring integer, which can give the smaller value",
-                "Giving a negative length or a box side of 20 − 2x < 0 as a valid answer",
+                "Giving a negative length, or a cut too big for the sheet, as a valid answer",
                 "Leaving out units, or giving cm² for a volume"
               ],
               "threads": [
@@ -11099,9 +11099,9 @@
                 }
               ],
               "misconceptions": [
-                "Using h = 2/5 because there are 5 y-values, instead of h = 2/4 = 0.5",
-                "Not doubling the inner heights: 0.25(0 + 0.25 + 1 + 2.25 + 4) = 1.875 instead of 2.75",
-                "Leaving out the ½: 0.5(0 + 4 + 2 × 3.5) = 5.5 instead of 2.75"
+                "Dividing by the number of y-values instead of the number of intervals to find h",
+                "Not doubling the inner heights",
+                "Leaving out the half in front of the bracket"
               ],
               "threads": [
                 {
@@ -11149,7 +11149,7 @@
               ],
               "misconceptions": [
                 "Using the spacing values as the heights and the measurements as the widths",
-                "Mixing units: speeds in m/s with times recorded in minutes, so the distance is 60 times too small",
+                "Mixing units, such as speeds in metres per second with times recorded in minutes",
                 "Treating the first and last widths as interior values and doubling them"
               ],
               "threads": [
@@ -11196,7 +11196,7 @@
                 }
               ],
               "misconceptions": [
-                "Dividing by the estimate instead of the exact value: 0.0833/2.75 ≈ 3.03% instead of 3.13%",
+                "Dividing by the estimate instead of the exact value",
                 "Thinking that using more strips makes the estimate less accurate",
                 "Giving a negative percentage error instead of using the absolute difference"
               ],
@@ -11245,7 +11245,7 @@
                 }
               ],
               "misconceptions": [
-                "Deciding from whether the curve rises: y = √x is increasing, but the trapezoidal rule underestimates it",
+                "Deciding from whether the curve rises or falls, instead of from the way it bends",
                 "Assuming the trapezoidal rule always overestimates",
                 "Thinking a straight-line graph gives an error (the rule is exact for a line)"
               ],
@@ -11292,7 +11292,7 @@
                 }
               ],
               "misconceptions": [
-                "Giving an interior unknown weight 1 instead of 2, so k comes out roughly double",
+                "Giving an unknown inner height the weight of an end height, so it is counted once instead of twice",
                 "Forgetting the h/2 factor when setting up the equation"
               ],
               "threads": [

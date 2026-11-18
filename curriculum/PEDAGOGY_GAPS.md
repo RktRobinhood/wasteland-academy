@@ -8,7 +8,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## In numbers
 
-- **Types:** 111 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
+- **Types:** 114 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
 - **Skills with a type:** 286 of 286.
 - **Functions:** 141 unknowns the exam asks and 434 it doesn't; 574 angles, 193 of them with a weak spot for method-pick questions; 160 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
 - **Coverage cells** (one unknown in one representation by one method): 2102 in Functions, of which 528 are reachable with "Exam-style only" on.
@@ -3435,7 +3435,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 18 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 21 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 7 bank parts)
 
@@ -3883,6 +3883,73 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): If ∫ from a to b of (f(x) − g(x)) dx = 0, the curves enclose no area between a and b. — False: the curves can swap over, so a piece with f on top cancels a piece with g on top. Split at the crossing, or integrate |f − g|.
   - *always-sometimes-never* (L3): The area between two curves changes when both are moved up by the same amount. — Never: top minus bottom stays the same at every x, so the area does too.
 - **Misconceptions used:** 20. Integrating lower − upper and reporting a negative area; Using the x-intercepts of one curve as limits instead of the intersection points; Not splitting where the curves cross, so the pieces cancel; Giving the y-values of the meeting points instead of the x-values; Adding the two areas instead of subtracting the lower from the upper; Subtracting only the first term of the lower curve, so its other terms keep their signs; Counting only one of the pieces of the region; Adding the two curves, so the part below the x-axis cancels part of the area above it; Taking only the positive shift, when the other graph can lie on either side; Using the area as the shift, without dividing by the width of the region; Stopping at the cube of the letter, without taking the cube root; Forgetting to halve after adding the two changes; Treating an area below the x-axis as a rise in f, or an area above it as a fall; Stopping at the area between the curve and y = x, without doubling for the inverse; Using one curve as the top edge across the whole region, past the point where the edge changes; Multiplying by the coefficient of x, as in differentiation, instead of dividing; Taking the lower limit's term as zero when it isn't; Reading the roots off the factors with the wrong signs; Using the ends of the domain as the limits instead of the outer meeting points; Stopping at q, leaving out the change across the second region.
+
+#### Stationary points: local maxima and minima (AI) (`t5-ai-stationary-points`, exam, 10 bank parts)
+
+- **Situation:** A function and its stationary points, worked with technology.
+- **Representations:** **equation**, **words**, **graph**, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given f(x), a polynomial or ax + b/x + c, or a model in a story → the values of x where the gradient is zero
+  - **exam** L1: given f′(x) already found, often in a story → the value of x at the local maximum or minimum
+  - **exam** L3: given f(x) with one unknown coefficient k; the x-coordinate of a stationary point → the value of k
+  - **exam** L2: given f(x) → the coordinates of the local maximum or minimum
+  - **exam** L2: given a model in a story → the greatest or least value of the model
+  - new L3: given f(x), f′(x) as factors, or f′ either side; a stationary point → whether it is a local maximum or minimum, with the reason
+  - new L3: given f(x); a domain a ≤ x ≤ b → the greatest or least value of f on the domain
+  - new L3: given f(x) on a domain, drawn or described → why the local maximum is not the greatest value
+  - new L2: given the graph of f′ → the x-coordinate of a local maximum or minimum of f
+  - new L2: given the graph of f′ → where f is increasing or decreasing
+  - **exam** L3: given the graph of f′ → which graph could be y = f(x)
+- **Angles:** Differentiate, then solve; GDC polynomial solver; Zeros of the f′ graph; Solve f′ = 0, then substitute into f; GDC maximum/minimum tool; Vertex of a quadratic; Sign of f′ either side; Shape of the GDC graph; Shape of a cubic; Compare stationary values with endpoints; Graph on the domain; Read signs from the f′ graph; Build a sign diagram.
+  - *Fails:* Vertex of a quadratic: only a quadratic model has its one stationary point at x = −b/(2a); a cubic model has two.
+- **Concept probes:**
+  - *true-false-reason* (L3): If f′(a) = 0, then f has a local maximum or a local minimum at x = a. — False: f′ must also change sign at a. Where f′ touches zero without changing sign, as for x³ at 0, the point is neither.
+  - *always-sometimes-never* (L3): The local maximum of f is the greatest value of f on a closed domain. — Sometimes: an end of the domain can be higher than the local maximum, so the ends must be checked too.
+- **Misconceptions used:** 18. Solving f(x) = 0 instead of f′(x) = 0, which finds where the curve crosses the x-axis; Keeping the constant term when differentiating, so f′(x) has the wrong zeros; Losing the negative root when solving f′(x) = 0, so only the positive value of x is given; Substituting x into f′ instead of f, so the y-coordinate comes out as zero; Giving only the x-coordinate when the coordinates or the minimum value are asked for; Reading a point where the graph leaves the GDC window as a turning point; Reversing the rule: calling + then − a minimum; Checking the sign of f, not f′, either side of the point; Testing points beyond the next stationary point, so the gradient has the same sign on both sides and the turning point is missed; Giving the local maximum as the greatest value, when an end of the domain gives a larger value; Including a stationary point that lies outside the given domain; Forgetting to evaluate f at the endpoints at all; Taking the turning points of the f′ graph as the stationary points of f; Reading f′ crossing from negative to positive as a maximum; Calling a point where f′ touches the axis without changing sign a maximum or minimum (it is neither); Reading where the f′ graph rises instead of where it lies above the x-axis; Giving the time or input when the greatest value of the model is asked for; Evaluating the model at the end of its domain instead of at the stationary point.
+
+#### Optimisation in context (AI) (`t5-ai-optimisation`, exam, 74 bank parts)
+
+- **Situation:** A quantity to make as large or as small as possible, in context.
+- **Representations:** **words**, **diagram**, **equation**, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a profit, cost or angle model, or its derivative → the value of the variable that gives the maximum or minimum
+  - **exam** L2: given a profit, cost or angle model → the maximum or minimum value
+  - **exam** L3: given a price and the demand it gives, or a revenue and a cost → the greatest profit, or the price that gives it
+  - **exam** L3: given a profit model; a suggested value → why the suggested value does not give the maximum
+  - **exam** L2: given a fixed volume, area or length; the shape → the second length in terms of the first
+  - **exam** L3: given a fixed volume, area or length; the shape → the area, volume or length to optimise in one variable, with its numbers stated
+  - **exam** L4: given the function in one variable, or the shape and its constraint → the length that gives the least material or greatest volume
+  - **exam** L4: given the function in one variable, or the shape and its constraint → the least area or cost, or the greatest volume or area
+  - **exam** L4: given the shape and its constraint → the second length at the optimum
+  - **exam** L4: given a route off a road, with the speed or cost on each part → the point that gives the least time or cost, or that least value
+  - **exam** L3: given a model whose optimum is not a whole number; whole items only → the greatest profit or least cost with whole items
+  - new L2: given a box cut from a sheet, or a plot with a fixed fence → the domain of the function in this context
+- **Angles:** Set the derivative to zero; GDC maximum/minimum; Vertex of a quadratic model; Rearrange the constraint and substitute; Label the net or diagram; Differentiate the one-variable model; Graph the model; Test neighbouring whole numbers; GDC table of values; Check the domain.
+  - *Fails:* Vertex of a quadratic model: a cubic, reciprocal or angle model is not a quadratic, so it has no vertex formula.
+- **Concept probes:**
+  - *true-false-reason* (L3): If the best number of items from the derivative is 37.6, the best whole number of items is 38. — False: the model need not be symmetric about its maximum, so 37 can give more; work out both and keep the better one.
+  - *predict-check* (L4): Predict whether a can of fixed volume that uses the least metal is tall and thin, short and wide, or neither, then check from h and r at the optimum. — Neither: for a closed can the least area is where h = 2r, so the height equals the diameter.
+- **Misconceptions used:** 16. Giving the value of x when the optimum value itself is asked for; Optimising revenue instead of profit (profit = revenue − cost); Reporting a minimum when a maximum was wanted because the derivative = 0 was not checked; Forgetting that both sides of the box lose a square, so each side is cut by x instead of twice x; Using πrh for the curved surface instead of twice that, so the term in 1/r is halved; Including a lid on an open container, so the area has two circles instead of one; Accepting the root that gives zero volume, where the cut uses up the whole side of the sheet; Rounding r before finding h, so the height and area come out slightly wrong; Stopping at the value of r when the question asks for the minimum area; Rounding the optimum x to the nearest whole number without checking the neighbouring integer, which can give the smaller value; Giving a negative length, or a cut too big for the sheet, as a valid answer; Leaving the profit as revenue minus only the fixed cost, without the cost of each item; Taking the derivative at the suggested value to be the profit there; Saying a value is optimal because the profit there is positive; Including an end where the volume or area is zero in the domain; Adding the times of the two legs at the same speed.
+
+#### Trapezoidal rule from a table or a function (AI) (`t5-ai-trapezoidal`, exam, 20 bank parts)
+
+- **Situation:** An area or a total estimated with the trapezoidal rule.
+- **Representations:** **table**, **equation**, **words**, **graph**, diagram (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given the limits and the number of strips, or the x-values of a table → the strip width h
+  - **exam** L2: given y = f(x), the limits and the number of strips → the trapezoidal estimate of the area
+  - **exam** L2: given equally spaced measurements → the trapezoidal estimate of the area
+  - **exam** L3: given a speed, rate or depth at equal intervals → the estimated distance, total or volume
+  - **exam** L3: given y = f(x), the limits and the number of strips → the percentage error in the estimate against the exact value
+  - new L2: given an estimate with n strips → how the estimate could be made more accurate, and why
+  - **exam** L2: given the curve, or y = f(x) on an interval → whether the estimate is an over- or underestimate, with the reason
+  - new L3: given four curves on the same interval → which curve the rule underestimates or overestimates
+  - new L3: given a table with one height k; the trapezoidal estimate → the value of k
+- **Angles:** Trapezoidal rule formula; Add the trapezia one by one; GDC list or spreadsheet; Formula with tabulated heights; Strip by strip; GDC definite integral; Percentage error; Draw the chords; Compare with the GDC value; Set up a linear equation; GDC solver.
+- **Concept probes:**
+  - *true-false-reason* (L3): The trapezoidal rule always overestimates the area under an increasing curve. — False: it depends on how the curve bends, not whether it rises. Under y = √x, which rises but bends down, the chords lie below the curve and the rule underestimates.
+  - *predict-check* (L4): Predict what happens to the estimate's error when the number of strips is doubled, then check on y = x² from 0 to 2. — It shrinks to about a quarter: with 4 strips the error is 1/12, and with 8 strips it is 1/48.
+- **Misconceptions used:** 15. Dividing by the number of y-values instead of the number of intervals to find h; Not doubling the inner heights; Leaving out the half in front of the bracket; Using the spacing values as the heights and the measurements as the widths; Mixing units, such as speeds in metres per second with times recorded in minutes; Treating the first and last widths as interior values and doubling them; Dividing by the estimate instead of the exact value; Thinking that using more strips makes the estimate less accurate; Giving a negative percentage error instead of using the absolute difference; Deciding from whether the curve rises or falls, instead of from the way it bends; Assuming the trapezoidal rule always overestimates; Thinking a straight-line graph gives an error (the rule is exact for a line); Giving an unknown inner height the weight of an end height, so it is counted once instead of twice; Forgetting the h/2 factor when setting up the equation; Saying a smaller strip width makes no difference, since the formula is the same.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|

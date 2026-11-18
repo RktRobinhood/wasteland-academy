@@ -48056,6 +48056,21 @@ SITUATION_CHECKS["log-technology"] = r1lt_check
 SPOT_CHECKS["log-technology"] = r1lt_spot
 
 
+# ── R2 (FAL-1000): the AI SL 5.6 to 5.8 types. Each type's section goes after its own marker. ──
+
+# R2-STATIONARY: t5-ai-stationary-points (ai-stationary), prefix R2SP_ / r2sp_
+
+# (between the R2 markers)
+
+# R2-OPTIMISATION: t5-ai-optimisation (ai-optimisation), prefix R2OP_ / r2op_
+
+# (between the R2 markers)
+
+# R2-TRAPEZOIDAL: t5-ai-trapezoidal (trapezoidal), prefix R2TR_ / r2tr_
+
+# (end of the R2 markers)
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]
