@@ -69776,12 +69776,12 @@
 					"wrong": "k given as the y-intercept"
 				},
 				{
-					"text": "Leaving out the leading coefficient a when writing a(x − p)(x − q)",
+					"text": "Leaving out the leading coefficient a when writing a(x − p)(x − q) or a(x − h)² + k",
 					"as": "distractor",
 					"in": [
 						"match-three-forms"
 					],
-					"wrong": "a factorised form with a dropped offered as the match"
+					"wrong": "a factorised form, or both the factorised and vertex forms, with a dropped offered as the match"
 				}
 			],
 			"frequency": 0

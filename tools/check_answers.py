@@ -736,10 +736,10 @@ def quad_slips(q, f):
             return {"SL2.6.factorised-form#2": {claim("factorised", rs[0] * rs[1])}, QK + "3": {claim("vertex", k)}}
         return {}
     if u == "match-three-forms":
-        tri = lambda A, P_, Q_, H: ("triple", sp.expand(a * X**2 + b * X + c), sp.expand(A * (X - P_) * (X - Q_)), sp.expand(a * (X - H)**2 + k))
-        # The factorised slip with the vertex form right, or with its h flipped as well (the
-        # option that also makes SL2.6.vertex#0's slip, FAL-1055).
-        return {QK + "2": {tri(a, -rs[0], -rs[1], H) for H in (h, -h)}, QK + "4": {tri(1, rs[0], rs[1], H) for H in (h, -h)},
+        tri = lambda A, P_, Q_, H, VA=a: ("triple", sp.expand(a * X**2 + b * X + c), sp.expand(A * (X - P_) * (X - Q_)), sp.expand(VA * (X - H)**2 + k))
+        # The factorised slip with the vertex form right, or the same slip in both forms:
+        # the signs taken as they are in both brackets, or a left out of both (FAL-1055).
+        return {QK + "2": {tri(a, -rs[0], -rs[1], H) for H in (h, -h)}, QK + "4": {tri(1, rs[0], rs[1], h, VA) for VA in (a, 1)},
                 "SL2.6.vertex#0": {tri(a, rs[0], rs[1], -h)}}
     return {}
 
