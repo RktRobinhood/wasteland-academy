@@ -47134,7 +47134,8 @@
      "in": [
       "amp-axis",
       "all-four",
-      "sum-as-cos"
+      "sum-as-cos",
+      "wheel-model"
      ],
      "wrong": "a = max − min, not halved"
     },
@@ -47189,7 +47190,8 @@
      "as": "distractor",
      "in": [
       "c-from-crossing",
-      "level-from-duration"
+      "level-from-duration",
+      "tan-two-points"
      ],
      "wrong": "the angle taken in degrees"
     },
@@ -47202,6 +47204,185 @@
       "wheel-model"
      ],
      "wrong": "b = the period"
+    },
+    {
+     "text": "Swapping a and d, taking the midline value as the amplitude",
+     "as": "distractor",
+     "in": [
+      "amp-axis",
+      "all-four"
+     ],
+     "wrong": "a and d the wrong way round"
+    },
+    {
+     "text": "Dividing the period by 2π, when b is 2π divided by the period",
+     "as": "distractor",
+     "in": [
+      "b-from-period"
+     ],
+     "wrong": "b = the period ÷ 2π"
+    },
+    {
+     "text": "Taking c from the minimum instead of the maximum, when cosine is largest at c",
+     "as": "distractor",
+     "in": [
+      "c-cos-from-max",
+      "all-four"
+     ],
+     "wrong": "c = where the minimum is"
+    },
+    {
+     "text": "Taking c at the maximum, as for cosine, when sine crosses its midline going up at c",
+     "as": "distractor",
+     "in": [
+      "c-sine-shift"
+     ],
+     "wrong": "c = where the maximum is"
+    },
+    {
+     "text": "Adding a quarter period to the maximum instead of taking it away",
+     "as": "distractor",
+     "in": [
+      "c-sine-shift"
+     ],
+     "wrong": "c = the maximum plus a quarter period"
+    },
+    {
+     "text": "Taking q as the minimum value, forgetting to add the amplitude",
+     "as": "distractor",
+     "in": [
+      "q-from-minimum"
+     ],
+     "wrong": "f(0) with q set to the minimum"
+    },
+    {
+     "text": "Getting the sign of the exact trig value wrong",
+     "as": "distractor",
+     "in": [
+      "q-from-minimum"
+     ],
+     "wrong": "f(0) with the trig term's sign flipped"
+    },
+    {
+     "text": "Forgetting to multiply the exact trig value by the amplitude",
+     "as": "distractor",
+     "in": [
+      "q-from-minimum"
+     ],
+     "wrong": "f(0) with the trig value not multiplied by the amplitude"
+    },
+    {
+     "text": "Giving q as the y-intercept, leaving out the trig term",
+     "as": "distractor",
+     "in": [
+      "q-from-minimum"
+     ],
+     "wrong": "q alone"
+    },
+    {
+     "text": "Adding the two coefficients to get a, instead of taking the square root of the sum of their squares",
+     "as": "distractor",
+     "in": [
+      "sum-as-cos"
+     ],
+     "wrong": "a = the sum of the coefficients of sin and cos"
+    },
+    {
+     "text": "Using the period of sin and cos for tan, whose period is half as long",
+     "as": "distractor",
+     "in": [
+      "tan-two-points"
+     ],
+     "wrong": "b = 2π ÷ the intercept, and a from that b"
+    },
+    {
+     "text": "Finding a as y ÷ x, as if the graph were a straight line through the origin",
+     "as": "distractor",
+     "in": [
+      "tan-two-points"
+     ],
+     "wrong": "a = y ÷ x at the point"
+    },
+    {
+     "text": "Multiplying by b instead of dividing when taking b out of the bracket",
+     "as": "distractor",
+     "in": [
+      "shift-from-bracket"
+     ],
+     "wrong": "c = the bracket's constant × b"
+    },
+    {
+     "text": "Getting the direction of the vertical shift wrong",
+     "as": "distractor",
+     "in": [
+      "image-equation",
+      "pq-from-translation"
+     ],
+     "wrong": "the vertical shift with the wrong sign"
+    },
+    {
+     "text": "Taking a as positive, when the height starts at its lowest",
+     "as": "distractor",
+     "in": [
+      "wheel-model"
+     ],
+     "wrong": "a > 0, the radius"
+    },
+    {
+     "text": "Taking d as the radius, forgetting how high the lowest seat is",
+     "as": "distractor",
+     "in": [
+      "wheel-model"
+     ],
+     "wrong": "d = the radius"
+    },
+    {
+     "text": "Adding instead of subtracting when rearranging for c",
+     "as": "distractor",
+     "in": [
+      "c-from-crossing"
+     ],
+     "wrong": "c = t + the angle ÷ b"
+    },
+    {
+     "text": "Giving t − c as the answer, forgetting to take it from t",
+     "as": "distractor",
+     "in": [
+      "c-from-crossing"
+     ],
+     "wrong": "c = the angle ÷ b alone"
+    },
+    {
+     "text": "Forgetting to take sin⁻¹ before dividing by b",
+     "as": "distractor",
+     "in": [
+      "c-from-crossing"
+     ],
+     "wrong": "c = t − the ratio ÷ b, with no sin⁻¹"
+    },
+    {
+     "text": "Using the whole time above k from the peak, instead of half of it each side",
+     "as": "distractor",
+     "in": [
+      "level-from-duration"
+     ],
+     "wrong": "k from the whole time above it"
+    },
+    {
+     "text": "Measuring half the time from the minimum instead of from the peak",
+     "as": "distractor",
+     "in": [
+      "level-from-duration"
+     ],
+     "wrong": "d − a cos(b × half the time)"
+    },
+    {
+     "text": "Using sin in place of cos for this model",
+     "as": "distractor",
+     "in": [
+      "level-from-duration"
+     ],
+     "wrong": "a sin(b × half the time) + d"
     }
    ],
    "parts": [
@@ -55162,6 +55343,58 @@
       "predict-from-line"
      ],
      "wrong": "(x₀ − b) ÷ a: the line rearranged to find x from y = x₀"
+    },
+    {
+     "text": "Getting the sign of b wrong",
+     "as": "distractor",
+     "in": [
+      "regression-line",
+      "predict-from-data",
+      "predict-from-line"
+     ],
+     "wrong": "b with its sign flipped"
+    },
+    {
+     "text": "Swapping a and b, using the intercept as the gradient",
+     "as": "distractor",
+     "in": [
+      "regression-line",
+      "predict-from-data",
+      "predict-from-line"
+     ],
+     "wrong": "a and b the wrong way round"
+    },
+    {
+     "text": "Giving r the wrong sign, against the direction of the trend",
+     "as": "distractor",
+     "in": [
+      "correlation-coefficient"
+     ],
+     "wrong": "−r"
+    },
+    {
+     "text": "Writing the mean point with its coordinates swapped",
+     "as": "distractor",
+     "in": [
+      "mean-point"
+     ],
+     "wrong": "(mean of y, x̄)"
+    },
+    {
+     "text": "Adding the gradient × x̄ to the mean of y instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "c-from-mean-point"
+     ],
+     "wrong": "c = mean of y + a x̄"
+    },
+    {
+     "text": "Subtracting the gradient from the mean of y without multiplying it by x̄",
+     "as": "distractor",
+     "in": [
+      "c-from-mean-point"
+     ],
+     "wrong": "c = mean of y − a"
     }
    ],
    "parts": [
@@ -55357,6 +55590,23 @@
       "expected-count"
      ],
      "wrong": "P(event)"
+    },
+    {
+     "text": "Using the probability that the event does not happen",
+     "as": "distractor",
+     "in": [
+      "expected-count",
+      "trials-for-count"
+     ],
+     "wrong": "n × (1 − P(event)), or the expected number ÷ (1 − P(event))"
+    },
+    {
+     "text": "Multiplying the expected number by the probability instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "trials-for-count"
+     ],
+     "wrong": "the expected number × P(event)"
     }
    ],
    "parts": [
@@ -58138,6 +58388,70 @@
       "fair-stake"
      ],
      "wrong": "the stake from gains of the prize on a win and minus the stake on a loss: Σ prize × P(win) ÷ P(no prize), to the cent"
+    },
+    {
+     "text": "Leaving one of the products x P(X = x) out of the sum",
+     "as": "distractor",
+     "in": [
+      "expected-value"
+     ],
+     "wrong": "E(X) without its last product"
+    },
+    {
+     "text": "Adding the values of X without weighting them by their probabilities",
+     "as": "distractor",
+     "in": [
+      "expected-value"
+     ],
+     "wrong": "Σ x"
+    },
+    {
+     "text": "Swapping p and q in the table",
+     "as": "distractor",
+     "in": [
+      "probabilities-from-mean"
+     ],
+     "wrong": "p and q the wrong way round"
+    },
+    {
+     "text": "Setting p + q = 1, forgetting the probabilities already in the table",
+     "as": "distractor",
+     "in": [
+      "probabilities-from-mean"
+     ],
+     "wrong": "p and q from p + q = 1 with Σ x P = E(X)"
+    },
+    {
+     "text": "Sharing what is left of 1 equally between p and q, ignoring E(X)",
+     "as": "distractor",
+     "in": [
+      "probabilities-from-mean"
+     ],
+     "wrong": "p = q = half of what is left of 1"
+    },
+    {
+     "text": "Leaving the known values' products out of Σ x P(X = x)",
+     "as": "distractor",
+     "in": [
+      "probabilities-from-mean"
+     ],
+     "wrong": "p and q from ΣP = 1 with only the p and q terms set equal to E(X)"
+    },
+    {
+     "text": "Averaging the prizes and ignoring their probabilities",
+     "as": "distractor",
+     "in": [
+      "fair-stake"
+     ],
+     "wrong": "the mean of the prizes, to the cent"
+    },
+    {
+     "text": "Counting only the top prize in the expected prize",
+     "as": "distractor",
+     "in": [
+      "fair-stake"
+     ],
+     "wrong": "the top prize × its probability, to the cent"
     }
    ],
    "parts": [
@@ -58382,6 +58696,54 @@
       "event-probability"
      ],
      "wrong": "the event's probability with its strict end taken in"
+    },
+    {
+     "text": "Taking k as the total of the multiples of k, instead of 1 divided by it",
+     "as": "distractor",
+     "in": [
+      "k-from-sum"
+     ],
+     "wrong": "k = what the multiples of k add to"
+    },
+    {
+     "text": "Treating each probability as k itself, ignoring what multiplies or divides it",
+     "as": "distractor",
+     "in": [
+      "k-from-sum"
+     ],
+     "wrong": "1 divided by the number of values"
+    },
+    {
+     "text": "Forgetting to divide by the sum of the multiples of k",
+     "as": "distractor",
+     "in": [
+      "k-from-sum"
+     ],
+     "wrong": "what is left of 1 for the multiples of k, not divided"
+    },
+    {
+     "text": "Giving the sum of the known probabilities instead of what is left of 1",
+     "as": "distractor",
+     "in": [
+      "missing-probability"
+     ],
+     "wrong": "the sum of the given probabilities"
+    },
+    {
+     "text": "Giving the probability that the event does not happen",
+     "as": "distractor",
+     "in": [
+      "event-probability"
+     ],
+     "wrong": "1 − P(event)"
+    },
+    {
+     "text": "Leaving out the endpoint for an inequality that includes it",
+     "as": "distractor",
+     "in": [
+      "event-probability"
+     ],
+     "wrong": "the event's probability with its ≤ or ≥ end left out"
     }
    ],
    "parts": [
