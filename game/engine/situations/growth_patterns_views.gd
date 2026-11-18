@@ -116,7 +116,6 @@ func u_classify_words(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var right := ""
 	var lines: Array = []
 	var wrongs: Array = []
-	var gen: Array = []
 	if exp_kind:
 		var r: Q = s.r
 		lines = ["A colony starts with %s cells and grows by %s%% each hour." % [D(P0), D(r)]]
@@ -133,6 +132,8 @@ func u_classify_words(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			wrong({"v": "exponential: N = %s(%s)^t" % [D(P0), D(d)]}, R_GAIN_FACTOR),
 			wrong({"v": "exponential: N = %s(%s)^t" % [D(P0), D(Q.new(1).add(d.div(Q.new(100))))]}, R_GAIN_PERCENT),
 			wrong({"v": "linear: N = %st" % D(d)}, R_NO_START)]
+	# Four slips for three places: shuffled, so each one shows on some seeds.
+	wrongs = rng.shuffled(wrongs)
 	var opts: Array = [right] + wrongs.map(func(w): return w.values.v)
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
 	var final := "So it is " + right + "."
