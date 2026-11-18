@@ -6883,8 +6883,8 @@
 				},
 				{
 					"name": "x*",
-					"is": "an optimum that is not whole",
-					"pick": "its fractional part between 0.2 and 0.8, and the two whole numbers either side give different values"
+					"is": "an optimum that is not whole, for whole items",
+					"pick": "a cost a x + b/x + c (or a profit c − a x − b/x) with b = k n(n + 1) and a just under k, so x* is just under n + ½: it rounds to n, but n + 1 gives the better value"
 				}
 			],
 			"modes": [
@@ -92776,7 +92776,9 @@
 					"as": "distractor",
 					"in": [
 						"optimum-value-given-model",
-						"container-optimum-value"
+						"container-optimum-value",
+						"route-least-time",
+						"whole-number-optimum"
 					],
 					"wrong": "the value of the variable instead of the optimum"
 				},
@@ -92815,7 +92817,7 @@
 					"as": "distractor",
 					"in": [
 						"objective-one-variable",
-						"constraint-second-length"
+						"container-optimal-dimension"
 					],
 					"wrong": "the curved surface as πrh"
 				},
@@ -92842,8 +92844,7 @@
 					"text": "Rounding r before finding h, so the height and area come out slightly wrong",
 					"as": "distractor",
 					"in": [
-						"container-other-dimension",
-						"container-optimum-value"
+						"container-other-dimension"
 					],
 					"wrong": "the value worked from r rounded first"
 				},
@@ -92870,7 +92871,8 @@
 					"text": "Giving a negative length, or a cut too big for the sheet, as a valid answer",
 					"as": "distractor",
 					"in": [
-						"context-domain"
+						"context-domain",
+						"container-optimal-dimension"
 					],
 					"wrong": "a domain that lets a length go negative"
 				},
@@ -92913,6 +92915,39 @@
 						"route-least-time"
 					],
 					"wrong": "both legs at one speed"
+				},
+				{
+					"text": "Counting a lid on an open box, so the square base is counted twice",
+					"as": "distractor",
+					"in": [
+						"constraint-second-length",
+						"container-optimal-dimension"
+					],
+					"wrong": "a lid counted on the open box"
+				},
+				{
+					"text": "Using the circumference of the base in place of its area",
+					"as": "distractor",
+					"in": [
+						"constraint-second-length"
+					],
+					"wrong": "the volume as the circumference times the height"
+				},
+				{
+					"text": "Counting a fence along the wall as well",
+					"as": "distractor",
+					"in": [
+						"constraint-second-length"
+					],
+					"wrong": "a fence along the wall counted"
+				},
+				{
+					"text": "Treating the area as a sum of lengths instead of a product",
+					"as": "distractor",
+					"in": [
+						"constraint-second-length"
+					],
+					"wrong": "the area as a sum of the sides"
 				}
 			],
 			"chain": [

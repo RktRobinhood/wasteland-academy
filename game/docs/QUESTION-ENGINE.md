@@ -529,6 +529,24 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   the f′-graph questions go to `E12DG_check` with the refs mapped back. `test_ai_stationary.gd`.
 
 <!-- R2-OPTIMISATION -->
+- `engine/situations/ai_optimisation.gd` (FAL-1000) is `ai-optimisation`, for `t5-ai-optimisation`
+  (AI-SL5.7.optimise-given-model, build-model-from-constraint, optimise-container and
+  interpret-optimum-in-context). It is an exam type (`home` ai-sl), so only the AI courses get it, and
+  every question is Paper 2. Its views (`ai_optimisation_views.gd`, extending `OptimisationViews`) ask
+  12 unknowns over 50 cells: the best input and the optimum of a given model (a quadratic or cubic
+  profit, a cost a x + b/x + c, or an area k sin θ (w + k cos θ) that only the GDC optimises; the vertex
+  working is on a quadratic only), the best price or greatest profit from a demand A − Bp with a fixed
+  and a per-item cost, why a suggested x is not optimal (a claim), and the best whole number of items
+  (b = k n(n + 1) with a just under k, so the nearest whole number is the wrong one, in words or a
+  table); then, on OptimisationSituation's Paper 2 shapes (a can, an open bin, a tray, a pen or a
+  paddock against a wall, a route off a road), the second length, the function in one variable, the
+  best length, the optimum, the other length, the route's best point or least time or cost, and the
+  domain in context, each in words or with the AA type's figure. Wrong options are the four skills'
+  slips and the type's own (the cost per item left out, the gradient read as the profit, a positive
+  profit, the closed domain, both legs at one speed, a lid on the box, the circumference for the base,
+  a fence along the wall, a sum for an area). `r2op_check` in the SymPy checker reads every model back
+  from the text, solves it again, and works every answer, slip and GDC reading out on its own.
+  `test_ai_optimisation.gd`.
 
 <!-- R2-TRAPEZOIDAL -->
 - `engine/situations/log_exp_form.gd` (FAL-753) is `t1-log-exp-form` (SL1.5.exp-log-form and

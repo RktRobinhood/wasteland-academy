@@ -48654,6 +48654,492 @@ SITUATION_CHECKS["ai-stationary"] = r2sp_check
 
 # R2-OPTIMISATION: t5-ai-optimisation (ai-optimisation), prefix R2OP_ / r2op_
 
+# ── ai-optimisation (t5-ai-optimisation, FAL-1000) ───────────────────
+# The `ai-optimisation` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/ai_optimisation.gd. A given model is read back from its line and
+# optimised again with SymPy (exactly where it is a polynomial or has a 1/x term, at 40 digits
+# where it is an angle model); a price and its demand are read from the sentences; a shape is
+# read by om_read (the optimisation-model checker's reader), as the AA type's stories are
+# reused. Every answer and every tagged slip is worked out again from what the slip says, and
+# the GDC readings and sign tests in the working are checked against the numbers.
+
+R2OP_G = "AI-SL5.7.optimise-given-model#"
+R2OP_B = "AI-SL5.7.build-model-from-constraint#"
+R2OP_C = "AI-SL5.7.optimise-container#"
+R2OP_I = "AI-SL5.7.interpret-optimum-in-context#"
+R2OP_OWN = "t5-ai-optimisation#"
+R2OP_EDGE = sp.Rational(39, 1000)      # the engine's is 0.04
+R2OP_X = sp.Symbol("x", positive=True)
+R2OP_SHAPES = ("constraint-second-length", "objective-one-variable", "container-optimal-dimension",
+               "container-optimum-value", "container-other-dimension", "route-least-time", "context-domain")
+R2OP_UNITS = [(r"at x scrap a jug|x scrap to sharpen|at x scrap a metre|x scrap a blade", " scrap"), (r"x km/h", " km/h"),
+              (r"x litres a minute", " litres a minute"), (r"x kg of charcoal an hour", " kg an hour"),
+              (r"x tonnes of scrap steel", " tonnes"), (r"x hundred litres", " hundred litres"), (r"x kg of wild seed", " kg")]
+
+
+def r2op_clear(v, edge=R2OP_EDGE):
+    """v reads clearly at 3 s.f.: at least `edge` of a unit of its 3rd figure from a rounding edge."""
+    w = abs(sp.N(v, 40))
+    if w == 0:
+        return False
+    e = sp.floor(sp.log(w, 10))
+    scaled = w / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= edge
+
+
+def r2op_w(v):
+    """A GDC reading as the working writes it: 6 s.f., no trailing zeros."""
+    t = sig3(sp.N(v, 40), 6)
+    if "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return t.replace("-", "−")
+
+
+def r2op_sf(label, v, unit=""):
+    """The answer's text and its rounding trap (None where it needs no rounding)."""
+    return f"{label}{gc_s(sp.N(v, 40))}{unit}", (f"{label}{gc_s2(sp.N(v, 40))}{unit}" if gc_rounds(sp.N(v, 40)) else None)
+
+
+def r2op_expr(text):
+    """A model as the game writes it, as SymPy: decimals exact, θ in degrees."""
+    t = text.strip().replace("−", "-").replace("×", "*")
+    t = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", lambda m: "**" + m.group(0).translate(SUP_DIGITS), t)
+    t = re.sub(r"sin θ \(", "sin(pi*x/180)*(", t)
+    t = re.sub(r"(sin|cos) θ", r"\1(pi*x/180)", t)
+    t = re.sub(r"\d+\.\d+", lambda m: f"({sp.Rational(m.group(0))})", t)
+    need(re.fullmatch(r"[0-9x+\-*/(). a-z]+", t) is not None, f"can't read the model {text!r}")
+    return parse_expr(t, transformations=TRANSFORMS, local_dict={"x": R2OP_X, "pi": sp.pi, "sin": sp.sin, "cos": sp.cos})
+
+
+def r2op_model(q):
+    """The given model's line: (letter, F, domain, kind)."""
+    L = q["lines"]
+    line = next((l for l in L if re.match(r"[PCA]\((x|θ)\) = ", l)), None)
+    need(line is not None, "no model line")
+    m = re.fullmatch(r"([PCA])\((x|θ)\) = (.+), (for .+)\.", line)
+    need(m is not None, f"can't read the model line {line!r}")
+    name, var, body, dom = m.groups()
+    F = r2op_expr(body)
+    text = " ".join(L)
+    if var == "θ":
+        need(name == "A" and dom == "for 0° < θ < 90°" and "A m²" in text, "an angle model is an area for 0° < θ < 90°")
+        kind, lo, hi = "angle", 0, 90
+    else:
+        need(f"{name} scrap" in text, f"the story doesn't say what {name} is")
+        poly = sp.Poly(F, R2OP_X) if F.is_polynomial(R2OP_X) else None
+        md = re.fullmatch(r"for 0 ≤ x ≤ (\d+)", dom)
+        mw = re.fullmatch(r"for whole numbers x from 1 to (\d+)", dom)
+        if poly is not None:
+            need(md is not None, f"a polynomial model's domain {dom!r}")
+            kind, lo, hi = {2: "quad", 3: "cubic"}.get(poly.degree(), "?"), 0, int(md.group(1))
+            need(kind != "?", "the model is not a quadratic or a cubic")
+        else:
+            need(sp.simplify(sp.diff(F * R2OP_X, R2OP_X, 3)) == 0, "the model is not a x + b/x + c")
+            need(dom == "for x > 0" or mw is not None, f"a reciprocal model's domain {dom!r}")
+            kind, lo, hi = "recip", 0, (int(mw.group(1)) if mw else sp.oo)
+    need(name != "A" or kind == "angle", "A is the angle model's letter")
+    return name, F, (lo, hi), kind
+
+
+def r2op_unit(q):
+    text = " ".join(q["lines"])
+    if "θ" in text:
+        return "°"
+    hits = [u for pat, u in R2OP_UNITS if re.search(pat, text)]
+    need(len(hits) == 1, "the story's unit of x")
+    return hits[0]
+
+
+def r2op_stationary(F, lo, hi, kind):
+    """The stationary points inside the domain, as (x, kind) with kind max or min."""
+    x = R2OP_X
+    d = sp.diff(F, x)
+    if kind == "angle":
+        f = sp.lambdify(x, d, "mpmath")
+        pts = []
+        with mpmath.workdps(40):
+            grid = [mpmath.mpf(k) / 4 for k in range(1, 360)]
+            for a, b in zip(grid, grid[1:]):
+                if f(a) * f(b) < 0:
+                    pts.append(sp.Float(str(mpmath.findroot(f, (a, b), solver="anderson", tol=mpmath.mpf(10) ** -32)), 40))
+    else:
+        pts = [s for s in sp.solve(sp.numer(sp.together(d)), x) if s.is_real and s > lo and (hi == sp.oo or s < hi)]
+    out = []
+    for p0 in pts:
+        d2 = sp.N(sp.diff(F, x, 2).subs(x, p0), 30)
+        need(d2 != 0, "a stationary point that is neither")
+        out.append((p0, "max" if d2 < 0 else "min"))
+    return out
+
+
+def r2op_steps_have(q, text, what):
+    need(any(text in st for sol in q["solutions"] for st in sol["steps"]), f"no working step shows {what} ({text!r})")
+
+
+def r2op_given(q, u):
+    """optimal-input, optimum-value, suggested-not-optimal and whole-number-optimum."""
+    name, F, (lo, hi), kind = r2op_model(q)
+    x = R2OP_X
+    big = name in ("P", "A")
+    ang = q["view"]["angle"]
+    methods = {s["angle"] for s in q["solutions"]}
+    need(kind != "angle" or not methods & {"derivative-zero", "vertex-of-quadratic-model"}, "an angle model has a working that needs calculus or a vertex")
+    need(("vertex-of-quadratic-model" in methods) == (kind == "quad" and u in ("optimal-input-given-model", "optimum-value-given-model")), "the vertex working is not on exactly the quadratic models")
+    sts = r2op_stationary(F, lo, hi, kind)
+    want_kind = "max" if big else "min"
+    best = [p0 for p0, k in sts if k == want_kind]
+    need(len(best) == 1, f"{len(best)} stationary points of the right kind inside the domain")
+    x0 = best[0]
+    others = [p0 for p0, k in sts if k != want_kind]
+    need((kind == "cubic") == (len(others) == 1) and len(others) <= 1, "only a cubic has the other stationary point")
+    v0 = F.subs(x, x0)
+    if hi != sp.oo:
+        for end in (lo, hi):
+            if kind != "angle" and u != "whole-number-optimum":
+                need((sp.N(F.subs(x, end) - v0, 30) < 0) == big, "an end of the domain beats the optimum")
+    tail = " m²" if name == "A" else " scrap"
+    w = {}
+    want, trap = None, None
+    if u in ("optimal-input-given-model", "optimum-value-given-model"):
+        need(r2op_clear(x0) and r2op_clear(v0) and gc_rounds(sp.N(x0, 40)) and gc_rounds(sp.N(v0, 40)), "the optimum or its value is on a rounding edge, or needs no rounding")
+        if kind == "cubic":
+            m0 = others[0]
+            need(r2op_clear(m0) and r2op_clear(F.subs(x, m0)) and gc_s(sp.N(F.subs(x, m0), 40)) != gc_s(sp.N(v0, 40)), "the other stationary point reads badly")
+        thing = {"P": "the greatest profit", "C": "the least cost", "A": "the greatest cross-section area"}[name]
+        letter = "θ" if kind == "angle" else "x"
+        unit = r2op_unit(q)
+        if u == "optimal-input-given-model":
+            need(q["asked"] == f"Find the value of {letter} that gives {thing}.", f"asked {q['asked']!r}")
+            want, trap = r2op_sf(f"{letter} = ", x0, unit)
+            if kind == "cubic":
+                w[R2OP_G + "2"] = {r2op_sf(f"{letter} = ", others[0], unit)[0]}
+        else:
+            need(q["asked"] == f"Find {thing}.", f"asked {q['asked']!r}")
+            want, trap = r2op_sf(f"{name} = ", v0, tail)
+            w[R2OP_G + "0"] = {r2op_sf(f"{name} = ", x0, tail)[0]}
+            if kind == "cubic":
+                w[R2OP_G + "2"] = {r2op_sf(f"{name} = ", F.subs(x, others[0]), tail)[0]}
+        r2op_steps_have(q, f"x = {r2op_w(x0)}", "the optimum to 6 s.f.")
+        if u == "optimum-value-given-model":
+            r2op_steps_have(q, r2op_w(v0), "the value to 6 s.f.")
+        if kind != "angle":
+            dtext = next(st for sol in q["solutions"] if sol["angle"] == "derivative-zero" for st in sol["steps"][:1]) if "derivative-zero" in methods else None
+            if dtext:
+                mt = re.fullmatch(rf"{name}′\(x\) = (.+)\.", dtext)
+                need(mt is not None and sp.simplify(r2op_expr(mt.group(1)) - sp.diff(F, x)) == 0, f"the derivative {dtext!r}")
+            r2op_sign_tests(q, F, name)
+        gc_check_common(q, want, w, trap)
+        return
+    if u == "suggested-not-optimal":
+        need(name == "P" and kind in ("quad", "cubic"), "a suggested value is on a profit polynomial")
+        mt = re.fullmatch(r"It is suggested that x = (\d+) gives the greatest profit\.", q["lines"][-1])
+        need(mt is not None, f"can't read the suggestion {q['lines'][-1]!r}")
+        p0 = int(mt.group(1))
+        need(q["asked"] == f"Which statement explains why x = {p0} does not give the greatest profit?", f"asked {q['asked']!r}")
+        d0, f0 = sp.diff(F, x).subs(x, p0), F.subs(x, p0)
+        need(lo < p0 < hi and d0 != 0 and f0 > 0 and abs(d0) != f0, "the suggestion is outside the limits")
+        need(r2op_clear(x0), "the maximum is on a rounding edge")
+        d = f"P′({p0}) = {dec_text(d0)}"
+        want = f"{d} ≠ 0, so P is not at its maximum at x = {p0}; the maximum is at x = {gc_s(sp.N(x0, 40))}"
+        w[R2OP_OWN + "12"] = {f"The profit at x = {p0} is {d} scrap, so it is not the greatest profit"}
+        w[R2OP_OWN + "13"] = {f"P({p0}) = {dec_text(f0)} > 0, so x = {p0} gives the greatest profit"}
+        for o in q["choices"]:
+            if not o["correct"] and not o["ref"]:
+                need(o["text"] != want and "≠ 0, so P is not at its maximum" not in o["text"], f"a filler {o['text']!r} is the right claim")
+        r2op_steps_have(q, f"x = {r2op_w(x0)}", "the maximum to 6 s.f.")
+        r2op_steps_have(q, f"{dec_text(d0)}", "P′ at the suggested value")
+        gc_check_common(q, want, w, None)
+        return
+    # whole-number-optimum
+    need(kind == "recip" and hi != sp.oo, "a whole-number model is a x + b/x + c on whole numbers")
+    vals = {n: F.subs(x, n) for n in range(1, int(hi) + 1)}
+    pick = (max if big else min)(vals, key=lambda n: vals[n])
+    need(list(vals.values()).count(vals[pick]) == 1, "two whole numbers tie")
+    frac = x0 - sp.floor(x0)
+    need(sp.Rational(1, 5) < frac < sp.Rational(4, 5) and r2op_clear(x0), "x is too near a whole number, or on a rounding edge")
+    near = int(sp.floor(x0 + sp.Rational(1, 2)))
+    need(near != pick and abs(near - pick) == 1, "the nearest whole number is the best one, so the slip is the answer")
+    need(q["asked"] == f"Find {'the greatest profit' if big else 'the least cost'}.", f"asked {q['asked']!r}")
+    want = f"{name} = {dec_text(vals[pick])} scrap"
+    w[R2OP_I + "0"] = {f"{name} = {dec_text(vals[near])} scrap"}
+    w[R2OP_G + "0"] = {f"{name} = {pick} scrap"}
+    if q["view"]["rep"] == "table":
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == f"{name}(x)", "the table's heads")
+        xs = [int(t) for t in rows[0][1:]]
+        need(pick in xs and near in xs, "the table leaves out a neighbour of the optimum")
+        for n, t in zip(xs, rows[1][1:]):
+            ex = dec_text(vals[n])
+            need(t == ex if "/" not in ex else t == r2op_w(vals[n]), f"the table's {name}({n}) = {t}")
+    r2op_steps_have(q, f"x = {r2op_w(x0)}", "the optimum to 6 s.f.")
+    r2op_steps_have(q, f"{name}({pick}) = {dec_text(vals[pick])}", "the best whole number's value")
+    r2op_steps_have(q, f"{name}({near}) = {dec_text(vals[near])}", "the nearest whole number's value")
+    gc_check_common(q, want, w, None)
+
+
+def r2op_sign_tests(q, F, name):
+    """Every 'P′(a) = u and P′(b) = v' in the working is the derivative there, to 3 s.f."""
+    d = sp.diff(F, R2OP_X)
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for a, va in re.findall(rf"{name}′\((\d+)\) = (−?[\d.]+)", st):
+                need(va == gc_s(sp.N(d.subs(R2OP_X, int(a)), 40)), f"{name}′({a}) is not {va}")
+
+
+def r2op_demand(q):
+    L = q["lines"]
+    m1 = re.fullmatch(r"(A trader|A cobbler|A tinker) sells (water filters|pairs of boots|lamps) at p scrap each\. At that price, (\d+) − (\d+)p \2 are sold (a week|a month)\.", L[0])
+    m2 = re.fullmatch(r"Each (filter|pair|lamp) costs (\d+) scrap to make, and (her stall|his workshop|her cart) costs (\d+) scrap (a week|a month)\.", L[1])
+    need(m1 is not None and m2 is not None and m1.group(5) == m2.group(5), f"can't read the price and demand {L!r}")
+    A, Bc, c, F0 = int(m1.group(3)), int(m1.group(4)), int(m2.group(2)), int(m2.group(4))
+    p = sp.Symbol("p")
+    P = (p - c) * (A - Bc * p) - F0
+    ps = sp.solve(sp.diff(P, p), p)
+    need(len(ps) == 1 and sp.diff(P, p, 2) < 0, "the profit has no maximum")
+    p0 = ps[0]
+    best = P.subs(p, p0)
+    need(c < p0 < sp.Rational(A, Bc) and best > 0, "the best price is outside the limits")
+    rev = p * (A - Bc * p)
+    r0 = sp.solve(sp.diff(rev, p), p)[0]
+    w = {}
+    if q["asked"] == "Find the price that gives the greatest profit.":
+        want = f"p = {dec_text(p0)} scrap"
+        w[R2OP_G + "1"] = {f"p = {dec_text(r0)} scrap"}
+        # Leaving out the cost per item gives the revenue's price too, so it has no option of its own.
+        need(not any(o["ref"] == R2OP_OWN + "11" for o in q["choices"]), "the cost-left-out slip on the price")
+    else:
+        need(q["asked"] == f"Find the greatest possible profit {m1.group(5)}.", f"asked {q['asked']!r}")
+        want = f"P = {dec_text(best)} scrap"
+        w[R2OP_G + "1"] = {f"P = {dec_text(rev.subs(p, r0))} scrap"}
+        w[R2OP_OWN + "11"] = {f"P = {dec_text(rev.subs(p, r0) - F0)} scrap"}
+    poly = sp.Poly(sp.expand(P), p).all_coeffs()
+    r2op_steps_have(q, f"(p − {c})({A} − {Bc}p) − {F0} = " + r2op_terms_p(poly), "the profit expanded")
+    r2op_steps_have(q, f"p = {dec_text(p0)}", "the best price")
+    gc_check_common(q, want, w, None)
+
+
+def r2op_terms_p(cs):
+    """−4p² + 792p − 32030, as the game writes a quadratic in p."""
+    out = ""
+    for c, body in zip(cs, ("p²", "p", "")):
+        c = sp.Rational(c)
+        if c == 0:
+            continue
+        mag = abs(c)
+        t = (dec_text(mag) if body == "" or mag != 1 else "") + body
+        out += (("−" if c < 0 else "") if out == "" else (" − " if c < 0 else " + ")) + t
+    return out
+
+
+def r2op_forms(q, want, tagged):
+    """Each option's expression is the one asked, or for a tag, what its slip gives."""
+    for o in q["choices"]:
+        e = om_expr(o["text"].split(" = ", 1)[1])
+        need(om_same(e, want) == o["correct"], f"option {o['text']!r} against {want}")
+        if o["ref"]:
+            need(o["ref"] in tagged, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(any(om_same(e, t) for t in tagged[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+        if o["correct"]:
+            body = ""
+            for item in q["answer"]["template"]:
+                body += item if isinstance(item, str) else "(" + str(q["answer"]["values"][item["slot"]]) + ")"
+            need(om_same(om_expr(body.split(" = ", 1)[1]), want), f"the answer's slots make {body!r}, not {want}")
+
+
+def r2op_slip_x(F, dom):
+    """The smallest stationary point of a slip's function inside its domain."""
+    inside, _ = om_stationary(F, dom)
+    need(len(inside) >= 1, "a slip's function has no stationary point")
+    return min(inside, key=lambda v: sp.N(v, 30))
+
+
+def r2op_shape(q, u):
+    p = om_read(q)
+    fam, F, dom, Y = p["fam"], p["F"], p["dom"], p["Y"]
+    x = OM_X
+    w = {}
+    vals = {}
+    allowed = {"constraint-second-length": ("pen", "paddock", "can", "bin"), "objective-one-variable": ("pen", "paddock", "can", "bin", "box"),
+               "container-optimal-dimension": ("paddock", "can", "bin", "box"), "container-optimum-value": ("paddock", "can", "bin", "box"),
+               "container-other-dimension": ("paddock", "can", "bin"), "route-least-time": ("route",), "context-domain": ("box", "pen")}[u]
+    need(fam in allowed, f"{fam} is not a shape for {u}")
+    letter = "r" if fam == "can" else "x"
+    O = {"pen": "A", "paddock": "L", "bin": "V", "box": "V"}.get(fam, "")
+    if fam == "can":
+        O = "C" if p["cost"] else "S"
+    if fam == "route":
+        O = "C" if p["cost"] else "T"
+    unit = {"pen": "m", "paddock": "m", "bin": "cm", "box": "cm", "route": "km"}.get(fam, p.get("unit", ""))
+    tail = {"pen": " m²", "paddock": " m", "bin": " cm³", "box": " cm³"}.get(fam, "")
+    if fam == "can":
+        tail = " scrap" if p["cost"] else " cm²"
+    if fam == "route":
+        tail = " scrap" if p["cost"] else " hours"
+    if u == "constraint-second-length":
+        # A lid counted on the box, the circumference for the base's area, a fence along the
+        # wall, the area as a sum: each worked out from the shape's own numbers.
+        if fam == "bin":
+            tagged = {R2OP_OWN + "16": [(p["T"] - 2 * x**2) / (4 * x)]}
+        elif fam == "can":
+            tagged = {R2OP_OWN + "17": [p["V"] / (2 * sp.pi * x)]}
+        elif fam == "pen":
+            tagged = {R2OP_OWN + "18": [(p["T"] - p["n"] * x) / 2]}
+        else:
+            tagged = {R2OP_OWN + "19": [p["T"] - p["n"] * x]}
+        r2op_forms(q, Y, tagged)
+        calc_options(q)
+        return
+    if u == "objective-one-variable":
+        if fam == "box":
+            r2op_forms(q, F, {R2OP_B + "0": [x * (p["w"] - x) * (p["h"] - x)]})
+            calc_options(q)
+            return
+        line = next(l for l in q["lines"] if l.startswith("Show that "))
+        tgt = re.match(r"Show that . = (.+), where p and q are whole numbers\.", line).group(1)
+        P_, Q_ = sp.symbols("P_ Q_")
+        tt = tgt.replace("p", " P_ ").replace("q", " Q_ ")
+        tt = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", lambda m: "**" + m.group(0).translate(SUP_DIGITS), tt.replace("−", "-").replace("π", " pi ").replace("r", "x"))
+        te = parse_expr(tt, transformations=TRANSFORMS, local_dict={"x": OM_X, "P_": P_, "Q_": Q_, "pi": sp.pi})
+        got = sp.solve([te.subs(x, 1) - F.subs(x, 1), te.subs(x, 2) - F.subs(x, 2)], [P_, Q_], dict=True)
+        need(len(got) == 1, f"p and q are not fixed by {line!r}")
+        pv, qv = got[0][P_], got[0][Q_]
+        need(om_same(te.subs({P_: pv, Q_: qv}), F) and pv.is_integer and qv.is_integer and pv > 0 and qv > 0, f"no whole p and q make {line!r} this function")
+        nm = lambda a, b: f"p = {om_num(a)}, q = {om_num(b)}"
+        if fam == "can":
+            w[R2OP_B + "1"] = {nm(pv, qv / 2)}            # πrh for the curved side
+            if p["ends"] == 1:
+                w[R2OP_B + "2"] = {nm(2 * p["re"], qv)}   # a lid on the open can
+        gc_check_common(q, nm(pv, qv), w, None)
+        return
+    if u == "context-domain":
+        roots = sorted(r for r in sp.solve(F, x) if r.is_real and r > 0)
+        need(len(roots) >= 1, "the function has no positive zero")
+        top = roots[0]
+        need(all(F.subs(x, top * k / 10) > 0 for k in range(1, 10)), "the function is not positive inside the domain")
+        line = q["lines"][-1]
+        mt = re.fullmatch(r"(V|A) = (.+), where \1 (cm³|m²) is the (volume of the tray|area of the [a-z ]+)\.", line)
+        need(mt is not None and om_same(om_expr(mt.group(2)), F), f"the function shown, {line!r}, is not this shape's")
+        need(top.is_rational and (top.q == 1), "the domain's end is not a whole number")
+        need(q["asked"] == f"Find the domain of {mt.group(1)} in this context.", f"asked {q['asked']!r}")
+        big = p["w"] if fam == "box" else p["T"]
+        want = f"0 < x < {om_num(top)}"
+        w[R2OP_I + "1"] = {f"0 < x < {om_num(big)}", "x > 0"}
+        w[R2OP_OWN + "14"] = {f"0 ≤ x ≤ {om_num(top)}"}
+        if fam == "box":
+            need(top == sp.Rational(p["w"], 2), "a tray's domain ends at half its shorter side")
+        else:
+            need(top == sp.Rational(p["T"], p["n"]), "a yard's domain ends where y is 0")
+        gc_check_common(q, want, w, None)
+        return
+    if u == "route-least-time":
+        x0 = om_route_best(F, dom)
+        need(OM_FIT[0] * p["b"] <= x0 <= OM_FIT[1] * p["b"], f"x = {x0} is too near an end of the road")
+        best = F.subs(x, x0)
+        line = sp.sqrt(p["a"] ** 2 + p["b"] ** 2)
+        one = p["v"] * line if p["cost"] else line / p["v"]
+        need(om_clear(x0) and om_clear(best) and r2op_clear(one), "a value is on a rounding edge")
+        what = "total cost" if p["cost"] else "total time"
+        if q["asked"] == f"Find the value of x that makes the {what} as small as possible.":
+            want, trap = r2op_sf("x = ", x0, " km")
+            if not p["cost"]:
+                w[R2OP_OWN + "15"] = {f"x = {gc_s(sp.Integer(p['b']))} km"}
+        else:
+            need(q["asked"] == f"Find the least possible {what}.", f"asked {q['asked']!r}")
+            want, trap = r2op_sf(f"{O} = ", best, tail)
+            w[R2OP_G + "0"] = {r2op_sf(f"{O} = ", x0, tail)[0]}
+            if not p["cost"]:
+                w[R2OP_OWN + "15"] = {r2op_sf(f"{O} = ", one, tail)[0]}
+            need(gc_s(sp.N(one, 40)) != gc_s(sp.N(best, 40)), "the one-speed slip reads as the answer")
+        r2op_steps_have(q, f"x = {r2op_w(x0)}", "the best point to 6 s.f.")
+        r2op_steps_have(q, f"{O} = {r2op_w(best)}", "the least value to 6 s.f.")
+        gc_check_common(q, want, w, trap)
+        return
+    # The best length, the optimum and the other length.
+    inside, others = om_stationary(F, dom)
+    need(len(inside) == 1, f"{len(inside)} stationary points in the domain")
+    x0 = inside[0]
+    least = OM_MIN[fam]
+    need((sp.N(sp.diff(F, x, 2).subs(x, x0), 30) > 0) == least, "the stationary point is the wrong kind")
+    best = sp.simplify(F.subs(x, x0))
+    need(om_clear(x0) and om_clear(best), "the optimum is on a rounding edge")
+    sign_ok = r2op_shape_sign(q, F, x0, letter, O)
+    need(sign_ok, "no sign test in the calculus working")
+    r2op_steps_have(q, f"{letter} = {r2op_w(x0)}", "the optimum to 6 s.f.")
+    goal = {"paddock": "the least length of fence", "can": "the least cost" if p.get("cost") else "the least surface area"}.get(fam, "the greatest volume")
+    if u == "container-optimal-dimension":
+        need(q["asked"] == f"Find the value of {letter} that gives {goal}.", f"asked {q['asked']!r}")
+        want, trap = r2op_sf(f"{letter} = ", x0, f" {unit}")
+        if fam == "box":
+            one = r2op_slip_x(x * (p["w"] - x) * (p["h"] - x), (0, p["w"]))     # a cut at one end only
+            vals[R2OP_B + "0"] = one
+            vals[R2OP_C + "0"] = sp.Rational(p["w"], 2)                            # the root where V = 0
+            need(len(others) == 1, "the tray's other root")
+            vals[R2OP_I + "1"] = others[0]                                         # the cut too big for the sheet
+        elif fam == "bin":
+            vals[R2OP_OWN + "16"] = r2op_slip_x(x * (p["T"] - 2 * x**2) / 4, (0, sp.sqrt(p["T"])))   # a lid counted
+        elif fam == "can":
+            e = p["re"] * p["ends"]
+            # πrh; a lid on an open can gives the same r, so the engine offers only this slip
+            vals[R2OP_B + "1"] = r2op_slip_x(e * sp.pi * x**2 + p["V"] / x, (0, sp.oo))
+        for ref, v in vals.items():
+            w[ref] = {r2op_sf(f"{letter} = ", v, f" {unit}")[0]}
+    elif u == "container-optimum-value":
+        need(q["asked"] == f"Find the {'minimum' if least else 'maximum'} value of {O}.", f"asked {q['asked']!r}")
+        want, trap = r2op_sf(f"{O} = ", best, tail)
+        ref = R2OP_C + "2" if fam == "can" else R2OP_G + "0"
+        w[ref] = {r2op_sf(f"{O} = ", x0, tail)[0]}
+        r2op_steps_have(q, r2op_w(best), "the optimum's value to 6 s.f.")
+    else:
+        letter2 = "y" if fam == "paddock" else "h"
+        need(q["asked"] == f"Find the value of {letter2} that gives {goal}.", f"asked {q['asked']!r}")
+        y0 = sp.simplify(Y.subs(x, x0))
+        need(om_clear(y0), "the second length is on a rounding edge")
+        want, trap = r2op_sf(f"{letter2} = ", y0, f" {unit}")
+        if fam == "can":
+            yr = Y.subs(x, sp.Rational(sig3(sp.N(x0, 40))))                     # r rounded before h
+            vals[R2OP_C + "1"] = yr
+            w[R2OP_C + "1"] = {r2op_sf(f"{letter2} = ", yr, f" {unit}")[0]}
+        r2op_steps_have(q, f"= {r2op_w(y0)}", "the second length to 6 s.f.")
+    for o in q["choices"]:
+        if o["ref"] in vals:
+            need(r2op_clear(vals[o["ref"]]), f"the slip {o['text']!r} is on a rounding edge")
+    gc_check_common(q, want, w, trap)
+
+
+def r2op_shape_sign(q, F, x0, letter, O):
+    """The calculus working's sign test: the derivative's values either side, to 3 s.f."""
+    d = sp.diff(F, OM_X)
+    found = False
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            mt = re.search(rf"d{O}/d{letter} = (−?[\d.]+) at {letter} = (\d+) and (−?[\d.]+) at {letter} = (\d+)", st)
+            if mt:
+                lo, hi = int(mt.group(2)), int(mt.group(4))
+                need(lo < x0 < hi and hi == lo + 1, "the sign test is not either side of the optimum")
+                for v, at in ((mt.group(1), lo), (mt.group(3), hi)):
+                    need(v == gc_s(sp.N(d.subs(OM_X, at), 40)), f"d{O}/d{letter} at {at} is not {v}")
+                found = True
+    return found or q["view"]["angle"] == "gdc-graph-route"
+
+
+def r2op_check(q):
+    u = q["view"]["unknown"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    calc_steps(q, (2, 5))
+    calc_options(q)
+    if u in R2OP_SHAPES:
+        r2op_shape(q, u)
+    elif u == "profit-from-revenue-cost":
+        r2op_demand(q)
+    elif u in ("optimal-input-given-model", "optimum-value-given-model", "suggested-not-optimal", "whole-number-optimum"):
+        r2op_given(q, u)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+SITUATION_CHECKS["ai-optimisation"] = r2op_check
+
 # (between the R2 markers)
 
 # R2-TRAPEZOIDAL: t5-ai-trapezoidal (trapezoidal), prefix R2TR_ / r2tr_

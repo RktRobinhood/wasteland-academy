@@ -989,6 +989,11 @@ script error happens while it runs. Run one file with
   beats the local maximum; the f′-graph unknowns draw DerivativeGraphSituation's curves.
 
 <!-- R2-OPTIMISATION -->
+- `test_ai_optimisation.gd` (FAL-1000): t5-ai-optimisation built with every cell and all four AI-SL5.7
+  skills, on the AI courses only, Paper 2 only; four distinct options with one right and the answer in
+  each working's last step; a figure on every diagram cell and a table on every table cell; every tag
+  shows up; the vertex working only on a quadratic and calculus never on the angle model; the nearest
+  whole number is never the best; a typed value is marked by its value; hand-worked values.
 
 <!-- R2-TRAPEZOIDAL -->
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
