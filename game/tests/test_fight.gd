@@ -744,3 +744,76 @@ func test_an_island_with_no_scenery_keeps_the_enemy_on_the_screen() -> void:
 	check(f.backdrop.visible, "the island's close-up behind it")
 	check(f.job.is_empty() and f.check_button.text == "Attack", "a fight's words")
 	_done(made)
+
+
+## The hit spark and the dust burst (FAL-1075): over the portrait, under the tags, once.
+func _portrait_screen(reduced := false) -> Array:
+	var save := SaveData.blank()
+	save.profile = {"avatar": "robot"}
+	save.settings.reduced_motion = reduced
+	var made: Array = await _screen(_area(Vector2i(390, 844)), _seed_for(["fight"]).seed, false, save)
+	for i in 3:
+		await tree.process_frame
+	return made
+
+
+func _effect_nodes(f: Control) -> Array:
+	return f.scene_box.get_children().filter(func(c): return c is Sprite2D and not c.is_queued_for_deletion())
+
+
+func test_a_hit_plays_the_spark_over_the_enemy() -> void:
+	var made: Array = await _portrait_screen()
+	var f: Control = made[1]
+	check(f.enemy_art.is_visible_in_tree(), "the portrait shows")
+	f.autoplay(true)
+	var sparks := _effect_nodes(f)
+	check_eq(sparks.size(), 1, "one spark on a hit")
+	if sparks.size() == 1:
+		var spark: Sprite2D = sparks[0]
+		check_eq(String(spark.name), "hit-spark")
+		check_eq(spark.get_index(), f.enemy_art.get_index() + 1, "just above the portrait, under the tags")
+		var box := Rect2(f.enemy_art.position, f.enemy_art.size)
+		check(box.has_point(spark.position), "on the enemy: %s in %s" % [spark.position, box])
+		check(spark.position.y < box.get_center().y, "on its chest, above the art's centre")
+		check(spark.scale.x > 0.0 and is_equal_approx(spark.scale.x, spark.scale.y), "scaled with the art")
+		var frames := AmbientLayer.frames("hit-spark").size()
+		for i in 120:
+			await tree.process_frame
+			if not is_instance_valid(spark):
+				break
+		check(not is_instance_valid(spark), "played once (%d frames) and gone" % frames)
+	_done(made)
+
+
+func test_a_fallen_enemy_fades_in_a_dust_burst() -> void:
+	var made: Array = await _portrait_screen()
+	var f: Control = made[1]
+	f.autoplay(true)
+	while f.run.state != "ended" and not f.result.get("defeated", false):
+		f.next_question()
+		f.autoplay(true)
+	check(f.result.get("defeated", false), "the enemy falls")
+	var bursts := _effect_nodes(f).filter(func(c): return String(c.name) == "dust-burst")
+	check_eq(bursts.size(), 1, "one dust burst")
+	if bursts.size() == 1:
+		var burst: Sprite2D = bursts[0]
+		check(burst.position.y > Rect2(f.enemy_art.position, f.enemy_art.size).get_center().y, "at its feet")
+	await tree.create_timer(0.6).timeout
+	check(f.enemy_art.modulate.a < 0.05, "the portrait fades out: %.2f" % f.enemy_art.modulate.a)
+	f.next_question()
+	check_eq(f.enemy_art.modulate.a, 1.0, "the next enemy shows")
+	_done(made)
+
+
+func test_reduced_motion_plays_no_fight_effects() -> void:
+	var made: Array = await _portrait_screen(true)
+	var f: Control = made[1]
+	f.autoplay(true)
+	check(f.result.outcome in ["right", "late"], "a hit")
+	check(_effect_nodes(f).is_empty(), "no spark")
+	while f.run.state != "ended" and not f.result.get("defeated", false):
+		f.next_question()
+		f.autoplay(true)
+	check(_effect_nodes(f).is_empty(), "no dust burst")
+	check_eq(f.enemy_art.modulate.a, 0.0, "the fallen enemy just goes")
+	_done(made)

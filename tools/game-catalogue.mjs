@@ -61,8 +61,10 @@ export function build() {
     // Section A and B bank parts: a boss (G4) favours the types Section B chains most.
     if (t.stats?.section) out.section = t.stats.section;
     // How often the IB asked the type on each paper: the game makes Paper 1 and Paper 2
-    // versions in that ratio (FAL-419).
-    if (t.stats?.paper) out.paper = t.stats.paper;
+    // versions in that ratio (FAL-419). The game's Paper 1 is the one without a GDC, so a
+    // type's papers are counted by calculator: every AI paper allows one (FAL-999).
+    if (t.stats?.calculator) out.paper = { p1: t.stats.calculator.without, p2: t.stats.calculator.with };
+    else if (t.stats?.paper) out.paper = t.stats.paper;
     out.angles = (t.angles || []).map(a => {
       const m = a.skill ? skills.get(a.skill)?.methods.find(x => x.id === a.method) : t.methods?.find(x => x.id === a.method);
       return { ...a, name: m?.name ?? a.method, about: m?.summary ?? '' };

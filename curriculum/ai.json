@@ -308,10 +308,10 @@
                 }
               ],
               "misconceptions": [
-                "Treating leading zeros as significant: writing 0.004567 to 3 s.f. as 0.005 (which is 3 d.p.) instead of 0.00457",
-                "Rounding in stages: 2.346 → 2.35 → 2.4 to 1 d.p., when the answer is 2.3",
-                "Dropping required trailing zeros: writing 2.9962 to 2 d.p. as 3 instead of 3.00",
-                "Giving €1234.5678 to 3 s.f. as €1230 when money should be given to the nearest cent, €1234.57"
+                "Treating leading zeros as significant figures",
+                "Rounding in stages, one digit at a time, instead of once",
+                "Dropping trailing zeros that the accuracy needs",
+                "Giving money to three significant figures instead of to the nearest cent"
               ]
             },
             {
@@ -353,9 +353,9 @@
                 }
               ],
               "misconceptions": [
-                "Using a whole unit instead of half: 7.3 to 1 d.p. gives 7.2 ≤ x < 7.4",
-                "Giving the upper bound as 7.34 or 7.349 instead of 7.35 with a strict inequality",
-                "Using the wrong unit for significant figures: 3400 to 2 s.f. written as 3395 ≤ x < 3405 instead of 3350 ≤ x < 3450"
+                "Using a whole rounding unit either side instead of half of it",
+                "Giving the upper bound as a value just below it instead of the halfway value",
+                "Using the wrong rounding unit for significant figures, as if every written digit were significant"
               ]
             },
             {
@@ -396,10 +396,10 @@
                 }
               ],
               "misconceptions": [
-                "Dividing by the approximate value: |12 − 10| / 12 = 16.7% instead of 20%",
-                "Forgetting to multiply by 100 and giving 0.2",
-                "Leaving the sign in: an estimate of 8 for 10 given as −20% instead of 20%",
-                "Rounding the exact value first (π as 3.14) so the error is computed against the wrong value"
+                "Dividing by the approximate value instead of the exact value",
+                "Forgetting to multiply by 100",
+                "Leaving the sign in, so an underestimate gives a negative error",
+                "Rounding the exact value first, so the error is worked out against the wrong value"
               ]
             },
             {
@@ -447,9 +447,9 @@
                 }
               ],
               "misconceptions": [
-                "Assuming the percentage error in an area equals the error in the length: giving 2% instead of 4.04% for a circle with r = 2.5 ± 0.05",
-                "Using the lower bound only, which gives the smaller error (3.96% instead of 4.04%)",
-                "Dividing upper bound by upper bound for a maximum speed, instead of upper distance over lower time"
+                "Assuming the percentage error in an area or volume equals the error in the length",
+                "Using only one bound, the one that gives the smaller error",
+                "Using the same bound for the top and the bottom of a quotient, when its extreme needs one upper and one lower bound"
               ],
               "threads": [
                 {
@@ -503,9 +503,9 @@
                 }
               ],
               "misconceptions": [
-                "Treating ÷ 0.2 as × 0.2 and estimating 50 × 3 × 0.2 = 30",
-                "Keeping a negative root from a quadratic as a length",
-                "Accepting a probability of 1.3 or an answer of 2.4 buses because the calculator gave it"
+                "Treating dividing by a number below one as multiplying by it",
+                "Keeping a negative solution as a length",
+                "Accepting an impossible calculator value, such as a probability above one or a part of a bus"
               ]
             }
           ]
@@ -566,10 +566,10 @@
                 }
               ],
               "misconceptions": [
-                "Entering N = 5 (years) instead of 60 payments when P/Y = 12",
-                "Entering I% = 0.5 (the monthly rate) when P/Y = 12 is already set, so the rate is divided twice",
-                "Using simple interest: 20 000 × 1.30 ÷ 60 = $433.33 instead of about $386.66",
-                "Ignoring interest: 20 000 ÷ 60 = $333.33"
+                "Entering the number of years as N instead of the number of payments",
+                "Entering the monthly rate as I% when P/Y already counts the months, so the rate is divided twice",
+                "Using simple interest on the whole loan, then sharing it over the payments",
+                "Ignoring interest and dividing the loan by the number of payments"
               ],
               "threads": [
                 {
@@ -616,9 +616,9 @@
                 }
               ],
               "misconceptions": [
-                "Rounding N down: N = 32.4 gives 32 payments, which leaves debt unpaid; 33 payments are needed",
-                "Entering PV and PMT with the same sign, so the solver returns an error or a meaningless value",
-                "Reading the solved I% as a monthly rate and multiplying it by 12"
+                "Rounding the number of payments down, which leaves debt unpaid",
+                "Entering PV and PMT with the same sign",
+                "Reading the solved I% as a monthly rate and multiplying it by the months in a year"
               ]
             },
             {
@@ -666,9 +666,9 @@
                 }
               ],
               "misconceptions": [
-                "Subtracting k payments from the loan: 20 000 − 12 × 386.66 ≈ $15 360 instead of about $16 464 still owed",
-                "Using the annual rate for the first month's interest: 20 000 × 0.06 = $1200 instead of $100",
-                "Assuming the interest part is the same every month: 3199.36 ÷ 60 ≈ $53.32 each time"
+                "Subtracting the payments made from the loan, ignoring the interest added",
+                "Using the annual rate for one month's interest",
+                "Assuming the interest part of each payment is the same every month"
               ]
             },
             {
@@ -711,7 +711,7 @@
               ],
               "misconceptions": [
                 "Giving the total repaid as the interest paid",
-                "Assuming the lower monthly payment is always cheaper overall, even though a longer term can cost more interest",
+                "Assuming the loan with the lower monthly payment is always cheaper overall",
                 "Using the rounded payment in a long calculation and quoting the total to the cent as exact"
               ]
             },
@@ -759,9 +759,9 @@
                 }
               ],
               "misconceptions": [
-                "Ignoring interest: 200 × 120 = $24 000",
-                "Treating all deposits as made at the start: 24 000 × 1.03^10 ≈ $32 254 instead of about $27 948",
-                "Entering PMT as positive with PV = 0, so FV comes out negative and is then misread"
+                "Ignoring interest and adding up the deposits",
+                "Treating every deposit as made at the start, so each earns interest for the whole time",
+                "Entering the deposits with the wrong sign, so FV comes out negative and is then misread"
               ],
               "threads": [
                 {
@@ -808,9 +808,9 @@
                 }
               ],
               "misconceptions": [
-                "Multiplying withdrawal by number of months: 1500 × 240 = $360 000, ignoring interest earned while the fund is drawn down",
+                "Multiplying the withdrawal by the number of months, ignoring the interest the fund earns",
                 "Solving for FV instead of PV, answering the wrong question",
-                "Rounding the number of full months up instead of down when asked how long full payments last"
+                "Rounding the number of full withdrawals up instead of down"
               ]
             }
           ]

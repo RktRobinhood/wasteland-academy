@@ -1,7 +1,7 @@
 {
   "id": "ex.functions.gradient",
-  "format": 1,
-  "status": "approved",
+  "format": 2,
+  "status": "draft",
   "title": "Rise per Step",
   "idea": "The gradient of a line is the change in y for each step of 1 in x, the same everywhere along the line.",
   "zone": "functions",
@@ -43,7 +43,8 @@
     "No prerequisite in the map, so the recall is one tap question on coordinates from earlier school, with no callback line (\"builds_on\": null).",
     "No second-method section: the map lists no methods. Of the skill's methods, rise over run on a graph is the big idea and the two-point formula is the lesson. Rearranging to y = mx + c and m = −a/b need the equation of a line, which is ex.functions.line-equation, so the third misconception (reading a coefficient of ax + by + d = 0 as the gradient) is left to that script.",
     "The cold open's question (which track is gentler) is answered in example 3(c) and again in the sign-off. Both tracks use the same numbers all the way through: the east track is 12 up over 40 across, which is P(20, 5) to Q(70, 20); the west track is 9 up over 25 across.",
-    "The turns use fn-line-from-conditions, whose chain starts with the gradient of a segment. Its fallbacks are fixed and worked below."
+    "The turns use fn-line-from-conditions, whose chain starts with the gradient of a segment. Its fallbacks are fixed and worked below.",
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes."
   ],
   "sections": [
     {
@@ -51,10 +52,12 @@
       "kind": "cold-open",
       "beats": [
         {
+          "line": "frzt37",
           "speaker": "rook-dead-air",
           "say": "Signal Tower, this is Rook. Two straight tracks run up the hill to the tower, and my bakkie only makes it up the gentler one."
         },
         {
+          "line": "guswmw",
           "speaker": "rook-dead-air",
           "say": "The east track climbs twelve metres over forty metres across. The west track climbs nine over twenty-five.",
           "board": [
@@ -65,6 +68,7 @@
           ]
         },
         {
+          "line": "ytkd94",
           "speaker": "rook-dead-air",
           "say": "Nine is less than twelve. Does that make the west track gentler? Hold that thought. Over.",
           "pause": 0.5
@@ -77,6 +81,7 @@
       "builds_on": null,
       "beats": [
         {
+          "line": "zusfmb",
           "speaker": "rook-dead-air",
           "say": "One check first. Tap one."
         },
@@ -92,14 +97,18 @@
             "answer": 0,
             "right": [
               {
+                "line": "tt44us",
                 "speaker": "rook-dead-air",
-                "say": "Six. Ten take away four. Across is four, up is six. Hold on to both."
+                "say": "Six. Ten take away four. Across is four, up is six. Hold on to both.",
+                "caption": "Six. 10 − 4. Across is four, up is six. Hold on to both."
               }
             ],
             "not_yet": [
               {
+                "line": "q6d14x",
                 "speaker": "rook-dead-air",
-                "say": "y is the second coordinate. It goes from four to ten, and ten take away four is six. Across, it goes from one to five. That's four."
+                "say": "y is the second coordinate. It goes from four to ten, and ten take away four is six. Across, it goes from one to five. That's four.",
+                "caption": "y is the second coordinate. It goes from four to ten, and 10 − 4 is 6. Across, it goes from one to five. That's four."
               }
             ]
           }
@@ -111,9 +120,10 @@
       "kind": "big-idea",
       "beats": [
         {
+          "line": "qldiur",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "The east track. Start at the bottom, drive forty metres across, and you're twelve metres higher.",
+          "clear": true,
           "board": [
             {
               "write": "East track: 40 m across, 12 m up",
@@ -122,8 +132,10 @@
           ]
         },
         {
+          "line": "ne97fi",
           "speaker": "rook-dead-air",
           "say": "How much up for one metre across? Share the twelve over the forty. Twelve over forty is zero point three.",
+          "caption": "How much up for one metre across? Share the twelve over the forty. 12/40 = 0.3.",
           "board": [
             {
               "write": "12 ÷ 40 = 0.3 m up for each 1 m across",
@@ -132,8 +144,10 @@
           ]
         },
         {
+          "line": "r8ii6w",
           "speaker": "rook-dead-air",
           "say": "Zero point three up for every metre across, at the bottom of the track or near the top. On a straight track it never changes.",
+          "caption": "0.3 up for every metre across, at the bottom of the track or near the top. On a straight track it never changes.",
           "board": [
             {
               "write": "the same at every step of the line",
@@ -142,6 +156,7 @@
           ]
         },
         {
+          "line": "zrlj2o",
           "speaker": "rook-dead-air",
           "say": "That's the gradient. The change in y for each step of one in x.",
           "board": [
@@ -152,6 +167,7 @@
           ]
         },
         {
+          "line": "v73i9j",
           "speaker": "rook-dead-air",
           "say": "The change up is the rise. The change across is the run. Gradient is rise over run, and we write it m.",
           "board": [
@@ -166,8 +182,10 @@
           ]
         },
         {
+          "line": "wwmx2p",
           "speaker": "rook-dead-air",
           "say": "Two points on the line, x one, y one and x two, y two. Rise is y two minus y one. Run is x two minus x one, the same order, top and bottom, and it works for any two points you pick, because the gradient is the same everywhere, and that's what straight means. Sorry. Back on frequency.",
+          "caption": "Two points on the line, (x₁, y₁) and (x₂, y₂). Rise is y₂ − y₁. Run is x₂ − x₁, the same order, top and bottom, and it works for any two points you pick, because the gradient is the same everywhere, and that's what straight means. Sorry. Back on frequency.",
           "board": [
             {
               "write": "m = (y₂ − y₁)/(x₂ − x₁)",
@@ -176,6 +194,7 @@
           ]
         },
         {
+          "line": "c4l4x8",
           "speaker": "rook-dead-air",
           "say": "Up to the right, the gradient is positive. Down to the right, negative. Flat, zero.",
           "board": [
@@ -186,6 +205,7 @@
           ]
         },
         {
+          "line": "x280op",
           "speaker": "rook-dead-air",
           "say": "My oupa drove his bakkie up this hill backwards once. Reverse was the strongest gear it had. Same hill, same gradient, a lot more shouting.",
           "cue": "chuckles",
@@ -204,9 +224,10 @@
       },
       "beats": [
         {
+          "line": "xpl5zn",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "On paper. Step one: what we're finding. m, the gradient of the line through A and B.",
+          "clear": true,
           "board": [
             {
               "write": "Find m, the gradient of the line through A(2, 3) and B(6, 11).",
@@ -216,8 +237,10 @@
           ]
         },
         {
+          "line": "tr0f2f",
           "speaker": "rook-dead-air",
           "say": "Step two: the givens. A is the first point, two, three. B is the second, six, eleven.",
+          "caption": "Step two: the givens. A is the first point, (2, 3). B is the second, (6, 11).",
           "board": [
             {
               "write": "(x₁, y₁) = (2, 3)",
@@ -231,8 +254,10 @@
           ]
         },
         {
+          "line": "n14siy",
           "speaker": "rook-dead-air",
           "say": "Step three: the formula. m equals y two minus y one, over x two minus x one.",
+          "caption": "Step three: the formula. m = (y₂ − y₁)/(x₂ − x₁).",
           "board": [
             {
               "write": "m = (y₂ − y₁)/(x₂ − x₁)",
@@ -242,8 +267,10 @@
           ]
         },
         {
+          "line": "ubar2q",
           "speaker": "rook-dead-air",
           "say": "Step four: substitute. Eleven minus three on top. Six minus two underneath.",
+          "caption": "Step four: substitute. 11 − 3 on top. 6 − 2 underneath.",
           "board": [
             {
               "write": "m = (11 − 3)/(6 − 2)",
@@ -264,12 +291,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "pxlir0",
                 "speaker": "rook-dead-air",
                 "say": "Copy that. Rise on top. Run underneath."
               }
             ],
             "not_yet": [
               {
+                "line": "dtqzyu",
                 "speaker": "rook-dead-air",
                 "say": "Rise over run. Eleven and three are y values, so their change is the rise, and the rise goes on top."
               }
@@ -277,8 +306,10 @@
           }
         },
         {
+          "line": "p4cs74",
           "speaker": "rook-dead-air",
           "say": "Step five: evaluate. Eight over four. The gradient is two. Up two for every one across.",
+          "caption": "Step five: evaluate. 8/4. The gradient is 2. Up two for every one across.",
           "board": [
             {
               "write": "m = 8/4 = 2",
@@ -294,8 +325,10 @@
           ]
         },
         {
+          "line": "b01pdm",
           "speaker": "rook-dead-air",
           "say": "Check: from A, four steps across at two up each is eight up. Three plus eight is eleven. That's B.",
+          "caption": "Check: from A, four steps across at two up each is eight up. 3 + 8 = 11. That's B.",
           "board": [
             {
               "write": "Check: 3 + 4 × 2 = 11 ✓",
@@ -312,12 +345,20 @@
       "turn": {
         "kind": "twin",
         "like": "example-1",
-        "type": "fn-line-from-conditions",
+        "serve": "engine",
+        "cell": {
+          "type": "fn-line-from-conditions",
+          "unknown": "gradient-from-two-points",
+          "rep": "words",
+          "angle": "two-point-formula"
+        },
+        "command": "Find",
         "skills": [
           "SL2.1.gradient"
         ],
         "intro": [
           {
+            "line": "ain09x",
             "speaker": "rook-dead-air",
             "say": "Your channel. Givens, formula, then the values. Over."
           }
@@ -340,20 +381,24 @@
         },
         "right": [
           {
+            "line": "hoapei",
             "speaker": "rook-dead-air",
             "say": "Givens, formula, values, and the sign checked. Copy that."
           },
           {
+            "line": "dnl038",
             "speaker": "rook-dead-air",
             "say": "Rise on top, run underneath. Loud and clear."
           }
         ],
         "not_yet": [
           {
+            "line": "h0cg4q",
             "speaker": "rook-dead-air",
             "say": "Rise over run. Which values are the y values?"
           },
           {
+            "line": "omz7h8",
             "speaker": "rook-dead-air",
             "say": "Same order top and bottom. Second point minus first, both times."
           }
@@ -369,9 +414,11 @@
       },
       "beats": [
         {
+          "line": "tjpida",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "Next one adds negatives. The line through C, minus one, seven, and D, three, minus five.",
+          "caption": "Next one adds negatives. The line through C(−1, 7) and D(3, −5).",
+          "clear": true,
           "board": [
             {
               "write": "Find m for C(−1, 7) and D(3, −5).",
@@ -384,8 +431,10 @@
           ]
         },
         {
+          "line": "aapq0g",
           "speaker": "rook-dead-air",
           "say": "The rise first. Minus five take away seven is minus twelve. It goes down.",
+          "caption": "The rise first. −5 − 7 = −12. It goes down.",
           "board": [
             {
               "write": "rise = −5 − 7 = −12",
@@ -394,6 +443,7 @@
           ]
         },
         {
+          "line": "bdqxpm",
           "speaker": "rook-dead-air",
           "say": "The run is yours. Same order: D's x minus C's x. I'll keep the channel open."
         },
@@ -409,21 +459,26 @@
             "answer": 0,
             "right": [
               {
+                "line": "wvakvm",
                 "speaker": "rook-dead-air",
                 "say": "Four. Taking away minus one adds one. Lekker."
               }
             ],
             "not_yet": [
               {
+                "line": "swk178",
                 "speaker": "rook-dead-air",
-                "say": "Three take away minus one. Taking away a negative adds, so it's three plus one. Four."
+                "say": "Three take away minus one. Taking away a negative adds, so it's three plus one. Four.",
+                "caption": "3 − (−1). Taking away a negative adds, so it's 3 + 1. Four."
               }
             ]
           }
         },
         {
+          "line": "mxvmmw",
           "speaker": "rook-dead-air",
           "say": "So m is minus twelve over four. Minus three. Down three for every one across.",
+          "caption": "So m = −12/4. −3. Down three for every one across.",
           "board": [
             {
               "write": "m = −12/4",
@@ -437,6 +492,7 @@
           ]
         },
         {
+          "line": "kydmg6",
           "speaker": "rook-dead-air",
           "say": "Check: D is to the right of C and lower, so the line goes down to the right. Negative. Out.",
           "board": [
@@ -475,9 +531,11 @@
       },
       "beats": [
         {
+          "line": "q1lwx2",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "Now the way a paper would set it. Back to the east track, with coordinates on it. x is the distance across, y is the height, both in metres. It passes through P, twenty, five, and Q, seventy, twenty.",
+          "caption": "Now the way a paper would set it. Back to the east track, with coordinates on it. x is the distance across, y is the height, both in metres. It passes through P(20, 5) and Q(70, 20).",
+          "clear": true,
           "board": [
             {
               "write": "P(20, 5), Q(70, 20): x across, y height, in metres",
@@ -487,8 +545,10 @@
           ]
         },
         {
+          "line": "wtopvo",
           "speaker": "rook-dead-air",
           "say": "Part a. Rise, twenty minus five, fifteen. Run, seventy minus twenty, fifty. Fifteen over fifty is zero point three.",
+          "caption": "Part a. Rise, 20 − 5, 15. Run, 70 − 20, 50. 15/50 = 0.3.",
           "board": [
             {
               "write": "(a)  m = (20 − 5)/(70 − 20)",
@@ -509,8 +569,10 @@
           ]
         },
         {
+          "line": "mycaxg",
           "speaker": "rook-dead-air",
-          "say": "Part b. The track reaches the tower at T, one hundred and ten, k. We want its height."
+          "say": "Part b. The track reaches the tower at T, one hundred and ten, k. We want its height.",
+          "caption": "Part b. The track reaches the tower at T(110, k). We want its height."
         },
         {
           "ask": {
@@ -524,21 +586,26 @@
             "answer": 0,
             "right": [
               {
+                "line": "pc88uk",
                 "speaker": "rook-dead-air",
                 "say": "Ja. Straight line, same gradient, any two points."
               }
             ],
             "not_yet": [
               {
+                "line": "w6ncbz",
                 "speaker": "rook-dead-air",
-                "say": "T is on the same straight track. The gradient is the same between any two points on a straight line, so P to T is zero point three too."
+                "say": "T is on the same straight track. The gradient is the same between any two points on a straight line, so P to T is zero point three too.",
+                "caption": "T is on the same straight track. The gradient is the same between any two points on a straight line, so P to T is 0.3 too."
               }
             ]
           }
         },
         {
+          "line": "zmybd3",
           "speaker": "rook-dead-air",
           "say": "From P to T, the gradient is still zero point three. So k minus five, over one hundred and ten minus twenty, equals zero point three.",
+          "caption": "From P to T, the gradient is still 0.3. So (k − 5)/(110 − 20) = 0.3.",
           "board": [
             {
               "write": "(b)  (k − 5)/(110 − 20) = 0.3",
@@ -548,8 +615,10 @@
           ]
         },
         {
+          "line": "zhzu77",
           "speaker": "rook-dead-air",
           "say": "Ninety across. Multiply both sides by ninety. k minus five is twenty-seven, so k is thirty-two. The tower stands thirty-two metres up.",
+          "caption": "Ninety across. Multiply both sides by ninety. k − 5 = 27, so k = 32. The tower stands 32 m up.",
           "board": [
             {
               "write": "k − 5 = 27",
@@ -571,8 +640,10 @@
           ]
         },
         {
+          "line": "lk0ukj",
           "speaker": "rook-dead-air",
           "say": "Check from Q instead. Forty more across, at zero point three, is twelve more up. Twenty plus twelve, thirty-two.",
+          "caption": "Check from Q instead. Forty more across, at 0.3, is twelve more up. 20 + 12, 32.",
           "board": [
             {
               "write": "Check: 20 + 40 × 0.3 = 32 ✓",
@@ -583,8 +654,10 @@
           ]
         },
         {
+          "line": "pquwxd",
           "speaker": "rook-dead-air",
           "say": "Part c. Second track: nine over twenty-five is zero point three six. Bigger gradient, more climb for every metre across.",
+          "caption": "Part c. Second track: 9/25 = 0.36. Bigger gradient, more climb for every metre across.",
           "board": [
             {
               "write": "(c)  m = 9/25 = 0.36",
@@ -605,6 +678,7 @@
           ]
         },
         {
+          "line": "l221x0",
           "speaker": "rook-dead-air",
           "say": "Justify means give the reason, so the comparison goes on the board as well. Out."
         }
@@ -621,9 +695,11 @@
       "misconception": "Subtracts the coordinates in inconsistent order, (y₂ − y₁)/(x₁ − x₂), and gets the wrong sign",
       "beats": [
         {
+          "line": "rq2rll",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "A runner brought this working up the hill. The line through E, one, two, and F, five, ten. One line has a crossed wire.",
+          "caption": "A runner brought this working up the hill. The line through E(1, 2) and F(5, 10). One line has a crossed wire.",
+          "clear": true,
           "board": [
             {
               "write": "m = (y₂ − y₁)/(x₂ − x₁)",
@@ -660,12 +736,14 @@
             "answer": 1,
             "right": [
               {
+                "line": "dcgscf",
                 "speaker": "rook-dead-air",
                 "say": "That's the one. The top starts at F and the bottom starts at E."
               }
             ],
             "not_yet": [
               {
+                "line": "zx2fhx",
                 "speaker": "rook-dead-air",
                 "say": "Your top starts at one point and your bottom starts at the other. Find the line where that happens."
               }
@@ -673,6 +751,7 @@
           }
         },
         {
+          "line": "cn64rd",
           "speaker": "rook-dead-air",
           "say": "The check that catches it: picture it. F is to the right of E and higher up. The line climbs. A climbing line can't have a negative gradient.",
           "board": [
@@ -684,8 +763,10 @@
           ]
         },
         {
+          "line": "rp1fyy",
           "speaker": "rook-dead-air",
           "say": "One line through it. Same order both times: ten minus two, over five minus one. Eight over four. Two.",
+          "caption": "One line through it. Same order both times: (10 − 2)/(5 − 1). 8/4. 2.",
           "board": [
             {
               "strike": "s2"
@@ -698,6 +779,7 @@
           ]
         },
         {
+          "line": "wez6bn",
           "speaker": "rook-dead-air",
           "say": "Most people tune that one backwards at least once. I have. Twice in one night.",
           "joke": true,
@@ -712,12 +794,16 @@
       "turn": {
         "kind": "exam",
         "like": "example-3",
-        "type": "fn-line-from-conditions",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-line-from-conditions"
+        },
         "skills": [
           "SL2.1.gradient"
         ],
         "intro": [
           {
+            "line": "mx1ek9",
             "speaker": "rook-dead-air",
             "say": "Your channel, no help on the first try. Label the parts, and check each one. Over."
           }
@@ -747,20 +833,24 @@
         },
         "right": [
           {
+            "line": "xvfwka",
             "speaker": "rook-dead-air",
             "say": "Rise over run, sign and all. Copy that."
           },
           {
+            "line": "bw3qv6",
             "speaker": "rook-dead-air",
             "say": "Every part labelled and checked. Loud and clear."
           }
         ],
         "not_yet": [
           {
+            "line": "steosf",
             "speaker": "rook-dead-air",
             "say": "Your top starts at one point and your bottom starts at the other. Same order, both times."
           },
           {
+            "line": "qvx7qo",
             "speaker": "rook-dead-air",
             "say": "Check the sign. Does your line go up or down to the right?"
           }
@@ -772,9 +862,10 @@
       "kind": "recap",
       "beats": [
         {
+          "line": "hzyxij",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "So. The gradient is the change in y for each step of one in x. Rise over run, the same order top and bottom, and on a straight line it's the same everywhere.",
+          "clear": true,
           "board": [
             {
               "write": "m = (y₂ − y₁)/(x₂ − x₁)",
@@ -795,10 +886,12 @@
           ]
         },
         {
+          "line": "eg7zxw",
           "speaker": "rook-dead-air",
           "say": "Next time: one point and a gradient, and you can write the whole line down."
         },
         {
+          "line": "loc2cf",
           "speaker": "rook-dead-air",
           "say": "And the bakkie takes the east track. Twelve is more than nine, and it's still the gentler hill. Rook, out.",
           "joke": true

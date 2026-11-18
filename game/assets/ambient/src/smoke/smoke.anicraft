@@ -1,0 +1,1501 @@
+{
+  "format": "anicraft",
+  "version": 3,
+  "generator": "AniCraft 0.2.1",
+  "paths": [
+    "M7 0C7 3.8659935 3.8659935 7 0 7C-3.8659935 7 -7 3.8659935 -7 0C-7 -3.8659935 -3.8659935 -7 0 -7C3.8659935 -7 7 -3.8659935 7 0Z",
+    "M7 0C7 3.8659935 3.8659935 7 0 7C-3.8659935 7 -7 3.8659935 -7 0C-7 -3.8659935 -3.8659935 -7 0 -7C3.8659935 -7 7 -3.8659935 7 0Z",
+    "M7 0C7 3.8659935 3.8659935 7 0 7C-3.8659935 7 -7 3.8659935 -7 0C-7 -3.8659935 -3.8659935 -7 0 -7C3.8659935 -7 7 -3.8659935 7 0Z",
+    "M7 0C7 3.8659935 3.8659935 7 0 7C-3.8659935 7 -7 3.8659935 -7 0C-7 -3.8659935 -3.8659935 -7 0 -7C3.8659935 -7 7 -3.8659935 7 0Z",
+    "M7 0C7 3.8659935 3.8659935 7 0 7C-3.8659935 7 -7 3.8659935 -7 0C-7 -3.8659935 -3.8659935 -7 0 -7C3.8659935 -7 7 -3.8659935 7 0Z",
+    "M7 0C7 3.8659935 3.8659935 7 0 7C-3.8659935 7 -7 3.8659935 -7 0C-7 -3.8659935 -3.8659935 -7 0 -7C3.8659935 -7 7 -3.8659935 7 0Z",
+    "M7 0C7 3.8659935 3.8659935 7 0 7C-3.8659935 7 -7 3.8659935 -7 0C-7 -3.8659935 -3.8659935 -7 0 -7C3.8659935 -7 7 -3.8659935 7 0Z",
+    "M7 0C7 3.8659935 3.8659935 7 0 7C-3.8659935 7 -7 3.8659935 -7 0C-7 -3.8659935 -3.8659935 -7 0 -7C3.8659935 -7 7 -3.8659935 7 0Z",
+    "M7 0C7 3.8659935 3.8659935 7 0 7C-3.8659935 7 -7 3.8659935 -7 0C-7 -3.8659935 -3.8659935 -7 0 -7C3.8659935 -7 7 -3.8659935 7 0Z"
+  ],
+  "document": {
+    "stage": {
+      "width": 150,
+      "height": 160,
+      "fps": 12.0,
+      "background": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      }
+    },
+    "scenes": [
+      {
+        "name": "Scene 1",
+        "timeline": {
+          "layers": [
+            {
+              "id": 13,
+              "name": "Layer 6",
+              "kind": "Normal",
+              "visible": true,
+              "locked": false,
+              "outline": false,
+              "color": {
+                "r": 1.0,
+                "g": 0.5411765,
+                "b": 0.39607844,
+                "a": 1.0
+              },
+              "keyframes": [
+                {
+                  "start": 0,
+                  "duration": 12,
+                  "elements": [
+                    {
+                      "id": 14,
+                      "name": "",
+                      "transform": {
+                        "m": [
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          83.0,
+                          147.0
+                        ]
+                      },
+                      "color": {
+                        "alpha": 1.0,
+                        "tint": {
+                          "r": 1.0,
+                          "g": 1.0,
+                          "b": 1.0,
+                          "a": 1.0
+                        },
+                        "tint_amount": 0.0
+                      },
+                      "kind": {
+                        "Shape": {
+                          "path": 0,
+                          "fill": {
+                            "Solid": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 1.0
+                            }
+                          },
+                          "stroke": {
+                            "color": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 0.0
+                            },
+                            "width": 2.0
+                          },
+                          "fill_rule": "NonZero"
+                        }
+                      }
+                    }
+                  ],
+                  "tween": null,
+                  "motion": {
+                    "target": 14,
+                    "tracks": [
+                      {
+                        "property": "x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 114.6
+                          },
+                          {
+                            "frame": 11,
+                            "value": 138.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 109.5
+                          },
+                          {
+                            "frame": 11,
+                            "value": 72.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 185.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 185.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "alpha",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 64.3
+                          },
+                          {
+                            "frame": 11,
+                            "value": 0.0
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "label": ""
+                },
+                {
+                  "start": 12,
+                  "duration": 12,
+                  "elements": [
+                    {
+                      "id": 15,
+                      "name": "",
+                      "transform": {
+                        "m": [
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          83.0,
+                          147.0
+                        ]
+                      },
+                      "color": {
+                        "alpha": 1.0,
+                        "tint": {
+                          "r": 1.0,
+                          "g": 1.0,
+                          "b": 1.0,
+                          "a": 1.0
+                        },
+                        "tint_amount": 0.0
+                      },
+                      "kind": {
+                        "Shape": {
+                          "path": 1,
+                          "fill": {
+                            "Solid": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 1.0
+                            }
+                          },
+                          "stroke": {
+                            "color": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 0.0
+                            },
+                            "width": 2.0
+                          },
+                          "fill_rule": "NonZero"
+                        }
+                      }
+                    }
+                  ],
+                  "tween": null,
+                  "motion": {
+                    "target": 15,
+                    "tracks": [
+                      {
+                        "property": "x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 83.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 95.1
+                          },
+                          {
+                            "frame": 7,
+                            "value": 104.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 114.6
+                          }
+                        ]
+                      },
+                      {
+                        "property": "y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 147.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 135.8
+                          },
+                          {
+                            "frame": 7,
+                            "value": 124.5
+                          },
+                          {
+                            "frame": 11,
+                            "value": 109.5
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 185.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 185.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "alpha",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 0.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 7,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 64.3
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "label": ""
+                }
+              ]
+            },
+            {
+              "id": 11,
+              "name": "Layer 5",
+              "kind": "Normal",
+              "visible": true,
+              "locked": false,
+              "outline": false,
+              "color": {
+                "r": 0.3019608,
+                "g": 0.8156863,
+                "b": 0.88235295,
+                "a": 1.0
+              },
+              "keyframes": [
+                {
+                  "start": 0,
+                  "duration": 24,
+                  "elements": [
+                    {
+                      "id": 12,
+                      "name": "",
+                      "transform": {
+                        "m": [
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          83.0,
+                          147.0
+                        ]
+                      },
+                      "color": {
+                        "alpha": 1.0,
+                        "tint": {
+                          "r": 1.0,
+                          "g": 1.0,
+                          "b": 1.0,
+                          "a": 1.0
+                        },
+                        "tint_amount": 0.0
+                      },
+                      "kind": {
+                        "Shape": {
+                          "path": 2,
+                          "fill": {
+                            "Solid": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 1.0
+                            }
+                          },
+                          "stroke": {
+                            "color": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 0.0
+                            },
+                            "width": 2.0
+                          },
+                          "fill_rule": "NonZero"
+                        }
+                      }
+                    }
+                  ],
+                  "tween": null,
+                  "motion": {
+                    "target": 12,
+                    "tracks": [
+                      {
+                        "property": "x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 83.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 95.1
+                          },
+                          {
+                            "frame": 7,
+                            "value": 104.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 138.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 147.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 135.8
+                          },
+                          {
+                            "frame": 7,
+                            "value": 124.5
+                          },
+                          {
+                            "frame": 23,
+                            "value": 72.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "alpha",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 0.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 7,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 0.0
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "label": ""
+                }
+              ]
+            },
+            {
+              "id": 8,
+              "name": "Layer 4",
+              "kind": "Normal",
+              "visible": true,
+              "locked": false,
+              "outline": false,
+              "color": {
+                "r": 0.7294118,
+                "g": 0.40784314,
+                "b": 0.78431374,
+                "a": 1.0
+              },
+              "keyframes": [
+                {
+                  "start": 0,
+                  "duration": 12,
+                  "elements": [
+                    {
+                      "id": 9,
+                      "name": "",
+                      "transform": {
+                        "m": [
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          56.0,
+                          136.0
+                        ]
+                      },
+                      "color": {
+                        "alpha": 1.0,
+                        "tint": {
+                          "r": 1.0,
+                          "g": 1.0,
+                          "b": 1.0,
+                          "a": 1.0
+                        },
+                        "tint_amount": 0.0
+                      },
+                      "kind": {
+                        "Shape": {
+                          "path": 3,
+                          "fill": {
+                            "Solid": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 1.0
+                            }
+                          },
+                          "stroke": {
+                            "color": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 0.0
+                            },
+                            "width": 2.0
+                          },
+                          "fill_rule": "NonZero"
+                        }
+                      }
+                    }
+                  ],
+                  "tween": null,
+                  "motion": {
+                    "target": 9,
+                    "tracks": [
+                      {
+                        "property": "x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 87.6
+                          },
+                          {
+                            "frame": 11,
+                            "value": 111.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 98.5
+                          },
+                          {
+                            "frame": 11,
+                            "value": 61.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 185.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 185.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "alpha",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 64.3
+                          },
+                          {
+                            "frame": 11,
+                            "value": 0.0
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "label": ""
+                },
+                {
+                  "start": 12,
+                  "duration": 12,
+                  "elements": [
+                    {
+                      "id": 10,
+                      "name": "",
+                      "transform": {
+                        "m": [
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          56.0,
+                          136.0
+                        ]
+                      },
+                      "color": {
+                        "alpha": 1.0,
+                        "tint": {
+                          "r": 1.0,
+                          "g": 1.0,
+                          "b": 1.0,
+                          "a": 1.0
+                        },
+                        "tint_amount": 0.0
+                      },
+                      "kind": {
+                        "Shape": {
+                          "path": 4,
+                          "fill": {
+                            "Solid": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 1.0
+                            }
+                          },
+                          "stroke": {
+                            "color": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 0.0
+                            },
+                            "width": 2.0
+                          },
+                          "fill_rule": "NonZero"
+                        }
+                      }
+                    }
+                  ],
+                  "tween": null,
+                  "motion": {
+                    "target": 10,
+                    "tracks": [
+                      {
+                        "property": "x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 56.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 68.1
+                          },
+                          {
+                            "frame": 7,
+                            "value": 77.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 87.6
+                          }
+                        ]
+                      },
+                      {
+                        "property": "y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 136.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 124.8
+                          },
+                          {
+                            "frame": 7,
+                            "value": 113.5
+                          },
+                          {
+                            "frame": 11,
+                            "value": 98.5
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 185.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 185.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "alpha",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 0.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 7,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 64.3
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "label": ""
+                }
+              ]
+            },
+            {
+              "id": 6,
+              "name": "Layer 3",
+              "kind": "Normal",
+              "visible": true,
+              "locked": false,
+              "outline": false,
+              "color": {
+                "r": 1.0,
+                "g": 0.8352941,
+                "b": 0.2901961,
+                "a": 1.0
+              },
+              "keyframes": [
+                {
+                  "start": 0,
+                  "duration": 24,
+                  "elements": [
+                    {
+                      "id": 7,
+                      "name": "",
+                      "transform": {
+                        "m": [
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          56.0,
+                          136.0
+                        ]
+                      },
+                      "color": {
+                        "alpha": 1.0,
+                        "tint": {
+                          "r": 1.0,
+                          "g": 1.0,
+                          "b": 1.0,
+                          "a": 1.0
+                        },
+                        "tint_amount": 0.0
+                      },
+                      "kind": {
+                        "Shape": {
+                          "path": 5,
+                          "fill": {
+                            "Solid": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 1.0
+                            }
+                          },
+                          "stroke": {
+                            "color": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 0.0
+                            },
+                            "width": 2.0
+                          },
+                          "fill_rule": "NonZero"
+                        }
+                      }
+                    }
+                  ],
+                  "tween": null,
+                  "motion": {
+                    "target": 7,
+                    "tracks": [
+                      {
+                        "property": "x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 56.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 68.1
+                          },
+                          {
+                            "frame": 7,
+                            "value": 77.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 111.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 136.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 124.8
+                          },
+                          {
+                            "frame": 7,
+                            "value": 113.5
+                          },
+                          {
+                            "frame": 23,
+                            "value": 61.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "alpha",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 0.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 7,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 0.0
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "label": ""
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "name": "Layer 2",
+              "kind": "Normal",
+              "visible": true,
+              "locked": false,
+              "outline": false,
+              "color": {
+                "r": 0.4,
+                "g": 0.73333335,
+                "b": 0.41568628,
+                "a": 1.0
+              },
+              "keyframes": [
+                {
+                  "start": 0,
+                  "duration": 12,
+                  "elements": [
+                    {
+                      "id": 4,
+                      "name": "",
+                      "transform": {
+                        "m": [
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          20.0,
+                          118.0
+                        ]
+                      },
+                      "color": {
+                        "alpha": 1.0,
+                        "tint": {
+                          "r": 1.0,
+                          "g": 1.0,
+                          "b": 1.0,
+                          "a": 1.0
+                        },
+                        "tint_amount": 0.0
+                      },
+                      "kind": {
+                        "Shape": {
+                          "path": 6,
+                          "fill": {
+                            "Solid": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 1.0
+                            }
+                          },
+                          "stroke": {
+                            "color": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 0.0
+                            },
+                            "width": 2.0
+                          },
+                          "fill_rule": "NonZero"
+                        }
+                      }
+                    }
+                  ],
+                  "tween": null,
+                  "motion": {
+                    "target": 4,
+                    "tracks": [
+                      {
+                        "property": "x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 51.6
+                          },
+                          {
+                            "frame": 11,
+                            "value": 75.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 80.5
+                          },
+                          {
+                            "frame": 11,
+                            "value": 43.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 185.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 185.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "alpha",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 64.3
+                          },
+                          {
+                            "frame": 11,
+                            "value": 0.0
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "label": ""
+                },
+                {
+                  "start": 12,
+                  "duration": 12,
+                  "elements": [
+                    {
+                      "id": 5,
+                      "name": "",
+                      "transform": {
+                        "m": [
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          20.0,
+                          118.0
+                        ]
+                      },
+                      "color": {
+                        "alpha": 1.0,
+                        "tint": {
+                          "r": 1.0,
+                          "g": 1.0,
+                          "b": 1.0,
+                          "a": 1.0
+                        },
+                        "tint_amount": 0.0
+                      },
+                      "kind": {
+                        "Shape": {
+                          "path": 7,
+                          "fill": {
+                            "Solid": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 1.0
+                            }
+                          },
+                          "stroke": {
+                            "color": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 0.0
+                            },
+                            "width": 2.0
+                          },
+                          "fill_rule": "NonZero"
+                        }
+                      }
+                    }
+                  ],
+                  "tween": null,
+                  "motion": {
+                    "target": 5,
+                    "tracks": [
+                      {
+                        "property": "x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 20.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 32.1
+                          },
+                          {
+                            "frame": 7,
+                            "value": 41.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 51.6
+                          }
+                        ]
+                      },
+                      {
+                        "property": "y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 118.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 106.8
+                          },
+                          {
+                            "frame": 7,
+                            "value": 95.5
+                          },
+                          {
+                            "frame": 11,
+                            "value": 80.5
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 185.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 185.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "alpha",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 0.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 7,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 11,
+                            "value": 64.3
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "label": ""
+                }
+              ]
+            },
+            {
+              "id": 1,
+              "name": "Layer 1",
+              "kind": "Normal",
+              "visible": true,
+              "locked": false,
+              "outline": false,
+              "color": {
+                "r": 0.30980393,
+                "g": 0.6392157,
+                "b": 1.0,
+                "a": 1.0
+              },
+              "keyframes": [
+                {
+                  "start": 0,
+                  "duration": 24,
+                  "elements": [
+                    {
+                      "id": 2,
+                      "name": "",
+                      "transform": {
+                        "m": [
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          20.0,
+                          118.0
+                        ]
+                      },
+                      "color": {
+                        "alpha": 1.0,
+                        "tint": {
+                          "r": 1.0,
+                          "g": 1.0,
+                          "b": 1.0,
+                          "a": 1.0
+                        },
+                        "tint_amount": 0.0
+                      },
+                      "kind": {
+                        "Shape": {
+                          "path": 8,
+                          "fill": {
+                            "Solid": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 1.0
+                            }
+                          },
+                          "stroke": {
+                            "color": {
+                              "r": 0.47843137,
+                              "g": 0.4392157,
+                              "b": 0.40784314,
+                              "a": 0.0
+                            },
+                            "width": 2.0
+                          },
+                          "fill_rule": "NonZero"
+                        }
+                      }
+                    }
+                  ],
+                  "tween": null,
+                  "motion": {
+                    "target": 2,
+                    "tracks": [
+                      {
+                        "property": "x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 20.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 32.1
+                          },
+                          {
+                            "frame": 7,
+                            "value": 41.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 75.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 118.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 106.8
+                          },
+                          {
+                            "frame": 7,
+                            "value": 95.5
+                          },
+                          {
+                            "frame": 23,
+                            "value": 43.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_x",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "scale_y",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 100.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 125.5
+                          },
+                          {
+                            "frame": 7,
+                            "value": 151.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 270.0
+                          }
+                        ]
+                      },
+                      {
+                        "property": "alpha",
+                        "keys": [
+                          {
+                            "frame": 0,
+                            "value": 0.0
+                          },
+                          {
+                            "frame": 3,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 7,
+                            "value": 90.0
+                          },
+                          {
+                            "frame": 23,
+                            "value": 0.0
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "label": ""
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "library": [],
+    "next_id": 16
+  }
+}
