@@ -326,9 +326,15 @@ const TODOS3 = [
   ['more than 1,000 recorded words', s => { section(s, 'recap').beats.push(...Array.from({ length: 6 }, (_, i) => say(10, `zzzz1${i}`))); }, /recorded words, every branch counted; at most 1000/],
   ['a first worked example with no setting', s => { delete section(s, 'example-1').problem.setting; }, /the first worked example has no setting from its zone/],
   ['a typed answer with no neutral not-yet line', s => { typed(s).not_yet = []; }, /has 0 neutral lines; key every not-yet line but one/],
-  ['a lesson with slips and no reactions for its tutor', s => { s.tutor = 'tin-can-tess'; }, /tin-can-tess has no reaction lines in reactions\.json/],
 ];
 for (const [name, edit, want] of TODOS3) test(`the check lists ${name} as a to-do`, () => assert.match(todo3(edit), want));
+test('the check lists a lesson with slips and no reactions for its tutor as a to-do', () => {
+  const { 'tin-can-tess': _, ...tutors } = ctx.reactions.tutors;
+  const s = structuredClone(exemplar);
+  s.tutor = 'tin-can-tess';
+  const out = checkScript(s, { ...ctx, reactions: { ...ctx.reactions, tutors } }, EX).todo.join('\n');
+  assert.match(out, /tin-can-tess has no reaction lines in reactions\.json/);
+});
 
 test('a call can be a tapped option, or have more than one right answer', () => {
   const ok = edit => assert.deepEqual(broken3(edit), '');
@@ -354,7 +360,8 @@ test('a branch counts towards the run it opens, and an optional toy is off the m
 test('an approved script that plays reactions fails while reactions.json is a draft', () => {
   const s = structuredClone(exemplar);
   s.status = 'approved';
-  const out = checkScripts(ctx, [...scripts.filter(x => x.file !== EX), { file: EX, script: s }]).errors.join('\n');
+  const draft = { ...ctx, reactions: { ...ctx.reactions, status: 'draft' } };
+  const out = checkScripts(draft, [...scripts.filter(x => x.file !== EX), { file: EX, script: s }]).errors.join('\n');
   assert.match(out, /plays reactions\.json, which is a draft/);
 });
 
