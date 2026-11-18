@@ -1,0 +1,175 @@
+[
+{
+"cmd": "file.new",
+"params": {
+"width": 72,
+"height": 44,
+"fps": 10
+}
+},
+{
+"cmd": "draw.path",
+"params": {
+"d": "M 30 24 Q 18 21.0 3 24.0 Q 16 27.0 29 27 L 24 28 L 32 29 L 40 29 L 46 27 L 50 25 L 46 23 L 43 27 Q 56 27.0 69 24.0 Q 54 21.0 42 24 Z",
+"fill": "#1F2937",
+"stroke": "#1F293700",
+"object": true
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 1
+}
+},
+{
+"cmd": "timeline.insert_blank_keyframe",
+"params": {
+"frame": 1
+}
+},
+{
+"cmd": "draw.path",
+"params": {
+"d": "M 30 24 Q 18 16.05025253169417 3 12.68629150101524 Q 16 22.05025253169417 29 27 L 24 28 L 32 29 L 40 29 L 46 27 L 50 25 L 46 23 L 43 27 Q 56 22.05025253169417 69 12.68629150101524 Q 54 16.05025253169417 42 24 Z",
+"fill": "#1F2937",
+"stroke": "#1F293700",
+"object": true
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 2
+}
+},
+{
+"cmd": "timeline.insert_blank_keyframe",
+"params": {
+"frame": 2
+}
+},
+{
+"cmd": "draw.path",
+"params": {
+"d": "M 30 24 Q 18 14.0 3 8.0 Q 16 20.0 29 27 L 24 28 L 32 29 L 40 29 L 46 27 L 50 25 L 46 23 L 43 27 Q 56 20.0 69 8.0 Q 54 14.0 42 24 Z",
+"fill": "#1F2937",
+"stroke": "#1F293700",
+"object": true
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 3
+}
+},
+{
+"cmd": "timeline.insert_blank_keyframe",
+"params": {
+"frame": 3
+}
+},
+{
+"cmd": "draw.path",
+"params": {
+"d": "M 30 24 Q 18 16.050252531694166 3 12.686291501015239 Q 16 22.050252531694166 29 27 L 24 28 L 32 29 L 40 29 L 46 27 L 50 25 L 46 23 L 43 27 Q 56 22.050252531694166 69 12.686291501015239 Q 54 16.050252531694166 42 24 Z",
+"fill": "#1F2937",
+"stroke": "#1F293700",
+"object": true
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 4
+}
+},
+{
+"cmd": "timeline.insert_blank_keyframe",
+"params": {
+"frame": 4
+}
+},
+{
+"cmd": "draw.path",
+"params": {
+"d": "M 30 24 Q 18 21.0 3 23.999999999999996 Q 16 27.0 29 27 L 24 28 L 32 29 L 40 29 L 46 27 L 50 25 L 46 23 L 43 27 Q 56 27.0 69 23.999999999999996 Q 54 21.0 42 24 Z",
+"fill": "#1F2937",
+"stroke": "#1F293700",
+"object": true
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 5
+}
+},
+{
+"cmd": "timeline.insert_blank_keyframe",
+"params": {
+"frame": 5
+}
+},
+{
+"cmd": "draw.path",
+"params": {
+"d": "M 30 24 Q 18 25.94974746830583 3 35.31370849898476 Q 16 31.94974746830583 29 27 L 24 28 L 32 29 L 40 29 L 46 27 L 50 25 L 46 23 L 43 27 Q 56 31.94974746830583 69 35.31370849898476 Q 54 25.94974746830583 42 24 Z",
+"fill": "#1F2937",
+"stroke": "#1F293700",
+"object": true
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 6
+}
+},
+{
+"cmd": "timeline.insert_blank_keyframe",
+"params": {
+"frame": 6
+}
+},
+{
+"cmd": "draw.path",
+"params": {
+"d": "M 30 24 Q 18 28.0 3 40.0 Q 16 34.0 29 27 L 24 28 L 32 29 L 40 29 L 46 27 L 50 25 L 46 23 L 43 27 Q 56 34.0 69 40.0 Q 54 28.0 42 24 Z",
+"fill": "#1F2937",
+"stroke": "#1F293700",
+"object": true
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 7
+}
+},
+{
+"cmd": "timeline.insert_blank_keyframe",
+"params": {
+"frame": 7
+}
+},
+{
+"cmd": "draw.path",
+"params": {
+"d": "M 30 24 Q 18 25.949747468305834 3 35.31370849898477 Q 16 31.949747468305834 29 27 L 24 28 L 32 29 L 40 29 L 46 27 L 50 25 L 46 23 L 43 27 Q 56 31.949747468305834 69 35.31370849898477 Q 54 25.949747468305834 42 24 Z",
+"fill": "#1F2937",
+"stroke": "#1F293700",
+"object": true
+}
+},
+{
+"cmd": "file.export_sprite_sheet",
+"params": {
+"path": "../../crow-sheet.png",
+"columns": 8,
+"background": false,
+"confirm": true
+}
+}
+]

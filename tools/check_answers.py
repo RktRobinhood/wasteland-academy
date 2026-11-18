@@ -47279,6 +47279,786 @@ SITUATION_CHECKS["bearings-elevation"] = E16TO_entry
 
 
 
+
+# ── approximation (t1-ai-percentage-error, t1-ai-approx-bounds, FAL-999) ──────
+# The `approximation` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/approximation.gd. Every value is read back from the sentences (never the
+# question's `given`) and worked out again with exact rationals; a rounding is done with Decimal,
+# half up, and the slips are built from their descriptions in the catalogue.
+
+R1AP_WHO = ["Kira", "Tomas", "Ines", "Ravi", "Lena", "Odo"]
+R1AP_RA = "AI-SL1.6.round-accuracy#"
+R1AP_PE = "AI-SL1.6.percentage-error#"
+R1AP_ER = "AI-SL1.6.estimate-reasonableness#"
+R1AP_BO = "AI-SL1.6.bounds#"
+R1AP_MP = "AI-SL1.6.max-percentage-error#"
+R1AP_TP = "t1-ai-percentage-error#"
+R1AP_TB = "t1-ai-approx-bounds#"
+R1AP_EDGE = sp.Rational(39, 1000)       # the engine's is 0.04
+R1AP_CENT_EDGE = sp.Rational(149, 1000)  # the engine's is 0.15
+R1AP_N = r"(\d+(?:\.\d+)?)"
+
+
+def r1ap_q(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def r1ap_round(v, places, mode=ROUND_HALF_UP):
+    """v rounded to `places` decimal places (negative: to tens and up), as an exact Rational and its text."""
+    d = Decimal(v.p) / Decimal(v.q) if isinstance(v, sp.Rational) else Decimal(str(v))
+    q = Decimal(1).scaleb(-places)
+    r = d.quantize(q, rounding=mode)
+    text = f"{r:.{max(places, 0)}f}"
+    return sp.Rational(text), text
+
+
+def r1ap_places(v):
+    """The decimal places a decimal is written with."""
+    t = str(Decimal(v.p) / Decimal(v.q)).rstrip("0") if v.q != 1 else ""
+    return len(t.split(".")[1]) if "." in t else 0
+
+
+def r1ap_lead(v):
+    return int(sp.floor(sp.log(abs(v), 10) + sp.Rational(1, 10**12)))
+
+
+def r1ap_clear3(x):
+    """x is at least R1AP_EDGE of its 3rd figure from a rounding edge."""
+    v = abs(num(x))
+    if v == 0:
+        return False
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= R1AP_EDGE
+
+
+def r1ap_sf(label, x, unit=""):
+    return f"{label}{gc_s(x)}{unit}", f"{label}{gc_s2(x)}{unit}"
+
+
+def r1ap_who(w):
+    need(w in R1AP_WHO, f"the story's name {w!r}")
+
+
+def r1ap_read(pattern, text, what):
+    m = re.fullmatch(pattern, text)
+    need(m is not None, f"can't read {what}: {text!r}")
+    return m
+
+
+def r1ap_money(x):
+    return ci_money(ci_cents(x))
+
+
+def r1ap_cents_clear(x):
+    f = x * 100 - sp.floor(x * 100)
+    return abs(f - sp.Rational(1, 2)) >= R1AP_CENT_EDGE
+
+
+def r1ap_check(q):
+    u, L, asked = q["view"]["unknown"], q["lines"], q["asked"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    if u == "round-figures":
+        v = r1ap_q(r1ap_read(r"A GDC gives the value " + R1AP_N + r"\.", L[0], "the value").group(1))
+        m = r1ap_read(r"Write this value correct to (\d) (decimal places?|significant figures?)\.", asked, "the accuracy")
+        n = int(m.group(1))
+        dp = m.group(2).startswith("decimal")
+        need(m.group(2) in (("decimal place" if n == 1 else "decimal places"), ("significant figure" if n == 1 else "significant figures")), "a plural")
+        places = n if dp else n - 1 - r1ap_lead(v)
+        need(places >= 0 and r1ap_places(v) > places + 1, f"{v} has too few digits for {places} places")
+        need(len(L[0].split("value ")[1].rstrip(".").replace(".", "").lstrip("0")) <= 7, "the GDC value has more than 7 figures")
+        r, want = r1ap_round(v, places)
+        need(r != 0 and r1ap_lead(r) == r1ap_lead(v), "rounding changes the place of the first figure")
+        if not dp and v < sp.Rational(1, 100):
+            need(n == 3, "a small value is rounded to 3 s.f.")
+            wrongs[R1AP_RA + "0"] = {r1ap_round(v, n)[1]}
+        st = v
+        for p in range(r1ap_places(v) - 1, places - 1, -1):
+            st = r1ap_round(st, p)[0]
+        if st != r:
+            wrongs[R1AP_RA + "1"] = {r1ap_round(st, places)[1]}
+        cut, cut_t = r1ap_round(v, places, "ROUND_DOWN")
+        if cut != r:
+            wrongs[R1AP_TP + "9"] = {cut_t}
+        for o in q["choices"]:
+            if not o["correct"]:
+                need(r1ap_q(o["text"]) != r, f"wrong option {o['text']!r} has the answer's value")
+    elif u == "round-context":
+        m = r1ap_read(r"(\w+) orders " + R1AP_N + r" (m³|litres|metres|tonnes) of (concrete|paint|fencing|cable|fuel|gravel) at \$" + R1AP_N
+                      + r" per (m³|litre|metre|tonne), and pays for (\d+)% extra to allow for waste\.", L[0], "the order")
+        r1ap_who(m.group(1))
+        V, p, w = r1ap_q(m.group(2)), r1ap_q(m.group(5)), int(m.group(7))
+        need(asked == "Find the total cost, correct to the nearest cent.", f"asked {asked!r}")
+        need(w in (5, 8, 10, 12, 15, 20) and r1ap_places(V) <= 2 and r1ap_places(p) <= 2, "the order is outside the limits")
+        cost = V * p * (1 + sp.Rational(w, 100))
+        bare = V * p
+        need(100 <= cost <= 99999 and r1ap_cents_clear(cost) and r1ap_cents_clear(bare), "the cost is on a cent edge or outside the limits")
+        f = cost * 100 - sp.floor(cost * 100)
+        need(f > sp.Rational(1, 2) + R1AP_CENT_EDGE, "cutting off and rounding give the same cents")
+        want = "cost = $" + r1ap_money(cost)
+        wrongs[R1AP_RA + "3"] = {"cost = $" + ci_money(sp.Rational(sig3(cost)))}
+        wrongs[R1AP_TP + "10"] = {"cost = $" + r1ap_money(bare)}
+        wrongs[R1AP_TP + "9"] = {"cost = $" + ci_money(sp.floor(cost * 100) / 100)}
+    elif u == "whole-items":
+        mb = re.fullmatch(r"Each (tin of paint|bag of plaster|roll of turf|box of tiles) covers (\d+) m²\. (\w+) needs to cover (\d+) m², and buys (\d+)% extra to allow for waste\.", L[0])
+        if mb:
+            r1ap_who(mb.group(3))
+            plural = {"tin of paint": "tins", "bag of plaster": "bags", "roll of turf": "rolls", "box of tiles": "boxes"}[mb.group(1)]
+            need(asked == f"Find the number of {plural} that must be bought.", f"asked {asked!r}")
+            c, A, w = int(mb.group(2)), int(mb.group(4)), int(mb.group(5))
+            x = sp.Rational(A) * (100 + w) / 100 / c
+            n = int(sp.ceiling(x))
+            f = x - sp.floor(x)
+            need(sp.Rational(1, 10) < f < sp.Rational(4, 10), f"the count's fraction {float(f):.3f} is not clear of rounding")
+            want = f"number = {n}"
+            wrongs[R1AP_TP + "11"] = {f"number = {int(sp.floor(x + sp.Rational(1, 2)))}"}
+            wrongs[R1AP_TP + "10"] = {f"number = {int(sp.ceiling(sp.Rational(A, c)))}"}
+        else:
+            m = r1ap_read(r"Each (tile|plank|panel|brick) is (\d+) cm long\. (\w+) lays them end to end along a wall " + R1AP_N + r" m long, using whole (tiles|planks|panels|bricks) only\.", L[0], "the wall")
+            r1ap_who(m.group(3))
+            need(m.group(5) == m.group(1) + "s" and asked == f"Find the largest number of whole {m.group(5)} that fit along the wall.", f"asked {asked!r}")
+            a, Lm = int(m.group(2)), r1ap_q(m.group(4))
+            y = Lm * 100 / a
+            f = y - sp.floor(y)
+            need(sp.Rational(6, 10) < f < sp.Rational(9, 10), "the count's fraction is not clear of rounding")
+            want = f"number = {int(sp.floor(y))}"
+            wrongs[R1AP_TP + "11"] = {f"number = {int(sp.floor(y + sp.Rational(1, 2)))}"}
+    elif u in ("percentage-error", "error-of-rounding", "exact-from-error"):
+        if u == "percentage-error":
+            m = r1ap_read(r"(\w+) estimates (the [a-z ]+) as " + R1AP_N + r" (\S+)\. The exact value is " + R1AP_N + r" (\S+)\.", L[0], "the estimate")
+            r1ap_who(m.group(1))
+            need(m.group(4) == m.group(6), "two units")
+            need(asked == "Find the percentage error in the estimate.", f"asked {asked!r}")
+            va, ve = r1ap_q(m.group(3)), r1ap_q(m.group(5))
+            need(va != ve and abs(va / ve - 1) <= sp.Rational(27, 100), "the estimate is not off by 2% to 25%")
+        elif u == "error-of-rounding":
+            m = r1ap_read(r"A GDC gives (the [a-z ]+) as " + R1AP_N + r" (\S+)\. (\w+) rounds this value to (the nearest whole number|the nearest ten|1 decimal place)\.", L[0], "the rounding")
+            r1ap_who(m.group(4))
+            need(asked == "Find the percentage error caused by this rounding.", f"asked {asked!r}")
+            ve = r1ap_q(m.group(2))
+            places = {"the nearest whole number": 0, "the nearest ten": -1, "1 decimal place": 1}[m.group(5)]
+            va = r1ap_round(ve, places)[0]
+            need(va != ve, "the rounding changes nothing")
+            for sol in q["solutions"]:
+                need(sol["steps"][0] == f"Rounded to {m.group(5)}, {dec_text(ve)} is {dec_text(va)}.", f"{sol['name']}: the rounding step {sol['steps'][0]!r}")
+        else:
+            m = r1ap_read(r"(\w+) measures (the [a-z ]+) as " + R1AP_N + r" (\S+)\. The percentage error in this measurement is at most (\d+)%\.", L[0], "the measurement")
+            r1ap_who(m.group(1))
+            ma = r1ap_read(r"Find the (largest|smallest) possible exact value\.", asked, "the side")
+            va, p, unit = r1ap_q(m.group(3)), sp.Rational(int(m.group(5)), 100), m.group(4)
+            need(int(m.group(5)) in (2, 3, 4, 5, 6, 8, 10, 12, 15), "p is outside the limits")
+            big = ma.group(1) == "largest"
+            x, apply_, other = (va / (1 - p), va * (1 + p), va / (1 + p)) if big else (va / (1 + p), va * (1 - p), va / (1 - p))
+            for y in (x, apply_, other):
+                need(r1ap_clear3(y), f"{float(y):.5f} is on a 3 s.f. edge")
+            # The answer is right: its percentage error is p at the most.
+            need(abs(va - x) / x == p, "the exact value's error is not the largest allowed")
+            want, trap = r1ap_sf("v_E = ", x, " " + unit)
+            wrongs[R1AP_TP + "12"] = {r1ap_sf("v_E = ", apply_, " " + unit)[0]}
+            wrongs[R1AP_TP + "13"] = {r1ap_sf("v_E = ", other, " " + unit)[0]}
+        if u != "exact-from-error":
+            e = abs(va - ve) / abs(ve) * 100
+            over_a = abs(va - ve) / abs(va) * 100
+            need(r1ap_clear3(e) and r1ap_clear3(over_a), "the error is on a 3 s.f. edge")
+            want, trap = r1ap_sf("percentage error = ", e, "%")
+            wrongs[R1AP_PE + "0"] = {r1ap_sf("percentage error = ", over_a, "%")[0]}
+            if u == "percentage-error":
+                wrongs[R1AP_PE + "1"] = {r1ap_sf("percentage error = ", e / 100, "%")[0]}
+                if va < ve:
+                    wrongs[R1AP_PE + "2"] = {r1ap_sf("percentage error = ", -e, "%")[0]}
+            else:
+                ve3 = sp.Rational(sig3(ve))
+                wrongs[R1AP_PE + "3"] = {r1ap_sf("percentage error = ", abs(va - ve3) / ve3 * 100, "%")[0]}
+    elif u == "estimate-1sf":
+        m = r1ap_read(r"(\w+) needs a quick estimate of " + R1AP_N + " × " + R1AP_N + " ÷ " + R1AP_N + r"\.", L[0], "the calculation")
+        r1ap_who(m.group(1))
+        need(asked == "Estimate the value by rounding each number to 1 significant figure.", f"asked {asked!r}")
+        a, b, c = (r1ap_q(m.group(i)) for i in (2, 3, 4))
+        A, B, C = (sp.Rational(sig3(x, 1)) for x in (a, b, c))
+        need(all(r1ap_lead(X1) == r1ap_lead(x) for X1, x in ((A, a), (B, b), (C, c))), "rounding to 1 s.f. moves a first figure")
+        est = A * B / C
+        need(est.q == 1, "the estimate is not a whole number")
+        want = "estimate = " + dec_text(est)
+        if C < 1:
+            wrongs[R1AP_ER + "0"] = {"estimate = " + dec_text(A * B * C)}
+    elif u == "reasonable-answer":
+        m = r1ap_read(r"A rectangular pen is x m wide and \(x \+ (\d+)\) m long\. Its area is (\d+) m², so x\(x \+ (\d+)\) = (\d+)\.", L[0], "the pen")
+        need(m.group(1) == m.group(3) and m.group(2) == m.group(4), "the equation is not the pen's")
+        d, A = int(m.group(1)), int(m.group(2))
+        roots = sorted(sp.solve(sp.Symbol("w") ** 2 + d * sp.Symbol("w") - A, sp.Symbol("w")), key=lambda z: -num(z))
+        r1, r2 = roots
+        need(float(r1) > 0 > float(r2) and not r1.is_rational, "the roots are not one positive and one negative, both irrational")
+        r1, r2 = sp.N(r1, 30), sp.N(r2, 30)
+        need(r1ap_clear3(r1) and r1ap_clear3(r2), "a root is on a 3 s.f. edge")
+        need(L[1] == f"A GDC solves this equation and gives x = {gc_s(r1)} or x = {gc_s(r2)}.", f"the GDC's solutions {L[1]!r}")
+        need(asked == "Which value of x is the width of the pen? Give a reason.", f"asked {asked!r}")
+        want = f"x = {gc_s(r1)}: a width must be positive."
+        wrongs[R1AP_ER + "1"] = {f"x = {gc_s(r2)}: it is the other solution of the equation."}
+    elif u == "measurement-bound":
+        side = r1ap_read(r"Write down the (lower|upper) bound\.", asked, "the bound").group(1)
+        unit_text = ""
+        mdp = re.fullmatch(r"(The [a-z ]+) is " + R1AP_N + r" (\S+), correct to (\d) decimal places?\.", L[0])
+        mn = re.fullmatch(r"There are (\d+) ([a-z ]+), correct to the nearest (ten|hundred|thousand)\.", L[0])
+        msf = re.fullmatch(r"There are (\d+) ([a-z ]+), correct to (\d) significant figures\.", L[0])
+        if mdp:
+            v, unit_text, dp = r1ap_q(mdp.group(2)), " " + mdp.group(3), int(mdp.group(4))
+            unit = sp.Rational(1, 10**dp)
+            need(r1ap_places(v) == dp, f"{v} is not written to {dp} places")
+        elif mn:
+            v, unit = sp.Integer(mn.group(1)), {"ten": 10, "hundred": 100, "thousand": 1000}[mn.group(3)]
+            need(v % unit == 0 and (v // unit) % 10 != 0, f"{v} is not to the nearest {unit} alone")
+        else:
+            m = msf
+            need(m is not None, f"can't read the value {L[0]!r}")
+            v, n = sp.Integer(m.group(1)), int(m.group(3))
+            unit = sp.Integer(10) ** (r1ap_lead(v) - n + 1)
+            need(v % unit == 0 and (v // unit) % 10 != 0 and unit >= 10, f"{v} is not to {n} s.f. with zeros after")
+        lo = side == "lower"
+        b = v - unit / 2 if lo else v + unit / 2
+        want = f"{side} bound = {dec_text(b)}{unit_text}"
+        wrongs[R1AP_BO + "0"] = {f"{side} bound = {dec_text(v - unit if lo else v + unit)}{unit_text}"}
+        if mdp and not lo:
+            wrongs[R1AP_BO + "1"] = {f"{side} bound = {dec_text(b - unit / 10)}{unit_text}"}
+        if msf:
+            wrongs[R1AP_BO + "2"] = {f"{side} bound = {dec_text(v - sp.Rational(1, 2) if lo else v + sp.Rational(1, 2))}{unit_text}"}
+    elif u == "calc-bound":
+        ma = r1ap_read(r"Find the (least|greatest) possible (area of the field|area of the pond|volume of the ball|volume of the tank|total length of the route)\.", asked, "the question")
+        lo = ma.group(1) == "least"
+        side = "lower" if lo else "upper"
+        acc = {"1 decimal place": sp.Rational(1, 10), "the nearest metre": sp.Integer(1)}
+        PI = sp.pi
+        if ma.group(2) == "area of the field":
+            m = r1ap_read(r"A rectangular field is " + R1AP_N + r" m long and " + R1AP_N + r" m wide, each correct to (1 decimal place|the nearest metre)\.", L[0], "the field")
+            xs, u0, f, unit = [r1ap_q(m.group(1)), r1ap_q(m.group(2))], acc[m.group(3)], lambda a, b: a * b, " m²"
+        elif ma.group(2) == "area of the pond":
+            m = r1ap_read(r"The radius of a circular pond is " + R1AP_N + r" m, correct to 1 decimal place\.", L[0], "the pond")
+            xs, u0, f, unit = [r1ap_q(m.group(1))], sp.Rational(1, 10), lambda r: PI * r**2, " m²"
+        elif ma.group(2) == "volume of the ball":
+            m = r1ap_read(r"The diameter of a ball is " + R1AP_N + r" cm, correct to 1 decimal place\. The volume of a sphere of diameter d is πd³ ÷ 6\.", L[0], "the ball")
+            xs, u0, f, unit = [r1ap_q(m.group(1))], sp.Rational(1, 10), lambda d: PI * d**3 / 6, " cm³"
+        elif ma.group(2) == "volume of the tank":
+            m = r1ap_read(r"A cylindrical tank has radius " + R1AP_N + r" m and height " + R1AP_N + r" m, each correct to (1 decimal place|the nearest metre)\.", L[0], "the tank")
+            xs, u0, f, unit = [r1ap_q(m.group(1)), r1ap_q(m.group(2))], acc[m.group(3)], lambda r, h: PI * r**2 * h, " m³"
+        else:
+            m = r1ap_read(r"A route has (\d+) stages of (.+) km, each correct to the nearest km\.", L[0], "the route")
+            parts = m.group(2).replace(" and ", ", ").split(", ")
+            xs, u0, f, unit = [sp.Integer(t) for t in parts], sp.Integer(1), lambda *a: sum(a), " km"
+            need(len(xs) == int(m.group(1)) and 4 <= len(xs) <= 6, "the stages")
+        half = [x - u0 / 2 if lo else x + u0 / 2 for x in xs]
+        whole = [x - u0 if lo else x + u0 for x in xs]
+        val, wv, mv = (sp.N(f(*a), 40) if unit != " km" else f(*a) for a in (half, whole, xs))
+        label = "length = " if unit == " km" else ("area = " if unit == " m²" else "volume = ")
+        if unit == " km":
+            want = label + dec_text(val) + unit
+            wrongs[R1AP_BO + "0"] = {label + dec_text(wv) + unit}
+            wrongs[R1AP_TB + "6"] = {label + dec_text(mv) + unit}
+        else:
+            vals = [val, wv, mv]
+            if len(xs) == 2:
+                vals.append(sp.N(f(half[0], xs[1] + u0 / 2 if lo else xs[1] - u0 / 2), 40))
+            need(all(r1ap_clear3(y) for y in vals) and len({gc_s(y) for y in vals}) == len(vals), "a value is on a 3 s.f. edge, or two read the same")
+            want, trap = r1ap_sf(label, val, unit)
+            wrongs[R1AP_BO + "0"] = {r1ap_sf(label, wv, unit)[0]}
+            wrongs[R1AP_TB + "6"] = {r1ap_sf(label, mv, unit)[0]}
+            if len(xs) == 2:
+                wrongs[R1AP_TB + "7"] = {r1ap_sf(label, vals[3], unit)[0]}
+    elif u == "quotient-bound":
+        ma = r1ap_read(r"Find the (greatest|least) possible (average speed|density)\.", asked, "the question")
+        up = ma.group(1) == "greatest"
+        if ma.group(2) == "average speed":
+            m = r1ap_read(r"(\w+) runs (\d+) m in " + R1AP_N + r" s\. The distance is correct to the nearest (metre|10 m) and the time to 1 decimal place\.", L[0], "the run")
+            r1ap_who(m.group(1))
+            top, bottom, ut, ub = sp.Integer(m.group(2)), r1ap_q(m.group(3)), sp.Integer(1 if m.group(4) == "metre" else 10), sp.Rational(1, 10)
+            need(top % ut == 0, "the distance is not a multiple of its unit")
+            label, unit = "speed = ", " m/s"
+        else:
+            m = r1ap_read(r"A block of metal has mass (\d+) g and volume (\d+) cm³, the mass correct to the nearest gram and the volume to the nearest cm³\.", L[0], "the block")
+            top, bottom, ut, ub = sp.Integer(m.group(1)), sp.Integer(m.group(2)), sp.Integer(1), sp.Integer(1)
+            label, unit = "density = ", " g/cm³"
+        t_up, t_lo, b_up, b_lo = top + ut / 2, top - ut / 2, bottom + ub / 2, bottom - ub / 2
+        corners = [t_up / b_lo, t_up / b_up, t_lo / b_lo, t_lo / b_up]
+        val = max(corners) if up else min(corners)
+        need(val == (t_up / b_lo if up else t_lo / b_up), "the extreme is not upper over lower")
+        same = t_up / b_up if up else t_lo / b_lo
+        vals = [val, same, top / bottom, min(corners) if up else max(corners)]
+        need(all(r1ap_clear3(y) for y in vals) and len({gc_s(y) for y in vals}) == 4, "a value is on a 3 s.f. edge, or two read the same")
+        want, trap = r1ap_sf(label, val, unit)
+        wrongs[R1AP_MP + "2"] = {r1ap_sf(label, same, unit)[0]}
+        wrongs[R1AP_TB + "6"] = {r1ap_sf(label, top / bottom, unit)[0]}
+    elif u == "max-percentage-error":
+        m = r1ap_read(r"The (side of a square tile|edge of a cube|radius of a circular mat|radius of a ball) is measured as " + R1AP_N + r" cm, correct to (1 decimal place|the nearest centimetre)\.", L[0], "the length")
+        k = {"side of a square tile": 2, "edge of a cube": 3, "radius of a circular mat": 2, "radius of a ball": 3}[m.group(1)]
+        what = "area" if k == 2 else "volume"
+        need(L[1] == f"Its {what} is worked out from this measurement.", f"{L[1]!r}")
+        need(asked == f"Find the maximum percentage error in the {what}.", f"asked {asked!r}")
+        x, u0 = r1ap_q(m.group(2)), sp.Rational(1, 10) if m.group(3) == "1 decimal place" else sp.Integer(1)
+        lo, hi = x - u0 / 2, x + u0 / 2
+        # Each bound's area or volume taken as the exact value; the constant (π, 4π/3) cancels.
+        e_lo, e_hi = abs(x**k - lo**k) / lo**k * 100, abs(x**k - hi**k) / hi**k * 100
+        need(e_lo > e_hi, "the lower bound does not give the larger error")
+        vals = [e_lo, (x / lo - 1) * 100, e_hi]
+        need(all(r1ap_clear3(y) for y in vals) and len({gc_s(y) for y in vals}) == 3, "a value is on a 3 s.f. edge, or two read the same")
+        want, trap = r1ap_sf("maximum error = ", e_lo, "%")
+        wrongs[R1AP_MP + "0"] = {r1ap_sf("maximum error = ", vals[1], "%")[0]}
+        wrongs[R1AP_MP + "1"] = {r1ap_sf("maximum error = ", e_hi, "%")[0]}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+SITUATION_CHECKS["approximation"] = r1ap_check
+
+
+# ── tvm (t1-ai-amortization, t1-ai-annuity, FAL-999) ─────────────────
+# The `tvm` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/tvm.gd. The loan, the deposits or the fund are read back from the
+# sentences, and every value is worked out again from the annuity sums at 50 digits (mpmath),
+# a number of payments by counting rows of the balance with exact rationals where the rate is,
+# and a rate by solving for it. A payment shown in the question is held to the solver's payment.
+
+R1TV_LR = "AI-SL1.7.loan-repayment#"
+R1TV_LT = "AI-SL1.7.loan-term-or-rate#"
+R1TV_OB = "AI-SL1.7.outstanding-balance#"
+R1TV_TI = "AI-SL1.7.total-interest-compare#"
+R1TV_SA = "AI-SL1.7.savings-annuity#"
+R1TV_PA = "AI-SL1.7.payout-annuity#"
+R1TV_TA = "t1-ai-amortization#"
+R1TV_TN = "t1-ai-annuity#"
+R1TV_FREQ = {"monthly": 12, "quarterly": 4, "half-yearly": 2}
+R1TV_CENT_EDGE = mpmath.mpf("0.149")
+R1TV_N_GAP = mpmath.mpf("0.099")
+R1TV_M = r"\$(\d+(?:\.\d\d)?)"
+R1TV_R = r"(\d+(?:\.\d)?)"
+
+
+def r1tv_i(r, c):
+    with mpmath.workdps(50):
+        return (1 + mpmath.mpf(r.p) / r.q / (100 * c)) ** (mpmath.mpf(c) / 12) - 1
+
+
+def r1tv_mp(x):
+    return mpmath.mpf(x.p) / x.q if isinstance(x, sp.Rational) else mpmath.mpf(x)
+
+
+def r1tv_pmt(pv, i, n):
+    return r1tv_mp(pv) * i / (1 - (1 + i) ** (-n))
+
+
+def r1tv_bal(pv, i, p, k):
+    g = (1 + i) ** k
+    return r1tv_mp(pv) * g - r1tv_mp(p) * (g - 1) / i
+
+
+def r1tv_saved(p0, i, d, k):
+    g = (1 + i) ** k
+    return r1tv_mp(p0) * g + r1tv_mp(d) * (g - 1) / i
+
+
+def r1tv_cents(x):
+    """x to the nearest cent, half up, as a Rational, and held clear of the half-cent edge."""
+    c = x * 100
+    f = c - mpmath.floor(c)
+    need(abs(f - mpmath.mpf("0.5")) >= R1TV_CENT_EDGE, f"{float(x):.5f} is on the edge between two cents")
+    return sp.Rational(int(mpmath.floor(c + mpmath.mpf("0.5"))), 100)
+
+
+def r1tv_money(x):
+    return ci_money(r1tv_cents(x) if not isinstance(x, sp.Rational) else x)
+
+
+def r1tv_who(w):
+    need(w in R1AP_WHO, f"the story's name {w!r}")
+
+
+def r1tv_whole_n(x, up):
+    f = x - mpmath.floor(x)
+    need(R1TV_N_GAP <= f <= 1 - R1TV_N_GAP, f"N = {float(x):.4f} is not clear of a whole number")
+    return int(mpmath.floor(x)) + (1 if up else 0)
+
+
+def r1tv_says(q, x, angles=None):
+    """Some figure in each worked solution (of these methods) is x to the 4 places the working shows."""
+    for sol in q["solutions"]:
+        if angles and sol["angle"] not in angles:
+            continue
+        figs = [mpmath.mpf(t) for st in sol["steps"] for t in re.findall(r"\d+\.\d{4}\b", st)]
+        need(any(abs(f - x) < mpmath.mpf("0.00006") for f in figs), f"{sol['name']}: the working doesn't show {float(x):.4f}")
+
+
+def r1tv_check(q):
+    with mpmath.workdps(50):
+        return r1tv_check_at(q)
+
+
+def r1tv_check_at(q):
+    from fractions import Fraction
+    u, L, asked, rep = q["view"]["unknown"], q["lines"], q["asked"], q["view"]["rep"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    freqs = "|".join(R1TV_FREQ)
+    if u == "loan-payment":
+        md = re.fullmatch(r"(\w+) buys (a house|a cargo truck) for " + R1TV_M + r", pays a deposit of (\d+)% and borrows the rest\.", L[0])
+        if md:
+            r1tv_who(md.group(1))
+            price, dep = sp.Integer(md.group(3)), int(md.group(4))
+            need(dep in (10, 15, 20, 25) and (md.group(2) == "a house") == (price >= 80000), "the deposit or the item")
+            Lo = price * (100 - dep) / 100
+            need(Lo.q == 1, "the loan is not whole dollars")
+        else:
+            m = r1ap_read(r"(\w+) takes out a loan of " + R1TV_M + r"\.", L[0], "the loan")
+            r1tv_who(m.group(1))
+            Lo = sp.Integer(m.group(2))
+        m = r1ap_read(r"The loan is repaid with equal monthly payments over (\d+) years, at " + R1TV_R + r"% per year, compounded (" + freqs + r")\.", L[1], "the terms")
+        n, r, c = int(m.group(1)), R(m.group(2)), R1TV_FREQ[m.group(3)]
+        need(2 <= n <= 30 and 2 <= r <= sp.Rational(95, 10), "the term or rate is outside the limits")
+        need(asked == "Find the monthly payment, to the nearest cent.", f"asked {asked!r}")
+        i, N = r1tv_i(r, c), 12 * n
+        p = r1tv_pmt(Lo, i, N)
+        want = "payment = $" + r1tv_money(p)
+        wrongs[R1TV_LR + "0"] = {"payment = $" + r1tv_money(r1tv_pmt(Lo, i, n))}
+        wrongs[R1TV_LR + "1"] = {"payment = $" + r1tv_money(r1tv_pmt(Lo, r1tv_i(r / 12, c), N))}
+        wrongs[R1TV_LR + "2"] = {"payment = $" + r1tv_money(r1tv_mp(Lo * (1 + r * n / 100) / N))}
+        wrongs[R1TV_LR + "3"] = {"payment = $" + r1tv_money(r1tv_mp(Lo / N))}
+        r1tv_says(q, p)
+    elif u in ("loan-term", "final-payment"):
+        m = r1ap_read(r"(\w+) borrows " + R1TV_M + r" at " + R1TV_R + r"% per year, compounded monthly, and repays \$(\d+) at the end of each month\.", L[0], "the loan")
+        r1tv_who(m.group(1))
+        Lo, r, p = sp.Integer(m.group(2)), R(m.group(3)), sp.Integer(m.group(4))
+        i = r / 1200
+        need(p > Lo * i, "the payment doesn't cover a month's interest")
+        # Count the rows: the balance after each payment, exactly.
+        fi, fp = Fraction(int(r.p), int(r.q) * 1200), Fraction(int(p))
+        fb, k = Fraction(int(Lo)), 0
+        while fb * (1 + fi) > fp:
+            fb = fb * (1 + fi) - fp
+            k += 1
+            need(k <= 400, "more than 400 payments")
+        bal = sp.Rational(fb.numerator, fb.denominator)
+        x = -mpmath.log(1 - r1tv_mp(Lo * i / p)) / mpmath.log(1 + r1tv_mp(i))
+        need(int(mpmath.floor(x)) == k, "the count of rows and the solver's N disagree")
+        if u == "loan-term":
+            need(asked == "Find the number of monthly payments needed to repay the loan.", f"asked {asked!r}")
+            want = f"payments = {r1tv_whole_n(x, True)}"
+            wrongs[R1TV_LT + "0"] = {f"payments = {k}"}
+            r1tv_says(q, x, ("tvm-n-or-i",))
+        else:
+            need(L[1] == "The last payment is smaller than the others and clears the loan." and asked == "Find the amount of the last payment, to the nearest cent.", f"asked {asked!r}")
+            r1tv_whole_n(x, False)
+            last = r1tv_mp(bal * (1 + i))
+            want = "last payment = $" + r1tv_money(last)
+            wrongs[R1TV_TA + "13"] = {"last payment = $" + r1tv_money(r1tv_mp(bal))}
+            wrongs[R1TV_TA + "14"] = {"last payment = $" + r1tv_money((x - k) * r1tv_mp(p))}
+            r1tv_says(q, last)
+    elif u == "loan-rate":
+        m = r1ap_read(r"(\w+) borrows " + R1TV_M + r" and repays it with (\d+) monthly payments of " + R1TV_M + r"\. Interest is compounded monthly\.", L[0], "the loan")
+        r1tv_who(m.group(1))
+        Lo, N, p = sp.Integer(m.group(2)), int(m.group(3)), R(m.group(4))
+        need(N % 12 == 0 and asked == "Find the annual interest rate, as a percentage to 3 s.f.", f"asked {asked!r}")
+        rate = mpmath.findroot(lambda y: r1tv_pmt(Lo, y / 1200, N) - r1tv_mp(p), 5)
+        simple = (N * p - Lo) / Lo / (N // 12) * 100
+        for y in (rate, 12 * rate, simple):
+            need(r1ap_clear3(sp.Float(y, 30)), f"{float(y):.5f} is on a 3 s.f. edge")
+        want, trap = r1ap_sf("rate = ", sp.Float(rate, 30), "%")
+        wrongs[R1TV_LT + "2"] = {r1ap_sf("rate = ", sp.Float(12 * rate, 30), "%")[0]}
+        wrongs[R1TV_TA + "11"] = {r1ap_sf("rate = ", simple, "%")[0]}
+    elif u in ("balance-after", "first-interest", "total-interest"):
+        m = r1ap_read(r"(\w+) borrows " + R1TV_M + r" over (\d+) years at " + R1TV_R + r"% per year, compounded (" + freqs + r")\. The monthly payment is " + R1TV_M + r"\.", L[0], "the loan")
+        r1tv_who(m.group(1))
+        Lo, n, r, c, p = sp.Integer(m.group(2)), int(m.group(3)), R(m.group(4)), R1TV_FREQ[m.group(5)], R(m.group(6))
+        i, N = r1tv_i(r, c), 12 * n
+        need(r1tv_cents(r1tv_pmt(Lo, i, N)) == p, "the payment shown is not the solver's payment to the cent")
+        if u == "balance-after":
+            k = int(r1ap_read(r"Find the amount still owed after (\d+) payments, to the nearest cent\.", asked, "the question").group(1))
+            need(1 <= k < N, "k is outside the term")
+            b = r1tv_bal(Lo, i, p, k)
+            want = "balance = $" + r1tv_money(b)
+            wrongs[R1TV_OB + "0"] = {"balance = $" + r1tv_money(r1tv_mp(Lo - k * p))}
+            r1tv_says(q, b)
+        elif u == "first-interest":
+            need(c == 12 and Lo % 1200 == 0, "a month's interest is not whole cents")
+            i1 = Lo * r / 1200
+            year = Lo * r / 100
+            if asked == "Find how much of the first payment is interest.":
+                want = "interest = $" + ci_money(i1)
+                wrongs[R1TV_OB + "1"] = {"interest = $" + ci_money(year)}
+                wrongs[R1TV_OB + "2"] = {"interest = $" + r1tv_money(r1tv_mp((N * p - Lo) / N))}
+            else:
+                need(asked == "Find how much the first payment reduces the amount owed.", f"asked {asked!r}")
+                want = "reduction = $" + ci_money(p - i1)
+                wrongs[R1TV_OB + "1"] = {"reduction = $" + ci_money(p - year)}
+                wrongs[R1TV_OB + "2"] = {"reduction = $" + r1tv_money(r1tv_mp(Lo / N))}
+        else:
+            need(asked == f"Find the total interest paid over the {n} years.", f"asked {asked!r}")
+            want = "interest = $" + ci_money(N * p - Lo)
+            wrongs[R1TV_TI + "0"] = {"interest = $" + ci_money(N * p)}
+            wrongs[R1TV_TA + "12"] = {"interest = $" + ci_money(Lo * r * n / 100)}
+    elif u == "compare-loans":
+        m = r1ap_read(r"(\w+) needs to borrow " + R1TV_M + r" and is offered two loans, each repaid monthly with interest compounded monthly\.", L[0], "the loans")
+        r1tv_who(m.group(1))
+        Lo = sp.Integer(m.group(2))
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0] == ["Loan", ["A", "B"]] and rows[1][0] == "Rate (% per year)" and rows[2][0] == "Term (years)", "the table's heads")
+            ra, rb, na, nb = R(rows[1][1][0]), R(rows[1][1][1]), int(rows[2][1][0]), int(rows[2][1][1])
+        else:
+            mm = r1ap_read(r"Loan A: " + R1TV_R + r"% per year over (\d+) years\. Loan B: " + R1TV_R + r"% per year over (\d+) years\.", L[1], "the two loans")
+            ra, na, rb, nb = R(mm.group(1)), int(mm.group(2)), R(mm.group(3)), int(mm.group(4))
+        need(asked == "Which loan costs less in total interest, and by how much? Give the amount to the nearest dollar.", f"asked {asked!r}")
+        pa, pb = r1tv_pmt(Lo, r1tv_mp(ra / 1200), 12 * na), r1tv_pmt(Lo, r1tv_mp(rb / 1200), 12 * nb)
+        ia, ib = 12 * na * pa - r1tv_mp(Lo), 12 * nb * pb - r1tv_mp(Lo)
+        cheap, dear = ("A", "B") if ia < ib else ("B", "A")
+        need((pa > pb) == (cheap == "A"), "the cheaper loan does not have the higher payment")
+        d = abs(ia - ib)
+        need(d >= 50 and abs(d - mpmath.floor(d) - mpmath.mpf("0.5")) >= mpmath.mpf("0.149"), "the difference is under 50 or on a half-dollar edge")
+        dr = abs(12 * na * r1tv_mp(r1tv_cents(pa)) - 12 * nb * r1tv_mp(r1tv_cents(pb)))
+        D = int(mpmath.floor(d + mpmath.mpf("0.5")))
+        need(int(mpmath.floor(dr + mpmath.mpf("0.5"))) == D, "the payments to the cent give another dollar")
+        want = f"Loan {cheap}, by ${D}."
+        wrongs[R1TV_TI + "1"] = {f"Loan {dear}, by ${D}."}
+        wrongs[R1TV_TA + "15"] = {f"Loan {cheap}, by ${int(mpmath.floor(abs(pa - pb) + mpmath.mpf('0.5')))}."}
+    elif u in ("savings-fv", "savings-interest", "savings-time"):
+        m0 = re.fullmatch(r"(\w+) deposits " + R1TV_M + r" at the end of every month into a savings account that pays " + R1TV_R + r"% per year, compounded (monthly|quarterly)\.", L[0])
+        if m0:
+            r1tv_who(m0.group(1))
+            p0, d, r, c = sp.Integer(0), sp.Integer(m0.group(2)), R(m0.group(3)), R1TV_FREQ[m0.group(4)]
+        else:
+            m = r1ap_read(r"(\w+) opens a savings account with " + R1TV_M + r" and deposits " + R1TV_M + r" at the end of every month\. The account pays " + R1TV_R + r"% per year, compounded (monthly|quarterly)\.", L[0], "the account")
+            r1tv_who(m.group(1))
+            p0, d, r, c = sp.Integer(m.group(2)), sp.Integer(m.group(3)), R(m.group(4)), R1TV_FREQ[m.group(5)]
+        i = r1tv_i(r, c)
+        if u == "savings-time":
+            T = sp.Integer(r1ap_read(r"Find the number of months until the account first holds more than " + R1TV_M + r"\.", asked, "the target").group(1))
+            need(c == 12, "a time is compounded monthly")
+            x = mpmath.log((r1tv_mp(T) + r1tv_mp(d) / i) / (r1tv_mp(p0) + r1tv_mp(d) / i)) / mpmath.log(1 + i)
+            k = r1tv_whole_n(x, True)
+            need(r1tv_saved(p0, i, d, k) > r1tv_mp(T) > r1tv_saved(p0, i, d, k - 1), "the month is not the first past the target")
+            want = f"months = {k}"
+            wrongs[R1TV_TN + "6"] = {f"months = {k - 1}"}
+            r1tv_says(q, x)
+        else:
+            n = int(r1ap_read(r"Find the (?:value of the account after|interest earned over the) (\d+) years, to the nearest cent\.", asked, "the question").group(1))
+            N = 12 * n
+            fv = r1tv_saved(p0, i, d, N)
+            paid = r1tv_mp(p0 + N * d)
+            if u == "savings-fv":
+                need(asked == f"Find the value of the account after {n} years, to the nearest cent.", f"asked {asked!r}")
+                want = "value = $" + r1tv_money(fv)
+                wrongs[R1TV_SA + "0"] = {"value = $" + r1tv_money(paid)}
+                if p0 == 0:
+                    wrongs[R1TV_SA + "1"] = {"value = $" + r1tv_money(N * r1tv_mp(d) * (1 + r1tv_mp(r) / (100 * c)) ** (c * n))}
+                r1tv_says(q, fv)
+            else:
+                want = "interest = $" + r1tv_money(fv - paid)
+                wrongs[R1TV_TN + "7"] = {"interest = $" + r1tv_money(fv)}
+                if p0 > 0:
+                    wrongs[R1TV_TN + "8"] = {"interest = $" + r1tv_money(fv - r1tv_mp(p0))}
+                r1tv_says(q, fv - paid)
+    elif u == "savings-deposit":
+        m = r1ap_read(r"(\w+) wants " + R1TV_M + r" in a savings account after (\d+) years, and will deposit the same amount at the end of every month\. The account pays " + R1TV_R + r"% per year, compounded (monthly|quarterly)\.", L[0], "the plan")
+        r1tv_who(m.group(1))
+        T, n, r, c = sp.Integer(m.group(2)), int(m.group(3)), R(m.group(4)), R1TV_FREQ[m.group(5)]
+        p0 = sp.Integer(0)
+        if len(L) > 1:
+            p0 = sp.Integer(r1ap_read(r"The account already holds " + R1TV_M + r"\.", L[1], "the opening sum").group(1))
+        need(asked == "Find the monthly deposit needed, to the nearest cent.", f"asked {asked!r}")
+        i, N = r1tv_i(r, c), 12 * n
+
+        def dep(k):
+            g = (1 + i) ** k
+            return (r1tv_mp(T) - r1tv_mp(p0) * g) * i / (g - 1)
+        dv = dep(N)
+        need(abs(r1tv_saved(p0, i, dv, N) - r1tv_mp(T)) < mpmath.mpf("1e-20"), "the deposit doesn't reach the target")
+        want = "deposit = $" + r1tv_money(dv)
+        wrongs[R1TV_SA + "0"] = {"deposit = $" + r1tv_money(r1tv_mp((T - p0) / N))}
+        wrongs[R1TV_TN + "5"] = {"deposit = $" + r1tv_money(dep(n))}
+        r1tv_says(q, dv)
+    elif u == "payout-pv":
+        m = r1ap_read(r"(\w+) wants to withdraw " + R1TV_M + r" at the end of every month for (\d+) years from a fund that pays " + R1TV_R + r"% per year, compounded (monthly|quarterly)\. The fund is then empty\.", L[0], "the fund")
+        r1tv_who(m.group(1))
+        W, n, r, c = sp.Integer(m.group(2)), int(m.group(3)), R(m.group(4)), R1TV_FREQ[m.group(5)]
+        need(asked == "Find the amount the fund must hold at the start, to the nearest cent.", f"asked {asked!r}")
+        i, N = r1tv_i(r, c), 12 * n
+        pv = r1tv_mp(W) * (1 - (1 + i) ** (-N)) / i
+        need(abs(r1tv_bal(pv, i, W, N)) < mpmath.mpf("1e-20"), "the fund is not empty at the end")
+        want = "fund = $" + r1tv_money(pv)
+        wrongs[R1TV_PA + "0"] = {"fund = $" + r1tv_money(r1tv_mp(N * W))}
+        wrongs[R1TV_PA + "1"] = {"fund = $" + r1tv_money(r1tv_saved(0, i, W, N))}
+        r1tv_says(q, pv)
+    elif u in ("payout-months", "payout-balance"):
+        m = r1ap_read(r"A fund of " + R1TV_M + r" pays " + R1TV_R + r"% per year, compounded monthly\. (\w+) withdraws " + R1TV_M + r" from it at the end of every month\.", L[0], "the fund")
+        r1tv_who(m.group(3))
+        Lo, r, W = sp.Integer(m.group(1)), R(m.group(2)), sp.Integer(m.group(4))
+        i = r / 1200
+        if u == "payout-months":
+            need(W > Lo * i, "the withdrawal doesn't exceed a month's interest")
+            need(asked == "Find the number of full withdrawals the fund can pay.", f"asked {asked!r}")
+            fi, fw = Fraction(int(r.p), int(r.q) * 1200), Fraction(int(W))
+            fb, k = Fraction(int(Lo)), 0
+            while fb * (1 + fi) >= fw:
+                fb = fb * (1 + fi) - fw
+                k += 1
+                need(k <= 700, "more than 700 withdrawals")
+            x = -mpmath.log(1 - r1tv_mp(Lo * i / W)) / mpmath.log(1 + r1tv_mp(i))
+            need(r1tv_whole_n(x, False) == k, "the count of rows and the solver's N disagree")
+            want = f"withdrawals = {k}"
+            wrongs[R1TV_PA + "2"] = {f"withdrawals = {k + 1}"}
+            wrongs[R1TV_TN + "9"] = {f"withdrawals = {int(sp.floor(Lo / W))}"}
+            r1tv_says(q, x)
+        else:
+            n = int(r1ap_read(r"Find the amount left in the fund after (\d+) years, to the nearest cent\.", asked, "the question").group(1))
+            N = 12 * n
+            b = Lo * (1 + i) ** N - W * ((1 + i) ** N - 1) / i
+            need(b > 0 and Lo - N * W > 0, "the fund runs out")
+            want = "balance = $" + ci_money(ci_cents(b))
+            need(r1tv_cents(r1tv_mp(b)) == ci_cents(b), "rounding")
+            wrongs[R1TV_TN + "9"] = {"balance = $" + r1tv_money(r1tv_mp(Lo - N * W))}
+            r1tv_says(q, r1tv_mp(b))
+    elif u == "payout-withdrawal":
+        m = r1ap_read(r"A fund of " + R1TV_M + r" pays " + R1TV_R + r"% per year, compounded (monthly|quarterly)\. (\w+) wants to withdraw the same amount at the end of every month for (\d+) years, leaving the fund empty\.", L[0], "the fund")
+        r1tv_who(m.group(4))
+        Lo, r, c, n = sp.Integer(m.group(1)), R(m.group(2)), R1TV_FREQ[m.group(3)], int(m.group(5))
+        need(asked == "Find the largest monthly withdrawal, to the nearest cent.", f"asked {asked!r}")
+        i, N = r1tv_i(r, c), 12 * n
+        w = r1tv_pmt(Lo, i, N)
+        want = "withdrawal = $" + r1tv_money(w)
+        wrongs[R1TV_TN + "9"] = {"withdrawal = $" + r1tv_money(r1tv_mp(Lo / N))}
+        wrongs[R1TV_TN + "5"] = {"withdrawal = $" + r1tv_money(r1tv_pmt(Lo, i, n))}
+        r1tv_says(q, w)
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+SITUATION_CHECKS["tvm"] = r1tv_check
+
+
+# ── log-technology (t1-ext-logs-with-technology, FAL-999) ──────────────
+# The log or the equation is read back from the line shown, and every value is worked out
+# again with SymPy at 30 digits. The error-spot working is read line by line: a line that names
+# x is held to the equation's solution, and a line that evaluates a log to the value of that log.
+
+R1LT_ET = "SL1.5.evaluate-tech#"
+R1LT_TL = "t1-ext-logs-with-technology#"
+
+
+def r1lt_log(key, v):
+    return sp.log(v, 10) if key == "log" else sp.log(v)
+
+
+def r1lt_other(key):
+    return "ln" if key == "log" else "log"
+
+
+def r1lt_x(line):
+    """The solution of the equation shown, and its parts."""
+    m = re.fullmatch(r"(10|e)\^x = (\d+(?:\.\d)?)", line)
+    if m:
+        key = "log" if m.group(1) == "10" else "ln"
+        b = R(m.group(2))
+        return r1lt_log(key, b), ("one", key, b)
+    m = re.fullmatch(r"(\d+(?:\.\d+)?)\^x = (\d+)", line)
+    need(m is not None, f"can't read the equation {line!r}")
+    a, b = R(m.group(1)), R(m.group(2))
+    return sp.log(b) / sp.log(a), ("base", a, b)
+
+
+def r1lt_close(shown, true):
+    return abs(R(shown.replace("−", "-")) - sp.N(true, 30)) < sp.Rational(6, 10**7)
+
+
+def r1lt_spot(q, lines):
+    x, _ = r1lt_x(q["lines"][0])
+    for idx, line in enumerate(lines):
+        ok = None
+        m = re.fullmatch(r"x = (log|ln) (\d+(?:\.\d)?)", line)
+        if m:
+            ok = abs(sp.N(r1lt_log(m.group(1), R(m.group(2))) - x, 30)) < sp.Rational(1, 10**12)
+        if ok is None and (mm := re.fullmatch(r"x = log\((\d+) ÷ (\d+(?:\.\d+)?)\)", line)):
+            ok = abs(sp.N(sp.log(R(mm.group(1)) / R(mm.group(2)), 10) - x, 30)) < sp.Rational(1, 10**12)
+        if ok is None and (mm := re.fullmatch(r"x = log (\d+) ÷ log (\d+(?:\.\d+)?)", line)):
+            ok = abs(sp.N(sp.log(R(mm.group(1))) / sp.log(R(mm.group(2))) - x, 30)) < sp.Rational(1, 10**12)
+        if ok is None and (mm := re.fullmatch(r"(log|ln) (\d+(?:\.\d)?) = (−?\d+\.\d{6})", line)):
+            ok = r1lt_close(mm.group(3), r1lt_log(mm.group(1), R(mm.group(2))))
+        if ok is None and (mm := re.fullmatch(r"log\((\d+) ÷ (\d+(?:\.\d+)?)\) = (−?\d+\.\d{6})", line)):
+            ok = r1lt_close(mm.group(3), sp.log(R(mm.group(1)) / R(mm.group(2)), 10))
+        if ok is None and (mm := re.fullmatch(r"log (\d+) ÷ log (\d+(?:\.\d+)?) = (−?\d+\.\d{6})", line)):
+            ok = r1lt_close(mm.group(3), sp.log(R(mm.group(1))) / sp.log(R(mm.group(2))))
+        if ok is None and (mm := re.fullmatch(r"x = (−?\d+\.\d{6})", line)):
+            ok = r1lt_close(mm.group(1), x)
+        if ok is None and (mm := re.fullmatch(r"x = (\S+) to 3 s\.f\.", line)):
+            ok = mm.group(1) == gc_s(sp.N(x, 30))
+        need(ok is not None, f"can't read the working line {line!r}")
+        if not ok:
+            return idx
+    return None
+
+
+def r1lt_check(q):
+    u, L, asked = q["view"]["unknown"], q["lines"], q["asked"]
+    need(q["paper"] == 2, "the GDC's log keys are Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+    if u == "evaluate-log":
+        m = r1ap_read(r"(log|ln) (\d+(?:\.\d)?)", L[0], "the log")
+        need(asked == f"Use your GDC to find the value of {L[0]}, correct to 3 significant figures.", f"asked {asked!r}")
+        key, b = m.group(1), R(m.group(2))
+        v = sp.N(r1lt_log(key, b), 30)
+        o = sp.N(r1lt_log(r1lt_other(key), b), 30)
+        need(r1ap_clear3(v) and r1ap_clear3(o) and gc_s(v) != gc_s(o), "a value is on a 3 s.f. edge, or the two keys read the same")
+        want, trap = r1ap_sf(f"{L[0]} = ", v)
+        wrongs[R1LT_ET + "0"] = {r1ap_sf(f"{L[0]} = ", o)[0]}
+    elif u in ("solve-ten-or-e", "solve-base"):
+        need(asked == "Solve the equation, giving x correct to 3 significant figures.", f"asked {asked!r}")
+        x, (kind, p1, p2) = r1lt_x(L[0])
+        x = sp.N(x, 30)
+        need(r1ap_clear3(x), "x is on a 3 s.f. edge")
+        want, trap = r1ap_sf("x = ", x)
+        if u == "solve-ten-or-e":
+            need(kind == "one", "not 10^x or e^x")
+            wrongs[R1LT_ET + "0"] = {r1ap_sf("x = ", sp.N(r1lt_log(r1lt_other(p1), p2), 30))[0]}
+        else:
+            need(kind == "base" and p1 in {sp.Rational(3, 2), 2, sp.Rational(5, 2), 3, 4, 5, 6, 7, sp.Rational(108, 100), sp.Rational(112, 100), sp.Rational(125, 100)}, "the base is outside the limits")
+            wrongs[R1LT_ET + "1"] = {r1ap_sf("x = ", sp.N(sp.log(p2 / p1, 10), 30))[0]}
+            wrongs[R1LT_TL + "3"] = {r1ap_sf("x = ", sp.N(sp.log(p1) / sp.log(p2), 30))[0]}
+    elif u == "evaluate-expression":
+        m1 = re.fullmatch(r"(\d) ln (\d+) − log (\d+)", L[0])
+        m2 = re.fullmatch(r"(\d) log (\d+) \+ ln (\d+)", L[0])
+        need(m1 or m2, f"can't read {L[0]!r}")
+        need(asked == f"Use your GDC to find the value of {L[0]}, correct to 3 significant figures.", f"asked {asked!r}")
+        p, a, b = (int((m1 or m2).group(i)) for i in (1, 2, 3))
+        k1 = "ln" if m1 else "log"
+        sign = -1 if m1 else 1
+
+        def val(ka, kb, early):
+            la, lb = sp.N(r1lt_log(ka, a), 30), sp.N(r1lt_log(kb, b), 30)
+            if early:
+                la, lb = sp.Rational(sig3(la)), sp.Rational(sig3(lb))
+            return p * la + sign * lb
+        v = val(k1, r1lt_other(k1), False)
+        sw = val(r1lt_other(k1), k1, False)
+        ea = val(k1, r1lt_other(k1), True)
+        need(all(r1ap_clear3(y) for y in (v, sw, ea)) and len({gc_s(y) for y in (v, sw, ea)}) == 3, "a value is on a 3 s.f. edge, or two read the same")
+        want, trap = r1ap_sf("value = ", v)
+        wrongs[R1LT_ET + "0"] = {r1ap_sf("value = ", sw)[0]}
+        wrongs[R1LT_ET + "2"] = {r1ap_sf("value = ", ea)[0]}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+SITUATION_CHECKS["log-technology"] = r1lt_check
+SPOT_CHECKS["log-technology"] = r1lt_spot
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]

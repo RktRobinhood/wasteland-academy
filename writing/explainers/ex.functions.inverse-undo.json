@@ -1,7 +1,10 @@
 {
   "id": "ex.functions.inverse-undo",
-  "format": 1,
-  "status": "approved",
+  "format": 2,
+  "status": "draft",
+  "waits_for": [
+    "figure"
+  ],
   "title": "Run It Backwards",
   "idea": "An inverse function undoes the original, taking each output back to the input that made it.",
   "zone": "functions",
@@ -44,7 +47,9 @@
     "Builds on ex.functions.function-machine, Rook's own, so the recall uses his own.watched, own.not-watched, short-version and after lines.",
     "No second-method section: the map lists no methods. Three of the skill's four methods are in the script: reversing the flow diagram is the big idea and example 1, solving f(x) = a is example 2 and example 3(c), and swapping coordinates is the end of the big idea and example 3(b).",
     "The skill's fourth method, reflecting the graph in y = x, is the map's next explainer, ex.functions.inverse-reflection (The Mirror Line), so the recap points there and the reflection misconception is left to it. Finding f⁻¹(x) as a formula is ex.functions.swap-and-solve (AA, and AI HL).",
-    "The turns use fn-graph-table-composite-inverse, the only question type with SL2.2.inverse-undo whose chain reads an inverse value. Its live version gives a graph or a table, so turn 1 may arrive as a table rather than a rule. Phase 2 (turns and the engine, with Coder) should check that the twin still mirrors example 1. The fallbacks are fixed and worked below."
+    "The turns use fn-graph-table-composite-inverse, the only question type with SL2.2.inverse-undo whose chain reads an inverse value. Its live version gives a graph or a table, so turn 1 may arrive as a table rather than a rule. Phase 2 (turns and the engine, with Coder) should check that the twin still mirrors example 1. The fallbacks are fixed and worked below.",
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes, and the figure.",
+    "Waits for the figure board item (README, \"Figures\"): the table of x and f(x), and the two-way mapping are text drawings."
   ],
   "sections": [
     {
@@ -52,10 +57,12 @@
       "kind": "cold-open",
       "beats": [
         {
+          "line": "e3p5p9",
           "speaker": "rook-dead-air",
           "say": "Signal Tower, this is Rook. The tower doubles whatever comes in, and adds three."
         },
         {
+          "line": "kit96m",
           "speaker": "rook-dead-air",
           "say": "This morning it sent out seventeen. Nobody logged what went in.",
           "board": [
@@ -66,11 +73,13 @@
           ]
         },
         {
+          "line": "uvai4x",
           "speaker": "rook-dead-air",
           "say": "The log for this morning is one coffee ring and the word seventeen.",
           "joke": true
         },
         {
+          "line": "tnaeev",
           "speaker": "rook-dead-air",
           "say": "What went in? Over.",
           "pause": 0.5
@@ -97,14 +106,17 @@
             "answer": 0,
             "right": [
               {
+                "line": "uf6x8b",
                 "speaker": "rook-dead-air",
                 "say": "Thirteen. Five in, thirteen out. Today we go the other way."
               }
             ],
             "not_yet": [
               {
+                "line": "hsup7i",
                 "speaker": "rook-dead-air",
-                "say": "f of five is the output when five goes in. Two fives are ten, plus three, thirteen. Today we go the other way."
+                "say": "f of five is the output when five goes in. Two fives are ten, plus three, thirteen. Today we go the other way.",
+                "caption": "f(5) is the output when five goes in. Two fives are ten, plus three, thirteen. Today we go the other way."
               }
             ]
           }
@@ -112,6 +124,7 @@
       ],
       "not_watched": [
         {
+          "line": "q8nzzn",
           "speaker": "rook-dead-air",
           "say": "Before we start, one check. Tap one."
         },
@@ -127,12 +140,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "i8bs13",
                 "speaker": "rook-dead-air",
                 "say": "Thirteen. Good."
               }
             ],
             "not_yet": [
               {
+                "line": "uac9ot",
                 "speaker": "rook-dead-air",
                 "say": "It's thirteen. Here's how."
               }
@@ -146,8 +161,10 @@
           "use": "rook-dead-air.short-version"
         },
         {
+          "line": "enogoh",
           "speaker": "rook-dead-air",
           "say": "A function takes each input to one output. f of five means the output when five goes in. Five goes where x was. Two fives are ten, plus three, thirteen.",
+          "caption": "A function takes each input to one output. f(5) means the output when five goes in. Five goes where x was. Two fives are ten, plus three, thirteen.",
           "board": [
             {
               "write": "f(5) = 2(5) + 3",
@@ -169,9 +186,10 @@
       "kind": "big-idea",
       "beats": [
         {
+          "line": "gwxbd3",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "Here's the tower's rule. Signal comes in. Doubled. Three added. Out it goes.",
+          "clear": true,
           "board": [
             {
               "write": "f(x) = 2x + 3",
@@ -184,6 +202,7 @@
           ]
         },
         {
+          "line": "ov7cn8",
           "speaker": "rook-dead-air",
           "say": "Seventeen came out. To find what went in, run the line backwards. Two things flip. The order flips, so the last thing done is the first undone. And each step flips: add becomes take away, times becomes divide.",
           "board": [
@@ -194,6 +213,7 @@
           ]
         },
         {
+          "line": "s1bea3",
           "speaker": "rook-dead-air",
           "say": "Seventeen, take away three, fourteen. Fourteen, halved, seven. Seven went in.",
           "board": [
@@ -204,6 +224,7 @@
           ]
         },
         {
+          "line": "zmmers",
           "speaker": "rook-dead-air",
           "say": "Check it forwards. Seven doubled is fourteen, plus three, seventeen. Loud and clear.",
           "board": [
@@ -215,8 +236,10 @@
           ]
         },
         {
+          "line": "cmamov",
           "speaker": "rook-dead-air",
           "say": "The machine that runs f backwards is the inverse function. It's written f, with a small minus one up top, and you say f inverse. f inverse of seventeen is seven.",
+          "caption": "The machine that runs f backwards is the inverse function. It's written f, with a small minus one up top, and you say f inverse. f⁻¹(17) = 7.",
           "board": [
             {
               "write": "inverse function: undoes f, taking each output back to its input",
@@ -229,8 +252,10 @@
           ]
         },
         {
+          "line": "za4gbf",
           "speaker": "rook-dead-air",
           "say": "That minus one isn't a power. f inverse of seventeen isn't one over f of seventeen. It's a label. It means run f backwards.",
+          "caption": "That −1 isn't a power. f⁻¹(17) ≠ 1/f(17). It's a label. It means run f backwards.",
           "board": [
             {
               "write": "f⁻¹(17) is not 1/f(17)",
@@ -239,8 +264,10 @@
           ]
         },
         {
+          "line": "u1oe0v",
           "speaker": "rook-dead-air",
           "say": "And if f sends seven to seventeen, f inverse sends seventeen back to seven, so every pair swaps round, input for output, and a table for f inverse is f's table with its two rows swapped. Sorry. Back on frequency.",
+          "caption": "And if f sends seven to seventeen, f⁻¹ sends seventeen back to seven, so every pair swaps round, input for output, and a table for f⁻¹ is f's table with its two rows swapped. Sorry. Back on frequency.",
           "board": [
             {
               "write": "f: 7 → 17     f⁻¹: 17 → 7",
@@ -249,6 +276,7 @@
           ]
         },
         {
+          "line": "wdldvw",
           "speaker": "rook-dead-air",
           "say": "My oupa said undoing is like getting dressed for the cold. Socks, then boots. So boots come off first. He tested it the other way once.",
           "cue": "chuckles",
@@ -267,9 +295,11 @@
       },
       "beats": [
         {
+          "line": "y4vex1",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "On paper. Step one: what we're finding. f inverse of twenty-three, the input that f turns into twenty-three.",
+          "caption": "On paper. Step one: what we're finding. f⁻¹(23), the input that f turns into twenty-three.",
+          "clear": true,
           "board": [
             {
               "write": "Find f⁻¹(23): the input that f turns into 23.",
@@ -279,6 +309,7 @@
           ]
         },
         {
+          "line": "lvq7yj",
           "speaker": "rook-dead-air",
           "say": "Step two: the rule as a line of operations. Times four, then take away five.",
           "board": [
@@ -290,8 +321,10 @@
           ]
         },
         {
+          "line": "ojsn6f",
           "speaker": "rook-dead-air",
           "say": "Step three: run it backwards. Undo the minus five first. Twenty-three plus five, twenty-eight.",
+          "caption": "Step three: run it backwards. Undo the −5 first. 23 + 5, 28.",
           "board": [
             {
               "write": "23 → + 5 → 28",
@@ -312,12 +345,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "gnbbjr",
                 "speaker": "rook-dead-air",
                 "say": "Copy that. Last on, first off."
               }
             ],
             "not_yet": [
               {
+                "line": "wkfza2",
                 "speaker": "rook-dead-air",
                 "say": "Going forwards, the five comes off last. Running it backwards, it's the first thing you meet, so it's the first thing you undo."
               }
@@ -325,8 +360,10 @@
           }
         },
         {
+          "line": "iovzp0",
           "speaker": "rook-dead-air",
           "say": "Then undo the times four. Twenty-eight over four, seven. f inverse of twenty-three is seven.",
+          "caption": "Then undo the × 4. 28/4, 7. f⁻¹(23) = 7.",
           "board": [
             {
               "write": "28 → ÷ 4 → 7",
@@ -340,8 +377,10 @@
           ]
         },
         {
+          "line": "j4mcy8",
           "speaker": "rook-dead-air",
           "say": "Step four: check it forwards. Four sevens are twenty-eight. Take away five, twenty-three. Seven in, twenty-three out, so f inverse sends twenty-three back to seven. Out.",
+          "caption": "Step four: check it forwards. Four sevens are twenty-eight. Take away five, twenty-three. Seven in, twenty-three out, so f⁻¹ sends twenty-three back to seven. Out.",
           "board": [
             {
               "write": "Check: f(7) = 4(7) − 5 = 23 ✓",
@@ -359,12 +398,16 @@
       "turn": {
         "kind": "twin",
         "like": "example-1",
-        "type": "fn-graph-table-composite-inverse",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-graph-table-composite-inverse"
+        },
         "skills": [
           "SL2.2.inverse-undo"
         ],
         "intro": [
           {
+            "line": "p1djmc",
             "speaker": "rook-dead-air",
             "say": "Your channel. Backwards, last thing first, then check it forwards. Over."
           }
@@ -386,20 +429,24 @@
         },
         "right": [
           {
+            "line": "dmeffi",
             "speaker": "rook-dead-air",
             "say": "Loud and clear. Backwards, and checked forwards."
           },
           {
+            "line": "e08ooi",
             "speaker": "rook-dead-air",
             "say": "Last on, first off. Copy that."
           }
         ],
         "not_yet": [
           {
+            "line": "ajmnnp",
             "speaker": "rook-dead-air",
             "say": "Crossed wire. That's f of the value. The question wants the input that gives it."
           },
           {
+            "line": "t2c2jk",
             "speaker": "rook-dead-air",
             "say": "Check the order. Which operation did f do last?"
           }
@@ -415,9 +462,11 @@
       },
       "beats": [
         {
+          "line": "khsgr6",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "Now a rule that's harder to run backwards. g of x is ten minus three x, and we want g inverse of minus five.",
+          "caption": "Now a rule that's harder to run backwards. g(x) = 10 − 3x, and we want g⁻¹(−5).",
+          "clear": true,
           "board": [
             {
               "write": "g(x) = 10 − 3x.  Find g⁻¹(−5).",
@@ -426,10 +475,13 @@
           ]
         },
         {
+          "line": "tog459",
           "speaker": "rook-dead-air",
-          "say": "You could run the flow backwards, but the minus three x hides the order. So go straight to what the label means. g inverse of minus five is the input that gives minus five."
+          "say": "You could run the flow backwards, but the minus three x hides the order. So go straight to what the label means. g inverse of minus five is the input that gives minus five.",
+          "caption": "You could run the flow backwards, but the −3x hides the order. So go straight to what the label means. g⁻¹(−5) is the input that gives −5."
         },
         {
+          "line": "ag8tgs",
           "speaker": "rook-dead-air",
           "say": "You set it up. I'll keep the channel open."
         },
@@ -445,21 +497,27 @@
             "answer": 0,
             "right": [
               {
+                "line": "ay95cy",
                 "speaker": "rook-dead-air",
-                "say": "Lekker. Output set to minus five, and solve for the input."
+                "say": "Lekker. Output set to minus five, and solve for the input.",
+                "caption": "Lekker. Output set to −5, and solve for the input."
               }
             ],
             "not_yet": [
               {
+                "line": "n3ppxk",
                 "speaker": "rook-dead-air",
-                "say": "g inverse of minus five is an input. So set the output, ten minus three x, equal to minus five, and solve for x."
+                "say": "g inverse of minus five is an input. So set the output, ten minus three x, equal to minus five, and solve for x.",
+                "caption": "g⁻¹(−5) is an input. So set the output, 10 − 3x, equal to −5, and solve for x."
               }
             ]
           }
         },
         {
+          "line": "vqlf4p",
           "speaker": "rook-dead-air",
           "say": "Take ten off both sides. Minus three x is minus fifteen. Divide by minus three. x is five.",
+          "caption": "Take ten off both sides. −3x = −15. Divide by −3. x = 5.",
           "board": [
             {
               "write": "10 − 3x = −5",
@@ -481,8 +539,10 @@
           ]
         },
         {
+          "line": "goiva7",
           "speaker": "rook-dead-air",
           "say": "Check forwards. Three fives are fifteen, and ten minus fifteen is minus five.",
+          "caption": "Check forwards. Three fives are fifteen, and 10 − 15 = −5.",
           "board": [
             {
               "write": "Check: g(5) = 10 − 15 = −5 ✓",
@@ -519,9 +579,10 @@
       },
       "beats": [
         {
+          "line": "z427ry",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "Paper style now. A table of values for a function f. Inputs on the top row, outputs on the bottom.",
+          "clear": true,
           "board": [
             {
               "write": "x:      −1    0    2    3     5",
@@ -536,8 +597,10 @@
           ]
         },
         {
+          "line": "ovp6l2",
           "speaker": "rook-dead-air",
           "say": "Part a. Write down f of two. Find two in the input row, and read down. Two in, minus two out. Write down means no working needed.",
+          "caption": "Part a. Write down f(2). Find two in the input row, and read down. Two in, −2 out. Write down means no working needed.",
           "board": [
             {
               "write": "(a)  f(2) = −2",
@@ -548,8 +611,10 @@
           ]
         },
         {
+          "line": "btngsl",
           "speaker": "rook-dead-air",
-          "say": "Part b. Write down f inverse of four."
+          "say": "Part b. Write down f inverse of four.",
+          "caption": "Part b. Write down f⁻¹(4)."
         },
         {
           "ask": {
@@ -563,21 +628,26 @@
             "answer": 0,
             "right": [
               {
+                "line": "t7exxh",
                 "speaker": "rook-dead-air",
                 "say": "The output row. Four came out, so find it there and read up. Copy that."
               }
             ],
             "not_yet": [
               {
+                "line": "slaswh",
                 "speaker": "rook-dead-air",
-                "say": "f inverse of four is the input that gives four. Four is an output, so find it in the f of x row and read up to the input."
+                "say": "f inverse of four is the input that gives four. Four is an output, so find it in the f of x row and read up to the input.",
+                "caption": "f⁻¹(4) is the input that gives four. Four is an output, so find it in the f(x) row and read up to the input."
               }
             ]
           }
         },
         {
+          "line": "n6k27s",
           "speaker": "rook-dead-air",
           "say": "Four is in the output row, under zero. f of zero is four, so f inverse of four is zero.",
+          "caption": "Four is in the output row, under zero. f(0) = 4, so f⁻¹(4) = 0.",
           "board": [
             {
               "write": "(b)  f(0) = 4, so f⁻¹(4) = 0",
@@ -588,8 +658,10 @@
           ]
         },
         {
+          "line": "otjcgw",
           "speaker": "rook-dead-air",
           "say": "Part c. Twenty-five isn't in the table, so we use the rule. Before solving, a prediction. The outputs go up as the inputs go down, so an output of twenty-five should come from an input below minus one. f inverse of twenty-five is the input that gives twenty-five.",
+          "caption": "Part c. Twenty-five isn't in the table, so we use the rule. Before solving, a prediction. The outputs go up as the inputs go down, so an output of twenty-five should come from an input below −1. f⁻¹(25) is the input that gives twenty-five.",
           "board": [
             {
               "write": "(c)  4 − 3x = 25",
@@ -599,8 +671,10 @@
           ]
         },
         {
+          "line": "so3871",
           "speaker": "rook-dead-air",
           "say": "Take four off both sides. Minus three x is twenty-one. Divide by minus three. x is minus seven.",
+          "caption": "Take four off both sides. −3x = 21. Divide by −3. x = −7.",
           "board": [
             {
               "write": "−3x = 21",
@@ -621,8 +695,10 @@
           ]
         },
         {
+          "line": "v7w0fw",
           "speaker": "rook-dead-air",
           "say": "Check forwards. Minus three times minus seven is twenty-one. Four plus twenty-one, twenty-five. And minus seven is below minus one, as predicted. Out.",
+          "caption": "Check forwards. −3 × (−7) = 21. 4 + 21, 25. And −7 < −1, as predicted. Out.",
           "board": [
             {
               "write": "Check: f(−7) = 4 − 3(−7) = 4 + 21 = 25 ✓",
@@ -645,9 +721,11 @@
       "misconception": "Reads f⁻¹(x) as the reciprocal of f(x)",
       "beats": [
         {
+          "line": "oru0of",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "Found this in the log. f of x is two x plus four, find f inverse of ten. One line has a crossed wire.",
+          "caption": "Found this in the log. f(x) = 2x + 4, find f⁻¹(10). One line has a crossed wire.",
+          "clear": true,
           "board": [
             {
               "write": "f(x) = 2x + 4.  Find f⁻¹(10).",
@@ -682,21 +760,27 @@
             "answer": 0,
             "right": [
               {
+                "line": "o1k7z5",
                 "speaker": "rook-dead-air",
-                "say": "That's the one. The minus one is a label, not a power."
+                "say": "That's the one. The minus one is a label, not a power.",
+                "caption": "That's the one. The −1 is a label, not a power."
               }
             ],
             "not_yet": [
               {
+                "line": "bevc1v",
                 "speaker": "rook-dead-air",
-                "say": "Look at the first line. What does f inverse mean? Is it one over anything?"
+                "say": "Look at the first line. What does f inverse mean? Is it one over anything?",
+                "caption": "Look at the first line. What does f⁻¹ mean? Is it one over anything?"
               }
             ]
           }
         },
         {
+          "line": "e71kn9",
           "speaker": "rook-dead-air",
           "say": "The check that catches it: run it forwards. One over twenty-four goes in, and out comes four and a bit. Not ten.",
+          "caption": "The check that catches it: run it forwards. 1/24 goes in, and out comes four and a bit. Not ten.",
           "board": [
             {
               "write": "Check: f(1/24) = 1/12 + 4 = 4.083…, not 10 ✗",
@@ -706,8 +790,10 @@
           ]
         },
         {
+          "line": "c234ym",
           "speaker": "rook-dead-air",
           "say": "One line through it. f inverse of ten is the input that gives ten. Two x plus four is ten. x is three. Forwards: six plus four, ten.",
+          "caption": "One line through it. f⁻¹(10) is the input that gives ten. 2x + 4 = 10. x = 3. Forwards: 6 + 4, 10.",
           "board": [
             {
               "strike": "s1"
@@ -725,6 +811,7 @@
           ]
         },
         {
+          "line": "fnqeox",
           "speaker": "rook-dead-air",
           "say": "I wrote that line myself once, on the back of a weather report. Eish. I keep it pinned over the desk.",
           "joke": true,
@@ -739,12 +826,16 @@
       "turn": {
         "kind": "exam",
         "like": "example-3",
-        "type": "fn-graph-table-composite-inverse",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-graph-table-composite-inverse"
+        },
         "skills": [
           "SL2.2.inverse-undo"
         ],
         "intro": [
           {
+            "line": "gg6fcf",
             "speaker": "rook-dead-air",
             "say": "Your channel, no help on the first try. Input or output, every time, and check it forwards. Over."
           }
@@ -779,20 +870,24 @@
         },
         "right": [
           {
+            "line": "fpyvm5",
             "speaker": "rook-dead-air",
             "say": "Loud and clear. Input, output, and you kept them apart."
           },
           {
+            "line": "ec1ne1",
             "speaker": "rook-dead-air",
             "say": "Read up for the inverse, and checked forwards. Copy that."
           }
         ],
         "not_yet": [
           {
+            "line": "b9q0cj",
             "speaker": "rook-dead-air",
             "say": "Crossed wire. That's an output. The inverse wants the input."
           },
           {
+            "line": "q29wl6",
             "speaker": "rook-dead-air",
             "say": "Find the value in the output row, then read up."
           }
@@ -804,9 +899,11 @@
       "kind": "recap",
       "beats": [
         {
+          "line": "nfqawm",
           "speaker": "rook-dead-air",
-          "clear": true,
           "say": "So. An inverse runs a function backwards. f inverse of a is the input that f turns into a. Undo the last thing first, or solve f of x equals a. Then check it forwards.",
+          "caption": "So. An inverse runs a function backwards. f⁻¹(a) is the input that f turns into a. Undo the last thing first, or solve f(x) = a. Then check it forwards.",
+          "clear": true,
           "board": [
             {
               "write": "f⁻¹(a): the input that f turns into a",
@@ -827,10 +924,12 @@
           ]
         },
         {
+          "line": "oasj68",
           "speaker": "rook-dead-air",
           "say": "Next time, f and its inverse on the same graph. There's a mirror between them. Later on, logs undo powers the same way."
         },
         {
+          "line": "nu2ed6",
           "speaker": "rook-dead-air",
           "say": "Seventeen out, seven in. Rook, out."
         }

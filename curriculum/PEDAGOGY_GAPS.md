@@ -8,7 +8,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## In numbers
 
-- **Types:** 107 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
+- **Types:** 111 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
 - **Skills with a type:** 286 of 286.
 - **Functions:** 141 unknowns the exam asks and 434 it doesn't; 574 angles, 193 of them with a weak spot for method-pick questions; 160 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
 - **Coverage cells** (one unknown in one representation by one method): 2102 in Functions, of which 528 are reachable with "Exam-style only" on.
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-17 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 17 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 21 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -2134,6 +2134,78 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): In (1 + x)^n the coefficient of x^r equals the coefficient of x^(n − r). — Always: both are nCr, as choosing r brackets to give x is the same as choosing n − r to give 1.
   - *true-false-reason* (L4): The coefficients of (1 + x)^n add up to 2^n. — True: put x = 1 in the expansion. The sum of the coefficients is then (1 + 1)^n.
 - **Misconceptions used:** 24. Using n!/r! and forgetting the (n − r)! factor; Numbering the rows of Pascal's triangle from 1 instead of from 0; Thinking nC0 = 0; Not raising the coefficient: applying the power to x alone, so (ax)^r becomes ax^r; Losing the alternating signs when the second term is negative; Writing a term whose two powers do not add up to n; Ignoring the sign: treating a negative term raised to an odd power as positive; Forgetting to raise the other term to its power; Giving the whole term when the coefficient is asked for, or the coefficient when the term is asked for; Leaving out the r! in the formula for nCr; Keeping the negative root of the quadratic, though n is a whole number; Counting n terms in the expansion, leaving out the term where r = 0; Using the place of the term as r, when r starts from 0; Forgetting that (1/x)^r is x^(−r), so the power of x falls by one each term, not by two; Leaving out the binomial coefficients, so each term is only the two powers multiplied; Swapping the powers over, so the falling power goes on the wrong term; Putting minus signs on the wrong terms, or where there are none; Giving nCr alone, leaving out the powers of the two terms; Counting the entries of a row from one instead of from zero; Adding r to n instead of taking r away; Thinking nCn is zero, when there is exactly one way to choose all n; Mixing it up with choosing one, or all but one, which gives n; Taking the factor above n instead of the one below it; Working out the other letter's coefficient instead.
+
+#### Rounding, percentage error and estimation (AI) (`t1-ai-percentage-error`, exam, 25 bank parts)
+
+- **Situation:** A measured, estimated or calculated value and how accurate it is, shared with `t1-ai-approx-bounds`.
+- **Representations:** **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a GDC value; the places or figures → the value correct to n decimal places or n significant figures
+  - **exam** L2: given an amount of goods; a price; an allowance for waste → the total cost, to the nearest cent
+  - **exam** L2: given an area to cover and what one item covers, or a length and an item's length → the number of items to buy, or the number that fit
+  - **exam** L2: given an estimate; the exact value → the percentage error of the estimate
+  - **exam** L2: given a GDC value; how it is rounded → the percentage error caused by the rounding
+  - **exam** L4: given a measurement; the most its percentage error can be → the largest or smallest possible exact value
+  - new L1: given a calculation a × b ÷ c → an estimate with each number rounded to 1 s.f.
+  - new L2: given an equation for a width; the GDC's two solutions → the solution that is the width, with a reason
+- **Angles:** Cut at the required digit and look at the next one; Set the GDC to a fixed number of decimal places; Choose the accuracy from the context; Use ε = |v_A − v_E| / |v_E| × 100%; Use the ratio of approximate to exact; Round every number to one significant figure; Compare orders of magnitude; Check against the context.
+- **Concept probes:**
+  - *true-false-reason* (L3): An estimate that is 10% too big and one that is 10% too small have the same percentage error. — True: the percentage error is the size of the difference over the exact value, so the sign is dropped. Both are 10%.
+  - *always-sometimes-never* (L3): Rounding a number of tins of paint to the nearest whole number gives enough tins. — Sometimes: only when the real number is already past the halfway point. A count you must buy is always rounded up.
+- **Misconceptions used:** 14. Treating leading zeros as significant figures; Rounding in stages, one digit at a time, instead of once; Giving money to three significant figures instead of to the nearest cent; Dividing by the approximate value instead of the exact value; Forgetting to multiply by 100; Leaving the sign in, so an underestimate gives a negative error; Rounding the exact value first, so the error is worked out against the wrong value; Treating dividing by a number below one as multiplying by it; Keeping a negative solution as a length; Cutting off the digits instead of rounding; Leaving out the extra allowed for waste; Rounding a number of items to the nearest whole number; Applying the percentage error to the measurement; Giving the other end of the range.
+
+#### Bounds of a rounded value and of a calculation (AI) (`t1-ai-approx-bounds`, exam, 18 bank parts)
+
+- **Situation:** A measured, estimated or calculated value and how accurate it is, shared with `t1-ai-percentage-error`.
+- **Representations:** **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a rounded value; its accuracy → the lower or upper bound
+  - **exam** L3: given a shape's measurements, each rounded → the least or greatest area, volume or total length
+  - **exam** L4: given a rounded distance and time, or mass and volume → the greatest or least speed or density
+  - **exam** L4: given a rounded length; the area or volume worked out from it → the maximum percentage error in the area or volume
+- **Angles:** Add and subtract half of the rounding unit; Mark the rounding interval on a number line; Compute the quantity at each bound; Pick bounds that push a quotient to its extreme; Raise the length error factor to the power of the dimension.
+- **Concept probes:**
+  - *true-false-reason* (L3): The greatest possible speed uses the upper bound of the distance and the upper bound of the time. — False: a longer time gives a smaller speed, so the greatest speed divides the upper bound of the distance by the lower bound of the time.
+  - *predict-check* (L4): A side is measured 1% too long. Predict the error in the area of the square, then check with the scale factor. — About 2%: the area is the side squared, and 1.01² = 1.0201, so the area is 2.01% too big.
+- **Misconceptions used:** 8. Using a whole rounding unit either side instead of half of it; Giving the upper bound as a value just below it instead of the halfway value; Using the wrong rounding unit for significant figures, as if every written digit were significant; Assuming the percentage error in an area or volume equals the error in the length; Using only one bound, the one that gives the smaller error; Using the same bound for the top and the bottom of a quotient, when its extreme needs one upper and one lower bound; Using the measured values instead of their bounds; Mixing an upper and a lower bound in a product.
+
+#### Loans: repayment, term, rate, balance and interest (AI) (`t1-ai-amortization`, exam, 29 bank parts)
+
+- **Situation:** A loan, a savings plan or a fund, with monthly payments at the end of each month, shared with `t1-ai-annuity`.
+- **Representations:** **words**, **table** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the amount borrowed, or a price and a deposit; the rate and compounding; the term → the monthly payment, to the nearest cent
+  - **exam** L3: given the amount borrowed; the rate; the monthly payment → the number of monthly payments needed
+  - **exam** L4: given the amount borrowed; the rate; the monthly payment → the smaller last payment, to the nearest cent
+  - **exam** L4: given the amount borrowed; the number of payments; the monthly payment → the annual interest rate, to 3 s.f.
+  - **exam** L3: given the loan, its rate and term; the monthly payment; the payments made → the amount still owed, to the nearest cent
+  - **exam** L2: given the loan and its rate; the monthly payment → the interest in the first payment, or how much it reduces the debt
+  - **exam** L2: given the loan, its rate and term; the monthly payment → the total interest paid
+  - **exam** L4: given the amount borrowed; two loans' rates and terms → which loan costs less in interest, and by how much to the nearest dollar
+- **Angles:** Solve for PMT in the TVM solver; Use PMT = PV × i / (1 − (1 + i)^−n); Solve for N or I% in the TVM solver; Count rows in an amortization spreadsheet; Solve for FV after k payments; Use the calculator's balance and interest functions; Fill an amortization table; Total repaid = N × PMT, then subtract the loan.
+- **Concept probes:**
+  - *true-false-reason* (L4): Halfway through the term of a loan, half of the loan has been paid off. — False: early payments are mostly interest, because the balance is largest then, so less than half has been paid off halfway through.
+  - *always-sometimes-never* (L3): At the same rate, a longer loan costs more in total interest than a shorter one. — Always: the monthly payment is lower but the balance stays larger for longer, so more interest builds up in total.
+- **Misconceptions used:** 16. Entering the number of years as N instead of the number of payments; Entering the monthly rate as I% when P/Y already counts the months, so the rate is divided twice; Using simple interest on the whole loan, then sharing it over the payments; Ignoring interest and dividing the loan by the number of payments; Rounding the number of payments down, which leaves debt unpaid; Reading the solved I% as a monthly rate and multiplying it by the months in a year; Subtracting the payments made from the loan, ignoring the interest added; Using the annual rate for one month's interest; Assuming the interest part of each payment is the same every month; Giving the total repaid as the interest paid; Assuming the loan with the lower monthly payment is always cheaper overall; Using simple interest to find the rate; Using simple interest on the loan for the whole term; Leaving out the last month's interest; Taking the fraction of a payment that the solver's N shows as the last payment; Giving the difference in the monthly payments as the difference in interest.
+
+#### Savings plans and annuities with the TVM solver (AI) (`t1-ai-annuity`, exam, 16 bank parts)
+
+- **Situation:** A loan, a savings plan or a fund, with monthly payments at the end of each month, shared with `t1-ai-amortization`.
+- **Representations:** **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given an opening sum; a monthly deposit; the rate; the years → the value of the account, to the nearest cent
+  - **exam** L3: given a target; the rate; the years; an opening sum → the monthly deposit needed, to the nearest cent
+  - **exam** L3: given a monthly deposit; the rate; a target → the number of months to pass the target
+  - **exam** L2: given an opening sum; a monthly deposit; the rate; the years → the interest earned, to the nearest cent
+  - **exam** L3: given a monthly withdrawal; the rate; the years → the fund needed at the start, to the nearest cent
+  - **exam** L3: given a fund; the rate; a monthly withdrawal → the number of full withdrawals the fund pays
+  - **exam** L3: given a fund; the rate; a monthly withdrawal; the years → the amount left in the fund, to the nearest cent
+  - **exam** L3: given a fund; the rate; the years → the largest monthly withdrawal, to the nearest cent
+- **Angles:** Use the TVM solver with PV = 0; Sum a geometric series of deposits; Use the TVM solver with FV = 0; Use PV = PMT × (1 − (1 + i)^−n) / i.
+- **Concept probes:**
+  - *true-false-reason* (L4): A fund that pays out each month for twice as long needs twice as much at the start. — False: the money still in the fund earns interest while it waits, so the later withdrawals cost less today; twice the time needs less than twice the fund.
+  - *predict-check* (L3): Predict whether monthly deposits for ten years are worth more or less than the same total paid in at the start, then check with the solver. — Less: a deposit made later earns interest for less time, and the last one earns none, so the plan is worth less than one lump sum paid in at the start.
+- **Misconceptions used:** 10. Ignoring interest and adding up the deposits; Treating every deposit as made at the start, so each earns interest for the whole time; Multiplying the withdrawal by the number of months, ignoring the interest the fund earns; Solving for FV instead of PV, answering the wrong question; Rounding the number of full withdrawals up instead of down; Counting years instead of payments for N; Rounding the number of months down; Giving the account's final value as the interest; Taking away the opening sum but not the deposits; Ignoring the interest the fund earns.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|

@@ -1,7 +1,7 @@
 {
   "id": "ex.foundations.pre-substitute",
-  "format": 1,
-  "status": "approved",
+  "format": 2,
+  "status": "draft",
   "title": "Brackets Round Negatives",
   "idea": "When you substitute, the number goes in brackets, sign and all, so a negative input is squared or multiplied correctly; then brackets, powers, × and ÷, + and −.",
   "zone": "foundations",
@@ -42,7 +42,8 @@
     "No prerequisite explainer. The recall section is one tap question on what students bring from earlier school (a negative times a negative), with no callback line, so it has a single `beats` list instead of `watched` and `not_watched`, and both length figures are the same.",
     "No second-method section: the map lists no methods. The lesson's four (bracket-first, order of operations, top-and-bottom, estimate-check) are all here except top-and-bottom, which needs a fraction input and is left to the question type.",
     "Example 3 is a two-part course-style item (SL2.2 function notation), as FAL-953 allows for Foundations.",
-    "Live numbers for the turns come from fn-pre-substitute (game/engine/situations/substitute.gd); the fallbacks are fixed and worked below."
+    "Live numbers for the turns come from fn-pre-substitute (game/engine/situations/substitute.gd); the fallbacks are fixed and worked below.",
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes."
   ],
   "sections": [
     {
@@ -50,12 +51,15 @@
       "kind": "cold-open",
       "beats": [
         {
+          "line": "x6qfnk",
           "speaker": "tin-can-tess",
           "say": "Kia ora, welcome to the Scrapworks. I'm Tess. If it's broken, it ends up in my yard, and most of it goes back out the gate working. Most of it."
         },
         {
+          "line": "er01ad",
           "speaker": "tin-can-tess",
           "say": "A trader brought this counting drum back this morning. Says it's broken, because it told him minus three squared is minus nine.",
+          "caption": "A trader brought this counting drum back this morning. Says it's broken, because it told him −3² is −9.",
           "board": [
             {
               "write": "−3² = −9 ?",
@@ -64,6 +68,7 @@
           ]
         },
         {
+          "line": "dkfovq",
           "speaker": "tin-can-tess",
           "say": "He's out front on my chilly bin, waiting for an apology. From a drum.",
           "cue": "laughs",
@@ -71,6 +76,7 @@
           "joke": true
         },
         {
+          "line": "inr0wu",
           "speaker": "tin-can-tess",
           "say": "Thing is, the drum might be right. So might he. It all comes down to brackets.",
           "pause": 0.5
@@ -83,6 +89,7 @@
       "builds_on": null,
       "beats": [
         {
+          "line": "waef0t",
           "speaker": "tin-can-tess",
           "say": "First, one you brought with you from school. Tap the answer."
         },
@@ -98,12 +105,14 @@
             "answer": 0,
             "right": [
               {
+                "line": "fltzav",
                 "speaker": "tin-can-tess",
                 "say": "Twelve. A negative times a negative is positive. Hang on to that one."
               }
             ],
             "not_yet": [
               {
+                "line": "mrm2sg",
                 "speaker": "tin-can-tess",
                 "say": "A negative times a negative is positive, and four threes are twelve. So it's plus twelve. Hang on to that one."
               }
@@ -117,9 +126,10 @@
       "kind": "big-idea",
       "beats": [
         {
+          "line": "tplmnz",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "Here's the drum, opened up. A letter in an expression is a slot. When you substitute, you take the letter out and put a number in its place.",
+          "clear": true,
           "board": [
             {
               "write": "substitute: replace the letter with the number, in brackets",
@@ -128,8 +138,10 @@
           ]
         },
         {
+          "line": "push2s",
           "speaker": "tin-can-tess",
           "say": "Say the slot is x squared, and the number going in is minus three. The whole minus three goes in, not the three on its own. So it goes in with brackets round it. Minus three times minus three: plus nine.",
+          "caption": "Say the slot is x², and the number going in is −3. The whole −3 goes in, not the three on its own. So it goes in with brackets round it. −3 × −3: +9.",
           "board": [
             {
               "write": "x² at x = −3",
@@ -146,6 +158,7 @@
           ]
         },
         {
+          "line": "n6bzfc",
           "speaker": "tin-can-tess",
           "say": "I fitted a bolt once and left the washer on the bench. Held fine, right up until the panel rattled off halfway out the gate.",
           "cue": "laughs",
@@ -153,12 +166,15 @@
           "joke": true
         },
         {
+          "line": "v4rog0",
           "speaker": "tin-can-tess",
           "say": "The minus sign is the washer. It goes in with the number, every time, and the brackets hold them together."
         },
         {
+          "line": "g6cnq5",
           "speaker": "tin-can-tess",
           "say": "Now the drum. With no brackets, minus three squared means square the three first, then put the minus on. The power goes before the minus.",
+          "caption": "Now the drum. With no brackets, −3² means square the three first, then put the minus on. The power goes before the minus.",
           "board": [
             {
               "write": "−3² = −(3²) = −9",
@@ -167,8 +183,10 @@
           ]
         },
         {
+          "line": "zxw50a",
           "speaker": "tin-can-tess",
           "say": "So the drum read it with no brackets and said minus nine. The trader meant the brackets and wanted nine. Both right, for different questions.",
+          "caption": "So the drum read it with no brackets and said −9. The trader meant the brackets and wanted 9. Both right, for different questions.",
           "board": [
             {
               "write": "(−3)² = 9,  but  −3² = −9",
@@ -177,6 +195,7 @@
           ]
         },
         {
+          "line": "pd51n6",
           "speaker": "tin-can-tess",
           "say": "That's the order of operations doing its job. Brackets first, then powers, then times and divide, then plus and minus.",
           "board": [
@@ -187,6 +206,7 @@
           ]
         },
         {
+          "line": "bjodbi",
           "speaker": "tin-can-tess",
           "say": "Bits on the bench, then. The number goes in with its brackets. Then the order.",
           "pause": 0.5
@@ -202,9 +222,11 @@
       },
       "beats": [
         {
+          "line": "b5fxtk",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "Step one: what we're finding. The value of x squared plus five, when x is minus three.",
+          "caption": "Step one: what we're finding. The value of x² + 5, when x is −3.",
+          "clear": true,
           "board": [
             {
               "write": "Find the value of x² + 5 when x = −3.",
@@ -214,8 +236,10 @@
           ]
         },
         {
+          "line": "yeuota",
           "speaker": "tin-can-tess",
           "say": "Step two: substitute. Take x out, and put minus three in, brackets and all.",
+          "caption": "Step two: substitute. Take x out, and put −3 in, brackets and all.",
           "board": [
             {
               "write": "(−3)² + 5",
@@ -236,21 +260,26 @@
             "answer": 0,
             "right": [
               {
+                "line": "gzl7b5",
                 "speaker": "tin-can-tess",
                 "say": "That's it. The minus goes in with the three, and the brackets keep them together."
               }
             ],
             "not_yet": [
               {
+                "line": "tr0kh6",
                 "speaker": "tin-can-tess",
-                "say": "The brackets mean the whole minus three gets squared, sign and all. Without them, only the three would be."
+                "say": "The brackets mean the whole minus three gets squared, sign and all. Without them, only the three would be.",
+                "caption": "The brackets mean the whole −3 gets squared, sign and all. Without them, only the three would be."
               }
             ]
           }
         },
         {
+          "line": "kjr7wr",
           "speaker": "tin-can-tess",
           "say": "Step three: the order, and the power goes first, so minus three, in brackets, squared, is nine, and then you add the five and you've got fourteen.",
+          "caption": "Step three: the order, and the power goes first, so (−3)² is 9, and then you add the 5 and you've got 14.",
           "board": [
             {
               "write": "= 9 + 5",
@@ -264,8 +293,10 @@
           ]
         },
         {
+          "line": "ikaa8r",
           "speaker": "tin-can-tess",
           "say": "Step four: the answer. When x is minus three, x squared plus five is fourteen.",
+          "caption": "Step four: the answer. When x is −3, x² + 5 is 14.",
           "board": [
             {
               "write": "When x = −3, x² + 5 = 14.",
@@ -276,8 +307,10 @@
           ]
         },
         {
+          "line": "k9bbj5",
           "speaker": "tin-can-tess",
           "say": "Then check the sign. A square is never negative, so x squared plus five can't come out under five, and fourteen doesn't. Sweet as.",
+          "caption": "Then check the sign. A square is never negative, so x² + 5 can't come out under five, and fourteen doesn't. Sweet as.",
           "board": [
             {
               "write": "Check: x² ≥ 0, so x² + 5 ≥ 5, and 14 ≥ 5 ✓",
@@ -294,10 +327,18 @@
       "turn": {
         "kind": "twin",
         "like": "example-1",
-        "type": "fn-pre-substitute",
+        "serve": "engine",
+        "cell": {
+          "type": "fn-pre-substitute",
+          "unknown": "negative-into-square",
+          "rep": "words",
+          "angle": "bracket-first"
+        },
+        "command": "Find",
         "skills": [],
         "intro": [
           {
+            "line": "vogcm3",
             "speaker": "tin-can-tess",
             "say": "Your go. Same job, new numbers. Brackets on first."
           }
@@ -319,20 +360,24 @@
         },
         "right": [
           {
+            "line": "p9p6pm",
             "speaker": "tin-can-tess",
             "say": "You kept the brackets. That's the whole trick, right there."
           },
           {
+            "line": "kmwv57",
             "speaker": "tin-can-tess",
             "say": "Sweet as. Bits on the bench, and it all went together."
           }
         ],
         "not_yet": [
           {
+            "line": "k0qklt",
             "speaker": "tin-can-tess",
             "say": "Back on the bench with it. Can a square come out negative?"
           },
           {
+            "line": "vnm06n",
             "speaker": "tin-can-tess",
             "say": "Put the number in with its brackets, then do the power first."
           }
@@ -348,9 +393,11 @@
       },
       "beats": [
         {
+          "line": "t092d7",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "Bit harder now. Two x squared, minus five x, when x is minus two. Two slots this time, and both get minus two, in brackets.",
+          "caption": "Bit harder now. 2x² − 5x, when x is −2. Two slots this time, and both get (−2).",
+          "clear": true,
           "board": [
             {
               "write": "Find the value of 2x² − 5x when x = −2.",
@@ -374,21 +421,26 @@
             "answer": 0,
             "right": [
               {
+                "line": "iqco7y",
                 "speaker": "tin-can-tess",
                 "say": "Eight. Square first, so four, then double it."
               }
             ],
             "not_yet": [
               {
+                "line": "xd7nc4",
                 "speaker": "tin-can-tess",
-                "say": "Power before the times. Minus two, in brackets, squared, is four, and two fours are eight."
+                "say": "Power before the times. Minus two, in brackets, squared, is four, and two fours are eight.",
+                "caption": "Power before the times. (−2)² is 4, and two fours are eight."
               }
             ]
           }
         },
         {
+          "line": "l6mv2n",
           "speaker": "tin-can-tess",
           "say": "Next slot is minus five times minus two, and that's negative times negative, so plus ten. Eight and ten, eighteen.",
+          "caption": "Next slot is −5 × −2, and that's negative times negative, so +10. Eight and ten, eighteen.",
           "board": [
             {
               "write": "= 8 + 10",
@@ -428,13 +480,16 @@
       },
       "beats": [
         {
+          "line": "qspnrb",
           "speaker": "tin-can-tess",
-          "clear": true,
-          "say": "Now one laid out the way the exam papers do it, with a part a and a part b. Write each letter down before you start on it, so whoever marks it can find your working."
+          "say": "Now one laid out the way the exam papers do it, with a part a and a part b. Write each letter down before you start on it, so whoever marks it can find your working.",
+          "clear": true
         },
         {
+          "line": "g9v35x",
           "speaker": "tin-can-tess",
           "say": "Bits on the bench first. f of x names a rule: whatever goes in for x, f of x is what comes out. Here the rule is four, plus two x, minus x squared.",
+          "caption": "Bits on the bench first. f(x) names a rule: whatever goes in for x, f(x) is what comes out. Here the rule is 4 + 2x − x².",
           "board": [
             {
               "write": "f(x) = 4 + 2x − x²",
@@ -443,8 +498,10 @@
           ]
         },
         {
+          "line": "hjhc9i",
           "speaker": "tin-can-tess",
           "say": "Part a says write down, so no working needed. Zero goes in for x, and everything with an x in it disappears. f of zero is four.",
+          "caption": "Part a says write down, so no working needed. Zero goes in for x, and everything with an x in it disappears. f(0) is 4.",
           "board": [
             {
               "write": "(a)  f(0) = 4",
@@ -455,8 +512,10 @@
           ]
         },
         {
+          "line": "epdmq6",
           "speaker": "tin-can-tess",
           "say": "Part b says find, so the working goes down. Every x gets minus three, in brackets.",
+          "caption": "Part b says find, so the working goes down. Every x gets (−3).",
           "board": [
             {
               "write": "(b)  f(−3) = 4 + 2(−3) − (−3)²",
@@ -477,21 +536,26 @@
             "answer": 0,
             "right": [
               {
+                "line": "vjm5da",
                 "speaker": "tin-can-tess",
                 "say": "Right. The bracket squares to nine, and the minus in front was never inside it."
               }
             ],
             "not_yet": [
               {
+                "line": "wh73x8",
                 "speaker": "tin-can-tess",
-                "say": "The square goes first: minus three, in brackets, squared, is nine. The minus in front sits outside the bracket, so it's minus nine."
+                "say": "The square goes first: minus three, in brackets, squared, is nine. The minus in front sits outside the bracket, so it's minus nine.",
+                "caption": "The square goes first: (−3)² is 9. The minus in front sits outside the bracket, so it's −9."
               }
             ]
           }
         },
         {
+          "line": "n5j7aw",
           "speaker": "tin-can-tess",
           "say": "So it's four, minus six, minus nine. Minus eleven.",
+          "caption": "So it's 4 − 6 − 9. −11.",
           "board": [
             {
               "write": "= 4 − 6 − 9",
@@ -512,6 +576,7 @@
           ]
         },
         {
+          "line": "xo630g",
           "speaker": "tin-can-tess",
           "say": "Quick check on the sign. The only bit adding is the four, and the six and the nine take away more than that, so a minus answer makes sense.",
           "board": [
@@ -536,9 +601,10 @@
       "misconception": "Squares without brackets, so the sign comes out wrong",
       "beats": [
         {
+          "line": "pgi74u",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "Somebody left this on my bench. One line's a bit off. Find it.",
+          "clear": true,
           "board": [
             {
               "write": "Find x² + 2x when x = −4",
@@ -575,21 +641,27 @@
             "answer": 1,
             "right": [
               {
+                "line": "y03u06",
                 "speaker": "tin-can-tess",
-                "say": "That's the one. The minus four went in with no brackets, so only the four got squared."
+                "say": "That's the one. The minus four went in with no brackets, so only the four got squared.",
+                "caption": "That's the one. The −4 went in with no brackets, so only the four got squared."
               }
             ],
             "not_yet": [
               {
+                "line": "bnsgjp",
                 "speaker": "tin-can-tess",
-                "say": "Look at where the minus four goes in. Has every slot got brackets?"
+                "say": "Look at where the minus four goes in. Has every slot got brackets?",
+                "caption": "Look at where the −4 goes in. Has every slot got brackets?"
               }
             ]
           }
         },
         {
+          "line": "xgu4tn",
           "speaker": "tin-can-tess",
           "say": "And you can catch it without redoing anything. x squared is a square, and a square is never negative, so that first bit can't ever be minus sixteen.",
+          "caption": "And you can catch it without redoing anything. x² is a square, and a square is never negative, so that first bit can't ever be −16.",
           "board": [
             {
               "write": "Check: x² ≥ 0, so x² can't be −16 ✗",
@@ -599,8 +671,10 @@
           ]
         },
         {
+          "line": "nc9r3y",
           "speaker": "tin-can-tess",
           "say": "Line through it, and go again with the brackets on. Sixteen, minus eight. Eight.",
+          "caption": "Line through it, and go again with the brackets on. 16 − 8. 8.",
           "board": [
             {
               "strike": "s2"
@@ -619,10 +693,14 @@
       "turn": {
         "kind": "exam",
         "like": "example-3",
-        "type": "fn-pre-substitute",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-pre-substitute"
+        },
         "skills": [],
         "intro": [
           {
+            "line": "f67qa8",
             "speaker": "tin-can-tess",
             "say": "Your go, and no help on the first try. Label your parts, and brackets round every number that goes in."
           }
@@ -650,22 +728,28 @@
         },
         "right": [
           {
+            "line": "gzdnqp",
             "speaker": "tin-can-tess",
             "say": "Choice. Parts labelled, and the minus kept outside the bracket."
           },
           {
+            "line": "kx02ni",
             "speaker": "tin-can-tess",
             "say": "That'd hold. I'd put it out front with a price on it."
           }
         ],
         "not_yet": [
           {
+            "line": "o7874r",
             "speaker": "tin-can-tess",
-            "say": "Back on the bench with part b. What's minus two, in brackets, squared?"
+            "say": "Back on the bench with part b. What's minus two, in brackets, squared?",
+            "caption": "Back on the bench with part b. What's (−2)²?"
           },
           {
+            "line": "w0r9zx",
             "speaker": "tin-can-tess",
-            "say": "Look at the minus in front of the x squared. Is it inside the bracket, or outside?"
+            "say": "Look at the minus in front of the x squared. Is it inside the bracket, or outside?",
+            "caption": "Look at the minus in front of the x². Is it inside the bracket, or outside?"
           }
         ]
       }
@@ -675,9 +759,10 @@
       "kind": "recap",
       "beats": [
         {
+          "line": "uvrjzu",
           "speaker": "tin-can-tess",
-          "clear": true,
           "say": "So. When you substitute, the number goes in with its brackets, sign and all. Then brackets, powers, times, plus, in that order. Then check the sign makes sense.",
+          "clear": true,
           "board": [
             {
               "write": "Substitute: the number goes in brackets, sign and all",
@@ -698,10 +783,12 @@
           ]
         },
         {
+          "line": "l8nocv",
           "speaker": "tin-can-tess",
           "say": "Next time we run it the other way. You know what comes out, and you find what went in."
         },
         {
+          "line": "edvxv8",
           "speaker": "tin-can-tess",
           "say": "The trader's drum? Fine all along. I stuck a pair of brackets on the side and charged him for the repair. Best money I've made all week.",
           "cue": "laughs",

@@ -106,13 +106,22 @@ A gap there fails the run. Every other part, AA SL May 2026 and all of AA HL,
 AI SL and AI HL, is reported per course as unassigned, and `bank.courses` keeps
 those counts. Widen `bank.assigned` once types cover a new session or course.
 
+**Types for the other courses** (FAL-999, the first AI types). An exam type may own
+parts of a course `bank.assigned` doesn't list; they count as assigned in
+`bank.courses`, and the rest of that course stays unassigned. Such a type gives its
+`home` course (`ai-sl`), and its `syllabus` codes are that course's guide codes (AI SL
+1.6, not AA 1.6). Its skills may come from any layer. Its `stats.calculator` counts the
+parts on papers that allow a GDC: the game's Paper 2 means a calculator, so every AI
+type is Paper 2 (`tools/game-catalogue.mjs` takes the game's paper share from it).
+
 **Unbuilt types.** `bank-types.json` holds the bank's type briefs as they are,
 plus `courses` (the fragment's `home` unless the type says), `subtopics` (the
 statement ids its syllabus codes name) and `fragment`. Their skills are
 curriculum-map skills or bank sub-tags; `skills` lists the sub-tags our maps
 don't have yet. `tools/courses.mjs --check` checks each type's courses and
 subtopics; `tools/pedagogy.mjs` checks its fields, unknowns and skills. A type
-moves to `question-types.json` when it is built.
+moves to `question-types.json` when it is built, keeping the bank's id, and `--write`
+then leaves it out of `bank-types.json`.
 
 **Planned exchange and filtering** (implementation in
 [#134](https://github.com/RktRobinhood/wasteland-academy/issues/134)):
