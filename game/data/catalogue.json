@@ -93329,7 +93329,7 @@
 				},
 				{
 					"ref": "AI-SL5.8.trapezoid-from-data#2",
-					"text": "Treating the first and last widths as interior values and doubling them",
+					"text": "Doubling the first and last heights as if they were interior heights",
 					"as": "distractor",
 					"in": [
 						"data-estimate",

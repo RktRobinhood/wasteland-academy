@@ -11150,7 +11150,7 @@
               "misconceptions": [
                 "Using the spacing values as the heights and the measurements as the widths",
                 "Mixing units, such as speeds in metres per second with times recorded in minutes",
-                "Treating the first and last widths as interior values and doubling them"
+                "Doubling the first and last heights as if they were interior heights"
               ],
               "threads": [
                 {
