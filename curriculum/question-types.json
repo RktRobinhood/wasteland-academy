@@ -56544,7 +56544,8 @@
      "text": "Giving the last branch alone instead of multiplying along the path",
      "as": "distractor",
      "in": [
-      "path-probability"
+      "path-probability",
+      "all-without-replacement"
      ],
      "wrong": "the second-stage branch"
     },
@@ -56570,7 +56571,10 @@
      "text": "Giving the probability of the opposite event",
      "as": "distractor",
      "in": [
-      "same-or-different"
+      "same-or-different",
+      "total-over-paths",
+      "total-from-normals",
+      "rounds-exceed-total"
      ],
      "wrong": "1 minus the answer"
     },
@@ -56674,7 +56678,8 @@
      "text": "Leaving the count of the colour drawn unchanged after the first draw",
      "as": "distractor",
      "in": [
-      "branch-after-draw"
+      "branch-after-draw",
+      "draws-in-terms-of-n"
      ],
      "wrong": "the total reduced but the count of the colour drawn kept"
     },
@@ -56697,6 +56702,103 @@
       "draws-in-terms-of-n"
      ],
      "wrong": "the first draw over n − 1"
+    },
+    {
+     "text": "Adding the other branch to 1 instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "branch-in-terms-of-k"
+     ],
+     "wrong": "1 plus the other branch"
+    },
+    {
+     "text": "Finding y, the other branch at that fork, instead of x",
+     "as": "distractor",
+     "in": [
+      "branch-after-draw"
+     ],
+     "wrong": "y, the other branch"
+    },
+    {
+     "text": "Stopping at the first branch instead of multiplying along the path",
+     "as": "distractor",
+     "in": [
+      "path-probability",
+      "all-without-replacement"
+     ],
+     "wrong": "the first branch alone"
+    },
+    {
+     "text": "Giving the chance for one draw instead of the chance of at least one over all the draws",
+     "as": "distractor",
+     "in": [
+      "at-least-one"
+     ],
+     "wrong": "the first draw's chance of the colour"
+    },
+    {
+     "text": "Multiplying only two branches when three are chosen",
+     "as": "distractor",
+     "in": [
+      "all-without-replacement"
+     ],
+     "wrong": "the first two branches multiplied"
+    },
+    {
+     "text": "Leaving out the failures on the path and giving the success alone",
+     "as": "distractor",
+     "in": [
+      "first-success-on-trial"
+     ],
+     "wrong": "the chance of a success on one try"
+    },
+    {
+     "text": "Using one workshop's normal probability alone, as if every item came from it",
+     "as": "distractor",
+     "in": [
+      "total-from-normals"
+     ],
+     "wrong": "one workshop's normalcdf value"
+    },
+    {
+     "text": "Reversing the conditional: giving the chance of the event for A, not the chance of A given the event",
+     "as": "distractor",
+     "in": [
+      "total-from-normals"
+     ],
+     "wrong": "A's normalcdf value"
+    },
+    {
+     "text": "Stopping at the total of the paths without dividing the path through A by it",
+     "as": "distractor",
+     "in": [
+      "total-from-normals"
+     ],
+     "wrong": "the total of the paths"
+    },
+    {
+     "text": "Giving A's share alone, as if knowing the event changed nothing",
+     "as": "distractor",
+     "in": [
+      "total-from-normals"
+     ],
+     "wrong": "the share A makes"
+    },
+    {
+     "text": "Giving the branch 1 − k instead of k",
+     "as": "distractor",
+     "in": [
+      "parameter-on-branch"
+     ],
+     "wrong": "1 − k"
+    },
+    {
+     "text": "Leaving out the game with the top score in every round",
+     "as": "distractor",
+     "in": [
+      "rounds-exceed-total"
+     ],
+     "wrong": "only the games with one lower round"
     }
    ],
    "parts": [
@@ -62183,6 +62285,102 @@
       "conditional-from-independence"
      ],
      "wrong": "P(want ∩ given)"
+    },
+    {
+     "text": "Giving P(A ∩ B) when the union is asked for",
+     "as": "distractor",
+     "in": [
+      "union-from-independence"
+     ],
+     "wrong": "P(A) × P(B)"
+    },
+    {
+     "text": "Taking 1 − P(A) × P(B) for at least one, when that is the chance that not both happen",
+     "as": "distractor",
+     "in": [
+      "union-from-independence"
+     ],
+     "wrong": "1 − P(A) × P(B)"
+    },
+    {
+     "text": "Stopping at P(A′) × P(B′), the chance of neither, without subtracting it from one",
+     "as": "distractor",
+     "in": [
+      "union-from-independence"
+     ],
+     "wrong": "P(A′) × P(B′)"
+    },
+    {
+     "text": "Putting the dashes on the wrong events, which gives the probability of another region",
+     "as": "distractor",
+     "in": [
+      "one-region-from-independence"
+     ],
+     "wrong": "the product for another region"
+    },
+    {
+     "text": "Forgetting to subtract P(A) from one when A′ is asked for",
+     "as": "distractor",
+     "in": [
+      "conditional-from-independence"
+     ],
+     "wrong": "P(A) for P(A′ | given)"
+    },
+    {
+     "text": "Giving the probability of the event after the bar instead of the event before it",
+     "as": "distractor",
+     "in": [
+      "conditional-from-independence"
+     ],
+     "wrong": "the probability of the given event"
+    },
+    {
+     "text": "Adding P(A ∩ B) in the addition rule instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "unknown-from-union"
+     ],
+     "wrong": "(P(A ∪ B) − P(A)) ÷ (1 + P(A))"
+    },
+    {
+     "text": "Stopping at P(B′) without subtracting it from one",
+     "as": "distractor",
+     "in": [
+      "unknown-from-union"
+     ],
+     "wrong": "P(B′)"
+    },
+    {
+     "text": "Giving P(A) instead of P(B) once the quadratic is solved",
+     "as": "distractor",
+     "in": [
+      "ratio-from-union"
+     ],
+     "wrong": "P(A), k times the answer"
+    },
+    {
+     "text": "Taking the middle as all that is left after the two 'only' regions, as if nothing lay outside the circles",
+     "as": "distractor",
+     "in": [
+      "overlap-from-only-regions"
+     ],
+     "wrong": "1 − P(A ∩ B′) − P(A′ ∩ B)"
+    },
+    {
+     "text": "Assuming two events with non-zero probabilities can be mutually exclusive and independent at once",
+     "as": "distractor",
+     "in": [
+      "classify-events"
+     ],
+     "wrong": "mutually exclusive and independent"
+    },
+    {
+     "text": "Missing that P(A ∩ B) = 0 makes the events mutually exclusive",
+     "as": "distractor",
+     "in": [
+      "classify-events"
+     ],
+     "wrong": "neither, when P(A ∩ B) = 0"
     }
    ],
    "parts": [

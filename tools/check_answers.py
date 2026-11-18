@@ -26590,6 +26590,8 @@ IDP_SOURCES = [("crate", "fuses", "working", "dead", "takes out one fuse", "the 
                ("trunk", "radio valves", "good", "burnt", "takes out one valve", "the valve is good", "trunks")]
 IDP_NUM = r"\d+(?:\.\d+)?(?:/\d+)?"
 IDP_PAPER2_ONLY = ("ratio-from-union", "overlap-from-only-regions")
+# The slips FAL-1149 named (misconceptions with no ref of their own).
+IDP_OWN = "t4-independence#"
 
 
 def idp_clear(q, v):
@@ -26802,11 +26804,14 @@ def idp_classify(q):
     if pi != prod and q["paper"] == 2:
         need(abs(pi - prod) >= IDP_GAP, "the two values are too close")
     say = lambda name: idp_test_said(q, "P(A ∩ B)", pi, "P(A) × P(B)", prod, name, dec)
-    wrongs = {"SL4.11.test-independence#1": {say(IDP_CLASSES[1])}}
+    wrongs = {"SL4.11.test-independence#1": {say(IDP_CLASSES[1])}, IDP_OWN + "23": {say(IDP_CLASSES[3])}}
     if pi not in (0, prod):
-        wrongs = {"SL4.11.test-independence#3": {say(IDP_CLASSES[1])}}
+        # Not independent read as mutually exclusive, though P(A ∩ B) is not 0.
+        wrongs = {"SL4.11.test-independence#3": {say(IDP_CLASSES[1])}, "SL4.11.test-independence#1": {say(IDP_CLASSES[0])}}
     if pi == prod:
         wrongs = {"SL4.11.test-independence#1": {say(IDP_CLASSES[0])}, "SL4.11.test-independence#0": {say(IDP_CLASSES[3])}}
+    # Both classes at once, which non-zero P(A) and P(B) rule out whatever the numbers.
+    wrongs[IDP_OWN + "22"] = {say(IDP_CLASSES[2])}
     gc_check_common(q, say(right), wrongs, None)
     need({o["text"] for o in q["choices"]} == {say(n) for n in IDP_CLASSES}, "an option states something else")
     need(q["answer"]["values"]["verdict"] == right, "the verdict")
@@ -26850,6 +26855,10 @@ def check_independence(q):
         if mt.group(1) == "A′" and mt.group(2) == "B′":
             table[unk + "0"] = 1 - pa - pb
         want, trap, wrongs = idp_num_set(q, f"P({mt.group(1)} ∩ {mt.group(2)}) = ", x * y, table, dec)
+        # The other regions' products, the dashes put on the wrong events.
+        label = f"P({mt.group(1)} ∩ {mt.group(2)}) = "
+        regions = {("A′", "B′"): (1 - pa) * (1 - pb), ("A′", "B"): (1 - pa) * pb, ("A", "B′"): pa * (1 - pb)}
+        wrongs[IDP_OWN + "15"] = {label + idp_text(q, r, dec) for k, r in regions.items() if k != (mt.group(1), mt.group(2))}
     elif u == "union-from-independence":
         if rep == "words":
             pa, pb, dec = idp_pair_story(q, u)
@@ -26857,7 +26866,8 @@ def check_independence(q):
             kv = idp_kv(L)
             pa, pb, dec = kv["A"], kv["B"], idp_dec(q)
         label = "probability = " if rep == "words" else "P(A ∪ B) = "
-        want, trap, wrongs = idp_num_set(q, label, 1 - (1 - pa) * (1 - pb), {unk + "0": pa + pb}, dec)
+        want, trap, wrongs = idp_num_set(q, label, 1 - (1 - pa) * (1 - pb), {unk + "0": pa + pb, IDP_OWN + "12": pa * pb,
+                                                                           IDP_OWN + "13": 1 - pa * pb, IDP_OWN + "14": (1 - pa) * (1 - pb)}, dec)
     elif u == "conditional-from-independence":
         kv = idp_kv(L)
         pb, pi = kv["B"], kv["A ∩ B"]
@@ -26869,7 +26879,10 @@ def check_independence(q):
         # By the definition of a conditional, to be sure independence was used rightly.
         top = {("A", "B"): pa * pb, ("A′", "B"): (1 - pa) * pb, ("A", "B′"): pa * (1 - pb), ("A′", "B′"): (1 - pa) * (1 - pb)}[(mt.group(1), mt.group(2))]
         need(top / given == v, "the conditional")
-        want, trap, wrongs = idp_num_set(q, f"P({mt.group(1)} | {mt.group(2)}) = ", v, {unk + "3": v * given}, idp_dec(q))
+        table = {unk + "3": v * given, IDP_OWN + "17": given}
+        if mt.group(1) == "A′":
+            table[IDP_OWN + "16"] = pa
+        want, trap, wrongs = idp_num_set(q, f"P({mt.group(1)} | {mt.group(2)}) = ", v, table, idp_dec(q))
     elif u == "unknown-from-union":
         if rep == "words":
             pa, pu, dec = idp_pair_story(q, u)
@@ -26881,14 +26894,16 @@ def check_independence(q):
         x = sp.Symbol("x")
         sol = sp.solve(pa + x - pa * x - pu, x)
         need(len(sol) == 1 and 0 < sol[0] < 1, f"P(B) = {sol}")
-        want, trap, wrongs = idp_num_set(q, label, sol[0], {unk + "0": pu - pa}, dec)
+        # The overlap added, pu = pa + x + pa·x; and P(B′) from the complement method, not taken from one.
+        added = sp.solve(pa + x + pa * x - pu, x)[0]
+        want, trap, wrongs = idp_num_set(q, label, sol[0], {unk + "0": pu - pa, IDP_OWN + "18": added, IDP_OWN + "19": 1 - sol[0]}, dec)
     elif u == "ratio-from-union":
         k = int(re.fullmatch(r"P\(A\) = (\d)P\(B\)", L[0]).group(1))
         pu = idp_kv(L[1:])["A ∪ B"]
         x = sp.Symbol("x")
         sol = [r for r in sp.solve(k * x + x - k * x * x - pu, x) if r.is_real and 0 < r and k * r <= 1]
         need(len(sol) == 1, f"P(B) = {sol}")
-        want, trap, wrongs = idp_num_set(q, "P(B) = ", sol[0], {unk + "1": pu / (k + 1)}, True)
+        want, trap, wrongs = idp_num_set(q, "P(B) = ", sol[0], {unk + "1": pu / (k + 1), IDP_OWN + "20": k * sol[0]}, True)
     elif u == "overlap-from-only-regions":
         if rep == "diagram":
             t = q["graph"]
@@ -26900,7 +26915,7 @@ def check_independence(q):
         x = sp.Symbol("x")
         sol = [r for r in sp.solve((a + x) * (b + x) - x, x) if 0 < r < 1 and a + b + 2 * r == 1]
         need(len(sol) == 1, f"x = {sol}")
-        want, trap, wrongs = idp_num_set(q, "x = ", sol[0], {unk + "2": a * b}, True)
+        want, trap, wrongs = idp_num_set(q, "x = ", sol[0], {unk + "2": a * b, IDP_OWN + "21": 1 - a - b}, True)
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs, trap)
@@ -28659,7 +28674,7 @@ def td_check(q):
         for row in [t["p"]] + t["q"]:
             if "x" not in row:
                 need(sp.simplify(kx(row[0]) + kx(row[1]) - 1) == 0, f"the fork {row} doesn't add to 1")
-        table = {TD_OWN + "5": [other - 1]}
+        table = {TD_OWN + "5": [other - 1], TD_OWN + "27": [1 + other]}
         if not at_first:
             table[TD_OWN + "3"] = [1 - kx(t["p"][0])]
         want, wrongs = td_exprs(q, "k", "x = ", expected, table)
@@ -28688,6 +28703,8 @@ def td_check(q):
                 table[TD_OWN + "6"] = [sp.Rational(cj - 1, t - 1)]
         else:
             table[TD_OWN + "7"] = [sp.Rational(cj + 1, t), sp.Rational(cj, t + 1)] if i == j else [sp.Rational(cj, t)]
+        # y: the same fork's branch to the other colour.
+        table[TD_OWN + "28"] = [td_seq(counts, mode, [x, cols[1 - j]]) / td_seq(counts, mode, [x])]
         want, trap, wrongs = td_set(q, "x = ", v, table)
         td_clear(q, v)
         td_counted(q, want, wrongs, trap)
@@ -28716,6 +28733,7 @@ def td_check(q):
             table = {TD_OWN + "8": [s2]}
         v = f * s2
         table[TD_REF + "1"] = [f + s2]
+        table[TD_OWN + "29"] = [f]
         want, trap, wrongs = td_set(q, "probability = ", v, table, dec)
         td_clear(q, v)
         td_counted(q, want, wrongs, trap)
@@ -28749,7 +28767,7 @@ def td_check(q):
             dec = any("." in str(t) for t in q["graph"]["p"] + sum(q["graph"]["q"], []))
         ps = [x * y for x, y in zip(first, wanted)]
         v = sum(ps)
-        table = {TD_OWN + "9": ps}
+        table = {TD_OWN + "9": ps, TD_OWN + "11": [1 - v]}
         if rep == "diagram" or paper == 2:
             table[TD_OWN + "10"] = [sum(wanted)]
         want, trap, wrongs = td_set(q, "probability = ", v, table, dec)
@@ -28790,7 +28808,8 @@ def td_check(q):
         none = td_seq(counts, "wo", [other] * draws)
         need(v == 1 - none, "at least one and none are not complements")
         once = sum(td_seq(counts, "wo", s) for s in space if s.count(hit) == 1)
-        table = {TD_OWN + "12": [none], TD_REF + "0": [1 - td_seq(counts, "w", [other] * draws)], TD_OWN + "13": [once]}
+        table = {TD_OWN + "12": [none], TD_REF + "0": [1 - td_seq(counts, "w", [other] * draws)], TD_OWN + "13": [once],
+                 TD_OWN + "30": [td_seq(counts, "wo", [hit])]}
         want, trap, wrongs = td_set(q, "probability = ", v, table)
         td_clear(q, v)
         td_counted(q, want, wrongs, trap)
@@ -28808,7 +28827,8 @@ def td_check(q):
         n, t = counts[mt.group(1)], sum(counts.values())
         v = sp.Rational(n, t) * sp.Rational(n - 1, t - 1) * sp.Rational(n - 2, t - 2)
         table = {TD_REF + "0": [sp.Rational(n, t) ** 3], TD_OWN + "25": [sp.Rational(n * (n - 1) * (n - 2), t ** 3)],
-                 TD_REF + "1": [sp.Rational(n, t) + sp.Rational(n - 1, t - 1) + sp.Rational(n - 2, t - 2)]}
+                 TD_REF + "1": [sp.Rational(n, t) + sp.Rational(n - 1, t - 1) + sp.Rational(n - 2, t - 2)],
+                 TD_OWN + "29": [sp.Rational(n, t)], TD_OWN + "31": [sp.Rational(n, t) * sp.Rational(n - 1, t - 1)], TD_OWN + "8": [sp.Rational(n - 2, t - 2)]}
         want, trap, wrongs = td_set(q, "probability = ", v, table)
         td_clear(q, v)
         td_counted(q, want, wrongs, trap)
@@ -28820,7 +28840,8 @@ def td_check(q):
         n = TD_N
         if "the first two" in asked:
             expected = g * (g - 1) / (n * (n - 1))
-            table = {TD_REF + "0": [g * g / n ** 2], TD_OWN + "25": [g * (g - 1) / n ** 2], TD_REF + "1": [g / n + (g - 1) / (n - 1)]}
+            table = {TD_REF + "0": [g * g / n ** 2], TD_OWN + "25": [g * (g - 1) / n ** 2], TD_REF + "1": [g / n + (g - 1) / (n - 1)],
+                     TD_OWN + "24": [g * g / (n * (n - 1))]}
         else:
             expected = g / n
             table = {TD_OWN + "26": [g / (n - 1)]}
@@ -28835,7 +28856,7 @@ def td_check(q):
             p = R(mp.group(1))
             pq = one - p
             v = pq ** (k - 1) * p
-            table = {TD_OWN + "14": [p ** (k - 1) * pq], TD_OWN + "15": [v * k], TD_OWN + "16": [v * pq]}
+            table = {TD_OWN + "14": [p ** (k - 1) * pq], TD_OWN + "15": [v * k], TD_OWN + "16": [v * pq], TD_OWN + "32": [p]}
             dec = False
             want, trap, wrongs = td_set(q, "probability = ", v, table, dec)
             td_clear(q, v)
@@ -28850,7 +28871,7 @@ def td_check(q):
             want = nu_text("probability = ", v)
             need(nu_clear(v), "the answer sits on a rounding edge")
             wrongs = {TD_OWN + "14": {nu_text("probability = ", pm ** (k - 1) * (1 - pm))}, TD_OWN + "15": {nu_text("probability = ", v * k)},
-                      TD_OWN + "16": {nu_text("probability = ", v * (1 - pm))}}
+                      TD_OWN + "16": {nu_text("probability = ", v * (1 - pm))}, TD_OWN + "32": {nu_text("probability = ", pm)}}
             trap = "probability = " + dec_text(sp.Rational(sig3(nu_f(v), 2)))
         if "only one" in asked:
             word = re.search(r"tries (\w+) of them|^(\w+) .+ are chosen at random", " ".join(L[1:]))
@@ -28871,10 +28892,10 @@ def td_check(q):
         total = p0 + p1
         if "came from workshop A" in asked:
             v = p0 / total
-            table = {TD_OWN + "17": [p0]}
+            table = {TD_OWN + "17": [p0], TD_OWN + "34": [a0], TD_OWN + "35": [total], TD_OWN + "36": [share], TD_OWN + "11": [1 - v]}
         else:
             v = total
-            table = {TD_OWN + "9": [p0], TD_OWN + "10": [a0 + a1]}
+            table = {TD_OWN + "9": [p0], TD_OWN + "10": [a0 + a1], TD_OWN + "33": [a0, a1], TD_OWN + "11": [1 - v]}
         need(nu_clear(v), "the answer sits on a rounding edge")
         want = nu_text("probability = ", v)
         wrongs = {ref: {nu_text("probability = ", x) for x in xs} for ref, xs in table.items()}
@@ -28892,7 +28913,7 @@ def td_check(q):
         need(len(roots) == 2 and len(good) == 1, f"the roots {roots}")
         need((c, good[0]) != (sp.Rational(1, 2), sp.Rational(1, 3)), "a past paper's tree")
         bad = [x for x in roots if x != good[0]][0]
-        table = {TD_OWN + "18": [bad], TD_REF + "1": [(2 - r) / (1 + c)]}
+        table = {TD_OWN + "18": [bad], TD_REF + "1": [(2 - r) / (1 + c)], TD_OWN + "37": [1 - good[0]]}
         want, _, wrongs = td_set(q, "k = ", good[0], table)
         td_counted(q, want, wrongs)
     elif u == "rounds-exceed-total":
@@ -28922,7 +28943,8 @@ def td_check(q):
             if tot >= lim:
                 atl += pg
         need(len(kinds) == 2, f"{len(kinds)} kinds of winning game, not the two the working says")
-        table = {TD_OWN + "21": [pr[0] ** n + pr[0] ** (n - 1) * pr[1]], TD_OWN + "22": [pr[0] ** n], TD_OWN + "23": [atl]}
+        table = {TD_OWN + "21": [pr[0] ** n + pr[0] ** (n - 1) * pr[1]], TD_OWN + "22": [pr[0] ** n], TD_OWN + "23": [atl],
+                 TD_OWN + "38": [v - pr[0] ** n], TD_OWN + "11": [1 - v]}
         want, trap, wrongs = td_set(q, "probability = ", v, table, True)
         td_clear(q, v)
         td_counted(q, want, wrongs, trap)
