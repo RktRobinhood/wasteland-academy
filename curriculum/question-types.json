@@ -97042,7 +97042,8 @@
      "text": "Reversing the rule: calling + then − a minimum",
      "as": "distractor",
      "in": [
-      "classify-stationary"
+      "classify-stationary",
+      "gradient-zero-given-derivative"
      ],
      "wrong": "the other nature, with the signs read the wrong way round"
     },
@@ -97088,7 +97089,8 @@
      "text": "Forgetting to evaluate f at the endpoints at all",
      "as": "distractor",
      "in": [
-      "greatest-on-domain"
+      "greatest-on-domain",
+      "local-not-greatest"
      ],
      "wrong": "the best stationary value, with the ends left out"
     },
@@ -97118,7 +97120,8 @@
      "as": "distractor",
      "in": [
       "extremum-from-gradient-graph",
-      "pick-f-from-gradient-graph"
+      "pick-f-from-gradient-graph",
+      "increasing-from-gradient-graph"
      ],
      "wrong": "a turning point where f′ only touches the axis"
     },
