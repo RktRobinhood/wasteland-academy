@@ -76088,6 +76088,119 @@
 						"input-for-output"
 					],
 					"wrong": "gives the output (the cost) when the input (the distance) is asked"
+				},
+				{
+					"text": "Forgets the minus sign for an amount that falls, writing the rate as a rise",
+					"as": "distractor",
+					"in": [
+						"build-from-words"
+					],
+					"wrong": "m positive for a model that goes down"
+				},
+				{
+					"text": "Takes c as the output of one of the readings, not the value where the input is 0",
+					"as": "distractor",
+					"in": [
+						"build-from-two-points"
+					],
+					"wrong": "the right m, with c one of the two readings"
+				},
+				{
+					"text": "Subtracts the readings in opposite orders when finding m, so its sign flips",
+					"as": "distractor",
+					"in": [
+						"build-from-two-points"
+					],
+					"wrong": "m with its sign flipped, and c to match"
+				},
+				{
+					"text": "Forgets to add the start c after multiplying the rate by the input",
+					"as": "distractor",
+					"in": [
+						"predict"
+					],
+					"wrong": "mx with no c"
+				},
+				{
+					"text": "Adds the start to the output instead of taking it off before dividing by the rate",
+					"as": "distractor",
+					"in": [
+						"input-for-output"
+					],
+					"wrong": "(y + c)/m"
+				},
+				{
+					"text": "Divides the output by the rate without first taking off the start",
+					"as": "distractor",
+					"in": [
+						"input-for-output"
+					],
+					"wrong": "y/m"
+				},
+				{
+					"text": "Takes off the start but forgets to divide by the rate",
+					"as": "distractor",
+					"in": [
+						"input-for-output"
+					],
+					"wrong": "y − c"
+				},
+				{
+					"text": "Checks only some of the differences and misses the one that is not equal",
+					"as": "distractor",
+					"in": [
+						"check-linear-table"
+					],
+					"wrong": "yes, with the rate of the other rows, for a table with one entry off"
+				},
+				{
+					"text": "Gives the change over one step of the table as the rate, without dividing by the size of the step",
+					"as": "distractor",
+					"in": [
+						"check-linear-table"
+					],
+					"wrong": "the difference between rows as the rate, when the inputs go up in steps bigger than 1"
+				},
+				{
+					"text": "Assumes a model holds for every input, without asking what the context allows",
+					"as": "distractor",
+					"in": [
+						"domain-sense"
+					],
+					"wrong": "the model works for every value of the input"
+				},
+				{
+					"text": "Assumes a model only holds at the readings it was built from, not between them",
+					"as": "distractor",
+					"in": [
+						"domain-sense"
+					],
+					"wrong": "no model can be used away from its readings"
+				},
+				{
+					"text": "Takes the plan that starts cheaper to stay cheaper after the two are equal",
+					"as": "distractor",
+					"in": [
+						"compare-plans"
+					],
+					"wrong": "the plan with the lower fixed charge cheaper after they meet"
+				},
+				{
+					"text": "Adds the two fixed charges instead of taking one from the other when setting the plans equal",
+					"as": "distractor",
+					"in": [
+						"compare-plans"
+					],
+					"wrong": "the sum of the fixed charges divided by the difference in rates, rounded"
+				},
+				{
+					"text": "Swaps the starting amount and the rate",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient",
+						"predict"
+					],
+					"wrong": "the gradient read as the start, or c·x + m"
 				}
 			],
 			"frequency": 0

@@ -15709,6 +15709,7 @@ def lc_lead(t):
 LM_MODEL = "SL2.1.line-model#"
 LM_TOTAL, LM_SWAP, LM_DOMAIN = LM_MODEL + "0", LM_MODEL + "1", LM_MODEL + "2"
 LM_OUTPUT = "SL2.2.function-model#2"
+LMT = "fn-ext-line-model#"
 # unit, rate, total, start, per, the end of the domain
 LM_CTX = [
     ("", "Each extra km adds {} to the cost", "A whole trip costs {}", "{} is the fixed charge, paid even for a trip of 0 km", "dollars per km"),
@@ -15810,6 +15811,8 @@ def check_line_model(q):
         need(ctx == i, "the story is another context")
         want = lm_mc(m, c)
         wr = {LM_SWAP: {lm_mc(c, m)}}
+        if m < 0:
+            wr[LMT + "4"] = {lm_mc(-m, c)}  # the fall written as a rise
     elif u == "build-from-two-points":
         if rep == "table":
             rows = q["table"]["rows"]
@@ -15822,13 +15825,16 @@ def check_line_model(q):
         c = y1 - m * x1
         lm_clean(i, m, c)
         want = lm_mc(m, c)
+        wr[LMT + "5"] = {lm_mc(m, y1), lm_mc(m, y2)}  # c read off a reading
+        ms = (y1 - y2) / (x2 - x1)  # one difference taken the other way round
+        wr[LMT + "6"] = {lm_mc(ms, y1 - ms * x1)}
     elif u in ("interpret-gradient", "interpret-intercept"):
         m, c = lm_model(q)
         lm_clean(i, m, c)
         _, rate, total, start, _ = LM_CTX[i]
         if u == "interpret-gradient":
             v = lm_amount(i, abs(m))
-            want, wr = rate.format(v), {LM_TOTAL: {total.format(v)}}
+            want, wr = rate.format(v), {LM_TOTAL: {total.format(v)}, LMT + "17": {start.format(v)}}
         else:
             v = lm_amount(i, c)
             want, wr = start.format(v), {LM_SWAP: {rate.format(v)}}
@@ -15837,9 +15843,13 @@ def check_line_model(q):
         lm_clean(i, m, c)
         f = re.fullmatch(r"Find ([A-Z]) when ([a-z]) = (\d+)\.", asked)
         need(f is not None, f"asked {asked!r}")
-        v = m * int(f.group(3)) + c
+        xp = int(f.group(3))
+        v = m * xp + c
         unit = LM_CTX[i][0]
-        want = f"{f.group(1)} = ${lm_money(v)}" if unit == "" else f"{f.group(1)} = {dec_text(v)} {unit}"
+        out_text = lambda w: f"{f.group(1)} = ${lm_money(w)}" if unit == "" else f"{f.group(1)} = {dec_text(w)} {unit}"
+        want = out_text(v)
+        wr[LMT + "7"] = {out_text(m * xp)}  # no c
+        wr[LMT + "17"] = {out_text(c * xp + m)}  # c and m swapped
     elif u == "input-for-output":
         if rep == "words":
             _, m, c = lm_story(L[0])
@@ -15853,15 +15863,26 @@ def check_line_model(q):
         need(x.q == 1 and x > 0, f"the input {x} is not whole and positive")
         want = f"{f.group(1)} = {frac_text(x)}"
         wr = {LM_OUTPUT: {f"{f.group(1)} = {dec_text(y)}"}}
+        for ref, w in (("8", (y + c) / m), ("9", y / m), ("10", y - c)):  # c added; c not taken off; no division
+            wr[LMT + ref] = {f"{f.group(1)} = {frac_text(w)}"}
     elif u == "check-linear-table":
         rows = q["table"]["rows"]
         xs, ys = [lc_q(v) for v in rows[0][1]], [lc_q(v) for v in rows[1][1]]
         need(len({xs[k + 1] - xs[k] for k in range(4)}) == 1, "the inputs are not equally spaced")
         ds = {ys[k + 1] - ys[k] for k in range(4)}
+        step = xs[1] - xs[0]
+        yes = lambda r: f"Yes: {dec_text(r)} {LM_CTX[i][4]}"
         if len(ds) == 1:
-            want = f"Yes: {dec_text(ds.pop() / (xs[1] - xs[0]))} {LM_CTX[i][4]}"
+            d = ds.pop()
+            want = yes(d / step)
+            if step != 1:
+                wr[LMT + "12"] = {yes(d)}  # the change over a step as the rate
         else:
             want = "No: the outputs do not change by equal amounts"
+            dl = [ys[k + 1] - ys[k] for k in range(4)]
+            common = max(set(dl), key=dl.count)
+            need(dl.count(common) >= 2, "no difference repeats")
+            wr[LMT + "11"] = {yes(common / step)}  # the rate of the rows that agree
     elif u == "domain-sense":
         found = lm_story(L[0])
         m, c, x, y = lm_equation(L[1])
@@ -15880,6 +15901,7 @@ def check_line_model(q):
         dom = f"0 ≤ {x} ≤ {frac_text(end)}" if end is not None else f"{x} ≥ 0"
         out = m * v + c
         yes = f"Yes: it gives {y} = {lm_amount(ctx, out)}, and the sensible domain is {dom}"
+        wr = {LMT + "13": {f"Yes: the model works for every value of {x}"}, LMT + "14": {"No: a model only holds at the readings it was built from"}}
         if v >= 0 and (end is None or v <= end):
             want = yes
         else:
@@ -15887,7 +15909,7 @@ def check_line_model(q):
             if v > 0:
                 reason = {2: f"the tank is full after {end} minutes", 3: f"the tank is empty after {end} minutes", 5: f"the candle is gone after {end} hours"}[ctx]
             want = f"No: {reason}, so the sensible domain is {dom}"
-            wr = {LM_DOMAIN: {yes}}
+            wr[LM_DOMAIN] = {yes}
     elif u == "compare-plans":
         if rep == "words":
             pa, pb = [re.fullmatch(r"Plan [AB] costs \$(.+), plus \$(.+) for each .+\.", t) for t in L]
@@ -15900,6 +15922,11 @@ def check_line_model(q):
         x = (cb - ca) / (ma - mb)
         need(x.q == 1 and x > 0, f"the plans meet at {x}, not a whole input")
         want = f"Equal at {letter} = {x}, then Plan {'A' if ma < mb else 'B'} is cheaper"
+        need(ma < mb and ca > cb, "Plan A is not the one with the higher start and lower rate")
+        wr[LMT + "15"] = {f"Equal at {letter} = {x}, then Plan B is cheaper"}  # the lower start stays cheaper
+        added = sp.floor((ca + cb) / (mb - ma) + sp.Rational(1, 2))
+        if added != x:
+            wr[LMT + "16"] = {f"Equal at {letter} = {added}, then Plan A is cheaper"}  # the starts added
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wr)
