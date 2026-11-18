@@ -74330,6 +74330,127 @@
       "form-area-model"
      ],
      "wrong": "writes A = xy and tries to maximise it without using the fence length"
+    },
+    {
+     "text": "Gives the model's value at the start instead of its greatest value",
+     "as": "distractor",
+     "in": [
+      "max-value"
+     ],
+     "wrong": "the value of the model at the start"
+    },
+    {
+     "text": "Gives the rise above the starting height, not the greatest height itself",
+     "as": "distractor",
+     "in": [
+      "max-value"
+     ],
+     "wrong": "the greatest height less the starting height"
+    },
+    {
+     "text": "Divides −b by a instead of by twice a when finding the vertex",
+     "as": "distractor",
+     "in": [
+      "time-of-max"
+     ],
+     "wrong": "twice the time or width of the top"
+    },
+    {
+     "text": "Gives the coefficient b as the answer, without dividing −b by twice a",
+     "as": "distractor",
+     "in": [
+      "time-of-max"
+     ],
+     "wrong": "b"
+    },
+    {
+     "text": "Gives the time of the top instead of the time asked for",
+     "as": "distractor",
+     "in": [
+      "zero-time",
+      "second-time-at-height"
+     ],
+     "wrong": "the time of the top"
+    },
+    {
+     "text": "Solves as if the ball started on the ground, giving the time it is back at its starting height",
+     "as": "distractor",
+     "in": [
+      "zero-time"
+     ],
+     "wrong": "twice the time of the top"
+    },
+    {
+     "text": "Assumes the best pen against a wall is a square, with each of the three sides a third of the fence",
+     "as": "distractor",
+     "in": [
+      "form-area-model"
+     ],
+     "wrong": "a square pen against the wall"
+    },
+    {
+     "text": "Gives the pen's length in place of its width x",
+     "as": "distractor",
+     "in": [
+      "form-area-model"
+     ],
+     "wrong": "the length of the best pen, with the right area"
+    },
+    {
+     "text": "Misreads the top of the path as the landing point",
+     "as": "distractor",
+     "in": [
+      "interpret-vertex"
+     ],
+     "wrong": "the vertex read as where the ball lands"
+    },
+    {
+     "text": "Takes the vertex's height as the starting height",
+     "as": "distractor",
+     "in": [
+      "interpret-vertex"
+     ],
+     "wrong": "the ball starting at the greatest height"
+    },
+    {
+     "text": "Adds the given time to the time of the top, instead of going the same distance past the top",
+     "as": "distractor",
+     "in": [
+      "second-time-at-height"
+     ],
+     "wrong": "the given time plus the time of the top"
+    },
+    {
+     "text": "Stops at the gap between the given time and the top, without adding it on to the time of the top",
+     "as": "distractor",
+     "in": [
+      "second-time-at-height"
+     ],
+     "wrong": "the time from the given time to the top"
+    },
+    {
+     "text": "Gets the sign of a wrong, so the model opens upwards with no top",
+     "as": "distractor",
+     "in": [
+      "model-from-features"
+     ],
+     "wrong": "a positive a, with the vertex at the right point"
+    },
+    {
+     "text": "Gets the sign of the t term wrong when expanding the square",
+     "as": "distractor",
+     "in": [
+      "model-from-features"
+     ],
+     "wrong": "the right a and c with b's sign flipped"
+    },
+    {
+     "text": "Takes the greatest height as c, instead of the starting height",
+     "as": "distractor",
+     "in": [
+      "model-from-features"
+     ],
+     "wrong": "the right a and b with c the greatest height"
     }
    ]
   },

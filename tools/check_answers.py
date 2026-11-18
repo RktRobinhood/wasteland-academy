@@ -4949,11 +4949,19 @@ def check_qmodel(q):
         t = q["table"]
         need(all(f.subs(X, R(x)) == R(y) for x, y in zip(t["xs"], t["ys"])), "a table value is not on the curve")
     wr = {}
+    QT = "fn-ext-quadratic-model#"
+    h0 = f.subs(X, 0)
     if u == "max-value":
         wr[f"{T_}#0"] = {qr_norm(ans, {"v": str(tv)})}
+        wr[QT + "3"] = {qr_norm(ans, {"v": str(h0)})}  # the start
+        if ctx == "ball":
+            wr[QT + "4"] = {qr_norm(ans, {"v": str(hv - h0)})}  # the rise above the start
         qr_check_common(q, qr_norm(ans, {"v": str(hv)}), wr)
     elif u == "time-of-max":
         wr[f"{T_}#0"] = {qr_norm(ans, {"v": str(hv)})}
+        if rep != "table":
+            wr[QT + "5"] = {qr_norm(ans, {"v": str(-b / a)})}  # −b/a
+            wr[QT + "6"] = {qr_norm(ans, {"v": str(b)})}  # b alone
         qr_check_common(q, qr_norm(ans, {"v": str(tv)}), wr)
     elif u == "zero-time":
         rs = sorted(sp.solve(f, X), key=float)
@@ -4966,10 +4974,16 @@ def check_qmodel(q):
             need(not on_edge(rs[1]), "the landing time is on a rounding edge")
         val = lambda r: {"v": str(r) if r.is_rational else str(sp.Rational(round(float(r) * 10**9), 10**9))}
         wr[f"{T_}#1"] = {qr_norm(ans, val(rs[0]))}
+        wr[QT + "7"] = {qr_norm(ans, {"v": str(tv)})}  # the top's time
+        wr[QT + "8"] = {qr_norm(ans, {"v": str(-b / a)})}  # at² + bt = 0, as if from the ground
         qr_check_common(q, qr_norm(ans, val(rs[1])), wr)
     elif u == "form-area-model":
         need(ctx == "pen", "not a pen")
-        qr_check_common(q, qr_norm(ans, {"v0": str(tv), "v1": str(hv)}))
+        if g["wall"]:
+            side = Lf / 3  # three equal sides
+            wr[QT + "9"] = {qr_norm(ans, {"v0": str(side), "v1": str(side**2)})}
+            wr[QT + "10"] = {qr_norm(ans, {"v0": str(Lf - 2 * tv), "v1": str(hv)})}  # the length for x
+        qr_check_common(q, qr_norm(ans, {"v0": str(tv), "v1": str(hv)}), wr)
     elif u == "interpret-vertex":
         T, H = dec_text(tv), dec_text(hv)
         right = f"The ball is highest, {H} m, after {T} s" if ctx == "ball" else f"The area is largest, {H} m², when the width is {T} m"
@@ -4977,6 +4991,9 @@ def check_qmodel(q):
         if rep == "words":
             need(f"has its vertex at ({T}, {H})." in L[1], "the vertex said is not the model's")
         wr[f"{T_}#0"] = {qr_norm(ans, {"v": swap})}
+        if ctx == "ball":
+            wr[QT + "11"] = {qr_norm(ans, {"v": f"The ball lands after {T} s, {H} m away"})}
+            wr[QT + "12"] = {qr_norm(ans, {"v": f"The ball starts at {H} m and is highest after {T} s"})}
         qr_check_common(q, qr_norm(ans, {"v": right}), wr)
     elif u == "second-time-at-height":
         t1 = R(g["t1"])
@@ -4988,7 +5005,10 @@ def check_qmodel(q):
             need(f"is highest after {dec_text(tv)} s" in L[0], "the top said is not the model's")
         other = [r for r in sp.solve(f - y1, X) if r != t1]
         need(len(other) == 1, "no other time at that height")
-        qr_check_common(q, qr_norm(ans, {"v": str(other[0])}))
+        wr[QT + "7"] = {qr_norm(ans, {"v": str(tv)})}  # the top's time
+        wr[QT + "13"] = {qr_norm(ans, {"v": str(t1 + tv)})}  # the given time added to the top's
+        wr[QT + "14"] = {qr_norm(ans, {"v": str(tv - t1)})}  # the gap to the top
+        qr_check_common(q, qr_norm(ans, {"v": str(other[0])}), wr)
     elif u == "model-from-features":
         m = re.fullmatch(r"A ball is thrown upwards from (\S+) m\. It is highest, (\S+) m, after (\S+) s\.", L[0])
         need(m is not None, "can't read the features")
@@ -4997,7 +5017,11 @@ def check_qmodel(q):
         sol = sp.solve(sp.Eq(A_ * T**2 + H, h0), A_)
         model = sp.expand(sol[0] * (X - T)**2 + H)
         co = poly_coeffs(model)
-        qr_check_common(q, qr_norm(ans, ext_poly_values(ans, co)))
+        wr[QT + "15"] = {qr_norm(ans, ext_poly_values(ans, poly_coeffs(sp.expand(-sol[0] * (X - T)**2 + H))))}  # a's sign flipped
+        ma, mb, mc_ = (model.coeff(X, k) for k in (2, 1, 0))
+        wr[QT + "16"] = {qr_norm(ans, ext_poly_values(ans, poly_coeffs(ma * X**2 - mb * X + mc_)))}  # b's sign flipped
+        wr[QT + "17"] = {qr_norm(ans, ext_poly_values(ans, poly_coeffs(ma * X**2 + mb * X + H)))}  # c as the top's height
+        qr_check_common(q, qr_norm(ans, ext_poly_values(ans, co)), wr)
     else:
         raise Fail(f"the checker has no solver for {u}")
     return None, None
