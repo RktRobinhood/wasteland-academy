@@ -14,9 +14,11 @@ on:
 permissions:
   contents: read
 
+# A newer push cancels the run before it. Called from release.yml, github.workflow is
+# "release": its own group, never cancelled, so a push to main can't cancel a release's run.
 concurrency:
-  group: test-${{ github.ref }}
-  cancel-in-progress: true
+  group: test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.workflow == 'test' }}
 
 jobs:
   test:
