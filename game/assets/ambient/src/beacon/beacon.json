@@ -1,0 +1,209 @@
+[
+{
+"cmd": "file.new",
+"params": {
+"width": 40,
+"height": 40,
+"fps": 10
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 8,
+"y": 8,
+"w": 24,
+"h": 24,
+"fill": "#FF4A3D",
+"stroke": "#FF4A3D00",
+"object": true
+}
+},
+{
+"cmd": "timeline.insert_frame",
+"params": {
+"frame": 11
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 40,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 40,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 10,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 130,
+"frame": 2
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 130,
+"frame": 2
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 70,
+"frame": 2
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 60,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 60,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 0,
+"frame": 7
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_x",
+"value": 40,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "scale_y",
+"value": 40,
+"frame": 11
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 10,
+"frame": 11
+}
+},
+{
+"cmd": "layer.new",
+"params": {
+"name": "core"
+}
+},
+{
+"cmd": "timeline.goto",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "draw.ellipse",
+"params": {
+"x": 17,
+"y": 17,
+"w": 6,
+"h": 6,
+"fill": "#FFD9A0",
+"stroke": "#FFD9A000",
+"object": true
+}
+},
+{
+"cmd": "timeline.create_motion_tween",
+"params": {
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 35,
+"frame": 0
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 100,
+"frame": 1
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 100,
+"frame": 4
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 35,
+"frame": 6
+}
+},
+{
+"cmd": "motion.set_key",
+"params": {
+"property": "alpha",
+"value": 35,
+"frame": 11
+}
+},
+{
+"cmd": "file.export_sprite_sheet",
+"params": {
+"path": "../../signal-beacon-sheet.png",
+"columns": 12,
+"background": false,
+"confirm": true
+}
+}
+]

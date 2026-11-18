@@ -55,7 +55,7 @@
     for (const v of style.voice || []) { const a = new Audio(voiceUrl(v)), dt = v.t - t;
       if (dt >= 0) { const id = setTimeout(() => a.play().catch(() => {}), dt * 1000); a.addEventListener('pause', () => clearTimeout(id)); } else { a.currentTime = -dt; a.play().catch(() => {}); }
       voices.push(a); } };
-  const caption = () => { const v = $('cc').checked && (style.voice || []).find((v) => t >= v.t && t < v.t + v.slot); $('cap').textContent = v ? v.say : ''; };
+  const caption = () => { const v = $('cc').checked && (style.voice || []).find((v) => t >= v.t && t < v.t + v.slot); $('cap').textContent = v ? v.caption ?? v.say : ''; };
   const show = () => { S.seek(t); caption(); $('scrub').value = t / D; $('time').textContent = t.toFixed(1) + ' / ' + D.toFixed(1); };
   const setPlaying = (p) => { playing = p; $('play').textContent = p ? 'Pause' : 'Play'; last = performance.now(); sound(); };
   $('play').onclick = () => setPlaying(!playing);

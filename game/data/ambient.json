@@ -1,0 +1,20 @@
+{
+  "_about": "The moving pieces (FAL-1074 art, FAL-1075 wiring). \"map\": the world board's pieces, bottom to top, in the schema at the top of ui/ambient_layer.gd. \"fight\": the fight screen's one-shot effects, played by ui/fight.gd over EnemyArt at the enemy art's scale.",
+  "map": [
+    {"id": "flats-dust", "sheet": "flats-dust", "position": [0, 820], "anchor": [0, 0], "scale": 2.0,
+     "fps": 12, "frames": "cycle", "motion": "none", "phase": 0.13},
+    {"id": "dome-neon", "sheet": "dome-neon", "position": [375, 690], "anchor": [0, 0], "scale": 1.0,
+     "fps": 12, "frames": "cycle", "motion": "none", "phase": 0.41, "still": 0},
+    {"id": "engine-smoke", "sheet": "engine-smoke", "position": [470, 860], "anchor": [0, 0], "scale": 1.0,
+     "fps": 12, "frames": "cycle", "motion": "none", "phase": 0.77},
+    {"id": "signal-beacon", "sheet": "signal-beacon", "position": [919, 296], "anchor": [20, 20], "scale": 1.0,
+     "fps": 10, "frames": "cycle", "motion": "none", "phase": 0.29, "still": 2},
+    {"id": "crow", "sheet": "crow", "position": [-50, 235], "anchor": [36, 22], "scale": 1.0,
+     "fps": 10, "frames": "cycle", "motion": "path", "path": [[300, 175], [700, 215], [1130, 150]],
+     "seconds": 14, "loop": false, "face": "flip", "bob": 4, "bob_period": 1.2, "phase": 0.0}
+  ],
+  "fight": {
+    "hit-spark": {"sheet": "hit-spark", "anchor": [128, 128], "fps": 12, "chest": 20},
+    "dust-burst": {"sheet": "dust-burst", "anchor": [192, 180], "fps": 12, "fade": 0.4}
+  }
+}

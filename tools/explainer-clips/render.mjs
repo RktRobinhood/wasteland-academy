@@ -51,11 +51,16 @@ const frame = async (t, n) => Buffer.from((await page.evaluate(([t, n]) => { see
 // ---- checks on the script itself: lines are in bounds, in tone, and their recordings (when made) fit their slots
 const BANNED = /\b(just|easy|simple|simply|obvious|obviously|guess)\b/i;   // writing/voice-sheets.md
 const voiceDir = path.join(ROOT, 'game/assets/audio/voice', style.teacher || 'unassigned', 'clips', clip), voice = [];
+// A VOICE line has two texts, as in the explainer scripts (writing/explainers/README.md, #190): say is sent to
+// the voice, caption is shown on screen in proper notation. Either defaults to the other.
+const sayOf = (v) => v.say ?? v.caption, captionOf = (v) => v.caption ?? v.say;
 if (!style.voice.length) warn('clip has no voice lines: every clip is fully voiced');
 if (!teachers[style.teacher]) warn(`teacher "${style.teacher}" is not in teachers.json`);
 for (const [i, v] of style.voice.entries()) {
-  const file = path.join(voiceDir, String(i + 1).padStart(2, '0') + '.ogg'), line = { ...v, n: i + 1, file: path.relative(ROOT, file), recorded: existsSync(file) };
-  if (BANNED.test(v.say)) warn(`line ${i + 1} uses a word the voice sheets rule out: "${v.say}"`);
+  const file = path.join(voiceDir, String(i + 1).padStart(2, '0') + '.ogg'), line = { ...v, say: sayOf(v), caption: captionOf(v), n: i + 1, file: path.relative(ROOT, file), recorded: existsSync(file) };
+  if (!line.say) warn(`line ${i + 1} has no say or caption`);
+  for (const text of new Set([line.say, line.caption])) if (BANNED.test(text ?? '')) warn(`line ${i + 1} uses a word the voice sheets rule out: "${text}"`);
+  if (/[0-9₀-₉²³+−×÷=√π%]/.test(line.say ?? '')) warn(`line ${i + 1}'s say has a digit or symbol; write it as spoken, and show the notation in caption: "${line.say}"`);
   if (!(v.slot > 0)) warn(`line ${i + 1} has no slot`);
   if (line.recorded) { line.len = +(await run('ffprobe', ['-v', '0', '-show_entries', 'format=duration', '-of', 'csv=p=0', file])).trim();
     if (line.len > v.slot) warn(`line ${i + 1} runs ${line.len.toFixed(2)} s but its slot is ${v.slot} s: re-record shorter or re-time the beat`); }
@@ -67,7 +72,7 @@ for (const [i, b] of style.beats.entries()) if (!voice.some((v) => v.t >= b.t0 &
 if (voice.some((v) => v.recorded) && teachers[style.teacher]?.status !== 'approved') warn(`recordings exist for ${style.teacher}, whose casting is not approved (teachers.json)`);
 const recorded = voice.filter((v) => v.recorded), pending = voice.filter((v) => !v.recorded);
 // what the Audio Designer records from: the lines, where each file goes and how long it may run
-await writeFile(path.join(OUT, 'voice-script.json'), JSON.stringify({ clip, zone: style.zone, teacher: style.teacher, casting: teachers[style.teacher]?.status ?? null, direction: teachers[style.teacher]?.direction ?? null, sheet: teachers[style.teacher]?.sheet ?? null, brief: teachers[style.teacher]?.brief ?? null, lines: voice.map((v) => ({ n: v.n, say: v.say, maxSeconds: v.slot, file: v.file, recorded: v.recorded })) }, null, 2) + '\n');
+await writeFile(path.join(OUT, 'voice-script.json'), JSON.stringify({ clip, zone: style.zone, teacher: style.teacher, casting: teachers[style.teacher]?.status ?? null, direction: teachers[style.teacher]?.direction ?? null, sheet: teachers[style.teacher]?.sheet ?? null, brief: teachers[style.teacher]?.brief ?? null, lines: voice.map((v) => ({ n: v.n, say: v.say, caption: v.caption, maxSeconds: v.slot, file: v.file, recorded: v.recorded })) }, null, 2) + '\n');
 if (!style.beats.length) warn('clip has no beats: reviewers need one entry per beat');
 if (D < 5 || D > 30) warn(`duration ${D.toFixed(1)} s is outside 5-30 s`);
 
@@ -77,7 +82,7 @@ if (mode !== 'video') {
   let cards = '';
   for (const [i, b] of style.beats.entries()) {
     const name = `beat-${i + 1}.png`; await writeFile(path.join(OUT, name), await frame(b.key, style.samples));
-    const said = voice.filter((v) => v.t >= b.t0 && v.t < b.t1).map((v) => `“${v.say}”${v.recorded ? '' : ' (not recorded yet)'}`).join(' ') || 'nothing';
+    const said = voice.filter((v) => v.t >= b.t0 && v.t < b.t1).map((v) => `“${v.caption}”${v.caption !== v.say ? ` (said: “${v.say}”)` : ''}${v.recorded ? '' : ' (not recorded yet)'}`).join(' ') || 'nothing';
     cards += `<figure><img src="${name}" alt="Beat ${i + 1}"><figcaption><b>Beat ${i + 1}</b> · ${b.t0.toFixed(1)}–${b.t1.toFixed(1)} s<br><b>On screen:</b> ${esc(b.text)}<br><b>Narrator says:</b> ${esc(said)}<br><b>Change:</b> ${esc(b.change)}<br><b>Camera:</b> ${esc(b.camera)}<br><b>Sound:</b> ${esc(b.sound)}</figcaption></figure>`;
   }
   await writeFile(path.join(OUT, 'storyboard.html'), `<!doctype html><meta charset="utf-8"><title>Storyboard: ${esc(style.name)}</title><style>body{background:#0c1118;color:#e8ecf2;font:15px/1.5 system-ui,sans-serif;margin:24px}h1{color:#22d3c5}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}figure{margin:0;background:#1f2937;border-radius:8px;overflow:hidden}img{width:100%;display:block}figcaption{padding:12px}b{color:#eacb74}</style><h1>${esc(style.name)}</h1><p>${esc(style.topic)} · ${esc(style.syllabus)} · zone: ${esc(style.zone)} · narrator: ${esc(teachers[style.teacher]?.name ?? 'none')} · ${D.toFixed(1)} s · ${W}×${H}</p><main>${cards}</main><h2>Assumed</h2><ul>${style.assumptions.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>`);
@@ -111,12 +116,12 @@ if (mode !== 'storyboard') {
   const loud = /Integrated loudness:\s+I:\s+(-?[\d.]+) LUFS/.exec(await run('ffmpeg', ['-i', mp4, '-af', 'ebur128', '-f', 'null', '-']).catch((e) => String(e)));
   if (loud && Math.abs(+loud[1] - LUFS) > 1.5) warn(`loudness is ${loud[1]} LUFS, wanted about ${LUFS}`);
 
-  // captions: the teacher's words, for the game's caption track
+  // captions: each line's caption, in notation, for the game's caption track
   const ts = (s) => new Date(s * 1000).toISOString().slice(11, 23);
-  await writeFile(path.join(OUT, `${clip}.vtt`), 'WEBVTT\n\n' + voice.map((v) => `${ts(v.t)} --> ${ts(v.t + (v.len ?? v.slot))}\n${v.say}\n`).join('\n'));
+  await writeFile(path.join(OUT, `${clip}.vtt`), 'WEBVTT\n\n' + voice.map((v) => `${ts(v.t)} --> ${ts(v.t + (v.len ?? v.slot))}\n${v.caption}\n`).join('\n'));
   await writeFile(path.join(OUT, 'report.json'), JSON.stringify({ clip, name: style.name, topic: style.topic, syllabus: style.syllabus, duration: D, size: [W, H], fps: FPS, frames: N, loudness: loud ? +loud[1] : null,
     zone: style.zone, teacher: style.teacher, casting: teachers[style.teacher]?.status ?? null,
-    voice: voice.map((v) => ({ n: v.n, t: v.t, slot: v.slot, len: v.len ?? null, recorded: v.recorded, say: v.say })), voicePending: pending.length, draft: DRAFT, ready: !DRAFT && !problems.length && !pending.length, assumptions: style.assumptions, problems }, null, 2) + '\n');
+    voice: voice.map((v) => ({ n: v.n, t: v.t, slot: v.slot, len: v.len ?? null, recorded: v.recorded, say: v.say, caption: v.caption })), voicePending: pending.length, draft: DRAFT, ready: !DRAFT && !problems.length && !pending.length, assumptions: style.assumptions, problems }, null, 2) + '\n');
   console.log(`video: ${path.relative(process.cwd(), mp4)} (+ .ogv, .vtt, report.json)`);
 }
 

@@ -29,6 +29,8 @@ extends RefCounted
 ##   here       the place on the world map the player last went into (FAL-988): an
 ##              island id, "thunderdome" or "bazaar", where the map's "you are here"
 ##              marker stands. A new save starts at the Bazaar
+##   watched    the tutor lessons played to the end (#218, ui/lesson/lesson_player.gd), by
+##              explainer id, oldest first. A recall section picks its version from it
 ##
 ## When a wrong answer matches a multiple-choice distractor, the distractor's
 ## misconception ref is recorded on the cell, so lesson feedback and suggestions can
@@ -43,7 +45,7 @@ static func blank() -> Dictionary:
 	return {"version": VERSION, "settings": {"exam_only": false, "reduced_motion": false}, "course": Courses.DEFAULT, "cells": {}, "probes": {}, "history": [],
 		"seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
 		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}, "dungeon": {},
-		"bazaar": blank_bazaar(), "here": "bazaar"}
+		"bazaar": blank_bazaar(), "here": "bazaar", "watched": []}
 
 
 static func blank_bazaar() -> Dictionary:

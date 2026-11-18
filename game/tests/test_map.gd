@@ -144,6 +144,9 @@ func _hand_count(region: String, exam_only: bool) -> int:
 		for u in t.get("unknowns", []):
 			if exam_only and not u.exam:
 				continue
+			# The AI courses' own skills (AI-SL1.6 and 1.7, FAL-999) are on no AA course.
+			if u.get("skills", []).any(func(sk): return str(sk).begins_with("AI-")):
+				continue
 			var methods := {}
 			for a in t.get("angles", []):
 				if u.id in a.suits:
@@ -1283,3 +1286,84 @@ func test_a_run_starts_on_every_island_and_in_the_thunderdome() -> void:
 				check(f.backdrop.visible, region + ": a backdrop or the island's close-up behind it")
 			frame.free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+
+
+## The ambient layer (FAL-1075): data/ambient.json's pieces between the painting and the
+## buttons, holding still with reduced motion, and taking no taps.
+func test_the_ambient_pieces_come_from_the_data_file() -> void:
+	var list := AmbientLayer.entries("res://data/ambient.json", "map")
+	check(list.size() >= 5, "the pack's pieces: %d" % list.size())
+	var problems := AmbientLayer.check(list, Vector2(1080, 1920), "ambient.json")
+	check(problems.is_empty(), "\n".join(problems))
+	var made: Array = await _map({"screen": "world"})
+	var m: Control = made[1]
+	var layer := m.world_board.get_node("Ambient") as AmbientLayer
+	check_eq(layer.get_index(), m.world_board.get_node("Art").get_index() + 1, "just over the painting")
+	for b in m.world_board.get_children():
+		if b is Button:
+			check(b.get_index() > layer.get_index(), "%s over the layer" % b.name)
+	check_eq(layer.things.size(), list.size(), "one piece per entry")
+	for i in list.size():
+		var t: Dictionary = layer.things[i]
+		check_eq(t["id"], list[i].id, "in the file's order")
+		check_eq(t["frames"].size(), AmbientLayer.frames(list[i].sheet).size(), "%s: its sheet's frames" % t["id"])
+		check(t["frames"].size() > 1, "%s: cut from its sheet" % t["id"])
+		check(t["holder"].visible, "%s shows" % t["id"])
+	var crow: Node2D = layer.thing("crow")["holder"]
+	var beacon: Dictionary = layer.thing("signal-beacon")
+	var was := crow.position
+	var frame: int = beacon["frame"]
+	await tree.create_timer(0.5).timeout
+	check(crow.position.distance_to(was) > 5.0, "the crow flies: %s to %s" % [was, crow.position])
+	check(beacon["frame"] != frame, "the beacon cycles")
+	_done(made)
+
+
+func test_reduced_motion_holds_the_ambient_pieces_still() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	var made: Array = await _map({"screen": "world"}, save)
+	var m: Control = made[1]
+	var layer := m.world_board.get_node("Ambient") as AmbientLayer
+	var list := AmbientLayer.entries("res://data/ambient.json", "map")
+	var before := {}
+	for e in list:
+		var t: Dictionary = layer.thing(e.id)
+		check_eq(t["holder"].visible, e.has("still"), "%s: shown only with a still frame" % e.id)
+		if e.has("still"):
+			check_eq(t["frame"], int(e.still), "%s: its still frame" % e.id)
+		before[e.id] = [t["holder"].position, t["sprite"].texture]
+	await tree.create_timer(0.5).timeout
+	for e in list:
+		var t: Dictionary = layer.thing(e.id)
+		check_eq([t["holder"].position, t["sprite"].texture], before[e.id], "%s holds still" % e.id)
+	_done(made)
+
+
+## A real click on the Thunderdome, where the dome's neon sits over its button.
+func test_taps_reach_the_zone_buttons_through_the_ambient_layer() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	var made: Array = await _map({"screen": "world"}, save)
+	var m: Control = made[1]
+	var layer := m.world_board.get_node("Ambient") as AmbientLayer
+	check_eq(layer.mouse_filter, Control.MOUSE_FILTER_IGNORE, "the layer takes no taps")
+	check(layer.find_children("*", "Control", true, false).is_empty(), "nothing in it takes taps either")
+	var dome := m.world_board.get_node("Thunderdome") as Button
+	var neon: Dictionary = layer.thing("dome-neon")
+	var under: Vector2 = neon["holder"].position + Vector2(165, 70)
+	check(Rect2(dome.position, dome.size).has_point(under), "the neon is over the Thunderdome's button")
+	var at: Vector2 = m.world_board.get_global_transform_with_canvas() * under
+	var hit := []
+	dome.gui_input.connect(func(e): if e is InputEventMouseButton: hit.append(e))
+	for down in [true, false]:
+		var click := InputEventMouseButton.new()
+		click.button_index = MOUSE_BUTTON_LEFT
+		click.pressed = down
+		click.position = tree.root.get_final_transform() * at
+		click.global_position = click.position
+		Input.parse_input_event(click)
+		Input.flush_buffered_events()
+		await tree.process_frame
+	check_eq(hit.size(), 2, "the button gets the press and the release")
+	_done(made)

@@ -6692,6 +6692,142 @@
 				"every probability is a multiple of 0.05 or a fraction of the outcomes",
 				"on a die, spinner or cards, P(A) + P(B) is never exactly 1, so every slip has something wrong to say"
 			]
+		},
+		"approximation": {
+			"name": "A measured, estimated or calculated value and how accurate it is",
+			"summary": "Pick a value and the accuracy it is given to: a GDC value to round, a cost or a count of items, an estimate beside the exact value, a rounded measurement, or measurements rounded to a unit and what is worked out from them. Its bounds, the percentage error and the largest error are then all known.",
+			"quantities": [
+				{
+					"name": "v",
+					"is": "a GDC value to round",
+					"pick": "7 significant figures; the digit after the cut is a 4 followed by 5 to 9 four times in ten, so rounding in stages carries"
+				},
+				{
+					"name": "cost",
+					"is": "V × p × (1 + w/100), an amount of goods at a price with an allowance for waste",
+					"pick": "V and p to two places, w from 5 to 20 %; the cost and the cost without the allowance are clear of a cent edge, and the digits after the cent round up"
+				},
+				{
+					"name": "items",
+					"is": "tins to cover an area with an allowance, or whole items that fit along a length",
+					"pick": "the real count is clear of the halfway point, so rounding to the nearest gives the wrong count"
+				},
+				{
+					"name": "v_A, v_E",
+					"is": "an estimate and the exact value, or a GDC value and its rounding",
+					"pick": "off by 2 % to 25 %; the error, the error over v_A and the error against v_E to 3 s.f. are clear of a 3 s.f. edge and read differently"
+				},
+				{
+					"name": "p",
+					"is": "the most a measurement's percentage error can be",
+					"pick": "2 % to 15 %"
+				},
+				{
+					"name": "a, b, c",
+					"is": "the numbers of a × b ÷ c to estimate",
+					"pick": "3 figures each; rounded to 1 s.f. the estimate is a whole number, and c is under 1 half the time"
+				},
+				{
+					"name": "x(x + d) = A",
+					"is": "a width with one positive and one negative solution",
+					"pick": "d from 2 to 12 and A from 20 to 200, neither solution a whole number"
+				},
+				{
+					"name": "a rounded value",
+					"is": "a measurement to 1 or 2 d.p., or a count to the nearest 10, 100 or 1000 or to 2 or 3 s.f.",
+					"pick": "its last digit is not 0, so the rounding is as stated"
+				},
+				{
+					"name": "a shape",
+					"is": "a rectangle, a circle, a sphere from its diameter, a cylinder or a route of stages, each measure rounded to the same unit",
+					"pick": "every bound value and slip is clear of a 3 s.f. edge and reads differently"
+				},
+				{
+					"name": "a quotient",
+					"is": "a speed from a distance and a time, or a density from a mass and a volume",
+					"pick": "the distance to 1 or 10 m and the time to 0.1 s; mass and volume to whole numbers"
+				},
+				{
+					"name": "x^k",
+					"is": "a length whose square or cube is worked out: a square, a cube, a circle or a sphere",
+					"pick": "x from 12 to 99 rounding units of 1 or 0.1"
+				}
+			],
+			"clean": [
+				"Paper 2 throughout: every AI paper allows a GDC",
+				"a 3 s.f. answer, and every slip offered beside it, is at least 0.04 of its last place from a rounding edge, and no two read the same",
+				"money is to the nearest cent, clear of the half-cent edge by 0.15 of a cent",
+				"a count of items is clear of the halfway point by at least 0.1",
+				"a bound is exact: half the rounding unit either side of the rounded value"
+			]
+		},
+		"tvm": {
+			"name": "A loan, a savings plan or a fund, with monthly payments at the end of each month",
+			"summary": "Pick an amount, an annual rate compounded monthly, quarterly or half-yearly, and a number of years or a monthly payment, as the GDC's TVM solver takes them (payments at the end of each period, P/Y = 12). The payment, the number of payments, the rate, the balance after some payments, the interest and the value of regular deposits or withdrawals are then all known.",
+			"quantities": [
+				{
+					"name": "PV",
+					"is": "the amount borrowed, the opening sum or the fund",
+					"pick": "a loan of 6000 to 300000 dollars (a multiple of 1200 where one month's interest is asked); a price less a deposit of 10 % to 25 %"
+				},
+				{
+					"name": "r",
+					"is": "the nominal annual rate, in per cent",
+					"pick": "2.0 to 9.5 in steps of 0.1"
+				},
+				{
+					"name": "C/Y",
+					"is": "the compounding periods a year",
+					"pick": "12, 4 or 2; 12 where the rate, the term or one month's interest is asked"
+				},
+				{
+					"name": "N",
+					"is": "the number of monthly payments",
+					"pick": "12 times 2 to 30 years; a number of payments asked for is clear of a whole number by 0.1"
+				},
+				{
+					"name": "PMT",
+					"is": "the monthly payment, deposit or withdrawal",
+					"pick": "worked out to the cent, or a whole number of dollars where the term is asked"
+				},
+				{
+					"name": "FV",
+					"is": "the balance after some payments, the value of the savings, or a target",
+					"pick": "to the cent, clear of the half-cent edge by 0.15 of a cent"
+				}
+			],
+			"clean": [
+				"Paper 2 throughout: every AI paper allows a GDC",
+				"money is to the nearest cent, and it and every slip offered beside it are clear of the half-cent edge by 0.15 of a cent",
+				"a payment shown in the question is the solver's payment to the cent, and the working uses that payment",
+				"a number of payments asked for is the first whole number past the solver's N, with N clear of a whole number by 0.1",
+				"two loans compared differ by at least 50 dollars of interest, the same to the dollar from the payments to the cent, and the loan with the lower payment costs more"
+			]
+		},
+		"log-technology": {
+			"name": "A logarithm to evaluate, or an exponential equation to solve, on the GDC",
+			"summary": "Pick a number b and a base: 10, e or a whole or decimal base a. Its log, ln, the solution of 10^x = b, e^x = b or a^x = b and a combination such as p ln q − log r are then known to as many figures as the GDC shows.",
+			"quantities": [
+				{
+					"name": "b",
+					"is": "the number whose log is found, or the right-hand side",
+					"pick": "2 to 999, not a power of the base"
+				},
+				{
+					"name": "a",
+					"is": "the base of a^x = b",
+					"pick": "1.5, 2, 3, 4, 5, 6, 7 or 1.08 to 1.25 for a growth factor"
+				},
+				{
+					"name": "p, q, r",
+					"is": "the numbers in p ln q − log r or p log q + ln r",
+					"pick": "p from 2 to 5, q and r from 2 to 60"
+				}
+			],
+			"clean": [
+				"every answer is to 3 s.f., at least 0.04 of its last place from a rounding edge",
+				"each slip offered (the other log key, a bracket round the quotient, the logs the wrong way round, each log rounded first) reads differently from the answer"
+			]
 		}
 	},
 	"skills": {
@@ -6984,7 +7120,18 @@
 		"AHL1.10.counting-principle": "Count outcomes with the multiplication and addition principles",
 		"AHL1.10.permutations": "Count ordered arrangements with n! and nPr",
 		"AHL1.10.combinations": "Count selections with nCr, including 'at least' and mixed-group conditions",
-		"AHL1.10.restricted-arrangements": "Count arrangements with conditions (together, apart, fixed positions)"
+		"AHL1.10.restricted-arrangements": "Count arrangements with conditions (together, apart, fixed positions)",
+		"AI-SL1.6.round-accuracy": "Round to decimal places or significant figures and choose a suitable accuracy",
+		"AI-SL1.6.percentage-error": "Calculate the percentage error of an approximation",
+		"AI-SL1.6.estimate-reasonableness": "Estimate a result and judge whether a calculation is reasonable",
+		"AI-SL1.6.bounds": "Find the upper and lower bounds of a rounded value",
+		"AI-SL1.6.max-percentage-error": "Find the maximum percentage error in a calculated quantity from a rounded measurement",
+		"AI-SL1.7.loan-repayment": "Find the regular repayment on a loan",
+		"AI-SL1.7.loan-term-or-rate": "Find the number of payments or the interest rate of a loan",
+		"AI-SL1.7.outstanding-balance": "Find the outstanding balance and split a payment into interest and principal",
+		"AI-SL1.7.total-interest-compare": "Find the total interest paid and compare loan options",
+		"AI-SL1.7.savings-annuity": "Find the future value of regular savings or the deposit needed for a target",
+		"AI-SL1.7.payout-annuity": "Find the lump sum needed for regular withdrawals, or how long a fund lasts"
 	},
 	"types": [
 		{
@@ -83517,6 +83664,7 @@
 			"region": "exponents-logs",
 			"name": "Logs and exponential equations on the GDC",
 			"summary": "Evaluate log and ln values on the GDC and solve a^x = b to 3 significant figures, choosing the right log key.",
+			"situation": "log-technology",
 			"level": [
 				1,
 				2
@@ -83527,9 +83675,181 @@
 				"error-spot",
 				"method-pick"
 			],
-			"frequency": 0,
-			"angles": [],
-			"misconceptions": []
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "a log to evaluate, or an equation such as 10^x = 7 or 1.5^x = 20"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "evaluate-log",
+					"given": [
+						"a number b"
+					],
+					"asked": "log b or ln b, to 3 s.f.",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.5.evaluate-tech"
+					]
+				},
+				{
+					"id": "solve-ten-or-e",
+					"given": [
+						"10^x = b or e^x = b"
+					],
+					"asked": "x, to 3 s.f.",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.5.evaluate-tech"
+					]
+				},
+				{
+					"id": "solve-base",
+					"given": [
+						"a^x = b"
+					],
+					"asked": "x, to 3 s.f.",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.5.evaluate-tech"
+					]
+				},
+				{
+					"id": "evaluate-expression",
+					"given": [
+						"p ln q − log r, or p log q + ln r"
+					],
+					"asked": "its value, to 3 s.f.",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.5.evaluate-tech"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.5.evaluate-tech",
+					"method": "log-key",
+					"suits": [
+						"evaluate-log",
+						"solve-ten-or-e",
+						"solve-base",
+						"evaluate-expression"
+					],
+					"name": "Rewrite in log form and use the log or ln key",
+					"about": "10^x = 7 gives x = log 7 and e^x = 12 gives x = ln 12; then evaluate on the GDC."
+				},
+				{
+					"skill": "SL1.5.evaluate-tech",
+					"method": "graph-intersect",
+					"suits": [
+						"solve-ten-or-e",
+						"solve-base"
+					],
+					"weak": {
+						"kind": "fails",
+						"unknowns": [
+							"evaluate-log",
+							"evaluate-expression"
+						],
+						"why": "there is no equation to graph: the question asks for a value"
+					},
+					"name": "Graph both sides and find the intersection",
+					"about": "Plot y = 10^x and y = 7; the x-coordinate of the intersection is the solution."
+				},
+				{
+					"skill": "SL1.5.evaluate-tech",
+					"method": "gdc-solver",
+					"suits": [
+						"solve-ten-or-e",
+						"solve-base"
+					],
+					"name": "Use the GDC equation solver",
+					"about": "Enter 10^x − 7 = 0 in the numerical solver with a sensible starting value."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "predict-check",
+					"prompt": "Predict whether the solution of 10^x = 500 is between 2 and 3, then check with the log key.",
+					"answer": "Yes: 10² = 100 and 10³ = 1000, so x is between 2 and 3. log 500 = 2.70.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.5.evaluate-tech#0",
+					"text": "Using ln when the question means log base 10, or the reverse",
+					"as": "distractor",
+					"in": [
+						"evaluate-log",
+						"solve-ten-or-e",
+						"evaluate-expression"
+					],
+					"wrong": "the other log key: ln for log, or log for ln"
+				},
+				{
+					"ref": "SL1.5.evaluate-tech#1",
+					"text": "Making a bracket error on the GDC, so the log of a quotient is found instead of a quotient of logs",
+					"as": "distractor",
+					"in": [
+						"solve-base"
+					],
+					"wrong": "log(b ÷ a) instead of log b ÷ log a"
+				},
+				{
+					"ref": "SL1.5.evaluate-tech#2",
+					"text": "Rounding an intermediate log value early and losing accuracy",
+					"as": "distractor",
+					"in": [
+						"evaluate-expression"
+					],
+					"wrong": "each log rounded to 3 s.f. before combining"
+				},
+				{
+					"text": "Dividing the logs the wrong way round",
+					"as": "distractor",
+					"in": [
+						"solve-base"
+					],
+					"wrong": "log a ÷ log b"
+				},
+				{
+					"text": "Pressing the ln key for a log to base ten, in a line of working",
+					"as": "error-spot",
+					"in": [
+						"solve-ten-or-e"
+					],
+					"wrong": "a line uses ln where log belongs"
+				},
+				{
+					"text": "Making a bracket error, in a line of working",
+					"as": "error-spot",
+					"in": [
+						"solve-base"
+					],
+					"wrong": "a line finds log(b ÷ a)"
+				}
+			],
+			"frequency": 0
 		},
 		{
 			"id": "t1-ext-identity-constants",
@@ -90057,6 +90377,1369 @@
 				}
 			],
 			"frequency": 0
+		},
+		{
+			"id": "t1-ai-percentage-error",
+			"topic": 1,
+			"source": "exam",
+			"region": "exponents-logs",
+			"name": "Rounding, percentage error and estimation (AI)",
+			"summary": "Round a GDC value to decimal places or significant figures, give money to the nearest cent and a count of items as a whole number, find the percentage error of an estimate or of a rounding, the exact values a largest error allows, an estimate to 1 s.f., and the answer that makes sense in context.",
+			"situation": "approximation",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: what was measured, estimated or worked out, and how it was rounded"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "round-figures",
+					"given": [
+						"a GDC value",
+						"the places or figures"
+					],
+					"asked": "the value correct to n decimal places or n significant figures",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.round-accuracy"
+					]
+				},
+				{
+					"id": "round-context",
+					"given": [
+						"an amount of goods",
+						"a price",
+						"an allowance for waste"
+					],
+					"asked": "the total cost, to the nearest cent",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.round-accuracy"
+					]
+				},
+				{
+					"id": "whole-items",
+					"given": [
+						"an area to cover and what one item covers, or a length and an item's length"
+					],
+					"asked": "the number of items to buy, or the number that fit",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.round-accuracy"
+					]
+				},
+				{
+					"id": "percentage-error",
+					"given": [
+						"an estimate",
+						"the exact value"
+					],
+					"asked": "the percentage error of the estimate",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.percentage-error"
+					]
+				},
+				{
+					"id": "error-of-rounding",
+					"given": [
+						"a GDC value",
+						"how it is rounded"
+					],
+					"asked": "the percentage error caused by the rounding",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.percentage-error",
+						"AI-SL1.6.round-accuracy"
+					]
+				},
+				{
+					"id": "exact-from-error",
+					"given": [
+						"a measurement",
+						"the most its percentage error can be"
+					],
+					"asked": "the largest or smallest possible exact value",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.percentage-error"
+					]
+				},
+				{
+					"id": "estimate-1sf",
+					"given": [
+						"a calculation a × b ÷ c"
+					],
+					"asked": "an estimate with each number rounded to 1 s.f.",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.estimate-reasonableness"
+					]
+				},
+				{
+					"id": "reasonable-answer",
+					"given": [
+						"an equation for a width",
+						"the GDC's two solutions"
+					],
+					"asked": "the solution that is the width, with a reason",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.estimate-reasonableness"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AI-SL1.6.round-accuracy",
+					"method": "look-at-next-digit",
+					"suits": [
+						"round-figures",
+						"round-context"
+					],
+					"name": "Cut at the required digit and look at the next one",
+					"about": "Find the last digit to keep, then round it up if the following digit is 5 or more and leave it if it is 4 or less."
+				},
+				{
+					"skill": "AI-SL1.6.round-accuracy",
+					"method": "gdc-fix-mode",
+					"suits": [
+						"round-figures"
+					],
+					"name": "Set the GDC to a fixed number of decimal places",
+					"about": "Use the calculator's float or fix setting to display the required decimal places, then check the significant-figure count by hand."
+				},
+				{
+					"skill": "AI-SL1.6.round-accuracy",
+					"method": "match-context",
+					"suits": [
+						"round-context",
+						"whole-items"
+					],
+					"name": "Choose the accuracy from the context",
+					"about": "Money in euros or dollars goes to the nearest cent, many currencies such as yen to the nearest unit, and a result should not claim more precision than the measurements it came from."
+				},
+				{
+					"skill": "AI-SL1.6.percentage-error",
+					"method": "error-formula",
+					"suits": [
+						"percentage-error",
+						"error-of-rounding",
+						"exact-from-error"
+					],
+					"name": "Use ε = |v_A − v_E| / |v_E| × 100%",
+					"about": "Take the size of the difference between the approximate and exact values and divide by the exact value."
+				},
+				{
+					"skill": "AI-SL1.6.percentage-error",
+					"method": "ratio",
+					"suits": [
+						"percentage-error",
+						"error-of-rounding"
+					],
+					"name": "Use the ratio of approximate to exact",
+					"about": "Work out v_A / v_E, subtract 1 and take the size: 12/10 = 1.2 gives a 20% error."
+				},
+				{
+					"skill": "AI-SL1.6.estimate-reasonableness",
+					"method": "round-one-sf",
+					"suits": [
+						"estimate-1sf"
+					],
+					"name": "Round every number to one significant figure",
+					"about": "48.7 × 3.12 ÷ 0.198 ≈ 50 × 3 ÷ 0.2 = 750, close to the true 767."
+				},
+				{
+					"skill": "AI-SL1.6.estimate-reasonableness",
+					"method": "order-of-magnitude",
+					"suits": [
+						"estimate-1sf"
+					],
+					"name": "Compare orders of magnitude",
+					"about": "Write each value in standard form and combine the powers of 10 to see whether the answer is in the tens, thousands or millions."
+				},
+				{
+					"skill": "AI-SL1.6.estimate-reasonableness",
+					"method": "context-check",
+					"suits": [
+						"reasonable-answer"
+					],
+					"name": "Check against the context",
+					"about": "Reject answers that are impossible in context: negative lengths, probabilities above 1, fractions of people, or a price in the wrong order of magnitude."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "An estimate that is 10% too big and one that is 10% too small have the same percentage error.",
+					"answer": "True: the percentage error is the size of the difference over the exact value, so the sign is dropped. Both are 10%.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Rounding a number of tins of paint to the nearest whole number gives enough tins.",
+					"answer": "Sometimes: only when the real number is already past the halfway point. A count you must buy is always rounded up.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AI-SL1.6.round-accuracy#0",
+					"text": "Treating leading zeros as significant figures",
+					"as": "distractor",
+					"in": [
+						"round-figures"
+					],
+					"wrong": "the value to n decimal places, counting the zeros after the point"
+				},
+				{
+					"ref": "AI-SL1.6.round-accuracy#1",
+					"text": "Rounding in stages, one digit at a time, instead of once",
+					"as": "distractor",
+					"in": [
+						"round-figures"
+					],
+					"wrong": "rounded one digit at a time from the end, so a 4 is carried up"
+				},
+				{
+					"ref": "AI-SL1.6.round-accuracy#3",
+					"text": "Giving money to three significant figures instead of to the nearest cent",
+					"as": "distractor",
+					"in": [
+						"round-context"
+					],
+					"wrong": "the cost to 3 s.f."
+				},
+				{
+					"ref": "AI-SL1.6.percentage-error#0",
+					"text": "Dividing by the approximate value instead of the exact value",
+					"as": "distractor",
+					"in": [
+						"percentage-error",
+						"error-of-rounding"
+					],
+					"wrong": "the difference over the approximate value, × 100"
+				},
+				{
+					"ref": "AI-SL1.6.percentage-error#1",
+					"text": "Forgetting to multiply by 100",
+					"as": "distractor",
+					"in": [
+						"percentage-error"
+					],
+					"wrong": "the difference over the exact value, not × 100"
+				},
+				{
+					"ref": "AI-SL1.6.percentage-error#2",
+					"text": "Leaving the sign in, so an underestimate gives a negative error",
+					"as": "distractor",
+					"in": [
+						"percentage-error"
+					],
+					"wrong": "the error of an underestimate, negative"
+				},
+				{
+					"ref": "AI-SL1.6.percentage-error#3",
+					"text": "Rounding the exact value first, so the error is worked out against the wrong value",
+					"as": "distractor",
+					"in": [
+						"error-of-rounding"
+					],
+					"wrong": "the error against the exact value rounded to 3 s.f."
+				},
+				{
+					"ref": "AI-SL1.6.estimate-reasonableness#0",
+					"text": "Treating dividing by a number below one as multiplying by it",
+					"as": "distractor",
+					"in": [
+						"estimate-1sf"
+					],
+					"wrong": "the rounded numbers multiplied by c instead of divided"
+				},
+				{
+					"ref": "AI-SL1.6.estimate-reasonableness#1",
+					"text": "Keeping a negative solution as a length",
+					"as": "distractor",
+					"in": [
+						"reasonable-answer"
+					],
+					"wrong": "the negative solution"
+				},
+				{
+					"text": "Cutting off the digits instead of rounding",
+					"as": "distractor",
+					"in": [
+						"round-figures",
+						"round-context"
+					],
+					"wrong": "the value cut off after the last digit kept"
+				},
+				{
+					"text": "Leaving out the extra allowed for waste",
+					"as": "distractor",
+					"in": [
+						"round-context",
+						"whole-items"
+					],
+					"wrong": "the cost or count without the allowance"
+				},
+				{
+					"text": "Rounding a number of items to the nearest whole number",
+					"as": "distractor",
+					"in": [
+						"whole-items"
+					],
+					"wrong": "the nearest whole number, too few to buy or one too many to fit"
+				},
+				{
+					"text": "Applying the percentage error to the measurement",
+					"as": "distractor",
+					"in": [
+						"exact-from-error"
+					],
+					"wrong": "the measurement times (1 ± p/100)"
+				},
+				{
+					"text": "Giving the other end of the range",
+					"as": "distractor",
+					"in": [
+						"exact-from-error"
+					],
+					"wrong": "the smallest value when the largest is asked, or the reverse"
+				}
+			],
+			"chain": [
+				"a value from the GDC, a cost or a count, rounded to the accuracy asked or that the context needs",
+				"the percentage error ε = |v_A − v_E| ÷ |v_E| × 100%, of an estimate or of a rounding",
+				"the exact values a largest percentage error allows",
+				"an estimate to 1 s.f., and which of the GDC's answers makes sense"
+			],
+			"frequency": 25,
+			"marks": 2,
+			"section": {
+				"A": 0,
+				"B": 0
+			},
+			"paper": {
+				"p1": 0,
+				"p2": 25
+			}
+		},
+		{
+			"id": "t1-ai-approx-bounds",
+			"topic": 1,
+			"source": "exam",
+			"region": "exponents-logs",
+			"name": "Bounds of a rounded value and of a calculation (AI)",
+			"summary": "Write the upper or lower bound of a value rounded to decimal places, to the nearest 10, 100 or 1000 or to significant figures; the least or greatest area, volume or total from rounded measurements, the least or greatest speed or density, and the maximum percentage error in an area or volume.",
+			"situation": "approximation",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: what was measured, estimated or worked out, and how it was rounded"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "measurement-bound",
+					"given": [
+						"a rounded value",
+						"its accuracy"
+					],
+					"asked": "the lower or upper bound",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.bounds"
+					]
+				},
+				{
+					"id": "calc-bound",
+					"given": [
+						"a shape's measurements, each rounded"
+					],
+					"asked": "the least or greatest area, volume or total length",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.bounds",
+						"AI-SL1.6.max-percentage-error"
+					]
+				},
+				{
+					"id": "quotient-bound",
+					"given": [
+						"a rounded distance and time, or mass and volume"
+					],
+					"asked": "the greatest or least speed or density",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.bounds",
+						"AI-SL1.6.max-percentage-error"
+					]
+				},
+				{
+					"id": "max-percentage-error",
+					"given": [
+						"a rounded length",
+						"the area or volume worked out from it"
+					],
+					"asked": "the maximum percentage error in the area or volume",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.6.max-percentage-error"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AI-SL1.6.bounds",
+					"method": "half-unit",
+					"suits": [
+						"measurement-bound"
+					],
+					"name": "Add and subtract half of the rounding unit",
+					"about": "Rounded to 1 d.p. the unit is 0.1, so the bounds are 0.05 either side: 7.25 ≤ x < 7.35."
+				},
+				{
+					"skill": "AI-SL1.6.bounds",
+					"method": "number-line",
+					"suits": [
+						"measurement-bound"
+					],
+					"name": "Mark the rounding interval on a number line",
+					"about": "Mark the neighbouring rounded values and the halfway points between them; every number between the halfway points rounds to the given value."
+				},
+				{
+					"skill": "AI-SL1.6.max-percentage-error",
+					"method": "bound-and-compare",
+					"suits": [
+						"calc-bound",
+						"quotient-bound",
+						"max-percentage-error"
+					],
+					"name": "Compute the quantity at each bound",
+					"about": "Find the value using the measured figure and using each bound, then use the bound further away in the percentage error formula."
+				},
+				{
+					"skill": "AI-SL1.6.max-percentage-error",
+					"method": "choose-bounds",
+					"suits": [
+						"quotient-bound"
+					],
+					"name": "Pick bounds that push a quotient to its extreme",
+					"about": "For a quotient the maximum uses the upper bound of the numerator and the lower bound of the denominator."
+				},
+				{
+					"skill": "AI-SL1.6.max-percentage-error",
+					"method": "scale-factor",
+					"suits": [
+						"max-percentage-error"
+					],
+					"name": "Raise the length error factor to the power of the dimension",
+					"about": "A radius 2% too big makes an area 1.02² − 1 = 4.04% too big and a volume 1.02³ − 1 ≈ 6.12% too big."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The greatest possible speed uses the upper bound of the distance and the upper bound of the time.",
+					"answer": "False: a longer time gives a smaller speed, so the greatest speed divides the upper bound of the distance by the lower bound of the time.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "A side is measured 1% too long. Predict the error in the area of the square, then check with the scale factor.",
+					"answer": "About 2%: the area is the side squared, and 1.01² = 1.0201, so the area is 2.01% too big.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AI-SL1.6.bounds#0",
+					"text": "Using a whole rounding unit either side instead of half of it",
+					"as": "distractor",
+					"in": [
+						"measurement-bound",
+						"calc-bound"
+					],
+					"wrong": "the rounding unit either side instead of half of it"
+				},
+				{
+					"ref": "AI-SL1.6.bounds#1",
+					"text": "Giving the upper bound as a value just below it instead of the halfway value",
+					"as": "distractor",
+					"in": [
+						"measurement-bound"
+					],
+					"wrong": "the upper bound less a tenth of the rounding unit"
+				},
+				{
+					"ref": "AI-SL1.6.bounds#2",
+					"text": "Using the wrong rounding unit for significant figures, as if every written digit were significant",
+					"as": "distractor",
+					"in": [
+						"measurement-bound"
+					],
+					"wrong": "half a unit either side, as if every digit were significant"
+				},
+				{
+					"ref": "AI-SL1.6.max-percentage-error#0",
+					"text": "Assuming the percentage error in an area or volume equals the error in the length",
+					"as": "distractor",
+					"in": [
+						"max-percentage-error"
+					],
+					"wrong": "the length's own percentage error"
+				},
+				{
+					"ref": "AI-SL1.6.max-percentage-error#1",
+					"text": "Using only one bound, the one that gives the smaller error",
+					"as": "distractor",
+					"in": [
+						"max-percentage-error"
+					],
+					"wrong": "the error against the upper bound only"
+				},
+				{
+					"ref": "AI-SL1.6.max-percentage-error#2",
+					"text": "Using the same bound for the top and the bottom of a quotient, when its extreme needs one upper and one lower bound",
+					"as": "distractor",
+					"in": [
+						"quotient-bound"
+					],
+					"wrong": "both upper bounds, or both lower bounds"
+				},
+				{
+					"text": "Using the measured values instead of their bounds",
+					"as": "distractor",
+					"in": [
+						"calc-bound",
+						"quotient-bound"
+					],
+					"wrong": "the value from the measured figures"
+				},
+				{
+					"text": "Mixing an upper and a lower bound in a product",
+					"as": "distractor",
+					"in": [
+						"calc-bound"
+					],
+					"wrong": "one bound of each kind"
+				}
+			],
+			"chain": [
+				"the bounds of each rounded value: half the rounding unit either side",
+				"the least or greatest value of what is worked out, from the bounds that push it that way",
+				"the maximum percentage error, from the bound that gives the largest error"
+			],
+			"frequency": 18,
+			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 0
+			},
+			"paper": {
+				"p1": 0,
+				"p2": 18
+			}
+		},
+		{
+			"id": "t1-ai-amortization",
+			"topic": 1,
+			"source": "exam",
+			"region": "finance",
+			"name": "Loans: repayment, term, rate, balance and interest (AI)",
+			"summary": "With the GDC's TVM solver, find a loan's monthly payment, the number of payments and the smaller last one, the annual rate, the amount still owed after some payments, how much of the first payment is interest, the total interest, and which of two loans costs less.",
+			"situation": "tvm",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: Kira borrows $24 000 at 6.5% per year, compounded monthly, over 5 years"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "two loans side by side: their rates and terms"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "loan-payment",
+					"given": [
+						"the amount borrowed, or a price and a deposit",
+						"the rate and compounding",
+						"the term"
+					],
+					"asked": "the monthly payment, to the nearest cent",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.loan-repayment"
+					]
+				},
+				{
+					"id": "loan-term",
+					"given": [
+						"the amount borrowed",
+						"the rate",
+						"the monthly payment"
+					],
+					"asked": "the number of monthly payments needed",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.loan-term-or-rate"
+					]
+				},
+				{
+					"id": "final-payment",
+					"given": [
+						"the amount borrowed",
+						"the rate",
+						"the monthly payment"
+					],
+					"asked": "the smaller last payment, to the nearest cent",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.loan-term-or-rate"
+					]
+				},
+				{
+					"id": "loan-rate",
+					"given": [
+						"the amount borrowed",
+						"the number of payments",
+						"the monthly payment"
+					],
+					"asked": "the annual interest rate, to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.loan-term-or-rate"
+					]
+				},
+				{
+					"id": "balance-after",
+					"given": [
+						"the loan, its rate and term",
+						"the monthly payment",
+						"the payments made"
+					],
+					"asked": "the amount still owed, to the nearest cent",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.outstanding-balance"
+					]
+				},
+				{
+					"id": "first-interest",
+					"given": [
+						"the loan and its rate",
+						"the monthly payment"
+					],
+					"asked": "the interest in the first payment, or how much it reduces the debt",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.outstanding-balance"
+					]
+				},
+				{
+					"id": "total-interest",
+					"given": [
+						"the loan, its rate and term",
+						"the monthly payment"
+					],
+					"asked": "the total interest paid",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.total-interest-compare"
+					]
+				},
+				{
+					"id": "compare-loans",
+					"given": [
+						"the amount borrowed",
+						"two loans' rates and terms"
+					],
+					"asked": "which loan costs less in interest, and by how much to the nearest dollar",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"AI-SL1.7.total-interest-compare"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AI-SL1.7.loan-repayment",
+					"method": "tvm-pmt",
+					"suits": [
+						"loan-payment"
+					],
+					"name": "Solve for PMT in the TVM solver",
+					"about": "Enter N = 60, I% = 6, PV = 20 000, FV = 0, P/Y = C/Y = 12, and solve for PMT (about −386.66, negative because money is paid out)."
+				},
+				{
+					"skill": "AI-SL1.7.loan-repayment",
+					"method": "annuity-formula",
+					"suits": [
+						"loan-payment"
+					],
+					"name": "Use PMT = PV × i / (1 − (1 + i)^−n)",
+					"about": "With i the rate per period and n the number of payments; not examined, but shows where the solver's answer comes from."
+				},
+				{
+					"skill": "AI-SL1.7.loan-term-or-rate",
+					"method": "tvm-n-or-i",
+					"suits": [
+						"loan-term",
+						"final-payment",
+						"loan-rate"
+					],
+					"name": "Solve for N or I% in the TVM solver",
+					"about": "Enter the known values with PV and PMT of opposite signs and solve for the unknown; round N up to a whole number of payments."
+				},
+				{
+					"skill": "AI-SL1.7.loan-term-or-rate",
+					"method": "spreadsheet-rows",
+					"suits": [
+						"loan-term",
+						"final-payment"
+					],
+					"name": "Count rows in an amortization spreadsheet",
+					"about": "Fill the table down until the balance drops to zero or below; the row count is the number of payments and the last row shows the final payment."
+				},
+				{
+					"skill": "AI-SL1.7.outstanding-balance",
+					"method": "tvm-fv-after-k",
+					"suits": [
+						"balance-after"
+					],
+					"name": "Solve for FV after k payments",
+					"about": "Keep PV, I% and PMT, set N to the number of payments made, and solve for FV; its size is the balance still owed."
+				},
+				{
+					"skill": "AI-SL1.7.outstanding-balance",
+					"method": "gdc-bal-function",
+					"suits": [
+						"balance-after"
+					],
+					"name": "Use the calculator's balance and interest functions",
+					"about": "Functions such as bal(), ΣInt() and ΣPrn() give the balance and the total interest or principal over a range of payments."
+				},
+				{
+					"skill": "AI-SL1.7.outstanding-balance",
+					"method": "amortization-table",
+					"suits": [
+						"first-interest"
+					],
+					"name": "Fill an amortization table",
+					"about": "Each row: interest = balance × periodic rate, principal repaid = payment − interest, new balance = old balance − principal repaid."
+				},
+				{
+					"skill": "AI-SL1.7.total-interest-compare",
+					"method": "n-times-pmt",
+					"suits": [
+						"total-interest",
+						"compare-loans"
+					],
+					"name": "Total repaid = N × PMT, then subtract the loan",
+					"about": "Find PMT for each option on the TVM solver; interest = N × PMT − PV, for example 60 × 386.656… − 20 000 ≈ $3199.36 (using the rounded payment 386.66 gives 3199.60)."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Halfway through the term of a loan, half of the loan has been paid off.",
+					"answer": "False: early payments are mostly interest, because the balance is largest then, so less than half has been paid off halfway through.",
+					"level": 4
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "At the same rate, a longer loan costs more in total interest than a shorter one.",
+					"answer": "Always: the monthly payment is lower but the balance stays larger for longer, so more interest builds up in total.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AI-SL1.7.loan-repayment#0",
+					"text": "Entering the number of years as N instead of the number of payments",
+					"as": "distractor",
+					"in": [
+						"loan-payment"
+					],
+					"wrong": "the payment with N the number of years"
+				},
+				{
+					"ref": "AI-SL1.7.loan-repayment#1",
+					"text": "Entering the monthly rate as I% when P/Y already counts the months, so the rate is divided twice",
+					"as": "distractor",
+					"in": [
+						"loan-payment"
+					],
+					"wrong": "the payment with I% the monthly rate"
+				},
+				{
+					"ref": "AI-SL1.7.loan-repayment#2",
+					"text": "Using simple interest on the whole loan, then sharing it over the payments",
+					"as": "distractor",
+					"in": [
+						"loan-payment"
+					],
+					"wrong": "the loan plus simple interest, shared over the payments"
+				},
+				{
+					"ref": "AI-SL1.7.loan-repayment#3",
+					"text": "Ignoring interest and dividing the loan by the number of payments",
+					"as": "distractor",
+					"in": [
+						"loan-payment"
+					],
+					"wrong": "the loan shared over the payments"
+				},
+				{
+					"ref": "AI-SL1.7.loan-term-or-rate#0",
+					"text": "Rounding the number of payments down, which leaves debt unpaid",
+					"as": "distractor",
+					"in": [
+						"loan-term"
+					],
+					"wrong": "the solver's N rounded down"
+				},
+				{
+					"ref": "AI-SL1.7.loan-term-or-rate#2",
+					"text": "Reading the solved I% as a monthly rate and multiplying it by the months in a year",
+					"as": "distractor",
+					"in": [
+						"loan-rate"
+					],
+					"wrong": "twelve times the rate"
+				},
+				{
+					"ref": "AI-SL1.7.outstanding-balance#0",
+					"text": "Subtracting the payments made from the loan, ignoring the interest added",
+					"as": "distractor",
+					"in": [
+						"balance-after"
+					],
+					"wrong": "the loan less the payments made"
+				},
+				{
+					"ref": "AI-SL1.7.outstanding-balance#1",
+					"text": "Using the annual rate for one month's interest",
+					"as": "distractor",
+					"in": [
+						"first-interest"
+					],
+					"wrong": "a year's interest on the loan"
+				},
+				{
+					"ref": "AI-SL1.7.outstanding-balance#2",
+					"text": "Assuming the interest part of each payment is the same every month",
+					"as": "distractor",
+					"in": [
+						"first-interest"
+					],
+					"wrong": "the total interest shared equally over the payments"
+				},
+				{
+					"ref": "AI-SL1.7.total-interest-compare#0",
+					"text": "Giving the total repaid as the interest paid",
+					"as": "distractor",
+					"in": [
+						"total-interest"
+					],
+					"wrong": "the total repaid"
+				},
+				{
+					"ref": "AI-SL1.7.total-interest-compare#1",
+					"text": "Assuming the loan with the lower monthly payment is always cheaper overall",
+					"as": "distractor",
+					"in": [
+						"compare-loans"
+					],
+					"wrong": "the loan with the lower monthly payment"
+				},
+				{
+					"text": "Using simple interest to find the rate",
+					"as": "distractor",
+					"in": [
+						"loan-rate"
+					],
+					"wrong": "the total interest over the loan, per year, as a percentage"
+				},
+				{
+					"text": "Using simple interest on the loan for the whole term",
+					"as": "distractor",
+					"in": [
+						"total-interest"
+					],
+					"wrong": "the loan times the rate times the years"
+				},
+				{
+					"text": "Leaving out the last month's interest",
+					"as": "distractor",
+					"in": [
+						"final-payment"
+					],
+					"wrong": "the balance after the full payments"
+				},
+				{
+					"text": "Taking the fraction of a payment that the solver's N shows as the last payment",
+					"as": "distractor",
+					"in": [
+						"final-payment"
+					],
+					"wrong": "the decimal part of N times the payment"
+				},
+				{
+					"text": "Giving the difference in the monthly payments as the difference in interest",
+					"as": "distractor",
+					"in": [
+						"compare-loans"
+					],
+					"wrong": "the cheaper loan, by the gap between the two payments"
+				}
+			],
+			"chain": [
+				"the amount borrowed, after a deposit",
+				"the monthly payment from the TVM solver, with FV = 0",
+				"the number of payments, rounded up, and the smaller last payment",
+				"the balance after k payments: FV with N = k",
+				"the interest: N × PMT − PV, and two loans compared"
+			],
+			"frequency": 29,
+			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 0
+			},
+			"paper": {
+				"p1": 0,
+				"p2": 29
+			}
+		},
+		{
+			"id": "t1-ai-annuity",
+			"topic": 1,
+			"source": "exam",
+			"region": "finance",
+			"name": "Savings plans and annuities with the TVM solver (AI)",
+			"summary": "With the GDC's TVM solver, find the value of regular monthly deposits, the deposit that reaches a target, the months to pass a target, the interest earned, the fund that pays a monthly income, how many withdrawals a fund pays, what is left after some years, and the largest withdrawal.",
+			"situation": "tvm",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: Tomas deposits $250 at the end of every month into an account paying 3.6% per year, compounded monthly"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "savings-fv",
+					"given": [
+						"an opening sum",
+						"a monthly deposit",
+						"the rate",
+						"the years"
+					],
+					"asked": "the value of the account, to the nearest cent",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.savings-annuity"
+					]
+				},
+				{
+					"id": "savings-deposit",
+					"given": [
+						"a target",
+						"the rate",
+						"the years",
+						"an opening sum"
+					],
+					"asked": "the monthly deposit needed, to the nearest cent",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.savings-annuity"
+					]
+				},
+				{
+					"id": "savings-time",
+					"given": [
+						"a monthly deposit",
+						"the rate",
+						"a target"
+					],
+					"asked": "the number of months to pass the target",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.savings-annuity"
+					]
+				},
+				{
+					"id": "savings-interest",
+					"given": [
+						"an opening sum",
+						"a monthly deposit",
+						"the rate",
+						"the years"
+					],
+					"asked": "the interest earned, to the nearest cent",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.savings-annuity"
+					]
+				},
+				{
+					"id": "payout-pv",
+					"given": [
+						"a monthly withdrawal",
+						"the rate",
+						"the years"
+					],
+					"asked": "the fund needed at the start, to the nearest cent",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.payout-annuity"
+					]
+				},
+				{
+					"id": "payout-months",
+					"given": [
+						"a fund",
+						"the rate",
+						"a monthly withdrawal"
+					],
+					"asked": "the number of full withdrawals the fund pays",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.payout-annuity"
+					]
+				},
+				{
+					"id": "payout-balance",
+					"given": [
+						"a fund",
+						"the rate",
+						"a monthly withdrawal",
+						"the years"
+					],
+					"asked": "the amount left in the fund, to the nearest cent",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.payout-annuity"
+					]
+				},
+				{
+					"id": "payout-withdrawal",
+					"given": [
+						"a fund",
+						"the rate",
+						"the years"
+					],
+					"asked": "the largest monthly withdrawal, to the nearest cent",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-SL1.7.payout-annuity"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AI-SL1.7.savings-annuity",
+					"method": "tvm-savings",
+					"suits": [
+						"savings-fv",
+						"savings-deposit",
+						"savings-time",
+						"savings-interest"
+					],
+					"name": "Use the TVM solver with PV = 0",
+					"about": "Enter N = 120, I% = 3, PV = 0, PMT = −200, P/Y = C/Y = 12, and solve for FV (about $27 948)."
+				},
+				{
+					"skill": "AI-SL1.7.savings-annuity",
+					"method": "geometric-series",
+					"suits": [
+						"savings-fv",
+						"savings-deposit"
+					],
+					"name": "Sum a geometric series of deposits",
+					"about": "The last deposit earns no interest and the first earns 119 months, so FV = 200(1 + 1.0025 + … + 1.0025^119) = 200(1.0025^120 − 1)/0.0025."
+				},
+				{
+					"skill": "AI-SL1.7.payout-annuity",
+					"method": "tvm-payout",
+					"suits": [
+						"payout-pv",
+						"payout-months",
+						"payout-balance",
+						"payout-withdrawal"
+					],
+					"name": "Use the TVM solver with FV = 0",
+					"about": "Enter PMT = +1500 (received), FV = 0, N = 240, I% = 4, P/Y = C/Y = 12, and solve for PV (negative, money paid in)."
+				},
+				{
+					"skill": "AI-SL1.7.payout-annuity",
+					"method": "present-value-formula",
+					"suits": [
+						"payout-pv",
+						"payout-withdrawal"
+					],
+					"name": "Use PV = PMT × (1 − (1 + i)^−n) / i",
+					"about": "Discount every withdrawal back to today and add; not examined, but explains the solver."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A fund that pays out each month for twice as long needs twice as much at the start.",
+					"answer": "False: the money still in the fund earns interest while it waits, so the later withdrawals cost less today; twice the time needs less than twice the fund.",
+					"level": 4
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict whether monthly deposits for ten years are worth more or less than the same total paid in at the start, then check with the solver.",
+					"answer": "Less: a deposit made later earns interest for less time, and the last one earns none, so the plan is worth less than one lump sum paid in at the start.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AI-SL1.7.savings-annuity#0",
+					"text": "Ignoring interest and adding up the deposits",
+					"as": "distractor",
+					"in": [
+						"savings-fv",
+						"savings-deposit"
+					],
+					"wrong": "the deposits added up, with no interest"
+				},
+				{
+					"ref": "AI-SL1.7.savings-annuity#1",
+					"text": "Treating every deposit as made at the start, so each earns interest for the whole time",
+					"as": "distractor",
+					"in": [
+						"savings-fv"
+					],
+					"wrong": "the total of the deposits grown for the whole time"
+				},
+				{
+					"ref": "AI-SL1.7.payout-annuity#0",
+					"text": "Multiplying the withdrawal by the number of months, ignoring the interest the fund earns",
+					"as": "distractor",
+					"in": [
+						"payout-pv"
+					],
+					"wrong": "the withdrawal times the number of months"
+				},
+				{
+					"ref": "AI-SL1.7.payout-annuity#1",
+					"text": "Solving for FV instead of PV, answering the wrong question",
+					"as": "distractor",
+					"in": [
+						"payout-pv"
+					],
+					"wrong": "the future value of the withdrawals"
+				},
+				{
+					"ref": "AI-SL1.7.payout-annuity#2",
+					"text": "Rounding the number of full withdrawals up instead of down",
+					"as": "distractor",
+					"in": [
+						"payout-months"
+					],
+					"wrong": "the solver's N rounded up"
+				},
+				{
+					"text": "Counting years instead of payments for N",
+					"as": "distractor",
+					"in": [
+						"savings-deposit",
+						"payout-withdrawal"
+					],
+					"wrong": "the payment with N the number of years"
+				},
+				{
+					"text": "Rounding the number of months down",
+					"as": "distractor",
+					"in": [
+						"savings-time"
+					],
+					"wrong": "the solver's N rounded down"
+				},
+				{
+					"text": "Giving the account's final value as the interest",
+					"as": "distractor",
+					"in": [
+						"savings-interest"
+					],
+					"wrong": "the value of the account"
+				},
+				{
+					"text": "Taking away the opening sum but not the deposits",
+					"as": "distractor",
+					"in": [
+						"savings-interest"
+					],
+					"wrong": "the value less the opening sum only"
+				},
+				{
+					"text": "Ignoring the interest the fund earns",
+					"as": "distractor",
+					"in": [
+						"payout-months",
+						"payout-balance",
+						"payout-withdrawal"
+					],
+					"wrong": "the fund and withdrawals with no interest"
+				}
+			],
+			"chain": [
+				"the value of an opening sum and monthly deposits: FV with PV and PMT both paid in",
+				"the deposit for a target, or the months to pass it, rounded up",
+				"the interest: FV less everything paid in",
+				"a fund paying a monthly income: PV with FV = 0, the number of withdrawals rounded down, the balance after some years"
+			],
+			"frequency": 16,
+			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 0
+			},
+			"paper": {
+				"p1": 0,
+				"p2": 16
+			}
 		}
 	]
 }

@@ -1,0 +1,65 @@
+ok   import
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+STRESS 0 boss chains
+STRESS 153450 questions, 175 failures, 0 short-choice
+FAIL t1-ai-percentage-error|round-figures|words|gdc-fix-mode seed 704: misconception not detected: t1-ai-percentage-error#9
+FAIL t1-ai-percentage-error|round-figures|words|gdc-fix-mode seed 742: misconception not detected: t1-ai-percentage-error#9
+FAIL t1-ai-percentage-error|round-figures|words|gdc-fix-mode seed 1835: misconception not detected: AI-SL1.6.round-accuracy#0
+FAIL t1-ai-percentage-error|round-figures|words|gdc-fix-mode seed 2068: misconception not detected: AI-SL1.6.round-accuracy#1
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 86: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 118: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 236: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 236: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 250: exact typed answer marked wrong: volume = 2330000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 250: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 250: misconception not detected: t1-ai-approx-bounds#7
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 252: exact typed answer marked wrong: volume = 2230000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 252: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 272: exact typed answer marked wrong: volume = 2050000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 272: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 272: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 282: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 288: exact typed answer marked wrong: volume = 4220000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 288: misconception not detected: t1-ai-approx-bounds#7
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 288: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 324: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 359: exact typed answer marked wrong: volume = 2150000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 359: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 364: exact typed answer marked wrong: volume = 1220000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 364: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 388: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 400: misconception not detected: t1-ai-approx-bounds#7
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 408: exact typed answer marked wrong: volume = 2170000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 408: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 431: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 435: misconception not detected: t1-ai-approx-bounds#7
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 450: exact typed answer marked wrong: volume = 3420000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 450: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 450: misconception not detected: t1-ai-approx-bounds#7
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 540: exact typed answer marked wrong: volume = 1790000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 540: misconception not detected: t1-ai-approx-bounds#7
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 584: exact typed answer marked wrong: volume = 1130000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 584: misconception not detected: t1-ai-approx-bounds#7
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 629: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 688: exact typed answer marked wrong: volume = 3500000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 688: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 688: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 700: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 715: exact typed answer marked wrong: volume = 2630000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 715: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 721: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 740: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 740: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 740: exact typed answer marked wrong: volume = 3760000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 740: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 740: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 785: misconception not detected: AI-SL1.6.bounds#0
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 812: exact typed answer marked wrong: volume = 1810000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 812: misconception not detected: t1-ai-approx-bounds#7
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare shared seed 812: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 815: exact typed answer marked wrong: volume = 3050000 m³
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 815: misconception not detected: t1-ai-approx-bounds#6
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 815: misconception not detected: t1-ai-approx-bounds#7
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 821: misconception not detected: t1-ai-approx-bounds#7
+FAIL t1-ai-approx-bounds|calc-bound|words|bound-and-compare seed 821: misconception not detected: AI-SL1.6.bounds#0

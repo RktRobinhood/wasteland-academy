@@ -1,0 +1,268 @@
+{
+  "frames": {
+    "signal-beacon-sheet_0001": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0002": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 40,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0003": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 80,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0004": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 120,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0005": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 160,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0006": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 200,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0007": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 240,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0008": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 280,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0009": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 320,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0010": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 360,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0011": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 400,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    },
+    "signal-beacon-sheet_0012": {
+      "duration": 100,
+      "frame": {
+        "h": 40,
+        "w": 40,
+        "x": 440,
+        "y": 0
+      },
+      "rotated": false,
+      "sourceSize": {
+        "h": 40,
+        "w": 40
+      },
+      "spriteSourceSize": {
+        "h": 40,
+        "w": 40,
+        "x": 0,
+        "y": 0
+      },
+      "trimmed": false
+    }
+  },
+  "meta": {
+    "app": "AniCraft",
+    "format": "RGBA8888",
+    "frameRate": 10.0,
+    "image": "signal-beacon-sheet.png",
+    "scale": "1",
+    "size": {
+      "h": 40,
+      "w": 480
+    },
+    "version": "0.2.1"
+  }
+}

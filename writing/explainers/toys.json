@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "about": "The toys an explainer can name, and the task kinds each takes (README, \"Toys\"). The lesson player hosts every toy through one interface (game/docs/TOYS.md, #217); the full catalogue, one toy set per zone, is #221. A toy is added here before a script names it.",
+  "toys": {
+    "relay": {
+      "zone": "functions",
+      "tutor": "rook-dead-air",
+      "name": "The relay",
+      "moves": "A dial of whole numbers and a switch.",
+      "shows": "Every send on the board as in → out, and a pin on the map strip for the output.",
+      "tasks": [
+        "free",
+        "send",
+        "find"
+      ],
+      "fields": {
+        "rule": "The rule in x, as the board writes it (x² − 4).",
+        "dial": "The least and greatest whole numbers on the dial; [−5, 5] if left out.",
+        "label": "Optional: the name on the box, such as f.",
+        "places": "Optional: settlements on the map strip, by output.",
+        "broken": "Optional: a second rule, so each input gives two outputs (no longer a function)."
+      },
+      "lessons": [
+        "ex.functions.function-machine"
+      ],
+      "rigour": "The dial sends only whole numbers, and the log shows only what was sent. The lesson makes it exact on paper: f(x) is the output for any input in the domain, worked by substitution.",
+      "built": "game/ui/toys/relay_toy.gd (FAL-1088, #217)"
+    }
+  }
+}

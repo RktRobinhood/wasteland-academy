@@ -1,0 +1,902 @@
+{
+  "id": "ex.foundations.pre-balance",
+  "format": 2,
+  "status": "draft",
+  "title": "Keep the Scales Level",
+  "idea": "An equation is a balance: do the same thing to both sides, undoing the last operation first, until the unknown stands alone, then substitute back to check.",
+  "zone": "foundations",
+  "tutor": "tin-can-tess",
+  "courses": [
+    "aa-sl",
+    "aa-hl",
+    "ai-sl",
+    "ai-hl"
+  ],
+  "syllabus": [
+    "SL2.1"
+  ],
+  "skills": [],
+  "builds_on": [
+    "ex.foundations.pre-substitute"
+  ],
+  "leads_to": [
+    "ex.foundations.pre-simultaneous",
+    "ex.foundations.pre-change-subject",
+    "ex.foundations.pre-linear-inequalities"
+  ],
+  "terms": [
+    "equation",
+    "solve"
+  ],
+  "misconceptions": [
+    "Moves a term to the other side without changing its sign",
+    "Multiplies only the first term in a bracket"
+  ],
+  "estimate": {
+    "words_watched": 801,
+    "words_not_watched": 837,
+    "narration_watched": "5 min 35 s",
+    "narration_not_watched": "5 min 49 s",
+    "basis": "150 spoken words a minute, plus each pause, 0.8 s for each cue and 2 s for each tap question with its longer feedback line. The two figures are the two recall versions. Player turns are player-paced and not counted."
+  },
+  "notes": [
+    "Foundations is prior learning (FAL-953), so this runs 4–6 minutes, not 6–8, and some sections are short.",
+    "Builds on ex.foundations.pre-substitute, which is also Tess's, so the recall uses her own.watched, own.not-watched, short-version and after lines. The check by substituting back, used in every example, is what ties the two together.",
+    "No second-method section: the map lists no methods. Of the question type's methods, inverse operations and collect terms are the lesson, expand-first appears in the slip's correction, and substitute-check is the check in every example. Clearing fractions is left to the question type; it would be a second new step in a 5-minute script.",
+    "The two misconceptions not used here (only the fraction terms multiplied by the common denominator; only one term divided when making y the subject) belong to the fractions and make-y-subject unknowns, which this script doesn't teach. Make-y-subject is ex.foundations.pre-change-subject.",
+    "Example 3 is a two-part course-style item (SL2.1, a point on a line and an x-intercept), as FAL-953 allows for Foundations.",
+    "Live numbers for the turns come from fn-pre-linear-equations (game/engine/situations/linear_equation.gd); the fallbacks are fixed and worked below.",
+    "Format 2 (FAL-1043): moved from approved back to draft until it passes the format 2 checks (#188, #190, #191). `node tools/explainer-scripts.mjs --todo` lists what is left: turn lines with numbers or story words, not-yet lines to key to misconceptions, repeated frames and jokes."
+  ],
+  "sections": [
+    {
+      "id": "cold-open",
+      "kind": "cold-open",
+      "beats": [
+        {
+          "line": "pgqrqq",
+          "speaker": "tin-can-tess",
+          "say": "Tess again. Out the front of the yard I've got the big scales, for weighing scrap to sell."
+        },
+        {
+          "line": "dxc5yj",
+          "speaker": "tin-can-tess",
+          "say": "People try all sorts on those scales, a thumb on the pan, a magnet in the boot, and one fella tried to weigh his dog in with his copper.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "joke": true
+        },
+        {
+          "line": "pehkjp",
+          "speaker": "tin-can-tess",
+          "say": "Today the scales tell us a number nobody wrote down.",
+          "pause": 0.5,
+          "board": [
+            {
+              "write": "3 bags + 4 bolts balance 19 bolts. How many in a bag?",
+              "kind": "heading"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recall",
+      "kind": "recall",
+      "builds_on": "ex.foundations.pre-substitute",
+      "watched": [
+        {
+          "use": "tin-can-tess.own.watched"
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "Substitute x = −2 into 3x + 10",
+            "choices": [
+              "4",
+              "16",
+              "−4"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "line": "jwplrn",
+                "speaker": "tin-can-tess",
+                "say": "Four. Minus two in brackets, times three, add ten. We'll use that today, to check our answers.",
+                "caption": "Four. (−2) × 3 + 10. We'll use that today, to check our answers."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "n8nb6l",
+                "speaker": "tin-can-tess",
+                "say": "Minus two goes in, in brackets. Three lots of minus two is minus six, and ten more is four. We'll use that today, to check our answers.",
+                "caption": "−2 goes in, in brackets. 3 × (−2) is −6, and ten more is four. We'll use that today, to check our answers."
+              }
+            ]
+          }
+        }
+      ],
+      "not_watched": [
+        {
+          "line": "v46l2g",
+          "speaker": "tin-can-tess",
+          "say": "Quick one before we start. Tap the answer."
+        },
+        {
+          "ask": {
+            "kind": "recall",
+            "prompt": "Substitute x = −2 into 3x + 10",
+            "choices": [
+              "4",
+              "16",
+              "−4"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "line": "w7u65q",
+                "speaker": "tin-can-tess",
+                "say": "Four. Good."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "ncedv0",
+                "speaker": "tin-can-tess",
+                "say": "It's four. Here's how."
+              }
+            ]
+          }
+        },
+        {
+          "use": "tin-can-tess.own.not-watched"
+        },
+        {
+          "use": "tin-can-tess.short-version"
+        },
+        {
+          "line": "oc67g6",
+          "speaker": "tin-can-tess",
+          "say": "Put the number in where the letter was, in brackets. Then powers, then times, then plus. Three lots of minus two is minus six, and ten more makes four.",
+          "caption": "Put the number in where the letter was, in brackets. Then powers, then times, then plus. 3 × (−2) is −6, and ten more makes four.",
+          "board": [
+            {
+              "write": "3(−2) + 10",
+              "move": "substitute"
+            },
+            {
+              "write": "= −6 + 10",
+              "move": "evaluate"
+            },
+            {
+              "write": "= 4",
+              "move": "evaluate"
+            }
+          ]
+        },
+        {
+          "use": "tin-can-tess.after"
+        }
+      ]
+    },
+    {
+      "id": "big-idea",
+      "kind": "big-idea",
+      "beats": [
+        {
+          "line": "gq3e0a",
+          "speaker": "tin-can-tess",
+          "say": "Here's the scales. On the left pan, three bags of bolts and four loose ones. On the right, nineteen loose bolts. And it's level.",
+          "clear": true,
+          "board": [
+            {
+              "write": "Left: 3 bags + 4 bolts.   Right: 19 bolts.   Level.",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "line": "hpp7p1",
+          "speaker": "tin-can-tess",
+          "say": "Every bag holds the same number. Call it x. Then three x plus four equals nineteen. Two sides that balance, with an equals sign between them: that's an equation.",
+          "caption": "Every bag holds the same number. Call it x. Then 3x + 4 = 19. Two sides that balance, with an equals sign between them: that's an equation.",
+          "board": [
+            {
+              "write": "x = the number of bolts in one bag",
+              "move": "introduce-letter"
+            },
+            {
+              "write": "equation: two sides that balance",
+              "kind": "term"
+            },
+            {
+              "write": "3x + 4 = 19",
+              "move": "model-from-context"
+            }
+          ]
+        },
+        {
+          "line": "gx8obk",
+          "speaker": "tin-can-tess",
+          "say": "To solve it, you find the x that keeps it level. And there's one rule. Whatever you do to one pan, you do to the other.",
+          "board": [
+            {
+              "write": "solve: find the value that makes it true",
+              "kind": "term"
+            },
+            {
+              "write": "Same thing to both sides",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "line": "a6xywi",
+          "speaker": "tin-can-tess",
+          "say": "So take the four loose bolts off the left. Then take four off the right as well, or the whole thing tips. Three bags balance fifteen.",
+          "board": [
+            {
+              "write": "3x + 4 − 4 = 19 − 4",
+              "move": "isolate"
+            },
+            {
+              "write": "3x = 15",
+              "move": "isolate"
+            }
+          ]
+        },
+        {
+          "line": "x5pqd2",
+          "speaker": "tin-can-tess",
+          "say": "Then split both pans three ways, and one bag balances five bolts. So x is five.",
+          "caption": "Then split both pans three ways, and one bag balances five bolts. So x is 5.",
+          "board": [
+            {
+              "write": "x = 5",
+              "move": "isolate",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "line": "o5rujx",
+          "speaker": "tin-can-tess",
+          "say": "See the order? The four went on last, so it comes off first. You undo it backwards, like taking an engine apart.",
+          "board": [
+            {
+              "write": "Undo the last thing first",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "line": "chevkb",
+          "speaker": "tin-can-tess",
+          "say": "My brother took an engine apart once and put it back in the order he liked best. Lovely noise. Didn't go anywhere.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "pause": 0.5,
+          "joke": true
+        }
+      ]
+    },
+    {
+      "id": "example-1",
+      "kind": "example",
+      "level": "full",
+      "problem": {
+        "setup": "Solve 4x + 7 = 31."
+      },
+      "beats": [
+        {
+          "line": "br40df",
+          "speaker": "tin-can-tess",
+          "say": "Now on paper. Step one: what we're finding. The value of x that makes four x plus seven equal thirty-one.",
+          "caption": "Now on paper. Step one: what we're finding. The value of x that makes 4x + 7 equal 31.",
+          "clear": true,
+          "board": [
+            {
+              "write": "Solve 4x + 7 = 31: find x.",
+              "kind": "heading",
+              "label": "Step 1: what are we finding?"
+            }
+          ]
+        },
+        {
+          "line": "ua34fi",
+          "speaker": "tin-can-tess",
+          "say": "Step two: undo the last thing first, which is the plus seven. Take seven from both sides. That leaves four x equals twenty-four.",
+          "caption": "Step two: undo the last thing first, which is the +7. Take seven from both sides. That leaves 4x = 24.",
+          "board": [
+            {
+              "write": "4x + 7 − 7 = 31 − 7",
+              "move": "isolate",
+              "label": "Step 2: − 7 from both sides"
+            },
+            {
+              "write": "4x = 24",
+              "move": "isolate"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why take away 7 before dividing by 4?",
+            "choices": [
+              "+7 was done last, so it comes off first",
+              "7 is the smaller number",
+              "Dividing first is against the rules"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "line": "xtl7qe",
+                "speaker": "tin-can-tess",
+                "say": "Yep. Last on, first off. Same as the engine."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "v3jqra",
+                "speaker": "tin-can-tess",
+                "say": "Think about how four x plus seven got built: times four, then add seven. You undo it backwards, so the seven comes off first.",
+                "caption": "Think about how 4x + 7 got built: times four, then add seven. You undo it backwards, so the seven comes off first."
+              }
+            ]
+          }
+        },
+        {
+          "line": "wlflbh",
+          "speaker": "tin-can-tess",
+          "say": "Step three: divide both sides by four, and x is six.",
+          "caption": "Step three: divide both sides by four, and x is 6.",
+          "board": [
+            {
+              "write": "4x ÷ 4 = 24 ÷ 4",
+              "move": "isolate",
+              "label": "Step 3: ÷ 4 on both sides"
+            },
+            {
+              "write": "x = 6",
+              "move": "isolate",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "line": "swlixq",
+          "speaker": "tin-can-tess",
+          "say": "Step four: check it. Six goes back in, in brackets, and four sixes are twenty-four, plus seven is thirty-one. Level.",
+          "caption": "Step four: check it. 6 goes back in, in brackets, and four sixes are 24, + 7 is 31. Level.",
+          "board": [
+            {
+              "write": "Check: 4(6) + 7 = 24 + 7 = 31 ✓",
+              "move": "check",
+              "kind": "check",
+              "label": "Step 4: substitute back"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-1",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "twin",
+        "like": "example-1",
+        "serve": "engine",
+        "cell": {
+          "type": "fn-pre-linear-equations",
+          "unknown": "two-step",
+          "rep": "equation",
+          "angle": "inverse-operations"
+        },
+        "command": "Solve",
+        "skills": [],
+        "intro": [
+          {
+            "line": "lv2y1j",
+            "speaker": "tin-can-tess",
+            "say": "Your go. Last on, first off, and both sides every time."
+          }
+        ],
+        "fallback": {
+          "setup": "Solve 5x − 8 = 27.",
+          "parts": [
+            {
+              "text": "Solve for x.",
+              "answer": "7"
+            }
+          ],
+          "working": [
+            "5x − 8 + 8 = 27 + 8",
+            "5x = 35",
+            "x = 7",
+            "Check: 5(7) − 8 = 35 − 8 = 27 ✓"
+          ]
+        },
+        "right": [
+          {
+            "line": "at656m",
+            "speaker": "tin-can-tess",
+            "say": "Sweet as. Both sides, every step."
+          },
+          {
+            "line": "tkqjjj",
+            "speaker": "tin-can-tess",
+            "say": "Choice. And you checked it, too."
+          }
+        ],
+        "not_yet": [
+          {
+            "line": "lbcysh",
+            "speaker": "tin-can-tess",
+            "say": "Close. Do the same to both sides, not only the one."
+          },
+          {
+            "line": "rgg2tx",
+            "speaker": "tin-can-tess",
+            "say": "Put your answer back in. Does it come out level?"
+          }
+        ]
+      }
+    },
+    {
+      "id": "example-2",
+      "kind": "example",
+      "level": "faded",
+      "problem": {
+        "setup": "Solve 5x + 2 = 2x + 20."
+      },
+      "beats": [
+        {
+          "line": "mwwxuh",
+          "speaker": "tin-can-tess",
+          "say": "Harder one. Bags on both pans this time. Five x plus two on the left, two x plus twenty on the right. Get the bags onto one side first.",
+          "caption": "Harder one. Bags on both pans this time. 5x + 2 on the left, 2x + 20 on the right. Get the bags onto one side first.",
+          "clear": true,
+          "board": [
+            {
+              "write": "Solve 5x + 2 = 2x + 20.",
+              "kind": "heading"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "fill",
+            "prompt": "Take 2x from both sides of 5x + 2 = 2x + 20. What's left?",
+            "choices": [
+              "3x + 2 = 20",
+              "7x + 2 = 20",
+              "3x + 2 = 22"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "line": "oovtt9",
+                "speaker": "tin-can-tess",
+                "say": "Three x plus two equals twenty. Two bags off each pan, and it's still level.",
+                "caption": "3x + 2 = 20. Two bags off each pan, and it's still level."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "hlwqbm",
+                "speaker": "tin-can-tess",
+                "say": "Take two x off both pans. Five x take away two x is three x, and the right side loses its x. Three x plus two equals twenty.",
+                "caption": "Take 2x off both pans. 5x − 2x is 3x, and the right side loses its x. 3x + 2 = 20."
+              }
+            ]
+          }
+        },
+        {
+          "line": "t607gg",
+          "speaker": "tin-can-tess",
+          "say": "From there it's the same as before. Take two off both sides, and three x is eighteen. Divide by three, and x is six.",
+          "caption": "From there it's the same as before. Take two off both sides, and 3x is 18. Divide by three, and x is 6.",
+          "board": [
+            {
+              "write": "5x − 2x + 2 = 2x − 2x + 20",
+              "move": "isolate"
+            },
+            {
+              "write": "3x + 2 = 20",
+              "move": "isolate"
+            },
+            {
+              "write": "3x = 18",
+              "move": "isolate"
+            },
+            {
+              "write": "x = 6",
+              "move": "isolate",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "line": "didfk1",
+          "speaker": "tin-can-tess",
+          "say": "Check each side on its own. Left, thirty-two. Right, thirty-two. Level.",
+          "board": [
+            {
+              "write": "Check: 5(6) + 2 = 32 and 2(6) + 20 = 32 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example-3",
+      "kind": "example",
+      "level": "exam",
+      "problem": {
+        "setup": "The line L has equation y = 3x − 4.",
+        "parts": [
+          {
+            "part": "a",
+            "command": "Find",
+            "text": "The point (k, 11) lies on L. Find k."
+          },
+          {
+            "part": "b",
+            "command": "Find",
+            "text": "Find the x-coordinate of the point where L crosses the x-axis."
+          }
+        ]
+      },
+      "beats": [
+        {
+          "line": "m6f3ob",
+          "speaker": "tin-can-tess",
+          "say": "Right, one set out like the exam papers now. Two parts, and the letter goes down before each one.",
+          "clear": true
+        },
+        {
+          "line": "c9uqmu",
+          "speaker": "tin-can-tess",
+          "say": "The question gives us a line and calls it L. Its equation is y equals three x, minus four.",
+          "caption": "The question gives us a line and calls it L. Its equation is y = 3x − 4.",
+          "board": [
+            {
+              "write": "L: y = 3x − 4",
+              "move": "read-givens"
+            }
+          ]
+        },
+        {
+          "line": "y8zo63",
+          "speaker": "tin-can-tess",
+          "say": "Part a. The point k, eleven sits on the line, so it fits the equation. Eleven goes in for y, and k for x.",
+          "caption": "Part a. The point (k, 11) sits on the line, so it fits the equation. Eleven goes in for y, and k for x.",
+          "board": [
+            {
+              "write": "(a)  11 = 3k − 4",
+              "part": "a",
+              "move": "apply-condition"
+            }
+          ]
+        },
+        {
+          "line": "tlz5ou",
+          "speaker": "tin-can-tess",
+          "say": "Undo the minus four by adding four to both sides, which gives fifteen equals three k, and divide by three. k is five.",
+          "caption": "Undo the −4 by adding four to both sides, which gives 15 = 3k, and divide by three. k is 5.",
+          "board": [
+            {
+              "write": "15 = 3k",
+              "part": "a",
+              "move": "isolate"
+            },
+            {
+              "write": "k = 5",
+              "part": "a",
+              "move": "isolate",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "line": "u243xd",
+          "speaker": "tin-can-tess",
+          "say": "Part b. Where the line crosses the x-axis.",
+          "board": [
+            {
+              "write": "(b)  0 = 3x − 4",
+              "part": "b",
+              "move": "apply-condition"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "why",
+            "prompt": "Why is y = 0 where L crosses the x-axis?",
+            "choices": [
+              "Every point on the x-axis has y = 0",
+              "The line starts at 0",
+              "x and y are equal there"
+            ],
+            "answer": 0,
+            "right": [
+              {
+                "line": "fv6ttv",
+                "speaker": "tin-can-tess",
+                "say": "That's it. On the x-axis you haven't gone up or down at all."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "pyvcko",
+                "speaker": "tin-can-tess",
+                "say": "Every point on the x-axis is level with zero. Not up, not down. So y is zero there.",
+                "caption": "Every point on the x-axis is level with zero. Not up, not down. So y is 0 there."
+              }
+            ]
+          }
+        },
+        {
+          "line": "pbakil",
+          "speaker": "tin-can-tess",
+          "say": "Add four, then divide by three. x is four over three. Leave it as a fraction. It's exact, and nobody asked you to round.",
+          "caption": "Add four, then divide by three. x is 4/3. Leave it as a fraction. It's exact, and nobody asked you to round.",
+          "board": [
+            {
+              "write": "4 = 3x",
+              "part": "b",
+              "move": "isolate"
+            },
+            {
+              "write": "x = 4/3",
+              "part": "b",
+              "move": "isolate",
+              "kind": "answer"
+            }
+          ]
+        },
+        {
+          "line": "dlyxb1",
+          "speaker": "tin-can-tess",
+          "say": "Check: three lots of four over three is four, take away four, zero.",
+          "caption": "Check: 3 × 4/3 is 4, take away four, zero.",
+          "board": [
+            {
+              "write": "Check: 3 × 4/3 − 4 = 4 − 4 = 0 ✓",
+              "part": "b",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "second-method",
+      "kind": "second-method",
+      "skipped": "The map lists no second method for this idea; see notes."
+    },
+    {
+      "id": "spot-the-slip",
+      "kind": "spot-the-slip",
+      "misconception": "Multiplies only the first term in a bracket",
+      "beats": [
+        {
+          "line": "uyb1k4",
+          "speaker": "tin-can-tess",
+          "say": "Found this under my bench. Somebody's working, and one of these lines isn't right. Have a look.",
+          "clear": true,
+          "board": [
+            {
+              "write": "4(x − 2) = 2x + 6",
+              "kind": "step",
+              "key": "s1"
+            },
+            {
+              "write": "4x − 2 = 2x + 6",
+              "kind": "slip",
+              "key": "s2"
+            },
+            {
+              "write": "2x = 8",
+              "kind": "step",
+              "key": "s3"
+            },
+            {
+              "write": "x = 4",
+              "kind": "step",
+              "key": "s4"
+            }
+          ]
+        },
+        {
+          "ask": {
+            "kind": "tap-line",
+            "prompt": "Tap the line with the slip.",
+            "choices": [
+              "s1",
+              "s2",
+              "s3",
+              "s4"
+            ],
+            "answer": 1,
+            "right": [
+              {
+                "line": "hcm7vz",
+                "speaker": "tin-can-tess",
+                "say": "That's the one. The four only got to the x. The minus two never got its share."
+              }
+            ],
+            "not_yet": [
+              {
+                "line": "ej1sop",
+                "speaker": "tin-can-tess",
+                "say": "Look at the bracket. The four in front multiplies everything inside it. Did it?"
+              }
+            ]
+          }
+        },
+        {
+          "line": "d1j0y5",
+          "speaker": "tin-can-tess",
+          "say": "Here's how you'd catch it yourself. Put four back into the first line. The left side's four lots of two, which is eight, and the right side's fourteen. Not level.",
+          "caption": "Here's how you'd catch it yourself. Put four back into the first line. The left side's 4 × 2, which is 8, and the right side's fourteen. Not level.",
+          "board": [
+            {
+              "write": "Check x = 4: 4(4 − 2) = 8, but 2(4) + 6 = 14 ✗",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        },
+        {
+          "line": "uzsp2d",
+          "speaker": "tin-can-tess",
+          "say": "So back on the bench. Four lots of x, and four lots of minus two: four x minus eight. That gives x equals seven, and seven checks out.",
+          "caption": "So back on the bench. 4 × x, and 4 × (−2): 4x − 8. That gives x = 7, and seven checks out.",
+          "board": [
+            {
+              "strike": "s2"
+            },
+            {
+              "write": "4x − 8 = 2x + 6,  so  2x = 14,  x = 7",
+              "move": "expand",
+              "kind": "answer"
+            },
+            {
+              "write": "Check x = 7: 4(7 − 2) = 20 and 2(7) + 6 = 20 ✓",
+              "move": "check",
+              "kind": "check"
+            }
+          ]
+        },
+        {
+          "line": "h1xa4n",
+          "speaker": "tin-can-tess",
+          "say": "I keep a tin of every bolt I've ever stripped. That slip's in there about six times.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "joke": true
+        }
+      ]
+    },
+    {
+      "id": "turn-2",
+      "kind": "your-turn",
+      "turn": {
+        "kind": "exam",
+        "like": "example-3",
+        "serve": "fallback",
+        "cell": {
+          "type": "fn-pre-linear-equations"
+        },
+        "skills": [],
+        "intro": [
+          {
+            "line": "oa6knd",
+            "speaker": "tin-can-tess",
+            "say": "Your go, and no help on the first try. Label the parts, and check each answer back in the equation."
+          }
+        ],
+        "fallback": {
+          "setup": "The line L has equation y = 2x + 5.",
+          "parts": [
+            {
+              "part": "a",
+              "text": "The point (k, 17) lies on L. Find k.",
+              "answer": "6"
+            },
+            {
+              "part": "b",
+              "text": "Find the x-coordinate of the point where L crosses the x-axis.",
+              "answer": "−5/2"
+            }
+          ],
+          "working": [
+            "(a) 17 = 2k + 5",
+            "12 = 2k",
+            "k = 6",
+            "Check: 2(6) + 5 = 17 ✓",
+            "(b) 0 = 2x + 5",
+            "−5 = 2x",
+            "x = −5/2",
+            "Check: 2(−5/2) + 5 = 0 ✓"
+          ]
+        },
+        "right": [
+          {
+            "line": "v1xnkj",
+            "speaker": "tin-can-tess",
+            "say": "Every part labelled, and every answer checked. That'd hold."
+          },
+          {
+            "line": "jcqv3o",
+            "speaker": "tin-can-tess",
+            "say": "Heaps better than I did my first time."
+          }
+        ],
+        "not_yet": [
+          {
+            "line": "wwt9z2",
+            "speaker": "tin-can-tess",
+            "say": "Put your answer back into the equation. Does it come out level?"
+          },
+          {
+            "line": "gq0dqw",
+            "speaker": "tin-can-tess",
+            "say": "On the x-axis, y is zero. Start part b from there.",
+            "caption": "On the x-axis, y is 0. Start part b from there."
+          }
+        ]
+      }
+    },
+    {
+      "id": "recap",
+      "kind": "recap",
+      "beats": [
+        {
+          "line": "sgfai7",
+          "speaker": "tin-can-tess",
+          "say": "So. An equation is a balance. Whatever you do to one side, you do to the other. Undo the last thing first, then put your answer back in to check it's level.",
+          "clear": true,
+          "board": [
+            {
+              "write": "Same thing to both sides",
+              "kind": "answer"
+            },
+            {
+              "write": "1. Undo the last operation first",
+              "kind": "note"
+            },
+            {
+              "write": "2. x terms on one side, numbers on the other",
+              "kind": "note"
+            },
+            {
+              "write": "3. Check: substitute back in",
+              "kind": "note"
+            }
+          ]
+        },
+        {
+          "line": "j9vrxh",
+          "speaker": "tin-can-tess",
+          "say": "Next time, two equations at once, with two unknowns. Two scales, one answer."
+        },
+        {
+          "line": "e209cg",
+          "speaker": "tin-can-tess",
+          "say": "The fella with the dog came back, by the way. Weighed the dog on its own this time.",
+          "cue": "laughs",
+          "cue_at": "end",
+          "joke": true
+        }
+      ]
+    }
+  ]
+}

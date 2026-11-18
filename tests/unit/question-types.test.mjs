@@ -9,8 +9,8 @@ const read = f => JSON.parse(fs.readFileSync(new URL(`../../${f}`, import.meta.u
 const doc = read('curriculum/question-types.json');
 // Extension types have no bank parts; tests/unit/pedagogy.test.mjs covers them.
 const exam = doc.types.filter(t => t.source === 'exam');
-const map = read('curriculum/aa-sl.json');
-const skillIds = new Set(map.topics.flatMap(t => t.subtopics.flatMap(st => st.skills.map(sk => sk.id))));
+// A type may name a skill of any layer: the AI types do (FAL-999).
+const skillIds = new Set(['aa-sl', 'aa-hl', 'ai'].flatMap(f => read(`curriculum/${f}.json`).topics.flatMap(t => t.subtopics.flatMap(st => st.skills.map(sk => sk.id)))));
 const FORMATS = ['mcq', 'value', 'multipart', 'error-spot', 'method-pick', 'match',
                  'order-steps', 'graph-pick', 'true-false-reason'];
 
@@ -27,11 +27,12 @@ test('type IDs are unique', () => {
 test('every bank part is assigned once, or listed as unclassified with a reason', () => {
   const all = [...exam.flatMap(t => t.parts), ...doc.unclassified.map(u => u.part)];
   assert.equal(new Set(all).size, all.length, 'a part appears twice');
-  assert.equal(all.length, doc.bank.parts);
+  // bank.parts counts the parts that must be assigned, AA SL's; types may own other courses' too.
+  assert.equal(all.filter(p => p.startsWith('aa-sl-')).length, doc.bank.parts);
   for (const u of doc.unclassified) assert.ok(u.reason, u.part);
 });
 
-test('skills and formats exist in aa-sl.json', () => {
+test('skills exist in the curriculum maps, and formats in the list', () => {
   for (const t of exam) {
     assert.ok(t.skills.length, `${t.id} has no skills`);
     for (const s of t.skills) assert.ok(skillIds.has(s), `${t.id}: unknown skill ${s}`);

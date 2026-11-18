@@ -1,0 +1,3 @@
+{"command":"comp.new","params":{"name":"burst","width":384,"height":320,"frameRate":12,"duration":2,"background":"#000000"}}
+{"command":"layer.newSolid","params":{"name":"cloud","color":"#000000"}}
+{"command":"effect.apply","params":{"effect":"Particle Emitter 2D"}}

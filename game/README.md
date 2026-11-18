@@ -22,6 +22,11 @@ game/
 ├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /?explore
 ├── scenes/explain.tscn  ← the explainer player on its own (ui/explain_screen.gd), at /?explain (see "Explainers")
 ├── ui/explainer.gd      ← the explainer player, an overlay any screen can open ("Watch it" on a worked solution)
+├── ui/toys/             ← lesson toys (#217): LessonToy, the Toys registry, the relay (docs/TOYS.md)
+├── scenes/toy.tscn      ← a toy on its own (ui/toy_screen.gd), at /?toy=relay
+├── ui/lesson/           ← the lesson player (#218): plays a tutor lesson's script (docs/LESSONS.md)
+├── scenes/lesson.tscn   ← a lesson on its own (ui/lesson_screen.gd), at /?lesson
+├── data/explainers/     ← a copy of writing/explainers/ for the lesson player (tools/game-explainers.mjs)
 ├── engine/moves.gd, data/moves.json ← the explainer moves and the step map, tagged onto steps at runtime
 ├── scenes/study.tscn    ← the academic study screen (ui/study.gd), at /?study: MathsEngine only
 ├── engine/              ← the question engine: situations, views, marking, planner, save (docs/QUESTION-ENGINE.md)
@@ -60,6 +65,8 @@ game/
 ├── tools/bazaar_sim.gd, bazaar_balance.gd  ← the Bazaar's balance check and price table
 ├── addons/godot_mcp_toolkit/  ← editor plugin for the Godot MCP (see docs/MCP-NOTES.md)
 ├── docs/QUESTION-ENGINE.md ← the question engine reference
+├── docs/TOYS.md         ← the interface every lesson toy shares
+├── docs/LESSONS.md      ← the lesson player: what it plays, the test page, the scripted run
 └── docs/MCP-NOTES.md
 ```
 
@@ -641,6 +648,24 @@ to drop the coded marker.
 
 Overworld painted by Matt Prokock with ChatGPT, 2026-11-16 (FAL-981); sky and dust bands extended locally with Qwen Image (FAL-986).
 
+### Moving pieces (FAL-1075)
+
+The world board has an ambient layer (`ui/ambient_layer.gd`, ported from The Unruly
+Atlas) between the painting and the buttons: the crow, the Signal Tower beacon, the
+Engine Core smoke, the Thunderdome neon and the Dry Flats dust (art from FAL-1074). Its
+pieces are listed in `data/ambient.json` under `"map"`, bottom to top, in the schema at
+the top of the script: a sheet, a board position and anchor, a frame mode and a motion.
+A sheet is `assets/ambient/<id>-sheet.png` with the `<id>-sheet.json` frame map beside
+it; the sources and rebuild commands are in `assets/ambient/src/`. The layer takes no
+taps. With reduced motion each piece holds the frame in its `"still"`, or is hidden
+without one.
+
+The fight screen plays the same file's `"fight"` effects over the enemy's portrait,
+scaled with it: the hit spark on a hit (`spark_hit()`, beside `flash_hurt()`) and the
+dust burst at its feet while the portrait fades when it falls (`enemy_falls()`). They
+don't play over the journey strip. With reduced motion there is no spark and a fallen
+enemy just goes.
+
 ## Art slots
 
 The game loads its art by file name (FAL-470, `engine/art_slots.gd`), so each art batch
@@ -943,6 +968,18 @@ script error happens while it runs. Run one file with
 - `test_log_equation.gd` (FAL-956): t1-log-equation built with every cell and all four skills, Paper 1
   only, four distinct options with one right and the answer in each working's last step; the rejected
   root is named in the working; a typed x is marked by its value; hand roots and factors; every tag shows up.
+- `test_approximation.gd` (FAL-999): t1-ai-percentage-error and t1-ai-approx-bounds built with every
+  cell and all five AI-SL1.6 skills, on the AI courses only, Paper 2 only; four distinct options with one
+  right and the answer in each working's last step; every tag shows up; a rounded value keeps its zeros
+  and rounding in stages carries; a typed value is marked by its value; bounds are half a unit away; the
+  largest error is from the lower bound.
+- `test_tvm.gd` (FAL-999): t1-ai-amortization and t1-ai-annuity built with every cell and all six
+  AI-SL1.7 skills, on the AI courses only, Paper 2 only; four distinct options with one right; every tag
+  shows up; the solver's sums against known values; a typed amount is marked to the cent; the cheaper of
+  two loans has the higher payment.
+- `test_log_technology.gd` (FAL-999): t1-ext-logs-with-technology built with every cell on all four
+  courses, Paper 2; method-pick on every cell and error-spot on the two equations, with the slip on
+  either line; every tag shows up; hand values of the logs.
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
