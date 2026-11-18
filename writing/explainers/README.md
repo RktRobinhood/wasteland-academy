@@ -23,7 +23,7 @@ Read [`../../TONE.md`](../../TONE.md) and [`../voice-sheets.md`](../voice-sheets
 | `ex.functions.line-model.json` | Start Plus Rate, built on Pin and Swing. Rook, about 6 minutes. |
 | `ex.functions.inverse-undo.json` | Run It Backwards, built on One In, One Out. Rook, about 6 minutes. |
 
-Nothing here is recorded yet. Casting is done: the board approved all six tutors' voices on FAL-927, each one Gemini text-to-speech with a fixed model, voice and direction (`tools/explainer-clips/teachers.json`, GitHub #18). The owner auditions again only when a new character is added. Every script is a `draft`. One In, One Out is in format 3, the four acts below (#216). The other eleven are still in format 2 and its nine-part arc (see "Format 2 scripts") until each is rewritten in acts. The checker reads both.
+Casting is done: the board approved all six tutors' voices on FAL-927 as Gemini text-to-speech voices, and on FAL-1110 (2026-11-17) the owner moved every voice to a local VoxCPM2 clone of its Gemini voice, so lines are recorded on our own machine at no cost per line (`tools/explainer-clips/teachers.json`, GitHub #18). One In, One Out, Rook's reactions and every tutor's callback lines have takes in `game/assets/audio/voice/explainers/` (FAL-1110); each take is in `manifest.json`, so a line whose `say` changes is recorded again. The owner auditions again only when a new character is added. Every script is a `draft`. One In, One Out is in format 3, the four acts below (#216). The other eleven are still in format 2 and its nine-part arc (see "Format 2 scripts") until each is rewritten in acts. The checker reads both.
 
 ## The four acts
 

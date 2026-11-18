@@ -374,7 +374,11 @@ test('the check catches a reaction set with another key', () => assert.match(rea
 test('a recorded reactions.json needs a take for every line, as a recorded script does', () => {
   const r = structuredClone(ctx.reactions);
   r.status = 'recorded';
-  assert.match(checkManifest(ctx.manifest, scripts, ctx.callbacks, r).errors.join('\n'), /reactions line \w+: the script is recorded, but this line has no take/);
+  // Rook's reactions have takes (FAL-1110), so take one away.
+  const m = structuredClone(ctx.manifest);
+  const [id] = Object.keys(m.lines.reactions);
+  m.lines.reactions[id].take = null;
+  assert.match(checkManifest(m, scripts, ctx.callbacks, r).errors.join('\n'), new RegExp(`reactions line ${id}: the script is recorded, but this line has no take`));
 });
 
 // ── Every spoken line is in the manifest (#189) ──

@@ -75,7 +75,7 @@ The renderer exits non-zero and lists the problem when the page throws an error,
 | `stats` | Radio Spires | Lucien "Lucky" Lenoir |
 | `calculus` | Engine Core | C.A.L.C. |
 
-All six are approved: the board chose each voice on FAL-927, and each is Gemini text-to-speech with the provider, model, voice and direction fixed in `teachers.json` (#18). The owner auditions again only when a new character is added. The renderer still fails a clip that has recordings for a tutor whose status is not `approved`, so a new tutor's clips can be built and rendered silent before casting.
+All six are approved: the board chose each voice on FAL-927 on Gemini text-to-speech, and on FAL-1110 each moved to a local VoxCPM2 clone of that voice, with the provider, model, mode, reference take and processing fixed in `teachers.json` (#18). The owner auditions again only when a new character is added. The renderer still fails a clip that has recordings for a tutor whose status is not `approved`, so a new tutor's clips can be built and rendered silent before casting.
 
 One clip has one narrator. The picture and timing don't depend on who speaks, so recasting a zone only means recording the lines again.
 
