@@ -125,6 +125,8 @@ static var SITUATIONS := {
 	"approximation": [ApproximationSituation, ApproximationViews],
 	"tvm": [TvmSituation, TvmViews],
 	"log-technology": [LogTechnologySituation, LogTechnologyViews],
+	"complex-number": [ComplexNumberSituation, ComplexNumberViews],
+	"complex-number-ai": [ComplexNumberSituation, ComplexNumberAiViews],
 	"depreciation": [DepreciationSituation, DepreciationViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],
 	"inverse-rule": [InverseRuleSituation, InverseRuleViews],

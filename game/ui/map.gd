@@ -116,7 +116,8 @@ const SPOTS := {
 	},
 	"algebra": {
 		"sequences": Vector2(24, 72), "finance": Vector2(76, 72), "exponents-logs": Vector2(21, 30),
-		"binomial": Vector2(79, 30), "proof": Vector2(50, 12), "all": Vector2(50, 50), "relic": Vector2(12, 50),
+		"binomial": Vector2(79, 30), "proof": Vector2(50, 12), "complex-numbers": Vector2(88, 50), "all": Vector2(50, 50),
+		"relic": Vector2(12, 50),
 	},
 	"geometry": {
 		"triangles": Vector2(25, 85), "trig-graphs": Vector2(75, 85), "arcs-sectors": Vector2(21, 64),
@@ -141,7 +142,7 @@ const LANDING := Vector2(50, 97)
 const GLYPHS := {
 	"quadratics": "x²", "exp-log": "log", "graphs-features": "(x,y)", "composite-inverse": "f(g)",
 	"rational": "1/x", "function-basics": "f(x)", "lines": "mx+c", "transformations": "-f(x)",
-	"sequences": "1,3,5", "finance": "%", "exponents-logs": "10²", "binomial": "nCr", "proof": "QED",
+	"sequences": "1,3,5", "finance": "%", "exponents-logs": "10²", "binomial": "nCr", "proof": "QED", "complex-numbers": "a+bi",
 	"triangles": "sin", "trig-graphs": "cos", "arcs-sectors": "rad", "geometry-3d": "3D", "trig-equations": "tan",
 	"unit-circle": "30°", "discrete-distributions": "E(X)", "probability": "P(A)", "normal-distribution": "z",
 	"regression": "r", "conditional-probability": "A|B", "averages-spread": "IQR", "sampling-data": "n=30",

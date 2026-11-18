@@ -48120,6 +48120,465 @@ SITUATION_CHECKS["log-technology"] = r1lt_check
 SPOT_CHECKS["log-technology"] = r1lt_spot
 
 
+# ── complex-number (t1-ahl-complex-cartesian, t1-ai-complex-cartesian, FAL-1004) ──────────
+# Every number is read back from the lines, the question or the Argand diagram's points, and the
+# answer and each slip are worked out again with SymPy, exactly: products, quotients and powers
+# with I, an argument with sp.arg (exact on Paper 1) or atan2 to 30 digits. A slip's option is
+# held to what that slip gives. Every name here starts CX_ or cx_, so it can't overwrite another
+# type's.
+
+CX_AA = "AHL1.12."
+CX_AI = "AI-AHL1.12."
+CX_TA = "t1-ahl-complex-cartesian#"
+CX_TI = "t1-ai-complex-cartesian#"
+# slip -> ref, for each type: the catalogue's misconceptions, in their order.
+CX_REFS = {
+    "t1-ahl-complex-cartesian": {
+        "i3": CX_AA + "powers-of-i#0", "coef": CX_AA + "powers-of-i#1", "i2plus": CX_AA + "cartesian-arithmetic#0",
+        "i2plus-div": CX_AA + "cartesian-arithmetic#0", "i2plus-pow": CX_AA + "cartesian-arithmetic#0",
+        "denom-only": CX_AA + "cartesian-arithmetic#1", "pairwise": CX_AA + "cartesian-arithmetic#2",
+        "power-parts": CX_AA + "cartesian-arithmetic#2", "quadrant": CX_AA + "parts-modulus-argument#1",
+        "mod-add": CX_AA + "parts-modulus-argument#2", "mod-diff": CX_AA + "parts-modulus-argument#2",
+        "one-root": CX_AA + "equate-parts#1", "conj-as-z": CX_AA + "equate-parts#2", "swap-axes": CX_AA + "argand-diagram#0",
+        "conj-imag-axis": CX_AA + "argand-diagram#1", "part-by-part": CX_TA + "11", "times": CX_TA + "12",
+        "wrong-part": CX_TA + "13", "k-sign": CX_TA + "14", "conj-real-sign": CX_TA + "15", "sqrt-swap": CX_TA + "16",
+        "sqrt-sign": CX_TA + "17", "p-sign": CX_TA + "18", "arctan-swap": CX_TA + "19", "clockwise": CX_TA + "20",
+        "conj-neg": CX_TA + "21", "add-not-sub": CX_TA + "22", "dist-no-root": CX_TA + "23", "sub-wrong-way": CX_TA + "24",
+        "sub-not-add": CX_TA + "25", "no-brackets": CX_TA + "26",
+    },
+    "t1-ai-complex-cartesian": {
+        "i2plus": CX_AI + "add-multiply#0", "pairwise": CX_AI + "add-multiply#1", "part-by-part": CX_AI + "divide-conjugate#0",
+        "diff-squares": CX_AI + "divide-conjugate#1", "denom-only": CX_AI + "divide-conjugate#2",
+        "quadrant": CX_AI + "modulus-argument#0", "no-root": CX_AI + "modulus-argument#1", "mod-diff": CX_AI + "modulus-argument#2",
+        "power-parts": CX_AI + "powers-technology#0", "no-brackets": CX_AI + "powers-technology#1",
+        "swap-axes": CX_AI + "argand-diagram#0", "conj-imag-axis": CX_AI + "argand-diagram#1", "conj-neg": CX_AI + "argand-diagram#2",
+        "not-halved": CX_AI + "complex-quadratic-roots#0", "no-solution": CX_AI + "complex-quadratic-roots#1",
+        "real-roots": CX_AI + "complex-quadratic-roots#2", "i3": CX_TI + "16", "times": CX_TI + "17", "arctan-swap": CX_TI + "18",
+        "clockwise": CX_TI + "19", "add-not-sub": CX_TI + "20", "h-sign": CX_TI + "21", "coef": CX_TI + "22",
+    },
+}
+CX_SUP = {c: str(i) for i, c in enumerate("⁰¹²³⁴⁵⁶⁷⁸⁹")}
+CX_READ_A = "The point A on the Argand diagram represents the complex number z."
+CX_READ_AB = "The points A and B on the Argand diagram represent the complex numbers z₁ and z₂."
+
+
+def cx_q(x):
+    """A rational as the game writes it: "3", "−3/2"."""
+    x = sp.Rational(x)
+    s = str(abs(x.p)) if x.q == 1 else f"{abs(x.p)}/{x.q}"
+    return ("−" if x < 0 else "") + s
+
+
+def cx_iterm(b):
+    m = abs(sp.Rational(b))
+    if m == 1:
+        return "i"
+    return f"{m.p}i" if m.q == 1 else f"({m.p}/{m.q})i"
+
+
+def cx_parts(z):
+    z = sp.expand(z)
+    a, b = sp.re(z), sp.im(z)
+    need(a.is_rational and b.is_rational, f"{z} doesn't have rational parts")
+    return sp.Rational(a), sp.Rational(b)
+
+
+def cx_fmt(z):
+    """a + bi as the IB writes it: "3 − 2i", "−i", "4", "1/2 + (3/2)i"."""
+    a, b = cx_parts(z)
+    if b == 0:
+        return cx_q(a)
+    if a == 0:
+        return ("−" if b < 0 else "") + cx_iterm(b)
+    return cx_q(a) + (" − " if b < 0 else " + ") + cx_iterm(b)
+
+
+def cx_parse(t):
+    """A complex number from its text: "−5 − 2i", "(3/5)i", "−2 + 2√3 i"."""
+    s = t.replace("−", "-")
+    s = re.sub(r"(\d)√", r"\1*√", s)
+    s = re.sub(r"√(\d+)", r"sqrt(\1)", s)
+    s = re.sub(r"(\d|\))\s*i", r"\1*I", s)
+    s = re.sub(r"(?<![A-Za-z*])i", "I", s)
+    need(re.fullmatch(r"[-+*/() 0-9I]*(sqrt\(\d+\)[-+*/() 0-9I]*)*", s) is not None, f"can't read the number {t!r}")
+    return sp.expand(sp.sympify(s, locals={"I": sp.I, "sqrt": sp.sqrt}))
+
+
+def cx_read(line, name):
+    need(line.startswith(name + " = "), f"expected {name} = …, got {line!r}")
+    return cx_parse(line[len(name) + 3:])
+
+
+def cx_sup(s):
+    need(s != "" and all(ch in CX_SUP for ch in s), f"can't read the power {s!r}")
+    return int("".join(CX_SUP[ch] for ch in s))
+
+
+def cx_mulplus(z, w):
+    """z × w worked with i² = +1."""
+    a, b = cx_parts(z)
+    c, d = cx_parts(w)
+    return (a * c + b * d) + (a * d + b * c) * sp.I
+
+
+def cx_root(n):
+    """√n in simplest surd form: "13", "√61", "6√2"."""
+    n = int(n)
+    m, r = 1, n
+    f = 2
+    while f * f <= r:
+        while r % (f * f) == 0:
+            r //= f * f
+            m *= f
+        f += 1
+    if r == 1:
+        return str(m)
+    return ("" if m == 1 else str(m)) + f"√{r}"
+
+
+def cx_pi(c):
+    """A multiple of π: "π", "5π/6", "−π/2"."""
+    c = sp.Rational(c)
+    top = "π" if abs(c.p) == 1 else f"{abs(c.p)}π"
+    return ("−" if c < 0 else "") + top + ("" if c.q == 1 else f"/{c.q}")
+
+
+def cx_point(q, label):
+    g = q["graph"]
+    need(g is not None and g.get("x_name") == "Re" and g.get("y_name") == "Im", "no Argand diagram")
+    pts = [p for p in g["points"] if p["label"] == label or p["label"].startswith(label + "(")]
+    need(len(pts) == 1, f"no point {label} on the diagram")
+    p = pts[0]
+    need(g["x0"] <= p["x"] <= g["x1"] and g["y0"] <= p["y"] <= g["y1"], f"{label} is off the diagram")
+    return p
+
+
+def cx_grid_point(q, label):
+    """A point drawn on a grid line: its whole-number coordinates."""
+    p = cx_point(q, label)
+    x, y = sp.Rational(p["x"]), sp.Rational(p["y"])
+    need(x.q == 1 and y.q == 1 and x != 0 and y != 0, f"{label} is not on a grid point off the axes")
+    return x + y * sp.I
+
+
+def cx_conj_text(z):
+    return cx_fmt(sp.conjugate(z))
+
+
+def cx_pm(z):
+    """±(a + bi) with a > 0."""
+    a, b = cx_parts(z)
+    if a < 0 or (a == 0 and b < 0):
+        z = -z
+    return f"±({cx_fmt(z)})"
+
+
+def cx_check(q):
+    t, u, rep, L, asked = q["view"]["type"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    refs = CX_REFS[t]
+    ai = t == "t1-ai-complex-cartesian"
+    need(q["paper"] == 2 if ai else q["paper"] in (1, 2), f"Paper {q['paper']}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+
+    def slip(key, text):
+        if key in refs:
+            wrongs.setdefault(refs[key], set()).add(text)
+
+    trap = None
+    I = sp.I
+    if u == "power-of-i":
+        need(t == "t1-ai-complex-cartesian" or q["paper"] == 1, "powers of i are Paper 1")
+        m = re.fullmatch(r"(?:i|\((\d)i\))([⁰¹²³⁴⁵⁶⁷⁸⁹]+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        k, n = int(m.group(1) or 1), cx_sup(m.group(2))
+        need(asked == f"Simplify {L[0]}, giving your answer in the form a + bi.", f"asked {asked!r}")
+        v = sp.expand((k * I) ** n)
+        want = cx_fmt(v)
+        if n % 4 == 3:
+            slip("i3", cx_fmt(k ** n * I))
+        if k > 1:
+            slip("coef", cx_fmt(sp.expand(k * I ** n)))
+    elif u == "product":
+        z = cx_read(L[0], "z")
+        if asked == "Find the value of zz*.":
+            name, w = "zz*", sp.conjugate(z)
+            need(len(L) == 1, "zz* has one number")
+        else:
+            m = re.fullmatch(r"Find (zw|z²|zw\*) in the form a \+ bi\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            name = m.group(1)
+            if name == "z²":
+                need(len(L) == 1, "z² has one number")
+                w = z
+            else:
+                need(len(L) == 2, "zw has two numbers")
+                w = cx_read(L[1], "w")
+                if name == "zw*":
+                    w = sp.conjugate(w)
+        p = sp.expand(z * w)
+        want = f"{name} = {cx_fmt(p)}"
+        a, b = cx_parts(z)
+        c, d = cx_parts(w)
+        slip("i2plus", f"{name} = {cx_fmt(cx_mulplus(z, w))}")
+        slip("pairwise", f"{name} = {cx_fmt(a * c + b * d * I)}")
+    elif u == "quotient":
+        need(asked == "Express z/w in the form a + bi.", f"asked {asked!r}")
+        z, w = cx_read(L[0], "z"), cx_read(L[1], "w")
+        r = sp.expand(sp.simplify(z / w))
+        ra, rb = cx_parts(r)
+        need(ra.q == 1 and rb.q == 1, "the quotient isn't whole")
+        want = f"z/w = {cx_fmt(r)}"
+        a, b = cx_parts(z)
+        c, d = cx_parts(w)
+        nw = c ** 2 + d ** 2
+        slip("denom-only", f"z/w = {cx_fmt(z / nw)}")
+        slip("part-by-part", f"z/w = {cx_fmt(a / c + b / d * I)}")
+        if c ** 2 != d ** 2:
+            slip("diff-squares", f"z/w = {cx_fmt(sp.expand(z * sp.conjugate(w)) / (c ** 2 - d ** 2))}")
+            slip("i2plus-div", f"z/w = {cx_fmt(cx_mulplus(z, sp.conjugate(w)) / (c ** 2 - d ** 2))}")
+    elif u == "solve-linear":
+        need(asked == "Find z in the form a + bi.", f"asked {asked!r}")
+        m = re.fullmatch(r"\((.+)\)z = (.+)", L[0]) or re.fullmatch(r"(−?\d*i)z = (.+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        w, rhs = cx_parse(m.group(1)), cx_parse(m.group(2))
+        r = sp.expand(sp.simplify(rhs / w))
+        ra, rb = cx_parts(r)
+        need(ra.q == 1 and rb.q == 1, "z isn't whole")
+        want = f"z = {cx_fmt(r)}"
+        c, d = cx_parts(w)
+        e, f = cx_parts(rhs)
+        slip("denom-only", f"z = {cx_fmt(rhs / (c ** 2 + d ** 2))}")
+        slip("times", f"z = {cx_fmt(sp.expand(rhs * w))}")
+        if c ** 2 != d ** 2:
+            slip("diff-squares", f"z = {cx_fmt(sp.expand(rhs * sp.conjugate(w)) / (c ** 2 - d ** 2))}")
+        if c != 0 and d != 0:
+            slip("part-by-part", f"z = {cx_fmt(e / c + f / d * I)}")
+    elif u == "power":
+        m = re.fullmatch(r"Find z([⁰¹²³⁴⁵⁶⁷⁸⁹]+) in the form a \+ bi\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        n = cx_sup(m.group(1))
+        need(2 <= n <= (6 if ai else 4), f"power {n}")
+        z = cx_read(L[0], "z")
+        a, b = cx_parts(z)
+        name = "z" + m.group(1)
+        want = f"{name} = {cx_fmt(sp.expand(z ** n))}"
+        slip("power-parts", f"{name} = {cx_fmt(sp.expand(a ** n + (b * I) ** n))}")
+        slip("no-brackets", f"{name} = {cx_fmt(sp.expand(a + b * I ** n))}")
+        pw = sp.Integer(1)
+        for _ in range(n):
+            pw = cx_mulplus(pw, z)
+        slip("i2plus-pow", f"{name} = {cx_fmt(pw)}")
+    elif u == "real-parameter":
+        m = re.fullmatch(r"z = \(k ([+−]) (\d*)i\)\((.+)\), where k is real\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        mm = int(m.group(2) or 1) * (-1 if m.group(1) == "−" else 1)
+        w = cx_parse(m.group(3))
+        k = sp.Symbol("k", real=True)
+        c, d = cx_parts(w)
+        re_, im_ = k * c - mm * d, k * d + mm * c
+        re_plus = k * c + mm * d
+        mode = {"Find the value of k for which z is real.": "real", "Find the value of k for which z is purely imaginary.": "imaginary",
+                "Find the value of k for which arg z = π/4.": "quarter"}.get(asked)
+        need(mode is not None, f"asked {asked!r}")
+        solve1 = lambda e: sp.solve(e, k)[0]
+        if mode == "real":
+            kv = solve1(im_)
+            slip("wrong-part", f"k = {cx_q(solve1(re_))}")
+        elif mode == "imaginary":
+            kv = solve1(re_)
+            slip("wrong-part", f"k = {cx_q(solve1(im_))}")
+            slip("i2plus", f"k = {cx_q(solve1(re_plus))}")
+        else:
+            kv = solve1(re_ - im_)
+            need(re_.subs(k, kv) > 0, "arg z is not π/4: the parts are not positive")
+            slip("i2plus", f"k = {cx_q(solve1(re_plus - im_))}")
+        need(kv != 0, "k is 0")
+        want = f"k = {cx_q(kv)}"
+        slip("k-sign", f"k = {cx_q(-kv)}")
+    elif u == "equate-conjugate":
+        need(asked == "Find z, giving your answer in the form a + bi.", f"asked {asked!r}")
+        m = re.fullmatch(r"(−?\d*)z ([+−]) (\d*)(i?)z\* = (.+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        al = {"": 1, "−": -1}.get(m.group(1)) or int(m.group(1).replace("−", "-"))
+        be = int(m.group(3) or 1) * (-1 if m.group(2) == "−" else 1)
+        rot = I if m.group(4) else 1
+        rhs = cx_parse(m.group(5))
+        x, y = sp.symbols("x y", real=True)
+
+        def solve_for(zs):
+            lhs = sp.expand(al * (x + y * I) + be * rot * zs)
+            sol = sp.solve([sp.re(lhs) - sp.re(rhs), sp.im(lhs) - sp.im(rhs)], [x, y], dict=True)
+            need(len(sol) == 1, "the equation doesn't have one solution")
+            return sol[0][x] + sol[0][y] * I
+
+        zv = solve_for(x - y * I)
+        want = f"z = {cx_fmt(zv)}"
+        slip("conj-as-z", f"z = {cx_fmt(sp.expand(sp.simplify(rhs / (al + be * rot))))}")
+        slip("conj-real-sign", f"z = {cx_fmt(solve_for(-x + y * I))}")
+    elif u == "square-root":
+        need(asked == "Find the two square roots of z, in the form ±(a + bi) with a > 0.", f"asked {asked!r}")
+        z = cx_read(L[0], "z")
+        a, b = sp.symbols("a b", real=True)
+        A, Bv = cx_parts(z)
+        sols = [s for s in sp.solve([a ** 2 - b ** 2 - A, 2 * a * b - Bv], [a, b], dict=True) if s[a].is_real and s[a] > 0]
+        need(len(sols) == 1 and sols[0][a].is_integer and sols[0][b].is_integer, "the roots aren't whole")
+        r = sols[0][a] + sols[0][b] * I
+        need(sp.expand(r ** 2 - z) == 0, "the root doesn't square back")
+        want = cx_pm(r)
+        ra, rb = cx_parts(r)
+        slip("one-root", cx_fmt(r))
+        slip("sqrt-swap", cx_pm(rb + ra * I))
+        slip("sqrt-sign", cx_pm(ra - rb * I))
+    elif u == "root-substitute":
+        m = re.fullmatch(r"The equation z² \+ pz \+ q = 0, where p and q are real, has a root z = (.+)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        need(asked == "Find the value of p and the value of q.", f"asked {asked!r}")
+        r = cx_parse(m.group(1))
+        p, qq = sp.symbols("p q", real=True)
+        e = sp.expand(r ** 2 + p * r + qq)
+        sol = sp.solve([sp.re(e), sp.im(e)], [p, qq], dict=True)
+        need(len(sol) == 1, "p and q aren't fixed")
+        pv, qv = sol[0][p], sol[0][qq]
+        want = f"p = {cx_q(pv)}, q = {cx_q(qv)}"
+        mr, nr = cx_parts(r)
+        slip("i2plus", f"p = {cx_q(-2 * mr)}, q = {cx_q(mr ** 2 - nr ** 2)}")
+        slip("p-sign", f"p = {cx_q(2 * mr)}, q = {cx_q(nr ** 2 - 3 * mr ** 2)}")
+    elif u in ("modulus", "argument", "argand-read"):
+        if rep == "equation":
+            need(u != "argand-read", "argand-read is on a diagram")
+            z = cx_read(L[0], "z")
+        else:
+            special = u == "argument" and L[0] != CX_READ_A
+            if special:
+                m = re.fullmatch(r"The point A\((.+), (.+)\) on the Argand diagram represents the complex number z\.", L[0])
+                need(m is not None, f"can't read {L[0]!r}")
+                z = cx_parse(m.group(1)) + cx_parse(m.group(2)) * I
+                p = cx_point(q, "A")
+                need(abs(sp.N(sp.re(z)) - p["x"]) < 1e-9 and abs(sp.N(sp.im(z)) - p["y"]) < 1e-9, "the point isn't where its label says")
+            else:
+                need(L[0] == CX_READ_A, f"lines {L!r}")
+                z = cx_grid_point(q, "A")
+        a, b = sp.re(z), sp.im(z)
+        if u == "modulus":
+            a, b = cx_parts(z)
+            n = a ** 2 + b ** 2
+            by_gdc = q["view"]["angle"] == "gdc-abs-angle"
+            sf = by_gdc and sp.sqrt(n).is_rational is False
+            need(asked == ("Find |z|." if by_gdc else "Find the exact value of |z|."), f"asked {asked!r}")
+            show = (lambda v: gc_s(sp.N(sp.sqrt(v), 30))) if sf else (lambda v: cx_root(v))
+            if sf:
+                want, trap = r1ap_sf("|z| = ", sp.N(sp.sqrt(n), 30))
+            else:
+                want = "|z| = " + cx_root(n)
+            slip("mod-add", "|z| = " + (gc_s(abs(a) + abs(b)) if sf else str(abs(a) + abs(b))))
+            slip("no-root", "|z| = " + (gc_s(n) if sf else str(n)))
+            if a ** 2 != b ** 2:
+                slip("mod-diff", "|z| = " + show(abs(a ** 2 - b ** 2)))
+        elif u == "argument":
+            th = sp.arg(z)
+            if q["paper"] == 1:
+                need(asked == "Find arg z, where −π < arg z ≤ π.", f"asked {asked!r}")
+                c = sp.nsimplify(th / sp.pi)
+                need(c.is_rational and c.q in (2, 3, 4, 6), f"arg z = {th} is not a standard angle")
+                want = "arg z = " + cx_pi(c)
+                if a < 0:
+                    slip("quadrant", "arg z = " + cx_pi(sp.nsimplify(sp.atan(b / a) / sp.pi)))
+                slip("arctan-swap", "arg z = " + cx_pi(sp.nsimplify(sp.atan(a / b) / sp.pi)))
+            else:
+                need(asked == "Find arg z, giving your answer in radians, correct to 3 significant figures.", f"asked {asked!r}")
+                need(sp.re(z).is_integer and sp.im(z).is_integer and abs(a) != abs(b), "Paper 2 numbers")
+                thf = sp.N(sp.atan2(b, a), 30)
+                need(r1ap_clear3(thf), "arg z is on a 3 s.f. edge")
+                want, trap = r1ap_sf("arg z = ", thf)
+                if a < 0:
+                    slip("quadrant", "arg z = " + gc_s(sp.N(sp.atan(b / a), 30)))
+                slip("arctan-swap", "arg z = " + gc_s(sp.N(sp.atan(a / b), 30)))
+        else:
+            a, b = cx_parts(z)
+            mode = {"Write down z in the form a + bi.": "z", "Write down z* in the form a + bi.": "z*",
+                    "Write down −z in the form a + bi.": "−z", "Find iz in the form a + bi.": "iz"}.get(asked)
+            need(mode is not None, f"asked {asked!r}")
+            op = {"z": lambda v: v, "z*": sp.conjugate, "−z": lambda v: -v, "iz": lambda v: sp.expand(I * v)}[mode]
+            want = f"{mode} = {cx_fmt(op(z))}"
+            slip("swap-axes", f"{mode} = {cx_fmt(op(b + a * I))}")
+            if mode == "z*":
+                slip("conj-imag-axis", f"{mode} = {cx_fmt(-a + b * I)}")
+                slip("conj-neg", f"{mode} = {cx_fmt(-z)}")
+            elif mode == "−z":
+                slip("conj-neg", f"{mode} = {cx_fmt(sp.conjugate(z))}")
+            elif mode == "iz":
+                slip("clockwise", f"{mode} = {cx_fmt(sp.expand(-I * z))}")
+    elif u == "argand-sum":
+        need(L == [CX_READ_AB], f"lines {L!r}")
+        z1, z2 = cx_grid_point(q, "A"), cx_grid_point(q, "B")
+        sw = lambda v: sp.im(v) + sp.re(v) * I
+        if asked == "Find z₁ + z₂ in the form a + bi.":
+            name, v, vs = "z₁ + z₂", z1 + z2, sw(z1) + sw(z2)
+            slip("sub-not-add", f"{name} = {cx_fmt(z1 - z2)}")
+        else:
+            need(asked == "The vector from A to B represents z₂ − z₁. Find z₂ − z₁ in the form a + bi.", f"asked {asked!r}")
+            name, v, vs = "z₂ − z₁", z2 - z1, sw(z2) - sw(z1)
+            slip("sub-wrong-way", f"{name} = {cx_fmt(z1 - z2)}")
+        want = f"{name} = {cx_fmt(v)}"
+        slip("swap-axes", f"{name} = {cx_fmt(vs)}")
+    elif u == "distance":
+        if rep == "equation":
+            need(asked == "Find the exact distance between the points that represent z₁ and z₂ on an Argand diagram.", f"asked {asked!r}")
+            z1, z2 = cx_read(L[0], "z₁"), cx_read(L[1], "z₂")
+        else:
+            need(L == [CX_READ_AB] and asked == "Find the exact distance AB.", f"lines {L!r}, asked {asked!r}")
+            z1, z2 = cx_grid_point(q, "A"), cx_grid_point(q, "B")
+        d = z2 - z1
+        n = sp.re(d) ** 2 + sp.im(d) ** 2
+        want = "|z₂ − z₁| = " + cx_root(n)
+        s = z1 + z2
+        slip("add-not-sub", "|z₂ − z₁| = " + cx_root(sp.re(s) ** 2 + sp.im(s) ** 2))
+        slip("dist-no-root", f"|z₂ − z₁| = {n}")
+        slip("no-root", f"|z₂ − z₁| = {n}")
+    elif u == "quadratic-roots":
+        need(ai, "quadratic-roots is AI's")
+        zx = sp.Symbol("z")
+        if rep == "equation":
+            need(asked == "Solve the equation, giving the roots in the form h ± ki.", f"asked {asked!r}")
+            m = re.fullmatch(r"(z² .+) = 0", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            poly = m.group(1)
+        else:
+            m = re.fullmatch(r"The diagram shows the graph of y = (x² .+), with its vertex marked\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            poly = m.group(1).replace("x", "z")
+            need(asked == f"Hence solve {poly} = 0, giving the roots in the form h ± ki.", f"asked {asked!r}")
+        mm = re.fullmatch(r"z² ([+−]) (\d*)z ([+−]) (\d+)", poly)
+        need(mm is not None, f"can't read the quadratic {poly!r}")
+        pv = int(mm.group(2) or 1) * (-1 if mm.group(1) == "−" else 1)
+        qv = int(mm.group(4)) * (-1 if mm.group(3) == "−" else 1)
+        roots = sp.solve(zx ** 2 + pv * zx + qv, zx)
+        need(len(roots) == 2 and all(sp.im(r) != 0 for r in roots), "the roots aren't a complex pair")
+        h, k = sp.re(roots[0]), abs(sp.im(roots[0]))
+        need(h.is_integer and k.is_integer and h != 0, "the roots aren't whole")
+        if rep == "graph":
+            g = q["graph"]
+            need(g and float(g["a"]) == 1.0 and float(g["h"]) == float(h) and float(g["k"]) == float(k ** 2), "the parabola drawn isn't this quadratic")
+            need([(p["x"], p["y"]) for p in g["points"]] == [(float(h), float(k ** 2))] and g["points"][0]["label"] == f"({cx_q(h)}, {cx_q(k ** 2)})", "the vertex marked")
+            need(g["y0"] < 0 < k ** 2 < g["y1"] and g["x0"] < h < g["x1"], "the vertex is off the graph")
+        roots_text = lambda hh, kk: f"z = {cx_q(hh)} ± {cx_iterm(kk)}"
+        want = roots_text(h, k)
+        slip("not-halved", roots_text(h, 2 * k))
+        slip("real-roots", f"z = {cx_q(h - k)} or z = {cx_q(h + k)}")
+        slip("no-solution", "There are no solutions.")
+        slip("h-sign", roots_text(-h, k))
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+SITUATION_CHECKS["complex-number"] = cx_check
+SITUATION_CHECKS["complex-number-ai"] = cx_check
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]
