@@ -825,7 +825,7 @@ func u_distance(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 # ── A real quadratic with complex roots (AI) ─────────────────
 
-func u_quadratic_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_quadratic_roots(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var h := Q.new(s.h)
 	var k := Q.new(s.kq)
 	var p := h.mul(-2)
@@ -835,10 +835,11 @@ func u_quadratic_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		return "z = %s ± %s" % [hh.text(), S.i_term(kk)]
 	var ans := Answer.make("form", {"h": h, "k": k, "text": roots.call(h, k)}, {"parts": ["z = ", {"slot": "h"}, " ± ", {"slot": "k"}, "i"]})
 	ans.exact = true
-	var wr: Array = [slip("not-halved", {"h": h, "k": k.mul(2), "text": roots.call(h, k.mul(2))}),
+	# Four slips for three wrong options: "no solutions" always, and two of the other three.
+	var wr: Array = [slip("no-solution", {"text": "There are no solutions.", "shape": "other"})] + rng.shuffled([
+		slip("not-halved", {"h": h, "k": k.mul(2), "text": roots.call(h, k.mul(2))}),
 		slip("real-roots", {"text": "z = %s or z = %s" % [h.sub(k).text(), h.add(k).text()], "shape": "other"}),
-		slip("no-solution", {"text": "There are no solutions.", "shape": "other"}),
-		slip("h-sign", {"h": h.neg(), "k": k, "text": roots.call(h.neg(), k)})]
+		slip("h-sign", {"h": h.neg(), "k": k, "text": roots.call(h.neg(), k)})])
 	var fill: Array = [{"h": h, "k": k.sq(), "text": roots.call(h, k.sq())}, {"h": h.neg(), "k": k.mul(2), "text": roots.call(h.neg(), k.mul(2))},
 		{"h": h.mul(2), "k": k, "text": roots.call(h.mul(2), k)}]
 	var disc := p.sq().sub(q.mul(4))

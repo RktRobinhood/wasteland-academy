@@ -126,7 +126,11 @@ func test_the_planner_serves_it_with_exam_style_only_to_aa_hl_only() -> void:
 		SaveData.set_course(s, course)
 		s.settings.exam_only = true
 		var seen := 0
-		for i in 400:
+		# Its share of AA HL's exam-only pool is an extension type's small weight (under one
+		# in 400 once complex numbers joined, FAL-1004), so AA HL draws until one comes.
+		for i in (5000 if course == "aa-hl" else 400):
+			if seen > 0:
+				break
 			var v := Planner.next(s, NOW)
 			check(v.get("format") != "probe", "%s was planned a probe" % course)
 			if v.get("type", "") == TYPE:
@@ -134,7 +138,7 @@ func test_the_planner_serves_it_with_exam_style_only_to_aa_hl_only() -> void:
 				check(course == "aa-hl", "%s was planned a counting question" % course)
 				check_eq(v.rep, "words", "an exam-only counting question is in words")
 		if course == "aa-hl":
-			check(seen > 0, "an AA HL student's 400 exam-only questions had no counting question")
+			check(seen > 0, "an AA HL student's 5000 exam-only questions had no counting question")
 		else:
 			check_eq(seen, 0, "an AA SL student was planned one")
 

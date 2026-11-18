@@ -312,14 +312,6 @@
 				"5.10"
 			],
 			"order": 7
-		},
-		{
-			"id": "complex-numbers",
-			"name": "Complex numbers",
-			"syllabus": [
-				"1.12"
-			],
-			"order": 6
 		}
 	],
 	"situations": {
@@ -91827,7 +91819,7 @@
 			"id": "t1-ahl-complex-cartesian",
 			"topic": 1,
 			"source": "exam",
-			"region": "complex-numbers",
+			"region": "exponents-logs",
 			"name": "Complex numbers in Cartesian form (AA HL)",
 			"summary": "Simplify powers of i, multiply, divide and raise a + bi to a power, find a real parameter that makes a product real or imaginary, solve equations by equating real and imaginary parts (with z*, a square root, or a root of a quadratic), find a modulus and an argument, and read numbers, sums and distances from an Argand diagram.",
 			"situation": "complex-number",
@@ -92497,7 +92489,7 @@
 			"id": "t1-ai-complex-cartesian",
 			"topic": 1,
 			"source": "exam",
-			"region": "complex-numbers",
+			"region": "exponents-logs",
 			"name": "Complex numbers in Cartesian form (AI HL)",
 			"summary": "Add, multiply and divide complex numbers by hand and on the GDC, simplify powers of i, find powers with technology, the modulus and the argument in radians, read numbers and distances from an Argand diagram, and solve real quadratics whose roots are complex.",
 			"situation": "complex-number-ai",
