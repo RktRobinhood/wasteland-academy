@@ -505,6 +505,28 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `order-steps` formats for AI-SL1.6 and AI-SL1.7; the engine doesn't build them, so none of these
   types offers them.
 <!-- R2-STATIONARY -->
+- `engine/situations/ai_stationary.gd` (FAL-1000) is `ai-stationary`, for `t5-ai-stationary-points`
+  (AI-SL5.6: solve-gradient-zero, locate-local-extrema, classify-by-gradient-sign, greatest-least-on-domain,
+  read-from-gradient-graph), an exam type on the AI courses only, Paper 2 throughout. Its functions are a
+  cubic built from f′(x) = 3a(x − p)(x − q) (whole p and q, so factorising works; one-decimal b, c and d,
+  so only the formula or the GDC gives the zeros, to 3 s.f.; or no x² term, so the zeros are ±r), ax + b/x + c
+  on x > 0, and six stories (a still's temperature, a track's height, a turbine's power, a reservoir's depth,
+  a flare's height and a drone's fuel per km), their coefficients rounded from f′ = 3a(t − p)(t − q) so the
+  zeros are GDC values. Its views (`ai_stationary_views.gd`) ask 11 unknowns over 39 cells: the zeros of f′
+  (from f, or the x of the extremum from f′ given), k from a stationary point, the coordinates of a local
+  maximum or minimum (from the equation, or with f on a GDC window that one end of the curve leaves through
+  its side), the greatest or least value of a story, the nature of a stationary point with its reason (a
+  claim; the table rep shows f and f′ at p ± 0.1), the greatest or least value on a domain (at an end about
+  half the time, sometimes with the stationary point of the kind asked outside it) and why a local maximum
+  is not the greatest. The vertex method's working is only built on a quadratic story (the recipe is told
+  the method and draws one), as the catalogue marks it failing on a cubic. The three f′-graph unknowns call
+  `DerivativeGraphSituation.generate` (`dg_ask` names its unknown) and `DerivativeGraphViews`' builders,
+  then re-tag their slips with this type's refs (the f′ turning point, the touch, the crossing read the
+  wrong way round when a maximum is asked, stopping at the touch) and move the rest to fillers; the
+  increasing view adds the type's own slip, where f′ rises. Whole-number answers are exact, the rest 3 s.f.
+  with the rounding trap. `r2sp_check` in the SymPy checker reads each function back from its sentence,
+  solves f′ = 0 exactly, rebuilds every tagged slip and checks the derivative and GDC lines of the working;
+  the f′-graph questions go to `E12DG_check` with the refs mapped back. `test_ai_stationary.gd`.
 
 <!-- R2-OPTIMISATION -->
 

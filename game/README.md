@@ -981,6 +981,12 @@ script error happens while it runs. Run one file with
   courses, Paper 2; method-pick on every cell and error-spot on the two equations, with the slip on
   either line; every tag shows up; hand values of the logs.
 <!-- R2-STATIONARY -->
+- `test_ai_stationary.gd` (FAL-1000): t5-ai-stationary-points built with all 39 cells and all five
+  AI-SL5.6 skills, on the AI courses only, Paper 2 only; four distinct options with one right and the answer
+  in each working's last step; every tag shows up, and none is the derivative-graph type's SL5.7 one; the
+  vertex working only on a quadratic story; a typed point or value is marked by its value; hand-worked
+  stationary points, the constant-kept zeros, the reciprocal's minimum, k from f(x) = 0 and an end that
+  beats the local maximum; the f′-graph unknowns draw DerivativeGraphSituation's curves.
 
 <!-- R2-OPTIMISATION -->
 
