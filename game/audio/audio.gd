@@ -91,6 +91,8 @@ var voice_volume := DEFAULT_VOICE_VOLUME:
 ## The last effect a scene asked for, heard or not (sound off still records it), so a
 ## test can tell what a screen would play.
 var last_sfx := ""
+## The file of the last voice line a scene asked for, heard or not, for tests.
+var last_voice := ""
 
 var _location := ""
 var _music: Array[AudioStreamPlayer] = []
@@ -177,6 +179,7 @@ func play_sfx(cue: String) -> void:
 ## the line, in seconds. Does nothing, and returns false, when sound or the voice is off.
 func play_voice(stream: AudioStream, speed := 1.0, from := 0.0) -> bool:
 	_voice.stop()
+	last_voice = stream.resource_path if stream != null else ""
 	if stream == null or not sound_enabled or voice_volume <= 0.0:
 		_set_ducked(false)
 		return false

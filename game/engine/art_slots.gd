@@ -8,7 +8,7 @@ extends RefCounted
 ##
 ##   ArtSlots.find("regions/quadratics/boss")      # "res://assets/regions/quadratics/boss.webp", or ""
 ##   ArtSlots.texture("title/key-art")             # a Texture2D, or null
-##   ArtSlots.enemy("quadratics", "boss", 5, 3, 1, 10)  # {"name", "taunt", "art", "hurt", "named"}
+##   ArtSlots.enemy("quadratics", "boss", 5, 3, 1, 10)  # {"name", "taunt", "speaker", "art", "hurt", "named"}
 ##
 ## Names and taunts are data: data/bosses.json (each region's mini-boss and boss) and
 ## data/enemies.json (the shared pool of regular enemies). Name-plate frames are
@@ -74,9 +74,10 @@ static func reset() -> void:
 	_data = {}
 
 
-## Who a fight is against, as the fight screen draws it: {"name", "taunt", "art", "hurt",
-## "named"} (art and hurt are file paths, "" for none; named is true when
-## data/bosses.json named a mini-boss or boss). kind is "fight", "mini" or "boss"
+## Who a fight is against, as the fight screen draws it: {"name", "taunt", "speaker",
+## "art", "hurt", "named"} (art and hurt are file paths, "" for none; named is true when
+## data/bosses.json named a mini-boss or boss; speaker is whose voice the taunt's take
+## is under, "<bosses.json key>-miniboss" or "-boss", VoiceLines, FAL-1134). kind is "fight", "mini" or "boss"
 ## (Dungeon.fight_kind). A mini-boss or boss uses its region's art and its name and
 ## taunt from data/bosses.json, keyed by region id or, failing that, by island id
 ## (MapLink.island_of); a regular fight draws from the shared pool. Whatever is
@@ -84,7 +85,7 @@ static func reset() -> void:
 ## The draw hashes the run seed, floor and fight, so it never moves the run's own dice.
 static func enemy(region: String, kind: String, tier: int, seed_no: int, on_floor: int, fight: int) -> Dictionary:
 	var e: Dictionary = Tuning.ENEMIES[tier]
-	var out := {"name": e.name, "taunt": "", "named": false, "art": "res://assets/enemies/" + e.art, "hurt": _hurt_of("enemies/" + e.art.get_basename())}
+	var out := {"name": e.name, "taunt": "", "speaker": "", "named": false, "art": "res://assets/enemies/" + e.art, "hurt": _hurt_of("enemies/" + e.art.get_basename())}
 	var pool := []
 	for p in data("enemies.json"):
 		if int(p.get("tier", 0)) == tier and find("enemies/" + str(p.id)) != "":
@@ -99,10 +100,13 @@ static func enemy(region: String, kind: String, tier: int, seed_no: int, on_floo
 		# The region's own, else its island's (an island's all-regions dungeon, a region
 		# with no entry yet, and the Thunderdome, FAL-925).
 		var bosses: Dictionary = data("bosses.json")
-		var said: Dictionary = bosses.get(region, bosses.get(MapLink.island_of(region), {})).get(slot, {})
+		var key := region if bosses.has(region) else MapLink.island_of(region)
+		var said: Dictionary = bosses.get(key, {}).get(slot, {})
 		out.named = said.has("name")
 		out.name = said.get("name", out.name)
 		out.taunt = said.get("taunt", "")
+		if out.taunt != "":
+			out.speaker = "%s-%s" % [key, slot]
 		var art := find("regions/%s/%s" % [region, slot])
 		if art != "":
 			out.art = art

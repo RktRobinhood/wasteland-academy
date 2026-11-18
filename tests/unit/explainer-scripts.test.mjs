@@ -368,7 +368,15 @@ test('reactions.json passes, and Rook has acknowledgements and slip reactions', 
 });
 test('the check lists a reaction that names a number', () => assert.match(reactionTodo(r => { r.tutors['rook-dead-air'].slip[0].say = 'Static. Three fuses gone.'; }), /a reaction says "three"/));
 test("the check lists a reaction that breaks its tutor's rules", () => assert.match(reactionTodo(r => { r.tutors['tin-can-tess'] = { ack: [{ line: 'zzzzt1', speaker: 'tin-can-tess', say: 'Sweet as.' }, { line: 'zzzzt2', speaker: 'tin-can-tess', say: 'Choice.' }], slip: [{ line: 'zzzzt3', speaker: 'tin-can-tess', say: 'Oops, that went wrong.' }, { line: 'zzzzt4', speaker: 'tin-can-tess', say: 'Back on the bench.' }, { line: 'zzzzt5', speaker: 'tin-can-tess', say: 'Bit off, eh.' }] }; }), /tin-can-tess never says "wrong"/));
-test('the check lists a tutor with too few slip reactions', () => assert.match(reactionTodo(r => { r.tutors['rook-dead-air'].slip.length = 2; }), /fewer than three slip reactions/));
+test('the check lists a tutor with fewer than 12 slip reactions', () => assert.match(reactionTodo(r => { r.tutors['rook-dead-air'].slip.length = 2; }), /has 2 slip reactions; it needs at least 12/));
+test('the check lists a tutor with fewer than 10 acknowledgements', () => assert.match(reactionTodo(r => { r.tutors['rook-dead-air'].ack.length = 1; }), /has 1 acknowledgements; it needs at least 10/));
+test('a set of 10 acks and 12 slips needs no more', () => {
+  const todo = reactionTodo(r => {
+    const t = r.tutors['rook-dead-air'];
+    for (const [k, n] of [['ack', 10], ['slip', 12]]) while (t[k].length < n) t[k].push({ ...t[k][0], line: `zz${k}${t[k].length}` });
+  });
+  assert.doesNotMatch(todo, /it needs at least/);
+});
 test('the check catches a reaction spoken by another tutor', () => assert.match(reactionErr(r => { r.tutors['rook-dead-air'].ack[0].speaker = 'calc'; }), /a rook-dead-air reaction is spoken by calc/));
 test('the check catches a reaction set with another key', () => assert.match(reactionErr(r => { r.tutors['rook-dead-air'].praise = []; }), /a tutor's reactions are ack and slip/));
 test('a recorded reactions.json needs a take for every line, as a recorded script does', () => {
