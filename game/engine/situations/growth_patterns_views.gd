@@ -7,6 +7,25 @@ extends ExtensionViews
 const LIN := "linear: the differences are constant"
 const EXP := "exponential: the ratios are constant"
 const NEITHER := "neither: the differences and the ratios both change"
+const GOES_UP := "linear: the values go up"
+const GOES_UP_GRAPH := "linear: it goes up"
+
+const T := "fn-concept-growth-patterns#"
+const R_SWAP_TESTS := T + "5"
+const R_DIFFS_ONLY := T + "6"
+const R_RISING_DIFFS := T + "7"
+const R_GOES_UP := T + "8"
+const R_RATE_ADDED := T + "9"
+const R_START_BASE := T + "10"
+const R_GAIN_FACTOR := T + "11"
+const R_GAIN_PERCENT := T + "12"
+const R_NO_START := T + "13"
+const R_SWAP_ANSWERS := T + "14"
+const R_DOUBLE := T + "15"
+const R_ADD_VALUE := T + "16"
+const R_SWAP_ROLES := T + "17"
+const R_A_ADDED := T + "18"
+const R_ROUND_DOWN := T + "19"
 
 
 func needs() -> Dictionary:
@@ -46,18 +65,42 @@ static func value(s: Dictionary, kind: String, t: int) -> Q:
 	return s.P0.add(s.d.mul(Q.new(t * t)))
 
 
+## The wrong classifications of a `kind` pattern: the slips tagged, the rest fillers.
+## Linear and exponential mistaken for each other swap the two tests; neither for
+## exponential stops at the differences; exponential for neither (differences that
+## grow, ratios that change) never checks the ratios.
+static func sort_classes(kind: String, others: Array) -> Dictionary:
+	var out := {"wrongs": [], "fillers": []}
+	for o in others:
+		var ref := ""
+		if o == GOES_UP or o == GOES_UP_GRAPH:
+			ref = R_GOES_UP
+		elif (kind == "lin" and o == EXP) or (kind == "exp" and o == LIN):
+			ref = R_SWAP_TESTS
+		elif kind == "exp" and o == NEITHER:
+			ref = R_DIFFS_ONLY
+		elif kind == "neither" and o == EXP:
+			ref = R_RISING_DIFFS
+		if ref == "":
+			out.fillers.append({"v": o})
+		else:
+			out.wrongs.append(wrong({"v": o}, ref))
+	return out
+
+
 func u_classify_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var kind: String = s.kind
 	var vals: Array = range(5).map(func(t): return value(s, kind, t))
 	var right: String = {"lin": LIN, "exp": EXP, "neither": NEITHER}[kind]
-	var opts := [right] + [LIN, EXP, NEITHER].filter(func(o): return o != right) + ["linear: the values go up"]
+	var opts := [right] + [LIN, EXP, NEITHER].filter(func(o): return o != right) + [GOES_UP]
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
 	var diffs: Array = range(4).map(func(i): return D(vals[i + 1].sub(vals[i])))
 	var ratios: Array = range(4).map(func(i): return D(vals[i + 1].div(vals[i])))
 	var final := "So it is " + right + "."
+	var sorted := sort_classes(kind, opts.slice(1))
 	return {"asked": "Is the pattern in the table linear, exponential or neither?", "lines": ["The table shows a quantity at equal steps."],
 		"table": {"rows": [["t", ["0", "1", "2", "3", "4"]], ["y", vals.map(func(v): return D(v))]]}, "answer": ans,
-		"generic": opts.slice(1).map(func(o): return {"v": o}),
+		"wrongs": sorted.wrongs, "fillers": sorted.fillers,
 		"methods": {
 			"table-differences": method(["Differences: %s." % ", ".join(diffs), "Ratios: %s." % ", ".join(ratios), final], ans.values),
 			"repeated-multiplication": method(["Divide each value by the one before: %s." % ", ".join(ratios), "Subtract instead: %s." % ", ".join(diffs), final], ans.values),
@@ -79,20 +122,21 @@ func u_classify_words(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		lines = ["A colony starts with %s cells and grows by %s%% each hour." % [D(P0), D(r)]]
 		right = "exponential: N = %s(%s)^t" % [D(P0), D(s.a)]
 		wrongs = [wrong({"v": "exponential: N = %s(%s)^t" % [D(P0), D(r.div(Q.new(100)))]}, "SL2.9.exp-model#0"),
-			wrong({"v": "linear: N = %s + %st" % [D(P0), D(P0.mul(r).div(Q.new(100)))]}, "SL2.9.exp-model#1")]
-		gen = ["linear: N = %s + %st" % [D(P0), D(r)], "exponential: N = %s(%s)^t" % [D(r), D(P0)]]
+			wrong({"v": "linear: N = %s + %st" % [D(P0), D(P0.mul(r).div(Q.new(100)))]}, "SL2.9.exp-model#1"),
+			wrong({"v": "linear: N = %s + %st" % [D(P0), D(r)]}, R_RATE_ADDED),
+			wrong({"v": "exponential: N = %s(%s)^t" % [D(r), D(P0)]}, R_START_BASE)]
 	else:
 		var d: Q = s.d
 		lines = ["A tank holds %s litres and gains %s litres each hour." % [D(P0), D(d)]]
 		right = "linear: N = %s + %st" % [D(P0), D(d)]
-		wrongs = [wrong({"v": "linear: N = %s + %st" % [D(d), D(P0)]}, "SL2.1.line-model#1")]
-		gen = ["exponential: N = %s(%s)^t" % [D(P0), D(d)], "exponential: N = %s(%s)^t" % [D(P0), D(Q.new(1).add(d.div(Q.new(100))))],
-			"linear: N = %st" % D(d)]
-	var opts: Array = [right] + wrongs.map(func(w): return w.values.v) + gen
+		wrongs = [wrong({"v": "linear: N = %s + %st" % [D(d), D(P0)]}, "SL2.1.line-model#1"),
+			wrong({"v": "exponential: N = %s(%s)^t" % [D(P0), D(d)]}, R_GAIN_FACTOR),
+			wrong({"v": "exponential: N = %s(%s)^t" % [D(P0), D(Q.new(1).add(d.div(Q.new(100))))]}, R_GAIN_PERCENT),
+			wrong({"v": "linear: N = %st" % D(d)}, R_NO_START)]
+	var opts: Array = [right] + wrongs.map(func(w): return w.values.v)
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
 	var final := "So it is " + right + "."
 	return {"asked": "Is it linear or exponential growth? Choose the model, with t in hours.", "lines": lines, "answer": ans, "wrongs": wrongs,
-		"generic": gen.map(func(o): return {"v": o}),
 		"methods": {"rate-and-start": method([
 			"It starts at %s." % D(P0),
 			("Growing by a percentage multiplies by the same factor, %s, each hour." % D(s.a)) if exp_kind else "Gaining the same amount adds %s each hour." % D(s.d),
@@ -102,15 +146,16 @@ func u_classify_words(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 func u_classify_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var kind: String = "exp" if s.kind == "neither" else s.kind
 	var right := EXP if kind == "exp" else LIN
-	var opts := [right, LIN if kind == "exp" else EXP, NEITHER, "linear: it goes up"]
+	var opts := [right, LIN if kind == "exp" else EXP, NEITHER, GOES_UP_GRAPH]
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
 	var f := func(t: float) -> float: return GrowthPatternsSituation.E(s, t) if kind == "exp" else GrowthPatternsSituation.L(s, t)
 	var top := maxf(f.call(0.0), f.call(6.0))
 	var pts: Array = [0, 1, 2, 3].map(func(t): return [t, value(s, kind, t).to_float(), Fmt.point(t, value(s, kind, t))])
 	var final := "So it is " + right + "."
+	var sorted := sort_classes(kind, opts.slice(1))
 	return {"asked": "Is the growth shown linear or exponential?", "lines": ["The graph shows a quantity y against time t."], "answer": ans,
 		"graph": Plot.spec([Plot.sample(f, 0.0, 6.0)], pts, 0, 6, 0, Plot.nice_top(top)),
-		"generic": opts.slice(1).map(func(o): return {"v": o}),
+		"wrongs": sorted.wrongs, "fillers": sorted.fillers,
 		"methods": {"base-comparison": method([
 			"Read the marked points: %s." % ", ".join(pts.map(func(p): return p[2])),
 			("Each step multiplies y by %s: the curve gets steeper." % D(s.a)) if kind == "exp" else "Each step adds %s: a straight line." % D(s.d), final], ans.values)}}
@@ -127,7 +172,8 @@ func u_next_values(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So " + Answer.text(ans) + "."
 	return {"asked": "Find the next value if the pattern is linear, and if it is exponential.", "lines": ["The first two values are %s and %s." % [D(v0), D(v1)]],
 		"table": {"rows": [["t", ["0", "1", "2"]], ["y", [D(v0), D(v1), "?"]]]}, "answer": ans,
-		"generic": [{"v0": ex, "v1": lin}, {"v0": lin, "v1": v1.mul(Q.new(2))}, {"v0": v1.add(v0), "v1": ex}, {"v0": lin, "v1": v1.add(v1.sub(v0).mul(s.a))}],
+		"wrongs": [wrong({"v0": ex, "v1": lin}, R_SWAP_ANSWERS), wrong({"v0": lin, "v1": v1.mul(Q.new(2))}, R_DOUBLE), wrong({"v0": v1.add(v0), "v1": ex}, R_ADD_VALUE)],
+		"fillers": [{"v0": lin, "v1": v1.add(v1.sub(v0).mul(s.a))}],
 		"methods": {
 			"table-differences": method(["The difference is %s − %s = %s, so linear gives %s + %s = %s." % [D(v1), D(v0), D(v1.sub(v0)), D(v1), D(v1.sub(v0)), D(lin)],
 				"The ratio is %s ÷ %s = %s, so exponential gives %s × %s = %s." % [D(v1), D(v0), D(s.a), D(v1), D(s.a), D(ex)], final], ans.values),
@@ -145,8 +191,8 @@ func u_interpret_d_and_r(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
 	var lines: Array = ["L(t) = %s + %st" % [D(s.Q0), D(d)], "E(t) = %s(%s)^t" % [D(s.P0), D(a)]] if rep == "equation" \
 		else ["Two savings plans: L starts at %s and gains %s a year; E starts at %s and grows by %s%% a year." % [D(s.Q0), D(d), D(s.P0), D(s.r)]]
-	return {"asked": "What do d and a mean for each step?", "lines": lines, "answer": ans, "wrongs": [wrong({"v": w0}, "SL2.1.line-model#0")],
-		"generic": [{"v": opts[2]}, {"v": opts[3]}],
+	return {"asked": "What do d and a mean for each step?", "lines": lines, "answer": ans, "wrongs": [wrong({"v": w0}, "SL2.1.line-model#0"),
+			wrong({"v": opts[2]}, R_SWAP_ROLES), wrong({"v": opts[3]}, R_A_ADDED)],
 		"methods": {"rate-and-start": method(["L adds d = %s every step: a rate per step, not a total." % D(d), "E multiplies by a = %s every step." % D(a), "So " + right + "."], ans.values)}}
 
 
@@ -163,8 +209,8 @@ func u_when_overtakes(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So " + Answer.text(ans) + "."
 	var out := {"asked": "Find the first whole number of steps t after which E stays ahead of L.", "answer": ans,
 		"lines": ["L(t) = %s + %st" % [D(s.Q0), D(s.d)], "E(t) = %s(%s)^t" % [D(s.P0), D(s.a)]],
-		"wrongs": [wrong({"v": Q.new(roundi(nneg))}, "SL2.1.line-model#2")],
-		"generic": [{"v": Q.new(n - 1)}, {"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}],
+		"wrongs": [wrong({"v": Q.new(roundi(nneg))}, "SL2.1.line-model#2"), wrong({"v": Q.new(n - 1)}, R_ROUND_DOWN)],
+		"fillers": [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}],
 		"pick_wrongs": [{"name": "Set the rates equal", "why": "a ratio and a difference are not the same kind of rate"},
 			{"name": "Compare the starting values", "why": "L starts ahead; what matters is when that changes"},
 			{"name": "Solve a linear equation", "why": "E is not linear, so there is no single linear equation to solve"}],

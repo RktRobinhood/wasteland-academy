@@ -71402,6 +71402,129 @@
 						"when-overtakes"
 					],
 					"wrong": "a negative step where the two models are equal kept as the overtaking time"
+				},
+				{
+					"text": "Swaps the two tests, taking constant differences for exponential growth and constant ratios for linear",
+					"as": "distractor",
+					"in": [
+						"classify-table",
+						"classify-graph"
+					],
+					"wrong": "linear for constant ratios, or exponential for constant differences"
+				},
+				{
+					"text": "Checks only the differences and calls the pattern neither, without testing the ratios",
+					"as": "distractor",
+					"in": [
+						"classify-table",
+						"classify-graph"
+					],
+					"wrong": "neither, for a pattern with constant ratios"
+				},
+				{
+					"text": "Takes differences that keep growing as a sign of exponential growth, without checking the ratios",
+					"as": "distractor",
+					"in": [
+						"classify-table"
+					],
+					"wrong": "exponential, for growing differences whose ratios change"
+				},
+				{
+					"text": "Calls a pattern linear just because its values go up",
+					"as": "distractor",
+					"in": [
+						"classify-table",
+						"classify-graph"
+					],
+					"wrong": "linear: the values go up"
+				},
+				{
+					"text": "Adds the percentage rate as a fixed amount each hour, as if it were a gain",
+					"as": "distractor",
+					"in": [
+						"classify-words"
+					],
+					"wrong": "P₀ + rt for \"grows by r% each hour\""
+				},
+				{
+					"text": "Swaps the starting amount and the percentage, so the start becomes the base of the power",
+					"as": "distractor",
+					"in": [
+						"classify-words"
+					],
+					"wrong": "r(P₀)^t for \"starts at P₀ and grows by r%\""
+				},
+				{
+					"text": "Treats a fixed gain each hour as a growth factor, multiplying by it instead of adding it",
+					"as": "distractor",
+					"in": [
+						"classify-words"
+					],
+					"wrong": "P₀(d)^t for \"gains d each hour\""
+				},
+				{
+					"text": "Treats a fixed gain each hour as a percentage rise",
+					"as": "distractor",
+					"in": [
+						"classify-words"
+					],
+					"wrong": "P₀(1 + d/100)^t for \"gains d each hour\""
+				},
+				{
+					"text": "Forgets the starting amount, so the model starts from nothing",
+					"as": "distractor",
+					"in": [
+						"classify-words"
+					],
+					"wrong": "dt for \"starts at P₀ and gains d each hour\""
+				},
+				{
+					"text": "Swaps the two answers, giving the exponential next value as the linear one and the reverse",
+					"as": "distractor",
+					"in": [
+						"next-values"
+					],
+					"wrong": "the linear and exponential next values swapped"
+				},
+				{
+					"text": "Assumes exponential growth always doubles, instead of using the ratio of the two values",
+					"as": "distractor",
+					"in": [
+						"next-values"
+					],
+					"wrong": "twice the second value for the exponential one"
+				},
+				{
+					"text": "Adds the first value again for the linear step, instead of the difference",
+					"as": "distractor",
+					"in": [
+						"next-values"
+					],
+					"wrong": "the sum of the two values for the linear one"
+				},
+				{
+					"text": "Swaps which model adds and which multiplies",
+					"as": "distractor",
+					"in": [
+						"interpret-d-and-r"
+					],
+					"wrong": "L multiplied by d and E gaining a"
+				},
+				{
+					"text": "Treats the factor a as an amount added each step, not a multiplier",
+					"as": "distractor",
+					"in": [
+						"interpret-d-and-r"
+					],
+					"wrong": "E gaining a each step"
+				},
+				{
+					"text": "Rounds the crossing time down, to a step where L is still ahead",
+					"as": "distractor",
+					"in": [
+						"when-overtakes"
+					],
+					"wrong": "the last whole step before E overtakes"
 				}
 			],
 			"frequency": 0
@@ -75536,6 +75659,112 @@
 						"do-they-meet"
 					],
 					"wrong": "\"yes, far away\", for two lines with equal gradients"
+				},
+				{
+					"text": "Writes the coordinates of the meeting point the wrong way round",
+					"as": "distractor",
+					"in": [
+						"meet-slope-intercept",
+						"meet-general",
+						"meet-from-graph"
+					],
+					"wrong": "(y, x) for (x, y)"
+				},
+				{
+					"text": "Checks the point in one line only and takes it to lie on both",
+					"as": "distractor",
+					"in": [
+						"point-on-both"
+					],
+					"wrong": "on both lines, when it lies on only one"
+				},
+				{
+					"text": "Mixes up L₁ and L₂ when saying which line the point lies on",
+					"as": "distractor",
+					"in": [
+						"point-on-both"
+					],
+					"wrong": "on L₂ but not on L₁, or the reverse"
+				},
+				{
+					"text": "Takes two lines with equal gradients for the same line without comparing the intercepts",
+					"as": "distractor",
+					"in": [
+						"do-they-meet"
+					],
+					"wrong": "the same line, for equal gradients and different intercepts"
+				},
+				{
+					"text": "Calls the lines parallel from the gradients alone, without checking whether the intercepts are equal too",
+					"as": "distractor",
+					"in": [
+						"do-they-meet"
+					],
+					"wrong": "they never meet, for one line written two ways"
+				},
+				{
+					"text": "Assumes any two lines cross somewhere, instead of comparing the gradients and the intercepts",
+					"as": "distractor",
+					"in": [
+						"do-they-meet"
+					],
+					"wrong": "they meet far away, for lines that cross once or are the same line"
+				},
+				{
+					"text": "Swaps the meeting point's x and y when putting it into y = mx + c to find c",
+					"as": "distractor",
+					"in": [
+						"line-through-meeting-point"
+					],
+					"wrong": "the right gradient, with c from the meeting point's coordinates swapped"
+				},
+				{
+					"text": "Makes a sign slip in the gradient from the meeting point to T, subtracting one pair of coordinates the other way round",
+					"as": "distractor",
+					"in": [
+						"line-through-meeting-point"
+					],
+					"wrong": "the gradient with its sign flipped, through the meeting point"
+				},
+				{
+					"text": "Gets the sign of c wrong when rearranging y = mx + c for c",
+					"as": "distractor",
+					"in": [
+						"line-through-meeting-point"
+					],
+					"wrong": "the right gradient with c = mx − y"
+				},
+				{
+					"text": "Uses the meeting point's y-coordinate as c, as if the point were on the y-axis",
+					"as": "distractor",
+					"in": [
+						"line-through-meeting-point"
+					],
+					"wrong": "the right gradient with c the y of the meeting point"
+				},
+				{
+					"text": "Adds the x term to y instead of subtracting it when solving for k",
+					"as": "distractor",
+					"in": [
+						"constant-from-meeting-point"
+					],
+					"wrong": "k = y + m₁x"
+				},
+				{
+					"text": "Takes k as the y-coordinate of the meeting point, forgetting the x term of L₁",
+					"as": "distractor",
+					"in": [
+						"constant-from-meeting-point"
+					],
+					"wrong": "k = y at the meeting point"
+				},
+				{
+					"text": "Assumes two lines that meet share their y-intercept, so k is the constant of L₂",
+					"as": "distractor",
+					"in": [
+						"constant-from-meeting-point"
+					],
+					"wrong": "k = the y-intercept of L₂"
 				}
 			],
 			"frequency": 0

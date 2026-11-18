@@ -6783,6 +6783,23 @@ SPOT_CHECKS["fn-pre-percent-multiplier"] = pc_first_false
 GP_LIN = "linear: the differences are constant"
 GP_EXP = "exponential: the ratios are constant"
 GP_NEITHER = "neither: the differences and the ratios both change"
+GP = "fn-concept-growth-patterns#"
+
+
+def gp_class_wrongs(q, ans, vals, want_text):
+    """The slips of a classification, from the values: the two tests swapped, the
+    differences checked alone, growing differences read as exponential, going up as linear."""
+    wr = {GP + "8": {qr_norm(ans, {"v": "linear: the values go up"}), qr_norm(ans, {"v": "linear: it goes up"})}}
+    if want_text == GP_LIN:
+        wr[GP + "5"] = {qr_norm(ans, {"v": GP_EXP})}
+    elif want_text == GP_EXP:
+        wr[GP + "5"] = {qr_norm(ans, {"v": GP_LIN})}
+        wr[GP + "6"] = {qr_norm(ans, {"v": GP_NEITHER})}
+    else:
+        ds = [vals[i + 1] - vals[i] for i in range(len(vals) - 1)]
+        if all(ds[i + 1] > ds[i] for i in range(len(ds) - 1)):
+            wr[GP + "7"] = {qr_norm(ans, {"v": GP_EXP})}
+    return wr
 
 
 def gp_pattern(vals):
@@ -6810,10 +6827,12 @@ def check_growth(q):
     if u == "classify-table":
         vals = [el_num(v) for v in q["table"]["rows"][1][1]]
         want = qr_norm(ans, {"v": gp_pattern(vals)})
+        wr = gp_class_wrongs(q, ans, vals, gp_pattern(vals))
     elif u == "classify-graph":
         vals = [R(sp.nsimplify(p["y"])) for p in q["graph"]["points"]]
         need([R(sp.nsimplify(p["x"])) for p in q["graph"]["points"]] == [0, 1, 2, 3], "the marked points are not t = 0 to 3")
         want = qr_norm(ans, {"v": gp_pattern(vals)})
+        wr = gp_class_wrongs(q, ans, vals, gp_pattern(vals))
     elif u == "classify-words":
         m = re.search(r"starts with (\d+) cells and grows by (\d+)% each hour", L[0])
         if m:
@@ -6821,18 +6840,28 @@ def check_growth(q):
             want = qr_norm(ans, {"v": f"exponential: N = {dec_text(P0)}({dec_text(1 + r / 100)})^t"})
             wr["SL2.9.exp-model#0"] = {qr_norm(ans, {"v": f"exponential: N = {dec_text(P0)}({dec_text(r / 100)})^t"})}
             wr["SL2.9.exp-model#1"] = {qr_norm(ans, {"v": f"linear: N = {dec_text(P0)} + {dec_text(P0 * r / 100)}t"})}
+            wr[GP + "9"] = {qr_norm(ans, {"v": f"linear: N = {dec_text(P0)} + {dec_text(r)}t"})}  # r added each hour
+            wr[GP + "10"] = {qr_norm(ans, {"v": f"exponential: N = {dec_text(r)}({dec_text(P0)})^t"})}  # start and rate swapped
         else:
             m = em_read(r"holds (\d+) litres and gains (\d+) litres each hour", L[0], "the tank")
             P0, d = el_num(m.group(1)), el_num(m.group(2))
             want = qr_norm(ans, {"v": f"linear: N = {dec_text(P0)} + {dec_text(d)}t"})
             wr["SL2.1.line-model#1"] = {qr_norm(ans, {"v": f"linear: N = {dec_text(d)} + {dec_text(P0)}t"})}
+            wr[GP + "11"] = {qr_norm(ans, {"v": f"exponential: N = {dec_text(P0)}({dec_text(d)})^t"})}  # d as the factor
+            wr[GP + "12"] = {qr_norm(ans, {"v": f"exponential: N = {dec_text(P0)}({dec_text(1 + d / 100)})^t"})}  # d as a percentage
+            wr[GP + "13"] = {qr_norm(ans, {"v": f"linear: N = {dec_text(d)}t"})}  # no start
     elif u == "next-values":
         v0, v1 = [el_num(x) for x in em_read(r"are (\d+(?:\.\d+)?) and (\d+(?:\.\d+)?)\.", L[0], "the values").groups()]
         want = qr_norm(ans, {"v0": str(2 * v1 - v0), "v1": str(v1 ** 2 / v0)})
+        wr[GP + "14"] = {qr_norm(ans, {"v0": str(v1 ** 2 / v0), "v1": str(2 * v1 - v0)})}  # the two swapped
+        wr[GP + "15"] = {qr_norm(ans, {"v0": str(2 * v1 - v0), "v1": str(2 * v1)})}  # exponential as doubling
+        wr[GP + "16"] = {qr_norm(ans, {"v0": str(v0 + v1), "v1": str(v1 ** 2 / v0)})}  # adds the first value again
     elif u == "interpret-d-and-r":
         Q0, d, P0, a = gp_models(L)
         want = qr_norm(ans, {"v": f"each step L gains {dec_text(d)} and E is multiplied by {dec_text(a)}"})
         wr["SL2.1.line-model#0"] = {qr_norm(ans, {"v": f"L gains {dec_text(d)} in total and E is multiplied by {dec_text(a)} each step"})}
+        wr[GP + "17"] = {qr_norm(ans, {"v": f"each step L is multiplied by {dec_text(d)} and E gains {dec_text(a)}"})}
+        wr[GP + "18"] = {qr_norm(ans, {"v": f"each step L gains {dec_text(d)} and E gains {dec_text(a)}"})}
     elif u == "when-overtakes":
         Q0, d, P0, a = gp_models(L)
         E = lambda t: P0 * a ** t
@@ -6843,6 +6872,9 @@ def check_growth(q):
         need(neg < 0, "no crossing before the start")
         want = qr_norm(ans, {"v": str(n)})
         wr["SL2.1.line-model#2"] = {qr_norm(ans, {"v": str(int(sp.floor(neg + sp.Rational(1, 2))))})}
+        cross = sp.nsolve(P0 * a ** X - Q0 - d * X, X, n - sp.Rational(1, 2))
+        need(n - 1 < cross < n, "the crossing is not in the step before n")
+        wr[GP + "19"] = {qr_norm(ans, {"v": str(int(sp.floor(cross)))})}  # the crossing rounded down
         if rep == "table":
             rows = {r_[0]: r_[1] for r_ in q["table"]["rows"]}
             for t_, lv, ev in zip(rows["t"], rows["L(t)"], rows["E(t)"]):
@@ -15522,6 +15554,7 @@ def lc_trap(q):
 
 LX = "SL2.1.intersection-lines#"
 LX_X_ONLY, LX_SIGN, LX_FAR = LX + "0", LX + "1", LX + "2"
+LXT = "fn-ext-intersection-lines#"
 LX_LIM = 6
 
 
@@ -15585,6 +15618,7 @@ def check_line_crossing(q):
         trap = lx_ptrap(x, y) if paper == 2 else None
         nx = frac_text if paper == 1 else gc_s
         wr[LX_X_ONLY] = {f"x = {nx(x)}"}
+        wr[LXT + "3"] = {lx_ptext(y, x, paper)}  # the coordinates the wrong way round
         if u == "meet-general":
             a1, b1, k1 = p
             need(r[0] == 1, "L₂ has x alone")
@@ -15608,6 +15642,9 @@ def check_line_crossing(q):
         on = [a * px + b * py == k for a, b, k in (lx_words(L[0]), lx_words(L[1]))]
         want = {(True, True): "It lies on both lines", (True, False): "It lies on L₁ but not on L₂", (False, True): "It lies on L₂ but not on L₁",
                 (False, False): "It lies on neither line"}[tuple(on)]
+        if on[0] != on[1]:
+            wr[LXT + "4"] = {"It lies on both lines"}  # one line checked, taken for both
+            wr[LXT + "5"] = {"It lies on L₂ but not on L₁" if on[0] else "It lies on L₁ but not on L₂"}  # L₁ and L₂ mixed up
     elif u == "do-they-meet":
         (a1, b1, k1), (a2, b2, k2) = lx_words(L[0]), lx_words(L[1])
         if rep == "equation":
@@ -15616,8 +15653,13 @@ def check_line_crossing(q):
             want = "They are the same line, so they share every point" if a1 * k2 == a2 * k1 else "They never meet, because the gradients are equal and the intercepts differ"
             if want.startswith("They never"):
                 wr[LX_FAR] = {"They do meet far away, because any two lines cross somewhere"}
+                wr[LXT + "6"] = {"They are the same line, so they share every point"}  # equal gradients taken as the same line
+            else:
+                wr[LXT + "7"] = {"They never meet, because the gradients are equal and the intercepts differ"}  # parallel from gradients alone
+                wr[LXT + "8"] = {"They do meet far away, because any two lines cross somewhere"}
         else:
             want = "They meet at one point, because the gradients are different"
+            wr[LXT + "8"] = {"They do meet far away, because any two lines cross somewhere"}
     elif u == "line-through-meeting-point":
         x, y = lx_meet(lx_words(L[0]), lx_words(L[1]))
         lx_clean_point(q, x, y)
@@ -15626,10 +15668,15 @@ def check_line_crossing(q):
             tx, ty = lc_q(f.group(1)), lc_q(f.group(2))
             need(tx != x, "T is straight above the meeting point")
             n = (ty - y) / (tx - x)
+            ns = (y - ty) / (tx - x)  # one pair of coordinates subtracted the other way round
+            wr[LXT + "10"] = {lc_sl(ns, y - ns * x)}
         else:
             f = re.search(rf"has gradient ({LC_NUM})\.", q["asked"])
             n = lc_q(f.group(1))
         want = lc_sl(n, y - n * x)
+        wr[LXT + "9"] = {lc_sl(n, x - n * y)}  # x and y swapped going into y = mx + c
+        wr[LXT + "11"] = {lc_sl(n, n * x - y)}  # c = mx − y
+        wr[LXT + "12"] = {lc_sl(n, y)}  # c taken as the meeting point's y
     elif u == "constant-from-meeting-point":
         f = re.fullmatch(rf"L₁ and L₂ meet where x = ({LC_NUM})\. Find k\.", q["asked"])
         x = lc_q(f.group(1))
@@ -15638,6 +15685,9 @@ def check_line_crossing(q):
         a, b, k = lx_terms(L[1])
         y = (k - a * x) / b
         want = f"k = {frac_text(y - m * x)}"
+        wr[LXT + "13"] = {f"k = {frac_text(y + m * x)}"}  # the x term added
+        wr[LXT + "14"] = {f"k = {frac_text(y)}"}  # k as the meeting point's y
+        wr[LXT + "15"] = {f"k = {frac_text(k / b)}"}  # k as L₂'s y-intercept
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wr, trap)
