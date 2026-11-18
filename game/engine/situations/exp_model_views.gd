@@ -142,10 +142,9 @@ static func filler_x(out: Dictionary, xs: Array) -> void:
 			out.fillers.append({"v": qf(x)})
 
 
-## Answer.trap_text has no measure or pct case yet, so a 2 s.f. trap would show padded
-## to 3 s.f. ("6.00 days") under the note "The IB needs 3 s.f.", which is then false
-## (#193). Off until the engine writes these kinds at 2 s.f.
-const MEASURE_TRAP := false
+## Answer.trap_text writes these kinds at 2 s.f. (FAL-1144); before that a 2 s.f. trap
+## showed padded to 3 s.f. ("6.00 days") under "The IB needs 3 s.f." (#193).
+const MEASURE_TRAP := true
 
 
 ## Q7's rounding trap: the answer to 2 s.f., for a measure or a percentage change that
