@@ -296,16 +296,18 @@ A slip costs something small and funny, and nothing more (#220). The toy shows t
 
 `reactions.json` holds each tutor's stock set, recorded once and played in any lesson, as `callbacks.json` is. Each tutor has:
 
-- **`ack`**: two or three short acknowledgements ("Copy.", "Sent.");
-- **`slip`**: five or so reactions to a slip ("Static. Come in again.", "There goes a fuse. I've got spares.").
+- **`ack`**: at least ten short acknowledgements ("Copy.", "Sent.");
+- **`slip`**: at least twelve reactions to a slip ("Static. Come in again.", "There goes a fuse. I've got spares.").
 
-No line names a number, a topic or the player's mistake, and each keeps its tutor's rules: Tess never says "wrong", Calc never says "now", and Rook never says "over and out". The checker lists any of those as a to-do. Rook's set is the first. The other five tutors' sets come with #220, and the Writer approves every line.
+A set that size lasts a player through several lessons with the same tutor before anything comes round again (FAL-1136). Within a set, the lines vary in length, in what broke and in how the tutor takes it: put out, amused, mock-dramatic or matter-of-fact, and never disappointed in the player. No two lines in a set start with the same word, unless the word opens a tic in `stock.json`. At most two lines per tutor are a single word, because the voice clone is weakest on those, and most `ack` lines run two to six words. Rook's "Copy.", "Sent." and "Received." were recorded before this rule, so his set keeps all three.
+
+No line names a number, a topic or the player's mistake, and each keeps its tutor's rules: Tess never says "wrong", Calc never says "now", and Rook never says "over and out". The checker lists any of those as a to-do. All six tutors have a set (#220, FAL-1136), and the Writer approves every line.
 
 **When a reaction plays.** The lesson player chooses, by these rules:
 
 - An `ack` can play on a free toy send, or on a right build tile that has no line of its own. It doesn't play every time.
 - A `slip` plays on the first miss of a toy task, a build step or a typed answer. A second miss on the same item gets no reaction.
-- Never the same reaction twice running.
+- A reaction doesn't play again until every other line of the same kind in that tutor's set has played in this session.
 - Never in place of the line that helps. When the item has a not-yet line, the reaction plays first and the not-yet line follows.
 
 A script never names a reaction line. A lesson with a toy, a build or a typed answer needs its tutor's set, and the checker lists a to-do when the set is missing. An approved script plays reactions only once `reactions.json` is approved too.
