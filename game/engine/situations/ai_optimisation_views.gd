@@ -410,7 +410,7 @@ func u_whole_number_optimum(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var vals: Array = xs.map(func(x): return AiOptimisationSituation.exact(s, Q.new(x)))
 	if rep == "table":
 		lines.append("The table shows some of its values.")
-		out.table = {"rows": [["x"] + xs.map(func(x): return str(x)), ["%s(x)" % fname(s)] + vals.map(func(v): return shown(v))]}
+		out.table = {"rows": [["x", xs.map(func(x): return str(x))], ["%s(x)" % fname(s), vals.map(func(v): return shown(v))]]}
 	var ans := ex_ans(fname(s) + " = ", s.at_up, " scrap")
 	var f := fname(s)
 	var better := "larger" if s.big else "smaller"

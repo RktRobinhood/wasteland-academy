@@ -48865,10 +48865,12 @@ def r2op_given(q, u):
     w[R2OP_G + "0"] = {f"{name} = {pick} scrap"}
     if q["view"]["rep"] == "table":
         rows = q["table"]["rows"]
+        need(len(rows) == 2 and all(len(r) == 2 and isinstance(r[1], list) for r in rows), "a table row is not [head, [cells]]")
         need(rows[0][0] == "x" and rows[1][0] == f"{name}(x)", "the table's heads")
-        xs = [int(t) for t in rows[0][1:]]
+        xs = [int(t) for t in rows[0][1]]
+        need(len(rows[1][1]) == len(xs), "the table's rows differ in length")
         need(pick in xs and near in xs, "the table leaves out a neighbour of the optimum")
-        for n, t in zip(xs, rows[1][1:]):
+        for n, t in zip(xs, rows[1][1]):
             ex = dec_text(vals[n])
             need(t == ex if "/" not in ex else t == r2op_w(vals[n]), f"the table's {name}({n}) = {t}")
     r2op_steps_have(q, f"x = {r2op_w(x0)}", "the optimum to 6 s.f.")
