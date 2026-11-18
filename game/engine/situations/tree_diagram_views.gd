@@ -38,6 +38,18 @@ const R_AT_LIMIT := TYPE + "23"
 const R_KEPT_COUNT := TYPE + "24"
 const R_KEPT_TOTAL := TYPE + "25"
 const R_EARLY_TOTAL := TYPE + "26"
+const R_PLUS := TYPE + "27"
+const R_OTHER_BRANCH := TYPE + "28"
+const R_FIRST_BRANCH := TYPE + "29"
+const R_ONE_DRAW := TYPE + "30"
+const R_TWO_OF_THREE := TYPE + "31"
+const R_SUCCESS_ONLY := TYPE + "32"
+const R_ONE_WORKSHOP := TYPE + "33"
+const R_REVERSED := TYPE + "34"
+const R_TOTAL_ONLY := TYPE + "35"
+const R_SHARE_ONLY := TYPE + "36"
+const R_ONE_MINUS_K := TYPE + "37"
+const R_NO_TOP := TYPE + "38"
 
 ## Two stages: the story, the stage names, the branches at each, and each branch as a phrase.
 const CHAINS := [
@@ -92,7 +104,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var out := super.build(unknown, rep, s, rng)
 	out.given = TreeDiagramSituation.export(s)
 	if not unknown in NOT_PROBABILITY:
-		out.generic.append_array(near(s, Q.of(out.answer.values.v)))
+		out.fillers = out.get("fillers", []) + near(s, Q.of(out.answer.values.v))
 	return out
 
 
@@ -292,7 +304,7 @@ func u_complete_branch(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.wrongs += wr(s, one_q.sub(s.first[s.i]), R_PARENT)
 	if others.size() == 2:
 		out.wrongs += wr(s, one_q.sub(others[0]), R_SKIP_BRANCH)
-	out.generic = probs(s, [others[0]])
+	out.fillers = probs(s, [others[0]])
 	var sum := Q.new(0)
 	for o in others:
 		sum = sum.add(o)
@@ -316,7 +328,8 @@ func u_branch_in_terms_of_k(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	if s.stage == 2 and not s.a1.eq(s.a2):
 		out.wrongs.append(wrong({"c": s.a1, "text": "1 − " + kt(s.a1)}, R_PARENT))
 	var back := Q.new(c.d, c.n)
-	out.generic = [{"c": c, "text": "1 + " + txt, "shape": "plus"}, {"c": c, "text": txt, "shape": "same"}, {"c": back, "text": "1 − " + kt(back)},
+	out.wrongs.append(wrong({"c": c, "text": "1 + " + txt, "shape": "plus"}, R_PLUS))
+	out.fillers = [{"c": c, "text": txt, "shape": "same"}, {"c": back, "text": "1 − " + kt(back)},
 		{"c": c.mul(Q.new(2)), "text": "1 − " + kt(c.mul(Q.new(2)))}, {"c": c.add(Q.new(1)), "text": "1 − " + kt(c.add(Q.new(1)))}]
 	var other := "The other branch at %s with x is %s." % ["the fork" if s.stage == 1 else "each fork", txt]
 	out.methods = {"branches-add-to-one": method([other, "The branches at a fork add to 1, so x + %s = 1." % txt, final_step(ans)], ans.values)}
@@ -340,7 +353,7 @@ func u_branch_after_draw(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		out.wrongs += wr(s, Q.new(c[s.j] + 1, t) if same else Q.new(c[s.j], t), R_NO_EXTRA)
 		if same:
 			out.wrongs += wr(s, Q.new(c[s.j], t + 1), R_NO_EXTRA)
-	out.generic = probs(s, [Q.new(1).sub(s.v)])
+	out.wrongs += wr(s, Q.new(1).sub(s.v), R_OTHER_BRANCH)
 	var after: int = t - 1 if s.mode == "wo" else t + 1
 	var left: int = int(round(s.v.to_float() * after))
 	var change: String = "%s %s is gone" % ["The first", one(s)] if s.mode == "wo" else "One more %s %s has been added" % [colour(s, s.i), one(s)]
@@ -365,7 +378,8 @@ func u_path_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = wr(s, a.add(b), R_ADD_ALONG) + wr(s, b, R_LAST_BRANCH)
 	if s.bag and s.mode == "wo":
 		out.wrongs += wr(s, TreeDiagramSituation.path(s, [s.i, s.j], "w"), R_NOT_REDUCED if s.i == s.j else R_KEPT_TOTAL)
-	out.generic = probs(s, [a, Q.new(1).sub(s.v)])
+	out.wrongs += wr(s, a, R_FIRST_BRANCH)
+	out.fillers = probs(s, [Q.new(1).sub(s.v)])
 	var along := "Follow the path %s: the branches are %s and %s." % [path_short(s, s.i, s.j), F(s, a), F(s, b)]
 	var mult := "Multiply along it: %s" % times(s, [a, b])
 	var every: Array = []
@@ -412,7 +426,8 @@ func u_total_over_paths(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = wr(s, one_path, R_ONE_PATH)
 	if rep == "diagram" or s.paper == 2:
 		out.wrongs += wr(s, plain, R_NO_WEIGHT)
-	out.generic = probs(s, [s.first[0], Q.new(1).sub(s.v)])
+	out.wrongs += wr(s, Q.new(1).sub(s.v), R_OPPOSITE)
+	out.fillers = probs(s, [s.first[0]])
 	# A crate's chance is written as the question writes it, on Paper 2 a decimal.
 	var chance := func(x: Q) -> String:
 		return D(x) if rep == "words" and s.paper == 2 else F(s, x)
@@ -456,7 +471,7 @@ func u_same_or_different(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		out.wrongs += wr(s, used, R_NOT_REDUCED if s.form == "same" else R_KEPT_TOTAL)
 	if s.form == "diff" and s.n1 == 2:
 		out.wrongs += wr(s, TreeDiagramSituation.path(s, [0, 1]), R_ONE_ORDER)
-	out.generic = probs(s, [s.first[0], s.first[1].mul(s.first[0])])
+	out.fillers = probs(s, [s.first[0], s.first[1].mul(s.first[0])])
 	var same_paths: Array = range(s.n1).map(func(i): return [i, i])
 	var diff_paths: Array = []
 	for i in s.n1:
@@ -492,7 +507,7 @@ func u_at_least_one(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var none := TreeDiagramSituation.path(s, all_seq)
 	var once := TreeDiagramSituation.exactly_one(s)
 	out.wrongs = wr(s, none, R_NO_SUBTRACT) + wr(s, Q.new(1).sub(TreeDiagramSituation.path(s, all_seq, "w")), R_NOT_REDUCED) + wr(s, once, R_EXACTLY_ONE)
-	out.generic = probs(s, [Q.new(s.counts[s.target], TreeDiagramSituation.total(s))])
+	out.wrongs += wr(s, Q.new(s.counts[s.target], TreeDiagramSituation.total(s)), R_ONE_DRAW)
 	var t := TreeDiagramSituation.total(s)
 	var c: int = s.counts[other]
 	var fracs: Array = []
@@ -524,7 +539,7 @@ func u_at_least_one(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return out
 
 
-func u_all_without_replacement(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_all_without_replacement(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := prob(s, "probability = ", s.v)
 	var t := TreeDiagramSituation.total(s)
 	var n: int = s.counts[s.target]
@@ -545,14 +560,16 @@ func u_all_without_replacement(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	out.wrongs = wr(s, TreeDiagramSituation.path(s, [tgt, tgt, tgt], "w"), R_NOT_REDUCED)
 	out.wrongs += wr(s, Q.new(n * (n - 1) * (n - 2), t * t * t), R_KEPT_TOTAL)
 	out.wrongs += wr(s, Q.new(n, t).add(Q.new(n - 1, t - 1)).add(Q.new(n - 2, t - 2)), R_ADD_ALONG)
-	out.generic = probs(s, [Q.new(n, t), Q.new(n * (n - 1), t * (t - 1)), Q.new(n - 2, t - 2)])
+	out.wrongs += wr(s, Q.new(n, t), R_FIRST_BRANCH) + wr(s, Q.new(n * (n - 1), t * (t - 1)), R_TWO_OF_THREE) + wr(s, Q.new(n - 2, t - 2), R_LAST_BRANCH)
+	# More slips than option slots: each question shows a different few, so every slip comes up.
+	out.wrongs = rng.shuffled(out.wrongs)
 	var mult := "Multiply: %s" % " × ".join(fr)
 	out.methods = {"multiply-add": method(["This is one path of three branches: %s, %s, %s. One has gone before each later branch, so the count and the total each fall by 1." % [name, name, name], mult, final_step(ans)], ans.values),
 		"recount-after-draw": method(["The first pick: %d of %d. One has gone, so the second pick is %d of %d, and the third %d of %d." % [n, t, n - 1, t - 1, n - 2, t - 2], mult, final_step(ans)], ans.values)}
 	return out
 
 
-func u_draws_in_terms_of_n(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_draws_in_terms_of_n(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var g: int = s.big
 	var col: String = colour(s, 0)
 	var out := {"lines": ["A tin holds n %s. Of these, %d are %s and the rest are %s." % [thing(s), g, col, colour(s, 1)], "%s are drawn at random, one after the other, without replacement." % thing(s).capitalize()], "table": null}
@@ -561,7 +578,7 @@ func u_draws_in_terms_of_n(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		ans = Answer.make("form", {"a": Q.new(g), "text": "%d/n" % g}, {"parts": [{"slot": "a"}, "/n"]}, "probability = ")
 		out.asked = "Find, in terms of n, the probability that the first %s is %s." % [one(s), col]
 		out.wrongs = [wrong({"a": Q.new(g), "text": "%d/(n − 1)" % g, "shape": "after"}, R_EARLY_TOTAL)]
-		out.generic = [{"a": Q.new(g - 1), "text": "%d/n" % (g - 1)}, {"a": Q.new(g + 1), "text": "%d/n" % (g + 1)}, {"a": Q.new(g), "text": "n/%d" % g, "shape": "flip"}]
+		out.fillers = [{"a": Q.new(g - 1), "text": "%d/n" % (g - 1)}, {"a": Q.new(g + 1), "text": "%d/n" % (g + 1)}, {"a": Q.new(g), "text": "n/%d" % g, "shape": "flip"}]
 		out.methods = {"recount-after-draw": method(["There are n %s, and %d of them are %s." % [thing(s), g, col], "Nothing has been drawn yet, so the probability is %d out of n." % g, _form_end(ans)], ans.values)}
 	else:
 		var top := g * (g - 1)
@@ -570,7 +587,10 @@ func u_draws_in_terms_of_n(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		out.wrongs = [wrong({"a": Q.new(g * g), "text": "%d/n²" % (g * g), "shape": "power"}, R_NOT_REDUCED),
 			wrong({"a": Q.new(top), "text": "%d/n²" % top, "shape": "power2"}, R_KEPT_TOTAL),
 			wrong({"a": Q.new(g), "text": "%d/n + %d/(n − 1)" % [g, g - 1], "shape": "sum"}, R_ADD_ALONG)]
-		out.generic = [{"a": Q.new(g * g), "text": "%d/(n(n − 1))" % (g * g)}, {"a": Q.new(g * (g + 1)), "text": "%d/(n(n − 1))" % (g * (g + 1))}]
+		out.wrongs.append(wrong({"a": Q.new(g * g), "text": "%d/(n(n − 1))" % (g * g)}, R_KEPT_COUNT))
+		# More slips than option slots: each question shows a different few, so every slip comes up.
+		out.wrongs = rng.shuffled(out.wrongs)
+		out.fillers = [{"a": Q.new(g * (g + 1)), "text": "%d/(n(n − 1))" % (g * (g + 1))}]
 		out.methods = {"recount-after-draw": method(["The first is %s: %d out of n." % [col, g], "That leaves %d %s out of n − 1 %s." % [g - 1, col, thing(s)], "Multiply: %d/n × %d/(n − 1)" % [g, g - 1], _form_end(ans)], ans.values)}
 	ans.exact = true
 	out.answer = ans
@@ -626,7 +646,8 @@ func u_first_success_on_trial(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var orders: Variant = s.v * k if s.v is float else s.v.mul(Q.new(k))
 	var extra: Variant = mul_of.call(s.v, qv)
 	out.wrongs = wr(s, swap, R_SWAP) + wr(s, orders, R_ORDERS) + wr(s, extra, R_EXTRA_FAIL)
-	out.generic = probs(s, [pv, qv])
+	out.wrongs += wr(s, pv, R_SUCCESS_ONLY)
+	out.fillers = probs(s, [qv])
 	var bits: Array = []
 	var seq: Array = []
 	for i in k - 1:
@@ -645,7 +666,7 @@ func u_first_success_on_trial(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	return out
 
 
-func u_total_from_normals(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_total_from_normals(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var c: Dictionary = NormalUnknownViews.CONTEXTS[s.ctx]
 	var it: Dictionary = NormalProbabilityViews.ITEMS[s.ctx]
 	var ans := prob(s, "probability = ", s.v)
@@ -670,12 +691,14 @@ func u_total_from_normals(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	if s.form == "total":
 		out.asked = "One of the %s is chosen at random. Find the probability that its %s is %s." % [it.items, it.attr, event]
 		out.wrongs = wr(s, s.path0, R_ONE_PATH) + wr(s, a0 + a1, R_NO_WEIGHT)
-		out.generic = probs(s, [a0, a1, 1.0 - s.num])
+		out.wrongs += wr(s, a0, R_ONE_WORKSHOP) + wr(s, a1, R_ONE_WORKSHOP) + wr(s, 1.0 - s.num, R_OPPOSITE)
 		st.append("Add the paths: %s + %s = %s. %s" % [path0, path1, num, final_step(ans)])
 	else:
 		out.asked = "One of the %s is chosen at random, and its %s is %s. Find the probability that it came from workshop A." % [it.items, it.attr, event]
 		out.wrongs = wr(s, s.path0, R_NOT_DIVIDED)
-		out.generic = probs(s, [a0, s.num, pa, 1.0 - s.v])
+		out.wrongs += wr(s, a0, R_REVERSED) + wr(s, s.num, R_TOTAL_ONLY) + wr(s, pa, R_SHARE_ONLY) + wr(s, 1.0 - s.v, R_OPPOSITE)
+		# More slips than option slots: each question shows a different few, so every slip comes up.
+		out.wrongs = rng.shuffled(out.wrongs)
 		st.append("Add the paths: %s + %s = %s. Divide the path through A by the total: %s ÷ %s" % [path0, path1, num, path0, num])
 		st.append(final_step(ans))
 	out.methods = {"multiply-add": method(st, ans.values)}
@@ -698,7 +721,9 @@ func u_parameter_on_branch(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var added: Q = Q.new(2).sub(s.r).div(one_q.add(s.a2))
 	if added.sign() > 0 and added.lt(one_q):
 		out.wrongs.append(wrong({"v": added}, R_ADD_ALONG))
-	out.generic = [one_q.sub(v), s.r, v.mul(Q.new(2)), v.div(Q.new(2)), v.add(Q.new(1, 6)), Q.new(v.n + 1, v.d + 1)].filter(func(x): return x.sign() > 0 and x.lt(one_q)).map(func(x): return {"v": x})
+	if one_q.sub(v).sign() > 0:
+		out.wrongs.append(wrong({"v": one_q.sub(v)}, R_ONE_MINUS_K))
+	out.fillers = [s.r, v.mul(Q.new(2)), v.div(Q.new(2)), v.add(Q.new(1, 6)), Q.new(v.n + 1, v.d + 1)].filter(func(x): return x.sign() > 0 and x.lt(one_q)).map(func(x): return {"v": x})
 	# a2 k² − (1 + a2) k + 1 − r = 0, cleared of fractions.
 	var clear: int = s.a2.d * s.r.d
 	var ca: int = roundi(s.a2.to_float() * clear)
@@ -712,7 +737,7 @@ func u_parameter_on_branch(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	return out
 
 
-func u_rounds_exceed_total(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_rounds_exceed_total(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := prob(s, "probability = ", s.v)
 	var game: String = GAMES[s.ctx]
 	var n: int = s.rounds
@@ -728,7 +753,10 @@ func u_rounds_exceed_total(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var once: Q = TreeDiagramSituation.power(s.a, n - 1).mul(s.b)
 	var ways: Q = once.mul(Q.new(n))
 	out.wrongs = wr(s, top.add(once), R_NO_ROUND_ORDERS) + wr(s, top, R_TOP_ONLY) + wr(s, TreeDiagramSituation.game_total(s, false), R_AT_LIMIT)
-	out.generic = probs(s, [ways, Q.new(1).sub(s.v), s.a])
+	out.wrongs += wr(s, ways, R_NO_TOP) + wr(s, Q.new(1).sub(s.v), R_OPPOSITE)
+	# More slips than option slots: each question shows a different few, so every slip comes up.
+	out.wrongs = rng.shuffled(out.wrongs)
+	out.fillers = probs(s, [s.a])
 	var a_t := D(s.a)
 	var b_t := D(s.b)
 	var with_lo: int = (n - 1) * s.hi + s.lo
@@ -755,7 +783,7 @@ func u_selections_find_n(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	out.wrongs = [wrong({"v": Q.new(m)}, R_IN_TIN)]
 	if s.n > 1:
 		out.wrongs.append(wrong({"v": Q.new(s.n - 1)}, R_LAST_OUT))
-	out.generic = [{"v": Q.new(s.n + 1)}, {"v": Q.new(s.n + 2)}, {"v": Q.new(m + 1)}]
+	out.fillers = [{"v": Q.new(s.n + 1)}, {"v": Q.new(s.n + 2)}, {"v": Q.new(m + 1)}]
 	var top := Q.new(r).div(s.chance).to_float()
 	out.methods = {"multiply-add": method(["Before selection n, every draw is %s: %d/%d × %d/%d × ... The tops and bottoms cancel, leaving %d/(n + %d)." % [red, r, r + 1, r + 1, r + 2, r, r - 1],
 		"Selection n is then %s, with 1 in n + %d: so %d/((n + %d)(n + %d)) = %s." % [blue, r, r, r - 1, r, Fmt.num(s.chance)],
