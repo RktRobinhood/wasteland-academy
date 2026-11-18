@@ -355,7 +355,7 @@
         "sha256_16": "67e1bb4b33198c56"
       },
       "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 card 33e55bc6 (2026-11-15), voice leda chosen on card 31790857",
-      "note": "The 162 shipped move clips are still local VoxCPM2 (FAL-428). Re-record them with this voice in the paid production pass.",
+      "note": "The 162 move clips in game/assets/audio/voice/spark/moves/ were re-recorded with this clone on 2026-11-18 (FAL-992).",
       "sheet": null,
       "brief": null
     },
