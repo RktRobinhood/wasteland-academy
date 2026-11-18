@@ -29,7 +29,8 @@ const ROOT := "√"
 const LEFT := "◀"
 const RIGHT := "▶"
 ## What a number just before the cursor is made of: the fraction key makes it the top.
-const NUMBER := "0123456789."
+## A comma is in it, as a decimal comma may be (#194).
+const NUMBER := "0123456789.,"
 ## The boxes with rows to type into.
 const HOLDERS := [MathBox.Kind.FRACTION, MathBox.Kind.POWER, MathBox.Kind.ROOT, MathBox.Kind.SUB]
 ## Shown as typed: a true minus and times sign. text gives them back as - and *.
