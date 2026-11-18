@@ -568,7 +568,11 @@ func u_modulus(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		pyth[-1] = "√%d = %s, so |z| = %s." % [n, root_text(n), root_text(n)]
 	var sketch: Array = read + ["Plot z at %s. The sides of the right triangle from 0 along the axes are %d and %d." % [pt(z), absi(a), absi(b)],
 		"|z| is the hypotenuse: √(%d² + %d²) = √%d%s" % [absi(a), absi(b), n, "" if root_text(n) == "√%d" % n else " = " + root_text(n)], last]
-	var gdc: Array = read + ["Enter abs(%s) on the GDC." % T(z), "The GDC gives %s." % shown, last]
+	# A GDC shows a decimal; the exact form is the root of a² + b².
+	var gdc_shows := "The GDC gives %s." % shown
+	if exact and n != int(sqrt(float(n))) * int(sqrt(float(n))):
+		gdc_shows = "The GDC gives %s, the decimal for √%d, as %s² + %s² = %d." % [F(sqrt(float(n))), n, P(z[0]), P(z[1]), n]
+	var gdc: Array = read + ["Enter abs(%s) on the GDC." % T(z), gdc_shows, last]
 	return _pack(lines, "Find the exact value of |z|." if not by_gdc else "Find |z|.", ans, wr, fill,
 		{"pythagoras-arctan": pyth, "pythag-arctan": pyth, "sketch-first": sketch, "argand-sketch": sketch, "gdc-abs-angle": gdc},
 		null if rep == "equation" else argand([[z, "A"]]))
