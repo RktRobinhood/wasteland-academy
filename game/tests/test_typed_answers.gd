@@ -48,7 +48,8 @@ func test_a_comma_that_could_be_either_says_both_ways_to_write_it() -> void:
 	check_eq(_error("12,345"), "12,345 could be 12.345 or 12345: type one of those, with no comma.")
 	check_eq(_error("1,000,000"), "Leave out the commas: type 1000000.")
 	check_eq(_error("12,500.5"), "Leave out the comma: type 12500.5.")
-	for text in ["1,2,3", "1.5,2", "2, 3", "5,"]:
+	# A point typed into one box, or a comma inside a longer entry, is not a decimal (#248).
+	for text in ["1,2,3", "1.5,2", "2, 3", "5,", "(2,3)", "(2, 3)", "1/2,5", "x = (2,3)"]:
 		check(_error(text).contains("a point for a decimal"), "%s: %s" % [text, _error(text)])
 
 

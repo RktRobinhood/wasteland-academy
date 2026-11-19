@@ -881,7 +881,11 @@ static func read_comma(s: String) -> Dictionary:
 	if grouped.search(t) != null and (n > 1 or t.contains(".")):
 		return {"error": "Leave out the comma%s: type %s." % ["s" if n > 1 else "", t.replace(",", "")]}
 	var m := _re("(\\d*),(\\d+)").search(t)
-	if n > 1 or m == null or t.contains("."):
+	# The comma's number is the whole entry, or the whole top or bottom of a fraction the
+	# fraction key made ("(1,5)/(3)"); a point typed in one box, (2,3), is not (#248).
+	var one := "[-+]?\\d*,\\d+"
+	var alone := _re("^(%s|\\(%s\\)/\\([^,()]+\\)|\\([^,()]+\\)/\\(%s\\))$" % [one, one, one]).search(t) != null
+	if n > 1 or m == null or t.contains(".") or not alone:
 		return {"error": "Type one number in each box, with a point for a decimal: 0.5, not 0,5."}
 	var left := m.get_string(1)
 	var right := m.get_string(2)

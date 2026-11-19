@@ -337,3 +337,27 @@ func test_every_rounding_key_is_written_to_its_figures() -> void:
 			check_eq(q.answer_text, want, "%s seed %d" % [u, seed])
 			check_eq(q.choices.size(), 4, "%s seed %d" % [u, seed])
 			check_eq(q.choices.filter(func(o): return Answer.values_right(q.answer, o.values)).size(), 1, "%s seed %d" % [u, seed])
+
+
+## The seed the sweep found with three options (#248): 999.04 to 3 s.f. is 999, and every
+## neighbour above it rounds to 1000. Two down keeps the fillers apart, and a nudged form
+## answer is written out again, so the last resort is never the answer's own text.
+func test_a_rounding_just_below_a_power_of_ten_has_four_different_options() -> void:
+	for shared in [false, true]:
+		var v := {"type": "fn-pre-graph-reading", "unknown": "round-3sf", "rep": "equation",
+			"angle": "first-nonzero-digit", "format": "value", "seed": 494}
+		if shared:
+			v.shared = true
+		var q = QuestionEngine.make(v)
+		var texts := {}
+		for o in q.choices:
+			texts[o.text] = true
+		check_eq(texts.size(), 4, "seed 494%s: %s" % [" shared" if shared else "", texts.keys()])
+	var q = QuestionEngine.make({"type": "fn-pre-graph-reading", "unknown": "round-3sf", "rep": "equation",
+		"angle": "first-nonzero-digit", "format": "value", "seed": 494})
+	var nudged: Array = QuestionEngine._nudges(q.answer).map(func(n): return n.text)
+	check(not nudged.has(q.answer_text), "a nudge is not the answer: %s" % [nudged])
+	var distinct := {}
+	for t in nudged:
+		distinct[t] = true
+	check_eq(distinct.size(), nudged.size(), "the nudges differ: %s" % [nudged])

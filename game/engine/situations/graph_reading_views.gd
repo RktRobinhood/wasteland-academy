@@ -46,10 +46,12 @@ static func rounded(r: Q, text: String) -> Dictionary:
 	return ans
 
 
-## r's neighbours at 3 s.f., one 3rd figure up, down and two up: the last options, for
-## when the slips above have the answer's value (12.996 to 2 or 4 s.f. is 13.0).
+## r's neighbours at 3 s.f., one 3rd figure up, down, two up and two down: the last
+## options, for when the slips above have the answer's value (12.996 to 2 or 4 s.f. is
+## 13.0). Below a power of ten the ones above all round to it (999: 1000), so two down
+## keeps three apart (#248).
 static func near(r: Q) -> Array:
-	return [1, -1, 2].map(func(k): return sf_values(r.add(_unit(r).mul(Q.new(k))), 3))
+	return [1, -1, 2, -2].map(func(k): return sf_values(r.add(_unit(r).mul(Q.new(k))), 3))
 
 
 ## v to n significant figures, as an option: the value and its text with its zeros.
@@ -180,10 +182,15 @@ func u_round_small_3sf(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := rounded(r, Fmt.sf(v, 3))
 	var final := "So it is %s to 3 s.f." % ans.values.text
 	var two := GraphReadingSituation.dp_q(v, 2)
+	# Too few figures, and a zero after the point lost, are slips (FAL-1149). Where 2 s.f.
+	# is the 3 d.p. value (0.0070 and 0.007), typing it can't tell the two apart: one slip.
+	var wrongs := [wrong(dp_values(v, 3), T + "2")]
+	if not GraphReadingSituation.sf_q(v, 2).eq(GraphReadingSituation.dp_q(v, 3)):
+		wrongs.append(wrong(sf_values(v, 2), T + "4"))
+	wrongs.append(wrong(sf_values(r.mul(Q.new(10)), 3), T + "9"))
 	return {
 		"asked": "Write %s correct to 3 significant figures." % Fmt.dec(v), "lines": [Fmt.dec(v)], "answer": ans,
-		# Too few figures, and a zero after the point lost, are slips (FAL-1149).
-		"wrongs": [wrong(dp_values(v, 3), T + "2"), wrong(sf_values(v, 2), T + "4"), wrong(sf_values(r.mul(Q.new(10)), 3), T + "9")],
+		"wrongs": wrongs,
 		"fillers": [dp_values(v, 2) if not two.is_zero() else {"v": Q.new(1, 100), "text": "0.01"}] + near(r),
 		"methods": {"first-nonzero-digit": {"result": ans.values, "steps": ["The zeros after the point don't count: start at the first non-zero digit.",
 			"Keep three figures from there and round once.", final]}},
