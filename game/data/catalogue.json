@@ -25786,6 +25786,120 @@
 						"n-from-sum"
 					],
 					"wrong": "the value of the sum given as n"
+				},
+				{
+					"text": "Forgetting to add u₁ after multiplying d by the number of steps",
+					"as": "distractor",
+					"in": [
+						"term-from-u1-d"
+					],
+					"wrong": "(n − 1)d with no u₁"
+				},
+				{
+					"text": "Not dividing the change between the two terms by the number of steps",
+					"as": "distractor",
+					"in": [
+						"d-from-two-terms"
+					],
+					"wrong": "the change in value given as d"
+				},
+				{
+					"text": "Dividing the change by the later term's position instead of the number of steps between the terms",
+					"as": "distractor",
+					"in": [
+						"d-from-two-terms"
+					],
+					"wrong": "the change divided by the later term's n"
+				},
+				{
+					"text": "Stopping once d is found, and giving d as the first term",
+					"as": "distractor",
+					"in": [
+						"u1-from-two-terms"
+					],
+					"wrong": "d given as u₁"
+				},
+				{
+					"text": "Dividing uₙ by d without first taking away u₁",
+					"as": "distractor",
+					"in": [
+						"n-from-term"
+					],
+					"wrong": "uₙ/d"
+				},
+				{
+					"text": "Forgetting to halve in the sum formula, so the sum comes out doubled",
+					"as": "distractor",
+					"in": [
+						"sum-from-u1-d",
+						"sum-from-first-last"
+					],
+					"wrong": "twice the sum"
+				},
+				{
+					"text": "Stopping at u₁ + uₙ without multiplying by half the number of terms",
+					"as": "distractor",
+					"in": [
+						"sum-from-first-last"
+					],
+					"wrong": "u₁ + uₙ alone"
+				},
+				{
+					"text": "Subtracting u₁ from uₙ instead of adding them in the sum formula",
+					"as": "distractor",
+					"in": [
+						"sum-from-first-last"
+					],
+					"wrong": "n/2 (uₙ − u₁)"
+				},
+				{
+					"text": "Forgetting the last division, so the total of the steps of d is given as d",
+					"as": "distractor",
+					"in": [
+						"d-from-sum"
+					],
+					"wrong": "(n − 1)d, not divided by n − 1"
+				},
+				{
+					"text": "Subtracting the wrong way round when taking off twice u₁, which flips the sign of d",
+					"as": "distractor",
+					"in": [
+						"d-from-sum"
+					],
+					"wrong": "−d"
+				},
+				{
+					"text": "Forgetting the last halving, so twice u₁ is given as u₁",
+					"as": "distractor",
+					"in": [
+						"u1-from-sum"
+					],
+					"wrong": "2u₁"
+				},
+				{
+					"text": "Taking the mean of the terms, Sₙ divided by n, as the first term",
+					"as": "distractor",
+					"in": [
+						"u1-from-sum"
+					],
+					"wrong": "Sₙ/n"
+				},
+				{
+					"text": "Leaving n as the decimal the GDC gives instead of moving up to the next whole number",
+					"as": "distractor",
+					"in": [
+						"n-from-term",
+						"n-from-sum"
+					],
+					"wrong": "the unrounded n"
+				},
+				{
+					"text": "Rounding n down, so the total has not yet passed the target",
+					"as": "distractor",
+					"in": [
+						"n-from-sum"
+					],
+					"wrong": "the whole number below the root"
 				}
 			],
 			"chain": [
@@ -27841,7 +27955,8 @@
 					"as": "distractor",
 					"in": [
 						"value-after",
-						"total-loss"
+						"total-loss",
+						"shortfall"
 					],
 					"wrong": "P(1 + r/100)^n: the rate added on each year, not taken off"
 				},
@@ -27968,6 +28083,62 @@
 						"least-periods"
 					],
 					"wrong": "n < the real solution, so the whole number below it"
+				},
+				{
+					"text": "Multiplying by the multiplier instead of dividing by it when working back to the price",
+					"as": "distractor",
+					"in": [
+						"original-value"
+					],
+					"wrong": "V × c^n: the fall taken off again, not undone"
+				},
+				{
+					"text": "Writing the multiplier itself as the percentage, instead of the percentage lost",
+					"as": "distractor",
+					"in": [
+						"read-rate"
+					],
+					"wrong": "the multiplier c with a % sign"
+				},
+				{
+					"text": "Forgetting to turn the decimal fall into a percentage",
+					"as": "distractor",
+					"in": [
+						"read-rate"
+					],
+					"wrong": "1 − c with a % sign"
+				},
+				{
+					"text": "Applying the first year's rate to every year instead of only to the first",
+					"as": "distractor",
+					"in": [
+						"two-rate-value"
+					],
+					"wrong": "P × (first multiplier)^n"
+				},
+				{
+					"text": "Counting one year too many at the later rate, as if every year asked came after the first",
+					"as": "distractor",
+					"in": [
+						"two-rate-value"
+					],
+					"wrong": "P × c₁ × c₂^n: one later year too many"
+				},
+				{
+					"text": "Converting the answer into years when the question asks for months or quarters",
+					"as": "distractor",
+					"in": [
+						"least-periods"
+					],
+					"wrong": "the number of periods divided by k and rounded up"
+				},
+				{
+					"text": "Taking each year's percentage off the original price instead of off the value at the start of that year",
+					"as": "distractor",
+					"in": [
+						"two-rate-value"
+					],
+					"wrong": "P(1 − (r₁ + (n − 1)r₂)/100): every fall taken from the price"
 				}
 			],
 			"chain": [
@@ -28227,7 +28398,9 @@
 					"text": "Using the annual rate with kn periods, instead of dividing the rate by k",
 					"as": "distractor",
 					"in": [
-						"future-value"
+						"future-value",
+						"interest-earned",
+						"present-value"
 					],
 					"wrong": "PV(1 + r/100)^(kn): the annual rate over kn periods"
 				},
@@ -28236,7 +28409,9 @@
 					"text": "Using simple interest instead of compounding",
 					"as": "distractor",
 					"in": [
-						"future-value"
+						"future-value",
+						"interest-earned",
+						"present-value"
 					],
 					"wrong": "PV(1 + nr/100): simple interest"
 				},
@@ -28294,6 +28469,22 @@
 						"compare-options"
 					],
 					"wrong": "the difference with both accounts compounded annually"
+				},
+				{
+					"text": "Multiplying the target by the growth factor instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"present-value"
+					],
+					"wrong": "FV × (1 + r/(100k))^(kn): compounded forward, not back"
+				},
+				{
+					"text": "Rounding the number of years down instead of up, so the target is not yet passed",
+					"as": "distractor",
+					"in": [
+						"time-needed"
+					],
+					"wrong": "the real number of years rounded down"
 				}
 			],
 			"chain": [
@@ -30766,6 +30957,31 @@
 						"model-meet"
 					],
 					"wrong": "the start and the factor taken to the power together"
+				},
+				{
+					"text": "Forgetting to divide by the number in front before taking logs",
+					"as": "distractor",
+					"in": [
+						"isolate-e-exact"
+					],
+					"wrong": "the log of the right side less the constant, with the number in front never divided out"
+				},
+				{
+					"text": "Dropping the power when the top of the fraction is written as a single log",
+					"as": "distractor",
+					"in": [
+						"shift-base-exact",
+						"one-minus-exact"
+					],
+					"wrong": "the log of the base alone on top, its power lost"
+				},
+				{
+					"text": "Putting the number from the bracket on the log of the other base",
+					"as": "distractor",
+					"in": [
+						"one-minus-exact"
+					],
+					"wrong": "the power taken on the left base's log, not the right's"
 				}
 			],
 			"chain": [
@@ -42559,7 +42775,8 @@
 						"cos-from-sin",
 						"sin-from-cos",
 						"tan-from-ratio",
-						"cos-from-tan"
+						"cos-from-tan",
+						"cos-from-cos2"
 					],
 					"wrong": "the right size with the wrong sign"
 				},
@@ -42629,6 +42846,121 @@
 						"max-after-rewrite"
 					],
 					"wrong": "the number in front not halved"
+				},
+				{
+					"text": "Forgetting to take the square root at the end, so the answer is the square of the ratio",
+					"as": "distractor",
+					"in": [
+						"cos-from-sin",
+						"sin-from-cos",
+						"cos-from-cos2"
+					],
+					"wrong": "the ratio squared"
+				},
+				{
+					"text": "Dividing cos θ by sin θ instead of sin θ by cos θ",
+					"as": "distractor",
+					"in": [
+						"tan-from-ratio"
+					],
+					"wrong": "cos θ/sin θ, the reciprocal of tan θ"
+				},
+				{
+					"text": "Taking the opposite side over the hypotenuse, which gives sin θ instead of cos θ",
+					"as": "distractor",
+					"in": [
+						"cos-from-tan"
+					],
+					"wrong": "sin θ"
+				},
+				{
+					"text": "Forgetting to square root the sum of the squares, so the hypotenuse is too long",
+					"as": "distractor",
+					"in": [
+						"cos-from-tan"
+					],
+					"wrong": "the adjacent side over the hypotenuse squared"
+				},
+				{
+					"text": "Forgetting the 2 in sin 2θ = 2 sin θ cos θ",
+					"as": "distractor",
+					"in": [
+						"sin2-from-ratio"
+					],
+					"wrong": "sin θ cos θ, half of sin 2θ"
+				},
+				{
+					"text": "Using the double-angle formula for cos instead of the one for sin",
+					"as": "distractor",
+					"in": [
+						"sin2-from-ratio"
+					],
+					"wrong": "cos²θ − sin²θ"
+				},
+				{
+					"text": "Rearranging cos 2θ = 1 − 2sin²θ, which finds sin θ instead of cos θ",
+					"as": "distractor",
+					"in": [
+						"cos-from-cos2"
+					],
+					"wrong": "sin θ"
+				},
+				{
+					"text": "Keeping the number in front of the squared term instead of halving it",
+					"as": "distractor",
+					"in": [
+						"single-cos"
+					],
+					"wrong": "the number in front of the square, not halved"
+				},
+				{
+					"text": "Forgetting to double the angle inside the double-angle form",
+					"as": "distractor",
+					"in": [
+						"single-cos",
+						"product-sine"
+					],
+					"wrong": "the right number in front, with the original angle"
+				},
+				{
+					"text": "Getting the sign of the middle term wrong when expanding the square",
+					"as": "distractor",
+					"in": [
+						"expand-square"
+					],
+					"wrong": "the sin 2x term with the opposite sign"
+				},
+				{
+					"text": "Taking sin²x + cos²x as 2 instead of 1",
+					"as": "distractor",
+					"in": [
+						"expand-square"
+					],
+					"wrong": "the constant term doubled"
+				},
+				{
+					"text": "Doubling the middle term again after writing 2 sin x cos x as sin 2x",
+					"as": "distractor",
+					"in": [
+						"expand-square"
+					],
+					"wrong": "the sin 2x term doubled"
+				},
+				{
+					"text": "Forgetting to add the constant term to the maximum of the sine part",
+					"as": "distractor",
+					"in": [
+						"max-after-rewrite"
+					],
+					"wrong": "the sine part's maximum alone"
+				},
+				{
+					"text": "Giving the minimum value of f instead of the maximum",
+					"as": "distractor",
+					"in": [
+						"max-after-rewrite"
+					],
+					"wrong": "the minimum, the constant less the sine part's size"
 				}
 			],
 			"chain": [

@@ -314,7 +314,7 @@ static func length_options(s: Dictionary, label: String, n: int, tagged: Array, 
 	var gen: Array = []
 	for x in [n + 1, n + 2, 2 * n, n + 3, n + 5, 2 * n + 1, n + 7, 3 * n]:
 		gen.append(length_values(s, label, x))
-	return {"wrongs": rng.shuffled(w), "generic": gen}
+	return {"wrongs": rng.shuffled(w), "fillers": gen}
 
 
 static func two_ways(s: Dictionary, rep: String, label: String, a: Array, b: Array) -> Dictionary:
@@ -353,7 +353,7 @@ func _distance(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var label: String = s.names[0] + s.names[1]
 	var ans := length_ans(s, label, s.sq)
 	var o := length_options(s, label, s.sq, slips(s.A, s.B), rng)
-	var out := {"lines": pair_lines(s, rep), "answer": ans, "wrongs": o.wrongs, "generic": o.generic,
+	var out := {"lines": pair_lines(s, rep), "answer": ans, "wrongs": o.wrongs, "fillers": o.fillers,
 		"asked": "Find the distance %s. %s" % [label, exact_ask(s)], "methods": two_ways(s, rep, label, s.A, s.B)}
 	if rep == "diagram":
 		out.graph = pair_figure(s)
@@ -424,7 +424,7 @@ func u_find_k_two_values(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	for g in [t + 1, t + 2, t + 3, t + 4]:
 		gen.append(Answer.xs_of([Q.new(p - g), Q.new(p + g)]))
 	var last := ["Both signs of the root count: %s = ±%d. So %s." % [k_bracket(p), t, Answer.text(ans)]]
-	return {"lines": k_lines(s, rep), "answer": ans, "wrongs": rng.shuffled(w), "generic": gen,
+	return {"lines": k_lines(s, rep), "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen,
 		"asked": "Find the possible values of k.", "methods": {"square-both-sides": method(k_steps(s, rep, last), ans.values)}}
 
 
@@ -482,7 +482,7 @@ func u_find_k_surd(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			gen.append(Answer.xs_of([GdcKit.qf(p - g), GdcKit.qf(p + g)]))
 		ask += " Give your answers to 3 significant figures."
 		last = ["Both signs of the root count, so %s = ±√%d = ±%s to 3 s.f. So %s." % [k_bracket(p), s.t, Fmt.sf(root), Answer.text(ans)]]
-	return {"lines": k_lines(s, rep), "answer": ans, "wrongs": rng.shuffled(w), "generic": gen, "asked": ask,
+	return {"lines": k_lines(s, rep), "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen, "asked": ask,
 		"methods": {"square-both-sides": method(k_steps(s, rep, last), ans.values)}}
 
 
@@ -523,7 +523,7 @@ func u_show_isosceles(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		formula.append("%s = √(%s) = %s." % [side[0], " + ".join(side[1].map(func(v): return "%s²" % P(v))), "√%d" % n])
 		squares.append("%s² = %d" % [side[0], n])
 	formula.append("Two sides match and the third differs, so the triangle is isosceles: %s." % text)
-	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(w), "generic": gen,
+	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen,
 		"asked": "Show that triangle ABC is isosceles: which two sides are equal, and what is their exact length?",
 		"methods": {"distance-formula": method(formula, ans.values),
 			"square-both-sides": method(["Compare the squares of the sides, with no roots: " + ", ".join(squares) + ".",
@@ -544,7 +544,7 @@ func u_space_diagonal(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		lines = ["The diagram shows a cuboid with one corner at the origin O and its edges along the axes. G is the opposite corner."]
 	var tagged: Array = slips(s.A, s.B).filter(func(item): return item[1] != R_NEGATIVE and item[1] != R_ADD_COORDS)
 	var o := length_options(s, "OG", s.sq, tagged, rng)
-	var out := {"lines": lines, "answer": ans, "wrongs": o.wrongs, "generic": o.generic,
+	var out := {"lines": lines, "answer": ans, "wrongs": o.wrongs, "fillers": o.fillers,
 		"asked": "Find the length of the space diagonal OG. %s" % exact_ask(s), "methods": two_ways(s, "equation", "OG", s.A, s.B)}
 	if rep == "diagram":
 		var pts := {"O": s.A, "G": e}
@@ -582,7 +582,7 @@ func u_pyramid_edge(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	else:
 		lines = ["%s is a right pyramid with vertex %s, and one corner of its base is %s." % [thing, named(s, "V", s.B), named(s, "A", s.A)]]
 	var o := length_options(s, label, s.sq, tagged, rng)
-	var out := {"lines": lines, "answer": ans, "wrongs": o.wrongs, "generic": o.generic, "asked": ask,
+	var out := {"lines": lines, "answer": ans, "wrongs": o.wrongs, "fillers": o.fillers, "asked": ask,
 		"methods": two_ways(s, "equation", label, s.A, s.B)}
 	if rep == "diagram":
 		var c := Q.new(2 * s.a)
@@ -628,7 +628,7 @@ func u_radius_from_centre(rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	var tagged: Array = slips(s.A, s.B)
 	tagged.append([4 * s.sq, R_DOUBLED])
 	var o := length_options(s, "r", s.sq, tagged, rng)
-	var out := {"lines": lines, "answer": ans, "wrongs": o.wrongs, "generic": o.generic,
+	var out := {"lines": lines, "answer": ans, "wrongs": o.wrongs, "fillers": o.fillers,
 		"asked": "Find the radius r. %s" % exact_ask(s), "methods": two_ways(s, "equation", "r", s.A, s.B)}
 	if rep == "diagram":
 		out.graph = ball_figure(s, {"C": [0.0, 0.0], "P": on_circle(s.turn)}, {"C": c, "P": p}, [line("C", "P", false, true)], "C", "P")
@@ -690,7 +690,7 @@ func u_radius_from_diameter(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var gen: Array = []
 	for x in [n + 4, 2 * n, n + 12, n + 20, 3 * n, n + 28, n + 36]:
 		gen.append(radius_values(s, x))
-	var out := {"lines": diameter_lines(s, rep, [named(s, "A", a), named(s, "B", b)]), "answer": ans, "wrongs": rng.shuffled(w), "generic": gen,
+	var out := {"lines": diameter_lines(s, rep, [named(s, "A", a), named(s, "B", b)]), "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen,
 		"asked": "Find the radius r. %s" % exact_ask(s),
 		"methods": {"distance-formula": method(steps, ans.values), "average-coordinates": method(through, ans.values)}}
 	if rep == "diagram":
@@ -744,7 +744,7 @@ func u_origin_to_curve(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var step2 := "f(x)² = %s, so l² = x² + %s." % [inner, inner]
 	var step3 := "The x² terms cancel, so l² = %s." % under if s.shape != "x2" else "The x² terms add, so l² = %s." % under
 	return {"lines": ["Consider the function f(x) = √(%s)." % inner, "The point P(x, f(x)) is on the graph of f."], "answer": ans,
-		"wrongs": rng.shuffled(w), "generic": gen,
+		"wrongs": rng.shuffled(w), "fillers": gen,
 		"asked": "Find the distance l from the origin to P, in terms of x, in its simplest form.",
 		"methods": {"distance-formula-2d": method(["The distance from (0, 0) to (x, f(x)) has l² = x² + f(x)².", step2, step3, "So %s." % text], ans.values)}}
 
@@ -798,7 +798,7 @@ func _midpoint(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			lines = ["The diagram shows the line segment [AB] on a set of axes, with its midpoint M."]
 		_:
 			lines = ["%s runs in a straight line from %s to %s." % [RUNS[s.ctx], a, b]]
-	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(midpoint_wrongs(s, s.A, s.B)), "generic": near_points(s, s.M),
+	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(midpoint_wrongs(s, s.A, s.B)), "fillers": near_points(s, s.M),
 		"asked": "Find the coordinates of the midpoint M of [AB].", "methods": midpoint_ways(s, s.A, s.B, "M", ans)}
 	if rep == "diagram":
 		var hidden := "(%s)" % ", ".join(s.A.map(func(_v): return "?"))
@@ -817,7 +817,7 @@ func u_midpoint_2d(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 func u_centre_from_diameter(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := point_ans(s, s.M)
 	var out := {"lines": diameter_lines(s, rep, [named(s, "A", s.A), named(s, "B", s.B)]), "answer": ans,
-		"wrongs": rng.shuffled(midpoint_wrongs(s, s.A, s.B)), "generic": near_points(s, s.M),
+		"wrongs": rng.shuffled(midpoint_wrongs(s, s.A, s.B)), "fillers": near_points(s, s.M),
 		"asked": "Find the coordinates of the centre C.", "methods": midpoint_ways(s, s.A, s.B, "C", ans)}
 	if rep == "diagram":
 		out.graph = diameter_figure(s, "C", "C(?, ?, ?)")
@@ -848,7 +848,7 @@ func _endpoint(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var said := "So B is %s." % pt(s, s.B)
 	solve.append(said)
 	var step: Array = dm.minus(s.M, s.A)
-	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(w), "generic": near_points(s, s.B),
+	var out := {"lines": lines, "answer": ans, "wrongs": rng.shuffled(w), "fillers": near_points(s, s.B),
 		"asked": "Find the coordinates of B.",
 		"methods": {"solve-each-coordinate": method(solve, ans.values),
 			"repeat-the-step": method(["The step from A to M is %s." % pt(s, step), "B is the same step again from M: %s." % adds(s, s.M, step), said], ans.values)}}

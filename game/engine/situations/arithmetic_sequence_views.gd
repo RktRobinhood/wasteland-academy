@@ -3,7 +3,7 @@ extends RefCounted
 ## The views on the `arithmetic-sequence` situation: one builder per unknown of
 ## t1-arithmetic-sequence (curriculum/question-types.json). A builder returns the same
 ## fields as the quadratic ones (see quadratic_views.gd): asked, lines, table, given,
-## answer, wrongs, generic and methods.
+## answer, wrongs, fillers and methods.
 ##
 ## Representations: "notation" (u₁ = 7,  d = 3), "terms" (7, 10, 13, 16, …), "table"
 ## (n against uₙ) and "words". Every answer is a whole number and is marked exactly.
@@ -50,6 +50,22 @@ const SUBS := "₀₁₂₃₄₅₆₇₈₉"
 ## The unknowns with a Paper 2 version, asked in words.
 const PAPER2 := ["term-from-u1-d", "n-from-term", "sum-from-u1-d", "n-from-sum"]
 const REF := "SL1.2."
+## The type's own misconceptions, by index (FAL-1149).
+const OWN := "t1-arithmetic-sequence#"
+const R_NO_U1 := OWN + "12"
+const R_NO_DIVIDE := OWN + "13"
+const R_BY_Q := OWN + "14"
+const R_STOP_D := OWN + "15"
+const R_UN_OVER_D := OWN + "16"
+const R_NO_HALF := OWN + "17"
+const R_PAIR_ONLY := OWN + "18"
+const R_LAST_MINUS := OWN + "19"
+const R_UNDIVIDED := OWN + "20"
+const R_D_SIGN := OWN + "21"
+const R_TWO_U1 := OWN + "22"
+const R_MEAN := OWN + "23"
+const R_DECIMAL_N := OWN + "24"
+const R_ROUND_DOWN := OWN + "25"
 
 
 func has(unknown: String) -> bool:
@@ -74,9 +90,12 @@ func papers(unknown: String, rep: String, _angle: String) -> Array:
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng) if s.get("paper", 1) != 2 \
 		else call("p2_" + unknown.replace("-", "_"), s)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
+	# More slips than option slots: shuffle so that each of them gets shown (FAL-1149).
+	if out.wrongs.size() > 3:
+		out.wrongs = rng.shuffled(out.wrongs)
 	out.answer.exact = true
 	return out
 
@@ -127,6 +146,11 @@ static func number(label: String, v: Q) -> Dictionary:
 
 static func wrong(v: Q, ref: String = "") -> Dictionary:
 	return {"values": {"v": v}, "ref": REF + ref if ref != "" else ""}
+
+
+## A wrong option tagged with one of the type's own misconceptions (OWN).
+static func own(v: Q, ref: String) -> Dictionary:
+	return {"values": {"v": v}, "ref": ref}
 
 
 static func gen(vs: Array) -> Array:
@@ -213,7 +237,8 @@ func u_term_from_u1_d(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong(s.u1.add(s.d.mul(n)), "nth-term#0"), wrong(s.n, "nth-term#2")]
 	if rep in ["terms", "table"]:
 		out.wrongs.append(wrong(s.u1.sub(jump), "nth-term#1"))
-	out.generic = gen([jump, s.d.mul(n), s.un.sub(s.d.mul(2))])
+	out.wrongs.append(own(jump, R_NO_U1))
+	out.fillers = gen([s.d.mul(n), s.un.sub(s.d.mul(2))])
 	return out
 
 
@@ -251,7 +276,8 @@ func u_d_from_two_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"So %s." % Answer.text(ans, res(dv))]},
 	}
 	out.wrongs = [wrong(rise.div(gaps + 1), "find-u1-d#0"), wrong(s.d.neg(), "nth-term#1")]
-	out.generic = gen([rise, rise.div(s.q), s.d.mul(2)])
+	out.wrongs += [own(rise, R_NO_DIVIDE), own(rise.div(s.q), R_BY_Q)]
+	out.fillers = gen([s.d.mul(2)])
 	return out
 
 
@@ -280,7 +306,8 @@ func u_u1_from_two_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var d_wrong := rise.div(gaps + 1)
 	out.wrongs = [wrong(s.up, "find-u1-d#1"), wrong(s.up.sub(s.d.mul(s.p)), "nth-term#0"),
 		wrong(s.up.sub(d_wrong.mul(back)), "find-u1-d#0")]
-	out.generic = gen([s.up.sub(s.d), s.u1.neg(), s.d])
+	out.wrongs.append(own(s.d, R_STOP_D))
+	out.fillers = gen([s.up.sub(s.d), s.u1.neg()])
 	return out
 
 
@@ -314,7 +341,8 @@ func u_n_from_term(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"%s steps after the first term is term %s + 1, so %s." % [N(steps), N(steps), Answer.text(ans, res(v))]])
 	out.methods = {"solve-linear": {"steps": solve, "result": res(v)}, "count-steps": {"steps": count, "result": res(v)}}
 	out.wrongs = [wrong(steps, "find-n#2"), wrong(s.un, "find-n#1")]
-	out.generic = gen([v.add(1), s.un.div(s.d), s.un.add(s.u1).div(s.d)])
+	out.wrongs.append(own(s.un.div(s.d), R_UN_OVER_D))
+	out.fillers = gen([v.add(1), s.un.add(s.u1).div(s.d)])
 	return out
 
 
@@ -343,7 +371,8 @@ func u_sum_from_u1_d(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.methods = {"formula-d": {"steps": fd, "result": res(v)}, "formula-last": {"steps": fl, "result": res(w)}}
 	out.wrongs = [wrong(Q.new(n, 2).mul(s.u1.mul(2).add(s.d.mul(n))), "sum#0"),
 		wrong(ArithmeticSequenceSituation.sum(s, n - 1), "sum#1"), wrong(s.un, "sum#2")]
-	out.generic = gen([s.sn.mul(2), ArithmeticSequenceSituation.sum(s, n + 1), s.un.mul(n)])
+	out.wrongs.append(own(s.sn.mul(2), R_NO_HALF))
+	out.fillers = gen([ArithmeticSequenceSituation.sum(s, n + 1), s.un.mul(n)])
 	return out
 
 
@@ -376,7 +405,7 @@ func u_sum_from_first_last(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 			"So %s." % Answer.text(ans, res(v))]},
 	}
 	out.wrongs = [wrong(Q.new(n - 1, 2).mul(pair), "sum#1")]
-	out.generic = gen([pair.mul(n), pair, Q.new(n, 2).mul(s.un.sub(s.u1))])
+	out.wrongs += [own(pair.mul(n), R_NO_HALF), own(pair, R_PAIR_ONLY), own(Q.new(n, 2).mul(s.un.sub(s.u1)), R_LAST_MINUS)]
 	return out
 
 
@@ -410,7 +439,7 @@ func u_n_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"n counts terms, so it is a positive whole number. So %s." % Answer.text(ans, res(root))])
 	out.methods = {"quadratic-in-n": {"steps": st, "result": res(root)}}
 	out.wrongs = [wrong(other, "sum-unknown#1"), wrong(s.sn, "sum-unknown#2")]
-	out.generic = gen([root.sub(1), root.add(1), root.mul(2)])
+	out.fillers = gen([root.sub(1), root.add(1), root.mul(2)])
 	return out
 
 
@@ -442,8 +471,9 @@ func u_d_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"So %s." % Answer.text(ans, res(w))]},
 	}
 	out.wrongs = [wrong(rest.div(n), "sum#0")]
-	# (n − 1)d left undivided, the sign of d flipped, one more
-	out.generic = gen([rest, s.d.neg(), s.d.add(1)])
+	# (n − 1)d left undivided, the sign of d flipped; one more is a filler
+	out.wrongs += [own(rest, R_UNDIVIDED), own(s.d.neg(), R_D_SIGN)]
+	out.fillers = gen([s.d.add(1)])
 	return out
 
 
@@ -473,8 +503,9 @@ func u_u1_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"So %s." % Answer.text(ans, res(v))]},
 	}
 	out.wrongs = [wrong(mean2.sub(s.d.mul(n)).div(2), "sum#0")]
-	# 2u₁ not halved, the mean term Sₙ/n, one step on
-	out.generic = gen([mean2.sub(jump), s.sn.div(n), s.u1.add(s.d)])
+	# 2u₁ not halved, the mean term Sₙ/n; one step on is a filler
+	out.wrongs += [own(mean2.sub(jump), R_TWO_U1), own(s.sn.div(n), R_MEAN)]
+	out.fillers = gen([s.u1.add(s.d)])
 	return out
 
 
@@ -560,7 +591,8 @@ func p2_term_from_u1_d(s: Dictionary) -> Dictionary:
 			"With a GDC: %s = %s × %d + %s = %s" % [u(n), V(s, s.d), n, V(s, c0), V(s, s.un)], final]},
 	}
 	out.wrongs = [wrong(s.u1.add(s.d.mul(n)), "nth-term#0"), wrong(s.n, "nth-term#2")]
-	out.generic = positive(s, [jump, s.d.mul(n), s.un.sub(s.d.mul(2))])
+	out.wrongs += positive(s, [jump]).map(func(g): return own(g.v, R_NO_U1))
+	out.fillers = positive(s, [s.d.mul(n), s.un.sub(s.d.mul(2))])
 	return out
 
 
@@ -582,7 +614,8 @@ func p2_sum_from_u1_d(s: Dictionary) -> Dictionary:
 	}
 	out.wrongs = [wrong(cent(s, Q.new(n, 2).mul(s.u1.mul(2).add(s.d.mul(n)))), "sum#0"),
 		wrong(ArithmeticSequenceSituation.sum(s, n - 1), "sum#1"), wrong(s.un, "sum#2")]
-	out.generic = positive(s, [s.sn.mul(2), ArithmeticSequenceSituation.sum(s, n + 1), s.un.mul(n)])
+	out.wrongs += positive(s, [s.sn.mul(2)]).map(func(g): return own(g.v, R_NO_HALF))
+	out.fillers = positive(s, [ArithmeticSequenceSituation.sum(s, n + 1), s.un.mul(n)])
 	return out
 
 
@@ -608,7 +641,8 @@ func p2_n_from_term(s: Dictionary) -> Dictionary:
 			"%d steps after the first term is term %d + 1. %s" % [whole, whole, final]]},
 	}
 	out.wrongs = [wrong(Q.new(whole), "find-n#2"), wrong(y, "find-n#1")]
-	out.generic = gen([s.n.add(1), q3(steps + 1.0)])
+	out.wrongs.append(own(q3(steps + 1.0), R_DECIMAL_N))
+	out.fillers = gen([s.n.add(1)])
 	return out
 
 
@@ -630,7 +664,8 @@ func p2_n_from_sum(s: Dictionary) -> Dictionary:
 		"n counts %ss, so it is positive, and Sₙ grows with n: the sum first passes %s at the next whole number." % [c.per, V(s, x)],
 		"A table of Sₙ on the GDC checks it: %s = %s and %s = %s. So %s." % [S(n - 1), V(s, before), S(n), V(s, s.sn), Answer.text(ans)]]}}
 	out.wrongs = [wrong(q3(neg), "sum-unknown#1"), wrong(x, "sum-unknown#2")]
-	out.generic = gen([Q.new(n - 1), q3(r), s.n.add(1)])
+	out.wrongs += [own(Q.new(n - 1), R_ROUND_DOWN), own(q3(r), R_DECIMAL_N)]
+	out.fillers = gen([s.n.add(1)])
 	return out
 
 
