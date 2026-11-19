@@ -7323,6 +7323,151 @@
 			"clean": [
 				"the answer and every slip offered differ at 3 s.f."
 			]
+		},
+		"ahl-inequality": {
+			"name": "An inequality g(x) ≥ f(x): a cubic, two graphs, a mixed function against a line, a rational function, or two models",
+			"summary": "Pick the critical values first (the roots of the cubic, the crossings, the asymptote), then build the functions around them, so the solution set is exact or read to 3 s.f.",
+			"quantities": [
+				{
+					"name": "roots",
+					"is": "the zeros of h(x) = g(x) − f(x)",
+					"pick": "whole numbers from −6 to 6 on Paper 1, one of them repeated for a double root"
+				},
+				{
+					"name": "a",
+					"is": "the leading coefficient of the cubic",
+					"pick": "±1 or ±2"
+				},
+				{
+					"name": "sign",
+					"is": "which inequality",
+					"pick": ">, ≥, < or ≤"
+				},
+				{
+					"name": "c",
+					"is": "the vertical asymptote of a rational function",
+					"pick": "a whole number, not a crossing"
+				},
+				{
+					"name": "models",
+					"is": "the two models in context",
+					"pick": "exponential against linear, or two polynomials, on t ≥ 0"
+				}
+			],
+			"modes": [
+				{
+					"id": "exact",
+					"when": "Paper 1",
+					"how": "whole or simple fraction critical values"
+				},
+				{
+					"id": "gdc",
+					"when": "Paper 2",
+					"how": "crossings from the GDC, ends to 3 s.f."
+				}
+			],
+			"clean": [
+				"no crossing sits on an asymptote",
+				"two pieces of a solution set are clearly apart",
+				"the answer and every slip offered read differently"
+			]
+		},
+		"modulus-equation": {
+			"name": "A modulus equation or inequality: |ax + b| against a constant, a modulus, a line or a curve",
+			"summary": "Pick the solutions first, then the constants that give them, so both cases and the rejected root are exact.",
+			"quantities": [
+				{
+					"name": "a, b",
+					"is": "the inside of the modulus",
+					"pick": "whole, a from 1 to 4, b from −8 to 8"
+				},
+				{
+					"name": "k",
+					"is": "the constant on the right",
+					"pick": "a positive whole number"
+				},
+				{
+					"name": "m, c",
+					"is": "the line on the right",
+					"pick": "whole, so that exactly one case gives a negative right-hand side"
+				},
+				{
+					"name": "f",
+					"is": "a quadratic inside the modulus for counting and the GDC",
+					"pick": "x² − d or (x − p)(x − q) with whole zeros"
+				}
+			],
+			"modes": [
+				{
+					"id": "exact",
+					"when": "Paper 1",
+					"how": "whole or simple fraction solutions"
+				},
+				{
+					"id": "gdc",
+					"when": "Paper 2",
+					"how": "crossings from the GDC, ends to 3 s.f."
+				}
+			],
+			"clean": [
+				"the two cases give different roots",
+				"the answer and every slip offered read differently"
+			]
+		},
+		"modulus-graph": {
+			"name": "A function f and its transformed graphs |f(x)|, f(|x|), |f(|x|)|, 1/f(x) and [f(x)]²",
+			"summary": "Pick f from a family (quadratic, cubic, sine or a rational function) with its zeros and turning points on grid points, then apply the transformation to every sampled point, so the right graph and each slip are drawn from the same f.",
+			"quantities": [
+				{
+					"name": "family",
+					"is": "the kind of f",
+					"pick": "quadratic, cubic, sine, or (ax + b)/(x − c)"
+				},
+				{
+					"name": "zeros",
+					"is": "where f meets the x-axis",
+					"pick": "whole numbers, at least one on each side of the y-axis where f(|x|) is asked"
+				},
+				{
+					"name": "turning point",
+					"is": "the vertex (h, k) of a quadratic",
+					"pick": "whole coordinates"
+				},
+				{
+					"name": "translation",
+					"is": "a move of f before the reciprocal is taken",
+					"pick": "whole, from −4 to 4"
+				}
+			],
+			"clean": [
+				"features sit on grid points",
+				"the graphs offered differ at a feature you can see",
+				"the answer and every slip offered read differently"
+			]
+		},
+		"linear-input": {
+			"name": "y = f(ax + b): a horizontal translation and a horizontal stretch",
+			"summary": "Pick a and b, and a point (p, q) on f with (p − b)/a a whole number or a half, so the image and the reverse are exact.",
+			"quantities": [
+				{
+					"name": "a",
+					"is": "the stretch inside the bracket",
+					"pick": "±2, ±3, ±1/2 or −1"
+				},
+				{
+					"name": "b",
+					"is": "the constant inside the bracket",
+					"pick": "whole, from −8 to 8, not 0"
+				},
+				{
+					"name": "(p, q)",
+					"is": "a point on y = f(x)",
+					"pick": "whole, chosen so the image has whole or half coordinates"
+				}
+			],
+			"clean": [
+				"the image and every slip offered read differently"
+			]
 		}
 	},
 	"skills": {
@@ -7596,6 +7741,17 @@
 		"AI-AHL2.7.find-inverse": "Find an inverse function and interpret it in context",
 		"AI-AHL2.7.restrict-domain": "Restrict a domain so that an inverse exists, and find the domain and range of the inverse",
 		"AI-AHL2.7.inverse-identity": "Use f ∘ f⁻¹ = f⁻¹ ∘ f = x and the reflection of a graph in y = x",
+		"AHL2.15.polynomial-inequality": "Solve a polynomial inequality up to degree 3 algebraically",
+		"AHL2.15.read-from-graphs": "Solve g(x) ≥ f(x) from given graphs",
+		"AHL2.15.technology-inequality": "Solve an inequality involving other functions with technology",
+		"AHL2.15.rational-inequality": "Solve an inequality with a variable in the denominator",
+		"AHL2.15.context-inequality": "Use an inequality to compare two models in context",
+		"AHL2.16.modulus-equation": "Solve equations involving the modulus",
+		"AHL2.16.modulus-inequality": "Solve inequalities involving the modulus",
+		"AHL2.16.modulus-graphs": "Sketch y = |f(x)| and y = f(|x|) from the graph of y = f(x)",
+		"AHL2.16.reciprocal-graph": "Sketch y = 1/f(x) from the graph of y = f(x)",
+		"AHL2.16.square-graph": "Sketch y = [f(x)]² from the graph of y = f(x)",
+		"AHL2.16.linear-input": "Sketch y = f(ax + b) and find the image of a point",
 		"SL1.1.add-subtract": "Add and subtract numbers in standard form",
 		"SL1.1.powers-roots": "Raise numbers in standard form to powers and take roots",
 		"SL1.2.sigma": "Interpret and evaluate sigma notation for arithmetic series",
@@ -87289,6 +87445,1551 @@
 				"p1": 0,
 				"p2": 15
 			}
+		},
+		{
+			"id": "fn-ahl-inequalities",
+			"topic": 2,
+			"source": "exam",
+			"region": "graphs-features",
+			"name": "Solving inequalities g(x) ≥ f(x) (AA HL)",
+			"summary": "A cubic inequality from its factors, against kx or with a given factor or a double root; g(x) ≥ f(x) read from two graphs; an inequality with mixed functions on the GDC; a rational function against a constant or a line, with its asymptote as a boundary; and two models compared in context.",
+			"situation": "ahl-inequality",
+			"formats": [
+				"mcq",
+				"value"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the inequality written out, such as (x + 1)(x − 2)(x − 4) ≤ 0"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the curves on a grid with their crossings marked"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "two models in context: populations, tanks, revenue and cost"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "cubic-from-factors",
+					"given": [
+						"a(x − p)(x − q)(x − r) compared with 0"
+					],
+					"asked": "the solution set",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.15.polynomial-inequality"
+					]
+				},
+				{
+					"id": "cubic-against-kx",
+					"given": [
+						"x³ compared with k²x, or with k x²"
+					],
+					"asked": "the solution set, keeping the interval that dividing by x loses",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.15.polynomial-inequality"
+					]
+				},
+				{
+					"id": "cubic-given-factor",
+					"given": [
+						"an expanded cubic compared with 0, with one factor (x − p) given"
+					],
+					"asked": "the solution set",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.15.polynomial-inequality"
+					]
+				},
+				{
+					"id": "double-root",
+					"given": [
+						"(x − p)(x − q)² compared with 0"
+					],
+					"asked": "the solution set, with the repeated root handled",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.15.polynomial-inequality"
+					]
+				},
+				{
+					"id": "read-from-graphs",
+					"given": [
+						"the graphs of f and g, crossing at marked points"
+					],
+					"asked": "the solution of g(x) ≥ f(x), or of a strict version",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.15.read-from-graphs"
+					]
+				},
+				{
+					"id": "horizontal-band",
+					"given": [
+						"the graph of f and one or two horizontal lines"
+					],
+					"asked": "the values of x for which f(x) lies above, below or between the lines",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.15.read-from-graphs"
+					]
+				},
+				{
+					"id": "technology-inequality",
+					"given": [
+						"an exponential, log or trig function against a line, on a domain"
+					],
+					"asked": "the solution set, its ends to 3 s.f.",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.15.technology-inequality"
+					]
+				},
+				{
+					"id": "rational-against-constant",
+					"given": [
+						"(ax + b)/(x − c) compared with a constant"
+					],
+					"asked": "the solution set, with the asymptote as one end",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.15.rational-inequality"
+					]
+				},
+				{
+					"id": "rational-against-line",
+					"given": [
+						"a rational function compared with a line"
+					],
+					"asked": "the solution set, its ends exact or to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.15.rational-inequality",
+						"AHL2.15.technology-inequality"
+					]
+				},
+				{
+					"id": "context-models",
+					"given": [
+						"two models of the same quantity for t ≥ 0"
+					],
+					"asked": "the times for which one model exceeds the other",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AHL2.15.context-inequality"
+					]
+				},
+				{
+					"id": "least-whole-number",
+					"given": [
+						"a formula in a whole-number input n and a target value"
+					],
+					"asked": "the least n for which the target is met",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AHL2.15.context-inequality"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL2.15.polynomial-inequality",
+					"method": "rearrange-factorise-sign",
+					"suits": [
+						"cubic-from-factors",
+						"cubic-against-kx",
+						"cubic-given-factor",
+						"double-root"
+					],
+					"name": "Rearrange to h(x) ≥ 0, factorise, use a sign diagram",
+					"about": "x³ − 4x = x(x − 2)(x + 2) ≥ 0; test the sign in each interval between −2, 0 and 2, giving −2 ≤ x ≤ 0 or x ≥ 2."
+				},
+				{
+					"skill": "AHL2.15.polynomial-inequality",
+					"method": "sketch-cubic",
+					"suits": [
+						"cubic-from-factors",
+						"cubic-against-kx",
+						"double-root"
+					],
+					"name": "Sketch the factorised cubic",
+					"about": "Sketch y = x(x − 2)(x + 2) using its roots and end behaviour, and read where the curve is on or above the x-axis."
+				},
+				{
+					"skill": "AHL2.15.polynomial-inequality",
+					"method": "gdc-check",
+					"suits": [
+						"cubic-from-factors",
+						"cubic-given-factor"
+					],
+					"name": "Check on the GDC",
+					"about": "Graph both sides and confirm the intervals between the intersection points."
+				},
+				{
+					"skill": "AHL2.15.read-from-graphs",
+					"method": "above-between-intersections",
+					"suits": [
+						"read-from-graphs",
+						"horizontal-band"
+					],
+					"name": "Find where g is above f between intersections",
+					"about": "Mark the x-coordinates of the intersections, then pick the intervals where the graph of g lies on or above the graph of f."
+				},
+				{
+					"skill": "AHL2.15.read-from-graphs",
+					"method": "difference-graph",
+					"suits": [
+						"read-from-graphs"
+					],
+					"name": "Think of g − f against the x-axis",
+					"about": "g(x) ≥ f(x) is the same as g(x) − f(x) ≥ 0, so look for where the difference graph is above the axis."
+				},
+				{
+					"skill": "AHL2.15.technology-inequality",
+					"method": "gdc-intersections",
+					"suits": [
+						"technology-inequality",
+						"rational-against-line"
+					],
+					"name": "Graph both sides and intersect",
+					"about": "Graph y = e^x and y = x + 2, find the intersections x ≈ −1.84 and x ≈ 1.15, and read off x < −1.84 or x > 1.15."
+				},
+				{
+					"skill": "AHL2.15.technology-inequality",
+					"method": "gdc-zero-of-difference",
+					"suits": [
+						"technology-inequality",
+						"rational-against-line"
+					],
+					"name": "Zeros of the difference",
+					"about": "Graph y = e^x − x − 2, find its zeros and read where the graph is above the x-axis."
+				},
+				{
+					"skill": "AHL2.15.technology-inequality",
+					"method": "domain-check",
+					"suits": [
+						"technology-inequality",
+						"rational-against-line"
+					],
+					"name": "Check the domain and asymptotes",
+					"about": "Exclude values outside the domain (for example x ≤ 0 for ln x) and any vertical asymptotes before stating the intervals."
+				},
+				{
+					"skill": "AHL2.15.rational-inequality",
+					"method": "gdc-graph-asymptote",
+					"suits": [
+						"rational-against-constant",
+						"rational-against-line"
+					],
+					"name": "Graph both sides on the GDC",
+					"about": "Graph y = (x + 1)/(x − 2) and y = 3, find the intersection x = 3.5 and use the asymptote x = 2 as a second boundary: 2 < x ≤ 3.5."
+				},
+				{
+					"skill": "AHL2.15.rational-inequality",
+					"method": "single-fraction-sign",
+					"suits": [
+						"rational-against-constant",
+						"rational-against-line"
+					],
+					"name": "Combine into one fraction and use a sign diagram",
+					"about": "(x + 1)/(x − 2) − 3 = (7 − 2x)/(x − 2) ≥ 0; the critical values are 2 and 3.5, and x = 2 is excluded."
+				},
+				{
+					"skill": "AHL2.15.rational-inequality",
+					"method": "multiply-by-square",
+					"suits": [
+						"rational-against-constant"
+					],
+					"name": "Multiply by the square of the denominator",
+					"about": "Multiply both sides by (x − 2)², which is positive, to get (x + 1)(x − 2) ≥ 3(x − 2)², then solve the quadratic inequality and exclude x = 2."
+				},
+				{
+					"skill": "AHL2.15.context-inequality",
+					"method": "gdc-intersections-context",
+					"suits": [
+						"context-models",
+						"least-whole-number"
+					],
+					"name": "Graph both models and intersect",
+					"about": "Graph both models over the context domain, find the intersections and read the interval where the required model is on top."
+				},
+				{
+					"skill": "AHL2.15.context-inequality",
+					"method": "algebraic-polynomial-model",
+					"suits": [
+						"context-models"
+					],
+					"name": "Rearrange and factorise if the models are polynomial",
+					"about": "Write the difference of the two models as one polynomial, factorise and use a sign diagram, keeping only values allowed by the context."
+				},
+				{
+					"skill": "AHL2.15.context-inequality",
+					"method": "interpret-domain",
+					"suits": [
+						"context-models",
+						"least-whole-number"
+					],
+					"name": "Restrict to the meaningful domain",
+					"about": "Discard negative times or quantities and round the boundaries in the direction the context demands."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "You can divide both sides of x³ > 9x by x to get x² > 9.",
+					"answer": "False: x can be negative, and dividing by a negative number reverses the sign. Moving 9x across and factorising, x(x − 3)(x + 3) > 0, keeps −3 < x < 0 as well as x > 3.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The vertical asymptote of a rational function is one end of the solution set of an inequality it is in.",
+					"answer": "Sometimes: the fraction changes sign across the asymptote when the denominator's factor appears once, so the asymptote bounds an interval; it is never included, because the function has no value there.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "Why does (x + 3)(x − 1)² ≥ 0 have the solution x ≥ −3 and not −3 ≤ x ≤ 1?",
+					"answer": "(x − 1)² is never negative, so the sign only changes at x = −3. At x = 1 the curve touches the axis and turns back up.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL2.15.polynomial-inequality#0",
+					"text": "Divides both sides by x, so the interval of negative x that also solves the inequality is lost",
+					"as": "distractor",
+					"in": [
+						"cubic-against-kx"
+					],
+					"wrong": "only the piece past the positive root"
+				},
+				{
+					"ref": "AHL2.15.polynomial-inequality#1",
+					"text": "Takes only the positive square root, so only the piece above the positive root is given",
+					"as": "distractor",
+					"in": [
+						"cubic-against-kx"
+					],
+					"wrong": "only x beyond the positive root"
+				},
+				{
+					"ref": "AHL2.15.polynomial-inequality#2",
+					"text": "Uses the sign pattern of a positive cubic for a cubic with a negative leading coefficient",
+					"as": "distractor",
+					"in": [
+						"cubic-from-factors",
+						"cubic-given-factor"
+					],
+					"wrong": "the set for the opposite sign"
+				},
+				{
+					"ref": "AHL2.15.polynomial-inequality#3",
+					"text": "Treats a double root as a sign change, so the interval on the far side of the repeated root is lost",
+					"as": "distractor",
+					"in": [
+						"double-root"
+					],
+					"wrong": "an interval that stops at the repeated root"
+				},
+				{
+					"ref": "AHL2.15.read-from-graphs#0",
+					"text": "Reads where g(x) ≥ 0 instead of where g(x) ≥ f(x)",
+					"as": "distractor",
+					"in": [
+						"read-from-graphs"
+					],
+					"wrong": "where g is above the x-axis"
+				},
+				{
+					"ref": "AHL2.15.read-from-graphs#1",
+					"text": "Gives the answer as y-values instead of x-values",
+					"as": "distractor",
+					"in": [
+						"read-from-graphs",
+						"horizontal-band"
+					],
+					"wrong": "the heights of the crossings"
+				},
+				{
+					"ref": "AHL2.15.read-from-graphs#2",
+					"text": "Gives the complementary interval, the set where the inequality fails",
+					"as": "distractor",
+					"in": [
+						"read-from-graphs",
+						"horizontal-band"
+					],
+					"wrong": "the complement"
+				},
+				{
+					"ref": "AHL2.15.technology-inequality#0",
+					"text": "Gives the interval between the intersections when the inequality holds outside them",
+					"as": "distractor",
+					"in": [
+						"technology-inequality"
+					],
+					"wrong": "the interval between the crossings"
+				},
+				{
+					"ref": "AHL2.15.technology-inequality#1",
+					"text": "Uses a window too small to show a second intersection, and gives only one boundary",
+					"as": "distractor",
+					"in": [
+						"technology-inequality"
+					],
+					"wrong": "one piece only"
+				},
+				{
+					"ref": "AHL2.15.technology-inequality#2",
+					"text": "Ignores the domain and includes values where the function is undefined",
+					"as": "distractor",
+					"in": [
+						"technology-inequality"
+					],
+					"wrong": "the set without the domain cut"
+				},
+				{
+					"ref": "AHL2.15.rational-inequality#0",
+					"text": "Multiplies both sides by the denominator without knowing its sign, so the answer includes values on the wrong side of the asymptote",
+					"as": "distractor",
+					"in": [
+						"rational-against-constant",
+						"rational-against-line"
+					],
+					"wrong": "a set running past the asymptote"
+				},
+				{
+					"ref": "AHL2.15.rational-inequality#1",
+					"text": "Includes the asymptote's x-value in the answer, where the fraction is undefined",
+					"as": "distractor",
+					"in": [
+						"rational-against-constant",
+						"rational-against-line"
+					],
+					"wrong": "the asymptote included"
+				},
+				{
+					"ref": "AHL2.15.rational-inequality#2",
+					"text": "Gives only the intersection as a boundary and misses the asymptote",
+					"as": "distractor",
+					"in": [
+						"rational-against-constant",
+						"rational-against-line"
+					],
+					"wrong": "one side of the crossing only"
+				},
+				{
+					"ref": "AHL2.15.context-inequality#0",
+					"text": "Includes negative times in the answer because the algebra allows them",
+					"as": "distractor",
+					"in": [
+						"context-models"
+					],
+					"wrong": "the set with negative times"
+				},
+				{
+					"ref": "AHL2.15.context-inequality#1",
+					"text": "Rounds a boundary the wrong way for the context, so the whole number given does not meet the target",
+					"as": "distractor",
+					"in": [
+						"least-whole-number"
+					],
+					"wrong": "the whole number below the crossing"
+				},
+				{
+					"ref": "AHL2.15.context-inequality#2",
+					"text": "Gives the value of the models at the intersection instead of the time",
+					"as": "distractor",
+					"in": [
+						"context-models"
+					],
+					"wrong": "the value at the crossing"
+				},
+				{
+					"text": "Includes the ends in a strict inequality, or leaves them out of a non-strict one",
+					"as": "distractor",
+					"in": [
+						"cubic-from-factors",
+						"read-from-graphs",
+						"rational-against-constant"
+					],
+					"wrong": "the ends the wrong way"
+				}
+			],
+			"chain": [
+				"an inequality g(x) ≥ f(x), written out or drawn as two graphs",
+				"everything moved to one side, h(x) = g(x) − f(x) ≥ 0",
+				"the critical values: the zeros of h, and for a rational h its vertical asymptote",
+				"the sign of h in each interval between critical values, from a sign diagram, a sketch or the GDC",
+				"the solution set, with each end included or not and any context domain applied"
+			],
+			"frequency": 7,
+			"marks": 4,
+			"section": {
+				"A": 3,
+				"B": 3
+			},
+			"paper": {
+				"p1": 1,
+				"p2": 6
+			}
+		},
+		{
+			"id": "fn-ahl-modulus-equations",
+			"topic": 2,
+			"source": "exam",
+			"region": "graphs-features",
+			"name": "Modulus equations and inequalities (AA HL)",
+			"summary": "Solve |x − a| = k and |ax + b| = k, a modulus equal to a modulus or to a line with every root checked, count the solutions of |f(x)| = k from the graph, and solve |x − a| < b, |ax + b| ≥ k, a modulus against a modulus and a modulus against a curve with the GDC.",
+			"situation": "modulus-equation",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the equation or inequality written out, such as |2x − 5| = x + 1"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the V or the reflected curve with the other side drawn on the same grid"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "shifted-modulus",
+					"given": [
+						"|x − a| = k"
+					],
+					"asked": "both solutions",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.16.modulus-equation"
+					]
+				},
+				{
+					"id": "linear-equals-constant",
+					"given": [
+						"|ax + b| = k"
+					],
+					"asked": "both solutions",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.16.modulus-equation"
+					]
+				},
+				{
+					"id": "modulus-equals-modulus",
+					"given": [
+						"|ax + b| = |cx + d|"
+					],
+					"asked": "both solutions",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.modulus-equation"
+					]
+				},
+				{
+					"id": "modulus-equals-line",
+					"given": [
+						"|ax + b| = mx + c"
+					],
+					"asked": "every solution, with the false root rejected",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.modulus-equation"
+					]
+				},
+				{
+					"id": "count-solutions",
+					"given": [
+						"|f(x)| = k for a quadratic f, with the graph of y = |f(x)|"
+					],
+					"asked": "the number of solutions, or the values of k that give a stated number",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph",
+						"equation"
+					],
+					"skills": [
+						"AHL2.16.modulus-equation"
+					]
+				},
+				{
+					"id": "modulus-less-than",
+					"given": [
+						"|x − a| < b or |ax + b| ≤ k"
+					],
+					"asked": "the solution set",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.16.modulus-inequality"
+					]
+				},
+				{
+					"id": "modulus-greater-than",
+					"given": [
+						"|x − a| > b or |ax + b| ≥ k"
+					],
+					"asked": "the solution set, in two pieces",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.16.modulus-inequality"
+					]
+				},
+				{
+					"id": "modulus-against-modulus",
+					"given": [
+						"|x + a| compared with m|x − b|"
+					],
+					"asked": "the solution set",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.modulus-inequality"
+					]
+				},
+				{
+					"id": "modulus-vs-curve",
+					"given": [
+						"|f(x)| compared with a line or curve, f a quadratic or trig function"
+					],
+					"asked": "the solution set, its ends to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.modulus-inequality"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL2.16.modulus-equation",
+					"method": "square-both-sides",
+					"suits": [
+						"modulus-equals-modulus",
+						"modulus-equals-line"
+					],
+					"name": "Square both sides",
+					"about": "When both sides are moduli, square: (2x − 1)² = (x + 3)² gives 3x² − 10x − 8 = 0, so x = 4 or x = −2/3."
+				},
+				{
+					"skill": "AHL2.16.modulus-equation",
+					"method": "split-into-cases",
+					"suits": [
+						"shifted-modulus",
+						"linear-equals-constant",
+						"modulus-equals-modulus",
+						"modulus-equals-line"
+					],
+					"name": "Split into cases and check",
+					"about": "Solve x − 2 = 2x + 1 and −(x − 2) = 2x + 1, then reject any solution that makes the right-hand side negative: x = 1/3 only."
+				},
+				{
+					"skill": "AHL2.16.modulus-equation",
+					"method": "graph-intersections",
+					"suits": [
+						"modulus-equals-line",
+						"count-solutions"
+					],
+					"name": "Intersect the graphs",
+					"about": "Sketch both sides (the modulus graph has a V or reflected shape) and count or find the intersections, using the GDC on Paper 2."
+				},
+				{
+					"skill": "AHL2.16.modulus-inequality",
+					"method": "distance-interpretation",
+					"suits": [
+						"modulus-less-than",
+						"modulus-greater-than"
+					],
+					"name": "Read |x − a| < b as a distance",
+					"about": "|x − 3| < 2 means x is less than 2 from 3, so 1 < x < 5."
+				},
+				{
+					"skill": "AHL2.16.modulus-inequality",
+					"method": "square-then-quadratic",
+					"suits": [
+						"modulus-less-than",
+						"modulus-greater-than",
+						"modulus-against-modulus"
+					],
+					"name": "Square both sides and solve a quadratic inequality",
+					"about": "|x + 1| ≥ 2|x − 1| becomes x² + 2x + 1 ≥ 4x² − 8x + 4, so (3x − 1)(x − 3) ≤ 0 and 1/3 ≤ x ≤ 3."
+				},
+				{
+					"skill": "AHL2.16.modulus-inequality",
+					"method": "gdc-graph-inequality",
+					"suits": [
+						"modulus-against-modulus",
+						"modulus-vs-curve"
+					],
+					"name": "Graph both sides on the GDC",
+					"about": "For harder cases, graph each side, find the intersections and read where the modulus graph is above or below, respecting the domain (−1 ≤ x ≤ 1 for arccos)."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Squaring both sides of |x − 2| = 2x + 1 gives an equation with the same solutions.",
+					"answer": "False: squaring also solves −|x − 2| = 2x + 1, so it can bring in a root that makes 2x + 1 negative. Each root must be checked in the original.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "|x − a| < b has a solution set that is a single interval.",
+					"answer": "Sometimes: for b > 0 it is a − b < x < a + b, the numbers less than b from a. For b ≤ 0 there is no solution, since a distance is never negative.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL2.16.modulus-equation#0",
+					"text": "Keeps a solution that makes the right-hand side negative, which a modulus can never equal",
+					"as": "distractor",
+					"in": [
+						"modulus-equals-line"
+					],
+					"wrong": "both roots kept"
+				},
+				{
+					"ref": "AHL2.16.modulus-equation#1",
+					"text": "Solves only the positive case and misses the solution from the negative case",
+					"as": "distractor",
+					"in": [
+						"shifted-modulus",
+						"linear-equals-constant",
+						"modulus-equals-modulus"
+					],
+					"wrong": "one root only"
+				},
+				{
+					"ref": "AHL2.16.modulus-equation#2",
+					"text": "Squares both sides and keeps both roots without checking them in the original equation",
+					"as": "distractor",
+					"in": [
+						"modulus-equals-line"
+					],
+					"wrong": "both roots of the squared equation"
+				},
+				{
+					"ref": "AHL2.16.modulus-inequality#0",
+					"text": "Solves |x − a| < b as x < a + b only, ignoring the lower bound",
+					"as": "distractor",
+					"in": [
+						"modulus-less-than"
+					],
+					"wrong": "the upper bound only"
+				},
+				{
+					"ref": "AHL2.16.modulus-inequality#1",
+					"text": "Writes |x − a| > b as one impossible chain instead of two separate pieces",
+					"as": "distractor",
+					"in": [
+						"modulus-greater-than"
+					],
+					"wrong": "one chained interval"
+				},
+				{
+					"ref": "AHL2.16.modulus-inequality#2",
+					"text": "Ignores the domain of the function inside the modulus and gives solutions outside it",
+					"as": "distractor",
+					"in": [
+						"modulus-vs-curve"
+					],
+					"wrong": "values outside the domain"
+				},
+				{
+					"text": "Counts the solutions of f(x) = k instead of |f(x)| = k, ignoring the reflected part",
+					"as": "distractor",
+					"in": [
+						"count-solutions"
+					],
+					"wrong": "the count for f, not |f|"
+				},
+				{
+					"text": "Gives the solutions of the equation instead of the set where the inequality holds",
+					"as": "distractor",
+					"in": [
+						"modulus-less-than",
+						"modulus-greater-than",
+						"modulus-against-modulus"
+					],
+					"wrong": "the boundary values only"
+				},
+				{
+					"text": "Gives the complementary set, the values where the inequality fails",
+					"as": "distractor",
+					"in": [
+						"modulus-less-than",
+						"modulus-greater-than",
+						"modulus-against-modulus",
+						"modulus-vs-curve"
+					],
+					"wrong": "the complement"
+				}
+			],
+			"chain": [
+				"an equation or inequality with a modulus on one or both sides",
+				"the two cases, the inside equal to plus or minus the other side, or both sides squared",
+				"each root checked in the original, since a modulus is never negative",
+				"for an inequality, the critical values and the side of each that works",
+				"the solution set, in one piece or two"
+			],
+			"frequency": 1,
+			"marks": 2,
+			"section": {
+				"A": 0,
+				"B": 1
+			},
+			"paper": {
+				"p1": 0,
+				"p2": 1
+			}
+		},
+		{
+			"id": "fn-ahl-modulus-graphs",
+			"topic": 2,
+			"source": "exam",
+			"region": "transformations",
+			"name": "Graphs of |f(x)|, f(|x|), 1/f(x) and [f(x)]² (AA HL)",
+			"summary": "Choose the graph of |f(x)|, f(|x|), |f(|x|)|, 1/f(x) or [f(x)]² from the graph of f; the image of the vertex and the intercepts; an inequality in f(|x|) by symmetry; the asymptotes and turning point of 1/f; and the turning points of [f(x)]².",
+			"situation": "modulus-graph",
+			"formats": [
+				"graph-pick",
+				"mcq",
+				"value"
+			],
+			"representations": [
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the graph of y = f(x) on a grid, with four graphs to choose from"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the rule of f, such as f(x) = x² − 2x − 8"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "modulus-of-f",
+					"given": [
+						"the graph of y = f(x)"
+					],
+					"asked": "the graph of y = |f(x)|",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.modulus-graphs"
+					]
+				},
+				{
+					"id": "f-of-modulus",
+					"given": [
+						"the graph of y = f(x)"
+					],
+					"asked": "the graph of y = f(|x|)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.modulus-graphs"
+					]
+				},
+				{
+					"id": "modulus-of-both",
+					"given": [
+						"the graph of y = f(x)"
+					],
+					"asked": "the graph of y = |f(|x|)|",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.modulus-graphs"
+					]
+				},
+				{
+					"id": "vertex-image",
+					"given": [
+						"a quadratic rule"
+					],
+					"asked": "the image of the vertex on y = |f(x)|",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.16.modulus-graphs"
+					]
+				},
+				{
+					"id": "f-of-modulus-intercepts",
+					"given": [
+						"a quadratic or cubic rule, or its graph"
+					],
+					"asked": "the x-intercepts of y = f(|x|)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.modulus-graphs"
+					]
+				},
+				{
+					"id": "f-of-modulus-inequality",
+					"given": [
+						"the graph of y = f(x) and a horizontal line"
+					],
+					"asked": "the solution set of f(|x|) compared with a constant",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.modulus-graphs",
+						"AHL2.16.modulus-inequality"
+					]
+				},
+				{
+					"id": "pick-reciprocal",
+					"given": [
+						"the graph of y = f(x)"
+					],
+					"asked": "the graph of y = 1/f(x)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.reciprocal-graph"
+					]
+				},
+				{
+					"id": "reciprocal-asymptotes",
+					"given": [
+						"a quadratic f, possibly translated first"
+					],
+					"asked": "the vertical asymptotes of y = 1/f(x)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.16.reciprocal-graph"
+					]
+				},
+				{
+					"id": "reciprocal-turning-point",
+					"given": [
+						"a quadratic f with a turning point (h, k)"
+					],
+					"asked": "the turning point of y = 1/f(x) and its nature",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.reciprocal-graph"
+					]
+				},
+				{
+					"id": "pick-square",
+					"given": [
+						"the graph of y = f(x)"
+					],
+					"asked": "the graph of y = [f(x)]²",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.square-graph"
+					]
+				},
+				{
+					"id": "square-features",
+					"given": [
+						"a quadratic or sine f, or its graph"
+					],
+					"asked": "the turning points of y = [f(x)]², or its period",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.square-graph"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL2.16.modulus-graphs",
+					"method": "reflect-negative-part",
+					"suits": [
+						"modulus-of-f",
+						"modulus-of-both",
+						"vertex-image"
+					],
+					"name": "|f(x)|: reflect the part below the axis",
+					"about": "Keep the graph where f(x) ≥ 0 and reflect the rest in the x-axis: the vertex (1, −4) of x² − 2x − 3 becomes (1, 4)."
+				},
+				{
+					"skill": "AHL2.16.modulus-graphs",
+					"method": "keep-right-reflect",
+					"suits": [
+						"f-of-modulus",
+						"modulus-of-both",
+						"f-of-modulus-intercepts",
+						"f-of-modulus-inequality"
+					],
+					"name": "f(|x|): keep x ≥ 0 and reflect it in the y-axis",
+					"about": "Delete the graph for x < 0 and replace it with the mirror image of the x ≥ 0 part, so f(|x|) is always even."
+				},
+				{
+					"skill": "AHL2.16.modulus-graphs",
+					"method": "piecewise-definition",
+					"suits": [
+						"modulus-of-f",
+						"f-of-modulus",
+						"vertex-image",
+						"f-of-modulus-intercepts"
+					],
+					"name": "Write as a piecewise function",
+					"about": "|f(x)| is f(x) where f(x) ≥ 0 and −f(x) where f(x) < 0; f(|x|) is f(x) for x ≥ 0 and f(−x) for x < 0."
+				},
+				{
+					"skill": "AHL2.16.reciprocal-graph",
+					"method": "feature-swap",
+					"suits": [
+						"pick-reciprocal",
+						"reciprocal-asymptotes",
+						"reciprocal-turning-point"
+					],
+					"name": "Swap features point by point",
+					"about": "Zeros of f become vertical asymptotes, vertical asymptotes become zeros, a maximum (a, k) becomes a minimum (a, 1/k), and points where f = ±1 stay fixed."
+				},
+				{
+					"skill": "AHL2.16.reciprocal-graph",
+					"method": "sign-and-size",
+					"suits": [
+						"pick-reciprocal",
+						"reciprocal-turning-point"
+					],
+					"name": "Same sign, opposite size",
+					"about": "1/f has the same sign as f; where |f| is large, 1/f is near 0, and where f is near 0, 1/f is large."
+				},
+				{
+					"skill": "AHL2.16.reciprocal-graph",
+					"method": "gdc-graph",
+					"suits": [
+						"pick-reciprocal",
+						"reciprocal-turning-point"
+					],
+					"name": "Graph on the GDC and compare",
+					"about": "Graph f and 1/f together to check the asymptotes and the turning points line up."
+				},
+				{
+					"skill": "AHL2.16.square-graph",
+					"method": "square-outputs",
+					"suits": [
+						"pick-square",
+						"square-features"
+					],
+					"name": "Square each output",
+					"about": "All outputs become non-negative; zeros of f become points where the graph touches the axis; values with |f| < 1 shrink and |f| > 1 grow; points with f = ±1 go to height 1."
+				},
+				{
+					"skill": "AHL2.16.square-graph",
+					"method": "derivative-check",
+					"suits": [
+						"square-features"
+					],
+					"name": "Use d/dx [f(x)]² = 2f(x)f′(x)",
+					"about": "Stationary points of f² are the stationary points of f plus the zeros of f, which shows each zero becomes a minimum."
+				},
+				{
+					"skill": "AHL2.16.square-graph",
+					"method": "gdc-graph",
+					"suits": [
+						"pick-square",
+						"square-features"
+					],
+					"name": "Graph on the GDC",
+					"about": "Graph f and f² together to check the touching points and the heights of turning points."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The graphs of y = |f(x)| and y = f(|x|) are always different.",
+					"answer": "False: they agree when f is even and never negative, such as f(x) = x² + 1. They differ as soon as f is negative somewhere or is not even.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "Why is every zero of f a vertical asymptote of 1/f, and every zero of f a minimum of [f(x)]²?",
+					"answer": "Near a zero, f is small, so 1/f is huge, with the sign of f on each side. Squaring a small number gives a smaller positive one, and the square is 0 at the zero, so the graph touches the axis there.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "y = f(|x|) is an even function.",
+					"answer": "Always: f(|−x|) = f(|x|), so the graph is its own mirror image in the y-axis, whatever f is.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL2.16.modulus-graphs#0",
+					"text": "Swaps the two: reflects the x < 0 part for |f(x)| or the negative part for f(|x|)",
+					"as": "distractor",
+					"in": [
+						"modulus-of-f",
+						"f-of-modulus",
+						"modulus-of-both"
+					],
+					"wrong": "the other transformation"
+				},
+				{
+					"ref": "AHL2.16.modulus-graphs#1",
+					"text": "Keeps the left-hand part of f when sketching f(|x|), instead of mirroring the right-hand part",
+					"as": "distractor",
+					"in": [
+						"f-of-modulus",
+						"f-of-modulus-intercepts"
+					],
+					"wrong": "the left half mirrored"
+				},
+				{
+					"ref": "AHL2.16.modulus-graphs#2",
+					"text": "Reflects the whole graph of f in the x-axis for |f(x)|",
+					"as": "distractor",
+					"in": [
+						"modulus-of-f",
+						"vertex-image"
+					],
+					"wrong": "−f(x)"
+				},
+				{
+					"ref": "AHL2.16.reciprocal-graph#0",
+					"text": "Maps a turning point (h, k) of f to (h, −k) or leaves it at (h, k), instead of (h, 1/k)",
+					"as": "distractor",
+					"in": [
+						"reciprocal-turning-point"
+					],
+					"wrong": "(h, −k) or (h, k)"
+				},
+				{
+					"ref": "AHL2.16.reciprocal-graph#1",
+					"text": "Confuses 1/f(x) with f⁻¹(x) and reflects the graph in y = x",
+					"as": "distractor",
+					"in": [
+						"pick-reciprocal"
+					],
+					"wrong": "the reflection in y = x"
+				},
+				{
+					"ref": "AHL2.16.reciprocal-graph#2",
+					"text": "Draws 1/f with the opposite sign to f in some interval",
+					"as": "distractor",
+					"in": [
+						"pick-reciprocal"
+					],
+					"wrong": "a branch on the wrong side of the axis"
+				},
+				{
+					"ref": "AHL2.16.square-graph#0",
+					"text": "Draws [f(x)]² crossing the x-axis at the zeros of f instead of touching it",
+					"as": "distractor",
+					"in": [
+						"pick-square"
+					],
+					"wrong": "a curve that crosses at the zeros"
+				},
+				{
+					"ref": "AHL2.16.square-graph#1",
+					"text": "Treats [f(x)]² like |f(x)|, keeping the heights of the reflected parts instead of squaring them",
+					"as": "distractor",
+					"in": [
+						"pick-square",
+						"square-features"
+					],
+					"wrong": "|f(x)| in place of the square"
+				},
+				{
+					"ref": "AHL2.16.square-graph#2",
+					"text": "Gives the period of sin²x as 2π instead of π",
+					"as": "distractor",
+					"in": [
+						"square-features"
+					],
+					"wrong": "the period of sin x"
+				},
+				{
+					"text": "Takes the zeros of f before the translation as the asymptotes, instead of the zeros of the translated function",
+					"as": "distractor",
+					"in": [
+						"reciprocal-asymptotes"
+					],
+					"wrong": "the asymptotes before the move"
+				},
+				{
+					"text": "Solves f(x) compared with the constant for x ≥ 0 only, and leaves out the mirrored piece",
+					"as": "distractor",
+					"in": [
+						"f-of-modulus-inequality"
+					],
+					"wrong": "the x ≥ 0 piece only"
+				}
+			],
+			"chain": [
+				"the graph of y = f(x), or its rule, with its zeros, turning points and asymptotes",
+				"the transformation: outputs made positive, the right half mirrored, outputs inverted or squared",
+				"each key feature moved: zeros, turning points, asymptotes, points at height ±1",
+				"the new graph's shape between the features, from the sign and size of f",
+				"the graph chosen, or a feature of it given as coordinates or an equation"
+			],
+			"frequency": 9,
+			"marks": 4,
+			"section": {
+				"A": 6,
+				"B": 3
+			},
+			"paper": {
+				"p1": 7,
+				"p2": 2
+			}
+		},
+		{
+			"id": "fn-ext-linear-input",
+			"topic": 2,
+			"source": "extension",
+			"kind": "skill",
+			"region": "transformations",
+			"name": "Graphs of y = f(ax + b)",
+			"summary": "The image of a point on y = f(ax + b), the point it came from, the moves in the right order, the graph, and f(b − x) as a reflection and a translation.",
+			"situation": "linear-input",
+			"level": [
+				1,
+				3
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"graph-pick",
+				"error-spot"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "y = f(ax + b) and a point on y = f(x)"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "the graph of y = f(x) on a grid"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "image-point",
+					"given": [
+						"a point (p, q) on y = f(x)"
+					],
+					"asked": "its image on y = f(ax + b)",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.16.linear-input"
+					]
+				},
+				{
+					"id": "original-point",
+					"given": [
+						"a point on y = f(ax + b)"
+					],
+					"asked": "the point on y = f(x) it came from",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.16.linear-input"
+					]
+				},
+				{
+					"id": "describe-moves",
+					"given": [
+						"y = f(x) and y = f(ax + b)"
+					],
+					"asked": "the moves, in order, that map one onto the other",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.16.linear-input"
+					]
+				},
+				{
+					"id": "pick-graph",
+					"given": [
+						"the graph of y = f(x)"
+					],
+					"asked": "the graph of y = f(ax + b)",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.linear-input"
+					]
+				},
+				{
+					"id": "reflect-inside",
+					"given": [
+						"a point on y = f(x), or its graph"
+					],
+					"asked": "the image on y = f(b − x)",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.16.linear-input"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL2.16.linear-input",
+					"method": "translate-then-stretch",
+					"suits": [
+						"image-point",
+						"original-point",
+						"describe-moves",
+						"pick-graph"
+					],
+					"name": "Translate by (−b, 0), then stretch by 1/a",
+					"about": "f(x) → f(x + 6) → f(2x + 6): translate by (−6, 0), then stretch horizontally by scale factor 1/2."
+				},
+				{
+					"skill": "AHL2.16.linear-input",
+					"method": "factorise-inside",
+					"suits": [
+						"image-point",
+						"describe-moves",
+						"reflect-inside"
+					],
+					"name": "Factor out a: f(a(x + b/a))",
+					"about": "f(2x + 6) = f(2(x + 3)): stretch by 1/2 first, then translate by (−3, 0)."
+				},
+				{
+					"skill": "AHL2.16.linear-input",
+					"method": "solve-for-image",
+					"suits": [
+						"image-point",
+						"original-point",
+						"reflect-inside"
+					],
+					"name": "Solve ax + b = p for an image point",
+					"about": "The point (p, q) moves to the x that makes the input equal p: 2x + 6 = 4 gives (−1, 1)."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "y = f(2x + 6) is y = f(x) translated 6 to the left and then stretched by scale factor 1/2.",
+					"answer": "True, in that order: f(x + 6) is the translation, and putting 2x in place of x halves every distance from the y-axis. Stretching first would need a translation of 3, since f(2x + 6) = f(2(x + 3)).",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "Why does a + inside the bracket move the graph to the left?",
+					"answer": "f(x + 6) takes at x the value f takes at x + 6, so each height appears 6 earlier: the graph has moved 6 left.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL2.16.linear-input#0",
+					"text": "Stretches by 1/a first and then translates by −b, so the image is at p/a − b instead of (p − b)/a",
+					"as": "distractor",
+					"in": [
+						"image-point",
+						"describe-moves",
+						"pick-graph"
+					],
+					"wrong": "p/a − b"
+				},
+				{
+					"ref": "AHL2.16.linear-input#1",
+					"text": "Stretches horizontally by scale factor a instead of 1/a",
+					"as": "distractor",
+					"in": [
+						"image-point",
+						"describe-moves",
+						"pick-graph",
+						"original-point"
+					],
+					"wrong": "a·p in place of p/a"
+				},
+				{
+					"ref": "AHL2.16.linear-input#2",
+					"text": "Translates the same way as the sign of b instead of the opposite way",
+					"as": "distractor",
+					"in": [
+						"image-point",
+						"describe-moves",
+						"pick-graph",
+						"original-point"
+					],
+					"wrong": "the translation the wrong way"
+				},
+				{
+					"text": "Changes the y-coordinate of the point, though only the inputs are transformed",
+					"as": "distractor",
+					"in": [
+						"image-point",
+						"original-point",
+						"reflect-inside"
+					],
+					"wrong": "a changed height"
+				},
+				{
+					"text": "Reflects in the y-axis but forgets the translation that b brings",
+					"as": "distractor",
+					"in": [
+						"reflect-inside"
+					],
+					"wrong": "(−p, q)"
+				}
+			],
+			"frequency": 0
 		},
 		{
 			"id": "t5-link-accumulation",

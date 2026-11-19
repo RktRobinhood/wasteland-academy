@@ -1877,6 +1877,18 @@
     {
       "type": "fn-ai-composite-inverse",
       "reason": "An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet."
+    },
+    {
+      "type": "fn-ahl-inequalities",
+      "reason": "An HL type (FAL-1008): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet."
+    },
+    {
+      "type": "fn-ahl-modulus-equations",
+      "reason": "An HL type (FAL-1008): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet."
+    },
+    {
+      "type": "fn-ahl-modulus-graphs",
+      "reason": "An HL type (FAL-1008): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet."
     }
   ],
   "outlook": [

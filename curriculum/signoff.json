@@ -970,6 +970,30 @@
    "status": "unread"
   },
   {
+   "situation": "ahl-inequality",
+   "types": [
+    "fn-ahl-inequalities"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "modulus-equation",
+   "types": [
+    "fn-ahl-modulus-equations"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "modulus-graph",
+   "types": [
+    "fn-ahl-modulus-graphs"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
    "situation": "quadratic-model",
    "types": [
     "fn-ext-quadratic-model"
@@ -1389,6 +1413,14 @@
    "readBy": "Curriculum Author (FAL-999)",
    "date": "2026-11-17",
    "note": "FAL-999 author's read on building the type: one question per unknown, representation and method (prompt, options and the wrong options' feedback, worked steps), against tools/check-answers. Every cell read once; not every seed."
+  },
+  {
+   "situation": "linear-input",
+   "types": [
+    "fn-ext-linear-input"
+   ],
+   "exam": false,
+   "status": "unread"
   }
  ]
 }

@@ -3271,10 +3271,10 @@
                 }
               ],
               "misconceptions": [
-                "Divides both sides of x³ ≥ 4x by x and gives x ≤ −2 or x ≥ 2, losing −2 ≤ x ≤ 0",
-                "Gives only x ≥ 2 after taking the positive square root of x² ≥ 4",
+                "Divides both sides by x, so the interval of negative x that also solves the inequality is lost",
+                "Takes only the positive square root, so only the piece above the positive root is given",
                 "Uses the sign pattern of a positive cubic for a cubic with a negative leading coefficient",
-                "Treats the double root x = 1 as a sign change and gives −2 < x < 1 for (x + 2)(x − 1)² > 0, instead of x > −2, x ≠ 1"
+                "Treats a double root as a sign change, so the interval on the far side of the repeated root is lost"
               ],
               "threads": [
                 {
@@ -3323,7 +3323,7 @@
               "misconceptions": [
                 "Reads where g(x) ≥ 0 instead of where g(x) ≥ f(x)",
                 "Gives the answer as y-values instead of x-values",
-                "Gives the complementary interval, e.g. −1 < x < 3 instead of x < −1 or x > 3"
+                "Gives the complementary interval, the set where the inequality fails"
               ],
               "threads": [
                 {
@@ -3376,9 +3376,9 @@
                 }
               ],
               "misconceptions": [
-                "Gives the interval between the intersections, −1.84 < x < 1.15, for eˣ > x + 2",
+                "Gives the interval between the intersections when the inequality holds outside them",
                 "Uses a window too small to show a second intersection, and gives only one boundary",
-                "Ignores the domain and includes x ≤ 0 in the solution of an inequality with ln x"
+                "Ignores the domain and includes values where the function is undefined"
               ],
               "threads": [
                 {
@@ -3431,9 +3431,9 @@
                 }
               ],
               "misconceptions": [
-                "Multiplies both sides of (x + 1)/(x − 2) ≥ 3 by (x − 2) and gives x ≤ 3.5, which includes values below 2",
-                "Includes x = 2 in the answer, writing 2 ≤ x ≤ 3.5",
-                "Gives only the intersection x = 3.5 as the boundary and misses the asymptote"
+                "Multiplies both sides by the denominator without knowing its sign, so the answer includes values on the wrong side of the asymptote",
+                "Includes the asymptote's x-value in the answer, where the fraction is undefined",
+                "Gives only the intersection as a boundary and misses the asymptote"
               ],
               "threads": [
                 {
@@ -3487,7 +3487,7 @@
               ],
               "misconceptions": [
                 "Includes negative times in the answer because the algebra allows them",
-                "Rounds a boundary the wrong way, e.g. gives 'at least 12 items' when the break-even point is 12.4",
+                "Rounds a boundary the wrong way for the context, so the whole number given does not meet the target",
                 "Gives the value of the models at the intersection instead of the time"
               ],
               "threads": [
@@ -3556,7 +3556,7 @@
               ],
               "misconceptions": [
                 "Swaps the two: reflects the x < 0 part for |f(x)| or the negative part for f(|x|)",
-                "Keeps the left-hand x-intercept −1 when sketching f(|x|) for f(x) = x² − 2x − 3, whose correct intercepts are ±3",
+                "Keeps the left-hand part of f when sketching f(|x|), instead of mirroring the right-hand part",
                 "Reflects the whole graph of f in the x-axis for |f(x)|"
               ],
               "threads": [
@@ -3614,7 +3614,7 @@
                 }
               ],
               "misconceptions": [
-                "Maps the minimum (0, −4) of x² − 4 to (0, 4) or (0, −4) instead of the maximum (0, −1/4)",
+                "Maps a turning point (h, k) of f to (h, −k) or leaves it at (h, k), instead of (h, 1/k)",
                 "Confuses 1/f(x) with f⁻¹(x) and reflects the graph in y = x",
                 "Draws 1/f with the opposite sign to f in some interval"
               ],
@@ -3675,9 +3675,9 @@
                 }
               ],
               "misconceptions": [
-                "Stretches first and then translates by (−6, 0), sending (4, 1) to (−4, 1) instead of (−1, 1)",
-                "Stretches horizontally by scale factor 2 instead of 1/2 for f(2x)",
-                "Translates by (6, 0) because of the + 6"
+                "Stretches by 1/a first and then translates by −b, so the image is at p/a − b instead of (p − b)/a",
+                "Stretches horizontally by scale factor a instead of 1/a",
+                "Translates the same way as the sign of b instead of the opposite way"
               ],
               "threads": [
                 {
@@ -3735,7 +3735,7 @@
               ],
               "misconceptions": [
                 "Draws [f(x)]² crossing the x-axis at the zeros of f instead of touching it",
-                "Treats [f(x)]² like |f(x)|, keeping the heights of the reflected parts unchanged, e.g. a minimum of −3 becomes 3 instead of 9",
+                "Treats [f(x)]² like |f(x)|, keeping the heights of the reflected parts instead of squaring them",
                 "Gives the period of sin²x as 2π instead of π"
               ],
               "threads": [
@@ -3793,9 +3793,9 @@
                 }
               ],
               "misconceptions": [
-                "Keeps x = −3 as a solution of |x − 2| = 2x + 1, though the right-hand side is then −5",
-                "Solves only 2x − 1 = x + 3 and misses x = −2/3",
-                "Squares |x − 2| = 2x + 1 and keeps both roots without checking"
+                "Keeps a solution that makes the right-hand side negative, which a modulus can never equal",
+                "Solves only the positive case and misses the solution from the negative case",
+                "Squares both sides and keeps both roots without checking them in the original equation"
               ],
               "threads": [
                 {
@@ -3848,9 +3848,9 @@
                 }
               ],
               "misconceptions": [
-                "Solves |x − 3| < 2 as x < 5 only, ignoring the lower bound",
-                "Writes |x − 3| > 2 as the impossible chain −2 > x − 3 > 2 instead of x < 1 or x > 5",
-                "Ignores the domain of arccos and gives solutions outside −1 ≤ x ≤ 1"
+                "Solves |x − a| < b as x < a + b only, ignoring the lower bound",
+                "Writes |x − a| > b as one impossible chain instead of two separate pieces",
+                "Ignores the domain of the function inside the modulus and gives solutions outside it"
               ],
               "threads": [
                 {

@@ -8,10 +8,10 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## In numbers
 
-- **Types:** 124 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
+- **Types:** 127 exam and 77 extension (47 skill, 11 prior-learning, 8 concept, 11 link).
 - **Skills with a type:** 286 of 286.
-- **Functions:** 174 unknowns the exam asks and 439 it doesn't; 623 angles, 193 of them with a weak spot for method-pick questions; 172 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
-- **Coverage cells** (one unknown in one representation by one method): 2220 in Functions, of which 632 are reachable with "Exam-style only" on.
+- **Functions:** 205 unknowns the exam asks and 444 it doesn't; 655 angles, 193 of them with a weak spot for method-pick questions; 182 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
+- **Coverage cells** (one unknown in one representation by one method): 2331 in Functions, of which 731 are reachable with "Exam-style only" on.
 
 ## Levels
 
@@ -28,12 +28,12 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 |---|---|---|---|---|---|---|---|
 | Quadratics | 6 | 8 | 37 + 76 | 42 (30) | 102 (35) | 32 | 353 (125) |
 | Exponentials and logs | 4 | 4 | 26 + 59 | 28 (22) | 95 (29) | 20 | 353 (121) |
-| Graphs and key features | 6 | 6 | 25 + 71 | 40 (30) | 110 (43) | 32 | 320 (78) |
+| Graphs and key features | 8 | 6 | 45 + 71 | 45 (30) | 130 (43) | 37 | 388 (146) |
 | Composite and inverse | 5 | 3 | 32 + 52 | 23 (13) | 89 (19) | 22 | 311 (118) |
 | Rational functions | 3 | 4 | 21 + 40 | 23 (18) | 56 (13) | 18 | 163 (60) |
 | Function basics | 4 | 3 | 17 + 44 | 23 (15) | 49 (17) | 18 | 210 (57) |
 | Lines | 1 | 6 | 10 + 50 | 23 (21) | 57 (18) | 15 | 253 (45) |
-| Transformations | 2 | 3 | 6 + 47 | 17 (13) | 65 (19) | 15 | 257 (28) |
+| Transformations | 3 | 4 | 17 + 52 | 21 (15) | 77 (19) | 20 | 300 (59) |
 
 ### 1. Quadratics (syllabus 2.6, 2.7)
 
@@ -586,7 +586,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 3. Graphs and key features (syllabus 2.3, 2.4, 2.10)
 
-6 exam types, 6 extension types; 25 exam unknowns and 71 new ones; 320 coverage cells (78 with "Exam-style only" on).
+8 exam types, 6 extension types; 45 exam unknowns and 71 new ones; 388 coverage cells (146 with "Exam-style only" on).
 
 #### Sketch a graph from the GDC on a given domain (`fn-sketch-gdc`, exam, 7 bank parts)
 
@@ -750,6 +750,49 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): Taking ln of both sides of eˣ = x + 3 gives x = ln x + ln 3. — False. ln(x + 3) is not ln x + ln 3 (that is ln 3x). The correct step gives x = ln(x + 3), which still cannot be solved by hand. The GDC gives x ≈ −2.95 and x ≈ 1.51.
   - *true-false-reason* (L3): If the GDC finds a root of an equation from a model, that root answers the question. — False. The model only makes sense on its domain: a negative time, an angle of a triangle above π, or a negative length must be rejected, and for "the first time" only the smallest valid root counts.
 - **Misconceptions used:** 12. Looks at too small a range of x and misses a solution; Rounds intermediate values, or gives too few significant figures; Takes ln of both sides of e^x = x + 3 and writes x = ln x + ln 3; Rounds the wrong way for the context, to a whole number that doesn't meet the condition; Keeps a solution outside the model's domain, such as a negative time; Answers 'how much' when the question asks 'when'; Gives the negative solution when the positive one is asked for; Stops at θ and gives the angle instead of the arc length; Gives the x-coordinate of the point where the graphs cross instead of y; Gives the later of the two times at that height, not the first; Divides the wrong way, finding sin x ÷ x instead of x ÷ sin x; Multiplies by sin x instead of dividing by it.
+
+#### Solving inequalities g(x) ≥ f(x) (AA HL) (`fn-ahl-inequalities`, exam, 7 bank parts)
+
+- **Situation:** An inequality g(x) ≥ f(x): a cubic, two graphs, a mixed function against a line, a rational function, or two models.
+- **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a(x − p)(x − q)(x − r) compared with 0 → the solution set
+  - **exam** L2: given x³ compared with k²x, or with k x² → the solution set, keeping the interval that dividing by x loses
+  - **exam** L3: given an expanded cubic compared with 0, with one factor (x − p) given → the solution set
+  - **exam** L3: given (x − p)(x − q)² compared with 0 → the solution set, with the repeated root handled
+  - **exam** L1: given the graphs of f and g, crossing at marked points → the solution of g(x) ≥ f(x), or of a strict version
+  - **exam** L2: given the graph of f and one or two horizontal lines → the values of x for which f(x) lies above, below or between the lines
+  - **exam** L3: given an exponential, log or trig function against a line, on a domain → the solution set, its ends to 3 s.f.
+  - **exam** L3: given (ax + b)/(x − c) compared with a constant → the solution set, with the asymptote as one end
+  - **exam** L4: given a rational function compared with a line → the solution set, its ends exact or to 3 s.f.
+  - **exam** L3: given two models of the same quantity for t ≥ 0 → the times for which one model exceeds the other
+  - **exam** L3: given a formula in a whole-number input n and a target value → the least n for which the target is met
+- **Angles:** Rearrange to h(x) ≥ 0, factorise, use a sign diagram; Sketch the factorised cubic; Check on the GDC; Find where g is above f between intersections; Think of g − f against the x-axis; Graph both sides and intersect; Zeros of the difference; Check the domain and asymptotes; Graph both sides on the GDC; Combine into one fraction and use a sign diagram; Multiply by the square of the denominator; Graph both models and intersect; Rearrange and factorise if the models are polynomial; Restrict to the meaningful domain.
+- **Concept probes:**
+  - *true-false-reason* (L3): You can divide both sides of x³ > 9x by x to get x² > 9. — False: x can be negative, and dividing by a negative number reverses the sign. Moving 9x across and factorising, x(x − 3)(x + 3) > 0, keeps −3 < x < 0 as well as x > 3.
+  - *always-sometimes-never* (L3): The vertical asymptote of a rational function is one end of the solution set of an inequality it is in. — Sometimes: the fraction changes sign across the asymptote when the denominator's factor appears once, so the asymptote bounds an interval; it is never included, because the function has no value there.
+  - *interpret-parameter* (L3): Why does (x + 3)(x − 1)² ≥ 0 have the solution x ≥ −3 and not −3 ≤ x ≤ 1? — (x − 1)² is never negative, so the sign only changes at x = −3. At x = 1 the curve touches the axis and turns back up.
+- **Misconceptions used:** 17. Divides both sides by x, so the interval of negative x that also solves the inequality is lost; Takes only the positive square root, so only the piece above the positive root is given; Uses the sign pattern of a positive cubic for a cubic with a negative leading coefficient; Treats a double root as a sign change, so the interval on the far side of the repeated root is lost; Reads where g(x) ≥ 0 instead of where g(x) ≥ f(x); Gives the answer as y-values instead of x-values; Gives the complementary interval, the set where the inequality fails; Gives the interval between the intersections when the inequality holds outside them; Uses a window too small to show a second intersection, and gives only one boundary; Ignores the domain and includes values where the function is undefined; Multiplies both sides by the denominator without knowing its sign, so the answer includes values on the wrong side of the asymptote; Includes the asymptote's x-value in the answer, where the fraction is undefined; Gives only the intersection as a boundary and misses the asymptote; Includes negative times in the answer because the algebra allows them; Rounds a boundary the wrong way for the context, so the whole number given does not meet the target; Gives the value of the models at the intersection instead of the time; Includes the ends in a strict inequality, or leaves them out of a non-strict one.
+
+#### Modulus equations and inequalities (AA HL) (`fn-ahl-modulus-equations`, exam, 1 bank parts)
+
+- **Situation:** A modulus equation or inequality: |ax + b| against a constant, a modulus, a line or a curve.
+- **Representations:** **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given |x − a| = k → both solutions
+  - **exam** L2: given |ax + b| = k → both solutions
+  - **exam** L3: given |ax + b| = |cx + d| → both solutions
+  - **exam** L3: given |ax + b| = mx + c → every solution, with the false root rejected
+  - **exam** L3: given |f(x)| = k for a quadratic f, with the graph of y = |f(x)| → the number of solutions, or the values of k that give a stated number
+  - **exam** L2: given |x − a| < b or |ax + b| ≤ k → the solution set
+  - **exam** L2: given |x − a| > b or |ax + b| ≥ k → the solution set, in two pieces
+  - **exam** L4: given |x + a| compared with m|x − b| → the solution set
+  - **exam** L4: given |f(x)| compared with a line or curve, f a quadratic or trig function → the solution set, its ends to 3 s.f.
+- **Angles:** Square both sides; Split into cases and check; Intersect the graphs; Read |x − a| < b as a distance; Square both sides and solve a quadratic inequality; Graph both sides on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): Squaring both sides of |x − 2| = 2x + 1 gives an equation with the same solutions. — False: squaring also solves −|x − 2| = 2x + 1, so it can bring in a root that makes 2x + 1 negative. Each root must be checked in the original.
+  - *always-sometimes-never* (L3): |x − a| < b has a solution set that is a single interval. — Sometimes: for b > 0 it is a − b < x < a + b, the numbers less than b from a. For b ≤ 0 there is no solution, since a distance is never negative.
+- **Misconceptions used:** 9. Keeps a solution that makes the right-hand side negative, which a modulus can never equal; Solves only the positive case and misses the solution from the negative case; Squares both sides and keeps both roots without checking them in the original equation; Solves |x − a| < b as x < a + b only, ignoring the lower bound; Writes |x − a| > b as one impossible chain instead of two separate pieces; Ignores the domain of the function inside the modulus and gives solutions outside it; Counts the solutions of f(x) = k instead of |f(x)| = k, ignoring the reflected part; Gives the solutions of the equation instead of the set where the inequality holds; Gives the complementary set, the values where the inequality fails.
 
 #### Match equations to graphs (`fn-ext-match-graph`, skill, level 1–3)
 
@@ -1602,7 +1645,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 8. Transformations (syllabus 2.11)
 
-2 exam types, 3 extension types; 6 exam unknowns and 47 new ones; 257 coverage cells (28 with "Exam-style only" on).
+3 exam types, 4 extension types; 17 exam unknowns and 52 new ones; 300 coverage cells (59 with "Exam-style only" on).
 
 #### Describe the transformations between two graphs (`fn-transform-describe`, exam, 8 bank parts)
 
@@ -1660,6 +1703,29 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A vertical stretch never moves the x-intercepts. — True. At an x-intercept f(x) = 0, and a·0 = 0, so the point stays on the x-axis whatever a is.
   - *always-sometimes-never* (L3): Reflecting a graph in the y-axis changes its equation. — Sometimes. y = x³ + x becomes y = −x³ − x, a new rule. But for y = x² + 1, (−x)² + 1 = x² + 1: a graph that is symmetric about the y-axis is unchanged.
 - **Misconceptions used:** 22. Moves the curve but leaves the asymptote in its original place; Stretches away from the wrong axis, moving points vertically for f(bx); Shifting the graph the way the sign in the bracket reads, when it moves the opposite way; Not factoring out b: a horizontal stretch then a shift gives f(b(x − c)), not f(bx − c); Putting the translation inside the bracket, so the stretch scales it too; Assumes the order of transformations never matters; Moves the point the wrong way horizontally: the sign inside the bracket works in reverse; Applies the vertical translation before the vertical stretch; Mixes up multiplying and dividing by b for the x-coordinate under f(bx); Negating only one term when reflecting in the x-axis; Confuses −f(x) (x-axis) with f(−x) (y-axis); Writes (−x)² + 1 for a reflection in the x-axis, not noticing it gives the same graph; Getting the horizontal sign wrong: a translation by (c, d) gives f(x − c) + d; Putting the vertical component inside the bracket instead of adding it after f; Moves the curve's points but leaves the asymptote where it was; Thinks a vertical stretch moves the x-intercepts; Using > instead of ≥ for a root, which leaves out a valid endpoint; Copying the domain of √x without the shift; Describes the y-values (range) when the domain is asked for; Copying f's domain or range across to g without moving it with the graph; Undoing the moves in the order they were done, instead of last move first; Applying the moves to g again instead of undoing them.
+
+#### Graphs of |f(x)|, f(|x|), 1/f(x) and [f(x)]² (AA HL) (`fn-ahl-modulus-graphs`, exam, 9 bank parts)
+
+- **Situation:** A function f and its transformed graphs |f(x)|, f(|x|), |f(|x|)|, 1/f(x) and [f(x)]².
+- **Representations:** **graph**, **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the graph of y = f(x) → the graph of y = |f(x)|
+  - **exam** L2: given the graph of y = f(x) → the graph of y = f(|x|)
+  - **exam** L3: given the graph of y = f(x) → the graph of y = |f(|x|)|
+  - **exam** L1: given a quadratic rule → the image of the vertex on y = |f(x)|
+  - **exam** L2: given a quadratic or cubic rule, or its graph → the x-intercepts of y = f(|x|)
+  - **exam** L3: given the graph of y = f(x) and a horizontal line → the solution set of f(|x|) compared with a constant
+  - **exam** L2: given the graph of y = f(x) → the graph of y = 1/f(x)
+  - **exam** L2: given a quadratic f, possibly translated first → the vertical asymptotes of y = 1/f(x)
+  - **exam** L3: given a quadratic f with a turning point (h, k) → the turning point of y = 1/f(x) and its nature
+  - **exam** L2: given the graph of y = f(x) → the graph of y = [f(x)]²
+  - **exam** L2: given a quadratic or sine f, or its graph → the turning points of y = [f(x)]², or its period
+- **Angles:** |f(x)|: reflect the part below the axis; f(|x|): keep x ≥ 0 and reflect it in the y-axis; Write as a piecewise function; Swap features point by point; Same sign, opposite size; Graph on the GDC and compare; Square each output; Use d/dx [f(x)]² = 2f(x)f′(x); Graph on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): The graphs of y = |f(x)| and y = f(|x|) are always different. — False: they agree when f is even and never negative, such as f(x) = x² + 1. They differ as soon as f is negative somewhere or is not even.
+  - *interpret-parameter* (L3): Why is every zero of f a vertical asymptote of 1/f, and every zero of f a minimum of [f(x)]²? — Near a zero, f is small, so 1/f is huge, with the sign of f on each side. Squaring a small number gives a smaller positive one, and the square is 0 at the zero, so the graph touches the axis there.
+  - *always-sometimes-never* (L3): y = f(|x|) is an even function. — Always: f(|−x|) = f(|x|), so the graph is its own mirror image in the y-axis, whatever f is.
+- **Misconceptions used:** 11. Swaps the two: reflects the x < 0 part for |f(x)| or the negative part for f(|x|); Keeps the left-hand part of f when sketching f(|x|), instead of mirroring the right-hand part; Reflects the whole graph of f in the x-axis for |f(x)|; Maps a turning point (h, k) of f to (h, −k) or leaves it at (h, k), instead of (h, 1/k); Confuses 1/f(x) with f⁻¹(x) and reflects the graph in y = x; Draws 1/f with the opposite sign to f in some interval; Draws [f(x)]² crossing the x-axis at the zeros of f instead of touching it; Treats [f(x)]² like |f(x)|, keeping the heights of the reflected parts instead of squaring them; Gives the period of sin²x as 2π instead of π; Takes the zeros of f before the translation as the asymptotes, instead of the zeros of the translated function; Solves f(x) compared with the constant for x ≥ 0 only, and leaves out the mirrored piece.
 
 #### Order of moves, inside and outside (`fn-concept-transform-order`, concept, level 3–4)
 
@@ -1741,6 +1807,24 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): y = 3(x + 1)² − 7 is y = 3x² moved by a vector. What is the vector, and where does the point (1, 3) on y = 3x² go? — The vector is (−1, −7), which is also the vertex. (1, 3) goes to (0, −4); check: 3(0 + 1)² − 7 = −4.
   - *predict-check* (L3): A line has gradient −2/5. Predict a vector along it, then check by moving from (1, 4) by your vector. — (5, −2): 5 across and 2 down. From (1, 4) you reach (6, 2), and (2 − 4)/(6 − 1) = −2/5.
 - **Misconceptions used:** 25. Getting the horizontal sign wrong: a translation by (c, d) gives f(x − c) + d; Putting the vertical component inside the bracket instead of adding it after f; Moves the point the wrong way horizontally: the sign inside the bracket works in reverse; Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k); Computes run over rise, (x₂ − x₁)/(y₂ − y₁), giving the reciprocal of the gradient; Subtracts the coordinates in inconsistent order, (y₂ − y₁)/(x₁ − x₂), and gets the wrong sign; Reading the shift before taking b out of the bracket; Getting the direction of the shift wrong: a plus inside the bracket moves the graph left; Finding the endpoint by averaging A and M instead of extending past M; Halving the midpoint coordinates to get the endpoint; Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²; Mishandling a negative coordinate when subtracting; Taking the sign of the vertical part the wrong way, as if it were inside the bracket; Swapping the two components of the vector, across for up; Giving the same vector back instead of its negative; Subtracting the vector from the point instead of adding it; Subtracting the wrong way round, so the vector points backwards; Adding instead of subtracting when solving for c; Taking the amplitude as the vertical shift; Giving the end point B as the midpoint, forgetting to halve the step; Forgetting the square root in the distance; Giving the step from A to M instead of the point B; Replacing t with t plus the delay, which moves the graph the wrong way; Reading the delay as B being ahead of A; Adding the delay to the output instead of shifting the input.
+
+#### Graphs of y = f(ax + b) (`fn-ext-linear-input`, skill, level 1–3)
+
+*Gap:* AHL2.16.linear-input is in the syllabus, but no AA HL exam part since 2021 asks for it on its own.
+
+- **Situation:** y = f(ax + b): a horizontal translation and a horizontal stretch.
+- **Representations:** equation, graph (bold: the exam uses it)
+- **Unknowns:**
+  - new L2: given a point (p, q) on y = f(x) → its image on y = f(ax + b)
+  - new L2: given a point on y = f(ax + b) → the point on y = f(x) it came from
+  - new L2: given y = f(x) and y = f(ax + b) → the moves, in order, that map one onto the other
+  - new L2: given the graph of y = f(x) → the graph of y = f(ax + b)
+  - new L3: given a point on y = f(x), or its graph → the image on y = f(b − x)
+- **Angles:** Translate by (−b, 0), then stretch by 1/a; Factor out a: f(a(x + b/a)); Solve ax + b = p for an image point.
+- **Concept probes:**
+  - *true-false-reason* (L3): y = f(2x + 6) is y = f(x) translated 6 to the left and then stretched by scale factor 1/2. — True, in that order: f(x + 6) is the translation, and putting 2x in place of x halves every distance from the y-axis. Stretching first would need a translation of 3, since f(2x + 6) = f(2(x + 3)).
+  - *interpret-parameter* (L3): Why does a + inside the bracket move the graph to the left? — f(x + 6) takes at x the value f takes at x + 6, so each height appears 6 earlier: the graph has moved 6 left.
+- **Misconceptions used:** 5. Stretches by 1/a first and then translates by −b, so the image is at p/a − b instead of (p − b)/a; Stretches horizontally by scale factor a instead of 1/a; Translates the same way as the sign of b instead of the opposite way; Changes the y-coordinate of the point, though only the inputs are transformed; Reflects in the y-axis but forgets the translation that b brings.
 
 ## Topic 1: Number and algebra (catalogue level)
 

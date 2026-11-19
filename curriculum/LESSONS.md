@@ -7,7 +7,7 @@ A Relic lesson is a 3 to 6 minute playable episode (GitHub issue #13): a charact
 ## In numbers
 
 - **Functions (Scrapworks, B0-LT):** 54 lessons, of which 11 are level 0 prior learning.
-- **Exam types:** 31 of 31 Functions exam types have at least one lesson; 4 listed as gaps.
+- **Exam types:** 34 of 34 Functions exam types have at least one lesson; 7 listed as gaps.
 - **Interaction kinds:** drag and position 9, sliders and dials 11, buttons and switches 3, graph manipulation 3, sorting and matching 6, building or balancing expressions 8, placing geometric objects 5, predict, then simulate 9.
 - **Pilot (L2):** lesson.fn.translation. **Second lesson (L4):** lesson.fn.composite.
 
@@ -15,12 +15,12 @@ A Relic lesson is a 3 to 6 minute playable episode (GitHub issue #13): a charact
 |---|---|---|---|
 | 1. Quadratics | 13 | 4 | 6 |
 | 2. Exponentials and logs | 7 | 1 | 4 |
-| 3. Graphs and key features | 9 | 1 | 6 |
+| 3. Graphs and key features | 9 | 1 | 8 |
 | 4. Composite and inverse | 5 | 1 | 5 |
 | 5. Rational functions | 5 | 1 | 3 |
 | 6. Function basics | 5 | 1 | 4 |
 | 7. Lines | 6 | 2 | 1 |
-| 8. Transformations | 4 | 0 | 2 |
+| 8. Transformations | 4 | 0 | 3 |
 
 ## Build order
 
@@ -772,9 +772,11 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 | Read and convert quadratic forms (`fn-quadratic-features`) | 12 | `translation`, `function-machine`, `zero-product`, `parabola-symmetry`, `vertex-form`, `complete-square`, `quadratic-from-clues` |
 | Form a composite, evaluate it, solve for a parameter (`fn-composite`) | 10 | `composite` |
 | Find a quadratic from its roots, vertex or points (`fn-quadratic-from-conditions`) | 10 | `parabola-symmetry`, `vertex-form`, `quadratic-from-clues`, `domain-range` |
+| Graphs of |f(x)|, f(|x|), 1/f(x) and [f(x)]² (AA HL) (`fn-ahl-modulus-graphs`) | 9 | **gap:** An HL type (FAL-1008): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet. |
 | Values, composites and inverse values read from a graph or a table (`fn-graph-table-composite-inverse`) | 9 | `composite`, `function-machine`, `inverse-undo`, `count-solutions`, `is-function`, `inverse-domain` |
 | Inverses on a restricted domain and self-inverse functions (AA HL) (`fn-ahl-inverse-restricted`) | 8 | **gap:** An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet. |
 | Describe the transformations between two graphs (`fn-transform-describe`) | 8 | `translation`, `stretch`, `reflection`, `transform-order`, `complete-square`, `transformed-reciprocal` |
+| Solving inequalities g(x) ≥ f(x) (AA HL) (`fn-ahl-inequalities`) | 7 | **gap:** An HL type (FAL-1008): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet. |
 | Evaluate a function or model at a given input (`fn-evaluate-function`) | 7 | `function-machine`, `context-check` |
 | Intersection of two curves with the GDC (`fn-gdc-intersection`) | 7 | `inverse-reflection`, `meeting-points`, `gdc-solve`, `context-check` |
 | Find an inverse algebraically, with its domain; self-inverse functions (`fn-inverse-algebraic`) | 7 | `reflection`, `inverse-undo`, `inverse-reflection`, `rational-asymptotes`, `inverse-domain`, `swap-and-solve` |
@@ -792,6 +794,7 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 | Log function features: asymptote, domain and sign (`fn-log-function-features`) | 3 | `inverse-reflection`, `domain-range`, `log-graph` |
 | Solve a quadratic inequality (`fn-quadratic-inequality`) | 2 | `zero-product`, `quadratic-inequality`, `graph-inequality`, `context-check`, `discriminant` |
 | Apply transformations to a graph (`fn-transform-apply`) | 2 | `translation`, `stretch`, `reflection`, `transform-order` |
+| Modulus equations and inequalities (AA HL) (`fn-ahl-modulus-equations`) | 1 | **gap:** An HL type (FAL-1008): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet. |
 
 ## Gaps
 
@@ -799,6 +802,9 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 - `fn-ahl-odd-even`: An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet.
 - `fn-ahl-inverse-restricted`: An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet.
 - `fn-ai-composite-inverse`: An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet.
+- `fn-ahl-inequalities`: An HL type (FAL-1008): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet.
+- `fn-ahl-modulus-equations`: An HL type (FAL-1008): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet.
+- `fn-ahl-modulus-graphs`: An HL type (FAL-1008): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet.
 
 Every exam unknown of every Functions exam type is listed by at least one lesson.
 
