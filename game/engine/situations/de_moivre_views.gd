@@ -16,6 +16,7 @@ const DI := "AHL1.14.de-moivre-induction#"
 const TD := "t1-ahl-de-moivre#"
 const DM_UNKNOWNS := ["power-polar", "power-cartesian", "least-power", "nth-root", "all-roots", "roots-polygon", "multiple-angle",
 	"power-reduction", "induction-gap", "induction-flaw"]
+const DM_BOTH_PAPERS := ["power-polar", "power-cartesian", "least-power", "nth-root", "all-roots", "roots-polygon"]
 const KINDS := {"real": "real", "imaginary": "purely imaginary", "positive": "a positive real number", "negative": "a negative real number"}
 const OTHER_KIND := {"real": "imaginary", "imaginary": "real", "positive": "negative", "negative": "positive"}
 const SHAPES := {3: "an equilateral triangle", 4: "a square", 6: "a regular hexagon"}
@@ -35,6 +36,14 @@ func slips() -> Dictionary:
 
 func unknowns() -> Array:
 	return DM_UNKNOWNS
+
+
+## AA HL Paper 2 asks powers and roots with exact answers too (the bank's Paper 2 parts), so
+## those cells make both papers in the bank's ratio; the identities and the proof are Paper 1.
+func papers(unknown: String, _rep: String, _angle: String) -> Array:
+	if not has(unknown):
+		return []
+	return [1, 2] if unknown in DM_BOTH_PAPERS else [1]
 
 
 # ── Writing things ───────────────────────────────────────────

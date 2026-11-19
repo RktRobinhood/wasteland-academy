@@ -54,8 +54,14 @@ func test_every_cell_makes_four_options_with_one_right() -> void:
 					check(not q.has("error"), "%s %s: %s" % [c.key, f, q.get("error")])
 					if q.has("error"):
 						break
-					# Every AI paper allows a GDC; AA HL Paper 1 is exact, a GDC method Paper 2.
-					check_eq(q.paper, 2 if t == AI or c.angle.begins_with("gdc-") else 1, c.key)
+					# Every AI paper allows a GDC, and a GDC method is Paper 2. On AA HL every cell makes
+					# both papers but De Moivre's identities and proof, which are Paper 1.
+					if t == AI or c.angle.begins_with("gdc-"):
+						check_eq(q.paper, 2, c.key)
+					elif t != DM or c.unknown in DV.DM_BOTH_PAPERS:
+						check(q.paper in [1, 2], c.key)
+					else:
+						check_eq(q.paper, 1, c.key)
 					check_eq(q.choices.size(), 4, c.key)
 					check_eq(q.choices.filter(func(o): return o.correct).size(), 1, c.key)
 					check(q.solutions[-1].steps[-1].contains(q.answer_text), "%s: the last step says the answer" % c.key)

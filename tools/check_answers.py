@@ -48786,7 +48786,8 @@ def cpl_pair(v, ra, rb, den):
 def cpl_check(q):
     t, u, rep, L, asked = q["view"]["type"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
     refs = CPL_REFS[t]
-    need(q["paper"] == (2 if t == "t1-ai-complex-polar" else 1), f"Paper {q['paper']}")
+    # Every AI paper allows a GDC; AA HL asks these exactly on every paper.
+    need(q["paper"] == 2 if t == "t1-ai-complex-polar" else q["paper"] in (1, 2), f"Paper {q['paper']}")
     for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
         need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
     wrongs = {}
@@ -49013,6 +49014,7 @@ DMV_KINDS = {"real": "real", "purely imaginary": "imaginary", "a positive real n
 DMV_OTHER = {"real": "imaginary", "imaginary": "real", "positive": "negative", "negative": "positive"}
 DMV_QUAD = {"first": 1, "second": 2, "third": 3, "fourth": 4}
 DMV_TH = sp.Symbol("t", real=True)
+DMV_BOTH = ("power-polar", "power-cartesian", "least-power", "nth-root", "all-roots", "roots-polygon")
 
 
 def dmv_sup(n):
@@ -49149,7 +49151,8 @@ def dmv_proof(L, kind):
 
 def dmv_check(q):
     u, L, asked, angle = q["view"]["unknown"], q["lines"], q["asked"], q["view"]["angle"]
-    need(q["paper"] == (2 if angle.startswith("gdc-") else 1), f"Paper {q['paper']}")
+    # A GDC method is Paper 2; powers and roots are on both papers; identities and the proof Paper 1.
+    need(q["paper"] == 2 if angle.startswith("gdc-") else q["paper"] in ((1, 2) if u in DMV_BOTH else (1,)), f"Paper {q['paper']}")
     for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
         need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
     wrongs = {}
@@ -49404,7 +49407,7 @@ def cjr_pm(h, k):
 def cjr_check(q):
     t, u, L, asked = q["view"]["type"], q["view"]["unknown"], q["lines"], q["asked"]
     gdc = q["view"]["angle"] == "gdc-solver"
-    need(q["paper"] == (2 if gdc else 1), f"Paper {q['paper']}")
+    need(q["paper"] == 2 if gdc else q["paper"] in (1, 2), f"Paper {q['paper']}")
     for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
         need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
     wrongs = {}

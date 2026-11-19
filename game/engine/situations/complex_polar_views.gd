@@ -49,9 +49,10 @@ func needs() -> Dictionary:
 	return out
 
 
-## AA HL: these are exact, Paper 1 questions; a GDC method has its own Paper 2 cells.
+## AA HL asks these on Paper 1 and, with the same exact numbers, on Papers 2 and 3: every cell
+## makes both papers in the bank's ratio.
 func papers(unknown: String, _rep: String, _angle: String) -> Array:
-	return [1] if has(unknown) else []
+	return [1, 2] if has(unknown) else []
 
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:

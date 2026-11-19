@@ -870,6 +870,50 @@
    "note": "Curriculum Author (FAL-1004) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
   },
   {
+   "situation": "complex-polar",
+   "types": [
+    "t1-ahl-complex-polar"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1005",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1005) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
+   "situation": "de-moivre",
+   "types": [
+    "t1-ahl-de-moivre"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1005",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1005) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
+   "situation": "conjugate-roots",
+   "types": [
+    "t1-ahl-conjugate-roots"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1005",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1005) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
+   "situation": "complex-polar-ai",
+   "types": [
+    "t1-ai-complex-polar"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1005",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1005) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
    "situation": "quadratic-model",
    "types": [
     "fn-ext-quadratic-model"

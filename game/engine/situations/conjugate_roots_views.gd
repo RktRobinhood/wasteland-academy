@@ -27,6 +27,11 @@ func unknowns() -> Array:
 	return CR_UNKNOWNS
 
 
+## AA HL asks these on Paper 2 and Paper 3 as well as Paper 1, with the same whole numbers.
+func papers(unknown: String, _rep: String, _angle: String) -> Array:
+	return [1, 2] if has(unknown) else []
+
+
 # ── Writing things ───────────────────────────────────────────
 
 ## z² + pz + q, or any polynomial in z from its coefficients, highest power first.
