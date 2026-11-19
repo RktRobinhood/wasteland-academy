@@ -86758,7 +86758,7 @@
 					"wrong": "a = a root"
 				},
 				{
-					"text": "Taking the vertex's y-coordinate as the boundary of the domain",
+					"text": "Mixing up the vertex's coordinates, using its y-coordinate where its x-coordinate is needed, or the reverse",
 					"as": "distractor",
 					"in": [
 						"largest-domain",
@@ -86767,7 +86767,7 @@
 					"wrong": "the vertex's y for the x boundary, or the reverse"
 				},
 				{
-					"text": "Adding a half period instead of a whole half-turn of the cosine, so the domain is a quarter period too short or too long",
+					"text": "Cutting the domain a quarter period or a whole period on, instead of at the next turning point half a period on",
 					"as": "distractor",
 					"in": [
 						"largest-domain-trig"
@@ -86775,7 +86775,7 @@
 					"wrong": "p + π/2 or p + 2π"
 				},
 				{
-					"text": "Taking the constant that makes the denominator zero instead of d = −a",
+					"text": "Changing the sign in d = −a, so the constant comes out with the wrong sign",
 					"as": "distractor",
 					"in": [
 						"self-inverse-constant"

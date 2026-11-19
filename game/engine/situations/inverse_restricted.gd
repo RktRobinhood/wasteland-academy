@@ -93,8 +93,8 @@ static func _domain(rng: Seeded, rep: String) -> Dictionary:
 	var roots: Array = []
 	if form != "root":
 		var sq := Q.new(-k, A)
-		var r := _rational_sqrt(sq)
-		if r != null:
+		var r: Variant = _rational_sqrt(sq)
+		if r != null and not r.is_zero():
 			roots = [Q.new(h).sub(r), Q.new(h).add(r)]
 	var top: Q = Q.new(k) if form != "root" else Q.new(roundi(sqrt(float(k))))
 	return {"form": form, "A": A, "b": b, "c": c, "h": h, "k": k, "side": pick(rng, ["≤", "≥"]), "roots": roots, "top": top}
@@ -275,7 +275,10 @@ static func _meetup(rng: Seeded, rep: String, gdc: bool) -> Dictionary:
 static func _meetdown(rng: Seeded, rep: String, gdc: bool) -> Dictionary:
 	if gdc:
 		var A: Q = pick(rng, [Q.new(2), Q.new(3), Q.new(5), Q.new(1, 2), Q.new(1, 3)])
-		return {"A": A, "pw": 3, "exact": false, "s": 1.0 / sqrt(A.to_float())}
+		var sg := 1.0 / sqrt(A.to_float())
+		if not GdcKit.fair(sg):
+			return {}
+		return {"A": A, "pw": 3, "exact": false, "s": sg}
 	var opts: Array = [[Q.new(1), 3, Q.new(1)], [Q.new(1, 4), 3, Q.new(2)], [Q.new(1, 9), 3, Q.new(3)], [Q.new(1, 16), 5, Q.new(2)]]
 	if rep != "graph":
 		opts += [[Q.new(4), 3, Q.new(1, 2)], [Q.new(9), 3, Q.new(1, 3)], [Q.new(16), 5, Q.new(1, 2)], [Q.new(1), 5, Q.new(1)]]
