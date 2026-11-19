@@ -66,8 +66,10 @@ func test_not_built_classes_are_greyed_out() -> void:
 	e._refresh()
 	var grey := 0
 	for b in e.choices.find_children("*", "Button", true, false):
-		if UiTheme.button_text(b).ends_with("not built yet") and not b.name == "NotBuilt":
-			check(b.disabled, UiTheme.button_text(b) + " can be picked")
+		# A type built for another course only (AI HL, say) is listed as "not in AA SL".
+		var label: String = UiTheme.button_text(b)
+		if (label.ends_with("not built yet") or label.contains(" · not in ")) and not b.name == "NotBuilt":
+			check(b.disabled, label + " can be picked")
 			grey += 1
 	check_eq(grey, e._types_in(2)[1].size())
 	for t in e._types_in(2)[0]:
