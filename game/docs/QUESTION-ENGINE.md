@@ -1452,9 +1452,11 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   values a z rounded midway (to 2 d.p. or 3 s.f.) leads to, with `Answer.add_premature`;
   typing one is a miss whose note is `Answer.PREMATURE_NOTE`. A whole-number key of
   1,000 or more takes any 3 s.f. rounding unless the answer is exact, so each type with one
-  is exact or listed in `Answer.WHOLE_SF` on purpose: today a model's input or prediction,
-  C from a graph, a value after n years from a calculator, and a sector area with π in
-  it. Every other such key (a count, a sum, money, nCr) is exact, and the seed sweep fails
+  is exact or listed in `Answer.WHOLE_SF` on purpose: today a model's input, prediction or
+  start value from a rounded reading, C from a graph, a value after n years from a
+  calculator (asked to 3 s.f. on Paper 2), an exact value from a percentage error, a sector
+  area (with π, or ½rl on Paper 2), a Paper 2 grouped variance, a trapezoidal estimate
+  from data (an area or a total) and a Paper 2 maximum area. Every other such key (a count, a sum, money, nCr) is exact, and the seed sweep fails
   on a key that is neither (`Answer.whole_key_unlisted`). `tools/whole_number_keys.gd`
   lists every type and unknown with such a key and how it is marked.
 - **Marks**: each question carries `marks`, the type's median marks in the exam bank
