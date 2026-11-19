@@ -83,9 +83,9 @@
    "ai-hl": {
     "questions": 357,
     "parts": 1485,
-    "assigned": 44,
+    "assigned": 45,
     "unclassified": 0,
-    "unassigned": 1441,
+    "unassigned": 1440,
     "papers": {
      "P1": {
       "calculator": true,
@@ -100190,6 +100190,7 @@
     "ai-hl-2021-nov-tz0-p2-q05.c",
     "ai-hl-2022-may-tz1-p1-q10.a",
     "ai-hl-2022-may-tz2-p1-q13.a",
+    "ai-hl-2022-nov-tz0-p1-q17.a",
     "ai-hl-2023-may-tz1-p1-q12",
     "ai-hl-2023-may-tz2-p1-q11.b",
     "ai-hl-2023-nov-tz0-p1-q08.a",
@@ -100205,14 +100206,14 @@
     "ai-hl-2026-may-tz1-p3-q02.b"
    ],
    "stats": {
-    "parts": 23,
+    "parts": 24,
     "paper": {
-     "p1": 15,
+     "p1": 16,
      "p2": 4
     },
     "calculator": {
      "without": 0,
-     "with": 23
+     "with": 24
     },
     "section": {
      "A": 0,
@@ -100224,7 +100225,7 @@
      "max": 6
     },
     "mainTags": {
-     "1.13": 23
+     "1.13": 24
     }
    }
   }

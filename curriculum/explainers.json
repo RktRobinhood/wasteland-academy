@@ -395,7 +395,7 @@
       "methods": ["quadratic-in-n", "gdc-table"],
       "question_types": ["t1-arithmetic-sequence"],
       "threads": ["graph-vs-algebra"],
-      "priority": { "parts": 4.8, "rank": 160 },
+      "priority": { "parts": 4.8, "rank": 161 },
       "note": "Split from ex.algebra.arithmetic-series (FAL-952). The quadratic in n is solved on the GDC (ex.functions.gdc-solve) because the by-hand quadratic formula is AA only; two given sums need simultaneous equations."
     },
     {
@@ -1096,7 +1096,7 @@
       "methods": [],
       "question_types": ["t1-ahl-complex-polar", "t1-ai-complex-polar"],
       "threads": ["equivalent-forms"],
-      "priority": { "parts": 7, "rank": 47 }
+      "priority": { "parts": 7.2, "rank": 47 }
     },
     {
       "id": "ex.algebra.polar-multiply",
@@ -1118,7 +1118,7 @@
       "methods": [],
       "question_types": ["t1-ahl-complex-polar", "t1-ai-complex-polar"],
       "threads": ["transformations", "vectors", "multiplicative-growth"],
-      "priority": { "parts": 14, "rank": 60 }
+      "priority": { "parts": 14.4, "rank": 59 }
     },
     {
       "id": "ex.algebra.euler-sums",
@@ -1135,7 +1135,7 @@
       "methods": [],
       "question_types": ["t1-ahl-complex-polar"],
       "threads": ["symmetry", "equivalent-forms"],
-      "priority": { "parts": 4.8, "rank": 161 }
+      "priority": { "parts": 4.8, "rank": 162 }
     },
     {
       "id": "ex.algebra.add-sinusoids",
@@ -1152,7 +1152,7 @@
       "methods": [],
       "question_types": ["t1-ai-complex-polar"],
       "threads": ["transformations", "vectors"],
-      "priority": { "parts": 4.6, "rank": 162 }
+      "priority": { "parts": 4.8, "rank": 160 }
     },
     {
       "id": "ex.algebra.de-moivre",
@@ -1169,7 +1169,7 @@
       "methods": ["polar-form", "gdc"],
       "question_types": ["t1-ahl-de-moivre", "t1-ai-complex-polar"],
       "threads": ["transformations", "multiplicative-growth"],
-      "priority": { "parts": 8.9, "rank": 87 }
+      "priority": { "parts": 9.1, "rank": 87 }
     },
     {
       "id": "ex.algebra.de-moivre-proof",
@@ -5020,7 +5020,7 @@
       "methods": ["algebra", "gdc"],
       "question_types": ["t5-stationary-points", "fn-link-extremes"],
       "threads": ["extremes", "graph-vs-algebra"],
-      "priority": { "parts": 5, "rank": 59 }
+      "priority": { "parts": 5, "rank": 60 }
     },
     {
       "id": "ex.calculus.classify-first-derivative",

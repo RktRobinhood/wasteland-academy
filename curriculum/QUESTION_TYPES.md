@@ -20,7 +20,7 @@ The bank at `41261da1` (the pinned commit) holds all four courses. This catalogu
 | AA SL | 396 | 1128 | 973 | 155 | P1 (no GDC) 532, P2 (GDC) 596 | – |
 | AA HL | 327 | 1205 | 53 | 1152 | P1 (no GDC) 371, P2 (GDC) 408, P3 (GDC) 426 | 214 (518 parts) |
 | AI SL | 386 | 1349 | 79 | 1270 | P1 (GDC) 743, P2 (GDC) 606 | – |
-| AI HL | 357 | 1485 | 44 | 1441 | P1 (GDC) 536, P2 (GDC) 480, P3 (GDC) 469 | 127 (421 parts) |
+| AI HL | 357 | 1485 | 45 | 1440 | P1 (GDC) 536, P2 (GDC) 480, P3 (GDC) 469 | 127 (421 parts) |
 
 ## Section A and Section B
 
@@ -477,7 +477,7 @@ The bank at `41261da1` (the pinned commit) holds all four courses. This catalogu
 | `t1-ahl-complex-polar` | Modulus-argument and Euler forms (AA HL) | 1.13 | AHL1.13.convert-forms, AHL1.13.polar-products-quotients, AHL1.13.geometric-interpretation, AHL1.13.sums-in-euler-form, AHL1.13.exact-trig-from-forms | 12 | P1 6, P2 3; Section A 4, B 5 | usually 2 (1 to 4) |
 | `t1-ahl-de-moivre` | De Moivre's theorem: powers, roots and identities (AA HL) | 1.14 | AHL1.14.de-moivre-powers, AHL1.14.nth-roots, AHL1.14.multiple-angle-identities, AHL1.14.de-moivre-induction | 17 | P1 13, P2 4; Section A 5, B 12 | usually 4 (2 to 6) |
 | `t1-ahl-conjugate-roots` | Complex roots of real polynomials (AA HL) | 1.14 | AHL1.14.complex-quadratic, AHL1.14.conjugate-root-polynomial | 4 | P1 3, P2 0; Section A 1, B 2 | usually 4 (1 to 6) |
-| `t1-ai-complex-polar` | Polar and exponential forms of complex numbers (AI HL) | 1.13 | AI-AHL1.13.convert-forms, AI-AHL1.13.multiply-divide-polar, AI-AHL1.13.integer-powers, AI-AHL1.13.add-sinusoids, AI-AHL1.13.geometric-interpretation | 23 | P1 15, P2 4; Section A 0, B 0 | usually 3 (1 to 6) |
+| `t1-ai-complex-polar` | Polar and exponential forms of complex numbers (AI HL) | 1.13 | AI-AHL1.13.convert-forms, AI-AHL1.13.multiply-divide-polar, AI-AHL1.13.integer-powers, AI-AHL1.13.add-sinusoids, AI-AHL1.13.geometric-interpretation | 24 | P1 16, P2 4; Section A 0, B 0 | usually 3 (1 to 6) |
 
 ### t1-standard-form
 
@@ -849,13 +849,13 @@ The bank at `41261da1` (the pinned commit) holds all four courses. This catalogu
 
 - **Syllabus:** 1.13
 - **Skills:** `AI-AHL1.13.convert-forms`, `AI-AHL1.13.multiply-divide-polar`, `AI-AHL1.13.integer-powers`, `AI-AHL1.13.add-sinusoids`, `AI-AHL1.13.geometric-interpretation`
-- **Where it appears:** P1 15, P2 4; Section A 0, B 0. Marks per part: usually 3 (1 to 6).
+- **Where it appears:** P1 16, P2 4; Section A 0, B 0. Marks per part: usually 3 (1 to 6).
 - **Usual chain:** a complex number in Cartesian, polar or exponential form, a point on an Argand diagram, or two sinusoids of one frequency → its modulus and argument, exactly at a standard angle or to 3 s.f. in radians → a product, quotient or power with the moduli multiplied or raised and the arguments added or multiplied → the multiplier read as a rotation and a stretch about 0, or a sum read as a translation → two sinusoids written as one, A cos(ωt + B), from the sum of their complex amplitudes
 - **Given:** a complex number a + bi with whole parts, or on a standard line, a complex number r cis θ or re^(iθ), θ a standard angle or in radians to one decimal place, two complex numbers in polar or exponential form, a complex number and a power n, a point on an Argand diagram and a multiplier w, a complex number w, for the maps z ↦ wz and z ↦ z + w, two sinusoids a cos(ωt + α) and b cos(ωt + β), or two sines. **Asked:** A complex number in the form re^(iθ), r cis θ or a + bi, exactly or to 3 s.f., a least power, a transformation in words, or a single sinusoid A cos(ωt + B). **Answer form:** re^(iθ) or r cis θ, exact or to 3 s.f., a + bi, exact or to 3 s.f., a whole number, a transformation in words, A cos(ωt + B) or A sin(ωt + B), A and B to 3 s.f..
 - **A recipe can randomise:** the parts, or the modulus and argument; the form the question writes; product or quotient; the power; the condition on the power; the multiplier; the amplitudes, the frequency and the phases.
 - **Limits that keep answers clean:** every question is Paper 2: every AI paper allows a GDC; arguments are in radians, in −π < θ ≤ π; a 3 s.f. answer is clear of a rounding edge, and so is every slip offered.
 - **Game formats:** value, mcq
-- **Bank parts:** 23.
+- **Bank parts:** 24.
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 

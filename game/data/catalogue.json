@@ -95192,7 +95192,7 @@
 				"the multiplier read as a rotation and a stretch about 0, or a sum read as a translation",
 				"two sinusoids written as one, A cos(ωt + B), from the sum of their complex amplitudes"
 			],
-			"frequency": 23,
+			"frequency": 24,
 			"marks": 3,
 			"section": {
 				"A": 0,
@@ -95200,7 +95200,7 @@
 			},
 			"paper": {
 				"p1": 0,
-				"p2": 23
+				"p2": 24
 			}
 		}
 	]

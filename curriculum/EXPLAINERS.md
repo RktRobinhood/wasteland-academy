@@ -123,25 +123,25 @@ An explainer always comes after its prerequisites. Among the explainers whose pr
 
 | Rank | Explainer | Layer | Weighted parts | Rests on it | Explainers that need it | Builds on |
 |--:|---|---|--:|--:|--:|---|
-| 1 | Brackets Round Negatives (`foundations.pre-substitute`) | `core` | 0 | 755.8 | 185 | – |
-| 2 | One In, One Out (`functions.function-machine`) | `core` | 21.4 | 538.7 | 125 | `foundations.pre-substitute` |
+| 1 | Brackets Round Negatives (`foundations.pre-substitute`) | `core` | 0 | 756 | 185 | – |
+| 2 | One In, One Out (`functions.function-machine`) | `core` | 21.4 | 538.9 | 125 | `foundations.pre-substitute` |
 | 3 | Keep the Scales Level (`foundations.pre-balance`) | `core` | 0 | 448.2 | 134 | `foundations.pre-substitute` |
 | 4 | Rise per Step (`functions.gradient`) | `core` | 3.3 | 327.9 | 114 | – |
 | 5 | Read the Gauge (`foundations.pre-read-and-round`) | `core` | 0 | 312 | 67 | – |
 | 6 | One Multiplication (`foundations.pre-percent-multiplier`) | `core` | 0 | 278 | 75 | – |
-| 7 | Powers Follow Laws (`algebra.exponent-laws`) | `core` | 0 | 275.7 | 83 | – |
-| 8 | A Slice of the Circle (`geometry.arc-and-sector`) | `core` | 6.3 | 269.8 | 78 | – |
-| 9 | Radians (`geometry.radian-measure`) | `aa-ai-hl` | 9.3 | 256.5 | 76 | `geometry.arc-and-sector` |
+| 7 | Powers Follow Laws (`algebra.exponent-laws`) | `core` | 0 | 276.3 | 83 | – |
+| 8 | A Slice of the Circle (`geometry.arc-and-sector`) | `core` | 6.3 | 270.8 | 78 | – |
+| 9 | Radians (`geometry.radian-measure`) | `aa-ai-hl` | 9.3 | 257.5 | 76 | `geometry.arc-and-sector` |
 | 10 | Pin and Swing (`functions.line-equation`) | `core` | 6.5 | 255.2 | 92 | `functions.gradient`, `foundations.pre-balance` |
 | 11 | Start Plus Rate (`functions.line-model`) | `core` | 0 | 220.4 | 68 | `functions.line-equation` |
-| 12 | Fill the Rectangle (`foundations.pre-expand`) | `core` | 0 | 218.7 | 61 | – |
+| 12 | Fill the Rectangle (`foundations.pre-expand`) | `core` | 0 | 219.7 | 61 | – |
 | 13 | From Chord to Tangent (`calculus.limits-and-gradient`) | `core` | 3.5 | 215.2 | 74 | `functions.gradient` |
 | 14 | The Derivative as a Rate (`calculus.derivative-meaning`) | `core` | 5.5 | 211.7 | 71 | `calculus.limits-and-gradient` |
 | 15 | Run It Backwards (`functions.inverse-undo`) | `core` | 5.6 | 207.3 | 64 | `functions.function-machine` |
 | 16 | The Power Rule (`calculus.power-rule`) | `core` | 4 | 206.2 | 68 | `calculus.derivative-meaning`, `algebra.exponent-laws` |
 | 17 | Multiply, Don't Add (`functions.growth-factor`) | `core` | 6.3 | 191.1 | 64 | `foundations.pre-percent-multiplier`, `functions.line-model` |
-| 18 | The Square on the Long Side (`foundations.pythagoras`) | `core` | 0 | 188.1 | 64 | – |
-| 19 | An Angle Fixes a Ratio (`geometry.right-trig`) | `core` | 7.5 | 179.1 | 50 | `foundations.pythagoras` |
+| 18 | The Square on the Long Side (`foundations.pythagoras`) | `core` | 0 | 189.1 | 64 | – |
+| 19 | An Angle Fixes a Ratio (`geometry.right-trig`) | `core` | 7.5 | 180.1 | 50 | `foundations.pythagoras` |
 | 20 | What Power? (`functions.log-undoes-power`) | `core` | 14.2 | 178.5 | 57 | `functions.growth-factor`, `functions.inverse-undo` |
 | 21 | Two Lamps, One Point (`foundations.pre-simultaneous`) | `core` | 0 | 142 | 35 | `foundations.pre-balance` |
 | 22 | Add the Same Each Step (`algebra.arithmetic-sequence`) | `core` | 4.8 | 124.5 | 23 | `foundations.pre-substitute` |
@@ -154,7 +154,7 @@ An explainer always comes after its prerequisites. Among the explainers whose pr
 | 29 | Two Machines in a Row (`functions.composite`) | `aa-ai-hl` | 16.8 | 101.7 | 24 | `functions.function-machine` |
 | 30 | Trees and Sample Spaces (`stats.tree-diagrams`) | `core` | 19 | 101 | 27 | `stats.probability-basics` |
 | 31 | Find the Sides (`foundations.pre-factorise`) | `aa` | 0 | 96.2 | 29 | `foundations.pre-expand` |
-| 32 | The Number i (`algebra.complex-cartesian`) | `hl` | 14 | 88.2 | 12 | `foundations.pre-expand` |
+| 32 | The Number i (`algebra.complex-cartesian`) | `hl` | 14 | 89.2 | 12 | `foundations.pre-expand` |
 | 33 | Multiply the Same Each Step (`algebra.geometric-sequence`) | `core` | 2.3 | 86.9 | 13 | `algebra.arithmetic-sequence`, `foundations.pre-percent-multiplier` |
 | 34 | Gradient at a Point (`calculus.gradient-at-point`) | `core` | 5.7 | 86.5 | 20 | `calculus.power-rule` |
 | 35 | The Chain Rule (`calculus.chain-rule`) | `aa-ai-hl` | 2 | 84.9 | 23 | `calculus.standard-derivatives`, `functions.composite` |
@@ -162,17 +162,17 @@ An explainer always comes after its prerequisites. Among the explainers whose pr
 | 37 | Interest on Interest (`algebra.compound-interest`) | `core` | 16 | 68 | 3 | `algebra.geometric-sequence` |
 | 38 | Undo the Derivative (`calculus.antiderivative`) | `core` | 6.9 | 68 | 29 | `calculus.power-rule` |
 | 39 | Either Valve Shuts It (`functions.zero-product`) | `aa` | 13.7 | 66.8 | 18 | `foundations.pre-factorise` |
-| 40 | The Argand Diagram (`algebra.argand-modulus`) | `hl` | 12 | 64.2 | 8 | `algebra.complex-cartesian`, `geometry.right-trig` |
+| 40 | The Argand Diagram (`algebra.argand-modulus`) | `hl` | 12 | 65.2 | 8 | `algebra.complex-cartesian`, `geometry.right-trig` |
 | 41 | The Fountain's Mirror (`functions.parabola-symmetry`) | `core` | 11 | 63.4 | 19 | `functions.how-high-and-where` |
 | 42 | Quartiles and Standard Deviation (`stats.quartiles-spread`) | `core` | 6 | 61 | 22 | `stats.averages` |
 | 43 | Velocity and Acceleration (`calculus.velocity-acceleration`) | `aa-ai-hl` | 17 | 60 | 2 | `calculus.derivative-meaning`, `calculus.chain-rule` |
 | 44 | Integrals of eˣ, 1/x, sin and cos (`calculus.standard-integrals`) | `aa-ai-hl` | 1.4 | 59.3 | 23 | `calculus.antiderivative`, `calculus.standard-derivatives` |
 | 45 | Uphill and Downhill (`calculus.increasing-decreasing`) | `core` | 3.5 | 56.4 | 11 | `calculus.gradient-at-point` |
 | 46 | The Unit Circle (`geometry.unit-circle`) | `aa-ai-hl` | 1 | 53.9 | 22 | `geometry.radian-measure`, `geometry.right-trig` |
-| 47 | Modulus and Argument Form (`algebra.polar-form`) | `hl` | 7 | 52.2 | 7 | `algebra.argand-modulus`, `geometry.radian-measure` |
+| 47 | Modulus and Argument Form (`algebra.polar-form`) | `hl` | 7.2 | 53.2 | 7 | `algebra.argand-modulus`, `geometry.radian-measure` |
 | 48 | Random Variables (`stats.random-variable`) | `core` | 14 | 51 | 16 | `stats.probability-basics`, `stats.tree-diagrams` |
 | 49 | The Area Under a Curve (`calculus.definite-integral-area`) | `core` | 0 | 50 | 14 | `calculus.antiderivative` |
-| 50 | Reading a Wave (`geometry.wave-features`) | `core` | 19 | 48.6 | 8 | `functions.function-machine` |
+| 50 | Reading a Wave (`geometry.wave-features`) | `core` | 19 | 48.8 | 8 | `functions.function-machine` |
 | 51 | Evaluating Definite Integrals (`calculus.definite-integrals`) | `aa-ai-hl` | 1.8 | 48.2 | 10 | `calculus.definite-integral-area`, `calculus.standard-integrals` |
 | 52 | What Goes In, What Comes Out (`functions.domain-range`) | `core` | 8.9 | 45.6 | 18 | `functions.function-machine`, `foundations.pre-linear-inequalities` |
 | 53 | Paying Off a Loan (`algebra.amortisation`) | `ai` | 29 | 45 | 1 | `algebra.compound-interest` |
@@ -181,8 +181,8 @@ An explainer always comes after its prerequisites. Among the explainers whose pr
 | 56 | Venn Diagrams (`stats.venn`) | `core` | 12 | 43 | 8 | `stats.probability-basics` |
 | 57 | The Bell Curve (`stats.normal-curve`) | `core` | 6 | 43 | 16 | `stats.quartiles-spread` |
 | 58 | When Algebra Jams (`functions.gdc-solve`) | `core` | 18.1 | 41.8 | 6 | `functions.meeting-points`, `foundations.pre-read-and-round` |
-| 59 | Where the Gradient Is Zero (`calculus.stationary-points`) | `core` | 5 | 41 | 6 | `calculus.increasing-decreasing` |
-| 60 | Multiply Means Rotate and Stretch (`algebra.polar-multiply`) | `hl` | 14 | 40.6 | 5 | `algebra.polar-form`, `algebra.exponent-laws` |
+| 59 | Multiply Means Rotate and Stretch (`algebra.polar-multiply`) | `hl` | 14.4 | 41.2 | 5 | `algebra.polar-form`, `algebra.exponent-laws` |
+| 60 | Where the Gradient Is Zero (`calculus.stationary-points`) | `core` | 5 | 41 | 6 | `calculus.increasing-decreasing` |
 | 61 | The Crane Hook (`functions.vertex-form`) | `aa` | 8.3 | 38.5 | 7 | `functions.translation`, `functions.parabola-symmetry` |
 | 62 | Normal Probabilities (`stats.normal-probability`) | `core` | 16 | 37 | 15 | `stats.normal-curve` |
 | 63 | Adding Up an Arithmetic Sequence (`algebra.arithmetic-series`) | `core` | 4.8 | 36.3 | 16 | `algebra.arithmetic-sequence` |
@@ -209,7 +209,7 @@ An explainer always comes after its prerequisites. Among the explainers whose pr
 | 84 | Two Clamps, One Centre (`functions.quadratic-formula`) | `aa` | 4 | 23.9 | 3 | `functions.zero-product`, `functions.parabola-symmetry`, `foundations.pre-surds` |
 | 85 | Left Side to Right Side (`algebra.lhs-to-rhs`) | `aa` | 8.5 | 23.6 | 18 | `foundations.pre-expand` |
 | 86 | Below the Waterline (`functions.quadratic-inequality`) | `aa` | 7.5 | 22.6 | 5 | `functions.zero-product`, `foundations.pre-linear-inequalities`, `functions.parabola-symmetry` |
-| 87 | De Moivre's Theorem (`algebra.de-moivre`) | `hl` | 8.9 | 21.8 | 3 | `algebra.polar-multiply` |
+| 87 | De Moivre's Theorem (`algebra.de-moivre`) | `hl` | 9.1 | 22 | 3 | `algebra.polar-multiply` |
 | 88 | Spot the Impostor (`functions.sketch-features`) | `core` | 21.1 | 21.1 | 8 | `functions.how-high-and-where`, `functions.domain-range` |
 | 89 | Build the Model, Then Optimise (`calculus.build-optimisation-model`) | `core` | 21 | 21 | 0 | `calculus.optimise-model`, `foundations.pre-change-subject` |
 | 90 | Pascal's Triangle and nCr (`algebra.pascal-ncr`) | `aa` | 2 | 20.3 | 9 | – |
@@ -282,9 +282,9 @@ An explainer always comes after its prerequisites. Among the explainers whose pr
 | 157 | The Second Derivative Test (`calculus.second-derivative-test`) | `aa-ai-hl` | 5 | 5 | 0 | `calculus.concavity`, `calculus.classify-first-derivative` |
 | 158 | Trig Equations on the GDC (`geometry.trig-equations-graphical`) | `aa-ai-hl` | 5 | 5 | 0 | `functions.gdc-solve`, `geometry.circular-graphs` |
 | 159 | The Other Regression Line (`stats.x-on-y`) | `aa` | 5 | 5 | 0 | `stats.regression-line` |
-| 160 | Working Back from a Sum (`algebra.arithmetic-sum-unknown`) | `core` | 4.8 | 4.8 | 0 | `algebra.arithmetic-series`, `functions.gdc-solve`, `foundations.pre-simultaneous` |
-| 161 | Sums in Euler Form (`algebra.euler-sums`) | `aa-hl` | 4.8 | 4.8 | 0 | `algebra.polar-multiply` |
-| 162 | Adding Waves with Complex Numbers (`algebra.add-sinusoids`) | `ai-hl` | 4.6 | 4.6 | 0 | `algebra.polar-form`, `geometry.wave-features` |
+| 160 | Adding Waves with Complex Numbers (`algebra.add-sinusoids`) | `ai-hl` | 4.8 | 4.8 | 0 | `algebra.polar-form`, `geometry.wave-features` |
+| 161 | Working Back from a Sum (`algebra.arithmetic-sum-unknown`) | `core` | 4.8 | 4.8 | 0 | `algebra.arithmetic-series`, `functions.gdc-solve`, `foundations.pre-simultaneous` |
+| 162 | Sums in Euler Form (`algebra.euler-sums`) | `aa-hl` | 4.8 | 4.8 | 0 | `algebra.polar-multiply` |
 | 163 | Proofs About Whole Numbers (`algebra.integer-proof`) | `aa` | 4.5 | 4.5 | 3 | `algebra.lhs-to-rhs` |
 | 164 | The Sum to Infinity (`algebra.sum-to-infinity`) | `aa-ai-hl` | 4.5 | 4.5 | 0 | `algebra.convergence` |
 | 165 | Multiple-Angle Identities (`algebra.multiple-angle`) | `aa-hl` | 4.3 | 4.3 | 0 | `algebra.de-moivre`, `algebra.binomial-expansion` |
