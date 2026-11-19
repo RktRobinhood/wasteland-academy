@@ -93431,7 +93431,7 @@
 				},
 				{
 					"ref": "AHL1.13.convert-forms#2",
-					"text": "Writing a negative real number with a negative modulus and argument 0, instead of a positive modulus and argument π",
+					"text": "Writing a negative real number with a negative modulus and a zero argument, instead of a positive modulus and argument π",
 					"as": "distractor",
 					"in": [
 						"to-polar"
@@ -93468,7 +93468,7 @@
 				},
 				{
 					"ref": "AHL1.13.geometric-interpretation#0",
-					"text": "Turning clockwise for a positive argument instead of anticlockwise",
+					"text": "Turning the wrong way: clockwise for a positive argument, or anticlockwise for a negative one",
 					"as": "distractor",
 					"in": [
 						"rotate-point",
@@ -93478,7 +93478,7 @@
 				},
 				{
 					"ref": "AHL1.13.geometric-interpretation#1",
-					"text": "Describing multiplication by a number whose modulus is not 1 as a rotation only, forgetting the enlargement",
+					"text": "Describing multiplication by a number as a rotation only, forgetting the enlargement by its modulus",
 					"as": "distractor",
 					"in": [
 						"rotate-point",
@@ -93497,7 +93497,7 @@
 				},
 				{
 					"ref": "AHL1.13.sums-in-euler-form#0",
-					"text": "Adding the moduli, so a sum of two numbers of modulus 1 is given modulus 2 whatever their arguments",
+					"text": "Adding the moduli, as if the two numbers pointed the same way",
 					"as": "distractor",
 					"in": [
 						"euler-sum"
@@ -93515,7 +93515,7 @@
 				},
 				{
 					"ref": "AHL1.13.sums-in-euler-form#2",
-					"text": "Writing e^(iθ) − e^(−iθ) as 2 sin θ, losing the i",
+					"text": "Leaving out the i when e^(iθ) − e^(−iθ) is written in terms of sin θ",
 					"as": "distractor",
 					"in": [
 						"euler-trig"
@@ -93524,7 +93524,7 @@
 				},
 				{
 					"ref": "AHL1.13.exact-trig-from-forms#0",
-					"text": "Dividing by the modulus of only one of the two numbers, so the value found is too big",
+					"text": "Dividing by the modulus of only one of the two numbers, not by the modulus of the product or quotient",
 					"as": "distractor",
 					"in": [
 						"exact-trig"
@@ -93607,7 +93607,7 @@
 					"wrong": "(α − β)/2"
 				},
 				{
-					"text": "Losing the 2 when the two exponentials are added",
+					"text": "Counting only one of the two equal terms when the exponentials are combined",
 					"as": "distractor",
 					"in": [
 						"euler-trig"

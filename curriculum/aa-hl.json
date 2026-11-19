@@ -987,7 +987,7 @@
               "misconceptions": [
                 "Taking the argument straight from arctan of the imaginary part over the real part, without checking the quadrant",
                 "Adding the sizes of the two parts for the modulus instead of taking the square root of the sum of their squares",
-                "Writing a negative real number with a negative modulus and argument 0, instead of a positive modulus and argument π"
+                "Writing a negative real number with a negative modulus and a zero argument, instead of a positive modulus and argument π"
               ],
               "threads": [
                 {
@@ -1109,8 +1109,8 @@
                 }
               ],
               "misconceptions": [
-                "Turning clockwise for a positive argument instead of anticlockwise",
-                "Describing multiplication by a number whose modulus is not 1 as a rotation only, forgetting the enlargement",
+                "Turning the wrong way: clockwise for a positive argument, or anticlockwise for a negative one",
+                "Describing multiplication by a number as a rotation only, forgetting the enlargement by its modulus",
                 "Thinking that adding a complex number rotates the point, rather than translating it by that number's vector"
               ],
               "threads": [
@@ -1170,9 +1170,9 @@
                 }
               ],
               "misconceptions": [
-                "Adding the moduli, so a sum of two numbers of modulus 1 is given modulus 2 whatever their arguments",
+                "Adding the moduli, as if the two numbers pointed the same way",
                 "Adding the exponents, as if e^(iα) + e^(iβ) were e^(i(α + β))",
-                "Writing e^(iθ) − e^(−iθ) as 2 sin θ, losing the i"
+                "Leaving out the i when e^(iθ) − e^(−iθ) is written in terms of sin θ"
               ],
               "threads": [
                 {
@@ -1221,7 +1221,7 @@
                 }
               ],
               "misconceptions": [
-                "Dividing by the modulus of only one of the two numbers, so the value found is too big",
+                "Dividing by the modulus of only one of the two numbers, not by the modulus of the product or quotient",
                 "Subtracting the arguments for a product instead of adding them",
                 "Leaving the exact value unrationalised, so it doesn't match the form asked for"
               ],
@@ -1298,7 +1298,7 @@
               ],
               "misconceptions": [
                 "Taking the square root of a negative number as a negative real number, so the roots come out real",
-                "Dividing only the square-root term by 2, and not the whole of −b ± √Δ",
+                "Dividing only the square-root term by the denominator, and not the whole of −b ± √Δ",
                 "Building the quadratic with the wrong sign on the z term, adding the sum of the roots instead of subtracting it"
               ],
               "threads": [
@@ -1479,7 +1479,7 @@
               ],
               "misconceptions": [
                 "Assuming the n = k + 1 statement in order to prove it",
-                "Losing the sign from i² when multiplying out, so the real part becomes cos(k − 1)θ",
+                "Losing the sign from i² when multiplying out, so the real part becomes the cosine of the difference of the angles",
                 "Leaving out the base case or the concluding sentence"
               ],
               "threads": [
@@ -1533,7 +1533,7 @@
               ],
               "misconceptions": [
                 "Leaving out the binomial coefficients when expanding (cos θ + i sin θ)ⁿ",
-                "Writing zⁿ − z⁻ⁿ as 2 sin nθ instead of 2i sin nθ",
+                "Leaving out the i when zⁿ − z⁻ⁿ is written in terms of sin nθ",
                 "Losing the sign from i² when collecting the real terms"
               ],
               "threads": [
