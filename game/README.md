@@ -1114,6 +1114,15 @@ script error happens while it runs. Run one file with
 <!-- R9-RATIONAL -->
 
 <!-- R9-ODD-EVEN -->
+- `test_odd_even.gd` (FAL-1007): fn-ahl-odd-even (AHL2.14) built with every cell for its three
+  skills (odd-even-test, odd-even-graph, odd-even-combine) on AA HL only, every cell on both
+  papers in the bank's ratio (no cell needs a calculator; an integral given from 0 to a may be a
+  decimal on Paper 2 and is whole on Paper 1). The test checks four options with one right in
+  both formats and no extra format, every misconception as an option, the counterexample asked
+  only of a function that is neither and the sign rule only of a product, a typed k or integral
+  marked by its value, and parities, counterexamples, combinations and integrals against hand
+  values. The skills' match, error-spot and true-false-reason formats are not built for it (an
+  exam type offers no extra format), and match is not in the engine.
 
 <!-- R9-INVERSE -->
 

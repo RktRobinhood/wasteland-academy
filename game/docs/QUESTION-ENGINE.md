@@ -1199,6 +1199,26 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 <!-- R9-RATIONAL -->
 
 <!-- R9-ODD-EVEN -->
+- `engine/situations/odd_even.gd` (FAL-1007) is `fn-ahl-odd-even` (AHL2.14, AA HL only): odd, even
+  or neither. A function is a list of terms c·xᵖ·g(x), g one of 1, sin x, cos x, e^x and e^(−x), and
+  its parity comes from the terms' (e^x and e^(−x) swap, so a e^x + b e^(−x) is even for a = b and
+  odd for a = −b). Its views (`odd_even_views.gd`) ask 8 unknowns over 22 cells: a polynomial or a
+  mixed function classified (a `claim` with its reason, by f(−x), a counterexample at the least whole
+  a that shows neither, the building blocks, or the unit circle), the coefficient k that makes a
+  polynomial odd or even, a value f(−a) or f(−a) + m·f(a) from a rule in p and q or a half graph,
+  completing a half graph and choosing the odd or even graph (pick-the-graph; each wrong card a
+  named mistake: the mirror in the y-axis or the x-axis, a half-turn about (0, k), a slide, a shifted
+  or asymmetric graph), h = fg, f + g, f∘g or g∘f from the parities of f and g, and ∫ from −a to a
+  given ∫ from 0 to a, of a written integrand (odd terms cancel, even ones double) or of a polyline
+  graph with its half shaded. Graphs are polylines through whole-number key points, so a symmetry
+  and an area are exact. Every cell makes both papers; Paper 2 changes only a given integral, which
+  may be a decimal. Wrong options are AHL2.14's misconceptions and the type's own four (2∫₀ᵃ for an
+  odd integrand, the definitions swapped, −f(a) for an even function, the wrong powers' coefficient
+  set to 0). AHL2.14.odd-even-test#1 (odd powers plus a constant) is offered only on classify-polynomial:
+  no value of k comes from that slip. The checker (`r9oe_check`) reads every function back with its own
+  parser, decides each parity with SymPy from f(−x) ± f(x), solves for k, evaluates each counterexample,
+  works each h out on concrete odd and even functions, integrates the written integrand exactly (and by
+  quadrature), and holds each card's segments to its named mistake and each graph's area to its trapezia.
 
 <!-- R9-INVERSE -->
 

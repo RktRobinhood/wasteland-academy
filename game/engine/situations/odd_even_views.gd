@@ -693,7 +693,7 @@ func u_symmetric_integral(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		var even_names := ftext(even_t)
 		var even_sum: Array
 		if even_t.is_empty():
-			even_sum = ["There are no even terms, so %s = 0" % whole_int]
+			even_sum = ["There are no even terms, so nothing is left to add"]
 		else:
 			var at_a := "2 × [%s] from 0 to %d = 2 × %s = %s" % [anti(even_t), a, P(I), N(v)]
 			even_sum = ["The even terms give twice their integral from 0 to %d: 2 × %s" % [a, itext("0", str(a), "(%s)" % even_names if even_t.size() > 1 else even_names)], at_a]
