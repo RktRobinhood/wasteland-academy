@@ -1133,6 +1133,12 @@ script error happens while it runs. Run one file with
   exam type offers no extra format), and match is not in the engine.
 
 <!-- R9-INVERSE -->
+- `test_inverse_restricted.gd` (FAL-1007): fn-ahl-inverse-restricted built with every cell (30) and all three AHL2.14
+  inverse skills, on AA HL only; a calculator method on Paper 2 and the rest on either paper, with no calculator working
+  on Paper 1; four distinct options with one right and the answer in each working's last step; graphs shown; every tag
+  shows up; a typed a or k marked by its value; inverses, rules, self-inverse values and meeting points against values
+  worked by hand. The skills' multipart, order-steps, error-spot, graph-pick and method-pick formats are not built: the
+  type lists value and mcq only.
 
 <!-- R9-AI-COMPOSITE -->
 - `test_complex_polar.gd` (FAL-1005): the four types on the `complex_polar.gd` recipe, each

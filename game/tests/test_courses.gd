@@ -81,7 +81,7 @@ func test_an_unknown_needs_every_one_of_its_skills() -> void:
 
 ## The built types that are on AA HL's list and no other course's (AHL subtopics).
 const HL_ONLY := ["t1-ahl-counting", "t1-ahl-complex-cartesian", "t1-ahl-complex-polar", "t1-ahl-de-moivre", "t1-ahl-conjugate-roots",
-	"fn-ahl-odd-even"]
+	"fn-ahl-odd-even", "fn-ahl-inverse-restricted"]
 
 
 ## The built types whose every unknown tests AI skills only (the AI-SL1.6 and 1.7 types, FAL-999):
