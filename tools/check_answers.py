@@ -7737,7 +7737,7 @@ def tc_pts(cs):
 
 
 def tc_pts2(cs):
-    names = [f"({gc_s2(x)}, {gc_s2(y)})" for x, y in sorted(cs, key=lambda c: float(c[0]))]
+    names = [f"({gc_s2(r9ac_f(x))}, {gc_s2(y)})" for x, y in sorted(cs, key=lambda c: float(c[0]))]
     return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
 
 
@@ -8033,7 +8033,7 @@ def check_gdc_combined(q):
             gc_check_common(q, right["text"], {CB_CA + "#2": {o["text"] for o in q["choices"] if o["ref"] == CB_CA + "#2"},
                                                 CB_T + "13": equal, CB_T + "12": own})
             return None, None
-        want, trap = f"t = {gc_s(x)}, D = {gc_s(y)}", f"t = {gc_s2(x)}, D = {gc_s2(y)}"
+        want, trap = f"t = {gc_s(x)}, D = {gc_s(y)}", f"t = {gc_s2(r9ac_f(x))}, D = {gc_s2(y)}"
         wr[CB_MM + "#0"] = {f"t = {gc_s(y)}, D = {gc_s(x)}"}
         if kind == "drugs":
             k = -sp.Poly(sp.log(f / X).expand(force=True), X).all_coeffs()[0]
@@ -8056,7 +8056,7 @@ def check_gdc_combined(q):
             wr[CB_T + "10"] = {gc_s(dm ** 2)}
             need(all(o["ref"] == CB_MM + "#2" for o in q["choices"] if o.get("trap")), "the 2 s.f. distance doesn't log SL2.4.max-min#2")
         else:
-            want, trap = gc_pt(x, y), f"({gc_s2(x)}, {gc_s2(y)})"
+            want, trap = gc_pt(x, y), f"({gc_s2(r9ac_f(x))}, {gc_s2(y)})"
             wr[CB_T + "11"] = {gc_pt(x, dm)}
     elif u == "sum-graph":
         S_ = gc_f(f + g)
@@ -15976,7 +15976,7 @@ def lx_ptext(x, y, paper):
 
 
 def lx_ptrap(x, y):
-    return f"({gc_s2(x)}, {gc_s2(y)})"
+    return f"({gc_s2(r9ac_f(x))}, {gc_s2(y)})"
 
 
 def lx_clean_point(q, x, y):
@@ -17632,7 +17632,7 @@ def tc_models(q):
     need(sp.expand(a * (a1 * sp.sin(w * t) + d1) + d - (a2 * sp.sin(w * t) + d2)) == 0, "a and d don't map p onto q")
     say = (lambda u, v: f"a = {frac_text(u)}, d = {frac_text(v)}".replace("-", "−")) if q["paper"] == 1 else (lambda u, v: f"a = {gc_s(u)}, d = {gc_s(v)}")
     want = say(a, d)
-    trap = None if q["paper"] == 1 else f"a = {gc_s2(a)}, d = {gc_s2(d)}"
+    trap = None if q["paper"] == 1 else f"a = {gc_s2(r9ac_f(a))}, d = {gc_s2(d)}"
     # The slips: d as the plain gap of the centre lines, and the amplitudes divided the wrong way.
     wa = a1 / a2
     gc_check_common(q, want, {"fn-transform-describe#8": {say(a, d2 - d1)}, "fn-transform-describe#9": {say(wa, d2 - wa * d1)}}, trap=trap)
@@ -47973,7 +47973,7 @@ def r1ap_clear3(x):
 
 
 def r1ap_sf(label, x, unit=""):
-    return f"{label}{gc_s(x)}{unit}", f"{label}{gc_s2(x)}{unit}"
+    return f"{label}{gc_s(x)}{unit}", f"{label}{gc_s2(r9ac_f(x))}{unit}"
 
 
 def r1ap_who(w):
@@ -53215,6 +53215,559 @@ SITUATION_CHECKS["inverse-restricted"] = r9ir_check
 # (between the R9 markers)
 
 # R9-AI-COMPOSITE: fn-ai-composite-inverse (ai-composite-inverse), prefix R9AC_ / r9ac_
+
+# ── ai-composite-inverse (fn-ai-composite-inverse, FAL-1007) ─────────────────
+# The checker's own copy of the stories' sentences; the engine's is in
+# game/engine/situations/ai_composite_inverse_views.gd. Every model is read back from the question's
+# sentences, table or graph (never its `given`), every answer is worked out again with SymPy (the
+# composite and its equation exactly, an inverse by solving y = f(x), a GDC value by nsolve), and
+# every tagged slip is rebuilt from its description in the catalogue. A rule, a domain or a
+# statement is compared as maths where it is a rule: each option is parsed and matched to what its
+# slip gives.
+R9AC_CC = "AI-AHL2.7.composite-context#"
+R9AC_FI = "AI-AHL2.7.find-inverse#"
+R9AC_RD = "AI-AHL2.7.restrict-domain#"
+R9AC_II = "AI-AHL2.7.inverse-identity#"
+R9AC_VERTEX_Y = "fn-ai-composite-inverse#12"
+
+# story -> (g, input letter, input unit, f, output unit, g sentence, f sentence, g described,
+#           g as an equation, f as an equation, value question, solve question, rule question)
+R9AC_STORY = {
+    "filters": ("n", "t", "hours", "C", "dollars",
+                "A workshop holds n(t) = %s water filters t hours after it opens.",
+                "Shipping n filters to the camp costs C(n) = %s dollars.",
+                "the number of water filters, n(t), a workshop holds t hours after it opens",
+                "g(t) = %s is the number of filters a workshop holds t hours after it opens.",
+                "f(x) = %s is the cost, in dollars, of shipping x filters.",
+                "Find the cost, in dollars, of shipping the filters the workshop holds %s hours after it opens.",
+                "Find the time, in hours, after which shipping the filters the workshop holds costs %s dollars.",
+                "Find a rule, in terms of t, for the cost in dollars of shipping the filters the workshop holds t hours after it opens."),
+    "furnace": ("T", "m", "minutes", "F", "°F",
+                "The temperature of a furnace m minutes after it is lit is T(m) = %s °C.",
+                "A temperature of T °C is F(T) = %s °F.",
+                "the temperature in °C, T(m), of a furnace m minutes after it is lit",
+                "g(m) = %s is the temperature in °C of a furnace m minutes after it is lit.",
+                "f(x) = %s is a temperature of x °C written in °F.",
+                "Find the temperature of the furnace, in °F, %s minutes after it is lit.",
+                "Find the time, in minutes, after which the furnace is at %s °F.",
+                "Find a rule, in terms of m, for the temperature of the furnace in °F, m minutes after it is lit."),
+    "convoy": ("d", "t", "hours", "L", "litres",
+               "A convoy truck is d(t) = %s km from the depot t hours after it sets off.",
+               "When it is d km from the depot it has L(d) = %s litres of fuel left.",
+               "the distance in km, d(t), of a convoy truck from the depot t hours after it sets off",
+               "g(t) = %s is the distance in km of a truck from the depot t hours after it sets off.",
+               "f(x) = %s is the fuel left, in litres, when the truck is x km from the depot.",
+               "Find the fuel left in the truck, in litres, %s hours after it sets off.",
+               "Find the time, in hours, after which the truck has %s litres of fuel left.",
+               "Find a rule, in terms of t, for the fuel left in litres t hours after the truck sets off."),
+    "scrap": ("s", "h", "hours", "K", "caps",
+              "A salvage crew's cart holds s(h) = %s kg of scrap metal h hours after the crew sets out.",
+              "A trader pays K(s) = %s caps for s kg of scrap metal.",
+              "the mass in kg, s(h), of scrap metal in a salvage crew's cart h hours after the crew sets out",
+              "g(h) = %s is the mass in kg of scrap metal in a crew's cart h hours after it sets out.",
+              "f(x) = %s is what a trader pays, in caps, for x kg of scrap metal.",
+              "Find what the trader pays, in caps, for the scrap in the cart %s hours after the crew sets out.",
+              "Find the time, in hours, after which the trader would pay %s caps for the scrap in the cart.",
+              "Find a rule, in terms of h, for what the trader pays in caps for the scrap in the cart h hours after the crew sets out."),
+}
+
+# model -> (f, input letter, family, rule sentence, words sentence (its numbers in order, by name),
+#           what f⁻¹(x) is, what f(x) is, value question, unit)
+R9AC_MODEL = {
+    "taxi": ("F", "d", "lin", "F(d) = %s is the fare, in dollars, for a taxi journey of d km.",
+             ("A taxi charges %s dollars plus %s dollars per km. F(d) is the fare, in dollars, for a journey of d km.", ("b", "m")),
+             "the distance, in km, of a journey with a fare of x dollars", "the fare, in dollars, for a journey of x km",
+             "Find the distance, in km, of a journey with a fare of %s dollars.", " km"),
+    "celsius": ("F", "C", "lin", "F(C) = %s is a temperature of C °C written in °F.",
+                ("To write a temperature of C °C in °F, multiply by %s, then add %s. The result is F(C).", ("m", "b")),
+                "the temperature in °C that is x °F", "the temperature in °F that is x °C",
+                "Find the temperature in °C that is %s °F.", " °C"),
+    "copper": ("P", "m", "lin", "P(m) = %s is what a trader pays, in caps, for a load of m kg of copper.",
+               ("A trader pays %s caps for each load of copper plus %s caps per kg. P(m) is what the trader pays, in caps, for a load of m kg.", ("b", "m")),
+               "the mass, in kg, of a load the trader pays x caps for", "what the trader pays, in caps, for a load of x kg",
+               "Find the mass, in kg, of a load of copper the trader pays %s caps for.", " kg"),
+    "average": ("A", "n", "rat", "A(n) = %s is the average cost, in dollars, of each of n filters.",
+                ("Setting up to make filters costs %s dollars, and each filter then costs %s dollars. A(n) is the average cost, in dollars, of each of n filters.", ("k", "c")),
+                "the number of filters made when the average cost is x dollars", "the average cost, in dollars, of each of x filters",
+                "Find the number of filters made when the average cost of each is %s dollars.", " filters"),
+    "signal": ("S", "p", "log", "S(p) = %s is the strength, in dB, of a radio signal from a transmitter of p watts.",
+               ("The strength, S(p) dB, of a radio signal from a transmitter of p watts is found by taking the natural log of p, multiplying by %s, then adding %s.", ("b", "a")),
+               "the power, in watts, that gives a signal of x dB", "the strength, in dB, of a signal from x watts",
+               "Find the power, in watts, of a transmitter whose signal is %s dB.", " watts"),
+    "tank": ("V", "h", "cubic", "V(h) = %s is the volume, in m³, of water in a tank when its depth is h m.", None, None, None,
+             "Find the depth, in m, of the water when the tank holds %s m³.", " m"),
+}
+R9AC_QUAD = {
+    "pump": ("C", "The cost, in dollars per hour, of running a pump at x litres per second is C(x) = %s"),
+    "bridge": ("h", "The height, in m, of a rope bridge x m from one end is h(x) = %s"),
+    "profit": ("P", "The profit, in caps, from selling x crates of water is P(x) = %s"),
+}
+R9AC_LINE = {
+    "tank-line": ("V", "t", "V(t) = %s, for %s ≤ t ≤ %s, is the volume, in litres, of water in a tank t minutes after a pump starts."),
+    "fuel": ("L", "d", "L(d) = %s, for %s ≤ d ≤ %s, is the fuel left, in litres, after a truck has travelled d km."),
+}
+
+
+def r9ac_pat(template):
+    return re.escape(template).replace("%s", "(.+?)")
+
+
+def r9ac_match(template, text):
+    m = re.fullmatch(r9ac_pat(template), text)
+    return m.groups() if m else None
+
+
+def r9ac_n(text):
+    t = text.strip()
+    need(re.fullmatch(r"−?\d+(\.\d+)?", t) is not None, f"{t!r} is not a number as the game writes one")
+    return R(t.replace("−", "-"))
+
+
+def r9ac_expr(text, var):
+    """A rule as the game writes it, read with SymPy: "0.02n² + 3n + 150", "2.5 + 600/n",
+    "4 + 2.5 ln p", "e^((x − 4)/2.5)", "(e^x − 4)/2.5", "1/(2.2x + 4)"."""
+    s = text.replace("−", "-").replace("²", "**2").replace("³", "**3").replace("^", "**")
+    s = re.sub(r"√([a-z])", r"sqrt(\1)", s).replace("√(", "sqrt(")
+    # Only the rule's own letter may be a capital (T, C), so no other name slips through.
+    need(re.fullmatch(r"[0-9a-zA-Z.+\-*/() ]+", s) is not None
+         and not re.search(r"[A-Z]", re.sub(rf"(?<![A-Za-z]){var}(?![A-Za-z])", "", s)), f"can't read the rule {text!r}")
+    s = re.sub(r"ln ([a-zA-Z])", r"ln(\1)", s)
+    s = re.sub(r"(\d)\s*([a-zA-Z(])", r"\1*\2", s)
+    s = re.sub(r"\)\s*([a-zA-Z0-9(])", r")*\1", s)
+    s = s.replace("ln(", "log(")
+    s = re.sub(r"(?<![a-z_])e\*\*", "E**", s)
+    s = re.sub(r"(\d+(?:\.\d+)?)", r"Rational('\1')", s)
+    loc = {"Rational": sp.Rational, "log": sp.log, "sqrt": sp.sqrt, "E": sp.E, var: sp.Symbol(var)}
+    e = sp.sympify(s, locals=loc)
+    need(e.free_symbols <= {sp.Symbol(var)}, f"the rule {text!r} is not in {var}")
+    return e
+
+
+def r9ac_same(a, b):
+    return sp.simplify(a - b) == 0
+
+
+def r9ac_exact(v):
+    """Whether the game writes v exactly: a rational with two decimal places at most."""
+    return isinstance(v, sp.Rational) and (v * 100).is_integer and abs(v) < 10**6
+
+
+def r9ac_f(v):
+    """v as gc_s takes it: a rational as it is, anything else as a 30-digit float."""
+    return v if isinstance(v, sp.Rational) else sp.Float(sp.N(v, 30), 30)
+
+
+def r9ac_show(v):
+    return dec_text(v) if r9ac_exact(v) else gc_s(r9ac_f(v))
+
+
+def r9ac_opt(v, exact):
+    """A wrong value as an option shows it: as the answer is shown (exact, or 3 s.f.)."""
+    if not exact:
+        return gc_s(r9ac_f(v))
+    return dec_text(v) if r9ac_exact(v) else dec_text(sp.Rational(sig3(v)))
+
+
+def r9ac_fair(v):
+    """The value is shown exactly, or clear of a 3 s.f. rounding edge."""
+    if r9ac_exact(v):
+        return True
+    x = num(v)
+    e = sp.floor(sp.log(abs(x), 10))
+    scaled = abs(x) / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= sp.Rational(39, 1000)
+
+
+def r9ac_line(points):
+    """The line through the graph's first two marked points, checked against the others."""
+    (x0, y0), (x1, y1) = [(R(p["x"]), R(p["y"])) for p in points[:2]]
+    m = (y1 - y0) / (x1 - x0)
+    T = sp.Symbol("T")
+    g = y0 + m * (T - x0)
+    for p in points:
+        need(abs(float(g.subs(T, R(p["x"]))) - p["y"]) < 1e-9, f"the point {p['label']} is not on the line")
+        need(p["label"] == f"({dec_text(sp.nsimplify(p['x']))}, {dec_text(sp.nsimplify(p['y']))})", f"the label {p['label']!r} is not its point")
+    return g, T
+
+
+def r9ac_graph_g(q, var):
+    """The inner model read off its graph: the line through its marked points, drawn as a curve."""
+    gr = q["graph"]
+    need(gr is not None and gr["points"], "no graph")
+    gT, T = r9ac_line(gr["points"])
+    need(gc_curve_is(gr["curves"][0], lambda x: float(gT.subs(T, sp.Float(x, 20)))), "the curve is not the line through its points")
+    need(gr["x0"] == 0 and abs(gr["curves"][0][-1][0] - gr["x1"]) < 1e-9, "the line is not drawn from 0 across the window")
+    return sp.expand(gT.subs(T, sp.Symbol(var))), {R(p["x"]): R(p["y"]) for p in gr["points"]}
+
+
+def r9ac_story(q, with_g=True):
+    """The story, g (in its input letter) and f (in g's letter), read from the lines."""
+    L, rep = q["lines"], q["view"]["rep"]
+    for key, row in R9AC_STORY.items():
+        gl, v = row[0], row[1]
+        mf = r9ac_match(row[6], L[1]) if len(L) > 1 else None
+        if mf is None:
+            continue
+        f = r9ac_expr(mf[0], gl)
+        if rep == "table":
+            need(L[0] == f"The table gives {row[7]}.", f"{L[0]!r}")
+            return key, row, None, f
+        if rep == "graph":
+            need(L[0] == f"The graph shows {row[7]}.", f"{L[0]!r}")
+            return key, row, None, f
+        mg = r9ac_match(row[5], L[0])
+        need(mg is not None, f"can't read {L[0]!r}")
+        return key, row, r9ac_expr(mg[0], v), f
+    raise Fail(f"no story reads {L!r}")
+
+
+def r9ac_steps_have(q, angle, pattern):
+    for sol in q["solutions"]:
+        if sol["angle"] == angle:
+            need(any(re.search(pattern, st) for st in sol["steps"]), f"{angle}: no step matches {pattern!r}")
+
+
+def r9ac_pick(q, exprs, var, prefix="", suffix=""):
+    """For rule options: the option texts whose rule is each expression. exprs: name -> expr."""
+    out = {k: set() for k in exprs}
+    for o in q["choices"]:
+        t = o["text"]
+        need(t.startswith(prefix) and t.endswith(suffix), f"option {t!r} is not {prefix}…{suffix}")
+        body = t[len(prefix):len(t) - len(suffix)] if suffix else t[len(prefix):]
+        e = r9ac_expr(body, var)
+        for k, want in exprs.items():
+            if want is not None and r9ac_same(e, want):
+                out[k].add(t)
+    return out
+
+
+def r9ac_check(q):
+    u, L, asked, rep = q["view"]["unknown"], q["lines"], q["asked"], q["view"]["rep"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    X_ = sp.Symbol("x")
+    if u in ("composite-value", "composite-equation", "composite-rule") and not (u == "composite-rule" and rep == "equation"):
+        key, row, g, f = r9ac_story(q)
+        gl, v, unit_in, fl, unit_out = row[:5]
+        V, G = sp.Symbol(v), sp.Symbol(gl)
+    if u == "composite-value":
+        x0 = r9ac_n(r9ac_match(row[10], asked)[0])
+        if rep == "words":
+            gx = g.subs(V, x0)
+        elif rep == "table":
+            t = q["table"]["rows"]
+            need(t[0][0] == v and t[1][0] == f"{gl}({v})", "the table's heads")
+            col = dict(zip([r9ac_n(c) for c in t[0][1]], [r9ac_n(c) for c in t[1][1]]))
+            need(x0 in col, "the input is not in the table")
+            gx = col[x0]
+        else:
+            g, pts = r9ac_graph_g(q, v)
+            need(x0 in pts, "the input's point is not marked on the graph")
+            gx = pts[x0]
+        val = f.subs(G, gx)
+        need(val > 0, "the story's value is not positive")
+        need(r9ac_exact(val), "the value does not end")
+        want = f"{dec_text(val)} {unit_out}"
+        wrongs[R9AC_CC + "1"] = {f"{r9ac_opt(f.subs(G, x0) * gx, True)} {unit_out}"}
+        if rep == "words":
+            wrongs[R9AC_CC + "0"] = {f"{r9ac_opt(g.subs(V, f.subs(G, x0)), True)} {unit_out}"}
+        r9ac_steps_have(q, "inside-out", re.escape(f"{fl}({dec_text(gx)}) = ") + r".* = " + re.escape(dec_text(val)) + r"\.$")
+    elif u == "composite-equation":
+        target = r9ac_n(r9ac_match(row[11], asked)[0])
+        if rep == "graph":
+            g, pts = r9ac_graph_g(q, v)
+        h = sp.expand(f.subs(G, g))
+        ts = sp.solve(sp.Eq(h, target), V)
+        need(len(ts) == 1 and ts[0] > 0, "no single positive input")
+        t = ts[0]
+        mid = sp.solve(sp.Eq(f, target), G)[0]
+        if rep == "graph":
+            need(t in pts and pts[t] == mid, "the graph does not mark the point the working reads")
+        need(r9ac_fair(t), "the answer is on a 3 s.f. edge")
+        exact = r9ac_exact(t)
+        want = f"{v} = {r9ac_show(t)} {unit_in}"
+        trap = None if exact else f"{v} = {gc_s2(r9ac_f(t))} {unit_in}"
+        slip = sp.solve(sp.Eq(sp.expand(g.subs(V, f.subs(G, V))), target), V)[0]
+        if slip > 0:
+            wrongs[R9AC_CC + "0"] = {f"{v} = {r9ac_opt(slip, exact)} {unit_in}"}
+        else:
+            need(not any(o["ref"] == R9AC_CC + "0" for o in q["choices"]), "a negative time is offered as the order slip")
+        r9ac_steps_have(q, "substitute-expression", re.escape(f"{fl}({gl}({v})) = ") + r".* = (.+)\.$")
+        for sol in q["solutions"]:
+            if sol["angle"] == "substitute-expression":
+                m = [re.search(re.escape(f"{fl}({gl}({v})) = ") + r".* = ([^=]+)\.$", st) for st in sol["steps"]]
+                m = [x for x in m if x]
+                need(m and r9ac_same(r9ac_expr(m[0].group(1), v), h), f"the composite in the working is not {h}")
+    elif u == "composite-rule":
+        if rep == "equation":
+            for key, row in R9AC_STORY.items():
+                mg = r9ac_match(row[8], L[0])
+                mf = r9ac_match(row[9], L[1]) if mg else None
+                if mf:
+                    break
+            need(mg and mf, f"can't read {L!r}")
+            v = row[1]
+            V = sp.Symbol(v)
+            g, f, G = r9ac_expr(mg[0], v), r9ac_expr(mf[0], "x"), X_
+            need(asked == f"Find (f∘g)({v}) as a rule in {v}.", f"asked {asked!r}")
+        else:
+            need(asked == row[12], f"asked {asked!r}")
+        h = sp.expand(f.subs(G, g))
+        swapped = sp.expand(g.subs(V, f.subs(G, V)))
+        exprs = {"right": h, R9AC_CC + "0": swapped}
+        p = sp.Poly(f, G)
+        if p.degree() == 2:
+            a2, b2, c2 = p.all_coeffs()
+            exprs[R9AC_CC + "2"] = sp.expand(a2 * g**2 + b2 * V + c2)
+        else:
+            need(not any(o["ref"] == R9AC_CC + "2" for o in q["choices"]), "the one-x slip on a line, which has one x")
+        got = r9ac_pick(q, exprs, v)
+        need(len(got["right"]) == 1, "not exactly one option is the composite")
+        want = next(iter(got["right"]))
+        wrongs = {k: got[k] for k in exprs if k != "right"}
+    elif u == "composite-order":
+        m1 = re.fullmatch(r"A trader takes (\d+)% off a price of x caps: D\(x\) = (.+)x\.", L[0])
+        need(m1 is not None, f"{L[0]!r}")
+        pct, m = int(m1.group(1)), r9ac_n(m1.group(2))
+        need(m == 1 - sp.Rational(pct, 100), "D's multiplier is not the percentage")
+        mv = re.fullmatch(r"A voucher takes (\d+) caps off a price of x caps: V\(x\) = x − (\d+)\.", L[1])
+        mfe = re.fullmatch(r"A trading fee adds (\d+) caps to a price of x caps: F\(x\) = x \+ (\d+)\.", L[1])
+        need((mv or mfe) is not None, f"{L[1]!r}")
+        mm = mv or mfe
+        need(mm.group(1) == mm.group(2), "the rule's amount is not the story's")
+        Lt, c = ("V", -R(mm.group(1))) if mv else ("F", R(mm.group(1)))
+        mp = re.fullmatch(r"An item is priced at (\d+) caps\.", L[2])
+        need(mp is not None, f"{L[2]!r}")
+        P = R(mp.group(1))
+        ma = re.fullmatch(rf"Which order of D and {Lt} gives the (lower|higher) final price for the item, and what is it\?", asked)
+        need(ma is not None, f"asked {asked!r}")
+        word = ma.group(1)
+        ld, dl = m * P + c, m * (P + c)
+        need(ld != dl, "the orders agree")
+        n_ld, n_dl = f"({Lt}∘D)({P})", f"(D∘{Lt})({P})"
+        first = (ld < dl) == (word == "lower")
+        than = "lower than" if word == "lower" else "higher than"
+        claim = lambda n1, v1, n2, v2: f"{n1} = {dec_text(v1)} caps, {than} {n2} = {dec_text(v2)} caps"
+        want = claim(n_ld, ld, n_dl, dl) if first else claim(n_dl, dl, n_ld, ld)
+        wrongs[R9AC_CC + "3"] = {f"Either order: both give {dec_text(ld if first else dl)} caps"}
+    elif u in ("inverse-rule", "inverse-value", "inverse-identity"):
+        words = rep == "words" and u == "inverse-rule"
+        for key, row in R9AC_MODEL.items():
+            if words and row[4]:
+                mw = r9ac_match(row[4][0], L[0])
+                if mw:
+                    vals = dict(zip(row[4][1], [r9ac_n(t) for t in mw]))
+                    break
+            else:
+                mw = r9ac_match(row[3], L[0])
+                if mw:
+                    break
+        need(mw is not None, f"can't read {L[0]!r}")
+        F, v, fam = row[0], row[1], row[2]
+        Vs = sp.Symbol(v)
+        if words:
+            f = {"lin": lambda: vals["m"] * X_ + vals["b"], "rat": lambda: vals["c"] + vals["k"] / X_,
+                 "log": lambda: vals["a"] + vals["b"] * sp.log(X_)}[fam]()
+        else:
+            f = r9ac_expr(mw[0], v).subs(Vs, X_)
+        Y = sp.Symbol("y", positive=True)
+        if fam != "cubic":
+            sols = sp.solve(sp.Eq(f.subs(X_, Y), X_), Y)
+            need(len(sols) == 1, f"no single inverse of {f}")
+            finv = sols[0]
+            consts = sp.Poly(f, X_).all_coeffs() if fam == "lin" else None
+        if u == "inverse-rule":
+            if fam == "lin":
+                mm_, bb = consts
+                order = X_ / mm_ - bb
+            elif fam == "rat":
+                cc = f.subs(X_, sp.oo)
+                kk = sp.simplify((f - cc) * X_)
+                order = kk / X_ - cc
+            else:
+                aa = f.subs(X_, 1)
+                bb = sp.simplify((f - aa) / sp.log(X_))
+                order = (sp.exp(X_) - aa) / bb
+            suffix = f", {row[5]}" if words else ""
+            need(asked == (f"Find {F}⁻¹(x) and state what it calculates." if words else f"Find {F}⁻¹(x)."), f"asked {asked!r}")
+            if words:
+                for o in q["choices"]:
+                    need(o["text"].endswith(", " + row[5]) or o["text"].endswith(", " + row[6]), f"{o['text']!r} says nothing it calculates")
+                plain = [o for o in q["choices"] if o["text"].endswith(", " + row[6])]
+                need(all(not o["ref"] for o in plain), "a wrong meaning is tagged with a rule's slip")
+            mine = [o for o in q["choices"] if o["text"].endswith(suffix)]
+            got = r9ac_pick(dict(q, choices=mine), {"right": finv, R9AC_FI + "0": 1 / f, R9AC_FI + "1": order}, "x", f"{F}⁻¹(x) = ", suffix)
+            need(len(got["right"]) == 1, "not exactly one option is the inverse with what it calculates")
+            want = next(iter(got["right"]))
+            wrongs = {k: got[k] for k in got if k != "right"}
+            for o in q["choices"]:
+                if o["text"] != want and o["text"].endswith(suffix) and not words:
+                    need(not r9ac_same(r9ac_expr(o["text"][len(f"{F}⁻¹(x) = "):], "x"), finv), f"{o['text']!r} is the inverse too")
+        elif u == "inverse-value":
+            if rep == "words":
+                vv = r9ac_n(r9ac_match(row[7], asked)[0])
+                label, unit = "", row[8]
+            else:
+                ma = re.fullmatch(rf"Find {F}⁻¹\((.+)\)\.", asked)
+                need(ma is not None, f"asked {asked!r}")
+                vv = r9ac_n(ma.group(1))
+                label, unit = f"{F}⁻¹({dec_text(vv)}) = ", ""
+            if fam == "cubic":
+                need(sp.diff(f, X_).subs(X_, 0) > 0 and all(c >= 0 for c in sp.Poly(f, X_).all_coeffs()), "the tank's model is not increasing")
+                rs = [r for r in sp.Poly(f - vv, X_).nroots(n=30) if r.is_real and r > 0]
+                need(len(rs) == 1, "no single depth")
+                x = sp.Float(rs[0], 30)
+                r = sp.nsimplify(x, tolerance=1e-20, rational=True)
+                if f.subs(X_, r) == vv:
+                    x = r
+            else:
+                x = sp.nsimplify(finv.subs(X_, vv)) if fam != "log" else finv.subs(X_, vv)
+                need(x.is_positive, "the inverse's value is not positive")
+            need(r9ac_fair(x), "the answer is on a 3 s.f. edge")
+            exact = r9ac_exact(x)
+            want = f"{label}{r9ac_show(x)}{unit}"
+            trap = None if exact else f"{label}{gc_s2(r9ac_f(x))}{unit}"
+            fv = f.subs(X_, vv)
+            wrongs[R9AC_FI + "2"] = {f"{label}{r9ac_opt(fv, exact)}{unit}"}
+            if abs(num(1 / fv)) >= sp.Rational(1, 1000):
+                wrongs[R9AC_FI + "0"] = {f"{label}{r9ac_opt(1 / fv, exact)}{unit}"}
+            if fam == "lin":
+                mm_, bb = consts
+                wrongs[R9AC_FI + "1"] = {f"{label}{r9ac_opt(vv / mm_ - bb, exact)}{unit}"}
+            elif fam == "rat":
+                cc = f.subs(X_, sp.oo)
+                kk = sp.simplify((f - cc) * X_)
+                wrongs[R9AC_FI + "1"] = {f"{label}{r9ac_opt(kk / vv - cc, exact)}{unit}"}
+            elif fam == "log":
+                aa = f.subs(X_, 1)
+                bb = sp.simplify((f - aa) / sp.log(X_))
+                wrongs[R9AC_FI + "1"] = {f"{label}{r9ac_opt(sp.N((sp.exp(vv) - aa) / bb, 30), exact)}{unit}"}
+            if not exact:
+                r9ac_steps_have(q, "solve-for-value", re.escape(f"gives {v} = {r9ac_work(x)}."))
+        else:
+            if len(L) == 1:
+                ma = re.fullmatch(rf"Write down \({F}∘{F}⁻¹\)\((.+)\)\.", asked)
+                need(ma is not None, f"asked {asked!r}")
+                vv = r9ac_n(ma.group(1))
+                need(finv.subs(X_, vv).is_positive, "the value is not in the range of the model")
+                label = f"({F}∘{F}⁻¹)({dec_text(vv)}) = "
+                need(sp.simplify(f.subs(X_, finv) - X_) == 0, "f∘f⁻¹ is not the identity")
+                want = label + dec_text(vv)
+                wrongs[R9AC_II + "0"] = {label + "1"}
+            else:
+                mb = re.fullmatch(rf"{F}⁻¹\(a\) = (.+), where a is a constant\.", L[1])
+                need(mb is not None and asked == "Find a.", f"{L[1]!r} / {asked!r}")
+                b = r9ac_n(mb.group(1))
+                a = sp.nsimplify(f.subs(X_, b))
+                need(finv.subs(X_, a) == b, "f⁻¹(a) is not b")
+                need(r9ac_fair(a), "a is on a 3 s.f. edge")
+                exact = r9ac_exact(a)
+                want = f"a = {r9ac_show(a)}"
+                trap = None if exact else f"a = {gc_s2(r9ac_f(a))}"
+                wrongs[R9AC_II + "1"] = {f"a = {r9ac_opt(sp.nsimplify(finv.subs(X_, b)), exact)}"}
+    elif u == "restrict-domain":
+        for key, (F, tmpl) in R9AC_QUAD.items():
+            mq = r9ac_match(tmpl + ".", L[0])
+            if mq:
+                break
+        need(mq is not None, f"can't read {L[0]!r}")
+        f = r9ac_expr(mq[0], "x")
+        p = sp.Poly(f, X_)
+        need(p.degree() == 2, "not a quadratic")
+        a2, b2, c2 = p.all_coeffs()
+        h = -b2 / (2 * a2)
+        k = f.subs(X_, h)
+        need(h > 0, "the vertex is not inside the story's domain")
+        need(asked == f"Find the least value of k for which {F} has an inverse on the domain x ≥ k.", f"asked {asked!r}")
+        want = f"k = {dec_text(h)}"
+        wrongs = {R9AC_RD + "2": {"k = 0"}, R9AC_VERTEX_Y: {f"k = {dec_text(k)}"}}
+        if rep == "graph":
+            need(L[1] == f"The graph of y = {F}(x) is shown.", f"{L[1]!r}")
+            gr = q["graph"]
+            need(gc_curve_is(gr["curves"][0], lambda x: float(f.subs(X_, sp.Float(x, 20)))), "the curve is not the model")
+            marks = {(R(p_["x"]), R(p_["y"])): p_["label"] for p_ in gr["points"]}
+            need(marks.get((h, k)) == f"({dec_text(h)}, {dec_text(k)})", "the vertex is not marked")
+            need(marks.get((0, c2)) == f"(0, {dec_text(c2)})", "the y-intercept is not marked")
+            need(gr["curves"][0][0][0] == 0 and gr["curves"][0][-1][0] > float(h), "the curve does not run past the vertex")
+            r9ac_steps_have(q, q["view"]["angle"], re.escape(f"the vertex is at ({dec_text(h)}, {dec_text(k)})."))
+        else:
+            r9ac_steps_have(q, q["view"]["angle"], re.escape(f"= {dec_text(h)}."))
+    elif u == "inverse-domain-range":
+        mw = re.fullmatch(r"Write down the (domain|range) of ([A-Za-z])⁻¹\.", asked)
+        need(mw is not None, f"asked {asked!r}")
+        what, F = mw.groups()
+        inv = F + "⁻¹"
+        got = None
+        for key, (Fq, tmpl) in R9AC_QUAD.items():
+            mq = r9ac_match(tmpl + ", for x ≥ %s.", L[0])
+            if mq:
+                f = r9ac_expr(mq[0], "x")
+                h = r9ac_n(mq[1])
+                p = sp.Poly(f, X_)
+                a2, b2, _ = p.all_coeffs()
+                need(-b2 / (2 * a2) == h and Fq == F, "the domain does not start at the vertex")
+                k = f.subs(X_, h)
+                rel = "≥" if a2 > 0 else "≤"
+                dom_f, ran_f = f"x ≥ {dec_text(h)}", f"x {rel} {dec_text(k)}"
+                got = (ran_f, f"{inv}(x) ≥ {dec_text(h)}", dom_f)
+                break
+        if got is None:
+            for key, (Fl, vl, tmpl) in R9AC_LINE.items():
+                ml = r9ac_match(tmpl, L[0])
+                if ml:
+                    f = r9ac_expr(ml[0], vl).subs(sp.Symbol(vl), X_)
+                    lo, hi = r9ac_n(ml[1]), r9ac_n(ml[2])
+                    y0, y1 = sorted([f.subs(X_, lo), f.subs(X_, hi)])
+                    need(Fl == F, "the letter is not the model's")
+                    got = (f"{dec_text(y0)} ≤ x ≤ {dec_text(y1)}", f"{dec_text(lo)} ≤ {inv}(x) ≤ {dec_text(hi)}", f"{dec_text(lo)} ≤ x ≤ {dec_text(hi)}")
+                    break
+        need(got is not None, f"can't read {L[0]!r}")
+        want = got[0] if what == "domain" else got[1]
+        if what == "domain":
+            wrongs[R9AC_RD + "0"] = {got[2]}
+    elif u == "inverse-graph":
+        m = re.fullmatch(r"f\(x\) = (.+?)(?:, for x ≥ (−?\d+))?", L[0])
+        need(m is not None and L[1] == "The graph of y = f(x) is shown, with its key points marked.", f"{L!r}")
+        f = r9ac_expr(m.group(1), "x")
+        base = q["graph"]["curves"][0]
+        need(gc_curve_is(base, lambda x: float(f.subs(X_, sp.Float(x, 20)))), "the graph drawn is not f")
+        if m.group(2):
+            need(abs(base[0][0] - float(r9ac_n(m.group(2)))) < 1e-9, "half the parabola does not start at its vertex")
+        xs, ys = [p_[0] for p_ in base], [p_[1] for p_ in base]
+        need(all(b_ > a_ for a_, b_ in zip(xs, xs[1:])) and (all(b_ > a_ for a_, b_ in zip(ys, ys[1:])) or all(b_ < a_ for a_, b_ in zip(ys, ys[1:]))),
+             "f is not one-to-one on the graph")
+        graphs, ch = q["graphs"], q["choices"]
+        need(len(graphs) == 4 and len(ch) == 4, "pick the graph needs four graphs")
+        need(len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+        moves = {"x-axis": lambda c: (c[0], -c[1]), "y-axis": lambda c: (-c[0], c[1]), "y=-x": lambda c: (-c[1], -c[0])}
+        for o, gr in zip(ch, graphs):
+            if o["correct"]:
+                need(bo_card_is(gr, base, lambda c: (c[1], c[0])), "the right graph is not f reflected in y = x")
+            else:
+                mk = o["mistake"]
+                need(mk in moves and bo_card_is(gr, base, moves[mk]), f"the {mk} graph is not that reflection")
+                need(o["why"] != "", "a wrong graph doesn't say what is wrong")
+                need(o["ref"] == ("" if mk == "y=-x" else R9AC_II + "2"), f"the {mk} graph is tagged {o['ref']!r}")
+        want = next(o["text"] for o in ch if o["correct"])
+        wrongs = {R9AC_II + "2": {o["text"] for o in ch if o["ref"]}}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+def r9ac_work(x):
+    """A GDC value as the working writes it: 6 s.f. with no trailing zeros."""
+    t = sig3(x, 6)
+    if "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return t.replace("-", "−")
+
+
+SITUATION_CHECKS["ai-composite-inverse"] = r9ac_check
+
 
 # (end of the R9 markers)
 

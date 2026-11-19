@@ -3655,7 +3655,7 @@
               ],
               "misconceptions": [
                 "Thinking (f ∘ f⁻¹)(x) = 1 rather than x",
-                "From f⁻¹(a) = b, putting b into f⁻¹ instead of into f",
+                "Putting b into f⁻¹ instead of into f, given f⁻¹(a) = b",
                 "Reflecting the graph in the x-axis or the y-axis instead of in the line y = x"
               ],
               "threads": [

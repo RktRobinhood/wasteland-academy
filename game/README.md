@@ -1141,6 +1141,15 @@ script error happens while it runs. Run one file with
   type lists value and mcq only.
 
 <!-- R9-AI-COMPOSITE -->
+- `test_ai_composite_inverse.gd` (FAL-1007): fn-ai-composite-inverse built with all 35 cells and all
+  four AI-AHL2.7 skills, on AI HL only, Paper 2 only; four distinct options with one right and the
+  answer in each working's last step, in both formats; a table on the table cell and a figure on every
+  graph cell, and four cards on the graph of f⁻¹; every tag shows up; a typed time or value of f⁻¹ is
+  marked by its value; the order slip of an equation is never a negative time; hand-worked composites,
+  rules, inverses (a line, c + k/x, a + b ln x and the tank's cubic by the solver) and a vertex. The
+  type's formats (value, mcq, graph-pick) are all built; its skills' multipart, match and order-steps
+  formats are not built in the engine, and error-spot, method-pick and true-false-reason are not in
+  the type's formats, so it offers none of them.
 - `test_complex_polar.gd` (FAL-1005): the four types on the `complex_polar.gd` recipe, each
   with its own views. t1-ahl-complex-polar (AHL1.13), t1-ahl-de-moivre and
   t1-ahl-conjugate-roots (AHL1.14) are built with every cell for the eleven skills on AA HL

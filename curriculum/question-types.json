@@ -91870,7 +91870,7 @@
     },
     {
      "ref": "AI-AHL2.7.inverse-identity#1",
-     "text": "From f⁻¹(a) = b, putting b into f⁻¹ instead of into f",
+     "text": "Putting b into f⁻¹ instead of into f, given f⁻¹(a) = b",
      "as": "distractor",
      "in": [
       "inverse-identity"
