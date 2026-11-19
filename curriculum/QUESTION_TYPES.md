@@ -72,7 +72,7 @@ The bank at `41261da1` (the pinned commit) holds all four courses. This catalogu
 | [Odd and even functions (AA HL)](#fn-ahl-odd-even) | 12 | P1 5, P2 4; Section A 7, B 2 | usually 2 (1 to 3) | value, mcq, graph-pick |
 | [Inverses on a restricted domain and self-inverse functions (AA HL)](#fn-ahl-inverse-restricted) | 8 | P1 6, P2 2; Section A 5, B 3 | usually 2 (1 to 7) | value, mcq |
 | [Composite and inverse functions in context (AI HL)](#fn-ai-composite-inverse) | 15 | P1 12, P2 2; Section A 0, B 0 | usually 2 (1 to 5) | value, mcq, graph-pick |
-| [Linear and piecewise linear models (AI)](#fn-ai-piecewise-linear) | 9 | P1 5, P2 4; Section A 0, B 0 | usually 2 (1 to 4) | value, mcq, graph-pick |
+| [Linear and piecewise linear models (AI)](#fn-ai-piecewise-linear) | 9 | P1 5, P2 4; Section A 0, B 0 | usually 2 (1 to 4) | value, mcq |
 | [Quadratic models: start, peak, landing and levels (AI)](#fn-ai-quadratic-model) | 31 | P1 24, P2 6; Section A 0, B 0 | usually 2 (1 to 5) | value, mcq, graph-pick |
 | [Exponential models and their asymptote (AI)](#fn-ai-exponential-model) | 41 | P1 25, P2 15; Section A 0, B 0 | usually 2 (1 to 4) | value, mcq, graph-pick |
 | [Direct and inverse variation models (AI)](#fn-ai-variation-model) | 19 | P1 15, P2 2; Section A 0, B 0 | usually 2 (1 to 4) | value, mcq, graph-pick |
@@ -527,7 +527,7 @@ The bank at `41261da1` (the pinned commit) holds all four courses. This catalogu
 - **Given:** a tariff in words, a rule in pieces, a graph of the pieces, two bills. **Asked:** A linear model from its rate and start, a value or what a parameter means, a cost on a piecewise tariff, the rule for its second piece, the input for a cost, a tiered rate, or the parameters from two bills. **Answer form:** money to 2 d.p., an equation C = mx + c, a statement.
 - **A recipe can randomise:** the context and its units; the rates and the fixed charge; the change point or the bands; the input or the cost.
 - **Limits that keep answers clean:** Paper 2: every AI paper allows a GDC; the pieces meet at the change point unless the tariff has a jump; the rate on the excess differs from the first rate.
-- **Game formats:** value, mcq, graph-pick
+- **Game formats:** value, mcq
 - **Bank parts:** 9.
 
 ### fn-ai-quadratic-model

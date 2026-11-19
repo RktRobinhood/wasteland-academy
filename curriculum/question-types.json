@@ -107276,8 +107276,7 @@
    ],
    "formats": [
     "value",
-    "mcq",
-    "graph-pick"
+    "mcq"
    ],
    "situation": "ai-linear-model",
    "representations": [
@@ -107542,7 +107541,7 @@
       "piecewise-value",
       "piecewise-input"
      ],
-     "wrong": "the first piece's rule used past the change point"
+     "wrong": "one piece's rule carried across the change point"
     },
     {
      "ref": "AI-SL2.6.find-parameters#1",
@@ -107554,12 +107553,12 @@
      "wrong": "the input and the cost swapped in a bill's equation"
     },
     {
-     "text": "Applies the band's rate only to the part of the order above the band's lower edge",
+     "text": "Applies each band's rate only to the items inside that band, as a tax is worked out, instead of the order's band rate on every item",
      "as": "distractor",
      "in": [
       "tier-band"
      ],
-     "wrong": "the band's rate on the excess only"
+     "wrong": "each band's rate on its own items only"
     },
     {
      "text": "Reads the band from the wrong edge, using the rate of the band next to the right one",
