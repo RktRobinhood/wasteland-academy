@@ -19,6 +19,12 @@ const R_F_POS := SC + "2"
 const R_SHIFTED := SM + "0"
 const R_INTERCEPTS := SM + "1"
 const R_ABOVE := SM + "2"
+const OWN := "t5-concavity#"
+const R_RECIPROCAL_SIGN := OWN + "7"
+const R_TRIG_SIGN := OWN + "8"
+const R_SWAPPED := OWN + "9"
+const R_ROOT_SIGN := OWN + "10"
+const R_ZERO_OF_F1 := OWN + "11"
 const WIN_PAD := 2.0
 
 
@@ -135,17 +141,23 @@ func u_second_derivative(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		for i in v.size():
 			d0[keys[i]] = Q.new(v[i])
 		return alt(d2 + w.callv(v), "", d0).values
-	var gen: Array = []
+	# One term's sign flipped. It is a slip on the term from 1/x or from sin or cos, whose
+	# second derivative carries a minus; on any other term it has no route and is a filler.
+	var fillers: Array = []
+	var wr: Array = [alt(d2 + "(%s)²" % first, R_SQUARED if is_f else R_READ_SQ), alt(d2 + first, R_F_AGAIN)]
 	for i in slots.size():
 		var v := slots.duplicate()
 		v[i] = -v[i]
-		gen.append(sl.call(v))
+		if i == 1 and s.fam in ["ln", "sin", "cos"]:
+			var flipped: Dictionary = sl.call(v)
+			wr.append(wrong(flipped, R_RECIPROCAL_SIGN if s.fam == "ln" else R_TRIG_SIGN))
+		else:
+			fillers.append(sl.call(v))
 		var u := slots.duplicate()
 		u[i] = u[i] + 1
-		gen.append(sl.call(u))
+		fillers.append(sl.call(u))
 	var dom := ", for x > 0" if s.fam == "ln" else ""
-	var wr: Array = [alt(d2 + "(%s)²" % first, R_SQUARED if is_f else R_READ_SQ), alt(d2 + first, R_F_AGAIN)]
-	return {"lines": ["%s = %s%s" % [lhs, fx, dom]], "asked": "Find %s." % ("f″(x)" if is_f else "d²y/dx²"), "answer": ans, "wrongs": wr, "generic": gen,
+	return {"lines": ["%s = %s%s" % [lhs, fx, dom]], "asked": "Find %s." % ("f″(x)" if is_f else "d²y/dx²"), "answer": ans, "wrongs": wr, "fillers": fillers,
 		"methods": {"differentiate-twice": method([
 			"Differentiate once: %s%s." % [d1, first],
 			"Differentiate that again, term by term.",
@@ -176,7 +188,7 @@ func u_second_derivative_value(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var asked: String = "Find the gradient of the graph of f′ at x = %s." % Fmt.num(k) if given_prime else "Find f″(%s)." % Fmt.num(k)
 	var wr: Array = [sl.call(f1 * f1, R_SQUARED), sl.call(f1, R_F_AGAIN)]
 	return {"lines": [line], "asked": asked, "answer": ans, "wrongs": wr,
-		"generic": [sl.call(-f2).values, sl.call(f2 + 1).values, sl.call(f2 - 1).values, sl.call(2 * f2).values, sl.call(f2 + 2).values],
+		"fillers": [sl.call(-f2).values, sl.call(f2 + 1).values, sl.call(f2 - 1).values, sl.call(2 * f2).values, sl.call(f2 + 2).values],
 		"methods": {"differentiate-twice": method([
 			("f″ is the gradient of the graph of f′. Differentiate f′(x): f″(x) = %s." if given_prime else "Differentiate twice: f″(x) = %s.") % Fmt.poly(second),
 			"Put x = %s." % Fmt.num(k),
@@ -198,7 +210,7 @@ func _value_paper_2(s: Dictionary) -> Dictionary:
 	ans.show = "sf"
 	var wr: Array = [wrong({"v": GdcKit.qf(d)}, R_F_AGAIN), wrong({"v": GdcKit.qf(d * d)}, R_SQUARED)]
 	return {"lines": ["f(x) = %s%s" % [fx, ", for x > 0" if s.fam == "ln" else ""]], "asked": "Find f″(%s), to 3 s.f." % kt, "answer": ans, "wrongs": wr,
-		"generic": [{"v": GdcKit.qf(v * 2.0)}, {"v": GdcKit.qf(v * 0.5)}, {"v": GdcKit.qf(v + 1.0)}, {"v": GdcKit.qf(-v)}],
+		"fillers": [{"v": GdcKit.qf(v * 2.0)}, {"v": GdcKit.qf(v * 0.5)}, {"v": GdcKit.qf(v + 1.0)}, {"v": GdcKit.qf(-v)}],
 		"methods": {"differentiate-twice": method([
 			"f′(x) = %s." % first,
 			"f″(x) = %s. Put x = %s: %s." % [second, kt, GdcKit.W(v)],
@@ -226,8 +238,8 @@ func u_concave_interval(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var df := Fmt.poly([3 * A, -6 * A * h, 3 * A * s.p * s.q])
 		var inc := MonotonicViews.interval_text("outside" if A > 0 else "between", s.p, s.q)
 		return {"lines": lines, "asked": asked, "answer": ans,
-			"wrongs": [alt(inc, R_INCREASING), wrong(MonotonicViews.side("<" if more else ">", h).values, "")],
-			"generic": [MonotonicViews.side(">" if more else "<", h + 1).values, MonotonicViews.side(">" if more else "<", h - 1).values, MonotonicViews.side("<" if more else ">", h + 1).values, MonotonicViews.side(">" if more else "<", -h if h != 0 else 2).values],
+			"wrongs": [alt(inc, R_INCREASING), wrong(MonotonicViews.side("<" if more else ">", h).values, R_SWAPPED)],
+			"fillers": [MonotonicViews.side(">" if more else "<", h + 1).values, MonotonicViews.side(">" if more else "<", h - 1).values, MonotonicViews.side("<" if more else ">", h + 1).values, MonotonicViews.side(">" if more else "<", -h if h != 0 else 2).values],
 			"methods": {"sign-of-second-derivative": method([
 				"f″(x) = %s." % f2,
 				"Concave %s means f″(x) %s, and %s changes sign at x = %s." % [s.want, rel2, f2, Fmt.num(h)],
@@ -241,8 +253,8 @@ func u_concave_interval(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := MonotonicViews.interval(shape, s.p, s.q)
 	var f2 := Fmt.poly([12 * A, -12 * A * (s.p + s.q), 12 * A * s.p * s.q])
 	return {"lines": lines, "asked": asked, "answer": ans,
-		"wrongs": [MonotonicViews.alt_iv(MonotonicViews.other(shape), s.p, s.q, "")],
-		"generic": [MonotonicViews.alt_iv(shape, s.p - 1, s.q).values, MonotonicViews.alt_iv(shape, s.p, s.q + 1).values, MonotonicViews.alt_iv(MonotonicViews.other(shape), s.p - 1, s.q + 1).values, MonotonicViews.alt_iv(shape, s.p - 1, s.q + 1).values],
+		"wrongs": [MonotonicViews.alt_iv(MonotonicViews.other(shape), s.p, s.q, R_SWAPPED)],
+		"fillers": [MonotonicViews.alt_iv(shape, s.p - 1, s.q).values, MonotonicViews.alt_iv(shape, s.p, s.q + 1).values, MonotonicViews.alt_iv(MonotonicViews.other(shape), s.p - 1, s.q + 1).values, MonotonicViews.alt_iv(shape, s.p - 1, s.q + 1).values],
 		"methods": {"sign-of-second-derivative": method([
 			"f″(x) = %s = %s(x%s)(x%s)." % [f2, Fmt.lead(12 * A), Fmt.plus(-s.p), Fmt.plus(-s.q)],
 			"Concave %s means f″(x) %s. The parabola f″ opens %s, so that holds %s the roots." % [s.want, rel2, "up" if A > 0 else "down", shape],
@@ -265,8 +277,8 @@ func u_concave_exponential(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var ans := MonotonicViews.side(rel, h)
 	var f2 := "(%s)%s" % [SUM([[a, "x"], [b, ""]]), EX(c)]
 	return {"lines": ["f″(x) = " + f2], "asked": "Find the values of x for which the graph of f is concave %s." % s.want, "answer": ans,
-		"wrongs": [wrong(MonotonicViews.side(flip, h).values, "")],
-		"generic": [MonotonicViews.side(rel, h + 1).values, MonotonicViews.side(rel, h - 1).values, MonotonicViews.side(rel, -h if h != 0 else 3).values, MonotonicViews.side(flip, h + 2).values],
+		"wrongs": [wrong(MonotonicViews.side(flip, h).values, R_SWAPPED)] + ([wrong(MonotonicViews.side(rel, -h).values, R_ROOT_SIGN)] if h != 0 else []),
+		"fillers": [MonotonicViews.side(rel, h + 1).values, MonotonicViews.side(rel, h - 1).values] + ([] if h != 0 else [MonotonicViews.side(rel, 3).values]) + [MonotonicViews.side(flip, h + 2).values],
 		"methods": {"sign-of-second-derivative": method([
 			"%s is always positive, so f″ has the sign of %s." % [EX(c), SUM([[a, "x"], [b, ""]])],
 			"Concave %s means f″(x) %s 0: %s %s 0." % [s.want, ">" if up else "<", SUM([[a, "x"], [b, ""]]), ">" if up else "<"],
@@ -284,9 +296,9 @@ func u_concave_gdc(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := DifferentiationViews.form("x %s %s" % [rel, Fmt.sf(v)], ["x ", {"pick": "rel", "options": ["<", ">"]}, " ", {"slot": "v"}], {"rel": rel, "v": GdcKit.qf(v)})
 	ans.exact = false
 	var inc := MonotonicViews.interval_text("between", s.r1, s.r2, "x", true)
-	var wr: Array = [w.call(flip, v), alt(inc, R_INCREASING)]
+	var wr: Array = [w.call(flip, v, R_SWAPPED), alt(inc, R_INCREASING), w.call(rel, s.r1, R_ZERO_OF_F1), w.call(flip, s.r2, R_ZERO_OF_F1)]
 	return {"lines": [line], "asked": "Find the values of x for which the graph of f is concave %s. Give your answer to 3 s.f." % s.want, "answer": ans, "wrongs": wr,
-		"generic": [w.call(rel, v + 1.0).values, w.call(rel, s.r1).values, w.call(flip, s.r2).values, w.call(rel, v - 1.0).values],
+		"fillers": [w.call(rel, v + 1.0).values, w.call(rel, v - 1.0).values],
 		"methods": {"sign-of-second-derivative": method([
 			"f″(x) = %d − %se^x." % [s.b, Fmt.lead(s.c)],
 			"f″ falls as x grows, and it is 0 at x = ln(%s) = %s." % [Q.new(s.b, s.c).text(), GdcKit.W(v)],
@@ -309,8 +321,8 @@ func u_concave_from_derivative_graph(_rep: String, s: Dictionary, _rng: Seeded) 
 	var g := MonotonicViews.graph_of(MonotonicViews.quad_fn(s), r - 2.0, t + 2.0, [[float(h), float(s.k), Fmt.point(h, s.k)], [float(r), 0.0, Fmt.point(r, 0)], [float(t), 0.0, Fmt.point(t, 0)]])
 	var above := MonotonicViews.interval_text("outside" if a > 0 else "between", r, t)
 	return {"lines": ["The graph shows y = f′(x), the derivative of f."], "graph": g, "asked": "Find the values of x for which the graph of f is concave %s." % s.want, "answer": ans,
-		"wrongs": [alt(above, R_INCREASING), wrong(MonotonicViews.side(flip, h).values, "")],
-		"generic": [MonotonicViews.side(rel, h + 1).values, MonotonicViews.side(rel, h - 1).values, MonotonicViews.side(flip, h + 1).values, MonotonicViews.side(rel, r).values],
+		"wrongs": [alt(above, R_INCREASING), wrong(MonotonicViews.side(flip, h).values, R_SWAPPED), wrong(MonotonicViews.side(rel, r).values, R_ZERO_OF_F1)],
+		"fillers": [MonotonicViews.side(rel, h + 1).values, MonotonicViews.side(rel, h - 1).values, MonotonicViews.side(flip, h + 1).values],
 		"methods": {"f-prime-increasing": method([
 			"This is f′. Concave %s means f′ is %s, so read its direction, not its height." % [s.want, "increasing" if up else "decreasing"],
 			"f′ turns at its vertex, x = %s." % Fmt.num(h),
@@ -335,11 +347,12 @@ func u_concave_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wr: Array = []
 	if by_dir != word:
 		wr.append(sl.call(f2, by_dir, R_INCREASING if d1 > 0 else R_DECREASING))
-	wr.append(sl.call(d1, "up" if d1 > 0 else "down", ""))
+	wr.append(sl.call(d1, "up" if d1 > 0 else "down", R_F_AGAIN))
+	wr.append(sl.call(f2, flip, R_SWAPPED))
 	var fx := Fmt.poly(s.coeffs)
 	var y0 := MonotonicSituation.f_at(s, Q.new(k))
 	var out := {"lines": ["f(x) = %s" % fx], "asked": "Find f″(%s), and say whether the curve is concave up or down there." % Fmt.num(k), "answer": ans, "wrongs": wr,
-		"generic": [sl.call(f2, flip).values, sl.call(-f2, flip).values, sl.call(f2 + 1, word).values, sl.call(2 * f2, word).values],
+		"fillers": [sl.call(-f2, flip).values, sl.call(f2 + 1, word).values, sl.call(2 * f2, word).values],
 		"methods": {"sign-of-second-derivative": method([
 			"f″(x) = %s." % Fmt.poly([6 * A, -6 * A * h]),
 			"f″(%s) = %s, which is %s." % [Fmt.num(k), Fmt.num(f2), "positive" if f2 > 0 else "negative"],

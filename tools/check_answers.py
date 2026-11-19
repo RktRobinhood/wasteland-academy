@@ -13221,6 +13221,7 @@ def mo_surd(v):
 CO_F = "SL5.7.find-second-derivative#"
 CO_C = "SL5.7.concavity#"
 CO_M = "SL5.7.sketch-match-graphs#"
+CO_OWN = "t5-concavity#"     # the type's own misconceptions (FAL-1149)
 
 
 def co_read(line):
@@ -13298,6 +13299,12 @@ def check_concavity(q):
         f = co_read(L[0])
         d1, d2 = sp.diff(f, CX), sp.diff(f, CX, 2)
         wrongs = {CO_F + "0": [d1 ** 2], CO_F + "2": [d1 ** 2], CO_F + "1": [d1]}
+        # #7 / #8: the ln x term, or the sin or cos term, differentiated twice with its sign lost.
+        for term in sp.Add.make_args(sp.expand(f)):
+            if term.has(sp.log):
+                wrongs.setdefault(CO_OWN + "7", []).append(d2 - 2 * sp.diff(term, CX, 2))
+            elif term.has(sp.sin) or term.has(sp.cos):
+                wrongs.setdefault(CO_OWN + "8", []).append(d2 - 2 * sp.diff(term, CX, 2))
         ans = q["answer"]
         need(calc_same(calc_expr(calc_template(ans, ans["values"])), d2), "the answer's slots are not f″")
         for o in q["choices"]:
@@ -13335,18 +13342,23 @@ def check_concavity(q):
             more = (sp.Poly(d2, CX).LC() > 0) == up
             want = f"x {'>' if more else '<'} {dm_num(h)}"
             z = sorted(sp.Poly(d1, CX).ground_roots().keys())
-            wrongs = {CO_C + "0": {mo_iv("outside" if sp.Poly(d1, CX).LC() > 0 else "between", z[0], z[1])}}
+            wrongs = {CO_C + "0": {mo_iv("outside" if sp.Poly(d1, CX).LC() > 0 else "between", z[0], z[1])},
+                CO_OWN + "9": {f"x {'<' if more else '>'} {dm_num(h)}"}}
         else:
             need(len(rs) == 2, f"f″ has {len(rs)} roots")
             shape = "between" if (d2.subs(CX, (rs[0] + rs[1]) / 2) > 0) == up else "outside"
             want = mo_iv(shape, rs[0], rs[1])
+            wrongs = {CO_OWN + "9": {mo_iv("outside" if shape == "between" else "between", rs[0], rs[1])}}
     elif u == "concave-exponential":
         d2 = co_read(L[0])
         h = sp.solve(d2, CX)
         need(len(h) == 1 and h[0].is_integer, f"f″ has no whole-number root: {h}")
         h = h[0]
         pos_right = d2.subs(CX, h + 1) > 0
-        want = f"x {'>' if pos_right == up else '<'} {dm_num(h)}"
+        rel, flip = (">", "<") if pos_right == up else ("<", ">")
+        want = f"x {rel} {dm_num(h)}"
+        # #9 the shapes swapped; #10 the linear factor's root solved with the wrong sign.
+        wrongs = {CO_OWN + "9": {f"x {flip} {dm_num(h)}"}, CO_OWN + "10": {f"x {rel} {dm_num(-h)}"}}
     elif u == "concave-gdc":
         need(q["paper"] == 2, "f′ with an exponential is Paper 2")
         d1 = co_read(L[0])
@@ -13357,16 +13369,20 @@ def check_concavity(q):
         val = sp.N(x0, 40)
         need(not on_edge(abs(val)), "the answer sits on a rounding edge")
         right_pos = d2.subs(CX, x0 + 1) > 0
-        want = f"x {'>' if right_pos == up else '<'} {gc_s(val)}"
-        wrongs = {CO_C + "0": {mo_iv("between", zs[0], zs[1], gc_s)}}
+        rel, flip = (">", "<") if right_pos == up else ("<", ">")
+        want = f"x {rel} {gc_s(val)}"
+        wrongs = {CO_C + "0": {mo_iv("between", zs[0], zs[1], gc_s)}, CO_OWN + "9": {f"x {flip} {gc_s(val)}"},
+            CO_OWN + "11": {f"x {rel} {gc_s(zs[0])}", f"x {flip} {gc_s(zs[1])}"}}
     elif u == "concave-from-derivative-graph":
         pts = q["graph"]["points"]
         h, k, r1, r2 = R(int(pts[0]["x"])), R(int(pts[0]["y"])), R(int(pts[1]["x"])), R(int(pts[2]["x"]))
         need(pts[1]["y"] == 0 and pts[2]["y"] == 0 and h == (r1 + r2) / 2, "the marks are not the vertex and roots")
         a = k / ((h - r1) * (h - r2))
         need(co_curve_is(q["graph"]["curves"][0], a * (CX - r1) * (CX - r2)), "the graph is not the parabola its marks say")
-        want = f"x {'>' if (a > 0) == up else '<'} {dm_num(h)}"
-        wrongs = {CO_C + "0": {mo_iv("outside" if a > 0 else "between", r1, r2)}}
+        rel, flip = (">", "<") if (a > 0) == up else ("<", ">")
+        want = f"x {rel} {dm_num(h)}"
+        wrongs = {CO_C + "0": {mo_iv("outside" if a > 0 else "between", r1, r2)}, CO_OWN + "9": {f"x {flip} {dm_num(h)}"},
+            CO_OWN + "11": {f"x {rel} {dm_num(r1)}"}}
     elif u == "concave-at-point":
         m = re.search(r"f\(x\) = (.+?)(?:, with .*)?$", L[0])
         f = calc_expr(m.group(1))
@@ -13378,12 +13394,13 @@ def check_concavity(q):
         txt = lambda n, w: f"f″({dm_num(k)}) = {dm_num(n)}, so the curve is concave {w}"
         want = txt(v, word)
         by_dir = "up" if b > 0 else "down"
-        wrongs = {CO_C + "0": {txt(v, "up")}, CO_C + "1": {txt(v, "down")}}
+        wrongs = {CO_C + "0": {txt(v, "up")}, CO_C + "1": {txt(v, "down")},
+            CO_OWN + "9": {txt(v, "down" if word == "up" else "up")}, CO_F + "1": {txt(b, "up" if b > 0 else "down")}}
         if rep == "graph":
             need(co_curve_is(q["graph"]["curves"][0], f), "the graph is not f")
             need(co_curve_is(q["graph"]["curves"][1], f.subs(CX, k) + b * (CX - k)), "the line is not the tangent")
         for o in q["choices"]:
-            if o["ref"] in wrongs:
+            if o["ref"] in (CO_C + "0", CO_C + "1"):
                 need(by_dir != word and by_dir == o["text"].rsplit(" ", 1)[1], f"{o['text']!r} is not the shape read from the direction")
     gc_check_common(q, want, wrongs, trap)
     return None, None
@@ -25706,6 +25723,8 @@ def np_check(q):
         want = f"probability = {dec_text(mid)}"
         wrongs[NP_TYPE + "10"] = {f"probability = {dec_text(1 - p1)}"}
         wrongs[NP_TYPE + "11"] = {f"probability = {dec_text(p1 + p2)}"}
+        # The other tail alone taken off.
+        wrongs[NP_TYPE + "10"].add(f"probability = {dec_text(1 - p2)}")
         gc_check_common(q, want, wrongs, None)
         return None, None
 
@@ -32972,7 +32991,10 @@ def npr_sd_from_rule(q):
     width = hi - lo
     lab = "standard deviation = " if rep == "words" else "σ = "
     f = lambda x: lab + dec_text(x)
-    gc_check_common(q, f(width / (2 * k)), npr_wr({npr_mine(14): width / k, NPR_SKP + "0": width / (2 * npr_other(k))}, f))
+    tb = {npr_mine(14): width / k, NPR_SKP + "0": width / (2 * npr_other(k))}
+    if k > 1:
+        tb[npr_mine(35)] = width  # the whole width taken as σ
+    gc_check_common(q, f(width / (2 * k)), npr_wr(tb, f))
 
 
 def npr_other_end(q):
@@ -33068,7 +33090,8 @@ def npr_match(q):
     mu, sg = nu_val(mt.group(1)), npr_spread(mt.group(2))
     hit = [c for c in cs if c[0] == mu and c[1] == sg]
     need(len(hit) == 1, "the curve asked for is not drawn")
-    wr = {NPR_SKP + "1": {f"Curve {c[2]}" for c in cs if c[0] == mu and c[1] != sg}, npr_mine(21): {f"Curve {c[2]}" for c in cs if c[0] != mu and c[1] == sg}}
+    # #21: any curve at the other centre, with the spread asked for or the other one.
+    wr = {NPR_SKP + "1": {f"Curve {c[2]}" for c in cs if c[0] == mu and c[1] != sg}, npr_mine(21): {f"Curve {c[2]}" for c in cs if c[0] != mu}}
     gc_check_common(q, f"Curve {hit[0][2]}", wr)
 
 
@@ -33259,7 +33282,7 @@ def npr_symmetric(q):
         else:
             need(kind == "in" and ((lo, hi) == (mu, b) or (lo, hi) == (a, mu)), "from the mean to one end")
             f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
-            gc_check_common(q, f(c / 2), npr_wr({npr_mine(9): c, npr_mine(8): tail}, f))
+            gc_check_common(q, f(c / 2), npr_wr({npr_mine(9): c, npr_mine(8): tail, npr_mine(36): c / 2 + half}, f))
         return
     x, side, area = nu_tail(q, 1)
     need(x != mu, "a bound off the mean")
@@ -33342,7 +33365,7 @@ def npr_mirror_value(q):
     if rep == "diagram":
         npr_marks(q, {mu: dec_text(mu), x: dec_text(x), v: "b"})
     f = lambda t: "b = " + dec_text(t)
-    gc_check_common(q, f(v), npr_wr({NPR_SKS + "2": -x, npr_mine(32): x + mu}, f))
+    gc_check_common(q, f(v), npr_wr({NPR_SKS + "2": -x, npr_mine(32): x + mu, npr_mine(37): x}, f))
 
 
 def npr_central(q):
@@ -33384,7 +33407,7 @@ def npr_central(q):
     else:
         g = lambda a, b: f"{rg_s(nu_f(a))} < X < {rg_s(nu_f(b))}"
         need(all(nu_clear(v) for v in (M - w, M + w, M - zc * S, M + zc * S, M - z, M + z)), "a value is on a rounding edge")
-        gc_check_common(q, g(M - w, M + w), {NPR_SKC + "0": {g(M - zc * S, M + zc * S)}, npr_mine(33): {g(M - z, M + z)}})
+        gc_check_common(q, g(M - w, M + w), {NPR_SKC + "0": {g(M - zc * S, M + zc * S)}, npr_mine(33): {g(M - z, M + z)}, npr_mine(38): {g(M, M + w)}})
 
 
 def check_normal_properties(q):
@@ -41512,6 +41535,7 @@ def E12TS_check(q):
 E12DG_F = "SL5.7.f-from-derivative-graph#"
 E12DG_G = "SL5.2.sign-from-graph#"
 E12DG_CON = "SL5.7.concavity#0"
+E12DG_OWN = "t5-derivative-graph#"     # the type's own misconceptions (FAL-1149)
 E12DG_EPS = sp.Rational(1, 4)
 
 
@@ -41710,6 +41734,13 @@ def E12DG_check(q):
         want = E12DG_xs(E12DG_turns(e))
         flat_turns = [t for t in E12DG_turns(e) if e.subs(CX, t) != 0]
         wrongs = {F + "3": {E12DG_xs(E12DG_roots(e))}, F + "4": {E12DG_xs(flat_turns)} if flat_turns else set()}
+        touches = E12DG_touches(e)
+        if touches:
+            # #21: the touch alone, the turning point of f′ off the axis left out.
+            wrongs[E12DG_OWN + "21"] = {E12DG_xs(touches)}
+        else:
+            # A single zero of f′ given as the point of inflexion is the zeros slip too.
+            wrongs[F + "3"] |= {E12DG_xs([z]) for z in E12DG_roots(e)}
     elif u == "touch-not-turning":
         e = E12DG_curve(q)
         X = R(re.search(r"where x = (−?\d+) is true", asked).group(1).replace("−", "-"))
@@ -41737,17 +41768,23 @@ def E12DG_check(q):
         grid = [sp.Rational(i, 8) for i in range(-60, 60)]
         side_pts = [x for x in grid if (x > r if rel == ">" else x < r)]
         need(all(E12DG_sg(e, x) * (1 if word == "increasing" else -1) >= 0 for x in side_pts), "f is not monotonic on the side found")
-        wrongs = {F + "5": {mo_iv("between", min(r, t), max(r, t))}}
+        flip = "<" if rel == ">" else ">"
+        wrongs = {F + "5": {mo_iv("between", min(r, t), max(r, t))}, E12DG_OWN + "18": {E12DG_side(flip, r)},
+                  E12DG_OWN + "19": {E12DG_side(rel, t)}}
     elif u == "concave-up-from-cubic":
         e = E12DG_curve(q)
         up = "concave up" in asked
         d = sp.diff(e, CX)
         ts = sorted(E12DG_changes(d))
         need(len(ts) == 2, "f′ should have two turning points")
-        want = mo_iv(E12DG_shape(d, ts[0], ts[1], up), ts[0], ts[1])
+        shape = E12DG_shape(d, ts[0], ts[1], up)
+        want = mo_iv(shape, ts[0], ts[1])
         r = list(E12DG_changes(e))[0]
         pos_right = E12DG_sg(e, r + E12DG_EPS) > 0
-        wrongs = {E12DG_CON: {E12DG_side(">" if pos_right == up else "<", r)}}
+        zs = sorted(E12DG_roots(e))
+        wrongs = {E12DG_CON: {E12DG_side(">" if pos_right == up else "<", r)},
+                  E12DG_OWN + "20": {mo_iv("outside" if shape == "between" else "between", ts[0], ts[1])},
+                  F + "3": {mo_iv(shape, zs[0], zs[-1])}}
     elif u == "inflexion-from-second":
         e = E12DG_curve(q, "f″(x)")
         need(asked == "The graph of f has one point of inflexion. Find its x-coordinate.", "can't read the question")
@@ -41772,9 +41809,14 @@ def E12DG_check(q):
             want = f"{verdict(S)}: f({Hs}) − f({Ls}) = {ss(I1, I2)} = {E12DG_n(S)}"
             hl, hh = e.subs(CX, lo), e.subs(CX, hi)
             tall, short = (Hs, Ls) if hh > hl else (Ls, Hs)
-            wrongs = {F + "6": {f"{verdict(1)}: f({Hs}) − f({Ls}) = {ss(A1, A2)} = {E12DG_n(A1 + A2)}"}}
+            wrongs = {F + "6": {f"{verdict(1)}: f({Hs}) − f({Ls}) = {ss(A1, A2)} = {E12DG_n(A1 + A2)}"},
+                      E12DG_OWN + "22": {f"{verdict(-S)}: f({Hs}) − f({Ls}) = {ss(-I1, -I2)} = {E12DG_n(-S)}"}}
             if rep == "graph":
                 wrongs[F + "7"] = {f"f({tall}) is greater, because f′({tall}) > f′({short})"}
+            else:
+                # #23: the end judged by the sign of f′ on the last stretch alone.
+                up2 = I2 > 0
+                wrongs[E12DG_OWN + "23"] = {f"f({Hs if up2 else Ls}) is greater, because f′(x) {'>' if up2 else '<'} 0 for {E12DG_n(m)} < x < {Hs}"}
         else:
             mv = re.fullmatch(r"f\((−?\d+)\) = (−?\d+)\.", L[-1])
             need(mv is not None and mv.group(1) == Ls, f"can't read the value of f: {L[-1]!r}")
@@ -41784,7 +41826,8 @@ def E12DG_check(q):
             change = sp.integrate(e, (CX, lo, X))
             want = f"f({E12DG_n(X)}) = {E12DG_n(v + change)}"
             flat = v + (A1 if X == m else A1 + A2)
-            wrongs = {F + "6": {f"f({E12DG_n(X)}) = {E12DG_n(flat)}"}, F + "12": {f"f({E12DG_n(X)}) = {E12DG_n(change)}"}}
+            wrongs = {F + "6": {f"f({E12DG_n(X)}) = {E12DG_n(flat)}"}, F + "12": {f"f({E12DG_n(X)}) = {E12DG_n(change)}"},
+                      E12DG_OWN + "24": {f"f({E12DG_n(X)}) = {E12DG_n(v - change)}"}}
     elif u in ("gradient-sign-statement", "gradient-negative-where", "gradient-at-turning-point"):
         e = E12DG_given(q)
         d = sp.diff(e, CX)
@@ -41809,6 +41852,8 @@ def E12DG_check(q):
             if fv != 0 and dv != 0 and fv != dv:
                 wrongs[G + "0"] = {f"f′({Xs}) {'>' if fv > 0 else '<'} 0: the curve is {'above' if fv > 0 else 'below'} the x-axis at x = {Xs}"}
             need(len(wrongs) == 1, "A is not a point where f and f′ are easy to mix up")
+            if dv != 0:
+                wrongs[E12DG_OWN + "27"] = {texts[-dv]}
         elif u == "gradient-negative-where":
             neg = asked.endswith("f′(x) < 0.")
             need(neg or asked.endswith("f′(x) > 0."), "can't read the question")
@@ -41821,7 +41866,8 @@ def E12DG_check(q):
             pos_right = E12DG_sg(e, r + E12DG_EPS) > 0
             ints = sorted(E12DG_roots(e))
             shape = E12DG_shape(d, ts[0], ts[1], not neg)
-            wrongs = {G + "0": {E12DG_side(">" if pos_right != neg else "<", r)}, G + "1": {mo_iv(shape, ints[0], ints[-1])}}
+            wrongs = {G + "0": {E12DG_side(">" if pos_right != neg else "<", r)}, G + "1": {mo_iv(shape, ints[0], ints[-1])},
+                      E12DG_OWN + "25": {mo_iv("outside" if shape == "between" else "between", ts[0], ts[1])}}
         else:
             mp = re.search(r"local (maximum|minimum) at (?:the point |A)\((−?\d+), (−?\d+)\)\.", L[0])
             need(mp is not None, f"can't read the turning point in {L[0]!r}")
@@ -41830,7 +41876,7 @@ def E12DG_check(q):
             need(E12DG_turns(e)[X] == mp.group(1), "the turning point is the other kind")
             need(asked == f"Write down the value of f′({E12DG_n(X)}).", "can't read the question")
             want = f"f′({E12DG_n(X)}) = {E12DG_n(d.subs(CX, X))}"
-            wrongs = {G + "3": {f"f′({E12DG_n(X)}) = {E12DG_n(Y)}"}}
+            wrongs = {G + "3": {f"f′({E12DG_n(X)}) = {E12DG_n(Y)}"}, E12DG_OWN + "26": {f"f′({E12DG_n(X)}) = {E12DG_n(X)}"}}
     else:
         need(False, f"the checker has no checks for {u}")
     gc_check_common(q, want, wrongs)
