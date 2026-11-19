@@ -57056,6 +57056,38 @@
 						"central-k-sd"
 					],
 					"wrong": "z × σ"
+				},
+				{
+					"text": "Using the whole width of the band as σ, instead of sharing it out over the standard deviations it spans",
+					"as": "distractor",
+					"in": [
+						"sd-from-rule"
+					],
+					"wrong": "the width of the band"
+				},
+				{
+					"text": "Adding the half of the curve on the other side of the mean, though the region starts at the mean",
+					"as": "distractor",
+					"in": [
+						"half-of-middle"
+					],
+					"wrong": "half the band plus 0.5"
+				},
+				{
+					"text": "Taking b as the given value itself, though equal tails sit on opposite sides of the mean",
+					"as": "distractor",
+					"in": [
+						"mirror-value"
+					],
+					"wrong": "the given value, for b"
+				},
+				{
+					"text": "Using the interval from the mean to one end, instead of reaching the same distance below the mean too",
+					"as": "distractor",
+					"in": [
+						"central-endpoints"
+					],
+					"wrong": "μ < X < the upper end"
 				}
 			],
 			"chain": [
@@ -57528,7 +57560,7 @@
 					"in": [
 						"between-from-tails"
 					],
-					"wrong": "1 minus the lower tail"
+					"wrong": "1 minus one tail alone"
 				},
 				{
 					"text": "Adding the two tails instead of taking them from 1",
@@ -61671,7 +61703,8 @@
 					"text": "Taking the zeros of f′ as the points of inflexion instead of its turning points",
 					"as": "distractor",
 					"in": [
-						"inflexion-from-derivative"
+						"inflexion-from-derivative",
+						"concave-up-from-cubic"
 					],
 					"wrong": "the zeros of f′"
 				},
@@ -61805,6 +61838,86 @@
 						"gradient-at-turning-point"
 					],
 					"wrong": "the y-coordinate of the point"
+				},
+				{
+					"text": "Reading the sign of f′ the wrong way round, so the side given is where f moves the other way",
+					"as": "distractor",
+					"in": [
+						"increasing-past-touch"
+					],
+					"wrong": "the other side of the zero where f′ changes sign"
+				},
+				{
+					"text": "Keeping only the stretch past the point where f′ touches the axis, as if f′ changed sign there",
+					"as": "distractor",
+					"in": [
+						"increasing-past-touch"
+					],
+					"wrong": "the side of the touch alone"
+				},
+				{
+					"text": "Swapping concave up and concave down, though concave up means f′ is increasing",
+					"as": "distractor",
+					"in": [
+						"concave-up-from-cubic"
+					],
+					"wrong": "the stretch where f′ moves the other way"
+				},
+				{
+					"text": "Leaving out the turning point of f′ away from the axis, though f′ turns there too",
+					"as": "distractor",
+					"in": [
+						"inflexion-from-derivative"
+					],
+					"wrong": "the touch alone"
+				},
+				{
+					"text": "Giving each region the opposite sign, so area above the axis counts as a fall in f",
+					"as": "distractor",
+					"in": [
+						"compare-from-areas"
+					],
+					"wrong": "the signed areas with their signs swapped"
+				},
+				{
+					"text": "Judging by the sign of f′ on the last stretch alone, instead of adding the signed areas",
+					"as": "distractor",
+					"in": [
+						"compare-from-areas"
+					],
+					"wrong": "the end the last stretch rises to"
+				},
+				{
+					"text": "Taking the change in f away from the starting value instead of adding it",
+					"as": "distractor",
+					"in": [
+						"value-from-areas"
+					],
+					"wrong": "the starting value minus the signed area"
+				},
+				{
+					"text": "Giving where f′ has the other sign, mixing up where the curve goes up and where it goes down",
+					"as": "distractor",
+					"in": [
+						"gradient-negative-where"
+					],
+					"wrong": "the stretches of the other sign"
+				},
+				{
+					"text": "Giving the x-coordinate of the point instead of its gradient",
+					"as": "distractor",
+					"in": [
+						"gradient-at-turning-point"
+					],
+					"wrong": "the x-coordinate of the point"
+				},
+				{
+					"text": "Mixing up going up and going down, as if reading the curve from right to left",
+					"as": "distractor",
+					"in": [
+						"gradient-sign-statement"
+					],
+					"wrong": "the opposite direction"
 				}
 			],
 			"chain": [
@@ -66234,7 +66347,8 @@
 					"as": "distractor",
 					"in": [
 						"second-derivative",
-						"second-derivative-value"
+						"second-derivative-value",
+						"concave-at-point"
 					],
 					"wrong": "stopping at f′"
 				},
@@ -66288,6 +66402,51 @@
 						"match-second-derivative"
 					],
 					"wrong": "zeros at the x-intercepts"
+				},
+				{
+					"text": "Dropping the minus sign when differentiating the ln x term a second time",
+					"as": "distractor",
+					"in": [
+						"second-derivative"
+					],
+					"wrong": "the term from ln x with the wrong sign"
+				},
+				{
+					"text": "Forgetting that differentiating sin x or cos x twice brings a minus sign",
+					"as": "distractor",
+					"in": [
+						"second-derivative"
+					],
+					"wrong": "the sin or cos term with the wrong sign"
+				},
+				{
+					"text": "Swapping concave up and concave down, though a positive f″ means concave up",
+					"as": "distractor",
+					"in": [
+						"concave-interval",
+						"concave-exponential",
+						"concave-gdc",
+						"concave-from-derivative-graph",
+						"concave-at-point"
+					],
+					"wrong": "the other side of the boundary, or the other word"
+				},
+				{
+					"text": "Getting the sign of the root wrong when solving the linear factor of f″ for zero",
+					"as": "distractor",
+					"in": [
+						"concave-exponential"
+					],
+					"wrong": "the boundary at the root's negative"
+				},
+				{
+					"text": "Using a zero of f′ as the boundary, instead of the turning point of f′",
+					"as": "distractor",
+					"in": [
+						"concave-gdc",
+						"concave-from-derivative-graph"
+					],
+					"wrong": "a boundary at a zero of f′"
 				}
 			],
 			"chain": [
