@@ -270,6 +270,24 @@ func test_glancing_marking() -> void:
 	check(not Answer.mark(ans, {"v": "0.67"}).glancing, "an exact-only answer has no glancing hit")
 
 
+func test_the_exp_model_rounding_trap_reads_at_2_sf() -> void:
+	# FAL-1144: a measure or pct trap is written to 2 s.f., never padded to the answer's 3.
+	var days := Answer.make("measure", {"v": Q.new(5996, 1000)}, {}, "t = ", " days")
+	var trap := ExpModelViews.trap(days)
+	check(not trap.is_empty() and trap.v.eq(Q.new(6)), str(trap))
+	check_eq(Answer.trap_text(days, trap), "t = 6.0 days")
+	check_eq(Answer.text(days, days.values), "t = 6.00 days")
+	var small := Answer.make("measure", {"v": Q.new(1234, 10000)}, {}, "", " kg")
+	check_eq(Answer.trap_text(small, ExpModelViews.trap(small)), "0.12 kg")
+	var pct := Answer.make("pct", {"dir": "fall", "v": Q.new(4196, 1000)}, {"per": "per year"})
+	trap = ExpModelViews.trap(pct)
+	check(not trap.is_empty() and trap.v.eq(Q.new(42, 10)), str(trap))
+	check_eq(Answer.trap_text(pct, trap), "a fall of 4.2% per year")
+	check_eq(Answer.text(pct, pct.values), "a fall of 4.20% per year")
+	var bare := Answer.make("pct", {"dir": "rise", "v": Q.new(1996, 100)})
+	check_eq(Answer.trap_text(bare, ExpModelViews.trap(bare)), "a rise of 20%")
+
+
 func test_the_rounding_trap() -> void:
 	var ans := Answer.make("xval", {"v": Q.new(2, 3)})
 	var trap := Answer.rounding_trap(ans)

@@ -994,6 +994,12 @@ static func trap_text(ans: Dictionary, values: Dictionary) -> String:
 			for i in ans.fixed.names.size():
 				parts.append("%s = %s" % [ans.fixed.names[i], Fmt.dec(values["v%d" % i])])
 			return ", ".join(parts)
+		# The exp-model traps (FAL-1144): at 2 s.f. as written, so 6.0 stays "6.0 days",
+		# not "6 days" (Fmt.dec) or "6.00 days" (text's 3 s.f.).
+		"measure":
+			return ans.label + Fmt.sf(values.v, 2) + ans.unit
+		"pct":
+			return ("a %s of %s%% %s" % [values.dir, Fmt.sf(values.v, 2), ans.fixed.get("per", "")]).strip_edges()
 	return text(ans, values)
 
 
