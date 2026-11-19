@@ -27,6 +27,8 @@ const R_SQUARE := T + "#17"
 const R_ONE_STEP := T + "#18"
 const R_H_AS_F := T + "#19"
 const R_G_NOT_INV := T + "#20"
+const R_FIRST_TERM := T + "#21"
+const R_TERM_BY_TERM := T + "#22"
 
 
 func needs() -> Dictionary:
@@ -180,6 +182,35 @@ static func _at(co: Array, x: Q) -> String:
 	return CompositePairSituation.put(ptext(co), N(x))
 
 
+## outer(inner(x)) with only the first term of the bracket multiplied by a linear outer
+## rule's coefficient: 3(2x − 5) + 1 read as 6x − 5 + 1 (fn-composite#21).
+static func first_term(outer: Dictionary, inner: Dictionary) -> Array:
+	var co := CompositePairSituation.trim(inner.co)
+	var d := co.size() - 1
+	co[d] = co[d].mul(outer.co[1])
+	co[0] = co[0].add(outer.co[0])
+	return co
+
+
+## A power of a linear bracket taken term by term: (3x − 2)² + 4 read as 9x² + 4 + 4,
+## (x − 1)² of 2x + 3 as 4x² + 2² (fn-composite#22). outer is (x − s)ⁿ + c.
+static func term_by_term(outer: Dictionary, inner: Dictionary) -> Array:
+	var n := CompositePairSituation.degree(outer.co)
+	var s: Q = outer.h if outer.t == "sqs" else Q.new(0)
+	var c: Q = Q.new(0) if outer.t == "sqs" else outer.co[0]
+	var co: Array = []
+	for i in n + 1:
+		co.append(Q.new(0))
+	var top := Q.new(1)
+	var low := Q.new(1)
+	for i in n:
+		top = top.mul(inner.co[1])
+		low = low.mul(inner.co[0].sub(s))
+	co[n] = top
+	co[0] = low.add(c)
+	return co
+
+
 # ── expression ───────────────────────────────────────────────
 
 func u_expression(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -196,10 +227,17 @@ func u_expression(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := poly_ans(h, "(%s)(x) = " % lab)
 	var out := {"asked": "Find (%s)(x), simplified." % lab, "lines": rule_lines(rep, [["f", f], ["g", g]]), "answer": ans,
 		"wrongs": pw(ans, wrong_h, R_EXPR_ORDER), "fillers": []}
+	# Expanding the bracket badly: only its first term multiplied, or a power taken term
+	# by term with no middle terms.
+	if outer.t == "lin":
+		out.wrongs.append_array(pw(ans, first_term(outer, inner), R_FIRST_TERM))
+	else:
+		out.wrongs.append_array(pw(ans, term_by_term(outer, inner), R_TERM_BY_TERM))
 	# The product f(x)·g(x) is of a higher degree than the answer, so pg drops it; the sum
-	# has no route.
-	out.fillers.append_array(pg(ans, CompositePairSituation.pmul(f.co, g.co)))
+	# and the inner rule's constant left out have no route. The answer + 1 is a last resort.
 	out.fillers.append_array(pg(ans, CompositePairSituation.padd(f.co, g.co)))
+	out.fillers.append_array(pg(ans, CompositePairSituation.pmul(f.co, g.co)))
+	out.fillers.append_array(pg(ans, CompositePairSituation.pcompose(outer.co, [Q.new(0)] + CompositePairSituation.trim(inner.co).slice(1))))
 	out.fillers.append_array(pg(ans, CompositePairSituation.padd(h, [Q.new(1)])))
 	out.methods = _expression_methods(f, g, outer, inner, h, order_fg, ans)
 	return out
@@ -219,7 +257,7 @@ func _expression_methods(f: Dictionary, g: Dictionary, outer: Dictionary, inner:
 	var x1 := Q.new(1)
 	var gx1 := ev(inner, x1)
 	var v1 := ev(outer, gx1)
-	var numeric := ["Expand: (%s)(x) = %s" % [lab, ptext(h)],
+	var numeric := ["Replace x in %s(x) with %s(x) and expand: (%s)(x) = %s = %s" % [on, inn, lab, CompositePairSituation.sub_in(outer, rt(inner)), ptext(h)],
 		"Check x = 1 inside-out: %s(1) = %s, then %s(%s) = %s" % [inn, N(gx1), on, N(gx1), N(v1)],
 		"The expansion gives %s = %s at x = 1, so the two agree." % [_at(h, x1), N(v1)], final]
 	var flowed: Dictionary = {}

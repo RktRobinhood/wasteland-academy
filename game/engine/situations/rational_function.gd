@@ -25,7 +25,7 @@ extends RefCounted
 ## need: mode "split" (f = A + k/(cx + d) with A, k whole, c = 2 or 3: kk is k), "monic" (c = 1, the default), "scaled" (c = 2 or 3), "any" (either, mostly monic); graph
 ## (monic, h, A and both intercepts whole and inside the plot); card (graph, and A ≠ h so the
 ## swapped graph is another one); no_origin (b ≠ 0); line, curve, hline, ineq, parent;
-## k_nonzero (ineq); paper (1 or 2).
+## k_nonzero (ineq); no_unit_stretch (monic: B ≠ 1, for the stretch questions); paper (1 or 2).
 ##
 ## The clean limits are the checker's too (tools/check_answers.py, RF_*).
 
@@ -103,6 +103,9 @@ static func _draw(rng: Seeded, need: Dictionary, paper: int) -> Dictionary:
 		if not need.get("no_origin", false) and not graph and rng.chance(0.1):
 			B = A * h
 		if B == A * h and (need.get("no_origin", false) or graph):
+			return {}
+		# A stretch by factor 1 is no stretch, so "translate only" would also be right.
+		if B == 1 and need.get("no_unit_stretch", false):
 			return {}
 		s = _fill(A, B - A * h, 1, -h)
 	if s.xi.d > DEN_MAX or s.yi.d > DEN_MAX:
