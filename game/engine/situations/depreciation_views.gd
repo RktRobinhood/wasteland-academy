@@ -24,6 +24,15 @@ const R_DATES := DEP + "9"
 const R_ROUND_NEAREST := TIME + "0"
 const R_NO_CONVERT := TIME + "1"
 const R_NO_FLIP := TIME + "2"
+## The type's own misconceptions, by index (FAL-1149).
+const OWN := "t1-depreciation#"
+const R_TIMES_BACK := OWN + "13"
+const R_BASE_AS_RATE := OWN + "14"
+const R_NO_HUNDRED := OWN + "15"
+const R_FIRST_RATE := OWN + "16"
+const R_EXTRA_YEAR := OWN + "17"
+const R_PERIODS_TO_YEARS := OWN + "18"
+const R_FROM_PRICE := OWN + "19"
 
 const WHO := ["Kira", "Tomas", "The Guild", "A trader", "Ines", "The caravan fund"]
 const ITEMS := ["water truck", "solar rig", "salvage crane", "wind pump", "fuel tanker", "generator", "drill rig", "cargo wagon"]
@@ -242,7 +251,7 @@ func u_value_after(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = [money_wrong(DepreciationSituation.value(p, 1.0 + r / 100.0, s.n), R_ONE_PLUS),
 		money_wrong(p * (1.0 - s.n * r / 100.0), R_STRAIGHT), money_wrong(p - v, R_REMAINING)]
-	out.generic = ms([V(s, s.n - 1), V(s, s.n + 1), v * 1.05])
+	out.fillers = ms([V(s, s.n - 1), V(s, s.n + 1), v * 1.05])
 	out.methods = _methods(_to_value(rep, s, s.n), [], ans)
 	return out
 
@@ -257,7 +266,7 @@ func u_total_loss(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = [money_wrong(v, R_REMAINING), money_wrong(p * s.n * r / 100.0, R_STRAIGHT),
 		money_wrong(DepreciationSituation.value(p, 1.0 + r / 100.0, s.n) - p, R_ONE_PLUS)]
-	out.generic = ms([p - V(s, s.n - 1), p - V(s, s.n + 1), (p - v) * 1.1])
+	out.fillers = ms([p - V(s, s.n - 1), p - V(s, s.n + 1), (p - v) * 1.1])
 	out.methods = _methods(_to_value(rep, s, s.n), ["Loss = %s − %s = %s" % [D(s.p), C(v), gap(p, v)]], ans)
 	return out
 
@@ -272,7 +281,7 @@ func u_loss_in_year(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find the loss in its value during year %d alone, between %d and %d years after it is bought, to the nearest dollar." % [s.n, s.n - 1, s.n]
 	out.answer = ans
 	out.wrongs = [money_wrong(p - b, R_SO_FAR), money_wrong(b * r / 100.0, R_END_OF_YEAR), money_wrong(p * r / 100.0, R_STRAIGHT), money_wrong(b, R_REMAINING)]
-	out.generic = ms([(a - b) * 1.1, (a - b) * 0.9])
+	out.fillers = ms([(a - b) * 1.1, (a - b) * 0.9])
 	var tail := ["Loss in year %d = %s − %s = %s" % [s.n, C(a), C(b), gap(a, b)]]
 	var mult := [keep_line(rep, s), "After %d years V = %s × %s^%d = %s, and after %d years V = %s × %s^%d = %s" % [s.n - 1, D(s.p), D(s.c), s.n - 1, C(a), s.n, D(s.p), D(s.c), s.n, C(b)]]
 	var tvm: Array = rate_lines(rep, s)
@@ -310,7 +319,8 @@ func u_original_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find the price it was bought for, to the nearest dollar."
 	out.answer = ans
 	out.wrongs = [money_wrong(v * pow(1.0 + r / 100.0, s.n), R_ADD_BACK), money_wrong(v / (1.0 - s.n * r / 100.0), R_STRAIGHT)]
-	out.generic = ms([v * pow(c, s.n), v / pow(c, s.n - 1), v / pow(c, s.n + 1), p * 1.1])
+	out.wrongs.append(money_wrong(v * pow(c, s.n), R_TIMES_BACK))
+	out.fillers = ms([v / pow(c, s.n - 1), v / pow(c, s.n + 1), p * 1.1])
 	var tvm := rate.duplicate()
 	tvm.append(tvm_line(["N = %d" % s.n, "I%% = −%s" % D(s.r), "FV = %s" % D(s.v)]))
 	tvm.append("Solve for PV: the GDC shows −%s, and the price is its size." % C(p))
@@ -343,7 +353,7 @@ func u_find_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = [wrong({"v": GdcKit.qf(DepreciationSituation.kept(s))}, R_KEPT), wrong({"v": GdcKit.qf(DepreciationSituation.straight_rate(s))}, R_STRAIGHT),
 		wrong({"v": GdcKit.qf(DepreciationSituation.whole_rate(s))}, R_WHOLE_FALL)]
-	out.generic = [{"v": GdcKit.qf(found * 0.5)}, {"v": GdcKit.qf(found * 1.5)}, {"v": GdcKit.qf(found + 1.0)}]
+	out.fillers = [{"v": GdcKit.qf(found * 0.5)}, {"v": GdcKit.qf(found * 1.5)}, {"v": GdcKit.qf(found + 1.0)}]
 	var ratio: float = s.v.to_float() / s.p.to_float()
 	var c6 := snappedf(DepreciationSituation.root(s), 0.000001)
 	out.methods = {
@@ -364,7 +374,8 @@ func u_read_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Write down the yearly rate of depreciation, as a percentage."
 	out.answer = ans
 	out.wrongs = [wrong({"v": s.c.mul(Q.new(100))}, R_KEPT)]
-	out.generic = [{"v": s.c}, {"v": s.r.div(Q.new(100))}, {"v": s.r.add(Q.new(1))}, {"v": s.r.mul(Q.new(2))}]
+	out.wrongs += [wrong({"v": s.c}, R_BASE_AS_RATE), wrong({"v": s.r.div(Q.new(100))}, R_NO_HUNDRED)]
+	out.fillers = [{"v": s.r.add(Q.new(1))}, {"v": s.r.mul(Q.new(2))}]
 	out.methods = {"decay-multiplier": method([keep_line(rep, s), "It keeps %s of its value, so it loses 1 − %s = %s, which is %s%%." % [D(s.c), D(s.c), D(s.r.div(Q.new(100))), D(s.r)], final_step(ans)], ans.values)}
 	return out
 
@@ -386,7 +397,11 @@ func u_two_rate_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find its value %d years after it is bought, to the nearest dollar." % s.n
 	out.answer = ans
 	out.wrongs = [money_wrong(DepreciationSituation.value(p, c2, s.n), R_LATER_RATE), money_wrong(p - v, R_REMAINING)]
-	out.generic = ms([v * c2, p * c * pow(c, s.n - 1), v * 1.05, p * (1.0 - (s.r.to_float() + (s.n - 1) * s.r2.to_float()) / 100.0)])
+	out.wrongs += [money_wrong(v * c2, R_EXTRA_YEAR), money_wrong(p * pow(c, s.n), R_FIRST_RATE)]
+	var line: float = p * (1.0 - (s.r.to_float() + (s.n - 1) * s.r2.to_float()) / 100.0)
+	if line >= 1.0:
+		out.wrongs.append(money_wrong(line, R_FROM_PRICE))
+	out.fillers = ms([v * 1.05])
 	var a := p * c
 	var first := "The first year keeps %s: %s × %s = %s" % [D(s.c), D(s.p), D(s.c), C(a)]
 	var yearly := [first, "Each later year keeps %s." % D(s.c2)]
@@ -416,7 +431,10 @@ func u_shortfall(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find M, to the nearest dollar."
 	out.answer = ans
 	out.wrongs = [money_wrong(p - a, R_DATES), money_wrong(v - sv, R_DATES)]
-	out.generic = ms([DepreciationSituation.value(p, 1.0 + r / 100.0, s.n) - a, m * 1.1, m * 0.9, m + 500.0])
+	var up := DepreciationSituation.value(p, 1.0 + r / 100.0, s.n) - a
+	if up >= 1.0:
+		out.wrongs.append(money_wrong(up, R_ONE_PLUS))
+	out.fillers = ms([m * 1.1, m * 0.9, m + 500.0])
 	var tail := ["M = %s − %s = %s" % [C(v), C(a), gap(v, a)]]
 	var rate := rate_lines(rep, s)
 	var tvm: Array = rate.duplicate()
@@ -472,7 +490,7 @@ func _time_wrongs(s: Dictionary, real: float) -> Array:
 	return out
 
 
-func _time_generic(least: int) -> Array:
+func _time_fillers(least: int) -> Array:
 	return [{"v": Q.new(least + 1)}, {"v": Q.new(least + 2)}, {"v": Q.new(maxi(1, least - 2))}, {"v": Q.new(least + 3)}]
 
 
@@ -485,7 +503,7 @@ func _years(rep: String, s: Dictionary, asked: String) -> Dictionary:
 	var line := DepreciationSituation.straight_years(s)
 	if line != s.least:
 		out.wrongs.append(wrong({"v": Q.new(line)}, R_STRAIGHT))
-	out.generic = _time_generic(s.least)
+	out.fillers = _time_fillers(s.least)
 	out.methods = _time_methods(rep, s, ans, 1, "year")
 	return out
 
@@ -506,7 +524,7 @@ func u_years_from_periods(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var y: float = s.x / s.k
 	out.wrongs = _time_wrongs(s, y)
 	out.wrongs.append(wrong({"v": Q.new(int(ceilf(s.x)))}, R_NO_CONVERT))
-	out.generic = _time_generic(s.least)
+	out.fillers = _time_fillers(s.least)
 	out.methods = _time_methods(rep, s, ans, s.k, "year")
 	return out
 
@@ -517,7 +535,7 @@ func u_least_periods(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find the least number of complete %ss after which its value is less than %s." % [unit(s), M(s.target)]
 	out.answer = ans
 	out.wrongs = _time_wrongs(s, s.x)
-	out.generic = _time_generic(s.least)
-	out.generic.push_front({"v": Q.new(int(ceilf(s.x / s.k)))})
+	out.wrongs.append(wrong({"v": Q.new(int(ceilf(s.x / s.k)))}, R_PERIODS_TO_YEARS))
+	out.fillers = _time_fillers(s.least)
 	out.methods = _time_methods(rep, s, ans, 1, unit(s))
 	return out

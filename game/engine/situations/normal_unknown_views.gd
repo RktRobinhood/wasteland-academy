@@ -92,6 +92,11 @@ static func vs(xs: Array) -> Array:
 	return xs.map(func(x): return {"v": qf(x)})
 
 
+## The answer a student gets by rounding z midway (#194): f maps a rounded z to the value.
+static func premature(ans: Dictionary, z: float, f: Callable) -> void:
+	Answer.add_premature(ans, Answer.rounded_z(z).map(func(zr): return {"v": qf(f.call(zr))}))
+
+
 static func final_step(ans: Dictionary) -> String:
 	return "So " + Answer.text(ans) + "."
 
@@ -235,6 +240,7 @@ func u_unknown_sd(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = curve(float(s.mu), sg, side_shade(float(s.x), s.side), [{"at": float(s.x), "label": str(s.x)}, {"at": float(s.mu), "label": str(s.mu)}])
 	var gap := absi(s.x - s.mu)
+	premature(ans, absf(s.z), func(z): return gap / z)
 	out.wrongs = [wrong({"v": qf(-sg)}, R_NEG_SD), wrong({"v": qf(gap * absf(s.z))}, R_TIMES_Z), wrong({"v": qf(gap / s.p.to_float())}, R_PROB_Z)]
 	out.fillers = vs([sg * 1.1, sg * 0.9])
 	var left := left_q(s)
@@ -250,6 +256,7 @@ func u_unknown_mean(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"lines": [model(rep, s, null, s.sg), tail_line(rep, s, s.x, s.side, s.p)], "asked": find(rep, "μ", "mean"), "answer": ans, "table": null}
 	if rep == "diagram":
 		out.graph = curve(mu, float(s.sg), side_shade(float(s.x), s.side), [{"at": float(s.x), "label": str(s.x)}, {"at": mu, "label": "μ"}])
+	premature(ans, s.z, func(z): return s.x - z * s.sg)
 	out.wrongs = [wrong({"v": qf(s.mw)}, R_UPPER), wrong({"v": qf(s.x - s.p.to_float() * s.sg)}, R_PROB_Z)]
 	out.fillers = vs([s.x + s.p.to_float() * s.sg, mu * 1.1, mu * 0.9])
 	var left := left_q(s)
@@ -269,6 +276,7 @@ func u_sd_from_iqr(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var half: Q = s.iqr.div(Q.new(2))
 	var line: String = "The interquartile range of X is %s." % D(s.iqr) if rep != "words" else "The interquartile range is %s%s." % [D(s.iqr), ctx(s).unit]
 	var out := {"lines": [model(rep, s, s.mu, null), line], "asked": find(rep, "σ", "standard deviation"), "answer": ans, "table": null}
+	premature(ans, s.z, func(z): return s.iqr.to_float() / 2.0 / z)
 	out.wrongs = [wrong({"v": qf(sg * 2.0)}, R_WHOLE_WIDTH)]
 	out.fillers = vs([s.iqr.to_float() / 4.0 / s.z, s.iqr.to_float() / 2.0, s.iqr.to_float(), sg * 1.1])
 	var q3: Q = Q.new(s.mu).add(half)
@@ -288,6 +296,7 @@ func u_sd_from_central_area(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var out := {"lines": [model(rep, s, s.mu, null), line], "asked": find(rep, "σ", "standard deviation"), "answer": ans, "table": null}
 	if rep == "diagram":
 		out.graph = curve(float(s.mu), sg, [[float(lo), float(hi)]], [{"at": float(lo), "label": str(lo)}, {"at": float(s.mu), "label": str(s.mu)}, {"at": float(hi), "label": str(hi)}])
+	premature(ans, s.z, func(z): return s.a / z)
 	# With a central area of 0.5 the one-tail slip divides by z = 0, up to rounding.
 	out.wrongs = ([wrong({"v": qf(s.sw)}, R_CENTRAL_LEFT)] if not s.c.eq(Q.new(1, 2)) else []) + [wrong({"v": qf(s.a * s.z)}, R_TIMES_Z)]
 	out.fillers = vs([sg * 2.0, sg * 1.1, sg * 0.9])
@@ -313,6 +322,13 @@ func u_mean_and_sd(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var shade: Array = [[null, float(s.x1)], [float(s.x2), null]] if s.form == "tails" else [[null, float(s.x2)]]
 		out.graph = curve(s.mu, s.sg, shade, [{"at": float(s.x1), "label": str(s.x1)}, {"at": float(s.x2), "label": str(s.x2)}])
 	var two := func(w: Dictionary) -> Dictionary: return {"v0": qf(w.mu), "v1": qf(w.sg)}
+	var early: Array = []
+	for z1 in [s.z1] + Answer.rounded_z(s.z1):
+		for z2 in [s.z2] + Answer.rounded_z(s.z2):
+			var w := NormalUnknownSituation._solve(s.x1, s.x2, z1, z2)
+			if not w.is_empty():
+				early.append(two.call(w))
+	Answer.add_premature(ans, early)
 	out.wrongs = [wrong(two.call(s.prb), R_PROB_Z), wrong(two.call(s.dp1), R_ROUND_Z)]
 	if not s.pos.is_empty():
 		out.wrongs.insert(0, wrong(two.call(s.pos), R_BOTH_POS))
@@ -356,6 +372,7 @@ func u_sd_from_equal_tails(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	if rep == "words":
 		line = "%s%% of them are below %d%s, and %s%% are above %d%s." % [pct(s.p), s.a1, ctx(s).unit, pct(s.p), s.b1, ctx(s).unit]
 	var out := {"lines": [model(rep, s, null, null) if rep == "words" else "X ~ N(μ, σ²)", line], "asked": find(rep, "σ", "standard deviation"), "answer": ans, "table": null}
+	premature(ans, s.z, func(z): return s.half / z)
 	out.wrongs = [wrong({"v": qf(s.half * 2.0 / s.z)}, R_WHOLE_WIDTH), wrong({"v": qf(s.half * s.z)}, R_TIMES_Z)]
 	out.fillers = vs([sg * 1.1, sg * 0.9])
 	var left: Q = Q.new(1).sub(s.p)

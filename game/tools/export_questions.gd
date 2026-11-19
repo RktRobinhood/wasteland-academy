@@ -27,12 +27,18 @@ extends SceneTree
 ## export the same questions as a run without it.
 
 
+## Seeds 1 to this of every cell and boss chain: the seeds play draws start here (VerifiedSeeds, #192).
+const PER_CELL := VerifiedSeeds.CHECKED
+const PER_CHAIN := VerifiedSeeds.CHECKED
+
+
 func _initialize() -> void:
 	_run.call_deferred()
 
 
 func _run() -> void:
-	var args := {"per-cell": "50", "per-type": "1000", "shared": "10", "per-format": "20", "per-chain": "50", "out": "user://questions.json"}
+	var args := {"per-cell": str(PER_CELL), "per-type": "1000", "shared": "10", "per-format": "20",
+		"per-chain": str(PER_CHAIN), "out": "user://questions.json"}
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--") and a.contains("="):
 			var kv := a.substr(2).split("=", true, 1)

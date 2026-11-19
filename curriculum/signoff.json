@@ -848,6 +848,128 @@
    "note": "FAL-999 author's read on building the type: one question per unknown, representation and method (prompt, options and the wrong options' feedback, worked steps), against tools/check-answers. Every cell read once; not every seed."
   },
   {
+   "situation": "complex-number",
+   "types": [
+    "t1-ahl-complex-cartesian"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1004",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1004) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
+   "situation": "complex-number-ai",
+   "types": [
+    "t1-ai-complex-cartesian"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1004",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1004) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
+   "situation": "ai-stationary",
+   "types": [
+    "t5-ai-stationary-points"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-optimisation",
+   "types": [
+    "t5-ai-optimisation"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "trapezoidal",
+   "types": [
+    "t5-ai-trapezoidal"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "complex-polar",
+   "types": [
+    "t1-ahl-complex-polar"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1005",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1005) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
+   "situation": "de-moivre",
+   "types": [
+    "t1-ahl-de-moivre"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1005",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1005) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
+   "situation": "conjugate-roots",
+   "types": [
+    "t1-ahl-conjugate-roots"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1005",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1005) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
+   "situation": "complex-polar-ai",
+   "types": [
+    "t1-ai-complex-polar"
+   ],
+   "exam": true,
+   "status": "review-read",
+   "readBy": "Curriculum Author, FAL-1005",
+   "date": "2026-11-19",
+   "note": "Curriculum Author (FAL-1005) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
+  },
+  {
+   "situation": "rational-quadratic",
+   "types": [
+    "fn-ahl-rational-quadratic"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "odd-even",
+   "types": [
+    "fn-ahl-odd-even"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "inverse-restricted",
+   "types": [
+    "fn-ahl-inverse-restricted"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-composite-inverse",
+   "types": [
+    "fn-ai-composite-inverse"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
    "situation": "quadratic-model",
    "types": [
     "fn-ext-quadratic-model"

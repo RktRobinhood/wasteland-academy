@@ -815,6 +815,9 @@ static func _sorted(qs: Array) -> Array:
 ## {"ok": true, "q": Q, "decimal": bool} or {"ok": false, "error": "..."}.
 static func parse_number(raw: String) -> Dictionary:
 	var s := raw.strip_edges().replace("−", "-").replace("–", "-").replace("—", "-")
+	# A phone keyboard may put a no-break or thin space in (#194).
+	for sp in ["\u00a0", "\u2009", "\u202f"]:
+		s = s.replace(sp, " ")
 	var bare := s.replace(" ", "")
 	for prefix in ["f(x)=", "y=", "x=", "Y=", "X="]:
 		if bare.begins_with(prefix):
@@ -822,17 +825,100 @@ static func parse_number(raw: String) -> Dictionary:
 			break
 	if s.strip_edges() == "":
 		return {"ok": false, "error": "empty"}
+	var c := {"s": s, "comma": false}
+	# Plain numbers (and every number the engine writes) skip the checks below.
+	if not _all_plain(s):
+		var refused := refusal(s)
+		if refused != "":
+			return {"ok": false, "error": refused}
+		c = read_comma(s)
+		if c.has("error"):
+			return {"ok": false, "error": c.error}
+		s = c.s
 	var r := Expr.parse(s)
 	if not r.ok:
 		if r.error == "empty":
 			return r
-		return {"ok": false, "error": "Type a number, like 3, −1.5 or 3/2."}
+		return {"ok": false, "error": NOT_A_NUMBER}
 	var q := Expr.eval_exact(r.tree)
 	if q == null:
 		if is_finite(Expr.eval_float(r.tree)) and not _divides_by_zero(r.tree):
 			return {"ok": false, "error": "Work that out to a number, like 2.35."}
 		return {"ok": false, "error": "That has no value: is something divided by 0?"}
-	return {"ok": true, "q": q, "decimal": r.decimal}
+	return {"ok": true, "q": q, "decimal": r.decimal or c.comma}
+
+
+const NOT_A_NUMBER := "Type a number, like 3, −1.5 or 3/2."
+
+static var _regexes := {}
+
+
+## A compiled pattern, kept: parse_number runs on every number the engine writes too.
+static func _re(pattern: String) -> RegEx:
+	if not _regexes.has(pattern):
+		_regexes[pattern] = RegEx.create_from_string(pattern)
+	return _regexes[pattern]
+
+
+static func _all_plain(s: String) -> bool:
+	for ch in s:
+		if not ch in "0123456789.-/()":
+			return false
+	return true
+
+
+## A decimal comma (#194): one comma that can't be a thousands separator is a decimal
+## point (0,5 and 12,25 and 0,500 are 0.5, 12.25 and 0.5). Where it could be either
+## (1,500) the student is told the two ways to write it; commas that group thousands
+## (12,500.5 or 1,000,000) are to be left out. Returns {"s": text with a point, "comma":
+## bool} or {"error": what to change}.
+static func read_comma(s: String) -> Dictionary:
+	var n := s.count(",")
+	if n == 0:
+		return {"s": s, "comma": false}
+	var t := s.strip_edges()
+	var grouped := _re("^[-+]?[1-9]\\d{0,2}(,\\d{3})+(\\.\\d+)?$")
+	if grouped.search(t) != null and (n > 1 or t.contains(".")):
+		return {"error": "Leave out the comma%s: type %s." % ["s" if n > 1 else "", t.replace(",", "")]}
+	var m := _re("(\\d*),(\\d+)").search(t)
+	# The comma's number is the whole entry, or the whole top or bottom of a fraction the
+	# fraction key made ("(1,5)/(3)"); a point typed in one box, (2,3), is not (#248).
+	var one := "[-+]?\\d*,\\d+"
+	var alone := _re("^(%s|\\(%s\\)/\\([^,()]+\\)|\\([^,()]+\\)/\\(%s\\))$" % [one, one, one]).search(t) != null
+	if n > 1 or m == null or t.contains(".") or not alone:
+		return {"error": "Type one number in each box, with a point for a decimal: 0.5, not 0,5."}
+	var left := m.get_string(1)
+	var right := m.get_string(2)
+	if right.length() == 3 and left.length() in [1, 2, 3] and left[0] != "0":
+		var as_dec := Fmt.dec(Q.new((left + right).to_int(), 1000))
+		return {"error": "%s could be %s or %s: type one of those, with no comma." % [m.get_string(0), as_dec, left + right]}
+	return {"s": s.replace(",", "."), "comma": true}
+
+
+## What to change in a typed number the expression engine can't read, or would misread
+## (#194): a %, ° or unit, a currency sign, or a mixed number (1 1/2 would read as 1 × ½).
+## "" when there is nothing to say.
+static func refusal(s: String) -> String:
+	var t := s.strip_edges()
+	if t.ends_with("%"):
+		return "Leave out the %: type the number only."
+	if t.ends_with("°"):
+		return "Leave out the °: type the number only."
+	for sign in ["$", "€", "£"]:
+		if t.begins_with(sign) or t.begins_with("-" + sign):
+			return "Leave out the %s: type the number only." % sign
+	var mixed := _re("^([-+]?)(\\d+) +\\(?(\\d+)\\)?/\\(?(\\d+)\\)?$").search(t)
+	if mixed != null and mixed.get_string(4).to_int() != 0:
+		var d := mixed.get_string(4).to_int()
+		var q := Q.new(mixed.get_string(2).to_int() * d + mixed.get_string(3).to_int(), d)
+		if mixed.get_string(1) == "-":
+			q = q.neg()
+		var tail := "" if Fmt.dec(q) == q.text() else " or %s" % Fmt.dec(q)
+		return "Write a mixed number as one fraction: type %s%s." % [Fmt.num(q), tail]
+	var unit := _re("(?i)^[-+]?[\\d.,]+ *(mm|cm|km|m|kg|g|ml|l|s|min|h|cm2|m2|cm3|m3|cm²|m²|cm³|m³|units?)$")
+	if unit.search(t) != null:
+		return "Leave out the unit: type the number only."
+	return ""
 
 
 ## Whether a tree divides by 0 anywhere (1/0, 3/(2 − 2)).
@@ -930,6 +1016,33 @@ static func needs_rounding(v: Q) -> bool:
 	return not (r.ok and r.q.eq(v))
 
 
+## Whole numbers of 1,000 or more (#194). Unless an answer is exact, any 3 s.f. rounding
+## of its key is right: 1020 for 1024. The IB takes that for a value from a calculator, so
+## the types below take it on purpose; every other type whose key can be a whole number of
+## 1,000 or more is exact (a count, a sum, money, a binomial coefficient). The stress sweep
+## fails on one that is neither (whole_key_unlisted); game/docs/QUESTION-ENGINE.md lists them.
+const WHOLE_SF := {
+	"fn-exponential-model|log-model-solve": "a model's input found with logs, to 3 s.f.",
+	"fn-exponential-model|model-from-graph": "C read from a graph with A and k, to 3 s.f.",
+	"fn-exponential-model|predict-from-data-point": "a model's prediction, to 3 s.f.",
+	"fn-link-multiplicative-growth|depreciation-two-ways": "a value after n years from a calculator, to 3 s.f.",
+	"fn-link-multiplicative-growth|sequence-vs-function": "a value after n years from a calculator, to 3 s.f.",
+	"t3-arc-sector|sector-area": "an area with π in it, to 3 s.f.",
+}
+
+
+## Why a typed answer's whole-number key of 1,000 or more is neither exact nor in
+## WHOLE_SF, or "" when it is set on purpose (or has no such key).
+static func whole_key_unlisted(ans: Dictionary, type_id: String, unknown: String) -> String:
+	if ans.get("exact", false) or ans.kind in MC_ONLY or WHOLE_SF.has("%s|%s" % [type_id, unknown]):
+		return ""
+	for item in slots(ans):
+		var v: Variant = ans.values.get(item.get("slot", ""))
+		if v is Q and v.is_int() and absi(v.n) >= 1000:
+			return "the whole-number key %s takes any 3 s.f. rounding: make it exact, or list it in Answer.WHOLE_SF" % v.text()
+	return ""
+
+
 ## What a picked rounding trap says, when the view gives it no misconception (FAL-815).
 const TRAP_NOTE := "The IB needs 3 s.f."
 
@@ -994,6 +1107,12 @@ static func trap_text(ans: Dictionary, values: Dictionary) -> String:
 			for i in ans.fixed.names.size():
 				parts.append("%s = %s" % [ans.fixed.names[i], Fmt.dec(values["v%d" % i])])
 			return ", ".join(parts)
+		# The exp-model traps (FAL-1144): at 2 s.f. as written, so 6.0 stays "6.0 days",
+		# not "6 days" (Fmt.dec) or "6.00 days" (text's 3 s.f.).
+		"measure":
+			return ans.label + Fmt.sf(values.v, 2) + ans.unit
+		"pct":
+			return ("a %s of %s%% %s" % [values.dir, Fmt.sf(values.v, 2), ans.fixed.get("per", "")]).strip_edges()
 	return text(ans, values)
 
 
@@ -1034,20 +1153,94 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 		var raw := str(response.get(id, ""))
 		if item.has("pick"):
 			if raw == "":
-				errors[id] = "Choose one."
+				errors[id] = CHOOSE
 			got[id] = raw
 		else:
 			var r := parse_number(raw)
 			if not r.ok:
-				errors[id] = r.error if r.error != "empty" else "Fill this in."
+				errors[id] = r.error if r.error != "empty" else FILL_IN
 			else:
 				got[id] = r.q
 	if not errors.is_empty():
 		return {"correct": false, "complete": false, "glancing": false, "errors": errors, "values": got}
 	var right := values_right(ans, got)
 	var broken := not right and form_broken(ans, got)
-	return {"correct": right, "complete": true, "glancing": broken or (not right and values_right(ans, got, true)),
-		"errors": {}, "values": got, "note": form_note(ans) if broken else ""}
+	var glancing := broken or (not right and values_right(ans, got, true))
+	var note := form_note(ans) if broken else ""
+	# A rounded form of an exact answer (0.333 for 1/3) is the right maths in the wrong
+	# form: glancing, as an IB paper drops the last accuracy mark (#194).
+	if not glancing and rounded_exact(ans, got):
+		glancing = true
+		note = EXACT_NOTE
+	# The value an intermediate rounded too early gives (a z to 2 d.p.) is still a miss,
+	# but the note says why (#194).
+	if not right and not glancing and premature(ans, got):
+		note = PREMATURE_NOTE
+	return {"correct": right, "complete": true, "glancing": glancing, "errors": {}, "values": got, "note": note}
+
+
+## What an empty box or an unpicked choice says. Neither is a refusal (#194).
+const FILL_IN := "Fill this in."
+const CHOOSE := "Choose one."
+## A glancing hit's note for a rounded form of an exact answer (#194).
+const EXACT_NOTE := "Exact value needed."
+## A miss's note for a value off by rounding an intermediate too early (#194).
+const PREMATURE_NOTE := "Rounding z too early moved the answer: keep z's full value to the end."
+
+
+## Whether got is a rounded form of an exact-only answer (0.333 or 0.33 for 1/3, 2350
+## for 2345): glancing, with EXACT_NOTE, typed or picked (#194).
+static func rounded_exact(ans: Dictionary, got: Dictionary) -> bool:
+	return ans.get("exact", false) and not values_right(ans, got) and values_right(inexact(ans), got, true)
+
+
+## The answer marked to 3 s.f., as if it were not exact-only.
+static func inexact(ans: Dictionary) -> Dictionary:
+	var out := ans.duplicate()
+	out.exact = false
+	return out
+
+
+## Whether got is one of the answer's premature values: what a student gets by rounding
+## an intermediate (z) too early. A builder gives them with add_premature().
+static func premature(ans: Dictionary, got: Dictionary) -> bool:
+	for alt in ans.get("premature", []):
+		if values_right(with_values(ans, alt), got):
+			return true
+	return false
+
+
+## Gives an answer the values that rounding an intermediate too early leads to (#194),
+## each a full values Dictionary. One that is marked right or glancing anyway is dropped:
+## it is no slip.
+static func add_premature(ans: Dictionary, alts: Array) -> void:
+	var keep: Array = []
+	for alt in alts:
+		if not values_right(ans, alt, true) and not keep.has(alt):
+			keep.append(alt)
+	if not keep.is_empty():
+		ans.premature = keep
+
+
+## z rounded as a student might round it midway (#194): "dp" to 2 d.p., as a table
+## gives it, or "sf" to 3 s.f.
+const Z_ROUNDINGS := ["dp", "sf"]
+
+
+static func round_z(z: float, how: String) -> float:
+	if how == "dp":
+		return snappedf(z, 0.01)
+	return parse_number(Fmt.sf(z).replace("−", "-")).q.to_float() if z != 0.0 else 0.0
+
+
+## z rounded each way in Z_ROUNDINGS, once each.
+static func rounded_z(z: float) -> Array:
+	var out: Array = []
+	for how in Z_ROUNDINGS:
+		var r := round_z(z, how)
+		if not out.has(r):
+			out.append(r)
+	return out
 
 
 ## The kinds marked by value or identity, not slot by slot (FAL-788): an equivalent answer

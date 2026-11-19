@@ -44,6 +44,36 @@ const ZI := "SL2.4.zeros-intercepts"
 const MM := "SL2.4.max-min"
 const NS := "SL2.10.number-of-solutions"
 const SG := "SL2.10.solve-gdc"
+# fn-sketch-gdc's own misconceptions (FAL-1149).
+const SK_ENDS_SWAP := "fn-sketch-gdc#11"
+const SK_TURNS_AS_ZEROS := "fn-sketch-gdc#12"
+const SK_MISSED_ZERO := "fn-sketch-gdc#13"
+const SK_CONST_ONLY := "fn-sketch-gdc#14"
+const SK_NO_CONST := "fn-sketch-gdc#15"
+const SK_XY_SWAP := "fn-sketch-gdc#16"
+const SK_MAX_MIN := "fn-sketch-gdc#17"
+const SK_ZERO_AS_TURN := "fn-sketch-gdc#18"
+const SK_YMIN_ZERO := "fn-sketch-gdc#19"
+const SK_AXES_SWAP := "fn-sketch-gdc#20"
+const SK_ZEROS_COUNT := "fn-sketch-gdc#21"
+const SK_K_ENDS := "fn-sketch-gdc#22"
+const SK_K_RANGE := "fn-sketch-gdc#23"
+# fn-gdc-features' own misconceptions (FAL-1149).
+const GF_TURNS_AS_ZEROS := "fn-gdc-features#8"
+const GF_ONE_ROOT := "fn-gdc-features#9"
+const GF_XY_SWAP := "fn-gdc-features#10"
+const GF_MAX_MIN := "fn-gdc-features#11"
+const GF_ZERO_AS_TURN := "fn-gdc-features#12"
+const GF_CONST_ONLY := "fn-gdc-features#13"
+const GF_NO_CONST := "fn-gdc-features#14"
+const GF_TABLE_END := "fn-gdc-features#15"
+const GF_TABLE_MID := "fn-gdc-features#16"
+const GF_OTHER_ZERO := "fn-gdc-features#17"
+const GF_ADDED := "fn-gdc-features#18"
+const GF_ONE_ZERO := "fn-gdc-features#19"
+const GF_C_ADDED := "fn-gdc-features#20"
+const GF_C_BACKWARDS := "fn-gdc-features#21"
+const GF_C_IS_M := "fn-gdc-features#22"
 
 
 func has(unknown: String) -> bool:
@@ -65,9 +95,9 @@ func merge_need(a: Dictionary, b: Dictionary) -> Variant:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "generic", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "generic", "fillers"] else null
 	out.given = GdcCurveSituation.export(s)
 	# What a builder adds for the checker: the labels it drew, the k it chose.
 	out.given.merge(out.get("check", {}), true)
@@ -76,6 +106,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	# Every option's numbers are clear of a 3 s.f. rounding edge.
 	out.wrongs = out.wrongs.filter(func(w): return clear(w.values))
 	out.generic = out.generic.filter(func(g): return clear(g))
+	out.fillers = out.fillers.filter(func(g): return clear(g))
 	return out
 
 
@@ -573,14 +604,14 @@ func u_endpoint_coordinates(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var d2: float = s.d2.to_float()
 	var past := {"x1": Q.new(int(d1) - 1), "y1": qf(at(s, d1 - 1.0)), "x2": Q.new(int(d2) + 1), "y2": qf(at(s, d2 + 1.0))}
 	var t: Dictionary = s.turns[0]
-	var gen: Array = [{"x1": s.d1, "y1": qf(-e1[1]), "x2": s.d2, "y2": qf(-e2[1])},
-		{"x1": s.d1, "y1": qf(e2[1]), "x2": s.d2, "y2": qf(e1[1])},
+	var fillers: Array = [{"x1": s.d1, "y1": qf(-e1[1]), "x2": s.d2, "y2": qf(-e2[1])},
 		{"x1": qf(t.x), "y1": qf(t.y), "x2": s.d2, "y2": qf(e2[1])},
 		{"x1": s.d1, "y1": qf(at(s, -d1)), "x2": s.d2, "y2": qf(at(s, -d2))}]
 	var ev := "f(%s) = %s and f(%s) = %s" % [Fmt.num(s.d1), W(e1[1]), Fmt.num(s.d2), W(e2[1])]
 	return {
 		"asked": "Find the coordinates of the endpoints of the graph of f.", "lines": [line(s)], "answer": ans,
-		"wrongs": [wrong(past, SIT + "#1")], "generic": gen,
+		"wrongs": [wrong(past, SIT + "#1"), wrong({"x1": s.d1, "y1": qf(e2[1]), "x2": s.d2, "y2": qf(e1[1])}, SK_ENDS_SWAP)],
+		"fillers": fillers,
 		"methods": {
 			"gdc-transfer": {"result": ans.values, "steps": [graph_step(s),
 				"Trace to each end of the domain, or evaluate there: " + ev + ".", final]},
@@ -608,11 +639,20 @@ func u_label_zeros(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var swap := y0_swap(qs, near, y0)
 	if not swap.is_empty():
 		wrongs.append(wrong(swap, ZI + "#0"))
+	# The factorised zeros with their signs changed: in that family the same option as ZI#1.
+	var flipped := Answer.xs_of(qs.map(func(q): return q.neg()))
+	var fillers: Array = []
 	if s.fam == "product":
 		wrongs.append(wrong(Answer.xs_of([s.p, s.q.neg()]), ZI + "#1"))
-	var gen: Array = [Answer.xs_of(qs.map(func(q): return q.neg())), Answer.xs_of(s.turns.map(func(t): return qf(t.x))),
-		Answer.xs_of(qs.slice(0, qs.size() - 1) if qs.size() > 1 else [qf(s.turns[0].x)])]
-	var out := {"asked": "Find the x-intercepts of the graph of f.", "lines": [line(s)], "answer": ans, "wrongs": wrongs, "generic": gen}
+		wrongs.append(wrong(flipped, ZI + "#1"))
+	else:
+		fillers.append(flipped)
+	wrongs.append(wrong(Answer.xs_of(s.turns.map(func(t): return qf(t.x))), SK_TURNS_AS_ZEROS))
+	if qs.size() > 1:
+		wrongs.append(wrong(Answer.xs_of(qs.slice(0, qs.size() - 1)), SK_MISSED_ZERO))
+	else:
+		wrongs.append(wrong(Answer.xs_of([qf(s.turns[0].x)]), SK_TURNS_AS_ZEROS))
+	var out := {"asked": "Find the x-intercepts of the graph of f.", "lines": [line(s)], "answer": ans, "wrongs": wrongs, "fillers": fillers}
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown." % line(s)]
 		out.graph = screen(s, end_dots(s))
@@ -638,13 +678,30 @@ func u_label_y_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var ans := Answer.make("yint", {"y": y0})
 	ans.show = "sf"
 	var final := "So the y-intercept is %s." % Answer.text(ans)
-	var gen: Array = [{"y": s.c}, {"y": y0.neg()}, {"y": qf(at(s, 1.0))}, {"y": s.A}, {"y": qf(s.zeros[0])}]
+	var wrongs: Array = yint_wrongs(s, SK_CONST_ONLY, SK_NO_CONST) + [wrong({"y": qf(s.zeros[0])}, ZI + "#0")]
 	return {
-		"asked": "Find the y-intercept of the graph of f.", "lines": [line(s)], "answer": ans, "generic": gen,
-		"titles": {"set-equal-zero": "Substitute x = 0"},
+		"asked": "Find the y-intercept of the graph of f.", "lines": [line(s)], "answer": ans, "wrongs": wrongs,
+		"fillers": yint_fillers(s), "titles": {"set-equal-zero": "Substitute x = 0"},
 		"methods": {"set-equal-zero": {"result": ans.values, "steps": [
 			"The y-intercept is where x = 0, which is inside the domain.", "f(0) = %s." % zero_sub(s), final]}},
 	}
+
+
+## The y-intercept's slips, where the family has the term they need: e^0 or cos 0 taken as
+## 0 (the constant alone), or the constant left out (A alone). Explin, bell and cosine only:
+## there f(0) = A + c.
+static func yint_wrongs(s: Dictionary, const_only: String, no_const: String) -> Array:
+	if s.fam in ["explin", "bell"] or (s.fam == "trig" and s.fn == "cos"):
+		return [wrong({"y": s.c}, const_only), wrong({"y": s.A}, no_const)]
+	return []
+
+
+## The y-intercept's fillers: its sign changed, f(1), and A or c where they are no slip.
+static func yint_fillers(s: Dictionary) -> Array:
+	var out: Array = [{"y": yint_q(s).neg()}, {"y": qf(at(s, 1.0))}]
+	if yint_wrongs(s, "", "").is_empty():
+		out += [{"y": s.c}, {"y": s.A}]
+	return out
 
 
 ## f(0) worked out: "2e^0 − 1 = 2 − 1 = 1".
@@ -680,14 +737,19 @@ func _turning_point(rep: String, s: Dictionary, rng: Seeded, style: String) -> D
 	ans.show = "sf"
 	var word := kind_word(t)
 	var final := "So the local %s is at %s." % [word, Answer.text(ans)]
-	var wrongs: Array = [wrong({"x": tq[0], "y": Q.new(0)}, MM + "#0")]
-	var gen: Array = [{"x": tq[1], "y": tq[0]}, {"x": tq[0], "y": tq[1].neg()}]
+	# style "label" is fn-sketch-gdc's, "coords" fn-gdc-features': each has its own refs.
+	var sk := style == "label"
+	var wrongs: Array = [wrong({"x": tq[0], "y": Q.new(0)}, MM + "#0"), wrong({"x": tq[1], "y": tq[0]}, SK_XY_SWAP if sk else GF_XY_SWAP)]
+	var fillers: Array = [{"x": tq[0], "y": tq[1].neg()}]
 	for u in s.turns:
 		if u != t:
-			gen.append({"x": qf(u.x), "y": qf(u.y)})
-	gen.append({"x": qf(s.zeros[0]), "y": Q.new(0)})
+			if u.kind != t.kind:
+				wrongs.append(wrong({"x": qf(u.x), "y": qf(u.y)}, SK_MAX_MIN if sk else GF_MAX_MIN))
+			else:
+				fillers.append({"x": qf(u.x), "y": qf(u.y)})
+	wrongs.append(wrong({"x": qf(s.zeros[0]), "y": Q.new(0)}, SK_ZERO_AS_TURN if sk else GF_ZERO_AS_TURN))
 	var asked := "Find the coordinates of the local %s of the graph of f." % word
-	var out := {"asked": asked, "lines": [line(s)], "answer": ans, "wrongs": wrongs, "generic": gen}
+	var out := {"asked": asked, "lines": [line(s)], "answer": ans, "wrongs": wrongs, "fillers": fillers}
 	# The coordinates to 2 s.f. are the rounding trap, and on fn-gdc-features they are
 	# its misconception SL2.4.max-min#2.
 	if style == "coords":
@@ -721,11 +783,15 @@ func u_greatest_on_domain(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var maxes: Array = s.turns.filter(func(t): return t.kind == "max")
 	var lmax: Dictionary = maxes[0]
 	var other: Array = s.ends[0] if s.ends[0][0] != top.x else s.ends[1]
-	var gen: Array = [{"v": qf(top.x)}, {"v": qf(other[1])}, {"v": qf(lmax.x)}]
+	# The x of the highest endpoint, or of the local maximum: an x-coordinate for the value.
+	# The other end's value and the least value are fillers: the least value is a slip, but
+	# this view serves fn-sketch-gdc and fn-gdc-features and can't tag a line of either alone.
+	var fillers: Array = [{"v": qf(other[1])}]
 	if not s.lo.is_empty():
-		gen.append({"v": qf(s.lo.y)})
+		fillers.append({"v": qf(s.lo.y)})
 	var out := {"asked": "Find the greatest value of f(x) on the domain.", "lines": [line(s)], "answer": ans,
-		"wrongs": [wrong({"v": qf(lmax.y)}, MM + "#1")], "generic": gen}
+		"wrongs": [wrong({"v": qf(lmax.y)}, MM + "#1"), wrong({"v": qf(top.x)}, MM + "#0"), wrong({"v": qf(lmax.x)}, MM + "#0")],
+		"fillers": fillers}
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown, with its turning points and endpoints labelled." % line(s)]
 		out.graph = screen(s, labels(s).filter(func(p): return p[1] != 0.0))
@@ -782,9 +848,16 @@ func u_window_for_domain(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var d2: int = s.d2.n
 	var right := wt(d1, d2, y0, y1)
 	var wrongs: Array = [wrong({"v": wt(-10, 10, -10, 10)}, SIT + "#2")]
-	var gen: Array = [wt(d1, d2, y0, floori(yr[1]) - 1), wt(d1, d2 - 2, y0, y1), wt(d1, d2, 0, y1) if y0 < 0 else wt(d1, d2, ceili(yr[0]) + 1, y1),
-		wt(y0, y1, d1, d2)]
-	var out := LogFunctionViews.choice(right, wrongs, gen)
+	var fillers: Array = [wt(d1, d2, y0, floori(yr[1]) - 1), wt(d1, d2 - 2, y0, y1)]
+	# Ymin = 0 is the slip only when the graph goes below the x-axis.
+	if yr[0] < 0.0:
+		wrongs.append(wrong({"v": wt(d1, d2, 0, y1)}, SK_YMIN_ZERO))
+	else:
+		fillers.append(wt(d1, d2, 0, y1) if y0 < 0 else wt(d1, d2, ceili(yr[0]) + 1, y1))
+	wrongs.append(wrong({"v": wt(y0, y1, d1, d2)}, SK_AXES_SWAP))
+	var out := LogFunctionViews.choice(right, wrongs, fillers)
+	out.fillers = out.generic
+	out.erase("generic")
 	var lines := [line(s)]
 	if rep == "words":
 		lines = ["A GDC is used to graph f(x) = %s for %s. On this domain the least value of f is about %s and the greatest about %s." % [
@@ -834,7 +907,10 @@ func u_judge_a_sketch(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var shown: Array = [bad] + good
 	var opt := func(f: Dictionary) -> String: return "The label %s at %s" % [f.label, f.name]
 	var right: String = opt.call(bad)
+	# A right label called wrong has no slip behind it: the three are fillers.
 	var out := LogFunctionViews.choice(right, [], good.map(func(f): return opt.call(f)))
+	out.fillers = out.generic
+	out.erase("generic")
 	var pts: Array = feats.map(func(f): return [f.x, f.y, f.label])
 	var final: String = "%s is wrong: %s." % [right, bad.why]
 	out.merge({
@@ -897,12 +973,13 @@ func u_count_solutions_from_sketch(rep: String, s: Dictionary, rng: Seeded) -> D
 	var ext := solutions(s, k, lo_of(s) if GdcCurveSituation.open_left(s) else s.d1.to_float() - 3.0, hi_of(s) + 3.0)
 	if ext != n:
 		wrongs.append(wrong({"v": Q.new(ext)}, NS + "#1"))
-	var gen: Array = [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(s.zeros.size())}, {"v": Q.new(0)}]
+	wrongs.append(wrong({"v": Q.new(s.zeros.size())}, SK_ZEROS_COUNT))
+	var fillers: Array = [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(0)}]
 	var final := "So f(x) = %s has %d solution%s on the domain." % [k_text if not touch else "k", n, "" if n == 1 else "s"]
 	var asked := "Write down the number of solutions of f(x) = %s on the domain." % k_text
 	if touch:
 		asked = "Let k be the local %s value of f. Write down the number of solutions of f(x) = k on the domain." % kind_word(t)
-	var out := {"asked": asked, "answer": ans, "wrongs": wrongs, "generic": gen, "check": {"line_k": qf(k), "touch": touch}}
+	var out := {"asked": asked, "answer": ans, "wrongs": wrongs, "fillers": fillers, "check": {"line_k": qf(k), "touch": touch}}
 	if rep == "graph":
 		out.lines = ["The sketch of %s is shown, with its turning points and endpoints labelled." % line(s)]
 		out.graph = screen(s, labels(s).filter(func(p): return p[1] != 0.0))
@@ -942,10 +1019,18 @@ func u_k_for_count(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs.append(wrong(k_ans(ext).values, NS + "#1"))
 	var v: Dictionary = ans.values
 	var flip := func(r: String) -> String: return "<" if r == "≤" else "≤"
-	var gen: Array = [{"lo": v.lo, "r1": flip.call(v.r1), "r2": v.r2, "hi": v.hi}, {"lo": v.lo, "r1": v.r1, "r2": flip.call(v.r2), "hi": v.hi},
-		{"lo": v.lo, "r1": flip.call(v.r1), "r2": flip.call(v.r2), "hi": v.hi}]
+	wrongs.append(wrong({"lo": v.lo, "r1": flip.call(v.r1), "r2": v.r2, "hi": v.hi}, SK_K_ENDS))
+	# The least to the greatest value is f's range only on a closed domain: next to the
+	# asymptote f has no bound there, and the option is a filler.
+	var fillers: Array = []
 	if not s.lo.is_empty():
-		gen.append({"lo": qf(s.lo.y), "r1": "≤", "r2": "≤", "hi": qf(s.hi.y)})
+		var whole := {"lo": qf(s.lo.y), "r1": "≤", "r2": "≤", "hi": qf(s.hi.y)}
+		if GdcCurveSituation.open_left(s):
+			fillers.append(whole)
+		else:
+			wrongs.append(wrong(whole, SK_K_RANGE))
+	for e in [[v.r1, flip.call(v.r2)], [flip.call(v.r1), flip.call(v.r2)]]:
+		wrongs.append(wrong({"lo": v.lo, "r1": e[0], "r2": e[1], "hi": v.hi}, SK_K_ENDS))
 	var levels := ", ".join(s.turns.map(func(t): return "the %s %s" % [kind_word(t), S(t.y)]) + s.ends.map(func(e): return "f(%s) = %s" % [Fmt.num(roundi(e[0])), S(e[1])]))
 	var n_lo := solutions(s, ks.lo)
 	var n_hi := solutions(s, ks.hi)
@@ -954,7 +1039,7 @@ func u_k_for_count(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {
 		"asked": "Find the values of k for which f(x) = k has exactly two solutions on the domain.",
 		"lines": ["The sketch of %s is shown, with its turning points and endpoints labelled." % line(s)],
-		"graph": screen(s, labels(s).filter(func(p): return p[1] != 0.0)), "answer": ans, "wrongs": wrongs, "generic": gen,
+		"graph": screen(s, labels(s).filter(func(p): return p[1] != 0.0)), "answer": ans, "wrongs": wrongs, "fillers": fillers,
 		"titles": {"turning-point-boundaries": "Use turning-point and endpoint values as boundaries"},
 		"methods": {
 			"graph-read": {"result": ans.values, "steps": ["The levels that matter are the turning values and the endpoint values: " + levels + ".",
@@ -980,9 +1065,13 @@ func u_zeros_gdc(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var swap := y0_swap(qs, 0, yint_q(s))
 	if not swap.is_empty():
 		wrongs.append(wrong(swap, ZI + "#0"))
-	var gen: Array = [Answer.xs_of(qs.map(func(q): return q.neg())), Answer.xs_of(s.turns.map(func(t): return qf(t.x))),
-		Answer.xs_of(qs.slice(1) if qs.size() > 1 else [qf(s.turns[0].x)])]
-	var out := {"asked": "Find every zero of f.", "lines": [line(s)], "answer": ans, "wrongs": wrongs, "generic": gen,
+	# The signs changed are the factorised read's slip; elsewhere they are a filler.
+	var flipped := Answer.xs_of(qs.map(func(q): return q.neg()))
+	var fillers: Array = [] if s.fam == "product" else [flipped]
+	if s.fam == "product":
+		wrongs.append(wrong(flipped, ZI + "#1"))
+	wrongs += zero_slips(s, qs)
+	var out := {"asked": "Find every zero of f.", "lines": [line(s)], "answer": ans, "wrongs": wrongs, "fillers": fillers,
 		"titles": {"zero-of-difference": "Solve f(x) = 0 on the GDC"}}
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown." % line(s)]
@@ -1007,11 +1096,10 @@ func u_solve_as_zeros(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var k: Q = s.k_shift
 	var eq := "%s = %s" % [GdcCurveSituation.text(s, k), Fmt.dec(k)]
 	var final := "So the solutions are " + Answer.text(ans) + "."
-	var gen: Array = [Answer.xs_of(qs.map(func(q): return q.neg())), Answer.xs_of(s.turns.map(func(t): return qf(t.x))),
-		Answer.xs_of(qs.slice(1) if qs.size() > 1 else [qf(s.turns[0].x)])]
 	var g := GdcCurveSituation.text(s, k)
 	return {
-		"asked": "Solve %s, for %s." % [eq, dom(s)], "lines": [eq], "answer": ans, "generic": gen,
+		"asked": "Solve %s, for %s." % [eq, dom(s)], "lines": [eq], "answer": ans, "wrongs": zero_slips(s, qs),
+		"fillers": [Answer.xs_of(qs.map(func(q): return q.neg()))],
 		"methods": {
 			"zero-of-difference": {"result": ans.values, "steps": [
 				("Subtract %s from both sides: %s = 0." if k.sign() >= 0 else "Add %s to both sides: %s = 0.") % [Fmt.dec(k.abs_q()), GdcCurveSituation.text(s)],
@@ -1021,6 +1109,17 @@ func u_solve_as_zeros(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 				"The intersect tool gives " + zeros6(s) + ".", final]},
 		},
 	}
+
+
+## The zeros' slips on fn-gdc-features: the turning points' x for the zeros, and the first
+## zero missed (a range that starts too far right), or with one zero the turning point's x.
+static func zero_slips(s: Dictionary, qs: Array) -> Array:
+	var out: Array = [wrong(Answer.xs_of(s.turns.map(func(t): return qf(t.x))), GF_TURNS_AS_ZEROS)]
+	if qs.size() > 1:
+		out.append(wrong(Answer.xs_of(qs.slice(1)), SG + "#0"))
+	else:
+		out.append(wrong(Answer.xs_of([qf(s.turns[0].x)]), GF_TURNS_AS_ZEROS))
+	return out
 
 
 func u_turning_point_coordinates(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -1033,13 +1132,18 @@ func u_extreme_value_only(rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	var ans := num(tq[1])
 	var word := kind_word(t)
 	var final := "So the local %s value of f is %s." % [word, Answer.text(ans)]
-	var gen: Array = [{"v": tq[1].neg()}, {"v": qf(s.hi.y if t.kind == "min" else (s.lo.y if not s.lo.is_empty() else -t.y))}]
+	var wrongs: Array = [wrong({"v": tq[0]}, MM + "#0")]
+	# The sign changed, the greatest or least value on the domain, and a zero: fillers.
+	var fillers: Array = [{"v": tq[1].neg()}, {"v": qf(s.hi.y if t.kind == "min" else (s.lo.y if not s.lo.is_empty() else -t.y))}]
 	for u in s.turns:
 		if u != t:
-			gen.append({"v": qf(u.y)})
-	gen.append({"v": qf(s.zeros[0])})
+			if u.kind != t.kind:
+				wrongs.append(wrong({"v": qf(u.y)}, GF_MAX_MIN))
+			else:
+				fillers.append({"v": qf(u.y)})
+	fillers.append({"v": qf(s.zeros[0])})
 	var out := {"asked": "Write down the local %s value of f." % word, "lines": [line(s)], "answer": ans,
-		"wrongs": [wrong({"v": tq[0]}, MM + "#0")], "generic": gen}
+		"wrongs": wrongs, "fillers": fillers}
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown." % line(s)]
 		out.graph = screen(s, end_dots(s))
@@ -1061,9 +1165,8 @@ func u_y_intercept(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	ans.show = "sf"
 	var final := "So the y-intercept is %s." % Answer.text(ans)
 	var z: Q = zero_qs(s)[0]
-	var gen: Array = [{"y": s.c}, {"y": y0.neg()}, {"y": qf(at(s, 1.0))}, {"y": s.A}]
 	var out := {"asked": "Find the y-intercept of the graph of f.", "lines": [line(s)], "answer": ans,
-		"wrongs": [wrong({"y": z}, ZI + "#0")], "generic": gen}
+		"wrongs": [wrong({"y": z}, ZI + "#0")] + yint_wrongs(s, GF_CONST_ONLY, GF_NO_CONST), "fillers": yint_fillers(s)}
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown." % line(s)]
 		out.graph = screen(s, end_dots(s))
@@ -1077,18 +1180,21 @@ func u_y_intercept(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return out
 
 
-func u_zeros_with_x_factor(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_zeros_with_x_factor(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var qs := zero_qs(s)
 	var ans := xs_ans(qs)
 	var final := "So the zeros are " + Answer.text(ans) + "."
 	var others: Array = qs.filter(func(q): return not q.is_zero())
-	var gen: Array = [Answer.xs_of(qs.map(func(q): return q.neg())), Answer.xs_of(s.turns.map(func(t): return qf(t.x))),
-		Answer.xs_of([Q.new(0), others[0]]), Answer.xs_of([Q.new(0), others[1]])]
+	# Dividing by x comes first. The rounding trap takes a place, so one more slip fits:
+	# the other four are shuffled, so each one shows on some seeds.
+	var wrongs: Array = [wrong(Answer.xs_of(others), ZI + "#2")] + rng.shuffled([wrong(Answer.xs_of([Q.new(0), others[0]]), GF_ONE_ROOT),
+		wrong(Answer.xs_of(qs.map(func(q): return q.neg())), ZI + "#1"), wrong(Answer.xs_of(s.turns.map(func(t): return qf(t.x))), GF_TURNS_AS_ZEROS),
+		wrong(Answer.xs_of([Q.new(0), others[1]]), GF_ONE_ROOT)])
 	var quad := GdcKit.first(s.A, "x²") + GdcKit.join(s.b, "x") + GdcKit.join(s.m, "")
 	var nz := Answer.xs_list(s.zeros.filter(func(z): return z != 0.0).map(func(z): return "x = " + W(z)))
 	return {
 		"asked": "Find all the zeros of f.", "lines": [line(s)], "answer": ans,
-		"wrongs": [wrong(Answer.xs_of(others), ZI + "#2")], "generic": gen,
+		"wrongs": wrongs,
 		"titles": {"set-equal-zero": "Solve f(x) = 0"},
 		"methods": {
 			"gdc-zero": {"result": ans.values, "steps": [graph_step(s), "The zero tool at each crossing: " + zeros6(s) + ".", final]},
@@ -1105,11 +1211,14 @@ func u_count_zeros(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("number", {"v": Q.new(n)})
 	ans.exact = true
 	var inside: int = s.zeros.filter(func(z): return absf(z) <= 10.0).size()
-	# The number of turning points and no zeros first, so the fillers don't sit round the key.
-	var gen: Array = [{"v": Q.new(s.turns.size())}, {"v": Q.new(0)}, {"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}]
+	# No zeros first, so the fillers don't all sit round the key.
+	var fillers: Array = [{"v": Q.new(0)}, {"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}]
+	var wrongs: Array = [wrong({"v": Q.new(inside)}, SG + "#0")] if inside != n else []
+	if s.turns.size() != n:
+		wrongs.append(wrong({"v": Q.new(s.turns.size())}, GF_TURNS_AS_ZEROS))
 	var final := "So f has %d zero%s on the domain." % [n, "" if n == 1 else "s"]
 	var out := {"asked": "Find the number of zeros of f on the domain.", "lines": [line(s)], "answer": ans,
-		"wrongs": [wrong({"v": Q.new(inside)}, SG + "#0")] if inside != n else [], "generic": gen}
+		"wrongs": wrongs, "fillers": fillers}
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown." % line(s)]
 		out.graph = screen(s, end_dots(s))
@@ -1134,12 +1243,14 @@ func u_zero_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b: Q = tb.xs[i + 1]
 	var ans := num(z, "x = ")
 	var final := "So the largest zero is " + Answer.text(ans) + "."
-	var gen: Array = [{"v": a}, {"v": b}, {"v": a.add(b).div(Q.new(2))}, {"v": qf(s.zeros[0])} if s.zeros.size() > 1 else {"v": qf(s.turns[0].x)}]
+	var wrongs: Array = [wrong({"v": a}, GF_TABLE_END), wrong({"v": a.add(b).div(Q.new(2))}, GF_TABLE_MID),
+		wrong({"v": qf(s.zeros[0])}, GF_OTHER_ZERO) if s.zeros.size() > 1 else wrong({"v": qf(s.turns[0].x)}, GF_TURNS_AS_ZEROS),
+		wrong({"v": b}, GF_TABLE_END)]
 	var sign := "f(%s) = %s and f(%s) = %s have opposite signs, so the zero lies between x = %s and x = %s." % [Fmt.dec(a), Fmt.sf(tb.ys[i]),
 		Fmt.dec(b), Fmt.sf(tb.ys[i + 1]), Fmt.dec(a), Fmt.dec(b)]
 	return {
 		"asked": "The table shows values of f(x) = %s on %s. Find the interval holding the largest zero of f, then the zero to 3 s.f." % [GdcCurveSituation.text(s), dom(s)],
-		"lines": [], "table": table_view(tb), "answer": ans, "generic": gen,
+		"lines": [], "table": table_view(tb), "answer": ans, "wrongs": wrongs,
 		"methods": {
 			"gdc-zero": {"result": ans.values, "steps": [sign, "Use the zero tool between them: x = %s." % W(z), final]},
 			"table-sign-change": {"result": ans.values, "steps": [sign,
@@ -1155,10 +1266,11 @@ func u_use_stored_zeros(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var final := "So the distance between the zeros is " + Answer.text(ans) + "."
 	var r1 := float(Fmt.sf(z1).replace("−", "-"))
 	var r2 := float(Fmt.sf(z2).replace("−", "-"))
-	var gen: Array = [{"v": qf(absf(z1 + z2))}, {"v": qf(absf(z2))}, {"v": qf(absf(z1))}, {"v": qf(z2 - z1 + 1.0)}]
+	var wrongs: Array = [wrong({"v": Q.new(roundi((r2 - r1) * 1000), 1000)}, SG + "#1"), wrong({"v": qf(absf(z1 + z2))}, GF_ADDED),
+		wrong({"v": qf(absf(z2))}, GF_ONE_ZERO), wrong({"v": qf(absf(z1))}, GF_ONE_ZERO)]
 	return {
 		"asked": "The graph of f meets the x-axis at A and B. Find the distance AB.", "lines": [line(s)], "answer": ans,
-		"wrongs": [wrong({"v": Q.new(roundi((r2 - r1) * 1000), 1000)}, SG + "#1")], "generic": gen,
+		"wrongs": wrongs, "fillers": [{"v": qf(z2 - z1 + 1.0)}],
 		"methods": {"gdc-zero": {"result": ans.values, "steps": [graph_step(s),
 			"Store the zeros at full accuracy: x = %s and x = %s." % [W(z1), W(z2)],
 			"AB = %s − %s = %s, from the stored values, not the rounded ones." % [W(z2), minus_term(z1), W(z2 - z1)], final]}},
@@ -1176,10 +1288,12 @@ func u_constant_from_max(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var no_c := s.duplicate()
 	no_c.c = Q.new(0)
 	var g := GdcCurveSituation.text(no_c)
-	var gen: Array = [{"v": qf(M.to_float() + gmax)}, {"v": qf(gmax - M.to_float())}, {"v": M}, {"v": qf(M.to_float() - t.x)}]
+	# The x of the maximum used for its value is SL2.4.max-min#0.
+	var wrongs: Array = [wrong({"v": qf(M.to_float() + gmax)}, GF_C_ADDED), wrong({"v": qf(gmax - M.to_float())}, GF_C_BACKWARDS),
+		wrong({"v": M}, GF_C_IS_M), wrong({"v": qf(M.to_float() - t.x)}, MM + "#0")]
 	return {
 		"asked": "f(x) = %s + c, for %s, where c is a constant. The local maximum value of f is %s. Find c." % [g, dom(s), Fmt.dec(M)],
-		"lines": ["f(x) = %s + c" % g], "answer": ans, "generic": gen,
+		"lines": ["f(x) = %s + c" % g], "answer": ans, "wrongs": wrongs,
 		"methods": {
 			"gdc-max-min": {"result": ans.values, "steps": [
 				"c only lifts the graph, so graph y = %s and find its local maximum." % g,

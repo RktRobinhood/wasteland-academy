@@ -48,6 +48,10 @@ const M_SAME_SIDE := OWN + "31"
 const M_ADD_MEAN := OWN + "32"
 const M_NO_SIGMA := OWN + "33"
 const M_SCALED_K := OWN + "34"
+const M_FULL_WIDTH := OWN + "35"
+const M_ADD_HALF := OWN + "36"
+const M_SAME_VALUE := OWN + "37"
+const M_MEAN_TO_END := OWN + "38"
 
 const RULE_NAME := "68-95-99.7 rule"
 const RULE_LINE := "The rule: about 68% lie within 1 standard deviation of the mean, 95% within 2 and 99.7% within 3."
@@ -80,12 +84,14 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	out.given = NormalPropertiesSituation.export(s)
 	# The engine's last-resort nudges add 1, which is no probability.
 	if out.has("near_p"):
+		if not out.has("fillers"):
+			out.fillers = []
 		var v: Q = out.near_p
 		var scale := Q.new(100) if s.get("form", "") == "pct" else Q.new(1)
 		for k in [1, -1, 2, -2, 3, -3, 5, -5]:
 			var x := v.add(Q.new(k, 100))
 			if x.sign() > 0 and x.lt(Q.new(1)):
-				out.generic.append({"v": x.mul(scale)})
+				out.fillers.append({"v": x.mul(scale)})
 	return out
 
 
@@ -237,7 +243,6 @@ func u_empirical_share(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = pic(s, [[s.lo.to_float(), s.hi.to_float()]], [mk(s.lo), mk(s.hi)])
 	out.wrongs = pw(s, share(other), M_RULE) + pw(s, one_minus(c), M_OTHER_SIDE) + pw(s, half(c), M_HALF_BAND)
-	out.generic = []
 	var ending := "So %s" % final_text(ans)
 	out.methods = {"empirical-rule": method([reach_line(s), RULE_LINE, ending], ans.values),
 		"sketch-and-shade": method([sketch_line(rep, s, band, "the band between them") if not s.get("sym", false) else "Sketch the curve with the mean %s in the middle, and shade the band out to %s each side." % [D(s.mu), sds(s.k)],
@@ -270,7 +275,7 @@ func u_empirical_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs.append(wrong({"v": half(v)}, M_ONE_TAIL_LEFT))
 	wrongs.append(wrong({"v": keep}, M_NOT_COUNTED))
 	out.wrongs = wrongs
-	out.generic = [{"v": n.mul(Q.new(1, 2))}, {"v": n.mul(Q.new(34, 100))}, {"v": n.mul(Q.new(16, 100))}, {"v": v.mul(2)}]
+	out.fillers = [{"v": n.mul(Q.new(1, 2))}, {"v": n.mul(Q.new(34, 100))}, {"v": n.mul(Q.new(16, 100))}, {"v": v.mul(2)}]
 	var steps: Array = ["%s − %s = %s, and %s ÷ %s = %d, so the ends are %s either side of the mean." % [D(s.hi), D(s.mu), D(s.hi.sub(s.mu)), D(s.hi.sub(s.mu)), D(s.sg), s.k, sds(s.k)]]
 	if s.mode == "in":
 		steps.append("By the rule, a share of about %s lies inside that band." % D(c))
@@ -310,7 +315,6 @@ func u_empirical_tail(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs += pw(s, one_minus(c), M_BOTH_TAILS) + pw(s, big, M_OTHER_SIDE) + pw(s, half(c), M_HALF_BAND)
 	wrongs += pw(s, half(one_minus(share(other))) if not inner else half(share(other)).add(Q.new(1, 2)), M_RULE)
 	out.wrongs = wrongs
-	out.generic = []
 	var d: Q = s.x.sub(s.mu).abs_q()
 	var where := "%s is %s %s the mean" % [D(s.x), sds(s.k), "above" if s.up else "below"]
 	var rule_steps: Array = [("%s: |%s − %s| = %s, and %s ÷ %s = %d." % [where, D(s.x), D(s.mu), D(d), D(d), D(s.sg), s.k])]
@@ -367,7 +371,6 @@ func u_empirical_band(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs += pw(s, hb.abs_q() if hb.abs_q().sub(ha.abs_q()).sign() > 0 else ha.abs_q(), M_HALF_BAND)
 	wrongs += pw(s, swap.call(b).sub(swap.call(a)), M_RULE)
 	out.wrongs = wrongs
-	out.generic = []
 	var parts: Array = []
 	for z in [a, b]:
 		if z != 0:
@@ -412,9 +415,11 @@ func u_sd_from_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = curve(s.muf, s.sgf, [[s.lo.to_float(), s.hi.to_float()]], [mk(s.lo), mk(s.mu), mk(s.hi)])
 	out.wrongs = [wrong({"v": width.div(Q.new(s.k))}, M_WIDTH), wrong({"v": width.div(Q.new(2 * other))}, M_RULE)]
-	out.generic = [{"v": width}, {"v": s.sg.add(1)}, {"v": s.sg.mul(2)}, {"v": s.sg.add(2)}]
+	out.fillers = [{"v": s.sg.add(1)}, {"v": s.sg.mul(2)}, {"v": s.sg.add(2)}]
 	if s.k == 1:
 		out.wrongs.push_front(wrong({"v": width}, M_WIDTH))
+	else:
+		out.wrongs.append(wrong({"v": width}, M_FULL_WIDTH))
 	out.methods = {"empirical-rule": method(["The band is %s − %s = %s wide." % [D(s.hi), D(s.lo), D(width)],
 		"By the rule, %s%% is the band μ ± %s, which is 2 × %d = %d standard deviations wide." % [pct(c), "σ" if s.k == 1 else "%dσ" % s.k, s.k, 2 * s.k],
 		"σ = %s ÷ %d = %s" % [D(width), 2 * s.k, D(s.sg)], "So %s" % final_text(ans)], ans.values)}
@@ -443,7 +448,7 @@ func u_other_sd_end(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.k > 1:
 		wrongs.append(wrong({"v": s.mu.add(s.sg.mul(sign_v))}, M_ONE_SD))
 	out.wrongs = wrongs
-	out.generic = [{"v": s.mu.add(s.sg.mul(Q.new(sign_v * (s.k + 1))))}, {"v": v.add(s.sg.mul(sign_v))}, {"v": given.sub(s.sg.mul(sign_v))}, {"v": v.add(sign_v)}, {"v": v.sub(sign_v)}]
+	out.fillers = [{"v": s.mu.add(s.sg.mul(Q.new(sign_v * (s.k + 1))))}, {"v": v.add(s.sg.mul(sign_v))}, {"v": given.sub(s.sg.mul(sign_v))}, {"v": v.add(sign_v)}, {"v": v.sub(sign_v)}]
 	var op := "+" if s.given_low else "−"
 	var calc: String = "%s %s %s" % [D(s.mu), op, D(s.sg)] if s.k == 1 else "%s %s %d × %s" % [D(s.mu), op, s.k, D(s.sg)]
 	var ending := "So %s" % final_text(ans)
@@ -470,7 +475,7 @@ func u_point_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	if s.j == 0:
 		wrongs += pw(s, Q.new(34, 100), M_POINT)
 	out.wrongs = wrongs
-	out.generic = [{"v": Q.new(1)}, {"v": Q.new(68, 100)}, {"v": Q.new(95, 100)}]
+	out.fillers = [{"v": Q.new(1)}, {"v": Q.new(68, 100)}, {"v": Q.new(95, 100)}]
 	var first := "Sketch the curve and mark %s." % D(s.x)
 	out.methods = {"sketch-and-shade": method([first, "The variable is continuous, so a probability is an area under the curve, and a single value is a line with no width.", "The area of a line is 0.", "So %s" % final_text(ans)], ans.values)}
 	return out
@@ -522,7 +527,7 @@ func u_effect_of_change(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		steps = ["μ stays %s, so the centre doesn't move." % D(s.mu),
 			"σ goes from %s to %s, so the curve gets %s, and the total area stays 1, so it gets %s." % [D(s.sg), D(s.sg2), "wider" if up else "narrower", "lower" if up else "taller"], Answer.text(ans)]
-	return {"lines": lines, "asked": asked, "answer": ans, "table": null, "wrongs": wrongs, "generic": [],
+	return {"lines": lines, "asked": asked, "answer": ans, "table": null, "wrongs": wrongs,
 		"methods": {"parameter-effect": method(steps, ans.values)}}
 
 
@@ -560,7 +565,7 @@ func u_match_curve(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"marks": means.map(func(m): return {"at": float(m), "label": str(m)})}
 	return {"lines": ["The diagram shows four normal curves, A, B, C and D, on the same axes."], "graph": graph, "table": null,
 		"asked": "Which curve is the graph of X ~ N(%d, %s)?" % [want.mu, spread_text(want.sg, s.as_variance)], "answer": ans,
-		"wrongs": wrongs + [wrong({"v": name.call(both)})], "generic": [],
+		"wrongs": wrongs + [wrong({"v": name.call(both)}, M_WRONG_MEAN)],
 		"methods": {"parameter-effect": method([line, sigma_line, Answer.text(ans) + "."], ans.values)}}
 
 
@@ -687,7 +692,7 @@ func u_same_sd_shift(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v: Q = s.x.add(d)
 	var ans := exact_ans("b = ", v)
 	var move := "right" if d.sign() > 0 else "left"
-	return {"lines": _shift_lines(s, ">"), "asked": "Find b.", "answer": ans, "table": null, "generic": [{"v": s.mu}, {"v": s.mu2}, {"v": v.add(1)}, {"v": v.sub(1)}],
+	return {"lines": _shift_lines(s, ">"), "asked": "Find b.", "answer": ans, "table": null, "fillers": [{"v": s.mu}, {"v": s.mu2}, {"v": v.add(1)}, {"v": v.sub(1)}],
 		"wrongs": [wrong({"v": s.x}, M_NO_SHIFT), wrong({"v": s.x.sub(d)}, M_SHIFT_BACK)],
 		"methods": {"parameter-effect": method(["X and Y have the same σ, so they are the same curve, and the curve of Y slides onto the curve of X.", "The slide is %s − %s = %s, which is %s to the %s." % [D(s.mu), D(s.mu2), D(d), D(d.abs_q()), move],
 			"The point %s slides with the curve, so b = %s %s %s = %s" % [D(s.x), D(s.x), "+" if d.sign() > 0 else "−", D(d.abs_q()), D(v)], "So %s" % final_text(ans)], ans.values)}}
@@ -701,7 +706,7 @@ func u_shifted_mirror(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var d: Q = s.mu.sub(s.mu2)
 	var same_side := "X and Y have the same σ, and %s is %s above Y's mean." % [D(s.x), D(off)]
 	var ending := "So %s" % final_text(ans)
-	return {"lines": _shift_lines(s, "<"), "asked": "Find b.", "answer": ans, "table": null, "generic": [{"v": s.mu}, {"v": v.add(1)}, {"v": v.sub(1)}, {"v": v.add(2)}],
+	return {"lines": _shift_lines(s, "<"), "asked": "Find b.", "answer": ans, "table": null, "fillers": [{"v": s.mu}, {"v": v.add(1)}, {"v": v.sub(1)}, {"v": v.add(2)}],
 		"wrongs": [wrong({"v": s.mu.add(off)}, M_SAME_SIDE), wrong({"v": s.x}, M_NO_SHIFT), wrong({"v": s.x.sub(d)}, M_SHIFT_BACK)],
 		"methods": {"parameter-effect": method([same_side, "Slide the curve of Y onto the curve of X: %s goes to %s + %s = %s, with the same tail above it." % [D(s.x), D(s.mu), D(off), D(s.mu.add(off))],
 			"P(X < b) is the mirror of that tail, so b is %s below X's mean: %s − %s = %s" % [D(off), D(s.mu), D(off), D(v)], ending], ans.values),
@@ -738,7 +743,7 @@ func u_beyond_sd(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		wrongs.append(wrong_x(s.no_sd, M_NO_SD))
 	out.wrongs = wrongs
-	out.generic = near(s.prob)
+	out.fillers = near(s.prob)
 	var mark: String
 	var key: String
 	var value: float = s.prob
@@ -775,7 +780,7 @@ func u_half_below_mean(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = curve(s.muf, s.sgf, side_shade(s.muf, s.kind), [mk(s.mu)])
 	out.wrongs = pw(s, Q.new(68, 100), M_WHOLE_BAND) + pw(s, Q.new(34, 100), M_HALF_BAND) + pw(s, Q.new(1, 4), M_HALF)
-	out.generic = [{"v": Q.new(1)}]
+	out.fillers = [{"v": Q.new(1)}]
 	var ending := "So %s" % final_text(ans)
 	out.methods = {"mirror-tails": method(["The curve is symmetric about μ = %s, so the area below %s mirrors the area above it." % [D(s.mu), D(s.mu)], "Two equal areas make the whole area 1, so each is 1 ÷ 2 = 0.5", ending], ans.values),
 		"area-bookkeeping": method(["The total area is 1.", "The mean cuts the curve into two equal halves: 1 ÷ 2 = 0.5", ending], ans.values)}
@@ -794,7 +799,6 @@ func u_mirror_tail(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = pic(s, tail_shade(s, s.up), [mk(s.lo), mk(s.hi)])
 	out.wrongs = pw(s, one_minus(p), M_COMPLEMENT) + pw(s, Q.new(1, 2).sub(p), M_MEASURED_FROM_MEAN) + pw(s, p.mul(2), M_BOTH_TAILS)
-	out.generic = []
 	var ending := "So %s" % final_text(ans)
 	var dist := "%s and %s are both %s from the mean %s." % [D(s.lo), D(s.hi), D(s.a), D(s.mu)]
 	out.methods = {"mirror-tails": method([dist, "Equal distances either side of μ cut off equal tails, so P(%s) = P(%s)." % [tail_event(s, false), tail_event(s, true)], ending], ans.values),
@@ -816,7 +820,6 @@ func u_mirror_complement(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	if rep == "diagram":
 		out.graph = pic(s, side_shade(tail_x(s, up).to_float(), "lt" if up else "gt"), [mk(s.lo), mk(s.hi)])
 	out.wrongs = pw(s, big, M_NO_COMPLEMENT) + pw(s, big.sub(Q.new(1, 2)), M_MEASURED_FROM_MEAN) + pw(s, one_minus(s.p.mul(2)), M_WHOLE_BAND)
-	out.generic = []
 	var ending := "So %s" % final_text(ans)
 	var near_end := "X > %s" % D(s.hi) if up else "X < %s" % D(s.lo)
 	var past := "1 − %s = %s" % [D(big), D(s.p)]
@@ -835,7 +838,6 @@ func u_middle_from_tail(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = pic(s, tail_shade(s, s.up), [mk(s.lo), mk(s.hi)])
 	out.wrongs = pw(s, p.mul(2), M_ADD_TAILS) + pw(s, one_minus(p), M_ONE_TAIL_LEFT) + pw(s, Q.new(1, 2).sub(p), M_MEASURED_FROM_MEAN)
-	out.generic = []
 	var ending := "So %s" % final_text(ans)
 	out.methods = {"mirror-tails": method(["%s and %s are both %s from the mean, so the two tails are equal: each is %s." % [D(s.lo), D(s.hi), D(s.a), D(p)], "Take both tails from the whole area: 1 − 2 × %s = %s" % [D(p), D(v)], ending], ans.values),
 		"area-bookkeeping": method(["The whole area is 1, and P(%s) is %s by symmetry." % [tail_event(s, not s.up), D(p)], "The area below %s is 1 − %s = %s." % [D(s.hi), D(p), D(one_minus(p))], "Take off the lower tail: %s − %s = %s" % [D(one_minus(p)), D(p), D(v)], ending], ans.values),
@@ -851,7 +853,6 @@ func u_tail_from_middle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = pic(s, [[s.lo.to_float(), s.hi.to_float()]], [mk(s.lo), mk(s.hi)])
 	out.wrongs = pw(s, one_minus(c), M_BOTH_TAILS) + pw(s, half(c), M_HALF_BAND) + pw(s, half(c).add(Q.new(1, 2)), M_OTHER_SIDE)
-	out.generic = []
 	var ending := "So %s" % final_text(ans)
 	var left := "1 − %s = %s" % [D(c), D(one_minus(c))]
 	out.methods = {"mirror-tails": method(["The band is centred on the mean, as both ends are %s from %s, so its two tails are equal." % [D(s.a), D(s.mu)], "They share what is left: %s, then %s ÷ 2 = %s" % [left, D(one_minus(c)), D(v)], ending], ans.values),
@@ -869,8 +870,7 @@ func u_half_of_middle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"lines": [model(rep, s, s.mu, null), band_fact(rep, s, c)], "asked": ask_range(rep, s, a, b), "answer": ans, "table": null, "near_p": v}
 	if rep == "diagram":
 		out.graph = pic(s, [[s.lo.to_float(), s.hi.to_float()]], [mk(s.lo), mk(s.hi)])
-	out.wrongs = pw(s, c, M_WHOLE_BAND) + pw(s, half(one_minus(c)), M_OTHER_SIDE)
-	out.generic = [{"v": v.add(Q.new(1, 2))}]
+	out.wrongs = pw(s, c, M_WHOLE_BAND) + pw(s, half(one_minus(c)), M_OTHER_SIDE) + pw(s, v.add(Q.new(1, 2)), M_ADD_HALF)
 	var ending := "So %s" % final_text(ans)
 	out.methods = {"mirror-tails": method(["Both ends are %s from the mean %s, so the mean cuts the band into two mirror halves." % [D(s.a), D(s.mu)], "Each half is %s ÷ 2 = %s" % [D(c), D(v)], ending], ans.values),
 		"area-bookkeeping": method(["The band's area is the two pieces either side of the mean: piece + piece = %s." % D(c), "The pieces are equal, so piece = %s ÷ 2 = %s" % [D(c), D(v)], ending], ans.values)}
@@ -887,7 +887,6 @@ func u_mean_to_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = pic(s, tail_shade(s, s.up), [mk(tail_x(s, s.up))])
 	out.wrongs = pw(s, p, M_OTHER_SIDE) + pw(s, one_minus(p), M_HALF) + pw(s, one_minus(p.mul(2)), M_WHOLE_BAND)
-	out.generic = []
 	var ending := "So %s" % final_text(ans)
 	var half_side := "above" if s.up else "below"
 	out.methods = {"area-bookkeeping": method(["The half of the curve %s the mean holds 0.5." % half_side, "Take off the tail: 0.5 − %s = %s" % [D(p), D(v)], ending], ans.values),
@@ -905,7 +904,6 @@ func u_between_from_two_tails(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	if rep == "diagram":
 		out.graph = curve(s.muf, s.sgf, [[null, s.x1.to_float()], [s.x2.to_float(), null]], [mk(s.x1), mk(s.x2)])
 	out.wrongs = pw(s, p1.add(p2), M_ADD_TAILS) + pw(s, one_minus(p1), M_ONE_TAIL_LEFT) + pw(s, one_minus(p2), M_ONE_TAIL_LEFT) + pw(s, one_minus(p1.mul(2)), M_EQUAL_TAILS)
-	out.generic = []
 	var ending := "So %s" % final_text(ans)
 	out.methods = {"area-bookkeeping": method(["The three regions fill the whole area, so the total is 1.", "Take both tails off: 1 − %s − %s = %s" % [D(p1), D(p2), D(v)], ending], ans.values),
 		"shaded-sketch": method([("Read the curve: the two tails are shaded." if rep == "diagram" else "Sketch the curve, mark %s and %s, and shade the two tails." % [D(s.x1), D(s.x2)]), "The tails are different sizes, %s and %s, and the middle is what is left." % [D(p1), D(p2)], "1 − %s − %s = %s" % [D(p1), D(p2), D(v)], ending], ans.values)}
@@ -921,7 +919,7 @@ func u_tail_from_band(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var asked := "Find P(X < w)." if rep != "words" else "One %s is chosen at random. Find the probability that its %s is less than w%s." % [e.item, e.attr, u]
 	var out := {"lines": [opening(rep, s), fact], "asked": asked, "answer": ans, "table": null}
 	out.wrongs = [wrong_x(s.one, M_ONE_TAIL_LEFT), wrong_x(s.u, M_OTHER_SIDE)]
-	out.generic = near(s.prob)
+	out.fillers = near(s.prob)
 	var key := "Key normalcdf(%s, %s, %s, %s) and read P(X > %s) = %s." % [D(s.x), INF, D(s.mu), D(s.sg), D(s.x), W(s.u)]
 	var sub := "1 − %s − %s = %s" % [D(c), W(s.u), W(s.prob)]
 	out.methods = {"area-bookkeeping": method([key, "Below w, between w and %s, and above %s fill the whole area, so the three add up to 1." % [D(s.x), D(s.x)], sub, final_step(ans)], ans.values),
@@ -942,7 +940,8 @@ func u_mirror_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = pic(s, [[null, s.lo.to_float()], [s.hi.to_float(), null]], [mk(given), mk_as(v, "b")])
 	out.wrongs = [wrong({"v": given.neg()}, M_ABOUT_ZERO), wrong({"v": given.add(s.mu)}, M_ADD_MEAN)]
-	out.generic = [{"v": given}, {"v": s.a}, {"v": v.add(1)}, {"v": v.sub(1)}, {"v": v.add(2)}]
+	out.wrongs.append(wrong({"v": given}, M_SAME_VALUE))
+	out.fillers = [{"v": s.a}, {"v": v.add(1)}, {"v": v.sub(1)}, {"v": v.add(2)}]
 	var ending := "So %s" % final_text(ans)
 	var d := "%s is %s %s the mean %s." % [D(given), D(s.a), "below" if s.given_low else "above", D(s.mu)]
 	var calc := "b = %s %s %s = %s" % [D(s.mu), "+" if s.given_low else "−", D(s.a), D(v)]
@@ -973,7 +972,7 @@ func u_central_k(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "diagram":
 		out.graph = curve(s.muf, s.sgf, [[s.lof, s.hif]], [mk_as(s.lof, "%s − k" % D(s.mu)), mk_as(s.muf, D(s.mu)), mk_as(s.hif, "%s + k" % D(s.mu))])
 	out.wrongs = [wrong_x(s.zc * s.sgf, M_LEFT_TAIL), wrong_x(s.hif, M_ENDPOINT), wrong_x(s.z, M_NO_SIGMA)]
-	out.generic = vs([s.width * 2.0, s.width * 1.1, s.width * 0.9, s.width + 1.0])
+	out.fillers = vs([s.width * 2.0, s.width * 1.1, s.width * 0.9, s.width + 1.0])
 	var take := "k = %s − %s = %s" % [W(s.hif), D(s.mu), W(s.width)]
 	out.methods = {"split-tails": method(split_lines(s) + [take, final_step(ans)], ans.values),
 		"gdc-center": method([center_line(s), "k is the distance from the mean to the upper end: " + take, final_step(ans)], ans.values),
@@ -993,8 +992,8 @@ func u_central_endpoints(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	if rep == "words":
 		asked = "Find the interval, symmetric about the mean, that contains %s%% of them. Write it with X for the %s." % [pct(s.level), scene(s).attr]
 	var out := {"lines": [opening(rep, s)], "asked": asked, "answer": ans, "table": null}
-	out.wrongs = [wrong(ends_val(s.wlo, s.whi), M_LEFT_TAIL), wrong(ends_val(s.zlo, s.zhi), M_NO_SIGMA)]
-	out.generic = [ends_val(s.muf - s.width * 1.2, s.muf + s.width * 1.2), ends_val(s.muf - s.width * 0.8, s.muf + s.width * 0.8), ends_val(s.muf, s.hif)]
+	out.wrongs = [wrong(ends_val(s.wlo, s.whi), M_LEFT_TAIL), wrong(ends_val(s.zlo, s.zhi), M_NO_SIGMA), wrong(ends_val(s.muf, s.hif), M_MEAN_TO_END)]
+	out.fillers = [ends_val(s.muf - s.width * 1.2, s.muf + s.width * 1.2), ends_val(s.muf - s.width * 0.8, s.muf + s.width * 0.8)]
 	var ending: String = "So %s, to 3 s.f." % Answer.text(ans)
 	var low := "The lower end is the mirror of it: %s − (%s − %s) = %s" % [D(s.mu), W(s.hif), D(s.mu), W(s.lof)]
 	out.methods = {"split-tails": method(split_lines(s) + [low, ending], ans.values),
@@ -1010,7 +1009,7 @@ func u_central_k_sd(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		e = "%s%% of them lie within k standard deviations of the mean." % pct(s.level)
 	var out := {"lines": [opening(rep, s), e], "asked": "Find k.", "answer": ans, "table": null}
 	out.wrongs = [wrong_x(s.zc, M_LEFT_TAIL), wrong_x(s.width, M_SCALED_K), wrong_x(s.hif, M_ENDPOINT)]
-	out.generic = vs([s.z * 2.0, s.z * 1.1, s.z * 0.9, s.z + 1.0])
+	out.fillers = vs([s.z * 2.0, s.z * 1.1, s.z * 0.9, s.z + 1.0])
 	var last := "k counts standard deviations: (%s − %s) ÷ %s = %s" % [W(s.hif), D(s.mu), D(s.sg), W(s.z)]
 	out.methods = {"split-tails": method(split_lines(s) + [last, final_step(ans)], ans.values),
 		"gdc-center": method([center_line(s), last, final_step(ans)], ans.values),

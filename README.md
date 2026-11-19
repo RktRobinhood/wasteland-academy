@@ -56,13 +56,15 @@ Godot is found on `PATH`, at `~/.local/bin/godot`, or from `GODOT=/path/to/godot
 GitHub Actions (`.github/workflows/test.yml`) runs nine jobs on every PR and on pushes to `main`:
 
 - `godot`: `./test.sh`.
+- `export`: the web export, built once and shared with `web` and `takeover`.
 - `web`: the export, booted in headless Chromium at phone and PC sizes, with screenshots.
 - `answers-shard` and `answers`: the SymPy answer checker in six shards, then merged.
-- `stress`: the seed sweep, in twelve shards.
 - `feedback`: what a student reads after each wrong option (`tools/feedback-check`).
 - `takeover`: the site laid out as Pages publishes it, checked in a browser (`tools/takeover-dry-run`).
 - `test`: `npm test`, the Node unit tests, the content validator and the HTML game's Playwright tests, plus the telemetry report's tests.
 - `telemetry`: type-check and tests for the collector in `services/telemetry/`.
+
+`.github/workflows/stress.yml` runs the seed sweep in twelve shards every night on `main`, then `stress` passes only if all twelve did. Run it on a branch with `gh workflow run stress --ref <branch>`. Play draws its seeds only from the range the checker and the sweep cover (`game/engine/verified_seeds.gd`), and `test_verified_seeds` fails if the two drift apart. `.github/workflows/release.yml` runs `test.yml` and `stress.yml` on a `v*` tag. Its `green` job passes only when every job of both passed.
 
 `.github/workflows/pages.yml` publishes the site on every push to `main`.
 

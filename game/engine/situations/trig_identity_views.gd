@@ -14,6 +14,22 @@ const R_COS2 := "SL3.6.double-angle-values#1"
 const R_LOST := "SL3.6.double-angle-values#2"
 const R_EXPAND := "SL3.6.simplify#0"
 const R_PRODUCT := "SL3.6.simplify#1"
+## The type's own misconceptions, by index (FAL-1149).
+const OWN := "t3-identity-values#"
+const R_NO_ROOT := OWN + "8"
+const R_TAN_FLIP := OWN + "9"
+const R_OPP_HYP := OWN + "10"
+const R_HYP_SQ := OWN + "11"
+const R_NO_TWO := OWN + "12"
+const R_COS_FORM := OWN + "13"
+const R_SIN_FORM := OWN + "14"
+const R_KEEP_K := OWN + "15"
+const R_SAME_ANGLE := OWN + "16"
+const R_MID_SIGN := OWN + "17"
+const R_TWO_ONES := OWN + "18"
+const R_MID_TWICE := OWN + "19"
+const R_NO_D := OWN + "20"
+const R_MINIMUM := OWN + "21"
 
 const UNKNOWNS := ["cos-from-sin", "sin-from-cos", "tan-from-ratio", "cos-from-tan", "sin2-from-ratio", "cos2-from-sin", "cos2-from-cos",
 	"cos-from-cos2", "rewrite-in-sin", "single-cos", "product-sine", "expand-square", "max-after-rewrite"]
@@ -122,7 +138,8 @@ func u_cos_from_sin(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := show(rep, s, "sin θ = " + T(b[0]))
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "asked": "Find the exact value of cos θ."}
 	out.wrongs = TrigKit.like(a, TrigKit.neg(b[1]), R_SIGN) + TrigKit.like(a, TrigKit.plus(TrigKit.V(1), TrigKit.neg(b[0])), R_DROP_SQ)
-	out.generic = _sized(a, [b[0], TrigKit.neg(b[0]), TrigKit.over(b[0], b[1]), TrigKit.over(b[1], b[0]), TrigKit.sq(b[1])])
+	out.wrongs += TrigKit.like(a, TrigKit.sq(b[1]), R_NO_ROOT)
+	out.fillers = _sized(a, [b[0], TrigKit.neg(b[0]), TrigKit.over(b[0], b[1]), TrigKit.over(b[1], b[0])])
 	out.methods = three(s, a, "sin", "cos", b[0], b[1])
 	return out
 
@@ -134,7 +151,8 @@ func u_sin_from_cos(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "asked": "Find the exact value of sin θ."}
 	var slip := TrigKit.plus(TrigKit.V(1), TrigKit.neg(size_of(s)))
 	out.wrongs = TrigKit.like(a, TrigKit.neg(b[1]), R_SIGN) + TrigKit.like(a, TrigKit.times(slip, TrigKit.sign_in("sin", s.q)), R_ROOT)
-	out.generic = _sized(a, [b[0], TrigKit.neg(b[0]), TrigKit.over(b[0], b[1]), TrigKit.over(b[1], b[0]), TrigKit.sq(b[1])])
+	out.wrongs += TrigKit.like(a, TrigKit.sq(b[1]), R_NO_ROOT)
+	out.fillers = _sized(a, [b[0], TrigKit.neg(b[0]), TrigKit.over(b[0], b[1]), TrigKit.over(b[1], b[0])])
 	out.methods = three(s, a, "cos", "sin", b[0], b[1])
 	return out
 
@@ -147,7 +165,8 @@ func u_tan_from_ratio(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := show(rep, s, "%s θ = %s" % [s.fn, T(b[0])])
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "asked": "Find the exact value of tan θ."}
 	out.wrongs = TrigKit.like(a, TrigKit.neg(v0), R_SIGN)
-	out.generic = _sized(a, [TrigKit.over(sc[1], sc[0]), TrigKit.neg(TrigKit.over(sc[1], sc[0])), sc[0], sc[1], TrigKit.times(v0, 2)])
+	out.wrongs += TrigKit.like(a, TrigKit.over(sc[1], sc[0]), R_TAN_FLIP)
+	out.fillers = _sized(a, [TrigKit.neg(TrigKit.over(sc[1], sc[0])), sc[0], sc[1], TrigKit.times(v0, 2)])
 	var rest := "cos" if s.fn == "sin" else "sin"
 	out.methods = three(s, a, s.fn, rest, b[0], b[1], ["tan θ = sin θ ÷ cos θ = %s" % T(v0)])
 	return out
@@ -163,7 +182,9 @@ func u_cos_from_tan(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var h := T(TrigKit.root(hyp))
 	var size := TrigKit.times(sc[1], TrigKit.sign_in("cos", s.q))
 	out.wrongs = TrigKit.like(a, TrigKit.neg(sc[1]), R_SIGN)
-	out.generic = _sized(a, [sc[0], TrigKit.neg(sc[0]), TrigKit.V(Q.new(s.run, s.rise)), TrigKit.V(Q.new(s.run, s.rise + s.run)), TrigKit.V(Q.new(s.run, hyp))])
+	# sin θ for cos θ, and the hypotenuse's square used as the hypotenuse (with the quadrant's sign).
+	out.wrongs += TrigKit.like(a, sc[0], R_OPP_HYP) + TrigKit.like(a, TrigKit.V(Q.new(s.run * TrigKit.sign_in("cos", s.q), hyp)), R_HYP_SQ)
+	out.fillers = _sized(a, [TrigKit.neg(sc[0]), TrigKit.V(Q.new(s.run, s.rise)), TrigKit.V(Q.new(s.run, s.rise + s.run))])
 	var last := "cos θ = %s" % T(sc[1])
 	out.methods = {"right-triangle-sketch": method(["Sketch a right triangle with opposite %d and adjacent %d." % [s.rise, s.run], "Pythagoras: hypotenuse² = %d, so it is %s." % [hyp, h],
 			"The size of cos θ is %d ÷ %s = %s. %s" % [s.run, h, T(size), quad_sign("cos", s.q)], last, say(a)], a.values),
@@ -182,7 +203,8 @@ func u_sin2_from_ratio(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = TrigKit.like(a, TrigKit.times(sc[0], 2), R_SIN2)
 	if TrigKit.fl(sc[1]) < 0.0:
 		out.wrongs += TrigKit.like(a, TrigKit.times(TrigKit.mul(sc[0], TrigKit.neg(sc[1])), 2), R_LOST)
-	out.generic = _sized(a, [TrigKit.neg(d), TrigKit.mul(sc[0], sc[1]), TrigKit.times(sc[1], 2), TrigKit.times(d, 2), TrigKit.plus(TrigKit.sq(sc[1]), TrigKit.neg(TrigKit.sq(sc[0])))])
+	out.wrongs += TrigKit.like(a, TrigKit.mul(sc[0], sc[1]), R_NO_TWO) + TrigKit.like(a, TrigKit.plus(TrigKit.sq(sc[1]), TrigKit.neg(TrigKit.sq(sc[0]))), R_COS_FORM)
+	out.fillers = _sized(a, [TrigKit.neg(d), TrigKit.times(sc[1], 2), TrigKit.times(d, 2)])
 	var rest := "cos" if s.fn == "sin" else "sin"
 	var sub := "sin 2θ = 2 sin θ cos θ = 2 × %s × %s = %s" % [P2(sc[0]), P2(sc[1]), T(d)]
 	out.methods = {"find-both-ratios": method(other_steps("pythagorean-identity", s, s.fn, rest, b[0], b[1]) + [sub, say(a)], a.values),
@@ -203,7 +225,9 @@ func u_cos2_from_sin(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := show(rep, s, "sin θ = " + T(b[0]))
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "asked": "Find the exact value of cos 2θ."}
 	out.wrongs = TrigKit.like(a, TrigKit.plus(TrigKit.V(1), TrigKit.neg(sq)), R_COS2) + TrigKit.like(a, TrigKit.times(b[1], 2), R_COS2)
-	out.generic = _sized(a, [TrigKit.neg(d), TrigKit.plus(TrigKit.times(sq, 2), TrigKit.V(-1)), sq, TrigKit.times(sq, 2), TrigKit.plus(d, TrigKit.V(1)), TrigKit.times(d, 2)])
+	# 2sin²θ − 1, the cos form with sin in it (it is also −cos 2θ).
+	out.wrongs += TrigKit.like(a, TrigKit.plus(TrigKit.times(sq, 2), TrigKit.V(-1)), R_COS2)
+	out.fillers = _sized(a, [sq, TrigKit.times(sq, 2), TrigKit.plus(d, TrigKit.V(1)), TrigKit.times(d, 2)])
 	var cq := TrigKit.sq(b[1])
 	var last := "cos 2θ = cos²θ − sin²θ = %s − %s = %s" % [T(cq), T(sq), T(d)]
 	out.methods = {"pick-cos2-form": method(["sin θ is given, so use cos 2θ = 1 − 2sin²θ. cos θ isn't needed.", "sin²θ = %s" % T(sq), "cos 2θ = 1 − 2 × %s = %s" % [T(sq), T(d)], say(a)], a.values),
@@ -220,7 +244,9 @@ func u_cos2_from_cos(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := show(rep, s, "cos θ = " + T(b[0]))
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "asked": "Find the exact value of cos 2θ."}
 	out.wrongs = TrigKit.like(a, TrigKit.times(b[0], 2), R_COS2)
-	out.generic = _sized(a, [TrigKit.neg(d), cq, TrigKit.times(cq, 2), TrigKit.plus(cq, TrigKit.V(-1)), TrigKit.plus(d, TrigKit.V(1)), TrigKit.times(d, 2)])
+	# 1 − 2cos²θ, the sin form with cos in it, and cos²θ − 1, the 2 in front lost.
+	out.wrongs += TrigKit.like(a, TrigKit.neg(d), R_COS2) + TrigKit.like(a, TrigKit.plus(cq, TrigKit.V(-1)), R_COS2)
+	out.fillers = _sized(a, [cq, TrigKit.times(cq, 2), TrigKit.plus(d, TrigKit.V(1)), TrigKit.times(d, 2)])
 	var sq := TrigKit.sq(b[1])
 	var last := "cos 2θ = cos²θ − sin²θ = %s − %s = %s" % [T(cq), T(sq), T(d)]
 	out.methods = {"pick-cos2-form": method(["cos θ is given, so use cos 2θ = 2cos²θ − 1. sin θ isn't needed.", "cos²θ = %s" % T(cq), "cos 2θ = 2 × %s − 1 = %s" % [T(cq), T(d)], say(a)], a.values),
@@ -229,7 +255,7 @@ func u_cos2_from_cos(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return out
 
 
-func u_cos_from_cos2(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_cos_from_cos2(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var c2: Q = s.cos2
 	var half: Q = c2.add(1).div(2)
 	var v := TrigKit.sqrt_q(half)
@@ -246,7 +272,9 @@ func u_cos_from_cos2(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		out.lines = ["cos 2θ = %s and 0 < θ < π/2." % Fmt.num(c2)]
 	out.wrongs = TrigKit.like(a, TrigKit.V(c2.div(2)), R_COS2)
-	out.generic = _sized(a, [TrigKit.V(half), TrigKit.neg(v), TrigKit.sqrt_q(Q.new(1).sub(c2).div(2)), TrigKit.V(c2), TrigKit.times(v, 2), TrigKit.V(half.div(2))])
+	out.wrongs += TrigKit.like(a, TrigKit.V(half), R_NO_ROOT) + TrigKit.like(a, TrigKit.neg(v), R_SIGN) + TrigKit.like(a, TrigKit.sqrt_q(Q.new(1).sub(c2).div(2)), R_SIN_FORM)
+	out.wrongs = rng.shuffled(out.wrongs)
+	out.fillers = _sized(a, [TrigKit.V(c2), TrigKit.times(v, 2), TrigKit.V(half.div(2))])
 	out.methods = {"pick-cos2-form": method(first + ["cos θ is wanted, so use cos 2θ = 2cos²θ − 1.", "2cos²θ = 1 + %s = %s, so cos²θ = %s" % [P(c2), Fmt.num(c2.add(1)), Fmt.num(half)],
 		"θ is acute, so take the positive root: cos θ = %s" % T(v), say(a)], a.values)}
 	return out
@@ -299,7 +327,7 @@ func u_rewrite_in_sin(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var drop: Array = [-s.p, s.m, s.p + s.k] if fn == "sin" else [s.p, s.m, s.k]
 		out.wrongs.append(alt.call(drop, R_COS2))
 	var gens: Array = [[-c[0], c[1], c[2]], [c[0], -c[1], c[2]], [c[0], c[1], c[2] + 2], [c[0], c[1], c[2] - 1], [c[0], c[1], -c[2]], [c[0] * 2, c[1], c[2]], [c[0], c[1], c[2] + 1]]
-	out.generic = gens.filter(func(g): return g[0] != 0 and g[1] != 0 and g != c).map(func(g): return alt.call(g).values)
+	out.fillers = gens.filter(func(g): return g[0] != 0 and g[1] != 0 and g != c).map(func(g): return alt.call(g).values)
 	var other := "cos" if fn == "sin" else "sin"
 	var use: String
 	if dbl:
@@ -348,8 +376,8 @@ func u_single_cos(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var mid := inner(s.from, w)
 	var head := "%d − %d %s²%sx" % [k, 2 * k, s.from, "" if w == 1 else str(w)] if s.from == "sin" else "%d cos²%sx − %d" % [2 * k, "" if w == 1 else str(w), k]
 	var out := {"answer": a, "lines": [head], "asked": "Write this in the form a cos bx, with a and b whole numbers."}
-	out.wrongs = []
-	out.generic = [wave_alt("cos", 2 * k, n).values, wave_alt("cos", k, w).values, wave_alt("sin", k, n, "", false).values, wave_alt("cos", 2 * k, w).values, wave_alt("cos", k, 2 * n).values]
+	out.wrongs = [wave_alt("cos", 2 * k, n, R_KEEP_K), wave_alt("cos", k, w, R_SAME_ANGLE)]
+	out.fillers = [wave_alt("sin", k, n, "", false).values, wave_alt("cos", 2 * k, w).values, wave_alt("cos", k, 2 * n).values]
 	var form := "1 − 2sin²u" if s.from == "sin" else "2cos²u − 1"
 	var u := "%sx" % ("" if w == 1 else str(w))
 	out.methods = {"pattern-match": method(["Take out the %d: %d(%s)" % [k, k, form.replace("u", u)], "%s = cos 2u, with u = %s." % [form, u], say(a)], a.values),
@@ -366,7 +394,8 @@ func u_product_sine(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var u := "%sx" % ("" if w == 1 else str(w))
 	var out := {"answer": a, "lines": ["%d sin %s cos %s" % [two, u, u]], "asked": "Write this in the form a sin bx, with a and b whole numbers."}
 	out.wrongs = [wave_alt("sin", two, n, R_PRODUCT)]
-	out.generic = [wave_alt("sin", k, w).values, wave_alt("sin", two, w).values, wave_alt("cos", k, n, "", false).values, wave_alt("sin", k, 2 * n).values]
+	out.wrongs.append(wave_alt("sin", k, w, R_SAME_ANGLE))
+	out.fillers = [wave_alt("sin", two, w).values, wave_alt("cos", k, n, "", false).values, wave_alt("sin", k, 2 * n).values]
 	var test := Q.new(1, 4 * w)
 	out.methods = {"pattern-match": method(["sin 2u = 2 sin u cos u, so %d sin %s cos %s is %d × 2 sin %s cos %s." % [two, u, u, k, u, u], "That is %d sin 2(%s)." % [k, u], say(a)], a.values),
 		"test-value": method(["sin 2u = 2 sin u cos u gives %d sin %dx." % [k, n], "Test x = %s: sin and cos of %s are both √2/2, so the first form gives %d, and %d sin(π/2) = %d." % [Fmt.pi(test), "π/4", k, k, k], say(a)], a.values)}
@@ -378,7 +407,7 @@ static func expand_text(k: int, b: int) -> String:
 	return "%d %s %ssin 2x" % [k, "+" if b > 0 else "−", "" if absi(b) == 1 else str(absi(b)) + " "]
 
 
-func u_expand_square(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_expand_square(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var k: int = s.k
 	var b := -k if s.minus else k
 	var a := DifferentiationViews.form(expand_text(k, b), [{"slot": "a"}, " + ", {"slot": "b"}, " sin ", {"slot": "c"}, "x"], {"a": Q.new(k), "b": Q.new(b), "c": Q.new(2)})
@@ -386,8 +415,10 @@ func u_expand_square(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var head := "%s(sin x %s cos x)²" % ["" if k == 1 else str(k), sign]
 	var out := {"answer": a, "lines": [head], "asked": "Write this in the form a + b sin cx, with a, b and c whole numbers."}
 	out.wrongs = [DifferentiationViews.alt(str(k), R_EXPAND)]
-	var alt := func(x: int, y: int) -> Dictionary: return DifferentiationViews.alt(expand_text(x, y), "", {"a": Q.new(x), "b": Q.new(y), "c": Q.new(2)}).values
-	out.generic = [alt.call(k, -b), alt.call(2 * k, b), alt.call(k, 2 * b), alt.call(k + 1, b), alt.call(k, b + (1 if b > 0 else -1))]
+	var tag := func(x: int, y: int, ref: String = "") -> Dictionary: return DifferentiationViews.alt(expand_text(x, y), ref, {"a": Q.new(x), "b": Q.new(y), "c": Q.new(2)})
+	out.wrongs += [tag.call(k, -b, R_MID_SIGN), tag.call(2 * k, b, R_TWO_ONES), tag.call(k, 2 * b, R_MID_TWICE)]
+	out.wrongs = rng.shuffled(out.wrongs)
+	out.fillers = [tag.call(k + 1, b).values, tag.call(k, b + (1 if b > 0 else -1)).values]
 	var mid := "sin²x %s 2 sin x cos x + cos²x" % sign
 	var one := "%d(1 %s sin 2x)" % [k, sign] if k > 1 else "1 %s sin 2x" % sign
 	out.methods = {"expand-then-identity": method(["Expand the square: %s" % mid, "sin²x + cos²x = 1 and 2 sin x cos x = sin 2x, which leaves %s." % one, say(a)], a.values),
@@ -406,7 +437,11 @@ func u_max_after_rewrite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var tail := "" if s.d == 0 else " %s %d" % ["+" if s.d > 0 else "−", absi(s.d)]
 	var out := {"answer": a, "lines": ["f(x) = %d sin %s cos %s%s" % [two, u, u, tail]], "asked": "Find the maximum value of f."}
 	out.wrongs = [wrong({"v": Q.new(two + s.d)}, R_PRODUCT)]
-	out.generic = [{"v": Q.new(s.d)}, {"v": Q.new(k)}, {"v": Q.new(two)}, {"v": Q.new(top + 1)}, {"v": Q.new(top - 1)}, {"v": Q.new(top + 2)}, {"v": Q.new(s.d - k)}].filter(func(g): return g.v.to_float() != float(top))
+	# The sine part's maximum with no constant (only when there is one), and the minimum.
+	if s.d != 0:
+		out.wrongs.append(wrong({"v": Q.new(k)}, R_NO_D))
+	out.wrongs.append(wrong({"v": Q.new(s.d - k)}, R_MINIMUM))
+	out.fillers = [{"v": Q.new(s.d)}, {"v": Q.new(two)}, {"v": Q.new(top + 1)}, {"v": Q.new(top - 1)}, {"v": Q.new(top + 2)}].filter(func(g): return g.v.to_float() != float(top))
 	var rewrite := "%d sin %s cos %s = %ssin %dx" % [two, u, u, "" if k == 1 else "%d " % k, 2 * w]
 	out.methods = {"pattern-match": method(["Rewrite with sin 2u = 2 sin u cos u: %s" % rewrite, "The sine has maximum 1, so f has maximum %d + %s." % [k, P(s.d)], say(a)], a.values),
 		"test-value": method(["Rewrite: %s, which is largest where sin %dx = 1." % [rewrite, 2 * w], "Test x = %s: f = %s%s = %s" % [Fmt.pi(Q.new(1, 4 * w)), "1" if k == 1 else "%d × 1" % k, tail, N(top)], say(a)], a.values)}

@@ -10,6 +10,12 @@ const R_BRACKET := T + "0"
 const R_SIGN := T + "1"
 const R_FRACTION := T + "2"
 const R_DIVIDE := T + "3"
+const R_NO_DIVIDE := T + "4"
+const R_DIVIDE_FIRST := T + "5"
+const R_MULTIPLY := T + "6"
+const R_DROP_MINUS := T + "7"
+const R_ADD_FRONT := T + "8"
+const R_DROP_FRONT := T + "9"
 
 
 func needs() -> Dictionary:
@@ -79,8 +85,10 @@ func u_two_step(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.asked = "Call the number x. Find x."
 		out.lines = [words(s)]
 	var rest: int = s.c - s.b
-	out.wrongs = [wrong({"v": Q.new(s.c + s.b, s.a)}, R_SIGN)]
-	out.generic = [{"v": Q.new(rest)}, {"v": Q.new(s.c, s.a).sub(s.b)}, {"v": s.x.neg()}, {"v": Q.new(s.a * rest)}]
+	# The division left out, done first on c alone, or done as a multiplication are slips.
+	out.wrongs = [wrong({"v": Q.new(s.c + s.b, s.a)}, R_SIGN), wrong({"v": Q.new(rest)}, R_NO_DIVIDE), wrong({"v": Q.new(s.c, s.a).sub(s.b)}, R_DIVIDE_FIRST),
+		wrong({"v": Q.new(s.a * rest)}, R_MULTIPLY)]
+	out.fillers = [{"v": s.x.neg()}]
 	var first: Array = ["Write it as an equation: %s." % eq] if rep == "words" else []
 	var take: String = "%s: %s = %s." % [take_n(s.b), cx(s.a), N(rest)]
 	var div: String = "Divide both sides by %s: x = %s." % [N(s.a), N(s.x)]
@@ -102,7 +110,8 @@ func u_both_sides(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong({"v": Q.new(s.d + s.b, coef)}, R_SIGN)]
 	if s.a + s.c != 0:
 		out.wrongs.append(wrong({"v": Q.new(rest, s.a + s.c)}, R_SIGN))
-	out.generic = [{"v": s.x.neg()}, {"v": Q.new(rest)}, {"v": Q.new(s.d - s.b, s.c - s.a).add(1)}]
+	out.wrongs.append(wrong({"v": Q.new(rest)}, R_NO_DIVIDE))
+	out.fillers = [{"v": s.x.neg()}, {"v": Q.new(s.d - s.b, s.c - s.a).add(1)}]
 	var move := "%s: %s = %s." % [take_x(s.c), Fmt.poly([coef, s.b]), N(s.d)]
 	var num := "%s: %s = %s." % [take_n(s.b), cx(coef), N(rest)]
 	var right: Q = s.x.mul(s.c).add(s.d)
@@ -126,8 +135,10 @@ func u_brackets(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var coef: int = s.p - s.r
 	var rest: int = rt - pq
 	# The second term of a bracket left unmultiplied: on both sides, or on the left only.
-	out.wrongs = [wrong({"v": Q.new(s.t - s.q, coef)}, R_BRACKET), wrong({"v": Q.new(rt - s.q, coef)}, R_BRACKET)]
-	out.generic = [{"v": s.x.neg()}, {"v": Q.new(rest)}, {"v": Q.new(rt + pq, coef)}]
+	# The division left out, or the number moved with its sign kept, are slips too.
+	out.wrongs = [wrong({"v": Q.new(s.t - s.q, coef)}, R_BRACKET), wrong({"v": Q.new(rt - s.q, coef)}, R_BRACKET),
+		wrong({"v": Q.new(rest)}, R_NO_DIVIDE), wrong({"v": Q.new(rt + pq, coef)}, R_SIGN)]
+	out.fillers = [{"v": s.x.neg()}]
 	var expanded := "%s = %s" % [Fmt.poly([s.p, pq]), Fmt.poly([s.r, rt])]
 	var same: Q = s.x.add(s.q).mul(s.p)
 	out.methods = {
@@ -160,7 +171,7 @@ func u_fractions(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		slip = Q.new(s.r, coef)
 		bad = "%s + %s = %s" % [cx(u), cx(w), N(s.r)]
 		collected = "%s = %s" % [cx(coef), N(s.r)]
-		out.generic = [{"v": Q.new(s.r * (s.p + s.q))}, {"v": Q.new(s.r * s.L)}, {"v": s.x.neg()}]
+		out.fillers = [{"v": Q.new(s.r * (s.p + s.q))}, {"v": Q.new(s.r * s.L)}, {"v": s.x.neg()}]
 		steps = ["%s, so multiply every term by %d: %s + %s = %s." % [lcm, s.L, cx(u), cx(w), N(rhs)], "Collect: %s = %s." % [cx(coef), N(rhs)]] + divide(coef, s.x)
 		check = "Check: %s/%d + %s/%d = %s, as it should." % [P(s.x), s.p, P(s.x), s.q, N(s.r)]
 	else:
@@ -172,7 +183,7 @@ func u_fractions(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		slip = Q.new(-s.b - s.a, coef)
 		bad = "%s + %d = %s − %d" % [cx(u), s.a, cx(w), s.b]
 		collected = "%s = %s" % [cx(coef), N(-s.b - s.a)]
-		out.generic = [{"v": Q.new(s.b + s.a, coef)}, {"v": s.x.neg()}, {"v": Q.new(s.a * s.q + s.b * s.p, s.q - s.p).add(1)}]
+		out.fillers = [{"v": Q.new(s.b + s.a, coef)}, {"v": s.x.neg()}, {"v": Q.new(s.a * s.q + s.b * s.p, s.q - s.p).add(1)}]
 		var cleared := "%s = %s" % [_times(u, Fmt.poly([1, s.a])), _times(w, Fmt.poly([1, -s.b]))]
 		steps = ["%s, so multiply both sides by %d: %s." % [lcm, s.L, cleared], "Multiply out: %s = %s." % [lhs, rhs], "Collect: %s = %s." % [cx(coef), N(rest)]] + divide(coef, s.x)
 		check = "Check: (%s%s)/%d and (%s%s)/%d are both %s." % [N(s.x), Fmt.plus(s.a), s.p, N(s.x), Fmt.plus(-s.b), s.q, N(s.x.add(s.a).div(s.p))]
@@ -208,8 +219,14 @@ func u_make_y_subject(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("line", {"m": m, "c": Q.new(s.c)})
 	ans.exact = true
 	var out := {"asked": "Make y the subject: write the line in the form y = mx + c.", "lines": [LineCrossingViews.gk(s.a, s.b, s.k)], "answer": ans}
-	out.wrongs = [wrong({"m": m, "c": Q.new(s.k)}, R_DIVIDE)]
-	out.generic = [{"m": m.neg(), "c": Q.new(s.c)}, {"m": Q.new(s.a, s.b), "c": Q.new(-s.c)}, {"m": m, "c": Q.new(-s.c)}, {"m": m.neg(), "c": Q.new(s.k)}]
+	# The x term moved with its sign kept is a slip, and so, when the y coefficient is
+	# negative, is dividing by it without its minus sign (FAL-1149).
+	out.wrongs = [wrong({"m": m, "c": Q.new(s.k)}, R_DIVIDE), wrong({"m": m.neg(), "c": Q.new(s.c)}, R_SIGN)]
+	out.fillers = [{"m": m, "c": Q.new(-s.c)}, {"m": m.neg(), "c": Q.new(s.k)}]
+	if s.b < 0:
+		out.wrongs.append(wrong({"m": Q.new(s.a, s.b), "c": Q.new(-s.c)}, R_DROP_MINUS))
+	else:
+		out.fillers.push_front({"m": Q.new(s.a, s.b), "c": Q.new(-s.c)})
 	var move := "%s: %s = %s." % [take_x(s.a), Fmt.term(Q.new(s.b), 1, true, "y"), Fmt.poly([-s.a, s.k])]
 	var div := "Divide every term by %s: %s." % [N(s.b), Answer.text(ans)]
 	out.methods = {"inverse-operations": method([move, div, fin(ans)], ans.values)}
@@ -236,16 +253,18 @@ func u_missing_number(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"a":
 			eq = "%sx%s = %s" % [BOX, Fmt.plus(b), N(c)]
 			steps = ["Put x = %s in: %s × %s%s = %s." % [N(x), BOX, P(x), Fmt.plus(b), N(c)], "%s: %s × %s = %s." % [take_n(b), BOX, P(x), N(c - b)], "Divide both sides by %s: %s = %s." % [P(x), BOX, N(a)]]
-			wrongs = [Q.new(c + b, x), Q.new(c - b), Q.new(c, x), Q.new(-a)]
+			wrongs = [wrong({"v": Q.new(c + b, x)}, R_SIGN), wrong({"v": Q.new(c - b)}, R_NO_DIVIDE), {"v": Q.new(c, x)}, {"v": Q.new(-a)}]
 		"b":
 			eq = "%s + %s = %s" % [cx(a), BOX, N(c)]
 			steps = ["Put x = %s in: %s + %s = %s." % [N(x), N(ax), BOX, N(c)], "%s: %s = %s." % [take_n(ax), BOX, N(b)]]
-			wrongs = [Q.new(c + ax), Q.new(-b), Q.new(c - x), Q.new(c - a)]
+			wrongs = [wrong({"v": Q.new(c + ax)}, R_SIGN), {"v": Q.new(-b)}, wrong({"v": Q.new(c - x)}, R_DROP_FRONT), {"v": Q.new(c - a)}]
 		_:
 			eq = "%s = %s" % [Fmt.poly([a, b]), BOX]
 			steps = ["Put x = %s in: %s × %s%s = %s." % [N(x), N(a), P(x), Fmt.plus(b), BOX], "Work out the left side: %s%s = %s." % [N(ax), Fmt.plus(b), N(c)]]
-			wrongs = [Q.new(ax - b), Q.new(a + x + b), Q.new(ax), Q.new(-c)]
+			wrongs = [{"v": Q.new(ax - b)}, wrong({"v": Q.new(a + x + b)}, R_ADD_FRONT), {"v": Q.new(ax)}, {"v": Q.new(-c)}]
 	out.lines = [eq, "The solution is x = %s." % N(x)]
-	out.generic = wrongs.map(func(v): return {"v": v})
+	# Each entry is a tagged slip (has "ref") or a filler's values (FAL-1149).
+	out.wrongs = wrongs.filter(func(w): return w.has("ref"))
+	out.fillers = wrongs.filter(func(w): return not w.has("ref"))
 	out.methods = {"inverse-operations": method(steps + [fin(ans)], ans.values)}
 	return out
