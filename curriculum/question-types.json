@@ -11000,7 +11000,8 @@
      "text": "Confuses the zeros (x where f(x) = 0) with the y-intercept f(0)",
      "as": "distractor",
      "in": [
-      "label-zeros"
+      "label-zeros",
+      "label-y-intercept"
      ],
      "wrong": "f(0) labelled on the x-axis as a zero"
     },
@@ -11018,7 +11019,8 @@
      "text": "Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa",
      "as": "distractor",
      "in": [
-      "label-turning-point"
+      "label-turning-point",
+      "greatest-on-domain"
      ],
      "wrong": "the turning point labelled with only its x-coordinate, or only its y-value"
     },
@@ -11067,6 +11069,110 @@
       "count-solutions-from-sketch"
      ],
      "wrong": "in asymptote mode, counts y = k at the level the curve approaches as a solution"
+    },
+    {
+     "text": "Swapping the two endpoint values, pairing each with the other end of the domain",
+     "as": "distractor",
+     "in": [
+      "endpoint-coordinates"
+     ],
+     "wrong": "each end's y-value written at the other end"
+    },
+    {
+     "text": "Taking the turning points for the points where the curve crosses the x-axis",
+     "as": "distractor",
+     "in": [
+      "label-zeros"
+     ],
+     "wrong": "the x-coordinates of the turning points given as the zeros"
+    },
+    {
+     "text": "Missing a zero by not searching the whole domain for every crossing",
+     "as": "distractor",
+     "in": [
+      "label-zeros"
+     ],
+     "wrong": "every zero but the last one"
+    },
+    {
+     "text": "Treating the exponential or cosine term as zero on the y-axis, so only the constant term is left",
+     "as": "distractor",
+     "in": [
+      "label-y-intercept"
+     ],
+     "wrong": "the constant term alone as f(0)"
+    },
+    {
+     "text": "Leaving the constant term out of f(0)",
+     "as": "distractor",
+     "in": [
+      "label-y-intercept"
+     ],
+     "wrong": "f(0) without its constant term"
+    },
+    {
+     "text": "Writing the coordinates the wrong way round, as (y, x)",
+     "as": "distractor",
+     "in": [
+      "label-turning-point"
+     ],
+     "wrong": "the turning point's coordinates swapped"
+    },
+    {
+     "text": "Mixing up the local maximum and the local minimum",
+     "as": "distractor",
+     "in": [
+      "label-turning-point"
+     ],
+     "wrong": "the other turning point"
+    },
+    {
+     "text": "Giving a zero of f, where the curve crosses the x-axis, as the turning point",
+     "as": "distractor",
+     "in": [
+      "label-turning-point"
+     ],
+     "wrong": "a zero (x, 0) given as the turning point"
+    },
+    {
+     "text": "Starting the y-range at zero, as if the graph never went below the x-axis",
+     "as": "distractor",
+     "in": [
+      "window-for-domain"
+     ],
+     "wrong": "Ymin = 0, cutting off the part of the graph below the x-axis"
+    },
+    {
+     "text": "Swapping the x and y ranges of the window",
+     "as": "distractor",
+     "in": [
+      "window-for-domain"
+     ],
+     "wrong": "the domain typed into Ymin and Ymax, the y-range into Xmin and Xmax"
+    },
+    {
+     "text": "Counting where the curve crosses the x-axis instead of where it meets the horizontal line",
+     "as": "distractor",
+     "in": [
+      "count-solutions-from-sketch"
+     ],
+     "wrong": "the number of zeros of f"
+    },
+    {
+     "text": "Not checking the count at the boundary values of k, so an end is wrongly included or left out",
+     "as": "distractor",
+     "in": [
+      "k-for-count"
+     ],
+     "wrong": "the right interval with < and ≤ wrong at one end or both"
+    },
+    {
+     "text": "Giving the whole range of f instead of the values of k with exactly two solutions",
+     "as": "distractor",
+     "in": [
+      "k-for-count"
+     ],
+     "wrong": "least value ≤ k ≤ greatest value"
     }
    ],
    "parts": [
@@ -11417,7 +11523,8 @@
      "as": "distractor",
      "in": [
       "sketch-quadratic",
-      "judge-a-sketch"
+      "judge-a-sketch",
+      "features-from-sketch"
      ],
      "wrong": "the vertex drawn on the y-axis, at the y-intercept"
     },
@@ -11448,6 +11555,22 @@
       "sketch-with-asymptote"
      ],
      "wrong": "the curve reaching the long-run level, turning, and going back up"
+    },
+    {
+     "text": "Writing the vertex's coordinates the wrong way round",
+     "as": "distractor",
+     "in": [
+      "features-from-sketch"
+     ],
+     "wrong": "the vertex written as (k, h)"
+    },
+    {
+     "text": "Accepting the sketch without checking its direction and its vertex against the equation",
+     "as": "distractor",
+     "in": [
+      "judge-a-sketch"
+     ],
+     "wrong": "nothing wrong with the sketch"
     }
    ],
    "parts": [
@@ -11921,7 +12044,9 @@
      "as": "distractor",
      "in": [
       "extreme-value-only",
-      "turning-point-coordinates"
+      "turning-point-coordinates",
+      "greatest-on-domain",
+      "constant-from-max"
      ],
      "wrong": "the x-coordinate of the maximum when the maximum value is asked"
     },
@@ -11949,7 +12074,8 @@
      "as": "distractor",
      "in": [
       "count-zeros",
-      "zeros-gdc"
+      "zeros-gdc",
+      "solve-as-zeros"
      ],
      "wrong": "only the zeros inside the default window, missing one near the far end of the domain"
     },
@@ -11961,6 +12087,141 @@
       "use-stored-zeros"
      ],
      "wrong": "a distance from zeros already rounded to 3 s.f., off in the third figure"
+    },
+    {
+     "ref": "SL2.4.zeros-intercepts#1",
+     "text": "Gives the zeros with the wrong signs",
+     "as": "distractor",
+     "in": [
+      "zeros-gdc",
+      "zeros-with-x-factor"
+     ],
+     "wrong": "every zero with its sign changed"
+    },
+    {
+     "text": "Taking the turning points for the points where the curve crosses the x-axis",
+     "as": "distractor",
+     "in": [
+      "zeros-gdc",
+      "solve-as-zeros",
+      "zeros-with-x-factor",
+      "count-zeros",
+      "zero-from-table"
+     ],
+     "wrong": "the turning points' x-coordinates, or how many there are, given for the zeros"
+    },
+    {
+     "text": "Keeping only one root of the quadratic factor",
+     "as": "distractor",
+     "in": [
+      "zeros-with-x-factor"
+     ],
+     "wrong": "x = 0 and one of the other two zeros"
+    },
+    {
+     "text": "Writing the coordinates the wrong way round, as (y, x)",
+     "as": "distractor",
+     "in": [
+      "turning-point-coordinates"
+     ],
+     "wrong": "the turning point's coordinates swapped"
+    },
+    {
+     "text": "Mixing up the local maximum and the local minimum",
+     "as": "distractor",
+     "in": [
+      "turning-point-coordinates",
+      "extreme-value-only"
+     ],
+     "wrong": "the other turning point, or its value"
+    },
+    {
+     "text": "Giving a zero of f, where the curve crosses the x-axis, as the turning point",
+     "as": "distractor",
+     "in": [
+      "turning-point-coordinates"
+     ],
+     "wrong": "a zero (x, 0) given as the turning point"
+    },
+    {
+     "text": "Treating the exponential or cosine term as zero on the y-axis, so only the constant term is left",
+     "as": "distractor",
+     "in": [
+      "y-intercept"
+     ],
+     "wrong": "the constant term alone as f(0)"
+    },
+    {
+     "text": "Leaving the constant term out of f(0)",
+     "as": "distractor",
+     "in": [
+      "y-intercept"
+     ],
+     "wrong": "f(0) without its constant term"
+    },
+    {
+     "text": "Giving an end of the sign-change interval as the zero, without refining it",
+     "as": "distractor",
+     "in": [
+      "zero-from-table"
+     ],
+     "wrong": "a table x-value either side of the sign change"
+    },
+    {
+     "text": "Taking the midpoint of the sign-change interval as the zero",
+     "as": "distractor",
+     "in": [
+      "zero-from-table"
+     ],
+     "wrong": "the midpoint of the two table x-values"
+    },
+    {
+     "text": "Giving the smallest zero when the largest is asked for",
+     "as": "distractor",
+     "in": [
+      "zero-from-table"
+     ],
+     "wrong": "the smallest zero"
+    },
+    {
+     "text": "Adding the two zeros instead of subtracting one from the other",
+     "as": "distractor",
+     "in": [
+      "use-stored-zeros"
+     ],
+     "wrong": "the size of the sum of the zeros"
+    },
+    {
+     "text": "Using one zero alone, its distance from the origin, instead of the distance between the two",
+     "as": "distractor",
+     "in": [
+      "use-stored-zeros"
+     ],
+     "wrong": "the size of one zero"
+    },
+    {
+     "text": "Adding the GDC's maximum to the given maximum instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "constant-from-max"
+     ],
+     "wrong": "the given maximum plus the maximum of the curve without c"
+    },
+    {
+     "text": "Subtracting the wrong way round, the given maximum from the GDC's maximum",
+     "as": "distractor",
+     "in": [
+      "constant-from-max"
+     ],
+     "wrong": "the maximum of the curve without c minus the given maximum"
+    },
+    {
+     "text": "Taking the given maximum value as c",
+     "as": "distractor",
+     "in": [
+      "constant-from-max"
+     ],
+     "wrong": "the given maximum itself"
     }
    ],
    "parts": [
@@ -76884,7 +77145,8 @@
      "as": "distractor",
      "in": [
       "solve-with-gdc",
-      "exceeds-in-context"
+      "exceeds-in-context",
+      "inequality-from-region"
      ],
      "wrong": "the crossing x-values, x = 0.619 and x = 1.51, as the answer"
     },
@@ -76903,9 +77165,34 @@
      "text": "Misses that the solution set can be in two separate pieces",
      "as": "distractor",
      "in": [
-      "two-piece-solution"
+      "two-piece-solution",
+      "solve-with-gdc",
+      "read-from-graph"
      ],
      "wrong": "only x > 1.51, the left piece dropped"
+    },
+    {
+     "text": "Reading which graph is on top the wrong way round",
+     "as": "distractor",
+     "in": [
+      "solve-with-gdc",
+      "read-from-graph",
+      "exceeds-in-context",
+      "inequality-from-region",
+      "two-piece-solution"
+     ],
+     "wrong": "the set where the inequality fails, or the reversed inequality"
+    },
+    {
+     "text": "Mixing up strict and non-strict signs at the crossings, where the two sides are equal",
+     "as": "distractor",
+     "in": [
+      "solve-with-gdc",
+      "read-from-graph",
+      "exceeds-in-context",
+      "inequality-from-region"
+     ],
+     "wrong": "the crossings included in a strict inequality, or ≥ for a set with its ends left out"
     }
    ]
   },
@@ -86311,6 +86598,111 @@
       "endpoint-beats-vertex"
      ],
      "wrong": "only the stationary value −3 given, the endpoints ignored"
+    },
+    {
+     "text": "Taking the starting height, the constant term, as the greatest height",
+     "as": "distractor",
+     "in": [
+      "max-height-methods"
+     ],
+     "wrong": "h(0), at t = 0"
+    },
+    {
+     "text": "Taking the sine as running from zero to one, so the least value stays on the principal axis",
+     "as": "distractor",
+     "in": [
+      "wave-extremes"
+     ],
+     "wrong": "least value D"
+    },
+    {
+     "text": "Not dividing by the number multiplying x inside the sine, so the base wave's peak is kept",
+     "as": "distractor",
+     "in": [
+      "wave-max-point"
+     ],
+     "wrong": "π/2 (or 3π/2 when A < 0), the peak of the base wave"
+    },
+    {
+     "ref": "SL3.7.read-features#8",
+     "text": "Ignoring the minus sign in front of the wave, which turns its peaks into troughs",
+     "as": "distractor",
+     "in": [
+      "wave-max-point"
+     ],
+     "wrong": "π/(2B), where sin(Bx) peaks, though A < 0"
+    },
+    {
+     "text": "Giving the first minimum instead of the first maximum",
+     "as": "distractor",
+     "in": [
+      "wave-max-point"
+     ],
+     "wrong": "3π/(2B), the first trough"
+    },
+    {
+     "text": "Giving the period of the wave instead of where its first maximum is",
+     "as": "distractor",
+     "in": [
+      "wave-max-point"
+     ],
+     "wrong": "2π/B, the period"
+    },
+    {
+     "text": "Taking the greatest minus the least as the amplitude, without halving",
+     "as": "distractor",
+     "in": [
+      "range-from-extremes"
+     ],
+     "wrong": "amplitude twice too big"
+    },
+    {
+     "text": "Taking the principal axis as the x-axis, though the range is not centred on it",
+     "as": "distractor",
+     "in": [
+      "range-from-extremes"
+     ],
+     "wrong": "principal axis y = 0"
+    },
+    {
+     "text": "Keeping only the positive square root, so one of the two tangents is lost",
+     "as": "distractor",
+     "in": [
+      "tangent-means-touch"
+     ],
+     "wrong": "the positive m and its point only"
+    },
+    {
+     "text": "Pairing each value of m with the other touching point, so the signs of m and x don't match",
+     "as": "distractor",
+     "in": [
+      "tangent-means-touch"
+     ],
+     "wrong": "each m given the other tangent's point"
+    },
+    {
+     "text": "Stopping at m² and giving its value as m, without taking the square root",
+     "as": "distractor",
+     "in": [
+      "tangent-means-touch"
+     ],
+     "wrong": "m = ± the value of m²"
+    },
+    {
+     "text": "Mixing up which turning point is the maximum and which the minimum",
+     "as": "distractor",
+     "in": [
+      "cubic-turning"
+     ],
+     "wrong": "the maximum and minimum swapped"
+    },
+    {
+     "text": "Reading the roots of f′ from its factors with the wrong signs",
+     "as": "distractor",
+     "in": [
+      "cubic-turning"
+     ],
+     "wrong": "turning points at −p and −q"
     }
    ]
   },
