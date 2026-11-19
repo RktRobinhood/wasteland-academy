@@ -376,7 +376,7 @@ func u_polar_product(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			var r2: Q = s.r2[0]
 			var c2: Q = s.c2
 			var pr := c1.mul(c2)
-			wr.append(slip("arg-mul", other(head + (S.stext(R) + "e^(%si)" % pi2(pr) if style == "euler" else S.stext(R) + " cis(%s)" % pi2(pr)))))
+			wr.append(slip("arg-mul", other(head + (S.stext(R) + (" " if S.stext(R).contains("√") else "") + "e^(%s)" % pi2(pr).replace("π²", "π²i") if style == "euler" else S.stext(R) + " cis(%s)" % pi2(pr)))))
 			wr.append(slip("mod-sum", pwrong(ans, head, S.sd(r1.add(r2)), C, style)))
 		"quotient":
 			var c2: Q = s.c2

@@ -48863,7 +48863,7 @@ def cpl_check(q):
                 pr = c1 * c2
                 top = "π²" if abs(pr.p) == 1 else f"{abs(pr.p)}π²"
                 pt = ("−" if pr < 0 else "") + top + ("" if pr.q == 1 else f"/{pr.q}")
-                slip("arg-mul", head + cpl_s(R) + (f"e^({pt}i)" if style == "euler" else f" cis({pt})"))
+                slip("arg-mul", head + cpl_s(R) + ((" " if "√" in cpl_s(R) else "") + f"e^({pt.replace('π²', 'π²i')})" if style == "euler" else f" cis({pt})"))
                 slip("mod-sum", head + cpl_p(r1 + r2, C, style))
             elif name == "z₁/z₂":
                 x = sp.Rational(c1 / c2)
@@ -49538,7 +49538,9 @@ def aip_least(c, mode):
 
 def aip_check(q):
     t, u, rep, L, asked = q["view"]["type"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
-    gdc = q["view"]["angle"] == "gdc-convert"
+    # A conversion asked to 3 s.f. has whole parts or a phase in radians for the GDC; any other
+    # is exact, as on AA HL, whatever method the view shows first.
+    gdc = "to 3 significant figures" in asked
     if u in ("to-polar", "to-cartesian") and not gdc or u in ("polar-product", "product-cartesian", "describe-map"):
         return cpl_check(q)
     refs = CPL_REFS[t]
@@ -49556,7 +49558,14 @@ def aip_check(q):
         m = re.fullmatch(r"Write z in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π, giving r and θ to 3 significant figures\.", asked)
         need(m is not None, f"asked {asked!r}")
         style = CPL_FORM[m.group(1)]
-        z = cx_read(L[0], "z")
+        if rep == "graph":
+            m2 = re.fullmatch(r"The point A\((−?\d+), (−?\d+)\) on the Argand diagram represents the complex number z\.", L[0])
+            need(m2 is not None, f"can't read {L[0]!r}")
+            z = cx_parse(m2.group(1)) + I * cx_parse(m2.group(2))
+            p = cx_point(q, "A")
+            need(abs(p["x"] - float(sp.re(z))) < 1e-9 and abs(p["y"] - float(sp.im(z))) < 1e-9, "A is drawn in the wrong place")
+        else:
+            z = cx_read(L[0], "z")
         a, b = (sp.Integer(v) for v in cx_parts(z))
         need(a != 0 and b != 0 and abs(a) != abs(b), "the point is on an axis or a 45° line")
         r, th = mpmath.sqrt(a ** 2 + b ** 2), mpmath.atan2(b, a)

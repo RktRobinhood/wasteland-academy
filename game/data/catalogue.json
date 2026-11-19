@@ -94173,7 +94173,7 @@
 				},
 				{
 					"ref": "AHL1.14.multiple-angle-identities#0",
-					"text": "Leaving out the binomial coefficients when expanding (cos θ + i sin θ)^n",
+					"text": "Leaving out the binomial coefficients when expanding a power of a sum, such as (cos θ + i sin θ)^n or (z + 1/z)^n",
 					"as": "distractor",
 					"in": [
 						"multiple-angle",
@@ -94577,7 +94577,7 @@
 					"wrong": "h ± 2ki"
 				},
 				{
-					"text": "Losing the minus sign from i² when the two roots are multiplied, so the constant term is too small",
+					"text": "Losing the minus sign from i² when the two complex roots are multiplied, so their product is the difference of the squares of the parts instead of the sum",
 					"as": "distractor",
 					"in": [
 						"quadratic-from-root",
@@ -94979,7 +94979,7 @@
 			"misconceptions": [
 				{
 					"ref": "AI-AHL1.13.convert-forms#0",
-					"text": "Losing the sign of the argument for a point below the real axis",
+					"text": "Giving the argument the wrong sign, measured the other way from the positive real axis",
 					"as": "distractor",
 					"in": [
 						"to-polar"
@@ -95169,7 +95169,7 @@
 					"wrong": "a rotation through arg w for z ↦ z + w"
 				},
 				{
-					"text": "Requiring the argument to be a multiple of 2π for a real power, so only the positive reals are found",
+					"text": "Requiring a whole number of full turns for a real power, so only the positive reals are found",
 					"as": "distractor",
 					"in": [
 						"least-power"

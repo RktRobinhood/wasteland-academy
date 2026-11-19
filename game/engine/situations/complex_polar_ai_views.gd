@@ -119,7 +119,8 @@ static func sup(n: int) -> String:
 # ── Cartesian and polar ──────────────────────────────────────
 
 func u_to_polar(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
-	if angle != "gdc-convert":
+	# A standard point (no whole parts a, b drawn for the GDC) is converted exactly, as on AA HL.
+	if not s.has("a"):
 		var out := super.u_to_polar(rep, s, rng)
 		var z := S.cart(s.r, s.c)
 		out.wrongs.append(slip("no-root", pwrong(out.answer, "z = ", S.sd(sq(z[0]).add(sq(z[1]))), s.c, s.style)))
@@ -153,12 +154,18 @@ func u_to_polar(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	for m in [formulas, sketch]:
 		for i in m.size():
 			m[i] = m[i].replace("(-", "(−").replace(" -", " −")
-	return _pack(["z = " + z], polar_ask("z", style).replace("−π < θ ≤ π", "−π < θ ≤ π, giving r and θ to 3 significant figures"), ans, wr, fill,
-		{"gdc-convert": gdc, "r-theta-formulas": formulas, "argand-sketch": sketch}, rng)
+	var lines: Array = ["z = " + z]
+	var graph: Variant = null
+	if rep == "graph":
+		var zc := S.cx(a, b)
+		lines = ["The point A%s on the Argand diagram represents the complex number z." % pt(zc)]
+		graph = argand([[zc, "A" + pt(zc)]], [zc])
+	return _pack(lines, polar_ask("z", style).replace("−π < θ ≤ π", "−π < θ ≤ π, giving r and θ to 3 significant figures"), ans, wr, fill,
+		{"gdc-convert": gdc, "r-theta-formulas": formulas, "argand-sketch": sketch}, rng, graph)
 
 
 func u_to_cartesian(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
-	if angle != "gdc-convert":
+	if not s.has("rr"):
 		return super.u_to_cartesian(rep, s, rng)
 	var rr: int = s.rr
 	var tq: Q = s.t

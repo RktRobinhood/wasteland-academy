@@ -1428,7 +1428,7 @@
               "misconceptions": [
                 "Raising the modulus to the power but not multiplying the argument by it",
                 "Multiplying the modulus by the power instead of raising it to the power",
-                "Raising each part to the power separately, as if (a + bi)ⁿ were aⁿ + (bi)ⁿ"
+                "Raising each part to the power separately, as if (a + bi)^n were a^n + (bi)^n"
               ],
               "threads": [
                 {
@@ -1532,8 +1532,8 @@
                 }
               ],
               "misconceptions": [
-                "Leaving out the binomial coefficients when expanding (cos θ + i sin θ)ⁿ",
-                "Leaving out the i when zⁿ − z⁻ⁿ is written in terms of sin nθ",
+                "Leaving out the binomial coefficients when expanding a power of a sum, such as (cos θ + i sin θ)^n or (z + 1/z)^n",
+                "Leaving out the i when z^n − z^(−n) is written in terms of sin nθ",
                 "Losing the sign from i² when collecting the real terms"
               ],
               "threads": [

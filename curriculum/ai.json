@@ -1831,7 +1831,7 @@
                 }
               ],
               "misconceptions": [
-                "Losing the sign of the argument for a point below the real axis",
+                "Giving the argument the wrong sign, measured the other way from the positive real axis",
                 "Swapping sine and cosine, so the real and imaginary parts change places",
                 "Using degree mode with an argument in radians",
                 "Adding the squares of the parts for the modulus without taking the square root"

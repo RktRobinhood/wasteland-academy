@@ -99035,7 +99035,7 @@
     },
     {
      "ref": "AHL1.14.de-moivre-powers#2",
-     "text": "Raising each part to the power separately, as if (a + bi)ⁿ were aⁿ + (bi)ⁿ",
+     "text": "Raising each part to the power separately, as if (a + bi)^n were a^n + (bi)^n",
      "as": "distractor",
      "in": [
       "power-cartesian"
@@ -99074,7 +99074,7 @@
     },
     {
      "ref": "AHL1.14.multiple-angle-identities#0",
-     "text": "Leaving out the binomial coefficients when expanding (cos θ + i sin θ)ⁿ",
+     "text": "Leaving out the binomial coefficients when expanding a power of a sum, such as (cos θ + i sin θ)^n or (z + 1/z)^n",
      "as": "distractor",
      "in": [
       "multiple-angle",
@@ -99084,7 +99084,7 @@
     },
     {
      "ref": "AHL1.14.multiple-angle-identities#1",
-     "text": "Leaving out the i when zⁿ − z⁻ⁿ is written in terms of sin nθ",
+     "text": "Leaving out the i when z^n − z^(−n) is written in terms of sin nθ",
      "as": "distractor",
      "in": [
       "power-reduction"
@@ -99532,7 +99532,7 @@
      "wrong": "h ± 2ki"
     },
     {
-     "text": "Losing the minus sign from i² when the two roots are multiplied, so the constant term is too small",
+     "text": "Losing the minus sign from i² when the two complex roots are multiplied, so their product is the difference of the squares of the parts instead of the sum",
      "as": "distractor",
      "in": [
       "quadratic-from-root",
@@ -99756,7 +99756,7 @@
      "given": [
       "a complex number re^(iθ) or r cis θ and a power n"
      ],
-     "asked": "zⁿ in the same form",
+     "asked": "z^n in the same form",
      "level": 2,
      "exam": true,
      "reps": [
@@ -99786,7 +99786,7 @@
      "given": [
       "a complex number in polar or exponential form"
      ],
-     "asked": "the least positive n for which zⁿ is real, imaginary, positive or negative",
+     "asked": "the least positive n for which z^n is real, imaginary, positive or negative",
      "level": 3,
      "exam": true,
      "reps": [
@@ -99973,7 +99973,7 @@
    "misconceptions": [
     {
      "ref": "AI-AHL1.13.convert-forms#0",
-     "text": "Losing the sign of the argument for a point below the real axis",
+     "text": "Giving the argument the wrong sign, measured the other way from the positive real axis",
      "as": "distractor",
      "in": [
       "to-polar"
@@ -100063,7 +100063,7 @@
      "in": [
       "power-polar"
      ],
-     "wrong": "θⁿ for the argument"
+     "wrong": "θ^n for the argument"
     },
     {
      "ref": "AI-AHL1.13.add-sinusoids#0",
@@ -100163,7 +100163,7 @@
      "wrong": "a rotation through arg w for z ↦ z + w"
     },
     {
-     "text": "Requiring the argument to be a multiple of 2π for a real power, so only the positive reals are found",
+     "text": "Requiring a whole number of full turns for a real power, so only the positive reals are found",
      "as": "distractor",
      "in": [
       "least-power"
