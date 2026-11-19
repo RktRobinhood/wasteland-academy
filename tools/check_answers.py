@@ -51715,6 +51715,500 @@ SITUATION_CHECKS["complex-polar-ai"] = aip_check
 
 # R9-ODD-EVEN: fn-ahl-odd-even (odd-even), prefix R9OE_ / r9oe_
 
+R9OE_T = "AHL2.14.odd-even-test#"
+R9OE_G = "AHL2.14.odd-even-graph#"
+R9OE_C = "AHL2.14.odd-even-combine#"
+R9OE_OWN = "fn-ahl-odd-even#"
+R9OE_SUP = {"⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9"}
+R9OE_VERDICT = {"odd": "Odd: f(−x) = −f(x)", "even": "Even: f(−x) = f(x)", "neither": "Neither: f(−x) is not f(x) or −f(x)"}
+R9OE_H = {"odd": "Odd: h(−x) = −h(x)", "even": "Even: h(−x) = h(x)", "neither": "Neither: h(−x) is not h(x) or −h(x)"}
+# Every option a classify question may offer, and the verdict each one gives.
+R9OE_CLAIMS = {R9OE_VERDICT["odd"]: "odd", R9OE_VERDICT["even"]: "even", R9OE_VERDICT["neither"]: "neither",
+               "Even: f(−x) = −f(x)": "even", "Odd: f(−x) = f(x)": "odd", "Odd: f(−x) is not f(x)": "odd",
+               "Odd: every power of x in it is odd": "odd", "Even: f(−π) = f(π)": "even",
+               "Even: an odd part plus an even part is even": "even", "Odd: an odd part plus an even part is odd": "odd"}
+R9OE_HCLAIMS = {R9OE_H["odd"]: "odd", R9OE_H["even"]: "even", R9OE_H["neither"]: "neither", "Even: h(−x) = −h(x)": "even",
+                "Odd: h(−x) = h(x)": "odd", "Odd: odd × odd is odd": "odd", "Odd: odd + even is odd": "odd", "Even: odd + even is even": "even"}
+
+
+def r9oe_fn(text, letters=""):
+    """A function as the game writes it: '3x² sin x − 2x', '4e^(−x)', '(−x)³ cos(−x)', '2 + 3 sin 1 − e'."""
+    t = text.replace("−", "-")
+    need(re.fullmatch(r"[0-9a-z^()+\-*/ ⁰¹²³⁴⁵⁶⁷⁸⁹π]+", t) is not None, f"can't read {text!r}")
+    t = re.sub("([⁰¹²³⁴⁵⁶⁷⁸⁹]+)", lambda m: "**" + "".join(R9OE_SUP[c] for c in m.group(1)), t)
+    t = t.replace("e^(", "exp(").replace("e^x", "exp(x)").replace("π", "pi")
+    t = re.sub(r"\b(sin|cos) (x|\d+)\b", r"\1(\2)", t)
+    for L in letters:
+        t = re.sub(r"(?<![a-z])" + L + r"(?=x)", L + "*", t)
+    loc = {"x": X, "e": sp.E, "exp": sp.exp, "sin": sp.sin, "cos": sp.cos, "pi": sp.pi}
+    for L in letters:
+        loc[L] = sp.Symbol(L)
+    return parse_expr(t, transformations=TRANSFORMS, local_dict=loc)
+
+
+def r9oe_zero(e):
+    """Whether e is 0 for every x: exactly, and at rational points to 30 digits."""
+    if sp.simplify(sp.expand(e)) == 0:
+        return True
+    pts = [sp.Rational(3, 7), sp.Rational(-5, 4), sp.Rational(11, 5)]
+    others = sorted(e.free_symbols - {X}, key=str)
+    for i, p in enumerate(pts):
+        sub = {X: p}
+        sub.update({c: sp.Rational(2 * j + i + 3, 5 + j) for j, c in enumerate(others)})
+        if abs(sp.N(e.subs(sub), 30)) >= sp.Float("1e-25"):
+            return False
+    return True
+
+
+def r9oe_parity(f):
+    fm = f.subs(X, -X)
+    ev, od = r9oe_zero(fm - f), r9oe_zero(fm + f)
+    need(not (ev and od), "f is 0")
+    return "even" if ev else ("odd" if od else "neither")
+
+
+def r9oe_t(v):
+    """A rational as the game writes it: −7, 29/2."""
+    v = sp.Rational(v)
+    return (str(v.p) if v.q == 1 else f"{v.p}/{v.q}").replace("-", "−")
+
+
+def r9oe_steps(q):
+    return [st for sol in q["solutions"] for st in sol["steps"]]
+
+
+def r9oe_sol(q, angle):
+    for sol in q["solutions"]:
+        if sol["angle"] == angle:
+            return sol["steps"]
+    return None
+
+
+def r9oe_after(steps, prefix):
+    for st in steps:
+        if st.startswith(prefix):
+            return st[len(prefix):]
+    raise Fail(f"no step starting {prefix!r}")
+
+
+def r9oe_options(q, known):
+    for o in q["choices"]:
+        need(o["text"] in known, f"option {o['text']!r} is not one of the claims")
+
+
+def r9oe_classify(q, mixed):
+    L = q["lines"]
+    need(len(L) == 1 and L[0].startswith("f(x) = "), f"lines {L!r}")
+    need(q["asked"] == "Is f odd, even or neither, and why?", f"asked {q['asked']!r}")
+    ftxt = L[0][7:]
+    f = r9oe_fn(ftxt)
+    trig = f.has(sp.sin) or f.has(sp.cos) or f.has(sp.exp)
+    need(trig == mixed, "a polynomial type with sin, cos or e^x, or a mixed one without")
+    if not mixed:
+        need(sp.Poly(f, X) is not None and f.is_polynomial(X), "not a polynomial")
+    par = r9oe_parity(f)
+    want = R9OE_VERDICT[par]
+    r9oe_options(q, R9OE_CLAIMS)
+    for o in q["choices"]:
+        need(o["correct"] or R9OE_CLAIMS[o["text"]] != par, f"option {o['text']!r} gives the right verdict but is marked wrong")
+    wrongs = {}
+    if par == "odd":
+        wrongs[R9OE_OWN + "10"] = {"Even: f(−x) = −f(x)"}
+    if par == "neither":
+        wrongs[R9OE_T + "0"] = {"Odd: f(−x) is not f(x)"}
+        if not mixed:
+            P = sp.Poly(f, X)
+            if P.coeff_monomial(1) != 0 and all(m[0] % 2 == 1 for m in P.monoms() if m[0] > 0):
+                wrongs[R9OE_T + "1"] = {"Odd: every power of x in it is odd"}
+            wrongs[R9OE_C + "1"] = {"Even: an odd part plus an even part is even", "Odd: an odd part plus an even part is odd"}
+    if mixed and par != "even" and sp.simplify(f.subs(X, sp.pi) - f.subs(X, -sp.pi)) == 0:
+        wrongs[R9OE_T + "2"] = {"Even: f(−π) = f(π)"}
+    fm = sp.expand(f.subs(X, -X))
+    st = r9oe_sol(q, "substitute-minus-x")
+    need(st is not None, "no substitution working")
+    raw = r9oe_after(st, "Put −x in: f(−x) = ")
+    need("(−x)" in raw or "e^" in raw or re.search(r"\d", raw), "the substitution is not shown")
+    need(r9oe_zero(r9oe_fn(raw) - fm), f"f(−x) = {raw!r} is wrong")
+    for sol in q["solutions"]:
+        for s_ in sol["steps"]:
+            m = re.match(r"(?:Simplify: |So )f\(−x\) = (.+)$", s_)
+            if m:
+                need(r9oe_zero(r9oe_fn(m.group(1)) - fm), f"f(−x) = {m.group(1)!r} is wrong")
+                need(re.search(r"(?<!\^)\(−x\)", m.group(1)) is None, "f(−x) is not simplified")
+            m = re.match(r"That is −\((.+)\) = −f\(x\)$", s_)
+            if m:
+                need(par == "odd" and r9oe_fn(m.group(1)) == f, f"{s_!r}")
+            if s_ == "That is f(x)":
+                need(par == "even", s_)
+            m = re.match(r"That is not f\(x\), and not −f\(x\) = (.+)$", s_)
+            if m:
+                need(par == "neither" and r9oe_zero(r9oe_fn(m.group(1)) + f), s_)
+    # Each piece's parity in the building-blocks line.
+    st = r9oe_sol(q, "known-building-blocks")
+    need(st is not None, "no building-blocks working")
+    for piece in st[0].split("; "):
+        m = re.fullmatch(r"(.+?) is (?:(odd|even) × (odd|even) = )?(odd|even|neither)(?: \(an? (?:odd power|even power|constant)\)|: x → −x swaps .*)?", piece)
+        need(m is not None, f"can't read {piece!r}")
+        T_ = r9oe_fn(m.group(1))
+        need(r9oe_parity(T_) == m.group(4), f"{piece!r}: wrong parity")
+        if m.group(2):
+            need((m.group(2) == m.group(3)) == (m.group(4) == "even"), f"{piece!r}: wrong product rule")
+            xp = sp.Poly(T_.as_independent(sp.sin, sp.cos)[0], X).degree()
+            need((xp % 2 == 0) == (m.group(2) == "even") and (m.group(3) == "odd") == T_.has(sp.sin), f"{piece!r}: the factors' parities")
+    st = r9oe_sol(q, "counterexample")
+    if q["view"]["angle"] == "counterexample":
+        need(par == "neither", "a counterexample for a function that is odd or even")
+    if st is not None:
+        need(par == "neither", "a counterexample working for a function that is odd or even")
+        m = re.fullmatch(r"Try x = (\d): f\(\1\) = (.+) and f\(−\1\) = (.+)", st[0])
+        need(m is not None, f"can't read {st[0]!r}")
+        a = int(m.group(1))
+        up, down = r9oe_fn(m.group(2)), r9oe_fn(m.group(3))
+        need(sp.simplify(up - f.subs(X, a)) == 0 and sp.simplify(down - f.subs(X, -a)) == 0, "the counterexample's values are wrong")
+        need(abs(sp.N(up - down, 30)) > 1e-6 and abs(sp.N(up + down, 30)) > 1e-6, "the counterexample doesn't show neither")
+        m = re.search(r"≠ −f\(\d\) = (.+), so f is not odd$", st[2])
+        need(m is not None and sp.simplify(r9oe_fn(m.group(1)) + up) == 0, f"{st[2]!r}")
+    if q["view"]["angle"] == "unit-circle":
+        need(f.has(sp.sin) or f.has(sp.cos), "the unit circle with no sin or cos")
+    return want, wrongs
+
+
+def r9oe_coefficient(q):
+    L = q["lines"]
+    need(len(L) == 2 and L[0].startswith("f(x) = "), f"lines {L!r}")
+    m = re.fullmatch(r"f is an (odd|even) function\.", L[1])
+    need(m is not None, L[1])
+    kind = m.group(1)
+    K = sp.Symbol("k")
+    f = sp.expand(r9oe_fn(L[0][7:], "k"))
+    P = sp.Poly(f, X)
+    bad = [P.coeff_monomial(X**d) for d in range(P.degree() + 1) if (d % 2 == 0) == (kind == "odd")]
+    good = [P.coeff_monomial(X**d) for d in range(P.degree() + 1) if (d % 2 == 0) != (kind == "odd")]
+    sols = sp.solve([c for c in bad if c != 0], K, dict=True)
+    need(len(sols) == 1, f"k is not unique: {sols}")
+    k = sols[0][K]
+    need(k.is_integer, "k is not whole")
+    g = f.subs(K, k)
+    need(r9oe_parity(g) == kind, "f with that k is not the asked kind")
+    need(all(c.subs(K, k) != 0 for c in good if c.has(K)), "k kills a term of the right kind")
+    slips = set()
+    for c in good:
+        if c.has(K):
+            for v in sp.solve(c, K):
+                slips.add("k = " + r9oe_t(v))
+    want = "k = " + r9oe_t(k)
+    for st in r9oe_steps(q):
+        if st.startswith("Put −x in: f(−x) = "):
+            need(sp.expand(r9oe_fn(st[19:], "k") - f.subs(X, -X)) == 0, f"{st!r}")
+        mm = re.match(r"Then f\(x\) = (.+), with only (odd|even) powers$", st)
+        if mm:
+            need(sp.expand(r9oe_fn(mm.group(1)) - g) == 0 and mm.group(2) == kind, f"{st!r}")
+        mm = re.search(r"must be 0: (.+) = 0$", st)
+        if mm:
+            need(sp.solve(r9oe_fn(mm.group(1), "k"), K) == [k], f"{st!r}")
+    return want, {R9OE_OWN + "12": slips}
+
+
+def r9oe_eval(expr, a, fa, fma):
+    t = expr.replace(f"f(−{a})", f"({fma})").replace(f"f({a})", f"({fa})").replace("−", "-")
+    t = re.sub(r"(\d)\(", r"\1*(", t)
+    need(re.fullmatch(r"[0-9()+\-* ]+", t) is not None, f"can't read {expr!r}")
+    return sp.sympify(t)
+
+
+def r9oe_value(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    m = re.fullmatch(r"Find (f\(−(\d)\)|f\((\d)\) \+ f\(−\3\)|f\(−(\d)\) − f\(\4\)|f\(−(\d)\) \+ 2f\(\5\))\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    expr = m.group(1)
+    a = int(next(g for g in m.groups()[1:] if g))
+    if rep == "graph":
+        mm = re.fullmatch(r"The graph of y = f\(x\) for x ≥ 0 is shown\. f is (odd|even)\.", L[0])
+        need(mm is not None, L[0])
+        par = mm.group(1)
+        g = q["graph"]
+        cv = g["curves"][0]
+        need(len(g["curves"]) == 1 and all(p[0] >= 0 for p in cv), "the graph is not one half for x ≥ 0")
+        need(par != "odd" or (cv[0][0] == 0 and cv[0][1] == 0), "an odd half not through the origin")
+        pts = g["points"]
+        need(len(pts) == 1 and pts[0]["x"] == a, "the marked point is not at x = a")
+        b = sp.Integer(round(pts[0]["y"]))
+        need(pts[0]["label"] == f"({a}, {r9oe_t(b)})" and any(p[0] == a and p[1] == pts[0]["y"] for p in cv), "the point is not a key point of the curve")
+    else:
+        mm = re.fullmatch(r"f\(x\) = (.+), where (p and q|p, q and r) are constants, and f\((\d)\) = (−?\d+)\.", L[0])
+        need(mm is not None and int(mm.group(3)) == a, L[0])
+        letters = "pqr" if "r" in mm.group(2) else "pq"
+        f = r9oe_fn(mm.group(1), letters)
+        need(f.free_symbols == {X} | {sp.Symbol(c) for c in letters}, "the constants named are not the rule's")
+        par = r9oe_parity(f)
+        need(par != "neither", "the rule is neither odd nor even")
+        b = sp.Integer(int(mm.group(4).replace("−", "-")))
+    need(b != 0, "f(a) = 0")
+    fma = -b if par == "odd" else b
+    v = r9oe_eval(expr, a, b, fma)
+    want = expr + " = " + r9oe_t(v)
+    slip = r9oe_eval(expr, a, b, -fma)
+    wrongs = {(R9OE_G + "0") if par == "odd" else (R9OE_OWN + "11"): {expr + " = " + r9oe_t(slip)}}
+    for st in r9oe_steps(q):
+        mm = re.fullmatch(r"f\(−\d\) = (−?\d+)", st)
+        if mm:
+            need(R(mm.group(1).replace("−", "-")) == fma, st)
+        mm = re.fullmatch(r"(.+) = (.+) = (−?\d+)", st)
+        if mm and mm.group(1) == expr:
+            need(sp.sympify(mm.group(2).replace("−", "-").replace("×", "*")) == v and R(mm.group(3).replace("−", "-")) == v, st)
+    return want, wrongs
+
+
+def r9oe_segs(curves):
+    out = set()
+    for c in curves:
+        for p, r in zip(c, c[1:]):
+            out.add(frozenset({(round(p[0], 6), round(p[1], 6)), (round(r[0], 6), round(r[1], 6))}))
+    return out
+
+
+def r9oe_map(segs, fx):
+    return {frozenset(fx(p) for p in s) for s in segs}
+
+
+def r9oe_sym(segs, kind):
+    if kind == "odd":
+        return r9oe_map(segs, lambda p: (-p[0], -p[1])) == segs
+    return r9oe_map(segs, lambda p: (-p[0], p[1])) == segs
+
+
+def r9oe_complete(q):
+    L = q["lines"]
+    m = re.fullmatch(r"The graph of y = f\(x\) for x ≥ 0 is shown\. f is (odd|even) and defined for every x\.", L[0])
+    need(m is not None, L[0])
+    par = m.group(1)
+    need(q["asked"] == "Which graph shows y = f(x) for every x?", q["asked"])
+    g = q["graph"]
+    half = [(round(p[0], 6), round(p[1], 6)) for p in g["curves"][0]]
+    need(len(g["curves"]) == 1 and half[0][0] == 0 and all(p[0] >= 0 for p in half), "the graph is not one half for x ≥ 0")
+    need(par != "odd" or half[0][1] == 0, "an odd function defined at 0 not through the origin")
+    need([(p["x"], p["y"]) for p in g["points"]] == half and all(p["label"] == f"({r9oe_t(int(p['x']))}, {r9oe_t(int(p['y']))})" for p in g["points"]), "the key points")
+    hs = r9oe_segs([half])
+    rot = r9oe_map(hs, lambda p: (-p[0], -p[1]))
+    mir = r9oe_map(hs, lambda p: (-p[0], p[1]))
+    xax = r9oe_map(hs, lambda p: (p[0], -p[1]))
+    w = half[-1][0]
+    slide = r9oe_map(hs, lambda p: (p[0] - w, p[1]))
+    right = hs | (rot if par == "odd" else mir)
+    want, wrongs = None, {}
+    for o, card in zip(q["choices"], q["graphs"]):
+        cs = r9oe_segs(card["curves"])
+        need(card.get("card"), "not a card")
+        if o["correct"]:
+            need(cs == right, "the right card is not the half and its image")
+            need(r9oe_sym(cs, par), "the right card is not " + par)
+            want = o["text"]
+            continue
+        mk, ref = o.get("mistake", ""), o.get("ref", "")
+        need(o.get("why"), "a wrong card says no why")
+        if mk == "y-axis":
+            need(par == "odd" and cs == hs | mir and ref == R9OE_G + "0", "the y-axis card")
+        elif mk == "x-axis":
+            need(cs == hs | xax and ref == (R9OE_G + "1" if par == "odd" else ""), "the x-axis card")
+        elif mk == "off-origin":
+            need(par == "odd" and ref == R9OE_G + "2", "the off-origin card")
+            left = cs - hs
+            at0 = [p for s in left for p in s if p[0] == 0]
+            need(len(at0) >= 1, "the off-origin card has no point on the y-axis")
+            k = sp.Rational(at0[0][1]) / 2
+            need(k != 0 and k.q == 1, "the off-origin card's centre")
+            need(cs == hs | r9oe_map(hs, lambda p: (-p[0], round(float(2 * k) - p[1], 6))), "the off-origin card is not a half-turn about (0, k)")
+        elif mk == "half-turn":
+            need(par == "even" and cs == hs | rot and ref == "", "the half-turn card")
+        elif mk == "slide":
+            need(par == "even" and cs == hs | slide and ref == "", "the slide card")
+        else:
+            raise Fail(f"a card names no mistake ({mk!r})")
+        if ref:
+            wrongs.setdefault(ref, set()).add(o["text"])
+        need(cs != right, "a wrong card is the right graph")
+    need(want is not None, "no right card")
+    return want, wrongs
+
+
+def r9oe_which(q):
+    m = re.fullmatch(r"Which graph shows an (odd|even) function\?", q["asked"])
+    need(m is not None, q["asked"])
+    par = m.group(1)
+    other = "even" if par == "odd" else "odd"
+    want, wrongs = None, {}
+    for o, card in zip(q["choices"], q["graphs"]):
+        cs = r9oe_segs(card["curves"])
+        xs = [p[0] for s in cs for p in s]
+        # A graph of a function: each card is one polyline rising in x.
+        need(len(card["curves"]) == 1 and all(a[0] < b[0] for a, b in zip(card["curves"][0], card["curves"][0][1:])), "a card is not one function")
+        if o["correct"]:
+            need(r9oe_sym(cs, par), "the right card is not " + par)
+            want = o["text"]
+            continue
+        need(not r9oe_sym(cs, par), f"wrong card {o['text']} is {par} too")
+        mk, ref = o.get("mistake", ""), o.get("ref", "")
+        if mk == other:
+            need(r9oe_sym(cs, other) and ref == (R9OE_G + "0" if par == "odd" else ""), f"the {other} card")
+        elif mk == "shifted":
+            need(ref == "", "the shifted card")
+            if par == "odd":
+                y0 = [p[1] for s in cs for p in s if p[0] == 0][0]
+                need(y0 != 0 and r9oe_sym(r9oe_map(cs, lambda p: (p[0], round(p[1] - y0, 6))), "odd"), "the shifted card is not an odd graph moved up or down")
+            else:
+                h = (min(xs) + max(xs)) / 2
+                need(h != 0 and r9oe_sym(r9oe_map(cs, lambda p: (round(p[0] - h, 6), p[1])), "even"), "the shifted card is not an even graph moved sideways")
+        elif mk == "neither":
+            need(ref == "" and not r9oe_sym(cs, "odd") and not r9oe_sym(cs, "even"), "the neither card")
+        else:
+            raise Fail(f"a card names no mistake ({mk!r})")
+        if ref:
+            wrongs.setdefault(ref, set()).add(o["text"])
+    need(want is not None, "no right card")
+    return want, wrongs
+
+
+def r9oe_combine(q):
+    L = q["lines"]
+    need(len(L) == 2, f"lines {L!r}")
+    m = re.fullmatch(r"(?:f and g are both (odd|even) functions|f is an (odd|even) function and g is an (odd|even) function), and neither is 0 for every x\.", L[0])
+    need(m is not None, L[0])
+    pf, pg = (m.group(1), m.group(1)) if m.group(1) else (m.group(2), m.group(3))
+    ops = {"h(x) = f(x)g(x)": lambda F, G: F * G, "h(x) = f(x) + g(x)": lambda F, G: F + G,
+           "h(x) = f(g(x))": lambda F, G: F.subs(X, G), "h(x) = g(f(x))": lambda F, G: G.subs(X, F)}
+    need(L[1] in ops, L[1])
+    need(q["asked"] == "Is h odd, even or neither?", q["asked"])
+    # Concrete functions of each kind: h's parity must be the same for every choice.
+    egs = {"odd": [X**3 + X, sp.sin(X), X**5 - 2 * X], "even": [X**2 + 1, sp.cos(X) + 2, X**4 - 3 * X**2]}
+    pars = {r9oe_parity(sp.expand(ops[L[1]](F, G))) for F in egs[pf] for G in egs[pg]}
+    need(len(pars) == 1, f"h's parity depends on f and g: {pars}")
+    par = pars.pop()
+    r9oe_options(q, R9OE_HCLAIMS)
+    for o in q["choices"]:
+        need(o["correct"] or R9OE_HCLAIMS[o["text"]] != par, f"option {o['text']!r} gives the right verdict but is marked wrong")
+    wrongs = {}
+    if L[1] == "h(x) = f(x)g(x)" and pf == pg == "odd":
+        wrongs[R9OE_C + "0"] = {"Odd: odd × odd is odd"}
+    if L[1] == "h(x) = f(x) + g(x)" and pf != pg:
+        wrongs[R9OE_C + "1"] = {"Odd: odd + even is odd", "Even: odd + even is even"}
+    st = r9oe_sol(q, "sign-rule")
+    if st is not None:
+        need(L[1] == "h(x) = f(x)g(x)", "the sign rule on something other than a product")
+        sg = {"odd": "(−1)", "even": "(+1)"}
+        need(f"h = f × g: {sg[pf]} × {sg[pg]} = {'+1' if par == 'even' else '−1'}, which is {par}" in st, "the sign rule's line")
+    return R9OE_H[par], wrongs
+
+
+def r9oe_poly_integral(pts, lo, hi):
+    """∫ of a polyline from lo to hi, exactly, as trapezia."""
+    tot = sp.Integer(0)
+    for p, r in zip(pts, pts[1:]):
+        x0, x1 = max(p[0], lo), min(r[0], hi)
+        if x1 <= x0:
+            continue
+        y = lambda x: p[1] + (r[1] - p[1]) * (x - p[0]) / (r[0] - p[0])
+        tot += (x1 - x0) * (y(x0) + y(x1)) / 2
+    return tot
+
+
+def r9oe_integral(q):
+    rep, L, paper = q["view"]["rep"], q["lines"], q["paper"]
+    m = re.fullmatch(r"Find ∫ from −(\d) to \1 of f\(x\) dx\.", q["asked"])
+    need(m is not None, q["asked"])
+    a = int(m.group(1))
+    label = f"∫ from −{a} to {a} of f(x) dx = "
+    wrongs = {}
+    show = r9oe_t
+    if rep == "graph":
+        mm = re.fullmatch(r"The graph of y = f\(x\) is shown for −(\d) ≤ x ≤ \1\. The shaded region, between the curve and the x-axis from x = 0 to x = \1, has area (\d+(?:/\d+)?)\.", L[0])
+        need(mm is not None and int(mm.group(1)) == a, L[0])
+        area = R(mm.group(2))
+        g = q["graph"]
+        pts = [(sp.nsimplify(p[0]), sp.nsimplify(p[1])) for c in g["curves"] for p in c]
+        pts = sorted(set(pts))
+        need(pts[0][0] == -a and pts[-1][0] == a, "the curve is not drawn from −a to a")
+        need(all(y >= 0 for x, y in pts if x >= 0), "the curve dips below the x-axis from 0 to a")
+        need(r9oe_poly_integral(pts, 0, a) == area, "the shaded area is not the area under the curve")
+        sh = g["shade"]
+        need(len(sh) == 1 and abs(sh[0][0][0]) < 1e-9 and abs(sh[0][-1][0] - a) < 1e-9, "the shading is not from 0 to a")
+        whole = r9oe_poly_integral(pts, -a, a)
+        segs = r9oe_segs(g["curves"])
+        par = "odd" if r9oe_sym(segs, "odd") else ("even" if r9oe_sym(segs, "even") else "neither")
+        need(par != "neither", "the graph is neither odd nor even")
+        I, v = area, whole
+        wrongs = {R9OE_OWN + "9": {label + show(2 * I)}} if par == "odd" else {R9OE_C + "2": {label + "0"}}
+    else:
+        mm = re.fullmatch(r"f is an (odd|even) function, and ∫ from 0 to (\d) of f\(x\) dx = (−?\d+(?:\.\d+)?)\.", L[0])
+        if mm:
+            need(int(mm.group(2)) == a, "the limits")
+            par, I = mm.group(1), R(mm.group(3).replace("−", "-"))
+            need(I != 0, "I = 0")
+            if "." in mm.group(3):
+                need(paper == 2, "a decimal integral on Paper 1")
+                show = dec_text
+            # ∫ from −a to 0 of f(x) dx = ∫ from 0 to a of f(−u) du: −I for odd f, I for even f.
+            v = I + (-I if par == "odd" else I)
+            wrongs = {R9OE_OWN + "9": {label + show(2 * I)}} if par == "odd" else {R9OE_C + "2": {label + "0"}}
+        else:
+            need(L[0].startswith("f(x) = "), L[0])
+            f = r9oe_fn(L[0][7:])
+            v = sp.nsimplify(sp.simplify(sp.integrate(f, (X, -a, a))))
+            need(v.is_Rational, f"the integral {v} is not exact")
+            need(abs(mpmath.quad(sp.lambdify(X, f, "mpmath"), [-a, a]) - mpmath.mpf(sp.N(v, 30))) < 1e-20, "the exact integral disagrees with quadrature")
+            fm = f.subs(X, -X)
+            ev_part = sp.expand((f + fm) / 2)
+            if not r9oe_zero(ev_part):
+                wrongs[R9OE_C + "2"] = {label + "0"}
+            od_part = sp.expand((f - fm) / 2)
+            if not r9oe_zero(od_part) and f.is_polynomial(X):
+                wrongs[R9OE_OWN + "9"] = {label + r9oe_t(2 * sp.integrate(f, (X, 0, a)))}
+            I = sp.integrate(ev_part, (X, 0, a))
+            for st in r9oe_steps(q):
+                mt = re.fullmatch(r"2 × \[(.+)\] from 0 to (\d) = 2 × \(?(−?\d+(?:/\d+)?)\)? = (−?\d+(?:/\d+)?)", st)
+                if mt:
+                    Fx = r9oe_fn(mt.group(1))
+                    need(sp.expand(sp.diff(Fx, X) - ev_part) == 0 and Fx.subs(X, 0) == 0, f"{st!r}: not an antiderivative of the even part")
+                    need(Fx.subs(X, a) == R(mt.group(3).replace("−", "-")) and 2 * Fx.subs(X, a) == R(mt.group(4).replace("−", "-")), f"{st!r}")
+    if paper == 1:
+        need(sp.Rational(v) == v, "a Paper 1 integral that is not exact")
+    want = label + show(v)
+    for st in r9oe_steps(q):
+        mt = re.fullmatch(r"∫ from −\d to \d of f\(x\) dx = (.+) = (.+)", st)
+        if mt:
+            e = mt.group(1).replace("−", "-").replace("×", "*")
+            need(sp.nsimplify(sp.sympify(e)) == sp.nsimplify(v), f"{st!r}")
+    return want, wrongs
+
+
+def r9oe_check(q):
+    u = q["view"]["unknown"]
+    need(q["paper"] in (1, 2), "paper")
+    for tx in [q["asked"]] + q["lines"] + r9oe_steps(q) + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+        if q["paper"] == 1:
+            need(not re.search(r"(?i)\b(gdc|calculator)\b", tx), f"a calculator on Paper 1: {tx!r}")
+    if u in ("classify-polynomial", "classify-mixed"):
+        want, wrongs = r9oe_classify(q, u == "classify-mixed")
+    elif u == "symmetry-coefficient":
+        want, wrongs = r9oe_coefficient(q)
+    elif u == "value-from-symmetry":
+        want, wrongs = r9oe_value(q)
+    elif u == "complete-graph":
+        want, wrongs = r9oe_complete(q)
+    elif u == "which-graph":
+        want, wrongs = r9oe_which(q)
+    elif u == "combine-parity":
+        want, wrongs = r9oe_combine(q)
+    elif u == "symmetric-integral":
+        want, wrongs = r9oe_integral(q)
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+SITUATION_CHECKS["odd-even"] = r9oe_check
+
 # (between the R9 markers)
 
 # R9-INVERSE: fn-ahl-inverse-restricted (inverse-restricted), prefix R9IR_ / r9ir_
