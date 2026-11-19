@@ -90814,8 +90814,7 @@
      "text": "Calling a function odd because its power is odd, though an added constant stops f(−x) equalling −f(x)",
      "as": "distractor",
      "in": [
-      "classify-polynomial",
-      "symmetry-coefficient"
+      "classify-polynomial"
      ],
      "wrong": "odd, for odd powers plus a constant"
     },
