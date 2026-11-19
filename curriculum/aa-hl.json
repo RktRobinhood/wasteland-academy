@@ -2710,7 +2710,7 @@
                 {
                   "id": "compare-coefficients",
                   "approach": "algebraic",
-                  "name": "Write (px + q)(x + 1) + r and compare",
+                  "name": "Write the numerator as (px + q) × the denominator + r and compare",
                   "summary": "Expand (px + q)(x + 1) + r and match it with x² + 3x + 5: p = 1, p + q = 3, q + r = 5."
                 },
                 {
