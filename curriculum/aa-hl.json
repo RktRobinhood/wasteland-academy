@@ -2603,9 +2603,9 @@
                 }
               ],
               "misconceptions": [
-                "Sets the numerator equal to zero and gives x = −1/2 as a vertical asymptote of (2x + 1)/(x² − x − 6)",
-                "Factorises x² − x − 6 as (x + 3)(x − 2) and gives the asymptotes as x = −3 and x = 2",
-                "Thinks every quadratic denominator gives two vertical asymptotes, even x² + 4"
+                "Setting the numerator equal to zero and giving its root as a vertical asymptote",
+                "Factorising the quadratic denominator with the signs swapped, so each asymptote has the wrong sign",
+                "Thinking every quadratic denominator gives two vertical asymptotes, even one with no real zeros"
               ],
               "threads": [
                 {
@@ -2665,9 +2665,9 @@
                 }
               ],
               "misconceptions": [
-                "Gives the horizontal asymptote as y = 2 by taking the ratio of the leading coefficients regardless of degree",
-                "Believes a graph can never cross its horizontal asymptote, so misses the crossing at (−1/2, 0)",
-                "Gives the horizontal asymptote as y = b/e (the ratio of the constants), i.e. y = −1/6"
+                "Taking the ratio of the leading coefficients as the horizontal asymptote, though the denominator has the higher degree",
+                "Believing a graph can never cross its horizontal asymptote, so missing the point where it does",
+                "Taking the ratio of the constant terms as the horizontal asymptote"
               ],
               "threads": [
                 {
@@ -2710,7 +2710,7 @@
                 {
                   "id": "compare-coefficients",
                   "approach": "algebraic",
-                  "name": "Write (px + q)(x + 1) + r and compare",
+                  "name": "Write the numerator as (px + q) × the denominator + r and compare",
                   "summary": "Expand (px + q)(x + 1) + r and match it with x² + 3x + 5: p = 1, p + q = 3, q + r = 5."
                 },
                 {
@@ -2721,9 +2721,9 @@
                 }
               ],
               "misconceptions": [
-                "Takes only the leading terms and gives the oblique asymptote of (x² + 3x + 5)/(x + 1) as y = x",
-                "Divides each numerator term by x and gives y = x + 3",
-                "Gives a horizontal asymptote y = 1 as well as the oblique one, by taking the ratio of leading coefficients"
+                "Taking only the leading terms, so the oblique asymptote loses its constant term",
+                "Dividing each term of the numerator by x instead of by the whole denominator",
+                "Giving a horizontal asymptote from the ratio of the leading coefficients as well as the oblique one"
               ],
               "threads": [
                 {
@@ -2776,9 +2776,9 @@
                 }
               ],
               "misconceptions": [
-                "States the range as all real numbers except the horizontal asymptote value, e.g. y ≠ 0 for x/(x² + 1)",
-                "Takes the wrong side of the discriminant condition and gives the gap 1 − 2√3 < y < 1 + 2√3 as the range of (x² + 3x + 5)/(x + 1), instead of y ≤ 1 − 2√3 or y ≥ 1 + 2√3",
-                "Assumes the local maximum is above the local minimum, so rejects correct turning values on separate branches"
+                "Giving the range as every real number except the horizontal asymptote's value",
+                "Taking the wrong side of the discriminant condition, so the range comes out as the gap between the turning values",
+                "Assuming the local maximum is above the local minimum, so rejecting turning values on separate branches"
               ],
               "threads": [
                 {
@@ -2835,9 +2835,9 @@
                 }
               ],
               "misconceptions": [
-                "Draws the middle branch of (2x + 1)/(x² − x − 6) without crossing the x-axis at x = −1/2",
-                "Gives the y-intercept as the ratio of leading coefficients instead of f(0), e.g. 2 instead of −1/6",
-                "Draws the curve crossing a vertical asymptote"
+                "Drawing a branch that misses the x-intercept where the numerator is zero",
+                "Giving the y-intercept as the ratio of the leading coefficients instead of f(0)",
+                "Drawing the curve crossing a vertical asymptote"
               ],
               "threads": [
                 {
@@ -2902,10 +2902,10 @@
                 }
               ],
               "misconceptions": [
-                "Concludes a function is odd just because f(−x) ≠ f(x)",
-                "Calls f(x) = x³ + 1 odd because the power is odd, though f(−x) = −x³ + 1 ≠ −f(x)",
-                "Checks one value such as f(−1) = f(1) and concludes the function is even",
-                "Believes every function must be either odd or even"
+                "Concluding a function is odd just because f(−x) ≠ f(x)",
+                "Calling a function odd because its power is odd, though an added constant stops f(−x) equalling −f(x)",
+                "Checking one value of f(−x) against f(x) and concluding the function is even",
+                "Believing every function must be either odd or even"
               ],
               "threads": [
                 {
@@ -2958,9 +2958,9 @@
                 }
               ],
               "misconceptions": [
-                "Completes an odd function by reflecting only in the y-axis, which produces an even function",
-                "Completes an odd function by reflecting only in the x-axis",
-                "Draws an odd function that is defined at 0 but does not pass through the origin"
+                "Completing an odd function by reflecting only in the y-axis, which produces an even function",
+                "Completing an odd function by reflecting only in the x-axis",
+                "Drawing an odd function that is defined at 0 but does not pass through the origin"
               ],
               "threads": [
                 {
@@ -3017,9 +3017,9 @@
                 }
               ],
               "misconceptions": [
-                "Thinks the product of two odd functions is odd",
-                "Assumes the sum of an odd and an even function is odd or even, e.g. calls x³ + x² odd",
-                "Uses ∫ from −a to a of f(x) dx = 0 for an even function"
+                "Thinking the product of two odd functions is odd",
+                "Assuming the sum of an odd and an even function is odd or even",
+                "Using ∫ from −a to a of f(x) dx = 0 for an even function"
               ],
               "threads": [
                 {
@@ -3083,9 +3083,9 @@
                 }
               ],
               "misconceptions": [
-                "Leaves f⁻¹(x) = 2 ± √(x + 3), not choosing the branch",
-                "Chooses 2 − √(x + 3) when the restricted domain is x ≥ 2",
-                "Gives the domain of f⁻¹ as x ≥ 2 (the domain of f) instead of x ≥ −3 (the range of f)"
+                "Leaving a ± in the inverse instead of choosing the branch",
+                "Choosing the root with the wrong sign for the restricted domain",
+                "Giving the domain of f as the domain of the inverse, instead of the range of f"
               ],
               "threads": [
                 {
@@ -3138,9 +3138,9 @@
                 }
               ],
               "misconceptions": [
-                "Thinks self-inverse means f(x) × f(x) = 1 or f(x) = 1/f(x)",
-                "Checks f(f(a)) = a for one value only and concludes the function is self-inverse",
-                "Confuses self-inverse with odd, and claims f(x) = x³ is self-inverse"
+                "Thinking self-inverse means f(x) × f(x) = 1, or f(x) = 1/f(x)",
+                "Checking f(f(a)) = a for one value only and concluding the function is self-inverse",
+                "Confusing self-inverse with odd, and calling an odd function its own inverse"
               ],
               "threads": [
                 {
@@ -3197,9 +3197,9 @@
                 }
               ],
               "misconceptions": [
-                "Solves f(x) = x for the decreasing function f(x) = −x³ and finds only (0, 0), missing (1, −1) and (−1, 1)",
-                "Reflects the graph in the y-axis instead of y = x to draw f⁻¹",
-                "Gives f⁻¹(x) = 1/f(x) and solves f(x) = 1/f(x)"
+                "Solving f(x) = x for a decreasing function, so missing the meeting points off the line y = x",
+                "Reflecting the graph in the y-axis instead of y = x to draw f⁻¹",
+                "Taking f⁻¹(x) as 1/f(x) and solving f(x) = 1/f(x)"
               ],
               "threads": [
                 {

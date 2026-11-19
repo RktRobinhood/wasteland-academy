@@ -1196,6 +1196,99 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   method-pick; the concept type and graph-match offer true-false-reason. Not built yet:
   error-spot (fn-ext-inequality-graphical, fn-pre-graph-reading) and method-pick for
   fn-concept-solutions-as-intersections.
+<!-- R9-RATIONAL -->
+- `engine/situations/rational_quadratic.gd` (FAL-1007) is `rational-quadratic`, for `fn-ahl-rational-quadratic`
+  (AHL2.13: vertical-asymptotes, horizontal-asymptote, oblique-asymptote, range-turning-points, sketch), an AA HL
+  exam type. Two forms, each drawn from its features: a linear over a quadratic (ax + b)/(x² + px + q) whose
+  denominator has two whole zeros, one repeated zero or none ((x + h)² + s², so the slip that finds two anyway
+  has whole numbers), and a quadratic over a linear (mx² + bx + c)/(x + e) built from its division
+  mx + k + R/(x + e), with whole zeros when a view needs them. Paper 1 is exact throughout; a range on Paper 2
+  has a discriminant that is not a square, so its turning values are given to 3 s.f. Its views
+  (`rational_quadratic_views.gd`) ask 12 unknowns over 31 cells: the vertical asymptotes (none for a denominator
+  with no zeros, on the discriminant method), the one of a quadratic over a linear, k in a denominator from an
+  asymptote (written or read from the graph), the horizontal asymptote and where the curve crosses it, the
+  intercepts of a quadratic over a linear, the oblique asymptote and an x coefficient from it, the range of each
+  form (a quadratic over a linear also asks the values f never takes), and two pick-the-graph sketches. A card
+  draws each branch to the edge of the plot (bisection, so none crosses an asymptote), the asymptotes dashed, an
+  oblique one as a dashed sand line after `sand_from`, and its own intercepts marked; the cards' functions keep
+  every branch inside the plot. Wrong cards: the numerator's zero dropped (AHL2.13.sketch#0) or the oblique
+  asymptote's constant dropped (AHL2.13.oblique-asymptote#0), with two untagged ones (−f, the asymptotes' or the
+  zero's sign changed; the remainder's sign flipped, the asymptote mirrored, a line drawn across it). The range-ql
+  view has its own situation family, since exact turning values rarely meet whole zeros. The wrong-side range
+  slip is listed for range-ql only: its text says the range comes out as the gap between the turning values, and
+  for a linear over a quadratic the range is that gap. The checker (r9rq_check) reads f back from the stem and
+  works every answer, slip, working value and card again with SymPy.
+
+<!-- R9-ODD-EVEN -->
+- `engine/situations/odd_even.gd` (FAL-1007) is `fn-ahl-odd-even` (AHL2.14, AA HL only): odd, even
+  or neither. A function is a list of terms c·xᵖ·g(x), g one of 1, sin x, cos x, e^x and e^(−x), and
+  its parity comes from the terms' (e^x and e^(−x) swap, so a e^x + b e^(−x) is even for a = b and
+  odd for a = −b). Its views (`odd_even_views.gd`) ask 8 unknowns over 22 cells: a polynomial or a
+  mixed function classified (a `claim` with its reason, by f(−x), a counterexample at the least whole
+  a that shows neither, the building blocks, or the unit circle), the coefficient k that makes a
+  polynomial odd or even, a value f(−a) or f(−a) + m·f(a) from a rule in p and q or a half graph,
+  completing a half graph and choosing the odd or even graph (pick-the-graph; each wrong card a
+  named mistake: the mirror in the y-axis or the x-axis, a half-turn about (0, k), a slide, a shifted
+  or asymmetric graph), h = fg, f + g, f∘g or g∘f from the parities of f and g, and ∫ from −a to a
+  given ∫ from 0 to a, of a written integrand (odd terms cancel, even ones double) or of a polyline
+  graph with its half shaded. Graphs are polylines through whole-number key points, so a symmetry
+  and an area are exact. Every cell makes both papers; Paper 2 changes only a given integral, which
+  may be a decimal. Wrong options are AHL2.14's misconceptions and the type's own four (2∫₀ᵃ for an
+  odd integrand, the definitions swapped, −f(a) for an even function, the wrong powers' coefficient
+  set to 0). AHL2.14.odd-even-test#1 (odd powers plus a constant) is offered only on classify-polynomial:
+  no value of k comes from that slip. The checker (`r9oe_check`) reads every function back with its own
+  parser, decides each parity with SymPy from f(−x) ± f(x), solves for k, evaluates each counterexample,
+  works each h out on concrete odd and even functions, integrates the written integrand exactly (and by
+  quadrature), and holds each card's segments to its named mistake and each graph's area to its trapezia.
+
+<!-- R9-INVERSE -->
+- `engine/situations/inverse_restricted.gd` (FAL-1007) is `inverse-restricted`, for `fn-ahl-inverse-restricted`
+  (AHL2.14.restrict-domain-inverse, self-inverse, inverse-intersection): 8 unknowns over 30 cells, AA HL only. A quadratic
+  A x² + bx + c or √(x² + bx + c) with a whole vertex off the y-axis, and x ≤ a or x ≥ a to bound; a shifted cosine or sine
+  A cos(x − p) + D, p a multiple of π/6 or π/4, from a turning point; a quadratic on one side of its vertex, given in vertex
+  form or expanded; (ax + b)/(x + d) with d = −a and a or d the unknown k; a rule that is its own inverse ((ax + b)/(x − a),
+  c − x, √(r² − x²) on 0 ≤ x ≤ r) or is not ((ax + b)/(x + d) with two whole fixed points, mx, x³), with a value that f(f(x))
+  moves; an increasing (n x² + c)/m on x ≥ 0 or √((mx − c)/n), meeting f⁻¹ at whole or half points; and a decreasing
+  −A x³ or −A x⁵ meeting f⁻¹ at (0, 0) and (±s, ∓s). The calculator method (gdc-intersect) draws meeting points that need a
+  GDC, to 3 s.f., and is Paper 2; every other cell is exact on either paper. Its views (`inverse_restricted_views.gd`) ask
+  the largest or smallest a (a typed number), the end of the wave's domain as a multiple of π, f⁻¹(x) with its branch, the
+  domain of f⁻¹, the k (typed), whether f is its own inverse and why, and where f meets f⁻¹, each from the rule or, for
+  the largest domain, the inverse's domain and both meeting unknowns, from the curve on a grid (with f⁻¹ and y = x for the
+  meeting points). Methods: completing the square, the turning point (f′ = 0), the horizontal line test, the quadratic
+  formula in y, f(f(x)), f⁻¹ found and compared, the asymptotes or the curve symmetric in y = x, f(x) = x (for a decreasing
+  f also f(x) = −x, its title says so), f(f(x)) = x from f⁻¹, and the GDC's intersect. Wrong options are the skills' slips
+  (the ± left in, the other root, the domain of f, f × f = 1, one value checked, odd taken for self-inverse, only the point
+  on y = x, f⁻¹ as 1/f) and the type's own (the y-intercept, a root, the vertex's coordinates mixed up, a quarter or a whole
+  period, the sign of d = −a changed), with plain fillers. `r9ir_check` in the SymPy checker reads every rule back from the
+  lines, works each answer out again (the turning point, the next zero of f′, the branch of x = f(y) that gives back the
+  domain, the range, the k from f(f(x)) = x, the real roots of f(x) = x and f(f(x)) = x), rebuilds every tagged option,
+  and checks the working's completed squares, derivatives, compositions and quadratics. `test_inverse_restricted.gd`.
+
+<!-- R9-AI-COMPOSITE -->
+- `engine/situations/ai_composite_inverse.gd` (FAL-1007) is `ai-composite-inverse`, for
+  `fn-ai-composite-inverse` (AI-AHL2.7: composite-context, find-inverse, restrict-domain,
+  inverse-identity), an exam type on AI HL only, Paper 2 throughout. Its composites are four stories
+  (a workshop's filters and their shipping cost, a furnace's temperature in °C then °F, a truck's
+  distance and the fuel left, a crew's scrap and what a trader pays), an inner line g and an outer f
+  (a line, or for the rule mostly a quadratic) as `CompositePairSituation` polynomials, evaluated and
+  composed with its `peval` and `pcompose`. The models to undo are a line (a taxi fare, °C to °F, a
+  copper price), c + k/x (an average cost), a + b ln x (a signal) and, for a value of f⁻¹ by the GDC's
+  solver only, an increasing cubic (a tank); a quadratic a(x − h)² + k (a pump's cost, a bridge's
+  height, a profit) is restricted at its vertex, and a line on an interval gives an inverse's bounded
+  domain. The graph of f⁻¹ draws a `BasicOneToOneSituation` curve. Its views
+  (`ai_composite_inverse_views.gd`) ask 10 unknowns over 35 cells: the composite's value (the inner
+  model as a rule, a table, or a line graph with marked points), its rule in the first input (equation:
+  (f∘g)(t); words: the order is left to the units), which order of a percentage and a voucher or a fee
+  gives the lower or higher price, the input that gives a target (on the graph, read back off the
+  marked point), f⁻¹(x) (in words, with what it calculates), f⁻¹(a) without f⁻¹(x), the least k for an
+  inverse on x ≥ k, the domain or range of f⁻¹, (f∘f⁻¹)(a) or a from f⁻¹(a) = b, and the graph of f⁻¹
+  (pick-the-graph, copying the fn-inverse-reflection cards: in y = x, in each axis, in y = −x). A rule,
+  a statement, a domain or a range is a `choice` option built by `InverseRuleViews.pick_of`. Values
+  that end within two decimal places are exact; the rest are 3 s.f. with the rounding trap. Slips are
+  only offered where they read as an answer: the other order of an equation only when its time is
+  positive, 1/f(a) only when it is at least 0.001. `r9ac_check` in the SymPy checker reads every model
+  back from its sentence, table or graph, solves again, and matches each rule option to its slip by
+  parsing it. `test_ai_composite_inverse.gd`.
 - **The Composite and inverse region** (FAL-422) adds three exam situations. `composite_pair.gd`
   is two rules chained, f and g, as `{"t", "co"}` polynomials (a line, x² + c, (x − h)², x³ + c,
   or sin x on Paper 2, with a generic quadratic for an outer rule to find), with modes for

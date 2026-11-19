@@ -938,6 +938,38 @@
    "note": "Curriculum Author (FAL-1005) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
   },
   {
+   "situation": "rational-quadratic",
+   "types": [
+    "fn-ahl-rational-quadratic"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "odd-even",
+   "types": [
+    "fn-ahl-odd-even"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "inverse-restricted",
+   "types": [
+    "fn-ahl-inverse-restricted"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-composite-inverse",
+   "types": [
+    "fn-ai-composite-inverse"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
    "situation": "quadratic-model",
    "types": [
     "fn-ext-quadratic-model"

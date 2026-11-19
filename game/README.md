@@ -1111,6 +1111,45 @@ script error happens while it runs. Run one file with
   quadratic-roots; and products, quotients, powers and arguments against hand values. Both
   types sit in the Exponents and log laws region (`exponents-logs`): a region of its own would
   be locked for AA SL, which the map does not handle yet.
+<!-- R9-RATIONAL -->
+- `test_rational_quadratic.gd` (FAL-1007): fn-ahl-rational-quadratic (AHL2.13) built with all 31 cells and all
+  five skills, on AA HL only; a GDC method is Paper 2 and every other cell either paper, with exact turning values
+  on Paper 1 and 3 s.f. ones on Paper 2; four distinct options with one right and the answer in each working's
+  last step, and no GDC tab on Paper 1; every tag shows up, and only on the unknowns it lists; pick the graph draws
+  every branch of the right card, an oblique asymptote dashed, and tags the missed-zero and lost-constant cards; the
+  graph view shows its asymptotes; typed answers marked by value; hand-worked ranges, turning points and an oblique
+  split. The map's AHL2.13 skills also list `match`, `order-steps` and `multipart`, which the engine doesn't build,
+  and `true-false-reason`, `error-spot` and `method-pick`, which the type doesn't list, so none is offered.
+
+<!-- R9-ODD-EVEN -->
+- `test_odd_even.gd` (FAL-1007): fn-ahl-odd-even (AHL2.14) built with every cell for its three
+  skills (odd-even-test, odd-even-graph, odd-even-combine) on AA HL only, every cell on both
+  papers in the bank's ratio (no cell needs a calculator; an integral given from 0 to a may be a
+  decimal on Paper 2 and is whole on Paper 1). The test checks four options with one right in
+  both formats and no extra format, every misconception as an option, the counterexample asked
+  only of a function that is neither and the sign rule only of a product, a typed k or integral
+  marked by its value, and parities, counterexamples, combinations and integrals against hand
+  values. The skills' match, error-spot and true-false-reason formats are not built for it (an
+  exam type offers no extra format), and match is not in the engine.
+
+<!-- R9-INVERSE -->
+- `test_inverse_restricted.gd` (FAL-1007): fn-ahl-inverse-restricted built with every cell (30) and all three AHL2.14
+  inverse skills, on AA HL only; a calculator method on Paper 2 and the rest on either paper, with no calculator working
+  on Paper 1; four distinct options with one right and the answer in each working's last step; graphs shown; every tag
+  shows up; a typed a or k marked by its value; inverses, rules, self-inverse values and meeting points against values
+  worked by hand. The skills' multipart, order-steps, error-spot, graph-pick and method-pick formats are not built: the
+  type lists value and mcq only.
+
+<!-- R9-AI-COMPOSITE -->
+- `test_ai_composite_inverse.gd` (FAL-1007): fn-ai-composite-inverse built with all 35 cells and all
+  four AI-AHL2.7 skills, on AI HL only, Paper 2 only; four distinct options with one right and the
+  answer in each working's last step, in both formats; a table on the table cell and a figure on every
+  graph cell, and four cards on the graph of f⁻¹; every tag shows up; a typed time or value of f⁻¹ is
+  marked by its value; the order slip of an equation is never a negative time; hand-worked composites,
+  rules, inverses (a line, c + k/x, a + b ln x and the tank's cubic by the solver) and a vertex. The
+  type's formats (value, mcq, graph-pick) are all built; its skills' multipart, match and order-steps
+  formats are not built in the engine, and error-spot, method-pick and true-false-reason are not in
+  the type's formats, so it offers none of them.
 - `test_complex_polar.gd` (FAL-1005): the four types on the `complex_polar.gd` recipe, each
   with its own views. t1-ahl-complex-polar (AHL1.13), t1-ahl-de-moivre and
   t1-ahl-conjugate-roots (AHL1.14) are built with every cell for the eleven skills on AA HL
