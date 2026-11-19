@@ -1197,6 +1197,27 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   error-spot (fn-ext-inequality-graphical, fn-pre-graph-reading) and method-pick for
   fn-concept-solutions-as-intersections.
 <!-- R9-RATIONAL -->
+- `engine/situations/rational_quadratic.gd` (FAL-1007) is `rational-quadratic`, for `fn-ahl-rational-quadratic`
+  (AHL2.13: vertical-asymptotes, horizontal-asymptote, oblique-asymptote, range-turning-points, sketch), an AA HL
+  exam type. Two forms, each drawn from its features: a linear over a quadratic (ax + b)/(x² + px + q) whose
+  denominator has two whole zeros, one repeated zero or none ((x + h)² + s², so the slip that finds two anyway
+  has whole numbers), and a quadratic over a linear (mx² + bx + c)/(x + e) built from its division
+  mx + k + R/(x + e), with whole zeros when a view needs them. Paper 1 is exact throughout; a range on Paper 2
+  has a discriminant that is not a square, so its turning values are given to 3 s.f. Its views
+  (`rational_quadratic_views.gd`) ask 12 unknowns over 31 cells: the vertical asymptotes (none for a denominator
+  with no zeros, on the discriminant method), the one of a quadratic over a linear, k in a denominator from an
+  asymptote (written or read from the graph), the horizontal asymptote and where the curve crosses it, the
+  intercepts of a quadratic over a linear, the oblique asymptote and an x coefficient from it, the range of each
+  form (a quadratic over a linear also asks the values f never takes), and two pick-the-graph sketches. A card
+  draws each branch to the edge of the plot (bisection, so none crosses an asymptote), the asymptotes dashed, an
+  oblique one as a dashed sand line after `sand_from`, and its own intercepts marked; the cards' functions keep
+  every branch inside the plot. Wrong cards: the numerator's zero dropped (AHL2.13.sketch#0) or the oblique
+  asymptote's constant dropped (AHL2.13.oblique-asymptote#0), with two untagged ones (−f, the asymptotes' or the
+  zero's sign changed; the remainder's sign flipped, the asymptote mirrored, a line drawn across it). The range-ql
+  view has its own situation family, since exact turning values rarely meet whole zeros. The wrong-side range
+  slip is listed for range-ql only: its text says the range comes out as the gap between the turning values, and
+  for a linear over a quadratic the range is that gap. The checker (r9rq_check) reads f back from the stem and
+  works every answer, slip, working value and card again with SymPy.
 
 <!-- R9-ODD-EVEN -->
 

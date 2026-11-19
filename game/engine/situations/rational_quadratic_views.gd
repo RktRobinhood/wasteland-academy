@@ -550,6 +550,9 @@ func u_range_ql(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var e: int = s.e
 	var exact := L is Q
 	var sq := "√(%s)" % Fmt.num(Q.new(s.R, m)) if not Q.new(s.R, m).is_int() else "√%s" % Fmt.num(Q.new(s.R, m))
+	if exact:
+		# R/m = mR/m², a square: its root is √(mR)/|m|.
+		sq = Fmt.num(Q.new(RationalQuadraticSituation.isqrt(m * s.R), absi(m)))
 	var y_quad := Fmt.poly([1, 4 * m * e - 2 * s.b, s.b * s.b - 4 * m * s.c], "y") + " ≥ 0"
 	var c_ey := "%s %s %sy" % [Fmt.num(s.c), "−" if e > 0 else "+", Fmt.lead(absi(e))]
 	var turns := "f has a local maximum (%s, %s) and a local minimum (%s, %s), on the two branches." % [Wv(s.xL), Wv(L), Wv(s.xU), Wv(U)]
