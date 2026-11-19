@@ -7,6 +7,12 @@ extends ExtensionViews
 const REF_SUM_UNDER_ROOT := "fn-pre-surds#0"
 const REF_ONE_TERM := "fn-pre-surds#1"
 const REF_STOPS_EARLY := "fn-pre-surds#2"
+const REF_SQUARE_NOT_ROOTED := "fn-pre-surds#3"
+const REF_MULTIPLY_FRONT := "fn-pre-surds#4"
+const REF_ADD_ROOTS_TOO := "fn-pre-surds#5"
+const REF_ADD_UNDER := "fn-pre-surds#6"
+const REF_FRONT_NOT_SQUARED := "fn-pre-surds#7"
+const REF_FRONT_DOUBLED := "fn-pre-surds#8"
 
 
 func needs() -> Dictionary:
@@ -72,8 +78,14 @@ static func prime_step(n: int) -> String:
 	return "%d = %s: %s, so √%d = %s" % [n, " × ".join(ps.map(func(p): return str(p))), pairs, n, surd(v.m, v.r)]
 
 
-static func surd_generic(a: Q, b: Q) -> Array:
-	return [{"m": a.add(1), "r": b}, {"m": a, "r": b.mul(2)}, {"m": a.mul(a), "r": b}, {"m": b, "r": a}, {"m": a.sub(1), "r": b}]
+## The old generic list for m√r split (FAL-1149): the square factor left unrooted, a²√r, is
+## a slip (when a > 1, else it is the answer); the rest are fillers.
+static func surd_wrongs(a: Q, b: Q) -> Array:
+	return [wrong({"m": a.mul(a), "r": b}, REF_SQUARE_NOT_ROOTED)] if a.n > 1 else []
+
+
+static func surd_fillers(a: Q, b: Q) -> Array:
+	return [{"m": a.add(1), "r": b}, {"m": a, "r": b.mul(2)}, {"m": b, "r": a}, {"m": a.sub(1), "r": b}]
 
 
 # ── fn-pre-surds ─────────────────────────────────────────────
@@ -89,8 +101,8 @@ func u_simplify_root(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			small.append(f)
 	var f: int = small[0]
 	return {"asked": "Write in simplest surd form.", "lines": [root(n)], "given": {"form": "simplify", "n": s.n.key()}, "answer": ans,
-		"wrongs": [wrong({"m": Q.new(f), "r": Q.new(n / (f * f))}, REF_STOPS_EARLY)],
-		"generic": surd_generic(s.a, s.b),
+		"wrongs": [wrong({"m": Q.new(f), "r": Q.new(n / (f * f))}, REF_STOPS_EARLY)] + surd_wrongs(s.a, s.b),
+		"fillers": surd_fillers(s.a, s.b),
 		"methods": {
 			"largest-square-factor": method([lsf_step(n), "%s has no square factor, so it is done" % N(s.b), final], ans.values),
 			"prime-factorise": method([prime_step(n), final], ans.values),
@@ -132,8 +144,11 @@ func u_add_like_surds(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"So %s." % Answer.text(ans)]
 	return {"asked": "Simplify, giving one surd in simplest form.", "lines": ["%s + %s" % [root(s.n1), root(s.n2)]],
 		"given": {"form": "add", "n1": s.n1.key(), "n2": s.n2.key()}, "answer": ans,
-		"wrongs": [wrong(sum_under, REF_SUM_UNDER_ROOT)],
-		"generic": [{"m": s.a1.mul(s.a2), "r": s.b}, {"m": s.a, "r": s.b.mul(2)}, {"m": Q.new(1), "r": s.n1.add(s.n2)}, {"m": s.a.add(1), "r": s.b}],
+		# The numbers in front multiplied, the roots added too, and the sum under one root
+		# left unsimplified are slips (FAL-1149).
+		"wrongs": [wrong(sum_under, REF_SUM_UNDER_ROOT), wrong({"m": s.a1.mul(s.a2), "r": s.b}, REF_MULTIPLY_FRONT),
+			wrong({"m": s.a, "r": s.b.mul(2)}, REF_ADD_ROOTS_TOO), wrong({"m": Q.new(1), "r": s.n1.add(s.n2)}, REF_SUM_UNDER_ROOT)],
+		"fillers": [{"m": s.a.add(1), "r": s.b}],
 		"methods": {"largest-square-factor": method(steps, ans.values)}}
 
 
@@ -144,7 +159,10 @@ func u_multiply_surds(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var join := "%s × %s = √(%s × %s) = √%d" % [root(s.m), root(s.n), N(s.m), N(s.n), total]
 	return {"asked": "Simplify, giving one surd in simplest form.", "lines": ["%s × %s" % [root(s.m), root(s.n)]],
 		"given": {"form": "multiply", "m": s.m.key(), "n": s.n.key()}, "answer": ans,
-		"generic": [{"m": Q.new(1), "r": Q.new(total)}, {"m": Q.new(1), "r": s.m.add(s.n)}] + surd_generic(s.a, s.b),
+		# The numbers under the roots added is a slip (FAL-1149). √(mn) unsimplified has the
+		# answer's value, so it is never offered (FAL-788); it stays first of the fillers.
+		"wrongs": [wrong({"m": Q.new(1), "r": s.m.add(s.n)}, REF_ADD_UNDER)] + surd_wrongs(s.a, s.b),
+		"fillers": [{"m": Q.new(1), "r": Q.new(total)}] + surd_fillers(s.a, s.b),
 		"methods": {
 			"largest-square-factor": method([join, lsf_step(total), final], ans.values),
 			"prime-factorise": method([join, prime_step(total), final], ans.values),
@@ -160,8 +178,9 @@ func u_formula_fraction(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"So %s." % Answer.text(ans)]
 	return {"asked": "Write in its simplest form.", "lines": ["(%s ± %s)/%s" % [N(s.m0), root(s.n), N(s.d)]],
 		"given": {"form": "fraction", "m0": s.m0.key(), "n": s.n.key(), "d": s.d.key()}, "answer": ans,
-		"wrongs": [wrong({"h": s.m0, "m": s.a, "r": s.b}, REF_ONE_TERM)],
-		"generic": [{"h": s.h, "m": dk, "r": s.b}, {"h": s.h.neg(), "m": s.a, "r": s.b}, {"h": s.h, "m": s.a.mul(s.a), "r": s.b}, {"h": s.h, "m": s.a, "r": s.b.mul(s.d)}],
+		# Only the whole number divided is the same slip as only the surd divided (FAL-1149).
+		"wrongs": [wrong({"h": s.m0, "m": s.a, "r": s.b}, REF_ONE_TERM), wrong({"h": s.h, "m": dk, "r": s.b}, REF_ONE_TERM)],
+		"fillers": [{"h": s.h.neg(), "m": s.a, "r": s.b}, {"h": s.h, "m": s.a.mul(s.a), "r": s.b}, {"h": s.h, "m": s.a, "r": s.b.mul(s.d)}],
 		"methods": {"largest-square-factor": method(steps, ans.values)}}
 
 
@@ -174,5 +193,7 @@ func u_surd_to_root(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"So %s." % Answer.text(ans)]
 	return {"asked": "Write as the square root of one whole number.", "lines": [surd(s.a, s.b)],
 		"given": {"form": "toroot", "a": s.a.key(), "b": s.b.key()}, "answer": ans,
-		"generic": [{"v": s.a.mul(s.b)}, {"v": s.a.mul(s.b.sq())}, {"v": s.a.mul(2).mul(s.b)}, {"v": s.a.add(s.b).sq()}],
+		# The number in front not squared, or doubled, are slips (FAL-1149); 2a = a² when a = 2.
+		"wrongs": [wrong({"v": s.a.mul(s.b)}, REF_FRONT_NOT_SQUARED)] + ([wrong({"v": s.a.mul(2).mul(s.b)}, REF_FRONT_DOUBLED)] if s.a.n != 2 else []),
+		"fillers": [{"v": s.a.mul(s.b.sq())}, {"v": s.a.add(s.b).sq()}],
 		"methods": {"square-check": method(steps, ans.values)}}

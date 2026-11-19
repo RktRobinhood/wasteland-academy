@@ -7,6 +7,11 @@ extends ExtensionViews
 const REF_KEEP_SIGN := "fn-pre-linear-inequalities#0"
 const REF_CIRCLES := "fn-pre-linear-inequalities#1"
 const REF_MIDDLE_ONLY := "fn-pre-linear-inequalities#2"
+const REF_TURN_POSITIVE := "fn-pre-linear-inequalities#3"
+const REF_MOVE_SIGN := "fn-pre-linear-inequalities#4"
+const REF_ENDS_ONLY := "fn-pre-linear-inequalities#5"
+const REF_READ_WAY := "fn-pre-linear-inequalities#6"
+const REF_NO_PLUS_ONE := "fn-pre-linear-inequalities#7"
 const FLIP := LinearInequalitySituation.FLIP
 const STRICT := {"<": "≤", "≤": "<", ">": "≥", "≥": ">"}
 const WORDS := {"<": "is less than", "≤": "is at most", ">": "is more than", "≥": "is at least"}
@@ -120,10 +125,11 @@ func u_one_sided(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"So the solution is on the %s side of %s, and %s itself is %s" % ["upper" if s.sol_rel in [">", "≥"] else "lower", N(s.v), N(s.v), "included" if s.rel in ["≤", "≥"] else "left out"],
 		final], ans.values)
 	out.methods = ms
-	if neg:
-		out.wrongs = [wrong({"rel": s.rel, "v": s.v}, REF_KEEP_SIGN)]
-	out.generic = [{"rel": STRICT[s.sol_rel], "v": s.v}, {"rel": FLIP[s.sol_rel], "v": s.v}, {"rel": s.sol_rel, "v": s.v.neg()},
-		{"rel": s.sol_rel, "v": s.c.add(s.b).div(s.a)}]
+	# The sign turned round for a positive divisor, and b moved with its sign kept, are
+	# slips (FAL-1149); for a negative divisor the turned sign is the kept one, #0.
+	out.wrongs = [wrong({"rel": s.rel, "v": s.v}, REF_KEEP_SIGN)] if neg else [wrong({"rel": FLIP[s.sol_rel], "v": s.v}, REF_TURN_POSITIVE)]
+	out.wrongs.append(wrong({"rel": s.sol_rel, "v": s.c.add(s.b).div(s.a)}, REF_MOVE_SIGN))
+	out.fillers = [{"rel": STRICT[s.sol_rel], "v": s.v}, {"rel": s.sol_rel, "v": s.v.neg()}]
 	return out
 
 
@@ -143,8 +149,13 @@ func u_two_sided(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		# Dividing by a negative and keeping the signs: the ends come out the wrong way round.
 		wrongs.append(wrong(r2v(c1b.div(s.a), s.rel1, s.rel2, c2b.div(s.a)), REF_KEEP_SIGN))
 	wrongs.append(wrong(r2v(s.c1.div(s.a), s.rel1, s.rel2, s.c2.div(s.a)) if not neg else r2v(s.c2.div(s.a), s.rel2, s.rel1, s.c1.div(s.a)), REF_MIDDLE_ONLY))
+	out.fillers = [r2v(s.lo, STRICT[s.r1], STRICT[s.r2], s.hi), r2v(s.hi.neg(), s.r1, s.r2, s.lo.neg()), r2v(s.lo.sub(1), s.r1, s.r2, s.hi.add(1))]
+	# For a negative divisor, the ends swapped but the signs left in place is a slip (FAL-1149).
+	if neg:
+		wrongs.append(wrong(r2v(s.lo, s.r2, s.r1, s.hi), REF_ENDS_ONLY))
+	else:
+		out.fillers.insert(1, r2v(s.lo, s.r2, s.r1, s.hi))
 	out.wrongs = wrongs
-	out.generic = [r2v(s.lo, STRICT[s.r1], STRICT[s.r2], s.hi), r2v(s.lo, s.r2, s.r1, s.hi), r2v(s.hi.neg(), s.r1, s.r2, s.lo.neg()), r2v(s.lo.sub(1), s.r1, s.r2, s.hi.add(1))]
 	out.spot = _spot_middle_only(s, rng)
 	return out
 
@@ -199,8 +210,8 @@ func u_read_number_line(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var tests := ""
 	if s.sided == "one":
 		ans = bound(s.sol_rel, s.v)
-		wrongs = [wrong({"rel": STRICT[s.sol_rel], "v": s.v}, REF_CIRCLES)]
-		gen = [{"rel": FLIP[s.sol_rel], "v": s.v}, {"rel": FLIP[STRICT[s.sol_rel]], "v": s.v}, {"rel": s.sol_rel, "v": s.v.add(1)}, {"rel": s.sol_rel, "v": s.v.neg()}]
+		wrongs = [wrong({"rel": STRICT[s.sol_rel], "v": s.v}, REF_CIRCLES), wrong({"rel": FLIP[s.sol_rel], "v": s.v}, REF_READ_WAY)]
+		gen = [{"rel": FLIP[STRICT[s.sol_rel]], "v": s.v}, {"rel": s.sol_rel, "v": s.v.add(1)}, {"rel": s.sol_rel, "v": s.v.neg()}]
 		var up: bool = s.sol_rel in [">", "≥"]
 		shade = "The line is shaded from %s %s, with %s circle at %s" % [N(s.v), "upwards" if up else "downwards", "an open" if s.sol_rel in ["<", ">"] else "a closed", N(s.v)]
 		var inside: Q = s.v.add(2 if up else -2)
@@ -208,14 +219,16 @@ func u_read_number_line(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		tests = "Test x = %s, in the shading: %s %s %s is true; x = %s, outside it: %s %s %s is false" % [N(inside), N(inside), s.sol_rel, N(s.v), N(outside), N(outside), s.sol_rel, N(s.v)]
 	else:
 		ans = range2(s.lo, s.r1, s.r2, s.hi)
-		wrongs = [wrong(r2v(s.lo, STRICT[s.r1], STRICT[s.r2], s.hi), REF_CIRCLES)]
-		gen = [r2v(s.lo, s.r2, s.r1, s.hi), r2v(s.lo.sub(1), s.r1, s.r2, s.hi.add(1)), r2v(s.lo, STRICT[s.r1], s.r2, s.hi), r2v(s.lo, s.r1, STRICT[s.r2], s.hi)]
+		# One circle misread is the same slip as both (FAL-1149).
+		wrongs = [wrong(r2v(s.lo, STRICT[s.r1], STRICT[s.r2], s.hi), REF_CIRCLES), wrong(r2v(s.lo, STRICT[s.r1], s.r2, s.hi), REF_CIRCLES),
+			wrong(r2v(s.lo, s.r1, STRICT[s.r2], s.hi), REF_CIRCLES)]
+		gen = [r2v(s.lo, s.r2, s.r1, s.hi), r2v(s.lo.sub(1), s.r1, s.r2, s.hi.add(1))]
 		shade = "The line is shaded from %s to %s: %s circle at %s and %s circle at %s" % [N(s.lo), N(s.hi), "an open" if s.r1 == "<" else "a closed", N(s.lo), "an open" if s.r2 == "<" else "a closed", N(s.hi)]
 		var mid: Q = s.lo.add(s.hi).div(2)
 		tests = "Test x = %s, in the shading, and x = %s, outside it: only the first fits" % [N(mid), N(s.hi.add(1))]
 	var steps := [shade, tests, "An open circle leaves its number out (< or >); a closed one includes it (≤ or ≥)", "So %s." % Answer.text(ans)]
 	return {"asked": "Write the inequality the number line shows.", "lines": ["The number line shows the solution of an inequality in x."],
-		"graph": numberline(s), "given": export(s), "answer": ans, "wrongs": wrongs, "generic": gen,
+		"graph": numberline(s), "given": export(s), "answer": ans, "wrongs": wrongs, "fillers": gen,
 		"methods": {"test-value": method(steps, ans.values)}}
 
 
@@ -239,5 +252,7 @@ func u_count_integers(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "words":
 		out.lines = ["%s %s %s and %s %s." % [words_shown(s), WORDS[FLIP[s.rel1]], N(s.c1), WORDS[s.rel2], N(s.c2)]]
 		out.asked = "How many whole numbers x make this true?"
-	out.generic = [{"v": s.n.add(1)}, {"v": s.n.sub(1)}, {"v": s.n.add(2)}, {"v": Q.new(last - first)}]
+	# The last whole number take the first, with no + 1, is a slip (FAL-1149).
+	out.wrongs = [wrong({"v": Q.new(last - first)}, REF_NO_PLUS_ONE)]
+	out.fillers = [{"v": s.n.add(1)}, {"v": s.n.sub(1)}, {"v": s.n.add(2)}]
 	return out
