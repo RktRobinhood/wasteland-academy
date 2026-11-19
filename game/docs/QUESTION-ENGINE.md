@@ -1203,6 +1203,30 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 <!-- R9-INVERSE -->
 
 <!-- R9-AI-COMPOSITE -->
+- `engine/situations/ai_composite_inverse.gd` (FAL-1007) is `ai-composite-inverse`, for
+  `fn-ai-composite-inverse` (AI-AHL2.7: composite-context, find-inverse, restrict-domain,
+  inverse-identity), an exam type on AI HL only, Paper 2 throughout. Its composites are four stories
+  (a workshop's filters and their shipping cost, a furnace's temperature in °C then °F, a truck's
+  distance and the fuel left, a crew's scrap and what a trader pays), an inner line g and an outer f
+  (a line, or for the rule mostly a quadratic) as `CompositePairSituation` polynomials, evaluated and
+  composed with its `peval` and `pcompose`. The models to undo are a line (a taxi fare, °C to °F, a
+  copper price), c + k/x (an average cost), a + b ln x (a signal) and, for a value of f⁻¹ by the GDC's
+  solver only, an increasing cubic (a tank); a quadratic a(x − h)² + k (a pump's cost, a bridge's
+  height, a profit) is restricted at its vertex, and a line on an interval gives an inverse's bounded
+  domain. The graph of f⁻¹ draws a `BasicOneToOneSituation` curve. Its views
+  (`ai_composite_inverse_views.gd`) ask 10 unknowns over 35 cells: the composite's value (the inner
+  model as a rule, a table, or a line graph with marked points), its rule in the first input (equation:
+  (f∘g)(t); words: the order is left to the units), which order of a percentage and a voucher or a fee
+  gives the lower or higher price, the input that gives a target (on the graph, read back off the
+  marked point), f⁻¹(x) (in words, with what it calculates), f⁻¹(a) without f⁻¹(x), the least k for an
+  inverse on x ≥ k, the domain or range of f⁻¹, (f∘f⁻¹)(a) or a from f⁻¹(a) = b, and the graph of f⁻¹
+  (pick-the-graph, copying the fn-inverse-reflection cards: in y = x, in each axis, in y = −x). A rule,
+  a statement, a domain or a range is a `choice` option built by `InverseRuleViews.pick_of`. Values
+  that end within two decimal places are exact; the rest are 3 s.f. with the rounding trap. Slips are
+  only offered where they read as an answer: the other order of an equation only when its time is
+  positive, 1/f(a) only when it is at least 0.001. `r9ac_check` in the SymPy checker reads every model
+  back from its sentence, table or graph, solves again, and matches each rule option to its slip by
+  parsing it. `test_ai_composite_inverse.gd`.
 - **The Composite and inverse region** (FAL-422) adds three exam situations. `composite_pair.gd`
   is two rules chained, f and g, as `{"t", "co"}` polynomials (a line, x² + c, (x − h)², x³ + c,
   or sin x on Paper 2, with a generic quadratic for an outer rule to find), with modes for
