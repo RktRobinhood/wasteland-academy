@@ -1201,6 +1201,27 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 <!-- R9-ODD-EVEN -->
 
 <!-- R9-INVERSE -->
+- `engine/situations/inverse_restricted.gd` (FAL-1007) is `inverse-restricted`, for `fn-ahl-inverse-restricted`
+  (AHL2.14.restrict-domain-inverse, self-inverse, inverse-intersection): 8 unknowns over 30 cells, AA HL only. A quadratic
+  A x² + bx + c or √(x² + bx + c) with a whole vertex off the y-axis, and x ≤ a or x ≥ a to bound; a shifted cosine or sine
+  A cos(x − p) + D, p a multiple of π/6 or π/4, from a turning point; a quadratic on one side of its vertex, given in vertex
+  form or expanded; (ax + b)/(x + d) with d = −a and a or d the unknown k; a rule that is its own inverse ((ax + b)/(x − a),
+  c − x, √(r² − x²) on 0 ≤ x ≤ r) or is not ((ax + b)/(x + d) with two whole fixed points, mx, x³), with a value that f(f(x))
+  moves; an increasing (n x² + c)/m on x ≥ 0 or √((mx − c)/n), meeting f⁻¹ at whole or half points; and a decreasing
+  −A x³ or −A x⁵ meeting f⁻¹ at (0, 0) and (±s, ∓s). The calculator method (gdc-intersect) draws meeting points that need a
+  GDC, to 3 s.f., and is Paper 2; every other cell is exact on either paper. Its views (`inverse_restricted_views.gd`) ask
+  the largest or smallest a (a typed number), the end of the wave's domain as a multiple of π, f⁻¹(x) with its branch, the
+  domain of f⁻¹, the k (typed), whether f is its own inverse and why, and where f meets f⁻¹, each from the rule or, for
+  the largest domain, the inverse's domain and both meeting unknowns, from the curve on a grid (with f⁻¹ and y = x for the
+  meeting points). Methods: completing the square, the turning point (f′ = 0), the horizontal line test, the quadratic
+  formula in y, f(f(x)), f⁻¹ found and compared, the asymptotes or the curve symmetric in y = x, f(x) = x (for a decreasing
+  f also f(x) = −x, its title says so), f(f(x)) = x from f⁻¹, and the GDC's intersect. Wrong options are the skills' slips
+  (the ± left in, the other root, the domain of f, f × f = 1, one value checked, odd taken for self-inverse, only the point
+  on y = x, f⁻¹ as 1/f) and the type's own (the y-intercept, a root, the vertex's coordinates mixed up, a quarter or a whole
+  period, the sign of d = −a changed), with plain fillers. `r9ir_check` in the SymPy checker reads every rule back from the
+  lines, works each answer out again (the turning point, the next zero of f′, the branch of x = f(y) that gives back the
+  domain, the range, the k from f(f(x)) = x, the real roots of f(x) = x and f(f(x)) = x), rebuilds every tagged option,
+  and checks the working's completed squares, derivatives, compositions and quadratics. `test_inverse_restricted.gd`.
 
 <!-- R9-AI-COMPOSITE -->
 - **The Composite and inverse region** (FAL-422) adds three exam situations. `composite_pair.gd`

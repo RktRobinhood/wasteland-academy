@@ -52094,7 +52094,7 @@ def r9ir_meet_inc(q, wrongs):
     # The 1/f slip: f(x)² = 1, and f(x) ≥ 0 on the domain.
     ones = sorted(r for r in sp.solve(f**2 - 1, X) if r.is_real and r >= lo)
     if not ones:
-        wrongs[R9IR_II + "2"] = {"The graphs do not meet."}
+        wrongs[R9IR_II + "2"] = {"The graphs do not meet: f(x) = ±1 has no solution."}
     elif all(r.is_rational for r in ones) or not exact:
         def show(v):
             if exact:

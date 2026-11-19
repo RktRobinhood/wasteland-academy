@@ -472,7 +472,7 @@ static func _where_one(s: Dictionary) -> Variant:
 		return "(%s, 1)" % _gdc_q(Q.new(n + c, m), s.exact)
 	# n x² + c = m on x ≥ 0.
 	if m - c < 0:
-		return "The graphs do not meet."
+		return "The graphs do not meet: f(x) = ±1 has no solution."
 	var sq := Q.new(m - c, n)
 	var r: Variant = S._rational_sqrt(sq)
 	if r != null:
@@ -496,7 +496,7 @@ func u_meet_decreasing(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var sv: Variant = s.s
 	var zero: Variant = Q.new(0) if s.exact else 0.0
 	var right := pts([pt(neg(sv), sv), pt(zero, zero), pt(sv, neg(sv))])
-	var out := {"asked": "Find the coordinates of every point where the graphs of y = f(x) and y = f⁻¹(x) meet.", "lines": [S.meetdown_rule(s)]}
+	var out := {"asked": "Find the coordinates of every point where the graphs of y = f(x) and y = f⁻¹(x) meet.", "lines": [S.meetdown_rule(s)], "titles": {"solve-f-equals-x": "Solve f(x) = x, then look off the line y = x"}}
 	var bad := [tag(pt(zero, zero) + " only", R_ON_LINE)]
 	out.merge(pick_of(right, bad, [pts([pt(neg(sv), neg(sv)), pt(zero, zero), pt(sv, sv)]), pts([pt(neg(sv), sv), pt(sv, neg(sv))]), pts([pt(zero, zero), pt(sv, neg(sv))])], rng))
 	var af := A.to_float()
