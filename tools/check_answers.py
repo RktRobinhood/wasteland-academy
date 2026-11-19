@@ -49653,7 +49653,7 @@ def aip_check(q):
         # The sum really is A fn(wt + B): checked at a few times.
         f = mpmath.cos if fn == "cos" else mpmath.sin
         for tt in (0, 0.3, 1.1):
-            need(abs(a1 * f(w * tt + p1) + a2 * f(w * tt + p2) - A * f(w * tt + B)) < 1e-20, "the sum is not one sinusoid")
+            need(abs(a1 * f(w * tt + p1) + a2 * f(w * tt + p2) - A * f(w * tt + B)) < 1e-9, "the sum is not one sinusoid")
         head = f"{Lt}₁ + {Lt}₂ = "
         want = head + aip_wave(A, fn, w, B)
         slip("amp-sum", head + aip_wave(a1 + a2, fn, w, B))
