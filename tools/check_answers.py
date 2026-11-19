@@ -49555,6 +49555,17 @@ def r2tr_check(q):
             wrongs[R2TR_TD + "2"] = {"k = " + r2tr_ends(A / h - E - I)}
         wrongs[R2TR_MV + "1"] = {"k = " + r2tr_ends((A - rest) / w)}
         r2tr_in_every(q, "k = " + dec_text(k), "k")
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+SITUATION_CHECKS["trapezoidal"] = r2tr_check
+
+# (end of the R2 markers)
+
+
 # ── complex-number (t1-ahl-complex-cartesian, t1-ai-complex-cartesian, FAL-1004) ──────────
 # Every number is read back from the lines, the question or the Argand diagram's points, and the
 # answer and each slip are worked out again with SymPy, exactly: products, quotients and powers
@@ -50010,9 +50021,6 @@ def cx_check(q):
     return None, None
 
 
-SITUATION_CHECKS["trapezoidal"] = r2tr_check
-
-# (end of the R2 markers)
 SITUATION_CHECKS["complex-number"] = cx_check
 SITUATION_CHECKS["complex-number-ai"] = cx_check
 
