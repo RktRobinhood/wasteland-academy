@@ -1111,6 +1111,17 @@ script error happens while it runs. Run one file with
   quadratic-roots; and products, quotients, powers and arguments against hand values. Both
   types sit in the Exponents and log laws region (`exponents-logs`): a region of its own would
   be locked for AA SL, which the map does not handle yet.
+- `test_complex_polar.gd` (FAL-1005): the four types on the `complex_polar.gd` recipe, each
+  with its own views. t1-ahl-complex-polar (AHL1.13), t1-ahl-de-moivre and
+  t1-ahl-conjugate-roots (AHL1.14) are built with every cell for the eleven skills on AA HL
+  only, and t1-ai-complex-polar with every cell for the five AI-AHL1.13 skills on AI HL only,
+  Paper 2 throughout. On AA HL every cell makes both papers in the bank's ratio, except
+  De Moivre's identities and induction proof, which are Paper 1. The test checks four options
+  with one right in both formats and no extra format, every misconception as an option, an
+  Argand diagram with its axes named Re and Im and its points on it, and De Moivre's
+  identities and least powers against hand values. A proof line, a list of roots and an
+  identity are claims, picked from four. The types sit in `exponents-logs` beside
+  `test_complex_number.gd`'s.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
   the migration of a save without `class` and `trees`.
 - `test_combat.gd`: a scripted run with a fixed seed and answers gives the same fights,

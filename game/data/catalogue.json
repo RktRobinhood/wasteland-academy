@@ -6990,6 +6990,181 @@
 				"equal strip widths",
 				"every 3 s.f. answer and slip is clear of a rounding edge and reads differently"
 			]
+		},
+		"complex-polar": {
+			"name": "Complex numbers in modulus-argument and Euler form, at the standard angles",
+			"summary": "Pick a modulus and an argument that is a multiple of π/6 or π/4, or two of them, or a point with whole parts on an Argand diagram. Every Cartesian part is then a whole number times 1, √2 or √3, and every product, quotient, power, rotation and sum is known exactly.",
+			"quantities": [
+				{
+					"name": "r, θ",
+					"is": "a number's modulus and argument",
+					"pick": "θ a multiple of π/6 or π/4 in −π < θ ≤ π; r a whole number, or m√2 on a 45° line so the parts are whole"
+				},
+				{
+					"name": "r₂, θ₂",
+					"is": "a second number, the other factor or the divisor",
+					"pick": "r₂ from 1 to 5 and θ₂ a standard angle other than θ"
+				},
+				{
+					"name": "A",
+					"is": "a point with whole parts, for a rotation",
+					"pick": "parts from −4 to 4, not 0 and not equal in size"
+				},
+				{
+					"name": "w",
+					"is": "the multiplier or the translation",
+					"pick": "a standard angle with a modulus that keeps its parts whole, or whole parts from −5 to 5"
+				},
+				{
+					"name": "k, n",
+					"is": "the coefficient and the multiple of θ in ke^(inθ) ± ke^(−inθ)",
+					"pick": "k and n from 1 to 4"
+				}
+			],
+			"modes": [
+				{
+					"id": "exact",
+					"when": "every AA HL question here",
+					"how": "surds and multiples of π, written as the IB writes them"
+				}
+			],
+			"clean": [
+				"the answer and every slip offered read differently",
+				"an argument is in −π < θ ≤ π",
+				"every point drawn on an Argand diagram is inside its window"
+			]
+		},
+		"conjugate-roots": {
+			"name": "Real polynomials with complex roots: a quadratic with roots h ± ki, a cubic with roots h ± ki and t",
+			"summary": "Pick the roots first: h ± ki with whole h and k, and for a cubic a whole real root t. Every coefficient is then a whole number, z² − 2hz + (h² + k²) is the quadratic factor, and each slip of sign or of the conjugate gives its own value.",
+			"quantities": [
+				{
+					"name": "h, k",
+					"is": "the real and imaginary parts of the complex roots",
+					"pick": "h from −5 to 5 and not 0, k from 1 to 6 and not equal to |h| (a cubic: h from −3 to 3, k from 1 to 4)"
+				},
+				{
+					"name": "t",
+					"is": "the real root of a cubic",
+					"pick": "from −4 to 4, not 0 and not h² + k² in size"
+				},
+				{
+					"name": "p, q; a, b, d",
+					"is": "the real coefficients",
+					"pick": "worked out from the roots: p = −2h, q = h² + k², and a, b, d by multiplying out"
+				}
+			],
+			"modes": [
+				{
+					"id": "exact",
+					"when": "every question by hand",
+					"how": "whole numbers throughout"
+				},
+				{
+					"id": "gdc",
+					"when": "the GDC's polynomial solver as the method",
+					"how": "the same whole numbers, read from the solver on Paper 2"
+				}
+			],
+			"clean": [
+				"the answer and every slip offered read differently",
+				"no coefficient of a cubic is 0"
+			]
+		},
+		"de-moivre": {
+			"name": "Powers, roots and identities from De Moivre's theorem, at the standard angles",
+			"summary": "Pick a modulus and an argument that is a multiple of π/6 or π/4 and a power, or an equation z^n = w with |w| a perfect nth power, so every power and every root is known exactly; or a multiple angle, a power of cos θ or sin θ, or a proof by induction with one line chosen to hide or spoil.",
+			"quantities": [
+				{
+					"name": "r, θ",
+					"is": "a number's modulus and argument",
+					"pick": "θ a multiple of π/6 or π/4 in −π < θ ≤ π; r from 1 to 3, or √2, or m√2 on a 45° line so the parts are whole"
+				},
+				{
+					"name": "n",
+					"is": "the power, or the number of roots",
+					"pick": "3 to 10 for a power; 2 to 6 for a root, 3, 4 or 6 for a polygon"
+				},
+				{
+					"name": "w",
+					"is": "the number whose roots are found",
+					"pick": "|w| = ρ^n with ρ from 1 to 4, arg w a standard angle or 0"
+				},
+				{
+					"name": "the identity",
+					"is": "cos nθ, sin nθ, or a power of cos θ or sin θ",
+					"pick": "cos nθ for n from 2 to 5, sin 3θ or sin 5θ; cos³θ, cos⁴θ, cos⁵θ, sin³θ or sin⁴θ"
+				},
+				{
+					"name": "the proof",
+					"is": "a proof by induction of De Moivre's theorem",
+					"pick": "the compound-angle or the polar-product step, one line hidden or spoiled, the angle θ, α or x"
+				}
+			],
+			"modes": [
+				{
+					"id": "exact",
+					"when": "every question but a GDC method's",
+					"how": "surds and multiples of π, written as the IB writes them"
+				},
+				{
+					"id": "gdc",
+					"when": "the gdc-power method",
+					"how": "Paper 2, a power whose parts are whole numbers"
+				}
+			],
+			"clean": [
+				"the answer and every slip offered read differently",
+				"an argument is in −π < θ ≤ π",
+				"a modulus |w|/n is offered only when it is a whole number"
+			]
+		},
+		"complex-polar-ai": {
+			"name": "Complex numbers in polar and exponential form for AI HL, exact and with the GDC",
+			"summary": "The complex-polar recipe with the AI choices: a point with whole parts for a GDC conversion, a modulus and an argument in radians to one decimal place, powers of numbers on standard lines, multipliers such as i and 1 + i, and two sinusoids of one frequency with whole amplitudes and phases in radians.",
+			"quantities": [
+				{
+					"name": "a, b",
+					"is": "the parts of a point, for a GDC conversion",
+					"pick": "whole numbers from −7 to 7, not 0 and not equal in size, with r and θ clear of a 3 s.f. edge"
+				},
+				{
+					"name": "r, θ",
+					"is": "a modulus and an argument",
+					"pick": "r from 2 to 9 and θ in radians to one decimal place, or θ a standard angle"
+				},
+				{
+					"name": "n",
+					"is": "a power",
+					"pick": "3 to 8, so the answer stays in range"
+				},
+				{
+					"name": "w",
+					"is": "a multiplier or a translation",
+					"pick": "i, −i, 2i, 1 ± i, −2, or a standard angle with a modulus that keeps the parts whole"
+				},
+				{
+					"name": "a, b, ω, α, β",
+					"is": "two sinusoids a cos(ωt + α) and b cos(ωt + β)",
+					"pick": "a and b from 2 to 9 and different, ω from 2 to 6, α and β in radians to one decimal place, not nearly in phase or opposite"
+				}
+			],
+			"modes": [
+				{
+					"id": "exact",
+					"when": "a standard angle",
+					"how": "surds and multiples of π, as by hand"
+				},
+				{
+					"id": "gdc",
+					"when": "a GDC conversion, or a phase in radians",
+					"how": "3 s.f., the angle in radians"
+				}
+			],
+			"clean": [
+				"the answer and every slip offered read differently",
+				"every 3 s.f. value is clear of a rounding edge"
+			]
 		}
 	},
 	"skills": {
@@ -7318,7 +7493,23 @@
 		"AI-AHL1.12.powers-technology": "Find powers of complex numbers with technology",
 		"AI-AHL1.12.modulus-argument": "Find the modulus and argument of a complex number",
 		"AI-AHL1.12.argand-diagram": "Represent complex numbers on an Argand diagram",
-		"AI-AHL1.12.complex-quadratic-roots": "Solve a real quadratic with negative discriminant and link to its graph"
+		"AI-AHL1.12.complex-quadratic-roots": "Solve a real quadratic with negative discriminant and link to its graph",
+		"AHL1.13.convert-forms": "Convert between Cartesian, polar and Euler forms",
+		"AHL1.13.polar-products-quotients": "Multiply and divide in polar or Euler form",
+		"AHL1.13.geometric-interpretation": "Interpret multiplication and addition geometrically on the Argand diagram",
+		"AHL1.13.sums-in-euler-form": "Simplify sums of complex numbers in Euler or polar form",
+		"AHL1.13.exact-trig-from-forms": "Find exact trigonometric values by comparing two forms of a product or quotient",
+		"AHL1.14.de-moivre-powers": "Raise complex numbers to powers with De Moivre's theorem",
+		"AHL1.14.nth-roots": "Find nth roots of a complex number, including roots of unity",
+		"AHL1.14.multiple-angle-identities": "Use De Moivre's theorem to derive multiple-angle and power identities",
+		"AHL1.14.de-moivre-induction": "Prove De Moivre's theorem for positive integers by induction",
+		"AHL1.14.complex-quadratic": "Solve quadratic equations with complex roots",
+		"AHL1.14.conjugate-root-polynomial": "Use the conjugate root theorem to factorise polynomials and find unknown coefficients",
+		"AI-AHL1.13.convert-forms": "Convert between Cartesian, polar and exponential forms",
+		"AI-AHL1.13.multiply-divide-polar": "Multiply and divide complex numbers in polar or exponential form",
+		"AI-AHL1.13.integer-powers": "Raise a complex number to an integer power in polar form",
+		"AI-AHL1.13.geometric-interpretation": "Interpret complex addition and multiplication geometrically",
+		"AI-AHL1.13.add-sinusoids": "Add sinusoids of the same frequency using complex numbers"
 	},
 	"types": [
 		{
@@ -94749,6 +94940,1964 @@
 			"paper": {
 				"p1": 0,
 				"p2": 12
+			}
+		},
+		{
+			"id": "t1-ahl-complex-polar",
+			"topic": 1,
+			"source": "exam",
+			"region": "exponents-logs",
+			"name": "Modulus-argument and Euler forms (AA HL)",
+			"summary": "Convert between a + bi, r cis θ and re^(iθ), multiply, divide and square in polar or Euler form with the argument brought back into −π < θ ≤ π, read multiplication as a rotation with an enlargement and addition as a translation, write a sum of two exponentials as one re^(iθ), and find an exact cosine or sine by writing one number in two forms.",
+			"situation": "complex-polar",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the numbers written out: z = −2√3 + 2i, z₁ = 4e^(5πi/6), or a sum of exponentials"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "an Argand diagram with the axes named Re and Im and the point A marked"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "to-polar",
+					"given": [
+						"a complex number a + bi, or its point on an Argand diagram"
+					],
+					"asked": "z in the form re^(iθ) or r cis θ",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL1.13.convert-forms"
+					]
+				},
+				{
+					"id": "to-cartesian",
+					"given": [
+						"a complex number r cis θ or re^(iθ)"
+					],
+					"asked": "z in the form a + bi, exactly",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.convert-forms"
+					]
+				},
+				{
+					"id": "polar-product",
+					"given": [
+						"two complex numbers in polar or Euler form, or one to square"
+					],
+					"asked": "z₁z₂, z₁/z₂ or z² in the same form, with its argument in −π < θ ≤ π",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.polar-products-quotients"
+					]
+				},
+				{
+					"id": "product-cartesian",
+					"given": [
+						"two complex numbers in polar or Euler form"
+					],
+					"asked": "z₁z₂ or z₁/z₂ in the form a + bi",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.polar-products-quotients",
+						"AHL1.13.convert-forms"
+					]
+				},
+				{
+					"id": "rotate-point",
+					"given": [
+						"a point A on an Argand diagram",
+						"a rotation about 0 of a quarter or half turn, and an enlargement"
+					],
+					"asked": "the complex number of the image B, in the form a + bi",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL1.13.geometric-interpretation"
+					]
+				},
+				{
+					"id": "describe-map",
+					"given": [
+						"a complex number w"
+					],
+					"asked": "the transformation z ↦ wz or z ↦ z + w, in words",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.geometric-interpretation"
+					]
+				},
+				{
+					"id": "euler-sum",
+					"given": [
+						"e^(iα) + e^(iβ), or 1 + e^(iθ), each a standard angle"
+					],
+					"asked": "the sum in the form re^(iθ) or r cis θ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.sums-in-euler-form"
+					]
+				},
+				{
+					"id": "euler-trig",
+					"given": [
+						"ke^(inθ) + ke^(−inθ) or a difference of the two"
+					],
+					"asked": "the expression as one term in cos nθ or i sin nθ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.sums-in-euler-form"
+					]
+				},
+				{
+					"id": "exact-trig",
+					"given": [
+						"two complex numbers in Cartesian form, one on a 30° or 60° line and one on a 45° line"
+					],
+					"asked": "the exact cosine or sine of the product's or quotient's argument",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.exact-trig-from-forms"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL1.13.convert-forms",
+					"method": "modulus-argument",
+					"suits": [
+						"to-polar"
+					],
+					"name": "Find r and θ, then write r cis θ or re^(iθ)",
+					"about": "For 1 − i: r = √2 and the point is in the fourth quadrant, so θ = −π/4 and 1 − i = √2 e^(−iπ/4)."
+				},
+				{
+					"skill": "AHL1.13.convert-forms",
+					"method": "sketch-and-read",
+					"suits": [
+						"to-polar",
+						"to-cartesian"
+					],
+					"name": "Sketch on the Argand diagram",
+					"about": "Points on an axis can be read straight off: −3 is 3 units at angle π, so −3 = 3e^(iπ)."
+				},
+				{
+					"skill": "AHL1.13.convert-forms",
+					"method": "expand-cis",
+					"suits": [
+						"to-cartesian"
+					],
+					"name": "Expand r(cos θ + i sin θ) with exact values",
+					"about": "4 cis(5π/6) = 4(−√3/2 + i/2) = −2√3 + 2i."
+				},
+				{
+					"skill": "AHL1.13.polar-products-quotients",
+					"method": "modulus-argument-rules",
+					"suits": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"name": "Multiply moduli and add arguments",
+					"about": "z₁/z₂ = (6/2) cis(π/3 − π/12) = 3 cis(π/4); for a product add the arguments instead."
+				},
+				{
+					"skill": "AHL1.13.polar-products-quotients",
+					"method": "euler-index-laws",
+					"suits": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"name": "Use index laws in Euler form",
+					"about": "2e^(iπ/4) × 3e^(−iπ/2) = 6e^(−iπ/4) = 3√2 − 3√2 i."
+				},
+				{
+					"skill": "AHL1.13.polar-products-quotients",
+					"method": "argument-adjust",
+					"suits": [
+						"polar-product"
+					],
+					"name": "Bring the argument back into the principal range",
+					"about": "2 × 2π/3 = 4π/3 is outside (−π, π], so subtract 2π to give −2π/3."
+				},
+				{
+					"skill": "AHL1.13.geometric-interpretation",
+					"method": "rotation-enlargement",
+					"suits": [
+						"rotate-point",
+						"describe-map"
+					],
+					"name": "Read the multiplier as a rotation and enlargement",
+					"about": "2i = 2e^(iπ/2), so z ↦ 2iz is a rotation by π/2 anticlockwise about 0 and an enlargement with scale factor 2."
+				},
+				{
+					"skill": "AHL1.13.geometric-interpretation",
+					"method": "parallelogram",
+					"suits": [
+						"describe-map"
+					],
+					"name": "Use the parallelogram for sums",
+					"about": "z₁ + z₂ is the diagonal of the parallelogram on z₁ and z₂ from the origin."
+				},
+				{
+					"skill": "AHL1.13.sums-in-euler-form",
+					"method": "half-angle-factor",
+					"suits": [
+						"euler-sum"
+					],
+					"name": "Factor out the half-angle",
+					"about": "1 + e^(iθ) = e^(iθ/2)(e^(−iθ/2) + e^(iθ/2)) = 2 cos(θ/2) e^(iθ/2), so the modulus is 2 cos(θ/2) and the argument θ/2."
+				},
+				{
+					"skill": "AHL1.13.sums-in-euler-form",
+					"method": "to-cartesian",
+					"suits": [
+						"euler-sum",
+						"euler-trig"
+					],
+					"name": "Convert to Cartesian and use trig identities",
+					"about": "1 + cos θ + i sin θ; use 1 + cos θ = 2cos²(θ/2) and sin θ = 2 sin(θ/2) cos(θ/2) to reach the same result."
+				},
+				{
+					"skill": "AHL1.13.sums-in-euler-form",
+					"method": "rhombus",
+					"suits": [
+						"euler-sum"
+					],
+					"name": "Use the rhombus on the Argand diagram",
+					"about": "1 and e^(iθ) both have modulus 1, so their sum is the diagonal of a rhombus, which bisects the angle θ."
+				},
+				{
+					"skill": "AHL1.13.exact-trig-from-forms",
+					"method": "compare-forms",
+					"suits": [
+						"exact-trig"
+					],
+					"name": "Equate real parts of the two forms",
+					"about": "(1 + √3 i)(1 − i) = (1 + √3) + (√3 − 1)i and also 2√2 cis(π/12), so cos(π/12) = (1 + √3)/(2√2) = (√6 + √2)/4."
+				},
+				{
+					"skill": "AHL1.13.exact-trig-from-forms",
+					"method": "compound-angle",
+					"suits": [
+						"exact-trig"
+					],
+					"name": "Check with a compound-angle identity",
+					"about": "cos(π/3 − π/4) = cos(π/3)cos(π/4) + sin(π/3)sin(π/4) gives the same (√6 + √2)/4."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Multiplying a complex number by i turns its point a quarter turn anticlockwise about 0.",
+					"answer": "True: i has modulus 1 and argument π/2, so it keeps every distance from 0 and adds π/2 to every argument.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The modulus of e^(iα) + e^(iβ) is 2.",
+					"answer": "Sometimes: only when α = β. The modulus is 2|cos((α − β)/2)|, which is less than 2 otherwise.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict the argument of z₁z₂ before working it out when arg z₁ = 3π/4 and arg z₂ = π/2, then check that it lies in −π < θ ≤ π.",
+					"answer": "3π/4 + π/2 = 5π/4 is too big, so the argument is 5π/4 − 2π = −3π/4.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL1.13.convert-forms#0",
+					"text": "Taking the argument straight from arctan of the imaginary part over the real part, without checking the quadrant",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "arctan(b/a) for a point in the second or third quadrant, or 0 for a negative real"
+				},
+				{
+					"ref": "AHL1.13.convert-forms#1",
+					"text": "Adding the sizes of the two parts for the modulus instead of taking the square root of the sum of their squares",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "|a| + |b| for the modulus"
+				},
+				{
+					"ref": "AHL1.13.convert-forms#2",
+					"text": "Writing a negative real number with a negative modulus and a zero argument, instead of a positive modulus and argument π",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "−r e^(0) for the negative real −r"
+				},
+				{
+					"ref": "AHL1.13.polar-products-quotients#0",
+					"text": "Multiplying the arguments instead of adding them",
+					"as": "distractor",
+					"in": [
+						"polar-product"
+					],
+					"wrong": "the product of the arguments, a multiple of π²"
+				},
+				{
+					"ref": "AHL1.13.polar-products-quotients#1",
+					"text": "Adding the moduli instead of multiplying them",
+					"as": "distractor",
+					"in": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"wrong": "r₁ + r₂ for the modulus"
+				},
+				{
+					"ref": "AHL1.13.polar-products-quotients#2",
+					"text": "Dividing the arguments for a quotient instead of subtracting them",
+					"as": "distractor",
+					"in": [
+						"polar-product"
+					],
+					"wrong": "θ₁ ÷ θ₂ for the argument, a plain number"
+				},
+				{
+					"ref": "AHL1.13.geometric-interpretation#0",
+					"text": "Turning the wrong way: clockwise for a positive argument, or anticlockwise for a negative one",
+					"as": "distractor",
+					"in": [
+						"rotate-point",
+						"describe-map"
+					],
+					"wrong": "the turn the other way"
+				},
+				{
+					"ref": "AHL1.13.geometric-interpretation#1",
+					"text": "Describing multiplication by a number as a rotation only, forgetting the enlargement by its modulus",
+					"as": "distractor",
+					"in": [
+						"rotate-point",
+						"describe-map"
+					],
+					"wrong": "the rotation with no enlargement"
+				},
+				{
+					"ref": "AHL1.13.geometric-interpretation#2",
+					"text": "Thinking that adding a complex number rotates the point, rather than translating it by that number's vector",
+					"as": "distractor",
+					"in": [
+						"describe-map"
+					],
+					"wrong": "a rotation through arg w for z ↦ z + w"
+				},
+				{
+					"ref": "AHL1.13.sums-in-euler-form#0",
+					"text": "Adding the moduli, as if the two numbers pointed the same way",
+					"as": "distractor",
+					"in": [
+						"euler-sum"
+					],
+					"wrong": "modulus 2"
+				},
+				{
+					"ref": "AHL1.13.sums-in-euler-form#1",
+					"text": "Adding the exponents, as if e^(iα) + e^(iβ) were e^(i(α + β))",
+					"as": "distractor",
+					"in": [
+						"euler-sum"
+					],
+					"wrong": "e^(i(α + β))"
+				},
+				{
+					"ref": "AHL1.13.sums-in-euler-form#2",
+					"text": "Leaving out the i when e^(iθ) − e^(−iθ) is written in terms of sin θ",
+					"as": "distractor",
+					"in": [
+						"euler-trig"
+					],
+					"wrong": "2k sin nθ with no i"
+				},
+				{
+					"ref": "AHL1.13.exact-trig-from-forms#0",
+					"text": "Dividing by the modulus of only one of the two numbers, not by the modulus of the product or quotient",
+					"as": "distractor",
+					"in": [
+						"exact-trig"
+					],
+					"wrong": "the part divided by 2 alone"
+				},
+				{
+					"ref": "AHL1.13.exact-trig-from-forms#1",
+					"text": "Subtracting the arguments for a product instead of adding them",
+					"as": "distractor",
+					"in": [
+						"exact-trig"
+					],
+					"wrong": "the value at the difference of the arguments"
+				},
+				{
+					"text": "Using arctan of the real part over the imaginary part, the angle from the imaginary axis",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "π/2 − α in place of α"
+				},
+				{
+					"text": "Giving the argument the wrong sign, measured the other way from the positive real axis",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "−θ"
+				},
+				{
+					"text": "Swapping cos and sin, so the real and imaginary parts change places",
+					"as": "distractor",
+					"in": [
+						"to-cartesian",
+						"product-cartesian"
+					],
+					"wrong": "b + ai"
+				},
+				{
+					"text": "Using the cosine and sine of the reference angle without the quadrant's signs",
+					"as": "distractor",
+					"in": [
+						"to-cartesian"
+					],
+					"wrong": "|a| + |b|i"
+				},
+				{
+					"text": "Leaving the argument outside −π < θ ≤ π",
+					"as": "distractor",
+					"in": [
+						"polar-product"
+					],
+					"wrong": "θ₁ + θ₂ with no 2π taken away or added"
+				},
+				{
+					"text": "Subtracting the arguments the wrong way round for a quotient",
+					"as": "distractor",
+					"in": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"wrong": "θ₂ − θ₁"
+				},
+				{
+					"text": "Doubling the modulus for a square instead of squaring it",
+					"as": "distractor",
+					"in": [
+						"polar-product"
+					],
+					"wrong": "2r for |z²|"
+				},
+				{
+					"text": "Taking half the difference of the arguments for the argument of the sum, instead of half their sum",
+					"as": "distractor",
+					"in": [
+						"euler-sum"
+					],
+					"wrong": "(α − β)/2"
+				},
+				{
+					"text": "Counting only one of the two equal terms when the exponentials are combined",
+					"as": "distractor",
+					"in": [
+						"euler-trig"
+					],
+					"wrong": "k cos nθ, or ki sin nθ"
+				},
+				{
+					"text": "Subtracting the exponentials the other way round, so the sign of the sine is lost",
+					"as": "distractor",
+					"in": [
+						"euler-trig"
+					],
+					"wrong": "2ki sin nθ for e^(−inθ) − e^(inθ)"
+				},
+				{
+					"text": "Equating the imaginary parts for a cosine, or the real parts for a sine",
+					"as": "distractor",
+					"in": [
+						"exact-trig"
+					],
+					"wrong": "the other part over the modulus"
+				},
+				{
+					"text": "Translating by the vector of −w instead of w",
+					"as": "distractor",
+					"in": [
+						"describe-map"
+					],
+					"wrong": "the vector (−a, −b)"
+				}
+			],
+			"chain": [
+				"a complex number in Cartesian form, in modulus-argument form or in Euler form, or a point on an Argand diagram",
+				"its modulus and argument, with the quadrant checked, or its real and imaginary parts from exact cosines and sines",
+				"a product, quotient or square with the moduli multiplied and the arguments added, then brought into −π < θ ≤ π",
+				"the multiplier read as a rotation and an enlargement about 0, or a sum read as a translation",
+				"a sum of exponentials written as one number, or one number in two forms giving an exact cosine or sine"
+			],
+			"frequency": 12,
+			"marks": 2,
+			"section": {
+				"A": 4,
+				"B": 5
+			},
+			"paper": {
+				"p1": 6,
+				"p2": 6
+			}
+		},
+		{
+			"id": "t1-ahl-de-moivre",
+			"topic": 1,
+			"source": "exam",
+			"region": "exponents-logs",
+			"name": "De Moivre's theorem: powers, roots and identities (AA HL)",
+			"summary": "Raise a complex number to a power with De Moivre's theorem, in polar or Cartesian form, find the least power that is real or imaginary, find one or all of the nth roots of a number and the regular polygon they make, write cos nθ or sin nθ in powers of cos θ or sin θ and a power of cos θ or sin θ in multiple angles, and complete or check the proof by induction of De Moivre's theorem.",
+			"situation": "de-moivre",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the numbers written out: z = 1 − √3 i, z = 2e^(πi/4), z⁴ = −16, or a proof line by line"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "power-polar",
+					"given": [
+						"a complex number r cis θ or re^(iθ) at a standard angle",
+						"a power n"
+					],
+					"asked": "z^n in the same form, with its argument in −π < θ ≤ π",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.de-moivre-powers"
+					]
+				},
+				{
+					"id": "power-cartesian",
+					"given": [
+						"a complex number a + bi on a standard line",
+						"a power n"
+					],
+					"asked": "z^n in the form a + bi",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.de-moivre-powers"
+					]
+				},
+				{
+					"id": "least-power",
+					"given": [
+						"a complex number in polar or Cartesian form"
+					],
+					"asked": "the least positive integer n for which z^n is real, purely imaginary, a positive real or a negative real",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.de-moivre-powers"
+					]
+				},
+				{
+					"id": "nth-root",
+					"given": [
+						"an equation z^n = w, w on a standard line"
+					],
+					"asked": "the root with the least positive argument, the greatest argument or in a named quadrant, in polar form",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.nth-roots"
+					]
+				},
+				{
+					"id": "all-roots",
+					"given": [
+						"an equation z^n = w, n from 2 to 4"
+					],
+					"asked": "every root, in polar form or in the form a + bi",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.nth-roots"
+					]
+				},
+				{
+					"id": "roots-polygon",
+					"given": [
+						"an equation z^n = w, n = 3, 4 or 6"
+					],
+					"asked": "the exact side, perimeter or area of the regular polygon the roots make",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.nth-roots"
+					]
+				},
+				{
+					"id": "multiple-angle",
+					"given": [
+						"cos nθ for n from 2 to 5, or sin nθ for n = 3 or 5"
+					],
+					"asked": "cos nθ as a polynomial in cos θ, or sin nθ as one in sin θ",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.multiple-angle-identities"
+					]
+				},
+				{
+					"id": "power-reduction",
+					"given": [
+						"cos³θ, cos⁴θ, cos⁵θ, sin³θ or sin⁴θ"
+					],
+					"asked": "the power in terms of cosines or sines of multiples of θ",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.multiple-angle-identities"
+					]
+				},
+				{
+					"id": "induction-gap",
+					"given": [
+						"a proof by induction of De Moivre's theorem for positive integers, one line missing"
+					],
+					"asked": "the line that completes the proof",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.de-moivre-induction"
+					]
+				},
+				{
+					"id": "induction-flaw",
+					"given": [
+						"a proof by induction of De Moivre's theorem for positive integers, one line wrong"
+					],
+					"asked": "the first incorrect line",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.de-moivre-induction"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL1.14.de-moivre-powers",
+					"method": "de-moivre",
+					"suits": [
+						"power-polar",
+						"power-cartesian",
+						"least-power"
+					],
+					"name": "Convert to polar form and apply De Moivre",
+					"about": "1 + √3 i = 2 cis(π/3), so (1 + √3 i)^6 = 64 cis(2π) = 64."
+				},
+				{
+					"skill": "AHL1.14.de-moivre-powers",
+					"method": "repeated-squaring",
+					"suits": [
+						"power-cartesian"
+					],
+					"name": "Square repeatedly in Cartesian form",
+					"about": "(1 + i)² = 2i, (2i)² = −4, (−4)² = 16, so (1 + i)^8 = 16."
+				},
+				{
+					"skill": "AHL1.14.de-moivre-powers",
+					"method": "gdc-power",
+					"suits": [
+						"power-cartesian"
+					],
+					"name": "Evaluate on the GDC",
+					"about": "On Paper 2, compute the power directly in complex mode; small rounding errors may show up as tiny imaginary parts."
+				},
+				{
+					"skill": "AHL1.14.de-moivre-powers",
+					"method": "argument-condition",
+					"suits": [
+						"least-power"
+					],
+					"name": "Set the argument condition",
+					"about": "(√3 + i)^n = 2^n cis(nπ/6) is real when nπ/6 is a multiple of π, so n = 6."
+				},
+				{
+					"skill": "AHL1.14.nth-roots",
+					"method": "polar-general-argument",
+					"suits": [
+						"nth-root",
+						"all-roots",
+						"roots-polygon"
+					],
+					"name": "Write w with a general argument and divide by n",
+					"about": "8i = 8 cis(π/2 + 2kπ), so z = 2 cis(π/6 + 2kπ/3) for k = 0, 1, 2: √3 + i, −√3 + i and −2i."
+				},
+				{
+					"skill": "AHL1.14.nth-roots",
+					"method": "regular-polygon",
+					"suits": [
+						"nth-root",
+						"all-roots",
+						"roots-polygon"
+					],
+					"name": "Use the regular polygon",
+					"about": "The n roots lie on a circle of radius |w|^(1/n), equally spaced by 2π/n, so one root gives all the others by rotation."
+				},
+				{
+					"skill": "AHL1.14.nth-roots",
+					"method": "factorise",
+					"suits": [
+						"all-roots"
+					],
+					"name": "Factorise for small cases",
+					"about": "z³ − 1 = (z − 1)(z² + z + 1), then solve the quadratic for the two non-real cube roots of unity."
+				},
+				{
+					"skill": "AHL1.14.multiple-angle-identities",
+					"method": "binomial-real-part",
+					"suits": [
+						"multiple-angle"
+					],
+					"name": "Expand (cos θ + i sin θ)^n binomially and equate parts",
+					"about": "The real part of (c + is)³ is c³ − 3cs²; with s² = 1 − c² this is 4c³ − 3c = cos 3θ."
+				},
+				{
+					"skill": "AHL1.14.multiple-angle-identities",
+					"method": "compound-angle-route",
+					"suits": [
+						"multiple-angle"
+					],
+					"name": "Check with compound-angle identities",
+					"about": "cos 3θ = cos(2θ + θ) expanded with double-angle formulae gives the same result, a useful check."
+				},
+				{
+					"skill": "AHL1.14.multiple-angle-identities",
+					"method": "z-plus-reciprocal",
+					"suits": [
+						"power-reduction"
+					],
+					"name": "Use z + 1/z = 2 cos θ",
+					"about": "(z + 1/z)³ = z³ + 1/z³ + 3(z + 1/z), so 8cos³θ = 2cos 3θ + 6cos θ and cos³θ = (cos 3θ + 3cos θ)/4."
+				},
+				{
+					"skill": "AHL1.14.de-moivre-induction",
+					"method": "induction-compound-angle",
+					"suits": [
+						"induction-gap",
+						"induction-flaw"
+					],
+					"name": "Induction using compound-angle identities",
+					"about": "Assume true for n = k; multiply (cos kθ + i sin kθ)(cos θ + i sin θ), expand and use the cos and sin addition formulae to get cos(k + 1)θ + i sin(k + 1)θ."
+				},
+				{
+					"skill": "AHL1.14.de-moivre-induction",
+					"method": "induction-polar-product",
+					"suits": [
+						"induction-gap",
+						"induction-flaw"
+					],
+					"name": "Induction using the polar product rule",
+					"about": "If the product rule cis α × cis β = cis(α + β) has already been established, the inductive step is cis kθ × cis θ = cis(k + 1)θ."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Every complex number other than 0 has exactly three cube roots.",
+					"answer": "True: z³ = w with w = r cis φ gives z = r^(1/3) cis((φ + 2kπ)/3), and k = 0, 1, 2 give three different numbers; k = 3 gives the first again.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "A power of a complex number with modulus 2 is real.",
+					"answer": "Sometimes: 2^n cis(nθ) is real when nθ is a multiple of π, which some n achieve when θ is a rational multiple of π, and none do otherwise.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict the argument of (1 + i)⁶ before working it out, then check that it lies in −π < θ ≤ π.",
+					"answer": "6 × π/4 = 3π/2 is too big, so the argument is 3π/2 − 2π = −π/2: (1 + i)⁶ = −8i.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL1.14.de-moivre-powers#0",
+					"text": "Raising the modulus to the power but not multiplying the argument by it",
+					"as": "distractor",
+					"in": [
+						"power-polar",
+						"power-cartesian"
+					],
+					"wrong": "r^n cis θ, the argument not multiplied"
+				},
+				{
+					"ref": "AHL1.14.de-moivre-powers#1",
+					"text": "Multiplying the modulus by the power instead of raising it to the power",
+					"as": "distractor",
+					"in": [
+						"power-polar",
+						"power-cartesian"
+					],
+					"wrong": "nr for the modulus"
+				},
+				{
+					"ref": "AHL1.14.de-moivre-powers#2",
+					"text": "Raising each part to the power separately, as if (a + bi)^n were a^n + (bi)^n",
+					"as": "distractor",
+					"in": [
+						"power-cartesian"
+					],
+					"wrong": "a^n + (bi)^n"
+				},
+				{
+					"ref": "AHL1.14.nth-roots#0",
+					"text": "Giving only the principal root and missing the others",
+					"as": "distractor",
+					"in": [
+						"nth-root",
+						"all-roots"
+					],
+					"wrong": "the root with argument φ/n only"
+				},
+				{
+					"ref": "AHL1.14.nth-roots#1",
+					"text": "Dividing the modulus by n instead of taking its nth root",
+					"as": "distractor",
+					"in": [
+						"nth-root",
+						"all-roots",
+						"roots-polygon"
+					],
+					"wrong": "|w|/n for the modulus"
+				},
+				{
+					"ref": "AHL1.14.nth-roots#2",
+					"text": "Adding 2kπ to the argument after dividing by n instead of before, so every root is the same number",
+					"as": "distractor",
+					"in": [
+						"all-roots"
+					],
+					"wrong": "the arguments φ/n + 2kπ, one number written n ways"
+				},
+				{
+					"ref": "AHL1.14.multiple-angle-identities#0",
+					"text": "Leaving out the binomial coefficients when expanding a power of a sum, such as (cos θ + i sin θ)^n or (z + 1/z)^n",
+					"as": "distractor",
+					"in": [
+						"multiple-angle",
+						"power-reduction"
+					],
+					"wrong": "the expansion with every coefficient 1"
+				},
+				{
+					"ref": "AHL1.14.multiple-angle-identities#1",
+					"text": "Leaving out the i when z^n − z^(−n) is written in terms of sin nθ",
+					"as": "distractor",
+					"in": [
+						"power-reduction"
+					],
+					"wrong": "z − 1/z = 2 sin θ, flipping the sign of sin³θ"
+				},
+				{
+					"ref": "AHL1.14.multiple-angle-identities#2",
+					"text": "Losing the sign from i² when collecting the real terms",
+					"as": "distractor",
+					"in": [
+						"multiple-angle"
+					],
+					"wrong": "every term of the real or imaginary part added"
+				},
+				{
+					"ref": "AHL1.14.de-moivre-induction#0",
+					"text": "Assuming the n = k + 1 statement in order to prove it",
+					"as": "distractor",
+					"in": [
+						"induction-gap"
+					],
+					"wrong": "assume the n = k + 1 statement"
+				},
+				{
+					"ref": "AHL1.14.de-moivre-induction#1",
+					"text": "Losing the sign from i² when multiplying out, so the real part becomes the cosine of the difference of the angles",
+					"as": "distractor",
+					"in": [
+						"induction-gap"
+					],
+					"wrong": "cos kθ cos θ + sin kθ sin θ for the real part"
+				},
+				{
+					"ref": "AHL1.14.de-moivre-induction#2",
+					"text": "Leaving out the base case or the concluding sentence",
+					"as": "distractor",
+					"in": [
+						"induction-gap"
+					],
+					"wrong": "a conclusion with no base case"
+				},
+				{
+					"text": "Leaving the argument outside −π < θ ≤ π",
+					"as": "distractor",
+					"in": [
+						"power-polar"
+					],
+					"wrong": "nθ with no whole turns taken away or added"
+				},
+				{
+					"text": "Multiplying the argument by the power but leaving the modulus as it was",
+					"as": "distractor",
+					"in": [
+						"power-polar"
+					],
+					"wrong": "r cis nθ"
+				},
+				{
+					"text": "Requiring a whole number of full turns for a real power, so only the positive reals are found",
+					"as": "distractor",
+					"in": [
+						"least-power"
+					],
+					"wrong": "nθ a multiple of 2π for real"
+				},
+				{
+					"text": "Solving for the wrong kind of number: real for purely imaginary, positive for negative, or the other way round",
+					"as": "distractor",
+					"in": [
+						"least-power"
+					],
+					"wrong": "the least n of the other kind"
+				},
+				{
+					"text": "Taking the argument from arctan of the imaginary part over the real part without checking the quadrant",
+					"as": "distractor",
+					"in": [
+						"least-power"
+					],
+					"wrong": "arctan(b/a) for a number in the second or third quadrant"
+				},
+				{
+					"text": "Spacing the roots π/n apart, sharing out half a turn instead of a full turn",
+					"as": "distractor",
+					"in": [
+						"nth-root",
+						"all-roots"
+					],
+					"wrong": "arguments (φ + kπ)/n"
+				},
+				{
+					"text": "Using the circle's radius as the polygon's side length",
+					"as": "distractor",
+					"in": [
+						"roots-polygon"
+					],
+					"wrong": "side ρ"
+				},
+				{
+					"text": "Leaving out the half in the area of each triangle, so the area comes out doubled",
+					"as": "distractor",
+					"in": [
+						"roots-polygon"
+					],
+					"wrong": "n ρ² sin(2π/n)"
+				},
+				{
+					"text": "Leaving out the division by the power of two, as if z plus or minus its reciprocal gave cos θ or i sin θ instead of twice that",
+					"as": "distractor",
+					"in": [
+						"power-reduction"
+					],
+					"wrong": "the numerator with no denominator"
+				}
+			],
+			"chain": [
+				"a complex number in polar, Euler or Cartesian form, or an equation z^n = w",
+				"its modulus and argument, with the quadrant checked",
+				"De Moivre's theorem: the modulus raised to the power and the argument multiplied, then brought into −π < θ ≤ π",
+				"the nth roots: the modulus's nth root and the argument plus whole turns divided by n, spaced evenly round a circle",
+				"the binomial expansion of (cos θ + i sin θ)^n or (z ± 1/z)^n, giving a multiple-angle or a power identity",
+				"the proof by induction for positive integers, line by line"
+			],
+			"frequency": 17,
+			"marks": 4,
+			"section": {
+				"A": 5,
+				"B": 12
+			},
+			"paper": {
+				"p1": 13,
+				"p2": 4
+			}
+		},
+		{
+			"id": "t1-ahl-conjugate-roots",
+			"topic": 1,
+			"source": "exam",
+			"region": "exponents-logs",
+			"name": "Complex roots of real polynomials (AA HL)",
+			"summary": "Solve a real quadratic whose roots are complex, build a real quadratic from one complex root, write down the conjugate root, and use a complex root of a real cubic to find its real root or its coefficients.",
+			"situation": "conjugate-roots",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the polynomial written out, such as z² − 4z + 13 = 0, with a root such as 2 + 3i"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "solve-quadratic",
+					"given": [
+						"a real quadratic z² + pz + q = 0 with a negative discriminant"
+					],
+					"asked": "its roots, in the form h ± ki",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.complex-quadratic"
+					]
+				},
+				{
+					"id": "quadratic-from-root",
+					"given": [
+						"one complex root h + ki of z² + pz + q = 0, p and q real"
+					],
+					"asked": "p and q, and the equation",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.complex-quadratic"
+					]
+				},
+				{
+					"id": "other-root",
+					"given": [
+						"a complex root of a real quadratic or a real cubic"
+					],
+					"asked": "another root, in the form a + bi",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.conjugate-root-polynomial"
+					]
+				},
+				{
+					"id": "real-root",
+					"given": [
+						"a real cubic and one of its complex roots"
+					],
+					"asked": "the real root",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.conjugate-root-polynomial"
+					]
+				},
+				{
+					"id": "cubic-coefficients",
+					"given": [
+						"a complex root and the real root of z³ + az² + bz + d = 0"
+					],
+					"asked": "a, b and d",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.14.conjugate-root-polynomial"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL1.14.complex-quadratic",
+					"method": "quadratic-formula",
+					"suits": [
+						"solve-quadratic"
+					],
+					"name": "Quadratic formula with √(negative) = i√(positive)",
+					"about": "z = (−2 ± √(−16))/2 = −1 ± 2i."
+				},
+				{
+					"skill": "AHL1.14.complex-quadratic",
+					"method": "complete-square",
+					"suits": [
+						"solve-quadratic",
+						"quadratic-from-root"
+					],
+					"name": "Complete the square",
+					"about": "(z + 1)² = −4, so z + 1 = ±2i and z = −1 ± 2i."
+				},
+				{
+					"skill": "AHL1.14.complex-quadratic",
+					"method": "sum-product",
+					"suits": [
+						"quadratic-from-root"
+					],
+					"name": "Build from the sum and product of the roots",
+					"about": "3 ± 2i have sum 6 and product 9 + 4 = 13, giving z² − 6z + 13 = 0."
+				},
+				{
+					"skill": "AHL1.14.complex-quadratic",
+					"method": "gdc-solver",
+					"suits": [
+						"solve-quadratic"
+					],
+					"name": "Use the GDC polynomial solver in complex mode",
+					"about": "On Paper 2 the solver returns both complex roots directly."
+				},
+				{
+					"skill": "AHL1.14.conjugate-root-polynomial",
+					"method": "sum-product-roots",
+					"suits": [
+						"other-root",
+						"real-root",
+						"cubic-coefficients"
+					],
+					"name": "Use the sum and product of roots",
+					"about": "With AHL2.12, the sum of roots of z³ − 5z² + 9z − 5 is 5 and (2 + i) + (2 − i) = 4, so the third root is 1."
+				},
+				{
+					"skill": "AHL1.14.conjugate-root-polynomial",
+					"method": "substitute-root",
+					"suits": [
+						"other-root"
+					],
+					"name": "Substitute the root and equate parts",
+					"about": "Put z = 1 + i into the polynomial, set real and imaginary parts to zero and solve for the unknown coefficients."
+				},
+				{
+					"skill": "AHL1.14.conjugate-root-polynomial",
+					"method": "quadratic-factor-divide",
+					"suits": [
+						"real-root",
+						"cubic-coefficients"
+					],
+					"name": "Form the quadratic factor and divide",
+					"about": "Roots 2 ± i give z² − 4z + 5; dividing z³ − 5z² + 9z − 5 by it leaves z − 1, so the third root is 1."
+				},
+				{
+					"skill": "AHL1.14.conjugate-root-polynomial",
+					"method": "gdc-solver",
+					"suits": [
+						"real-root"
+					],
+					"name": "Check with the GDC polynomial solver",
+					"about": "On Paper 2, solve the polynomial in complex mode to confirm all roots."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A cubic equation with real coefficients always has at least one real root.",
+					"answer": "True: its non-real roots come in conjugate pairs, so with three roots at least one is unpaired and real.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "If 2 + i is a root of a polynomial equation, then 2 − i is a root too.",
+					"answer": "Sometimes: always when the coefficients are all real, but not in general, as for z − (2 + i) = 0.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict whether z² + 4z + 8 = 0 has real roots before solving it, then check with the discriminant.",
+					"answer": "No: the discriminant is 16 − 32 = −16 < 0, so the roots are the complex pair −2 ± 2i.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL1.14.complex-quadratic#0",
+					"text": "Taking the square root of a negative number as a negative real number, so the roots come out real",
+					"as": "distractor",
+					"in": [
+						"solve-quadratic"
+					],
+					"wrong": "h − k and h + k, two real roots"
+				},
+				{
+					"ref": "AHL1.14.complex-quadratic#1",
+					"text": "Dividing only the square-root term by the denominator, and not the whole of −b ± √Δ",
+					"as": "distractor",
+					"in": [
+						"solve-quadratic"
+					],
+					"wrong": "−p ± ki: only the root term halved"
+				},
+				{
+					"ref": "AHL1.14.complex-quadratic#2",
+					"text": "Building the quadratic with the wrong sign on the z term, adding the sum of the roots instead of subtracting it",
+					"as": "distractor",
+					"in": [
+						"quadratic-from-root"
+					],
+					"wrong": "z² + 2hz + (h² + k²)"
+				},
+				{
+					"ref": "AHL1.14.conjugate-root-polynomial#0",
+					"text": "Changing the sign of the real part for the conjugate, instead of only the imaginary part",
+					"as": "distractor",
+					"in": [
+						"other-root"
+					],
+					"wrong": "−h + ki"
+				},
+				{
+					"ref": "AHL1.14.conjugate-root-polynomial#1",
+					"text": "Forming the quadratic factor with the wrong sign on the z term",
+					"as": "distractor",
+					"in": [
+						"real-root",
+						"cubic-coefficients"
+					],
+					"wrong": "the factor z² + 2hz + (h² + k²)"
+				},
+				{
+					"text": "Dropping the minus sign in −b, so the real part of the roots has the wrong sign",
+					"as": "distractor",
+					"in": [
+						"solve-quadratic"
+					],
+					"wrong": "−h ± ki"
+				},
+				{
+					"text": "Dividing −b by the denominator but not the square root",
+					"as": "distractor",
+					"in": [
+						"solve-quadratic"
+					],
+					"wrong": "h ± 2ki"
+				},
+				{
+					"text": "Losing the minus sign from i² when the two complex roots are multiplied, so their product is the difference of the squares of the parts instead of the sum",
+					"as": "distractor",
+					"in": [
+						"quadratic-from-root",
+						"cubic-coefficients"
+					],
+					"wrong": "h² − k² for the product of the roots"
+				},
+				{
+					"text": "Using the real part of the root instead of the sum of the two roots for the z term",
+					"as": "distractor",
+					"in": [
+						"quadratic-from-root"
+					],
+					"wrong": "z² − hz + q"
+				},
+				{
+					"text": "Negating the whole root instead of only its imaginary part",
+					"as": "distractor",
+					"in": [
+						"other-root"
+					],
+					"wrong": "−h − ki"
+				},
+				{
+					"text": "Taking the sum of the roots to be the z² coefficient itself instead of its negative",
+					"as": "distractor",
+					"in": [
+						"real-root"
+					],
+					"wrong": "t = a − 2h"
+				},
+				{
+					"text": "Taking the product of the roots to be the constant term itself instead of its negative",
+					"as": "distractor",
+					"in": [
+						"real-root"
+					],
+					"wrong": "t = d ÷ (h² + k²)"
+				},
+				{
+					"text": "Using the sum, the sum of the pairs and the product of the roots as the coefficients without changing any signs",
+					"as": "distractor",
+					"in": [
+						"cubic-coefficients"
+					],
+					"wrong": "a = sum and d = product, both with the wrong sign"
+				}
+			],
+			"chain": [
+				"a real quadratic with a negative discriminant, or one complex root of a real polynomial",
+				"the roots h ± ki, by the formula with √(−n) = i√n or by completing the square",
+				"the conjugate h − ki as the second root, because the coefficients are real",
+				"the quadratic factor (z − α)(z − α*) = z² − 2hz + (h² + k²)",
+				"the real root of a cubic, or its coefficients, by dividing or by the sum and product of the roots"
+			],
+			"frequency": 4,
+			"marks": 4,
+			"section": {
+				"A": 1,
+				"B": 2
+			},
+			"paper": {
+				"p1": 3,
+				"p2": 1
+			}
+		},
+		{
+			"id": "t1-ai-complex-polar",
+			"topic": 1,
+			"source": "exam",
+			"region": "exponents-logs",
+			"name": "Polar and exponential forms of complex numbers (AI HL)",
+			"summary": "Convert between a + bi, r cis θ and re^(iθ) exactly and with the GDC, multiply, divide and raise to a power in polar or exponential form, find the least power that is real or imaginary, read multiplication as a rotation with a stretch and addition as a translation, and add two sinusoids of one frequency as complex numbers.",
+			"situation": "complex-polar-ai",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the numbers written out: z = −3 + 5i, z = 5 cis(2.1), or two sinusoids such as V₁ = 3 cos(5t + 0.4)"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "an Argand diagram with the axes named Re and Im and the point A marked"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "to-polar",
+					"given": [
+						"a complex number a + bi, or its point on an Argand diagram"
+					],
+					"asked": "z in the form re^(iθ) or r cis θ",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AI-AHL1.13.convert-forms"
+					]
+				},
+				{
+					"id": "to-cartesian",
+					"given": [
+						"a complex number r cis θ or re^(iθ)"
+					],
+					"asked": "z in the form a + bi",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AI-AHL1.13.convert-forms"
+					]
+				},
+				{
+					"id": "polar-product",
+					"given": [
+						"two complex numbers in polar or exponential form"
+					],
+					"asked": "z₁z₂ or z₁/z₂ in the same form",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AI-AHL1.13.multiply-divide-polar"
+					]
+				},
+				{
+					"id": "product-cartesian",
+					"given": [
+						"two complex numbers in polar or exponential form"
+					],
+					"asked": "z₁z₂ or z₁/z₂ in the form a + bi",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AI-AHL1.13.multiply-divide-polar",
+						"AI-AHL1.13.convert-forms"
+					]
+				},
+				{
+					"id": "power-polar",
+					"given": [
+						"a complex number re^(iθ) or r cis θ and a power n"
+					],
+					"asked": "z^n in the same form",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AI-AHL1.13.integer-powers"
+					]
+				},
+				{
+					"id": "power-cartesian",
+					"given": [
+						"a complex number a + bi on a standard line and a power n"
+					],
+					"asked": "z^n in the form a + bi",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AI-AHL1.13.integer-powers"
+					]
+				},
+				{
+					"id": "least-power",
+					"given": [
+						"a complex number in polar or exponential form"
+					],
+					"asked": "the least positive n for which z^n is real, imaginary, positive or negative",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AI-AHL1.13.integer-powers"
+					]
+				},
+				{
+					"id": "multiply-point",
+					"given": [
+						"a point A on an Argand diagram and a multiplier w"
+					],
+					"asked": "the complex number of the image of A under z ↦ wz",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AI-AHL1.13.geometric-interpretation"
+					]
+				},
+				{
+					"id": "describe-map",
+					"given": [
+						"a complex number w"
+					],
+					"asked": "the transformation z ↦ wz or z ↦ z + w, in words",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AI-AHL1.13.geometric-interpretation"
+					]
+				},
+				{
+					"id": "add-sinusoids",
+					"given": [
+						"two sinusoids of one frequency, in a context"
+					],
+					"asked": "their sum as A cos(ωt + B) or A sin(ωt + B)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AI-AHL1.13.add-sinusoids"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AI-AHL1.13.convert-forms",
+					"method": "r-theta-formulas",
+					"suits": [
+						"to-polar",
+						"to-cartesian"
+					],
+					"name": "Use r = √(a² + b²), a = r cos θ, b = r sin θ",
+					"about": "1 − i has r = √2 and θ = −π/4, so it is √2 e^(−iπ/4); 4e^(iπ/3) = 4 cos(π/3) + 4i sin(π/3) = 2 + 2√3 i."
+				},
+				{
+					"skill": "AI-AHL1.13.convert-forms",
+					"method": "argand-sketch",
+					"suits": [
+						"to-polar",
+						"to-cartesian"
+					],
+					"name": "Sketch the point to fix the quadrant",
+					"about": "Plot the point first so that the argument has the correct sign and quadrant."
+				},
+				{
+					"skill": "AI-AHL1.13.convert-forms",
+					"method": "gdc-convert",
+					"suits": [
+						"to-polar",
+						"to-cartesian"
+					],
+					"name": "Use the GDC conversion functions",
+					"about": "Convert with the calculator's polar and rectangular display modes, checking radians or degrees."
+				},
+				{
+					"skill": "AI-AHL1.13.multiply-divide-polar",
+					"method": "mod-arg-rules",
+					"suits": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"name": "Multiply moduli and add arguments",
+					"about": "zw = 6e^(5πi/12); for a quotient divide moduli and subtract arguments: z/w = (2/3)e^(−πi/12)."
+				},
+				{
+					"skill": "AI-AHL1.13.multiply-divide-polar",
+					"method": "exponent-laws",
+					"suits": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"name": "Use the laws of exponents",
+					"about": "r₁e^(iα) × r₂e^(iβ) = r₁r₂e^(i(α + β)), the same rule as for any powers."
+				},
+				{
+					"skill": "AI-AHL1.13.multiply-divide-polar",
+					"method": "gdc-check",
+					"suits": [
+						"polar-product"
+					],
+					"name": "Calculate in Cartesian form on the GDC",
+					"about": "Convert both, multiply or divide on the calculator, and convert back to check."
+				},
+				{
+					"skill": "AI-AHL1.13.integer-powers",
+					"method": "power-rule",
+					"suits": [
+						"power-polar",
+						"power-cartesian",
+						"least-power"
+					],
+					"name": "Raise the modulus and multiply the argument",
+					"about": "(re^(iθ))^n = r^ne^(inθ); √3 + i = 2e^(iπ/6), so (√3 + i)⁶ = 64e^(iπ) = −64."
+				},
+				{
+					"skill": "AI-AHL1.13.integer-powers",
+					"method": "gdc-power",
+					"suits": [
+						"power-polar",
+						"power-cartesian"
+					],
+					"weak": {
+						"kind": "fails",
+						"unknowns": [
+							"least-power"
+						],
+						"why": "the GDC gives one power at a time: the least n comes from the condition on n × arg z"
+					},
+					"name": "Raise to the power on the GDC",
+					"about": "Compute (√3 + i)^6 directly in complex mode and compare with the polar result."
+				},
+				{
+					"skill": "AI-AHL1.13.geometric-interpretation",
+					"method": "compute-and-plot",
+					"suits": [
+						"multiply-point"
+					],
+					"name": "Compute and plot points",
+					"about": "Calculate the product for a few points and plot them to see the rotation and stretch."
+				},
+				{
+					"skill": "AI-AHL1.13.geometric-interpretation",
+					"method": "polar-reading",
+					"suits": [
+						"describe-map"
+					],
+					"name": "Read the stretch and rotation from re^(iθ)",
+					"about": "Multiplying by re^(iθ) enlarges distances from the origin by r and rotates by θ anticlockwise; multiplying by i is a 90° rotation."
+				},
+				{
+					"skill": "AI-AHL1.13.geometric-interpretation",
+					"method": "vector-add",
+					"suits": [
+						"describe-map"
+					],
+					"name": "Add tip to tail",
+					"about": "z + w is the fourth vertex of the parallelogram on z and w; z − w is the vector from w to z."
+				},
+				{
+					"skill": "AI-AHL1.13.add-sinusoids",
+					"method": "phasor-sum",
+					"suits": [
+						"add-sinusoids"
+					],
+					"name": "Add the amplitudes as complex numbers",
+					"about": "Write each term as the real part of Ae^(iα)e^(i5t); add 3e^(0i) + 4e^(iπ/2) = 3 + 4i = 5e^(0.927i), so the sum is 5 cos(5t + 0.927)."
+				},
+				{
+					"skill": "AI-AHL1.13.add-sinusoids",
+					"method": "vector-diagram",
+					"suits": [
+						"add-sinusoids"
+					],
+					"name": "Add the phasors as vectors",
+					"about": "Draw each amplitude as a vector at its phase angle and add them tip to tail; the resultant's length and angle are A and B."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Multiplying by 1 + i rotates every point through π/4 about 0 and nothing else.",
+					"answer": "False: |1 + i| = √2, so it also stretches every distance from 0 by a factor of √2.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The amplitude of the sum of two sinusoids of one frequency is the sum of their amplitudes.",
+					"answer": "Sometimes: only when the two are in phase. Otherwise it is the modulus of the sum of the complex amplitudes, which is less.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict the quadrant of −2 + 3i before the GDC gives its argument, then check the argument is between π/2 and π.",
+					"answer": "The second quadrant: the GDC gives arg(−2 + 3i) = 2.16, which is between 1.57 and 3.14.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AI-AHL1.13.convert-forms#0",
+					"text": "Giving the argument the wrong sign, measured the other way from the positive real axis",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "−θ"
+				},
+				{
+					"ref": "AI-AHL1.13.convert-forms#1",
+					"text": "Swapping sine and cosine, so the real and imaginary parts change places",
+					"as": "distractor",
+					"in": [
+						"to-cartesian",
+						"product-cartesian"
+					],
+					"wrong": "b + ai"
+				},
+				{
+					"ref": "AI-AHL1.13.convert-forms#2",
+					"text": "Using degree mode with an argument in radians",
+					"as": "distractor",
+					"in": [
+						"to-cartesian"
+					],
+					"wrong": "r cos θ° + (r sin θ°)i"
+				},
+				{
+					"ref": "AI-AHL1.13.convert-forms#3",
+					"text": "Adding the squares of the parts for the modulus without taking the square root",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "a² + b² for the modulus"
+				},
+				{
+					"ref": "AI-AHL1.13.multiply-divide-polar#0",
+					"text": "Adding the moduli instead of multiplying them",
+					"as": "distractor",
+					"in": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"wrong": "r₁ + r₂ for the modulus"
+				},
+				{
+					"ref": "AI-AHL1.13.multiply-divide-polar#1",
+					"text": "Multiplying the arguments instead of adding them",
+					"as": "distractor",
+					"in": [
+						"polar-product"
+					],
+					"wrong": "θ₁ × θ₂ for the argument"
+				},
+				{
+					"ref": "AI-AHL1.13.multiply-divide-polar#2",
+					"text": "Subtracting the arguments the wrong way round for a quotient",
+					"as": "distractor",
+					"in": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"wrong": "θ₂ − θ₁ for a quotient"
+				},
+				{
+					"ref": "AI-AHL1.13.integer-powers#0",
+					"text": "Raising each part to the power separately",
+					"as": "distractor",
+					"in": [
+						"power-cartesian"
+					],
+					"wrong": "a^n + (bi)^n"
+				},
+				{
+					"ref": "AI-AHL1.13.integer-powers#1",
+					"text": "Multiplying the argument by the power but not raising the modulus to it",
+					"as": "distractor",
+					"in": [
+						"power-polar",
+						"power-cartesian"
+					],
+					"wrong": "r with nθ"
+				},
+				{
+					"ref": "AI-AHL1.13.integer-powers#2",
+					"text": "Raising the argument to the power instead of multiplying it by the power",
+					"as": "distractor",
+					"in": [
+						"power-polar"
+					],
+					"wrong": "θ^n for the argument"
+				},
+				{
+					"ref": "AI-AHL1.13.add-sinusoids#0",
+					"text": "Adding the amplitudes, which only works when the two waves are in phase",
+					"as": "distractor",
+					"in": [
+						"add-sinusoids"
+					],
+					"wrong": "a + b for the amplitude"
+				},
+				{
+					"ref": "AI-AHL1.13.add-sinusoids#1",
+					"text": "Averaging the two phases instead of finding the argument of the sum",
+					"as": "distractor",
+					"in": [
+						"add-sinusoids"
+					],
+					"wrong": "(α + β)/2 for the phase"
+				},
+				{
+					"ref": "AI-AHL1.13.add-sinusoids#2",
+					"text": "Mixing degrees and radians in the phase",
+					"as": "distractor",
+					"in": [
+						"add-sinusoids"
+					],
+					"wrong": "the phases taken in degrees"
+				},
+				{
+					"ref": "AI-AHL1.13.geometric-interpretation#0",
+					"text": "Reading multiplication by a number as a rotation only, missing the stretch by its modulus",
+					"as": "distractor",
+					"in": [
+						"multiply-point",
+						"describe-map"
+					],
+					"wrong": "the rotation with no stretch"
+				},
+				{
+					"ref": "AI-AHL1.13.geometric-interpretation#1",
+					"text": "Treating multiplication by i as a reflection in the line y = x",
+					"as": "distractor",
+					"in": [
+						"multiply-point",
+						"describe-map"
+					],
+					"wrong": "a reflection in y = x for multiplying by i"
+				},
+				{
+					"text": "Using arctan of the imaginary part over the real part without checking the quadrant",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "arctan(b/a) for a point left of the imaginary axis"
+				},
+				{
+					"text": "Adding the sizes of the two parts for the modulus",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "|a| + |b|"
+				},
+				{
+					"text": "Using the cosine and sine of the reference angle without the quadrant's signs",
+					"as": "distractor",
+					"in": [
+						"to-cartesian"
+					],
+					"wrong": "|a| + |b|i"
+				},
+				{
+					"text": "Leaving the argument outside −π < θ ≤ π",
+					"as": "distractor",
+					"in": [
+						"polar-product",
+						"power-polar"
+					],
+					"wrong": "the argument with no 2π taken away or added"
+				},
+				{
+					"text": "Turning the wrong way: clockwise for a positive argument, or anticlockwise for a negative one",
+					"as": "distractor",
+					"in": [
+						"multiply-point",
+						"describe-map"
+					],
+					"wrong": "the turn the other way"
+				},
+				{
+					"text": "Thinking that adding a complex number rotates the point, rather than translating it",
+					"as": "distractor",
+					"in": [
+						"describe-map"
+					],
+					"wrong": "a rotation through arg w for z ↦ z + w"
+				},
+				{
+					"text": "Requiring a whole number of full turns for a real power, so only the positive reals are found",
+					"as": "distractor",
+					"in": [
+						"least-power"
+					],
+					"wrong": "the least n for a positive real"
+				},
+				{
+					"text": "Solving for the other kind of number: real for imaginary, positive for negative, or the reverse",
+					"as": "distractor",
+					"in": [
+						"least-power"
+					],
+					"wrong": "the least n for the other condition"
+				}
+			],
+			"chain": [
+				"a complex number in Cartesian, polar or exponential form, a point on an Argand diagram, or two sinusoids of one frequency",
+				"its modulus and argument, exactly at a standard angle or to 3 s.f. in radians",
+				"a product, quotient or power with the moduli multiplied or raised and the arguments added or multiplied",
+				"the multiplier read as a rotation and a stretch about 0, or a sum read as a translation",
+				"two sinusoids written as one, A cos(ωt + B), from the sum of their complex amplitudes"
+			],
+			"frequency": 24,
+			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 0
+			},
+			"paper": {
+				"p1": 0,
+				"p2": 24
 			}
 		}
 	]
