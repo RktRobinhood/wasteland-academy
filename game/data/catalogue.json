@@ -12129,7 +12129,6 @@
 					"text": "Gives the zeros with the wrong signs",
 					"as": "distractor",
 					"in": [
-						"zeros-gdc",
 						"zeros-with-x-factor"
 					],
 					"wrong": "every zero with its sign changed"
@@ -74078,7 +74077,6 @@
 					"as": "distractor",
 					"in": [
 						"two-piece-solution",
-						"solve-with-gdc",
 						"read-from-graph"
 					],
 					"wrong": "only x > 1.51, the left piece dropped"

@@ -1125,14 +1125,16 @@ func u_y_intercept(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return out
 
 
-func u_zeros_with_x_factor(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_zeros_with_x_factor(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var qs := zero_qs(s)
 	var ans := xs_ans(qs)
 	var final := "So the zeros are " + Answer.text(ans) + "."
 	var others: Array = qs.filter(func(q): return not q.is_zero())
-	var wrongs: Array = [wrong(Answer.xs_of(others), ZI + "#2"), wrong(Answer.xs_of([Q.new(0), others[0]]), GF_ONE_ROOT),
+	# Dividing by x comes first. The rounding trap takes a place, so one more slip fits:
+	# the other four are shuffled, so each one shows on some seeds.
+	var wrongs: Array = [wrong(Answer.xs_of(others), ZI + "#2")] + rng.shuffled([wrong(Answer.xs_of([Q.new(0), others[0]]), GF_ONE_ROOT),
 		wrong(Answer.xs_of(qs.map(func(q): return q.neg())), ZI + "#1"), wrong(Answer.xs_of(s.turns.map(func(t): return qf(t.x))), GF_TURNS_AS_ZEROS),
-		wrong(Answer.xs_of([Q.new(0), others[1]]), GF_ONE_ROOT)]
+		wrong(Answer.xs_of([Q.new(0), others[1]]), GF_ONE_ROOT)])
 	var quad := GdcKit.first(s.A, "x²") + GdcKit.join(s.b, "x") + GdcKit.join(s.m, "")
 	var nz := Answer.xs_list(s.zeros.filter(func(z): return z != 0.0).map(func(z): return "x = " + W(z)))
 	return {
