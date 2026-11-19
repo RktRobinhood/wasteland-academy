@@ -32,7 +32,7 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		var ok := false
 		match ask:
 			"to-polar", "to-cartesian":
-				ok = _ai_point(rng, s) if need.get("ai", false) else _special_point(rng, s, ask == "to-polar")
+				ok = _ai_point(rng, s) if need.get("ai", false) and s.angle == "gdc-convert" else _special_point(rng, s, ask == "to-polar")
 			"polar-product":
 				ok = _polar_product(rng, s)
 			"product-cartesian":
@@ -69,6 +69,9 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 				ok = true
 			"induction-gap", "induction-flaw":
 				s.letter = rng.pick(["θ", "α", "x"])
+				# The line hidden (gap) or spoiled (flaw): the assumption, the expansion, the
+				# compound-angle step, or the conclusion (gap only).
+				s.mode = rng.pick(["assumption", "expansion", "step", "conclusion"] if ask == "induction-gap" else ["assumption", "expansion", "step"])
 				ok = true
 			"solve-quadratic", "quadratic-from-root", "other-root":
 				s.h = nonzero(rng, -5, 5)
@@ -79,6 +82,8 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 				ok = _cubic(rng, s)
 			"add-sinusoids":
 				ok = _add_sinusoids(rng, s)
+			"ai-power-polar", "ai-power-cartesian", "ai-least-power":
+				ok = _ai_power(rng, s)
 		if ok:
 			return s
 	return {}
@@ -520,7 +525,8 @@ static func _nth_roots(rng: Seeded, s: Dictionary) -> bool:
 		s.phi = rng.pick(specials() + [Q.new(0)])
 	s.big = sd(int(pow(s.rho, s.n)))
 	s.wform = "cartesian" if rng.chance(0.5) and (s.phi.is_zero() or family(s.phi) == 2 or int(pow(s.rho, s.n)) % 2 == 0) else "polar"
-	if s.angle == "factorise":
+	# A positive real w is written as a number, never as |w|e^(0).
+	if s.angle == "factorise" or s.phi.is_zero():
 		s.wform = "cartesian"
 	if s.ask == "nth-root":
 		s.mode = rng.pick(["least-positive", "greatest", "quadrant"])
@@ -585,7 +591,7 @@ static func _roots_polygon(rng: Seeded, s: Dictionary) -> bool:
 		s.mode = "area"
 	s.phi = rng.pick(specials() + [Q.new(0)])
 	s.big = sd(int(pow(s.rho, s.n)))
-	s.wform = "polar"
+	s.wform = "cartesian" if s.phi.is_zero() or s.phi.eq(1) else "polar"
 	return int(pow(s.rho, s.n)) <= 256
 
 
@@ -608,6 +614,27 @@ static func _cubic(rng: Seeded, s: Dictionary) -> bool:
 	s.b = m + 2 * s.h * s.t
 	s.d = -s.t * m
 	return s.a != 0 and s.b != 0 and s.kq != absi(s.h) and absi(s.t) != m and 2 * s.h != s.a
+
+
+## AI powers (t1-ai-complex-polar): z = r e^(iθ) at a standard angle to a power 3 to 6, or z on a
+## 45°, 30° or 60° line so zⁿ has whole parts, or the least n that makes zⁿ real or imaginary.
+static func _ai_power(rng: Seeded, s: Dictionary) -> bool:
+	match s.ask:
+		"ai-power-polar":
+			s.c = rng.pick(specials())
+			s.r = sd(rng.int_in(2, 3))
+			s.n = rng.int_in(3, 6)
+			var out := principal(s.c.mul(s.n))
+			return not out.is_zero() and not out.eq(s.c) and not s.c.eq(1)
+		"ai-power-cartesian":
+			s.c = rng.pick(specials().filter(func(c): return family(c) != 2))
+			s.r = sd(1, 2) if family(s.c) == 4 else sd(2)
+			s.n = rng.int_in(3, 8 if family(s.c) == 4 else 6)
+			return not principal(s.c.mul(s.n)).is_zero()
+	s.c = rng.pick(specials().filter(func(c): return not c.eq(1) and family(c) != 2))
+	s.mode = rng.pick(["real", "real", "imaginary", "positive", "negative"])
+	s.r = sd(rng.int_in(2, 5))
+	return least_n(s.c, s.mode) > 1
 
 
 ## A cos(ωt + α) + B cos(ωt + β), the phases in radians, the answer clear of 3 s.f. edges and

@@ -48600,6 +48600,17 @@ CP_REFS = {
         "lost-two": CP_TA + "22", "rev-sign": CP_TA + "23", "re-for-im": CP_TA + "24", "neg-vector": CP_TA + "25",
     },
 }
+CP_AI = "AI-AHL1.13."
+CP_TI = "t1-ai-complex-polar#"
+CP_REFS["t1-ai-complex-polar"] = {
+    "arg-sign": CP_AI + "convert-forms#0", "trig-swap": CP_AI + "convert-forms#1", "degree-mode": CP_AI + "convert-forms#2",
+    "no-root": CP_AI + "convert-forms#3", "mod-sum": CP_AI + "multiply-divide-polar#0", "arg-mul": CP_AI + "multiply-divide-polar#1",
+    "quot-order": CP_AI + "multiply-divide-polar#2", "parts-power": CP_AI + "integer-powers#0", "mod-unraised": CP_AI + "integer-powers#1",
+    "arg-raised": CP_AI + "integer-powers#2", "amp-sum": CP_AI + "add-sinusoids#0", "phase-avg": CP_AI + "add-sinusoids#1",
+    "phase-degrees": CP_AI + "add-sinusoids#2", "rotation-only": CP_AI + "geometric-interpretation#0",
+    "i-reflect": CP_AI + "geometric-interpretation#1", "quadrant": CP_TI + "15", "mod-add": CP_TI + "16", "ref-signs": CP_TI + "17",
+    "unreduced": CP_TI + "18", "clockwise": CP_TI + "19", "add-rotates": CP_TI + "20", "pos-only": CP_TI + "21", "kind-swap": CP_TI + "22",
+}
 CP_FORM = {"re^(iθ)": "euler", "r cis θ": "cis"}
 
 
@@ -48775,7 +48786,7 @@ def cp_pair(v, ra, rb, den):
 def cp_check(q):
     t, u, rep, L, asked = q["view"]["type"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
     refs = CP_REFS[t]
-    need(q["paper"] == 1, f"Paper {q['paper']}")
+    need(q["paper"] == (2 if t == "t1-ai-complex-polar" else 1), f"Paper {q['paper']}")
     for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
         need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
     wrongs = {}
@@ -48814,6 +48825,7 @@ def cp_check(q):
             slip("arctan-swap", "z = " + cp_p(r, sp.Rational(sp.atan(a / b) / pi), style))
         if c != 1:
             slip("arg-sign", "z = " + cp_p(r, -c, style))
+        slip("no-root", "z = " + cp_p(a ** 2 + b ** 2, c, style))
     elif u == "to-cartesian":
         need(asked == "Write z in the form a + bi.", f"asked {asked!r}")
         r, c, _ = cp_read_polar(L[0], "z")
@@ -48901,6 +48913,8 @@ def cp_check(q):
                 slip("clockwise", cp_describe(r, -c))
             if cp_split(r) != (1, 1):
                 slip("rotation-only", cp_describe(1, c))
+            if w == I:
+                slip("i-reflect", "A reflection in the line y = x.")
     elif u == "euler-sum":
         m = re.fullmatch(r"Write z in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
         need(m is not None, f"asked {asked!r}")
@@ -48981,6 +48995,316 @@ def cp_check(q):
 
 
 SITUATION_CHECKS["complex-polar"] = cp_check
+
+
+# t1-ahl-conjugate-roots (FAL-1005): the polynomial and its root are read from the lines, the
+# roots and coefficients are worked out again with SymPy (sp.solve, sp.Poly), and each slip from
+# its own rule. Names start CR_ or cr_.
+
+CR_AQ = "AHL1.14.complex-quadratic#"
+CR_AC = "AHL1.14.conjugate-root-polynomial#"
+CR_TC = "t1-ahl-conjugate-roots#"
+CR_REFS = {
+    "sqrt-neg": CR_AQ + "0", "half-only": CR_AQ + "1", "sum-sign": CR_AQ + "2", "real-sign": CR_AC + "0", "factor-sign": CR_AC + "1",
+    "h-sign": CR_TC + "5", "not-halved": CR_TC + "6", "i2-product": CR_TC + "7", "half-sum": CR_TC + "8", "negate": CR_TC + "9",
+    "cubic-sum-sign": CR_TC + "10", "product-sign": CR_TC + "11", "vieta-signs": CR_TC + "12",
+}
+CR_Z = sp.Symbol("z")
+
+
+def cr_poly(t):
+    """The coefficients of a polynomial in z from its text, highest power first: "z³ − 5z² + 9z − 5"."""
+    s = t.replace("−", "-").replace("³", "**3").replace("²", "**2")
+    s = re.sub(r"(\d)z", r"\1*z", s)
+    need(re.fullmatch(r"[-+*/ 0-9z]+", s) is not None, f"can't read the polynomial {t!r}")
+    return [sp.Integer(c) for c in sp.Poly(sp.sympify(s, locals={"z": CR_Z}), CR_Z).all_coeffs()]
+
+
+def cr_text(coeffs):
+    """A polynomial in z as the game writes it, from its coefficients."""
+    n = len(coeffs) - 1
+    out = ""
+    for i, c in enumerate(coeffs):
+        c = sp.Integer(c)
+        p = n - i
+        if c == 0:
+            continue
+        mag = abs(c)
+        body = ("" if (mag == 1 and p > 0) else str(mag)) + ("" if p == 0 else "z" + {1: "", 2: "²", 3: "³"}[p])
+        out += ("−" if c < 0 else "") + body if out == "" else (" − " if c < 0 else " + ") + body
+    return out
+
+
+def cr_pm(h, k):
+    return f"{cx_q(h)} ± {cx_iterm(k)}"
+
+
+def cr_check(q):
+    t, u, L, asked = q["view"]["type"], q["view"]["unknown"], q["lines"], q["asked"]
+    gdc = q["view"]["angle"] == "gdc-solver"
+    need(q["paper"] == (2 if gdc else 1), f"Paper {q['paper']}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+
+    def slip(key, text):
+        wrongs.setdefault(CR_REFS[key], set()).add(text)
+
+    I = sp.I
+    if u == "solve-quadratic":
+        need(asked == "Solve the equation, giving the roots in the form h ± ki." and len(L) == 1 and L[0].endswith(" = 0"), f"lines {L!r}")
+        c = cr_poly(L[0][:-4])
+        need(len(c) == 3 and c[0] == 1, "not a monic quadratic")
+        roots = sp.solve(sp.Poly(c, CR_Z).as_expr(), CR_Z)
+        need(len(roots) == 2 and all(sp.im(r) != 0 for r in roots), "the roots aren't a complex pair")
+        h, k = sp.re(roots[0]), abs(sp.im(roots[0]))
+        need(h.is_integer and k.is_integer and h != 0, "the roots aren't whole")
+        want = "z = " + cr_pm(h, k)
+        slip("sqrt-neg", f"z = {cx_q(h - k)} or z = {cx_q(h + k)}")
+        slip("half-only", "z = " + cr_pm(-c[1], k))
+        slip("h-sign", "z = " + cr_pm(-h, k))
+        slip("not-halved", "z = " + cr_pm(h, 2 * k))
+    elif u == "quadratic-from-root":
+        m = re.fullmatch(r"z = (.+) is a root of z² \+ pz \+ q = 0, where p and q are real\.", L[0])
+        need(m is not None and asked == "Find the values of p and q, and write down the equation.", f"lines {L!r}")
+        z0 = cx_parse(m.group(1))
+        h, k = sp.re(z0), abs(sp.im(z0))
+        need(k != 0, "the root is real")
+        P = sp.Poly(sp.expand((CR_Z - z0) * (CR_Z - sp.conjugate(z0))), CR_Z).all_coeffs()
+        want = cr_text(P) + " = 0"
+        slip("sum-sign", cr_text([1, -P[1], P[2]]) + " = 0")
+        slip("i2-product", cr_text([1, P[1], h ** 2 - k ** 2]) + " = 0")
+        slip("half-sum", cr_text([1, -h, P[2]]) + " = 0")
+    elif u == "other-root":
+        need(asked == "Write down another root of the equation.", f"asked {asked!r}")
+        m = re.fullmatch(r"One root of (.+) = 0 is (.+)\.", L[0])
+        if m:
+            c = cr_poly(m.group(1))
+            z0 = cx_parse(m.group(2))
+            need(sp.expand(sp.Poly(c, CR_Z).as_expr().subs(CR_Z, z0)) == 0, "the root given is not a root")
+        else:
+            m = re.fullmatch(r"A cubic equation with real coefficients has a root (.+)\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            z0 = cx_parse(m.group(1))
+        want = "z = " + cx_fmt(sp.conjugate(z0))
+        h, b = sp.re(z0), sp.im(z0)
+        slip("real-sign", "z = " + cx_fmt(-h + b * I))
+        slip("negate", "z = " + cx_fmt(-z0))
+    elif u in ("real-root", "cubic-coefficients"):
+        if u == "real-root":
+            need(asked == "Find the real root of the equation." and len(L) == 2 and L[0].endswith(" = 0"), f"lines {L!r}")
+            c = cr_poly(L[0][:-4])
+            m = re.fullmatch(r"One root of this equation is (.+)\.", L[1])
+            need(m is not None and len(c) == 4 and c[0] == 1, f"can't read {L!r}")
+            z0 = cx_parse(m.group(1))
+            Pz = sp.Poly(c, CR_Z).as_expr()
+            need(sp.expand(Pz.subs(CR_Z, z0)) == 0, "the root given is not a root")
+            real = [r for r in sp.solve(Pz, CR_Z) if sp.im(r) == 0]
+            need(len(real) == 1 and real[0].is_integer, "the cubic has no single whole real root")
+            tv = real[0]
+            a, d = c[1], c[3]
+            h, k = sp.re(z0), abs(sp.im(z0))
+            mm = h ** 2 + k ** 2
+            want = "z = " + cx_q(tv)
+            slip("factor-sign", "z = " + cx_q(2 * h - a))
+            slip("cubic-sum-sign", "z = " + cx_q(a - 2 * h))
+            slip("product-sign", "z = " + cx_q(sp.Rational(d, mm)))
+        else:
+            m = re.fullmatch(r"z³ \+ az² \+ bz \+ d = 0, where a, b and d are real, has roots (.+) and (−?\d+)\.", L[0])
+            need(m is not None and asked == "Find the values of a, b and d.", f"lines {L!r}")
+            z0, tv = cx_parse(m.group(1)), sp.Integer(m.group(2).replace("−", "-"))
+            c = sp.Poly(sp.expand((CR_Z - z0) * (CR_Z - sp.conjugate(z0)) * (CR_Z - tv)), CR_Z).all_coeffs()
+            txt = lambda a, b, d: f"a = {cx_q(a)}, b = {cx_q(b)}, d = {cx_q(d)}"
+            want = txt(c[1], c[2], c[3])
+            h, k = sp.re(z0), abs(sp.im(z0))
+            fs = sp.Poly(sp.expand((CR_Z ** 2 + 2 * h * CR_Z + h ** 2 + k ** 2) * (CR_Z - tv)), CR_Z).all_coeffs()
+            slip("factor-sign", txt(fs[1], fs[2], fs[3]))
+            slip("vieta-signs", txt(-c[1], c[2], -c[3]))
+            i2 = sp.Poly(sp.expand((CR_Z ** 2 - 2 * h * CR_Z + h ** 2 - k ** 2) * (CR_Z - tv)), CR_Z).all_coeffs()
+            slip("i2-product", txt(i2[1], i2[2], i2[3]))
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, None)
+    return None, None
+
+
+SITUATION_CHECKS["conjugate-roots"] = cr_check
+
+
+# t1-ai-complex-polar (FAL-1005): the exact unknowns go through cp_check with the AI refs; the GDC
+# conversions, powers, the least power, the image of a point and the sum of two sinusoids are
+# worked out here, the decimals with mpmath to 30 digits. Names start AIP_ or aip_.
+
+AIP_SUP = {c: str(i) for i, c in enumerate("⁰¹²³⁴⁵⁶⁷⁸⁹")}
+
+
+def aip_s(x):
+    """3 s.f., as the game writes it, for a SymPy or an mpmath number."""
+    return gc_s(sp.Float(mpmath.nstr(x, 25), 30) if isinstance(x, mpmath.mpf) else x)
+
+
+def aip_dec(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def aip_dpolar(r, t, style):
+    return f"{aip_s(r)}e^({aip_s(t)}i)" if style == "euler" else f"{aip_s(r)} cis({aip_s(t)})"
+
+
+def aip_dcart(x, y):
+    return aip_s(x) + (" − " if y < 0 else " + ") + aip_s(abs(y)) + "i"
+
+
+def aip_wave(A, fn, w, B):
+    tail = "" if B == 0 else (" − " if B < 0 else " + ") + aip_s(abs(B))
+    return f"{aip_s(A)} {fn}({w}t{tail})"
+
+
+def aip_least(c, mode):
+    for n in range(1, 25):
+        v = sp.Rational(c) * n
+        if mode == "real" and v.q == 1:
+            return n
+        if mode == "imaginary" and (v + sp.Rational(1, 2)).q == 1:
+            return n
+        if mode == "positive" and v.q == 1 and v.p % 2 == 0:
+            return n
+        if mode == "negative" and v.q == 1 and v.p % 2 == 1:
+            return n
+    return 0
+
+
+def aip_check(q):
+    t, u, rep, L, asked = q["view"]["type"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    gdc = q["view"]["angle"] == "gdc-convert"
+    if u in ("to-polar", "to-cartesian") and not gdc or u in ("polar-product", "product-cartesian", "describe-map"):
+        return cp_check(q)
+    refs = CP_REFS[t]
+    need(q["paper"] == 2, f"Paper {q['paper']}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+
+    def slip(key, text):
+        if key in refs:
+            wrongs.setdefault(refs[key], set()).add(text)
+
+    I = sp.I
+    if u == "to-polar":
+        m = re.fullmatch(r"Write z in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π, giving r and θ to 3 significant figures\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        style = CP_FORM[m.group(1)]
+        z = cx_read(L[0], "z")
+        a, b = (sp.Integer(v) for v in cx_parts(z))
+        need(a != 0 and b != 0 and abs(a) != abs(b), "the point is on an axis or a 45° line")
+        r, th = mpmath.sqrt(a ** 2 + b ** 2), mpmath.atan2(b, a)
+        want = "z = " + aip_dpolar(r, th, style)
+        slip("arg-sign", "z = " + aip_dpolar(r, -th, style))
+        slip("no-root", "z = " + aip_dpolar(a ** 2 + b ** 2, th, style))
+        if a < 0:
+            slip("quadrant", "z = " + aip_dpolar(r, mpmath.atan(mpmath.mpf(b) / a), style))
+        slip("mod-add", "z = " + aip_dpolar(abs(a) + abs(b), th, style))
+    elif u == "to-cartesian":
+        need(asked == "Write z in the form a + bi, giving a and b to 3 significant figures.", f"asked {asked!r}")
+        m = re.fullmatch(r"z = (\d+)(?:e\^\((−?[\d.]+)i\)| cis\((−?[\d.]+)\))", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        r, th = sp.Integer(m.group(1)), aip_dec(m.group(2) or m.group(3))
+        x, y = r * mpmath.cos(th), r * mpmath.sin(th)
+        want = "z = " + aip_dcart(x, y)
+        slip("degree-mode", "z = " + aip_dcart(r * mpmath.cos(mpmath.radians(th)), r * mpmath.sin(mpmath.radians(th))))
+        slip("trig-swap", "z = " + aip_dcart(y, x))
+    elif u in ("power-polar", "power-cartesian"):
+        m = re.fullmatch(r"Find z([⁰¹²³⁴⁵⁶⁷⁸⁹]+) in the form (re\^\(iθ\)|r cis θ|a \+ bi)(, where r > 0 and −π < θ ≤ π)?\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        n = int("".join(AIP_SUP[ch] for ch in m.group(1)))
+        name = "z" + m.group(1)
+        head = name + " = "
+        if u == "power-polar":
+            need(m.group(2) != "a + bi", "power-polar asks for a polar form")
+            r, c, style = cp_read_polar(L[0], "z")
+            need(CP_FORM[m.group(2)] == style, "the form asked is not the form given")
+            need(3 <= n <= 6, f"power {n}")
+            R, raw = r ** n, c * n
+            C = cp_principal(raw)
+            need(C == cp_arg(sp.expand(cp_cis(r, c) ** n)), "De Moivre's argument is off")
+            want = head + cp_p(R, C, style)
+            slip("mod-unraised", head + cp_p(r, C, style))
+            pw = f"({cp_pi(c)}){m.group(1)}"
+            slip("arg-raised", head + cp_s(R) + (f"e^({pw} i)" if style == "euler" else f" cis({pw})"))
+            if raw != C:
+                slip("unreduced", head + cp_p(R, raw, style))
+        else:
+            need(m.group(2) == "a + bi", "power-cartesian asks for a + bi")
+            z = cx_read(L[0], "z")
+            p = sp.expand(z ** n)
+            want = head + cp_c(p)
+            r, c = sp.simplify(sp.Abs(z)), cp_arg(z)
+            slip("mod-unraised", head + cp_c(cp_cis(r, cp_principal(c * n))))
+            a, b = sp.re(z), sp.im(z)
+            pp = sp.expand(a ** n + (b * I) ** n)
+            try:
+                slip("parts-power", head + cp_c(pp))
+            except Fail:
+                pass
+    elif u == "least-power":
+        r, c, style = cp_read_polar(L[0], "z")
+        mode = {"real": "real", "purely imaginary": "imaginary", "a positive real number": "positive", "a negative real number": "negative"}
+        m = re.fullmatch(r"Find the least positive integer n for which zⁿ is (.+)\.", asked)
+        need(m is not None and m.group(1) in mode, f"asked {asked!r}")
+        md = mode[m.group(1)]
+        n = aip_least(c, md)
+        need(n > 1, "n is 1")
+        zn = sp.expand(cp_cis(r, c) ** n)
+        need({"real": sp.im(zn) == 0, "imaginary": sp.re(zn) == 0, "positive": sp.im(zn) == 0 and zn > 0,
+              "negative": sp.im(zn) == 0 and zn < 0}[md], "zⁿ is not what was asked")
+        want = f"n = {n}"
+        if md == "real":
+            slip("pos-only", f"n = {aip_least(c, 'positive')}")
+        other = {"real": "imaginary", "imaginary": "real", "positive": "negative", "negative": "positive"}[md]
+        if aip_least(c, other) > 0:
+            slip("kind-swap", f"n = {aip_least(c, other)}")
+    elif u == "multiply-point":
+        need(rep == "graph" and L == [CX_READ_A], f"lines {L!r}")
+        z = cx_grid_point(q, "A")
+        m = re.fullmatch(r"The point A on the Argand diagram represents the complex number z, and w = (.+)\. Find the complex number that represents the image of A under the map z ↦ wz, in the form a \+ bi\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        w = cx_parse(m.group(1))
+        head = "w × z = "
+        want = head + cp_c(w * z)
+        if w == I:
+            slip("i-reflect", head + cp_c(sp.im(z) + sp.re(z) * I))
+        if sp.im(w) != 0:
+            slip("clockwise", head + cp_c(sp.conjugate(w) * z))
+            if sp.simplify(sp.Abs(w) - 1) != 0:
+                slip("rotation-only", head + cp_c(sp.expand(w / sp.Abs(w) * z)))
+    elif u == "add-sinusoids":
+        m = re.fullmatch(r"(V|y|I)₁ = (\d) (cos|sin)\((\d)t(?: ([+−]) ([\d.]+))?\) and (V|y|I)₂ = (\d) (cos|sin)\((\d)t(?: ([+−]) ([\d.]+))?\), where t is the time in seconds\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        Lt, fn, w = m.group(1), m.group(3), int(m.group(4))
+        need((m.group(7), m.group(9), int(m.group(10))) == (Lt, fn, w), "the two waves differ in letter, function or frequency")
+        a1, a2 = int(m.group(2)), int(m.group(8))
+        p1 = aip_dec(m.group(6)) * (-1 if m.group(5) == "−" else 1) if m.group(6) else sp.Integer(0)
+        p2 = aip_dec(m.group(12)) * (-1 if m.group(11) == "−" else 1) if m.group(12) else sp.Integer(0)
+        need(asked == f"Use complex numbers to write {Lt}₁ + {Lt}₂ in the form A {fn}({w}t + B), where A > 0 and −π < B ≤ π, giving A and B to 3 significant figures.", f"asked {asked!r}")
+        zs = a1 * mpmath.expj(p1) + a2 * mpmath.expj(p2)
+        A, B = abs(zs), mpmath.arg(zs)
+        # The sum really is A fn(wt + B): checked at a few times.
+        f = mpmath.cos if fn == "cos" else mpmath.sin
+        for tt in (0, 0.3, 1.1):
+            need(abs(a1 * f(w * tt + p1) + a2 * f(w * tt + p2) - A * f(w * tt + B)) < 1e-20, "the sum is not one sinusoid")
+        head = f"{Lt}₁ + {Lt}₂ = "
+        want = head + aip_wave(A, fn, w, B)
+        slip("amp-sum", head + aip_wave(a1 + a2, fn, w, B))
+        slip("phase-avg", head + aip_wave(A, fn, w, (p1 + p2) / 2))
+        zd = a1 * mpmath.expj(mpmath.radians(p1)) + a2 * mpmath.expj(mpmath.radians(p2))
+        slip("phase-degrees", head + aip_wave(abs(zd), fn, w, mpmath.degrees(mpmath.arg(zd))))
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, None)
+    return None, None
+
+
+SITUATION_CHECKS["complex-polar-ai"] = aip_check
 # ── end complex-polar ──
 
 
