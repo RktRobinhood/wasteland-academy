@@ -29,7 +29,7 @@ extends RefCounted
 ## need: form ("lq", "ql" or "any"); den for lq ("two", "none", "count": two, one or none,
 ## for the discriminant-count method, or "any": two, or count when the method is
 ## discriminant-count); roots, turns, range (bool); graph (every feature inside the plot,
-## RationalQuadraticViews.WIN); paper (1 or 2).
+## RationalQuadraticViews.WIN); paper (1 or 2). `family` only keeps the views' families apart.
 ##
 ## The clean limits below are the checker's too (tools/check_answers.py, R9RQ_*).
 
@@ -102,9 +102,13 @@ static func _lq(rng: Seeded, need: Dictionary, paper: int) -> Dictionary:
 	if graph:
 		if s.nz != 2 or s.zs[1] - s.zs[0] < 2 or absf(s.z.to_float()) > PLOT or absf(s.yi.to_float()) > PLOT:
 			return {}
+		# The zero is clear of each asymptote and of its mirror image, so the cards with the
+		# asymptotes' or the zero's sign changed have no common factor either.
 		for r in s.zs:
-			if absf(s.z.to_float() - r) < 1.0:
+			if absf(s.z.to_float() - r) < 1.0 or s.z.eq(-r):
 				return {}
+		if not visible(s, [-8.0] + s.zs.map(func(r): return float(r)) + [8.0]):
+			return {}
 	if need.get("range", false) and not _lq_range(s, paper):
 		return {}
 	return s
@@ -219,6 +223,8 @@ static func _ql(rng: Seeded, need: Dictionary, paper: int) -> Dictionary:
 		for r in s.roots:
 			if absi(r) > PLOT or absi(r + e) < 1:
 				return {}
+	if graph and not visible(s, [-8.0, float(-e), 8.0]):
+		return {}
 	if need.get("turns", false) and not _ql_turns(s, paper):
 		return {}
 	return s
@@ -261,6 +267,24 @@ static func _ql_turns(s: Dictionary, paper: int) -> bool:
 		for v in [s.L, s.U, s.xL, s.xU]:
 			if not GdcKit.fair(v):
 				return false
+	return true
+
+
+## Every piece of the curve between the breaks (its vertical asymptotes and the plot's
+## edges) comes well inside the plot somewhere, so a graph shows every branch.
+static func visible(s: Dictionary, breaks: Array) -> bool:
+	for i in breaks.size() - 1:
+		var lo: float = breaks[i]
+		var hi: float = breaks[i + 1]
+		var seen := false
+		for j in range(1, 80):
+			var x := lo + (hi - lo) * j / 80.0
+			var y := lq_y(s, x) if s.form == "lq" else ql_y(s, x)
+			if absf(y) <= PLOT:
+				seen = true
+				break
+		if not seen:
+			return false
 	return true
 
 

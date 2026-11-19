@@ -42,17 +42,18 @@ const SAMPLES := 240
 func needs() -> Dictionary:
 	return {
 		"vertical-asymptotes-lq": {"form": "lq", "den": "any"},
-		"vertical-asymptote-ql": {"form": "ql", "roots": true},
+		"vertical-asymptote-ql": {"form": "ql", "roots": true, "family": "ql"},
 		"denominator-from-asymptote": {"form": "any", "den": "two"},
 		"horizontal-asymptote": {"form": "lq", "den": "two"},
 		"crosses-horizontal": {"form": "lq", "den": "two"},
-		"x-intercepts-ql": {"form": "ql", "roots": true},
-		"oblique-asymptote": {"form": "ql"},
-		"coefficient-from-oblique": {"form": "ql"},
+		"x-intercepts-ql": {"form": "ql", "roots": true, "family": "ql"},
+		"oblique-asymptote": {"form": "ql", "family": "ql"},
+		"coefficient-from-oblique": {"form": "ql", "family": "ql"},
 		"range-lq": {"form": "lq", "den": "none", "range": true},
-		"range-ql": {"form": "ql", "turns": true, "range": true},
+		# Its own family: turning values that are exact on Paper 1 rarely meet whole zeros too.
+		"range-ql": {"form": "ql", "turns": true, "range": true, "family": "range"},
 		"sketch-lq": {"form": "lq", "den": "two", "graph": true},
-		"sketch-ql": {"form": "ql", "roots": true, "graph": true},
+		"sketch-ql": {"form": "ql", "roots": true, "graph": true, "family": "ql"},
 	}
 
 
