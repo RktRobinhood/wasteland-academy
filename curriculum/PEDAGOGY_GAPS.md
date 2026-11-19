@@ -1824,7 +1824,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 - **Concept probes:**
   - *true-false-reason* (L3): y = f(2x + 6) is y = f(x) translated 6 to the left and then stretched by scale factor 1/2. — True, in that order: f(x + 6) is the translation, and putting 2x in place of x halves every distance from the y-axis. Stretching first would need a translation of 3, since f(2x + 6) = f(2(x + 3)).
   - *interpret-parameter* (L3): Why does a + inside the bracket move the graph to the left? — f(x + 6) takes at x the value f takes at x + 6, so each height appears 6 earlier: the graph has moved 6 left.
-- **Misconceptions used:** 5. Stretches by 1/a first and then translates by −b, so the image is at p/a − b instead of (p − b)/a; Stretches horizontally by scale factor a instead of 1/a; Translates the same way as the sign of b instead of the opposite way; Changes the y-coordinate of the point, though only the inputs are transformed; Reflects in the y-axis but forgets the translation that b brings.
+- **Misconceptions used:** 8. Stretches by 1/a first and then translates by −b, so the image is at p/a − b instead of (p − b)/a; Stretches horizontally by scale factor a instead of 1/a; Translates the same way as the sign of b instead of the opposite way; Changes the y-coordinate of the point, though only the inputs are transformed; Reflects in the y-axis but forgets the translation that b brings; Translates by −b after reflecting, as for f(x + b), though f(b − x) = f(−(x − b)) translates by +b; Keeps the sign of b when moving it to the other side of the equation; Multiplies by a instead of dividing by a to get x on its own.
 
 ## Topic 1: Number and algebra (catalogue level)
 

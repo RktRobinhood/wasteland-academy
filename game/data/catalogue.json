@@ -88987,6 +88987,31 @@
 						"reflect-inside"
 					],
 					"wrong": "(−p, q)"
+				},
+				{
+					"text": "Translates by −b after reflecting, as for f(x + b), though f(b − x) = f(−(x − b)) translates by +b",
+					"as": "distractor",
+					"in": [
+						"reflect-inside"
+					],
+					"wrong": "(−p − b, q)"
+				},
+				{
+					"text": "Keeps the sign of b when moving it to the other side of the equation",
+					"as": "error-spot",
+					"in": [
+						"image-point",
+						"reflect-inside"
+					],
+					"wrong": "ax = p + b"
+				},
+				{
+					"text": "Multiplies by a instead of dividing by a to get x on its own",
+					"as": "error-spot",
+					"in": [
+						"image-point"
+					],
+					"wrong": "x = a(p − b)"
 				}
 			],
 			"frequency": 0
