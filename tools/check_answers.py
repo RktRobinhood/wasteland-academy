@@ -7462,7 +7462,10 @@ def check_gdc_curve(q):
         mx = [t for t in ts if t[2] == "max"]
         need(len(mx) == 1, "g has no single local maximum")
         c = M - mx[0][1]
-        gc_check_common(q, "c = " + gc_s(c), {}, gc_trap([c], "c = " + gc_s2(c)))
+        # The GDC's maximum added, or taken the wrong way round; M itself; M less the max's x.
+        T = q["view"]["type"] + "#"
+        cw = {T + "20": M + mx[0][1], T + "21": mx[0][1] - M, T + "22": M, GC_MM + "#0": M - mx[0][0]}
+        gc_check_common(q, "c = " + gc_s(c), {k_: {"c = " + gc_s(v_)} for k_, v_ in cw.items()}, gc_trap([c], "c = " + gc_s2(c)))
         return None, None
     if u == "solve-as-zeros":
         m = re.fullmatch(r"(.+) = (−?[\d.]+)", L[0])
@@ -7491,24 +7494,48 @@ def check_gdc_curve(q):
     zq = [sp.nsimplify(z, [], tolerance=1e-20, rational=True) if exact_x and abs(z - round(z)) < 1e-20 else z for z in zs]
     y0 = sp.nsimplify(fn.subs(X, 0)) if d1 <= 0 <= d2 else None
     trap = None
+    # This type's own misconceptions (FAL-1149): fn-sketch-gdc and fn-gdc-features share
+    # the views but number their lines apart.
+    T = q["view"]["type"] + "#"
+    sk = T == "fn-sketch-gdc#"
+    turns_xs = {gc_xs([t[0] for t in ts])} | ({gc_xs([t[0]]) for t in ts} if len(zq) == 1 else set())
     if u in ("label-zeros", "zeros-gdc", "zeros-with-x-factor", "solve-as-zeros"):
         want = gc_xs(zq)
         trap = gc_trap(zq, gc_xs2(zq))
         if u in ("label-zeros", "zeros-gdc") and y0 is not None:
             wr[GC_ZI + "#0"] = {gc_xs(zq[:i] + [y0] + zq[i + 1:]) for i in range(len(zq))}
+        # Every zero's sign changed: the factorised read's slip, and the quadratic formula's.
+        flipped = gc_xs([-z for z in zq])
         if u == "label-zeros" and g["fam"] == "product":
-            wr[GC_ZI + "#1"] = {gc_xs([R(g["p"]), -R(g["q"])])}
+            wr[GC_ZI + "#1"] = {gc_xs([R(g["p"]), -R(g["q"])]), flipped}
+        if u == "zeros-gdc" and g["fam"] == "product":
+            wr[GC_ZI + "#1"] = {flipped}
         if u == "zeros-gdc":
             wr[GC_SG + "#0"] = {gc_xs([z for z in zq if abs(z) <= 10])}
+        if u == "label-zeros":
+            # The turning points' x for the zeros; the last zero missed.
+            wr[T + "12"] = turns_xs
+            if len(zq) > 1:
+                wr[T + "13"] = {gc_xs(zq[:-1])}
+        else:
+            # The turning points' x for the zeros; the first zero missed, a range too short.
+            wr[T + "8"] = turns_xs
+            if len(zq) > 1 and u != "zeros-with-x-factor":
+                wr.setdefault(GC_SG + "#0", set()).add(gc_xs(zq[1:]))
         if u == "zeros-with-x-factor":
             need(len(zq) == 3 and 0 in zq, "x-factor mode needs three zeros, one of them 0")
             wr[GC_ZI + "#2"] = {gc_xs([z for z in zq if z != 0])}
+            wr[GC_ZI + "#1"] = {flipped}
+            wr[T + "9"] = {gc_xs([0, z]) for z in zq if z != 0}
     elif u in ("label-y-intercept", "y-intercept"):
         need(y0 is not None, "0 is not in the domain")
         want = f"(0, {gc_s(y0)})"
         trap = gc_trap([y0], f"(0, {gc_s2(y0)})")
-        if u == "y-intercept":
-            wr[GC_ZI + "#0"] = {f"(0, {gc_s(z)})" for z in zq}
+        wr[GC_ZI + "#0"] = {f"(0, {gc_s(z)})" for z in zq}
+        # e^0 or cos 0 taken as 0, leaving the constant term; or the constant term left out.
+        cst = fn.as_independent(X, as_Add=True)[0]
+        wr[T + ("14" if sk else "13")] = {f"(0, {gc_s(cst)})"}
+        wr[T + ("15" if sk else "14")] = {f"(0, {gc_s(y0 - cst)})"}
     elif u in ("label-turning-point", "turning-point-coordinates", "extreme-value-only"):
         word = "maximum" if "local maximum" in asked else "minimum"
         t = [t for t in ts if t[2] == word[:3]]
@@ -7516,14 +7543,20 @@ def check_gdc_curve(q):
         tx, ty = t[0][:2]
         if g["fam"] == "bellform":
             tx, ty = R(g["h"]), R(g["A"]) + R(g["c"])
+        others = [o for o in ts if o[2] != word[:3]]
         if u == "extreme-value-only":
             want = gc_s(ty)
             trap = gc_trap([ty], gc_s2(ty))
             wr[GC_MM + "#0"] = {gc_s(tx)}
+            wr[T + "11"] = {gc_s(o[1]) for o in others}
         else:
             want = gc_pt(tx, ty)
             trap = gc_trap([tx, ty], f"({gc_s2(tx)}, {gc_s2(ty)})")
             wr[GC_MM + "#0"] = {f"({gc_s(tx)}, 0)"}
+            # (y, x); the other kind of turning point; a zero as the turning point.
+            wr[T + ("16" if sk else "10")] = {gc_pt(ty, tx)}
+            wr[T + ("17" if sk else "11")] = {gc_pt(o[0], o[1]) for o in others}
+            wr[T + ("18" if sk else "12")] = {f"({gc_s(z)}, 0)" for z in zq}
             if u == "turning-point-coordinates":
                 tr = [o for o in q["choices"] if o.get("trap")]
                 need(all(o["ref"] == GC_MM + "#2" for o in tr), "the 2 s.f. trap doesn't log SL2.4.max-min#2")
@@ -7531,6 +7564,8 @@ def check_gdc_curve(q):
         want = " and ".join(gc_pt(*e) for e in ends)
         trap = gc_trap([e[1] for e in ends], " and ".join(f"({gc_s2(e[0])}, {gc_s2(e[1])})" for e in ends))
         wr[GC_SIT + "#1"] = {f"{gc_pt(d1 - 1, f(mpmath.mpf(d1 - 1)))} and {gc_pt(d2 + 1, f(mpmath.mpf(d2 + 1)))}"}
+        if len(ends) == 2:
+            wr[T + "11"] = {f"{gc_pt(ends[0][0], ends[1][1])} and {gc_pt(ends[1][0], ends[0][1])}"}
     elif u == "greatest-on-domain":
         cands = [(t[1], "turn") for t in ts] + [(e[1], "end") for e in ends]
         top = max(cands, key=lambda c_: c_[0])
@@ -7539,6 +7574,8 @@ def check_gdc_curve(q):
         need(mx and top[0] - mx[0][1] >= sp.Rational(1, 2), "the endpoint is not clearly above the local maximum")
         want, trap = gc_s(top[0]), gc_trap([top[0]], gc_s2(top[0]))
         wr[GC_MM + "#1"] = {gc_s(t[1]) for t in mx}
+        # An x-coordinate for the value: the highest end's, or the local maximum's.
+        wr[GC_MM + "#0"] = {gc_s(max(ends, key=lambda e: e[1])[0])} | {gc_s(t[0]) for t in mx}
     elif u == "window-for-domain":
         def window(o):
             m_ = re.fullmatch(r"Xmin = (−?\d+), Xmax = (−?\d+), Ymin = (−?\d+), Ymax = (−?\d+)", o)
@@ -7551,6 +7588,12 @@ def check_gdc_curve(q):
         need(len(good) == 1, f"{len(good)} windows show the whole graph without squashing it")
         want = good[0]
         wr[GC_SIT + "#2"] = {"Xmin = −10, Xmax = 10, Ymin = −10, Ymax = 10"}
+        # From the right window: Ymin = 0 when the graph goes below the x-axis; the x and y
+        # ranges swapped.
+        wn = [frac_text(v) for v in window(want)]
+        if lo_y < 0:
+            wr[T + "19"] = {f"Xmin = {wn[0]}, Xmax = {wn[1]}, Ymin = 0, Ymax = {wn[3]}"}
+        wr[T + "20"] = {f"Xmin = {wn[2]}, Xmax = {wn[3]}, Ymin = {wn[0]}, Ymax = {wn[1]}"}
     elif u == "judge-a-sketch":
         labs = g["labels"]
         need(len(labs) == 4 and sum(1 for lb in labs if lb["bad"]) == 1, "the sketch doesn't have one wrong label among four")
@@ -7584,6 +7627,7 @@ def check_gdc_curve(q):
             wr[GC_NS + "#0"] = {str(n + 1)}
         ext = gc_count(gc_pieces(fn, (d1 + sp.Rational(1, 10**6)) if open_left else d1 - 3, d2 + 3, lo_open), k)
         wr[GC_NS + "#1"] = {str(ext)}
+        wr[T + "21"] = {str(len(zs))}
     elif u == "k-for-count":
         lo_open = d1 if open_left else None
         ks = gc_kset(gc_pieces(fn, d1 + (sp.Rational(1, 10**6) if open_left else 0), d2, lo_open), 2)
@@ -7593,20 +7637,37 @@ def check_gdc_curve(q):
         ext = gc_kset(gc_pieces(fn, (d1 + sp.Rational(1, 10**6)) if open_left else d1 - 3, d2 + 3, lo_open), 2)
         if ext is not None:
             wr[GC_NS + "#1"] = {gc_range2(ext)}
+        # The right ends with < and ≤ wrong at one or both; the least to the greatest value.
+        wr[T + "22"] = {gc_range2((ks[0], a_, ks[2], b_)) for a_ in (True, False) for b_ in (True, False)} - {want}
+        if not open_left:
+            lv = [t[1] for t in ts] + [e[1] for e in ends]
+            wr[T + "23"] = {gc_range2((min(lv), True, max(lv), True))}
     elif u == "count-zeros":
         want = str(len(zs))
         wr[GC_SG + "#0"] = {str(sum(1 for z in zs if abs(z) <= 10))}
+        wr[T + "8"] = {str(len(ts))}
     elif u == "zero-from-table":
         xs_, ys_ = gc_table(q, f)
         z = max(zs)
         need(sum(1 for i in range(len(ys_) - 1) if ys_[i] * ys_[i + 1] < 0) == len(zs), "the table doesn't show each zero as a sign change")
         want, trap = "x = " + gc_s(z), gc_trap([z], "x = " + gc_s2(z))
+        # The table's x either side of the sign change, or their midpoint; the least zero.
+        i = max(i for i in range(len(xs_) - 1) if xs_[i] < z < xs_[i + 1])
+        wr[T + "15"] = {"x = " + gc_s(xs_[i]), "x = " + gc_s(xs_[i + 1])}
+        wr[T + "16"] = {"x = " + gc_s((xs_[i] + xs_[i + 1]) / 2)}
+        if len(zs) > 1:
+            wr[T + "17"] = {"x = " + gc_s(min(zs))}
+        else:
+            wr[T + "8"] = {"x = " + gc_s(t[0]) for t in ts}
     elif u == "use-stored-zeros":
         need(len(zs) == 2, "use-stored-zeros needs two zeros")
         dz = zs[1] - zs[0]
         want, trap = gc_s(dz), gc_trap([dz], gc_s2(dz))
         r = sp.Rational(sig3(sp.Float(zs[1], 30))) - sp.Rational(sig3(sp.Float(zs[0], 30)))
         wr[GC_SG + "#1"] = {gc_s(r)}
+        # The zeros added; one zero's distance from the origin.
+        wr[T + "18"] = {gc_s(abs(zs[0] + zs[1]))}
+        wr[T + "19"] = {gc_s(abs(zs[0])), gc_s(abs(zs[1]))}
     else:
         raise Fail(f"the checker has no gdc-curve check for {u}")
     # The engine's own answer values say the same, to its nine decimal places.
@@ -8335,6 +8396,9 @@ def check_graph_from_features(q):
         d = "opens upwards" if a > 0 else "opens downwards"
         desc = lambda dd: f"vertex {pt(h, k)}, roots {frac_text(r1)} and {frac_text(r2)}, y-intercept {frac_text(c)}, {dd}"
         wr = {GF_SK + "#0": {desc("opens upwards")}} if a < 0 else {}
+        # The vertex written (k, h); the vertex's height taken as the y-intercept.
+        wr["fn-sketch-from-features#6"] = {f"vertex {pt(k, h)}, roots {frac_text(r1)} and {frac_text(r2)}, y-intercept {frac_text(c)}, {d}"}
+        wr[GF_SK + "#2"] = {f"vertex {pt(h, k)}, roots {frac_text(r1)} and {frac_text(r2)}, y-intercept {frac_text(k)}, {d}"}
         gc_check_common(q, desc(d), wr)
         return None, None
     if u == "judge-a-sketch":
@@ -8349,7 +8413,8 @@ def check_graph_from_features(q):
         else:
             need(gc_curve_is(gr, lambda x: k - k * abs(x - h) / abs(h - r1)), "the sketch is not a V at the vertex")
             want = "Its vertex is a sharp point: a parabola is smooth there."
-        gc_check_common(q, want, {GF_SK + "#2": {f"Its vertex should be on the y-axis, at {pt(0, c)}."}})
+        gc_check_common(q, want, {GF_SK + "#2": {f"Its vertex should be on the y-axis, at {pt(0, c)}."},
+                                  "fn-sketch-from-features#7": {"Nothing: the sketch is right."}})
         return None, None
     raise Fail(f"the checker has no graph-from-features check for {u}")
 
@@ -8366,7 +8431,10 @@ def iq_sets(cs, d1, d2, v="x"):
     a, b = gc_s(cs[0][0]), gc_s(cs[1][0])
     D1, D2 = frac_text(d1), frac_text(d2)
     return {"inside": f"{a} < {v} < {b}", "outside": f"{D1} ≤ {v} < {a} or {b} < {v} ≤ {D2}", "right": f"{b} < {v} ≤ {D2}",
-            "points": f"{v} = {a} or {v} = {b}"}
+            "left": f"{D1} ≤ {v} < {a}", "closed": f"{a} ≤ {v} ≤ {b}", "points": f"{v} = {a} or {v} = {b}"}
+
+
+IQ_SIDES, IQ_ENDS = "fn-ext-inequality-graphical#3", "fn-ext-inequality-graphical#4"
 
 
 def check_gdc_inequality(q):
@@ -8402,13 +8470,23 @@ def check_gdc_inequality(q):
         need(inside or st["outside"] in asked, "the set asked is not one the crossings make")
         want_rel = ">" if inside == above_mid else "<"
         fs, gs = m.group(1), m.group(2)
-        gc_check_common(q, f"{fs} {want_rel} {gs}", {})
+        # The sign reversed; the equation of the crossings; the ends put in (≥ or ≤).
+        gc_check_common(q, f"{fs} {want_rel} {gs}", {IQ_SIDES: {f"{fs} {'<' if want_rel == '>' else '>'} {gs}"},
+                                                     IQ_IE + "#0": {f"{fs} = {gs}"},
+                                                     IQ_ENDS: {f"{fs} {'≥' if want_rel == '>' else '≤'} {gs}"}})
         return None, None
     inside = (rel == ">") == above_mid
     want = st["inside"] if inside else st["outside"]
-    wr = {IQ_IE + "#0": {st["points"]}, IQ_IE + "#1": {st["inside"]}, IQ_IE + "#2": {st["right"]}}
+    wr = {IQ_IE + "#0": {st["points"]}, IQ_IE + "#1": {st["inside"]}, IQ_IE + "#2": {st["right"], st["left"]}}
     if inside:
         wr.pop(IQ_IE + "#1")
+        wr.pop(IQ_IE + "#2")
+        # Every inequality is strict. The other side, f and g swapped; the crossings put in.
+        wr[IQ_SIDES] = {st["outside"]}
+        wr[IQ_ENDS] = {st["closed"]}
+    else:
+        # Exactly the set where the inequality fails, the crossings with it.
+        wr[IQ_SIDES] = {st["closed"]}
     gc_check_common(q, want, wr)
     return None, None
 
@@ -8630,6 +8708,7 @@ def check_graph_match(q):
 # cubic's from f′ = 0 and f″.
 
 LE_SIGN = r"(?: ([+−]) (\d+))?"
+LE_T = "fn-link-extremes#"
 
 
 def le_signed(sign, n):
@@ -8669,7 +8748,8 @@ def check_link_extremes(q):
         need(all(not r.is_rational for r in sp.solve(h, X)), "the roots are not surds")
         say = lambda what, v, t: f"a {what} of {ft(v)} m at t = {ft(t)} s"
         want = say("maximum", H, T)
-        wr = {"SL2.4.max-min#0": {say("maximum", T, H)}, "SL2.6.vertex#2": {say("minimum", H, T)}}
+        wr = {"SL2.4.max-min#0": {say("maximum", T, H)}, "SL2.6.vertex#2": {say("minimum", H, T)},
+              LE_T + "14": {say("maximum", h.subs(X, 0), 0)}}
         le_graph_is(q, h)
     elif u in ("wave-extremes", "wave-max-point"):
         A, B, D = le_wave(asked)
@@ -8681,10 +8761,22 @@ def check_link_extremes(q):
             want = say(hi, lo)
             amp = abs(A)
             wr["SL3.7.read-features#1"] = {say(amp, -amp), say(D + abs(A + D), D - abs(A + D))}
+            # sin taken as 0 to 1 (A > 0 only): A·sin runs from 0 to A, so D to D + A.
+            if A > 0:
+                wr[LE_T + "15"] = {say(D + A, D)}
         else:
             first = min(sp.solveset(sp.Eq(f, hi), X, sp.Interval.open(0, 2 * sp.pi)))
             want = "x = " + ext_pi(first / sp.pi)
             wr["SL3.7.read-features#0"] = {"x = " + ft(sp.Rational(B * (1 if A > 0 else 3), 4))}
+            # The first max of A·sin(x) + D, B not divided out; where sin(Bx) peaks, the
+            # sign of A ignored; the first min; the period 2π/B.
+            base = A * sp.sin(X) + D
+            wr[LE_T + "16"] = {"x = " + ext_pi(min(sp.solveset(sp.Eq(base, sp.maximum(base, X, per)), X, sp.Interval.open(0, 2 * sp.pi))) / sp.pi)}
+            if A < 0:
+                wr["SL3.7.read-features#8"] = {"x = " + ext_pi(sp.pi / (2 * B) / sp.pi)}
+            else:
+                wr[LE_T + "18"] = {"x = " + ext_pi(min(sp.solveset(sp.Eq(f, lo), X, sp.Interval.open(0, 2 * sp.pi))) / sp.pi)}
+            wr[LE_T + "19"] = {"x = " + ext_pi(sp.Rational(2, B))}
         if q["view"]["rep"] == "graph":
             need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the graph drawn is not the wave")
     elif u == "range-from-extremes":
@@ -8695,6 +8787,8 @@ def check_link_extremes(q):
         say = lambda a, d: f"amplitude {ft(a)}, principal axis y = {ft(d)}"
         want = say(sol[A_], sol[D_])
         wr["SL3.7.read-features#1"] = {say(abs(hi), sol[D_])}
+        wr[LE_T + "20"] = {say(hi - lo, sol[D_])}
+        wr[LE_T + "21"] = {say(sol[A_], 0)}
     elif u == "tangent-means-touch":
         ml = re.search(r"The line y = mx" + LE_SIGN + r" is a tangent", asked)
         mc = re.search(r"to the curve y = x²" + LE_SIGN + r"\.", asked)
@@ -8710,6 +8804,12 @@ def check_link_extremes(q):
             parts.append(f"m = {ft(mv)} at ({ft(xs[0])}, {ft(xs[0] ** 2 + r)})")
         want = " or ".join(parts)
         wr["SL5.4.tangency-condition#1"] = {f"m < {ft(ms[0])} or m > {ft(ms[1])}"}
+        # The positive root alone; each m with the other's point; m² taken as m.
+        pts = [parts[0].split(" at ")[1], parts[1].split(" at ")[1]]
+        wr[LE_T + "22"] = {parts[1] + " only"}
+        wr[LE_T + "23"] = {f"m = {ft(ms[0])} at {pts[1]} or m = {ft(ms[1])} at {pts[0]}"}
+        m2 = ms[1] ** 2
+        wr[LE_T + "24"] = {f"m = {ft(-m2)} or m = {ft(m2)}"}
         if q["view"]["rep"] == "graph":
             need(gc_curve_is(q["graph"]["curves"][0], gc_f(X**2 + r)), "the curve drawn is not the parabola")
     elif u == "endpoint-beats-vertex":
@@ -8736,6 +8836,9 @@ def check_link_extremes(q):
         say = lambda ya, yb: f"maximum ({ft(mx)}, {ft(ya)}), minimum ({ft(mn)}, {ft(yb)})"
         want = say(f.subs(X, mx), f.subs(X, mn))
         wr["SL5.8.find-stationary-points#2"] = {say(0, 0)}
+        # Max and min swapped; the roots of f′ read with their signs changed.
+        wr[LE_T + "25"] = {f"maximum ({ft(mn)}, {ft(f.subs(X, mn))}), minimum ({ft(mx)}, {ft(f.subs(X, mx))})"}
+        wr[LE_T + "26"] = {f"maximum ({ft(-mn)}, {ft(f.subs(X, -mn))}), minimum ({ft(-mx)}, {ft(f.subs(X, -mx))})"}
         le_graph_is(q, f)
     else:
         raise Fail(f"no check for {u}")
