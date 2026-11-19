@@ -260,6 +260,18 @@ static func near(p: float, scale: float = 1.0) -> Array:
 	return vs(out)
 
 
+## The probability a student gets by rounding each z to 2 d.p. or 3 s.f. before the
+## area (#194), as the answer's premature values.
+static func premature_p(ans: Dictionary, s: Dictionary) -> void:
+	var alts: Array = []
+	for how in Answer.Z_ROUNDINGS:
+		var top := 1.0 if not s.has("zhi") else NormalProbabilitySituation.phi(Answer.round_z(s.zhi, how))
+		var low := 0.0 if not s.has("zlo") else NormalProbabilitySituation.phi(Answer.round_z(s.zlo, how))
+		var inside := top - low
+		alts.append({"v": qf(1.0 - inside if s.get("kind", "") == "out" else inside)})
+	Answer.add_premature(ans, alts)
+
+
 static func wrong_x(x: float, ref: String) -> Dictionary:
 	return wrong({"v": qf(x)}, ref)
 
@@ -276,6 +288,7 @@ func _chosen(rep: String, s: Dictionary) -> Dictionary:
 	elif rep == "diagram":
 		asked = "Find the probability shown by the shaded area."
 	var ans := sf_ans("probability = ", s.p)
+	premature_p(ans, s)
 	var out := _question(rep, s, lines, asked, ans)
 	out.wrongs = [wrong_x(s.other, R_OTHER)]
 	out.fillers = near(s.p)

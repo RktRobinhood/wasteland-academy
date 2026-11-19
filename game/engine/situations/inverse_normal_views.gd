@@ -190,11 +190,13 @@ func tail_methods(rep: String, s: Dictionary, letter: String, ans: Dictionary, f
 		"sketch-tail": method(sketch + [invnorm_line(s, letter), final_step(ans)], ans.values)}
 
 
-## The slips of a plain value: the mirror (near, so it is always offered), then in the seed's
+## The slips of a plain value, and the values a z rounded midway gives: the mirror (near, so it is always offered), then in the seed's
 ## order the others, which sit far from the mean and would give the answer away together.
 func tail_options(out: Dictionary, s: Dictionary, near_ref: String, area: Q, rng: Seeded) -> void:
 	var far: Array = [wx(s.no_sd, IN_NO_SD), wx(s.z, IN_Z_OR_P), wx(area.to_float(), IN_Z_OR_P), wx(s.cdf, IN_CDF)]
 	out.wrongs = [wx(s.flip, near_ref)] + rng.shuffled(far)
+	# Through z, a z rounded midway lands off the value (#194).
+	Answer.add_premature(out.answer, Answer.rounded_z(s.z).map(func(z): return {"v": qf(s.muf + z * s.sgf)}))
 	out.fillers = vs([s.x + 0.5 * s.sgf, s.x - 0.5 * s.sgf, s.x + 0.25 * s.sgf, s.x - 0.25 * s.sgf])
 
 

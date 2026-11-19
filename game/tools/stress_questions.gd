@@ -144,6 +144,10 @@ func _check(q: Dictionary, name: String) -> int:
 	var ans: Dictionary = q.answer
 	if ans.kind in Answer.MC_ONLY:
 		return short
+	# A whole-number key of 1,000 or more is exact or takes 3 s.f. on purpose (#194).
+	var whole := Answer.whole_key_unlisted(ans, q.view.type, q.view.unknown)
+	if whole != "":
+		fails.append("%s: %s" % [name, whole])
 	var r := QuestionEngine.mark(q, _typed(ans, ans.values))
 	if not r.correct:
 		fails.append("%s: exact typed answer marked wrong: %s" % [name, q.answer_text])

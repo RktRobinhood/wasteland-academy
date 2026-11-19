@@ -267,7 +267,10 @@ func test_glancing_marking() -> void:
 	check(not m.correct and m.glancing, "0.67 for 2/3 is a glancing hit")
 	check(Answer.mark(ans, {"v": "0.667"}).correct, "0.667 is right")
 	ans.exact = true
-	check(not Answer.mark(ans, {"v": "0.67"}).glancing, "an exact-only answer has no glancing hit")
+	# An exact-only answer's rounded form is glancing for its form, with a note (#194).
+	var exact := Answer.mark(ans, {"v": "0.67"})
+	check(exact.glancing and exact.note == Answer.EXACT_NOTE, "an exact-only answer's rounded form says it needs the exact value")
+	check(not Answer.mark(ans, {"v": "0.6"}).glancing, "a wrong decimal is still wrong")
 
 
 func test_the_exp_model_rounding_trap_reads_at_2_sf() -> void:
