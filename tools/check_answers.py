@@ -48997,6 +48997,368 @@ def cpl_check(q):
 SITUATION_CHECKS["complex-polar"] = cpl_check
 
 
+# t1-ahl-de-moivre (FAL-1005): every number is read back from the lines and the question, and
+# the answer and each slip are worked out again with SymPy: a power by z**n, the least power by
+# trying n = 1, 2, … on z**n itself, the roots by solving zⁿ = w, the polygon from its vertices,
+# the identities by expanding (cos θ + i sin θ)ⁿ and (z ± 1/z)ⁿ symbolically, and the proof
+# from its own six lines. Every name here starts DMV_ or dmv_.
+
+DMV_P = "AHL1.14.de-moivre-powers#"
+DMV_R = "AHL1.14.nth-roots#"
+DMV_M = "AHL1.14.multiple-angle-identities#"
+DMV_I = "AHL1.14.de-moivre-induction#"
+DMV_T = "t1-ahl-de-moivre#"
+DMV_SUPS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+DMV_KINDS = {"real": "real", "purely imaginary": "imaginary", "a positive real number": "positive", "a negative real number": "negative"}
+DMV_OTHER = {"real": "imaginary", "imaginary": "real", "positive": "negative", "negative": "positive"}
+DMV_QUAD = {"first": 1, "second": 2, "third": 3, "fourth": 4}
+DMV_TH = sp.Symbol("t", real=True)
+
+
+def dmv_sup(n):
+    return "" if n == 1 else "".join(DMV_SUPS[int(ch)] for ch in str(n))
+
+
+def dmv_number(t):
+    """A number written either way: polar (r, c, style) or Cartesian (z, None, None)."""
+    if "cis(" in t or "e^(" in t:
+        r, c, style = cpl_polar(t)
+        return cpl_cis(r, c), c, style
+    return cx_parse(t), None, None
+
+
+def dmv_is(z, kind):
+    z = sp.expand(z)
+    a, b = sp.simplify(sp.re(z)), sp.simplify(sp.im(z))
+    return {"real": b == 0, "imaginary": a == 0 and b != 0, "positive": b == 0 and a > 0, "negative": b == 0 and a < 0}[kind]
+
+
+def dmv_least(z, kind, top=48):
+    """The least n ≥ 1 with zⁿ of the kind, tried power by power, or 0."""
+    w = sp.Integer(1)
+    for n in range(1, top + 1):
+        w = sp.expand(w * z)
+        if dmv_is(w, kind):
+            return n
+    return 0
+
+
+def dmv_style_of(asked):
+    if "re^(iθ)" in asked:
+        return "euler"
+    if "r cis θ" in asked:
+        return "cis"
+    return None
+
+
+def dmv_roots(w, n):
+    """The n roots of zⁿ = w: their modulus and their principal arguments, least first."""
+    rho = sp.simplify(sp.Abs(w) ** sp.Rational(1, n))
+    phi = cpl_arg(w)
+    args = sorted(cpl_principal((phi + 2 * k) / n) for k in range(n))
+    for c in args:
+        need(abs(complex(sp.N(cpl_cis(rho, c) ** n - w, 30))) < 1e-20, "a root doesn't solve the equation")
+    return rho, phi, args
+
+
+def dmv_list(items):
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " or " + items[-1]
+
+
+def dmv_try(f):
+    """A slip's text, or None where its value isn't one surd per part (the game can't offer it)."""
+    try:
+        return f()
+    except (Fail, TypeError):
+        return None
+
+
+def dmv_lead(cf, body):
+    a = abs(cf)
+    if body == "":
+        return str(a)
+    return ("" if a == 1 else str(a)) + body
+
+
+def dmv_join(terms):
+    """[(coefficient, unsigned text)] joined with signs, highest first unless it is negative."""
+    terms = [t for t in terms if t[0] != 0]
+    if terms[0][0] < 0:
+        terms = terms[::-1]
+    out = ""
+    for i, (cf, body) in enumerate(terms):
+        out += ("−" if cf < 0 else "") if i == 0 else (" − " if cf < 0 else " + ")
+        out += body
+    return out
+
+
+def dmv_pow_text(fn, e, L):
+    return "" if e == 0 else (f"{fn} {L}" if e == 1 else f"{fn}{dmv_sup(e)}{L}")
+
+
+def dmv_poly(fn, n, L, coef=True, sign=True):
+    """cos nθ or sin nθ as a polynomial in cos θ or sin θ, from (cos θ + i sin θ)ⁿ expanded
+    with sp.binomial, the slip versions leaving out the binomial coefficients or i²'s sign."""
+    C, S = sp.symbols("C S", real=True)
+    tot = sp.expand(sum((sp.binomial(n, k) if coef else 1) * C ** (n - k) * S ** k * (sp.I ** k if sign else (sp.I if k % 2 else 1))
+                        for k in range(n + 1)))
+    part = sp.re(tot) if fn == "cos" else sp.im(tot)
+    # Only even powers of the other function are left: replace them by Pythagoras.
+    p = sp.expand(part.subs(S, sp.sqrt(1 - C ** 2))) if fn == "cos" else sp.expand(part.subs(C, sp.sqrt(1 - S ** 2)))
+    x = C if fn == "cos" else S
+    p = sp.Poly(p, x)
+    terms = [(int(p.coeff_monomial(x ** e)), dmv_lead(int(p.coeff_monomial(x ** e)), dmv_pow_text(fn, e, L))) for e in range(n, -1, -1)]
+    return dmv_join(terms), p.as_expr().subs(x, sp.cos(DMV_TH) if fn == "cos" else sp.sin(DMV_TH))
+
+
+def dmv_reduce(fn, n, L, coef=True, divide=True, with_i=True):
+    """cosⁿθ or sinⁿθ in multiple angles: (z ± 1/z)ⁿ expanded, each z^m paired with z^(−m)."""
+    z = sp.Symbol("z")
+    s, d = (1, 2) if fn == "cos" else (-1, 2 * sp.I if with_i else 2)
+    tot = sum((sp.binomial(n, k) if coef else 1) * s ** k * z ** (n - 2 * k) for k in range(n + 1))
+    tot = sp.expand(tot / (d ** n if divide else (d / 2) ** n))
+    P = sp.Poly(sp.expand(tot * z ** n), z)
+    a = {m: sp.expand(P.coeff_monomial(z ** (m + n))) for m in range(-n, n + 1)}
+    kind = "sin" if fn == "sin" and n % 2 == 1 else "cos"
+    co = {0: sp.nsimplify(a[0])}
+    for m in range(1, n + 1):
+        # a z^m + b z^(−m) = (a + b) cos mθ + i(a − b) sin mθ.
+        co[m] = sp.nsimplify(a[m] + a[-m] if kind == "cos" else (sp.I * (a[m] - a[-m]) if with_i else a[m] - a[-m]))
+    for v in co.values():
+        need(v.is_rational, f"{fn}{n}: a coefficient {v} is not rational")
+    den = sp.ilcm(*[sp.Rational(v).q for v in co.values()])
+    terms = []
+    for m in range(n, -1, -1):
+        v = int(co[m] * den)
+        if v:
+            terms.append((v, dmv_lead(v, "" if m == 0 else f"{kind} {'' if m == 1 else m}{L}")))
+    body = dmv_join(terms)
+    return (body if den == 1 else f"({body})/{den}"), kind, co
+
+
+def dmv_proof(L, kind):
+    c = f"cos {L} + i sin {L}"
+    step = f"= cos(k + 1){L} + i sin(k + 1){L}, {'by the compound-angle formulae, ' if kind == 'compound' else ''}so the statement is true for n = k + 1."
+    four = (f"= (cos k{L} cos {L} − sin k{L} sin {L}) + i(sin k{L} cos {L} + cos k{L} sin {L})" if kind == "compound"
+            else f"= cos(k{L} + {L}) + i sin(k{L} + {L}), multiplying the moduli and adding the arguments")
+    return [f"When n = 1, both sides are {c}, so the statement is true for n = 1.",
+            f"Assume ({c})^k = cos k{L} + i sin k{L} for some positive integer k.",
+            f"Then ({c})^(k + 1) = (cos k{L} + i sin k{L})({c})", four, step,
+            "It is true for n = 1, and if it is true for n = k it is true for n = k + 1, so by induction it is true for every positive integer n."]
+
+
+def dmv_check(q):
+    u, L, asked, angle = q["view"]["unknown"], q["lines"], q["asked"], q["view"]["angle"]
+    need(q["paper"] == (2 if angle.startswith("gdc-") else 1), f"Paper {q['paper']}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+
+    def slip(ref, text):
+        if text is not None:
+            wrongs.setdefault(ref, set()).add(text)
+
+    if u in ("power-polar", "power-cartesian", "least-power"):
+        need(len(L) == 1 and L[0].startswith("z = "), f"lines {L!r}")
+        z, c0, style = dmv_number(L[0][4:])
+        r, c = sp.simplify(sp.Abs(z)), cpl_arg(z)
+        need(c0 is None or cpl_principal(c0) == c, "z's argument is not principal")
+    if u == "power-polar":
+        m = re.fullmatch(r"Write z([⁰¹²³⁴⁵⁶⁷⁸⁹]+) in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        n, st = cx_sup(m.group(1)), CPL_FORM[m.group(2)]
+        need(n >= 2, "a power below 2")
+        P = sp.expand(z ** n)
+        R, C = sp.simplify(sp.Abs(P)), cpl_arg(P)
+        head = f"z{dmv_sup(n)} = "
+        want = head + cpl_p(R, C, st)
+        slip(DMV_P + "0", head + cpl_p(R, c, st))
+        slip(DMV_P + "1", head + cpl_p(n * r, C, st))
+        if n * c != C:
+            slip(DMV_T + "12", head + cpl_p(R, n * c, st))
+        if r != 1:
+            slip(DMV_T + "13", head + cpl_p(r, C, st))
+    elif u == "power-cartesian":
+        m = re.fullmatch(r"Find z([⁰¹²³⁴⁵⁶⁷⁸⁹]+) in the form a \+ bi\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        n = cx_sup(m.group(1))
+        need(c0 is None, "z is not in Cartesian form")
+        P = sp.expand(z ** n)
+        R, C = sp.simplify(sp.Abs(P)), cpl_arg(P)
+        head = f"z{dmv_sup(n)} = "
+        want = head + cpl_c(P)
+        slip(DMV_P + "0", dmv_try(lambda: head + cpl_c(cpl_cis(R, c))))
+        slip(DMV_P + "1", dmv_try(lambda: head + cpl_c(cpl_cis(n * r, C))))
+        slip(DMV_P + "2", dmv_try(lambda: head + cpl_c(sp.re(z) ** n + (sp.I * sp.im(z)) ** n)))
+        if angle == "gdc-power":
+            need(sp.re(P).is_integer and sp.im(P).is_integer, "a GDC power without whole parts")
+    elif u == "least-power":
+        m = re.fullmatch(r"Find the least positive integer n for which z\^n is (.+)\.", asked)
+        need(m is not None and m.group(1) in DMV_KINDS, f"asked {asked!r}")
+        kind = DMV_KINDS[m.group(1)]
+        n = dmv_least(z, kind)
+        need(n >= 2, f"the least n is {n}")
+        want = f"n = {n}"
+        if kind == "real":
+            k = dmv_least(z, "positive")
+            if k and k != n:
+                slip(DMV_T + "14", f"n = {k}")
+        k = dmv_least(z, DMV_OTHER[kind])
+        if k and k != n:
+            slip(DMV_T + "15", f"n = {k}")
+        if c0 is None and cpl_quadrant(c) in (2, 3):
+            w = sp.Abs(z) * sp.exp(sp.I * sp.atan(sp.im(z) / sp.re(z)))
+            k = dmv_least(sp.expand(sp.expand_complex(w)), kind)
+            if k and k != n:
+                slip(DMV_T + "16", f"n = {k}")
+        for o in q["choices"]:
+            need(int(o["text"][4:]) >= 1, f"option {o['text']!r} is not a positive integer")
+    elif u in ("nth-root", "all-roots", "roots-polygon"):
+        m = re.fullmatch(r"z([⁰¹²³⁴⁵⁶⁷⁸⁹]+) = (.+)", L[0]) if len(L) == 1 else None
+        need(m is not None, f"lines {L!r}")
+        n = cx_sup(m.group(1))
+        w, _, _ = dmv_number(m.group(2))
+        rho, phi, args = dmv_roots(w, n)
+        need(rho.is_integer, f"the roots' modulus {rho} is not whole")
+        big = sp.Abs(w)
+        mdiv = big / n if (big / n).is_integer and big / n != rho else None
+        half = sorted((phi + k) / n for k in range(n))
+        if u == "nth-root":
+            m = re.fullmatch(r"(Find the root of this equation with the least positive argument\.|Find the root of this equation with the greatest argument\.|"
+                             r"One root of this equation lies in the (first|second|third|fourth) quadrant\. Find this root\.) "
+                             r"Give it in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            st = CPL_FORM[m.group(3)]
+
+            def pick(cs):
+                if "least positive" in asked:
+                    pos = [x for x in cs if x > 0]
+                    return pos[0] if pos else None
+                if "greatest" in asked:
+                    return cs[-1]
+                inq = [x for x in cs if cpl_quadrant(x) == DMV_QUAD[m.group(2)]]
+                return inq[0] if len(inq) == 1 else None
+            C = pick(args)
+            need(C is not None, "no root fits the question, or two do")
+            want = "z = " + cpl_p(rho, C, st)
+            if phi / n != C:
+                slip(DMV_R + "0", "z = " + cpl_p(rho, phi / n, st))
+            if mdiv is not None:
+                slip(DMV_R + "1", "z = " + cpl_p(mdiv, C, st))
+            h = pick(half)
+            if h is not None and h != C:
+                slip(DMV_T + "17", "z = " + cpl_p(rho, h, st))
+        elif u == "all-roots":
+            m = re.fullmatch(r"Find all the roots of this equation, giving them in the form (re\^\(iθ\), where r > 0 and −π < θ ≤ π|r cis θ, where r > 0 and −π < θ ≤ π|a \+ bi)\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            st = dmv_style_of(m.group(1))
+
+            def text(R, cs):
+                return "z = " + dmv_list([cpl_p(R, x, st) if st else cpl_c(cpl_cis(R, x)) for x in cs])
+            want = text(rho, args)
+            slip(DMV_R + "0", "z = " + (cpl_p(rho, phi / n, st) if st else cpl_c(cpl_cis(rho, phi / n))) + " only")
+            if mdiv is not None:
+                slip(DMV_R + "1", dmv_try(lambda: text(mdiv, args)))
+            if st:
+                slip(DMV_R + "2", "z = " + dmv_list([cpl_p(rho, phi / n + 2 * k, st) for k in range(n)]))
+            slip(DMV_T + "17", dmv_try(lambda: text(rho, half)))
+        else:
+            need(n in (3, 4, 6), f"a polygon with {n} sides")
+            m = re.fullmatch(r"The roots of this equation are the vertices of a regular polygon on the Argand diagram\. Find the exact (length of each side|area|perimeter) of the polygon\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            what = {"length of each side": "side", "area": "area", "perimeter": "perimeter"}[m.group(1)]
+            head = {"side": "Side = ", "area": "Area = ", "perimeter": "Perimeter = "}[what]
+            pts = [cpl_cis(rho, x) for x in args]
+
+            def measure(ps):
+                side = sp.sqrt(sp.simplify(sp.expand(sp.Abs(ps[1] - ps[0]) ** 2)))
+                if what == "side":
+                    return side
+                if what == "perimeter":
+                    return n * side
+                # The shoelace formula over the vertices in order of argument.
+                return sp.Abs(sp.nsimplify(sp.simplify(sum(sp.re(ps[i]) * sp.im(ps[(i + 1) % n]) - sp.re(ps[(i + 1) % n]) * sp.im(ps[i]) for i in range(n)) / 2)))
+            v = sp.nsimplify(sp.simplify(measure(pts)))
+            want = head + cpl_s(v)
+            if mdiv is not None:
+                slip(DMV_R + "1", head + cpl_s(sp.nsimplify(sp.simplify(measure([cpl_cis(mdiv, x) for x in args])))))
+            if n != 6:
+                # The radius taken as the side: the polygon with side ρ.
+                rad_side = {"side": rho, "perimeter": n * rho, "area": (sp.sqrt(3) / 4 if n == 3 else 1) * rho ** 2}[what]
+                slip(DMV_T + "18", head + cpl_s(rad_side))
+            if what == "area":
+                slip(DMV_T + "19", head + cpl_s(2 * v))
+    elif u == "multiple-angle":
+        m = re.fullmatch(r"Express (cos|sin) (\d)(θ|α|x) as a polynomial in (cos|sin) (θ|α|x)\.", asked)
+        need(m is not None and m.group(1) == m.group(4) and m.group(3) == m.group(5), f"asked {asked!r}")
+        fn, n, Lt = m.group(1), int(m.group(2)), m.group(3)
+        lhs = f"{fn} {n}{Lt} = "
+        txt, p = dmv_poly(fn, n, Lt)
+        th = DMV_TH
+        val = (sp.cos(n * th) if fn == "cos" else sp.sin(n * th)) - p
+        need(all(abs(float(val.subs(th, t0))) < 1e-9 for t0 in (0.3, 1.1, 2.7)), "the identity is false")
+        want = lhs + txt
+        slip(DMV_M + "0", lhs + dmv_poly(fn, n, Lt, coef=False)[0])
+        slip(DMV_M + "2", lhs + dmv_poly(fn, n, Lt, sign=False)[0])
+    elif u == "power-reduction":
+        m = re.fullmatch(r"Use z = cos (θ|α|x) \+ i sin \1 to express (cos|sin)([⁰¹²³⁴⁵⁶⁷⁸⁹]+)\1 in terms of (.+)\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        Lt, fn, n = m.group(1), m.group(2), cx_sup(m.group(3))
+        lhs = f"{fn}{dmv_sup(n)}{Lt} = "
+        txt, kind, co = dmv_reduce(fn, n, Lt)
+        th = DMV_TH
+        f = sp.cos if kind == "cos" else sp.sin
+        val = (sp.cos(th) if fn == "cos" else sp.sin(th)) ** n - sum(co[k] * (f(k * th) if k else 1) for k in co)
+        need(all(abs(float(val.subs(th, t0))) < 1e-9 for t0 in (0.3, 1.1, 2.7)), "the identity is false")
+        names = [("a constant" if k == 0 else f"{kind} {'' if k == 1 else k}{Lt}") for k in sorted(co, reverse=True) if co[k] != 0]
+        need(m.group(4) == (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]), f"the terms asked for: {m.group(4)!r}")
+        want = lhs + txt
+        slip(DMV_M + "0", lhs + dmv_reduce(fn, n, Lt, coef=False)[0])
+        slip(DMV_T + "20", lhs + dmv_reduce(fn, n, Lt, divide=False)[0])
+        if fn == "sin" and n % 2 == 1:
+            slip(DMV_M + "1", lhs + dmv_reduce(fn, n, Lt, with_i=False)[0])
+    elif u in ("induction-gap", "induction-flaw"):
+        need(len(L) == 7, f"{len(L)} lines")
+        m = re.fullmatch(r"Prove by induction that \(cos (θ|α|x) \+ i sin \1\)\^n = cos n\1 \+ i sin n\1 for every positive integer n\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        Lt = m.group(1)
+        kind = {"induction-compound-angle": "compound", "induction-polar-product": "polar"}[angle]
+        right = dmv_proof(Lt, kind)
+        shown = []
+        for i, line in enumerate(L[1:]):
+            need(line.startswith(f"Line {i + 1}: "), f"can't read {line!r}")
+            shown.append(line[len(f"Line {i + 1}: "):])
+        c = f"cos {Lt} + i sin {Lt}"
+        if u == "induction-gap":
+            need(asked == "One line of this proof is missing. Which line completes the proof?", f"asked {asked!r}")
+            gaps = [i for i, x in enumerate(shown) if x == "(missing)"]
+            need(len(gaps) == 1, "not exactly one line missing")
+            g = gaps[0]
+            need(all(shown[i] == right[i] for i in range(6) if i != g), "a shown line is not the proof's")
+            want = right[g]
+            if g == 1:
+                slip(DMV_I + "0", f"Assume ({c})^(k + 1) = cos(k + 1){Lt} + i sin(k + 1){Lt} for some positive integer k.")
+            if g == 3 and kind == "compound":
+                slip(DMV_I + "1", f"= (cos k{Lt} cos {Lt} + sin k{Lt} sin {Lt}) + i(sin k{Lt} cos {Lt} + cos k{Lt} sin {Lt})")
+            if g == 5:
+                slip(DMV_I + "2", "If it is true for n = k it is true for n = k + 1, so by induction it is true for every positive integer n.")
+        else:
+            need(asked == "One line of this proof is wrong. Which is the first incorrect line?", f"asked {asked!r}")
+            bad = [i for i in range(6) if shown[i] != right[i]]
+            need(len(bad) == 1, f"{len(bad)} lines differ from the proof")
+            need(bad[0] != 0, "the base case is spoiled")
+            want = f"Line {bad[0] + 1}"
+            for o in q["choices"]:
+                need(re.fullmatch(r"Line [1-6]", o["text"]) is not None, f"option {o['text']!r}")
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, None)
+    return None, None
+
+
+SITUATION_CHECKS["de-moivre"] = dmv_check
+
+
 # t1-ahl-conjugate-roots (FAL-1005): the polynomial and its root are read from the lines, the
 # roots and coefficients are worked out again with SymPy (sp.solve, sp.Poly), and each slip from
 # its own rule. Names start CJR_ or cjr_.

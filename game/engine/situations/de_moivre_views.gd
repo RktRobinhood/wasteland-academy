@@ -261,7 +261,7 @@ static func polygon_lines(s: Dictionary) -> Array:
 	var n: int = s.n
 	var first: Q = s.phi.div(n)
 	return ["|z|%s = |w| = %s, so every root has modulus %s^(1/%d) = %d." % [Fmt.sup(n), ST(s.big), ST(s.big), n, s.rho],
-		"One root has argument %s/%d = %s, and the %d roots are spaced 2π/%d = %s apart round the circle." % [pp(s.phi), n, Fmt.pi(first), n, n, Fmt.pi(Q.new(2, n))]]
+		"One root has argument %s/%d = %s, and the %d roots are spaced 2π/%d = %s apart round the circle." % [Fmt.pi(s.phi) if s.phi.d == 1 and s.phi.sign() >= 0 else "(" + Fmt.pi(s.phi) + ")", n, Fmt.pi(first), n, n, Fmt.pi(Q.new(2, n))]]
 
 
 func u_nth_root(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -411,8 +411,8 @@ func u_roots_polygon(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := surd_ans(head, v)
 	var wr: Array = []
 	var big := int(pow(rho, n))
-	if big % n != 0 or big / n != rho:
-		wr.append(slip("mod-div", surd_wrong(ans, head, polygon_value(n, Q.new(big, n), mode))))
+	if big % n == 0 and big / n != rho:
+		wr.append(slip("mod-div", surd_wrong(ans, head, polygon_value(n, Q.new(big / n), mode))))
 	if n != 6:
 		var rq := Q.new(rho)
 		var as_side: Array = {"side": [rq, 1], "perimeter": [rq.mul(n), 1], "area": [rq.sq().div(4), 3] if n == 3 else [rq.sq(), 1]}[mode]
