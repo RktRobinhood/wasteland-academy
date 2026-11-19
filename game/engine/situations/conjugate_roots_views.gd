@@ -194,7 +194,7 @@ func u_real_root(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"%s%s = %s is a factor." % [factor(h, shown), factor(h, shown.neg()), quad],
 		"%s = (%s)(z − t): the constant terms give −%st = %s, so t = %s." % [poly([1, a, b, d]), quad, m.text(), d.text(), t.text()], last]
 	var sp: Array = ["The coefficients are real, so %s is also a root." % zc,
-		"The sum of the roots is −a: (%s) + (%s) + t = %s + t = %s." % [z, zc, h.mul(2).text(), a.neg().text()],
+		"The sum of the roots is minus the coefficient of z²: (%s) + (%s) + t = %s + t = %s." % [z, zc, h.mul(2).text(), a.neg().text()],
 		"So t = %s − %s = %s." % [a.neg().text(), P(h.mul(2)), t.text()], last]
 	var gdc: Array = ["Set the GDC's polynomial solver to a + bi mode and enter the coefficients 1, %s, %s and %s." % [a.text(), b.text(), d.text()],
 		"It gives z = %s, z = %s and z = %s." % [t.text(), z, zc], last]

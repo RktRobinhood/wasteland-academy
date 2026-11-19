@@ -174,6 +174,13 @@ func _pack(lines: Array, asked: String, ans: Dictionary, wrongs: Array, fillers:
 	return out
 
 
+## |b|/|a| for arctan in a working line, the bottom bracketed when it is m√r: "3/(3√3)".
+static func ratio_text(z: Array) -> String:
+	var top := S.stext(S.sd(z[1][0].abs_q(), z[1][1]))
+	var bot := S.stext(S.sd(z[0][0].abs_q(), z[0][1]))
+	return top + "/" + ("(%s)" % bot if bot.contains("√") and not bot.begins_with("√") or bot.contains("/") else bot)
+
+
 ## The angle in words for a working line: "the second quadrant", "the negative real axis".
 static func where(c: Q) -> String:
 	var q := S.quadrant(c)
@@ -288,7 +295,7 @@ func u_to_polar(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if q == 0:
 		ma = read + ["z is on %s, %s from 0, so r = %s." % [where(c), S.stext(r), S.stext(r)], "The argument of a point on %s is %s." % [where(c), Fmt.pi(c)], last]
 	else:
-		ma = read + [mod_line(z, r), "z is in %s. The angle with the real axis is arctan(%s) = %s." % [where(c), S.stext(S.sd(z[1][0].abs_q(), z[1][1])) + "/" + S.stext(S.sd(z[0][0].abs_q(), z[0][1])), Fmt.pi(ref_angle(c))],
+		ma = read + [mod_line(z, r), "z is in %s. The angle with the real axis is arctan(%s) = %s." % [where(c), ratio_text(z), Fmt.pi(ref_angle(c))],
 			placed(c), last]
 	var sk: Array = read + ["Sketch z at %s: it is %s %s, %s from 0, so r = %s." % [pt(z), "in" if q > 0 else "on", where(c), S.stext(r), S.stext(r)]]
 	if q > 0:
@@ -634,7 +641,8 @@ func u_euler_trig(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ks := "" if k == 1 else str(k)
 	var add: String = {"plus": "The sine terms cancel and the cosine terms add", "minus": "The cosine terms cancel and the sine terms add",
 		"reverse": "The cosine terms cancel, and the sine terms add with a minus sign"}[mode]
-	var steps: Array = ["e^(i%s) = cos %s + i sin %s and e^(−i%s) = cos %s − i sin %s, as cos is even and sin is odd." % [nl, nl, nl, nl, nl, nl],
+	var ni := ("" if n == 1 else str(n)) + "i" + L
+	var steps: Array = ["e^(%s) = cos %s + i sin %s and e^(−%s) = cos %s − i sin %s, as cos is even and sin is odd." % [ni, nl, nl, ni, nl, nl],
 		"%s: %s = %s." % [add, expr, right], "So %s = %s." % [expr, right]]
 	var _unused := ks
 	return _pack([expr], "Write this expression as a single term in sin %s or cos %s." % [nl, nl], ans, wr, fill, {"to-cartesian": steps}, rng)

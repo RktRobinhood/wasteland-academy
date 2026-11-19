@@ -154,7 +154,7 @@ func u_power_cartesian(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var fill: Array = [cwrong(ans, head, [P[0], S.sneg(P[1])]), cwrong(ans, head, [S.sneg(P[0]), S.sneg(P[1])]), cwrong(ans, head, [P[1], P[0]]),
 		cwrong(ans, head, [S.sscale(P[0], 2), S.sscale(P[1], 2)]), cwrong(ans, head, [S.sneg(P[0]), P[1]])]
 	var al := ref_angle(c)
-	var ratio := ST(S.sd(z[1][0].abs_q(), z[1][1])) + "/" + ST(S.sd(z[0][0].abs_q(), z[0][1]))
+	var ratio := ratio_text(z)
 	var to_polar := "The angle with the real axis is arctan(%s) = %s. %s So z = %s." % [ratio, Fmt.pi(al), placed(c), PT(r, c, "cis")]
 	var dm := "By De Moivre's theorem, %s = %s cis(%d × %s) = %s cis(%s)%s." % [name, base_pow(r, n), n, pp(c), ST(R), Fmt.pi(raw),
 		"" if raw.eq(C) else " = %s cis(%s)" % [ST(R), Fmt.pi(C)]]
@@ -207,7 +207,7 @@ func u_least_power(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var fill: Array = [{"v": Q.new(n + 1)}, {"v": Q.new(2 * n)}, {"v": Q.new(n - 1)}, {"v": Q.new(n + 2)}]
 	var intro: Array
 	if cartesian:
-		var ratio := ST(S.sd(z[1][0].abs_q(), z[1][1])) + "/" + ST(S.sd(z[0][0].abs_q(), z[0][1]))
+		var ratio := ratio_text(z)
 		intro = [mod_line(z, r) + ".", "The angle with the real axis is arctan(%s) = %s. %s" % [ratio, Fmt.pi(ref_angle(c)), placed(c)]]
 	else:
 		intro = ["|z| = %s and arg z = %s." % [ST(r), Fmt.pi(c)]]

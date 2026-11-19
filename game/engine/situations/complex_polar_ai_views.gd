@@ -220,7 +220,7 @@ func u_power_polar(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var adjust := "" if raw.eq(C) else ", which is %s in −π < θ ≤ π" % Fmt.pi(C)
 	var last := "So %s = %s." % [name, PT(R, C, style)]
 	var rule: Array = ["Raise the modulus to the power %d and multiply the argument by %d." % [n, n],
-		"|%s| = %s%s = %s and arg %s = %d × %s = %s%s." % [name, S.stext(r), sup(n), S.stext(R), name, n, Fmt.pi(c), Fmt.pi(raw), adjust], last]
+		"|%s| = %s%s = %s and arg %s = %d × %s = %s%s." % [name, S.stext(r), sup(n), S.stext(R), name, n, "(" + Fmt.pi(c) + ")" if c.sign() < 0 else Fmt.pi(c), Fmt.pi(raw), adjust], last]
 	var gdc: Array = ["With the GDC in radians, enter (%s)%s and convert it to polar form." % [PT(r, c, style), sup(n)],
 		"It gives r = %s and θ = %s; θ ÷ π = %s, which is %s, so θ = %s." % [G(S.sval(R)), G(PI * C.to_float()), G(C.to_float()), C.text(), Fmt.pi(C)], last]
 	var asked := "Find %s in the form %s, where r > 0 and −π < θ ≤ π." % [name, form_name(style)]
@@ -250,8 +250,8 @@ func u_power_cartesian(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		cwrong(ans, head, [S.sscale(p[0], 2), S.sscale(p[1], 2)])]
 	var last := "So %s = %s." % [name, T(p)]
 	var rule: Array = ["z = %s = %s, with |z| = %s and arg z = %s." % [T(z), PT(r, c, "cis"), S.stext(r), Fmt.pi(c)],
-		"%s = %s%s cis(%d × %s) = %s" % [name, S.stext(r), sup(n), n, Fmt.pi(c), PT(S.spow(r, n), C, "cis")],
-		"= %s(%s + %s i)" % [S.stext(S.spow(r, n)), S.stext(S.cos_sin(C)[0]), P(S.stext(S.cos_sin(C)[1]))], last]
+		"%s = %s%s cis(%d × %s) = %s" % [name, S.stext(r), sup(n), n, "(" + Fmt.pi(c) + ")" if c.sign() < 0 else Fmt.pi(c), PT(S.spow(r, n), C, "cis")],
+		"= %s(%s + %s i)" % [S.stext(S.spow(r, n)), S.stext(S.cos_sin(C)[0]), "(" + S.stext(S.cos_sin(C)[1]) + ")"], last]
 	var gdc: Array = ["Enter (%s)%s on the GDC, with the brackets." % [T(z), sup(n)], "It gives %s." % T(p), last]
 	return _pack(["z = " + T(z)], "Find %s in the form a + bi." % name, ans, wr, fill, {"power-rule": rule, "gdc-power": gdc}, rng)
 
@@ -274,7 +274,8 @@ func u_least_power(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var cond: String = {"real": "a multiple of π", "imaginary": "an odd multiple of π/2", "positive": "a multiple of 2π", "negative": "an odd multiple of π"}[mode]
 	var last := "So n = %d." % n
 	var rule: Array = ["z^n = %s^n %s, so arg z^n is n × %s before it is brought into −π < θ ≤ π." % [S.stext(r), "e^(n × %s)" % S.pi_i(c) if s.style == "euler" else "cis(n × %s)" % Fmt.pi(c), Fmt.pi(c)],
-		"z^n is %s when n × %s is %s." % [want, Fmt.pi(c), cond], last]
+		"z^n is %s when n × %s is %s." % [want, Fmt.pi(c), cond],
+		"n = %d gives %d × %s = %s, %s, and no smaller n does." % [n, n, "(" + Fmt.pi(c) + ")" if c.sign() < 0 else Fmt.pi(c), Fmt.pi(c.mul(n)), cond], last]
 	return _pack(["z = " + PT(r, c, s.style)], "Find the least positive integer n for which z^n is %s." % want, ans, wr, fill, {"power-rule": rule}, rng)
 
 
