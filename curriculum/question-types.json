@@ -35,9 +35,9 @@
    "aa-hl": {
     "questions": 327,
     "parts": 1205,
-    "assigned": 20,
+    "assigned": 53,
     "unclassified": 0,
-    "unassigned": 1185,
+    "unassigned": 1152,
     "papers": {
      "P1": {
       "calculator": false,
@@ -83,9 +83,9 @@
    "ai-hl": {
     "questions": 357,
     "parts": 1485,
-    "assigned": 21,
+    "assigned": 44,
     "unclassified": 0,
-    "unassigned": 1464,
+    "unassigned": 1441,
     "papers": {
      "P1": {
       "calculator": true,
@@ -98134,11 +98134,7 @@
     "mcq"
    ],
    "situation": "complex-polar",
-   "sharesSituation": [
-    "t1-ahl-de-moivre",
-    "t1-ahl-conjugate-roots",
-    "t1-ai-complex-polar"
-   ],
+   "sharesSituation": [],
    "representations": [
     {
      "rep": "equation",
@@ -98394,7 +98390,7 @@
      "kind": "true-false-reason",
      "prompt": "Multiplying a complex number by i turns its point a quarter turn anticlockwise about 0.",
      "answer": "True: i has modulus 1 and argument π/2, so it keeps every distance from 0 and adds π/2 to every argument.",
-     "level": 2
+     "level": 3
     },
     {
      "kind": "always-sometimes-never",
@@ -98645,14 +98641,37 @@
     "aa-hl-2021-nov-tz0-p3-q01.c(i)",
     "aa-hl-2021-nov-tz0-p3-q01.c(ii)",
     "aa-hl-2022-may-tz2-p1-q12.a",
-    "aa-hl-2023-may-tz2-p1-q11.a",
     "aa-hl-2024-may-tz1-p1-q12.e",
     "aa-hl-2024-nov-tz0-p1-q12.b",
     "aa-hl-2025-may-tz1-p2-q08.b",
     "aa-hl-2025-may-tz2-p1-q12.b",
     "aa-hl-2025-may-tz3-p1-q08.a",
     "aa-hl-2026-may-tz1-p3-q02.a(iii)"
-   ]
+   ],
+   "stats": {
+    "parts": 12,
+    "paper": {
+     "p1": 6,
+     "p2": 3
+    },
+    "calculator": {
+     "without": 6,
+     "with": 6
+    },
+    "section": {
+     "A": 4,
+     "B": 5
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "1.13": 11,
+     "1.12": 1
+    }
+   }
   },
   {
    "id": "t1-ahl-de-moivre",
@@ -98717,11 +98736,7 @@
     "mcq"
    ],
    "situation": "de-moivre",
-   "sharesSituation": [
-    "t1-ahl-complex-polar",
-    "t1-ahl-conjugate-roots",
-    "t1-ai-complex-polar"
-   ],
+   "sharesSituation": [],
    "representations": [
     {
      "rep": "equation",
@@ -99187,7 +99202,6 @@
     }
    ],
    "parts": [
-    "aa-hl-2021-may-tz2-p3-q02.b",
     "aa-hl-2021-nov-tz0-p1-q12.a",
     "aa-hl-2021-nov-tz0-p1-q12.d",
     "aa-hl-2023-may-tz1-p2-q06.a",
@@ -99205,7 +99219,31 @@
     "aa-hl-2026-may-tz1-p2-q08.b",
     "aa-hl-2026-may-tz1-p2-q08.d",
     "aa-hl-2026-may-tz2-p1-q12.b"
-   ]
+   ],
+   "stats": {
+    "parts": 17,
+    "paper": {
+     "p1": 13,
+     "p2": 4
+    },
+    "calculator": {
+     "without": 13,
+     "with": 4
+    },
+    "section": {
+     "A": 5,
+     "B": 12
+    },
+    "marks": {
+     "min": 2,
+     "median": 4,
+     "max": 6
+    },
+    "mainTags": {
+     "1.14": 16,
+     "1.12": 1
+    }
+   }
   },
   {
    "id": "t1-ahl-conjugate-roots",
@@ -99263,11 +99301,7 @@
     "mcq"
    ],
    "situation": "conjugate-roots",
-   "sharesSituation": [
-    "t1-ahl-complex-polar",
-    "t1-ahl-de-moivre",
-    "t1-ai-complex-polar"
-   ],
+   "sharesSituation": [],
    "representations": [
     {
      "rep": "equation",
@@ -99431,7 +99465,7 @@
      "kind": "predict-check",
      "prompt": "Predict whether z² + 4z + 8 = 0 has real roots before solving it, then check with the discriminant.",
      "answer": "No: the discriminant is 16 − 32 = −16 < 0, so the roots are the complex pair −2 ± 2i.",
-     "level": 2
+     "level": 3
     }
    ],
    "misconceptions": [
@@ -99552,7 +99586,31 @@
     "aa-hl-2023-may-tz1-p1-q07",
     "aa-hl-2026-may-tz2-p1-q12.a",
     "aa-hl-2026-may-tz2-p1-q12.e"
-   ]
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 3,
+     "p2": 0
+    },
+    "calculator": {
+     "without": 3,
+     "with": 1
+    },
+    "section": {
+     "A": 1,
+     "B": 2
+    },
+    "marks": {
+     "min": 1,
+     "median": 4,
+     "max": 6
+    },
+    "mainTags": {
+     "1.14": 3,
+     "1.12": 1
+    }
+   }
   },
   {
    "id": "t1-ai-complex-polar",
@@ -99617,11 +99675,7 @@
     "mcq"
    ],
    "situation": "complex-polar-ai",
-   "sharesSituation": [
-    "t1-ahl-complex-polar",
-    "t1-ahl-de-moivre",
-    "t1-ahl-conjugate-roots"
-   ],
+   "sharesSituation": [],
    "representations": [
     {
      "rep": "equation",
@@ -99901,7 +99955,7 @@
      "kind": "true-false-reason",
      "prompt": "Multiplying by 1 + i rotates every point through π/4 about 0 and nothing else.",
      "answer": "False: |1 + i| = √2, so it also stretches every distance from 0 by a factor of √2.",
-     "level": 2
+     "level": 3
     },
     {
      "kind": "always-sometimes-never",
@@ -99913,7 +99967,7 @@
      "kind": "predict-check",
      "prompt": "Predict the quadrant of −2 + 3i before the GDC gives its argument, then check the argument is between π/2 and π.",
      "answer": "The second quadrant: the GDC gives arg(−2 + 3i) = 2.16, which is between 1.57 and 3.14.",
-     "level": 2
+     "level": 3
     }
    ],
    "misconceptions": [
@@ -100143,14 +100197,36 @@
     "ai-hl-2024-may-tz2-p1-q15.a",
     "ai-hl-2024-may-tz2-p1-q15.b",
     "ai-hl-2024-may-tz2-p1-q15.c",
-    "ai-hl-2024-nov-tz0-p1-q09.b",
     "ai-hl-2024-nov-tz0-p1-q09.d",
     "ai-hl-2025-may-tz1-p1-q14.a",
     "ai-hl-2025-may-tz1-p1-q14.b",
     "ai-hl-2025-may-tz3-p2-q07.a",
     "ai-hl-2026-may-tz1-p3-q02.a(ii)",
     "ai-hl-2026-may-tz1-p3-q02.b"
-   ]
+   ],
+   "stats": {
+    "parts": 23,
+    "paper": {
+     "p1": 15,
+     "p2": 4
+    },
+    "calculator": {
+     "without": 0,
+     "with": 23
+    },
+    "section": {
+     "A": 0,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 6
+    },
+    "mainTags": {
+     "1.13": 23
+    }
+   }
   }
  ],
  "unclassified": [],

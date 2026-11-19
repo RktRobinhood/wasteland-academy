@@ -266,9 +266,9 @@ func u_least_power(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var want: String = {"real": "real", "imaginary": "purely imaginary", "positive": "a positive real number", "negative": "a negative real number"}[mode]
 	var cond: String = {"real": "a multiple of π", "imaginary": "an odd multiple of π/2", "positive": "a multiple of 2π", "negative": "an odd multiple of π"}[mode]
 	var last := "So n = %d." % n
-	var rule: Array = ["zⁿ = %sⁿ %s, so arg zⁿ is n × %s before it is brought into −π < θ ≤ π." % [S.stext(r), "e^(n × %s)" % S.pi_i(c) if s.style == "euler" else "cis(n × %s)" % Fmt.pi(c), Fmt.pi(c)],
-		"zⁿ is %s when n × %s is %s." % [want, Fmt.pi(c), cond],
-	return _pack(["z = " + PT(r, c, s.style)], "Find the least positive integer n for which zⁿ is %s." % want, ans, wr, fill, {"power-rule": rule}, rng)
+	var rule: Array = ["z^n = %s^n %s, so arg z^n is n × %s before it is brought into −π < θ ≤ π." % [S.stext(r), "e^(n × %s)" % S.pi_i(c) if s.style == "euler" else "cis(n × %s)" % Fmt.pi(c), Fmt.pi(c)],
+		"z^n is %s when n × %s is %s." % [want, Fmt.pi(c), cond], last]
+	return _pack(["z = " + PT(r, c, s.style)], "Find the least positive integer n for which z^n is %s." % want, ans, wr, fill, {"power-rule": rule}, rng)
 
 
 # ── The Argand diagram ───────────────────────────────────────

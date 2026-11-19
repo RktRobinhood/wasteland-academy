@@ -93538,7 +93538,7 @@
 					"kind": "true-false-reason",
 					"prompt": "Multiplying a complex number by i turns its point a quarter turn anticlockwise about 0.",
 					"answer": "True: i has modulus 1 and argument π/2, so it keeps every distance from 0 and adds π/2 to every argument.",
-					"level": 2
+					"level": 3
 				},
 				{
 					"kind": "always-sometimes-never",
@@ -93789,7 +93789,16 @@
 				"the multiplier read as a rotation and an enlargement about 0, or a sum read as a translation",
 				"a sum of exponentials written as one number, or one number in two forms giving an exact cosine or sine"
 			],
-			"frequency": 0
+			"frequency": 12,
+			"marks": 2,
+			"section": {
+				"A": 4,
+				"B": 5
+			},
+			"paper": {
+				"p1": 6,
+				"p2": 6
+			}
 		},
 		{
 			"id": "t1-ahl-de-moivre",
@@ -94299,7 +94308,16 @@
 				"the binomial expansion of (cos θ + i sin θ)^n or (z ± 1/z)^n, giving a multiple-angle or a power identity",
 				"the proof by induction for positive integers, line by line"
 			],
-			"frequency": 0
+			"frequency": 17,
+			"marks": 4,
+			"section": {
+				"A": 5,
+				"B": 12
+			},
+			"paper": {
+				"p1": 13,
+				"p2": 4
+			}
 		},
 		{
 			"id": "t1-ahl-conjugate-roots",
@@ -94492,7 +94510,7 @@
 					"kind": "predict-check",
 					"prompt": "Predict whether z² + 4z + 8 = 0 has real roots before solving it, then check with the discriminant.",
 					"answer": "No: the discriminant is 16 − 32 = −16 < 0, so the roots are the complex pair −2 ± 2i.",
-					"level": 2
+					"level": 3
 				}
 			],
 			"misconceptions": [
@@ -94615,7 +94633,16 @@
 				"the quadratic factor (z − α)(z − α*) = z² − 2hz + (h² + k²)",
 				"the real root of a cubic, or its coefficients, by dividing or by the sum and product of the roots"
 			],
-			"frequency": 0
+			"frequency": 4,
+			"marks": 4,
+			"section": {
+				"A": 1,
+				"B": 2
+			},
+			"paper": {
+				"p1": 3,
+				"p2": 1
+			}
 		},
 		{
 			"id": "t1-ai-complex-polar",
@@ -94934,7 +94961,7 @@
 					"kind": "true-false-reason",
 					"prompt": "Multiplying by 1 + i rotates every point through π/4 about 0 and nothing else.",
 					"answer": "False: |1 + i| = √2, so it also stretches every distance from 0 by a factor of √2.",
-					"level": 2
+					"level": 3
 				},
 				{
 					"kind": "always-sometimes-never",
@@ -94946,7 +94973,7 @@
 					"kind": "predict-check",
 					"prompt": "Predict the quadrant of −2 + 3i before the GDC gives its argument, then check the argument is between π/2 and π.",
 					"answer": "The second quadrant: the GDC gives arg(−2 + 3i) = 2.16, which is between 1.57 and 3.14.",
-					"level": 2
+					"level": 3
 				}
 			],
 			"misconceptions": [
@@ -95165,7 +95192,16 @@
 				"the multiplier read as a rotation and a stretch about 0, or a sum read as a translation",
 				"two sinusoids written as one, A cos(ωt + B), from the sum of their complex amplitudes"
 			],
-			"frequency": 0
+			"frequency": 23,
+			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 0
+			},
+			"paper": {
+				"p1": 0,
+				"p2": 23
+			}
 		}
 	]
 }

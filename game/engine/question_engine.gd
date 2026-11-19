@@ -128,6 +128,7 @@ static var SITUATIONS := {
 	"complex-number": [ComplexNumberSituation, ComplexNumberViews],
 	"complex-number-ai": [ComplexNumberSituation, ComplexNumberAiViews],
 	"complex-polar": [ComplexPolarSituation, ComplexPolarViews],
+	"de-moivre": [ComplexPolarSituation, DeMoivreViews],
 	"conjugate-roots": [ComplexPolarSituation, ConjugateRootsViews],
 	"complex-polar-ai": [ComplexPolarSituation, ComplexPolarAiViews],
 	"depreciation": [DepreciationSituation, DepreciationViews],

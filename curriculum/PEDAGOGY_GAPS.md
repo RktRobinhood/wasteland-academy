@@ -8,7 +8,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## In numbers
 
-- **Types:** 113 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
+- **Types:** 117 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
 - **Skills with a type:** 286 of 286.
 - **Functions:** 141 unknowns the exam asks and 434 it doesn't; 574 angles, 193 of them with a weak spot for method-pick questions; 160 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
 - **Coverage cells** (one unknown in one representation by one method): 2102 in Functions, of which 528 are reachable with "Exam-style only" on.
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-23 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 23 exam types have them so far.
+27 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 27 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -2254,6 +2254,89 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): If the graph of y = x² + px + q does not meet the x-axis, the equation z² + pz + q = 0 has no solutions. — False: it has no real solutions, but it has two complex ones, a conjugate pair h ± ki.
   - *interpret-parameter* (L3): The roots of a real quadratic are h ± ki. What does h tell you about the graph of y = x² + px + q? — h is the x-coordinate of the vertex: the line x = h is the parabola's axis of symmetry, halfway between the roots.
 - **Misconceptions used:** 23. Using i squared as plus one instead of minus one when multiplying out; Multiplying only the matching parts, the real parts together and the imaginary parts together; Dividing part by part, the real part by the real part and the imaginary part by the imaginary part; Taking the denominator times its conjugate as the difference of the squares of its parts; Multiplying only the denominator by its conjugate; Using arctan of the imaginary part over the real part straight from the calculator, without checking the quadrant; Forgetting the square root, giving the sum of the squares; Including i in the imaginary part when squaring it, so its square is subtracted; Raising each part to the power separately; Leaving out the brackets, so only i is raised to the power; Plotting with the axes swapped, the real part up and the imaginary part across; Reflecting in the imaginary axis for the conjugate, so the real part changes sign; Plotting −z as the conjugate, or the conjugate as −z; Forgetting to halve the imaginary part of the roots; Stopping at no solution because the discriminant is negative; Taking the square root of the negative discriminant as a real number, which gives two real roots; Taking the third power of i as i instead of −i; Multiplying by the number instead of dividing by it; Using arctan of the real part over the imaginary part, the angle from the imaginary axis; Turning clockwise for iz instead of anticlockwise; Adding the two numbers instead of subtracting them before taking the modulus; Using +p instead of −p in the quadratic formula, so the real part has the wrong sign; Raising only i to the power and leaving the number in front of it unpowered.
+
+#### Modulus-argument and Euler forms (AA HL) (`t1-ahl-complex-polar`, exam, 12 bank parts)
+
+- **Situation:** Complex numbers in modulus-argument and Euler form, at the standard angles.
+- **Representations:** **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a complex number a + bi, or its point on an Argand diagram → z in the form re^(iθ) or r cis θ
+  - **exam** L1: given a complex number r cis θ or re^(iθ) → z in the form a + bi, exactly
+  - **exam** L2: given two complex numbers in polar or Euler form, or one to square → z₁z₂, z₁/z₂ or z² in the same form, with its argument in −π < θ ≤ π
+  - **exam** L2: given two complex numbers in polar or Euler form → z₁z₂ or z₁/z₂ in the form a + bi
+  - **exam** L2: given a point A on an Argand diagram; a rotation about 0 of a quarter or half turn, and an enlargement → the complex number of the image B, in the form a + bi
+  - **exam** L2: given a complex number w → the transformation z ↦ wz or z ↦ z + w, in words
+  - **exam** L3: given e^(iα) + e^(iβ), or 1 + e^(iθ), each a standard angle → the sum in the form re^(iθ) or r cis θ
+  - **exam** L2: given ke^(inθ) + ke^(−inθ) or a difference of the two → the expression as one term in cos nθ or i sin nθ
+  - **exam** L4: given two complex numbers in Cartesian form, one on a 30° or 60° line and one on a 45° line → the exact cosine or sine of the product's or quotient's argument
+- **Angles:** Find r and θ, then write r cis θ or re^(iθ); Sketch on the Argand diagram; Expand r(cos θ + i sin θ) with exact values; Multiply moduli and add arguments; Use index laws in Euler form; Bring the argument back into the principal range; Read the multiplier as a rotation and enlargement; Use the parallelogram for sums; Factor out the half-angle; Convert to Cartesian and use trig identities; Use the rhombus on the Argand diagram; Equate real parts of the two forms; Check with a compound-angle identity.
+- **Concept probes:**
+  - *true-false-reason* (L3): Multiplying a complex number by i turns its point a quarter turn anticlockwise about 0. — True: i has modulus 1 and argument π/2, so it keeps every distance from 0 and adds π/2 to every argument.
+  - *always-sometimes-never* (L3): The modulus of e^(iα) + e^(iβ) is 2. — Sometimes: only when α = β. The modulus is 2|cos((α − β)/2)|, which is less than 2 otherwise.
+  - *predict-check* (L3): Predict the argument of z₁z₂ before working it out when arg z₁ = 3π/4 and arg z₂ = π/2, then check that it lies in −π < θ ≤ π. — 3π/4 + π/2 = 5π/4 is too big, so the argument is 5π/4 − 2π = −3π/4.
+- **Misconceptions used:** 26. Taking the argument straight from arctan of the imaginary part over the real part, without checking the quadrant; Adding the sizes of the two parts for the modulus instead of taking the square root of the sum of their squares; Writing a negative real number with a negative modulus and a zero argument, instead of a positive modulus and argument π; Multiplying the arguments instead of adding them; Adding the moduli instead of multiplying them; Dividing the arguments for a quotient instead of subtracting them; Turning the wrong way: clockwise for a positive argument, or anticlockwise for a negative one; Describing multiplication by a number as a rotation only, forgetting the enlargement by its modulus; Thinking that adding a complex number rotates the point, rather than translating it by that number's vector; Adding the moduli, as if the two numbers pointed the same way; Adding the exponents, as if e^(iα) + e^(iβ) were e^(i(α + β)); Leaving out the i when e^(iθ) − e^(−iθ) is written in terms of sin θ; Dividing by the modulus of only one of the two numbers, not by the modulus of the product or quotient; Subtracting the arguments for a product instead of adding them; Using arctan of the real part over the imaginary part, the angle from the imaginary axis; Giving the argument the wrong sign, measured the other way from the positive real axis; Swapping cos and sin, so the real and imaginary parts change places; Using the cosine and sine of the reference angle without the quadrant's signs; Leaving the argument outside −π < θ ≤ π; Subtracting the arguments the wrong way round for a quotient; Doubling the modulus for a square instead of squaring it; Taking half the difference of the arguments for the argument of the sum, instead of half their sum; Counting only one of the two equal terms when the exponentials are combined; Subtracting the exponentials the other way round, so the sign of the sine is lost; Equating the imaginary parts for a cosine, or the real parts for a sine; Translating by the vector of −w instead of w.
+
+#### De Moivre's theorem: powers, roots and identities (AA HL) (`t1-ahl-de-moivre`, exam, 17 bank parts)
+
+- **Situation:** Powers, roots and identities from De Moivre's theorem, at the standard angles.
+- **Representations:** **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a complex number r cis θ or re^(iθ) at a standard angle; a power n → z^n in the same form, with its argument in −π < θ ≤ π
+  - **exam** L3: given a complex number a + bi on a standard line; a power n → z^n in the form a + bi
+  - **exam** L3: given a complex number in polar or Cartesian form → the least positive integer n for which z^n is real, purely imaginary, a positive real or a negative real
+  - **exam** L3: given an equation z^n = w, w on a standard line → the root with the least positive argument, the greatest argument or in a named quadrant, in polar form
+  - **exam** L3: given an equation z^n = w, n from 2 to 4 → every root, in polar form or in the form a + bi
+  - **exam** L4: given an equation z^n = w, n = 3, 4 or 6 → the exact side, perimeter or area of the regular polygon the roots make
+  - **exam** L4: given cos nθ for n from 2 to 5, or sin nθ for n = 3 or 5 → cos nθ as a polynomial in cos θ, or sin nθ as one in sin θ
+  - **exam** L4: given cos³θ, cos⁴θ, cos⁵θ, sin³θ or sin⁴θ → the power in terms of cosines or sines of multiples of θ
+  - **exam** L4: given a proof by induction of De Moivre's theorem for positive integers, one line missing → the line that completes the proof
+  - **exam** L4: given a proof by induction of De Moivre's theorem for positive integers, one line wrong → the first incorrect line
+- **Angles:** Convert to polar form and apply De Moivre; Square repeatedly in Cartesian form; Evaluate on the GDC; Set the argument condition; Write w with a general argument and divide by n; Use the regular polygon; Factorise for small cases; Expand (cos θ + i sin θ)^n binomially and equate parts; Check with compound-angle identities; Use z + 1/z = 2 cos θ; Induction using compound-angle identities; Induction using the polar product rule.
+- **Concept probes:**
+  - *true-false-reason* (L3): Every complex number other than 0 has exactly three cube roots. — True: z³ = w with w = r cis φ gives z = r^(1/3) cis((φ + 2kπ)/3), and k = 0, 1, 2 give three different numbers; k = 3 gives the first again.
+  - *always-sometimes-never* (L3): A power of a complex number with modulus 2 is real. — Sometimes: 2^n cis(nθ) is real when nθ is a multiple of π, which some n achieve when θ is a rational multiple of π, and none do otherwise.
+  - *predict-check* (L3): Predict the argument of (1 + i)⁶ before working it out, then check that it lies in −π < θ ≤ π. — 6 × π/4 = 3π/2 is too big, so the argument is 3π/2 − 2π = −π/2: (1 + i)⁶ = −8i.
+- **Misconceptions used:** 21. Raising the modulus to the power but not multiplying the argument by it; Multiplying the modulus by the power instead of raising it to the power; Raising each part to the power separately, as if (a + bi)ⁿ were aⁿ + (bi)ⁿ; Giving only the principal root and missing the others; Dividing the modulus by n instead of taking its nth root; Adding 2kπ to the argument after dividing by n instead of before, so every root is the same number; Leaving out the binomial coefficients when expanding (cos θ + i sin θ)ⁿ; Leaving out the i when zⁿ − z⁻ⁿ is written in terms of sin nθ; Losing the sign from i² when collecting the real terms; Assuming the n = k + 1 statement in order to prove it; Losing the sign from i² when multiplying out, so the real part becomes the cosine of the difference of the angles; Leaving out the base case or the concluding sentence; Leaving the argument outside −π < θ ≤ π; Multiplying the argument by the power but leaving the modulus as it was; Requiring a whole number of full turns for a real power, so only the positive reals are found; Solving for the wrong kind of number: real for purely imaginary, positive for negative, or the other way round; Taking the argument from arctan of the imaginary part over the real part without checking the quadrant; Spacing the roots π/n apart, sharing out half a turn instead of a full turn; Using the circle's radius as the polygon's side length; Leaving out the half in the area of each triangle, so the area comes out doubled; Leaving out the division by the power of two, as if z plus or minus its reciprocal gave cos θ or i sin θ instead of twice that.
+
+#### Complex roots of real polynomials (AA HL) (`t1-ahl-conjugate-roots`, exam, 4 bank parts)
+
+- **Situation:** Real polynomials with complex roots: a quadratic with roots h ± ki, a cubic with roots h ± ki and t.
+- **Representations:** **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a real quadratic z² + pz + q = 0 with a negative discriminant → its roots, in the form h ± ki
+  - **exam** L2: given one complex root h + ki of z² + pz + q = 0, p and q real → p and q, and the equation
+  - **exam** L1: given a complex root of a real quadratic or a real cubic → another root, in the form a + bi
+  - **exam** L3: given a real cubic and one of its complex roots → the real root
+  - **exam** L3: given a complex root and the real root of z³ + az² + bz + d = 0 → a, b and d
+- **Angles:** Quadratic formula with √(negative) = i√(positive); Complete the square; Build from the sum and product of the roots; Use the GDC polynomial solver in complex mode; Use the sum and product of roots; Substitute the root and equate parts; Form the quadratic factor and divide; Check with the GDC polynomial solver.
+- **Concept probes:**
+  - *true-false-reason* (L3): A cubic equation with real coefficients always has at least one real root. — True: its non-real roots come in conjugate pairs, so with three roots at least one is unpaired and real.
+  - *always-sometimes-never* (L3): If 2 + i is a root of a polynomial equation, then 2 − i is a root too. — Sometimes: always when the coefficients are all real, but not in general, as for z − (2 + i) = 0.
+  - *predict-check* (L3): Predict whether z² + 4z + 8 = 0 has real roots before solving it, then check with the discriminant. — No: the discriminant is 16 − 32 = −16 < 0, so the roots are the complex pair −2 ± 2i.
+- **Misconceptions used:** 13. Taking the square root of a negative number as a negative real number, so the roots come out real; Dividing only the square-root term by the denominator, and not the whole of −b ± √Δ; Building the quadratic with the wrong sign on the z term, adding the sum of the roots instead of subtracting it; Changing the sign of the real part for the conjugate, instead of only the imaginary part; Forming the quadratic factor with the wrong sign on the z term; Dropping the minus sign in −b, so the real part of the roots has the wrong sign; Dividing −b by the denominator but not the square root; Losing the minus sign from i² when the two roots are multiplied, so the constant term is too small; Using the real part of the root instead of the sum of the two roots for the z term; Negating the whole root instead of only its imaginary part; Taking the sum of the roots to be the z² coefficient itself instead of its negative; Taking the product of the roots to be the constant term itself instead of its negative; Using the sum, the sum of the pairs and the product of the roots as the coefficients without changing any signs.
+
+#### Polar and exponential forms of complex numbers (AI HL) (`t1-ai-complex-polar`, exam, 23 bank parts)
+
+- **Situation:** Complex numbers in polar and exponential form for AI HL, exact and with the GDC.
+- **Representations:** **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a complex number a + bi, or its point on an Argand diagram → z in the form re^(iθ) or r cis θ
+  - **exam** L1: given a complex number r cis θ or re^(iθ) → z in the form a + bi
+  - **exam** L2: given two complex numbers in polar or exponential form → z₁z₂ or z₁/z₂ in the same form
+  - **exam** L2: given two complex numbers in polar or exponential form → z₁z₂ or z₁/z₂ in the form a + bi
+  - **exam** L2: given a complex number re^(iθ) or r cis θ and a power n → zⁿ in the same form
+  - **exam** L3: given a complex number a + bi on a standard line and a power n → zⁿ in the form a + bi
+  - **exam** L3: given a complex number in polar or exponential form → the least positive n for which zⁿ is real, imaginary, positive or negative
+  - **exam** L2: given a point A on an Argand diagram and a multiplier w → the complex number of the image of A under z ↦ wz
+  - **exam** L2: given a complex number w → the transformation z ↦ wz or z ↦ z + w, in words
+  - **exam** L4: given two sinusoids of one frequency, in a context → their sum as A cos(ωt + B) or A sin(ωt + B)
+- **Angles:** Use r = √(a² + b²), a = r cos θ, b = r sin θ; Sketch the point to fix the quadrant; Use the GDC conversion functions; Multiply moduli and add arguments; Use the laws of exponents; Calculate in Cartesian form on the GDC; Raise the modulus and multiply the argument; Raise to the power on the GDC; Compute and plot points; Read the stretch and rotation from re^(iθ); Add tip to tail; Add the amplitudes as complex numbers; Add the phasors as vectors.
+  - *Fails:* Raise to the power on the GDC: the GDC gives one power at a time: the least n comes from the condition on n × arg z.
+- **Concept probes:**
+  - *true-false-reason* (L3): Multiplying by 1 + i rotates every point through π/4 about 0 and nothing else. — False: |1 + i| = √2, so it also stretches every distance from 0 by a factor of √2.
+  - *always-sometimes-never* (L3): The amplitude of the sum of two sinusoids of one frequency is the sum of their amplitudes. — Sometimes: only when the two are in phase. Otherwise it is the modulus of the sum of the complex amplitudes, which is less.
+  - *predict-check* (L3): Predict the quadrant of −2 + 3i before the GDC gives its argument, then check the argument is between π/2 and π. — The second quadrant: the GDC gives arg(−2 + 3i) = 2.16, which is between 1.57 and 3.14.
+- **Misconceptions used:** 23. Losing the sign of the argument for a point below the real axis; Swapping sine and cosine, so the real and imaginary parts change places; Using degree mode with an argument in radians; Adding the squares of the parts for the modulus without taking the square root; Adding the moduli instead of multiplying them; Multiplying the arguments instead of adding them; Subtracting the arguments the wrong way round for a quotient; Raising each part to the power separately; Multiplying the argument by the power but not raising the modulus to it; Raising the argument to the power instead of multiplying it by the power; Adding the amplitudes, which only works when the two waves are in phase; Averaging the two phases instead of finding the argument of the sum; Mixing degrees and radians in the phase; Reading multiplication by a number as a rotation only, missing the stretch by its modulus; Treating multiplication by i as a reflection in the line y = x; Using arctan of the imaginary part over the real part without checking the quadrant; Adding the sizes of the two parts for the modulus; Using the cosine and sine of the reference angle without the quadrant's signs; Leaving the argument outside −π < θ ≤ π; Turning the wrong way: clockwise for a positive argument, or anticlockwise for a negative one; Thinking that adding a complex number rotates the point, rather than translating it; Requiring the argument to be a multiple of 2π for a real power, so only the positive reals are found; Solving for the other kind of number: real for imaginary, positive for negative, or the reverse.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
