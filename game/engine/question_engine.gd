@@ -1080,17 +1080,42 @@ static func _usable(ans: Dictionary, values: Dictionary) -> bool:
 	return true
 
 
-## Last-resort wrong options: each typed number nudged by 1 either way.
+## Last-resort wrong options: each typed number nudged by 1 either way. A form answer is
+## told apart by its text, so its nudge needs a text of its own: it gets one only where
+## the answer's text is its template written out, else there is none to trust (#248).
 static func _nudges(ans: Dictionary) -> Array:
 	var out: Array = []
+	var writer := Callable()
+	if ans.kind == "form":
+		for w in [Fmt.num, Fmt.dec]:
+			if _form_text(ans, ans.values, w) == str(ans.values.get("text", "")):
+				writer = w
+				break
+		if not writer.is_valid():
+			return out
 	for d in [1, -1, 2]:
 		for item in Answer.slots(ans):
 			if not item.has("slot"):
 				continue
 			var v := (ans.values as Dictionary).duplicate()
 			v[item.slot] = Q.of(v[item.slot]).add(d)
+			if writer.is_valid():
+				v.text = _form_text(ans, v, writer)
 			out.append(v)
 	return out
+
+
+## A form answer's template written out with values, each number by writer.
+static func _form_text(ans: Dictionary, values: Dictionary, writer: Callable) -> String:
+	var t := ""
+	for item in ans.template:
+		if item is String:
+			t += item
+		elif item.has("slot"):
+			t += writer.call(values[item.slot])
+		else:
+			t += str(values.get(item.pick, ""))
+	return t
 
 
 ## Marks a response. For "mcq", response is {"choice": index}; for "value", it is
