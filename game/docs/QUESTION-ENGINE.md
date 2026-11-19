@@ -1440,6 +1440,23 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `{}`. The `quadratic` views set it; every quadratic answer is exact today, so none has
   one yet. Situations whose answers are 3 s.f. measures (triangles, distributions) need
   a checker rule for the 2 s.f. text before they offer it.
+- **Typed-answer rough edges** (#194): `Answer.parse_number` reads a single comma that
+  can't group thousands as a decimal point (0,5, 12,25), and refuses with what to change
+  where it could be either (1,500: "1.5 or 1500"), where commas group thousands, or where
+  the text has a %, °, unit, currency sign or mixed number (`Answer.refusal`). A refusal
+  is not marked, and `Run.answer` gives the clock back `Tuning.REFUSED_REFUND` seconds for
+  each new one, up to `REFUSED_REFUND_MAX` a question; an empty box earns nothing. A
+  rounded form of an `exact` answer (0.333 for 1/3, 2350 for 2345) is glancing with
+  `Answer.EXACT_NOTE`, typed or picked (`Answer.rounded_exact`, an option's `rounded`).
+  The normal-probability, inverse-normal and unknown-parameter views give their answer the
+  values a z rounded midway (to 2 d.p. or 3 s.f.) leads to, with `Answer.add_premature`;
+  typing one is a miss whose note is `Answer.PREMATURE_NOTE`. A whole-number key of
+  1,000 or more takes any 3 s.f. rounding unless the answer is exact, so each type with one
+  is exact or listed in `Answer.WHOLE_SF` on purpose: today a model's input or prediction,
+  C from a graph, a value after n years from a calculator, and a sector area with π in
+  it. Every other such key (a count, a sum, money, nCr) is exact, and the seed sweep fails
+  on a key that is neither (`Answer.whole_key_unlisted`). `tools/whole_number_keys.gd`
+  lists every type and unknown with such a key and how it is marked.
 - **Marks**: each question carries `marks`, the type's median marks in the exam bank
   (`stats.marks.median`, copied into the catalogue as `marks`), unless the view sets its
   own. The timer is built from it. Extension types have none and use `Tuning.DEFAULT_MARKS`.
