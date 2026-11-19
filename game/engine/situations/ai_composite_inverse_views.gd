@@ -351,6 +351,13 @@ func u_composite_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		plain.append(ptext([gb.add(f[0]), f[1].mul(ga)], v))
 		plain.append(ptext(CompositePairSituation.padd(f, g), v))
+	# g's constant left out of the bracket: no slip of its own.
+	if not gb.is_zero():
+		plain.append(ptext(S.comp(f, [Q.new(0), ga]), v))
+	# A last plain one: the composite's first-power term doubled.
+	var nudged := h.duplicate()
+	nudged[1] = h[1].mul(2)
+	plain.append(ptext(nudged, v))
 	var lines: Array
 	var asked: String
 	var fn: String

@@ -444,7 +444,8 @@ static func _identity(rng: Seeded, s: Dictionary) -> bool:
 		elif s.story == "celsius":
 			s.v = q(rng.int_in(40, 110))
 		else:
-			s.v = q(rng.int_in(8, 60))
+			# Above the fixed charge, so f⁻¹(v) is a distance or a mass.
+			s.v = s.b.add(q(rng.int_in(2, 60)))
 		var v: Q = s.v
 		var vals: Array = [v.to_float(), 1.0, fval(s, v.to_float()), finv(s, v.to_float())]
 		return vals.all(func(x): return fair(x)) and distinct(vals)
