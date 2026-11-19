@@ -870,6 +870,30 @@
    "note": "Curriculum Author (FAL-1004) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
   },
   {
+   "situation": "ai-stationary",
+   "types": [
+    "t5-ai-stationary-points"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-optimisation",
+   "types": [
+    "t5-ai-optimisation"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "trapezoidal",
+   "types": [
+    "t5-ai-trapezoidal"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
    "situation": "quadratic-model",
    "types": [
     "fn-ext-quadratic-model"
@@ -1289,30 +1313,6 @@
    "readBy": "Curriculum Author (FAL-999)",
    "date": "2026-11-17",
    "note": "FAL-999 author's read on building the type: one question per unknown, representation and method (prompt, options and the wrong options' feedback, worked steps), against tools/check-answers. Every cell read once; not every seed."
-  },
-  {
-   "situation": "ai-stationary",
-   "types": [
-    "t5-ai-stationary-points"
-   ],
-   "exam": true,
-   "status": "unread"
-  },
-  {
-   "situation": "ai-optimisation",
-   "types": [
-    "t5-ai-optimisation"
-   ],
-   "exam": true,
-   "status": "unread"
-  },
-  {
-   "situation": "trapezoidal",
-   "types": [
-    "t5-ai-trapezoidal"
-   ],
-   "exam": true,
-   "status": "unread"
   }
  ]
 }
