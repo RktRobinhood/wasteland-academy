@@ -51719,6 +51719,473 @@ SITUATION_CHECKS["complex-polar-ai"] = aip_check
 
 # R9-INVERSE: fn-ahl-inverse-restricted (inverse-restricted), prefix R9IR_ / r9ir_
 
+# ── inverse-restricted (fn-ahl-inverse-restricted, FAL-1007) ─────────
+# The checker's own reading of the `inverse-restricted` situation: the engine's is in
+# game/engine/situations/inverse_restricted.gd. Each rule is read back from the question's
+# lines with SymPy, and every answer is worked out again from it: the turning point and the
+# side for the largest domain, the next turning point of the wave, the branch of x = f(y)
+# that gives back the domain, the range of f, the k that makes f(f(x)) = x, f(f(x)) itself,
+# and the real roots of f(x) = x or f(f(x)) = x. Every tagged option is rebuilt from what its
+# slip does, and the working's completed squares, derivatives and checks are checked as maths.
+
+R9IR_RD = "AHL2.14.restrict-domain-inverse#"
+R9IR_SI = "AHL2.14.self-inverse#"
+R9IR_II = "AHL2.14.inverse-intersection#"
+R9IR_OWN = "fn-ahl-inverse-restricted#"
+R9IR_K = sp.Symbol("k")
+R9IR_Y = sp.Symbol("y")
+R9IR_SUP = {"⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9"}
+R9IR_YES_ALL = "Yes: f(f(x)) = x for every x in its domain."
+R9IR_NO_TIMES = "No: f(x) × f(x) is not 1, so f is not its own inverse."
+R9IR_NO_ONE = "No: f is not one-to-one, so it has no inverse."
+R9IR_NO_NEVER = "No: a function is never its own inverse."
+R9IR_YES_ONE = "Yes: f is one-to-one, so it is its own inverse."
+R9IR_YES_ODD = "Yes: f is odd, f(−x) = −f(x), so f is its own inverse."
+
+
+def r9ir_expr(text, var="x"):
+    """An expression as the game writes it: '2(x − 3)² − 4', '√((x + 2)/2)', '−(1/4)x³',
+    '2cos(x − π/4) + 1', '(kx + 2)/(x − 4)', '−(x/3)^(1/3)'."""
+    t = text.strip().replace("−", "-").replace("½", "(1/2)").replace("π", "pi").replace("^", "**")
+    t = re.sub("[⁰¹²³⁴⁵⁶⁷⁸⁹]+([a-z(√])?", lambda m: "**" + "".join(R9IR_SUP[c] for c in m.group().rstrip("abcdefghijklmnopqrstuvwxyz(√"))
+               + ("*" + m.group(1) if m.group(1) else ""), t)
+    t = t.replace("√(", "sqrt(")
+    t = re.sub(r"√([a-z0-9])", r"sqrt(\1)", t)
+    need(re.fullmatch(r"[0-9a-z+\-*/(). ]+", t) is not None, f"can't read {text!r}")
+    loc = {"x": X, "y": R9IR_Y, "k": R9IR_K, "sqrt": sp.sqrt, "pi": sp.pi, "cos": sp.cos, "sin": sp.sin}
+    return parse_expr(t, local_dict=loc, transformations=TRANSFORMS)
+
+
+def r9ir_n(v):
+    """An exact number as the game writes it: '3', '−1/2'."""
+    return frac_text(sp.Rational(v))
+
+
+def r9ir_sf(v):
+    v = sp.N(v, 40)
+    return "0" if abs(v) < sp.Float("1e-12") else sig3(v).replace("-", "−")
+
+
+def r9ir_pi(q):
+    """A multiple of π as the game writes it: 'π', '5π/6', '−π/2', '2π', '0'."""
+    q = sp.Rational(q)
+    if q == 0:
+        return "0"
+    top = "π" if abs(q.p) == 1 else f"{abs(q.p)}π"
+    return ("−" if q < 0 else "") + top + ("" if q.q == 1 else f"/{q.q}")
+
+
+def r9ir_pt(x, y, exact):
+    s = r9ir_n if exact else r9ir_sf
+    return f"({s(x)}, {s(y)})"
+
+
+def r9ir_list(ps):
+    return ps[0] if len(ps) == 1 else ", ".join(ps[:-1]) + " and " + ps[-1]
+
+
+def r9ir_same(f, g, xs):
+    """f and g agree at every x in xs (both real there)."""
+    for x0 in xs:
+        a, b = sp.N(f.subs(X, x0), 30), sp.N(g.subs(X, x0), 30)
+        if not (a.is_real and b.is_real) or abs(a - b) > sp.Float("1e-20"):
+            return False
+    return True
+
+
+def r9ir_steps(q):
+    return [st for sol in q["solutions"] for st in sol["steps"]]
+
+
+def r9ir_in_every(q, text, what):
+    for sol in q["solutions"]:
+        need(any(text in st for st in sol["steps"]), f"{sol['name']}: the working doesn't show {what} {text!r}")
+
+
+def r9ir_rule(line):
+    """'f(x) = RULE, DOMAIN' -> (RULE text, DOMAIN text or '')."""
+    m = re.fullmatch(r"f\(x\) = (.+?)(?:, (.+))?", line)
+    need(m is not None, f"can't read the rule {line!r}")
+    return m.group(1), m.group(2) or ""
+
+
+def r9ir_square_steps(q):
+    """Each 'Complete the square: A = B' in the working is an identity."""
+    for st in r9ir_steps(q):
+        m = re.search(r"Complete the square: (.+) = (.+)$", st)
+        if m:
+            need(sp.expand(r9ir_expr(m.group(1)) - r9ir_expr(m.group(2))) == 0, f"the completed square {st!r} is wrong")
+
+
+def r9ir_curve(c, fn, tol=1e-6):
+    """A sampled curve lies on y = fn(x)."""
+    need(len(c) >= 5, "a curve with too few points")
+    for x0, y0 in c[:: max(1, len(c) // 12)]:
+        v = complex(sp.N(fn.subs(X, sp.Float(x0, 30)), 30))
+        need(abs(v.imag) < tol and abs(v.real - y0) < tol * max(1.0, abs(y0)), f"the curve is not the rule at x = {x0}")
+
+
+def r9ir_choice_texts(q):
+    return [o["text"] for o in q["choices"]]
+
+
+# ── each unknown ─────────────────────────────────────────────
+
+def r9ir_largest(q, wrongs):
+    L, asked = q["lines"], q["asked"]
+    rule, dom = r9ir_rule(L[0])
+    m = re.fullmatch(r"x (≤|≥) a", dom)
+    need(m is not None, f"the domain {dom!r}")
+    side = m.group(1)
+    need(asked == f"Find the {'largest' if side == '≤' else 'smallest'} value of a for which f has an inverse.", f"asked {asked!r}")
+    f = r9ir_expr(rule)
+    root = rule.startswith("√(")
+    inside = r9ir_expr(rule[2:-1]) if root else f
+    need(sp.Poly(inside, X).degree() == 2, "the rule is not a quadratic or its root")
+    if root:
+        need(sp.discriminant(inside, X) < 0 and sp.LC(sp.Poly(inside, X)) > 0, "the root's quadratic is not positive everywhere")
+    crit = [c for c in sp.solve(sp.diff(f, X), X) if c.is_real]
+    need(len(crit) == 1 and crit[0].is_integer, "f has no single whole turning point")
+    h = crit[0]
+    # f is one-to-one up to h (or from h): f′ keeps its sign there, and changes it at h.
+    d = sp.diff(f, X)
+    need(sp.sign(d.subs(X, h - 1)) == -sp.sign(d.subs(X, h + 1)) != 0, "f′ doesn't change sign at the turning point")
+    want = "a = " + r9ir_n(h)
+    wrongs[R9IR_OWN + "8"] = {"a = 0"}
+    wrongs[R9IR_OWN + "10"] = {"a = " + r9ir_n(f.subs(X, h))}
+    if not root:
+        rs = sorted(r for r in sp.solve(f, X) if r.is_rational)
+        if len(rs) == 2:
+            wrongs[R9IR_OWN + "9"] = {"a = " + r9ir_n(rs[0] if side == "≤" else rs[1])}
+    if q["view"]["rep"] == "graph":
+        need(q["graph"] is not None and len(q["graph"]["curves"]) == 1, "no graph of f")
+        r9ir_curve(q["graph"]["curves"][0], f)
+        need(abs(q["graph"]["curves"][0][0][0] - float(h - 4)) < 1e-9 and abs(q["graph"]["curves"][0][-1][0] - float(h + 4)) < 1e-9, "the graph doesn't show both sides of the turn")
+    r9ir_square_steps(q)
+    for st in r9ir_steps(q):
+        mm = re.match(r"f′\(x\) = (.+), which is 0 where (.+) = 0$", st)
+        if mm:
+            need(sp.simplify(r9ir_expr(mm.group(1)) - d) == 0, f"the derivative {st!r} is wrong")
+            need(sp.solve(r9ir_expr(mm.group(2)), X) == [h], f"{st!r} is not 0 at the turning point")
+    r9ir_in_every(q, f"x = {r9ir_n(h)}", "the turning point")
+    return want
+
+
+def r9ir_trig(q, wrongs):
+    L, asked = q["lines"], q["asked"]
+    need(asked == "Find the largest value of a for which f has an inverse.", f"asked {asked!r}")
+    rule, dom = r9ir_rule(L[0])
+    m = re.fullmatch(r"(.+) ≤ x ≤ a", dom)
+    need(m is not None, f"the domain {dom!r}")
+    s = r9ir_expr(m.group(1)) / sp.pi
+    need(s.is_rational and s.q in (1, 2, 3, 4, 6, 12) and -1 < s <= sp.Rational(3, 2), f"the start {m.group(1)!r} is not a tidy multiple of π")
+    f = r9ir_expr(rule)
+    d = sp.diff(f, X)
+    need(sp.simplify(d.subs(X, s * sp.pi)) == 0, "the domain doesn't start at a turning point")
+    end = s + 1
+    need(sp.simplify(d.subs(X, end * sp.pi)) == 0, "no turning point half a period on")
+    # No turning point in between: f′ keeps one sign inside.
+    signs = {sp.sign(sp.N(d.subs(X, (s + sp.Rational(i, 20)) * sp.pi), 30)) for i in range(1, 20)}
+    need(len(signs) == 1 and 0 not in signs, "f turns inside the domain")
+    want = "a = " + r9ir_pi(end)
+    wrongs[R9IR_OWN + "11"] = {"a = " + r9ir_pi(s + sp.Rational(1, 2)), "a = " + r9ir_pi(s + 2)}
+    for st in r9ir_steps(q):
+        mm = re.match(r"At x = (.+), f is at its (maximum|minimum), f\((.+)\) = (.+)$", st)
+        if mm:
+            v = f.subs(X, s * sp.pi)
+            need(sp.simplify(v - r9ir_expr(mm.group(4))) == 0, f"{st!r}: the height is wrong")
+            need((mm.group(2) == "maximum") == (sp.N(f.subs(X, (s + sp.Rational(1, 2)) * sp.pi)) < v), f"{st!r}: not a {mm.group(2)}")
+        mm = re.match(r"f′\(x\) = (.+)$", st)
+        if mm and not mm.group(1).startswith("0 "):
+            need(sp.simplify(r9ir_expr(mm.group(1)) - d) == 0, f"the derivative {st!r} is wrong")
+    r9ir_in_every(q, f"x = {r9ir_pi(end)}", "the next turning point")
+    return want
+
+
+def r9ir_half(q):
+    """(f, side, h) from 'f(x) = RULE, x ≥ h': a quadratic whose vertex is at h."""
+    rule, dom = r9ir_rule(q["lines"][0])
+    m = re.fullmatch(r"x (≤|≥) (−?\d+)", dom)
+    need(m is not None, f"the domain {dom!r}")
+    f = r9ir_expr(rule)
+    h = sp.Integer(m.group(2).replace("−", "-"))
+    need(sp.Poly(f, X).degree() == 2, "f is not a quadratic")
+    need(sp.diff(f, X).subs(X, h) == 0, "the domain is not cut at the vertex")
+    need(f.subs(X, h).is_integer, "the vertex is not whole")
+    return f, m.group(1), h
+
+
+def r9ir_inverse(q, wrongs):
+    need(q["asked"] == "Find f⁻¹(x).", f"asked {q['asked']!r}")
+    f, side, h = r9ir_half(q)
+    k = f.subs(X, h)
+    up = sp.LC(sp.Poly(f, X)) > 0
+    # Points in the range of f, and the inputs that give them.
+    ts = [h + i if side == "≥" else h - i for i in (sp.Rational(1, 2), 1, 2, 3)]
+    xs = [f.subs(X, t) for t in ts]
+    branches = sp.solve(f.subs(X, R9IR_Y) - X, R9IR_Y)
+    need(len(branches) == 2, "x = f(y) has not two branches")
+    good = [b for b in branches if all(abs(sp.N(b.subs(X, x0) - t0, 30)) < 1e-20 for x0, t0 in zip(xs, ts))]
+    need(len(good) == 1, "no single branch gives back the domain")
+    g = good[0]
+    bad = [b for b in branches if b is not g][0]
+    right = None
+    for o in q["choices"]:
+        m = re.fullmatch(r"f⁻¹\(x\) = (.+)", o["text"])
+        need(m is not None, f"option {o['text']!r}")
+        body = m.group(1)
+        if "±" in body:
+            p_, n_ = r9ir_expr(body.replace("±", "+", 1)), r9ir_expr(body.replace("±", "−", 1))
+            if (r9ir_same(p_, g, xs) and r9ir_same(n_, bad, xs)) or (r9ir_same(n_, g, xs) and r9ir_same(p_, bad, xs)):
+                wrongs.setdefault(R9IR_RD + "0", set()).add(o["text"])
+            continue
+        e = r9ir_expr(body)
+        if r9ir_same(e, g, xs):
+            need(right is None, "two options are f⁻¹")
+            right = o["text"]
+        elif r9ir_same(e, bad, xs):
+            wrongs.setdefault(R9IR_RD + "1", set()).add(o["text"])
+    need(right is not None, "no option is f⁻¹")
+    r9ir_square_steps(q)
+    for st in r9ir_steps(q):
+        mm = re.match(r"Swap x and y: x = (.+)$", st)
+        if mm:
+            need(sp.expand(r9ir_expr(mm.group(1)) - f.subs(X, R9IR_Y)) == 0, f"{st!r} is not x = f(y)")
+        mm = re.match(r"Swap x and y and write it as a quadratic in y: (.+) = 0$", st)
+        if mm:
+            need(sp.expand(r9ir_expr(mm.group(1)) - (f.subs(X, R9IR_Y) - X)) == 0, f"{st!r} is not f(y) − x")
+        mm = re.match(r"y = \((.+)\)/(.+), which simplifies to y = (.+)$", st)
+        if mm:
+            top, den = mm.group(1), r9ir_expr(mm.group(2))
+            got = [r9ir_expr(top.replace("±", s_, 1)) / den for s_ in ("+", "−")]
+            need(any(r9ir_same(a, g, xs) for a in got) and any(r9ir_same(a, bad, xs) for a in got), f"{st!r}: the formula's two roots are not the branches")
+    r9ir_in_every(q, f"y {side} {r9ir_n(h)}", "the domain of f as the inverse's values")
+    return right
+
+
+def r9ir_inverse_domain(q, wrongs):
+    need(q["asked"] == "State the domain of f⁻¹.", f"asked {q['asked']!r}")
+    f, side, h = r9ir_half(q)
+    k = f.subs(X, h)
+    up = sp.LC(sp.Poly(f, X)) > 0
+    need(k != h, "the vertex's coordinates are the same")
+    dir_ = "≥" if up else "≤"
+    want = f"x {dir_} {r9ir_n(k)}"
+    wrongs[R9IR_RD + "2"] = {f"x {side} {r9ir_n(h)}"}
+    wrongs[R9IR_OWN + "10"] = {f"x {dir_} {r9ir_n(h)}"}
+    if q["view"]["rep"] == "graph":
+        g = q["graph"]
+        need(g is not None and len(g["curves"]) == 1, "no graph of f")
+        c = g["curves"][0]
+        r9ir_curve(c, f)
+        need(all((p[0] >= float(h) - 1e-9) if side == "≥" else (p[0] <= float(h) + 1e-9) for p in c), "the graph runs past the domain")
+        need(len(g["points"]) == 1 and abs(g["points"][0]["x"] - float(h)) < 1e-9 and abs(g["points"][0]["y"] - float(k)) < 1e-9, "the vertex is not marked")
+    r9ir_square_steps(q)
+    for sol in q["solutions"]:
+        need(any(f"y {dir_} {r9ir_n(k)}" in st or f"c {dir_} {r9ir_n(k)}" in st for st in sol["steps"]), f"{sol['name']}: the working doesn't give the range of f")
+    return want
+
+
+def r9ir_constant(q, wrongs):
+    need(q["asked"] == "Find the value of k for which f is its own inverse.", f"asked {q['asked']!r}")
+    rule, dom = r9ir_rule(q["lines"][0])
+    f = r9ir_expr(rule)
+    need(R9IR_K in f.free_symbols, "f has no k")
+    ff = sp.together(f.subs(X, f) - X)
+    num_ = sp.Poly(sp.numer(ff), X)
+    sols = sp.solve(num_.coeffs(), R9IR_K, dict=True)
+    # Leave out a k that makes f a constant.
+    ks = [s_[R9IR_K] for s_ in sols if sp.diff(f.subs(R9IR_K, s_[R9IR_K]), X) != 0]
+    need(len(ks) == 1 and ks[0].is_integer and ks[0] != 0, f"no single whole k makes f its own inverse ({ks})")
+    kv = ks[0]
+    pole = sp.solve(sp.denom(sp.together(f)), X)
+    need(len(pole) == 1, "f has not one excluded value")
+    pm = re.fullmatch(r"x ≠ (.+)", dom)
+    need(pm is not None and sp.simplify(r9ir_expr(pm.group(1)) - pole[0]) == 0, f"the excluded value {dom!r} is wrong")
+    wrongs[R9IR_OWN + "12"] = {"k = " + r9ir_n(-kv)}
+    for st in r9ir_steps(q):
+        mm = re.match(r"Here a = (.+) and d = (.+), so (.+) = 0$", st)
+        if mm:
+            a_, d_ = r9ir_expr(mm.group(1)), r9ir_expr(mm.group(2))
+            need(sp.simplify(f - (a_ * X + f.subs(X, 0) * d_) / (X + d_)) == 0, f"{st!r}: those are not this f's a and d")
+            need(sp.expand(r9ir_expr(mm.group(3)) - (a_ + d_)) == 0 and sp.solve(a_ + d_, R9IR_K) == [kv], f"{st!r} is wrong")
+    return "k = " + r9ir_n(kv)
+
+
+def r9ir_selfq(q, wrongs):
+    need(q["asked"] == "Is f its own inverse? Give a reason.", f"asked {q['asked']!r}")
+    rule, dom = r9ir_rule(q["lines"][0])
+    f = r9ir_expr(rule)
+    if dom.startswith("0 ≤ x ≤ "):
+        r = r9ir_expr(dom[8:])
+        need(sp.simplify(f.subs(X, 0) - r) == 0 and f.subs(X, r) == 0, "the root's domain is not 0 to r")
+        xp = sp.Symbol("xp", positive=True)
+        ffx = sp.simplify(f.subs(X, f).subs(X, xp)) - xp
+        self_inv = sp.simplify(ffx) == 0
+        need(self_inv, "a quarter circle that is not its own inverse")
+    else:
+        if dom:
+            pm = re.fullmatch(r"x ≠ (.+)", dom)
+            need(pm is not None and sp.solve(sp.denom(sp.together(f)), X) == [r9ir_expr(pm.group(1))], f"the excluded value {dom!r}")
+        need(sp.diff(f, X) != 0, "f is a constant")
+        self_inv = sp.simplify(f.subs(X, f) - X) == 0
+    if self_inv:
+        want = R9IR_YES_ALL
+    else:
+        m = re.fullmatch(r"No: f\(f\((−?[\d/]+)\)\) = (−?[\d/]+), not (−?[\d/]+)\.", q["answer_text"])
+        need(m is not None, f"the answer {q['answer_text']!r}")
+        v = sp.Rational(m.group(1).replace("−", "-"))
+        need(m.group(3) == m.group(1), "the answer's value and its 'not' differ")
+        ffv = f.subs(X, f.subs(X, v))
+        need(ffv != v, "f(f(v)) is v")
+        want = f"No: f(f({r9ir_n(v)})) = {r9ir_n(ffv)}, not {r9ir_n(v)}."
+        r9ir_in_every(q, f"f({r9ir_n(v)}) = {r9ir_n(f.subs(X, v))} and f({r9ir_n(f.subs(X, v))}) = {r9ir_n(ffv)}", "the check")
+        fixed = [p for p in sp.solve(f - X, X) if p.is_rational]
+        wrongs[R9IR_SI + "1"] = {f"Yes: f(f({r9ir_n(p)})) = {r9ir_n(p)}, so f is its own inverse." for p in fixed}
+        if sp.simplify(f.subs(X, -X) + f) == 0:
+            wrongs[R9IR_SI + "2"] = {R9IR_YES_ODD}
+    # Whatever f is, f(x) × f(x) is not 1 for every x here.
+    need(sp.simplify(f * f - 1) != 0, "f × f is 1")
+    wrongs[R9IR_SI + "0"] = {R9IR_NO_TIMES}
+    for o in q["choices"]:
+        need(o["correct"] or o["ref"] or o["text"] in (R9IR_NO_ONE, R9IR_NO_NEVER, R9IR_YES_ONE), f"an option that isn't one of the claims: {o['text']!r}")
+        if o["text"] in (R9IR_NO_ONE, R9IR_NO_NEVER):
+            need(self_inv, f"{o['text']!r} on a function that is not its own inverse")
+        if o["text"] == R9IR_YES_ONE:
+            need(not self_inv, "'one-to-one, so yes' on a function that is its own inverse")
+    # The compose working's top and bottom, where it shows them.
+    for st in r9ir_steps(q):
+        mm = re.match(r"Multiply the top and the bottom of f\(f\(x\)\) by (.+): the top is (.+) = (.+)$", st)
+        if mm:
+            mult = r9ir_expr(mm.group(1))
+            top = sp.expand(sp.cancel(sp.numer(sp.together(f)).subs(X, f) * mult))
+            need(sp.expand(r9ir_expr(mm.group(2))) == sp.expand(r9ir_expr(mm.group(3))) == top, f"{st!r} is wrong")
+        mm = re.match(r"The bottom is (.+) = (.+)$", st)
+        if mm:
+            need(sp.expand(r9ir_expr(mm.group(1))) == r9ir_expr(mm.group(2)), f"{st!r} is wrong")
+        mm = re.search(r"[Ss]o f⁻¹\(x\) = (.+?)(?:, |$)", st)
+        if mm:
+            need(sp.simplify(f.subs(X, r9ir_expr(mm.group(1))) - X) == 0, f"{st!r}: that is not f⁻¹")
+    return want
+
+
+def r9ir_meet_inc(q, wrongs):
+    need(q["asked"] == "Find the coordinates of the points where the graphs of y = f(x) and y = f⁻¹(x) meet.", f"asked {q['asked']!r}")
+    rule, dom = r9ir_rule(q["lines"][0])
+    f = r9ir_expr(rule)
+    m = re.fullmatch(r"x ≥ (.+)", dom)
+    need(m is not None, f"the domain {dom!r}")
+    lo = r9ir_expr(m.group(1))
+    root = rule.startswith("√")
+    if root:
+        need(f.subs(X, lo) == 0, "the root's domain doesn't start where it is 0")
+    else:
+        need(lo == 0, "the quadratic's domain is not x ≥ 0")
+    need(all(sp.N(sp.diff(f, X).subs(X, lo + sp.Rational(i, 4))) > 0 for i in range(1, 40)), "f is not increasing on its domain")
+    xs = sorted(r for r in sp.solve(f - X, X) if r.is_real and r >= lo)
+    need(len(xs) == 2, "f(x) = x has not two roots in the domain")
+    exact = all(r.is_rational for r in xs)
+    gdc = q["view"]["angle"] == "gdc-intersect"
+    if not exact:
+        need(gdc and q["paper"] == 2, "meeting points that need a GDC on a question without one")
+    else:
+        need(all(r.q in (1, 2) for r in xs), "meeting points that are not whole or halves")
+    want = r9ir_list([r9ir_pt(r, r, exact) for r in xs])
+    # The 1/f slip: f(x)² = 1, and f(x) ≥ 0 on the domain.
+    ones = sorted(r for r in sp.solve(f**2 - 1, X) if r.is_real and r >= lo)
+    if not ones:
+        wrongs[R9IR_II + "2"] = {"The graphs do not meet."}
+    elif all(r.is_rational for r in ones) or not exact:
+        def show(v):
+            if exact:
+                return r9ir_n(v)
+            return dec_text(v) if v.is_rational and "/" not in dec_text(v) else r9ir_sf(v)
+        wrongs[R9IR_II + "2"] = {r9ir_list([f"({show(r)}, 1)" for r in ones])}
+    if q["view"]["rep"] == "graph":
+        g = q["graph"]
+        need(g is not None and len(g["curves"]) == 3, "the graph is not f, f⁻¹ and y = x")
+        r9ir_curve(g["curves"][0], f)
+        need(all(abs(sp.N(f.subs(X, sp.Float(p[1], 30)) - p[0])) < 1e-6 for p in g["curves"][1][::10]), "the second curve is not f⁻¹")
+        need(all(abs(p[0] - p[1]) < 1e-9 for p in g["curves"][2]), "the third line is not y = x")
+    for st in r9ir_steps(q):
+        mm = re.search(r"gives (.+) = 0$", st)
+        if mm:
+            need(set(sp.solve(r9ir_expr(mm.group(1)), X)) == set(xs), f"{st!r}: its roots are not the meeting points")
+        mm = re.match(r"x = \((\d+) ± √(\d+)\)/2", st)
+        if mm:
+            need({(int(mm.group(1)) + s_ * sp.sqrt(int(mm.group(2)))) / 2 for s_ in (1, -1)} == set(xs), f"{st!r} is wrong")
+    for r in xs:
+        r9ir_in_every(q, f"x = {r9ir_n(r) if exact else r9ir_sf(r)}", "the root")
+    return want
+
+
+def r9ir_meet_dec(q, wrongs):
+    need(q["asked"] == "Find the coordinates of every point where the graphs of y = f(x) and y = f⁻¹(x) meet.", f"asked {q['asked']!r}")
+    rule, dom = r9ir_rule(q["lines"][0])
+    need(dom == "", "a decreasing f with a domain")
+    f = r9ir_expr(rule)
+    need(sp.simplify(f.subs(X, -X) + f) == 0, "f is not odd")
+    need(all(sp.diff(f, X).subs(X, v) <= 0 for v in (-2, -1, 0, 1, 2)) and sp.diff(f, X).subs(X, 1) < 0, "f is not decreasing")
+    xs = sorted(r for r in sp.solve(sp.expand(f.subs(X, f) - X), X) if r.is_real)
+    need(len(xs) == 3, "f(f(x)) = x has not three real roots")
+    exact = all(r.is_rational for r in xs)
+    if not exact:
+        need(q["view"]["angle"] == "gdc-intersect" and q["paper"] == 2, "meeting points that need a GDC on a question without one")
+    want = r9ir_list([r9ir_pt(r, f.subs(X, r), exact) for r in xs])
+    on = sorted(r for r in sp.solve(f - X, X) if r.is_real)
+    wrongs[R9IR_II + "0"] = {r9ir_list([r9ir_pt(r, r, exact) for r in on]) + (" only" if len(on) == 1 else "")}
+    if q["view"]["rep"] == "graph":
+        g = q["graph"]
+        need(g is not None and len(g["curves"]) == 3, "the graph is not f, f⁻¹ and y = x")
+        r9ir_curve(g["curves"][0], f)
+        need(all(abs(float(sp.N(f.subs(X, sp.Float(p[1], 30)))) - p[0]) < 1e-6 for p in g["curves"][1][::10]), "the second curve is not f⁻¹")
+        need(all(abs(p[0] - p[1]) < 1e-9 for p in g["curves"][2]), "the third line is not y = x")
+        e = max(abs(float(r)) for r in xs)
+        need(g["x1"] >= e + 0.5 and g["y1"] >= e + 0.5, "the meeting points are off the grid")
+    for st in r9ir_steps(q):
+        mm = re.match(r"Swap x and y: x = .+, so f⁻¹\(x\) = (.+)$", st)
+        if mm:
+            gi = r9ir_expr(mm.group(1))
+            for v in (sp.Rational(1, 3), 2, 5):
+                need(abs(sp.N(f.subs(X, gi.subs(X, v)) - v, 30)) < 1e-20, f"{st!r}: that is not f⁻¹")
+        mm = re.search(r"and f\(f\(x\)\) = (.+) = (.+)$", st)
+        if mm:
+            need(sp.expand(r9ir_expr(mm.group(1)) - f.subs(X, f)) == 0 and sp.expand(r9ir_expr(mm.group(2)) - f.subs(X, f)) == 0, f"{st!r}: that is not f(f(x))")
+    return want
+
+
+def r9ir_check(q):
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    texts = [q["asked"]] + q["lines"] + r9ir_steps(q) + r9ir_choice_texts(q)
+    for tx in texts:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    if q["paper"] == 1:
+        need(not any("GDC" in s["name"] or s["angle"].startswith("gdc-") for s in q["solutions"]), "a calculator working on Paper 1")
+    wrongs = {}
+    if u == "largest-domain":
+        want = r9ir_largest(q, wrongs)
+    elif u == "largest-domain-trig":
+        want = r9ir_trig(q, wrongs)
+    elif u == "inverse-restricted":
+        want = r9ir_inverse(q, wrongs)
+    elif u == "inverse-domain":
+        want = r9ir_inverse_domain(q, wrongs)
+    elif u == "self-inverse-constant":
+        want = r9ir_constant(q, wrongs)
+    elif u == "is-self-inverse":
+        want = r9ir_selfq(q, wrongs)
+    elif u == "meet-increasing":
+        want = r9ir_meet_inc(q, wrongs)
+    elif u == "meet-decreasing":
+        want = r9ir_meet_dec(q, wrongs)
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+SITUATION_CHECKS["inverse-restricted"] = r9ir_check
+
 # (between the R9 markers)
 
 # R9-AI-COMPOSITE: fn-ai-composite-inverse (ai-composite-inverse), prefix R9AC_ / r9ac_

@@ -471,7 +471,7 @@ static func _where_one(s: Dictionary) -> Variant:
 	if s.form == "root":
 		return "(%s, 1)" % _gdc_q(Q.new(n + c, m), s.exact)
 	# n x² + c = m on x ≥ 0.
-	if m - c <= 0:
+	if m - c < 0:
 		return "The graphs do not meet."
 	var sq := Q.new(m - c, n)
 	var r: Variant = S._rational_sqrt(sq)
