@@ -904,7 +904,7 @@ static func _graph_choices(b: Dictionary) -> Array:
 ## and `gi`, its index in its fillers or generic list: tools/feedback-check fails on a
 ## blank that isn't a declared filler (FAL-815). `fillers` are wrong options the views
 ## declare have no slip behind them; `generic` is the same list from before FAL-815,
-## not yet sorted, and only allowed on the check's UNSORTED types.
+## and the check fails on any option from it (FAL-1149 sorted the last ones).
 static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	var seen := {Answer.canon(ans, ans.values): true}
 	var picked: Array = []

@@ -19,9 +19,7 @@ extends SceneTree
 ##             is a slip, with a misconception and its line, or a filler, in the view's
 ##             `fillers` (the key scaled or nudged, a number with no route to it). A
 ##             rounding trap shows Answer.TRAP_NOTE; the engine's last-resort nudges are
-##             fillers. A type on UNSORTED, whose `generic` options haven't been sorted
-##             yet, has its blanks only counted, and fails once it has none (sorted: take
-##             it off the list). A new type never joins the list.
+##             fillers. Enforced on every type (FAL-1149 sorted the last ones).
 ##   method    the question names a method ("Method: ..."), and its worked solution isn't that
 ##             method's: the named method has no tab or isn't the first, or a tab sets the named
 ##             method aside ("does not suit that method", "this method fails") (FAL-814). A
@@ -45,24 +43,6 @@ extends SceneTree
 ## --all enforces the report-only types too.
 
 const REPORT_ONLY := []
-
-## Types whose views still offer `generic` or untagged `wrongs` options (FAL-815): each
-## is sorted into slips and `fillers`, then leaves the list. Nothing joins it.
-const UNSORTED := [
-	"fn-concept-growth-patterns", "fn-ext-inequality-graphical", "fn-ext-intersection-lines",
-	"fn-ext-line-model", "fn-ext-quadratic-model", "fn-ext-rational-model",
-	"fn-ext-transformed-reciprocal", "fn-gdc-features", "fn-link-extremes",
-	"fn-pre-algebraic-fractions", "fn-pre-expand", "fn-pre-graph-reading",
-	"fn-pre-linear-equations", "fn-pre-linear-inequalities", "fn-pre-simultaneous",
-	"fn-pre-surds", "fn-rational-asymptotes-intercepts", "fn-rational-sketch",
-	"fn-sketch-from-features", "fn-sketch-gdc",
-	"t1-arithmetic-sequence", "t1-compound-interest", "t1-depreciation",
-	"t1-solve-exponential", "t3-distance-midpoint", "t3-identity-values",
-	"t3-trig-model-parameters", "t4-discrete-distribution", "t4-expected-occurrences",
-	"t4-expected-value", "t4-independence", "t4-inverse-normal", "t4-normal-probability",
-	"t4-normal-properties", "t4-regression-gdc", "t4-tree-diagram", "t5-concavity",
-	"t5-derivative-graph"
-]
 
 ## Two full stops, but not an ellipsis.
 const DOUBLE_STOP := "(?<!\\.)\\.\\.(?!\\.)"
@@ -94,7 +74,6 @@ var faults := {}  ## "type|fault|ref|token" -> {"type", "fault", "ref", "token",
 var rows := {}  ## "type|unknown|rep|ref" -> row
 var tag_counts := {}  ## type -> {ref: true}
 var shares := {}  ## type -> {"wrong": n, "blank": n, <src>: n blank from it}
-var unsorted_seen := {}  ## type -> true, an UNSORTED type that showed an unsorted blank
 var blank_rows := {}  ## "type|unknown|src|gi" -> first example and a count
 
 
@@ -141,9 +120,6 @@ func _run() -> void:
 		_write_rows(args.rows)
 	if args.blanks != "":
 		_write_blanks(args.blanks)
-	for id in UNSORTED:
-		if (only.is_empty() or id in only) and id in QuestionEngine.built_types() and not unsorted_seen.has(id):
-			_fault(id, "sorted", "", "", "no unsorted blanks: take it off UNSORTED", {})
 	_print_shares()
 	var failed := _report(enforce_all)
 	print("FEEDBACK %d questions, %d enforced failures" % [n, failed])
@@ -198,9 +174,6 @@ func _blank(id: String, q: Dictionary, c: Dictionary) -> void:
 			"answer": q.answer_text, "stem": _stem(q), "cell": q.cell, "seed": q.view.seed, "n": 0}
 	blank_rows[key].n += 1
 	if not (c.src == "generic" or (c.src == "wrongs" and c.ref == "")):
-		return
-	if id in UNSORTED:
-		unsorted_seen[id] = true
 		return
 	var at := "%s %s" % [q.view.unknown, "generic[%d]" % c.gi if c.src == "generic" else "wrongs"]
 	_fault(id, "blank", at, "", "%s (answer %s): a slip needs a misconception, a filler belongs in `fillers`" % [c.text, q.answer_text], q)

@@ -15,6 +15,29 @@ const R_STRETCH := "SL3.7.transformations#1"
 const R_RIGHT := "SL3.7.transformations#2"
 const R_DEGREES := "SL3.7.model-context#0"
 const R_PERIOD_B := "SL3.7.model-context#2"
+# The type's own slips (FAL-1149): a misconception with no skill ref is "<type>#<index>".
+const R_AD_SWAP := "t3-trig-model-parameters#8"
+const R_B_INVERTED := "t3-trig-model-parameters#9"
+const R_C_AT_MIN := "t3-trig-model-parameters#10"
+const R_SIN_AT_MAX := "t3-trig-model-parameters#11"
+const R_QUARTER_ADDED := "t3-trig-model-parameters#12"
+const R_Q_AT_MIN := "t3-trig-model-parameters#13"
+const R_EXACT_SIGN := "t3-trig-model-parameters#14"
+const R_NOT_TIMES_P := "t3-trig-model-parameters#15"
+const R_Q_ALONE := "t3-trig-model-parameters#16"
+const R_ADD_COEFFS := "t3-trig-model-parameters#17"
+const R_TAN_2PI := "t3-trig-model-parameters#18"
+const R_TAN_LINE := "t3-trig-model-parameters#19"
+const R_TIMES_B := "t3-trig-model-parameters#20"
+const R_UP_DOWN := "t3-trig-model-parameters#21"
+const R_A_POSITIVE := "t3-trig-model-parameters#22"
+const R_D_RADIUS := "t3-trig-model-parameters#23"
+const R_ADD_ANGLE := "t3-trig-model-parameters#24"
+const R_T_MINUS_C := "t3-trig-model-parameters#25"
+const R_NO_ASIN := "t3-trig-model-parameters#26"
+const R_WHOLE_SPAN := "t3-trig-model-parameters#27"
+const R_FROM_MIN := "t3-trig-model-parameters#28"
+const R_SIN_FOR_COS := "t3-trig-model-parameters#29"
 
 ## What each story measures, its unit of height and of time, and its name for the wave.
 const CONTEXTS := [
@@ -159,15 +182,15 @@ func u_amp_axis(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := named(["a", "d"], [s.a, s.d], false)
 	var v := show(rep, s, "a cos(b(%s − c)) + d, a > 0" % L(s))
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "asked": "Find a and d."}
-	out.wrongs = [wrong(named_vals([s.top.sub(s.low), s.d]), R_NO_HALF)]
-	out.generic = [named_vals([s.a, s.top]), named_vals([s.d, s.a]), named_vals([s.a, s.low]), named_vals([s.a, s.d.add(1)])]
+	out.wrongs = [wrong(named_vals([s.top.sub(s.low), s.d]), R_NO_HALF), wrong(named_vals([s.d, s.a]), R_AD_SWAP)]
+	out.fillers = [named_vals([s.a, s.top]), named_vals([s.a, s.low]), named_vals([s.a, s.d.add(1)])]
 	var r := "a = (max − min) ÷ 2 = (%s − %s) ÷ 2 = %s" % [D(s.top), P(s.low), D(s.a)]
 	var m := "d = (max + min) ÷ 2 = (%s + %s) ÷ 2 = %s" % [D(s.top), P(s.low), D(s.d)]
 	out.methods = {"max-min-averages": method([r, m, say(a)], a.values)}
 	return out
 
 
-func u_b_from_period(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_b_from_period(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var v := show(rep, s, "a cos(b(%s − c)) + d, b > 0" % L(s))
 	var out := {"lines": v.lines, "graph": v.graph}
 	if s.paper == 1:
@@ -175,16 +198,19 @@ func u_b_from_period(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.answer = a
 		out.asked = "Find b."
 		out.wrongs = [wrong({"v": Q.new(2 * s.w)}, R_PERIOD_GAP)]
-		out.generic = [{"v": Q.new(s.w + 1)}, {"v": Q.new(3 * s.w)}, {"v": Q.new(1, 2).mul(s.w)}, {"v": Q.new(s.w).add(Q.new(1, 2))}].filter(func(g): return not g.v.eq(s.w))
+		out.fillers = [{"v": Q.new(s.w + 1)}, {"v": Q.new(3 * s.w)}, {"v": Q.new(1, 2).mul(s.w)}, {"v": Q.new(s.w).add(Q.new(1, 2))}].filter(func(g): return not g.v.eq(s.w))
 		out.methods = {"max-min-averages": method(["The gap from a maximum to the next minimum is %s, half a period." % Fmt.pi(s.xmin.sub(s.xmax)), "The period is %s, so b = 2π ÷ %s = %d" % [Fmt.pi(Q.new(2, s.w)), Fmt.pi(Q.new(2, s.w)), s.w], say(a)], a.values)}
 		return out
 	var T: float = s.period.to_float()
 	var a := fnum("b = ", TAU / T)
 	out.answer = a
 	out.asked = "Find b, to 3 significant figures."
-	out.wrongs = [wrong({"v": GdcKit.qf(TAU / (T / 2.0))}, R_PERIOD_GAP), wrong({"v": GdcKit.qf(T)}, R_PERIOD_B)]
-	out.generic = [{"v": GdcKit.qf(PI / T / 2.0)}, {"v": GdcKit.qf(T / TAU)}, {"v": GdcKit.qf(TAU / T + 0.2)}]
+	out.wrongs = [wrong({"v": GdcKit.qf(TAU / (T / 2.0))}, R_PERIOD_GAP), wrong({"v": GdcKit.qf(T)}, R_PERIOD_B), wrong({"v": GdcKit.qf(T / TAU)}, R_B_INVERTED)]
+	out.fillers = [{"v": GdcKit.qf(PI / T / 2.0)}, {"v": GdcKit.qf(TAU / T + 0.2)}]
 	out.methods = {"max-min-averages": method(["The gap from a maximum to the next minimum is %s, half a period." % D(s.period.div(2)), "The period is %s, so b = 2π ÷ %s = %s" % [D(s.period), D(s.period), GdcKit.W(TAU / T)], say(a)], a.values)}
+	# More slips than the options have room for: a different few show each time (FAL-1149).
+	if rng != null:
+		out.wrongs = rng.shuffled(out.wrongs)
 	return out
 
 
@@ -214,8 +240,8 @@ func u_c_cos_from_max(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := c_ans(s, c)
 	var v := show(rep, s, "%s cos(%s(%s − c)) + %s" % [D(s.a), b_text(s), L(s), D(s.d)])
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "asked": "Find the smallest positive value of c."}
-	out.wrongs = c_like(a, s, c.neg(), R_C_SIGN)
-	out.generic = c_others(a, s, [s.xmin, c.mul(2), c.add(s.xmin), c.div(2), s.xmin.sub(c)])
+	out.wrongs = c_like(a, s, c.neg(), R_C_SIGN) + c_like(a, s, s.xmin, R_C_AT_MIN)
+	out.fillers = c_others(a, s, [c.mul(2), c.add(s.xmin), c.div(2), s.xmin.sub(c)])
 	var at := X(s, c)
 	out.methods = {"cos-at-max": method(["cos is largest at 0, so a cos(b(%s − c)) + d has a maximum at %s = c." % [L(s), L(s)], "The first maximum is at %s = %s." % [L(s), at], say(a)], a.values),
 		"substitute-point": method(["Put in the maximum: %s = %s cos(%s(%s − c)) + %s" % [D(s.top), D(s.a), b_text(s), at, D(s.d)], "So cos(%s(%s − c)) = 1, and the bracket is 0." % [b_text(s), at], say(a)], a.values)}
@@ -235,8 +261,8 @@ func u_c_sine_shift(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := c_ans(s, c)
 	var v := show(rep, s, "%s sin(%s(%s − c)) + %s" % [D(s.a), b_text(s), L(s), D(s.d)])
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "asked": "Find the smallest positive value of c."}
-	out.wrongs = c_like(a, s, quarter.sub(s.xmax), R_C_SIGN)
-	out.generic = c_others(a, s, [s.xmax, s.xmax.add(quarter), quarter, c.mul(2), s.xmin.sub(quarter), s.xmin.sub(s.xmax)])
+	out.wrongs = c_like(a, s, quarter.sub(s.xmax), R_C_SIGN) + c_like(a, s, s.xmax, R_SIN_AT_MAX) + c_like(a, s, s.xmax.add(quarter), R_QUARTER_ADDED)
+	out.fillers = c_others(a, s, [quarter, c.mul(2), s.xmin.sub(quarter), s.xmin.sub(s.xmax)])
 	var at := X(s, s.xmax)
 	var bt := b_text(s)
 	var q := X(s, quarter)
@@ -263,14 +289,14 @@ static func four_like(s: Dictionary, a: Q, bv: Variant, c: Q, d: Q, ref: String 
 	return DifferentiationViews.alt(four_text(a, bv, c, d), ref, {"a": a, "b": bv, "c": c, "d": d})
 
 
-func u_all_four(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_all_four(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var a := four_ans(s)
 	var v := show(rep, s, "a cos(b(%s − c)) + d" % L(s))
 	var out := {"answer": a, "lines": v.lines, "graph": v.graph, "asked": ("Find a, b, c and d, with a, b > 0 and c the first maximum." if s.paper == 1 else "Find a, b, c and d, with a, b > 0 and c the first maximum. Give each to 3 significant figures.")}
 	var b: Variant = Q.new(s.w) if s.paper == 1 else TAU / s.period.to_float()
 	var b2: Variant = b.mul(2) if s.paper == 1 else b * 2.0
 	out.wrongs = [four_like(s, s.top.sub(s.low), b, s.xmax, s.d, R_NO_HALF), four_like(s, s.a, b2, s.xmax, s.d, R_PERIOD_GAP), four_like(s, s.a, b, s.xmax.neg(), s.d, R_C_SIGN)]
-	out.generic = [four_like(s, s.a, b, s.xmin, s.d).values, four_like(s, s.d, b, s.xmax, s.a).values]
+	out.wrongs += [four_like(s, s.a, b, s.xmin, s.d, R_C_AT_MIN), four_like(s, s.d, b, s.xmax, s.a, R_AD_SWAP)]
 	var gap := X(s, s.xmin.sub(s.xmax))
 	var per := X(s, s.xmin.sub(s.xmax).mul(2))
 	var first := "a = (%s − %s) ÷ 2 = %s, d = (%s + %s) ÷ 2 = %s" % [D(s.top), P(s.low), D(s.a), D(s.top), P(s.low), D(s.d)]
@@ -279,6 +305,9 @@ func u_all_four(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.methods = {"max-min-averages": method([first, second, third, say(a)], a.values),
 		"cos-at-max": method(["Use cosine, so c is simply the x-coordinate of the maximum: c = %s." % X(s, s.xmax), first, second, say(a)], a.values),
 		"gdc-check": method([first, second, third, "Graph the model: it passes through both turning points.", say(a)], a.values)}
+	# More slips than the options have room for: a different few show each time (FAL-1149).
+	if rng != null:
+		out.wrongs = rng.shuffled(out.wrongs)
 	return out
 
 
@@ -303,8 +332,9 @@ func u_q_from_minimum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = [eq, "The graph of f has its lowest points on the dashed line y = %s." % N(s.m)]
 		out.graph = g
 	var wrong_q := TrigKit.plus(TrigKit.times(TrigKit.of(fn, s.phi), s.p), TrigKit.V(s.m))
-	out.wrongs = TrigKit.like(a, wrong_q)
-	out.generic = TrigKit.others(a, [TrigKit.plus(TrigKit.neg(TrigKit.times(TrigKit.of(fn, s.phi), s.p)), TrigKit.V(s.q0)), TrigKit.plus(TrigKit.of(fn, s.phi), TrigKit.V(s.q0)), TrigKit.V(s.q0), TrigKit.plus(v, TrigKit.V(1)), TrigKit.plus(v, TrigKit.V(2))])
+	out.wrongs = TrigKit.like(a, wrong_q, R_Q_AT_MIN) + TrigKit.like(a, TrigKit.plus(TrigKit.neg(TrigKit.times(TrigKit.of(fn, s.phi), s.p)), TrigKit.V(s.q0)), R_EXACT_SIGN) \
+		+ TrigKit.like(a, TrigKit.plus(TrigKit.of(fn, s.phi), TrigKit.V(s.q0)), R_NOT_TIMES_P) + TrigKit.like(a, TrigKit.V(s.q0), R_Q_ALONE)
+	out.fillers = TrigKit.others(a, [TrigKit.plus(v, TrigKit.V(1)), TrigKit.plus(v, TrigKit.V(2))])
 	var first := "The minimum of f is q − %d, so q − %d = %s and q = %s." % [s.p, s.p, N(s.m), N(s.q0)]
 	var at0 := "f(0) = %d %s(%s) + %s" % [s.p, fn, Fmt.pi(s.phi), P(s.q0)]
 	out.methods = {"max-min-averages": method([first, "The y-intercept is f(0): %s = %s" % [at0, TrigKit.text(v)], say(a)], a.values),
@@ -328,7 +358,8 @@ func u_sum_as_cos(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = [eq, "The graph of y = g(x) is shown, with its first maximum marked."]
 		out.graph = g
 	out.wrongs = [wrong(named_vals([2.0 * amp, Q.new(s.k), c]), R_NO_HALF), wrong(named_vals([amp, Q.new(s.k), -c]), R_C_SIGN)]
-	out.generic = [named_vals([amp, Q.new(2 * s.k), c]), named_vals([p + q, Q.new(s.k), c]), named_vals([amp, Q.new(s.k), c + 0.5])]
+	out.wrongs.append(wrong(named_vals([p + q, Q.new(s.k), c]), R_ADD_COEFFS))
+	out.fillers = [named_vals([amp, Q.new(2 * s.k), c]), named_vals([amp, Q.new(s.k), c + 0.5])]
 	var f1 := "On a GDC, the maximum of g is at (%s, %s)." % [GdcKit.W(c), GdcKit.W(amp)]
 	var f2 := "g has the period of sin %sx, 2π ÷ %d, so b = %d." % [_k(s), s.k, s.k]
 	out.methods = {"max-min-averages": method([f1, "The range is symmetric about 0, so a is the maximum value: a = %s" % GdcKit.W(amp), f2, say(a)], a.values),
@@ -363,9 +394,10 @@ func u_tan_two_points(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var g := Plot.spec(TrigKit.branches(Plot.sample(f, 0.0, float(span))), [[s.h.to_float(), s.v.to_float(), pt_], [s.z.to_float(), 0.0, zt]], 0, span, -top, top)
 		out.lines = [eq, "The graph of f is shown, with two points on it. The point on the x-axis is the first x-intercept to the right of the origin."]
 		out.graph = g
-	out.wrongs = [wrong(named_vals([s.v.to_float() / tan(TAU / s.z.to_float() * s.h.to_float()), TAU / s.z.to_float()]))]
 	var deg: float = s.v.to_float() / tan(deg_to_rad(b * s.h.to_float()))
-	out.generic = [named_vals([s.v.to_float() / s.h.to_float(), b]), named_vals([av, b * 2.0 + 0.1]), named_vals([av + 1.0, b]), named_vals([deg, b])]
+	out.wrongs = [wrong(named_vals([s.v.to_float() / tan(TAU / s.z.to_float() * s.h.to_float()), TAU / s.z.to_float()]), R_TAN_2PI),
+		wrong(named_vals([s.v.to_float() / s.h.to_float(), b]), R_TAN_LINE), wrong(named_vals([deg, b]), R_DEGREES)]
+	out.fillers = [named_vals([av, b * 2.0 + 0.1]), named_vals([av + 1.0, b])]
 	var f1 := "tan has period π, and the first x-intercept is one period along: π ÷ b = %s, so b = %s" % [D(s.z), GdcKit.W(b)]
 	var f2 := "Put in %s: %s = a tan(%s × %s), so a = %s" % [pt_, D(s.v), GdcKit.W(b), D(s.h), GdcKit.W(av)]
 	out.methods = {"substitute-point": method([f1, f2, say(a)], a.values),
@@ -397,7 +429,8 @@ func u_shift_from_bracket(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var eq := "y = " + lifted(s.amp, s.fn, raw_bracket(s), s.lift)
 	var out := {"answer": a, "lines": [eq, "This is y = a %s(b(x − c)) + d." % s.fn], "asked": "Find c."}
 	out.wrongs = _signed_like(a, s, s.phi if s.right else s.phi.neg(), R_SHIFT_B) + _signed_like(a, s, c.neg(), R_RIGHT)
-	out.generic = _signed_others(a, s, [c.mul(2), c.div(2), s.phi.mul(s.bw), c.add(Q.new(1, 2))])
+	out.wrongs += _signed_like(a, s, s.phi.mul(s.bw) if s.right else s.phi.mul(s.bw).neg(), R_TIMES_B)
+	out.fillers = _signed_others(a, s, [c.mul(2), c.div(2), s.phi.mul(s.bw), c.add(Q.new(1, 2))])
 	var fac := "Take %d out of the bracket: %dx %s %s = %d(x %s %s)" % [s.bw, s.bw, "−" if s.right else "+", ph(s, s.phi), s.bw, "−" if s.right else "+", ph(s, c.abs_q())]
 	out.methods = {"factor-b-first": method([fac, say(a)], a.values),
 		"translation-vector": method([fac, "The shift is %s to the %s, so it is c = %s in x − c." % [ph(s, c.abs_q()), "right" if s.right else "left", ph(s, c)], say(a)], a.values)}
@@ -475,20 +508,25 @@ func u_image_equation(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"answer": a, "lines": [f, line], "asked": "Write down g(x)."}
 	out.wrongs = wrongs_in.map(func(w): return DifferentiationViews.alt(q_label + w[0], w[2], w[1]))
 	var gens: Array = []
+	var out_up := {}
 	var bump := func(k: String, dv: Variant, shown: String) -> void:
 		var nv := vals.duplicate()
 		nv[k] = Q.of(vals[k]).add(dv)
 		gens.append(DifferentiationViews.alt(q_label + shown, "", nv).values)
 	if s.kind == "translate":
 		bump.call("d", 1, image_text(s, s.amp, fn, s.bw, c, s.lift + s.up + 1))
-		bump.call("d", -2 * s.up, image_text(s, s.amp, fn, s.bw, c, s.lift - s.up))
+		var down := vals.duplicate()
+		down.d = Q.new(s.lift - s.up)
+		out_up = DifferentiationViews.alt(q_label + image_text(s, s.amp, fn, s.bw, c, s.lift - s.up), R_UP_DOWN, down)
 		bump.call("a", 1, image_text(s, s.amp + 1, fn, s.bw, c, s.lift + s.up))
 		bump.call("b", 1, image_text(s, s.amp, fn, s.bw + 1, c, s.lift + s.up))
 	else:
 		bump.call("a", 1, image_text(s, s.amp + 1, fn, s.bw * s.sf, Q.new(0), s.lift))
 		bump.call("d", 1, image_text(s, s.amp, fn, s.bw * s.sf, Q.new(0), s.lift + 1))
 		bump.call("b", 1, image_text(s, s.amp, fn, s.bw * s.sf + 1, Q.new(0), s.lift))
-	out.generic = gens
+	if not out_up.is_empty():
+		out.wrongs.append(out_up)
+	out.fillers = gens
 	out.methods = {"translation-vector": method(steps + [say(a)], a.values), "track-key-points": method(tracked + [say(a)], a.values)}
 	return out
 
@@ -553,7 +591,8 @@ func u_pq_from_translation(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 			return wrong(named_vals([pv, Q.new(qv)]), ref)
 		return DifferentiationViews.alt("p = %s, q = %s" % [Fmt.pi(pv), N(qv)], ref, {"p": pv, "q": Q.new(qv)})
 	out.wrongs = [alt.call(s.phi if s.right else s.phi.neg(), q, R_SHIFT_B), alt.call(p.neg(), q, R_RIGHT)]
-	out.generic = [alt.call(p, -q).values, alt.call(p.mul(2), q).values, alt.call(p.div(2), q).values, alt.call(p, q + 1).values]
+	out.wrongs.append(alt.call(p, -q, R_UP_DOWN))
+	out.fillers = [alt.call(p.mul(2), q).values, alt.call(p.div(2), q).values, alt.call(p, q + 1).values]
 	var fac := "Take %d out of the bracket: %s = %d(x %s %s)" % [s.bw, raw_bracket(s), s.bw, "−" if s.right else "+", ph(s, c)]
 	out.methods = {"translation-vector": method([fac, "So x − p has p = %s, and the outside number gives q = %s." % [ph(s, p), N(q)], say(a)], a.values),
 		"gdc-overlay": method([fac, "Graph f(x − p) + q with p = %s and q = %s: it lies on the graph of g." % [ph(s, p), N(q)], say(a)], a.values)}
@@ -562,7 +601,7 @@ func u_pq_from_translation(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 
 # ── Models from a story ──────────────────────────────────────
 
-func u_wheel_model(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_wheel_model(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var T: float = s.period.to_float()
 	var b := TAU / T
 	var a_v: Q = s.a.neg()
@@ -578,16 +617,20 @@ func u_wheel_model(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		g.y_name = "h"
 		out.lines = [eq, "The graph shows the height of a seat for just over one turn of the wheel."]
 		out.graph = g
-	out.wrongs = [wrong(named_vals([a_v, T, s.d]), R_PERIOD_B), wrong(named_vals([a_v, TAU / (T / 2.0), s.d]), R_PERIOD_GAP)]
-	out.generic = [named_vals([s.a, b, s.d]), named_vals([a_v, b, s.a]), named_vals([s.a.mul(2).neg(), b, s.d]), named_vals([a_v, b, s.d.add(s.base)])]
+	out.wrongs = [wrong(named_vals([a_v, T, s.d]), R_PERIOD_B), wrong(named_vals([a_v, TAU / (T / 2.0), s.d]), R_PERIOD_GAP),
+		wrong(named_vals([s.a, b, s.d]), R_A_POSITIVE), wrong(named_vals([a_v, b, s.a]), R_D_RADIUS), wrong(named_vals([s.a.mul(2).neg(), b, s.d]), R_NO_HALF)]
+	out.fillers = [named_vals([a_v, b, s.d.add(s.base)])]
 	var first := "The height runs from %s to %s, so a = −%s, negative as it starts at the bottom, and d = %s." % [D(s.low), D(s.top), D(s.a), D(s.d)]
 	var second := "One turn is %s minutes, so b = 2π ÷ %s = %s" % [D(s.period), D(s.period), GdcKit.W(b)]
 	out.methods = {"max-min-averages": method([first, second, say(a)], a.values),
 		"substitute-evaluate": method([first, second, "Check t = 0: h = −%s + %s = %s, the lowest point." % [D(s.a), D(s.d), D(s.low)], say(a)], a.values)}
+	# More slips than the options have room for: a different few show each time (FAL-1149).
+	if rng != null:
+		out.wrongs = rng.shuffled(out.wrongs)
 	return out
 
 
-func u_c_from_crossing(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_c_from_crossing(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var b := bf(s)
 	var r: float = s.level.sub(s.d).div(s.a).to_float()
 	var c: float = s.t1.to_float() - asin(r) / b
@@ -599,14 +642,18 @@ func u_c_from_crossing(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var when := "It reaches %s %s, while rising, at t = %s." % [D(s.level), cc.unit, D(s.t1)]
 	out.lines = [head, when] if rep == "words" else [eq, "%s(%s) = %s, with %s rising at t = %s." % [cc.sym, D(s.t1), D(s.level), cc.sym, D(s.t1)]]
 	out.wrongs = [wrong({"v": GdcKit.qf(s.t1.to_float() - rad_to_deg(asin(r)) / b)}, R_DEGREES)]
-	out.generic = [{"v": GdcKit.qf(s.t1.to_float() + asin(r) / b)}, {"v": GdcKit.qf(asin(r) / b)}, {"v": GdcKit.qf(s.t1.to_float() - r / b)}, {"v": GdcKit.qf(c + s.period.to_float() / 4.0)}]
+	out.wrongs += [wrong({"v": GdcKit.qf(s.t1.to_float() + asin(r) / b)}, R_ADD_ANGLE), wrong({"v": GdcKit.qf(asin(r) / b)}, R_T_MINUS_C), wrong({"v": GdcKit.qf(s.t1.to_float() - r / b)}, R_NO_ASIN)]
+	out.fillers = [{"v": GdcKit.qf(c + s.period.to_float() / 4.0)}]
 	var first := "sin(%s(%s − c)) = (%s − %s) ÷ %s = %s" % [b_text(s), D(s.t1), D(s.level), D(s.d), D(s.a), GdcKit.W(r)]
 	out.methods = {"solve-analytically": method([first, "Rising, so take sin⁻¹: %s(%s − c) = %s" % [b_text(s), D(s.t1), GdcKit.W(asin(r))], "c = %s − %s = %s" % [D(s.t1), PW(asin(r) / b), GdcKit.W(c)], say(a)], a.values),
 		"gdc-intersection": method(["Graph y = %s sin(%s x) + %s and y = %s: they cross, going up, at x = %s." % [D(s.a), b_text(s), D(s.d), D(s.level), GdcKit.W(asin(r) / b)], "That graph is the model moved back by c, so c = %s − %s = %s" % [D(s.t1), PW(asin(r) / b), GdcKit.W(c)], say(a)], a.values)}
+	# More slips than the options have room for: a different few show each time (FAL-1149).
+	if rng != null:
+		out.wrongs = rng.shuffled(out.wrongs)
 	return out
 
 
-func u_level_from_duration(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_level_from_duration(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var b := bf(s)
 	var half: float = s.width.to_float() / 2.0
 	var lv: float = s.a.to_float() * cos(b * half) + s.d.to_float()
@@ -619,10 +666,15 @@ func u_level_from_duration(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		out.lines = [eq, "The graph is shown. In each cycle the curve is above the level k for %s %s." % [D(s.width), cc.time]]
 		out.graph = g
 	out.wrongs = [wrong({"v": GdcKit.qf(s.a.to_float() * cos(deg_to_rad(b * half)) + s.d.to_float())}, R_DEGREES)]
-	out.generic = [{"v": GdcKit.qf(s.a.to_float() * cos(b * s.width.to_float()) + s.d.to_float())}, {"v": GdcKit.qf(s.d.to_float() - s.a.to_float() * cos(b * half))}, {"v": GdcKit.qf(s.a.to_float() * sin(b * half) + s.d.to_float())}, {"v": GdcKit.qf(lv + 1.0)}]
+	out.wrongs += [wrong({"v": GdcKit.qf(s.a.to_float() * cos(b * s.width.to_float()) + s.d.to_float())}, R_WHOLE_SPAN), wrong({"v": GdcKit.qf(s.d.to_float() - s.a.to_float() * cos(b * half))}, R_FROM_MIN),
+		wrong({"v": GdcKit.qf(s.a.to_float() * sin(b * half) + s.d.to_float())}, R_SIN_FOR_COS)]
+	out.fillers = [{"v": GdcKit.qf(lv + 1.0)}]
 	var hw := D(s.width.div(2))
 	var f1 := "The wave is symmetric about its peak, so it is above k from %s before the peak to %s after it." % [hw, hw]
 	var f2 := "k = %s cos(%s × %s) + %s = %s" % [D(s.a), b_text(s), hw, D(s.d), GdcKit.W(lv)]
 	out.methods = {"symmetry-duration": method([f1, f2, say(a)], a.values),
 		"solve-analytically": method(["Above k from t₁ to t₂: t₂ − t₁ = %s, and the peak is halfway between them." % D(s.width), "So t₂ is %s after the peak, and the height there is k." % hw, f2, say(a)], a.values)}
+	# More slips than the options have room for: a different few show each time (FAL-1149).
+	if rng != null:
+		out.wrongs = rng.shuffled(out.wrongs)
 	return out

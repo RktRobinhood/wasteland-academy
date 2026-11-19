@@ -11,6 +11,16 @@ const R_REACHES := "SL2.8.rational-model#0"
 const R_ROUND_DOWN := "SL2.8.rational-model#1"
 const R_REAL_VALUE := "SL2.8.rational-model#2"
 const R_OUTPUT := "SL2.2.function-model#2"
+# The slips of the old generic options (FAL-1149), each confirmed by tools/check_answers.py.
+const R_TOP_ONLY := "fn-ext-rational-model#4"
+const R_LONG_RUN_FOR_VALUE := "fn-ext-rational-model#5"
+const R_CONSTANTS_LONG_RUN := "fn-ext-rational-model#6"
+const R_NO_LIMIT := "fn-ext-rational-model#7"
+const R_TOTAL := "fn-ext-rational-model#8"
+const R_FIXED_ONLY := "fn-ext-rational-model#9"
+const R_PART_VOLUME := "fn-ext-rational-model#10"
+const R_SALT_NOT_TIMES := "fn-ext-rational-model#11"
+const R_VA_AS_HA := "fn-ext-rational-model#12"
 
 
 func needs() -> Dictionary:
@@ -53,7 +63,7 @@ static func D(v: Variant) -> String:
 
 
 static func pick(right: String, bad: Array, plain: Array) -> Dictionary:
-	return InverseRuleViews.choose(right, bad, plain)
+	return InverseRuleViews.pick_of(right, bad, plain)
 
 
 static func tag(text: String, ref: String) -> Dictionary:
@@ -179,8 +189,9 @@ func u_evaluate_model(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("number", {"v": val}, {}, f + " = ", unit(s))
 	ans.exact = true
 	ans.show = "dec"
-	var out := {"asked": "Find %s." % f, "lines": lines_for(s, rep), "answer": ans, "wrongs": [],
-		"generic": [{"v": Q.new(s.be + s.al * x0)}, {"v": Q.new(s.al)}, {"v": val.add(Q.new(1))}, {"v": Q.new(s.be).div(Q.new(x0 + s.ga))}]}
+	var out := {"asked": "Find %s." % f, "lines": lines_for(s, rep), "answer": ans,
+		"wrongs": [wrong({"v": Q.new(s.be + s.al * x0)}, R_TOP_ONLY), wrong({"v": Q.new(s.al)}, R_LONG_RUN_FOR_VALUE)],
+		"fillers": [{"v": val.add(Q.new(1))}, {"v": Q.new(s.be).div(Q.new(x0 + s.ga))}]}
 	if rep == "table":
 		out.table = table(s, s.xs)
 	var top := "%d + %d × %d" % [s.be, s.al, x0] if s.ctx != "settle" else "%d × %d + %d" % [s.al, x0, s.be]
@@ -198,15 +209,15 @@ func u_long_run_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := long_run(s, false)
 	var out := {"asked": "What happens to %s in the long run, and is that value ever reached?" % {"cost": "the average cost per item", "mix": "the concentration", "settle": "the level"}[s.ctx],
 		"lines": [about(s)] if rep == "equation" else [about(s), "The graph of the model is shown, with its horizontal asymptote dashed."]}
-	var plain: Array = []
+	var bad: Array = []
 	match s.ctx:
 		"cost":
-			plain = ["The average cost per item gets closer and closer to %s dollars, the fixed cost, but never reaches it." % N(s.F), "The average cost per item rises without limit as more items are made."]
+			bad = ["The average cost per item gets closer and closer to %s dollars, the fixed cost, but never reaches it." % N(s.F), "The average cost per item rises without limit as more items are made."]
 		"mix":
-			plain = ["The concentration gets closer and closer to %s g per litre, the strength it started at, but never reaches it." % N(s.c0), "The concentration rises without limit as more is added."]
+			bad = ["The concentration gets closer and closer to %s g per litre, the strength it started at, but never reaches it." % N(s.c0), "The concentration rises without limit as more is added."]
 		_:
-			plain = ["The level gets closer and closer to %s%s, the level it started at, but never reaches it." % [N(s.P0), s.story[1]], "The level rises without limit."]
-	out.merge(pick(right, [tag(long_run(s, true), R_REACHES)], plain))
+			bad = ["The level gets closer and closer to %s%s, the level it started at, but never reaches it." % [N(s.P0), s.story[1]], "The level rises without limit."]
+	out.merge(pick(right, [tag(long_run(s, true), R_REACHES), tag(bad[0], R_CONSTANTS_LONG_RUN), tag(bad[1], R_NO_LIMIT)], []))
 	if rep == "graph":
 		out.graph = graph(s)
 	var fin := "So " + right
@@ -235,7 +246,7 @@ func u_least_n_for_target(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var shown := Q.new(roundi(at_n.to_float() * 100.0), 100)
 	var out := {"asked": asked, "lines": lines_for(s, rep), "answer": ans,
 		"wrongs": [{"values": {"v": Q.new(down)}, "ref": R_ROUND_DOWN}, {"values": {"v": shown}, "ref": R_OUTPUT}],
-		"generic": [{"v": Q.new(n + 1)}, {"v": Q.new(n * 2)}, {"v": Q.new(down - 1)}]}
+		"fillers": [{"v": Q.new(n + 1)}, {"v": Q.new(n * 2)}, {"v": Q.new(down - 1)}]}
 	var fin := "So " + Answer.text(ans) + "."
 	var near := Fmt.dec(Q.new(roundi(s.nstar.to_float() * 100.0), 100))
 	var rounded := "%s = %s (to 2 d.p.), which is not whole: at %d the value has not passed %s, so round up to %d." % [v, near, down, D(T), n]
@@ -254,8 +265,8 @@ func u_input_for_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	ans.exact = true
 	ans.show = "dec"
 	var f := fn(s)
-	var out := {"asked": "For which %s is %s(%s) = %s?" % [v, f, v, D(T)], "lines": lines_for(s, "equation") if rep != "words" else [about(s)], "answer": ans, "wrongs": [],
-		"generic": [{"v": Q.new(xs_ + 10)}, {"v": T}, {"v": Q.new(maxi(xs_ - 10, 1))}, {"v": Q.new(xs_ * 2)}]}
+	var out := {"asked": "For which %s is %s(%s) = %s?" % [v, f, v, D(T)], "lines": lines_for(s, "equation") if rep != "words" else [about(s)], "answer": ans,
+		"wrongs": [wrong({"v": T}, R_OUTPUT)], "fillers": [{"v": Q.new(xs_ + 10)}, {"v": Q.new(maxi(xs_ - 10, 1))}, {"v": Q.new(xs_ * 2)}]}
 	if rep == "table":
 		out.table = table(s, s.xs)
 	if rep == "graph":
@@ -276,11 +287,12 @@ func u_build_model(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var bad: Array
 	match s.ctx:
 		"cost":
-			bad = [tag("A(n) = %d + %dn" % [s.F, s.v], "")]
-			plain = ["A(n) = %d/n + %dn" % [s.F, s.v], "A(n) = (%dn + %d)/n" % [s.F, s.v], "A(n) = (%d + %dn)/%d" % [s.F, s.v, s.F]]
+			bad = [tag("A(n) = %d + %dn" % [s.F, s.v], R_TOTAL), tag("A(n) = %d/n + %dn" % [s.F, s.v], R_FIXED_ONLY)]
+			plain = ["A(n) = (%dn + %d)/n" % [s.F, s.v], "A(n) = (%d + %dn)/%d" % [s.F, s.v, s.F]]
 		_:
-			bad = [tag("C(x) = %d + %dx" % [s.s, s.p], "")]
-			plain = ["C(x) = (%d + %dx)/x" % [s.s, s.p], "C(x) = (%d + %d)/(%d + x)" % [s.s, s.p, s.V], "C(x) = (%d + %dx)/%d" % [s.s, s.p, s.V]]
+			bad = [tag("C(x) = %d + %dx" % [s.s, s.p], R_TOTAL), tag("C(x) = (%d + %dx)/x" % [s.s, s.p], R_PART_VOLUME),
+				tag("C(x) = (%d + %d)/(%d + x)" % [s.s, s.p, s.V], R_SALT_NOT_TIMES), tag("C(x) = (%d + %dx)/%d" % [s.s, s.p, s.V], R_PART_VOLUME)]
+			plain = []
 	out.merge(pick(right, bad, plain))
 	var fin := "So " + right + "."
 	var total := "total cost = %d + %dn" % [s.F, s.v] if s.ctx == "cost" else "total salt = %d + %dx grams, total volume = %d + x litres" % [s.s, s.p, s.V]
@@ -293,23 +305,22 @@ func u_interpret_vertical_asymptote(rep: String, s: Dictionary, _rng: Seeded) ->
 	var at_ := "%s = %s" % [v, N(-s.ga)]
 	var right: String
 	var bad: Array
-	var plain: Array
 	match s.ctx:
 		"cost":
 			right = "n = 0 is outside the sensible domain: with no items made the average cost is not defined."
 			bad = [tag("n = 0 is a real production level: making 0 items gives the highest average cost.", R_REAL_VALUE)]
-			plain = ["n = 0 is where the average cost reaches %s dollars." % N(s.al), "n = 0 shows the fixed cost is paid first."]
+			bad += [tag("n = 0 is where the average cost reaches %s dollars." % N(s.al), R_VA_AS_HA), tag("n = 0 shows the fixed cost is paid first.", R_REAL_VALUE)]
 		"mix":
 			right = "x = %s is outside the sensible domain: a negative number of litres can't be added." % N(-s.ga)
 			bad = [tag("x = %s is a real amount: adding %s litres gives the strongest mixture." % [N(-s.ga), N(-s.ga)], R_REAL_VALUE)]
-			plain = ["x = %s is where the concentration reaches %s g per litre." % [N(-s.ga), N(s.al)], "x = %s is the amount of water that must be added first." % N(-s.ga)]
+			bad += [tag("x = %s is where the concentration reaches %s g per litre." % [N(-s.ga), N(s.al)], R_VA_AS_HA), tag("x = %s is the amount of water that must be added first." % N(-s.ga), R_REAL_VALUE)]
 		_:
 			right = "t = %s is outside the sensible domain: the model starts at t = 0, so a negative time is never used." % N(-s.ga)
 			bad = [tag("t = %s is a real time: the level is largest %s %s before the start." % [N(-s.ga), N(s.ga), s.story[2]], R_REAL_VALUE)]
-			plain = ["t = %s is where the level reaches %s%s." % [N(-s.ga), N(s.al), s.story[1]], "t = %s is the time the level starts to settle." % N(-s.ga)]
+			bad += [tag("t = %s is where the level reaches %s%s." % [N(-s.ga), N(s.al), s.story[1]], R_VA_AS_HA), tag("t = %s is the time the level starts to settle." % N(-s.ga), R_REAL_VALUE)]
 	var out := {"asked": "The graph has a vertical asymptote at %s. What does it mean in this context?" % at_,
 		"lines": [about(s)] if rep == "equation" else [about(s), "The graph of the model is shown."]}
-	out.merge(pick(right, bad, plain))
+	out.merge(pick(right, bad, []))
 	if rep == "graph":
 		out.graph = graph(s)
 	var fin := "So " + right
@@ -346,7 +357,7 @@ func u_parameters_from_data(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	ans.show = "dec"
 	var lines: Array = [shown + ", where %s is a constant." % name]
 	var out := {"asked": "Find the value of %s." % name, "answer": ans, "wrongs": [],
-		"generic": [{"v": val.add(Q.new(1))}, {"v": val.neg()}, {"v": y1}, {"v": val.mul(Q.new(2))}]}
+		"fillers": [{"v": val.add(Q.new(1))}, {"v": val.neg()}, {"v": y1}, {"v": val.mul(Q.new(2))}]}
 	if rep == "words":
 		lines.append("The model gives %s." % point.replace(" = ", " as "))
 		match s.ctx:

@@ -7,6 +7,20 @@ extends ExtensionViews
 ## as a choice of statements; the midpoint-of-roots working shows its roots to 6 s.f.
 
 const T := "fn-link-extremes"
+# fn-link-extremes' own misconceptions (FAL-1149).
+const LE_START := T + "#14"
+const LE_ZERO_ONE := T + "#15"
+const LE_BASE_PEAK := T + "#16"
+const LE_MINUS := "SL3.7.read-features#8"
+const LE_FIRST_MIN := T + "#18"
+const LE_PERIOD := T + "#19"
+const LE_NO_HALF := T + "#20"
+const LE_AXIS_ZERO := T + "#21"
+const LE_ONE_ROOT := T + "#22"
+const LE_PAIRS := T + "#23"
+const LE_M_SQUARED := T + "#24"
+const LE_MAX_MIN := T + "#25"
+const LE_ROOT_SIGNS := T + "#26"
 
 
 func needs() -> Dictionary:
@@ -54,6 +68,15 @@ static func ask(right: String, wrongs: Array, generic: Array, asked: String, lin
 	return out
 
 
+## ask, with the other wrong texts declared fillers: this type's builders call this one.
+static func ask_f(right: String, wrongs: Array, fillers: Array, asked: String, lines: Array, methods: Dictionary, final: String,
+		picks: Array) -> Dictionary:
+	var out := ask(right, wrongs, fillers, asked, lines, methods, final, picks)
+	out.fillers = out.generic
+	out.erase("generic")
+	return out
+
+
 # ── The height model ─────────────────────────────────────────
 
 static func h_text(s: Dictionary) -> String:
@@ -72,8 +95,8 @@ func u_max_height_methods(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var half := sqrt(float(top) / -a)
 	var final: String = "So h has " + right + "."
 	var lines := [h_text(s)]
-	var out := ask(right, [[say.call("maximum", t0, top), "SL2.4.max-min#0"], [say.call("minimum", top, t0), "SL2.6.vertex#2"]],
-		[say.call("maximum", c, 0), say.call("maximum", c, 2 * t0)],
+	var out := ask_f(right, [[say.call("maximum", t0, top), "SL2.4.max-min#0"], [say.call("minimum", top, t0), "SL2.6.vertex#2"],
+		[say.call("maximum", c, 0), LE_START]], [say.call("maximum", c, 2 * t0)],
 		"A ball is thrown upwards. Its height after t seconds is %s metres. Find its greatest height and when it reaches it." % h_text(s),
 		lines, {
 			"complete-square": ["h(t) = %s(t² − %dt) + %d." % [Fmt.lead(a), 2 * t0, c], "Completing the square: h(t) = %s." % vform,
@@ -124,7 +147,14 @@ func u_wave_extremes(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ad := absi(A + D)
 	if ad != 0 and ad != amp:
 		wrongs.append([say.call(D + ad, D - ad), "SL3.7.read-features#1"])
-	var out := ask(right, wrongs, [say.call(-D + amp, -D - amp), say.call(D + amp, D)],
+	# Sine from 0 to 1 leaves the least value at D: with A < 0 that slip gives another
+	# option, so there this one is a filler, like D with its sign changed.
+	var fillers := [say.call(-D + amp, -D - amp)]
+	if A > 0:
+		wrongs.append([say.call(D + amp, D), LE_ZERO_ONE])
+	else:
+		fillers.append(say.call(D + amp, D))
+	var out := ask_f(right, wrongs, fillers,
 		"Find the greatest and least values of %s." % wave_text(s), [wave_text(s)], {
 			"read-from-form": ["sin(%dx) runs between −1 and 1." % s.B,
 				"So %s sin(%dx) runs between %d and %d, and adding %s gives %d to %d." % [Fmt.lead(A), s.B, -amp, amp, N(D), D - amp, D + amp]],
@@ -157,8 +187,9 @@ func u_wave_max_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := "x = " + Fmt.pi(x)
 	var final: String = "So the first maximum is at %s." % right
 	var bx := Fmt.pi(Q.new(1 if up else 3, 2))
-	var out := ask(right, [["x = " + Fmt.num(Q.new(B * (1 if up else 3), 4)), "SL3.7.read-features#0"]],
-		["x = " + bx, "x = " + Fmt.pi(Q.new(3 if up else 1, 2 * B)), "x = " + Fmt.pi(Q.new(2, B))],
+	# The other turning point: the first trough when A > 0, and when A < 0 where sin(Bx) peaks.
+	var out := ask_f(right, [["x = " + Fmt.num(Q.new(B * (1 if up else 3), 4)), "SL3.7.read-features#0"], ["x = " + bx, LE_BASE_PEAK],
+		["x = " + Fmt.pi(Q.new(3 if up else 1, 2 * B)), LE_FIRST_MIN if up else LE_MINUS], ["x = " + Fmt.pi(Q.new(2, B)), LE_PERIOD]], [],
 		"Find the first positive value of x at which %s has its maximum." % wave_text(s), [wave_text(s)], {
 			"read-from-form": [("The sine part is largest, 1, when %dx = π/2." % B) if up else
 				("A = %s < 0, so y is largest when sin(%dx) = −1, first at %dx = 3π/2." % [N(A), B, B]),
@@ -182,7 +213,8 @@ func u_range_from_extremes(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var lo := D - amp
 	var say := func(a: int, d: int) -> String: return "amplitude %s, principal axis y = %s" % [N(a), N(d)]
 	var right: String = say.call(amp, D)
-	return ask(right, [[say.call(absi(hi), D), "SL3.7.read-features#1"]], [say.call(hi - lo, D), say.call(amp, 0), say.call(amp, -D)],
+	return ask_f(right, [[say.call(absi(hi), D), "SL3.7.read-features#1"], [say.call(hi - lo, D), LE_NO_HALF], [say.call(amp, 0), LE_AXIS_ZERO]],
+		[say.call(amp, -D)],
 		"Find the amplitude and the principal axis.",
 		["The range of a wave y = A sin(Bx) + D, with A > 0, is %s ≤ y ≤ %s." % [N(lo), N(hi)]], {
 			"read-parameters": ["The amplitude is half the height: (%s − %s)/2 = %d." % [N(hi), P(lo), amp],
@@ -206,8 +238,12 @@ func u_tangent_means_touch(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var both := func(m: int, xa: int) -> String: return "m = %s at %s or m = %s at %s" % [N(-m), pt(-xa, yc), N(m), pt(xa, yc)]
 	var right: String = both.call(2 * k, k)
 	var final: String = "So " + right + "."
-	var out := ask(right, [["m < %s or m > %d" % [N(-2 * k), 2 * k], "SL5.4.tangency-condition#1"]],
-		["m = %d at %s only" % [2 * k, pt(k, yc)], both.call(2 * k, -k), "m = %s or m = %d" % [N(-4 * k * k), 4 * k * k]],
+	# Four slips for three places: the seed's k picks which of these two goes last.
+	var pair_sq := [[both.call(2 * k, -k), LE_PAIRS], ["m = %s or m = %d" % [N(-4 * k * k), 4 * k * k], LE_M_SQUARED]]
+	if absi(k) % 2 == 1:
+		pair_sq.reverse()
+	var out := ask_f(right, [["m < %s or m > %d" % [N(-2 * k), 2 * k], "SL5.4.tangency-condition#1"],
+		["m = %d at %s only" % [2 * k, pt(k, yc)], LE_ONE_ROOT]] + pair_sq, [],
 		"The line y = %s is a tangent to the curve y = %s. Find the possible values of m, and where each line touches." % [line, curve],
 		["y = " + line, "y = " + curve], {
 			"discriminant-condition": ["Equate: %s = %s, so %s = 0." % [curve, line, quad],
@@ -287,9 +323,9 @@ func u_cubic_turning(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var d1 := Fmt.poly([3, 2 * s.b, s.c])
 	var fac := "3(%s)(%s)" % [Answer.x_minus(p), Answer.x_minus(q)]
 	var vals := "f(%s) = %s and f(%s) = %s" % [N(p), N(yp), N(q), N(yq)]
-	var out := ask(right, [[say.call(p, 0, q, 0), "SL5.8.find-stationary-points#2"]],
-		[say.call(q, yq, p, yp), say.call(-q, LinkExtremesSituation.f_cubic(s, -q), -p, LinkExtremesSituation.f_cubic(s, -p)),
-			say.call(p, yq, q, yp)],
+	var out := ask_f(right, [[say.call(p, 0, q, 0), "SL5.8.find-stationary-points#2"], [say.call(q, yq, p, yp), LE_MAX_MIN],
+		[say.call(-q, LinkExtremesSituation.f_cubic(s, -q), -p, LinkExtremesSituation.f_cubic(s, -p)), LE_ROOT_SIGNS]],
+		[say.call(p, yq, q, yp)],
 		"Find the turning points of %s, and say which is a maximum." % fx, [fx], {
 			"derivative-zero": ["f′(x) = %s = %s." % [d1, fac], "f′(x) = 0 at x = %s and x = %s: %s." % [N(p), N(q), vals],
 				"f′ changes from + to − at x = %s (a maximum) and from − to + at x = %s (a minimum)." % [N(p), N(q)]],

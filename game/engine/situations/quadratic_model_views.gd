@@ -7,6 +7,22 @@ extends ExtensionViews
 
 const REF_SWAP := "SL2.6.model#0"
 const REF_NEGATIVE := "SL2.6.model#1"
+const T_ := "fn-ext-quadratic-model#"
+const R_START := T_ + "3"
+const R_RISE := T_ + "4"
+const R_NO_HALF := T_ + "5"
+const R_B_ONLY := T_ + "6"
+const R_TOP_TIME := T_ + "7"
+const R_GROUND := T_ + "8"
+const R_WALL_SQUARE := T_ + "9"
+const R_LENGTH := T_ + "10"
+const R_LANDS := T_ + "11"
+const R_K_START := T_ + "12"
+const R_ADD_TOP := T_ + "13"
+const R_GAP := T_ + "14"
+const R_A_SIGN := T_ + "15"
+const R_B_SIGN := T_ + "16"
+const R_C_TOP := T_ + "17"
 
 ## Methods that don't work, for method-pick (after the catalogue's own weak ones).
 const NOT_ROOTS := {"name": "Solve the model = 0", "why": "that gives where it starts or lands, not the top"}
@@ -160,8 +176,14 @@ func u_max_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.graph = graph_of(s)
 		out.lines = [setting(s), "The graph of y = %s is shown." % model_line(s)]
 	out.methods = top_methods(s, "So %s." % Answer.text(ans), ans.values, ["vertex-in-context", "gdc-max", "derivative"])
-	out.wrongs = [wrong({"v": s.T}, REF_SWAP)]
-	out.generic = [{"v": s.h0}, {"v": s.H.add(s.h0)}, {"v": s.H.sub(s.h0)}, {"v": s.T.mul(2)}]
+	out.wrongs = [wrong({"v": s.T}, REF_SWAP), wrong({"v": s.h0}, R_START)]
+	out.fillers = [{"v": s.H.add(s.h0)}]
+	# The rise above the start is a slip for a ball; a pen starts at 0, so it is the answer.
+	if ball(s):
+		out.wrongs.append(wrong({"v": s.H.sub(s.h0)}, R_RISE))
+	else:
+		out.fillers.append({"v": s.H.sub(s.h0)})
+	out.fillers.append({"v": s.T.mul(2)})
 	out.pick_wrongs = [NOT_ROOTS, NOT_START, NOT_DOUBLE]
 	return out
 
@@ -191,7 +213,12 @@ func u_time_of_max(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 				ms[k] = method([fit] + ms[k].steps, ans.values)
 	out.methods = ms
 	out.wrongs = [wrong({"v": s.H}, REF_SWAP)]
-	out.generic = [{"v": s.T.mul(2)}, {"v": s.T.add(1)}, {"v": s.b}, {"v": s.T.sub(1)}]
+	out.fillers = [{"v": s.T.add(1)}, {"v": s.T.sub(1)}]
+	# −b/a and b are slips only where the model is shown; from a table they are fillers.
+	if rep == "table":
+		out.fillers = [{"v": s.T.mul(2)}, {"v": s.T.add(1)}, {"v": s.b}, {"v": s.T.sub(1)}]
+	else:
+		out.wrongs += [wrong({"v": s.T.mul(2)}, R_NO_HALF), wrong({"v": s.b}, R_B_ONLY)]
 	out.pick_wrongs = [NOT_ROOTS, NOT_START, NOT_DOUBLE if ball(s) else NOT_SQUARE]
 	return out
 
@@ -206,8 +233,9 @@ func u_zero_time(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"t = %s or t = %s" % [Answer.shown(ans, s.land), Answer.shown(ans, s.neg)],
 		"t = %s is before the throw, so it is rejected" % Answer.shown(ans, s.neg), "So %s." % Answer.text(ans)]
 	return {"asked": "When does the ball land?", "lines": [setting(s), model_line(s)],
-		"given": export(s), "answer": ans, "wrongs": [wrong({"v": s.neg}, REF_NEGATIVE)],
-		"generic": [{"v": s.T}, {"v": s.T.mul(2)}, {"v": s.land.add(1)}, {"v": s.H}],
+		"given": export(s), "answer": ans,
+		"wrongs": [wrong({"v": s.neg}, REF_NEGATIVE), wrong({"v": s.T}, R_TOP_TIME), wrong({"v": s.T.mul(2)}, R_GROUND)],
+		"fillers": [{"v": s.land.add(1)}, {"v": s.H}],
 		"methods": {"any": method(steps, ans.values)}}
 
 
@@ -222,12 +250,17 @@ func u_form_area_model(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"vertex-in-context": method([why, model, "The vertex: x = −b/(2a) = %s/%s = %s, and A(%s) = %s" % [N(s.b.neg()), N(s.a.mul(2)), N(s.T), N(s.T), N(s.H)], final], ans.values),
 		"derivative": method([why, model, "A′(x) = %s = 0 when x = %s, and A(%s) = %s" % [Fmt.terms([s.a.mul(2), s.b], [1, 0], "x"), N(s.T), N(s.T), N(s.H)], final], ans.values),
 	}
-	var gen: Array = [{"v0": s.L.div(2), "v1": s.L.sq().div(8)}, {"v0": s.T.mul(2), "v1": s.H.mul(2)}, {"v0": s.T, "v1": s.H.mul(2)}]
+	var wrongs: Array = []
+	var gen: Array = [{"v0": s.T.mul(2), "v1": s.H.mul(2)}, {"v0": s.T, "v1": s.H.mul(2)}]
+	var half: Dictionary = {"v0": s.L.div(2), "v1": s.L.sq().div(8)}
 	if s.wall:
-		# A square pen against the wall: three sides of L/3.
-		gen.push_front({"v0": s.L.div(3), "v1": s.L.div(3).sq()})
+		# A square pen against the wall: three sides of L/3. Half the fence is the pen's
+		# length at its best, with the right area.
+		wrongs = [wrong({"v0": s.L.div(3), "v1": s.L.div(3).sq()}, R_WALL_SQUARE), wrong(half, R_LENGTH)]
+	else:
+		gen.push_front(half)
 	return {"asked": "Write A(x), then find the width x that gives the largest area, and that area.", "lines": [setting(s)],
-		"given": export(s), "answer": ans, "generic": gen, "methods": ms,
+		"given": export(s), "answer": ans, "wrongs": wrongs, "fillers": gen, "methods": ms,
 		"pick_wrongs": [NOT_SQUARE if s.wall else NOT_ROOTS, NOT_START, NOT_XY]}
 
 
@@ -249,7 +282,8 @@ func u_interpret_vertex(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"h = %s is the %s and k = %s is the greatest %s" % [T, "time in seconds" if ball(s) else "width in metres", H, "height in metres" if ball(s) else "area in m²"],
 		"So: %s." % Answer.text(ans)]
 	return {"asked": "What does the vertex mean here?", "lines": lines, "given": export(s), "answer": ans,
-		"wrongs": [wrong({"v": opts[1]}, REF_SWAP)], "generic": [{"v": opts[2]}, {"v": opts[3]}],
+		"wrongs": [wrong({"v": opts[1]}, REF_SWAP)] + ([wrong({"v": opts[2]}, R_LANDS), wrong({"v": opts[3]}, R_K_START)] if ball(s) else []),
+		"fillers": [] if ball(s) else [{"v": opts[2]}, {"v": opts[3]}],
 		"methods": {"vertex-in-context": method(steps, ans.values)},
 		"pick_wrongs": [NOT_ROOTS, NOT_START, NOT_DOUBLE]}
 
@@ -273,7 +307,8 @@ func u_second_time_at_height(rep: String, s: Dictionary, rng: Seeded) -> Diction
 		find_T = "h(0) = h(%s) = %s, so the top is halfway, at t = %s" % [D(s.T.mul(2)), D(s.h0), D(s.T)]
 	out.methods = {"symmetry-of-flight": method([find_T, "The two times are the same distance either side of it: %s − %s = %s" % [D(s.T), D(t1), D(s.T.sub(t1))],
 		"t = %s + %s = %s" % [D(s.T), D(s.T.sub(t1)), D(t2)], "So %s." % Answer.text(ans)], ans.values)}
-	out.generic = [{"v": t1.add(s.T)}, {"v": s.T.sub(t1)}, {"v": s.T.mul(2).add(t1)}, {"v": s.T}]
+	out.wrongs = [wrong({"v": t1.add(s.T)}, R_ADD_TOP), wrong({"v": s.T.sub(t1)}, R_GAP), wrong({"v": s.T}, R_TOP_TIME)]
+	out.fillers = [{"v": s.T.mul(2).add(t1)}]
 	out.pick_wrongs = [NOT_ROOTS, NOT_START, NOT_ADD]
 	return out
 
@@ -287,7 +322,8 @@ func u_model_from_features(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var bad_a: Q = s.a.neg()
 	return {"asked": "Find the model h(t) = at² + bt + c.", "given": export(s), "answer": ans,
 		"lines": ["A ball is thrown upwards from %s m. It is highest, %s m, after %s s." % [D(s.h0), D(s.H), D(s.T)]],
-		"generic": [{"c0": bad_a, "c1": bad_a.mul(s.T).mul(-2), "c2": bad_a.mul(s.T.sq()).add(s.H)},
-			{"c0": s.a, "c1": s.b.neg(), "c2": s.c}, {"c0": s.a, "c1": s.b, "c2": s.H}, {"c0": s.a, "c1": s.b.neg(), "c2": s.H}],
+		"wrongs": [wrong({"c0": bad_a, "c1": bad_a.mul(s.T).mul(-2), "c2": bad_a.mul(s.T.sq()).add(s.H)}, R_A_SIGN),
+			wrong({"c0": s.a, "c1": s.b.neg(), "c2": s.c}, R_B_SIGN), wrong({"c0": s.a, "c1": s.b, "c2": s.H}, R_C_TOP)],
+		"fillers": [{"c0": s.a, "c1": s.b.neg(), "c2": s.H}],
 		"methods": {"vertex-in-context": method(steps, ans.values)},
 		"pick_wrongs": [NOT_ROOTS, NOT_DOUBLE, NOT_START_TOP]}

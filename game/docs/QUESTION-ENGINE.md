@@ -1621,10 +1621,8 @@ gets a misconception, its line and a tag, and the checker works it out again. A 
 no route to it (the key scaled by a quarter, nudged, a number from nowhere), and the view
 puts it in `fillers`, so a blank is a choice. The check fails on a blank that is neither:
 a `wrongs` entry with no `ref`, or an option from `generic`, the list from before FAL-815
-that mixed the two. A type whose `generic` isn't sorted yet is on `UNSORTED` in
-`tools/feedback_check.gd`, where its blanks are only counted; once sorted, its views say
-`fillers` and it leaves the list, and the check fails on a listed type with nothing left to
-sort. A new type never joins it. A rounding trap with no misconception of its own shows
+that mixed the two. Every type is sorted (FAL-1149 emptied the old `UNSORTED` list and
+deleted it), so a blank fails on any type. A rounding trap with no misconception of its own shows
 `Answer.TRAP_NOTE`, and the engine's last-resort nudges are fillers. The check prints the
 share of multiple-choice wrong options with no line (`BLANK ...`), and `--blanks=file.tsv`
 writes each blank once, with where it came from (`src`, `gi`) and a first example.

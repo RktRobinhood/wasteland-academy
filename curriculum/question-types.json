@@ -11238,7 +11238,8 @@
      "text": "Confuses the zeros (x where f(x) = 0) with the y-intercept f(0)",
      "as": "distractor",
      "in": [
-      "label-zeros"
+      "label-zeros",
+      "label-y-intercept"
      ],
      "wrong": "f(0) labelled on the x-axis as a zero"
     },
@@ -11256,7 +11257,8 @@
      "text": "Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa",
      "as": "distractor",
      "in": [
-      "label-turning-point"
+      "label-turning-point",
+      "greatest-on-domain"
      ],
      "wrong": "the turning point labelled with only its x-coordinate, or only its y-value"
     },
@@ -11305,6 +11307,110 @@
       "count-solutions-from-sketch"
      ],
      "wrong": "in asymptote mode, counts y = k at the level the curve approaches as a solution"
+    },
+    {
+     "text": "Swapping the two endpoint values, pairing each with the other end of the domain",
+     "as": "distractor",
+     "in": [
+      "endpoint-coordinates"
+     ],
+     "wrong": "each end's y-value written at the other end"
+    },
+    {
+     "text": "Taking the turning points for the points where the curve crosses the x-axis",
+     "as": "distractor",
+     "in": [
+      "label-zeros"
+     ],
+     "wrong": "the x-coordinates of the turning points given as the zeros"
+    },
+    {
+     "text": "Missing a zero by not searching the whole domain for every crossing",
+     "as": "distractor",
+     "in": [
+      "label-zeros"
+     ],
+     "wrong": "every zero but the last one"
+    },
+    {
+     "text": "Treating the exponential or cosine term as zero on the y-axis, so only the constant term is left",
+     "as": "distractor",
+     "in": [
+      "label-y-intercept"
+     ],
+     "wrong": "the constant term alone as f(0)"
+    },
+    {
+     "text": "Leaving the constant term out of f(0)",
+     "as": "distractor",
+     "in": [
+      "label-y-intercept"
+     ],
+     "wrong": "f(0) without its constant term"
+    },
+    {
+     "text": "Writing the coordinates the wrong way round, as (y, x)",
+     "as": "distractor",
+     "in": [
+      "label-turning-point"
+     ],
+     "wrong": "the turning point's coordinates swapped"
+    },
+    {
+     "text": "Mixing up the local maximum and the local minimum",
+     "as": "distractor",
+     "in": [
+      "label-turning-point"
+     ],
+     "wrong": "the other turning point"
+    },
+    {
+     "text": "Giving a zero of f, where the curve crosses the x-axis, as the turning point",
+     "as": "distractor",
+     "in": [
+      "label-turning-point"
+     ],
+     "wrong": "a zero (x, 0) given as the turning point"
+    },
+    {
+     "text": "Starting the y-range at zero, as if the graph never went below the x-axis",
+     "as": "distractor",
+     "in": [
+      "window-for-domain"
+     ],
+     "wrong": "Ymin = 0, cutting off the part of the graph below the x-axis"
+    },
+    {
+     "text": "Swapping the x and y ranges of the window",
+     "as": "distractor",
+     "in": [
+      "window-for-domain"
+     ],
+     "wrong": "the domain typed into Ymin and Ymax, the y-range into Xmin and Xmax"
+    },
+    {
+     "text": "Counting where the curve crosses the x-axis instead of where it meets the horizontal line",
+     "as": "distractor",
+     "in": [
+      "count-solutions-from-sketch"
+     ],
+     "wrong": "the number of zeros of f"
+    },
+    {
+     "text": "Not checking the count at the boundary values of k, so an end is wrongly included or left out",
+     "as": "distractor",
+     "in": [
+      "k-for-count"
+     ],
+     "wrong": "the right interval with < and ≤ wrong at one end or both"
+    },
+    {
+     "text": "Giving the whole range of f instead of the values of k with exactly two solutions",
+     "as": "distractor",
+     "in": [
+      "k-for-count"
+     ],
+     "wrong": "least value ≤ k ≤ greatest value"
     }
    ],
    "parts": [
@@ -11655,7 +11761,8 @@
      "as": "distractor",
      "in": [
       "sketch-quadratic",
-      "judge-a-sketch"
+      "judge-a-sketch",
+      "features-from-sketch"
      ],
      "wrong": "the vertex drawn on the y-axis, at the y-intercept"
     },
@@ -11686,6 +11793,22 @@
       "sketch-with-asymptote"
      ],
      "wrong": "the curve reaching the long-run level, turning, and going back up"
+    },
+    {
+     "text": "Writing the vertex's coordinates the wrong way round",
+     "as": "distractor",
+     "in": [
+      "features-from-sketch"
+     ],
+     "wrong": "the vertex written as (k, h)"
+    },
+    {
+     "text": "Accepting the sketch without checking its direction and its vertex against the equation",
+     "as": "distractor",
+     "in": [
+      "judge-a-sketch"
+     ],
+     "wrong": "nothing wrong with the sketch"
     }
    ],
    "parts": [
@@ -12159,7 +12282,9 @@
      "as": "distractor",
      "in": [
       "extreme-value-only",
-      "turning-point-coordinates"
+      "turning-point-coordinates",
+      "greatest-on-domain",
+      "constant-from-max"
      ],
      "wrong": "the x-coordinate of the maximum when the maximum value is asked"
     },
@@ -12187,7 +12312,8 @@
      "as": "distractor",
      "in": [
       "count-zeros",
-      "zeros-gdc"
+      "zeros-gdc",
+      "solve-as-zeros"
      ],
      "wrong": "only the zeros inside the default window, missing one near the far end of the domain"
     },
@@ -12199,6 +12325,140 @@
       "use-stored-zeros"
      ],
      "wrong": "a distance from zeros already rounded to 3 s.f., off in the third figure"
+    },
+    {
+     "ref": "SL2.4.zeros-intercepts#1",
+     "text": "Gives the zeros with the wrong signs",
+     "as": "distractor",
+     "in": [
+      "zeros-with-x-factor"
+     ],
+     "wrong": "every zero with its sign changed"
+    },
+    {
+     "text": "Taking the turning points for the points where the curve crosses the x-axis",
+     "as": "distractor",
+     "in": [
+      "zeros-gdc",
+      "solve-as-zeros",
+      "zeros-with-x-factor",
+      "count-zeros",
+      "zero-from-table"
+     ],
+     "wrong": "the turning points' x-coordinates, or how many there are, given for the zeros"
+    },
+    {
+     "text": "Keeping only one root of the quadratic factor",
+     "as": "distractor",
+     "in": [
+      "zeros-with-x-factor"
+     ],
+     "wrong": "x = 0 and one of the other two zeros"
+    },
+    {
+     "text": "Writing the coordinates the wrong way round, as (y, x)",
+     "as": "distractor",
+     "in": [
+      "turning-point-coordinates"
+     ],
+     "wrong": "the turning point's coordinates swapped"
+    },
+    {
+     "text": "Mixing up the local maximum and the local minimum",
+     "as": "distractor",
+     "in": [
+      "turning-point-coordinates",
+      "extreme-value-only"
+     ],
+     "wrong": "the other turning point, or its value"
+    },
+    {
+     "text": "Giving a zero of f, where the curve crosses the x-axis, as the turning point",
+     "as": "distractor",
+     "in": [
+      "turning-point-coordinates"
+     ],
+     "wrong": "a zero (x, 0) given as the turning point"
+    },
+    {
+     "text": "Treating the exponential or cosine term as zero on the y-axis, so only the constant term is left",
+     "as": "distractor",
+     "in": [
+      "y-intercept"
+     ],
+     "wrong": "the constant term alone as f(0)"
+    },
+    {
+     "text": "Leaving the constant term out of f(0)",
+     "as": "distractor",
+     "in": [
+      "y-intercept"
+     ],
+     "wrong": "f(0) without its constant term"
+    },
+    {
+     "text": "Giving an end of the sign-change interval as the zero, without refining it",
+     "as": "distractor",
+     "in": [
+      "zero-from-table"
+     ],
+     "wrong": "a table x-value either side of the sign change"
+    },
+    {
+     "text": "Taking the midpoint of the sign-change interval as the zero",
+     "as": "distractor",
+     "in": [
+      "zero-from-table"
+     ],
+     "wrong": "the midpoint of the two table x-values"
+    },
+    {
+     "text": "Giving the smallest zero when the largest is asked for",
+     "as": "distractor",
+     "in": [
+      "zero-from-table"
+     ],
+     "wrong": "the smallest zero"
+    },
+    {
+     "text": "Adding the two zeros instead of subtracting one from the other",
+     "as": "distractor",
+     "in": [
+      "use-stored-zeros"
+     ],
+     "wrong": "the size of the sum of the zeros"
+    },
+    {
+     "text": "Using one zero alone, its distance from the origin, instead of the distance between the two",
+     "as": "distractor",
+     "in": [
+      "use-stored-zeros"
+     ],
+     "wrong": "the size of one zero"
+    },
+    {
+     "text": "Adding the GDC's maximum to the given maximum instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "constant-from-max"
+     ],
+     "wrong": "the given maximum plus the maximum of the curve without c"
+    },
+    {
+     "text": "Subtracting the wrong way round, the given maximum from the GDC's maximum",
+     "as": "distractor",
+     "in": [
+      "constant-from-max"
+     ],
+     "wrong": "the maximum of the curve without c minus the given maximum"
+    },
+    {
+     "text": "Taking the given maximum value as c",
+     "as": "distractor",
+     "in": [
+      "constant-from-max"
+     ],
+     "wrong": "the given maximum itself"
     }
    ],
    "parts": [
@@ -20539,7 +20799,9 @@
      "as": "distractor",
      "in": [
       "features-from-graph",
-      "ha-from-equation"
+      "ha-from-equation",
+      "va-from-equation",
+      "range-from-asymptote"
      ],
      "wrong": "x = A for the horizontal asymptote and y = h for the vertical one"
     },
@@ -20579,6 +20841,70 @@
       "range-from-asymptote"
      ],
      "wrong": "x ≠ A, the range written in x"
+    },
+    {
+     "text": "Sets the numerator equal to zero to find the vertical asymptote",
+     "as": "distractor",
+     "in": [
+      "va-from-equation"
+     ],
+     "wrong": "x = −b/a, the zero of the numerator"
+    },
+    {
+     "text": "Sets the denominator equal to zero to find the x-intercept",
+     "as": "distractor",
+     "in": [
+      "x-intercept"
+     ],
+     "wrong": "x = −d/c, where f is not defined"
+    },
+    {
+     "text": "Forgets to divide by a when solving ax + b = 0 for the x-intercept",
+     "as": "distractor",
+     "in": [
+      "x-intercept"
+     ],
+     "wrong": "x = −b, the constant moved across but not divided by a"
+    },
+    {
+     "text": "Forgets to divide by d when putting x = 0 into f",
+     "as": "distractor",
+     "in": [
+      "y-intercept"
+     ],
+     "wrong": "y = b, the numerator's constant alone"
+    },
+    {
+     "text": "Confuses the y-intercept with the horizontal asymptote y = a/c",
+     "as": "distractor",
+     "in": [
+      "y-intercept"
+     ],
+     "wrong": "y = a/c, the horizontal asymptote's value"
+    },
+    {
+     "text": "Gets the sign of k wrong when rearranging to solve for it",
+     "as": "distractor",
+     "in": [
+      "constant-from-intercept"
+     ],
+     "wrong": "k with the opposite sign"
+    },
+    {
+     "text": "Takes the top of the split fraction as b, forgetting that the horizontal asymptote times (x + d) adds to it when the two parts are combined",
+     "as": "distractor",
+     "in": [
+      "equation-from-features"
+     ],
+     "wrong": "b = B, without the −Ah that A(x − h) brings"
+    },
+    {
+     "text": "Forgets that the vertical asymptote's x-value is left out of the domain",
+     "as": "distractor",
+     "in": [
+      "range-from-asymptote"
+     ],
+     "wrong": "domain all real x, the asymptote's x-value not excluded"
     }
    ],
    "parts": [
@@ -21174,6 +21500,46 @@
       "parent-reciprocal"
      ],
      "wrong": "the graph of y = −1/x, with branches in the second and fourth quadrants"
+    },
+    {
+     "text": "Assumes a quadratic always has two roots, without checking the discriminant",
+     "as": "distractor",
+     "in": [
+      "count-with-line"
+     ],
+     "wrong": "2 when Δ < 0, so the line misses the curve"
+    },
+    {
+     "text": "Uses the vertical asymptote's value for k instead of the horizontal asymptote's",
+     "as": "distractor",
+     "in": [
+      "k-for-no-solution"
+     ],
+     "wrong": "k = h, the vertical asymptote's x-value"
+    },
+    {
+     "text": "Assumes the graph never meets the x-axis, as the parent reciprocal graph never does",
+     "as": "distractor",
+     "in": [
+      "k-for-no-solution"
+     ],
+     "wrong": "k = 0, though f has a zero where its numerator is zero"
+    },
+    {
+     "text": "Thinks the inverse of a function is its negative",
+     "as": "distractor",
+     "in": [
+      "reciprocal-self-inverse"
+     ],
+     "wrong": "f⁻¹(x) = −k/x, the sign changed"
+    },
+    {
+     "text": "Undoes f(x) = k/x as if it multiplied x by k, so divides by k instead",
+     "as": "distractor",
+     "in": [
+      "reciprocal-self-inverse"
+     ],
+     "wrong": "f⁻¹(x) = x/k"
     }
    ],
    "parts": [
@@ -26989,6 +27355,120 @@
       "n-from-sum"
      ],
      "wrong": "the value of the sum given as n"
+    },
+    {
+     "text": "Forgetting to add u₁ after multiplying d by the number of steps",
+     "as": "distractor",
+     "in": [
+      "term-from-u1-d"
+     ],
+     "wrong": "(n − 1)d with no u₁"
+    },
+    {
+     "text": "Not dividing the change between the two terms by the number of steps",
+     "as": "distractor",
+     "in": [
+      "d-from-two-terms"
+     ],
+     "wrong": "the change in value given as d"
+    },
+    {
+     "text": "Dividing the change by the later term's position instead of the number of steps between the terms",
+     "as": "distractor",
+     "in": [
+      "d-from-two-terms"
+     ],
+     "wrong": "the change divided by the later term's n"
+    },
+    {
+     "text": "Stopping once d is found, and giving d as the first term",
+     "as": "distractor",
+     "in": [
+      "u1-from-two-terms"
+     ],
+     "wrong": "d given as u₁"
+    },
+    {
+     "text": "Dividing uₙ by d without first taking away u₁",
+     "as": "distractor",
+     "in": [
+      "n-from-term"
+     ],
+     "wrong": "uₙ/d"
+    },
+    {
+     "text": "Forgetting to halve in the sum formula, so the sum comes out doubled",
+     "as": "distractor",
+     "in": [
+      "sum-from-u1-d",
+      "sum-from-first-last"
+     ],
+     "wrong": "twice the sum"
+    },
+    {
+     "text": "Stopping at u₁ + uₙ without multiplying by half the number of terms",
+     "as": "distractor",
+     "in": [
+      "sum-from-first-last"
+     ],
+     "wrong": "u₁ + uₙ alone"
+    },
+    {
+     "text": "Subtracting u₁ from uₙ instead of adding them in the sum formula",
+     "as": "distractor",
+     "in": [
+      "sum-from-first-last"
+     ],
+     "wrong": "n/2 (uₙ − u₁)"
+    },
+    {
+     "text": "Forgetting the last division, so the total of the steps of d is given as d",
+     "as": "distractor",
+     "in": [
+      "d-from-sum"
+     ],
+     "wrong": "(n − 1)d, not divided by n − 1"
+    },
+    {
+     "text": "Subtracting the wrong way round when taking off twice u₁, which flips the sign of d",
+     "as": "distractor",
+     "in": [
+      "d-from-sum"
+     ],
+     "wrong": "−d"
+    },
+    {
+     "text": "Forgetting the last halving, so twice u₁ is given as u₁",
+     "as": "distractor",
+     "in": [
+      "u1-from-sum"
+     ],
+     "wrong": "2u₁"
+    },
+    {
+     "text": "Taking the mean of the terms, Sₙ divided by n, as the first term",
+     "as": "distractor",
+     "in": [
+      "u1-from-sum"
+     ],
+     "wrong": "Sₙ/n"
+    },
+    {
+     "text": "Leaving n as the decimal the GDC gives instead of moving up to the next whole number",
+     "as": "distractor",
+     "in": [
+      "n-from-term",
+      "n-from-sum"
+     ],
+     "wrong": "the unrounded n"
+    },
+    {
+     "text": "Rounding n down, so the total has not yet passed the target",
+     "as": "distractor",
+     "in": [
+      "n-from-sum"
+     ],
+     "wrong": "the whole number below the root"
     }
    ],
    "parts": [
@@ -29191,7 +29671,8 @@
      "as": "distractor",
      "in": [
       "value-after",
-      "total-loss"
+      "total-loss",
+      "shortfall"
      ],
      "wrong": "P(1 + r/100)^n: the rate added on each year, not taken off"
     },
@@ -29318,6 +29799,62 @@
       "least-periods"
      ],
      "wrong": "n < the real solution, so the whole number below it"
+    },
+    {
+     "text": "Multiplying by the multiplier instead of dividing by it when working back to the price",
+     "as": "distractor",
+     "in": [
+      "original-value"
+     ],
+     "wrong": "V × c^n: the fall taken off again, not undone"
+    },
+    {
+     "text": "Writing the multiplier itself as the percentage, instead of the percentage lost",
+     "as": "distractor",
+     "in": [
+      "read-rate"
+     ],
+     "wrong": "the multiplier c with a % sign"
+    },
+    {
+     "text": "Forgetting to turn the decimal fall into a percentage",
+     "as": "distractor",
+     "in": [
+      "read-rate"
+     ],
+     "wrong": "1 − c with a % sign"
+    },
+    {
+     "text": "Applying the first year's rate to every year instead of only to the first",
+     "as": "distractor",
+     "in": [
+      "two-rate-value"
+     ],
+     "wrong": "P × (first multiplier)^n"
+    },
+    {
+     "text": "Counting one year too many at the later rate, as if every year asked came after the first",
+     "as": "distractor",
+     "in": [
+      "two-rate-value"
+     ],
+     "wrong": "P × c₁ × c₂^n: one later year too many"
+    },
+    {
+     "text": "Converting the answer into years when the question asks for months or quarters",
+     "as": "distractor",
+     "in": [
+      "least-periods"
+     ],
+     "wrong": "the number of periods divided by k and rounded up"
+    },
+    {
+     "text": "Taking each year's percentage off the original price instead of off the value at the start of that year",
+     "as": "distractor",
+     "in": [
+      "two-rate-value"
+     ],
+     "wrong": "P(1 − (r₁ + (n − 1)r₂)/100): every fall taken from the price"
     }
    ],
    "parts": [
@@ -29621,7 +30158,9 @@
      "text": "Using the annual rate with kn periods, instead of dividing the rate by k",
      "as": "distractor",
      "in": [
-      "future-value"
+      "future-value",
+      "interest-earned",
+      "present-value"
      ],
      "wrong": "PV(1 + r/100)^(kn): the annual rate over kn periods"
     },
@@ -29630,7 +30169,9 @@
      "text": "Using simple interest instead of compounding",
      "as": "distractor",
      "in": [
-      "future-value"
+      "future-value",
+      "interest-earned",
+      "present-value"
      ],
      "wrong": "PV(1 + nr/100): simple interest"
     },
@@ -29688,6 +30229,22 @@
       "compare-options"
      ],
      "wrong": "the difference with both accounts compounded annually"
+    },
+    {
+     "text": "Multiplying the target by the growth factor instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "present-value"
+     ],
+     "wrong": "FV × (1 + r/(100k))^(kn): compounded forward, not back"
+    },
+    {
+     "text": "Rounding the number of years down instead of up, so the target is not yet passed",
+     "as": "distractor",
+     "in": [
+      "time-needed"
+     ],
+     "wrong": "the real number of years rounded down"
     }
    ],
    "parts": [
@@ -32377,6 +32934,31 @@
       "model-meet"
      ],
      "wrong": "the start and the factor taken to the power together"
+    },
+    {
+     "text": "Forgetting to divide by the number in front before taking logs",
+     "as": "distractor",
+     "in": [
+      "isolate-e-exact"
+     ],
+     "wrong": "the log of the right side less the constant, with the number in front never divided out"
+    },
+    {
+     "text": "Dropping the power when the top of the fraction is written as a single log",
+     "as": "distractor",
+     "in": [
+      "shift-base-exact",
+      "one-minus-exact"
+     ],
+     "wrong": "the log of the base alone on top, its power lost"
+    },
+    {
+     "text": "Putting the number from the bracket on the log of the other base",
+     "as": "distractor",
+     "in": [
+      "one-minus-exact"
+     ],
+     "wrong": "the power taken on the left base's log, not the right's"
     }
    ],
    "parts": [
@@ -45047,7 +45629,8 @@
       "cos-from-sin",
       "sin-from-cos",
       "tan-from-ratio",
-      "cos-from-tan"
+      "cos-from-tan",
+      "cos-from-cos2"
      ],
      "wrong": "the right size with the wrong sign"
     },
@@ -45117,6 +45700,121 @@
       "max-after-rewrite"
      ],
      "wrong": "the number in front not halved"
+    },
+    {
+     "text": "Forgetting to take the square root at the end, so the answer is the square of the ratio",
+     "as": "distractor",
+     "in": [
+      "cos-from-sin",
+      "sin-from-cos",
+      "cos-from-cos2"
+     ],
+     "wrong": "the ratio squared"
+    },
+    {
+     "text": "Dividing cos θ by sin θ instead of sin θ by cos θ",
+     "as": "distractor",
+     "in": [
+      "tan-from-ratio"
+     ],
+     "wrong": "cos θ/sin θ, the reciprocal of tan θ"
+    },
+    {
+     "text": "Taking the opposite side over the hypotenuse, which gives sin θ instead of cos θ",
+     "as": "distractor",
+     "in": [
+      "cos-from-tan"
+     ],
+     "wrong": "sin θ"
+    },
+    {
+     "text": "Forgetting to square root the sum of the squares, so the hypotenuse is too long",
+     "as": "distractor",
+     "in": [
+      "cos-from-tan"
+     ],
+     "wrong": "the adjacent side over the hypotenuse squared"
+    },
+    {
+     "text": "Forgetting the 2 in sin 2θ = 2 sin θ cos θ",
+     "as": "distractor",
+     "in": [
+      "sin2-from-ratio"
+     ],
+     "wrong": "sin θ cos θ, half of sin 2θ"
+    },
+    {
+     "text": "Using the double-angle formula for cos instead of the one for sin",
+     "as": "distractor",
+     "in": [
+      "sin2-from-ratio"
+     ],
+     "wrong": "cos²θ − sin²θ"
+    },
+    {
+     "text": "Rearranging cos 2θ = 1 − 2sin²θ, which finds sin θ instead of cos θ",
+     "as": "distractor",
+     "in": [
+      "cos-from-cos2"
+     ],
+     "wrong": "sin θ"
+    },
+    {
+     "text": "Keeping the number in front of the squared term instead of halving it",
+     "as": "distractor",
+     "in": [
+      "single-cos"
+     ],
+     "wrong": "the number in front of the square, not halved"
+    },
+    {
+     "text": "Forgetting to double the angle inside the double-angle form",
+     "as": "distractor",
+     "in": [
+      "single-cos",
+      "product-sine"
+     ],
+     "wrong": "the right number in front, with the original angle"
+    },
+    {
+     "text": "Getting the sign of the middle term wrong when expanding the square",
+     "as": "distractor",
+     "in": [
+      "expand-square"
+     ],
+     "wrong": "the sin 2x term with the opposite sign"
+    },
+    {
+     "text": "Taking sin²x + cos²x as 2 instead of 1",
+     "as": "distractor",
+     "in": [
+      "expand-square"
+     ],
+     "wrong": "the constant term doubled"
+    },
+    {
+     "text": "Doubling the middle term again after writing 2 sin x cos x as sin 2x",
+     "as": "distractor",
+     "in": [
+      "expand-square"
+     ],
+     "wrong": "the sin 2x term doubled"
+    },
+    {
+     "text": "Forgetting to add the constant term to the maximum of the sine part",
+     "as": "distractor",
+     "in": [
+      "max-after-rewrite"
+     ],
+     "wrong": "the sine part's maximum alone"
+    },
+    {
+     "text": "Giving the minimum value of f instead of the maximum",
+     "as": "distractor",
+     "in": [
+      "max-after-rewrite"
+     ],
+     "wrong": "the minimum, the constant less the sine part's size"
     }
    ],
    "parts": [
@@ -47372,7 +48070,8 @@
      "in": [
       "amp-axis",
       "all-four",
-      "sum-as-cos"
+      "sum-as-cos",
+      "wheel-model"
      ],
      "wrong": "a = max − min, not halved"
     },
@@ -47427,7 +48126,8 @@
      "as": "distractor",
      "in": [
       "c-from-crossing",
-      "level-from-duration"
+      "level-from-duration",
+      "tan-two-points"
      ],
      "wrong": "the angle taken in degrees"
     },
@@ -47440,6 +48140,185 @@
       "wheel-model"
      ],
      "wrong": "b = the period"
+    },
+    {
+     "text": "Swapping a and d, taking the midline value as the amplitude",
+     "as": "distractor",
+     "in": [
+      "amp-axis",
+      "all-four"
+     ],
+     "wrong": "a and d the wrong way round"
+    },
+    {
+     "text": "Dividing the period by 2π, when b is 2π divided by the period",
+     "as": "distractor",
+     "in": [
+      "b-from-period"
+     ],
+     "wrong": "b = the period ÷ 2π"
+    },
+    {
+     "text": "Taking c from the minimum instead of the maximum, when cosine is largest at c",
+     "as": "distractor",
+     "in": [
+      "c-cos-from-max",
+      "all-four"
+     ],
+     "wrong": "c = where the minimum is"
+    },
+    {
+     "text": "Taking c at the maximum, as for cosine, when sine crosses its midline going up at c",
+     "as": "distractor",
+     "in": [
+      "c-sine-shift"
+     ],
+     "wrong": "c = where the maximum is"
+    },
+    {
+     "text": "Adding a quarter period to the maximum instead of taking it away",
+     "as": "distractor",
+     "in": [
+      "c-sine-shift"
+     ],
+     "wrong": "c = the maximum plus a quarter period"
+    },
+    {
+     "text": "Taking q as the minimum value, forgetting to add the amplitude",
+     "as": "distractor",
+     "in": [
+      "q-from-minimum"
+     ],
+     "wrong": "f(0) with q set to the minimum"
+    },
+    {
+     "text": "Getting the sign of the exact trig value wrong",
+     "as": "distractor",
+     "in": [
+      "q-from-minimum"
+     ],
+     "wrong": "f(0) with the trig term's sign flipped"
+    },
+    {
+     "text": "Forgetting to multiply the exact trig value by the amplitude",
+     "as": "distractor",
+     "in": [
+      "q-from-minimum"
+     ],
+     "wrong": "f(0) with the trig value not multiplied by the amplitude"
+    },
+    {
+     "text": "Giving q as the y-intercept, leaving out the trig term",
+     "as": "distractor",
+     "in": [
+      "q-from-minimum"
+     ],
+     "wrong": "q alone"
+    },
+    {
+     "text": "Adding the two coefficients to get a, instead of taking the square root of the sum of their squares",
+     "as": "distractor",
+     "in": [
+      "sum-as-cos"
+     ],
+     "wrong": "a = the sum of the coefficients of sin and cos"
+    },
+    {
+     "text": "Using the period of sin and cos for tan, whose period is half as long",
+     "as": "distractor",
+     "in": [
+      "tan-two-points"
+     ],
+     "wrong": "b = 2π ÷ the intercept, and a from that b"
+    },
+    {
+     "text": "Finding a as y ÷ x, as if the graph were a straight line through the origin",
+     "as": "distractor",
+     "in": [
+      "tan-two-points"
+     ],
+     "wrong": "a = y ÷ x at the point"
+    },
+    {
+     "text": "Multiplying by b instead of dividing when taking b out of the bracket",
+     "as": "distractor",
+     "in": [
+      "shift-from-bracket"
+     ],
+     "wrong": "c = the bracket's constant × b"
+    },
+    {
+     "text": "Getting the direction of the vertical shift wrong",
+     "as": "distractor",
+     "in": [
+      "image-equation",
+      "pq-from-translation"
+     ],
+     "wrong": "the vertical shift with the wrong sign"
+    },
+    {
+     "text": "Taking a as positive, when the height starts at its lowest",
+     "as": "distractor",
+     "in": [
+      "wheel-model"
+     ],
+     "wrong": "a > 0, the radius"
+    },
+    {
+     "text": "Taking d as the radius, forgetting how high the lowest seat is",
+     "as": "distractor",
+     "in": [
+      "wheel-model"
+     ],
+     "wrong": "d = the radius"
+    },
+    {
+     "text": "Adding instead of subtracting when rearranging for c",
+     "as": "distractor",
+     "in": [
+      "c-from-crossing"
+     ],
+     "wrong": "c = t + the angle ÷ b"
+    },
+    {
+     "text": "Giving t − c as the answer, forgetting to take it from t",
+     "as": "distractor",
+     "in": [
+      "c-from-crossing"
+     ],
+     "wrong": "c = the angle ÷ b alone"
+    },
+    {
+     "text": "Forgetting to take sin⁻¹ before dividing by b",
+     "as": "distractor",
+     "in": [
+      "c-from-crossing"
+     ],
+     "wrong": "c = t − the ratio ÷ b, with no sin⁻¹"
+    },
+    {
+     "text": "Using the whole time above k from the peak, instead of half of it each side",
+     "as": "distractor",
+     "in": [
+      "level-from-duration"
+     ],
+     "wrong": "k from the whole time above it"
+    },
+    {
+     "text": "Measuring half the time from the minimum instead of from the peak",
+     "as": "distractor",
+     "in": [
+      "level-from-duration"
+     ],
+     "wrong": "d − a cos(b × half the time)"
+    },
+    {
+     "text": "Using sin in place of cos for this model",
+     "as": "distractor",
+     "in": [
+      "level-from-duration"
+     ],
+     "wrong": "a sin(b × half the time) + d"
     }
    ],
    "parts": [
@@ -55400,6 +56279,58 @@
       "predict-from-line"
      ],
      "wrong": "(x₀ − b) ÷ a: the line rearranged to find x from y = x₀"
+    },
+    {
+     "text": "Getting the sign of the intercept b wrong when copying the line from the GDC",
+     "as": "distractor",
+     "in": [
+      "regression-line",
+      "predict-from-data",
+      "predict-from-line"
+     ],
+     "wrong": "b with its sign flipped"
+    },
+    {
+     "text": "Swapping a and b, using the intercept as the gradient",
+     "as": "distractor",
+     "in": [
+      "regression-line",
+      "predict-from-data",
+      "predict-from-line"
+     ],
+     "wrong": "a and b the wrong way round"
+    },
+    {
+     "text": "Giving r the wrong sign, against the direction of the trend",
+     "as": "distractor",
+     "in": [
+      "correlation-coefficient"
+     ],
+     "wrong": "−r"
+    },
+    {
+     "text": "Writing the mean point with its coordinates swapped",
+     "as": "distractor",
+     "in": [
+      "mean-point"
+     ],
+     "wrong": "(mean of y, x̄)"
+    },
+    {
+     "text": "Adding the gradient × x̄ to the mean of y instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "c-from-mean-point"
+     ],
+     "wrong": "c = mean of y + a x̄"
+    },
+    {
+     "text": "Subtracting the gradient from the mean of y without multiplying it by x̄",
+     "as": "distractor",
+     "in": [
+      "c-from-mean-point"
+     ],
+     "wrong": "c = mean of y − a"
     }
    ],
    "parts": [
@@ -55595,6 +56526,23 @@
       "expected-count"
      ],
      "wrong": "P(event)"
+    },
+    {
+     "text": "Using the probability that the event does not happen",
+     "as": "distractor",
+     "in": [
+      "expected-count",
+      "trials-for-count"
+     ],
+     "wrong": "n × (1 − P(event)), or the expected number ÷ (1 − P(event))"
+    },
+    {
+     "text": "Multiplying the expected number by the probability instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "trials-for-count"
+     ],
+     "wrong": "the expected number × P(event)"
     }
    ],
    "parts": [
@@ -56782,7 +57730,8 @@
      "text": "Giving the last branch alone instead of multiplying along the path",
      "as": "distractor",
      "in": [
-      "path-probability"
+      "path-probability",
+      "all-without-replacement"
      ],
      "wrong": "the second-stage branch"
     },
@@ -56808,7 +57757,10 @@
      "text": "Giving the probability of the opposite event",
      "as": "distractor",
      "in": [
-      "same-or-different"
+      "same-or-different",
+      "total-over-paths",
+      "total-from-normals",
+      "rounds-exceed-total"
      ],
      "wrong": "1 minus the answer"
     },
@@ -56912,7 +57864,8 @@
      "text": "Leaving the count of the colour drawn unchanged after the first draw",
      "as": "distractor",
      "in": [
-      "branch-after-draw"
+      "branch-after-draw",
+      "draws-in-terms-of-n"
      ],
      "wrong": "the total reduced but the count of the colour drawn kept"
     },
@@ -56935,6 +57888,103 @@
       "draws-in-terms-of-n"
      ],
      "wrong": "the first draw over n − 1"
+    },
+    {
+     "text": "Adding the other branch to 1 instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "branch-in-terms-of-k"
+     ],
+     "wrong": "1 plus the other branch"
+    },
+    {
+     "text": "Finding y, the other branch at that fork, instead of x",
+     "as": "distractor",
+     "in": [
+      "branch-after-draw"
+     ],
+     "wrong": "y, the other branch"
+    },
+    {
+     "text": "Stopping at the first branch instead of multiplying along the path",
+     "as": "distractor",
+     "in": [
+      "path-probability",
+      "all-without-replacement"
+     ],
+     "wrong": "the first branch alone"
+    },
+    {
+     "text": "Giving the chance for one draw instead of the chance of at least one over all the draws",
+     "as": "distractor",
+     "in": [
+      "at-least-one"
+     ],
+     "wrong": "the first draw's chance of the colour"
+    },
+    {
+     "text": "Multiplying only two branches when three are chosen",
+     "as": "distractor",
+     "in": [
+      "all-without-replacement"
+     ],
+     "wrong": "the first two branches multiplied"
+    },
+    {
+     "text": "Leaving out the failures on the path and giving the success alone",
+     "as": "distractor",
+     "in": [
+      "first-success-on-trial"
+     ],
+     "wrong": "the chance of a success on one try"
+    },
+    {
+     "text": "Using one workshop's normal probability alone, as if every item came from it",
+     "as": "distractor",
+     "in": [
+      "total-from-normals"
+     ],
+     "wrong": "one workshop's normalcdf value"
+    },
+    {
+     "text": "Reversing the conditional: giving the chance of the event for A, not the chance of A given the event",
+     "as": "distractor",
+     "in": [
+      "total-from-normals"
+     ],
+     "wrong": "A's normalcdf value"
+    },
+    {
+     "text": "Stopping at the total of the paths without dividing the path through A by it",
+     "as": "distractor",
+     "in": [
+      "total-from-normals"
+     ],
+     "wrong": "the total of the paths"
+    },
+    {
+     "text": "Giving A's share alone, as if knowing the event changed nothing",
+     "as": "distractor",
+     "in": [
+      "total-from-normals"
+     ],
+     "wrong": "the share A makes"
+    },
+    {
+     "text": "Giving the branch 1 − k instead of k",
+     "as": "distractor",
+     "in": [
+      "parameter-on-branch"
+     ],
+     "wrong": "1 − k"
+    },
+    {
+     "text": "Leaving out the game with the top score in every round",
+     "as": "distractor",
+     "in": [
+      "rounds-exceed-total"
+     ],
+     "wrong": "only the games with one lower round"
     }
    ],
    "parts": [
@@ -58376,6 +59426,70 @@
       "fair-stake"
      ],
      "wrong": "the stake from gains of the prize on a win and minus the stake on a loss: Σ prize × P(win) ÷ P(no prize), to the cent"
+    },
+    {
+     "text": "Leaving one of the products x P(X = x) out of the sum",
+     "as": "distractor",
+     "in": [
+      "expected-value"
+     ],
+     "wrong": "E(X) without its last product"
+    },
+    {
+     "text": "Adding the values of X without weighting them by their probabilities",
+     "as": "distractor",
+     "in": [
+      "expected-value"
+     ],
+     "wrong": "Σ x"
+    },
+    {
+     "text": "Swapping p and q in the table",
+     "as": "distractor",
+     "in": [
+      "probabilities-from-mean"
+     ],
+     "wrong": "p and q the wrong way round"
+    },
+    {
+     "text": "Setting p + q = 1, forgetting the probabilities already in the table",
+     "as": "distractor",
+     "in": [
+      "probabilities-from-mean"
+     ],
+     "wrong": "p and q from p + q = 1 with Σ x P = E(X)"
+    },
+    {
+     "text": "Sharing what is left of 1 equally between p and q, ignoring E(X)",
+     "as": "distractor",
+     "in": [
+      "probabilities-from-mean"
+     ],
+     "wrong": "p = q = half of what is left of 1"
+    },
+    {
+     "text": "Leaving the known values' products out of Σ x P(X = x)",
+     "as": "distractor",
+     "in": [
+      "probabilities-from-mean"
+     ],
+     "wrong": "p and q from ΣP = 1 with only the p and q terms set equal to E(X)"
+    },
+    {
+     "text": "Averaging the prizes and ignoring their probabilities",
+     "as": "distractor",
+     "in": [
+      "fair-stake"
+     ],
+     "wrong": "the mean of the prizes, to the cent"
+    },
+    {
+     "text": "Counting only the top prize in the expected prize",
+     "as": "distractor",
+     "in": [
+      "fair-stake"
+     ],
+     "wrong": "the top prize × its probability, to the cent"
     }
    ],
    "parts": [
@@ -58620,6 +59734,54 @@
       "event-probability"
      ],
      "wrong": "the event's probability with its strict end taken in"
+    },
+    {
+     "text": "Taking k as the total of the multiples of k, instead of 1 divided by it",
+     "as": "distractor",
+     "in": [
+      "k-from-sum"
+     ],
+     "wrong": "k = what the multiples of k add to"
+    },
+    {
+     "text": "Treating each probability as k itself, ignoring what multiplies or divides it",
+     "as": "distractor",
+     "in": [
+      "k-from-sum"
+     ],
+     "wrong": "1 divided by the number of values"
+    },
+    {
+     "text": "Forgetting to divide by the sum of the multiples of k",
+     "as": "distractor",
+     "in": [
+      "k-from-sum"
+     ],
+     "wrong": "what is left of 1 for the multiples of k, not divided"
+    },
+    {
+     "text": "Giving the sum of the known probabilities instead of what is left of 1",
+     "as": "distractor",
+     "in": [
+      "missing-probability"
+     ],
+     "wrong": "the sum of the given probabilities"
+    },
+    {
+     "text": "Giving the probability that the event does not happen",
+     "as": "distractor",
+     "in": [
+      "event-probability"
+     ],
+     "wrong": "1 − P(event)"
+    },
+    {
+     "text": "Leaving out the endpoint for an inequality that includes it",
+     "as": "distractor",
+     "in": [
+      "event-probability"
+     ],
+     "wrong": "the event's probability with its ≤ or ≥ end left out"
     }
    ],
    "parts": [
@@ -60912,6 +62074,38 @@
       "central-k-sd"
      ],
      "wrong": "z × σ"
+    },
+    {
+     "text": "Using the whole width of the band as σ, instead of sharing it out over the standard deviations it spans",
+     "as": "distractor",
+     "in": [
+      "sd-from-rule"
+     ],
+     "wrong": "the width of the band"
+    },
+    {
+     "text": "Adding the half of the curve on the other side of the mean, though the region starts at the mean",
+     "as": "distractor",
+     "in": [
+      "half-of-middle"
+     ],
+     "wrong": "half the band plus 0.5"
+    },
+    {
+     "text": "Taking b as the given value itself, though equal tails sit on opposite sides of the mean",
+     "as": "distractor",
+     "in": [
+      "mirror-value"
+     ],
+     "wrong": "the given value, for b"
+    },
+    {
+     "text": "Using the interval from the mean to one end, instead of reaching the same distance below the mean too",
+     "as": "distractor",
+     "in": [
+      "central-endpoints"
+     ],
+     "wrong": "μ < X < the upper end"
     }
    ],
    "parts": [
@@ -61440,7 +62634,7 @@
      "in": [
       "between-from-tails"
      ],
-     "wrong": "1 minus the lower tail"
+     "wrong": "1 minus one tail alone"
     },
     {
      "text": "Adding the two tails instead of taking them from 1",
@@ -62421,6 +63615,102 @@
       "conditional-from-independence"
      ],
      "wrong": "P(want ∩ given)"
+    },
+    {
+     "text": "Giving P(A ∩ B) when the union is asked for",
+     "as": "distractor",
+     "in": [
+      "union-from-independence"
+     ],
+     "wrong": "P(A) × P(B)"
+    },
+    {
+     "text": "Taking 1 − P(A) × P(B) for at least one, when that is the chance that not both happen",
+     "as": "distractor",
+     "in": [
+      "union-from-independence"
+     ],
+     "wrong": "1 − P(A) × P(B)"
+    },
+    {
+     "text": "Stopping at P(A′) × P(B′), the chance of neither, without subtracting it from one",
+     "as": "distractor",
+     "in": [
+      "union-from-independence"
+     ],
+     "wrong": "P(A′) × P(B′)"
+    },
+    {
+     "text": "Putting the dashes on the wrong events, which gives the probability of another region",
+     "as": "distractor",
+     "in": [
+      "one-region-from-independence"
+     ],
+     "wrong": "the product for another region"
+    },
+    {
+     "text": "Forgetting to subtract P(A) from one when A′ is asked for",
+     "as": "distractor",
+     "in": [
+      "conditional-from-independence"
+     ],
+     "wrong": "P(A) for P(A′ | given)"
+    },
+    {
+     "text": "Giving the probability of the event after the bar instead of the event before it",
+     "as": "distractor",
+     "in": [
+      "conditional-from-independence"
+     ],
+     "wrong": "the probability of the given event"
+    },
+    {
+     "text": "Adding P(A ∩ B) in the addition rule instead of subtracting it",
+     "as": "distractor",
+     "in": [
+      "unknown-from-union"
+     ],
+     "wrong": "(P(A ∪ B) − P(A)) ÷ (1 + P(A))"
+    },
+    {
+     "text": "Stopping at P(B′) without subtracting it from one",
+     "as": "distractor",
+     "in": [
+      "unknown-from-union"
+     ],
+     "wrong": "P(B′)"
+    },
+    {
+     "text": "Giving P(A) instead of P(B) once the quadratic is solved",
+     "as": "distractor",
+     "in": [
+      "ratio-from-union"
+     ],
+     "wrong": "P(A), k times the answer"
+    },
+    {
+     "text": "Taking the middle as all that is left after the two 'only' regions, as if nothing lay outside the circles",
+     "as": "distractor",
+     "in": [
+      "overlap-from-only-regions"
+     ],
+     "wrong": "1 − P(A ∩ B′) − P(A′ ∩ B)"
+    },
+    {
+     "text": "Assuming two events with non-zero probabilities can be mutually exclusive and independent at once",
+     "as": "distractor",
+     "in": [
+      "classify-events"
+     ],
+     "wrong": "mutually exclusive and independent"
+    },
+    {
+     "text": "Missing that P(A ∩ B) = 0 makes the events mutually exclusive",
+     "as": "distractor",
+     "in": [
+      "classify-events"
+     ],
+     "wrong": "neither, when P(A ∩ B) = 0"
     }
    ],
    "parts": [
@@ -66127,7 +67417,8 @@
      "text": "Taking the zeros of f′ as the points of inflexion instead of its turning points",
      "as": "distractor",
      "in": [
-      "inflexion-from-derivative"
+      "inflexion-from-derivative",
+      "concave-up-from-cubic"
      ],
      "wrong": "the zeros of f′"
     },
@@ -66261,6 +67552,86 @@
       "gradient-at-turning-point"
      ],
      "wrong": "the y-coordinate of the point"
+    },
+    {
+     "text": "Reading the sign of f′ the wrong way round, so the side given is where f moves the other way",
+     "as": "distractor",
+     "in": [
+      "increasing-past-touch"
+     ],
+     "wrong": "the other side of the zero where f′ changes sign"
+    },
+    {
+     "text": "Keeping only the stretch past the point where f′ touches the axis, as if f′ changed sign there",
+     "as": "distractor",
+     "in": [
+      "increasing-past-touch"
+     ],
+     "wrong": "the side of the touch alone"
+    },
+    {
+     "text": "Swapping concave up and concave down, though concave up means f′ is increasing",
+     "as": "distractor",
+     "in": [
+      "concave-up-from-cubic"
+     ],
+     "wrong": "the stretch where f′ moves the other way"
+    },
+    {
+     "text": "Leaving out the turning point of f′ away from the axis, though f′ turns there too",
+     "as": "distractor",
+     "in": [
+      "inflexion-from-derivative"
+     ],
+     "wrong": "the touch alone"
+    },
+    {
+     "text": "Giving each region the opposite sign, so area above the axis counts as a fall in f",
+     "as": "distractor",
+     "in": [
+      "compare-from-areas"
+     ],
+     "wrong": "the signed areas with their signs swapped"
+    },
+    {
+     "text": "Judging by the sign of f′ on the last stretch alone, instead of adding the signed areas",
+     "as": "distractor",
+     "in": [
+      "compare-from-areas"
+     ],
+     "wrong": "the end the last stretch rises to"
+    },
+    {
+     "text": "Taking the change in f away from the starting value instead of adding it",
+     "as": "distractor",
+     "in": [
+      "value-from-areas"
+     ],
+     "wrong": "the starting value minus the signed area"
+    },
+    {
+     "text": "Giving where f′ has the other sign, mixing up where the curve goes up and where it goes down",
+     "as": "distractor",
+     "in": [
+      "gradient-negative-where"
+     ],
+     "wrong": "the stretches of the other sign"
+    },
+    {
+     "text": "Giving the x-coordinate of the point instead of its gradient",
+     "as": "distractor",
+     "in": [
+      "gradient-at-turning-point"
+     ],
+     "wrong": "the x-coordinate of the point"
+    },
+    {
+     "text": "Mixing up going up and going down, as if reading the curve from right to left",
+     "as": "distractor",
+     "in": [
+      "gradient-sign-statement"
+     ],
+     "wrong": "the opposite direction"
     }
    ],
    "parts": [
@@ -71035,7 +72406,8 @@
      "as": "distractor",
      "in": [
       "second-derivative",
-      "second-derivative-value"
+      "second-derivative-value",
+      "concave-at-point"
      ],
      "wrong": "stopping at f′"
     },
@@ -71089,6 +72461,51 @@
       "match-second-derivative"
      ],
      "wrong": "zeros at the x-intercepts"
+    },
+    {
+     "text": "Dropping the minus sign when differentiating the ln x term a second time",
+     "as": "distractor",
+     "in": [
+      "second-derivative"
+     ],
+     "wrong": "the term from ln x with the wrong sign"
+    },
+    {
+     "text": "Forgetting that differentiating sin x or cos x twice brings a minus sign",
+     "as": "distractor",
+     "in": [
+      "second-derivative"
+     ],
+     "wrong": "the sin or cos term with the wrong sign"
+    },
+    {
+     "text": "Swapping concave up and concave down, though a positive f″ means concave up",
+     "as": "distractor",
+     "in": [
+      "concave-interval",
+      "concave-exponential",
+      "concave-gdc",
+      "concave-from-derivative-graph",
+      "concave-at-point"
+     ],
+     "wrong": "the other side of the boundary, or the other word"
+    },
+    {
+     "text": "Getting the sign of the root wrong when solving the linear factor of f″ for zero",
+     "as": "distractor",
+     "in": [
+      "concave-exponential"
+     ],
+     "wrong": "the boundary at the root's negative"
+    },
+    {
+     "text": "Using a zero of f′ as the boundary, instead of the turning point of f′",
+     "as": "distractor",
+     "in": [
+      "concave-gdc",
+      "concave-from-derivative-graph"
+     ],
+     "wrong": "a boundary at a zero of f′"
     }
    ],
    "parts": [
@@ -74568,6 +75985,127 @@
       "form-area-model"
      ],
      "wrong": "writes A = xy and tries to maximise it without using the fence length"
+    },
+    {
+     "text": "Gives the model's value at the start instead of its greatest value",
+     "as": "distractor",
+     "in": [
+      "max-value"
+     ],
+     "wrong": "the value of the model at the start"
+    },
+    {
+     "text": "Gives the rise above the starting height, not the greatest height itself",
+     "as": "distractor",
+     "in": [
+      "max-value"
+     ],
+     "wrong": "the greatest height less the starting height"
+    },
+    {
+     "text": "Divides −b by a instead of by twice a when finding the vertex",
+     "as": "distractor",
+     "in": [
+      "time-of-max"
+     ],
+     "wrong": "twice the time or width of the top"
+    },
+    {
+     "text": "Gives the coefficient b as the answer, without dividing −b by twice a",
+     "as": "distractor",
+     "in": [
+      "time-of-max"
+     ],
+     "wrong": "b"
+    },
+    {
+     "text": "Gives the time of the top instead of the time asked for",
+     "as": "distractor",
+     "in": [
+      "zero-time",
+      "second-time-at-height"
+     ],
+     "wrong": "the time of the top"
+    },
+    {
+     "text": "Solves as if the ball started on the ground, giving the time it is back at its starting height",
+     "as": "distractor",
+     "in": [
+      "zero-time"
+     ],
+     "wrong": "twice the time of the top"
+    },
+    {
+     "text": "Assumes the best pen against a wall is a square, with each of the three sides a third of the fence",
+     "as": "distractor",
+     "in": [
+      "form-area-model"
+     ],
+     "wrong": "a square pen against the wall"
+    },
+    {
+     "text": "Gives the pen's length in place of its width x",
+     "as": "distractor",
+     "in": [
+      "form-area-model"
+     ],
+     "wrong": "the length of the best pen, with the right area"
+    },
+    {
+     "text": "Misreads the top of the path as the landing point",
+     "as": "distractor",
+     "in": [
+      "interpret-vertex"
+     ],
+     "wrong": "the vertex read as where the ball lands"
+    },
+    {
+     "text": "Takes the vertex's height as the starting height",
+     "as": "distractor",
+     "in": [
+      "interpret-vertex"
+     ],
+     "wrong": "the ball starting at the greatest height"
+    },
+    {
+     "text": "Adds the given time to the time of the top, instead of going the same distance past the top",
+     "as": "distractor",
+     "in": [
+      "second-time-at-height"
+     ],
+     "wrong": "the given time plus the time of the top"
+    },
+    {
+     "text": "Stops at the gap between the given time and the top, without adding it on to the time of the top",
+     "as": "distractor",
+     "in": [
+      "second-time-at-height"
+     ],
+     "wrong": "the time from the given time to the top"
+    },
+    {
+     "text": "Gets the sign of a wrong, so the model opens upwards with no top",
+     "as": "distractor",
+     "in": [
+      "model-from-features"
+     ],
+     "wrong": "a positive a, with the vertex at the right point"
+    },
+    {
+     "text": "Gets the sign of the t term wrong when expanding the square",
+     "as": "distractor",
+     "in": [
+      "model-from-features"
+     ],
+     "wrong": "the right a and c with b's sign flipped"
+    },
+    {
+     "text": "Takes the greatest height as c, instead of the starting height",
+     "as": "distractor",
+     "in": [
+      "model-from-features"
+     ],
+     "wrong": "the right a and b with c the greatest height"
     }
    ]
   },
@@ -75002,7 +76540,11 @@
      "text": "Gets the sign of a product wrong",
      "as": "distractor",
      "in": [
-      "double-bracket"
+      "double-bracket",
+      "single-bracket",
+      "perfect-square",
+      "scaled-product",
+      "vertex-form-expand"
      ],
      "wrong": "middle term with the wrong sign"
     },
@@ -75013,6 +76555,73 @@
       "vertex-form-expand"
      ],
      "wrong": "constant term k(r² + d)"
+    },
+    {
+     "text": "Multiplies a bracket term by the x in front but leaves out the number in front",
+     "as": "distractor",
+     "in": [
+      "single-bracket"
+     ],
+     "wrong": "one term missing the number in front"
+    },
+    {
+     "text": "Multiplies only the first terms and the last terms, so the x terms are missing",
+     "as": "distractor",
+     "in": [
+      "double-bracket"
+     ],
+     "wrong": "x² and the constant, with no x term"
+    },
+    {
+     "text": "Forgets to double the middle term of a square",
+     "as": "distractor",
+     "in": [
+      "perfect-square",
+      "vertex-form-expand"
+     ],
+     "wrong": "rx where 2rx belongs"
+    },
+    {
+     "text": "Doubles the number in the bracket instead of squaring it for the constant",
+     "as": "distractor",
+     "in": [
+      "perfect-square",
+      "missing-term"
+     ],
+     "wrong": "2r where r² belongs"
+    },
+    {
+     "text": "Multiplies the factor in front into some of the terms but not all of them",
+     "as": "distractor",
+     "in": [
+      "scaled-product",
+      "vertex-form-expand"
+     ],
+     "wrong": "one term left unscaled"
+    },
+    {
+     "text": "Forgets the number added after the bracket",
+     "as": "distractor",
+     "in": [
+      "vertex-form-expand"
+     ],
+     "wrong": "the constant d left off"
+    },
+    {
+     "text": "Takes r as the whole x coefficient instead of half of it",
+     "as": "distractor",
+     "in": [
+      "missing-term"
+     ],
+     "wrong": "r equal to the x coefficient, and c its square"
+    },
+    {
+     "text": "Gets the sign of r wrong when halving the x coefficient",
+     "as": "distractor",
+     "in": [
+      "missing-term"
+     ],
+     "wrong": "r with the wrong sign"
     }
    ]
   },
@@ -75524,6 +77133,55 @@
       "simplify-root"
      ],
      "wrong": "a square factor left inside"
+    },
+    {
+     "text": "Takes the square factor outside the root without square-rooting it",
+     "as": "distractor",
+     "in": [
+      "simplify-root",
+      "multiply-surds"
+     ],
+     "wrong": "the square factor itself in front of the root"
+    },
+    {
+     "text": "Multiplies the numbers in front instead of adding them",
+     "as": "distractor",
+     "in": [
+      "add-like-surds"
+     ],
+     "wrong": "the product of the numbers in front"
+    },
+    {
+     "text": "Adds the roots themselves as well as the numbers in front of them",
+     "as": "distractor",
+     "in": [
+      "add-like-surds"
+     ],
+     "wrong": "the number under the root doubled"
+    },
+    {
+     "text": "Adds the numbers under the roots instead of multiplying them",
+     "as": "distractor",
+     "in": [
+      "multiply-surds"
+     ],
+     "wrong": "the root of the sum"
+    },
+    {
+     "text": "Moves the number in front under the root without squaring it",
+     "as": "distractor",
+     "in": [
+      "surd-to-root"
+     ],
+     "wrong": "the number in front times the number under the root"
+    },
+    {
+     "text": "Doubles the number in front instead of squaring it",
+     "as": "distractor",
+     "in": [
+      "surd-to-root"
+     ],
+     "wrong": "twice the number in front, times the number under the root"
     }
    ]
   },
@@ -75707,6 +77365,46 @@
       "two-sided"
      ],
      "wrong": "the outer numbers left unchanged"
+    },
+    {
+     "text": "Flips the inequality sign when dividing by a positive number",
+     "as": "distractor",
+     "in": [
+      "one-sided"
+     ],
+     "wrong": "the right boundary with the wrong direction"
+    },
+    {
+     "text": "Moves the number to the other side without changing its sign",
+     "as": "distractor",
+     "in": [
+      "one-sided"
+     ],
+     "wrong": "the boundary with the number's sign kept"
+    },
+    {
+     "text": "Swaps the ends after dividing by a negative but leaves the signs where they were",
+     "as": "distractor",
+     "in": [
+      "two-sided"
+     ],
+     "wrong": "the right ends with the two signs in the wrong places"
+    },
+    {
+     "text": "Reads the shading the wrong way, so the inequality points the other way",
+     "as": "distractor",
+     "in": [
+      "read-number-line"
+     ],
+     "wrong": "the right boundary with the wrong direction"
+    },
+    {
+     "text": "Takes the first whole number from the last without adding 1",
+     "as": "distractor",
+     "in": [
+      "count-integers"
+     ],
+     "wrong": "one fewer than the count"
     }
    ]
   },
@@ -76368,6 +78066,129 @@
       "when-overtakes"
      ],
      "wrong": "a negative step where the two models are equal kept as the overtaking time"
+    },
+    {
+     "text": "Swaps the two tests, taking constant differences for exponential growth and constant ratios for linear",
+     "as": "distractor",
+     "in": [
+      "classify-table",
+      "classify-graph"
+     ],
+     "wrong": "linear for constant ratios, or exponential for constant differences"
+    },
+    {
+     "text": "Checks only the differences and calls the pattern neither, without testing the ratios",
+     "as": "distractor",
+     "in": [
+      "classify-table",
+      "classify-graph"
+     ],
+     "wrong": "neither, for a pattern with constant ratios"
+    },
+    {
+     "text": "Takes differences that keep growing as a sign of exponential growth, without checking the ratios",
+     "as": "distractor",
+     "in": [
+      "classify-table"
+     ],
+     "wrong": "exponential, for growing differences whose ratios change"
+    },
+    {
+     "text": "Calls a pattern linear just because its values go up",
+     "as": "distractor",
+     "in": [
+      "classify-table",
+      "classify-graph"
+     ],
+     "wrong": "linear: the values go up"
+    },
+    {
+     "text": "Adds the percentage rate as a fixed amount each hour, as if it were a gain",
+     "as": "distractor",
+     "in": [
+      "classify-words"
+     ],
+     "wrong": "P₀ + rt for \"grows by r% each hour\""
+    },
+    {
+     "text": "Swaps the starting amount and the percentage, so the start becomes the base of the power",
+     "as": "distractor",
+     "in": [
+      "classify-words"
+     ],
+     "wrong": "r(P₀)ᵗ for \"starts at P₀ and grows by r%\""
+    },
+    {
+     "text": "Treats a fixed gain each hour as a growth factor, multiplying by it instead of adding it",
+     "as": "distractor",
+     "in": [
+      "classify-words"
+     ],
+     "wrong": "P₀(d)ᵗ for \"gains d each hour\""
+    },
+    {
+     "text": "Treats a fixed gain each hour as a percentage rise",
+     "as": "distractor",
+     "in": [
+      "classify-words"
+     ],
+     "wrong": "P₀(1 + d/100)ᵗ for \"gains d each hour\""
+    },
+    {
+     "text": "Forgets the starting amount, so the model starts from nothing",
+     "as": "distractor",
+     "in": [
+      "classify-words"
+     ],
+     "wrong": "dt for \"starts at P₀ and gains d each hour\""
+    },
+    {
+     "text": "Swaps the two answers, giving the exponential next value as the linear one and the reverse",
+     "as": "distractor",
+     "in": [
+      "next-values"
+     ],
+     "wrong": "the linear and exponential next values swapped"
+    },
+    {
+     "text": "Assumes exponential growth always doubles, instead of using the ratio of the two values",
+     "as": "distractor",
+     "in": [
+      "next-values"
+     ],
+     "wrong": "twice the second value for the exponential one"
+    },
+    {
+     "text": "Adds the first value again for the linear step, instead of the difference",
+     "as": "distractor",
+     "in": [
+      "next-values"
+     ],
+     "wrong": "the sum of the two values for the linear one"
+    },
+    {
+     "text": "Swaps which model adds and which multiplies",
+     "as": "distractor",
+     "in": [
+      "interpret-d-and-r"
+     ],
+     "wrong": "L multiplied by d and E gaining a"
+    },
+    {
+     "text": "Treats the factor a as an amount added each step, not a multiplier",
+     "as": "distractor",
+     "in": [
+      "interpret-d-and-r"
+     ],
+     "wrong": "E gaining a each step"
+    },
+    {
+     "text": "Rounds the crossing time down, to a step where L is still ahead",
+     "as": "distractor",
+     "in": [
+      "when-overtakes"
+     ],
+     "wrong": "the last whole step before E overtakes"
     }
    ]
   },
@@ -77122,7 +78943,8 @@
      "as": "distractor",
      "in": [
       "solve-with-gdc",
-      "exceeds-in-context"
+      "exceeds-in-context",
+      "inequality-from-region"
      ],
      "wrong": "the crossing x-values, x = 0.619 and x = 1.51, as the answer"
     },
@@ -77141,9 +78963,33 @@
      "text": "Misses that the solution set can be in two separate pieces",
      "as": "distractor",
      "in": [
-      "two-piece-solution"
+      "two-piece-solution",
+      "read-from-graph"
      ],
      "wrong": "only x > 1.51, the left piece dropped"
+    },
+    {
+     "text": "Reading which graph is on top the wrong way round",
+     "as": "distractor",
+     "in": [
+      "solve-with-gdc",
+      "read-from-graph",
+      "exceeds-in-context",
+      "inequality-from-region",
+      "two-piece-solution"
+     ],
+     "wrong": "the set where the inequality fails, or the reversed inequality"
+    },
+    {
+     "text": "Mixing up strict and non-strict signs at the crossings, where the two sides are equal",
+     "as": "distractor",
+     "in": [
+      "solve-with-gdc",
+      "read-from-graph",
+      "exceeds-in-context",
+      "inequality-from-region"
+     ],
+     "wrong": "the crossings included in a strict inequality, or ≥ for a set with its ends left out"
     }
    ]
   },
@@ -77679,7 +79525,8 @@
      "text": "Mixes up significant figures and decimal places",
      "as": "distractor",
      "in": [
-      "round-small-3sf"
+      "round-small-3sf",
+      "round-dp"
      ],
      "wrong": "the value to 3 d.p., 0.005, instead of 0.00457"
     },
@@ -77695,9 +79542,75 @@
      "text": "Gives too few significant figures, such as dropping a needed final zero",
      "as": "distractor",
      "in": [
-      "round-3sf"
+      "round-3sf",
+      "round-small-3sf"
      ],
      "wrong": "1.5, which is only 2 s.f."
+    },
+    {
+     "text": "Counts squares left of or below the origin as positive",
+     "as": "distractor",
+     "in": [
+      "read-coordinates"
+     ],
+     "wrong": "a negative coordinate given as positive"
+    },
+    {
+     "text": "Adds the scale to the number of squares instead of multiplying",
+     "as": "distractor",
+     "in": [
+      "read-with-scale"
+     ],
+     "wrong": "the squares plus the scale"
+    },
+    {
+     "text": "Drops the figures after the last one kept, without rounding",
+     "as": "distractor",
+     "in": [
+      "round-3sf"
+     ],
+     "wrong": "the number truncated, not rounded"
+    },
+    {
+     "text": "Keeps one more figure than the question asks for",
+     "as": "distractor",
+     "in": [
+      "round-3sf",
+      "round-dp"
+     ],
+     "wrong": "one figure too many"
+    },
+    {
+     "text": "Drops one of the zeros after the decimal point",
+     "as": "distractor",
+     "in": [
+      "round-small-3sf"
+     ],
+     "wrong": "the right figures, ten times too big"
+    },
+    {
+     "text": "Includes the upper bound, though a value there rounds up to the next value",
+     "as": "distractor",
+     "in": [
+      "which-values-round"
+     ],
+     "wrong": "≤ at both ends"
+    },
+    {
+     "text": "Uses a whole unit of the last figure either side instead of half a unit",
+     "as": "distractor",
+     "in": [
+      "which-values-round"
+     ],
+     "wrong": "the interval twice as wide"
+    },
+    {
+     "text": "Treats the value as cut off rather than rounded, so the interval starts at it",
+     "as": "distractor",
+     "in": [
+      "which-values-round"
+     ],
+     "wrong": "the value up to one unit above it"
     }
    ]
   },
@@ -78550,6 +80463,57 @@
       "split-to-form"
      ],
      "wrong": "writes ax + b = a(x − h) + b, so B = b instead of b + ah"
+    },
+    {
+     "text": "Takes A as the numerator's x-coefficient, forgetting to divide by the denominator's",
+     "as": "distractor",
+     "in": [
+      "split-scaled"
+     ],
+     "wrong": "A = a, not a divided by the x-coefficient of the denominator"
+    },
+    {
+     "text": "Swaps the two asymptotes, using the horizontal one for the sideways shift and the vertical one for the up-down shift",
+     "as": "distractor",
+     "in": [
+      "translation-vector",
+      "transformation-sequence",
+      "form-from-graph"
+     ],
+     "wrong": "h and A the wrong way round"
+    },
+    {
+     "text": "Puts the translation before the stretch, so the stretch would also scale the vertical shift",
+     "as": "distractor",
+     "in": [
+      "transformation-sequence"
+     ],
+     "wrong": "the translation first, then the stretch"
+    },
+    {
+     "text": "Forgets the constant that A(x − h) adds when combining, leaving the numerator's constant as B",
+     "as": "distractor",
+     "in": [
+      "combine-to-single",
+      "form-from-words"
+     ],
+     "wrong": "(ax + B)/(x − h), the −Ah left out"
+    },
+    {
+     "text": "Gets the sign of the constant wrong when expanding A(x − h)",
+     "as": "distractor",
+     "in": [
+      "combine-to-single"
+     ],
+     "wrong": "the numerator's constant B + Ah instead of B − Ah"
+    },
+    {
+     "text": "Adds A straight onto the numerator B without multiplying it by the denominator",
+     "as": "distractor",
+     "in": [
+      "combine-to-single"
+     ],
+     "wrong": "(A + B)/(x − h)"
     }
    ]
   },
@@ -78807,9 +80771,82 @@
      "text": "Answers with the output when the input is asked for (e.g. a height when a time is asked)",
      "as": "distractor",
      "in": [
-      "least-n-for-target"
+      "least-n-for-target",
+      "input-for-value"
      ],
      "wrong": "gives the average cost at the answer instead of the number of items"
+    },
+    {
+     "text": "Works out only the numerator, forgetting to divide by the denominator",
+     "as": "distractor",
+     "in": [
+      "evaluate-model"
+     ],
+     "wrong": "the top of the fraction at the input, not divided"
+    },
+    {
+     "text": "Gives the long-run value instead of substituting the input",
+     "as": "distractor",
+     "in": [
+      "evaluate-model"
+     ],
+     "wrong": "the horizontal asymptote's value"
+    },
+    {
+     "text": "Reads the long-run value from the constant terms instead of the leading terms",
+     "as": "distractor",
+     "in": [
+      "long-run-value"
+     ],
+     "wrong": "the fixed cost or the starting value"
+    },
+    {
+     "text": "Misses the horizontal asymptote and assumes the model grows without limit",
+     "as": "distractor",
+     "in": [
+      "long-run-value"
+     ],
+     "wrong": "rises without limit"
+    },
+    {
+     "text": "Writes the total but forgets to divide it to get the average or the concentration",
+     "as": "distractor",
+     "in": [
+      "build-model"
+     ],
+     "wrong": "the total cost or the total salt, not divided"
+    },
+    {
+     "text": "Divides only the fixed cost by n, leaving the cost of the items undivided",
+     "as": "distractor",
+     "in": [
+      "build-model"
+     ],
+     "wrong": "F/n + vn"
+    },
+    {
+     "text": "Uses only part of the volume as the denominator, leaving out the starting volume or the litres added",
+     "as": "distractor",
+     "in": [
+      "build-model"
+     ],
+     "wrong": "the salt divided by x alone or by V alone"
+    },
+    {
+     "text": "Forgets to multiply the strength of the added water by the litres added",
+     "as": "distractor",
+     "in": [
+      "build-model"
+     ],
+     "wrong": "s + p on top, not s + px"
+    },
+    {
+     "text": "Confuses the vertical asymptote with the horizontal one, the long-run value",
+     "as": "distractor",
+     "in": [
+      "interpret-vertical-asymptote"
+     ],
+     "wrong": "says the model reaches its long-run value at the vertical asymptote"
     }
    ]
   },
@@ -79356,6 +81393,80 @@
       "excluded-value"
      ],
      "wrong": "\"none: 6/0 = 0\""
+    },
+    {
+     "text": "Sets the top equal to zero instead of the bottom",
+     "as": "distractor",
+     "in": [
+      "excluded-value",
+      "simplify-by-cancelling"
+     ],
+     "wrong": "the value that makes the top 0"
+    },
+    {
+     "text": "Gets the sign wrong when finding where the bottom is zero",
+     "as": "distractor",
+     "in": [
+      "excluded-value",
+      "simplify-by-cancelling"
+     ],
+     "wrong": "the excluded value with its sign flipped"
+    },
+    {
+     "text": "Cancels the wrong bracket, keeping the one that is also on the bottom",
+     "as": "distractor",
+     "in": [
+      "simplify-by-cancelling"
+     ],
+     "wrong": "the cancelled bracket left as the answer"
+    },
+    {
+     "text": "Multiplies each top by its own bottom instead of by the other fraction's bottom",
+     "as": "distractor",
+     "in": [
+      "add-fractions"
+     ],
+     "wrong": "p(x + a) + q(x + b) on the top"
+    },
+    {
+     "text": "Gives the value where the bottom is zero, the one value x can never take",
+     "as": "distractor",
+     "in": [
+      "clear-and-solve"
+     ],
+     "wrong": "the value that makes the bottom 0"
+    },
+    {
+     "text": "Adds the whole number to the top without first writing it over the bottom",
+     "as": "distractor",
+     "in": [
+      "missing-numerator"
+     ],
+     "wrong": "the whole number and the top added"
+    },
+    {
+     "text": "Multiplies the whole number by x but leaves out the number in the bracket",
+     "as": "distractor",
+     "in": [
+      "missing-numerator"
+     ],
+     "wrong": "ax + k, the bracket's number dropped"
+    },
+    {
+     "text": "Gets a sign wrong when multiplying out the bracket",
+     "as": "distractor",
+     "in": [
+      "missing-numerator"
+     ],
+     "wrong": "the bracket's number with the wrong sign"
+    },
+    {
+     "text": "Multiplies only the x in the bracket by the whole number, not the number after it",
+     "as": "distractor",
+     "in": [
+      "missing-numerator"
+     ],
+     "wrong": "ax + k − h, the bracket's number not multiplied"
     }
    ]
   },
@@ -80448,6 +82559,112 @@
       "do-they-meet"
      ],
      "wrong": "\"yes, far away\", for two lines with equal gradients"
+    },
+    {
+     "text": "Writes the coordinates of the meeting point the wrong way round",
+     "as": "distractor",
+     "in": [
+      "meet-slope-intercept",
+      "meet-general",
+      "meet-from-graph"
+     ],
+     "wrong": "(y, x) for (x, y)"
+    },
+    {
+     "text": "Checks the point in one line only and takes it to lie on both",
+     "as": "distractor",
+     "in": [
+      "point-on-both"
+     ],
+     "wrong": "on both lines, when it lies on only one"
+    },
+    {
+     "text": "Mixes up L₁ and L₂ when saying which line the point lies on",
+     "as": "distractor",
+     "in": [
+      "point-on-both"
+     ],
+     "wrong": "on L₂ but not on L₁, or the reverse"
+    },
+    {
+     "text": "Takes two lines with equal gradients for the same line without comparing the intercepts",
+     "as": "distractor",
+     "in": [
+      "do-they-meet"
+     ],
+     "wrong": "the same line, for equal gradients and different intercepts"
+    },
+    {
+     "text": "Calls the lines parallel from the gradients alone, without checking whether the intercepts are equal too",
+     "as": "distractor",
+     "in": [
+      "do-they-meet"
+     ],
+     "wrong": "they never meet, for one line written two ways"
+    },
+    {
+     "text": "Assumes any two lines cross somewhere, instead of comparing the gradients and the intercepts",
+     "as": "distractor",
+     "in": [
+      "do-they-meet"
+     ],
+     "wrong": "they meet far away, for lines that cross once or are the same line"
+    },
+    {
+     "text": "Swaps the meeting point's x and y when putting it into y = mx + c to find c",
+     "as": "distractor",
+     "in": [
+      "line-through-meeting-point"
+     ],
+     "wrong": "the right gradient, with c from the meeting point's coordinates swapped"
+    },
+    {
+     "text": "Makes a sign slip in the gradient from the meeting point to T, subtracting one pair of coordinates the other way round",
+     "as": "distractor",
+     "in": [
+      "line-through-meeting-point"
+     ],
+     "wrong": "the gradient with its sign flipped, through the meeting point"
+    },
+    {
+     "text": "Gets the sign of c wrong when rearranging y = mx + c for c",
+     "as": "distractor",
+     "in": [
+      "line-through-meeting-point"
+     ],
+     "wrong": "the right gradient with c = mx − y"
+    },
+    {
+     "text": "Uses the meeting point's y-coordinate as c, as if the point were on the y-axis",
+     "as": "distractor",
+     "in": [
+      "line-through-meeting-point"
+     ],
+     "wrong": "the right gradient with c the y of the meeting point"
+    },
+    {
+     "text": "Adds the x term to y instead of subtracting it when solving for k",
+     "as": "distractor",
+     "in": [
+      "constant-from-meeting-point"
+     ],
+     "wrong": "k = y + m₁x"
+    },
+    {
+     "text": "Takes k as the y-coordinate of the meeting point, forgetting the x term of L₁",
+     "as": "distractor",
+     "in": [
+      "constant-from-meeting-point"
+     ],
+     "wrong": "k = y at the meeting point"
+    },
+    {
+     "text": "Assumes two lines that meet share their y-intercept, so k is the constant of L₂",
+     "as": "distractor",
+     "in": [
+      "constant-from-meeting-point"
+     ],
+     "wrong": "k = the y-intercept of L₂"
     }
    ]
   },
@@ -80763,6 +82980,119 @@
       "input-for-output"
      ],
      "wrong": "gives the output (the cost) when the input (the distance) is asked"
+    },
+    {
+     "text": "Forgets the minus sign for an amount that falls, writing the rate as a rise",
+     "as": "distractor",
+     "in": [
+      "build-from-words"
+     ],
+     "wrong": "m positive for a model that goes down"
+    },
+    {
+     "text": "Takes c as the output of one of the readings, not the value where the input is 0",
+     "as": "distractor",
+     "in": [
+      "build-from-two-points"
+     ],
+     "wrong": "the right m, with c one of the two readings"
+    },
+    {
+     "text": "Subtracts the readings in opposite orders when finding m, so its sign flips",
+     "as": "distractor",
+     "in": [
+      "build-from-two-points"
+     ],
+     "wrong": "m with its sign flipped, and c to match"
+    },
+    {
+     "text": "Forgets to add the start c after multiplying the rate by the input",
+     "as": "distractor",
+     "in": [
+      "predict"
+     ],
+     "wrong": "mx with no c"
+    },
+    {
+     "text": "Adds the start to the output instead of taking it off before dividing by the rate",
+     "as": "distractor",
+     "in": [
+      "input-for-output"
+     ],
+     "wrong": "(y + c)/m"
+    },
+    {
+     "text": "Divides the output by the rate without first taking off the start",
+     "as": "distractor",
+     "in": [
+      "input-for-output"
+     ],
+     "wrong": "y/m"
+    },
+    {
+     "text": "Takes off the start but forgets to divide by the rate",
+     "as": "distractor",
+     "in": [
+      "input-for-output"
+     ],
+     "wrong": "y − c"
+    },
+    {
+     "text": "Checks only some of the differences and misses the one that is not equal",
+     "as": "distractor",
+     "in": [
+      "check-linear-table"
+     ],
+     "wrong": "yes, with the rate of the other rows, for a table with one entry off"
+    },
+    {
+     "text": "Gives the change over one step of the table as the rate, without dividing by the size of the step",
+     "as": "distractor",
+     "in": [
+      "check-linear-table"
+     ],
+     "wrong": "the difference between rows as the rate, when the inputs go up in steps bigger than 1"
+    },
+    {
+     "text": "Assumes a model holds for every input, without asking what the context allows",
+     "as": "distractor",
+     "in": [
+      "domain-sense"
+     ],
+     "wrong": "the model works for every value of the input"
+    },
+    {
+     "text": "Assumes a model only holds at the readings it was built from, not between them",
+     "as": "distractor",
+     "in": [
+      "domain-sense"
+     ],
+     "wrong": "no model can be used away from its readings"
+    },
+    {
+     "text": "Takes the plan that starts cheaper to stay cheaper after the two are equal",
+     "as": "distractor",
+     "in": [
+      "compare-plans"
+     ],
+     "wrong": "the plan with the lower fixed charge cheaper after they meet"
+    },
+    {
+     "text": "Adds the two fixed charges instead of taking one from the other when setting the plans equal",
+     "as": "distractor",
+     "in": [
+      "compare-plans"
+     ],
+     "wrong": "the sum of the fixed charges divided by the difference in rates, rounded"
+    },
+    {
+     "text": "Swaps the starting amount and the rate",
+     "as": "distractor",
+     "in": [
+      "interpret-gradient",
+      "predict"
+     ],
+     "wrong": "the gradient read as the start, or c·x + m"
     }
    ]
   },
@@ -81293,7 +83623,10 @@
      "as": "distractor",
      "in": [
       "both-sides",
-      "two-step"
+      "two-step",
+      "brackets",
+      "make-y-subject",
+      "missing-number"
      ],
      "wrong": "the number or x term carried across with its sign kept"
     },
@@ -81312,6 +83645,57 @@
       "make-y-subject"
      ],
      "wrong": "the constant left undivided"
+    },
+    {
+     "text": "Forgets the last step, dividing both sides by the number multiplying the unknown",
+     "as": "distractor",
+     "in": [
+      "two-step",
+      "both-sides",
+      "brackets",
+      "missing-number"
+     ],
+     "wrong": "the value before the last division"
+    },
+    {
+     "text": "Divides by the number in front of x first, but leaves the other number undivided",
+     "as": "distractor",
+     "in": [
+      "two-step"
+     ],
+     "wrong": "c/a − b, only the right side divided"
+    },
+    {
+     "text": "Multiplies by the number in front of x instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "two-step"
+     ],
+     "wrong": "the right side times the coefficient"
+    },
+    {
+     "text": "Divides by the y coefficient but drops its minus sign",
+     "as": "distractor",
+     "in": [
+      "make-y-subject"
+     ],
+     "wrong": "both signs wrong, divided by the size of the y coefficient"
+    },
+    {
+     "text": "Adds the number in front of x to the value of x instead of multiplying them",
+     "as": "distractor",
+     "in": [
+      "missing-number"
+     ],
+     "wrong": "a + x in place of ax"
+    },
+    {
+     "text": "Substitutes the value of x but leaves out the number in front of it",
+     "as": "distractor",
+     "in": [
+      "missing-number"
+     ],
+     "wrong": "x in place of ax"
     }
    ]
   },
@@ -81538,7 +83922,8 @@
      "as": "error-spot",
      "in": [
       "scale-one",
-      "scale-both"
+      "scale-both",
+      "special-case"
      ],
      "wrong": "the right-hand side left unscaled"
     },
@@ -81558,6 +83943,75 @@
       "scale-both"
      ],
      "wrong": "a wrong pair that fits one equation but not the other"
+    },
+    {
+     "text": "Writes the pair the wrong way round, as (y, x)",
+     "as": "distractor",
+     "in": [
+      "matching-coefficient",
+      "scale-one",
+      "scale-both",
+      "word-problem"
+     ],
+     "wrong": "x and y swapped"
+    },
+    {
+     "text": "Gets the sign of the second value wrong when substituting back",
+     "as": "distractor",
+     "in": [
+      "matching-coefficient",
+      "scale-one",
+      "scale-both"
+     ],
+     "wrong": "the second value with the wrong sign"
+    },
+    {
+     "text": "Stops once the left sides are multiples, without comparing the right sides",
+     "as": "distractor",
+     "in": [
+      "special-case"
+     ],
+     "wrong": "infinitely many, for parallel lines"
+    },
+    {
+     "text": "Assumes two straight lines always cross at exactly one point",
+     "as": "distractor",
+     "in": [
+      "special-case"
+     ],
+     "wrong": "exactly one solution"
+    },
+    {
+     "text": "Mixes up parallel lines and the same line",
+     "as": "distractor",
+     "in": [
+      "special-case"
+     ],
+     "wrong": "the reason for the other case"
+    },
+    {
+     "text": "Moves the known term across without changing its sign",
+     "as": "distractor",
+     "in": [
+      "missing-coefficient"
+     ],
+     "wrong": "the known term added, not taken away"
+    },
+    {
+     "text": "Forgets to divide by the value that multiplies k",
+     "as": "distractor",
+     "in": [
+      "missing-coefficient"
+     ],
+     "wrong": "k times its value, given as k"
+    },
+    {
+     "text": "Puts the x-value in for y and the y-value in for x",
+     "as": "distractor",
+     "in": [
+      "missing-coefficient"
+     ],
+     "wrong": "the pair substituted the wrong way round"
     }
    ]
   },
@@ -86549,6 +89003,111 @@
       "endpoint-beats-vertex"
      ],
      "wrong": "only the stationary value −3 given, the endpoints ignored"
+    },
+    {
+     "text": "Taking the starting height, the constant term, as the greatest height",
+     "as": "distractor",
+     "in": [
+      "max-height-methods"
+     ],
+     "wrong": "h(0), at t = 0"
+    },
+    {
+     "text": "Taking the sine as running from zero to one, so the least value stays on the principal axis",
+     "as": "distractor",
+     "in": [
+      "wave-extremes"
+     ],
+     "wrong": "least value D"
+    },
+    {
+     "text": "Not dividing by the number multiplying x inside the sine, so the base wave's peak is kept",
+     "as": "distractor",
+     "in": [
+      "wave-max-point"
+     ],
+     "wrong": "π/2 (or 3π/2 when A < 0), the peak of the base wave"
+    },
+    {
+     "ref": "SL3.7.read-features#8",
+     "text": "Ignoring the minus sign in front of the wave, which turns its peaks into troughs",
+     "as": "distractor",
+     "in": [
+      "wave-max-point"
+     ],
+     "wrong": "π/(2B), where sin(Bx) peaks, though A < 0"
+    },
+    {
+     "text": "Giving the first minimum instead of the first maximum",
+     "as": "distractor",
+     "in": [
+      "wave-max-point"
+     ],
+     "wrong": "3π/(2B), the first trough"
+    },
+    {
+     "text": "Giving the period of the wave instead of where its first maximum is",
+     "as": "distractor",
+     "in": [
+      "wave-max-point"
+     ],
+     "wrong": "2π/B, the period"
+    },
+    {
+     "text": "Taking the greatest minus the least as the amplitude, without halving",
+     "as": "distractor",
+     "in": [
+      "range-from-extremes"
+     ],
+     "wrong": "amplitude twice too big"
+    },
+    {
+     "text": "Taking the principal axis as the x-axis, though the range is not centred on it",
+     "as": "distractor",
+     "in": [
+      "range-from-extremes"
+     ],
+     "wrong": "principal axis y = 0"
+    },
+    {
+     "text": "Keeping only the positive square root, so one of the two tangents is lost",
+     "as": "distractor",
+     "in": [
+      "tangent-means-touch"
+     ],
+     "wrong": "the positive m and its point only"
+    },
+    {
+     "text": "Pairing each value of m with the other touching point, so the signs of m and x don't match",
+     "as": "distractor",
+     "in": [
+      "tangent-means-touch"
+     ],
+     "wrong": "each m given the other tangent's point"
+    },
+    {
+     "text": "Stopping at m² and giving its value as m, without taking the square root",
+     "as": "distractor",
+     "in": [
+      "tangent-means-touch"
+     ],
+     "wrong": "m = ± the value of m²"
+    },
+    {
+     "text": "Mixing up which turning point is the maximum and which the minimum",
+     "as": "distractor",
+     "in": [
+      "cubic-turning"
+     ],
+     "wrong": "the maximum and minimum swapped"
+    },
+    {
+     "text": "Reading the roots of f′ from its factors with the wrong signs",
+     "as": "distractor",
+     "in": [
+      "cubic-turning"
+     ],
+     "wrong": "turning points at −p and −q"
     }
    ]
   },
