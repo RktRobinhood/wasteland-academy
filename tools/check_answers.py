@@ -48699,6 +48699,1452 @@ SITUATION_CHECKS["log-technology"] = r1lt_check
 SPOT_CHECKS["log-technology"] = r1lt_spot
 
 
+# ── R2 (FAL-1000): the AI SL 5.6 to 5.8 types. Each type's section goes after its own marker. ──
+
+# R2-STATIONARY: t5-ai-stationary-points (ai-stationary), prefix R2SP_ / r2sp_
+
+# ── ai-stationary (t5-ai-stationary-points, FAL-1000) ─────────────────────────
+# The checker's own copy of the situation's limits and stories; the engine's is in
+# game/engine/situations/ai_stationary.gd and ai_stationary_views.gd. Every function is read back
+# from the question's sentences (never its `given`), differentiated and solved again with SymPy,
+# exactly where the zeros are rational and as exact roots otherwise; every slip is built again from
+# its description in the catalogue. The three f′-graph unknowns are DerivativeGraphViews' questions
+# re-tagged, so they go to E12DG_check with this type's refs mapped back to SL5.7's.
+
+R2SP_SZ = "AI-SL5.6.solve-gradient-zero#"
+R2SP_LE = "AI-SL5.6.locate-local-extrema#"
+R2SP_CS = "AI-SL5.6.classify-by-gradient-sign#"
+R2SP_GD = "AI-SL5.6.greatest-least-on-domain#"
+R2SP_RG = "AI-SL5.6.read-from-gradient-graph#"
+R2SP_TT = "t5-ai-stationary-points#"
+R2SP_EDGE = sp.Rational(39, 1000)       # the engine's is 0.04
+# A story: its function's letter, input letter, output unit, the sentence before the formula, what
+# the output is.
+R2SP_STORY = {
+    "still": ("T", "t", "°C", "A still in the camp is lit at dawn. Its temperature, T °C, t hours after it is lit, is modelled by", "temperature"),
+    "track": ("h", "x", "m", "A track leaves the camp and crosses a dry valley. Its height above the valley floor, h metres, x km from the camp, is modelled by", "height"),
+    "turbine": ("P", "v", "kW", "A salvaged wind turbine gives P kW of power in a wind of v m/s, where", "power"),
+    "reservoir": ("D", "t", "m", "The depth of water in a reservoir, D metres, t weeks after the rains begin, is modelled by", "depth"),
+    "flare": ("h", "t", "m", "A flare is fired upwards from a watchtower. Its height above the ground, h metres, t seconds after it is fired, is modelled by", "height"),
+    "drone": ("F", "v", "ml", "A scout drone flying at v km/h uses F millilitres of fuel per km, where", "fuel used per km"),
+}
+R2SP_RATE = {
+    "still": "A still in the camp is lit at dawn. Its temperature is T °C, t hours after it is lit, for {lo} ≤ t ≤ {hi}. The rate of change of T is",
+    "track": "A track leaves the camp and crosses a dry valley. Its height above the valley floor is h metres, x km from the camp, for {lo} ≤ x ≤ {hi}. The rate of change of h is",
+    "turbine": "A salvaged wind turbine gives P kW of power in a wind of v m/s, for {lo} ≤ v ≤ {hi}. The rate of change of P is",
+    "reservoir": "The depth of water in a reservoir is D metres, t weeks after the rains begin, for {lo} ≤ t ≤ {hi}. The rate of change of D is",
+}
+R2SP_SUP = {"": 1, "²": 2, "³": 3}
+R2SP_NUM = r"−?\d+(?:\.\d+)?"
+
+
+def r2sp_n(x):
+    """An exact value as itself when rational, else to 40 digits (gc_s takes no surds)."""
+    x = sp.sympify(x)
+    return x if x.is_Rational else sp.N(x, 40)
+
+
+def r2sp_gs(x):
+    return gc_s(r2sp_n(x))
+
+
+def r2sp_gs2(x):
+    return gc_s2(r2sp_n(x))
+
+
+def r2sp_fair(x):
+    return gc_fair(r2sp_n(x))
+
+
+def r2sp_q(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def r2sp_terms(text, var="x", k=False):
+    """A sum of terms the way the game writes them ('0.21t³ − 2.99t² + 12.5t + 30', '2x + 18/x − 5',
+    'x³ + kx² − 9x + 4') as SymPy in x (and k), read term by term."""
+    s = text.strip()
+    need(not re.search(r"(?<![A-Za-z])-\d", s), f"a hyphen for a minus in {text!r}")
+    s = s.replace(" − ", " + −").replace(" + ", "\t")
+    out = sp.Integer(0)
+    K = sp.Symbol("k")
+    for i, term in enumerate(s.split("\t")):
+        sign = 1
+        if term.startswith("−"):
+            sign, term = -1, term[1:]
+        m = re.fullmatch(r"(\d+)/" + var + "(²?)", term)
+        if m:
+            out += sign * sp.Integer(m.group(1)) / CX ** (2 if m.group(2) else 1)
+            continue
+        m = re.fullmatch(r"(\d+(?:\.\d+)?)?(k)?(" + var + r")?([²³]?)", term)
+        need(m is not None and term != "", f"can't read the term {term!r} in {text!r}")
+        need(not m.group(4) or m.group(3), f"a power with no {var} in {term!r}")
+        need(k or not m.group(2), f"a letter k in {text!r}")
+        c = sp.Rational(m.group(1)) if m.group(1) else sp.Integer(1)
+        if m.group(1) and m.group(1) == "1" and (m.group(2) or m.group(3)):
+            need(False, f"a coefficient of 1 is written in {text!r}")
+        p = R2SP_SUP[m.group(4)] if m.group(3) else 0
+        out += sign * c * (K if m.group(2) else 1) * CX ** p
+    return sp.expand(out)
+
+
+def r2sp_dom(lo, hi):
+    return r2sp_q(lo), r2sp_q(hi)
+
+
+def r2sp_read(q):
+    """The function in the first line: (f, var, letter, lo, hi, story, recip)."""
+    L = q["lines"]
+    m = re.fullmatch(r"(f)\((x)\) = (.+?)(?:, for (−?\d+) ≤ x ≤ (−?\d+)\.|(, for x > 0\.))?", L[0])
+    if m:
+        f = r2sp_terms(m.group(3))
+        lo, hi = (r2sp_q(m.group(4)), r2sp_q(m.group(5))) if m.group(4) else (None, None)
+        return f, "x", "f", lo, hi, None, m.group(6) is not None
+    for story, (fs, v, unit, head, what) in R2SP_STORY.items():
+        if L[0].startswith(head + " "):
+            rest = L[0][len(head) + 1:]
+            m = re.fullmatch(rf"{fs}\({v}\) = (.+), for (\d+) ≤ {v} ≤ (\d+)\.", rest)
+            need(m is not None, f"can't read the model in {L[0]!r}")
+            return r2sp_terms(m.group(1), v), v, fs, R(m.group(2)), R(m.group(3)), story, False
+    raise Fail(f"can't read the function in {L[0]!r}")
+
+
+def r2sp_num(x):
+    return sp.N(x, 40)
+
+
+def r2sp_whole(x):
+    return x.is_Rational and x.q == 1
+
+
+def r2sp_sf(x):
+    return r2sp_gs(x)
+
+
+def r2sp_clear(x):
+    """x is at least R2SP_EDGE of its 3rd figure from a rounding edge."""
+    v = abs(r2sp_num(x))
+    if v == 0:
+        return True
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= R2SP_EDGE
+
+
+def r2sp_opt(x, exact):
+    """A value as a wrong option shows it: in an exact question its 3 s.f. as a decimal, else 3 s.f."""
+    if exact:
+        return dec_text(x) if r2sp_whole(sp.nsimplify(x) if x.is_Rational else x) else dec_text(sp.Rational(sig3(x)))
+    return r2sp_gs(x)
+
+
+def r2sp_ans(x, exact):
+    return dec_text(x) if exact else r2sp_gs(x)
+
+
+def r2sp_xs(v, xs, show):
+    names = [show(x) for x in sorted(xs, key=lambda t: float(r2sp_num(t)))]
+    return f"{v} = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def r2sp_zeros(e):
+    """The real zeros of a polynomial (or of a rational function's top), exact, in order."""
+    top = sp.numer(sp.together(e))
+    return sorted(sp.Poly(top, CX).real_roots(), key=lambda t: float(r2sp_num(t)))
+
+
+def r2sp_kind(d, x):
+    """'maximum' or 'minimum' at a zero x of d, from its sign either side."""
+    eps = sp.Rational(1, 10**6)
+    l, r = r2sp_num(d.subs(CX, x - eps)), r2sp_num(d.subs(CX, x + eps))
+    need(l * r < 0, "f′ does not change sign at its zero")
+    return "maximum" if l > 0 else "minimum"
+
+
+def r2sp_w(text, x):
+    """A working value (6 s.f.) agrees with x to its last figure."""
+    v = r2sp_num(x)
+    if v == 0:
+        return r2sp_q(text) == 0
+    e = sp.floor(sp.log(abs(v), 10))
+    return abs(r2sp_q(text) - v) <= sp.Integer(10) ** (e - 5) * sp.Rational(6, 10)
+
+
+def r2sp_steps_have(q, method, pattern, values):
+    """In the worked solution by `method`, a step matches pattern and its numbers are the values."""
+    for sol in q["solutions"]:
+        if sol["angle"] != method:
+            continue
+        for st in sol["steps"]:
+            m = re.search(pattern, st)
+            if m:
+                for g, x in zip(m.groups(), values):
+                    need(r2sp_w(g, x), f"{method}: {g} in {st!r} is not {float(r2sp_num(x)):.7g}")
+                return
+        need(False, f"{method}: no step like {pattern!r}")
+
+
+def r2sp_deriv_step(q, d, name, v):
+    """Every step that writes the derivative out writes it right."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            m = re.search(re.escape(name) + r" = ([^=,.]+(?:\.\d[^=,.]*)*)(?:\.$| = |, |\.\s)", st)
+            if m and "k" not in m.group(1) and "(" not in m.group(1):
+                need(sp.expand(r2sp_terms(m.group(1).strip(), v) - d) == 0, f"{sol['angle']}: {name} = {m.group(1)!r} is not {d}")
+
+
+def r2sp_check(q):
+    u, L, asked, rep = q["view"]["unknown"], q["lines"], q["asked"], q["view"]["rep"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    if u in R2SP_DG:
+        return r2sp_dg(q)
+    wrongs, want, trap = {}, None, None
+    if u == "gradient-zero-x":
+        f, v, fs, lo, hi, story, recip = r2sp_read(q)
+        d = sp.diff(f, CX)
+        xs = r2sp_zeros(d)
+        if recip:
+            xs = [x for x in xs if x > 0]
+        if story:
+            need(all(lo < x < hi for x in xs), "a zero of the rate is outside the domain")
+            need(asked == f"Find the {'values' if len(xs) > 1 else 'value'} of {v} at which the rate of change of {fs} is zero.", f"asked {asked!r}")
+        else:
+            need(asked == f"Find the {'values' if len(xs) > 1 else 'value'} of x where the gradient of the graph of f is zero.", f"asked {asked!r}")
+        need(xs and len(xs) <= 2, "f′ should have one or two zeros")
+        exact = all(r2sp_whole(x) for x in xs)
+        if not exact:
+            need(all(r2sp_fair(x) for x in xs), "a zero is on a 3 s.f. edge or nearly whole")
+        want = r2sp_xs(v, xs, lambda x: r2sp_ans(x, exact))
+        show = lambda x: r2sp_opt(x, exact)
+        if recip:
+            c0 = f.as_coefficients_dict().get(sp.Integer(1), 0)
+            rs = [x for x in r2sp_zeros(f) if x > 0]
+            kept = [x for x in r2sp_zeros(d + c0) if x > 0] if c0 != 0 else []
+        else:
+            c0 = f.subs(CX, 0)
+            rs = r2sp_zeros(f)
+            if story:
+                rs = [x for x in rs if x >= lo]
+            kept = r2sp_zeros(d + c0) if c0 != 0 else []
+        if rs:
+            wrongs[R2SP_SZ + "0"] = {r2sp_xs(v, rs, show)}
+        if kept:
+            wrongs[R2SP_SZ + "1"] = {r2sp_xs(v, kept, show)}
+        if not recip and not story and sp.expand(d.subs(CX, -CX) - d) == 0:
+            wrongs[R2SP_SZ + "2"] = {r2sp_xs(v, [max(xs, key=lambda t: float(r2sp_num(t)))], show)}
+        dn = f"d{fs}/d{v}" if story else "f′(x)"
+        r2sp_deriv_step(q, d, dn, v)
+        if len(xs) == 2 and not exact:
+            r2sp_steps_have(q, "gdc-equation-solver", rf"shows {v} = ({R2SP_NUM}) and ({R2SP_NUM})", xs)
+    elif u == "gradient-zero-given-derivative":
+        if rep == "equation":
+            m = re.fullmatch(r"f′\(x\) = (.+)", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            d, v, fs, lo, hi = r2sp_terms(m.group(1)), "x", "f", None, None
+            ma = re.fullmatch(r"Find the x-coordinate of the local (maximum|minimum) of f\.", asked)
+        else:
+            d = None
+            for story, head in R2SP_RATE.items():
+                fs, v = R2SP_STORY[story][0], R2SP_STORY[story][1]
+                m = re.fullmatch(re.escape(head).replace(r"\{lo\}", r"(\d+)").replace(r"\{hi\}", r"(\d+)") + rf" d{fs}/d{v} = (.+)\.", L[0])
+                if m:
+                    lo, hi, d = R(m.group(1)), R(m.group(2)), r2sp_terms(m.group(3), v)
+                    break
+            need(d is not None, f"can't read the rate in {L[0]!r}")
+            ma = re.fullmatch(rf"Find the value of {v} at which {fs} has a local (maximum|minimum)\.", asked)
+        need(ma is not None, f"asked {asked!r}")
+        kind = ma.group(1)
+        xs = r2sp_zeros(d)
+        need(len(xs) == 2, "f′ should have two zeros")
+        if lo is not None:
+            need(all(lo < x < hi for x in xs), "a zero is outside the domain")
+        hits = [x for x in xs if r2sp_kind(d, x) == kind]
+        need(len(hits) == 1, f"no single local {kind}")
+        x = hits[0]
+        o = [t for t in xs if t != x][0]
+        exact = all(r2sp_whole(t) for t in xs)
+        if not exact:
+            need(r2sp_fair(x) and r2sp_fair(o), "a zero is on a 3 s.f. edge")
+        want = f"{v} = " + r2sp_ans(x, exact)
+        trap = None if exact else gc_trap([r2sp_n(x)], f"{v} = " + r2sp_gs2(x))
+        if sp.expand(d.subs(CX, -CX) - d) == 0:
+            need(x < 0, "the extremum asked is not at the negative zero, so the positive one is no slip")
+            wrongs[R2SP_SZ + "2"] = {f"{v} = " + r2sp_opt(o, exact)}
+        else:
+            wrongs[R2SP_CS + "0"] = {f"{v} = " + r2sp_opt(o, exact)}
+        if not exact:
+            r2sp_steps_have(q, "gdc-equation-solver", rf"It shows {v} = ({R2SP_NUM}) and ({R2SP_NUM})", xs)
+    elif u == "coefficient-from-stationary":
+        m = re.fullmatch(r"f\(x\) = (.+), where k is a constant\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        f = r2sp_terms(m.group(1), "x", k=True)
+        K = sp.Symbol("k")
+        need(sp.degree(f, K) == 1, "k is not one coefficient")
+        mx = re.fullmatch(r"The graph of f has a stationary point where x = (−?\d+)\.", L[1])
+        need(mx is not None, f"can't read {L[1]!r}")
+        X = r2sp_q(mx.group(1))
+        need(asked == "Find the value of k.", f"asked {asked!r}")
+        k = sp.solve(sp.diff(f, CX).subs(CX, X), K)
+        need(len(k) == 1, "no single k")
+        k = k[0]
+        need((k * 10).is_integer and k != 0, f"k = {k} is not a one-decimal value")
+        want = "k = " + dec_text(k)
+        ks = sp.solve(f.subs(CX, X), K)
+        need(len(ks) == 1, "f(x) = 0 gives no single k")
+        need(r2sp_clear(ks[0]), "the f(x) = 0 slip is on a 3 s.f. edge")
+        wrongs[R2SP_SZ + "0"] = {"k = " + r2sp_opt(ks[0], True)}
+        for sol in q["solutions"]:
+            gives = [re.search(r"which gives (.+) = 0\.$", st) for st in sol["steps"]]
+            for g in gives:
+                if g:
+                    need(sp.expand(r2sp_terms(g.group(1), "x", k=True) - sp.diff(f, CX).subs(CX, X)) == 0,
+                         f"{sol['angle']}: {g.group(1)} = 0 is not f′({X}) = 0")
+        need(len(r2sp_zeros(sp.diff(f.subs(K, k), CX))) == 2, "f has no two stationary points")
+    elif u == "local-extremum-point":
+        f, v, fs, lo, hi, story, recip = r2sp_read(q)
+        ma = re.fullmatch(r"Find the coordinates of the local (maximum|minimum) point of the graph of f\.", asked)
+        need(ma is not None, f"asked {asked!r}")
+        kind = ma.group(1)
+        d = sp.diff(f, CX)
+        xs = [x for x in r2sp_zeros(d) if not recip or x > 0]
+        hits = [x for x in xs if r2sp_kind(d, x) == kind]
+        need(len(hits) == 1, f"no single local {kind}")
+        x = hits[0]
+        y = sp.nsimplify(sp.simplify(f.subs(CX, x))) if x.is_Rational else f.subs(CX, x)
+        exact = r2sp_whole(x) and r2sp_whole(sp.nsimplify(y)) if x.is_Rational else False
+        if exact:
+            y = sp.nsimplify(y)
+        else:
+            need(r2sp_clear(x) and r2sp_clear(y), "a coordinate is on a 3 s.f. edge")
+        sh = lambda t: r2sp_ans(t, exact)
+        want = f"({sh(x)}, {sh(y)})"
+        op = lambda t: r2sp_opt(t, exact)
+        wrongs[R2SP_LE + "0"] = {f"({op(x)}, 0)"}
+        wrongs[R2SP_LE + "1"] = {f"x = {op(x)}"}
+        if rep == "graph":
+            mw = re.fullmatch(r"The GDC shows the graph of y = f\(x\) in the window (−?\d+) ≤ x ≤ (−?\d+), (−?\d+) ≤ y ≤ (−?\d+)\.", L[1])
+            need(mw is not None, f"can't read the window {L[1]!r}")
+            x0, x1, y0, y1 = (r2sp_q(mw.group(i)) for i in range(1, 5))
+            g = q["graph"]
+            need(g is not None and (g["x0"], g["x1"], g["y0"], g["y1"]) == (int(x0), int(x1), int(y0), int(y1)), "the window drawn is not the one given")
+            c = g["curves"][0]
+            need(co_curve_is(c, f), "the curve drawn is not f")
+            need(abs(c[0][0] - float(x0)) < 1e-9 and abs(c[-1][0] - float(x1)) < 1e-9, "the curve does not reach both sides of the window")
+            need(all(float(y0) <= p[1] <= float(y1) for p in c), "the curve leaves the window through the top or bottom")
+            need(all(x0 < t < x1 for t in xs), "a turning point is off the screen")
+            edges = [e for e in (x0, x1) if (f.subs(CX, e) > y) == (kind == "maximum")]
+            need(edges, "no end of the screen is beyond the extremum")
+            wrongs[R2SP_LE + "2"] = {f"({op(e)}, {op(f.subs(CX, e))})" for e in edges}
+        elif not recip:
+            need(q["graph"] is None, "an equation question draws a graph")
+    elif u == "extremum-value-in-context":
+        f, v, fs, lo, hi, story, recip = r2sp_read(q)
+        need(story is not None, "not a story")
+        what = R2SP_STORY[story][4]
+        ma = re.fullmatch(r"Find the (greatest|least) (.+)\.", asked)
+        need(ma is not None and ma.group(2) == what, f"asked {asked!r}")
+        big = ma.group(1) == "greatest"
+        kind = "maximum" if big else "minimum"
+        d = sp.diff(f, CX)
+        xs = [x for x in r2sp_zeros(d) if lo < x < hi]
+        hits = [x for x in xs if r2sp_kind(d, x) == kind]
+        need(len(hits) == 1, f"no single local {kind} on the domain")
+        x = hits[0]
+        y = f.subs(CX, x)
+        for e in (lo, hi):
+            ye = f.subs(CX, e)
+            need((ye < y) if big else (ye > y), "an end beats the stationary value")
+        need(r2sp_fair(y) and r2sp_fair(x) and r2sp_clear(f.subs(CX, hi)), "a value is on a 3 s.f. edge")
+        lab, unit = f"{fs} = ", " " + R2SP_STORY[story][2]
+        want = lab + r2sp_gs(y) + unit
+        trap = gc_trap([r2sp_n(y)], lab + r2sp_gs2(y) + unit)
+        inp = {lab + r2sp_gs(x) + unit}
+        wrongs[R2SP_LE + "1"] = inp
+        wrongs[R2SP_TT + "16"] = inp
+        wrongs[R2SP_TT + "17"] = {lab + r2sp_gs(f.subs(CX, hi)) + unit}
+        if sp.degree(f, CX) == 2:
+            a2 = sp.Poly(f, CX).LC()
+            need((a2 < 0) == big, "the quadratic's vertex is the other kind")
+        else:
+            need(not any(sol["angle"] == "vertex-of-quadratic" for sol in q["solutions"]), "a cubic model has a vertex working")
+        r2sp_steps_have(q, "gdc-max-min", rf"at {v} = ({R2SP_NUM}), {fs} = ({R2SP_NUM})", [x, y])
+    elif u == "classify-stationary":
+        f, v, fs, lo, hi, story, recip = r2sp_read(q)
+        d = sp.diff(f, CX)
+        ms = re.fullmatch(r"The graph of f has stationary points at x = (−?\d+) and x = (−?\d+)\.", L[1])
+        need(ms is not None, f"can't read {L[1]!r}")
+        sts = [r2sp_q(ms.group(1)), r2sp_q(ms.group(2))]
+        need(sorted(r2sp_zeros(d)) == sorted(sts), "those are not the stationary points")
+        ma = re.fullmatch(r"Determine the nature of the stationary point at x = (−?\d+)\. Which answer is fully justified\?", asked)
+        need(ma is not None, f"asked {asked!r}")
+        p = r2sp_q(ma.group(1))
+        need(p in sts, "the point asked is not stationary")
+        other = [t for t in sts if t != p][0]
+        h = sp.Rational(1, 10) if rep == "table" else sp.Integer(1)
+        need(abs(other - p) >= 2, "the stationary points are too close for the test points")
+        tl, tr = p - h, p + h
+        P0, TL, TR = dec_text(p), dec_text(tl), dec_text(tr)
+        sw = lambda z: "positive" if z > 0 else "negative"
+        rl = lambda z: ">" if z > 0 else "<"
+        dl, dr = d.subs(CX, tl), d.subs(CX, tr)
+        kind = r2sp_kind(d, p)
+        okind = "minimum" if kind == "maximum" else "maximum"
+        ev = f"f′({TL}) {rl(dl)} 0 and f′({TR}) {rl(dr)} 0"
+        ch = f"so f′ changes from {sw(dl)} to {sw(dr)} at x = {P0}"
+        want = f"Local {kind}: {ev}, {ch}"
+        fl, fr = f.subs(CX, tl), f.subs(CX, tr)
+        need(fl != 0 and fr != 0, "f is zero at a test point")
+        if (fl > 0) == (fr > 0):
+            fc = f"Neither: f({TL}) {rl(fl)} 0 and f({TR}) {rl(fr)} 0, so f does not change sign at x = {P0}"
+        else:
+            fc = f"Local {'maximum' if fl > 0 else 'minimum'}: f({TL}) {rl(fl)} 0 and f({TR}) {rl(fr)} 0, so f changes from {sw(fl)} to {sw(fr)} at x = {P0}"
+        uu, ww = min(sts) - 1, max(sts) + 1
+        du, dw = d.subs(CX, uu), d.subs(CX, ww)
+        need((du > 0) == (dw > 0), "the far test points have different signs")
+        wrongs = {R2SP_CS + "0": {f"Local {okind}: {ev}, {ch}"}, R2SP_CS + "1": {fc},
+                  R2SP_CS + "2": {f"Neither: f′({dec_text(uu)}) {rl(du)} 0 and f′({dec_text(ww)}) {rl(dw)} 0, so f′ does not change sign at x = {P0}"}}
+        if rep == "table":
+            t = q["table"]
+            need(t is not None and L[2] == f"The table gives f(x) and f′(x) near x = {P0}.", "no table, or it isn't named")
+            xs3 = [tl, p, tr]
+            need(t["rows"] == [["x", [dec_text(z) for z in xs3]], ["f(x)", [dec_text(f.subs(CX, z)) for z in xs3]],
+                               ["f′(x)", [dec_text(d.subs(CX, z)) for z in xs3]]], f"the table is wrong: {t['rows']}")
+        a3 = sp.Poly(f, CX).LC()
+        need((kind == "maximum") == ((p < other) == (a3 > 0)), "the cubic-shape rule disagrees")
+    elif u == "greatest-on-domain":
+        f, v, fs, lo, hi, story, recip = r2sp_read(q)
+        need(lo is not None, "no domain")
+        ma = re.fullmatch(rf"Find the (greatest|least) value of {re.escape('f(x)') if not story else fs} for (−?\d+) ≤ {v} ≤ (−?\d+)\.", asked)
+        need(ma is not None and (r2sp_q(ma.group(2)), r2sp_q(ma.group(3))) == (lo, hi), f"asked {asked!r}")
+        big = ma.group(1) == "greatest"
+        kind = "maximum" if big else "minimum"
+        d = sp.diff(f, CX)
+        sts = r2sp_zeros(d)
+        need(len(sts) == 2, "f should have two stationary points")
+        inside = [x for x in sts if lo < x < hi]
+        cands = [(lo, f.subs(CX, lo), "end"), (hi, f.subs(CX, hi), "end")] + [(x, f.subs(CX, x), "st") for x in inside]
+        key = lambda c: r2sp_num(c[1])
+        b = max(cands, key=key) if big else min(cands, key=key)
+        need(sum(1 for c in cands if abs(r2sp_num(c[1] - b[1])) < sp.Rational(1, 100)) == 1, "two candidates tie")
+        exact = story is None
+        if exact:
+            need(all(r2sp_whole(c[1]) for c in cands), "a value on the domain is not whole")
+        lab, unit = (f"{ma.group(1)} value = ", "") if exact else (f"{fs} = ", " " + R2SP_STORY[story][2])
+        want = lab + r2sp_ans(b[1], exact) + unit
+        trap = None if exact else gc_trap([r2sp_n(b[1])], lab + r2sp_gs2(b[1]) + unit)
+        op = lambda t: lab + r2sp_opt(t, exact) + unit
+        asked_in = [x for x in inside if r2sp_kind(d, x) == kind]
+        no_ends = set()
+        if b[2] == "end" and asked_in:
+            if big:
+                wrongs[R2SP_GD + "0"] = {op(f.subs(CX, asked_in[0]))}
+            no_ends.add(op(f.subs(CX, asked_in[0])))
+        outs = [x for x in sts if not lo < x < hi]
+        beat = [x for x in outs if ((f.subs(CX, x) > b[1]) if big else (f.subs(CX, x) < b[1]))]
+        if beat:
+            wrongs[R2SP_GD + "1"] = {op(f.subs(CX, x)) for x in beat}
+        if not asked_in and inside:
+            no_ends |= {op(f.subs(CX, x)) for x in inside}
+        if no_ends:
+            wrongs[R2SP_GD + "2"] = no_ends
+    elif u == "local-not-greatest":
+        f, v, fs, lo, hi, story, recip = r2sp_read(q)
+        need(lo is not None, "no domain")
+        exact = story is None
+        d = sp.diff(f, CX)
+        sts = r2sp_zeros(d)
+        need(len(sts) == 2 and all(lo < x < hi for x in sts), "both stationary points should be inside the domain")
+        ma = re.fullmatch(rf"Is the local (maximum|minimum) value the (greatest|least) value of {fs} for (−?\d+) ≤ {v} ≤ (−?\d+)\? Which answer is fully justified\?", asked)
+        need(ma is not None and (r2sp_q(ma.group(3)), r2sp_q(ma.group(4))) == (lo, hi), f"asked {asked!r}")
+        kind = ma.group(1)
+        big = kind == "maximum"
+        need(ma.group(2) == ("greatest" if big else "least"), "the question pairs the wrong words")
+        x = [t for t in sts if r2sp_kind(d, t) == kind][0]
+        y = f.subs(CX, x)
+        Vf = lambda t: dec_text(t) if (exact or r2sp_whole(t)) else r2sp_gs(t)
+        fx = lambda t: f"{fs}({Vf(t)})"
+        if story:
+            need(L[1] == f"{fs} has a local {kind} at {v} = {Vf(x)}.", f"{L[1]!r}")
+        else:
+            need(L[1] == f"The graph of y = f(x) is shown. f has a local {kind} at x = {Vf(x)}.", f"{L[1]!r}")
+            g = q["graph"]
+            need(g is not None and co_curve_is(g["curves"][0], f), "the curve drawn is not f")
+            need(abs(g["curves"][0][0][0] - float(lo)) < 1e-9 and abs(g["curves"][0][-1][0] - float(hi)) < 1e-9, "the curve is not drawn on the domain")
+        ends = [e for e in (lo, hi) if ((f.subs(CX, e) > y) if big else (f.subs(CX, e) < y))]
+        need(len(ends) == 1, "not exactly one end beyond the local extremum")
+        e = ends[0]
+        more = "greater" if big else "less"
+        want = f"No: {fx(e)} = {Vf(f.subs(CX, e))} is {more} than the local {kind}, {fx(x)} = {Vf(y)}"
+        zero_at = f"d{fs}/d{v} = 0 at {v} = {Vf(x)}" if story else f"f′({Vf(x)}) = 0"
+        wrongs[R2SP_GD + ("0" if big else "2")] = {f"Yes: the local {kind}, {fx(x)} = {Vf(y)}, is the {'greatest' if big else 'least'} value, because {zero_at}"}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+R2SP_DG = {"extremum-from-gradient-graph": "extremum-from-derivative", "increasing-from-gradient-graph": "increasing-past-touch",
+           "pick-f-from-gradient-graph": "pick-f-from-derivative"}
+
+
+def r2sp_dg(q):
+    """The derivative-graph question, its refs mapped back to SL5.7's and checked there."""
+    u = q["view"]["unknown"]
+    c = json.loads(json.dumps(q))
+    c["paper"] = 1
+    c["view"]["unknown"] = R2SP_DG[u]
+    F = E12DG_F
+    if u == "pick-f-from-gradient-graph":
+        mine = {"copy": "", "flipped": R2SP_RG + "1", "touch-turn": R2SP_RG + "2", "peak": R2SP_RG + "0"}
+        theirs = {"copy": F + "10", "flipped": F + "11", "touch-turn": F + "1", "peak": F + "0"}
+        for o in c["choices"]:
+            if o["correct"]:
+                continue
+            need(o["mistake"] in mine and o["ref"] == mine[o["mistake"]], f"{o['text']}: {o['mistake']} tagged {o['ref']!r}")
+            o["ref"] = theirs[o["mistake"]]
+        return E12DG_check(c)
+    back = {R2SP_RG + "0": F + "0", R2SP_RG + "2": F + "1" if u == "extremum-from-gradient-graph" else F + "5"}
+    if u == "extremum-from-gradient-graph":
+        back[R2SP_RG + "1"] = F + "11"
+        if any(o["ref"] == R2SP_RG + "1" for o in q["choices"]):
+            need("local maximum" in q["asked"], "a maximum read at the other crossing is the slip only when a maximum is asked")
+    for o in c["choices"]:
+        if o["ref"] == R2SP_TT + "15":
+            # Where the graph of f′ rises: f″ > 0, between or outside its turning points.
+            need(q["asked"] == "Find the values of x for which f is increasing.", "the f′-rises slip on a decreasing question")
+            e = E12DG_curve(c)
+            dd = sp.diff(e, CX)
+            ts = sorted(E12DG_changes(dd))
+            need(len(ts) == 2, "f′ should have two turning points")
+            need(o["text"] == mo_iv(E12DG_shape(dd, ts[0], ts[1], True), ts[0], ts[1]), f"{o['text']!r} is not where f′ rises")
+            o["ref"] = ""
+        elif o["ref"]:
+            need(o["ref"] in back, f"{o['ref']} is no slip of {u}")
+            o["ref"] = back[o["ref"]]
+    return E12DG_check(c)
+
+
+SITUATION_CHECKS["ai-stationary"] = r2sp_check
+
+
+# (between the R2 markers)
+
+# R2-OPTIMISATION: t5-ai-optimisation (ai-optimisation), prefix R2OP_ / r2op_
+
+# ── ai-optimisation (t5-ai-optimisation, FAL-1000) ───────────────────
+# The `ai-optimisation` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/ai_optimisation.gd. A given model is read back from its line and
+# optimised again with SymPy (exactly where it is a polynomial or has a 1/x term, at 40 digits
+# where it is an angle model); a price and its demand are read from the sentences; a shape is
+# read by om_read (the optimisation-model checker's reader), as the AA type's stories are
+# reused. Every answer and every tagged slip is worked out again from what the slip says, and
+# the GDC readings and sign tests in the working are checked against the numbers.
+
+R2OP_G = "AI-SL5.7.optimise-given-model#"
+R2OP_B = "AI-SL5.7.build-model-from-constraint#"
+R2OP_C = "AI-SL5.7.optimise-container#"
+R2OP_I = "AI-SL5.7.interpret-optimum-in-context#"
+R2OP_OWN = "t5-ai-optimisation#"
+R2OP_EDGE = sp.Rational(39, 1000)      # the engine's is 0.04
+R2OP_X = sp.Symbol("x", positive=True)
+R2OP_SHAPES = ("constraint-second-length", "objective-one-variable", "container-optimal-dimension",
+               "container-optimum-value", "container-other-dimension", "route-least-time", "context-domain")
+R2OP_UNITS = [(r"at x scrap a jug|x scrap to sharpen|at x scrap a metre|x scrap a blade", " scrap"), (r"x km/h", " km/h"),
+              (r"x litres a minute", " litres a minute"), (r"x kg of charcoal an hour", " kg an hour"),
+              (r"x tonnes of scrap steel", " tonnes"), (r"x hundred litres", " hundred litres"), (r"x kg of wild seed", " kg")]
+
+
+def r2op_clear(v, edge=R2OP_EDGE):
+    """v reads clearly at 3 s.f.: at least `edge` of a unit of its 3rd figure from a rounding edge."""
+    w = abs(sp.N(v, 40))
+    if w == 0:
+        return False
+    e = sp.floor(sp.log(w, 10))
+    scaled = w / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= edge
+
+
+def r2op_w(v):
+    """A GDC reading as the working writes it: 6 s.f., no trailing zeros."""
+    t = sig3(sp.N(v, 40), 6)
+    if "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return t.replace("-", "−")
+
+
+def r2op_sf(label, v, unit=""):
+    """The answer's text and its rounding trap (None where it needs no rounding)."""
+    return f"{label}{gc_s(sp.N(v, 40))}{unit}", (f"{label}{gc_s2(sp.N(v, 40))}{unit}" if gc_rounds(sp.N(v, 40)) else None)
+
+
+def r2op_expr(text):
+    """A model as the game writes it, as SymPy: decimals exact, θ in degrees."""
+    t = text.strip().replace("−", "-").replace("×", "*")
+    t = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", lambda m: "**" + m.group(0).translate(SUP_DIGITS), t)
+    t = re.sub(r"sin θ \(", "sin(pi*x/180)*(", t)
+    t = re.sub(r"(sin|cos) θ", r"\1(pi*x/180)", t)
+    t = re.sub(r"\d+\.\d+", lambda m: f"({sp.Rational(m.group(0))})", t)
+    need(re.fullmatch(r"[0-9x+\-*/(). a-z]+", t) is not None, f"can't read the model {text!r}")
+    return parse_expr(t, transformations=TRANSFORMS, local_dict={"x": R2OP_X, "pi": sp.pi, "sin": sp.sin, "cos": sp.cos})
+
+
+def r2op_model(q):
+    """The given model's line: (letter, F, domain, kind)."""
+    L = q["lines"]
+    line = next((l for l in L if re.match(r"[PCA]\((x|θ)\) = ", l)), None)
+    need(line is not None, "no model line")
+    m = re.fullmatch(r"([PCA])\((x|θ)\) = (.+), (for .+)\.", line)
+    need(m is not None, f"can't read the model line {line!r}")
+    name, var, body, dom = m.groups()
+    F = r2op_expr(body)
+    text = " ".join(L)
+    if var == "θ":
+        need(name == "A" and dom == "for 0° < θ < 90°" and "A m²" in text, "an angle model is an area for 0° < θ < 90°")
+        kind, lo, hi = "angle", 0, 90
+    else:
+        need(f"{name} scrap" in text, f"the story doesn't say what {name} is")
+        poly = sp.Poly(F, R2OP_X) if F.is_polynomial(R2OP_X) else None
+        md = re.fullmatch(r"for 0 ≤ x ≤ (\d+)", dom)
+        mw = re.fullmatch(r"for whole numbers x from 1 to (\d+)", dom)
+        if poly is not None:
+            need(md is not None, f"a polynomial model's domain {dom!r}")
+            kind, lo, hi = {2: "quad", 3: "cubic"}.get(poly.degree(), "?"), 0, int(md.group(1))
+            need(kind != "?", "the model is not a quadratic or a cubic")
+        else:
+            need(sp.simplify(sp.diff(F * R2OP_X, R2OP_X, 3)) == 0, "the model is not a x + b/x + c")
+            need(dom == "for x > 0" or mw is not None, f"a reciprocal model's domain {dom!r}")
+            kind, lo, hi = "recip", 0, (int(mw.group(1)) if mw else sp.oo)
+    need(name != "A" or kind == "angle", "A is the angle model's letter")
+    return name, F, (lo, hi), kind
+
+
+def r2op_unit(q):
+    text = " ".join(q["lines"])
+    if "θ" in text:
+        return "°"
+    hits = [u for pat, u in R2OP_UNITS if re.search(pat, text)]
+    need(len(hits) == 1, "the story's unit of x")
+    return hits[0]
+
+
+def r2op_stationary(F, lo, hi, kind):
+    """The stationary points inside the domain, as (x, kind) with kind max or min."""
+    x = R2OP_X
+    d = sp.diff(F, x)
+    if kind == "angle":
+        f = sp.lambdify(x, d, "mpmath")
+        pts = []
+        with mpmath.workdps(40):
+            grid = [mpmath.mpf(k) / 4 for k in range(1, 360)]
+            for a, b in zip(grid, grid[1:]):
+                if f(a) * f(b) < 0:
+                    pts.append(sp.Float(str(mpmath.findroot(f, (a, b), solver="anderson", tol=mpmath.mpf(10) ** -32)), 40))
+    else:
+        pts = [s for s in sp.solve(sp.numer(sp.together(d)), x) if s.is_real and s > lo and (hi == sp.oo or s < hi)]
+    out = []
+    for p0 in pts:
+        d2 = sp.N(sp.diff(F, x, 2).subs(x, p0), 30)
+        need(d2 != 0, "a stationary point that is neither")
+        out.append((p0, "max" if d2 < 0 else "min"))
+    return out
+
+
+def r2op_steps_have(q, text, what):
+    need(any(text in st for sol in q["solutions"] for st in sol["steps"]), f"no working step shows {what} ({text!r})")
+
+
+def r2op_given(q, u):
+    """optimal-input, optimum-value, suggested-not-optimal and whole-number-optimum."""
+    name, F, (lo, hi), kind = r2op_model(q)
+    x = R2OP_X
+    big = name in ("P", "A")
+    ang = q["view"]["angle"]
+    methods = {s["angle"] for s in q["solutions"]}
+    need(kind != "angle" or not methods & {"derivative-zero", "vertex-of-quadratic-model"}, "an angle model has a working that needs calculus or a vertex")
+    need(("vertex-of-quadratic-model" in methods) == (kind == "quad" and u in ("optimal-input-given-model", "optimum-value-given-model")), "the vertex working is not on exactly the quadratic models")
+    sts = r2op_stationary(F, lo, hi, kind)
+    want_kind = "max" if big else "min"
+    best = [p0 for p0, k in sts if k == want_kind]
+    need(len(best) == 1, f"{len(best)} stationary points of the right kind inside the domain")
+    x0 = best[0]
+    others = [p0 for p0, k in sts if k != want_kind]
+    need((kind == "cubic") == (len(others) == 1) and len(others) <= 1, "only a cubic has the other stationary point")
+    v0 = F.subs(x, x0)
+    if hi != sp.oo:
+        for end in (lo, hi):
+            if kind != "angle" and u != "whole-number-optimum":
+                need((sp.N(F.subs(x, end) - v0, 30) < 0) == big, "an end of the domain beats the optimum")
+    tail = " m²" if name == "A" else " scrap"
+    w = {}
+    want, trap = None, None
+    if u in ("optimal-input-given-model", "optimum-value-given-model"):
+        need(r2op_clear(x0) and r2op_clear(v0) and gc_rounds(sp.N(x0, 40)) and gc_rounds(sp.N(v0, 40)), "the optimum or its value is on a rounding edge, or needs no rounding")
+        if kind == "cubic":
+            m0 = others[0]
+            need(r2op_clear(m0) and r2op_clear(F.subs(x, m0)) and gc_s(sp.N(F.subs(x, m0), 40)) != gc_s(sp.N(v0, 40)), "the other stationary point reads badly")
+        thing = {"P": "the greatest profit", "C": "the least cost", "A": "the greatest cross-section area"}[name]
+        letter = "θ" if kind == "angle" else "x"
+        unit = r2op_unit(q)
+        if u == "optimal-input-given-model":
+            need(q["asked"] == f"Find the value of {letter} that gives {thing}.", f"asked {q['asked']!r}")
+            want, trap = r2op_sf(f"{letter} = ", x0, unit)
+            if kind == "cubic":
+                w[R2OP_G + "2"] = {r2op_sf(f"{letter} = ", others[0], unit)[0]}
+        else:
+            need(q["asked"] == f"Find {thing}.", f"asked {q['asked']!r}")
+            want, trap = r2op_sf(f"{name} = ", v0, tail)
+            w[R2OP_G + "0"] = {r2op_sf(f"{name} = ", x0, tail)[0]}
+            if kind == "cubic":
+                w[R2OP_G + "2"] = {r2op_sf(f"{name} = ", F.subs(x, others[0]), tail)[0]}
+        r2op_steps_have(q, f"x = {r2op_w(x0)}", "the optimum to 6 s.f.")
+        if u == "optimum-value-given-model":
+            r2op_steps_have(q, r2op_w(v0), "the value to 6 s.f.")
+        if kind != "angle":
+            dtext = next(st for sol in q["solutions"] if sol["angle"] == "derivative-zero" for st in sol["steps"][:1]) if "derivative-zero" in methods else None
+            if dtext:
+                mt = re.fullmatch(rf"{name}′\(x\) = (.+)\.", dtext)
+                need(mt is not None and sp.simplify(r2op_expr(mt.group(1)) - sp.diff(F, x)) == 0, f"the derivative {dtext!r}")
+            r2op_sign_tests(q, F, name)
+        gc_check_common(q, want, w, trap)
+        return
+    if u == "suggested-not-optimal":
+        need(name == "P" and kind in ("quad", "cubic"), "a suggested value is on a profit polynomial")
+        mt = re.fullmatch(r"It is suggested that x = (\d+) gives the greatest profit\.", q["lines"][-1])
+        need(mt is not None, f"can't read the suggestion {q['lines'][-1]!r}")
+        p0 = int(mt.group(1))
+        need(q["asked"] == f"Which statement explains why x = {p0} does not give the greatest profit?", f"asked {q['asked']!r}")
+        d0, f0 = sp.diff(F, x).subs(x, p0), F.subs(x, p0)
+        need(lo < p0 < hi and d0 != 0 and f0 > 0 and abs(d0) != f0, "the suggestion is outside the limits")
+        need(r2op_clear(x0), "the maximum is on a rounding edge")
+        d = f"P′({p0}) = {dec_text(d0)}"
+        want = f"{d} ≠ 0, so P is not at its maximum at x = {p0}; the maximum is at x = {gc_s(sp.N(x0, 40))}"
+        w[R2OP_OWN + "12"] = {f"The profit at x = {p0} is {d} scrap, so it is not the greatest profit"}
+        w[R2OP_OWN + "13"] = {f"P({p0}) = {dec_text(f0)} > 0, so x = {p0} gives the greatest profit"}
+        for o in q["choices"]:
+            if not o["correct"] and not o["ref"]:
+                need(o["text"] != want and "≠ 0, so P is not at its maximum" not in o["text"], f"a filler {o['text']!r} is the right claim")
+        r2op_steps_have(q, f"x = {r2op_w(x0)}", "the maximum to 6 s.f.")
+        r2op_steps_have(q, f"{dec_text(d0)}", "P′ at the suggested value")
+        gc_check_common(q, want, w, None)
+        return
+    # whole-number-optimum
+    need(kind == "recip" and hi != sp.oo, "a whole-number model is a x + b/x + c on whole numbers")
+    vals = {n: F.subs(x, n) for n in range(1, int(hi) + 1)}
+    pick = (max if big else min)(vals, key=lambda n: vals[n])
+    need(list(vals.values()).count(vals[pick]) == 1, "two whole numbers tie")
+    frac = x0 - sp.floor(x0)
+    need(sp.Rational(1, 5) < frac < sp.Rational(4, 5) and r2op_clear(x0), "x is too near a whole number, or on a rounding edge")
+    near = int(sp.floor(x0 + sp.Rational(1, 2)))
+    need(near != pick and abs(near - pick) == 1, "the nearest whole number is the best one, so the slip is the answer")
+    need(q["asked"] == f"Find {'the greatest profit' if big else 'the least cost'}.", f"asked {q['asked']!r}")
+    want = f"{name} = {dec_text(vals[pick])} scrap"
+    w[R2OP_I + "0"] = {f"{name} = {dec_text(vals[near])} scrap"}
+    w[R2OP_G + "0"] = {f"{name} = {pick} scrap"}
+    if q["view"]["rep"] == "table":
+        rows = q["table"]["rows"]
+        need(len(rows) == 2 and all(len(r) == 2 and isinstance(r[1], list) for r in rows), "a table row is not [head, [cells]]")
+        need(rows[0][0] == "x" and rows[1][0] == f"{name}(x)", "the table's heads")
+        xs = [int(t) for t in rows[0][1]]
+        need(len(rows[1][1]) == len(xs), "the table's rows differ in length")
+        need(pick in xs and near in xs, "the table leaves out a neighbour of the optimum")
+        for n, t in zip(xs, rows[1][1]):
+            ex = dec_text(vals[n])
+            need(t == ex if "/" not in ex else t == r2op_w(vals[n]), f"the table's {name}({n}) = {t}")
+    r2op_steps_have(q, f"x = {r2op_w(x0)}", "the optimum to 6 s.f.")
+    r2op_steps_have(q, f"{name}({pick}) = {dec_text(vals[pick])}", "the best whole number's value")
+    r2op_steps_have(q, f"{name}({near}) = {dec_text(vals[near])}", "the nearest whole number's value")
+    gc_check_common(q, want, w, None)
+
+
+def r2op_sign_tests(q, F, name):
+    """Every 'P′(a) = u and P′(b) = v' in the working is the derivative there, to 3 s.f."""
+    d = sp.diff(F, R2OP_X)
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for a, va in re.findall(rf"{name}′\((\d+)\) = (−?[\d.]+)", st):
+                need(va == gc_s(sp.N(d.subs(R2OP_X, int(a)), 40)), f"{name}′({a}) is not {va}")
+
+
+def r2op_demand(q):
+    L = q["lines"]
+    m1 = re.fullmatch(r"(A trader|A cobbler|A tinker) sells (water filters|pairs of boots|lamps) at p scrap each\. At that price, (\d+) − (\d+)p \2 are sold (a week|a month)\.", L[0])
+    m2 = re.fullmatch(r"Each (filter|pair|lamp) costs (\d+) scrap to make, and (her stall|his workshop|her cart) costs (\d+) scrap (a week|a month)\.", L[1])
+    need(m1 is not None and m2 is not None and m1.group(5) == m2.group(5), f"can't read the price and demand {L!r}")
+    A, Bc, c, F0 = int(m1.group(3)), int(m1.group(4)), int(m2.group(2)), int(m2.group(4))
+    p = sp.Symbol("p")
+    P = (p - c) * (A - Bc * p) - F0
+    ps = sp.solve(sp.diff(P, p), p)
+    need(len(ps) == 1 and sp.diff(P, p, 2) < 0, "the profit has no maximum")
+    p0 = ps[0]
+    best = P.subs(p, p0)
+    need(c < p0 < sp.Rational(A, Bc) and best > 0, "the best price is outside the limits")
+    rev = p * (A - Bc * p)
+    r0 = sp.solve(sp.diff(rev, p), p)[0]
+    w = {}
+    if q["asked"] == "Find the price that gives the greatest profit.":
+        want = f"p = {dec_text(p0)} scrap"
+        w[R2OP_G + "1"] = {f"p = {dec_text(r0)} scrap"}
+        # Leaving out the cost per item gives the revenue's price too, so it has no option of its own.
+        need(not any(o["ref"] == R2OP_OWN + "11" for o in q["choices"]), "the cost-left-out slip on the price")
+    else:
+        need(q["asked"] == f"Find the greatest possible profit {m1.group(5)}.", f"asked {q['asked']!r}")
+        want = f"P = {dec_text(best)} scrap"
+        w[R2OP_G + "1"] = {f"P = {dec_text(rev.subs(p, r0))} scrap"}
+        w[R2OP_OWN + "11"] = {f"P = {dec_text(rev.subs(p, r0) - F0)} scrap"}
+    poly = sp.Poly(sp.expand(P), p).all_coeffs()
+    r2op_steps_have(q, f"(p − {c})({A} − {Bc}p) − {F0} = " + r2op_terms_p(poly), "the profit expanded")
+    r2op_steps_have(q, f"p = {dec_text(p0)}", "the best price")
+    gc_check_common(q, want, w, None)
+
+
+def r2op_terms_p(cs):
+    """−4p² + 792p − 32030, as the game writes a quadratic in p."""
+    out = ""
+    for c, body in zip(cs, ("p²", "p", "")):
+        c = sp.Rational(c)
+        if c == 0:
+            continue
+        mag = abs(c)
+        t = (dec_text(mag) if body == "" or mag != 1 else "") + body
+        out += (("−" if c < 0 else "") if out == "" else (" − " if c < 0 else " + ")) + t
+    return out
+
+
+def r2op_forms(q, want, tagged):
+    """Each option's expression is the one asked, or for a tag, what its slip gives."""
+    for o in q["choices"]:
+        e = om_expr(o["text"].split(" = ", 1)[1])
+        need(om_same(e, want) == o["correct"], f"option {o['text']!r} against {want}")
+        if o["ref"]:
+            need(o["ref"] in tagged, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(any(om_same(e, t) for t in tagged[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+        if o["correct"]:
+            body = ""
+            for item in q["answer"]["template"]:
+                body += item if isinstance(item, str) else "(" + str(q["answer"]["values"][item["slot"]]) + ")"
+            need(om_same(om_expr(body.split(" = ", 1)[1]), want), f"the answer's slots make {body!r}, not {want}")
+
+
+def r2op_slip_x(F, dom):
+    """The smallest stationary point of a slip's function inside its domain."""
+    inside, _ = om_stationary(F, dom)
+    need(len(inside) >= 1, "a slip's function has no stationary point")
+    return min(inside, key=lambda v: sp.N(v, 30))
+
+
+def r2op_shape(q, u):
+    p = om_read(q)
+    fam, F, dom, Y = p["fam"], p["F"], p["dom"], p["Y"]
+    x = OM_X
+    w = {}
+    vals = {}
+    allowed = {"constraint-second-length": ("pen", "paddock", "can", "bin"), "objective-one-variable": ("pen", "paddock", "can", "bin", "box"),
+               "container-optimal-dimension": ("paddock", "can", "bin", "box"), "container-optimum-value": ("paddock", "can", "bin", "box"),
+               "container-other-dimension": ("paddock", "can", "bin"), "route-least-time": ("route",), "context-domain": ("box", "pen")}[u]
+    need(fam in allowed, f"{fam} is not a shape for {u}")
+    letter = "r" if fam == "can" else "x"
+    O = {"pen": "A", "paddock": "L", "bin": "V", "box": "V"}.get(fam, "")
+    if fam == "can":
+        O = "C" if p["cost"] else "S"
+    if fam == "route":
+        O = "C" if p["cost"] else "T"
+    unit = {"pen": "m", "paddock": "m", "bin": "cm", "box": "cm", "route": "km"}.get(fam, p.get("unit", ""))
+    tail = {"pen": " m²", "paddock": " m", "bin": " cm³", "box": " cm³"}.get(fam, "")
+    if fam == "can":
+        tail = " scrap" if p["cost"] else " cm²"
+    if fam == "route":
+        tail = " scrap" if p["cost"] else " hours"
+    if u == "constraint-second-length":
+        # A lid counted on the box, the circumference for the base's area, a fence along the
+        # wall, the area as a sum: each worked out from the shape's own numbers.
+        if fam == "bin":
+            tagged = {R2OP_OWN + "16": [(p["T"] - 2 * x**2) / (4 * x)]}
+        elif fam == "can":
+            tagged = {R2OP_OWN + "17": [p["V"] / (2 * sp.pi * x)]}
+        elif fam == "pen":
+            tagged = {R2OP_OWN + "18": [(p["T"] - p["n"] * x) / 2]}
+        else:
+            tagged = {R2OP_OWN + "19": [p["T"] - p["n"] * x]}
+        r2op_forms(q, Y, tagged)
+        calc_options(q)
+        return
+    if u == "objective-one-variable":
+        if fam == "box":
+            r2op_forms(q, F, {R2OP_B + "0": [x * (p["w"] - x) * (p["h"] - x)]})
+            calc_options(q)
+            return
+        line = next(l for l in q["lines"] if l.startswith("Show that "))
+        tgt = re.match(r"Show that . = (.+), where p and q are whole numbers\.", line).group(1)
+        P_, Q_ = sp.symbols("P_ Q_")
+        tt = tgt.replace("p", " P_ ").replace("q", " Q_ ")
+        tt = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", lambda m: "**" + m.group(0).translate(SUP_DIGITS), tt.replace("−", "-").replace("π", " pi ").replace("r", "x"))
+        te = parse_expr(tt, transformations=TRANSFORMS, local_dict={"x": OM_X, "P_": P_, "Q_": Q_, "pi": sp.pi})
+        got = sp.solve([te.subs(x, 1) - F.subs(x, 1), te.subs(x, 2) - F.subs(x, 2)], [P_, Q_], dict=True)
+        need(len(got) == 1, f"p and q are not fixed by {line!r}")
+        pv, qv = got[0][P_], got[0][Q_]
+        need(om_same(te.subs({P_: pv, Q_: qv}), F) and pv.is_integer and qv.is_integer and pv > 0 and qv > 0, f"no whole p and q make {line!r} this function")
+        nm = lambda a, b: f"p = {om_num(a)}, q = {om_num(b)}"
+        if fam == "can":
+            w[R2OP_B + "1"] = {nm(pv, qv / 2)}            # πrh for the curved side
+            if p["ends"] == 1:
+                w[R2OP_B + "2"] = {nm(2 * p["re"], qv)}   # a lid on the open can
+        gc_check_common(q, nm(pv, qv), w, None)
+        return
+    if u == "context-domain":
+        roots = sorted(r for r in sp.solve(F, x) if r.is_real and r > 0)
+        need(len(roots) >= 1, "the function has no positive zero")
+        top = roots[0]
+        need(all(F.subs(x, top * k / 10) > 0 for k in range(1, 10)), "the function is not positive inside the domain")
+        line = q["lines"][-1]
+        mt = re.fullmatch(r"(V|A) = (.+), where \1 (cm³|m²) is the (volume of the tray|area of the [a-z ]+)\.", line)
+        need(mt is not None and om_same(om_expr(mt.group(2)), F), f"the function shown, {line!r}, is not this shape's")
+        need(top.is_rational and (top.q == 1), "the domain's end is not a whole number")
+        need(q["asked"] == f"Find the domain of {mt.group(1)} in this context.", f"asked {q['asked']!r}")
+        big = p["w"] if fam == "box" else p["T"]
+        want = f"0 < x < {om_num(top)}"
+        w[R2OP_I + "1"] = {f"0 < x < {om_num(big)}", "x > 0"}
+        w[R2OP_OWN + "14"] = {f"0 ≤ x ≤ {om_num(top)}"}
+        if fam == "box":
+            need(top == sp.Rational(p["w"], 2), "a tray's domain ends at half its shorter side")
+        else:
+            need(top == sp.Rational(p["T"], p["n"]), "a yard's domain ends where y is 0")
+        gc_check_common(q, want, w, None)
+        return
+    if u == "route-least-time":
+        x0 = om_route_best(F, dom)
+        need(OM_FIT[0] * p["b"] <= x0 <= OM_FIT[1] * p["b"], f"x = {x0} is too near an end of the road")
+        best = F.subs(x, x0)
+        line = sp.sqrt(p["a"] ** 2 + p["b"] ** 2)
+        one = p["v"] * line if p["cost"] else line / p["v"]
+        need(om_clear(x0) and om_clear(best) and r2op_clear(one), "a value is on a rounding edge")
+        what = "total cost" if p["cost"] else "total time"
+        if q["asked"] == f"Find the value of x that makes the {what} as small as possible.":
+            want, trap = r2op_sf("x = ", x0, " km")
+            if not p["cost"]:
+                w[R2OP_OWN + "15"] = {f"x = {gc_s(sp.Integer(p['b']))} km"}
+        else:
+            need(q["asked"] == f"Find the least possible {what}.", f"asked {q['asked']!r}")
+            want, trap = r2op_sf(f"{O} = ", best, tail)
+            w[R2OP_G + "0"] = {r2op_sf(f"{O} = ", x0, tail)[0]}
+            if not p["cost"]:
+                w[R2OP_OWN + "15"] = {r2op_sf(f"{O} = ", one, tail)[0]}
+            need(gc_s(sp.N(one, 40)) != gc_s(sp.N(best, 40)), "the one-speed slip reads as the answer")
+        r2op_steps_have(q, f"x = {r2op_w(x0)}", "the best point to 6 s.f.")
+        r2op_steps_have(q, f"{O} = {r2op_w(best)}", "the least value to 6 s.f.")
+        gc_check_common(q, want, w, trap)
+        return
+    # The best length, the optimum and the other length.
+    inside, others = om_stationary(F, dom)
+    need(len(inside) == 1, f"{len(inside)} stationary points in the domain")
+    x0 = inside[0]
+    least = OM_MIN[fam]
+    need((sp.N(sp.diff(F, x, 2).subs(x, x0), 30) > 0) == least, "the stationary point is the wrong kind")
+    best = sp.simplify(F.subs(x, x0))
+    need(om_clear(x0) and om_clear(best), "the optimum is on a rounding edge")
+    sign_ok = r2op_shape_sign(q, F, x0, letter, O)
+    need(sign_ok, "no sign test in the calculus working")
+    r2op_steps_have(q, f"{letter} = {r2op_w(x0)}", "the optimum to 6 s.f.")
+    goal = {"paddock": "the least length of fence", "can": "the least cost" if p.get("cost") else "the least surface area"}.get(fam, "the greatest volume")
+    if u == "container-optimal-dimension":
+        need(q["asked"] == f"Find the value of {letter} that gives {goal}.", f"asked {q['asked']!r}")
+        want, trap = r2op_sf(f"{letter} = ", x0, f" {unit}")
+        if fam == "box":
+            one = r2op_slip_x(x * (p["w"] - x) * (p["h"] - x), (0, p["w"]))     # a cut at one end only
+            vals[R2OP_B + "0"] = one
+            vals[R2OP_C + "0"] = sp.Rational(p["w"], 2)                            # the root where V = 0
+            need(len(others) == 1, "the tray's other root")
+            vals[R2OP_I + "1"] = others[0]                                         # the cut too big for the sheet
+        elif fam == "bin":
+            vals[R2OP_OWN + "16"] = r2op_slip_x(x * (p["T"] - 2 * x**2) / 4, (0, sp.sqrt(p["T"])))   # a lid counted
+        elif fam == "can":
+            e = p["re"] * p["ends"]
+            # πrh; a lid on an open can gives the same r, so the engine offers only this slip
+            vals[R2OP_B + "1"] = r2op_slip_x(e * sp.pi * x**2 + p["V"] / x, (0, sp.oo))
+        for ref, v in vals.items():
+            w[ref] = {r2op_sf(f"{letter} = ", v, f" {unit}")[0]}
+    elif u == "container-optimum-value":
+        need(q["asked"] == f"Find the {'minimum' if least else 'maximum'} value of {O}.", f"asked {q['asked']!r}")
+        want, trap = r2op_sf(f"{O} = ", best, tail)
+        ref = R2OP_C + "2" if fam == "can" else R2OP_G + "0"
+        w[ref] = {r2op_sf(f"{O} = ", x0, tail)[0]}
+        r2op_steps_have(q, r2op_w(best), "the optimum's value to 6 s.f.")
+    else:
+        letter2 = "y" if fam == "paddock" else "h"
+        need(q["asked"] == f"Find the value of {letter2} that gives {goal}.", f"asked {q['asked']!r}")
+        y0 = sp.simplify(Y.subs(x, x0))
+        need(om_clear(y0), "the second length is on a rounding edge")
+        want, trap = r2op_sf(f"{letter2} = ", y0, f" {unit}")
+        if fam == "can":
+            yr = Y.subs(x, sp.Rational(sig3(sp.N(x0, 40))))                     # r rounded before h
+            vals[R2OP_C + "1"] = yr
+            w[R2OP_C + "1"] = {r2op_sf(f"{letter2} = ", yr, f" {unit}")[0]}
+        r2op_steps_have(q, f"= {r2op_w(y0)}", "the second length to 6 s.f.")
+    for o in q["choices"]:
+        if o["ref"] in vals:
+            need(r2op_clear(vals[o["ref"]]), f"the slip {o['text']!r} is on a rounding edge")
+    gc_check_common(q, want, w, trap)
+
+
+def r2op_shape_sign(q, F, x0, letter, O):
+    """The calculus working's sign test: the derivative's values either side, to 3 s.f."""
+    d = sp.diff(F, OM_X)
+    found = False
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            mt = re.search(rf"d{O}/d{letter} = (−?[\d.]+) at {letter} = (\d+) and (−?[\d.]+) at {letter} = (\d+)", st)
+            if mt:
+                lo, hi = int(mt.group(2)), int(mt.group(4))
+                need(lo < x0 < hi and hi == lo + 1, "the sign test is not either side of the optimum")
+                for v, at in ((mt.group(1), lo), (mt.group(3), hi)):
+                    need(v == gc_s(sp.N(d.subs(OM_X, at), 40)), f"d{O}/d{letter} at {at} is not {v}")
+                found = True
+    return found or q["view"]["angle"] == "gdc-graph-route"
+
+
+def r2op_check(q):
+    u = q["view"]["unknown"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    calc_steps(q, (2, 5))
+    calc_options(q)
+    if u in R2OP_SHAPES:
+        r2op_shape(q, u)
+    elif u == "profit-from-revenue-cost":
+        r2op_demand(q)
+    elif u in ("optimal-input-given-model", "optimum-value-given-model", "suggested-not-optimal", "whole-number-optimum"):
+        r2op_given(q, u)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+SITUATION_CHECKS["ai-optimisation"] = r2op_check
+
+# (between the R2 markers)
+
+# R2-TRAPEZOIDAL: t5-ai-trapezoidal (trapezoidal), prefix R2TR_ / r2tr_
+
+R2TR_TF = "AI-SL5.8.trapezoid-from-function#"
+R2TR_TD = "AI-SL5.8.trapezoid-from-data#"
+R2TR_CE = "AI-SL5.8.compare-with-exact#"
+R2TR_OU = "AI-SL5.8.over-or-under-estimate#"
+R2TR_MV = "AI-SL5.8.find-missing-value#"
+R2TR_EDGE = sp.Rational(39, 1000)  # the engine's is 0.04
+R2TR_N = r"(−?\d+(?:\.\d+)?)"
+R2TR_WHO = ["Juno", "Ash", "Vex", "Mara", "Rook", "Tess"]
+R2TR_IMPROVE = "Use more strips of smaller width: the chords then follow the curve more closely."
+R2TR_FEWER = "Use fewer, wider strips: each strip adds an error of its own, so fewer strips give a better estimate."
+R2TR_SAME = "Nothing: the strip width makes no difference, since the formula is the same."
+R2TR_ROUND = "Round each height to 1 decimal place first: the bracket is then exact."
+
+
+def r2tr_q(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def r2tr_fn(text):
+    """f(x) as the game writes it: '0.5x² − 2x + 3', '2√(x + 3)', '3e^(−0.4x)', '12/(x + 2)'."""
+    t = text.replace("−", "-").replace("√(", "sqrt(").replace("√x", "sqrt(x)").replace("e^(", "exp(")
+    t = t.replace("x³", "x**3").replace("x²", "x**2")
+    need(re.fullmatch(r"[0-9x+\-*/(). sqrtexp]+", t) is not None, f"can't read the function {text!r}")
+    return sp.nsimplify(parse_expr(t, transformations=TRANSFORMS, local_dict={"x": X, "sqrt": sp.sqrt, "exp": sp.exp}), rational=True)
+
+
+def r2tr_w(x, n=6):
+    """x to n significant figures without the zeros a GDC doesn't show (the engine's Fmt.work)."""
+    t = sig3(x, n)
+    if "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return t.replace("-", "−")
+
+
+def r2tr_clear(x):
+    v = abs(num(x))
+    if v == 0:
+        return False
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= R2TR_EDGE
+
+
+def r2tr_distinct(xs):
+    need(all(r2tr_clear(x) for x in xs), "a value or slip is on a 3 s.f. edge")
+    need(len({gc_s(x) for x in xs}) == len(xs), "two of the values or slips read the same to 3 s.f.")
+
+
+def r2tr_ends(v):
+    """An exact value's option: as it is when it ends, else to 3 s.f."""
+    return sig3(v) if "/" in dec_text(v) else dec_text(v)
+
+
+def r2tr_rule(ys, h, inner=2, ends=1, half=sp.Rational(1, 2)):
+    return half * h * sum(y * (ends if i in (0, len(ys) - 1) else inner) for i, y in enumerate(ys))
+
+
+def r2tr_find(pattern, texts, what):
+    for t in texts:
+        m = re.search(pattern, t)
+        if m:
+            return m
+    raise Fail(f"can't find {what}")
+
+
+def r2tr_bend(fn, a, b):
+    """'up', 'down' or 'line' for f on [a, b]; a bend that changes sign fails."""
+    d2 = sp.simplify(sp.diff(fn, X, 2))
+    if d2 == 0:
+        return "line"
+    f2 = sp.lambdify(X, d2, "mpmath")
+    vals = [f2(mpmath.mpf(a + (b - a) * sp.Rational(i, 60))) for i in range(61)]
+    need(all(v > 0 for v in vals) or all(v < 0 for v in vals), "f″ changes sign on the interval: the estimate is not clearly over or under")
+    return "up" if vals[0] > 0 else "down"
+
+
+def r2tr_slope(fn, a, b):
+    f1 = sp.lambdify(X, sp.diff(fn, X), "mpmath")
+    vals = [f1(mpmath.mpf(a + (b - a) * sp.Rational(i, 60))) for i in range(61)]
+    need(all(v > 0 for v in vals) or all(v < 0 for v in vals), "f turns on the interval")
+    return "rises" if vals[0] > 0 else "falls"
+
+
+def r2tr_function(q):
+    """(f, a, b, n, h, xs, ys, T, I) from what a function question shows."""
+    texts = q["lines"] + [q["asked"]]
+    m = r2tr_find(r"(?:^f\(x\) = |^The graph of y = )(.+?)(?:, for | is shown|$)", texts, "f(x)")
+    fn = r2tr_fn(m.group(1))
+    m = r2tr_find(r"from x = " + R2TR_N + r" to x = " + R2TR_N + r"|for " + R2TR_N + r" ≤ x ≤ " + R2TR_N, texts, "the limits")
+    lims = [g for g in m.groups() if g is not None]
+    m = re.match(r"(.*) (.*)", " ".join(lims))
+    a, b = r2tr_q(m.group(1)), r2tr_q(m.group(2))
+    mn = None
+    for t in texts:
+        mn = re.search(r"using (\d+) strips|the (\d+) trapezia|cut into (\d+) strips", t)
+        if mn:
+            break
+    if mn:
+        n = int(next(g for g in mn.groups() if g))
+    else:
+        need(q["table"] is not None, "no number of strips")
+        n = len(q["table"]["rows"][0][1]) - 1
+    need(3 <= n <= 6 and b > a, "n is not 3 to 6")
+    h = (b - a) / n
+    need(h in (sp.Rational(1, 2), 1, 2, sp.Rational(1, 4), sp.Rational(1, 5), sp.Rational(2, 5), sp.Rational(3, 2)), f"h = {h} is not a tidy decimal")
+    xs = [a + i * h for i in range(n + 1)]
+    ys = [fn.subs(X, x) for x in xs]
+    need(all(sp.N(y) > sp.Rational(49, 100) for y in ys), "a height is not positive")
+    T = r2tr_rule(ys, h)
+    I = sp.integrate(fn, (X, a, b))
+    # Exact where the values are rational (a polynomial), else to 40 digits.
+    T, I = (v if v.is_Rational else sp.N(v, 40) for v in (T, I))
+    ys = [y if y.is_Rational else sp.N(y, 40) for y in ys]
+    return fn, a, b, n, h, xs, ys, T, I
+
+
+def r2tr_curve(curve, fn):
+    f = gc_f(fn)
+    return gc_curve_is(curve, f, 1e-5)
+
+
+def r2tr_steps(q):
+    return [st for sol in q["solutions"] for st in sol["steps"]]
+
+
+def r2tr_in_every(q, text, what):
+    for sol in q["solutions"]:
+        need(any(text in st for st in sol["steps"]), f"{sol['name']}: the working doesn't show {what} {text!r}")
+
+
+def r2tr_shape(q, rows=True):
+    """(kind, h, ys, j) from a measurement question: the story line, then the table, the words
+    or the figure. j is the index of k, or None."""
+    L = q["lines"]
+    m = re.search(r"every " + R2TR_N + r" (m|seconds|minutes)", L[0])
+    need(m is not None, f"can't read the spacing in {L[0]!r}")
+    h = r2tr_q(m.group(1))
+    j, ys, xs = None, None, None
+    if q["table"] is not None:
+        r = q["table"]["rows"]
+        need(len(r) == 2, "the table has two rows")
+        xs = [r2tr_q(t) for t in r[0][1]]
+        ys = []
+        for i, t in enumerate(r[1][1]):
+            if t == "k":
+                j = i
+                ys.append(None)
+            else:
+                ys.append(r2tr_q(t))
+    elif q["graph"] is not None:
+        g = q["graph"]
+        pts = sorted(g["points"], key=lambda p: p["x"])
+        xs = [sp.nsimplify(p["x"]) for p in pts]
+        if all(p["label"] == "" for p in pts):
+            ys = [sp.nsimplify(p["y"]) for p in pts]
+            need(all(y == int(y) and abs(p["y"] - float(y)) < 1e-9 for y, p in zip(ys, pts)), "a plotted speed is not on a whole grid line")
+        else:
+            ys = []
+            for p in pts:
+                mm = re.fullmatch(R2TR_N + r" m", p["label"])
+                need(mm is not None and p.get("name"), f"can't read the label {p['label']!r}")
+                ys.append(r2tr_q(mm.group(1)))
+            # Each labelled width is drawn to its length, at its distance.
+            segs = [c for c in g["curves"] if len(c) == 2 and abs(c[0][0] - c[1][0]) < 1e-9]
+            need(len(segs) == len(ys), "the figure doesn't draw every width")
+            for x, y, sg in zip(xs, ys, sorted(segs, key=lambda c: c[0][0])):
+                need(abs(sg[0][0] - float(x)) < 1e-6 and abs(abs(sg[1][1] - sg[0][1]) - float(y)) < 1e-4, f"the width at {x} is not drawn {y} long")
+            ticks = [(sp.nsimplify(t[0]), t[1]) for t in g.get("x_ticks", [])]
+            need([t[1] for t in ticks] == [dec_text(x) for x in xs], "the distances under the figure are not the widths' distances")
+    else:
+        m2 = re.search(r"are (.+) and " + R2TR_N + r", in ", L[1])
+        need(m2 is not None, f"can't read the values in {L[1]!r}")
+        ys = [r2tr_q(t) for t in m2.group(1).split(", ")] + [r2tr_q(m2.group(2))]
+        m3 = re.search(r"at (?:t = |distances )(.+?) (?:minutes|seconds|m from)", L[1])
+        need(m3 is not None, "can't read the times")
+        xs = [r2tr_q(t) for t in m3.group(1).split(", ")]
+    need(len(xs) == len(ys) and 5 <= len(ys) <= 7, "4 to 6 strips")
+    need(xs == [i * h for i in range(len(xs))], "the measurements are not every h from 0")
+    return h, ys, j
+
+
+def r2tr_check(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    for tx in [asked] + L + r2tr_steps(q) + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    if u == "strip-width":
+        fn, a, b, n, h, xs, ys, T, I = r2tr_function(q)
+        want = "h = " + dec_text(h)
+        wrongs[R2TR_TF + "0"] = {"h = " + r2tr_ends((b - a) / (n + 1))}
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0][1] == [dec_text(x) for x in xs] and rows[1][1] == [dec_text(y) for y in ys], "the table is not x against f(x)")
+            need(asked == "Write down the strip width h.", f"asked {asked!r}")
+        else:
+            need(asked == "Find the strip width h.", f"asked {asked!r}")
+        r2tr_in_every(q, f"h = (b − a)/n = {dec_text(b - a)}/{n} = {dec_text(h)}", "h")
+    elif u == "function-estimate":
+        fn, a, b, n, h, xs, ys, T, I = r2tr_function(q)
+        vals = [T, T * n / (n + 1), r2tr_rule(ys, h, 1), r2tr_rule(ys, h, half=1)]
+        r2tr_distinct(vals)
+        want, trap = r1ap_sf("estimate = ", vals[0])
+        need(gc_rounds(T), "the estimate needs no rounding")
+        wrongs[R2TR_TF + "0"] = {r1ap_sf("estimate = ", vals[1])[0]}
+        wrongs[R2TR_TF + "1"] = {r1ap_sf("estimate = ", vals[2])[0]}
+        wrongs[R2TR_TF + "2"] = {r1ap_sf("estimate = ", vals[3])[0]}
+        if rep == "graph":
+            g = q["graph"]
+            need(r2tr_curve(g["curves"][0], fn), "the graph's curve is not f")
+            tops = g["curves"][1]
+            need(len(tops) == n + 1 and all(abs(p[0] - float(x)) < 1e-6 and abs(p[1] - float(y)) < 1e-6 for p, x, y in zip(tops, xs, ys)), "the trapezia's tops are not the chords")
+            sides = g["curves"][2:]
+            need(len(sides) == n + 1 and all(abs(s[0][0] - float(x)) < 1e-6 and abs(s[0][1]) < 1e-9 and abs(s[1][1] - float(y)) < 1e-6 for s, x, y in zip(sides, xs, ys)), "the trapezia's sides are wrong")
+            need([[round(p[0], 6), round(p[2], 6)] for p in g["shade"][0]] == [[round(float(x), 6), round(float(y), 6)] for x, y in zip(xs, ys)], "the shaded trapezia are wrong")
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0][1] == [dec_text(x) for x in xs], "the table's x-values")
+            blanks = [i for i, t in enumerate(rows[1][1]) if t in ("p", "q")]
+            need(1 <= len(blanks) <= 2 and [rows[1][1][i] for i in blanks] == ["p", "q"][:len(blanks)], "the missing heights are not p (and q)")
+            need(all(rows[1][1][i] == dec_text(ys[i]) for i in range(n + 1) if i not in blanks), "the table's heights are not f(x)")
+            for i, nm in zip(blanks, ["p", "q"]):
+                r2tr_in_every(q, f"{nm} = f({dec_text(xs[i])}) = {dec_text(ys[i])}", "the missing height")
+        for y in ys:
+            r2tr_in_every(q, r2tr_w(y), "the height")
+        r2tr_in_every(q, "= " + r2tr_w(T), "the estimate")
+    elif u == "percentage-error-of-estimate":
+        fn, a, b, n, h, xs, ys, T, I = r2tr_function(q)
+        need(asked == "Find the percentage error in this estimate, against the exact area the GDC's integral gives.", f"asked {asked!r}")
+        e = abs(T - I) / I * 100
+        need(sp.Rational(1, 10) <= e <= 25, "the error is not 0.1% to 25%")
+        T0 = T * n / (n + 1)
+        vals = [e, abs(T - I) / T * 100, abs(T0 - I) / I * 100] + ([(T - I) / I * 100] if T < I else [])
+        r2tr_distinct(vals)
+        want, trap = r1ap_sf("percentage error = ", e, "%")
+        wrongs[R2TR_CE + "0"] = {r1ap_sf("percentage error = ", vals[1], "%")[0]}
+        wrongs[R2TR_TF + "0"] = {r1ap_sf("percentage error = ", vals[2], "%")[0]}
+        if T < I:
+            wrongs[R2TR_CE + "2"] = {r1ap_sf("percentage error = ", vals[3], "%")[0]}
+        t7, i7 = r2tr_w(T, 7), r2tr_w(I, 7)
+        r2tr_in_every(q, f"ε = |{t7} − {i7}| ÷ {i7} × 100% = {r2tr_w(e)}%", "the error")
+        # The error from the figures shown is the answer too.
+        e7 = abs(r2tr_q(t7) - r2tr_q(i7)) / r2tr_q(i7) * 100
+        need(gc_s(e7) == gc_s(e), "the working's figures give another error")
+    elif u == "improve-estimate":
+        fn, a, b, n, h, xs, ys, T, I = r2tr_function(q)
+        need(any(f"using {n} strips, and gets {r2tr_w(T)}. The GDC's integral gives {r2tr_w(I)}." in t for t in L), "the estimate or the integral the question gives")
+        ys2 = [fn.subs(X, a + i * h / 2) for i in range(2 * n + 1)]
+        T2 = sp.N(r2tr_rule(ys2, h / 2), 40)
+        need(abs(T2 - I) < abs(T - I), "more strips are not closer")
+        r2tr_in_every(q, f"it gives {r2tr_w(T2)}: an error of {r2tr_w(abs(T2 - I))}", "the estimate with twice the strips")
+        need(asked == "How could the estimate be made more accurate, and why?", f"asked {asked!r}")
+        want = R2TR_IMPROVE
+        wrongs[R2TR_CE + "1"] = {R2TR_FEWER}
+        wrongs["t5-ai-trapezoidal#14"] = {R2TR_SAME}
+        need(all(o["correct"] or o["text"] in (R2TR_FEWER, R2TR_SAME, R2TR_ROUND) for o in q["choices"]), "an option that isn't one of the claims")
+        if rep == "graph":
+            need(r2tr_curve(q["graph"]["curves"][0], fn), "the graph's curve is not f")
+    elif u == "over-or-under":
+        fn, a, b, n, h, xs, ys, T, I = r2tr_function(q)
+        bd, sl = r2tr_bend(fn, a, b), r2tr_slope(fn, a, b)
+        line = bd == "line"
+        thing = "line" if line else "curve"
+        if bd == "up":
+            need(T > I, "the rule doesn't overestimate a concave-up curve")
+            want = "Overestimate: the curve bends upwards (concave up), so the tops of the trapezia lie above it."
+        elif bd == "down":
+            need(T < I, "the rule doesn't underestimate a concave-down curve")
+            want = "Underestimate: the curve bends downwards (concave down), so the tops of the trapezia lie below it."
+        else:
+            need(T == I, "the rule isn't exact for a line")
+            want = "Neither: the graph is a straight line, so the tops of the trapezia lie along it and the estimate is exact."
+        if not line:
+            need(abs(T - I) / I >= sp.Rational(2, 1000), "the estimate is too close to tell")
+        under_from_rise = bd == "up" or (line and sl == "falls")
+        wrongs[R2TR_OU + "0"] = {(f"Underestimate: the {thing} {sl}, so the tops of the trapezia lie below it." if under_from_rise
+                                  else f"Overestimate: the {thing} {sl}, so the tops of the trapezia lie above it.")}
+        wrongs[R2TR_OU + "1"] = {"Overestimate: the trapezoidal rule always gives an overestimate of an area."}
+        if line:
+            wrongs[R2TR_OU + "2"] = {"Underestimate: the rule is only an approximation, so even under a line it leaves gaps."}
+        r2tr_in_every(q, "So: " + want, "the claim")
+        cmp = "The two are equal" if line else (f"{r2tr_w(T, 7)} {'>' if T > I else '<'} {r2tr_w(I, 7)}")
+        need(any(cmp in st for st in r2tr_steps(q)), "the comparison with the GDC")
+        if rep == "graph":
+            g = q["graph"]
+            need(r2tr_curve(g["curves"][0], fn), "the graph's curve is not f")
+            need([round(v["at"], 6) for v in g["vlines"]] == [round(float(x), 6) for x in xs], "the strip edges are not drawn at the x-values")
+    elif u == "pick-underestimate-graph":
+        m = re.fullmatch(r"The area under each curve from x = " + R2TR_N + r" to x = " + R2TR_N + r" is estimated with the trapezoidal rule\. For which curve is the estimate (an underestimate|an overestimate)\?", asked)
+        need(m is not None, f"asked {asked!r}")
+        a, b, under = float(r2tr_q(m.group(1))), float(r2tr_q(m.group(2))), m.group(3) == "an underestimate"
+        graphs, ch = q["graphs"], q["choices"]
+        need(len(graphs) == 4 and [o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "four cards, A to D")
+        need(len({(g["x0"], g["x1"], g["y0"], g["y1"]) for g in graphs}) == 1, "the cards don't share one window")
+
+        def kind(curve):
+            need(abs(curve[0][0] - a) < 1e-6 and abs(curve[-1][0] - b) < 1e-6, "a card's curve is not on the interval")
+            ys_ = [p[1] for p in curve]
+            d2 = [ys_[i - 1] - 2 * ys_[i] + ys_[i + 1] for i in range(1, len(ys_) - 1)]
+            d1 = [ys_[i + 1] - ys_[i] for i in range(len(ys_) - 1)]
+            sl_ = "rises" if all(d > 0 for d in d1) else ("falls" if all(d < 0 for d in d1) else "")
+            if all(abs(d) < 1e-7 for d in d2):
+                return "line", sl_
+            need(all(d > 0 for d in d2) or all(d < 0 for d in d2), "a card's curve bends both ways")
+            mid = ys_[len(ys_) // 2]
+            need(abs(mid - (ys_[0] + ys_[-1]) / 2) >= 0.39, "a card's bend is too slight to see")
+            return ("up" if d2[0] > 0 else "down"), sl_
+
+        right_bend = "down" if under else "up"
+        other = "up" if under else "down"
+        letter = None
+        for o, g in zip(ch, graphs):
+            need(len(g["curves"]) == 1 and g.get("card"), "a card has one curve")
+            bd, sl = kind(g["curves"][0])
+            if o["correct"]:
+                need(bd == right_bend and sl == ("rises" if under else "falls"), "the right card doesn't bend the right way, or has the slope the slope slip reads as the target")
+                letter = o["text"]
+                continue
+            mk = o.get("mistake", "")
+            need(o.get("why", "") != "", "a wrong card doesn't say why")
+            if mk == "rises":
+                need(o["ref"] == R2TR_OU + "0" and bd == other and sl == ("falls" if under else "rises"), "the slope slip's card does not have the slope it reads as the target, bending the other way")
+                wrongs.setdefault(R2TR_OU + "0", set()).add(o["text"])
+            elif mk == "line":
+                need(o["ref"] == R2TR_OU + "2" and bd == "line", "the line card is not a line")
+                wrongs.setdefault(R2TR_OU + "2", set()).add(o["text"])
+            elif mk == "same-way":
+                need(o["ref"] == "" and bd == other, "the same-way card doesn't bend the other way")
+            else:
+                raise Fail(f"a card names no mistake ({mk!r})")
+        need(letter is not None, "no right card")
+        want = letter
+    elif u == "data-estimate":
+        h, ys, _ = r2tr_shape(q)
+        m = re.search(r"(salvage field|toxic lake|flooded canal)", L[0])
+        need(m is not None and any(w in L[0] for w in R2TR_WHO), "the story")
+        kind = {"salvage field": "field", "toxic lake": "lake", "flooded canal": "canal"}[m.group(1)]
+        region = {"field": "the field", "lake": "the lake", "canal": "the canal's cross-section"}[kind]
+        need(asked == f"Use the trapezoidal rule to estimate the area of {region}.", f"asked {asked!r}")
+        n = len(ys) - 1
+        xs = [i * h for i in range(n + 1)]
+        T = r2tr_rule(ys, h)
+        vals = [T, r2tr_rule(xs, h), r2tr_rule(ys, h, 2, 2), r2tr_rule(ys, h, 1, 1), 2 * T]
+        r2tr_distinct(vals)
+        want, trap = r1ap_sf("area = ", T, " m²")
+        for ref, v in zip([R2TR_TD + "0", R2TR_TD + "2", R2TR_TF + "1", R2TR_TF + "2"], vals[1:]):
+            wrongs[ref] = {r1ap_sf("area = ", v, " m²")[0]}
+        r2tr_in_every(q, "= " + dec_text(T), "the area")
+    elif u == "accumulated-total":
+        h, ys, _ = r2tr_shape(q)
+        n = len(ys) - 1
+        T = r2tr_rule(ys, h)
+        if L[0].startswith("A scout rover"):
+            mix = "every " + dec_text(h) + " minutes" in L[0]
+            label, unit = "distance = ", " m"
+            need(asked == f"Use the trapezoidal rule to estimate the distance the rover travels in these {dec_text(n * h)} {'minutes' if mix else 'seconds'}, in metres.", f"asked {asked!r}")
+            factor = 60 if mix else 1
+        elif L[0].startswith("Water is pumped"):
+            mix = "litres per second" in L[0]
+            label, unit = "volume = ", " litres"
+            need(asked == f"Use the trapezoidal rule to estimate the volume of water pumped in these {dec_text(n * h)} minutes, in litres.", f"asked {asked!r}")
+            factor = 60 if mix else 1
+        else:
+            m = re.fullmatch(r"A drainage channel is " + R2TR_N + r" m wide\. Its depth is measured every " + R2TR_N + r" m across it, and the water flows through it at " + R2TR_N + r" m/s\.", L[0])
+            need(m is not None and r2tr_q(m.group(1)) == n * h, f"the channel {L[0]!r}")
+            mix, label, unit, factor = False, "flow = ", " m³/s", r2tr_q(m.group(3))
+        if rep == "graph":
+            need(q["graph"]["x_name"] == "t" and q["graph"]["y_name"] == "v", "the graph's axes")
+        total = T * factor
+        vals = [total, 2 * total, r2tr_rule(ys, h, 2, 2) * factor, r2tr_rule(ys, h, 1, 1) * factor] + ([T] if mix else [])
+        r2tr_distinct(vals)
+        exact = not gc_rounds(total)
+        need(not exact or rep == "graph", "a total from a table or words needs rounding")
+        show = (lambda v: label + dec_text(v) + unit) if exact else (lambda v: r1ap_sf(label, v, unit)[0])
+        want = show(total)
+        trap = None if exact else r1ap_sf(label, total, unit)[1]
+        for ref, v in zip([R2TR_TF + "2", R2TR_TD + "2", R2TR_TF + "1"], vals[1:4]):
+            wrongs[ref] = {show(v)}
+        if mix:
+            wrongs[R2TR_TD + "1"] = {show(T)}
+            r2tr_in_every(q, f"h = {dec_text(h)} min = {dec_text(60 * h)} s", "the spacing in seconds")
+        if unit == " m³/s":
+            r2tr_in_every(q, f"= {dec_text(T)} m²", "the cross-section's area")
+            r2tr_in_every(q, f"= {dec_text(T)} × {dec_text(factor)} = {dec_text(total)} m³/s", "the flow")
+        else:
+            r2tr_in_every(q, f"= {dec_text(total)}{unit}", "the total")
+    elif u == "missing-height":
+        h, ys, j = r2tr_shape(q)
+        need(j is not None, "no k in the table")
+        m = re.fullmatch(r"The table gives the (widths|depths), with one of them k\. The trapezoidal rule with these (widths|depths) gives " + R2TR_N + r" m² for the area\.", L[1])
+        need(m is not None, f"can't read the estimate {L[1]!r}")
+        A = r2tr_q(m.group(3))
+        n = len(ys) - 1
+        inner = 0 < j < n
+        w = 2 if inner else 1
+        rest = sum(y * (1 if i in (0, n) else 2) for i, y in enumerate(ys) if i != j)
+        k = (2 * A / h - rest) / w
+        need(k > 0 and (k * 10).q == 1, "k is not a height to 1 d.p.")
+        need(asked == "Find the value of k.", f"asked {asked!r}")
+        want = "k = " + dec_text(k)
+        if inner:
+            wrongs[R2TR_MV + "0"] = {"k = " + r2tr_ends(2 * A / h - rest)}
+        else:
+            # Both end heights doubled: 2A/h = 2(other end) + 2k + 2(inner sum).
+            E = ys[n - j]
+            I = sum(y for i, y in enumerate(ys) if 0 < i < n)
+            wrongs[R2TR_TD + "2"] = {"k = " + r2tr_ends(A / h - E - I)}
+        wrongs[R2TR_MV + "1"] = {"k = " + r2tr_ends((A - rest) / w)}
+        r2tr_in_every(q, "k = " + dec_text(k), "k")
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+SITUATION_CHECKS["trapezoidal"] = r2tr_check
+
+# (end of the R2 markers)
+
+
 # ── complex-number (t1-ahl-complex-cartesian, t1-ai-complex-cartesian, FAL-1004) ──────────
 # Every number is read back from the lines, the question or the Argand diagram's points, and the
 # answer and each slip are worked out again with SymPy, exactly: products, quotients and powers

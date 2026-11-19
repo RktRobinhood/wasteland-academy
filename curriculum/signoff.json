@@ -870,6 +870,30 @@
    "note": "Curriculum Author (FAL-1004) read one worked solution per unknown, line by line, and every feedback-check row (stem, option, feedback). The other representations and methods are not confirmed read."
   },
   {
+   "situation": "ai-stationary",
+   "types": [
+    "t5-ai-stationary-points"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-optimisation",
+   "types": [
+    "t5-ai-optimisation"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "trapezoidal",
+   "types": [
+    "t5-ai-trapezoidal"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
    "situation": "complex-polar",
    "types": [
     "t1-ahl-complex-polar"

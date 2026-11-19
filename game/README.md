@@ -980,6 +980,26 @@ script error happens while it runs. Run one file with
 - `test_log_technology.gd` (FAL-999): t1-ext-logs-with-technology built with every cell on all four
   courses, Paper 2; method-pick on every cell and error-spot on the two equations, with the slip on
   either line; every tag shows up; hand values of the logs.
+<!-- R2-STATIONARY -->
+- `test_ai_stationary.gd` (FAL-1000): t5-ai-stationary-points built with all 39 cells and all five
+  AI-SL5.6 skills, on the AI courses only, Paper 2 only; four distinct options with one right and the answer
+  in each working's last step; every tag shows up, and none is the derivative-graph type's SL5.7 one; the
+  vertex working only on a quadratic story; a typed point or value is marked by its value; hand-worked
+  stationary points, the constant-kept zeros, the reciprocal's minimum, k from f(x) = 0 and an end that
+  beats the local maximum; the f′-graph unknowns draw DerivativeGraphSituation's curves.
+
+<!-- R2-OPTIMISATION -->
+- `test_ai_optimisation.gd` (FAL-1000): t5-ai-optimisation built with every cell and all four AI-SL5.7
+  skills, on the AI courses only, Paper 2 only; four distinct options with one right and the answer in
+  each working's last step; a figure on every diagram cell and a table on every table cell; every tag
+  shows up; the vertex working only on a quadratic and calculus never on the angle model; the nearest
+  whole number is never the best; a typed value is marked by its value; hand-worked values.
+
+<!-- R2-TRAPEZOIDAL -->
+- `test_trapezoidal.gd` (FAL-1000): t5-ai-trapezoidal built with every cell and all five AI-SL5.8 skills, on the AI courses
+  only, Paper 2 only; four distinct options with one right and the answer in each working's last step; tables and figures shown;
+  four cards for pick the graph; every tag shows up; typed values marked by value; the rule, the percentage error, the slips, a
+  missing height and the bends against values worked by hand.
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
