@@ -1831,10 +1831,10 @@
                 }
               ],
               "misconceptions": [
-                "Losing the sign of the argument: 1 − i written as √2 e^(iπ/4)",
-                "Swapping sine and cosine: 4e^(iπ/3) = 2√3 + 2i instead of 2 + 2√3 i",
-                "Using degree mode with a radian argument, so 4 cis(π/3) evaluates as about 4.00 + 0.0731i",
-                "Giving r = 2 for 1 − i by adding the squares without the root"
+                "Losing the sign of the argument for a point below the real axis",
+                "Swapping sine and cosine, so the real and imaginary parts change places",
+                "Using degree mode with an argument in radians",
+                "Adding the squares of the parts for the modulus without taking the square root"
               ],
               "threads": [
                 {
@@ -1886,9 +1886,9 @@
                 }
               ],
               "misconceptions": [
-                "Adding the moduli: 5e^(5πi/12) instead of 6e^(5πi/12)",
-                "Multiplying the arguments: π/6 × π/4 = π²/24",
-                "Subtracting the arguments in the wrong order: z/w with argument π/12 instead of −π/12"
+                "Adding the moduli instead of multiplying them",
+                "Multiplying the arguments instead of adding them",
+                "Subtracting the arguments the wrong way round for a quotient"
               ]
             },
             {
@@ -1928,9 +1928,9 @@
                 }
               ],
               "misconceptions": [
-                "Raising each part separately: (√3)⁶ + i⁶ = 27 − 1 = 26 instead of −64",
-                "Multiplying the argument but not raising the modulus: 2e^(iπ) = −2",
-                "Raising the argument to the power: θ⁶ instead of 6θ"
+                "Raising each part to the power separately",
+                "Multiplying the argument by the power but not raising the modulus to it",
+                "Raising the argument to the power instead of multiplying it by the power"
               ],
               "threads": [
                 {
@@ -1985,9 +1985,9 @@
                 }
               ],
               "misconceptions": [
-                "Adding the amplitudes: 7 cos(5t + …) instead of 5 cos(5t + 0.927)",
-                "Averaging the phase angles: B = π/4 instead of 0.927",
-                "Mixing degrees and radians in the phase, as when a phase of 10 means 10 radians but is entered as 10°"
+                "Adding the amplitudes, which only works when the two waves are in phase",
+                "Averaging the two phases instead of finding the argument of the sum",
+                "Mixing degrees and radians in the phase"
               ],
               "threads": [
                 {
@@ -2045,7 +2045,7 @@
                 }
               ],
               "misconceptions": [
-                "Thinking multiplication by 1 + i is a 45° rotation only, missing the stretch by √2",
+                "Reading multiplication by a number as a rotation only, missing the stretch by its modulus",
                 "Treating multiplication by i as a reflection in the line y = x",
                 "Drawing z − w from z to w instead of from w to z"
               ],

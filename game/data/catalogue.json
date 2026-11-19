@@ -6891,6 +6891,49 @@
 			"clean": [
 				"the parabola's vertex (h, k²) is inside the window drawn"
 			]
+		},
+		"complex-polar": {
+			"name": "Complex numbers in modulus-argument and Euler form, at the standard angles",
+			"summary": "Pick a modulus and an argument that is a multiple of π/6 or π/4, or two of them, or a point with whole parts on an Argand diagram. Every Cartesian part is then a whole number times 1, √2 or √3, and every product, quotient, power, rotation and sum is known exactly.",
+			"quantities": [
+				{
+					"name": "r, θ",
+					"is": "a number's modulus and argument",
+					"pick": "θ a multiple of π/6 or π/4 in −π < θ ≤ π; r a whole number, or m√2 on a 45° line so the parts are whole"
+				},
+				{
+					"name": "r₂, θ₂",
+					"is": "a second number, the other factor or the divisor",
+					"pick": "r₂ from 1 to 5 and θ₂ a standard angle other than θ"
+				},
+				{
+					"name": "A",
+					"is": "a point with whole parts, for a rotation",
+					"pick": "parts from −4 to 4, not 0 and not equal in size"
+				},
+				{
+					"name": "w",
+					"is": "the multiplier or the translation",
+					"pick": "a standard angle with a modulus that keeps its parts whole, or whole parts from −5 to 5"
+				},
+				{
+					"name": "k, n",
+					"is": "the coefficient and the multiple of θ in ke^(inθ) ± ke^(−inθ)",
+					"pick": "k and n from 1 to 4"
+				}
+			],
+			"modes": [
+				{
+					"id": "exact",
+					"when": "every AA HL question here",
+					"how": "surds and multiples of π, written as the IB writes them"
+				}
+			],
+			"clean": [
+				"the answer and every slip offered read differently",
+				"an argument is in −π < θ ≤ π",
+				"every point drawn on an Argand diagram is inside its window"
+			]
 		}
 	},
 	"skills": {
@@ -7205,7 +7248,12 @@
 		"AI-AHL1.12.powers-technology": "Find powers of complex numbers with technology",
 		"AI-AHL1.12.modulus-argument": "Find the modulus and argument of a complex number",
 		"AI-AHL1.12.argand-diagram": "Represent complex numbers on an Argand diagram",
-		"AI-AHL1.12.complex-quadratic-roots": "Solve a real quadratic with negative discriminant and link to its graph"
+		"AI-AHL1.12.complex-quadratic-roots": "Solve a real quadratic with negative discriminant and link to its graph",
+		"AHL1.13.convert-forms": "Convert between Cartesian, polar and Euler forms",
+		"AHL1.13.polar-products-quotients": "Multiply and divide in polar or Euler form",
+		"AHL1.13.geometric-interpretation": "Interpret multiplication and addition geometrically on the Argand diagram",
+		"AHL1.13.sums-in-euler-form": "Simplify sums of complex numbers in Euler or polar form",
+		"AHL1.13.exact-trig-from-forms": "Find exact trigonometric values by comparing two forms of a product or quotient"
 	},
 	"types": [
 		{
@@ -93053,6 +93101,552 @@
 				"p1": 0,
 				"p2": 12
 			}
+		},
+		{
+			"id": "t1-ahl-complex-polar",
+			"topic": 1,
+			"source": "exam",
+			"region": "exponents-logs",
+			"name": "Modulus-argument and Euler forms (AA HL)",
+			"summary": "Convert between a + bi, r cis θ and re^(iθ), multiply, divide and square in polar or Euler form with the argument brought back into −π < θ ≤ π, read multiplication as a rotation with an enlargement and addition as a translation, write a sum of two exponentials as one re^(iθ), and find an exact cosine or sine by writing one number in two forms.",
+			"situation": "complex-polar",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the numbers written out: z = −2√3 + 2i, z₁ = 4e^(5πi/6), or a sum of exponentials"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "an Argand diagram with the axes named Re and Im and the point A marked"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "to-polar",
+					"given": [
+						"a complex number a + bi, or its point on an Argand diagram"
+					],
+					"asked": "z in the form re^(iθ) or r cis θ",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL1.13.convert-forms"
+					]
+				},
+				{
+					"id": "to-cartesian",
+					"given": [
+						"a complex number r cis θ or re^(iθ)"
+					],
+					"asked": "z in the form a + bi, exactly",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.convert-forms"
+					]
+				},
+				{
+					"id": "polar-product",
+					"given": [
+						"two complex numbers in polar or Euler form, or one to square"
+					],
+					"asked": "z₁z₂, z₁/z₂ or z² in the same form, with its argument in −π < θ ≤ π",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.polar-products-quotients"
+					]
+				},
+				{
+					"id": "product-cartesian",
+					"given": [
+						"two complex numbers in polar or Euler form"
+					],
+					"asked": "z₁z₂ or z₁/z₂ in the form a + bi",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.polar-products-quotients",
+						"AHL1.13.convert-forms"
+					]
+				},
+				{
+					"id": "rotate-point",
+					"given": [
+						"a point A on an Argand diagram",
+						"a rotation about 0 of a quarter or half turn, and an enlargement"
+					],
+					"asked": "the complex number of the image B, in the form a + bi",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL1.13.geometric-interpretation"
+					]
+				},
+				{
+					"id": "describe-map",
+					"given": [
+						"a complex number w"
+					],
+					"asked": "the transformation z ↦ wz or z ↦ z + w, in words",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.geometric-interpretation"
+					]
+				},
+				{
+					"id": "euler-sum",
+					"given": [
+						"e^(iα) + e^(iβ), or 1 + e^(iθ), each a standard angle"
+					],
+					"asked": "the sum in the form re^(iθ) or r cis θ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.sums-in-euler-form"
+					]
+				},
+				{
+					"id": "euler-trig",
+					"given": [
+						"ke^(inθ) + ke^(−inθ) or a difference of the two"
+					],
+					"asked": "the expression as one term in cos nθ or i sin nθ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.sums-in-euler-form"
+					]
+				},
+				{
+					"id": "exact-trig",
+					"given": [
+						"two complex numbers in Cartesian form, one on a 30° or 60° line and one on a 45° line"
+					],
+					"asked": "the exact cosine or sine of the product's or quotient's argument",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL1.13.exact-trig-from-forms"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL1.13.convert-forms",
+					"method": "modulus-argument",
+					"suits": [
+						"to-polar"
+					],
+					"name": "Find r and θ, then write r cis θ or re^(iθ)",
+					"about": "For 1 − i: r = √2 and the point is in the fourth quadrant, so θ = −π/4 and 1 − i = √2 e^(−iπ/4)."
+				},
+				{
+					"skill": "AHL1.13.convert-forms",
+					"method": "sketch-and-read",
+					"suits": [
+						"to-polar",
+						"to-cartesian"
+					],
+					"name": "Sketch on the Argand diagram",
+					"about": "Points on an axis can be read straight off: −3 is 3 units at angle π, so −3 = 3e^(iπ)."
+				},
+				{
+					"skill": "AHL1.13.convert-forms",
+					"method": "expand-cis",
+					"suits": [
+						"to-cartesian"
+					],
+					"name": "Expand r(cos θ + i sin θ) with exact values",
+					"about": "4 cis(5π/6) = 4(−√3/2 + i/2) = −2√3 + 2i."
+				},
+				{
+					"skill": "AHL1.13.polar-products-quotients",
+					"method": "modulus-argument-rules",
+					"suits": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"name": "Multiply moduli and add arguments",
+					"about": "z₁/z₂ = (6/2) cis(π/3 − π/12) = 3 cis(π/4); for a product add the arguments instead."
+				},
+				{
+					"skill": "AHL1.13.polar-products-quotients",
+					"method": "euler-index-laws",
+					"suits": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"name": "Use index laws in Euler form",
+					"about": "2e^(iπ/4) × 3e^(−iπ/2) = 6e^(−iπ/4) = 3√2 − 3√2 i."
+				},
+				{
+					"skill": "AHL1.13.polar-products-quotients",
+					"method": "argument-adjust",
+					"suits": [
+						"polar-product"
+					],
+					"name": "Bring the argument back into the principal range",
+					"about": "2 × 2π/3 = 4π/3 is outside (−π, π], so subtract 2π to give −2π/3."
+				},
+				{
+					"skill": "AHL1.13.geometric-interpretation",
+					"method": "rotation-enlargement",
+					"suits": [
+						"rotate-point",
+						"describe-map"
+					],
+					"name": "Read the multiplier as a rotation and enlargement",
+					"about": "2i = 2e^(iπ/2), so z ↦ 2iz is a rotation by π/2 anticlockwise about 0 and an enlargement with scale factor 2."
+				},
+				{
+					"skill": "AHL1.13.geometric-interpretation",
+					"method": "parallelogram",
+					"suits": [
+						"describe-map"
+					],
+					"name": "Use the parallelogram for sums",
+					"about": "z₁ + z₂ is the diagonal of the parallelogram on z₁ and z₂ from the origin."
+				},
+				{
+					"skill": "AHL1.13.sums-in-euler-form",
+					"method": "half-angle-factor",
+					"suits": [
+						"euler-sum"
+					],
+					"name": "Factor out the half-angle",
+					"about": "1 + e^(iθ) = e^(iθ/2)(e^(−iθ/2) + e^(iθ/2)) = 2 cos(θ/2) e^(iθ/2), so the modulus is 2 cos(θ/2) and the argument θ/2."
+				},
+				{
+					"skill": "AHL1.13.sums-in-euler-form",
+					"method": "to-cartesian",
+					"suits": [
+						"euler-sum",
+						"euler-trig"
+					],
+					"name": "Convert to Cartesian and use trig identities",
+					"about": "1 + cos θ + i sin θ; use 1 + cos θ = 2cos²(θ/2) and sin θ = 2 sin(θ/2) cos(θ/2) to reach the same result."
+				},
+				{
+					"skill": "AHL1.13.sums-in-euler-form",
+					"method": "rhombus",
+					"suits": [
+						"euler-sum"
+					],
+					"name": "Use the rhombus on the Argand diagram",
+					"about": "1 and e^(iθ) both have modulus 1, so their sum is the diagonal of a rhombus, which bisects the angle θ."
+				},
+				{
+					"skill": "AHL1.13.exact-trig-from-forms",
+					"method": "compare-forms",
+					"suits": [
+						"exact-trig"
+					],
+					"name": "Equate real parts of the two forms",
+					"about": "(1 + √3 i)(1 − i) = (1 + √3) + (√3 − 1)i and also 2√2 cis(π/12), so cos(π/12) = (1 + √3)/(2√2) = (√6 + √2)/4."
+				},
+				{
+					"skill": "AHL1.13.exact-trig-from-forms",
+					"method": "compound-angle",
+					"suits": [
+						"exact-trig"
+					],
+					"name": "Check with a compound-angle identity",
+					"about": "cos(π/3 − π/4) = cos(π/3)cos(π/4) + sin(π/3)sin(π/4) gives the same (√6 + √2)/4."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Multiplying a complex number by i turns its point a quarter turn anticlockwise about 0.",
+					"answer": "True: i has modulus 1 and argument π/2, so it keeps every distance from 0 and adds π/2 to every argument.",
+					"level": 2
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The modulus of e^(iα) + e^(iβ) is 2.",
+					"answer": "Sometimes: only when α = β. The modulus is 2|cos((α − β)/2)|, which is less than 2 otherwise.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict the argument of z₁z₂ before working it out when arg z₁ = 3π/4 and arg z₂ = π/2, then check that it lies in −π < θ ≤ π.",
+					"answer": "3π/4 + π/2 = 5π/4 is too big, so the argument is 5π/4 − 2π = −3π/4.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL1.13.convert-forms#0",
+					"text": "Taking the argument straight from arctan of the imaginary part over the real part, without checking the quadrant",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "arctan(b/a) for a point in the second or third quadrant, or 0 for a negative real"
+				},
+				{
+					"ref": "AHL1.13.convert-forms#1",
+					"text": "Adding the sizes of the two parts for the modulus instead of taking the square root of the sum of their squares",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "|a| + |b| for the modulus"
+				},
+				{
+					"ref": "AHL1.13.convert-forms#2",
+					"text": "Writing a negative real number with a negative modulus and argument 0, instead of a positive modulus and argument π",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "−r e^(0) for the negative real −r"
+				},
+				{
+					"ref": "AHL1.13.polar-products-quotients#0",
+					"text": "Multiplying the arguments instead of adding them",
+					"as": "distractor",
+					"in": [
+						"polar-product"
+					],
+					"wrong": "the product of the arguments, a multiple of π²"
+				},
+				{
+					"ref": "AHL1.13.polar-products-quotients#1",
+					"text": "Adding the moduli instead of multiplying them",
+					"as": "distractor",
+					"in": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"wrong": "r₁ + r₂ for the modulus"
+				},
+				{
+					"ref": "AHL1.13.polar-products-quotients#2",
+					"text": "Dividing the arguments for a quotient instead of subtracting them",
+					"as": "distractor",
+					"in": [
+						"polar-product"
+					],
+					"wrong": "θ₁ ÷ θ₂ for the argument, a plain number"
+				},
+				{
+					"ref": "AHL1.13.geometric-interpretation#0",
+					"text": "Turning clockwise for a positive argument instead of anticlockwise",
+					"as": "distractor",
+					"in": [
+						"rotate-point",
+						"describe-map"
+					],
+					"wrong": "the turn the other way"
+				},
+				{
+					"ref": "AHL1.13.geometric-interpretation#1",
+					"text": "Describing multiplication by a number whose modulus is not 1 as a rotation only, forgetting the enlargement",
+					"as": "distractor",
+					"in": [
+						"rotate-point",
+						"describe-map"
+					],
+					"wrong": "the rotation with no enlargement"
+				},
+				{
+					"ref": "AHL1.13.geometric-interpretation#2",
+					"text": "Thinking that adding a complex number rotates the point, rather than translating it by that number's vector",
+					"as": "distractor",
+					"in": [
+						"describe-map"
+					],
+					"wrong": "a rotation through arg w for z ↦ z + w"
+				},
+				{
+					"ref": "AHL1.13.sums-in-euler-form#0",
+					"text": "Adding the moduli, so a sum of two numbers of modulus 1 is given modulus 2 whatever their arguments",
+					"as": "distractor",
+					"in": [
+						"euler-sum"
+					],
+					"wrong": "modulus 2"
+				},
+				{
+					"ref": "AHL1.13.sums-in-euler-form#1",
+					"text": "Adding the exponents, as if e^(iα) + e^(iβ) were e^(i(α + β))",
+					"as": "distractor",
+					"in": [
+						"euler-sum"
+					],
+					"wrong": "e^(i(α + β))"
+				},
+				{
+					"ref": "AHL1.13.sums-in-euler-form#2",
+					"text": "Writing e^(iθ) − e^(−iθ) as 2 sin θ, losing the i",
+					"as": "distractor",
+					"in": [
+						"euler-trig"
+					],
+					"wrong": "2k sin nθ with no i"
+				},
+				{
+					"ref": "AHL1.13.exact-trig-from-forms#0",
+					"text": "Dividing by the modulus of only one of the two numbers, so the value found is too big",
+					"as": "distractor",
+					"in": [
+						"exact-trig"
+					],
+					"wrong": "the part divided by 2 alone"
+				},
+				{
+					"ref": "AHL1.13.exact-trig-from-forms#1",
+					"text": "Subtracting the arguments for a product instead of adding them",
+					"as": "distractor",
+					"in": [
+						"exact-trig"
+					],
+					"wrong": "the value at the difference of the arguments"
+				},
+				{
+					"text": "Using arctan of the real part over the imaginary part, the angle from the imaginary axis",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "π/2 − α in place of α"
+				},
+				{
+					"text": "Giving the argument the wrong sign, measured the other way from the positive real axis",
+					"as": "distractor",
+					"in": [
+						"to-polar"
+					],
+					"wrong": "−θ"
+				},
+				{
+					"text": "Swapping cos and sin, so the real and imaginary parts change places",
+					"as": "distractor",
+					"in": [
+						"to-cartesian",
+						"product-cartesian"
+					],
+					"wrong": "b + ai"
+				},
+				{
+					"text": "Using the cosine and sine of the reference angle without the quadrant's signs",
+					"as": "distractor",
+					"in": [
+						"to-cartesian"
+					],
+					"wrong": "|a| + |b|i"
+				},
+				{
+					"text": "Leaving the argument outside −π < θ ≤ π",
+					"as": "distractor",
+					"in": [
+						"polar-product"
+					],
+					"wrong": "θ₁ + θ₂ with no 2π taken away or added"
+				},
+				{
+					"text": "Subtracting the arguments the wrong way round for a quotient",
+					"as": "distractor",
+					"in": [
+						"polar-product",
+						"product-cartesian"
+					],
+					"wrong": "θ₂ − θ₁"
+				},
+				{
+					"text": "Doubling the modulus for a square instead of squaring it",
+					"as": "distractor",
+					"in": [
+						"polar-product"
+					],
+					"wrong": "2r for |z²|"
+				},
+				{
+					"text": "Taking half the difference of the arguments for the argument of the sum, instead of half their sum",
+					"as": "distractor",
+					"in": [
+						"euler-sum"
+					],
+					"wrong": "(α − β)/2"
+				},
+				{
+					"text": "Losing the 2 when the two exponentials are added",
+					"as": "distractor",
+					"in": [
+						"euler-trig"
+					],
+					"wrong": "k cos nθ, or ki sin nθ"
+				},
+				{
+					"text": "Subtracting the exponentials the other way round, so the sign of the sine is lost",
+					"as": "distractor",
+					"in": [
+						"euler-trig"
+					],
+					"wrong": "2ki sin nθ for e^(−inθ) − e^(inθ)"
+				},
+				{
+					"text": "Equating the imaginary parts for a cosine, or the real parts for a sine",
+					"as": "distractor",
+					"in": [
+						"exact-trig"
+					],
+					"wrong": "the other part over the modulus"
+				},
+				{
+					"text": "Translating by the vector of −w instead of w",
+					"as": "distractor",
+					"in": [
+						"describe-map"
+					],
+					"wrong": "the vector (−a, −b)"
+				}
+			],
+			"chain": [
+				"a complex number in Cartesian form, in modulus-argument form or in Euler form, or a point on an Argand diagram",
+				"its modulus and argument, with the quadrant checked, or its real and imaginary parts from exact cosines and sines",
+				"a product, quotient or square with the moduli multiplied and the arguments added, then brought into −π < θ ≤ π",
+				"the multiplier read as a rotation and an enlargement about 0, or a sum read as a translation",
+				"a sum of exponentials written as one number, or one number in two forms giving an exact cosine or sine"
+			],
+			"frequency": 0
 		}
 	]
 }
