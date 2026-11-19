@@ -38,6 +38,26 @@ const R_PARENT_QUADRANTS := "SL2.8.reciprocal#2"
 const R_VECTOR_SIGN := "SL2.8.transformed-reciprocal#0"
 const R_NO_STRETCH := "SL2.8.transformed-reciprocal#1"
 const R_SPLIT_WRONG := "SL2.8.transformed-reciprocal#2"
+# The slips of the old generic options (FAL-1149), each confirmed by tools/check_answers.py.
+const R_VA_NUMERATOR := "fn-rational-asymptotes-intercepts#9"
+const R_XINT_DENOMINATOR := "fn-rational-asymptotes-intercepts#10"
+const R_XINT_NO_DIVIDE := "fn-rational-asymptotes-intercepts#11"
+const R_YINT_NO_DIVIDE := "fn-rational-asymptotes-intercepts#12"
+const R_YINT_HA := "fn-rational-asymptotes-intercepts#13"
+const R_K_SIGN := "fn-rational-asymptotes-intercepts#14"
+const R_B_AS_STRETCH := "fn-rational-asymptotes-intercepts#15"
+const R_DOMAIN_ALL := "fn-rational-asymptotes-intercepts#16"
+const R_TWO_ROOTS := "fn-rational-sketch#12"
+const R_K_IS_H := "fn-rational-sketch#13"
+const R_K_IS_ZERO := "fn-rational-sketch#14"
+const R_INVERSE_NEGATIVE := "fn-rational-sketch#15"
+const R_INVERSE_DIVIDE := "fn-rational-sketch#16"
+const R_A_NOT_DIVIDED := "fn-ext-transformed-reciprocal#3"
+const R_SHIFTS_SWAPPED := "fn-ext-transformed-reciprocal#4"
+const R_TRANSLATE_FIRST := "fn-ext-transformed-reciprocal#5"
+const R_COMBINE_NO_AH := "fn-ext-transformed-reciprocal#6"
+const R_COMBINE_SIGN := "fn-ext-transformed-reciprocal#7"
+const R_COMBINE_ADD := "fn-ext-transformed-reciprocal#8"
 
 
 func needs() -> Dictionary:
@@ -120,6 +140,25 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 
 # ── Helpers ──────────────────────────────────────────────────
 
+## LogFunctionViews.choice's untagged options, read whichever name it gives them, as fillers.
+static func _choice(right: String, wrongs: Array, fill: Array) -> Dictionary:
+	var out := LogFunctionViews.choice(right, wrongs, fill)
+	out.fillers = out.get("fillers", []) + out.get("generic", [])
+	out.erase("generic")
+	return out
+
+
+## Only the first three slips show. When b is odd, the fourth takes the third's place, so
+## every slip of a view with four is offered on some questions (no rng: the draws don't move).
+static func _rotated(wrongs: Array, s: Dictionary) -> Array:
+	if wrongs.size() < 4 or absi(int(s.b)) % 2 == 0:
+		return wrongs
+	var out := wrongs.duplicate()
+	out[2] = wrongs[3]
+	out[3] = wrongs[2]
+	return out
+
+
 static func p2(s: Dictionary) -> bool:
 	return s.get("paper", 1) == 2
 
@@ -194,8 +233,8 @@ func u_va_from_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var solved := "x = %s" % work(h, pp)
 	return {
 		"asked": "Write down the equation of the vertical asymptote of the graph of y = f(x).", "lines": [fx(s)], "answer": ans,
-		"wrongs": [wrong(_axis("x", h.neg()), R_VA_SIGN), wrong(_axis("y", h), R_SWAP), wrong(_axis("", h), R_NUMBER)],
-		"generic": [_axis("x", s.xi), _axis("x", s.A)],
+		"wrongs": _rotated([wrong(_axis("x", h.neg()), R_VA_SIGN), wrong(_axis("y", h), R_SWAP), wrong(_axis("", h), R_NUMBER),
+			wrong(_axis("x", s.xi), R_VA_NUMERATOR), wrong(_axis("x", s.A), R_SWAP)], s),
 		"methods": {
 			"zero-denominator-and-ratio": method(["The vertical asymptote is where the denominator is zero.", "%s = 0, so %s." % [d, solved], fin], ans.values),
 			"divide-out": method(["Divide out: %s." % split_text(s), "The fraction is undefined where its denominator is zero: %s = 0, so %s." % [d, solved], fin], ans.values),
@@ -213,8 +252,8 @@ func u_ha_from_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var far := "f(1000) = %s and f(−1000) = %s" % [at(s, 1000.0), at(s, -1000.0)]
 	return {
 		"asked": "Write down the equation of the horizontal asymptote of the graph of y = f(x).", "lines": [fx(s)], "answer": ans,
-		"wrongs": [wrong(_axis("y", Q.new(s.b, s.d)), R_HA_RATIO), wrong(_axis("x", A), R_SWAP), wrong(_axis("", A), R_NUMBER)],
-		"generic": [_axis("y", s.h), _axis("y", s.B)],
+		"wrongs": [wrong(_axis("y", Q.new(s.b, s.d)), R_HA_RATIO), wrong(_axis("x", A), R_SWAP), wrong(_axis("", A), R_NUMBER), wrong(_axis("y", s.h), R_SWAP)],
+		"fillers": [_axis("y", s.B)],
 		"methods": {
 			"zero-denominator-and-ratio": method(["The horizontal asymptote is the ratio of the x-coefficients.", ratio, fin], ans.values),
 			"divide-out": method(["Divide out: %s." % split_text(s), "The fraction tends to 0 for large x, so f(x) tends to %s." % work(A, pp), fin], ans.values),
@@ -237,6 +276,7 @@ func u_asymptotes_with_letters(_rep: String, s: Dictionary, rng: Seeded) -> Dict
 	var wrong_va: String
 	var why_va: String
 	var why_ha: String
+	var ha_neg: String
 	var ratio := func(n: Variant, letter: String) -> String:
 		var q := Q.of(n)
 		return "%s/%s" % [q.text(), letter] if not q.eq(1) else "1/" + letter
@@ -249,6 +289,7 @@ func u_asymptotes_with_letters(_rep: String, s: Dictionary, rng: Seeded) -> Dict
 		wrong_ha = "y = " + Fmt.num(Q.new(s.b, s.d))
 		swapped = "x = %s and y = %s" % [ratio.call(s.a, "k"), ratio.call(-s.d, "k")]
 		why_va = "kx + d = 0, so x = −d/k = %s" % ratio.call(-s.d, "k")
+		ha_neg = "y = " + ratio.call(-s.a, "k")
 		why_ha = "y = a/c = %s" % ratio.call(s.a, "k")
 	else:
 		# f(x) = (kx + b)/(cx + d): x = −d/c, y = k/c
@@ -260,6 +301,7 @@ func u_asymptotes_with_letters(_rep: String, s: Dictionary, rng: Seeded) -> Dict
 		wrong_ha = "y = " + Fmt.num(Q.new(s.b, s.d))
 		swapped = "x = %s and y = %s" % [("k" if s.c == 1 else "k/%d" % s.c), Fmt.num(s.h)]
 		why_va = "%s = 0, so x = %s" % [cx, Fmt.num(s.h)]
+		ha_neg = "y = −k" if s.c == 1 else "y = −k/%d" % s.c
 		why_ha = ha
 	var right := "%s and %s" % [va, ha]
 	var wrongs := [
@@ -267,7 +309,9 @@ func u_asymptotes_with_letters(_rep: String, s: Dictionary, rng: Seeded) -> Dict
 		{"values": {"v": "%s and %s" % [va, wrong_ha]}, "ref": R_HA_RATIO},
 		{"values": {"v": swapped}, "ref": R_SWAP},
 	]
-	var out := LogFunctionViews.choice(right, wrongs, ["%s and %s" % [ha, va]])
+	# The filler is the horizontal asymptote with its sign flipped. (The answer written the
+	# other way round, "y = … and x = …", was the old filler: it is the answer, not a wrong one.)
+	var out := _choice(right, wrongs, ["%s and %s" % [va, ha_neg]])
 	var fin := "So the asymptotes are %s." % right
 	var letters := "k"
 	out.merge({
@@ -294,8 +338,8 @@ func u_x_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var solved := "x = %s" % work(xi, pp)
 	return {
 		"asked": "Find the x-intercept of the graph of y = f(x).", "lines": [fx(s)], "answer": ans,
-		"wrongs": [wrong({"x": s.yi}, R_ZERO_YINT), wrong({"x": Q.new(s.b, s.a)}, R_ZERO_SIGN)],
-		"generic": [{"x": s.h}, {"x": Q.new(-s.b)}],
+		"wrongs": [wrong({"x": s.yi}, R_ZERO_YINT), wrong({"x": Q.new(s.b, s.a)}, R_ZERO_SIGN), wrong({"x": s.h}, R_XINT_DENOMINATOR),
+			wrong({"x": Q.new(-s.b)}, R_XINT_NO_DIVIDE)],
 		"methods": {
 			"set-equal-zero": method(["The graph crosses the x-axis where f(x) = 0, that is where the numerator is zero.", "%s = 0, so %s." % [n, solved], fin], ans.values),
 			"gdc-zero": method(["Graph y = f(x) on the GDC and use its zero finder.", "It gives %s." % solved, fin], ans.values),
@@ -315,8 +359,8 @@ func u_y_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sub := "f(0) = " + Fmt.equals("%s/%s" % [Fmt.num(s.b), Fmt.num(s.d)], work(yi, pp))
 	return {
 		"asked": "Find the y-intercept of the graph of y = f(x).", "lines": [fx(s)], "answer": ans,
-		"wrongs": [wrong({"y": s.xi}, R_ZERO_YINT)],
-		"generic": [{"y": Q.new(s.b)}, {"y": s.A}, {"y": s.yi.neg()}],
+		"wrongs": [wrong({"y": s.xi}, R_ZERO_YINT), wrong({"y": Q.new(s.b)}, R_YINT_NO_DIVIDE), wrong({"y": s.A}, R_YINT_HA)],
+		"fillers": [{"y": s.yi.neg()}],
 		"methods": {
 			"set-equal-zero": method(["The graph crosses the y-axis where x = 0.", "Put x = 0: %s." % sub, fin], ans.values),
 		},
@@ -335,7 +379,7 @@ func u_features_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		{"values": {"v": features_text(s.h, s.A, s.yi, s.xi)}, "ref": R_ZERO_YINT},
 		{"values": {"v": features_text(s.h.neg(), s.A, s.xi, s.yi)}, "ref": R_VA_SIGN},
 	]
-	var out := LogFunctionViews.choice(right, wrongs, [features_text(s.h, s.A.neg(), s.xi, s.yi), features_text(s.h, s.A, s.xi.neg(), s.yi), features_text(s.h, s.A, s.xi, s.yi.add(Q.new(1)))])
+	var out := _choice(right, wrongs, [features_text(s.h, s.A.neg(), s.xi, s.yi), features_text(s.h, s.A, s.xi.neg(), s.yi), features_text(s.h, s.A, s.xi, s.yi.add(Q.new(1)))])
 	var t := RationalCards.triple_of(s)
 	var fin := "So the graph shows %s." % right
 	out.merge({
@@ -355,7 +399,7 @@ func u_asymptotes_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		{"values": {"v": "x = %s and y = %s" % [Fmt.num(A), Fmt.num(h)]}, "ref": R_SWAP},
 		{"values": {"v": "x = %s and y = %s" % [Fmt.num(h.neg()), Fmt.num(A)]}, "ref": R_VA_SIGN},
 	]
-	var out := LogFunctionViews.choice(right, wrongs, ["x = 0 and y = %s" % Fmt.num(A), "x = %s and y = %s" % [Fmt.num(h), Fmt.num(A.add(Q.new(1)))]])
+	var out := _choice(right, wrongs, ["x = 0 and y = %s" % Fmt.num(A), "x = %s and y = %s" % [Fmt.num(h), Fmt.num(A.add(Q.new(1)))]])
 	var xs: Array = [Q.new(10 * h.n - 1, 10), Q.new(100 * h.n - 1, 100), Q.new(100 * h.n + 1, 100), Q.new(10 * h.n + 1, 10), Q.new(-1000), Q.new(1000)]
 	var xt: Array = []
 	var yt: Array = []
@@ -394,7 +438,7 @@ func u_constants_from_asymptotes(rep: String, s: Dictionary, _rng: Seeded) -> Di
 	var lines: Array = [shown]
 	var out := {"answer": ans, "wrongs": [
 		wrong({"v0": A, "v1": h}, R_VA_SIGN), wrong({"v0": h, "v1": A.neg()}, R_SWAP)],
-		"generic": [{"v0": A, "v1": Q.new(s.d * 2)}, {"v0": Q.new(s.b), "v1": Q.new(s.d)}]}
+		"fillers": [{"v0": A, "v1": Q.new(s.d * 2)}, {"v0": Q.new(s.b), "v1": Q.new(s.d)}]}
 	match rep:
 		"equation":
 			lines.append("The graph of f has the vertical asymptote x = %s and the horizontal asymptote y = %s." % [Fmt.num(h), Fmt.num(A)])
@@ -442,7 +486,7 @@ func u_constant_from_intercept(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 	var fin := "So " + Answer.text(ans) + "."
 	return {
 		"asked": "Find the value of k.", "lines": lines, "answer": ans,
-		"wrongs": [wrong({"v": wrong_k}, R_ZERO_YINT)], "generic": [{"v": k.neg()}, {"v": k.add(Q.new(1))}],
+		"wrongs": [wrong({"v": wrong_k}, R_ZERO_YINT), wrong({"v": k.neg()}, R_K_SIGN)], "fillers": [{"v": k.add(Q.new(1))}],
 		"given": {"by": "y" if by_y else "x"},
 		"methods": {"set-equal-zero": method([step_given, step_solve, fin], ans.values)},
 	}
@@ -475,12 +519,13 @@ func u_equation_from_features(rep: String, s: Dictionary, rng: Seeded) -> Dictio
 	var by_y := rng.chance(0.5)
 	var right := eq_text(s.a, s.b, s.d)
 	var flipped_b: Q = A.mul(h).neg().sub(B)
-	var wrongs := wrong_eqs([[s.a, s.b, -s.d, R_VA_SIGN], [s.a, B, s.d, ""], [s.a, flipped_b, s.d, ""]], eq_text)
+	var wrongs := wrong_eqs([[s.a, s.b, -s.d, R_VA_SIGN], [s.a, B, s.d, R_B_AS_STRETCH]], eq_text)
+	# flipped_b is two slips at once (B's sign and the −Ah), so it is a filler.
 	var generic: Array = []
-	for g in [[-s.a, s.b, s.d], [s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
+	for g in [[s.a, flipped_b, s.d], [-s.a, s.b, s.d], [s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
 		if eq_ok(g[0], g[1], g[2]):
 			generic.append(eq_text(g[0], g[1], g[2]))
-	var out := LogFunctionViews.choice(right, wrongs, generic)
+	var out := _choice(right, wrongs, generic)
 	var given_pt := Fmt.point(0, s.yi) if by_y else Fmt.point(s.xi, 0)
 	var feat := "vertical asymptote x = %s, horizontal asymptote y = %s, and it crosses the %s-axis at %s" % [Fmt.num(h), Fmt.num(A), "y" if by_y else "x", given_pt]
 	var lines: Array = []
@@ -513,8 +558,10 @@ func u_range_from_asymptote(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var wrongs := [
 		{"values": {"v": "domain x ≠ %s, range x ≠ %s" % [h, A]}, "ref": R_RANGE_X},
 		{"values": {"v": "domain x ≠ %s, range all real y" % h}, "ref": R_RANGE_INCL},
+		{"values": {"v": "domain x ≠ %s, range y ≠ %s" % [A, h]}, "ref": R_SWAP},
+		{"values": {"v": "domain all real x, range y ≠ %s" % A}, "ref": R_DOMAIN_ALL},
 	]
-	var out := LogFunctionViews.choice(right, wrongs, ["domain x ≠ %s, range y ≠ %s" % [A, h], "domain all real x, range y ≠ %s" % A])
+	var out := _choice(right, wrongs, [])
 	var fin := "So the %s." % right
 	var lines: Array = [fx(s)] if rep == "equation" else ["The graph of y = f(x) is shown, with its asymptotes dashed."]
 	out.merge({
@@ -663,7 +710,7 @@ func u_branch_corners(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var right := corners(s, px, py)
 	var other := "top left and bottom right" if right == "top right and bottom left" else "top right and bottom left"
 	var wrongs := [{"values": {"v": other}, "ref": R_CORNERS}]
-	var out := LogFunctionViews.choice(right, wrongs, ["top left and top right", "bottom left and bottom right"])
+	var out := _choice(right, wrongs, ["top left and top right", "bottom left and bottom right"])
 	var side := "right of" if not px.lt(s.h) else "left of"
 	var vert := "above" if s.A.lt(py) else "below"
 	var fin := "So the branches are in the %s corners." % right
@@ -687,13 +734,16 @@ static func eq_of(A: float, B: float, h: float) -> String:
 func u_equation_from_sketch(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var t := RationalCards.triple_of(s)
 	var right := eq_of(t[0], t[1], t[2])
-	var names := ["flipped", "zero-at-h", "mirrored"]
-	var refs := {"flipped": R_CORNERS, "zero-at-h": R_ZERO_AT_H, "mirrored": ""}
+	var names := ["flipped", "zero-at-h"]
+	var refs := {"flipped": R_CORNERS, "zero-at-h": R_ZERO_AT_H}
 	var wrongs: Array = []
 	for mk in names:
 		var wt := RationalCards.wrong_triple(t, mk)
 		wrongs.append({"values": {"v": eq_of(wt[0], wt[1], wt[2])}, "ref": refs[mk]})
-	var out := LogFunctionViews.choice(right, wrongs, [eq_of(t[0], t[1], t[2] + 1.0)])
+	# The mirrored card's equation moves the asymptote and keeps B, so its b changes too: no
+	# single slip gives it, and it is a filler.
+	var mt := RationalCards.wrong_triple(t, "mirrored")
+	var out := _choice(right, wrongs, [eq_of(mt[0], mt[1], mt[2]), eq_of(t[0], t[1], t[2] + 1.0)])
 	var fin := "So the equation is %s." % right
 	var res: Dictionary = out.answer.values
 	var by_y := rng.chance(0.5)
@@ -751,7 +801,7 @@ func u_inequality_from_sketch(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	]
 	if pieces.size() == 2:
 		wrongs.append({"values": {"v": pieces[1]}, "ref": R_INEQ_ONE})
-	var out := LogFunctionViews.choice(right, wrongs, ["x ≠ %s" % Fmt.num(s.h), "x > %s" % Fmt.num(lo), "x < %s" % Fmt.num(hi)])
+	var out := _choice(right, wrongs, ["x ≠ %s" % Fmt.num(s.h), "x > %s" % Fmt.num(lo), "x < %s" % Fmt.num(hi)])
 	var kt := Fmt.num(k)
 	var what := "f(x) %s %s" % [rel, kt]
 	var fin := "So the solution is %s." % right
@@ -797,7 +847,7 @@ func u_count_with_horizontal(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	steps.append(fin)
 	return {
 		"asked": "The graph of y = f(x) is shown with the line y = %s. How many solutions does f(x) = %s have?" % [Fmt.num(k), Fmt.num(k)],
-		"lines": ["The graph of y = f(x) and the line y = %s are shown." % Fmt.num(k)], "answer": ans, "wrongs": wrongs, "generic": generic,
+		"lines": ["The graph of y = f(x) and the line y = %s are shown." % Fmt.num(k)], "answer": ans, "wrongs": wrongs, "fillers": generic,
 		"graph": RationalCards.plot(RationalCards.triple_of(s), [], true, [[k.to_float(), "y = " + Fmt.num(k)]]) if not s.hequal else RationalCards.plot(RationalCards.triple_of(s), [], false, [[k.to_float(), "y = " + Fmt.num(k)]]),
 		"methods": {"horizontal-line-sweep": method(steps, ans.values)},
 	}
@@ -812,8 +862,9 @@ static func _count_ans(n: int) -> Dictionary:
 func u_k_for_no_solution(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var A := Fmt.num(s.A)
 	var right := "k = " + A
-	var wrongs := [{"values": {"v": "no value of k: every horizontal line meets the graph, even y = %s" % A}, "ref": R_ASYMPTOTE_SOLVES}]
-	var out := LogFunctionViews.choice(right, wrongs, ["k = " + Fmt.num(s.h), "k = " + Fmt.num(s.yi), "k = " + Fmt.num(s.xi), "k = " + Fmt.num(s.A.neg()), "k = 0", "k = " + Fmt.num(s.A.add(Q.new(1)))])
+	var wrongs := [{"values": {"v": "no value of k: every horizontal line meets the graph, even y = %s" % A}, "ref": R_ASYMPTOTE_SOLVES},
+		{"values": {"v": "k = " + Fmt.num(s.h)}, "ref": R_K_IS_H}, {"values": {"v": "k = 0"}, "ref": R_K_IS_ZERO}]
+	var out := _choice(right, wrongs, ["k = " + Fmt.num(s.yi), "k = " + Fmt.num(s.xi), "k = " + Fmt.num(s.A.neg()), "k = " + Fmt.num(s.A.add(Q.new(1)))])
 	var fin := "So f(x) = k has no solution when %s." % right
 	var res: Dictionary = out.answer.values
 	var lines: Array = [fx(s)] if rep == "equation" else ["The graph of y = f(x) is shown, with its asymptotes dashed."]
@@ -856,7 +907,8 @@ func u_count_with_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		2:
 			generic = [{"v": Q.new(1)}, {"v": Q.new(0)}, {"v": Q.new(3)}]
 		_:
-			generic = [{"v": Q.new(1)}, {"v": Q.new(2)}, {"v": Q.new(3)}]
+			wrongs.append(wrong({"v": Q.new(2)}, R_TWO_ROOTS))
+			generic = [{"v": Q.new(1)}, {"v": Q.new(3)}]
 	var fin := "So " + Answer.text(ans) + "."
 	var verdict := "Δ > 0: two meeting points" if count == 2 else ("Δ = 0: the line touches the curve once, a tangent" if count == 1 else "Δ < 0: no meeting points")
 	var quad := "%s = 0" % Fmt.poly([qa, qb, qc])
@@ -875,7 +927,7 @@ func u_count_with_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	}
 	return {
 		"asked": "How many times does the line %s meet the graph of y = f(x)?" % line_text(m, n), "lines": lines, "answer": ans,
-		"wrongs": wrongs, "generic": generic, "graph": graph, "methods": methods,
+		"wrongs": wrongs, "fillers": generic, "graph": graph, "methods": methods,
 	}
 
 
@@ -908,7 +960,7 @@ func u_count_with_curve(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"Read the sketch: the curves meet %d time%s%s." % [s.count_all, "" if s.count_all == 1 else "s", ", and %d of them have %s" % [count, dom] if dom != "" else ""], fin]
 	return {
 		"asked": "How many times does the parabola %s meet the graph of y = f(x)%s?" % [curve, where], "lines": lines, "answer": ans,
-		"wrongs": wrongs, "generic": generic, "graph": graph,
+		"wrongs": wrongs, "fillers": generic, "graph": graph,
 		"methods": {"sketch-and-count": method(steps, ans.values)},
 	}
 
@@ -987,9 +1039,10 @@ func u_reciprocal_self_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var right := "f⁻¹(x) = %s, because swapping x and y gives the same equation" % kx
 	var wrongs := [
 		{"values": {"v": "f⁻¹(x) = %s, because (%s) × x = %d" % [kx, kx, k]}, "ref": R_SELF_PRODUCT},
-		{"values": {"v": "f⁻¹(x) = −%s, because the inverse has the opposite sign" % kx}, "ref": ""},
+		{"values": {"v": "f⁻¹(x) = −%s, because the inverse has the opposite sign" % kx}, "ref": R_INVERSE_NEGATIVE},
+		{"values": {"v": "f⁻¹(x) = x/%d, because dividing undoes multiplying" % k if k != 1 else "f⁻¹(x) = x, because dividing undoes multiplying"}, "ref": R_INVERSE_DIVIDE},
 	]
-	var out := LogFunctionViews.choice(right, wrongs, ["f⁻¹(x) = x/%d, because dividing undoes multiplying" % k if k != 1 else "f⁻¹(x) = x, because dividing undoes multiplying"])
+	var out := _choice(right, wrongs, [])
 	var fin := "So " + right + "."
 	var res: Dictionary = out.answer.values
 	var name := "f(x) = " + kx
@@ -1036,7 +1089,7 @@ func u_split_to_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"bad": 0, "ref": R_SPLIT_WRONG, "why": "%s = %s, so the constant is %s, not %s" % [num_(s), numerator_split(A, h, B), Fmt.num(B), Fmt.num(b)]}
 	return {
 		"asked": "Write f(x) in the form A + B/(x − h): find A and B.", "lines": [fx(s)], "answer": ans, "spot": spot,
-		"wrongs": [wrong({"v0": A, "v1": b}, R_SPLIT_WRONG)], "generic": [{"v0": A, "v1": B.neg()}, {"v0": B, "v1": A}],
+		"wrongs": [wrong({"v0": A, "v1": b}, R_SPLIT_WRONG)], "fillers": [{"v0": A, "v1": B.neg()}, {"v0": B, "v1": A}],
 		"methods": {
 			"split-numerator": method(["Write the numerator using the denominator: %s = %s." % [num_(s), numerator_split(A, h, B)], "So f(x) = %s." % form, fin], res),
 			"compare-coefficients": method(["Let (%s)/(%s) = A + B/(x − h) = (A(x − h) + B)/(x − h)." % [num_(s), den(s)],
@@ -1057,7 +1110,7 @@ func u_split_scaled(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b := Q.new(s.b)
 	return {
 		"asked": "Write f(x) in the form A + k/(%s): find A and k." % den(s), "lines": [fx(s)], "answer": ans,
-		"wrongs": [wrong({"v0": A, "v1": b}, R_SPLIT_WRONG)], "generic": [{"v0": A, "v1": k.neg()}, {"v0": Q.new(s.a), "v1": k}],
+		"wrongs": [wrong({"v0": A, "v1": b}, R_SPLIT_WRONG), wrong({"v0": Q.new(s.a), "v1": k}, R_A_NOT_DIVIDED)], "fillers": [{"v0": A, "v1": k.neg()}],
 		"methods": {
 			"split-numerator": method(["Write the numerator using the denominator: %s = %s(%s) %s." % [num_(s), Fmt.num(A), den(s), Fmt.plus(k).strip_edges()], "So f(x) = %s." % form, fin], res),
 			"compare-coefficients": method(["Let (%s)/(%s) = A + k/(%s) = (A(%s) + k)/(%s)." % [num_(s), den(s), den(s), den(s), den(s)],
@@ -1068,8 +1121,8 @@ func u_split_scaled(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 func u_translation_vector(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := vec_text(s.h, s.A)
-	var wrongs := [{"values": {"v": vec_text(s.h.neg(), s.A)}, "ref": R_VECTOR_SIGN}]
-	var out := LogFunctionViews.choice(right, wrongs, [vec_text(s.A, s.h), vec_text(s.h, s.A.neg()), vec_text(s.h.neg(), s.A.neg())])
+	var wrongs := [{"values": {"v": vec_text(s.h.neg(), s.A)}, "ref": R_VECTOR_SIGN}, {"values": {"v": vec_text(s.A, s.h)}, "ref": R_SHIFTS_SWAPPED}]
+	var out := _choice(right, wrongs, [vec_text(s.h, s.A.neg()), vec_text(s.h.neg(), s.A.neg())])
 	var form := RationalFunctionSituation.split(s.A, s.B, s.h)
 	var lines: Array = ["f(x) = " + form]
 	if rep == "words":
@@ -1090,8 +1143,10 @@ func u_transformation_sequence(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var wrongs := [
 		{"values": {"v": "translate %s only, with no stretch" % vec_text(s.h, s.A)}, "ref": R_NO_STRETCH},
 		{"values": {"v": stretch_text(s.B, s.h.neg(), s.A)}, "ref": R_VECTOR_SIGN},
+		{"values": {"v": "translate %s, then stretch by factor %s in the y-direction" % [vec_text(s.h, s.A), Fmt.num(s.B)]}, "ref": R_TRANSLATE_FIRST},
+		{"values": {"v": stretch_text(s.B, s.A, s.h)}, "ref": R_SHIFTS_SWAPPED},
 	]
-	var out := LogFunctionViews.choice(right, wrongs, ["translate %s, then stretch by factor %s in the y-direction" % [vec_text(s.h, s.A), Fmt.num(s.B)], stretch_text(s.B, s.A, s.h)])
+	var out := _choice(right, _rotated(wrongs, s), [])
 	var lines: Array = [fx(s)]
 	if rep == "words":
 		lines = ["f has the vertical asymptote x = %s and the horizontal asymptote y = %s, and its graph passes through %s." % [Fmt.num(s.h), Fmt.num(s.A), Fmt.point(0, s.yi)]]
@@ -1117,12 +1172,14 @@ func u_combine_to_single(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var B: Q = s.B
 	var h: Q = s.h
 	var right := single_text(s.a, s.b, s.d)
-	var wrongs := wrong_eqs([[s.a, B, s.d, ""], [s.a, B.sub(A.mul(h)), s.d, ""], [s.a, B.add(A.mul(h)), s.d, ""]], single_text)
-	var generic: Array = [RationalFunctionSituation._wrap(Fmt.num(A.add(B))) + "/(" + den(s) + ")"]
+	# B − Ah, the old second entry, is the answer's own constant, so it was never a wrong option.
+	var wrongs := wrong_eqs([[s.a, B, s.d, R_COMBINE_NO_AH], [s.a, B.add(A.mul(h)), s.d, R_COMBINE_SIGN]], single_text)
+	wrongs.append(wrong({"v": RationalFunctionSituation._wrap(Fmt.num(A.add(B))) + "/(" + den(s) + ")"}, R_COMBINE_ADD))
+	var generic: Array = []
 	for g in [[s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [-s.a, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
 		if eq_ok(g[0], g[1], g[2]):
 			generic.append(single_text(g[0], g[1], g[2]))
-	var out := LogFunctionViews.choice(right, wrongs, generic)
+	var out := _choice(right, wrongs, generic)
 	var form := RationalFunctionSituation.split(A, B, h)
 	var fin := "So f(x) = %s." % right
 	out.merge({
@@ -1146,8 +1203,9 @@ func u_form_from_graph(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	return {
 		"asked": "The graph of y = f(x) is shown, with its asymptotes dashed and one point marked. Write f in the form A + B/(x − h): find A, B and h.",
 		"lines": ["The graph of y = f(x) is shown."], "answer": ans, "given": {"px": px, "py": py},
-		"wrongs": [wrong({"v0": A, "v1": Q.new(1), "v2": h}, R_NO_STRETCH), wrong({"v0": A, "v1": B, "v2": h.neg()}, R_VECTOR_SIGN)],
-		"generic": [{"v0": A, "v1": B.neg(), "v2": h}, {"v0": h, "v1": B, "v2": A}],
+		"wrongs": [wrong({"v0": A, "v1": Q.new(1), "v2": h}, R_NO_STRETCH), wrong({"v0": A, "v1": B, "v2": h.neg()}, R_VECTOR_SIGN),
+			wrong({"v0": h, "v1": B, "v2": A}, R_SHIFTS_SWAPPED)],
+		"fillers": [{"v0": A, "v1": B.neg(), "v2": h}],
 		"graph": RationalCards.plot(RationalCards.triple_of(s), [[px.to_float(), py.to_float(), Fmt.point(px, py)]]),
 		"methods": {"read-asymptotes": method(["The dashed lines are x = %s and y = %s, so h = %s and A = %s." % [Fmt.num(h), Fmt.num(A), Fmt.num(h), Fmt.num(A)],
 			"The marked point %s is on f: %s = %s + B/(%s − %s), so B = %s." % [Fmt.point(px, py), Fmt.num(py), Fmt.num(A), Fmt.num(px), Fmt.paren(h), Fmt.num(B)], fin], ans.values)},
@@ -1159,12 +1217,13 @@ func u_form_from_words(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var B: Q = s.B
 	var h: Q = s.h
 	var right := single_text(s.a, s.b, s.d)
-	var wrongs := wrong_eqs([[s.a, Q.new(1).sub(A.mul(h)), s.d, R_NO_STRETCH], [s.a, B.add(A.mul(h)), s.d, R_VECTOR_SIGN]], single_text)
+	var wrongs := wrong_eqs([[s.a, Q.new(1).sub(A.mul(h)), s.d, R_NO_STRETCH], [s.a, B.add(A.mul(h)), s.d, R_VECTOR_SIGN], [s.a, B, s.d, R_COMBINE_NO_AH]], single_text)
+	# The denominator's sign flipped with the numerator kept is no single slip: a filler.
 	var generic: Array = []
-	for g in [[s.a, B, s.d], [s.a, B.sub(A.mul(h)), -s.d], [s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
+	for g in [[s.a, B.sub(A.mul(h)), -s.d], [s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
 		if eq_ok(g[0], g[1], g[2]):
 			generic.append(single_text(g[0], g[1], g[2]))
-	var out := LogFunctionViews.choice(right, wrongs, generic)
+	var out := _choice(right, wrongs, generic)
 	var fin := "So f(x) = %s." % right
 	var form := RationalFunctionSituation.split(A, B, h)
 	out.merge({
