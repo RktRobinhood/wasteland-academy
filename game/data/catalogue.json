@@ -7165,6 +7165,164 @@
 				"the answer and every slip offered read differently",
 				"every 3 s.f. value is clear of a rounding edge"
 			]
+		},
+		"rational-quadratic": {
+			"name": "A linear over a quadratic, (ax + b)/(x² + px + q), or a quadratic over a linear, (x² + bx + c)/(x + e) = mx + k + r/(x + e)",
+			"summary": "Pick the features first: the denominator's zeros, the numerator's zero, or the quotient mx + k and the remainder r. The rule is multiplied out from them, so every asymptote and intercept is whole or a simple fraction, and each slip gives its own value.",
+			"quantities": [
+				{
+					"name": "r₁, r₂",
+					"is": "the zeros of a quadratic denominator",
+					"pick": "whole, from −5 to 5, distinct; or a denominator x² + px + q with no real zeros"
+				},
+				{
+					"name": "a, b",
+					"is": "the linear numerator ax + b",
+					"pick": "a from 1 to 4, b so the numerator's zero is not a zero of the denominator"
+				},
+				{
+					"name": "e; m, k, r",
+					"is": "the linear denominator x + e, the quotient mx + k and the remainder r",
+					"pick": "e from −5 to 5 and not 0, m from 1 to 3, k from −6 to 6, r not 0"
+				},
+				{
+					"name": "turning values",
+					"is": "the local maximum and minimum values",
+					"pick": "worked out: k + m(−e) ± 2√(mr) for a quadratic over a linear with mr > 0"
+				}
+			],
+			"modes": [
+				{
+					"id": "exact",
+					"when": "Paper 1",
+					"how": "whole or simple-fraction features, the turning values exact"
+				},
+				{
+					"id": "gdc",
+					"when": "Paper 2, the GDC methods",
+					"how": "the same features, turning values to 3 s.f. from the GDC"
+				}
+			],
+			"clean": [
+				"no common factor of the numerator and denominator",
+				"every feature on the plotting window",
+				"the answer and every slip offered read differently"
+			]
+		},
+		"odd-even": {
+			"name": "A function built from odd and even pieces: powers, sin, cos, e^x and e^(−x), or a graph drawn on one side of the y-axis",
+			"summary": "Pick the pieces and whether the function is odd, even or neither; build f from them so f(−x) simplifies to f(x), −f(x) or neither, and a neither function has a counterexample with whole values.",
+			"quantities": [
+				{
+					"name": "pieces",
+					"is": "the terms of f, each odd or even",
+					"pick": "powers x to x⁵, sin x, cos x, e^x ± e^(−x), with whole coefficients"
+				},
+				{
+					"name": "kind",
+					"is": "odd, even or neither",
+					"pick": "at random, a neither function mixing one odd and one even piece"
+				},
+				{
+					"name": "a, f(a)",
+					"is": "a value for the symmetry",
+					"pick": "whole, from 1 to 6"
+				},
+				{
+					"name": "half graph",
+					"is": "key points of f for x ≥ 0",
+					"pick": "whole points on a grid"
+				}
+			],
+			"modes": [
+				{
+					"id": "exact",
+					"when": "every question",
+					"how": "whole numbers and exact integrals"
+				}
+			],
+			"clean": [
+				"a neither function is not odd or even by accident",
+				"the answer and every slip offered read differently"
+			]
+		},
+		"inverse-restricted": {
+			"name": "A function that needs a restricted domain for an inverse: a(x − h)² + k, √(a(x − h)² + k), cos(x − p), or (ax + b)/(x + d)",
+			"summary": "Pick the vertex (h, k), the side of it, the phase shift p or the constants first. The domain boundary, the branch of the root and the range of f follow, so the inverse and its domain are exact.",
+			"quantities": [
+				{
+					"name": "h, k",
+					"is": "the vertex of the quadratic",
+					"pick": "whole, from −5 to 5"
+				},
+				{
+					"name": "side",
+					"is": "x ≥ h or x ≤ h",
+					"pick": "at random"
+				},
+				{
+					"name": "p",
+					"is": "the phase shift of the cosine",
+					"pick": "a multiple of π/6 or π/4 from −π to π"
+				},
+				{
+					"name": "a, b, d",
+					"is": "the constants of (ax + b)/(x + d)",
+					"pick": "whole, from −6 to 6, with ad ≠ b so the rule is not a constant"
+				}
+			],
+			"modes": [
+				{
+					"id": "exact",
+					"when": "Paper 1",
+					"how": "exact values throughout"
+				},
+				{
+					"id": "gdc",
+					"when": "Paper 2, the GDC methods",
+					"how": "meeting points from the GDC's intersect tool"
+				}
+			],
+			"clean": [
+				"the meeting points have whole or simple fraction coordinates",
+				"the answer and every slip offered read differently"
+			]
+		},
+		"ai-composite-inverse": {
+			"name": "Two models in a story chained as a composite, and a model undone by its inverse",
+			"summary": "Pick the story and the two models, with decimal coefficients a GDC handles; the inner model's output lands in the outer model's domain, and the inverse undoes the model in reverse. A quadratic model is restricted at its vertex.",
+			"quantities": [
+				{
+					"name": "story",
+					"is": "the context",
+					"pick": "from a list: production and cost, currency and fee, temperature and energy, discount and tax, distance and points"
+				},
+				{
+					"name": "f, g",
+					"is": "the two models",
+					"pick": "linear, quadratic, exponential or log, with coefficients to 1 or 2 d.p."
+				},
+				{
+					"name": "a",
+					"is": "the input",
+					"pick": "inside the inner model's domain"
+				},
+				{
+					"name": "h, k",
+					"is": "the vertex of a quadratic model",
+					"pick": "whole or to 1 d.p."
+				}
+			],
+			"modes": [
+				{
+					"id": "gdc",
+					"when": "every question (Paper 2)",
+					"how": "values to 3 s.f., exact where they end"
+				}
+			],
+			"clean": [
+				"the answer and every slip offered differ at 3 s.f."
+			]
 		}
 	},
 	"skills": {
@@ -7423,6 +7581,21 @@
 		"SL1.5.zero-negative": "Work with zero and negative integer exponents",
 		"SL5.8.closed-interval-extremes": "Find the greatest and least values of f on a closed interval (and its range)",
 		"SL1.5.evaluate-tech": "Evaluate logarithms and solve simple exponential equations with technology",
+		"AHL2.13.vertical-asymptotes": "Find the vertical asymptotes of a rational function with a quadratic denominator",
+		"AHL2.13.horizontal-asymptote": "Find the horizontal asymptote of (ax + b)/(cx² + dx + e) and where the curve crosses it",
+		"AHL2.13.sketch": "Sketch a rational function with all its asymptotes and intercepts",
+		"AHL2.13.oblique-asymptote": "Find the oblique asymptote of (ax² + bx + c)/(dx + e)",
+		"AHL2.13.range-turning-points": "Find the range and turning points of a rational function",
+		"AHL2.14.odd-even-test": "Decide algebraically whether a function is odd, even or neither",
+		"AHL2.14.odd-even-graph": "Recognise and complete graphs of odd and even functions",
+		"AHL2.14.odd-even-combine": "Combine odd and even functions and use the results",
+		"AHL2.14.restrict-domain-inverse": "Restrict a domain so an inverse exists, then find f⁻¹ with its domain",
+		"AHL2.14.self-inverse": "Show that a function is self-inverse, or find a constant that makes it so",
+		"AHL2.14.inverse-intersection": "Find where the graphs of f and f⁻¹ intersect",
+		"AI-AHL2.7.composite-context": "Form, evaluate and interpret a composite function in context",
+		"AI-AHL2.7.find-inverse": "Find an inverse function and interpret it in context",
+		"AI-AHL2.7.restrict-domain": "Restrict a domain so that an inverse exists, and find the domain and range of the inverse",
+		"AI-AHL2.7.inverse-identity": "Use f ∘ f⁻¹ = f⁻¹ ∘ f = x and the reflection of a graph in y = x",
 		"SL1.1.add-subtract": "Add and subtract numbers in standard form",
 		"SL1.1.powers-roots": "Raise numbers in standard form to powers and take roots",
 		"SL1.2.sigma": "Interpret and evaluate sigma notation for arithmetic series",
@@ -85259,6 +85432,1865 @@
 				}
 			],
 			"frequency": 0
+		},
+		{
+			"id": "fn-ahl-rational-quadratic",
+			"topic": 2,
+			"source": "exam",
+			"region": "rational",
+			"name": "Rational functions with a quadratic numerator or denominator (AA HL)",
+			"summary": "A linear over a quadratic, or a quadratic over a linear: the vertical, horizontal and oblique asymptotes, the intercepts, the range from the turning points, and the graph that has all of them.",
+			"situation": "rational-quadratic",
+			"formats": [
+				"value",
+				"mcq",
+				"graph-pick"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the rule written out, such as f(x) = (x + 4)/(x² − 2x − 3) or (2x² − x + 5)/(x − 1)"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the curve with its asymptotes dashed, to read an asymptote or choose the graph"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "vertical-asymptotes-lq",
+					"given": [
+						"a linear over a quadratic"
+					],
+					"asked": "the equations of the vertical asymptotes, or the values outside the domain",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.vertical-asymptotes"
+					]
+				},
+				{
+					"id": "vertical-asymptote-ql",
+					"given": [
+						"a quadratic over a linear"
+					],
+					"asked": "the equation of the vertical asymptote",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.vertical-asymptotes"
+					]
+				},
+				{
+					"id": "denominator-from-asymptote",
+					"given": [
+						"a rational function with an unknown constant in its denominator",
+						"its vertical asymptote"
+					],
+					"asked": "the constant",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.13.vertical-asymptotes"
+					]
+				},
+				{
+					"id": "horizontal-asymptote",
+					"given": [
+						"a linear over a quadratic"
+					],
+					"asked": "the equation of the horizontal asymptote",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.horizontal-asymptote"
+					]
+				},
+				{
+					"id": "crosses-horizontal",
+					"given": [
+						"a linear over a quadratic"
+					],
+					"asked": "the point where the graph crosses its horizontal asymptote",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.horizontal-asymptote"
+					]
+				},
+				{
+					"id": "x-intercepts-ql",
+					"given": [
+						"a quadratic over a linear"
+					],
+					"asked": "the x-intercepts, or the y-intercept",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.sketch"
+					]
+				},
+				{
+					"id": "oblique-asymptote",
+					"given": [
+						"a quadratic over a linear"
+					],
+					"asked": "the equation of the oblique asymptote, or the form px + q + r/(x + e)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.oblique-asymptote"
+					]
+				},
+				{
+					"id": "coefficient-from-oblique",
+					"given": [
+						"a quadratic over a linear with an unknown coefficient",
+						"its oblique asymptote"
+					],
+					"asked": "the coefficient",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.oblique-asymptote"
+					]
+				},
+				{
+					"id": "range-lq",
+					"given": [
+						"a linear over a quadratic whose denominator has no real zeros"
+					],
+					"asked": "the range",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.range-turning-points",
+						"AHL2.13.horizontal-asymptote"
+					]
+				},
+				{
+					"id": "range-ql",
+					"given": [
+						"a quadratic over a linear"
+					],
+					"asked": "the set of values f(x) never takes, or the range",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.range-turning-points"
+					]
+				},
+				{
+					"id": "sketch-lq",
+					"given": [
+						"a linear over a quadratic"
+					],
+					"asked": "the graph, with its asymptotes and intercepts",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.sketch",
+						"AHL2.13.vertical-asymptotes",
+						"AHL2.13.horizontal-asymptote"
+					]
+				},
+				{
+					"id": "sketch-ql",
+					"given": [
+						"a quadratic over a linear"
+					],
+					"asked": "the graph, with its vertical and oblique asymptotes",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.13.sketch",
+						"AHL2.13.oblique-asymptote"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL2.13.vertical-asymptotes",
+					"method": "factorise-denominator",
+					"suits": [
+						"vertical-asymptotes-lq",
+						"vertical-asymptote-ql",
+						"denominator-from-asymptote"
+					],
+					"name": "Factorise the denominator and set each factor to zero",
+					"about": "x² − x − 6 = (x − 3)(x + 2), so the vertical asymptotes are x = 3 and x = −2 (as long as the numerator is not also zero there)."
+				},
+				{
+					"skill": "AHL2.13.vertical-asymptotes",
+					"method": "discriminant-count",
+					"suits": [
+						"vertical-asymptotes-lq"
+					],
+					"name": "Count asymptotes with the discriminant",
+					"about": "The quadratic denominator has two, one or no real zeros as b² − 4ac is positive, zero or negative, so the graph has two, one or no vertical asymptotes."
+				},
+				{
+					"skill": "AHL2.13.vertical-asymptotes",
+					"method": "gdc-table-near",
+					"suits": [
+						"vertical-asymptotes-lq",
+						"vertical-asymptote-ql"
+					],
+					"name": "Graph or table on the GDC",
+					"about": "Graph the function or tabulate values close to a suspected asymptote to see the output grow without bound."
+				},
+				{
+					"skill": "AHL2.13.horizontal-asymptote",
+					"method": "degree-comparison",
+					"suits": [
+						"horizontal-asymptote",
+						"range-lq"
+					],
+					"name": "Compare degrees",
+					"about": "The denominator has the higher degree, so f(x) → 0 for large |x| and the horizontal asymptote is y = 0."
+				},
+				{
+					"skill": "AHL2.13.horizontal-asymptote",
+					"method": "divide-by-x-squared",
+					"suits": [
+						"horizontal-asymptote"
+					],
+					"name": "Divide top and bottom by x²",
+					"about": "(2/x + 1/x²)/(1 − 1/x − 6/x²) tends to 0/1 = 0 as |x| grows."
+				},
+				{
+					"skill": "AHL2.13.horizontal-asymptote",
+					"method": "solve-f-equals-zero",
+					"suits": [
+						"crosses-horizontal"
+					],
+					"name": "Solve f(x) = 0 for the crossing point",
+					"about": "The curve meets y = 0 where the numerator is zero: 2x + 1 = 0 gives the crossing (−1/2, 0)."
+				},
+				{
+					"skill": "AHL2.13.horizontal-asymptote",
+					"method": "gdc-large-x",
+					"suits": [
+						"horizontal-asymptote"
+					],
+					"name": "Tabulate large x on the GDC",
+					"about": "Values at x = ±100, ±1000 shrink towards 0, confirming the asymptote and which side the curve approaches from."
+				},
+				{
+					"skill": "AHL2.13.oblique-asymptote",
+					"method": "polynomial-division",
+					"suits": [
+						"oblique-asymptote",
+						"coefficient-from-oblique",
+						"sketch-ql"
+					],
+					"name": "Divide the numerator by the denominator",
+					"about": "(x² + 3x + 5) ÷ (x + 1) = x + 2 remainder 3, so f(x) = x + 2 + 3/(x + 1) and the oblique asymptote is y = x + 2."
+				},
+				{
+					"skill": "AHL2.13.oblique-asymptote",
+					"method": "compare-coefficients",
+					"suits": [
+						"oblique-asymptote",
+						"coefficient-from-oblique"
+					],
+					"name": "Write (px + q)(x + 1) + r and compare",
+					"about": "Expand (px + q)(x + 1) + r and match it with x² + 3x + 5: p = 1, p + q = 3, q + r = 5."
+				},
+				{
+					"skill": "AHL2.13.oblique-asymptote",
+					"method": "large-x-behaviour",
+					"suits": [
+						"oblique-asymptote"
+					],
+					"name": "Remainder term vanishes for large x",
+					"about": "As |x| grows, r/(dx + e) → 0, so the graph approaches the straight line px + q; a GDC graph of both confirms it."
+				},
+				{
+					"skill": "AHL2.13.range-turning-points",
+					"method": "discriminant-in-x",
+					"suits": [
+						"range-lq",
+						"range-ql"
+					],
+					"name": "Rearrange y = f(x) into a quadratic in x",
+					"about": "From y = x/(x² + 1), yx² − x + y = 0 has real x only when 1 − 4y² ≥ 0, so −1/2 ≤ y ≤ 1/2."
+				},
+				{
+					"skill": "AHL2.13.range-turning-points",
+					"method": "stationary-points",
+					"suits": [
+						"range-lq",
+						"range-ql"
+					],
+					"name": "Differentiate and find stationary points",
+					"about": "Use the quotient rule (or differentiate x + 2 + 3/(x + 1)) and solve f′(x) = 0; the turning values bound the range."
+				},
+				{
+					"skill": "AHL2.13.range-turning-points",
+					"method": "gdc-max-min",
+					"suits": [
+						"range-lq",
+						"range-ql"
+					],
+					"name": "GDC maximum and minimum",
+					"about": "Graph f and use the max/min tools to find the turning values, together with the asymptotes, to state the range."
+				},
+				{
+					"skill": "AHL2.13.sketch",
+					"method": "asymptotes-intercepts-signs",
+					"suits": [
+						"x-intercepts-ql",
+						"sketch-lq",
+						"sketch-ql"
+					],
+					"name": "Asymptotes, intercepts, then a sign check",
+					"about": "Draw every asymptote, mark the x- and y-intercepts, and test the sign of f in each interval between the zeros and asymptotes to place each branch."
+				},
+				{
+					"skill": "AHL2.13.sketch",
+					"method": "gdc-transfer",
+					"suits": [
+						"x-intercepts-ql",
+						"sketch-lq",
+						"sketch-ql"
+					],
+					"name": "Graph on the GDC and transfer",
+					"about": "Graph f with a suitable window, read the intercepts and asymptotes, and copy the shape, taking care near each asymptote."
+				},
+				{
+					"skill": "AHL2.13.sketch",
+					"method": "reciprocal-of-quadratic",
+					"suits": [
+						"sketch-lq"
+					],
+					"name": "Build from the denominator's graph",
+					"about": "For a constant or slowly changing numerator, think of 1/(quadratic): zeros of the quadratic become vertical asymptotes and its vertex becomes a turning point."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A graph can never cross its horizontal asymptote.",
+					"answer": "False: the asymptote describes the far ends only. A linear over a quadratic crosses y = 0 where its numerator is zero.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "A rational function with a quadratic denominator has two vertical asymptotes.",
+					"answer": "Sometimes: two when the denominator has two real zeros that are not zeros of the numerator, one for a repeated zero, none when its discriminant is negative.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict whether (x² + 1)/(x − 2) has a horizontal or an oblique asymptote, then check by dividing.",
+					"answer": "Oblique: the numerator's degree is one more than the denominator's. Dividing gives x + 2 + 5/(x − 2), so the asymptote is y = x + 2.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL2.13.vertical-asymptotes#0",
+					"text": "Setting the numerator equal to zero and giving its root as a vertical asymptote",
+					"as": "distractor",
+					"in": [
+						"vertical-asymptotes-lq",
+						"vertical-asymptote-ql"
+					],
+					"wrong": "x = the numerator's zero"
+				},
+				{
+					"ref": "AHL2.13.vertical-asymptotes#1",
+					"text": "Factorising the quadratic denominator with the signs swapped, so each asymptote has the wrong sign",
+					"as": "distractor",
+					"in": [
+						"vertical-asymptotes-lq"
+					],
+					"wrong": "x = −r₁ and x = −r₂"
+				},
+				{
+					"ref": "AHL2.13.vertical-asymptotes#2",
+					"text": "Thinking every quadratic denominator gives two vertical asymptotes, even one with no real zeros",
+					"as": "distractor",
+					"in": [
+						"vertical-asymptotes-lq"
+					],
+					"wrong": "two asymptotes for a denominator with no real zeros"
+				},
+				{
+					"ref": "AHL2.13.horizontal-asymptote#0",
+					"text": "Taking the ratio of the leading coefficients as the horizontal asymptote, though the denominator has the higher degree",
+					"as": "distractor",
+					"in": [
+						"horizontal-asymptote"
+					],
+					"wrong": "y = a"
+				},
+				{
+					"ref": "AHL2.13.horizontal-asymptote#1",
+					"text": "Believing a graph can never cross its horizontal asymptote, so missing the point where it does",
+					"as": "distractor",
+					"in": [
+						"crosses-horizontal"
+					],
+					"wrong": "it never crosses"
+				},
+				{
+					"ref": "AHL2.13.horizontal-asymptote#2",
+					"text": "Taking the ratio of the constant terms as the horizontal asymptote",
+					"as": "distractor",
+					"in": [
+						"horizontal-asymptote"
+					],
+					"wrong": "y = b/q"
+				},
+				{
+					"ref": "AHL2.13.oblique-asymptote#0",
+					"text": "Taking only the leading terms, so the oblique asymptote loses its constant term",
+					"as": "distractor",
+					"in": [
+						"oblique-asymptote",
+						"sketch-ql"
+					],
+					"wrong": "y = px"
+				},
+				{
+					"ref": "AHL2.13.oblique-asymptote#1",
+					"text": "Dividing each term of the numerator by x instead of by the whole denominator",
+					"as": "distractor",
+					"in": [
+						"oblique-asymptote"
+					],
+					"wrong": "y = x + b"
+				},
+				{
+					"ref": "AHL2.13.range-turning-points#0",
+					"text": "Giving the range as every real number except the horizontal asymptote's value",
+					"as": "distractor",
+					"in": [
+						"range-lq"
+					],
+					"wrong": "y ≠ 0"
+				},
+				{
+					"ref": "AHL2.13.range-turning-points#1",
+					"text": "Taking the wrong side of the discriminant condition, so the range comes out as the gap between the turning values",
+					"as": "distractor",
+					"in": [
+						"range-ql",
+						"range-lq"
+					],
+					"wrong": "the gap given as the range"
+				},
+				{
+					"ref": "AHL2.13.sketch#0",
+					"text": "Drawing a branch that misses the x-intercept where the numerator is zero",
+					"as": "distractor",
+					"in": [
+						"sketch-lq"
+					],
+					"wrong": "a graph with no crossing at the numerator's zero"
+				},
+				{
+					"ref": "AHL2.13.sketch#1",
+					"text": "Giving the y-intercept as the ratio of the leading coefficients instead of f(0)",
+					"as": "distractor",
+					"in": [
+						"x-intercepts-ql"
+					],
+					"wrong": "the leading-coefficient ratio as the y-intercept"
+				},
+				{
+					"text": "Changing the sign of the denominator's zero, so the vertical asymptote is reflected in the y-axis",
+					"as": "distractor",
+					"in": [
+						"vertical-asymptote-ql",
+						"denominator-from-asymptote"
+					],
+					"wrong": "x = e instead of x = −e"
+				},
+				{
+					"text": "Losing the remainder's sign when dividing, so the constant of the oblique asymptote is wrong",
+					"as": "distractor",
+					"in": [
+						"oblique-asymptote",
+						"coefficient-from-oblique"
+					],
+					"wrong": "the quotient's constant with a sign slip"
+				},
+				{
+					"text": "Solving for the zeros of the quadratic numerator with a sign slip in the factors",
+					"as": "distractor",
+					"in": [
+						"x-intercepts-ql"
+					],
+					"wrong": "the x-intercepts with their signs changed"
+				},
+				{
+					"text": "Using the vertical asymptote's value as the horizontal asymptote",
+					"as": "distractor",
+					"in": [
+						"horizontal-asymptote"
+					],
+					"wrong": "y = the denominator's zero"
+				}
+			],
+			"chain": [
+				"a rational function (ax + b)/(x² + px + q) or (x² + bx + c)/(x + e)",
+				"the zeros of the denominator, where the numerator is not zero, as the vertical asymptotes",
+				"the degrees compared: y = 0 for a linear over a quadratic, an oblique line px + q from dividing for a quadratic over a linear",
+				"the intercepts: f(0) and the zeros of the numerator",
+				"the turning values, by the discriminant of y = f(x) as a quadratic in x or by f′(x) = 0, giving the range",
+				"the graph with every asymptote and intercept in place"
+			],
+			"frequency": 29,
+			"marks": 3,
+			"section": {
+				"A": 1,
+				"B": 26
+			},
+			"paper": {
+				"p1": 1,
+				"p2": 28
+			}
+		},
+		{
+			"id": "fn-ahl-odd-even",
+			"topic": 2,
+			"source": "exam",
+			"region": "function-basics",
+			"name": "Odd and even functions (AA HL)",
+			"summary": "Decide whether a function is odd, even or neither from f(−x), find a coefficient that makes it so, complete or choose a graph by its symmetry, combine odd and even functions, and use the symmetry for a value or an integral.",
+			"situation": "odd-even",
+			"formats": [
+				"value",
+				"mcq",
+				"graph-pick"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the rule written out, such as f(x) = x³ − 4x or g(x) = x² cos x"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the graph on one side of the y-axis, or whole, on a grid"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "classify-polynomial",
+					"given": [
+						"a polynomial"
+					],
+					"asked": "odd, even or neither",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.14.odd-even-test"
+					]
+				},
+				{
+					"id": "classify-mixed",
+					"given": [
+						"a function with powers, sin, cos, e^x or e^(−x)"
+					],
+					"asked": "odd, even or neither, and the line that shows it",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.14.odd-even-test",
+						"AHL2.14.odd-even-graph"
+					]
+				},
+				{
+					"id": "symmetry-coefficient",
+					"given": [
+						"a polynomial with an unknown coefficient",
+						"that it is odd, or that it is even"
+					],
+					"asked": "the coefficient",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.14.odd-even-test"
+					]
+				},
+				{
+					"id": "value-from-symmetry",
+					"given": [
+						"f odd or even",
+						"a value f(a), or a point on the graph"
+					],
+					"asked": "f(−a), or a value of an expression in f",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.14.odd-even-graph"
+					]
+				},
+				{
+					"id": "complete-graph",
+					"given": [
+						"the graph of f for x ≥ 0",
+						"that f is odd, or that it is even"
+					],
+					"asked": "the graph for every x",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.14.odd-even-graph"
+					]
+				},
+				{
+					"id": "which-graph",
+					"given": [
+						"four graphs"
+					],
+					"asked": "the graph of an odd or an even function",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AHL2.14.odd-even-graph"
+					]
+				},
+				{
+					"id": "combine-parity",
+					"given": [
+						"f odd and g even, or both odd, or both even"
+					],
+					"asked": "whether a product, a sum or a composite is odd, even or neither",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.14.odd-even-combine"
+					]
+				},
+				{
+					"id": "symmetric-integral",
+					"given": [
+						"an integral from −a to a of an odd or an even integrand, with ∫ from 0 to a where needed"
+					],
+					"asked": "its value",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.14.odd-even-combine"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL2.14.odd-even-test",
+					"method": "substitute-minus-x",
+					"suits": [
+						"classify-polynomial",
+						"classify-mixed",
+						"symmetry-coefficient"
+					],
+					"name": "Simplify f(−x) and compare",
+					"about": "Replace x by −x, simplify, and compare with f(x) and −f(x): (−x)³ − (−x) = −(x³ − x), so x³ − x is odd."
+				},
+				{
+					"skill": "AHL2.14.odd-even-test",
+					"method": "counterexample",
+					"suits": [
+						"classify-polynomial",
+						"classify-mixed"
+					],
+					"name": "One counterexample for 'neither'",
+					"about": "To show a function is neither, find one value with f(−a) ≠ f(a) and one with f(−a) ≠ −f(a): h(1) = 2, h(−1) = 0."
+				},
+				{
+					"skill": "AHL2.14.odd-even-test",
+					"method": "known-building-blocks",
+					"suits": [
+						"classify-polynomial",
+						"classify-mixed",
+						"symmetry-coefficient"
+					],
+					"name": "Use known odd and even pieces",
+					"about": "Odd powers, sin and tan are odd; even powers, constants and cos are even; combine them using the product and sum rules."
+				},
+				{
+					"skill": "AHL2.14.odd-even-graph",
+					"method": "reflect-or-rotate",
+					"suits": [
+						"complete-graph",
+						"which-graph",
+						"value-from-symmetry"
+					],
+					"name": "Reflect in the y-axis or rotate about the origin",
+					"about": "For an even function reflect the known half in the y-axis; for an odd function rotate it by 180° about the origin (reflect in both axes)."
+				},
+				{
+					"skill": "AHL2.14.odd-even-graph",
+					"method": "image-points",
+					"suits": [
+						"complete-graph",
+						"value-from-symmetry"
+					],
+					"name": "Map key points",
+					"about": "Send each key point (a, b) to (−a, b) for even or (−a, −b) for odd, then join them in the same shape."
+				},
+				{
+					"skill": "AHL2.14.odd-even-graph",
+					"method": "unit-circle",
+					"suits": [
+						"classify-mixed"
+					],
+					"name": "Use the unit circle for trig functions",
+					"about": "The angle −θ is the reflection of θ in the x-axis, so cos(−θ) = cos θ and sin(−θ) = −sin θ."
+				},
+				{
+					"skill": "AHL2.14.odd-even-combine",
+					"method": "general-proof",
+					"suits": [
+						"combine-parity"
+					],
+					"name": "Prove from the definitions",
+					"about": "For odd f and g, (fg)(−x) = f(−x)g(−x) = (−f(x))(−g(x)) = f(x)g(x), so fg is even."
+				},
+				{
+					"skill": "AHL2.14.odd-even-combine",
+					"method": "sign-rule",
+					"suits": [
+						"combine-parity",
+						"symmetric-integral"
+					],
+					"name": "Treat odd as −1 and even as +1 under multiplication",
+					"about": "Odd × odd and even × even are even; odd × even is odd, like multiplying signs."
+				},
+				{
+					"skill": "AHL2.14.odd-even-combine",
+					"method": "symmetric-area",
+					"suits": [
+						"symmetric-integral"
+					],
+					"name": "Cancel areas for an odd integrand",
+					"about": "An odd function's area on [−a, 0] is the negative of its area on [0, a], so its integral from −a to a is 0."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "A function is either odd or even.",
+					"answer": "Sometimes: x³ is odd and x² is even, but x³ + x² is neither, and only f(x) = 0 is both.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If f is odd and defined at 0, then f(0) = 0.",
+					"answer": "True: f(−0) = −f(0) says f(0) = −f(0), so f(0) = 0 and the graph passes through the origin.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict whether x² sin x is odd or even, then check by putting −x in.",
+					"answer": "Odd: even × odd is odd. (−x)² sin(−x) = x²(−sin x) = −x² sin x.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL2.14.odd-even-test#0",
+					"text": "Concluding a function is odd just because f(−x) ≠ f(x)",
+					"as": "distractor",
+					"in": [
+						"classify-polynomial",
+						"classify-mixed"
+					],
+					"wrong": "odd, for a function that is neither"
+				},
+				{
+					"ref": "AHL2.14.odd-even-test#1",
+					"text": "Calling a function odd because its power is odd, though an added constant stops f(−x) equalling −f(x)",
+					"as": "distractor",
+					"in": [
+						"classify-polynomial",
+						"symmetry-coefficient"
+					],
+					"wrong": "odd, for odd powers plus a constant"
+				},
+				{
+					"ref": "AHL2.14.odd-even-test#2",
+					"text": "Checking one value of f(−x) against f(x) and concluding the function is even",
+					"as": "distractor",
+					"in": [
+						"classify-mixed"
+					],
+					"wrong": "even, from one value that matches"
+				},
+				{
+					"ref": "AHL2.14.odd-even-graph#0",
+					"text": "Completing an odd function by reflecting only in the y-axis, which produces an even function",
+					"as": "distractor",
+					"in": [
+						"complete-graph",
+						"which-graph",
+						"value-from-symmetry"
+					],
+					"wrong": "the mirror image in the y-axis"
+				},
+				{
+					"ref": "AHL2.14.odd-even-graph#1",
+					"text": "Completing an odd function by reflecting only in the x-axis",
+					"as": "distractor",
+					"in": [
+						"complete-graph"
+					],
+					"wrong": "the mirror image in the x-axis"
+				},
+				{
+					"ref": "AHL2.14.odd-even-graph#2",
+					"text": "Drawing an odd function that is defined at 0 but does not pass through the origin",
+					"as": "distractor",
+					"in": [
+						"complete-graph"
+					],
+					"wrong": "a half-turn that misses the origin"
+				},
+				{
+					"ref": "AHL2.14.odd-even-combine#0",
+					"text": "Thinking the product of two odd functions is odd",
+					"as": "distractor",
+					"in": [
+						"combine-parity"
+					],
+					"wrong": "odd for odd × odd"
+				},
+				{
+					"ref": "AHL2.14.odd-even-combine#1",
+					"text": "Assuming the sum of an odd and an even function is odd or even",
+					"as": "distractor",
+					"in": [
+						"combine-parity",
+						"classify-polynomial"
+					],
+					"wrong": "odd or even for a sum of the two"
+				},
+				{
+					"ref": "AHL2.14.odd-even-combine#2",
+					"text": "Using ∫ from −a to a of f(x) dx = 0 for an even function",
+					"as": "distractor",
+					"in": [
+						"symmetric-integral"
+					],
+					"wrong": "0 for an even integrand"
+				},
+				{
+					"text": "Doubling the integral from 0 to a for an odd integrand, as if it were even",
+					"as": "distractor",
+					"in": [
+						"symmetric-integral"
+					],
+					"wrong": "2 × ∫ from 0 to a for an odd integrand"
+				},
+				{
+					"text": "Swapping the two definitions, so f(−x) = −f(x) is read as even",
+					"as": "distractor",
+					"in": [
+						"classify-polynomial",
+						"classify-mixed"
+					],
+					"wrong": "odd and even swapped"
+				},
+				{
+					"text": "Changing the sign of f(a) for an even function, as if it were odd",
+					"as": "distractor",
+					"in": [
+						"value-from-symmetry"
+					],
+					"wrong": "−f(a) for an even function"
+				},
+				{
+					"text": "Setting the coefficient of the wrong powers to zero",
+					"as": "distractor",
+					"in": [
+						"symmetry-coefficient"
+					],
+					"wrong": "the value that keeps the other kind of power"
+				}
+			],
+			"chain": [
+				"a function: a polynomial, or powers with sin, cos, e^x and e^(−x), or a graph on one side of the y-axis",
+				"f(−x) simplified and compared with f(x) and with −f(x)",
+				"odd (half-turn about the origin), even (mirror in the y-axis) or neither, shown by one counterexample",
+				"the symmetry used: a value f(−a), the other half of a graph, a product or a composite, or ∫ from −a to a"
+			],
+			"frequency": 12,
+			"marks": 2,
+			"section": {
+				"A": 7,
+				"B": 2
+			},
+			"paper": {
+				"p1": 5,
+				"p2": 7
+			}
+		},
+		{
+			"id": "fn-ahl-inverse-restricted",
+			"topic": 2,
+			"source": "exam",
+			"region": "composite-inverse",
+			"name": "Inverses on a restricted domain and self-inverse functions (AA HL)",
+			"summary": "The largest domain on which a quadratic, a root of a quadratic or a shifted cosine has an inverse; the inverse on that domain, with the right root and its own domain; the constant that makes (ax + b)/(x + d) its own inverse; and where f meets f⁻¹.",
+			"situation": "inverse-restricted",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the rule and its domain written out, such as f(x) = x² − 6x + 4, x ≥ 3"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the curve on a grid, to use the horizontal line test or read the meeting points"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "largest-domain",
+					"given": [
+						"a quadratic or a square root of a quadratic, with domain x ≤ a or x ≥ a"
+					],
+					"asked": "the largest (or smallest) a for which f has an inverse",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.14.restrict-domain-inverse"
+					]
+				},
+				{
+					"id": "largest-domain-trig",
+					"given": [
+						"a shifted cosine or sine, with domain p ≤ x ≤ a"
+					],
+					"asked": "the largest a for which f has an inverse",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.14.restrict-domain-inverse"
+					]
+				},
+				{
+					"id": "inverse-restricted",
+					"given": [
+						"a quadratic on one side of its vertex"
+					],
+					"asked": "f⁻¹(x), with the right root",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.14.restrict-domain-inverse"
+					]
+				},
+				{
+					"id": "inverse-domain",
+					"given": [
+						"a quadratic on one side of its vertex"
+					],
+					"asked": "the domain of f⁻¹",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.14.restrict-domain-inverse"
+					]
+				},
+				{
+					"id": "self-inverse-constant",
+					"given": [
+						"(ax + b)/(x + d) with one constant unknown"
+					],
+					"asked": "the constant that makes f its own inverse",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.14.self-inverse"
+					]
+				},
+				{
+					"id": "is-self-inverse",
+					"given": [
+						"a rational, linear or root function"
+					],
+					"asked": "whether it is its own inverse, and why",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL2.14.self-inverse"
+					]
+				},
+				{
+					"id": "meet-increasing",
+					"given": [
+						"an increasing quadratic on x ≥ 0, or a root"
+					],
+					"asked": "the points where the graphs of f and f⁻¹ meet",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.14.inverse-intersection"
+					]
+				},
+				{
+					"id": "meet-decreasing",
+					"given": [
+						"a decreasing odd function such as −ax³"
+					],
+					"asked": "every point where the graphs of f and f⁻¹ meet",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AHL2.14.inverse-intersection"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL2.14.restrict-domain-inverse",
+					"method": "complete-square-invert",
+					"suits": [
+						"largest-domain",
+						"inverse-restricted",
+						"inverse-domain"
+					],
+					"name": "Complete the square, then rearrange",
+					"about": "x² − 4x + 1 = (x − 2)² − 3; swap and solve: y = 2 + √(x + 3), taking the + root because the domain is x ≥ 2; domain of f⁻¹ is x ≥ −3."
+				},
+				{
+					"skill": "AHL2.14.restrict-domain-inverse",
+					"method": "turning-point-restriction",
+					"suits": [
+						"largest-domain",
+						"largest-domain-trig"
+					],
+					"name": "Restrict at the turning point",
+					"about": "Solve f′(x) = 0 to find where f stops being one-to-one; the largest domain is on one side of that x-value."
+				},
+				{
+					"skill": "AHL2.14.restrict-domain-inverse",
+					"method": "horizontal-line-test",
+					"suits": [
+						"largest-domain",
+						"largest-domain-trig",
+						"inverse-domain"
+					],
+					"name": "Horizontal line test",
+					"about": "Sketch f: if a horizontal line meets the graph twice, cut the domain at the vertex so each output comes from one input."
+				},
+				{
+					"skill": "AHL2.14.restrict-domain-inverse",
+					"method": "quadratic-formula-in-y",
+					"suits": [
+						"inverse-restricted"
+					],
+					"name": "Solve x = f(y) with the quadratic formula",
+					"about": "Treat y² − 4y + (1 − x) = 0 as a quadratic in y and choose the sign that matches the restricted domain."
+				},
+				{
+					"skill": "AHL2.14.self-inverse",
+					"method": "compose-with-itself",
+					"suits": [
+						"self-inverse-constant",
+						"is-self-inverse"
+					],
+					"name": "Show f(f(x)) = x",
+					"about": "Substitute f into itself and simplify: for (3x + 1)/(x − 3) the compound fraction reduces to 10x/10 = x."
+				},
+				{
+					"skill": "AHL2.14.self-inverse",
+					"method": "find-inverse-compare",
+					"suits": [
+						"self-inverse-constant",
+						"is-self-inverse"
+					],
+					"name": "Find f⁻¹ and compare with f",
+					"about": "Swap x and y, rearrange, and check the result is the original formula on the same domain."
+				},
+				{
+					"skill": "AHL2.14.self-inverse",
+					"method": "symmetric-in-y-equals-x",
+					"suits": [
+						"self-inverse-constant",
+						"is-self-inverse"
+					],
+					"name": "Graph symmetric in y = x",
+					"about": "A self-inverse graph is its own reflection in y = x; for (ax + b)/(cx + d) this happens when d = −a, so k = 4."
+				},
+				{
+					"skill": "AHL2.14.inverse-intersection",
+					"method": "solve-f-equals-x",
+					"suits": [
+						"meet-increasing",
+						"meet-decreasing"
+					],
+					"name": "Solve f(x) = x for an increasing f",
+					"about": "For increasing f, f and f⁻¹ meet only on y = x: (x² + 6)/5 = x gives x = 2 or 3, so (2, 2) and (3, 3)."
+				},
+				{
+					"skill": "AHL2.14.inverse-intersection",
+					"method": "solve-directly",
+					"suits": [
+						"meet-decreasing"
+					],
+					"name": "Find f⁻¹ and solve f(x) = f⁻¹(x)",
+					"about": "Write f⁻¹ explicitly and solve the equation directly; needed when f is decreasing."
+				},
+				{
+					"skill": "AHL2.14.inverse-intersection",
+					"method": "gdc-intersect",
+					"suits": [
+						"meet-increasing",
+						"meet-decreasing"
+					],
+					"name": "Graph both on the GDC",
+					"about": "Graph f, f⁻¹ and y = x and use the intersect tool to find every meeting point."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The graphs of f and f⁻¹ can only meet on the line y = x.",
+					"answer": "False: for an increasing f they do, but a decreasing f such as −x³ meets its inverse at (1, −1) and (−1, 1) too.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "(ax + b)/(cx + d) is its own inverse.",
+					"answer": "Sometimes: exactly when d = −a (or when it is the line y = x), since then swapping x and y gives back the same rule.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "Why does x² − 4x have an inverse on x ≥ 2 but not on x ≥ 0?",
+					"answer": "Its vertex is at x = 2. On x ≥ 0 it falls then rises, so outputs between −4 and 0 come from two inputs.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AHL2.14.restrict-domain-inverse#0",
+					"text": "Leaving a ± in the inverse instead of choosing the branch",
+					"as": "distractor",
+					"in": [
+						"inverse-restricted"
+					],
+					"wrong": "h ± √(x − k)"
+				},
+				{
+					"ref": "AHL2.14.restrict-domain-inverse#1",
+					"text": "Choosing the root with the wrong sign for the restricted domain",
+					"as": "distractor",
+					"in": [
+						"inverse-restricted"
+					],
+					"wrong": "the other root"
+				},
+				{
+					"ref": "AHL2.14.restrict-domain-inverse#2",
+					"text": "Giving the domain of f as the domain of the inverse, instead of the range of f",
+					"as": "distractor",
+					"in": [
+						"inverse-domain"
+					],
+					"wrong": "the domain of f"
+				},
+				{
+					"ref": "AHL2.14.self-inverse#0",
+					"text": "Thinking self-inverse means f(x) × f(x) = 1, or f(x) = 1/f(x)",
+					"as": "distractor",
+					"in": [
+						"is-self-inverse"
+					],
+					"wrong": "a verdict from f × f"
+				},
+				{
+					"ref": "AHL2.14.self-inverse#1",
+					"text": "Checking f(f(a)) = a for one value only and concluding the function is self-inverse",
+					"as": "distractor",
+					"in": [
+						"is-self-inverse"
+					],
+					"wrong": "yes, from one value"
+				},
+				{
+					"ref": "AHL2.14.self-inverse#2",
+					"text": "Confusing self-inverse with odd, and calling an odd function its own inverse",
+					"as": "distractor",
+					"in": [
+						"is-self-inverse"
+					],
+					"wrong": "yes, for an odd function"
+				},
+				{
+					"ref": "AHL2.14.inverse-intersection#0",
+					"text": "Solving f(x) = x for a decreasing function, so missing the meeting points off the line y = x",
+					"as": "distractor",
+					"in": [
+						"meet-decreasing"
+					],
+					"wrong": "only the point on y = x"
+				},
+				{
+					"ref": "AHL2.14.inverse-intersection#2",
+					"text": "Taking f⁻¹(x) as 1/f(x) and solving f(x) = 1/f(x)",
+					"as": "distractor",
+					"in": [
+						"meet-increasing"
+					],
+					"wrong": "the points where f(x) = ±1"
+				},
+				{
+					"text": "Cutting the domain at the y-intercept instead of at the vertex",
+					"as": "distractor",
+					"in": [
+						"largest-domain"
+					],
+					"wrong": "a = 0"
+				},
+				{
+					"text": "Cutting the domain at a root of the quadratic instead of at the vertex",
+					"as": "distractor",
+					"in": [
+						"largest-domain"
+					],
+					"wrong": "a = a root"
+				},
+				{
+					"text": "Taking the vertex's y-coordinate as the boundary of the domain",
+					"as": "distractor",
+					"in": [
+						"largest-domain",
+						"inverse-domain"
+					],
+					"wrong": "the vertex's y for the x boundary, or the reverse"
+				},
+				{
+					"text": "Adding a half period instead of a whole half-turn of the cosine, so the domain is a quarter period too short or too long",
+					"as": "distractor",
+					"in": [
+						"largest-domain-trig"
+					],
+					"wrong": "p + π/2 or p + 2π"
+				},
+				{
+					"text": "Taking the constant that makes the denominator zero instead of d = −a",
+					"as": "distractor",
+					"in": [
+						"self-inverse-constant"
+					],
+					"wrong": "the sign of the needed value changed"
+				}
+			],
+			"chain": [
+				"a function that is not one-to-one on its natural domain",
+				"the turning point, where the domain is cut so every output comes from one input",
+				"x = f(y) solved for y, choosing the root that matches the restricted domain",
+				"the domain of f⁻¹ as the range of f",
+				"f⁻¹ compared with f for a self-inverse function, or f = f⁻¹ solved for the meeting points"
+			],
+			"frequency": 8,
+			"marks": 2,
+			"section": {
+				"A": 5,
+				"B": 3
+			},
+			"paper": {
+				"p1": 6,
+				"p2": 2
+			}
+		},
+		{
+			"id": "fn-ai-composite-inverse",
+			"topic": 2,
+			"source": "exam",
+			"region": "composite-inverse",
+			"name": "Composite and inverse functions in context (AI HL)",
+			"summary": "Chain two models in context: a composite's value, its rule, the order that makes sense and an equation in it; then undo a model: an inverse and what it calculates, a value of it from the GDC, the domain restriction that lets a quadratic have one, its domain and range, and f ∘ f⁻¹.",
+			"situation": "ai-composite-inverse",
+			"formats": [
+				"value",
+				"mcq",
+				"graph-pick"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "the two models in a story, with their units"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the rules written out, such as f(x) = 2.5x + 40"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "values of the inner model in a table"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the inner model's graph, to read a value off it"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "composite-value",
+					"given": [
+						"two models in context",
+						"an input"
+					],
+					"asked": "the composite's value, with units",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words",
+						"table",
+						"graph"
+					],
+					"skills": [
+						"AI-AHL2.7.composite-context"
+					]
+				},
+				{
+					"id": "composite-rule",
+					"given": [
+						"two models in context"
+					],
+					"asked": "the composite as a rule in the first input",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation"
+					],
+					"skills": [
+						"AI-AHL2.7.composite-context"
+					]
+				},
+				{
+					"id": "composite-order",
+					"given": [
+						"two processes that can be done in either order, such as a discount and a fee"
+					],
+					"asked": "which order gives the larger or smaller result, or what an order means",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"AI-AHL2.7.composite-context"
+					]
+				},
+				{
+					"id": "composite-equation",
+					"given": [
+						"two models in context",
+						"a target output"
+					],
+					"asked": "the input that gives it",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"graph"
+					],
+					"skills": [
+						"AI-AHL2.7.composite-context"
+					]
+				},
+				{
+					"id": "inverse-rule",
+					"given": [
+						"a linear, rational or log model"
+					],
+					"asked": "f⁻¹(x), or what it calculates",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"AI-AHL2.7.find-inverse"
+					]
+				},
+				{
+					"id": "inverse-value",
+					"given": [
+						"a model",
+						"an output"
+					],
+					"asked": "f⁻¹ of it, without finding f⁻¹(x)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"AI-AHL2.7.find-inverse"
+					]
+				},
+				{
+					"id": "restrict-domain",
+					"given": [
+						"a quadratic model"
+					],
+					"asked": "the largest domain x ≥ k on which it has an inverse",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"AI-AHL2.7.restrict-domain"
+					]
+				},
+				{
+					"id": "inverse-domain-range",
+					"given": [
+						"a function on a restricted domain"
+					],
+					"asked": "the domain or the range of f⁻¹",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AI-AHL2.7.restrict-domain"
+					]
+				},
+				{
+					"id": "inverse-identity",
+					"given": [
+						"f, or a value of f⁻¹"
+					],
+					"asked": "(f ∘ f⁻¹)(a), or a from f⁻¹(a) = b",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AI-AHL2.7.inverse-identity"
+					]
+				},
+				{
+					"id": "inverse-graph",
+					"given": [
+						"the graph of f"
+					],
+					"asked": "the graph of f⁻¹",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"AI-AHL2.7.inverse-identity"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AI-AHL2.7.composite-context",
+					"method": "inside-out",
+					"suits": [
+						"composite-value",
+						"composite-order",
+						"composite-equation"
+					],
+					"name": "Evaluate the inner function first",
+					"about": "For (C ∘ n)(8), find n(8), then put that number into C."
+				},
+				{
+					"skill": "AI-AHL2.7.composite-context",
+					"method": "substitute-expression",
+					"suits": [
+						"composite-rule",
+						"composite-equation"
+					],
+					"name": "Substitute the whole inner expression",
+					"about": "Replace every x in the outer function by g(x) and simplify, so the composite can be used for any input."
+				},
+				{
+					"skill": "AI-AHL2.7.composite-context",
+					"method": "units-check",
+					"suits": [
+						"composite-rule",
+						"composite-order"
+					],
+					"name": "Follow the units through the chain",
+					"about": "Hours go into n to give items, items go into C to give cost; the order that makes the units match is the meaningful composite."
+				},
+				{
+					"skill": "AI-AHL2.7.composite-context",
+					"method": "gdc-composite",
+					"suits": [
+						"composite-value",
+						"composite-equation"
+					],
+					"name": "Define both functions on the GDC",
+					"about": "Store f and g as Y1 and Y2 and evaluate Y1(Y2(8)) to check a hand calculation."
+				},
+				{
+					"skill": "AI-AHL2.7.find-inverse",
+					"method": "swap-and-solve",
+					"suits": [
+						"inverse-rule"
+					],
+					"name": "Swap x and y, then make y the subject",
+					"about": "Write x = 1.8y + 32 and rearrange to y = (x − 32)/1.8."
+				},
+				{
+					"skill": "AI-AHL2.7.find-inverse",
+					"method": "undo-in-reverse",
+					"suits": [
+						"inverse-rule",
+						"inverse-value"
+					],
+					"name": "Undo the operations in reverse order",
+					"about": "F multiplies by 1.8 then adds 32, so F⁻¹ subtracts 32 then divides by 1.8."
+				},
+				{
+					"skill": "AI-AHL2.7.find-inverse",
+					"method": "solve-for-value",
+					"suits": [
+						"inverse-value"
+					],
+					"name": "Solve f(x) = k on the GDC for a single value",
+					"about": "f⁻¹(10) is the x with f(x) = 10, which can be found by intersecting y = f(x) with y = 10."
+				},
+				{
+					"skill": "AI-AHL2.7.restrict-domain",
+					"method": "split-at-vertex",
+					"suits": [
+						"restrict-domain"
+					],
+					"name": "Restrict at the turning point",
+					"about": "A quadratic is one-to-one on either side of its vertex, so (x + 1)² + 4 is invertible for x ≥ −1 or for x ≤ −1."
+				},
+				{
+					"skill": "AI-AHL2.7.restrict-domain",
+					"method": "horizontal-line",
+					"suits": [
+						"restrict-domain"
+					],
+					"name": "Use the horizontal line test on the graph",
+					"about": "If some horizontal line meets the graph twice the function is not one-to-one; cut the domain until every line meets it at most once."
+				},
+				{
+					"skill": "AI-AHL2.7.restrict-domain",
+					"method": "swap-domain-range",
+					"suits": [
+						"inverse-domain-range"
+					],
+					"name": "Swap domain and range",
+					"about": "The domain of f⁻¹ is the range of f and the range of f⁻¹ is the domain of f: here f⁻¹(x) = −1 + √(x − 4) for x ≥ 4."
+				},
+				{
+					"skill": "AI-AHL2.7.inverse-identity",
+					"method": "identity-property",
+					"suits": [
+						"inverse-identity"
+					],
+					"name": "Use the identity property directly",
+					"about": "Composing a function with its inverse returns the input, so (f ∘ f⁻¹)(7) = 7 with no working."
+				},
+				{
+					"skill": "AI-AHL2.7.inverse-identity",
+					"method": "compose-and-simplify",
+					"suits": [
+						"inverse-identity"
+					],
+					"name": "Compose and simplify to x",
+					"about": "Substitute g(x) into f and simplify; if the result is x (and g ∘ f also gives x), then g = f⁻¹."
+				},
+				{
+					"skill": "AI-AHL2.7.inverse-identity",
+					"method": "reflect-in-y-equals-x",
+					"suits": [
+						"inverse-graph"
+					],
+					"name": "Reflect the graph in y = x",
+					"about": "Swap the coordinates of key points and asymptotes: (2, 5) on f becomes (5, 2) on f⁻¹."
+				},
+				{
+					"skill": "AI-AHL2.7.inverse-identity",
+					"method": "gdc-inverse-draw",
+					"suits": [
+						"inverse-graph"
+					],
+					"name": "Draw the inverse on the GDC",
+					"about": "Use the GDC's draw-inverse feature or graph x = f(y) parametrically to check a sketch."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Taking 20% off and then $10 off costs the same as taking $10 off and then 20% off.",
+					"answer": "False: the percentage applies to a different amount. For a price P the first gives 0.8P − 10 and the second 0.8P − 8.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "C(n) is the cost of n items and n(t) the number made in t hours. What does C⁻¹(500) mean?",
+					"answer": "The number of items that cost 500 in total: C⁻¹ takes a cost back to a number of items.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict (f ∘ f⁻¹)(7) for f(x) = 3x − 5, then check by working out f⁻¹(7) first.",
+					"answer": "7: f⁻¹(7) = 4 and f(4) = 7. Doing then undoing returns the input.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "AI-AHL2.7.composite-context#0",
+					"text": "Applying the outer function first, so the input goes into the wrong function",
+					"as": "distractor",
+					"in": [
+						"composite-value",
+						"composite-rule",
+						"composite-equation"
+					],
+					"wrong": "the other order"
+				},
+				{
+					"ref": "AI-AHL2.7.composite-context#1",
+					"text": "Multiplying the two functions' values instead of composing them",
+					"as": "distractor",
+					"in": [
+						"composite-value"
+					],
+					"wrong": "f(a) × g(a)"
+				},
+				{
+					"ref": "AI-AHL2.7.composite-context#2",
+					"text": "Replacing only one x in the outer function by the inner expression",
+					"as": "distractor",
+					"in": [
+						"composite-rule"
+					],
+					"wrong": "one x left in place"
+				},
+				{
+					"ref": "AI-AHL2.7.composite-context#3",
+					"text": "Assuming f ∘ g = g ∘ f in every context",
+					"as": "distractor",
+					"in": [
+						"composite-order"
+					],
+					"wrong": "the same either way"
+				},
+				{
+					"ref": "AI-AHL2.7.find-inverse#0",
+					"text": "Treating the inverse as the reciprocal of the function",
+					"as": "distractor",
+					"in": [
+						"inverse-rule",
+						"inverse-value"
+					],
+					"wrong": "1/f"
+				},
+				{
+					"ref": "AI-AHL2.7.find-inverse#1",
+					"text": "Undoing the steps in the original order instead of the reverse order",
+					"as": "distractor",
+					"in": [
+						"inverse-rule",
+						"inverse-value"
+					],
+					"wrong": "the steps undone in the wrong order"
+				},
+				{
+					"ref": "AI-AHL2.7.find-inverse#2",
+					"text": "Evaluating f at the value when f⁻¹ of it is asked for",
+					"as": "distractor",
+					"in": [
+						"inverse-value"
+					],
+					"wrong": "f(a)"
+				},
+				{
+					"ref": "AI-AHL2.7.restrict-domain#0",
+					"text": "Giving the domain of f as the domain of f⁻¹, instead of the range of f",
+					"as": "distractor",
+					"in": [
+						"inverse-domain-range"
+					],
+					"wrong": "the domain of f"
+				},
+				{
+					"ref": "AI-AHL2.7.restrict-domain#2",
+					"text": "Restricting the domain at the y-intercept instead of at the vertex",
+					"as": "distractor",
+					"in": [
+						"restrict-domain"
+					],
+					"wrong": "x ≥ 0"
+				},
+				{
+					"ref": "AI-AHL2.7.inverse-identity#0",
+					"text": "Thinking (f ∘ f⁻¹)(x) = 1 rather than x",
+					"as": "distractor",
+					"in": [
+						"inverse-identity"
+					],
+					"wrong": "1"
+				},
+				{
+					"ref": "AI-AHL2.7.inverse-identity#1",
+					"text": "From f⁻¹(a) = b, putting b into f⁻¹ instead of into f",
+					"as": "distractor",
+					"in": [
+						"inverse-identity"
+					],
+					"wrong": "f⁻¹(b)"
+				},
+				{
+					"ref": "AI-AHL2.7.inverse-identity#2",
+					"text": "Reflecting the graph in the x-axis or the y-axis instead of in the line y = x",
+					"as": "distractor",
+					"in": [
+						"inverse-graph"
+					],
+					"wrong": "a reflection in an axis"
+				},
+				{
+					"text": "Taking the vertex's y-coordinate as the boundary of the domain",
+					"as": "distractor",
+					"in": [
+						"restrict-domain"
+					],
+					"wrong": "x ≥ the vertex's y"
+				}
+			],
+			"chain": [
+				"two models in a story, such as items made in t hours and the cost of n items",
+				"the composite in the order the units allow: the inner model's output is the outer model's input",
+				"its value, its rule, or an equation in it solved for the input",
+				"the inverse: the steps undone in reverse, or x and y swapped, and what the inverse calculates",
+				"a quadratic model restricted at its vertex, with the domain and range of the inverse swapped"
+			],
+			"frequency": 15,
+			"marks": 2,
+			"section": {
+				"A": 0,
+				"B": 0
+			},
+			"paper": {
+				"p1": 0,
+				"p2": 15
+			}
 		},
 		{
 			"id": "t5-link-accumulation",

@@ -1111,6 +1111,13 @@ script error happens while it runs. Run one file with
   quadratic-roots; and products, quotients, powers and arguments against hand values. Both
   types sit in the Exponents and log laws region (`exponents-logs`): a region of its own would
   be locked for AA SL, which the map does not handle yet.
+<!-- R9-RATIONAL -->
+
+<!-- R9-ODD-EVEN -->
+
+<!-- R9-INVERSE -->
+
+<!-- R9-AI-COMPOSITE -->
 - `test_complex_polar.gd` (FAL-1005): the four types on the `complex_polar.gd` recipe, each
   with its own views. t1-ahl-complex-polar (AHL1.13), t1-ahl-de-moivre and
   t1-ahl-conjugate-roots (AHL1.14) are built with every cell for the eleven skills on AA HL

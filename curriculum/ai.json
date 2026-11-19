@@ -3466,10 +3466,10 @@
                 }
               ],
               "misconceptions": [
-                "Applies the outer function first, computing n(C(8)) instead of C(n(8))",
-                "Multiplies C(8) × n(8) instead of composing",
-                "Replaces only one x in the outer function by g(x), leaving the others as x",
-                "Assumes f ∘ g = g ∘ f in every context"
+                "Applying the outer function first, so the input goes into the wrong function",
+                "Multiplying the two functions' values instead of composing them",
+                "Replacing only one x in the outer function by the inner expression",
+                "Assuming f ∘ g = g ∘ f in every context"
               ],
               "threads": [
                 {
@@ -3526,9 +3526,9 @@
                 }
               ],
               "misconceptions": [
-                "Writes F⁻¹(x) = 1/(1.8x + 32), treating the inverse as a reciprocal",
-                "Undoes the steps in the original order, giving x/1.8 − 32, so 50°F becomes −4.2°C instead of 10°C",
-                "Evaluates f(10) when f⁻¹(10) is asked for"
+                "Treating the inverse as the reciprocal of the function",
+                "Undoing the steps in the original order instead of the reverse order",
+                "Evaluating f at the value when f⁻¹ of it is asked for"
               ],
               "threads": [
                 {
@@ -3585,10 +3585,10 @@
                 }
               ],
               "misconceptions": [
-                "Gives the domain of f⁻¹ as x ≥ −1 (the domain of f) instead of x ≥ 4 (the range of f)",
-                "Keeps the ± and writes f⁻¹(x) = −1 ± √(x − 4), which is not a function",
-                "Restricts the domain at the y-intercept (x ≥ 0) instead of at the vertex x = −1, so the inverse misses part of the branch",
-                "Picks the negative square root when the domain was restricted to x ≥ −1"
+                "Giving the domain of f as the domain of f⁻¹, instead of the range of f",
+                "Keeping the ± in f⁻¹, which is then not a function",
+                "Restricting the domain at the y-intercept instead of at the vertex",
+                "Picking the square root with the wrong sign for the restricted domain"
               ],
               "threads": [
                 {
@@ -3654,9 +3654,9 @@
                 }
               ],
               "misconceptions": [
-                "Thinks (f ∘ f⁻¹)(x) = 1 rather than x",
-                "From f⁻¹(a) = 3, writes a = f⁻¹(3) instead of a = f(3)",
-                "Reflects the graph in the x-axis or y-axis instead of in the line y = x"
+                "Thinking (f ∘ f⁻¹)(x) = 1 rather than x",
+                "From f⁻¹(a) = b, putting b into f⁻¹ instead of into f",
+                "Reflecting the graph in the x-axis or the y-axis instead of in the line y = x"
               ],
               "threads": [
                 {

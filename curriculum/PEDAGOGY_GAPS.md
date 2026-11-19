@@ -8,10 +8,10 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## In numbers
 
-- **Types:** 120 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
+- **Types:** 124 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
 - **Skills with a type:** 286 of 286.
-- **Functions:** 141 unknowns the exam asks and 434 it doesn't; 574 angles, 193 of them with a weak spot for method-pick questions; 160 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
-- **Coverage cells** (one unknown in one representation by one method): 2102 in Functions, of which 528 are reachable with "Exam-style only" on.
+- **Functions:** 174 unknowns the exam asks and 439 it doesn't; 623 angles, 193 of them with a weak spot for method-pick questions; 172 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
+- **Coverage cells** (one unknown in one representation by one method): 2220 in Functions, of which 632 are reachable with "Exam-style only" on.
 
 ## Levels
 
@@ -29,9 +29,9 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 | Quadratics | 6 | 8 | 37 + 76 | 42 (30) | 102 (35) | 32 | 353 (125) |
 | Exponentials and logs | 4 | 4 | 26 + 59 | 28 (22) | 95 (29) | 20 | 353 (121) |
 | Graphs and key features | 6 | 6 | 25 + 71 | 40 (30) | 110 (43) | 32 | 320 (78) |
-| Composite and inverse | 3 | 3 | 18 + 48 | 17 (13) | 65 (19) | 16 | 246 (66) |
-| Rational functions | 2 | 4 | 9 + 40 | 21 (18) | 40 (13) | 15 | 132 (29) |
-| Function basics | 3 | 3 | 10 + 43 | 21 (15) | 40 (17) | 15 | 188 (36) |
+| Composite and inverse | 5 | 3 | 32 + 52 | 23 (13) | 89 (19) | 22 | 311 (118) |
+| Rational functions | 3 | 4 | 21 + 40 | 23 (18) | 56 (13) | 18 | 163 (60) |
+| Function basics | 4 | 3 | 17 + 44 | 23 (15) | 49 (17) | 18 | 210 (57) |
 | Lines | 1 | 6 | 10 + 50 | 23 (21) | 57 (18) | 15 | 253 (45) |
 | Transformations | 2 | 3 | 6 + 47 | 17 (13) | 65 (19) | 15 | 257 (28) |
 
@@ -882,7 +882,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 4. Composite and inverse (syllabus 2.5)
 
-3 exam types, 3 extension types; 18 exam unknowns and 48 new ones; 246 coverage cells (66 with "Exam-style only" on).
+5 exam types, 3 extension types; 32 exam unknowns and 52 new ones; 311 coverage cells (118 with "Exam-style only" on).
 
 #### Values, composites and inverse values read from a graph or a table (`fn-graph-table-composite-inverse`, exam, 9 bank parts)
 
@@ -978,6 +978,48 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L4): For f(x) = (ax + b)/(cx + d) with c ≠ 0, why is f its own inverse exactly when d = −a? — The inverse is (−dx + b)/(cx − a). It matches f term by term only when −d = a. On the graph, the asymptotes x = −d/c and y = a/c then cross on y = x, so the curve is symmetric in that line.
 - **Misconceptions used:** 25. Writes f⁻¹(x) = 1/f(x); Undoes the operations in the original order; Keeps the ± for a quadratic on a restricted domain, or picks the sign that doesn't match the domain; States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse; Leaves y on both sides, without collecting the y-terms after cross-multiplying; Gives the domain of f⁻¹ as x ≠ −d/c (f's excluded value) instead of x ≠ a/c; Thinks only 1/x can be self-inverse; Thinks (f ∘ f⁻¹)(x) = 1 rather than x; Solves f⁻¹(x) = c by applying f⁻¹ to c instead of f; Believes (f ∘ f)(x) = x for any function; Confuses −f(x) (x-axis) with f(−x) (y-axis); Undoing an added or subtracted number with the same sign instead of the opposite one; Multiplying by a to undo the multiplication instead of dividing by it; Swapping a and d but changing the sign of only one of b and c; Changing the signs of b and c but leaving a and d where they are; Swapping the roles of h and k, so each is undone in the other's place; Undoing the added number but not the power, so no log is taken; Including the asymptote's value in the domain of f⁻¹; Dropping the minus sign in −d/c, the value that makes the denominator zero; Dropping the minus sign when finding the x-coordinate of the vertex; Giving the y-coordinate of the vertex instead of its x-coordinate; Taking d = a instead of d = −a as the condition for being self-inverse; Working out f at the number, forgetting that f⁻¹ undoes f first.
 
+#### Inverses on a restricted domain and self-inverse functions (AA HL) (`fn-ahl-inverse-restricted`, exam, 8 bank parts)
+
+- **Situation:** A function that needs a restricted domain for an inverse: a(x − h)² + k, √(a(x − h)² + k), cos(x − p), or (ax + b)/(x + d).
+- **Representations:** **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a quadratic or a square root of a quadratic, with domain x ≤ a or x ≥ a → the largest (or smallest) a for which f has an inverse
+  - **exam** L3: given a shifted cosine or sine, with domain p ≤ x ≤ a → the largest a for which f has an inverse
+  - **exam** L3: given a quadratic on one side of its vertex → f⁻¹(x), with the right root
+  - **exam** L2: given a quadratic on one side of its vertex → the domain of f⁻¹
+  - **exam** L2: given (ax + b)/(x + d) with one constant unknown → the constant that makes f its own inverse
+  - new L2: given a rational, linear or root function → whether it is its own inverse, and why
+  - **exam** L3: given an increasing quadratic on x ≥ 0, or a root → the points where the graphs of f and f⁻¹ meet
+  - new L4: given a decreasing odd function such as −ax³ → every point where the graphs of f and f⁻¹ meet
+- **Angles:** Complete the square, then rearrange; Restrict at the turning point; Horizontal line test; Solve x = f(y) with the quadratic formula; Show f(f(x)) = x; Find f⁻¹ and compare with f; Graph symmetric in y = x; Solve f(x) = x for an increasing f; Find f⁻¹ and solve f(x) = f⁻¹(x); Graph both on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): The graphs of f and f⁻¹ can only meet on the line y = x. — False: for an increasing f they do, but a decreasing f such as −x³ meets its inverse at (1, −1) and (−1, 1) too.
+  - *always-sometimes-never* (L3): (ax + b)/(cx + d) is its own inverse. — Sometimes: exactly when d = −a (or when it is the line y = x), since then swapping x and y gives back the same rule.
+  - *interpret-parameter* (L3): Why does x² − 4x have an inverse on x ≥ 2 but not on x ≥ 0? — Its vertex is at x = 2. On x ≥ 0 it falls then rises, so outputs between −4 and 0 come from two inputs.
+- **Misconceptions used:** 13. Leaving a ± in the inverse instead of choosing the branch; Choosing the root with the wrong sign for the restricted domain; Giving the domain of f as the domain of the inverse, instead of the range of f; Thinking self-inverse means f(x) × f(x) = 1, or f(x) = 1/f(x); Checking f(f(a)) = a for one value only and concluding the function is self-inverse; Confusing self-inverse with odd, and calling an odd function its own inverse; Solving f(x) = x for a decreasing function, so missing the meeting points off the line y = x; Taking f⁻¹(x) as 1/f(x) and solving f(x) = 1/f(x); Cutting the domain at the y-intercept instead of at the vertex; Cutting the domain at a root of the quadratic instead of at the vertex; Taking the vertex's y-coordinate as the boundary of the domain; Adding a half period instead of a whole half-turn of the cosine, so the domain is a quarter period too short or too long; Taking the constant that makes the denominator zero instead of d = −a.
+
+#### Composite and inverse functions in context (AI HL) (`fn-ai-composite-inverse`, exam, 15 bank parts)
+
+- **Situation:** Two models in a story chained as a composite, and a model undone by its inverse.
+- **Representations:** **words**, **equation**, **table**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given two models in context; an input → the composite's value, with units
+  - **exam** L2: given two models in context → the composite as a rule in the first input
+  - **exam** L2: given two processes that can be done in either order, such as a discount and a fee → which order gives the larger or smaller result, or what an order means
+  - **exam** L3: given two models in context; a target output → the input that gives it
+  - **exam** L2: given a linear, rational or log model → f⁻¹(x), or what it calculates
+  - **exam** L1: given a model; an output → f⁻¹ of it, without finding f⁻¹(x)
+  - **exam** L2: given a quadratic model → the largest domain x ≥ k on which it has an inverse
+  - **exam** L2: given a function on a restricted domain → the domain or the range of f⁻¹
+  - new L1: given f, or a value of f⁻¹ → (f ∘ f⁻¹)(a), or a from f⁻¹(a) = b
+  - new L2: given the graph of f → the graph of f⁻¹
+- **Angles:** Evaluate the inner function first; Substitute the whole inner expression; Follow the units through the chain; Define both functions on the GDC; Swap x and y, then make y the subject; Undo the operations in reverse order; Solve f(x) = k on the GDC for a single value; Restrict at the turning point; Use the horizontal line test on the graph; Swap domain and range; Use the identity property directly; Compose and simplify to x; Reflect the graph in y = x; Draw the inverse on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): Taking 20% off and then $10 off costs the same as taking $10 off and then 20% off. — False: the percentage applies to a different amount. For a price P the first gives 0.8P − 10 and the second 0.8P − 8.
+  - *interpret-parameter* (L3): C(n) is the cost of n items and n(t) the number made in t hours. What does C⁻¹(500) mean? — The number of items that cost 500 in total: C⁻¹ takes a cost back to a number of items.
+  - *predict-check* (L3): Predict (f ∘ f⁻¹)(7) for f(x) = 3x − 5, then check by working out f⁻¹(7) first. — 7: f⁻¹(7) = 4 and f(4) = 7. Doing then undoing returns the input.
+- **Misconceptions used:** 13. Applying the outer function first, so the input goes into the wrong function; Multiplying the two functions' values instead of composing them; Replacing only one x in the outer function by the inner expression; Assuming f ∘ g = g ∘ f in every context; Treating the inverse as the reciprocal of the function; Undoing the steps in the original order instead of the reverse order; Evaluating f at the value when f⁻¹ of it is asked for; Giving the domain of f as the domain of f⁻¹, instead of the range of f; Restricting the domain at the y-intercept instead of at the vertex; Thinking (f ∘ f⁻¹)(x) = 1 rather than x; From f⁻¹(a) = b, putting b into f⁻¹ instead of into f; Reflecting the graph in the x-axis or the y-axis instead of in the line y = x; Taking the vertex's y-coordinate as the boundary of the domain.
+
 #### Order, undoing and one-to-one (`fn-concept-order-and-undo`, concept, level 3–4)
 
 *Gap:* The exam asks students to compose and invert but never asks why the order matters or why a domain must be restricted.
@@ -1048,7 +1090,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 5. Rational functions (syllabus 2.8)
 
-2 exam types, 4 extension types; 9 exam unknowns and 40 new ones; 132 coverage cells (29 with "Exam-style only" on).
+3 exam types, 4 extension types; 21 exam unknowns and 40 new ones; 163 coverage cells (60 with "Exam-style only" on).
 
 #### Asymptotes and intercepts of (ax + b)/(cx + d) (`fn-rational-asymptotes-intercepts`, exam, 15 bank parts)
 
@@ -1106,6 +1148,30 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): For f(x) = (2x − 1)/(x + 3), the equation f(x) = k has exactly one solution for every real k. — False. 2x − 1 = k(x + 3) gives x = (3k + 1)/(2 − k), one solution for each k except k = 2, the horizontal asymptote, where there is none.
   - *interpret-parameter* (L4): f(x) = (2x − 2)/(x + 4). What do the zero and the asymptotes of f become on the graph of y = 1/f(x)? — 1/f(x) = (x + 4)/(2x − 2). The zero x = 1 of f becomes the vertical asymptote, the asymptote x = −4 becomes the zero, and y = 2 becomes y = 1/2.
 - **Misconceptions used:** 17. Puts the branches in the wrong pair of quadrants relative to the asymptotes; Finds the x-intercept by setting the denominator to zero; Draws the curve crossing the vertical asymptote; Gives the intersection points instead of an interval; Chooses the interval where f is below g; Misses that the solution set can be in two separate pieces; Counts two solutions when y = k only touches the graph at a turning point (one solution); Counts intersections outside the given domain; Counts an asymptote value as giving a solution; Thinks self-inverse means the product of f(x) and f⁻¹(x) is one; Draws the reciprocal graph touching or crossing the axes; Draws the branches in the second and fourth quadrants; Assumes a quadratic always has two roots, without checking the discriminant; Uses the vertical asymptote's value for k instead of the horizontal asymptote's; Assumes the graph never meets the x-axis, as the parent reciprocal graph never does; Thinks the inverse of a function is its negative; Undoes f(x) = k/x as if it multiplied x by k, so divides by k instead.
+
+#### Rational functions with a quadratic numerator or denominator (AA HL) (`fn-ahl-rational-quadratic`, exam, 29 bank parts)
+
+- **Situation:** A linear over a quadratic, (ax + b)/(x² + px + q), or a quadratic over a linear, (x² + bx + c)/(x + e) = mx + k + r/(x + e).
+- **Representations:** **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a linear over a quadratic → the equations of the vertical asymptotes, or the values outside the domain
+  - **exam** L1: given a quadratic over a linear → the equation of the vertical asymptote
+  - **exam** L2: given a rational function with an unknown constant in its denominator; its vertical asymptote → the constant
+  - **exam** L1: given a linear over a quadratic → the equation of the horizontal asymptote
+  - **exam** L2: given a linear over a quadratic → the point where the graph crosses its horizontal asymptote
+  - **exam** L2: given a quadratic over a linear → the x-intercepts, or the y-intercept
+  - **exam** L2: given a quadratic over a linear → the equation of the oblique asymptote, or the form px + q + r/(x + e)
+  - **exam** L3: given a quadratic over a linear with an unknown coefficient; its oblique asymptote → the coefficient
+  - **exam** L4: given a linear over a quadratic whose denominator has no real zeros → the range
+  - **exam** L4: given a quadratic over a linear → the set of values f(x) never takes, or the range
+  - **exam** L3: given a linear over a quadratic → the graph, with its asymptotes and intercepts
+  - **exam** L3: given a quadratic over a linear → the graph, with its vertical and oblique asymptotes
+- **Angles:** Factorise the denominator and set each factor to zero; Count asymptotes with the discriminant; Graph or table on the GDC; Compare degrees; Divide top and bottom by x²; Solve f(x) = 0 for the crossing point; Tabulate large x on the GDC; Divide the numerator by the denominator; Write (px + q)(x + 1) + r and compare; Remainder term vanishes for large x; Rearrange y = f(x) into a quadratic in x; Differentiate and find stationary points; GDC maximum and minimum; Asymptotes, intercepts, then a sign check; Graph on the GDC and transfer; Build from the denominator's graph.
+- **Concept probes:**
+  - *true-false-reason* (L3): A graph can never cross its horizontal asymptote. — False: the asymptote describes the far ends only. A linear over a quadratic crosses y = 0 where its numerator is zero.
+  - *always-sometimes-never* (L3): A rational function with a quadratic denominator has two vertical asymptotes. — Sometimes: two when the denominator has two real zeros that are not zeros of the numerator, one for a repeated zero, none when its discriminant is negative.
+  - *predict-check* (L3): Predict whether (x² + 1)/(x − 2) has a horizontal or an oblique asymptote, then check by dividing. — Oblique: the numerator's degree is one more than the denominator's. Dividing gives x + 2 + 5/(x − 2), so the asymptote is y = x + 2.
+- **Misconceptions used:** 16. Setting the numerator equal to zero and giving its root as a vertical asymptote; Factorising the quadratic denominator with the signs swapped, so each asymptote has the wrong sign; Thinking every quadratic denominator gives two vertical asymptotes, even one with no real zeros; Taking the ratio of the leading coefficients as the horizontal asymptote, though the denominator has the higher degree; Believing a graph can never cross its horizontal asymptote, so missing the point where it does; Taking the ratio of the constant terms as the horizontal asymptote; Taking only the leading terms, so the oblique asymptote loses its constant term; Dividing each term of the numerator by x instead of by the whole denominator; Giving the range as every real number except the horizontal asymptote's value; Taking the wrong side of the discriminant condition, so the range comes out as the gap between the turning values; Drawing a branch that misses the x-intercept where the numerator is zero; Giving the y-intercept as the ratio of the leading coefficients instead of f(0); Changing the sign of the denominator's zero, so the vertical asymptote is reflected in the y-axis; Losing the remainder's sign when dividing, so the constant of the oblique asymptote is wrong; Solving for the zeros of the quadratic numerator with a sign slip in the factors; Using the vertical asymptote's value as the horizontal asymptote.
 
 #### Write a rational function as a transformed 1/x (`fn-ext-transformed-reciprocal`, skill, level 2–3)
 
@@ -1192,7 +1258,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 6. Function basics (syllabus 2.2)
 
-3 exam types, 3 extension types; 10 exam unknowns and 43 new ones; 188 coverage cells (36 with "Exam-style only" on).
+4 exam types, 3 extension types; 17 exam unknowns and 44 new ones; 210 coverage cells (57 with "Exam-style only" on).
 
 #### Inverse as a reflection in y = x (`fn-inverse-reflection`, exam, 3 bank parts)
 
@@ -1277,6 +1343,26 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): Reflecting a graph in the x-axis leaves its range unchanged. — Sometimes. Every output changes sign, so y ≥ 1 becomes y ≤ −1. The range stays the same only when it is balanced about 0, such as −2 ≤ y ≤ 2.
   - *interpret-parameter* (L3): f(x) = 3 + 2/(x − 1). Why is 3 not in the range? — 2/(x − 1) is never 0, because a fraction with a non-zero top is never 0. So f(x) can never equal 3: y = 3 is the horizontal asymptote.
 - **Misconceptions used:** 33. Uses only the endpoints of a restricted domain and misses a turning point inside it; Includes the asymptote value in the range; Writes the range in terms of x instead of y or f(x); Using > instead of ≥ for a root, which leaves out a valid endpoint; Copying the domain of √x without the shift; Describes the y-values (range) when the domain is asked for; States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse; Getting the parabola's direction wrong, so the range runs the wrong way from the vertex; Taking the x-coordinate of the turning point as the bound of the range; Taking the y-intercept as the bound of the range; Using the vertical asymptote's value as the value the outputs miss; Taking the x-axis as the horizontal asymptote, as for one over x; Forgetting the vertical shift, giving the range of the bare exponential; Ignoring the restricted domain, giving the range of the whole parabola; Copying the ends of the domain as the range; Forgetting to change the signs, giving the range of f itself; Changing the signs of the ends without swapping them round; Mishandling the case where c equals the least output of f; Reversing the inequality, putting c above the outputs of f instead of below; Solving for the end value with its sign flipped; Forgetting to reverse the inequality after dividing by a negative; Including the end value, where the log would be of zero; Copying the domain of the bare function, ln x or one over x, without the shift; Reading an open dot as filled, or a filled dot as open; Describes the x-values the graph covers when the range is asked for; Copying the range as the domain; Forgetting to divide by the gradient when solving for the ends; Keeping the range of f as the range of f⁻¹, without swapping it; Taking the side of the vertex that does not hold the point; Cutting the domain at the given point instead of at the vertex; Cutting the domain at the vertex's y-coordinate instead of its x-coordinate.
+
+#### Odd and even functions (AA HL) (`fn-ahl-odd-even`, exam, 12 bank parts)
+
+- **Situation:** A function built from odd and even pieces: powers, sin, cos, eˣ and e⁻ˣ, or a graph drawn on one side of the y-axis.
+- **Representations:** **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a polynomial → odd, even or neither
+  - **exam** L2: given a function with powers, sin, cos, eˣ or e⁻ˣ → odd, even or neither, and the line that shows it
+  - **exam** L2: given a polynomial with an unknown coefficient; that it is odd, or that it is even → the coefficient
+  - **exam** L1: given f odd or even; a value f(a), or a point on the graph → f(−a), or a value of an expression in f
+  - **exam** L2: given the graph of f for x ≥ 0; that f is odd, or that it is even → the graph for every x
+  - new L1: given four graphs → the graph of an odd or an even function
+  - **exam** L3: given f odd and g even, or both odd, or both even → whether a product, a sum or a composite is odd, even or neither
+  - **exam** L3: given an integral from −a to a of an odd or an even integrand, with ∫ from 0 to a where needed → its value
+- **Angles:** Simplify f(−x) and compare; One counterexample for 'neither'; Use known odd and even pieces; Reflect in the y-axis or rotate about the origin; Map key points; Use the unit circle for trig functions; Prove from the definitions; Treat odd as −1 and even as +1 under multiplication; Cancel areas for an odd integrand.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): A function is either odd or even. — Sometimes: x³ is odd and x² is even, but x³ + x² is neither, and only f(x) = 0 is both.
+  - *true-false-reason* (L3): If f is odd and defined at 0, then f(0) = 0. — True: f(−0) = −f(0) says f(0) = −f(0), so f(0) = 0 and the graph passes through the origin.
+  - *predict-check* (L3): Predict whether x² sin x is odd or even, then check by putting −x in. — Odd: even × odd is odd. (−x)² sin(−x) = x²(−sin x) = −x² sin x.
+- **Misconceptions used:** 13. Concluding a function is odd just because f(−x) ≠ f(x); Calling a function odd because its power is odd, though an added constant stops f(−x) equalling −f(x); Checking one value of f(−x) against f(x) and concluding the function is even; Completing an odd function by reflecting only in the y-axis, which produces an even function; Completing an odd function by reflecting only in the x-axis; Drawing an odd function that is defined at 0 but does not pass through the origin; Thinking the product of two odd functions is odd; Assuming the sum of an odd and an even function is odd or even; Using ∫ from −a to a of f(x) dx = 0 for an even function; Doubling the integral from 0 to a for an odd integrand, as if it were even; Swapping the two definitions, so f(−x) = −f(x) is read as even; Changing the sign of f(a) for an even function, as if it were odd; Setting the coefficient of the wrong powers to zero.
 
 #### Is it a function? Is it one-to-one? (`fn-ext-is-function`, skill, level 1–2)
 

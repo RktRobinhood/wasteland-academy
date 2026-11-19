@@ -1196,6 +1196,13 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   method-pick; the concept type and graph-match offer true-false-reason. Not built yet:
   error-spot (fn-ext-inequality-graphical, fn-pre-graph-reading) and method-pick for
   fn-concept-solutions-as-intersections.
+<!-- R9-RATIONAL -->
+
+<!-- R9-ODD-EVEN -->
+
+<!-- R9-INVERSE -->
+
+<!-- R9-AI-COMPOSITE -->
 - **The Composite and inverse region** (FAL-422) adds three exam situations. `composite_pair.gd`
   is two rules chained, f and g, as `{"t", "co"}` polynomials (a line, x² + c, (x − h)², x³ + c,
   or sin x on Paper 2, with a generic quadratic for an outer rule to find), with modes for

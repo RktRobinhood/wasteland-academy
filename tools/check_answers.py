@@ -51707,6 +51707,25 @@ SITUATION_CHECKS["complex-polar-ai"] = aip_check
 # ── end complex-polar ──
 
 
+# ── R9 (FAL-1007): AA HL rational, odd/even and inverse functions, AI HL composites. Each type's section goes after its own marker. ──
+
+# R9-RATIONAL: fn-ahl-rational-quadratic (rational-quadratic), prefix R9RQ_ / r9rq_
+
+# (between the R9 markers)
+
+# R9-ODD-EVEN: fn-ahl-odd-even (odd-even), prefix R9OE_ / r9oe_
+
+# (between the R9 markers)
+
+# R9-INVERSE: fn-ahl-inverse-restricted (inverse-restricted), prefix R9IR_ / r9ir_
+
+# (between the R9 markers)
+
+# R9-AI-COMPOSITE: fn-ai-composite-inverse (ai-composite-inverse), prefix R9AC_ / r9ac_
+
+# (end of the R9 markers)
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]
