@@ -128,11 +128,11 @@ static func other(text: String) -> Dictionary:
 
 ## The Cartesian answer a + bi: each part's coefficient typed, its root shown.
 static func cart_ans(head: String, z: Array) -> Dictionary:
-	var parts: Array = [head, {"slot": "a"}]
+	var parts: Array = [head, {"slot": "re"}]
 	if int(z[0][1]) != 1:
 		parts.append("√%d" % z[0][1])
 	parts.append(" + ")
-	parts.append({"slot": "b"})
+	parts.append({"slot": "im"})
 	parts.append("√%d i" % z[1][1] if int(z[1][1]) != 1 else "i")
 	var ans := Answer.make("form", cval(head, z), {"parts": parts, "roots": [int(z[0][1]), int(z[1][1])]})
 	ans.exact = true
@@ -140,7 +140,7 @@ static func cart_ans(head: String, z: Array) -> Dictionary:
 
 
 static func cval(head: String, z: Array) -> Dictionary:
-	return {"a": z[0][0], "b": z[1][0], "text": head + T(z)}
+	return {"re": z[0][0], "im": z[1][0], "text": head + T(z)}
 
 
 ## A wrong a + bi: typed where its roots are the answer's, else only picked.
@@ -267,10 +267,8 @@ func u_to_polar(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wr.append(slip("quadrant", other(head + PT(r, Q.new(0), style))))
 	if S.family(c) == 4:
 		wr.append(slip("mod-add", pwrong(ans, head, S.sd(z[0][0].abs_q().add(z[1][0].abs_q())), c, style)))
-	if q == 0:
-		var flip := S.principal(c.add(1))
-		wr.append(slip("neg-mod", other(head + ("−%s" % S.stext(r)) + ("e^(%s)" % S.pi_i(flip) if style == "euler" else " cis(%s)" % Fmt.pi(flip)) if not flip.is_zero() \
-			else head + "−" + S.stext(r) + ("e^(0)" if style == "euler" else " cis 0"))))
+	if c.eq(1):
+		wr.append(slip("neg-mod", other(head + "−" + S.stext(r) + ("e^(0)" if style == "euler" else " cis 0"))))
 	if q > 0:
 		var sw := Q.new(1, 2).sub(ref_angle(c))
 		wr.append(slip("arctan-swap", pwrong(ans, head, r, sw if q in [1, 3] else sw.neg(), style)))
@@ -292,7 +290,7 @@ func u_to_polar(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		ma = read + [mod_line(z, r), "z is in %s. The angle with the real axis is arctan(%s) = %s." % [where(c), S.stext(S.sd(z[1][0].abs_q(), z[1][1])) + "/" + S.stext(S.sd(z[0][0].abs_q(), z[0][1])), Fmt.pi(ref_angle(c))],
 			placed(c), last]
-	var sk: Array = read + ["Sketch z at %s: it is on %s, %s from 0, so r = %s." % [pt(z), where(c), S.stext(r), S.stext(r)]]
+	var sk: Array = read + ["Sketch z at %s: it is %s %s, %s from 0, so r = %s." % [pt(z), "in" if q > 0 else "on", where(c), S.stext(r), S.stext(r)]]
 	if q > 0:
 		sk.append("The line to z makes %s with the real axis, measured %s from the positive real axis, so θ = %s." % [Fmt.pi(ref_angle(c)), "anticlockwise" if c.sign() > 0 else "clockwise", Fmt.pi(c)])
 	else:
@@ -520,7 +518,7 @@ func u_describe_map(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		var fill: Array = [claim("A translation by the vector %s." % vec([w[1], w[0]])), claim("An enlargement with scale factor |w| and centre 0."),
 			claim("A translation by the vector %s." % vec([w[0], S.sneg(w[1])]))]
 		var steps: Array = ["Adding w = %s adds %s to the real part and %s to the imaginary part of every point." % [T(w), w[0][0].text(), w[1][0].text()],
-			"Every point moves by the same vector, the side of the parallelogram on z and w: %s." % vec(w), "So the map is %s" % t.substr(0, 1).to_lower() + t.substr(1)]
+			"Every point moves by the same vector, the side of the parallelogram on z and w: %s." % vec(w), t]
 		return _pack(["w = " + T(w)], "Describe geometrically the transformation of the Argand diagram that maps z to z + w.", ans, wr, fill, {"parallelogram": steps}, rng)
 	var r: Array = s.r
 	var c: Q = s.c
@@ -535,7 +533,7 @@ func u_describe_map(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		claim(describe(r, S.principal(c.add(Q.new(1, 2))))), claim("A reflection in the real axis.")]
 	var mod_t := "|w| = %s" % S.stext(r)
 	var steps: Array = ["w = %s, so %s and arg w = %s." % [T(w), mod_t, Fmt.pi(c)], "In polar form w = %s, so multiplying by w multiplies every distance from 0 by %s and adds %s to every argument." % [PT(r, c, "cis"), S.stext(r), Fmt.pi(c)],
-		"So the map is %s" % right.substr(0, 1).to_lower() + right.substr(1)]
+		right]
 	return _pack(["w = " + T(w)], "Describe geometrically the transformation of the Argand diagram that maps z to wz.", ans, wr, fill, {"rotation-enlargement": steps}, rng)
 
 

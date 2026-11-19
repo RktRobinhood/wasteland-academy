@@ -48579,6 +48579,411 @@ SITUATION_CHECKS["complex-number"] = cx_check
 SITUATION_CHECKS["complex-number-ai"] = cx_check
 
 
+# ── complex-polar (t1-ahl-complex-polar, t1-ahl-de-moivre, t1-ahl-conjugate-roots, t1-ai-complex-polar, FAL-1005) ──
+# Every number is read back from the lines, the question or the Argand diagram, and the answer
+# and each slip are worked out again with SymPy: a modulus with sp.Abs, an argument with sp.arg,
+# exact cosines and sines, products and powers with I. A slip's option is held to what that slip
+# gives. Every name here starts CP_ or cp_, so it can't overwrite another type's.
+
+CP_AA = "AHL1.13."
+CP_TA = "t1-ahl-complex-polar#"
+CP_REFS = {
+    "t1-ahl-complex-polar": {
+        "quadrant": CP_AA + "convert-forms#0", "mod-add": CP_AA + "convert-forms#1", "neg-mod": CP_AA + "convert-forms#2",
+        "arg-mul": CP_AA + "polar-products-quotients#0", "mod-sum": CP_AA + "polar-products-quotients#1",
+        "arg-div": CP_AA + "polar-products-quotients#2", "clockwise": CP_AA + "geometric-interpretation#0",
+        "rotation-only": CP_AA + "geometric-interpretation#1", "add-rotates": CP_AA + "geometric-interpretation#2",
+        "two-mod": CP_AA + "sums-in-euler-form#0", "add-exp": CP_AA + "sums-in-euler-form#1", "no-i": CP_AA + "sums-in-euler-form#2",
+        "part-mod": CP_AA + "exact-trig-from-forms#0", "sub-args": CP_AA + "exact-trig-from-forms#1",
+        "arctan-swap": CP_TA + "14", "arg-sign": CP_TA + "15", "trig-swap": CP_TA + "16", "ref-signs": CP_TA + "17",
+        "unreduced": CP_TA + "18", "quot-order": CP_TA + "19", "square-mod": CP_TA + "20", "mean-diff": CP_TA + "21",
+        "lost-two": CP_TA + "22", "rev-sign": CP_TA + "23", "re-for-im": CP_TA + "24", "neg-vector": CP_TA + "25",
+    },
+}
+CP_FORM = {"re^(iθ)": "euler", "r cis θ": "cis"}
+
+
+def cp_root_of(n):
+    """√n for a whole n as (m, r), r square-free."""
+    n = int(n)
+    m, r, f = 1, n, 2
+    while f * f <= r:
+        while r % (f * f) == 0:
+            r //= f * f
+            m *= f
+        f += 1
+    return m, r
+
+
+def cp_split(x):
+    """A real m√r as (m, r): m rational, r square-free."""
+    x = sp.nsimplify(sp.simplify(x))
+    if x == 0:
+        return sp.Integer(0), 1
+    n = sp.Rational(sp.simplify(x ** 2))
+    k, r = cp_root_of(n.p * n.q)
+    m = sp.Rational(k, n.q) * (1 if x > 0 else -1)
+    need(sp.simplify(m * sp.sqrt(r) - x) == 0, f"{x} is not one surd")
+    return m, r
+
+
+def cp_s(x):
+    """m√r as the game writes it: "2√3", "−√2", "3/2", "3√2/2"."""
+    m, r = cp_split(x)
+    if r == 1:
+        return cx_q(m)
+    am = abs(m)
+    return ("−" if m < 0 else "") + ("" if am.p == 1 else str(am.p)) + f"√{r}" + ("" if am.q == 1 else f"/{am.q}")
+
+
+def cp_iterm(b):
+    m, r = cp_split(abs(b))
+    if r == 1:
+        if m == 1:
+            return "i"
+        return f"{m.p}i" if m.q == 1 else f"({m.p}/{m.q})i"
+    return cp_s(abs(b)) + " i"
+
+
+def cp_c(z):
+    """a + bi with surd parts: "−2√3 + 2i", "3√2 − 3√2 i", "−4i"."""
+    z = sp.expand(z)
+    a, b = sp.re(z), sp.im(z)
+    if b == 0:
+        return cp_s(a)
+    if a == 0:
+        return ("−" if b < 0 else "") + cp_iterm(b)
+    return cp_s(a) + (" − " if b < 0 else " + ") + cp_iterm(b)
+
+
+def cp_pi(c):
+    c = sp.Rational(c)
+    return "0" if c == 0 else cx_pi(c)
+
+
+def cp_pi_i(c):
+    c = sp.Rational(c)
+    if c == 0:
+        return "0"
+    top = "πi" if abs(c.p) == 1 else f"{abs(c.p)}πi"
+    return ("−" if c < 0 else "") + top + ("" if c.q == 1 else f"/{c.q}")
+
+
+def cp_p(r, c, style):
+    """r e^(cπi) or r cis(cπ) as the game writes it."""
+    rt = "" if cp_split(r) == (1, 1) else cp_s(r)
+    if style == "euler":
+        return rt + (" " if "√" in rt else "") + f"e^({cp_pi_i(c)})"
+    return (rt + " " if rt else "") + f"cis({cp_pi(c)})"
+
+
+def cp_principal(c):
+    c = sp.Rational(c)
+    while c > 1:
+        c -= 2
+    while c <= -1:
+        c += 2
+    return c
+
+
+def cp_arg(z):
+    """arg z as a multiple of π, exactly."""
+    a = sp.simplify(sp.arg(sp.expand(z)) / sp.pi)
+    need(a.is_rational, f"arg {z} is not a rational multiple of π")
+    return sp.Rational(a)
+
+
+def cp_cis(r, c):
+    return sp.expand(r * (sp.cos(sp.Rational(c) * sp.pi) + sp.I * sp.sin(sp.Rational(c) * sp.pi)))
+
+
+def cp_angle(t):
+    """A multiple of π from "5π/6", "−πi/4", "π", "0"."""
+    t = t.replace("i", "")
+    if t == "0":
+        return sp.Integer(0)
+    m = re.fullmatch(r"(−?)(\d*)π(?:/(\d+))?", t)
+    need(m is not None, f"can't read the angle {t!r}")
+    return sp.Rational(int(m.group(2) or 1) * (-1 if m.group(1) else 1), int(m.group(3) or 1))
+
+
+def cp_polar(t):
+    """(r, c, style) from "4e^(5πi/6)", "√2 e^(−πi/4)", "4 cis(π/6)", "cis(π/3)"."""
+    m = re.fullmatch(r"(?:(.+?) ?)?e\^\((.+)\)", t)
+    if m:
+        r = cx_parse(m.group(1)) if m.group(1) else sp.Integer(1)
+        return r, cp_angle(m.group(2)), "euler"
+    m = re.fullmatch(r"(?:(.+?) )?cis\((.+)\)", t)
+    need(m is not None, f"can't read the polar number {t!r}")
+    r = cx_parse(m.group(1)) if m.group(1) else sp.Integer(1)
+    return r, cp_angle(m.group(2)), "cis"
+
+
+def cp_read_polar(line, name):
+    need(line.startswith(name + " = "), f"expected {name} = …, got {line!r}")
+    return cp_polar(line[len(name) + 3:])
+
+
+def cp_quadrant(c):
+    c = sp.Rational(c)
+    if (2 * c).q == 1:
+        return 0
+    if c > 0:
+        return 1 if c < sp.Rational(1, 2) else 2
+    return 4 if c > -sp.Rational(1, 2) else 3
+
+
+def cp_turn(c):
+    c = sp.Rational(c)
+    if c == 1:
+        return "π"
+    return f"{cp_pi(abs(c))} {'anticlockwise' if c > 0 else 'clockwise'}"
+
+
+def cp_describe(r, c):
+    rot = f"a rotation of {cp_turn(c)} about 0"
+    if cp_split(r) == (1, 1):
+        return "A" + rot[1:] + "."
+    return f"An enlargement with scale factor {cp_s(r)} and centre 0, and {rot}."
+
+
+def cp_trig_term(k, fn, n, letter, with_i):
+    sign = "−" if k < 0 else ""
+    m = abs(k)
+    lead = ("" if m == 1 else str(m)) + ("i" if with_i else "")
+    nl = ("" if n == 1 else str(n)) + letter
+    if lead == "":
+        return f"{sign}{fn} {nl}"
+    return f"{sign}{lead} {fn} {nl}"
+
+
+def cp_pair(v, ra, rb, den):
+    """v = (x√a + y√b)/den with x, y = ±1, written as the game writes it."""
+    for x, y in product([1, -1], [1, -1]):
+        if sp.simplify(v - (x * sp.sqrt(int(ra.lstrip("√") or 1)) + y * sp.sqrt(int(rb.lstrip("√") or 1))) / den) == 0:
+            tail = "" if den == 1 else f"/{den}"
+            if x > 0 and y > 0:
+                return f"({ra} + {rb}){tail}"
+            if x < 0 and y < 0:
+                return f"−({ra} + {rb}){tail}"
+            if x > 0:
+                return f"({ra} − {rb}){tail}"
+            return f"({rb} − {ra}){tail}"
+    raise Fail(f"{v} is not (±{ra} ± {rb})/{den}")
+
+
+def cp_check(q):
+    t, u, rep, L, asked = q["view"]["type"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    refs = CP_REFS[t]
+    need(q["paper"] == 1, f"Paper {q['paper']}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+
+    def slip(key, text):
+        if key in refs:
+            wrongs.setdefault(refs[key], set()).add(text)
+
+    I = sp.I
+    pi = sp.pi
+    if u == "to-polar":
+        m = re.fullmatch(r"Write z in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        style = CP_FORM[m.group(1)]
+        if rep == "graph":
+            m2 = re.fullmatch(r"The point A\((.+), (.+)\) on the Argand diagram represents the complex number z\.", L[0])
+            need(m2 is not None, f"can't read {L[0]!r}")
+            z = cx_parse(m2.group(1)) + I * cx_parse(m2.group(2))
+            p = cx_point(q, "A")
+            need(abs(p["x"] - float(sp.re(z))) < 1e-9 and abs(p["y"] - float(sp.im(z))) < 1e-9, "A is drawn in the wrong place")
+        else:
+            z = cx_read(L[0], "z")
+        r, c = sp.simplify(sp.Abs(z)), cp_arg(z)
+        want = "z = " + cp_p(r, c, style)
+        a, b = sp.re(z), sp.im(z)
+        qd = cp_quadrant(c)
+        if qd in (2, 3):
+            slip("quadrant", "z = " + cp_p(r, sp.Rational(sp.atan(b / a) / pi), style))
+        elif c == 1:
+            slip("quadrant", "z = " + cp_p(r, 0, style))
+        if qd > 0 and abs(a) == abs(b):
+            slip("mod-add", "z = " + cp_p(abs(a) + abs(b), c, style))
+        if c == 1:
+            slip("neg-mod", "z = −" + cp_s(r) + ("e^(0)" if style == "euler" else " cis 0"))
+        if qd > 0:
+            slip("arctan-swap", "z = " + cp_p(r, sp.Rational(sp.atan(a / b) / pi), style))
+        if c != 1:
+            slip("arg-sign", "z = " + cp_p(r, -c, style))
+    elif u == "to-cartesian":
+        need(asked == "Write z in the form a + bi.", f"asked {asked!r}")
+        r, c, _ = cp_read_polar(L[0], "z")
+        z = cp_cis(r, c)
+        want = "z = " + cp_c(z)
+        a, b = sp.re(z), sp.im(z)
+        slip("trig-swap", "z = " + cp_c(b + a * I))
+        if cp_quadrant(c) != 1:
+            slip("ref-signs", "z = " + cp_c(abs(a) + abs(b) * I))
+    elif u in ("polar-product", "product-cartesian"):
+        if u == "polar-product":
+            m = re.fullmatch(r"Write (z₁z₂|z₁/z₂|z²) in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
+        else:
+            m = re.fullmatch(r"Express (z₁z₂|z₁/z₂) in the form a \+ bi\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        name = m.group(1)
+        if name == "z²":
+            need(len(L) == 1, "z² has one number")
+            r1, c1, style = cp_read_polar(L[0], "z")
+            R, raw = r1 ** 2, 2 * c1
+        else:
+            need(len(L) == 2, f"{name} has two numbers")
+            r1, c1, style = cp_read_polar(L[0], "z₁")
+            r2, c2, style2 = cp_read_polar(L[1], "z₂")
+            need(style == style2, "the two numbers are in different forms")
+            R, raw = (r1 * r2, c1 + c2) if name == "z₁z₂" else (r1 / r2, c1 - c2)
+        z = sp.expand(sp.simplify(cp_cis(r1, c1) * (cp_cis(r1, c1) if name == "z²" else cp_cis(r2, c2) if name == "z₁z₂" else 1 / cp_cis(r2, c2))))
+        need(sp.simplify(sp.Abs(z) - R) == 0, "the modulus rule is off")
+        C = cp_principal(raw)
+        need(C == cp_arg(z), "the argument rule is off")
+        head = name + " = "
+        if u == "polar-product":
+            want = head + cp_p(R, C, style)
+            if name == "z₁z₂":
+                pr = c1 * c2
+                top = "π²" if abs(pr.p) == 1 else f"{abs(pr.p)}π²"
+                pt = ("−" if pr < 0 else "") + top + ("" if pr.q == 1 else f"/{pr.q}")
+                slip("arg-mul", head + cp_s(R) + (f"e^({pt}i)" if style == "euler" else f" cis({pt})"))
+                slip("mod-sum", head + cp_p(r1 + r2, C, style))
+            elif name == "z₁/z₂":
+                x = sp.Rational(c1 / c2)
+                if style == "euler":
+                    tx = ("−" if x < 0 else "") + ("" if abs(x.p) == 1 else str(abs(x.p))) + "i" + ("" if x.q == 1 else f"/{x.q}")
+                    slip("arg-div", head + cp_s(R) + f"e^({tx})")
+                else:
+                    slip("arg-div", head + cp_s(R) + f" cis({cx_q(x)})")
+                slip("quot-order", head + cp_p(R, cp_principal(c2 - c1), style))
+            else:
+                slip("square-mod", head + cp_p(2 * r1, C, style))
+            if raw != C:
+                slip("unreduced", head + cp_p(R, raw, style))
+        else:
+            want = head + cp_c(z)
+            a, b = sp.re(z), sp.im(z)
+            slip("trig-swap", head + cp_c(b + a * I))
+            if name == "z₁z₂":
+                slip("mod-sum", head + cp_c(cp_cis(r1 + r2, C)))
+            else:
+                slip("quot-order", head + cp_c(cp_cis(R, cp_principal(c2 - c1))))
+    elif u == "rotate-point":
+        need(rep == "graph" and L == [CX_READ_A], f"lines {L!r}")
+        z = cx_grid_point(q, "A")
+        m = re.fullmatch(r"A is rotated through (π|π/2 anticlockwise|π/2 clockwise) about the origin(?:, then enlarged with scale factor (\d) and centre the origin,)? to give the point B\. Find the complex number that B represents, in the form a \+ bi\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        c = {"π": sp.Integer(1), "π/2 anticlockwise": sp.Rational(1, 2), "π/2 clockwise": sp.Rational(-1, 2)}[m.group(1)]
+        k = int(m.group(2) or 1)
+        need(k > 1 or m.group(2) is None, "an enlargement by 1")
+        want = "B = " + cp_c(cp_cis(k, c) * z)
+        if c != 1:
+            slip("clockwise", "B = " + cp_c(cp_cis(k, -c) * z))
+        if k > 1:
+            slip("rotation-only", "B = " + cp_c(cp_cis(1, c) * z))
+    elif u == "describe-map":
+        w = cx_read(L[0], "w")
+        a, b = sp.re(w), sp.im(w)
+        if asked == "Describe geometrically the transformation of the Argand diagram that maps z to z + w.":
+            want = f"A translation by the vector ({cx_q(a)}, {cx_q(b)})."
+            slip("add-rotates", "A rotation about 0 through the angle arg w.")
+            slip("neg-vector", f"A translation by the vector ({cx_q(-a)}, {cx_q(-b)}).")
+        else:
+            need(asked == "Describe geometrically the transformation of the Argand diagram that maps z to wz.", f"asked {asked!r}")
+            r, c = sp.simplify(sp.Abs(w)), cp_arg(w)
+            want = cp_describe(r, c)
+            if c != 1:
+                slip("clockwise", cp_describe(r, -c))
+            if cp_split(r) != (1, 1):
+                slip("rotation-only", cp_describe(1, c))
+    elif u == "euler-sum":
+        m = re.fullmatch(r"Write z in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        style = CP_FORM[m.group(1)]
+        m = re.fullmatch(r"z = (.+) \+ (.+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        cs = []
+        for term in (m.group(1), m.group(2)):
+            if term == "1":
+                cs.append(sp.Integer(0))
+            else:
+                r1, c1, st = cp_polar(term)
+                need(r1 == 1 and st == style, f"the term {term!r}")
+                cs.append(c1)
+        al, be = (cs[1], cs[0]) if m.group(1) == "1" else (cs[0], cs[1])
+        z = sp.expand(sp.exp(I * pi * al) + sp.exp(I * pi * be))
+        r, c = sp.simplify(sp.Abs(z)), cp_arg(z)
+        need(r != 0, "the sum is 0")
+        want = "z = " + cp_p(r, c, style)
+        slip("two-mod", "z = " + cp_p(2, c, style))
+        slip("add-exp", "z = " + cp_p(1, cp_principal(al + be), style))
+        half = (al - be) / 2
+        if abs(half) != abs(c):
+            slip("mean-diff", "z = " + cp_p(r, half, style))
+    elif u == "euler-trig":
+        m = re.fullmatch(r"(\d?)e\^\((−?)(\d?)i(θ|x)\) − (\d?)e\^\((−?)(\d?)i(θ|x)\)|(\d?)e\^\((\d?)i(θ|x)\) \+ (\d?)e\^\(−(\d?)i(θ|x)\)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        if m.group(9) is not None:
+            k, n, letter = int(m.group(9) or 1), int(m.group(10) or 1), m.group(11)
+            need((int(m.group(12) or 1), int(m.group(13) or 1), m.group(14)) == (k, n, letter), "the two terms differ")
+            mode = "plus"
+        else:
+            k, n, letter = int(m.group(1) or 1), int(m.group(3) or 1), m.group(4)
+            need((int(m.group(5) or 1), int(m.group(7) or 1), m.group(8)) == (k, n, letter), "the two terms differ")
+            need((m.group(2), m.group(6)) in (("", "−"), ("−", "")), "the signs of the powers")
+            mode = "minus" if m.group(2) == "" else "reverse"
+        nl = ("" if n == 1 else str(n)) + letter
+        need(asked == f"Write this expression as a single term in sin {nl} or cos {nl}.", f"asked {asked!r}")
+        th = sp.Symbol("t", real=True)
+        e1, e2 = k * sp.exp(I * n * th), k * sp.exp(-I * n * th)
+        val = sp.simplify(sp.expand_complex(e1 + e2 if mode == "plus" else e1 - e2 if mode == "minus" else e2 - e1))
+        if mode == "plus":
+            need(sp.simplify(val - 2 * k * sp.cos(n * th)) == 0, "the sum is not 2k cos nθ")
+            want = cp_trig_term(2 * k, "cos", n, letter, False)
+            slip("lost-two", cp_trig_term(k, "cos", n, letter, False))
+        else:
+            sgn = 1 if mode == "minus" else -1
+            need(sp.simplify(val - sgn * 2 * k * I * sp.sin(n * th)) == 0, "the difference is not ±2ki sin nθ")
+            want = cp_trig_term(sgn * 2 * k, "sin", n, letter, True)
+            slip("no-i", cp_trig_term(sgn * 2 * k, "sin", n, letter, False))
+            if mode == "minus":
+                slip("lost-two", cp_trig_term(k, "sin", n, letter, True))
+            else:
+                slip("rev-sign", cp_trig_term(2 * k, "sin", n, letter, True))
+    elif u == "exact-trig":
+        m = re.fullmatch(r"By writing (z₁z₂|z₁/z₂) in the form a \+ bi and in modulus-argument form, find the exact value of (cos|sin)\((.+)\)\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        name, fn, phi = m.group(1), m.group(2), cp_angle(m.group(3))
+        z1, z2 = cx_read(L[0], "z₁"), cx_read(L[1], "z₂")
+        w = sp.expand(sp.simplify(z1 * z2 if name == "z₁z₂" else z1 / z2))
+        need(cp_arg(w) == phi, "the angle asked is not the argument")
+        need(phi.q == 12, "the angle is not an odd multiple of π/12")
+        val = sp.cos(phi * pi) if fn == "cos" else sp.sin(phi * pi)
+        oth = sp.sin(phi * pi) if fn == "cos" else sp.cos(phi * pi)
+        head = f"{fn}({cp_pi(phi)}) = "
+        want = head + cp_pair(val, "√6", "√2", 4)
+        slip("re-for-im", head + cp_pair(oth, "√6", "√2", 4))
+        part = sp.re(w) if fn == "cos" else sp.im(w)
+        den = 2 if name == "z₁z₂" else 4
+        slip("part-mod", head + cp_pair(part / 2, "1", "√3", den))
+        if name == "z₁z₂":
+            phi2 = cp_arg(sp.expand(sp.simplify(z1 / z2)))
+            slip("sub-args", head + cp_pair(sp.cos(phi2 * pi) if fn == "cos" else sp.sin(phi2 * pi), "√6", "√2", 4))
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, None)
+    return None, None
+
+
+SITUATION_CHECKS["complex-polar"] = cp_check
+# ── end complex-polar ──
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]

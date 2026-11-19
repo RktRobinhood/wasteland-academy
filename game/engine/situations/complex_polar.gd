@@ -336,8 +336,9 @@ static func _polar_product(rng: Seeded, s: Dictionary) -> bool:
 	var cs := specials()
 	s.c = rng.pick(cs)
 	s.c2 = rng.pick(cs)
-	s.r = sd(rng.int_in(2, 6))
 	s.r2 = sd(rng.int_in(2, 5) if s.mode == "quotient" else rng.int_in(1, 4))
+	# A quotient's modulus is whole: |z₁| is a multiple of |z₂|.
+	s.r = sd(s.r2[0].mul(rng.int_in(2, 3))) if s.mode == "quotient" else sd(rng.int_in(2, 6))
 	var raw: Q
 	match s.mode:
 		"product":
