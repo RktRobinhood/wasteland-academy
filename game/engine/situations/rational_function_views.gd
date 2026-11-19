@@ -92,7 +92,7 @@ func needs() -> Dictionary:
 		"split-to-form": {"mode": "monic"},
 		"split-scaled": {"mode": "split"},
 		"translation-vector": {"mode": "monic"},
-		"transformation-sequence": {"mode": "monic"},
+		"transformation-sequence": {"mode": "monic", "stretched": true},
 		"combine-to-single": {"mode": "monic"},
 		"form-from-graph": {"graph": true},
 		"form-from-words": {"mode": "monic"},

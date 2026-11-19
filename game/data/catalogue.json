@@ -20117,7 +20117,7 @@
 					"wrong": "k with the opposite sign"
 				},
 				{
-					"text": "Leaves the constant b as the stretch B, forgetting that A(x − h) adds to it when the fraction is combined",
+					"text": "Takes the top of the split fraction as b, forgetting that the horizontal asymptote times (x + d) adds to it when the two parts are combined",
 					"as": "distractor",
 					"in": [
 						"equation-from-features"
@@ -53043,7 +53043,7 @@
 					"wrong": "(x₀ − b) ÷ a: the line rearranged to find x from y = x₀"
 				},
 				{
-					"text": "Getting the sign of b wrong",
+					"text": "Getting the sign of the intercept b wrong when copying the line from the GDC",
 					"as": "distractor",
 					"in": [
 						"regression-line",
