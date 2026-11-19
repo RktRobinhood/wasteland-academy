@@ -90394,8 +90394,7 @@
      "text": "Taking the wrong side of the discriminant condition, so the range comes out as the gap between the turning values",
      "as": "distractor",
      "in": [
-      "range-ql",
-      "range-lq"
+      "range-ql"
      ],
      "wrong": "the gap given as the range"
     },
