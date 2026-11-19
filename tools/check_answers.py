@@ -49158,6 +49158,1109 @@ SITUATION_CHECKS["complex-number"] = cx_check
 SITUATION_CHECKS["complex-number-ai"] = cx_check
 
 
+# ── complex-polar (t1-ahl-complex-polar, t1-ahl-de-moivre, t1-ahl-conjugate-roots, t1-ai-complex-polar, FAL-1005) ──
+# Every number is read back from the lines, the question or the Argand diagram, and the answer
+# and each slip are worked out again with SymPy: a modulus with sp.Abs, an argument with sp.arg,
+# exact cosines and sines, products and powers with I. A slip's option is held to what that slip
+# gives. Every name here starts CPL_ or cpl_, so it can't overwrite another type's.
+
+CPL_AA = "AHL1.13."
+CPL_TA = "t1-ahl-complex-polar#"
+CPL_REFS = {
+    "t1-ahl-complex-polar": {
+        "quadrant": CPL_AA + "convert-forms#0", "mod-add": CPL_AA + "convert-forms#1", "neg-mod": CPL_AA + "convert-forms#2",
+        "arg-mul": CPL_AA + "polar-products-quotients#0", "mod-sum": CPL_AA + "polar-products-quotients#1",
+        "arg-div": CPL_AA + "polar-products-quotients#2", "clockwise": CPL_AA + "geometric-interpretation#0",
+        "rotation-only": CPL_AA + "geometric-interpretation#1", "add-rotates": CPL_AA + "geometric-interpretation#2",
+        "two-mod": CPL_AA + "sums-in-euler-form#0", "add-exp": CPL_AA + "sums-in-euler-form#1", "no-i": CPL_AA + "sums-in-euler-form#2",
+        "part-mod": CPL_AA + "exact-trig-from-forms#0", "sub-args": CPL_AA + "exact-trig-from-forms#1",
+        "arctan-swap": CPL_TA + "14", "arg-sign": CPL_TA + "15", "trig-swap": CPL_TA + "16", "ref-signs": CPL_TA + "17",
+        "unreduced": CPL_TA + "18", "quot-order": CPL_TA + "19", "square-mod": CPL_TA + "20", "mean-diff": CPL_TA + "21",
+        "lost-two": CPL_TA + "22", "rev-sign": CPL_TA + "23", "re-for-im": CPL_TA + "24", "neg-vector": CPL_TA + "25",
+    },
+}
+CPL_AI = "AI-AHL1.13."
+CPL_TI = "t1-ai-complex-polar#"
+CPL_REFS["t1-ai-complex-polar"] = {
+    "arg-sign": CPL_AI + "convert-forms#0", "trig-swap": CPL_AI + "convert-forms#1", "degree-mode": CPL_AI + "convert-forms#2",
+    "no-root": CPL_AI + "convert-forms#3", "mod-sum": CPL_AI + "multiply-divide-polar#0", "arg-mul": CPL_AI + "multiply-divide-polar#1",
+    "quot-order": CPL_AI + "multiply-divide-polar#2", "parts-power": CPL_AI + "integer-powers#0", "mod-unraised": CPL_AI + "integer-powers#1",
+    "arg-raised": CPL_AI + "integer-powers#2", "amp-sum": CPL_AI + "add-sinusoids#0", "phase-avg": CPL_AI + "add-sinusoids#1",
+    "phase-degrees": CPL_AI + "add-sinusoids#2", "rotation-only": CPL_AI + "geometric-interpretation#0",
+    "i-reflect": CPL_AI + "geometric-interpretation#1", "quadrant": CPL_TI + "15", "mod-add": CPL_TI + "16", "ref-signs": CPL_TI + "17",
+    "unreduced": CPL_TI + "18", "clockwise": CPL_TI + "19", "add-rotates": CPL_TI + "20", "pos-only": CPL_TI + "21", "kind-swap": CPL_TI + "22",
+}
+CPL_FORM = {"re^(iθ)": "euler", "r cis θ": "cis"}
+
+
+def cpl_root_of(n):
+    """√n for a whole n as (m, r), r square-free."""
+    n = int(n)
+    m, r, f = 1, n, 2
+    while f * f <= r:
+        while r % (f * f) == 0:
+            r //= f * f
+            m *= f
+        f += 1
+    return m, r
+
+
+def cpl_split(x):
+    """A real m√r as (m, r): m rational, r square-free."""
+    x = sp.nsimplify(sp.simplify(x))
+    if x == 0:
+        return sp.Integer(0), 1
+    n = sp.Rational(sp.simplify(x ** 2))
+    k, r = cpl_root_of(n.p * n.q)
+    m = sp.Rational(k, n.q) * (1 if x > 0 else -1)
+    need(sp.simplify(m * sp.sqrt(r) - x) == 0, f"{x} is not one surd")
+    return m, r
+
+
+def cpl_s(x):
+    """m√r as the game writes it: "2√3", "−√2", "3/2", "3√2/2"."""
+    m, r = cpl_split(x)
+    if r == 1:
+        return cx_q(m)
+    am = abs(m)
+    return ("−" if m < 0 else "") + ("" if am.p == 1 else str(am.p)) + f"√{r}" + ("" if am.q == 1 else f"/{am.q}")
+
+
+def cpl_iterm(b):
+    m, r = cpl_split(abs(b))
+    if r == 1:
+        if m == 1:
+            return "i"
+        return f"{m.p}i" if m.q == 1 else f"({m.p}/{m.q})i"
+    return cpl_s(abs(b)) + " i"
+
+
+def cpl_c(z):
+    """a + bi with surd parts: "−2√3 + 2i", "3√2 − 3√2 i", "−4i"."""
+    z = sp.expand(z)
+    a, b = sp.re(z), sp.im(z)
+    if b == 0:
+        return cpl_s(a)
+    if a == 0:
+        return ("−" if b < 0 else "") + cpl_iterm(b)
+    return cpl_s(a) + (" − " if b < 0 else " + ") + cpl_iterm(b)
+
+
+def cpl_pi(c):
+    c = sp.Rational(c)
+    return "0" if c == 0 else cx_pi(c)
+
+
+def cpl_pi_i(c):
+    c = sp.Rational(c)
+    if c == 0:
+        return "0"
+    top = "πi" if abs(c.p) == 1 else f"{abs(c.p)}πi"
+    return ("−" if c < 0 else "") + top + ("" if c.q == 1 else f"/{c.q}")
+
+
+def cpl_p(r, c, style):
+    """r e^(cπi) or r cis(cπ) as the game writes it."""
+    rt = "" if cpl_split(r) == (1, 1) else cpl_s(r)
+    if style == "euler":
+        return rt + (" " if "√" in rt else "") + f"e^({cpl_pi_i(c)})"
+    return (rt + " " if rt else "") + f"cis({cpl_pi(c)})"
+
+
+def cpl_principal(c):
+    c = sp.Rational(c)
+    while c > 1:
+        c -= 2
+    while c <= -1:
+        c += 2
+    return c
+
+
+def cpl_arg(z):
+    """arg z as a multiple of π, exactly."""
+    a = sp.simplify(sp.arg(sp.expand(z)) / sp.pi)
+    need(a.is_rational, f"arg {z} is not a rational multiple of π")
+    return sp.Rational(a)
+
+
+def cpl_cis(r, c):
+    return sp.expand(r * (sp.cos(sp.Rational(c) * sp.pi) + sp.I * sp.sin(sp.Rational(c) * sp.pi)))
+
+
+def cpl_angle(t):
+    """A multiple of π from "5π/6", "−πi/4", "π", "0"."""
+    t = t.replace("i", "")
+    if t == "0":
+        return sp.Integer(0)
+    m = re.fullmatch(r"(−?)(\d*)π(?:/(\d+))?", t)
+    need(m is not None, f"can't read the angle {t!r}")
+    return sp.Rational(int(m.group(2) or 1) * (-1 if m.group(1) else 1), int(m.group(3) or 1))
+
+
+def cpl_polar(t):
+    """(r, c, style) from "4e^(5πi/6)", "√2 e^(−πi/4)", "4 cis(π/6)", "cis(π/3)"."""
+    m = re.fullmatch(r"(?:(.+?) ?)?e\^\((.+)\)", t)
+    if m:
+        r = cx_parse(m.group(1)) if m.group(1) else sp.Integer(1)
+        return r, cpl_angle(m.group(2)), "euler"
+    m = re.fullmatch(r"(?:(.+?) )?cis\((.+)\)", t)
+    need(m is not None, f"can't read the polar number {t!r}")
+    r = cx_parse(m.group(1)) if m.group(1) else sp.Integer(1)
+    return r, cpl_angle(m.group(2)), "cis"
+
+
+def cpl_read_polar(line, name):
+    need(line.startswith(name + " = "), f"expected {name} = …, got {line!r}")
+    return cpl_polar(line[len(name) + 3:])
+
+
+def cpl_quadrant(c):
+    c = sp.Rational(c)
+    if (2 * c).q == 1:
+        return 0
+    if c > 0:
+        return 1 if c < sp.Rational(1, 2) else 2
+    return 4 if c > -sp.Rational(1, 2) else 3
+
+
+def cpl_turn(c):
+    c = sp.Rational(c)
+    if c == 1:
+        return "π"
+    return f"{cpl_pi(abs(c))} {'anticlockwise' if c > 0 else 'clockwise'}"
+
+
+def cpl_describe(r, c):
+    rot = f"a rotation of {cpl_turn(c)} about 0"
+    if cpl_split(r) == (1, 1):
+        return "A" + rot[1:] + "."
+    return f"An enlargement with scale factor {cpl_s(r)} and centre 0, and {rot}."
+
+
+def cpl_trig_term(k, fn, n, letter, with_i):
+    sign = "−" if k < 0 else ""
+    m = abs(k)
+    lead = ("" if m == 1 else str(m)) + ("i" if with_i else "")
+    nl = ("" if n == 1 else str(n)) + letter
+    if lead == "":
+        return f"{sign}{fn} {nl}"
+    return f"{sign}{lead} {fn} {nl}"
+
+
+def cpl_pair(v, ra, rb, den):
+    """v = (x√a + y√b)/den with x, y = ±1, written as the game writes it."""
+    for x, y in product([1, -1], [1, -1]):
+        if sp.simplify(v - (x * sp.sqrt(int(ra.lstrip("√") or 1)) + y * sp.sqrt(int(rb.lstrip("√") or 1))) / den) == 0:
+            tail = "" if den == 1 else f"/{den}"
+            if x > 0 and y > 0:
+                return f"({ra} + {rb}){tail}"
+            if x < 0 and y < 0:
+                return f"−({ra} + {rb}){tail}"
+            if x > 0:
+                return f"({ra} − {rb}){tail}"
+            return f"({rb} − {ra}){tail}"
+    raise Fail(f"{v} is not (±{ra} ± {rb})/{den}")
+
+
+def cpl_check(q):
+    t, u, rep, L, asked = q["view"]["type"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    refs = CPL_REFS[t]
+    # Every AI paper allows a GDC; AA HL asks these exactly on every paper.
+    need(q["paper"] == 2 if t == "t1-ai-complex-polar" else q["paper"] in (1, 2), f"Paper {q['paper']}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+
+    def slip(key, text):
+        if key in refs:
+            wrongs.setdefault(refs[key], set()).add(text)
+
+    I = sp.I
+    pi = sp.pi
+    if u == "to-polar":
+        m = re.fullmatch(r"Write z in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        style = CPL_FORM[m.group(1)]
+        if rep == "graph":
+            m2 = re.fullmatch(r"The point A\((.+), (.+)\) on the Argand diagram represents the complex number z\.", L[0])
+            need(m2 is not None, f"can't read {L[0]!r}")
+            z = cx_parse(m2.group(1)) + I * cx_parse(m2.group(2))
+            p = cx_point(q, "A")
+            need(abs(p["x"] - float(sp.re(z))) < 1e-9 and abs(p["y"] - float(sp.im(z))) < 1e-9, "A is drawn in the wrong place")
+        else:
+            z = cx_read(L[0], "z")
+        r, c = sp.simplify(sp.Abs(z)), cpl_arg(z)
+        want = "z = " + cpl_p(r, c, style)
+        a, b = sp.re(z), sp.im(z)
+        qd = cpl_quadrant(c)
+        if qd in (2, 3):
+            slip("quadrant", "z = " + cpl_p(r, sp.Rational(sp.atan(b / a) / pi), style))
+        elif c == 1:
+            slip("quadrant", "z = " + cpl_p(r, 0, style))
+        if qd > 0 and abs(a) == abs(b):
+            slip("mod-add", "z = " + cpl_p(abs(a) + abs(b), c, style))
+        if c == 1:
+            slip("neg-mod", "z = −" + cpl_s(r) + ("e^(0)" if style == "euler" else " cis 0"))
+        if qd > 0:
+            slip("arctan-swap", "z = " + cpl_p(r, sp.Rational(sp.atan(a / b) / pi), style))
+        if c != 1:
+            slip("arg-sign", "z = " + cpl_p(r, -c, style))
+        slip("no-root", "z = " + cpl_p(a ** 2 + b ** 2, c, style))
+    elif u == "to-cartesian":
+        need(asked == "Write z in the form a + bi.", f"asked {asked!r}")
+        r, c, _ = cpl_read_polar(L[0], "z")
+        z = cpl_cis(r, c)
+        want = "z = " + cpl_c(z)
+        a, b = sp.re(z), sp.im(z)
+        slip("trig-swap", "z = " + cpl_c(b + a * I))
+        if cpl_quadrant(c) != 1:
+            slip("ref-signs", "z = " + cpl_c(abs(a) + abs(b) * I))
+    elif u in ("polar-product", "product-cartesian"):
+        if u == "polar-product":
+            m = re.fullmatch(r"Write (z₁z₂|z₁/z₂|z²) in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
+        else:
+            m = re.fullmatch(r"Express (z₁z₂|z₁/z₂) in the form a \+ bi\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        name = m.group(1)
+        if name == "z²":
+            need(len(L) == 1, "z² has one number")
+            r1, c1, style = cpl_read_polar(L[0], "z")
+            R, raw = r1 ** 2, 2 * c1
+        else:
+            need(len(L) == 2, f"{name} has two numbers")
+            r1, c1, style = cpl_read_polar(L[0], "z₁")
+            r2, c2, style2 = cpl_read_polar(L[1], "z₂")
+            need(style == style2, "the two numbers are in different forms")
+            R, raw = (r1 * r2, c1 + c2) if name == "z₁z₂" else (r1 / r2, c1 - c2)
+        z = sp.expand(sp.simplify(cpl_cis(r1, c1) * (cpl_cis(r1, c1) if name == "z²" else cpl_cis(r2, c2) if name == "z₁z₂" else 1 / cpl_cis(r2, c2))))
+        need(sp.simplify(sp.Abs(z) - R) == 0, "the modulus rule is off")
+        C = cpl_principal(raw)
+        need(C == cpl_arg(z), "the argument rule is off")
+        head = name + " = "
+        if u == "polar-product":
+            want = head + cpl_p(R, C, style)
+            if name == "z₁z₂":
+                pr = c1 * c2
+                top = "π²" if abs(pr.p) == 1 else f"{abs(pr.p)}π²"
+                pt = ("−" if pr < 0 else "") + top + ("" if pr.q == 1 else f"/{pr.q}")
+                slip("arg-mul", head + cpl_s(R) + ((" " if "√" in cpl_s(R) else "") + f"e^({pt.replace('π²', 'π²i')})" if style == "euler" else f" cis({pt})"))
+                slip("mod-sum", head + cpl_p(r1 + r2, C, style))
+            elif name == "z₁/z₂":
+                x = sp.Rational(c1 / c2)
+                if style == "euler":
+                    tx = ("−" if x < 0 else "") + ("" if abs(x.p) == 1 else str(abs(x.p))) + "i" + ("" if x.q == 1 else f"/{x.q}")
+                    slip("arg-div", head + cpl_s(R) + f"e^({tx})")
+                else:
+                    slip("arg-div", head + cpl_s(R) + f" cis({cx_q(x)})")
+                slip("quot-order", head + cpl_p(R, cpl_principal(c2 - c1), style))
+            else:
+                slip("square-mod", head + cpl_p(2 * r1, C, style))
+            if raw != C:
+                slip("unreduced", head + cpl_p(R, raw, style))
+        else:
+            want = head + cpl_c(z)
+            a, b = sp.re(z), sp.im(z)
+            slip("trig-swap", head + cpl_c(b + a * I))
+            if name == "z₁z₂":
+                slip("mod-sum", head + cpl_c(cpl_cis(r1 + r2, C)))
+            else:
+                slip("quot-order", head + cpl_c(cpl_cis(R, cpl_principal(c2 - c1))))
+    elif u == "rotate-point":
+        need(rep == "graph" and L == [CX_READ_A], f"lines {L!r}")
+        z = cx_grid_point(q, "A")
+        m = re.fullmatch(r"A is rotated through (π|π/2 anticlockwise|π/2 clockwise) about the origin(?:, then enlarged with scale factor (\d) and centre the origin,)? to give the point B\. Find the complex number that B represents, in the form a \+ bi\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        c = {"π": sp.Integer(1), "π/2 anticlockwise": sp.Rational(1, 2), "π/2 clockwise": sp.Rational(-1, 2)}[m.group(1)]
+        k = int(m.group(2) or 1)
+        need(k > 1 or m.group(2) is None, "an enlargement by 1")
+        want = "B = " + cpl_c(cpl_cis(k, c) * z)
+        if c != 1:
+            slip("clockwise", "B = " + cpl_c(cpl_cis(k, -c) * z))
+        if k > 1:
+            slip("rotation-only", "B = " + cpl_c(cpl_cis(1, c) * z))
+    elif u == "describe-map":
+        w = cx_read(L[0], "w")
+        a, b = sp.re(w), sp.im(w)
+        if asked == "Describe geometrically the transformation of the Argand diagram that maps z to z + w.":
+            want = f"A translation by the vector ({cx_q(a)}, {cx_q(b)})."
+            slip("add-rotates", "A rotation about 0 through the angle arg w.")
+            slip("neg-vector", f"A translation by the vector ({cx_q(-a)}, {cx_q(-b)}).")
+        else:
+            need(asked == "Describe geometrically the transformation of the Argand diagram that maps z to wz.", f"asked {asked!r}")
+            r, c = sp.simplify(sp.Abs(w)), cpl_arg(w)
+            want = cpl_describe(r, c)
+            if c != 1:
+                slip("clockwise", cpl_describe(r, -c))
+            if cpl_split(r) != (1, 1):
+                slip("rotation-only", cpl_describe(1, c))
+            if w == I:
+                slip("i-reflect", "A reflection in the line y = x.")
+    elif u == "euler-sum":
+        m = re.fullmatch(r"Write z in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        style = CPL_FORM[m.group(1)]
+        m = re.fullmatch(r"z = (.+) \+ (.+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        cs = []
+        for term in (m.group(1), m.group(2)):
+            if term == "1":
+                cs.append(sp.Integer(0))
+            else:
+                r1, c1, st = cpl_polar(term)
+                need(r1 == 1 and st == style, f"the term {term!r}")
+                cs.append(c1)
+        al, be = (cs[1], cs[0]) if m.group(1) == "1" else (cs[0], cs[1])
+        z = sp.expand(sp.exp(I * pi * al) + sp.exp(I * pi * be))
+        r, c = sp.simplify(sp.Abs(z)), cpl_arg(z)
+        need(r != 0, "the sum is 0")
+        want = "z = " + cpl_p(r, c, style)
+        slip("two-mod", "z = " + cpl_p(2, c, style))
+        slip("add-exp", "z = " + cpl_p(1, cpl_principal(al + be), style))
+        half = (al - be) / 2
+        if abs(half) != abs(c):
+            slip("mean-diff", "z = " + cpl_p(r, half, style))
+    elif u == "euler-trig":
+        m = re.fullmatch(r"(\d?)e\^\((−?)(\d?)i(θ|x)\) − (\d?)e\^\((−?)(\d?)i(θ|x)\)|(\d?)e\^\((\d?)i(θ|x)\) \+ (\d?)e\^\(−(\d?)i(θ|x)\)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        if m.group(9) is not None:
+            k, n, letter = int(m.group(9) or 1), int(m.group(10) or 1), m.group(11)
+            need((int(m.group(12) or 1), int(m.group(13) or 1), m.group(14)) == (k, n, letter), "the two terms differ")
+            mode = "plus"
+        else:
+            k, n, letter = int(m.group(1) or 1), int(m.group(3) or 1), m.group(4)
+            need((int(m.group(5) or 1), int(m.group(7) or 1), m.group(8)) == (k, n, letter), "the two terms differ")
+            need((m.group(2), m.group(6)) in (("", "−"), ("−", "")), "the signs of the powers")
+            mode = "minus" if m.group(2) == "" else "reverse"
+        nl = ("" if n == 1 else str(n)) + letter
+        need(asked == f"Write this expression as a single term in sin {nl} or cos {nl}.", f"asked {asked!r}")
+        th = sp.Symbol("t", real=True)
+        e1, e2 = k * sp.exp(I * n * th), k * sp.exp(-I * n * th)
+        val = sp.simplify(sp.expand_complex(e1 + e2 if mode == "plus" else e1 - e2 if mode == "minus" else e2 - e1))
+        if mode == "plus":
+            need(sp.simplify(val - 2 * k * sp.cos(n * th)) == 0, "the sum is not 2k cos nθ")
+            want = cpl_trig_term(2 * k, "cos", n, letter, False)
+            slip("lost-two", cpl_trig_term(k, "cos", n, letter, False))
+        else:
+            sgn = 1 if mode == "minus" else -1
+            need(sp.simplify(val - sgn * 2 * k * I * sp.sin(n * th)) == 0, "the difference is not ±2ki sin nθ")
+            want = cpl_trig_term(sgn * 2 * k, "sin", n, letter, True)
+            slip("no-i", cpl_trig_term(sgn * 2 * k, "sin", n, letter, False))
+            if mode == "minus":
+                slip("lost-two", cpl_trig_term(k, "sin", n, letter, True))
+            else:
+                slip("rev-sign", cpl_trig_term(2 * k, "sin", n, letter, True))
+    elif u == "exact-trig":
+        m = re.fullmatch(r"By writing (z₁z₂|z₁/z₂) in the form a \+ bi and in modulus-argument form, find the exact value of (cos|sin)\((.+)\)\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        name, fn, phi = m.group(1), m.group(2), cpl_angle(m.group(3))
+        z1, z2 = cx_read(L[0], "z₁"), cx_read(L[1], "z₂")
+        w = sp.expand(sp.simplify(z1 * z2 if name == "z₁z₂" else z1 / z2))
+        need(cpl_arg(w) == phi, "the angle asked is not the argument")
+        need(phi.q == 12, "the angle is not an odd multiple of π/12")
+        val = sp.cos(phi * pi) if fn == "cos" else sp.sin(phi * pi)
+        oth = sp.sin(phi * pi) if fn == "cos" else sp.cos(phi * pi)
+        head = f"{fn}({cpl_pi(phi)}) = "
+        want = head + cpl_pair(val, "√6", "√2", 4)
+        slip("re-for-im", head + cpl_pair(oth, "√6", "√2", 4))
+        part = sp.re(w) if fn == "cos" else sp.im(w)
+        den = 2 if name == "z₁z₂" else 4
+        slip("part-mod", head + cpl_pair(part / 2, "1", "√3", den))
+        if name == "z₁z₂":
+            phi2 = cpl_arg(sp.expand(sp.simplify(z1 / z2)))
+            slip("sub-args", head + cpl_pair(sp.cos(phi2 * pi) if fn == "cos" else sp.sin(phi2 * pi), "√6", "√2", 4))
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, None)
+    return None, None
+
+
+SITUATION_CHECKS["complex-polar"] = cpl_check
+
+
+# t1-ahl-de-moivre (FAL-1005): every number is read back from the lines and the question, and
+# the answer and each slip are worked out again with SymPy: a power by z**n, the least power by
+# trying n = 1, 2, … on z**n itself, the roots by solving zⁿ = w, the polygon from its vertices,
+# the identities by expanding (cos θ + i sin θ)ⁿ and (z ± 1/z)ⁿ symbolically, and the proof
+# from its own six lines. Every name here starts DMV_ or dmv_.
+
+DMV_P = "AHL1.14.de-moivre-powers#"
+DMV_R = "AHL1.14.nth-roots#"
+DMV_M = "AHL1.14.multiple-angle-identities#"
+DMV_I = "AHL1.14.de-moivre-induction#"
+DMV_T = "t1-ahl-de-moivre#"
+DMV_SUPS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+DMV_KINDS = {"real": "real", "purely imaginary": "imaginary", "a positive real number": "positive", "a negative real number": "negative"}
+DMV_OTHER = {"real": "imaginary", "imaginary": "real", "positive": "negative", "negative": "positive"}
+DMV_QUAD = {"first": 1, "second": 2, "third": 3, "fourth": 4}
+DMV_TH = sp.Symbol("t", real=True)
+DMV_BOTH = ("power-polar", "power-cartesian", "least-power", "nth-root", "all-roots", "roots-polygon")
+
+
+def dmv_sup(n):
+    return "" if n == 1 else "".join(DMV_SUPS[int(ch)] for ch in str(n))
+
+
+def dmv_number(t):
+    """A number written either way: polar (r, c, style) or Cartesian (z, None, None)."""
+    if "cis(" in t or "e^(" in t:
+        r, c, style = cpl_polar(t)
+        return cpl_cis(r, c), c, style
+    return cx_parse(t), None, None
+
+
+def dmv_is(z, kind):
+    z = sp.expand(z)
+    a, b = sp.simplify(sp.re(z)), sp.simplify(sp.im(z))
+    return {"real": b == 0, "imaginary": a == 0 and b != 0, "positive": b == 0 and a > 0, "negative": b == 0 and a < 0}[kind]
+
+
+def dmv_least(z, kind, top=48):
+    """The least n ≥ 1 with zⁿ of the kind, tried power by power, or 0."""
+    w = sp.Integer(1)
+    for n in range(1, top + 1):
+        w = sp.expand(w * z)
+        if dmv_is(w, kind):
+            return n
+    return 0
+
+
+def dmv_style_of(asked):
+    if "re^(iθ)" in asked:
+        return "euler"
+    if "r cis θ" in asked:
+        return "cis"
+    return None
+
+
+def dmv_roots(w, n):
+    """The n roots of zⁿ = w: their modulus and their principal arguments, least first."""
+    rho = sp.simplify(sp.Abs(w) ** sp.Rational(1, n))
+    phi = cpl_arg(w)
+    args = sorted(cpl_principal((phi + 2 * k) / n) for k in range(n))
+    for c in args:
+        need(abs(complex(sp.N(cpl_cis(rho, c) ** n - w, 30))) < 1e-20, "a root doesn't solve the equation")
+    return rho, phi, args
+
+
+def dmv_list(items):
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " or " + items[-1]
+
+
+def dmv_try(f):
+    """A slip's text, or None where its value isn't one surd per part (the game can't offer it)."""
+    try:
+        return f()
+    except (Fail, TypeError):
+        return None
+
+
+def dmv_lead(cf, body):
+    a = abs(cf)
+    if body == "":
+        return str(a)
+    return ("" if a == 1 else str(a)) + body
+
+
+def dmv_join(terms):
+    """[(coefficient, unsigned text)] joined with signs, highest first unless it is negative."""
+    terms = [t for t in terms if t[0] != 0]
+    if terms[0][0] < 0:
+        terms = terms[::-1]
+    out = ""
+    for i, (cf, body) in enumerate(terms):
+        out += ("−" if cf < 0 else "") if i == 0 else (" − " if cf < 0 else " + ")
+        out += body
+    return out
+
+
+def dmv_pow_text(fn, e, L):
+    return "" if e == 0 else (f"{fn} {L}" if e == 1 else f"{fn}{dmv_sup(e)}{L}")
+
+
+def dmv_poly(fn, n, L, coef=True, sign=True):
+    """cos nθ or sin nθ as a polynomial in cos θ or sin θ, from (cos θ + i sin θ)ⁿ expanded
+    with sp.binomial, the slip versions leaving out the binomial coefficients or i²'s sign."""
+    C, S = sp.symbols("C S", real=True)
+    tot = sp.expand(sum((sp.binomial(n, k) if coef else 1) * C ** (n - k) * S ** k * (sp.I ** k if sign else (sp.I if k % 2 else 1))
+                        for k in range(n + 1)))
+    part = sp.re(tot) if fn == "cos" else sp.im(tot)
+    # Only even powers of the other function are left: replace them by Pythagoras.
+    p = sp.expand(part.subs(S, sp.sqrt(1 - C ** 2))) if fn == "cos" else sp.expand(part.subs(C, sp.sqrt(1 - S ** 2)))
+    x = C if fn == "cos" else S
+    p = sp.Poly(p, x)
+    terms = [(int(p.coeff_monomial(x ** e)), dmv_lead(int(p.coeff_monomial(x ** e)), dmv_pow_text(fn, e, L))) for e in range(n, -1, -1)]
+    return dmv_join(terms), p.as_expr().subs(x, sp.cos(DMV_TH) if fn == "cos" else sp.sin(DMV_TH))
+
+
+def dmv_reduce(fn, n, L, coef=True, divide=True, with_i=True):
+    """cosⁿθ or sinⁿθ in multiple angles: (z ± 1/z)ⁿ expanded, each z^m paired with z^(−m)."""
+    z = sp.Symbol("z")
+    s, d = (1, 2) if fn == "cos" else (-1, 2 * sp.I if with_i else 2)
+    tot = sum((sp.binomial(n, k) if coef else 1) * s ** k * z ** (n - 2 * k) for k in range(n + 1))
+    tot = sp.expand(tot / (d ** n if divide else (d / 2) ** n))
+    P = sp.Poly(sp.expand(tot * z ** n), z)
+    a = {m: sp.expand(P.coeff_monomial(z ** (m + n))) for m in range(-n, n + 1)}
+    kind = "sin" if fn == "sin" and n % 2 == 1 else "cos"
+    co = {0: sp.nsimplify(a[0])}
+    for m in range(1, n + 1):
+        # a z^m + b z^(−m) = (a + b) cos mθ + i(a − b) sin mθ.
+        co[m] = sp.nsimplify(a[m] + a[-m] if kind == "cos" else (sp.I * (a[m] - a[-m]) if with_i else a[m] - a[-m]))
+    for v in co.values():
+        need(v.is_rational, f"{fn}{n}: a coefficient {v} is not rational")
+    den = sp.ilcm(*[sp.Rational(v).q for v in co.values()])
+    terms = []
+    for m in range(n, -1, -1):
+        v = int(co[m] * den)
+        if v:
+            terms.append((v, dmv_lead(v, "" if m == 0 else f"{kind} {'' if m == 1 else m}{L}")))
+    body = dmv_join(terms)
+    return (body if den == 1 else f"({body})/{den}"), kind, co
+
+
+def dmv_proof(L, kind):
+    c = f"cos {L} + i sin {L}"
+    step = f"= cos(k + 1){L} + i sin(k + 1){L}, {'by the compound-angle formulae, ' if kind == 'compound' else ''}so the statement is true for n = k + 1."
+    four = (f"= (cos k{L} cos {L} − sin k{L} sin {L}) + i(sin k{L} cos {L} + cos k{L} sin {L})" if kind == "compound"
+            else f"= cos(k{L} + {L}) + i sin(k{L} + {L}), multiplying the moduli and adding the arguments")
+    return [f"When n = 1, both sides are {c}, so the statement is true for n = 1.",
+            f"Assume ({c})^k = cos k{L} + i sin k{L} for some positive integer k.",
+            f"Then ({c})^(k + 1) = (cos k{L} + i sin k{L})({c})", four, step,
+            "It is true for n = 1, and if it is true for n = k it is true for n = k + 1, so by induction it is true for every positive integer n."]
+
+
+def dmv_check(q):
+    u, L, asked, angle = q["view"]["unknown"], q["lines"], q["asked"], q["view"]["angle"]
+    # A GDC method is Paper 2; powers and roots are on both papers; identities and the proof Paper 1.
+    need(q["paper"] == 2 if angle.startswith("gdc-") else q["paper"] in ((1, 2) if u in DMV_BOTH else (1,)), f"Paper {q['paper']}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+
+    def slip(ref, text):
+        if text is not None:
+            wrongs.setdefault(ref, set()).add(text)
+
+    if u in ("power-polar", "power-cartesian", "least-power"):
+        need(len(L) == 1 and L[0].startswith("z = "), f"lines {L!r}")
+        z, c0, style = dmv_number(L[0][4:])
+        r, c = sp.simplify(sp.Abs(z)), cpl_arg(z)
+        need(c0 is None or cpl_principal(c0) == c, "z's argument is not principal")
+    if u == "power-polar":
+        m = re.fullmatch(r"Write z([⁰¹²³⁴⁵⁶⁷⁸⁹]+) in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        n, st = cx_sup(m.group(1)), CPL_FORM[m.group(2)]
+        need(n >= 2, "a power below 2")
+        P = sp.expand(z ** n)
+        R, C = sp.simplify(sp.Abs(P)), cpl_arg(P)
+        head = f"z{dmv_sup(n)} = "
+        want = head + cpl_p(R, C, st)
+        slip(DMV_P + "0", head + cpl_p(R, c, st))
+        slip(DMV_P + "1", head + cpl_p(n * r, C, st))
+        if n * c != C:
+            slip(DMV_T + "12", head + cpl_p(R, n * c, st))
+        if r != 1:
+            slip(DMV_T + "13", head + cpl_p(r, C, st))
+    elif u == "power-cartesian":
+        m = re.fullmatch(r"Find z([⁰¹²³⁴⁵⁶⁷⁸⁹]+) in the form a \+ bi\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        n = cx_sup(m.group(1))
+        need(c0 is None, "z is not in Cartesian form")
+        P = sp.expand(z ** n)
+        R, C = sp.simplify(sp.Abs(P)), cpl_arg(P)
+        head = f"z{dmv_sup(n)} = "
+        want = head + cpl_c(P)
+        slip(DMV_P + "0", dmv_try(lambda: head + cpl_c(cpl_cis(R, c))))
+        slip(DMV_P + "1", dmv_try(lambda: head + cpl_c(cpl_cis(n * r, C))))
+        slip(DMV_P + "2", dmv_try(lambda: head + cpl_c(sp.re(z) ** n + (sp.I * sp.im(z)) ** n)))
+        if angle == "gdc-power":
+            need(sp.re(P).is_integer and sp.im(P).is_integer, "a GDC power without whole parts")
+    elif u == "least-power":
+        m = re.fullmatch(r"Find the least positive integer n for which z\^n is (.+)\.", asked)
+        need(m is not None and m.group(1) in DMV_KINDS, f"asked {asked!r}")
+        kind = DMV_KINDS[m.group(1)]
+        n = dmv_least(z, kind)
+        need(n >= 2, f"the least n is {n}")
+        want = f"n = {n}"
+        if kind == "real":
+            k = dmv_least(z, "positive")
+            if k and k != n:
+                slip(DMV_T + "14", f"n = {k}")
+        k = dmv_least(z, DMV_OTHER[kind])
+        if k and k != n:
+            slip(DMV_T + "15", f"n = {k}")
+        if c0 is None and cpl_quadrant(c) in (2, 3):
+            w = sp.Abs(z) * sp.exp(sp.I * sp.atan(sp.im(z) / sp.re(z)))
+            k = dmv_least(sp.expand(sp.expand_complex(w)), kind)
+            if k and k != n:
+                slip(DMV_T + "16", f"n = {k}")
+        for o in q["choices"]:
+            need(int(o["text"][4:]) >= 1, f"option {o['text']!r} is not a positive integer")
+    elif u in ("nth-root", "all-roots", "roots-polygon"):
+        m = re.fullmatch(r"z([⁰¹²³⁴⁵⁶⁷⁸⁹]+) = (.+)", L[0]) if len(L) == 1 else None
+        need(m is not None, f"lines {L!r}")
+        n = cx_sup(m.group(1))
+        w, _, _ = dmv_number(m.group(2))
+        rho, phi, args = dmv_roots(w, n)
+        need(rho.is_integer, f"the roots' modulus {rho} is not whole")
+        big = sp.Abs(w)
+        mdiv = big / n if (big / n).is_integer and big / n != rho else None
+        half = sorted((phi + k) / n for k in range(n))
+        if u == "nth-root":
+            m = re.fullmatch(r"(Find the root of this equation with the least positive argument\.|Find the root of this equation with the greatest argument\.|"
+                             r"One root of this equation lies in the (first|second|third|fourth) quadrant\. Find this root\.) "
+                             r"Give it in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            st = CPL_FORM[m.group(3)]
+
+            def pick(cs):
+                if "least positive" in asked:
+                    pos = [x for x in cs if x > 0]
+                    return pos[0] if pos else None
+                if "greatest" in asked:
+                    return cs[-1]
+                inq = [x for x in cs if cpl_quadrant(x) == DMV_QUAD[m.group(2)]]
+                return inq[0] if len(inq) == 1 else None
+            C = pick(args)
+            need(C is not None, "no root fits the question, or two do")
+            want = "z = " + cpl_p(rho, C, st)
+            if phi / n != C:
+                slip(DMV_R + "0", "z = " + cpl_p(rho, phi / n, st))
+            if mdiv is not None:
+                slip(DMV_R + "1", "z = " + cpl_p(mdiv, C, st))
+            h = pick(half)
+            if h is not None and h != C:
+                slip(DMV_T + "17", "z = " + cpl_p(rho, h, st))
+        elif u == "all-roots":
+            m = re.fullmatch(r"Find all the roots of this equation, giving them in the form (re\^\(iθ\), where r > 0 and −π < θ ≤ π|r cis θ, where r > 0 and −π < θ ≤ π|a \+ bi)\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            st = dmv_style_of(m.group(1))
+
+            def text(R, cs):
+                return "z = " + dmv_list([cpl_p(R, x, st) if st else cpl_c(cpl_cis(R, x)) for x in cs])
+            want = text(rho, args)
+            slip(DMV_R + "0", "z = " + (cpl_p(rho, phi / n, st) if st else cpl_c(cpl_cis(rho, phi / n))) + " only")
+            if mdiv is not None:
+                slip(DMV_R + "1", dmv_try(lambda: text(mdiv, args)))
+            if st:
+                slip(DMV_R + "2", "z = " + dmv_list([cpl_p(rho, phi / n + 2 * k, st) for k in range(n)]))
+            slip(DMV_T + "17", dmv_try(lambda: text(rho, half)))
+        else:
+            need(n in (3, 4, 6), f"a polygon with {n} sides")
+            m = re.fullmatch(r"The roots of this equation are the vertices of a regular polygon on the Argand diagram\. Find the exact (length of each side|area|perimeter) of the polygon\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            what = {"length of each side": "side", "area": "area", "perimeter": "perimeter"}[m.group(1)]
+            head = {"side": "Side = ", "area": "Area = ", "perimeter": "Perimeter = "}[what]
+            pts = [cpl_cis(rho, x) for x in args]
+
+            def measure(ps):
+                side = sp.sqrt(sp.simplify(sp.expand(sp.Abs(ps[1] - ps[0]) ** 2)))
+                if what == "side":
+                    return side
+                if what == "perimeter":
+                    return n * side
+                # The shoelace formula over the vertices in order of argument.
+                return sp.Abs(sp.nsimplify(sp.simplify(sum(sp.re(ps[i]) * sp.im(ps[(i + 1) % n]) - sp.re(ps[(i + 1) % n]) * sp.im(ps[i]) for i in range(n)) / 2)))
+            v = sp.nsimplify(sp.simplify(measure(pts)))
+            want = head + cpl_s(v)
+            if mdiv is not None:
+                slip(DMV_R + "1", head + cpl_s(sp.nsimplify(sp.simplify(measure([cpl_cis(mdiv, x) for x in args])))))
+            if n != 6:
+                # The radius taken as the side: the polygon with side ρ.
+                rad_side = {"side": rho, "perimeter": n * rho, "area": (sp.sqrt(3) / 4 if n == 3 else 1) * rho ** 2}[what]
+                slip(DMV_T + "18", head + cpl_s(rad_side))
+            if what == "area":
+                slip(DMV_T + "19", head + cpl_s(2 * v))
+    elif u == "multiple-angle":
+        m = re.fullmatch(r"Express (cos|sin) (\d)(θ|α|x) as a polynomial in (cos|sin) (θ|α|x)\.", asked)
+        need(m is not None and m.group(1) == m.group(4) and m.group(3) == m.group(5), f"asked {asked!r}")
+        fn, n, Lt = m.group(1), int(m.group(2)), m.group(3)
+        lhs = f"{fn} {n}{Lt} = "
+        txt, p = dmv_poly(fn, n, Lt)
+        th = DMV_TH
+        val = (sp.cos(n * th) if fn == "cos" else sp.sin(n * th)) - p
+        need(all(abs(float(val.subs(th, t0))) < 1e-9 for t0 in (0.3, 1.1, 2.7)), "the identity is false")
+        want = lhs + txt
+        slip(DMV_M + "0", lhs + dmv_poly(fn, n, Lt, coef=False)[0])
+        slip(DMV_M + "2", lhs + dmv_poly(fn, n, Lt, sign=False)[0])
+    elif u == "power-reduction":
+        m = re.fullmatch(r"Use z = cos (θ|α|x) \+ i sin \1 to express (cos|sin)([⁰¹²³⁴⁵⁶⁷⁸⁹]+)\1 in terms of (.+)\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        Lt, fn, n = m.group(1), m.group(2), cx_sup(m.group(3))
+        lhs = f"{fn}{dmv_sup(n)}{Lt} = "
+        txt, kind, co = dmv_reduce(fn, n, Lt)
+        th = DMV_TH
+        f = sp.cos if kind == "cos" else sp.sin
+        val = (sp.cos(th) if fn == "cos" else sp.sin(th)) ** n - sum(co[k] * (f(k * th) if k else 1) for k in co)
+        need(all(abs(float(val.subs(th, t0))) < 1e-9 for t0 in (0.3, 1.1, 2.7)), "the identity is false")
+        names = [("a constant" if k == 0 else f"{kind} {'' if k == 1 else k}{Lt}") for k in sorted(co, reverse=True) if co[k] != 0]
+        need(m.group(4) == (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]), f"the terms asked for: {m.group(4)!r}")
+        want = lhs + txt
+        slip(DMV_M + "0", lhs + dmv_reduce(fn, n, Lt, coef=False)[0])
+        slip(DMV_T + "20", lhs + dmv_reduce(fn, n, Lt, divide=False)[0])
+        if fn == "sin" and n % 2 == 1:
+            slip(DMV_M + "1", lhs + dmv_reduce(fn, n, Lt, with_i=False)[0])
+    elif u in ("induction-gap", "induction-flaw"):
+        need(len(L) == 7, f"{len(L)} lines")
+        m = re.fullmatch(r"Prove by induction that \(cos (θ|α|x) \+ i sin \1\)\^n = cos n\1 \+ i sin n\1 for every positive integer n\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        Lt = m.group(1)
+        kind = {"induction-compound-angle": "compound", "induction-polar-product": "polar"}[angle]
+        right = dmv_proof(Lt, kind)
+        shown = []
+        for i, line in enumerate(L[1:]):
+            need(line.startswith(f"Line {i + 1}: "), f"can't read {line!r}")
+            shown.append(line[len(f"Line {i + 1}: "):])
+        c = f"cos {Lt} + i sin {Lt}"
+        if u == "induction-gap":
+            need(asked == "One line of this proof is missing. Which line completes the proof?", f"asked {asked!r}")
+            gaps = [i for i, x in enumerate(shown) if x == "(missing)"]
+            need(len(gaps) == 1, "not exactly one line missing")
+            g = gaps[0]
+            need(all(shown[i] == right[i] for i in range(6) if i != g), "a shown line is not the proof's")
+            want = right[g]
+            if g == 1:
+                slip(DMV_I + "0", f"Assume ({c})^(k + 1) = cos(k + 1){Lt} + i sin(k + 1){Lt} for some positive integer k.")
+            if g == 3 and kind == "compound":
+                slip(DMV_I + "1", f"= (cos k{Lt} cos {Lt} + sin k{Lt} sin {Lt}) + i(sin k{Lt} cos {Lt} + cos k{Lt} sin {Lt})")
+            if g == 5:
+                slip(DMV_I + "2", "If it is true for n = k it is true for n = k + 1, so by induction it is true for every positive integer n.")
+        else:
+            need(asked == "One line of this proof is wrong. Which is the first incorrect line?", f"asked {asked!r}")
+            bad = [i for i in range(6) if shown[i] != right[i]]
+            need(len(bad) == 1, f"{len(bad)} lines differ from the proof")
+            need(bad[0] != 0, "the base case is spoiled")
+            want = f"Line {bad[0] + 1}"
+            for o in q["choices"]:
+                need(re.fullmatch(r"Line [1-6]", o["text"]) is not None, f"option {o['text']!r}")
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, None)
+    return None, None
+
+
+SITUATION_CHECKS["de-moivre"] = dmv_check
+
+
+# t1-ahl-conjugate-roots (FAL-1005): the polynomial and its root are read from the lines, the
+# roots and coefficients are worked out again with SymPy (sp.solve, sp.Poly), and each slip from
+# its own rule. Names start CJR_ or cjr_.
+
+CJR_AQ = "AHL1.14.complex-quadratic#"
+CJR_AC = "AHL1.14.conjugate-root-polynomial#"
+CJR_TC = "t1-ahl-conjugate-roots#"
+CJR_REFS = {
+    "sqrt-neg": CJR_AQ + "0", "half-only": CJR_AQ + "1", "sum-sign": CJR_AQ + "2", "real-sign": CJR_AC + "0", "factor-sign": CJR_AC + "1",
+    "h-sign": CJR_TC + "5", "not-halved": CJR_TC + "6", "i2-product": CJR_TC + "7", "half-sum": CJR_TC + "8", "negate": CJR_TC + "9",
+    "cubic-sum-sign": CJR_TC + "10", "product-sign": CJR_TC + "11", "vieta-signs": CJR_TC + "12",
+}
+CJR_Z = sp.Symbol("z")
+
+
+def cjr_poly(t):
+    """The coefficients of a polynomial in z from its text, highest power first: "z³ − 5z² + 9z − 5"."""
+    s = t.replace("−", "-").replace("³", "**3").replace("²", "**2")
+    s = re.sub(r"(\d)z", r"\1*z", s)
+    need(re.fullmatch(r"[-+*/ 0-9z]+", s) is not None, f"can't read the polynomial {t!r}")
+    return [sp.Integer(c) for c in sp.Poly(sp.sympify(s, locals={"z": CJR_Z}), CJR_Z).all_coeffs()]
+
+
+def cjr_text(coeffs):
+    """A polynomial in z as the game writes it, from its coefficients."""
+    n = len(coeffs) - 1
+    out = ""
+    for i, c in enumerate(coeffs):
+        c = sp.Integer(c)
+        p = n - i
+        if c == 0:
+            continue
+        mag = abs(c)
+        body = ("" if (mag == 1 and p > 0) else str(mag)) + ("" if p == 0 else "z" + {1: "", 2: "²", 3: "³"}[p])
+        out += ("−" if c < 0 else "") + body if out == "" else (" − " if c < 0 else " + ") + body
+    return out
+
+
+def cjr_pm(h, k):
+    return f"{cx_q(h)} ± {cx_iterm(k)}"
+
+
+def cjr_check(q):
+    t, u, L, asked = q["view"]["type"], q["view"]["unknown"], q["lines"], q["asked"]
+    gdc = q["view"]["angle"] == "gdc-solver"
+    need(q["paper"] == 2 if gdc else q["paper"] in (1, 2), f"Paper {q['paper']}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+
+    def slip(key, text):
+        wrongs.setdefault(CJR_REFS[key], set()).add(text)
+
+    I = sp.I
+    if u == "solve-quadratic":
+        need(asked == "Solve the equation, giving the roots in the form h ± ki." and len(L) == 1 and L[0].endswith(" = 0"), f"lines {L!r}")
+        c = cjr_poly(L[0][:-4])
+        need(len(c) == 3 and c[0] == 1, "not a monic quadratic")
+        roots = sp.solve(sp.Poly(c, CJR_Z).as_expr(), CJR_Z)
+        need(len(roots) == 2 and all(sp.im(r) != 0 for r in roots), "the roots aren't a complex pair")
+        h, k = sp.re(roots[0]), abs(sp.im(roots[0]))
+        need(h.is_integer and k.is_integer and h != 0, "the roots aren't whole")
+        want = "z = " + cjr_pm(h, k)
+        slip("sqrt-neg", f"z = {cx_q(h - k)} or z = {cx_q(h + k)}")
+        slip("half-only", "z = " + cjr_pm(-c[1], k))
+        slip("h-sign", "z = " + cjr_pm(-h, k))
+        slip("not-halved", "z = " + cjr_pm(h, 2 * k))
+    elif u == "quadratic-from-root":
+        m = re.fullmatch(r"z = (.+) is a root of z² \+ pz \+ q = 0, where p and q are real\.", L[0])
+        need(m is not None and asked == "Find the values of p and q, and write down the equation.", f"lines {L!r}")
+        z0 = cx_parse(m.group(1))
+        h, k = sp.re(z0), abs(sp.im(z0))
+        need(k != 0, "the root is real")
+        P = sp.Poly(sp.expand((CJR_Z - z0) * (CJR_Z - sp.conjugate(z0))), CJR_Z).all_coeffs()
+        want = cjr_text(P) + " = 0"
+        slip("sum-sign", cjr_text([1, -P[1], P[2]]) + " = 0")
+        slip("i2-product", cjr_text([1, P[1], h ** 2 - k ** 2]) + " = 0")
+        slip("half-sum", cjr_text([1, -h, P[2]]) + " = 0")
+    elif u == "other-root":
+        need(asked == "Write down another root of the equation.", f"asked {asked!r}")
+        m = re.fullmatch(r"One root of (.+) = 0 is (.+)\.", L[0])
+        if m:
+            c = cjr_poly(m.group(1))
+            z0 = cx_parse(m.group(2))
+            need(sp.expand(sp.Poly(c, CJR_Z).as_expr().subs(CJR_Z, z0)) == 0, "the root given is not a root")
+        else:
+            m = re.fullmatch(r"A cubic equation with real coefficients has a root (.+)\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            z0 = cx_parse(m.group(1))
+        want = "z = " + cx_fmt(sp.conjugate(z0))
+        h, b = sp.re(z0), sp.im(z0)
+        slip("real-sign", "z = " + cx_fmt(-h + b * I))
+        slip("negate", "z = " + cx_fmt(-z0))
+    elif u in ("real-root", "cubic-coefficients"):
+        if u == "real-root":
+            need(asked == "Find the real root of the equation." and len(L) == 2 and L[0].endswith(" = 0"), f"lines {L!r}")
+            c = cjr_poly(L[0][:-4])
+            m = re.fullmatch(r"One root of this equation is (.+)\.", L[1])
+            need(m is not None and len(c) == 4 and c[0] == 1, f"can't read {L!r}")
+            z0 = cx_parse(m.group(1))
+            Pz = sp.Poly(c, CJR_Z).as_expr()
+            need(sp.expand(Pz.subs(CJR_Z, z0)) == 0, "the root given is not a root")
+            real = [r for r in sp.solve(Pz, CJR_Z) if sp.im(r) == 0]
+            need(len(real) == 1 and real[0].is_integer, "the cubic has no single whole real root")
+            tv = real[0]
+            a, d = c[1], c[3]
+            h, k = sp.re(z0), abs(sp.im(z0))
+            mm = h ** 2 + k ** 2
+            want = "z = " + cx_q(tv)
+            slip("factor-sign", "z = " + cx_q(2 * h - a))
+            slip("cubic-sum-sign", "z = " + cx_q(a - 2 * h))
+            slip("product-sign", "z = " + cx_q(sp.Rational(d, mm)))
+        else:
+            m = re.fullmatch(r"z³ \+ az² \+ bz \+ d = 0, where a, b and d are real, has roots (.+) and (−?\d+)\.", L[0])
+            need(m is not None and asked == "Find the values of a, b and d.", f"lines {L!r}")
+            z0, tv = cx_parse(m.group(1)), sp.Integer(m.group(2).replace("−", "-"))
+            c = sp.Poly(sp.expand((CJR_Z - z0) * (CJR_Z - sp.conjugate(z0)) * (CJR_Z - tv)), CJR_Z).all_coeffs()
+            txt = lambda a, b, d: f"a = {cx_q(a)}, b = {cx_q(b)}, d = {cx_q(d)}"
+            want = txt(c[1], c[2], c[3])
+            h, k = sp.re(z0), abs(sp.im(z0))
+            fs = sp.Poly(sp.expand((CJR_Z ** 2 + 2 * h * CJR_Z + h ** 2 + k ** 2) * (CJR_Z - tv)), CJR_Z).all_coeffs()
+            slip("factor-sign", txt(fs[1], fs[2], fs[3]))
+            slip("vieta-signs", txt(-c[1], c[2], -c[3]))
+            i2 = sp.Poly(sp.expand((CJR_Z ** 2 - 2 * h * CJR_Z + h ** 2 - k ** 2) * (CJR_Z - tv)), CJR_Z).all_coeffs()
+            slip("i2-product", txt(i2[1], i2[2], i2[3]))
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, None)
+    return None, None
+
+
+SITUATION_CHECKS["conjugate-roots"] = cjr_check
+
+
+# t1-ai-complex-polar (FAL-1005): the exact unknowns go through cpl_check with the AI refs; the GDC
+# conversions, powers, the least power, the image of a point and the sum of two sinusoids are
+# worked out here, the decimals with mpmath to 30 digits. Names start AIP_ or aip_.
+
+AIP_SUP = {c: str(i) for i, c in enumerate("⁰¹²³⁴⁵⁶⁷⁸⁹")}
+
+
+def aip_s(x):
+    """3 s.f., as the game writes it, for a SymPy or an mpmath number."""
+    return gc_s(sp.Float(mpmath.nstr(x, 25), 30) if isinstance(x, mpmath.mpf) else x)
+
+
+def aip_dec(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def aip_dpolar(r, t, style):
+    return f"{aip_s(r)}e^({aip_s(t)}i)" if style == "euler" else f"{aip_s(r)} cis({aip_s(t)})"
+
+
+def aip_dcart(x, y):
+    return aip_s(x) + (" − " if y < 0 else " + ") + aip_s(abs(y)) + "i"
+
+
+def aip_wave(A, fn, w, B):
+    tail = "" if B == 0 else (" − " if B < 0 else " + ") + aip_s(abs(B))
+    return f"{aip_s(A)} {fn}({w}t{tail})"
+
+
+def aip_least(c, mode):
+    for n in range(1, 25):
+        v = sp.Rational(c) * n
+        if mode == "real" and v.q == 1:
+            return n
+        if mode == "imaginary" and (v + sp.Rational(1, 2)).q == 1:
+            return n
+        if mode == "positive" and v.q == 1 and v.p % 2 == 0:
+            return n
+        if mode == "negative" and v.q == 1 and v.p % 2 == 1:
+            return n
+    return 0
+
+
+def aip_check(q):
+    t, u, rep, L, asked = q["view"]["type"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    # A conversion asked to 3 s.f. has whole parts or a phase in radians for the GDC; any other
+    # is exact, as on AA HL, whatever method the view shows first.
+    gdc = "to 3 significant figures" in asked
+    if u in ("to-polar", "to-cartesian") and not gdc or u in ("polar-product", "product-cartesian", "describe-map"):
+        return cpl_check(q)
+    refs = CPL_REFS[t]
+    need(q["paper"] == 2, f"Paper {q['paper']}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+
+    def slip(key, text):
+        if key in refs:
+            wrongs.setdefault(refs[key], set()).add(text)
+
+    I = sp.I
+    if u == "to-polar":
+        m = re.fullmatch(r"Write z in the form (re\^\(iθ\)|r cis θ), where r > 0 and −π < θ ≤ π, giving r and θ to 3 significant figures\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        style = CPL_FORM[m.group(1)]
+        if rep == "graph":
+            m2 = re.fullmatch(r"The point A\((−?\d+), (−?\d+)\) on the Argand diagram represents the complex number z\.", L[0])
+            need(m2 is not None, f"can't read {L[0]!r}")
+            z = cx_parse(m2.group(1)) + I * cx_parse(m2.group(2))
+            p = cx_point(q, "A")
+            need(abs(p["x"] - float(sp.re(z))) < 1e-9 and abs(p["y"] - float(sp.im(z))) < 1e-9, "A is drawn in the wrong place")
+        else:
+            z = cx_read(L[0], "z")
+        a, b = (sp.Integer(v) for v in cx_parts(z))
+        need(a != 0 and b != 0 and abs(a) != abs(b), "the point is on an axis or a 45° line")
+        r, th = mpmath.sqrt(a ** 2 + b ** 2), mpmath.atan2(b, a)
+        want = "z = " + aip_dpolar(r, th, style)
+        slip("arg-sign", "z = " + aip_dpolar(r, -th, style))
+        slip("no-root", "z = " + aip_dpolar(a ** 2 + b ** 2, th, style))
+        if a < 0:
+            slip("quadrant", "z = " + aip_dpolar(r, mpmath.atan(mpmath.mpf(b) / a), style))
+        slip("mod-add", "z = " + aip_dpolar(abs(a) + abs(b), th, style))
+    elif u == "to-cartesian":
+        need(asked == "Write z in the form a + bi, giving a and b to 3 significant figures.", f"asked {asked!r}")
+        m = re.fullmatch(r"z = (\d+)(?:e\^\((−?[\d.]+)i\)| cis\((−?[\d.]+)\))", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        r, th = sp.Integer(m.group(1)), aip_dec(m.group(2) or m.group(3))
+        x, y = r * mpmath.cos(th), r * mpmath.sin(th)
+        want = "z = " + aip_dcart(x, y)
+        slip("degree-mode", "z = " + aip_dcart(r * mpmath.cos(mpmath.radians(th)), r * mpmath.sin(mpmath.radians(th))))
+        slip("trig-swap", "z = " + aip_dcart(y, x))
+    elif u in ("power-polar", "power-cartesian"):
+        m = re.fullmatch(r"Find z([⁰¹²³⁴⁵⁶⁷⁸⁹]+) in the form (re\^\(iθ\)|r cis θ|a \+ bi)(, where r > 0 and −π < θ ≤ π)?\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        n = int("".join(AIP_SUP[ch] for ch in m.group(1)))
+        name = "z" + m.group(1)
+        head = name + " = "
+        if u == "power-polar":
+            need(m.group(2) != "a + bi", "power-polar asks for a polar form")
+            r, c, style = cpl_read_polar(L[0], "z")
+            need(CPL_FORM[m.group(2)] == style, "the form asked is not the form given")
+            need(3 <= n <= 6, f"power {n}")
+            R, raw = r ** n, c * n
+            C = cpl_principal(raw)
+            need(C == cpl_arg(sp.expand(cpl_cis(r, c) ** n)), "De Moivre's argument is off")
+            want = head + cpl_p(R, C, style)
+            slip("mod-unraised", head + cpl_p(r, C, style))
+            pw = f"({cpl_pi(c)}){m.group(1)}"
+            slip("arg-raised", head + cpl_s(R) + (f"e^({pw} i)" if style == "euler" else f" cis({pw})"))
+            if raw != C:
+                slip("unreduced", head + cpl_p(R, raw, style))
+        else:
+            need(m.group(2) == "a + bi", "power-cartesian asks for a + bi")
+            z = cx_read(L[0], "z")
+            p = sp.expand(z ** n)
+            want = head + cpl_c(p)
+            r, c = sp.simplify(sp.Abs(z)), cpl_arg(z)
+            slip("mod-unraised", head + cpl_c(cpl_cis(r, cpl_principal(c * n))))
+            a, b = sp.re(z), sp.im(z)
+            pp = sp.expand(a ** n + (b * I) ** n)
+            try:
+                slip("parts-power", head + cpl_c(pp))
+            except Fail:
+                pass
+    elif u == "least-power":
+        r, c, style = cpl_read_polar(L[0], "z")
+        mode = {"real": "real", "purely imaginary": "imaginary", "a positive real number": "positive", "a negative real number": "negative"}
+        m = re.fullmatch(r"Find the least positive integer n for which z\^n is (.+)\.", asked)
+        need(m is not None and m.group(1) in mode, f"asked {asked!r}")
+        md = mode[m.group(1)]
+        n = aip_least(c, md)
+        need(n > 1, "n is 1")
+        zn = sp.expand(cpl_cis(r, c) ** n)
+        need({"real": sp.im(zn) == 0, "imaginary": sp.re(zn) == 0, "positive": sp.im(zn) == 0 and zn > 0,
+              "negative": sp.im(zn) == 0 and zn < 0}[md], "z^n is not what was asked")
+        want = f"n = {n}"
+        if md == "real":
+            slip("pos-only", f"n = {aip_least(c, 'positive')}")
+        other = {"real": "imaginary", "imaginary": "real", "positive": "negative", "negative": "positive"}[md]
+        if aip_least(c, other) > 0:
+            slip("kind-swap", f"n = {aip_least(c, other)}")
+    elif u == "multiply-point":
+        need(rep == "graph" and L == [CX_READ_A], f"lines {L!r}")
+        z = cx_grid_point(q, "A")
+        m = re.fullmatch(r"The point A on the Argand diagram represents the complex number z, and w = (.+)\. Find the complex number that represents the image of A under the map z ↦ wz, in the form a \+ bi\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        w = cx_parse(m.group(1))
+        head = "w × z = "
+        want = head + cpl_c(w * z)
+        if w == I:
+            slip("i-reflect", head + cpl_c(sp.im(z) + sp.re(z) * I))
+        if sp.im(w) != 0:
+            slip("clockwise", head + cpl_c(sp.conjugate(w) * z))
+            if sp.simplify(sp.Abs(w) - 1) != 0:
+                slip("rotation-only", head + cpl_c(sp.expand(w / sp.Abs(w) * z)))
+    elif u == "add-sinusoids":
+        m = re.fullmatch(r"(V|y|I)₁ = (\d) (cos|sin)\((\d)t(?: ([+−]) ([\d.]+))?\) and (V|y|I)₂ = (\d) (cos|sin)\((\d)t(?: ([+−]) ([\d.]+))?\), where t is the time in seconds\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        Lt, fn, w = m.group(1), m.group(3), int(m.group(4))
+        need((m.group(7), m.group(9), int(m.group(10))) == (Lt, fn, w), "the two waves differ in letter, function or frequency")
+        a1, a2 = int(m.group(2)), int(m.group(8))
+        p1 = aip_dec(m.group(6)) * (-1 if m.group(5) == "−" else 1) if m.group(6) else sp.Integer(0)
+        p2 = aip_dec(m.group(12)) * (-1 if m.group(11) == "−" else 1) if m.group(12) else sp.Integer(0)
+        need(asked == f"Use complex numbers to write {Lt}₁ + {Lt}₂ in the form A {fn}({w}t + B), where A > 0 and −π < B ≤ π, giving A and B to 3 significant figures.", f"asked {asked!r}")
+        zs = a1 * mpmath.expj(p1) + a2 * mpmath.expj(p2)
+        A, B = abs(zs), mpmath.arg(zs)
+        # The sum really is A fn(wt + B): checked at a few times.
+        f = mpmath.cos if fn == "cos" else mpmath.sin
+        for tt in (0, 0.3, 1.1):
+            need(abs(a1 * f(w * tt + p1) + a2 * f(w * tt + p2) - A * f(w * tt + B)) < 1e-9, "the sum is not one sinusoid")
+        head = f"{Lt}₁ + {Lt}₂ = "
+        want = head + aip_wave(A, fn, w, B)
+        slip("amp-sum", head + aip_wave(a1 + a2, fn, w, B))
+        slip("phase-avg", head + aip_wave(A, fn, w, (p1 + p2) / 2))
+        zd = a1 * mpmath.expj(mpmath.radians(p1)) + a2 * mpmath.expj(mpmath.radians(p2))
+        slip("phase-degrees", head + aip_wave(abs(zd), fn, w, mpmath.degrees(mpmath.arg(zd))))
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, None)
+    return None, None
+
+
+SITUATION_CHECKS["complex-polar-ai"] = aip_check
+# ── end complex-polar ──
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]
