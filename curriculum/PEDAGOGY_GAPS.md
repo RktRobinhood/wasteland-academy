@@ -8,10 +8,10 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## In numbers
 
-- **Types:** 124 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
+- **Types:** 133 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
 - **Skills with a type:** 286 of 286.
-- **Functions:** 174 unknowns the exam asks and 439 it doesn't; 623 angles, 193 of them with a weak spot for method-pick questions; 172 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
-- **Coverage cells** (one unknown in one representation by one method): 2220 in Functions, of which 632 are reachable with "Exam-style only" on.
+- **Functions:** 246 unknowns the exam asks and 439 it doesn't; 665 angles, 200 of them with a weak spot for method-pick questions; 189 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
+- **Coverage cells** (one unknown in one representation by one method): 2439 in Functions, of which 851 are reachable with "Exam-style only" on.
 
 ## Levels
 
@@ -26,18 +26,18 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 | Region | Exam types | Extension types | Unknowns (exam + new) | Representations (new) | Angles (weak) | Concepts | Cells (exam-only) |
 |---|---|---|---|---|---|---|---|
-| Quadratics | 6 | 8 | 37 + 76 | 42 (30) | 102 (35) | 32 | 353 (125) |
-| Exponentials and logs | 4 | 4 | 26 + 59 | 28 (22) | 95 (29) | 20 | 353 (121) |
-| Graphs and key features | 6 | 6 | 25 + 71 | 40 (30) | 110 (43) | 32 | 320 (78) |
+| Quadratics | 7 | 8 | 46 + 76 | 46 (30) | 107 (36) | 34 | 381 (153) |
+| Exponentials and logs | 5 | 4 | 34 + 59 | 31 (22) | 99 (30) | 22 | 375 (143) |
+| Graphs and key features | 11 | 6 | 64 + 71 | 60 (30) | 134 (47) | 41 | 437 (195) |
 | Composite and inverse | 5 | 3 | 32 + 52 | 23 (13) | 89 (19) | 22 | 311 (118) |
-| Rational functions | 3 | 4 | 21 + 40 | 23 (18) | 56 (13) | 18 | 163 (60) |
+| Rational functions | 4 | 4 | 29 + 40 | 27 (18) | 59 (13) | 20 | 183 (80) |
 | Function basics | 4 | 3 | 17 + 44 | 23 (15) | 49 (17) | 18 | 210 (57) |
-| Lines | 1 | 6 | 10 + 50 | 23 (21) | 57 (18) | 15 | 253 (45) |
+| Lines | 2 | 6 | 18 + 50 | 27 (21) | 63 (19) | 17 | 285 (77) |
 | Transformations | 2 | 3 | 6 + 47 | 17 (13) | 65 (19) | 15 | 257 (28) |
 
 ### 1. Quadratics (syllabus 2.6, 2.7)
 
-6 exam types, 8 extension types; 37 exam unknowns and 76 new ones; 353 coverage cells (125 with "Exam-style only" on).
+7 exam types, 8 extension types; 46 exam unknowns and 76 new ones; 381 coverage cells (153 with "Exam-style only" on).
 
 #### Read and convert quadratic forms (`fn-quadratic-features`, exam, 12 bank parts)
 
@@ -199,6 +199,27 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): For a > 0, why does the solution of ax² + bx + c > 0 come in two pieces, but ax² + bx + c < 0 in one? — An upward parabola is below the axis only between its roots and above it on both sides.
   - *predict-check* (L3): Predict the solution of (x − 1)² ≥ 0 without expanding. Then predict (x − 1)² < 0. — All real x; then no x at all. A square is never negative.
 - **Misconceptions used:** 9. Keeps only one side of the solution, or writes x > ±√c; Joins the two outer regions into a single interval between the roots; Divides by a negative leading coefficient without reversing the inequality; Mixing up the region between the roots and the region outside them; Mixing up strict and inclusive signs, so the roots are put in or left out the wrong way; Flipping the signs of both roots, as when they are read off the brackets without changing sign; Rounding the root up to the next whole number, when n must stay at or below it; Reading the parabola on the wrong side of the x-axis, which swaps all x and no x; Writing each factor as x plus the root instead of x minus it, which flips the sign of b.
+
+#### Quadratic models: start, peak, landing and levels (AI) (`fn-ai-quadratic-model`, exam, 31 bank parts)
+
+- **Situation:** A quadratic model of a flight, an arch or an area (AI).
+- **Representations:** **equation**, **words**, **graph**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the model → the value at t = 0, such as the launch height
+  - **exam** L2: given the model → the maximum or minimum value
+  - **exam** L2: given the model → when or where the maximum or minimum happens
+  - **exam** L1: given the model, or two points at the same height → the equation of the axis of symmetry
+  - **exam** L2: given the model → the positive zero, such as when the object lands
+  - **exam** L3: given the model; a level → the later time the model reaches the level
+  - **exam** L2: given the model; an obstacle's distance and height → the model's value there, and whether it clears the obstacle
+  - **exam** L3: given an arch model; a height → the width of the arch above that height
+  - **exam** L3: given a constraint and a quantity to model → the quadratic model for the area or the revenue
+- **Angles:** Graph and use the maximum and zero tools; Use x = −b/(2a) for the axis, then substitute; Solve the quadratic on the GDC equation solver; Take the midpoint of the roots; Build the quadratic from the context.
+  - *Fails:* Take the midpoint of the roots: a flight launched above the ground has only one zero in the context, so its midpoint with the negative zero is not a time anyone asked about.
+- **Concept probes:**
+  - *true-false-reason* (L3): A ball thrown upward reaches its greatest height halfway through its flight. — Only if it lands at the height it was thrown from. Launched from above the ground, it falls further than it rose, so the peak comes before halfway.
+  - *interpret-parameter* (L3): In h(t) = −4.9t² + 14t + 1.5, what does 1.5 tell you? — The height, in metres, when t = 0: the ball leaves the hand 1.5 m above the ground. It is not the greatest height.
+- **Misconceptions used:** 9. Gives the time of the maximum when the maximum height is asked for; Keeps the negative root of h(t) = 0 as the time when the object lands; Uses x = b/(2a), dropping the minus sign, so the axis of symmetry is on the wrong side of the y-axis; Reads the y-intercept of h(t) as the maximum height rather than the launch height; Gives the height of the peak when its time is asked for; Gives the earlier time when the later one is asked for; Gives the distance from the axis to one side, half the width; Compares the obstacle with the peak height instead of the model's height at the obstacle; Keeps both lengths in the area instead of replacing one with the constraint.
 
 #### Model and optimise with a quadratic (`fn-ext-quadratic-model`, skill, level 2–5)
 
@@ -367,7 +388,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 2. Exponentials and logs (syllabus 2.9)
 
-4 exam types, 4 extension types; 26 exam unknowns and 59 new ones; 353 coverage cells (121 with "Exam-style only" on).
+5 exam types, 4 extension types; 34 exam unknowns and 59 new ones; 375 coverage cells (143 with "Exam-style only" on).
 
 #### Exponential and log functions as inverses and composites (`fn-exp-log-inverse-composite`, exam, 12 bank parts)
 
@@ -490,6 +511,26 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L3): Predict the vertical asymptote of y = 3 ln(2x − 6) + 1. Then check. — x = 3: the 3 in front and the +1 stretch and lift the graph but do not change where the inside is zero. 2x − 6 = 0 gives x = 3.
 - **Misconceptions used:** 23. Draws the log graph with a horizontal asymptote; Gets the sign of the vertical asymptote of a log graph wrong; Thinks ln 0 = 0, so the graph starts at the origin; Writes an asymptote as a number instead of an equation; Swaps vertical and horizontal, writing the asymptotes the wrong way round; Gets the sign of a vertical asymptote wrong by reading it off the bracket; Copying the domain of √x without the shift; Describes the y-values (range) when the domain is asked for; Forgetting to divide by the coefficient of x when finding where the log's input is zero; Taking the vertical shift c as the position of the asymptote; Giving the y-axis, the parent log's asymptote, and forgetting the shift; Treating ln y as positive whenever y is positive, so giving the domain; Including the value where the log's input is zero, though the log is undefined there; Including the value where f is zero, though the inequality is strict; Forgetting the shift inside the log, so taking the edge from ln x alone; Starting the interval at the origin instead of at the edge of the domain; Forgetting to turn the inequality round when dividing by a negative; Stopping at the log's value, without undoing the log to find x; Stopping at the value of the log's input instead of solving it for x; Swapping the horizontal and vertical shifts; Leaving the point as it is, without swapping its coordinates; Taking the log's value as its input, without raising the base to that power; Taking the x-intercept as n, instead of the vertical asymptote.
 
+#### Exponential models and their asymptote (AI) (`fn-ai-exponential-model`, exam, 41 bank parts)
+
+- **Situation:** An exponential model ka^t + c or ke^(rt) + c in context (AI).
+- **Representations:** **equation**, **words**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the model → the value at t = 0
+  - **exam** L1: given the model; a time, possibly in another unit → the value at that time
+  - **exam** L1: given the model in the form ka^t → the percentage increase or decrease each unit of time
+  - **exam** L1: given the model → the equation of the horizontal asymptote
+  - **exam** L2: given the model in context → what the asymptote means, or why a level is never reached
+  - **exam** L3: given the model; a level → the time the model reaches the level
+  - **exam** L3: given the model; a level → the least whole number of units until the level is passed
+  - **exam** L4: given two models → the time the two models are equal
+- **Angles:** Substitute the input; Intersect the model with a horizontal line; Scan a GDC table; Read the asymptote from c.
+  - *Slow:* Scan a GDC table: a table steps through whole units, so it brackets a time between two rows rather than giving it to 3 s.f..
+- **Concept probes:**
+  - *always-sometimes-never* (L3): A drink cooling as T(t) = 60(0.9)^t + 20 eventually reaches 20 °C. — Never. 60(0.9)^t is always positive, so T stays above 20 °C; y = 20 is the asymptote it only approaches.
+  - *interpret-parameter* (L3): In V(t) = 24 000(0.82)^t, what does 0.82 mean? — Each year the value is multiplied by 0.82: it keeps 82% and loses 18% of the value it had at the start of that year.
+- **Misconceptions used:** 8. Gives the initial value of ka^t + c as k instead of k + c, ignoring c; Writes the asymptote as y = 0 instead of y = c; Reads the factor in ka^t as the fraction lost each unit of time instead of the fraction kept; Treats the growth as linear, adding the first period's change every period instead of multiplying by the factor; Gives the factor itself as the percentage change, without taking 1 from it; Uses the time in the unit given instead of the model's unit; Rounds the time down, to a whole number of units at which the level has not yet been reached; Gives the value at the time the models are equal instead of the time.
+
 #### Sketch and describe exponential graphs (`fn-ext-exp-graph`, skill, level 1–3)
 
 *Gap:* SL2.9.exp-graph is in the syllabus, but no exam part since 2021 asks for it on its own; it only appears inside model or inverse questions.
@@ -586,7 +627,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 3. Graphs and key features (syllabus 2.3, 2.4, 2.10)
 
-6 exam types, 6 extension types; 25 exam unknowns and 71 new ones; 320 coverage cells (78 with "Exam-style only" on).
+11 exam types, 6 extension types; 64 exam unknowns and 71 new ones; 437 coverage cells (195 with "Exam-style only" on).
 
 #### Sketch a graph from the GDC on a given domain (`fn-sketch-gdc`, exam, 7 bank parts)
 
@@ -750,6 +791,103 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): Taking ln of both sides of eˣ = x + 3 gives x = ln x + ln 3. — False. ln(x + 3) is not ln x + ln 3 (that is ln 3x). The correct step gives x = ln(x + 3), which still cannot be solved by hand. The GDC gives x ≈ −2.95 and x ≈ 1.51.
   - *true-false-reason* (L3): If the GDC finds a root of an equation from a model, that root answers the question. — False. The model only makes sense on its domain: a negative time, an angle of a triangle above π, or a negative length must be rejected, and for "the first time" only the smallest valid root counts.
 - **Misconceptions used:** 12. Looks at too small a range of x and misses a solution; Rounds intermediate values, or gives too few significant figures; Takes ln of both sides of e^x = x + 3 and writes x = ln x + ln 3; Rounds the wrong way for the context, to a whole number that doesn't meet the condition; Keeps a solution outside the model's domain, such as a negative time; Answers 'how much' when the question asks 'when'; Gives the negative solution when the positive one is asked for; Stops at θ and gives the angle instead of the arc length; Gives the x-coordinate of the point where the graphs cross instead of y; Gives the later of the two times at that height, not the first; Divides the wrong way, finding sin x ÷ x instead of x ÷ sin x; Multiplies by sin x instead of dividing by it.
+
+#### Cubic models: the open box and beyond (AI) (`fn-ai-cubic-model`, exam, 4 bank parts)
+
+- **Situation:** A cubic model: an open box, a profit or a height (AI).
+- **Representations:** **diagram**, **words**, **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the card's length and width; squares of side x cut from each corner → the volume V(x) of the open box
+  - **exam** L2: given the card's length and width → the possible values of x
+  - **exam** L3: given the box's volume V(x) → the value of x that gives the greatest volume, or the greatest volume
+  - **exam** L1: given a cubic model; an input → the model's value at the input
+  - **exam** L3: given a cubic model → the positive zero, such as the least input with no loss
+  - **exam** L4: given a cubic model on an interval → the total length of the intervals where the model is negative
+- **Angles:** Write length × width × height from the diagram; Use the physical limits of the situation; Graph on the domain and use the maximum tool; Narrow down with a table; Graph on the domain and use the zero tool.
+  - *Slow:* Narrow down with a table: a table of whole-number x only brackets the best box; it needs refining to give x to 3 s.f..
+- **Concept probes:**
+  - *predict-check* (L3): Predict: does cutting bigger corner squares always make a bigger open box? Check with a 20 cm by 12 cm card at x = 2 and x = 5. — No. V(2) = 2 × 16 × 8 = 256 cm³ but V(5) = 5 × 10 × 2 = 100 cm³: the box gets deeper but its base shrinks faster.
+- **Misconceptions used:** 7. Takes only one corner square off each side, so each base length loses x instead of 2x; Lets x run up to half the longer side, forgetting that the shorter side runs out first; Picks the other turning point, which lies outside the domain and gives a negative volume; For squares cut from the corners of a card, lets x run up to the whole side instead of half of it; Gives the greatest volume when the value of x is asked for, or the other way round; Gives a zero that is not positive, or the zero of the wrong sign change; Gives the length of one interval where the model is negative instead of the total.
+
+#### Sinusoidal models in degrees (AI) (`fn-ai-sinusoidal-model`, exam, 65 bank parts)
+
+- **Situation:** A sinusoidal model a sin(bt) + d or a cos(bt) + d in degrees (AI).
+- **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the model, its graph, or the greatest and least values → the amplitude
+  - **exam** L1: given the model, its graph, or the times of a maximum and the next minimum → the period
+  - **exam** L2: given the period → the value of b
+  - **exam** L1: given the model, its graph, or the greatest and least values → the equation of the principal axis
+  - **exam** L1: given the model, or a centre height and a radius → the greatest or least value
+  - **exam** L3: given the greatest and least values, the period and where it starts → the model, with a, b and d
+  - **exam** L1: given the model; a time → the value at that time
+  - **exam** L3: given the model; a level; a time to start from → the first time after it that the model reaches the level
+  - **exam** L4: given the model; a level → how long in one period the model stays above or below the level
+  - **exam** L2: given the model; a total time → the number of complete cycles in that time
+  - **exam** L3: given the model; a new period or a new greatest value → the new b or the new principal axis
+  - **exam** L4: given two models → the first time the two models are equal
+- **Angles:** Read a, 360°/b and d from the equation; Find a and d from the greatest and least values; Graph in degree mode and intersect.
+- **Concept probes:**
+  - *true-false-reason* (L3): If the period of h(t) = 3 sin(bt) + 10 doubles, then b doubles too. — False. b = 360/period, so doubling the period halves b.
+  - *interpret-parameter* (L3): A seat's height is h(t) = −20 cos(15t) + 22 metres, t in minutes. What do −20, 15 and 22 mean? — The wheel's radius is 20 m and the seat starts at the bottom (the minus sign); it turns 15° a minute, so a turn takes 24 minutes; the centre is 22 m up.
+- **Misconceptions used:** 10. Gives the period of a sin(bt) + d as b instead of 360/b; Gives the amplitude as a + d, the maximum, instead of |a|; Writes the principal axis as y = a, the amplitude, instead of y = d; Solves with the GDC in radian mode, getting meaningless times; Takes the time from a maximum to the next minimum as the whole period instead of half of it; Writes b as the period divided by 360 instead of 360 divided by the period; Gives the cosine model a positive a when it starts at its minimum; Gives the time below the level when the time above it is asked for, or the other way round; Gives the first crossing of the level before the start time instead of after it; Doubles b when the period doubles instead of halving it.
+
+#### Find a model's parameters from given values (AI) (`fn-ai-fit-model`, exam, 34 bank parts)
+
+- **Situation:** Finding a model's parameters from given values (AI).
+- **Representations:** **words**, **table**, **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given P(t) = ka^t with k known; a later value → the factor a, or the rate in ke^(rt)
+  - **exam** L2: given P(t) = ka^t with a known; one value → the start value k
+  - **exam** L3: given P(t) = ka^t + c with a known; the start value and one more value → k and c
+  - **exam** L3: given y = ax² + bx + c; three points → a, b and c
+  - **exam** L3: given y = ax² + bx + c; the y-intercept or vertex, the axis of symmetry, and a point → the missing coefficients
+  - **exam** L4: given a cubic model with its constant term known; three more points → the other coefficients
+  - **exam** L3: given y = a sin(bt) + c with b known; two readings → a and c
+- **Angles:** Use the value at the start; Set up linear equations and solve with technology; Eliminate by hand; Check against an unused point.
+  - *Slow:* Eliminate by hand: three equations in three unknowns take several eliminations by hand, where the GDC solver gives them at once.
+- **Concept probes:**
+  - *true-false-reason* (L3): To fit y = ax² + bx + c you need three points, so any three points on the paper will do. — False. The three x-values must differ: two points with the same x give the same equation's left side and cannot fix three coefficients.
+  - *predict-check* (L3): P(t) = k(1.2)^t + c with P(0) = 50. Predict k + c, then check by putting t = 0 in. — k + c = 50, since (1.2)⁰ = 1. P(0) alone does not give k.
+- **Misconceptions used:** 8. From the value at t = 0 of ka^t + c, writes k equal to that value and forgets c (the equation is k + c = P(0)); Substitutes the coordinates the wrong way round, putting the y-value in for x; For a quadratic through a point, multiplies a by x rather than by x² when writing the equation; Takes the factor as the ratio of the two values without the root for the time between them; Divides by the factor once instead of by its power for the time given; Drops the minus sign in the axis of symmetry x = −b/(2a) when finding b; Gives the cubic coefficients in the wrong order, reading the solver's output against the wrong powers; Evaluates sin in radians when writing the equations.
+
+#### Choose a model and its domain (AI) (`fn-ai-choose-model`, exam, 11 bank parts)
+
+- **Situation:** Choosing a model and its domain (AI).
+- **Representations:** **table**, **graph**, **words**, **equation**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a table at equally spaced inputs → the family that fits, from differences or ratios
+  - **exam** L2: given a scatter of the data → the family that fits, from the shape
+  - **exam** L1: given a situation in words → the family that suits it
+  - **exam** L2: given a situation and a proposed family → why the family does not suit the situation
+  - **exam** L2: given a model of a flight or a draining tank → the domain from the start to the model's zero
+  - **exam** L2: given a shape whose size depends on x → the possible values of x, and why an end is excluded
+  - **exam** L1: given a model whose input is a count → the domain as whole numbers
+- **Angles:** Test differences and ratios in a table; Compare the shape of the plotted data; Use features of the situation; Use the zeros of the model as endpoints; Use the physical limits of the situation; Limit to the range of the data.
+  - *Fails:* Limit to the range of the data: a launched object's domain ends where the model reaches zero, not where the data stop.
+- **Concept probes:**
+  - *true-false-reason* (L3): The values 3, 6, 12, 24 at x = 0, 1, 2, 3 increase, so a linear model fits them. — False. The differences 3, 6, 12 are not constant; the ratios are all 2, so an exponential model fits.
+  - *always-sometimes-never* (L3): A model's domain is all real numbers. — Sometimes, as a function; never in a context with time from a start, lengths or counts, where the situation limits the inputs.
+- **Misconceptions used:** 9. Chooses an exponential model because the values increase, when the first differences are constant (linear); Treats constant second differences as constant ratios and picks exponential instead of quadratic; Justifies a choice only by 'it fits the points' without referring to the shape of the data or the context; Gives the domain of a ball's height model as all real t, including negative times; For squares cut from the corners of a card, lets x run up to the whole side instead of half of it; Uses a continuous interval for a model whose input is a count, such as the number of tickets; Chooses a linear model for a scatter that rises ever faster, because the points rise; Ends the domain at the peak of the flight instead of where it lands; Includes an end where the shape has no size, such as x = 0.
+
+#### Test a model and use it (AI) (`fn-ai-test-model`, exam, 23 bank parts)
+
+- **Situation:** Testing and using a model (AI).
+- **Representations:** **table**, **words**, **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a model; a recorded value → the percentage error of the model's prediction
+  - **exam** L3: given two models; an observed value → which model predicts it better, with the two predictions
+  - **exam** L2: given a model; an input → the model's value there, and why it shows the model fails
+  - **exam** L2: given a model in context → a limitation of the model
+  - **exam** L2: given a model with t from a start year; a calendar year → the model's prediction for that year
+  - **exam** L1: given a model fitted to a range of data; two inputs → which prediction is more reliable, and why
+  - **exam** L1: given a model in context → what a parameter means, with its units
+- **Angles:** Compare predictions with actual data; Check the long-run behaviour; Check the model against the real situation; Substitute into the model; Decide whether the input is inside the data range; Solve for the input on the GDC.
+  - *Slow:* Solve for the input on the GDC: solving for an input is the long way to a prediction; substituting the converted year gives it at once.
+- **Concept probes:**
+  - *true-false-reason* (L3): A model that passes exactly through the two points used to fit it is a good model. — False. Any model with two parameters can be made to pass through two points; only other data, or the long-run behaviour, can test it.
+  - *predict-check* (L3): A model fitted to data from 2010 to 2020 predicts 2015 and 2040. Predict which is more reliable, then say why. — 2015: it is inside the data range (interpolation). 2040 is far outside it (extrapolation), where the pattern may not hold.
+- **Misconceptions used:** 9. Concludes the model is good because it passes exactly through the two points used to fit it; Calls a model unsuitable because it is not exact for one point, without considering the overall pattern or the size of the error; Divides by the model's value instead of the actual value in the percentage error, getting a slightly wrong percentage; Substitutes the calendar year for t when t is the number of years since a start year; Trusts an extrapolation far outside the data because the model fitted the data well; Interprets a parameter in the wrong units, for example reading the daily rate as the total cost; Gives the difference between the values without dividing by the actual value; Picks the model whose prediction is larger instead of the one closer to the observed value; Calls the value impossible for a reason the context does not give.
 
 #### Match equations to graphs (`fn-ext-match-graph`, skill, level 1–3)
 
@@ -1090,7 +1228,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 5. Rational functions (syllabus 2.8)
 
-3 exam types, 4 extension types; 21 exam unknowns and 40 new ones; 163 coverage cells (60 with "Exam-style only" on).
+4 exam types, 4 extension types; 29 exam unknowns and 40 new ones; 183 coverage cells (80 with "Exam-style only" on).
 
 #### Asymptotes and intercepts of (ax + b)/(cx + d) (`fn-rational-asymptotes-intercepts`, exam, 15 bank parts)
 
@@ -1172,6 +1310,25 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): A rational function with a quadratic denominator has two vertical asymptotes. — Sometimes: two when the denominator has two real zeros that are not zeros of the numerator, one for a repeated zero, none when its discriminant is negative.
   - *predict-check* (L3): Predict whether (x² + 1)/(x − 2) has a horizontal or an oblique asymptote, then check by dividing. — Oblique: the numerator's degree is one more than the denominator's. Dividing gives x + 2 + 5/(x − 2), so the asymptote is y = x + 2.
 - **Misconceptions used:** 16. Setting the numerator equal to zero and giving its root as a vertical asymptote; Factorising the quadratic denominator with the signs swapped, so each asymptote has the wrong sign; Thinking every quadratic denominator gives two vertical asymptotes, even one with no real zeros; Taking the ratio of the leading coefficients as the horizontal asymptote, though the denominator has the higher degree; Believing a graph can never cross its horizontal asymptote, so missing the point where it does; Taking the ratio of the constant terms as the horizontal asymptote; Taking only the leading terms, so the oblique asymptote loses its constant term; Dividing each term of the numerator by x instead of by the whole denominator; Giving the range as every real number except the horizontal asymptote's value; Taking the wrong side of the discriminant condition, so the range comes out as the gap between the turning values; Drawing a branch that misses the x-intercept where the numerator is zero; Giving the y-intercept as the ratio of the leading coefficients instead of f(0); Changing the sign of the denominator's zero, so the vertical asymptote is reflected in the y-axis; Losing the remainder's sign when dividing, so the constant of the oblique asymptote is wrong; Solving for the zeros of the quadratic numerator with a sign slip in the factors; Using the vertical asymptote's value as the horizontal asymptote.
+
+#### Direct and inverse variation models (AI) (`fn-ai-variation-model`, exam, 19 bank parts)
+
+- **Situation:** Direct and inverse variation y = ax^n (AI).
+- **Representations:** **words**, **equation**, **table**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the variation in words; one pair of values → the constant a
+  - **exam** L2: given the variation in words; one pair; a new input → the output at the new input
+  - **exam** L3: given the model; an output → the input that gives it
+  - **exam** L2: given the variation in words; the factor the input is multiplied by → the factor the output is multiplied by
+  - **exam** L2: given y = ax^n with n < 0 → the equations of the asymptotes
+  - **exam** L4: given the model; a threshold on the output → the inputs for which the output is above or below the threshold
+  - **exam** L3: given the model; a limit on the output → the least whole number input that keeps the output within the limit
+  - **exam** L2: given the model and a point on it → the graph of the model
+- **Angles:** Find a from one data point, then use the model; Reason with the scale factor; Graph the model and read or intersect.
+- **Concept probes:**
+  - *predict-check* (L3): Light intensity follows an inverse square law. Predict what happens to the intensity when you move three times as far away, then check with I = 900/d² at d = 1 and d = 3. — It is divided by 3² = 9: I goes from 900 to 100.
+  - *true-false-reason* (L3): If y is inversely proportional to x, then y decreases by the same amount each time x increases by 1. — False. y = a/x falls by less and less: from x = 1 to 2 it halves, from x = 2 to 3 it falls by a sixth of a. Only a linear model falls by a constant amount.
+- **Misconceptions used:** 9. For an inverse square law, divides the output by the scale factor of the input instead of by its square; Treats 'inversely proportional' as y = a − x or y = −ax instead of y = a/x; States only y = 0 as an asymptote of y = a/x, missing the vertical asymptote x = 0; For a cube law, multiplies the output by the scale factor of the input instead of by its cube; Forgets the power when finding the constant, dividing y by x instead of by xⁿ; Uses direct variation when the context says inversely; Gives the boundary input as a whole range, keeping the inputs on the wrong side of it; Rounds the boundary to the nearest whole number instead of the next one that meets the limit; Picks a curve with the same point but the wrong power, or a straight line through it.
 
 #### Write a rational function as a transformed 1/x (`fn-ext-transformed-reciprocal`, skill, level 2–3)
 
@@ -1428,7 +1585,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 7. Lines (syllabus 2.1)
 
-1 exam types, 6 extension types; 10 exam unknowns and 50 new ones; 253 coverage cells (45 with "Exam-style only" on).
+2 exam types, 6 extension types; 18 exam unknowns and 50 new ones; 285 coverage cells (77 with "Exam-style only" on).
 
 #### Straight line from conditions, then use it (`fn-line-from-conditions`, exam, 13 bank parts)
 
@@ -1464,6 +1621,26 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): A straight line meets both axes. — Sometimes. A horizontal line such as y = 3 never meets the x-axis, and a vertical line such as x = 2 never meets the y-axis. Every other line meets both (at the same point if it passes through the origin).
   - *interpret-parameter* (L3): In ax + by + d = 0, d changes while a and b stay the same. What happens to the line? — It slides without turning: the gradient −a/b does not change, so the new line is parallel to the old one. The intercepts −d/a and −d/b grow or shrink in step with d.
 - **Misconceptions used:** 31. Computes run over rise, (x₂ − x₁)/(y₂ − y₁), giving the reciprocal of the gradient; Subtracts the coordinates in inconsistent order, (y₂ − y₁)/(x₁ − x₂), and gets the wrong sign; Reading a coefficient straight off ax + by + d = 0 as the gradient, instead of −a/b; Writes y − y₁ = m(x + x₁), which puts the line through (−x₁, y₁); Leaves fractions, or drops the '= 0', when integer coefficients in ax + by + d = 0 are required; Uses the gradient of the wrong line (e.g. the original line instead of the perpendicular one); Writes the y-intercept as (c, 0) instead of (0, c); Sets y = 0 to find the y-intercept (swaps the two conditions); Gives the y-intercept of ax + by + d = 0 as d instead of −d/b; Takes the perpendicular gradient as −m or 1/m instead of −1/m; Thinks perpendicular gradients multiply to 1; Uses the gradient of AB itself for a perpendicular bisector, or forgets that the line must pass through the midpoint; Subtracting instead of adding: M = ((x₂ − x₁)/2, ...); Drops the minus sign from −a/b, the gradient of ax + by + d = 0; Finds the change from A to B but forgets to add it to A's coordinate; Swaps the x- and y-coordinates of the point when putting it into the equation; Uses the y-coordinate of the point as c, as if the point were on the y-axis; Solves for c with the sign wrong, taking c = mx₁ − y₁ instead of y₁ − mx₁; Uses the x-intercept as c in y = mx + c, instead of the y-intercept; Gives the first line again, forgetting that the parallel line must pass through P; Forgets to change the sign of a term when moving it to the other side; Drops the minus sign when solving for where the line crosses the x-axis; Forgets the ½ in ½ × base × height; Adds the two intercepts instead of multiplying them; Leaves out c, working as if the line went through the origin; Adds c instead of subtracting it when moving it to the other side; Forgets to divide by the gradient after taking c away; Multiplies by the gradient instead of dividing by it; Takes the gradient of ax + by + d = 0 as b/a instead of −a/b; Mixes up the two conditions, using the parallel one for perpendicular lines or the perpendicular one for parallel lines; Takes the perpendicular gradient as only the negative, or only the reciprocal, of the first, instead of flipping it and changing its sign.
+
+#### Linear and piecewise linear models (AI) (`fn-ai-piecewise-linear`, exam, 9 bank parts)
+
+- **Situation:** A linear or piecewise linear model of a charge, a conversion or a tariff (AI).
+- **Representations:** **words**, **equation**, **graph**, **table** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a fixed charge and a rate per unit in words → the model C = mx + c
+  - **exam** L1: given the model or its graph; an input → the output, such as a cost or a converted value
+  - **exam** L1: given the model in context → what the gradient or the intercept means, with units
+  - **exam** L2: given a two-piece tariff → the cost for an input in either piece
+  - **exam** L2: given a two-piece tariff, or its graph → the linear rule for the second piece
+  - **exam** L3: given a two-piece tariff; a cost → the input that gives the cost
+  - **exam** L2: given a tiered rate; an order → the cost after the band's rate is applied to the whole order
+  - **exam** L2: given two bills on the same linear tariff → the fixed charge and the rate per unit
+- **Angles:** Read the rate and the starting value from the context; Find m and c from two data points; Model each interval separately; Read values from the graph; Set up linear equations and solve with technology; Eliminate by hand.
+  - *Slow:* Read values from the graph: reading a cost off the graph only gives it to the nearest grid line.
+- **Concept probes:**
+  - *interpret-parameter* (L3): A plumber charges C = 45h + 60 for h hours of work. What do 45 and 60 mean? — 60 is the fixed call-out charge, paid even for no work; 45 is the extra charge for each hour.
+  - *true-false-reason* (L3): On a plan with 2 GB free and then a charge per GB, using twice the data costs twice as much. — False. The free part is not charged, so the cost is not proportional to the data used; doubling the data more than doubles the charged part.
+- **Misconceptions used:** 7. Swaps the gradient and the intercept, using the fixed charge as the rate per unit and the rate as the fixed charge; In a piecewise plan, charges the per-unit rate on the whole amount instead of only the amount above the free allowance; Applies one linear rule across a corner of a piecewise graph, as if the gradient never changes; Substitutes the coordinates the wrong way round, putting the y-value in for x; Applies the band's rate only to the part of the order above the band's lower edge; Reads the band from the wrong edge, using the rate of the band next to the right one; Gives the rate per unit when the fixed charge is asked for, or the other way round.
 
 #### Find where two lines meet (`fn-ext-intersection-lines`, skill, level 1–3)
 

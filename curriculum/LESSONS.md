@@ -7,19 +7,19 @@ A Relic lesson is a 3 to 6 minute playable episode (GitHub issue #13): a charact
 ## In numbers
 
 - **Functions (Scrapworks, B0-LT):** 54 lessons, of which 11 are level 0 prior learning.
-- **Exam types:** 31 of 31 Functions exam types have at least one lesson; 4 listed as gaps.
+- **Exam types:** 40 of 40 Functions exam types have at least one lesson; 5 listed as gaps.
 - **Interaction kinds:** drag and position 9, sliders and dials 11, buttons and switches 3, graph manipulation 3, sorting and matching 6, building or balancing expressions 8, placing geometric objects 5, predict, then simulate 9.
 - **Pilot (L2):** lesson.fn.translation. **Second lesson (L4):** lesson.fn.composite.
 
 | Region (build order) | Lessons | of which level 0 | Exam types |
 |---|---|---|---|
-| 1. Quadratics | 13 | 4 | 6 |
-| 2. Exponentials and logs | 7 | 1 | 4 |
-| 3. Graphs and key features | 9 | 1 | 6 |
+| 1. Quadratics | 13 | 4 | 7 |
+| 2. Exponentials and logs | 7 | 1 | 5 |
+| 3. Graphs and key features | 9 | 1 | 11 |
 | 4. Composite and inverse | 5 | 1 | 5 |
-| 5. Rational functions | 5 | 1 | 3 |
+| 5. Rational functions | 5 | 1 | 4 |
 | 6. Function basics | 5 | 1 | 4 |
-| 7. Lines | 6 | 2 | 1 |
+| 7. Lines | 6 | 2 | 2 |
 | 8. Transformations | 4 | 0 | 2 |
 
 ## Build order
@@ -40,40 +40,40 @@ The pilot and the second lesson come first, where the roadmap puts them (L2 and 
 | 10 | The Mirror Line (`inverse-reflection`) | Function basics | Placing geometric objects | 6.4 | 1 | `fn-inverse-reflection`, `fn-inverse-algebraic`, `fn-gdc-intersection`, `fn-log-function-features`, `fn-rational-sketch` |
 | 11 | Keep the Scales Level (`pre-balance`) | Lines | Building or balancing expressions | 0 | 25 | – |
 | 12 | Pin and Swing (`line-equation`) | Lines | Drag and position | 6.5 | 8 | `fn-line-from-conditions` |
-| 13 | The Quarter Turn (`perpendicular`) | Lines | Placing geometric objects | 3.9 | 0 | `fn-line-from-conditions` |
-| 14 | Fill the Rectangle (`pre-expand`) | Quadratics | Building or balancing expressions | 0 | 17 | – |
-| 15 | Find the Sides (`pre-factorise`) | Quadratics | Building or balancing expressions | 0 | 16 | – |
-| 16 | Either Valve Shuts It (`zero-product`) | Quadratics | Sliders and dials | 7 | 10 | `fn-solve-quadratic`, `fn-quadratic-features`, `fn-curve-intersection-quadratic`, `fn-log-of-quadratic`, `fn-quadratic-inequality`, `fn-gdc-features` |
-| 17 | The Fountain's Mirror (`parabola-symmetry`) | Quadratics | Placing geometric objects | 9.5 | 8 | `fn-quadratic-features`, `fn-quadratic-from-conditions` |
-| 18 | The Crane Hook (`vertex-form`) | Quadratics | Graph manipulation | 7.2 | 4 | `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-domain-range`, `fn-log-of-quadratic`, `fn-sketch-from-features` |
-| 19 | The Missing Corner (`complete-square`) | Quadratics | Building or balancing expressions | 2 | 0 | `fn-quadratic-features`, `fn-transform-describe` |
-| 20 | Two Lamps, One Point (`pre-simultaneous`) | Lines | Drag and position | 0 | 8 | – |
-| 21 | Where the Tracks Cross (`meeting-points`) | Graphs and key features | Predict, then simulate | 13.4 | 6 | `fn-gdc-intersection`, `fn-curve-intersection-quadratic`, `fn-gdc-solve-equation`, `fn-rational-sketch` |
-| 22 | One More Bolt (`quadratic-from-clues`) | Quadratics | Sliders and dials | 7.3 | 0 | `fn-quadratic-from-conditions`, `fn-quadratic-features` |
-| 23 | Stack the Heights (`combine-functions`) | Graphs and key features | Graph manipulation | 3 | 0 | `fn-gdc-optimise-combined` |
-| 24 | The Tipping See-Saw (`pre-linear-inequalities`) | Quadratics | Predict, then simulate | 0 | 7 | – |
-| 25 | What Goes In, What Comes Out (`domain-range`) | Function basics | Sliders and dials | 7.9 | 3 | `fn-domain-range`, `fn-log-of-quadratic`, `fn-quadratic-from-conditions`, `fn-log-function-features`, `fn-rational-asymptotes-intercepts`, `fn-sketch-from-features` |
-| 26 | Below the Waterline (`quadratic-inequality`) | Quadratics | Drag and position | 5 | 2 | `fn-quadratic-inequality`, `fn-discriminant`, `fn-log-of-quadratic` |
-| 27 | Above the Line (`graph-inequality`) | Graphs and key features | Drag and position | 2.4 | 0 | `fn-rational-sketch`, `fn-quadratic-inequality` |
-| 28 | Start Plus Rate (`line-model`) | Lines | Predict, then simulate | 0 | 6 | – |
+| 13 | Start Plus Rate (`line-model`) | Lines | Predict, then simulate | 4.5 | 6 | `fn-ai-piecewise-linear` |
+| 14 | The Quarter Turn (`perpendicular`) | Lines | Placing geometric objects | 3.9 | 0 | `fn-line-from-conditions` |
+| 15 | Fill the Rectangle (`pre-expand`) | Quadratics | Building or balancing expressions | 0 | 17 | – |
+| 16 | Find the Sides (`pre-factorise`) | Quadratics | Building or balancing expressions | 0 | 16 | – |
+| 17 | Either Valve Shuts It (`zero-product`) | Quadratics | Sliders and dials | 7 | 10 | `fn-solve-quadratic`, `fn-quadratic-features`, `fn-curve-intersection-quadratic`, `fn-log-of-quadratic`, `fn-quadratic-inequality`, `fn-gdc-features` |
+| 18 | The Fountain's Mirror (`parabola-symmetry`) | Quadratics | Placing geometric objects | 16.4 | 8 | `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-ai-quadratic-model` |
+| 19 | The Crane Hook (`vertex-form`) | Quadratics | Graph manipulation | 7.2 | 4 | `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-domain-range`, `fn-log-of-quadratic`, `fn-sketch-from-features` |
+| 20 | The Missing Corner (`complete-square`) | Quadratics | Building or balancing expressions | 2 | 0 | `fn-quadratic-features`, `fn-transform-describe` |
+| 21 | Two Lamps, One Point (`pre-simultaneous`) | Lines | Drag and position | 0 | 8 | – |
+| 22 | One More Bolt (`quadratic-from-clues`) | Quadratics | Sliders and dials | 17 | 0 | `fn-quadratic-from-conditions`, `fn-quadratic-features`, `fn-ai-fit-model` |
+| 23 | Where the Tracks Cross (`meeting-points`) | Graphs and key features | Predict, then simulate | 13.4 | 6 | `fn-gdc-intersection`, `fn-curve-intersection-quadratic`, `fn-gdc-solve-equation`, `fn-rational-sketch` |
+| 24 | Stack the Heights (`combine-functions`) | Graphs and key features | Graph manipulation | 3 | 0 | `fn-gdc-optimise-combined` |
+| 25 | The Tipping See-Saw (`pre-linear-inequalities`) | Quadratics | Predict, then simulate | 0 | 7 | – |
+| 26 | What Goes In, What Comes Out (`domain-range`) | Function basics | Sliders and dials | 7.9 | 3 | `fn-domain-range`, `fn-log-of-quadratic`, `fn-quadratic-from-conditions`, `fn-log-function-features`, `fn-rational-asymptotes-intercepts`, `fn-sketch-from-features` |
+| 27 | Below the Waterline (`quadratic-inequality`) | Quadratics | Drag and position | 5 | 2 | `fn-quadratic-inequality`, `fn-discriminant`, `fn-log-of-quadratic` |
+| 28 | Above the Line (`graph-inequality`) | Graphs and key features | Drag and position | 2.4 | 0 | `fn-rational-sketch`, `fn-quadratic-inequality` |
 | 29 | One Multiplication (`pre-percent-multiplier`) | Exponentials and logs | Sliders and dials | 0 | 6 | – |
-| 30 | Multiply, Don't Add (`growth-factor`) | Exponentials and logs | Predict, then simulate | 5.7 | 5 | `fn-exponential-model` |
+| 30 | Multiply, Don't Add (`growth-factor`) | Exponentials and logs | Predict, then simulate | 22.6 | 5 | `fn-exponential-model`, `fn-ai-exponential-model`, `fn-ai-choose-model` |
 | 31 | What Power? (`log-undoes-power`) | Exponentials and logs | Building or balancing expressions | 10.7 | 3 | `fn-exp-log-inverse-composite`, `fn-exponential-model`, `fn-log-of-quadratic` |
 | 32 | Bring Down the Exponent (`solve-with-logs`) | Exponentials and logs | Buttons and switches | 11 | 0 | `fn-exponential-model`, `fn-exp-log-inverse-composite` |
 | 33 | The Curve That Never Lands (`exp-graph`) | Exponentials and logs | Sliders and dials | 3.8 | 1 | `fn-exponential-model` |
 | 34 | The Mirrored Curve (`log-graph`) | Exponentials and logs | Placing geometric objects | 3.7 | 0 | `fn-log-function-features`, `fn-log-of-quadratic`, `fn-exp-log-inverse-composite` |
 | 35 | A Quadratic in Disguise (`hidden-quadratic`) | Exponentials and logs | Predict, then simulate | 1.3 | 0 | `fn-solve-quadratic` |
 | 36 | Read the Gauge (`pre-read-and-round`) | Graphs and key features | Drag and position | 0 | 5 | – |
-| 37 | When Algebra Jams (`gdc-solve`) | Graphs and key features | Buttons and switches | 13.6 | 1 | `fn-gdc-solve-equation`, `fn-gdc-features`, `fn-gdc-intersection`, `fn-sketch-gdc` |
-| 38 | Does It Make Sense? (`context-check`) | Graphs and key features | Sorting and matching | 7.3 | 0 | `fn-gdc-solve-equation`, `fn-exponential-model`, `fn-solve-quadratic`, `fn-quadratic-inequality`, `fn-gdc-intersection`, `fn-evaluate-function` |
-| 39 | How High, and Where? (`how-high-and-where`) | Graphs and key features | Drag and position | 6.8 | 2 | `fn-gdc-features`, `fn-sketch-gdc`, `fn-gdc-optimise-combined`, `fn-domain-range` |
+| 37 | How High, and Where? (`how-high-and-where`) | Graphs and key features | Drag and position | 21.2 | 2 | `fn-gdc-features`, `fn-sketch-gdc`, `fn-gdc-optimise-combined`, `fn-domain-range`, `fn-ai-quadratic-model`, `fn-ai-cubic-model` |
+| 38 | When Algebra Jams (`gdc-solve`) | Graphs and key features | Buttons and switches | 13.6 | 1 | `fn-gdc-solve-equation`, `fn-gdc-features`, `fn-gdc-intersection`, `fn-sketch-gdc` |
+| 39 | Does It Make Sense? (`context-check`) | Graphs and key features | Sorting and matching | 17 | 0 | `fn-gdc-solve-equation`, `fn-exponential-model`, `fn-solve-quadratic`, `fn-quadratic-inequality`, `fn-gdc-intersection`, `fn-evaluate-function`, `fn-ai-choose-model`, `fn-ai-test-model` |
 | 40 | Spot the Impostor (`sketch-features`) | Graphs and key features | Sorting and matching | 12.8 | 0 | `fn-sketch-gdc`, `fn-sketch-from-features`, `fn-rational-sketch` |
 | 41 | Sweep the Beam (`count-solutions`) | Graphs and key features | Sliders and dials | 3 | 0 | `fn-sketch-gdc`, `fn-rational-sketch`, `fn-graph-table-composite-inverse` |
 | 42 | Never Divide by Zero (`pre-algebraic-fractions`) | Rational functions | Predict, then simulate | 0 | 4 | – |
-| 43 | Divide by Almost Nothing (`reciprocal`) | Rational functions | Drag and position | 1.8 | 3 | `fn-rational-sketch` |
+| 43 | Divide by Almost Nothing (`reciprocal`) | Rational functions | Drag and position | 6.5 | 3 | `fn-rational-sketch`, `fn-ai-variation-model` |
 | 44 | Find the Walls (`rational-asymptotes`) | Rational functions | Predict, then simulate | 18 | 2 | `fn-rational-asymptotes-intercepts`, `fn-rational-sketch`, `fn-domain-range`, `fn-inverse-algebraic` |
-| 45 | 1/x in Disguise (`transformed-reciprocal`) | Rational functions | Graph manipulation | 3.8 | 0 | `fn-rational-sketch`, `fn-transform-describe` |
-| 46 | The Level It Never Reaches (`long-run-value`) | Rational functions | Sliders and dials | 2.9 | 0 | `fn-exponential-model`, `fn-sketch-from-features` |
+| 45 | The Level It Never Reaches (`long-run-value`) | Rational functions | Sliders and dials | 13.2 | 0 | `fn-exponential-model`, `fn-sketch-from-features`, `fn-ai-exponential-model` |
+| 46 | 1/x in Disguise (`transformed-reciprocal`) | Rational functions | Graph manipulation | 3.8 | 0 | `fn-rational-sketch`, `fn-transform-describe` |
 | 47 | Roots That Split (`pre-surds`) | Quadratics | Sorting and matching | 0 | 3 | – |
 | 48 | Two Clamps, One Centre (`quadratic-formula`) | Quadratics | Placing geometric objects | 3.3 | 2 | `fn-solve-quadratic`, `fn-curve-intersection-quadratic` |
 | 49 | Does It Reach the Floor? (`discriminant`) | Quadratics | Predict, then simulate | 2.3 | 1 | `fn-discriminant`, `fn-quadratic-inequality`, `fn-solve-quadratic` |
@@ -94,10 +94,10 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 | 1 | Fill the Rectangle (`pre-expand`) | – | 0–0 | Building or balancing expressions | `fn-pre-expand` |
 | 2 | Find the Sides (`pre-factorise`) | `pre-expand` | 0–0 | Building or balancing expressions | `fn-pre-factorise` |
 | 3 | Either Valve Shuts It (`zero-product`) | `pre-factorise` | 1–3 | Sliders and dials | `fn-solve-quadratic` (4), `fn-quadratic-features` (12), `fn-curve-intersection-quadratic` (5), `fn-log-of-quadratic` (4), `fn-quadratic-inequality` (2), `fn-gdc-features` (6) |
-| 4 | The Fountain's Mirror (`parabola-symmetry`) | `zero-product` | 1–3 | Placing geometric objects | `fn-quadratic-features` (12), `fn-quadratic-from-conditions` (10), `fn-link-symmetry` |
+| 4 | The Fountain's Mirror (`parabola-symmetry`) | `zero-product` | 1–3 | Placing geometric objects | `fn-quadratic-features` (12), `fn-quadratic-from-conditions` (10), `fn-link-symmetry`, `fn-ai-quadratic-model` (31) |
 | 5 | The Crane Hook (`vertex-form`) | `translation` (Transformations), `parabola-symmetry` | 1–3 | Graph manipulation | `fn-quadratic-features` (12), `fn-quadratic-from-conditions` (10), `fn-domain-range` (5), `fn-log-of-quadratic` (4), `fn-sketch-from-features` (4), `fn-link-vectors`, `fn-link-extremes` |
 | 6 | The Missing Corner (`complete-square`) | `vertex-form`, `pre-expand` | 2–3 | Building or balancing expressions | `fn-quadratic-features` (12), `fn-transform-describe` (8), `fn-concept-quadratic-forms`, `fn-link-equivalent-forms` |
-| 7 | One More Bolt (`quadratic-from-clues`) | `vertex-form`, `zero-product`, `pre-simultaneous` (Lines) | 1–3 | Sliders and dials | `fn-quadratic-from-conditions` (10), `fn-quadratic-features` (12), `fn-concept-quadratic-forms` |
+| 7 | One More Bolt (`quadratic-from-clues`) | `vertex-form`, `zero-product`, `pre-simultaneous` (Lines) | 1–3 | Sliders and dials | `fn-quadratic-from-conditions` (10), `fn-quadratic-features` (12), `fn-concept-quadratic-forms`, `fn-ai-fit-model` (34) |
 | 8 | Roots That Split (`pre-surds`) | – | 0–0 | Sorting and matching | `fn-pre-surds` |
 | 9 | Two Clamps, One Centre (`quadratic-formula`) | `zero-product`, `parabola-symmetry`, `pre-surds` | 1–3 | Placing geometric objects | `fn-solve-quadratic` (4), `fn-curve-intersection-quadratic` (5) |
 | 10 | Does It Reach the Floor? (`discriminant`) | `zero-product`, `vertex-form`, `pre-surds`, `quadratic-formula` | 1–3 | Predict, then simulate | `fn-discriminant` (14), `fn-quadratic-inequality` (2), `fn-solve-quadratic` (4), `fn-concept-quadratic-forms` |
@@ -248,7 +248,7 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 | # | Lesson | Prerequisites | Levels | Interaction | Supports (exam parts) |
 |---|---|---|---|---|---|
 | 1 | One Multiplication (`pre-percent-multiplier`) | – | 0–0 | Sliders and dials | `fn-pre-percent-multiplier` |
-| 2 | Multiply, Don't Add (`growth-factor`) | `pre-percent-multiplier`, `line-model` (Lines) | 1–3 | Predict, then simulate | `fn-exponential-model` (19), `fn-concept-growth-patterns`, `fn-link-multiplicative-growth` |
+| 2 | Multiply, Don't Add (`growth-factor`) | `pre-percent-multiplier`, `line-model` (Lines) | 1–3 | Predict, then simulate | `fn-exponential-model` (19), `fn-concept-growth-patterns`, `fn-link-multiplicative-growth`, `fn-ai-exponential-model` (41), `fn-ai-choose-model` (11) |
 | 3 | The Curve That Never Lands (`exp-graph`) | `growth-factor`, `translation` (Transformations) | 1–3 | Sliders and dials | `fn-ext-exp-graph`, `fn-exponential-model` (19), `fn-ext-match-graph` |
 | 4 | What Power? (`log-undoes-power`) | `growth-factor`, `inverse-undo` (Composite and inverse) | 1–3 | Building or balancing expressions | `fn-exp-log-inverse-composite` (12), `fn-exponential-model` (19), `fn-log-of-quadratic` (4), `fn-link-inverses` |
 | 5 | Bring Down the Exponent (`solve-with-logs`) | `log-undoes-power`, `pre-balance` (Lines) | 2–4 | Buttons and switches | `fn-exponential-model` (19), `fn-exp-log-inverse-composite` (12) |
@@ -335,14 +335,14 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 | # | Lesson | Prerequisites | Levels | Interaction | Supports (exam parts) |
 |---|---|---|---|---|---|
 | 1 | Read the Gauge (`pre-read-and-round`) | – | 0–0 | Drag and position | `fn-pre-graph-reading` |
-| 2 | How High, and Where? (`how-high-and-where`) | `function-machine` (Function basics), `pre-read-and-round` | 1–4 | Drag and position | `fn-gdc-features` (6), `fn-sketch-gdc` (7), `fn-gdc-optimise-combined` (4), `fn-ext-quadratic-model`, `fn-domain-range` (5), `fn-link-extremes` |
+| 2 | How High, and Where? (`how-high-and-where`) | `function-machine` (Function basics), `pre-read-and-round` | 1–4 | Drag and position | `fn-gdc-features` (6), `fn-sketch-gdc` (7), `fn-gdc-optimise-combined` (4), `fn-ext-quadratic-model`, `fn-domain-range` (5), `fn-link-extremes`, `fn-ai-quadratic-model` (31), `fn-ai-cubic-model` (4) |
 | 3 | Where the Tracks Cross (`meeting-points`) | `function-machine` (Function basics), `pre-simultaneous` (Lines) | 1–4 | Predict, then simulate | `fn-gdc-intersection` (7), `fn-curve-intersection-quadratic` (5), `fn-gdc-solve-equation` (4), `fn-rational-sketch` (7), `fn-ext-intersection-lines`, `fn-concept-solutions-as-intersections`, `fn-link-graph-vs-algebra` |
 | 4 | Sweep the Beam (`count-solutions`) | `meeting-points`, `how-high-and-where` | 2–4 | Sliders and dials | `fn-sketch-gdc` (7), `fn-rational-sketch` (7), `fn-graph-table-composite-inverse` (9), `fn-concept-solutions-as-intersections` |
 | 5 | When Algebra Jams (`gdc-solve`) | `meeting-points`, `pre-read-and-round` | 2–4 | Buttons and switches | `fn-gdc-solve-equation` (4), `fn-gdc-features` (6), `fn-gdc-intersection` (7), `fn-sketch-gdc` (7), `fn-link-graph-vs-algebra` |
 | 6 | Spot the Impostor (`sketch-features`) | `how-high-and-where`, `domain-range` (Function basics) | 1–4 | Sorting and matching | `fn-sketch-gdc` (7), `fn-sketch-from-features` (4), `fn-rational-sketch` (7), `fn-ext-match-graph` |
 | 7 | Stack the Heights (`combine-functions`) | `function-machine` (Function basics), `meeting-points` | 2–4 | Graph manipulation | `fn-gdc-optimise-combined` (4), `fn-concept-solutions-as-intersections`, `fn-ext-inequality-graphical` |
 | 8 | Above the Line (`graph-inequality`) | `meeting-points`, `quadratic-inequality` (Quadratics) | 2–4 | Drag and position | `fn-ext-inequality-graphical`, `fn-rational-sketch` (7), `fn-quadratic-inequality` (2) |
-| 9 | Does It Make Sense? (`context-check`) | `gdc-solve`, `domain-range` (Function basics) | 2–4 | Sorting and matching | `fn-gdc-solve-equation` (4), `fn-exponential-model` (19), `fn-solve-quadratic` (4), `fn-quadratic-inequality` (2), `fn-gdc-intersection` (7), `fn-evaluate-function` (7), `fn-ext-quadratic-model`, `fn-ext-rational-model` |
+| 9 | Does It Make Sense? (`context-check`) | `gdc-solve`, `domain-range` (Function basics) | 2–4 | Sorting and matching | `fn-gdc-solve-equation` (4), `fn-exponential-model` (19), `fn-solve-quadratic` (4), `fn-quadratic-inequality` (2), `fn-gdc-intersection` (7), `fn-evaluate-function` (7), `fn-ext-quadratic-model`, `fn-ext-rational-model`, `fn-ai-choose-model` (11), `fn-ai-test-model` (23) |
 
 #### Read the Gauge (`lesson.fn.pre-read-and-round`)
 
@@ -504,10 +504,10 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 | # | Lesson | Prerequisites | Levels | Interaction | Supports (exam parts) |
 |---|---|---|---|---|---|
 | 1 | Never Divide by Zero (`pre-algebraic-fractions`) | `pre-factorise` (Quadratics) | 0–0 | Predict, then simulate | `fn-pre-algebraic-fractions` |
-| 2 | Divide by Almost Nothing (`reciprocal`) | `pre-algebraic-fractions`, `function-machine` (Function basics) | 1–4 | Drag and position | `fn-rational-sketch` (7), `fn-concept-asymptote-meaning` |
+| 2 | Divide by Almost Nothing (`reciprocal`) | `pre-algebraic-fractions`, `function-machine` (Function basics) | 1–4 | Drag and position | `fn-rational-sketch` (7), `fn-concept-asymptote-meaning`, `fn-ai-variation-model` (19) |
 | 3 | Find the Walls (`rational-asymptotes`) | `reciprocal` | 1–3 | Predict, then simulate | `fn-rational-asymptotes-intercepts` (15), `fn-rational-sketch` (7), `fn-domain-range` (5), `fn-inverse-algebraic` (7), `fn-concept-asymptote-meaning` |
 | 4 | 1/x in Disguise (`transformed-reciprocal`) | `rational-asymptotes`, `translation` (Transformations), `stretch` (Transformations) | 2–3 | Graph manipulation | `fn-rational-sketch` (7), `fn-ext-transformed-reciprocal`, `fn-transform-describe` (8), `fn-link-transformations` |
-| 5 | The Level It Never Reaches (`long-run-value`) | `rational-asymptotes` | 2–4 | Sliders and dials | `fn-ext-rational-model`, `fn-concept-asymptote-meaning`, `fn-exponential-model` (19), `fn-sketch-from-features` (4) |
+| 5 | The Level It Never Reaches (`long-run-value`) | `rational-asymptotes` | 2–4 | Sliders and dials | `fn-ext-rational-model`, `fn-concept-asymptote-meaning`, `fn-exponential-model` (19), `fn-sketch-from-features` (4), `fn-ai-exponential-model` (41) |
 
 #### Never Divide by Zero (`lesson.fn.pre-algebraic-fractions`)
 
@@ -635,7 +635,7 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 | 2 | Keep the Scales Level (`pre-balance`) | `pre-substitute` (Function basics) | 0–0 | Building or balancing expressions | `fn-pre-linear-equations` |
 | 3 | Pin and Swing (`line-equation`) | `gradient`, `pre-balance` | 1–2 | Drag and position | `fn-line-from-conditions` (13), `fn-ext-line-model` |
 | 4 | The Quarter Turn (`perpendicular`) | `line-equation` | 1–3 | Placing geometric objects | `fn-line-from-conditions` (13), `fn-concept-gradient-meaning`, `fn-link-vectors` |
-| 5 | Start Plus Rate (`line-model`) | `line-equation` | 1–4 | Predict, then simulate | `fn-ext-line-model`, `fn-concept-growth-patterns`, `fn-concept-gradient-meaning`, `fn-link-rate-of-change` |
+| 5 | Start Plus Rate (`line-model`) | `line-equation` | 1–4 | Predict, then simulate | `fn-ext-line-model`, `fn-concept-growth-patterns`, `fn-concept-gradient-meaning`, `fn-link-rate-of-change`, `fn-ai-piecewise-linear` (9) |
 | 6 | Two Lamps, One Point (`pre-simultaneous`) | `pre-balance` | 0–0 | Drag and position | `fn-pre-simultaneous` |
 
 #### Rise per Step (`lesson.fn.gradient`)
@@ -761,7 +761,13 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 
 | Exam type | Parts | Lessons |
 |---|---|---|
+| Sinusoidal models in degrees (AI) (`fn-ai-sinusoidal-model`) | 65 | **gap:** An AI SL 2.5 type on sinusoidal models in degrees: the ideas it needs (amplitude, period, principal axis) are taught by the trig graph lessons on the Geometry and trigonometry island, which this Functions lesson map does not plan yet (FAL-1001). |
+| Exponential models and their asymptote (AI) (`fn-ai-exponential-model`) | 41 | `growth-factor`, `long-run-value` |
+| Find a model's parameters from given values (AI) (`fn-ai-fit-model`) | 34 | `quadratic-from-clues` |
+| Quadratic models: start, peak, landing and levels (AI) (`fn-ai-quadratic-model`) | 31 | `parabola-symmetry`, `how-high-and-where` |
 | Rational functions with a quadratic numerator or denominator (AA HL) (`fn-ahl-rational-quadratic`) | 29 | **gap:** An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet. |
+| Test a model and use it (AI) (`fn-ai-test-model`) | 23 | `context-check` |
+| Direct and inverse variation models (AI) (`fn-ai-variation-model`) | 19 | `reciprocal` |
 | Exponential growth, decay and limited-growth models (`fn-exponential-model`) | 19 | `growth-factor`, `log-undoes-power`, `solve-with-logs`, `exp-graph`, `context-check`, `long-run-value` |
 | Composite and inverse functions in context (AI HL) (`fn-ai-composite-inverse`) | 15 | **gap:** An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet. |
 | Asymptotes and intercepts of (ax + b)/(cx + d) (`fn-rational-asymptotes-intercepts`) | 15 | `function-machine`, `domain-range`, `rational-asymptotes` |
@@ -770,8 +776,10 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 | Odd and even functions (AA HL) (`fn-ahl-odd-even`) | 12 | **gap:** An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet. |
 | Exponential and log functions as inverses and composites (`fn-exp-log-inverse-composite`) | 12 | `translation`, `composite`, `stretch`, `inverse-undo`, `log-undoes-power`, `solve-with-logs`, `log-graph`, `swap-and-solve` |
 | Read and convert quadratic forms (`fn-quadratic-features`) | 12 | `translation`, `function-machine`, `zero-product`, `parabola-symmetry`, `vertex-form`, `complete-square`, `quadratic-from-clues` |
+| Choose a model and its domain (AI) (`fn-ai-choose-model`) | 11 | `growth-factor`, `context-check` |
 | Form a composite, evaluate it, solve for a parameter (`fn-composite`) | 10 | `composite` |
 | Find a quadratic from its roots, vertex or points (`fn-quadratic-from-conditions`) | 10 | `parabola-symmetry`, `vertex-form`, `quadratic-from-clues`, `domain-range` |
+| Linear and piecewise linear models (AI) (`fn-ai-piecewise-linear`) | 9 | `line-model` |
 | Values, composites and inverse values read from a graph or a table (`fn-graph-table-composite-inverse`) | 9 | `composite`, `function-machine`, `inverse-undo`, `count-solutions`, `is-function`, `inverse-domain` |
 | Inverses on a restricted domain and self-inverse functions (AA HL) (`fn-ahl-inverse-restricted`) | 8 | **gap:** An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet. |
 | Describe the transformations between two graphs (`fn-transform-describe`) | 8 | `translation`, `stretch`, `reflection`, `transform-order`, `complete-square`, `transformed-reciprocal` |
@@ -779,10 +787,11 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 | Intersection of two curves with the GDC (`fn-gdc-intersection`) | 7 | `inverse-reflection`, `meeting-points`, `gdc-solve`, `context-check` |
 | Find an inverse algebraically, with its domain; self-inverse functions (`fn-inverse-algebraic`) | 7 | `reflection`, `inverse-undo`, `inverse-reflection`, `rational-asymptotes`, `inverse-domain`, `swap-and-solve` |
 | Sketch a rational function and use the sketch (`fn-rational-sketch`) | 7 | `inverse-reflection`, `meeting-points`, `graph-inequality`, `sketch-features`, `count-solutions`, `reciprocal`, `rational-asymptotes`, `transformed-reciprocal` |
-| Sketch a graph from the GDC on a given domain (`fn-sketch-gdc`) | 7 | `function-machine`, `gdc-solve`, `how-high-and-where`, `sketch-features`, `count-solutions` |
-| Zeros and turning points with the GDC (`fn-gdc-features`) | 6 | `function-machine`, `zero-product`, `gdc-solve`, `how-high-and-where` |
+| Sketch a graph from the GDC on a given domain (`fn-sketch-gdc`) | 7 | `function-machine`, `how-high-and-where`, `gdc-solve`, `sketch-features`, `count-solutions` |
+| Zeros and turning points with the GDC (`fn-gdc-features`) | 6 | `function-machine`, `zero-product`, `how-high-and-where`, `gdc-solve` |
 | Intersect a curve and a line exactly, then use the points (`fn-curve-intersection-quadratic`) | 5 | `zero-product`, `meeting-points`, `quadratic-formula`, `discriminant-parameter` |
 | Domain and range, including restricted and transformed functions (`fn-domain-range`) | 5 | `composite`, `reflection`, `vertex-form`, `domain-range`, `how-high-and-where`, `rational-asymptotes`, `inverse-domain` |
+| Cubic models: the open box and beyond (AI) (`fn-ai-cubic-model`) | 4 | `how-high-and-where` |
 | Build a new function from given ones and optimise it with the GDC (`fn-gdc-optimise-combined`) | 4 | `combine-functions`, `how-high-and-where` |
 | Solve an equation that needs technology (`fn-gdc-solve-equation`) | 4 | `meeting-points`, `gdc-solve`, `context-check` |
 | Log of a quadratic: domain, asymptotes, zeros and maximum (`fn-log-of-quadratic`) | 4 | `zero-product`, `vertex-form`, `domain-range`, `quadratic-inequality`, `log-undoes-power`, `log-graph` |
@@ -799,8 +808,9 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 - `fn-ahl-odd-even`: An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet.
 - `fn-ahl-inverse-restricted`: An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet.
 - `fn-ai-composite-inverse`: An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet.
+- `fn-ai-sinusoidal-model`: An AI SL 2.5 type on sinusoidal models in degrees: the ideas it needs (amplitude, period, principal axis) are taught by the trig graph lessons on the Geometry and trigonometry island, which this Functions lesson map does not plan yet (FAL-1001).
 
-Every exam unknown of every Functions exam type is listed by at least one lesson.
+35 exam unknowns are not yet listed by any lesson; `node tools/lessons.mjs` names them.
 
 ## The other islands (big ideas only)
 

@@ -1000,6 +1000,23 @@ script error happens while it runs. Run one file with
   only, Paper 2 only; four distinct options with one right and the answer in each working's last step; tables and figures shown;
   four cards for pick the graph; every tag shows up; typed values marked by value; the rule, the percentage error, the slips, a
   missing height and the bends against values worked by hand.
+<!-- R3-LINEAR -->
+
+<!-- R3-QUADRATIC -->
+
+<!-- R3-EXPONENTIAL -->
+
+<!-- R3-VARIATION -->
+
+<!-- R3-CUBIC -->
+
+<!-- R3-SINUSOID -->
+
+<!-- R3-FIT -->
+
+<!-- R3-CHOOSE -->
+
+<!-- R3-TEST -->
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.

@@ -572,6 +572,23 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   type's own (the strip width makes no difference). `r2tr_check` in the SymPy checker reads f, the limits and n, the table,
   the words or the figure (the drawn widths and dots) back, works the estimate, the integral (SymPy), the bend and every slip
   out again exactly, and checks the working's figures. `test_trapezoidal.gd`.
+<!-- R3-LINEAR -->
+
+<!-- R3-QUADRATIC -->
+
+<!-- R3-EXPONENTIAL -->
+
+<!-- R3-VARIATION -->
+
+<!-- R3-CUBIC -->
+
+<!-- R3-SINUSOID -->
+
+<!-- R3-FIT -->
+
+<!-- R3-CHOOSE -->
+
+<!-- R3-TEST -->
 - `engine/situations/log_exp_form.gd` (FAL-753) is `t1-log-exp-form` (SL1.5.exp-log-form and
   SL1.5.log-context), the `log-exp-form` situation: 25 unknowns over 73 cells. Paper 1 changes a fact
   between log and exponential form, evaluates a log exactly, solves for the number, the bracket, the

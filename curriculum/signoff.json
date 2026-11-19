@@ -970,6 +970,78 @@
    "status": "unread"
   },
   {
+   "situation": "ai-linear-model",
+   "types": [
+    "fn-ai-piecewise-linear"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-quadratic-model",
+   "types": [
+    "fn-ai-quadratic-model"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-exp-model",
+   "types": [
+    "fn-ai-exponential-model"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-variation",
+   "types": [
+    "fn-ai-variation-model"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-cubic-model",
+   "types": [
+    "fn-ai-cubic-model"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-sinusoid",
+   "types": [
+    "fn-ai-sinusoidal-model"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-fit-model",
+   "types": [
+    "fn-ai-fit-model"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-choose-model",
+   "types": [
+    "fn-ai-choose-model"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
+   "situation": "ai-test-model",
+   "types": [
+    "fn-ai-test-model"
+   ],
+   "exam": true,
+   "status": "unread"
+  },
+  {
    "situation": "quadratic-model",
    "types": [
     "fn-ext-quadratic-model"

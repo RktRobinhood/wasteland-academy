@@ -50145,6 +50145,45 @@ SITUATION_CHECKS["trapezoidal"] = r2tr_check
 # (end of the R2 markers)
 
 
+# ── R3 (FAL-1001): the AI SL 2.5 and 2.6 modelling types. Each type's section goes after its own marker. ──
+
+# R3-LINEAR: fn-ai-piecewise-linear (ai-linear-model), prefix R3LI_ / r3li_
+
+# (between the R3 markers)
+
+# R3-QUADRATIC: fn-ai-quadratic-model (ai-quadratic-model), prefix R3QU_ / r3qu_
+
+# (between the R3 markers)
+
+# R3-EXPONENTIAL: fn-ai-exponential-model (ai-exp-model), prefix R3EX_ / r3ex_
+
+# (between the R3 markers)
+
+# R3-VARIATION: fn-ai-variation-model (ai-variation), prefix R3VA_ / r3va_
+
+# (between the R3 markers)
+
+# R3-CUBIC: fn-ai-cubic-model (ai-cubic-model), prefix R3CU_ / r3cu_
+
+# (between the R3 markers)
+
+# R3-SINUSOID: fn-ai-sinusoidal-model (ai-sinusoid), prefix R3SI_ / r3si_
+
+# (between the R3 markers)
+
+# R3-FIT: fn-ai-fit-model (ai-fit-model), prefix R3FI_ / r3fi_
+
+# (between the R3 markers)
+
+# R3-CHOOSE: fn-ai-choose-model (ai-choose-model), prefix R3CH_ / r3ch_
+
+# (between the R3 markers)
+
+# R3-TEST: fn-ai-test-model (ai-test-model), prefix R3TE_ / r3te_
+
+# (end of the R3 markers)
+
+
 # ── complex-number (t1-ahl-complex-cartesian, t1-ai-complex-cartesian, FAL-1004) ──────────
 # Every number is read back from the lines, the question or the Argand diagram's points, and the
 # answer and each slip are worked out again with SymPy, exactly: products, quotients and powers

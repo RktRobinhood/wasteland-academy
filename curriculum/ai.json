@@ -2733,9 +2733,9 @@
                 }
               ],
               "misconceptions": [
-                "Swaps the gradient and intercept, writing C = 40d + 25 for a €40 deposit and €25 a day, so 3 days costs €145 instead of €115",
-                "Uses the inverse conversion by mistake, computing (30 − 32)/1.8 ≈ −1.1 instead of 1.8 × 30 + 32 = 86°F",
-                "In a piecewise phone plan, charges the per-GB rate on all 5 GB instead of only the 3 GB above the free allowance",
+                "Swaps the gradient and the intercept, using the fixed charge as the rate per unit and the rate as the fixed charge",
+                "Uses the inverse conversion by mistake, undoing the conversion rule instead of applying it",
+                "In a piecewise plan, charges the per-unit rate on the whole amount instead of only the amount above the free allowance",
                 "Applies one linear rule across a corner of a piecewise graph, as if the gradient never changes"
               ],
               "threads": [
@@ -2796,12 +2796,18 @@
                   "approach": "symmetry",
                   "name": "Take the midpoint of the roots",
                   "summary": "The axis of symmetry is halfway between the two zeros, so the vertex can be found from the roots."
+                },
+                {
+                  "id": "build-from-context",
+                  "approach": "algebraic",
+                  "name": "Build the quadratic from the context",
+                  "summary": "Write the quantity in one variable: use the constraint (a fixed perimeter, a demand line) to replace the other variable, then expand."
                 }
               ],
               "misconceptions": [
-                "Gives the time of the maximum (t = 18/9.8 ≈ 1.84 s) when the maximum height (about 17.7 m) is asked for",
-                "Keeps the negative root of h(t) = 0 as a time when the ball lands",
-                "Uses x = b/(2a), dropping the minus sign, so the profit maximum is put at x = −30",
+                "Gives the time of the maximum when the maximum height is asked for",
+                "Keeps the negative root of h(t) = 0 as the time when the object lands",
+                "Uses x = b/(2a), dropping the minus sign, so the axis of symmetry is on the wrong side of the y-axis",
                 "Reads the y-intercept of h(t) as the maximum height rather than the launch height"
               ],
               "threads": [
@@ -2874,10 +2880,10 @@
                 }
               ],
               "misconceptions": [
-                "Gives the initial temperature of T(t) = 70(0.9)^t + 20 as 70°C instead of 90°C, ignoring c",
-                "Writes the asymptote as y = 0 instead of y = c (here y = 20)",
-                "Reads V = 18 000(0.85)^t as losing 85% each year instead of keeping 85% (losing 15%)",
-                "Treats the growth as linear: 3.5% of 1200 is 42 a year, so predicts (3000 − 1200)/42 ≈ 42.9 years instead of about 26.2 years"
+                "Gives the initial value of ka^t + c as k instead of k + c, ignoring c",
+                "Writes the asymptote as y = 0 instead of y = c",
+                "Reads the factor in ka^t as the fraction lost each unit of time instead of the fraction kept",
+                "Treats the growth as linear, adding the first period's change every period instead of multiplying by the factor"
               ],
               "threads": [
                 {
@@ -2939,10 +2945,10 @@
                 }
               ],
               "misconceptions": [
-                "For an inverse square law, halves the intensity when the distance doubles instead of quartering it",
+                "For an inverse square law, divides the output by the scale factor of the input instead of by its square",
                 "Treats 'inversely proportional' as y = a − x or y = −ax instead of y = a/x",
-                "States only y = 0 as an asymptote of y = 12/x, missing the vertical asymptote x = 0",
-                "For P = kv³, doubles v and doubles P instead of multiplying P by 8"
+                "States only y = 0 as an asymptote of y = a/x, missing the vertical asymptote x = 0",
+                "For a cube law, multiplies the output by the scale factor of the input instead of by its cube"
               ],
               "threads": [
                 {
@@ -2995,12 +3001,18 @@
                   "approach": "numerical",
                   "name": "Narrow down with a table",
                   "summary": "Tabulate V for x = 1, 2, …, 9, then refine around the largest value."
+                },
+                {
+                  "id": "gdc-zero",
+                  "approach": "gdc",
+                  "name": "Graph on the domain and use the zero tool",
+                  "summary": "Graph the cubic model and read where it crosses the x-axis; the sign between the zeros says where the model is positive or negative."
                 }
               ],
               "misconceptions": [
-                "Takes only one corner square off each side, writing V = x(30 − x)(20 − x)",
-                "Allows 0 < x < 15, forgetting that the 20 cm side runs out first at x = 10",
-                "Picks the other turning point, x ≈ 12.7, which lies outside 0 < x < 10 and gives a negative 'volume'"
+                "Takes only one corner square off each side, so each base length loses x instead of 2x",
+                "Lets x run up to half the longer side, forgetting that the shorter side runs out first",
+                "Picks the other turning point, which lies outside the domain and gives a negative volume"
               ],
               "threads": [
                 {
@@ -3061,9 +3073,9 @@
                 }
               ],
               "misconceptions": [
-                "Gives the period of 2.5 sin(30t) + 6 as 30 instead of 360/30 = 12 hours",
-                "Gives the amplitude as a + d = 8.5 instead of 2.5",
-                "Writes the principal axis as y = 2.5 (the amplitude) instead of y = 6",
+                "Gives the period of a sin(bt) + d as b instead of 360/b",
+                "Gives the amplitude as a + d, the maximum, instead of |a|",
+                "Writes the principal axis as y = a, the amplitude, instead of y = d",
                 "Solves with the GDC in radian mode, getting meaningless times"
               ],
               "threads": [
@@ -3202,7 +3214,7 @@
               ],
               "misconceptions": [
                 "Gives the domain of a ball's height model as all real t, including negative times",
-                "For squares cut from a 24 cm card, gives 0 < x < 24 instead of 0 < x < 12",
+                "For squares cut from the corners of a card, lets x run up to the whole side instead of half of it",
                 "Uses a continuous interval for a model whose input is a count, such as the number of tickets"
               ],
               "threads": [
@@ -3266,9 +3278,9 @@
                 }
               ],
               "misconceptions": [
-                "From P(0) = 500 in k(1.04)^t + c, writes k = 500 and forgets c (the equation is k + c = 500)",
+                "From the value at t = 0 of ka^t + c, writes k equal to that value and forgets c (the equation is k + c = P(0))",
                 "Substitutes the coordinates the wrong way round, putting the y-value in for x",
-                "For a quadratic through (2, 9), writes 2a + 2b + c = 9 instead of 4a + 2b + c = 9, using x rather than x² as the coefficient of a"
+                "For a quadratic through a point, multiplies a by x rather than by x² when writing the equation"
               ],
               "threads": [
                 {
@@ -3384,7 +3396,7 @@
                 }
               ],
               "misconceptions": [
-                "Substitutes the year 2030 for t when t is years since 2010 (t = 20)",
+                "Substitutes the calendar year for t when t is the number of years since a start year",
                 "Trusts an extrapolation far outside the data because the model fitted the data well",
                 "Interprets a parameter in the wrong units, for example reading the daily rate as the total cost"
               ],
