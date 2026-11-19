@@ -20562,7 +20562,9 @@
      "as": "distractor",
      "in": [
       "features-from-graph",
-      "ha-from-equation"
+      "ha-from-equation",
+      "va-from-equation",
+      "range-from-asymptote"
      ],
      "wrong": "x = A for the horizontal asymptote and y = h for the vertical one"
     },
@@ -20602,6 +20604,70 @@
       "range-from-asymptote"
      ],
      "wrong": "x ≠ A, the range written in x"
+    },
+    {
+     "text": "Sets the numerator equal to zero to find the vertical asymptote",
+     "as": "distractor",
+     "in": [
+      "va-from-equation"
+     ],
+     "wrong": "x = −b/a, the zero of the numerator"
+    },
+    {
+     "text": "Sets the denominator equal to zero to find the x-intercept",
+     "as": "distractor",
+     "in": [
+      "x-intercept"
+     ],
+     "wrong": "x = −d/c, where f is not defined"
+    },
+    {
+     "text": "Forgets to divide by a when solving ax + b = 0 for the x-intercept",
+     "as": "distractor",
+     "in": [
+      "x-intercept"
+     ],
+     "wrong": "x = −b, the constant moved across but not divided by a"
+    },
+    {
+     "text": "Forgets to divide by d when putting x = 0 into f",
+     "as": "distractor",
+     "in": [
+      "y-intercept"
+     ],
+     "wrong": "y = b, the numerator's constant alone"
+    },
+    {
+     "text": "Confuses the y-intercept with the horizontal asymptote y = a/c",
+     "as": "distractor",
+     "in": [
+      "y-intercept"
+     ],
+     "wrong": "y = a/c, the horizontal asymptote's value"
+    },
+    {
+     "text": "Gets the sign of k wrong when rearranging to solve for it",
+     "as": "distractor",
+     "in": [
+      "constant-from-intercept"
+     ],
+     "wrong": "k with the opposite sign"
+    },
+    {
+     "text": "Leaves the constant b as the stretch B, forgetting that A(x − h) adds to it when the fraction is combined",
+     "as": "distractor",
+     "in": [
+      "equation-from-features"
+     ],
+     "wrong": "b = B, without the −Ah that A(x − h) brings"
+    },
+    {
+     "text": "Forgets that the vertical asymptote's x-value is left out of the domain",
+     "as": "distractor",
+     "in": [
+      "range-from-asymptote"
+     ],
+     "wrong": "domain all real x, the asymptote's x-value not excluded"
     }
    ],
    "parts": [
@@ -21197,6 +21263,46 @@
       "parent-reciprocal"
      ],
      "wrong": "the graph of y = −1/x, with branches in the second and fourth quadrants"
+    },
+    {
+     "text": "Assumes a quadratic always has two roots, without checking the discriminant",
+     "as": "distractor",
+     "in": [
+      "count-with-line"
+     ],
+     "wrong": "2 when Δ < 0, so the line misses the curve"
+    },
+    {
+     "text": "Uses the vertical asymptote's value for k instead of the horizontal asymptote's",
+     "as": "distractor",
+     "in": [
+      "k-for-no-solution"
+     ],
+     "wrong": "k = h, the vertical asymptote's x-value"
+    },
+    {
+     "text": "Assumes the graph never meets the x-axis, as the parent reciprocal graph never does",
+     "as": "distractor",
+     "in": [
+      "k-for-no-solution"
+     ],
+     "wrong": "k = 0, though f has a zero where its numerator is zero"
+    },
+    {
+     "text": "Thinks the inverse of a function is its negative",
+     "as": "distractor",
+     "in": [
+      "reciprocal-self-inverse"
+     ],
+     "wrong": "f⁻¹(x) = −k/x, the sign changed"
+    },
+    {
+     "text": "Undoes f(x) = k/x as if it multiplied x by k, so divides by k instead",
+     "as": "distractor",
+     "in": [
+      "reciprocal-self-inverse"
+     ],
+     "wrong": "f⁻¹(x) = x/k"
     }
    ],
    "parts": [
@@ -80121,6 +80227,57 @@
       "split-to-form"
      ],
      "wrong": "writes ax + b = a(x − h) + b, so B = b instead of b + ah"
+    },
+    {
+     "text": "Takes A as the numerator's x-coefficient, forgetting to divide by the denominator's",
+     "as": "distractor",
+     "in": [
+      "split-scaled"
+     ],
+     "wrong": "A = a, not a divided by the x-coefficient of the denominator"
+    },
+    {
+     "text": "Swaps the two asymptotes, using the horizontal one for the sideways shift and the vertical one for the up-down shift",
+     "as": "distractor",
+     "in": [
+      "translation-vector",
+      "transformation-sequence",
+      "form-from-graph"
+     ],
+     "wrong": "h and A the wrong way round"
+    },
+    {
+     "text": "Puts the translation before the stretch, so the stretch would also scale the vertical shift",
+     "as": "distractor",
+     "in": [
+      "transformation-sequence"
+     ],
+     "wrong": "the translation first, then the stretch"
+    },
+    {
+     "text": "Forgets the constant that A(x − h) adds when combining, leaving the numerator's constant as B",
+     "as": "distractor",
+     "in": [
+      "combine-to-single",
+      "form-from-words"
+     ],
+     "wrong": "(ax + B)/(x − h), the −Ah left out"
+    },
+    {
+     "text": "Gets the sign of the constant wrong when expanding A(x − h)",
+     "as": "distractor",
+     "in": [
+      "combine-to-single"
+     ],
+     "wrong": "the numerator's constant B + Ah instead of B − Ah"
+    },
+    {
+     "text": "Adds A straight onto the numerator B without multiplying it by the denominator",
+     "as": "distractor",
+     "in": [
+      "combine-to-single"
+     ],
+     "wrong": "(A + B)/(x − h)"
     }
    ]
   },
@@ -80378,9 +80535,82 @@
      "text": "Answers with the output when the input is asked for (e.g. a height when a time is asked)",
      "as": "distractor",
      "in": [
-      "least-n-for-target"
+      "least-n-for-target",
+      "input-for-value"
      ],
      "wrong": "gives the average cost at the answer instead of the number of items"
+    },
+    {
+     "text": "Works out only the numerator, forgetting to divide by the denominator",
+     "as": "distractor",
+     "in": [
+      "evaluate-model"
+     ],
+     "wrong": "the top of the fraction at the input, not divided"
+    },
+    {
+     "text": "Gives the long-run value instead of substituting the input",
+     "as": "distractor",
+     "in": [
+      "evaluate-model"
+     ],
+     "wrong": "the horizontal asymptote's value"
+    },
+    {
+     "text": "Reads the long-run value from the constant terms instead of the leading terms",
+     "as": "distractor",
+     "in": [
+      "long-run-value"
+     ],
+     "wrong": "the fixed cost or the starting value"
+    },
+    {
+     "text": "Misses the horizontal asymptote and assumes the model grows without limit",
+     "as": "distractor",
+     "in": [
+      "long-run-value"
+     ],
+     "wrong": "rises without limit"
+    },
+    {
+     "text": "Writes the total but forgets to divide it to get the average or the concentration",
+     "as": "distractor",
+     "in": [
+      "build-model"
+     ],
+     "wrong": "the total cost or the total salt, not divided"
+    },
+    {
+     "text": "Divides only the fixed cost by n, leaving the cost of the items undivided",
+     "as": "distractor",
+     "in": [
+      "build-model"
+     ],
+     "wrong": "F/n + vn"
+    },
+    {
+     "text": "Uses only part of the volume as the denominator, leaving out the starting volume or the litres added",
+     "as": "distractor",
+     "in": [
+      "build-model"
+     ],
+     "wrong": "the salt divided by x alone or by V alone"
+    },
+    {
+     "text": "Forgets to multiply the strength of the added water by the litres added",
+     "as": "distractor",
+     "in": [
+      "build-model"
+     ],
+     "wrong": "s + p on top, not s + px"
+    },
+    {
+     "text": "Confuses the vertical asymptote with the horizontal one, the long-run value",
+     "as": "distractor",
+     "in": [
+      "interpret-vertical-asymptote"
+     ],
+     "wrong": "says the model reaches its long-run value at the vertical asymptote"
     }
    ]
   },
