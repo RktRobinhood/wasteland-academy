@@ -11,6 +11,14 @@ const R_ADD := T + "0"
 const R_ONE_SIDE := T + "1"
 const R_STOP := T + "2"
 const R_ONE_CHECK := T + "3"
+const R_SWAP_PAIR := T + "4"
+const R_SECOND_SIGN := T + "5"
+const R_LEFT_ONLY := T + "6"
+const R_ALWAYS_ONE := T + "7"
+const R_PARALLEL_SAME := T + "8"
+const R_KNOWN_SIGN := T + "9"
+const R_NO_DIVIDE := T + "10"
+const R_X_FOR_Y := T + "11"
 const NONE := "No solution: the left sides match but the right sides don't, so the lines are parallel"
 const MANY := "Infinitely many solutions: one equation is a multiple of the other, so they are the same line"
 const ONE := "Exactly one solution: the two lines cross once"
@@ -96,6 +104,18 @@ static func check_both(s: Dictionary) -> Array:
 	return ["Check (1): %s." % into(s, s.a1, s.b1, s.k1), "Check (2): %s." % into(s, s.a2, s.b2, s.k2)]
 
 
+## The old point_wrongs list split (FAL-1149): the pair as (y, x), and the sign of the
+## variable found second (y when x comes first) wrong, are slips; the rest are fillers.
+## Kept here, not in LineCrossingViews, so this type's tags are its own.
+static func pair_wrongs(s: Dictionary, x_first: bool) -> Array:
+	var second: Dictionary = {"x": s.X, "y": s.Y.neg()} if x_first else {"x": s.X.neg(), "y": s.Y}
+	return [wrong({"x": s.Y, "y": s.X}, R_SWAP_PAIR), wrong(second, R_SECOND_SIGN)]
+
+
+static func pair_fillers(s: Dictionary, x_first: bool) -> Array:
+	return [{"x": s.X.neg(), "y": s.Y} if x_first else {"x": s.X, "y": s.Y.neg()}, {"x": s.X.neg(), "y": s.Y.neg()}]
+
+
 # ── One coefficient already matching ─────────────────────────
 
 func u_matching_coefficient(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -112,7 +132,8 @@ func u_matching_coefficient(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		# Added anyway, with y treated as if it had gone.
 		var x := Q.new(s.k1 + s.k2, s.a1 + s.a2)
 		out.wrongs.append(wrong({"x": x, "y": x.mul(-s.a1).add(s.k1)}, R_ADD))
-	out.generic = LineCrossingViews.point_wrongs(s)
+	out.wrongs += pair_wrongs(s, true)
+	out.fillers = pair_fillers(s, true)
 	var y2 := Fmt.poly([-s.a2, s.k2]) if same else Fmt.poly([s.a2, -s.k2])
 	var y1 := Fmt.poly([-s.a1, s.k1])
 	out.methods = {
@@ -164,7 +185,8 @@ func u_scale_one(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var add: Variant = one_added(s)
 	if add != null:
 		out.wrongs.push_front(wrong(add, R_ADD))
-	out.generic = LineCrossingViews.point_wrongs(s)
+	out.wrongs += pair_wrongs(s, false)
+	out.fillers = pair_fillers(s, false)
 	var e := one_elim(s)
 	out.methods = {
 		"elimination": method(e + [fin(ans)], ans.values),
@@ -198,8 +220,8 @@ func u_scale_both(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var rhs: int = uk - wk
 	var s1 := gk(s.L, ub, uk)
 	var s2 := gk(s.L, wb, wk)
-	out.wrongs = [wrong({"x": s.X, "y": Q.new(0), "alone": true}, R_STOP)]
-	out.generic = LineCrossingViews.point_wrongs(s)
+	out.wrongs = [wrong({"x": s.X, "y": Q.new(0), "alone": true}, R_STOP)] + pair_wrongs(s, false)
+	out.fillers = pair_fillers(s, false)
 	var back := "Put y = %s into (1): %s = %s, so x = %s." % [N(s.Y), cx(s.a1), N(s.Y.mul(-s.b1).add(s.k1)), N(s.X)]
 	out.methods = {
 		"elimination": method(["Multiply (1) by %d: %s." % [s.u, s1], "Multiply (2) by %d: %s." % [s.w, s2], "Subtract to remove x: %s." % so(coef, rhs, s.Y, "y"), back, fin(ans)], ans.values),
@@ -235,9 +257,9 @@ func u_word_problem(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"asked": "Let x be the price of one %s and y the price of one %s, in dollars. Find (x, y)." % [c[0], c[2]], "answer": ans,
 		"lines": [say.call(s.a1, s.b1, s.k1), say.call(s.a2, s.b2, s.k2)]}
 	var write := "Write two equations: (1) %s and (2) %s." % [gk(s.a1, s.b1, s.k1), gk(s.a2, s.b2, s.k2)]
-	out.wrongs = [wrong({"x": s.X, "y": Q.new(0), "alone": true}, R_STOP)]
 	# Prices stay positive, so a slip that goes negative is no option here.
-	out.generic = [{"x": s.Y, "y": s.X}, {"x": s.X.add(1), "y": s.Y.sub(1)}, {"x": s.X.sub(1), "y": s.Y.add(1)}]
+	out.wrongs = [wrong({"x": s.X, "y": Q.new(0), "alone": true}, R_STOP), wrong({"x": s.Y, "y": s.X}, R_SWAP_PAIR)]
+	out.fillers = [{"x": s.X.add(1), "y": s.Y.sub(1)}, {"x": s.X.sub(1), "y": s.Y.add(1)}]
 	var e := one_elim(s)
 	var sub := one_sub(s)
 	out.methods = {
@@ -252,7 +274,11 @@ func u_word_problem(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 func u_special_case(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right: String = MANY if s.many else NONE
 	var out := {"asked": "How many solutions has the pair? Give the reason.", "lines": lines_of(s)}
-	out.merge(InverseRuleViews.choose(right, [], [NONE if s.many else MANY, ONE, MANY_SWAP if s.many else NONE_SWAP, NONE_SWAP if s.many else MANY_SWAP]))
+	# Every wrong statement is a slip (FAL-1149): the other count (the right sides not
+	# compared, or scaled on one side only), one crossing assumed, the reasons swapped.
+	var tag := func(text: String, ref: String) -> Dictionary: return InverseRuleViews.tag(text, ref)
+	out.merge(InverseRuleViews.pick_of(right, [tag.call(NONE, R_ONE_SIDE) if s.many else tag.call(MANY, R_LEFT_ONLY), tag.call(ONE, R_ALWAYS_ONE),
+		tag.call(MANY_SWAP if s.many else NONE_SWAP, R_PARALLEL_SAME), tag.call(NONE_SWAP if s.many else MANY_SWAP, R_PARALLEL_SAME)], []))
 	var scaled := gk(s.a2, s.b2, s.t * s.k1)
 	var gap: int = s.t * s.k1 - s.k2
 	var ends := "Subtract (2): 0 = %s, which is %s." % [N(gap), "always true, so every point on the line works" if s.many else "never true, so no pair works"]
@@ -273,8 +299,11 @@ func u_missing_coefficient(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var off: Q = s.X if on_y else s.Y
 	var known: Q = off.mul(other)
 	var rest: Q = Q.new(s.k1).sub(known)
-	var wrongs: Array = [Q.new(s.k1).add(known).div(at), Q.new(s.k1).sub(known), Q.new(s.k1).sub(at.mul(other)).div(off), Q.new(-k), Q.new(k + 1), Q.new(k - 1)]
-	out.generic = wrongs.filter(func(v): return v.is_int()).map(func(v): return {"v": v})
+	# The known term moved with its sign kept, the division left out, and x and y put in
+	# each other's places are slips; the rest are fillers (FAL-1149).
+	var slips: Array = [[Q.new(s.k1).add(known).div(at), R_KNOWN_SIGN], [Q.new(s.k1).sub(known), R_NO_DIVIDE], [Q.new(s.k1).sub(at.mul(other)).div(off), R_X_FOR_Y]]
+	out.wrongs = slips.filter(func(w): return w[0].is_int()).map(func(w): return wrong({"v": w[0]}, w[1]))
+	out.fillers = [Q.new(-k), Q.new(k + 1), Q.new(k - 1)].map(func(v): return {"v": v})
 	var shown := "%s + %s × k = %s" % [times(other, off), P(at), N(s.k1)]
 	var solve := "So %s × k = %s, and k = %s ÷ %s = %s." % [P(at), N(rest), N(rest), P(at), N(k)]
 	out.methods = {

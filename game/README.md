@@ -980,6 +980,26 @@ script error happens while it runs. Run one file with
 - `test_log_technology.gd` (FAL-999): t1-ext-logs-with-technology built with every cell on all four
   courses, Paper 2; method-pick on every cell and error-spot on the two equations, with the slip on
   either line; every tag shows up; hand values of the logs.
+<!-- R2-STATIONARY -->
+- `test_ai_stationary.gd` (FAL-1000): t5-ai-stationary-points built with all 39 cells and all five
+  AI-SL5.6 skills, on the AI courses only, Paper 2 only; four distinct options with one right and the answer
+  in each working's last step; every tag shows up, and none is the derivative-graph type's SL5.7 one; the
+  vertex working only on a quadratic story; a typed point or value is marked by its value; hand-worked
+  stationary points, the constant-kept zeros, the reciprocal's minimum, k from f(x) = 0 and an end that
+  beats the local maximum; the f′-graph unknowns draw DerivativeGraphSituation's curves.
+
+<!-- R2-OPTIMISATION -->
+- `test_ai_optimisation.gd` (FAL-1000): t5-ai-optimisation built with every cell and all four AI-SL5.7
+  skills, on the AI courses only, Paper 2 only; four distinct options with one right and the answer in
+  each working's last step; a figure on every diagram cell and a table on every table cell; every tag
+  shows up; the vertex working only on a quadratic and calculus never on the angle model; the nearest
+  whole number is never the best; a typed value is marked by its value; hand-worked values.
+
+<!-- R2-TRAPEZOIDAL -->
+- `test_trapezoidal.gd` (FAL-1000): t5-ai-trapezoidal built with every cell and all five AI-SL5.8 skills, on the AI courses
+  only, Paper 2 only; four distinct options with one right and the answer in each working's last step; tables and figures shown;
+  four cards for pick the graph; every tag shows up; typed values marked by value; the rule, the percentage error, the slips, a
+  missing height and the bends against values worked by hand.
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
@@ -1083,6 +1103,25 @@ script error happens while it runs. Run one file with
   (4536 four-digit numbers, 150 and 315 committees, 240 and 480 rows); whole, positive
   counts and clean n from nP2; every misconception as an option; exact marking; a true
   minus; and the two probes.
+- `test_complex_number.gd` (FAL-1004): t1-ahl-complex-cartesian built with every cell for the
+  five AHL1.12 skills on AA HL only, and t1-ai-complex-cartesian with every cell for the six
+  AI-AHL1.12 skills on AI HL only and Paper 2 throughout; four options with one right in both
+  formats, no extra format; every misconception as an option; an Argand diagram with its axes
+  named Re and Im and its points on it, and the parabola's vertex above the axis for
+  quadratic-roots; and products, quotients, powers and arguments against hand values. Both
+  types sit in the Exponents and log laws region (`exponents-logs`): a region of its own would
+  be locked for AA SL, which the map does not handle yet.
+- `test_complex_polar.gd` (FAL-1005): the four types on the `complex_polar.gd` recipe, each
+  with its own views. t1-ahl-complex-polar (AHL1.13), t1-ahl-de-moivre and
+  t1-ahl-conjugate-roots (AHL1.14) are built with every cell for the eleven skills on AA HL
+  only, and t1-ai-complex-polar with every cell for the five AI-AHL1.13 skills on AI HL only,
+  Paper 2 throughout. On AA HL every cell makes both papers in the bank's ratio, except
+  De Moivre's identities and induction proof, which are Paper 1. The test checks four options
+  with one right in both formats and no extra format, every misconception as an option, an
+  Argand diagram with its axes named Re and Im and its points on it, and De Moivre's
+  identities and least powers against hand values. A proof line, a list of roots and an
+  identity are claims, picked from four. The types sit in `exponents-logs` beside
+  `test_complex_number.gd`'s.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
   the migration of a save without `class` and `trees`.
 - `test_combat.gd`: a scripted run with a fixed seed and answers gives the same fights,

@@ -114,19 +114,22 @@ func test_a_strict_event_leaves_its_end_out() -> void:
 func test_every_misconception_appears_as_an_option() -> void:
 	for id in TYPES:
 		var t := QuestionEngine.type_of(id)
-		for m in t.misconceptions:
+		for i in t.misconceptions.size():
+			var m: Dictionary = t.misconceptions[i]
+			# A misconception with no ref of its own is "<type id>#<index>".
+			var ref: String = m.get("ref", "%s#%d" % [id, i])
 			var found := false
 			for u in m["in"]:
 				var unk := QuestionEngine.unknown_of(t, u)
 				for seed in range(1, 61):
 					var q := QuestionEngine.make({"type": id, "unknown": u, "rep": unk.reps[0],
 						"angle": QuestionEngine.angles_for(t, u)[0], "seed": seed, "format": "mcq"})
-					if q.choices.any(func(c): return c.ref == m.ref):
+					if q.choices.any(func(c): return c.ref == ref):
 						found = true
 						break
 				if found:
 					break
-			check(found, "%s: %s never shows up as an option" % [id, m.ref])
+			check(found, "%s: %s never shows up as an option" % [id, ref])
 
 
 ## The unknowns whose Paper 2 answer is a calculator's, to 3 s.f.
@@ -219,15 +222,22 @@ func test_paper_2_offers_the_rounding_trap() -> void:
 func test_every_misconception_appears_on_paper_2() -> void:
 	for id in TYPES:
 		var t := QuestionEngine.type_of(id)
-		for m in t.misconceptions:
+		for i in t.misconceptions.size():
+			var m: Dictionary = t.misconceptions[i]
+			# A misconception with no ref of its own is "<type id>#<index>".
+			var ref: String = m.get("ref", "%s#%d" % [id, i])
 			var found := false
 			for u in m["in"]:
 				var unk := QuestionEngine.unknown_of(t, u)
-				for seed in range(1, 61):
-					var q := _make(id, u, unk.reps[0], QuestionEngine.angles_for(t, u)[0], seed, "mcq", 2)
-					if q.choices.any(func(c): return c.ref == m.ref):
-						found = true
+				# Every rep: some slips come only from one (k from k/x, on Paper 2, is the equation's).
+				for rep in unk.reps:
+					for seed in range(1, 61):
+						var q := _make(id, u, rep, QuestionEngine.angles_for(t, u)[0], seed, "mcq", 2)
+						if q.choices.any(func(c): return c.ref == ref):
+							found = true
+							break
+					if found:
 						break
 				if found:
 					break
-			check(found, "%s: %s never shows up as an option on Paper 2" % [id, m.ref])
+			check(found, "%s: %s never shows up as an option on Paper 2" % [id, ref])

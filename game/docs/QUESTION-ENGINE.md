@@ -504,6 +504,74 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   again with SymPy. `test_log_technology.gd`. The map's skills list `match`, `multipart` and
   `order-steps` formats for AI-SL1.6 and AI-SL1.7; the engine doesn't build them, so none of these
   types offers them.
+<!-- R2-STATIONARY -->
+- `engine/situations/ai_stationary.gd` (FAL-1000) is `ai-stationary`, for `t5-ai-stationary-points`
+  (AI-SL5.6: solve-gradient-zero, locate-local-extrema, classify-by-gradient-sign, greatest-least-on-domain,
+  read-from-gradient-graph), an exam type on the AI courses only, Paper 2 throughout. Its functions are a
+  cubic built from f′(x) = 3a(x − p)(x − q) (whole p and q, so factorising works; one-decimal b, c and d,
+  so only the formula or the GDC gives the zeros, to 3 s.f.; or no x² term, so the zeros are ±r), ax + b/x + c
+  on x > 0, and six stories (a still's temperature, a track's height, a turbine's power, a reservoir's depth,
+  a flare's height and a drone's fuel per km), their coefficients rounded from f′ = 3a(t − p)(t − q) so the
+  zeros are GDC values. Its views (`ai_stationary_views.gd`) ask 11 unknowns over 39 cells: the zeros of f′
+  (from f, or the x of the extremum from f′ given), k from a stationary point, the coordinates of a local
+  maximum or minimum (from the equation, or with f on a GDC window that one end of the curve leaves through
+  its side), the greatest or least value of a story, the nature of a stationary point with its reason (a
+  claim; the table rep shows f and f′ at p ± 0.1), the greatest or least value on a domain (at an end about
+  half the time, sometimes with the stationary point of the kind asked outside it) and why a local maximum
+  is not the greatest. The vertex method's working is only built on a quadratic story (the recipe is told
+  the method and draws one), as the catalogue marks it failing on a cubic. The three f′-graph unknowns call
+  `DerivativeGraphSituation.generate` (`dg_ask` names its unknown) and `DerivativeGraphViews`' builders,
+  then re-tag their slips with this type's refs (the f′ turning point, the touch, the crossing read the
+  wrong way round when a maximum is asked, stopping at the touch) and move the rest to fillers; the
+  increasing view adds the type's own slip, where f′ rises. Whole-number answers are exact, the rest 3 s.f.
+  with the rounding trap. `r2sp_check` in the SymPy checker reads each function back from its sentence,
+  solves f′ = 0 exactly, rebuilds every tagged slip and checks the derivative and GDC lines of the working;
+  the f′-graph questions go to `E12DG_check` with the refs mapped back. `test_ai_stationary.gd`.
+
+<!-- R2-OPTIMISATION -->
+- `engine/situations/ai_optimisation.gd` (FAL-1000) is `ai-optimisation`, for `t5-ai-optimisation`
+  (AI-SL5.7.optimise-given-model, build-model-from-constraint, optimise-container and
+  interpret-optimum-in-context). It is an exam type (`home` ai-sl), so only the AI courses get it, and
+  every question is Paper 2. Its views (`ai_optimisation_views.gd`, extending `OptimisationViews`) ask
+  12 unknowns over 50 cells: the best input and the optimum of a given model (a quadratic or cubic
+  profit, a cost a x + b/x + c, or an area k sin θ (w + k cos θ) that only the GDC optimises; the vertex
+  working is on a quadratic only), the best price or greatest profit from a demand A − Bp with a fixed
+  and a per-item cost, why a suggested x is not optimal (a claim), and the best whole number of items
+  (b = k n(n + 1) with a just under k, so the nearest whole number is the wrong one, in words or a
+  table); then, on OptimisationSituation's Paper 2 shapes (a can, an open bin, a tray, a pen or a
+  paddock against a wall, a route off a road), the second length, the function in one variable, the
+  best length, the optimum, the other length, the route's best point or least time or cost, and the
+  domain in context, each in words or with the AA type's figure. Wrong options are the four skills'
+  slips and the type's own (the cost per item left out, the gradient read as the profit, a positive
+  profit, the closed domain, both legs at one speed, a lid on the box, the circumference for the base,
+  a fence along the wall, a sum for an area). `r2op_check` in the SymPy checker reads every model back
+  from the text, solves it again, and works every answer, slip and GDC reading out on its own.
+  `test_ai_optimisation.gd`.
+
+<!-- R2-TRAPEZOIDAL -->
+- `engine/situations/trapezoidal.gd` (FAL-1000) is `trapezoidal`, for `t5-ai-trapezoidal` (AI-SL5.8.trapezoid-from-function,
+  trapezoid-from-data, compare-with-exact, over-or-under-estimate, find-missing-value): 9 unknowns over 33 cells, all Paper 2. A
+  function is a quadratic, cubic, m√(x + c), m e^(kx) or m/(x + c) on [a, b] with 3 to 6 strips of a tidy width (0.2 to 2),
+  positive and bending one way only (f″ keeps its sign, and the estimate is at least 0.2% off), so over or under is clear; the
+  exact value is worked from an antiderivative. Measurements are 5 to 7 widths or depths of a salvage field, a toxic lake
+  between dams or a flooded canal, a rover's speeds, a pump's flow rates or a channel's depths, every h, whole or to 1 d.p.
+  Its views (`trapezoidal_views.gd`) ask the strip width (from n or from a table's x-values), the estimate from y = f(x), from
+  the curve drawn with its n trapezia (GraphView `curves` and `shade`: the tops and sides as sand polylines, the trapezia shaded,
+  no change to the view) or from a table with p and q to work out (polynomials only, so every height ends), the area from a
+  table or from the shape drawn with each width labelled at its distance (`x_ticks`, labels with `name`), a distance, volume or
+  channel flow from rates in a table, in words or as dots on whole grid lines of a speed graph (whole speeds; a total that ends
+  is exact), the percentage error against the GDC's integral, how to improve the estimate and whether it is over or under (each
+  a `claim`), which of four cards the rule under- or overestimates (pick the graph: the right card bends the needed way; the
+  slope slip's card bends the other way with the slope that slip reads as the target, rising for over and falling for under,
+  and the right card has the other slope, so that slip never picks it; then a line, and one bending the other way with the
+  right card's slope), and a missing height k from a given estimate (exact). Methods: the formula, strip by strip, the GDC's lists with weights {1, 2, …, 2, 1}, the GDC's
+  integral, the percentage-error formula, the chords (f″'s sign, or the drawn curve) and the comparison with the GDC, a linear
+  equation and the solver. Wrong options are the five skills' slips (h from n + 1, no doubling, no half, the x-values as
+  heights, minutes left in a per-second rate (60 times too small), the ends doubled (both ends, for an end k too), over the estimate, the signed error, more
+  strips worse, deciding from the rise, always over, an error for a line, an inner k counted once, the h/2 left out) and the
+  type's own (the strip width makes no difference). `r2tr_check` in the SymPy checker reads f, the limits and n, the table,
+  the words or the figure (the drawn widths and dots) back, works the estimate, the integral (SymPy), the bend and every slip
+  out again exactly, and checks the working's figures. `test_trapezoidal.gd`.
 - `engine/situations/log_exp_form.gd` (FAL-753) is `t1-log-exp-form` (SL1.5.exp-log-form and
   SL1.5.log-context), the `log-exp-form` situation: 25 unknowns over 73 cells. Paper 1 changes a fact
   between log and exponential form, evaluates a log exactly, solves for the number, the bracket, the
@@ -1638,10 +1706,8 @@ gets a misconception, its line and a tag, and the checker works it out again. A 
 no route to it (the key scaled by a quarter, nudged, a number from nowhere), and the view
 puts it in `fillers`, so a blank is a choice. The check fails on a blank that is neither:
 a `wrongs` entry with no `ref`, or an option from `generic`, the list from before FAL-815
-that mixed the two. A type whose `generic` isn't sorted yet is on `UNSORTED` in
-`tools/feedback_check.gd`, where its blanks are only counted; once sorted, its views say
-`fillers` and it leaves the list, and the check fails on a listed type with nothing left to
-sort. A new type never joins it. A rounding trap with no misconception of its own shows
+that mixed the two. Every type is sorted (FAL-1149 emptied the old `UNSORTED` list and
+deleted it), so a blank fails on any type. A rounding trap with no misconception of its own shows
 `Answer.TRAP_NOTE`, and the engine's last-resort nudges are fillers. The check prints the
 share of multiple-choice wrong options with no line (`BLANK ...`), and `--blanks=file.tsv`
 writes each blank once, with where it came from (`src`, `gi`) and a first example.

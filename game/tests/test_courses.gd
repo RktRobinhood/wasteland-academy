@@ -80,7 +80,7 @@ func test_an_unknown_needs_every_one_of_its_skills() -> void:
 
 
 ## The built types that are on AA HL's list and no other course's (AHL subtopics).
-const HL_ONLY := ["t1-ahl-counting"]
+const HL_ONLY := ["t1-ahl-counting", "t1-ahl-complex-cartesian", "t1-ahl-complex-polar", "t1-ahl-de-moivre", "t1-ahl-conjugate-roots"]
 
 
 ## The built types whose every unknown tests AI skills only (the AI-SL1.6 and 1.7 types, FAL-999):
@@ -112,7 +112,10 @@ func test_aa_hl_covers_every_built_question_and_aa_sl_every_one_but_the_hl_only_
 	for id in ai_only:
 		for course in ["aa-sl", "aa-hl"]:
 			check(QuestionEngine.cells(false, [id], course).is_empty(), "%s has none of %s" % [course, id])
-		check_eq(QuestionEngine.cells(false, [id], "ai-sl").size(), QuestionEngine.cells(false, [id]).size(), "AI SL has all of %s" % id)
+		# A type whose every skill is AI HL's (AI-AHL1.12, FAL-1004) is on AI HL alone.
+		var hl_only: bool = QuestionEngine.type_of(id).unknowns.all(func(u): return u.skills.all(func(sk): return sk.begins_with("AI-AHL")))
+		check_eq(QuestionEngine.cells(false, [id], "ai-hl").size(), QuestionEngine.cells(false, [id]).size(), "AI HL has all of %s" % id)
+		check_eq(QuestionEngine.cells(false, [id], "ai-sl").size(), 0 if hl_only else QuestionEngine.cells(false, [id]).size(), "AI SL and %s" % id)
 
 
 func test_the_ai_courses_are_smaller_and_ai_hl_holds_ai_sl() -> void:

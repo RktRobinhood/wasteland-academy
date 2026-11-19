@@ -27,6 +27,20 @@ const R_AS_EXCLUSIVE := UNK + "0"
 const R_NO_OVERLAP := UNK + "1"
 const R_ONLY_PRODUCT := UNK + "2"
 const R_NOT_DIVIDED := UNK + "3"
+# The slips FAL-1149 named (misconceptions with no ref of their own).
+const OWN := "t4-independence#"
+const R_UNION_AS_BOTH := OWN + "12"
+const R_NOT_BOTH := OWN + "13"
+const R_NEITHER_LEFT := OWN + "14"
+const R_WRONG_REGION := OWN + "15"
+const R_DASH_KEPT := OWN + "16"
+const R_GIVEN_EVENT := OWN + "17"
+const R_OVERLAP_ADDED := OWN + "18"
+const R_B_DASH_LEFT := OWN + "19"
+const R_PA_FOR_PB := OWN + "20"
+const R_NO_OUTSIDE := OWN + "21"
+const R_BOTH_CLASSES := OWN + "22"
+const R_ZERO_MISSED := OWN + "23"
 
 const YES := "independent"
 const NO := "not independent"
@@ -82,14 +96,25 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	if not unknown in TESTS:
 		var v: Q = Q.of(out.answer.values.v)
 		# On Paper 1 a decimal question has short decimal options: a fraction would give itself away.
-		if s.paper == 1 and s.style == "dec":
-			out.generic = out.generic.filter(func(g): return Fmt.dec(g.v).length() <= 6 and not Fmt.dec(g.v).contains("/"))
-		elif s.paper == 1:
-			out.generic = out.generic.filter(func(g): return g.v.d <= 120)
+		out.fillers = out.get("fillers", []).filter(func(g): return fits(s, g.v))
 		var unit := Q.new(1, 100)
 		for k in [1, -1, 2, -2, 3, -3, 5, -5, 8, -8]:
-			out.generic.append_array(probs([v.add(unit.mul(Q.new(k)))]))
+			out.fillers.append_array(probs([v.add(unit.mul(Q.new(k)))]))
 	return out
+
+
+## On Paper 1 a decimal question has short decimal options, and a fraction one small denominators.
+static func fits(s: Dictionary, v: Q) -> bool:
+	if s.paper == 1 and s.style == "dec":
+		return Fmt.dec(v).length() <= 6 and not Fmt.dec(v).contains("/")
+	if s.paper == 1:
+		return v.d <= 120
+	return true
+
+
+## A slip's option, kept only where it is a probability that fits the paper (as the fillers).
+static func slip(s: Dictionary, v: Q, ref: String) -> Array:
+	return wr(v, ref) if fits(s, v) else []
 
 
 # ── Writing things ───────────────────────────────────────────
@@ -199,7 +224,7 @@ func u_both_from_probabilities(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 			out.lines = both(s)
 			out.asked = "Find P(A ∩ B)."
 	out.wrongs = [wrong({"v": Q.new(0)}, R_ZERO)] + wr(pa.add(pb), R_ADD) + wr(pa.add(pb).sub(pa.mul(pb)), R_UNION)
-	out.generic = probs([pa, pb, one_minus(s.pi), one_minus(pa).mul(one_minus(pb))])
+	out.fillers = probs([pa, pb, one_minus(s.pi), one_minus(pa).mul(one_minus(pb))])
 	out.methods = {"multiply": method(["The events are independent, so P(A ∩ B) = P(A) × P(B).", "= %s × %s" % [T(s, pa), T(s, pb)], final_step(ans)], ans.values),
 		"tree-unchanged": method(["On a tree, the branches for B are the same after A and after A′. B has probability %s on both." % T(s, pb),
 			"Follow the path A then B and multiply along it: %s × %s" % [T(s, pa), T(s, pb)], final_step(ans)], ans.values)}
@@ -230,7 +255,11 @@ func u_one_region_from_independence(rep: String, s: Dictionary, _rng: Seeded) ->
 	out.wrongs = wr(pa.mul(pb), R_NO_DASH)
 	if s.region == "A′ ∩ B′":
 		out.wrongs += wr(one_minus(pa).sub(pb), R_AS_EXCLUSIVE)
-	out.generic = probs([one_minus(pa).mul(one_minus(pb)), one_minus(pa).mul(pb), pa.mul(one_minus(pb)), one_minus(v), x, y])
+	# The product for another region: a dash put on the wrong event, or on both, or left off one.
+	for other in [one_minus(pa).mul(one_minus(pb)), one_minus(pa).mul(pb), pa.mul(one_minus(pb))]:
+		if not other.eq(v):
+			out.wrongs += slip(s, other, R_WRONG_REGION)
+	out.fillers = probs([one_minus(v), x, y])
 	var pieces: Array = []
 	for pc in [[first, x, pa, "A"], [second, y, pb, "B"]]:
 		if pc[0].ends_with("′"):
@@ -260,7 +289,8 @@ func u_union_from_independence(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		out.lines = both(s)
 		out.asked = "Find P(A ∪ B)."
 	out.wrongs = wr(pa.add(pb), R_AS_EXCLUSIVE)
-	out.generic = probs([pa.mul(pb), one_minus(pa.mul(pb)), one_minus(pa).mul(one_minus(pb)), pa, pb])
+	out.wrongs += slip(s, pa.mul(pb), R_UNION_AS_BOTH) + slip(s, one_minus(pa.mul(pb)), R_NOT_BOTH) + slip(s, one_minus(pa).mul(one_minus(pb)), R_NEITHER_LEFT)
+	out.fillers = probs([pa, pb])
 	out.methods = {"addition-with-product": method(["P(A ∪ B) = P(A) + P(B) − P(A ∩ B), and independence gives P(A ∩ B) = P(A) × P(B).",
 			"P(A ∩ B) = %s × %s = %s" % [T(s, pa), T(s, pb), W(s, s.pi)], "P(A ∪ B) = %s + %s − %s" % [T(s, pa), T(s, pb), W(s, s.pi)], final_step(ans)], ans.values),
 		"complement-product": method(["A′ and B′ are independent too, so the chance of neither is P(A′) × P(B′).",
@@ -278,7 +308,10 @@ func u_conditional_from_independence(_rep: String, s: Dictionary, _rng: Seeded) 
 	var out := {"answer": ans, "table": null, "asked": "Find %s." % name}
 	out.lines = ["P(B) = " + T(s, s.pb), "P(A ∩ B) = " + T(s, s.pi), "A and B are independent."]
 	out.wrongs = wr(v.mul(given), R_NOT_DIVIDED)
-	out.generic = probs([one_minus(v), given, one_minus(given), s.pi, s.pb])
+	if s.want == "A′":
+		out.wrongs += slip(s, pa, R_DASH_KEPT)
+	out.wrongs += slip(s, given, R_GIVEN_EVENT)
+	out.fillers = probs(([] if s.want == "A′" else [one_minus(v)]) + [one_minus(given), s.pi, s.pb])
 	var steps: Array = ["Independence gives P(A ∩ B) = P(A) × P(B), so P(A) = %s ÷ %s = %s." % [T(s, s.pi), T(s, s.pb), T(s, pa)],
 		"Knowing whether B happened doesn't change the probability of A, so %s = P(%s)." % [name, s.want]]
 	if s.want == "A′":
@@ -307,7 +340,8 @@ func u_unknown_from_union(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var gap := pu.sub(pa)
 	var rest := one_minus(pa)
 	out.wrongs = wr(gap, R_AS_EXCLUSIVE)
-	out.generic = probs([gap.div(Q.new(1).add(pa)), pu.mul(pa), pu, rest, pa, one_minus(pb)])
+	out.wrongs += slip(s, gap.div(Q.new(1).add(pa)), R_OVERLAP_ADDED) + slip(s, one_minus(pb), R_B_DASH_LEFT)
+	out.fillers = probs([pu.mul(pa), pu, rest, pa])
 	var line := "%s = %s + x − %sx" % [u, a, Fmt.paren(pa)] if s.style == "frac" else "%s = %s + x − %sx" % [u, a, a]
 	var solve := "%s = %sx, so x = %s ÷ %s" % [T(s, gap), Fmt.paren(rest) if s.style == "frac" else T(s, rest), W(s, gap), W(s, rest)]
 	var nb := one_minus(pb)
@@ -328,7 +362,8 @@ func u_ratio_from_union(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var out := {"answer": ans, "table": null, "asked": "Find P(B)."}
 	out.lines = ["P(A) = %dP(B)" % k, "P(A ∪ B) = " + T(s, pu), "A and B are independent."]
 	out.wrongs = wr(pu.div(Q.new(k + 1)), R_NO_OVERLAP)
-	out.generic = probs([pu.div(Q.new(k)), s.pa, pu.sub(s.pa), x.mul(x), x.mul(Q.new(2)), x.add(Q.new(1, 10)), x.add(Q.new(1, 20))])
+	out.wrongs += slip(s, s.pa, R_PA_FOR_PB)
+	out.fillers = probs([pu.div(Q.new(k)), pu.sub(s.pa), x.mul(x), x.mul(Q.new(2)), x.add(Q.new(1, 10)), x.add(Q.new(1, 20))])
 	var other := Q.new(k + 1, k).sub(x)
 	var eq := "%dx² − %dx + %s = 0" % [k, k + 1, T(s, pu)]
 	var roots := "The quadratic gives x = %s or x = %s." % [W(s, x), W(s, other)]
@@ -354,7 +389,8 @@ func u_overlap_from_only_regions(rep: String, s: Dictionary, _rng: Seeded) -> Di
 	else:
 		out.lines = ["P(A ∩ B′) = " + Fmt.dec(a), "P(A′ ∩ B) = " + Fmt.dec(b), "P(A ∩ B) = x", "A and B are independent."]
 	out.wrongs = wr(a.mul(b), R_ONLY_PRODUCT)
-	out.generic = probs([one_minus(a).sub(b), a.add(b), a, b, one_minus(a.add(b)).div(Q.new(3)), x.add(Q.new(1, 20))])
+	out.wrongs += slip(s, one_minus(a).sub(b), R_NO_OUTSIDE)
+	out.fillers = probs([a.add(b), a, b, one_minus(a.add(b)).div(Q.new(3)), x.add(Q.new(1, 20))])
 	var sum := a.add(b)
 	var coef := one_minus(sum)
 	out.methods = {"venn-unknown": method(["P(A) = %s + x and P(B) = %s + x." % [Fmt.dec(a), Fmt.dec(b)],
@@ -585,7 +621,9 @@ func u_classify_events(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = ["In a camp, %s of the %s %s and %s %s. In all, %s do at least one of these." % [pct(pa), c.who, c.a, pct(pb), c.b, pct(s.pu)], named(s)]
 	else:
 		out.lines = ["P(A) = " + T(s, pa), "P(B) = " + T(s, pb), "P(A ∪ B) = " + T(s, s.pu)]
-	var tags: Dictionary = {"excl": {CLASSES[1]: R_MIX}, "indep": {CLASSES[0]: R_MIX, CLASSES[3]: R_OVERLAP}, "neither": {CLASSES[1]: R_REVERSED}}[s.kind]
+	var tags: Dictionary = {"excl": {CLASSES[1]: R_MIX, CLASSES[2]: R_BOTH_CLASSES, CLASSES[3]: R_ZERO_MISSED},
+		"indep": {CLASSES[0]: R_MIX, CLASSES[2]: R_BOTH_CLASSES, CLASSES[3]: R_OVERLAP},
+		"neither": {CLASSES[0]: R_MIX, CLASSES[1]: R_REVERSED, CLASSES[2]: R_BOTH_CLASSES}}[s.kind]
 	var wrongs: Array = []
 	for name in CLASSES:
 		if name != right:
