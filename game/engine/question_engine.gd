@@ -128,6 +128,8 @@ static var SITUATIONS := {
 	"ai-stationary": [AiStationarySituation, AiStationaryViews],
 	"ai-optimisation": [AiOptimisationSituation, AiOptimisationViews],
 	"trapezoidal": [TrapezoidalSituation, TrapezoidalViews],
+	"complex-number": [ComplexNumberSituation, ComplexNumberViews],
+	"complex-number-ai": [ComplexNumberSituation, ComplexNumberAiViews],
 	"depreciation": [DepreciationSituation, DepreciationViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],
 	"inverse-rule": [InverseRuleSituation, InverseRuleViews],

@@ -141,16 +141,16 @@ An explainer always comes after its prerequisites. Among the explainers whose pr
 | 16 | Multiply, Don't Add (`functions.growth-factor`) | `core` | 6.3 | 191.1 | 64 | `foundations.pre-percent-multiplier`, `functions.line-model` |
 | 17 | What Power? (`functions.log-undoes-power`) | `core` | 14.2 | 178.5 | 57 | `functions.growth-factor`, `functions.inverse-undo` |
 | 18 | Gradient at a Point (`calculus.gradient-at-point`) | `core` | 5.7 | 170.5 | 20 | `calculus.power-rule` |
-| 19 | Two Lamps, One Point (`foundations.pre-simultaneous`) | `core` | 0 | 142 | 35 | `foundations.pre-balance` |
-| 20 | Uphill and Downhill (`calculus.increasing-decreasing`) | `core` | 3.5 | 140.4 | 11 | `calculus.gradient-at-point` |
-| 21 | Fill the Rectangle (`foundations.pre-expand`) | `core` | 0 | 130.5 | 61 | – |
-| 22 | Where the Gradient Is Zero (`calculus.stationary-points`) | `core` | 9 | 125 | 6 | `calculus.increasing-decreasing` |
-| 23 | The Square on the Long Side (`foundations.pythagoras`) | `core` | 0 | 123.9 | 64 | – |
-| 24 | Derivatives of eˣ, ln x, sin x and cos x (`calculus.standard-derivatives`) | `aa-ai-hl` | 2 | 121.4 | 45 | `calculus.power-rule`, `functions.log-undoes-power`, `geometry.radian-measure` |
-| 25 | Equally Likely Outcomes (`stats.probability-basics`) | `core` | 2.7 | 121 | 30 | – |
-| 26 | Add the Same Each Step (`algebra.arithmetic-sequence`) | `core` | 4.8 | 120.2 | 23 | `foundations.pre-substitute` |
-| 27 | Maximum or Minimum? (`calculus.classify-first-derivative`) | `core` | 9 | 116 | 4 | `calculus.stationary-points` |
-| 28 | An Angle Fixes a Ratio (`geometry.right-trig`) | `core` | 7.5 | 114.9 | 50 | `foundations.pythagoras` |
+| 19 | Fill the Rectangle (`foundations.pre-expand`) | `core` | 0 | 162.5 | 61 | – |
+| 20 | Two Lamps, One Point (`foundations.pre-simultaneous`) | `core` | 0 | 142 | 35 | `foundations.pre-balance` |
+| 21 | Uphill and Downhill (`calculus.increasing-decreasing`) | `core` | 3.5 | 140.4 | 11 | `calculus.gradient-at-point` |
+| 22 | The Square on the Long Side (`foundations.pythagoras`) | `core` | 0 | 135.9 | 64 | – |
+| 23 | An Angle Fixes a Ratio (`geometry.right-trig`) | `core` | 7.5 | 126.9 | 50 | `foundations.pythagoras` |
+| 24 | Where the Gradient Is Zero (`calculus.stationary-points`) | `core` | 9 | 125 | 6 | `calculus.increasing-decreasing` |
+| 25 | Derivatives of eˣ, ln x, sin x and cos x (`calculus.standard-derivatives`) | `aa-ai-hl` | 2 | 121.4 | 45 | `calculus.power-rule`, `functions.log-undoes-power`, `geometry.radian-measure` |
+| 26 | Equally Likely Outcomes (`stats.probability-basics`) | `core` | 2.7 | 121 | 30 | – |
+| 27 | Add the Same Each Step (`algebra.arithmetic-sequence`) | `core` | 4.8 | 120.2 | 23 | `foundations.pre-substitute` |
+| 28 | Maximum or Minimum? (`calculus.classify-first-derivative`) | `core` | 9 | 116 | 4 | `calculus.stationary-points` |
 | 29 | Mean, Median and Mode (`stats.averages`) | `core` | 18 | 114.1 | 31 | `foundations.pre-read-and-round` |
 | 30 | How High, and Where? (`functions.how-high-and-where`) | `core` | 19.8 | 113.1 | 28 | `functions.function-machine`, `foundations.pre-read-and-round` |
 | 31 | The Broken Conveyor (`functions.translation`) | `aa-ai-hl` | 8.5 | 105.4 | 27 | `functions.function-machine` |
@@ -189,208 +189,208 @@ An explainer always comes after its prerequisites. Among the explainers whose pr
 | 64 | Flip Switches (`functions.reflection`) | `aa-ai-hl` | 3.3 | 36 | 15 | `functions.translation` |
 | 65 | Correlation and r (`stats.correlation`) | `core` | 5.8 | 35.1 | 8 | `stats.averages` |
 | 66 | Moves in Order (`functions.transform-order`) | `aa-ai-hl` | 4.7 | 32.7 | 9 | `functions.stretch`, `functions.reflection` |
-| 67 | Adding Up an Arithmetic Sequence (`algebra.arithmetic-series`) | `core` | 4.8 | 32 | 16 | `algebra.arithmetic-sequence` |
-| 68 | Given That (`stats.conditional-from-diagram`) | `core` | 0 | 31 | 7 | `stats.venn`, `stats.tree-diagrams` |
-| 69 | Never Divide by Zero (`foundations.pre-algebraic-fractions`) | `aa` | 0 | 29.4 | 12 | `foundations.pre-factorise` |
-| 70 | Divide by Almost Nothing (`functions.reciprocal`) | `aa` | 2.3 | 29.4 | 7 | `foundations.pre-algebraic-fractions`, `functions.function-machine` |
-| 71 | The Line of Best Fit (`stats.regression-line`) | `core` | 24.3 | 29.3 | 4 | `stats.correlation`, `functions.line-model` |
-| 72 | The Quarter Turn (`functions.perpendicular`) | `core` | 3.9 | 28.3 | 11 | `functions.line-equation` |
-| 73 | The Conditional Probability Formula (`stats.conditional-formula`) | `aa` | 21 | 27.7 | 2 | `stats.conditional-from-diagram` |
-| 74 | Find the Walls (`functions.rational-asymptotes`) | `aa` | 20.4 | 27.1 | 5 | `functions.reciprocal` |
-| 75 | Bounds and Percentage Error (`algebra.bounds-and-error`) | `ai` | 26.3 | 26.3 | 0 | `algebra.rounding-accuracy` |
-| 76 | Displacement or Distance? (`calculus.displacement-distance`) | `aa-ai-hl` | 26 | 26 | 0 | `calculus.velocity-acceleration`, `calculus.definite-integrals` |
-| 77 | Transforming sin and cos (`geometry.circular-graphs`) | `aa-ai-hl` | 5 | 25 | 6 | `geometry.wave-features`, `geometry.unit-circle`, `functions.transform-order` |
-| 78 | Tangents and Normals (`calculus.tangent-normal`) | `core` | 18.7 | 24.4 | 7 | `calculus.gradient-at-point`, `functions.perpendicular` |
-| 79 | Expected Value (`stats.expected-value`) | `core` | 18 | 24.3 | 9 | `stats.random-variable` |
-| 80 | Roots That Split (`foundations.pre-surds`) | `aa` | 0 | 23.9 | 4 | – |
-| 81 | Two Clamps, One Centre (`functions.quadratic-formula`) | `aa` | 4 | 23.9 | 3 | `functions.zero-product`, `functions.parabola-symmetry`, `foundations.pre-surds` |
-| 82 | Below the Waterline (`functions.quadratic-inequality`) | `aa` | 7.5 | 22.6 | 5 | `functions.zero-product`, `foundations.pre-linear-inequalities`, `functions.parabola-symmetry` |
-| 83 | Spot the Impostor (`functions.sketch-features`) | `core` | 21.1 | 21.1 | 8 | `functions.how-high-and-where`, `functions.domain-range` |
-| 84 | The Trapezoidal Rule (`calculus.trapezoidal-rule`) | `ai` | 12 | 20 | 1 | `calculus.definite-integral-area` |
-| 85 | Does It Reach the Floor? (`functions.discriminant`) | `aa` | 4.7 | 19.9 | 2 | `functions.quadratic-formula`, `functions.vertex-form` |
-| 86 | Arcs and Sectors in Radians (`geometry.arcs-in-radians`) | `aa-ai-hl` | 12.7 | 19.7 | 1 | `geometry.radian-measure` |
-| 87 | Left Side to Right Side (`algebra.lhs-to-rhs`) | `aa` | 8.5 | 19.3 | 18 | `foundations.pre-expand` |
-| 88 | Half ab sin C (`geometry.triangle-area`) | `core` | 12 | 19 | 2 | `geometry.right-trig` |
-| 89 | Is It Binomial? (`stats.binomial-setup`) | `core` | 3.2 | 19 | 4 | `stats.random-variable` |
-| 90 | cos² + sin² = 1 (`geometry.pythagorean-identity`) | `aa-ai-hl` | 2.3 | 18.9 | 9 | `geometry.unit-circle`, `foundations.pythagoras` |
-| 91 | Area Below the Axis (`calculus.signed-area`) | `aa-ai-hl` | 1.8 | 18.6 | 4 | `calculus.definite-integrals` |
-| 92 | The Cosine Rule (`geometry.cosine-rule`) | `core` | 14.7 | 17.4 | 12 | `geometry.right-trig`, `foundations.pythagoras` |
-| 93 | Speed and Motion Graphs (`calculus.motion-graphs`) | `aa-ai-hl` | 17 | 17 | 0 | `calculus.velocity-acceleration` |
-| 94 | Area Between Two Curves (`calculus.area-between-curves`) | `aa` | 16.8 | 16.8 | 1 | `calculus.signed-area`, `functions.meeting-points` |
-| 95 | Adding Up a Geometric Sequence (`algebra.geometric-series`) | `core` | 5.3 | 16.6 | 8 | `algebra.geometric-sequence`, `algebra.arithmetic-series` |
-| 96 | Double-Angle Identities (`geometry.double-angle`) | `aa` | 2.3 | 16.6 | 4 | `geometry.pythagorean-identity` |
-| 97 | The Second Derivative (`calculus.second-derivative`) | `aa-ai-hl` | 1.7 | 16.1 | 9 | `calculus.chain-rule` |
-| 98 | Saving Up and Paying Out (`algebra.annuities`) | `ai` | 16 | 16 | 0 | `algebra.amortisation` |
-| 99 | Inverse Normal (`stats.inverse-normal`) | `core` | 6 | 16 | 5 | `stats.normal-probability` |
-| 100 | Pascal's Triangle and nCr (`algebra.pascal-ncr`) | `aa` | 2 | 16 | 9 | – |
-| 101 | Cross-Section Times Length (`foundations.area-and-volume`) | `core` | 0 | 16 | 1 | – |
-| 102 | Volume and Surface Area of Solids (`geometry.volume-surface`) | `core` | 16 | 16 | 0 | `foundations.area-and-volume` |
-| 103 | Binomial Probabilities (`stats.binomial-probability`) | `core` | 9.5 | 15.8 | 2 | `stats.binomial-setup`, `stats.tree-diagrams` |
-| 104 | Bring Down the Exponent (`functions.solve-with-logs`) | `aa-ai-hl` | 15.2 | 15.2 | 0 | `functions.log-undoes-power`, `foundations.pre-balance` |
-| 105 | Find the Wave's Equation (`geometry.wave-from-graph`) | `aa-ai-hl` | 15 | 15 | 0 | `geometry.circular-graphs` |
-| 106 | Standardising (`stats.z-scores`) | `aa` | 5 | 15 | 1 | `stats.normal-probability` |
-| 107 | Exact Values (`geometry.exact-values`) | `aa` | 1 | 15 | 11 | `geometry.unit-circle` |
-| 108 | Related Angles and the Quadrants (`geometry.related-angles`) | `aa` | 1 | 15 | 5 | `geometry.unit-circle` |
-| 109 | Concave Up, Concave Down (`calculus.concavity`) | `aa-ai-hl` | 1.7 | 14.4 | 3 | `calculus.second-derivative`, `calculus.increasing-decreasing` |
-| 110 | Every Solution in the Interval (`geometry.trig-equations`) | `aa` | 3 | 14 | 3 | `geometry.related-angles`, `geometry.exact-values` |
-| 111 | Expanding (a + b)^n (`algebra.binomial-expansion`) | `aa` | 2 | 14 | 7 | `algebra.pascal-ncr`, `foundations.pre-expand` |
-| 112 | The Laws of Logarithms (`algebra.log-laws`) | `aa-ai-hl` | 5.5 | 13.9 | 3 | `functions.log-undoes-power`, `algebra.exponent-laws` |
-| 113 | Working Back from the Terms (`algebra.arithmetic-from-terms`) | `core` | 13.1 | 13.1 | 0 | `algebra.arithmetic-sequence`, `foundations.pre-balance`, `foundations.pre-simultaneous` |
-| 114 | Tune k Until It Grazes (`functions.discriminant-parameter`) | `aa` | 12.7 | 12.7 | 0 | `functions.discriminant`, `functions.quadratic-inequality`, `functions.meeting-points` |
-| 115 | One Term of an Expansion (`algebra.binomial-term`) | `aa` | 12 | 12 | 0 | `algebra.binomial-expansion`, `algebra.exponent-laws` |
-| 116 | The Sine Rule (`geometry.sine-rule`) | `core` | 8.3 | 12 | 2 | `geometry.right-trig` |
-| 117 | The Mirror Line (`functions.inverse-reflection`) | `core` | 8.2 | 12 | 3 | `functions.inverse-undo` |
-| 118 | Who You Ask Matters (`stats.sampling`) | `core` | 2 | 12 | 4 | – |
-| 119 | Angles in the Field (`geometry.elevation-bearings`) | `core` | 7.8 | 10.5 | 1 | `geometry.right-trig` |
-| 120 | The Curve That Never Lands (`functions.exp-graph`) | `aa-ai-hl` | 6.3 | 10.1 | 2 | `functions.growth-factor`, `functions.translation` |
-| 121 | Finding μ or σ (`stats.unknown-parameters`) | `aa` | 10 | 10 | 0 | `stats.z-scores`, `stats.inverse-normal`, `foundations.pre-simultaneous` |
-| 122 | Types of Data and Bias (`stats.data-and-bias`) | `core` | 4 | 10 | 3 | `stats.sampling` |
-| 123 | Independent Events (`stats.independence`) | `core` | 3.3 | 10 | 4 | `stats.conditional-from-diagram` |
-| 124 | A Quadratic in Disguise (`functions.hidden-quadratic`) | `aa` | 2 | 10 | 1 | `functions.zero-product`, `functions.log-undoes-power` |
-| 125 | Halfway and How Far (`foundations.distance-midpoint-2d`) | `core` | 0 | 10 | 24 | `foundations.pythagoras` |
-| 126 | Distance and Midpoint in 3D (`geometry.distance-3d`) | `core` | 9 | 10 | 20 | `foundations.distance-midpoint-2d` |
-| 127 | Box Plots and Outliers (`stats.box-plots`) | `core` | 9 | 9 | 0 | `stats.quartiles-spread` |
-| 128 | Sweep the Beam (`functions.count-solutions`) | `core` | 8.8 | 8.8 | 0 | `functions.meeting-points`, `functions.how-high-and-where` |
-| 129 | Does It Make Sense? (`functions.context-check`) | `core` | 8.6 | 8.6 | 1 | `functions.gdc-solve`, `functions.domain-range` |
-| 130 | Over or Under? (`calculus.trapezoid-accuracy`) | `ai` | 8 | 8 | 0 | `calculus.trapezoidal-rule` |
-| 131 | Rewire the Machine (`functions.swap-and-solve`) | `aa-ai-hl` | 8 | 8 | 0 | `functions.inverse-undo`, `foundations.pre-change-subject` |
-| 132 | Quadratics in sin and cos (`geometry.quadratic-in-trig`) | `aa` | 8 | 8 | 0 | `geometry.trig-equations`, `functions.hidden-quadratic`, `geometry.double-angle` |
-| 133 | The Product Rule (`calculus.product-rule`) | `aa-ai-hl` | 2 | 8 | 8 | `calculus.standard-derivatives` |
-| 134 | Change of Base (`algebra.change-of-base`) | `aa` | 7.9 | 7.9 | 0 | `algebra.log-laws` |
-| 135 | One More Bolt (`functions.quadratic-from-clues`) | `aa` | 7.3 | 7.3 | 0 | `functions.vertex-form`, `functions.zero-product`, `foundations.pre-simultaneous` |
-| 136 | Losing Value (`algebra.depreciation-and-inflation`) | `core` | 7 | 7 | 0 | `algebra.compound-interest` |
-| 137 | Sector from Two Conditions (`geometry.sector-two-conditions`) | `aa` | 7 | 7 | 0 | `geometry.arcs-in-radians`, `foundations.pre-simultaneous` |
-| 138 | Segments and Shaded Regions (`geometry.segments`) | `core` | 7 | 7 | 0 | `geometry.arc-and-sector`, `geometry.triangle-area` |
-| 139 | One Button, One Token (`functions.is-function`) | `core` | 0 | 7 | 6 | `functions.function-machine` |
-| 140 | Cut It to Undo It (`functions.inverse-domain`) | `aa-ai-hl` | 7 | 7 | 5 | `functions.inverse-undo`, `functions.domain-range`, `functions.is-function` |
-| 141 | Testing for Independence (`stats.test-independence`) | `aa` | 6.7 | 6.7 | 0 | `stats.conditional-formula`, `stats.independence` |
-| 142 | Proving Trig Identities (`geometry.prove-trig-identity`) | `aa` | 6.3 | 6.3 | 1 | `geometry.double-angle`, `algebra.lhs-to-rhs` |
-| 143 | Mean and Variance of a Binomial (`stats.binomial-mean-variance`) | `core` | 6.3 | 6.3 | 0 | `stats.binomial-probability`, `stats.expected-value` |
-| 144 | When a Sum Settles Down (`algebra.convergence`) | `aa-ai-hl` | 1.5 | 6 | 6 | `algebra.geometric-series` |
-| 145 | Histograms (`stats.histograms`) | `core` | 0 | 6 | 1 | `stats.data-and-bias` |
-| 146 | Cumulative Frequency (`stats.cumulative-frequency`) | `core` | 6 | 6 | 0 | `stats.histograms` |
-| 147 | Tangents That Meet Things (`calculus.tangent-problems`) | `core` | 5.7 | 5.7 | 0 | `calculus.tangent-normal`, `functions.meeting-points` |
-| 148 | Find f from f′ (`calculus.function-from-derivative`) | `aa-ai-hl` | 5.5 | 5.5 | 4 | `calculus.standard-integrals` |
-| 149 | Working Back to r and n (`algebra.geometric-from-terms`) | `core` | 5.3 | 5.3 | 0 | `algebra.geometric-sequence`, `algebra.geometric-series`, `functions.gdc-solve` |
-| 150 | Probability in the Long Run (`stats.relative-frequency`) | `core` | 5.3 | 5.3 | 0 | `stats.probability-basics` |
-| 151 | Points of Inflexion (`calculus.inflexion`) | `aa-ai-hl` | 5 | 5 | 0 | `calculus.concavity` |
-| 152 | The Second Derivative Test (`calculus.second-derivative-test`) | `aa-ai-hl` | 5 | 5 | 0 | `calculus.concavity`, `calculus.classify-first-derivative` |
-| 153 | Trig Equations on the GDC (`geometry.trig-equations-graphical`) | `aa-ai-hl` | 5 | 5 | 0 | `functions.gdc-solve`, `geometry.circular-graphs` |
-| 154 | The Other Regression Line (`stats.x-on-y`) | `aa` | 5 | 5 | 0 | `stats.regression-line` |
-| 155 | Working Back from a Sum (`algebra.arithmetic-sum-unknown`) | `core` | 4.8 | 4.8 | 0 | `algebra.arithmetic-series`, `functions.gdc-solve`, `foundations.pre-simultaneous` |
-| 156 | Proofs About Whole Numbers (`algebra.integer-proof`) | `aa` | 4.5 | 4.5 | 3 | `algebra.lhs-to-rhs` |
-| 157 | The Sum to Infinity (`algebra.sum-to-infinity`) | `aa-ai-hl` | 4.5 | 4.5 | 0 | `algebra.convergence` |
-| 158 | The Quotient Rule (`calculus.quotient-rule`) | `aa-ai-hl` | 2 | 4 | 3 | `calculus.product-rule` |
-| 159 | The Mirrored Curve (`functions.log-graph`) | `aa-ai-hl` | 3.8 | 3.8 | 1 | `functions.log-undoes-power`, `functions.inverse-reflection`, `functions.exp-graph` |
-| 160 | 1/x in Disguise (`functions.transformed-reciprocal`) | `aa` | 3.8 | 3.8 | 0 | `functions.rational-asymptotes`, `functions.translation`, `functions.stretch` |
-| 161 | Constant Change in Context (`algebra.arithmetic-model`) | `core` | 3.5 | 3.5 | 0 | `algebra.arithmetic-series` |
-| 162 | Shift and Scale the Data (`stats.shift-and-scale`) | `core` | 3 | 3 | 6 | `stats.quartiles-spread` |
-| 163 | The Missing Corner (`functions.complete-square`) | `aa` | 3 | 3 | 2 | `functions.vertex-form`, `foundations.pre-expand` |
-| 164 | Stack the Heights (`functions.combine-functions`) | `core` | 3 | 3 | 0 | `functions.function-machine`, `functions.meeting-points` |
-| 165 | Equations Like sin 2x = k (`geometry.trig-compound-argument`) | `aa` | 3 | 3 | 0 | `geometry.trig-equations`, `functions.transform-order` |
-| 166 | Powers of Ten (`algebra.standard-form`) | `core` | 2 | 3 | 1 | – |
-| 167 | The Level It Never Reaches (`functions.long-run-value`) | `aa` | 2.9 | 2.9 | 0 | `functions.rational-asymptotes` |
-| 168 | Integrating f(ax + b) (`calculus.linear-composite-integrals`) | `aa-ai-hl` | 1.4 | 2.8 | 3 | `calculus.standard-integrals`, `calculus.chain-rule` |
-| 169 | Graphs of f, f′ and f″ (`calculus.derivative-graphs`) | `aa` | 2.7 | 2.7 | 0 | `calculus.concavity` |
-| 170 | Two Triangles, One Answer (`geometry.multi-triangle`) | `core` | 2.7 | 2.7 | 0 | `geometry.sine-rule`, `geometry.cosine-rule`, `geometry.elevation-bearings` |
-| 171 | Always Increasing (`calculus.monotonic-proof`) | `aa` | 2.5 | 2.5 | 0 | `calculus.increasing-decreasing`, `functions.discriminant` |
-| 172 | Above the Line (`functions.graph-inequality`) | `aa` | 2.4 | 2.4 | 3 | `functions.meeting-points`, `functions.quadratic-inequality` |
-| 173 | Sigma Notation (`algebra.sigma-notation`) | `core` | 2.3 | 2.3 | 8 | `algebra.arithmetic-series` |
-| 174 | Fractional Powers Are Roots (`algebra.rational-exponents`) | `aa-ai-hl` | 2 | 2 | 0 | `algebra.exponent-laws` |
-| 175 | Using the Rules with Values (`calculus.rules-with-values`) | `aa-ai-hl` | 2 | 2 | 0 | `calculus.chain-rule`, `calculus.product-rule` |
-| 176 | Show That the Derivative Is… (`calculus.show-derivative-form`) | `aa` | 2 | 2 | 0 | `calculus.quotient-rule`, `calculus.chain-rule` |
-| 177 | Unknown Limits and Parameters (`calculus.integral-unknowns`) | `aa` | 1.8 | 1.8 | 0 | `calculus.definite-integrals` |
-| 178 | Rate In, Total Out (`calculus.total-change`) | `core` | 1.8 | 1.8 | 0 | `calculus.definite-integral-area` |
-| 179 | Spot the Derivative Inside (`calculus.inspection-substitution`) | `aa-ai-hl` | 1.4 | 1.4 | 2 | `calculus.linear-composite-integrals` |
-| 180 | Rewrite, Then Integrate (`calculus.rewrite-then-integrate`) | `aa` | 1.4 | 1.4 | 0 | `calculus.standard-integrals`, `algebra.exponent-laws` |
-| 181 | Calculating in Standard Form (`algebra.standard-form-arithmetic`) | `core` | 1 | 1 | 0 | `algebra.standard-form`, `algebra.exponent-laws` |
-| 182 | The Ambiguous Case (`geometry.ambiguous-case`) | `aa-ai-hl` | 1 | 1 | 0 | `geometry.sine-rule`, `geometry.unit-circle` |
-| 183 | Angles in 3D (`geometry.angles-3d`) | `core` | 1 | 1 | 0 | `geometry.right-trig`, `geometry.distance-3d` |
-| 184 | Solving Log Equations (`algebra.log-equations`) | `aa-ai-hl` | 0.5 | 0.5 | 0 | `algebra.log-laws` |
-| 185 | Vectors and Components (`geometry.vectors-components`) | `hl` | 0 | 0 | 18 | `geometry.distance-3d` |
-| 186 | The Number i (`algebra.complex-cartesian`) | `hl` | 0 | 0 | 12 | `foundations.pre-expand` |
-| 187 | Matrices and Multiplication (`algebra.matrix-arithmetic`) | `ai-hl` | 0 | 0 | 12 | – |
-| 188 | Writing a Differential Equation (`calculus.form-differential-equation`) | `hl` | 0 | 0 | 11 | `calculus.derivative-meaning` |
-| 189 | The Vector Equation of a Line (`geometry.vector-line`) | `hl` | 0 | 0 | 11 | `geometry.vectors-components`, `functions.line-equation` |
-| 190 | The Scalar Product (`geometry.scalar-product`) | `hl` | 0 | 0 | 10 | `geometry.vectors-components`, `geometry.cosine-rule` |
-| 191 | Systems on the GDC (`algebra.linear-systems-technology`) | `aa-hl-ai` | 0 | 0 | 9 | `foundations.pre-simultaneous` |
-| 192 | The Argand Diagram (`algebra.argand-modulus`) | `hl` | 0 | 0 | 8 | `algebra.complex-cartesian`, `geometry.right-trig` |
-| 193 | Factor and Remainder Theorems (`functions.factor-remainder`) | `aa-hl` | 0 | 0 | 8 | `functions.zero-product` |
-| 194 | Hypotheses and p-Values (`stats.hypothesis-test-idea`) | `ai` | 0 | 0 | 8 | `stats.normal-probability` |
-| 195 | Proof by Induction (`algebra.induction`) | `aa-hl` | 0 | 0 | 7 | `algebra.lhs-to-rhs`, `algebra.sigma-notation` |
-| 196 | Modulus and Argument Form (`algebra.polar-form`) | `hl` | 0 | 0 | 7 | `algebra.argand-modulus`, `geometry.radian-measure` |
-| 197 | Factorise and Sketch Polynomials (`functions.factorise-polynomials`) | `aa-hl` | 0 | 0 | 6 | `functions.factor-remainder`, `functions.sketch-features` |
-| 198 | The Vector Product (`geometry.vector-product`) | `hl` | 0 | 0 | 6 | `geometry.scalar-product` |
-| 199 | Undoing a Matrix (`algebra.matrix-inverse`) | `ai-hl` | 0 | 0 | 5 | `algebra.matrix-arithmetic`, `algebra.linear-systems-technology` |
-| 200 | Multiply Means Rotate and Stretch (`algebra.polar-multiply`) | `hl` | 0 | 0 | 5 | `algebra.polar-form`, `algebra.exponent-laws` |
-| 201 | Vertices and Edges (`geometry.graph-basics`) | `ai-hl` | 0 | 0 | 5 | – |
-| 202 | Scaling a Random Variable (`stats.linear-transform-rv`) | `hl` | 0 | 0 | 5 | `stats.expected-value`, `stats.shift-and-scale` |
-| 203 | Binomial Series for Any Power (`algebra.binomial-rational`) | `aa-hl` | 0 | 0 | 4 | `algebra.binomial-expansion`, `algebra.convergence` |
-| 204 | True for Every x (`algebra.compare-coefficients`) | `aa` | 0 | 0 | 4 | `algebra.lhs-to-rhs` |
-| 205 | Eigenvalues and Eigenvectors (`algebra.eigenvalues`) | `ai-hl` | 0 | 0 | 4 | `algebra.matrix-inverse` |
-| 206 | Euler's Method (`calculus.euler-method`) | `hl` | 0 | 0 | 4 | `calculus.form-differential-equation`, `calculus.tangent-normal` |
-| 207 | Higher Derivatives (`calculus.higher-derivatives`) | `aa-hl` | 0 | 0 | 4 | `calculus.second-derivative`, `algebra.induction` |
-| 208 | Quadratic Models on the GDC (`functions.quadratic-model`) | `ai` | 0 | 0 | 4 | `functions.parabola-symmetry`, `functions.how-high-and-where` |
-| 209 | The Equation of a Plane (`geometry.plane-equation`) | `aa-hl` | 0 | 0 | 4 | `geometry.vector-product`, `geometry.vector-line` |
-| 210 | sec, cosec and cot (`geometry.reciprocal-trig`) | `aa-hl` | 0 | 0 | 4 | `geometry.pythagorean-identity`, `geometry.exact-values` |
-| 211 | Combining Random Variables (`stats.combining-rvs`) | `ai-hl` | 0 | 0 | 4 | `stats.linear-transform-rv` |
-| 212 | De Moivre's Theorem (`algebra.de-moivre`) | `hl` | 0 | 0 | 3 | `algebra.polar-multiply` |
-| 213 | Split the Fraction (`algebra.partial-fractions`) | `aa-hl` | 0 | 0 | 3 | `algebra.compare-coefficients`, `foundations.pre-algebraic-fractions` |
-| 214 | Coupled Systems (`calculus.coupled-euler`) | `ai-hl` | 0 | 0 | 3 | `calculus.euler-method` |
-| 215 | Maclaurin Series (`calculus.maclaurin`) | `aa-hl` | 0 | 0 | 3 | `calculus.higher-derivatives`, `algebra.binomial-rational` |
-| 216 | Separating the Variables (`calculus.separate-variables`) | `hl` | 0 | 0 | 3 | `calculus.form-differential-equation`, `calculus.function-from-derivative` |
-| 217 | Which Model Fits? (`functions.choose-a-model`) | `ai` | 0 | 0 | 3 | `functions.line-model`, `functions.growth-factor`, `functions.quadratic-model` |
-| 218 | arcsin, arccos and arctan (`geometry.inverse-trig`) | `aa-hl` | 0 | 0 | 3 | `functions.inverse-domain`, `geometry.circular-graphs` |
-| 219 | Adding Normal Variables (`stats.combine-normals`) | `ai-hl` | 0 | 0 | 3 | `stats.combining-rvs`, `stats.normal-probability` |
-| 220 | Critical Regions and Errors (`stats.critical-regions`) | `ai-hl` | 0 | 0 | 3 | `stats.hypothesis-test-idea`, `stats.inverse-normal` |
-| 221 | Elimination by Hand (`algebra.elimination-3x3`) | `aa-hl` | 0 | 0 | 2 | `algebra.linear-systems-technology` |
-| 222 | Continuity and Differentiability (`calculus.continuity-limits`) | `aa-hl` | 0 | 0 | 2 | `calculus.limits-and-gradient` |
-| 223 | Exact Solutions with Eigenvalues (`calculus.coupled-exact`) | `ai-hl` | 0 | 0 | 2 | `calculus.coupled-euler`, `algebra.eigenvalues` |
-| 224 | Further Standard Derivatives (`calculus.further-derivatives`) | `aa-hl` | 0 | 0 | 2 | `calculus.chain-rule`, `geometry.reciprocal-trig`, `geometry.inverse-trig` |
-| 225 | Volume of Revolution About the x-Axis (`calculus.volume-x-axis`) | `hl` | 0 | 0 | 2 | `calculus.definite-integrals` |
-| 226 | Odd and Even Functions (`functions.odd-even`) | `aa-hl` | 0 | 0 | 2 | `functions.reflection` |
-| 227 | Polynomial Inequalities (`functions.polynomial-inequality`) | `aa-hl` | 0 | 0 | 2 | `functions.graph-inequality`, `functions.factorise-polynomials` |
-| 228 | Quadratic over Linear, Linear over Quadratic (`functions.rational-quadratic`) | `aa-hl` | 0 | 0 | 2 | `functions.rational-asymptotes`, `functions.factorise-polynomials` |
-| 229 | Parallel and Collinear (`geometry.parallel-vectors`) | `hl` | 0 | 0 | 2 | `geometry.vectors-components` |
-| 230 | Equally Far from Both (`geometry.perpendicular-bisector`) | `ai` | 0 | 0 | 2 | `functions.perpendicular`, `foundations.distance-midpoint-2d` |
-| 231 | Motion with Constant Velocity (`geometry.vector-kinematics`) | `hl` | 0 | 0 | 2 | `geometry.vector-line` |
-| 232 | χ² Test for Independence (`stats.chi-squared-independence`) | `ai` | 0 | 0 | 2 | `stats.hypothesis-test-idea`, `stats.independence` |
-| 233 | The Poisson Distribution (`stats.poisson`) | `ai-hl` | 0 | 0 | 2 | `stats.random-variable` |
-| 234 | The Central Limit Theorem (`stats.sample-mean-clt`) | `ai-hl` | 0 | 0 | 2 | `stats.combine-normals` |
-| 235 | One, None or Infinitely Many (`algebra.classify-systems`) | `aa-hl` | 0 | 0 | 1 | `algebra.elimination-3x3` |
-| 236 | Roots Below the Axis (`algebra.complex-quadratic-roots`) | `hl` | 0 | 0 | 1 | `algebra.complex-cartesian` |
-| 237 | Multiply the Choices (`algebra.counting-principle`) | `aa-hl` | 0 | 0 | 1 | – |
-| 238 | Area Against the y-Axis (`calculus.area-y-axis`) | `hl` | 0 | 0 | 1 | `calculus.signed-area`, `foundations.pre-change-subject` |
-| 239 | Integration by Parts (`calculus.by-parts`) | `aa-hl` | 0 | 0 | 1 | `calculus.standard-integrals`, `calculus.product-rule` |
-| 240 | Further Standard Integrals (`calculus.further-integrals`) | `aa-hl` | 0 | 0 | 1 | `calculus.further-derivatives`, `calculus.standard-integrals`, `algebra.partial-fractions`, `functions.complete-square` |
-| 241 | L'Hôpital's Rule (`calculus.lhopital`) | `aa-hl` | 0 | 0 | 1 | `calculus.continuity-limits`, `calculus.quotient-rule` |
-| 242 | Phase Portraits (`calculus.phase-portraits`) | `ai-hl` | 0 | 0 | 1 | `calculus.coupled-exact` |
-| 243 | Integration by Substitution (`calculus.substitution`) | `aa-hl` | 0 | 0 | 1 | `calculus.inspection-substitution` |
-| 244 | Logarithmic Scales (`functions.log-scales`) | `ai-hl` | 0 | 0 | 1 | `functions.log-undoes-power` |
-| 245 | The Modulus Graphs (`functions.modulus-graphs`) | `aa-hl` | 0 | 0 | 1 | `functions.reflection` |
-| 246 | Adjacency Matrices and Walks (`geometry.adjacency-walks`) | `ai-hl` | 0 | 0 | 1 | `geometry.graph-basics`, `algebra.matrix-arithmetic` |
-| 247 | The Angle Between Two Lines (`geometry.angle-between-lines`) | `aa-hl` | 0 | 0 | 1 | `geometry.vector-line`, `geometry.scalar-product` |
-| 248 | Compound Angle Formulae (`geometry.compound-angles`) | `aa-hl` | 0 | 0 | 1 | `geometry.exact-values` |
-| 249 | Do Two Lines Meet? (`geometry.lines-intersect`) | `aa-hl` | 0 | 0 | 1 | `geometry.vector-line`, `foundations.pre-simultaneous` |
-| 250 | Matrices Move the Plane (`geometry.matrix-transformations`) | `ai-hl` | 0 | 0 | 1 | `algebra.matrix-arithmetic` |
-| 251 | Minimum Spanning Trees (`geometry.spanning-trees`) | `ai-hl` | 0 | 0 | 1 | `geometry.graph-basics` |
-| 252 | Symmetries of the Trig Graphs (`geometry.trig-symmetry`) | `aa-hl` | 0 | 0 | 1 | `geometry.related-angles`, `functions.odd-even` |
-| 253 | Voronoi Diagrams (`geometry.voronoi`) | `ai` | 0 | 0 | 1 | `geometry.perpendicular-bisector` |
-| 254 | χ² Goodness of Fit (`stats.chi-squared-gof`) | `ai` | 0 | 0 | 1 | `stats.chi-squared-independence` |
-| 255 | Probability Density Functions (`stats.continuous-rv`) | `aa-hl` | 0 | 0 | 1 | `stats.random-variable`, `calculus.definite-integrals` |
-| 256 | Variance of a Discrete Variable (`stats.discrete-variance`) | `aa-hl` | 0 | 0 | 1 | `stats.expected-value` |
-| 257 | Transition Matrices (`stats.markov-chains`) | `ai-hl` | 0 | 0 | 1 | `algebra.matrix-arithmetic`, `stats.tree-diagrams` |
-| 258 | Non-Linear Regression (`stats.nonlinear-regression`) | `ai-hl` | 0 | 0 | 1 | `stats.regression-line`, `functions.choose-a-model` |
-| 259 | Spearman's Rank (`stats.spearman`) | `ai` | 0 | 0 | 1 | `stats.correlation` |
-| 260 | Unbiased Estimates (`stats.unbiased-estimates`) | `ai-hl` | 0 | 0 | 1 | `stats.quartiles-spread` |
-| 261 | Adding Waves with Complex Numbers (`algebra.add-sinusoids`) | `ai-hl` | 0 | 0 | 0 | `algebra.polar-form`, `geometry.wave-features` |
-| 262 | Same Base, Same Power (`algebra.common-base`) | `aa` | 0 | 0 | 0 | `algebra.exponent-laws` |
-| 263 | Conjugate Root Pairs (`algebra.conjugate-roots`) | `aa-hl` | 0 | 0 | 0 | `algebra.complex-quadratic-roots`, `functions.factor-remainder` |
-| 264 | Proof by Contradiction (`algebra.contradiction`) | `aa-hl` | 0 | 0 | 0 | `algebra.integer-proof` |
-| 265 | One Counterexample Is Enough (`algebra.counterexample`) | `aa-hl` | 0 | 0 | 0 | `algebra.integer-proof` |
-| 266 | Proving De Moivre (`algebra.de-moivre-proof`) | `aa-hl` | 0 | 0 | 0 | `algebra.de-moivre`, `algebra.induction` |
-| 267 | Diagonalising for Powers (`algebra.diagonalise`) | `ai-hl` | 0 | 0 | 0 | `algebra.eigenvalues` |
-| 268 | Equate Real and Imaginary Parts (`algebra.equate-parts`) | `aa-hl` | 0 | 0 | 0 | `algebra.complex-cartesian` |
+| 67 | The Number i (`algebra.complex-cartesian`) | `hl` | 14 | 32 | 12 | `foundations.pre-expand` |
+| 68 | Adding Up an Arithmetic Sequence (`algebra.arithmetic-series`) | `core` | 4.8 | 32 | 16 | `algebra.arithmetic-sequence` |
+| 69 | Given That (`stats.conditional-from-diagram`) | `core` | 0 | 31 | 7 | `stats.venn`, `stats.tree-diagrams` |
+| 70 | Never Divide by Zero (`foundations.pre-algebraic-fractions`) | `aa` | 0 | 29.4 | 12 | `foundations.pre-factorise` |
+| 71 | Divide by Almost Nothing (`functions.reciprocal`) | `aa` | 2.3 | 29.4 | 7 | `foundations.pre-algebraic-fractions`, `functions.function-machine` |
+| 72 | The Line of Best Fit (`stats.regression-line`) | `core` | 24.3 | 29.3 | 4 | `stats.correlation`, `functions.line-model` |
+| 73 | The Quarter Turn (`functions.perpendicular`) | `core` | 3.9 | 28.3 | 11 | `functions.line-equation` |
+| 74 | The Conditional Probability Formula (`stats.conditional-formula`) | `aa` | 21 | 27.7 | 2 | `stats.conditional-from-diagram` |
+| 75 | Find the Walls (`functions.rational-asymptotes`) | `aa` | 20.4 | 27.1 | 5 | `functions.reciprocal` |
+| 76 | Bounds and Percentage Error (`algebra.bounds-and-error`) | `ai` | 26.3 | 26.3 | 0 | `algebra.rounding-accuracy` |
+| 77 | Displacement or Distance? (`calculus.displacement-distance`) | `aa-ai-hl` | 26 | 26 | 0 | `calculus.velocity-acceleration`, `calculus.definite-integrals` |
+| 78 | Transforming sin and cos (`geometry.circular-graphs`) | `aa-ai-hl` | 5 | 25 | 6 | `geometry.wave-features`, `geometry.unit-circle`, `functions.transform-order` |
+| 79 | Tangents and Normals (`calculus.tangent-normal`) | `core` | 18.7 | 24.4 | 7 | `calculus.gradient-at-point`, `functions.perpendicular` |
+| 80 | Expected Value (`stats.expected-value`) | `core` | 18 | 24.3 | 9 | `stats.random-variable` |
+| 81 | Roots That Split (`foundations.pre-surds`) | `aa` | 0 | 23.9 | 4 | – |
+| 82 | Two Clamps, One Centre (`functions.quadratic-formula`) | `aa` | 4 | 23.9 | 3 | `functions.zero-product`, `functions.parabola-symmetry`, `foundations.pre-surds` |
+| 83 | Below the Waterline (`functions.quadratic-inequality`) | `aa` | 7.5 | 22.6 | 5 | `functions.zero-product`, `foundations.pre-linear-inequalities`, `functions.parabola-symmetry` |
+| 84 | Spot the Impostor (`functions.sketch-features`) | `core` | 21.1 | 21.1 | 8 | `functions.how-high-and-where`, `functions.domain-range` |
+| 85 | The Trapezoidal Rule (`calculus.trapezoidal-rule`) | `ai` | 12 | 20 | 1 | `calculus.definite-integral-area` |
+| 86 | Does It Reach the Floor? (`functions.discriminant`) | `aa` | 4.7 | 19.9 | 2 | `functions.quadratic-formula`, `functions.vertex-form` |
+| 87 | Arcs and Sectors in Radians (`geometry.arcs-in-radians`) | `aa-ai-hl` | 12.7 | 19.7 | 1 | `geometry.radian-measure` |
+| 88 | Left Side to Right Side (`algebra.lhs-to-rhs`) | `aa` | 8.5 | 19.3 | 18 | `foundations.pre-expand` |
+| 89 | Half ab sin C (`geometry.triangle-area`) | `core` | 12 | 19 | 2 | `geometry.right-trig` |
+| 90 | Is It Binomial? (`stats.binomial-setup`) | `core` | 3.2 | 19 | 4 | `stats.random-variable` |
+| 91 | cos² + sin² = 1 (`geometry.pythagorean-identity`) | `aa-ai-hl` | 2.3 | 18.9 | 9 | `geometry.unit-circle`, `foundations.pythagoras` |
+| 92 | Area Below the Axis (`calculus.signed-area`) | `aa-ai-hl` | 1.8 | 18.6 | 4 | `calculus.definite-integrals` |
+| 93 | The Cosine Rule (`geometry.cosine-rule`) | `core` | 14.7 | 17.4 | 12 | `geometry.right-trig`, `foundations.pythagoras` |
+| 94 | Speed and Motion Graphs (`calculus.motion-graphs`) | `aa-ai-hl` | 17 | 17 | 0 | `calculus.velocity-acceleration` |
+| 95 | Area Between Two Curves (`calculus.area-between-curves`) | `aa` | 16.8 | 16.8 | 1 | `calculus.signed-area`, `functions.meeting-points` |
+| 96 | Adding Up a Geometric Sequence (`algebra.geometric-series`) | `core` | 5.3 | 16.6 | 8 | `algebra.geometric-sequence`, `algebra.arithmetic-series` |
+| 97 | Double-Angle Identities (`geometry.double-angle`) | `aa` | 2.3 | 16.6 | 4 | `geometry.pythagorean-identity` |
+| 98 | The Second Derivative (`calculus.second-derivative`) | `aa-ai-hl` | 1.7 | 16.1 | 9 | `calculus.chain-rule` |
+| 99 | Saving Up and Paying Out (`algebra.annuities`) | `ai` | 16 | 16 | 0 | `algebra.amortisation` |
+| 100 | Inverse Normal (`stats.inverse-normal`) | `core` | 6 | 16 | 5 | `stats.normal-probability` |
+| 101 | Pascal's Triangle and nCr (`algebra.pascal-ncr`) | `aa` | 2 | 16 | 9 | – |
+| 102 | Cross-Section Times Length (`foundations.area-and-volume`) | `core` | 0 | 16 | 1 | – |
+| 103 | Volume and Surface Area of Solids (`geometry.volume-surface`) | `core` | 16 | 16 | 0 | `foundations.area-and-volume` |
+| 104 | Binomial Probabilities (`stats.binomial-probability`) | `core` | 9.5 | 15.8 | 2 | `stats.binomial-setup`, `stats.tree-diagrams` |
+| 105 | Bring Down the Exponent (`functions.solve-with-logs`) | `aa-ai-hl` | 15.2 | 15.2 | 0 | `functions.log-undoes-power`, `foundations.pre-balance` |
+| 106 | Find the Wave's Equation (`geometry.wave-from-graph`) | `aa-ai-hl` | 15 | 15 | 0 | `geometry.circular-graphs` |
+| 107 | Standardising (`stats.z-scores`) | `aa` | 5 | 15 | 1 | `stats.normal-probability` |
+| 108 | Exact Values (`geometry.exact-values`) | `aa` | 1 | 15 | 11 | `geometry.unit-circle` |
+| 109 | Related Angles and the Quadrants (`geometry.related-angles`) | `aa` | 1 | 15 | 5 | `geometry.unit-circle` |
+| 110 | Concave Up, Concave Down (`calculus.concavity`) | `aa-ai-hl` | 1.7 | 14.4 | 3 | `calculus.second-derivative`, `calculus.increasing-decreasing` |
+| 111 | Every Solution in the Interval (`geometry.trig-equations`) | `aa` | 3 | 14 | 3 | `geometry.related-angles`, `geometry.exact-values` |
+| 112 | Expanding (a + b)^n (`algebra.binomial-expansion`) | `aa` | 2 | 14 | 7 | `algebra.pascal-ncr`, `foundations.pre-expand` |
+| 113 | The Laws of Logarithms (`algebra.log-laws`) | `aa-ai-hl` | 5.5 | 13.9 | 3 | `functions.log-undoes-power`, `algebra.exponent-laws` |
+| 114 | Working Back from the Terms (`algebra.arithmetic-from-terms`) | `core` | 13.1 | 13.1 | 0 | `algebra.arithmetic-sequence`, `foundations.pre-balance`, `foundations.pre-simultaneous` |
+| 115 | Tune k Until It Grazes (`functions.discriminant-parameter`) | `aa` | 12.7 | 12.7 | 0 | `functions.discriminant`, `functions.quadratic-inequality`, `functions.meeting-points` |
+| 116 | The Argand Diagram (`algebra.argand-modulus`) | `hl` | 12 | 12 | 8 | `algebra.complex-cartesian`, `geometry.right-trig` |
+| 117 | One Term of an Expansion (`algebra.binomial-term`) | `aa` | 12 | 12 | 0 | `algebra.binomial-expansion`, `algebra.exponent-laws` |
+| 118 | The Sine Rule (`geometry.sine-rule`) | `core` | 8.3 | 12 | 2 | `geometry.right-trig` |
+| 119 | The Mirror Line (`functions.inverse-reflection`) | `core` | 8.2 | 12 | 3 | `functions.inverse-undo` |
+| 120 | Who You Ask Matters (`stats.sampling`) | `core` | 2 | 12 | 4 | – |
+| 121 | Angles in the Field (`geometry.elevation-bearings`) | `core` | 7.8 | 10.5 | 1 | `geometry.right-trig` |
+| 122 | The Curve That Never Lands (`functions.exp-graph`) | `aa-ai-hl` | 6.3 | 10.1 | 2 | `functions.growth-factor`, `functions.translation` |
+| 123 | Finding μ or σ (`stats.unknown-parameters`) | `aa` | 10 | 10 | 0 | `stats.z-scores`, `stats.inverse-normal`, `foundations.pre-simultaneous` |
+| 124 | Types of Data and Bias (`stats.data-and-bias`) | `core` | 4 | 10 | 3 | `stats.sampling` |
+| 125 | Independent Events (`stats.independence`) | `core` | 3.3 | 10 | 4 | `stats.conditional-from-diagram` |
+| 126 | A Quadratic in Disguise (`functions.hidden-quadratic`) | `aa` | 2 | 10 | 1 | `functions.zero-product`, `functions.log-undoes-power` |
+| 127 | Halfway and How Far (`foundations.distance-midpoint-2d`) | `core` | 0 | 10 | 24 | `foundations.pythagoras` |
+| 128 | Distance and Midpoint in 3D (`geometry.distance-3d`) | `core` | 9 | 10 | 20 | `foundations.distance-midpoint-2d` |
+| 129 | Box Plots and Outliers (`stats.box-plots`) | `core` | 9 | 9 | 0 | `stats.quartiles-spread` |
+| 130 | Sweep the Beam (`functions.count-solutions`) | `core` | 8.8 | 8.8 | 0 | `functions.meeting-points`, `functions.how-high-and-where` |
+| 131 | Does It Make Sense? (`functions.context-check`) | `core` | 8.6 | 8.6 | 1 | `functions.gdc-solve`, `functions.domain-range` |
+| 132 | Over or Under? (`calculus.trapezoid-accuracy`) | `ai` | 8 | 8 | 0 | `calculus.trapezoidal-rule` |
+| 133 | Rewire the Machine (`functions.swap-and-solve`) | `aa-ai-hl` | 8 | 8 | 0 | `functions.inverse-undo`, `foundations.pre-change-subject` |
+| 134 | Quadratics in sin and cos (`geometry.quadratic-in-trig`) | `aa` | 8 | 8 | 0 | `geometry.trig-equations`, `functions.hidden-quadratic`, `geometry.double-angle` |
+| 135 | The Product Rule (`calculus.product-rule`) | `aa-ai-hl` | 2 | 8 | 8 | `calculus.standard-derivatives` |
+| 136 | Change of Base (`algebra.change-of-base`) | `aa` | 7.9 | 7.9 | 0 | `algebra.log-laws` |
+| 137 | One More Bolt (`functions.quadratic-from-clues`) | `aa` | 7.3 | 7.3 | 0 | `functions.vertex-form`, `functions.zero-product`, `foundations.pre-simultaneous` |
+| 138 | Losing Value (`algebra.depreciation-and-inflation`) | `core` | 7 | 7 | 0 | `algebra.compound-interest` |
+| 139 | Sector from Two Conditions (`geometry.sector-two-conditions`) | `aa` | 7 | 7 | 0 | `geometry.arcs-in-radians`, `foundations.pre-simultaneous` |
+| 140 | Segments and Shaded Regions (`geometry.segments`) | `core` | 7 | 7 | 0 | `geometry.arc-and-sector`, `geometry.triangle-area` |
+| 141 | One Button, One Token (`functions.is-function`) | `core` | 0 | 7 | 6 | `functions.function-machine` |
+| 142 | Cut It to Undo It (`functions.inverse-domain`) | `aa-ai-hl` | 7 | 7 | 5 | `functions.inverse-undo`, `functions.domain-range`, `functions.is-function` |
+| 143 | Testing for Independence (`stats.test-independence`) | `aa` | 6.7 | 6.7 | 0 | `stats.conditional-formula`, `stats.independence` |
+| 144 | Proving Trig Identities (`geometry.prove-trig-identity`) | `aa` | 6.3 | 6.3 | 1 | `geometry.double-angle`, `algebra.lhs-to-rhs` |
+| 145 | Mean and Variance of a Binomial (`stats.binomial-mean-variance`) | `core` | 6.3 | 6.3 | 0 | `stats.binomial-probability`, `stats.expected-value` |
+| 146 | When a Sum Settles Down (`algebra.convergence`) | `aa-ai-hl` | 1.5 | 6 | 6 | `algebra.geometric-series` |
+| 147 | Histograms (`stats.histograms`) | `core` | 0 | 6 | 1 | `stats.data-and-bias` |
+| 148 | Cumulative Frequency (`stats.cumulative-frequency`) | `core` | 6 | 6 | 0 | `stats.histograms` |
+| 149 | Tangents That Meet Things (`calculus.tangent-problems`) | `core` | 5.7 | 5.7 | 0 | `calculus.tangent-normal`, `functions.meeting-points` |
+| 150 | Find f from f′ (`calculus.function-from-derivative`) | `aa-ai-hl` | 5.5 | 5.5 | 4 | `calculus.standard-integrals` |
+| 151 | Working Back to r and n (`algebra.geometric-from-terms`) | `core` | 5.3 | 5.3 | 0 | `algebra.geometric-sequence`, `algebra.geometric-series`, `functions.gdc-solve` |
+| 152 | Probability in the Long Run (`stats.relative-frequency`) | `core` | 5.3 | 5.3 | 0 | `stats.probability-basics` |
+| 153 | Points of Inflexion (`calculus.inflexion`) | `aa-ai-hl` | 5 | 5 | 0 | `calculus.concavity` |
+| 154 | The Second Derivative Test (`calculus.second-derivative-test`) | `aa-ai-hl` | 5 | 5 | 0 | `calculus.concavity`, `calculus.classify-first-derivative` |
+| 155 | Trig Equations on the GDC (`geometry.trig-equations-graphical`) | `aa-ai-hl` | 5 | 5 | 0 | `functions.gdc-solve`, `geometry.circular-graphs` |
+| 156 | The Other Regression Line (`stats.x-on-y`) | `aa` | 5 | 5 | 0 | `stats.regression-line` |
+| 157 | Working Back from a Sum (`algebra.arithmetic-sum-unknown`) | `core` | 4.8 | 4.8 | 0 | `algebra.arithmetic-series`, `functions.gdc-solve`, `foundations.pre-simultaneous` |
+| 158 | Proofs About Whole Numbers (`algebra.integer-proof`) | `aa` | 4.5 | 4.5 | 3 | `algebra.lhs-to-rhs` |
+| 159 | The Sum to Infinity (`algebra.sum-to-infinity`) | `aa-ai-hl` | 4.5 | 4.5 | 0 | `algebra.convergence` |
+| 160 | Equate Real and Imaginary Parts (`algebra.equate-parts`) | `aa-hl` | 4 | 4 | 0 | `algebra.complex-cartesian` |
+| 161 | The Quotient Rule (`calculus.quotient-rule`) | `aa-ai-hl` | 2 | 4 | 3 | `calculus.product-rule` |
+| 162 | The Mirrored Curve (`functions.log-graph`) | `aa-ai-hl` | 3.8 | 3.8 | 1 | `functions.log-undoes-power`, `functions.inverse-reflection`, `functions.exp-graph` |
+| 163 | 1/x in Disguise (`functions.transformed-reciprocal`) | `aa` | 3.8 | 3.8 | 0 | `functions.rational-asymptotes`, `functions.translation`, `functions.stretch` |
+| 164 | Constant Change in Context (`algebra.arithmetic-model`) | `core` | 3.5 | 3.5 | 0 | `algebra.arithmetic-series` |
+| 165 | Shift and Scale the Data (`stats.shift-and-scale`) | `core` | 3 | 3 | 6 | `stats.quartiles-spread` |
+| 166 | The Missing Corner (`functions.complete-square`) | `aa` | 3 | 3 | 2 | `functions.vertex-form`, `foundations.pre-expand` |
+| 167 | Stack the Heights (`functions.combine-functions`) | `core` | 3 | 3 | 0 | `functions.function-machine`, `functions.meeting-points` |
+| 168 | Equations Like sin 2x = k (`geometry.trig-compound-argument`) | `aa` | 3 | 3 | 0 | `geometry.trig-equations`, `functions.transform-order` |
+| 169 | Powers of Ten (`algebra.standard-form`) | `core` | 2 | 3 | 1 | – |
+| 170 | The Level It Never Reaches (`functions.long-run-value`) | `aa` | 2.9 | 2.9 | 0 | `functions.rational-asymptotes` |
+| 171 | Integrating f(ax + b) (`calculus.linear-composite-integrals`) | `aa-ai-hl` | 1.4 | 2.8 | 3 | `calculus.standard-integrals`, `calculus.chain-rule` |
+| 172 | Graphs of f, f′ and f″ (`calculus.derivative-graphs`) | `aa` | 2.7 | 2.7 | 0 | `calculus.concavity` |
+| 173 | Two Triangles, One Answer (`geometry.multi-triangle`) | `core` | 2.7 | 2.7 | 0 | `geometry.sine-rule`, `geometry.cosine-rule`, `geometry.elevation-bearings` |
+| 174 | Always Increasing (`calculus.monotonic-proof`) | `aa` | 2.5 | 2.5 | 0 | `calculus.increasing-decreasing`, `functions.discriminant` |
+| 175 | Above the Line (`functions.graph-inequality`) | `aa` | 2.4 | 2.4 | 3 | `functions.meeting-points`, `functions.quadratic-inequality` |
+| 176 | Sigma Notation (`algebra.sigma-notation`) | `core` | 2.3 | 2.3 | 8 | `algebra.arithmetic-series` |
+| 177 | Roots Below the Axis (`algebra.complex-quadratic-roots`) | `hl` | 2 | 2 | 1 | `algebra.complex-cartesian` |
+| 178 | Fractional Powers Are Roots (`algebra.rational-exponents`) | `aa-ai-hl` | 2 | 2 | 0 | `algebra.exponent-laws` |
+| 179 | Using the Rules with Values (`calculus.rules-with-values`) | `aa-ai-hl` | 2 | 2 | 0 | `calculus.chain-rule`, `calculus.product-rule` |
+| 180 | Show That the Derivative Is… (`calculus.show-derivative-form`) | `aa` | 2 | 2 | 0 | `calculus.quotient-rule`, `calculus.chain-rule` |
+| 181 | Unknown Limits and Parameters (`calculus.integral-unknowns`) | `aa` | 1.8 | 1.8 | 0 | `calculus.definite-integrals` |
+| 182 | Rate In, Total Out (`calculus.total-change`) | `core` | 1.8 | 1.8 | 0 | `calculus.definite-integral-area` |
+| 183 | Spot the Derivative Inside (`calculus.inspection-substitution`) | `aa-ai-hl` | 1.4 | 1.4 | 2 | `calculus.linear-composite-integrals` |
+| 184 | Rewrite, Then Integrate (`calculus.rewrite-then-integrate`) | `aa` | 1.4 | 1.4 | 0 | `calculus.standard-integrals`, `algebra.exponent-laws` |
+| 185 | Calculating in Standard Form (`algebra.standard-form-arithmetic`) | `core` | 1 | 1 | 0 | `algebra.standard-form`, `algebra.exponent-laws` |
+| 186 | The Ambiguous Case (`geometry.ambiguous-case`) | `aa-ai-hl` | 1 | 1 | 0 | `geometry.sine-rule`, `geometry.unit-circle` |
+| 187 | Angles in 3D (`geometry.angles-3d`) | `core` | 1 | 1 | 0 | `geometry.right-trig`, `geometry.distance-3d` |
+| 188 | Solving Log Equations (`algebra.log-equations`) | `aa-ai-hl` | 0.5 | 0.5 | 0 | `algebra.log-laws` |
+| 189 | Vectors and Components (`geometry.vectors-components`) | `hl` | 0 | 0 | 18 | `geometry.distance-3d` |
+| 190 | Matrices and Multiplication (`algebra.matrix-arithmetic`) | `ai-hl` | 0 | 0 | 12 | – |
+| 191 | Writing a Differential Equation (`calculus.form-differential-equation`) | `hl` | 0 | 0 | 11 | `calculus.derivative-meaning` |
+| 192 | The Vector Equation of a Line (`geometry.vector-line`) | `hl` | 0 | 0 | 11 | `geometry.vectors-components`, `functions.line-equation` |
+| 193 | The Scalar Product (`geometry.scalar-product`) | `hl` | 0 | 0 | 10 | `geometry.vectors-components`, `geometry.cosine-rule` |
+| 194 | Systems on the GDC (`algebra.linear-systems-technology`) | `aa-hl-ai` | 0 | 0 | 9 | `foundations.pre-simultaneous` |
+| 195 | Factor and Remainder Theorems (`functions.factor-remainder`) | `aa-hl` | 0 | 0 | 8 | `functions.zero-product` |
+| 196 | Hypotheses and p-Values (`stats.hypothesis-test-idea`) | `ai` | 0 | 0 | 8 | `stats.normal-probability` |
+| 197 | Proof by Induction (`algebra.induction`) | `aa-hl` | 0 | 0 | 7 | `algebra.lhs-to-rhs`, `algebra.sigma-notation` |
+| 198 | Modulus and Argument Form (`algebra.polar-form`) | `hl` | 0 | 0 | 7 | `algebra.argand-modulus`, `geometry.radian-measure` |
+| 199 | Factorise and Sketch Polynomials (`functions.factorise-polynomials`) | `aa-hl` | 0 | 0 | 6 | `functions.factor-remainder`, `functions.sketch-features` |
+| 200 | The Vector Product (`geometry.vector-product`) | `hl` | 0 | 0 | 6 | `geometry.scalar-product` |
+| 201 | Undoing a Matrix (`algebra.matrix-inverse`) | `ai-hl` | 0 | 0 | 5 | `algebra.matrix-arithmetic`, `algebra.linear-systems-technology` |
+| 202 | Multiply Means Rotate and Stretch (`algebra.polar-multiply`) | `hl` | 0 | 0 | 5 | `algebra.polar-form`, `algebra.exponent-laws` |
+| 203 | Vertices and Edges (`geometry.graph-basics`) | `ai-hl` | 0 | 0 | 5 | – |
+| 204 | Scaling a Random Variable (`stats.linear-transform-rv`) | `hl` | 0 | 0 | 5 | `stats.expected-value`, `stats.shift-and-scale` |
+| 205 | Binomial Series for Any Power (`algebra.binomial-rational`) | `aa-hl` | 0 | 0 | 4 | `algebra.binomial-expansion`, `algebra.convergence` |
+| 206 | True for Every x (`algebra.compare-coefficients`) | `aa` | 0 | 0 | 4 | `algebra.lhs-to-rhs` |
+| 207 | Eigenvalues and Eigenvectors (`algebra.eigenvalues`) | `ai-hl` | 0 | 0 | 4 | `algebra.matrix-inverse` |
+| 208 | Euler's Method (`calculus.euler-method`) | `hl` | 0 | 0 | 4 | `calculus.form-differential-equation`, `calculus.tangent-normal` |
+| 209 | Higher Derivatives (`calculus.higher-derivatives`) | `aa-hl` | 0 | 0 | 4 | `calculus.second-derivative`, `algebra.induction` |
+| 210 | Quadratic Models on the GDC (`functions.quadratic-model`) | `ai` | 0 | 0 | 4 | `functions.parabola-symmetry`, `functions.how-high-and-where` |
+| 211 | The Equation of a Plane (`geometry.plane-equation`) | `aa-hl` | 0 | 0 | 4 | `geometry.vector-product`, `geometry.vector-line` |
+| 212 | sec, cosec and cot (`geometry.reciprocal-trig`) | `aa-hl` | 0 | 0 | 4 | `geometry.pythagorean-identity`, `geometry.exact-values` |
+| 213 | Combining Random Variables (`stats.combining-rvs`) | `ai-hl` | 0 | 0 | 4 | `stats.linear-transform-rv` |
+| 214 | De Moivre's Theorem (`algebra.de-moivre`) | `hl` | 0 | 0 | 3 | `algebra.polar-multiply` |
+| 215 | Split the Fraction (`algebra.partial-fractions`) | `aa-hl` | 0 | 0 | 3 | `algebra.compare-coefficients`, `foundations.pre-algebraic-fractions` |
+| 216 | Coupled Systems (`calculus.coupled-euler`) | `ai-hl` | 0 | 0 | 3 | `calculus.euler-method` |
+| 217 | Maclaurin Series (`calculus.maclaurin`) | `aa-hl` | 0 | 0 | 3 | `calculus.higher-derivatives`, `algebra.binomial-rational` |
+| 218 | Separating the Variables (`calculus.separate-variables`) | `hl` | 0 | 0 | 3 | `calculus.form-differential-equation`, `calculus.function-from-derivative` |
+| 219 | Which Model Fits? (`functions.choose-a-model`) | `ai` | 0 | 0 | 3 | `functions.line-model`, `functions.growth-factor`, `functions.quadratic-model` |
+| 220 | arcsin, arccos and arctan (`geometry.inverse-trig`) | `aa-hl` | 0 | 0 | 3 | `functions.inverse-domain`, `geometry.circular-graphs` |
+| 221 | Adding Normal Variables (`stats.combine-normals`) | `ai-hl` | 0 | 0 | 3 | `stats.combining-rvs`, `stats.normal-probability` |
+| 222 | Critical Regions and Errors (`stats.critical-regions`) | `ai-hl` | 0 | 0 | 3 | `stats.hypothesis-test-idea`, `stats.inverse-normal` |
+| 223 | Elimination by Hand (`algebra.elimination-3x3`) | `aa-hl` | 0 | 0 | 2 | `algebra.linear-systems-technology` |
+| 224 | Continuity and Differentiability (`calculus.continuity-limits`) | `aa-hl` | 0 | 0 | 2 | `calculus.limits-and-gradient` |
+| 225 | Exact Solutions with Eigenvalues (`calculus.coupled-exact`) | `ai-hl` | 0 | 0 | 2 | `calculus.coupled-euler`, `algebra.eigenvalues` |
+| 226 | Further Standard Derivatives (`calculus.further-derivatives`) | `aa-hl` | 0 | 0 | 2 | `calculus.chain-rule`, `geometry.reciprocal-trig`, `geometry.inverse-trig` |
+| 227 | Volume of Revolution About the x-Axis (`calculus.volume-x-axis`) | `hl` | 0 | 0 | 2 | `calculus.definite-integrals` |
+| 228 | Odd and Even Functions (`functions.odd-even`) | `aa-hl` | 0 | 0 | 2 | `functions.reflection` |
+| 229 | Polynomial Inequalities (`functions.polynomial-inequality`) | `aa-hl` | 0 | 0 | 2 | `functions.graph-inequality`, `functions.factorise-polynomials` |
+| 230 | Quadratic over Linear, Linear over Quadratic (`functions.rational-quadratic`) | `aa-hl` | 0 | 0 | 2 | `functions.rational-asymptotes`, `functions.factorise-polynomials` |
+| 231 | Parallel and Collinear (`geometry.parallel-vectors`) | `hl` | 0 | 0 | 2 | `geometry.vectors-components` |
+| 232 | Equally Far from Both (`geometry.perpendicular-bisector`) | `ai` | 0 | 0 | 2 | `functions.perpendicular`, `foundations.distance-midpoint-2d` |
+| 233 | Motion with Constant Velocity (`geometry.vector-kinematics`) | `hl` | 0 | 0 | 2 | `geometry.vector-line` |
+| 234 | χ² Test for Independence (`stats.chi-squared-independence`) | `ai` | 0 | 0 | 2 | `stats.hypothesis-test-idea`, `stats.independence` |
+| 235 | The Poisson Distribution (`stats.poisson`) | `ai-hl` | 0 | 0 | 2 | `stats.random-variable` |
+| 236 | The Central Limit Theorem (`stats.sample-mean-clt`) | `ai-hl` | 0 | 0 | 2 | `stats.combine-normals` |
+| 237 | One, None or Infinitely Many (`algebra.classify-systems`) | `aa-hl` | 0 | 0 | 1 | `algebra.elimination-3x3` |
+| 238 | Multiply the Choices (`algebra.counting-principle`) | `aa-hl` | 0 | 0 | 1 | – |
+| 239 | Area Against the y-Axis (`calculus.area-y-axis`) | `hl` | 0 | 0 | 1 | `calculus.signed-area`, `foundations.pre-change-subject` |
+| 240 | Integration by Parts (`calculus.by-parts`) | `aa-hl` | 0 | 0 | 1 | `calculus.standard-integrals`, `calculus.product-rule` |
+| 241 | Further Standard Integrals (`calculus.further-integrals`) | `aa-hl` | 0 | 0 | 1 | `calculus.further-derivatives`, `calculus.standard-integrals`, `algebra.partial-fractions`, `functions.complete-square` |
+| 242 | L'Hôpital's Rule (`calculus.lhopital`) | `aa-hl` | 0 | 0 | 1 | `calculus.continuity-limits`, `calculus.quotient-rule` |
+| 243 | Phase Portraits (`calculus.phase-portraits`) | `ai-hl` | 0 | 0 | 1 | `calculus.coupled-exact` |
+| 244 | Integration by Substitution (`calculus.substitution`) | `aa-hl` | 0 | 0 | 1 | `calculus.inspection-substitution` |
+| 245 | Logarithmic Scales (`functions.log-scales`) | `ai-hl` | 0 | 0 | 1 | `functions.log-undoes-power` |
+| 246 | The Modulus Graphs (`functions.modulus-graphs`) | `aa-hl` | 0 | 0 | 1 | `functions.reflection` |
+| 247 | Adjacency Matrices and Walks (`geometry.adjacency-walks`) | `ai-hl` | 0 | 0 | 1 | `geometry.graph-basics`, `algebra.matrix-arithmetic` |
+| 248 | The Angle Between Two Lines (`geometry.angle-between-lines`) | `aa-hl` | 0 | 0 | 1 | `geometry.vector-line`, `geometry.scalar-product` |
+| 249 | Compound Angle Formulae (`geometry.compound-angles`) | `aa-hl` | 0 | 0 | 1 | `geometry.exact-values` |
+| 250 | Do Two Lines Meet? (`geometry.lines-intersect`) | `aa-hl` | 0 | 0 | 1 | `geometry.vector-line`, `foundations.pre-simultaneous` |
+| 251 | Matrices Move the Plane (`geometry.matrix-transformations`) | `ai-hl` | 0 | 0 | 1 | `algebra.matrix-arithmetic` |
+| 252 | Minimum Spanning Trees (`geometry.spanning-trees`) | `ai-hl` | 0 | 0 | 1 | `geometry.graph-basics` |
+| 253 | Symmetries of the Trig Graphs (`geometry.trig-symmetry`) | `aa-hl` | 0 | 0 | 1 | `geometry.related-angles`, `functions.odd-even` |
+| 254 | Voronoi Diagrams (`geometry.voronoi`) | `ai` | 0 | 0 | 1 | `geometry.perpendicular-bisector` |
+| 255 | χ² Goodness of Fit (`stats.chi-squared-gof`) | `ai` | 0 | 0 | 1 | `stats.chi-squared-independence` |
+| 256 | Probability Density Functions (`stats.continuous-rv`) | `aa-hl` | 0 | 0 | 1 | `stats.random-variable`, `calculus.definite-integrals` |
+| 257 | Variance of a Discrete Variable (`stats.discrete-variance`) | `aa-hl` | 0 | 0 | 1 | `stats.expected-value` |
+| 258 | Transition Matrices (`stats.markov-chains`) | `ai-hl` | 0 | 0 | 1 | `algebra.matrix-arithmetic`, `stats.tree-diagrams` |
+| 259 | Non-Linear Regression (`stats.nonlinear-regression`) | `ai-hl` | 0 | 0 | 1 | `stats.regression-line`, `functions.choose-a-model` |
+| 260 | Spearman's Rank (`stats.spearman`) | `ai` | 0 | 0 | 1 | `stats.correlation` |
+| 261 | Unbiased Estimates (`stats.unbiased-estimates`) | `ai-hl` | 0 | 0 | 1 | `stats.quartiles-spread` |
+| 262 | Adding Waves with Complex Numbers (`algebra.add-sinusoids`) | `ai-hl` | 0 | 0 | 0 | `algebra.polar-form`, `geometry.wave-features` |
+| 263 | Same Base, Same Power (`algebra.common-base`) | `aa` | 0 | 0 | 0 | `algebra.exponent-laws` |
+| 264 | Conjugate Root Pairs (`algebra.conjugate-roots`) | `aa-hl` | 0 | 0 | 0 | `algebra.complex-quadratic-roots`, `functions.factor-remainder` |
+| 265 | Proof by Contradiction (`algebra.contradiction`) | `aa-hl` | 0 | 0 | 0 | `algebra.integer-proof` |
+| 266 | One Counterexample Is Enough (`algebra.counterexample`) | `aa-hl` | 0 | 0 | 0 | `algebra.integer-proof` |
+| 267 | Proving De Moivre (`algebra.de-moivre-proof`) | `aa-hl` | 0 | 0 | 0 | `algebra.de-moivre`, `algebra.induction` |
+| 268 | Diagonalising for Powers (`algebra.diagonalise`) | `ai-hl` | 0 | 0 | 0 | `algebra.eigenvalues` |
 | 269 | Sums in Euler Form (`algebra.euler-sums`) | `aa-hl` | 0 | 0 | 0 | `algebra.polar-multiply` |
 | 270 | Induction Beyond Series (`algebra.induction-divisibility`) | `aa-hl` | 0 | 0 | 0 | `algebra.induction`, `algebra.integer-proof` |
 | 271 | Multiple-Angle Identities (`algebra.multiple-angle`) | `aa-hl` | 0 | 0 | 0 | `algebra.de-moivre`, `algebra.binomial-expansion` |

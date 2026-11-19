@@ -1,0 +1,65 @@
+# The seed sweep (#192): every cell with the seeds past the checker's, up to the last
+# that play draws (game/engine/verified_seeds.gd: 51 to 2250 today), and every boss chain
+# with its first 1,000 of them. It ran on each push to main inside test.yml, where the
+# next push cancelled it: in the week to 2026-11-18 all twelve shards finished in 24 of
+# 64 runs. Now it runs nightly on main, by hand on any branch
+# (gh workflow run stress --ref <branch>), and from release.yml on a release tag.
+name: stress
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+# Each run is its own group, so neither a push, a merge nor another sweep cancels it.
+concurrency:
+  group: stress-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  # About 14 minutes with the Quadratics extension types (FAL-459), about 22 before the
+  # Exponentials and logs region (FAL-418), which adds 355 cells to 506. The Graphs and
+  # key features region (FAL-420) finds every number by root-finding, about ten times
+  # the cost of a question elsewhere, so the sweep runs as twelve shards side by side
+  # (--shard=k/12: every twelfth cell and chain), each with every seed. At four shards,
+  # two passed the 55-minute cap with E4 and R6 in (FAL-424); at eight, shards 3 and 5
+  # passed it on main after E12 and FAL-790, with shard 1 at 52 minutes (FAL-776): past
+  # it, add shards. Not on pull requests (FAL-918): at about 35 minutes a shard it
+  # doubled every PR's wait. The checker in test.yml still makes seeds 1 to 50 of every
+  # cell on each PR.
+  # No --from or --to here: the tool's defaults are the verified range, and
+  # test_verified_seeds fails if a workflow narrows it.
+  stress-shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    steps:
+      - uses: actions/checkout@v7
+      - run: scripts/ci-install-godot.sh
+      - run: tools/stress-questions --shard=${{ matrix.shard }}/12
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: stress-questions-${{ matrix.shard }}
+          path: _scratch/stress-questions.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # One check for the whole sweep, green only when all twelve shards are: a release
+  # (release.yml) or a branch rule can require this one name. Runs when a shard fails
+  # too, because a job that needs a failed job is otherwise skipped, and a skipped
+  # check doesn't fail anything.
+  stress:
+    needs: stress-shard
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: test "${{ needs.stress-shard.result }}" = success

@@ -259,8 +259,9 @@ func test_every_course_plays_the_classes_it_covers() -> void:
 		for c in e._cells():
 			check(keys.has(c.key), "%s's cell %s" % [id, c.key])
 	check_eq(counts["aa-sl"], aa_sl)
-	# Every class but the AI-only ones (the AI-SL1.6 and 1.7 types, FAL-999).
-	var ai_only := QuestionEngine.built_types().filter(func(id): return QuestionEngine.cells(false, [id], "aa-hl").is_empty() and not QuestionEngine.cells(false, [id], "ai-sl").is_empty())
+	# Every class but the AI-only ones (the AI-SL1.6 and 1.7 types, FAL-999, and the AI-AHL1.12
+	# one, FAL-1004, which is on AI HL alone).
+	var ai_only := QuestionEngine.built_types().filter(func(id): return QuestionEngine.cells(false, [id], "aa-hl").is_empty())
 	check_eq(counts["aa-hl"], all - ai_only.size(), "AA HL has every class but the AI-only ones")
 	check(counts["aa-hl"] >= counts["aa-sl"], "AA HL has every class AA SL has")
 	check(counts["ai-sl"] < all and counts["ai-hl"] >= counts["ai-sl"], "AI SL has %d, AI HL %d" % [counts["ai-sl"], counts["ai-hl"]])

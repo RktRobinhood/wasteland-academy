@@ -1510,8 +1510,8 @@
                 }
               ],
               "misconceptions": [
-                "Replacing i² with +1: (2 + 3i)(1 − 2i) = −4 − i instead of 8 − i",
-                "Multiplying only matching parts: (2 + 3i)(1 − 2i) = 2 − 6i",
+                "Using i squared as plus one instead of minus one when multiplying out",
+                "Multiplying only the matching parts, the real parts together and the imaginary parts together",
                 "Giving the imaginary part as 3i instead of 3",
                 "Writing the conjugate of 2 + 3i as −2 + 3i instead of 2 − 3i"
               ]
@@ -1559,9 +1559,9 @@
                 }
               ],
               "misconceptions": [
-                "Dividing part by part: (3 + 4i)/(1 − 2i) = 3 − 2i",
-                "Getting (1 − 2i)(1 + 2i) = 1 − 4 = −3 instead of 5, giving (5 − 10i)/3",
-                "Multiplying only the denominator by the conjugate"
+                "Dividing part by part, the real part by the real part and the imaginary part by the imaginary part",
+                "Taking the denominator times its conjugate as the difference of the squares of its parts",
+                "Multiplying only the denominator by its conjugate"
               ]
             },
             {
@@ -1608,9 +1608,9 @@
                 }
               ],
               "misconceptions": [
-                "Taking arctan(√3 / −1) = −π/3 straight from the calculator instead of 2π/3",
-                "Forgetting the square root: |3 − 4i| = 25 instead of 5",
-                "Including i in the modulus: √(3² + (−4i)²) = √(9 − 16)"
+                "Using arctan of the imaginary part over the real part straight from the calculator, without checking the quadrant",
+                "Forgetting the square root, giving the sum of the squares",
+                "Including i in the imaginary part when squaring it, so its square is subtracted"
               ]
             },
             {
@@ -1649,8 +1649,8 @@
                 }
               ],
               "misconceptions": [
-                "Raising each part separately: (1 + i)⁸ = 1⁸ + i⁸ = 2 instead of 16",
-                "Leaving out the brackets so only the imaginary part is raised: 2 − 3i^5 = 2 − 3i",
+                "Raising each part to the power separately",
+                "Leaving out the brackets, so only i is raised to the power",
                 "Using the GDC in real mode and reporting a domain error as 'no answer'"
               ],
               "threads": [
@@ -1699,9 +1699,9 @@
                 }
               ],
               "misconceptions": [
-                "Plotting 2 + 3i at (3, 2) with the axes swapped",
-                "Reflecting in the imaginary axis for the conjugate, plotting −2 + 3i instead of 2 − 3i",
-                "Plotting −z as the conjugate"
+                "Plotting with the axes swapped, the real part up and the imaginary part across",
+                "Reflecting in the imaginary axis for the conjugate, so the real part changes sign",
+                "Plotting −z as the conjugate, or the conjugate as −z"
               ],
               "threads": [
                 {
@@ -1755,9 +1755,9 @@
                 }
               ],
               "misconceptions": [
-                "Forgetting to halve the imaginary part: 2 ± 6i instead of 2 ± 3i",
-                "Stopping at 'no solution' because b² − 4ac < 0",
-                "Writing √(−36) as −6 and getting the real roots −1 and 5"
+                "Forgetting to halve the imaginary part of the roots",
+                "Stopping at no solution because the discriminant is negative",
+                "Taking the square root of the negative discriminant as a real number, which gives two real roots"
               ],
               "threads": [
                 {

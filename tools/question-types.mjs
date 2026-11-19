@@ -130,8 +130,9 @@ const skillIds = new Map();
 for (const t of map.topics) for (const st of t.subtopics) for (const sk of st.skills) skillIds.set(sk.id, st.id);
 const known = new Set(layers.flatMap(l => l.topics.flatMap(t => t.subtopics.flatMap(st => st.skills.map(sk => sk.id)))));
 const codes = new Set(statements.map(s => s.code));
-// A type's syllabus codes are its home course's: AA's unless it says (an AI type's 1.6 is AI SL 1.6).
-const homeCodes = t => (t.home || 'aa-sl').startsWith('ai-') ? codeIds.ai : null;
+// A type's syllabus codes are its home course's: AA SL's unless it says (an AI type's 1.6 is AI SL 1.6,
+// and an AA HL type's 1.12 is AHL1.12, FAL-1004).
+const homeCodes = t => (t.home || 'aa-sl').startsWith('ai-') ? codeIds.ai : t.home === 'aa-hl' ? codeIds.aa : null;
 const owner = new Map();
 const typeIds = new Set();
 for (const t of doc.types) {

@@ -1103,6 +1103,14 @@ script error happens while it runs. Run one file with
   (4536 four-digit numbers, 150 and 315 committees, 240 and 480 rows); whole, positive
   counts and clean n from nP2; every misconception as an option; exact marking; a true
   minus; and the two probes.
+- `test_complex_number.gd` (FAL-1004): t1-ahl-complex-cartesian built with every cell for the
+  five AHL1.12 skills on AA HL only, and t1-ai-complex-cartesian with every cell for the six
+  AI-AHL1.12 skills on AI HL only and Paper 2 throughout; four options with one right in both
+  formats, no extra format; every misconception as an option; an Argand diagram with its axes
+  named Re and Im and its points on it, and the parabola's vertex above the axis for
+  quadratic-roots; and products, quotients, powers and arguments against hand values. Both
+  types sit in the Exponents and log laws region (`exponents-logs`): a region of its own would
+  be locked for AA SL, which the map does not handle yet.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
   the migration of a save without `class` and `trees`.
 - `test_combat.gd`: a scripted run with a fixed seed and answers gives the same fights,
@@ -1194,8 +1202,9 @@ argument, for a build published somewhere other than `/next/`.
 `.github/workflows/pages.yml` deploys on every push to `main`: the repo through
 `actions/jekyll-build-pages`, plus the export, which `scripts/assemble-site.sh` puts at
 the root with the switch on (and at `next/` with it off). Pull requests build it without
-deploying. In `.github/workflows/test.yml` the `godot` job runs `./test.sh`, and the `web`
-job runs the export and the browser screenshots and uploads the screenshots as an artifact.
+deploying. In `.github/workflows/test.yml` the `godot` job runs `./test.sh`, the `export` job
+builds the export once, and the `web` job takes it for the browser screenshots and uploads
+the screenshots as an artifact.
 
 ## Godot MCP
 

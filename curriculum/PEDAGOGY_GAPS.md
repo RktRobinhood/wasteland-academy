@@ -8,7 +8,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## In numbers
 
-- **Types:** 114 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
+- **Types:** 116 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
 - **Skills with a type:** 286 of 286.
 - **Functions:** 141 unknowns the exam asks and 434 it doesn't; 574 angles, 193 of them with a weak spot for method-pick questions; 160 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
 - **Coverage cells** (one unknown in one representation by one method): 2102 in Functions, of which 528 are reachable with "Exam-style only" on.
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 21 exam types have them so far.
+23 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 23 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -2206,6 +2206,54 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): A fund that pays out each month for twice as long needs twice as much at the start. — False: the money still in the fund earns interest while it waits, so the later withdrawals cost less today; twice the time needs less than twice the fund.
   - *predict-check* (L3): Predict whether monthly deposits for ten years are worth more or less than the same total paid in at the start, then check with the solver. — Less: a deposit made later earns interest for less time, and the last one earns none, so the plan is worth less than one lump sum paid in at the start.
 - **Misconceptions used:** 10. Ignoring interest and adding up the deposits; Treating every deposit as made at the start, so each earns interest for the whole time; Multiplying the withdrawal by the number of months, ignoring the interest the fund earns; Solving for FV instead of PV, answering the wrong question; Rounding the number of full withdrawals up instead of down; Counting years instead of payments for N; Rounding the number of months down; Giving the account's final value as the interest; Taking away the opening sum but not the deposits; Ignoring the interest the fund earns.
+
+#### Complex numbers in Cartesian form (AA HL) (`t1-ahl-complex-cartesian`, exam, 20 bank parts)
+
+- **Situation:** Complex numbers in Cartesian form, a + bi, and their points on an Argand diagram, shared with `t1-ai-complex-cartesian`.
+- **Representations:** **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given a power iⁿ, or (ki)ⁿ → the power in the form a + bi
+  - **exam** L1: given two complex numbers z and w → zw, z², zz* or zw* in the form a + bi
+  - **exam** L2: given two complex numbers z and w → z ÷ w in the form a + bi
+  - **exam** L2: given a complex number z and a power n → zⁿ in the form a + bi
+  - **exam** L3: given (k + mi)(c + di), k real; that it is real, purely imaginary, or has argument π/4 → k
+  - new L2: given z(c + di) = e + fi → z in the form a + bi
+  - **exam** L3: given an equation αz + βz* = e + fi, or αz + βiz* = e + fi → z in the form a + bi
+  - **exam** L4: given a complex number A + Bi → its two square roots, ±(a + bi)
+  - **exam** L3: given a complex root m + ni of z² + pz + q = 0, p and q real → p and q
+  - **exam** L1: given a complex number, or its point on an Argand diagram → |z|, exactly
+  - **exam** L2: given a complex number, or its point on an Argand diagram → arg z in −π < θ ≤ π
+  - **exam** L1: given a point A on an Argand diagram that represents z → z, z*, −z or iz in the form a + bi
+  - new L2: given two points A and B on an Argand diagram, for z₁ and z₂ → z₁ + z₂, or z₂ − z₁ (the vector from A to B)
+  - **exam** L2: given two complex numbers, or their points on an Argand diagram → the distance between them, |z₂ − z₁|, exactly
+- **Angles:** Use the cycle i, −1, −i, 1; Group into i² factors; Count quarter turns on the Argand diagram; Expand and replace i² with −1; Multiply top and bottom by the conjugate; Use complex mode on the GDC; Divide when the unknown appears once; Write z = x + iy and equate parts; Set (a + bi)² equal and solve the pair; |z| = √(a² + b²), then arctan with quadrant check; Sketch the point before finding the angle; Use abs() and angle() on the GDC; Plot a + bi at (a, b); Add as vectors; Distance is |z₂ − z₁|.
+  - *Fails:* Use complex mode on the GDC: the GDC can't keep k as a letter: the parts have to be written out and one set to zero.
+- **Concept probes:**
+  - *true-false-reason* (L3): A complex number and its conjugate always have the same modulus. — True: z* is z reflected in the real axis, so it is the same distance from 0.
+  - *always-sometimes-never* (L3): The product of a complex number and its conjugate is a real number. — Always: (a + bi)(a − bi) = a² + b², and the imaginary parts cancel.
+  - *predict-check* (L3): Predict which quadrant −3 + 3i is in before finding its argument, then check that the argument is between π/2 and π. — The second quadrant: the real part is negative and the imaginary part positive, and arg(−3 + 3i) = 3π/4.
+- **Misconceptions used:** 27. Taking the third power of i as i instead of −i; Raising only i to the power and leaving the number in front of it unpowered; Using i squared as plus one instead of minus one when multiplying out; Multiplying only the denominator by its conjugate; Multiplying the real parts together and the imaginary parts together, losing the cross terms; Using arctan of the imaginary part over the real part without checking the quadrant; Adding the parts, or subtracting their squares, instead of taking the square root of the sum of their squares; Giving only one square root and missing its negative; Treating z* as if it were z, so the conjugate's sign change is lost; Reading the point with its coordinates swapped, the real part up and the imaginary part across; Reflecting in the imaginary axis for the conjugate, so the real part changes sign; Dividing part by part, the real part by the real part and the imaginary part by the imaginary part; Multiplying by the number instead of dividing by it; Setting the wrong part to zero: the real part for a real product, or the imaginary part for an imaginary one; Dropping the minus sign when the equation is rearranged to give k; Changing the sign of the real part for the conjugate, so z* is taken as −x + yi; Swapping the parts of the root, which gives a square root of the number with its real part's sign changed; Giving the imaginary part the wrong sign, so the root squares to the conjugate; Dropping the minus sign when the imaginary part's equation is solved for p; Using arctan of the real part over the imaginary part, the angle from the imaginary axis; Turning clockwise for iz instead of anticlockwise; Giving the conjugate when −z is asked, or −z when the conjugate is asked; Adding the two numbers instead of subtracting them before taking the modulus; Forgetting the square root, giving the sum of the squares; Subtracting the wrong way round, giving the vector from B back to A; Subtracting instead of adding the two numbers; Raising only i to the power, as if there were no brackets.
+
+#### Complex numbers in Cartesian form (AI HL) (`t1-ai-complex-cartesian`, exam, 12 bank parts)
+
+- **Situation:** The same complex numbers, on Paper 2 with a GDC, and a real quadratic with complex roots, shared with `t1-ahl-complex-cartesian`.
+- **Representations:** **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given a power iⁿ, or (ki)ⁿ → the power in the form a + bi
+  - **exam** L1: given two complex numbers z and w → zw, z², zz* or zw* in the form a + bi
+  - new L2: given two complex numbers z and w → z ÷ w in the form a + bi
+  - **exam** L2: given z(c + di) = e + fi → z in the form a + bi
+  - new L2: given a complex number z and a power n → zⁿ in the form a + bi
+  - **exam** L1: given a complex number, or its point on an Argand diagram → |z|, exactly
+  - **exam** L2: given a complex number, or its point on an Argand diagram → arg z in radians, to 3 s.f.
+  - **exam** L1: given a point A on an Argand diagram that represents z → z, z*, −z or iz in the form a + bi
+  - **exam** L2: given two complex numbers, or their points on an Argand diagram → the distance between them, |z₂ − z₁|, exactly
+  - **exam** L2: given a real quadratic z² + pz + q = 0 with no real roots, or its graph → its two roots, h ± ki
+- **Angles:** Expand and replace i² with −1; Use the GDC in complex mode; Use the cycle of powers of i; Multiply top and bottom by the conjugate of the denominator; Divide on the GDC; Write z = a + bi and equate parts; Raise to the power on the GDC; Square repeatedly by hand; Use |z| = √(a² + b²) and a quadrant-checked arctan; Sketch on an Argand diagram; Use the GDC abs and arg functions; Plot a + bi at the point (a, b); Use reflections and rotations; Use the quadratic formula with √(−k) = i√k; Complete the square; Use the polynomial solver in complex mode.
+- **Concept probes:**
+  - *true-false-reason* (L3): If the graph of y = x² + px + q does not meet the x-axis, the equation z² + pz + q = 0 has no solutions. — False: it has no real solutions, but it has two complex ones, a conjugate pair h ± ki.
+  - *interpret-parameter* (L3): The roots of a real quadratic are h ± ki. What does h tell you about the graph of y = x² + px + q? — h is the x-coordinate of the vertex: the line x = h is the parabola's axis of symmetry, halfway between the roots.
+- **Misconceptions used:** 23. Using i squared as plus one instead of minus one when multiplying out; Multiplying only the matching parts, the real parts together and the imaginary parts together; Dividing part by part, the real part by the real part and the imaginary part by the imaginary part; Taking the denominator times its conjugate as the difference of the squares of its parts; Multiplying only the denominator by its conjugate; Using arctan of the imaginary part over the real part straight from the calculator, without checking the quadrant; Forgetting the square root, giving the sum of the squares; Including i in the imaginary part when squaring it, so its square is subtracted; Raising each part to the power separately; Leaving out the brackets, so only i is raised to the power; Plotting with the axes swapped, the real part up and the imaginary part across; Reflecting in the imaginary axis for the conjugate, so the real part changes sign; Plotting −z as the conjugate, or the conjugate as −z; Forgetting to halve the imaginary part of the roots; Stopping at no solution because the discriminant is negative; Taking the square root of the negative discriminant as a real number, which gives two real roots; Taking the third power of i as i instead of −i; Multiplying by the number instead of dividing by it; Using arctan of the real part over the imaginary part, the angle from the imaginary axis; Turning clockwise for iz instead of anticlockwise; Adding the two numbers instead of subtracting them before taking the modulus; Using +p instead of −p in the quadratic formula, so the real part has the wrong sign; Raising only i to the power and leaving the number in front of it unpowered.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
