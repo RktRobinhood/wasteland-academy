@@ -1699,6 +1699,38 @@ def check_arithmetic(q):
     m = re.match(r"([uS])(\d+|₁) = $", q["answer"]["label"].translate(SUBSCRIPTS))
     if u in ("term-from-u1-d", "sum-from-u1-d", "sum-from-first-last"):
         need(m and R(m.group(2)) == n, f"the answer label {q['answer']['label']!r} names another term")
+    # Each tagged option, worked from its slip on the question's own numbers (FAL-1149).
+    T = "t1-arithmetic-sequence#"
+    refs = {}
+    if u == "term-from-u1-d":
+        refs = {"SL1.2.nth-term#0": {u1 + n * d}, "SL1.2.nth-term#2": {n}, "SL1.2.nth-term#1": {u1 - (n - 1) * d},
+                T + "12": {(n - 1) * d}}
+    elif u in ("d-from-two-terms", "u1-from-two-terms"):
+        p, r = R(s["p"]), R(s["q"])
+        up, uq = R(s["up"]), R(s["uq"])
+        d_gaps = (uq - up) / (r - p + 1)
+        if u == "d-from-two-terms":
+            refs = {"SL1.2.find-u1-d#0": {d_gaps}, "SL1.2.nth-term#1": {-d}, T + "13": {uq - up}, T + "14": {(uq - up) / r}}
+        else:
+            refs = {"SL1.2.find-u1-d#1": {up}, "SL1.2.nth-term#0": {up - p * d}, "SL1.2.find-u1-d#0": {up - (p - 1) * d_gaps},
+                    T + "15": {(uq - up) / (r - p)}}
+    elif u == "n-from-term":
+        refs = {"SL1.2.find-n#2": {(un - u1) / d}, "SL1.2.find-n#1": {un}, T + "16": {un / d}}
+    elif u == "sum-from-u1-d":
+        refs = {"SL1.2.sum#0": {n * (2 * u1 + n * d) / 2}, "SL1.2.sum#1": {seq_sum(n - 1).subs(sit)}, "SL1.2.sum#2": {un},
+                T + "17": {n * (2 * u1 + (n - 1) * d)}}
+    elif u == "sum-from-first-last":
+        refs = {"SL1.2.sum#1": {(n - 1) * (u1 + un) / 2}, T + "17": {n * (u1 + un)}, T + "18": {u1 + un}, T + "19": {n * (un - u1) / 2}}
+    elif u == "n-from-sum":
+        refs = {"SL1.2.sum-unknown#1": {R(s["other"])}, "SL1.2.sum-unknown#2": {sn}}
+    elif u == "d-from-sum":
+        refs = {"SL1.2.sum#0": {(2 * sn / n - 2 * u1) / n}, T + "20": {2 * sn / n - 2 * u1}, T + "21": {(2 * u1 - 2 * sn / n) / (n - 1)}}
+    elif u == "u1-from-sum":
+        refs = {"SL1.2.sum#0": {(2 * sn / n - n * d) / 2}, T + "22": {2 * sn / n - (n - 1) * d}, T + "23": {sn / n}}
+    for o in q["choices"]:
+        if o["ref"]:
+            need(o["ref"] in refs, f"the checker can't confirm {o['ref']} on {u}")
+            need(R(o["values"]["v"]) in refs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
     v = {
         "term-from-u1-d": seq_term(NN), "n-from-term": NN, "n-from-sum": NN,
         "d-from-two-terms": D, "d-from-sum": D, "u1-from-two-terms": U1, "u1-from-sum": U1,
@@ -2465,11 +2497,11 @@ def seq_check_p2(q):
         need(ans["label"] == f"{sym}{str(n).translate(SEQ_TO_SUB)} = {unit}" and ans.get("unit", "") == tail, f"the label {ans['label']!r} names another term")
         if u == "term-from-u1-d":
             v = seq_term(n).subs(sit)
-            refs = {"SL1.2.nth-term#0": {u1 + n * d}, "SL1.2.nth-term#2": {n}}
+            refs = {"SL1.2.nth-term#0": {u1 + n * d}, "SL1.2.nth-term#2": {n}, "t1-arithmetic-sequence#12": {(n - 1) * d}}
         else:
             v = seq_sum(n).subs(sit)
             refs = {"SL1.2.sum#0": {seq_p2_cent(ctx, n * (2 * u1 + n * d) / 2)}, "SL1.2.sum#1": {seq_sum(n - 1).subs(sit)},
-                    "SL1.2.sum#2": {seq_term(n).subs(sit)}}
+                    "SL1.2.sum#2": {seq_term(n).subs(sit)}, "t1-arithmetic-sequence#17": {seq_p2_cent(ctx, n * (2 * u1 + (n - 1) * d))}}
         need(R(s["n"]) == n, "the situation's n is not the one asked")
         need(v <= (SEQ_UN_MAX if sym == "u" else SEQ_SN_MAX), f"{v} is too big")
         need((v * 100).is_integer, f"{v} doesn't end in whole hundredths")
@@ -2484,7 +2516,7 @@ def seq_check_p2(q):
             v = seq_p2_first_over(1 + (y - u1) / d)
             need(SEQ_N_TERM[0] <= v <= SEQ_N_TERM[1], f"n = {v} is outside the limits")
             need(seq_term(v).subs(sit) > y >= seq_term(v - 1).subs(sit), "the term n is not the first over the threshold")
-            refs = {"SL1.2.find-n#2": {v - 1}, "SL1.2.find-n#1": {y}}
+            refs = {"SL1.2.find-n#2": {v - 1}, "SL1.2.find-n#1": {y}, "t1-arithmetic-sequence#24": {R(sig3(1 + (y - u1) / d))}}
         else:
             pat = (r"^After how many weeks n is her total saved first more than \$(\d+)\?$" if ctx == "money"
                    else r"^After how many days n is his total distance first more than (\d+) km\?$")
@@ -2495,7 +2527,8 @@ def seq_check_p2(q):
             v = seq_p2_first_over(roots[1])
             need(SEQ_N_SUM[0] <= v <= SEQ_N_SUM[1], f"n = {v} is outside the limits")
             need(seq_sum(v).subs(sit) > x >= seq_sum(v - 1).subs(sit), "S_n is not the first sum over the threshold")
-            refs = {"SL1.2.sum-unknown#1": {R(sig3(roots[0]))}, "SL1.2.sum-unknown#2": {x}}
+            refs = {"SL1.2.sum-unknown#1": {R(sig3(roots[0]))}, "SL1.2.sum-unknown#2": {x},
+                    "t1-arithmetic-sequence#24": {R(sig3(roots[1]))}, "t1-arithmetic-sequence#25": {v - 1}}
         for o in q["choices"]:
             need(o["text"] == "n = " + dec_text(R(o["values"]["v"])), f"option {o['text']!r} is not n as a decimal")
         v = sp.Integer(v)
@@ -10808,6 +10841,8 @@ def check_compound_interest(q):
             else:
                 want = "interest = $" + ci_money(ci_cents(fv - pv))
                 wrongs[CI_SKILL + "future-value#2"] = {"interest = $" + ci_money(ci_cents(fv))}
+                wrongs[CI_SKILL + "future-value#0"] = {"interest = $" + ci_money(ci_cents(annual - pv))}
+                wrongs[CI_SKILL + "future-value#1"] = {"interest = $" + ci_money(ci_cents(simple - pv))}
         else:
             mt = re.fullmatch(r"Find the number of complete years needed for the investment to be worth more than \$(\d+)\.", asked)
             need(mt is not None, f"asked {asked!r}")
@@ -10824,6 +10859,7 @@ def check_compound_interest(q):
                 wrongs[CI_SKILL + "find-time#0"] = {f"years = {int(sp.floor(xn + sp.Rational(1, 2)))}"}
             if k > 1:
                 wrongs[CI_SKILL + "find-time#1"] = {f"years = {int(sp.ceiling(xn * k))}"}
+            wrongs["t1-compound-interest#9"] = {f"years = {int(sp.floor(xn))}"}
     elif u == "present-value":
         m = re.fullmatch(r"(.+) wants an account to be worth \$(\d+) after (\d+) years\. The account pays ([\d.]+)% per year, compounded (" + freqs + r")\.", L[0])
         need(m is not None, f"can't read {L[0]!r}")
@@ -10836,6 +10872,9 @@ def check_compound_interest(q):
         need(ci_clear(pv) and pv >= 500, f"PV {float(pv):.4f} is on a cent edge or too small")
         need(ci_clear(fv * (1 + r / (100 * k)) ** (k * n)) and ci_clear(fv / (1 + r / 100) ** (k * n)) and ci_clear(fv / (1 + n * r / 100)), "a wrong option is on a cent edge")
         want = "PV = $" + ci_money(ci_cents(pv))
+        wrongs["t1-compound-interest#8"] = {"PV = $" + ci_money(ci_cents(fv * (1 + r / (100 * k)) ** (k * n)))}
+        wrongs[CI_SKILL + "future-value#0"] = {"PV = $" + ci_money(ci_cents(fv / (1 + r / 100) ** (k * n)))}
+        wrongs[CI_SKILL + "future-value#1"] = {"PV = $" + ci_money(ci_cents(fv / (1 + n * r / 100)))}
     elif u == "interest-rate":
         m = re.fullmatch(r"(.+) invests \$(\d+) in an account that pays interest compounded (" + freqs + r")\. After (\d+) years the account is worth \$([\d.]+)\.", L[0])
         need(m is not None, f"can't read {L[0]!r}")
@@ -11181,7 +11220,8 @@ def e10de_check(q):
         up, line = V * (1 + r / 100) ** n, V / (1 - n * r / 100)
         need(all(e10de_clear(x) for x in (p, up, line, V * c ** n)), "a value is on the edge between two dollars")
         want = "price = $" + e10de_d(p)
-        wrongs = {D + "5": {"price = $" + e10de_d(up)}, D + "1": {"price = $" + e10de_d(line)}}
+        wrongs = {D + "5": {"price = $" + e10de_d(up)}, D + "1": {"price = $" + e10de_d(line)},
+                  "t1-depreciation#13": {"price = $" + e10de_d(V * c ** n)}}
         for sol in q["solutions"]:
             a = sol["angle"]
             e10de_shown(sol, p)
@@ -11231,7 +11271,8 @@ def e10de_check(q):
     elif u == "read-rate":
         need(k == 1 and asked == "Write down the yearly rate of depreciation, as a percentage.", f"asked {asked!r}")
         want = f"rate = {dec_text(r)}%"
-        wrongs = {D + "6": {f"rate = {dec_text(100 * c)}%"}}
+        wrongs = {D + "6": {f"rate = {dec_text(100 * c)}%"}, "t1-depreciation#14": {f"rate = {dec_text(c)}%"},
+                  "t1-depreciation#15": {f"rate = {dec_text(r / 100)}%"}}
         for sol in q["solutions"]:
             e10de_says(sol, f"1 − {dec_text(c)} = {dec_text(r / 100)}", f"{dec_text(r)}%")
     elif u == "two-rate-value":
@@ -11256,7 +11297,9 @@ def e10de_check(q):
         later = P * c2 ** n
         need(all(e10de_clear(x) for x in (v, P - v, later, v * c2)), "a value is on the edge between two dollars")
         want = "value = $" + e10de_d(v)
-        wrongs = {D + "8": {"value = $" + e10de_d(later)}, D + "2": {"value = $" + e10de_d(P - v)}}
+        wrongs = {D + "8": {"value = $" + e10de_d(later)}, D + "2": {"value = $" + e10de_d(P - v)},
+                  "t1-depreciation#16": {"value = $" + e10de_d(P * c1 ** n)}, "t1-depreciation#17": {"value = $" + e10de_d(v * c2)},
+                  "t1-depreciation#19": {"value = $" + e10de_d(P * (1 - (r1 + (n - 1) * r2) / 100))}}
         for sol in q["solutions"]:
             e10de_shown(sol, a)
             if sol["angle"] == "year-by-year":
@@ -11290,7 +11333,7 @@ def e10de_check(q):
         M = v - a
         need(M >= 100 and all(e10de_clear(x) for x in (v, a, M, P - a, v - S)), "a value is on the edge between two dollars, or M is too small")
         want = "M = $" + e10de_d(M)
-        wrongs = {D + "9": {"M = $" + e10de_d(P - a), "M = $" + e10de_d(v - S)}}
+        wrongs = {D + "9": {"M = $" + e10de_d(P - a), "M = $" + e10de_d(v - S)}, D + "0": {"M = $" + e10de_d(P * (1 + r / 100) ** n - a)}}
         for sol in q["solutions"]:
             e10de_shown(sol, v)
             e10de_shown(sol, a)
@@ -11320,6 +11363,9 @@ def e10de_check(q):
         need(sp.Rational(2, 10) * P <= T <= sp.Rational(8, 10) * P, f"target {T}")
         f["T"] = T
         want, wrongs, least = e10de_time(q, f, k if u == "years-from-periods" else 1, word + "s")
+        if u == "least-periods":
+            periods = sp.N(sp.log(T / f["P"]) / sp.log(f["c"]), DIGITS)
+            wrongs["t1-depreciation#18"] = {f"{word}s = {int(sp.ceiling(periods / k))}"}
         need(least <= (E10DE_YEARS_MAX if u == "years-from-periods" else 12 * E10DE_YEARS_MAX), f"{least} {word}s")
     gc_check_common(q, want, wrongs, trap)
     return None, None
@@ -23236,6 +23282,13 @@ def check_trig_identity(q):
     SG, DS, RT = "SL3.6.ratio-from-ratio#0", "SL3.6.ratio-from-ratio#1", "SL3.6.ratio-from-ratio#2"
     S2, C2, LS = "SL3.6.double-angle-values#0", "SL3.6.double-angle-values#1", "SL3.6.double-angle-values#2"
     EX, PR = "SL3.6.simplify#0", "SL3.6.simplify#1"
+    O = "t3-identity-values#"  # the type's own lines (FAL-1149)
+
+    def wave(fn, k, n):
+        return ("" if k == 1 else f"{k} ") + f"{fn} {'' if n == 1 else n}x"
+
+    def expand(k, b):
+        return f"{k} {'+' if b > 0 else '−'} {'' if abs(b) == 1 else str(abs(b)) + ' '}sin 2x"
 
     def theta():
         """sin θ and cos θ from the shown ratio and quadrant alone."""
@@ -23264,31 +23317,33 @@ def check_trig_identity(q):
 
     if u == "cos-from-sin":
         sv, cv = theta()
-        tr_common(q, "cos θ = ", cv, {SG: [-cv], DS: [1 - sv]})
+        tr_common(q, "cos θ = ", cv, {SG: [-cv], DS: [1 - sv], O + "8": [cv**2]})
     elif u == "sin-from-cos":
         sv, cv = theta()
-        tr_common(q, "sin θ = ", sv, {SG: [-sv], RT: [sp.sign(sv) * (1 - abs(cv))]})
+        tr_common(q, "sin θ = ", sv, {SG: [-sv], RT: [sp.sign(sv) * (1 - abs(cv))], O + "8": [sv**2]})
     elif u == "tan-from-ratio":
         sv, cv = theta()
-        tr_common(q, "tan θ = ", sv / cv, {SG: [-sv / cv]})
+        tr_common(q, "tan θ = ", sv / cv, {SG: [-sv / cv], O + "9": [cv / sv]})
     elif u == "cos-from-tan":
         qd = g["q"]
         t = sp.sign(sp.tan(tr_mid(qd))) * sp.Rational(g["rise"], g["run"])
         cv = sp.sign(sp.cos(tr_mid(qd))) / sp.sqrt(1 + t**2)
         tr_given(f"tan θ = {frac_text(t)}", qd, t * cv, cv)
-        tr_common(q, "cos θ = ", cv, {SG: [-cv]})
+        # sin θ for cos θ, and rise² + run² taken as the hypotenuse itself
+        tr_common(q, "cos θ = ", cv, {SG: [-cv], O + "10": [t * cv],
+                                      O + "11": [sp.sign(cv) * sp.Integer(g["run"]) / (g["rise"]**2 + g["run"]**2)]})
     elif u == "sin2-from-ratio":
         sv, cv = theta()
-        w = {S2: [2 * sv]}
+        w = {S2: [2 * sv], O + "12": [sv * cv], O + "13": [cv**2 - sv**2]}
         if cv < 0:
             w[LS] = [2 * sv * abs(cv)]
         tr_common(q, "sin 2θ = ", 2 * sv * cv, w)
     elif u == "cos2-from-sin":
         sv, cv = theta()
-        tr_common(q, "cos 2θ = ", cv**2 - sv**2, {C2: [1 - sv**2, 2 * cv]})
+        tr_common(q, "cos 2θ = ", cv**2 - sv**2, {C2: [1 - sv**2, 2 * cv, 2 * sv**2 - 1]})
     elif u == "cos2-from-cos":
         sv, cv = theta()
-        tr_common(q, "cos 2θ = ", cv**2 - sv**2, {C2: [2 * cv]})
+        tr_common(q, "cos 2θ = ", cv**2 - sv**2, {C2: [2 * cv, 1 - 2 * cv**2, cv**2 - 1]})
     elif u == "cos-from-cos2":
         if rep == "diagram":
             a, b, c = R(g["a"]), R(g["b"]), R(g["c"])
@@ -23301,7 +23356,8 @@ def check_trig_identity(q):
             k = R(g["cos2"])
             need(L == [f"cos 2θ = {frac_text(k)} and 0 < θ < π/2."], f"can't read {L}")
         need(-1 < k < 1 and k != 0, "out of range")
-        tr_common(q, "cos θ = ", sp.sqrt((1 + k) / 2), {C2: [k / 2]})
+        tr_common(q, "cos θ = ", sp.sqrt((1 + k) / 2), {C2: [k / 2], O + "8": [(1 + k) / 2], SG: [-sp.sqrt((1 + k) / 2)],
+                                                     O + "14": [sp.sqrt((1 - k) / 2)]})
     elif u == "rewrite-in-sin":
         base, dbl, p, m, k = g["base"], g["src"] == "double", R(g["p"]), R(g["m"]), R(g["k"])
         x, y = sp.Symbol("x"), sp.Symbol("y")
@@ -23334,7 +23390,8 @@ def check_trig_identity(q):
             e = 2 * k * sp.cos(w_ * x)**2 - k
         need(sp.simplify(e - k * sp.cos(2 * w_ * x)) == 0, "the identity fails")
         tr_hyphens(q)
-        gc_check_common(q, f"{k} cos {2 * w_}x".replace("1 cos", "cos") if k > 1 else f"cos {2 * w_}x", {}, steps=(2, 10))
+        gc_check_common(q, f"{k} cos {2 * w_}x".replace("1 cos", "cos") if k > 1 else f"cos {2 * w_}x",
+                        {O + "15": {wave("cos", 2 * k, 2 * w_)}, O + "16": {wave("cos", k, w_)}}, steps=(2, 10))
     elif u == "product-sine":
         k, w_ = int(g["k"]), int(g["w"])
         inner = "" if w_ == 1 else str(w_)
@@ -23342,7 +23399,7 @@ def check_trig_identity(q):
         x = sp.Symbol("x")
         need(sp.simplify(2 * k * sp.sin(w_ * x) * sp.cos(w_ * x) - k * sp.sin(2 * w_ * x)) == 0, "the identity fails")
         tr_hyphens(q)
-        gc_check_common(q, f"{k} sin {2 * w_}x" if k > 1 else f"sin {2 * w_}x", {PR: {f"{2 * k} sin {2 * w_}x"}}, steps=(2, 10))
+        gc_check_common(q, f"{k} sin {2 * w_}x" if k > 1 else f"sin {2 * w_}x", {PR: {f"{2 * k} sin {2 * w_}x"}, O + "16": {wave("sin", k, w_)}}, steps=(2, 10))
     elif u == "expand-square":
         k, minus = int(g["k"]), g["minus"]
         need(L == [f"{'' if k == 1 else k}(sin x {'−' if minus else '+'} cos x)²"], f"can't read {L}")
@@ -23350,13 +23407,17 @@ def check_trig_identity(q):
         b = -k if minus else k
         need(sp.simplify(k * (sp.sin(x) + (-1 if minus else 1) * sp.cos(x))**2 - (k + b * sp.sin(2 * x))) == 0, "the identity fails")
         tr_hyphens(q)
-        gc_check_common(q, f"{k} {'−' if minus else '+'} {'' if k == 1 else str(k) + ' '}sin 2x", {EX: {str(k)}}, steps=(2, 10))
+        gc_check_common(q, f"{k} {'−' if minus else '+'} {'' if k == 1 else str(k) + ' '}sin 2x", {EX: {str(k)}, O + "17": {expand(k, -b)}, O + "18": {expand(2 * k, b)}, O + "19": {expand(k, 2 * b)}}, steps=(2, 10))
     elif u == "max-after-rewrite":
         k, w_, d = int(g["k"]), int(g["w"]), int(g["d"])
         x = sp.Symbol("x")
         top = sp.maximum(k * sp.sin(2 * w_ * x) + d, x, sp.Interval(0, sp.pi))
         tr_hyphens(q)
-        gc_check_common(q, f"maximum = {frac_text(top)}", {PR: {f"maximum = {frac_text(2 * k + d)}"}}, steps=(2, 10))
+        low = sp.minimum(k * sp.sin(2 * w_ * x) + d, x, sp.Interval(0, sp.pi))
+        w = {PR: {f"maximum = {frac_text(2 * k + d)}"}, O + "21": {f"maximum = {frac_text(low)}"}}
+        if d:
+            w[O + "20"] = {f"maximum = {frac_text(top - d)}"}  # the sine part's maximum alone
+        gc_check_common(q, f"maximum = {frac_text(top)}", w, steps=(2, 10))
     else:
         need(False, f"no check for {u}")
     return None, None
@@ -40742,12 +40803,17 @@ def E12SE_check(q):
                       M + "0": {f"x = {top}/(ln {b} − 1)" if p > 0 else f"x = {top}/(1 − ln {b})"}}
             if gap >= 2 and gap != Qr and gap != P:
                 wrongs[O + "4"] = {E12SE_quot(P, gap)}
+            if n > 1:
+                wrongs[O + "15"] = {E12SE_quot(a, Qr)}  # n ln a written as ln a (FAL-1149)
         else:
             need(shape == "mirror" and asked == "Solve the equation, giving x in the form ln p/ln q, where p and q are whole numbers.", asked)
             need(b ** c <= 1000, f"{b}^{c}")
             P, Qr = sp.Integer(b) ** c, sp.Integer(a * b)
             wrongs = {O + "3": {E12SE_quot(P, sp.Rational(a, b))}, O + "5": {E12SE_quot(Qr, P)}, O + "4": {E12SE_quot(P, a + b)},
-                      M + "0": {f"x = {c}/(ln {a} + ln {b})"}}
+                      M + "0": {f"x = {c}/(ln {a} + ln {b})"},
+                      O + "16": {E12SE_quot(sp.Integer(a) ** c, Qr)}}  # c ln a in place of c ln b (FAL-1149)
+            if c > 1:
+                wrongs[O + "15"] = {E12SE_quot(b, Qr)}  # c ln b written as ln b
         want = E12SE_quot(P, Qr)
         E12SE_shows(q, "log-both-sides", E12SE_ln(P), E12SE_ln(Qr))
         return E12SE_exact_end(q, want, x, wrongs)
@@ -40781,6 +40847,7 @@ def E12SE_check(q):
         if mm != 1:
             add(O + "8", 1, r)
             add(O + "9", mm, r)
+        add(O + "14", sp.Rational(1, mm), c - d)  # ln(c − d)/m, k never divided out (FAL-1149)
         E12SE_shows(q, "isolate-then-log", f"ln {r}")
         return E12SE_exact_end(q, want, x, wrongs)
     if u == "isolate-3sf":
