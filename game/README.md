@@ -1112,6 +1112,14 @@ script error happens while it runs. Run one file with
   types sit in the Exponents and log laws region (`exponents-logs`): a region of its own would
   be locked for AA SL, which the map does not handle yet.
 <!-- R9-RATIONAL -->
+- `test_rational_quadratic.gd` (FAL-1007): fn-ahl-rational-quadratic (AHL2.13) built with all 31 cells and all
+  five skills, on AA HL only; a GDC method is Paper 2 and every other cell either paper, with exact turning values
+  on Paper 1 and 3 s.f. ones on Paper 2; four distinct options with one right and the answer in each working's
+  last step, and no GDC tab on Paper 1; every tag shows up, and only on the unknowns it lists; pick the graph draws
+  every branch of the right card, an oblique asymptote dashed, and tags the missed-zero and lost-constant cards; the
+  graph view shows its asymptotes; typed answers marked by value; hand-worked ranges, turning points and an oblique
+  split. The map's AHL2.13 skills also list `match`, `order-steps` and `multipart`, which the engine doesn't build,
+  and `true-false-reason`, `error-spot` and `method-pick`, which the type doesn't list, so none is offered.
 
 <!-- R9-ODD-EVEN -->
 

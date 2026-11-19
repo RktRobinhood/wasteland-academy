@@ -51711,6 +51711,538 @@ SITUATION_CHECKS["complex-polar-ai"] = aip_check
 
 # R9-RATIONAL: fn-ahl-rational-quadratic (rational-quadratic), prefix R9RQ_ / r9rq_
 
+# ── rational-quadratic (fn-ahl-rational-quadratic, FAL-1007) ─────────────────
+# The checker's own copy of the situation's clean limits; the engine's is in
+# game/engine/situations/rational_quadratic.gd and rational_quadratic_views.gd. Every function is
+# read back from the question's first line (never its `given`), and every asymptote, intercept,
+# constant and range is worked out again with SymPy: zeros by exact roots, the oblique asymptote by
+# polynomial division, a range from the turning points, f′(x) = 0. Each slip is rebuilt from its
+# description in the catalogue. A pick-the-graph card is drawn again from the one mistake it names.
+
+R9RQ_VA = "AHL2.13.vertical-asymptotes#"
+R9RQ_HA = "AHL2.13.horizontal-asymptote#"
+R9RQ_OA = "AHL2.13.oblique-asymptote#"
+R9RQ_RT = "AHL2.13.range-turning-points#"
+R9RQ_SK = "AHL2.13.sketch#"
+R9RQ_T = "fn-ahl-rational-quadratic#"
+R9RQ_FRAC_MAX = 12          # a simple fraction's denominator, at most
+R9RQ_PLOT = 6               # features stay this far inside the window
+R9RQ_WIN = (-8, 8, -8, 8)
+R9RQ_K = sp.Symbol("k")
+R9RQ_NUM = r"−?\d+(?:\.\d+)?(?:/\d+)?"
+
+
+def r9rq_poly(text, k=False):
+    """A polynomial the way the game writes it ('2x² − x + 5', 'x² + kx − 6') as SymPy in x (and k)."""
+    need(not re.search(r"(?<![A-Za-z])-", text), f"a hyphen for a minus in {text!r}")
+    need(re.fullmatch(r"[0-9xk²/ +−]+", text) is not None, f"can't read the polynomial {text!r}")
+    need(k or "k" not in text, f"a letter k in {text!r}")
+    s = text.replace("−", "-").replace("²", "**2")
+    s = re.sub(r"(\d)([xk])", r"\1*\2", s).replace("kx", "k*x")
+    return sp.expand(sp.sympify(s, locals={"x": X, "k": R9RQ_K}))
+
+
+def r9rq_t(v):
+    """An exact number as the game writes it: 3, −2, −7/2."""
+    v = sp.Rational(v)
+    body = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + body
+
+
+def r9rq_v(v):
+    """A value as an answer writes it: exact when rational, else to 3 s.f."""
+    v = sp.nsimplify(v) if isinstance(v, sp.Rational) else v
+    return r9rq_t(v) if v.is_Rational else gc_s(sp.N(v, 40))
+
+
+def r9rq_w(text, x):
+    """A working value: exact, or to 6 s.f. as a GDC shows it, agrees with x."""
+    t = sp.Rational(text.replace("−", "-"))
+    v = sp.N(x, 40)
+    if v == 0:
+        return t == 0
+    e = sp.floor(sp.log(abs(v), 10))
+    return abs(t - v) <= sp.Integer(10) ** (e - 5) * sp.Rational(6, 10)
+
+
+def r9rq_lin(m, c):
+    """mx + c as the game writes it: '2x + 1', '−x', 'x − 3'."""
+    m, c = sp.Rational(m), sp.Rational(c)
+    head = "x" if m == 1 else ("−x" if m == -1 else r9rq_t(m) + "x")
+    if c == 0:
+        return head
+    return head + (" − " if c < 0 else " + ") + r9rq_t(abs(c))
+
+
+def r9rq_xs(xs):
+    return " and ".join("x = " + r9rq_t(x) for x in sorted(xs))
+
+
+def r9rq_pt(x, y):
+    return f"({r9rq_t(x)}, {r9rq_t(y)})"
+
+
+def r9rq_between(lo, hi, strict=False):
+    r = "<" if strict else "≤"
+    return f"{r9rq_v(lo)} {r} f(x) {r} {r9rq_v(hi)}"
+
+
+def r9rq_outside(lo, hi, strict=False):
+    return f"f(x) {'<' if strict else '≤'} {r9rq_v(lo)} or f(x) {'>' if strict else '≥'} {r9rq_v(hi)}"
+
+
+def r9rq_read(q):
+    """f from the first line: (N, D, form, has_k)."""
+    m = re.fullmatch(r"f\(x\) = \((.+?)\)/\((.+?)\)(, where k is a constant\.)?", q["lines"][0])
+    need(m is not None, f"can't read f in {q['lines'][0]!r}")
+    has_k = m.group(3) is not None
+    N, D = r9rq_poly(m.group(1), has_k), r9rq_poly(m.group(2), has_k)
+    dn, dd = sp.degree(N, X), sp.degree(D, X)
+    need((dn, dd) in ((1, 2), (2, 1)), f"f is not a linear over a quadratic or a quadratic over a linear: {q['lines'][0]!r}")
+    need(sp.Poly(D, X).LC() == 1, "the denominator is not monic")
+    return N, D, "lq" if dn == 1 else "ql", has_k
+
+
+def r9rq_clean(q, N, D, form):
+    """The situation's clean limits, the checker's own copy."""
+    need(sp.gcd(N, D).is_number, f"the numerator and denominator share a factor: {N}, {D}")
+    if form == "lq":
+        a, b = sp.Poly(N, X).all_coeffs()
+        _, p, qq = sp.Poly(D, X).all_coeffs()
+        need(a != 0 and b != 0 and abs(a) <= 3 and abs(b) <= 8 and sp.igcd(a, b) == 1, f"the numerator {N} is out of range")
+        need(qq != 0 and (b / qq).q <= R9RQ_FRAC_MAX, "the y-intercept is not a simple fraction")
+        zs = sorted(sp.Poly(D, X).real_roots())
+        need(all(z.is_integer and z != 0 and abs(z) <= 5 for z in zs), f"the denominator's zeros {zs} are not whole numbers from −5 to 5")
+        if len(zs) == 2:
+            need(zs[0] != -zs[1], "the denominator's zeros are opposite numbers")
+        if not zs:
+            h = p / 2
+            s2 = qq - h**2
+            need(h.is_integer and abs(h) <= 3 and sp.sqrt(s2).is_integer and 1 <= sp.sqrt(s2) <= 4, f"{D} is not (x + h)² + s² for whole h and s")
+    else:
+        m, b, c = sp.Poly(N, X).all_coeffs()
+        e = D.subs(X, 0)
+        need(m in (1, 2, 3, -1, -2) and e != 0 and abs(e) <= 5, f"m or e out of range in {N}, {D}")
+        k, R = r9rq_div(N, D)
+        need(k != 0 and b != 0 and b + m * e != 0 and c != 0 and R != 0, "k, b, b + me, c and the remainder must all be nonzero")
+        need(c / e != m, "the y-intercept is the leading coefficient")
+        need(abs(b) <= 20 and abs(c) <= 40, "the coefficients are too large")
+
+
+def r9rq_div(N, D):
+    """A quadratic over x + e divided: (the quotient's constant k, the remainder R)."""
+    quo, rem = sp.div(N, D, X)
+    return sp.Poly(quo, X).all_coeffs()[-1], rem
+
+
+def r9rq_steps(q, method, pattern, values):
+    """In the worked solution by `method`, a step matches pattern and its numbers are the values."""
+    for sol in q["solutions"]:
+        if sol["angle"] != method:
+            continue
+        for st in sol["steps"]:
+            mt = re.search(pattern, st)
+            if mt:
+                for g, x in zip(mt.groups(), values):
+                    need(r9rq_w(g, x), f"{method}: {g} in {st!r} is not {sp.N(x, 7)}")
+                return
+        need(False, f"{method}: no step like {pattern!r}")
+
+
+def r9rq_step_has(q, method, text):
+    for sol in q["solutions"]:
+        if sol["angle"] == method:
+            need(any(text in st for st in sol["steps"]), f"{method}: no step says {text!r}")
+
+
+def r9rq_check(q):
+    u, L, asked, rep = q["view"]["unknown"], q["lines"], q["asked"], q["view"]["rep"]
+    texts = [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]
+    for tx in texts:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    if q["paper"] == 1:
+        need(not any(sol["angle"].startswith("gdc-") for sol in q["solutions"]), "a GDC method on Paper 1")
+    N, D, form, has_k = r9rq_read(q)
+    if u == "denominator-from-asymptote":
+        return r9rq_constant(q, N, D, form)
+    if u == "coefficient-from-oblique":
+        return r9rq_coefficient(q, N, D)
+    need(not has_k, "a constant k where none is asked for")
+    r9rq_clean(q, N, D, form)
+    f = N / D
+    wrongs = {}
+    want = None
+    if form == "lq":
+        a, b = sp.Poly(N, X).all_coeffs()
+        _, p, qq = sp.Poly(D, X).all_coeffs()
+        zs = sorted(sp.Poly(D, X).real_roots())
+        z = -b / a
+    else:
+        m, b, c = sp.Poly(N, X).all_coeffs()
+        e = D.subs(X, 0)
+        k, Rm = r9rq_div(N, D)
+    if u == "vertical-asymptotes-lq":
+        need(form == "lq", "not a linear over a quadratic")
+        zs = list(dict.fromkeys(sp.roots(D, X, filter="R").keys()))
+        zs = sorted(zs)
+        need(asked == "Find the equations of any vertical asymptotes of the graph of y = f(x).", f"asked {asked!r}")
+        wrongs[R9RQ_VA + "0"] = {"x = " + r9rq_t(z)}
+        if len(zs) == 2:
+            want = r9rq_xs(zs)
+            wrongs[R9RQ_VA + "1"] = {r9rq_xs([-zs[0], -zs[1]])}
+        elif len(zs) == 1:
+            want = "x = " + r9rq_t(zs[0])
+            wrongs[R9RQ_VA + "1"] = {"x = " + r9rq_t(-zs[0])}
+        else:
+            want = "no vertical asymptotes"
+            # The discriminant's sign dropped: x = (−p ± √(4q − p²))/2.
+            w = sp.sqrt(4 * qq - p**2)
+            wrongs[R9RQ_VA + "2"] = {r9rq_xs([(-p - w) / 2, (-p + w) / 2])}
+            need(q["view"]["angle"] in ("discriminant-count",) or q["view"].get("shared"), "a denominator with no zeros on a method that factorises it")
+        dd = p**2 - 4 * qq
+        if any(s["angle"] == "discriminant-count" for s in q["solutions"]):
+            r9rq_steps(q, "discriminant-count", r"discriminant is \(?(−?\d+)\)?² − 4 × 1 × \(?(−?\d+)\)? = (−?\d+)\.", [p, qq, dd])
+        if len(zs) == 2 and any(s["angle"] == "factorise-denominator" for s in q["solutions"]):
+            r9rq_step_has(q, "factorise-denominator", f"= {r9rq_fac(zs)}.")
+        if len(zs) == 2 and any(s["angle"] == "gdc-table-near" for s in q["solutions"]):
+            r9rq_near(q, f, zs)
+    elif u == "vertical-asymptote-ql":
+        need(form == "ql", "not a quadratic over a linear")
+        want = "x = " + r9rq_t(-e)
+        rs = sp.roots(N, X, filter="R")
+        need(len(rs) == 2 and all(r.is_integer for r in rs), "the numerator's zeros are not two whole numbers")
+        wrongs[R9RQ_VA + "0"] = {"x = " + r9rq_t(r) for r in rs}
+        wrongs[R9RQ_T + "12"] = {"x = " + r9rq_t(e)}
+        r9rq_steps(q, "factorise-denominator", r"numerator .* is (−?\d+), not 0", [N.subs(X, -e)])
+        if any(s["angle"] == "gdc-table-near" for s in q["solutions"]):
+            r9rq_near(q, f, [-e])
+    elif u == "horizontal-asymptote":
+        need(form == "lq" and len(zs) == 2, "not a linear over a quadratic with two vertical asymptotes")
+        want = "y = 0"
+        wrongs[R9RQ_HA + "0"] = {"y = " + r9rq_t(a)}
+        wrongs[R9RQ_HA + "2"] = {"y = " + r9rq_t(b / qq)}
+        wrongs[R9RQ_T + "15"] = {"y = " + r9rq_t(r) for r in zs}
+        if any(s["angle"] == "gdc-large-x" for s in q["solutions"]):
+            r9rq_step_has(q, "gdc-large-x", f"f(1000) = {gc_s(f.subs(X, 1000))} and f(−1000) = {gc_s(f.subs(X, -1000))}")
+    elif u == "crosses-horizontal":
+        need(form == "lq", "not a linear over a quadratic")
+        want = r9rq_pt(z, 0)
+        need(sp.limit(f, X, sp.oo) == 0 and f.subs(X, z) == 0, "the graph doesn't cross y = 0 at the numerator's zero")
+        wrongs[R9RQ_HA + "1"] = {"it never crosses its horizontal asymptote"}
+    elif u == "x-intercepts-ql":
+        need(form == "ql", "not a quadratic over a linear")
+        if "x-axis" in asked:
+            need(asked == "Find the coordinates of the points where the graph of y = f(x) meets the x-axis.", f"asked {asked!r}")
+            rs = sorted(sp.roots(N, X, filter="R").keys())
+            need(len(rs) == 2 and all(r.is_integer for r in rs) and -e not in rs, "the numerator's zeros are not two whole numbers")
+            want = " and ".join(r9rq_pt(r, 0) for r in rs)
+            wrongs[R9RQ_T + "14"] = {" and ".join(r9rq_pt(r, 0) for r in sorted([-rs[0], -rs[1]]))}
+        else:
+            need(asked == "Find the coordinates of the point where the graph of y = f(x) meets the y-axis.", f"asked {asked!r}")
+            want = r9rq_pt(0, f.subs(X, 0))
+            # The leading coefficients' ratio, m/1.
+            wrongs[R9RQ_SK + "1"] = {r9rq_pt(0, m)}
+    elif u == "oblique-asymptote":
+        need(form == "ql", "not a quadratic over a linear")
+        need(asked == "Find the equation of the oblique asymptote of the graph of y = f(x).", f"asked {asked!r}")
+        want = "y = " + r9rq_lin(m, k)
+        need(sp.limit(f - (m * X + k), X, sp.oo) == 0, "f − (mx + k) does not tend to 0")
+        wrongs[R9RQ_OA + "0"] = {"y = " + r9rq_lin(m, 0)}
+        wrongs[R9RQ_OA + "1"] = {"y = " + r9rq_lin(m, b)}
+        # The first subtraction's sign slipped: (b + me) for (b − me).
+        wrongs[R9RQ_T + "13"] = {"y = " + r9rq_lin(m, b + m * e)}
+        split = f"f(x) = {r9rq_lin(m, k)} {'+' if Rm > 0 else '−'} {r9rq_t(abs(Rm))}/({r9rq_lin(1, e)})"
+        for meth in ("polynomial-division", "compare-coefficients"):
+            if any(s["angle"] == meth for s in q["solutions"]):
+                r9rq_step_has(q, meth, split)
+    elif u == "range-lq":
+        need(form == "lq" and not zs, "not a linear over a quadratic with no vertical asymptote")
+        need(asked == "Find the range of f.", f"asked {asked!r}")
+        lo, hi, xlo, xhi = r9rq_lq_range(N, D)
+        exact = lo.is_Rational
+        need(exact == (q["paper"] == 1), "Paper 1's range is exact and Paper 2's needs the GDC")
+        if exact:
+            need(lo.q <= R9RQ_FRAC_MAX and hi.q <= R9RQ_FRAC_MAX and xlo.is_Rational and xhi.is_Rational, "the turning values are not simple fractions")
+        else:
+            need(all(gc_fair(v) for v in (lo, hi, xlo, xhi)), "a turning value is on a 3 s.f. edge or nearly whole")
+        want = r9rq_between(lo, hi)
+        wrongs[R9RQ_RT + "0"] = {"f(x) ≠ 0"}
+        dd = p**2 - 4 * qq
+        if any(s["angle"] == "discriminant-in-x" for s in q["solutions"]):
+            yq = sp.expand(dd * X**2 + (4 * b - 2 * a * p) * X + a**2)
+            r9rq_step_has(q, "discriminant-in-x", ": " + r9rq_polytext(yq, "y") + " ≥ 0.")
+            r9rq_steps(q, "discriminant-in-x", rf"Its zeros are y = ({R9RQ_NUM}) and y = ({R9RQ_NUM})", [lo, hi])
+        for meth in ("degree-comparison", "stationary-points"):
+            if any(s["angle"] == meth for s in q["solutions"]):
+                r9rq_steps(q, meth, rf"f\(({R9RQ_NUM})\) = ({R9RQ_NUM}) is the least value and f\(({R9RQ_NUM})\) = ({R9RQ_NUM}) the greatest", [xlo, lo, xhi, hi])
+        if any(s["angle"] == "stationary-points" for s in q["solutions"]):
+            top = sp.expand(sp.diff(N, X) * D - N * sp.diff(D, X))
+            r9rq_step_has(q, "stationary-points", f" = ({r9rq_polytext(top)})/(")
+        if any(s["angle"] == "gdc-max-min" for s in q["solutions"]):
+            r9rq_steps(q, "gdc-max-min", rf"minimum is \(({R9RQ_NUM}), ({R9RQ_NUM})\) and its maximum is \(({R9RQ_NUM}), ({R9RQ_NUM})\)", [xlo, lo, xhi, hi])
+    elif u == "range-ql":
+        need(form == "ql", "not a quadratic over a linear")
+        need(m * Rm > 0, "f has no turning points")
+        root = sp.sqrt(m * Rm)
+        Lv, Uv = k - m * e - 2 * root, k - m * e + 2 * root
+        t = sp.sqrt(Rm / m)
+        xs = [-e - t, -e + t]
+        # Check the turning values against f itself.
+        vals = sorted([sp.radsimp(sp.simplify(f.subs(X, x))) for x in xs], key=lambda v: float(v))
+        need(sp.simplify(vals[0] - Lv) == 0 and sp.simplify(vals[1] - Uv) == 0, "the turning values are not k − me ± 2√(mR)")
+        exact = root.is_Rational
+        need(exact == (q["paper"] == 1), "Paper 1's range is exact and Paper 2's needs the GDC")
+        if exact:
+            need(Lv.is_integer and Uv.is_integer and all(x.is_Rational and x.q <= R9RQ_FRAC_MAX for x in xs), "the turning points are not clean")
+        else:
+            need(all(gc_fair(v) for v in [Lv, Uv] + xs), "a turning value is on a 3 s.f. edge or nearly whole")
+        if asked == "Find the range of f.":
+            want = r9rq_outside(Lv, Uv)
+            wrongs[R9RQ_RT + "1"] = {r9rq_between(Lv, Uv, True)}
+        else:
+            need(asked == "Find the set of values that f(x) never takes.", f"asked {asked!r}")
+            want = r9rq_between(Lv, Uv, True)
+        xL = [x for x in xs if sp.simplify(f.subs(X, x) - Lv) == 0][0]
+        xU = [x for x in xs if x != xL][0]
+        need(sp.N(sp.diff(f, X, 2).subs(X, xL)) < 0 and sp.N(sp.diff(f, X, 2).subs(X, xU)) > 0, "the lower turning value is not the local maximum")
+        if any(s["angle"] == "discriminant-in-x" for s in q["solutions"]):
+            yq = sp.expand(X**2 + (4 * m * e - 2 * b) * X + b**2 - 4 * m * c)
+            r9rq_step_has(q, "discriminant-in-x", "that is " + r9rq_polytext(yq, "y") + " ≥ 0.")
+            r9rq_steps(q, "discriminant-in-x", rf"Its zeros are y = ({R9RQ_NUM}) and y = ({R9RQ_NUM})", [Lv, Uv])
+        if any(s["angle"] == "stationary-points" for s in q["solutions"]):
+            r9rq_steps(q, "stationary-points", rf"local maximum \(({R9RQ_NUM}), ({R9RQ_NUM})\) and a local minimum \(({R9RQ_NUM}), ({R9RQ_NUM})\)", [xL, Lv, xU, Uv])
+        if any(s["angle"] == "gdc-max-min" for s in q["solutions"]):
+            r9rq_steps(q, "gdc-max-min", rf"local maximum of ({R9RQ_NUM}) at x = ({R9RQ_NUM}) and a local minimum of ({R9RQ_NUM}) at x = ({R9RQ_NUM})", [Lv, xL, Uv, xU])
+    elif u in ("sketch-lq", "sketch-ql"):
+        need(form == ("lq" if u == "sketch-lq" else "ql"), f"the wrong form for {u}")
+        need(asked == f"Which graph is y = {L[0][len('f(x) = '):]}?", f"asked {asked!r}")
+        right = r9rq_cards(q, N, D, form)
+        gc_check_common(q, right, {o["ref"]: {o["text"]} for o in q["choices"] if o["ref"]})
+        return None, None
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+def r9rq_fac(zs):
+    """(x − r₁)(x − r₂) as the game writes it."""
+    return "".join(f"(x {'−' if r > 0 else '+'} {r9rq_t(abs(r))})" for r in zs)
+
+
+def r9rq_polytext(e, var="x"):
+    """A polynomial in X written the game's way, highest power first, in `var`."""
+    cs = sp.Poly(e, X).all_coeffs()
+    n = len(cs) - 1
+    out = ""
+    for i, c in enumerate(cs):
+        pw = n - i
+        if c == 0:
+            continue
+        mag = abs(c)
+        v = "" if pw == 0 else var + ("²" if pw == 2 else "")
+        body = r9rq_t(mag) if pw == 0 else (("" if mag == 1 else r9rq_t(mag)) + v)
+        out += (("−" if c < 0 else "") + body) if out == "" else ((" − " if c < 0 else " + ") + body)
+    return out or "0"
+
+
+def r9rq_near(q, f, rs):
+    """The GDC table near each vertical asymptote: f(r ± 0.001) to 3 s.f."""
+    for r in rs:
+        lo, hi = r - sp.Rational(1, 1000), r + sp.Rational(1, 1000)
+        r9rq_step_has(q, "gdc-table-near", f"f({dec_text(lo)}) = {gc_s(f.subs(X, lo))} and f({dec_text(hi)}) = {gc_s(f.subs(X, hi))}")
+
+
+def r9rq_lq_range(N, D):
+    """The least and greatest values of an lq with no vertical asymptote, and where they are."""
+    f = N / D
+    xs = sp.solve(sp.numer(sp.together(sp.diff(f, X))), X)
+    need(len(xs) == 2, "f′ should have two zeros")
+    ys = [sp.radsimp(sp.simplify(f.subs(X, x))) for x in xs]
+    pairs = sorted(zip(ys, xs), key=lambda t: float(t[0]))
+    (lo, xlo), (hi, xhi) = pairs
+    need(lo < 0 < hi, "the range does not hold 0 inside it")
+    return sp.simplify(lo), sp.simplify(hi), sp.simplify(xlo), sp.simplify(xhi)
+
+
+def r9rq_constant(q, N, D, form):
+    """denominator-from-asymptote: k in the denominator, from a vertical asymptote."""
+    L, rep = q["lines"], q["view"]["rep"]
+    need(q["asked"] == "Find the value of k.", f"asked {q['asked']!r}")
+    need(not N.has(R9RQ_K) and D.has(R9RQ_K) and sp.degree(D, R9RQ_K) == 1, "k is not one coefficient of the denominator")
+    if rep == "graph":
+        need(L[1] == "The graph of y = f(x) is shown, with its asymptotes dashed.", f"{L[1]!r}")
+        g = q["graph"]
+        need(g is not None and not g.get("card"), "no graph shown")
+        ats = sorted(sp.Rational(v["at"]).limit_denominator(1000) for v in g["vlines"])
+        need(ats, "the graph shows no vertical asymptote")
+    else:
+        mv = re.fullmatch(r"The graph of y = f\(x\) has a vertical asymptote x = (−?\d+)\.", L[1])
+        need(mv is not None, f"can't read {L[1]!r}")
+        ats = [sp.Rational(mv.group(1).replace("−", "-"))]
+    ks = {sp.solve(D.subs(X, r), R9RQ_K)[0] for r in ats}
+    need(len(ks) == 1, "the asymptotes shown give different values of k")
+    kv = ks.pop()
+    Dk = D.subs(R9RQ_K, kv)
+    r9rq_clean(q, N, Dk, form)
+    zs = sorted(sp.roots(Dk, X, filter="R").keys())
+    need(sorted(ats) == zs if rep == "graph" else ats[0] in zs, "the asymptotes given are not the zeros of the denominator")
+    if form == "lq":
+        need(len(zs) == 2, "the denominator has no two whole zeros")
+    if rep == "graph":
+        r9rq_graph_is(q["graph"], N / Dk, form, dash=None if form == "lq" else sp.div(N, Dk, X)[0])
+    want = "k = " + r9rq_t(kv)
+    # The asymptote's sign changed: k from x = −r.
+    slips = {"k = " + r9rq_t(sp.solve(D.subs(X, -r), R9RQ_K)[0]) for r in ats if r != 0}
+    if form == "lq":
+        r = ats[0] if rep != "graph" else None
+        for sol in q["solutions"]:
+            for st in sol["steps"]:
+                mt = re.search(r"Put x = (−?\d+): (\d+) ([+−]) (\d*)k ([+−]) (\d+) = 0", st)
+                if mt:
+                    x0 = sp.Rational(mt.group(1).replace("−", "-"))
+                    need(x0 in zs, f"{st!r} puts in an x that is no asymptote")
+                    co = int(mt.group(4) or 1) * (1 if mt.group(3) == "+" else -1)
+                    c0 = int(mt.group(6)) * (1 if mt.group(5) == "+" else -1)
+                    need(sp.expand(sp.Integer(int(mt.group(2))) + co * R9RQ_K + c0 - D.subs(X, x0)) == 0, f"{st!r} is not the denominator at x = {x0}")
+    gc_check_common(q, want, {R9RQ_T + "12": slips})
+    return None, None
+
+
+def r9rq_coefficient(q, N, D):
+    """coefficient-from-oblique: k in the numerator, from the oblique asymptote."""
+    L = q["lines"]
+    need(q["asked"] == "Find the value of k.", f"asked {q['asked']!r}")
+    need(N.has(R9RQ_K) and not D.has(R9RQ_K) and sp.expand(N - N.subs(R9RQ_K, 0)) == R9RQ_K * X, "k is not the x coefficient of the numerator")
+    mo = re.fullmatch(r"The graph of y = f\(x\) has the oblique asymptote y = (.+)\.", L[1])
+    need(mo is not None, f"can't read {L[1]!r}")
+    line = r9rq_poly(mo.group(1))
+    need(sp.degree(line, X) == 1, "the asymptote is not a slanted line")
+    quo, _ = sp.div(N, D, X)
+    sol = sp.solve(sp.Poly(sp.expand(quo - line), X).all_coeffs(), R9RQ_K, dict=True)
+    need(len(sol) == 1, "no single k makes that the oblique asymptote")
+    kv = sol[0][R9RQ_K]
+    r9rq_clean(q, N.subs(R9RQ_K, kv), D, "ql")
+    m = sp.Poly(N, X).LC()
+    e = D.subs(X, 0)
+    q0 = line.subs(X, 0)
+    want = "k = " + r9rq_t(kv)
+    # The subtraction's sign slipped: the quotient's constant taken as k + me, so k = q0 − me.
+    gc_check_common(q, want, {R9RQ_T + "13": {"k = " + r9rq_t(q0 - m * e)}})
+    for st in [s for sol in q["solutions"] for s in sol["steps"]]:
+        mt = re.search(r"So the quotient is .*x \+ \(k ([+−]) (\d+)\)", st)
+        if mt:
+            need((1 if mt.group(1) == "+" else -1) * int(mt.group(2)) == -m * e, f"{st!r}: the quotient's constant is k − me")
+    return None, None
+
+
+def r9rq_fn(kind, P):
+    """A card's function: lq (n1, n0, v0, v1) is (n1·x + n0)/((x − v0)(x − v1)); ql (M, K, R, v) is Mx + K + R/(x − v)."""
+    if kind == "lq":
+        n1, n0, v0, v1 = P
+        return (n1 * X + n0) / ((X - v0) * (X - v1)), [v0, v1]
+    M, K, Rr, v = P
+    return M * X + K + Rr / (X - v), [v]
+
+
+def r9rq_curve_on(curve, fn, tol=1e-6):
+    fl = sp.lambdify(X, fn, "mpmath")
+    for x, y in curve:
+        need(R9RQ_WIN[2] - 1e-6 <= y <= R9RQ_WIN[3] + 1e-6 and R9RQ_WIN[0] - 1e-9 <= x <= R9RQ_WIN[1] + 1e-9, f"a point ({x}, {y}) is outside the plot")
+        need(abs(float(fl(mpmath.mpf(x))) - y) <= tol * max(1, abs(y)), f"a point ({x}, {y}) is not on {fn}")
+
+
+def r9rq_dots(fn, vas):
+    """The intercepts a card marks: the zeros and f(0), each at least half a unit inside the plot."""
+    out = []
+    for r in sp.Poly(sp.numer(sp.together(fn)), X).real_roots():
+        if abs(r) <= R9RQ_WIN[1] - sp.Rational(1, 2) and r not in vas:
+            out.append((float(r), 0.0))
+    if 0 not in vas:
+        y0 = fn.subs(X, 0)
+        if abs(y0) <= R9RQ_WIN[3] - sp.Rational(1, 2):
+            out.append((0.0, float(y0)))
+    return sorted(out)
+
+
+def r9rq_graph_is(g, fn, kind, across=False, dash=None):
+    """A drawn graph is fn: its pieces lie on it and stop at each vertical asymptote (or, across,
+    one piece runs over it), the dashed lines are its asymptotes, and an oblique one's dashes lie
+    on y = dash(x)."""
+    vas = sorted(sp.roots(sp.denom(sp.together(fn)), X, filter="R").keys())
+    need(sorted(round(v["at"], 9) for v in g["vlines"]) == [float(v) for v in vas], "the dashed vertical lines are not the vertical asymptotes")
+    need([h["at"] for h in g["hlines"]] == ([0.0] if kind == "lq" else []), "the dashed horizontal line is not y = 0")
+    need((g["x0"], g["x1"], g["y0"], g["y1"]) == R9RQ_WIN, "the plot is not −8 to 8 both ways")
+    sand = g.get("sand_from", len(g["curves"]))
+    curves, dashes = g["curves"][:sand], g["curves"][sand:]
+    need(len(curves) >= 1, "no curve is drawn")
+    for c in curves:
+        r9rq_curve_on(c, fn)
+        crosses = [v for v in vas if c[0][0] < v < c[-1][0]]
+        need(bool(crosses) == across, "a piece is drawn across a vertical asymptote" if not across else "the joined graph doesn't cross its asymptote")
+    need(sum(len(c) for c in curves) > 150, "too little of the curve is drawn")
+    if kind == "ql":
+        need(len(dashes) > 10, "the oblique asymptote is not drawn")
+        for dsh in dashes:
+            need(len(dsh) == 2, "a dash is not a short segment")
+            for x, y in dsh:
+                need(abs(float(dash.subs(X, x)) - y) < 1e-9, "a dash is off the oblique asymptote")
+    else:
+        need(not dashes, "an lq graph has no oblique asymptote")
+
+
+def r9rq_cards(q, N, D, form):
+    """Pick the graph: the right card is f, and each wrong card is f with the one mistake it names."""
+    graphs, ch = q["graphs"], q["choices"]
+    need(len(graphs) == 4 and len(ch) == 4, "pick the graph needs four graphs")
+    need([o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "the graphs are not lettered A to D")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right graph")
+    need(all(g.get("card") for g in graphs), "a graph is not drawn as a card")
+    need(len({json.dumps(g["curves"]) for g in graphs}) == 4, "two graphs are the same")
+    if form == "lq":
+        a, b = sp.Poly(N, X).all_coeffs()
+        zs = sorted(sp.roots(D, X, filter="R").keys())
+        need(len(zs) == 2, "an lq card needs two vertical asymptotes")
+        z = -b / a
+        yi = N.subs(X, 0) / D.subs(X, 0)
+        need(zs[1] - zs[0] >= 2 and abs(z) <= R9RQ_PLOT and abs(yi) <= R9RQ_PLOT and all(abs(z - r) >= 1 and z != -r for r in zs), "the features are not inside the plot")
+        base = (a, b, zs[0], zs[1])
+        made = {"": base, "no-zero": (0, b, zs[0], zs[1]), "flipped": (-a, -b, zs[0], zs[1]),
+                "va-sign": (a, b, -zs[1], -zs[0]), "zero-sign": (a, -b, zs[0], zs[1])}
+        refs = {"no-zero": R9RQ_SK + "0", "flipped": "", "va-sign": "", "zero-sign": ""}
+        need(any(o["mistake"] == "no-zero" for o in ch), "no card misses the zero")
+    else:
+        m = sp.Poly(N, X).LC()
+        e = D.subs(X, 0)
+        k, Rm = r9rq_div(N, D)
+        rs = sp.roots(N, X, filter="R")
+        need(len(rs) == 2 and all(r.is_integer and abs(r) <= R9RQ_PLOT and abs(r + e) >= 1 for r in rs), "the numerator's zeros are not whole and inside the plot")
+        need(abs(m) <= 2 and abs(k) <= 4 and abs(Rm) <= 5 and abs(e) <= 4 and abs(N.subs(X, 0) / e) <= R9RQ_PLOT, "the features are not inside the plot")
+        base = (m, k, Rm, -e)
+        made = {"": base, "no-constant": (m, 0, Rm, -e), "remainder-flipped": (m, k, -Rm, -e), "va-mirrored": (m, k, Rm, e), "through": base}
+        refs = {"no-constant": R9RQ_OA + "0", "remainder-flipped": "", "va-mirrored": "", "through": ""}
+        need(any(o["mistake"] == "no-constant" for o in ch), "no card loses the oblique asymptote's constant")
+    for o, g in zip(ch, graphs):
+        mk = "" if o["correct"] else o.get("mistake", "")
+        need(mk in made, f"a wrong graph names no mistake this check knows ({mk!r})")
+        if not o["correct"]:
+            need(o["ref"] == refs[mk], f"the {mk} graph is tagged {o['ref']!r}, not {refs[mk]!r}")
+            need(o.get("why", "") != "", f"the {mk} graph doesn't say what is wrong")
+        fn, vas = r9rq_fn(form, made[mk])
+        if mk == "":
+            need(sp.simplify(fn - N / D) == 0, "the right graph is not f")
+            # Every branch shows: one piece more than there are vertical asymptotes.
+            need(len(g["curves"][:g.get("sand_from", len(g["curves"]))]) == len(vas) + 1, "the right graph doesn't show every branch")
+        dash = None if form == "lq" else made[mk][0] * X + made[mk][1]
+        r9rq_graph_is(g, fn, form, mk == "through", dash)
+        dots = sorted((round(p["x"], 6), round(p["y"], 6)) for p in g["points"])
+        want = [(round(x, 6), round(y, 6)) for x, y in r9rq_dots(fn, vas)]
+        need(dots == want, f"the {mk or 'right'} graph doesn't mark its intercepts: {dots} vs {want}")
+    return next(o["text"] for o in ch if o["correct"])
+
+
+SITUATION_CHECKS["rational-quadratic"] = r9rq_check
+
 # (between the R9 markers)
 
 # R9-ODD-EVEN: fn-ahl-odd-even (odd-even), prefix R9OE_ / r9oe_
