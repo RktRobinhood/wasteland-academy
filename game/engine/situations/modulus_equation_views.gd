@@ -480,13 +480,16 @@ func u_modulus_against_modulus(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 		out.lines.append("The graphs of y = %s and y = %s are shown." % [left, rightm])
 		var w := window([lo.to_float(), hi.to_float(), -a, b], [absf(lo.to_float() + a), absf(hi.to_float() + a)])
 		out.graph = Plot.spec([trace(v_of(1, a), w[0], w[1], [-a]), trace(v_of(1, -b, m), w[0], w[1], [b])], [], w[0], w[1], w[2], w[3])
-	# m²(x − b)² − (x + a)² = ((m − 1)x − (mb + a))((m + 1)x + (a − mb)), with a positive x² term.
+	# m²(x − b)² − (x + a)² = ((m − 1)x − (mb + a))((m + 1)x + (a − mb)), with a positive x² term;
+	# each factor is written in lowest terms, which only takes out a positive number.
 	var quad := Fmt.poly([m * m - 1, -2 * m * m * b - 2 * a, m * m * b * b - a * a])
+	var g1 := Q.gcd(m - 1, absi(m * b + a))
+	var g2 := Q.gcd(m + 1, absi(a - m * b))
 	var flip: String = {"<": ">", "≤": "≥", ">": "<", "≥": "≤"}[s.rel]
 	var where := "between them" if inside else "outside them"
 	var sq := [
 		"Both sides are at least 0, so squaring keeps the inequality: (%s)² %s %d(%s)²." % [lin(1, a), s.rel, m * m, lin(1, -b)],
-		"Take the left side from the right, which turns the sign round: %s %s 0, that is (%s)(%s) %s 0." % [quad, flip, lin(m - 1, -(m * b + a)), lin(m + 1, a - m * b), flip],
+		"Take the left side from the right, which turns the sign round: %s %s 0, that is (%s)(%s) %s 0." % [quad, flip, lin((m - 1) / g1, -(m * b + a) / g1), lin((m + 1) / g2, (a - m * b) / g2), flip],
 		"Its roots are x = %s and x = %s, and with a positive x² term it is %s 0 %s." % [N(lo), N(hi), "below" if inside else "above", where],
 		fin(ans)]
 	var gdc := [

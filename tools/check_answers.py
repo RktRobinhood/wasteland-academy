@@ -54276,7 +54276,9 @@ def modeq_ineq(q, wrongs):
             need(modeq_same(modeq_expr(m.group(1)), inside) and m.group(2) == rel and int(m.group(3)) == m_ * m_ and modeq_same(modeq_expr(m.group(4)), other), f"{st!r} is wrong")
 
         def turned(st, m):
-            need(modeq_same(modeq_expr(m.group(1)), P) and modeq_same(modeq_expr(m.group(3)) * modeq_expr(m.group(4)), P), f"{st!r}: not m²(x − b)² − (x + a)²")
+            fac = sp.cancel(sp.expand(modeq_expr(m.group(3)) * modeq_expr(m.group(4))) / P)
+            need(modeq_same(modeq_expr(m.group(1)), P) and fac.is_number and fac > 0, f"{st!r}: not m²(x − b)² − (x + a)² over a positive number")
+            need(all(sp.gcd_list(sp.Poly(modeq_expr(m.group(i)), MODEQ_X).all_coeffs()) == 1 for i in (3, 4)), f"{st!r}: a factor not in lowest terms")
             need(m.group(2) == flip == m.group(5), f"{st!r}: the sign didn't turn round")
 
         def roots_side(st, m):
