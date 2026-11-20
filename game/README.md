@@ -1013,6 +1013,10 @@ script error happens while it runs. Run one file with
 <!-- R3-SINUSOID -->
 
 <!-- R3-FIT -->
+- `test_ai_fit_model.gd` (FAL-1001): fn-ai-fit-model built with every cell and its AI-SL2.6 and 2.5 skills, on the AI courses
+  only, Paper 2 only; four distinct options with one right and the answer in each working's last step; tables and figures shown;
+  the check-point method asks a check; every tag shows up; typed values marked by value; the factor, the start, both constants,
+  the quadratics, the cubic and the sinusoid against values worked by hand.
 
 <!-- R3-CHOOSE -->
 

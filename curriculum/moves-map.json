@@ -554,6 +554,42 @@
     "fn-quadratic-from-conditions/coefficients-from-three-points/gdc-solve": {
       "6": ["gdc-solver", "substitute", "substitute", "substitute", "gdc-solver", "state-answer"]
     },
+    "fn-ai-fit-model/exp-factor-from-point/eliminate": {
+      "4": ["substitute", "isolate", "apply-inverse", "state-answer"]
+    },
+    "fn-ai-fit-model/exp-factor-from-point/check-point": {
+      "3": ["apply-inverse", "check", "state-answer"]
+    },
+    "fn-ai-fit-model/exp-start-from-point/initial-condition": {
+      "4": ["substitute", "isolate", "interpret", "state-answer"]
+    },
+    "fn-ai-fit-model/exp-two-constants/initial-condition": {
+      "5": ["apply-condition", "substitute", "substitute-back", "evaluate", "state-answer"]
+    },
+    "fn-ai-fit-model/exp-two-constants/eliminate": {
+      "4": ["apply-condition", "eliminate", "substitute-back", "state-answer"]
+    },
+    "fn-ai-fit-model/quadratic-three-points/simultaneous-gdc": {
+      "3": ["substitute", "gdc-solver", "state-answer"]
+    },
+    "fn-ai-fit-model/quadratic-three-points/check-point": {
+      "4": ["substitute", "gdc-solver", "check", "state-answer"]
+    },
+    "fn-ai-fit-model/quadratic-from-symmetry/initial-condition": {
+      "5": ["apply-condition", "use-symmetry", "solve-equation", "substitute-back", "state-answer"]
+    },
+    "fn-ai-fit-model/quadratic-from-symmetry/eliminate": {
+      "4": ["apply-condition", "eliminate", "substitute-back", "state-answer"]
+    },
+    "fn-ai-fit-model/cubic-through-points/simultaneous-gdc": {
+      "4": ["read-givens", "substitute", "gdc-solver", "state-answer"]
+    },
+    "fn-ai-fit-model/sinusoid-two-points/simultaneous-gdc": {
+      "4": ["exact-value", "substitute", "gdc-solver", "state-answer"]
+    },
+    "fn-ai-fit-model/sinusoid-two-points/eliminate": {
+      "4": ["exact-value", "eliminate", "substitute-back", "state-answer"]
+    },
     "fn-quadratic-from-conditions/coefficient-from-point/simultaneous-equations": {
       "4": ["substitute", "isolate", "isolate", "state-answer"]
     },

@@ -585,6 +585,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 <!-- R3-SINUSOID -->
 
 <!-- R3-FIT -->
+- `engine/situations/ai_fit_model.gd` + `ai_fit_model_views.gd` (FAL-1001): fn-ai-fit-model (AI-SL2.6.find-parameters, with
+  AI-SL2.5's exponential, quadratic and sinusoidal models), seven unknowns, 26 cells, every one Paper 2. A model's form is given
+  and its parameters are found: the factor a of ka^t (or the rate r of ke^(rt)) from one later value, to 3 s.f. (the check-point
+  method shows a further value, rounded from the model, and checks it); the start k of k(a)^t from one value, in words or as
+  an equation, to 3 s.f.; k and c of k(a)^t + c from the start and one more value, in words or as two labelled points on the
+  drawn curve (exact); a quadratic through three points in a table, in words or labelled on its graph (exact, GDC solver; the
+  check-point method shows a fourth point and checks it); a quadratic from its y-intercept, axis of symmetry (drawn on the graph
+  rep) and a point; a cubic with its constant term given through three points; and a and c of a sin(bt) + c from two readings
+  whose angles in degrees have sines 0, ±1/2 or ±1. Wrong options are the skill's slips (k set to the start value without c,
+  x and y swapped, a·x for a·x²) and the type's own (the ratio without the root, the factor divided once, b's sign dropped, the
+  cubic's coefficients out of order, radian sines). `r3fi_check` in the SymPy checker reads the model, the readings, the table
+  or the figure's labelled points (and checks the drawn curve and axis) back, solves for the parameters and every slip again
+  (SymPy, exact where they end, else to 40 digits) and checks the working's figures and the check-point's check.
+  `test_ai_fit_model.gd`.
 
 <!-- R3-CHOOSE -->
 
