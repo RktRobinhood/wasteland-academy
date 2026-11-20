@@ -70,6 +70,18 @@ func test_no_classic_link() -> void:
 	main.free()
 
 
+func test_title_shows_the_build_id() -> void:
+	var main := (load(MAIN) as PackedScene).instantiate()
+	tree.root.add_child(main)
+	await tree.process_frame
+	var label := main.get_node_or_null("BuildId") as Label
+	check(label != null, "no build id on the title screen")
+	if label != null:
+		check_eq(label.text, "Build %s" % Build.id())
+	check(Build.id() != "", "an empty build id")
+	main.free()
+
+
 ## Lays the scene out in the area the "expand" stretch gives a window of this size,
 ## and checks the title column sits inside it with no clipped text.
 func _check_fits(window: Vector2i) -> void:

@@ -6,11 +6,14 @@
 // It does two jobs:
 //
 // 1. Godot plays offline after one visit (SPEC: "Practice must continue to work
-//    offline"). The question catalogue is inside index.pck, so the files below are all
-//    a run needs. Files are network-first, revalidated with the server each time, so a
-//    player who is online always gets the latest export and never a mix of two. The
-//    cache is only the offline fallback. Install copies the files the page has just
-//    loaded, mostly from the HTTP cache, so the first visit doesn't fetch them twice.
+//    offline"), and a class stays on one build (#184). The question catalogue is inside
+//    index.pck, so the files below are all a run needs. The worker is cache first: a
+//    page loads from the copy of its own build and never waits on the network. The cache
+//    is named for the build (BUILD_ID, written by scripts/assemble-site.sh), so the files
+//    of two builds are never mixed. A new build changes this file, so the browser
+//    fetches it in the background, the new worker downloads its build into its own cache,
+//    and it takes over only when no page is open on the old build (or on the first
+//    visit). That also keeps a student's page on one build for a whole lesson.
 //
 // 2. A browser that played the HTML game at the root still has that game's worker
 //    there. On the next visit the browser fetches this file as that worker's update.
@@ -18,7 +21,10 @@
 //    classic/ copy that is no longer published (#197), and reloads the pages it now
 //    controls, so they come up as Godot. register-worker.html unregisters the
 //    classic/ worker.
-const CACHE_NAME = 'wasteland-academy-godot';
+// Replaced with the build id (scripts/build-id.sh) when the site is assembled
+const BUILD_ID = '__BUILD_ID__';
+const CACHE_PREFIX = 'wasteland-academy-godot';
+const CACHE_NAME = CACHE_PREFIX + '-' + BUILD_ID;
 
 // The Web export's files (game/export_presets.cfg, ./export.sh). The takeover dry run
 // checks this covers everything the export writes (tests/takeover/takeover.spec.mjs).
@@ -41,24 +47,36 @@ const ROOT = new URL('./', self.location).href;
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
+    // A worker of ours is already running: wait behind it, so the pages open on that
+    // build aren't switched mid-lesson. A first visit, or the HTML game's worker, goes on.
+    const mine = (await caches.keys()).some(key => key.startsWith(CACHE_PREFIX));
     const cache = await caches.open(CACHE_NAME);
-    // One at a time, and a file the export doesn't have doesn't stop the rest
+    // One at a time, and a file the export doesn't have doesn't stop the rest. Straight
+    // from the server, not the HTTP cache (GitHub Pages sends max-age=600), so the copy is
+    // this deploy's.
     for (const url of BUILD) {
       try {
-        const response = await fetch(url);
+        const response = await fetch(url, { cache: 'no-cache' });
         if (response.ok) await cache.put(url, response);
       } catch { /* offline, or the file is gone: the next online visit fills it in */ }
     }
-    await self.skipWaiting();
+    if (!mine) await self.skipWaiting();
   })());
+});
+
+// A page can ask a waiting worker to take over now
+self.addEventListener('message', event => {
+  if (event.data === 'skip-waiting') self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
-    // The HTML game names its caches wasteland-academy-v<n>, at the root and at classic/
+    // The HTML game names its caches wasteland-academy-v<n>, at the root and at classic/.
+    // An earlier build's cache of ours goes too.
     let retired = false;
     for (const key of await caches.keys()) {
       if (/^wasteland-academy-v\d+$/.test(key)) { await caches.delete(key); retired = true; }
+      else if (key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME) await caches.delete(key);
     }
     await self.clients.claim();
     // A page the old worker served may be the old game, from its cache
@@ -76,38 +94,25 @@ self.addEventListener('fetch', event => {
   // The root page, whatever its ?… (deep links) and #… (map links), is index.html
   const key = url.href === ROOT ? ROOT + 'index.html' : url.href;
   // Anything else, next/ included, goes straight to the network
-  if (BUILD.includes(key) || ON_DEMAND.includes(key)) event.respondWith(networkFirst(event, key));
+  if (BUILD.includes(key) || ON_DEMAND.includes(key)) event.respondWith(cacheFirst(event, key));
 });
 
-async function networkFirst(event, key) {
+// The copy of this build if there is one. Otherwise the network, and the answer is kept:
+// audio.pck once sound is on, or a file the install missed. A navigation can't be copied
+// with a RequestInit, so it is fetched by URL, and as itself if that ends in a redirect,
+// which it can't answer.
+async function cacheFirst(event, key) {
   const { request } = event;
   const cache = await caches.open(CACHE_NAME);
-  try {
-    // Every file revalidates with the server instead of trusting the HTTP cache (GitHub
-    // Pages sends max-age=600), the page too, or a new index.pck could meet the last
-    // deploy's index.js. A navigation can't be copied with a RequestInit, so it's
-    // fetched by URL, and as itself if that ends in a redirect, which it can't answer.
-    let response;
-    if (request.mode === 'navigate') {
-      response = await fetch(request.url, { cache: 'no-cache' });
-      if (response.redirected) return fetch(request);
-    } else {
-      response = await fetch(new Request(request, { cache: 'no-cache' }));
-    }
-    // Written while the page reads its copy, so the progress bar isn't held up
-    if (response.ok) event.waitUntil(keep(cache, key, response.clone()));
-    return response;
-  } catch (err) {
-    const cached = await cache.match(key);
-    if (cached) return cached;
-    throw err;
-  }
-}
-
-// index.pck is about 50 MB: don't write it again when the deploy hasn't changed it
-async function keep(cache, key, response) {
   const cached = await cache.match(key);
-  const etag = response.headers.get('etag');
-  if (cached && etag && cached.headers.get('etag') === etag) return;
-  await cache.put(key, response);
+  if (cached) return cached;
+  let response;
+  if (request.mode === 'navigate') {
+    response = await fetch(request.url, { cache: 'no-cache' });
+    if (response.redirected) return fetch(request);
+  } else {
+    response = await fetch(new Request(request, { cache: 'no-cache' }));
+  }
+  if (response.ok) event.waitUntil(cache.put(key, response.clone()));
+  return response;
 }

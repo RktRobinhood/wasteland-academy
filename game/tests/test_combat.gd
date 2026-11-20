@@ -124,6 +124,19 @@ func test_the_enemy_falls_and_the_next_fight_starts() -> void:
 	check_eq(r.enemy.hp, r.enemy.max_hp, "a fresh enemy")
 
 
+func test_scrap_is_banked_as_it_is_earned() -> void:
+	# A reload or crash mid-run keeps the Scrap (#184); the end pays only what is left
+	var save := SaveData.blank()
+	save.scrap = 15
+	var r := _run(42, 1, save)
+	r.start()
+	r.answer(respond(r.question, true))
+	check(r.stats.scrap > 0, "some Scrap earned")
+	check_eq(save.scrap, 15 + int(r.stats.scrap), "in the save before the run ends")
+	r.quit()
+	check_eq(save.scrap, 15 + int(r.summary.scrap), "paid once at the end")
+
+
 func test_quit_ends_the_run() -> void:
 	var r := _run()
 	r.start()
