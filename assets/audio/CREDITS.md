@@ -660,6 +660,214 @@ play the same palette under the same cue names. All Kenney CC0 1.0, unedited.
 - `game/assets/audio/sfx/encounter-open-01.wav` — cue `open`. Byte-for-byte copy of `assets/audio/proposed/fal-372/encounter-open-01.wav`, whose Kenney CC0 source, URL and edits are recorded above. SHA-256 `496caa309b931e901cbb6b69e5f41106ee5caddcfcd2bf5c163f457e9d27f94c`, unchanged.
 - `game/assets/audio/sfx/encounter-clear-01.wav` — cue `clear`. Byte-for-byte copy of `assets/audio/proposed/fal-372/encounter-clear-01.wav`, whose Kenney CC0 source, URL and edits are recorded above. SHA-256 `227bee690a3fa9d1e80d3646d37289662c05ee7a039331ea1a392c6310bcc9b1`, unchanged.
 
+## FAL-1133 — boss taunts and encounter cast lines, local voice clones (voice)
+
+109 voice files, each named by its text: the first 12 hex characters of the SHA-1 of the exact UTF-8 line (the FAL-1132 rule). The 26 boss taunts from `game/data/bosses.json` are in `game/assets/audio/voice/<zone>-miniboss/lines/` and `<zone>-boss/lines/`; the 63 Signal Tower encounter lines from `writing/encounters/signal-tower.json` in `game/assets/audio/voice/<encounter id>/lines/`; the Cell guard's 14 lines from `writing/encounters/cell.json` in `game/assets/audio/voice/cell-guard/lines/`; and Spark's 6 encounter lines in `game/assets/audio/voice/spark/lines/`. The words fed to the model are each line exactly. Generated locally with VoxCPM2 on 2026-11-19. No recordings of any real person went in.
+
+Rights basis: as for FAL-1110 below. VoxCPM2 (OpenBMB) code and weights are released under the [Apache License 2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE), which allows commercial use; model card https://huggingface.co/openbmb/VoxCPM2. Package `voxcpm` 2.0.3, weights `openbmb/VoxCPM2` from the local Hugging Face cache. Each voice is cloned from one reference take: the voice reading the template paragraph, generated with Gemini text-to-speech (`gemini-3.8-flash-tts`, the voice and direction in `teachers.json` `characters`) via the Gemini API on 2026-11-19 (FAL-1133). The references stay in the local falcon-voice repo and don't ship. No model was trained or fine-tuned. Matt chose these voices on FAL-1133 (2026-11-19); Spark's is the FAL-1110 clone.
+
+| Voice (`teachers.json` id) | Gemini voice | Reference SHA-256 | Covers |
+|---|---|---|---|
+| `mini-bruiser` | `en-au-training-8` | `b417ca8bc06225e01221739dff2e46001a5aece14f0421c60850745938d6d545` | quadratics-miniboss (Arc Gunner Pell), composite-inverse-miniboss (Switchback Jun), function-basics-miniboss (Hopper Dave), geometry-miniboss (Surveyor Hale), stats-miniboss (Static Lou) |
+| `boss-heavy` | `en-au-concierge-1` | `74dadd38e7540258bef5fccf025151e18f60f26b440cf5808e8b575cef14f606` | quadratics-boss (Warden Apex), exp-log-boss (Baron Exponent), algebra-boss (The Compounder), stats-boss (The Pollster), thunderdome-boss (The Promoter) |
+| `mini-hustler` | `en-au-concierge-5` | `16a676be5acba987f387b7dbf71559824926fcf85f3e3d8eef906ab1b1ec2c14` | exp-log-miniboss (Compound Cora), rational-miniboss (Ration Clerk Vee), transformations-miniboss (Shifty Nan), algebra-miniboss (Ratchet Rae) |
+| `mini-hotshot` | `en-au-csagent-5` | `37d94f5a38185d4e0f5c604a69b9f01fd25aa9071af755926977c15bb8c7e712` | graphs-features-miniboss (Tracer Wren), lines-miniboss (Slope Rider Kit), calculus-miniboss (Gradient Jo), thunderdome-miniboss (Mixtape Vex) |
+| `boss-oracle` | `en-au-advisor-7` | `ef3140f755b4892a873773c8a319dd2c203e04296a2a3039270f22ffba91cc00` | graphs-features-boss (The Cartographer), transformations-boss (The Tailor), geometry-boss (The Sundial) |
+| `boss-cold` | `en-ke-advisor-1` | `3f8c6147a6419018ce4cfac749adbd0edf401b05fd82a41e94e578de5b737fd6` | composite-inverse-boss (The Mirror Foreman), rational-boss (Warden Zero), function-basics-boss (Dispatcher Mapp), lines-boss (The Straight Man), calculus-boss (The Integrator) |
+| `st-coffee-cart` | `en-nz-assistant-5` | `5a8ad51fb2524ac951ed50ab3a2b0386d5458b0d2bede035807bf10477b6a6ad` | st-coffee-cart |
+| `spark` | `leda` | `a456ce468559a8da7a6b060a1b90cea785533581abf52f7ec71978e1066ff151` | spark |
+| `st-mast-climber` | `en-au-storyteller-2` | `8533a5fe2711284bd84f001bcb8dbf8052923860aa571e33e1d63ef9605e7b14` | st-mast-climber |
+| `st-permit-booth` | `en-au-concierge-8` | `fb33eef5f0008a3059cc0cf32f71f796dcb67de6f2ed7a1597aa8ce1339ae5f8` | st-permit-booth |
+| `st-hush-water` | `en-au-podcaster-1` | `6ebee405a545a4ceb8af73069341fc69244649f338a06474596c1413ebe76276` | st-hush-water |
+| `st-live-wires` | `en-au-assistant-7` | `3bb4ef2b9483920a805e22dd1ee21026fe98a9a5e801ea8be29de33606c41e05` | st-live-wires |
+| `st-numbers-station` | `en-au-assistant-6` | `56a38515a4963cd97edc665da629b86b88bef6c875a1a9235783e55d4b780380` | st-numbers-station |
+| `cell-guard` | `en-au-training-1` | `6569918754efb67efe3220935e68cfc1c670e9b7be54b8063d311ceb89dad690` | cell-guard |
+
+- **Cloning:** VoxCPM2 "ultimate" mode: the reference is both `reference_wav_path` and `prompt_wav_path`, and its words are `prompt_text`. cfg 2.0, 10 inference timesteps, denoiser off, text normalisation off. Seed per file below (`torch.manual_seed`): 1099 for 99, 1100 for 9, 1101 for 1.
+- **Changes, every file** (falcon-voice `clone/post.sh`): resample the 48 kHz clone to 24 kHz mono; trim silence below −50 dB at both ends; 10 ms fade-in and 40 ms fade-out; 30 ms lead-in and 60 ms tail; then the voice's chain from `teachers.json` (the 2% tape slowdown `asetrate=23520,aresample=24000`; for Spark, `fx/spark-sheen.sh`); then falcon-voice `master.sh` (two-pass loudnorm to −16 LUFS, true peak at or below −1 dBTP, 44.1 kHz mono OGG Vorbis q5), with `clone/prelimit.sh` first for any take `master.sh` alone left below −17 LUFS.
+- **Measured** (`ebur128`, true peak): -19.6 to -15.6 LUFS-I, -2.9 to -1.1 dBTP, 1.04 to 9.8 s long, 7.9 minutes in all.
+
+**mini-bruiser**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `quadratics-miniboss/lines/70c584e5c218.ogg` | taunt 1 | `1099` | 2.42 | -16.5 | -1.9 | all | `2bb602a551179fced5256f76b2ed91f46b3ab9e6353090f0cff75c02506f49a3` |
+| `composite-inverse-miniboss/lines/46ef28965e87.ogg` | taunt 1 | `1099` | 2.72 | -16.0 | -1.9 | all | `5763f7bd910716a0c56c1db26dfc913ad05e173dc8714c1f5f9bcf0514f0acd6` |
+| `function-basics-miniboss/lines/af4d3588b712.ogg` | taunt 1 | `1099` | 3.86 | -16.4 | -1.6 | all | `a5613a570cb490da2e099efa4b6698e9d9923b647cb000ccb70321e23093d71c` |
+| `geometry-miniboss/lines/e6d32ff40f56.ogg` | taunt 1 | `1099` | 3.13 | -16.1 | -1.8 | all | `814ccae954508c7ffccf126cfa94f34daa57d6e6152e98b83747931b47fdd2f0` |
+| `stats-miniboss/lines/4a94597c2877.ogg` | taunt 1 | `1099` | 4.3 | -16.7 | -1.7 | all | `5c64dd9e9198525e5d25827f09de706ecd61b47256c8a11c2488a096b3a723fc` |
+
+**boss-heavy**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `quadratics-boss/lines/35d555e8a3cc.ogg` | taunt 1 | `1099` | 4.7 | -16.8 | -1.7 | all | `7243265211e9b22b40dac54ec18481449eb97f3ed0f90664c7a75dc1f4f39ba1` |
+| `exp-log-boss/lines/05d79b30d907.ogg` | taunt 1 | `1099` | 3.67 | -17.3 | -1.7 | all | `cb3ee6428f75d31231764d42b48750e05d7629f7f090ec29b3c2e2d7b5a06eb1` |
+| `algebra-boss/lines/33fb935455e5.ogg` | taunt 1 | `1099` | 4.4 | -16.2 | -1.6 | all | `f8c4ba5e4d50af993892f86d7b7bad7e6ed18c3615d11e4998af2a651816a37c` |
+| `stats-boss/lines/4f5fb7820f09.ogg` | taunt 1 | `1099` | 2.78 | -16.9 | -1.8 | all | `a1f0578f7ca590cda03a584e7d986610f1044036960fad94d16b74ae5919a888` |
+| `thunderdome-boss/lines/9b913cb3e5a5.ogg` | taunt 1 | `1099` | 3.35 | -16.2 | -1.8 | all | `598e2e3314a28c12ed6b5ea2295eb2588d4cab0bbd18a6d65b96416e6f4bf755` |
+
+**mini-hustler**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `exp-log-miniboss/lines/fb86ef1ce15e.ogg` | taunt 1 | `1099` | 3.67 | -15.6 | -2.9 | all | `460d062379e4808948074ce07feb9d054113f66c398dabeb7094fb4786fe3fec` |
+| `rational-miniboss/lines/3aeb23b49009.ogg` | taunt 1 | `1099` | 2.71 | -15.9 | -1.7 | all | `410045723fb620c30212198073662d6ccefae6da8910e0b389c14ae057e87a50` |
+| `transformations-miniboss/lines/a7b77be13769.ogg` | taunt 1 | `1099` | 3.72 | -17.0 | -1.6 | all | `8a6eaa9214a0d1a055a1f6e17368556ebd249603f73814eab6518fce8454efc0` |
+| `algebra-miniboss/lines/4e82c750bcbc.ogg` | taunt 1 | `1099` | 4.2 | -16.0 | -1.7 | all | `12f37deedef7a50b209d3877a4802e73fc90e85e299cf32ea081163bdcbb2e92` |
+
+**mini-hotshot**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `graphs-features-miniboss/lines/88ee20fec944.ogg` | taunt 1 | `1099` | 1.99 | -16.3 | -1.8 | all | `7bbf6a7473452f0869a0fd4b2fcf824797be1b0c2e0eab85675e4e56783357be` |
+| `lines-miniboss/lines/10d54b18f76b.ogg` | taunt 1 | `1099` | 2.56 | -16.7 | -1.9 | all | `193f5c2ebdb2e9dc5bce15a72fb3ae8514f915801233fa9a45bc50e01a4e32b1` |
+| `calculus-miniboss/lines/b4f5a92f10b9.ogg` | taunt 1 | `1099` | 1.96 | -16.6 | -1.9 | all | `9f5bce3663af86f13b18c121507a6b17226bca7f01c545efb27218e3cb952ee6` |
+| `thunderdome-miniboss/lines/4b8569e42850.ogg` | taunt 1 | `1100` | 2.99 | -16.0 | -2.0 | all | `6be6b922a9b4100a6b95f7531eae7f8937a661fb146c70798b049639bdf38033` |
+
+**boss-oracle**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `graphs-features-boss/lines/e3db5d9ecd71.ogg` | taunt 1 | `1099` | 6.3 | -16.0 | -1.9 | all | `3e38f6a6721f6cce79160094c5eae70951bd7a2d613224acf8110964ddaa8e7f` |
+| `transformations-boss/lines/b5be38a11796.ogg` | taunt 1 | `1099` | 7.4 | -16.3 | -1.7 | all | `4cfdd1417a4baae8565f07b2ff47cf7e494c5188b435e76e1c1779e97cf9e549` |
+| `geometry-boss/lines/4a8d895fa0a3.ogg` | taunt 1 | `1099` | 5.1 | -16.3 | -1.5 | all | `349a60d067a02b135aa426c4e87b00d5aa3e725c243fe2832d2aa3adbed9a868` |
+
+**boss-cold**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `composite-inverse-boss/lines/06c53a2f0cfb.ogg` | taunt 1 | `1100` | 3.61 | -16.6 | -1.8 | all | `0c38ea1ef0e3f8707a9441287e188c1ecedb5e20e534ff5db137877f8c4fde61` |
+| `rational-boss/lines/c4107c37916f.ogg` | taunt 1 | `1099` | 2.45 | -17.0 | -1.3 | all | `f758364c66ab6b5b1dc8cf50b8da87746edf2370077a58f8d197fbf75f2cb4a2` |
+| `function-basics-boss/lines/0152fd1e5ba6.ogg` | taunt 1 | `1099` | 5.0 | -16.7 | -1.6 | all | `c70f392220c60919c2d423d02b8d4a4b36c758bba08aaf2ca069353bea860c68` |
+| `lines-boss/lines/9f8fbf8bc0e4.ogg` | taunt 1 | `1099` | 5.4 | -16.7 | -1.3 | all | `e19e183fbe2d38ee42886f421eb31a03975a0e87a4e1f8315c6d51780af45f52` |
+| `calculus-boss/lines/677bdeacdff8.ogg` | taunt 1 | `1099` | 4.1 | -16.2 | -1.6 | all | `b358319cd79fb0850e6596f2fac008010a90497498a25cbfc1f6dbee2dce988e` |
+
+**st-coffee-cart**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-coffee-cart/lines/ae44a9983c0e.ogg` | open 1 | `1099` | 5.8 | -16.3 | -1.7 | kettle's -> kettles | `3176766c82d25eeb368a5bc525ae05b8e397b9a8a24eaca1c1d4f37ad14510c0` |
+| `st-coffee-cart/lines/8e8a4bbed52d.ogg` | open 2 | `1099` | 6.2 | -16.5 | -1.9 | all | `df266ebd615ca17f6c3c470e771a14bc627cbe3df56f1449e60637e6f73d4559` |
+| `st-coffee-cart/lines/db66596a15eb.ogg` | walk_on 1 | `1099` | 4.8 | -16.0 | -1.8 | all | `219751915e0dea06609135e154fdbff2c94355e69806054351bfa6076c360f7e` |
+| `st-coffee-cart/lines/28a319cce5d8.ogg` | right 1 | `1099` | 3.62 | -16.1 | -1.8 | all | `70d9d71f0a6c7101920462c9db6aa8e13175a7807c795c3563ff685d11c075d7` |
+| `st-coffee-cart/lines/2b220057d9ac.ogg` | right 2 | `1099` | 5.1 | -16.4 | -1.9 | all | `9a0d1c8bb4c0b8884031845a7a368cdf32a506afb6581343504a79a22512e6c5` |
+| `st-coffee-cart/lines/91e783f1d8f3.ogg` | right 3 | `1099` | 3.55 | -17.0 | -1.9 | all | `d33485c35357e3c12aa47fc1788ec7fcec0620ece5571234429089f2e0699dde` |
+| `st-coffee-cart/lines/8a1f11e629b8.ogg` | miss 1 | `1099` | 5.0 | -16.0 | -1.7 | all | `2e88086186ee4eabda0119677050aa140825c0c5da6cd41ef91e062b1a4a71b8` |
+| `st-coffee-cart/lines/907bf6b05ca5.ogg` | miss 2 | `1100` | 3.49 | -16.4 | -1.8 | all | `25c55f2ad3f647cd05cba8ad26a57801b372c6d90930b234df88bc64482cafc7` |
+| `st-coffee-cart/lines/dd1674287ab9.ogg` | win 1 | `1099` | 4.8 | -16.0 | -1.8 | tamsin's -> tamsen's | `a650466fd67470d029297031edc2a4bce41b4b253f0cd13ca818803ba6331079` |
+| `st-coffee-cart/lines/4df8ade02adb.ogg` | bust 1 | `1099` | 6.0 | -16.1 | -1.7 | all | `850f89ba444807fd1456f2090d7f4e3fcbbf1e9dc3a229c5c9a37f850a46f96c` |
+
+**spark**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `spark/lines/46416ad4aa17.ogg` | st-coffee-cart:spark 1 | `1099` | 4.6 | -16.0 | -1.4 | all | `446f96ff3d5caf8f521d7cb19d491d82497ac73b5aef0c3ad5601c987feaad1f` |
+| `spark/lines/d9e400304197.ogg` | st-mast-climber:spark 1 | `1099` | 4.1 | -16.1 | -1.7 | all | `fa0779f0e12e4ba87a22d4f81bf6c93887916d0971dfcd13402f1f156c49ce3b` |
+| `spark/lines/7d7b8aea2042.ogg` | st-permit-booth:spark 1 | `1099` | 4.6 | -15.9 | -1.9 | mast -> masked | `5aa6a2a44764e3429a262b4075c181c74f71315cd8abdd317619ac0a4984ae3d` |
+| `spark/lines/3972710feeac.ogg` | st-hush-water:spark 1 | `1099` | 4.3 | -16.0 | -1.7 | all | `c72a7bfa162f4232f054daeb90f7565823513ac278836d3cda2d870d6519ca77` |
+| `spark/lines/d2ce05affb37.ogg` | st-live-wires:spark 1 | `1099` | 4.3 | -16.4 | -1.6 | all | `6d088b94c94b91967c6b96e45353fa94789ca3acd5915cac71817c057ea82822` |
+| `spark/lines/388733596ed2.ogg` | st-numbers-station:spark 1 | `1099` | 4.3 | -15.9 | -1.8 | all | `9c0f7b1b97c0fb9ec5540dd29b9b2426e43b4a53164d0c4f1c0a324894fd0c16` |
+
+**st-mast-climber**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-mast-climber/lines/2a569b4a6524.ogg` | open 1 | `1099` | 4.2 | -17.0 | -1.8 | all | `2aecf8c7ad4dbded91e36896ce42b0d45ee5b34e606da90e308675639d170143` |
+| `st-mast-climber/lines/5cf9ba24d9e6.ogg` | open 2 | `1099` | 4.3 | -16.3 | -1.5 | rope's -> rope | `7546f7f1d40a595d153bcfd1478677ceb358f0d0a536de016a74112d40ab7a87` |
+| `st-mast-climber/lines/28ac63f4c5e3.ogg` | walk_on 1 | `1099` | 3.41 | -17.4 | -1.7 | all | `67a92397a8b4e8ab8aee5aaaf4d8128e50c65ef23591c2b7ed40ac201b0eb663` |
+| `st-mast-climber/lines/96ec21705085.ogg` | right 1 | `1099` | 3.2 | -17.0 | -1.7 | all | `71ee36ad197a89633aa978846025802d540774d174dd7ce6f5f7e017602dffb8` |
+| `st-mast-climber/lines/666f17b5c2f5.ogg` | right 2 | `1099` | 3.37 | -16.2 | -1.8 | all | `379099ec12bc79de733cb207cea95a8bc411e8481781b1ce0920222c5de8acaa` |
+| `st-mast-climber/lines/af95f2b1fa32.ogg` | right 3 | `1099` | 4.3 | -16.2 | -1.8 | all | `ce5f1f2b71b082db7f0abb32c273b26267176fd9bf4e30e4f491247fce27037b` |
+| `st-mast-climber/lines/214a8083d3ad.ogg` | miss 1 | `1099` | 4.6 | -16.8 | -1.5 | all | `a19b8e82eb1da3e8e9f0443efcfdd3c459a7bd89a085713599a0d274d4183188` |
+| `st-mast-climber/lines/0d5b9784591d.ogg` | miss 2 | `1099` | 4.5 | -16.6 | -1.7 | all | `5a9da94f19ca9edda7d81521c94d4ae98787abf8c8e08d04b40ed3f9197672f2` |
+| `st-mast-climber/lines/c4a2708af0e2.ogg` | win 1 | `1099` | 4.0 | -17.2 | -1.6 | all | `6de0f5fc10a803797f4db1c0ed1f437e9f4a8ac6ea78cf2dec25c1825457be3b` |
+| `st-mast-climber/lines/81f03932223f.ogg` | bust 1 | `1099` | 3.24 | -16.7 | -1.4 | all | `553be4c3d20dda7bdbc93e481e181aca3a9f98b0c946b6531c23da44bd4e6931` |
+
+**st-permit-booth**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-permit-booth/lines/9cdc85b4f419.ogg` | open 1 | `1100` | 4.2 | -16.4 | -1.8 | all | `5a5e0886b4bcc8efe4e373d3705b5b5435605af3e9393e347fc2a0d0727a75fc` |
+| `st-permit-booth/lines/a2810530d840.ogg` | open 2 | `1100` | 4.3 | -16.8 | -1.8 | all | `d491d3934daa738486e4e9830518821901bf1306d0dfda164002a9f914977ab4` |
+| `st-permit-booth/lines/9cfecc2da863.ogg` | walk_on 1 | `1099` | 3.56 | -16.5 | -1.6 | all | `03d8d27b10b0f525b0070f8a8e50d7989fca38599f4b274b8463c6497e160e04` |
+| `st-permit-booth/lines/44f098ae3dd3.ogg` | right 1 | `1099` | 4.9 | -16.0 | -1.6 | all | `217cb80cf9ea61ad593e9108ca03c0dc8da8e8295a8ccc18238e9de313cf6415` |
+| `st-permit-booth/lines/471367896f25.ogg` | right 2 | `1099` | 4.2 | -16.8 | -1.7 | all | `a42c00eb67d34aefbedb90225e5566eb8760388644906edcd33567a7c0e411cc` |
+| `st-permit-booth/lines/950348dd39cc.ogg` | right 3 | `1099` | 6.1 | -16.5 | -1.7 | all | `31f0f0e8aaa37917ac76b4bd3bad9d16a2997c384c1ad144364ab9b440a26826` |
+| `st-permit-booth/lines/b3e725b14e0c.ogg` | miss 1 | `1099` | 4.2 | -16.9 | -1.7 | all | `cc4445177134171d88c90ad7768809776276ec43162f74f535b5162688340fdc` |
+| `st-permit-booth/lines/314983902f8a.ogg` | miss 2 | `1099` | 5.9 | -16.7 | -1.7 | all | `3a611fac8e8c5fa066144c156ca7861578f6ccf68f38adc100daee57c14a7ade` |
+| `st-permit-booth/lines/2a9f48aa4e65.ogg` | win 1 | `1099` | 4.8 | -16.2 | -1.6 | all | `07c47454c3960bc53a71c186a036b6b834c9cf2ae1e6c1e6796c4fa7eeac4623` |
+| `st-permit-booth/lines/a714e941e79c.ogg` | bust 1 | `1099` | 4.1 | -16.3 | -1.5 | all | `20fa503a37facd102fcb793fd942df6dd588665faef93f49f6a7a680014a71e2` |
+
+**st-hush-water**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-hush-water/lines/b75facb912bf.ogg` | open 1 | `1099` | 1.36 | -15.9 | -2.2 | all | `4d1b7cb76fe905dfea9073e4e1b5a731a88d850f784759eeb7869352029187cc` |
+| `st-hush-water/lines/e76ca2288ca9.ogg` | open 2 | `1099` | 1.04 | -18.7 | -1.6 | all | `3db2f4bed022298ec3218bd15bea117f79fce222a9d5c2d3fbd3beacfd918a14` |
+| `st-hush-water/lines/009d8188c88a.ogg` | walk_on 1 | `1099` | 1.34 | -16.0 | -2.0 | all | `1dbbecf7c442afa38f7d828c68eb15b8fa5ed9dd0b0e72c804869572843dc3cc` |
+| `st-hush-water/lines/c51947b7339d.ogg` | right 1 | `1099` | 2.94 | -17.4 | -1.8 | hm -> hmm | `b2e7f1daca3dc866906a1151801d4c858c659ce7427128b10a5eebbc45b4833e` |
+| `st-hush-water/lines/266f907db66f.ogg` | right 2 | `1099` | 2.31 | -17.0 | -1.4 | all | `39f23ed6380614e1503d9fe46aca165b48869cb03bf359978fbbe23b33cce61c` |
+| `st-hush-water/lines/f4794c82ce08.ogg` | right 3 | `1099` | 1.4 | -16.0 | -2.2 | all | `83fdadf454da42f9aaff127fc6891d4bd0f8c2497f425a6e34e832e9d9793641` |
+| `st-hush-water/lines/b3df27960edc.ogg` | miss 1 | `1099` | 2.29 | -16.0 | -2.2 | all | `831fa45f16e10f61d6a63b5605778f997722ba24e684d7d86286fea78bd431d7` |
+| `st-hush-water/lines/590275b6cd30.ogg` | miss 2 | `1099` | 2.72 | -16.6 | -1.8 | all | `960d61020b53ce136911b9ecf3cf8041f1528ecd357d4edcdc9c28c1a048a995` |
+| `st-hush-water/lines/a2bb51e656a6.ogg` | win 1 | `1099` | 1.76 | -16.0 | -2.2 | all | `e216c9d1d4ee9b00c6db621a2b863c92929cb351189b150982dd26a6602dfb76` |
+| `st-hush-water/lines/2ec6c7afd8ee.ogg` | win 2 | `1099` | 2.3 | -16.0 | -1.8 | all | `bb31681effbf202d541c92bc5abe51b9dc84733e420ff5f74d11aba4c2172211` |
+| `st-hush-water/lines/03aba871e0cc.ogg` | bust 1 | `1099` | 2.54 | -15.9 | -2.8 | all | `f6be4789361e131e346b63131de1871271c82ba75e7c09b3c336534cde6a1a56` |
+| `st-hush-water/lines/b6f9def37e62.ogg` | bust 2 | `1099` | 2.06 | -19.6 | -1.8 | all | `63edf6d0f74dce70b51dfd71d3809f84711c80af502558ef504891d89697d080` |
+
+**st-live-wires**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-live-wires/lines/5f50cd54698c.ogg` | open 1 | `1100` | 4.5 | -16.2 | -1.7 | round -> around | `c7faef3a2123f53a3fe18bfa6ac29a134e4a983aff50ad33925e8cb2adb2e303` |
+| `st-live-wires/lines/71b3dae4878c.ogg` | open 2 | `1099` | 3.86 | -16.0 | -1.7 | cache -> cash | `4ecdccd53c9c86948b146853b07e5b055a1089f523619df6b58c3e095629f6b3` |
+| `st-live-wires/lines/d5d6c932ca8e.ogg` | right 1 | `1099` | 3.2 | -16.9 | -1.7 | all | `94f6eae58c558c0b30632e82fe40785681339c5588b74ac67a67ccfac3a06147` |
+| `st-live-wires/lines/5b914f694504.ogg` | right 2 | `1099` | 3.21 | -16.6 | -1.8 | all | `073b897c386b46a05446c1d887aec64c421e5efd23e9e3ac6e23cf9b28283eec` |
+| `st-live-wires/lines/533ab9057fe2.ogg` | right 3 | `1099` | 4.8 | -16.2 | -1.4 | smell's -> smells | `fadd48494f7d44cb93cf22a2b8f6b9630bc7f37b0ea1f0df10d3bc323bf53df0` |
+| `st-live-wires/lines/150cde3c3dc6.ogg` | miss 1 | `1099` | 4.5 | -16.9 | -1.7 | all | `b8bc05084abfed9541cdc9d6b1d9a5dc28e76a3c876bacc6cc2aaff273eea7fa` |
+| `st-live-wires/lines/8b4b4a3b88b2.ogg` | miss 2 | `1099` | 3.66 | -16.6 | -1.1 | all | `fec6cc510f90d9b75bd994bfcccc5c60587ff9aed0dba03eeb975374086667f6` |
+| `st-live-wires/lines/0ce516fbd2f3.ogg` | win 1 | `1099` | 6.4 | -17.0 | -1.8 | cache -> cash | `cd97fabc2cab3dca36e15df2a4ebe0a429bd2de174b8db1851ed723b75b4100e` |
+| `st-live-wires/lines/770e54006482.ogg` | bust 1 | `1099` | 5.5 | -17.0 | -1.7 | all | `642622faba9cd57ad58c65f3b07073f950fa73e866eff197eeac7052d2a4db7e` |
+| `st-live-wires/lines/ff6f1076e2aa.ogg` | bust 2 | `1099` | 2.4 | -16.1 | -1.8 | all | `b79fbda9480b8b0c643892837892c1495818aa4a08fe419597f0ec57ee5ff444` |
+
+**st-numbers-station**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-numbers-station/lines/281dce98c881.ogg` | open 1 | `1099` | 8.8 | -16.1 | -1.7 | (extra) -> hundred; (extra) -> and; three -> thirty | `ef1dd8dbd6052368541e2e9e38eea0df2048bccc94e2dfd4adab65067b547693` |
+| `st-numbers-station/lines/34dcc6582f1a.ogg` | open 2 | `1099` | 7.9 | -16.2 | -1.8 | all | `c3205e7e141811f4552107c49b452b5a09f2f5814856b658f57d72663cd0317c` |
+| `st-numbers-station/lines/1d9dc9f41996.ogg` | walk_on 1 | `1101` | 6.3 | -15.9 | -1.8 | all | `ff601e3c2060060ad508d41aac25cd4d4f206d37a25f16cff5be0fec6fa9f47b` |
+| `st-numbers-station/lines/6992e1884de5.ogg` | right 1 | `1099` | 9.2 | -16.1 | -1.9 | all | `1a543931289278cb3ca1110b591f9497b53db5d4e545393cb1db83a33b00925a` |
+| `st-numbers-station/lines/5eed90088ddc.ogg` | right 2 | `1099` | 7.9 | -16.6 | -1.7 | all | `07b7ebd49a0092539a770bb9139f021f2e3858365e785751f740db4622be84c7` |
+| `st-numbers-station/lines/825229e27960.ogg` | right 3 | `1099` | 8.2 | -16.1 | -1.7 | all | `69c648b9a0e32ffaaf39806de67f489219653422228c4ea2e11458159d50fe04` |
+| `st-numbers-station/lines/7dd8c66dc185.ogg` | miss 1 | `1099` | 9.8 | -16.0 | -1.7 | all | `4ae2b7d5f04da8f9c7e1bfed18ba1ac65f862dc10edb62af99e2b2a9b5ecfd11` |
+| `st-numbers-station/lines/b9ac630b8e18.ogg` | miss 2 | `1099` | 9.6 | -15.9 | -1.8 | seventeens -> seventeen's | `df23083db935e0add1993f602552c81adcaf70539538645e81a215d59207732b` |
+| `st-numbers-station/lines/02649768b2ad.ogg` | win 1 | `1099` | 7.3 | -16.0 | -2.1 | all | `6a925b990b5e29ed64b844b83a4e430afb8e04a43cd6610548530e83d12e96bd` |
+| `st-numbers-station/lines/5be97c98caa9.ogg` | win 2 | `1099` | 8.7 | -16.2 | -1.6 | all | `690bf6309746ee6d4165d659e4b1bdaeba2566affe1c2e969bd1dbd32fdfc488` |
+| `st-numbers-station/lines/ac4beb579afe.ogg` | bust 1 | `1099` | 8.9 | -15.8 | -1.9 | all | `353865ad7de506e8c9ec5b5831779936c29df75ca3d1695c63b4d99d00af39e6` |
+
+**cell-guard**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `cell-guard/lines/b4f2ec721ef0.ogg` | open 1 | `1099` | 4.7 | -16.3 | -1.8 | all | `5b8dfd520c5361746a1fc6a5552b4340a1e32e6601ac0b0e945416f4dd032528` |
+| `cell-guard/lines/4e72b95026de.ogg` | open 2 | `1099` | 4.0 | -16.6 | -1.7 | all | `4bdd1ed11a777c22c0974810a81320ad11bc4a3c757edb123207f03414fac404` |
+| `cell-guard/lines/3ba695302827.ogg` | right 1 | `1100` | 4.1 | -16.1 | -1.6 | all | `75cc31eb99cf2cfda66c45c74f25e5482d6cc4c9e978d09ac20feacb8d7c0c92` |
+| `cell-guard/lines/4fc4e0f24a41.ogg` | right 2 | `1099` | 3.76 | -16.1 | -1.8 | all | `4c97a873bcd38a5b97bd1d1336acd8e912463962048edce7931977d0fb2b751f` |
+| `cell-guard/lines/1fdecc0c5795.ogg` | right 3 | `1099` | 4.3 | -17.0 | -1.9 | all | `5d782cc2851490a60872c83c3fd09b7c0710b7621e775510c5d73cff0c7fb42e` |
+| `cell-guard/lines/575120a065e3.ogg` | miss 1 | `1099` | 4.4 | -16.4 | -1.5 | all | `1267db76814a28f04f1359c4dce9b75aa367684b5ca5f1f7d725f74a6d72dee0` |
+| `cell-guard/lines/2ffd6a14e012.ogg` | miss 2 | `1099` | 2.88 | -16.6 | -1.8 | all | `061bc23ca10649686b63d3ade5722d02e16c4cf260baad80548b7d387096cb63` |
+| `cell-guard/lines/e89895b4e8c9.ogg` | hunger 1 | `1099` | 3.27 | -16.4 | -1.7 | all | `f25f42c7cb3f9382e01b979c5f83a2ed0ac373999c4e21489c182d434a238a16` |
+| `cell-guard/lines/557e81447d7d.ogg` | hunger 2 | `1099` | 5.4 | -16.4 | -1.7 | stew -> stu | `9c20dfbb1fc008be5923b052f3704511285b3fe51fc0ddc3858b4ba5b685a388` |
+| `cell-guard/lines/3829fbdf7efc.ogg` | hunger 3 | `1100` | 3.5 | -16.8 | -1.7 | all | `6d1726b7907ce4a474b63aac9622d177bedd76e76d512df183dff8c2e0b9471c` |
+| `cell-guard/lines/103cb303d288.ogg` | hunger 4 | `1099` | 3.05 | -16.7 | -1.4 | all | `fbfe8d931095aa956c6feb16d976c829708ef8c7d87bc593a5d418820697e87e` |
+| `cell-guard/lines/44113ae1fb7c.ogg` | escape 1 | `1100` | 6.3 | -16.4 | -1.7 | all | `b268c9dcf086d4f69132eb97e17e30715940e5b23a4ff644fdbda2804b08812e` |
+| `cell-guard/lines/a64042463865.ogg` | thrown_out 1 | `1099` | 3.26 | -16.6 | -1.7 | all | `78a748aa2df8cd0b9de752c5ed8006b039a32701318481adad7ba7e46b260e1f` |
+| `cell-guard/lines/0a589ec58153.ogg` | thrown_out 2 | `1099` | 3.33 | -16.6 | -1.7 | all | `baaa417fa4dd3a8a550350bb0123283d77e52c8fb7ad5cfd748f3fb953083cff` |
+
+Notes: `st-numbers-station/lines/b9ac630b8e18.ogg` ("Three seventeens") uses seed 1099, chosen by hand over the checker's pick, because the transcriber heard seed 1100 as "317s" and that could be heard as three hundred and seventeen. Seed 1099 has a clear pause after "three". Six short takes measure −17.2 to −19.6 LUFS-I, below the −16 target: `exp-log-boss/05d79b30d907`, `st-mast-climber/28ac63f4c5e3` and `c4a2708af0e2`, and `st-hush-water/e76ca2288ca9`, `c51947b7339d` and `b6f9def37e62`. They already passed through `clone/prelimit.sh`, and their peaks are at −1.6 to −1.8 dBTP, so reaching −16 would take another 3 to 4 dB of limiting on lines of one to four words with pauses. They are left as recorded.
+
 ## FAL-1132 — Bodge's shop lines, local voice clone (voice)
 
 42 voice files in `game/assets/audio/voice/bodge/lines/`: every line in `game/data/shopkeeper.json` (`lines`: first_visit 3, enter 8, idle 8, buy 8, broke 6, capped 4, leave 5). Each file is named by its text: the first 12 hex characters of the SHA-1 of the exact UTF-8 line, so a line that is later edited stops matching its old take (the rule shared with FAL-1134). The words fed to the model are each line exactly. Generated locally with VoxCPM2 on 2026-11-18. No recordings of any real person went in.
