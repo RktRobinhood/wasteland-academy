@@ -70,7 +70,11 @@ GitHub Actions (`.github/workflows/test.yml`) runs nine jobs on every PR and on 
 
 ## Saves
 
-The Godot game keeps progress in `user://save.json` and its settings in `user://settings.cfg`. On the web that is the browser's IndexedDB database `/userfs`, so progress belongs to one browser on one device. There is no account and no sync. Export and import are planned (#185); sync between devices is for later (#202).
+The Godot game keeps progress in `user://save.json` and its settings in `user://settings.cfg`. On the web that is the browser's IndexedDB database `/userfs`, so progress belongs to one browser on one device. There is no account and no sync, and progress is per device and per browser: a student on another device or browser starts again, and clearing the browser's site data deletes it.
+
+To move or back up progress, open Settings (the gear) and choose "Export or import save". Export gives a code to copy (`WA-SAVE-1:` and the save, one line) or a file to save; import takes the code pasted in or a file, and asks twice because it replaces the save on this device. The save it replaces is kept beside it as `save.before-import-<time>.json`. Nothing is sent anywhere. Sync between devices is for later (#202).
+
+The save is one versioned document (`game/engine/save_data.gd`, with migrations) keyed by permanent ids. Writes go to `save.json.tmp` and are renamed over `save.json`, which keeps the previous good save as `save.json.bak`. A save that can't be read is moved to `save.unreadable-<time>.json`, never overwritten, and the `.bak` is used if there is one.
 
 ## Switching to Godot
 
