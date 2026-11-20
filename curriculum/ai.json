@@ -3214,7 +3214,7 @@
               ],
               "misconceptions": [
                 "Gives the domain of a ball's height model as all real t, including negative times",
-                "For squares cut from the corners of a card, lets x run up to the whole side instead of half of it",
+                "Lets x run up to the whole side instead of half of it, for squares cut from the corners of a card",
                 "Uses a continuous interval for a model whose input is a count, such as the number of tickets"
               ],
               "threads": [

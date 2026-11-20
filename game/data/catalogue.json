@@ -103438,7 +103438,7 @@
 				},
 				{
 					"ref": "AI-SL2.6.reasonable-domain#1",
-					"text": "For squares cut from the corners of a card, lets x run up to the whole side instead of half of it",
+					"text": "Lets x run up to the whole side instead of half of it, for squares cut from the corners of a card",
 					"as": "distractor",
 					"in": [
 						"box-domain"
@@ -104478,7 +104478,7 @@
 				},
 				{
 					"ref": "AI-SL2.6.reasonable-domain#1",
-					"text": "For squares cut from the corners of a card, lets x run up to the whole side instead of half of it",
+					"text": "Lets x run up to the whole side instead of half of it, for squares cut from the corners of a card",
 					"as": "distractor",
 					"in": [
 						"domain-from-dimensions"
