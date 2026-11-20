@@ -50149,6 +50149,367 @@ SITUATION_CHECKS["trapezoidal"] = r2tr_check
 
 # R3-LINEAR: fn-ai-piecewise-linear (ai-linear-model), prefix R3LI_ / r3li_
 
+R3LI_N = r"(−?\d+(?:\.\d+)?)"
+R3LI_T = "fn-ai-piecewise-linear#"
+R3LI_SWAP = "AI-SL2.5.linear-model#0"
+R3LI_WHOLE = "AI-SL2.5.linear-model#2"
+R3LI_CORNER = "AI-SL2.5.linear-model#3"
+R3LI_XY = "AI-SL2.6.find-parameters#1"
+R3LI_EXCESS = R3LI_T + "4"
+R3LI_NEIGHBOUR = R3LI_T + "5"
+R3LI_OTHER = R3LI_T + "6"
+# The two-piece tariffs in words: (pattern, has a first rate). Groups: c, [m1,] x0, m2.
+R3LI_TARIFFS = [
+    (r"A phone plan costs \$N a month, which includes (\d+) GB of data\. Each GB used over \2 GB costs \$N\.", False),
+    (r"A car park charges \$N for a stay of up to (\d+) hours\. Each hour after that costs \$N\.", False),
+    (r"A courier charges \$N to send a parcel of up to (\d+) kg, plus \$N for each kg over \2 kg\.", False),
+    (r"A water company charges a fixed \$N a quarter, plus \$N for each m³ of the first (\d+) m³ used and \$N for each m³ after that\.", True),
+    (r"A taxi charges a fixed \$N, plus \$N for each km of the first (\d+) km and \$N for each km after that\.", True),
+    (r"An electricity plan charges a fixed \$N a month, plus \$N for each kWh of the first (\d+) kWh and \$N for each kWh after that\.", True),
+]
+# A linear charge in words: the fixed charge, then the rate.
+R3LI_CHARGE = (r"(?:A van hire company charges a fixed fee of|A plumber charges a call-out fee of|A taxi charges a fixed|"
+               r"An electricity supplier charges a fixed|A climbing gym charges a joining fee of|A print shop charges a set-up charge of) "
+               r"\$N(?: a month)?, plus \$N for each (day of hire|hour of work|km travelled|kWh used|class|poster printed)\.")
+
+
+def r3li_q(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def r3li_pat(p):
+    return p.replace("N", R3LI_N.replace("−?", ""))
+
+
+def r3li_money(v):
+    """Money as the game writes it: whole dollars bare, else two decimal places."""
+    v = sp.Rational(v)
+    need((v * 100).q == 1, f"{v} is not a whole number of cents")
+    if v.q == 1:
+        return str(int(v)).replace("-", "−")
+    c = int(abs(v) * 100)
+    return ("−" if v < 0 else "") + f"{c // 100}.{c % 100:02d}"
+
+
+def r3li_cents(v):
+    c = sp.Rational(v) * 100
+    need(c.q == 1 and c >= 0, f"{v} is not a price in cents")
+    return f"{int(c) // 100}.{int(c) % 100:02d}"
+
+
+def r3li_ends(v):
+    """An exact answer's option: as it is when it ends, else to 3 s.f."""
+    return dec_text(v) if "/" not in dec_text(v) else dec_text(sp.Rational(sig3(v)))
+
+
+def r3li_two(n1, v1, n2, v2):
+    return f"{n1} = {dec_text(v1)}, {n2} = {dec_text(v2)}"
+
+
+def r3li_steps(q):
+    return [st for sol in q["solutions"] for st in sol["steps"]]
+
+
+def r3li_in_every(q, text, what):
+    for sol in q["solutions"]:
+        need(any(text in st for st in sol["steps"]), f"{sol['name']}: the working doesn't show {what} {text!r}")
+
+
+R3LI_SUM = re.compile(r"([0-9.()+−×/ ]*[+−×/][0-9.()+−×/ ]*?) = (−?[0-9]+(?:\.[0-9]+)?)(?![0-9A-Za-z(.])")
+
+
+def r3li_sums(q):
+    """Every plain sum in the working, 'a × b + c = d', works out to what it says."""
+    for st in r3li_steps(q):
+        for m in R3LI_SUM.finditer(st):
+            e = m.group(1).strip()
+            while e.count("(") > e.count(")") and e.startswith("("):
+                e = e[1:]
+            if not re.search(r"\d\s*[+−×/(]|\)\s*[+−×/]", e):
+                continue
+            try:
+                v = sp.sympify(e.replace("−", "-").replace("×", "*"), rational=True)
+            except (sp.SympifyError, SyntaxError, TypeError):
+                raise Fail(f"can't read the sum {e!r} in {st!r}")
+            need(sp.Rational(v) == r3li_q(m.group(2)), f"{e} is not {m.group(2)} in {st!r}")
+
+
+def r3li_where(text):
+    """(letter, unit) from '…, where C is the cost in dollars and d is the number of days …' or
+    ', where g is the data used, in GB'."""
+    m = re.search(r"(?:and|where) ([A-Za-z]) is ([^,.]+(?:, in [^,.]+)?)", text)
+    need(m is not None, f"can't read what the input is in {text!r}")
+    return m.group(1), m.group(2)
+
+
+def r3li_line_graph(g, x):
+    """(m, c) from a line drawn from x = 0 with (0, c) and one more point marked."""
+    pts = sorted(g["points"], key=lambda p: p["x"])
+    need(len(pts) == 2 and pts[0]["x"] == 0, "the line's graph marks (0, c) and one more point")
+    for p in pts:
+        m = re.fullmatch(r"\(" + R3LI_N + ", " + R3LI_N + r"\)", p["label"])
+        need(m is not None and abs(float(r3li_q(m.group(1))) - p["x"]) < 1e-9 and abs(float(r3li_q(m.group(2))) - p["y"]) < 1e-9,
+             f"the point {p} is not where its label says")
+        p["q"] = (r3li_q(m.group(1)), r3li_q(m.group(2)))
+    (x0, c), (x1, y1) = pts[0]["q"], pts[1]["q"]
+    m_ = (y1 - c) / x1
+    need(len(g["curves"]) == 1, "one line")
+    for px, py in g["curves"][0]:
+        need(abs(py - float(m_ * sp.nsimplify(px) + c)) < 1e-6, "the line drawn is not through the marked points")
+    need(g["curves"][0][0][0] == 0 and g["curves"][0][-1][0] >= x, "the line doesn't cover the inputs asked")
+    need(g["y_name"] == "C" and g["x_name"] == x, "the graph's axes")
+    return m_, c
+
+
+def r3li_tariff(q, rep):
+    """(c, m1, x0, m2, letter, unit) of a two-piece tariff, from the words, the rule or the graph."""
+    L, asked = q["lines"], q["asked"]
+    if rep == "graph":
+        g = q["graph"]
+        x, unit = r3li_where(L[0])
+        pts = sorted(g["points"], key=lambda p: p["x"])
+        need(len(pts) == 3 and pts[0]["x"] == 0, "the graph marks the start, the corner and one more point")
+        qs = []
+        for p in pts:
+            m = re.fullmatch(r"\(" + R3LI_N + ", " + R3LI_N + r"\)", p["label"])
+            need(m is not None and abs(float(r3li_q(m.group(1))) - p["x"]) < 1e-9 and abs(float(r3li_q(m.group(2))) - p["y"]) < 1e-9,
+                 f"the point {p} is not where its label says")
+            qs.append((r3li_q(m.group(1)), r3li_q(m.group(2))))
+        need(len(g["curves"]) == 1 and [(sp.nsimplify(a), sp.nsimplify(b)) for a, b in g["curves"][0]] == qs,
+             "the graph is not the two pieces through the marked points")
+        need(g["y_name"] == "C" and g["x_name"] == x, "the graph's axes")
+        (_, c), (x0, c0), (xe, ye) = qs
+        m1, m2 = (c0 - c) / x0, (ye - c0) / (xe - x0)
+        need(m1 != m2, "the graph has no corner")
+        return c, m1, int(x0), m2, x, unit
+    if rep == "equation":
+        x, unit = r3li_where(L[0])
+        m1_ = re.fullmatch(r"C = " + R3LI_N + r"(?: \+ " + R3LI_N + "([a-zA-Z]))?, for 0 ≤ ([a-zA-Z]) ≤ (\\d+)", L[1])
+        m2_ = re.fullmatch(r"C = " + R3LI_N + r" \+ " + R3LI_N + r"\(([a-zA-Z]) − (\d+)\), for ([a-zA-Z]) > (\d+)", L[2])
+        need(m1_ is not None and m2_ is not None, f"can't read the rule {L[1:3]!r}")
+        need(m1_.group(4) == x and (m1_.group(3) in (None, x)) and m2_.group(3) == x and m2_.group(5) == x, "the rule's letter")
+        x0 = int(m1_.group(5))
+        need(int(m2_.group(4)) == x0 and int(m2_.group(6)) == x0, "the pieces change at different points")
+        c, m1 = r3li_q(m1_.group(1)), r3li_q(m1_.group(2) or "0")
+        c0, m2 = r3li_q(m2_.group(1)), r3li_q(m2_.group(2))
+        need(c + m1 * x0 == c0, "the pieces don't meet at the change point")
+        need(m1 != m2, "the rate doesn't change")
+        return c, m1, x0, m2, x, unit
+    story = L[0]
+    for pat, rate1 in R3LI_TARIFFS:
+        m = re.fullmatch(r3li_pat(pat), story)
+        if m:
+            gs = m.groups()
+            if rate1:
+                c, m1, x0, m2 = r3li_q(gs[0]), r3li_q(gs[1]), int(gs[2]), r3li_q(gs[3])
+            else:
+                c, m1, x0, m2 = r3li_q(gs[0]), sp.Integer(0), int(gs[1]), r3li_q(gs[2])
+            break
+    else:
+        raise Fail(f"can't read the tariff {story!r}")
+    x, unit = r3li_where(asked)
+    need(m1 != m2, "the rate doesn't change")
+    return c, m1, x0, m2, x, unit
+
+
+def r3li_cost(t, x):
+    c, m1, x0, m2 = t[:4]
+    return c + m1 * x if x <= x0 else c + m1 * x0 + m2 * (x - x0)
+
+
+def r3li_unit(unit):
+    m = re.search(r"in (\S+)$", unit)
+    need(m is not None, f"no unit in {unit!r}")
+    return m.group(1)
+
+
+def r3li_check(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    for tx in [asked] + L + r3li_steps(q) + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs = {}
+    if u in ("build-from-rate-start", "evaluate-model", "interpret-gradient"):
+        if rep == "graph":
+            x = re.search(r"when ([a-zA-Z]) = ", asked).group(1)
+            m_, c = r3li_line_graph(q["graph"], int(re.search(r"= (\d+)\.$", asked).group(1)))
+        else:
+            mm = None
+            for t in L:
+                mm = re.search(r"C = " + R3LI_N + "([a-zA-Z]) \\+ " + R3LI_N + ", where C is the cost in dollars and ([a-zA-Z]) is", t)
+                if mm:
+                    break
+            st = re.fullmatch(r3li_pat(R3LI_CHARGE), L[0]) if rep == "words" else None
+            if rep == "words":
+                need(st is not None, f"can't read the charge {L[0]!r}")
+                c, m_ = r3li_q(st.group(1)), r3li_q(st.group(2))
+            if mm:
+                need(mm.group(2) == mm.group(4), "the model's letter")
+                x = mm.group(2)
+                if rep == "words":
+                    need((r3li_q(mm.group(1)), r3li_q(mm.group(3))) == (m_, c), "the model shown is not the charge in words")
+                m_, c = r3li_q(mm.group(1)), r3li_q(mm.group(3))
+            else:
+                need(rep == "words", "no model shown")
+                x = re.search(r"C = m([a-zA-Z]) \+ c|when ([a-zA-Z]) = ", asked)
+                x = x.group(1) or x.group(2)
+        need(m_ > 0 and c > 0 and m_ != c, "m and c are positive and differ")
+        if u == "build-from-rate-start":
+            need(re.fullmatch(r"Write down a model for the cost C dollars in the form C = m" + x + r" \+ c, where " + x + r" is [^.]+\. Give m and c\.", asked) is not None, f"asked {asked!r}")
+            want = r3li_two("m", m_, "c", c)
+            wrongs[R3LI_SWAP] = {r3li_two("m", c, "c", m_)}
+            r3li_in_every(q, f"m = {dec_text(m_)}.", "m")
+            r3li_in_every(q, f"c = {dec_text(c)}.", "c")
+        elif u == "evaluate-model":
+            mx = re.fullmatch(r"Find the cost C, in dollars, when " + x + r" = (\d+)(?:, where " + x + r" is [^.]+)?\.", asked)
+            need(mx is not None, f"asked {asked!r}")
+            xv = int(mx.group(1))
+            need((rep == "words") == (", where" in asked), "the input is said where the words don't give it")
+            y = m_ * xv + c
+            want = "C = $" + r3li_money(y)
+            wrongs[R3LI_SWAP] = {"C = $" + r3li_money(c * xv + m_)}
+            r3li_in_every(q, f"= {dec_text(y)}.", "the cost")
+        else:
+            mv = re.fullmatch(r"What does the " + R3LI_N + r" in the model mean, in context\?", asked)
+            need(mv is not None, f"asked {asked!r}")
+            v = r3li_q(mv.group(1))
+            need((v == m_) != (v == c), "the number asked about is not just one of m and c")
+            is_m = v == m_
+            where = next(t for t in L if "where C is the cost" in t)
+            rate_re = r"The cost goes up by \$" + re.escape(r3li_money(v)) + r" for each extra (.+)"
+            start_re = r"\$" + re.escape(r3li_money(v)) + r" is the (fixed fee|call-out fee|fixed charge|monthly charge|joining fee|set-up charge), paid even (.+)"
+            fill_re = [r"\$" + re.escape(r3li_money(v)) + r" is the total cost, whatever the value of " + x,
+                       r"\$" + re.escape(r3li_money(v)) + r" is the most the cost can ever be"]
+            want = None
+            for o in q["choices"]:
+                t = o["text"]
+                if re.fullmatch(rate_re, t):
+                    unit = re.fullmatch(rate_re, t).group(1).split()[0]
+                    need(unit in where, f"the rate's unit {unit!r} is not the input's")
+                    if is_m:
+                        want = t
+                    else:
+                        wrongs[R3LI_OTHER] = {t}
+                elif re.fullmatch(start_re, t):
+                    if not is_m:
+                        want = t
+                    else:
+                        wrongs[R3LI_OTHER] = {t}
+                else:
+                    need(any(re.fullmatch(f, t) for f in fill_re), f"an option that isn't one of the claims: {t!r}")
+            need(want is not None, "no right statement")
+            r3li_in_every(q, "So: " + want, "the statement")
+    elif u == "two-bills":
+        mm = re.fullmatch(r"The cost of [^,]+ follows one linear model, C = m([a-zA-Z]) \+ c, where C is the cost in dollars and ([a-zA-Z]) is [^.]+\.", L[0])
+        need(mm is not None and mm.group(1) == mm.group(2), f"can't read the model {L[0]!r}")
+        x = mm.group(1)
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0][0] == x and rows[1][0] == "C ($)" and len(rows[0][1]) == 2, "the table is the two bills")
+            (x1, x2), (y1, y2) = [r3li_q(t) for t in rows[0][1]], [r3li_q(t) for t in rows[1][1]]
+            need([r3li_cents(y1), r3li_cents(y2)] == rows[1][1], "the bills are in dollars and cents")
+        else:
+            mb = re.fullmatch(r"A bill for (\d+) \S+(?: \S+)? is \$" + R3LI_N + r", and a bill for (\d+) \S+(?: \S+)? is \$" + R3LI_N + r"\.", L[1])
+            need(mb is not None, f"can't read the bills {L[1]!r}")
+            x1, y1, x2, y2 = [r3li_q(g_) for g_ in mb.groups()]
+        need(asked == "Find the rate m and the fixed charge c.", f"asked {asked!r}")
+        M, Cc = sp.symbols("M Cc")
+        sol = sp.solve([x1 * M + Cc - y1, x2 * M + Cc - y2], [M, Cc], dict=True)[0]
+        m_, c = sol[M], sol[Cc]
+        need(m_ > 0 and c > 0 and m_ != c and (m_ * 100).q == 1, "m is a rate to 2 d.p. and c a fixed charge")
+        want = r3li_two("m", m_, "c", c)
+        wrongs[R3LI_SWAP] = {r3li_two("m", c, "c", m_)}
+        # The input and the cost swapped in each bill's equation: x = m y + c.
+        sw = sp.solve([y1 * M + Cc - x1, y2 * M + Cc - x2], [M, Cc], dict=True)[0]
+        wrongs[R3LI_XY] = {r3li_two("m", sw[M], "c", sw[Cc])}
+        r3li_in_every(q, f"m = {dec_text(m_)}", "m")
+    elif u in ("piecewise-value", "piecewise-rule", "piecewise-input"):
+        t = r3li_tariff(q, rep)
+        c, m1, x0, m2, x, unit = t
+        c0 = c + m1 * x0
+        need(c > 0 and m2 > 0 and m1 >= 0, "the charges are positive")
+        if rep == "words":
+            need(asked.endswith(f", where {x} is {unit}."), "the input's letter is said")
+        if u == "piecewise-value":
+            mx = re.fullmatch(r"Find the cost C, in dollars, when " + x + r" = (\d+)(?:, where [^.]+)?\.", asked)
+            need(mx is not None, f"asked {asked!r}")
+            xv = int(mx.group(1))
+            need(xv > 0, "the input is positive")
+            y = r3li_cost(t, xv)
+            want = "C = $" + r3li_money(y)
+            wrongs[R3LI_WHOLE] = {"C = $" + r3li_money(c + m2 * xv)}
+            other = c + m1 * xv if xv > x0 else c0 + m2 * (xv - x0)
+            wrongs[R3LI_CORNER] = {"C = $" + r3li_money(other)}
+            r3li_in_every(q, f"= {dec_text(y)}", "the cost")
+            if rep == "graph":
+                need(q["graph"]["x1"] > xv, "the input is off the graph")
+        elif u == "piecewise-rule":
+            mx = re.fullmatch(r"Find the rule for the cost when " + x + r" > " + str(x0) + r", in the form C = a" + x + r" \+ b(?:, where [^.]+)?\. Give a and b\.", asked)
+            need(mx is not None, f"asked {asked!r}")
+            b = c0 - m2 * x0
+            need(b != 0, "b is 0")
+            want = r3li_two("a", m2, "b", b)
+            wrongs[R3LI_WHOLE] = {r3li_two("a", m2, "b", c)}
+            # The rule found again from two points on the second piece.
+            Xs = sp.Symbol("xs")
+            rule = sp.expand(c0 + m2 * (Xs - x0))
+            need(sp.Poly(rule, Xs).all_coeffs() == [m2, b], "the second piece's rule")
+            r3li_in_every(q, f"b = {dec_text(c0)} − {dec_text(m2)} × {x0} = {dec_text(b)}" if q["solutions"][0]["angle"] == "two-points" else "", "b")
+        else:
+            mx = re.fullmatch(r"Find " + x + r" when the cost is \$" + R3LI_N + r"(?:, where [^.]+)?\.", asked)
+            need(mx is not None, f"asked {asked!r}")
+            Y = r3li_q(mx.group(1))
+            need(Y > c0, "the cost is not past the change point")
+            xs = sp.Symbol("xs")
+            roots = sp.solve(sp.Eq(c0 + m2 * (xs - x0), Y), xs)
+            need(len(roots) == 1 and roots[0] > x0, "no input past the change point")
+            xv = roots[0]
+            need(r3li_cost(t, xv) == Y, "the input doesn't give the cost")
+            uw = r3li_unit(unit)
+            want = f"{x} = {dec_text(xv)} {uw}"
+            wrongs[R3LI_WHOLE] = {f"{x} = {r3li_ends((Y - c) / m2)} {uw}"}
+            if m1 != 0:
+                wrongs[R3LI_CORNER] = {f"{x} = {r3li_ends((Y - c) / m1)} {uw}"}
+            r3li_in_every(q, f"{x} = {x0} + ", "the input")
+    elif u == "tier-band":
+        need(re.fullmatch(r"A supplier sells [^.]+\. The price of each (\S+) is set by the size of the order, and that price is paid for every \1 in the order\.", L[0]) is not None,
+             f"the price rule {L[0]!r}")
+        if rep == "table":
+            rows = q["table"]["rows"]
+            sizes, prices = rows[0][1], [r3li_q(p) for p in rows[1][1]]
+            need([r3li_cents(p) for p in prices] == rows[1][1], "the prices are in dollars and cents")
+        else:
+            sizes = re.findall(r"an order of (\d+ to \d+|\d+ or more) \S+ costs \$", L[1].lower())
+            prices = [r3li_q(p) for p in re.findall(r"costs \$" + R3LI_N + r" for each", L[1])]
+        need(len(sizes) == len(prices) == 3, "three bands")
+        lows, highs = [], []
+        for i, sz in enumerate(sizes):
+            m = re.fullmatch(r"(\d+) to (\d+)", sz) if i < 2 else re.fullmatch(r"(\d+) or more", sz)
+            need(m is not None, f"the band {sz!r}")
+            lows.append(int(m.group(1)))
+            highs.append(int(m.group(2)) if i < 2 else None)
+        need(lows[0] == 1 and lows[1] == highs[0] + 1 and lows[2] == highs[1] + 1, "the bands are not 1 up, end to end")
+        need(prices[0] > prices[1] > prices[2] > 0, "the price per item doesn't fall with the order")
+        mn = re.fullmatch(r"Find the cost of an order of (\d+) (\S+)\.", asked)
+        need(mn is not None, f"asked {asked!r}")
+        n = int(mn.group(1))
+        k = max(i for i in range(3) if n >= lows[i])
+        need(k >= 1, "the order is in the first band")
+        want = "cost = $" + r3li_money(n * prices[k])
+        # Each band's rate on its own items only.
+        tax = sum(prices[b] * ((n if b == k else highs[b]) - lows[b] + 1) for b in range(k + 1))
+        wrongs[R3LI_EXCESS] = {"cost = $" + r3li_money(tax)}
+        wrongs[R3LI_NEIGHBOUR] = {"cost = $" + r3li_money(n * prices[j]) for j in (k - 1, k + 1) if 0 <= j < 3}
+        r3li_in_every(q, f"cost = {n} × {dec_text(prices[k])} = {dec_text(n * prices[k])}", "the cost")
+    else:
+        raise Fail(f"no check for {u}")
+    r3li_sums(q)
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+SITUATION_CHECKS["ai-linear-model"] = r3li_check
+
 # (between the R3 markers)
 
 # R3-QUADRATIC: fn-ai-quadratic-model (ai-quadratic-model), prefix R3QU_ / r3qu_
