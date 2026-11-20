@@ -143,6 +143,52 @@ static func yline(f: Dictionary) -> String:
 	return "y = " + (InverseRuleSituation.rule_text(f))
 
 
+## The pattern for the inverse of a rational rule, in the catalogue's form (the
+## coefficient-pattern method's name).
+const PATTERN := "For (ax + b)/(cx + d) the inverse is (−dx + b)/(cx − a)"
+
+
+## A rational rule swapped and cross-multiplied, x(cy + d) = ay + b, and its y terms
+## collected, y(cx − a) = −dx + b: the steps that find its inverse.
+static func _cross(f: Dictionary) -> String:
+	return "x(%s) = %s" % [Fmt.poly([f.c, f.d]).replace("x", "y"), Fmt.poly([f.a, f.b]).replace("x", "y")]
+
+
+static func _collect(f: Dictionary) -> String:
+	return "y(%s) = %s" % [Fmt.poly([f.c, -f.a]), Fmt.poly([-f.d, f.b])]
+
+
+## A rule with x put in as a number: "5(6) − 2", "√(2(3) + 3) + 1", "(6 + 3)". A number
+## after a coefficient is always bracketed, so 5 × 6 is never written 56.
+static func sub_x(text: String, v: Variant) -> String:
+	var out := ""
+	for i in text.length():
+		var ch := text[i]
+		if ch != "x":
+			out += ch
+		elif i > 0 and "0123456789".contains(text[i - 1]):
+			out += "(%s)" % N(v)
+		else:
+			out += Fmt.paren(v)
+	return out
+
+
+## Wrong whole numbers for a typed answer, the ones far from the key first: a filler at
+## the key ± 1 or ± 2, or twice it, is easy to rule out by guessing round the key.
+static func far_first(key: Variant, vals: Array) -> Array:
+	var kq := Q.of(key)
+	var near: Array = []
+	var far: Array = []
+	for v in vals:
+		var q := Q.of(v)
+		var d := q.sub(kq)
+		if d.abs_q().lt(3) or q.eq(kq.mul(2)):
+			near.append({"v": q})
+		else:
+			far.append({"v": q})
+	return far + near
+
+
 ## The graph of f with y = x and what marks it: an endpoint, asymptotes.
 static func graph_of(f: Dictionary) -> Dictionary:
 	var curves: Array = []
@@ -201,29 +247,32 @@ static func derive(f: Dictionary, angle: String) -> Array:
 			return [y, swapped, "Solve for y: y = " + inv(f)]
 		"rat":
 			if angle == "coefficient-pattern":
-				return ["For (ax + b)/(cx + d) the inverse is (dx − b)/(−cx + a): swap a and d, change the signs of b and c",
-					"Here a = %s, b = %s, c = %s, d = %s" % [N(f.a), N(f.b), N(f.c), N(f.d)]]
-			var cross := "x(%s) = %s" % [Fmt.poly([f.c, f.d]).replace("x", "y"), Fmt.poly([f.a, f.b]).replace("x", "y")]
-			return [y + ", swap x and y, then cross-multiply: " + cross,
-				"Collect the y terms: y(%s) = %s" % [Fmt.poly([f.c, -f.a]), Fmt.poly([-f.d, f.b])], "Divide by the bracket to get y"]
+				return [PATTERN + ": swap a and d, and change both their signs",
+					"Here a = %s, b = %s, c = %s and d = %s, so −d = %s and −a = %s" % [N(f.a), N(f.b), N(f.c), N(f.d), N(-f.d), N(-f.a)]]
+			return [y + ", swap x and y, then cross-multiply: " + _cross(f), "Collect the y terms: " + _collect(f), "Divide by the bracket: y = " + inv(f)]
 		"root":
 			var sq := "x²" if f.r == 0 else Fmt.factor(f.r) + "²"
 			if angle == "swap-domain-range":
 				return [swapped, "Isolate the root and square: %s = %s, so y = %s" % [sq, Fmt.poly([f.p, f.q]).replace("x", "y"), inv(f)],
 					"The domain of f⁻¹ is the range of f: x ≥ %s" % N(f.r)]
-			return [y, swapped, "Isolate the root and square: %s = %s" % [sq, Fmt.poly([f.p, f.q]).replace("x", "y")]]
+			return [y, swapped, "Isolate the root and square: %s = %s, so y = %s" % [sq, Fmt.poly([f.p, f.q]).replace("x", "y"), inv(f)]]
 		"rquad":
 			var under := "x" if f.k == 0 else "x" + Fmt.plus(-f.k)
-			var side := "above" if f.dir == "≥" else "below"
+			var root := "√x" if f.k == 0 else "√(%s)" % under
 			var yh := "y" + Fmt.plus(-f.h) if f.h != 0 else "y"
+			var pm := ("%s ± %s" % [N(f.h), root]) if f.h != 0 else "±" + root
+			var up: bool = f.dir == "≥"
+			# After the swap, x is the input of f⁻¹: f's domain is the range of f⁻¹, a condition on y.
+			var ranged := "domain x %s %s of f is the range of f⁻¹, so y %s %s" % [f.dir, N(f.h), f.dir, N(f.h)]
+			var which := "positive" if up else "negative"
 			if angle == "graph-check":
-				return ["The graph is the %s of a parabola, so f is one-to-one and f⁻¹ is its reflection in y = x" % ("right half" if f.dir == "≥" else "left half"),
-					"The reflection has y %s %s, so it takes the %s root: y = %s %s √(%s)" % [f.dir, N(f.h), "positive" if f.dir == "≥" else "negative", N(f.h), "+" if f.dir == "≥" else "−", under]]
+				return [swapped + ", so (%s)² = %s and y = %s" % [yh, under, pm],
+					"The %s: take the %s root, y = %s. On the GDC, the graphs of y = f(x) and y = %s are mirror images in y = x" % [ranged, which, inv(f), inv(f)]]
 			if angle == "restrict-at-vertex":
 				return ["x %s %s is one side of the vertex, so f is one-to-one" % [f.dir, N(f.h)], swapped + ", so (%s)² = %s" % [yh, under],
-					"y %s %s on this domain, so %s is %s: %s = %s√(%s)" % [f.dir, N(f.h), yh, "positive" if f.dir == "≥" else "negative", yh, "" if f.dir == "≥" else "−", under]]
+					"The %s and %s %s 0: %s = %s%s" % [ranged, yh, f.dir, yh, "" if up else "−", root]]
 			return [y, swapped + ", so (%s)² = %s" % [yh, under],
-				"%s = ±√(%s), and x %s %s puts f⁻¹ %s y = %s, so take the %s root" % [yh, under, f.dir, N(f.h), side, N(f.h), "positive" if f.dir == "≥" else "negative"]]
+				"%s = ±%s, and the %s: take the %s root" % [yh, root, ranged, which]]
 		"exp":
 			var isolate := "x" if f.q == 0 else "x" + Fmt.plus(-f.q)
 			var power := "%s^y = %s" % [InverseRuleSituation.base_text(f.base), isolate]
@@ -292,8 +341,10 @@ static func with_k(f: Dictionary, slot: String) -> String:
 	return "(%s)/(%s)" % [top, Fmt.poly([f.c, f.d])]
 
 
+## (ax + b)/(cx + d) in its lowest terms with the bottom's leading coefficient positive,
+## so two options that are the same function read the same, and choose() drops one.
 static func rat_text(a: int, b: int, c: int, d: int) -> String:
-	return InverseRuleSituation.frac(Fmt.poly([a, b]), Fmt.poly([c, d]))
+	return InverseRuleSituation.rat_frac(a, b, c, d)
 
 
 ## A slip's (ax + b)/(cx + d) as a tagged option, or none when it cancels to a number,
@@ -304,7 +355,7 @@ static func rat_tag(a: int, b: int, c: int, d: int, ref: String, label: String =
 
 ## Plain wrong f⁻¹(x) options from [a, b, c, d] coefficients: none that cancels to a
 ## number, and none that is the right [a, b, c, d] written another way (a multiple of it).
-static func rat_plain(right: Array, coeffs: Array) -> Array:
+static func rat_plain(right: Array, coeffs: Array, label: String = "f⁻¹(x) = %s") -> Array:
 	var out: Array = []
 	for k in coeffs:
 		var same := true
@@ -312,7 +363,7 @@ static func rat_plain(right: Array, coeffs: Array) -> Array:
 			for j in range(i + 1, 4):
 				same = same and k[i] * right[j] == k[j] * right[i]
 		if k[0] * k[3] != k[1] * k[2] and not same:
-			out.append("f⁻¹(x) = " + rat_text(k[0], k[1], k[2], k[3]))
+			out.append(label % rat_text(k[0], k[1], k[2], k[3]))
 	return out
 
 
@@ -374,7 +425,7 @@ func u_inverse_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "graph":
 		out.graph = graph_of(f)
 		out.lines = [InverseRuleSituation.rule_line(f), "The graph of y = f(x) is shown with the line y = x."]
-	var tail := ["The domain of f⁻¹ is the range of f, y ≥ %s, so x ≥ %s" % [N(f.r), N(f.r)]]
+	var tail := ["The domain of f⁻¹ is the range of f, y ≥ %s, so x ≥ %s; the range of f⁻¹ is the domain of f, x ≥ %s, so y ≥ %s" % [N(f.r), N(f.r), N(x0), N(x0)]]
 	var out_methods := {}
 	for a in _angles("inverse-root"):
 		var steps := derive(f, a)
@@ -434,10 +485,26 @@ func u_inverse_exponential(_rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	return out
 
 
+## Wrong conditions of the same kind as the right one: for a rational f, whose domain and
+## range each leave out one value, other "≠" values (the signs of a/c and −d/c changed,
+## where f is zero), so the key is not the only "≠" option.
+static func cond_fillers(f: Dictionary, right: String, swap: bool) -> Array:
+	if f.fam != "rat":
+		return cond_variants(right)
+	var v: String = right.substr(0, 1)
+	var a := Q.new(f.a, f.c)
+	var d := Q.new(-f.d, f.c)
+	var vals: Array = [a.neg(), d.neg()] if not swap else [d.neg(), a.neg()]
+	vals += [Q.new(-f.b, f.a), Q.new(0)]
+	# Where those values meet (a = d puts −a/c on −d/c), the key's value with an inequality
+	# fills in, so there are still three wrong options.
+	return vals.map(func(q): return "%s ≠ %s" % [v, N(q)]) + cond_variants(right).filter(func(t): return not "≠" in t)
+
+
 func u_inverse_domain(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var f: Dictionary = s.f
 	var right := InverseRuleSituation.inv_domain_text(f)
-	var pick := pick_of(right, [tag(InverseRuleSituation.domain_text(f), R_DOMAIN_OF_F)], cond_variants(right))
+	var pick := pick_of(right, [tag(InverseRuleSituation.domain_text(f), R_DOMAIN_OF_F)], cond_fillers(f, right, false))
 	var out := {"asked": "Find the domain of f⁻¹.", "lines": [InverseRuleSituation.rule_line(f)]}
 	out.merge(pick)
 	if rep == "graph":
@@ -451,7 +518,7 @@ func u_inverse_domain(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 func u_inverse_range(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var f: Dictionary = s.f
 	var right := InverseRuleSituation.inv_range_text(f)
-	var pick := pick_of(right, [tag(InverseRuleSituation.range_text(f), R_DOMAIN_OF_F)], cond_variants(right))
+	var pick := pick_of(right, [tag(InverseRuleSituation.range_text(f), R_DOMAIN_OF_F)], cond_fillers(f, right, true))
 	var out := {"asked": "Find the range of f⁻¹.", "lines": [InverseRuleSituation.rule_line(f)]}
 	out.merge(pick)
 	if rep == "graph":
@@ -493,18 +560,21 @@ func u_restrict_for_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		else "Find the greatest value of k for which f has an inverse on the domain x ≤ k.")
 	var out := {"asked": asked, "lines": ["f(x) = %s" % rt(f)], "answer": ans,
 		"wrongs": [wrong({"v": Q.new(0)}, R_Y_INTERCEPT), wrong({"v": Q.new(-h)}, R_VERTEX_SIGN), wrong({"v": Q.new(f.k)}, R_VERTEX_Y)],
-		"fillers": [{"v": Q.new(h + 1)}, {"v": Q.new(h - 1)}]}
+		# Used only where two slips agree (k is 0, h or −h): the value of f at 0, and b.
+		"fillers": far_first(h, [co[0], co[1], co[1].neg(), Q.new(-f.k)])}
 	if rep == "graph":
 		out.graph = graph_of(f)
 		out.lines = ["f(x) = %s" % rt(f), "The graph of y = f(x) is shown."]
 	var b: Q = co[1]
 	var a: Q = co[2]
 	var final_text := "So %s." % Answer.text(ans)
+	# −b/(2a) with the numbers in: −8/(−4), −(−4)/4.
+	var vertex := "x = −b/(2a) = %s/%s = %s" % [N(b.neg()) if b.sign() > 0 else "−" + P(b), P(a.mul(2)), N(h)]
 	out.methods = {
 		"restrict-at-vertex": method(["f is one-to-one on one side of its vertex, so k is the x-coordinate of the vertex",
-			"x = −b ÷ 2a = −(%s) ÷ %s = %s" % [N(b), N(a.mul(2)), N(h)], final_text], ans.values),
+			vertex, final_text], ans.values),
 		"horizontal-line": method(["A horizontal line cuts the graph twice, one point either side of the vertex, so f needs a domain that stays on one side",
-			"The vertex is at x = −b ÷ 2a = %s" % N(h), "Take the domain x %s %s: %s" % [f.dir, N(h), final_text.trim_prefix("So ").trim_suffix(".")], final_text], ans.values),
+			"The vertex is at " + vertex, "Take the domain x %s %s: %s" % [f.dir, N(h), final_text.trim_prefix("So ").trim_suffix(".")], final_text], ans.values),
 	}
 	return out
 
@@ -526,16 +596,37 @@ func u_show_self_inverse(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	out.merge(pick)
 	var swapped := "Swap x and y: x = " + rt(f).replace("x", "y")
 	var rearranged := derive(f, "swap-then-solve")
-	var compose := ["f(f(x)) = " + _ff(f), "Multiply top and bottom by (%s) and simplify: f(f(x)) = x" % Fmt.poly([c, d])]
+	# a(ax + b) + b(cx + d) on top and c(ax + b) + d(cx + d) below: with d = −a the x terms
+	# below cancel, and so do the numbers on top.
+	var n := a * a + b * c
+	var top := _times(a, rt_top(f), true) + _times(b, rt_bottom(f), false)
+	var bottom := _times(c, rt_top(f), true) + _times(d, rt_bottom(f), false)
+	var compose := ["f(f(x)) = " + _ff(f),
+		"Multiply top and bottom by (%s): f(f(x)) = (%s)/(%s) = %s/%s = x" % [rt_bottom(f), top, bottom, Fmt.poly([n, 0]), P(n)]]
 	var same := "The inverse is the same expression as f(x)"
 	var methods := {
 		"swap-then-solve": method(rearranged + [same, final(right)], pick.answer.values),
-		"swap-and-rearrange": method([swapped + ", cross-multiply and collect the y terms", "y(%s) = %s" % [Fmt.poly([c, -a]), Fmt.poly([-d, b])], same, final(right)], pick.answer.values),
-		"coefficient-pattern": method(["For (ax + b)/(cx + d) the inverse is (dx − b)/(−cx + a)", "Here d = −a, so the inverse is (−ax − b)/(−cx + a) = (ax + b)/(cx − a)", same, final(right)], pick.answer.values),
+		"swap-and-rearrange": method([swapped + ", cross-multiply and collect the y terms", "%s, so y = %s" % [_collect(f), inv(f)], same, final(right)], pick.answer.values),
+		"coefficient-pattern": method([PATTERN, "Here a = %s, b = %s, c = %s and d = %s = −a, so −d = a and −a = d: the inverse is %s" % [N(a), N(b), N(c), N(d), inv(f)], same, final(right)], pick.answer.values),
 		"compose-and-simplify": method(compose + [same, final(right)], pick.answer.values),
 	}
 	out.methods = methods
 	return out
+
+
+## m(text) as a term of a sum: "6(6x − 1)", " − (2x − 6)", " + 2(x + 3)".
+static func _times(m: int, text: String, first: bool) -> String:
+	var head := ("−" if m < 0 else "") if first else (" − " if m < 0 else " + ")
+	return head + Fmt.lead(absi(m)) + "(%s)" % text
+
+
+## The top and the bottom of a rational rule: "6x − 1", "2x − 6".
+static func rt_top(f: Dictionary) -> String:
+	return Fmt.poly([f.a, f.b])
+
+
+static func rt_bottom(f: Dictionary) -> String:
+	return Fmt.poly([f.c, f.d])
 
 
 ## f(f(x)) written out: (a·f + b)/(c·f + d) with f(x) put in.
@@ -550,17 +641,36 @@ func u_self_inverse_constant(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var k: int = f.d if slot == "d" else f.a
 	var ans := number("k = ", k)
 	var shown := with_k(f, slot)
+	# b or c in k's place, their negatives, or 0; the ones near k last (FAL-1055).
 	var out := {"asked": "Find the value of k for which f is its own inverse.", "lines": ["f(x) = " + shown], "answer": ans,
-		"wrongs": [wrong({"v": Q.new(-k)}, R_SELF_PLUS)], "fillers": [{"v": Q.new(f.b)}, {"v": Q.new(f.c)}, {"v": Q.new(k + 1)}]}
-	var rule := "(ax + b)/(cx + d)"
+		"wrongs": [wrong({"v": Q.new(-k)}, R_SELF_PLUS)], "fillers": far_first(k, [f.b, f.c, -f.b, -f.c, 0])}
 	var fin := "So %s." % Answer.text(ans)
+	# k is d (= −a) or a (= −d): the other one of the pair is known.
+	var known: int = f.a if slot == "d" else f.d
+	var letter := "a" if slot == "d" else "d"
+	var a_is := N(f.a) if slot == "d" else "k"
+	var d_is := "k" if slot == "d" else N(f.d)
+	var solved := "k = −%s = −%s%s" % [letter, P(known), "" if known > 0 else " = " + N(k)]
+	# f(f(x)) = ((a² + bc)x + b(a + d))/(c(a + d)x + bc + d²) with k in for a or d.
+	var sum := "k" + Fmt.plus(known)
+	var bc: int = f.b * f.c
+	var n: int = f.a * f.a + bc
+	var ff: String
+	var k_bottom: String
+	if slot == "d":
+		ff = "(%sx%s)/(%s(%s)x + k²%s)" % [Fmt.lead(n), _times(f.b, sum, false), Fmt.lead(f.c), sum, Fmt.plus(bc)]
+		k_bottom = Fmt.lead(f.c) + "x + k"
+	else:
+		ff = "((k²%s)x%s)/(%s(%s)x%s)" % [Fmt.plus(bc), _times(f.b, sum, false), Fmt.lead(f.c), sum, Fmt.plus(n)]
+		k_bottom = rt_bottom(f)
 	out.methods = {
-		"swap-and-rearrange": method(["Swap x and y and rearrange for y: the inverse of %s is %s" % [rule, "(dx − b)/(−cx + a)"],
-			"For f to be its own inverse the two must be equal, so d = −a", "Here a = %s and d = %s, so %s" % [N(f.a) if slot == "d" else "k", "k" if slot == "d" else N(f.d), "k = %s" % N(k)], fin], ans.values),
+		"swap-and-rearrange": method(["Swap x and y and rearrange for y: the inverse of (ax + b)/(cx + d) is (−dx + b)/(cx − a)",
+			"For f to be its own inverse the two must be equal, so −d = a: d = −a", "Here a = %s and d = %s, so %s" % [a_is, d_is, solved], fin], ans.values),
 		"coefficient-pattern": method(["A function (ax + b)/(cx + d) is its own inverse when d = −a",
-			"Here a = %s and d = %s" % [N(f.a) if slot == "d" else "k", "k" if slot == "d" else N(f.d)], "So k = −(%s) = %s" % [N(f.a) if slot == "d" else N(f.d), N(k)], fin], ans.values),
-		"compose-and-simplify": method(["Put f(x) into f and set f(f(x)) = x", "The denominator of f(f(x)) simplifies only when the coefficient of x in the bottom cancels the top: d = −a",
-			"So k = %s" % N(k), fin], ans.values),
+			"Here a = %s and d = %s" % [a_is, d_is], solved, fin], ans.values),
+		"compose-and-simplify": method(["Put f(x) into f and multiply top and bottom by (%s): f(f(x)) = %s" % [k_bottom, ff],
+			"f(f(x)) = x for every x only if the bottom has no x term and the top no number added: %s = 0" % sum,
+			"%s, and then f(f(x)) = %s/%s = x" % [solved, Fmt.poly([n, 0]), P(n)], fin], ans.values),
 	}
 	return out
 
@@ -578,21 +688,25 @@ func u_inverse_as_reflections(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	if rep == "graph":
 		out.graph = graph_of(f)
 		out.lines = [InverseRuleSituation.rule_line(f), "The graph of y = f(x) is shown with its asymptotes and the line y = x."]
-	var neg_in := Fmt.poly([-a, b]).replace("x", "x")
-	var minus := "−f(−x) = −(%s)/(%s) = (%s)/(%s)" % [Fmt.poly([-a, b]), Fmt.poly([-c, a]), Fmt.poly([a, -b]), Fmt.poly([-c, a])]
+	# f(−x) = (−ax + b)/(−cx + a) (d = a), and −f(−x) puts the minus on the bottom:
+	# (−ax + b)/(cx − a), which is f⁻¹(x) as the swap gives it.
+	var f_neg := "f(−x) = (%s)/(%s)" % [Fmt.poly([-a, b]), Fmt.poly([-c, a])]
+	var minus := "−f(−x) = −(%s)/(%s) = %s" % [Fmt.poly([-a, b]), Fmt.poly([-c, a]), _neg_out(f)]
 	var steps_inv := derive(f, "swap-then-solve")
+	var found := "%s, so f⁻¹(x) = %s" % [_collect(f), inv(f)]
 	out.methods = {
-		"swap-then-solve": method(steps_inv + [minus, final(right)], pick.answer.values),
-		"graph-check": method(["Reflecting y = f(x) in y = x gives the graph of f⁻¹",
-			"Reflecting in the y-axis changes f(x) to f(−x), then in the x-axis changes it to −f(−x)", minus, final(right)], pick.answer.values),
-		"negate-output-or-input": method(["Replace x by −x: f(−x) = (%s)/(%s)" % [Fmt.poly([-a, b]), Fmt.poly([-c, a])],
-			"Negate the output (reflect in the x-axis): −f(−x) = " + _neg_out(f), "Compare with f⁻¹(x) = " + inv(f), final(right)], pick.answer.values),
+		"swap-then-solve": method(steps_inv + [minus + ", which is f⁻¹(x)", final(right)], pick.answer.values),
+		"graph-check": method(["y = %s; swap x and y, then cross-multiply: %s" % [rt(f), _cross(f)], "Collect the y terms: " + found,
+			"Reflecting in the y-axis and then the x-axis gives %s, the same as f⁻¹(x): on the GDC the two graphs lie on top of each other" % minus, final(right)], pick.answer.values),
+		"negate-output-or-input": method(["Replace x by −x: " + f_neg, "Negate the output (reflect in the x-axis): " + minus,
+			"Find f⁻¹: swap x and y in y = f(x), cross-multiply and collect the y terms: %s, the same as −f(−x)" % found, final(right)], pick.answer.values),
 	}
 	return out
 
 
+## −f(−x) for f(x) = (ax + b)/(cx + a), written as f⁻¹ is: (−ax + b)/(cx − a).
 static func _neg_out(f: Dictionary) -> String:
-	return rat_text(f.a, -f.b, -f.c, f.a)
+	return rat_text(-f.a, f.b, f.c, -f.a)
 
 
 func u_compose_to_identity(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -634,11 +748,21 @@ func u_solve_inverse_equals(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var y: Q = InverseRuleSituation.value(f, Q.new(c0))
 	var ans := number("x = ", y)
 	var slip = InverseRuleSituation.inverse_value(f, Q.new(c0))
+	# f(c0) with its sign changed, f at −c0, a·(c0 + b) for a line (b added before
+	# multiplying), c0 itself and −c0, the ones near the key last; f(c0) ± 1 only as a
+	# last resort.
+	var vals: Array = [y.neg()]
+	var at_neg = InverseRuleSituation.value(f, Q.new(-c0))
+	if at_neg != null:
+		vals.append(at_neg)
+	if f.fam == "lin":
+		vals.append(Q.new(f.a * (c0 + f.b)))
+	vals += [Q.new(c0), Q.new(-c0)]
 	var out := {"asked": "Solve f⁻¹(x) = %s." % N(c0), "lines": rule_lines(rep, f), "answer": ans,
-		"wrongs": [], "fillers": [{"v": Q.new(c0)}, {"v": y.neg()}, {"v": y.add(1)}, {"v": y.sub(1)}]}
+		"wrongs": [], "fillers": far_first(y, vals) + [{"v": y.add(1)}, {"v": y.sub(1)}]}
 	if slip != null:
 		out.wrongs.append(wrong({"v": slip}, R_SOLVE_INVERSE))
-	var put := rt(f).replace("x", Fmt.paren(c0))
+	var put := sub_x(rt(f), c0)
 	out.methods = {"identity-property": method(["f⁻¹(x) = %s means x = f(%s), because f undoes f⁻¹" % [N(c0), N(c0)],
 		"f(%s) = %s = %s" % [N(c0), put, N(y)], "So %s." % Answer.text(ans)], ans.values)}
 	return out
@@ -651,36 +775,65 @@ func u_function_from_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var plain: Array = []
 	match f.fam:
 		"lin":
-			wrongs.append(tag("f(x) = %s(x%s)" % [Fmt.lead(f.a), Fmt.plus(f.b)] if f.b != 0 else "f(x) = %s" % Fmt.poly([f.a, 1]), R_ORDER))
+			# With b = 0 there is no order to get wrong and no sign to keep: no slip.
 			if f.b != 0:
+				wrongs.append(tag("f(x) = %s(x%s)" % [Fmt.lead(f.a), Fmt.plus(f.b)], R_ORDER))
 				wrongs.append(tag("f(x) = " + Fmt.poly([f.a, -f.b]), R_SAME_SIGN))
-			plain = ["f(x) = " + Fmt.poly([-f.a, f.b]), "f(x) = " + Fmt.poly([f.a, f.b + 1]), "f(x) = " + Fmt.poly([f.a + 1, f.b]),
-				"f(x) = " + Fmt.poly([-f.a, -f.b])]
+			# The gradient's sign changed, or the division by a kept instead of undone.
+			plain = ["f(x) = " + Fmt.poly([-f.a, f.b]), "f(x) = " + InverseRuleSituation.order_text(f.a, -f.b),
+				"f(x) = " + Fmt.poly([-f.a, -f.b]), "f(x) = " + InverseRuleSituation.order_text(-f.a, -f.b)]
 		"rat":
-			plain = ["f(x) = " + rat_text(f.a, -f.b, f.c, f.d), "f(x) = " + rat_text(f.a, f.b, -f.c, f.d), "f(x) = " + rat_text(f.d, f.b, f.c, f.a),
-				"f(x) = " + rat_text(f.a, f.b, f.c, -f.d), "f(x) = " + rat_text(f.a, f.b + 1, f.c, f.d), "f(x) = " + rat_text(f.d, -f.b, -f.c, f.a)]
+			# A sign changed, a and d swapped, or f⁻¹ itself; 1/f⁻¹ and a b out by one only as a
+			# last resort, where a = d makes the swaps the key or a constant.
+			plain = rat_plain([f.a, f.b, f.c, f.d], [[f.a, -f.b, f.c, f.d], [f.a, f.b, -f.c, f.d], [f.d, f.b, f.c, f.a],
+				[f.a, f.b, f.c, -f.d], [f.d, -f.b, -f.c, f.a], [-f.a, f.b, f.c, f.d], [f.a, f.b + 1, f.c, f.d],
+				[f.c, -f.a, -f.d, f.b], [f.a, f.b - 1, f.c, f.d]], "f(x) = %s")
 		_:
-			wrongs.append(tag("f(x) = %s^(x%s)" % [InverseRuleSituation.base_text(f.base), Fmt.plus(f.q)] if f.q != 0 else "f(x) = %s^(x + 1)" % InverseRuleSituation.base_text(f.base), R_ORDER))
+			var base := InverseRuleSituation.base_text(f.base)
+			# With q = 0 there is no order to get wrong and no sign to keep: no slip.
 			if f.q != 0:
-				wrongs.append(tag("f(x) = %s^x%s" % [InverseRuleSituation.base_text(f.base), Fmt.plus(-f.q)], R_SAME_SIGN))
+				wrongs.append(tag("f(x) = %s^(x%s)" % [base, Fmt.plus(f.q)], R_ORDER))
+				wrongs.append(tag("f(x) = %s^x%s" % [base, Fmt.plus(-f.q)], R_SAME_SIGN))
+				plain = ["f(x) = %s^(x%s)" % [base, Fmt.plus(-f.q)], "f(x) = %s^(−x)%s" % [base, Fmt.plus(f.q)], "f(x) = %s^x" % base]
 			else:
-				plain = ["f(x) = %s^x%s" % [InverseRuleSituation.base_text(f.base), Fmt.plus(1)]]
-			plain += ["f(x) = %s^x%s" % [InverseRuleSituation.base_text(f.base), Fmt.plus(f.q + 1)], "f(x) = %s^x%s" % [InverseRuleSituation.base_text(f.base), Fmt.plus(-f.q - 1)]]
+				plain = ["f(x) = %s^(−x)" % base, "f(x) = −%s^x" % base, "f(x) = %s^(x + 1)" % base]
 	var pick := pick_of(right, wrongs, plain)
 	var steps_back := InverseRuleSituation.rule_steps(f)
 	var lines: Array = ["f⁻¹(x) = " + inv(f)]
 	if rep == "words" and not steps_back.is_empty():
 		var undo_words := _undo(f)
 		lines = ["f⁻¹: %s." % undo_words]
-	var out := {"asked": "Find f(x).", "lines": lines}
+	var out := {"asked": "Find f(x).", "lines": lines, "titles": {"graph-reflection": "Reflect the graph of f⁻¹ in y = x"}}
 	out.merge(pick)
-	var swapped := "y = %s, swap x and y: x = %s" % [inv(f), inv(f).replace("x", "y")]
+	var swap := "swap x and y: x = " + inv(f).replace("x", "y")
+	# y from x = f⁻¹(y): for a rational rule, cross-multiplied and its y terms collected.
+	var solve := "Solve for y: y = " + rt(f)
+	if f.fam == "rat":
+		var g := {"fam": "rat", "a": -f.d, "b": f.b, "c": f.c, "d": -f.a}
+		solve = "Solve for y: %s, so %s and y = %s" % [_cross(g), _collect(g), rt(f)]
+	var pt := check_point(f)
+	var check := "" if pt.is_empty() else ". Check: %s is on the graph of f⁻¹, and its reflection %s is on the graph of f" % [Fmt.point(pt[1], pt[0]), Fmt.point(pt[0], pt[1])]
 	out.methods = {
-		"swap-then-solve": method(["Write y = f⁻¹(x) and swap x and y: x = %s" % inv(f).replace("x", "y"), "Solve for y: y = " + rt(f), final(right)], pick.answer.values),
-		"reverse-operations": method(["f⁻¹ does: %s" % _undo(f), "f undoes that, in reverse order: %s" % ", then ".join(steps_back) if not steps_back.is_empty() else "f undoes the steps of f⁻¹ in reverse order", final(right)], pick.answer.values),
-		"graph-reflection": method(["The graph of f is the graph of f⁻¹ reflected in y = x", "Reflecting swaps x and y, which gives " + rt(f).replace("x", "x"), final(right)], pick.answer.values),
+		"swap-then-solve": method(["Write y = f⁻¹(x) and " + swap, solve, final(right)], pick.answer.values),
+		"graph-reflection": method(["Reflecting the graph of f⁻¹ in y = x swaps x and y: x = " + inv(f).replace("x", "y"), solve + check, final(right)], pick.answer.values),
 	}
+	# A rational rule is no chain of steps, so it has no working by undoing them.
+	if not steps_back.is_empty():
+		out.methods["reverse-operations"] = method(["f⁻¹ does: %s" % _undo(f), "f undoes that, in reverse order: %s" % ", then ".join(steps_back), final(right)], pick.answer.values)
 	return out
+
+
+## A point (x, f(x)) with whole coordinates, for checking a reflection: [x, f(x)], or []
+## when no small whole x gives one.
+static func check_point(f: Dictionary) -> Array:
+	for x0 in [1, 2, 0, -1, 3, -2]:
+		var v = InverseRuleSituation.value(f, Q.new(x0))
+		if f.fam == "exp" and (x0 == 1 or x0 == 0):
+			# e^1 is no whole number, so e is checked at 0.
+			v = null if str(f.base) == "e" and x0 == 1 else Q.new((1 if x0 == 0 else int(f.base)) + f.q)
+		if v != null and v.is_int() and not v.eq(x0):
+			return [Q.new(x0), v]
+	return []
 
 
 func u_inverse_asymptotes(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -693,10 +846,11 @@ func u_inverse_asymptotes(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		var xa := Q.new(f.a, f.c)
 		var ya := Q.new(-f.d, f.c)
 		right = "x = %s and y = %s" % [N(xa), N(ya)]
+		# f's own asymptotes once only: "y = a/c and x = −d/c" is the same pair as the key.
 		bad.append(tag("x = %s and y = %s" % [N(ya), N(xa)], R_EXCLUDED))
-		bad.append(tag("y = %s and x = %s" % [N(xa), N(ya)], R_EXCLUDED))
 		bad.append(tag("x = %s and y = %s" % [N(xa), N(ya.neg())], R_MINUS))
-		plain = ["x = %s and y = %s" % [N(xa.neg()), N(ya.neg())]]
+		plain = ["x = %s and y = %s" % [N(xa.neg()), N(ya.neg())], "x = %s and y = %s" % [N(xa.neg()), N(ya)],
+			"x = %s and y = %s" % [N(ya.neg()), N(xa.neg())]]
 		f_asy = "x = %s and y = %s" % [N(ya), N(xa)]
 	else:
 		right = "x = %s" % N(f.q)

@@ -926,6 +926,7 @@ func _show_result(r: Dictionary) -> void:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.TEAL)
 			elif i == _choice:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.PINK)
+	_colour_picks(r.outcome in ["right", "late"])
 	# Q5: the worked solution shows after a wrong answer or a timeout.
 	if not r.solution.is_empty():
 		_show_working()

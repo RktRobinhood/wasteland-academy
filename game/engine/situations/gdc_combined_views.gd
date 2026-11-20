@@ -69,6 +69,11 @@ static func wrong(values: Dictionary, ref: String = "") -> Dictionary:
 	return {"values": values, "ref": ref}
 
 
+## A written number bracketed when it is negative, as it is added: "(−0.500)".
+static func _bracket(t: String) -> String:
+	return "(%s)" % t if t.begins_with("−") else t
+
+
 static func ft(s: Dictionary) -> String:
 	return GdcTwoCurvesSituation.text(s.f, s.var)
 
@@ -104,6 +109,13 @@ static func d_text(s: Dictionary) -> String:
 	return "%s − %s" % [ft(s), gt(s)]
 
 
+## f + g as one expression, its terms joined by their signs: "2.5cos(1.5x) − 0.8x + 2", not
+## "2.5cos(1.5x) + −0.8x + 2". The sum's f is a trig curve, so g's line adds to its m and c.
+static func sum_text(s: Dictionary) -> String:
+	var f: Dictionary = s.f
+	return GdcTwoCurvesSituation.text(GdcTwoCurvesSituation.curve(f.fam, {"A": f.A, "B": f.B, "fn": f.fn, "m": f.m.add(s.g.m), "c": f.c.add(s.g.c)}))
+
+
 static func d_step(s: Dictionary) -> String:
 	return "D(t) = %s, %s." % [d_text(s), d_meaning(s)]
 
@@ -115,11 +127,11 @@ func u_form_difference(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var gen: Array
 	var reversed := ""
 	if s.kind == "towns":
-		# −(q + rt) written out, a sign slip and the sum. The first is reversed and its bracket
-		# dropped as well, two slips at once, so it stays a filler.
+		# P − Q with its bracket opened, the reversed slip. Reversed with the bracket dropped as
+		# well (two slips at once), the sum, and e^(kt) lost stay fillers.
 		var q: Dictionary = s.g
-		gen = ["D(t) = %s − %s" % [ft(s), gt(s)], "D(t) = %s − %s%s" % [ft(s), GdcKit.first(q.m, "t"), GdcKit.join(q.c, "")],
-			"D(t) = %s + %s" % [ft(s), gt(s)], "D(t) = %s − %s" % [gt(s), GdcKit.first(s.f.A, "t")]]
+		reversed = "D(t) = %s − %s%s" % [ft(s), GdcKit.first(q.m, "t"), GdcKit.join(q.c.neg(), "")]
+		gen = ["D(t) = %s − %s" % [ft(s), gt(s)], "D(t) = %s + %s" % [ft(s), gt(s)], "D(t) = %s − %s" % [gt(s), GdcKit.first(s.f.A, "t")]]
 	else:
 		var dk: Q = s.f.A.sub(s.g.A)
 		reversed = "D(t) = %s − %s" % [gt(s), ft(s)]
@@ -129,8 +141,9 @@ func u_form_difference(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final: String = "So " + out.answer.values.v + "."
 	out.merge({
 		"asked": "Write down an expression for D(t), %s." % d_meaning(s), "lines": [models(s, rep)],
+		# The order comes from what D measures, not from which model is ahead (either can be).
 		"methods": {"simplify-first": {"result": out.answer.values, "steps": [
-			"The one that is ahead comes first: %s." % ("Q(t) − P(t)" if s.kind == "towns" else "A(t) − B(t)"),
+			"D(t) is %s, so it is %s." % (["how far Q is ahead of P", "Q(t) − P(t)"] if s.kind == "towns" else ["how much higher A is than B", "A(t) − B(t)"]),
 			"Substitute each model in brackets, then drop the brackets with care: %s." % d_text(s), final]}}})
 	return out
 
@@ -158,13 +171,27 @@ func u_max_difference(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {
 		"asked": "Find the greatest value of D(t), %s, and the time when it happens." % d_meaning(s), "lines": [models(s, rep)],
 		"answer": ans, "wrongs": wrongs, "fillers": gen,
+		# The steps solve D′(t) = 0 and graph D itself, not f′ or Y1 + Y2.
+		"titles": {"derivative-zero": "Solve D′(t) = 0", "gdc-combine": "Graph D(t) on the GDC as one function"},
 		"methods": {
 			"gdc-combine": {"result": ans.values, "steps": [d_step(s), "Graph y = D(t) on %s, as one function." % dom(s), tool, final]},
 			"gdc-max-min": {"result": ans.values, "steps": [d_step(s), "Graph it and use the maximum tool, not the maximum of either model.", tool, final]},
-			"derivative-zero": {"result": ans.values, "steps": [d_step(s),
-				"D′(t) = 0 mixes families, so solve it on the GDC: t = %s." % W(e.x), "Then D(%s) = %s." % [W(e.x), W(e.y)], final]},
+			"derivative-zero": {"result": ans.values, "steps": [d_step(s), _d_prime_zero(s, e.x), "Then D(%s) = %s." % [W(e.x), W(e.y)], final]},
 		},
 	}
+
+
+## D′(t) = 0 solved. The towns' D = q + rt − pe^(bt) has D′(t) = r − pbe^(bt), so t = ln(r/(pb)) ÷ b
+## exactly; the drugs' D′ mixes t·e^(−kt) terms, which only the GDC solves.
+static func _d_prime_zero(s: Dictionary, x: float) -> String:
+	if s.kind != "towns":
+		return "D′(t) = 0 has no algebraic solution here, so solve it on the GDC: t = %s." % W(x)
+	var r: Q = s.g.m
+	var pb: Q = s.f.A.mul(s.f.b)
+	var ratio: Q = r.div(pb)
+	var t: float = log(ratio.to_float()) / s.f.b.to_float()
+	return "D′(t) = %s − %se^(%st) = 0, so e^(%st) = %s and t = ln(%s) ÷ %s = %s." % [Fmt.dec(r), GdcKit.lead(pb), GdcKit.lead(s.f.b),
+		GdcKit.lead(s.f.b), Fmt.dec(ratio), Fmt.dec(ratio), Fmt.dec(s.f.b), W(t)]
 
 
 func u_difference_zero(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -178,11 +205,15 @@ func u_difference_zero(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {
 		"asked": "Find when D(t), %s, is zero." % d_meaning(s), "lines": [models(s, rep)], "answer": ans,
 		"wrongs": [wrong(Answer.xs_of([qf(out_z), qf(z)]), CA + "#1")], "fillers": gen,
+		# Logs can't solve an exponential equal to a line: the method is named as the check
+		# that they can't, then the GDC, so the working doesn't contradict the prompt.
+		"titles": {"gdc-combine": "Graph D(t) on the GDC as one function",
+			"analytic-logs": "Explain why logs can't solve it, then use the GDC"},
 		"methods": {
 			"gdc-combine": {"result": ans.values, "steps": [d_step(s), "Graph y = D(t) and use the zero tool.", both, final]},
 			"gdc-intersect": {"result": ans.values, "steps": ["D(t) = 0 where the models are equal: graph y = %s and y = %s." % [ft(s), gt(s)],
 				both, final]},
-			"analytic-logs": {"result": ans.values, "steps": ["%s = %s mixes an exponential and a line, so taking logs can't solve it: this method fails." % [ft(s), gt(s)],
+			"analytic-logs": {"result": ans.values, "steps": ["%s = %s has t in the power and outside it, so taking logs can't isolate t; use the GDC." % [ft(s), gt(s)],
 				both, final]},
 		},
 	}
@@ -219,13 +250,16 @@ func u_closest_point(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 func _distance(s: Dictionary, ans: Dictionary, final: String, e: Dictionary, c: Array) -> Dictionary:
 	var px := Fmt.num(s.P[0])
 	var py := Fmt.num(s.P[1])
-	var dx := "x" if s.P[0] == 0 else "x %s %s" % ["−" if s.P[0] > 0 else "+", Fmt.num(absi(s.P[0]))]
+	# x² alone when P is on the y-axis, not (x)².
+	var dx := "x²" if s.P[0] == 0 else "(x %s %s)²" % ["−" if s.P[0] > 0 else "+", Fmt.num(absi(s.P[0]))]
 	var fy := "f(x)" if s.P[1] == 0 else "f(x) %s %s" % ["−" if s.P[1] > 0 else "+", Fmt.num(absi(s.P[1]))]
-	var d := "d(x) = √((%s)² + (%s)²)" % [dx, fy]
+	var d := "d(x) = √(%s + (%s)²)" % [dx, fy]
 	var tool := "The minimum tool gives x = %s, where d = %s; the point is %s." % [W(e.x), W(e.y), GdcKit.pt6(c[0], c[1])]
 	return {
 		"lines": ["f(x) = %s, for %s, and the point P(%s, %s)" % [ft(s), "%s ≤ x ≤ %s" % [Fmt.num(s.d1), Fmt.num(s.d2)], px, py]],
 		"answer": ans, "wrongs": [], "fillers": [],
+		# The steps solve d′(x) = 0 and graph d itself, not f′ or Y1 + Y2.
+		"titles": {"derivative-zero": "Solve d′(x) = 0", "gdc-combine": "Graph d(x) on the GDC as one function"},
 		"methods": {
 			"gdc-combine": {"result": ans.values, "steps": ["The distance from P to the point (x, f(x)) is " + d + ".",
 				"Graph y = d(x) on the domain.", tool, final]},
@@ -265,7 +299,8 @@ func u_sum_graph(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"answer": p.answer, "graphs": p.graphs,
 		"methods": {"add-ordinates": {"result": p.answer.values, "steps": [
 			"At each x, add the heights: the new height is f(x) + g(x).",
-			"For example at x = %s: %s + %s = %s." % [Fmt.num(s.d1), S(f.call(lo)), S(g.call(lo)), S(sum.call(lo))], final]}},
+			# A negative height is added in brackets: −0.527 + (−0.500).
+			"For example at x = %s: %s + %s = %s." % [Fmt.num(s.d1), S(f.call(lo)), _bracket(S(g.call(lo))), S(sum.call(lo))], final]}},
 	}
 
 
@@ -279,7 +314,7 @@ func u_sum_zeros(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"asked": "Find the zeros of f(x) + g(x).", "lines": ["f(x) = %s and g(x) = %s, for %s ≤ x ≤ %s" % [ft(s), gt(s), Fmt.num(s.d1), Fmt.num(s.d2)]],
 		"answer": ans, "wrongs": [wrong(Answer.xs_of(both.map(func(z): return qf(z))), SD + "#1")], "fillers": gen}
 	if rep == "graph":
-		out.lines = ["The graphs of " + out.lines[0] + " are shown."]
+		out.lines = ["The graphs of " + out.lines[0] + ", are shown."]
 		var lo: float = s.d1.to_float()
 		var hi: float = s.d2.to_float()
 		var f := func(x: float) -> float: return GdcTwoCurvesSituation.at(s.f, x)
@@ -292,7 +327,7 @@ func u_sum_zeros(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.graph = Plot.spec([GdcKit.curve(f, lo, hi), GdcKit.curve(g, lo, hi)], [], w[0], w[1], w[2], w[3])
 	var zs := Answer.xs_list(s.zeros.map(func(z): return "x = " + W(z)))
 	out.methods = {"gdc-combine": {"result": ans.values, "steps": [
-		"Enter y = %s + %s as one function: the zeros of the sum, not of each part." % [ft(s), gt(s)],
+		"Enter y = %s as one function: the zeros of the sum, not of each part." % sum_text(s),
 		"The zero tool gives " + zs + ".", final]}}
 	return out
 
@@ -303,14 +338,16 @@ func u_interpret_extreme(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var lead: String
 	var equal: String
 	var own: String
+	# The 'how much' slip reads the time as the size of the lead: with the true size (e.y) it
+	# would be a true statement, only not what the time means.
 	if s.kind == "towns":
 		right = "It is %s years after 2020 that town Q is furthest ahead of town P." % S(e.x)
-		lead = "Town Q's greatest lead over town P is %s thousand people." % S(e.y)
+		lead = "Town Q's greatest lead over town P is %s thousand people." % S(e.x)
 		equal = "It is %s years after 2020 that town P overtakes town Q." % S(e.x)
 		own = "It is %s years after 2020 that town Q's population is greatest." % S(e.x)
 	else:
 		right = "It is %s hours after the drugs are taken that A's concentration is furthest above B's." % S(e.x)
-		lead = "The greatest amount by which A's concentration is above B's is %s mg/l." % S(e.y)
+		lead = "The greatest amount by which A's concentration is above B's is %s mg/l." % S(e.x)
 		own = "It is %s hours after the drugs are taken that A's concentration is greatest." % S(e.x)
 		equal = "It is %s hours after the drugs are taken that the concentrations are equal." % S(e.x)
 	var out := _choice(right, [wrong({"v": lead}, CA + "#2"), wrong({"v": equal}, R_EQUAL), wrong({"v": own}, R_OWN_MAX)], [])
@@ -330,7 +367,11 @@ func u_first_whole_day(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("number", {"v": Q.new(n)}, {}, "t = ")
 	ans.exact = true
 	var final := "So the first whole number of years is " + Answer.text(ans) + "."
-	var gen: Array = [{"v": Q.new(n + 1)}, {"v": Q.new(roundi(s.ext.x))}, {"v": Q.new(maxi(n - 2, 0))}]
+	# Away from the key first: the first year P passes Q's starting size (as if Q stood still),
+	# the year Q leads by most, the domain's end; n + 1 and n − 2, beside the key, only if
+	# those fall on another option.
+	var still := ceili(log(s.g.c.to_float() / s.f.A.to_float()) / s.f.b.to_float())
+	var gen: Array = [{"v": Q.new(still)}, {"v": Q.new(roundi(s.ext.x))}, {"v": s.d2}, {"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 2, 0))}]
 	var out := {"asked": "Find the first whole number of years t after 2020 at which town P has more people than town Q.",
 		"lines": [models(s, "words")], "answer": ans, "wrongs": [wrong({"v": Q.new(floori(z))}, CA + "#0")], "fillers": gen}
 	if rep == "table":

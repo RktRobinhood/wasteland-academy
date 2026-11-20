@@ -78,6 +78,28 @@ func test_match_three_forms_has_no_majority_vote() -> void:
 			check(n <= 2, "%s seed %d: %s is in %d options" % [q.cell, q.view.seed, parts[i], n])
 
 
+## The option wrong in both forms makes one slip in both, not two different slips:
+## the roots' signs in both brackets, or a left out of both forms (FAL-1055 batch 2).
+func test_match_three_forms_double_wrong_option_is_one_slip() -> void:
+	var one := Q.new(1).key()
+	for q in _each(FORMS, "match-three-forms"):
+		var k: Dictionary = q.choices.filter(func(o): return o.correct)[0].values
+		var seen := 0
+		for o in q.choices:
+			var v: Dictionary = o.values
+			var f_wrong: bool = v.fa.key() != k.fa.key() or v.fp.key() != k.fp.key() or v.fq.key() != k.fq.key()
+			var v_wrong: bool = v.va.key() != k.va.key() or v.vh.key() != k.vh.key()
+			if not (f_wrong and v_wrong):
+				continue
+			seen += 1
+			var signs: bool = v.fa.key() == k.fa.key() and v.fp.key() == k.fp.neg().key() and v.fq.key() == k.fq.neg().key() \
+				and v.va.key() == k.va.key() and v.vh.key() == k.vh.neg().key()
+			var no_a: bool = v.fa.key() == one and v.va.key() == one and v.fp.key() == k.fp.key() and v.fq.key() == k.fq.key() \
+				and v.vh.key() == k.vh.key()
+			check(signs or no_a, "%s seed %d: %s mixes two slips" % [q.cell, q.view.seed, o.text])
+		check_eq(seen, 1, "%s seed %d: options wrong in both forms" % [q.cell, q.view.seed])
+
+
 func test_match_three_forms_working_finds_the_forms() -> void:
 	for q in _each(FORMS, "match-three-forms"):
 		for sol in q.solutions:

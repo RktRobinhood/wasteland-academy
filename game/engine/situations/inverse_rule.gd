@@ -6,8 +6,10 @@ extends RefCounted
 ##
 ## A rule is {"fam": family, ...}:
 ##   lin    a·x + b                     all x, all y
-##   rat    (a·x + b)/(c·x + d)         x ≠ −d/c, y ≠ a/c (c ≠ 0, ad − bc ≠ 0); the
-##                                      asymptotes are whole numbers
+##   rat    (a·x + b)/(c·x + d)         x ≠ −d/c, y ≠ a/c (c > 0, ad − bc ≠ 0, no common
+##                                      factor of a, b, c, d, and d ≠ −a outside selfinv,
+##                                      so f is not its own inverse); the asymptotes are
+##                                      whole numbers
 ##   root   √(p·x + q) + r              x ≥ x0 = −q/p (a whole number), y ≥ r
 ##   rquad  (x − h)² + k on x ≥ h (dir ≥) or x ≤ h (dir ≤): y ≥ k
 ##   exp    base^x + q                  all x, y > q (base 2, 3 or e)
@@ -16,8 +18,11 @@ extends RefCounted
 ##   lin, rat, root, rquad, exp   the family asked for
 ##   any      a rat, root, rquad or exp rule (domain, range and asymptotes of the inverse)
 ##   solve    lin, rat or root, a whole number c0 with x = f(c0) whole: f⁻¹(x) = c0
+##            (no rat said in words: a rational rule has no chain of steps)
 ##   ident    any family and a whole number n for (f∘f⁻¹)(n)
-##   funcinv  lin, rat or exp: f⁻¹ is given and f asked
+##   funcinv  lin, rat or exp: f⁻¹ is given and f asked (lin or exp in words, or by
+##            reverse operations, which need a chain of steps); never a lin −x + b,
+##            which is its own inverse
 ##   asym     rat or exp: the asymptotes of f⁻¹ from those of f
 ##   selfinv  rat with d = −a (its own inverse), `slot` ("a" or "d") hidden as k
 ##   refl     rat with d = a, so f⁻¹(x) = −f(−x)
@@ -45,8 +50,11 @@ static func nonzero(rng: Seeded, lo: int, hi: int) -> int:
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	var mode: String = need.get("mode", "lin")
+	# A rule said in words, or undone step by step, needs a chain of steps: a rational
+	# rule has none.
+	var steps_only: bool = need.get("rep", "") == "words" or need.get("angle", "") == "reverse-operations"
 	for i in TRIES:
-		var s := _draw(rng, mode)
+		var s := _draw(rng, mode, steps_only)
 		if not s.is_empty():
 			s.mode = mode
 			return s
@@ -69,9 +77,49 @@ static func rat(rng: Seeded) -> Dictionary:
 		var a: int = c * nonzero(rng, -3, 3)
 		var d: int = c * nonzero(rng, -3, 3)
 		var b := rng.int_in(-6, 6)
-		if a * d - b * c != 0:
-			return {"fam": "rat", "a": a, "b": b, "c": c, "d": d}
+		# d = −a is its own inverse: that case is show-self-inverse's, not a find-the-inverse.
+		if a * d - b * c != 0 and d != -a:
+			var f := rat_rule(a, b, c, d)
+			if not f.is_empty():
+				return f
 	return {}
+
+
+## (ax + b)/(cx + d) with c > 0 (top and bottom negated when c < 0), or {} when a, b, c
+## and d share a factor, so the rule is never written with a minus on top and bottom or
+## a factor that cancels.
+static func rat_rule(a: int, b: int, c: int, d: int) -> Dictionary:
+	if gcd4(a, b, c, d) != 1:
+		return {}
+	var s := -1 if c < 0 else 1
+	return {"fam": "rat", "a": s * a, "b": s * b, "c": s * c, "d": s * d}
+
+
+static func gcd4(a: int, b: int, c: int, d: int) -> int:
+	var g := 0
+	for v in [a, b, c, d]:
+		var x := absi(v)
+		while x != 0:
+			var t := g % x
+			g = x
+			x = t
+	return g
+
+
+## (ax + b)/(cx + d) written with the common factor cancelled and the bottom's leading
+## coefficient positive, so two equal functions are written the same way (the views'
+## options are told apart by their text). A top or bottom of one term is not bracketed,
+## except a bottom such as 2x: "3x/(x − 1)", "(2x + 1)/(x − 3)", "5/x", "1/(2x)".
+static func rat_frac(a: int, b: int, c: int, d: int) -> String:
+	var g := gcd4(a, b, c, d)
+	if g == 0:
+		return "?"
+	if c < 0 or (c == 0 and d < 0):
+		g = -g
+	var top := Fmt.poly([a / g, b / g])
+	var bottom := Fmt.poly([c / g, d / g])
+	var plain_bottom := not " " in bottom and (bottom == "x" or not bottom.contains("x"))
+	return "%s/%s" % [top if not " " in top else "(%s)" % top, bottom if plain_bottom else "(%s)" % bottom]
 
 
 static func root(rng: Seeded) -> Dictionary:
@@ -88,7 +136,7 @@ static func exp_rule(rng: Seeded) -> Dictionary:
 	return {"fam": "exp", "base": pick(rng, BASES), "q": rng.int_in(-4, 4)}
 
 
-static func _draw(rng: Seeded, mode: String) -> Dictionary:
+static func _draw(rng: Seeded, mode: String, steps_only: bool = false) -> Dictionary:
 	var s := {}
 	match mode:
 		"lin":
@@ -104,7 +152,7 @@ static func _draw(rng: Seeded, mode: String) -> Dictionary:
 		"any":
 			s.f = _family(rng, ["rat", "root", "rquad", "exp"])
 		"solve":
-			s.f = _family(rng, ["lin", "lin", "rat", "root"])
+			s.f = _family(rng, ["lin", "lin", "root"] if steps_only else ["lin", "lin", "rat", "root"])
 			s.c0 = rng.int_in(-5, 6)
 			var y = value(s.f, Q.new(s.c0))
 			if y == null or not y.is_int() or y.abs_q().lt(41) == false:
@@ -120,7 +168,10 @@ static func _draw(rng: Seeded, mode: String) -> Dictionary:
 			elif s.f.fam == "rat" and s.n * s.f.c == s.f.a:
 				return {}
 		"funcinv":
-			s.f = _family(rng, ["lin", "rat", "exp"])
+			s.f = _family(rng, ["lin", "exp"] if steps_only else ["lin", "rat", "exp"])
+			# −x + b is its own inverse: f⁻¹ given would already be f.
+			if s.f.fam == "lin" and s.f.a == -1:
+				return {}
 		"asym":
 			s.f = _family(rng, ["rat", "exp"])
 		"selfinv":
@@ -129,7 +180,7 @@ static func _draw(rng: Seeded, mode: String) -> Dictionary:
 			var b := rng.int_in(-6, 6)
 			if -a * a - b * c == 0 or b == 0:
 				return {}
-			s.f = {"fam": "rat", "a": a, "b": b, "c": c, "d": -a}
+			s.f = rat_rule(a, b, c, -a)
 			s.slot = "d" if rng.chance(0.5) else "a"
 		"refl":
 			var c: int = pick(rng, [1, 1, -1, 2])
@@ -137,7 +188,7 @@ static func _draw(rng: Seeded, mode: String) -> Dictionary:
 			var b := nonzero(rng, -6, 6)
 			if a * a - b * c == 0:
 				return {}
-			s.f = {"fam": "rat", "a": a, "b": b, "c": c, "d": a}
+			s.f = rat_rule(a, b, c, a)
 		"pair":
 			s.f = lin(rng)
 			if s.f.a == -1 and rng.chance(0.5):
@@ -225,7 +276,7 @@ static func rule_text(f: Dictionary) -> String:
 		"lin":
 			return Fmt.poly([f.a, f.b])
 		"rat":
-			return frac(Fmt.poly([f.a, f.b]), Fmt.poly([f.c, f.d]))
+			return rat_frac(f.a, f.b, f.c, f.d)
 		"root":
 			var inside := Fmt.poly([f.p, f.q])
 			return "%s%s" % ["√x" if inside == "x" else "√(%s)" % inside, "" if f.r == 0 else Fmt.plus(f.r)]
@@ -299,7 +350,7 @@ static func inverse_text(f: Dictionary) -> String:
 				return "%s/%d" % [top, absi(a)]
 			return "(%s)/%d" % [top, absi(a)]
 		"rat":
-			return frac(Fmt.poly([f.d, -f.b]), Fmt.poly([-f.c, f.a]))
+			return rat_frac(-f.d, f.b, f.c, -f.a)
 		"root":
 			var sq := "x²" if f.r == 0 else Fmt.factor(f.r) + "²"
 			if f.q == 0:

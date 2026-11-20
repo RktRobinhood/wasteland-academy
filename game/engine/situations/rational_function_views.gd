@@ -52,12 +52,15 @@ const R_K_IS_H := "fn-rational-sketch#13"
 const R_K_IS_ZERO := "fn-rational-sketch#14"
 const R_INVERSE_NEGATIVE := "fn-rational-sketch#15"
 const R_INVERSE_DIVIDE := "fn-rational-sketch#16"
+const R_RECIP_SAME := "fn-rational-sketch#17"
+const R_RECIP_NEGATED := "fn-rational-sketch#18"
 const R_A_NOT_DIVIDED := "fn-ext-transformed-reciprocal#3"
 const R_SHIFTS_SWAPPED := "fn-ext-transformed-reciprocal#4"
 const R_TRANSLATE_FIRST := "fn-ext-transformed-reciprocal#5"
 const R_COMBINE_NO_AH := "fn-ext-transformed-reciprocal#6"
 const R_COMBINE_SIGN := "fn-ext-transformed-reciprocal#7"
 const R_COMBINE_ADD := "fn-ext-transformed-reciprocal#8"
+const R_SPLIT_SIGN := "fn-ext-transformed-reciprocal#9"
 
 
 func needs() -> Dictionary:
@@ -94,8 +97,8 @@ func needs() -> Dictionary:
 		"translation-vector": {"mode": "monic"},
 		"transformation-sequence": {"mode": "monic", "stretched": true},
 		"combine-to-single": {"mode": "monic"},
-		"form-from-graph": {"graph": true},
-		"form-from-words": {"mode": "monic"},
+		"form-from-graph": {"graph": true, "stretched": true},
+		"form-from-words": {"mode": "monic", "stretched": true},
 	}
 
 
@@ -168,10 +171,13 @@ static func fx(s: Dictionary) -> String:
 
 
 ## A number as the working shows it: exact in Paper 1; in Paper 2 the fraction and its
-## decimal "−7/9 = −0.778" (the answer is to 3 s.f.).
+## decimal "−7/9 = −0.778 (3 s.f.)" (the answer is to 3 s.f.), or "−1/2 = −0.5" when the
+## decimal ends within 3 s.f., so it is not rounded.
 static func work(q: Variant, paper2: bool) -> String:
 	var t := Fmt.num(q)
 	if paper2 and not Q.of(q).is_int():
+		if not Answer.needs_rounding(Q.of(q)):
+			return "%s = %s" % [t, Fmt.dec(q)]
 		return "%s = %s (3 s.f.)" % [t, Fmt.sf(q)]
 	return t
 
@@ -215,6 +221,12 @@ static func at(s: Dictionary, x: float) -> String:
 	return Fmt.dec(Q.new(roundi(RationalFunctionSituation.y_at(s, x) * 10000.0), 10000)).replace("-", "−")
 
 
+## f(x) at a large x as a GDC shows it in the working, to 4 decimal places with the
+## trailing zeros kept, so two values side by side have the same number of figures.
+static func at4(s: Dictionary, x: float) -> String:
+	return ("%.4f" % RationalFunctionSituation.y_at(s, x)).replace("-", "−")
+
+
 ## "A + B/(x − h)" for a monic f, or a general description when c ≠ 1.
 static func split_text(s: Dictionary) -> String:
 	if s.c == 1:
@@ -248,16 +260,19 @@ func u_ha_from_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var A: Q = s.A
 	var ans := axis_ans("y", A, pp)
 	var fin := final("So the horizontal asymptote is", ans)
-	var ratio := "y = a/c = " + Fmt.equals("%s/%s" % [Fmt.num(s.a), Fmt.num(s.c)], work(A, pp)) if s.c != 1 else "y = a/c = %s" % Fmt.num(A)
-	var far := "f(1000) = %s and f(−1000) = %s" % [at(s, 1000.0), at(s, -1000.0)]
+	# The ratio of f's own x-coefficients (f has numbers, not the letters a and c).
+	var ratio := "y = " + Fmt.equals("%s/%s" % [Fmt.num(s.a), Fmt.num(s.c)], work(A, pp)) if s.c != 1 else "y = %s" % Fmt.num(A)
+	var far := "f(1000) = %s and f(−1000) = %s" % [at4(s, 1000.0), at4(s, -1000.0)]
+	# −3x/(7x): the x-term of the denominator bracketed; 2x/x when c = 1.
+	var xterms := "%sx/%s" % [Fmt.lead(s.a), "x" if s.c == 1 else "(%sx)" % Fmt.num(s.c)]
 	return {
 		"asked": "Write down the equation of the horizontal asymptote of the graph of y = f(x).", "lines": [fx(s)], "answer": ans,
 		"wrongs": [wrong(_axis("y", Q.new(s.b, s.d)), R_HA_RATIO), wrong(_axis("x", A), R_SWAP), wrong(_axis("", A), R_NUMBER), wrong(_axis("y", s.h), R_SWAP)],
 		"fillers": [_axis("y", s.B)],
 		"methods": {
-			"zero-denominator-and-ratio": method(["The horizontal asymptote is the ratio of the x-coefficients.", ratio, fin], ans.values),
+			"zero-denominator-and-ratio": method(["The horizontal asymptote is the ratio of the x-coefficients.", ratio + ".", fin], ans.values),
 			"divide-out": method(["Divide out: %s." % split_text(s), "The fraction tends to 0 for large x, so f(x) tends to %s." % work(A, pp), fin], ans.values),
-			"large-x-limit": method(["For large x the constants don't matter: f(x) ≈ %sx/%sx." % [Fmt.num(s.a), Fmt.num(s.c)], "%s." % ratio, fin], ans.values),
+			"large-x-limit": method(["For large x the constants don't matter: f(x) ≈ %s." % xterms, "%s." % ratio, fin], ans.values),
 			"gdc-table": method(["Make a table of f on the GDC and look at large x: %s." % far, "The values settle at %s." % work(A, pp), fin], ans.values),
 			"large-x-behaviour": method(["Look at f for large x: %s." % far, "The values get close to %s, so the curve levels off there." % work(A, pp), fin], ans.values),
 			"move-parent-asymptote": method(["Write f as a moved y = B/x: %s." % split_text(s), "y = B/x has the asymptote y = 0, and the move shifts it to y = %s." % work(A, pp), fin], ans.values),
@@ -280,17 +295,24 @@ func u_asymptotes_with_letters(_rep: String, s: Dictionary, rng: Seeded) -> Dict
 	var ratio := func(n: Variant, letter: String) -> String:
 		var q := Q.of(n)
 		return "%s/%s" % [q.text(), letter] if not q.eq(1) else "1/" + letter
+	# The values of k that make f no real rational function: the k with ad = bc (f is then a
+	# constant), and k = 0 where k is the x-coefficient of the denominator (no asymptote x = h).
+	var ruled_out: Array = []
 	if in_den:
 		# f(x) = (ax + b)/(kx + d): x = −d/k, y = a/k
-		shown = "f(x) = (%s)/(kx %s %d)" % [num_(s), "+" if s.d > 0 else "−", absi(s.d)]
+		var kden := "kx %s %d" % ["+" if s.d > 0 else "−", absi(s.d)]
+		shown = "f(x) = %s/(%s)" % [RationalFunctionSituation._wrap(num_(s)), kden]
 		va = "x = " + ratio.call(-s.d, "k")
 		ha = "y = " + ratio.call(s.a, "k")
 		wrong_va = "x = " + ratio.call(s.d, "k")
 		wrong_ha = "y = " + Fmt.num(Q.new(s.b, s.d))
 		swapped = "x = %s and y = %s" % [ratio.call(s.a, "k"), ratio.call(-s.d, "k")]
-		why_va = "kx + d = 0, so x = −d/k = %s" % ratio.call(-s.d, "k")
+		why_va = "%s = 0, so x = %s" % [kden, ratio.call(-s.d, "k")]
 		ha_neg = "y = " + ratio.call(-s.a, "k")
-		why_ha = "y = a/c = %s" % ratio.call(s.a, "k")
+		why_ha = ha
+		ruled_out.append(Q.new(0))
+		if s.b != 0:
+			ruled_out.append(Q.new(s.a * s.d, s.b))
 	else:
 		# f(x) = (kx + b)/(cx + d): x = −d/c, y = k/c
 		var cx := Fmt.poly([s.c, s.d])
@@ -303,6 +325,7 @@ func u_asymptotes_with_letters(_rep: String, s: Dictionary, rng: Seeded) -> Dict
 		why_va = "%s = 0, so x = %s" % [cx, Fmt.num(s.h)]
 		ha_neg = "y = −k" if s.c == 1 else "y = −k/%d" % s.c
 		why_ha = ha
+		ruled_out.append(Q.new(s.b * s.c, s.d))
 	var right := "%s and %s" % [va, ha]
 	var wrongs := [
 		{"values": {"v": "%s and %s" % [wrong_va, ha]}, "ref": R_VA_SIGN},
@@ -314,8 +337,9 @@ func u_asymptotes_with_letters(_rep: String, s: Dictionary, rng: Seeded) -> Dict
 	var out := _choice(right, wrongs, ["%s and %s" % [va, ha_neg]])
 	var fin := "So the asymptotes are %s." % right
 	var letters := "k"
+	var where := "Here k is a constant, %s." % " and ".join(ruled_out.map(func(v): return "k ≠ " + Fmt.num(v)))
 	out.merge({
-		"asked": "Write down the equations of both asymptotes, in terms of %s." % letters, "lines": [shown],
+		"asked": "Write down the equations of both asymptotes, in terms of %s." % letters, "lines": [shown, where],
 		"given": {"form": "den" if in_den else "num", "a": s.a, "b": s.b, "c": s.c, "d": s.d},
 		"methods": {
 			"zero-denominator-and-ratio": method(["The vertical asymptote is where the denominator is zero: %s." % why_va, "The horizontal asymptote is the ratio of the x-coefficients: %s." % why_ha, fin], out.answer.values),
@@ -340,6 +364,7 @@ func u_x_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"asked": "Find the x-intercept of the graph of y = f(x).", "lines": [fx(s)], "answer": ans,
 		"wrongs": [wrong({"x": s.yi}, R_ZERO_YINT), wrong({"x": Q.new(s.b, s.a)}, R_ZERO_SIGN), wrong({"x": s.h}, R_XINT_DENOMINATOR),
 			wrong({"x": Q.new(-s.b)}, R_XINT_NO_DIVIDE)],
+		"titles": {"set-equal-zero": "Solve f(x) = 0"},
 		"methods": {
 			"set-equal-zero": method(["The graph crosses the x-axis where f(x) = 0, that is where the numerator is zero.", "%s = 0, so %s." % [n, solved], fin], ans.values),
 			"gdc-zero": method(["Graph y = f(x) on the GDC and use its zero finder.", "It gives %s." % solved, fin], ans.values),
@@ -356,11 +381,12 @@ func u_y_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		ans.exact = true
 	var fin := final("So the y-intercept is", ans)
-	var sub := "f(0) = " + Fmt.equals("%s/%s" % [Fmt.num(s.b), Fmt.num(s.d)], work(yi, pp))
+	var sub := "f(0) = " + Fmt.equals("%s/%s" % [Fmt.num(s.b), Fmt.paren(s.d)], work(yi, pp))
 	return {
 		"asked": "Find the y-intercept of the graph of y = f(x).", "lines": [fx(s)], "answer": ans,
 		"wrongs": [wrong({"y": s.xi}, R_ZERO_YINT), wrong({"y": Q.new(s.b)}, R_YINT_NO_DIVIDE), wrong({"y": s.A}, R_YINT_HA)],
 		"fillers": [{"y": s.yi.neg()}],
+		"titles": {"set-equal-zero": "Evaluate f(0)"},
 		"methods": {
 			"set-equal-zero": method(["The graph crosses the y-axis where x = 0.", "Put x = 0: %s." % sub, fin], ans.values),
 		},
@@ -438,7 +464,8 @@ func u_constants_from_asymptotes(rep: String, s: Dictionary, _rng: Seeded) -> Di
 	var lines: Array = [shown]
 	var out := {"answer": ans, "wrongs": [
 		wrong({"v0": A, "v1": h}, R_VA_SIGN), wrong({"v0": h, "v1": A.neg()}, R_SWAP)],
-		"fillers": [{"v0": A, "v1": Q.new(s.d * 2)}, {"v0": Q.new(s.b), "v1": Q.new(s.d)}]}
+		# a taken as the numerator's constant first: d doubled is a last resort.
+		"fillers": [{"v0": Q.new(s.b), "v1": Q.new(s.d)}, {"v0": A.neg(), "v1": Q.new(s.d)}, {"v0": A, "v1": Q.new(s.d * 2)}]}
 	match rep:
 		"equation":
 			lines.append("The graph of f has the vertical asymptote x = %s and the horizontal asymptote y = %s." % [Fmt.num(h), Fmt.num(A)])
@@ -468,16 +495,30 @@ func u_constant_from_intercept(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 	var wrong_k: Q
 	var step_given: String
 	var step_solve: String
+	var wrongs: Array = []
+	# Fillers away from k first; k + 1 only as a last resort.
+	var far: Array = []
 	if by_y:
 		given = "crosses the y-axis at %s" % Fmt.point(0, s.yi)
 		wrong_k = Q.new(-s.a).mul(s.yi)
 		step_given = "The graph crosses the y-axis at %s, so f(0) = %s." % [Fmt.point(0, s.yi), Fmt.num(s.yi)]
-		step_solve = "f(0) = k/%s = %s, so k = %s × %s = %s." % [Fmt.num(Q.new(s.d)), Fmt.num(s.yi), Fmt.num(s.yi), Fmt.num(Q.new(s.d)), Fmt.num(k)]
+		step_solve = "f(0) = k/%s = %s, so k = %s × %s = %s." % [Fmt.paren(s.d), Fmt.num(s.yi), Fmt.num(s.yi), Fmt.paren(s.d), Fmt.num(k)]
+		# f(0) taken as k alone, the d not divided by: k = f(0).
+		wrongs = [wrong({"v": s.yi}, R_YINT_NO_DIVIDE)]
+		far = [s.yi.div(Q.new(s.d)), wrong_k.neg()]
 	else:
 		given = "crosses the x-axis at %s" % Fmt.point(s.xi, 0)
 		wrong_k = s.xi.mul(Q.new(s.d))
 		step_given = "The graph crosses the x-axis at %s, so f(%s) = 0." % [Fmt.point(s.xi, 0), Fmt.num(s.xi)]
 		step_solve = "The numerator is zero there: %s + k = 0, so k = %s." % ["%s × %s" % [Fmt.num(Q.new(s.a)), Fmt.paren(s.xi)], Fmt.num(k)]
+		far = [s.xi.neg(), wrong_k.neg(), s.xi]
+	# Then the key scaled or moved by 3 (no slip gives them), before k + 1.
+	far.append_array([k.mul(Q.new(-2)), k.add(Q.new(3)), k.sub(Q.new(3)), k.mul(Q.new(3))])
+	var fillers: Array = []
+	for v in far:
+		if not v.sub(k).abs_q().lt(Q.new(3, 2)) and not v.eq(k.mul(Q.new(2))):
+			fillers.append({"v": v})
+	fillers.append({"v": k.add(Q.new(1))})
 	var lines: Array = [shown]
 	if rep == "equation":
 		lines.append("The graph of f %s." % given)
@@ -486,8 +527,9 @@ func u_constant_from_intercept(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 	var fin := "So " + Answer.text(ans) + "."
 	return {
 		"asked": "Find the value of k.", "lines": lines, "answer": ans,
-		"wrongs": [wrong({"v": wrong_k}, R_ZERO_YINT), wrong({"v": k.neg()}, R_K_SIGN)], "fillers": [{"v": k.add(Q.new(1))}],
+		"wrongs": [wrong({"v": wrong_k}, R_ZERO_YINT), wrong({"v": k.neg()}, R_K_SIGN)] + wrongs, "fillers": fillers,
 		"given": {"by": "y" if by_y else "x"},
+		"titles": {"set-equal-zero": "Put x = 0 into f and solve for k" if by_y else "Put the x-intercept into f(x) = 0 and solve for k"},
 		"methods": {"set-equal-zero": method([step_given, step_solve, fin], ans.values)},
 	}
 
@@ -520,9 +562,10 @@ func u_equation_from_features(rep: String, s: Dictionary, rng: Seeded) -> Dictio
 	var right := eq_text(s.a, s.b, s.d)
 	var flipped_b: Q = A.mul(h).neg().sub(B)
 	var wrongs := wrong_eqs([[s.a, s.b, -s.d, R_VA_SIGN], [s.a, B, s.d, R_B_AS_STRETCH]], eq_text)
-	# flipped_b is two slips at once (B's sign and the −Ah), so it is a filler.
+	# flipped_b is two slips at once (B's sign and the −Ah), so it is a filler. The fillers
+	# away from the answer come first; b + 1 and a + 1 are a last resort.
 	var generic: Array = []
-	for g in [[s.a, flipped_b, s.d], [-s.a, s.b, s.d], [s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
+	for g in [[s.a, flipped_b, s.d], [-s.a, s.b, s.d], [s.a, -s.b, s.d], [-s.a, -s.b, s.d], [s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
 		if eq_ok(g[0], g[1], g[2]):
 			generic.append(eq_text(g[0], g[1], g[2]))
 	var out := _choice(right, wrongs, generic)
@@ -534,16 +577,24 @@ func u_equation_from_features(rep: String, s: Dictionary, rng: Seeded) -> Dictio
 	else:
 		lines = ["The graph of f(x) = (ax + b)/(x + d) is shown, with its asymptotes dashed. It crosses the %s-axis at %s." % ["y" if by_y else "x", given_pt]]
 	var fin := "So the equation is %s." % right
-	var step_b := "At the intercept %s: %s." % [given_pt, ("f(0) = b/%s = %s, so b = %s" % [Fmt.num(Q.new(s.d)), Fmt.num(s.yi), Fmt.num(Q.new(s.b))]) if by_y
+	var step_b := "At the intercept %s: %s." % [given_pt, ("f(0) = b/%s = %s, so b = %s" % [Fmt.paren(s.d), Fmt.num(s.yi), Fmt.num(Q.new(s.b))]) if by_y
 		else ("%s × %s + b = 0, so b = %s" % [Fmt.num(Q.new(s.a)), Fmt.paren(s.xi), Fmt.num(Q.new(s.b))])]
+	# B from the intercept (px, py) on y = A + B/(x − h), then the one fraction.
+	var px: Q = Q.new(0) if by_y else s.xi
+	var py: Q = s.yi if by_y else Q.new(0)
+	var moved := "y = %s + B/%s" % [Fmt.num(A), Fmt.factor(h)]
+	var b_from_point := "%s = %s + B/(%s − %s), so B = %s." % [Fmt.num(py), Fmt.num(A), Fmt.num(px), Fmt.paren(h), Fmt.num(B)]
+	var combined := "As one fraction: %s = (%s)/%s = %s. %s" % [RationalFunctionSituation.split(A, B, h), numerator_split(A, h, B), Fmt.factor(h),
+		RationalFunctionSituation.frac(s.a, s.b, 1, s.d), fin]
 	var res: Dictionary = out.answer.values
 	out.merge({
 		"asked": "Find the equation of f.", "lines": lines,
 		"given": {"by": "y" if by_y else "x"},
+		"titles": {"set-equal-zero": "Read a and d, then put the intercept into f"},
 		"methods": {
 			"zero-denominator-and-ratio": method(["The vertical asymptote x = %s means x + d = 0 there, so d = %s. The horizontal asymptote y = %s means a = %s." % [Fmt.num(h), Fmt.num(Q.new(s.d)), Fmt.num(A), Fmt.num(A)], step_b, fin], res),
-			"divide-out": method(["Write f as %s with the asymptotes x = %s and y = %s." % ["A + B/(x − h)", Fmt.num(h), Fmt.num(A)], "Use the intercept %s to find B = %s." % [given_pt, Fmt.num(B)], "Combine into one fraction. " + fin], res),
-			"move-parent-asymptote": method(["y = B/x moved to the asymptotes x = %s and y = %s is y = %s + B/(x − %s)." % [Fmt.num(h), Fmt.num(A), Fmt.num(A), Fmt.num(h)], "The intercept %s gives B = %s." % [given_pt, Fmt.num(B)], "As one fraction: " + fin], res),
+			"divide-out": method(["Write f as A + B/(x − h) with the asymptotes x = %s and y = %s: %s." % [Fmt.num(h), Fmt.num(A), moved], "The intercept %s is on the curve: %s" % [given_pt, b_from_point], combined], res),
+			"move-parent-asymptote": method(["y = B/x moved to the asymptotes x = %s and y = %s is %s." % [Fmt.num(h), Fmt.num(A), moved], "The intercept %s gives %s" % [given_pt, b_from_point], combined], res),
 			"set-equal-zero": method(["The asymptotes give a = %s and d = %s." % [Fmt.num(A), Fmt.num(Q.new(s.d))], step_b, fin], res),
 		}})
 	if rep == "graph":
@@ -566,6 +617,7 @@ func u_range_from_asymptote(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var lines: Array = [fx(s)] if rep == "equation" else ["The graph of y = f(x) is shown, with its asymptotes dashed."]
 	out.merge({
 		"asked": "Write down the domain and the range of f.", "lines": lines,
+		"titles": {"vertex-or-asymptote": "Use the asymptotes"},
 		"methods": {
 			"vertex-or-asymptote": method(["The vertical asymptote is x = %s: f is not defined there, so the domain is x ≠ %s." % [h, h],
 				"The horizontal asymptote is y = %s, which the curve never reaches, so the range is y ≠ %s." % [A, A], fin], out.answer.values),
@@ -638,8 +690,9 @@ static func feature_steps(s: Dictionary) -> Array:
 
 static func split_steps(s: Dictionary) -> Array:
 	var corners := "top right and bottom left" if s.B.sign() > 0 else "top left and bottom right"
+	var moved := "translated" if s.B.eq(1) else stretched_words(s.B) + ", then translated"
 	return ["Write f as %s." % split_text(s).trim_prefix("f(x) = "),
-		"It is y = 1/x stretched by %s and moved to the asymptotes x = %s, y = %s, with the branches in the %s corners." % [Fmt.num(s.B), Fmt.num(s.h), Fmt.num(s.A), corners]]
+		"It is y = 1/x %s so that its asymptotes are x = %s and y = %s, with the branches in the %s corners." % [moved, Fmt.num(s.h), Fmt.num(s.A), corners]]
 
 
 func u_sketch_from_equation(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -657,11 +710,15 @@ func u_sketch_from_transformed(_rep: String, s: Dictionary, rng: Seeded) -> Dict
 	return _sketch("Which graph is y = %s?" % form, ["f(x) = " + form], s, rng, methods)
 
 
-## Values of f at x = h ± 2, ± 1, ± 0.5 as a table (exact: B is a whole number).
-func _near_table(s: Dictionary) -> Dictionary:
+## Values of f at x = h ± 2, ± 1, ± 0.5 as a table (exact: B is a whole number). far adds
+## x = h ± 100, where f = A ± B/100 is exact too and close to the horizontal asymptote.
+func _near_table(s: Dictionary, far: bool = false) -> Dictionary:
 	var xs: Array = []
 	var ys: Array = []
-	for off in [Q.new(-2), Q.new(-1), Q.new(-1, 2), Q.new(1, 2), Q.new(1), Q.new(2)]:
+	var offs: Array = [Q.new(-2), Q.new(-1), Q.new(-1, 2), Q.new(1, 2), Q.new(1), Q.new(2)]
+	if far:
+		offs = [Q.new(-100)] + offs + [Q.new(100)]
+	for off in offs:
 		var x: Q = s.h.add(off)
 		xs.append(Fmt.dec(x))
 		ys.append(Fmt.dec(s.A.add(s.B.div(off))))
@@ -672,9 +729,12 @@ func u_sketch_from_description(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 	var methods := {"asymptotes-and-intercepts": ["Mark the asymptotes x = %s and y = %s, and the intercepts %s and %s." % [Fmt.num(s.h), Fmt.num(s.A), Fmt.point(s.xi, 0), Fmt.point(0, s.yi)],
 		"Only one graph has the branches through those points."]}
 	if rep == "table":
-		methods["asymptotes-and-intercepts"] = ["The values blow up either side of x = %s, so x = %s is the vertical asymptote." % [Fmt.num(s.h), Fmt.num(s.h)],
-			"The values get close to %s one way, so y = %s is the horizontal asymptote, and the signs show which corners the branches are in." % [Fmt.num(s.A), Fmt.num(s.A)]]
-		return _sketch("The table shows values of a rational function f. Which graph is it?", ["The table shows values of f."], s, rng, methods, _near_table(s))
+		var lo: Q = s.h.sub(Q.new(100))
+		var hi: Q = s.h.add(Q.new(100))
+		methods["asymptotes-and-intercepts"] = ["Close to x = %s the values move apart fast, down on one side and up on the other, so x = %s is the vertical asymptote." % [Fmt.num(s.h), Fmt.num(s.h)],
+			"For large x the values are close to %s (f(%s) = %s and f(%s) = %s), so y = %s is the horizontal asymptote; the values above and below %s show which corners the branches are in." % [
+				Fmt.num(s.A), Fmt.num(lo), Fmt.dec(f_q(s, lo)), Fmt.num(hi), Fmt.dec(f_q(s, hi)), Fmt.num(s.A), Fmt.num(s.A)]]
+		return _sketch("The table shows values of a rational function f. Which graph is it?", ["The table shows values of f, for x close to one value and for large x."], s, rng, methods, _near_table(s, true))
 	var lines := ["A rational function has the vertical asymptote x = %s and the horizontal asymptote y = %s. Its graph crosses the axes at %s and %s." % [Fmt.num(s.h), Fmt.num(s.A), Fmt.point(s.xi, 0), Fmt.point(0, s.yi)]]
 	return _sketch("Which graph is it?", lines, s, rng, methods)
 
@@ -721,7 +781,7 @@ func u_branch_corners(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"methods": {
 			"asymptotes-and-intercepts": method(["Use %s: it is %s the vertical asymptote and %s the horizontal asymptote." % [look, side, vert],
 				"A branch passes through that corner, and the other branch is in the opposite one.", fin], res),
-			"transform-reciprocal": method(["f is a stretched and moved y = 1/x: %s." % split_text(s), "The stretch is %s, which is %s, so the branches are in the %s corners." % [Fmt.num(s.B), "positive" if s.B.sign() > 0 else "negative", right], fin], res),
+			"transform-reciprocal": method(["f is a transformed y = 1/x: %s." % split_text(s), "The numerator %s is %s, so the branches are in the %s corners, as they are for y = %s/x." % [Fmt.num(s.B), "positive" if s.B.sign() > 0 else "negative", right, Fmt.num(s.B)], fin], res),
 		}})
 	return out
 
@@ -810,11 +870,18 @@ func u_inequality_from_sketch(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	if rep == "graph":
 		lines = [fx(s), "Its graph is shown, with the asymptotes dashed."]
 	var bound := "f(x) = %s at x = %s, and f is not defined at x = %s" % [kt, Fmt.num(xk), Fmt.num(s.h)]
-	var three := "These two values split the x-axis into three parts. Testing a point in each shows where f(x) %s %s." % [rel, kt]
+	# One test point in each of the three parts, and the side of k its value is on.
+	var tests: Array = [lo.sub(Q.new(1)), lo.add(hi).div(Q.new(2)), hi.add(Q.new(1))]
+	var shown: Array = tests.map(func(t): return "f(%s) = %s" % [Fmt.num(t), Fmt.num(f_q(s, t))])
+	var f1: Q = f_q(s, tests[0])
+	var outer: bool = k.lt(f1) if strict_gt(rel) else f1.lt(k)
+	var three := "These two values split the x-axis into three parts. Test a point in each: %s, %s and %s, so f(x) %s %s in the %s." % [
+		shown[0], shown[1], shown[2], rel, kt, "two outer parts" if outer else "middle part"]
+	var side := "On the sketch, %s where the curve is %s the line y = %s%s." % [what, "above" if strict_gt(rel) else "below", kt, " or on it" if rel in ["≥", "≤"] else ""]
 	out.merge({
 		"asked": "Solve the inequality %s." % what, "lines": lines,
 		"methods": {
-			"asymptotes-and-intercepts": method(["The boundaries are %s." % bound, "On the sketch the curve is on the %s side of %s where %s." % ["right" if pieces.size() == 2 else "correct", "y = " + kt, what], fin], res),
+			"asymptotes-and-intercepts": method(["The boundaries are %s." % bound, side, fin], res),
 			"intersections-then-read": method(["Draw y = %s on the sketch: it meets the curve at x = %s, and the curve has its gap at x = %s." % [kt, Fmt.num(xk), Fmt.num(s.h)], "Read off where the curve is %s the line: %s." % ["above" if strict_gt(rel) else "below", right], fin], res),
 			"analytic-boundary": method(["Solve f(x) = %s: x = %s. The asymptote x = %s is a boundary too: f is not defined there." % [kt, Fmt.num(xk), Fmt.num(s.h)], three, fin], res),
 		}})
@@ -922,7 +989,7 @@ func u_count_with_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		graph.sand_from = graph.curves.size() - 1
 	var methods := {
 		"discriminant": method(["Put the line equal to the curve and clear the fraction: (%s)(%s) = %s, which is %s." % [Fmt.poly([m, n]), den(s), num_(s), quad],
-			"Δ = %s² − 4(%s)(%s) = %s." % [Fmt.num(Q.new(qb)), Fmt.num(Q.new(qa)), Fmt.num(Q.new(qc)), Fmt.num(Q.new(disc))], verdict + ".", fin], ans.values),
+			"Δ = %s² − 4(%s)(%s) = %s." % [Fmt.paren(qb), Fmt.num(Q.new(qa)), Fmt.num(Q.new(qc)), Fmt.num(Q.new(disc))], verdict + ".", fin], ans.values),
 		"sketch-and-count": method(["Sketch y = f(x), with its asymptotes, and %s." % line_text(m, n), "Count the points where the line meets the curve, not across the gap at x = %s." % Fmt.num(s.h), fin], ans.values),
 	}
 	return {
@@ -970,8 +1037,8 @@ func u_reciprocal_of_f(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var tf := RationalCards.triple_of(s)
 	var tg := RationalCards.triple(s.c, s.d, s.a, s.b)
 	var pool := [
-		{"graph": RationalCards.card(tf), "ref": "", "mistake": "same", "why": "it is the graph of f itself, not of 1/f"},
-		{"graph": RationalCards.card(RationalCards.wrong_triple(tg, "negated")), "ref": "", "mistake": "negated", "why": "it is −1/f: the branches are in the wrong corners"},
+		{"graph": RationalCards.card(tf), "ref": R_RECIP_SAME, "mistake": "same", "why": "it is the graph of f itself, not of 1/f"},
+		{"graph": RationalCards.card(RationalCards.wrong_triple(tg, "negated")), "ref": R_RECIP_NEGATED, "mistake": "negated", "why": "it is −1/f: the branches are in the wrong corners"},
 		{"graph": RationalCards.card(tg, true), "ref": R_ACROSS, "mistake": "through", "why": "a line is drawn across its vertical asymptote"},
 	]
 	var p := GdcKit.pick(RationalCards.card(tg), pool, rng)
@@ -988,7 +1055,7 @@ func u_reciprocal_of_f(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"asked": "Which graph is y = 1/f(x)?", "lines": lines, "answer": p.answer, "graphs": p.graphs, "graph": graph,
 		"methods": {
 			"asymptotes-and-intercepts": method(["1/f has a vertical asymptote where f = 0: x = %s. It has a zero where f has its asymptote, x = %s." % [vas, work(s.h, pp)],
-				"Its horizontal asymptote is y = 1/%s, and 1/f = %s." % [work(s.A, pp), rec], fin], res),
+				"1/f = %s, so its horizontal asymptote is y = %s, the ratio of its x-coefficients." % [rec, work(Q.new(s.c, s.a), pp)], fin], res),
 			"gdc-transfer": method(["Graph y = f(x) and y = 1/f(x) on the GDC.", "The GDC can join the two branches with a steep line that is not part of the curve: ignore it. 1/f has the vertical asymptote x = %s." % vas, fin], res),
 		},
 	}
@@ -1026,10 +1093,16 @@ func u_parent_reciprocal(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	else:
 		lines = [name]
 	var res: Dictionary = p.answer.values
+	# k > 0, so y has the sign of x: that, not x and −x giving opposite signs (y = −k/x does
+	# too), puts the branches in the first and third quadrants.
+	var signs := "For x > 0, y = %s > 0, and for x < 0, y < 0, so the branches are in the first and third quadrants." % name.trim_prefix("y = ")
+	var first := "Make a table of values: x = 1 gives y = %d and x = −1 gives y = −%d. %s" % [k, k, signs]
+	if rep == "table":
+		first = "From the table, x = 1 gives y = %d, so k = %d. %s" % [k, k, signs]
 	return {
 		"asked": asked, "lines": lines, "answer": p.answer, "graphs": p.graphs, "table": table,
 		"given": {"k": k},
-		"methods": {"table-of-values": method(["Make a table of values: x and −x give y of opposite signs, so the branches are in the first and third quadrants.", "y gets large near x = 0 and small for large x, but is never 0: the curve never meets the axes.", fin], res)},
+		"methods": {"table-of-values": method([first, "y gets large near x = 0 and small for large x, but is never 0: the curve never meets the axes.", fin], res)},
 	}
 
 
@@ -1037,8 +1110,11 @@ func u_reciprocal_self_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var k: int = s.pk
 	var kx := "%d/x" % k if k != 1 else "1/x"
 	var right := "f⁻¹(x) = %s, because swapping x and y gives the same equation" % kx
+	# Each wrong option finds an inverse other than k/x, so the inverse itself tells them
+	# apart. The product slip takes f⁻¹ as 1/f, as if f(x) × f⁻¹(x) had to be 1.
+	var xk := "x/%d" % k if k != 1 else "x"
 	var wrongs := [
-		{"values": {"v": "f⁻¹(x) = %s, because (%s) × x = %d" % [kx, kx, k]}, "ref": R_SELF_PRODUCT},
+		{"values": {"v": "f⁻¹(x) = %s, because f(x) × f⁻¹(x) = (%s) × %s = 1" % [xk, kx, "(%s)" % xk if k != 1 else "x"]}, "ref": R_SELF_PRODUCT},
 		{"values": {"v": "f⁻¹(x) = −%s, because the inverse has the opposite sign" % kx}, "ref": R_INVERSE_NEGATIVE},
 		{"values": {"v": "f⁻¹(x) = x/%d, because dividing undoes multiplying" % k if k != 1 else "f⁻¹(x) = x, because dividing undoes multiplying"}, "ref": R_INVERSE_DIVIDE},
 	]
@@ -1048,7 +1124,7 @@ func u_reciprocal_self_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var name := "f(x) = " + kx
 	var lines: Array = [name] if rep == "equation" else ["The graph of f(x) = %s is shown." % kx]
 	out.merge({
-		"asked": "Find the inverse of f(x) = %s, and say why." % kx, "lines": lines, "given": {"k": k},
+		"asked": "Find the inverse function f⁻¹(x). Justify your answer.", "lines": lines, "given": {"k": k},
 		"methods": {
 			"reflect-in-y-equals-x": method(["The inverse is the reflection of the graph in the line y = x, which swaps x and y.", "The graph of y = %s is symmetrical in the line y = x, so it does not change." % kx, fin], res),
 			"swap-and-solve": method(["Swap x and y: x = %d/y." % k, "Solve for y: y = %s, the same function." % kx, fin], res),
@@ -1081,12 +1157,21 @@ func u_split_to_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b := Q.new(s.b)
 	var res: Dictionary = ans.values
 	var form := RationalFunctionSituation.split(A, B, h)
-	var bad := numerator_split(A, h, b)
-	var spot := {
-		"lines": ["%s = %s" % [num_(s), bad], "%s = %s" % [RationalFunctionSituation.text(s), "%s/%s" % [RationalFunctionSituation._wrap(Fmt.lead(A) + Fmt.factor(h) + Fmt.plus(b)), RationalFunctionSituation._wrap(den(s))]],
-			"%s/%s = %s" % [RationalFunctionSituation._wrap(Fmt.lead(A) + Fmt.factor(h) + Fmt.plus(b)), RationalFunctionSituation._wrap(den(s)), RationalFunctionSituation.split(A, b, h)],
-			"so A = %s and B = %s" % [Fmt.num(A), Fmt.num(b)]],
-		"bad": 0, "ref": R_SPLIT_WRONG, "why": "%s = %s, so the constant is %s, not %s" % [num_(s), numerator_split(A, h, B), Fmt.num(B), Fmt.num(b)]}
+	var bottom := RationalFunctionSituation._wrap(den(s))
+	# The student's split goes wrong in one of two places (no rng: the draws don't move).
+	# Line 1: the constant kept as b, not adjusted (SL2.8.transformed-reciprocal#2). Or the
+	# split is right and Line 3 loses the constant's sign as the fraction is split.
+	var spot := {}
+	if absi(s.b) % 2 == 0:
+		var top := RationalFunctionSituation._wrap(numerator_split(A, h, b))
+		spot = {"lines": ["%s = %s" % [num_(s), numerator_split(A, h, b)], "%s = %s/%s" % [RationalFunctionSituation.text(s), top, bottom],
+				"%s/%s = %s" % [top, bottom, RationalFunctionSituation.split(A, b, h)], "so A = %s and B = %s" % [Fmt.num(A), Fmt.num(b)]],
+			"bad": 0, "ref": R_SPLIT_WRONG, "why": "%s = %s, so the constant is %s, not %s" % [num_(s), numerator_split(A, h, B), Fmt.num(B), Fmt.num(b)]}
+	else:
+		var top := RationalFunctionSituation._wrap(numerator_split(A, h, B))
+		spot = {"lines": ["%s = %s" % [num_(s), numerator_split(A, h, B)], "%s = %s/%s" % [RationalFunctionSituation.text(s), top, bottom],
+				"%s/%s = %s" % [top, bottom, RationalFunctionSituation.split(A, B.neg(), h)], "so A = %s and B = %s" % [Fmt.num(A), Fmt.num(B.neg())]],
+			"bad": 2, "ref": R_SPLIT_SIGN, "why": "%s/%s = %s: the constant keeps its sign, so B = %s, not %s" % [top, bottom, form, Fmt.num(B), Fmt.num(B.neg())]}
 	return {
 		"asked": "Write f(x) in the form A + B/(x − h): find A and B.", "lines": [fx(s)], "answer": ans, "spot": spot,
 		"wrongs": [wrong({"v0": A, "v1": b}, R_SPLIT_WRONG)], "fillers": [{"v0": A, "v1": B.neg()}, {"v0": B, "v1": A}],
@@ -1111,10 +1196,11 @@ func u_split_scaled(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {
 		"asked": "Write f(x) in the form A + k/(%s): find A and k." % den(s), "lines": [fx(s)], "answer": ans,
 		"wrongs": [wrong({"v0": A, "v1": b}, R_SPLIT_WRONG), wrong({"v0": Q.new(s.a), "v1": k}, R_A_NOT_DIVIDED)], "fillers": [{"v0": A, "v1": k.neg()}],
+		"titles": {"compare-coefficients": "Combine A + k/(%s) and compare coefficients" % den(s)},
 		"methods": {
-			"split-numerator": method(["Write the numerator using the denominator: %s = %s(%s) %s." % [num_(s), Fmt.num(A), den(s), Fmt.plus(k).strip_edges()], "So f(x) = %s." % form, fin], res),
+			"split-numerator": method(["Write the numerator using the denominator: %s = %s(%s)%s." % [num_(s), Fmt.lead(A), den(s), Fmt.plus(k)], "So f(x) = %s." % form, fin], res),
 			"compare-coefficients": method(["Let (%s)/(%s) = A + k/(%s) = (A(%s) + k)/(%s)." % [num_(s), den(s), den(s), den(s), den(s)],
-				"The x terms give %s A = %s, so A = %s. The constants give %s A + k = %s, so k = %s." % [Fmt.num(Q.new(s.c)), Fmt.num(Q.new(s.a)), Fmt.num(A), Fmt.num(Q.new(s.d)), Fmt.num(b), Fmt.num(k)], fin], res),
+				"The x terms give %sA = %s, so A = %s. The constants give %sA + k = %s, so k = %s." % [Fmt.lead(s.c), Fmt.num(Q.new(s.a)), Fmt.num(A), Fmt.lead(s.d), Fmt.num(b), Fmt.num(k)], fin], res),
 		},
 	}
 
@@ -1134,16 +1220,32 @@ func u_translation_vector(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	return out
 
 
+## What takes y = 1/x to y = B/x, in the IB's words: "stretch vertically by scale factor 3",
+## "reflect in the x-axis and stretch vertically by scale factor 2", or "reflect in the
+## x-axis" for B = −1 (a stretch by a negative factor is not how the IB says it).
+static func stretch_words(B: Variant) -> String:
+	var b := Q.of(B)
+	var size := "stretch vertically by scale factor %s" % b.abs_q().text()
+	if b.sign() > 0:
+		return size
+	return "reflect in the x-axis" if b.abs_q().eq(1) else "reflect in the x-axis and " + size
+
+
+## The same, as done to a graph: "stretched vertically by scale factor 3".
+static func stretched_words(B: Variant) -> String:
+	return stretch_words(B).replace("stretch vertically", "stretched vertically").replace("reflect in", "reflected in")
+
+
 static func stretch_text(B: Variant, h: Variant, A: Variant) -> String:
-	return "stretch by factor %s in the y-direction, then translate %s" % [Fmt.num(B), vec_text(h, A)]
+	return "%s, then translate %s" % [stretch_words(B), vec_text(h, A)]
 
 
 func u_transformation_sequence(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right := stretch_text(s.B, s.h, s.A)
 	var wrongs := [
-		{"values": {"v": "translate %s only, with no stretch" % vec_text(s.h, s.A)}, "ref": R_NO_STRETCH},
+		{"values": {"v": "translate %s only, with no stretch%s" % [vec_text(s.h, s.A), " or reflection" if s.B.sign() < 0 else ""]}, "ref": R_NO_STRETCH},
 		{"values": {"v": stretch_text(s.B, s.h.neg(), s.A)}, "ref": R_VECTOR_SIGN},
-		{"values": {"v": "translate %s, then stretch by factor %s in the y-direction" % [vec_text(s.h, s.A), Fmt.num(s.B)]}, "ref": R_TRANSLATE_FIRST},
+		{"values": {"v": "translate %s, then %s" % [vec_text(s.h, s.A), stretch_words(s.B)]}, "ref": R_TRANSLATE_FIRST},
 		{"values": {"v": stretch_text(s.B, s.A, s.h)}, "ref": R_SHIFTS_SWAPPED},
 	]
 	var out := _choice(right, _rotated(wrongs, s), [])
@@ -1152,12 +1254,13 @@ func u_transformation_sequence(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		lines = ["f has the vertical asymptote x = %s and the horizontal asymptote y = %s, and its graph passes through %s." % [Fmt.num(s.h), Fmt.num(s.A), Fmt.point(0, s.yi)]]
 	var form := RationalFunctionSituation.split(s.A, s.B, s.h)
 	var fin := "So %s." % right
-	var steps := ["Write f as %s." % form, "Compared with y = 1/x, the numerator %s stretches it, and x − h and A move it." % Fmt.num(s.B), fin]
+	var does := "Compared with y = 1/x, the numerator %s means %s, and the asymptotes x = %s and y = %s mean translate %s." % [Fmt.num(s.B), stretch_words(s.B), Fmt.num(s.h), Fmt.num(s.A), vec_text(s.h, s.A)]
+	var steps := ["Write f as %s." % form, does, fin]
 	if rep == "words":
 		steps = ["The asymptotes are x = %s and y = %s, so f(x) = %s + B/%s." % [Fmt.num(s.h), Fmt.num(s.A), Fmt.num(s.A), Fmt.factor(s.h)],
-			"Use %s: B = %s." % [Fmt.point(0, s.yi), Fmt.num(s.B)], fin]
+			"Put in %s: %s = %s + B/(0 − %s), so B = %s. %s" % [Fmt.point(0, s.yi), Fmt.num(s.yi), Fmt.num(s.A), Fmt.paren(s.h), Fmt.num(s.B), does], fin]
 	out.merge({
-		"asked": "Describe a stretch and a translation, in order, that map y = 1/x onto the graph of f.", "lines": lines,
+		"asked": "Describe a sequence of transformations that maps y = 1/x onto the graph of f.", "lines": lines,
 		"methods": {"split-numerator": method(steps, out.answer.values)}})
 	return out
 
@@ -1174,9 +1277,12 @@ func u_combine_to_single(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var right := single_text(s.a, s.b, s.d)
 	# B − Ah, the old second entry, is the answer's own constant, so it was never a wrong option.
 	var wrongs := wrong_eqs([[s.a, B, s.d, R_COMBINE_NO_AH], [s.a, B.add(A.mul(h)), s.d, R_COMBINE_SIGN]], single_text)
-	wrongs.append(wrong({"v": RationalFunctionSituation._wrap(Fmt.num(A.add(B))) + "/(" + den(s) + ")"}, R_COMBINE_ADD))
+	# A + B on top is the slip, but when it is 0 the "fraction" is the constant 0: no option.
+	if not A.add(B).is_zero():
+		wrongs.append(wrong({"v": RationalFunctionSituation._wrap(Fmt.num(A.add(B))) + "/(" + den(s) + ")"}, R_COMBINE_ADD))
+	# Fillers away from the answer first; b + 1 and a + 1 are a last resort.
 	var generic: Array = []
-	for g in [[s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [-s.a, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
+	for g in [[-s.a, s.b, s.d], [s.a, -s.b, s.d], [-s.a, -s.b, s.d], [s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
 		if eq_ok(g[0], g[1], g[2]):
 			generic.append(single_text(g[0], g[1], g[2]))
 	var out := _choice(right, wrongs, generic)
@@ -1184,8 +1290,9 @@ func u_combine_to_single(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var fin := "So f(x) = %s." % right
 	out.merge({
 		"asked": "Write f(x) = %s as a single fraction (ax + b)/(x − h)." % form, "lines": ["f(x) = " + form],
-		"methods": {"compare-coefficients": method(["Use the common denominator: %s = (%s(%s) %s)/(%s)." % [form, Fmt.num(A), den(s), Fmt.plus(B).strip_edges(), den(s)],
-			"Expand the numerator: %s(%s) %s = %s." % [Fmt.num(A), den(s), Fmt.plus(B).strip_edges(), num_(s)], fin], out.answer.values)}})
+		"titles": {"compare-coefficients": "Combine A + B/(x − h) over the common denominator"},
+		"methods": {"compare-coefficients": method(["Use the common denominator: %s = (%s)/(%s)." % [form, numerator_split(A, h, B), den(s)],
+			"Expand the numerator: %s = %s." % [numerator_split(A, h, B), num_(s)], fin], out.answer.values)}})
 	return out
 
 
@@ -1220,7 +1327,7 @@ func u_form_from_words(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wrongs := wrong_eqs([[s.a, Q.new(1).sub(A.mul(h)), s.d, R_NO_STRETCH], [s.a, B.add(A.mul(h)), s.d, R_VECTOR_SIGN], [s.a, B, s.d, R_COMBINE_NO_AH]], single_text)
 	# The denominator's sign flipped with the numerator kept is no single slip: a filler.
 	var generic: Array = []
-	for g in [[s.a, B.sub(A.mul(h)), -s.d], [s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
+	for g in [[s.a, B.sub(A.mul(h)), -s.d], [-s.a, s.b, s.d], [s.a, -s.b, s.d], [s.a, s.b + 1, s.d], [s.a + 1, s.b, s.d], [s.a, s.b + 2, s.d], [s.a + 2, s.b, s.d]]:
 		if eq_ok(g[0], g[1], g[2]):
 			generic.append(single_text(g[0], g[1], g[2]))
 	var out := _choice(right, wrongs, generic)
@@ -1228,6 +1335,7 @@ func u_form_from_words(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var form := RationalFunctionSituation.split(A, B, h)
 	out.merge({
 		"asked": "Write f as a single fraction (ax + b)/(x − h).",
-		"lines": ["The graph of y = 1/x is stretched by factor %s in the y-direction, then translated %s to give f." % [Fmt.num(B), vec_text(h, A)]],
-		"methods": {"compare-coefficients": method(["f(x) = %s." % form, "Over the common denominator: (%s(%s) %s)/(%s) = %s." % [Fmt.num(A), den(s), Fmt.plus(B).strip_edges(), den(s), right], fin], out.answer.values)}})
+		"lines": ["The graph of y = 1/x is %s, then translated %s to give f." % [stretched_words(B), vec_text(h, A)]],
+		"titles": {"compare-coefficients": "Combine A + B/(x − h) over the common denominator"},
+		"methods": {"compare-coefficients": method(["f(x) = %s." % form, "Over the common denominator: (%s)/(%s) = %s." % [numerator_split(A, h, B), den(s), right], fin], out.answer.values)}})
 	return out

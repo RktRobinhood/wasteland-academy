@@ -130,6 +130,9 @@ static func text(c: Dictionary, v: String = "x") -> String:
 			out = GdcKit.first(c.m, "x") + GdcKit.join(c.c, "") if not c.m.is_zero() else Fmt.dec(c.c)
 		"texp":
 			out = GdcKit.first(c.A, "xe^(−%sx)" % GdcKit.lead(c.k))
+		"log":
+			# The shift as a decimal, like the other coefficients: f⁻¹'s ln(x + 1.5), not 3/2.
+			out = GdcKit.first(c.A, "ln(x + %s)" % Fmt.dec(c.r)) + GdcKit.join(c.m, "x") + GdcKit.join(c.c, "")
 		_:
 			out = GdcCurveSituation.text(c)
 	return out.replace("x", v) if v != "x" else out

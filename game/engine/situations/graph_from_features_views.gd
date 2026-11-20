@@ -25,6 +25,9 @@ const SI := "SL2.3.sketch-from-info"
 # fn-sketch-from-features' own misconceptions (FAL-1149).
 const SF_HK_SWAP := "fn-sketch-from-features#6"
 const SF_NOTHING := "fn-sketch-from-features#7"
+const SF_TRIG_SWAP := "fn-sketch-from-features#8"
+const SF_TRIG_AMP := "fn-sketch-from-features#9"
+const SF_TRIG_FLIP := "fn-sketch-from-features#10"
 
 
 func has(unknown: String) -> bool:
@@ -71,6 +74,21 @@ static func factorised(s: Dictionary) -> String:
 
 static func general(s: Dictionary) -> String:
 	return "f(x) = " + Fmt.poly([s.a, s.a.mul(s.r1.add(s.r2)).neg(), s.c])
+
+
+## How y = a(x − h)² + k comes from y = x²: "reflected in the x-axis, stretched
+## vertically by factor 1/2 and moved to (4, −9/2)". A negative a is a reflection, and
+## only |a| ≠ 1 a stretch.
+static func from_x_squared(s: Dictionary) -> String:
+	var a: Q = s.a
+	var parts: Array = []
+	if a.sign() < 0:
+		parts.append("reflected in the x-axis")
+	if not a.abs_q().eq(1):
+		parts.append("stretched vertically by factor %s" % N(a.abs_q()))
+	parts.append("moved to %s" % P(s.h, s.k))
+	var said: String = parts[0] if parts.size() == 1 else ", ".join(parts.slice(0, parts.size() - 1)) + " and " + parts[-1]
+	return "y = x² " + said
 
 
 static func pi_text(m: float) -> String:
@@ -220,10 +238,10 @@ func u_sketch_quadratic(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"methods": {
 			"features-then-join": {"result": out.answer.values, "steps": ["Mark the features: " + feats + ".",
 				"Join them with a smooth, symmetric curve.", final]},
-			"transform-x-squared": {"result": out.answer.values, "steps": ["In vertex form it is %s(x − %s)² + %s: y = x² stretched by %s and moved to %s." % [
-				Fmt.lead(a), Fmt.dec(s.h), Fmt.dec(s.k), Fmt.dec(a), P(s.h, s.k)], "It crosses the axes at %s, %s and %s." % [P(s.r1, 0), P(s.r2, 0), P(0, s.c)], final]},
+			"transform-x-squared": {"result": out.answer.values, "steps": ["In vertex form it is f(x) = %s: %s." % [
+				Fmt.vertex(a, s.h, s.k), from_x_squared(s)], "It crosses the axes at %s, %s and %s." % [P(s.r1, 0), P(s.r2, 0), P(0, s.c)], final]},
 			"midpoint-of-roots": {"result": out.answer.values, "steps": ["The vertex is halfway between the roots: x = (%s + %s)/2 = %s, and f(%s) = %s." % [
-				N(s.r1), N(s.r2), Fmt.dec(s.h), Fmt.dec(s.h), Fmt.dec(s.k)], "The sketch has " + feats + ".", final]},
+				N(s.r1), Fmt.paren(s.r2), N(s.h), N(s.h), N(s.k)], "The sketch has " + feats + ".", final]},
 		}})
 	return out
 
@@ -301,22 +319,27 @@ func u_sketch_trig_on_interval(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 	var amp: float = 1.0 if A > 1.0 else 2.0
 	var small := func(x: float) -> float: return amp * (sin(x) if s.fn == "sin" else cos(x))
 	var out := _pick(s, rng, [
-		func(w): return wrong_card(s, w, other, "swapped", "", "it is the %s graph: it starts at %s, not %s" % ["cos" if s.fn == "sin" else "sin",
+		func(w): return wrong_card(s, w, other, "swapped", SF_TRIG_SWAP, "it is the %s graph: it starts at %s, not %s" % ["cos" if s.fn == "sin" else "sin",
 			N(s.A) if s.fn == "sin" else "0", "0" if s.fn == "sin" else N(s.A)]),
-		func(w): return wrong_card(s, w, small, "amplitude", "", "its amplitude is %s, not %s" % [Fmt.num(roundi(amp)), N(s.A)]),
-		func(w): return flipped(s, w, ""),
+		func(w): return wrong_card(s, w, small, "amplitude", SF_TRIG_AMP, "its amplitude is %s, not %s" % [Fmt.num(roundi(amp)), N(s.A)]),
+		func(w): return flipped(s, w, SF_TRIG_FLIP),
 	], [-A, A])
 	var f := "y = %s%s x" % [Fmt.lead(s.A), s.fn]
 	var zs := "0, π and 2π" if s.fn == "sin" else "π/2 and 3π/2"
 	var lines := [f + ", for 0 ≤ x ≤ 2π"]
+	# The maximum says which way up it is: −A sin x and −A cos x cross the x-axis at the
+	# same places as the right graph.
+	var mx := "(π/2, %s)" % N(s.A) if s.fn == "sin" else "(0, %s) and (2π, %s)" % [N(s.A), N(s.A)]
 	if rep == "words":
-		lines = ["A %s graph with amplitude %s is drawn for 0 ≤ x ≤ 2π. It crosses the x-axis at x = %s." % [s.fn, N(s.A), zs]]
+		lines = ["A %s graph with amplitude %s is drawn for 0 ≤ x ≤ 2π. It crosses the x-axis at x = %s, and its maximum value %s is at %s." % [
+			s.fn, N(s.A), zs, N(s.A), ("x = π/2" if s.fn == "sin" else "x = 0 and x = 2π")]]
 	var mn := "(3π/2, −%s)" % N(s.A) if s.fn == "sin" else "(π, −%s)" % N(s.A)
 	var final := ending(out.answer.values.v)
 	out.merge({
 		"asked": "Which graph is the sketch on 0 ≤ x ≤ 2π?", "lines": lines,
 		"methods": {"plot-constraints": {"result": out.answer.values, "steps": [
-			"Its zeros are at x = %s, its minimum at %s and its ends at (0, %s) and (2π, %s)." % [zs, mn, "0" if s.fn == "sin" else N(s.A), "0" if s.fn == "sin" else N(s.A)],
+			("Its zeros are at x = %s, its maximum at %s and its minimum at %s; its ends are (0, 0) and (2π, 0)." % [zs, mx, mn] if s.fn == "sin" else
+				"Its zeros are at x = %s, its minimum at %s, and its maximum at its ends, %s." % [zs, mn, mx]),
 			"Join them with the smooth wave shape, amplitude %s." % N(s.A), final]}}})
 	return out
 
@@ -406,7 +429,7 @@ func u_features_from_sketch(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		"methods": {
 			"features-then-join": {"result": out.answer.values, "steps": ["Read the labelled points: the vertex %s, the roots %s and %s, the y-intercept %s." % [
 				P(s.h, s.k), N(s.r1), N(s.r2), P(0, s.c)], "The vertex is the %s point, so it %s." % ["lowest" if s.a.sign() > 0 else "highest", dir], final]},
-			"transform-x-squared": {"result": out.answer.values, "steps": ["It is y = x² %s and moved to %s." % ["stretched" if s.a.sign() > 0 else "reflected", P(s.h, s.k)],
+			"transform-x-squared": {"result": out.answer.values, "steps": ["It is %s." % from_x_squared(s),
 				"Its roots are %s and %s and it meets the y-axis at %s." % [N(s.r1), N(s.r2), N(s.c)], final]},
 		}})
 	return out
@@ -433,15 +456,22 @@ func u_judge_a_sketch(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if rep == "graph":
 		lines = [factorised(s)]
 	var final: String = "So: " + right
+	# The fact the sketch breaks, set against what it shows.
+	var up: bool = s.a.sign() > 0
+	var compare := "a %s 0, so the vertex is a %s and the parabola opens %s, but the sketch opens %s." % [">" if up else "<",
+		"minimum" if up else "maximum", "upwards" if up else "downwards", "downwards" if up else "upwards"]
+	if flaw == "pointed":
+		compare = "A parabola is a smooth curve, rounded at its vertex, but the sketch comes to a sharp point there."
 	out.merge({
 		"asked": "A student sketched the parabola. What is wrong with the sketch?", "lines": lines + ["The student's sketch is shown."], "graph": g,
 		"check": {"flaw": flaw},
 		"methods": {
-			"features-then-join": {"result": out.answer.values, "steps": ["The parabola has roots %s and %s and its vertex at %s." % [N(s.r1), N(s.r2), P(s.h, s.k)],
-				"The vertex is halfway between the roots, not at the y-intercept, and the curve is smooth.", final]},
+			"features-then-join": {"result": out.answer.values, "steps": ["The parabola has roots %s and %s and its vertex at %s, halfway between them, not at the y-intercept." % [
+				N(s.r1), N(s.r2), P(s.h, s.k)], compare, final]},
 			"gdc-transfer": {"result": out.answer.values, "steps": ["Graph y = f(x) on the GDC and compare its shape with the sketch.",
 				"The GDC's parabola %s and is smooth at %s." % ["opens upwards" if s.a.sign() > 0 else "opens downwards", P(s.h, s.k)], final]},
 			"plot-constraints": {"result": out.answer.values, "steps": ["a %s 0, so the parabola opens %s, with a smooth vertex at %s." % [
-				">" if s.a.sign() > 0 else "<", "upwards" if s.a.sign() > 0 else "downwards", P(s.h, s.k)], "Check the sketch against each fact.", final]},
+				">" if s.a.sign() > 0 else "<", "upwards" if s.a.sign() > 0 else "downwards", P(s.h, s.k)], "Check the sketch against each fact: %s." % (
+				"it opens %s, the wrong way" % ("downwards" if s.a.sign() > 0 else "upwards") if flaw == "flipped" else "its vertex is a sharp point, not smooth"), final]},
 		}})
 	return out

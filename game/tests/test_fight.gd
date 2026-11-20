@@ -204,6 +204,55 @@ func test_an_answer_box_stays_on_the_card() -> void:
 	_done(made)
 
 
+## A question answered by a word choice in a row ("it cannot be simplified"), from the
+## fight's run so Attack marks it.
+func _pick_question(f: Control) -> void:
+	var v: Dictionary = QuestionEngine.cells(false, ["fn-pre-algebraic-fractions"]).filter(func(c): return c.unknown == "simplify-by-cancelling")[0].duplicate()
+	v.format = "value"
+	for seed_no in range(1, 60):
+		v.seed = seed_no
+		f.run.question = QuestionEngine.make(v)
+		if str(f.run.question.get("answer", {}).get("values", {}).get("v", "")) == "it cannot be simplified":
+			break
+	f.question = f.run.question
+	f.render_question()
+
+
+## The colour a disabled pick button draws its words in.
+static func _pick_colour(b: Button) -> Color:
+	return b.get_theme_color("font_disabled_color")
+
+
+func test_a_row_of_word_choices_shows_the_right_one_after_attack() -> void:
+	# FAL-1053: on a PC window the word choices sit in a row, and only a list was coloured.
+	for right in [true, false]:
+		var made: Array = await _screen(_area(Vector2i(1440, 900)))
+		var f: Control = made[1]
+		_pick_question(f)
+		await tree.process_frame
+		var want := str(f.question.answer.values.v)
+		check(want.begins_with("it cannot be simplified"), "the reported question (%s)" % want)
+		var buttons: Array = f._pick_buttons.v
+		var chosen: Button
+		for b: Button in buttons:
+			if (UiTheme.button_text(b) == want) == right:
+				chosen = b
+				break
+		chosen.button_pressed = true
+		chosen.pressed.emit()
+		f.check_answer()
+		check_eq(f.result.outcome, "right" if right else "wrong")
+		for b: Button in buttons:
+			var shown := UiTheme.button_text(b)
+			if shown == want:
+				check_eq(_pick_colour(b), UiTheme.TEAL, "the right option is teal (%s)" % shown)
+			elif b == chosen:
+				check_eq(_pick_colour(b), UiTheme.PINK, "the wrong pick is pink (%s)" % shown)
+			else:
+				check(_pick_colour(b) != UiTheme.TEAL and _pick_colour(b) != UiTheme.PINK, "an option not picked stays grey (%s)" % shown)
+		_done(made)
+
+
 func test_the_scene_is_the_fight_screen() -> void:
 	for spec in [[Vector2i(390, 844), 0.25, 1240], [Vector2i(360, 780), 0.25, 1240], [Vector2i(1280, 800), 0.3, 1400]]:
 		var area := _area(spec[0])

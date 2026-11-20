@@ -6023,13 +6023,13 @@
                 {
                   "id": "zero-denominator-and-ratio",
                   "approach": "formula",
-                  "name": "x = −d/c and y = a/c",
+                  "name": "Zero of the denominator, ratio of the x-coefficients",
                   "summary": "The vertical asymptote is where cx + d = 0; the horizontal asymptote is the ratio of the x-coefficients."
                 },
                 {
                   "id": "divide-out",
                   "approach": "algebraic",
-                  "name": "Rewrite as a/c + k/(cx + d)",
+                  "name": "Divide out into a constant plus a fraction",
                   "summary": "Split the numerator to separate a constant part (the horizontal asymptote) from a fraction that blows up at x = −d/c."
                 },
                 {
@@ -6097,8 +6097,8 @@
                 {
                   "id": "compare-coefficients",
                   "approach": "algebraic",
-                  "name": "Combine A + B/(x − 3) and compare",
-                  "summary": "Put A + B/(x − 3) over a common denominator and match the numerator with 2x + 1."
+                  "name": "Combine A + B/(x − h) and compare coefficients",
+                  "summary": "Put A + B/(x − h) over the common denominator x − h and match its numerator with the numerator of f, term by term."
                 },
                 {
                   "id": "read-asymptotes",
