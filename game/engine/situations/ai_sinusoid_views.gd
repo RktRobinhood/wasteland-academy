@@ -549,7 +549,7 @@ func u_value_at_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		asked = "Find %s %s." % [c.thing, when]
 	else:
 		asked = "Find the value of %s when t = %s." % [sym(s), D(t0)]
-	var deg := s.b.mul(t0)
+	var deg: Q = s.b.mul(t0)
 	var steps: Array = []
 	if first != "":
 		steps.append(first)
