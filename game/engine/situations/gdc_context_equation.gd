@@ -19,10 +19,11 @@ extends RefCounted
 ##   table   (need.table, savings) {"xs", "ys"}: the amount at whole years around n
 ##   paper   2
 ##
-## need (all optional): form ("mixed": ksin, or a third of the time a far expline), far
-## (an expline root past 10), far_ok (that a third of the time), neg (expline: one root
-## below 0, so t ≥ 0 rejects it), root0 (ksin: the given root x₀, for a reversed view),
-## table.
+## need (all optional): form ("mixed": ksin, or a third of the time a far expline;
+## "count": a root count that varies, see generate), far (an expline root past 10), far_ok
+## (that a third of the time), neg (expline: one root below 0, so t ≥ 0 rejects it),
+## falling (expline: a falling line, so one root), root0 (ksin: the given root x₀, for a
+## reversed view), table.
 
 const TRIES := 3000
 ## The wide window roots are looked for in.
@@ -39,6 +40,15 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		need.far = form == "expline"
 	elif form == "expline" and need.get("far_ok", false) and not need.get("neg", false) and rng.chance(1.0 / 3.0):
 		need.far = true
+	elif form == "count":
+		# How many solutions: x = k sin x has three, an exponential meets a falling line
+		# once and a rising one twice (half the time with one root past x = 10, outside
+		# the standard window). Each root in its own unit step, for a table of whole x.
+		var kind := rng.int_in(0, 3)
+		form = "ksin" if kind == 0 else "expline"
+		need.falling = kind == 1
+		need.far = kind >= 2 and rng.chance(0.5)
+		need.count = true
 	for i in TRIES:
 		var s := _draw(rng, form, need)
 		if s.is_empty():
@@ -83,6 +93,8 @@ static func _draw(rng: Seeded, form: String, need: Dictionary) -> Dictionary:
 			s.nums = [_pick(rng, [0.5, 0.6, 0.8, 1, 0.4]), _pick(rng, [1, 1.5, 2, 2.5, 3]), Q.new(rng.int_in(-4, 8), 2)]
 			if need.get("far", false):
 				s.nums[0] = _pick(rng, [0.25, 0.3, 0.35])
+			if need.get("falling", false):
+				s.nums[1] = s.nums[1].neg()
 		"height":
 			var a := rng.int_in(4, 12)
 			var k: float = [0.3, 0.4, 0.5, 0.6][rng.int_in(0, 3)]
@@ -153,6 +165,9 @@ static func _clean(s: Dictionary, need: Dictionary) -> bool:
 				return false
 			s.lo = 0.0
 			s.want = pos[0]
+			# A root that rounds to k itself (x = 1.5sin x has x = 1.50) reads as k.
+			if not s.has("x0") and Fmt.sf(s.want) == Fmt.sf(s.co[0]):
+				return false
 		"sector":
 			if rs.size() != 1 or rs[0] < 0.5 or rs[0] > 3.0:
 				return false
@@ -160,9 +175,13 @@ static func _clean(s: Dictionary, need: Dictionary) -> bool:
 			s.hi = PI
 			s.want = rs[0]
 		"expline":
-			if rs.size() != 2:
+			if need.get("falling", false):
+				if rs.size() != 1 or absf(rs[0]) > 9.0:
+					return false
+				s.want = rs[0]
+			elif rs.size() != 2:
 				return false
-			if need.get("far", false):
+			elif need.get("far", false):
 				if rs[1] < 10.5 or rs[1] > 18.0 or rs[0] > 9.0 or rs[0] < -9.0:
 					return false
 				s.far = true
@@ -210,6 +229,14 @@ static func _clean(s: Dictionary, need: Dictionary) -> bool:
 			return false
 	if need.get("table", false) and _table(s).is_empty():
 		return false
+	# A count read off a table of whole x: no two roots in one step, none on a whole number
+	# but x = 0 (x = k sin x).
+	if need.get("count", false):
+		for i in rs.size():
+			if absf(rs[i]) > 1e-9 and absf(rs[i] - roundf(rs[i])) < 0.05:
+				return false
+			if i > 0 and floorf(rs[i]) == floorf(rs[i - 1]):
+				return false
 	return true
 
 

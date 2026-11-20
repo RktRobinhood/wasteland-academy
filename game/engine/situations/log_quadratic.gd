@@ -20,6 +20,7 @@ extends RefCounted
 ## need (all optional):
 ##   straddle  p < 0 < q, so the graph meets the y-axis
 ##   h_not_0   the axis is not the y-axis (when "through the y-intercept" is a wrong option)
+##   c_whole   g(0) = c is a whole number, so log_k c needs no brackets
 ##
 ## The clean limits are the checker's too (tools/check_answers.py, LQ_*).
 
@@ -44,6 +45,8 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		if need.get("h_not_0", false) and h == 0:
 			continue
 		var s := _from(a, h, w, shape[2], shape[3])
+		if not s.is_empty() and need.get("c_whole", false) and not s.c.is_int():
+			continue
 		if not s.is_empty():
 			return s
 	push_error("LogQuadraticSituation: no clean situation for %s" % need)

@@ -192,23 +192,32 @@ static func first_term(outer: Dictionary, inner: Dictionary) -> Array:
 	return co
 
 
-## A power of a linear bracket taken term by term: (3x − 2)² + 4 read as 9x² + 4 + 4,
-## (x − 1)² of 2x + 3 as 4x² + 2² (fn-composite#22). outer is (x − s)ⁿ + c.
+## A power of a bracket taken term by term, with no middle terms: (3x − 2)² + 4 read as
+## 9x² + 4 + 4, (x − 1)² of 2x + 3 as 4x² + 2², (x² + 3)² + 3 as x⁴ + 9 + 3
+## (fn-composite#22). outer is (x − s)ⁿ + c, inner any polynomial.
 static func term_by_term(outer: Dictionary, inner: Dictionary) -> Array:
 	var n := CompositePairSituation.degree(outer.co)
 	var s: Q = outer.h if outer.t == "sqs" else Q.new(0)
 	var c: Q = Q.new(0) if outer.t == "sqs" else outer.co[0]
+	var b := CompositePairSituation.trim(CompositePairSituation.padd(inner.co, [s.neg()]))
 	var co: Array = []
-	for i in n + 1:
+	for i in (b.size() - 1) * n + 1:
 		co.append(Q.new(0))
-	var top := Q.new(1)
-	var low := Q.new(1)
-	for i in n:
-		top = top.mul(inner.co[1])
-		low = low.mul(inner.co[0].sub(s))
-	co[n] = top
-	co[0] = low.add(c)
+	for i in b.size():
+		var p := Q.new(1)
+		for j in n:
+			p = p.mul(b[i])
+		co[i * n] = co[i * n].add(p)
+	co[0] = co[0].add(c)
 	return co
+
+
+## A bracket slip as a wrong option: only the first term multiplied (a linear outer rule),
+## or a power taken term by term; nothing when the slip gives the answer itself.
+static func bracket_slip(ans: Dictionary, outer: Dictionary, inner: Dictionary, h: Array) -> Array:
+	var co := first_term(outer, inner) if outer.t == "lin" else term_by_term(outer, inner)
+	var ref := R_FIRST_TERM if outer.t == "lin" else R_TERM_BY_TERM
+	return [] if CompositePairSituation.same(co, h) else pw(ans, co, ref)
 
 
 # ── expression ───────────────────────────────────────────────
@@ -229,10 +238,7 @@ func u_expression(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"wrongs": pw(ans, wrong_h, R_EXPR_ORDER), "fillers": []}
 	# Expanding the bracket badly: only its first term multiplied, or a power taken term
 	# by term with no middle terms.
-	if outer.t == "lin":
-		out.wrongs.append_array(pw(ans, first_term(outer, inner), R_FIRST_TERM))
-	else:
-		out.wrongs.append_array(pw(ans, term_by_term(outer, inner), R_TERM_BY_TERM))
+	out.wrongs.append_array(bracket_slip(ans, outer, inner, h))
 	# The product f(x)·g(x) is of a higher degree than the answer, so pg drops it; the sum
 	# and the inner rule's constant left out have no route. The answer + 1 is a last resort.
 	out.fillers.append_array(pg(ans, CompositePairSituation.padd(f.co, g.co)))
@@ -336,10 +342,10 @@ func _param_lin(s: Dictionary) -> Dictionary:
 	var eq := "%sk %s = %s" % [Fmt.lead(gx), d_part, N(s.v)]
 	var inside := ["g(%s) = %s" % [N(x0), Fmt.equals(CompositePairSituation.sub_in(g, N(x0)), N(gx))],
 		"f(%s) = %s, so %s" % [N(gx), "%sk %s" % [Fmt.lead(gx), d_part], eq],
-		"%sk = %s, so k = %s ÷ %s" % [Fmt.lead(gx), N(s.v.sub(s.d)), N(s.v.sub(s.d)), N(gx)], final]
+		"%sk = %s, so k = %s ÷ %s" % [Fmt.lead(gx), N(s.v.sub(s.d)), N(s.v.sub(s.d)), Fmt.paren(gx)], final]
 	var build := ["(f∘g)(x) = k(%s) %s" % [rt(g), d_part],
 		"Put x = %s: k(%s) %s = %s, so %s" % [N(x0), N(gx), d_part, N(s.v), eq],
-		"%sk = %s, so k = %s ÷ %s" % [Fmt.lead(gx), N(s.v.sub(s.d)), N(s.v.sub(s.d)), N(gx)], final]
+		"%sk = %s, so k = %s ÷ %s" % [Fmt.lead(gx), N(s.v.sub(s.d)), N(s.v.sub(s.d)), Fmt.paren(gx)], final]
 	out.methods = {"inside-out": method(inside, ans.values), "build-then-substitute": method(build, ans.values), "substitute-whole": method(build, ans.values)}
 	return out
 
@@ -396,15 +402,29 @@ func u_solve_composite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var plus := r.sub(gb).div(gm)
 		var minus := r.neg().sub(gb).div(gm)
 		out.wrongs.append(wrong({"n": Q.new(2), "x0": r.div(gm), "x1": r.neg().div(gm)}, R_SOLVE_NO_SHIFT))
+		# The pair shifted by one is a last resort, so no repeated root ("x = 0 or 0") is nudged in.
 		out.fillers = [{"n": Q.new(2), "x0": plus, "x1": plus.add(1)},
-			{"n": Q.new(2), "x0": plus.add(1), "x1": minus.add(1)}, {"n": Q.new(2), "x0": plus.neg(), "x1": minus.neg()}]
+			{"n": Q.new(2), "x0": plus.add(1), "x1": minus.add(1)}, {"n": Q.new(2), "x0": plus.neg(), "x1": minus.neg()},
+			{"n": Q.new(2), "x0": xs[0].sub(1), "x1": xs[1].sub(1)}, {"n": Q.new(2), "x0": xs[0].add(1), "x1": xs[1].add(1)}]
 		if xs.size() == 2 and gb.is_zero():
 			out.wrongs.append(wrong({"n": Q.new(2), "x0": r, "x1": r.neg()}, R_SOLVE_STOP))
 	else:
 		var x: Q = xs[0]
-		out.fillers = [{"n": Q.new(1), "x0": x.add(1)}, {"n": Q.new(1), "x0": x.neg()}, {"n": Q.new(1), "x0": x.sub(1)}, {"n": Q.new(1), "x0": s.t}]
-	var whole := ["(f∘g)(x) = %s = %s" % [CompositePairSituation.sub_in(f, rt(g)), ptext(h)],
-		"Set it equal to %s: %s = %s" % [N(s.t), ptext(h), N(s.t)], _solve_last(f, g, s), final]
+		var one := func(v: Q) -> Dictionary: return {"n": Q.new(1), "x0": v}
+		var gv := ev(g, x)
+		# (g∘f)(x) = t solved instead, and f undone in the order it works (t ÷ m − c, not
+		# (t − c) ÷ m): a linear f only, where both stay rational. Then stopping at g(x),
+		# and undoing g's multiplication but not its shift.
+		if f.t == "lin":
+			var fm: Q = f.co[1]
+			var fc: Q = f.co[0]
+			out.wrongs.append(wrong(one.call(s.t.sub(gb).div(gm).sub(fc).div(fm)), R_EXPR_ORDER))
+			out.wrongs.append(wrong(one.call(s.t.div(fm).sub(fc).sub(gb).div(gm)), R_UNDO_ORDER))
+		out.wrongs.append(wrong(one.call(gv), R_SOLVE_STOP))
+		out.wrongs.append(wrong(one.call(gv.div(gm)), R_SOLVE_NO_SHIFT))
+		out.fillers = [one.call(s.t), one.call(x.neg()), one.call(x.add(1)), one.call(x.sub(1))]
+	var whole := _solve_whole(f, g, h, s)
+	whole.append(final)
 	var flow := ["Undo f first: from %s, the value of g(x) is %s" % [N(s.t), _g_values(f, g, s)],
 		"Then undo g: %s" % _solve_last(f, g, s), final]
 	var rev := ["f(g(x)) = %s, so work backwards from %s through f" % [N(s.t), N(s.t)],
@@ -423,6 +443,31 @@ static func _g_values(f: Dictionary, g: Dictionary, s: Dictionary) -> String:
 	return " or ".join(gs.map(func(v): return N(v)))
 
 
+## The substitute-whole working, kept on one route: a linear or quadratic composite is
+## expanded and that equation solved (9x + 15 = −12, so 9x = −27; 16x² + 64x = 0, so
+## 16x(x + 4) = 0); a cube is solved with its bracket kept, as expanding it leads nowhere.
+static func _solve_whole(f: Dictionary, g: Dictionary, h: Array, s: Dictionary) -> Array:
+	var t: Q = s.t
+	var shown := CompositePairSituation.sub_in(f, rt(g))
+	if f.t == "cube":
+		var bracket := CompositePairSituation.put("x³", rt(g))
+		var x: Q = s.xs[0]
+		return ["(f∘g)(x) = %s" % shown, "Set it equal to %s: %s = %s, so %s = %s" % [N(t), shown, N(t), bracket, N(t.sub(f.co[0]))],
+			"%s = ∛%s = %s, so x = %s" % [rt(g), Fmt.paren(t.sub(f.co[0])), N(ev(g, x)), N(x)]]
+	var first := "(f∘g)(x) = %s = %s" % [shown, ptext(h)]
+	if f.t == "lin":
+		var m: Q = h[1]
+		var rhs := t.sub(h[0])
+		return [first, "Set it equal to %s: %s = %s, so %sx = %s" % [N(t), ptext(h), N(t), Fmt.lead(m), N(rhs)],
+			"x = %s ÷ %s = %s" % [N(rhs), Fmt.paren(m), N(s.xs[0])]]
+	# A quadratic with whole roots x1 and x2: A(x − x1)(x − x2) = 0, a bare x first.
+	var zero := CompositePairSituation.padd(h, [t.neg()])
+	var fs: Array = s.xs.map(func(r): return Fmt.factor(r))
+	fs.sort_custom(func(a, b): return a == "x" and b != "x")
+	return [first, "Set it equal to %s: %s = %s, so %s = 0" % [N(t), ptext(h), N(t), ptext(zero)],
+		"%s%s = 0, so x = %s or x = %s" % [Fmt.lead(h[2]), "".join(fs), N(s.xs[0]), N(s.xs[1])]]
+
+
 static func _solve_last(_f: Dictionary, g: Dictionary, s: Dictionary) -> String:
 	var parts: Array = []
 	for x in s.xs:
@@ -436,19 +481,31 @@ func u_self_composite(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var f: Dictionary = s.f
 	var h := comp(f, f)
 	var ans := poly_ans(h, "(f∘f)(x) = ")
-	var out := {"asked": "Find (f∘f)(x), simplified.", "lines": rule_lines(rep, [["f", f]]), "answer": ans, "wrongs": [], "fillers": []}
-	# The classic slip: replace only one of the x's, or square the rule.
+	# The method is f put into itself, so its label names f, not g.
+	var out := {"asked": "Find (f∘f)(x), simplified.", "lines": rule_lines(rep, [["f", f]]), "answer": ans, "wrongs": [], "fillers": [],
+		"titles": {"substitute-whole": "Replace every x in f with f(x)"}}
+	# The slips: square the rule (x² + c only: a linear rule's square is no linear option),
+	# then the bracket expanded badly. The rule doubled, the inner constant left out and
+	# f's constant added twice have no route; the answer + 1 and doubled are last resorts.
 	out.wrongs.append_array(pw(ans, CompositePairSituation.pmul(f.co, f.co), R_SQUARE))
+	out.wrongs.append_array(bracket_slip(ans, f, f, h))
 	out.fillers.append_array(pg(ans, CompositePairSituation.padd(f.co, f.co)))
+	out.fillers.append_array(pg(ans, CompositePairSituation.pcompose(f.co, [Q.new(0)] + CompositePairSituation.trim(f.co).slice(1))))
+	out.fillers.append_array(pg(ans, CompositePairSituation.padd(f.co, [f.co[0]])))
 	out.fillers.append_array(pg(ans, CompositePairSituation.padd(h, [Q.new(1)])))
 	out.fillers.append_array(pg(ans, CompositePairSituation.pscale(h, Q.new(2))))
 	var final := "So %s." % Answer.text(ans)
-	var whole := ["Replace x in f(x) with f(x): (f∘f)(x) = %s" % CompositePairSituation.sub_in(f, rt(f)), "Expand and simplify: %s" % ptext(h), final]
+	# The bracket multiplied out, then f's constant added: (x² + 3)² + 3 = x⁴ + 6x² + 9 + 3.
+	var c: Q = f.co[0]
+	var bracket := CompositePairSituation.pmul(f.co, f.co) if f.t == "sq" else CompositePairSituation.pscale(f.co, f.co[1])
+	var expand := "%s = %s%s = %s" % [CompositePairSituation.sub_in(f, rt(f)), ptext(bracket), "" if c.is_zero() else Fmt.plus(c), ptext(h)]
+	var whole := ["Replace x in f(x) with f(x): (f∘f)(x) = %s" % CompositePairSituation.sub_in(f, rt(f)),
+		"Expand and simplify: %s" % expand.split(" = ", true, 1)[1], final]
 	var x1 := Q.new(1)
 	var f1 := ev(f, x1)
-	var inside := ["Work out %s" % ["(f∘f)(x) = %s" % CompositePairSituation.sub_in(f, rt(f))],
-		"Check x = 1: f(1) = %s, then f(%s) = %s" % [N(f1), N(f1), N(ev(f, f1))],
-		"%s at x = 1 is %s, which agrees" % [_at(h, x1), N(ev(f, f1))], final]
+	var inside := ["Inside first: f(x) = %s; then f of that: (f∘f)(x) = %s" % [rt(f), expand],
+		"Check x = 1 inside-out: f(1) = %s, then f(%s) = %s" % [N(f1), N(f1), N(ev(f, f1))],
+		"The expansion gives %s = %s at x = 1, which agrees" % [_at(h, x1), N(ev(f, f1))], final]
 	out.methods = {"substitute-whole": method(whole, ans.values), "inside-out": method(inside, ans.values)}
 	return out
 
@@ -565,12 +622,17 @@ func u_decompose(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var final := "So %s." % right
 	var x1 := Q.new(1)
 	var gx := ev(g, x1)
+	var read_off := "The bracket is worked out first, so g(x) = %s; what h does to the bracket is f(x) = %s" % [rt(g), rt(f)]
+	if rep == "words":
+		read_off = "The first steps (%s) give g(x) = %s; the rest (%s) give f(x) = %s" % [CompositePairSituation.steps_text(CompositePairSituation.rule_steps(g)),
+			rt(g), CompositePairSituation.steps_text(CompositePairSituation.rule_steps(f)), rt(f)]
 	out.methods = {
 		"flow-diagram": method(["Follow x through h: first %s, then %s" % [CompositePairSituation.steps_text(CompositePairSituation.rule_steps(g)), CompositePairSituation.steps_text(CompositePairSituation.rule_steps(f))],
 			"The inner rule is g(x) = %s" % rt(g), "The outer rule is f(x) = %s" % rt(f), final], ans.values),
-		"numeric-check": method(["Try g(x) = %s and f(x) = %s" % [rt(g), rt(f)],
-			"At x = 1: g(1) = %s and f(%s) = %s" % [N(gx), N(gx), N(ev(f, gx))],
-			"h(1) = %s, which agrees" % N(ev({"t": "poly", "co": h}, x1)), final], ans.values),
+		# Read the pair off h, then check it with one number (a check, not the derivation).
+		"numeric-check": method([read_off,
+			"Check x = 1: g(1) = %s, then f(%s) = %s" % [N(gx), N(gx), N(ev(f, gx))],
+			"h(1) = %s = %s, which agrees" % [CompositePairSituation.put(shown, "1"), N(ev({"t": "poly", "co": h}, x1))], final], ans.values),
 	}
 	return out
 
@@ -596,15 +658,20 @@ func u_inner_from_composite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	out.fillers.append_array(pg(ans, CompositePairSituation.pscale(CompositePairSituation.padd(h, [c]), Q.new(1).div(m))))
 	var final := "So %s." % Answer.text(ans)
 	var minus := "%s = %s" % [CompositePairSituation.sub_in(lin(m, 0), "g(x)"), ptext(CompositePairSituation.padd(h, [c.neg()]))]
-	var whole := ["f(g(x)) = %s = %s" % [rt_g(f), ptext(h)], minus, "g(x) = (%s) ÷ %s" % [ptext(CompositePairSituation.padd(h, [c.neg()])), N(m)], final]
+	var whole := ["f(g(x)) = %s = %s" % [rt_g(f), ptext(h)], minus, "g(x) = (%s) ÷ %s" % [ptext(CompositePairSituation.padd(h, [c.neg()])), Fmt.paren(m)], final]
+	# Undoing "add c" is taking c away: written h − c, or h + 4 for c = −4.
+	var undo_c := Fmt.plus(c.neg())
 	var rev := ["f does two things to g(x): %s" % CompositePairSituation.steps_text(CompositePairSituation.rule_steps(f)),
 		"Undo them in reverse order: %s" % _undo_text(f),
-		"g(x) = (%s − %s) ÷ %s" % [ptext(h), Fmt.paren(c), Fmt.paren(m)], final]
-	var vals: Array = []
-	for x in [Q.new(0), Q.new(1)]:
-		vals.append("x = %s: g = (%s − %s) ÷ %s = %s" % [N(x), N(peval(h, x)), Fmt.paren(c), Fmt.paren(m), N(peval(g.co, x))])
-	var numeric := ["Undo f at some inputs: g = (h − %s) ÷ %s" % [Fmt.paren(c), Fmt.paren(m)], vals[0], vals[1],
-		"The expression through these values is %s" % ptext(g.co), final]
+		"g(x) = (%s%s) ÷ %s" % [ptext(h), undo_c, Fmt.paren(m)], final]
+	# g has the degree of f∘g (f is linear), so two inputs fix a linear g and three a
+	# quadratic one.
+	var quad := CompositePairSituation.degree(g.co) == 2
+	var at := func(x: Q) -> String: return "x = %s: g(%s) = (%s%s) ÷ %s = %s" % [N(x), N(x), N(peval(h, x)), undo_c, Fmt.paren(m), N(peval(g.co, x))]
+	var numeric := ["Undo f: g(x) = ((f∘g)(x)%s) ÷ %s. Work it out at some inputs" % [undo_c, Fmt.paren(m)], at.call(Q.new(0)),
+		at.call(Q.new(1)) + ("; " + at.call(Q.new(-1)) if quad else ""),
+		("f is linear, so g is a quadratic like f∘g: the quadratic through these three values is %s" if quad else
+			"f is linear, so g is linear like f∘g: the line through these two values is %s") % ptext(g.co), final]
 	out.methods = {"substitute-whole": method(whole, ans.values), "numeric-check": method(numeric, ans.values), "reverse-operations": method(rev, ans.values)}
 	return out
 

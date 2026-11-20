@@ -9184,7 +9184,8 @@
 					"as": "distractor",
 					"in": [
 						"inverse-value-read",
-						"mixed-inverse-composite"
+						"mixed-inverse-composite",
+						"missing-entry"
 					],
 					"wrong": "f(b), read up from x = b"
 				},
@@ -12116,6 +12117,30 @@
 						"judge-a-sketch"
 					],
 					"wrong": "nothing wrong with the sketch"
+				},
+				{
+					"text": "Taking the cos graph for the sin graph, or the sin graph for the cos graph",
+					"as": "distractor",
+					"in": [
+						"sketch-trig-on-interval"
+					],
+					"wrong": "the other wave, starting at the wrong height"
+				},
+				{
+					"text": "Using a height other than the number in front of sin or cos as the amplitude",
+					"as": "distractor",
+					"in": [
+						"sketch-trig-on-interval"
+					],
+					"wrong": "the right wave with the wrong amplitude"
+				},
+				{
+					"text": "Forgetting to check where the maximum is, so drawing the wave upside down",
+					"as": "distractor",
+					"in": [
+						"sketch-trig-on-interval"
+					],
+					"wrong": "the wave reflected in the x-axis"
 				}
 			],
 			"chain": [
@@ -14122,6 +14147,22 @@
 						"constant-from-root"
 					],
 					"wrong": "x sin x"
+				},
+				{
+					"text": "Using the calculator in degree mode, so sin x is taken in degrees, not radians",
+					"as": "distractor",
+					"in": [
+						"constant-from-root"
+					],
+					"wrong": "x ÷ sin x with x read in degrees"
+				},
+				{
+					"text": "Using simple interest, adding the same amount each year, instead of compound growth",
+					"as": "distractor",
+					"in": [
+						"smallest-whole-number"
+					],
+					"wrong": "the first n with P(1 + rn/100) more than the target"
 				}
 			],
 			"chain": [
@@ -14526,7 +14567,8 @@
 					"as": "distractor",
 					"in": [
 						"expression",
-						"parameter-from-value"
+						"parameter-from-value",
+						"solve-composite"
 					],
 					"wrong": "g(f(x)) written when f(g(x)) is asked"
 				},
@@ -14554,7 +14596,8 @@
 					"text": "Undoes the operations in the original order",
 					"as": "distractor",
 					"in": [
-						"inner-from-composite"
+						"inner-from-composite",
+						"solve-composite"
 					],
 					"wrong": "with f(x) = 2x + 3, g = (f∘g)/2 − 3 instead of ((f∘g) − 3)/2"
 				},
@@ -14670,6 +14713,24 @@
 						"outer-from-composite"
 					],
 					"wrong": "(f∘g)(g(x)), not (f∘g)(g⁻¹(x))"
+				},
+				{
+					"text": "Multiplying only the first term of the bracket by the outer rule's number",
+					"as": "distractor",
+					"in": [
+						"expression",
+						"self-composite"
+					],
+					"wrong": "3(2x − 5) + 1 written as 6x − 5 + 1"
+				},
+				{
+					"text": "Squaring or cubing a bracket term by term, leaving out the middle terms",
+					"as": "distractor",
+					"in": [
+						"expression",
+						"self-composite"
+					],
+					"wrong": "(3x − 2)² written as 9x² + 4"
 				}
 			],
 			"chain": [
@@ -20038,6 +20099,38 @@
 						"quadratic-from-features"
 					],
 					"wrong": "a(x + p)(x + q)"
+				},
+				{
+					"text": "Using the quadratic's top value, at its vertex, as its value at x = 0",
+					"as": "distractor",
+					"in": [
+						"y-intercept"
+					],
+					"wrong": "f(0) = log_k G, with g's maximum for g(0)"
+				},
+				{
+					"text": "Taking the base to be the quadratic's top value, the number inside the log",
+					"as": "distractor",
+					"in": [
+						"base-from-max"
+					],
+					"wrong": "k = G"
+				},
+				{
+					"text": "Taking the base to be the maximum value of f, which is the power",
+					"as": "distractor",
+					"in": [
+						"base-from-max"
+					],
+					"wrong": "k = n"
+				},
+				{
+					"text": "Taking log_k y = 0 to mean y = k, so solving g(x) = k instead of g(x) = 1",
+					"as": "distractor",
+					"in": [
+						"zeros"
+					],
+					"wrong": "the solutions of g(x) = k as the zeros"
 				}
 			],
 			"chain": [
@@ -20287,7 +20380,7 @@
 						"constants-from-asymptotes",
 						"equation-from-features"
 					],
-					"name": "x = −d/c and y = a/c",
+					"name": "Zero of the denominator, ratio of the x-coefficients",
 					"about": "The vertical asymptote is where cx + d = 0; the horizontal asymptote is the ratio of the x-coefficients."
 				},
 				{
@@ -20305,7 +20398,7 @@
 						],
 						"why": "splitting the numerator takes several lines when y = a/c can be read off at once"
 					},
-					"name": "Rewrite as a/c + k/(cx + d)",
+					"name": "Divide out into a constant plus a fraction",
 					"about": "Split the numerator to separate a constant part (the horizontal asymptote) from a fraction that blows up at x = −d/c."
 				},
 				{
@@ -20572,7 +20665,8 @@
 					"text": "Forgets to divide by d when putting x = 0 into f",
 					"as": "distractor",
 					"in": [
-						"y-intercept"
+						"y-intercept",
+						"constant-from-intercept"
 					],
 					"wrong": "y = b, the numerator's constant alone"
 				},
@@ -21140,7 +21234,7 @@
 					"in": [
 						"reciprocal-self-inverse"
 					],
-					"wrong": "argues 1/x is self-inverse because (1/x) × x = 1"
+					"wrong": "f⁻¹(x) = x/k, taken as 1/f(x) so that f(x) × f⁻¹(x) = 1"
 				},
 				{
 					"ref": "SL2.8.reciprocal#1",
@@ -21199,6 +21293,22 @@
 						"reciprocal-self-inverse"
 					],
 					"wrong": "f⁻¹(x) = x/k"
+				},
+				{
+					"text": "Taking the graph of f itself for the graph of 1/f, forgetting to take the reciprocal",
+					"as": "distractor",
+					"in": [
+						"reciprocal-of-f"
+					],
+					"wrong": "the graph of f, with f's asymptotes and zero, not those of 1/f"
+				},
+				{
+					"text": "Taking the reciprocal as changing the sign too, so drawing the negative of 1/f",
+					"as": "distractor",
+					"in": [
+						"reciprocal-of-f"
+					],
+					"wrong": "the graph of 1/f negated: its horizontal asymptote's sign and its branches' corners are wrong"
 				}
 			],
 			"chain": [
@@ -74809,7 +74919,7 @@
 					"in": [
 						"x-not-y"
 					],
-					"wrong": "the meeting points given as coordinates, or their y-values, as the solutions"
+					"wrong": "the meeting points given as coordinates, as the solutions"
 				},
 				{
 					"ref": "SL2.10.number-of-solutions#0",
@@ -76009,8 +76119,8 @@
 						"combine-to-single",
 						"form-from-words"
 					],
-					"name": "Combine A + B/(x − 3) and compare",
-					"about": "Put A + B/(x − 3) over a common denominator and match the numerator with 2x + 1."
+					"name": "Combine A + B/(x − h) and compare coefficients",
+					"about": "Put A + B/(x − h) over the common denominator x − h and match its numerator with the numerator of f, term by term."
 				},
 				{
 					"skill": "SL2.8.transformed-reciprocal",
@@ -76125,6 +76235,14 @@
 						"combine-to-single"
 					],
 					"wrong": "(A + B)/(x − h)"
+				},
+				{
+					"text": "Losing the sign of the constant when splitting (A(x − h) + B)/(x − h) into A + B/(x − h)",
+					"as": "error-spot",
+					"in": [
+						"split-to-form"
+					],
+					"wrong": "the right numerator split into A and a fraction whose top has the opposite sign, so B comes out as −B"
 				}
 			],
 			"frequency": 0
@@ -76622,7 +76740,7 @@
 						"why-horizontal",
 						"gap-not-asymptote"
 					],
-					"name": "Rewrite as a/c + k/(cx + d)",
+					"name": "Divide out into a constant plus a fraction",
 					"about": "Split the numerator to separate a constant part (the horizontal asymptote) from a fraction that blows up at x = −d/c."
 				},
 				{

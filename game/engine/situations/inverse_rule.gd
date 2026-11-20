@@ -21,7 +21,8 @@ extends RefCounted
 ##            (no rat said in words: a rational rule has no chain of steps)
 ##   ident    any family and a whole number n for (f∘f⁻¹)(n)
 ##   funcinv  lin, rat or exp: f⁻¹ is given and f asked (lin or exp in words, or by
-##            reverse operations, which need a chain of steps)
+##            reverse operations, which need a chain of steps); never a lin −x + b,
+##            which is its own inverse
 ##   asym     rat or exp: the asymptotes of f⁻¹ from those of f
 ##   selfinv  rat with d = −a (its own inverse), `slot` ("a" or "d") hidden as k
 ##   refl     rat with d = a, so f⁻¹(x) = −f(−x)
@@ -106,14 +107,19 @@ static func gcd4(a: int, b: int, c: int, d: int) -> int:
 
 
 ## (ax + b)/(cx + d) written with the common factor cancelled and the bottom's leading
-## coefficient positive, so two equal functions are written the same way.
+## coefficient positive, so two equal functions are written the same way (the views'
+## options are told apart by their text). A top or bottom of one term is not bracketed,
+## except a bottom such as 2x: "3x/(x − 1)", "(2x + 1)/(x − 3)", "5/x", "1/(2x)".
 static func rat_frac(a: int, b: int, c: int, d: int) -> String:
 	var g := gcd4(a, b, c, d)
 	if g == 0:
 		return "?"
 	if c < 0 or (c == 0 and d < 0):
 		g = -g
-	return frac(Fmt.poly([a / g, b / g]), Fmt.poly([c / g, d / g]))
+	var top := Fmt.poly([a / g, b / g])
+	var bottom := Fmt.poly([c / g, d / g])
+	var plain_bottom := not " " in bottom and (bottom == "x" or not bottom.contains("x"))
+	return "%s/%s" % [top if not " " in top else "(%s)" % top, bottom if plain_bottom else "(%s)" % bottom]
 
 
 static func root(rng: Seeded) -> Dictionary:
@@ -163,6 +169,9 @@ static func _draw(rng: Seeded, mode: String, steps_only: bool = false) -> Dictio
 				return {}
 		"funcinv":
 			s.f = _family(rng, ["lin", "exp"] if steps_only else ["lin", "rat", "exp"])
+			# −x + b is its own inverse: f⁻¹ given would already be f.
+			if s.f.fam == "lin" and s.f.a == -1:
+				return {}
 		"asym":
 			s.f = _family(rng, ["rat", "exp"])
 		"selfinv":
@@ -267,7 +276,7 @@ static func rule_text(f: Dictionary) -> String:
 		"lin":
 			return Fmt.poly([f.a, f.b])
 		"rat":
-			return frac(Fmt.poly([f.a, f.b]), Fmt.poly([f.c, f.d]))
+			return rat_frac(f.a, f.b, f.c, f.d)
 		"root":
 			var inside := Fmt.poly([f.p, f.q])
 			return "%s%s" % ["√x" if inside == "x" else "√(%s)" % inside, "" if f.r == 0 else Fmt.plus(f.r)]

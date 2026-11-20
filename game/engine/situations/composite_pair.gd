@@ -166,13 +166,15 @@ static func _draw(rng: Seeded, mode: String, need: Dictionary) -> Dictionary:
 				s.t = t
 				s.xs = [Q.new(mini(x1, x2)), Q.new(maxi(x1, x2))]
 			else:
-				s.g = lin(s.g.co[1], rng.int_in(-5, 5))
+				# g has a shift, so leaving it out (fn-composite#15) is a slip of its own.
+				s.g = lin(s.g.co[1], nonzero(rng, -5, 5))
 				s.f = lin(pick(rng, F_M), rng.int_in(-6, 6)) if kind == "lin" else cube(nonzero(rng, -6, 6))
 				var x1 := rng.int_in(-4, 4)
 				s.t = ev(s.f, ev(s.g, Q.new(x1)))
 				s.xs = [Q.new(x1)]
 		"self":
-			s.f = lin(pick(rng, [2, 3, 4, 5, -2, -3]), rng.int_in(-6, 6)) if rng.chance(0.55) else sq(nonzero(rng, -5, 5))
+			# A linear rule has a constant, or f∘f is just m²x and its slips collapse onto it.
+			s.f = lin(pick(rng, [2, 3, 4, 5, -2, -3]), nonzero(rng, -6, 6)) if rng.chance(0.55) else sq(nonzero(rng, -5, 5))
 		"compare":
 			s.g = lin(pick(rng, G_M), rng.int_in(-5, 5))
 			s.f = draw_rule(rng, ["lin", "sq", "sq", "sqs"])

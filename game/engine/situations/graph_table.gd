@@ -8,15 +8,21 @@ extends RefCounted
 ##   fy, gy   the values of f and g at each of xs. A graph joins the points with straight
 ##            lines, so a one-to-one f is always rising or always falling.
 ## generate() returns, by mode (need.mode):
-##   read     f only, one-to-one (rising or falling), 6 points
+##   read     f only, one-to-one (rising or falling), 6 points (with need.back, an output
+##            that is also an input, for f⁻¹(b) and f(x) = k: inverse_outputs)
 ##   self     f one-to-one with at least two inputs whose output is also an input, so
-##            (f∘f)(a) can be read twice
+##            (f∘f)(a) can be read twice, one of them an a with a, f(a) and f(f(a)) all
+##            different (self_inputs)
 ##   zero     f one-to-one with f(k) = 0 at a whole k whose k + 1 is also an input
 ##   pair     f and g, both one-to-one on the same inputs, with at least two inputs a for
-##            which g(a) is an input of f (and f(a) one of g)
+##            which g(a) is an input of f (and f(a) one of g), and for each two-function
+##            reading an input whose answer is not the input or the inner value
 ##   turn     f = c − (x − p)² (or c + (x − p)²) on p − 3 … p + 3: it turns back at p, so
 ##            f(x) = k has two answers and only one side of p has an inverse
 ##   rule     f(x) = c0 + c1·x + c2·x², with co = [c0, c1, c2], for a rule beside a graph
+##            (with need.self, an input for (f∘f)(a) read on the grid −4 … 4)
+## In every mode but turn and rule, f has at most one fixed point f(x) = x, where a reading
+## gives back its own input.
 ##
 ## The clean limits are the checker's too (tools/check_answers.py, GT_*).
 
@@ -71,10 +77,13 @@ static func _draw(rng: Seeded, mode: String, need: Dictionary) -> Dictionary:
 			else:
 				fy = run(rng, N_POINTS, rng.int_in(x0 - 2, x0 + 2) if mode != "read" else rng.int_in(-5, 3), rising)
 			s.fy = fy
-			# More than one fixed point (f(x) = x) makes f look like its own inverse.
+			# At most one fixed point (f(x) = x): there a reading gives back its own input.
 			if range(N_POINTS).filter(func(i): return fy[i] == xs[i]).size() > 1:
 				return {}
 			if mode == "self" and (_inside(s, fy).size() < 2 or self_inputs(s).is_empty()):
+				return {}
+			# need.back: an output b that is an input too, whose f⁻¹(b) is not b or f(b).
+			if need.get("back", false) and inverse_outputs(s).filter(func(y): return y in xs).is_empty():
 				return {}
 			if mode == "pair":
 				s.gy = run(rng, N_POINTS, rng.int_in(x0 - 2, x0 + 2), rng.chance(0.5))
@@ -133,7 +142,8 @@ static func self_inputs(s: Dictionary) -> Array:
 
 
 ## The inputs a for (outer∘inner)(a) whose inner value is an input, and whose answer is
-## not a and not the inner value.
+## not a and not the inner value; nor is the inner value a (the outer function alone would
+## be right), or the composite the same in the other order.
 static func composite_inputs(s: Dictionary, inner: String, outer: String) -> Array:
 	var iy: Array = s.gy if inner == "g" else s.fy
 	var oy: Array = s.gy if outer == "g" else s.fy
@@ -143,29 +153,34 @@ static func composite_inputs(s: Dictionary, inner: String, outer: String) -> Arr
 		if not m in s.xs:
 			continue
 		var v = at(s.xs, oy, m)
-		if v != x and v != m:
+		var o = at(s.xs, oy, x)
+		if v != x and v != m and m != x and (not o in s.xs or at(s.xs, iy, o) != v):
 			out.append(x)
 	return out
 
 
-## The outputs b of g for (f∘g⁻¹)(b) whose answer f(g⁻¹(b)) is not b and not g⁻¹(b).
+## The outputs b of g for (f∘g⁻¹)(b) whose answer f(g⁻¹(b)) is not b and not g⁻¹(b); and
+## g⁻¹(b) is not b itself, nor g(b) (where f(b) or f(g(b)), g left out or used for g⁻¹,
+## would be right).
 static func mixed_outputs(s: Dictionary) -> Array:
 	var out: Array = []
 	for i in s.xs.size():
 		var b: int = s.gy[i]
+		var a: int = s.xs[i]
 		var v: int = s.fy[i]
-		if v != b and v != s.xs[i]:
+		if v != b and v != a and a != b and at(s.xs, s.gy, b) != a:
 			out.append(b)
 	return out
 
 
 ## The inputs a whose g(a) can be the missing entry: g(a) is an input of f, g(a) is not a,
-## and (f∘g)(a) is not g(a) (or the composite's value would be the key).
+## and (f∘g)(a) is not g(a), nor f of it (or the composite's value, or f applied to it for
+## f⁻¹, would be the key).
 static func missing_inputs(s: Dictionary) -> Array:
 	var out: Array = []
 	for x in s.xs:
 		var ga = at(s.xs, s.gy, x)
-		if ga in s.xs and ga != x and at(s.xs, s.fy, ga) != ga:
+		if ga in s.xs and ga != x and at(s.xs, s.fy, ga) != ga and at(s.xs, s.fy, at(s.xs, s.fy, ga)) != ga:
 			out.append(x)
 	return out
 
