@@ -164,21 +164,22 @@ jobs:
 
   # The SymPy answer checker, in its own job like the sweep so the godot job keeps its
   # time. About 115,000 questions took 35 minutes in one job, most of it one Python
-  # process (FAL-722), and the AA SL rollout adds more, so it runs as six shards side by
-  # side (--shard=k/6: every sixth cell and chain, each with all its questions). The
-  # limit is the 20 minutes a shard is allowed: past that, add shards.
+  # process (FAL-722), and the AA SL rollout adds more, so it runs as ten shards side by
+  # side (--shard=k/10: every tenth cell and chain, each with all its questions). The
+  # limit is the 20 minutes a shard is allowed: past that, add shards. Six shards of
+  # about 75,600 questions took 14 to 20 minutes and shard 1 hit the limit (FAL-1191).
   answers-shard:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh
       # pip installs requirements.txt into .venv first.
-      - run: tools/check-answers --shard=${{ matrix.shard }}/6
+      - run: tools/check-answers --shard=${{ matrix.shard }}/10
       - uses: actions/upload-artifact@v7
         if: always()
         with:
