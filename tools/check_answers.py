@@ -736,10 +736,10 @@ def quad_slips(q, f):
             return {"SL2.6.factorised-form#2": {claim("factorised", rs[0] * rs[1])}, QK + "3": {claim("vertex", k)}}
         return {}
     if u == "match-three-forms":
-        tri = lambda A, P_, Q_, H: ("triple", sp.expand(a * X**2 + b * X + c), sp.expand(A * (X - P_) * (X - Q_)), sp.expand(a * (X - H)**2 + k))
-        # The factorised slip with the vertex form right, or with its h flipped as well (the
-        # option that also makes SL2.6.vertex#0's slip, FAL-1055).
-        return {QK + "2": {tri(a, -rs[0], -rs[1], H) for H in (h, -h)}, QK + "4": {tri(1, rs[0], rs[1], H) for H in (h, -h)},
+        tri = lambda A, P_, Q_, H, VA=a: ("triple", sp.expand(a * X**2 + b * X + c), sp.expand(A * (X - P_) * (X - Q_)), sp.expand(VA * (X - H)**2 + k))
+        # The factorised slip with the vertex form right, or the same slip in both forms:
+        # the signs taken as they are in both brackets, or a left out of both (FAL-1055).
+        return {QK + "2": {tri(a, -rs[0], -rs[1], H) for H in (h, -h)}, QK + "4": {tri(1, rs[0], rs[1], h, VA) for VA in (a, 1)},
                 "SL2.6.vertex#0": {tri(a, rs[0], rs[1], -h)}}
     return {}
 
@@ -6558,7 +6558,8 @@ def check_log_quadratic(q):
     if u == "argument-roots":
         want = qr_norm(ans, {"r1": str(p), "r2": str(qq)})
         if h != 0:
-            wr["fn-log-of-quadratic#16"] = {qr_norm(ans, {"r1": str(-p), "r2": str(-qq)})}  # signs off the factors
+            # both signs off the factors, or one of them
+            wr["fn-log-of-quadratic#16"] = {qr_norm(ans, {"r1": str(r1), "r2": str(r2)}) for r1, r2 in [(-p, -qq), (-p, qq), (p, -qq)]}
     elif u == "domain-from-inequality":
         want = F["dom"]
         wr["SL2.7.inequality#0"] = {sp.Interval.open(p, sp.oo)}
@@ -6577,6 +6578,14 @@ def check_log_quadratic(q):
         want = qr_norm(ans, {"h": str(h), "m": str(m_), "r": str(sp.Integer(root ** 2))})
         if h != 0:
             wr["SL2.6.vertex#0"] = {qr_norm(ans, {"h": str(-h), "m": str(m_), "r": str(sp.Integer(root ** 2))})}
+
+        def lq_pm(rhs):
+            """g(x) = rhs solved as h ± m√r, the surd simplified (r = 1 for whole roots)."""
+            z = max(sp.solve(gp - rhs, X), key=lambda z_: float(z_))
+            m2, rt = sp.expand(z - h).as_coeff_Mul()
+            return qr_norm(ans, {"h": str(h), "m": str(m2), "r": str(sp.Integer(rt ** 2))})
+        wr["SL1.5.exp-log-form#2"] = {lq_pm(0)}  # g(x) = 0: the roots of g
+        wr["fn-log-of-quadratic#28"] = {lq_pm(base)}  # g(x) = k, as if k⁰ were k
     elif u == "max-value":
         want = qr_norm(ans, {"v0": str(n), "v1": str(h)})
         wr["SL2.6.vertex#0"] = {qr_norm(ans, {"v0": str(n), "v1": str(-h)})}
@@ -6589,6 +6598,8 @@ def check_log_quadratic(q):
         need(k.is_integer and k == base, "the base from the maximum is not the given base")
         want = qr_norm(ans, {"v": str(k)})
         wr["SL1.5.exp-log-form#0"] = {qr_norm(ans, {"v": str(G / nn)})}
+        wr["fn-log-of-quadratic#26"] = {qr_norm(ans, {"v": str(G)})}  # g's top taken as the base
+        wr["fn-log-of-quadratic#27"] = {qr_norm(ans, {"v": str(nn)})}  # f's maximum, the power, taken as the base
     elif u == "range":
         want = ("y", "≤", n)
         wr["SL2.6.vertex#2"] = {("y", "≥", n)}
@@ -6604,6 +6615,7 @@ def check_log_quadratic(q):
         need(p < 0 < qq, "the graph does not meet the y-axis")
         need(ans["label"] == f"f(0) = {el_log_name(base)} ", "the form asked is not log_k c")
         want = qr_norm(ans, {"v": str(gp.subs(X, 0))})
+        wr["fn-log-of-quadratic#25"] = {qr_norm(ans, {"v": str(G)})}  # g's top for g(0)
     elif u == "sign-of-f":
         neg = F["neg"]
         z1, z2 = zs
@@ -7618,7 +7630,7 @@ def check_gdc_curve(q):
             k = next(t[1] for t in ts if t[2] == word)
         else:
             k = R(g["line_k"])
-            need((k * 10).q == 1 and f"f(x) = {dec_text(k)} have" in asked, "k is not the one-place decimal asked")
+            need((k * 10).q == 1 and f"solutions of f(x) = {dec_text(k)} on the domain" in asked, "k is not the one-place decimal asked")
         lo_open = d1 if open_left else None
         vs = gc_pieces(fn, d1 + (sp.Rational(1, 10**6) if open_left else 0), d2, lo_open)
         n = gc_count(vs, k)
@@ -7822,8 +7834,9 @@ def tc_concept(q):
         want = f"x = {gc_s(cs[0][0])} and x = {gc_s(cs[1][0])}"
         pts = f"({gc_s(cs[0][0])}, {gc_s(cs[0][1])}) and ({gc_s(cs[1][0])}, {gc_s(cs[1][1])})"
         need(pts in j, "the meeting points said are not the curves'")
-        gc_check_common(q, want, {"SL2.4.intersection#0": {pts, f"y = {gc_s(cs[0][1])} and y = {gc_s(cs[1][1])}"},
-                                  TC_CS + "3": {f"x = {gc_s(cs[0][1])} and x = {gc_s(cs[1][1])}"}})
+        # The meeting points for their x-values; their y-values, written as y or as x, read off.
+        gc_check_common(q, want, {"SL2.4.intersection#0": {pts},
+                                  TC_CS + "3": {f"x = {gc_s(cs[0][1])} and x = {gc_s(cs[1][1])}", f"y = {gc_s(cs[0][1])} and y = {gc_s(cs[1][1])}"}})
     elif u == "difference-picture":
         ff, gg = gc_f(f), gc_f(g)
         mk = {"sum": lambda x: ff(x) + gg(x), "lifted": lambda x: ff(x) - gg(x) + 2, "f-alone": ff}
@@ -7832,7 +7845,11 @@ def tc_concept(q):
             need(gc_curve_is(gr["curves"][0], fn), f"the {o.get('mistake') or 'right'} graph is not what it says")
         gc_check_common(q, right["text"], {})
     elif u == "same-solutions-after-rearranging":
-        need(right["text"].startswith("Yes: B is A with"), "the right option doesn't say they have the same solutions")
+        # The words rep has no equations A and B: its right option names the zeros' equation.
+        A, B = m.group(1), m.group(2)
+        yes = f"Yes: the zeros solve {A} − ({B}) = 0, which is the equation with {B} taken from both sides." if rep == "words" \
+            else f"Yes: B is A with {B} taken from both sides, so they have the same solutions."
+        need(right["text"] == yes, "the right option doesn't say they have the same solutions")
         gc_check_common(q, right["text"], {TC_CS + "6": {"No: rearranging an equation changes its solutions."}})
     else:
         raise Fail(f"no check for {u}")
@@ -7848,7 +7865,7 @@ def check_gdc_two_curves(q):
         need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
     if u == "constant-from-crossing":
         m = re.search(r"line y = (.+?) \+ k meets the curve y = (.+?) where x = 0\.", " ".join(L)) or \
-            re.search(r"line with gradient (−?[\d.]+) passes through the point where the curve y = (.+?) crosses the y-axis\.", " ".join(L))
+            re.search(r"line y = (.+?) \+ k passes through the point where the curve y = (.+?) crosses the y-axis\.", " ".join(L))
         need(m is not None, "can't read the line and the curve")
         mtext = m.group(1)
         mm = R(sp.nsimplify(mtext.replace("−", "-").replace("x", "") or "1")) if mtext not in ("x", "−x") else (1 if mtext == "x" else -1)
@@ -8019,19 +8036,20 @@ def check_gdc_combined(q):
             need(f"maximum point at ({gc_s(x)}, {gc_s(y)})" in asked, "the maximum point asked is not D's")
             right = next(o for o in q["choices"] if o["correct"])
             need("furthest" in right["text"] and gc_s(x) in right["text"], "the right option doesn't say the time of the greatest lead")
-            for o in q["choices"]:
-                if o["ref"] == CB_CA + "#2":
-                    need(gc_s(y) in o["text"] and "greatest" in o["text"], "CA#2 doesn't give the size of the lead")
-            # Misreading the maximum of D: as where D is zero (the two equal), or as one model's own maximum.
+            # Misreading the maximum of D: as where D is zero (the two equal), or as one model's own
+            # maximum; and 'how much' for 'when', the time read as the size of the lead (with the
+            # true size, D's greatest value, that option would be a true statement).
             if kind == "towns":
                 equal = {f"It is {gc_s(x)} years after 2020 that town P overtakes town Q."}
                 own = {f"It is {gc_s(x)} years after 2020 that town Q's population is greatest."}
+                lead = {f"Town Q's greatest lead over town P is {gc_s(x)} thousand people."}
             else:
                 equal = {f"It is {gc_s(x)} hours after the drugs are taken that the concentrations are equal."}
                 own = {f"It is {gc_s(x)} hours after the drugs are taken that A's concentration is greatest."}
+                lead = {f"The greatest amount by which A's concentration is above B's is {gc_s(x)} mg/l."}
             need(abs(gc_f(D)(x)) > 0, "D is zero at its maximum")
-            gc_check_common(q, right["text"], {CB_CA + "#2": {o["text"] for o in q["choices"] if o["ref"] == CB_CA + "#2"},
-                                                CB_T + "13": equal, CB_T + "12": own})
+            need(gc_s(x) != gc_s(y), "the time and the greatest lead read the same")
+            gc_check_common(q, right["text"], {CB_CA + "#2": lead, CB_T + "13": equal, CB_T + "12": own})
             return None, None
         want, trap = f"t = {gc_s(x)}, D = {gc_s(y)}", f"t = {gc_s2(r9ac_f(x))}, D = {gc_s2(y)}"
         wr[CB_MM + "#0"] = {f"t = {gc_s(y)}, D = {gc_s(x)}"}
@@ -8119,7 +8137,8 @@ def check_gdc_context_equation(q):
         x0 = ce_num(m.group(1))
         k = x0 / sp.sin(x0)
         gc_check_common(q, "k = " + gc_s(sp.N(k, 30)), {CE_OWN + "10": {"k = " + gc_s(sp.N(sp.sin(x0) / x0, 30))},
-                                                        CE_OWN + "11": {"k = " + gc_s(sp.N(x0 * sp.sin(x0), 30))}}, "k = " + gc_s2(sp.N(k, 30)))
+                                                        CE_OWN + "11": {"k = " + gc_s(sp.N(x0 * sp.sin(x0), 30))},
+                                                        CE_OWN + "12": {"k = " + gc_s(sp.N(x0 / sp.sin(x0 * sp.pi / 180), 30))}}, "k = " + gc_s2(sp.N(k, 30)))
         return None, None
     if u == "smallest-whole-number":
         m = re.search(r"\$(\d+) is invested at ([\d.]+)% a year", j)
@@ -8137,7 +8156,11 @@ def check_gdc_context_equation(q):
             t = q["table"]
             for xv, yv in zip(t["xs"], t["ys"]):
                 need(abs(R(yv) - P0 * mul ** R(xv)) <= sp.Rational(1, 200), f"the table's value at n = {xv} is wrong")
-        gc_check_common(q, f"n = {n}", {CE_CA + "#0": {f"n = {n - 1}"}})
+        # Simple interest: the first n with P(1 + rn/100) > T.
+        ns = 0
+        while P0 * (1 + rate * ns / 100) <= T:
+            ns += 1
+        gc_check_common(q, f"n = {n}", {CE_CA + "#0": {f"n = {n - 1}"}, CE_OWN + "13": {f"n = {ns}"}})
         return None, None
     lo, hi = -20, 20
     if u == "form-and-solve":
@@ -8177,8 +8200,9 @@ def check_gdc_context_equation(q):
     elif L[0].startswith("x = "):
         lhs, rhs = X, gc_expr(L[0][4:].replace("sin x", "sin(x)"))
     elif L[0].startswith("The graph of y = "):
-        m3 = re.search(r"y = (e\^\([^)]*\)) − \((.+?)\) is shown", L[0])
-        lhs, rhs = gc_expr(m3.group(1)), gc_expr(m3.group(2))
+        # e^(bx) − (mx + c), or x − (k sin x).
+        m3 = re.search(r"y = (e\^\([^)]*\)|x) − \((.+?)\) is shown", L[0])
+        lhs, rhs = gc_expr(m3.group(1)), gc_expr(m3.group(2).replace("sin x", "sin(x)"))
     else:
         # The line is the equation itself: "e^(0.3x) = 2.5x + 4".
         need(L[0].count(" = ") == 1, f"can't read the equation {L[0]!r}")
@@ -8327,6 +8351,9 @@ def gf_cards(q, fam, f, info):
             continue
         refs = {"flipped": GF_SK + "#0" if (a is not None and a < 0) else "", "pointed": GF_SK + "#1", "vertex-on-axis": GF_SK + "#2",
                 "below-zero": GF_SI + "#1", "below-room": GF_SI + "#1", "turns-back": GF_SI + "#2", "doubles-back": GF_SI + "#0"}
+        if fam == "trig":
+            # A wave's own slips: sin and cos swapped, the wrong amplitude, upside down.
+            refs = {"swapped": "fn-sketch-from-features#8", "amplitude": "fn-sketch-from-features#9", "flipped": "fn-sketch-from-features#10"}
         need(o["ref"] == refs.get(mk, ""), f"the {mk} graph is tagged {o['ref']!r}")
         need(o.get("why", "") != "", f"the {mk} graph doesn't say what is wrong")
         if mk == "flipped":
@@ -9611,6 +9638,20 @@ def cp_is_linear(e, what):
     need(set(co) <= {0, 1} and co.get(1, 0) != 0 and sp.Rational(co[1]).q == 1 and sp.Rational(co.get(0, 0)).q == 1, f"{what} is not a linear rule with whole numbers")
 
 
+def cp_bracket_slip(outer, inner):
+    """(ref, expression) of the bracket slip in outer(inner(x)): a linear outer rule mx + c
+    multiplying only the bracket's first term (#21), or a power (x − s)ⁿ + c taken term by
+    term, with no middle terms (#22)."""
+    oc, P = poly_coeffs(outer), sp.expand(inner)
+    n = sp.degree(outer, X)
+    if n == 1:
+        lt = sp.LT(P, X)
+        return CP_T + "#21", sp.expand(oc[1] * lt + (P - lt) + oc.get(0, 0))
+    s_ = -oc.get(n - 1, 0) / n
+    c_ = outer.subs(X, s_)
+    return CP_T + "#22", sp.expand(sum(t_ ** n for t_ in sp.Add.make_args(sp.expand(P - s_))) + c_)
+
+
 def cp_check_text(q, want, wrongs, trap=None):
     for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
         need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
@@ -9662,6 +9703,9 @@ def check_composite(q):
         want = f"({m.group(1)})(x) = " + cp_poly_text(h)
         need(lab == f"({m.group(1)})(x) = ", f"label {lab!r}")
         wr[CP_REFS["order"]] = {lab + cp_poly_text(h2)}
+        outer, inner = (f, g) if m.group(1) == "f∘g" else (g, f)
+        ref_, slip = cp_bracket_slip(outer, inner)
+        wr[ref_] = {lab + cp_poly_text(slip)}
     elif u == "parameter-from-value":
         m = re.fullmatch(r"Given that \(f∘g\)\((−?\d+)\) = (−?\d+), find (the possible values of k|k)\.", asked)
         need(m is not None, f"can't read {asked!r}")
@@ -9730,6 +9774,20 @@ def check_composite(q):
             wr[CP_T + "#15"] = {cp_xs([w_ / gco[1] for w_ in ws])}
             if gco.get(0, 0) == 0:
                 wr[CP_T + "#16"] = {cp_xs(ws)}
+        else:
+            # One x: the value g(x) must take (stopped there, or undone without g's shift);
+            # for a linear f, (g∘f)(x) = T solved, and f undone in the order it works.
+            W = sp.Symbol("W")
+            w_ = [v_ for v_ in sp.solve(f.subs(X, W) - T, W) if v_.is_real][0]
+            gco = poly_coeffs(g)
+            ga, gb = gco[1], gco.get(0, 0)
+            wr[CP_T + "#16"] = {cp_xs([w_])}
+            wr[CP_T + "#15"] = {cp_xs([w_ / ga])}
+            fco = poly_coeffs(f)
+            if sp.degree(f, X) == 1:
+                fm, fc = fco[1], fco.get(0, 0)
+                wr[CP_REFS["order"]] = {cp_xs(sp.solve(g.subs(X, f) - T, X))}
+                wr[CP_REFS["undo"]] = {cp_xs([(T / fm - fc - gb) / ga])}
     elif u == "self-composite":
         f = r["f"]
         need(asked == "Find (f∘f)(x), simplified.", f"asked {asked!r}")
@@ -9737,6 +9795,8 @@ def check_composite(q):
         cp_int_poly(h, "the composite")
         want = "(f∘f)(x) = " + cp_poly_text(h)
         wr[CP_T + "#17"] = {"(f∘f)(x) = " + cp_poly_text(sp.expand(f**2))}
+        ref_, slip = cp_bracket_slip(f, f)
+        wr[ref_] = {"(f∘f)(x) = " + cp_poly_text(slip)}
     elif u == "compare-orders":
         need(asked == "Find f∘g and g∘f, and say whether they are equal.", f"asked {asked!r}")
         f, g = r["f"], r["g"]
@@ -10317,7 +10377,7 @@ def check_graph_table(q):
         co = poly_coeffs(f)
         if a != 0 and co.get(2, 0) != 0:
             wr[GT_REFS["notation-rule"]] = {gt_num(f"f({a}) = ".replace("-", "−"), co.get(0, 0) + co.get(1, 0) * a - co[2] * a * a)}
-        if rep == "graph":
+        if rep == "graph" or q.get("graph"):  # the equation rep prints the rule beside its graph for a reading (FAL-1055)
             curve = q["graph"]["curves"][0]
             need(all(abs(float(f.subs(X, x0)) - y0) < 1e-6 for x0, y0 in curve), "the curve is not the rule")
         gc_check_common(q, gt_num(f"f({a}) = ", v), wr)
@@ -10331,9 +10391,12 @@ def check_graph_table(q):
         need(abs(mid) <= 6 and abs(v) <= 99, "the numbers are out of range")
         wr[GT_REFS["product"]] = {gt_num(f"(f∘f)({a}) = ", mid * mid)}
         wr[GT_C + "17"] = {gt_num(f"(f∘f)({a}) = ", mid)}  # f applied once
-        if rep != "equation":
+        if rep != "equation" or q.get("graph") or q.get("table"):
             d = gt_read(q)["f"]
             need(all(d[x] == fn[x] for x in d), "the table or graph is not the rule")
+            if q.get("graph"):
+                need(all(p["y"] == int(p["y"]) and fn[int(p["x"])] == int(p["y"]) for p in q["graph"]["points"]), "the graph's dots are not the rule")
+                need(mid in {int(p["x"]) for p in q["graph"]["points"]}, "f(a) is read off the graph")
         gc_check_common(q, gt_num(f"(f∘f)({a}) = ", v), wr)
         return None, None
     d = gt_read(q)
@@ -10365,8 +10428,9 @@ def check_graph_table(q):
         if outer[a] in inner:
             wr[GT_REFS["order"]] = {gt_num(lab, inner[outer[a]])}
         wr[GT_REFS["product"]] = {gt_num(lab, f[a] * g[a])}
-        if inner[a] in inner:
-            wr[GT_REFS["twice"]] = {gt_num(lab, inner[inner[a]])}
+        twice = {gt_num(lab, h[h[a]]) for h in (inner, outer) if h[a] in h}  # either function used twice
+        if twice:
+            wr[GT_REFS["twice"]] = twice
         wr[GT_C + "17"] = {gt_num(lab, inner[a])}  # the inner value only
     elif u == "solve-from-table":
         k = gt_int(re.fullmatch(r"Solve f\(x\) = (−?\d+)\.", asked).group(1))
@@ -10426,8 +10490,8 @@ def check_graph_table(q):
         lab = f"(f∘g⁻¹)({b}) = "
         want = gt_num(lab, f[gt_inv(g, b)])
         wr[GT_C + "17"] = {gt_num(lab, gt_inv(g, b))}  # g⁻¹ only
-        if b in g:
-            wr[GT_REFS["value-not-inverse"]] = {gt_num(lab, f[g[b]] if g[b] in f else f[b])}
+        if b in g and g[b] in f:
+            wr[GT_REFS["value-not-inverse"]] = {gt_num(lab, f[g[b]])}  # g used for g⁻¹
     elif u == "missing-entry":
         m = re.fullmatch(r"The table has one entry missing\. Given that \(f∘g\)\((−?\d+)\) = (−?\d+), find g\(\1\)\.", asked)
         need(m is not None, f"can't read {asked!r}")
@@ -10436,6 +10500,8 @@ def check_graph_table(q):
         gt_monotone(f)
         want = gt_num(f"g({a}) = ", gt_inv(f, v))
         wr[GT_C + "21"] = {gt_num(f"g({a}) = ", v)}  # the composite's value
+        if v in f:
+            wr[GT_REFS["value-not-inverse"]] = {gt_num(f"g({a}) = ", f[v])}  # f(v) for f⁻¹(v)
     elif u == "inverse-points":
         pts = {}
         for p in q["graph"]["points"]:
@@ -10447,8 +10513,8 @@ def check_graph_table(q):
         gt_monotone(f)
         right = sorted((y, x) for x, y in pts.values())
         want = " and ".join(f"({frac_text(x)}, {frac_text(y)})" for x, y in right)
-        axis = sorted((x, -y) for x, y in pts.values())
-        wr[GT_REFS["axis"]] = {" and ".join(f"({frac_text(x)}, {frac_text(y)})" for x, y in axis)}
+        axes = [sorted((x, -y) for x, y in pts.values()), sorted((-x, y) for x, y in pts.values())]  # the x-axis or the y-axis
+        wr[GT_REFS["axis"]] = {" and ".join(f"({frac_text(x)}, {frac_text(y)})" for x, y in axis) for axis in axes}
     elif u == "count-solutions":
         k = gt_int(re.fullmatch(r"Find every solution of f\(x\) = (−?\d+)\.", asked).group(1))
         sols = []
@@ -11807,8 +11873,12 @@ def rf_unknown_constant(q):
     T = rf_truth((a * X + k) / den)
     rf_clean(q, T, None)
     need(k != 0, "k is zero")
-    # T1#14: k solved with its sign lost
-    gc_check_common(q, f"k = {frac_text(k)}", {RF_ZERO_YINT: {f"k = {frac_text(wrong_k)}"}, RF_T1 + "14": {f"k = {frac_text(-k)}"}})
+    # T1#14: k solved with its sign lost; T1#12 (from the y-intercept): f(0) taken as k, the d
+    # not divided by
+    wr = {RF_ZERO_YINT: {f"k = {frac_text(wrong_k)}"}, RF_T1 + "14": {f"k = {frac_text(-k)}"}}
+    if my:
+        wr[RF_T1 + "12"] = {f"k = {frac_text(y0)}"}
+    gc_check_common(q, f"k = {frac_text(k)}", wr)
     return None, None
 
 
@@ -11823,6 +11893,13 @@ def rf_letters(q):
     a, b = pn.all_coeffs()
     c, d = pd.all_coeffs()
     need(sp.simplify(a * d - b * c) != 0, "ad − bc is zero")
+    # The k that make ad = bc (f a constant) or c = 0 (no vertical asymptote) are ruled out
+    # by the line after f, and no others (FAL-1055).
+    bad = set(sp.solve(sp.Eq(a * d - b * c, 0), K)) | (set(sp.solve(sp.Eq(c, 0), K)) if c.has(K) else set())
+    m = re.fullmatch(r"Here k is a constant, (.+)\.", L[1]) if len(L) > 1 else None
+    need(m is not None, "the values of k that make f a constant are not ruled out")
+    said = {R(v.replace("−", "-")) for v in re.findall(r"k ≠ (−?[\d/]+)", m.group(1))}
+    need(said == bad, f"k ≠ {said}, but f is no rational function for k in {bad}")
     va, ha = sp.simplify(-d / c), sp.simplify(a / c)
     wrong_ha = sp.nsimplify(b / d)
 
@@ -11907,7 +11984,8 @@ def rf_sketch(q, f, T):
             need(asked == "Which graph is y = 1/f(x)?", "asked")
             if rep == "graph":
                 rf_graph_is(q["graph"], T)
-            wr = rf_cards(q, tg, {"same": t, "negated": neg, "through": tg}, {**RF_REFS, "same": "", "negated": ""})
+            # T2#17: f itself drawn; T2#18: 1/f with its sign changed (FAL-1055)
+            wr = rf_cards(q, tg, {"same": t, "negated": neg, "through": tg}, {**RF_REFS, "same": RF_T2 + "17", "negated": RF_T2 + "18"})
         else:
             raise Fail(f"no check for {u} as a graph pick")
         gc_check_common(q, next(o["text"] for o in q["choices"] if o["correct"]), wr)
@@ -12064,7 +12142,10 @@ def rf_parent(q):
     undo = sp.solve(sp.Eq(X, k * y), y)[0]
     need(sp.simplify(undo - X / k) == 0, "the inverse of kx")
     kx_div = "x" if k == 1 else f"x/{frac_text(k)}"
-    wr = {RF_SELF_PRODUCT: {f"f⁻¹(x) = {kx}, because ({kx}) × x = {frac_text(k)}"},
+    # SL2.8.reciprocal#0: f⁻¹ taken as 1/f, as if f(x) × f⁻¹(x) had to be 1 (FAL-1055): another
+    # inverse, so the inverse itself tells it from the answer
+    need(sp.simplify((k / X) * (X / k) - 1) == 0 and sp.simplify(X / k - k / X) != 0, "the product slip")
+    wr = {RF_SELF_PRODUCT: {f"f⁻¹(x) = {kx_div}, because f(x) × f⁻¹(x) = ({kx}) × {'x' if k == 1 else '(' + kx_div + ')'} = 1"},
           RF_T2 + "15": {f"f⁻¹(x) = −{kx}, because the inverse has the opposite sign"},
           RF_T2 + "16": {f"f⁻¹(x) = {kx_div}, because dividing undoes multiplying"}}
     if rep == "graph":
@@ -12086,6 +12167,19 @@ RF_TX = "fn-ext-transformed-reciprocal#"
 
 def rf_vec(h, A):
     return f"{frac_text(abs(h))} {'right' if h > 0 else 'left'} and {frac_text(abs(A))} {'up' if A > 0 else 'down'}"
+
+
+def rf_stretch(B):
+    """y = 1/x to y = B/x in the IB's words: a vertical stretch by scale factor |B|, after a
+    reflection in the x-axis when B < 0 (FAL-1055: no stretch by a negative factor)."""
+    size = f"stretch vertically by scale factor {frac_text(abs(B))}"
+    if B > 0:
+        return size
+    return "reflect in the x-axis" if abs(B) == 1 else "reflect in the x-axis and " + size
+
+
+def rf_stretched(B):
+    return rf_stretch(B).replace("stretch vertically", "stretched vertically").replace("reflect in", "reflected in")
 
 
 def rf_split_text(A, B, h):
@@ -12143,12 +12237,13 @@ def rf_ext(q):
         need(asked == f"Describe the translation that maps y = {frac_text(B)}/x onto the graph of f.", "the question asks about another stretch")
         gc_check_common(q, rf_vec(h, A), {RF_T + "0": {rf_vec(-h, A)}, RF_TX + "4": {rf_vec(A, h)}})
     elif u == "transformation-sequence":
-        want = f"stretch by factor {frac_text(B)} in the y-direction, then translate {rf_vec(h, A)}"
+        need(B != 1, "a stretch by factor 1 is no stretch")
+        want = f"{rf_stretch(B)}, then translate {rf_vec(h, A)}"
         if rep == "words":
             need(f"vertical asymptote x = {frac_text(h)} and the horizontal asymptote y = {frac_text(A)}" in L[0] and f"passes through (0, {frac_text(T['yi'])})" in L[0], "the words don't give the features")
-        gc_check_common(q, want, {RF_T + "1": {f"translate {rf_vec(h, A)} only, with no stretch"}, RF_T + "0": {f"stretch by factor {frac_text(B)} in the y-direction, then translate {rf_vec(-h, A)}"},
-                                  RF_TX + "4": {f"stretch by factor {frac_text(B)} in the y-direction, then translate {rf_vec(A, h)}"},
-                                  RF_TX + "5": {f"translate {rf_vec(h, A)}, then stretch by factor {frac_text(B)} in the y-direction"}})
+        gc_check_common(q, want, {RF_T + "1": {f"translate {rf_vec(h, A)} only, with no stretch" + (" or reflection" if B < 0 else "")}, RF_T + "0": {f"{rf_stretch(B)}, then translate {rf_vec(-h, A)}"},
+                                  RF_TX + "4": {f"{rf_stretch(B)}, then translate {rf_vec(A, h)}"},
+                                  RF_TX + "5": {f"translate {rf_vec(h, A)}, then {rf_stretch(B)}"}})
     elif u == "combine-to-single":
         m = re.fullmatch(r"Write f\(x\) = (.+) as a single fraction \(ax \+ b\)/\(x − h\)\.", asked)
         need(m is not None and sp.simplify(rf_expr(m.group(1)) - f) == 0, "the form asked is not f")
@@ -12170,7 +12265,8 @@ def rf_ext(q):
         gc_check_common(q, want, {RF_T + "1": {f"A = {frac_text(A)}, B = 1, h = {frac_text(h)}"}, RF_T + "0": {f"A = {frac_text(A)}, B = {frac_text(B)}, h = {frac_text(-h)}"},
                                   RF_TX + "4": {f"A = {frac_text(h)}, B = {frac_text(B)}, h = {frac_text(A)}"}})
     elif u == "form-from-words":
-        need(f"stretched by factor {frac_text(B)} in the y-direction, then translated {rf_vec(h, A)}" in L[0], "the words don't give the stretch and the translation")
+        need(B != 1, "a stretch by factor 1 is no stretch")
+        need(f"is {rf_stretched(B)}, then translated {rf_vec(h, A)}" in L[0], "the words don't give the stretch and the translation")
         right = rf_single(a, b, d)
         need(sp.simplify(rf_expr(right) - f) == 0, "the right option is not f")
         gc_check_common(q, right, {RF_T + "1": {rf_single(a, 1 - A * h, d)}, RF_T + "0": {rf_single(a, B + A * h, d)}, RF_TX + "6": {rf_single(a, B, d)}})

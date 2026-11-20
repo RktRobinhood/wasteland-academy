@@ -150,6 +150,11 @@ static func _clean(s: Dictionary, need: Dictionary) -> bool:
 					return false
 			s.ext = {"x": e.x, "y": e.y}
 			if s.mode == "difference":
+				# The time and the greatest D are told apart: Q(t) = t + 5 against pe^(0.2t) has
+				# its greatest lead D = t at the same t, so "what does 4.58 tell you?" would name
+				# both coordinates, and the time read as the lead would be true.
+				if absf(e.x - e.y) < 0.1:
+					return false
 				# Clear of each model's own maximum, so "f at its own maximum" is another number.
 				for c in [s.f, s.g]:
 					if c.fam == "texp" and absf(1.0 / c.co[4] - e.x) < 0.5:

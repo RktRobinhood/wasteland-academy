@@ -30,7 +30,7 @@ const MISTAKES := {"past-domain": "SL2.3.sketch-from-equation#1", "squashed": "S
 	"through-asymptote": "SL2.3.sketch-from-equation#0", "reflected": "", "mirrored": "",
 	"pointed": "SL2.6.sketch#1", "vertex-on-axis": "SL2.6.sketch#2", "below-zero": "SL2.3.sketch-from-info#1",
 	"below-room": "SL2.3.sketch-from-info#1", "turns-back": "SL2.3.sketch-from-info#2", "doubles-back": "SL2.3.sketch-from-info#0",
-	"max-moved": "", "swapped": "", "amplitude": "", "shifted": "", "steady": "", "warming": "",
+	"max-moved": "", "swapped": "fn-sketch-from-features#8", "amplitude": "fn-sketch-from-features#9", "shifted": "", "steady": "", "warming": "",
 	"sideways": "SL2.3.sum-difference#0", "difference": "", "constant-lift": ""}
 
 
@@ -189,7 +189,9 @@ func test_pick_the_graph_is_four_cards_each_wrong_one_a_mistake() -> void:
 						check(q.answer_text == o.text, c.key)
 						continue
 					if t == "fn-sketch-from-features" and o.mistake in ["flipped", "past-domain"]:
-						check(o.ref in ["", "SL2.6.sketch#0"], c.key)
+						# An upside-down wave is its own slip; an upside-down parabola is SL2.6.sketch#0.
+						var wave: bool = c.unknown == "sketch-trig-on-interval"
+						check(o.ref == "fn-sketch-from-features#10" if wave else o.ref in ["", "SL2.6.sketch#0"], c.key)
 					else:
 						check(MISTAKES.has(o.mistake), "%s: mistake %s" % [c.key, o.mistake])
 						check_eq(o.ref, MISTAKES.get(o.mistake, "?"), c.key)

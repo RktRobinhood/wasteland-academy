@@ -1326,18 +1326,23 @@ func u_match_three_forms(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	# Two wrong factorised forms and two wrong vertex forms, each in two of the four
 	# options, so neither of the key's forms wins a majority vote (FAL-1055). The wrong
 	# factorised form is the roots' own signs or a left out; the wrong vertex form flips h.
+	# The option wrong in both forms makes one slip in both: the signs taken as they are
+	# in both brackets, or a left out of both forms.
 	var fac_slip := rng.chance(0.5)
 	var f_ref := "fn-concept-quadratic-forms#2" if fac_slip else "fn-concept-quadratic-forms#4"
 	var wf := right.duplicate()
+	var both := right.duplicate()
 	if fac_slip:
 		wf.fp = s.p.neg()
 		wf.fq = s.q.neg()
+		both = wf.duplicate()
+		both.vh = s.h.neg()
 	else:
 		wf.fa = Q.new(1)
+		both = wf.duplicate()
+		both.va = Q.new(1)
 	var wv := right.duplicate()
 	wv.vh = s.h.neg()
-	var both := wf.duplicate()
-	both.vh = s.h.neg()
 	out.wrongs = [wrong(wv, "SL2.6.vertex#0"), wrong(wf, f_ref), wrong(both, f_ref)]
 	return out
 

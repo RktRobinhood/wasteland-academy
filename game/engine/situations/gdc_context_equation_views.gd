@@ -10,7 +10,7 @@ const NEED := {
 	"root-in-interval": {"form": "expline", "neg": true},
 	"simultaneous-nonlinear": {"form": "simul"},
 	"first-time": {"form": "height"},
-	"count-roots": {"form": "expline", "far_ok": true},
+	"count-roots": {"form": "count"},
 	"constant-from-root": {"form": "ksin", "root0": true},
 	"smallest-whole-number": {"form": "savings"},
 	"reject-a-root": {"form": "expline", "neg": true},
@@ -20,6 +20,9 @@ const SG := "SL2.10.solve-gdc"
 const CA := "SL2.10.context-apply"
 ## Slips with no ref of their own (FAL-815): "<type id>#<index>".
 const OWN := "fn-gdc-solve-equation#"
+## zero-of-difference's label where the catalogue's "h(x) = 0" would clash: a height model
+## h(t), or an equation in t.
+const ONE_SIDE := "Rearrange so one side is 0 and find the zeros"
 
 
 func has(unknown: String) -> bool:
@@ -137,7 +140,7 @@ func u_solve_mixed_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 				"They cross at " + roots6(rs) + ".", final]},
 			"zero-of-difference": {"result": ans.values, "steps": [
 				"The equation mixes families, so rearrange it to one side equal to 0 and use the GDC's solver.",
-				"Over a wide window, %s, the zeros are %s." % [win.trim_prefix("with "), roots6(rs)], final]},
+				"With %s, the zeros are %s." % [win.trim_prefix("with "), roots6(rs)], final]},
 		},
 	}
 
@@ -185,6 +188,7 @@ func u_root_in_interval(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var keep := "Only %s = %s is in %s > 0; %s = %s is not." % [v, W(s.want), v, v, W(rs[0])]
 	return {
 		"asked": asked, "lines": lines, "answer": ans, "wrongs": [wrong({"v": qf(rs[0])}, CA + "#1")], "fillers": gen,
+		"titles": {"zero-of-difference": ONE_SIDE} if rep == "words" else {},
 		"methods": {
 			"intersect-two-graphs": {"result": ans.values, "steps": ["%s and find where they cross." % both_sides(s, v),
 				"They cross at " + roots6(rs, v) + ".", keep, final]},
@@ -230,6 +234,7 @@ func u_first_time(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var hi := ceilf(rs[1] + 1.0)
 		out.graph = Plot.spec([GdcKit.curve(f, 0.0, hi)], [], -1, int(hi) + 1, -1, ceili(top) + 1)
 	var two := "h(t) = %s twice, at %s; the first is the smaller." % [D(c), roots6(rs, "t")]
+	out.titles = {"zero-of-difference": ONE_SIDE}
 	out.methods = {
 		"zero-of-difference": {"result": ans.values, "steps": ["Solve %s − %s = 0 on the GDC." % [eq(s, "t").split(" = ")[0], D(c)], two, final]},
 		"gdc-intersect": {"result": ans.values, "steps": ["Graph y = h(t) and y = %s for t ≥ 0." % D(c), two, final]},
@@ -244,20 +249,29 @@ func u_count_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	ans.exact = true
 	var inside: int = rs.filter(func(x): return absf(x) <= 10.0).size()
 	var final := "So %s has %d solution%s for −20 ≤ x ≤ 20." % [eq(s), n, "" if n == 1 else "s"]
+	# What the graphs show: x = k sin x (three solutions), an exponential and a falling
+	# line (one), or a rising one (two, the far one past the standard window).
+	var why := "Graph both sides with a window wide enough for every crossing: an exponential overtakes a line far out."
+	var signs := "It changes sign once." if n == 1 else "It changes sign %d times." % n
+	if s.form == "ksin":
+		why = "Graph both sides: %ssin x stays between −%s and %s, so every crossing is in −%s ≤ x ≤ %s." % [D(s.nums[0]), D(s.nums[0]), D(s.nums[0]),
+			D(s.nums[0]), D(s.nums[0])]
+		signs = "It is 0 at x = 0 and changes sign at %d other place%s." % [n - 1, "" if n == 2 else "s"]
+	elif s.nums[1].sign() < 0:
+		why = "Graph both sides: the exponential always rises and the line always falls, so they cross once."
 	var out := {"asked": "How many solutions does %s have for −20 ≤ x ≤ 20?" % eq(s), "lines": [eq(s)], "answer": ans,
 		"wrongs": [wrong({"v": Q.new(inside)}, SG + "#0")] if inside != n else [],
 		"fillers": [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(0)}]}
 	if rep == "graph":
 		out.lines = ["The graph of y = %s − (%s) is shown, for −20 ≤ x ≤ 20." % [eq(s).split(" = ")[0], eq(s).split(" = ")[1]]]
 		out.graph = screen(s, -20.0, 20.0)
-	var all := "Over the whole of −20 ≤ x ≤ 20, not just the standard window, the solutions are " + roots6(rs) + "."
+	var all := "Over the whole of −20 ≤ x ≤ 20, not just the standard window, the %s " % ("solution is" if n == 1 else "solutions are") + roots6(rs) + "."
 	out.methods = {
 		"intersect-two-graphs": {"result": ans.values, "steps": [both_sides(s) + ".", all, final]},
 		"zero-of-difference": {"result": ans.values, "steps": ["Rearrange to one side equal to 0 and graph it.", all, final]},
 		"table-sign-change": {"result": ans.values, "steps": ["Tabulate the difference of the two sides from −20 to 20 in steps of 1.",
-			"It changes sign %d time%s." % [n, "" if n == 1 else "s"], final]},
-		"graph-check": {"result": ans.values, "steps": ["Graph both sides with a window wide enough for every crossing: an exponential overtakes a line far out.",
-			all, final]},
+			signs, final]},
+		"graph-check": {"result": ans.values, "steps": [why, all, final]},
 	}
 	return out
 
@@ -271,14 +285,19 @@ func u_constant_from_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	if rep == "words":
 		lines = ["The line y = x/k meets the curve y = sin x where x = %s." % D(x0)]
 	var xf := x0.to_float()
+	# The words give the line and the curve: they meet where x/k = sin x.
+	var first := "Substitute x = %s: %s = k sin %s." % [D(x0), D(x0), D(x0)]
+	if rep == "words":
+		first = "At x = %s the line and the curve meet: %s/k = sin %s, so %s = k sin %s." % [D(x0), D(x0), D(x0), D(x0), D(x0)]
 	return {
 		"asked": "Find the value of k.", "lines": lines, "answer": ans,
-		"wrongs": [wrong({"v": qf(sin(xf) / xf)}, OWN + "10"), wrong({"v": qf(xf * sin(xf))}, OWN + "11")],
-		# x ÷ sin x in degrees is a slip too, but the rounding trap and the two above fill
-		# every slot, so it never shows.
-		"fillers": [{"v": qf(xf / sin(deg_to_rad(xf)))}, {"v": qf(asin(minf(1.0, 1.0 / xf)))}],
+		# x ÷ sin x with the calculator in degrees shows where one of the two before it
+		# is too near a rounding edge to offer.
+		"wrongs": [wrong({"v": qf(sin(xf) / xf)}, OWN + "10"), wrong({"v": qf(xf * sin(xf))}, OWN + "11"),
+			wrong({"v": qf(xf / sin(deg_to_rad(xf)))}, OWN + "12")],
+		"fillers": [{"v": qf(asin(minf(1.0, 1.0 / xf)))}],
 		"methods": {"apply-inverse": {"result": ans.values, "steps": [
-			"Substitute x = %s: %s = k sin %s." % [D(x0), D(x0), D(x0)],
+			first,
 			"So k = %s ÷ sin %s, with the calculator in radians: %s." % [D(x0), D(x0), W(k)], final]}},
 	}
 
@@ -294,9 +313,14 @@ func u_smallest_whole_number(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var final := "So the smallest whole number of years is " + Answer.text(ans) + "."
 	var words := "$%s is invested at %s%% a year, compounded yearly. After n whole years it is worth %s(1.%s)^n dollars." % [Fmt.num(p0), D(rate),
 		Fmt.num(p0), _pct_digits(rate)]
+	# Simple interest, the same amount added each year: the first n with P(1 + rn/100) > T,
+	# worked exactly.
+	var simple_x := target.sub(p0).mul(100).div(p0.mul(rate))
+	var simple := simple_x.n / simple_x.d + 1
+	# Fillers: T ÷ P taken as the years, then numbers beside the key, last.
 	var out := {"asked": "Find the smallest whole number of years after which the investment is worth more than $%s." % Fmt.num(target),
-		"lines": [words], "answer": ans, "wrongs": [wrong({"v": Q.new(floori(n_real))}, CA + "#0")],
-		"fillers": [{"v": Q.new(n + 1)}, {"v": Q.new(roundi(target.to_float() / p0.to_float()))}, {"v": Q.new(maxi(n - 2, 1))}]}
+		"lines": [words], "answer": ans, "wrongs": [wrong({"v": Q.new(floori(n_real))}, CA + "#0"), wrong({"v": Q.new(simple)}, OWN + "13")],
+		"fillers": [{"v": Q.new(roundi(target.to_float() / p0.to_float()))}, {"v": Q.new(maxi(n - 2, 1))}, {"v": Q.new(n + 1)}]}
 	if rep == "table":
 		var tb: Dictionary = s.table
 		out.table = {"heads": ["n", "value ($)"], "xs": tb.xs, "ys": tb.ys,
