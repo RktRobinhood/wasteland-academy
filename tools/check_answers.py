@@ -50173,6 +50173,355 @@ SITUATION_CHECKS["trapezoidal"] = r2tr_check
 
 # R3-FIT: fn-ai-fit-model (ai-fit-model), prefix R3FI_ / r3fi_
 
+R3FI_FP = "AI-SL2.6.find-parameters#"
+R3FI_OWN = "fn-ai-fit-model#"
+R3FI_N = r"(−?\d+(?:\.\d+)?)"
+R3FI_UNITS = r"(weeks|months|days|hours|minutes)"
+R3FI_STORY = r"(.+?) t " + R3FI_UNITS + r" after (.+), is modelled by ([A-Z])\(t\) = (.+)\."
+
+
+def r3fi_q(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def r3fi_shown(v):
+    """An option's exact-looking value: as it is when it ends within four decimal places, else to 3 s.f."""
+    v = sp.nsimplify(v) if not isinstance(v, sp.Rational) else v
+    if isinstance(v, sp.Rational) and (10 ** 4 * v).q == 1:
+        return dec_text(v)
+    return dec_text(sp.Rational(sig3(v)))
+
+
+def r3fi_named(names, vals, shown=False):
+    return ", ".join(f"{n} = {r3fi_shown(v) if shown else dec_text(v)}" for n, v in zip(names, vals))
+
+
+def r3fi_pt_list(text):
+    return [(r3fi_q(a), r3fi_q(b)) for a, b in re.findall(r"\(" + R3FI_N + r", " + R3FI_N + r"\)", text)]
+
+
+def r3fi_steps(q):
+    return [st for sol in q["solutions"] for st in sol["steps"]]
+
+
+def r3fi_in_every(q, text, what):
+    for sol in q["solutions"]:
+        need(any(text in st for st in sol["steps"]), f"{sol['name']}: the working doesn't show {what} {text!r}")
+
+
+def r3fi_story(q):
+    """(what, unit, sym, model) from the first line of an exponential story."""
+    L0 = q["lines"][0]
+    need(",," not in L0, f"a doubled comma in {L0!r}")
+    m = re.fullmatch(R3FI_STORY, L0)
+    need(m is not None, f"can't read the story {L0!r}")
+    return m.group(1), m.group(2), m.group(4), m.group(5)
+
+
+def r3fi_table_pairs(q, x_head=None):
+    t = q["table"]
+    need(t is not None and len(t["rows"]) == 2, "no two-row table")
+    (h0, xs), (h1, ys) = t["rows"]
+    if x_head is not None:
+        need(h0 == x_head, f"the table's first row is {h0!r}, not {x_head!r}")
+    need(len(xs) == len(ys), "the table's rows differ in length")
+    return h1, [(r3fi_q(a), r3fi_q(b)) for a, b in zip(xs, ys)]
+
+
+def r3fi_graph_pts(q):
+    g = q["graph"]
+    need(g is not None and g["points"], "no figure with labelled points")
+    out = []
+    for p in g["points"]:
+        pp = r3fi_pt_list(p["label"])
+        need(len(pp) == 1, f"can't read the label {p['label']!r}")
+        x, y = pp[0]
+        need(abs(p["x"] - float(x)) < 1e-9 and abs(p["y"] - float(y)) < 1e-6, f"the point {p['label']} is not drawn where it says")
+        out.append((x, y))
+    return out
+
+
+def r3fi_curve_is(q, f, what):
+    g = q["graph"]
+    need(len(g["curves"]) >= 1, "the figure has no curve")
+    for x, y in g["curves"][0]:
+        t = float(f(sp.Rational(x)))
+        need(abs(y - t) <= 1e-6 * max(1.0, abs(t)), f"the figure's curve is not {what} at x = {x}")
+
+
+def r3fi_exp_factor(q):
+    _, unit, sym, model = r3fi_story(q)
+    m = re.fullmatch(r"(\d+)(a\^t|e\^\(rt\))", model)
+    need(m is not None, f"can't read the model {model!r}")
+    k, cont = sp.Integer(m.group(1)), m.group(2) != "a^t"
+    letter = "r" if cont else "a"
+    check = q["view"]["angle"] == "check-point"
+    if q["view"]["rep"] == "table":
+        head, pairs = r3fi_table_pairs(q, f"t ({unit})")
+        need(head == f"{sym}(t)", "the table's second row")
+        need([p[0] for p in pairs] == sorted(p[0] for p in pairs), "the table's times are not in order")
+        need(pairs[0] == (0, k), "the table doesn't start at k when t = 0")
+        reads = pairs[1:]
+    else:
+        reads = []
+        for t in q["lines"][1:]:
+            mm = re.fullmatch(r"After (\d+) " + unit + ", " + sym + r" = (\d+)\.", t)
+            need(mm is not None, f"can't read the reading {t!r}")
+            reads.append((sp.Integer(mm.group(1)), sp.Integer(mm.group(2))))
+    need(len(reads) == (2 if check else 1), "the number of readings")
+    if check:
+        mm = re.fullmatch(r"Find the value of " + letter + r" from the value at t = (\d+), and check it against the value at t = (\d+)\.", q["asked"])
+        need(mm is not None, f"asked {q['asked']!r}")
+        T, T2 = int(mm.group(1)), int(mm.group(2))
+        rd = dict(reads)
+        need(set(rd) == {T, T2}, "the asked times are not the readings")
+        V, V2 = rd[T], rd[T2]
+    else:
+        need(q["asked"] == f"Find the value of {letter}.", f"asked {q['asked']!r}")
+        T, V = reads[0]
+        T = int(T)
+    need(T >= 1 and V != k and V > 0, "the reading")
+    ratio = V / k
+    if cont:
+        key, root, swap = sp.log(ratio) / T, sp.log(ratio), sp.log(sp.Rational(T) / k) / V
+        fac = sp.exp(key)
+    else:
+        key, root, swap = ratio ** sp.Rational(1, T), ratio, (sp.Rational(T) / k) ** (1 / V)
+        fac = key
+    vals = [sp.N(v, 40) for v in (key, root, swap)]
+    r2tr_distinct(vals)
+    need(gc_rounds(vals[0]), "the answer needs no rounding")
+    want, trap = r1ap_sf(letter + " = ", vals[0])
+    wrongs = {R3FI_OWN + "3": {r1ap_sf(letter + " = ", vals[1])[0]}, R3FI_FP + "1": {r1ap_sf(letter + " = ", vals[2])[0]}}
+    r3fi_in_every(q, r2tr_w(vals[0]), "the unrounded value")
+    if check:
+        v2 = sp.N(k * fac ** T2, 40)
+        need(abs(v2 - V2) < sp.Rational(45, 100), "the check point is not on the model")
+        need(any(f"= {r2tr_w(v2)}, which rounds to {dec_text(V2)}, the value given" in st for st in q["solutions"][0]["steps"]), "the check at the further point")
+    return want, wrongs, trap
+
+
+def r3fi_exp_start(q):
+    L = q["lines"]
+    if q["view"]["rep"] == "equation":
+        m = re.fullmatch(r"([A-Z])\(t\) = k\(" + R3FI_N + r"\)\^t, where t is in " + R3FI_UNITS + r"\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        sym, A = m.group(1), r3fi_q(m.group(2))
+        mm = re.fullmatch(sym + r"\((\d+)\) = (\d+)", L[1])
+    else:
+        _, unit, sym, model = r3fi_story(q)
+        m = re.fullmatch(r"k\(" + R3FI_N + r"\)\^t", model)
+        need(m is not None, f"can't read the model {model!r}")
+        A = r3fi_q(m.group(1))
+        mm = re.fullmatch(r"After (\d+) " + unit + ", " + sym + r" = (\d+)\.", L[1])
+    need(mm is not None, f"can't read the reading {L[1]!r}")
+    T, V = int(mm.group(1)), sp.Integer(mm.group(2))
+    need(len(L) == 2 and q["asked"] == "Find the value of k.", f"asked {q['asked']!r}")
+    need(A > 0 and A != 1 and T >= 2, "the factor or the time")
+    key, once = V / A ** T, V / A
+    r2tr_distinct([key, once])
+    need(gc_rounds(key), "k needs no rounding")
+    want, trap = r1ap_sf("k = ", key)
+    r3fi_in_every(q, r2tr_w(sp.N(key, 40)), "the unrounded k")
+    return want, {R3FI_OWN + "4": {r1ap_sf("k = ", once)[0]}}, trap
+
+
+def r3fi_exp_two(q):
+    _, unit, sym, model = r3fi_story(q)
+    m = re.fullmatch(r"k\(" + R3FI_N + r"\)\^t \+ c", model)
+    need(m is not None, f"can't read the model {model!r}")
+    A = r3fi_q(m.group(1))
+    if q["view"]["rep"] == "graph":
+        need(q["lines"][1] == "The graph of the model passes through the two labelled points.", "the figure's line")
+        pts = sorted(r3fi_graph_pts(q))
+        need(len(pts) == 2 and pts[0][0] == 0, "the figure's two points")
+        (_, P0), (T, V) = pts
+        need(q["graph"]["x_name"] == "t" and q["graph"]["y_name"] == sym, "the figure's axes")
+    else:
+        mm = re.fullmatch(r"At t = 0, " + sym + " = " + R3FI_N + r", and after (\d+) " + unit + ", " + sym + " = " + R3FI_N + r"\.", q["lines"][1])
+        need(mm is not None, f"can't read {q['lines'][1]!r}")
+        P0, T, V = r3fi_q(mm.group(1)), sp.Integer(mm.group(2)), r3fi_q(mm.group(3))
+    need(q["asked"] == "Find the values of k and c.", f"asked {q['asked']!r}")
+    aT = A ** int(T)
+    need(aT != 1, "the factor's power is 1")
+    k = (V - P0) / (aT - 1)
+    c = P0 - k
+    need((10 ** 4 * k).q == 1 and (10 ** 4 * c).q == 1, "k or c does not end")
+    if q["view"]["rep"] == "graph":
+        r3fi_curve_is(q, lambda t: k * A ** t + c, "the model")
+    want = r3fi_named(["k", "c"], [k, c])
+    # k set to the start value, c then from the second reading.
+    wrongs = {R3FI_FP + "0": {r3fi_named(["k", "c"], [P0, V - P0 * aT], True)}}
+    r3fi_in_every(q, f"k = {dec_text(k)}", "k")
+    return want, wrongs, None
+
+
+def r3fi_solve(rows, rhs, names):
+    syms = sp.symbols(names)
+    eqs = [sum(cf * s for cf, s in zip(r, syms)) - v for r, v in zip(rows, rhs)]
+    sol = sp.linsolve(eqs, syms)
+    need(len(sol) == 1, "the system has no single solution")
+    out = list(next(iter(sol)))
+    need(all(v.free_symbols == set() for v in out), "the system has no single solution")
+    return out
+
+
+def r3fi_quad_three(q):
+    L, rep, check = q["lines"], q["view"]["rep"], q["view"]["angle"] == "check-point"
+    m = re.search(r"modelled by y = ax² \+ bx \+ c", L[0])
+    need(m is not None, f"the model {L[0]!r}")
+    n = 4 if check else 3
+    if rep == "table":
+        need(L[1] == f"The table gives {'four' if check else 'three'} points on it.", f"{L[1]!r}")
+        _, pts = r3fi_table_pairs(q, "x")
+        need(q["table"]["rows"][1][0] == "y", "the table's second row")
+    elif rep == "graph":
+        need(L[1] == f"The graph shows the model through {'four' if check else 'three'} labelled points.", f"{L[1]!r}")
+        pts = r3fi_graph_pts(q)
+    else:
+        need(L[1].startswith("It passes through the points "), f"{L[1]!r}")
+        pts = r3fi_pt_list(L[1])
+    need(len(pts) == n, f"{len(pts)} points, not {n}")
+    if check:
+        used = r3fi_pt_list(q["asked"])
+        need(re.fullmatch(r"Find the values of a, b and c from the points \(.+\), \(.+\) and \(.+\), then check the model at \(.+\)\.", q["asked"]) is not None, f"asked {q['asked']!r}")
+        need(len(used) == 4 and set(used) == set(pts), "the asked points are not the points shown")
+        fit, extra = used[:3], used[3]
+    else:
+        need(q["asked"] == "Find the values of a, b and c.", f"asked {q['asked']!r}")
+        fit, extra = pts, None
+    need(len({p[0] for p in fit}) == 3, "two x-values are the same")
+    a, b, c = r3fi_solve([[x * x, x, 1] for x, _ in fit], [y for _, y in fit], "a b c")
+    need(all((10 ** 4 * v).q == 1 for v in (a, b, c)), "a coefficient does not end")
+    if extra is not None:
+        need(a * extra[0] ** 2 + b * extra[0] + c == extra[1], "the check point is not on the model")
+        need(any(st.startswith(f"Check at ({dec_text(extra[0])}, {dec_text(extra[1])})") and st.endswith(f"= {dec_text(extra[1])}, as given.") for st in q["solutions"][0]["steps"]), "the check at the fourth point")
+    if rep == "graph":
+        r3fi_curve_is(q, lambda x: a * x ** 2 + b * x + c, "the model")
+    want = r3fi_named(["a", "b", "c"], [a, b, c])
+    # x and y swapped: a·y² + b·y + c = x through the same points.
+    sw = r3fi_solve([[y * y, y, 1] for _, y in fit], [x for x, _ in fit], "a b c")
+    wrongs = {R3FI_FP + "1": {r3fi_named(["a", "b", "c"], sw, True)}}
+    for x, y in fit:
+        r3fi_in_every(q, f"= {dec_text(y)}", "a point's equation")
+    return want, wrongs, None
+
+
+def r3fi_quad_sym(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    need(re.search(r"modelled by y = ax² \+ bx \+ c", L[0]) is not None, f"the model {L[0]!r}")
+    if rep == "graph":
+        mm = re.fullmatch(r"The graph shows the curve with its axis of symmetry, x = (\d+), and two labelled points\.", L[1])
+        need(mm is not None, f"{L[1]!r}")
+        h = sp.Integer(mm.group(1))
+        vl = q["graph"]["vlines"]
+        need(len(vl) == 1 and abs(vl[0]["at"] - float(h)) < 1e-9 and vl[0]["label"] == f"x = {h}", "the axis is not drawn")
+        pts = sorted(r3fi_graph_pts(q))
+        need(len(pts) == 2 and pts[0][0] == 0, "the figure's two points")
+        (_, c), (p, yq) = pts
+    else:
+        mm = re.fullmatch(r"The curve meets the y-axis at \(0, " + R3FI_N + r"\), its axis of symmetry is x = (\d+), and it passes through \(" + R3FI_N + ", " + R3FI_N + r"\)\.", L[1])
+        need(mm is not None, f"{L[1]!r}")
+        c, h, p, yq = r3fi_q(mm.group(1)), sp.Integer(mm.group(2)), r3fi_q(mm.group(3)), r3fi_q(mm.group(4))
+    need(q["asked"] == "Find the values of a, b and c.", f"asked {q['asked']!r}")
+    need(p != 0 and p != 2 * h, "the point does not fix a")
+    A, B = sp.symbols("A B")
+    sol = sp.solve([sp.Eq(-B / (2 * A), h), sp.Eq(A * p ** 2 + B * p + c, yq)], [A, B], dict=True)
+    need(len(sol) == 1, "no single quadratic")
+    a, b = sol[0][A], sol[0][B]
+    need(all((10 ** 4 * v).q == 1 for v in (a, b)), "a coefficient does not end")
+    if rep == "graph":
+        r3fi_curve_is(q, lambda x: a * x ** 2 + b * x + c, "the model")
+    want = r3fi_named(["a", "b", "c"], [a, b, c])
+    # a·x for a·x²: a·p + b·p + c = q with b = −2ah.
+    a1 = sp.solve(sp.Eq(A * p + (-2 * h * A) * p + c, yq), A)[0]
+    # The minus dropped: b = 2ah, then a·p² + b·p + c = q.
+    a2 = sp.solve(sp.Eq(A * p ** 2 + (2 * h * A) * p + c, yq), A)[0]
+    wrongs = {R3FI_FP + "2": {r3fi_named(["a", "b", "c"], [a1, -2 * h * a1, c], True)},
+              R3FI_OWN + "5": {r3fi_named(["a", "b", "c"], [a2, 2 * h * a2, c], True)}}
+    r3fi_in_every(q, f"a = {dec_text(a)}", "a")
+    return want, wrongs, None
+
+
+def r3fi_cubic(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.search(r"modelled by y = ax³ \+ bx² \+ cx \+ (\d+)\.$", L[0])
+    need(m is not None, f"the model {L[0]!r}")
+    d = sp.Integer(m.group(1))
+    if rep == "table":
+        need(L[1] == "The table gives three values of y.", f"{L[1]!r}")
+        _, pts = r3fi_table_pairs(q, "x")
+    else:
+        need(L[1].startswith("It passes through the points "), f"{L[1]!r}")
+        pts = r3fi_pt_list(L[1])
+    need(len(pts) == 3 and len({p[0] for p in pts}) == 3 and all(p[0] != 0 for p in pts), "three points with distinct, non-zero x")
+    need(q["asked"] == "Find the values of a, b and c.", f"asked {q['asked']!r}")
+    a, b, c = r3fi_solve([[x ** 3, x ** 2, x] for x, _ in pts], [y - d for _, y in pts], "a b c")
+    need(all((10 ** 4 * v).q == 1 for v in (a, b, c)), "a coefficient does not end")
+    want = r3fi_named(["a", "b", "c"], [a, b, c])
+    # The solver's output read against the wrong powers: in reverse, or a and b swapped.
+    wrongs = {R3FI_OWN + "6": {r3fi_named(["a", "b", "c"], [c, b, a]), r3fi_named(["a", "b", "c"], [b, a, c])}}
+    for x, y in pts:
+        r3fi_in_every(q, f"= {dec_text(y - d)}", "a point's equation with d taken off")
+    return want, wrongs, None
+
+
+def r3fi_sinusoid(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(r".+, t (hours|days) after .+, is modelled by ([A-Za-z])\(t\) = a sin\((\d+)t\) \+ c, where (\d+)t is in degrees\.", L[0])
+    need(m is not None, f"the model {L[0]!r}")
+    sym, B = m.group(2), sp.Integer(m.group(3))
+    need(m.group(4) == m.group(3), "the degrees note")
+    if rep == "table":
+        need(L[1] == "The table gives two readings.", f"{L[1]!r}")
+        head, pts = r3fi_table_pairs(q, f"t ({m.group(1)})")
+        need(head == f"{sym}(t)", "the table's second row")
+    else:
+        mm = re.fullmatch(r"At t = (\d+), " + sym + " = " + R3FI_N + r", and at t = (\d+), " + sym + " = " + R3FI_N + r"\.", L[1])
+        need(mm is not None, f"{L[1]!r}")
+        pts = [(r3fi_q(mm.group(1)), r3fi_q(mm.group(2))), (r3fi_q(mm.group(3)), r3fi_q(mm.group(4)))]
+    need(len(pts) == 2 and q["asked"] == "Find the values of a and c.", f"asked {q['asked']!r}")
+    (t1, y1), (t2, y2) = pts
+    deg = [sp.sin(sp.pi * B * t / 180) for t in (t1, t2)]
+    need(all(s_.is_Rational for s_ in deg), "a sine in degrees is not exact")
+    a, c = r3fi_solve([[s_, 1] for s_ in deg], [y1, y2], "a c")
+    need(a.is_Rational and c.is_Rational and (10 ** 4 * a).q == 1 and (10 ** 4 * c).q == 1, "a or c does not end")
+    want = r3fi_named(["a", "c"], [a, c])
+    # The two slips' systems, solved with the sines to 40 digits.
+    rad = r3fi_solve([[sp.N(sp.sin(B * t), 40), 1] for t in (t1, t2)], [y1, y2], "a c")
+    swp = r3fi_solve([[sp.N(sp.sin(sp.pi * B * y / 180), 40), 1] for y in (y1, y2)], [t1, t2], "a c")
+    need(all(r2tr_clear(v) for v in rad + swp), "a slip is on a 3 s.f. edge")
+    sh = lambda vs: ", ".join(f"{n} = {dec_text(sp.Rational(sig3(v)))}" for n, v in zip("ac", vs))
+    wrongs = {R3FI_OWN + "7": {sh(rad)}, R3FI_FP + "1": {sh(swp)}}
+    for t, s_ in zip((t1, t2), deg):
+        r3fi_in_every(q, f"sin({B} × {t}) = sin({B * t}°) = {dec_text(sp.nsimplify(s_))}", "the sine in degrees")
+    return want, wrongs, None
+
+
+R3FI_PARTS = {
+    "exp-factor-from-point": r3fi_exp_factor,
+    "exp-start-from-point": r3fi_exp_start,
+    "exp-two-constants": r3fi_exp_two,
+    "quadratic-three-points": r3fi_quad_three,
+    "quadratic-from-symmetry": r3fi_quad_sym,
+    "cubic-through-points": r3fi_cubic,
+    "sinusoid-two-points": r3fi_sinusoid,
+}
+
+
+def r3fi_check(q):
+    u = q["view"]["unknown"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    for tx in [q["asked"]] + q["lines"] + r3fi_steps(q) + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    need(u in R3FI_PARTS, f"no check for {u}")
+    want, wrongs, trap = R3FI_PARTS[u](q)
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+SITUATION_CHECKS["ai-fit-model"] = r3fi_check
+
 # (between the R3 markers)
 
 # R3-CHOOSE: fn-ai-choose-model (ai-choose-model), prefix R3CH_ / r3ch_

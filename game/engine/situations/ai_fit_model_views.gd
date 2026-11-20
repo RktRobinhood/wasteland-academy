@@ -198,7 +198,12 @@ static func exp_ctx(s: Dictionary) -> Dictionary:
 
 static func exp_story(s: Dictionary, model: String) -> String:
 	var c := exp_ctx(s)
-	return "%s, t %s after %s, is modelled by %s(t) = %s." % [c.what, c.time, c.start, c.sym, model]
+	return "%s t %s after %s, is modelled by %s(t) = %s." % [lead(c.what), c.time, c.start, c.sym, model]
+
+
+## The story's subject with the comma before "t": "The mass ..., in grams," is already followed by one.
+static func lead(what: String) -> String:
+	return what if what.ends_with(",") else what + ","
 
 
 static func reading(s: Dictionary, t: int, v: Q) -> String:
@@ -247,9 +252,10 @@ func u_exp_factor_from_point(rep: String, s: Dictionary, rng: Seeded) -> Diction
 			"a = %s^(1/%d) = %s" % [rt, s.T, key], say(ans)]
 	if check:
 		var v2: float = s.k.to_float() * pow(S.model_factor(s), s.T2)
-		var first := "From the value at t = %d: %s = %s" % [s.T, letter, key]
+		var first := ("From t = %d: %se^(%dr) = %s, so r = ln(%s ÷ %s) ÷ %d = %s." % [s.T, K, s.T, D(s.V), D(s.V), K, s.T, key]) if cont \
+			else ("From t = %d: %sa^%d = %s, so a = (%s ÷ %s)^(1/%d) = %s." % [s.T, K, s.T, D(s.V), D(s.V), K, s.T, key])
 		var model_at := ("%se^(%s × %d)" % [K, key, s.T2]) if cont else ("%s × %s^%d" % [K, key, s.T2])
-		steps["check-point"] = [first + (", from %se^(%dr) = %s." % [K, s.T, D(s.V)] if cont else ", from %sa^%d = %s." % [K, s.T, D(s.V)]),
+		steps["check-point"] = [first,
 			"Check at t = %d: %s(%d) = %s = %s, which rounds to %s, the value given." % [s.T2, c.sym, s.T2, model_at, Fmt.work(v2, 6), D(s.V2)],
 			say(ans)]
 	return pack(lines, asked, ans, wr, fill, steps, null, table)
@@ -288,7 +294,7 @@ func u_exp_two_constants(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var fill: Array = [named_vals(opts[2]), named_vals(opts[3])]
 	var c: Dictionary = TWO[s.ctx]
 	var A := D(s.a)
-	var story := "%s, t %s after %s, is modelled by %s(t) = k(%s)^t + c." % [c.what, c.time, c.start, c.sym, A]
+	var story := "%s t %s after %s, is modelled by %s(t) = k(%s)^t + c." % [lead(c.what), c.time, c.start, c.sym, A]
 	var lines: Array = [story]
 	var graph: Variant = null
 	if rep == "graph":
@@ -481,7 +487,8 @@ func u_sinusoid_two_points(rep: String, s: Dictionary, rng: Seeded) -> Dictionar
 		"simultaneous-gdc": [sines, "So %s and %s." % [e1, e2],
 			"Enter the two equations in the GDC's simultaneous-equation solver, with unknowns a and c: it gives %s." % Answer.text(ans), say(ans)],
 		"eliminate": [sines,
-			"%s and %s. Take the second from the first: %s = %s, so a = %s." % [e1, e2, lin([s1.sub(s2)], ["a"]), D(ys[0].sub(ys[1])), D(s.amp)],
+			"%s and %s. Take the second from the first: %s." % [e1, e2, ("a = %s" % D(s.amp)) if s1.sub(s2).eq(1)
+				else "%s = %s, so a = %s" % [lin([s1.sub(s2)], ["a"]), D(ys[0].sub(ys[1])), D(s.amp)]],
 			"c = %s − %s × %s = %s" % [D(ys[0]), P(s1), D(s.amp), D(s.mid)], say(ans)],
 	}
 	return pack(lines, "Find the values of a and c.", ans, wr, fill, steps, null, table)
