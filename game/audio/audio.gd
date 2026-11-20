@@ -10,13 +10,14 @@ extends Node
 ##   Audio.play_sfx("correct")            # a short one-shot
 ##   Audio.sound_enabled = true           # what the speaker icon switches
 ##   Audio.music_volume = 0.4             # 0.0-1.0, the settings sliders
+##   Audio.voice_muted = true             # one channel off, its level kept (#235)
 ##   Audio.play_voice(stream)             # Spark's explainer line, the music ducked under it
 ##
 ## Which loop plays where is res://audio/music_tracks.gd; the effects are
 ## res://audio/sfx_cues.gd. Settings are saved to user://settings.cfg as soon as
 ## they change, so they survive a reload.
 
-## Emitted after any of the four settings changes, however it changed.
+## Emitted after any of the seven settings changes, however it changed.
 signal settings_changed
 
 const SETTINGS_PATH := "user://settings.cfg"
@@ -65,6 +66,39 @@ var music_volume := DEFAULT_MUSIC_VOLUME:
 		if is_equal_approx(value, music_volume):
 			return
 		music_volume = value
+		_apply_volumes()
+		_changed()
+
+## Each channel's own off switch, beside its slider (#235). Muting silences the bus
+## and keeps the slider's level, so unmuting puts it back where it was.
+var music_muted := false:
+	set(value):
+		if value == music_muted:
+			return
+		music_muted = value
+		_apply_volumes()
+		_changed()
+
+var sfx_muted := false:
+	set(value):
+		if value == sfx_muted:
+			return
+		sfx_muted = value
+		if sfx_muted:
+			for player in _sfx:
+				player.stop()
+		_apply_volumes()
+		_changed()
+
+## Muting the voice also ends the line playing, so the music is not left ducked under
+## a line nobody hears.
+var voice_muted := false:
+	set(value):
+		if value == voice_muted:
+			return
+		voice_muted = value
+		if voice_muted and _voice != null:
+			stop_voice()
 		_apply_volumes()
 		_changed()
 
@@ -154,13 +188,13 @@ func stop_music() -> void:
 		player.stop()
 
 
-## Play one short effect. Does nothing when sound is off.
+## Play one short effect. Does nothing when sound or the effects are off.
 func play_sfx(cue: String) -> void:
 	if not SfxCues.CUES.has(cue):
 		push_warning("Audio: no effect named '%s'" % cue)
 		return
 	last_sfx = cue
-	if not sound_enabled or sfx_volume <= 0.0:
+	if not sound_enabled or sfx_muted or sfx_volume <= 0.0:
 		return
 	var path := SfxCues.path(cue)
 	if not ResourceLoader.exists(path):
@@ -177,7 +211,7 @@ func play_sfx(cue: String) -> void:
 ## the line, in seconds. Does nothing, and returns false, when sound or the voice is off.
 func play_voice(stream: AudioStream, speed := 1.0, from := 0.0) -> bool:
 	_voice.stop()
-	if stream == null or not sound_enabled or voice_volume <= 0.0:
+	if stream == null or not sound_enabled or voice_muted or voice_volume <= 0.0:
 		_set_ducked(false)
 		return false
 	_voice.stream = stream
@@ -235,12 +269,15 @@ func music_playing() -> bool:
 	return _music.any(func(player: AudioStreamPlayer) -> bool: return player.playing)
 
 
-## Put the four settings back to a fresh install and save that.
+## Put the seven settings back to a fresh install and save that.
 func reset_settings() -> void:
 	sound_enabled = DEFAULT_SOUND_ENABLED
 	music_volume = DEFAULT_MUSIC_VOLUME
 	sfx_volume = DEFAULT_SFX_VOLUME
 	voice_volume = DEFAULT_VOICE_VOLUME
+	music_muted = false
+	sfx_muted = false
+	voice_muted = false
 
 
 func _changed() -> void:
@@ -264,16 +301,16 @@ func _apply_enabled() -> void:
 
 
 func _apply_volumes() -> void:
-	_set_bus_level(MUSIC_BUS, music_volume, DUCK_DB * _duck)
-	_set_bus_level(SFX_BUS, sfx_volume)
-	_set_bus_level(VOICE_BUS, voice_volume)
+	_set_bus_level(MUSIC_BUS, music_volume, music_muted, DUCK_DB * _duck)
+	_set_bus_level(SFX_BUS, sfx_volume, sfx_muted)
+	_set_bus_level(VOICE_BUS, voice_volume, voice_muted)
 
 
-func _set_bus_level(bus: String, level: float, offset_db := 0.0) -> void:
+func _set_bus_level(bus: String, level: float, muted: bool, offset_db := 0.0) -> void:
 	var idx := _bus_index(bus)
 	# linear_to_db(0.0) is -inf, so mute instead of sending that to the server.
 	AudioServer.set_bus_volume_db(idx, linear_to_db(maxf(level, 0.0001)) + offset_db)
-	AudioServer.set_bus_mute(idx, not sound_enabled or level <= 0.0)
+	AudioServer.set_bus_mute(idx, not sound_enabled or muted or level <= 0.0)
 
 
 ## The project's bus layout provides Music and SFX; add them if it ever does not,
@@ -348,6 +385,10 @@ func _load_settings() -> void:
 	music_volume = float(cfg.get_value(SETTINGS_SECTION, "music_volume", DEFAULT_MUSIC_VOLUME))
 	sfx_volume = float(cfg.get_value(SETTINGS_SECTION, "sfx_volume", DEFAULT_SFX_VOLUME))
 	voice_volume = float(cfg.get_value(SETTINGS_SECTION, "voice_volume", DEFAULT_VOICE_VOLUME))
+	# Files saved before #235 have no mutes; they load as unmuted.
+	music_muted = bool(cfg.get_value(SETTINGS_SECTION, "music_muted", false))
+	sfx_muted = bool(cfg.get_value(SETTINGS_SECTION, "sfx_muted", false))
+	voice_muted = bool(cfg.get_value(SETTINGS_SECTION, "voice_muted", false))
 	_loading = false
 
 
@@ -358,6 +399,9 @@ func _save_settings() -> void:
 	cfg.set_value(SETTINGS_SECTION, "music_volume", music_volume)
 	cfg.set_value(SETTINGS_SECTION, "sfx_volume", sfx_volume)
 	cfg.set_value(SETTINGS_SECTION, "voice_volume", voice_volume)
+	cfg.set_value(SETTINGS_SECTION, "music_muted", music_muted)
+	cfg.set_value(SETTINGS_SECTION, "sfx_muted", sfx_muted)
+	cfg.set_value(SETTINGS_SECTION, "voice_muted", voice_muted)
 	var err := cfg.save(SETTINGS_PATH)
 	if err != OK:
 		push_warning("Audio: could not save %s (error %d)" % [SETTINGS_PATH, err])
