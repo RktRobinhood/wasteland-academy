@@ -1003,6 +1003,10 @@ script error happens while it runs. Run one file with
 <!-- R3-LINEAR -->
 
 <!-- R3-QUADRATIC -->
+- `test_ai_quadratic_model.gd` (FAL-1001): fn-ai-quadratic-model built with every cell and its AI-SL2.5 skill, on the AI
+  courses only, Paper 2 only; four distinct options with one right and the answer in each working's last step; a figure on
+  every graph and diagram cell and none elsewhere; the midpoint of the zeros only on a flight from the ground; every tag shows
+  up; typed values marked by value; the vertex, the crossings, an arch's widths and a pen's area worked by hand.
 
 <!-- R3-EXPONENTIAL -->
 

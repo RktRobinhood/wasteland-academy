@@ -277,6 +277,49 @@
     }
   ],
   "map": {
+    "fn-ai-quadratic-model/initial-height/any": {
+      "3": ["interpret", "evaluate", "state-answer"]
+    },
+    "fn-ai-quadratic-model/vertex-value/gdc-max-zero": {
+      "3": ["gdc-graph", "interpret", "state-answer"]
+    },
+    "fn-ai-quadratic-model/vertex-value/axis-formula": {
+      "3": ["recall-formula", "evaluate", "state-answer"]
+    },
+    "fn-ai-quadratic-model/time-of-vertex/gdc-max-zero": {
+      "3": ["gdc-graph", "interpret", "state-answer"]
+    },
+    "fn-ai-quadratic-model/time-of-vertex/axis-formula": {
+      "2": ["recall-formula", "state-answer"]
+    },
+    "fn-ai-quadratic-model/time-of-vertex/midpoint-of-roots": {
+      "3": ["zero-product", "find-midpoint", "state-answer"]
+    },
+    "fn-ai-quadratic-model/axis-of-symmetry/axis-formula": {
+      "3": ["read-givens", "recall-formula", "state-answer"]
+    },
+    "fn-ai-quadratic-model/axis-of-symmetry/midpoint-of-roots": {
+      "equation/3": ["gdc-solver", "find-midpoint", "state-answer"],
+      "words/3": ["read-givens", "find-midpoint", "state-answer"]
+    },
+    "fn-ai-quadratic-model/landing-time/gdc-max-zero": {
+      "3": ["gdc-graph", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-ai-quadratic-model/landing-time/gdc-poly-solver": {
+      "4": ["gdc-solver", "interpret", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-ai-quadratic-model/time-at-height/gdc-poly-solver": {
+      "4": ["rearrange", "gdc-solver", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-ai-quadratic-model/clears-obstacle/any": {
+      "3": ["substitute", "interpret", "state-answer"]
+    },
+    "fn-ai-quadratic-model/width-above-height/gdc-poly-solver": {
+      "4": ["rearrange", "gdc-solver", "evaluate", "state-answer"]
+    },
+    "fn-ai-quadratic-model/build-area-model/build-from-context": {
+      "3": ["model-from-context", "substitute", "state-answer"]
+    },
     "fn-exp-log-inverse-composite/evaluate-log-function/what-power": {
       "3": ["ask-what-power", "substitute-back", "state-answer"],
       "4": ["ask-what-power", "evaluate", "substitute-back", "state-answer"]

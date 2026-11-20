@@ -575,6 +575,24 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 <!-- R3-LINEAR -->
 
 <!-- R3-QUADRATIC -->
+- `engine/situations/ai_quadratic_model.gd` (FAL-1001) is `fn-ai-quadratic-model` (AI-SL2.5.quadratic-model),
+  9 unknowns and 28 cells, every one Paper 2 on the AI courses. A flight h(t) = at² + bt + c (a = −4.9 or −5, b and c to 1 d.p.;
+  a flare, a rock, a rocket or a canister launched from a height, or a water bomb or a frog from the ground) asks the start,
+  the greatest height, when it happens, the landing time and the later time at a level between the start and the top. An arch
+  y = ax² + bx + c with whole feet (from its left foot, centred, or from a post off to one side) asks its axis of symmetry
+  (from the model, or from two points at the same height in words: its feet or a level) and its width at a height. A path
+  y = ax² + bx + c against horizontal distance asks the height over a wall or fence and whether it clears it (a `claim`). A
+  rectangular pen from a fixed length of fence, against a wall or all the way round, asks its area as a quadratic (the `poly`
+  kind; a diagram of the pen on the diagram cells). Its views (`ai_quadratic_model_views.gd`) show the flight or the arch drawn
+  with a level's line (GraphView) on graph cells and the pen (OptimisationViews' sketch) on diagram cells. Methods: the GDC's
+  maximum and zero tools, −b/(2a) then substitute, the polynomial solver, the midpoint of the zeros (only on a flight from the
+  ground, where both zeros are times in the story, and on an arch) and building the model from the constraint. Wrong options
+  are the skill's slips (the time for the top, the negative zero, b/(2a) without the minus, the start for the top) and the
+  type's own (the top's height for its time, the earlier crossing, half the width, the peak against the obstacle, the fence
+  on the wrong sides, the peak for the start). A value that ends within 3 s.f. is exact; every other is to 3 s.f. with the
+  rounding trap, and the key and its slips are clear of a rounding edge. `r3qu_check` in the SymPy checker reads the model,
+  the level, the obstacle or the fence back from the words, works the vertex, the zeros and crossings (surds) and every slip
+  out again exactly, checks the curve drawn against the model and the working's figures. `test_ai_quadratic_model.gd`.
 
 <!-- R3-EXPONENTIAL -->
 
