@@ -373,7 +373,7 @@ func u_width_above_height(rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 		"methods": {"gdc-poly-solver": method([
 			"y = %s: %s = %s, so %s = 0." % [D(k), model(s, "x"), D(k), moved],
 			"Enter a = %s, b = %s, c = %s in the polynomial solver: x = %s or x = %s." % [D(s.a), D(s.b), D(s.c.sub(k)), W(z[0]), W(z[1])],
-			"The arch is %s m high at both, so the width there is %s − %s = %s." % [D(k), W(z[1]), W(z[0]), W(wd)], say(ans)], ans.values)},
+			"The arch is %s m high at both, so the width there is %s − %s = %s." % [D(k), W(z[1]), "(%s)" % W(z[0]) if z[0] < 0.0 else W(z[0]), W(wd)], say(ans)], ans.values)},
 		"graph": arch_graph(s, k) if rep == "graph" else null}
 
 
