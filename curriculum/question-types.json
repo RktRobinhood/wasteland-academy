@@ -93690,7 +93690,7 @@
    "misconceptions": [
     {
      "ref": "AHL2.16.linear-input#0",
-     "text": "Stretches by 1/a first and then translates by −b, so the image is at p/a − b instead of (p − b)/a",
+     "text": "Stretches first and then translates by the whole of −b, so the image is at p/a − b instead of (p − b)/a",
      "as": "distractor",
      "in": [
       "image-point",
@@ -93713,7 +93713,7 @@
     },
     {
      "ref": "AHL2.16.linear-input#2",
-     "text": "Translates the same way as the sign of b instead of the opposite way",
+     "text": "Moves the graph the same way as the sign of b instead of the opposite way",
      "as": "distractor",
      "in": [
       "image-point",
@@ -93724,7 +93724,7 @@
      "wrong": "the translation the wrong way"
     },
     {
-     "text": "Changes the y-coordinate of the point, though only the inputs are transformed",
+     "text": "Applies the move to the y-coordinate too, though only the input to f is transformed",
      "as": "distractor",
      "in": [
       "image-point",
@@ -93742,7 +93742,7 @@
      "wrong": "(−p, q)"
     },
     {
-     "text": "Translates by −b after reflecting, as for f(x + b), though f(b − x) = f(−(x − b)) translates by +b",
+     "text": "Moves the graph by −b after reflecting, as for f(x + b), though f(b − x) = f(−(x − b)) translates by +b",
      "as": "distractor",
      "in": [
       "reflect-inside"
