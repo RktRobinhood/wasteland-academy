@@ -50237,12 +50237,14 @@ def r3li_sums(q):
 def r3li_where(text):
     """(letter, unit) from '…, where C is the cost in dollars and d is the number of days …' or
     ', where g is the data used, in GB'."""
-    m = re.search(r"(?:and|where) ([A-Za-z]) is ([^,.]+(?:, in [^,.]+)?)", text)
+    m = (re.search(r"and ([A-Za-z]) is ([^,.]+(?:, in [^,.]+)?)", text)
+         or re.search(r"where ([A-BD-Za-z]) is ([^,.]+(?:, in [^,.]+)?)", text)
+         or re.search(r"against ([A-Za-z]), ([^,.]+(?:, in [^,.]+)?)\.", text))
     need(m is not None, f"can't read what the input is in {text!r}")
     return m.group(1), m.group(2)
 
 
-def r3li_line_graph(g, x):
+def r3li_line_graph(g, x, xv):
     """(m, c) from a line drawn from x = 0 with (0, c) and one more point marked."""
     pts = sorted(g["points"], key=lambda p: p["x"])
     need(len(pts) == 2 and pts[0]["x"] == 0, "the line's graph marks (0, c) and one more point")
@@ -50256,7 +50258,7 @@ def r3li_line_graph(g, x):
     need(len(g["curves"]) == 1, "one line")
     for px, py in g["curves"][0]:
         need(abs(py - float(m_ * sp.nsimplify(px) + c)) < 1e-6, "the line drawn is not through the marked points")
-    need(g["curves"][0][0][0] == 0 and g["curves"][0][-1][0] >= x, "the line doesn't cover the inputs asked")
+    need(g["curves"][0][0][0] == 0 and g["curves"][0][-1][0] >= xv and g["x1"] >= xv, "the line doesn't cover the inputs asked")
     need(g["y_name"] == "C" and g["x_name"] == x, "the graph's axes")
     return m_, c
 
@@ -50317,6 +50319,11 @@ def r3li_cost(t, x):
     return c + m1 * x if x <= x0 else c + m1 * x0 + m2 * (x - x0)
 
 
+def r3li_rule_text(a, b, x):
+    """'4.5t − 1.5': the rule's right side as the working writes it."""
+    return f"{dec_text(a)}{x} {'−' if b < 0 else '+'} {dec_text(abs(b))}"
+
+
 def r3li_unit(unit):
     m = re.search(r"in (\S+)$", unit)
     need(m is not None, f"no unit in {unit!r}")
@@ -50332,7 +50339,8 @@ def r3li_check(q):
     if u in ("build-from-rate-start", "evaluate-model", "interpret-gradient"):
         if rep == "graph":
             x = re.search(r"when ([a-zA-Z]) = ", asked).group(1)
-            m_, c = r3li_line_graph(q["graph"], int(re.search(r"= (\d+)\.$", asked).group(1)))
+            m_, c = r3li_line_graph(q["graph"], x, int(re.search(r"= (\d+)\.$", asked).group(1)))
+            need(r3li_where(L[0])[0] == x, "the graph's input is not the one asked about")
         else:
             mm = None
             for t in L:
@@ -50429,7 +50437,7 @@ def r3li_check(q):
         c0 = c + m1 * x0
         need(c > 0 and m2 > 0 and m1 >= 0, "the charges are positive")
         if rep == "words":
-            need(asked.endswith(f", where {x} is {unit}."), "the input's letter is said")
+            need(f", where {x} is {unit}." in asked, "the input's letter is said")
         if u == "piecewise-value":
             mx = re.fullmatch(r"Find the cost C, in dollars, when " + x + r" = (\d+)(?:, where [^.]+)?\.", asked)
             need(mx is not None, f"asked {asked!r}")
@@ -50454,7 +50462,11 @@ def r3li_check(q):
             Xs = sp.Symbol("xs")
             rule = sp.expand(c0 + m2 * (Xs - x0))
             need(sp.Poly(rule, Xs).all_coeffs() == [m2, b], "the second piece's rule")
-            r3li_in_every(q, f"b = {dec_text(c0)} − {dec_text(m2)} × {x0} = {dec_text(b)}" if q["solutions"][0]["angle"] == "two-points" else "", "b")
+            for sol in q["solutions"]:
+                if sol["angle"] == "two-points":
+                    need(f"b = {dec_text(c0)} − {dec_text(m2)} × {x0} = {dec_text(b)}." in sol["steps"], "two points: the working doesn't find b")
+                else:
+                    need(any(st.endswith(" = " + r3li_rule_text(m2, b, x) + ".") for st in sol["steps"]), "piece by piece: the working doesn't expand to the rule")
         else:
             mx = re.fullmatch(r"Find " + x + r" when the cost is \$" + R3LI_N + r"(?:, where [^.]+)?\.", asked)
             need(mx is not None, f"asked {asked!r}")
