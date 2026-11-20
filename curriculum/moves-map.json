@@ -1767,6 +1767,33 @@
     },
     "fn-link-equivalent-forms/roots-from-vertex-form/roots-to-factors": {
       "4": ["apply-condition", "square-root-both-sides", "roots-to-factors", "state-answer"]
+    },
+    "fn-ai-cubic-model/box-volume/build-from-diagram": {
+      "3": ["model-from-context", "recall-formula", "state-answer"]
+    },
+    "fn-ai-cubic-model/box-domain/build-from-diagram": {
+      "4": ["apply-condition", "isolate", "apply-condition", "state-answer"]
+    },
+    "fn-ai-cubic-model/box-domain/physical-limits": {
+      "4": ["interpret", "apply-condition", "pick-region", "state-answer"]
+    },
+    "fn-ai-cubic-model/box-max/gdc-max": {
+      "3": ["keep-valid-solutions", "gdc-graph", "state-answer"],
+      "diagram/3": ["model-from-context", "gdc-graph", "state-answer"]
+    },
+    "fn-ai-cubic-model/box-max/gdc-table": {
+      "5": ["keep-valid-solutions", "gdc-graph", "gdc-graph", "gdc-graph", "state-answer"],
+      "diagram/5": ["model-from-context", "gdc-graph", "gdc-graph", "gdc-graph", "state-answer"]
+    },
+    "fn-ai-cubic-model/evaluate/gdc-table": {
+      "3": ["gdc-graph", "gdc-graph", "state-answer"],
+      "4": ["model-from-context", "gdc-graph", "gdc-graph", "state-answer"]
+    },
+    "fn-ai-cubic-model/positive-zero/gdc-zero": {
+      "3": ["gdc-graph", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-ai-cubic-model/negative-total/gdc-zero": {
+      "4": ["gdc-graph", "sign-table", "evaluate", "state-answer"]
     }
   }
 }
