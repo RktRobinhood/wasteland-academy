@@ -50153,6 +50153,414 @@ SITUATION_CHECKS["trapezoidal"] = r2tr_check
 
 # R3-QUADRATIC: fn-ai-quadratic-model (ai-quadratic-model), prefix R3QU_ / r3qu_
 
+# Every number is read back from what the question shows (the model in its lines, the level, the
+# obstacle or the fence in its words, the curve drawn) and the answer and each slip are worked out
+# again with SymPy, exactly: the vertex from completing the square, the zeros and the crossings of
+# a level from the quadratic formula with surds, the area from the fence. Nothing is shared with
+# the engine; only the game's ways of writing numbers (gc_s, dec_text, sig3) are reused.
+
+R3QU_SK = "AI-SL2.5.quadratic-model#"
+R3QU_OWN = "fn-ai-quadratic-model#"
+R3QU_T = sp.Symbol("t")
+R3QU_FLIGHTS = {
+    "A lookout fires a flare upwards from the top of a watchtower.": ("flare", "the ground", "it is fired", "the top of the watchtower"),
+    "A scavenger throws a rock upwards from the roof of a ruined mall.": ("rock", "the car park", "it is thrown", "the roof of the mall"),
+    "A signal rocket is launched from a cliff top over a dry lake bed.": ("rocket", "the lake bed", "it is launched", "the cliff top"),
+    "A raider lobs a smoke canister upwards from a bridge over a dry riverbed.": ("canister", "the riverbed", "it is lobbed", "the bridge"),
+    "A launcher on the ground fires a water bomb straight up.": ("water bomb", "the ground", "it is fired", None),
+    "A mutant frog leaps straight up from the ground.": ("frog", "the ground", "it leaps", None),
+}
+R3QU_START_Q = {
+    "the top of the watchtower": "How high is the top of the watchtower above the ground?",
+    "the roof of the mall": "How high is the roof of the mall above the car park?",
+    "the cliff top": "How high is the cliff top above the lake bed?",
+    "the bridge": "How high is the bridge above the riverbed?",
+}
+R3QU_ARCHES = {"the arch of a footbridge over a canal": "the water", "the entrance of a tunnel through a slag heap": "the road",
+               "a rusted steel arch over the old highway": "the road"}
+R3QU_PATHS = {"pack": ("the scout", "wall"), "water": ("the nozzle", "fence"), "ball": ("where it is kicked", "wall")}
+R3QU_N = r"(−?\d+(?:\.\d+)?)"
+
+
+def r3qu_q(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def r3qu_poly(text, var):
+    """[a, b, c] of a quadratic as the game writes it: '−4.9t² + 7.7t + 16.9', '−0.076x² + 7.6'."""
+    t = text.replace("−", "-").replace(" ", "")
+    co = {2: sp.Integer(0), 1: sp.Integer(0), 0: sp.Integer(0)}
+    seen = []
+    for term in re.findall(r"[+-]?[^+-]+", t):
+        m = re.fullmatch(r"([+-]?)(\d+(?:\.\d+)?)?(" + var + "²|" + var + ")?", term)
+        need(m is not None and (m.group(2) or m.group(3)), f"can't read the term {term!r} of {text!r}")
+        p = {var + "²": 2, var: 1, None: 0}[m.group(3)]
+        need(p not in seen, f"two {var}^{p} terms in {text!r}")
+        need(m.group(2) != "1" or p == 0, f"a coefficient 1 written in {text!r}")
+        seen.append(p)
+        co[p] = (-1 if m.group(1) == "-" else 1) * (sp.Rational(m.group(2)) if m.group(2) else 1)
+    need(seen == sorted(seen, reverse=True), f"the terms of {text!r} are not in order")
+    need(co[2] < 0, f"{text!r} does not open downwards")
+    return co[2], co[1], co[0]
+
+
+def r3qu_find(pattern, texts, what):
+    for tx in texts:
+        m = re.search(pattern, tx)
+        if m:
+            return m
+    raise Fail(f"can't find {what}")
+
+
+def r3qu_val(abc, x):
+    a, b, c = abc
+    return a * x**2 + b * x + c
+
+
+def r3qu_top(abc):
+    """The vertex by completing the square: a(x + b/(2a))² + c − b²/(4a)."""
+    a, b, c = abc
+    return -b / (2 * a), c - b**2 / (4 * a)
+
+
+def r3qu_roots(abc, k=0):
+    """The two solutions of model = k, smaller first, exact (surds)."""
+    a, b, c = abc
+    d = b**2 - 4 * a * (c - k)
+    need(d > 0, "the level is not crossed twice")
+    r = [(-b + sp.sqrt(d)) / (2 * a), (-b - sp.sqrt(d)) / (2 * a)]
+    return sorted(r, key=lambda v: float(v))
+
+
+def r3qu_exact(v):
+    return isinstance(v, sp.Rational) and not gc_rounds(v)
+
+
+def r3qu_show(v):
+    """A value as the answer is written: as it is when it ends within 3 s.f., else to 3 s.f."""
+    return dec_text(v) if r3qu_exact(v) else gc_s(r9ac_f(v))
+
+
+def r3qu_opt(v, exact):
+    """A wrong value beside the answer: to 3 s.f. beside a rounded answer; beside an exact one, as
+    it is if it ends within 3 s.f., else rounded to 3 s.f. and written as a decimal."""
+    if not exact:
+        return gc_s(r9ac_f(v))
+    return dec_text(v) if r3qu_exact(v) else dec_text(sp.Rational(sig3(v)))
+
+
+def r3qu_clear(vals):
+    for v in vals:
+        if not r3qu_exact(v):
+            need(r9ac_fair(v), f"a value or slip is on a 3 s.f. edge ({sp.N(v, 8)})")
+
+
+def r3qu_w(x, n=6):
+    """A GDC's screen: n significant figures without trailing zeros."""
+    t = sig3(x, n)
+    if "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return t.replace("-", "−")
+
+
+def r3qu_steps(q):
+    return [st for sol in q["solutions"] for st in sol["steps"]]
+
+
+def r3qu_in(q, angle, text, what):
+    sols = [s for s in q["solutions"] if s["angle"] == angle]
+    need(sols, f"no {angle} working")
+    need(any(text in st for st in sols[0]["steps"]), f"the {angle} working doesn't show {what} ({text!r})")
+
+
+def r3qu_curve(g, abc, x0, x1):
+    pts = g["curves"][0]
+    need(len(pts) >= 20, "the curve has too few points")
+    need(abs(pts[0][0] - float(x0)) < 1e-6 and abs(pts[-1][0] - float(x1)) < 1e-6, "the curve is not drawn over its span")
+    need(all(abs(p[1] - float(r3qu_val(abc, sp.Float(p[0], 20)))) < 1e-6 for p in pts), "the curve drawn is not the model")
+
+
+def r3qu_flight(q):
+    L = q["lines"]
+    rep = q["view"]["rep"]
+    m = r3qu_find(r"h\(t\) = ([^=]+?)\.?$", L, "h(t)")
+    abc = r3qu_poly(m.group(1), "t")
+    a, b, c = abc
+    need(a in (sp.Rational(-49, 10), -5), "g is not about 9.8 m/s²")
+    need(b > 0 and c >= 0, "the object is not launched upwards from the ground or above it")
+    if rep == "equation":
+        need(L[0] == "h(t) = " + m.group(1), "the model does not come first")
+        mm = re.fullmatch(r"h\(t\) is the height above (.+), in metres, of an? (.+) t seconds after (.+)\.", L[1])
+        need(mm is not None, f"can't read the story {L[1]!r}")
+        story = [k for k, v in R3QU_FLIGHTS.items() if v[0] == mm.group(2) and v[1] == mm.group(1) and v[2] == mm.group(3)]
+    else:
+        story = [L[0]] if L[0] in R3QU_FLIGHTS else []
+        if story:
+            obj, gr, after, _ = R3QU_FLIGHTS[L[0]]
+            need(L[1] == f"Its height above {gr}, h metres, t seconds after {after}, is modelled by h(t) = {m.group(1)}.", f"the model line {L[1]!r}")
+    need(len(story) == 1, "the story")
+    st = R3QU_FLIGHTS[story[0]]
+    need((st[3] is None) == (c == 0), "a flight from the ground starts above it, or one from a height starts on the ground")
+    T, H = r3qu_top(abc)
+    need(T > 0 and H > c, "the top is not after the launch")
+    if rep == "graph":
+        g = q["graph"]
+        need(g["x_name"] == "t" and g["y_name"] == "h", "the graph's axes")
+        r3qu_curve(g, abc, 0, r3qu_roots(abc)[1])
+        need(g["y1"] > H, "the graph cuts off the top")
+    return abc, T, H, st
+
+
+def r3qu_arch(q):
+    L = q["lines"]
+    rep = q["view"]["rep"]
+    m = r3qu_find(r"y = ([^=,]+?)(?:, where|\.?$)", L, "y")
+    abc = r3qu_poly(m.group(1), "x")
+    if rep == "equation":
+        need(L[0] == "y = " + m.group(1), "the model does not come first")
+        mm = re.fullmatch(r"This models (.+), where y m is the height above (.+) and x m is the horizontal distance from (.+)\.", L[1])
+    else:
+        mm = re.fullmatch(r"(.+) is modelled by y = .+, where y m is the height above (.+) and x m is the horizontal distance from (.+)\.", L[0])
+    need(mm is not None, "can't read the arch")
+    what = mm.group(1)[0].lower() + mm.group(1)[1:]
+    need(R3QU_ARCHES.get(what) == mm.group(2), f"the arch {what!r}")
+    feet = r3qu_roots(abc)
+    need(all(f.is_Integer for f in feet), "the arch's feet are not whole numbers")
+    ref = mm.group(3)
+    if ref == "its left foot":
+        need(feet[0] == 0, "x is not from the left foot")
+    elif ref == "the point under its top":
+        need(feet[0] == -feet[1], "x is not from under the top")
+    else:
+        need(ref in ("a mooring post on the bank", "a marker post", "a signpost") and feet[0] > 0, "x is not from a post off the arch")
+    T, H = r3qu_top(abc)
+    need(3 <= H <= 25 and r3qu_exact(H), "the arch's top is not a tidy height")
+    return abc, T, H, feet, R3QU_ARCHES[what]
+
+
+def r3qu_check(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    angle = q["view"]["angle"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    for tx in [asked] + L + r3qu_steps(q) + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+        need("− −" not in tx and "+ −" not in tx, f"two signs together in {tx!r}")
+    need((q["graph"] is not None) == (rep in ("graph", "diagram")), "a figure where none is needed, or none where one is")
+    wrongs, want, trap = {}, None, None
+    if u == "initial-height":
+        abc, T, H, st = r3qu_flight(q)
+        a, b, c = abc
+        need(c > 0, "the start is the ground")
+        if rep == "words":
+            need(asked == R3QU_START_Q[st[3]], f"asked {asked!r}")
+        else:
+            need(asked == f"Write down the height from which the {st[0]} is {st[2].removeprefix('it is ')}.", f"asked {asked!r}")
+        need(r3qu_exact(c), "the start needs rounding")
+        want = "height = " + dec_text(c) + " m"
+        wrongs[R3QU_OWN + "9"] = {"height = " + r3qu_opt(H, True) + " m"}
+        fill = {"height = " + r3qu_opt(v, True) + " m" for v in (b, r3qu_val(abc, 1))}
+        need(all(o["correct"] or o["ref"] or o["text"] in fill for o in q["choices"]), "a filler that isn't b or h(1)")
+        r3qu_in(q, "any", f"h(0) = ({dec_text(a)}) × 0² + {dec_text(b)} × 0 + {dec_text(c)} = {dec_text(c)}", "h(0)")
+    elif u in ("vertex-value", "time-of-vertex"):
+        abc, T, H, st = r3qu_flight(q)
+        a, b, c = abc
+        if u == "vertex-value":
+            need(asked == f"Find the maximum height of the {st[0]}.", f"asked {asked!r}")
+            key, label, unit = H, "maximum height = ", " m"
+            slips = {R3QU_SK + "0": T, R3QU_SK + "2": r3qu_val(abc, -T), R3QU_SK + "3": c}
+            fills = [2 * H]
+        else:
+            need(asked == f"Find the time at which the {st[0]} reaches its maximum height.", f"asked {asked!r}")
+            key, label, unit = T, "t = ", " s"
+            slips = {R3QU_OWN + "4": H, R3QU_SK + "2": -T}
+            fills = [2 * T, T / 2]
+        ex = r3qu_exact(key)
+        r3qu_clear([key] + list(slips.values()))
+        want = label + r3qu_show(key) + unit
+        trap = None if ex else label + gc_s2(key) + unit
+        for ref, v in slips.items():
+            wrongs[ref] = {label + r3qu_opt(v, ex) + unit}
+        fill = {label + r3qu_opt(v, ex) + unit for v in fills}
+        need(all(o["correct"] or o["ref"] or o.get("trap") or o["text"] in fill for o in q["choices"]), "a filler that isn't one of the declared values")
+        sols = {s["angle"] for s in q["solutions"]}
+        need(("midpoint-of-roots" in sols) == (c == 0) or u == "vertex-value", "the midpoint of the zeros offered on a flight from a height, or not from the ground")
+        need("midpoint-of-roots" not in sols or u == "time-of-vertex", "the midpoint of the zeros for the top's height")
+        if angle == "midpoint-of-roots":
+            need(c == 0, "the midpoint of the zeros on a flight launched above the ground")
+        if "axis-formula" in sols:
+            r3qu_in(q, "axis-formula", f"t = −b/(2a) = −{dec_text(b)}/(2 × ({dec_text(a)})) = {r3qu_w(T)}", "−b/(2a)")
+            if u == "vertex-value":
+                r3qu_in(q, "axis-formula", f"= {r3qu_w(H)}", "h at the top")
+        if "gdc-max-zero" in sols:
+            r3qu_in(q, "gdc-max-zero", f"maximum tool: x = {r3qu_w(T)}, y = {r3qu_w(H)}.", "the GDC's maximum")
+        if "midpoint-of-roots" in sols:
+            z = -b / a
+            r3qu_in(q, "midpoint-of-roots", f"t = 0 or t = {r3qu_w(z)}", "the zeros")
+            r3qu_in(q, "midpoint-of-roots", f"t = (0 + {r3qu_w(z)})/2 = {r3qu_w(z / 2)}", "their midpoint")
+    elif u == "landing-time":
+        abc, T, H, st = r3qu_flight(q)
+        a, b, c = abc
+        need(c > 0, "launched from the ground: no negative zero")
+        need(asked == f"Find the time when the {st[0]} hits {st[1]}.", f"asked {asked!r}")
+        neg, land = r3qu_roots(abc)
+        need(neg < sp.Rational(-1, 20) and land > T, "the zeros")
+        r3qu_clear([land, neg, T, 2 * T])
+        want, trap = "t = " + gc_s(r9ac_f(land)) + " s", "t = " + gc_s2(r9ac_f(land)) + " s"
+        wrongs[R3QU_SK + "1"] = {"t = " + gc_s(r9ac_f(neg)) + " s"}
+        fill = {"t = " + r3qu_opt(v, False) + " s" for v in (T, 2 * T)}
+        need(all(o["correct"] or o["ref"] or o.get("trap") or o["text"] in fill for o in q["choices"]), "a filler that isn't the top's time or twice it")
+        if angle == "gdc-poly-solver" or any(s["angle"] == "gdc-poly-solver" for s in q["solutions"]):
+            r3qu_in(q, "gdc-poly-solver", f"It gives t = {r3qu_w(land)} or t = {r3qu_w(neg)}.", "both zeros")
+            r3qu_in(q, "gdc-poly-solver", f"t = {r3qu_w(neg)} is before", "the negative zero rejected")
+        r3qu_in(q, "gdc-max-zero", f"zero tool: x = {r3qu_w(land)}.", "the GDC's zero")
+    elif u == "time-at-height":
+        abc, T, H, st = r3qu_flight(q)
+        a, b, c = abc
+        m = re.fullmatch(r"Find the later time at which the (.+) is " + R3QU_N + r" m above (.+)\.", asked)
+        need(m is not None and m.group(1) == st[0] and m.group(3) == st[1], f"asked {asked!r}")
+        k = r3qu_q(m.group(2))
+        need(c < k < H, "the level is not between the start and the peak")
+        t1, t2 = r3qu_roots(abc, k)
+        land = r3qu_roots(abc)[1]
+        r3qu_clear([t2, t1, T, land])
+        want, trap = "t = " + gc_s(r9ac_f(t2)) + " s", "t = " + gc_s2(r9ac_f(t2)) + " s"
+        wrongs[R3QU_OWN + "5"] = {"t = " + gc_s(r9ac_f(t1)) + " s"}
+        fill = {"t = " + r3qu_opt(v, False) + " s" for v in (T, land)}
+        need(all(o["correct"] or o["ref"] or o.get("trap") or o["text"] in fill for o in q["choices"]), "a filler that isn't the top's time or the landing")
+        r3qu_in(q, "gdc-poly-solver", f"Enter a = {dec_text(a)}, b = {dec_text(b)}, c = {dec_text(c - k)} in the polynomial solver: t = {r3qu_w(t1)} or t = {r3qu_w(t2)}.", "the solver")
+        if rep == "graph":
+            need([h["at"] for h in q["graph"]["hlines"]] == [float(k)], "the level is not drawn")
+            need(L[2] == f"The graph of h against t is shown, with the line h = {dec_text(k)}.", "the graph's line")
+    elif u == "axis-of-symmetry":
+        abc, T, H, feet, gr = r3qu_arch(q)
+        a, b, c = abc
+        need(T != 0, "the axis is x = 0 either way")
+        need(asked == "Write down the equation of the arch's axis of symmetry.", f"asked {asked!r}")
+        need(r3qu_exact(T), "the axis needs rounding")
+        want = "x = " + dec_text(T)
+        wrongs[R3QU_SK + "2"] = {"x = " + r3qu_opt(-T, True)}
+        fill = {"x = " + r3qu_opt(v, True) for v in (H, feet[1] - feet[0])}
+        need(all(o["correct"] or o["ref"] or o["text"] in fill for o in q["choices"]), "a filler that isn't the top's height or the span")
+        r3qu_in(q, "axis-formula", f"x = −b/(2a) = −{dec_text(b)}/(2 × ({dec_text(a)})) = {r3qu_w(T)}", "−b/(2a)")
+        if rep == "words":
+            m = re.fullmatch(r"It meets " + gr + r" at x = " + R3QU_N + r" and at x = " + R3QU_N + r"\.", L[-1])
+            if m:
+                u_, v_ = r3qu_q(m.group(1)), r3qu_q(m.group(2))
+                need(r3qu_val(abc, u_) == 0 and r3qu_val(abc, v_) == 0, "the arch doesn't meet the ground where the words say")
+            else:
+                m = re.fullmatch(R3QU_N.join([r"It is ", r" m above " + gr + r" at x = ", r" and at x = ", r"\."]), L[-1])
+                need(m is not None, f"can't read the two points {L[-1]!r}")
+                lv, u_, v_ = r3qu_q(m.group(1)), r3qu_q(m.group(2)), r3qu_q(m.group(3))
+                need(r3qu_val(abc, u_) == lv and r3qu_val(abc, v_) == lv and u_ != v_, "the arch is not that high at both points")
+        else:
+            u_, v_ = feet
+            r3qu_in(q, "midpoint-of-roots", f"x = {dec_text(u_)} or x = {dec_text(v_)}", "the feet")
+        r3qu_in(q, "midpoint-of-roots", f"x = ({dec_text(u_)} + {dec_text(v_)})/2 = {dec_text((u_ + v_) / 2)}", "the midpoint")
+        need((u_ + v_) / 2 == T, "the midpoint is not the axis")
+    elif u == "width-above-height":
+        abc, T, H, feet, gr = r3qu_arch(q)
+        a, b, c = abc
+        m = re.fullmatch(r"Find the width of the arch at a height of " + R3QU_N + r" m above " + gr + r"\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        k = r3qu_q(m.group(1))
+        need(0 < k < H, "the height is not under the top")
+        x1, x2 = r3qu_roots(abc, k)
+        wd = sp.simplify(x2 - x1)
+        vals = [wd, wd / 2, feet[1] - feet[0], H - k] + ([x2] if feet[0] != -feet[1] else [])
+        r3qu_clear(vals)
+        want, trap = "width = " + gc_s(r9ac_f(wd)) + " m", "width = " + gc_s2(r9ac_f(wd)) + " m"
+        wrongs[R3QU_OWN + "6"] = {"width = " + gc_s(r9ac_f(wd / 2)) + " m"}
+        fill = {"width = " + gc_s(r9ac_f(v)) + " m" for v in vals[2:]}
+        need(all(o["correct"] or o["ref"] or o.get("trap") or o["text"] in fill for o in q["choices"]), "a filler that isn't the span, the drop or the crossing")
+        w0 = r3qu_w(x1)
+        r3qu_in(q, "gdc-poly-solver", f"x = {w0} or x = {r3qu_w(x2)}.", "the crossings")
+        r3qu_in(q, "gdc-poly-solver", f"the width there is {r3qu_w(x2)} − {'(' + w0 + ')' if x1 < 0 else w0} = {r3qu_w(wd)}.", "the width")
+        if rep == "graph":
+            g = q["graph"]
+            need(g["x_name"] == "x" and g["y_name"] == "y", "the graph's axes")
+            r3qu_curve(g, abc, feet[0], feet[1])
+            need([h["at"] for h in g["hlines"]] == [float(k)], "the height is not drawn")
+    elif u == "clears-obstacle":
+        m = r3qu_find(r"y = ([^=,]+?)(?:\.$|$)", L, "y")
+        abc = r3qu_poly(m.group(1), "x")
+        a, b, c = abc
+        if rep == "equation":
+            mm = re.fullmatch(r"This models the height, y m, of the (.+) at a horizontal distance of x m from (.+)\.", L[1])
+            need(mm is not None, f"can't read {L[1]!r}")
+            obj, frm = mm.group(1), mm.group(2)
+            mo = re.fullmatch(r"A (wall|fence) " + R3QU_N + r" m high stands " + R3QU_N + r" m from (.+)\.", L[2])
+        else:
+            mm = re.fullmatch(r"Its height, y m, at a horizontal distance of x m from (.+), is modelled by y = .+\.", L[1])
+            need(mm is not None, f"can't read {L[1]!r}")
+            frm = mm.group(1)
+            obj = [k_ for k_, v_ in R3QU_PATHS.items() if v_[0] == frm][0]
+            mo = re.fullmatch(r"The (wall|fence) is " + R3QU_N + r" m high and " + R3QU_N + r" m from (.+)\.", L[2])
+        need(mo is not None and mo.group(4) == frm and R3QU_PATHS.get(obj) == (frm, mo.group(1)), "the obstacle")
+        obs, w, d = mo.group(1), r3qu_q(mo.group(2)), r3qu_q(mo.group(3))
+        need(asked == f"Find the height of the {obj} when x = {dec_text(d)}, and decide whether it clears the {obs}.", f"asked {asked!r}")
+        at = r3qu_val(abc, d)
+        T, H = r3qu_top(abc)
+        land = r3qu_roots(abc)[1]
+        need(0 < d < land, "the obstacle is not under the flight")
+        need(abs(at - w) >= sp.Rational(1, 5) and H > w, "too close to call, or the peak is under the obstacle")
+        need((at * 100).is_integer, "the height at the obstacle is not to 2 d.p.")
+        W_, A_ = dec_text(w), dec_text(at)
+        want = f"Yes: when x = {dec_text(d)}, y = {A_} m, above the {W_} m {obs}." if at > w else f"No: when x = {dec_text(d)}, y = {A_} m, below the {W_} m {obs}."
+        wrongs[R3QU_OWN + "7"] = {f"Yes: the {obj}'s greatest height, {r3qu_show(H)} m, is above the {W_} m {obs}."}
+        start = "it starts at ground level" if c == 0 else f"it starts {dec_text(c)} m up"
+        fill = {f"Yes: the {obj} comes down at x = {gc_s(r9ac_f(land))} m, beyond the {obs}.",
+                (f"Yes: {start}, above the {W_} m {obs}." if c > w else f"No: {start}, below the {W_} m {obs}.")}
+        need(all(o["correct"] or o["ref"] or o["text"] in fill for o in q["choices"]), "a claim that isn't one of the declared ones")
+        r3qu_in(q, "any", f"When x = {dec_text(d)}: y = ({dec_text(a)}) × {dec_text(d)}² + {dec_text(b)} × {dec_text(d)} + {dec_text(c)} = {A_}", "y at the obstacle")
+    elif u == "build-area-model":
+        need(asked.startswith("Write down a model for the area, A(x) m², of the ") and asked.endswith(" in terms of x."), f"asked {asked!r}")
+        m3 = re.search(r"using (\d+) m of fence for its other three sides\.", L[0])
+        m4 = re.search(r"with (\d+) m of fence all the way round\.", L[0])
+        need((m3 is None) != (m4 is None), f"can't read the fence {L[0]!r}")
+        wall = m3 is not None
+        F = sp.Integer((m3 or m4).group(1))
+        need(F % 4 == 0, "the fence")
+
+        def poly(a2, a1):
+            lead = "−" if a2 == -1 else dec_text(a2)
+            return f"A(x) = {lead}x² + {dec_text(a1)}x"
+        if wall:
+            # Two sides of x at right angles to the wall: 2x + y = F, A = x(F − 2x).
+            need("at right angles to the" in L[1] and "x m long" in L[1], "x is not across the wall")
+            want = poly(-2, F)
+            wrongs[R3QU_OWN + "8"] = {poly(-1, F / 2)}  # four sides fenced: y = F/2 − x
+            fill = {poly(-1, F), poly(-2, F / 2)}
+            r3qu_in(q, "build-from-context", f"2x + y = {F}, so y = {F} − 2x.", "the constraint")
+        else:
+            want = poly(-1, F / 2)
+            wrongs[R3QU_OWN + "8"] = {poly(-2, F)}  # three sides fenced: y = F − 2x
+            fill = {poly(-1, F), poly(-1, F / 4)}
+            r3qu_in(q, "build-from-context", f"2x + 2y = {F}, so y = {F / 2} − x.", "the constraint")
+        need(all(o["correct"] or o["ref"] or o["text"] in fill for o in q["choices"]), "a filler that isn't one of the declared models")
+        if rep == "diagram":
+            g = q["graph"]
+            need(g["kind"] == "sketch", "no diagram")
+            labels = sorted(l_["label"] for l_ in g["lines"])
+            other = [t_ for t_ in labels if t_ not in ("x m", "y m")]
+            need([t_ for t_ in labels if t_ in ("x m", "y m")] == (["x m", "x m", "y m"] if wall else ["x m", "x m", "y m", "y m"]), f"the diagram's sides {labels}")
+            need(len(other) == (1 if wall else 0), f"the diagram's sides {labels}")
+            if wall:
+                need("at right angles to the " + other[0] in L[1], "the wall is not labelled as the words name it")
+            # Opposite sides carry the same letter, so the rectangle reads x by y.
+            P = g["pts"]
+            for l_ in g["lines"]:
+                if l_["label"] in ("x m", "y m"):
+                    pa, pb = P[l_["a"]], P[l_["b"]]
+                    need((l_["label"] == "x m") == (abs(pa[0] - pb[0]) < 1e-9), "x is not on the sides at right angles to the wall")
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+SITUATION_CHECKS["ai-quadratic-model"] = r3qu_check
+
+
 # (between the R3 markers)
 
 # R3-EXPONENTIAL: fn-ai-exponential-model (ai-exp-model), prefix R3EX_ / r3ex_

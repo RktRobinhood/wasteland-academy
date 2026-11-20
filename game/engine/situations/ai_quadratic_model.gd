@@ -151,7 +151,7 @@ static func _flight(rng: Seeded, s: Dictionary, ground: bool) -> bool:
 			return apart(T, [H, T.neg(), twice, T.div(2)]) and (not ground or apart(T, [GdcKit.qf(land)]))
 		"landing-time":
 			var L := GdcKit.qf(land)
-			return clear(neg) and GdcKit.fair(land) and apart(L, [GdcKit.qf(neg), short(T), short(twice)]) and neg < -0.05
+			return clear(neg) and GdcKit.fair(land) and apart(L, [GdcKit.qf(neg), T, twice]) and neg < -0.05
 		"time-at-height":
 			return true
 	return false
@@ -173,7 +173,7 @@ static func _level(rng: Seeded, s: Dictionary) -> bool:
 	var land: float = crossings(s)[1]
 	if t2 - t1 < 0.3 or t1 < 0.15:
 		return false
-	return GdcKit.fair(t2) and clear(t1) and apart(GdcKit.qf(t2), [GdcKit.qf(t1), short(v[0]), GdcKit.qf(land)])
+	return GdcKit.fair(t2) and clear(t1) and apart(GdcKit.qf(t2), [GdcKit.qf(t1), v[0], GdcKit.qf(land)])
 
 
 # ── An arch ──────────────────────────────────────────────────
