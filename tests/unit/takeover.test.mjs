@@ -65,14 +65,15 @@ test('switch off: the HTML game at the root, Godot at next/, and nothing else', 
 test('switch on: Godot at the root and next/ a redirect, with no HTML game and no classic/', t => {
   const { dir, site, exp } = fixture();
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-  execFileSync(ASSEMBLE, [site, exp, 'on'], { stdio: 'pipe' });
+  execFileSync(ASSEMBLE, [site, exp, 'on'], { stdio: 'pipe', env: { ...process.env, WA_BUILD_ID: 'v9.9.9' } });
   const html = read(site, 'index.html');
   assert.match(html, /<head>\n<meta charset="utf-8">\n<script>/);
   assert.doesNotMatch(html, /wa-classic/);
   assert.ok(html.includes(read(REPO, '_takeover/register-worker.html')));
   assert.match(html, /<\/script>\n<title>godot/);
   assert.equal(read(site, 'index.pck'), 'pck');
-  assert.equal(read(site, 'service-worker.js'), read(REPO, '_takeover/service-worker.js'));
+  // The worker with the build id (scripts/build-id.sh) in place of its placeholder
+  assert.equal(read(site, 'service-worker.js'), read(REPO, '_takeover/service-worker.js').replace('__BUILD_ID__', 'v9.9.9'));
   assert.equal(read(site, 'next/index.html'), read(REPO, '_takeover/next.html'));
   assert.deepEqual(files(site), ['index.html', 'index.pck', 'index.wasm', 'next/index.html', 'service-worker.js']);
   assert.equal(check(site).status, 0, check(site).stderr);
@@ -183,7 +184,7 @@ function rootWorker(cached = {}, online = {}) {
       delete: async key => store.delete(key),
     },
   });
-  vm.runInContext(read(REPO, '_takeover/service-worker.js'), ctx);
+  vm.runInContext(read(REPO, '_takeover/service-worker.js').replace('__BUILD_ID__', 'test'), ctx);
   const run = async (type, event = {}) => {
     const pending = [];
     let responded;
@@ -193,10 +194,11 @@ function rootWorker(cached = {}, online = {}) {
     return result;
   };
   const state = () => Object.fromEntries([...store].map(([k, v]) => [k, [...v.keys()]]));
-  const body = key => { const v = store.get('wasteland-academy-godot')?.get(key); return typeof v === 'string' ? v : v?.body; };
+  const body = key => { const v = store.get(CACHE)?.get(key); return typeof v === 'string' ? v : v?.body; };
   return { run, state, body, navigated, calls, fetched };
 }
 
+const CACHE = 'wasteland-academy-godot-test';
 const GET = (url, mode = 'no-cors') => ({ request: { method: 'GET', url, mode } });
 
 test('the root worker clears the HTML game, classic/ too, and reloads the old pages', async () => {
@@ -204,18 +206,18 @@ test('the root worker clears the HTML game, classic/ too, and reloads the old pa
     'wasteland-academy-v3': [SITE, SITE + 'js/engine.js', SITE + 'index.wasm', SITE + 'classic/', SITE + 'classic/js/engine.js'],
     'wasteland-academy-v2': [SITE + 'index.html'],
     'someone-else': [SITE + 'x'],
-    'wasteland-academy-godot': [SITE + 'index.pck'],
+    CACHE: [SITE + 'index.pck'],
   });
   await w.run('activate');
-  assert.deepEqual(w.state(), { 'someone-else': [SITE + 'x'], 'wasteland-academy-godot': [SITE + 'index.pck'] });
+  assert.deepEqual(w.state(), { 'someone-else': [SITE + 'x'], CACHE: [SITE + 'index.pck'] });
   assert.deepEqual(w.calls, ['claim']);
   assert.deepEqual(w.navigated, [SITE, SITE + '#functions', SITE + 'classic/']);
 });
 
 test('the root worker reloads no page when there was no old game to clear', async () => {
-  const w = rootWorker({ 'wasteland-academy-godot': [SITE + 'index.pck'] });
+  const w = rootWorker({ CACHE: [SITE + 'index.pck'] });
   await w.run('activate');
-  assert.deepEqual(w.state(), { 'wasteland-academy-godot': [SITE + 'index.pck'] });
+  assert.deepEqual(w.state(), { CACHE: [SITE + 'index.pck'] });
   assert.deepEqual(w.navigated, []);
   assert.deepEqual(w.calls, ['claim']);
 });
@@ -224,32 +226,45 @@ test('the root worker\'s install copies the Godot build, skipping a file the exp
   const files = ['index.html', 'index.js', 'index.wasm', 'index.pck', 'index.audio.worklet.js'];
   const w = rootWorker({}, Object.fromEntries(files.map(f => [SITE + f, f])));
   await w.run('install');
-  assert.deepEqual(w.state()['wasteland-academy-godot'].sort(), files.map(f => SITE + f).sort());
+  assert.deepEqual(w.state()[CACHE].sort(), files.map(f => SITE + f).sort());
   assert.deepEqual(w.calls, ['skipWaiting']);
 });
 
-test('the root worker is network-first: online gets the new export, offline the cached one', async () => {
+test('the root worker is cache first: a cached file never waits on the network', async () => {
   const online = { [SITE]: 'new html', [SITE + 'index.pck']: 'new pck' };
-  const w = rootWorker({ 'wasteland-academy-godot': [SITE + 'index.html', SITE + 'index.pck'] }, online);
+  const w = rootWorker({ [CACHE]: [SITE + 'index.html', SITE + 'index.pck'] }, online);
   // A deep link is the root page; its ?… and #… don't make another cache entry
-  assert.equal((await w.run('fetch', GET(SITE + '?play=quadratics&seed=3#x', 'navigate'))).body, 'new html');
-  assert.equal((await w.run('fetch', GET(SITE + 'index.pck'))).body, 'new pck');
-  assert.equal(w.body(SITE + 'index.html'), 'new html');
-  assert.equal(w.body(SITE + 'index.pck'), 'new pck');
-  assert.deepEqual(w.state()['wasteland-academy-godot'], [SITE + 'index.html', SITE + 'index.pck']);
+  assert.equal((await w.run('fetch', GET(SITE + '?play=quadratics&seed=3#x', 'navigate'))).body, 'cached ' + SITE + 'index.html');
+  assert.equal((await w.run('fetch', GET(SITE + 'index.pck'))).body, 'cached ' + SITE + 'index.pck');
+  assert.deepEqual(w.fetched, []);
+  assert.deepEqual(w.state()[CACHE], [SITE + 'index.html', SITE + 'index.pck']);
+  // A file the cache lacks comes from the network and is kept; with no network it is an error
+  online[SITE + 'index.wasm'] = 'wasm';
+  assert.equal((await w.run('fetch', GET(SITE + 'index.wasm'))).body, 'wasm');
+  assert.equal(w.body(SITE + 'index.wasm'), 'wasm');
+  assert.ok(await w.run('fetch', GET(SITE + 'index.js')) instanceof TypeError);
+});
 
-  for (const k of Object.keys(online)) delete online[k];
-  assert.equal((await w.run('fetch', GET(SITE + '?explore', 'navigate'))).body, 'new html');
-  assert.equal((await w.run('fetch', GET(SITE + 'index.pck'))).body, 'new pck');
-  // Offline with nothing cached is a network error, as with no worker
-  assert.ok(await w.run('fetch', GET(SITE + 'index.wasm')) instanceof TypeError);
+test('the root worker waits behind a worker of ours, and drops an earlier build\'s cache on activation', async () => {
+  const files = { [SITE + 'index.pck']: 'pck' };
+  const first = rootWorker({}, files);
+  await first.run('install');
+  assert.deepEqual(first.calls, ['skipWaiting']);
+  const next = rootWorker({ 'wasteland-academy-godot-v1': [SITE + 'index.pck'] }, files);
+  await next.run('install');
+  assert.deepEqual(next.calls, [], 'no skipWaiting while a build of ours is running');
+  assert.deepEqual(Object.keys(next.state()).sort(), [CACHE, 'wasteland-academy-godot-v1'].sort());
+  await next.run('message', { data: 'skip-waiting' });
+  assert.deepEqual(next.calls, ['skipWaiting']);
+  await next.run('activate');
+  assert.deepEqual(Object.keys(next.state()), [CACHE]);
 });
 
 test('the root worker keeps audio.pck once the game fetches it, never at install (#183)', async () => {
   const online = { [SITE + 'index.pck']: 'pck', [SITE + 'audio.pck']: 'audio' };
   const w = rootWorker({}, online);
   await w.run('install');
-  assert.deepEqual(w.state()['wasteland-academy-godot'], [SITE + 'index.pck']);
+  assert.deepEqual(w.state()[CACHE], [SITE + 'index.pck']);
   assert.equal((await w.run('fetch', GET(SITE + 'audio.pck'))).body, 'audio');
   assert.equal(w.body(SITE + 'audio.pck'), 'audio');
   delete online[SITE + 'audio.pck'];
