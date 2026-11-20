@@ -1767,6 +1767,51 @@
     },
     "fn-link-equivalent-forms/roots-from-vertex-form/roots-to-factors": {
       "4": ["apply-condition", "square-root-both-sides", "roots-to-factors", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/build-from-rate-start/rate-and-start": {
+      "3": ["model-from-context", "model-from-context", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/evaluate-model/rate-and-start": {
+      "3": ["model-from-context", "substitute", "state-answer"],
+      "graph/3": ["find-gradient", "substitute", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/evaluate-model/read-graph": {
+      "3": ["gdc-graph", "gdc-graph", "state-answer"],
+      "graph/3": ["read-givens", "evaluate", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/interpret-gradient/rate-and-start": {
+      "2": ["interpret", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/piecewise-value/rate-and-start": {
+      "3": ["choose-rule", "substitute", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/piecewise-value/piece-by-piece": {
+      "4": ["model-from-context", "choose-rule", "substitute", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/piecewise-value/read-graph": {
+      "3": ["gdc-graph", "gdc-graph", "state-answer"],
+      "graph/3": ["choose-rule", "evaluate", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/piecewise-rule/two-points": {
+      "4": ["read-givens", "find-gradient", "substitute", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/piecewise-rule/piece-by-piece": {
+      "3": ["point-gradient-line", "expand", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/piecewise-input/piece-by-piece": {
+      "4": ["choose-rule", "solve-equation", "evaluate", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/tier-band/piece-by-piece": {
+      "3": ["choose-rule", "evaluate", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/two-bills/two-points": {
+      "4": ["read-givens", "find-gradient", "substitute", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/two-bills/simultaneous-gdc": {
+      "3": ["model-from-context", "gdc-solver", "state-answer"]
+    },
+    "fn-ai-piecewise-linear/two-bills/eliminate": {
+      "4": ["model-from-context", "eliminate", "substitute-back", "state-answer"]
     }
   }
 }

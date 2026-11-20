@@ -1001,6 +1001,11 @@ script error happens while it runs. Run one file with
   four cards for pick the graph; every tag shows up; typed values marked by value; the rule, the percentage error, the slips, a
   missing height and the bends against values worked by hand.
 <!-- R3-LINEAR -->
+- `test_ai_linear_model.gd` (FAL-1001): fn-ai-piecewise-linear built with every cell (32) and both skills (AI-SL2.5.linear-model,
+  AI-SL2.6.find-parameters), on the AI courses only, Paper 2 only, no extra format; four distinct options with one right and the
+  answer in each working's last step; a graph on every graph cell and none elsewhere, a table on every table cell; every tag shows
+  up; a typed cost, input and pair m, c marked by value; a two-piece cost, its rule, a tiered order's slip and two bills against
+  values worked by hand. The type's formats are value and mcq (graph-pick was dropped: no unknown asks for a graph).
 
 <!-- R3-QUADRATIC -->
 

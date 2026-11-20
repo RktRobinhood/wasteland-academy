@@ -573,6 +573,22 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   the words or the figure (the drawn widths and dots) back, works the estimate, the integral (SymPy), the bend and every slip
   out again exactly, and checks the working's figures. `test_trapezoidal.gd`.
 <!-- R3-LINEAR -->
+- `engine/situations/ai_linear_model.gd` (FAL-1001) is `ai-linear-model`, for `fn-ai-piecewise-linear` (AI-SL2.5.linear-model,
+  AI-SL2.6.find-parameters): 8 unknowns over 32 cells, all Paper 2. A linear charge (a van, a plumber, a taxi, electricity, a gym,
+  a print shop) is a fixed charge plus a rate per unit, in cents; a two-piece tariff (a data plan, a car park or a courier with an
+  allowance, or water, a taxi or electricity with a first rate) meets at its change point; a tiered price has three bands whose
+  rate is paid on the whole order; two bills lie on one linear tariff. Its views (`ai_linear_model_views.gd`) ask the model
+  C = mx + c from words (m and c typed), a cost from the model, the words or the line drawn (GraphView, (0, c) and one more point
+  marked), what the gradient or the intercept means (a picked statement), a cost in either piece of a tariff in words, as a rule
+  in two pieces or drawn with its corner marked, the rule C = ax + b for the second piece (words or graph), the input for a cost
+  past the change point, the cost of an order from a band table or the bands in words, and m and c from two bills (words or a
+  table). Methods: the rate and the start, two points, piece by piece, reading the graph (or tracing it on the GDC), the GDC's
+  simultaneous solver and elimination. Wrong options are the skills' slips (the fixed charge and the rate swapped, the later rate
+  on the whole input, one piece's rule carried across the corner, a bill's input and cost swapped) and the type's own (each
+  band's rate on its own items only, the neighbouring band's rate, the other parameter's meaning). Every answer is exact (money
+  in cents, inputs whole). `r3li_check` in the SymPy checker reads the charge, the rule, the graph's marked points and drawn
+  line, the band table or the bills back, works every answer and slip out again (SymPy's solve for the bills and the input) and
+  checks the working's sums. `test_ai_linear_model.gd`.
 
 <!-- R3-QUADRATIC -->
 
