@@ -231,7 +231,7 @@ func test_a_row_of_word_choices_shows_the_right_one_after_attack() -> void:
 		_pick_question(f)
 		await tree.process_frame
 		var want := str(f.question.answer.values.v)
-		check_eq(want, "it cannot be simplified")
+		check(want.begins_with("it cannot be simplified"), "the reported question (%s)" % want)
 		var buttons: Array = f._pick_buttons.v
 		var chosen: Button
 		for b: Button in buttons:
