@@ -1150,6 +1150,17 @@ script error happens while it runs. Run one file with
   type's formats (value, mcq, graph-pick) are all built; its skills' multipart, match and order-steps
   formats are not built in the engine, and error-spot, method-pick and true-false-reason are not in
   the type's formats, so it offers none of them.
+
+<!-- R10-LINEAR-INPUT -->
+- `test_linear_input.gd` (FAL-1008): fn-ext-linear-input (AHL2.16.linear-input) built with all 12 cells on the
+  `linear-input` situation, every question on Paper 1; four distinct options with one right, the asked method first
+  and the answer in each working's last step; the graph of f on every graph cell, four different cards on pick the
+  graph and only P marked for f(b − x); error-spot offered on the image of a point and on f(b − x) only, its marked
+  line the kept sign or the multiplied a; every tag shows up; a typed point marked by its value; images, inputs and a
+  student's solving lines against hand values. The type's formats (value, mcq, graph-pick, error-spot) are all
+  built. The skill's order-steps format is not built in the engine, and method-pick and true-false-reason are not in
+  the type's formats, so it offers neither.
+
 - `test_complex_polar.gd` (FAL-1005): the four types on the `complex_polar.gd` recipe, each
   with its own views. t1-ahl-complex-polar (AHL1.13), t1-ahl-de-moivre and
   t1-ahl-conjugate-roots (AHL1.14) are built with every cell for the eleven skills on AA HL
