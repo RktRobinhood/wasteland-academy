@@ -306,7 +306,10 @@ static func _ratk(rng: Seeded, need: Dictionary, _paper: int) -> Dictionary:
 		return {}
 	if need.get("graph", false) and (absi(a) > 5 or absi(k) > 6 or absi(k - a) < 1):
 		return {}
-	return {"a": a, "b": b, "c": c, "k": k, "x0": x0, "rel": rng.pick(RELS)}
+	var s := {"a": a, "b": b, "c": c, "k": k, "x0": x0, "rel": rng.pick(RELS)}
+	if need.get("graph", false) and not both_branches(s):
+		return {}
+	return s
 
 
 static func ratk_y(s: Dictionary, x: float) -> float:
@@ -356,7 +359,23 @@ static func _ratl(rng: Seeded, need: Dictionary, paper: int) -> Dictionary:
 				return {}
 		if absi(c) > 5:
 			return {}
+		if not both_branches(s):
+			return {}
 	return s
+
+
+## Whether the graph on −8 to 8 shows a piece of (ax + b)/(x − c) on each side of x = c.
+static func both_branches(s: Dictionary) -> bool:
+	for side in [-1, 1]:
+		var seen := false
+		for j in range(1, 200):
+			var x: float = s.c + side * (8.0 - side * s.c) * j / 200.0
+			if absf((s.a * x + s.b) / (x - s.c)) < 7.0:
+				seen = true
+				break
+		if not seen:
+			return false
+	return true
 
 
 static func ratl_y(s: Dictionary, x: float) -> float:

@@ -115,12 +115,15 @@ func test_the_least_whole_number_is_typed_and_marked_by_value() -> void:
 		var n: Q = q.answer.values.v
 		check(QuestionEngine.mark(q, {"v": n.text()}).correct, q.answer_text)
 		check(not QuestionEngine.mark(q, {"v": n.sub(1).text()}).correct, "one less")
-		var s: Dictionary = q.situation
-		var at := func(k: float) -> float: return S.whole_at(s, k)
+	for i in 100:
+		var s := S.generate(Seeded.new("whole|%d" % i), {"form": "whole"})
+		var n: int = s.n
+		var now: float = S.whole_at(s, float(n))
+		var before: float = S.whole_at(s, float(n - 1))
 		if s.fam == "decay":
-			check(at.call(n.to_float()) < s.T and at.call(n.to_float() - 1.0) >= s.T, "seed %d: n is the first below" % seed)
+			check(now < s.T and before >= s.T, "draw %d: n = %d is the first below %s" % [i, n, s.T])
 		else:
-			check(at.call(n.to_float()) > s.T and at.call(n.to_float() - 1.0) <= s.T, "seed %d: n is the first above" % seed)
+			check(now > s.T and before <= s.T, "draw %d: n = %d is the first above %s" % [i, n, s.T])
 
 
 func test_hand_worked_sets() -> void:

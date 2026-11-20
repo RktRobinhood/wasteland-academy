@@ -53958,13 +53958,13 @@ def ahlinq_gdc_crits(h, lo, hi):
 def ahlinq_poly(text):
     """An expression the way the game writes it, as SymPy in x."""
     need(not re.search(r"(?<![A-Za-z])-", text), f"a hyphen for a minus in {text!r}")
-    return gc_expr(text.replace("×", "*"))
+    return gc_expr(re.sub(r"e\^x", "e^(x)", text.replace("×", "*")))
 
 
-def ahlinq_on(curve, fn, tol=1e-6):
+def ahlinq_on(curve, fn, tol=1e-6, least=40):
     """Every drawn point of a curve lies on y = fn(x)."""
     fl = sp.lambdify(X, fn, "mpmath")
-    need(len(curve) > 40, "a curve is drawn with too few points")
+    need(len(curve) > least, "a curve is drawn with too few points")
     for x0, y0 in curve:
         need(abs(float(fl(mpmath.mpf(x0))) - y0) <= tol * max(1, abs(y0)), f"a drawn point ({x0}, {y0}) is not on y = {fn}")
 
@@ -54340,7 +54340,8 @@ def ahlinq_rat(q):
     c = sp.solve(bot, X)[0]
     need(sp.gcd(top, bot).is_number, "the top and bottom share a factor")
     need(c_said is None or c_said == c, "the x ≠ value is not the asymptote")
-    need(c.is_integer and abs(c) <= 4 and a != 0 and abs(a) <= 6 and b != 0 and abs(b) <= 12, f"{fx} is out of range")
+    need(c.is_integer and abs(c) <= 4 and a != 0 and abs(a) <= 6 and abs(b) <= 12, f"{fx} is out of range")
+    need(b != 0 or u == "rational-against-line", f"{fx} has no constant term")
     h = sp.together(fx - rhs)
     crits = ahlinq_crits(h)
     zeros = sorted([v for v, k in crits if k == "zero"], key=lambda v: float(v))
@@ -54377,10 +54378,12 @@ def ahlinq_rat(q):
         g = q["graph"]
         need(g is not None, "no graph shown")
         sand = g.get("sand_from", len(g["curves"]))
-        need(sand == 2 and len(g["curves"]) == 3, "the graph is not two branches and the line")
+        need(len(g["curves"]) == sand + 1, "the graph is not the curve's branches and the line")
         for cv in g["curves"][:sand]:
-            ahlinq_on(cv, fx)
+            ahlinq_on(cv, fx, least=1)
             need(cv[-1][0] < float(c) or cv[0][0] > float(c), "a branch is drawn across the asymptote")
+        need(any(cv[-1][0] < float(c) for cv in g["curves"][:sand]) and any(cv[0][0] > float(c) for cv in g["curves"][:sand]), "a side of the asymptote has no branch")
+        need(sum(len(cv) for cv in g["curves"][:sand]) > 150, "too little of the curve is drawn")
         ahlinq_on(g["curves"][sand], rhs)
         need([v["at"] for v in g["vlines"]] == [float(c)] and [h_["at"] for h_ in g["hlines"]] == [float(a)], "the dashed lines are not the asymptotes")
         dots = sorted(round(p["x"], 6) for p in g["points"])
