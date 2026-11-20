@@ -104120,7 +104120,7 @@
 			"misconceptions": [
 				{
 					"ref": "AI-SL2.6.find-parameters#0",
-					"text": "From the value at t = 0 of ka^t + c, writes k equal to that value and forgets c (the equation is k + c = P(0))",
+					"text": "Writes k equal to the value of ka^t + c at t = 0 and forgets c (the equation is k + c = P(0))",
 					"as": "distractor",
 					"in": [
 						"exp-two-constants"
@@ -104140,7 +104140,7 @@
 				},
 				{
 					"ref": "AI-SL2.6.find-parameters#2",
-					"text": "For a quadratic through a point, multiplies a by x rather than by x² when writing the equation",
+					"text": "Multiplies a by x rather than by x² when writing a quadratic's equation through a point",
 					"as": "distractor",
 					"in": [
 						"quadratic-from-symmetry"
@@ -104148,12 +104148,12 @@
 					"wrong": "a multiplied by x, not x²"
 				},
 				{
-					"text": "Takes the factor as the ratio of the two values without the root for the time between them",
+					"text": "Leaves out the time between the two values: takes their ratio as the factor without its root, or its logarithm as the rate without dividing by the time",
 					"as": "distractor",
 					"in": [
 						"exp-factor-from-point"
 					],
-					"wrong": "the ratio without the t-th root"
+					"wrong": "the time left out: no root, no division"
 				},
 				{
 					"text": "Divides by the factor once instead of by its power for the time given",
