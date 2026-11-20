@@ -107935,7 +107935,6 @@
      "text": "Reads the y-intercept of h(t) as the maximum height rather than the launch height",
      "as": "distractor",
      "in": [
-      "initial-height",
       "vertex-value"
      ],
      "wrong": "the start value read as the greatest value"
@@ -107965,7 +107964,7 @@
      "wrong": "half the width"
     },
     {
-     "text": "Compares the obstacle with the peak height instead of the model's height at the obstacle",
+     "text": "Checks the obstacle against the peak height instead of the model's height at the obstacle",
      "as": "distractor",
      "in": [
       "clears-obstacle"
@@ -107973,12 +107972,20 @@
      "wrong": "the peak compared with the obstacle"
     },
     {
-     "text": "Keeps both lengths in the area instead of replacing one with the constraint",
+     "text": "Uses the fence for the wrong number of sides when writing the other length from the constraint",
      "as": "distractor",
      "in": [
       "build-area-model"
      ],
-     "wrong": "the constraint used the wrong way round"
+     "wrong": "the fence counted on the wrong sides"
+    },
+    {
+     "text": "Gives the greatest height when the starting height is asked for",
+     "as": "distractor",
+     "in": [
+      "initial-height"
+     ],
+     "wrong": "the peak's height for the start"
     }
    ],
    "parts": [
