@@ -471,7 +471,8 @@ func u_read_from_graphs(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var wrongs: Array = []
 	if rel == ">" or rel == "≥":
 		wrongs.append(cw(set_text(solve(zeros_crit([s.z], rel), func(x: float) -> bool: return holds(rel, S.graph_g(s, x)))), RG + "0"))
-	wrongs.append(cw(set_text(heights(ps, func(x): return Q.new(int(round(S.graph_g(s, F(x))))))), "y"), RG + "1"))
+	var height := func(x: Variant) -> Variant: return Q.new(int(round(S.graph_g(s, F(x)))))
+	wrongs.append(cw(set_text(heights(ps, height), "y"), RG + "1"))
 	wrongs.append(cw(set_text(setof.call(S.opposite(rel))), RG + "2"))
 	wrongs.append(cw(set_text(setof.call(S.flip_ends(rel))), ENDS))
 	var out := choice(right, wrongs, [set_text(solve(zeros_crit(xs, rel), func(x: float) -> bool: return holds(rel, -gf.call(x))))])
