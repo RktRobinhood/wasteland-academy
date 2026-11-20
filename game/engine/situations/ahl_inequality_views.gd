@@ -203,7 +203,8 @@ static func want(rel: String) -> String:
 
 ## The ends rule in words.
 static func ends_rule(rel: String, what: String = "the zeros") -> String:
-	return ("The inequality is strict, so %s are left out." if S.strict(rel) else "The inequality is not strict, so %s are included.") % what
+	var verb := "is" if what in ["the crossing", "the zero"] else "are"
+	return ("The inequality is strict, so %s %s left out." if S.strict(rel) else "The inequality is not strict, so %s %s included.") % [what, verb]
 
 
 ## Every end at x = c (an asymptote) included: the asymptote slip.
@@ -905,7 +906,7 @@ func u_context_models(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.lines = ["%s A(t) = %s and B(t) = %s, for t ≥ 0." % [ctx[0], model_a_text(s), model_b_text(s)]]
 	var f := fin(right)
 	var cx := "t = %s and t = %s" % [Wv(ts[0]), Wv(ts[1])]
-	var sign_words := "%s(t) > %s(t) %s" % [who, other, "for t > " + Wv(T) if (who == "A") else "between the crossings"]
+	var sign_words := "%s(t) > %s(t) %s" % [who, other, ("for t > " if who == "A" else "for t < ") + Wv(T)]
 	var methods := {
 		"gdc-intersections-context": [
 			"Graph y = %s and y = %s on the GDC for t ≥ 0: they meet at t = %s." % [model_a_text(s), model_b_text(s), Wv(T)],
@@ -914,7 +915,7 @@ func u_context_models(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"interpret-domain": [
 			"Solving A(t) = B(t) gives %s." % cx,
 			"t = %s is a negative time, outside the model's t ≥ 0, so only t = %s is a boundary, with t = 0 the start." % [Wv(ts[0]), Wv(T)],
-			"%s, so %s." % [sign_words, "past it" if who == "A" else "until it"], f],
+			"For t ≥ 0, %s." % sign_words, f],
 	}
 	if poly:
 		var diff: Array = [s.B[0], s.B[1] - s.q, s.B[2] - s.p]
@@ -970,7 +971,7 @@ func u_least_whole_number(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"fillers": [{"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}, {"v": Q.new(n - 2)}],
 		"methods": {
 			"gdc-intersections-context": method([
-				"Graph y = %s and y = %s on the GDC: they meet at n = %s." % [formula.replace("n", "x"), target, GdcKit.W(nstar)],
+				"Graph y = %s and y = %s on the GDC: they meet at x = %s." % [formula.replace("n", "x"), target, GdcKit.W(nstar)],
 				"The formula is %s %s for n past the crossing, and n is a whole number, so round up, not to the nearest." % [rel, target],
 				"Check: n = %d gives %s, not yet %s %s; n = %d gives %s. %s" % [n - 1, shown.call(before), rel, target, n, shown.call(after), fin_n]], ans.values),
 			"interpret-domain": method([
