@@ -53772,6 +53772,290 @@ SITUATION_CHECKS["ai-composite-inverse"] = r9ac_check
 # (end of the R9 markers)
 
 
+# R10-LINEAR-INPUT: fn-ext-linear-input (linear-input), prefix LININ_ / linin_
+
+# ── linear-input (fn-ext-linear-input, FAL-1008) ─────────────
+# The checker's own reading of the `linear-input` situation: the engine's is in
+# game/engine/situations/linear_input.gd. Every number is read back from the question's own
+# text (and the graph of f from its drawn corners), never from `given`. y = f(ax + b) takes
+# (p, q) on y = f(x) to the x with ax + b = p, solved here with SymPy, and keeps q; y = f(b − x)
+# takes it to the x with b − x = p. Each tagged option is rebuilt from what its slip does, a
+# sequence of moves is read back as a map of x and compared with x -> (x − b)/a, every card
+# is f's corners under the map its mistake names, the working's sums are redone, and an
+# error-spot's first wrong line is the first whose claim fails.
+
+LININ_SK = "AHL2.16.linear-input#"
+LININ_OWN = "fn-ext-linear-input#"
+LININ_NUM = r"−?\d+(?:/\d+)?"
+LININ_A = {sp.Integer(2), sp.Integer(3), sp.Rational(1, 2), sp.Rational(1, 3)}
+LININ_TR = "a translation by the vector "
+LININ_HS = "a horizontal stretch with scale factor "
+
+
+def linin_n(t):
+    return sp.Rational(t.strip().strip("()").replace("−", "-"))
+
+
+def linin_t(v):
+    return frac_text(sp.Rational(v))
+
+
+def linin_pt(x, y):
+    return f"({linin_t(x)}, {linin_t(y)})"
+
+
+def linin_read_pt(t):
+    m = re.fullmatch(rf"\(({LININ_NUM}), ({LININ_NUM})\)", t.strip())
+    need(m is not None, f"can't read the point {t!r}")
+    return linin_n(m[1]), linin_n(m[2])
+
+
+def linin_input(t):
+    """'2x + 6', '½x − 3', '(1/3)x + 2' -> (a, b); '3 − x' -> (−1, 3)."""
+    m = re.fullmatch(rf"({LININ_NUM}) − x", t)
+    if m:
+        return sp.Integer(-1), linin_n(m[1])
+    m = re.fullmatch(rf"(\d*|½|\(\d+/\d+\))x ([+−]) (\d+)", t)
+    need(m is not None, f"can't read the input {t!r}")
+    a = {"": sp.Integer(1), "½": sp.Rational(1, 2)}.get(m[1]) or linin_n(m[1])
+    b = linin_n(m[3]) * (1 if m[2] == "+" else -1)
+    return a, b
+
+
+def linin_lead(a):
+    return "½" if a == sp.Rational(1, 2) else (str(a) if a.q == 1 else f"({a})")
+
+
+def linin_x_of(a, b):
+    """The image x of a point with x-coordinate p: the root of ax + b = p, as a function of p."""
+    P = sp.Symbol("p")
+    return sp.Lambda(P, sp.solve(sp.Eq(a * X + b, P), X)[0])
+
+
+def linin_arith(q):
+    """Every 'n op n … = n' in the working and in the error-spot reason is a true sum."""
+    texts = [st for sol in q["solutions"] for st in sol["steps"]]
+    num = rf"\(?{LININ_NUM}\)?"
+    pat = re.compile(rf"(?<![\w(/])({num}(?: [−+×÷] {num})+) = ({LININ_NUM})(?![\d/])")
+    for t in texts:
+        for m in pat.finditer(t):
+            e = m[1].replace("−", "-").replace("×", "*").replace("÷", "/")
+            need(sp.Rational(sp.sympify(e, rational=True)) == linin_n(m[2]), f"{m.group()!r} in {t!r} is not true")
+
+
+def linin_map_of(text):
+    """A written sequence of moves as x -> m·x + c."""
+    m_, c_ = sp.Integer(1), sp.Integer(0)
+    for part in (text[0].lower() + text[1:]).split(", then "):
+        if part.startswith(LININ_TR):
+            x, y = linin_read_pt(part[len(LININ_TR):])
+            need(y == 0, f"a vertical translation in {text!r}")
+            c_ += x
+        elif part.startswith(LININ_HS):
+            k = linin_n(part[len(LININ_HS):])
+            m_, c_ = m_ * k, c_ * k
+        else:
+            raise Fail(f"can't read the move {part!r}")
+    return m_, c_
+
+
+def linin_seq(first, second):
+    t = f"{first}, then {second}"
+    return t[0].upper() + t[1:]
+
+
+def linin_tr(c):
+    return LININ_TR + linin_pt(c, 0)
+
+
+def linin_hs(k):
+    return LININ_HS + linin_t(k)
+
+
+def linin_head(q):
+    """The asked input, from the question: (a, b, its text)."""
+    m = re.search(r"y = f\(([^()]*(?:\(\d+/\d+\))?[^()]*)\)[.?]$", q["asked"])
+    need(m is not None, f"can't read the asked graph in {q['asked']!r}")
+    a, b = linin_input(m[1])
+    return a, b, m[1]
+
+
+def linin_given_p(q):
+    m = re.fullmatch(rf"The (?:point P(\(.+\)) lies on the graph of y = f\(x\)|graph of y = f\(x\) is shown, with the point P(\(.+\)))\.", q["lines"][0])
+    need(m is not None, f"can't read P in {q['lines'][0]!r}")
+    return linin_read_pt(m[1] or m[2])
+
+
+def linin_image(q, wrongs):
+    a, b, _ = linin_head(q)
+    need(a in LININ_A, f"a = {a} is not 2, 3, 1/2 or 1/3")
+    need(b != 0 and b.q == 1, f"b = {b} is not a nonzero whole number")
+    p, y = linin_given_p(q)
+    need(y != 0 and p.q == 1 and y.q == 1, "P is not a whole point off the x-axis")
+    x = linin_x_of(a, b)(p)
+    need(x.q == 1, "the image is not a whole point")
+    wrongs[LININ_SK + "0"] = {linin_pt(p / a - b, y)}
+    wrongs[LININ_SK + "1"] = {linin_pt(a * (p - b), y)}
+    wrongs[LININ_SK + "2"] = {linin_pt((p + b) / a, y)}
+    wrongs[LININ_OWN + "3"] = {linin_pt(x, y / a)}
+    return linin_pt(x, y)
+
+
+def linin_original(q, wrongs):
+    m = re.fullmatch(r"The point Q(\(.+\)) lies on the graph of y = f\((.+)\)\.", q["lines"][0])
+    need(m is not None, f"can't read Q in {q['lines'][0]!r}")
+    a, b = linin_input(m[2])
+    need(a in LININ_A and b != 0 and b.q == 1, f"f({m[2]}) is not a Paper 1 input")
+    r, y = linin_read_pt(m[1])
+    need(r.q == 1 and y.q == 1 and y != 0, "Q is not a whole point off the x-axis")
+    need(q["asked"] == "Find the point on the graph of y = f(x) that Q came from.", "another question")
+    # Q is on y = f(ax + b): f takes the value y at ax + b with x = r.
+    p = a * r + b
+    need(linin_x_of(a, b)(p) == r, "the point found does not map onto Q")
+    wrongs[LININ_SK + "1"] = {linin_pt(r / a + b, y)}
+    wrongs[LININ_SK + "2"] = {linin_pt(a * r - b, y)}
+    wrongs[LININ_OWN + "3"] = {linin_pt(p, a * y)}
+    return linin_pt(p, y)
+
+
+def linin_reflect(q, wrongs):
+    a, b, _ = linin_head(q)
+    need(a == -1 and b != 0 and b.q == 1, "the input is not b − x with b a nonzero whole number")
+    p, y = linin_given_p(q)
+    need(y != 0 and p != 0 and p.q == 1 and y.q == 1, "P is not a whole point off the axes")
+    x = linin_x_of(a, b)(p)
+    need(x != p, "P is its own image")
+    if q["view"]["rep"] == "graph":
+        g = q["graph"]
+        need(g is not None and len(g["curves"]) == 1, "no graph of f")
+        corners = [(sp.nsimplify(c[0]), sp.nsimplify(c[1])) for c in g["curves"][0]]
+        need((p, y) in corners, "P is not a corner of the graph shown")
+        need([(sp.nsimplify(pt["x"]), sp.nsimplify(pt["y"]), pt["label"]) for pt in g["points"]] == [(p, y, "P" + linin_pt(p, y))], "the graph marks another point")
+    wrongs[LININ_OWN + "4"] = {linin_pt(-p, y)}
+    wrongs[LININ_OWN + "3"] = {linin_pt(x, -y)}
+    wrongs[LININ_OWN + "5"] = {linin_pt(-p - b, y)}
+    return linin_pt(x, y)
+
+
+def linin_describe(q, wrongs):
+    a, b, _ = linin_head(q)
+    need(a in LININ_A and b != 0 and b.q == 1, "not a Paper 1 input")
+    k, c = 1 / a, b / a
+    fi = q["view"]["angle"] == "factorise-inside"
+    if fi:
+        want = linin_seq(linin_hs(k), linin_tr(-c))
+        wrongs[LININ_SK + "1"] = {linin_seq(linin_hs(a), linin_tr(-c))}
+        wrongs[LININ_SK + "2"] = {linin_seq(linin_hs(k), linin_tr(c))}
+    else:
+        want = linin_seq(linin_tr(-b), linin_hs(k))
+        wrongs[LININ_SK + "1"] = {linin_seq(linin_tr(-b), linin_hs(a))}
+        wrongs[LININ_SK + "2"] = {linin_seq(linin_tr(b), linin_hs(k))}
+    wrongs[LININ_SK + "0"] = {linin_seq(linin_hs(k), linin_tr(-b))}
+    # As maps of x: only the right one is x -> (x − b)/a, and it takes its moves in the
+    # asked method's order.
+    for o in q["choices"]:
+        ok = linin_map_of(o["text"]) == (1 / a, -b / a)
+        need(ok == o["correct"], f"{o['text']!r} is {'not ' if o['correct'] else ''}the move")
+    need(want.startswith("A horizontal" if fi else "A translation"), "the moves are not in the method's order")
+    return want
+
+
+def linin_pick(q, wrongs):
+    a, b, _ = linin_head(q)
+    need(a in (2, sp.Rational(1, 2)) and b != 0 and b.q == 1, "not a grid input")
+    f = q["graph"]
+    need(f is not None and len(f["curves"]) == 1, "no graph of f")
+    nodes = [(sp.nsimplify(c[0]), sp.nsimplify(c[1])) for c in f["curves"][0]]
+    need(len(nodes) == 5 and all(n[0].q == 1 and n[1].q == 1 for n in nodes), "f is not five grid corners")
+    marked = []
+    for pt, name in zip(f["points"], "PQ"):
+        x, y = sp.nsimplify(pt["x"]), sp.nsimplify(pt["y"])
+        need((x, y) in nodes and pt["label"] == name + linin_pt(x, y), f"the marked point {pt['label']} is not a corner")
+        marked.append((x, y))
+    need(len(marked) == 2, "f has not two marked points")
+    maps = {"": lambda x: (x - b) / a, "stretch-first": lambda x: x / a - b, "factor-a": lambda x: a * (x - b), "wrong-way": lambda x: (x + b) / a}
+    refs = {"stretch-first": LININ_SK + "0", "factor-a": LININ_SK + "1", "wrong-way": LININ_SK + "2"}
+    graphs, ch = q["graphs"], q["choices"]
+    need(len(graphs) == 4 and [o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "not four graphs A to D")
+    need(len({(g["x0"], g["x1"], g["y0"], g["y1"]) for g in graphs}) == 1 and all(g.get("card") for g in graphs), "the cards don't share one window")
+    right = None
+    for o, g in zip(ch, graphs):
+        mk = "" if o["correct"] else o["mistake"]
+        need(mk in maps, f"an unknown mistake {o['mistake']!r}")
+        mp = maps[mk]
+        need(len(g["curves"]) == 1, "a card in pieces")
+        got = sorted((sp.nsimplify(c[0]), sp.nsimplify(c[1])) for c in g["curves"][0])
+        need(got == sorted((mp(x), y) for x, y in nodes), f"the {mk or 'right'} card is not f moved that way")
+        pts = sorted((sp.nsimplify(p["x"]), sp.nsimplify(p["y"])) for p in g["points"])
+        need(pts == sorted((mp(x), y) for x, y in marked), "a card marks other points")
+        need(all(g["x0"] <= x <= g["x1"] and g["y0"] <= y <= g["y1"] for x, y in got), "a corner is off the card")
+        if o["correct"]:
+            right = o["text"]
+        else:
+            wrongs.setdefault(refs[mk], set()).add(o["text"])
+            need(o["ref"] == refs[mk], f"the {mk} card is tagged {o['ref']!r}")
+    need(len({json.dumps(g["curves"]) for g in graphs}) == 4, "two graphs are the same")
+    moved = " and ".join(f"{n}{linin_pt(x, y)} goes to {linin_pt(maps[''](x), y)}" for n, (x, y) in zip("PQ", marked)) + "."
+    need(any(moved in st for sol in q["solutions"] for st in sol["steps"]), f"the working doesn't follow P and Q: {moved!r}")
+    need(all(maps[""](x) != x for x, y in marked), "a marked point does not move")
+    return right
+
+
+def linin_spot(q, lines):
+    """The first false line of a student's solving of ax + b = p."""
+    a, b, inp = linin_head(q)
+    p, y = linin_given_p(q)
+    x = linin_x_of(a, b)(p)
+    lhs = "−x" if a == -1 else linin_lead(a) + "x"
+    truth = [f"P{linin_pt(p, y)} is on y = f(x), so f({linin_t(p)}) = {linin_t(y)}.",
+             f"On y = f({inp}) the height is {linin_t(y)} where {inp} = {linin_t(p)}."]
+    for i in (0, 1):
+        if lines[i] != truth[i]:
+            return i
+    m = re.fullmatch(rf"(.+) = ({LININ_NUM})", lines[2])
+    need(m is not None and m[1] == lhs, f"can't read {lines[2]!r}")
+    # a·x = n holds at the root exactly when n = p − b.
+    if sp.expand(a * x - linin_n(m[2])) != 0:
+        return 2
+    m = re.fullmatch(rf"x = ({LININ_NUM}), so the image is (\(.+\))\.", lines[3])
+    need(m is not None, f"can't read {lines[3]!r}")
+    if linin_n(m[1]) != x or linin_read_pt(m[2]) != (x, y):
+        return 3
+    return None
+
+
+SPOT_CHECKS["linear-input"] = linin_spot
+
+
+def linin_check(q):
+    u = q["view"]["unknown"]
+    texts = [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]
+    for tx in texts:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    need(q["paper"] == 1, "a linear-input question on Paper 2")
+    wrongs = {}
+    if u == "image-point":
+        want = linin_image(q, wrongs)
+    elif u == "original-point":
+        want = linin_original(q, wrongs)
+    elif u == "describe-moves":
+        want = linin_describe(q, wrongs)
+    elif u == "pick-graph":
+        want = linin_pick(q, wrongs)
+    elif u == "reflect-inside":
+        want = linin_reflect(q, wrongs)
+    else:
+        raise Fail(f"no check for {u}")
+    linin_arith(q)
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+SITUATION_CHECKS["linear-input"] = linin_check
+
+# (end of the R10-LINEAR-INPUT markers)
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]
