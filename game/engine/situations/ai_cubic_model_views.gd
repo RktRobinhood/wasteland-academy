@@ -171,7 +171,7 @@ func u_box_domain(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			"At x = 0 or x = %s there is no box, so both ends are left out." % D(top)],
 	}
 	if s.pick:
-		return _box_domain_pick(s, lines, steps, rng)
+		return _box_domain_pick(s, lines, steps, rng, rep == "diagram")
 	var ans := Answer.make("interval", span_of(0, top), {"var": "x"})
 	ans.exact = true
 	var ws: Array = [wrong(span_of(0, Q.new(L, 2)), R_HALF_LONG), wrong(span_of(0, Wd), R_WHOLE_SIDE)]
@@ -183,7 +183,7 @@ func u_box_domain(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 
 ## Pick the graph: V on its domain, against V run on to half the longer side, to the whole
 ## shorter side, and from a negative x.
-func _box_domain_pick(s: Dictionary, lines: Array, steps: Dictionary, rng: Seeded) -> Dictionary:
+func _box_domain_pick(s: Dictionary, lines: Array, steps: Dictionary, rng: Seeded, diagram: bool) -> Dictionary:
 	var L: int = s.L
 	var Wd: int = s.W
 	var f := func(x): return S.vol(L, Wd, x)
@@ -215,7 +215,7 @@ func _box_domain_pick(s: Dictionary, lines: Array, steps: Dictionary, rng: Seede
 		methods[m] = method(steps[m] + ["So the graph drawn for %s only is %s." % [domain_text(s), Answer.text(ans)]], ans.values)
 	return {"asked": "Which graph shows V = %s for the possible values of x?" % v_text(s),
 		"lines": lines + ["The volume of the box is V cm³. Each graph shows the curve y = %s on a different set of values of x." % v_text(s)],
-		"answer": ans, "graphs": pk.graphs, "methods": methods}
+		"answer": ans, "graphs": pk.graphs, "methods": methods, "graph": card_figure(s) if diagram else null}
 
 
 func u_box_max(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -381,14 +381,18 @@ func u_negative_total(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"Find the total time, in minutes, for which water flows out of the tank."
 	var z: Array = s.zeros
 	var F := fname(s)
+	# The total of the figures the working shows (the same to 3 s.f., AiCubicModelSituation).
+	var shown := 0.0
+	for st in S.negative_parts(s):
+		shown += S.w6(st[1]) - S.w6(st[0])
 	var where: String
 	var sum: String
 	if s.sign > 0:
 		where = "%s(0) = %s < 0, so %s < 0 for 0 ≤ t < %s and again for %s < t < %s." % [F, D(s.co[3]), F, W(z[0]), W(z[1]), W(z[2])]
-		sum = "Total: %s + (%s − %s) = %s." % [W(z[0]), W(z[2]), W(z[1]), W(vals[0])]
+		sum = "Total: %s + (%s − %s) = %s." % [W(z[0]), W(z[2]), W(z[1]), W(shown)]
 	else:
 		where = "%s(0) = %s > 0, so %s < 0 for %s < t < %s and again for %s < t ≤ %d." % [F, D(s.co[3]), F, W(z[0]), W(z[1]), W(z[2]), s.hi]
-		sum = "Total: (%s − %s) + (%d − %s) = %s." % [W(z[1]), W(z[0]), s.hi, W(z[2]), W(vals[0])]
+		sum = "Total: (%s − %s) + (%d − %s) = %s." % [W(z[1]), W(z[0]), s.hi, W(z[2]), W(shown)]
 	return pack(lines, asked, ans, ws, fill, {
 		"gdc-zero": ["Graph %s = %s on the GDC for 0 ≤ t ≤ %d and use the zero tool: %s = 0 at t = %s, t = %s and t = %s." % [F, poly(s), s.hi, F, W(z[0]), W(z[1]), W(z[2])],
 			where, sum, say(ans)],

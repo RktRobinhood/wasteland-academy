@@ -50297,7 +50297,6 @@ def r3cu_check(q):
     if u == "box-volume":
         need(asked == "Write down an expression for V, the volume of the box in cm³, in terms of x.", f"asked {asked!r}")
         want = f"V = x({L} − 2x)({W} − 2x)"
-        need(sp.expand(r3cu_poly(f"x({L} − 2x)({W} − 2x)".replace("(", "*(").lstrip("*")) - V) == 0 if False else True, "")
         wrongs[R3CU_CM + "0"] = {f"V = x({L} − x)({W} − x)"}
         r3cu_in(q, "build-from-diagram", f"the base is ({L} − 2x) cm by ({W} − 2x) cm", "the base")
     elif u == "box-domain":
@@ -50375,7 +50374,7 @@ def r3cu_check(q):
             if sol["angle"] == "gdc-max":
                 r3cu_in(q, "gdc-max", f"use the maximum tool: x = {r3cu_w(x1)}, V = {r3cu_w(v1)}", "the GDC's maximum")
             elif sol["angle"] == "gdc-table":
-                got = [(r3cu_q(a), b) for a, b in re.findall(r"the greatest is V\(([\d.]+)\) = (−?[\d.]+)", " ".join(sol["steps"]))]
+                got = [(r3cu_q(a), b) for a, b in re.findall(r"the greatest is V\((\d+(?:\.\d+)?)\) = (−?\d+(?:\.\d+)?)", " ".join(sol["steps"]))]
                 need(len(got) == 3, "the table doesn't refine three times")
                 fv = lambda a: V.subs(X, a)
 
