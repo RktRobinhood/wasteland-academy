@@ -10,7 +10,7 @@ extends ExtensionViews
 ## (set_text), so every answer and slip has one canonical text: pieces in order joined by
 ## "or", each "a < x ≤ b", "x < b", "x ≥ a" or "x = a", and two pieces split by one left-out
 ## value joined as "x > a, x ≠ b". Exact ends are whole numbers or fractions; a GDC's ends
-## are written to 3 s.f. The checker (tools/check_answers.py, ahlineq_*) solves every set
+## are written to 3 s.f. The checker (tools/check_answers.py, ahlinq_*) solves every set
 ## again with SymPy and compares the texts exactly.
 ##
 ## The answer is a choice of sets (played as four options, or picked from them), except the
@@ -312,7 +312,8 @@ func u_cubic_from_factors(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		wrongs.append(cw(set_text(cubic_set(-a, rs, rel)), PI + "2"))
 	wrongs.append(cw(set_text(cubic_set(a, rs, S.flip_ends(rel))), ENDS))
 	var neg: Array = rs.map(func(r): return -r)
-	var out := choice(right, wrongs, [set_text(cubic_set(a, rs, S.opposite(rel))), set_text(cubic_set(a, neg, rel))])
+	var out := choice(right, wrongs, [set_text(cubic_set(a, rs, S.opposite(rel))), set_text(cubic_set(a, neg, rel)),
+		set_text(cubic_set(a, rs, S.flip_ends(S.opposite(rel))))])
 	var ct := cubic_text(a, rs)
 	var zs := "x = %s, x = %s and x = %s" % [N(rs[0]), N(rs[1]), N(rs[2])]
 	var sg := signs_line(a, rs)
@@ -435,7 +436,8 @@ func u_double_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wrongs: Array = [cw(set_text(setof.call(rel, as_change)), PI + "3"), cw(set_text(setof.call(S.flip_ends(rel), h)), ENDS)]
 	var neg := func(x: float) -> float: return (x + p) * (x + q) * (x + q)
 	var negset: Array = solve(zeros_crit([-p, -q], rel), func(x: float) -> bool: return holds(rel, neg.call(x)))
-	var out := choice(right, wrongs, [set_text(setof.call(S.opposite(rel), h)), set_text(negset)])
+	var out := choice(right, wrongs, [set_text(setof.call(S.opposite(rel), h)), set_text(negset),
+		set_text(setof.call(S.flip_ends(S.opposite(rel)), h))])
 	var dt := double_text(s)
 	if rep == "graph":
 		out.asked = "Solve f(x) %s 0." % rel
@@ -634,8 +636,14 @@ func u_technology_inequality(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		wrongs.append(cw(set_text([{"lo": xs[0], "li": ni, "hi": xs[1], "hi_in": ni}]), TI + "0"))
 		wrongs.append(cw(set_text([ps[ps.size() - 1]]), TI + "1"))
 		if ln:
-			wrongs.append(cw(set_text(setof.call(rel, null)), TI + "2"))
-	var out := choice(right, wrongs, [set_text(setof.call(S.flip_ends(rel), dom)), set_text(setof.call(S.opposite(rel), dom))])
+			# The domain ignored: the piece that starts at the asymptote runs on to the left.
+			var nodom: Array = ps.duplicate(true)
+			nodom[0].lo = null
+			nodom[0].li = false
+			wrongs.append(cw(set_text(nodom), TI + "2"))
+	var fillers: Array = [set_text(setof.call(S.flip_ends(rel), dom)), set_text(setof.call(S.opposite(rel), dom)),
+		set_text(setof.call(S.flip_ends(S.opposite(rel)), dom))]
+	var out := choice(right, wrongs, fillers)
 	var ft := tech_text(s)
 	var lt := line_text(s.m, s.n)
 	out.asked = "Solve %s %s %s." % [ft, rel, lt]
@@ -721,7 +729,7 @@ func u_rational_against_constant(rep: String, s: Dictionary, _rng: Seeded) -> Di
 	if not kept.is_empty():
 		wrongs.append(cw(set_text(kept), RI + "2"))
 	wrongs.append(cw(set_text(setof.call(S.flip_ends(rel))), ENDS))
-	var out := choice(right, wrongs, [set_text(setof.call(S.opposite(rel)))])
+	var out := choice(right, wrongs, [set_text(setof.call(S.opposite(rel))), set_text(setof.call(S.flip_ends(S.opposite(rel))))])
 	var ft := rat_text(a, b, c)
 	var den := Fmt.poly([1, -c])
 	if rep == "graph":

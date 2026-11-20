@@ -53772,6 +53772,716 @@ SITUATION_CHECKS["ai-composite-inverse"] = r9ac_check
 # (end of the R9 markers)
 
 
+# R10-AHL-INEQUALITY: fn-ahl-inequalities, prefix AHLINQ_ / ahlinq_
+
+# ── ahl-inequality (fn-ahl-inequalities, FAL-1008) ───────────────────────────
+# The checker's own copy of the situation's clean limits; the engine's is in
+# game/engine/situations/ahl_inequality.gd and ahl_inequality_views.gd. Every inequality is read
+# back from the question's text (never its `given`), or, for the two graph-only unknowns, from the
+# figure: the marked points' labels, the dashed lines and the drawn curves. Each solution set is
+# worked out again with SymPy: the critical values (exact roots of the numerator and denominator,
+# a log's domain end, or a GDC crossing found on a grid and refined with mpmath), then the
+# function evaluated at every critical value and inside every gap between them, so no end is
+# kept or dropped by a rule. The set is written in the game's one way (pieces joined by "or",
+# "x > a, x ≠ b" for two pieces split by one value left out) and compared exactly. Each slip is
+# rebuilt from its description in the catalogue.
+
+AHLINQ_PI = "AHL2.15.polynomial-inequality#"
+AHLINQ_RG = "AHL2.15.read-from-graphs#"
+AHLINQ_TI = "AHL2.15.technology-inequality#"
+AHLINQ_RI = "AHL2.15.rational-inequality#"
+AHLINQ_CI = "AHL2.15.context-inequality#"
+AHLINQ_ENDS = "fn-ahl-inequalities#16"
+AHLINQ_REL = r"(<|>|≤|≥)"
+AHLINQ_OPP = {">": "≤", "≥": "<", "<": "≥", "≤": ">"}
+AHLINQ_FLIP = {">": "≥", "≥": ">", "<": "≤", "≤": "<"}
+AHLINQ_MIRROR = {">": "<", "≥": "≤", "<": ">", "≤": "≥"}
+AHLINQ_ROOT = 5             # whole roots and crossings from −5 to 5
+AHLINQ_FRAC = 6             # a rational crossing's denominator, at most
+AHLINQ_GAP = sp.Rational(8, 10)   # GDC crossings at least this far apart
+AHLINQ_SPAN = 40            # where the checker looks for GDC crossings: −40 to 40 (t: to 80)
+AHLINQ_GDC = ("gdc-check", "gdc-intersections", "gdc-zero-of-difference", "gdc-graph-asymptote",
+              "gdc-intersections-context")
+AHLINQ_CONTEXTS = [
+    r"the population of town (A|B) is greater than the population of town (A|B)",
+    r"there are more of species (A|B) than of species (A|B)",
+    r"product (A|B) sells more than product (A|B)",
+]
+
+
+def ahlinq_holds(rel, d):
+    return {">": d > 0, "≥": d >= 0, "<": d < 0, "≤": d <= 0}[rel]
+
+
+def ahlinq_t(v):
+    """An exact number as the game writes it: 3, −2, −9/4."""
+    v = sp.Rational(v)
+    body = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + body
+
+
+def ahlinq_n(v):
+    """An end of a set: exact when rational, else to 3 s.f."""
+    return ahlinq_t(v) if isinstance(v, sp.Rational) else gc_s(v)
+
+
+def ahlinq_w(v):
+    """A GDC value to 6 s.f. as the working shows it, no trailing zeros."""
+    t = sig3(sp.Float(v, 30), 6)
+    if "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return t.replace("-", "−")
+
+
+def ahlinq_num(text):
+    return sp.Rational(text.replace("−", "-"))
+
+
+def ahlinq_val(h, x0):
+    """h at x0 as a 30-digit real, or None where h has no real value."""
+    try:
+        v = sp.N(h.subs(X, x0), 30)
+    except (ZeroDivisionError, ValueError):
+        return None
+    if v.has(sp.zoo, sp.oo, -sp.oo, sp.nan) or not v.is_real:
+        return None
+    return v
+
+
+def ahlinq_same(a, b):
+    return a is not None and b is not None and abs(sp.N(a, 30) - sp.N(b, 30)) < 1e-12
+
+
+def ahlinq_solve(h, rel, crits, lo=None):
+    """The set where h rel 0. crits: [(value, kind)] with kind "zero" (h is 0 there: a GDC crossing
+    is never evaluated, it is 0 by construction) or "hole" (h has no value there). Every other
+    point is tested by evaluating h. lo: a lower end of the domain (a point h is evaluated at),
+    with nothing below it. Pieces [lo, lo_in, hi, hi_in], None for no end."""
+    pts = sorted(crits, key=lambda c: sp.N(c[0], 30))
+    if lo is not None:
+        pts = [c for c in pts if sp.N(c[0], 30) > sp.N(lo, 30)]
+    atoms = []
+    left = lo
+    if lo is not None:
+        v = ahlinq_val(h, lo)
+        atoms.append((lo, lo, True, v is not None and ahlinq_holds(rel, v)))
+    for c, kind in pts:
+        atoms.append((left, c, False, ahlinq_gap(h, rel, left, c)))
+        if kind == "zero":
+            inn = ahlinq_holds(rel, 0)
+        elif kind == "hole":
+            inn = False
+        else:
+            v = ahlinq_val(h, c)
+            inn = v is not None and ahlinq_holds(rel, v)
+        atoms.append((c, c, True, inn))
+        left = c
+    atoms.append((left, None, False, ahlinq_gap(h, rel, left, None)))
+    out, cur = [], None
+    for a, b, pt, inn in atoms:
+        if inn:
+            if cur is None:
+                cur = [a, pt, b, pt]
+            else:
+                cur[2], cur[3] = b, pt
+        elif cur is not None:
+            out.append(cur)
+            cur = None
+    if cur is not None:
+        out.append(cur)
+    return out
+
+
+def ahlinq_gap(h, rel, a, b):
+    """Whether h rel 0 holds inside the gap (a, b), tested at three points (all must agree)."""
+    if a is None and b is None:
+        xs = [sp.Integer(0)]
+    elif a is None:
+        xs = [b - 1, b - sp.Rational(1, 3), b - 5]
+    elif b is None:
+        xs = [a + 1, a + sp.Rational(1, 3), a + 5]
+    else:
+        xs = [a + (b - a) * k / 4 for k in (1, 2, 3)]
+    got = set()
+    for x0 in xs:
+        v = ahlinq_val(h, x0)
+        got.add(v is not None and v != 0 and ahlinq_holds(rel, v))
+    need(len(got) == 1, f"h = {h} changes sign inside a gap ({a}, {b}) the checker didn't find")
+    return got.pop()
+
+
+def ahlinq_text(ps, v="x"):
+    """A set the one way the game writes it."""
+    groups = []
+    for lo, li, hi, hi_in in ps:
+        if groups:
+            g = groups[-1]
+            if g["hi"] is not None and lo is not None and not g["hi_in"] and not li and ahlinq_same(g["hi"], lo):
+                g["out"].append(g["hi"])
+                g["hi"], g["hi_in"] = hi, hi_in
+                continue
+        groups.append({"lo": lo, "li": li, "hi": hi, "hi_in": hi_in, "out": []})
+    parts = []
+    for g in groups:
+        if g["lo"] is None and g["hi"] is None:
+            body = ""
+        elif g["lo"] is None:
+            body = f"{v} {'≤' if g['hi_in'] else '<'} {ahlinq_n(g['hi'])}"
+        elif g["hi"] is None:
+            body = f"{v} {'≥' if g['li'] else '>'} {ahlinq_n(g['lo'])}"
+        elif ahlinq_same(g["lo"], g["hi"]):
+            body = f"{v} = {ahlinq_n(g['lo'])}"
+        else:
+            body = f"{ahlinq_n(g['lo'])} {'≤' if g['li'] else '<'} {v} {'≤' if g['hi_in'] else '<'} {ahlinq_n(g['hi'])}"
+        nots = [f"{v} ≠ {ahlinq_n(c)}" for c in g["out"]]
+        if body == "":
+            parts.append(", ".join(nots) if nots else "every real " + v)
+        else:
+            parts.append(", ".join([body] + nots))
+    return " or ".join(parts) if parts else "no values of " + v
+
+
+def ahlinq_crits(h):
+    """A rational h's critical values: the distinct real zeros of its top and bottom."""
+    top, bot = sp.fraction(sp.together(h))
+    zs = [(r, "zero") for r in sp.roots(sp.Poly(top, X), filter="R")]
+    hs = [(r, "hole") for r in sp.roots(sp.Poly(bot, X), filter="R")] if sp.degree(bot, X) > 0 else []
+    need(all(r.is_real for r, _ in zs + hs), "a critical value is not real")
+    return [(sp.Rational(r) if r.is_Rational else sp.Float(sp.N(r, 30), 30), k) for r, k in zs + hs]
+
+
+def ahlinq_gdc_crits(h, lo, hi):
+    """A transcendental h's zeros, found on a grid and refined (the checker's own search)."""
+    return [(sp.Float(z, 30), "zero") for z in gc_zeros(h, lo, hi)]
+
+
+def ahlinq_poly(text):
+    """An expression the way the game writes it, as SymPy in x."""
+    need(not re.search(r"(?<![A-Za-z])-", text), f"a hyphen for a minus in {text!r}")
+    return gc_expr(text.replace("×", "*"))
+
+
+def ahlinq_on(curve, fn, tol=1e-6):
+    """Every drawn point of a curve lies on y = fn(x)."""
+    fl = sp.lambdify(X, fn, "mpmath")
+    need(len(curve) > 40, "a curve is drawn with too few points")
+    for x0, y0 in curve:
+        need(abs(float(fl(mpmath.mpf(x0))) - y0) <= tol * max(1, abs(y0)), f"a drawn point ({x0}, {y0}) is not on y = {fn}")
+
+
+def ahlinq_pt_label(lb):
+    m = re.fullmatch(r"\((−?\d+(?:/\d+)?), (−?\d+(?:/\d+)?)\)", lb)
+    need(m is not None, f"can't read the marked point {lb!r}")
+    return ahlinq_num(m.group(1)), ahlinq_num(m.group(2))
+
+
+def ahlinq_interp(curve, x0):
+    """The height of a sampled curve at x0, by linear interpolation."""
+    for (xa, ya), (xb, yb) in zip(curve, curve[1:]):
+        if xa - 1e-12 <= x0 <= xb + 1e-12:
+            return ya if xb == xa else ya + (yb - ya) * (x0 - xa) / (xb - xa)
+    raise Fail(f"x = {x0} is outside the drawn curve")
+
+
+def ahlinq_steps_numbers(q, known):
+    """Every GDC-length decimal in the working (4 or more significant figures) is one of the
+    checker's own values, to 6 s.f."""
+    texts = {ahlinq_w(v) for v in known}
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for m in re.finditer(r"(?<![\d.])−?\d+\.\d+", st):
+                digits = m.group().replace("−", "").replace(".", "").lstrip("0")
+                if len(digits) >= 4:
+                    need(m.group() in texts, f"{sol['angle']}: {m.group()} in {st!r} is none of the checker's values")
+
+
+def ahlinq_check(q):
+    u, L, asked, rep, paper = q["view"]["unknown"], q["lines"], q["asked"], q["view"]["rep"], q["paper"]
+    texts = [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]
+    for tx in texts:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    if paper == 1:
+        need(not any(sol["angle"] in AHLINQ_GDC for sol in q["solutions"]), "a GDC method on Paper 1")
+    if u in ("technology-inequality", "least-whole-number"):
+        need(paper == 2, f"{u} needs the GDC, so it is Paper 2")
+    fn = {
+        "cubic-from-factors": ahlinq_cubic, "cubic-against-kx": ahlinq_kx, "cubic-given-factor": ahlinq_factor,
+        "double-root": ahlinq_double, "read-from-graphs": ahlinq_graphs, "horizontal-band": ahlinq_band,
+        "technology-inequality": ahlinq_tech, "rational-against-constant": ahlinq_rat,
+        "rational-against-line": ahlinq_rat, "context-models": ahlinq_models, "least-whole-number": ahlinq_whole,
+    }.get(u)
+    need(fn is not None, f"no check for {u}")
+    want, wrongs = fn(q)
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+def ahlinq_slips(h, rel, crits, lo=None, v="x"):
+    """The right set, and the ends-the-wrong-way slip (the type's own misconception)."""
+    return ahlinq_text(ahlinq_solve(h, rel, crits, lo), v), ahlinq_text(ahlinq_solve(h, AHLINQ_FLIP[rel], crits, lo), v)
+
+
+def ahlinq_read_f(q, pattern):
+    """The f(x) a graph question writes on its first line."""
+    m = re.fullmatch(pattern, q["lines"][0])
+    need(m is not None, f"can't read f in {q['lines'][0]!r}")
+    return m
+
+
+def ahlinq_cubic_graph(q, f, zs):
+    """A cubic's graph: the curve is y = f, and the marked points are its zeros on the x-axis."""
+    g = q["graph"]
+    need(g is not None and len(g["curves"]) == 1, "the cubic's graph is not shown")
+    ahlinq_on(g["curves"][0], f)
+    marked = sorted(ahlinq_pt_label(p["label"]) for p in g["points"])
+    need(marked == sorted((z, 0) for z in zs), f"the marked points {marked} are not the zeros {zs}")
+    for p in g["points"]:
+        need(abs(p["x"] - float(ahlinq_pt_label(p["label"])[0])) < 1e-9 and p["y"] == 0, "a marked point is not where its label says")
+    need(g["x0"] < min(zs) and g["x1"] > max(zs), "a zero is outside the window")
+
+
+def ahlinq_cubic(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "graph":
+        m = re.fullmatch(r"Solve f\(x\) " + AHLINQ_REL + r" 0\.", q["asked"])
+        need(m is not None, f"asked {q['asked']!r}")
+        need(len(L) == 2 and L[1] == "The graph of y = f(x) is shown, with its zeros marked.", f"lines {L!r}")
+        f = ahlinq_poly(ahlinq_read_f(q, r"f\(x\) = (.+)").group(1))
+        rel = m.group(1)
+    else:
+        m = re.fullmatch(r"Solve (.+) " + AHLINQ_REL + r" 0\.", q["asked"])
+        need(m is not None, f"asked {q['asked']!r}")
+        f, rel = ahlinq_poly(m.group(1)), m.group(2)
+    P = sp.Poly(f, X)
+    a = P.LC()
+    zs = sorted(sp.roots(P, filter="R"))
+    need(P.degree() == 3 and a in (1, -1, 2, -2), f"{f} is not a cubic with leading coefficient ±1 or ±2")
+    need(len(zs) == 3 and all(z.is_integer and abs(z) <= AHLINQ_ROOT for z in zs), f"the zeros {zs} are not three whole numbers from −5 to 5")
+    if rep == "graph":
+        ahlinq_cubic_graph(q, f, zs)
+        need(zs[1] - zs[0] >= 2 and zs[2] - zs[1] >= 2, "zeros on the graph are too close")
+    crits = ahlinq_crits(f)
+    want, ends = ahlinq_slips(f, rel, crits)
+    wrongs = {AHLINQ_ENDS: {ends}}
+    if a < 0:
+        # The sign pattern of a positive cubic: the set for −f.
+        wrongs[AHLINQ_PI + "2"] = {ahlinq_text(ahlinq_solve(-f, rel, crits))}
+    return want, wrongs
+
+
+def ahlinq_kx(q):
+    m = re.fullmatch(r"Solve x³ " + AHLINQ_REL + r" (\d+)x\.", q["asked"])
+    if m:
+        rel, kk = m.group(1), int(m.group(2))
+    else:
+        m = re.fullmatch(r"Solve (\d+)x " + AHLINQ_REL + r" x³\.", q["asked"])
+        need(m is not None, f"asked {q['asked']!r}")
+        kk, rel = int(m.group(1)), AHLINQ_MIRROR[m.group(2)]
+    k = sp.sqrt(kk)
+    need(k.is_integer and 2 <= k <= 6, f"{kk} is not a square from 4 to 36")
+    h = X**3 - kk * X
+    crits = ahlinq_crits(h)
+    want, ends = ahlinq_slips(h, rel, crits)
+    sq = X**2 - kk
+    wrongs = {AHLINQ_ENDS: {ends}, AHLINQ_PI + "0": {ahlinq_text(ahlinq_solve(sq, rel, ahlinq_crits(sq)))}}
+    if rel in (">", "≥"):
+        # Only the positive square root: x beyond k.
+        wrongs[AHLINQ_PI + "1"] = {ahlinq_text([[k, rel == "≥", None, False]])}
+    return want, wrongs
+
+
+def ahlinq_factor(q):
+    m = re.fullmatch(r"Given that \(x ([+−]) (\d+)\) is a factor of f\(x\), solve f\(x\) " + AHLINQ_REL + r" 0\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    p = int(m.group(2)) * (1 if m.group(1) == "−" else -1)
+    rel = m.group(3)
+    need(len(q["lines"]) == 1, "one line, f(x)")
+    f = ahlinq_poly(ahlinq_read_f(q, r"f\(x\) = (.+)").group(1))
+    P = sp.Poly(f, X)
+    cs = P.all_coeffs()
+    need(P.degree() == 3 and cs[0] in (1, -1, 2, -2), f"{f} is not a cubic with leading coefficient ±1 or ±2")
+    need(all(c != 0 and abs(c) <= 60 for c in cs), f"a coefficient of {f} is 0 or over 60")
+    need(f.subs(X, p) == 0, f"(x − {p}) is not a factor of {f}")
+    zs = sorted(sp.roots(P, filter="R"))
+    need(len(zs) == 3 and all(z.is_integer and z != 0 and abs(z) <= AHLINQ_ROOT for z in zs), f"the zeros {zs} are not three nonzero whole numbers from −5 to 5")
+    crits = ahlinq_crits(f)
+    want, ends = ahlinq_slips(f, rel, crits)
+    wrongs = {AHLINQ_ENDS: {ends}}
+    if cs[0] < 0:
+        wrongs[AHLINQ_PI + "2"] = {ahlinq_text(ahlinq_solve(-f, rel, crits))}
+    return want, wrongs
+
+
+def ahlinq_double(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "graph":
+        m = re.fullmatch(r"Solve f\(x\) " + AHLINQ_REL + r" 0\.", q["asked"])
+        need(m is not None, f"asked {q['asked']!r}")
+        need(len(L) == 2 and L[1] == "The graph of y = f(x) is shown, with the points where it meets the x-axis marked.", f"lines {L!r}")
+        f, rel = ahlinq_poly(ahlinq_read_f(q, r"f\(x\) = (.+)").group(1)), m.group(1)
+    else:
+        m = re.fullmatch(r"Solve (.+) " + AHLINQ_REL + r" 0\.", q["asked"])
+        need(m is not None, f"asked {q['asked']!r}")
+        f, rel = ahlinq_poly(m.group(1)), m.group(2)
+    P = sp.Poly(f, X)
+    rs = sp.roots(P, filter="R")
+    need(P.LC() == 1 and sorted(rs.values()) == [1, 2], f"{f} is not (x − p)(x − q)²")
+    p = next(r for r, n in rs.items() if n == 1)
+    qq = next(r for r, n in rs.items() if n == 2)
+    need(p.is_integer and qq.is_integer and abs(p) <= AHLINQ_ROOT and abs(qq) <= AHLINQ_ROOT, "the roots are not whole numbers from −5 to 5")
+    if rep == "graph":
+        ahlinq_cubic_graph(q, f, sorted([p, qq]))
+        need(2 <= abs(p - qq) <= 6, "the roots on the graph are too close or too far apart")
+    crits = ahlinq_crits(f)
+    want, ends = ahlinq_slips(f, rel, crits)
+    # The repeated root kept as the asked side's end: the set must run on past it.
+    beyond = qq + (1 if qq > p else -1)
+    need(ahlinq_holds(rel, f.subs(X, beyond)), "the asked side doesn't run past the repeated root")
+    # The double root read as a sign change: (x − p)(x − q) with the sign f has between p and q.
+    s = sp.sign(f.subs(X, (p + qq) / 2) / ((p + qq) / 2 - p) / ((p + qq) / 2 - qq))
+    change = s * (X - p) * (X - qq)
+    return want, {AHLINQ_ENDS: {ends}, AHLINQ_PI + "3": {ahlinq_text(ahlinq_solve(change, rel, ahlinq_crits(change)))}}
+
+
+def ahlinq_build(xs, ok, keep):
+    """A set read off a graph: the gaps between the crossings xs where ok holds at the gap's
+    middle, and each crossing kept when keep (the inequality is not strict)."""
+    bounds = [None] + list(xs) + [None]
+    atoms = []
+    for a, b in zip(bounds, bounds[1:]):
+        mid = b - 1 if a is None else (a + 1 if b is None else (a + b) / 2)
+        atoms.append((a, b, False, ok(mid)))
+        if b is not None:
+            atoms.append((b, b, True, keep))
+    out, cur = [], None
+    for a, b, pt, inn in atoms:
+        if inn:
+            if cur is None:
+                cur = [a, pt, b, pt]
+            else:
+                cur[2], cur[3] = b, pt
+        elif cur is not None:
+            out.append(cur)
+            cur = None
+    if cur is not None:
+        out.append(cur)
+    return out
+
+
+def ahlinq_graphs(q):
+    m = re.fullmatch(r"Use the graph to solve g\(x\) " + AHLINQ_REL + r" f\(x\)\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    rel = m.group(1)
+    need(q["lines"] == ["The graphs of y = f(x), the curve, and y = g(x), the straight line, are shown. They cross at the marked points."], f"lines {q['lines']!r}")
+    g = q["graph"]
+    need(g is not None and len(g["curves"]) == 2, "the two graphs are not shown")
+    fc, gcurve = g["curves"]
+    pts = sorted(ahlinq_pt_label(p["label"]) for p in g["points"])
+    need(2 <= len(pts) <= 3, f"{len(pts)} crossings marked, not 2 or 3")
+    for p in g["points"]:
+        x0, y0 = ahlinq_pt_label(p["label"])
+        need(abs(p["x"] - float(x0)) < 1e-9 and abs(p["y"] - float(y0)) < 1e-9, "a marked point is not where its label says")
+    xs = [x0 for x0, _ in pts]
+    need(all(x0.is_integer for x0 in xs) and all(b - a >= 2 for a, b in zip(xs, xs[1:])), f"the crossings {xs} are not whole numbers at least 2 apart")
+    # g is the straight line through the first two marked points; every drawn point is on it.
+    (xa, ya), (xb, yb) = pts[0], pts[1]
+    slope = (yb - ya) / (xb - xa)
+    gl = ya + slope * (X - xa)
+    need(slope != 0, "the line is flat")
+    ahlinq_on(gcurve, gl)
+    for x0, y0 in pts:
+        need(gl.subs(X, x0) == y0, "a marked crossing is off the line")
+        need(abs(ahlinq_interp(fc, float(x0)) - float(y0)) < 0.05, "a marked crossing is off the curve")
+    # The sign of g − f between the drawn samples: it changes exactly at the marked crossings.
+    diffs = [(x0, float(gl.subs(X, sp.nsimplify(x0))) - ahlinq_interp(fc, x0)) for x0, _ in fc]
+    cuts = [x0 for (x0, d0), (x1, d1) in zip(diffs, diffs[1:]) if d0 * d1 < 0 or (d1 == 0 and x1 != diffs[-1][0])]
+    need(len(cuts) == len(xs) and all(any(abs(c - float(x0)) <= 0.11 for c in cuts) for x0 in xs), f"the graphs cross at {cuts}, not just the marked {xs}")
+
+    def gl_minus_f(x0):
+        return float(gl.subs(X, sp.nsimplify(x0))) - ahlinq_interp(fc, float(x0))
+
+    def side(r):
+        return ahlinq_build(xs, lambda x0: ahlinq_holds(r, gl_minus_f(x0)), ahlinq_holds(r, 0))
+
+    want = ahlinq_text(side(rel))
+    wrongs = {AHLINQ_ENDS: {ahlinq_text(side(AHLINQ_FLIP[rel]))}, AHLINQ_RG + "2": {ahlinq_text(side(AHLINQ_OPP[rel]))}}
+    if rel in (">", "≥"):
+        # Where g itself is above the x-axis, from the line's own zero.
+        wrongs[AHLINQ_RG + "0"] = {ahlinq_text(ahlinq_solve(gl, rel, ahlinq_crits(gl)))}
+    # The heights of the crossings read for their x-values, in order of size.
+    ys = sorted(y0 for _, y0 in pts)
+    hp, i = [], 0
+    for lo, li, hi, hi_in in side(rel):
+        nlo = nhi = None
+        if lo is not None:
+            nlo, i = ys[i], i + 1
+        if hi is not None:
+            nhi, i = ys[i], i + 1
+        hp.append([nlo, li, nhi, hi_in])
+    wrongs[AHLINQ_RG + "1"] = {ahlinq_text(hp, "y")}
+    return want, wrongs
+
+
+def ahlinq_band(q):
+    asked, g = q["asked"], q["graph"]
+    m1 = re.fullmatch(r"Find the values of x for which f\(x\) " + AHLINQ_REL + r" (−?\d+)\.", asked)
+    m2 = re.fullmatch(r"Find the values of x for which (−?\d+) (<|≤) f\(x\) (<|≤) (−?\d+)\.", asked)
+    need(m1 is not None or m2 is not None, f"asked {asked!r}")
+    need(g is not None and len(g["curves"]) == 1, "the graph of f is not shown")
+    cs = sorted(ahlinq_num(h_["label"][len("y = "):]) for h_ in g["hlines"])
+    need(all(h_["label"] == "y = " + ahlinq_t(ahlinq_num(h_["label"][len("y = "):])) and abs(h_["at"] - float(ahlinq_num(h_["label"][len("y = "):]))) < 1e-9 for h_ in g["hlines"]), "a line's label is not its height")
+    curve = g["curves"][0]
+    pts = sorted(ahlinq_pt_label(p["label"]) for p in g["points"])
+    for p in g["points"]:
+        x0, y0 = ahlinq_pt_label(p["label"])
+        need(abs(p["x"] - float(x0)) < 1e-9 and abs(p["y"] - float(y0)) < 1e-9, "a marked point is not where its label says")
+        need(y0 in cs and abs(ahlinq_interp(curve, float(x0)) - float(y0)) < 0.01, "a marked point is not where the curve meets a line")
+    # Each line meets the drawn curve exactly at its marked points.
+    for c in cs:
+        d = [(x0, y0 - float(c)) for x0, y0 in curve]
+        cuts = [xa for (xa, da), (xb, db) in zip(d, d[1:]) if da * db < 0 or db == 0]
+        mk = [x0 for x0, y0 in pts if y0 == c]
+        need(len(cuts) == len(mk) == 2 and all(any(abs(cu - float(x0)) <= 0.07 for cu in cuts) for x0 in mk), f"the curve meets y = {c} at {cuts}, not just the marked {mk}")
+    xs = sorted({x0 for x0, _ in pts})
+    need(all(x0.is_integer for x0 in xs), "the meeting points are not whole numbers")
+    f_at = lambda x0: ahlinq_interp(curve, float(x0))
+    if m1:
+        rel, c = m1.group(1), ahlinq_num(m1.group(2))
+        need(cs == [c], f"the line drawn is not y = {c}")
+        ok_of = lambda r: (lambda x0: ahlinq_holds(r, f_at(x0) - float(c)))
+        heights = {f"y {rel} {ahlinq_t(c)}"}
+        comp_of = lambda r: ok_of(AHLINQ_OPP[r])
+        strict_of = lambda r: r in ("<", ">")
+    else:
+        lo_c, r1, r2, hi_c = ahlinq_num(m2.group(1)), m2.group(2), m2.group(3), ahlinq_num(m2.group(4))
+        need(r1 == r2 and cs == [lo_c, hi_c], f"the lines drawn are not y = {lo_c} and y = {hi_c}")
+        rel = r1
+        ok_of = lambda r: (lambda x0: float(lo_c) < f_at(x0) < float(hi_c))
+        comp_of = lambda r: (lambda x0: f_at(x0) < float(lo_c) or f_at(x0) > float(hi_c))
+        heights = {f"{ahlinq_t(lo_c)} {rel} y {rel} {ahlinq_t(hi_c)}"}
+        strict_of = lambda r: r in ("<", ">")
+
+    build = lambda ok, keep: ahlinq_build(xs, ok, keep)
+
+    want = ahlinq_text(build(ok_of(rel), not strict_of(rel)))
+    wrongs = {AHLINQ_RG + "1": heights,
+              AHLINQ_RG + "2": {ahlinq_text(build(comp_of(rel), strict_of(rel)))},
+              AHLINQ_ENDS: {ahlinq_text(build(ok_of(rel), strict_of(rel)))}}
+    return want, wrongs
+
+
+def ahlinq_tech(q):
+    m = re.fullmatch(r"Solve (.+) " + AHLINQ_REL + r" (.+)\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    fx, rel, line = ahlinq_poly(m.group(1)), m.group(2), ahlinq_poly(m.group(3))
+    need(sp.degree(line, X) == 1, f"{line} is not a line")
+    logs = list(fx.atoms(sp.log))
+    exps = [e for e in fx.atoms(sp.Pow, sp.exp) if e.has(X) and (isinstance(e, sp.exp) or e.base == sp.E)]
+    need(len(logs) + len(exps) == 1, f"{fx} is not one exponential or one log")
+    h = fx - line
+    if logs:
+        arg = logs[0].args[0]
+        need(sp.degree(arg, X) == 1 and sp.Poly(arg, X).LC() == 1, "the log's argument is not x + d")
+        dom = sp.solve(arg, X)[0]
+        crits = ahlinq_gdc_crits(h, dom + sp.Rational(1, 10**6), AHLINQ_SPAN)
+        crits_all = crits + [(dom, "hole")]
+    else:
+        dom = None
+        crits = ahlinq_gdc_crits(h, -AHLINQ_SPAN, AHLINQ_SPAN)
+        crits_all = crits
+    need(len(crits) == 2, f"{len(crits)} crossings, not 2")
+    xs = [c for c, _ in crits]
+    need(all(gc_fair(x0) for x0 in xs), f"a crossing {xs} is not a fair 3 s.f. value")
+    need(xs[1] - xs[0] >= AHLINQ_GAP, "the crossings are too close")
+    if dom is not None:
+        need(xs[0] - dom >= sp.Rational(8, 100), "a crossing is too close to the log's asymptote")
+    ps = ahlinq_solve(h, rel, crits_all)
+    want = ahlinq_text(ps)
+    wrongs = {}
+    inside = ahlinq_holds(rel, ahlinq_val(h, (xs[0] + xs[1]) / 2))
+    nk = rel in ("≥", "≤")
+    if not inside:
+        wrongs[AHLINQ_TI + "0"] = {ahlinq_text([[xs[0], nk, xs[1], nk]])}
+        wrongs[AHLINQ_TI + "1"] = {ahlinq_text([ps[-1]])}
+        if dom is not None:
+            # The domain ignored: the curve's formula used for x below the asymptote too.
+            wrongs[AHLINQ_TI + "2"] = {ahlinq_text([[None, False, xs[0], nk]] + [p for p in ps if p[0] is not None and p[0] >= xs[1]])}
+    if q["view"]["rep"] == "graph":
+        need(q["lines"] == [f"The graphs of y = {m.group(1)} and y = {m.group(3)} are shown."], f"lines {q['lines']!r}")
+        g = q["graph"]
+        need(g is not None and len(g["curves"]) == 2, "the two graphs are not shown")
+        ahlinq_on(g["curves"][0], fx)
+        ahlinq_on(g["curves"][1], line)
+        need([round(v["at"], 9) for v in g["vlines"]] == ([float(dom)] if dom is not None else []), "the dashed line is not the log's asymptote")
+        need(all(g["x0"] < float(x0) < g["x1"] and g["y0"] < float(fx.subs(X, x0)) < g["y1"] for x0 in xs), "a crossing is outside the window")
+    else:
+        need(q["lines"] == [], f"lines {q['lines']!r}")
+    ahlinq_steps_numbers(q, xs)
+    return want, wrongs
+
+
+def ahlinq_rat(q):
+    u, rep, paper = q["view"]["unknown"], q["view"]["rep"], q["paper"]
+    if rep == "graph":
+        mf = ahlinq_read_f(q, r"f\(x\) = (\(.+?\)/(?:x|\(.+?\))), for x ≠ (−?\d+)")
+        fx, c_said = ahlinq_poly(mf.group(1)), ahlinq_num(mf.group(2))
+        m = re.fullmatch(r"Solve f\(x\) " + AHLINQ_REL + r" (.+)\.", q["asked"])
+        need(m is not None, f"asked {q['asked']!r}")
+        rel, rhs_t = m.group(1), m.group(2)
+        need(q["lines"][1] == f"The graph of y = f(x) is shown with its asymptotes dashed, and the line y = {rhs_t}.", f"lines {q['lines']!r}")
+    else:
+        m = re.fullmatch(r"Solve (\(.+?\)/(?:x|\(.+?\))) " + AHLINQ_REL + r" (.+)\.", q["asked"])
+        need(m is not None, f"asked {q['asked']!r}")
+        fx, rel, rhs_t, c_said = ahlinq_poly(m.group(1)), m.group(2), m.group(3), None
+    rhs = ahlinq_poly(rhs_t)
+    top, bot = sp.fraction(sp.together(fx))
+    need(sp.degree(top, X) == 1 and sp.degree(bot, X) == 1 and sp.Poly(bot, X).LC() == 1, f"{fx} is not (ax + b)/(x − c)")
+    a, b = sp.Poly(top, X).all_coeffs()
+    c = sp.solve(bot, X)[0]
+    need(sp.gcd(top, bot).is_number, "the top and bottom share a factor")
+    need(c_said is None or c_said == c, "the x ≠ value is not the asymptote")
+    need(c.is_integer and abs(c) <= 4 and a != 0 and abs(a) <= 6 and b != 0 and abs(b) <= 12, f"{fx} is out of range")
+    h = sp.together(fx - rhs)
+    crits = ahlinq_crits(h)
+    zeros = sorted([v for v, k in crits if k == "zero"], key=lambda v: float(v))
+    holes = [v for v, k in crits if k == "hole"]
+    need(holes == [c], "the only hole is not the asymptote")
+    ps = ahlinq_solve(h, rel, crits)
+    want, ends = ahlinq_text(ps), ahlinq_text(ahlinq_solve(h, AHLINQ_FLIP[rel], crits))
+    wrongs = {AHLINQ_ENDS: {ends}}
+    # The asymptote included, as an end.
+    wrongs[AHLINQ_RI + "1"] = {ahlinq_text([[lo, li or (lo is not None and lo == c), hi, hi_in or (hi is not None and hi == c)] for lo, li, hi, hi_in in ps])}
+    kept = [p for p in ps if p[0] != c and p[2] != c]
+    if kept:
+        wrongs[AHLINQ_RI + "2"] = {ahlinq_text(kept)}
+    # Multiplied through by x − c as if it were positive: top − rhs·(x − c) rel 0.
+    through = sp.expand(top - rhs * bot)
+    wrongs[AHLINQ_RI + "0"] = {ahlinq_text(ahlinq_solve(through, rel, ahlinq_crits(through)))}
+    if u == "rational-against-constant":
+        need(rhs.is_Integer and abs(rhs) <= 4 and rhs != a, f"the constant {rhs} is out of range or the horizontal asymptote")
+        need(len(zeros) == 1, "not one crossing")
+        x0 = zeros[0]
+        need(x0.is_Rational and x0.q <= AHLINQ_FRAC and abs(x0) <= 7 and abs(x0 - c) >= 1, f"the crossing {x0} is not a simple fraction away from the asymptote")
+    else:
+        need(sp.degree(rhs, X) == 1, "not a line")
+        need(len(zeros) == 2, "not two crossings")
+        exact = all(z.is_Rational for z in zeros)
+        need(exact == (paper == 1), "Paper 1's crossings are whole numbers, Paper 2's need the GDC")
+        if exact:
+            need(all(z.is_integer and abs(z) <= AHLINQ_ROOT for z in zeros), "the crossings are not whole numbers from −5 to 5")
+        else:
+            need(all(gc_fair(z) and abs(z - c) >= sp.Rational(3, 10) and abs(z) <= 7 for z in zeros), "a crossing is not a fair 3 s.f. value")
+            ahlinq_steps_numbers(q, zeros)
+        need(zeros[1] - zeros[0] >= sp.Rational(1, 2), "the crossings are too close")
+    if rep == "graph":
+        g = q["graph"]
+        need(g is not None, "no graph shown")
+        sand = g.get("sand_from", len(g["curves"]))
+        need(sand == 2 and len(g["curves"]) == 3, "the graph is not two branches and the line")
+        for cv in g["curves"][:sand]:
+            ahlinq_on(cv, fx)
+            need(cv[-1][0] < float(c) or cv[0][0] > float(c), "a branch is drawn across the asymptote")
+        ahlinq_on(g["curves"][sand], rhs)
+        need([v["at"] for v in g["vlines"]] == [float(c)] and [h_["at"] for h_ in g["hlines"]] == [float(a)], "the dashed lines are not the asymptotes")
+        dots = sorted(round(p["x"], 6) for p in g["points"])
+        need(dots == [round(float(z), 6) for z in zeros], "the marked points are not the crossings")
+        for p in g["points"]:
+            need(abs(p["y"] - float(rhs.subs(X, sp.nsimplify(p["x"])))) < 1e-6, "a marked point is off the line")
+            z = next(z for z in zeros if abs(float(z) - p["x"]) < 1e-6)
+            if p["label"]:
+                need(z.is_Rational and ahlinq_pt_label(p["label"]) == (z, rhs.subs(X, z)), f"the label {p['label']!r} is not the crossing")
+            else:
+                need(not z.is_Rational, "an exact crossing is not labelled")
+    return want, wrongs
+
+
+def ahlinq_models(q):
+    L, paper = q["lines"], q["paper"]
+    need(len(L) == 1, "one line, the models")
+    m = re.search(r"A\(t\) = (.+) and B\(t\) = (.+), for t ≥ 0\.$", L[0])
+    need(m is not None, f"can't read the models in {L[0]!r}")
+    A = ahlinq_poly(m.group(1).replace("t", "x"))
+    B = ahlinq_poly(m.group(2).replace("t", "x"))
+    who = other = None
+    for pat in AHLINQ_CONTEXTS:
+        mm = re.fullmatch(r"Find the values of t for which " + pat + r"\.", q["asked"])
+        if mm:
+            who, other = mm.group(1), mm.group(2)
+    need(who is not None and who != other, f"asked {q['asked']!r}")
+    h = A - B if who == "A" else B - A
+    poly = A.is_polynomial(X) and B.is_polynomial(X)
+    if poly:
+        need(sp.degree(A, X) == 1 and sp.degree(B, X) == 2, "A is not linear and B quadratic")
+        crits = ahlinq_crits(h)
+        ts = sorted(v for v, _ in crits)
+        need(len(ts) == 2 and all(t_.is_integer for t_ in ts) and -4 <= ts[0] <= -1 and 5 <= ts[1] <= 12, f"the crossings {ts} are not −4 to −1 and 5 to 12")
+    else:
+        need(paper == 2, "an exponential model needs the GDC")
+        crits = ahlinq_gdc_crits(h, -AHLINQ_SPAN, 2 * AHLINQ_SPAN)
+        ts = [v for v, _ in crits]
+        need(len(ts) == 2 and ts[0] < -sp.Rational(3, 10) and sp.Rational(1, 2) < ts[1] <= 40, f"the crossings {ts} are not one negative and one positive")
+        need(all(gc_fair(t_) for t_ in ts) and gc_fair(A.subs(X, ts[1])), "a crossing or its value is not a fair 3 s.f. value")
+    T = ts[1]
+    zero = sp.Integer(0)
+    ps = ahlinq_solve(h, ">", crits, zero)
+    want = ahlinq_text(ps, "t")
+    V = A.subs(X, T)
+    V = sp.Rational(V) if V.is_Rational else sp.Float(sp.N(V, 30), 30)
+    swapped = [[V if ahlinq_same(lo, T) else lo, li, V if ahlinq_same(hi, T) else hi, hi_in] for lo, li, hi, hi_in in ps]
+    wrongs = {AHLINQ_CI + "0": {ahlinq_text(ahlinq_solve(h, ">", crits), "t")},
+              AHLINQ_CI + "2": {ahlinq_text(swapped, "t")}}
+    if not poly:
+        ahlinq_steps_numbers(q, ts + [V])
+    return want, wrongs
+
+
+def ahlinq_whole(q):
+    L, asked = q["lines"], q["asked"]
+    need(len(L) == 1, "one line, the formula")
+    n = sp.Symbol("n", positive=True)
+    mg = re.fullmatch(r"An investment of \$(\d+) earns interest at (\d+(?:\.\d+)?)% a year, compounded yearly\. Its value after n years is (\d+) × (\d\.\d+)\^n dollars\.", L[0])
+    md = re.fullmatch(r"A patient takes a (\d+) mg dose of a medicine\. The amount left in the body n hours later is (\d+) × (0\.\d+)\^n mg\.", L[0])
+    mq = re.fullmatch(r"The nth pattern in a sequence of tile patterns uses n² \+ (\d+)n tiles\.", L[0])
+    if mg:
+        P, pct, P2, r = int(mg.group(1)), sp.Rational(mg.group(2)), int(mg.group(3)), sp.Rational(mg.group(4))
+        need(P == P2 and r == 1 + pct / 100, "the rate and the formula disagree")
+        ma = re.fullmatch(r"Find the least number of whole years n for which the value is more than \$(\d+)\.", asked)
+        need(ma is not None, f"asked {asked!r}")
+        T = int(ma.group(1))
+        f, ok = P * r**n, lambda v: v > T
+        need(1 < sp.Rational(T, P) <= sp.Rational(5, 2), "the target is not 1.3 to 2.5 times the start")
+    elif md:
+        P, P2, r = int(md.group(1)), int(md.group(2)), sp.Rational(md.group(3))
+        need(P == P2 and 0 < r < 1, "the dose and the formula disagree")
+        ma = re.fullmatch(r"Find the least whole number of hours n after which less than (\d+) mg is left\.", asked)
+        need(ma is not None, f"asked {asked!r}")
+        T = int(ma.group(1))
+        f, ok = P * r**n, lambda v: v < T
+        need(2 * T <= P, "the target is more than half the dose")
+    else:
+        need(mq is not None, f"can't read the formula in {L[0]!r}")
+        b = int(mq.group(1))
+        ma = re.fullmatch(r"Find the least n for which the pattern uses more than (\d+) tiles\.", asked)
+        need(ma is not None, f"asked {asked!r}")
+        T = int(ma.group(1))
+        f, ok = n**2 + b * n, lambda v: v > T
+    # The crossing, worked out by SymPy's own solver, then the least whole n that meets the target,
+    # found by trying each n in turn.
+    star = [s_ for s_ in sp.solve(sp.Eq(f, T), n) if s_.is_real and s_ > 0]
+    need(len(star) == 1, "not one crossing")
+    nstar = sp.N(star[0], 30)
+    frac = nstar - sp.floor(nstar)
+    need(3 <= nstar <= 60 and sp.Rational(1, 10) <= frac <= sp.Rational(9, 10) and gc_fair(nstar), f"the crossing {nstar} is too close to a whole number")
+    least = next(k for k in range(1, 200) if ok(f.subs(n, k)))
+    need(not ok(f.subs(n, least - 1)) and least == sp.ceiling(nstar), "the least whole n is not the crossing rounded up")
+    vals = [nstar, sp.N(f.subs(n, least - 1), 30), sp.N(f.subs(n, least), 30)]
+    ahlinq_steps_numbers(q, vals)
+    return f"n = {least}", {AHLINQ_CI + "1": {f"n = {least - 1}"}}
+
+
+SITUATION_CHECKS["ahl-inequality"] = ahlinq_check
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]

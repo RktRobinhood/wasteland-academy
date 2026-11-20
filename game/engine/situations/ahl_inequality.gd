@@ -27,7 +27,7 @@ extends RefCounted
 ##   whole   a formula in n and a target:  fam ("grow", "decay", "quad"), its numbers, nstar
 ##           (the crossing, a float) and n (the least whole number)
 ## Every form keeps `paper`. The checker's own copy of these limits is in
-## tools/check_answers.py (AHLINEQ_*).
+## tools/check_answers.py (AHLINQ_*).
 
 const TRIES := 4000
 const RELS := [">", "≥", "<", "≤"]
