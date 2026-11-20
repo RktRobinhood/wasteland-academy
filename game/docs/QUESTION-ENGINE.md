@@ -581,6 +581,23 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 <!-- R3-VARIATION -->
 
 <!-- R3-CUBIC -->
+- `engine/situations/ai_cubic_model.gd` (FAL-1001) is `ai-cubic-model`, for `fn-ai-cubic-model` (AI-SL2.5.cubic-model,
+  AI-SL2.6.reasonable-domain): 6 unknowns over 18 cells, all Paper 2. An open box is folded from an L cm by W cm card (W even,
+  W + 4 ≤ L ≤ 2W − 2) with squares of side x cut from its corners; V = x(L − 2x)(W − 2x) has an irrational turning point inside
+  0 < x < W/2 (a maximum) and the other between W/2 and L/2, where V < 0. A cubic model is a weekly profit P(x) (x hundred
+  items, a loss at first, one negative zero and two inside the domain), a temperature T(t) or a tank's flow F(t) (three zeros
+  inside the domain), built from drawn zeros and rounded (a to 3 d.p., the rest to 2 d.p.), its zeros found again from the
+  rounded model. Its views (`ai_cubic_model_views.gd`) ask V(x) as an expression (from the card drawn with OptimisationViews'
+  sheet, or in words), the possible values of x (an interval, or pick the graph: V on 0 < x < W/2 against V run on to half the
+  longer side, to the whole shorter side, or from a negative x, with the card drawn above them for the diagram), the best x or
+  the greatest volume (V factored or expanded, its graph, or the card; the GDC's maximum tool, or a table refined from whole x
+  to tenths and hundredths), a model's value at an input (in words: items, hours and minutes, minutes and seconds), the
+  profit's positive zero (the least x with no loss) and the total time a temperature is below 0 or water flows out. Wrong
+  options are the skills' slips (each side loses x, x up to half the longer side or to the whole shorter side, the turning
+  point outside the domain) and the type's own (the other coordinate of the maximum, the wrong zero, one negative stretch
+  only). `r3cu_check` in the SymPy checker reads the card from the words or the drawn figure, or the model from its line,
+  works V, its turning points, the one-corner box's maximum, the table's refining, the value, the zeros and the negative
+  stretches out again exactly, and checks the working's figures. `test_ai_cubic_model.gd`.
 
 <!-- R3-SINUSOID -->
 

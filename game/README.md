@@ -1009,6 +1009,11 @@ script error happens while it runs. Run one file with
 <!-- R3-VARIATION -->
 
 <!-- R3-CUBIC -->
+- `test_ai_cubic_model.gd` (FAL-1001): fn-ai-cubic-model built with every cell and both skills (AI-SL2.5.cubic-model,
+  AI-SL2.6.reasonable-domain), on the AI courses only, Paper 2 only; four distinct options with one right and the answer in
+  each working's last step; the card and the graphs shown; four cards (and the card above them) for picking the domain; every
+  tag shows up; typed values marked by value; the box, its turning points, the table's refining, a cubic's zeros and where it
+  is negative against values worked by hand.
 
 <!-- R3-SINUSOID -->
 
