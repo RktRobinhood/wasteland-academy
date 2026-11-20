@@ -16,9 +16,18 @@ extends Node
 ## Which loop plays where is res://audio/music_tracks.gd; the effects are
 ## res://audio/sfx_cues.gd. Settings are saved to user://settings.cfg as soon as
 ## they change, so they survive a reload.
+##
+## The music and Spark's voice lines are not in the main pack (#183): sound starts off,
+## so most players would download about 34 MB they never hear. ./export.sh writes them
+## to audio.pck beside index.pck (the "Web audio" preset), and the first time sound is
+## on this loads it: a web build fetches it from beside the page, a native build reads
+## it from beside the executable. From the editor, or a build that packs them, the files
+## are already there and nothing is loaded. The effects are small and stay in the pack.
 
 ## Emitted after any of the seven settings changes, however it changed.
 signal settings_changed
+## Emitted once audio.pck is loaded, so the music and voice lines can play.
+signal pack_loaded
 
 const SETTINGS_PATH := "user://settings.cfg"
 const SETTINGS_SECTION := "audio"
@@ -44,6 +53,14 @@ const DEFAULT_SOUND_ENABLED := false
 const DEFAULT_MUSIC_VOLUME := 0.6
 const DEFAULT_SFX_VOLUME := 0.6
 const DEFAULT_VOICE_VOLUME := 0.8
+
+## The pack with the music and voice lines, beside index.pck or the executable.
+const PACK_FILE := "audio.pck"
+## Where a web build keeps the downloaded pack while the page is open: the page's
+## memory, not user:// (IndexedDB), and gone on reload. The browser's cache and the
+## offline worker keep the download itself.
+const PACK_DOWNLOAD := "/tmp/audio.pck"
+enum PackState { UNKNOWN, LOADING, LOADED, FAILED }
 
 ## Where the player is until a scene says otherwise. The boot screen is the
 ## overworld; drop this once the overworld scene calls play_location() itself.
@@ -139,6 +156,8 @@ var _voice: AudioStreamPlayer
 ## 0 (music at its level) to 1 (ducked by DUCK_DB), tweened while Spark talks.
 var _duck := 0.0
 var _duck_tween: Tween
+var _pack := PackState.UNKNOWN
+var _pack_request: HTTPRequest
 
 
 func _ready() -> void:
@@ -292,6 +311,7 @@ func _changed() -> void:
 func _apply_enabled() -> void:
 	_apply_volumes()
 	if sound_enabled:
+		ensure_pack()
 		if _location != "":
 			_start_music(_location)
 		return
@@ -330,7 +350,69 @@ func _bus_index(bus: String) -> int:
 	return idx
 
 
+## Whether the music and voice lines can be loaded now. If not, starts loading
+## audio.pck, once; pack_loaded follows, and the current location's music starts.
+func ensure_pack() -> bool:
+	if _pack == PackState.UNKNOWN and ResourceLoader.exists(MusicTracks.path(BOOT_LOCATION)):
+		_pack = PackState.LOADED
+	if _pack != PackState.UNKNOWN:
+		return _pack == PackState.LOADED
+	if OS.has_feature("web"):
+		_download_pack()
+		return false
+	var beside := OS.get_executable_path().get_base_dir().path_join(PACK_FILE)
+	# Read now, so the caller plays the music itself.
+	_pack_ready(FileAccess.file_exists(beside) and ProjectSettings.load_resource_pack(beside, false), beside, false)
+	return _pack == PackState.LOADED
+
+
+## Whether audio.pck is still on its way.
+func pack_loading() -> bool:
+	return _pack == PackState.LOADING
+
+
+func _download_pack() -> void:
+	_pack = PackState.LOADING
+	# Beside the page, which is beside index.pck, wherever the site puts the export.
+	var url = JavaScriptBridge.eval("new URL(%s, document.baseURI).href" % JSON.stringify(PACK_FILE), true)
+	_pack_request = HTTPRequest.new()
+	add_child(_pack_request)
+	_pack_request.request_completed.connect(func(result: int, code: int, _h, body: PackedByteArray) -> void:
+		_pack_request.queue_free()
+		_pack_request = null
+		# HTTPRequest.download_file writes nothing in a web build, so the body is saved here.
+		var ok := result == HTTPRequest.RESULT_SUCCESS and code == 200 and _save(PACK_DOWNLOAD, body)
+		_pack_ready(ok and ProjectSettings.load_resource_pack(PACK_DOWNLOAD, false), str(url)))
+	if _pack_request.request(str(url)) != OK:
+		_pack_request.queue_free()
+		_pack_request = null
+		_pack_ready(false, str(url))
+
+
+func _save(path: String, data: PackedByteArray) -> bool:
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	if f == null:
+		return false
+	f.store_buffer(data)
+	f.close()
+	return true
+
+
+func _pack_ready(ok: bool, from: String, start := true) -> void:
+	if not ok:
+		# Effects still play; the next session tries again.
+		_pack = PackState.FAILED
+		push_warning("Audio: could not load the music and voice pack from %s" % from)
+		return
+	_pack = PackState.LOADED
+	pack_loaded.emit()
+	if start and sound_enabled and _location != "":
+		_start_music(_location)
+
+
 func _start_music(cue: String) -> void:
+	if not ensure_pack():
+		return
 	var stream := _music_stream(cue)
 	if stream == null:
 		return

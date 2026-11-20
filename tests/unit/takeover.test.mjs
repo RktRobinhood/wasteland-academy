@@ -245,6 +245,17 @@ test('the root worker is network-first: online gets the new export, offline the 
   assert.ok(await w.run('fetch', GET(SITE + 'index.wasm')) instanceof TypeError);
 });
 
+test('the root worker keeps audio.pck once the game fetches it, never at install (#183)', async () => {
+  const online = { [SITE + 'index.pck']: 'pck', [SITE + 'audio.pck']: 'audio' };
+  const w = rootWorker({}, online);
+  await w.run('install');
+  assert.deepEqual(w.state()['wasteland-academy-godot'], [SITE + 'index.pck']);
+  assert.equal((await w.run('fetch', GET(SITE + 'audio.pck'))).body, 'audio');
+  assert.equal(w.body(SITE + 'audio.pck'), 'audio');
+  delete online[SITE + 'audio.pck'];
+  assert.equal((await w.run('fetch', GET(SITE + 'audio.pck'))).body, 'audio');
+});
+
 test('the root worker leaves next/ and anything outside the build to the network', async () => {
   const w = rootWorker();
   for (const url of [SITE + 'classic/', SITE + 'classic/index.html', SITE + 'classic/index.pck', SITE + 'next/',

@@ -16,6 +16,8 @@ extends RefCounted
 ##      The Engine Core exploration seeds come from round 3, so that source file
 ##      is named engine-core-r3-seed<seed>-loop.ogg.
 ##
+## They ship in audio.pck, not the main pack, and load once sound is on (#183, audio.gd).
+##
 ## `bpm` and `seconds` are measured facts from the review, for whoever adds
 ## tempo or beat-matched transitions later. Every loop is Ogg Vorbis q6,
 ## 44.1kHz stereo, -18 LUFS-I, and joins end-to-start on its own.
