@@ -249,6 +249,7 @@ static func _move(rng: Seeded) -> Dictionary:
 	if absi(my) > 4:
 		return {}
 	var s := quad(Q.new(1), h, -m * m)
+	s.m = m
 	s.mx = mx
 	s.my = my
 	s.n = n

@@ -93407,6 +93407,7 @@
      "as": "distractor",
      "in": [
       "f-of-modulus",
+      "modulus-of-both",
       "f-of-modulus-intercepts"
      ],
      "wrong": "the left half mirrored"

@@ -145,7 +145,7 @@ static func below(s: Dictionary) -> String:
 		return "%s < x < %s" % [r0, r1] if a.sign() > 0 else "x < %s or x > %s" % [r0, r1]
 	# a(x − p)(x − q)²: the sign of a(x − p), and 0 at q.
 	var side := "x < %s" % Fmt.num(s.p) if a.sign() > 0 else "x > %s" % Fmt.num(s.p)
-	var q_in := (s.q < s.p) == (a.sign() > 0)
+	var q_in: bool = (s.q < s.p) == (a.sign() > 0)
 	return side + (", apart from x = %s where it touches the axis" % Fmt.num(s.q) if q_in else "")
 
 
