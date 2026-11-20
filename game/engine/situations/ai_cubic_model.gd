@@ -111,7 +111,9 @@ static func _box(rng: Seeded, s: Dictionary, pick: bool) -> bool:
 	var W := 2 * rng.int_in(6, 15) if pick else 2 * rng.int_in(5, 20)
 	# For pick the graph, L is close to 2W, so the four cards' heights stay alike.
 	var L := rng.int_in(ceili(1.75 * W), 2 * W - 2) if pick else rng.int_in(W + 4, 2 * W - 2)
-	if L - W < 4:
+	# The domain's slips are whole or end in .5 either way; for box-domain L is even, so half
+	# the longer side is whole as an option writes it.
+	if L - W < 4 or (s.ask == "box-domain" and L % 2 != 0):
 		return false
 	s.L = L
 	s.W = W

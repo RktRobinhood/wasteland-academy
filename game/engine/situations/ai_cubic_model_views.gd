@@ -324,12 +324,12 @@ static func input_step(s: Dictionary) -> String:
 func u_evaluate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var vals := S.evaluate_vals(s)
 	var F := fname(s)
-	var ans := sf_ans(F + " = ", vals[0], unit(s))
+	var X := D(s.x0)
+	var ans := sf_ans(F + " = ", vals[0], unit(s)) if rep == "words" else sf_ans("%s(%s) = " % [F, X], vals[0])
 	var fill: Array = [val(vals[1]), val(vals[2]), val(vals[3])]
 	var lines: Array
 	var asked: String
 	var steps: Array = []
-	var X := D(s.x0)
 	if rep == "words":
 		lines = model_lines(s)
 		match s.kind:

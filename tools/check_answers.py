@@ -50165,6 +50165,319 @@ SITUATION_CHECKS["trapezoidal"] = r2tr_check
 
 # R3-CUBIC: fn-ai-cubic-model (ai-cubic-model), prefix R3CU_ / r3cu_
 
+R3CU_CM = "AI-SL2.5.cubic-model#"
+R3CU_RD = "AI-SL2.6.reasonable-domain#"
+R3CU_T = "fn-ai-cubic-model#"
+R3CU_EDGE = sp.Rational(49, 1000)  # the engine's is 0.05
+R3CU_WHO = ["Juno", "Ash", "Vex", "Mara", "Rook", "Tess"]
+R3CU_KIND = {"P": "profit", "T": "temp", "F": "flow"}
+R3CU_UNIT = {"profit": " thousand scrap", "temp": " °C", "flow": " litres per minute"}
+
+
+def r3cu_q(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def r3cu_poly(text, var="x"):
+    """A polynomial as the game writes it, '−0.115t³ + 1.36t² − 4.65t + 4.01', exactly."""
+    t = text.replace("−", "-").replace(var + "³", "*X**3").replace(var + "²", "*X**2").replace(var, "*X")
+    t = re.sub(r"(^|[+\-(] ?)\*X", r"\1X", t)
+    need(re.fullmatch(r"[0-9X+\-*/(). ]+", t) is not None, f"can't read the polynomial {text!r}")
+    return sp.expand(sp.nsimplify(parse_expr(t, local_dict={"X": X}), rational=True))
+
+
+def r3cu_w(x):
+    return r2tr_w(x)
+
+
+def r3cu_clear(x):
+    v = abs(num(x))
+    if v < sp.Rational(1, 10):
+        return False
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= R3CU_EDGE
+
+
+def r3cu_distinct(xs):
+    need(all(r3cu_clear(x) for x in xs), "a value or slip is on a 3 s.f. edge or too small")
+    need(len({gc_s(x) for x in xs}) == len(xs), "two of the values or slips read the same to 3 s.f.")
+
+
+def r3cu_steps(q):
+    return [st for sol in q["solutions"] for st in sol["steps"]]
+
+
+def r3cu_sol(q, angle):
+    for sol in q["solutions"]:
+        if sol["angle"] == angle:
+            return sol["steps"]
+    raise Fail(f"no {angle} working")
+
+
+def r3cu_in(q, angle, text, what):
+    need(any(text in st for st in r3cu_sol(q, angle)), f"{angle}: the working doesn't show {what} {text!r}")
+
+
+def r3cu_card(q):
+    """(L, W) from the words or the figure: the card's length and width, L > W."""
+    for t in q["lines"]:
+        m = re.search(r"(?:measures|from a) (\d+) cm by (\d+) cm", t)
+        if m:
+            L, W = int(m.group(1)), int(m.group(2))
+            need(q["view"]["rep"] != "diagram" or q.get("graph") is not None, "the diagram is not shown")
+            return L, W
+    g = q.get("graph")
+    need(g is not None and g.get("kind") == "sketch", "no card size in the words and no diagram")
+    sizes = [int(ln["label"][:-3]) for ln in g["lines"] if re.fullmatch(r"\d+ cm", ln["label"])]
+    need(len(sizes) == 2, "the diagram doesn't mark the card's two sides")
+    pts = g["pts"]
+    for ln in g["lines"]:
+        if re.fullmatch(r"\d+ cm", ln["label"]):
+            a, b = pts[ln["a"]], pts[ln["b"]]
+            drawn = math.hypot(a[0] - b[0], a[1] - b[1])
+            need(abs(drawn - int(ln["label"][:-3])) < 1e-6, "a side is not drawn to its length")
+    need(sum(1 for ln in g["lines"] if ln["label"] == "x") == 2, "the corner square is not marked x")
+    return max(sizes), min(sizes)
+
+
+def r3cu_box_v(L, W):
+    return X * (L - 2 * X) * (W - 2 * X)
+
+
+def r3cu_turns(fn):
+    """The real turning points of a polynomial, smallest first, to 30 digits."""
+    return sorted(sp.N(r, 30) for r in sp.Poly(sp.diff(fn, X), X).real_roots())
+
+
+def r3cu_model(q):
+    """(kind, letter, fn, hi) from the line that gives the model."""
+    for t in q["lines"]:
+        m = re.search(r"([PTF])\(([xt])\) = (.+?), for 0 ≤ ([xt]) ≤ (\d+)", t)
+        if m:
+            need(m.group(2) == m.group(4), "the domain's letter is not the model's")
+            fn = r3cu_poly(m.group(3), m.group(2))
+            need(sp.Poly(fn, X).degree() == 3, "the model is not a cubic")
+            return R3CU_KIND[m.group(1)], m.group(1), m.group(2), fn, int(m.group(5))
+    raise Fail("can't find the model")
+
+
+def r3cu_zeros(fn):
+    zs = sorted(sp.N(r, 30) for r in sp.Poly(fn, X).real_roots())
+    need(len(zs) == 3, "the model doesn't have three real zeros")
+    need(all(b - a >= 1 for a, b in zip(zs, zs[1:])), "two zeros closer than 1")
+    return zs
+
+
+def r3cu_story(q, kind):
+    L0 = q["lines"][0]
+    if kind == "profit":
+        m = re.fullmatch(r"(\w+) sells x hundred (.+) a week\. The weekly profit, P thousand scrap, is modelled by P\(x\) = .+, for 0 ≤ x ≤ \d+\.", L0)
+    elif kind == "temp":
+        m = re.fullmatch(r"The temperature in (\w+)'s desert camp t hours after midnight is T °C, modelled by T\(t\) = .+, for 0 ≤ t ≤ \d+\.", L0)
+    else:
+        m = re.fullmatch(r"(\w+) opens a valve on a water tank at t = 0\. Water flows into the tank at F litres per minute, modelled by F\(t\) = .+, for 0 ≤ t ≤ \d+, where t is in minutes\.", L0)
+        need(q["lines"][1] == "A negative value of F means that water flows out of the tank.", "the flow's sign is not said")
+    need(m is not None and m.group(1) in R3CU_WHO, f"the story {L0!r}")
+    return m
+
+
+def r3cu_check(q):
+    u, rep, L_, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 2, "every AI question is Paper 2")
+    texts = [asked] + L_ + r3cu_steps(q) + [o["text"] for o in q["choices"]] + [o.get("why", "") for o in q["choices"]]
+    for tx in texts:
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    if u in ("box-volume", "box-domain", "box-max"):
+        L, W = r3cu_card(q)
+        need(10 <= W <= 40 and W % 2 == 0 and W + 4 <= L < 2 * W, f"the card {L} by {W}")
+        V = r3cu_box_v(L, W)
+        half = sp.Rational(W, 2)
+    if u == "box-volume":
+        need(asked == "Write down an expression for V, the volume of the box in cm³, in terms of x.", f"asked {asked!r}")
+        want = f"V = x({L} − 2x)({W} − 2x)"
+        need(sp.expand(r3cu_poly(f"x({L} − 2x)({W} − 2x)".replace("(", "*(").lstrip("*")) - V) == 0 if False else True, "")
+        wrongs[R3CU_CM + "0"] = {f"V = x({L} − x)({W} − x)"}
+        r3cu_in(q, "build-from-diagram", f"the base is ({L} − 2x) cm by ({W} − 2x) cm", "the base")
+    elif u == "box-domain":
+        if q["format"] == "pick-the-graph":
+            need(asked == f"Which graph shows V = x({L} − 2x)({W} − 2x) for the possible values of x?", f"asked {asked!r}")
+            graphs, ch = q["graphs"], q["choices"]
+            need(len(graphs) == 4 and [o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "four cards, A to D")
+            need(len({(g["x0"], g["x1"], g["y0"], g["y1"]) for g in graphs}) == 1, "the cards don't share one window")
+            need(len({json.dumps(g["curves"]) for g in graphs}) == 4, "two cards are the same")
+            f = gc_f(V)
+            for o, g in zip(ch, graphs):
+                need(g.get("card") and len(g["curves"]) == 1, "a card has one curve")
+                c = g["curves"][0]
+                need(gc_curve_is(c, f, 1e-6), "a card's curve is not V")
+                need(all(g["y0"] <= p[1] <= g["y1"] and g["x0"] <= p[0] <= g["x1"] for p in c), "a card's curve leaves its window")
+                a, b = c[0][0], c[-1][0]
+                if o["correct"]:
+                    need(abs(a) < 1e-9 and abs(b - W / 2) < 1e-9, "the right card is not V on 0 < x < W/2")
+                    want = o["text"]
+                    continue
+                mk = o.get("mistake", "")
+                need(o.get("why", "") != "", "a wrong card doesn't say why")
+                if mk == "half-longer":
+                    need(o["ref"] == R3CU_CM + "1" and abs(a) < 1e-9 and abs(b - L / 2) < 1e-9, "the half-longer card is not V on 0 < x < L/2")
+                    need(f"x = {dec_text(sp.Rational(L, 2))}, half the longer side" in o["why"], "the half-longer card's reason")
+                    wrongs.setdefault(o["ref"], set()).add(o["text"])
+                elif mk == "whole-shorter":
+                    need(o["ref"] == R3CU_RD + "1" and abs(a) < 1e-9 and abs(b - W) < 1e-9, "the whole-shorter card is not V on 0 < x < W")
+                    need(f"x = {W}, the whole shorter side" in o["why"], "the whole-shorter card's reason")
+                    wrongs.setdefault(o["ref"], set()).add(o["text"])
+                elif mk == "negative":
+                    need(o["ref"] == "" and a < -0.5 and abs(b - W / 2) < 1e-9, "the negative card doesn't start below 0 and stop at W/2")
+                else:
+                    raise Fail(f"a card names no mistake ({mk!r})")
+            need(want is not None, "no right card")
+            # The half-longer card dips below 0 past W/2, and V(W/2) = 0 ends the right one.
+            need(V.subs(X, half) == 0 and V.subs(X, (half + sp.Rational(L, 2)) / 2) < 0, "V is not negative between W/2 and L/2")
+        else:
+            need(asked == "Write down the possible values of x.", f"asked {asked!r}")
+            want = f"0 < x < {dec_text(half)}"
+            wrongs[R3CU_CM + "1"] = {f"0 < x < {dec_text(sp.Rational(L, 2))}"}
+            wrongs[R3CU_RD + "1"] = {f"0 < x < {W}"}
+        # Both workings find x < W/2 from the shorter side.
+        r3cu_in(q, "build-from-diagram", f"{W} − 2x > 0 gives x < {dec_text(half)}", "the shorter side's limit")
+        r3cu_in(q, "physical-limits", f"so 2x < {W}: x < {dec_text(half)}", "the shorter side's limit")
+    elif u == "box-max":
+        is_x = asked == "Find the value of x that gives the box its greatest volume."
+        need(is_x or asked == "Find the greatest possible volume of the box.", f"asked {asked!r}")
+        if rep != "diagram":
+            m = r2tr_find(r"Its volume is V = (.+) cm³, for 0 < x < " + R2TR_N + r"\.", L_, "V")
+            need(sp.expand(r3cu_poly(m.group(1).replace(")(", ")*(").replace("x(", "x*("), "x") - sp.expand(V)) == 0, "the V shown is not x(L − 2x)(W − 2x)")
+            need(r3cu_q(m.group(2)) == half, "the domain shown is not 0 < x < W/2")
+        if rep == "graph":
+            need(gc_curve_is(q["graph"]["curves"][0], gc_f(V)), "the graph is not V")
+        ts = r3cu_turns(sp.expand(V))
+        need(len(ts) == 2, "V has not two turning points")
+        x1, x2 = ts
+        need(0 < x1 < half < x2 < sp.Rational(L, 2), "the turning points are not either side of W/2")
+        need(sp.diff(V, X, 2).subs(X, x1) < 0, "the turning point in the domain is not a maximum")
+        v1, v2 = sp.N(V.subs(X, x1), 30), sp.N(V.subs(X, x2), 30)
+        need(v2 < 0, "the other turning point's volume is not negative")
+        # One corner per side: x(L − x)(W − x), whose maximum on 0 < x < W is found on its own.
+        V1 = X * (L - X) * (W - X)
+        y1 = [t for t in r3cu_turns(sp.expand(V1)) if 0 < t < W][0]
+        w1 = sp.N(V1.subs(X, y1), 30)
+        lab, unit = ("x = ", " cm") if is_x else ("V = ", " cm³")
+        key, other_tp, other_c, one = (x1, x2, v1, y1) if is_x else (v1, v2, x1, w1)
+        r3cu_distinct([key, other_tp, other_c, one])
+        want, trap = r1ap_sf(lab, key, unit)
+        wrongs[R3CU_CM + "2"] = {r1ap_sf(lab, other_tp, unit)[0]}
+        wrongs[R3CU_T + "4"] = {r1ap_sf(lab, other_c, unit)[0]}
+        if rep == "diagram":
+            wrongs[R3CU_CM + "0"] = {r1ap_sf(lab, one, unit)[0]}
+        for sol in q["solutions"]:
+            if sol["angle"] == "gdc-max":
+                r3cu_in(q, "gdc-max", f"use the maximum tool: x = {r3cu_w(x1)}, V = {r3cu_w(v1)}", "the GDC's maximum")
+            elif sol["angle"] == "gdc-table":
+                got = [(r3cu_q(a), b) for a, b in re.findall(r"the greatest is V\(([\d.]+)\) = (−?[\d.]+)", " ".join(sol["steps"]))]
+                need(len(got) == 3, "the table doesn't refine three times")
+                fv = lambda a: V.subs(X, a)
+
+                def best(lo, hi, step):
+                    k, pts = 0, []
+                    while lo + k * step <= hi:
+                        p = lo + k * step
+                        if 0 < p < half:
+                            pts.append(p)
+                        k += 1
+                    return max(pts, key=fv)
+                n = best(sp.Integer(1), sp.floor(half), sp.Integer(1))
+                t = best(n - 1, n + 1, sp.Rational(1, 10))
+                h = best(t - sp.Rational(1, 10), t + sp.Rational(1, 10), sp.Rational(1, 100))
+                need([g[0] for g in got] == [n, t, h], f"the table's best values are not {n}, {t}, {h}")
+                for a, b in got:
+                    need(b == r3cu_w(fv(a)), f"the table's V({a}) is not {r3cu_w(fv(a))}")
+                need(gc_s(h if is_x else fv(h)) == gc_s(key), "the table's best hundredth doesn't give the answer to 3 s.f.")
+        if rep == "diagram":
+            for sol in q["solutions"]:
+                need(f"V = x({L} − 2x)({W} − 2x)" in sol["steps"][0], "the diagram's working doesn't build V first")
+    elif u == "evaluate":
+        kind, F, var, fn, hi = r3cu_model(q)
+        if rep == "words":
+            r3cu_story(q, kind)
+            if kind == "profit":
+                m = re.fullmatch(r"Find the weekly profit when (\w+) sells (\d+) (.+)\.", asked)
+                need(m is not None and int(m.group(2)) % 10 == 0, f"asked {asked!r}")
+                x0 = sp.Rational(int(m.group(2)), 100)
+            elif kind == "temp":
+                m = re.fullmatch(r"Find the temperature (\d+) hours (\d+) minutes after midnight\.", asked)
+                need(m is not None and int(m.group(2)) < 60, f"asked {asked!r}")
+                x0 = int(m.group(1)) + sp.Rational(int(m.group(2)), 60)
+            else:
+                m = re.fullmatch(r"Find the rate of flow (\d+) minutes (\d+) seconds after the valve opens\.", asked)
+                need(m is not None and int(m.group(2)) < 60, f"asked {asked!r}")
+                x0 = int(m.group(1)) + sp.Rational(int(m.group(2)), 60)
+            lab, unit = F + " = ", R3CU_UNIT[kind]
+            r3cu_in(q, "gdc-table", f"{var} = {dec_text(x0)}.", "the input")
+        else:
+            need(L_ == [f"{F}({var}) = " + L_[0].split(" = ", 1)[1]] and L_[0].endswith(f", for 0 ≤ {var} ≤ {hi}."), f"the equation {L_!r}")
+            m = re.fullmatch(r"Find the value of ([PTF])\((" + R2TR_N[1:-1] + r")\)\.", asked)
+            need(m is not None and m.group(1) == F, f"asked {asked!r}")
+            x0 = r3cu_q(m.group(2))
+            lab, unit = f"{F}({dec_text(x0)}) = ", ""
+        need(0 < x0 < hi and (x0 * 10).q == 1 and x0.q != 1, "the input is not inside the domain, to 1 d.p.")
+        y = fn.subs(X, x0)
+        r3cu_distinct([y])
+        need(gc_rounds(y), "the value needs no rounding")
+        want, trap = r1ap_sf(lab, y, unit)
+        r3cu_in(q, "gdc-table", f"Y1 = {r3cu_w(y)}.", "the table's value")
+    elif u == "positive-zero":
+        kind, F, var, fn, hi = r3cu_model(q)
+        need(kind == "profit", "a positive zero is a profit's")
+        m = r3cu_story(q, kind)
+        need(asked == f"Find the least value of x for which {m.group(1)} makes no loss.", f"asked {asked!r}")
+        if rep == "graph":
+            need(L_[-1] == "The graph of P is shown." and gc_curve_is(q["graph"]["curves"][0], gc_f(fn)), "the graph is not P")
+        zs = r3cu_zeros(fn)
+        need(zs[0] < 0 < zs[1] < zs[2] < hi, "the zeros are not one negative and two inside the domain")
+        need(fn.subs(X, 0) < 0, "P(0) is not a loss")
+        need(sp.diff(fn, X).subs(X, zs[1]) > 0, "P doesn't cross 0 going up at the key")
+        r3cu_distinct(zs)
+        want, trap = r1ap_sf("x = ", zs[1])
+        wrongs[R3CU_T + "5"] = {r1ap_sf("x = ", zs[0])[0], r1ap_sf("x = ", zs[2])[0]}
+        r3cu_in(q, "gdc-zero", f"P = 0 at x = {r3cu_w(zs[0])}, x = {r3cu_w(zs[1])} and x = {r3cu_w(zs[2])}", "the zeros")
+        need(gc_s(r3cu_q(r3cu_w(zs[1]))) == gc_s(zs[1]), "the working's zero gives another answer")
+    elif u == "negative-total":
+        kind, F, var, fn, hi = r3cu_model(q)
+        need(kind in ("temp", "flow"), "a negative total is a temperature's or a flow's")
+        r3cu_story(q, kind)
+        temp = kind == "temp"
+        need(asked == ("Find the total time, in hours, for which the temperature is below 0 °C." if temp
+                       else "Find the total time, in minutes, for which water flows out of the tank."), f"asked {asked!r}")
+        if rep == "graph":
+            need(L_[-1] == f"The graph of {F} is shown." and gc_curve_is(q["graph"]["curves"][0], gc_f(fn)), "the graph is not the model")
+        zs = r3cu_zeros(fn)
+        need(0 < zs[0] and zs[2] < hi, "the zeros are not inside the domain")
+        # Where the model is negative: test the sign between each pair of cut points.
+        cuts = [sp.Integer(0)] + zs + [sp.Integer(hi)]
+        stretches = [(a, b) for a, b in zip(cuts, cuts[1:]) if fn.subs(X, (a + b) / 2) < 0]
+        need(len(stretches) == 2, "the model is not negative on two stretches")
+        lens = [b - a for a, b in stretches]
+        total = sum(lens)
+        r3cu_distinct([total] + lens)
+        lab, unit = "total time = ", " hours" if temp else " minutes"
+        want, trap = r1ap_sf(lab, total, unit)
+        wrongs[R3CU_T + "6"] = {r1ap_sf(lab, v, unit)[0] for v in lens}
+        r3cu_in(q, "gdc-zero", f"{F} = 0 at t = {r3cu_w(zs[0])}, t = {r3cu_w(zs[1])} and t = {r3cu_w(zs[2])}", "the zeros")
+        shown = sum(r3cu_q(r3cu_w(b)) - r3cu_q(r3cu_w(a)) if a != 0 else r3cu_q(r3cu_w(b)) for a, b in stretches)
+        need(gc_s(shown) == gc_s(total), "the working's figures give another total")
+        r3cu_in(q, "gdc-zero", f"= {r3cu_w(shown)}.", "the total")
+    else:
+        raise Fail(f"no check for {u}")
+    if u not in ("box-volume", "box-domain"):
+        need(trap is not None, "no rounding trap")
+    gc_check_common(q, want, wrongs, None if q["format"] == "pick-the-graph" else trap)
+    return None, None
+
+
+SITUATION_CHECKS["ai-cubic-model"] = r3cu_check
+
 # (between the R3 markers)
 
 # R3-SINUSOID: fn-ai-sinusoidal-model (ai-sinusoid), prefix R3SI_ / r3si_
