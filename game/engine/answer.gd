@@ -1022,12 +1022,21 @@ static func needs_rounding(v: Q) -> bool:
 ## 1,000 or more is exact (a count, a sum, money, a binomial coefficient). The stress sweep
 ## fails on one that is neither (whole_key_unlisted); game/docs/QUESTION-ENGINE.md lists them.
 const WHOLE_SF := {
+	"fn-exponential-model|initial-from-later": "a start value from a rounded later reading ÷ a^t, to 3 s.f.",
 	"fn-exponential-model|log-model-solve": "a model's input found with logs, to 3 s.f.",
 	"fn-exponential-model|model-from-graph": "C read from a graph with A and k, to 3 s.f.",
 	"fn-exponential-model|predict-from-data-point": "a model's prediction, to 3 s.f.",
+	"fn-exponential-model|predict-value": "a model's prediction, to 3 s.f.",
 	"fn-link-multiplicative-growth|depreciation-two-ways": "a value after n years from a calculator, to 3 s.f.",
 	"fn-link-multiplicative-growth|sequence-vs-function": "a value after n years from a calculator, to 3 s.f.",
+	"t1-ai-percentage-error|exact-from-error": "a measurement ÷ (1 ± p%) on a calculator, to 3 s.f.",
+	"t1-geometric-in-context|value-after-years": "a Paper 2 value after n years, asked to 3 s.f.",
+	"t3-arc-sector|area-from-arc": "a Paper 2 sector area, ½rl, to 3 s.f.",
 	"t3-arc-sector|sector-area": "an area with π in it, to 3 s.f.",
+	"t4-grouped-data|estimate-variance": "a Paper 2 variance estimated from mid-interval values, asked to 3 s.f.",
+	"t5-ai-trapezoidal|accumulated-total": "a total estimated by the trapezoidal rule, to 3 s.f.",
+	"t5-ai-trapezoidal|data-estimate": "an area estimated by the trapezoidal rule, to 3 s.f.",
+	"t5-optimisation-modelling|quadratic-optimum": "a Paper 2 maximum area from the GDC, to 3 s.f.",
 }
 
 
