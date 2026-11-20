@@ -2735,7 +2735,7 @@
               "misconceptions": [
                 "Swaps the gradient and the intercept, using the fixed charge as the rate per unit and the rate as the fixed charge",
                 "Uses the inverse conversion by mistake, undoing the conversion rule instead of applying it",
-                "In a piecewise plan, charges the per-unit rate on the whole amount instead of only the amount above the free allowance",
+                "Applies the later rate of a piecewise plan to the whole amount instead of only the amount above the free allowance or change point",
                 "Applies one linear rule across a corner of a piecewise graph, as if the gradient never changes"
               ],
               "threads": [

@@ -107524,7 +107524,7 @@
     },
     {
      "ref": "AI-SL2.5.linear-model#2",
-     "text": "In a piecewise plan, charges the per-unit rate on the whole amount instead of only the amount above the free allowance",
+     "text": "Applies the later rate of a piecewise plan to the whole amount instead of only the amount above the free allowance or change point",
      "as": "distractor",
      "in": [
       "piecewise-value",
