@@ -53772,6 +53772,599 @@ SITUATION_CHECKS["ai-composite-inverse"] = r9ac_check
 # (end of the R9 markers)
 
 
+# R10-MODULUS-GRAPH: fn-ahl-modulus-graphs, prefix MODGR_ / modgr_
+
+# ── modulus-graph (fn-ahl-modulus-graphs, FAL-1008) ──────────────────────────
+# The checker's own copy of the situation's clean limits; the engine's is in
+# game/engine/situations/modulus_graph.gd and modulus_graph_views.gd. f is read back from the
+# question: from the rule in its first line, or, when the question shows a graph, by fitting a
+# polynomial to the drawn curve and checking every labelled zero and turning point on it (never
+# from `given`). Each answer is worked out again with SymPy: the vertex, zeros of f(|x|) and the
+# solution set of the inequality by solving with |x|, the zeros of the translated quadratic, the
+# turning points of 1/f and [f(x)]² from their derivatives, and the period of [f(x)]² by
+# periodicity(). Pick the graph: every card's drawn points are tested against the right
+# transformation and each slip in the catalogue, so the right letter and each tag come from the
+# curves, not from the card's mistake name.
+
+MODGR_MOD = "AHL2.16.modulus-graphs#"
+MODGR_REC = "AHL2.16.reciprocal-graph#"
+MODGR_SQ = "AHL2.16.square-graph#"
+MODGR_T = "fn-ahl-modulus-graphs#"
+MODGR_WIN = (-7, 7, -6, 6)
+MODGR_PLOT = 6              # a shown f's zeros and turning points stay this far inside
+MODGR_VULGAR = {"½": "(1/2)", "⅓": "(1/3)", "⅔": "(2/3)", "¼": "(1/4)", "¾": "(3/4)", "⅕": "(1/5)",
+                "⅖": "(2/5)", "⅗": "(3/5)", "⅘": "(4/5)", "⅙": "(1/6)", "⅚": "(5/6)", "⅛": "(1/8)",
+                "⅜": "(3/8)", "⅝": "(5/8)", "⅞": "(7/8)"}
+MODGR_NUM = r"−?\d+(?:/\d+)?"
+MODGR_FRACTION = __import__("fractions").Fraction
+MODGR_SEEN = "The graph of y = f(x) is shown, with its zeros and turning points labelled."
+
+
+def modgr_expr(text):
+    """An expression in x the way the game writes it ('x² − 2x − 8', '−½(x + 5)(x + 1)',
+    '(x + 1)² − 1', '3 sin(2x)') as SymPy."""
+    need(not re.search(r"(?<![A-Za-z])-", text), f"a hyphen for a minus in {text!r}")
+    need(re.fullmatch(r"[0-9x²³/ +−()½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞sin]+", text) is not None, f"can't read {text!r}")
+    s = text
+    for k, v in MODGR_VULGAR.items():
+        s = s.replace(k, v)
+    s = s.replace("−", "-").replace("²", "**2").replace("³", "**3").replace("sin x", "sin(x)")
+    s = re.sub(r"(\d|\))\s*(x|\(|sin)", r"\1*\2", s)
+    s = re.sub(r"x\s*\(", "x*(", s)
+    return sp.expand(sp.sympify(s, locals={"x": X, "sin": sp.sin}))
+
+
+def modgr_t(v):
+    """An exact number as the game writes it: 3, −2, −7/2."""
+    v = sp.Rational(v)
+    body = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + body
+
+
+def modgr_n(text):
+    return sp.Rational(text.replace("−", "-"))
+
+
+def modgr_pt(x, y):
+    return f"({modgr_t(x)}, {modgr_t(y)})"
+
+
+def modgr_pts(ps):
+    ts = [modgr_pt(x, y) for x, y in sorted(ps)]
+    return ts[0] if len(ts) == 1 else ", ".join(ts[:-1]) + " and " + ts[-1]
+
+
+def modgr_xs_or(xs):
+    ts = [modgr_t(x) for x in sorted(xs)]
+    return "x = " + (ts[0] if len(ts) == 1 else ", ".join(ts[:-1]) + " or " + ts[-1])
+
+
+def modgr_xs_and(xs):
+    return " and ".join("x = " + modgr_t(x) for x in sorted(xs))
+
+
+def modgr_pi(p):
+    """p·π as the game writes it: π, π/2, 2π/3, 4π."""
+    p = sp.Rational(p)
+    top = ("" if p.p == 1 else str(p.p)) + "π"
+    return top if p.q == 1 else f"{top}/{p.q}"
+
+
+def modgr_set(S):
+    """A union of real intervals the way the game writes a solution set:
+    'x < −6 or −2 < x < 2 or x > 6', '0 ≤ x < 2 or x > 6'."""
+    parts = list(S.args) if isinstance(S, sp.Union) else [S]
+    out = []
+    for I in sorted(parts, key=lambda i: float(i.inf)):
+        need(isinstance(I, sp.Interval), f"the solution set {S} is not a union of intervals")
+        lo, hi = I.inf, I.sup
+        lt_lo = "<" if I.left_open else "≤"
+        lt_hi = "<" if I.right_open else "≤"
+        if lo == -sp.oo:
+            out.append(f"x {lt_hi} {modgr_t(hi)}")
+        elif hi == sp.oo:
+            out.append(f"x {'>' if I.left_open else '≥'} {modgr_t(lo)}")
+        else:
+            out.append(f"{modgr_t(lo)} {lt_lo} x {lt_hi} {modgr_t(hi)}")
+    return " or ".join(out)
+
+
+def modgr_label(p):
+    """A labelled point: its label read as exact coordinates, which its position must be."""
+    m = re.fullmatch(rf"\(({MODGR_NUM}), ({MODGR_NUM})\)", p["label"])
+    need(m is not None, f"can't read the label {p['label']!r}")
+    x, y = modgr_n(m.group(1)), modgr_n(m.group(2))
+    need(abs(float(x) - p["x"]) < 1e-9 and abs(float(y) - p["y"]) < 1e-9, f"the label {p['label']!r} is not where it is drawn")
+    return x, y
+
+
+def modgr_fit(g):
+    """f read from the drawn curve: a polynomial of degree at most 3 through four of its points,
+    its coefficients made exact, which every drawn point must then lie on."""
+    pts = sorted({round(p[0], 12): p for c in g["curves"] for p in c}.values())
+    need(len(pts) > 30 and pts[-1][0] - pts[0][0] >= 1.5, "too little of f is drawn")
+    pick = [pts[int(i * (len(pts) - 1) / 3)] for i in range(4)]
+    A = mpmath.matrix([[mpmath.mpf(x) ** k for k in range(3, -1, -1)] for x, _ in pick])
+    b = mpmath.matrix([mpmath.mpf(y) for _, y in pick])
+    cs = mpmath.lu_solve(A, b)
+    f = 0
+    for k, c in zip(range(3, -1, -1), cs):
+        fr = MODGR_FRACTION(float(c)).limit_denominator(200)
+        f += sp.Rational(fr.numerator, fr.denominator) * X**k
+    f = sp.expand(f)
+    fl = sp.lambdify(X, f)
+    for x, y in pts:
+        need(abs(fl(x) - y) <= 1e-7 * max(1, abs(y)), f"the drawn point ({x}, {y}) is not on {f}")
+    need(sp.degree(f, X) in (2, 3), f"the drawn f is not a quadratic or a cubic: {f}")
+    return f
+
+
+def modgr_shown(g, extra_y=None):
+    """The graph of f shown with a question: its window, f from the curve, and its labels, which
+    are f's whole zeros and its turning points (and, for the inequality, the points on y = c)."""
+    need(g is not None and not g.get("card"), "the question shows no graph of f")
+    need((g["x0"], g["x1"], g["y0"], g["y1"]) == MODGR_WIN, "the plot is not x from −7 to 7, y from −6 to 6")
+    f = modgr_fit(g)
+    labels = [modgr_label(p) for p in g["points"]]
+    for x, y in labels:
+        need(f.subs(X, x) == y, f"the label {modgr_pt(x, y)} is not on the graph of {f}")
+    zeros = sorted({r for r in sp.roots(sp.Poly(f, X), filter="R") if r.is_integer and abs(r) <= MODGR_WIN[1]})
+    stat = sorted({x for x in sp.roots(sp.Poly(sp.diff(f, X), X), filter="R") if x.is_Rational})
+    tps = {(x, f.subs(X, x)) for x in stat}
+    on_line = {(x, y) for x, y in labels if extra_y is not None and y == extra_y}
+    want = {(z, 0) for z in zeros} | {p for p in tps if p[1] != 0 or p[0] not in zeros}
+    need(set(labels) - on_line == want, f"the labels {sorted(labels)} are not the zeros and turning points {sorted(want)} of {f}")
+    for x, y in labels:
+        need(abs(x) <= MODGR_PLOT and abs(y) <= MODGR_PLOT - 1, f"the feature {modgr_pt(x, y)} is too close to the edge")
+    return f
+
+
+def modgr_rule(q):
+    m = re.fullmatch(r"f\(x\) = (.+)", q["lines"][0])
+    need(m is not None, f"can't read f in {q['lines'][0]!r}")
+    return modgr_expr(m.group(1))
+
+
+def modgr_f(q):
+    """f from the question: its graph when it shows one, else its rule."""
+    if q["view"]["rep"] == "graph":
+        return modgr_shown(q["graph"])
+    need(q.get("graph") is None, "a rule question shows a graph")
+    return modgr_rule(q)
+
+
+def modgr_vertex(f):
+    a, b, c = sp.Poly(f, X).all_coeffs()
+    h = -b / (2 * a)
+    return a, h, f.subs(X, h)
+
+
+def modgr_split(zs):
+    """Zeros on each side of the y-axis, none at 0, none the mirror image of another."""
+    return any(z < 0 for z in zs) and any(z > 0 for z in zs) and 0 not in zs and all(-z not in zs for z in zs)
+
+
+def modgr_steps(q, method, pattern):
+    """The match of pattern in the worked solution by method (None when there is no such solution)."""
+    for sol in q["solutions"]:
+        if sol["angle"] == method:
+            for st in sol["steps"]:
+                m = re.search(pattern, st)
+                if m:
+                    return m
+            need(False, f"{method}: no step like {pattern!r}")
+    return None
+
+
+def modgr_w(text, v):
+    """A GDC value to 6 s.f. agrees with v."""
+    t = float(text.replace("−", "-"))
+    return abs(t - float(v)) <= 6e-6 * max(1, abs(float(v)))
+
+
+def modgr_texts(q):
+    return [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]] + [o.get("why", "") or "" for o in q["choices"]]
+
+
+def modgr_check(q):
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    for tx in modgr_texts(q):
+        need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    if q["paper"] == 1:
+        need(not any(sol["angle"].startswith("gdc-") for sol in q["solutions"]), "a GDC method on Paper 1")
+    if u in MODGR_PICKS:
+        return modgr_pick(q, u)
+    fn = {"vertex-image": modgr_vertex_image, "f-of-modulus-intercepts": modgr_intercepts,
+          "f-of-modulus-inequality": modgr_inequality, "reciprocal-asymptotes": modgr_asymptotes,
+          "reciprocal-turning-point": modgr_recip_tp, "square-features": modgr_square_features}.get(u)
+    need(fn is not None, f"no check for {u}")
+    want, wrongs = fn(q)
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+# ── The values ───────────────────────────────────────────────
+
+def modgr_vertex_image(q):
+    need(q["asked"] == "Find the coordinates of the point that the vertex of the graph of y = f(x) moves to on the graph of y = |f(x)|.", f"asked {q['asked']!r}")
+    f = modgr_rule(q)
+    a, h, k = modgr_vertex(f)
+    need(a in (1, -1) and h.is_integer and k.is_integer and h != 0 and k != 0 and abs(h) <= 5 and abs(k) <= 9, f"{f} is not ±x² + bx + c with a whole vertex off the axes")
+    need(abs(f.subs(X, 0)) <= 30, "the constant term is too large")
+    # The vertex of |f| is where f's is, at height |f(h)|: |f| is f where f ≥ 0 and −f below.
+    g = sp.Piecewise((f, f >= 0), (-f, True))
+    want = modgr_pt(h, g.subs(X, h))
+    m = modgr_steps(q, "reflect-negative-part", r"Complete the square: f\(x\) = (.+), so the vertex is \((.+?), (.+?)\)\.")
+    if m:
+        need(sp.expand(modgr_expr(m.group(1)) - f) == 0, f"{m.group(1)!r} is not {f}")
+        need((modgr_n(m.group(2)), modgr_n(m.group(3))) == (h, k), "the worked vertex is wrong")
+    m = modgr_steps(q, "piecewise-definition", rf"\|f\(({MODGR_NUM})\)\| = \|({MODGR_NUM})\| = ({MODGR_NUM})")
+    if m:
+        need([modgr_n(x) for x in m.groups()] == [h, k, abs(k)], "the worked |f(h)| is wrong")
+    # The whole graph reflected (−f): the vertex goes to (h, −k).
+    return want, {MODGR_MOD + "2": {modgr_pt(h, -k)}}
+
+
+def modgr_intercepts(q):
+    need(q["asked"] == "Find the x-coordinates of the points where the graph of y = f(|x|) meets the x-axis.", f"asked {q['asked']!r}")
+    f = modgr_f(q)
+    rs = sp.roots(sp.Poly(f, X), filter="R")
+    zs = sorted(rs)
+    need(all(z.is_integer for z in zs), f"the zeros of {f} are not whole")
+    need(modgr_split(zs), f"the zeros {zs} are not on each side of the y-axis, apart from 0 and from each other's mirror image")
+    if q["view"]["rep"] == "equation":
+        need(sp.Poly(f, X).LC() == 1 and all(c.is_integer for c in sp.Poly(f, X).all_coeffs()), "the rule is not monic with whole coefficients")
+    # f(|x|) = 0: solved with |x| itself.
+    sol = sp.solveset(sp.Eq(f.subs(X, sp.Abs(X)), 0), X, sp.S.Reals)
+    want = modgr_xs_or(list(sol))
+    # The left half kept and mirrored: f(−|x|) = 0.
+    left = sp.solveset(sp.Eq(f.subs(X, -sp.Abs(X)), 0), X, sp.S.Reals)
+    m = modgr_steps(q, "keep-right-reflect", r"(?:Solve f\(x\) = 0: (.+) = 0 gives|meets the x-axis at) (.+)\.$")
+    if m and m.group(1):
+        need(sp.expand(modgr_expr(m.group(1)) - f) == 0, f"{m.group(1)!r} is not {f}")
+    if m:
+        need(m.group(2) == " and ".join(f"x = {modgr_t(z)}" for z in zs) if len(zs) == 2 else m.group(2) == ", ".join(f"x = {modgr_t(z)}" for z in zs[:-1]) + f" and x = {modgr_t(zs[-1])}", f"the zeros of f are not {m.group(2)!r}")
+    return want, {MODGR_MOD + "1": {modgr_xs_or(list(left))}}
+
+
+MODGR_REL = {"<": sp.Lt, "≤": sp.Le, ">": sp.Gt, "≥": sp.Ge}
+
+
+def modgr_inequality(q):
+    m = re.fullmatch(rf"Find the set of values of x for which f\(\|x\|\) ([<≤>≥]) ({MODGR_NUM})\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    rel, c = m.group(1), modgr_n(m.group(2))
+    need(q["lines"] == [f"The graph of y = f(x) is shown, with the line y = {modgr_t(c)}."], f"lines {q['lines']!r}")
+    g = q["graph"]
+    need([(h["at"], h["label"]) for h in g["hlines"]] == [(float(c), f"y = {modgr_t(c)}")], "the line y = c is not drawn")
+    f = modgr_shown(g, extra_y=c)
+    a, h, k = modgr_vertex(f)
+    on = sorted(sp.solveset(sp.Eq(f, c), X, sp.S.Reals))
+    need(len(on) == 2 and all(r.is_integer for r in on), f"f = {c} at {on}, not two whole x")
+    need({(x, y) for x, y in (modgr_label(p) for p in g["points"]) if y == c} == {(r, c) for r in on}, "the points where f meets the line are not labelled")
+    need(a in (1, -1) and h.is_integer and 1 <= h <= 4 and c != 0, f"{f} and y = {c} are out of the situation's range")
+    mm = (on[1] - on[0]) / 2
+    need(mm != h and 1 <= mm <= 3, "the line meets f at a point and its mirror image, or too far apart")
+    # Solved with |x| itself, over the reals.
+    sol = sp.solveset(MODGR_REL[rel](f.subs(X, sp.Abs(X)), c), X, sp.S.Reals)
+    want = modgr_set(sol)
+    # The x ≥ 0 piece only.
+    half = sp.Intersection(sp.solveset(MODGR_REL[rel](f, c), X, sp.S.Reals), sp.Interval(0, sp.oo))
+    mt = modgr_steps(q, "keep-right-reflect", rf"f\(x\) = ({MODGR_NUM}) at x = ({MODGR_NUM}) and x = ({MODGR_NUM})")
+    if mt:
+        need([modgr_n(v) for v in mt.groups()] == [c] + on, "the worked meeting points are wrong")
+    return want, {MODGR_T + "10": {modgr_set(half)}}
+
+
+def modgr_asymptotes(q):
+    L = q["lines"]
+    f = modgr_rule(q)
+    P = sp.Poly(f, X)
+    need(P.degree() == 2 and P.LC() == 1, f"{f} is not x² + bx + c")
+    zf = sorted(sp.roots(P, filter="R"))
+    need(len(zf) == 2 and all(z.is_integer for z in zf), f"{f} has no two whole zeros")
+    if len(L) == 2:
+        m = re.fullmatch(rf"The graph of y = f\(x\) is translated by the vector \(({MODGR_NUM}), ({MODGR_NUM})\) to give the graph of y = g\(x\)\.", L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        mx, my = modgr_n(m.group(1)), modgr_n(m.group(2))
+        need((mx, my) != (0, 0), "a translation by the zero vector")
+        need(abs(mx) <= 4 and abs(my) <= 4, "the translation is too large")
+        g = sp.expand(f.subs(X, X - mx) + my)
+        name = "g"
+    else:
+        need(len(L) == 1, f"lines {L!r}")
+        g, name = f, "f"
+    need(q["asked"] == f"Find the equations of the vertical asymptotes of the graph of y = 1/{name}(x).", f"asked {q['asked']!r}")
+    # The vertical asymptotes of 1/g: where the denominator g is 0 (the numerator 1 never is).
+    vas = sorted(sp.solveset(sp.Eq(sp.denom(sp.together(1 / g)), 0), X, sp.S.Reals))
+    need(len(vas) == 2 and all(v.is_integer for v in vas), f"1/{name} has no two whole vertical asymptotes")
+    zg = vas
+    need(zg[0] != -zg[1] and zf[0] != -zf[1], "zeros that are each other's mirror image")
+    if name == "g":
+        need(zg != zf, "the move leaves the zeros where they were")
+        mt = modgr_steps(q, "feature-swap", r"g\(x\) = f\(x [+−] \d+\) [+−] \d+ = (.+)\.$")
+        need(mt is not None and sp.expand(modgr_expr(mt.group(1)) - g) == 0, "the worked g is wrong")
+        wrongs = {MODGR_T + "9": {modgr_xs_and(zf)}}
+    else:
+        wrongs = {}
+    return modgr_xs_and(zg), wrongs
+
+
+def modgr_recip_tp(q):
+    need(q["asked"] == "Find the coordinates of the turning point of the graph of y = 1/f(x), and say whether it is a maximum or a minimum.", f"asked {q['asked']!r}")
+    if q["view"]["rep"] == "graph":
+        need(q["lines"] == ["The graph of the quadratic y = f(x) is shown, with its vertex labelled."], f"lines {q['lines']!r}")
+    f = modgr_f(q)
+    a, h, k = modgr_vertex(f)
+    need(sp.degree(f, X) == 2 and a in (1, -1, 2, -2) and h.is_integer and abs(h) <= 4 and k in (2, 3, 4, 5, -2, -3, -4, -5), f"{f} is out of the situation's range")
+    r = 1 / f
+    xs = sorted(sp.solveset(sp.numer(sp.together(sp.diff(r, X))), X, sp.S.Reals))
+    need(len(xs) == 1, f"1/f has {len(xs)} turning points")
+    x0 = xs[0]
+    y0 = r.subs(X, x0)
+    kind = "maximum" if sp.diff(r, X, 2).subs(X, x0) < 0 else "minimum"
+    other = "minimum" if kind == "maximum" else "maximum"
+    want = f"{modgr_pt(x0, y0)}, a {kind}"
+    # The turning point left at (h, k) or reflected to (h, −k).
+    slip = {f"{modgr_pt(h, v)}, a {w}" for v in (k, -k) for w in (kind, other)}
+    m = modgr_steps(q, "feature-swap", r"at x = (.+?), with y = (.+?)\.$")
+    if m:
+        need(modgr_n(m.group(1)) == x0, "the worked x is wrong")
+        need(modgr_n(m.group(2).split(" = ")[-1]) == y0, f"the worked 1/k {m.group(2)!r} is not {y0}")
+    m = modgr_steps(q, "gdc-graph", rf"Its local (maximum|minimum) is at \(({MODGR_NUM}), (−?[\d.]+)\)")
+    if m:
+        need(m.group(1) == kind and modgr_n(m.group(2)) == x0 and modgr_w(m.group(3), y0), "the GDC's turning point is wrong")
+    return want, {MODGR_REC + "0": slip}
+
+
+def modgr_square_features(q):
+    if q["asked"] == "Write down the period of the graph of y = [f(x)]².":
+        return modgr_period(q)
+    need(q["asked"] == "Find the coordinates of the turning points of the graph of y = [f(x)]².", f"asked {q['asked']!r}")
+    if q["view"]["rep"] == "graph":
+        need(q["lines"] == ["The graph of the quadratic y = f(x) is shown, with its zeros and vertex labelled."], f"lines {q['lines']!r}")
+    f = modgr_f(q)
+    a, h, k = modgr_vertex(f)
+    zs = sorted(sp.roots(sp.Poly(f, X), filter="R"))
+    need(sp.degree(f, X) == 2 and a in (1, -1, 2, -2) and len(zs) == 2 and all(z.is_integer for z in zs) and 2 <= abs(k) <= 9, f"{f} is out of the situation's range")
+    F = sp.expand(f**2)
+    st = sorted(sp.solveset(sp.diff(F, X), X, sp.S.Reals))
+    want = modgr_pts([(x, F.subs(X, x)) for x in st])
+    G = sp.Abs(f)
+    abs_pts = [(x, G.subs(X, x)) for x in st]
+    m = modgr_steps(q, "derivative-check", r"with f′\(x\) = (.+?)\. ")
+    if m:
+        need(sp.expand(modgr_expr(m.group(1)) - sp.diff(f, X)) == 0, f"f′(x) is not {m.group(1)!r}")
+    if q["view"]["rep"] == "equation":
+        m = modgr_steps(q, "square-outputs", r"Factorise: f\(x\) = (.+?), with")
+        if m:
+            need(sp.expand(modgr_expr(m.group(1)) - f) == 0, f"{m.group(1)!r} is not {f}")
+    # |f(x)| in place of the square: the vertex's height kept as |k|.
+    return want, {MODGR_SQ + "1": {modgr_pts(abs_pts)}}
+
+
+def modgr_period(q):
+    f = modgr_rule(q)
+    m = re.fullmatch(r"f\(x\) = (\d )?sin(?: x|\((\d)x\))", q["lines"][0])
+    need(m is not None and f.has(sp.sin), f"f is not A sin(bx): {q['lines'][0]!r}")
+    A = int(m.group(1) or 1)
+    b = int(m.group(2) or 1)
+    need(1 <= A <= 3 and 1 <= b <= 4, "A or b is out of range")
+    # periodicity() gives a period P, not always the least: the least is P/n for a whole n, the
+    # largest n for which P/n is still a period.
+    F = sp.expand(f**2)
+    P = sp.periodicity(F, X)
+    need(P is not None, f"{F} is not periodic")
+    per = min(P / n for n in range(1, 9) if sp.simplify(sp.expand_trig(F.subs(X, X + P / n) - F)) == 0)
+    want = modgr_pi(per / sp.pi)
+    m = modgr_steps(q, "derivative-check", r": every (.+?)\.$")
+    if m:
+        need(m.group(1) == modgr_pi(per / sp.pi / 2), "the stationary points are not every half period")
+    m = modgr_steps(q, "gdc-graph", r"next at x = ([\d.]+)")
+    if m:
+        need(modgr_w(m.group(1), per), "the GDC's next zero is not one period on")
+    # The period of f itself, as for sin x.
+    return want, {MODGR_SQ + "2": {modgr_pi(sp.periodicity(f, X) / sp.pi)}}
+
+
+# ── Pick the graph ───────────────────────────────────────────
+
+def modgr_abs_f(f):
+    fl = sp.lambdify(X, f)
+    return {
+        "|f(x)|": lambda x: abs(fl(x)),
+        "f(|x|)": lambda x: fl(abs(x)),
+        "|f(|x|)|": lambda x: abs(fl(abs(x))),
+        "f(−|x|)": lambda x: fl(-abs(x)),
+        "|f(−|x|)|": lambda x: abs(fl(-abs(x))),
+        "−f(x)": lambda x: -fl(x),
+        "f(−x)": lambda x: fl(-x),
+        "f(x) where f ≥ 0, else 0": lambda x: max(fl(x), 0.0),
+        "f(x)²": lambda x: fl(x) ** 2,
+        "f(x)|f(x)|": lambda x: fl(x) * abs(fl(x)),
+        "f(x²)": lambda x: fl(x * x),
+    }
+
+
+# Each pick unknown: the curve asked for, then the catalogue's slips as the curves they draw.
+MODGR_PICKS = {
+    "modulus-of-f": ("|f(x)|", {MODGR_MOD + "0": ["f(|x|)"], MODGR_MOD + "2": ["−f(x)"]}),
+    "f-of-modulus": ("f(|x|)", {MODGR_MOD + "0": ["|f(x)|"], MODGR_MOD + "1": ["f(−|x|)"]}),
+    "modulus-of-both": ("|f(|x|)|", {MODGR_MOD + "1": ["|f(−|x|)|"]}),
+    "pick-reciprocal": ("1/f(x)", {MODGR_REC + "1": ["inverse"], MODGR_REC + "2": ["−1/f between the zeros", "−1/f outside the zeros"]}),
+    "pick-square": ("f(x)²", {MODGR_SQ + "0": ["f(x)|f(x)|"], MODGR_SQ + "1": ["|f(x)|"]}),
+}
+
+
+def modgr_on(g, fn, breaks):
+    """Whether a card draws y = fn(x): every point on it, each piece running left to right in
+    small steps and not across a break, and every x where fn is inside the plot drawn."""
+    for c in g["curves"]:
+        for (x0, _), (x1, _) in zip(c, c[1:]):
+            if not (0 <= x1 - x0 <= 0.06):
+                return False
+        if any(c[0][0] < b < c[-1][0] for b in breaks):
+            return False
+        for x, y in c:
+            v = fn(x)
+            if v is None or math.isnan(v) or abs(v - y) > 1e-6 * max(1, abs(y)):
+                return False
+    for j in range(561):
+        x = MODGR_WIN[0] + (MODGR_WIN[1] - MODGR_WIN[0]) * j / 560
+        if any(abs(x - b) < 0.05 for b in breaks):
+            continue
+        v = fn(x)
+        if v is None or math.isnan(v) or not (MODGR_WIN[2] + 0.05 < v < MODGR_WIN[3] - 0.05):
+            continue
+        if not any(c[0][0] - 1e-9 <= x <= c[-1][0] + 1e-9 for c in g["curves"]):
+            return False
+    return True
+
+
+def modgr_on_inverse(g, fl):
+    """Whether a card draws the reflection of f in y = x: every point (x, y) has f(y) = x, and
+    every height where f is inside the plot drawn."""
+    for c in g["curves"]:
+        for x, y in c:
+            if abs(fl(y) - x) > 1e-6 * max(1, abs(x)):
+                return False
+    for j in range(481):
+        t = MODGR_WIN[2] + (MODGR_WIN[3] - MODGR_WIN[2]) * j / 480
+        if not (MODGR_WIN[0] + 0.05 < fl(t) < MODGR_WIN[1] - 0.05):
+            continue
+        if not any(min(p[1] for p in c) - 1e-9 <= t <= max(p[1] for p in c) + 1e-9 for c in g["curves"]):
+            return False
+    return True
+
+
+def modgr_apart(g1, g2):
+    """Two cards differ where you can see it: at some x one is drawn and the other is not, or
+    they are half a unit apart."""
+    def at(g, x):
+        for c in g["curves"]:
+            for (xa, ya), (xb, yb) in zip(c, c[1:]):
+                if xa <= x <= xb:
+                    return ya + (yb - ya) * (x - xa) / (xb - xa)
+        return None
+    for j in range(281):
+        x = MODGR_WIN[0] + 0.01 + (MODGR_WIN[1] - MODGR_WIN[0] - 0.02) * j / 280
+        a, b = at(g1, x), at(g2, x)
+        if (a is None) != (b is None) or (a is not None and abs(a - b) >= 0.5):
+            return True
+    return False
+
+
+def modgr_pick(q, u):
+    want_curve, slips = MODGR_PICKS[u]
+    asked = {"modulus-of-f": "|f(x)|", "f-of-modulus": "f(|x|)", "modulus-of-both": "|f(|x|)|",
+             "pick-reciprocal": "1/f(x)", "pick-square": "[f(x)]²"}[u]
+    need(q["asked"] == f"Which graph is y = {asked}?", f"asked {q['asked']!r}")
+    need(q["lines"] == [MODGR_SEEN], f"lines {q['lines']!r}")
+    f = modgr_shown(q["graph"])
+    zs = sorted(sp.roots(sp.Poly(f, X), filter="R"))
+    zw = sorted(set(zs))
+    stat = [x for x in sp.roots(sp.Poly(sp.diff(f, X), X), filter="R") if f.subs(X, x) != 0]
+    need(len(stat) == 1, "f has not one turning point off the axis")
+    t, v = stat[0], f.subs(X, stat[0])
+    if u in ("modulus-of-f", "f-of-modulus", "modulus-of-both"):
+        need(modgr_split(zw), f"the zeros {zw} are not on each side of the y-axis, apart from 0 and from each other's mirror image")
+        need(abs(v) in (2, 3, 4), "the turning point is not at height ±2, ±3 or ±4")
+    elif u == "pick-reciprocal":
+        need(sp.degree(f, X) == 2 and len(zw) == 2 and abs(t) <= 2 and abs(v) in (2, 3, 4), "f is not a quadratic with two zeros and its vertex at height ±2 to ±4")
+    else:
+        need(abs(v) == 2, "the turning point is not at height ±2")
+    if sp.degree(f, X) == 3:
+        need(len(zw) == 2 and zw[1] - zw[0] == 3, "the cubic does not touch the axis at a zero 3 from the other")
+    fl = sp.lambdify(X, f)
+    named = modgr_abs_f(f)
+    lo, hi = float(zw[0]), float(zw[-1])
+    breaks = [float(z) for z in zw]
+    rec = {
+        "1/f(x)": lambda x: 1 / fl(x) if fl(x) != 0 else float("nan"),
+        "−1/f between the zeros": lambda x: (-1 if lo < x < hi else 1) / fl(x) if fl(x) != 0 else float("nan"),
+        "−1/f outside the zeros": lambda x: (1 if lo < x < hi else -1) / fl(x) if fl(x) != 0 else float("nan"),
+        "k²/f(x)": lambda x: float(v * v) / fl(x) if fl(x) != 0 else float("nan"),
+    }
+    graphs, ch = q["graphs"], q["choices"]
+    need(len(graphs) == 4 and len(ch) == 4, "pick the graph needs four graphs")
+    need([o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "the graphs are not lettered A to D")
+    need(all(g.get("card") and (g["x0"], g["x1"], g["y0"], g["y1"]) == MODGR_WIN for g in graphs), "a graph is not a card on the plot")
+
+    def draws(g, name):
+        if name == "inverse":
+            return modgr_on_inverse(g, fl)
+        if name in rec:
+            return [round(vl["at"], 9) for vl in g["vlines"]] == breaks and modgr_on(g, rec[name], breaks)
+        return not g["vlines"] and modgr_on(g, named[name], [])
+
+    every = list(named) + list(rec) + ["inverse"]
+    found = []
+    for o, g in zip(ch, graphs):
+        what = [n for n in every if draws(g, n)]
+        need(what, f"{o['text']} is none of the transformations of f this check knows")
+        found.append(what)
+    right = [o["text"] for o, w in zip(ch, found) if want_curve in w]
+    need(len(right) == 1, f"{len(right)} graphs are {want_curve}")
+    want = right[0]
+    if u == "pick-reciprocal":
+        g = graphs[[o["text"] for o in ch].index(want)]
+        need(len(g["curves"]) == len(zw) + 1, "1/f is not drawn as one branch more than its asymptotes")
+    rest = [g for g, w in zip(graphs, found) if "inverse" not in w]
+    for i in range(len(rest)):
+        for j in range(i + 1, len(rest)):
+            need(modgr_apart(rest[i], rest[j]), "two graphs look the same")
+    wrongs = {ref: {o["text"] for o, w in zip(ch, found) if set(w) & set(names)} for ref, names in slips.items()}
+    for o in ch:
+        if not o["correct"]:
+            need(o.get("why", "") != "", f"{o['text']} doesn't say what is wrong")
+    modgr_pick_steps(q, u, f, zw, t, v)
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+def modgr_pick_steps(q, u, f, zw, t, v):
+    """The features the worked solutions name, against f."""
+    if u == "modulus-of-f":
+        m = modgr_steps(q, "reflect-negative-part", rf"The turning point \(({MODGR_NUM}), ({MODGR_NUM})\) is (below|above) the axis, so it (goes to \(({MODGR_NUM}), ({MODGR_NUM})\)|stays where it is)")
+        if m:
+            need((modgr_n(m.group(1)), modgr_n(m.group(2))) == (t, v) and (m.group(3) == "below") == (v < 0), "the worked turning point is wrong")
+            if v < 0:
+                need((modgr_n(m.group(5)), modgr_n(m.group(6))) == (t, -v), "the turning point's image is wrong")
+        if sp.degree(f, X) == 2:
+            m = modgr_steps(q, "reflect-negative-part", r"f\(x\) < 0 for (.+?)\. Keep")
+            if m:
+                need(m.group(1) == modgr_set(sp.solveset(f < 0, X, sp.S.Reals)), f"f is not negative for {m.group(1)!r}")
+    elif u in ("f-of-modulus", "modulus-of-both"):
+        meth = "keep-right-reflect" if u == "f-of-modulus" else "reflect-negative-part"
+        m = modgr_steps(q, meth, r"It meets the x-axis at (.+?)(?:, with turning points \((.+?)\) and \((.+?)\))?\.$")
+        if m:
+            pos = [z for z in zw if z > 0]
+            need(m.group(1) == " and ".join(f"x = ±{modgr_t(z)}" for z in pos), f"f(|x|) does not meet the axis at {m.group(1)!r}")
+            need((m.group(2) is not None) == (t > 0), "the mirrored turning points are missing or extra")
+            if t > 0:
+                need(m.group(2) == f"{modgr_t(t)}, {modgr_t(v)}" and m.group(3) == f"{modgr_t(-t)}, {modgr_t(v)}", "the mirrored turning points are wrong")
+    elif u == "pick-reciprocal":
+        m = modgr_steps(q, "feature-swap", rf"The turning point \(({MODGR_NUM}), ({MODGR_NUM})\) becomes \(({MODGR_NUM}), ({MODGR_NUM})\), a local (maximum|minimum)")
+        if m:
+            need([modgr_n(g) for g in m.groups()[:4]] == [t, v, t, 1 / v], "the turning point of 1/f is wrong")
+            r = 1 / f
+            need(m.group(5) == ("maximum" if sp.diff(r, X, 2).subs(X, t) < 0 else "minimum"), "the kind of turning point of 1/f is wrong")
+        m = modgr_steps(q, "gdc-graph", r"f\(x\) = (.+?)\. Graph")
+        if m:
+            need(sp.expand(modgr_expr(m.group(1)) - f) == 0, f"{m.group(1)!r} is not f")
+    elif u == "pick-square":
+        m = modgr_steps(q, "square-outputs", rf"The turning point \(({MODGR_NUM}), ({MODGR_NUM})\) of f goes to \(({MODGR_NUM}), ({MODGR_NUM})\)")
+        if m:
+            need([modgr_n(g) for g in m.groups()] == [t, v, t, v * v], "the turning point of [f(x)]² is wrong")
+        m = modgr_steps(q, "gdc-graph", r"f\(x\) = (.+?)\. Graph")
+        if m:
+            need(sp.expand(modgr_expr(m.group(1)) - f) == 0, f"{m.group(1)!r} is not f")
+
+
+SITUATION_CHECKS["modulus-graph"] = modgr_check
+
+
+
 def check_questions(data):
     """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]

@@ -237,6 +237,11 @@ static func trace(g: Callable, breaks: Array) -> Array:
 
 static func _edge(g: Callable, xa: float, xb: float, edge: float) -> float:
 	var fa: float = g.call(xa) - edge
+	# A sample exactly on the edge is the edge point (bisection would run off from it).
+	if fa == 0.0:
+		return xa
+	if g.call(xb) - edge == 0.0:
+		return xb
 	for i in 60:
 		var xm := (xa + xb) / 2.0
 		var fm: float = g.call(xm) - edge
@@ -263,7 +268,12 @@ static func trace_inverse(s: Dictionary) -> Array:
 			var ta: float = prev[0]
 			var tb := t
 			var fa: float = y(s, ta) - edge
-			for i in 60:
+			# A sample exactly on the edge is the edge point (bisection would run off from it).
+			if fa == 0.0:
+				tb = ta
+			elif y(s, tb) - edge == 0.0:
+				ta = tb
+			for i in (0 if ta == tb else 60):
 				var tm := (ta + tb) / 2.0
 				var fm := y(s, tm) - edge
 				if (fm < 0.0) == (fa < 0.0):
@@ -638,6 +648,9 @@ func u_reciprocal_turning_point(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 		lines = ["The graph of the quadratic y = f(x) is shown, with its vertex labelled."]
 		graph = plot(s)
 		read = "The graph shows that f has a %s at %s." % [f_kind, Fmt.point(h, k)]
+	# 1/k, and its value when the two read differently: "1/2", "1/(−3) = −1/3".
+	var one_over := "1/%s" % Fmt.paren(k)
+	var inv_eq := one_over if one_over == Fmt.num(inv) else "%s = %s" % [one_over, Fmt.num(inv)]
 	var least := "least" if f_kind == "minimum" else "greatest"
 	var most := "greatest" if f_kind == "minimum" else "least"
 	return {
@@ -647,11 +660,11 @@ func u_reciprocal_turning_point(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 		"fillers": [{"x": h, "y": inv, "kind": other}, {"x": h, "y": inv.neg(), "kind": kind}, {"x": h.neg(), "y": inv, "kind": kind}],
 		"methods": {
 			"feature-swap": method([read,
-				"1/f has a turning point where f does, at x = %s, with y = 1/%s = %s." % [Fmt.num(h), Fmt.paren(k), Fmt.num(inv)],
+				"1/f has a turning point where f does, at x = %s, with y = %s." % [Fmt.num(h), inv_eq],
 				"A %s of f becomes a %s of 1/f. %s" % [f_kind, kind, fin]], ans.values),
 			"sign-and-size": method([read,
 				"Near x = %s, f keeps the sign of %s, and %s is its %s value there." % [Fmt.num(h), Fmt.num(k), Fmt.num(k), least],
-				"Taking reciprocals of numbers of one sign reverses their order, so 1/%s = %s is the %s value of 1/f near x = %s. %s" % [Fmt.paren(k), Fmt.num(inv), most, Fmt.num(h), fin]], ans.values),
+				"Taking reciprocals of numbers of one sign reverses their order, so %s is the %s value of 1/f near x = %s. %s" % [inv_eq, most, Fmt.num(h), fin]], ans.values),
 			"gdc-graph": method(["Graph y = 1/f(x) on the GDC%s." % ("" if rep == "equation" else ", with f(x) = " + Fmt.vertex(a, h, k)),
 				"Its local %s is at (%s, %s), and %s = 1/%s." % [kind, Fmt.num(h), GdcKit.W(inv.to_float()), GdcKit.W(inv.to_float()), Fmt.paren(k)],
 				fin], ans.values),
@@ -727,6 +740,15 @@ func u_square_features(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	}
 
 
+## The period of sin(bx), worked: "2π", "2π/3", "2π/2 = π".
+static func _period_text(b: int) -> String:
+	var full := Fmt.pi(Q.new(2, b))
+	if b == 1:
+		return full
+	var raw := "2π/%d" % b
+	return raw if raw == full else "%s = %s" % [raw, full]
+
+
 func _square_period(s: Dictionary) -> Dictionary:
 	var b: int = s.b
 	var A: int = s.A
@@ -750,8 +772,7 @@ func _square_period(s: Dictionary) -> Dictionary:
 		"lines": [fx(s)], "answer": ans, "wrongs": wrongs, "fillers": fillers,
 		"methods": {
 			"square-outputs": method([
-				"f has period 2π/%s = %s: it is positive for the first half of each period and negative for the second." % [Fmt.num(b), Fmt.pi(full)] if b != 1 else
-					"f has period 2π: it is positive for the first half of each period and negative for the second.",
+				"f has period %s: it is positive for the first half of each period and negative for the second." % _period_text(b),
 				"[f(x)]² = %s, and squaring makes the negative half a copy of the positive half, so the graph repeats twice as often." % sq,
 				fin], ans.values),
 			"derivative-check": method([
