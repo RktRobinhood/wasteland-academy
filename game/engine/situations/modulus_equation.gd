@@ -199,7 +199,7 @@ static func _curve(rng: Seeded, graph: bool) -> Dictionary:
 		var w := rng.int_in(2, 5)
 		s.B = -(2 * p + w)
 		s.C = p * (p + w) + rng.int_in(-2, 2)
-		# Not a perfect square, so its zeros need the GDC.
+		# Two zeros, so |f| has a reflected part.
 		var disc: int = s.B * s.B - 4 * s.C
 		if disc <= 0:
 			return {}
