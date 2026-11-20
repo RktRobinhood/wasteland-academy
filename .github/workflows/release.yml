@@ -1,0 +1,36 @@
+# The release gate (#192): a release tag counts as green only when every job of
+# test.yml and every shard of the stress sweep (stress.yml) passed on that commit.
+# This workflow publishes nothing. The pinned student release (#184) adds its deploy
+# as a job that needs `green`.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A tag is pushed once, so never cancel its gate.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  stress:
+    uses: ./.github/workflows/stress.yml
+
+  # Green only when both called workflows are green in every job. It runs even when
+  # one failed, so a red gate shows as a failure and not as a skipped check.
+  green:
+    needs: [test, stress]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: test "${{ needs.test.result }}" = success
+      - run: test "${{ needs.stress.result }}" = success

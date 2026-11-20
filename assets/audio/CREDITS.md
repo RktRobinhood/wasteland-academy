@@ -660,6 +660,270 @@ play the same palette under the same cue names. All Kenney CC0 1.0, unedited.
 - `game/assets/audio/sfx/encounter-open-01.wav` — cue `open`. Byte-for-byte copy of `assets/audio/proposed/fal-372/encounter-open-01.wav`, whose Kenney CC0 source, URL and edits are recorded above. SHA-256 `496caa309b931e901cbb6b69e5f41106ee5caddcfcd2bf5c163f457e9d27f94c`, unchanged.
 - `game/assets/audio/sfx/encounter-clear-01.wav` — cue `clear`. Byte-for-byte copy of `assets/audio/proposed/fal-372/encounter-clear-01.wav`, whose Kenney CC0 source, URL and edits are recorded above. SHA-256 `227bee690a3fa9d1e80d3646d37289662c05ee7a039331ea1a392c6310bcc9b1`, unchanged.
 
+## FAL-1133 — boss taunts and encounter cast lines, local voice clones (voice)
+
+109 voice files, each named by its text: the first 12 hex characters of the SHA-1 of the exact UTF-8 line (the FAL-1132 rule). The 26 boss taunts from `game/data/bosses.json` are in `game/assets/audio/voice/<zone>-miniboss/lines/` and `<zone>-boss/lines/`; the 63 Signal Tower encounter lines from `writing/encounters/signal-tower.json` in `game/assets/audio/voice/<encounter id>/lines/`; the Cell guard's 14 lines from `writing/encounters/cell.json` in `game/assets/audio/voice/cell-guard/lines/`; and Spark's 6 encounter lines in `game/assets/audio/voice/spark/lines/`. The words fed to the model are each line exactly. Generated locally with VoxCPM2 on 2026-11-19. No recordings of any real person went in.
+
+Rights basis: as for FAL-1110 below. VoxCPM2 (OpenBMB) code and weights are released under the [Apache License 2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE), which allows commercial use; model card https://huggingface.co/openbmb/VoxCPM2. Package `voxcpm` 2.0.3, weights `openbmb/VoxCPM2` from the local Hugging Face cache. Each voice is cloned from one reference take: the voice reading the template paragraph, generated with Gemini text-to-speech (`gemini-3.8-flash-tts`, the voice and direction in `teachers.json` `characters`) via the Gemini API on 2026-11-19 (FAL-1133). The references stay in the local falcon-voice repo and don't ship. No model was trained or fine-tuned. Matt chose these voices on FAL-1133 (2026-11-19); Spark's is the FAL-1110 clone.
+
+| Voice (`teachers.json` id) | Gemini voice | Reference SHA-256 | Covers |
+|---|---|---|---|
+| `mini-bruiser` | `en-au-training-8` | `b417ca8bc06225e01221739dff2e46001a5aece14f0421c60850745938d6d545` | quadratics-miniboss (Arc Gunner Pell), composite-inverse-miniboss (Switchback Jun), function-basics-miniboss (Hopper Dave), geometry-miniboss (Surveyor Hale), stats-miniboss (Static Lou) |
+| `boss-heavy` | `en-au-concierge-1` | `74dadd38e7540258bef5fccf025151e18f60f26b440cf5808e8b575cef14f606` | quadratics-boss (Warden Apex), exp-log-boss (Baron Exponent), algebra-boss (The Compounder), stats-boss (The Pollster), thunderdome-boss (The Promoter) |
+| `mini-hustler` | `en-au-concierge-5` | `16a676be5acba987f387b7dbf71559824926fcf85f3e3d8eef906ab1b1ec2c14` | exp-log-miniboss (Compound Cora), rational-miniboss (Ration Clerk Vee), transformations-miniboss (Shifty Nan), algebra-miniboss (Ratchet Rae) |
+| `mini-hotshot` | `en-au-csagent-5` | `37d94f5a38185d4e0f5c604a69b9f01fd25aa9071af755926977c15bb8c7e712` | graphs-features-miniboss (Tracer Wren), lines-miniboss (Slope Rider Kit), calculus-miniboss (Gradient Jo), thunderdome-miniboss (Mixtape Vex) |
+| `boss-oracle` | `en-au-advisor-7` | `ef3140f755b4892a873773c8a319dd2c203e04296a2a3039270f22ffba91cc00` | graphs-features-boss (The Cartographer), transformations-boss (The Tailor), geometry-boss (The Sundial) |
+| `boss-cold` | `en-ke-advisor-1` | `3f8c6147a6419018ce4cfac749adbd0edf401b05fd82a41e94e578de5b737fd6` | composite-inverse-boss (The Mirror Foreman), rational-boss (Warden Zero), function-basics-boss (Dispatcher Mapp), lines-boss (The Straight Man), calculus-boss (The Integrator) |
+| `st-coffee-cart` | `en-nz-assistant-5` | `5a8ad51fb2524ac951ed50ab3a2b0386d5458b0d2bede035807bf10477b6a6ad` | st-coffee-cart |
+| `spark` | `leda` | `a456ce468559a8da7a6b060a1b90cea785533581abf52f7ec71978e1066ff151` | spark |
+| `st-mast-climber` | `en-au-storyteller-2` | `8533a5fe2711284bd84f001bcb8dbf8052923860aa571e33e1d63ef9605e7b14` | st-mast-climber |
+| `st-permit-booth` | `en-au-concierge-8` | `fb33eef5f0008a3059cc0cf32f71f796dcb67de6f2ed7a1597aa8ce1339ae5f8` | st-permit-booth |
+| `st-hush-water` | `en-au-podcaster-1` | `6ebee405a545a4ceb8af73069341fc69244649f338a06474596c1413ebe76276` | st-hush-water |
+| `st-live-wires` | `en-au-assistant-7` | `3bb4ef2b9483920a805e22dd1ee21026fe98a9a5e801ea8be29de33606c41e05` | st-live-wires |
+| `st-numbers-station` | `en-au-assistant-6` | `56a38515a4963cd97edc665da629b86b88bef6c875a1a9235783e55d4b780380` | st-numbers-station |
+| `cell-guard` | `en-au-training-1` | `6569918754efb67efe3220935e68cfc1c670e9b7be54b8063d311ceb89dad690` | cell-guard |
+
+- **Cloning:** VoxCPM2 "ultimate" mode: the reference is both `reference_wav_path` and `prompt_wav_path`, and its words are `prompt_text`. cfg 2.0, 10 inference timesteps, denoiser off, text normalisation off. Seed per file below (`torch.manual_seed`): 1099 for 99, 1100 for 9, 1101 for 1.
+- **Changes, every file** (falcon-voice `clone/post.sh`): resample the 48 kHz clone to 24 kHz mono; trim silence below −50 dB at both ends; 10 ms fade-in and 40 ms fade-out; 30 ms lead-in and 60 ms tail; then the voice's chain from `teachers.json` (the 2% tape slowdown `asetrate=23520,aresample=24000`; for Spark, `fx/spark-sheen.sh`); then falcon-voice `master.sh` (two-pass loudnorm to −16 LUFS, true peak at or below −1 dBTP, 44.1 kHz mono OGG Vorbis q5), with `clone/prelimit.sh` first for any take `master.sh` alone left below −17 LUFS.
+- **Measured** (`ebur128`, true peak): -19.6 to -15.6 LUFS-I, -2.9 to -1.1 dBTP, 1.04 to 9.8 s long, 7.9 minutes in all.
+
+**mini-bruiser**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `quadratics-miniboss/lines/70c584e5c218.ogg` | taunt 1 | `1099` | 2.42 | -16.5 | -1.9 | all | `2bb602a551179fced5256f76b2ed91f46b3ab9e6353090f0cff75c02506f49a3` |
+| `composite-inverse-miniboss/lines/46ef28965e87.ogg` | taunt 1 | `1099` | 2.72 | -16.0 | -1.9 | all | `5763f7bd910716a0c56c1db26dfc913ad05e173dc8714c1f5f9bcf0514f0acd6` |
+| `function-basics-miniboss/lines/af4d3588b712.ogg` | taunt 1 | `1099` | 3.86 | -16.4 | -1.6 | all | `a5613a570cb490da2e099efa4b6698e9d9923b647cb000ccb70321e23093d71c` |
+| `geometry-miniboss/lines/e6d32ff40f56.ogg` | taunt 1 | `1099` | 3.13 | -16.1 | -1.8 | all | `814ccae954508c7ffccf126cfa94f34daa57d6e6152e98b83747931b47fdd2f0` |
+| `stats-miniboss/lines/4a94597c2877.ogg` | taunt 1 | `1099` | 4.3 | -16.7 | -1.7 | all | `5c64dd9e9198525e5d25827f09de706ecd61b47256c8a11c2488a096b3a723fc` |
+
+**boss-heavy**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `quadratics-boss/lines/35d555e8a3cc.ogg` | taunt 1 | `1099` | 4.7 | -16.8 | -1.7 | all | `7243265211e9b22b40dac54ec18481449eb97f3ed0f90664c7a75dc1f4f39ba1` |
+| `exp-log-boss/lines/05d79b30d907.ogg` | taunt 1 | `1099` | 3.67 | -17.3 | -1.7 | all | `cb3ee6428f75d31231764d42b48750e05d7629f7f090ec29b3c2e2d7b5a06eb1` |
+| `algebra-boss/lines/33fb935455e5.ogg` | taunt 1 | `1099` | 4.4 | -16.2 | -1.6 | all | `f8c4ba5e4d50af993892f86d7b7bad7e6ed18c3615d11e4998af2a651816a37c` |
+| `stats-boss/lines/4f5fb7820f09.ogg` | taunt 1 | `1099` | 2.78 | -16.9 | -1.8 | all | `a1f0578f7ca590cda03a584e7d986610f1044036960fad94d16b74ae5919a888` |
+| `thunderdome-boss/lines/9b913cb3e5a5.ogg` | taunt 1 | `1099` | 3.35 | -16.2 | -1.8 | all | `598e2e3314a28c12ed6b5ea2295eb2588d4cab0bbd18a6d65b96416e6f4bf755` |
+
+**mini-hustler**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `exp-log-miniboss/lines/fb86ef1ce15e.ogg` | taunt 1 | `1099` | 3.67 | -15.6 | -2.9 | all | `460d062379e4808948074ce07feb9d054113f66c398dabeb7094fb4786fe3fec` |
+| `rational-miniboss/lines/3aeb23b49009.ogg` | taunt 1 | `1099` | 2.71 | -15.9 | -1.7 | all | `410045723fb620c30212198073662d6ccefae6da8910e0b389c14ae057e87a50` |
+| `transformations-miniboss/lines/a7b77be13769.ogg` | taunt 1 | `1099` | 3.72 | -17.0 | -1.6 | all | `8a6eaa9214a0d1a055a1f6e17368556ebd249603f73814eab6518fce8454efc0` |
+| `algebra-miniboss/lines/4e82c750bcbc.ogg` | taunt 1 | `1099` | 4.2 | -16.0 | -1.7 | all | `12f37deedef7a50b209d3877a4802e73fc90e85e299cf32ea081163bdcbb2e92` |
+
+**mini-hotshot**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `graphs-features-miniboss/lines/88ee20fec944.ogg` | taunt 1 | `1099` | 1.99 | -16.3 | -1.8 | all | `7bbf6a7473452f0869a0fd4b2fcf824797be1b0c2e0eab85675e4e56783357be` |
+| `lines-miniboss/lines/10d54b18f76b.ogg` | taunt 1 | `1099` | 2.56 | -16.7 | -1.9 | all | `193f5c2ebdb2e9dc5bce15a72fb3ae8514f915801233fa9a45bc50e01a4e32b1` |
+| `calculus-miniboss/lines/b4f5a92f10b9.ogg` | taunt 1 | `1099` | 1.96 | -16.6 | -1.9 | all | `9f5bce3663af86f13b18c121507a6b17226bca7f01c545efb27218e3cb952ee6` |
+| `thunderdome-miniboss/lines/4b8569e42850.ogg` | taunt 1 | `1100` | 2.99 | -16.0 | -2.0 | all | `6be6b922a9b4100a6b95f7531eae7f8937a661fb146c70798b049639bdf38033` |
+
+**boss-oracle**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `graphs-features-boss/lines/e3db5d9ecd71.ogg` | taunt 1 | `1099` | 6.3 | -16.0 | -1.9 | all | `3e38f6a6721f6cce79160094c5eae70951bd7a2d613224acf8110964ddaa8e7f` |
+| `transformations-boss/lines/b5be38a11796.ogg` | taunt 1 | `1099` | 7.4 | -16.3 | -1.7 | all | `4cfdd1417a4baae8565f07b2ff47cf7e494c5188b435e76e1c1779e97cf9e549` |
+| `geometry-boss/lines/4a8d895fa0a3.ogg` | taunt 1 | `1099` | 5.1 | -16.3 | -1.5 | all | `349a60d067a02b135aa426c4e87b00d5aa3e725c243fe2832d2aa3adbed9a868` |
+
+**boss-cold**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `composite-inverse-boss/lines/06c53a2f0cfb.ogg` | taunt 1 | `1100` | 3.61 | -16.6 | -1.8 | all | `0c38ea1ef0e3f8707a9441287e188c1ecedb5e20e534ff5db137877f8c4fde61` |
+| `rational-boss/lines/c4107c37916f.ogg` | taunt 1 | `1099` | 2.45 | -17.0 | -1.3 | all | `f758364c66ab6b5b1dc8cf50b8da87746edf2370077a58f8d197fbf75f2cb4a2` |
+| `function-basics-boss/lines/0152fd1e5ba6.ogg` | taunt 1 | `1099` | 5.0 | -16.7 | -1.6 | all | `c70f392220c60919c2d423d02b8d4a4b36c758bba08aaf2ca069353bea860c68` |
+| `lines-boss/lines/9f8fbf8bc0e4.ogg` | taunt 1 | `1099` | 5.4 | -16.7 | -1.3 | all | `e19e183fbe2d38ee42886f421eb31a03975a0e87a4e1f8315c6d51780af45f52` |
+| `calculus-boss/lines/677bdeacdff8.ogg` | taunt 1 | `1099` | 4.1 | -16.2 | -1.6 | all | `b358319cd79fb0850e6596f2fac008010a90497498a25cbfc1f6dbee2dce988e` |
+
+**st-coffee-cart**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-coffee-cart/lines/ae44a9983c0e.ogg` | open 1 | `1099` | 5.8 | -16.3 | -1.7 | kettle's -> kettles | `3176766c82d25eeb368a5bc525ae05b8e397b9a8a24eaca1c1d4f37ad14510c0` |
+| `st-coffee-cart/lines/8e8a4bbed52d.ogg` | open 2 | `1099` | 6.2 | -16.5 | -1.9 | all | `df266ebd615ca17f6c3c470e771a14bc627cbe3df56f1449e60637e6f73d4559` |
+| `st-coffee-cart/lines/db66596a15eb.ogg` | walk_on 1 | `1099` | 4.8 | -16.0 | -1.8 | all | `219751915e0dea06609135e154fdbff2c94355e69806054351bfa6076c360f7e` |
+| `st-coffee-cart/lines/28a319cce5d8.ogg` | right 1 | `1099` | 3.62 | -16.1 | -1.8 | all | `70d9d71f0a6c7101920462c9db6aa8e13175a7807c795c3563ff685d11c075d7` |
+| `st-coffee-cart/lines/2b220057d9ac.ogg` | right 2 | `1099` | 5.1 | -16.4 | -1.9 | all | `9a0d1c8bb4c0b8884031845a7a368cdf32a506afb6581343504a79a22512e6c5` |
+| `st-coffee-cart/lines/91e783f1d8f3.ogg` | right 3 | `1099` | 3.55 | -17.0 | -1.9 | all | `d33485c35357e3c12aa47fc1788ec7fcec0620ece5571234429089f2e0699dde` |
+| `st-coffee-cart/lines/8a1f11e629b8.ogg` | miss 1 | `1099` | 5.0 | -16.0 | -1.7 | all | `2e88086186ee4eabda0119677050aa140825c0c5da6cd41ef91e062b1a4a71b8` |
+| `st-coffee-cart/lines/907bf6b05ca5.ogg` | miss 2 | `1100` | 3.49 | -16.4 | -1.8 | all | `25c55f2ad3f647cd05cba8ad26a57801b372c6d90930b234df88bc64482cafc7` |
+| `st-coffee-cart/lines/dd1674287ab9.ogg` | win 1 | `1099` | 4.8 | -16.0 | -1.8 | tamsin's -> tamsen's | `a650466fd67470d029297031edc2a4bce41b4b253f0cd13ca818803ba6331079` |
+| `st-coffee-cart/lines/4df8ade02adb.ogg` | bust 1 | `1099` | 6.0 | -16.1 | -1.7 | all | `850f89ba444807fd1456f2090d7f4e3fcbbf1e9dc3a229c5c9a37f850a46f96c` |
+
+**spark**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `spark/lines/46416ad4aa17.ogg` | st-coffee-cart:spark 1 | `1099` | 4.6 | -16.0 | -1.4 | all | `446f96ff3d5caf8f521d7cb19d491d82497ac73b5aef0c3ad5601c987feaad1f` |
+| `spark/lines/d9e400304197.ogg` | st-mast-climber:spark 1 | `1099` | 4.1 | -16.1 | -1.7 | all | `fa0779f0e12e4ba87a22d4f81bf6c93887916d0971dfcd13402f1f156c49ce3b` |
+| `spark/lines/7d7b8aea2042.ogg` | st-permit-booth:spark 1 | `1099` | 4.6 | -15.9 | -1.9 | mast -> masked | `5aa6a2a44764e3429a262b4075c181c74f71315cd8abdd317619ac0a4984ae3d` |
+| `spark/lines/3972710feeac.ogg` | st-hush-water:spark 1 | `1099` | 4.3 | -16.0 | -1.7 | all | `c72a7bfa162f4232f054daeb90f7565823513ac278836d3cda2d870d6519ca77` |
+| `spark/lines/d2ce05affb37.ogg` | st-live-wires:spark 1 | `1099` | 4.3 | -16.4 | -1.6 | all | `6d088b94c94b91967c6b96e45353fa94789ca3acd5915cac71817c057ea82822` |
+| `spark/lines/388733596ed2.ogg` | st-numbers-station:spark 1 | `1099` | 4.3 | -15.9 | -1.8 | all | `9c0f7b1b97c0fb9ec5540dd29b9b2426e43b4a53164d0c4f1c0a324894fd0c16` |
+
+**st-mast-climber**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-mast-climber/lines/2a569b4a6524.ogg` | open 1 | `1099` | 4.2 | -17.0 | -1.8 | all | `2aecf8c7ad4dbded91e36896ce42b0d45ee5b34e606da90e308675639d170143` |
+| `st-mast-climber/lines/5cf9ba24d9e6.ogg` | open 2 | `1099` | 4.3 | -16.3 | -1.5 | rope's -> rope | `7546f7f1d40a595d153bcfd1478677ceb358f0d0a536de016a74112d40ab7a87` |
+| `st-mast-climber/lines/28ac63f4c5e3.ogg` | walk_on 1 | `1099` | 3.41 | -17.4 | -1.7 | all | `67a92397a8b4e8ab8aee5aaaf4d8128e50c65ef23591c2b7ed40ac201b0eb663` |
+| `st-mast-climber/lines/96ec21705085.ogg` | right 1 | `1099` | 3.2 | -17.0 | -1.7 | all | `71ee36ad197a89633aa978846025802d540774d174dd7ce6f5f7e017602dffb8` |
+| `st-mast-climber/lines/666f17b5c2f5.ogg` | right 2 | `1099` | 3.37 | -16.2 | -1.8 | all | `379099ec12bc79de733cb207cea95a8bc411e8481781b1ce0920222c5de8acaa` |
+| `st-mast-climber/lines/af95f2b1fa32.ogg` | right 3 | `1099` | 4.3 | -16.2 | -1.8 | all | `ce5f1f2b71b082db7f0abb32c273b26267176fd9bf4e30e4f491247fce27037b` |
+| `st-mast-climber/lines/214a8083d3ad.ogg` | miss 1 | `1099` | 4.6 | -16.8 | -1.5 | all | `a19b8e82eb1da3e8e9f0443efcfdd3c459a7bd89a085713599a0d274d4183188` |
+| `st-mast-climber/lines/0d5b9784591d.ogg` | miss 2 | `1099` | 4.5 | -16.6 | -1.7 | all | `5a9da94f19ca9edda7d81521c94d4ae98787abf8c8e08d04b40ed3f9197672f2` |
+| `st-mast-climber/lines/c4a2708af0e2.ogg` | win 1 | `1099` | 4.0 | -17.2 | -1.6 | all | `6de0f5fc10a803797f4db1c0ed1f437e9f4a8ac6ea78cf2dec25c1825457be3b` |
+| `st-mast-climber/lines/81f03932223f.ogg` | bust 1 | `1099` | 3.24 | -16.7 | -1.4 | all | `553be4c3d20dda7bdbc93e481e181aca3a9f98b0c946b6531c23da44bd4e6931` |
+
+**st-permit-booth**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-permit-booth/lines/9cdc85b4f419.ogg` | open 1 | `1100` | 4.2 | -16.4 | -1.8 | all | `5a5e0886b4bcc8efe4e373d3705b5b5435605af3e9393e347fc2a0d0727a75fc` |
+| `st-permit-booth/lines/a2810530d840.ogg` | open 2 | `1100` | 4.3 | -16.8 | -1.8 | all | `d491d3934daa738486e4e9830518821901bf1306d0dfda164002a9f914977ab4` |
+| `st-permit-booth/lines/9cfecc2da863.ogg` | walk_on 1 | `1099` | 3.56 | -16.5 | -1.6 | all | `03d8d27b10b0f525b0070f8a8e50d7989fca38599f4b274b8463c6497e160e04` |
+| `st-permit-booth/lines/44f098ae3dd3.ogg` | right 1 | `1099` | 4.9 | -16.0 | -1.6 | all | `217cb80cf9ea61ad593e9108ca03c0dc8da8e8295a8ccc18238e9de313cf6415` |
+| `st-permit-booth/lines/471367896f25.ogg` | right 2 | `1099` | 4.2 | -16.8 | -1.7 | all | `a42c00eb67d34aefbedb90225e5566eb8760388644906edcd33567a7c0e411cc` |
+| `st-permit-booth/lines/950348dd39cc.ogg` | right 3 | `1099` | 6.1 | -16.5 | -1.7 | all | `31f0f0e8aaa37917ac76b4bd3bad9d16a2997c384c1ad144364ab9b440a26826` |
+| `st-permit-booth/lines/b3e725b14e0c.ogg` | miss 1 | `1099` | 4.2 | -16.9 | -1.7 | all | `cc4445177134171d88c90ad7768809776276ec43162f74f535b5162688340fdc` |
+| `st-permit-booth/lines/314983902f8a.ogg` | miss 2 | `1099` | 5.9 | -16.7 | -1.7 | all | `3a611fac8e8c5fa066144c156ca7861578f6ccf68f38adc100daee57c14a7ade` |
+| `st-permit-booth/lines/2a9f48aa4e65.ogg` | win 1 | `1099` | 4.8 | -16.2 | -1.6 | all | `07c47454c3960bc53a71c186a036b6b834c9cf2ae1e6c1e6796c4fa7eeac4623` |
+| `st-permit-booth/lines/a714e941e79c.ogg` | bust 1 | `1099` | 4.1 | -16.3 | -1.5 | all | `20fa503a37facd102fcb793fd942df6dd588665faef93f49f6a7a680014a71e2` |
+
+**st-hush-water**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-hush-water/lines/b75facb912bf.ogg` | open 1 | `1099` | 1.36 | -15.9 | -2.2 | all | `4d1b7cb76fe905dfea9073e4e1b5a731a88d850f784759eeb7869352029187cc` |
+| `st-hush-water/lines/e76ca2288ca9.ogg` | open 2 | `1099` | 1.04 | -18.7 | -1.6 | all | `3db2f4bed022298ec3218bd15bea117f79fce222a9d5c2d3fbd3beacfd918a14` |
+| `st-hush-water/lines/009d8188c88a.ogg` | walk_on 1 | `1099` | 1.34 | -16.0 | -2.0 | all | `1dbbecf7c442afa38f7d828c68eb15b8fa5ed9dd0b0e72c804869572843dc3cc` |
+| `st-hush-water/lines/c51947b7339d.ogg` | right 1 | `1099` | 2.94 | -17.4 | -1.8 | hm -> hmm | `b2e7f1daca3dc866906a1151801d4c858c659ce7427128b10a5eebbc45b4833e` |
+| `st-hush-water/lines/266f907db66f.ogg` | right 2 | `1099` | 2.31 | -17.0 | -1.4 | all | `39f23ed6380614e1503d9fe46aca165b48869cb03bf359978fbbe23b33cce61c` |
+| `st-hush-water/lines/f4794c82ce08.ogg` | right 3 | `1099` | 1.4 | -16.0 | -2.2 | all | `83fdadf454da42f9aaff127fc6891d4bd0f8c2497f425a6e34e832e9d9793641` |
+| `st-hush-water/lines/b3df27960edc.ogg` | miss 1 | `1099` | 2.29 | -16.0 | -2.2 | all | `831fa45f16e10f61d6a63b5605778f997722ba24e684d7d86286fea78bd431d7` |
+| `st-hush-water/lines/590275b6cd30.ogg` | miss 2 | `1099` | 2.72 | -16.6 | -1.8 | all | `960d61020b53ce136911b9ecf3cf8041f1528ecd357d4edcdc9c28c1a048a995` |
+| `st-hush-water/lines/a2bb51e656a6.ogg` | win 1 | `1099` | 1.76 | -16.0 | -2.2 | all | `e216c9d1d4ee9b00c6db621a2b863c92929cb351189b150982dd26a6602dfb76` |
+| `st-hush-water/lines/2ec6c7afd8ee.ogg` | win 2 | `1099` | 2.3 | -16.0 | -1.8 | all | `bb31681effbf202d541c92bc5abe51b9dc84733e420ff5f74d11aba4c2172211` |
+| `st-hush-water/lines/03aba871e0cc.ogg` | bust 1 | `1099` | 2.54 | -15.9 | -2.8 | all | `f6be4789361e131e346b63131de1871271c82ba75e7c09b3c336534cde6a1a56` |
+| `st-hush-water/lines/b6f9def37e62.ogg` | bust 2 | `1099` | 2.06 | -19.6 | -1.8 | all | `63edf6d0f74dce70b51dfd71d3809f84711c80af502558ef504891d89697d080` |
+
+**st-live-wires**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-live-wires/lines/5f50cd54698c.ogg` | open 1 | `1100` | 4.5 | -16.2 | -1.7 | round -> around | `c7faef3a2123f53a3fe18bfa6ac29a134e4a983aff50ad33925e8cb2adb2e303` |
+| `st-live-wires/lines/71b3dae4878c.ogg` | open 2 | `1099` | 3.86 | -16.0 | -1.7 | cache -> cash | `4ecdccd53c9c86948b146853b07e5b055a1089f523619df6b58c3e095629f6b3` |
+| `st-live-wires/lines/d5d6c932ca8e.ogg` | right 1 | `1099` | 3.2 | -16.9 | -1.7 | all | `94f6eae58c558c0b30632e82fe40785681339c5588b74ac67a67ccfac3a06147` |
+| `st-live-wires/lines/5b914f694504.ogg` | right 2 | `1099` | 3.21 | -16.6 | -1.8 | all | `073b897c386b46a05446c1d887aec64c421e5efd23e9e3ac6e23cf9b28283eec` |
+| `st-live-wires/lines/533ab9057fe2.ogg` | right 3 | `1099` | 4.8 | -16.2 | -1.4 | smell's -> smells | `fadd48494f7d44cb93cf22a2b8f6b9630bc7f37b0ea1f0df10d3bc323bf53df0` |
+| `st-live-wires/lines/150cde3c3dc6.ogg` | miss 1 | `1099` | 4.5 | -16.9 | -1.7 | all | `b8bc05084abfed9541cdc9d6b1d9a5dc28e76a3c876bacc6cc2aaff273eea7fa` |
+| `st-live-wires/lines/8b4b4a3b88b2.ogg` | miss 2 | `1099` | 3.66 | -16.6 | -1.1 | all | `fec6cc510f90d9b75bd994bfcccc5c60587ff9aed0dba03eeb975374086667f6` |
+| `st-live-wires/lines/0ce516fbd2f3.ogg` | win 1 | `1099` | 6.4 | -17.0 | -1.8 | cache -> cash | `cd97fabc2cab3dca36e15df2a4ebe0a429bd2de174b8db1851ed723b75b4100e` |
+| `st-live-wires/lines/770e54006482.ogg` | bust 1 | `1099` | 5.5 | -17.0 | -1.7 | all | `642622faba9cd57ad58c65f3b07073f950fa73e866eff197eeac7052d2a4db7e` |
+| `st-live-wires/lines/ff6f1076e2aa.ogg` | bust 2 | `1099` | 2.4 | -16.1 | -1.8 | all | `b79fbda9480b8b0c643892837892c1495818aa4a08fe419597f0ec57ee5ff444` |
+
+**st-numbers-station**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-numbers-station/lines/281dce98c881.ogg` | open 1 | `1099` | 8.8 | -16.1 | -1.7 | (extra) -> hundred; (extra) -> and; three -> thirty | `ef1dd8dbd6052368541e2e9e38eea0df2048bccc94e2dfd4adab65067b547693` |
+| `st-numbers-station/lines/34dcc6582f1a.ogg` | open 2 | `1099` | 7.9 | -16.2 | -1.8 | all | `c3205e7e141811f4552107c49b452b5a09f2f5814856b658f57d72663cd0317c` |
+| `st-numbers-station/lines/1d9dc9f41996.ogg` | walk_on 1 | `1101` | 6.3 | -15.9 | -1.8 | all | `ff601e3c2060060ad508d41aac25cd4d4f206d37a25f16cff5be0fec6fa9f47b` |
+| `st-numbers-station/lines/6992e1884de5.ogg` | right 1 | `1099` | 9.2 | -16.1 | -1.9 | all | `1a543931289278cb3ca1110b591f9497b53db5d4e545393cb1db83a33b00925a` |
+| `st-numbers-station/lines/5eed90088ddc.ogg` | right 2 | `1099` | 7.9 | -16.6 | -1.7 | all | `07b7ebd49a0092539a770bb9139f021f2e3858365e785751f740db4622be84c7` |
+| `st-numbers-station/lines/825229e27960.ogg` | right 3 | `1099` | 8.2 | -16.1 | -1.7 | all | `69c648b9a0e32ffaaf39806de67f489219653422228c4ea2e11458159d50fe04` |
+| `st-numbers-station/lines/7dd8c66dc185.ogg` | miss 1 | `1099` | 9.8 | -16.0 | -1.7 | all | `4ae2b7d5f04da8f9c7e1bfed18ba1ac65f862dc10edb62af99e2b2a9b5ecfd11` |
+| `st-numbers-station/lines/b9ac630b8e18.ogg` | miss 2 | `1099` | 9.6 | -15.9 | -1.8 | seventeens -> seventeen's | `df23083db935e0add1993f602552c81adcaf70539538645e81a215d59207732b` |
+| `st-numbers-station/lines/02649768b2ad.ogg` | win 1 | `1099` | 7.3 | -16.0 | -2.1 | all | `6a925b990b5e29ed64b844b83a4e430afb8e04a43cd6610548530e83d12e96bd` |
+| `st-numbers-station/lines/5be97c98caa9.ogg` | win 2 | `1099` | 8.7 | -16.2 | -1.6 | all | `690bf6309746ee6d4165d659e4b1bdaeba2566affe1c2e969bd1dbd32fdfc488` |
+| `st-numbers-station/lines/ac4beb579afe.ogg` | bust 1 | `1099` | 8.9 | -15.8 | -1.9 | all | `353865ad7de506e8c9ec5b5831779936c29df75ca3d1695c63b4d99d00af39e6` |
+
+**cell-guard**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `cell-guard/lines/b4f2ec721ef0.ogg` | open 1 | `1099` | 4.7 | -16.3 | -1.8 | all | `5b8dfd520c5361746a1fc6a5552b4340a1e32e6601ac0b0e945416f4dd032528` |
+| `cell-guard/lines/4e72b95026de.ogg` | open 2 | `1099` | 4.0 | -16.6 | -1.7 | all | `4bdd1ed11a777c22c0974810a81320ad11bc4a3c757edb123207f03414fac404` |
+| `cell-guard/lines/3ba695302827.ogg` | right 1 | `1100` | 4.1 | -16.1 | -1.6 | all | `75cc31eb99cf2cfda66c45c74f25e5482d6cc4c9e978d09ac20feacb8d7c0c92` |
+| `cell-guard/lines/4fc4e0f24a41.ogg` | right 2 | `1099` | 3.76 | -16.1 | -1.8 | all | `4c97a873bcd38a5b97bd1d1336acd8e912463962048edce7931977d0fb2b751f` |
+| `cell-guard/lines/1fdecc0c5795.ogg` | right 3 | `1099` | 4.3 | -17.0 | -1.9 | all | `5d782cc2851490a60872c83c3fd09b7c0710b7621e775510c5d73cff0c7fb42e` |
+| `cell-guard/lines/575120a065e3.ogg` | miss 1 | `1099` | 4.4 | -16.4 | -1.5 | all | `1267db76814a28f04f1359c4dce9b75aa367684b5ca5f1f7d725f74a6d72dee0` |
+| `cell-guard/lines/2ffd6a14e012.ogg` | miss 2 | `1099` | 2.88 | -16.6 | -1.8 | all | `061bc23ca10649686b63d3ade5722d02e16c4cf260baad80548b7d387096cb63` |
+| `cell-guard/lines/e89895b4e8c9.ogg` | hunger 1 | `1099` | 3.27 | -16.4 | -1.7 | all | `f25f42c7cb3f9382e01b979c5f83a2ed0ac373999c4e21489c182d434a238a16` |
+| `cell-guard/lines/557e81447d7d.ogg` | hunger 2 | `1099` | 5.4 | -16.4 | -1.7 | stew -> stu | `9c20dfbb1fc008be5923b052f3704511285b3fe51fc0ddc3858b4ba5b685a388` |
+| `cell-guard/lines/3829fbdf7efc.ogg` | hunger 3 | `1100` | 3.5 | -16.8 | -1.7 | all | `6d1726b7907ce4a474b63aac9622d177bedd76e76d512df183dff8c2e0b9471c` |
+| `cell-guard/lines/103cb303d288.ogg` | hunger 4 | `1099` | 3.05 | -16.7 | -1.4 | all | `fbfe8d931095aa956c6feb16d976c829708ef8c7d87bc593a5d418820697e87e` |
+| `cell-guard/lines/44113ae1fb7c.ogg` | escape 1 | `1100` | 6.3 | -16.4 | -1.7 | all | `b268c9dcf086d4f69132eb97e17e30715940e5b23a4ff644fdbda2804b08812e` |
+| `cell-guard/lines/a64042463865.ogg` | thrown_out 1 | `1099` | 3.26 | -16.6 | -1.7 | all | `78a748aa2df8cd0b9de752c5ed8006b039a32701318481adad7ba7e46b260e1f` |
+| `cell-guard/lines/0a589ec58153.ogg` | thrown_out 2 | `1099` | 3.33 | -16.6 | -1.7 | all | `baaa417fa4dd3a8a550350bb0123283d77e52c8fb7ad5cfd748f3fb953083cff` |
+
+Notes: `st-numbers-station/lines/b9ac630b8e18.ogg` ("Three seventeens") uses seed 1099, chosen by hand over the checker's pick, because the transcriber heard seed 1100 as "317s" and that could be heard as three hundred and seventeen. Seed 1099 has a clear pause after "three". Six short takes measure −17.2 to −19.6 LUFS-I, below the −16 target: `exp-log-boss/05d79b30d907`, `st-mast-climber/28ac63f4c5e3` and `c4a2708af0e2`, and `st-hush-water/e76ca2288ca9`, `c51947b7339d` and `b6f9def37e62`. They already passed through `clone/prelimit.sh`, and their peaks are at −1.6 to −1.8 dBTP, so reaching −16 would take another 3 to 4 dB of limiting on lines of one to four words with pauses. They are left as recorded.
+
+## FAL-1132 — Bodge's shop lines, local voice clone (voice)
+
+42 voice files in `game/assets/audio/voice/bodge/lines/`: every line in `game/data/shopkeeper.json` (`lines`: first_visit 3, enter 8, idle 8, buy 8, broke 6, capped 4, leave 5). Each file is named by its text: the first 12 hex characters of the SHA-1 of the exact UTF-8 line, so a line that is later edited stops matching its old take (the rule shared with FAL-1134). The words fed to the model are each line exactly. Generated locally with VoxCPM2 on 2026-11-18. No recordings of any real person went in.
+
+Rights basis: as for FAL-1110 below. VoxCPM2 (OpenBMB) code and weights are released under the [Apache License 2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE), which allows commercial use; model card https://huggingface.co/openbmb/VoxCPM2. Package `voxcpm` 2.0.3, weights `openbmb/VoxCPM2` from the local Hugging Face cache. The voice is cloned from Bodge's one reference take (`bodge`, SHA-256 `ef8086ebb2233cd37389752baee5d31aafc41765c1c5634febaead2754f7cb83`): Bodge reading the template paragraph, generated with Gemini text-to-speech (`gemini-3.8-flash-tts`, voice `en-au-storyteller-1`, the direction in `teachers.json`) via the Gemini API on 2026-11-17 (FAL-1099). The reference stays in the local falcon-voice repo and doesn't ship. No model was trained or fine-tuned. Matt chose this clone for Bodge on FAL-1110.
+
+- **Cloning:** VoxCPM2 "ultimate" mode: the reference is both `reference_wav_path` and `prompt_wav_path`, and its words are `prompt_text`. cfg 2.0, 10 inference timesteps, denoiser off, text normalisation off. Seed per file below (`torch.manual_seed`): 1099 first, then 1100 for the 6 lines whose words didn't match at 1099.
+- **Changes, every file** (falcon-voice `clone/post.sh`): resample the 48 kHz clone to 24 kHz mono; trim silence below −50 dB at both ends; 10 ms fade-in and 40 ms fade-out; 30 ms lead-in and 60 ms tail; then Bodge's approved chain from `teachers.json`, the 2% tape slowdown (`asetrate=23520,aresample=24000`); then falcon-voice `master.sh` (two-pass loudnorm to −16 LUFS, true peak at or below −1 dBTP, 44.1 kHz mono OGG Vorbis q5). No take needed `clone/prelimit.sh`.
+- **Checks:** every take transcribed with faster-whisper small (CPU) and compared word by word with the line. All 42 shipped takes match. The six seed-1099 takes that didn't ("stall" heard as "store", "bet" as "bit", "are" as "of", "or" as "we'll", "looking's" as "lookings", "checked" as "check") were replaced by seed 1100, so no mismatch was accepted.
+- **Measured across all 42** (music-tools `bin/check`, 4× oversampled true peak): −16.97 to −15.83 LUFS-I, −2.62 to −1.38 dBTP, 2.24 to 7.14 s long, 3.6 minutes in all. The first and last 20 ms of every file are at least 88 dB below its loudest 20 ms.
+
+| File (`game/assets/audio/voice/bodge/lines/`) | Line (`shopkeeper.json`) | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `856cc3ac3ce6.ogg` | first_visit 1 | `1099` | 5.4 | -16.6 | -1.6 | all | `d567833328224561b91b1abd7538826b0b0c1cda9fafb4c1b8b6f0092a536ca3` |
+| `34654fd0dd0d.ogg` | first_visit 2 | `1100` | 6.1 | -16.1 | -1.5 | all | `a35bc2f8765de07d982cb80665c8ee3572b18417657b8dc0b40042a85c53eec5` |
+| `2e422429312d.ogg` | first_visit 3 | `1099` | 5.0 | -16.8 | -1.7 | all | `38dbda2c01ca95c6835f0476461dfe382f90410faad2f42d2b204adbdf468462` |
+| `85761829a904.ogg` | enter 1 | `1099` | 4.8 | -16.1 | -1.9 | all | `0c798dc87e45e416135a198cf1a98b44648103f7f975866bc1d7acd6749f5c67` |
+| `b122862a94cc.ogg` | enter 2 | `1099` | 4.1 | -16.1 | -1.4 | all | `4f7900c7f68a20949bb20c92a1e225789ec3e0ff0ddf6749884f8ca44edececd` |
+| `41448294b8c7.ogg` | enter 3 | `1099` | 5.3 | -16.0 | -1.8 | all | `ff9627f6001a7faf2269fc2c5b1f5bf00d74cfe80b70889f149053bf01fd885e` |
+| `880f8bf12150.ogg` | enter 4 | `1099` | 5.1 | -16.5 | -1.7 | all | `7863a56612c1067c468044e749ae37f1354896075a30cee696c9fc9cb1808e3b` |
+| `96be3be7fc41.ogg` | enter 5 | `1099` | 4.6 | -16.2 | -1.6 | all | `f9e9fbca82770751a0d7baefe102f681c0ce80f73c5c360f21a23d1401aa73fe` |
+| `490723d891bd.ogg` | enter 6 | `1099` | 4.9 | -16.2 | -1.8 | all | `c0cfd02e580be77dcb0f4798557fa1a0f7a339cf9844b4eacc510365b5c2a64a` |
+| `7254149d01ee.ogg` | enter 7 | `1099` | 4.6 | -15.8 | -1.8 | all | `582c3403c4afed78267754fc0b47ec594c0e89128821e9924400a09623693aa0` |
+| `53d6e15ba05e.ogg` | enter 8 | `1100` | 4.8 | -15.8 | -1.7 | all | `554253aa3e9f464fa82bfaf1bcee9a46e7f84c7973e25d4ffb86686928d7e9b0` |
+| `f53a9503aeee.ogg` | idle 1 | `1099` | 5.5 | -16.5 | -1.7 | all | `d435be7eabb19fd5c08eaae120d4c6b506e008ce1dee4cf6e25199dc99b0f111` |
+| `60cb4a8dbf26.ogg` | idle 2 | `1099` | 5.9 | -16.9 | -1.7 | all | `4f1c6c40af61504b837da6b36a5097331d5d7ac1498b948da9f6e33bc609a236` |
+| `7c8b4ded913c.ogg` | idle 3 | `1099` | 4.8 | -16.9 | -1.8 | all | `81bb406d49d32308235ea6ff452e216300f60a273bbde84d21d2de98a2518820` |
+| `3c8e592329a6.ogg` | idle 4 | `1099` | 5.8 | -16.0 | -1.8 | all | `4a0f139f3eaeacfa848c777fce25d8ed7c933d844c36203b1f04de3d16a657ae` |
+| `b46c337ab603.ogg` | idle 5 | `1099` | 6.2 | -16.4 | -1.8 | all | `01fa7de1057ee3b1ed054a627900b6c4d050c04e521b0666fb9d04bd1caa442c` |
+| `cee01fc07c48.ogg` | idle 6 | `1099` | 7.2 | -16.4 | -1.8 | all | `1fe40e9558117996c93da7b60cf8f5b3bb3f80a2cbb439954440665632bc82d1` |
+| `9a6dab88811d.ogg` | idle 7 | `1099` | 5.9 | -16.8 | -1.8 | all | `ed34048a628e989f859fd27944ae5484614b016c7c433b74543d985532be0750` |
+| `7ee038d7a7a3.ogg` | idle 8 | `1099` | 6.5 | -16.3 | -1.8 | all | `8cd1a6b6b9529fca4b323f34b330418a80b03cf0ce69b3fd906a68f06fbc76e8` |
+| `24fce716f89e.ogg` | buy 1 | `1099` | 6.3 | -16.2 | -1.6 | all | `720abed78eb76bc870eff74567ec6386fa2034086a1c9230f88b57db707f0e79` |
+| `171f86ab35dc.ogg` | buy 2 | `1099` | 6.1 | -16.4 | -1.7 | all | `ea96a1a9347e62497ebd33b18279837dc76d0be69d24e868b909935591307cff` |
+| `a246eb6fe5e1.ogg` | buy 3 | `1099` | 5.1 | -16.0 | -1.6 | all | `fe9eacd5845beb043ee0a10a5447976eecba4ff73c15a65a16bf8262e1344f74` |
+| `ada695041fc8.ogg` | buy 4 | `1099` | 5.6 | -16.6 | -1.5 | all | `73df3af624fd48729a6d7c90ec64e9cd3fd86143ec80d31f3317ec9009ab8fc5` |
+| `d11947dc06cf.ogg` | buy 5 | `1099` | 6.0 | -16.3 | -1.7 | all | `95bea956f8e82abeaa274b6b821045e8d14cadc88525de644983c9f304d217b2` |
+| `05f58aeb3872.ogg` | buy 6 | `1099` | 6.7 | -16.1 | -1.6 | all | `aec2b39160575574c5384acda99083973b10c629febed33988f60e23b8b9e0b8` |
+| `10a06e76c751.ogg` | buy 7 | `1099` | 6.1 | -16.4 | -1.7 | all | `9d319f1aa440088dcba7afa09814ad52c49fa97744479744c914555cbee81d6b` |
+| `e9a216ea1a2c.ogg` | buy 8 | `1099` | 5.2 | -16.1 | -1.6 | all | `610f84eee9461d9a2b0005412b2692b69b984afb89647ab9dbb7bd61d010a23e` |
+| `0c9d3a927e4f.ogg` | broke 1 | `1099` | 5.5 | -16.6 | -1.5 | all | `29e835c6699d2adfb80428cf6af128ef81acfd395389c76891349172b17b2411` |
+| `acc4e6b1106c.ogg` | broke 2 | `1099` | 4.7 | -16.4 | -1.8 | all | `4e374f77b539a61b61a43d0949501084bea6d0858b6f4664a70bab3d33bb9bc0` |
+| `c401f260929e.ogg` | broke 3 | `1099` | 4.8 | -16.5 | -1.7 | all | `1bd1c3c7b96525ea996f6e1eaa6f08efacefc24728a8e8c9f0971ffd628a9382` |
+| `3e1568f4837b.ogg` | broke 4 | `1100` | 4.7 | -16.6 | -1.8 | all | `1905532151df0fc5ce4fbe306647323ba9e39f6a12cf96c86b17e53a89a54362` |
+| `8853fc6b214a.ogg` | broke 5 | `1100` | 4.9 | -16.3 | -1.4 | all | `1ea6bcd3c04c4e6ba8f1b6ed167db0790476dee7905279dceb27b37bbd6a3bbe` |
+| `acd63e2f0458.ogg` | broke 6 | `1100` | 6.0 | -15.8 | -1.4 | all | `da97a5ef6bd1b4373c6cd5e1a8fcc0c37c8872f6695c3fe658e439a4e487e7a0` |
+| `b83ba6b55d0a.ogg` | capped 1 | `1099` | 4.6 | -16.3 | -1.6 | all | `c7538134c9b7316b6bc9fafe91345d709e4bd9d74ad32a2b2a329406de276bc7` |
+| `2090295d7969.ogg` | capped 2 | `1100` | 5.7 | -16.4 | -1.5 | all | `3895c3b8b0e8a70ed985c6653aa73e6b76cadff2540def996029dba309660e62` |
+| `60bbbc23013a.ogg` | capped 3 | `1099` | 2.24 | -16.0 | -2.6 | all | `b9a8d43afbbed130ff2947b3bd4c8a8e5462fe5137661e800d6faac9f1f6c134` |
+| `17d313d3803b.ogg` | capped 4 | `1099` | 2.97 | -16.0 | -2.5 | all | `a6f247dba9b56788738a54e402a1ea483f30d5fe0f9509af3a8f1eb95f72d111` |
+| `3a05c401105d.ogg` | leave 1 | `1099` | 5.3 | -16.6 | -1.7 | all | `089116adf2fa6851743bf777ea1f02370165bf7b1b1674955c1384ed1fd29c28` |
+| `ccbd0f982e14.ogg` | leave 2 | `1099` | 3.31 | -16.3 | -1.8 | all | `32302ee6bc7db4760acc99422ebe447bf9d89247e8c548e9c3c36428304cf946` |
+| `78a8ce046268.ogg` | leave 3 | `1099` | 3.62 | -15.9 | -1.8 | all | `3f05259cecd4819203f9a503c9321b316f4d91fc635a5641fd85796d63940114` |
+| `312a7f3bfdf6.ogg` | leave 4 | `1099` | 5.3 | -16.6 | -1.6 | all | `963061a6278673e5858d7a806f31abfc6e6fb5ad645f6c6de646b8e65582069a` |
+| `8ca3e4bd0590.ogg` | leave 5 | `1099` | 4.4 | -16.7 | -1.7 | all | `d1b828e06ddbe864a3f7b7e3d14aa9165d174fb579cd67c28ef018b74d995d8d` |
+
 ## FAL-992 — Spark's explainer move lines, local voice clone (voice)
 
 162 voice files in `game/assets/audio/voice/spark/moves/`: two takes (`_1`, `_2`) of every move line in `curriculum/moves.json` (81 moves), with the same names and format the game already loads. The words are each move's `say` text exactly, because the explainer captions show them (FAL-991 found none changed). Generated locally with VoxCPM2 on 2026-11-18, replacing the FAL-428 takes of 2026-10-30. No recordings of any real person went in.
@@ -1013,3 +1277,154 @@ Matt chose the clones, in "ultimate" mode, on FAL-1110 after hearing them side b
 | `reactions/i2jaqx.ogg` | `1099` | 2.38 | -16.0 | -2.3 | all | `07222365b5ad878ae47c8ffa3855d67d102fbe886fb11f01fabe0e2b033fc023` |
 | `reactions/ml2cxq.ogg` | `1103` | 0.81 | -16.6 | -1.6 | all | `b9cbb034a51cf60b795753400e2316cc4747ff963444d67fdc673bfa51e9e36c` |
 | `reactions/z1xu8j.ogg` | `1099` | 3.84 | -15.3 | -1.9 | all | `484efebf4719cbad4a91b383a7e8ef6634a4d773be898c2a265210886b76feb5` |
+
+
+## FAL-1137 — every tutor's new reaction lines, local voice clones (voice)
+
+136 voice files in `game/assets/audio/voice/explainers/reactions/`: the new `ack` and `slip` lines of `writing/explainers/reactions.json` (FAL-1136), 24 each for Tin-Can Tess, Mags the Ledger, Kara Meridian, Lucky Lenoir and C.A.L.C., and 16 for Rook Dead-Air on top of his 8 from FAL-1110. The words are each line's `say` text exactly. Each take is also recorded in `writing/explainers/manifest.json`. Generated locally with VoxCPM2 on 2026-11-18. No recordings of any real person went in.
+
+Rights basis, voices, references, cloning settings, text fed to the model and processing chain: all as in the FAL-1110 section above, unchanged (falcon-voice `clone/record.py`, `clone/post.sh`, `clone/wa-explainers.py`).
+
+- **Seeds:** 1099 first, then 1100 and 1101 for a line whose words didn't match (3 rounds). 102 lines matched on 1099, 10 on 1100. The other 24 kept their closest take and were read by hand (below). Chosen seeds: 1099 for 119 files, 1100 for 13, 1101 for 4.
+- **Checks:** every take transcribed with faster-whisper small (CPU) and compared word by word with `say`. 112 matched. These 24 differ only where the transcriber can't follow, and were accepted on reading the diff: `reactions/2pqmuf` (roll -> role; roll -> role: homophone (roll, role); the seed that dropped off was not used); `reactions/8d9bwx` ((extra) -> should; should've -> have: should've and should have are the same words); `reactions/8v4i1s` (gauges -> gages: spelling); `reactions/aiq394` (mm -> hmm: the transcriber writes Mm as Hmm); `reactions/au1j35` (can's -> cans: homophone); `reactions/d50vxt` (reached -> reach: the ed of Reached runs into them; Lekker heard right on this seed); `reactions/dvogx3` (pin's -> pins: homophone); `reactions/dzgzfk` (pencil's -> pencil: the s of Pencil's runs into snapped); `reactions/gf32w7` (treat -> trade: Tess's New Zealand vowel in treat; the seed that said that's for fits was not used); `reactions/hnpdxz` (chilly -> chilli: spelling); `reactions/j4rn9g` (ink's -> inks: homophone); `reactions/l4qesy` (sight -> site: homophone (sight, site)); `reactions/ldaaey` (tape's -> tapes: homophone); `reactions/ltidxg` (bolt's -> bolt: the s of Bolt's runs into stripped); `reactions/ne39vm` (off -> of: off and of run together before the); `reactions/ppg08k` (quel -> quelle: quel and quelle sound the same in French); `reactions/rg2dql` (change -> changed: change today and changed today sound the same); `reactions/tdbhq1` (ja -> yeah; through -> true: Ja heard as Yeah, as on FAL-1110; through heard as true on all three seeds, Rook's South African th (the closest a transcriber gets); listen first); `reactions/tgp5x1` (battery's -> batteries: homophone); `reactions/vbbab9` (that'd -> that: the d of that'd runs into hold); `reactions/wyhvd5` (non -> no; non -> no: the transcriber writes French non as no); `reactions/xle2z6` (ehen -> ehem: Ehen (Kara's interjection) is not an English word; this seed is the closest); `reactions/y7w6mr` (pff -> (missing): the transcriber drops the Pff breath on every seed); `reactions/y97n4o` (alors -> so: the transcriber translated the French alors as so).
+- **After the last word:** every take was split into sound islands (20 ms frames within 35 dB of the peak) and lined up with the transcriber's word timings; the 39 takes under 1.5 s were also read on spectrograms. No take has sound after its last word.
+- **Measured across all 136** (music-tools `bin/check`, 4× oversampled true peak): -19.81 to -15.76 LUFS-I, -3.70 to -1.29 dBTP, 0.57 to 6.22 s long, 5.9 minutes in all. 24 short takes are below -17 LUFS-I even after `clone/prelimit.sh` (ffmpeg's loudnorm can't level a clip under 3 s linearly); their loudest 400 ms is -17.7 to -13.5 LUFS against -16.3 to -10.9 for the rest. The first and last 20 ms of every file are at least 86 dB below its peak.
+
+| File (`game/assets/audio/voice/explainers/`) | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|
+| `reactions/04yoat.ogg` | `1099` | 3.88 | -16.1 | -1.8 | all | `0978b2356ce8738a8d6cb4cb2fcbab779cdec25ba7dca1e7c53cd0fa6d213ce8` |
+| `reactions/06yedo.ogg` | `1099` | 0.86 | -17.5 | -1.7 | all | `28d411d2677942f5fb549ccf1b24e0a542d7c2150d138925316545db48bcf263` |
+| `reactions/09hbpf.ogg` | `1099` | 3.37 | -16.2 | -2.8 | all | `27ad43de291b76315d2ae8ffb2e9e44b5282f3434893fad521d4271ad6026a96` |
+| `reactions/0woojc.ogg` | `1099` | 1.34 | -17.1 | -1.8 | all | `ba4c504f8efa0117b0427cf0352ac3f4ba737116c39082434225dc1a6f5c1e2f` |
+| `reactions/11axk3.ogg` | `1099` | 0.57 | -16.4 | -1.8 | all | `30107be3ffd0461ee2596dbb5ee56814c2b7def03ca240d69aafe3ecef23d8bf` |
+| `reactions/1h3qvn.ogg` | `1099` | 0.64 | -17.2 | -1.8 | all | `0c98ccf32af565116541f6da94eaf235e61d9f6f6eddeecb33dcba22b1843c4c` |
+| `reactions/2cc4fo.ogg` | `1099` | 3.13 | -16.4 | -1.8 | all | `5513d43c9094a2fde398130ffe802b9ddeb04273191c80fc6c5e54f12dd2ba9b` |
+| `reactions/2gi7wy.ogg` | `1099` | 4.4 | -16.3 | -1.8 | all | `57c94ae51bdbdd41bd656f6c814d67791cf09ca0d4e6eb386d7c5c25f679f9e7` |
+| `reactions/2pqmuf.ogg` | `1099` | 4.2 | -16.3 | -1.7 | What a role. Off the table. But what a role. | `1a1794bbbacca44d4962f1c7d167207236930a332eded90407f1c3600d3b77ae` |
+| `reactions/37lk5e.ogg` | `1099` | 2.37 | -16.0 | -1.9 | all | `c319a29c78a90b30b0be7f3bec9fe7966b4197d8adaad3e686efd8813b0f6f25` |
+| `reactions/3z93sg.ogg` | `1099` | 2.01 | -16.0 | -2.0 | all | `79170b7095349a43ac55af35a1796e00f6a20f780488ddc0efec9423b13e17df` |
+| `reactions/41t8vc.ogg` | `1099` | 2.75 | -16.0 | -1.8 | all | `d7aa49ac448f9dbae70ad30afdd639c42498bb446de1fd20702cdc2bf3560e66` |
+| `reactions/4ivq3e.ogg` | `1099` | 2.88 | -16.0 | -2.0 | all | `cd88010ecf59e3a132e3a81afee84b267ea276f0fb04ffc246702fb195571108` |
+| `reactions/4q7pz6.ogg` | `1100` | 2.76 | -15.7 | -2.1 | all | `cbd886ebd72a32852eea000ca22b71459b62ab565426884b49f8ccf102caab7b` |
+| `reactions/5jcjln.ogg` | `1099` | 4.9 | -16.8 | -1.3 | all | `3f9a89af7195802cac025103fec9ef834a96c7a6a3b363c4ea675433b17ad0c3` |
+| `reactions/5rzrn8.ogg` | `1099` | 1.93 | -17.2 | -1.9 | all | `81c7076c6dddab31304bccfe7a720513cb1b22bc9a2d21a588dd54f32a070b64` |
+| `reactions/6f3a7e.ogg` | `1099` | 3.4 | -16.1 | -1.9 | all | `5ccb6bb55aca925bd041511120ea4e875424bbc4ae041c4067e2e42ebe38d171` |
+| `reactions/6xpivq.ogg` | `1099` | 6.0 | -16.3 | -1.8 | all | `d2cd47aa89a3f85d145c649f2796bc5c596988956e1572ab7ae5931c38f75645` |
+| `reactions/6ykvu8.ogg` | `1100` | 1.36 | -16.0 | -2.4 | all | `b4e29de2b4f605707e05514748ef9335ec24e56d80eaf2107ef59a09e33bc4d8` |
+| `reactions/6z4k6g.ogg` | `1099` | 2.52 | -16.2 | -1.6 | all | `6d873dad0a82c9fe74bbdb2972ca1e759bda8d660af11193e606e9e3df804b28` |
+| `reactions/7j3q9n.ogg` | `1099` | 3.01 | -16.2 | -1.7 | all | `c179cede656f3ee99ef729028b2d1c85b7654eb33ffed26a77c33026e59615f2` |
+| `reactions/85ycum.ogg` | `1099` | 1.66 | -18.9 | -1.8 | all | `816bb9e4a296a2787bbe43f5c6ca83ad18763a9ce0f9050b7f9794e0e6270a51` |
+| `reactions/8d9bwx.ogg` | `1099` | 3.56 | -16.7 | -1.6 | Scales tipped my tea over, should have moved the tea. | `d8c058416d4df1be08cedc16aa72e01f1c61075e99dc65e1a6f7fa78d11acd29` |
+| `reactions/8hno54.ogg` | `1099` | 2.67 | -16.0 | -2.8 | all | `8246a3ff1c9626a1530e324d416b41ba68d28c186bb8581551820346dc41a924` |
+| `reactions/8jj8yc.ogg` | `1100` | 4.2 | -16.3 | -1.7 | all | `014e6ec5abbcb81f57f8f4fa0ceac1d5db134b74dc3a5e0d3fdf5889e9fcc6c9` |
+| `reactions/8v4i1s.ogg` | `1100` | 3.44 | -16.1 | -1.8 | Gages are arguing again. Pay them no mind. | `6baa27d8833cd3122428ce12fbcabbe74ea2d5df9b87c573b977e9ec4f324bbd` |
+| `reactions/905zud.ogg` | `1099` | 1.34 | -16.7 | -1.9 | all | `a0e251ce79d5c296708af4f61ea240cd359dd8a0f426e331a00dfc9f70ae8d83` |
+| `reactions/9rdsq6.ogg` | `1099` | 0.94 | -18.5 | -2.0 | all | `56926468265e2e6262f9c76d214d26a23d47ce15d95af3fc5f66ba6ded15f4f8` |
+| `reactions/9zn6ec.ogg` | `1099` | 1.86 | -17.0 | -2.0 | all | `e251e0a4ed9261f4e3fc23d06e69384c2b1d96ef555259468823d79296c67e4b` |
+| `reactions/abz3i7.ogg` | `1099` | 3.38 | -16.2 | -1.8 | all | `28ff3a359bd7ec375f2516d99758ef248422cb3723739692b2580df31c4a441f` |
+| `reactions/aeznlk.ogg` | `1099` | 2.65 | -16.8 | -1.7 | all | `aeacb22c2b0fbd9e18a8243a914089bbd819f27c1dd99d07afe5c2da455a2b5b` |
+| `reactions/aiq394.ogg` | `1101` | 2.26 | -16.0 | -3.7 | Hmm, smooth as a new deck. | `f4f0a37cdf8e54ca2a28cbed400ea724ada3d2ace3a0a9adbba0cfa15e649c0e` |
+| `reactions/ar9syr.ogg` | `1100` | 1.9 | -16.0 | -1.8 | all | `d3bea2dabab6da29fc5d3082e346ec944730b7dff0970e8b1188b3ec74476768` |
+| `reactions/au1j35.ogg` | `1099` | 4.0 | -16.9 | -1.7 | Jerry cans glugging all over the floor. Oh well, it's mostly water. | `2f19115ec605aa0243d04fb7c94a930d56249035014070c0766d3f69628e8b6c` |
+| `reactions/biuyqz.ogg` | `1099` | 3.67 | -16.4 | -1.8 | all | `e071c07a9e14a8414728d59a3807473c48fb38fe0cd4d071d66d6fd58c3ffc9c` |
+| `reactions/bjxljj.ogg` | `1099` | 5.0 | -16.2 | -1.6 | all | `8fe81ecaa9e2ccc1728ed47988dfe667a93f681683c2c4d16d3bf207ce9d8a45` |
+| `reactions/bn4te4.ogg` | `1099` | 2.15 | -18.5 | -1.8 | all | `a1c112cf781325ecba669ece44475a4b2faaa311d0a0171ca66b416f123c27af` |
+| `reactions/bypd5d.ogg` | `1099` | 1.14 | -16.0 | -2.3 | all | `d672e7b539f7f662c94c6445f684f41f5bb844e8a634071a7f6021905ee16ae9` |
+| `reactions/c58kaq.ogg` | `1099` | 3.17 | -16.3 | -1.6 | all | `cc643222f92d4d226a3078de4a493cd9d106845222cc7c0b14df0dfa07d3e29a` |
+| `reactions/ck96df.ogg` | `1099` | 1.31 | -16.5 | -1.7 | all | `f3caa862f62d2c1eaae7771b0be335b8f163b576208d434b610415ae4efbb0be` |
+| `reactions/crf4e2.ogg` | `1099` | 2.9 | -16.6 | -1.8 | all | `eb0daa0f8aed8c68c9cc405ab4f63516ad200692e7a8af3f84d303fcf7fe70ef` |
+| `reactions/crnd4i.ogg` | `1099` | 2.87 | -16.0 | -2.2 | all | `2255f3d08ab1cbb3b602cf37c5c3a61a47533cfa53348d3887269e04995de11c` |
+| `reactions/cv25sv.ogg` | `1099` | 2.36 | -16.3 | -1.9 | all | `34450903837343e25fca07591c69b10ddd065ffbf328e564d974ac5aebe81e56` |
+| `reactions/d50vxt.ogg` | `1101` | 1.38 | -16.4 | -1.9 | Reach them. Lekker. | `b1dbb0791060366b453be267daff992548e261960ac910ca21f12b07bb632e7a` |
+| `reactions/dvogx3.ogg` | `1099` | 1.15 | -15.9 | -2.0 | Pins on the map. | `aeaf4a39d5acdc26acc250d847b1c7c28c939c79473e1150739b46fd33c266ba` |
+| `reactions/dzgzfk.ogg` | `1099` | 2.38 | -17.3 | -1.7 | Pencil snapped. I've got another. | `2c360a8dd98371544b96ccbf6ecc4f2742c0d664073fc63415576292073cd015` |
+| `reactions/emszvz.ogg` | `1099` | 2.04 | -16.1 | -1.9 | all | `5179c06b75bc543b493eb7730372668a400037daa23c1164dd287d532ff2a23d` |
+| `reactions/f902ih.ogg` | `1099` | 1.64 | -16.8 | -1.9 | all | `e4222a293f0f7813e56232a8486876d06b01e087b9fb23f155f722a751121947` |
+| `reactions/fig6cg.ogg` | `1099` | 0.58 | -16.3 | -2.2 | all | `00d76a222fd109bda49311401c6035ba2b8939ad41546e66235815eb80226e52` |
+| `reactions/fmm4mj.ogg` | `1099` | 1.86 | -16.0 | -2.2 | all | `78fec1492f6942ff47659a0fbe53862c3d9e491afda546dd50be2322cd438f21` |
+| `reactions/fmzhqp.ogg` | `1100` | 2.8 | -16.0 | -2.3 | all | `af97958584f6439f979e83298e2a1c85729ec15e518491472d8fb661370db90b` |
+| `reactions/fxckgg.ogg` | `1099` | 1.34 | -18.4 | -1.8 | all | `af7b1c247fbe2409dd9e673b75675c7525094bd69dce0ec48cc465e0d73b64d9` |
+| `reactions/gf32w7.ogg` | `1099` | 1.27 | -18.7 | -1.6 | Lovely, fits a trade. | `fd4b3912b717d268f49a4129779aa8ae596344285a1440235d45765f89e04cf4` |
+| `reactions/grecwf.ogg` | `1099` | 4.5 | -16.2 | -1.7 | all | `8557391fde5595c50233d6774544d27c4542d14ba0ed414b9d161e9b9cbacd45` |
+| `reactions/gun14r.ogg` | `1099` | 4.1 | -16.4 | -1.7 | all | `3bf56b3873d41b872f93bfedb492f5e5a114ec8ec7e0e84ab3025ec4fb11d090` |
+| `reactions/gxljs1.ogg` | `1100` | 1.93 | -15.9 | -2.8 | all | `d75277ae60351d8fccaf8cb6b8f216a75cf535b252873d4a73d2ccb9abf24390` |
+| `reactions/h6pw3p.ogg` | `1099` | 1.09 | -16.9 | -2.1 | all | `8cd9a39752a52acf9705483655c33ad99de42852917630e8f3798fc9b2f8dd74` |
+| `reactions/h8p9gu.ogg` | `1099` | 3.02 | -16.2 | -1.5 | all | `ad4c845235510f50207a45626b83d209634b5c535af8719167cbed489b63b247` |
+| `reactions/h9at64.ogg` | `1099` | 1.93 | -16.2 | -1.8 | all | `4da98febf073c714d5b4780c569af8927c6a88ddb6ad3a154948fc5809410387` |
+| `reactions/hnpdxz.ogg` | `1099` | 4.2 | -16.5 | -1.5 | Whoops, there goes a washer. Straight into the chilli bin. That one. | `247f3d1104590b88f8772125b18bfd4dac7ffba0498b5bea75f24b88b20e108c` |
+| `reactions/ho0c5v.ogg` | `1099` | 1.52 | -18.1 | -1.8 | all | `0eca88d9f120134ab3ad0253c4eea3f5e30ad6d1ed7542b04bd6b523e0214930` |
+| `reactions/ie6sd2.ogg` | `1099` | 1.5 | -16.5 | -1.9 | all | `35c598c24bc1af9d088a0b2ca4882825d4205993899471964b21a10cc0c8793e` |
+| `reactions/isd89o.ogg` | `1099` | 4.4 | -16.3 | -1.8 | all | `1e7ce08c07a362ea9cb17cb54bf505efe50dbcb92ab5560dfc75cf076be488e5` |
+| `reactions/j4rn9g.ogg` | `1099` | 1.37 | -16.0 | -2.4 | Inks dry on that one. | `def9449d5d5c1520694c9c101f7924a8e3477038cc936992d18ec59cdf73363b` |
+| `reactions/j62ugc.ogg` | `1099` | 3.85 | -16.7 | -1.7 | all | `de6fcf2a9e1a1181e425e8812eb1b7044c8d9130733ce641e6b1f5dada3e9ac3` |
+| `reactions/jf7rbt.ogg` | `1100` | 4.8 | -16.0 | -1.9 | all | `19203018b0d02297a2a888c1387fc9b693615c7199ff20c47ef654b299d30d8a` |
+| `reactions/jfdiih.ogg` | `1099` | 1.43 | -17.7 | -1.8 | all | `f480198046276e390b0501fec7a0efce373a9b7a39b752a7542734f68317436b` |
+| `reactions/jmscyv.ogg` | `1099` | 2.68 | -16.1 | -1.9 | all | `ba796d6c6d7a0002cc5dcabcfc468f814b9c53a7c25c50e8395a7efe7254be1f` |
+| `reactions/ju6blx.ogg` | `1099` | 0.68 | -17.9 | -2.0 | all | `7f5fc326a886194095eac5b326a10cd5e9724c8413ca74547569c64e0d945023` |
+| `reactions/ko5bd3.ogg` | `1099` | 1.85 | -17.0 | -1.9 | all | `ff6b7b18e8420adeb600b7c911a71355fdc0df4aafd6d1d4bacf9b446e236a71` |
+| `reactions/kvkgjo.ogg` | `1099` | 2.09 | -16.1 | -1.8 | all | `3f22620fd8eb0613a03bb66e3e8fe0469b38b5fcb73a6610033ff07c0d35c359` |
+| `reactions/l4qesy.ogg` | `1100` | 0.9 | -17.0 | -1.9 | Site taken. | `8b0ab2fa11f6853e0dc374ff796bea6d2af95b658edf25e94cdc2fe9034ad0e1` |
+| `reactions/l9ncs3.ogg` | `1099` | 1.02 | -18.1 | -1.9 | all | `89ce87209461f68bad4f915aef4ce3d8b6ad39477be8b12045d1c445cd779c21` |
+| `reactions/ldaaey.ogg` | `1099` | 2.32 | -16.0 | -1.9 | page torn, tapes in the drawer. | `b192951455d0ee7965291227a0c49e97dfc983fc1163e725504322d3bb145986` |
+| `reactions/ledk03.ogg` | `1099` | 3.4 | -15.8 | -1.8 | all | `5d6e70e1a6f74cb9c8f2eb32daf6282168c4993fa6d1ee66db1ea8e922d51de4` |
+| `reactions/lhnthf.ogg` | `1099` | 1.53 | -16.1 | -1.6 | all | `bc116d1f510e2d28a096c7b8392ba08c14a2d274b7eada5111a55631af11cd48` |
+| `reactions/lpemtf.ogg` | `1099` | 4.6 | -16.1 | -1.8 | all | `0e301d988dedf15e316903ef84555064a89bd3be20c9fdb2e3f5540a4a52b636` |
+| `reactions/ltidxg.ogg` | `1101` | 4.0 | -16.2 | -1.7 | Bolt stripped, another one for my tin, and the tin's nearly full. | `67fdbebe05e02f8f0bce4549293d8fd44bdc26c4e7ea6236092bbb8b073cdcee` |
+| `reactions/m8lddf.ogg` | `1100` | 0.78 | -16.9 | -1.9 | all | `c0b778b30667279b47c2716cde4a07ae4fa71b66ca7cdd8323afc5468053c674` |
+| `reactions/mc6s50.ogg` | `1099` | 2.62 | -16.0 | -2.0 | all | `09ac0318db7c262cb8b1bd7490987ac398145cbd3e79bf90f30997e0f1855fd6` |
+| `reactions/mwjojt.ogg` | `1099` | 3.88 | -16.3 | -1.7 | all | `6ee979db74d07cb02f3ca15b6c0450177a2e4cb0a339d991a88a36461f500c69` |
+| `reactions/nc5zhd.ogg` | `1099` | 3.63 | -16.8 | -1.6 | all | `de612cfddc6c78129ba7e61f1c8e6fff80c21e4435101a24a2cf6689c47525f3` |
+| `reactions/ne39vm.ogg` | `1099` | 3.18 | -15.8 | -1.9 | Glare of the salt, nobody could read that. | `e92891f9c7a1cf28662172a7780c3a51f1e3430edcd6a813a713dae5f1fc3803` |
+| `reactions/nm0fuf.ogg` | `1099` | 1.43 | -16.6 | -1.7 | all | `167b402c18338a956f6321e520818cc2701223cf01f6368fe328546846d7ddc0` |
+| `reactions/o7hg9n.ogg` | `1099` | 3.43 | -16.2 | -1.7 | all | `53041998f3f224223cb3a53d332f25fb8e6fff0ad3d848bae821f73f59051faf` |
+| `reactions/obn01d.ogg` | `1099` | 1.43 | -16.5 | -1.8 | all | `c3d937a1cf1e199652094c590489c7832d72df754c1ea5ac951ce567a5072673` |
+| `reactions/oc853p.ogg` | `1099` | 4.2 | -16.0 | -1.8 | all | `f138167734fc89460200b6a68aa83b7a179646dbbe5335df11cb112953d0f88a` |
+| `reactions/ondobk.ogg` | `1099` | 1.77 | -16.0 | -2.5 | all | `05a80255f32472fcb2c3eaacae148db82099e0077b3e64b043fe80c4f99673e4` |
+| `reactions/osys6q.ogg` | `1099` | 4.4 | -16.4 | -1.8 | all | `c905b4dd599505dfbc6dba1405f8170ae9ca0717ea9e3547647b982a1982098a` |
+| `reactions/pga4ks.ogg` | `1099` | 2.79 | -16.4 | -1.7 | all | `6d1415f0ad11555881640ff56b6f3554f0234ff50555283a85259c9fe097ff06` |
+| `reactions/ppg08k.ogg` | `1099` | 1.32 | -16.0 | -2.1 | Quelle dommage! | `afa261fed7d247ba2907077aee83b60b72947603853b9ea0f5285d505c06713b` |
+| `reactions/pv0yzw.ogg` | `1099` | 2.14 | -16.9 | -1.7 | all | `a265fd6a142ff89eb12eaa39f984879df4c7055cca0db4b1ef20195063deb651` |
+| `reactions/py9ozl.ogg` | `1099` | 5.3 | -16.5 | -1.8 | all | `461732a5d386f3d8015ac4152f29cdeafc3e369055ca37ea93ccb0f0aee9d9cf` |
+| `reactions/pz2yqj.ogg` | `1099` | 3.41 | -16.5 | -1.6 | all | `a6c2aade80012988a794fe95a732fa19af2a473c084b52b35b270f77ab391d13` |
+| `reactions/qtf09l.ogg` | `1099` | 4.2 | -15.6 | -1.8 | all | `b95f3ea1497e7db4ae2bbf678c523a8c9f051c72991b50da3ba3a2f0e3aff7e2` |
+| `reactions/r74c14.ogg` | `1099` | 4.3 | -17.2 | -1.7 | all | `750e2e335bc0ec8904a4814fd92ceb94a3628ce8575665bd86d5a2f0c4344fea` |
+| `reactions/rd7iv6.ogg` | `1099` | 4.2 | -16.1 | -1.8 | all | `af6b52bafe3ebaa1e4779fcd7397c910d12d63a665faecf3e46d05dc14906e2a` |
+| `reactions/rg2dql.ogg` | `1099` | 3.8 | -16.7 | -1.8 | Till's jammed again. Nobody's getting changed today. | `c224778520753534052f6d8bf7d32a8d75de7d40760c3196042ee2033980541e` |
+| `reactions/rifq2s.ogg` | `1099` | 2.29 | -16.0 | -2.8 | all | `1c9348c95ddeef299f5e943b339b502a069dcf34279dee633a605cefad9849f3` |
+| `reactions/rpvnvj.ogg` | `1099` | 4.5 | -15.7 | -2.0 | all | `b246138766c97c638f3deca5005d745d91f3ae89833e46bd7096559e8598ee32` |
+| `reactions/rvmc9s.ogg` | `1099` | 3.48 | -16.7 | -1.5 | all | `63f1533d5e49f3d6bbebdc71527b2d6c70a254b1792dcf2fe0cbc73df2b79204` |
+| `reactions/scetji.ogg` | `1099` | 1.13 | -16.1 | -2.1 | all | `4de5cc7c9cac88be9235f65ea3eba964410eb4da8aca3f016e4adf3e051934e2` |
+| `reactions/sgkkrx.ogg` | `1099` | 3.7 | -16.4 | -1.9 | all | `2e7b4fc6c53eb9590afe375f454ce523570dd81bf7496b7692888adbf57914cd` |
+| `reactions/sqx1py.ogg` | `1099` | 6.1 | -16.9 | -1.7 | all | `e3bf36d24b3ec9dad748356855026803f50fe22bc2047d9cbc02560c3b02b361` |
+| `reactions/ssokhc.ogg` | `1099` | 6.3 | -16.4 | -1.8 | all | `8ead43d29a87fb560210526abf06212fed46bf0692475e54cf03cbe262a529ff` |
+| `reactions/sy45uo.ogg` | `1099` | 4.5 | -16.8 | -1.8 | all | `f8aea0e1ed89c9c16e6c6de1369947b7a3211b95db5d11a13d7d81a33741706b` |
+| `reactions/szq8sb.ogg` | `1099` | 1.45 | -15.9 | -2.6 | all | `11307c9f80e21456b8742e1d97cb907ecffe7341342ef52358bb4f57997ec6a1` |
+| `reactions/td1cfs.ogg` | `1099` | 1.38 | -19.8 | -1.9 | all | `e31db6e238c021b3d99a5491c228cdf58ae44a8be7822db09c0d57453175ea91` |
+| `reactions/tdbhq1.ogg` | `1099` | 1.71 | -17.1 | -1.9 | Yeah, that's true. | `bde65e45e92c326c1f482605c10ef7afcaca65b829869db803299152f105d831` |
+| `reactions/tgp5x1.ogg` | `1099` | 2.53 | -16.0 | -2.2 | Backup batteries kicked in. That's what it's for. | `0f04d845db1a35b2a4a285be75a13984a7613e6774723961c1359943530cdc64` |
+| `reactions/tn7w1y.ogg` | `1099` | 5.6 | -16.0 | -1.7 | all | `04347edc554e25ec98fef365580814d07894c75986a911c516714def81ee1add` |
+| `reactions/uqqnkj.ogg` | `1099` | 3.22 | -16.0 | -1.9 | all | `27c5aa1b85e134c8db363077aa18b30970e429cbc3125a8c39e7107c1c9df1fc` |
+| `reactions/v10xxr.ogg` | `1099` | 2.45 | -16.5 | -1.7 | all | `996155167325bd475e2c2ce0543263ac15878df9c682969ed8d76d42298e2b10` |
+| `reactions/v9wcyf.ogg` | `1099` | 1.43 | -17.4 | -1.8 | all | `5a2654c416e6ef2f5df87dfa71b8c62cf21c2ac40a10c3f65c6a91ec382601f4` |
+| `reactions/vbbab9.ogg` | `1100` | 0.98 | -17.3 | -1.8 | that hold. | `fc618a16a9fb80b352632127fe2f6213dc9ec3ef109b3f6bbb8017f21be6f127` |
+| `reactions/velmbv.ogg` | `1099` | 3.62 | -16.0 | -1.8 | all | `ae5cd8425588ecabc6725d3f4f8c81e610555db08a1fb0361c44a65fec69752e` |
+| `reactions/vgsdvc.ogg` | `1099` | 3.14 | -16.0 | -1.8 | all | `294e7961d90c695fd37ac60906560dfd1da663e1b906124f924e5875761a3605` |
+| `reactions/vnxj2u.ogg` | `1099` | 4.1 | -16.7 | -1.8 | all | `b21ac447d7ee0c10863398a2d326c3a8b19f6a4035fedcd321510628565d4570` |
+| `reactions/vqzs24.ogg` | `1099` | 1.49 | -17.6 | -1.8 | all | `79a80e4e6de075c410c17b5becaa0217c85a3648c5d331ddc7e1d1dd7e1a4225` |
+| `reactions/vvw7h6.ogg` | `1099` | 0.78 | -15.9 | -2.1 | all | `91b8cc877ac9bb2cecaceb1a8322b16f25b1789dbda2fc830eb57b3a149a4a98` |
+| `reactions/wyhvd5.ogg` | `1099` | 2.31 | -16.5 | -1.7 | No, no. The cards have blown away. | `49f162bff7c068a2f357dd370ed2672a50bec57914fd72bfa36ebdefcd60e254` |
+| `reactions/xakm9f.ogg` | `1099` | 3.15 | -16.5 | -1.8 | all | `d85de017e91e11cec3b302d61e51b47a801eac691e542a8047332daf6a89eb28` |
+| `reactions/xbdeh7.ogg` | `1099` | 1.51 | -16.0 | -2.4 | all | `3515984d3f56dd9f6df9d6a122f22310356dd5b720123016e149356044434379` |
+| `reactions/xle2z6.ogg` | `1101` | 2.72 | -16.0 | -2.0 | Ehem, that holds. | `09bd21ac03afeb5dbdc785aab77efe9dca15781085fc8ed50f3e595e0214698c` |
+| `reactions/y7w6mr.ogg` | `1099` | 2.39 | -17.9 | -1.6 | The house takes this little one. | `b66fcbecfdf9a9079cd551bac0ee06dd44beecd540db7cb8f2f839da22ac088c` |
+| `reactions/y97n4o.ogg` | `1099` | 1.84 | -17.1 | -1.8 | So, it lands! | `92d3a070968214b44c53302d00690020cbce0e11687785efef4880d9c74ccd2e` |
+| `reactions/y9j4po.ogg` | `1099` | 0.96 | -16.0 | -1.9 | all | `e9b6cd8f039a9e76ca9139597eb0747b4165ed7b409ebf9a5c730390948918f4` |
+| `reactions/y9pzq7.ogg` | `1099` | 0.94 | -16.8 | -1.9 | all | `6039915f634786c416b0b1cfe7d239ded2a1f9e32febf90047d94ab198c8047d` |
+| `reactions/ys1qap.ogg` | `1099` | 1.42 | -16.3 | -1.8 | all | `a349e94639d0a2ef3323980935cf4a94a8c7388290b3f7186ddb97c12597bcde` |
+| `reactions/yvoj2m.ogg` | `1099` | 2.07 | -16.7 | -2.3 | all | `93852e0c98591e97513cad792f858f83f12c0e4ee84259a14b2214554680bce8` |
+| `reactions/yzqelc.ogg` | `1099` | 1.48 | -16.4 | -1.8 | all | `416f8b38e9684d8ecde7396695875102bda65e003d92eda09b206c656c4b4007` |
+| `reactions/z7tgh4.ogg` | `1099` | 1.44 | -17.4 | -1.9 | all | `1786e92300bc8d05ddaac5b66e2b28d3ac006a7a386ac1f34651fae84ba2d718` |
+| `reactions/zgtwm1.ogg` | `1100` | 3.28 | -15.7 | -1.9 | all | `875da02edd6dd9d631f2050cec7e44133fc2df79001d15bfce594b7f238f2397` |
+| `reactions/zp973u.ogg` | `1100` | 2.14 | -18.0 | -1.9 | all | `2eae6949a78bb66d087d022ee8a12da101ec1a9587ce23ee3ebfe699936e0552` |
+| `reactions/zu63vw.ogg` | `1099` | 1.12 | -15.9 | -2.6 | all | `c3376b61f87c58d81e12a44ca804dd7ac0e3e9345f4f9cc3d49a35c72ab42c53` |
+| `reactions/zx6usd.ogg` | `1099` | 2.45 | -16.0 | -2.1 | all | `3fa30fcbea6e36ebd555624d2a83e7b3df95b7baa08879172d172869a1619946` |

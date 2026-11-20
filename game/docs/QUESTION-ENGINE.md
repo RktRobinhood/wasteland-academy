@@ -504,6 +504,74 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   again with SymPy. `test_log_technology.gd`. The map's skills list `match`, `multipart` and
   `order-steps` formats for AI-SL1.6 and AI-SL1.7; the engine doesn't build them, so none of these
   types offers them.
+<!-- R2-STATIONARY -->
+- `engine/situations/ai_stationary.gd` (FAL-1000) is `ai-stationary`, for `t5-ai-stationary-points`
+  (AI-SL5.6: solve-gradient-zero, locate-local-extrema, classify-by-gradient-sign, greatest-least-on-domain,
+  read-from-gradient-graph), an exam type on the AI courses only, Paper 2 throughout. Its functions are a
+  cubic built from f′(x) = 3a(x − p)(x − q) (whole p and q, so factorising works; one-decimal b, c and d,
+  so only the formula or the GDC gives the zeros, to 3 s.f.; or no x² term, so the zeros are ±r), ax + b/x + c
+  on x > 0, and six stories (a still's temperature, a track's height, a turbine's power, a reservoir's depth,
+  a flare's height and a drone's fuel per km), their coefficients rounded from f′ = 3a(t − p)(t − q) so the
+  zeros are GDC values. Its views (`ai_stationary_views.gd`) ask 11 unknowns over 39 cells: the zeros of f′
+  (from f, or the x of the extremum from f′ given), k from a stationary point, the coordinates of a local
+  maximum or minimum (from the equation, or with f on a GDC window that one end of the curve leaves through
+  its side), the greatest or least value of a story, the nature of a stationary point with its reason (a
+  claim; the table rep shows f and f′ at p ± 0.1), the greatest or least value on a domain (at an end about
+  half the time, sometimes with the stationary point of the kind asked outside it) and why a local maximum
+  is not the greatest. The vertex method's working is only built on a quadratic story (the recipe is told
+  the method and draws one), as the catalogue marks it failing on a cubic. The three f′-graph unknowns call
+  `DerivativeGraphSituation.generate` (`dg_ask` names its unknown) and `DerivativeGraphViews`' builders,
+  then re-tag their slips with this type's refs (the f′ turning point, the touch, the crossing read the
+  wrong way round when a maximum is asked, stopping at the touch) and move the rest to fillers; the
+  increasing view adds the type's own slip, where f′ rises. Whole-number answers are exact, the rest 3 s.f.
+  with the rounding trap. `r2sp_check` in the SymPy checker reads each function back from its sentence,
+  solves f′ = 0 exactly, rebuilds every tagged slip and checks the derivative and GDC lines of the working;
+  the f′-graph questions go to `E12DG_check` with the refs mapped back. `test_ai_stationary.gd`.
+
+<!-- R2-OPTIMISATION -->
+- `engine/situations/ai_optimisation.gd` (FAL-1000) is `ai-optimisation`, for `t5-ai-optimisation`
+  (AI-SL5.7.optimise-given-model, build-model-from-constraint, optimise-container and
+  interpret-optimum-in-context). It is an exam type (`home` ai-sl), so only the AI courses get it, and
+  every question is Paper 2. Its views (`ai_optimisation_views.gd`, extending `OptimisationViews`) ask
+  12 unknowns over 50 cells: the best input and the optimum of a given model (a quadratic or cubic
+  profit, a cost a x + b/x + c, or an area k sin θ (w + k cos θ) that only the GDC optimises; the vertex
+  working is on a quadratic only), the best price or greatest profit from a demand A − Bp with a fixed
+  and a per-item cost, why a suggested x is not optimal (a claim), and the best whole number of items
+  (b = k n(n + 1) with a just under k, so the nearest whole number is the wrong one, in words or a
+  table); then, on OptimisationSituation's Paper 2 shapes (a can, an open bin, a tray, a pen or a
+  paddock against a wall, a route off a road), the second length, the function in one variable, the
+  best length, the optimum, the other length, the route's best point or least time or cost, and the
+  domain in context, each in words or with the AA type's figure. Wrong options are the four skills'
+  slips and the type's own (the cost per item left out, the gradient read as the profit, a positive
+  profit, the closed domain, both legs at one speed, a lid on the box, the circumference for the base,
+  a fence along the wall, a sum for an area). `r2op_check` in the SymPy checker reads every model back
+  from the text, solves it again, and works every answer, slip and GDC reading out on its own.
+  `test_ai_optimisation.gd`.
+
+<!-- R2-TRAPEZOIDAL -->
+- `engine/situations/trapezoidal.gd` (FAL-1000) is `trapezoidal`, for `t5-ai-trapezoidal` (AI-SL5.8.trapezoid-from-function,
+  trapezoid-from-data, compare-with-exact, over-or-under-estimate, find-missing-value): 9 unknowns over 33 cells, all Paper 2. A
+  function is a quadratic, cubic, m√(x + c), m e^(kx) or m/(x + c) on [a, b] with 3 to 6 strips of a tidy width (0.2 to 2),
+  positive and bending one way only (f″ keeps its sign, and the estimate is at least 0.2% off), so over or under is clear; the
+  exact value is worked from an antiderivative. Measurements are 5 to 7 widths or depths of a salvage field, a toxic lake
+  between dams or a flooded canal, a rover's speeds, a pump's flow rates or a channel's depths, every h, whole or to 1 d.p.
+  Its views (`trapezoidal_views.gd`) ask the strip width (from n or from a table's x-values), the estimate from y = f(x), from
+  the curve drawn with its n trapezia (GraphView `curves` and `shade`: the tops and sides as sand polylines, the trapezia shaded,
+  no change to the view) or from a table with p and q to work out (polynomials only, so every height ends), the area from a
+  table or from the shape drawn with each width labelled at its distance (`x_ticks`, labels with `name`), a distance, volume or
+  channel flow from rates in a table, in words or as dots on whole grid lines of a speed graph (whole speeds; a total that ends
+  is exact), the percentage error against the GDC's integral, how to improve the estimate and whether it is over or under (each
+  a `claim`), which of four cards the rule under- or overestimates (pick the graph: the right card bends the needed way; the
+  slope slip's card bends the other way with the slope that slip reads as the target, rising for over and falling for under,
+  and the right card has the other slope, so that slip never picks it; then a line, and one bending the other way with the
+  right card's slope), and a missing height k from a given estimate (exact). Methods: the formula, strip by strip, the GDC's lists with weights {1, 2, …, 2, 1}, the GDC's
+  integral, the percentage-error formula, the chords (f″'s sign, or the drawn curve) and the comparison with the GDC, a linear
+  equation and the solver. Wrong options are the five skills' slips (h from n + 1, no doubling, no half, the x-values as
+  heights, minutes left in a per-second rate (60 times too small), the ends doubled (both ends, for an end k too), over the estimate, the signed error, more
+  strips worse, deciding from the rise, always over, an error for a line, an inner k counted once, the h/2 left out) and the
+  type's own (the strip width makes no difference). `r2tr_check` in the SymPy checker reads f, the limits and n, the table,
+  the words or the figure (the drawn widths and dots) back, works the estimate, the integral (SymPy), the bend and every slip
+  out again exactly, and checks the working's figures. `test_trapezoidal.gd`.
 - `engine/situations/log_exp_form.gd` (FAL-753) is `t1-log-exp-form` (SL1.5.exp-log-form and
   SL1.5.log-context), the `log-exp-form` situation: 25 unknowns over 73 cells. Paper 1 changes a fact
   between log and exponential form, evaluates a log exactly, solves for the number, the bracket, the
@@ -1128,6 +1196,99 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   method-pick; the concept type and graph-match offer true-false-reason. Not built yet:
   error-spot (fn-ext-inequality-graphical, fn-pre-graph-reading) and method-pick for
   fn-concept-solutions-as-intersections.
+<!-- R9-RATIONAL -->
+- `engine/situations/rational_quadratic.gd` (FAL-1007) is `rational-quadratic`, for `fn-ahl-rational-quadratic`
+  (AHL2.13: vertical-asymptotes, horizontal-asymptote, oblique-asymptote, range-turning-points, sketch), an AA HL
+  exam type. Two forms, each drawn from its features: a linear over a quadratic (ax + b)/(x² + px + q) whose
+  denominator has two whole zeros, one repeated zero or none ((x + h)² + s², so the slip that finds two anyway
+  has whole numbers), and a quadratic over a linear (mx² + bx + c)/(x + e) built from its division
+  mx + k + R/(x + e), with whole zeros when a view needs them. Paper 1 is exact throughout; a range on Paper 2
+  has a discriminant that is not a square, so its turning values are given to 3 s.f. Its views
+  (`rational_quadratic_views.gd`) ask 12 unknowns over 31 cells: the vertical asymptotes (none for a denominator
+  with no zeros, on the discriminant method), the one of a quadratic over a linear, k in a denominator from an
+  asymptote (written or read from the graph), the horizontal asymptote and where the curve crosses it, the
+  intercepts of a quadratic over a linear, the oblique asymptote and an x coefficient from it, the range of each
+  form (a quadratic over a linear also asks the values f never takes), and two pick-the-graph sketches. A card
+  draws each branch to the edge of the plot (bisection, so none crosses an asymptote), the asymptotes dashed, an
+  oblique one as a dashed sand line after `sand_from`, and its own intercepts marked; the cards' functions keep
+  every branch inside the plot. Wrong cards: the numerator's zero dropped (AHL2.13.sketch#0) or the oblique
+  asymptote's constant dropped (AHL2.13.oblique-asymptote#0), with two untagged ones (−f, the asymptotes' or the
+  zero's sign changed; the remainder's sign flipped, the asymptote mirrored, a line drawn across it). The range-ql
+  view has its own situation family, since exact turning values rarely meet whole zeros. The wrong-side range
+  slip is listed for range-ql only: its text says the range comes out as the gap between the turning values, and
+  for a linear over a quadratic the range is that gap. The checker (r9rq_check) reads f back from the stem and
+  works every answer, slip, working value and card again with SymPy.
+
+<!-- R9-ODD-EVEN -->
+- `engine/situations/odd_even.gd` (FAL-1007) is `fn-ahl-odd-even` (AHL2.14, AA HL only): odd, even
+  or neither. A function is a list of terms c·xᵖ·g(x), g one of 1, sin x, cos x, e^x and e^(−x), and
+  its parity comes from the terms' (e^x and e^(−x) swap, so a e^x + b e^(−x) is even for a = b and
+  odd for a = −b). Its views (`odd_even_views.gd`) ask 8 unknowns over 22 cells: a polynomial or a
+  mixed function classified (a `claim` with its reason, by f(−x), a counterexample at the least whole
+  a that shows neither, the building blocks, or the unit circle), the coefficient k that makes a
+  polynomial odd or even, a value f(−a) or f(−a) + m·f(a) from a rule in p and q or a half graph,
+  completing a half graph and choosing the odd or even graph (pick-the-graph; each wrong card a
+  named mistake: the mirror in the y-axis or the x-axis, a half-turn about (0, k), a slide, a shifted
+  or asymmetric graph), h = fg, f + g, f∘g or g∘f from the parities of f and g, and ∫ from −a to a
+  given ∫ from 0 to a, of a written integrand (odd terms cancel, even ones double) or of a polyline
+  graph with its half shaded. Graphs are polylines through whole-number key points, so a symmetry
+  and an area are exact. Every cell makes both papers; Paper 2 changes only a given integral, which
+  may be a decimal. Wrong options are AHL2.14's misconceptions and the type's own four (2∫₀ᵃ for an
+  odd integrand, the definitions swapped, −f(a) for an even function, the wrong powers' coefficient
+  set to 0). AHL2.14.odd-even-test#1 (odd powers plus a constant) is offered only on classify-polynomial:
+  no value of k comes from that slip. The checker (`r9oe_check`) reads every function back with its own
+  parser, decides each parity with SymPy from f(−x) ± f(x), solves for k, evaluates each counterexample,
+  works each h out on concrete odd and even functions, integrates the written integrand exactly (and by
+  quadrature), and holds each card's segments to its named mistake and each graph's area to its trapezia.
+
+<!-- R9-INVERSE -->
+- `engine/situations/inverse_restricted.gd` (FAL-1007) is `inverse-restricted`, for `fn-ahl-inverse-restricted`
+  (AHL2.14.restrict-domain-inverse, self-inverse, inverse-intersection): 8 unknowns over 30 cells, AA HL only. A quadratic
+  A x² + bx + c or √(x² + bx + c) with a whole vertex off the y-axis, and x ≤ a or x ≥ a to bound; a shifted cosine or sine
+  A cos(x − p) + D, p a multiple of π/6 or π/4, from a turning point; a quadratic on one side of its vertex, given in vertex
+  form or expanded; (ax + b)/(x + d) with d = −a and a or d the unknown k; a rule that is its own inverse ((ax + b)/(x − a),
+  c − x, √(r² − x²) on 0 ≤ x ≤ r) or is not ((ax + b)/(x + d) with two whole fixed points, mx, x³), with a value that f(f(x))
+  moves; an increasing (n x² + c)/m on x ≥ 0 or √((mx − c)/n), meeting f⁻¹ at whole or half points; and a decreasing
+  −A x³ or −A x⁵ meeting f⁻¹ at (0, 0) and (±s, ∓s). The calculator method (gdc-intersect) draws meeting points that need a
+  GDC, to 3 s.f., and is Paper 2; every other cell is exact on either paper. Its views (`inverse_restricted_views.gd`) ask
+  the largest or smallest a (a typed number), the end of the wave's domain as a multiple of π, f⁻¹(x) with its branch, the
+  domain of f⁻¹, the k (typed), whether f is its own inverse and why, and where f meets f⁻¹, each from the rule or, for
+  the largest domain, the inverse's domain and both meeting unknowns, from the curve on a grid (with f⁻¹ and y = x for the
+  meeting points). Methods: completing the square, the turning point (f′ = 0), the horizontal line test, the quadratic
+  formula in y, f(f(x)), f⁻¹ found and compared, the asymptotes or the curve symmetric in y = x, f(x) = x (for a decreasing
+  f also f(x) = −x, its title says so), f(f(x)) = x from f⁻¹, and the GDC's intersect. Wrong options are the skills' slips
+  (the ± left in, the other root, the domain of f, f × f = 1, one value checked, odd taken for self-inverse, only the point
+  on y = x, f⁻¹ as 1/f) and the type's own (the y-intercept, a root, the vertex's coordinates mixed up, a quarter or a whole
+  period, the sign of d = −a changed), with plain fillers. `r9ir_check` in the SymPy checker reads every rule back from the
+  lines, works each answer out again (the turning point, the next zero of f′, the branch of x = f(y) that gives back the
+  domain, the range, the k from f(f(x)) = x, the real roots of f(x) = x and f(f(x)) = x), rebuilds every tagged option,
+  and checks the working's completed squares, derivatives, compositions and quadratics. `test_inverse_restricted.gd`.
+
+<!-- R9-AI-COMPOSITE -->
+- `engine/situations/ai_composite_inverse.gd` (FAL-1007) is `ai-composite-inverse`, for
+  `fn-ai-composite-inverse` (AI-AHL2.7: composite-context, find-inverse, restrict-domain,
+  inverse-identity), an exam type on AI HL only, Paper 2 throughout. Its composites are four stories
+  (a workshop's filters and their shipping cost, a furnace's temperature in °C then °F, a truck's
+  distance and the fuel left, a crew's scrap and what a trader pays), an inner line g and an outer f
+  (a line, or for the rule mostly a quadratic) as `CompositePairSituation` polynomials, evaluated and
+  composed with its `peval` and `pcompose`. The models to undo are a line (a taxi fare, °C to °F, a
+  copper price), c + k/x (an average cost), a + b ln x (a signal) and, for a value of f⁻¹ by the GDC's
+  solver only, an increasing cubic (a tank); a quadratic a(x − h)² + k (a pump's cost, a bridge's
+  height, a profit) is restricted at its vertex, and a line on an interval gives an inverse's bounded
+  domain. The graph of f⁻¹ draws a `BasicOneToOneSituation` curve. Its views
+  (`ai_composite_inverse_views.gd`) ask 10 unknowns over 35 cells: the composite's value (the inner
+  model as a rule, a table, or a line graph with marked points), its rule in the first input (equation:
+  (f∘g)(t); words: the order is left to the units), which order of a percentage and a voucher or a fee
+  gives the lower or higher price, the input that gives a target (on the graph, read back off the
+  marked point), f⁻¹(x) (in words, with what it calculates), f⁻¹(a) without f⁻¹(x), the least k for an
+  inverse on x ≥ k, the domain or range of f⁻¹, (f∘f⁻¹)(a) or a from f⁻¹(a) = b, and the graph of f⁻¹
+  (pick-the-graph, copying the fn-inverse-reflection cards: in y = x, in each axis, in y = −x). A rule,
+  a statement, a domain or a range is a `choice` option built by `InverseRuleViews.pick_of`. Values
+  that end within two decimal places are exact; the rest are 3 s.f. with the rounding trap. Slips are
+  only offered where they read as an answer: the other order of an equation only when its time is
+  positive, 1/f(a) only when it is at least 0.001. `r9ac_check` in the SymPy checker reads every model
+  back from its sentence, table or graph, solves again, and matches each rule option to its slip by
+  parsing it. `test_ai_composite_inverse.gd`.
 - **The Composite and inverse region** (FAL-422) adds three exam situations. `composite_pair.gd`
   is two rules chained, f and g, as `{"t", "co"}` polynomials (a line, x² + c, (x − h)², x³ + c,
   or sin x on Paper 2, with a generic quadratic for an outer rule to find), with modes for
@@ -1372,6 +1533,25 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `{}`. The `quadratic` views set it; every quadratic answer is exact today, so none has
   one yet. Situations whose answers are 3 s.f. measures (triangles, distributions) need
   a checker rule for the 2 s.f. text before they offer it.
+- **Typed-answer rough edges** (#194): `Answer.parse_number` reads a single comma that
+  can't group thousands as a decimal point (0,5, 12,25), and refuses with what to change
+  where it could be either (1,500: "1.5 or 1500"), where commas group thousands, or where
+  the text has a %, °, unit, currency sign or mixed number (`Answer.refusal`). A refusal
+  is not marked, and `Run.answer` gives the clock back `Tuning.REFUSED_REFUND` seconds for
+  each new one, up to `REFUSED_REFUND_MAX` a question; an empty box earns nothing. A
+  rounded form of an `exact` answer (0.333 for 1/3, 2350 for 2345) is glancing with
+  `Answer.EXACT_NOTE`, typed or picked (`Answer.rounded_exact`, an option's `rounded`).
+  The normal-probability, inverse-normal and unknown-parameter views give their answer the
+  values a z rounded midway (to 2 d.p. or 3 s.f.) leads to, with `Answer.add_premature`;
+  typing one is a miss whose note is `Answer.PREMATURE_NOTE`. A whole-number key of
+  1,000 or more takes any 3 s.f. rounding unless the answer is exact, so each type with one
+  is exact or listed in `Answer.WHOLE_SF` on purpose: today a model's input, prediction or
+  start value from a rounded reading, C from a graph, a value after n years from a
+  calculator (asked to 3 s.f. on Paper 2), an exact value from a percentage error, a sector
+  area (with π, or ½rl on Paper 2), a Paper 2 grouped variance, a trapezoidal estimate
+  from data (an area or a total) and a Paper 2 maximum area. Every other such key (a count, a sum, money, nCr) is exact, and the seed sweep fails
+  on a key that is neither (`Answer.whole_key_unlisted`). `tools/whole_number_keys.gd`
+  lists every type and unknown with such a key and how it is marked.
 - **Marks**: each question carries `marks`, the type's median marks in the exam bank
   (`stats.marks.median`, copied into the catalogue as `marks`), unless the view sets its
   own. The timer is built from it. Extension types have none and use `Tuning.DEFAULT_MARKS`.
@@ -1601,7 +1781,7 @@ extra format it offers (`--per-format`). Every mini-boss and boss chain is expor
 chain: one situation, and each part's `carried` value is the part before's answer. It
 prints a table per type and per cell. SymPy is pinned in
 `requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it in
-six `answers-shard` jobs (`--shard=k/6`: every sixth cell and boss chain, each with all
+ten `answers-shard` jobs (`--shard=k/10`: every tenth cell and boss chain, each with all
 its questions). Each leaves a `summary.json`, and the `answers` job merges them
 (`tools/check-answers --merge dir`) and fails unless every shard is there once, passed,
 and together they give every cell 50 questions and every type 1,000.
@@ -1621,10 +1801,8 @@ gets a misconception, its line and a tag, and the checker works it out again. A 
 no route to it (the key scaled by a quarter, nudged, a number from nowhere), and the view
 puts it in `fillers`, so a blank is a choice. The check fails on a blank that is neither:
 a `wrongs` entry with no `ref`, or an option from `generic`, the list from before FAL-815
-that mixed the two. A type whose `generic` isn't sorted yet is on `UNSORTED` in
-`tools/feedback_check.gd`, where its blanks are only counted; once sorted, its views say
-`fillers` and it leaves the list, and the check fails on a listed type with nothing left to
-sort. A new type never joins it. A rounding trap with no misconception of its own shows
+that mixed the two. Every type is sorted (FAL-1149 emptied the old `UNSORTED` list and
+deleted it), so a blank fails on any type. A rounding trap with no misconception of its own shows
 `Answer.TRAP_NOTE`, and the engine's last-resort nudges are fillers. The check prints the
 share of multiple-choice wrong options with no line (`BLANK ...`), and `--blanks=file.tsv`
 writes each blank once, with where it came from (`src`, `gi`) and a first example.

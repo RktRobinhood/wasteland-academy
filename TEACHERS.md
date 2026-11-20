@@ -40,12 +40,16 @@ Keep these for written work in class.
 
 Some questions are multiple choice. On others the student types the answer with the game's keypad, which has a fraction key, powers and roots.
 
-- **Paper 1 questions want exact answers.** A typed number must equal the answer exactly: 0.5 is accepted for ½, but 0.333 is not accepted for ⅓. Surds and multiples of π go into their own boxes, for example m√r.
+- **Paper 1 questions want exact answers.** A typed number must equal the answer exactly: 0.5 is accepted for ½. A rounded form of an exact answer, such as 0.333 for ⅓, is a glancing hit with the note "Exact value needed": the maths is right but the form is not, the way an IB paper drops the final accuracy mark. Surds and multiples of π go into their own boxes, for example m√r.
 - **Paper 2 questions follow the IB's 3 significant figure rule.** An answer is right if it rounds to the same 3 s.f. as the exact value, or if it is the exact value correctly rounded to more figures. For 12.3456, the game accepts 12.3, 12.35 and 12.346.
 - **The right value with too few figures is a glancing hit.** 2.3 for 2.347 earns half the damage and half the Scrap. In multiple choice, one wrong option is often the answer rounded to 2 s.f., to catch the same slip.
 - **Equivalent answers are right** unless the question asks for a form. If it asks for integer coefficients, a line written with fractions is marked glancing and the student is told why.
 - **The order of a list doesn't matter** when the answer is a set, such as two roots or two points.
 - **A typed answer must work out to a number.** Entries like √2 or ln 2 in a number box are turned down with a note to work them out, and nothing is marked.
+- **A decimal comma is accepted** where it can only be a decimal point: 0,5 is read as 0.5. Where a comma could be a decimal point or a thousands separator, as in 1,500, the game says the two ways to write it. A %, °, unit, currency sign or mixed number such as 1 1/2 is turned down with a note saying what to change. A turned-down answer is not marked and gives back the seconds it took to read the note.
+- **Whole numbers of 1,000 or more.** A count, a sum, money or a binomial coefficient is marked exactly, so 1020 for 1024 is a glancing hit with "Exact value needed". A value from a calculator, such as a model's prediction, follows the 3 s.f. rule like any other Paper 2 answer.
+- **Rounding too early.** On normal distribution questions, an answer that is off because z was rounded midway is a miss, and the note says so: keep z's full value to the end.
+- **What the boxes give away.** A typed question shows one box for each solution, and an indefinite integral's answer is printed with its + C. So typed entry doesn't test how many solutions there are, or remembering the constant. Multiple choice does: some wrong options drop one of the solutions, or the + C.
 
 Paper 2 questions have an in-game calculator. Students can use their own GDC as well. Each question has a timer based on its marks, with 15 extra seconds for a typed answer. A right answer late in the timer still counts, but costs some HP.
 

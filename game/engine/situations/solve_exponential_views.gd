@@ -43,6 +43,10 @@ const R_BASE := OWN + "10"
 const R_DROP_START := OWN + "11"
 const R_PERCENT := OWN + "12"
 const R_PRODUCT := OWN + "13"
+## FAL-1149: the old generic options that are slips.
+const R_NOT_K := OWN + "14"
+const R_DROP_POWER := OWN + "15"
+const R_OTHER_BASE := OWN + "16"
 
 const CB := "SL1.7.common-base#"
 const CO := "t1-ext-common-base#"
@@ -333,7 +337,7 @@ func u_two_bases_3sf(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		list.append([s.c / (la + lb), R_BRACKET])
 		list.append([s.c * lb / (la - lb), R_SIGN])
 		list.append([s.c * lb / log(float(s.a + s.b)), R_COMBINE])
-	var out := {"answer": ans, "wrongs": sf_wrongs(list), "generic": sf_spare([x + 1.0, x * 2.0, -x, x * 0.5, x + 2.0]), "lines": [two_eq(s)]}
+	var out := {"answer": ans, "wrongs": sf_wrongs(list), "fillers": sf_spare([x + 1.0, x * 2.0, -x, x * 0.5, x + 2.0]), "lines": [two_eq(s)]}
 	out.asked = "Solve the equation." + THREE
 	if rep == "graph":
 		out.lines = ["The graph shows y = %s and y = %s, which meet at P." % [left_side(s), right_side(s)]]
@@ -383,9 +387,9 @@ func u_shift_base_exact(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	w_list.append(DifferentiationViews.alt("x = %s/(ln %d − 1)" % [top, b] if s.p > 0 else "x = %s/(1 − ln %d)" % [top, b], R_BRACKET))
 	if gap >= 2 and not Q.new(gap).eq(ratio) and not Q.new(gap).eq(P):
 		w_list.append(wrong(quot(P, Q.new(gap)), R_COMBINE))
-	var generic: Array = [quot(P, Q.new(b)), quot(Q.new(b), ratio), quot(P, Q.new(a + b)), quot(P.mul(a), ratio)]
 	if n > 1:
-		generic.push_front(quot(Q.new(a), ratio))
+		w_list.append(wrong(quot(Q.new(a), ratio), R_DROP_POWER))
+	var fillers: Array = [quot(P, Q.new(b)), quot(Q.new(b), ratio), quot(P, Q.new(a + b)), quot(P.mul(a), ratio)]
 	var bottom := "ln %d − ln %d" % [b, a] if s.p > 0 else "ln %d − ln %d" % [a, b]
 	var collect := "Expand and collect the x terms: x(%s) = %s" % [bottom, top]
 	var steps: Array = ["Take ln of both sides and bring each power down, keeping its bracket: (%s) ln %d = x ln %d" % [shift_expo(s.p), a, b], collect,
@@ -393,7 +397,7 @@ func u_shift_base_exact(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	if n == 1:
 		steps = [steps[0], collect, "Use the log law: %s = %s" % [bottom, ln_of(ratio)], say(ans)]
 	return {"lines": [two_eq(s)], "asked": "Solve the equation, giving x in the form ln p/ln q, where p and q are rational.",
-		"answer": ans, "wrongs": w_list, "generic": generic, "methods": {BOTH: method(steps, ans.values)}}
+		"answer": ans, "wrongs": w_list, "fillers": fillers, "methods": {BOTH: method(steps, ans.values)}}
 
 
 func u_one_minus_exact(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -405,14 +409,17 @@ func u_one_minus_exact(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := quot_ans(P, ab)
 	var w_list: Array = [wrong(quot(P, Q.new(a, b)), R_SIGN), wrong(quot(ab, P), R_FLIP), wrong(quot(P, Q.new(a + b)), R_COMBINE),
 		DifferentiationViews.alt("x = %d/(ln %d + ln %d)" % [c, a, b], R_BRACKET)]
-	var generic: Array = [quot(Q.new(SolveExponentialSituation.ipow(a, c)), ab), quot(P, Q.new(a)), quot(Q.new(b), ab), quot(P, Q.new(b))]
+	w_list.append(wrong(quot(Q.new(SolveExponentialSituation.ipow(a, c)), ab), R_OTHER_BASE))
+	if c > 1:
+		w_list.append(wrong(quot(Q.new(b), ab), R_DROP_POWER))
+	var fillers: Array = [quot(P, Q.new(a)), quot(P, Q.new(b))]
 	var top := times_ln(c, b)
 	var steps: Array = ["Take ln of both sides and bring each power down, keeping its bracket: x ln %d = (%d − x) ln %d" % [a, c, b],
 		"Expand and collect the x terms: x ln %d + x ln %d = %s, so x(ln %d + ln %d) = %s" % [a, b, top, a, b, top],
 		("Use the log laws: %s = %s and ln %d + ln %d = %s" % [top, ln_of(P), a, b, ln_of(ab)]) if c > 1 else "Use the log law: ln %d + ln %d = %s" % [a, b, ln_of(ab)],
 		say(ans)]
 	return {"lines": [two_eq(s)], "asked": "Solve the equation, giving x in the form ln p/ln q, where p and q are whole numbers.",
-		"answer": ans, "wrongs": w_list, "generic": generic, "methods": {BOTH: method(steps, ans.values)}}
+		"answer": ans, "wrongs": w_list, "fillers": fillers, "methods": {BOTH: method(steps, ans.values)}}
 
 
 # ── Isolate the exponential ──────────────────────────────────
@@ -438,7 +445,8 @@ func u_isolate_e_exact(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if m != 1:
 		w_list.append_array(lnq_wrong(Q.new(1), Q.new(r), R_NO_DIVIDE))
 		w_list.append_array(lnq_wrong(Q.new(m), Q.new(r), R_TIMES))
-	var generic: Array = [lnq(Q.new(1, m), Q.new(r + 1)), lnq(Q.new(1, m), Q.new(c)), lnq(Q.new(1, m), Q.new(r * k)), lnq(Q.new(2, m), Q.new(r))]
+	w_list.append_array(lnq_wrong(Q.new(1, m), Q.new(c - d), R_NOT_K))
+	var fillers: Array = [lnq(Q.new(1, m), Q.new(r + 1)), lnq(Q.new(1, m), Q.new(c)), lnq(Q.new(2, m), Q.new(r))]
 	var e_mx := pw("e", "x" if m == 1 else "%dx" % m)
 	var mx := "x" if m == 1 else "%dx" % m
 	var lead: Array = ["%s: %s = %d" % [undo_d(d), k_exp(k, m), c - d]] if d != 0 else []
@@ -450,7 +458,7 @@ func u_isolate_e_exact(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var both: Array = lead + ["Take ln of both sides, using the product law: ln %d + %s = ln %d" % [k, mx, c - d],
 		"%s = ln %d − ln %d = ln %d" % [mx, c - d, k, r]] + last
 	var asked := "Solve the equation, giving your answer in the form ln a, where a is a whole number." if root else "Solve the equation, giving the exact value of x."
-	return {"lines": [isolate_eq(s)], "asked": asked, "answer": ans, "wrongs": w_list, "generic": generic,
+	return {"lines": [isolate_eq(s)], "asked": asked, "answer": ans, "wrongs": w_list, "fillers": fillers,
 		"methods": {ISOLATE: method(iso, ans.values), BOTH: method(both, ans.values)}}
 
 
@@ -480,7 +488,7 @@ func u_isolate_3sf(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		list.append([log(r.to_float()), R_NO_DIVIDE])
 	if not e:
 		list.append([log(r.to_float()) / s.a, R_BASE])
-	var out := {"answer": ans, "wrongs": sf_wrongs(list), "generic": sf_spare([x + 1.0, x * 2.0, x * 0.5, -x, x + 2.0]), "lines": [iso3_eq(s)]}
+	var out := {"answer": ans, "wrongs": sf_wrongs(list), "fillers": sf_spare([x + 1.0, x * 2.0, x * 0.5, -x, x + 2.0]), "lines": [iso3_eq(s)]}
 	out.asked = "Solve the equation." + THREE
 	var curve := iso3_eq(s).split(" = ")[0]
 	if rep == "graph":
@@ -552,7 +560,7 @@ func u_model_time_exact(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	w_list.append_array(lnq_wrong(inv, Q.new(L - A0), R_SUB_K))
 	w_list.append_array(lnq_wrong(Q.new(1), ratio, R_NO_DIVIDE))
 	w_list.append_array(lnq_wrong(k, ratio, R_TIMES))
-	var generic: Array = [lnq(inv, ratio.add(1)), lnq(inv.mul(2), ratio), lnq(inv, Q.new(A0)), lnq(inv.add(1), ratio)]
+	var fillers: Array = [lnq(inv, ratio.add(1)), lnq(inv.mul(2), ratio), lnq(inv, Q.new(A0)), lnq(inv.add(1), ratio)]
 	var lines: Array = ["%s covers %s square centimetres, t %s after %s." % [st.one % place(s), model_text(s), st.time, st.start]]
 	var asked := "Find the exact number of %s it takes %s to cover %d square centimetres." % [st.time, st.it, L]
 	var kt := D(k) + "t"
@@ -561,7 +569,7 @@ func u_model_time_exact(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var iso: Array = ["Put A = %d: %s" % [L, eq], "Divide by %d: %s = %s" % [A0, pw("e", kt), D(ratio)], "Take ln of both sides: %s = %s" % [kt, ln_of(ratio)], undo, say(ans)]
 	var both: Array = ["Put A = %d: %s" % [L, eq], "Take ln of both sides, using the product law: ln %d + %s = ln %d" % [A0, kt, L],
 		"%s = ln %d − ln %d = %s" % [kt, L, A0, ln_of(ratio)], undo, say(ans)]
-	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": w_list, "generic": generic,
+	return {"lines": lines, "asked": asked, "answer": ans, "wrongs": w_list, "fillers": fillers,
 		"methods": {ISOLATE: method(iso, ans.values), BOTH: method(both, ans.values)}}
 
 
@@ -584,7 +592,7 @@ func u_model_meet(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := sf_ans("t = ", t, unit)
 	var list: Array = [[s.early, R_EARLY], [ratio / (k + lg), R_SIGN], [log(float(s.B0 - s.A0)) / (k - lg), R_COMBINE],
 		[ratio / (k - (g - 1.0)), R_PERCENT], [log(float(s.A0)) / (log(s.B0 * g) - k), R_PRODUCT]]
-	var out := {"answer": ans, "wrongs": sf_wrongs(list), "generic": sf_spare([t + 1.0, t * 2.0, t * 0.5, t + 3.0]), "table": null}
+	var out := {"answer": ans, "wrongs": sf_wrongs(list), "fillers": sf_spare([t + 1.0, t * 2.0, t * 0.5, t + 3.0]), "table": null}
 	out.lines = [st.two % place(s), "t %s after %s, one covers A = %s square centimetres and the other covers B = %s square centimetres." % [st.time, st.start, meet_a(s), meet_b(s)]]
 	out.asked = "Find the time when %s cover the same area.%s" % [st.them, THREE]
 	if rep == "graph":

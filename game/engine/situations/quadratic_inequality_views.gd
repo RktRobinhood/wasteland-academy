@@ -57,6 +57,10 @@ const R_ROUND_UP := "fn-quadratic-inequality#6"
 const R_ALL_NONE := "fn-quadratic-inequality#7"
 const R_FACTOR_SIGNS := "fn-quadratic-inequality#8"
 
+## The test-point steps test one point, between the roots (the catalogue name, "in each
+## interval", is shared with other types).
+const TEST_TITLES := {"test-point": "Test a point between the roots"}
+
 
 static func N(v: Variant) -> String:
 	return Fmt.num(v)
@@ -213,6 +217,7 @@ func _solve(rep: String, s: Dictionary, tag2: bool) -> Dictionary:
 	out.wrongs = wrongs
 	out.fillers = set_fillers(v, p2(s))
 	out.methods = methods(s, ans, [])
+	out.titles = TEST_TITLES
 	return out
 
 
@@ -257,7 +262,7 @@ func u_square_against_constant(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	ms["sketch-roots"].steps.remove_at(2)
 	return {"asked": "Solve the inequality.", "lines": ["x² %s %s" % [s.rel, N(s.rhs)]], "given": given_of(s), "answer": ans,
 		"wrongs": wrongs, "fillers": fillers,
-		"methods": {"sketch-roots": ms["sketch-roots"], "test-point": ms["test-point"]}}
+		"titles": TEST_TITLES, "methods": {"sketch-roots": ms["sketch-roots"], "test-point": ms["test-point"]}}
 
 
 func u_no_real_roots_case(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -296,7 +301,8 @@ func u_largest_integer(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"lines": ["A mosaic has n rows of (n + %s) tiles, and there are %s tiles to use." % [N(s.d), N(s.T)]],
 		"given": {"d": s.d.key(), "T": s.T.key()}, "answer": ans,
 		"wrongs": [wrong({"v": b1}, R_ROUND_UP)],
-		"fillers": [{"v": best.sub(1)}, {"v": best.add(2)}, {"v": Q.new(roundi(s.root))}],
+		"fillers": largest_fillers(s),
+		"titles": {"test-point": "Test the whole numbers either side of the root"},
 		"methods": {
 			"test-point": {"result": ans.values, "steps": [
 				"n(n + %s) ≤ %s, so n² + %sn − %s ≤ 0." % [N(s.d), N(s.T), N(s.d), N(s.T)],
@@ -307,6 +313,20 @@ func u_largest_integer(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 				"n must be a whole number no bigger than %s (round down, not to the nearest): %s" % [r3, check], final]},
 		},
 	}
+
+
+## Fillers for n(n + d) ≤ T, each the floor of a wrong boundary: n·n ≤ T (the + d
+## dropped), n(1 + d) ≤ T and n·d ≤ T (read as linear) and the negative root's size
+## (root + d).
+## Ones within 2 of the answer go last, so they show only when the rest are used up.
+static func largest_fillers(s: Dictionary) -> Array:
+	var best: int = s.best.n
+	var t: int = s.T.n
+	var d: int = s.d.n
+	var vals: Array = [floori(sqrt(float(t))), floori(float(t) / float(d + 1)), floori(float(t) / float(d)), best + d]
+	var far: Array = vals.filter(func(v): return absi(v - best) > 2)
+	var near: Array = vals.filter(func(v): return absi(v - best) <= 2)
+	return (far + near).map(func(v): return {"v": Q.new(v)})
 
 
 func u_inequality_from_solution(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:

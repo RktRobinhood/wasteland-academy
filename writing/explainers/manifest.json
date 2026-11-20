@@ -5964,242 +5964,914 @@
       "m8lddf": {
         "speaker": "tin-can-tess",
         "say": "53e22a2d969dd418",
-        "take": null
+        "take": {
+          "say": "53e22a2d969dd418",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/m8lddf.ogg",
+          "sha256": "c0b778b30667279b47c2716cde4a07ae4fa71b66ca7cdd8323afc5468053c674",
+          "transcript": "sweet as.",
+          "word_check": "passed"
+        }
       },
       "ho0c5v": {
         "speaker": "tin-can-tess",
         "say": "9ccd352c2d2aba1d",
-        "take": null
+        "take": {
+          "say": "9ccd352c2d2aba1d",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ho0c5v.ogg",
+          "sha256": "0eca88d9f120134ab3ad0253c4eea3f5e30ad6d1ed7542b04bd6b523e0214930",
+          "transcript": "Choice. That.",
+          "word_check": "passed"
+        }
       },
       "vbbab9": {
         "speaker": "tin-can-tess",
         "say": "fd6bc71387ac3638",
-        "take": null
+        "take": {
+          "say": "fd6bc71387ac3638",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/vbbab9.ogg",
+          "sha256": "fc618a16a9fb80b352632127fe2f6213dc9ec3ef109b3f6bbb8017f21be6f127",
+          "transcript": "that hold.",
+          "word_check": "accepted on review: that'd -> that"
+        }
       },
       "gf32w7": {
         "speaker": "tin-can-tess",
         "say": "5c8a71dbcca821c8",
-        "take": null
+        "take": {
+          "say": "5c8a71dbcca821c8",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/gf32w7.ogg",
+          "sha256": "fd4b3912b717d268f49a4129779aa8ae596344285a1440235d45765f89e04cf4",
+          "transcript": "Lovely, fits a trade.",
+          "word_check": "accepted on review: treat -> trade"
+        }
       },
       "06yedo": {
         "speaker": "tin-can-tess",
         "say": "819c16547762a4a2",
-        "take": null
+        "take": {
+          "say": "819c16547762a4a2",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/06yedo.ogg",
+          "sha256": "28d411d2677942f5fb549ccf1b24e0a542d7c2150d138925316545db48bcf263",
+          "transcript": "goes together, eh?",
+          "word_check": "passed"
+        }
       },
       "ju6blx": {
         "speaker": "tin-can-tess",
         "say": "9abf722862cdfdf9",
-        "take": null
+        "take": {
+          "say": "9abf722862cdfdf9",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ju6blx.ogg",
+          "sha256": "7f5fc326a886194095eac5b326a10cd5e9724c8413ca74547569c64e0d945023",
+          "transcript": "Ka-Pai.",
+          "word_check": "passed"
+        }
       },
       "jfdiih": {
         "speaker": "tin-can-tess",
         "say": "af4b3c7277b988e1",
-        "take": null
+        "take": {
+          "say": "af4b3c7277b988e1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/jfdiih.ogg",
+          "sha256": "f480198046276e390b0501fec7a0efce373a9b7a39b752a7542734f68317436b",
+          "transcript": "Yep, out the gate with that one.",
+          "word_check": "passed"
+        }
       },
       "905zud": {
         "speaker": "tin-can-tess",
         "say": "203b64905366f07e",
-        "take": null
+        "take": {
+          "say": "203b64905366f07e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/905zud.ogg",
+          "sha256": "a0e251ce79d5c296708af4f61ea240cd359dd8a0f426e331a00dfc9f70ae8d83",
+          "transcript": "Nice and snug.",
+          "word_check": "passed"
+        }
       },
       "zp973u": {
         "speaker": "tin-can-tess",
         "say": "446a58c8a172662b",
-        "take": null
+        "take": {
+          "say": "446a58c8a172662b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/zp973u.ogg",
+          "sha256": "2eae6949a78bb66d087d022ee8a12da101ec1a9587ce23ee3ebfe699936e0552",
+          "transcript": "Clunk. Good noise. That.",
+          "word_check": "passed"
+        }
       },
       "ck96df": {
         "speaker": "tin-can-tess",
         "say": "568b25bcab6fabab",
-        "take": null
+        "take": {
+          "say": "568b25bcab6fabab",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ck96df.ogg",
+          "sha256": "f3caa862f62d2c1eaae7771b0be335b8f163b576208d434b610415ae4efbb0be",
+          "transcript": "Ooh, I like that one.",
+          "word_check": "passed"
+        }
       },
       "ar9syr": {
         "speaker": "tin-can-tess",
         "say": "bc810b93f7bf9ca1",
-        "take": null
+        "take": {
+          "say": "bc810b93f7bf9ca1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ar9syr.ogg",
+          "sha256": "d3bea2dabab6da29fc5d3082e346ec944730b7dff0970e8b1188b3ec74476768",
+          "transcript": "Bits on the bench, and in it goes.",
+          "word_check": "passed"
+        }
       },
       "hnpdxz": {
         "speaker": "tin-can-tess",
         "say": "1eb1ca2ed04186e1",
-        "take": null
+        "take": {
+          "say": "1eb1ca2ed04186e1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/hnpdxz.ogg",
+          "sha256": "247f3d1104590b88f8772125b18bfd4dac7ffba0498b5bea75f24b88b20e108c",
+          "transcript": "Whoops, there goes a washer. Straight into the chilli bin. That one.",
+          "word_check": "accepted on review: chilly -> chilli"
+        }
       },
       "0woojc": {
         "speaker": "tin-can-tess",
         "say": "7efc29ccc8bd31b2",
-        "take": null
+        "take": {
+          "say": "7efc29ccc8bd31b2",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/0woojc.ogg",
+          "sha256": "ba4c504f8efa0117b0427cf0352ac3f4ba737116c39082434225dc1a6f5c1e2f",
+          "transcript": "Back on the bench with that, eh?",
+          "word_check": "passed"
+        }
       },
       "8d9bwx": {
         "speaker": "tin-can-tess",
         "say": "c324f32cfd3f78f4",
-        "take": null
+        "take": {
+          "say": "c324f32cfd3f78f4",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/8d9bwx.ogg",
+          "sha256": "d8c058416d4df1be08cedc16aa72e01f1c61075e99dc65e1a6f7fa78d11acd29",
+          "transcript": "Scales tipped my tea over, should have moved the tea.",
+          "word_check": "accepted on review: (extra) -> should; should've -> have"
+        }
       },
       "ltidxg": {
         "speaker": "tin-can-tess",
         "say": "ec72686777f1e35b",
-        "take": null
+        "take": {
+          "say": "ec72686777f1e35b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1101,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ltidxg.ogg",
+          "sha256": "67fdbebe05e02f8f0bce4549293d8fd44bdc26c4e7ea6236092bbb8b073cdcee",
+          "transcript": "Bolt stripped, another one for my tin, and the tin's nearly full.",
+          "word_check": "accepted on review: bolt's -> bolt"
+        }
       },
       "vnxj2u": {
         "speaker": "tin-can-tess",
         "say": "ad66f74183e1d1af",
-        "take": null
+        "take": {
+          "say": "ad66f74183e1d1af",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/vnxj2u.ogg",
+          "sha256": "b21ac447d7ee0c10863398a2d326c3a8b19f6a4035fedcd321510628565d4570",
+          "transcript": "Oof! That sheet of tin's gone all wavy. We'll flatten it out.",
+          "word_check": "passed"
+        }
       },
       "8v4i1s": {
         "speaker": "tin-can-tess",
         "say": "a848795e300eba26",
-        "take": null
+        "take": {
+          "say": "a848795e300eba26",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/8v4i1s.ogg",
+          "sha256": "6baa27d8833cd3122428ce12fbcabbe74ea2d5df9b87c573b977e9ec4f324bbd",
+          "transcript": "Gages are arguing again. Pay them no mind.",
+          "word_check": "accepted on review: gauges -> gages"
+        }
       },
       "vgsdvc": {
         "speaker": "tin-can-tess",
         "say": "96bed7b948e4baed",
-        "take": null
+        "take": {
+          "say": "96bed7b948e4baed",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/vgsdvc.ogg",
+          "sha256": "294e7961d90c695fd37ac60906560dfd1da663e1b906124f924e5875761a3605",
+          "transcript": "Spanner slipped, and now the shed dog's barking at me.",
+          "word_check": "passed"
+        }
       },
       "aeznlk": {
         "speaker": "tin-can-tess",
         "say": "d5370b3e855955b1",
-        "take": null
+        "take": {
+          "say": "d5370b3e855955b1",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/aeznlk.ogg",
+          "sha256": "aeacb22c2b0fbd9e18a8243a914089bbd819f27c1dd99d07afe5c2da455a2b5b",
+          "transcript": "heaps of sparks off that one. Pretty though.",
+          "word_check": "passed"
+        }
       },
       "fmzhqp": {
         "speaker": "tin-can-tess",
         "say": "d432dbacb2c2e2cf",
-        "take": null
+        "take": {
+          "say": "d432dbacb2c2e2cf",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/fmzhqp.ogg",
+          "sha256": "af97958584f6439f979e83298e2a1c85729ec15e518491472d8fb661370db90b",
+          "transcript": "Kia ora, little bolt. Where are you rolling off to?",
+          "word_check": "passed"
+        }
       },
       "c58kaq": {
         "speaker": "tin-can-tess",
         "say": "1f1380842619a453",
-        "take": null
+        "take": {
+          "say": "1f1380842619a453",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/c58kaq.ogg",
+          "sha256": "cc643222f92d4d226a3078de4a493cd9d106845222cc7c0b14df0dfa07d3e29a",
+          "transcript": "Little wobble on that. Nothing. A hammer won't sort.",
+          "word_check": "passed"
+        }
       },
       "au1j35": {
         "speaker": "tin-can-tess",
         "say": "39bafea884189fe4",
-        "take": null
+        "take": {
+          "say": "39bafea884189fe4",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/au1j35.ogg",
+          "sha256": "2f19115ec605aa0243d04fb7c94a930d56249035014070c0766d3f69628e8b6c",
+          "transcript": "Jerry cans glugging all over the floor. Oh well, it's mostly water.",
+          "word_check": "accepted on review: can's -> cans"
+        }
       },
       "nc5zhd": {
         "speaker": "tin-can-tess",
         "say": "52272e822a25d627",
-        "take": null
+        "take": {
+          "say": "52272e822a25d627",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/nc5zhd.ogg",
+          "sha256": "de612cfddc6c78129ba7e61f1c8e6fff80c21e4435101a24a2cf6689c47525f3",
+          "transcript": "hang on, that came off in my hand. Anyway, I've got glue.",
+          "word_check": "passed"
+        }
       },
       "pv0yzw": {
         "speaker": "tin-can-tess",
         "say": "4ff958e1da01dcd9",
-        "take": null
+        "take": {
+          "say": "4ff958e1da01dcd9",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "tin-can-tess, reference dde85ad76bb4ceae",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/pv0yzw.ogg",
+          "sha256": "a265fd6a142ff89eb12eaa39f984879df4c7055cca0db4b1ef20195063deb651",
+          "transcript": "clattered right off the bench. That did.",
+          "word_check": "passed"
+        }
       },
       "ys1qap": {
         "speaker": "mags-the-ledger",
         "say": "9d8caa481fe8aec3",
-        "take": null
+        "take": {
+          "say": "9d8caa481fe8aec3",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ys1qap.ogg",
+          "sha256": "a349e94639d0a2ef3323980935cf4a94a8c7388290b3f7186ddb97c12597bcde",
+          "transcript": "into the book it goes.",
+          "word_check": "passed"
+        }
       },
       "vvw7h6": {
         "speaker": "mags-the-ledger",
         "say": "b70a392a9b494163",
-        "take": null
+        "take": {
+          "say": "b70a392a9b494163",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/vvw7h6.ogg",
+          "sha256": "91b8cc877ac9bb2cecaceb1a8322b16f25b1789dbda2fc830eb57b3a149a4a98",
+          "transcript": "in the book.",
+          "word_check": "passed"
+        }
       },
       "fig6cg": {
         "speaker": "mags-the-ledger",
         "say": "a034b44be6117bc5",
-        "take": null
+        "take": {
+          "say": "a034b44be6117bc5",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/fig6cg.ogg",
+          "sha256": "00d76a222fd109bda49311401c6035ba2b8939ad41546e66235815eb80226e52",
+          "transcript": "Righto.",
+          "word_check": "passed"
+        }
       },
       "11axk3": {
         "speaker": "mags-the-ledger",
         "say": "fbbc1cee90b70862",
-        "take": null
+        "take": {
+          "say": "fbbc1cee90b70862",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/11axk3.ogg",
+          "sha256": "30107be3ffd0461ee2596dbb5ee56814c2b7def03ca240d69aafe3ecef23d8bf",
+          "transcript": "Noted.",
+          "word_check": "passed"
+        }
       },
       "h6pw3p": {
         "speaker": "mags-the-ledger",
         "say": "af9666fc0323e163",
-        "take": null
+        "take": {
+          "say": "af9666fc0323e163",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/h6pw3p.ogg",
+          "sha256": "8cd9a39752a52acf9705483655c33ad99de42852917630e8f3798fc9b2f8dd74",
+          "transcript": "signed and dated.",
+          "word_check": "passed"
+        }
       },
       "l9ncs3": {
         "speaker": "mags-the-ledger",
         "say": "eb760301fe12aafd",
-        "take": null
+        "take": {
+          "say": "eb760301fe12aafd",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/l9ncs3.ogg",
+          "sha256": "89ce87209461f68bad4f915aef4ce3d8b6ad39477be8b12045d1c445cd779c21",
+          "transcript": "that balances.",
+          "word_check": "passed"
+        }
       },
       "1h3qvn": {
         "speaker": "mags-the-ledger",
         "say": "f679e7af36e3bed7",
-        "take": null
+        "take": {
+          "say": "f679e7af36e3bed7",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/1h3qvn.ogg",
+          "sha256": "0c98ccf32af565116541f6da94eaf235e61d9f6f6eddeecb33dcba22b1843c4c",
+          "transcript": "ticked off.",
+          "word_check": "passed"
+        }
       },
       "y9pzq7": {
         "speaker": "mags-the-ledger",
         "say": "49fe22b674b905fe",
-        "take": null
+        "take": {
+          "say": "49fe22b674b905fe",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/y9pzq7.ogg",
+          "sha256": "6039915f634786c416b0b1cfe7d239ded2a1f9e32febf90047d94ab198c8047d",
+          "transcript": "Good next entry.",
+          "word_check": "passed"
+        }
       },
       "td1cfs": {
         "speaker": "mags-the-ledger",
         "say": "a7061935299b68d0",
-        "take": null
+        "take": {
+          "say": "a7061935299b68d0",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/td1cfs.ogg",
+          "sha256": "e31db6e238c021b3d99a5491c228cdf58ae44a8be7822db09c0d57453175ea91",
+          "transcript": "Neat column. That.",
+          "word_check": "passed"
+        }
       },
       "j4rn9g": {
         "speaker": "mags-the-ledger",
         "say": "d4e861cc7f33a785",
-        "take": null
+        "take": {
+          "say": "d4e861cc7f33a785",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/j4rn9g.ogg",
+          "sha256": "def9449d5d5c1520694c9c101f7924a8e3477038cc936992d18ec59cdf73363b",
+          "transcript": "Inks dry on that one.",
+          "word_check": "accepted on review: ink's -> inks"
+        }
       },
       "37lk5e": {
         "speaker": "mags-the-ledger",
         "say": "e0b82ac39b516760",
-        "take": null
+        "take": {
+          "say": "e0b82ac39b516760",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/37lk5e.ogg",
+          "sha256": "c319a29c78a90b30b0be7f3bec9fe7966b4197d8adaad3e686efd8813b0f6f25",
+          "transcript": "Fair enough. Down it goes.",
+          "word_check": "passed"
+        }
       },
       "z7tgh4": {
         "speaker": "mags-the-ledger",
         "say": "950193c4924a20bb",
-        "take": null
+        "take": {
+          "say": "950193c4924a20bb",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/z7tgh4.ogg",
+          "sha256": "1786e92300bc8d05ddaac5b66e2b28d3ac006a7a386ac1f34651fae84ba2d718",
+          "transcript": "blot right across the takings.",
+          "word_check": "passed"
+        }
       },
       "dzgzfk": {
         "speaker": "mags-the-ledger",
         "say": "72a17188bbbee671",
-        "take": null
+        "take": {
+          "say": "72a17188bbbee671",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/dzgzfk.ogg",
+          "sha256": "2c360a8dd98371544b96ccbf6ecc4f2742c0d664073fc63415576292073cd015",
+          "transcript": "Pencil snapped. I've got another.",
+          "word_check": "accepted on review: pencil's -> pencil"
+        }
       },
       "crnd4i": {
         "speaker": "mags-the-ledger",
         "say": "f01201c3ff1022d7",
-        "take": null
+        "take": {
+          "say": "f01201c3ff1022d7",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/crnd4i.ogg",
+          "sha256": "2255f3d08ab1cbb3b602cf37c5c3a61a47533cfa53348d3887269e04995de11c",
+          "transcript": "Column won't balance, line through it, and go again.",
+          "word_check": "passed"
+        }
       },
       "crf4e2": {
         "speaker": "mags-the-ledger",
         "say": "ebd6ba0dcd3f4df0",
-        "take": null
+        "take": {
+          "say": "ebd6ba0dcd3f4df0",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/crf4e2.ogg",
+          "sha256": "eb0daa0f8aed8c68c9cc405ab4f63516ad200692e7a8af3f84d303fcf7fe70ef",
+          "transcript": "Smudge on the page. The book's seen worse.",
+          "word_check": "passed"
+        }
       },
       "bjxljj": {
         "speaker": "mags-the-ledger",
         "say": "1e23dd6546d8673c",
-        "take": null
+        "take": {
+          "say": "1e23dd6546d8673c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/bjxljj.ogg",
+          "sha256": "8fe81ecaa9e2ccc1728ed47988dfe667a93f681683c2c4d16d3bf207ce9d8a45",
+          "transcript": "Somebody's about to get billed for a ute. They never bought. Fix it before they hear.",
+          "word_check": "passed"
+        }
       },
       "ldaaey": {
         "speaker": "mags-the-ledger",
         "say": "80b3e13974359d25",
-        "take": null
+        "take": {
+          "say": "80b3e13974359d25",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ldaaey.ogg",
+          "sha256": "b192951455d0ee7965291227a0c49e97dfc983fc1163e725504322d3bb145986",
+          "transcript": "page torn, tapes in the drawer.",
+          "word_check": "accepted on review: tape's -> tapes"
+        }
       },
       "velmbv": {
         "speaker": "mags-the-ledger",
         "say": "adbbe0da1d954a47",
-        "take": null
+        "take": {
+          "say": "adbbe0da1d954a47",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/velmbv.ogg",
+          "sha256": "ae5cd8425588ecabc6725d3f4f8c81e610555db08a1fb0361c44a65fec69752e",
+          "transcript": "Pit Boss has sold the same seat to the whole front row.",
+          "word_check": "passed"
+        }
       },
       "obn01d": {
         "speaker": "mags-the-ledger",
         "say": "2cf0b2e7bfcb1ac8",
-        "take": null
+        "take": {
+          "say": "2cf0b2e7bfcb1ac8",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/obn01d.ogg",
+          "sha256": "c3d937a1cf1e199652094c590489c7832d72df754c1ea5ac951ce567a5072673",
+          "transcript": "doesn't tally, not yet.",
+          "word_check": "passed"
+        }
       },
       "41t8vc": {
         "speaker": "mags-the-ledger",
         "say": "2d3b60f9a65ff410",
-        "take": null
+        "take": {
+          "say": "2d3b60f9a65ff410",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/41t8vc.ogg",
+          "sha256": "d7aa49ac448f9dbae70ad30afdd639c42498bb446de1fd20702cdc2bf3560e66",
+          "transcript": "Fly landed in the ink. Poor thing.",
+          "word_check": "passed"
+        }
       },
       "v10xxr": {
         "speaker": "mags-the-ledger",
         "say": "3a433434ee9486ff",
-        "take": null
+        "take": {
+          "say": "3a433434ee9486ff",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/v10xxr.ogg",
+          "sha256": "996155167325bd475e2c2ce0543263ac15878df9c682969ed8d76d42298e2b10",
+          "transcript": "Well, that's a mess. Turn the page.",
+          "word_check": "passed"
+        }
       },
       "biuyqz": {
         "speaker": "mags-the-ledger",
         "say": "2b3119ad7fac4f71",
-        "take": null
+        "take": {
+          "say": "2b3119ad7fac4f71",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/biuyqz.ogg",
+          "sha256": "e071c07a9e14a8414728d59a3807473c48fb38fe0cd4d071d66d6fd58c3ffc9c",
+          "transcript": "Hang about. That entry's gone under somebody else's name.",
+          "word_check": "passed"
+        }
       },
       "rg2dql": {
         "speaker": "mags-the-ledger",
         "say": "7555efa3dd6a1c2e",
-        "take": null
+        "take": {
+          "say": "7555efa3dd6a1c2e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/rg2dql.ogg",
+          "sha256": "c224778520753534052f6d8bf7d32a8d75de7d40760c3196042ee2033980541e",
+          "transcript": "Till's jammed again. Nobody's getting changed today.",
+          "word_check": "accepted on review: change -> changed"
+        }
       },
       "j62ugc": {
         "speaker": "mags-the-ledger",
         "say": "0932cfd3679c6dd2",
-        "take": null
+        "take": {
+          "say": "0932cfd3679c6dd2",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "mags-the-ledger, reference 86e05455afd9e60c",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/j62ugc.ogg",
+          "sha256": "de6fcf2a9e1a1181e425e8812eb1b7044c8d9130733ce641e6b1f5dada3e9ac3",
+          "transcript": "Cat's asleep on the receipts. I'll work round her.",
+          "word_check": "passed"
+        }
       },
       "9rzsaa": {
         "speaker": "rook-dead-air",
@@ -6261,42 +6933,154 @@
       "yvoj2m": {
         "speaker": "rook-dead-air",
         "say": "2aa8a2b527df43b0",
-        "take": null
+        "take": {
+          "say": "2aa8a2b527df43b0",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/yvoj2m.ogg",
+          "sha256": "93852e0c98591e97513cad792f858f83f12c0e4ee84259a14b2214554680bce8",
+          "transcript": "Loud and clear.",
+          "word_check": "passed"
+        }
       },
       "tdbhq1": {
         "speaker": "rook-dead-air",
         "say": "b743749962a4bb06",
-        "take": null
+        "take": {
+          "say": "b743749962a4bb06",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/tdbhq1.ogg",
+          "sha256": "bde65e45e92c326c1f482605c10ef7afcaca65b829869db803299152f105d831",
+          "transcript": "Yeah, that's true.",
+          "word_check": "accepted on review: ja -> yeah; through -> true"
+        }
       },
       "scetji": {
         "speaker": "rook-dead-air",
         "say": "13e8c5a0a4e244dc",
-        "take": null
+        "take": {
+          "say": "13e8c5a0a4e244dc",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/scetji.ogg",
+          "sha256": "4de5cc7c9cac88be9235f65ea3eba964410eb4da8aca3f016e4adf3e051934e2",
+          "transcript": "Going out now.",
+          "word_check": "passed"
+        }
       },
       "d50vxt": {
         "speaker": "rook-dead-air",
         "say": "6da483c8fd2ed4ba",
-        "take": null
+        "take": {
+          "say": "6da483c8fd2ed4ba",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1101,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/d50vxt.ogg",
+          "sha256": "b1dbb0791060366b453be267daff992548e261960ac910ca21f12b07bb632e7a",
+          "transcript": "Reach them. Lekker.",
+          "word_check": "accepted on review: reached -> reach"
+        }
       },
       "szq8sb": {
         "speaker": "rook-dead-air",
         "say": "50fc68290074d9e3",
-        "take": null
+        "take": {
+          "say": "50fc68290074d9e3",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/szq8sb.ogg",
+          "sha256": "11307c9f80e21456b8742e1d97cb907ecffe7341342ef52358bb4f57997ec6a1",
+          "transcript": "Clean signal, that.",
+          "word_check": "passed"
+        }
       },
       "nm0fuf": {
         "speaker": "rook-dead-air",
         "say": "dfd188e70f30f985",
-        "take": null
+        "take": {
+          "say": "dfd188e70f30f985",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/nm0fuf.ogg",
+          "sha256": "167b402c18338a956f6321e520818cc2701223cf01f6368fe328546846d7ddc0",
+          "transcript": "Mast's happy with that.",
+          "word_check": "passed"
+        }
       },
       "dvogx3": {
         "speaker": "rook-dead-air",
         "say": "ab401175a69241f3",
-        "take": null
+        "take": {
+          "say": "ab401175a69241f3",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/dvogx3.ogg",
+          "sha256": "aeaf4a39d5acdc26acc250d847b1c7c28c939c79473e1150739b46fd33c266ba",
+          "transcript": "Pins on the map.",
+          "word_check": "accepted on review: pin's -> pins"
+        }
       },
       "bypd5d": {
         "speaker": "rook-dead-air",
         "say": "85de8d811bd73a9b",
-        "take": null
+        "take": {
+          "say": "85de8d811bd73a9b",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/bypd5d.ogg",
+          "sha256": "d672e7b539f7f662c94c6445f684f41f5bb844e8a634071a7f6021905ee16ae9",
+          "transcript": "Got it this end.",
+          "word_check": "passed"
+        }
       },
       "i2jaqx": {
         "speaker": "rook-dead-air",
@@ -6396,402 +7180,1522 @@
       "zgtwm1": {
         "speaker": "rook-dead-air",
         "say": "4fc86a0c3e915d70",
-        "take": null
+        "take": {
+          "say": "4fc86a0c3e915d70",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/zgtwm1.ogg",
+          "sha256": "875da02edd6dd9d631f2050cec7e44133fc2df79001d15bfce594b7f238f2397",
+          "transcript": "Interference. A crow's sitting on the dish again.",
+          "word_check": "passed"
+        }
       },
       "rpvnvj": {
         "speaker": "rook-dead-air",
         "say": "d83d67033e831513",
-        "take": null
+        "take": {
+          "say": "d83d67033e831513",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/rpvnvj.ogg",
+          "sha256": "b246138766c97c638f3deca5005d745d91f3ae89833e46bd7096559e8598ee32",
+          "transcript": "Is it? That landed in a goat farmer's kitchen. He sends his regards",
+          "word_check": "passed"
+        }
       },
       "3z93sg": {
         "speaker": "rook-dead-air",
         "say": "9a1a5bc0a5d8c767",
-        "take": null
+        "take": {
+          "say": "9a1a5bc0a5d8c767",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/3z93sg.ogg",
+          "sha256": "79170b7095349a43ac55af35a1796e00f6a20f780488ddc0efec9423b13e17df",
+          "transcript": "Feedback. My ears are ringing.",
+          "word_check": "passed"
+        }
       },
       "8hno54": {
         "speaker": "rook-dead-air",
         "say": "c7cc297f28591f43",
-        "take": null
+        "take": {
+          "say": "c7cc297f28591f43",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/8hno54.ogg",
+          "sha256": "8246a3ff1c9626a1530e324d416b41ba68d28c186bb8581551820346dc41a924",
+          "transcript": "crossed wires somewhere up the mast.",
+          "word_check": "passed"
+        }
       },
       "jf7rbt": {
         "speaker": "rook-dead-air",
         "say": "1770ab42b458df65",
-        "take": null
+        "take": {
+          "say": "1770ab42b458df65",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/jf7rbt.ogg",
+          "sha256": "19203018b0d02297a2a888c1387fc9b693615c7199ff20c47ef654b299d30d8a",
+          "transcript": "So, the far settlements got the near ones weather, bit of rain they weren't expecting.",
+          "word_check": "passed"
+        }
       },
       "ledk03": {
         "speaker": "rook-dead-air",
         "say": "a8fe4adf5f430128",
-        "take": null
+        "take": {
+          "say": "a8fe4adf5f430128",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ledk03.ogg",
+          "sha256": "5d6e70e1a6f74cb9c8f2eb32daf6282168c4993fa6d1ee66db1ea8e922d51de4",
+          "transcript": "Quiet on the line. I don't love quiet",
+          "word_check": "passed"
+        }
       },
       "09hbpf": {
         "speaker": "rook-dead-air",
         "say": "37c2f00c0533184a",
-        "take": null
+        "take": {
+          "say": "37c2f00c0533184a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/09hbpf.ogg",
+          "sha256": "27ad43de291b76315d2ae8ffb2e9e44b5282f3434893fad521d4271ad6026a96",
+          "transcript": "Antenna's leaning a bit. Still works, mostly.",
+          "word_check": "passed"
+        }
       },
       "tgp5x1": {
         "speaker": "rook-dead-air",
         "say": "13bdb804c1644994",
-        "take": null
+        "take": {
+          "say": "13bdb804c1644994",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "rook-dead-air, reference 9025fd9f9e86a863",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/tgp5x1.ogg",
+          "sha256": "0f04d845db1a35b2a4a285be75a13984a7613e6774723961c1359943530cdc64",
+          "transcript": "Backup batteries kicked in. That's what it's for.",
+          "word_check": "accepted on review: battery's -> batteries"
+        }
       },
       "ko5bd3": {
         "speaker": "kara-meridian",
         "say": "bf39456aeee41014",
-        "take": null
+        "take": {
+          "say": "bf39456aeee41014",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ko5bd3.ogg",
+          "sha256": "ff6b7b18e8420adeb600b7c911a71355fdc0df4aafd6d1d4bacf9b446e236a71",
+          "transcript": "compass and I agree.",
+          "word_check": "passed"
+        }
       },
       "xle2z6": {
         "speaker": "kara-meridian",
         "say": "6b30aeb5f2a79d03",
-        "take": null
+        "take": {
+          "say": "6b30aeb5f2a79d03",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1101,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/xle2z6.ogg",
+          "sha256": "09bd21ac03afeb5dbdc785aab77efe9dca15781085fc8ed50f3e595e0214698c",
+          "transcript": "Ehem, that holds.",
+          "word_check": "accepted on review: ehen -> ehem"
+        }
       },
       "gxljs1": {
         "speaker": "kara-meridian",
         "say": "c3d45b4757f572c7",
-        "take": null
+        "take": {
+          "say": "c3d45b4757f572c7",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/gxljs1.ogg",
+          "sha256": "d75277ae60351d8fccaf8cb6b8f216a75cf535b252873d4a73d2ccb9abf24390",
+          "transcript": "Peg is in.",
+          "word_check": "passed"
+        }
       },
       "9zn6ec": {
         "speaker": "kara-meridian",
         "say": "a48028395d50bb0a",
-        "take": null
+        "take": {
+          "say": "a48028395d50bb0a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/9zn6ec.ogg",
+          "sha256": "e251e0a4ed9261f4e3fc23d06e69384c2b1d96ef555259468823d79296c67e4b",
+          "transcript": "Good, the line is straight.",
+          "word_check": "passed"
+        }
       },
       "6ykvu8": {
         "speaker": "kara-meridian",
         "say": "6fec95b09fff5958",
-        "take": null
+        "take": {
+          "say": "6fec95b09fff5958",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/6ykvu8.ogg",
+          "sha256": "b4e29de2b4f605707e05514748ef9335ec24e56d80eaf2107ef59a09e33bc4d8",
+          "transcript": "Marked on the survey.",
+          "word_check": "passed"
+        }
       },
       "yzqelc": {
         "speaker": "kara-meridian",
         "say": "d627765fbb5c0d55",
-        "take": null
+        "take": {
+          "say": "d627765fbb5c0d55",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/yzqelc.ogg",
+          "sha256": "416f8b38e9684d8ecde7396695875102bda65e003d92eda09b206c656c4b4007",
+          "transcript": "That closes nicely.",
+          "word_check": "passed"
+        }
       },
       "l4qesy": {
         "speaker": "kara-meridian",
         "say": "07d155f60bf4bdfe",
-        "take": null
+        "take": {
+          "say": "07d155f60bf4bdfe",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/l4qesy.ogg",
+          "sha256": "8b0ab2fa11f6853e0dc374ff796bea6d2af95b658edf25e94cdc2fe9034ad0e1",
+          "transcript": "Site taken.",
+          "word_check": "accepted on review: sight -> site"
+        }
       },
       "6z4k6g": {
         "speaker": "kara-meridian",
         "say": "717bdb1511c769c8",
-        "take": null
+        "take": {
+          "say": "717bdb1511c769c8",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/6z4k6g.ogg",
+          "sha256": "6d873dad0a82c9fe74bbdb2972ca1e759bda8d660af11193e606e9e3df804b28",
+          "transcript": "Steady, I trust that.",
+          "word_check": "passed"
+        }
       },
       "rifq2s": {
         "speaker": "kara-meridian",
         "say": "4cdfaf1c37d5b5ef",
-        "take": null
+        "take": {
+          "say": "4cdfaf1c37d5b5ef",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/rifq2s.ogg",
+          "sha256": "1c9348c95ddeef299f5e943b339b502a069dcf34279dee633a605cefad9849f3",
+          "transcript": "Yes, measured and marked.",
+          "word_check": "passed"
+        }
       },
       "fmm4mj": {
         "speaker": "kara-meridian",
         "say": "e44371425bc8035c",
-        "take": null
+        "take": {
+          "say": "e44371425bc8035c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/fmm4mj.ogg",
+          "sha256": "78fec1492f6942ff47659a0fbe53862c3d9e491afda546dd50be2322cd438f21",
+          "transcript": "Bubble Sits Level",
+          "word_check": "passed"
+        }
       },
       "xbdeh7": {
         "speaker": "kara-meridian",
         "say": "736dc3e868981223",
-        "take": null
+        "take": {
+          "say": "736dc3e868981223",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/xbdeh7.ogg",
+          "sha256": "3515984d3f56dd9f6df9d6a122f22310356dd5b720123016e149356044434379",
+          "transcript": "Another station fixed.",
+          "word_check": "passed"
+        }
       },
       "4ivq3e": {
         "speaker": "kara-meridian",
         "say": "09f56479711fa15c",
-        "take": null
+        "take": {
+          "say": "09f56479711fa15c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/4ivq3e.ogg",
+          "sha256": "cd88010ecf59e3a132e3a81afee84b267ea276f0fb04ffc246702fb195571108",
+          "transcript": "Sorry, the peg has fallen over.",
+          "word_check": "passed"
+        }
       },
       "2gi7wy": {
         "speaker": "kara-meridian",
         "say": "20a3e96ffc584b9e",
-        "take": null
+        "take": {
+          "say": "20a3e96ffc584b9e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/2gi7wy.ogg",
+          "sha256": "57c94ae51bdbdd41bd656f6c814d67791cf09ca0d4e6eb386d7c5c25f679f9e7",
+          "transcript": "A dust devil has crossed my sight line. We wait for it to pass.",
+          "word_check": "passed"
+        }
       },
       "abz3i7": {
         "speaker": "kara-meridian",
         "say": "60190bdc491ce74e",
-        "take": null
+        "take": {
+          "say": "60190bdc491ce74e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/abz3i7.ogg",
+          "sha256": "28ff3a359bd7ec375f2516d99758ef248422cb3723739692b2580df31c4a441f",
+          "transcript": "The chain has lost a link. I have spares in the bag.",
+          "word_check": "passed"
+        }
       },
       "grecwf": {
         "speaker": "kara-meridian",
         "say": "4f05e50dacbdad68",
-        "take": null
+        "take": {
+          "say": "4f05e50dacbdad68",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/grecwf.ogg",
+          "sha256": "8557391fde5595c50233d6774544d27c4542d14ba0ed414b9d161e9b9cbacd45",
+          "transcript": "Hmm? The triangle did not close. It happens.",
+          "word_check": "passed"
+        }
       },
       "qtf09l": {
         "speaker": "kara-meridian",
         "say": "84a327bb304190e0",
-        "take": null
+        "take": {
+          "say": "84a327bb304190e0",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/qtf09l.ogg",
+          "sha256": "b95f3ea1497e7db4ae2bbf678c523a8c9f051c72991b50da3ba3a2f0e3aff7e2",
+          "transcript": "Oil has spilled out of my level. I will clean it later.",
+          "word_check": "passed"
+        }
       },
       "6f3a7e": {
         "speaker": "kara-meridian",
         "say": "d6e6d2cdd45b9f53",
-        "take": null
+        "take": {
+          "say": "d6e6d2cdd45b9f53",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/6f3a7e.ogg",
+          "sha256": "5ccb6bb55aca925bd041511120ea4e875424bbc4ae041c4067e2e42ebe38d171",
+          "transcript": "My scope has fogged. Give it a moment.",
+          "word_check": "passed"
+        }
       },
       "lpemtf": {
         "speaker": "kara-meridian",
         "say": "9bd18eff03397e93",
-        "take": null
+        "take": {
+          "say": "9bd18eff03397e93",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/lpemtf.ogg",
+          "sha256": "0e301d988dedf15e316903ef84555064a89bd3be20c9fdb2e3f5540a4a52b636",
+          "transcript": "Somewhere out there, a crew is digging in the wrong place. Let us call them back.",
+          "word_check": "passed"
+        }
       },
       "uqqnkj": {
         "speaker": "kara-meridian",
         "say": "f22132c89b52c21d",
-        "take": null
+        "take": {
+          "say": "f22132c89b52c21d",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/uqqnkj.ogg",
+          "sha256": "27c5aa1b85e134c8db363077aa18b30970e429cbc3125a8c39e7107c1c9df1fc",
+          "transcript": "Salt in the lens again. I will wipe it.",
+          "word_check": "passed"
+        }
       },
       "2cc4fo": {
         "speaker": "kara-meridian",
         "say": "eead1322209d75eb",
-        "take": null
+        "take": {
+          "say": "eead1322209d75eb",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/2cc4fo.ogg",
+          "sha256": "5513d43c9094a2fde398130ffe802b9ddeb04273191c80fc6c5e54f12dd2ba9b",
+          "transcript": "Drifted, the flats do not like to keep still.",
+          "word_check": "passed"
+        }
       },
       "o7hg9n": {
         "speaker": "kara-meridian",
         "say": "7236844aeadd958c",
-        "take": null
+        "take": {
+          "say": "7236844aeadd958c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/o7hg9n.ogg",
+          "sha256": "53041998f3f224223cb3a53d332f25fb8e6fff0ad3d848bae821f73f59051faf",
+          "transcript": "Lizard on the peg again. He thinks it is his.",
+          "word_check": "passed"
+        }
       },
       "ne39vm": {
         "speaker": "kara-meridian",
         "say": "cdfd7f1b8e4eb19e",
-        "take": null
+        "take": {
+          "say": "cdfd7f1b8e4eb19e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ne39vm.ogg",
+          "sha256": "e92891f9c7a1cf28662172a7780c3a51f1e3430edcd6a813a713dae5f1fc3803",
+          "transcript": "Glare of the salt, nobody could read that.",
+          "word_check": "accepted on review: off -> of"
+        }
       },
       "8jj8yc": {
         "speaker": "kara-meridian",
         "say": "1b3c800e0fe7ac09",
-        "take": null
+        "take": {
+          "say": "1b3c800e0fe7ac09",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/8jj8yc.ogg",
+          "sha256": "014e6ec5abbcb81f57f8f4fa0ceac1d5db134b74dc3a5e0d3fdf5889e9fcc6c9",
+          "transcript": "Kindly hold still instrument. Thank you.",
+          "word_check": "passed"
+        }
       },
       "04yoat": {
         "speaker": "kara-meridian",
         "say": "cf15d313e5df8dfc",
-        "take": null
+        "take": {
+          "say": "cf15d313e5df8dfc",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "kara-meridian, reference 7a0d95e26f05ede8",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/04yoat.ogg",
+          "sha256": "0978b2356ce8738a8d6cb4cb2fcbab779cdec25ba7dca1e7c53cd0fa6d213ce8",
+          "transcript": "Ah, the plumb line is swinging. Let it settle.",
+          "word_check": "passed"
+        }
       },
       "9rdsq6": {
         "speaker": "lucky-lenoir",
         "say": "f97f53d0de7579b7",
-        "take": null
+        "take": {
+          "say": "f97f53d0de7579b7",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/9rdsq6.ogg",
+          "sha256": "56926468265e2e6262f9c76d214d26a23d47ce15d95af3fc5f66ba6ded15f4f8",
+          "transcript": "Voila!",
+          "word_check": "passed"
+        }
       },
       "cv25sv": {
         "speaker": "lucky-lenoir",
         "say": "995eb9830bd9bdd9",
-        "take": null
+        "take": {
+          "say": "995eb9830bd9bdd9",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/cv25sv.ogg",
+          "sha256": "34450903837343e25fca07591c69b10ddd065ffbf328e564d974ac5aebe81e56",
+          "transcript": "Bon, now we are playing.",
+          "word_check": "passed"
+        }
       },
       "85ycum": {
         "speaker": "lucky-lenoir",
         "say": "d8fc6c1d9099b8ca",
-        "take": null
+        "take": {
+          "say": "d8fc6c1d9099b8ca",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/85ycum.ogg",
+          "sha256": "816bb9e4a296a2787bbe43f5c6ca83ad18763a9ce0f9050b7f9794e0e6270a51",
+          "transcript": "The House approves.",
+          "word_check": "passed"
+        }
       },
       "vqzs24": {
         "speaker": "lucky-lenoir",
         "say": "8b7e037b15a966ec",
-        "take": null
+        "take": {
+          "say": "8b7e037b15a966ec",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/vqzs24.ogg",
+          "sha256": "79a80e4e6de075c410c17b5becaa0217c85a3648c5d331ddc7e1d1dd7e1a4225",
+          "transcript": "Oh, beautiful.",
+          "word_check": "passed"
+        }
       },
       "bn4te4": {
         "speaker": "lucky-lenoir",
         "say": "fc6e75cbe4ba712f",
-        "take": null
+        "take": {
+          "say": "fc6e75cbe4ba712f",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/bn4te4.ogg",
+          "sha256": "a1c112cf781325ecba669ece44475a4b2faaa311d0a0171ca66b416f123c27af",
+          "transcript": "Elegant. Truly.",
+          "word_check": "passed"
+        }
       },
       "v9wcyf": {
         "speaker": "lucky-lenoir",
         "say": "c344667262640f99",
-        "take": null
+        "take": {
+          "say": "c344667262640f99",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/v9wcyf.ogg",
+          "sha256": "5a2654c416e6ef2f5df87dfa71b8c62cf21c2ac40a10c3f65c6a91ec382601f4",
+          "transcript": "Such a pretty hand.",
+          "word_check": "passed"
+        }
       },
       "5rzrn8": {
         "speaker": "lucky-lenoir",
         "say": "a61a6346da5ccdcb",
-        "take": null
+        "take": {
+          "say": "a61a6346da5ccdcb",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/5rzrn8.ogg",
+          "sha256": "81c7076c6dddab31304bccfe7a720513cb1b22bc9a2d21a588dd54f32a070b64",
+          "transcript": "Placed the table. Thanks you.",
+          "word_check": "passed"
+        }
       },
       "f902ih": {
         "speaker": "lucky-lenoir",
         "say": "9d64d5dd9166633c",
-        "take": null
+        "take": {
+          "say": "9d64d5dd9166633c",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/f902ih.ogg",
+          "sha256": "e4222a293f0f7813e56232a8486876d06b01e087b9fb23f155f722a751121947",
+          "transcript": "Magnifique. No.",
+          "word_check": "passed"
+        }
       },
       "fxckgg": {
         "speaker": "lucky-lenoir",
         "say": "49878e072860ff65",
-        "take": null
+        "take": {
+          "say": "49878e072860ff65",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/fxckgg.ogg",
+          "sha256": "af7b1c247fbe2409dd9e673b75675c7525094bd69dce0ec48cc465e0d73b64d9",
+          "transcript": "Very professional.",
+          "word_check": "passed"
+        }
       },
       "aiq394": {
         "speaker": "lucky-lenoir",
         "say": "1b6c01b9f056cbe5",
-        "take": null
+        "take": {
+          "say": "1b6c01b9f056cbe5",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1101,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/aiq394.ogg",
+          "sha256": "f4f0a37cdf8e54ca2a28cbed400ea724ada3d2ace3a0a9adbba0cfa15e649c0e",
+          "transcript": "Hmm, smooth as a new deck.",
+          "word_check": "accepted on review: mm -> hmm"
+        }
       },
       "y97n4o": {
         "speaker": "lucky-lenoir",
         "say": "af8d4ee168fc4592",
-        "take": null
+        "take": {
+          "say": "af8d4ee168fc4592",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/y97n4o.ogg",
+          "sha256": "92d3a070968214b44c53302d00690020cbce0e11687785efef4880d9c74ccd2e",
+          "transcript": "So, it lands!",
+          "word_check": "accepted on review: alors -> so"
+        }
       },
       "ie6sd2": {
         "speaker": "lucky-lenoir",
         "say": "b08638d1b39fe6e8",
-        "take": null
+        "take": {
+          "say": "b08638d1b39fe6e8",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ie6sd2.ogg",
+          "sha256": "35c598c24bc1af9d088a0b2ca4882825d4205993899471964b21a10cc0c8793e",
+          "transcript": "And there goes my hat.",
+          "word_check": "passed"
+        }
       },
       "4q7pz6": {
         "speaker": "lucky-lenoir",
         "say": "051f8d89c288ac9a",
-        "take": null
+        "take": {
+          "say": "051f8d89c288ac9a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1100,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/4q7pz6.ogg",
+          "sha256": "cbd886ebd72a32852eea000ca22b71459b62ab565426884b49f8ccf102caab7b",
+          "transcript": "Gum in the wheel again. Who does this?",
+          "word_check": "passed"
+        }
       },
       "r74c14": {
         "speaker": "lucky-lenoir",
         "say": "90f3fb70bb0bd4c9",
-        "take": null
+        "take": {
+          "say": "90f3fb70bb0bd4c9",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/r74c14.ogg",
+          "sha256": "750e2e335bc0ec8904a4814fd92ceb94a3628ce8575665bd86d5a2f0c4344fea",
+          "transcript": "I bet you a cap that I could catch that die. I could not.",
+          "word_check": "passed"
+        }
       },
       "wyhvd5": {
         "speaker": "lucky-lenoir",
         "say": "c43bf22e91aa577a",
-        "take": null
+        "take": {
+          "say": "c43bf22e91aa577a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/wyhvd5.ogg",
+          "sha256": "49f162bff7c068a2f357dd370ed2672a50bec57914fd72bfa36ebdefcd60e254",
+          "transcript": "No, no. The cards have blown away.",
+          "word_check": "accepted on review: non -> no; non -> no"
+        }
       },
       "rvmc9s": {
         "speaker": "lucky-lenoir",
         "say": "7282bc875ea75ebc",
-        "take": null
+        "take": {
+          "say": "7282bc875ea75ebc",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/rvmc9s.ogg",
+          "sha256": "63f1533d5e49f3d6bbebdc71527b2d6c70a254b1792dcf2fe0cbc73df2b79204",
+          "transcript": "My last cap, gone. It was a very good cap.",
+          "word_check": "passed"
+        }
       },
       "pz2yqj": {
         "speaker": "lucky-lenoir",
         "say": "e5cc4e63784c6024",
-        "take": null
+        "take": {
+          "say": "e5cc4e63784c6024",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/pz2yqj.ogg",
+          "sha256": "a6c2aade80012988a794fe95a732fa19af2a473c084b52b35b270f77ab391d13",
+          "transcript": "Under the stall, those dice, they always come back.",
+          "word_check": "passed"
+        }
       },
       "xakm9f": {
         "speaker": "lucky-lenoir",
         "say": "dd7d3568724cfd0a",
-        "take": null
+        "take": {
+          "say": "dd7d3568724cfd0a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/xakm9f.ogg",
+          "sha256": "d85de017e91e11cec3b302d61e51b47a801eac691e542a8047332daf6a89eb28",
+          "transcript": "Listen to the crowd groan. They love a drama.",
+          "word_check": "passed"
+        }
       },
       "y7w6mr": {
         "speaker": "lucky-lenoir",
         "say": "1e8028cf9608d5c7",
-        "take": null
+        "take": {
+          "say": "1e8028cf9608d5c7",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/y7w6mr.ogg",
+          "sha256": "b66fcbecfdf9a9079cd551bac0ee06dd44beecd540db7cb8f2f839da22ac088c",
+          "transcript": "The house takes this little one.",
+          "word_check": "accepted on review: pff -> (missing)"
+        }
       },
       "ppg08k": {
         "speaker": "lucky-lenoir",
         "say": "847c0d4ce4cc7908",
-        "take": null
+        "take": {
+          "say": "847c0d4ce4cc7908",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ppg08k.ogg",
+          "sha256": "afa261fed7d247ba2907077aee83b60b72947603853b9ea0f5285d505c06713b",
+          "transcript": "Quelle dommage!",
+          "word_check": "accepted on review: quel -> quelle"
+        }
       },
       "sgkkrx": {
         "speaker": "lucky-lenoir",
         "say": "423b0b322ceedcdd",
-        "take": null
+        "take": {
+          "say": "423b0b322ceedcdd",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/sgkkrx.ogg",
+          "sha256": "2e7b4fc6c53eb9590afe375f454ce523570dd81bf7496b7692888adbf57914cd",
+          "transcript": "Somebody turned the lamp off mid-shuffle. Rude.",
+          "word_check": "passed"
+        }
       },
       "7j3q9n": {
         "speaker": "lucky-lenoir",
         "say": "b584e82f76b66a38",
-        "take": null
+        "take": {
+          "say": "b584e82f76b66a38",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/7j3q9n.ogg",
+          "sha256": "c179cede656f3ee99ef729028b2d1c85b7654eb33ffed26a77c33026e59615f2",
+          "transcript": "Sadly, the wheel spins on without us.",
+          "word_check": "passed"
+        }
       },
       "zx6usd": {
         "speaker": "lucky-lenoir",
         "say": "4ca536d1f7bea9c8",
-        "take": null
+        "take": {
+          "say": "4ca536d1f7bea9c8",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/zx6usd.ogg",
+          "sha256": "3fa30fcbea6e36ebd555624d2a83e7b3df95b7baa08879172d172869a1619946",
+          "transcript": "Even the house did not see that coming.",
+          "word_check": "passed"
+        }
       },
       "2pqmuf": {
         "speaker": "lucky-lenoir",
         "say": "05722c0beffc8eaf",
-        "take": null
+        "take": {
+          "say": "05722c0beffc8eaf",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "lucky-lenoir, reference 34170409f48d168d",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/2pqmuf.ogg",
+          "sha256": "1a1794bbbacca44d4962f1c7d167207236930a332eded90407f1c3600d3b77ae",
+          "transcript": "What a role. Off the table. But what a role.",
+          "word_check": "accepted on review: roll -> role; roll -> role"
+        }
       },
       "zu63vw": {
         "speaker": "calc",
         "say": "d73822f619342f68",
-        "take": null
+        "take": {
+          "say": "d73822f619342f68",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/zu63vw.ogg",
+          "sha256": "c3376b61f87c58d81e12a44ca804dd7ac0e3e9345f4f9cc3d49a35c72ab42c53",
+          "transcript": "Logging",
+          "word_check": "passed"
+        }
       },
       "h9at64": {
         "speaker": "calc",
         "say": "1e12a60c4928e521",
-        "take": null
+        "take": {
+          "say": "1e12a60c4928e521",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/h9at64.ogg",
+          "sha256": "4da98febf073c714d5b4780c569af8927c6a88ddb6ad3a154948fc5809410387",
+          "transcript": "Input accepted.",
+          "word_check": "passed"
+        }
       },
       "kvkgjo": {
         "speaker": "calc",
         "say": "a06dcbf9fcae7ab6",
-        "take": null
+        "take": {
+          "say": "a06dcbf9fcae7ab6",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/kvkgjo.ogg",
+          "sha256": "3f22620fd8eb0613a03bb66e3e8fe0469b38b5fcb73a6610033ff07c0d35c359",
+          "transcript": "Status. Nominal.",
+          "word_check": "passed"
+        }
       },
       "lhnthf": {
         "speaker": "calc",
         "say": "d3ed7ccd985e3629",
-        "take": null
+        "take": {
+          "say": "d3ed7ccd985e3629",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/lhnthf.ogg",
+          "sha256": "bc116d1f510e2d28a096c7b8392ba08c14a2d274b7eada5111a55631af11cd48",
+          "transcript": "Reading confirmed.",
+          "word_check": "passed"
+        }
       },
       "h8p9gu": {
         "speaker": "calc",
         "say": "4d4b7cee7711b8f6",
-        "take": null
+        "take": {
+          "say": "4d4b7cee7711b8f6",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/h8p9gu.ogg",
+          "sha256": "ad4c845235510f50207a45626b83d209634b5c535af8719167cbed489b63b247",
+          "transcript": "accepted, filed under good",
+          "word_check": "passed"
+        }
       },
       "ondobk": {
         "speaker": "calc",
         "say": "59ba20afba7b7561",
-        "take": null
+        "take": {
+          "say": "59ba20afba7b7561",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ondobk.ogg",
+          "sha256": "05a80255f32472fcb2c3eaacae148db82099e0077b3e64b043fe80c4f99673e4",
+          "transcript": "Coolant flow steady.",
+          "word_check": "passed"
+        }
       },
       "emszvz": {
         "speaker": "calc",
         "say": "ef96448fa5221279",
-        "take": null
+        "take": {
+          "say": "ef96448fa5221279",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/emszvz.ogg",
+          "sha256": "5179c06b75bc543b493eb7730372668a400037daa23c1164dd287d532ff2a23d",
+          "transcript": "Stored. Thank you.",
+          "word_check": "passed"
+        }
       },
       "pga4ks": {
         "speaker": "calc",
         "say": "b3bcab0063331fea",
-        "take": null
+        "take": {
+          "say": "b3bcab0063331fea",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/pga4ks.ogg",
+          "sha256": "6d1415f0ad11555881640ff56b6f3554f0234ff50555283a85259c9fe097ff06",
+          "transcript": "Pressure holding. Excellent.",
+          "word_check": "passed"
+        }
       },
       "y9j4po": {
         "speaker": "calc",
         "say": "cf20bc8a42ba1291",
-        "take": null
+        "take": {
+          "say": "cf20bc8a42ba1291",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/y9j4po.ogg",
+          "sha256": "e9b6cd8f039a9e76ca9139597eb0747b4165ed7b409ebf9a5c730390948918f4",
+          "transcript": "Green light.",
+          "word_check": "passed"
+        }
       },
       "jmscyv": {
         "speaker": "calc",
         "say": "1c5a8b22fd88b40f",
-        "take": null
+        "take": {
+          "say": "1c5a8b22fd88b40f",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/jmscyv.ogg",
+          "sha256": "ba796d6c6d7a0002cc5dcabcfc468f814b9c53a7c25c50e8395a7efe7254be1f",
+          "transcript": "Confirmed. I like that reading.",
+          "word_check": "passed"
+        }
       },
       "gun14r": {
         "speaker": "calc",
         "say": "bb946b999447554f",
-        "take": null
+        "take": {
+          "say": "bb946b999447554f",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/gun14r.ogg",
+          "sha256": "3bf56b3873d41b872f93bfedb492f5e5a114ec8ec7e0e84ab3025ec4fb11d090",
+          "transcript": "Entry added. Rate of change. Positive.",
+          "word_check": "passed"
+        }
       },
       "5jcjln": {
         "speaker": "calc",
         "say": "01619a03da316f7a",
-        "take": null
+        "take": {
+          "say": "01619a03da316f7a",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/5jcjln.ogg",
+          "sha256": "3f9a89af7195802cac025103fec9ef834a96c7a6a3b363c4ea675433b17ad0c3",
+          "transcript": "Alert, coolant pressure, rising, venting.",
+          "word_check": "passed"
+        }
       },
       "rd7iv6": {
         "speaker": "calc",
         "say": "59b154e59cc7068e",
-        "take": null
+        "take": {
+          "say": "59b154e59cc7068e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/rd7iv6.ogg",
+          "sha256": "af6b52bafe3ebaa1e4779fcd7397c910d12d63a665faecf3e46d05dc14906e2a",
+          "transcript": "Warning light, active, it is a very small light.",
+          "word_check": "passed"
+        }
       },
       "ssokhc": {
         "speaker": "calc",
         "say": "fcdc32ed793d4d20",
-        "take": null
+        "take": {
+          "say": "fcdc32ed793d4d20",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/ssokhc.ogg",
+          "sha256": "8ead43d29a87fb560210526abf06212fed46bf0692475e54cf03cbe262a529ff",
+          "transcript": "Fault logged. The fault is not alarmed. I am also not alarmed.",
+          "word_check": "passed"
+        }
       },
       "sqx1py": {
         "speaker": "calc",
         "say": "606f13346a905ec7",
-        "take": null
+        "take": {
+          "say": "606f13346a905ec7",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/sqx1py.ogg",
+          "sha256": "e3bf36d24b3ec9dad748356855026803f50fe22bc2047d9cbc02560c3b02b361",
+          "transcript": "query. Was that a fan? That was a fan. It has stopped.",
+          "word_check": "passed"
+        }
       },
       "sy45uo": {
         "speaker": "calc",
         "say": "ae837d499c480402",
-        "take": null
+        "take": {
+          "say": "ae837d499c480402",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/sy45uo.ogg",
+          "sha256": "f8aea0e1ed89c9c16e6c6de1369947b7a3211b95db5d11a13d7d81a33741706b",
+          "transcript": "Valve released. Steam is harmless at this distance.",
+          "word_check": "passed"
+        }
       },
       "mc6s50": {
         "speaker": "calc",
         "say": "1beb97390c798229",
-        "take": null
+        "take": {
+          "say": "1beb97390c798229",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/mc6s50.ogg",
+          "sha256": "09ac0318db7c262cb8b1bd7490987ac398145cbd3e79bf90f30997e0f1855fd6",
+          "transcript": "No record, recalculating.",
+          "word_check": "passed"
+        }
       },
       "isd89o": {
         "speaker": "calc",
         "say": "2e3b5f13c669140e",
-        "take": null
+        "take": {
+          "say": "2e3b5f13c669140e",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/isd89o.ogg",
+          "sha256": "1e7ce08c07a362ea9cb17cb54bf505efe50dbcb92ab5560dfc75cf076be488e5",
+          "transcript": "Gauge needle twitched. It does that. Resuming.",
+          "word_check": "passed"
+        }
       },
       "py9ozl": {
         "speaker": "calc",
         "say": "b45925e23170b881",
-        "take": null
+        "take": {
+          "say": "b45925e23170b881",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/py9ozl.ogg",
+          "sha256": "461732a5d386f3d8015ac4152f29cdeafc3e369055ca37ea93ccb0f0aee9d9cf",
+          "transcript": "Temperature up by a small amount. A small amount is acceptable.",
+          "word_check": "passed"
+        }
       },
       "oc853p": {
         "speaker": "calc",
         "say": "04173e1716951c76",
-        "take": null
+        "take": {
+          "say": "04173e1716951c76",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/oc853p.ogg",
+          "sha256": "f138167734fc89460200b6a68aa83b7a179646dbbe5335df11cb112953d0f88a",
+          "transcript": "Memory Sector corrupted. Restoring from backup.",
+          "word_check": "passed"
+        }
       },
       "osys6q": {
         "speaker": "calc",
         "say": "2dd916792a0691db",
-        "take": null
+        "take": {
+          "say": "2dd916792a0691db",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/osys6q.ogg",
+          "sha256": "c905b4dd599505dfbc6dba1405f8170ae9ca0717ea9e3547647b982a1982098a",
+          "transcript": "A spark has left the panel. It will not be missed.",
+          "word_check": "passed"
+        }
       },
       "tn7w1y": {
         "speaker": "calc",
         "say": "3abc18df5cee443f",
-        "take": null
+        "take": {
+          "say": "3abc18df5cee443f",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/tn7w1y.ogg",
+          "sha256": "04347edc554e25ec98fef365580814d07894c75986a911c516714def81ee1add",
+          "transcript": "The canteen reports a flicker, the canteen always reports a flicker.",
+          "word_check": "passed"
+        }
       },
       "6xpivq": {
         "speaker": "calc",
         "say": "6587d4b16b0efed6",
-        "take": null
+        "take": {
+          "say": "6587d4b16b0efed6",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/6xpivq.ogg",
+          "sha256": "d2cd47aa89a3f85d145c649f2796bc5c596988956e1572ab7ae5931c38f75645",
+          "transcript": "Interesting, that reading moved faster than predicted. I would like another.",
+          "word_check": "passed"
+        }
       },
       "mwjojt": {
         "speaker": "calc",
         "say": "9cbeb08f77a00bfa",
-        "take": null
+        "take": {
+          "say": "9cbeb08f77a00bfa",
+          "provider": "voxcpm2",
+          "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+          "voice": "calc, reference f9ac204277eaef20",
+          "mode": "ultimate",
+          "seed": 1099,
+          "direction": null,
+          "date": "2026-11-18",
+          "task": "FAL-1137",
+          "file": "game/assets/audio/voice/explainers/reactions/mwjojt.ogg",
+          "sha256": "6ee979db74d07cb02f3ca15b6c0450177a2e4cb0a339d991a88a36461f500c69",
+          "transcript": "Alarm, silenced. It was a short alarm.",
+          "word_check": "passed"
+        }
       }
     }
   },

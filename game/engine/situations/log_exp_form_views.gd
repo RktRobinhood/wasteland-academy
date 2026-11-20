@@ -175,9 +175,15 @@ static func gv(label: String, vs: Array) -> Array:
 	return vs.map(func(v): return {"v": v, "text": label + N(v)})
 
 
-## Fillers for an exact number.
+## Fillers for an exact number: the sign, the reciprocal and the square first, so the
+## ones either side of the key are a last resort (#193).
 static func near(v: Q) -> Array:
-	return [v.add(1), v.sub(1), v.add(2), v.neg(), v.mul(2), v.add(3)].filter(func(x): return not x.eq(v))
+	var out: Array = []
+	var list: Array = [v.neg()] + ([] if v.is_zero() else [Q.new(1).div(v)]) + [v.mul(v), v.add(1), v.sub(1), v.add(2), v.mul(2), v.add(3)]
+	for x: Q in list:
+		if not x.eq(v) and not out.any(func(o): return o.eq(x)):
+			out.append(x)
+	return out
 
 
 ## b^e = x, with its three numbers typed.
@@ -322,9 +328,11 @@ static func opts(ans: Dictionary, list: Array) -> Array:
 			if absf(x) < 0.001 or absf(x) >= 1.0e6:
 				continue
 			out.append(wrong({"v": GdcKit.qf(x)}, e[1]))
-		elif absf(x) < 1e-40 or absf(x) > 1e40 or plain(x):
+		elif absf(x) < 1e-40 or absf(x) > 1e40:
 			continue
 		else:
+			# A slip whose value is plain-sized is still written in the answer's a × 10^k
+			# shape, so the slip is offered rather than a filler near the key (#193).
 			var p := sci_parts(x)
 			out.append_array(StandardFormViews.options(ans, [[GdcKit.qf(p[0]), p[1], e[1]]]))
 	return out
@@ -506,8 +514,15 @@ func u_value_fractional_power(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var note: String
 	match s.shape:
 		"family":
+			# Both as powers of one prime p: b = p^j and x = p^i, so jy = i (#193).
 			xt = N(s.x)
-			note = "%s = %s" % [pw(b, val), xt]
+			var xi := int(s.x.to_float())
+			var p := 2
+			while not (LogExpFormSituation.is_power(b, p) and LogExpFormSituation.is_power(xi, p)):
+				p += 1
+			var j := roundi(log(float(b)) / log(float(p)))
+			var i := roundi(log(float(xi)) / log(float(p)))
+			note = "%d = %d%s and %s = %d%s, so %d^y = %d^(%dy) = %d%s and %dy = %d" % [b, p, LogFunctionViews.sup_any(j), xt, p, LogFunctionViews.sup_any(i), b, p, j, p, LogFunctionViews.sup_any(i), j, i]
 		"half":
 			xt = "√%d" % b
 			note = "%d^(1/2) is the square root of %d" % [b, b]
@@ -522,14 +537,11 @@ func u_value_fractional_power(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var w_list: Array = [wv("", Q.new(1).div(val), R_FLIP)]
 	if s.shape == "family":
 		w_list.append(wv("", s.x.div(Q.new(b)), R_DIVIDE))
-	var gen: Array = [val.add(1), val.sub(1), val.mul(2), val.add(2)]
 	if val.sign() < 0:
 		w_list.append(wv("", val.neg(), R_LOST_MINUS))
-	else:
-		gen.insert(2, val.neg())
-	return {"lines": [line], "asked": "Find the exact value.", "answer": ans, "wrongs": w_list, "fillers": gv("", gen),
+	return {"lines": [line], "asked": "Find the exact value.", "answer": ans, "wrongs": w_list, "fillers": gv("", near(val)),
 		"methods": {
-			POWER: method(["%s asks: what power of %d gives %s?" % [line, b, xt], note, say(ans)], ans.values),
+			POWER: method(["%s asks: what power of %d gives %s?" % [line, b, xt], ("Call the power y: " + note + ".") if s.shape == "family" else note, say(ans)], ans.values),
 			REWRITE: method(["Let y = %s. In exponential form, %d^y = %s." % [line, b, xt], "%s, so y = %s." % [note, N(val)], say(ans)], ans.values)}}
 
 
@@ -595,7 +607,7 @@ func u_solve_log_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var line := "%s = %s" % [lg(b, "x"), N(c)]
 	var body := "x = %s" % pw(b, c)
 	return {"lines": [line if rep == "equation" else "The logarithm of x to base %d is %s." % [b, N(c)]], "asked": "Find the exact value of x.", "answer": ans,
-		"wrongs": w_list, "fillers": gv("x = ", [s.x.add(1), s.x.mul(2), s.x.add(2), s.x.sub(1)].filter(func(v): return not v.is_zero())),
+		"wrongs": w_list, "fillers": gv("x = ", near(s.x).filter(func(v): return not v.is_zero())),
 		"methods": {REWRITE: method(["log_a x = c means a^c = x. Here that is %s." % body, "%s = %s" % [pw(b, c), N(s.x)], say(ans)], ans.values)}}
 
 
@@ -607,7 +619,7 @@ func _solve_ln(s: Dictionary) -> Dictionary:
 	var w_list: Array = [DifferentiationViews.alt("x = %s" % ((N(c) + "e") if absi(c.n) != 1 else ("−e" if c.n < 0 else "e")), R_DIVIDE)]
 	if c.sign() < 0:
 		w_list.append(wrong({"v": c.neg(), "text": "x = " + pw(0, c.neg())}, R_LOST_MINUS))
-	var gen: Array = [c.add(1), c.sub(1), c.add(2), c.neg()].filter(func(v): return not v.is_zero())
+	var gen: Array = near(c).filter(func(v): return not v.is_zero())
 	return {"lines": ["ln x = %s" % N(c)], "asked": "Find the exact value of x.", "answer": ans, "wrongs": w_list,
 		"fillers": gen.map(func(v): return {"v": v, "text": "x = " + pw(0, v)}),
 		"methods": {REWRITE: method(["ln is the log to base e, so ln x = c means e^c = x.", "Here c = %s." % N(c), say(ans)], ans.values)}}
@@ -685,9 +697,15 @@ func u_solve_log_base(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var w_list: Array = [wv(label, n.div(c), R_DIVIDE)]
 	if c.is_int() and c.sign() > 0 and c.to_float() <= 4.0 and n.to_float() <= 20.0:
 		w_list.append(DifferentiationViews.alt(label + D(Q.new(roundi(pow(n.to_float(), c.to_float())))), R_NO_ROOT_TAKEN))
-	var line := "log base x of %s = %s" % [N(n), N(c)]
+	# The root taken without the power's minus sign, and an even root's negative value,
+	# which no base can be (#193).
+	if c.sign() < 0:
+		w_list.append(wv(label, Q.new(1).div(val), R_LOST_MINUS))
+	if c.is_int() and int(c.to_float()) % 2 == 0:
+		w_list.append(wv(label, val.neg(), R_NEG_ROOT))
+	var line := "logₓ %s = %s" % [N(n), N(c)]
 	var letter := "x"
-	var out := {"answer": ans, "wrongs": w_list, "fillers": gv(label, [val.add(1), val.add(2), val.mul(2), val.add(3)])}
+	var out := {"answer": ans, "wrongs": w_list, "fillers": gv(label, near(val))}
 	if rep == "graph":
 		letter = "a"
 		out.lines = ["The graph shows y = log_a x, for a base a > 1. It passes through P(%s, %s)." % [N(n), N(c)]]
@@ -697,7 +715,8 @@ func u_solve_log_base(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = [line]
 		out.asked = "Find the exact value of x, where x > 0."
 	var one := "%s^%s = %s" % [letter, N(c), N(n)] if c.is_int() and c.sign() > 0 else "%s^(%s) = %s" % [letter, N(c), N(n)]
-	out.methods = {REWRITE: method(["In exponential form: " + one, "%s = %s" % [pw(val, c), N(n)] + ", so the base is %s." % N(val), say(ans)], ans.values)}
+	var undo: Q = Q.new(1).div(c)
+	out.methods = {REWRITE: method(["In exponential form: " + one, "Raise both sides to the power %s: %s = %s = %s" % [N(undo), letter, pw(n, undo), N(val)], say(ans)], ans.values)}
 	return out
 
 
@@ -795,14 +814,20 @@ func u_reading_after_multiple(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		list.append([y1 + signf(A) * lm, R_NO_MULTIPLIER])
 	var out := {"answer": ans, "wrongs": opts(ans, list), "fillers": spare(ans, s.y2), "table": null, "lines": [rule_line(rep, s)]}
 	var xt := w(x2)
+	# The two are named by letters the formula doesn't use: the Glare class's brightness is B (#193).
+	var one := "A"
+	var two := "B"
+	if c.x in ["A", "B"] or c.y in ["A", "B"]:
+		one = "P"
+		two = "Q"
 	if rep == "table":
-		out.lines.append("The table shows two of them, A and B.")
-		out.table = {"rows": [[c.thing.substr(0, 1).to_upper() + c.thing.substr(1), ["A", "B"]], ["%s (%s)" % [c.x, c.unit.strip_edges()], [amt(s.x), xt]], [c.name, [D(s.y), "?"]]]}
-		out.asked = "Find the %s of B.%s" % [c.name, THREE]
+		out.lines.append("The table shows two of them, %s and %s." % [one, two])
+		out.table = {"rows": [[c.thing.substr(0, 1).to_upper() + c.thing.substr(1), [one, two]], ["%s (%s)" % [c.x, c.unit.strip_edges()], [amt(s.x), xt]], [c.name, [D(s.y), "?"]]]}
+		out.asked = "Find the %s of %s.%s" % [c.name, two, THREE]
 	else:
-		out.lines.append("A %s, A, has a %s of %s%s and a %s of %s." % [c.thing, c.amount, amt(s.x), c.unit, c.name, D(s.y)])
-		out.lines.append("A second %s, B, has %s times the %s of A." % [c.thing, D(s.m), c.amount])
-		out.asked = "Find the %s of B.%s" % [c.name, THREE]
+		out.lines.append("A %s, %s, has a %s of %s%s and a %s of %s." % [c.thing, one, c.amount, amt(s.x), c.unit, c.name, D(s.y)])
+		out.lines.append("A second %s, %s, has %s times the %s of %s." % [c.thing, two, D(s.m), c.amount, one])
+		out.asked = "Find the %s of %s.%s" % [c.name, two, THREE]
 	var rise := A * lm
 	out.methods = {
 		SUBSTITUTE: method(read_steps(rep, s, xt, x2, ans), ans.values),

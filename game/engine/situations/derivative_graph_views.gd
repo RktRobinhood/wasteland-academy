@@ -30,6 +30,17 @@ const R_INTERCEPTS := SG + "1"
 const R_ZERO_VALUE := SG + "2"
 const R_HEIGHT := SG + "3"
 const R_CONCAVE_SIGN := "SL5.7.concavity#0"
+const OWN := "t5-derivative-graph#"
+const R_SIGN_FLIP := OWN + "18"
+const R_PAST_TOUCH := OWN + "19"
+const R_CONCAVE_SWAP := OWN + "20"
+const R_TOUCH_ALONE := OWN + "21"
+const R_AREA_SIGNS := OWN + "22"
+const R_LAST_STRETCH := OWN + "23"
+const R_TAKE_AWAY := OWN + "24"
+const R_OTHER_SIGN := OWN + "25"
+const R_X_COORD := OWN + "26"
+const R_DIRECTION := OWN + "27"
 
 
 func needs() -> Dictionary:
@@ -169,7 +180,7 @@ static func side_alt(rel: String, x: int, ref: String) -> Dictionary:
 	return DifferentiationViews.alt("x %s %s" % [rel, Fmt.num(x)], ref, {"side": rel})
 
 
-## Whole numbers near x, for generic options.
+## Whole numbers near x, for filler options.
 static func near(x: int, avoid: Array) -> Array:
 	var out: Array = []
 	for d in [1, -1, 2, -2, 3]:
@@ -215,7 +226,7 @@ func u_extremum_from_derivative(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	if s.fam == "touch":
 		touch_line = (" At x = %s it only touches the axis, so f′ keeps its sign there." if rep == "graph" else " At x = %s its factor is squared, so f′ keeps its sign there.") % Fmt.num(s.b)
 	return {"lines": _f_prime_lines(rep, s), "graph": g, "asked": "Find the x-coordinate of the local %s of f." % kind, "answer": ans, "wrongs": wr,
-		"generic": near(x, [tp, s.b, s.a]),
+		"fillers": near(x, [tp, s.b, s.a]),
 		"methods": {"sign-change-of-f-prime": method([
 			"A local %s of f is where f′ changes sign from %s to %s." % [kind, sign_word(l), sign_word(-l)],
 			"f′ %s, going from %s to %s.%s" % [see, sign_word(l), sign_word(-l), touch_line],
@@ -244,7 +255,7 @@ func u_extremum_justified(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		wrongs.append(["x = %s, because f′ changes sign from %s to %s at x = %s" % [Fmt.num(o), sign_word(lo), sign_word(-lo), Fmt.num(o)], R_WAY_ROUND])
 	var built := DerivativeMeaningViews.claim_answer(right, wrongs)
 	return {"lines": [shows(s)], "graph": figure(s), "asked": "Find the x-coordinate of the local %s of f. Which answer is fully justified?" % kind,
-		"answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"answer": built.answer, "wrongs": built.wrongs,
 		"methods": {"sign-change-of-f-prime": method([
 			"f′(x) = 0 is not enough: f has a local %s only where f′ changes sign from %s to %s." % [kind, sign_word(l), sign_word(-l)],
 			"The graph of f′ crosses the axis at x = %s, from %s the axis to %s it." % [X, "above" if l > 0 else "below", "below" if l > 0 else "above"],
@@ -256,12 +267,15 @@ func u_inflexion_from_derivative(_rep: String, s: Dictionary, _rng: Seeded) -> D
 	var ans := Answer.make("xs", xs(ts))
 	ans.exact = true
 	var wr: Array = [wrong(xs([s.a, s.b]), R_ZEROS_INFLEXION)]
-	var gen: Array = []
+	var fillers: Array = []
 	if s.fam == "touch":
 		wr.append(wrong(xs([s.c]), R_MISS_TOUCH))
-		gen = [xs([s.b]), xs([s.a, s.c]), xs([s.c + 1, s.b])]
+		wr.append(wrong(xs([s.b]), R_TOUCH_ALONE))
+		fillers = [xs([s.a, s.c]), xs([s.c + 1, s.b])]
 	else:
-		gen = [xs([s.a]), xs([s.b]), xs([s.h + 1]), xs([s.h - 1])]
+		# One zero of f′ on its own is the zeros slip, given as a single x.
+		wr += [wrong(xs([s.a]), R_ZEROS_INFLEXION), wrong(xs([s.b]), R_ZEROS_INFLEXION)]
+		fillers = [xs([s.h + 1]), xs([s.h - 1])]
 	var where: String
 	if s.fam == "touch":
 		where = "The graph of f′ has a local %s at x = %s and a local %s at x = %s, where it touches the axis." % [turn_word(s, s.c), Fmt.num(s.c), turn_word(s, s.b), Fmt.num(s.b)]
@@ -274,7 +288,7 @@ func u_inflexion_from_derivative(_rep: String, s: Dictionary, _rng: Seeded) -> D
 	if cuts.size() == 2:
 		rows.append("%s for %s < x < %s" % [dir.call(cuts[0] + 1), Fmt.num(cuts[0]), Fmt.num(cuts[1])])
 	rows.append("%s for x > %s" % [dir.call(cuts[-1] + 1), Fmt.num(cuts[-1])])
-	return {"lines": [shows(s)], "graph": figure(s), "asked": "Find the x-coordinate of each point of inflexion of f.", "answer": ans, "wrongs": wr, "generic": gen,
+	return {"lines": [shows(s)], "graph": figure(s), "asked": "Find the x-coordinate of each point of inflexion of f.", "answer": ans, "wrongs": wr, "fillers": fillers,
 		"methods": {"turning-point-of-f-prime": method([
 			"f has a point of inflexion where f″ changes sign, which is where f′ has a local maximum or minimum, not where f′ is 0.",
 			where,
@@ -303,7 +317,7 @@ func u_touch_not_turning(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	if rep != "graph":
 		near_b = "%s is never negative, so near x = %s f′ has the sign of %s%s: %s on both sides." % [sq, B, Fmt.lead(s.k), "x" if s.a == 0 else Fmt.factor(s.a), sign_word(sg)]
 	return {"lines": lines, "graph": figure(s) if rep == "graph" else null,
-		"asked": "Which statement about the point on the graph of f where x = %s is true?" % B, "answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"asked": "Which statement about the point on the graph of f where x = %s is true?" % B, "answer": built.answer, "wrongs": built.wrongs,
 		"methods": {"sign-change-of-f-prime": method([
 			"A turning point of f needs f′ to change sign, not just to be 0.",
 			near_b,
@@ -327,10 +341,11 @@ func u_increasing_past_touch(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var flip := "<" if on_right else ">"
 	var ans := MonotonicViews.side(rel, a)
 	var stop := MonotonicViews.interval_text("between", mini(a, b), maxi(a, b))
-	var wr: Array = [DifferentiationViews.alt(stop, R_STOP_AT_TOUCH), wrong(MonotonicViews.side(flip, a).values, "")]
+	var wr: Array = [DifferentiationViews.alt(stop, R_STOP_AT_TOUCH), wrong(MonotonicViews.side(flip, a).values, R_SIGN_FLIP),
+		wrong(MonotonicViews.side(rel, b).values, R_PAST_TOUCH)]
 	var need := "≥" if tsg > 0 else "≤"
 	return {"lines": [shows(s)], "graph": figure(s), "asked": "Find the values of x for which f is %s." % word, "answer": ans, "wrongs": wr,
-		"generic": [MonotonicViews.side(rel, b).values, MonotonicViews.side(rel, s.c).values, MonotonicViews.side(flip, b).values, MonotonicViews.side(rel, a + 1).values],
+		"fillers": [MonotonicViews.side(rel, s.c).values, MonotonicViews.side(flip, b).values, MonotonicViews.side(rel, a + 1).values],
 		"methods": {"sign-diagram": method([
 			"f is %s where f′(x) %s 0." % [word, need],
 			"Sign row of f′: %s." % sign_row(s, [a, b]),
@@ -351,10 +366,11 @@ func u_concave_up_from_cubic(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	# Where f′ itself is positive (or negative): the sign of k(x − a), past the touch.
 	var a: int = s.a
 	var fp_rel := ">" if (s.k > 0) == up else "<"
-	var wr: Array = [side_alt(fp_rel, a, R_CONCAVE_SIGN), MonotonicViews.alt_iv(MonotonicViews.other(shape), lo, hi)]
+	var wr: Array = [side_alt(fp_rel, a, R_CONCAVE_SIGN), MonotonicViews.alt_iv(MonotonicViews.other(shape), lo, hi, R_CONCAVE_SWAP),
+		MonotonicViews.alt_iv(shape, mini(a, b), maxi(a, b), R_ZEROS_INFLEXION)]
 	var rising := "increasing" if up else "decreasing"
 	return {"lines": [shows(s)], "graph": figure(s), "asked": "Find the values of x for which the graph of f is concave %s." % s.want, "answer": ans, "wrongs": wr,
-		"generic": [MonotonicViews.alt_iv(shape, mini(a, b), maxi(a, b)).values, MonotonicViews.alt_iv(shape, lo - 1, hi).values, MonotonicViews.alt_iv(shape, lo, hi + 1).values, MonotonicViews.alt_iv(MonotonicViews.other(shape), lo - 1, hi + 1).values],
+		"fillers": [MonotonicViews.alt_iv(shape, lo - 1, hi).values, MonotonicViews.alt_iv(shape, lo, hi + 1).values, MonotonicViews.alt_iv(MonotonicViews.other(shape), lo - 1, hi + 1).values],
 		"methods": {"turning-point-of-f-prime": method([
 			"Concave %s means f′ is %s: read the direction of the graph of f′, not its height." % [s.want, rising],
 			"The graph of f′ turns at x = %s and x = %s, and it is %s %s them." % [Fmt.num(lo), Fmt.num(hi), rising, shape],
@@ -374,7 +390,7 @@ func u_inflexion_from_second(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var see := "crosses the x-axis at x = %s" % Fmt.num(a) if rep == "graph" else "changes sign at x = %s, where its factor %s is 0" % [Fmt.num(a), "x" if a == 0 else Fmt.factor(a)]
 	var keep := "only touches the axis at x = %s" % Fmt.num(b) if rep == "graph" else "is 0 at x = %s too, but its factor there is squared" % Fmt.num(b)
 	return {"lines": lines, "graph": figure(s) if rep == "graph" else null, "asked": "The graph of f has one point of inflexion. Find its x-coordinate.",
-		"answer": ans, "wrongs": [wx(b, R_TOUCH_INFLEXION), wx(s.c, R_FPP_TURN)], "generic": near(a, [b, s.c]),
+		"answer": ans, "wrongs": [wx(b, R_TOUCH_INFLEXION), wx(s.c, R_FPP_TURN)], "fillers": near(a, [b, s.c]),
 		"methods": {"sign-diagram": method([
 			"A point of inflexion is where f″ changes sign, not just where f″ = 0.",
 			"f″ %s, from %s to %s. It %s, so it keeps its sign there." % [see, sign_word(l), sign_word(-l), keep],
@@ -430,13 +446,13 @@ func u_compare_from_areas(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	if rep == "words":
 		# No graph to read heights from: judging by the sign of f′ on the last stretch alone.
 		var M := Fmt.num(s.m)
-		third = ["f(%s) is greater, because f′(x) %s 0 for %s < x < %s" % [H if s.s2 > 0 else L, ">" if s.s2 > 0 else "<", M, H], ""]
-	var built := DerivativeMeaningViews.claim_answer(right, [[flat, R_UNSIGNED], third, [flipped, ""]])
+		third = ["f(%s) is greater, because f′(x) %s 0 for %s < x < %s" % [H if s.s2 > 0 else L, ">" if s.s2 > 0 else "<", M, H], R_LAST_STRETCH]
+	var built := DerivativeMeaningViews.claim_answer(right, [[flat, R_UNSIGNED], third, [flipped, R_AREA_SIGNS]])
 	var where := "Region A is %s the axis and region B is %s it." % ["above" if s.s1 > 0 else "below", "above" if s.s2 > 0 else "below"]
 	if rep == "words":
 		where = "f′ is %s on the first stretch and %s on the second." % [sign_word(s.s1), sign_word(s.s2)]
 	return {"lines": area_lines(rep, s), "graph": area_figure(s) if rep == "graph" else null, "asked": "Which is greater, f(%s) or f(%s)? Which answer is fully justified?" % [L, H],
-		"answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"answer": built.answer, "wrongs": built.wrongs,
 		"methods": {"area-under-f-prime": method([
 			"f(%s) − f(%s) is the integral of f′ from %s to %s: the signed area, where area below the axis counts as negative." % [H, L, L, H],
 			where,
@@ -456,12 +472,12 @@ func u_value_from_areas(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := Answer.make("number", {"v": Q.new(y)}, {}, head)
 	ans.exact = true
 	var flat: int = v + (s.A1 + s.A2 if to_hi else s.A1)
-	var wr: Array = [wrong({"v": Q.new(flat)}, R_UNSIGNED), wrong({"v": Q.new(change)}, R_NO_START), wrong({"v": Q.new(v - change)}, "")]
+	var wr: Array = [wrong({"v": Q.new(flat)}, R_UNSIGNED), wrong({"v": Q.new(change)}, R_NO_START), wrong({"v": Q.new(v - change)}, R_TAKE_AWAY)]
 	var sum_text := signed_sum(t1, t2) if to_hi else Fmt.num(t1)
 	var lines := area_lines("graph", s)
 	lines.append("f(%s) = %s." % [L, Fmt.num(v)])
 	return {"lines": lines, "graph": area_figure(s), "asked": "Find f(%s)." % X, "answer": ans, "wrongs": wr,
-		"generic": [{"v": Q.new(y + 1)}, {"v": Q.new(y - 1)}, {"v": Q.new(-y)}, {"v": Q.new(y + 2)}],
+		"fillers": [{"v": Q.new(y + 1)}, {"v": Q.new(y - 1)}, {"v": Q.new(-y)}, {"v": Q.new(y + 2)}],
 		"methods": {"area-under-f-prime": method([
 			"f(%s) − f(%s) is the signed area under f′ from %s to %s: area above the x-axis counts as positive, area below it as negative." % [X, L, L, X],
 			("Region A is %s the axis and region B is %s it, so f(%s) − f(%s) = %s = %s." % ["above" if s.s1 > 0 else "below", "above" if s.s2 > 0 else "below", X, L, sum_text, Fmt.num(change)]) if to_hi
@@ -540,14 +556,16 @@ func u_gradient_sign_statement(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 		others.append(["f(%s) = 0, since f′(%s) = 0" % [X, X], R_ZERO_VALUE])
 	elif signi(y) != signi(d):
 		others.append(["f′(%s) %s 0: the curve is %s the x-axis at x = %s" % [X, ">" if y > 0 else "<", "above" if y > 0 else "below", X], R_F_SIGN])
+	# Up for down (or down for up) is the direction misread; flat for a slope, or a slope
+	# for flat, has no route and is a filler.
 	for t in [up, down, flat]:
 		if t != right and others.size() < 3:
-			others.append([t, ""])
-	var built := DerivativeMeaningViews.claim_answer(right, others)
+			others.append([t, R_DIRECTION if d != 0 and t != flat else ""])
+	var built := DerivativeMeaningViews.claim_split(right, others)
 	var g := figure(s, [[float(x0), float(y), "A"]])
 	var walk: String = "going up" if d > 0 else ("going down" if d < 0 else "at a turning point, flat for an instant")
 	return {"lines": ["The graph shows y = f(x), for %s. The point A on the curve has x = %s." % [domain(s), X]], "graph": g,
-		"asked": "Which statement about f′ at A is true?", "answer": built.answer, "wrongs": built.wrongs, "generic": [],
+		"asked": "Which statement about f′ at A is true?", "answer": built.answer, "wrongs": built.wrongs, "fillers": built.fillers,
 		"methods": {"walk-the-curve": method([
 			"The sign of f′ is the direction of the curve, not which side of the x-axis it is on.",
 			"Walking left to right, at A you are %s." % walk,
@@ -572,13 +590,13 @@ func u_gradient_negative_where(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	# Where f itself has that sign: k(x − a) has it, past the touch.
 	var f_rel := ("<" if neg else ">") if s.k > 0 else (">" if neg else "<")
 	var wr: Array = [side_alt(f_rel, a, R_F_SIGN),
-		MonotonicViews.alt_iv(shape, mini(a, b), maxi(a, b), R_INTERCEPTS), MonotonicViews.alt_iv(MonotonicViews.other(shape), lo, hi)]
+		MonotonicViews.alt_iv(shape, mini(a, b), maxi(a, b), R_INTERCEPTS), MonotonicViews.alt_iv(MonotonicViews.other(shape), lo, hi, R_OTHER_SIGN)]
 	var pts: Array = [[float(c), float(DerivativeGraphSituation.at(s, c)), Fmt.point(c, DerivativeGraphSituation.at(s, c))], [float(b), 0.0, Fmt.point(b, 0)]]
 	var g := MonotonicViews.graph_of(DerivativeGraphSituation.fn(s), float(s.lo), float(s.hi), pts)
 	var dir := "down" if neg else "up"
 	return {"lines": ["The graph shows y = f(x), for %s, with its turning points marked." % domain(s)], "graph": g,
 		"asked": "Write down the values of x for which f′(x) %s." % s.want, "answer": ans, "wrongs": wr,
-		"generic": [MonotonicViews.alt_iv(shape, lo - 1, hi).values, MonotonicViews.alt_iv(shape, lo, hi + 1).values, MonotonicViews.alt_iv(MonotonicViews.other(shape), mini(a, b), maxi(a, b)).values],
+		"fillers": [MonotonicViews.alt_iv(shape, lo - 1, hi).values, MonotonicViews.alt_iv(shape, lo, hi + 1).values, MonotonicViews.alt_iv(MonotonicViews.other(shape), mini(a, b), maxi(a, b)).values],
 		"methods": {"walk-the-curve": method([
 			"f′(x) %s where the curve is going %s as you walk left to right, whichever side of the x-axis it is on." % [s.want, dir],
 			"It turns at x = %s and x = %s, the turning points, not at the x-intercepts." % [Fmt.num(lo), Fmt.num(hi)],
@@ -598,8 +616,8 @@ func u_gradient_at_turning_point(rep: String, s: Dictionary, _rng: Seeded) -> Di
 	var ans := Answer.make("number", {"v": Q.new(0)}, {}, head)
 	ans.exact = true
 	var out := {"asked": "Write down the value of f′(%s)." % C, "answer": ans,
-		"wrongs": [wrong({"v": Q.new(yc)}, R_HEIGHT), wrong({"v": Q.new(c)}, "")],
-		"generic": [{"v": Q.new(1)}, {"v": Q.new(-1)}, {"v": Q.new(yc + 1)}, {"v": Q.new(2)}],
+		"wrongs": [wrong({"v": Q.new(yc)}, R_HEIGHT), wrong({"v": Q.new(c)}, R_X_COORD)],
+		"fillers": [{"v": Q.new(1)}, {"v": Q.new(-1)}, {"v": Q.new(yc + 1)}, {"v": Q.new(2)}],
 		"methods": {"tangent-sketch": method([
 			"The tangent at a local %s is horizontal." % kind,
 			"A horizontal line has gradient 0, whatever the height of the point.",

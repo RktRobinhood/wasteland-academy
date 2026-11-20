@@ -246,9 +246,10 @@ static func said(ans: Dictionary) -> String:
 	return "So the value is %s." % Answer.text(ans)
 
 
-## The values a number answer's fillers come from.
-static func near(v: Q) -> Array:
-	return [v.add(1), v.sub(1), v.add(2), v.mul(2), v.add(3), v.neg()].filter(func(x): return not x.eq(v))
+## The values a number answer's fillers come from, in a stream order: always v + 1 first
+## made the smaller of two options one apart the key (#193).
+static func near(v: Q, rng: Seeded) -> Array:
+	return rng.shuffled([v.add(1), v.sub(1), v.add(2), v.mul(2), v.add(3), v.neg()].filter(func(x): return not x.eq(v)))
 
 
 # ── The laws ─────────────────────────────────────────────────
@@ -271,7 +272,7 @@ func u_value_difference(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		power_line(L, s.b, together), said(ans)]
 	var m_each := [power_line(L, s.b, s.i), power_line(L, s.b, s.j),
 		"%d %s %d = %d." % [s.i, s.shape, s.j, together], said(ans)]
-	return _number(s, [expr], "Find the exact value.", w, gv(near(s.val)), rng,
+	return _number(s, [expr], "Find the exact value.", w, gv(near(s.val, rng)), rng,
 		{COMBINE: method(m_combine, ans.values), SEPARATE: method(m_each, ans.values)}, ans)
 
 
@@ -305,7 +306,7 @@ func u_value_hidden(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			expr = "%s(%d + %d)" % [L, s.A, s.B]
 			steps = ["There's no law for the log of a sum, so add first: %s = %s." % [expr, pl], last, said(ans)]
 			w = [walt("%s + %s" % [a, b], R_SPLIT), wv(p, R_STOP)]
-	return _number(s, [expr], "Find the exact value.", w, gv(near(s.val)), rng, {COMBINE: method(steps, ans.values)}, ans)
+	return _number(s, [expr], "Find the exact value.", w, gv(near(s.val, rng)), rng, {COMBINE: method(steps, ans.values)}, ans)
 
 
 func u_value_quotient(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -362,7 +363,7 @@ func u_single_ln_k(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			steps = ["%d %s = %s." % [s.c, u, lg(L, str(LogLawsSituation.ipow(s.u, s.c)))],
 				"%s + %s = %s(%d × %d) = %s." % [lg(L, str(LogLawsSituation.ipow(s.u, s.c))), v, L, LogLawsSituation.ipow(s.u, s.c), s.v, lg(L, str(s.k))], done]
 			w = [wk(L, Q.new(s.c * s.u * s.v), R_TIMES_IN), wk(L, Q.new(LogLawsSituation.ipow(s.u, s.c) + s.v), R_ADD_IN)]
-	var gen: Array = [k.add(1), k.add(2), k.sub(1), k.mul(2), k.add(3)].filter(func(x): return x.sign() > 0).map(func(x): return {"k": x, "text": k_text(L, x)})
+	var gen: Array = rng.shuffled([k.add(1), k.add(2), k.sub(1), k.mul(2), k.add(3)]).filter(func(x): return x.sign() > 0).map(func(x): return {"k": x, "text": k_text(L, x)})
 	return {"lines": [expr], "asked": "Write this as %s k, where k is a positive whole number." % L, "answer": ans, "wrongs": rng.shuffled(w), "fillers": gen,
 		"methods": {COMBINE: method(steps, ans.values)}}
 
@@ -560,7 +561,10 @@ func u_expand_numbers(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		w.append(walt(pq_text(u, v), R_LOG_BASE))
 	if s.shape in ["mul", "div"] and (s.i > 1 or s.j > 1):
 		w.append(walt(power_text(u, v), R_POWER_LOG))
-	if s.shape == "mul":
+	# A power of ten has the same two slips, with log 10 = 1 kept (#193).
+	if s.shape == "ten" and (s.i > 1 or s.j > 1):
+		w.append(walt(power_text(u, v, k), R_POWER_LOG))
+	if s.shape == "mul" or (s.shape == "ten" and s.i > 0 and s.j > 0):
 		w.append(walt("%dpq" % (s.i * s.j) if s.i * s.j > 1 else "pq", R_MUL_LOGS))
 	return {"lines": ["Let %s = p and %s = q." % [p1, p2]], "asked": "Express %s in terms of p and q." % whole, "answer": ans, "wrongs": rng.shuffled(w),
 		"fillers": gpq(u, v, k), "methods": {EXPAND: method(steps, ans.values)}}
@@ -583,14 +587,15 @@ func u_show_number(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		m2 = ["%d = %d × %s, so %s = %s + %d %s." % [s.top, s.low, pw(s.c, s.k), top, low, s.k, c], "%s − %s = %d %s." % [top, low, s.k, c], state]
 	else:
 		m2 = []
-		for pair in [[s.top, s.i, top], [s.low, s.k - s.i, low]]:
+		# log 4 + log 4: the second log is the first, said once.
+		for pair in [[s.top, s.i, top]] + ([] if s.low == s.top else [[s.low, s.k - s.i, low]]):
 			if pair[1] > 1:
 				m2.append("%d = %s, so %s = %d %s." % [pair[0], pw(s.c, pair[1]), pair[2], pair[1], c])
 		var left := times(Q.new(s.i), c)
 		var right := times(Q.new(s.k - s.i), c)
 		m2.append_array(["%s + %s = %s + %s = %d %s." % [top, low, left, right, s.k, c], state])
 	var w: Array = [wv(num, R_STOP, "k = "), wv(Q.new(num, s.c), R_NUM_BASE, "k = ")]
-	return _number(s, ["%s = k %s" % [expr, c]], "Show that this holds for a whole number k, and state k.", w, gv(near(s.val).filter(func(x): return x.sign() > 0), "k = "), rng,
+	return _number(s, ["%s = k %s" % [expr, c]], "Show that this holds for a whole number k, and state k.", w, gv(near(s.val, rng).filter(func(x): return x.sign() > 0), "k = "), rng,
 		{COMBINE: method(m1, ans.values), EXPAND: method(m2, ans.values)}, ans)
 
 
@@ -631,7 +636,7 @@ func u_given_log_laws(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			law = "%s = %d %s − %s = %d %s − 1." % [lg(L, arg), r, la, lb, r, la]
 			w = [wv(m.mul(r), R_LOG_BASE), wv(m.mul(r).add(1), R_PLUS)]
 	var steps := [law, "Put in %s = %s: the value is %s." % [la, N(m), N(s.val)], said(ans)]
-	return _number(s, ["It is given that %s = %s, where a > 0." % [la, N(m)]], "Find the value of %s." % lg(L, arg), w, gv(near(s.val)), rng,
+	return _number(s, ["It is given that %s = %s, where a > 0." % [la, N(m)]], "Find the value of %s." % lg(L, arg), w, gv(near(s.val, rng)), rng,
 		{EXPAND: method(steps, ans.values)}, ans)
 
 
@@ -652,7 +657,7 @@ func u_ab_base_value(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if m.sign() < 0:
 		steps[2] = "So %s + %s = 1, which gives %s = 1 − (%s) = %s." % [la, lb, lb, N(m), N(s.val)]
 	var w: Array = [wv(m.neg(), R_AB_NEG), wv(m.add(1), R_PLUS)]
-	return _number(s, ["It is given that %s = %s, where %s, %s > 0 and %s ≠ 1." % [la, N(m), l1, l2, ab]], "Find the value of %s." % lb, w, gv(near(s.val) + [Q.new(1).div(m), m.sub(1)]), rng,
+	return _number(s, ["It is given that %s = %s, where %s, %s > 0 and %s ≠ 1." % [la, N(m), l1, l2, ab]], "Find the value of %s." % lb, w, gv([Q.new(1).div(m)] + near(s.val, rng)), rng,
 		{EXPAND: method(steps, ans.values)}, ans)
 
 
@@ -674,7 +679,7 @@ func u_ab_base_hence(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"%s = %s − %s." % [whole, times(e1, la), times(e2, lb)],
 		"= %s × %s − %s × %s = %s." % [N(e1), P(m), N(e2), P(mb), N(s.val)], said(ans)]
 	var w: Array = [wv(e2.mul(m).sub(e1.mul(mb)), R_SWAP), wv(e1.mul(m).add(e2.mul(mb)), R_PLUS), wv(e1.mul(m).add(e2.mul(m)), R_AB_NEG)]
-	return _number(s, ["It is given that %s = %s, where %s, %s > 0 and %s ≠ 1." % [la, N(m), l1, l2, ab]], "Find the value of %s." % whole, w, gv(near(s.val)), rng,
+	return _number(s, ["It is given that %s = %s, where %s, %s > 0 and %s ≠ 1." % [la, N(m), l1, l2, ab]], "Find the value of %s." % whole, w, gv(near(s.val, rng)), rng,
 		{EXPAND: method(steps, ans.values)}, ans)
 
 
@@ -717,8 +722,12 @@ func u_evaluate_single(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			m_power = ["√%d = %d^(1/2) and %d = %s." % [p, p, num, pw(p, t)], "So (√%d)^y = %d means %d^(y/2) = %s, and y/2 = %d." % [p, num, p, pw(p, t), t], "y = %d." % (2 * t), said(ans)]
 			m_define = ["Let y = %s, so (√%d)^y = %d." % [expr, p, num], "Take logs: y log √%d = log %d, so (y/2) log %d = %d log %d." % [p, num, p, t, p], "y = %d." % (2 * t), said(ans)]
 			m_formula = ["%s = log %d/log √%d." % [expr, num, p], "= %d log %d/((1/2) log %d) = %d." % [t, p, p, 2 * t], said(ans)]
-			w = [wv(t, R_ROOT_BASE), wv(Q.new(1, 2 * t), R_INVERT)]
-	return _number(s, [expr], "Find the exact value.", w, gv(near(s.val)), rng,
+			w = [wv(t, R_ROOT_BASE), wv(Q.new(1, 2 * t), R_INVERT), wv(Q.new(t, 2), R_TIMES_BASE)]
+			# All three slips are smaller than the key: half the time one gives way to a
+			# filler, so the key is not always the largest option (#193).
+			if rng.chance(0.5):
+				w = rng.shuffled(w).slice(0, 2)
+	return _number(s, [expr], "Find the exact value.", w, gv(near(s.val, rng)), rng,
 		{POWERS: method(m_power, ans.values), DEFINE: method(m_define, ans.values), FORMULA: method(m_formula, ans.values)}, ans)
 
 
@@ -740,10 +749,12 @@ func u_log_of_root(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		asked = "Find the value of f⁻¹(%s)." % root_text
 		lead = ["The inverse of %d^x is f⁻¹(x) = %s." % [B, lg(s.L, "x")]]
 	var whole := Q.new(t, s.root)
-	var m_power := lead + ["%d = %s and %s = %s^(%s)." % [B, pw(p, e), root_text, p, N(whole)], "So %d^y = %s means %dy = %s." % [B, root_text, e, N(whole)], "y = %s." % y, said(ans)]
+	var as_power := "%d^(%s)" % [p, N(whole)]
+	var bases := "%d = %s." % [B, pw(p, e)] if as_power == root_text else "%d = %s and %s = %s." % [B, pw(p, e), root_text, as_power]
+	var m_power := lead + [bases, "So %d^y = %s means %dy = %s." % [B, root_text, e, N(whole)], "y = %s." % y, said(ans)]
 	var m_define := lead + ["Let y = %s, so %d^y = %s." % [expr, B, root_text], "Take logs: y log %d = (%s) log %d, so %dy log %d = (%s) log %d." % [B, N(whole), p, e, p, N(whole), p], "y = %s." % y, said(ans)]
 	var w: Array = [wv(Q.new(t, e), R_NO_ROOT), wv(Q.new(s.root * t, e), R_ROOT_TWO), wv(Q.new(s.root * e, t), R_INVERT)]
-	return _number(s, lines, asked, w, gv(near(s.val)), rng, {POWERS: method(m_power, ans.values), DEFINE: method(m_define, ans.values)}, ans)
+	return _number(s, lines, asked, w, gv(near(s.val, rng)), rng, {POWERS: method(m_power, ans.values), DEFINE: method(m_define, ans.values)}, ans)
 
 
 func u_cob_common_base(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -800,7 +811,8 @@ func u_cob_in_p_q(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if quotient == text:
 		m1[2] = "So %s = %s." % [whole, text]
 	var m2 := ["Let y = %s, so %d^y = %d." % [whole, base, s.N], "Take %s of both sides: y %s = %s." % [H, over, lg(H, str(s.N))], "That is %s × y = %s." % [bottom_q, top_p], "So y = %s." % text]
-	var w: Array = [walt("%s/(%s)" % [bottom_q, top_p], R_INVERT)]
+	# The reciprocal, simplified as the key is: 2q/(4p) is q/(2p).
+	var w: Array = [walt(ratio_text(Q.new(1).div(co_), "q", "p") if j == 0 else "%s/(%s)" % [bottom_q, top_p], R_INVERT)]
 	if j == 0:
 		w.append(walt("%s − %s" % [top_p, bottom_q], R_SIMPLIFY))
 		w.append(walt("p%s/%s" % [Fmt.sup(k), bottom_q if base == d else "(%s)" % bottom_q], R_POWER_LOG))
@@ -840,7 +852,7 @@ func u_given_log_base(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		for mm in [m1, m2, m3]:
 			mm.push_front(step0)
 	var w: Array = [wv(top.mul(k), R_TIMES_BASE), wv(top.div(big), R_BASE_ITSELF), wv(Q.new(k).div(top), R_INVERT)]
-	return _number(s, ["It is given that %s = %s, where a > 0." % [given, N(m)]], "Find the value of %s." % whole, w, gv(near(s.val)), rng,
+	return _number(s, ["It is given that %s = %s, where a > 0." % [given, N(m)]], "Find the value of %s." % whole, w, gv(near(s.val, rng)), rng,
 		{FORMULA: method(m1, ans.values), POWERS: method(m2, ans.values), DEFINE: method(m3, ans.values)}, ans)
 
 

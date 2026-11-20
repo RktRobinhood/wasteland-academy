@@ -59,7 +59,13 @@ static func _draw(rng: Seeded, form: String, need: Dictionary) -> Dictionary:
 				s.b = s.p.add(s.q).neg()
 				s.c = s.p.mul(s.q)
 				s.h = s.p.add(s.q).div(2)
-				s.k = QuadraticSituation.f(s, s.h)
+				# The vertex of (x − p)(x − q). QuadraticSituation.f reads the old k, so
+				# it can't give the new one (#193: the graph drew the wrong parabola).
+				s.k = s.h.sub(s.p).mul(s.h.sub(s.q))
+				s.disc = s.b.sq().sub(s.c.mul(4))
+				# With a = 1 the vertex and y-intercept move, so the graph's limits are checked again.
+				if need.get("graph", false) and (absi(s.k.n) > QuadraticSituation.GRAPH_Y_MAX * s.k.d or absi(s.c.n) > QuadraticSituation.GRAPH_Y_MAX * s.c.d):
+					return {}
 			return s
 		"none":
 			var s := QuadraticSituation.generate(rng, {"mode": "none", "graph": need.get("graph", false)})

@@ -20,9 +20,9 @@ func need(unknown: String, _rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "generic", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "generic", "fillers"] else null
 	out.given = GraphReadingSituation.export(s)
 	out.trap = {}
 	return out
@@ -46,10 +46,12 @@ static func rounded(r: Q, text: String) -> Dictionary:
 	return ans
 
 
-## r's neighbours at 3 s.f., one 3rd figure up, down and two up: the last options, for
-## when the slips above have the answer's value (12.996 to 2 or 4 s.f. is 13.0).
+## r's neighbours at 3 s.f., one 3rd figure up, down, two up and two down: the last
+## options, for when the slips above have the answer's value (12.996 to 2 or 4 s.f. is
+## 13.0). Below a power of ten the ones above all round to it (999: 1000), so two down
+## keeps three apart (#248).
 static func near(r: Q) -> Array:
-	return [1, -1, 2].map(func(k): return sf_values(r.add(_unit(r).mul(Q.new(k))), 3))
+	return [1, -1, 2, -2].map(func(k): return sf_values(r.add(_unit(r).mul(Q.new(k))), 3))
 
 
 ## v to n significant figures, as an option: the value and its text with its zeros.
@@ -81,13 +83,34 @@ func u_read_coordinates(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	return {
 		"asked": "Write down the coordinates of the point P.", "lines": ["The point P is marked on the grid."],
 		"graph": Plot.spec([], [[s.px, s.py, "P"]], -6, 6, -6, 6), "answer": ans,
-		"wrongs": [wrong({"x": y, "y": x}, T + "1")], "generic": [{"x": x.neg(), "y": y}, {"x": x, "y": y.neg()}, {"x": x.neg(), "y": y.neg()}],
+		# A negative coordinate read as positive is a slip; a positive one read as negative,
+		# or both signs changed, are fillers (FAL-1149).
+		"wrongs": [wrong({"x": y, "y": x}, T + "1")] + _sign_wrongs(x, y),
+		"fillers": _sign_fillers(x, y) + [{"x": x.neg(), "y": y.neg()}],
 		"methods": {
 			"grid-count": {"result": ans.values, "steps": ["Count squares from the origin: %d %s, then %d %s." % [absi(s.px), "right" if s.px > 0 else "left",
 				absi(s.py), "up" if s.py > 0 else "down"], final]},
 			"across-then-up": {"result": ans.values, "steps": ["Go along the x-axis first: x = %s." % N(x), "Then up or down to the point: y = %s." % N(y), final]},
 		},
 	}
+
+
+static func _sign_wrongs(x: Q, y: Q) -> Array:
+	var out: Array = []
+	if x.sign() < 0:
+		out.append(wrong({"x": x.neg(), "y": y}, T + "5"))
+	if y.sign() < 0:
+		out.append(wrong({"x": x, "y": y.neg()}, T + "5"))
+	return out
+
+
+static func _sign_fillers(x: Q, y: Q) -> Array:
+	var out: Array = []
+	if x.sign() > 0:
+		out.append({"x": x.neg(), "y": y})
+	if y.sign() > 0:
+		out.append({"x": x, "y": y.neg()})
+	return out
 
 
 func u_read_with_scale(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -99,8 +122,9 @@ func u_read_with_scale(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"asked": "Each grid square on the y-axis is %d units. Find the y-value of the marked point." % s.scale,
 		"lines": ["The point is %d squares above the x-axis." % s.squares],
 		"graph": Plot.spec([], [[2, s.squares * s.scale, ""]], -1, 5, -s.scale, s.scale * 8), "answer": ans,
-		"wrongs": [wrong({"v": Q.new(s.squares)}, T + "0")],
-		"generic": [{"v": Q.new((s.squares + 1) * s.scale)}, {"v": Q.new(s.squares * s.scale / 2) if s.scale > 2 else Q.new(s.squares + 2)}, {"v": Q.new(s.squares + s.scale)}],
+		# The scale added, not multiplied, is a slip; the rest are fillers (FAL-1149).
+		"wrongs": [wrong({"v": Q.new(s.squares)}, T + "0"), wrong({"v": Q.new(s.squares + s.scale)}, T + "6")],
+		"fillers": [{"v": Q.new((s.squares + 1) * s.scale)}, {"v": Q.new(s.squares * s.scale / 2) if s.scale > 2 else Q.new(s.squares + 2)}],
 		"methods": {"grid-count": {"result": ans.values, "steps": ["The point is %d squares up, and each square is %d units." % [s.squares, s.scale],
 			"%d × %d = %d." % [s.squares, s.scale, s.squares * s.scale], final]}},
 	}
@@ -135,8 +159,9 @@ func u_round_3sf(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var trunc := Q.new(floori(v.to_float() / _unit(v).to_float() + 1e-9)).mul(_unit(v))
 	return {
 		"asked": "Write %s correct to 3 significant figures." % Fmt.dec(v), "lines": [Fmt.dec(v)], "answer": ans,
-		"wrongs": [wrong(sf_values(v, 2), T + "4")],
-		"generic": [sf_values(trunc, 3), sf_values(v, 4)] + near(r),
+		# Cut off, not rounded, and one figure too many, are slips (FAL-1149).
+		"wrongs": [wrong(sf_values(v, 2), T + "4"), wrong(sf_values(trunc, 3), T + "7"), wrong(sf_values(v, 4), T + "8")],
+		"fillers": near(r),
 		"methods": {
 			"first-nonzero-digit": {"result": ans.values, "steps": ["Count three figures from the first non-zero digit of %s." % Fmt.dec(v),
 				"The next digit decides: round once, up if it is 5 or more.", final]},
@@ -157,10 +182,16 @@ func u_round_small_3sf(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := rounded(r, Fmt.sf(v, 3))
 	var final := "So it is %s to 3 s.f." % ans.values.text
 	var two := GraphReadingSituation.dp_q(v, 2)
+	# Too few figures, and a zero after the point lost, are slips (FAL-1149). Where 2 s.f.
+	# is the 3 d.p. value (0.0070 and 0.007), typing it can't tell the two apart: one slip.
+	var wrongs := [wrong(dp_values(v, 3), T + "2")]
+	if not GraphReadingSituation.sf_q(v, 2).eq(GraphReadingSituation.dp_q(v, 3)):
+		wrongs.append(wrong(sf_values(v, 2), T + "4"))
+	wrongs.append(wrong(sf_values(r.mul(Q.new(10)), 3), T + "9"))
 	return {
 		"asked": "Write %s correct to 3 significant figures." % Fmt.dec(v), "lines": [Fmt.dec(v)], "answer": ans,
-		"wrongs": [wrong(dp_values(v, 3), T + "2")],
-		"generic": [dp_values(v, 2) if not two.is_zero() else {"v": Q.new(1, 100), "text": "0.01"}, sf_values(v, 2), sf_values(r.mul(Q.new(10)), 3)] + near(r),
+		"wrongs": wrongs,
+		"fillers": [dp_values(v, 2) if not two.is_zero() else {"v": Q.new(1, 100), "text": "0.01"}] + near(r),
 		"methods": {"first-nonzero-digit": {"result": ans.values, "steps": ["The zeros after the point don't count: start at the first non-zero digit.",
 			"Keep three figures from there and round once.", final]}},
 	}
@@ -175,8 +206,10 @@ func u_round_dp(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var step := Q.new(1, int(pow(10, n)))
 	return {
 		"asked": "Write %s correct to %d decimal place%s." % [Fmt.dec(v), n, "" if n == 1 else "s"], "lines": [Fmt.dec(v)], "answer": ans,
-		"generic": [dp_values(v, n + 1), sf_values(v, n) if not GraphReadingSituation.sf_q(v, n).eq(r) else {"v": r.add(Q.new(1, 10)), "text": places(r.add(Q.new(1, 10)), n)},
-			dp_values(v, 3 - n)] + [-1, 1, 2].map(func(k): return {"v": r.add(step.mul(Q.new(k))), "text": places(r.add(step.mul(Q.new(k))), n)}),
+		# One place too many, and n s.f. for n d.p., are slips (FAL-1149); the rest are fillers.
+		"wrongs": [wrong(dp_values(v, n + 1), T + "8")] + ([wrong(sf_values(v, n), T + "2")] if not GraphReadingSituation.sf_q(v, n).eq(r) else []),
+		"fillers": ([] if not GraphReadingSituation.sf_q(v, n).eq(r) else [{"v": r.add(Q.new(1, 10)), "text": places(r.add(Q.new(1, 10)), n)}])
+			+ [dp_values(v, 3 - n)] + [-1, 1, 2].map(func(k): return {"v": r.add(step.mul(Q.new(k))), "text": places(r.add(step.mul(Q.new(k))), n)}),
 		"methods": {
 			"decimal-places": {"result": ans.values, "steps": ["Count %d digit%s after the decimal point." % [n, "" if n == 1 else "s"],
 				"The next digit decides whether to round up.", final]},
@@ -195,8 +228,11 @@ func u_which_values_round(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	return {
 		"asked": "A value x is %s, correct to 3 significant figures. Write down the interval of values x can take." % Fmt.dec(b), "lines": [Fmt.dec(b)],
 		"answer": ans,
-		"generic": [{"lo": b.sub(half), "r1": "≤", "r2": "≤", "hi": b.add(half)}, {"lo": b.sub(Q.new(1, 100)), "r1": "≤", "r2": "<", "hi": b.add(Q.new(1, 100))},
-			{"lo": b, "r1": "≤", "r2": "<", "hi": b.add(Q.new(1, 100))}, {"lo": b.sub(Q.new(1, 20)), "r1": "≤", "r2": "<", "hi": b.add(Q.new(1, 20))}],
+		# The upper bound included, a whole unit either side, and the value as a cut-off
+		# start are slips; half a unit of the wrong place is a filler (FAL-1149).
+		"wrongs": [wrong({"lo": b.sub(half), "r1": "≤", "r2": "≤", "hi": b.add(half)}, T + "10"), wrong({"lo": b.sub(Q.new(1, 100)), "r1": "≤", "r2": "<", "hi": b.add(Q.new(1, 100))}, T + "11"),
+			wrong({"lo": b, "r1": "≤", "r2": "<", "hi": b.add(Q.new(1, 100))}, T + "12")],
+		"fillers": [{"lo": b.sub(Q.new(1, 20)), "r1": "≤", "r2": "<", "hi": b.add(Q.new(1, 20))}],
 		"methods": {"bounds": {"result": ans.values, "steps": ["The 3rd figure is in the hundredths, so x is within half of 0.01 of %s." % Fmt.dec(b),
 			"%s rounds up to %s, but %s rounds to the next value: it is left out." % [Fmt.dec(b.sub(half)), Fmt.dec(b), Fmt.dec(b.add(half))], final]}},
 	}

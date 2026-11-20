@@ -56,6 +56,11 @@ const LATE_ZONE := 0.2
 const BAR_ORANGE := 0.5
 ## How long Time Freeze stops the clock (js/combat.js).
 const FREEZE_SECONDS := 15.0
+## A typed answer the marker refuses (0,5 could be read two ways, 25% has its sign, #194)
+## costs no time: the clock gets back this long, the time to read the note and retype,
+## up to REFUSED_REFUND_MAX a question. Only a new refusal earns it, not the same one again.
+const REFUSED_REFUND := 4.0
+const REFUSED_REFUND_MAX := 8.0
 
 # ── Stakes (FAL-347): what each outcome does ─────────────────
 
