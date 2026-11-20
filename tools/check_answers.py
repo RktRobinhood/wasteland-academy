@@ -53782,15 +53782,17 @@ SITUATION_CHECKS["ai-composite-inverse"] = r9ac_check
 # solutions of |f(x)| = k and the k for three or four, the solution set of an inequality, and
 # for |f(x)| against a line on a domain the crossings (exact for a quadratic, found by sign
 # changes and mpmath for a trig f) and the set they cut out. Every tagged option is rebuilt
-# from what its slip does, and the working's cases, squares, factors, checks and GDC readings
-# are checked as maths.
+# from what its slip does. Every step of every working must be one the checker can read, and
+# its cases, squares, factors, checks and GDC readings are checked as maths.
 
 MODEQ_EQ = "AHL2.16.modulus-equation#"
 MODEQ_IN = "AHL2.16.modulus-inequality#"
 MODEQ_OWN = "fn-ahl-modulus-equations#"
 MODEQ_X = sp.Symbol("x", real=True)
 MODEQ_RELS = ("≤", "≥", "<", ">")
+MODEQ_REL = "([≤≥<>])"
 MODEQ_FLIP = {"<": ">", "≤": "≥", ">": "<", "≥": "≤"}
+MODEQ_NUM = r"(−?\d+(?:/\d+)?)"
 MODEQ_TOL = 1e-6
 
 
@@ -53806,6 +53808,11 @@ def modeq_expr(text):
     return parse_expr(t, local_dict=loc, transformations=TRANSFORMS)
 
 
+def modeq_q(t):
+    """'−13/4' as a Rational."""
+    return sp.Rational(t.replace("−", "-"))
+
+
 def modeq_n(v):
     """An exact number as the game writes it: '3', '−13/4'."""
     return frac_text(sp.Rational(v))
@@ -53815,18 +53822,42 @@ def modeq_sf(v):
     return sig3(sp.N(v, 40)).replace("-", "−")
 
 
+def modeq_w(v):
+    """A GDC reading as the working writes it: 6 s.f. without trailing zeros."""
+    t = sig3(sp.N(v, 40), 6)
+    if "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return t.replace("-", "−")
+
+
 def modeq_xs(vals):
     """An xs answer: 'x = −1 or 15', 'x = 3'."""
     return "x = " + " or ".join(modeq_n(v) for v in sorted(set(vals)))
 
 
-def modeq_steps(q):
-    return [st for sol in q["solutions"] for st in sol["steps"]]
+def modeq_same(a, b):
+    return sp.expand(a - b) == 0
 
 
-def modeq_in_every(q, text, what):
+def modeq_prop(a, b):
+    """a is a non-zero number times b."""
+    r_ = sp.cancel(sp.expand(a) / sp.expand(b))
+    return r_.is_number and r_ != 0
+
+
+def modeq_walk(q, rules, want):
+    """Every step of every working fullmatches one rule, whose check then runs; the last
+    step of each says 'So <answer>.' (or 'So the solution set is <answer>.')."""
+    rules = list(rules) + [(r"So (.+)\.", lambda st, m: need(m.group(1) == want, f"{st!r} doesn't state {want!r}"))]
     for sol in q["solutions"]:
-        need(any(text in st for st in sol["steps"]), f"{sol['name']}: the working doesn't show {what} {text!r}")
+        for st in sol["steps"]:
+            for pat, fn in rules:
+                m = re.fullmatch(pat, st)
+                if m:
+                    fn(st, m)
+                    break
+            else:
+                raise Fail(f"{sol['name']}: a step the checker can't read: {st!r}")
 
 
 def modeq_roots(eq):
@@ -53909,44 +53940,76 @@ def modeq_split_rel(line):
 
 # ── equations ────────────────────────────────────────────────
 
-def modeq_gives(q):
-    """Every 'A = B gives [cx = d, so ]x = v' in the working solves A = B."""
-    for st in modeq_steps(q):
-        for part in st.split(", and "):
-            m = re.search(r"([^:]+?) = (.+?) gives (?:(.+?) = (.+?), so )?x = ([−\d/]+)", part)
-            if not m:
+def modeq_gives_rule(inside, other, seen):
+    """'A = B gives [cx = d, so ]x = v' clauses, joined by ', and ': each A = B is one of the
+    two cases inside = ±other (or −inside = other), and v solves it."""
+    N = MODEQ_NUM
+    clause = rf"(.+?) = (.+?) gives (?:(.+?) = {N}, so )?x = {N}"
+    pat = rf"{clause}(?:, and {clause})?\."
+
+    def fn(st, m):
+        for i in (0, 5):
+            if m.group(i + 1) is None:
                 continue
-            a, b = modeq_expr(m.group(1)), modeq_expr(m.group(2))
-            v = sp.Rational(m.group(5).replace("−", "-"))
+            a, b = modeq_expr(m.group(i + 1)), modeq_expr(m.group(i + 2))
+            d = sp.expand(a - b)
+            case = 1 if modeq_same(d, inside - other) or modeq_same(d, other - inside) else 2 if modeq_same(d, inside + other) or modeq_same(d, -inside - other) else 0
+            need(case, f"{st!r}: {m.group(i + 1)} = {m.group(i + 2)} is not one of the two cases")
+            seen.add(case)
+            v = modeq_q(m.group(i + 5))
             need(sp.solve(sp.Eq(a, b), MODEQ_X) == [v], f"{st!r}: x = {modeq_n(v)} doesn't solve it")
-            if m.group(3):
-                need(sp.solve(sp.Eq(modeq_expr(m.group(3)), modeq_expr(m.group(4))), MODEQ_X) == [v], f"{st!r}: the middle step is wrong")
+            if m.group(i + 3):
+                lhs = modeq_expr(m.group(i + 3))
+                need(sp.Poly(lhs, MODEQ_X).degree() == 1 and sp.Poly(lhs, MODEQ_X).TC() == 0, f"{st!r}: the middle step is not cx = d")
+                need(sp.solve(sp.Eq(lhs, modeq_q(m.group(i + 4))), MODEQ_X) == [v], f"{st!r}: the middle step is wrong")
+                need(modeq_prop(lhs - modeq_q(m.group(i + 4)), d), f"{st!r}: the middle step is not the case rearranged")
+    return pat, fn
 
 
-def modeq_squares(q, L, R2):
-    """The squared equation and its factors in the working are (L)² − (R)² up to a factor."""
+def modeq_square_rules(L, R2, roots):
+    """The squared equation (L)² = (R)², collected and factorised, from either working."""
     want = sp.expand(L**2 - R2**2)
-    for st in modeq_steps(q):
-        m = re.search(r"(?:Expand and collect:|, so) ([^,:]+?) = 0(?:, that is (.+?) = 0)?\.$", st)
-        if m and "²" in m.group(1):
-            for g in (m.group(1), m.group(2)):
-                if g:
-                    r_ = sp.cancel(modeq_expr(g) / want)
-                    need(r_.is_number and r_ != 0, f"{st!r}: {g} is not the squared equation")
-        m = re.search(r"Square both sides: \((.+)\)² = \((.+)\)²", st) or re.search(r"square them: \((.+)\)² = \((.+)\)²", st)
-        if m:
-            need(sp.expand(modeq_expr(m.group(1)) - L) == 0 and sp.expand(modeq_expr(m.group(2)) - R2) == 0, f"{st!r} squares the wrong sides")
-        m = re.search(r"Factorise: \((.+)\)\((.+)\) = 0, so x = ([−\d/]+) or x = ([−\d/]+)\.", st)
-        if m:
-            f1, f2 = modeq_expr(m.group(1)), modeq_expr(m.group(2))
-            r_ = sp.cancel(sp.expand(f1 * f2) / want)
-            need(r_.is_number and r_ != 0, f"{st!r}: the factors are not the squared equation's")
-            got = [sp.Rational(m.group(i).replace("−", "-")) for i in (3, 4)]
-            need(sp.solve(f1, MODEQ_X) == [got[0]] and sp.solve(f2, MODEQ_X) == [got[1]], f"{st!r}: the roots are not the factors'")
+    N = MODEQ_NUM
+
+    def sides(st, a, b):
+        need(modeq_same(modeq_expr(a), L) and modeq_same(modeq_expr(b), R2), f"{st!r} squares the wrong sides")
+
+    def collected(st, a, b):
+        for g in (a, b):
+            if g:
+                need(modeq_prop(modeq_expr(g), want), f"{st!r}: {g} = 0 is not the squared equation")
+        if b:
+            need(sp.Poly(modeq_expr(b), MODEQ_X).LC() > 0, f"{st!r}: the simpler form has a negative x² term")
+        need(sp.Poly(modeq_expr(a), MODEQ_X).LC() > 0, f"{st!r}: a negative x² term")
+
+    def square_them(st, m):
+        sides(st, m.group(1), m.group(2))
+
+    def collect(st, m):
+        collected(st, m.group(1), m.group(2))
+
+    def square_so(st, m):
+        sides(st, m.group(1), m.group(2))
+        collected(st, m.group(3), m.group(4))
+
+    def factorise(st, m):
+        f1, f2 = modeq_expr(m.group(1)), modeq_expr(m.group(2))
+        need(modeq_prop(f1 * f2, want), f"{st!r}: the factors are not the squared equation's")
+        got = [modeq_q(m.group(3)), modeq_q(m.group(4))]
+        need(sp.solve(f1, MODEQ_X) == [got[0]] and sp.solve(f2, MODEQ_X) == [got[1]], f"{st!r}: the roots are not the factors'")
+        need(set(got) == set(roots), f"{st!r}: not the squared equation's roots")
+
+    return [
+        (r"Both sides are at least 0, so square them: \((.+)\)² = \((.+)\)²\.", square_them),
+        (r"Expand and collect: (.+?) = 0(?:, that is (.+) = 0)?\.", collect),
+        (r"Square both sides: \((.+)\)² = \((.+)\)², so (.+?) = 0(?:, that is (.+) = 0)?\.", square_so),
+        (rf"Factorise: \((.+)\)\((.+)\) = 0, so x = {N} or x = {N}\.", factorise),
+    ]
 
 
 def modeq_equation(q, wrongs):
     u = q["view"]["unknown"]
+    N = MODEQ_NUM
     need(q["asked"] == "Solve the equation.", f"asked {q['asked']!r}")
     a, b = q["lines"][0].split(" = ")
     L, Rt = modeq_expr(a), modeq_expr(b)
@@ -53954,71 +54017,100 @@ def modeq_equation(q, wrongs):
     inside = L.args[0]
     need(sp.Poly(inside, MODEQ_X).degree() == 1, "the inside is not linear")
     roots = modeq_roots(sp.Eq(L, Rt))
+    need(all(r.q <= 6 for r in roots), "a root that is not a simple fraction")
     want = modeq_xs(roots)
+    seen = set()
+    rules = []
     if u in ("shifted-modulus", "linear-equals-constant"):
         need(Rt.is_Integer and Rt > 0, f"the right side {b!r} is not a positive whole number")
         if u == "shifted-modulus":
             need(sp.Poly(inside, MODEQ_X).LC() == 1, "a shifted modulus with an x term that is not x")
         need(len(roots) == 2, "not two roots")
+        other = Rt
         wrongs[MODEQ_EQ + "1"] = {modeq_xs(sp.solve(inside - Rt, MODEQ_X))}
-        for st in modeq_steps(q):
-            mm = re.search(r"Split into the two cases: (.+) = (\d+) or (.+) = −(\d+)\.", st)
-            if mm:
-                need(sp.expand(modeq_expr(mm.group(1)) - inside) == 0 and int(mm.group(2)) == Rt == int(mm.group(4)), f"{st!r}: not the two cases")
+
+        def cases(st, m):
+            need(modeq_same(modeq_expr(m.group(1)), inside) and modeq_same(modeq_expr(m.group(3)), inside), f"{st!r}: not the inside")
+            need(int(m.group(2)) == Rt == int(m.group(4)), f"{st!r}: not ±{Rt}")
+
+        def positive(st, m):
+            need(int(m.group(1)) == Rt and m.group(2) == want, f"{st!r} is wrong")
+
+        rules += [(r"Split into the two cases: (.+) = (\d+) or (.+) = −(\d+)\.", cases),
+                  (r"The right-hand side (\d+) is positive, so both are solutions\. So (.+)\.", positive)]
     elif u == "modulus-equals-modulus":
         need(isinstance(Rt, sp.Abs), f"the right side {b!r} is not a modulus")
         other = Rt.args[0]
         need(len(roots) == 2, "not two roots")
         wrongs[MODEQ_EQ + "1"] = {modeq_xs(sp.solve(inside - other, MODEQ_X))}
-        modeq_squares(q, inside, other)
+
+        def opposite(st, m):
+            need(all(modeq_same(modeq_expr(m.group(i)), e) for i, e in ((1, inside), (2, other), (3, inside), (4, other))), f"{st!r}: not the two cases")
+
+        def no_false(st, m):
+            need(m.group(1) == want, f"{st!r} doesn't state {want!r}")
+
+        rules += [(r"Two moduli are equal when the insides are equal or opposite: (.+) = (.+) or (.+) = −\((.+)\)\.", opposite),
+                  (r"Both sides were moduli, so squaring brings in no false root\. So (.+)\.", no_false)]
+        rules += modeq_square_rules(inside, other, roots)
         if q["view"]["rep"] == "graph":
-            corners = sp.solve(inside, MODEQ_X) + sp.solve(other, MODEQ_X)
-            modeq_graph(q, [L, Rt], roots + corners)
+            modeq_graph(q, [L, Rt], roots + sp.solve(inside, MODEQ_X) + sp.solve(other, MODEQ_X))
     else:  # modulus-equals-line
         need(sp.Poly(Rt, MODEQ_X).degree() == 1, f"the right side {b!r} is not a line")
+        other = Rt
         need(len(roots) == 1, f"not one root ({roots})")
         both = sorted(set(sp.solve(sp.expand(inside**2 - Rt**2), MODEQ_X)))
         need(len(both) == 2 and roots[0] in both, "squaring doesn't give the root and one false root")
-        bad = [r for r in both if r != roots[0]][0]
         good = roots[0]
+        bad = [r for r in both if r != good][0]
         need(Rt.subs(MODEQ_X, bad) < 0, "the false root doesn't make the line negative")
+        need(bad != 0 and good != -bad, "the false root reads like the true one")
         # Squaring and keeping both is #2 on the squaring method, and keeping a root that
         # makes the line negative is #0 on the others: the same two values.
         ref = MODEQ_EQ + ("2" if q["view"]["angle"] == "square-both-sides" else "0")
         wrongs[ref] = {modeq_xs(both)}
-        modeq_squares(q, inside, Rt)
-        line_t = b
-        for st in modeq_steps(q):
-            mm = re.search(r"At x = ([−\d/]+) the right-hand side (.+) is ([−\d/]+), below 0, .* At x = ([−\d/]+) both sides are ([−\d/]+)\.", st)
-            if mm:
-                vb, vg = sp.Rational(mm.group(1).replace("−", "-")), sp.Rational(mm.group(4).replace("−", "-"))
-                need(vb == bad and vg == good and mm.group(2) == line_t, f"{st!r}: not the false and the true root")
-                need(sp.Rational(mm.group(3).replace("−", "-")) == Rt.subs(MODEQ_X, bad), f"{st!r}: the line's value is wrong")
-                need(sp.Rational(mm.group(5).replace("−", "-")) == Rt.subs(MODEQ_X, good) == L.subs(MODEQ_X, good), f"{st!r}: the sides are not equal there")
-            mm = re.search(r"a V with its vertex at \(([−\d/]+), 0\)", st)
-            if mm:
-                need(sp.solve(inside, MODEQ_X) == [sp.Rational(mm.group(1).replace("−", "-"))], f"{st!r}: the vertex is wrong")
-            mm = re.search(r"They meet once, at x = ([−\d/]+), where both are ([−\d/]+)\.", st)
-            if mm:
-                need(sp.Rational(mm.group(1).replace("−", "-")) == good and sp.Rational(mm.group(2).replace("−", "-")) == Rt.subs(MODEQ_X, good), f"{st!r} is wrong")
-            mm = re.search(r"The other case gives x = ([−\d/]+), but there the line is at y = ([−\d/]+),", st)
-            if mm:
-                need(sp.Rational(mm.group(1).replace("−", "-")) == bad and sp.Rational(mm.group(2).replace("−", "-")) == Rt.subs(MODEQ_X, bad), f"{st!r} is wrong")
-        modeq_in_every(q, modeq_n(bad), "the false root")
+        check = rf"At x = {N} the right-hand side (.+) is {N}, below 0, which a modulus can never equal: reject it\. At x = {N} both sides are {N}\."
+
+        def checked(st, m, o=0):
+            need(modeq_q(m.group(o + 1)) == bad and modeq_q(m.group(o + 4)) == good and m.group(o + 2) == b, f"{st!r}: not the false and the true root")
+            need(modeq_q(m.group(o + 3)) == Rt.subs(MODEQ_X, bad), f"{st!r}: the line's value is wrong")
+            need(modeq_q(m.group(o + 5)) == Rt.subs(MODEQ_X, good) == L.subs(MODEQ_X, good), f"{st!r}: the sides are not equal there")
+
+        def sketch(st, m):
+            need(m.group(1) == a and m.group(3) == b and sp.solve(inside, MODEQ_X) == [modeq_q(m.group(2))], f"{st!r} is wrong")
+
+        def meet(st, m):
+            need(modeq_q(m.group(1)) == good and modeq_q(m.group(2)) == Rt.subs(MODEQ_X, good), f"{st!r} is wrong")
+
+        def other_case(st, m):
+            need(modeq_q(m.group(1)) == bad and modeq_q(m.group(2)) == Rt.subs(MODEQ_X, bad) and m.group(3) == want, f"{st!r} is wrong")
+
+        rules += [(check, checked),
+                  ("Squaring can bring in a false root, so check each in the original. " + check, checked),
+                  (rf"Sketch y = (.+), a V with its vertex at \({N}, 0\), and the line y = (.+)\.", sketch),
+                  (rf"They meet once, at x = {N}, where both are {N}\.", meet),
+                  (rf"The other case gives x = {N}, but there the line is at y = {N}, below the x-axis, where the V never goes\. So (.+)\.", other_case)]
+        rules += modeq_square_rules(inside, Rt, both)
         if q["view"]["rep"] == "graph":
-            modeq_graph(q, [L, Rt], roots + sp.solve(inside, MODEQ_X))
-    need(all(r.q <= 6 for r in roots), "a root that is not a simple fraction")
-    modeq_gives(q)
+            modeq_graph(q, [L, Rt], roots + [bad] + sp.solve(inside, MODEQ_X))
+    pat, fn = modeq_gives_rule(inside, other, seen)
+    modeq_walk(q, [(pat, fn)] + rules, want)
+    if any(s["angle"] == "split-into-cases" for s in q["solutions"]):
+        need(seen == {1, 2}, "the cases working doesn't solve both cases")
     return want
 
 
 # ── counting the solutions of |f(x)| = k ─────────────────────
 
 def modeq_count(f, k):
-    return len(modeq_roots(sp.Eq(sp.Abs(f), k)))
+    """How many real x make |f(x)| = k: the distinct real roots of f = k and f = −k."""
+    if k < 0:
+        return 0
+    return len({r for s_ in (1, -1) for r in sp.Poly(f - s_ * k, MODEQ_X).real_roots()})
 
 
 def modeq_count_q(q, wrongs):
+    N = MODEQ_NUM
     m = re.fullmatch(r"f\(x\) = (.+)", q["lines"][0])
     need(m is not None, f"can't read {q['lines'][0]!r}")
     f = sp.expand(modeq_expr(m.group(1)))
@@ -54039,7 +54131,6 @@ def modeq_count_q(q, wrongs):
         nf = len(modeq_roots(sp.Eq(f, k)))
         if nf != n:
             wrongs[MODEQ_OWN + "6"] = {str(nf)}
-        modeq_in_every(q, f"So |f(x)| = {k} has {n} solutions.", "the count")
     elif asked == "Find the set of values of k for which |f(x)| = k has exactly four solutions.":
         # Four from just above 0 to just below the top, and not at either end or past them.
         for k in (d / 7, d / 2, d * 6 / 7, d - sp.Rational(1, 100), sp.Rational(1, 100)):
@@ -54053,14 +54144,38 @@ def modeq_count_q(q, wrongs):
         need(threes == [d], f"three solutions at k = {threes}")
         need(modeq_count(f, d - sp.Rational(1, 100)) == 4 and modeq_count(f, d + sp.Rational(1, 100)) == 2, "three solutions not only at the top")
         want = "k = " + modeq_n(d)
-    for st in modeq_steps(q):
-        mm = re.search(r"is 0 at x = ([−\d]+) and x = ([−\d]+), and f\(([−\d]+)\) = ([−\d]+)\.", st)
-        if mm:
-            got = [sp.Integer(mm.group(i).replace("−", "-")) for i in range(1, 5)]
-            need(got[:2] == rs and got[2] == h and got[3] == f.subs(MODEQ_X, h), f"{st!r} is wrong")
-            fac = st.split(" is 0 at")[0][len("f(x) = "):]
-            need(sp.expand(modeq_expr(fac) - f) == 0, f"{st!r}: the factorised f is not f")
-    modeq_in_every(q, f"top is ({modeq_n(h)}, {modeq_n(d)})", "the hump's top")
+
+    def zeros(st, m):
+        need(modeq_same(modeq_expr(m.group(1)), f), f"{st!r}: the factorised f is not f")
+        need([modeq_q(m.group(i)) for i in (2, 3)] == rs and modeq_q(m.group(4)) == h and modeq_q(m.group(5)) == f.subs(MODEQ_X, h), f"{st!r} is wrong")
+
+    def hump(st, m):
+        need([modeq_q(m.group(i)) for i in (1, 2)] == rs and modeq_q(m.group(3)) == h and modeq_q(m.group(4)) == d, f"{st!r} is wrong")
+
+    def crosses(st, m):
+        need(mk and int(m.group(1)) == int(mk.group(1)) < d == int(m.group(2)) and modeq_count(f, int(m.group(1))) == 4, f"{st!r} is wrong")
+
+    def touches(st, m):
+        need(mk and int(m.group(1)) == int(mk.group(1)) == d and modeq_count(f, d) == 3, f"{st!r} is wrong")
+
+    def has(st, m):
+        need(mk and m.group(1) == mk.group(1) and m.group(2) == want, f"{st!r} is wrong")
+
+    def four(st, m):
+        need("four" in asked and int(m.group(1)) == d == int(m.group(2)), f"{st!r} is wrong")
+
+    def three(st, m):
+        need("three" in asked, f"{st!r} on another question")
+
+    modeq_walk(q, [
+        (rf"f\(x\) = (.+) is 0 at x = {N} and x = {N}, and f\({N}\) = {N}\.", zeros),
+        (rf"So y = \|f\(x\)\| meets the x-axis at x = {N} and x = {N}, with a hump between them whose top is \({N}, {N}\); outside them each branch rises without bound\.", hump),
+        (r"The line y = (\d+), between 0 and (\d+), crosses the hump twice and each outer branch once\.", crosses),
+        (r"The line y = (\d+) touches the top of the hump and crosses each outer branch once\.", touches),
+        (r"So \|f\(x\)\| = (\d+) has (\d+) solutions\.", has),
+        (r"A line y = k meets the graph four times when it crosses the hump twice and each outer branch once, for k between 0 and (\d+)\. At k = (\d+) it touches the top \(three solutions\), and at k = 0 it meets only the zeros \(two\)\.", four),
+        (r"A line y = k crosses each outer branch once for k > 0, and meets the hump twice below its top, once at its top and not at all above it: three solutions only at the top\.", three),
+    ], want)
     if q["view"]["rep"] == "graph":
         g = q["graph"]
         need(g is not None, "the graph rep shows no graph")
@@ -54079,6 +54194,7 @@ def modeq_count_q(q, wrongs):
 
 def modeq_ineq(q, wrongs):
     u = q["view"]["unknown"]
+    N = MODEQ_NUM
     need(q["asked"] == "Solve the inequality.", f"asked {q['asked']!r}")
     a, rel, b = modeq_split_rel(q["lines"][0])
     L, Rt = modeq_expr(a), modeq_expr(b)
@@ -54088,93 +54204,121 @@ def modeq_ineq(q, wrongs):
     ends = modeq_roots(sp.Eq(L, Rt))
     need(len(ends) == 2, f"not two critical values ({ends})")
     lo, hi = ends
+    need(lo != 0 and hi != 0 and lo != -hi, "critical values that read alike")
     wrongs[MODEQ_OWN + "7"] = {f"x = {modeq_n(lo)} or x = {modeq_n(hi)}"}
     wrongs[MODEQ_OWN + "8"] = {modeq_set_text(modeq_pieces(sp.Complement(sp.S.Reals, S)))}
     r = "≤" if inc else "<"
     inside = modeq_inside(L)
+    below = rel in ("<", "≤")
+    rules = []
     if u in ("modulus-less-than", "modulus-greater-than"):
         need(isinstance(L, sp.Abs) and Rt.is_Integer and Rt > 0, "not a modulus against a positive whole number")
-        need((rel in ("<", "≤")) == (u == "modulus-less-than"), f"{rel} on {u}")
+        need(below == (u == "modulus-less-than"), f"{rel} on {u}")
         if u == "modulus-less-than":
             wrongs[MODEQ_IN + "0"] = {f"x {r} {modeq_n(hi)}"}
         else:
             wrongs[MODEQ_IN + "1"] = {f"{modeq_n(hi)} {r} x {r} {modeq_n(lo)}"}
-        for st in modeq_steps(q):
-            mm = re.search(r"squaring keeps the inequality: \((.+)\)² (.) (\d+)\.", st)
-            if mm:
-                need(sp.expand(modeq_expr(mm.group(1)) - inside) == 0 and mm.group(2) == rel and int(mm.group(3)) == Rt**2, f"{st!r} is wrong")
-            mm = re.search(r"Collect: (.+) (.) 0, and (.+) = 0 at x = ([−\d/]+) and x = ([−\d/]+)\.", st)
-            if mm:
-                P = modeq_expr(mm.group(1))
-                need(sp.expand(P - (inside**2 - Rt**2)) == 0 and mm.group(1) == mm.group(3) and mm.group(2) == rel, f"{st!r}: not the squared inequality")
-                need([sp.Rational(mm.group(i).replace("−", "-")) for i in (4, 5)] == sorted(sp.solve(P, MODEQ_X)) == [lo, hi], f"{st!r}: the roots are wrong")
-            mm = re.search(r"Take out (\d+): (.+) = (\d+)\|x ([−+]) (.+?)\|, so .* is \|x ([−+]) (.+?)\| (.) (.+)\.$", st)
-            if mm:
-                c_ = int(mm.group(1))
-                need(int(mm.group(3)) == c_ and sp.expand(c_ * modeq_expr("x " + mm.group(4) + " " + mm.group(5)) - inside) == 0, f"{st!r}: not taken out right")
-                need(mm.group(4) == mm.group(6) and mm.group(5) == mm.group(7) and mm.group(8) == rel and sp.Rational(mm.group(9)) == Rt / c_, f"{st!r}: the new bound is wrong")
-            mm = re.search(r"distance from x to ([−\d/]+) is .*?([\d/]+), so x is \w+ ([−\d/]+) − ([\d/]+) = ([−\d/]+) (?:and|or above) ([−\d/]+) \+ ([\d/]+) = ([−\d/]+)\.", st)
-            if mm:
-                c0, rr = sp.Rational(mm.group(1).replace("−", "-")), sp.Rational(mm.group(2))
-                need(sp.solve(inside, MODEQ_X) == [c0], f"{st!r}: the centre is wrong")
-                need(c0 - rr == lo and c0 + rr == hi, f"{st!r}: the ends are wrong")
-                need(all(sp.Rational(mm.group(i).replace("−", "-")) == v for i, v in ((3, c0), (4, rr), (5, lo), (6, c0), (7, rr), (8, hi))), f"{st!r}: the sums are wrong")
-            mm = re.search(r"^(.+) is the distance from x to ([−\d/]+) on the number line\.", st)
-            if mm:
-                need(sp.solve(inside, MODEQ_X) == [sp.Rational(mm.group(2).replace("−", "-"))], f"{st!r}: the centre is wrong")
-            mm = re.search(r"x is (less than|at most|more than|at least) (\d+) from ([−\d]+), so (?:between ([−\d]+) and ([−\d]+)|below ([−\d]+) or above ([−\d]+))\.$", st)
-            if mm:
-                need(int(mm.group(2)) == Rt and sp.solve(inside, MODEQ_X) == [sp.Integer(mm.group(3).replace("−", "-"))], f"{st!r}: the distance is wrong")
-                need((mm.group(1) in ("at most", "at least")) == inc and (mm.group(1) in ("less than", "at most")) == (u == "modulus-less-than"), f"{st!r}: the wrong words")
-                got = [sp.Integer(t.replace("−", "-")) for t in mm.groups()[3:] if t]
-                need(got == [lo, hi] and (mm.group(4) is not None) == (u == "modulus-less-than"), f"{st!r}: the ends are wrong")
+        words = ("at most" if inc else "less than") if below else ("at least" if inc else "more than")
+        c0 = sp.solve(inside, MODEQ_X)[0]
+
+        def squared(st, m):
+            need(modeq_same(modeq_expr(m.group(1)), inside) and m.group(2) == rel and int(m.group(3)) == Rt**2, f"{st!r} is wrong")
+
+        def collect(st, m):
+            P = modeq_expr(m.group(1))
+            need(modeq_same(P, inside**2 - Rt**2) and m.group(1) == m.group(3) and m.group(2) == rel, f"{st!r}: not the squared inequality")
+            need([modeq_q(m.group(i)) for i in (4, 5)] == sorted(sp.solve(P, MODEQ_X)) == [lo, hi], f"{st!r}: the roots are wrong")
+
+        def side(st, m):
+            need(m.group(1) == ("below" if below else "above") and m.group(2) == ("between" if below else "outside") and bool(m.group(3)) == inc, f"{st!r}: the wrong side")
+
+        def take_out(st, m):
+            c_ = int(m.group(1))
+            need(m.group(2) == a == m.group(6) and int(m.group(3)) == c_ and m.group(7) == rel and int(m.group(8)) == Rt, f"{st!r}: not this inequality")
+            need(modeq_same(c_ * modeq_expr(f"x {m.group(4)} {m.group(5)}"), inside), f"{st!r}: not taken out right")
+            need(m.group(4) == m.group(9) and m.group(5) == m.group(10) and m.group(11) == rel and modeq_q(m.group(12)) == Rt / c_, f"{st!r}: the new bound is wrong")
+
+        def distance(st, m):
+            cc, rr = modeq_q(m.group(1)), modeq_q(m.group(3))
+            need(cc == c0 and m.group(2) == words and rr == Rt / sp.Poly(inside, MODEQ_X).LC(), f"{st!r}: the distance is wrong")
+            need(m.group(4) == ("between" if below else "below") and m.group(8) == ("and" if below else "or above"), f"{st!r}: the wrong side")
+            need([modeq_q(m.group(i)) for i in (5, 6, 7, 9, 10, 11)] == [cc, rr, lo, cc, rr, hi], f"{st!r}: the sums are wrong")
+
+        def centre(st, m):
+            need(m.group(1) == a and modeq_q(m.group(2)) == c0, f"{st!r}: the centre is wrong")
+
+        def shift_words(st, m):
+            need(m.group(1) == a and m.group(2) == rel and int(m.group(3)) == Rt and m.group(4) == words and int(m.group(5)) == Rt and modeq_q(m.group(6)) == c0, f"{st!r} is wrong")
+            got = [modeq_q(t) for t in m.groups()[6:] if t]
+            need(got == [lo, hi] and (m.group(7) is not None) == below, f"{st!r}: the ends are wrong")
+
+        rules += [
+            (rf"Both sides are at least 0, so squaring keeps the inequality: \((.+)\)² {MODEQ_REL} (\d+)\.", squared),
+            (rf"Collect: (.+) {MODEQ_REL} 0, and (.+) = 0 at x = {N} and x = {N}\.", collect),
+            (r"Its x² term is positive, so it is (below|above) 0 (between|outside) its roots(, and 0 at them)?\.", side),
+            (rf"Take out (\d+): (.+) = (\d+)\|x ([−+]) (\d+(?:/\d+)?)\|, so (.+) {MODEQ_REL} (\d+) is \|x ([−+]) (\d+(?:/\d+)?)\| {MODEQ_REL} (\d+(?:/\d+)?)\.", take_out),
+            (rf"That is: the distance from x to {N} is (less than|at most|more than|at least) (\d+(?:/\d+)?), so x is (between|below) {N} − (\d+(?:/\d+)?) = {N} (and|or above) {N} \+ (\d+(?:/\d+)?) = {N}\.", distance),
+            (rf"(.+) is the distance from x to {N} on the number line\.", centre),
+            (rf"(.+) {MODEQ_REL} (\d+): x is (less than|at most|more than|at least) (\d+) from {N}, so (?:between {N} and {N}|below {N} or above {N})\.", shift_words),
+        ]
     else:  # modulus-against-modulus
         need(isinstance(L, sp.Abs) and sp.Poly(inside, MODEQ_X).LC() == 1, "the left side is not |x + a|")
         mm_ = re.fullmatch(r"(\d)\|(.+)\|", b)
         need(mm_ is not None and int(mm_.group(1)) in (2, 3), f"the right side {b!r} is not m|x − b|")
-        m = int(mm_.group(1))
+        m_ = int(mm_.group(1))
         other = modeq_expr(mm_.group(2))
+        need(sp.Poly(other, MODEQ_X).LC() == 1, "the right side is not m|x − b|")
         flip = MODEQ_FLIP[rel]
-        for st in modeq_steps(q):
-            mm = re.search(r"squaring keeps the inequality: \((.+)\)² (.) (\d+)\((.+)\)²\.", st)
-            if mm:
-                need(sp.expand(modeq_expr(mm.group(1)) - inside) == 0 and mm.group(2) == rel and int(mm.group(3)) == m * m
-                     and sp.expand(modeq_expr(mm.group(4)) - other) == 0, f"{st!r} is wrong")
-            mm = re.search(r"turns the sign round: (.+) (.) 0, that is \((.+)\)\((.+)\) (.) 0\.", st)
-            if mm:
-                P = sp.expand(m * m * other**2 - inside**2)
-                need(sp.expand(modeq_expr(mm.group(1)) - P) == 0 and sp.expand(modeq_expr(mm.group(3)) * modeq_expr(mm.group(4)) - P) == 0, f"{st!r}: not m²(x − b)² − (x + a)²")
-                need(mm.group(2) == flip == mm.group(5), f"{st!r}: the sign didn't turn round")
-            mm = re.search(r"Its roots are x = ([−\d/]+) and x = ([−\d/]+), and with a positive x² term it is (below|above) 0 (between|outside) them\.", st)
-            if mm:
-                need([sp.Rational(mm.group(i).replace("−", "-")) for i in (1, 2)] == [lo, hi], f"{st!r}: the roots are wrong")
-                need((mm.group(3) == "below") == (flip in ("<", "≤")) and (mm.group(4) == "between") == (mm.group(3) == "below"), f"{st!r}: the wrong side")
-            mm = re.search(r"They meet at x = (\S+) and x = (\S+), which are ([−\d/]+) and ([−\d/]+)\.", st)
-            if mm:
-                for i, v in ((1, lo), (2, hi)):
-                    need(abs(float(mm.group(i).replace("−", "-")) - float(v)) <= 1e-5 * max(1, abs(float(v))), f"{st!r}: the GDC reading is wrong")
-                need([sp.Rational(mm.group(i).replace("−", "-")) for i in (3, 4)] == [lo, hi], f"{st!r}: the exact values are wrong")
-            mm = re.search(r"The steeper V, y = (.+), is below y = (.+) between them \(it is 0 at x = ([−\d/]+)\)", st)
-            if mm:
-                need(mm.group(1) == b and mm.group(2) == a and sp.solve(other, MODEQ_X) == [sp.Rational(mm.group(3).replace("−", "-"))], f"{st!r} is wrong")
-                need(Rt.subs(MODEQ_X, (lo + hi) / 2) < L.subs(MODEQ_X, (lo + hi) / 2), f"{st!r}: the steeper V is not below between them")
+        P = sp.expand(m_ * m_ * other**2 - inside**2)
+        need(sp.Poly(P, MODEQ_X).LC() > 0, "m²(x − b)² − (x + a)² has no positive x² term")
+
+        def squared(st, m):
+            need(modeq_same(modeq_expr(m.group(1)), inside) and m.group(2) == rel and int(m.group(3)) == m_ * m_ and modeq_same(modeq_expr(m.group(4)), other), f"{st!r} is wrong")
+
+        def turned(st, m):
+            need(modeq_same(modeq_expr(m.group(1)), P) and modeq_same(modeq_expr(m.group(3)) * modeq_expr(m.group(4)), P), f"{st!r}: not m²(x − b)² − (x + a)²")
+            need(m.group(2) == flip == m.group(5), f"{st!r}: the sign didn't turn round")
+
+        def roots_side(st, m):
+            need([modeq_q(m.group(i)) for i in (1, 2)] == [lo, hi], f"{st!r}: the roots are wrong")
+            need(m.group(3) == ("below" if flip in ("<", "≤") else "above") and m.group(4) == ("between" if m.group(3) == "below" else "outside"), f"{st!r}: the wrong side")
+
+        def graph_both(st, m):
+            need(m.group(1) == a and m.group(2) == b, f"{st!r}: not this question's graphs")
+
+        def meet(st, m):
+            need(m.group(1) == modeq_w(lo) and m.group(2) == modeq_w(hi), f"{st!r}: the GDC readings are not {modeq_w(lo)} and {modeq_w(hi)}")
+            need([modeq_q(m.group(i)) for i in (3, 4)] == [lo, hi], f"{st!r}: the exact values are wrong")
+
+        def steeper(st, m):
+            need(m.group(1) == b and m.group(2) == a and sp.solve(other, MODEQ_X) == [modeq_q(m.group(3))], f"{st!r} is wrong")
+            need(Rt.subs(MODEQ_X, (lo + hi) / 2) < L.subs(MODEQ_X, (lo + hi) / 2) and Rt.subs(MODEQ_X, hi + 1) > L.subs(MODEQ_X, hi + 1)
+                 and Rt.subs(MODEQ_X, lo - 1) > L.subs(MODEQ_X, lo - 1), f"{st!r}: the steeper V is not below between them")
+            need(bool(m.group(4)) == inc, f"{st!r}: the crossings' part is wrong")
+
+        rules += [
+            (rf"Both sides are at least 0, so squaring keeps the inequality: \((.+)\)² {MODEQ_REL} (\d+)\((.+)\)²\.", squared),
+            (rf"Take the left side from the right, which turns the sign round: (.+) {MODEQ_REL} 0, that is \((.+)\)\((.+)\) {MODEQ_REL} 0\.", turned),
+            (rf"Its roots are x = {N} and x = {N}, and with a positive x² term it is (below|above) 0 (between|outside) them\.", roots_side),
+            (r"Graph y = (.+) and y = (.+) on the GDC\.", graph_both),
+            (rf"They meet at x = (\S+) and x = (\S+), which are {N} and {N}\.", meet),
+            (rf"The steeper V, y = (.+), is below y = (.+) between them \(it is 0 at x = {N}\) and above it outside them(, and they are equal at the crossings)?\.", steeper),
+        ]
         if q["view"]["rep"] == "graph":
             modeq_graph(q, [L, Rt], [lo, hi] + sp.solve(inside, MODEQ_X) + sp.solve(other, MODEQ_X))
-    for v in (lo, hi):
-        modeq_in_every(q, modeq_n(v), "the critical value")
+    modeq_walk(q, rules, want)
     return want
 
 
 # ── |f(x)| against a line on a domain ────────────────────────
 
 def modeq_crossings(f, g, lo, hi, trig):
-    """Where |f(x)| = g(x) for lo ≤ x ≤ hi (floats or None for no end): the roots of
-    f = g and f = −g where g ≥ 0, exact for a quadratic and to 30 digits for a trig f."""
+    """Where |f(x)| = g(x) for lo ≤ x ≤ hi (floats, or None for every x): the roots of
+    f = g and f = −g where g ≥ 0, exact for a quadratic and to 40 digits for a trig f."""
     out = []
     for h in (f - g, f + g):
         if not trig:
-            rs = [r for r in sp.Poly(sp.expand(h), MODEQ_X).real_roots()]
-            vals = [mpmath.mpf(sp.N(r, 40)) for r in rs]
+            vals = [mpmath.mpf(sp.N(r, 40)) for r in sp.Poly(sp.expand(h), MODEQ_X).real_roots()]
         else:
             hf = sp.lambdify(MODEQ_X, h, "mpmath")
             vals, n = [], 6000
@@ -54191,8 +54335,7 @@ def modeq_crossings(f, g, lo, hi, trig):
         for r in vals:
             if lo is not None and (r < lo - 1e-12 or r > hi + 1e-12):
                 continue
-            gv = sp.N(g.subs(MODEQ_X, sp.Float(r, 40)), 40)
-            if gv < 0:
+            if sp.N(g.subs(MODEQ_X, sp.Float(r, 40)), 40) < 0:
                 continue
             if not any(abs(r - o) < 1e-12 for o in out):
                 out.append(r)
@@ -54201,19 +54344,13 @@ def modeq_crossings(f, g, lo, hi, trig):
 
 def modeq_cut(f, g, rel, cuts, ends_text, unbounded):
     """The pieces where |f| rel g between the cuts, and the pieces where it fails. A domain
-    end (or None) is in both; a crossing is in the set for ≤ and ≥ and in its
-    complement for < and >."""
+    end is in both; a crossing is in the set for ≤ and ≥ and in its complement for < and >."""
     inc = rel in ("≤", "≥")
     hf = sp.lambdify(MODEQ_X, sp.Abs(f) - g, "mpmath")
     sol, comp, last = [], [], None
     for i in range(len(cuts) - 1):
         a_, b_ = cuts[i], cuts[i + 1]
-        if a_ is None:
-            mid = b_ - 1
-        elif b_ is None:
-            mid = a_ + 1
-        else:
-            mid = (a_ + b_) / 2
+        mid = b_ - 1 if a_ is None else a_ + 1 if b_ is None else (a_ + b_) / 2
         v = hf(mpmath.mpf(mid))
         need(abs(v) > 1e-9, "|f| − g is 0 between two crossings")
         holds = (v < 0) if rel in ("<", "≤") else (v > 0)
@@ -54240,10 +54377,9 @@ def modeq_curve(q, wrongs):
     else:
         need(sp.Poly(f, MODEQ_X).degree() == 2 and sp.Poly(f, MODEQ_X).LC() == 1, "f is not x² + Bx + C")
         need(d0.is_integer and d1.is_integer and d0 < d1, "a quadratic's domain that is not two whole numbers")
-        disc = sp.discriminant(f, MODEQ_X)
-        need(disc > 0, "f has no part below the axis to reflect")
-    ma = re.fullmatch(r"Solve \|f\(x\)\| (.) (.+)\. Give any end that is not exact to 3 s\.f\.", q["asked"])
-    need(ma is not None and ma.group(1) in MODEQ_RELS, f"asked {q['asked']!r}")
+        need(sp.discriminant(f, MODEQ_X) > 0, "f has no part below the axis to reflect")
+    ma = re.fullmatch(r"Solve \|f\(x\)\| ([≤≥<>]) (.+)\. Give any end that is not exact to 3 s\.f\.", q["asked"])
+    need(ma is not None, f"asked {q['asked']!r}")
     rel, g = ma.group(1), modeq_expr(ma.group(2))
     need(sp.Poly(g, MODEQ_X).degree() <= 1, "the other side is not a line")
     lo, hi = float(d0), float(d1)
@@ -54271,17 +54407,27 @@ def modeq_curve(q, wrongs):
         wt = modeq_set_text(wide)
         if wt != want:
             wrongs[MODEQ_IN + "2"] = {wt}
-    for st in modeq_steps(q):
-        mm = re.search(r"The GDC gives the crossings? (.+)\.$", st)
-        if mm:
-            got = [float(t.replace("−", "-")) for t in re.findall(r"x = (\S+?)(?= and|$)", mm.group(1))]
-            need(len(got) == len(xs) and all(abs(a_ - float(b_)) <= 1e-5 * max(1, abs(float(b_))) for a_, b_ in zip(got, xs)), f"{st!r}: not the crossings {[float(c) for c in xs]}")
-        mm = re.search(r"The graph of y = \|f\(x\)\| is (above|below) the line on (.+), and the domain", st)
-        if mm:
-            need((mm.group(1) == "above") == (rel in (">", "≥")) and mm.group(2) == want, f"{st!r} is wrong")
-        mm = re.search(r"Graph y = \|(.+)\| and y = (.+) on the GDC for (.+)\.$", st)
-        if mm:
-            need(sp.simplify(modeq_expr(mm.group(1)) - f) == 0 and sp.simplify(modeq_expr(mm.group(2)) - g) == 0 and mm.group(3) == f"{m.group(2)} ≤ x ≤ {m.group(3)}", f"{st!r}: not this question's graphs")
+    dom = f"{m.group(2)} ≤ x ≤ {m.group(3)}"
+
+    def graph_gdc(st, mm):
+        need(modeq_same(modeq_expr(mm.group(1)), f) and modeq_same(modeq_expr(mm.group(2)), g) and mm.group(3) == dom, f"{st!r}: not this question's graphs")
+
+    def gives(st, mm):
+        got = mm.group(2).split(" and x = ")
+        need(bool(mm.group(1)) == (len(xs) > 1) and got == [modeq_w(c) for c in xs], f"{st!r}: not the crossings {[modeq_w(c) for c in xs]}")
+
+    def side(st, mm):
+        need(mm.group(1) == ("above" if rel in (">", "≥") else "below") and mm.group(2) == want and mm.group(3) == m.group(2) and mm.group(4) == m.group(3), f"{st!r} is wrong")
+
+    def the_set(st, mm):
+        need(mm.group(1) == want, f"{st!r} doesn't state {want!r}")
+
+    modeq_walk(q, [
+        (r"Graph y = \|(.+)\| and y = (.+) on the GDC for (.+)\.", graph_gdc),
+        (r"The GDC gives the crossing(s?) x = (\S+(?: and x = \S+)*)\.", gives),
+        (r"The graph of y = \|f\(x\)\| is (above|below) the line on (.+), and the domain stops at x = (.+) and x = (.+)\.", side),
+        (r"So the solution set is (.+)\.", the_set),
+    ], want)
     if q["view"]["rep"] == "graph":
         gr = q["graph"]
         need(gr is not None and len(gr["curves"]) == 2, "the graph is not |f(x)| and the line")
@@ -54297,7 +54443,7 @@ def modeq_curve(q, wrongs):
 
 def modeq_check(q):
     u = q["view"]["unknown"]
-    texts = [q["asked"]] + q["lines"] + modeq_steps(q) + [o["text"] for o in q["choices"]]
+    texts = [q["asked"]] + q["lines"] + [st for s in q["solutions"] for st in s["steps"]] + [o["text"] for o in q["choices"]]
     for tx in texts:
         need(not re.search(r"(?<![A-Za-z_])-\d", tx), f"a hyphen for a minus in {tx!r}")
     if q["paper"] == 1:
