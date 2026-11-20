@@ -496,7 +496,9 @@ static func cond_fillers(f: Dictionary, right: String, swap: bool) -> Array:
 	var d := Q.new(-f.d, f.c)
 	var vals: Array = [a.neg(), d.neg()] if not swap else [d.neg(), a.neg()]
 	vals += [Q.new(-f.b, f.a), Q.new(0)]
-	return vals.map(func(q): return "%s ≠ %s" % [v, N(q)])
+	# Where those values meet (a = d puts −a/c on −d/c), the key's value with an inequality
+	# fills in, so there are still three wrong options.
+	return vals.map(func(q): return "%s ≠ %s" % [v, N(q)]) + cond_variants(right).filter(func(t): return not "≠" in t)
 
 
 func u_inverse_domain(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -781,9 +783,11 @@ func u_function_from_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 			plain = ["f(x) = " + Fmt.poly([-f.a, f.b]), "f(x) = " + InverseRuleSituation.order_text(f.a, -f.b),
 				"f(x) = " + Fmt.poly([-f.a, -f.b]), "f(x) = " + InverseRuleSituation.order_text(-f.a, -f.b)]
 		"rat":
-			# A sign changed, a and d swapped, or f⁻¹ itself; a b out by one only as a last resort.
+			# A sign changed, a and d swapped, or f⁻¹ itself; 1/f⁻¹ and a b out by one only as a
+			# last resort, where a = d makes the swaps the key or a constant.
 			plain = rat_plain([f.a, f.b, f.c, f.d], [[f.a, -f.b, f.c, f.d], [f.a, f.b, -f.c, f.d], [f.d, f.b, f.c, f.a],
-				[f.a, f.b, f.c, -f.d], [f.d, -f.b, -f.c, f.a], [-f.a, f.b, f.c, f.d], [f.a, f.b + 1, f.c, f.d]], "f(x) = %s")
+				[f.a, f.b, f.c, -f.d], [f.d, -f.b, -f.c, f.a], [-f.a, f.b, f.c, f.d], [f.a, f.b + 1, f.c, f.d],
+				[f.c, -f.a, -f.d, f.b], [f.a, f.b - 1, f.c, f.d]], "f(x) = %s")
 		_:
 			var base := InverseRuleSituation.base_text(f.base)
 			# With q = 0 there is no order to get wrong and no sign to keep: no slip.

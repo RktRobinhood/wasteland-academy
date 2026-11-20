@@ -391,3 +391,21 @@ func test_restricted_quadratic_takes_its_root_from_the_range_of_the_inverse() ->
 		var gc := " ".join(_steps(q, "graph-check"))
 		check(gc == "" or (gc.contains("Swap x and y") and gc.contains(" ± ") and gc.contains("GDC")), "%s: %s" % [e.name, gc])
 		check(e.c.angle != "graph-check" or gc != "", e.name + ": no GDC working")
+
+
+## A rational rule whose own values coincide (a = d, so a/c, −d/c and the zero meet) still
+## gets four options: the ≠ fillers and the swapped coefficients collapse, so a last resort
+## fills in (the stress sweep found 3 choices at seeds 58, 101 and 151).
+func test_rational_options_stay_four_when_their_values_coincide() -> void:
+	for u in ["inverse-domain", "inverse-range", "function-from-inverse"]:
+		for c in _cells(u):
+			for seed in range(1, 251):
+				for shared in [false, true]:
+					var v := {"type": T, "unknown": u, "rep": c.rep, "angle": c.angle, "seed": seed, "format": "mcq"}
+					if shared:
+						v["shared"] = true
+					var q := QuestionEngine.make(v)
+					if q.has("error"):
+						continue
+					var name := "%s seed %d%s" % [c.key, seed, " shared" if shared else ""]
+					check_eq(q.choices.size(), 4, name + ": " + str(q.choices.map(func(o): return o.text)))
