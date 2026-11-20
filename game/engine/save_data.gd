@@ -2,6 +2,12 @@ class_name SaveData
 extends RefCounted
 ## The save: a versioned Dictionary in user://save.json.
 ##
+## One document with a version and migrations (#202): question results are keyed by
+## cell key and lesson progress by explainer id, both permanent ids. Writes go through
+## <path>.tmp and keep <path>.bak; a file that can't be read is set aside, never
+## overwritten. export_code() and import_text() move a save between devices; nothing is
+## sent anywhere.
+##
 ##   version    VERSION; older saves go through migrate() on load
 ##   settings   {"exam_only": false, "reduced_motion": false}; reduced_motion cuts between
 ##              the map's layers instead of zooming (ui/map.gd)
@@ -126,24 +132,136 @@ static func set_course(data: Dictionary, course: String) -> bool:
 	return true
 
 
+## Reads the save at path. A missing file is a new save. A file that can't be read
+## (truncated, corrupt, not a save) is never thrown away: it is set aside as
+## <name>.unreadable-<time>.json beside it, and the .bak of the last good write is used
+## if there is one, otherwise the player starts blank.
 static func load_from(path: String = PATH) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return blank()
+	var parsed := _read_save(path)
+	if not parsed.is_empty():
+		return migrate(parsed)
+	var kept := set_aside(path)
+	push_warning("SaveData: %s is not a save; kept as %s" % [path, kept])
+	var from_bak := _read_save(backup_path(path))
+	if not from_bak.is_empty():
+		return migrate(from_bak)
+	return blank()
+
+
+static func backup_path(path: String = PATH) -> String:
+	return path + ".bak"
+
+
+static func temp_path(path: String = PATH) -> String:
+	return path + ".tmp"
+
+
+## The save in the file at path, or {} if it is missing or isn't a save (a JSON object
+## with a "version" number).
+static func _read_save(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
 	var f := FileAccess.open(path, FileAccess.READ)
-	var parsed = JSON.parse_string(f.get_as_text()) if f != null else null
-	if not parsed is Dictionary:
-		push_warning("SaveData: %s is not a save; starting fresh" % path)
-		return blank()
-	return migrate(parsed)
-
-
-static func store(data: Dictionary, path: String = PATH) -> bool:
-	var f := FileAccess.open(path, FileAccess.WRITE)
 	if f == null:
-		push_warning("SaveData: can't write %s" % path)
+		return {}
+	return parse(f.get_as_text())
+
+
+## The save in a JSON text, or {} if the text isn't one.
+static func parse(text: String) -> Dictionary:
+	var parsed = JSON.parse_string(text)
+	if not parsed is Dictionary or not (parsed.get("version") is float or parsed.get("version") is int):
+		return {}
+	return parsed
+
+
+## Moves an unreadable save out of the way, to <name>.unreadable-<time>.json in the same
+## folder. Returns the new path, or "" if it could not be moved.
+static func set_aside(path: String) -> String:
+	var stamp := int(Time.get_unix_time_from_system())
+	var kept := ""
+	var n := 0
+	while kept == "" or FileAccess.file_exists(kept):
+		kept = "%s.unreadable-%d%s.json" % [path.get_basename(), stamp, "" if n == 0 else "-%d" % n]
+		n += 1
+	if DirAccess.rename_absolute(path, kept) == OK:
+		return kept
+	# A rename can fail where a copy works; either way the bytes stay.
+	if DirAccess.copy_absolute(path, kept) == OK:
+		DirAccess.remove_absolute(path)
+		return kept
+	return ""
+
+
+## Writes the save safely: to <path>.tmp first, checked by reading it back, then the
+## last good file becomes <path>.bak and the temp file takes its place. A write that
+## dies halfway leaves the old save, or its .bak, whole.
+static func store(data: Dictionary, path: String = PATH) -> bool:
+	var tmp := temp_path(path)
+	var f := FileAccess.open(tmp, FileAccess.WRITE)
+	if f == null:
+		push_warning("SaveData: can't write %s" % tmp)
 		return false
-	f.store_string(JSON.stringify(data, "\t"))
+	var text := JSON.stringify(data, "\t")
+	f.store_string(text)
+	f.flush()
+	f.close()
+	if parse(FileAccess.get_file_as_string(tmp)).is_empty():
+		push_warning("SaveData: %s did not read back; keeping %s" % [tmp, path])
+		DirAccess.remove_absolute(tmp)
+		return false
+	if FileAccess.file_exists(path):
+		if DirAccess.copy_absolute(path, backup_path(path)) != OK:
+			push_warning("SaveData: can't write %s" % backup_path(path))
+	if DirAccess.rename_absolute(tmp, path) != OK:
+		# Some platforms won't rename over a file. The .bak holds the old save.
+		DirAccess.remove_absolute(path)
+		if DirAccess.rename_absolute(tmp, path) != OK:
+			push_warning("SaveData: can't replace %s" % path)
+			return false
 	return true
+
+
+## The save as a code a student can copy: "WA-SAVE-1:" and the JSON, base64 encoded.
+## It is one line, with no characters a chat app or a form field will change.
+const CODE_PREFIX := "WA-SAVE-1:"
+
+
+static func export_code(data: Dictionary) -> String:
+	return CODE_PREFIX + Marshalls.utf8_to_base64(JSON.stringify(data))
+
+
+## The exported file's text: the JSON itself.
+static func export_text(data: Dictionary) -> String:
+	return JSON.stringify(data, "\t")
+
+
+## Reads what a student pasted or opened: an export code or the exported JSON. Returns
+## {"ok": true, "save": migrated save} or {"ok": false, "error": a sentence for the
+## student}. Nothing is written; the caller stores the save once the student agrees.
+static func import_text(text: String) -> Dictionary:
+	var t := text.strip_edges()
+	if t.begins_with(CODE_PREFIX):
+		t = t.substr(CODE_PREFIX.length()).replace("\n", "").replace(" ", "")
+		t = Marshalls.base64_to_utf8(t)
+	var parsed := parse(t)
+	if parsed.is_empty():
+		return {"ok": false, "error": "That isn't a Wasteland Academy save. Copy the whole code again, or choose the exported file."}
+	if int(parsed.version) > VERSION:
+		return {"ok": false, "error": "That save is from a newer version of the game. Update the game, then try again."}
+	return {"ok": true, "save": migrate(parsed)}
+
+
+## Puts an imported save in place of the one at path. The save being replaced is first
+## copied to <name>.before-import-<time>.json, so an import is never a loss. Returns
+## false if it could not be written.
+static func replace_with(data: Dictionary, path: String = PATH) -> bool:
+	if FileAccess.file_exists(path):
+		var kept := "%s.before-import-%d.json" % [path.get_basename(), int(Time.get_unix_time_from_system())]
+		DirAccess.copy_absolute(path, kept)
+	return store(data, path)
 
 
 ## Records one answer (MathsEngine.record_key: the save is the engine's evidence). key

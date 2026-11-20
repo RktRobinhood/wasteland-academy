@@ -61,6 +61,7 @@ Progress is kept on the device, in the browser the student plays in. There are n
 
 - A student who switches from a phone to a laptop, or from one browser to another, starts again there.
 - Clearing the browser's site data deletes their progress. Some school-managed laptops do this at sign-out, and Safari on iPhones and iPads may clear a website's data after about a week without a visit, unless the game is added to the home screen.
-- Export and import of a save are planned (GitHub issue #185), so a student will be able to move or back up their progress as a file.
+- A student can move or back up their progress: in Settings (the gear), "Export or import save" gives a code to copy or a file to save, and the same screen imports it on another device. Back up before clearing site data. The code and file stay wherever the student puts them; the game sends nothing.
+- A save the game can't read is kept aside, not deleted, and the game keeps a backup of the last good save.
 
 The game reports nothing to the teacher. Ask students to show you their screen if you want to see how they did.

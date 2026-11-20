@@ -22,6 +22,9 @@ extends Control
 @onready var _sfx_on: Button = %SfxToggle
 @onready var _hint: Label = %Hint
 @onready var _close: Button = %Close
+@onready var _save_button: Button = %SaveButton
+
+var _transfer: SaveTransferPanel
 
 var _showing := false
 
@@ -39,6 +42,9 @@ func _ready() -> void:
 	_voice_on.toggled.connect(func(on: bool) -> void: Audio.voice_muted = not on)
 	_sfx_on.toggled.connect(_on_sfx_on_toggled)
 	_close.pressed.connect(close)
+	_transfer = SaveTransferPanel.new()
+	add_child(_transfer)
+	_save_button.pressed.connect(_transfer.open)
 	Audio.settings_changed.connect(_show_current)
 	_show_current()
 

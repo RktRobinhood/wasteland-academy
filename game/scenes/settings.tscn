@@ -180,6 +180,11 @@ toggle_mode = true
 button_pressed = true
 text = "On"
 
+[node name="SaveButton" type="Button" parent="Center/Panel/Pad/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Export or import save"
+
 [node name="Hint" type="Label" parent="Center/Panel/Pad/Column"]
 unique_name_in_owner = true
 layout_mode = 2
