@@ -315,6 +315,7 @@ func test_every_slip_of_the_rational_model_is_an_option() -> void:
 	var ty := QuestionEngine.type_of(t)
 	for i in ty.misconceptions.size():
 		var m: Dictionary = ty.misconceptions[i]
+		var ref: String = m.get("ref", "%s#%d" % [t, i])
 		if m.as != "distractor":
 			continue
 		for u in m["in"]:
@@ -322,12 +323,12 @@ func test_every_slip_of_the_rational_model_is_an_option() -> void:
 			for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown == u):
 				for seed in range(1, 80):
 					var q := _make(t, u, c.rep, c.angle, seed, "mcq")
-					if q.choices.any(func(o): return o.ref == m.ref):
+					if q.choices.any(func(o): return o.ref == ref):
 						found = true
 						break
 				if found:
 					break
-			check(found, "%s never offers %s" % [u, m.ref])
+			check(found, "%s never offers %s" % [u, ref])
 
 
 func test_the_least_whole_number_rounds_up() -> void:

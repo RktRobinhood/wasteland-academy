@@ -90,6 +90,10 @@ var another_way := false
 var time_total := 0.0
 var time_left := 0.0
 var frozen_left := 0.0
+## Seconds a refused answer may still give back on this question, and the response it
+## last gave them for (#194).
+var refund_left := 0.0
+var _refused: Dictionary = {}
 var lifelines: Dictionary = {}
 ## Options 50-50 took away, by index.
 var removed: Array = []
@@ -250,6 +254,8 @@ func _open_question() -> void:
 	time_total = modifiers.apply("time", Tuning.seconds_for(marks, floor_no, question.format == "value"), _ctx())
 	time_left = time_total
 	frozen_left = 0.0
+	refund_left = Tuning.REFUSED_REFUND_MAX
+	_refused = {}
 	state = "question"
 	question_opened.emit(fight, tier)
 
@@ -317,12 +323,19 @@ func in_late_zone() -> bool:
 
 
 ## Marks a response (as MathsEngine.mark takes it) and resolves it. An incomplete
-## response changes nothing and comes back with complete false and its errors.
+## response is not marked and comes back with complete false and its errors; one the
+## marker refused (not just a box left empty) gives the clock back REFUSED_REFUND (#194).
 func answer(response: Dictionary) -> Dictionary:
 	if state != "question":
 		return {}
 	var m := MathsEngine.mark(question, response)
 	if not m.complete:
+		var refused: bool = m.errors.values().any(func(e): return not e in [Answer.FILL_IN, Answer.CHOOSE])
+		if refused and response != _refused and refund_left > 0.0:
+			var back := minf(Tuning.REFUSED_REFUND, refund_left)
+			refund_left -= back
+			time_left = minf(time_total, time_left + back)
+			_refused = response.duplicate()
 		return {"complete": false, "errors": m.errors}
 	var outcome := "wrong"
 	if m.correct:
@@ -391,7 +404,11 @@ func _resolve(outcome: String, m: Dictionary) -> Dictionary:
 
 
 ## A glancing hit's note: the form the answer breaks (FAL-788), else the 3 s.f. one (Q7).
+## A miss's note: why it is off, where the marker can tell (#194).
 static func _note(outcome: String, m: Dictionary) -> String:
+	# A miss may say why too: a value rounded too early (#194).
+	if outcome == "wrong":
+		return m.get("note", "")
 	if outcome != "glancing":
 		return ""
 	var form: String = m.get("note", "")

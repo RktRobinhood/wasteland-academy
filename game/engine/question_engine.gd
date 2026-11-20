@@ -125,6 +125,19 @@ static var SITUATIONS := {
 	"approximation": [ApproximationSituation, ApproximationViews],
 	"tvm": [TvmSituation, TvmViews],
 	"log-technology": [LogTechnologySituation, LogTechnologyViews],
+	"ai-stationary": [AiStationarySituation, AiStationaryViews],
+	"ai-optimisation": [AiOptimisationSituation, AiOptimisationViews],
+	"trapezoidal": [TrapezoidalSituation, TrapezoidalViews],
+	"complex-number": [ComplexNumberSituation, ComplexNumberViews],
+	"complex-number-ai": [ComplexNumberSituation, ComplexNumberAiViews],
+	"complex-polar": [ComplexPolarSituation, ComplexPolarViews],
+	"de-moivre": [ComplexPolarSituation, DeMoivreViews],
+	"conjugate-roots": [ComplexPolarSituation, ConjugateRootsViews],
+	"complex-polar-ai": [ComplexPolarSituation, ComplexPolarAiViews],
+	"rational-quadratic": [RationalQuadraticSituation, RationalQuadraticViews],
+	"odd-even": [OddEvenSituation, OddEvenViews],
+	"inverse-restricted": [InverseRestrictedSituation, InverseRestrictedViews],
+	"ai-composite-inverse": [AiCompositeInverseSituation, AiCompositeInverseViews],
 	"depreciation": [DepreciationSituation, DepreciationViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],
 	"inverse-rule": [InverseRuleSituation, InverseRuleViews],
@@ -898,7 +911,7 @@ static func _graph_choices(b: Dictionary) -> Array:
 ## and `gi`, its index in its fillers or generic list: tools/feedback-check fails on a
 ## blank that isn't a declared filler (FAL-815). `fillers` are wrong options the views
 ## declare have no slip behind them; `generic` is the same list from before FAL-815,
-## not yet sorted, and only allowed on the check's UNSORTED types.
+## and the check fails on any option from it (FAL-1149 sorted the last ones).
 static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	var seen := {Answer.canon(ans, ans.values): true}
 	var picked: Array = []
@@ -928,7 +941,8 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 		if typed and Answer.values_right(ans, w.values):
 			continue
 		seen[key] = true
-		picked.append(w.merged({"form": typed and Answer.form_broken(ans, w.values)}))
+		picked.append(w.merged({"form": typed and Answer.form_broken(ans, w.values),
+			"rounded": typed and Answer.rounded_exact(ans, w.values)}))
 	var opts: Array = [{"text": Answer.text(ans), "values": ans.values, "correct": true, "ref": ""}]
 	for w in picked:
 		var trap: bool = w.get("trap", false)
@@ -939,6 +953,10 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 		if w.form:
 			o.form = true
 			o.note = Answer.form_note(ans)
+		# A rounded form of an exact answer: glancing, as typing it is (#194).
+		elif w.rounded:
+			o.rounded = true
+			o.note = Answer.EXACT_NOTE
 		# A rounding trap with no misconception of its own says why it is half right.
 		elif trap and w.ref == "":
 			o.note = Answer.TRAP_NOTE
@@ -1062,17 +1080,42 @@ static func _usable(ans: Dictionary, values: Dictionary) -> bool:
 	return true
 
 
-## Last-resort wrong options: each typed number nudged by 1 either way.
+## Last-resort wrong options: each typed number nudged by 1 either way. A form answer is
+## told apart by its text, so its nudge needs a text of its own: it gets one only where
+## the answer's text is its template written out, else there is none to trust (#248).
 static func _nudges(ans: Dictionary) -> Array:
 	var out: Array = []
+	var writer := Callable()
+	if ans.kind == "form":
+		for w in [Fmt.num, Fmt.dec]:
+			if _form_text(ans, ans.values, w) == str(ans.values.get("text", "")):
+				writer = w
+				break
+		if not writer.is_valid():
+			return out
 	for d in [1, -1, 2]:
 		for item in Answer.slots(ans):
 			if not item.has("slot"):
 				continue
 			var v := (ans.values as Dictionary).duplicate()
 			v[item.slot] = Q.of(v[item.slot]).add(d)
+			if writer.is_valid():
+				v.text = _form_text(ans, v, writer)
 			out.append(v)
 	return out
+
+
+## A form answer's template written out with values, each number by writer.
+static func _form_text(ans: Dictionary, values: Dictionary, writer: Callable) -> String:
+	var t := ""
+	for item in ans.template:
+		if item is String:
+			t += item
+		elif item.has("slot"):
+			t += writer.call(values[item.slot])
+		else:
+			t += str(values.get(item.pick, ""))
+	return t
 
 
 ## Marks a response. For "mcq", response is {"choice": index}; for "value", it is
@@ -1085,7 +1128,7 @@ static func mark(question: Dictionary, response: Dictionary) -> Dictionary:
 		if i < 0 or i >= question.choices.size():
 			return {"correct": false, "complete": false, "glancing": false, "errors": {"choice": "Choose one."}, "misconception": ""}
 		var c: Dictionary = question.choices[i]
-		return {"correct": c.correct, "complete": true, "glancing": c.get("trap", false) or c.get("form", false), "errors": {},
+		return {"correct": c.correct, "complete": true, "glancing": c.get("trap", false) or c.get("form", false) or c.get("rounded", false), "errors": {},
 			"misconception": c.ref, "note": c.get("note", "")}
 	var r := Answer.mark(question.answer, response)
 	r.misconception = ""

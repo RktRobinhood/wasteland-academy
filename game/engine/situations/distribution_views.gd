@@ -33,6 +33,24 @@ const CONTEXTS := [
 
 const PX := "P(X = x)"
 
+# The types' own slips (FAL-1149): a misconception with no skill ref is "<type>#<index>".
+const R_K_TOTAL := "t4-discrete-distribution#3"
+const R_K_EACH := "t4-discrete-distribution#4"
+const R_K_UNDIVIDED := "t4-discrete-distribution#5"
+const R_GIVEN_SUM := "t4-discrete-distribution#6"
+const R_COMPLEMENT := "t4-discrete-distribution#7"
+const R_END_DROPPED := "t4-discrete-distribution#8"
+const R_LAST_TERM := "t4-expected-value#5"
+const R_SUM_X := "t4-expected-value#6"
+const R_PQ_SWAP := "t4-expected-value#7"
+const R_PQ_ONE := "t4-expected-value#8"
+const R_PQ_HALVES := "t4-expected-value#9"
+const R_PQ_NO_KNOWN := "t4-expected-value#10"
+const R_PRIZE_MEAN := "t4-expected-value#11"
+const R_TOP_PRIZE := "t4-expected-value#12"
+const R_NOT_EVENT := "t4-expected-occurrences#2"
+const R_TIMES_P := "t4-expected-occurrences#3"
+
 
 ## Every cell can be asked on either paper (FAL-419).
 func papers(unknown: String, _rep: String, _angle: String) -> Array:
@@ -70,9 +88,9 @@ func need(unknown: String, rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "diagram", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "diagram", "wrongs", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "fillers"] else null
 	if s.get("paper", 1) == 2:
 		out.trap = trap(out)
 	return out
@@ -291,7 +309,7 @@ static func number_answer(label: String, v: Q, dec: bool) -> Dictionary:
 ## A wrong option: kept when it is a real number in range (a probability strictly
 ## between 0 and 1), written the way the answer is (no 1/3 among decimals), not on a
 ## 3 s.f. rounding edge, and different to 3 s.f. from the answer and from every option
-## already kept.
+## already kept. One with no ref is a filler (FAL-815): no slip gives it.
 static func wrong(out: Dictionary, v: Variant, ref: String = "", prob: bool = false) -> void:
 	if v == null:
 		return
@@ -302,7 +320,7 @@ static func wrong(out: Dictionary, v: Variant, ref: String = "", prob: bool = fa
 		return
 	var item := {"values": {"v": q}, "ref": ref}
 	if ref == "":
-		out.generic.append(item.values)
+		out.fillers.append(item.values)
 	else:
 		out.wrongs.append(item)
 
@@ -318,7 +336,7 @@ static func _keep(out: Dictionary, values: Dictionary, prob: bool) -> bool:
 	var taken: Array = [_sf_key(out.answer.values)]
 	for w in out.wrongs:
 		taken.append(_sf_key(w.values))
-	for g in out.generic:
+	for g in out.fillers:
 		taken.append(_sf_key(g))
 	return not key in taken
 
@@ -336,11 +354,11 @@ static func res(v: Q) -> Dictionary:
 
 # ── t4-discrete-distribution ─────────────────────────────────
 
-func u_k_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_k_from_sum(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if p2(s):
-		return k_paper2(rep, s)
+		return k_paper2(rep, s, rng)
 	var ans := number_answer("k = ", s.k, false)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = "Find the value of k."
 	var terms: Array = s.mult.map(func(c): return "k" if c == 1 else "%dk" % c)
@@ -365,8 +383,8 @@ func u_k_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrong(out, Q.new(1, sxc), "SL4.7.find-k#0", true)
 	if sx > 0:
 		wrong(out, Q.new(1, sx), "SL4.7.find-k#0", true)
-	wrong(out, Q.new(s.total))
-	wrong(out, Q.new(1, s.xs.size()), "", true)
+	wrong(out, Q.new(s.total), R_K_TOTAL)
+	wrong(out, Q.new(1, s.xs.size()), R_K_EACH, true)
 	wrong(out, Q.new(2, s.total), "", true)
 	wrong(out, Q.new(1, s.total + 1), "", true)
 	return out
@@ -374,10 +392,10 @@ func u_k_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 ## Paper 2's k, to 3 s.f.: beside awkward decimals (0.137 + k + 2k + 0.264 = 1), or
 ## from a reciprocal formula (k(1 + 1/2 + 1/3) = 1), added up on the GDC.
-func k_paper2(rep: String, s: Dictionary) -> Dictionary:
+func k_paper2(rep: String, s: Dictionary, rng: Seeded = null) -> Dictionary:
 	var ans := number_answer("k = ", s.k, false)
 	ans.show = "sf"
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = "Find the value of k, correct to 3 significant figures."
 	var n: int = s.xs.size()
@@ -425,11 +443,16 @@ func k_paper2(rep: String, s: Dictionary) -> Dictionary:
 		wrong(out, rest.div(sxc), "SL4.7.find-k#0")
 	if rest.eq(1) and sx > 0:
 		wrong(out, Q.new(1, sx), "SL4.7.find-k#0")
-	wrong(out, rest)
+	wrong(out, rest, R_K_UNDIVIDED)
 	wrong(out, rest.div(csum.add(1)))
 	wrong(out, s.k.mul(2))
-	wrong(out, Q.new(1, n))
-	wrong(out, csum)
+	# Every probability read as k: n lots of k, where nothing but multiples of k is given.
+	wrong(out, Q.new(1, n), R_K_EACH if rest.eq(1) else "")
+	# csum k = 1 turned into k = csum, where the multiples of k make up all of 1.
+	wrong(out, csum, R_K_TOTAL if rest.eq(1) else "")
+	# More slips than the options have room for: a different few show each time (FAL-1149).
+	if rng != null:
+		out.wrongs = rng.shuffled(out.wrongs)
 	return out
 
 
@@ -437,7 +460,7 @@ func u_missing_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var m: int = s.missing
 	var p: Q = s.ps[m]
 	var ans := number_answer(px(s.xs[m]) + " = ", p, true)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = "Find %s." % px(s.xs[m])
 	var known: Array = range(s.xs.size()).filter(func(i): return i != m)
@@ -457,7 +480,7 @@ func u_missing_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"So %s." % Answer.text(ans)]
 	out.methods = {"sum-to-one": {"steps": sum1, "result": res(p)}, "last-by-subtraction": {"steps": last, "result": res(p)}}
 	wrong(out, Q.new(1, s.xs.size()), "SL4.7.build-distribution#1", true)
-	wrong(out, have, "", true)
+	wrong(out, have, R_GIVEN_SUM, true)
 	for j in known:
 		wrong(out, p.add(s.ps[j]), "", true)
 	wrong(out, Q.new(1).sub(p), "", true)
@@ -473,7 +496,7 @@ func u_event_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := number_answer(label, s.pe, dec_style(s))
 	if recip(s):
 		ans.show = "sf"
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = "Find P(%s)." % event_text(e)
 	if ans.get("show", "") == "sf":
@@ -508,7 +531,7 @@ func u_event_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.methods = {"add-entries": {"steps": add, "result": res(s.pe)}, "complement": {"steps": comp, "result": res(s.pe)}}
 	if not strict.is_empty():
 		wrong(out, DistributionSituation.prob_of(s, strict), "SL4.7.table-probabilities#0", true)
-	wrong(out, rest, "", true)
+	wrong(out, rest, R_COMPLEMENT, true)
 	# A non-strict end left out, the other slip at an end.
 	var drop := e.duplicate()
 	match e.op:
@@ -517,7 +540,7 @@ func u_event_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"≤":
 			drop.op = "<"
 	if drop.op != e.op:
-		wrong(out, DistributionSituation.prob_of(s, drop), "", true)
+		wrong(out, DistributionSituation.prob_of(s, drop), R_END_DROPPED, true)
 	for i in inn:
 		wrong(out, s.pe.sub(s.ps[i]), "", true)
 	for i in outs:
@@ -566,7 +589,7 @@ func u_expected_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := number_answer("E(X) = ", s.mean, dec_style(s))
 	if p2(s):
 		ans.show = "sf"
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show(rep, s, out)
 	out.asked = "Find E(X)." if not p2(s) else "Find E(X), correct to 3 significant figures."
 	var tp := xp_terms(s)
@@ -609,8 +632,8 @@ func u_expected_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if gap > 1e-9 and not tie:
 		wrong(out, Q.new(near), "SL4.7.expected-value#1")
 	wrong(out, s.mean.div(n), "SL4.7.expected-value#2")
-	wrong(out, s.mean.sub(s.ps[n - 1].mul(s.xs[n - 1])))
-	wrong(out, Q.new(sx))
+	wrong(out, s.mean.sub(s.ps[n - 1].mul(s.xs[n - 1])), R_LAST_TERM)
+	wrong(out, Q.new(sx), R_SUM_X)
 	wrong(out, s.mean.add(s.ps[0]))
 	wrong(out, s.mean.add(1))
 	return out
@@ -625,7 +648,7 @@ func u_probabilities_from_mean(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var xq: int = s.xs[j]
 	var ans := Answer.make("pq", {"p": p, "q": q})
 	ans.show = "dec"
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	var known: Array = range(s.xs.size()).filter(func(k): return k != i and k != j)
 	var have := sum_of(s, known)
 	var a := Q.new(1).sub(have)                     # p + q = a
@@ -672,20 +695,20 @@ func u_probabilities_from_mean(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var b1 := Q.new(1).sub(have_x)
 	var q1 := b1.sub(a.mul(xp)).div(d)
 	pair(out, a.sub(q1), q1, "SL4.7.unknowns-from-mean#1")
-	pair(out, q, p)
+	pair(out, q, p, R_PQ_SWAP)
 	var nudge := step(s)
 	pair(out, p.add(nudge), q.sub(nudge))
 	pair(out, p.sub(nudge), q.add(nudge))
 	var q2 := b.sub(Q.new(xp)).div(d)               # p + q = 1, the given ones left out
-	pair(out, Q.new(1).sub(q2), q2)
-	pair(out, a.div(2), a.div(2))
+	pair(out, Q.new(1).sub(q2), q2, R_PQ_ONE)
+	pair(out, a.div(2), a.div(2), R_PQ_HALVES)
 	for k in [2, -2, 3, -3]:
 		pair(out, p.add(nudge.mul(k)), q.sub(nudge.mul(k)))
 	pair(out, q.add(nudge), p.sub(nudge))
 	pair(out, q.sub(nudge), p.add(nudge))
 	# Σ x P = E(X) with the given values' products left out.
 	var q3: Q = s.mean.sub(a.mul(xp)).div(d)
-	pair(out, a.sub(q3), q3)
+	pair(out, a.sub(q3), q3, R_PQ_NO_KNOWN)
 	for k in [1, -1]:
 		pair(out, p.add(nudge.mul(k)), q)
 		pair(out, p, q.add(nudge.mul(k)))
@@ -706,7 +729,7 @@ static func pair(out: Dictionary, p: Q, q: Q, ref: String = "") -> void:
 	if not _keep(out, {"p": p, "q": q}, true):
 		return
 	if ref == "":
-		out.generic.append({"p": p, "q": q})
+		out.fillers.append({"p": p, "q": q})
 	else:
 		out.wrongs.append({"values": {"p": p, "q": q}, "ref": ref})
 
@@ -714,7 +737,7 @@ static func pair(out: Dictionary, p: Q, q: Q, ref: String = "") -> void:
 func u_fair_stake(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("number", {"v": s.mean}, {}, "Stake = $")
 	ans.show = "money"
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	var n: int = s.xs.size()
 	var entries: Array = []
 	for i in n:
@@ -771,8 +794,8 @@ func u_fair_stake(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var sx := 0
 	for x in s.xs:
 		sx += x
-	money(out, Q.new(sx, n))
-	money(out, s.ps[n - 1].mul(s.xs[n - 1]))
+	money(out, Q.new(sx, n), R_PRIZE_MEAN)
+	money(out, s.ps[n - 1].mul(s.xs[n - 1]), R_TOP_PRIZE)
 	money(out, s.mean.add(s.ps[n - 1].mul(s.xs[n - 1])))
 	money(out, Q.new(s.xs[n - 1], 2))
 	return out
@@ -819,7 +842,7 @@ func u_expected_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := number_answer("Expected number = ", s.count, true)
 	if p2(s):
 		ans.show = "sf"
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show_trials(rep, s, out, [ctx.run % s.n])
 	out.given.n = s.n
 	out.asked = "Find the expected number of %s with %s." % [ctx.trial, event_text(s.event)]
@@ -840,7 +863,7 @@ func u_expected_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if not s.count.is_int():
 		wrong(out, Q.new(half_up(s.count)), "SL4.5.expected-occurrences#0")
 	wrong(out, s.pe, "SL4.5.expected-occurrences#1")
-	wrong(out, Q.new(1).sub(s.pe).mul(s.n))
+	wrong(out, Q.new(1).sub(s.pe).mul(s.n), R_NOT_EVENT)
 	for i in inn:
 		wrong(out, s.ps[i].mul(s.n))
 	wrong(out, s.count.mul(2))
@@ -851,7 +874,7 @@ func u_expected_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 func u_trials_for_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ctx: Dictionary = CONTEXTS[s.context if rep == "words" else 0]
 	var ans := number_answer("n = ", Q.new(s.n), true)
-	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var out := {"answer": ans, "wrongs": [], "fillers": []}
 	show_trials(rep, s, out, [])
 	out.given.count = s.count.key()
 	out.asked = "Over n %s, %s is expected to happen %s times. Find n." % [ctx.trial, event_text(s.event), Fmt.dec(s.count)]
@@ -864,8 +887,9 @@ func u_trials_for_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.methods = {"n-times-p": {"steps": steps, "result": res(Q.new(s.n))}}
 	# Multiplied instead of divided, or by the wrong probability: on Paper 2 rounded to
 	# a whole number of trials, as a student would write it.
-	for v in [s.count.mul(s.pe), s.count.div(Q.new(1).sub(s.pe))]:
-		wrong(out, Q.new(half_up(v)) if p2(s) else v)
+	var slips := [[s.count.mul(s.pe), R_TIMES_P], [s.count.div(Q.new(1).sub(s.pe)), R_NOT_EVENT]]
+	for sl in slips:
+		wrong(out, Q.new(half_up(sl[0])) if p2(s) else sl[0], sl[1])
 	wrong(out, Q.new(s.n * 2))
 	wrong(out, Q.new(s.n / 2))
 	wrong(out, Q.new(s.n + 10))

@@ -190,12 +190,14 @@ func tail_methods(rep: String, s: Dictionary, letter: String, ans: Dictionary, f
 		"sketch-tail": method(sketch + [invnorm_line(s, letter), final_step(ans)], ans.values)}
 
 
-## The slips of a plain value: the mirror (near, so it is always offered), then in the seed's
+## The slips of a plain value, and the values a z rounded midway gives: the mirror (near, so it is always offered), then in the seed's
 ## order the others, which sit far from the mean and would give the answer away together.
 func tail_options(out: Dictionary, s: Dictionary, near_ref: String, area: Q, rng: Seeded) -> void:
 	var far: Array = [wx(s.no_sd, IN_NO_SD), wx(s.z, IN_Z_OR_P), wx(area.to_float(), IN_Z_OR_P), wx(s.cdf, IN_CDF)]
 	out.wrongs = [wx(s.flip, near_ref)] + rng.shuffled(far)
-	out.generic = vs([s.x + 0.5 * s.sgf, s.x - 0.5 * s.sgf, s.x + 0.25 * s.sgf, s.x - 0.25 * s.sgf])
+	# Through z, a z rounded midway lands off the value (#194).
+	Answer.add_premature(out.answer, Answer.rounded_z(s.z).map(func(z): return {"v": qf(s.muf + z * s.sgf)}))
+	out.fillers = vs([s.x + 0.5 * s.sgf, s.x - 0.5 * s.sgf, s.x + 0.25 * s.sgf, s.x - 0.25 * s.sgf])
 
 
 # ── A tail ───────────────────────────────────────────────────
@@ -331,11 +333,11 @@ func u_central_bounds(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		lines[1] = "The shaded area is %s, and a and b are the same distance from the mean." % D(s.level)
 		out.graph = curve(s.muf, s.sgf, [[s.lof, s.hif]], [mk(s.lof, "a"), mk(s.muf, D(s.mu)), mk(s.hif, "b")])
 	out.wrongs = [wrong(ends(s.wlo, s.whi), IN_CENTRAL), wrong(ends(s.nlo, s.nhi), IN_NO_SD), wrong(ends(-s.z, s.z), IN_Z_OR_P)]
-	out.generic = [1.2, 0.8, 1.4, 0.6, 1.6].map(func(f): return ends(s.muf - s.z * s.sgf * f, s.muf + s.z * s.sgf * f))
+	out.fillers = [1.2, 0.8, 1.4, 0.6, 1.6].map(func(f): return ends(s.muf - s.z * s.sgf * f, s.muf + s.z * s.sgf * f))
 	# With a small σ those can all round alike, so the last ones step by the third figure itself.
 	var unit: float = pow(10.0, floorf(log(s.hif) / log(10.0)) - 2.0)
 	for k in [1, 2, 3, 4]:
-		out.generic.append(ends(s.lof - k * unit, s.hif + k * unit))
+		out.fillers.append(ends(s.lof - k * unit, s.hif + k * unit))
 	var rest: Q = Q.new(1).sub(s.level)
 	var tail: Q = rest.div(Q.new(2))
 	var split := "What is left is 1 − %s = %s, so each tail is %s ÷ 2 = %s." % [D(s.level), D(rest), D(rest), D(tail)]
@@ -368,7 +370,7 @@ func u_band_end(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		var b: float = s.b.to_float()
 		out.graph = curve(s.muf, s.sgf, [[s.x, b] if lower else [b, s.x]], [mk(s.x, "w"), mk(s.muf, D(s.mu)), mk(b, D(s.b))])
 	out.wrongs = rng.shuffled([wx(s.to_end, IN_TO_END), wx(s.equal, IN_EQUAL)])
-	out.generic = vs([s.x + 0.5 * s.sgf, s.x - 0.5 * s.sgf, s.x + 0.25 * s.sgf, s.x - 0.25 * s.sgf])
+	out.fillers = vs([s.x + 0.5 * s.sgf, s.x - 0.5 * s.sgf, s.x + 0.25 * s.sgf, s.x - 0.25 * s.sgf])
 	var below := "P(X < %s) = normalcdf(−%s, %s, %s, %s) = %s" % [D(s.b), INF, D(s.b), D(s.mu), D(s.sg), W(s.below)]
 	# The z route keys z as the line shows it, so each number here follows from the one before.
 	var zb_key := Fmt.work(s.zb, 6)
@@ -407,7 +409,7 @@ func u_ratio_tails(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		lines[1] = area_line(s.level)
 		out.graph = curve(s.muf, s.sgf, [[s.afl, s.bfl]], [mk(s.afl, "a"), mk(s.muf, D(s.mu)), mk(s.bfl, "b")])
 	out.wrongs = rng.shuffled([wx(s.equal, IN_EQUAL), wx(s.swap, IN_SWAP), wx(s.other, IN_OTHER_END)])
-	out.generic = vs([s.x + 0.5 * s.sgf, s.x - 0.5 * s.sgf, s.x + 0.25 * s.sgf, s.x - 0.25 * s.sgf])
+	out.fillers = vs([s.x + 0.5 * s.sgf, s.x - 0.5 * s.sgf, s.x + 0.25 * s.sgf, s.x - 0.25 * s.sgf])
 	var share := "The tails hold 1 − %s = %s, and one is %d times the other, so the smaller is %s ÷ %d = %s and the larger is %d × %s = %s." % [D(s.level), D(s.rest), r, D(s.rest), r + 1, D(s.small), r, D(s.small), D(s.large)]
 	var left := "The area to the left of a is P(X < a) = %s." % D(s.ta)
 	if letter == "b":
@@ -448,7 +450,7 @@ func u_shift_same_sd(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		xmean = "group A's mean"
 	var out := {"lines": lines, "asked": asked, "answer": ans, "table": null}
 	out.wrongs = [wq(s.wrong_side, IN_SIDE), wq(s.c, IN_KEEP), wq(s.wrong_gap, IN_GAP_WAY)]
-	out.generic = [{"v": Q.new(s.x + 1)}, {"v": Q.new(s.x + 2)}, {"v": Q.new(s.x + 5)}]
+	out.fillers = [{"v": Q.new(s.x + 1)}, {"v": Q.new(s.x + 2)}, {"v": Q.new(s.x + 5)}]
 	var far := absi(gap)
 	var y_name := "group B" if rep == "words" else "Y"
 	var x_name := "group A" if rep == "words" else "X"
@@ -484,7 +486,7 @@ func u_mirror_bound(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var shade: Array = [[null, xf], [cf, null]] if gap > 0 else [[null, cf], [xf, null]]
 		out.graph = curve(s.muf, s.sgf, shade, [mk(xf, "a"), mk(s.muf, D(s.mu)), mk(cf, str(s.c))])
 	out.wrongs = [wq(s.wrong_side, IN_PAST), wq(s.c, IN_KEEP), wq(far, IN_DISTANCE)]
-	out.generic = [{"v": Q.new(s.x + 1)}, {"v": Q.new(s.x + 2)}, {"v": Q.new(s.x + 5)}]
+	out.fillers = [{"v": Q.new(s.x + 1)}, {"v": Q.new(s.x + 2)}, {"v": Q.new(s.x + 5)}]
 	var sum := "a = %s %s %d = %d" % [D(s.mu), "−" if gap > 0 else "+", far, s.x]
 	var top := "Sketch the curve and shade the two equal tails: they sit the same distance either side of the mean %s." % D(s.mu)
 	if rep == "diagram":
@@ -508,7 +510,7 @@ func u_rule_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		lines[1] = area_line(s.p)
 		out.graph = curve(s.muf, s.sgf, [[null, xf]] if s.rel == "<" else [[xf, null]], [mk(xf, "a"), mk(s.muf, D(s.mu))])
 	out.wrongs = [wq(s.flip, IN_SIDE), wq(s.other_k, IN_RULE_K), wq(s.no_sd, IN_NO_SD)]
-	out.generic = [{"v": s.x.add(Q.new(1))}, {"v": s.x.add(Q.new(2))}, {"v": s.x.add(Q.new(5))}]
+	out.fillers = [{"v": s.x.add(Q.new(1))}, {"v": s.x.add(Q.new(2))}, {"v": s.x.add(Q.new(5))}]
 	var band: Array = IN_BAND[s.k]
 	var inside := Q.new(band[0], band[1])
 	var left := Q.new(1).sub(inside)
@@ -539,7 +541,7 @@ func u_given_z(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		lines[2] = area_line(s.p)
 		out.graph = curve(s.muf, s.sgf, [[null, xf]] if s.rel == "<" else [[xf, null]], [mk(xf, "a"), mk(s.muf, D(s.mu))])
 	out.wrongs = [wq(s.flip, IN_SIDE), wq(s.no_sd, IN_NO_SD), wq(s.z0, IN_Z_OR_P), wq(s.table, IN_Z_OR_P)]
-	out.generic = [{"v": s.x.add(Q.new(1))}, {"v": s.x.add(Q.new(2))}, {"v": s.x.add(Q.new(5))}]
+	out.fillers = [{"v": s.x.add(Q.new(1))}, {"v": s.x.add(Q.new(2))}, {"v": s.x.add(Q.new(5))}]
 	var up: bool = s.up
 	var why: String
 	if s.rel == "<" and s.tailed:

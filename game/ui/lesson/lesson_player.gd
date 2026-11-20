@@ -932,7 +932,7 @@ func turn_question(t: Dictionary) -> Dictionary:
 	var view := {"type": c.get("type", ""), "unknown": c.get("unknown", ""), "rep": c.get("rep", ""),
 		"angle": c.get("angle", "any"), "format": c.get("format", "value")}
 	for i in 20:
-		view.seed = _rng.randi_range(1, 99999)
+		view.seed = _rng.randi_range(1, VerifiedSeeds.LAST)
 		var q := QuestionEngine.make(view)
 		if not q.has("error"):
 			return q

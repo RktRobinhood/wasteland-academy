@@ -660,183 +660,446 @@ play the same palette under the same cue names. All Kenney CC0 1.0, unedited.
 - `game/assets/audio/sfx/encounter-open-01.wav` — cue `open`. Byte-for-byte copy of `assets/audio/proposed/fal-372/encounter-open-01.wav`, whose Kenney CC0 source, URL and edits are recorded above. SHA-256 `496caa309b931e901cbb6b69e5f41106ee5caddcfcd2bf5c163f457e9d27f94c`, unchanged.
 - `game/assets/audio/sfx/encounter-clear-01.wav` — cue `clear`. Byte-for-byte copy of `assets/audio/proposed/fal-372/encounter-clear-01.wav`, whose Kenney CC0 source, URL and edits are recorded above. SHA-256 `227bee690a3fa9d1e80d3646d37289662c05ee7a039331ea1a392c6310bcc9b1`, unchanged.
 
-## FAL-428 — Spark's explainer move lines (voice)
+## FAL-1133 — boss taunts and encounter cast lines, local voice clones (voice)
 
-162 voice files: two takes of every move line in `curriculum/moves.json` (81 moves). The words are each move's `say` text exactly, because the explainer captions show them. Generated locally with VoxCPM2 on 2026-10-30. No recordings of any real person went in: the voice was designed from a text description, then that designed take was used as the reference for every line, so all 162 sound like the same Spark.
+109 voice files, each named by its text: the first 12 hex characters of the SHA-1 of the exact UTF-8 line (the FAL-1132 rule). The 26 boss taunts from `game/data/bosses.json` are in `game/assets/audio/voice/<zone>-miniboss/lines/` and `<zone>-boss/lines/`; the 63 Signal Tower encounter lines from `writing/encounters/signal-tower.json` in `game/assets/audio/voice/<encounter id>/lines/`; the Cell guard's 14 lines from `writing/encounters/cell.json` in `game/assets/audio/voice/cell-guard/lines/`; and Spark's 6 encounter lines in `game/assets/audio/voice/spark/lines/`. The words fed to the model are each line exactly. Generated locally with VoxCPM2 on 2026-11-19. No recordings of any real person went in.
 
-Rights basis: VoxCPM2 (OpenBMB) code and weights are released under the [Apache License 2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE), which allows commercial use; model card https://huggingface.co/openbmb/VoxCPM2, checked 2026-10-30. Package `voxcpm` 2.0.3, weights `openbmb/VoxCPM2` from the local Hugging Face cache. No library recordings and no AI input audio other than the designed reference below.
+Rights basis: as for FAL-1110 below. VoxCPM2 (OpenBMB) code and weights are released under the [Apache License 2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE), which allows commercial use; model card https://huggingface.co/openbmb/VoxCPM2. Package `voxcpm` 2.0.3, weights `openbmb/VoxCPM2` from the local Hugging Face cache. Each voice is cloned from one reference take: the voice reading the template paragraph, generated with Gemini text-to-speech (`gemini-3.8-flash-tts`, the voice and direction in `teachers.json` `characters`) via the Gemini API on 2026-11-19 (FAL-1133). The references stay in the local falcon-voice repo and don't ship. No model was trained or fine-tuned. Matt chose these voices on FAL-1133 (2026-11-19); Spark's is the FAL-1110 clone.
 
-- **Voice design (reference take):** VoxCPM2 voice-design mode with the Spark control string from `writing/voice-briefs.md`: "A small robot companion with a bright, light, youthful voice, gender-neutral, quick pace with short sudden pauses, crisp clear consonants, dry amused tone with real warmth underneath, a little mischievous, lively but never shouting." Audition line 3 ("Your b squared came out negative. Squares can't do that. Minus five, squared, is twenty-five."), seed `42801`, chosen from the six-line audition at seeds 42801–42803. That reference stays in the task's scratch folder and does not ship.
-- **Move lines:** VoxCPM2 cloning with that take as both `reference_wav_path` and `prompt_wav_path`, and its words as `prompt_text`; cfg 2.0, 10 inference timesteps, text normalisation off, denoiser off. Seed per file below (`torch.manual_seed`).
-- **Text fed to the model** is the `say` line, except both `factorise` takes, which were fed "Factorize, and take out any common factor first." as a pronunciation hint (seeds fed "Factorise" kept stressing it like "factories"). It sounds the same; the caption stays the British spelling.
-- **Checks:** every take transcribed with faster-whisper small (CPU). Takes that matched only on a homophone (sine/sign, whole/hole, weight/wait, maths/mass, root/route, surd) or a dropped possessive were confirmed by a second pass with the maths vocabulary in the prompt.
-- **Changes, every file:** high-pass 70 Hz; compressor 3:1 above −24 dBFS (5 ms attack, 80 ms release); trim silence below −50 dB at both ends; 30 ms lead-in and 60 ms tail; static gain to −16 LUFS-I through an `alimiter` at −2 dBFS (two measuring passes); 10 ms fade-in and 40 ms fade-out; resample 48 → 44.1 kHz; mono OGG Vorbis q5. No speed or pitch change.
-- **Measured across all 162:** −16.36 to −16.04 LUFS-I, −2.66 to −1.23 dBTP, 1.20 to 3.69 s long.
+| Voice (`teachers.json` id) | Gemini voice | Reference SHA-256 | Covers |
+|---|---|---|---|
+| `mini-bruiser` | `en-au-training-8` | `b417ca8bc06225e01221739dff2e46001a5aece14f0421c60850745938d6d545` | quadratics-miniboss (Arc Gunner Pell), composite-inverse-miniboss (Switchback Jun), function-basics-miniboss (Hopper Dave), geometry-miniboss (Surveyor Hale), stats-miniboss (Static Lou) |
+| `boss-heavy` | `en-au-concierge-1` | `74dadd38e7540258bef5fccf025151e18f60f26b440cf5808e8b575cef14f606` | quadratics-boss (Warden Apex), exp-log-boss (Baron Exponent), algebra-boss (The Compounder), stats-boss (The Pollster), thunderdome-boss (The Promoter) |
+| `mini-hustler` | `en-au-concierge-5` | `16a676be5acba987f387b7dbf71559824926fcf85f3e3d8eef906ab1b1ec2c14` | exp-log-miniboss (Compound Cora), rational-miniboss (Ration Clerk Vee), transformations-miniboss (Shifty Nan), algebra-miniboss (Ratchet Rae) |
+| `mini-hotshot` | `en-au-csagent-5` | `37d94f5a38185d4e0f5c604a69b9f01fd25aa9071af755926977c15bb8c7e712` | graphs-features-miniboss (Tracer Wren), lines-miniboss (Slope Rider Kit), calculus-miniboss (Gradient Jo), thunderdome-miniboss (Mixtape Vex) |
+| `boss-oracle` | `en-au-advisor-7` | `ef3140f755b4892a873773c8a319dd2c203e04296a2a3039270f22ffba91cc00` | graphs-features-boss (The Cartographer), transformations-boss (The Tailor), geometry-boss (The Sundial) |
+| `boss-cold` | `en-ke-advisor-1` | `3f8c6147a6419018ce4cfac749adbd0edf401b05fd82a41e94e578de5b737fd6` | composite-inverse-boss (The Mirror Foreman), rational-boss (Warden Zero), function-basics-boss (Dispatcher Mapp), lines-boss (The Straight Man), calculus-boss (The Integrator) |
+| `st-coffee-cart` | `en-nz-assistant-5` | `5a8ad51fb2524ac951ed50ab3a2b0386d5458b0d2bede035807bf10477b6a6ad` | st-coffee-cart |
+| `spark` | `leda` | `a456ce468559a8da7a6b060a1b90cea785533581abf52f7ec71978e1066ff151` | spark |
+| `st-mast-climber` | `en-au-storyteller-2` | `8533a5fe2711284bd84f001bcb8dbf8052923860aa571e33e1d63ef9605e7b14` | st-mast-climber |
+| `st-permit-booth` | `en-au-concierge-8` | `fb33eef5f0008a3059cc0cf32f71f796dcb67de6f2ed7a1597aa8ce1339ae5f8` | st-permit-booth |
+| `st-hush-water` | `en-au-podcaster-1` | `6ebee405a545a4ceb8af73069341fc69244649f338a06474596c1413ebe76276` | st-hush-water |
+| `st-live-wires` | `en-au-assistant-7` | `3bb4ef2b9483920a805e22dd1ee21026fe98a9a5e801ea8be29de33606c41e05` | st-live-wires |
+| `st-numbers-station` | `en-au-assistant-6` | `56a38515a4963cd97edc665da629b86b88bef6c875a1a9235783e55d4b780380` | st-numbers-station |
+| `cell-guard` | `en-au-training-1` | `6569918754efb67efe3220935e68cfc1c670e9b7be54b8063d311ceb89dad690` | cell-guard |
 
-| File (`game/assets/audio/voice/spark/moves/`) | Seed | LUFS-I | dBTP | SHA-256 |
-|---|---|---|---|---|
-| `add-probabilities_1.ogg` | `4280691` | -16.22 | -1.77 | `80c1f602af7ac9bac7758a186d4d35758b419fe8e81d26b43cff1083fe598a75` |
-| `add-probabilities_2.ogg` | `4280692` | -16.11 | -2.04 | `d63808857abdc70ec6ab8bdda83a41de41588325c06ad8a333de04e90ee5aa6c` |
-| `angle-sum_1.ogg` | `4280561` | -16.24 | -1.86 | `524711ef199c055847c612133cf4442c1f3b9130af77ef821b76fc2a3770320e` |
-| `angle-sum_2.ogg` | `4280562` | -16.20 | -1.70 | `19a02aa6e9f5ed64cab0f1d241ef5b2b78e8033b19022362597d56b6ffd0fb53` |
-| `apply-condition_1.ogg` | `4280081` | -16.13 | -2.14 | `c2eeeb970a40a129d0c3731837ebc7f5e1ca8619027efbdae476796ad7b723c5` |
-| `apply-condition_2.ogg` | `4280082` | -16.14 | -1.93 | `5b8dba3c8c13155dd9062c83e554c36b983d9edaba29585a36e0123365d83e8d` |
-| `apply-inverse_1.ogg` | `4280441` | -16.11 | -1.78 | `6f071ae9c2eb95d15f9e5bf8969cb1535cdd70b906c10054b1f8fa66094a0985` |
-| `apply-inverse_2.ogg` | `4280442` | -16.13 | -1.90 | `af730b33f24d1a991a6a31edbadc9b768173f22d5ef7e12c1b865973da0f0d6d` |
-| `ask-what-power_1.ogg` | `4280451` | -16.10 | -1.83 | `433ade5c2e54445d6472b6774e90125db046f8b6fb07cb883ce7393bf89210b1` |
-| `ask-what-power_2.ogg` | `4280452` | -16.08 | -1.76 | `387d3bd419ff1b971490cda646e6cded605cd40f37799be4ce52f0b038794fdb` |
-| `change-of-base_1.ogg` | `4280431` | -16.17 | -1.64 | `54624e23701826b7c790496951d19bb8eae81018ec15f41979c7302ab1de2aa4` |
-| `change-of-base_2.ogg` | `4280432` | -16.16 | -2.36 | `407c0df4e01faeee18d05e1f050490e17862bcde59597dbe86ea8bda394b7f65` |
-| `check_1.ogg` | `4280141` | -16.32 | -1.82 | `0c0edb1cf8725d44473ba5ab77e1dca9803f7ea7807eb3f147b4499531a7527f` |
-| `check_2.ogg` | `4280142` | -16.11 | -1.80 | `58a8990bb1de5c75311fc53d421e9f7b7502c75cc548b12fb30625f3e267cc03` |
-| `choose-rule_1.ogg` | `4280071` | -16.15 | -1.50 | `5e360f0958979be5453c231587b16176474acff1f92ca20b424f54e60b8a1e66` |
-| `choose-rule_2.ogg` | `4280072` | -16.29 | -1.47 | `07e086a790f6947942a20cfc48ab1b2ebd49cd2e692fc9ce5a7a759a173bf06b` |
-| `classify-turning-point_1.ogg` | `4280651` | -16.05 | -2.00 | `7ec0bf4fc92aabc04628086815ca77540ef45d20e544e4e3e58c64e75ee9344a` |
-| `classify-turning-point_2.ogg` | `4280652` | -16.24 | -1.91 | `25a023846f32e6ecd9640b8e1529909cdf4ca90e2c9e2b3d5739ab252ecb48ef` |
-| `clear-fractions_1.ogg` | `4280271` | -16.14 | -2.05 | `aac0189e9ed65395c207db543f4aed992417921114e4917bb008781b46226382` |
-| `clear-fractions_2.ogg` | `4280272` | -16.19 | -1.90 | `976b548e5d58ab901f1604bc259be0047c776a3886b7593d73708a98abab1185` |
-| `compare-coefficients_1.ogg` | `4280281` | -16.26 | -1.29 | `fb757cb4c675944dd42b55b3d13fb6f570345a08a0b5c278e466057bb3e24591` |
-| `compare-coefficients_2.ogg` | `4280282` | -16.22 | -1.69 | `393504a71e5d374b4109161703a9508437948293dd2480f1fef39ac73459fc2e` |
-| `compare-neighbours_1.ogg` | `4280511` | -16.18 | -1.83 | `f42d39eb70821989e4099dd9c7008576f94f8e0051b9d92e31e146154f2b9c6f` |
-| `compare-neighbours_2.ogg` | `4280512` | -16.11 | -1.81 | `f6f16fb542106efffc229b2266f2fcb272ce98f7ad5a15d6c12ac13f043374d7` |
-| `complete-square_1.ogg` | `4280251` | -16.18 | -1.23 | `0d3c455af4ea099ef354ed5cdd6083a5611acbb8f1a84770fca10d855ee282ab` |
-| `complete-square_2.ogg` | `4280252` | -16.14 | -1.79 | `e1b38353df40def0d359c6081318e1f2afc245a02d83222ad17e6128131028a6` |
-| `compose_1.ogg` | `4280481` | -16.20 | -2.44 | `30902b9d067b1e23520ef4abe4f0edb24ffd0397e04e7dfc5c98b8b3b9541f84` |
-| `compose_2.ogg` | `4280482` | -16.16 | -2.32 | `b3f4198b186358d6c7cb97579c6915e062aa7f9f87c852234def57cb07907a80` |
-| `compute-discriminant_1.ogg` | `4280301` | -16.12 | -1.64 | `68240e6aa20e6ce49a399727b34f3a80f3f7f2f3ed745b67172a3678c6783683` |
-| `compute-discriminant_2.ogg` | `4280302` | -16.15 | -1.91 | `be2d99c534aca1fb2646c7e12165f8468fc2bad6a5db854687112d2b58f22035` |
-| `convert-log-exp_1.ogg` | `4280411` | -16.10 | -1.65 | `5d42e7c2d0493382ba34891deaa34c1930909711e50337bb3a1f185550c5345e` |
-| `convert-log-exp_2.ogg` | `4280412` | -16.15 | -1.71 | `5884df3917d7bc0e88e445ab65fc96d57060e783c1f79d69e43a0e47e5a30313` |
-| `count-steps_1.ogg` | `4280521` | -16.33 | -2.04 | `16a4ff717eac78746a3aef2d19a31824e5b1cf978c6ce4432ce04aa74a7b350a` |
-| `count-steps_2.ogg` | `4280522` | -16.16 | -1.84 | `8543b543ce064452b04c3ee4fed9bd9647cc65383cb46b9191fdcbe1d789ffd9` |
-| `definite-integral_1.ogg` | `4280671` | -16.14 | -1.79 | `953abebde8b4a136beb66f8f36ae98465e117e894f86927ef7bea16c94214d96` |
-| `definite-integral_2.ogg` | `4280672` | -16.15 | -1.82 | `04779213e94b25cb5dd289aec74097c0f018bacb5603765c0e5d806ef31881c3` |
-| `describe-transformation_1.ogg` | `4280501` | -16.15 | -1.91 | `bc4c84d564163df3ca2965416390f8fe2ef29d099f0ba25705cbfdc410ea8158` |
-| `describe-transformation_2.ogg` | `4280502` | -16.25 | -1.96 | `7e2a16b78fbbf337f36098af0ae29344ee0eb6054fb96757f535ed2773a407cf` |
-| `differentiate_1.ogg` | `4280641` | -16.16 | -1.75 | `8de4f0e2eacfda71624ce37473cec7db6f787fb440778d6e81298bf2cb3ad6cc` |
-| `differentiate_2.ogg` | `4280642` | -16.19 | -2.07 | `b0bc4379561f37dd98eafe1ee1d01696474892b1a0157c6c0411924444b1763a` |
-| `draw-construction_1.ogg` | `4280021` | -16.05 | -1.91 | `e88d41f728a5b2cc338da02b82a97429594dfe5032954089f137d88ad37d7888` |
-| `draw-construction_2.ogg` | `4280022` | -16.09 | -1.99 | `09c216ed93132f7997927349a05607323008ce648fdd7aa4a720a7a0931ec7c2` |
-| `eliminate_1.ogg` | `4280341` | -16.15 | -2.15 | `f074d36762bf7f50780ea2f88ac0fbe0de6b31360f0d312c76bcf44c01548778` |
-| `eliminate_2.ogg` | `4280342` | -16.16 | -1.87 | `690beefc8162772037c0d07638d03b8a015bf5f2fe1fdb77c5c74d3afee27af8` |
-| `end-behaviour_1.ogg` | `4280381` | -16.34 | -1.80 | `16bec4a5c779450479fd933f8f5f204892b0fa6cf95dc58ec26e5388e8c9c59c` |
-| `end-behaviour_2.ogg` | `4280382` | -16.31 | -1.87 | `1fc4ac71f9b5cc9c708cf06d9d518e48ab94b75c7bf88fb0b1b5ef61083e75ec` |
-| `equate_1.ogg` | `4280331` | -16.29 | -1.58 | `24c9af81ebb881cf5adaee9290e9e0062654d5762b5e22f096fcfa79f2b34bfd` |
-| `equate_2.ogg` | `4280332` | -16.21 | -1.73 | `6f2d295f3dee9437629113df635293011bd2001383a231738dfb75fd348ba8af` |
-| `evaluate_1.ogg` | `4280121` | -16.12 | -2.25 | `6ee4e399566802edb06516cc80c31fa4d81576865d07c91dd4e4a5696ef456a3` |
-| `evaluate_2.ogg` | `4280122` | -16.08 | -1.70 | `bac4eec693db24d78ac463a82d1cd3c3e27c61e9a2ad6aa12ff593a8fc9d56a8` |
-| `exact-value_1.ogg` | `4280591` | -16.14 | -1.41 | `791d89ca3da43c190d6ec885b442770e46f7305f3e6d92f9bd7d594c1397831f` |
-| `exact-value_2.ogg` | `4280592` | -16.09 | -1.71 | `3de3755973fcc38adbba49385a2e5eed94f832608174f8be2618f17d3c98e27e` |
-| `expand_1.ogg` | `4280201` | -16.04 | -2.02 | `82ed5edf15069faa6005300af2c964bb49514051961af5b6c137833c99db4550` |
-| `expand_2.ogg` | `4280202` | -16.08 | -1.72 | `1d2b89c3e87508573c6f67cc44ee16dd452742a077f33ab5922da7670cc26368` |
-| `expected-count_1.ogg` | `4280721` | -16.25 | -2.16 | `7f49c28463681bcdf2e3e6a4f5a6ad19262fe36bdb69b59b65123bbad5ae0188` |
-| `expected-count_2.ogg` | `4280722` | -16.26 | -2.13 | `4c76b35db9c3fb56171dea95cc11e9ce82d66bdc27603a4942efee7214bbed45` |
-| `expected-value_1.ogg` | `4280711` | -16.16 | -1.80 | `ff4086aeae2968d705f3b51805e489e21acba0fdb0a9a5b949d079a6dfd007c1` |
-| `expected-value_2.ogg` | `4280712` | -16.12 | -1.80 | `b24b1b267049c837b057f1cee4de3abb671739c748e2cbd705798980c4eb3390` |
-| `factorise_1.ogg` | `4280224` | -16.16 | -1.83 | `45aa7a55d7e0e99a8b4b0ce7d91cc9d9391f43e8f0f95896df343633d5f349c7` |
-| `factorise_2.ogg` | `4280225` | -16.13 | -1.51 | `9e24e8663295e534ab9c5e035badceca7d3e7380d3d4822fdfa30f4ad018f681` |
-| `find-all-angles_1.ogg` | `4280601` | -16.26 | -2.07 | `eb5f90b8a7711fd4f789b5ecb00970e4f8563e0887bb0c8925cfdf67ec32db48` |
-| `find-all-angles_2.ogg` | `4280602` | -16.21 | -1.88 | `a3f8c4428534d981d3d684ed350ffbce00e79d2527c0edbc6326b9f83cae4596` |
-| `find-factor-pair_1.ogg` | `4280221` | -16.27 | -1.73 | `472568efc4110d90e62365b51d047e1b12c2acd4c189f4fae9e3e754a6ae1f0e` |
-| `find-factor-pair_2.ogg` | `4280222` | -16.19 | -1.67 | `b56fe2438b21f7ecc5d0c4a881721087233cfe5fd53eb41c42d98e91d82212be` |
-| `find-gradient_1.ogg` | `4280611` | -16.12 | -2.04 | `148d603b45664f23bac2c2333b2ca41033abb7b6491eb0c11f94868d9c57cfb8` |
-| `find-gradient_2.ogg` | `4280612` | -16.20 | -2.11 | `1de74edfc58d205df537c4c33c85efe224b4c414a5080e5f1368af1b43610680` |
-| `find-midpoint_1.ogg` | `4280151` | -16.16 | -1.83 | `4fc55a18d8e8a24fac77d7bcbcb466d9ee44f5fad17f894b5caa449e7b00ceac` |
-| `find-midpoint_2.ogg` | `4280152` | -16.10 | -1.64 | `2294aeb3dbab919d17fcfb6fffb73597915d3678d74d41db9ef01a94997ce04f` |
-| `gauss-pair_1.ogg` | `4280551` | -16.23 | -1.68 | `11191b4f052bacfe55954a5c76127152c5c6f01aa0803c59feb147c3fc2dbbb9` |
-| `gauss-pair_2.ogg` | `4280552` | -16.20 | -1.56 | `b768a15126b6cd74da927061d209c423e8be050edea827e5f2720026d1d3601a` |
-| `gdc-graph_1.ogg` | `4280741` | -16.23 | -1.67 | `20d566ad2c246513285d854c9ad6c2e1365561704ed1194a339e5ffd3b5107c1` |
-| `gdc-graph_2.ogg` | `4280742` | -16.14 | -2.06 | `09301f952f3d69e44910fb42317a76aa3b50feb247de775dec6aefce5cda83f4` |
-| `gdc-solver_1.ogg` | `4280751` | -16.06 | -1.91 | `533f34972694a25ed46aa897b1798988539d0507f099f48123387d610d9d6f58` |
-| `gdc-solver_2.ogg` | `4280754` | -16.10 | -2.20 | `fee043625c66e8b104af1bdd733f9ef8561c849878ab35d69b290f7011e64019` |
-| `gdc-stats_1.ogg` | `4280761` | -16.13 | -1.88 | `001839ffb081a30c9f08fdf6cb22841477060c76951b77f8b1899151ca15583d` |
-| `gdc-stats_2.ogg` | `4280762` | -16.31 | -1.82 | `51ac973492882b472e6e42af96ec32e44e490eb158628aada351d2186d859593` |
-| `integrate_1.ogg` | `4280661` | -16.17 | -2.01 | `d304fff5c27fb4e133897ed69e975a0155b1efb8b57190d5452dc2320424052d` |
-| `integrate_2.ogg` | `4280662` | -16.10 | -1.86 | `f4a10349b11decf2e4b9d96f7655e0fae273063ced16c86034d0d3216c0ee4b8` |
-| `interpret_1.ogg` | `4280775` | -16.28 | -2.33 | `8b577ffc60418e84070d18abf353b66539c52481f0c598963d2885a0b75325fb` |
-| `interpret_2.ogg` | `4280774` | -16.22 | -2.01 | `c3effcae193c791767cc30ba6941ecfc33d31cd8225069e3baf9bfa9f3b06849` |
-| `introduce-letter_1.ogg` | `4280031` | -16.04 | -2.44 | `3973fc7de7506601c8396c4e77396621ade3358cfa5d7afdcaf047dd239d3659` |
-| `introduce-letter_2.ogg` | `4280034` | -16.25 | -2.35 | `68c86c1508bbce6710abb1f5583422cbdc2b2bbea23cc4e9d46a1fc394e890aa` |
-| `isolate_1.ogg` | `4280171` | -16.20 | -2.02 | `221a3cb0d6a318fb565d188affd0209f7ef34d907f0c8762bd5f4904ed81acad` |
-| `isolate_2.ogg` | `4280172` | -16.18 | -2.19 | `cd6f317b225a96c7a04080ba30e1f7d92a0c85306914f61000bb308989644693` |
-| `keep-valid-solutions_1.ogg` | `4280781` | -16.15 | -1.56 | `26dd9465539a7d7868824d2405a91f0a14e84116f17cfae76986d079cdaff1be` |
-| `keep-valid-solutions_2.ogg` | `4280782` | -16.17 | -1.83 | `443b039c7d37141c516d60669c2b23d21f0c5847905d8fceafa96feee3f11084` |
-| `label-diagram_1.ogg` | `4280011` | -16.08 | -1.88 | `1e96225074f769507a16f64749d91beae5025298fb0d88a9b03ee2c8db58f35b` |
-| `label-diagram_2.ogg` | `4280012` | -16.20 | -1.59 | `8a8123ecc1ce1b04dd43419731685bf513926364d6c71719c5f22bb5779f5ac9` |
-| `list-outcomes_1.ogg` | `4280683` | -16.14 | -1.93 | `00102b9b4537f969f1c76268f08b22ab319ac6adde0e43a728531dd3b43b2a40` |
-| `list-outcomes_2.ogg` | `4280682` | -16.13 | -1.88 | `e1f98bc0198009256b38edb00f5fa6d9b2f54691de67a2c0741bc5ecc302c3bb` |
-| `model-from-context_1.ogg` | `4280041` | -16.13 | -2.05 | `88973bc62c11fcfad919fdbabbac3409d4e4ee47c51ed3b7e1ea09a0253a7ba4` |
-| `model-from-context_2.ogg` | `4280044` | -16.14 | -1.86 | `3390c904e9003b9154cf5b418ed0e5a2a3d39daeb4f9f7605446cc7ae6730d56` |
-| `percent-multiplier_1.ogg` | `4280541` | -16.19 | -1.95 | `9d1bc6d1ffaf2e0b3a3311a9f67b4b89f57721c02208e129f2e9e459cd9abf60` |
-| `percent-multiplier_2.ogg` | `4280542` | -16.16 | -1.74 | `16cfdb503e74a23edc68645b0d8d5f9c0f5ca0d5d2abfa4427a34d7a61b2c20c` |
-| `perpendicular-gradient_1.ogg` | `4280631` | -16.15 | -1.73 | `c8efa386853275aaf9c37d0d063cc414a0eb61cc2cf7923280268c8d5a7a9e0c` |
-| `perpendicular-gradient_2.ogg` | `4280632` | -16.14 | -1.73 | `f557754024182a5452c136f00b789a5472e1c4c052abbf900c0f04b97647a768` |
-| `pick-region_1.ogg` | `4280361` | -16.22 | -1.79 | `1e03d5581089fe6eb5db7c70dd43a07e0703e3c6c1c5916d7ad4d69db7940dbb` |
-| `pick-region_2.ogg` | `4280362` | -16.24 | -1.97 | `0e0d4b863407309bb3deb94825dba2b625809ebe145886fbe026fc9528e5b94d` |
-| `point-gradient-line_1.ogg` | `4280621` | -16.21 | -1.93 | `63c1f18f569863e6e2409b309ebffa8a8dedfe95742c574b700b2df134c6a476` |
-| `point-gradient-line_2.ogg` | `4280622` | -16.10 | -2.17 | `d6e76c681d930a6a25c0249d0076d359b458a42242e14706cdd8611a2074a8f0` |
-| `pythagoras_1.ogg` | `4280581` | -16.13 | -1.97 | `2aa0d3a11555045989f92d402e30db7ec31bd3b455d5368889ec6b95253c0b5d` |
-| `pythagoras_2.ogg` | `4280582` | -16.23 | -1.88 | `ddd4ccded7f41b0ee0fb978dcd43dc4b0af471522daf7e16a5be04f62bbff2b2` |
-| `quadratic-formula_1.ogg` | `4280311` | -16.07 | -1.79 | `7d2944b6f320aa6652e101224107308e5bfc6a95435785cc63669aa059622df3` |
-| `quadratic-formula_2.ogg` | `4280312` | -16.11 | -1.72 | `d71dbcdcdcf31f880eaa65e5811fb3b2fc4fa4905bfbb690eb903f73d6c3d782` |
-| `read-givens_1.ogg` | `4280001` | -16.17 | -1.72 | `7e94c115436b5cfb5d20a25038ecd2bf5fc5edd608087437687cc6d052be98ee` |
-| `read-givens_2.ogg` | `4280002` | -16.13 | -1.94 | `fd30c818d337721d003f0ebc26ee8223e3cc468317761f8474bcc21568bce963` |
-| `rearrange_1.ogg` | `4280161` | -16.16 | -2.12 | `6a78dedd0c6dbd85465e8ddb88978e77511ab2e94cf2015821e5aafeb668048c` |
-| `rearrange_2.ogg` | `4280162` | -16.22 | -2.32 | `f1e94afcc4ce3f6c18d3dbcf9418b8845c3849d9dfd147f9f1b5c64c1b81c343` |
-| `reason-from-shape_1.ogg` | `4280371` | -16.36 | -1.57 | `521b238005d197ca1928cc3dc80ae4cc14d642cae2014169cd9683e41f8cb685` |
-| `reason-from-shape_2.ogg` | `4280372` | -16.18 | -1.64 | `8e39f2b9205d9a47a1cec257cdab0da1f93e9d54511a27a17a5a1a5e6f87a8cc` |
-| `recall-fact_1.ogg` | `4280061` | -16.13 | -1.84 | `dd39533e8d9c6148612212e987abe7843e4ba33cb2c23144402d1ae9f5f395c5` |
-| `recall-fact_2.ogg` | `4280062` | -16.24 | -1.71 | `ac5244bec238c09b0bb7d33ad824cdce7b0b9552b9222e6b57035fae5ebfbc3f` |
-| `recall-formula_1.ogg` | `4280051` | -16.16 | -1.85 | `4d0842b4aebf564f5be268e2a65aa5bb07b9b0d21b3bd7d814767776d71b46e2` |
-| `recall-formula_2.ogg` | `4280052` | -16.10 | -1.94 | `29e5b18e31c94a3881943d6d536f9e1bf276bb6cf77d18f5d36cc38657356dcb` |
-| `repeat-multiplier_1.ogg` | `4280531` | -16.30 | -2.44 | `5db3cee5a764f7800b6af93729745d285783ea1c4ca51de6d634c765156b9dbf` |
-| `repeat-multiplier_2.ogg` | `4280532` | -16.22 | -2.03 | `5d8b7b22451ee33d112823168ad14b8cbf9dd5705226148315941e6f97d14452` |
-| `reverse-operations_1.ogg` | `4280471` | -16.12 | -1.86 | `8ab58698c30ee3623e9503e0880d3d1bf637a0f1fe17ed9befbc75e033e9cca9` |
-| `reverse-operations_2.ogg` | `4280472` | -16.09 | -1.95 | `e3b9a26aa763dea2ee684ce073e251f6ecc156f40892f1213b84a73bb5d153ff` |
-| `rewrite-form_1.ogg` | `4280291` | -16.10 | -1.89 | `cb1e72e1096287588af897e503dbffe614686b4b3563407698631f1c0804e68a` |
-| `rewrite-form_2.ogg` | `4280292` | -16.07 | -2.19 | `69375f205b0f8cdb16679efe017c0942672e2b6ac9408c13a26b92ed4bdd081d` |
-| `roots-to-factors_1.ogg` | `4280241` | -16.26 | -1.65 | `7878c7386ca116a20a795e3bb7226766e211d5e146ff48b9f636c8f011434b6a` |
-| `roots-to-factors_2.ogg` | `4280246` | -16.07 | -1.61 | `dc39786695dff573c7ab179836a6328933a85d2cfb75d2894ef42fb18a4db820` |
-| `round-for-context_1.ogg` | `4280791` | -16.27 | -1.86 | `f703e1888c11b5ecc10d2ae51f61ee7b8e57b8e033d1280a475bf5621cb98c2f` |
-| `round-for-context_2.ogg` | `4280792` | -16.15 | -1.79 | `92f9cd7ebc2b9f6dc41ae1ce471b9f3c21ca7eba00441684da7cd5f642bcc154` |
-| `sign-table_1.ogg` | `4280351` | -16.29 | -1.87 | `1c3da66d25d575153f7fe0100af148e559100a11b797b9b6fa885a93da40a164` |
-| `sign-table_2.ogg` | `4280352` | -16.17 | -1.76 | `0af6984c314f65cd053d900796d259bc3853c6a1d5a190f98bbb2fd555e02e57` |
-| `simplify-surd_1.ogg` | `4280321` | -16.23 | -2.02 | `738876f816b5b755badbe74f6391e69d74b98422eea9063350872db2f6d178e1` |
-| `simplify-surd_2.ogg` | `4280322` | -16.15 | -1.82 | `63e8d78255c49fcc9e45f9ebfab11857f8b656675bbb8341af05c010355e79eb` |
-| `simplify_1.ogg` | `4280191` | -16.20 | -1.69 | `03a0d3703dd7216b8a6b5579cde86cc3f5d43858ce59442a7413b5127f0348ec` |
-| `simplify_2.ogg` | `4280192` | -16.15 | -1.49 | `309615668d93b7938f1fd559448055d642c0b1779171daba46e511f5b6ed0fc8` |
-| `solve-equation_1.ogg` | `4280181` | -16.13 | -1.88 | `d9ad037e9bc0943147433afc2aff9063b83c618e233c5f0cb9b91cabee7db641` |
-| `solve-equation_2.ogg` | `4280184` | -16.29 | -1.80 | `42b06a1c2c3575e0791994087f4e0de987caf953d87f9f16aea060e03701e42f` |
-| `square-root-both-sides_1.ogg` | `4280261` | -16.32 | -1.57 | `cd10654f365755e309914a477f9fc0562b00d870718545591149bc24dab8c0ab` |
-| `square-root-both-sides_2.ogg` | `4280262` | -16.26 | -1.45 | `f40bcd8cebabdf5e4662eaf88598e89c248d79bbad87ef637b6c6d7254a4d915` |
-| `standardise_1.ogg` | `4280731` | -16.15 | -1.72 | `87ec5d632e7d1f593a7f8d766339eeb601e0d1aaf290c72e5722c2da8253334e` |
-| `standardise_2.ogg` | `4280732` | -16.11 | -2.66 | `f99f5f05bf018c3c4010b96dcb10629531d27ddbefe701335472d464229e4141` |
-| `state-answer_1.ogg` | `4280801` | -16.16 | -1.82 | `a7e75ac500a9407173a225b76c29f915d4644bf30cc3f246b610f9a99a74aeba` |
-| `state-answer_2.ogg` | `4280802` | -16.15 | -1.79 | `cb419f10435f170ac0674c2f3c76720ce4475ad2b0e9039316c61ceded56d0a7` |
-| `substitute-back_1.ogg` | `4280111` | -16.25 | -1.60 | `6e36432c7c9ad9fb28d2ca5fec2654541c5f72cd7979f5b63d9ec66c513a8d81` |
-| `substitute-back_2.ogg` | `4280112` | -16.13 | -1.83 | `d387474c12ef0be8b867d0c82105d9fa23b0b8b75a9b2e112f4d3b12ff8057e7` |
-| `substitute_1.ogg` | `4280101` | -16.33 | -2.21 | `454b04d1924f956c7dc95020d88fedcbb6c2b366bf19150103b1e8a795136558` |
-| `substitute_2.ogg` | `4280102` | -16.30 | -2.44 | `ed769c911f5cc76f1ebf182bf6ddd94937384687734a7950757058b3294d448e` |
-| `swap-x-and-y_1.ogg` | `4280461` | -16.17 | -2.26 | `00fdc43f5a79d27a547320c87bf829ea8c9b5f23dfc97870a30f35c9d38d47b1` |
-| `swap-x-and-y_2.ogg` | `4280462` | -16.23 | -1.64 | `0ff9380952908e4f935f3b84923f37a7d259b5d12fc8b4c75dce87ed040326ca` |
-| `take-logs_1.ogg` | `4280401` | -16.20 | -1.61 | `5f1589ab253dd60c9bb7a28d27d938e6e8dcff33bb43db07c3d94c7e30f9e840` |
-| `take-logs_2.ogg` | `4280402` | -16.20 | -1.78 | `79cd186eb7c0c8ebf65697bc6d39e8efcef8c1204592875cecd18eefec668cf4` |
-| `test-point_1.ogg` | `4280131` | -16.13 | -1.75 | `078a4bf3dc266bdb258922784c7c9d2ceca5bfe91e751e8111e7cd2c7a823b00` |
-| `test-point_2.ogg` | `4280132` | -16.31 | -1.90 | `1e3e5ed5d712a67059d40d6ecfc35ead0bbe0e5b2fe3698382db50e4ef491964` |
-| `transform-point_1.ogg` | `4280491` | -16.16 | -1.91 | `75284c95030463a8f26f553b7df24b15d36bd6587464bf31d3bd64a8e27e234c` |
-| `transform-point_2.ogg` | `4280492` | -16.16 | -1.81 | `40c53fbc3348c8ffef08835a8c8ca6295c0eb933a8191920c0fce99cd5c5ff86` |
-| `use-complement_1.ogg` | `4280701` | -16.08 | -2.22 | `90f302750ce4f82cbc621bb38212deff3c5d5e2647b312b0dd5f88a482e9c667` |
-| `use-complement_2.ogg` | `4280702` | -16.04 | -2.04 | `cea06a7dd55633c0f0d3f115491ca28e56c1d6a33d32b18bd44fb79c0a0c5144` |
-| `use-identity_1.ogg` | `4280091` | -16.20 | -2.24 | `c3c12ceca7ecf3ab4f7f03dd09d87a6d1e97b68f17f898c8611ddbab0532aa83` |
-| `use-identity_2.ogg` | `4280094` | -16.15 | -2.16 | `17a5e4a0adc163ec5e57a3e244d44d749c1548fc90bfa7511c7c80d85b9f2fdb` |
-| `use-log-law_1.ogg` | `4280421` | -16.29 | -1.80 | `ed7a513455c600616571e306094c4aed9560482108d25212ade22f76d1dd1520` |
-| `use-log-law_2.ogg` | `4280422` | -16.10 | -1.74 | `3f842fcad433bed49cef306d4fdf1527ec61613586721574f7f082a2698ace07` |
-| `use-right-triangle_1.ogg` | `4280571` | -16.17 | -2.01 | `6f9f2bbe0f4fd778480081da77a2dafb39e87bf5196c7b129fe7dfef5d3eae8d` |
-| `use-right-triangle_2.ogg` | `4280572` | -16.13 | -2.55 | `12a4223af13ecb184bc3ade9d85b7c6e82fd79c201cb2d5b21ed01db7827c66a` |
-| `use-symmetry_1.ogg` | `4280391` | -16.23 | -1.93 | `2d06c1812f7484c9154d96addf3136ff2b157c44615339017af0b7ed61b36184` |
-| `use-symmetry_2.ogg` | `4280394` | -16.18 | -1.95 | `c8100306595192e625c54952b2fb2c1678bb57e1451a47a0e3f5ca412cc46f2f` |
-| `zero-product_1.ogg` | `4280231` | -16.14 | -1.96 | `637a6751a32fe9e4b2c599ddc6f51718ff3b7d3662355cc54f59f798cc973ca4` |
-| `zero-product_2.ogg` | `4280232` | -16.19 | -1.90 | `74ef2c85385e5cb8976613b724f87b866e0831c04ba7d960386ede37f4a49247` |
+- **Cloning:** VoxCPM2 "ultimate" mode: the reference is both `reference_wav_path` and `prompt_wav_path`, and its words are `prompt_text`. cfg 2.0, 10 inference timesteps, denoiser off, text normalisation off. Seed per file below (`torch.manual_seed`): 1099 for 99, 1100 for 9, 1101 for 1.
+- **Changes, every file** (falcon-voice `clone/post.sh`): resample the 48 kHz clone to 24 kHz mono; trim silence below −50 dB at both ends; 10 ms fade-in and 40 ms fade-out; 30 ms lead-in and 60 ms tail; then the voice's chain from `teachers.json` (the 2% tape slowdown `asetrate=23520,aresample=24000`; for Spark, `fx/spark-sheen.sh`); then falcon-voice `master.sh` (two-pass loudnorm to −16 LUFS, true peak at or below −1 dBTP, 44.1 kHz mono OGG Vorbis q5), with `clone/prelimit.sh` first for any take `master.sh` alone left below −17 LUFS.
+- **Measured** (`ebur128`, true peak): -19.6 to -15.6 LUFS-I, -2.9 to -1.1 dBTP, 1.04 to 9.8 s long, 7.9 minutes in all.
+
+**mini-bruiser**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `quadratics-miniboss/lines/70c584e5c218.ogg` | taunt 1 | `1099` | 2.42 | -16.5 | -1.9 | all | `2bb602a551179fced5256f76b2ed91f46b3ab9e6353090f0cff75c02506f49a3` |
+| `composite-inverse-miniboss/lines/46ef28965e87.ogg` | taunt 1 | `1099` | 2.72 | -16.0 | -1.9 | all | `5763f7bd910716a0c56c1db26dfc913ad05e173dc8714c1f5f9bcf0514f0acd6` |
+| `function-basics-miniboss/lines/af4d3588b712.ogg` | taunt 1 | `1099` | 3.86 | -16.4 | -1.6 | all | `a5613a570cb490da2e099efa4b6698e9d9923b647cb000ccb70321e23093d71c` |
+| `geometry-miniboss/lines/e6d32ff40f56.ogg` | taunt 1 | `1099` | 3.13 | -16.1 | -1.8 | all | `814ccae954508c7ffccf126cfa94f34daa57d6e6152e98b83747931b47fdd2f0` |
+| `stats-miniboss/lines/4a94597c2877.ogg` | taunt 1 | `1099` | 4.3 | -16.7 | -1.7 | all | `5c64dd9e9198525e5d25827f09de706ecd61b47256c8a11c2488a096b3a723fc` |
+
+**boss-heavy**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `quadratics-boss/lines/35d555e8a3cc.ogg` | taunt 1 | `1099` | 4.7 | -16.8 | -1.7 | all | `7243265211e9b22b40dac54ec18481449eb97f3ed0f90664c7a75dc1f4f39ba1` |
+| `exp-log-boss/lines/05d79b30d907.ogg` | taunt 1 | `1099` | 3.67 | -17.3 | -1.7 | all | `cb3ee6428f75d31231764d42b48750e05d7629f7f090ec29b3c2e2d7b5a06eb1` |
+| `algebra-boss/lines/33fb935455e5.ogg` | taunt 1 | `1099` | 4.4 | -16.2 | -1.6 | all | `f8c4ba5e4d50af993892f86d7b7bad7e6ed18c3615d11e4998af2a651816a37c` |
+| `stats-boss/lines/4f5fb7820f09.ogg` | taunt 1 | `1099` | 2.78 | -16.9 | -1.8 | all | `a1f0578f7ca590cda03a584e7d986610f1044036960fad94d16b74ae5919a888` |
+| `thunderdome-boss/lines/9b913cb3e5a5.ogg` | taunt 1 | `1099` | 3.35 | -16.2 | -1.8 | all | `598e2e3314a28c12ed6b5ea2295eb2588d4cab0bbd18a6d65b96416e6f4bf755` |
+
+**mini-hustler**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `exp-log-miniboss/lines/fb86ef1ce15e.ogg` | taunt 1 | `1099` | 3.67 | -15.6 | -2.9 | all | `460d062379e4808948074ce07feb9d054113f66c398dabeb7094fb4786fe3fec` |
+| `rational-miniboss/lines/3aeb23b49009.ogg` | taunt 1 | `1099` | 2.71 | -15.9 | -1.7 | all | `410045723fb620c30212198073662d6ccefae6da8910e0b389c14ae057e87a50` |
+| `transformations-miniboss/lines/a7b77be13769.ogg` | taunt 1 | `1099` | 3.72 | -17.0 | -1.6 | all | `8a6eaa9214a0d1a055a1f6e17368556ebd249603f73814eab6518fce8454efc0` |
+| `algebra-miniboss/lines/4e82c750bcbc.ogg` | taunt 1 | `1099` | 4.2 | -16.0 | -1.7 | all | `12f37deedef7a50b209d3877a4802e73fc90e85e299cf32ea081163bdcbb2e92` |
+
+**mini-hotshot**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `graphs-features-miniboss/lines/88ee20fec944.ogg` | taunt 1 | `1099` | 1.99 | -16.3 | -1.8 | all | `7bbf6a7473452f0869a0fd4b2fcf824797be1b0c2e0eab85675e4e56783357be` |
+| `lines-miniboss/lines/10d54b18f76b.ogg` | taunt 1 | `1099` | 2.56 | -16.7 | -1.9 | all | `193f5c2ebdb2e9dc5bce15a72fb3ae8514f915801233fa9a45bc50e01a4e32b1` |
+| `calculus-miniboss/lines/b4f5a92f10b9.ogg` | taunt 1 | `1099` | 1.96 | -16.6 | -1.9 | all | `9f5bce3663af86f13b18c121507a6b17226bca7f01c545efb27218e3cb952ee6` |
+| `thunderdome-miniboss/lines/4b8569e42850.ogg` | taunt 1 | `1100` | 2.99 | -16.0 | -2.0 | all | `6be6b922a9b4100a6b95f7531eae7f8937a661fb146c70798b049639bdf38033` |
+
+**boss-oracle**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `graphs-features-boss/lines/e3db5d9ecd71.ogg` | taunt 1 | `1099` | 6.3 | -16.0 | -1.9 | all | `3e38f6a6721f6cce79160094c5eae70951bd7a2d613224acf8110964ddaa8e7f` |
+| `transformations-boss/lines/b5be38a11796.ogg` | taunt 1 | `1099` | 7.4 | -16.3 | -1.7 | all | `4cfdd1417a4baae8565f07b2ff47cf7e494c5188b435e76e1c1779e97cf9e549` |
+| `geometry-boss/lines/4a8d895fa0a3.ogg` | taunt 1 | `1099` | 5.1 | -16.3 | -1.5 | all | `349a60d067a02b135aa426c4e87b00d5aa3e725c243fe2832d2aa3adbed9a868` |
+
+**boss-cold**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `composite-inverse-boss/lines/06c53a2f0cfb.ogg` | taunt 1 | `1100` | 3.61 | -16.6 | -1.8 | all | `0c38ea1ef0e3f8707a9441287e188c1ecedb5e20e534ff5db137877f8c4fde61` |
+| `rational-boss/lines/c4107c37916f.ogg` | taunt 1 | `1099` | 2.45 | -17.0 | -1.3 | all | `f758364c66ab6b5b1dc8cf50b8da87746edf2370077a58f8d197fbf75f2cb4a2` |
+| `function-basics-boss/lines/0152fd1e5ba6.ogg` | taunt 1 | `1099` | 5.0 | -16.7 | -1.6 | all | `c70f392220c60919c2d423d02b8d4a4b36c758bba08aaf2ca069353bea860c68` |
+| `lines-boss/lines/9f8fbf8bc0e4.ogg` | taunt 1 | `1099` | 5.4 | -16.7 | -1.3 | all | `e19e183fbe2d38ee42886f421eb31a03975a0e87a4e1f8315c6d51780af45f52` |
+| `calculus-boss/lines/677bdeacdff8.ogg` | taunt 1 | `1099` | 4.1 | -16.2 | -1.6 | all | `b358319cd79fb0850e6596f2fac008010a90497498a25cbfc1f6dbee2dce988e` |
+
+**st-coffee-cart**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-coffee-cart/lines/ae44a9983c0e.ogg` | open 1 | `1099` | 5.8 | -16.3 | -1.7 | kettle's -> kettles | `3176766c82d25eeb368a5bc525ae05b8e397b9a8a24eaca1c1d4f37ad14510c0` |
+| `st-coffee-cart/lines/8e8a4bbed52d.ogg` | open 2 | `1099` | 6.2 | -16.5 | -1.9 | all | `df266ebd615ca17f6c3c470e771a14bc627cbe3df56f1449e60637e6f73d4559` |
+| `st-coffee-cart/lines/db66596a15eb.ogg` | walk_on 1 | `1099` | 4.8 | -16.0 | -1.8 | all | `219751915e0dea06609135e154fdbff2c94355e69806054351bfa6076c360f7e` |
+| `st-coffee-cart/lines/28a319cce5d8.ogg` | right 1 | `1099` | 3.62 | -16.1 | -1.8 | all | `70d9d71f0a6c7101920462c9db6aa8e13175a7807c795c3563ff685d11c075d7` |
+| `st-coffee-cart/lines/2b220057d9ac.ogg` | right 2 | `1099` | 5.1 | -16.4 | -1.9 | all | `9a0d1c8bb4c0b8884031845a7a368cdf32a506afb6581343504a79a22512e6c5` |
+| `st-coffee-cart/lines/91e783f1d8f3.ogg` | right 3 | `1099` | 3.55 | -17.0 | -1.9 | all | `d33485c35357e3c12aa47fc1788ec7fcec0620ece5571234429089f2e0699dde` |
+| `st-coffee-cart/lines/8a1f11e629b8.ogg` | miss 1 | `1099` | 5.0 | -16.0 | -1.7 | all | `2e88086186ee4eabda0119677050aa140825c0c5da6cd41ef91e062b1a4a71b8` |
+| `st-coffee-cart/lines/907bf6b05ca5.ogg` | miss 2 | `1100` | 3.49 | -16.4 | -1.8 | all | `25c55f2ad3f647cd05cba8ad26a57801b372c6d90930b234df88bc64482cafc7` |
+| `st-coffee-cart/lines/dd1674287ab9.ogg` | win 1 | `1099` | 4.8 | -16.0 | -1.8 | tamsin's -> tamsen's | `a650466fd67470d029297031edc2a4bce41b4b253f0cd13ca818803ba6331079` |
+| `st-coffee-cart/lines/4df8ade02adb.ogg` | bust 1 | `1099` | 6.0 | -16.1 | -1.7 | all | `850f89ba444807fd1456f2090d7f4e3fcbbf1e9dc3a229c5c9a37f850a46f96c` |
+
+**spark**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `spark/lines/46416ad4aa17.ogg` | st-coffee-cart:spark 1 | `1099` | 4.6 | -16.0 | -1.4 | all | `446f96ff3d5caf8f521d7cb19d491d82497ac73b5aef0c3ad5601c987feaad1f` |
+| `spark/lines/d9e400304197.ogg` | st-mast-climber:spark 1 | `1099` | 4.1 | -16.1 | -1.7 | all | `fa0779f0e12e4ba87a22d4f81bf6c93887916d0971dfcd13402f1f156c49ce3b` |
+| `spark/lines/7d7b8aea2042.ogg` | st-permit-booth:spark 1 | `1099` | 4.6 | -15.9 | -1.9 | mast -> masked | `5aa6a2a44764e3429a262b4075c181c74f71315cd8abdd317619ac0a4984ae3d` |
+| `spark/lines/3972710feeac.ogg` | st-hush-water:spark 1 | `1099` | 4.3 | -16.0 | -1.7 | all | `c72a7bfa162f4232f054daeb90f7565823513ac278836d3cda2d870d6519ca77` |
+| `spark/lines/d2ce05affb37.ogg` | st-live-wires:spark 1 | `1099` | 4.3 | -16.4 | -1.6 | all | `6d088b94c94b91967c6b96e45353fa94789ca3acd5915cac71817c057ea82822` |
+| `spark/lines/388733596ed2.ogg` | st-numbers-station:spark 1 | `1099` | 4.3 | -15.9 | -1.8 | all | `9c0f7b1b97c0fb9ec5540dd29b9b2426e43b4a53164d0c4f1c0a324894fd0c16` |
+
+**st-mast-climber**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-mast-climber/lines/2a569b4a6524.ogg` | open 1 | `1099` | 4.2 | -17.0 | -1.8 | all | `2aecf8c7ad4dbded91e36896ce42b0d45ee5b34e606da90e308675639d170143` |
+| `st-mast-climber/lines/5cf9ba24d9e6.ogg` | open 2 | `1099` | 4.3 | -16.3 | -1.5 | rope's -> rope | `7546f7f1d40a595d153bcfd1478677ceb358f0d0a536de016a74112d40ab7a87` |
+| `st-mast-climber/lines/28ac63f4c5e3.ogg` | walk_on 1 | `1099` | 3.41 | -17.4 | -1.7 | all | `67a92397a8b4e8ab8aee5aaaf4d8128e50c65ef23591c2b7ed40ac201b0eb663` |
+| `st-mast-climber/lines/96ec21705085.ogg` | right 1 | `1099` | 3.2 | -17.0 | -1.7 | all | `71ee36ad197a89633aa978846025802d540774d174dd7ce6f5f7e017602dffb8` |
+| `st-mast-climber/lines/666f17b5c2f5.ogg` | right 2 | `1099` | 3.37 | -16.2 | -1.8 | all | `379099ec12bc79de733cb207cea95a8bc411e8481781b1ce0920222c5de8acaa` |
+| `st-mast-climber/lines/af95f2b1fa32.ogg` | right 3 | `1099` | 4.3 | -16.2 | -1.8 | all | `ce5f1f2b71b082db7f0abb32c273b26267176fd9bf4e30e4f491247fce27037b` |
+| `st-mast-climber/lines/214a8083d3ad.ogg` | miss 1 | `1099` | 4.6 | -16.8 | -1.5 | all | `a19b8e82eb1da3e8e9f0443efcfdd3c459a7bd89a085713599a0d274d4183188` |
+| `st-mast-climber/lines/0d5b9784591d.ogg` | miss 2 | `1099` | 4.5 | -16.6 | -1.7 | all | `5a9da94f19ca9edda7d81521c94d4ae98787abf8c8e08d04b40ed3f9197672f2` |
+| `st-mast-climber/lines/c4a2708af0e2.ogg` | win 1 | `1099` | 4.0 | -17.2 | -1.6 | all | `6de0f5fc10a803797f4db1c0ed1f437e9f4a8ac6ea78cf2dec25c1825457be3b` |
+| `st-mast-climber/lines/81f03932223f.ogg` | bust 1 | `1099` | 3.24 | -16.7 | -1.4 | all | `553be4c3d20dda7bdbc93e481e181aca3a9f98b0c946b6531c23da44bd4e6931` |
+
+**st-permit-booth**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-permit-booth/lines/9cdc85b4f419.ogg` | open 1 | `1100` | 4.2 | -16.4 | -1.8 | all | `5a5e0886b4bcc8efe4e373d3705b5b5435605af3e9393e347fc2a0d0727a75fc` |
+| `st-permit-booth/lines/a2810530d840.ogg` | open 2 | `1100` | 4.3 | -16.8 | -1.8 | all | `d491d3934daa738486e4e9830518821901bf1306d0dfda164002a9f914977ab4` |
+| `st-permit-booth/lines/9cfecc2da863.ogg` | walk_on 1 | `1099` | 3.56 | -16.5 | -1.6 | all | `03d8d27b10b0f525b0070f8a8e50d7989fca38599f4b274b8463c6497e160e04` |
+| `st-permit-booth/lines/44f098ae3dd3.ogg` | right 1 | `1099` | 4.9 | -16.0 | -1.6 | all | `217cb80cf9ea61ad593e9108ca03c0dc8da8e8295a8ccc18238e9de313cf6415` |
+| `st-permit-booth/lines/471367896f25.ogg` | right 2 | `1099` | 4.2 | -16.8 | -1.7 | all | `a42c00eb67d34aefbedb90225e5566eb8760388644906edcd33567a7c0e411cc` |
+| `st-permit-booth/lines/950348dd39cc.ogg` | right 3 | `1099` | 6.1 | -16.5 | -1.7 | all | `31f0f0e8aaa37917ac76b4bd3bad9d16a2997c384c1ad144364ab9b440a26826` |
+| `st-permit-booth/lines/b3e725b14e0c.ogg` | miss 1 | `1099` | 4.2 | -16.9 | -1.7 | all | `cc4445177134171d88c90ad7768809776276ec43162f74f535b5162688340fdc` |
+| `st-permit-booth/lines/314983902f8a.ogg` | miss 2 | `1099` | 5.9 | -16.7 | -1.7 | all | `3a611fac8e8c5fa066144c156ca7861578f6ccf68f38adc100daee57c14a7ade` |
+| `st-permit-booth/lines/2a9f48aa4e65.ogg` | win 1 | `1099` | 4.8 | -16.2 | -1.6 | all | `07c47454c3960bc53a71c186a036b6b834c9cf2ae1e6c1e6796c4fa7eeac4623` |
+| `st-permit-booth/lines/a714e941e79c.ogg` | bust 1 | `1099` | 4.1 | -16.3 | -1.5 | all | `20fa503a37facd102fcb793fd942df6dd588665faef93f49f6a7a680014a71e2` |
+
+**st-hush-water**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-hush-water/lines/b75facb912bf.ogg` | open 1 | `1099` | 1.36 | -15.9 | -2.2 | all | `4d1b7cb76fe905dfea9073e4e1b5a731a88d850f784759eeb7869352029187cc` |
+| `st-hush-water/lines/e76ca2288ca9.ogg` | open 2 | `1099` | 1.04 | -18.7 | -1.6 | all | `3db2f4bed022298ec3218bd15bea117f79fce222a9d5c2d3fbd3beacfd918a14` |
+| `st-hush-water/lines/009d8188c88a.ogg` | walk_on 1 | `1099` | 1.34 | -16.0 | -2.0 | all | `1dbbecf7c442afa38f7d828c68eb15b8fa5ed9dd0b0e72c804869572843dc3cc` |
+| `st-hush-water/lines/c51947b7339d.ogg` | right 1 | `1099` | 2.94 | -17.4 | -1.8 | hm -> hmm | `b2e7f1daca3dc866906a1151801d4c858c659ce7427128b10a5eebbc45b4833e` |
+| `st-hush-water/lines/266f907db66f.ogg` | right 2 | `1099` | 2.31 | -17.0 | -1.4 | all | `39f23ed6380614e1503d9fe46aca165b48869cb03bf359978fbbe23b33cce61c` |
+| `st-hush-water/lines/f4794c82ce08.ogg` | right 3 | `1099` | 1.4 | -16.0 | -2.2 | all | `83fdadf454da42f9aaff127fc6891d4bd0f8c2497f425a6e34e832e9d9793641` |
+| `st-hush-water/lines/b3df27960edc.ogg` | miss 1 | `1099` | 2.29 | -16.0 | -2.2 | all | `831fa45f16e10f61d6a63b5605778f997722ba24e684d7d86286fea78bd431d7` |
+| `st-hush-water/lines/590275b6cd30.ogg` | miss 2 | `1099` | 2.72 | -16.6 | -1.8 | all | `960d61020b53ce136911b9ecf3cf8041f1528ecd357d4edcdc9c28c1a048a995` |
+| `st-hush-water/lines/a2bb51e656a6.ogg` | win 1 | `1099` | 1.76 | -16.0 | -2.2 | all | `e216c9d1d4ee9b00c6db621a2b863c92929cb351189b150982dd26a6602dfb76` |
+| `st-hush-water/lines/2ec6c7afd8ee.ogg` | win 2 | `1099` | 2.3 | -16.0 | -1.8 | all | `bb31681effbf202d541c92bc5abe51b9dc84733e420ff5f74d11aba4c2172211` |
+| `st-hush-water/lines/03aba871e0cc.ogg` | bust 1 | `1099` | 2.54 | -15.9 | -2.8 | all | `f6be4789361e131e346b63131de1871271c82ba75e7c09b3c336534cde6a1a56` |
+| `st-hush-water/lines/b6f9def37e62.ogg` | bust 2 | `1099` | 2.06 | -19.6 | -1.8 | all | `63edf6d0f74dce70b51dfd71d3809f84711c80af502558ef504891d89697d080` |
+
+**st-live-wires**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-live-wires/lines/5f50cd54698c.ogg` | open 1 | `1100` | 4.5 | -16.2 | -1.7 | round -> around | `c7faef3a2123f53a3fe18bfa6ac29a134e4a983aff50ad33925e8cb2adb2e303` |
+| `st-live-wires/lines/71b3dae4878c.ogg` | open 2 | `1099` | 3.86 | -16.0 | -1.7 | cache -> cash | `4ecdccd53c9c86948b146853b07e5b055a1089f523619df6b58c3e095629f6b3` |
+| `st-live-wires/lines/d5d6c932ca8e.ogg` | right 1 | `1099` | 3.2 | -16.9 | -1.7 | all | `94f6eae58c558c0b30632e82fe40785681339c5588b74ac67a67ccfac3a06147` |
+| `st-live-wires/lines/5b914f694504.ogg` | right 2 | `1099` | 3.21 | -16.6 | -1.8 | all | `073b897c386b46a05446c1d887aec64c421e5efd23e9e3ac6e23cf9b28283eec` |
+| `st-live-wires/lines/533ab9057fe2.ogg` | right 3 | `1099` | 4.8 | -16.2 | -1.4 | smell's -> smells | `fadd48494f7d44cb93cf22a2b8f6b9630bc7f37b0ea1f0df10d3bc323bf53df0` |
+| `st-live-wires/lines/150cde3c3dc6.ogg` | miss 1 | `1099` | 4.5 | -16.9 | -1.7 | all | `b8bc05084abfed9541cdc9d6b1d9a5dc28e76a3c876bacc6cc2aaff273eea7fa` |
+| `st-live-wires/lines/8b4b4a3b88b2.ogg` | miss 2 | `1099` | 3.66 | -16.6 | -1.1 | all | `fec6cc510f90d9b75bd994bfcccc5c60587ff9aed0dba03eeb975374086667f6` |
+| `st-live-wires/lines/0ce516fbd2f3.ogg` | win 1 | `1099` | 6.4 | -17.0 | -1.8 | cache -> cash | `cd97fabc2cab3dca36e15df2a4ebe0a429bd2de174b8db1851ed723b75b4100e` |
+| `st-live-wires/lines/770e54006482.ogg` | bust 1 | `1099` | 5.5 | -17.0 | -1.7 | all | `642622faba9cd57ad58c65f3b07073f950fa73e866eff197eeac7052d2a4db7e` |
+| `st-live-wires/lines/ff6f1076e2aa.ogg` | bust 2 | `1099` | 2.4 | -16.1 | -1.8 | all | `b79fbda9480b8b0c643892837892c1495818aa4a08fe419597f0ec57ee5ff444` |
+
+**st-numbers-station**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `st-numbers-station/lines/281dce98c881.ogg` | open 1 | `1099` | 8.8 | -16.1 | -1.7 | (extra) -> hundred; (extra) -> and; three -> thirty | `ef1dd8dbd6052368541e2e9e38eea0df2048bccc94e2dfd4adab65067b547693` |
+| `st-numbers-station/lines/34dcc6582f1a.ogg` | open 2 | `1099` | 7.9 | -16.2 | -1.8 | all | `c3205e7e141811f4552107c49b452b5a09f2f5814856b658f57d72663cd0317c` |
+| `st-numbers-station/lines/1d9dc9f41996.ogg` | walk_on 1 | `1101` | 6.3 | -15.9 | -1.8 | all | `ff601e3c2060060ad508d41aac25cd4d4f206d37a25f16cff5be0fec6fa9f47b` |
+| `st-numbers-station/lines/6992e1884de5.ogg` | right 1 | `1099` | 9.2 | -16.1 | -1.9 | all | `1a543931289278cb3ca1110b591f9497b53db5d4e545393cb1db83a33b00925a` |
+| `st-numbers-station/lines/5eed90088ddc.ogg` | right 2 | `1099` | 7.9 | -16.6 | -1.7 | all | `07b7ebd49a0092539a770bb9139f021f2e3858365e785751f740db4622be84c7` |
+| `st-numbers-station/lines/825229e27960.ogg` | right 3 | `1099` | 8.2 | -16.1 | -1.7 | all | `69c648b9a0e32ffaaf39806de67f489219653422228c4ea2e11458159d50fe04` |
+| `st-numbers-station/lines/7dd8c66dc185.ogg` | miss 1 | `1099` | 9.8 | -16.0 | -1.7 | all | `4ae2b7d5f04da8f9c7e1bfed18ba1ac65f862dc10edb62af99e2b2a9b5ecfd11` |
+| `st-numbers-station/lines/b9ac630b8e18.ogg` | miss 2 | `1099` | 9.6 | -15.9 | -1.8 | seventeens -> seventeen's | `df23083db935e0add1993f602552c81adcaf70539538645e81a215d59207732b` |
+| `st-numbers-station/lines/02649768b2ad.ogg` | win 1 | `1099` | 7.3 | -16.0 | -2.1 | all | `6a925b990b5e29ed64b844b83a4e430afb8e04a43cd6610548530e83d12e96bd` |
+| `st-numbers-station/lines/5be97c98caa9.ogg` | win 2 | `1099` | 8.7 | -16.2 | -1.6 | all | `690bf6309746ee6d4165d659e4b1bdaeba2566affe1c2e969bd1dbd32fdfc488` |
+| `st-numbers-station/lines/ac4beb579afe.ogg` | bust 1 | `1099` | 8.9 | -15.8 | -1.9 | all | `353865ad7de506e8c9ec5b5831779936c29df75ca3d1695c63b4d99d00af39e6` |
+
+**cell-guard**
+
+| File | Line | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `cell-guard/lines/b4f2ec721ef0.ogg` | open 1 | `1099` | 4.7 | -16.3 | -1.8 | all | `5b8dfd520c5361746a1fc6a5552b4340a1e32e6601ac0b0e945416f4dd032528` |
+| `cell-guard/lines/4e72b95026de.ogg` | open 2 | `1099` | 4.0 | -16.6 | -1.7 | all | `4bdd1ed11a777c22c0974810a81320ad11bc4a3c757edb123207f03414fac404` |
+| `cell-guard/lines/3ba695302827.ogg` | right 1 | `1100` | 4.1 | -16.1 | -1.6 | all | `75cc31eb99cf2cfda66c45c74f25e5482d6cc4c9e978d09ac20feacb8d7c0c92` |
+| `cell-guard/lines/4fc4e0f24a41.ogg` | right 2 | `1099` | 3.76 | -16.1 | -1.8 | all | `4c97a873bcd38a5b97bd1d1336acd8e912463962048edce7931977d0fb2b751f` |
+| `cell-guard/lines/1fdecc0c5795.ogg` | right 3 | `1099` | 4.3 | -17.0 | -1.9 | all | `5d782cc2851490a60872c83c3fd09b7c0710b7621e775510c5d73cff0c7fb42e` |
+| `cell-guard/lines/575120a065e3.ogg` | miss 1 | `1099` | 4.4 | -16.4 | -1.5 | all | `1267db76814a28f04f1359c4dce9b75aa367684b5ca5f1f7d725f74a6d72dee0` |
+| `cell-guard/lines/2ffd6a14e012.ogg` | miss 2 | `1099` | 2.88 | -16.6 | -1.8 | all | `061bc23ca10649686b63d3ade5722d02e16c4cf260baad80548b7d387096cb63` |
+| `cell-guard/lines/e89895b4e8c9.ogg` | hunger 1 | `1099` | 3.27 | -16.4 | -1.7 | all | `f25f42c7cb3f9382e01b979c5f83a2ed0ac373999c4e21489c182d434a238a16` |
+| `cell-guard/lines/557e81447d7d.ogg` | hunger 2 | `1099` | 5.4 | -16.4 | -1.7 | stew -> stu | `9c20dfbb1fc008be5923b052f3704511285b3fe51fc0ddc3858b4ba5b685a388` |
+| `cell-guard/lines/3829fbdf7efc.ogg` | hunger 3 | `1100` | 3.5 | -16.8 | -1.7 | all | `6d1726b7907ce4a474b63aac9622d177bedd76e76d512df183dff8c2e0b9471c` |
+| `cell-guard/lines/103cb303d288.ogg` | hunger 4 | `1099` | 3.05 | -16.7 | -1.4 | all | `fbfe8d931095aa956c6feb16d976c829708ef8c7d87bc593a5d418820697e87e` |
+| `cell-guard/lines/44113ae1fb7c.ogg` | escape 1 | `1100` | 6.3 | -16.4 | -1.7 | all | `b268c9dcf086d4f69132eb97e17e30715940e5b23a4ff644fdbda2804b08812e` |
+| `cell-guard/lines/a64042463865.ogg` | thrown_out 1 | `1099` | 3.26 | -16.6 | -1.7 | all | `78a748aa2df8cd0b9de752c5ed8006b039a32701318481adad7ba7e46b260e1f` |
+| `cell-guard/lines/0a589ec58153.ogg` | thrown_out 2 | `1099` | 3.33 | -16.6 | -1.7 | all | `baaa417fa4dd3a8a550350bb0123283d77e52c8fb7ad5cfd748f3fb953083cff` |
+
+Notes: `st-numbers-station/lines/b9ac630b8e18.ogg` ("Three seventeens") uses seed 1099, chosen by hand over the checker's pick, because the transcriber heard seed 1100 as "317s" and that could be heard as three hundred and seventeen. Seed 1099 has a clear pause after "three". Six short takes measure −17.2 to −19.6 LUFS-I, below the −16 target: `exp-log-boss/05d79b30d907`, `st-mast-climber/28ac63f4c5e3` and `c4a2708af0e2`, and `st-hush-water/e76ca2288ca9`, `c51947b7339d` and `b6f9def37e62`. They already passed through `clone/prelimit.sh`, and their peaks are at −1.6 to −1.8 dBTP, so reaching −16 would take another 3 to 4 dB of limiting on lines of one to four words with pauses. They are left as recorded.
+
+## FAL-1132 — Bodge's shop lines, local voice clone (voice)
+
+42 voice files in `game/assets/audio/voice/bodge/lines/`: every line in `game/data/shopkeeper.json` (`lines`: first_visit 3, enter 8, idle 8, buy 8, broke 6, capped 4, leave 5). Each file is named by its text: the first 12 hex characters of the SHA-1 of the exact UTF-8 line, so a line that is later edited stops matching its old take (the rule shared with FAL-1134). The words fed to the model are each line exactly. Generated locally with VoxCPM2 on 2026-11-18. No recordings of any real person went in.
+
+Rights basis: as for FAL-1110 below. VoxCPM2 (OpenBMB) code and weights are released under the [Apache License 2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE), which allows commercial use; model card https://huggingface.co/openbmb/VoxCPM2. Package `voxcpm` 2.0.3, weights `openbmb/VoxCPM2` from the local Hugging Face cache. The voice is cloned from Bodge's one reference take (`bodge`, SHA-256 `ef8086ebb2233cd37389752baee5d31aafc41765c1c5634febaead2754f7cb83`): Bodge reading the template paragraph, generated with Gemini text-to-speech (`gemini-3.8-flash-tts`, voice `en-au-storyteller-1`, the direction in `teachers.json`) via the Gemini API on 2026-11-17 (FAL-1099). The reference stays in the local falcon-voice repo and doesn't ship. No model was trained or fine-tuned. Matt chose this clone for Bodge on FAL-1110.
+
+- **Cloning:** VoxCPM2 "ultimate" mode: the reference is both `reference_wav_path` and `prompt_wav_path`, and its words are `prompt_text`. cfg 2.0, 10 inference timesteps, denoiser off, text normalisation off. Seed per file below (`torch.manual_seed`): 1099 first, then 1100 for the 6 lines whose words didn't match at 1099.
+- **Changes, every file** (falcon-voice `clone/post.sh`): resample the 48 kHz clone to 24 kHz mono; trim silence below −50 dB at both ends; 10 ms fade-in and 40 ms fade-out; 30 ms lead-in and 60 ms tail; then Bodge's approved chain from `teachers.json`, the 2% tape slowdown (`asetrate=23520,aresample=24000`); then falcon-voice `master.sh` (two-pass loudnorm to −16 LUFS, true peak at or below −1 dBTP, 44.1 kHz mono OGG Vorbis q5). No take needed `clone/prelimit.sh`.
+- **Checks:** every take transcribed with faster-whisper small (CPU) and compared word by word with the line. All 42 shipped takes match. The six seed-1099 takes that didn't ("stall" heard as "store", "bet" as "bit", "are" as "of", "or" as "we'll", "looking's" as "lookings", "checked" as "check") were replaced by seed 1100, so no mismatch was accepted.
+- **Measured across all 42** (music-tools `bin/check`, 4× oversampled true peak): −16.97 to −15.83 LUFS-I, −2.62 to −1.38 dBTP, 2.24 to 7.14 s long, 3.6 minutes in all. The first and last 20 ms of every file are at least 88 dB below its loudest 20 ms.
+
+| File (`game/assets/audio/voice/bodge/lines/`) | Line (`shopkeeper.json`) | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|---|
+| `856cc3ac3ce6.ogg` | first_visit 1 | `1099` | 5.4 | -16.6 | -1.6 | all | `d567833328224561b91b1abd7538826b0b0c1cda9fafb4c1b8b6f0092a536ca3` |
+| `34654fd0dd0d.ogg` | first_visit 2 | `1100` | 6.1 | -16.1 | -1.5 | all | `a35bc2f8765de07d982cb80665c8ee3572b18417657b8dc0b40042a85c53eec5` |
+| `2e422429312d.ogg` | first_visit 3 | `1099` | 5.0 | -16.8 | -1.7 | all | `38dbda2c01ca95c6835f0476461dfe382f90410faad2f42d2b204adbdf468462` |
+| `85761829a904.ogg` | enter 1 | `1099` | 4.8 | -16.1 | -1.9 | all | `0c798dc87e45e416135a198cf1a98b44648103f7f975866bc1d7acd6749f5c67` |
+| `b122862a94cc.ogg` | enter 2 | `1099` | 4.1 | -16.1 | -1.4 | all | `4f7900c7f68a20949bb20c92a1e225789ec3e0ff0ddf6749884f8ca44edececd` |
+| `41448294b8c7.ogg` | enter 3 | `1099` | 5.3 | -16.0 | -1.8 | all | `ff9627f6001a7faf2269fc2c5b1f5bf00d74cfe80b70889f149053bf01fd885e` |
+| `880f8bf12150.ogg` | enter 4 | `1099` | 5.1 | -16.5 | -1.7 | all | `7863a56612c1067c468044e749ae37f1354896075a30cee696c9fc9cb1808e3b` |
+| `96be3be7fc41.ogg` | enter 5 | `1099` | 4.6 | -16.2 | -1.6 | all | `f9e9fbca82770751a0d7baefe102f681c0ce80f73c5c360f21a23d1401aa73fe` |
+| `490723d891bd.ogg` | enter 6 | `1099` | 4.9 | -16.2 | -1.8 | all | `c0cfd02e580be77dcb0f4798557fa1a0f7a339cf9844b4eacc510365b5c2a64a` |
+| `7254149d01ee.ogg` | enter 7 | `1099` | 4.6 | -15.8 | -1.8 | all | `582c3403c4afed78267754fc0b47ec594c0e89128821e9924400a09623693aa0` |
+| `53d6e15ba05e.ogg` | enter 8 | `1100` | 4.8 | -15.8 | -1.7 | all | `554253aa3e9f464fa82bfaf1bcee9a46e7f84c7973e25d4ffb86686928d7e9b0` |
+| `f53a9503aeee.ogg` | idle 1 | `1099` | 5.5 | -16.5 | -1.7 | all | `d435be7eabb19fd5c08eaae120d4c6b506e008ce1dee4cf6e25199dc99b0f111` |
+| `60cb4a8dbf26.ogg` | idle 2 | `1099` | 5.9 | -16.9 | -1.7 | all | `4f1c6c40af61504b837da6b36a5097331d5d7ac1498b948da9f6e33bc609a236` |
+| `7c8b4ded913c.ogg` | idle 3 | `1099` | 4.8 | -16.9 | -1.8 | all | `81bb406d49d32308235ea6ff452e216300f60a273bbde84d21d2de98a2518820` |
+| `3c8e592329a6.ogg` | idle 4 | `1099` | 5.8 | -16.0 | -1.8 | all | `4a0f139f3eaeacfa848c777fce25d8ed7c933d844c36203b1f04de3d16a657ae` |
+| `b46c337ab603.ogg` | idle 5 | `1099` | 6.2 | -16.4 | -1.8 | all | `01fa7de1057ee3b1ed054a627900b6c4d050c04e521b0666fb9d04bd1caa442c` |
+| `cee01fc07c48.ogg` | idle 6 | `1099` | 7.2 | -16.4 | -1.8 | all | `1fe40e9558117996c93da7b60cf8f5b3bb3f80a2cbb439954440665632bc82d1` |
+| `9a6dab88811d.ogg` | idle 7 | `1099` | 5.9 | -16.8 | -1.8 | all | `ed34048a628e989f859fd27944ae5484614b016c7c433b74543d985532be0750` |
+| `7ee038d7a7a3.ogg` | idle 8 | `1099` | 6.5 | -16.3 | -1.8 | all | `8cd1a6b6b9529fca4b323f34b330418a80b03cf0ce69b3fd906a68f06fbc76e8` |
+| `24fce716f89e.ogg` | buy 1 | `1099` | 6.3 | -16.2 | -1.6 | all | `720abed78eb76bc870eff74567ec6386fa2034086a1c9230f88b57db707f0e79` |
+| `171f86ab35dc.ogg` | buy 2 | `1099` | 6.1 | -16.4 | -1.7 | all | `ea96a1a9347e62497ebd33b18279837dc76d0be69d24e868b909935591307cff` |
+| `a246eb6fe5e1.ogg` | buy 3 | `1099` | 5.1 | -16.0 | -1.6 | all | `fe9eacd5845beb043ee0a10a5447976eecba4ff73c15a65a16bf8262e1344f74` |
+| `ada695041fc8.ogg` | buy 4 | `1099` | 5.6 | -16.6 | -1.5 | all | `73df3af624fd48729a6d7c90ec64e9cd3fd86143ec80d31f3317ec9009ab8fc5` |
+| `d11947dc06cf.ogg` | buy 5 | `1099` | 6.0 | -16.3 | -1.7 | all | `95bea956f8e82abeaa274b6b821045e8d14cadc88525de644983c9f304d217b2` |
+| `05f58aeb3872.ogg` | buy 6 | `1099` | 6.7 | -16.1 | -1.6 | all | `aec2b39160575574c5384acda99083973b10c629febed33988f60e23b8b9e0b8` |
+| `10a06e76c751.ogg` | buy 7 | `1099` | 6.1 | -16.4 | -1.7 | all | `9d319f1aa440088dcba7afa09814ad52c49fa97744479744c914555cbee81d6b` |
+| `e9a216ea1a2c.ogg` | buy 8 | `1099` | 5.2 | -16.1 | -1.6 | all | `610f84eee9461d9a2b0005412b2692b69b984afb89647ab9dbb7bd61d010a23e` |
+| `0c9d3a927e4f.ogg` | broke 1 | `1099` | 5.5 | -16.6 | -1.5 | all | `29e835c6699d2adfb80428cf6af128ef81acfd395389c76891349172b17b2411` |
+| `acc4e6b1106c.ogg` | broke 2 | `1099` | 4.7 | -16.4 | -1.8 | all | `4e374f77b539a61b61a43d0949501084bea6d0858b6f4664a70bab3d33bb9bc0` |
+| `c401f260929e.ogg` | broke 3 | `1099` | 4.8 | -16.5 | -1.7 | all | `1bd1c3c7b96525ea996f6e1eaa6f08efacefc24728a8e8c9f0971ffd628a9382` |
+| `3e1568f4837b.ogg` | broke 4 | `1100` | 4.7 | -16.6 | -1.8 | all | `1905532151df0fc5ce4fbe306647323ba9e39f6a12cf96c86b17e53a89a54362` |
+| `8853fc6b214a.ogg` | broke 5 | `1100` | 4.9 | -16.3 | -1.4 | all | `1ea6bcd3c04c4e6ba8f1b6ed167db0790476dee7905279dceb27b37bbd6a3bbe` |
+| `acd63e2f0458.ogg` | broke 6 | `1100` | 6.0 | -15.8 | -1.4 | all | `da97a5ef6bd1b4373c6cd5e1a8fcc0c37c8872f6695c3fe658e439a4e487e7a0` |
+| `b83ba6b55d0a.ogg` | capped 1 | `1099` | 4.6 | -16.3 | -1.6 | all | `c7538134c9b7316b6bc9fafe91345d709e4bd9d74ad32a2b2a329406de276bc7` |
+| `2090295d7969.ogg` | capped 2 | `1100` | 5.7 | -16.4 | -1.5 | all | `3895c3b8b0e8a70ed985c6653aa73e6b76cadff2540def996029dba309660e62` |
+| `60bbbc23013a.ogg` | capped 3 | `1099` | 2.24 | -16.0 | -2.6 | all | `b9a8d43afbbed130ff2947b3bd4c8a8e5462fe5137661e800d6faac9f1f6c134` |
+| `17d313d3803b.ogg` | capped 4 | `1099` | 2.97 | -16.0 | -2.5 | all | `a6f247dba9b56788738a54e402a1ea483f30d5fe0f9509af3a8f1eb95f72d111` |
+| `3a05c401105d.ogg` | leave 1 | `1099` | 5.3 | -16.6 | -1.7 | all | `089116adf2fa6851743bf777ea1f02370165bf7b1b1674955c1384ed1fd29c28` |
+| `ccbd0f982e14.ogg` | leave 2 | `1099` | 3.31 | -16.3 | -1.8 | all | `32302ee6bc7db4760acc99422ebe447bf9d89247e8c548e9c3c36428304cf946` |
+| `78a8ce046268.ogg` | leave 3 | `1099` | 3.62 | -15.9 | -1.8 | all | `3f05259cecd4819203f9a503c9321b316f4d91fc635a5641fd85796d63940114` |
+| `312a7f3bfdf6.ogg` | leave 4 | `1099` | 5.3 | -16.6 | -1.6 | all | `963061a6278673e5858d7a806f31abfc6e6fb5ad645f6c6de646b8e65582069a` |
+| `8ca3e4bd0590.ogg` | leave 5 | `1099` | 4.4 | -16.7 | -1.7 | all | `d1b828e06ddbe864a3f7b7e3d14aa9165d174fb579cd67c28ef018b74d995d8d` |
+
+## FAL-992 — Spark's explainer move lines, local voice clone (voice)
+
+162 voice files in `game/assets/audio/voice/spark/moves/`: two takes (`_1`, `_2`) of every move line in `curriculum/moves.json` (81 moves), with the same names and format the game already loads. The words are each move's `say` text exactly, because the explainer captions show them (FAL-991 found none changed). Generated locally with VoxCPM2 on 2026-11-18, replacing the FAL-428 takes of 2026-10-30. No recordings of any real person went in.
+
+Rights basis: as for FAL-1110 below. VoxCPM2 (OpenBMB) code and weights are released under the [Apache License 2.0](https://github.com/OpenBMB/VoxCPM/blob/main/LICENSE), which allows commercial use; model card https://huggingface.co/openbmb/VoxCPM2. Package `voxcpm` 2.0.3, weights `openbmb/VoxCPM2` from the local Hugging Face cache. The voice is cloned from Spark's one reference take (`spark`, SHA-256 `a456ce468559a8da7a6b060a1b90cea785533581abf52f7ec71978e1066ff151`): Spark reading the template paragraph, generated with Gemini text-to-speech (`gemini-3.8-flash-tts`, voice `leda`, the direction in `teachers.json`) via the Gemini API on 2026-11-17 (FAL-1099). The reference stays in the local falcon-voice repo and doesn't ship. No model was trained or fine-tuned. Matt chose this clone for Spark on FAL-1110.
+
+- **Cloning:** VoxCPM2 "ultimate" mode: the reference is both `reference_wav_path` and `prompt_wav_path`, and its words are `prompt_text`. cfg 2.0, 10 inference timesteps, denoiser off, text normalisation off. Seed per file below (`torch.manual_seed`). `_1` takes start at seed 1099, then 1100 to 1103 for a line whose words didn't match; `_2` takes start at 1100 (1100 to 1103, then 1099), so the two takes of a line are never the same render. 152 files kept their first seed. `eliminate_2` passed on 1100, but the take ended mid-word, so it was retaken; seeds 1101 to 1103 all ended cleanly, and 1101 was kept.
+- **Text fed to the model** is the `say` line, unchanged.
+- **Changes, every file** (falcon-voice `clone/post.sh`): resample the 48 kHz clone to 24 kHz mono; trim silence below −50 dB at both ends; 10 ms fade-in and 40 ms fade-out; 30 ms lead-in and 60 ms tail; then Spark's approved chain from `teachers.json`, `fx/spark-sheen.sh` (2% tape-style slowdown, `rubberband` pitch ×1.189 with shifted formants, `fx/vocoder.py` at 15% wet, high-pass 200 Hz, low-pass 7500 Hz); then falcon-voice `master.sh` (two-pass loudnorm to −16 LUFS, true peak at or below −1 dBTP, 44.1 kHz mono OGG Vorbis q5). Takes that `master.sh` left below −17 LUFS (sharp peaks) first went through a 4× oversampled `alimiter` (`clone/prelimit.sh`). `standardise_2` then had +0.4 dB of static gain, re-encoded at q5, to bring it inside −16 ±1 LUFS.
+- **Checks:** every take transcribed with faster-whisper small (CPU) and compared word by word with `say`. 156 matched. These 6 differ only where the transcriber can't follow, and were accepted on reading the diff: `use-complement_1` and `_2` (whole heard as hole, on all five seeds); `expected-value_1` and `_2` (weight heard as wait, on all five seeds); `simplify-surd_1` and `_2` (surd heard as "SIRD"; a second pass with the maths words in the prompt hears "surd" on both).
+- **Measured across all 162** (music-tools `bin/check`, 4× oversampled true peak): −16.97 to −15.90 LUFS-I, −2.97 to −1.11 dBTP, 1.55 to 4.78 s long, 9.2 minutes in all. The first and last 20 ms of every file are at least 60 dB below its loudest 20 ms.
+
+| File (`game/assets/audio/voice/spark/moves/`) | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|
+| `add-probabilities_1.ogg` | `1099` | 2.41 | -16.9 | -1.9 | all | `e0bc9d60c72a3f9e9b7a885c4ab5c1c90769b5e7e79f6f0d522d4879b9bd8c4d` |
+| `add-probabilities_2.ogg` | `1100` | 2.4 | -16.0 | -2.4 | all | `db60635d7227c8d2bf62caa32a830ef78be745989706ad8f0f3357f6875bed8e` |
+| `angle-sum_1.ogg` | `1099` | 3.35 | -16.2 | -1.6 | all | `db52e0c6f4e5280a61b9715d037ab672a8128ec1ca7521948c85aa3155c8512c` |
+| `angle-sum_2.ogg` | `1100` | 3.6 | -16.0 | -1.9 | all | `eabc40237a8341b436c7de97a302927d5d7b55d62958b7803ad7844c6ee79482` |
+| `apply-condition_1.ogg` | `1099` | 2.63 | -16.0 | -2.8 | all | `6d95c9b2f8d7e1e8aec6ff1bac6ca5d343b52dd5682fe49833e92dafbfaa96b6` |
+| `apply-condition_2.ogg` | `1100` | 2.88 | -16.0 | -2.8 | all | `cc154c1c4e06a66688575892717cba96ad1d72cfcff1941df4ffd26b6e8fba57` |
+| `apply-inverse_1.ogg` | `1099` | 3.57 | -16.0 | -1.9 | all | `45f9319617832010f0ea4af9f1a4df18cdccdc0001c3553cc45b2ebd57ee11c5` |
+| `apply-inverse_2.ogg` | `1100` | 4.0 | -16.1 | -1.8 | all | `868aa7b3f898b5266b6605b1a22a05a0518a403c14842330eb9aee912b2c51d5` |
+| `ask-what-power_1.ogg` | `1099` | 2.73 | -16.0 | -2.1 | all | `df8180fb95ed27bf5c08f4971b02cd3486b4ee31795045fc5467c5b0dad10772` |
+| `ask-what-power_2.ogg` | `1100` | 2.68 | -16.0 | -2.0 | all | `d0cd30d32302a32d1ccc04ec9ef596bad87e7cf18fcc05c5f8eec223ca7c2d44` |
+| `change-of-base_1.ogg` | `1099` | 2.35 | -16.0 | -2.7 | all | `44e32bf93c1808b33fbdf60bf63a58bbcb2cb8ffa01e17da44c85b6f73bb360f` |
+| `change-of-base_2.ogg` | `1100` | 2.66 | -16.0 | -2.4 | all | `867f3ca1c08baf333e60499775656132777f13b2d8d74a9704993e3e91af9f5a` |
+| `check_1.ogg` | `1099` | 1.92 | -16.0 | -2.4 | all | `a47b9c2e95cd8683550367b26cd5a19c2b29da0bd267ce3b36f8d55cd023451c` |
+| `check_2.ogg` | `1100` | 1.95 | -16.0 | -1.9 | all | `75185208999f30a6ae994f18f170527c56548dcfc275a0b5c88a7e5d219baa13` |
+| `choose-rule_1.ogg` | `1099` | 3.15 | -16.0 | -1.7 | all | `354d512790091b5f31ba5ff8e8c5a6c3e323b321b408b08266c350ab99c4eab4` |
+| `choose-rule_2.ogg` | `1100` | 3.18 | -16.1 | -1.6 | all | `cc1f785d732fe606031e3438305eabafe996ad7a18e5d63b8124774f03d3b7a2` |
+| `classify-turning-point_1.ogg` | `1099` | 3.04 | -16.0 | -1.7 | all | `3c84888e47d2f6aa335277076a57bcccf7e9090acb1f3df9edb32edd72f2924f` |
+| `classify-turning-point_2.ogg` | `1100` | 3.19 | -15.9 | -2.0 | all | `b03ff0d54d2e17a3c4fada6cd4fbb19ba6e8a13ca64f2bb91875f9069c17f07a` |
+| `clear-fractions_1.ogg` | `1099` | 3.74 | -16.3 | -1.9 | all | `91cdaea1beaec5b970093ab75ce1be5f9f4ae414d16fbd69c702251d849ca5e8` |
+| `clear-fractions_2.ogg` | `1100` | 3.13 | -16.3 | -1.7 | all | `8e17d2efd3ff4df4a8d098b950933ab64de7b2208e212dc4123062c4d32b3dd8` |
+| `compare-coefficients_1.ogg` | `1099` | 4.4 | -16.1 | -1.7 | all | `35be148e6d487b63749965d9c3255ebbc31f8e991b23cbea65fc330be629db2e` |
+| `compare-coefficients_2.ogg` | `1100` | 4.0 | -16.0 | -1.8 | all | `d5fa70481ab088caf8c1d85fe317e4d3ddeb530e44eef12dab30ddcbece744f3` |
+| `compare-neighbours_1.ogg` | `1099` | 4.0 | -16.0 | -1.7 | all | `65aebc2473936f3d133dffa0d0ee0aa07a0913cffccca96fb2451d0d9ae85f82` |
+| `compare-neighbours_2.ogg` | `1100` | 4.1 | -16.1 | -1.9 | all | `4cec598746ad1c22a56471f7e2e11620953cbd903f8410e49a304fa579c40826` |
+| `complete-square_1.ogg` | `1099` | 2.54 | -16.0 | -2.4 | all | `21ebf80b67c1544cdbdee2311281e8adcfb901481cdc74bbfbbbcc7790dc152d` |
+| `complete-square_2.ogg` | `1100` | 2.66 | -16.0 | -2.4 | all | `cdf00f130bc04614c62c093741d6cdee109810b927294cb849c065756ef0a1e0` |
+| `compose_1.ogg` | `1099` | 3.21 | -16.1 | -1.7 | all | `9ab22862a2bc5f78af4f241801ab65d816bbc5d697a88de5b52b2598e3f7b2f7` |
+| `compose_2.ogg` | `1100` | 3.64 | -16.0 | -1.8 | all | `66337c0d3b0dba6d5cb64e64d0a85b2a35eabfef7fc5fe216a439fe976c4e743` |
+| `compute-discriminant_1.ogg` | `1099` | 3.52 | -16.0 | -1.8 | all | `0d11d705677e22fabc05a8b396e733300d8cb303e1a02276d77d76b2f676e804` |
+| `compute-discriminant_2.ogg` | `1100` | 4.1 | -16.1 | -1.5 | all | `545d82b30b526c7606f10b14f5bb6ba472f6935b9341a162212a49a8c0f58920` |
+| `convert-log-exp_1.ogg` | `1099` | 4.7 | -16.0 | -1.9 | all | `2051372dff2766a01163fff1fb35a161e06eee68fc926427e7f6b2c5cccaee14` |
+| `convert-log-exp_2.ogg` | `1100` | 4.5 | -16.2 | -1.8 | all | `14bcb3a38f506a5a1088c2c81832c98282ffe9380743bb9d0713783c4e455b0e` |
+| `count-steps_1.ogg` | `1099` | 4.4 | -15.9 | -1.8 | all | `2641f6945d338474a67140b256704cdeaf5eebb1cf08f08215d446c2e73822d2` |
+| `count-steps_2.ogg` | `1100` | 3.61 | -16.3 | -1.7 | all | `4ed035d2e6f1577588b81a2844186b42db30b31329fcb15d43111e6aeb801072` |
+| `definite-integral_1.ogg` | `1099` | 4.2 | -16.2 | -1.6 | all | `4e3e5c9550630602c7de5239d67f3d71bb39eeb85858ad9f6d57b3475af5ec20` |
+| `definite-integral_2.ogg` | `1100` | 4.7 | -16.3 | -1.7 | all | `b63f20c26c0b33734616f4a27d0e8b42287ca0c22ee57b06e9c8408cfb294dbc` |
+| `describe-transformation_1.ogg` | `1099` | 3.19 | -16.1 | -1.8 | all | `dc948ed1c7aa9663c125080c8aafd62152e4f464494827ce67aa3ec6be4ff3ac` |
+| `describe-transformation_2.ogg` | `1100` | 3.55 | -16.2 | -1.8 | all | `8996285ff90b25b296352b3c63f3db4ef2be281aa2da5bd2bd788bfd97b0ac27` |
+| `differentiate_1.ogg` | `1099` | 3.25 | -16.4 | -2.0 | all | `4b7e646cd8c2109ab8d812f8e2a154b8168f700712b63b26a606912c174c623b` |
+| `differentiate_2.ogg` | `1100` | 2.76 | -16.0 | -3.0 | all | `215a57bd0c6c967643d234df57cc9f093c8ec9d9c312f9716c92b723d1b7c4c0` |
+| `draw-construction_1.ogg` | `1099` | 2.52 | -16.2 | -2.2 | all | `16ba152c2116e9f7e14c1bdde5400db8cb92d5224540e6091be2f6fb9278e3f5` |
+| `draw-construction_2.ogg` | `1100` | 2.81 | -16.0 | -2.3 | all | `4d7dd65099c2763b1a38e7e8f48bbc255ca61ccd8946d7129d1598772bb7e396` |
+| `eliminate_1.ogg` | `1099` | 3.27 | -16.0 | -2.0 | all | `55056002bf4c461c024809aa03bfdae83a05846492f78d48bec509c10f7f851c` |
+| `eliminate_2.ogg` | `1101` | 3.61 | -16.0 | -1.8 | all | `3bebbddf6cf90b43e8a0b74097a16232a51c79121935327b117965a967d8e5cf` |
+| `end-behaviour_1.ogg` | `1099` | 3.79 | -16.2 | -1.9 | all | `bd28ecaf27f29dce1481ad3ec3c548392a8133f3549535a2488b19734eb1fcca` |
+| `end-behaviour_2.ogg` | `1100` | 3.67 | -16.2 | -1.6 | all | `14075f3b3331069984c4670a8843dbb7068f5ea1f2b5f6f7ad0e67e308992ed7` |
+| `equate_1.ogg` | `1099` | 3.49 | -16.3 | -1.8 | all | `01fd656954bb4b4008e9446bf818af1d117fd024b0104b58f29371ab190655dd` |
+| `equate_2.ogg` | `1100` | 3.18 | -16.1 | -1.8 | all | `a3f5cec3b00386125f01bc0f1887f33ce463776c785a3fe314e735164acbbd94` |
+| `evaluate_1.ogg` | `1099` | 1.55 | -16.0 | -2.7 | all | `baceb3bc271d734ffbb57eb2eba304cf92fba00ae45630146acb6e279d51f414` |
+| `evaluate_2.ogg` | `1100` | 1.57 | -16.0 | -2.8 | all | `d1aa8f1effa7a5eb515085355143383c5b907cb5a9f061e807c7428f43d48d56` |
+| `exact-value_1.ogg` | `1099` | 3.64 | -16.4 | -1.6 | all | `765e2ac86a32efc7c7e717ce4680aa6ee65533000f9890d534d92be452a30f0c` |
+| `exact-value_2.ogg` | `1100` | 3.63 | -16.4 | -1.6 | all | `f2602ad5dd5079b8fa3591e8057af1f5b425fe1d5fb0e3d401a681a587536b5b` |
+| `expand_1.ogg` | `1099` | 3.25 | -16.5 | -1.7 | all | `a70afdf9b4a314a297139ffe1f4c83f74e7bb823275b6623f4d9eefe018ad866` |
+| `expand_2.ogg` | `1100` | 3.25 | -16.0 | -1.7 | all | `64b711672705b26c0eac6b8c28faccc5608a64d23d37c5c3eeb7f62e65176420` |
+| `expected-count_1.ogg` | `1099` | 3.08 | -16.0 | -1.8 | all | `f40771e1b144b9af2ca3dfcde687d34224f002a3c638acbbbe7e1ee339cf8677` |
+| `expected-count_2.ogg` | `1100` | 3.04 | -16.0 | -1.8 | all | `256c0b996720613aeb42e0473b7f21f37494c449b0c3065f12bbab6d8e7c43d4` |
+| `expected-value_1.ogg` | `1099` | 3.77 | -16.3 | -1.8 | accepted on review | `a1d9eca3de1c08bb7c2c3341c82c95e66489bed454faec31000019a094549e05` |
+| `expected-value_2.ogg` | `1100` | 3.67 | -15.8 | -1.5 | accepted on review | `15ea43d5532f24a8778d92184b52a06ac6bb268cf2b02fb93b60c00895c7571c` |
+| `factorise_1.ogg` | `1099` | 3.52 | -16.2 | -1.7 | all | `c9cfe1950ba3cd5a63b796e80dc1a72cb4d11fde9644ec1fdb8d54cc19fa071f` |
+| `factorise_2.ogg` | `1100` | 3.34 | -16.3 | -1.7 | all | `2287335c496c20496647f4d033157563ca951a069f5c91baa57c0b96d8da1160` |
+| `find-all-angles_1.ogg` | `1099` | 4.4 | -16.0 | -1.7 | all | `93b74e5fd2e90063b5d7276e5f934f4a68f2a06ce689f10f4580adb85c029efe` |
+| `find-all-angles_2.ogg` | `1100` | 4.4 | -16.0 | -1.6 | all | `7f478116767f388c5ecd8134ab38bcec5f0ab248aebdaf1c5d30494bba952eee` |
+| `find-factor-pair_1.ogg` | `1099` | 2.9 | -16.0 | -2.7 | all | `4eac3d1d2eaff4b9945c196cf5af5b759c56fcc891df294eb178088aca7b98dd` |
+| `find-factor-pair_2.ogg` | `1100` | 2.9 | -16.0 | -2.4 | all | `78e897efc542d0d5f5ea8b441008e7fe18c5deaf35ff8ba000255fefdd71902a` |
+| `find-gradient_1.ogg` | `1099` | 3.85 | -16.0 | -1.8 | all | `2c1132725f779ff2418d452cc61eea43918c6228a78b2c7672e846528976af82` |
+| `find-gradient_2.ogg` | `1100` | 3.85 | -15.9 | -1.8 | all | `f335a46029a7c050c101c9b3b0065afed8ad92c75f208e4c42ffcb7e054e5e93` |
+| `find-midpoint_1.ogg` | `1099` | 2.73 | -16.2 | -2.0 | all | `f4e2b04eade2f158ee84346e816791ae2844b167ffd39f59df84303653af8b84` |
+| `find-midpoint_2.ogg` | `1100` | 2.59 | -16.2 | -2.4 | all | `4690a91590f6fedcb4089a1c419e3dd8e1b44493543cb397802aaeaf1fbbf223` |
+| `gauss-pair_1.ogg` | `1099` | 4.5 | -16.0 | -1.8 | all | `1ed3f2aca29f456215ea9d18e47366212b8d151af9e6e66dd9cfafecfc234429` |
+| `gauss-pair_2.ogg` | `1100` | 4.8 | -16.2 | -1.8 | all | `a433009fdef7cc739ae3056876c03f76d7bb51ae6567f9950321b9d0e79422bf` |
+| `gdc-graph_1.ogg` | `1099` | 4.1 | -16.1 | -1.8 | all | `4f7b60e889507dce295586460d4bd2542ec1496eb21e1f19208b28086a41abca` |
+| `gdc-graph_2.ogg` | `1100` | 4.3 | -16.1 | -1.7 | all | `c5d036f44b6afe0367aad488049664255c097288ad66f0dedb413cdf6facebd4` |
+| `gdc-solver_1.ogg` | `1103` | 3.21 | -16.1 | -1.9 | all | `a16535b9b75c8570144f923bc3d811fc199b78361a9d831bdd573807c4691b83` |
+| `gdc-solver_2.ogg` | `1103` | 3.21 | -16.1 | -1.9 | all | `069aea89d8e63bf51fb4785489a024f5090a4984db1928578cf74042e98d7813` |
+| `gdc-stats_1.ogg` | `1099` | 3.62 | -16.8 | -1.6 | all | `8b2ac8f2a7c6ded52356dcc372537ec05343e7fdf5740efdca50fbfbf1526de3` |
+| `gdc-stats_2.ogg` | `1103` | 3.54 | -16.5 | -1.8 | all | `c5c291fca9e730d0cbb0607c1425940dedc4ebb502e080ddc6e0d7a271749772` |
+| `integrate_1.ogg` | `1099` | 3.33 | -16.0 | -1.6 | all | `724ec5094dc46060e32bfc6b83ad223f9b718eace7f2ddc989287aad8209b6f5` |
+| `integrate_2.ogg` | `1100` | 3.67 | -16.0 | -1.9 | all | `273a6c0b13305313eead39c2c97ea73a5573937ef618cbedcfe276ff92a46ff5` |
+| `interpret_1.ogg` | `1099` | 1.93 | -16.0 | -2.4 | all | `2bdcfb20763ff966d0570574c64964cbb36e2e23e98a0b260a8f4c91d1c344f9` |
+| `interpret_2.ogg` | `1100` | 2.56 | -16.0 | -2.3 | all | `df0b23fd6dfcb6de27cd8bd346da47f64bff7467712d8a4c498473c6e65b81f2` |
+| `introduce-letter_1.ogg` | `1099` | 2.41 | -16.0 | -3.0 | all | `62791d8c76bed01f70e5140b55634fd71f0ce878016f11df6ff621adb45d6791` |
+| `introduce-letter_2.ogg` | `1100` | 2.55 | -16.0 | -2.6 | all | `53ea882893c03531aed8971ae7d2aa4576fa55d6acaddcb01745f4d012ff85e5` |
+| `isolate_1.ogg` | `1099` | 3.52 | -16.0 | -1.8 | all | `c016f29bd4ad8c6136bda4e47d22aa273096adce6278d6703285770d9eb3c9a5` |
+| `isolate_2.ogg` | `1100` | 3.83 | -16.0 | -1.9 | all | `236a2ff918296e0c4a375caccaa7f483831b45acd4938f6b9afccb3e99378e11` |
+| `keep-valid-solutions_1.ogg` | `1099` | 4.5 | -16.1 | -1.6 | all | `2bc0f172027a6129d6d8a5194477cea8b1a78e4d65abf7d622c9c2c9e690506b` |
+| `keep-valid-solutions_2.ogg` | `1100` | 4.5 | -16.3 | -1.5 | all | `f556150c0b5ce21f8175e6634f52e723e09d88439e7905ae0b651a721b6a308f` |
+| `label-diagram_1.ogg` | `1099` | 3.25 | -15.9 | -1.6 | all | `5bb5c049514fb2b470eb64eadea85819dfb11be872ca1c885b5ffdc06faf8f67` |
+| `label-diagram_2.ogg` | `1100` | 3.63 | -16.0 | -1.8 | all | `976583cc4677b3a8d7f6c68898d77e908c1323eeb3178e277f37b39762d1a3c2` |
+| `list-outcomes_1.ogg` | `1099` | 3.42 | -16.1 | -1.5 | all | `5279e2e0c8ebb5e669078311766fabd67bf4d09906e03ac0ea1c307c32a13d8e` |
+| `list-outcomes_2.ogg` | `1100` | 3.52 | -16.0 | -1.9 | all | `76db82db053d8840f4b3c766fae1d0510d4cee7debb11c42a5fa3fc8508edc39` |
+| `model-from-context_1.ogg` | `1101` | 2.79 | -16.0 | -2.9 | all | `ce6dc9be03e93cb745314b539f769a579bc57daadab1ccdf3d4570ee9ae01bf9` |
+| `model-from-context_2.ogg` | `1101` | 2.79 | -16.0 | -2.9 | all | `78b7fd9d4b0689d1c382bebee5b9e287addb3865eccbe9d6566bf7750e1d8b4a` |
+| `percent-multiplier_1.ogg` | `1099` | 4.0 | -16.1 | -1.8 | all | `048b6368c6ffea7d368c431bad4bb3ce691a02dd4c12ee5fdf27a939354aba5a` |
+| `percent-multiplier_2.ogg` | `1100` | 4.4 | -16.3 | -1.8 | all | `d05609f39d694fbf859d55ba9ba2fdb10e5581d217bf4b107137e2b9c7eaf50c` |
+| `perpendicular-gradient_1.ogg` | `1099` | 4.1 | -16.0 | -1.9 | all | `336e465bff6547c51df7e96029a02f66190fa7ed7e3fe1ea7233fa7c850df277` |
+| `perpendicular-gradient_2.ogg` | `1100` | 4.1 | -16.0 | -1.8 | all | `9e087d9042732bf46a4c63ca76a021bfcc76616060b524fa8613e30b8392d450` |
+| `pick-region_1.ogg` | `1099` | 4.8 | -16.0 | -1.8 | all | `5cec66e5514d39bde6f0bf30ed6e14159545f50db3e488c6b6dc26fb7fb1fb96` |
+| `pick-region_2.ogg` | `1100` | 4.4 | -15.9 | -1.8 | all | `f62019582346481acb2b1eef714357bc3de2d09f43b166c1be6579ecafda5a46` |
+| `point-gradient-line_1.ogg` | `1099` | 2.98 | -16.0 | -2.9 | all | `47900a433309b593ae3c26cc9e691cfff3b831af15954cb5f1315003ce9cd465` |
+| `point-gradient-line_2.ogg` | `1100` | 2.97 | -16.0 | -2.8 | all | `b1f60f6fd620e1a14964c55b861dbdc433beb3932936e4f8588a253efea4b419` |
+| `pythagoras_1.ogg` | `1099` | 3.72 | -16.1 | -1.7 | all | `2bce4504bb454637b682d109dae720e6095ad36fd1656d58618580cfa69d745a` |
+| `pythagoras_2.ogg` | `1100` | 3.25 | -16.1 | -1.8 | all | `9904286ba505624ecaab16bdc6b0783ccd7f438459c2c35651baa9b5edc04fd8` |
+| `quadratic-formula_1.ogg` | `1099` | 4.1 | -16.3 | -1.7 | all | `9a2fb8d2bf7c5693ca7938e4cb828bc4d6fff2bc883eaa9500ac7dd420adf8e1` |
+| `quadratic-formula_2.ogg` | `1100` | 4.4 | -16.2 | -1.7 | all | `c5f2f9c55e701923cc3ec86fa5b460c49f5e4744666b772213440dc573b2df89` |
+| `read-givens_1.ogg` | `1099` | 2.5 | -16.0 | -2.7 | all | `bd393c2bc975a318e3561d5e1278b37ab724c2ce5835fb3a5d33387c96604094` |
+| `read-givens_2.ogg` | `1100` | 2.61 | -16.0 | -1.7 | all | `83798ebc179cbc736e0dda7c078347a9cf3f52f8bbdad8da9e2ff3d5d82fdca9` |
+| `rearrange_1.ogg` | `1099` | 3.68 | -16.1 | -1.8 | all | `69e8a83cc4f7b4093b6863dad0b2779aae0e8d86885e581dff0e7c116e5cbfbc` |
+| `rearrange_2.ogg` | `1100` | 3.36 | -16.0 | -1.8 | all | `d87b45bbcb972ec003eb3e182351f3ef6bab5afff13eb866a2b7f9b5bbb904cb` |
+| `reason-from-shape_1.ogg` | `1099` | 3.72 | -15.9 | -1.8 | all | `98f7a58fe3c266cc13df8980b8ec6db92aeebf9ef26f688d72d7ddee32f45649` |
+| `reason-from-shape_2.ogg` | `1100` | 2.94 | -16.0 | -2.6 | all | `1930c0a8454f0c7a387b2458add9627c352a08109edc2aad90f7e3570583b4b4` |
+| `recall-fact_1.ogg` | `1099` | 2.36 | -16.1 | -2.2 | all | `ff0e7a3b8b05c34a48294f191ea9b563d6af6fdd2e1f749adb6da16afb05499a` |
+| `recall-fact_2.ogg` | `1100` | 3.17 | -15.9 | -1.9 | all | `0d64d5d90f24431d5fafd2c63e07c36638d3c06a77d2212d8c9340b196a742db` |
+| `recall-formula_1.ogg` | `1099` | 3.6 | -16.0 | -1.8 | all | `d6179bcdcd04d134c1b8dbe47c229323da57eeb5763051b693963feafbd135ff` |
+| `recall-formula_2.ogg` | `1100` | 4.0 | -16.0 | -1.8 | all | `3d355f4394ea8c0aa07d5a51769773d5da84f666aa916b1062a16eec480a1321` |
+| `repeat-multiplier_1.ogg` | `1099` | 2.53 | -16.0 | -2.8 | all | `e4a99a1a852a6cbb2b4dd6097ba3ba79982e1e375b31ca3024c3765d051769a5` |
+| `repeat-multiplier_2.ogg` | `1100` | 3.47 | -16.0 | -1.6 | all | `bc14b43fe42feb3605c3a2ff9148961de647e2178520fee2b0737260c4447a9b` |
+| `reverse-operations_1.ogg` | `1099` | 3.85 | -16.0 | -1.8 | all | `b90c715483c3c8e99997eda8c1ab32820734199e197986c6d2f50059925918ec` |
+| `reverse-operations_2.ogg` | `1100` | 3.65 | -16.0 | -2.0 | all | `9a30c4a000da21feda44671d8187a0fe6146521e60846a5c0e588f988dc63a2a` |
+| `rewrite-form_1.ogg` | `1099` | 3.32 | -16.2 | -1.8 | all | `161160c407a7c654255cc94fa462b37e1348ae669f303a2bedd780203927ca2d` |
+| `rewrite-form_2.ogg` | `1100` | 3.41 | -16.0 | -1.8 | all | `3d86043a9e989c7c12973145a3d6802e755fa82e1ea6e13e83e1b226dace603e` |
+| `roots-to-factors_1.ogg` | `1099` | 3.41 | -16.3 | -1.7 | all | `13d198c368eece3405457cfb1c1c9484c2ff3a1b8fd4f35adcf1bc206d383407` |
+| `roots-to-factors_2.ogg` | `1100` | 3.59 | -16.3 | -1.8 | all | `a0a04bbbf08524bd99803b1e4de7b5ee3aab28c1b206ed782bbea1554b82f0a7` |
+| `round-for-context_1.ogg` | `1099` | 3.75 | -16.1 | -1.6 | all | `13f18d988b19e6758f361ae29f68ea87de321dd5cf912fc58e81e6f859b4c8e2` |
+| `round-for-context_2.ogg` | `1100` | 4.1 | -16.3 | -1.7 | all | `91f23aa1290e6f9c026d68e8356b47522737234e01ea42f4c62b51e5f1fb9ede` |
+| `sign-table_1.ogg` | `1099` | 3.24 | -16.2 | -1.7 | all | `cb3d81f55cd0e51e5bf2f64cf487acc850e035d814d9e12e5452e80d47447fce` |
+| `sign-table_2.ogg` | `1100` | 2.7 | -16.0 | -2.5 | all | `d26ce8a66105f3e1c16a512baee91930b4bc2694185d4dd9539b44ea59de651f` |
+| `simplify-surd_1.ogg` | `1099` | 4.5 | -16.1 | -1.8 | accepted on review | `05509a6f053c1dbdbe09a1e0877672425b756f4405a592b43f47550829732942` |
+| `simplify-surd_2.ogg` | `1100` | 3.88 | -16.1 | -1.7 | accepted on review | `29b73f0ca1c1e395582d0b79b6d617c0b31b170a204bfcdf898e5f5509d7dee0` |
+| `simplify_1.ogg` | `1099` | 2.57 | -16.0 | -1.8 | all | `a701261b33dcb3d5eba5340cf12ed71b3d77e5689f842fafcc47526c8f6da9f6` |
+| `simplify_2.ogg` | `1100` | 2.62 | -16.1 | -2.3 | all | `20e8cc44ce7d05ba28f19317cc2070188e5efb866bb3ae0b1d6cb8abfa8bd9fa` |
+| `solve-equation_1.ogg` | `1099` | 3.65 | -16.0 | -1.6 | all | `a538e0cf2b343a8129f0e5ae6fca6deff81d644f8b038fb6868ddcbd8c0d7c71` |
+| `solve-equation_2.ogg` | `1102` | 4.0 | -16.2 | -1.7 | all | `f641f1d822faacaa891db4aa72ac9053cdc9159dbe1afbc9a6e1b3d08ccac77a` |
+| `square-root-both-sides_1.ogg` | `1099` | 4.4 | -16.0 | -1.8 | all | `748c3a31234e3a8f2e33af0a6d24e7f1bbfe9d4635f5f0b174d9da83e9bf8647` |
+| `square-root-both-sides_2.ogg` | `1100` | 4.3 | -16.1 | -1.1 | all | `81e1232ee616aad8cc93b33828e76425eae8b0922f82876723fed688168d53cf` |
+| `standardise_1.ogg` | `1099` | 3.13 | -16.0 | -1.9 | all | `043ab63beeff26a91f03330336b0e410c431a9b691ba3e9eae1a9c7b83a34f98` |
+| `standardise_2.ogg` | `1100` | 2.9 | -16.7 | -2.1 | all | `34f1916ff55e80b0d9b766a00eb48627420cb71f9fb154a193d56e74a1a7bd5d` |
+| `state-answer_1.ogg` | `1099` | 3.62 | -16.2 | -1.7 | all | `eb99665dc087ae64ee2c095f3fef14ba5833b254fb7dbc422bf9015c0bf41da4` |
+| `state-answer_2.ogg` | `1100` | 3.62 | -16.1 | -1.6 | all | `424f8590ab38c1a3269fcb3da5d369165b79d02ae31ca55e8d9f5e7193abc2ea` |
+| `substitute-back_1.ogg` | `1099` | 2.87 | -16.0 | -2.7 | all | `03527d52b90a5a522b0500524908103d03616a9ce5a270af759c9a70290bcba3` |
+| `substitute-back_2.ogg` | `1100` | 2.28 | -16.1 | -2.1 | all | `e080cddcad443bdca167faa0cc9884739730a11af19747cb499200bef70c4433` |
+| `substitute_1.ogg` | `1099` | 2.69 | -16.0 | -2.4 | all | `bf0fd94d02529494238a85d73737cee5e18af84b0c6d66fdf523cf58ad31c6b1` |
+| `substitute_2.ogg` | `1100` | 2.66 | -16.6 | -2.1 | all | `ac0a20b20847bdbbae72f1c5e526a9e3d750e091f1b2637c119b903a154c171b` |
+| `swap-x-and-y_1.ogg` | `1099` | 3.27 | -16.4 | -1.8 | all | `aab3ed1dd9d5f16cb975d80c15380b526824f749eca5b156f5db4787b263e307` |
+| `swap-x-and-y_2.ogg` | `1100` | 3.15 | -16.7 | -1.7 | all | `2d0d29712b1a1a4bd47435de22c893f5f017c9d2b83610a0963f1f45a909fded` |
+| `take-logs_1.ogg` | `1099` | 3.44 | -16.0 | -1.5 | all | `2a3861d76be117a4de7da9fcc9c6b88f56de0860baaa39c72ff81bc004110c9c` |
+| `take-logs_2.ogg` | `1100` | 3.12 | -16.0 | -1.9 | all | `8ba12d7ee9f6c209d538c6b65e909fd88e037204a732dd22ac966855c0061cd8` |
+| `test-point_1.ogg` | `1099` | 3.09 | -16.1 | -1.8 | all | `e3fa15e8b2e8a3c352f613dff160cc7ffac7ca6a22aff0a72b5ef9cf4c5c43c6` |
+| `test-point_2.ogg` | `1100` | 3.06 | -16.1 | -1.6 | all | `71e81093e7c86c25da443672d92d60c2bb433554998e1489ae60b013d34847ff` |
+| `transform-point_1.ogg` | `1099` | 3.18 | -16.2 | -2.0 | all | `566bbda3345961d966fd5ad158613917207aff1291c2825b6fd85893e0a34091` |
+| `transform-point_2.ogg` | `1101` | 3.2 | -16.2 | -1.8 | all | `2fc700d2a6cb98f8eade02d8f3970afeb02cc458ca577e3b51f894319d6d8007` |
+| `use-complement_1.ogg` | `1099` | 3.64 | -16.5 | -1.8 | accepted on review | `4bdaf69e001b027677ac8ae522a89d51d3a53c3ef68fd8aadd1e3e97fc70f9f6` |
+| `use-complement_2.ogg` | `1100` | 3.12 | -16.0 | -1.8 | accepted on review | `f60f5fd60a60f83421b8efe93484642edc02dc98a20f2e27f540034612ae9589` |
+| `use-identity_1.ogg` | `1099` | 4.4 | -15.9 | -1.9 | all | `8da348111924036564801e254a0815429c396e6d5d40539feeed3917b4a5acf3` |
+| `use-identity_2.ogg` | `1100` | 4.1 | -15.9 | -1.9 | all | `13b9778ad95af6e60359c1a9445b91604e47dc633942c675ff06b55c7b9b3680` |
+| `use-log-law_1.ogg` | `1099` | 3.46 | -16.0 | -1.9 | all | `a8b25e4c603c278ff50d7ae3fec3155ada261a053254d3d0fa93c5df9b8e6ac0` |
+| `use-log-law_2.ogg` | `1100` | 4.0 | -16.0 | -1.8 | all | `2fc7b3c083f62f2823528070b6edec216596ff0d0be1dd8daf78df8afb8eb32e` |
+| `use-right-triangle_1.ogg` | `1101` | 4.6 | -16.1 | -1.9 | all | `2993e69626c6e2c0986157e9bbda6944b752f84cfc9676b51f519fba2050a282` |
+| `use-right-triangle_2.ogg` | `1101` | 4.6 | -16.1 | -1.9 | all | `2cdc0585a10d0f0c82f69e1c1c0a56cffac79ec500dc4a992948046787313d0d` |
+| `use-symmetry_1.ogg` | `1099` | 4.3 | -16.3 | -1.8 | all | `de01194485bf73a1722121e1eaadde97c44bdca03e2be189bea4cfefef8fbaba` |
+| `use-symmetry_2.ogg` | `1100` | 4.4 | -15.9 | -1.8 | all | `90312dcc7a2411cf5cc0bdeca1a419cc780b09344baa493e67d7de2abd2de35f` |
+| `zero-product_1.ogg` | `1099` | 3.27 | -16.1 | -1.7 | all | `ff7f9a1164ec0537a22b8542d89d83b6a641eb0b547e38c452e7a0233558808e` |
+| `zero-product_2.ogg` | `1100` | 3.12 | -16.3 | -1.6 | all | `d9e7ed4d9b9ce4ea34317faa49361576a3a3a00fdcf11e1bc788373a8025a4e5` |
 
 ## FAL-1110 — explainer lines, local voice clones (voice)
 
@@ -1014,3 +1277,154 @@ Matt chose the clones, in "ultimate" mode, on FAL-1110 after hearing them side b
 | `reactions/i2jaqx.ogg` | `1099` | 2.38 | -16.0 | -2.3 | all | `07222365b5ad878ae47c8ffa3855d67d102fbe886fb11f01fabe0e2b033fc023` |
 | `reactions/ml2cxq.ogg` | `1103` | 0.81 | -16.6 | -1.6 | all | `b9cbb034a51cf60b795753400e2316cc4747ff963444d67fdc673bfa51e9e36c` |
 | `reactions/z1xu8j.ogg` | `1099` | 3.84 | -15.3 | -1.9 | all | `484efebf4719cbad4a91b383a7e8ef6634a4d773be898c2a265210886b76feb5` |
+
+
+## FAL-1137 — every tutor's new reaction lines, local voice clones (voice)
+
+136 voice files in `game/assets/audio/voice/explainers/reactions/`: the new `ack` and `slip` lines of `writing/explainers/reactions.json` (FAL-1136), 24 each for Tin-Can Tess, Mags the Ledger, Kara Meridian, Lucky Lenoir and C.A.L.C., and 16 for Rook Dead-Air on top of his 8 from FAL-1110. The words are each line's `say` text exactly. Each take is also recorded in `writing/explainers/manifest.json`. Generated locally with VoxCPM2 on 2026-11-18. No recordings of any real person went in.
+
+Rights basis, voices, references, cloning settings, text fed to the model and processing chain: all as in the FAL-1110 section above, unchanged (falcon-voice `clone/record.py`, `clone/post.sh`, `clone/wa-explainers.py`).
+
+- **Seeds:** 1099 first, then 1100 and 1101 for a line whose words didn't match (3 rounds). 102 lines matched on 1099, 10 on 1100. The other 24 kept their closest take and were read by hand (below). Chosen seeds: 1099 for 119 files, 1100 for 13, 1101 for 4.
+- **Checks:** every take transcribed with faster-whisper small (CPU) and compared word by word with `say`. 112 matched. These 24 differ only where the transcriber can't follow, and were accepted on reading the diff: `reactions/2pqmuf` (roll -> role; roll -> role: homophone (roll, role); the seed that dropped off was not used); `reactions/8d9bwx` ((extra) -> should; should've -> have: should've and should have are the same words); `reactions/8v4i1s` (gauges -> gages: spelling); `reactions/aiq394` (mm -> hmm: the transcriber writes Mm as Hmm); `reactions/au1j35` (can's -> cans: homophone); `reactions/d50vxt` (reached -> reach: the ed of Reached runs into them; Lekker heard right on this seed); `reactions/dvogx3` (pin's -> pins: homophone); `reactions/dzgzfk` (pencil's -> pencil: the s of Pencil's runs into snapped); `reactions/gf32w7` (treat -> trade: Tess's New Zealand vowel in treat; the seed that said that's for fits was not used); `reactions/hnpdxz` (chilly -> chilli: spelling); `reactions/j4rn9g` (ink's -> inks: homophone); `reactions/l4qesy` (sight -> site: homophone (sight, site)); `reactions/ldaaey` (tape's -> tapes: homophone); `reactions/ltidxg` (bolt's -> bolt: the s of Bolt's runs into stripped); `reactions/ne39vm` (off -> of: off and of run together before the); `reactions/ppg08k` (quel -> quelle: quel and quelle sound the same in French); `reactions/rg2dql` (change -> changed: change today and changed today sound the same); `reactions/tdbhq1` (ja -> yeah; through -> true: Ja heard as Yeah, as on FAL-1110; through heard as true on all three seeds, Rook's South African th (the closest a transcriber gets); listen first); `reactions/tgp5x1` (battery's -> batteries: homophone); `reactions/vbbab9` (that'd -> that: the d of that'd runs into hold); `reactions/wyhvd5` (non -> no; non -> no: the transcriber writes French non as no); `reactions/xle2z6` (ehen -> ehem: Ehen (Kara's interjection) is not an English word; this seed is the closest); `reactions/y7w6mr` (pff -> (missing): the transcriber drops the Pff breath on every seed); `reactions/y97n4o` (alors -> so: the transcriber translated the French alors as so).
+- **After the last word:** every take was split into sound islands (20 ms frames within 35 dB of the peak) and lined up with the transcriber's word timings; the 39 takes under 1.5 s were also read on spectrograms. No take has sound after its last word.
+- **Measured across all 136** (music-tools `bin/check`, 4× oversampled true peak): -19.81 to -15.76 LUFS-I, -3.70 to -1.29 dBTP, 0.57 to 6.22 s long, 5.9 minutes in all. 24 short takes are below -17 LUFS-I even after `clone/prelimit.sh` (ffmpeg's loudnorm can't level a clip under 3 s linearly); their loudest 400 ms is -17.7 to -13.5 LUFS against -16.3 to -10.9 for the rest. The first and last 20 ms of every file are at least 86 dB below its peak.
+
+| File (`game/assets/audio/voice/explainers/`) | Seed | Seconds | LUFS-I | dBTP | Words heard | SHA-256 |
+|---|---|---|---|---|---|---|
+| `reactions/04yoat.ogg` | `1099` | 3.88 | -16.1 | -1.8 | all | `0978b2356ce8738a8d6cb4cb2fcbab779cdec25ba7dca1e7c53cd0fa6d213ce8` |
+| `reactions/06yedo.ogg` | `1099` | 0.86 | -17.5 | -1.7 | all | `28d411d2677942f5fb549ccf1b24e0a542d7c2150d138925316545db48bcf263` |
+| `reactions/09hbpf.ogg` | `1099` | 3.37 | -16.2 | -2.8 | all | `27ad43de291b76315d2ae8ffb2e9e44b5282f3434893fad521d4271ad6026a96` |
+| `reactions/0woojc.ogg` | `1099` | 1.34 | -17.1 | -1.8 | all | `ba4c504f8efa0117b0427cf0352ac3f4ba737116c39082434225dc1a6f5c1e2f` |
+| `reactions/11axk3.ogg` | `1099` | 0.57 | -16.4 | -1.8 | all | `30107be3ffd0461ee2596dbb5ee56814c2b7def03ca240d69aafe3ecef23d8bf` |
+| `reactions/1h3qvn.ogg` | `1099` | 0.64 | -17.2 | -1.8 | all | `0c98ccf32af565116541f6da94eaf235e61d9f6f6eddeecb33dcba22b1843c4c` |
+| `reactions/2cc4fo.ogg` | `1099` | 3.13 | -16.4 | -1.8 | all | `5513d43c9094a2fde398130ffe802b9ddeb04273191c80fc6c5e54f12dd2ba9b` |
+| `reactions/2gi7wy.ogg` | `1099` | 4.4 | -16.3 | -1.8 | all | `57c94ae51bdbdd41bd656f6c814d67791cf09ca0d4e6eb386d7c5c25f679f9e7` |
+| `reactions/2pqmuf.ogg` | `1099` | 4.2 | -16.3 | -1.7 | What a role. Off the table. But what a role. | `1a1794bbbacca44d4962f1c7d167207236930a332eded90407f1c3600d3b77ae` |
+| `reactions/37lk5e.ogg` | `1099` | 2.37 | -16.0 | -1.9 | all | `c319a29c78a90b30b0be7f3bec9fe7966b4197d8adaad3e686efd8813b0f6f25` |
+| `reactions/3z93sg.ogg` | `1099` | 2.01 | -16.0 | -2.0 | all | `79170b7095349a43ac55af35a1796e00f6a20f780488ddc0efec9423b13e17df` |
+| `reactions/41t8vc.ogg` | `1099` | 2.75 | -16.0 | -1.8 | all | `d7aa49ac448f9dbae70ad30afdd639c42498bb446de1fd20702cdc2bf3560e66` |
+| `reactions/4ivq3e.ogg` | `1099` | 2.88 | -16.0 | -2.0 | all | `cd88010ecf59e3a132e3a81afee84b267ea276f0fb04ffc246702fb195571108` |
+| `reactions/4q7pz6.ogg` | `1100` | 2.76 | -15.7 | -2.1 | all | `cbd886ebd72a32852eea000ca22b71459b62ab565426884b49f8ccf102caab7b` |
+| `reactions/5jcjln.ogg` | `1099` | 4.9 | -16.8 | -1.3 | all | `3f9a89af7195802cac025103fec9ef834a96c7a6a3b363c4ea675433b17ad0c3` |
+| `reactions/5rzrn8.ogg` | `1099` | 1.93 | -17.2 | -1.9 | all | `81c7076c6dddab31304bccfe7a720513cb1b22bc9a2d21a588dd54f32a070b64` |
+| `reactions/6f3a7e.ogg` | `1099` | 3.4 | -16.1 | -1.9 | all | `5ccb6bb55aca925bd041511120ea4e875424bbc4ae041c4067e2e42ebe38d171` |
+| `reactions/6xpivq.ogg` | `1099` | 6.0 | -16.3 | -1.8 | all | `d2cd47aa89a3f85d145c649f2796bc5c596988956e1572ab7ae5931c38f75645` |
+| `reactions/6ykvu8.ogg` | `1100` | 1.36 | -16.0 | -2.4 | all | `b4e29de2b4f605707e05514748ef9335ec24e56d80eaf2107ef59a09e33bc4d8` |
+| `reactions/6z4k6g.ogg` | `1099` | 2.52 | -16.2 | -1.6 | all | `6d873dad0a82c9fe74bbdb2972ca1e759bda8d660af11193e606e9e3df804b28` |
+| `reactions/7j3q9n.ogg` | `1099` | 3.01 | -16.2 | -1.7 | all | `c179cede656f3ee99ef729028b2d1c85b7654eb33ffed26a77c33026e59615f2` |
+| `reactions/85ycum.ogg` | `1099` | 1.66 | -18.9 | -1.8 | all | `816bb9e4a296a2787bbe43f5c6ca83ad18763a9ce0f9050b7f9794e0e6270a51` |
+| `reactions/8d9bwx.ogg` | `1099` | 3.56 | -16.7 | -1.6 | Scales tipped my tea over, should have moved the tea. | `d8c058416d4df1be08cedc16aa72e01f1c61075e99dc65e1a6f7fa78d11acd29` |
+| `reactions/8hno54.ogg` | `1099` | 2.67 | -16.0 | -2.8 | all | `8246a3ff1c9626a1530e324d416b41ba68d28c186bb8581551820346dc41a924` |
+| `reactions/8jj8yc.ogg` | `1100` | 4.2 | -16.3 | -1.7 | all | `014e6ec5abbcb81f57f8f4fa0ceac1d5db134b74dc3a5e0d3fdf5889e9fcc6c9` |
+| `reactions/8v4i1s.ogg` | `1100` | 3.44 | -16.1 | -1.8 | Gages are arguing again. Pay them no mind. | `6baa27d8833cd3122428ce12fbcabbe74ea2d5df9b87c573b977e9ec4f324bbd` |
+| `reactions/905zud.ogg` | `1099` | 1.34 | -16.7 | -1.9 | all | `a0e251ce79d5c296708af4f61ea240cd359dd8a0f426e331a00dfc9f70ae8d83` |
+| `reactions/9rdsq6.ogg` | `1099` | 0.94 | -18.5 | -2.0 | all | `56926468265e2e6262f9c76d214d26a23d47ce15d95af3fc5f66ba6ded15f4f8` |
+| `reactions/9zn6ec.ogg` | `1099` | 1.86 | -17.0 | -2.0 | all | `e251e0a4ed9261f4e3fc23d06e69384c2b1d96ef555259468823d79296c67e4b` |
+| `reactions/abz3i7.ogg` | `1099` | 3.38 | -16.2 | -1.8 | all | `28ff3a359bd7ec375f2516d99758ef248422cb3723739692b2580df31c4a441f` |
+| `reactions/aeznlk.ogg` | `1099` | 2.65 | -16.8 | -1.7 | all | `aeacb22c2b0fbd9e18a8243a914089bbd819f27c1dd99d07afe5c2da455a2b5b` |
+| `reactions/aiq394.ogg` | `1101` | 2.26 | -16.0 | -3.7 | Hmm, smooth as a new deck. | `f4f0a37cdf8e54ca2a28cbed400ea724ada3d2ace3a0a9adbba0cfa15e649c0e` |
+| `reactions/ar9syr.ogg` | `1100` | 1.9 | -16.0 | -1.8 | all | `d3bea2dabab6da29fc5d3082e346ec944730b7dff0970e8b1188b3ec74476768` |
+| `reactions/au1j35.ogg` | `1099` | 4.0 | -16.9 | -1.7 | Jerry cans glugging all over the floor. Oh well, it's mostly water. | `2f19115ec605aa0243d04fb7c94a930d56249035014070c0766d3f69628e8b6c` |
+| `reactions/biuyqz.ogg` | `1099` | 3.67 | -16.4 | -1.8 | all | `e071c07a9e14a8414728d59a3807473c48fb38fe0cd4d071d66d6fd58c3ffc9c` |
+| `reactions/bjxljj.ogg` | `1099` | 5.0 | -16.2 | -1.6 | all | `8fe81ecaa9e2ccc1728ed47988dfe667a93f681683c2c4d16d3bf207ce9d8a45` |
+| `reactions/bn4te4.ogg` | `1099` | 2.15 | -18.5 | -1.8 | all | `a1c112cf781325ecba669ece44475a4b2faaa311d0a0171ca66b416f123c27af` |
+| `reactions/bypd5d.ogg` | `1099` | 1.14 | -16.0 | -2.3 | all | `d672e7b539f7f662c94c6445f684f41f5bb844e8a634071a7f6021905ee16ae9` |
+| `reactions/c58kaq.ogg` | `1099` | 3.17 | -16.3 | -1.6 | all | `cc643222f92d4d226a3078de4a493cd9d106845222cc7c0b14df0dfa07d3e29a` |
+| `reactions/ck96df.ogg` | `1099` | 1.31 | -16.5 | -1.7 | all | `f3caa862f62d2c1eaae7771b0be335b8f163b576208d434b610415ae4efbb0be` |
+| `reactions/crf4e2.ogg` | `1099` | 2.9 | -16.6 | -1.8 | all | `eb0daa0f8aed8c68c9cc405ab4f63516ad200692e7a8af3f84d303fcf7fe70ef` |
+| `reactions/crnd4i.ogg` | `1099` | 2.87 | -16.0 | -2.2 | all | `2255f3d08ab1cbb3b602cf37c5c3a61a47533cfa53348d3887269e04995de11c` |
+| `reactions/cv25sv.ogg` | `1099` | 2.36 | -16.3 | -1.9 | all | `34450903837343e25fca07591c69b10ddd065ffbf328e564d974ac5aebe81e56` |
+| `reactions/d50vxt.ogg` | `1101` | 1.38 | -16.4 | -1.9 | Reach them. Lekker. | `b1dbb0791060366b453be267daff992548e261960ac910ca21f12b07bb632e7a` |
+| `reactions/dvogx3.ogg` | `1099` | 1.15 | -15.9 | -2.0 | Pins on the map. | `aeaf4a39d5acdc26acc250d847b1c7c28c939c79473e1150739b46fd33c266ba` |
+| `reactions/dzgzfk.ogg` | `1099` | 2.38 | -17.3 | -1.7 | Pencil snapped. I've got another. | `2c360a8dd98371544b96ccbf6ecc4f2742c0d664073fc63415576292073cd015` |
+| `reactions/emszvz.ogg` | `1099` | 2.04 | -16.1 | -1.9 | all | `5179c06b75bc543b493eb7730372668a400037daa23c1164dd287d532ff2a23d` |
+| `reactions/f902ih.ogg` | `1099` | 1.64 | -16.8 | -1.9 | all | `e4222a293f0f7813e56232a8486876d06b01e087b9fb23f155f722a751121947` |
+| `reactions/fig6cg.ogg` | `1099` | 0.58 | -16.3 | -2.2 | all | `00d76a222fd109bda49311401c6035ba2b8939ad41546e66235815eb80226e52` |
+| `reactions/fmm4mj.ogg` | `1099` | 1.86 | -16.0 | -2.2 | all | `78fec1492f6942ff47659a0fbe53862c3d9e491afda546dd50be2322cd438f21` |
+| `reactions/fmzhqp.ogg` | `1100` | 2.8 | -16.0 | -2.3 | all | `af97958584f6439f979e83298e2a1c85729ec15e518491472d8fb661370db90b` |
+| `reactions/fxckgg.ogg` | `1099` | 1.34 | -18.4 | -1.8 | all | `af7b1c247fbe2409dd9e673b75675c7525094bd69dce0ec48cc465e0d73b64d9` |
+| `reactions/gf32w7.ogg` | `1099` | 1.27 | -18.7 | -1.6 | Lovely, fits a trade. | `fd4b3912b717d268f49a4129779aa8ae596344285a1440235d45765f89e04cf4` |
+| `reactions/grecwf.ogg` | `1099` | 4.5 | -16.2 | -1.7 | all | `8557391fde5595c50233d6774544d27c4542d14ba0ed414b9d161e9b9cbacd45` |
+| `reactions/gun14r.ogg` | `1099` | 4.1 | -16.4 | -1.7 | all | `3bf56b3873d41b872f93bfedb492f5e5a114ec8ec7e0e84ab3025ec4fb11d090` |
+| `reactions/gxljs1.ogg` | `1100` | 1.93 | -15.9 | -2.8 | all | `d75277ae60351d8fccaf8cb6b8f216a75cf535b252873d4a73d2ccb9abf24390` |
+| `reactions/h6pw3p.ogg` | `1099` | 1.09 | -16.9 | -2.1 | all | `8cd9a39752a52acf9705483655c33ad99de42852917630e8f3798fc9b2f8dd74` |
+| `reactions/h8p9gu.ogg` | `1099` | 3.02 | -16.2 | -1.5 | all | `ad4c845235510f50207a45626b83d209634b5c535af8719167cbed489b63b247` |
+| `reactions/h9at64.ogg` | `1099` | 1.93 | -16.2 | -1.8 | all | `4da98febf073c714d5b4780c569af8927c6a88ddb6ad3a154948fc5809410387` |
+| `reactions/hnpdxz.ogg` | `1099` | 4.2 | -16.5 | -1.5 | Whoops, there goes a washer. Straight into the chilli bin. That one. | `247f3d1104590b88f8772125b18bfd4dac7ffba0498b5bea75f24b88b20e108c` |
+| `reactions/ho0c5v.ogg` | `1099` | 1.52 | -18.1 | -1.8 | all | `0eca88d9f120134ab3ad0253c4eea3f5e30ad6d1ed7542b04bd6b523e0214930` |
+| `reactions/ie6sd2.ogg` | `1099` | 1.5 | -16.5 | -1.9 | all | `35c598c24bc1af9d088a0b2ca4882825d4205993899471964b21a10cc0c8793e` |
+| `reactions/isd89o.ogg` | `1099` | 4.4 | -16.3 | -1.8 | all | `1e7ce08c07a362ea9cb17cb54bf505efe50dbcb92ab5560dfc75cf076be488e5` |
+| `reactions/j4rn9g.ogg` | `1099` | 1.37 | -16.0 | -2.4 | Inks dry on that one. | `def9449d5d5c1520694c9c101f7924a8e3477038cc936992d18ec59cdf73363b` |
+| `reactions/j62ugc.ogg` | `1099` | 3.85 | -16.7 | -1.7 | all | `de6fcf2a9e1a1181e425e8812eb1b7044c8d9130733ce641e6b1f5dada3e9ac3` |
+| `reactions/jf7rbt.ogg` | `1100` | 4.8 | -16.0 | -1.9 | all | `19203018b0d02297a2a888c1387fc9b693615c7199ff20c47ef654b299d30d8a` |
+| `reactions/jfdiih.ogg` | `1099` | 1.43 | -17.7 | -1.8 | all | `f480198046276e390b0501fec7a0efce373a9b7a39b752a7542734f68317436b` |
+| `reactions/jmscyv.ogg` | `1099` | 2.68 | -16.1 | -1.9 | all | `ba796d6c6d7a0002cc5dcabcfc468f814b9c53a7c25c50e8395a7efe7254be1f` |
+| `reactions/ju6blx.ogg` | `1099` | 0.68 | -17.9 | -2.0 | all | `7f5fc326a886194095eac5b326a10cd5e9724c8413ca74547569c64e0d945023` |
+| `reactions/ko5bd3.ogg` | `1099` | 1.85 | -17.0 | -1.9 | all | `ff6b7b18e8420adeb600b7c911a71355fdc0df4aafd6d1d4bacf9b446e236a71` |
+| `reactions/kvkgjo.ogg` | `1099` | 2.09 | -16.1 | -1.8 | all | `3f22620fd8eb0613a03bb66e3e8fe0469b38b5fcb73a6610033ff07c0d35c359` |
+| `reactions/l4qesy.ogg` | `1100` | 0.9 | -17.0 | -1.9 | Site taken. | `8b0ab2fa11f6853e0dc374ff796bea6d2af95b658edf25e94cdc2fe9034ad0e1` |
+| `reactions/l9ncs3.ogg` | `1099` | 1.02 | -18.1 | -1.9 | all | `89ce87209461f68bad4f915aef4ce3d8b6ad39477be8b12045d1c445cd779c21` |
+| `reactions/ldaaey.ogg` | `1099` | 2.32 | -16.0 | -1.9 | page torn, tapes in the drawer. | `b192951455d0ee7965291227a0c49e97dfc983fc1163e725504322d3bb145986` |
+| `reactions/ledk03.ogg` | `1099` | 3.4 | -15.8 | -1.8 | all | `5d6e70e1a6f74cb9c8f2eb32daf6282168c4993fa6d1ee66db1ea8e922d51de4` |
+| `reactions/lhnthf.ogg` | `1099` | 1.53 | -16.1 | -1.6 | all | `bc116d1f510e2d28a096c7b8392ba08c14a2d274b7eada5111a55631af11cd48` |
+| `reactions/lpemtf.ogg` | `1099` | 4.6 | -16.1 | -1.8 | all | `0e301d988dedf15e316903ef84555064a89bd3be20c9fdb2e3f5540a4a52b636` |
+| `reactions/ltidxg.ogg` | `1101` | 4.0 | -16.2 | -1.7 | Bolt stripped, another one for my tin, and the tin's nearly full. | `67fdbebe05e02f8f0bce4549293d8fd44bdc26c4e7ea6236092bbb8b073cdcee` |
+| `reactions/m8lddf.ogg` | `1100` | 0.78 | -16.9 | -1.9 | all | `c0b778b30667279b47c2716cde4a07ae4fa71b66ca7cdd8323afc5468053c674` |
+| `reactions/mc6s50.ogg` | `1099` | 2.62 | -16.0 | -2.0 | all | `09ac0318db7c262cb8b1bd7490987ac398145cbd3e79bf90f30997e0f1855fd6` |
+| `reactions/mwjojt.ogg` | `1099` | 3.88 | -16.3 | -1.7 | all | `6ee979db74d07cb02f3ca15b6c0450177a2e4cb0a339d991a88a36461f500c69` |
+| `reactions/nc5zhd.ogg` | `1099` | 3.63 | -16.8 | -1.6 | all | `de612cfddc6c78129ba7e61f1c8e6fff80c21e4435101a24a2cf6689c47525f3` |
+| `reactions/ne39vm.ogg` | `1099` | 3.18 | -15.8 | -1.9 | Glare of the salt, nobody could read that. | `e92891f9c7a1cf28662172a7780c3a51f1e3430edcd6a813a713dae5f1fc3803` |
+| `reactions/nm0fuf.ogg` | `1099` | 1.43 | -16.6 | -1.7 | all | `167b402c18338a956f6321e520818cc2701223cf01f6368fe328546846d7ddc0` |
+| `reactions/o7hg9n.ogg` | `1099` | 3.43 | -16.2 | -1.7 | all | `53041998f3f224223cb3a53d332f25fb8e6fff0ad3d848bae821f73f59051faf` |
+| `reactions/obn01d.ogg` | `1099` | 1.43 | -16.5 | -1.8 | all | `c3d937a1cf1e199652094c590489c7832d72df754c1ea5ac951ce567a5072673` |
+| `reactions/oc853p.ogg` | `1099` | 4.2 | -16.0 | -1.8 | all | `f138167734fc89460200b6a68aa83b7a179646dbbe5335df11cb112953d0f88a` |
+| `reactions/ondobk.ogg` | `1099` | 1.77 | -16.0 | -2.5 | all | `05a80255f32472fcb2c3eaacae148db82099e0077b3e64b043fe80c4f99673e4` |
+| `reactions/osys6q.ogg` | `1099` | 4.4 | -16.4 | -1.8 | all | `c905b4dd599505dfbc6dba1405f8170ae9ca0717ea9e3547647b982a1982098a` |
+| `reactions/pga4ks.ogg` | `1099` | 2.79 | -16.4 | -1.7 | all | `6d1415f0ad11555881640ff56b6f3554f0234ff50555283a85259c9fe097ff06` |
+| `reactions/ppg08k.ogg` | `1099` | 1.32 | -16.0 | -2.1 | Quelle dommage! | `afa261fed7d247ba2907077aee83b60b72947603853b9ea0f5285d505c06713b` |
+| `reactions/pv0yzw.ogg` | `1099` | 2.14 | -16.9 | -1.7 | all | `a265fd6a142ff89eb12eaa39f984879df4c7055cca0db4b1ef20195063deb651` |
+| `reactions/py9ozl.ogg` | `1099` | 5.3 | -16.5 | -1.8 | all | `461732a5d386f3d8015ac4152f29cdeafc3e369055ca37ea93ccb0f0aee9d9cf` |
+| `reactions/pz2yqj.ogg` | `1099` | 3.41 | -16.5 | -1.6 | all | `a6c2aade80012988a794fe95a732fa19af2a473c084b52b35b270f77ab391d13` |
+| `reactions/qtf09l.ogg` | `1099` | 4.2 | -15.6 | -1.8 | all | `b95f3ea1497e7db4ae2bbf678c523a8c9f051c72991b50da3ba3a2f0e3aff7e2` |
+| `reactions/r74c14.ogg` | `1099` | 4.3 | -17.2 | -1.7 | all | `750e2e335bc0ec8904a4814fd92ceb94a3628ce8575665bd86d5a2f0c4344fea` |
+| `reactions/rd7iv6.ogg` | `1099` | 4.2 | -16.1 | -1.8 | all | `af6b52bafe3ebaa1e4779fcd7397c910d12d63a665faecf3e46d05dc14906e2a` |
+| `reactions/rg2dql.ogg` | `1099` | 3.8 | -16.7 | -1.8 | Till's jammed again. Nobody's getting changed today. | `c224778520753534052f6d8bf7d32a8d75de7d40760c3196042ee2033980541e` |
+| `reactions/rifq2s.ogg` | `1099` | 2.29 | -16.0 | -2.8 | all | `1c9348c95ddeef299f5e943b339b502a069dcf34279dee633a605cefad9849f3` |
+| `reactions/rpvnvj.ogg` | `1099` | 4.5 | -15.7 | -2.0 | all | `b246138766c97c638f3deca5005d745d91f3ae89833e46bd7096559e8598ee32` |
+| `reactions/rvmc9s.ogg` | `1099` | 3.48 | -16.7 | -1.5 | all | `63f1533d5e49f3d6bbebdc71527b2d6c70a254b1792dcf2fe0cbc73df2b79204` |
+| `reactions/scetji.ogg` | `1099` | 1.13 | -16.1 | -2.1 | all | `4de5cc7c9cac88be9235f65ea3eba964410eb4da8aca3f016e4adf3e051934e2` |
+| `reactions/sgkkrx.ogg` | `1099` | 3.7 | -16.4 | -1.9 | all | `2e7b4fc6c53eb9590afe375f454ce523570dd81bf7496b7692888adbf57914cd` |
+| `reactions/sqx1py.ogg` | `1099` | 6.1 | -16.9 | -1.7 | all | `e3bf36d24b3ec9dad748356855026803f50fe22bc2047d9cbc02560c3b02b361` |
+| `reactions/ssokhc.ogg` | `1099` | 6.3 | -16.4 | -1.8 | all | `8ead43d29a87fb560210526abf06212fed46bf0692475e54cf03cbe262a529ff` |
+| `reactions/sy45uo.ogg` | `1099` | 4.5 | -16.8 | -1.8 | all | `f8aea0e1ed89c9c16e6c6de1369947b7a3211b95db5d11a13d7d81a33741706b` |
+| `reactions/szq8sb.ogg` | `1099` | 1.45 | -15.9 | -2.6 | all | `11307c9f80e21456b8742e1d97cb907ecffe7341342ef52358bb4f57997ec6a1` |
+| `reactions/td1cfs.ogg` | `1099` | 1.38 | -19.8 | -1.9 | all | `e31db6e238c021b3d99a5491c228cdf58ae44a8be7822db09c0d57453175ea91` |
+| `reactions/tdbhq1.ogg` | `1099` | 1.71 | -17.1 | -1.9 | Yeah, that's true. | `bde65e45e92c326c1f482605c10ef7afcaca65b829869db803299152f105d831` |
+| `reactions/tgp5x1.ogg` | `1099` | 2.53 | -16.0 | -2.2 | Backup batteries kicked in. That's what it's for. | `0f04d845db1a35b2a4a285be75a13984a7613e6774723961c1359943530cdc64` |
+| `reactions/tn7w1y.ogg` | `1099` | 5.6 | -16.0 | -1.7 | all | `04347edc554e25ec98fef365580814d07894c75986a911c516714def81ee1add` |
+| `reactions/uqqnkj.ogg` | `1099` | 3.22 | -16.0 | -1.9 | all | `27c5aa1b85e134c8db363077aa18b30970e429cbc3125a8c39e7107c1c9df1fc` |
+| `reactions/v10xxr.ogg` | `1099` | 2.45 | -16.5 | -1.7 | all | `996155167325bd475e2c2ce0543263ac15878df9c682969ed8d76d42298e2b10` |
+| `reactions/v9wcyf.ogg` | `1099` | 1.43 | -17.4 | -1.8 | all | `5a2654c416e6ef2f5df87dfa71b8c62cf21c2ac40a10c3f65c6a91ec382601f4` |
+| `reactions/vbbab9.ogg` | `1100` | 0.98 | -17.3 | -1.8 | that hold. | `fc618a16a9fb80b352632127fe2f6213dc9ec3ef109b3f6bbb8017f21be6f127` |
+| `reactions/velmbv.ogg` | `1099` | 3.62 | -16.0 | -1.8 | all | `ae5cd8425588ecabc6725d3f4f8c81e610555db08a1fb0361c44a65fec69752e` |
+| `reactions/vgsdvc.ogg` | `1099` | 3.14 | -16.0 | -1.8 | all | `294e7961d90c695fd37ac60906560dfd1da663e1b906124f924e5875761a3605` |
+| `reactions/vnxj2u.ogg` | `1099` | 4.1 | -16.7 | -1.8 | all | `b21ac447d7ee0c10863398a2d326c3a8b19f6a4035fedcd321510628565d4570` |
+| `reactions/vqzs24.ogg` | `1099` | 1.49 | -17.6 | -1.8 | all | `79a80e4e6de075c410c17b5becaa0217c85a3648c5d331ddc7e1d1dd7e1a4225` |
+| `reactions/vvw7h6.ogg` | `1099` | 0.78 | -15.9 | -2.1 | all | `91b8cc877ac9bb2cecaceb1a8322b16f25b1789dbda2fc830eb57b3a149a4a98` |
+| `reactions/wyhvd5.ogg` | `1099` | 2.31 | -16.5 | -1.7 | No, no. The cards have blown away. | `49f162bff7c068a2f357dd370ed2672a50bec57914fd72bfa36ebdefcd60e254` |
+| `reactions/xakm9f.ogg` | `1099` | 3.15 | -16.5 | -1.8 | all | `d85de017e91e11cec3b302d61e51b47a801eac691e542a8047332daf6a89eb28` |
+| `reactions/xbdeh7.ogg` | `1099` | 1.51 | -16.0 | -2.4 | all | `3515984d3f56dd9f6df9d6a122f22310356dd5b720123016e149356044434379` |
+| `reactions/xle2z6.ogg` | `1101` | 2.72 | -16.0 | -2.0 | Ehem, that holds. | `09bd21ac03afeb5dbdc785aab77efe9dca15781085fc8ed50f3e595e0214698c` |
+| `reactions/y7w6mr.ogg` | `1099` | 2.39 | -17.9 | -1.6 | The house takes this little one. | `b66fcbecfdf9a9079cd551bac0ee06dd44beecd540db7cb8f2f839da22ac088c` |
+| `reactions/y97n4o.ogg` | `1099` | 1.84 | -17.1 | -1.8 | So, it lands! | `92d3a070968214b44c53302d00690020cbce0e11687785efef4880d9c74ccd2e` |
+| `reactions/y9j4po.ogg` | `1099` | 0.96 | -16.0 | -1.9 | all | `e9b6cd8f039a9e76ca9139597eb0747b4165ed7b409ebf9a5c730390948918f4` |
+| `reactions/y9pzq7.ogg` | `1099` | 0.94 | -16.8 | -1.9 | all | `6039915f634786c416b0b1cfe7d239ded2a1f9e32febf90047d94ab198c8047d` |
+| `reactions/ys1qap.ogg` | `1099` | 1.42 | -16.3 | -1.8 | all | `a349e94639d0a2ef3323980935cf4a94a8c7388290b3f7186ddb97c12597bcde` |
+| `reactions/yvoj2m.ogg` | `1099` | 2.07 | -16.7 | -2.3 | all | `93852e0c98591e97513cad792f858f83f12c0e4ee84259a14b2214554680bce8` |
+| `reactions/yzqelc.ogg` | `1099` | 1.48 | -16.4 | -1.8 | all | `416f8b38e9684d8ecde7396695875102bda65e003d92eda09b206c656c4b4007` |
+| `reactions/z7tgh4.ogg` | `1099` | 1.44 | -17.4 | -1.9 | all | `1786e92300bc8d05ddaac5b66e2b28d3ac006a7a386ac1f34651fae84ba2d718` |
+| `reactions/zgtwm1.ogg` | `1100` | 3.28 | -15.7 | -1.9 | all | `875da02edd6dd9d631f2050cec7e44133fc2df79001d15bfce594b7f238f2397` |
+| `reactions/zp973u.ogg` | `1100` | 2.14 | -18.0 | -1.9 | all | `2eae6949a78bb66d087d022ee8a12da101ec1a9587ce23ee3ebfe699936e0552` |
+| `reactions/zu63vw.ogg` | `1099` | 1.12 | -15.9 | -2.6 | all | `c3376b61f87c58d81e12a44ca804dd7ac0e3e9345f4f9cc3d49a35c72ab42c53` |
+| `reactions/zx6usd.ogg` | `1099` | 2.45 | -16.0 | -2.1 | all | `3fa30fcbea6e36ebd555624d2a83e7b3df95b7baa08879172d172869a1619946` |

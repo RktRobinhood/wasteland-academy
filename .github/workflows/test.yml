@@ -1,20 +1,24 @@
 # Runs the test net: the HTML game's tests, the Godot project's tests and web export,
-# and the takeover dry run. Deployment is in pages.yml.
+# and the takeover dry run. Deployment is in pages.yml; the seed sweep is in stress.yml
+# (nightly, #192), and release.yml runs both before a release tag counts as green.
 name: test
 
 on:
   pull_request:
   push:
     branches: [main]
-  # Runs the seed sweep on a branch: gh workflow run test --ref <branch>
   workflow_dispatch:
+  # release.yml runs every job here on a release tag (#192).
+  workflow_call:
 
 permissions:
   contents: read
 
+# A newer push cancels the run before it. Called from release.yml, github.workflow is
+# "release": its own group, never cancelled, so a push to main can't cancel a release's run.
 concurrency:
-  group: test-${{ github.ref }}
-  cancel-in-progress: true
+  group: test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.workflow == 'test' }}
 
 jobs:
   test:
@@ -58,13 +62,39 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  web:
+  # The web export, built once per run and shared with the web and takeover jobs (#192):
+  # each built its own before, and with pages.yml that was three exports a push.
+  export:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh
       - run: ./export.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          name: godot-web-export
+          path: build/next/
+          if-no-files-found: error
+          retention-days: 3
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: godot-export-log
+          path: _scratch/export.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+  web:
+    needs: export
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: godot-web-export
+          path: build/next
       # Boot the export in headless Chromium at phone and PC sizes
       - uses: actions/setup-node@v7
         with:
@@ -134,21 +164,22 @@ jobs:
 
   # The SymPy answer checker, in its own job like the sweep so the godot job keeps its
   # time. About 115,000 questions took 35 minutes in one job, most of it one Python
-  # process (FAL-722), and the AA SL rollout adds more, so it runs as six shards side by
-  # side (--shard=k/6: every sixth cell and chain, each with all its questions). The
-  # limit is the 20 minutes a shard is allowed: past that, add shards.
+  # process (FAL-722), and the AA SL rollout adds more, so it runs as ten shards side by
+  # side (--shard=k/10: every tenth cell and chain, each with all its questions). The
+  # limit is the 20 minutes a shard is allowed: past that, add shards. Six shards of
+  # about 75,600 questions took 14 to 20 minutes and shard 1 hit the limit (FAL-1191).
   answers-shard:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh
       # pip installs requirements.txt into .venv first.
-      - run: tools/check-answers --shard=${{ matrix.shard }}/6
+      - run: tools/check-answers --shard=${{ matrix.shard }}/10
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -203,6 +234,7 @@ jobs:
   # The takeover dry run (README, "Switching to Godot"): the site as Jekyll builds it,
   # laid out with the switch off and on, each checked in Chromium.
   takeover:
+    needs: export
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -212,8 +244,10 @@ jobs:
         with:
           source: ./
           destination: ./_site
-      - run: scripts/ci-install-godot.sh
-      - run: ./export.sh
+      - uses: actions/download-artifact@v8
+        with:
+          name: godot-web-export
+          path: build/next
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -226,38 +260,5 @@ jobs:
         with:
           name: takeover-dry-run
           path: test-results/
-          if-no-files-found: ignore
-          retention-days: 14
-
-  # The seed sweep: every cell with seeds 51 to 2250, past the checker's 1 to 50.
-  # Its own job so the godot job keeps its time. About 14 minutes with the Quadratics
-  # extension types (FAL-459): main's FAL-415 run was cancelled at 15. About 22 on main
-  # before the Exponentials and logs region (FAL-418), which adds 355 cells to 506.
-  # The Graphs and key features region (FAL-420) finds every number by root-finding,
-  # about ten times the cost of a question elsewhere, so the sweep runs as twelve shards
-  # side by side (--shard=k/12: every twelfth cell and chain), each with every seed. At four
-  # shards, two passed the 55-minute cap with E4 and R6 in (FAL-424); at eight, shards 3 and
-  # 5 passed it on main after E12 and FAL-790, with shard 1 at 52 minutes (FAL-776): past
-  # it, add shards.
-  # Not on pull requests (FAL-918): at about 35 minutes a shard it doubled every PR's
-  # wait. The checker above still makes seeds 1 to 50 of every cell on each PR; the
-  # sweep runs on main after the merge, or on a branch by hand (workflow_dispatch).
-  stress:
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    steps:
-      - uses: actions/checkout@v7
-      - run: scripts/ci-install-godot.sh
-      - run: tools/stress-questions --shard=${{ matrix.shard }}/12
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: stress-questions-${{ matrix.shard }}
-          path: _scratch/stress-questions.log
           if-no-files-found: ignore
           retention-days: 14

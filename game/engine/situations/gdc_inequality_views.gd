@@ -14,6 +14,9 @@ const NEED := {
 }
 
 const IE := "SL2.10.inequality-graphical"
+# fn-ext-inequality-graphical's own misconceptions (FAL-1149).
+const IE_SIDES := "fn-ext-inequality-graphical#3"
+const IE_ENDS := "fn-ext-inequality-graphical#4"
 
 
 func has(unknown: String) -> bool:
@@ -26,9 +29,9 @@ func need(unknown: String, _rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "generic", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "generic", "fillers"] else null
 	out.given = GdcInequalitySituation.export(s)
 	out.trap = {}
 	return out
@@ -89,11 +92,27 @@ static func steps(s: Dictionary, final: String) -> Array:
 func _choice(s: Dictionary, right_key: String, wrongs: Array, asked: String, lines: Array) -> Dictionary:
 	var st := sets(s)
 	var right: String = st[right_key]
-	var gen: Array = []
-	for k in ["inside", "outside", "closed", "left", "right"]:
-		if k != right_key:
-			gen.append(st[k])
-	var out := LogFunctionViews.choice(right, wrongs, gen)
+	# The other sets. Every inequality is strict. Inside right: outside is the reversed
+	# inequality, closed has the crossings put in, and one piece alone is a filler.
+	# Outside right: closed is exactly where it fails, one piece alone is IE#2.
+	var fillers: Array = []
+	var has := wrongs.map(func(w): return w.values.v)
+	var add := func(v: String, ref: String) -> void:
+		if not v in has:
+			wrongs.append(wrong(v, ref))
+			has.append(v)
+	if right_key == "inside":
+		add.call(st.outside, IE_SIDES)
+		add.call(st.closed, IE_ENDS)
+		fillers += [st.left, st.right]
+	else:
+		add.call(st.inside, IE + "#1")
+		add.call(st.closed, IE_SIDES)
+		add.call(st.left, IE + "#2")
+		add.call(st.right, IE + "#2")
+	var out := LogFunctionViews.choice(right, wrongs, fillers)
+	out.fillers = out.generic
+	out.erase("generic")
 	var final: String = "So the solution is " + out.answer.values.v + "."
 	out.merge({"asked": asked, "lines": lines, "methods": {
 		"intersections-then-read": {"result": out.answer.values, "steps": steps(s, final)},
@@ -148,7 +167,9 @@ func u_inequality_from_region(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var st := sets(s)
 	var shown: String = st.inside if s.inside else st.outside
 	var other := "<" if s.rel == ">" else ">"
-	var out := LogFunctionViews.choice(ineq(s, s.rel), [], [ineq(s, other), "%s = %s" % [ft(s), gt(s)], ineq(s, "≥" if s.rel == ">" else "≤")])
+	# The reversed sign, the equation of the crossings, and the ends put in.
+	var out := LogFunctionViews.choice(ineq(s, s.rel), [wrong(ineq(s, other), IE_SIDES), wrong("%s = %s" % [ft(s), gt(s)], IE + "#0"),
+		wrong(ineq(s, "≥" if s.rel == ">" else "≤"), IE_ENDS)], [])
 	var final: String = "So the inequality is " + out.answer.values.v + "."
 	var above := "above" if s.rel == ">" else "below"
 	out.merge({

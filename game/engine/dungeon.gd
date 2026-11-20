@@ -255,8 +255,8 @@ static func boss_plan(seed_no: int, region: String, on_floor: int, kind: String,
 			var lc := QuestionEngine.cells(false, [links[rng.int_in(0, links.size() - 1)]], course)
 			var c: Dictionary = lc[rng.int_in(0, lc.size() - 1)]
 			var fmt := QuestionEngine.upgrade_format(c, "mcq" if rng.chance(0.5) else "value", rng)
-			link = {"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": fmt, "seed": rng.int_in(1, 999999)}
-	return {"kind": kind, "type": pick, "steps": steps, "seed": rng.int_in(1, 999999), "link": link}
+			link = {"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": fmt, "seed": VerifiedSeeds.cell(rng)}
+	return {"kind": kind, "type": pick, "steps": steps, "seed": VerifiedSeeds.chain(rng), "link": link}
 
 
 ## A type with a chain of at least n built steps, weighted by how often Section B

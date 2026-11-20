@@ -14,6 +14,13 @@ const R_EARLY_ROUNDING := SKILL + "regression-y-on-x#1"
 const R_R_SQUARED := SKILL + "pearson-r#0"
 const R_THROUGH_ORIGIN := SKILL + "mean-point#0"
 const R_REARRANGED := SKILL + "predict#1"
+# The type's own slips (FAL-1149): a misconception with no skill ref is "<type>#<index>".
+const R_B_SIGN := "t4-regression-gdc#5"
+const R_AB_SWAP := "t4-regression-gdc#6"
+const R_R_SIGN := "t4-regression-gdc#7"
+const R_MEAN_SWAP := "t4-regression-gdc#8"
+const R_AX_ADDED := "t4-regression-gdc#9"
+const R_A_ALONE := "t4-regression-gdc#10"
 
 ## The stories: x and y in a phrase each, and what the n rows are.
 const CONTEXTS := [
@@ -103,9 +110,9 @@ func u_regression_line(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := table_view(s)
 	out.asked = "Find the equation of the regression line of y on x, in the form y = ax + b, with a and b to 3 s.f."
 	out.answer = ans
-	out.wrongs = [wrong({"m": s.ay, "c": s.by}, R_SWAPPED_LISTS)]
 	# A sign slip in b, and a and b the wrong way round.
-	out.generic = [{"m": s.a, "c": s.b.neg()}, {"m": s.b, "c": s.a}, {"m": s.a.mul(Q.new(9, 10)), "c": s.b}, {"m": s.a, "c": s.b.mul(Q.new(11, 10))}]
+	out.wrongs = [wrong({"m": s.ay, "c": s.by}, R_SWAPPED_LISTS), wrong({"m": s.a, "c": s.b.neg()}, R_B_SIGN), wrong({"m": s.b, "c": s.a}, R_AB_SWAP)]
+	out.fillers = [{"m": s.a.mul(Q.new(9, 10)), "c": s.b}, {"m": s.a, "c": s.b.mul(Q.new(11, 10))}]
 	out.methods = {"gdc-linreg": method(["Enter the x-values in list L1 and the y-values in L2, and run LinReg (ax + b) with x as the independent variable.",
 		"a = %s and b = %s" % [W(s.a), W(s.b)], final_step(ans)], ans.values)}
 	return out
@@ -117,8 +124,8 @@ func u_correlation_coefficient(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var out := table_view(s)
 	out.asked = "Find the value of r, Pearson's product-moment correlation coefficient, to 3 s.f."
 	out.answer = ans
-	out.wrongs = [wrong({"v": qf(r * r)}, R_R_SQUARED)]
-	out.generic = vs([qf(-r), qf(r * 0.9), qf(r * 0.8), qf(signf(r) * (1.0 + absf(r)) / 2.0)])
+	out.wrongs = [wrong({"v": qf(r * r)}, R_R_SQUARED), wrong({"v": qf(-r)}, R_R_SIGN)]
+	out.fillers = vs([qf(r * 0.9), qf(r * 0.8), qf(signf(r) * (1.0 + absf(r)) / 2.0)])
 	out.methods = {"gdc-linreg": method(["Enter the x-values in L1 and the y-values in L2, turn diagnostics on and run LinReg (ax + b).",
 		"r = %s (and r² = %s)" % [W(qf(r)), W(qf(r * r))], final_step(ans)], ans.values)}
 	return out
@@ -131,8 +138,8 @@ func u_mean_point(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := table_view(s)
 	out.asked = "Write down the coordinates of the mean point."
 	out.answer = ans
-	out.wrongs = []
-	out.generic = [{"x": s.my, "y": s.mx}, {"x": s.mx, "y": s.my.add(Q.new(1))}, {"x": s.mx.sub(Q.new(1)), "y": s.my}, {"x": s.mx.add(Q.new(1)), "y": s.my.sub(Q.new(1))}]
+	out.wrongs = [wrong({"x": s.my, "y": s.mx}, R_MEAN_SWAP)]
+	out.fillers = [{"x": s.mx, "y": s.my.add(Q.new(1))}, {"x": s.mx.sub(Q.new(1)), "y": s.my}, {"x": s.mx.add(Q.new(1)), "y": s.my.sub(Q.new(1))}]
 	var sx := 0
 	var sy := 0
 	for i in s.n:
@@ -156,8 +163,8 @@ func u_c_from_mean_point(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var out := {"lines": ["The mean point of a set of data is (%s, %s)." % [D(s.mx), D(s.my)], "The regression line of y on x is y = %sx + c." % D(s.a)],
 		"asked": "The regression line passes through the mean point. Find c.", "answer": ans, "table": null}
 	# The slips: forcing the line through the origin, and the sign of ax going the wrong way.
-	out.wrongs = [wrong({"v": Q.new(0)}, R_THROUGH_ORIGIN)]
-	out.generic = [{"v": s.my.add(s.a.mul(s.mx))}, {"v": s.my.sub(s.a)}, {"v": s.my.div(s.mx)}, {"v": s.my.sub(s.mx)}]
+	out.wrongs = [wrong({"v": Q.new(0)}, R_THROUGH_ORIGIN), wrong({"v": s.my.add(s.a.mul(s.mx))}, R_AX_ADDED), wrong({"v": s.my.sub(s.a)}, R_A_ALONE)]
+	out.fillers = [{"v": s.my.div(s.mx)}, {"v": s.my.sub(s.mx)}]
 	var ax: Q = s.a.mul(s.mx)
 	var shown_c: String = D(c) if ans.show == "dec" else W(c)
 	var sub_mean := ["The line passes through the mean point, so ȳ = ax̄ + c: %s = %s × %s + c." % [D(s.my), D(s.a), D(s.mx)],
@@ -170,16 +177,19 @@ func u_c_from_mean_point(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 
 # ── Predictions ──────────────────────────────────────────────
 
-func u_predict_from_data(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_predict_from_data(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var x0: int = s.x0
 	var ans := sf_ans("y = ", s.y0)
 	var out := table_view(s)
 	out.asked = "Use the regression line of y on x to estimate y when x = %d. Give your answer to 3 s.f." % x0
 	out.answer = ans
-	out.wrongs = [wrong({"v": s.y3}, R_EARLY_ROUNDING), wrong({"v": s.xr}, R_REARRANGED)]
-	out.generic = [{"v": s.a.mul(Q.new(x0)).sub(s.b)}, {"v": s.b.mul(Q.new(x0)).add(s.a)}, {"v": s.y0.mul(Q.new(9, 10))}, {"v": s.y0.mul(Q.new(11, 10))}]
+	out.wrongs = [wrong({"v": s.y3}, R_EARLY_ROUNDING), wrong({"v": s.xr}, R_REARRANGED), wrong({"v": s.a.mul(Q.new(x0)).sub(s.b)}, R_B_SIGN), wrong({"v": s.b.mul(Q.new(x0)).add(s.a)}, R_AB_SWAP)]
+	out.fillers = [{"v": s.y0.mul(Q.new(9, 10))}, {"v": s.y0.mul(Q.new(11, 10))}]
 	out.methods = {"substitute": method(["Enter the data in lists and run LinReg (ax + b): a = %s and b = %s." % [W(s.a), W(s.b)],
 		"Substitute x = %d with the unrounded a and b: y = %s × %d + %s = %s" % [x0, W(s.a), x0, W(s.b), W(s.y0)], final_step(ans)], ans.values)}
+	# More slips than the options have room for: a different few show each time (FAL-1149).
+	if rng != null:
+		out.wrongs = rng.shuffled(out.wrongs)
 	return out
 
 
@@ -188,8 +198,8 @@ func u_predict_from_line(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var ans := sf_ans("y = ", s.y0)
 	var out := {"lines": ["The regression line of y on x is %s." % line_text(s.a, s.b)],
 		"asked": "Use the line to estimate y when x = %d. Give your answer to 3 s.f." % x0, "answer": ans, "table": null}
-	out.wrongs = [wrong({"v": s.xr}, R_REARRANGED)]
-	out.generic = [{"v": s.a.mul(Q.new(x0)).sub(s.b)}, {"v": s.b.mul(Q.new(x0)).add(s.a)}, {"v": s.y0.mul(Q.new(9, 10))}, {"v": s.y0.mul(Q.new(11, 10))}]
+	out.wrongs = [wrong({"v": s.xr}, R_REARRANGED), wrong({"v": s.a.mul(Q.new(x0)).sub(s.b)}, R_B_SIGN), wrong({"v": s.b.mul(Q.new(x0)).add(s.a)}, R_AB_SWAP)]
+	out.fillers = [{"v": s.y0.mul(Q.new(9, 10))}, {"v": s.y0.mul(Q.new(11, 10))}]
 	var b_text: String = ("+ %s" % D(s.b)) if s.b.sign() >= 0 else ("− %s" % D(s.b.abs_q()))
 	out.methods = {"substitute": method(["Substitute x = %d into %s." % [x0, line_text(s.a, s.b)],
 		"y = %s × %d %s = %s" % [D(s.a), x0, b_text, W(s.y0)], final_step(ans)], ans.values)}

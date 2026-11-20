@@ -889,7 +889,9 @@ func _show_result(r: Dictionary) -> void:
 				feedback.text = "Late, but it gives. You take %d damage · +%d Scrap" % [r.player_damage, r.scrap]
 			color = UiTheme.SAND
 		"wrong":
-			feedback.text = "Missed. −%d HP. %s" % [r.player_damage, QuestionEngine.answer_sentence(question)]
+			# A miss may say why: a value rounded too early (#194).
+			var why_off: String = r.get("note", "")
+			feedback.text = "Missed. −%d HP. %s%s" % [r.player_damage, "" if why_off == "" else why_off + " ", QuestionEngine.answer_sentence(question)]
 			color = UiTheme.PINK
 		"timeout":
 			feedback.text = "Time's up. −%d HP. %s" % [r.player_damage, QuestionEngine.answer_sentence(question)]

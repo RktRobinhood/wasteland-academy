@@ -260,6 +260,18 @@ static func near(p: float, scale: float = 1.0) -> Array:
 	return vs(out)
 
 
+## The probability a student gets by rounding each z to 2 d.p. or 3 s.f. before the
+## area (#194), as the answer's premature values.
+static func premature_p(ans: Dictionary, s: Dictionary) -> void:
+	var alts: Array = []
+	for how in Answer.Z_ROUNDINGS:
+		var top := 1.0 if not s.has("zhi") else NormalProbabilitySituation.phi(Answer.round_z(s.zhi, how))
+		var low := 0.0 if not s.has("zlo") else NormalProbabilitySituation.phi(Answer.round_z(s.zlo, how))
+		var inside := top - low
+		alts.append({"v": qf(1.0 - inside if s.get("kind", "") == "out" else inside)})
+	Answer.add_premature(ans, alts)
+
+
 static func wrong_x(x: float, ref: String) -> Dictionary:
 	return wrong({"v": qf(x)}, ref)
 
@@ -276,9 +288,10 @@ func _chosen(rep: String, s: Dictionary) -> Dictionary:
 	elif rep == "diagram":
 		asked = "Find the probability shown by the shaded area."
 	var ans := sf_ans("probability = ", s.p)
+	premature_p(ans, s)
 	var out := _question(rep, s, lines, asked, ans)
 	out.wrongs = [wrong_x(s.other, R_OTHER)]
-	out.generic = near(s.p)
+	out.fillers = near(s.p)
 	return out
 
 
@@ -341,7 +354,7 @@ func u_percentage_in_range(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	out.wrongs = [wrong_x(s.other * scale, R_OTHER)]
 	if pc:
 		out.wrongs.append(wrong_x(s.p, R_DECIMAL))
-	out.generic = near(s.p, scale)
+	out.fillers = near(s.p, scale)
 	out.methods = _methods(rep, s, ans, ["As a percentage: %s × 100 = %s%%" % [W(s.p), W(s.p * 100.0)]] if pc else [])
 	return out
 
@@ -359,7 +372,7 @@ static func count_step(s: Dictionary, x: float) -> Array:
 ## The options of a count: the probability left as it is, and the region left out.
 static func count_options(out: Dictionary, s: Dictionary, x: float) -> void:
 	out.wrongs = [wrong_x(s.p, R_COUNT), wrong_x(s.n * s.other, R_OTHER)]
-	out.generic = near(s.p, float(s.n))
+	out.fillers = near(s.p, float(s.n))
 	# Below 100, the rounding trap is the count rounded to a whole number.
 	if x < 99.5:
 		out.trap_ref = R_WHOLE_COUNT
@@ -402,7 +415,7 @@ func u_rejected_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong_x(s.other, R_OTHER)]
 	if s.kind == "out":
 		out.wrongs.append(wrong_x(s.one, R_ONE_TAIL))
-	out.generic = near(s.p)
+	out.fillers = near(s.p)
 	out.methods = _methods(rep, s, ans)
 	return out
 
@@ -436,7 +449,7 @@ func u_exactly_in_sample(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.wrongs = [wrong_x(s.cum, R_CUMULATIVE)]
 	if s.has("flip"):
 		out.wrongs.append(wrong_x(s.flip, R_OTHER))
-	out.generic = near(s.pmf)
+	out.fillers = near(s.pmf)
 	var step := "The number in the region is Y ~ B(%d, %s), with p unrounded, so P(Y = %d) = binompdf(%d, %s, %d) = %s" % [s.n, W(s.p), s.k, s.n, W(s.p), s.k, W(s.pmf)]
 	out.methods = _methods(rep, s, ans, [step])
 	return out
@@ -457,7 +470,7 @@ func u_recorded_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := sf_ans("probability = ", s.p)
 	var out := _question(rep, s, [opening(rep, s), line], asked, ans)
 	out.wrongs = [wrong_x(s.wide, R_WHOLE_UNIT), wrong_x(s.half_up, R_HALF_UP)]
-	out.generic = near(s.p)
+	out.fillers = near(s.p)
 	var width := "A value recorded as %s is one from %s up to %s, half a unit either side." % [D(s.v), D(s.lo), D(s.hi)]
 	var m := _methods(rep, s, ans)
 	m["gdc-normalcdf"].steps.push_front(width)
@@ -483,8 +496,8 @@ func u_between_from_tails(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var out := {"lines": lines, "asked": asked, "answer": ans, "table": null}
 	if rep == "diagram":
 		out.graph = curve(s.muf, s.sgf, [[float(s.x1), float(s.x2)]], [{"at": float(s.x1), "label": str(s.x1)}, {"at": float(s.x2), "label": str(s.x2)}])
-	out.wrongs = [wrong({"v": s.left}, R_LEFT_TAIL), wrong({"v": s.sum}, R_ADD_TAILS)]
-	out.generic = [{"v": Q.new(1).sub(s.p2)}, {"v": s.p1}, {"v": s.p2}, {"v": s.mid.mul(Q.new(1, 2))}]
+	out.wrongs = [wrong({"v": s.left}, R_LEFT_TAIL), wrong({"v": s.sum}, R_ADD_TAILS), wrong({"v": Q.new(1).sub(s.p2)}, R_LEFT_TAIL)]
+	out.fillers = [{"v": s.p1}, {"v": s.p2}, {"v": s.mid.mul(Q.new(1, 2))}]
 	var first := "Sketch the curve and shade the tails below %d and above %d: the middle is what they leave." % [s.x1, s.x2]
 	if rep == "diagram":
 		first = "On the curve, the shaded middle is what the two tails leave."

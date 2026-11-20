@@ -355,7 +355,7 @@
         "sha256_16": "67e1bb4b33198c56"
       },
       "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-927 card 33e55bc6 (2026-11-15), voice leda chosen on card 31790857",
-      "note": "The 162 shipped move clips are still local VoxCPM2 (FAL-428). Re-record them with this voice in the paid production pass.",
+      "note": "The 162 move clips in game/assets/audio/voice/spark/moves/ were re-recorded with this clone on 2026-11-18 (FAL-992).",
       "sheet": null,
       "brief": null
     },
@@ -389,6 +389,390 @@
       "approved_on": "FAL-1110 (Matt, 2026-11-17): the local clone in ultimate mode. The Gemini voice it is cloned from: FAL-942 card cecae42f (voice techagent-3, 2026-11-15), effect A chosen on card eade3d32 (2026-11-15)",
       "sheet": "writing/voice-sheets.md",
       "brief": "writing/voice-briefs.md"
+    },
+    "boss-heavy": {
+      "name": "The Heavy (boss voice)",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "boss-heavy reference 74dadd38e7540258",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/boss-heavy.wav",
+        "sha256": "74dadd38e7540258bef5fccf025151e18f60f26b440cf5808e8b575cef14f606",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-concierge-1",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 72.48,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A big man in his fifties with a deep, booming, resonant bass voice and a thick, broad outback Queensland drawl, long flat vowels. A swaggering showman villain, smug and theatrical, enjoying every word. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "quadratics-boss (Warden Apex)",
+        "exp-log-boss (Baron Exponent)",
+        "algebra-boss (The Compounder)",
+        "stats-boss (The Pollster)",
+        "thunderdome-boss (The Promoter)"
+      ]
+    },
+    "boss-cold": {
+      "name": "The Cold One (boss voice)",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "boss-cold reference 3f8c6147a6419018",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/boss-cold.wav",
+        "sha256": "3f8c6147a6419018ce4cfac749adbd0edf401b05fd82a41e94e578de5b737fd6",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-ke-advisor-1",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 74.56,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A man in his thirties with a deep, cold, quiet baritone and a strong Kenyan English accent. Clipped and controlled, calm menace, every word exact, never raises his voice. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate B, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "composite-inverse-boss (The Mirror Foreman)",
+        "rational-boss (Warden Zero)",
+        "function-basics-boss (Dispatcher Mapp)",
+        "lines-boss (The Straight Man)",
+        "calculus-boss (The Integrator)"
+      ]
+    },
+    "boss-oracle": {
+      "name": "The Oracle (boss voice)",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "boss-oracle reference ef3140f755b4892a",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/boss-oracle.wav",
+        "sha256": "ef3140f755b4892a873773c8a319dd2c203e04296a2a3039270f22ffba91cc00",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-advisor-7",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 84.88,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A woman in her sixties with a low, smoky, velvety voice and a strong, old-fashioned broad Adelaide Australian accent. Slow and theatrical, amused and mysterious, savouring every word. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "graphs-features-boss (The Cartographer)",
+        "transformations-boss (The Tailor)",
+        "geometry-boss (The Sundial)"
+      ]
+    },
+    "mini-hotshot": {
+      "name": "The Hotshot (miniboss voice)",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "mini-hotshot reference 37d94f5a38185d4e",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/mini-hotshot.wav",
+        "sha256": "37d94f5a38185d4e0f5c604a69b9f01fd25aa9071af755926977c15bb8c7e712",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-csagent-5",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 45.88,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A young woman around twenty with a bright, quick, cocky voice and a strong Western Sydney Australian accent, rising, nasal vowels. Fast and playful, teasing and confident, a grin in every word. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "graphs-features-miniboss (Tracer Wren)",
+        "lines-miniboss (Slope Rider Kit)",
+        "calculus-miniboss (Gradient Jo)",
+        "thunderdome-miniboss (Mixtape Vex)"
+      ]
+    },
+    "mini-hustler": {
+      "name": "The Hustler (miniboss voice)",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "mini-hustler reference 16a676be5acba987",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/mini-hustler.wav",
+        "sha256": "16a676be5acba987f387b7dbf71559824926fcf85f3e3d8eef906ab1b1ec2c14",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-concierge-5",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 57.08,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A woman in her fifties with a sharp, nasal, slightly raspy voice and a broad, ocker Melbourne market-stall Australian accent. A shrewd fast-talking haggler, sly, sarcastic and knowing. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "exp-log-miniboss (Compound Cora)",
+        "rational-miniboss (Ration Clerk Vee)",
+        "transformations-miniboss (Shifty Nan)",
+        "algebra-miniboss (Ratchet Rae)"
+      ]
+    },
+    "mini-bruiser": {
+      "name": "The Bruiser (miniboss voice)",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "mini-bruiser reference b417ca8bc06225e0",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/mini-bruiser.wav",
+        "sha256": "b417ca8bc06225e01221739dff2e46001a5aece14f0421c60850745938d6d545",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-training-8",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 65.16,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A young man in his twenties with a rough, gravelly, low voice and a very broad outback New South Wales Australian accent, a lazy ocker drawl. A scrappy wasteland raider, blunt and laid-back, confident. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "quadratics-miniboss (Arc Gunner Pell)",
+        "composite-inverse-miniboss (Switchback Jun)",
+        "function-basics-miniboss (Hopper Dave)",
+        "geometry-miniboss (Surveyor Hale)",
+        "stats-miniboss (Static Lou)"
+      ]
+    },
+    "st-coffee-cart": {
+      "name": "Tamsin",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "st-coffee-cart reference 5a8ad51fb2524ac9",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/st-coffee-cart.wav",
+        "sha256": "5a8ad51fb2524ac951ed50ab3a2b0386d5458b0d2bede035807bf10477b6a6ad",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-nz-assistant-5",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 54.76,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "An older woman in her sixties with a warm, cosy, chatty voice and a strong small-town New Zealand accent, rounded Kiwi vowels. Motherly and nosy, cheerful, quick run-on sentences. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate B, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "st-coffee-cart"
+      ]
+    },
+    "st-mast-climber": {
+      "name": "Rook the mast climber",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "st-mast-climber reference 8533a5fe2711284b",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/st-mast-climber.wav",
+        "sha256": "8533a5fe2711284bd84f001bcb8dbf8052923860aa571e33e1d63ef9605e7b14",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-storyteller-2",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 46.44,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A young man around twenty with a light, sunny tenor voice and a strong Gold Coast surfie Australian accent. Loud and excitable, breathless enthusiasm, every line an exclamation. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "st-mast-climber"
+      ]
+    },
+    "st-permit-booth": {
+      "name": "Registrar Pell",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "st-permit-booth reference fb33eef5f0008a30",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/st-permit-booth.wav",
+        "sha256": "fb33eef5f0008a3059cc0cf32f71f796dcb67de6f2ed7a1597aa8ce1339ae5f8",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-concierge-8",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 51.16,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A thin middle-aged man with a reedy, nasal, fussy tenor voice and a strong, plummy, put-on cultivated Australian accent that keeps slipping broad. Pompous and florid, very precise diction, delighted with his own importance. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "st-permit-booth"
+      ]
+    },
+    "st-hush-water": {
+      "name": "Hush",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "st-hush-water reference 6ebee405a545a4ce",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/st-hush-water.wav",
+        "sha256": "6ebee405a545a4ceb8af73069341fc69244649f338a06474596c1413ebe76276",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-podcaster-1",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 54.72,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A woman with a very low, husky, quiet voice, almost a murmur, and a strong, laconic Top End Darwin Australian accent. Slow, flat and terse, calm and unreadable. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "st-hush-water"
+      ]
+    },
+    "st-live-wires": {
+      "name": "Wynn",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "st-live-wires reference 3bb4ef2b9483920a",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/st-live-wires.wav",
+        "sha256": "3bb4ef2b9483920a805e22dd1ee21026fe98a9a5e801ea8be29de33606c41e05",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-assistant-7",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 64.56,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "An old man in his seventies with a gruff, gravelly, dry voice and a very broad, old bush Australian accent, a Broken Hill drawl. Slow short sentences, weathered and deadpan. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "st-live-wires"
+      ]
+    },
+    "st-numbers-station": {
+      "name": "Two-Three-Five",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "st-numbers-station reference 56a38515a4963cd9",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/st-numbers-station.wav",
+        "sha256": "56a38515a4963cd97edc665da629b86b88bef6c875a1a9235783e55d4b780380",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-assistant-6",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 87.68,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A flat, emotionless, androgynous mid-pitch voice with a strong Tasmanian Australian accent, a radio numbers station announcer. Slow even monotone, every word evenly spaced. Numbers are read digit by digit. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "st-numbers-station"
+      ]
+    },
+    "cell-guard": {
+      "name": "The Cell guard",
+      "status": "approved",
+      "provider": "voxcpm2",
+      "model": "openbmb/VoxCPM2 (voxcpm 2.0.3)",
+      "mode": "ultimate",
+      "voice": "cell-guard reference 6569918754efb67e",
+      "reference": {
+        "file": "falcon-voice voices/wasteland-academy/cell-guard.wav",
+        "sha256": "6569918754efb67efe3220935e68cfc1c670e9b7be54b8063d311ceb89dad690",
+        "recorded": {
+          "provider": "gemini",
+          "model": "gemini-3.8-flash-tts",
+          "voice": "en-au-training-1",
+          "direction": "the direction below, word for word",
+          "task": "FAL-1133",
+          "date": "2026-11-19",
+          "seconds": 57.12,
+          "note": "The template read at the end of a single casting take that also read the voice's sample lines; this file is that read, cut out"
+        }
+      },
+      "direction": "A middle-aged woman with a tired, bored, deadpan alto voice and a broad, flat Far North Queensland Australian accent. Slow and flat, sighing, dry humour, utterly unimpressed. A natural conversational pace, with a short natural beat at each comma and full stop.",
+      "processing": "Clone resampled to 24 kHz mono, end silence trimmed with short fades (falcon-voice clone/post.sh), then the default chain: 2% tape-style slowdown (ffmpeg asetrate=23520,aresample=24000 on the 24 kHz take), then -16 LUFS through a true-peak limit (<= -1 dBTP)",
+      "approved_on": "FAL-1133 (Matt, 2026-11-19): Gemini casting candidate A, card 35da2e92, cloned locally in ultimate mode",
+      "covers": [
+        "cell-guard"
+      ]
     }
   }
 }
