@@ -16,8 +16,12 @@ extends SceneTree
 ## --shard=k/n sweeps every n-th cell and boss chain from the k-th, so CI can run the
 ## sweep as n jobs side by side (FAL-420).
 
+## The default seeds: the ones past the checker's, up to the last that play draws
+## (VerifiedSeeds, #192).
+const FROM := VerifiedSeeds.CHECKED + 1
+const TO := VerifiedSeeds.LAST
 ## Seeds per boss chain, from --from: there are a few dozen chains, each several parts.
-const CHAIN_SEEDS := 1000
+const CHAIN_SEEDS := VerifiedSeeds.CHAIN_SEEDS
 
 var fails: Array = []
 
@@ -55,7 +59,7 @@ func _decimal_typed(ans: Dictionary, values: Dictionary) -> Dictionary:
 
 
 func _run() -> void:
-	var args := {"from": "51", "to": "2250"}
+	var args := {"from": str(FROM), "to": str(TO)}
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--") and a.contains("="):
 			var kv := a.substr(2).split("=", true, 1)
@@ -140,6 +144,10 @@ func _check(q: Dictionary, name: String) -> int:
 	var ans: Dictionary = q.answer
 	if ans.kind in Answer.MC_ONLY:
 		return short
+	# A whole-number key of 1,000 or more is exact or takes 3 s.f. on purpose (#194).
+	var whole := Answer.whole_key_unlisted(ans, q.view.type, q.view.unknown)
+	if whole != "":
+		fails.append("%s: %s" % [name, whole])
 	var r := QuestionEngine.mark(q, _typed(ans, ans.values))
 	if not r.correct:
 		fails.append("%s: exact typed answer marked wrong: %s" % [name, q.answer_text])

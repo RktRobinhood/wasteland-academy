@@ -32,7 +32,8 @@ const FORMAT_NAMES := {"value": "Value", "mcq": "Multiple choice", "error-spot":
 const LEFT := 1150
 const WIDEST := 2900
 const VERSIONS := 10
-const SEED_MAX := 99999
+## Only seeds the CI checks have made (#192).
+const SEED_MAX := VerifiedSeeds.LAST
 const TAB := 30
 const COURSE_FONT := 28
 

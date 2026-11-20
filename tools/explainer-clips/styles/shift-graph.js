@@ -18,10 +18,10 @@
   // The narrator is whoever teachers.json gives for the clip's zone. These are plain drafts: the Writer puts them in
   // the tutor's voice once that tutor is cast.
   const VOICE = [
-    { t: at(8), slot: 4.8, say: 'Here is y equals x squared, its lowest point at the origin.' },
-    { t: at(86), slot: 4.8, say: 'Put x minus three where x was, and the curve shifts right.' },
+    { t: at(8), slot: 4.8, say: 'Here is y equals x squared, its lowest point at the origin.', caption: 'Here is y = x², its lowest point at the origin.' },
+    { t: at(86), slot: 4.8, say: 'Put x minus three where x was, and the curve shifts right.', caption: 'Put x − 3 where x was, and the curve shifts right.' },
     { t: at(165), slot: 4.8, say: 'Every point moves three to the right. The shape never changes.' },
-    { t: at(246), slot: 4.8, say: 'So the vertex lands at three, zero. Same curve, new position.' },
+    { t: at(246), slot: 4.8, say: 'So the vertex lands at three, zero. Same curve, new position.', caption: 'So the vertex lands at (3, 0). Same curve, new position.' },
   ];
   // Beats, for the storyboard and for reviewers: `key` is the time of the still that shows the beat.
   const BEATS = [

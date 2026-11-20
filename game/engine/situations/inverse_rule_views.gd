@@ -302,6 +302,20 @@ static func rat_tag(a: int, b: int, c: int, d: int, ref: String, label: String =
 	return [] if a * d == b * c else [tag(label % rat_text(a, b, c, d), ref)]
 
 
+## Plain wrong f⁻¹(x) options from [a, b, c, d] coefficients: none that cancels to a
+## number, and none that is the right [a, b, c, d] written another way (a multiple of it).
+static func rat_plain(right: Array, coeffs: Array) -> Array:
+	var out: Array = []
+	for k in coeffs:
+		var same := true
+		for i in 4:
+			for j in range(i + 1, 4):
+				same = same and k[i] * right[j] == k[j] * right[i]
+		if k[0] * k[3] != k[1] * k[2] and not same:
+			out.append("f⁻¹(x) = " + rat_text(k[0], k[1], k[2], k[3]))
+	return out
+
+
 # ── The unknowns ─────────────────────────────────────────────
 
 func u_inverse_linear(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -327,7 +341,7 @@ func u_inverse_rational(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var d: int = f.d
 	var right := finv(f)
 	var pick := pick_of(right, rat_tag(d, b, -c, a, R_ONE_SIGN) + rat_tag(d, -b, c, a, R_ONE_SIGN) + rat_tag(a, -b, -c, d, R_NO_SWAP),
-		["f⁻¹(x) = " + rat_text(d, -b, -c, -a), "f⁻¹(x) = " + rat_text(d, b + 1, -c, a), "f⁻¹(x) = " + rat_text(b, -d, -c, a)])
+		rat_plain([d, -b, -c, a], [[d, -b, -c, -a], [d, b + 1, -c, a], [b, -d, -c, a], [d, -b, c, -a], [d, b, c, a]]))
 	var out := {"asked": "Find f⁻¹(x).", "lines": [InverseRuleSituation.rule_line(f)]}
 	out.merge(pick)
 	out.methods = methods(f, _angles("inverse-rational"), final(right), pick.answer)

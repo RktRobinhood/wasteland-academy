@@ -1861,7 +1861,24 @@
       "priority": { "parts": 0, "rank": 20 }
     }
   ],
-  "gaps": [],
+  "gaps": [
+    {
+      "type": "fn-ahl-rational-quadratic",
+      "reason": "An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet."
+    },
+    {
+      "type": "fn-ahl-odd-even",
+      "reason": "An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet."
+    },
+    {
+      "type": "fn-ahl-inverse-restricted",
+      "reason": "An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet."
+    },
+    {
+      "type": "fn-ai-composite-inverse",
+      "reason": "An HL type (FAL-1007): the Relic lesson map covers the SL Functions ideas, and no HL lesson is designed yet."
+    }
+  ],
   "outlook": [
     {
       "topic": 1,

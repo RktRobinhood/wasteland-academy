@@ -1,0 +1,765 @@
+{
+  "format": 3,
+  "status": "approved",
+  "about": "Stock reaction lines, recorded once per tutor and played in any lesson, like callbacks.json (README, \"Reactions\", GitHub #220). ack plays on a free toy send, or a right build tile with no line of its own. slip plays on the first miss of a toy task, build step or typed answer, and doesn't play again until every other line of its kind in that tutor's set has played this session, and never in place of the not-yet line. No line names a number, a topic or the player's mistake.",
+  "tutors": {
+    "tin-can-tess": {
+      "ack": [
+        {
+          "line": "m8lddf",
+          "speaker": "tin-can-tess",
+          "say": "Sweet as."
+        },
+        {
+          "line": "ho0c5v",
+          "speaker": "tin-can-tess",
+          "say": "Choice, that."
+        },
+        {
+          "line": "vbbab9",
+          "speaker": "tin-can-tess",
+          "say": "That'd hold."
+        },
+        {
+          "line": "gf32w7",
+          "speaker": "tin-can-tess",
+          "say": "Lovely. Fits a treat."
+        },
+        {
+          "line": "06yedo",
+          "speaker": "tin-can-tess",
+          "say": "Goes together, eh."
+        },
+        {
+          "line": "ju6blx",
+          "speaker": "tin-can-tess",
+          "say": "Ka pai."
+        },
+        {
+          "line": "jfdiih",
+          "speaker": "tin-can-tess",
+          "say": "Yep, out the gate with that one."
+        },
+        {
+          "line": "905zud",
+          "speaker": "tin-can-tess",
+          "say": "Nice and snug."
+        },
+        {
+          "line": "zp973u",
+          "speaker": "tin-can-tess",
+          "say": "Clunk. Good noise, that."
+        },
+        {
+          "line": "ck96df",
+          "speaker": "tin-can-tess",
+          "say": "Ooh, I like that one."
+        },
+        {
+          "line": "ar9syr",
+          "speaker": "tin-can-tess",
+          "say": "Bits on the bench, and in it goes."
+        }
+      ],
+      "slip": [
+        {
+          "line": "hnpdxz",
+          "speaker": "tin-can-tess",
+          "say": "Whoops, there goes a washer! Straight into the chilly bin, that one."
+        },
+        {
+          "line": "0woojc",
+          "speaker": "tin-can-tess",
+          "say": "Back on the bench with that, eh."
+        },
+        {
+          "line": "8d9bwx",
+          "speaker": "tin-can-tess",
+          "say": "Scales tipped my tea over. Should've moved the tea."
+        },
+        {
+          "line": "ltidxg",
+          "speaker": "tin-can-tess",
+          "say": "Bolt's stripped. Another one for my tin, and the tin's nearly full."
+        },
+        {
+          "line": "vnxj2u",
+          "speaker": "tin-can-tess",
+          "say": "Oof, that sheet of tin's gone all wavy. We'll flatten it out."
+        },
+        {
+          "line": "8v4i1s",
+          "speaker": "tin-can-tess",
+          "say": "Gauges are arguing again. Pay them no mind."
+        },
+        {
+          "line": "vgsdvc",
+          "speaker": "tin-can-tess",
+          "say": "Spanner slipped, and now the shed dog's barking at me."
+        },
+        {
+          "line": "aeznlk",
+          "speaker": "tin-can-tess",
+          "say": "Heaps of sparks off that one. Pretty, though."
+        },
+        {
+          "line": "fmzhqp",
+          "speaker": "tin-can-tess",
+          "say": "Kia ora, little bolt, where are you rolling off to?"
+        },
+        {
+          "line": "c58kaq",
+          "speaker": "tin-can-tess",
+          "say": "Little wobble on that. Nothing a hammer won't sort."
+        },
+        {
+          "line": "au1j35",
+          "speaker": "tin-can-tess",
+          "say": "Jerry can's glugging all over the floor. Oh well, it's mostly water."
+        },
+        {
+          "line": "nc5zhd",
+          "speaker": "tin-can-tess",
+          "say": "Hang on, that came off in my hand. Anyway, I've got glue."
+        },
+        {
+          "line": "pv0yzw",
+          "speaker": "tin-can-tess",
+          "say": "Clattered right off the bench, that did."
+        }
+      ]
+    },
+    "mags-the-ledger": {
+      "ack": [
+        {
+          "line": "ys1qap",
+          "speaker": "mags-the-ledger",
+          "say": "Into the book it goes."
+        },
+        {
+          "line": "vvw7h6",
+          "speaker": "mags-the-ledger",
+          "say": "In the book."
+        },
+        {
+          "line": "fig6cg",
+          "speaker": "mags-the-ledger",
+          "say": "Righto."
+        },
+        {
+          "line": "11axk3",
+          "speaker": "mags-the-ledger",
+          "say": "Noted."
+        },
+        {
+          "line": "h6pw3p",
+          "speaker": "mags-the-ledger",
+          "say": "Signed and dated."
+        },
+        {
+          "line": "l9ncs3",
+          "speaker": "mags-the-ledger",
+          "say": "That balances."
+        },
+        {
+          "line": "1h3qvn",
+          "speaker": "mags-the-ledger",
+          "say": "Ticked off."
+        },
+        {
+          "line": "y9pzq7",
+          "speaker": "mags-the-ledger",
+          "say": "Good. Next entry."
+        },
+        {
+          "line": "td1cfs",
+          "speaker": "mags-the-ledger",
+          "say": "Neat column, that."
+        },
+        {
+          "line": "j4rn9g",
+          "speaker": "mags-the-ledger",
+          "say": "Ink's dry on that one."
+        },
+        {
+          "line": "37lk5e",
+          "speaker": "mags-the-ledger",
+          "say": "Fair enough. Down it goes."
+        }
+      ],
+      "slip": [
+        {
+          "line": "z7tgh4",
+          "speaker": "mags-the-ledger",
+          "say": "Blot right across the takings."
+        },
+        {
+          "line": "dzgzfk",
+          "speaker": "mags-the-ledger",
+          "say": "Pencil's snapped. I've got another."
+        },
+        {
+          "line": "crnd4i",
+          "speaker": "mags-the-ledger",
+          "say": "Column won't balance. Line through it and go again."
+        },
+        {
+          "line": "crf4e2",
+          "speaker": "mags-the-ledger",
+          "say": "Smudge on the page. The book's seen worse."
+        },
+        {
+          "line": "bjxljj",
+          "speaker": "mags-the-ledger",
+          "say": "Somebody's about to get billed for a ute they never bought. Fix it before they hear."
+        },
+        {
+          "line": "ldaaey",
+          "speaker": "mags-the-ledger",
+          "say": "Page torn. Tape's in the drawer."
+        },
+        {
+          "line": "velmbv",
+          "speaker": "mags-the-ledger",
+          "say": "Pit boss has sold the same seat to the whole front row."
+        },
+        {
+          "line": "obn01d",
+          "speaker": "mags-the-ledger",
+          "say": "Doesn't tally. Not yet."
+        },
+        {
+          "line": "41t8vc",
+          "speaker": "mags-the-ledger",
+          "say": "Fly landed in the ink. Poor thing."
+        },
+        {
+          "line": "v10xxr",
+          "speaker": "mags-the-ledger",
+          "say": "Well, that's a mess. Turn the page."
+        },
+        {
+          "line": "biuyqz",
+          "speaker": "mags-the-ledger",
+          "say": "Hang about. That entry's gone under somebody else's name."
+        },
+        {
+          "line": "rg2dql",
+          "speaker": "mags-the-ledger",
+          "say": "Till's jammed again. Nobody's getting change today."
+        },
+        {
+          "line": "j62ugc",
+          "speaker": "mags-the-ledger",
+          "say": "Cat's asleep on the receipts. I'll work round her."
+        }
+      ]
+    },
+    "rook-dead-air": {
+      "ack": [
+        {
+          "line": "9rzsaa",
+          "speaker": "rook-dead-air",
+          "say": "Copy."
+        },
+        {
+          "line": "ml2cxq",
+          "speaker": "rook-dead-air",
+          "say": "Sent."
+        },
+        {
+          "line": "1c8kk4",
+          "speaker": "rook-dead-air",
+          "say": "Received."
+        },
+        {
+          "line": "yvoj2m",
+          "speaker": "rook-dead-air",
+          "say": "Loud and clear."
+        },
+        {
+          "line": "tdbhq1",
+          "speaker": "rook-dead-air",
+          "say": "Ja, that's through."
+        },
+        {
+          "line": "scetji",
+          "speaker": "rook-dead-air",
+          "say": "Going out now."
+        },
+        {
+          "line": "d50vxt",
+          "speaker": "rook-dead-air",
+          "say": "Reached them. Lekker."
+        },
+        {
+          "line": "szq8sb",
+          "speaker": "rook-dead-air",
+          "say": "Clean signal, that."
+        },
+        {
+          "line": "nm0fuf",
+          "speaker": "rook-dead-air",
+          "say": "Mast's happy with that."
+        },
+        {
+          "line": "dvogx3",
+          "speaker": "rook-dead-air",
+          "say": "Pin's on the map."
+        },
+        {
+          "line": "bypd5d",
+          "speaker": "rook-dead-air",
+          "say": "Got it this end."
+        }
+      ],
+      "slip": [
+        {
+          "line": "i2jaqx",
+          "speaker": "rook-dead-air",
+          "say": "Static. Come in again."
+        },
+        {
+          "line": "8oguve",
+          "speaker": "rook-dead-air",
+          "say": "Eish. That one's gone to the wrong settlement. They'll cope."
+        },
+        {
+          "line": "daxuz2",
+          "speaker": "rook-dead-air",
+          "say": "Shame. The relay didn't like that."
+        },
+        {
+          "line": "5ena6n",
+          "speaker": "rook-dead-air",
+          "say": "Hold on. Something's smoking up there. Go again."
+        },
+        {
+          "line": "z1xu8j",
+          "speaker": "rook-dead-air",
+          "say": "There goes a fuse. I've got spares. Come in again."
+        },
+        {
+          "line": "zgtwm1",
+          "speaker": "rook-dead-air",
+          "say": "Interference. A crow's sitting on the dish again."
+        },
+        {
+          "line": "rpvnvj",
+          "speaker": "rook-dead-air",
+          "say": "Is it? That landed in a goat farmer's kitchen. He sends his regards."
+        },
+        {
+          "line": "3z93sg",
+          "speaker": "rook-dead-air",
+          "say": "Feedback. My ears are ringing."
+        },
+        {
+          "line": "8hno54",
+          "speaker": "rook-dead-air",
+          "say": "Crossed wires somewhere up the mast."
+        },
+        {
+          "line": "jf7rbt",
+          "speaker": "rook-dead-air",
+          "say": "So the far settlements got the near ones' weather. Bit of rain they weren't expecting."
+        },
+        {
+          "line": "ledk03",
+          "speaker": "rook-dead-air",
+          "say": "Quiet on the line. I don't love quiet."
+        },
+        {
+          "line": "09hbpf",
+          "speaker": "rook-dead-air",
+          "say": "Antenna's leaning a bit. Still works, mostly."
+        },
+        {
+          "line": "tgp5x1",
+          "speaker": "rook-dead-air",
+          "say": "Backup battery's kicked in. That's what it's for."
+        }
+      ]
+    },
+    "kara-meridian": {
+      "ack": [
+        {
+          "line": "ko5bd3",
+          "speaker": "kara-meridian",
+          "say": "Compass and I agree."
+        },
+        {
+          "line": "xle2z6",
+          "speaker": "kara-meridian",
+          "say": "Ehen. That holds."
+        },
+        {
+          "line": "gxljs1",
+          "speaker": "kara-meridian",
+          "say": "Peg is in."
+        },
+        {
+          "line": "9zn6ec",
+          "speaker": "kara-meridian",
+          "say": "Good. The line is straight."
+        },
+        {
+          "line": "6ykvu8",
+          "speaker": "kara-meridian",
+          "say": "Marked on the survey."
+        },
+        {
+          "line": "yzqelc",
+          "speaker": "kara-meridian",
+          "say": "That closes nicely."
+        },
+        {
+          "line": "l4qesy",
+          "speaker": "kara-meridian",
+          "say": "Sight taken."
+        },
+        {
+          "line": "6z4k6g",
+          "speaker": "kara-meridian",
+          "say": "Steady. I trust that."
+        },
+        {
+          "line": "rifq2s",
+          "speaker": "kara-meridian",
+          "say": "Yes. Measured and marked."
+        },
+        {
+          "line": "fmm4mj",
+          "speaker": "kara-meridian",
+          "say": "Bubble sits level."
+        },
+        {
+          "line": "xbdeh7",
+          "speaker": "kara-meridian",
+          "say": "Another station fixed."
+        }
+      ],
+      "slip": [
+        {
+          "line": "4ivq3e",
+          "speaker": "kara-meridian",
+          "say": "Sorry. The peg has fallen over."
+        },
+        {
+          "line": "2gi7wy",
+          "speaker": "kara-meridian",
+          "say": "A dust devil has crossed my sight line. We wait for it to pass."
+        },
+        {
+          "line": "abz3i7",
+          "speaker": "kara-meridian",
+          "say": "The chain has lost a link. I have spares in the bag."
+        },
+        {
+          "line": "grecwf",
+          "speaker": "kara-meridian",
+          "say": "Hmm. The triangle did not close. It happens."
+        },
+        {
+          "line": "qtf09l",
+          "speaker": "kara-meridian",
+          "say": "Oil has spilled out of my level. I will clean it later."
+        },
+        {
+          "line": "6f3a7e",
+          "speaker": "kara-meridian",
+          "say": "My scope has fogged. Give it a moment."
+        },
+        {
+          "line": "lpemtf",
+          "speaker": "kara-meridian",
+          "say": "Somewhere out there, a crew is digging in the wrong place. Let us call them back."
+        },
+        {
+          "line": "uqqnkj",
+          "speaker": "kara-meridian",
+          "say": "Salt in the lens again. I will wipe it."
+        },
+        {
+          "line": "2cc4fo",
+          "speaker": "kara-meridian",
+          "say": "Drifted. The Flats do not like to keep still."
+        },
+        {
+          "line": "o7hg9n",
+          "speaker": "kara-meridian",
+          "say": "Lizard on the peg again. He thinks it is his."
+        },
+        {
+          "line": "ne39vm",
+          "speaker": "kara-meridian",
+          "say": "Glare off the salt. Nobody could read that."
+        },
+        {
+          "line": "8jj8yc",
+          "speaker": "kara-meridian",
+          "say": "Kindly hold still, instrument. Thank you."
+        },
+        {
+          "line": "04yoat",
+          "speaker": "kara-meridian",
+          "say": "Ah, the plumb line is swinging. Let it settle."
+        }
+      ]
+    },
+    "lucky-lenoir": {
+      "ack": [
+        {
+          "line": "9rdsq6",
+          "speaker": "lucky-lenoir",
+          "say": "Voilà."
+        },
+        {
+          "line": "cv25sv",
+          "speaker": "lucky-lenoir",
+          "say": "Bon. Now we are playing."
+        },
+        {
+          "line": "85ycum",
+          "speaker": "lucky-lenoir",
+          "say": "The house approves."
+        },
+        {
+          "line": "vqzs24",
+          "speaker": "lucky-lenoir",
+          "say": "Oh, beautiful."
+        },
+        {
+          "line": "bn4te4",
+          "speaker": "lucky-lenoir",
+          "say": "Elegant. Truly."
+        },
+        {
+          "line": "v9wcyf",
+          "speaker": "lucky-lenoir",
+          "say": "Such a pretty hand."
+        },
+        {
+          "line": "5rzrn8",
+          "speaker": "lucky-lenoir",
+          "say": "Placed. The table thanks you."
+        },
+        {
+          "line": "f902ih",
+          "speaker": "lucky-lenoir",
+          "say": "Magnifique, no?"
+        },
+        {
+          "line": "fxckgg",
+          "speaker": "lucky-lenoir",
+          "say": "Very professional."
+        },
+        {
+          "line": "aiq394",
+          "speaker": "lucky-lenoir",
+          "say": "Mm, smooth as a new deck."
+        },
+        {
+          "line": "y97n4o",
+          "speaker": "lucky-lenoir",
+          "say": "Alors, it lands."
+        }
+      ],
+      "slip": [
+        {
+          "line": "ie6sd2",
+          "speaker": "lucky-lenoir",
+          "say": "And there goes my hat."
+        },
+        {
+          "line": "4q7pz6",
+          "speaker": "lucky-lenoir",
+          "say": "Gum in the wheel again. Who does this?"
+        },
+        {
+          "line": "r74c14",
+          "speaker": "lucky-lenoir",
+          "say": "I bet you a cap that I could catch that die. I could not."
+        },
+        {
+          "line": "wyhvd5",
+          "speaker": "lucky-lenoir",
+          "say": "Non, non. The cards have blown away."
+        },
+        {
+          "line": "rvmc9s",
+          "speaker": "lucky-lenoir",
+          "say": "My last cap, gone. It was a very good cap."
+        },
+        {
+          "line": "pz2yqj",
+          "speaker": "lucky-lenoir",
+          "say": "Under the stall, those dice. They always come back."
+        },
+        {
+          "line": "xakm9f",
+          "speaker": "lucky-lenoir",
+          "say": "Listen to the crowd groan. They love a drama."
+        },
+        {
+          "line": "y7w6mr",
+          "speaker": "lucky-lenoir",
+          "say": "Pff. The house takes this little one."
+        },
+        {
+          "line": "ppg08k",
+          "speaker": "lucky-lenoir",
+          "say": "Quel dommage."
+        },
+        {
+          "line": "sgkkrx",
+          "speaker": "lucky-lenoir",
+          "say": "Somebody turned the lamp off mid-shuffle. Rude."
+        },
+        {
+          "line": "7j3q9n",
+          "speaker": "lucky-lenoir",
+          "say": "Sadly, the wheel spins on without us."
+        },
+        {
+          "line": "zx6usd",
+          "speaker": "lucky-lenoir",
+          "say": "Even the house did not see that coming."
+        },
+        {
+          "line": "2pqmuf",
+          "speaker": "lucky-lenoir",
+          "say": "What a roll. Off the table, but what a roll."
+        }
+      ]
+    },
+    "calc": {
+      "ack": [
+        {
+          "line": "zu63vw",
+          "speaker": "calc",
+          "say": "Logging."
+        },
+        {
+          "line": "h9at64",
+          "speaker": "calc",
+          "say": "Input accepted."
+        },
+        {
+          "line": "kvkgjo",
+          "speaker": "calc",
+          "say": "Status: nominal."
+        },
+        {
+          "line": "lhnthf",
+          "speaker": "calc",
+          "say": "Reading confirmed."
+        },
+        {
+          "line": "h8p9gu",
+          "speaker": "calc",
+          "say": "Accepted. Filed under good."
+        },
+        {
+          "line": "ondobk",
+          "speaker": "calc",
+          "say": "Coolant flow steady."
+        },
+        {
+          "line": "emszvz",
+          "speaker": "calc",
+          "say": "Stored. Thank you."
+        },
+        {
+          "line": "pga4ks",
+          "speaker": "calc",
+          "say": "Pressure holding. Excellent."
+        },
+        {
+          "line": "y9j4po",
+          "speaker": "calc",
+          "say": "Green light."
+        },
+        {
+          "line": "jmscyv",
+          "speaker": "calc",
+          "say": "Confirmed. I like that reading."
+        },
+        {
+          "line": "gun14r",
+          "speaker": "calc",
+          "say": "Entry added. Rate of change: positive."
+        }
+      ],
+      "slip": [
+        {
+          "line": "5jcjln",
+          "speaker": "calc",
+          "say": "Alert. Coolant pressure rising. Venting."
+        },
+        {
+          "line": "rd7iv6",
+          "speaker": "calc",
+          "say": "Warning light active. It is a very small light."
+        },
+        {
+          "line": "ssokhc",
+          "speaker": "calc",
+          "say": "Fault logged. The fault is not alarmed. I am also not alarmed."
+        },
+        {
+          "line": "sqx1py",
+          "speaker": "calc",
+          "say": "Query. Was that a fan? That was a fan. It has stopped."
+        },
+        {
+          "line": "sy45uo",
+          "speaker": "calc",
+          "say": "Valve released. Steam is harmless at this distance."
+        },
+        {
+          "line": "mc6s50",
+          "speaker": "calc",
+          "say": "No record. Recalculating."
+        },
+        {
+          "line": "isd89o",
+          "speaker": "calc",
+          "say": "Gauge needle twitched. It does that. Resuming."
+        },
+        {
+          "line": "py9ozl",
+          "speaker": "calc",
+          "say": "Temperature up by a small amount. A small amount is acceptable."
+        },
+        {
+          "line": "oc853p",
+          "speaker": "calc",
+          "say": "Memory sector corrupted. Restoring from backup.",
+          "cue": "glitch",
+          "cue_at": "start"
+        },
+        {
+          "line": "osys6q",
+          "speaker": "calc",
+          "say": "A spark has left the panel. It will not be missed."
+        },
+        {
+          "line": "tn7w1y",
+          "speaker": "calc",
+          "say": "The canteen reports a flicker. The canteen always reports a flicker."
+        },
+        {
+          "line": "6xpivq",
+          "speaker": "calc",
+          "say": "Interesting. That reading moved faster than predicted. I would like another."
+        },
+        {
+          "line": "mwjojt",
+          "speaker": "calc",
+          "say": "Alarm silenced. It was a short alarm."
+        }
+      ]
+    }
+  }
+}

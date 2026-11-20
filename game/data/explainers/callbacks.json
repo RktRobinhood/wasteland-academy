@@ -1,0 +1,463 @@
+{
+  "format": 2,
+  "status": "draft",
+  "about": "Reusable callback lines, recorded once per tutor and used by any explainer's recall section through {\"use\": \"<tutor>.<key>\"}. Keys: own.watched and own.not-watched for the tutor's own earlier explainer; <other tutor>.watched and <other tutor>.not-watched for someone else's; short-version leads into a 20-second short version; after points the player back to the full lesson. No line names a topic or an explainer, so the game shows the prerequisite's title card while the line plays. Every tutor is provisional (GitHub #18), so nothing here is recorded yet. See README.md, 'Callback lines'.",
+  "cues": [
+    "chuckles",
+    "laughs",
+    "coughs",
+    "sighs",
+    "clears-throat",
+    "sniffs",
+    "hums",
+    "glitch"
+  ],
+  "tutors": {
+    "mags-the-ledger": {
+      "lines": {
+        "own.watched": {
+          "line": "c04b7s",
+          "speaker": "mags-the-ledger",
+          "say": "You did this one with me. Let's see what stuck."
+        },
+        "own.not-watched": {
+          "line": "mx9tnl",
+          "speaker": "mags-the-ledger",
+          "say": "You've not done my lesson on this one yet. It's up on the board."
+        },
+        "short-version": {
+          "line": "zp7a9a",
+          "speaker": "mags-the-ledger",
+          "say": "Here's the short version. Write it down."
+        },
+        "after": {
+          "line": "xtokhe",
+          "speaker": "mags-the-ledger",
+          "say": "Do the full lesson after this. You'll want it in your book."
+        },
+        "tin-can-tess.watched": {
+          "line": "gl7dtl",
+          "speaker": "mags-the-ledger",
+          "say": "Tess showed you this at her yard."
+        },
+        "tin-can-tess.not-watched": {
+          "line": "la4942",
+          "speaker": "mags-the-ledger",
+          "say": "You haven't been round to Tess's yard yet. She teaches this, and you'll want it."
+        },
+        "rook-dead-air.watched": {
+          "line": "zd08l4",
+          "speaker": "mags-the-ledger",
+          "say": "Rook went through this with you up the Signal Tower."
+        },
+        "rook-dead-air.not-watched": {
+          "line": "ektz83",
+          "speaker": "mags-the-ledger",
+          "say": "You haven't been up the Signal Tower to see Rook yet. He covers this. Worth the trip."
+        },
+        "kara-meridian.watched": {
+          "line": "u60y2n",
+          "speaker": "mags-the-ledger",
+          "say": "Kara took you through this out on the Dry Flats."
+        },
+        "kara-meridian.not-watched": {
+          "line": "zwbeac",
+          "speaker": "mags-the-ledger",
+          "say": "You haven't been out to the Dry Flats to see Kara yet. She teaches this, and she teaches it properly."
+        },
+        "lucky-lenoir.watched": {
+          "line": "okt7kg",
+          "speaker": "mags-the-ledger",
+          "say": "Lucky showed you this at the Radio Spires. Hope he didn't bet you on it."
+        },
+        "lucky-lenoir.not-watched": {
+          "line": "b59dm4",
+          "speaker": "mags-the-ledger",
+          "say": "You haven't met Lucky at the Radio Spires yet. He teaches this. Don't play cards with him."
+        },
+        "calc.watched": {
+          "line": "y2pesi",
+          "speaker": "mags-the-ledger",
+          "say": "Calc took you through this down in the Engine Core."
+        },
+        "calc.not-watched": {
+          "line": "ah2ux1",
+          "speaker": "mags-the-ledger",
+          "say": "You haven't been down the Engine Core to see Calc yet. It covers this, and you'll want it."
+        }
+      }
+    },
+    "tin-can-tess": {
+      "lines": {
+        "own.watched": {
+          "line": "va53qs",
+          "speaker": "tin-can-tess",
+          "say": "Oh, you've done this one with me! Good. Quick warm-up, then."
+        },
+        "own.not-watched": {
+          "line": "y1spef",
+          "speaker": "tin-can-tess",
+          "say": "We haven't done my lesson on this yet, you and me. No stress."
+        },
+        "short-version": {
+          "line": "b80hrn",
+          "speaker": "tin-can-tess",
+          "say": "Short version, then. Quick as I can."
+        },
+        "after": {
+          "line": "bheneg",
+          "speaker": "tin-can-tess",
+          "say": "Come back and do the whole thing with me later. Worth it, promise."
+        },
+        "mags-the-ledger.watched": {
+          "line": "g8o2ay",
+          "speaker": "tin-can-tess",
+          "say": "Mags showed you this in the Scrap Fields. She'll be pleased you kept it."
+        },
+        "mags-the-ledger.not-watched": {
+          "line": "a8a6uc",
+          "speaker": "tin-can-tess",
+          "say": "You haven't been out to see Mags in the Scrap Fields yet. She does this one, and you'll want it."
+        },
+        "rook-dead-air.watched": {
+          "line": "am0al9",
+          "speaker": "tin-can-tess",
+          "say": "Rook did this with you at the Signal Tower. Did he get excited? He gets excited."
+        },
+        "rook-dead-air.not-watched": {
+          "line": "zp1z2g",
+          "speaker": "tin-can-tess",
+          "say": "You haven't been up to see Rook at the Signal Tower yet. He teaches this one. He gets loud."
+        },
+        "kara-meridian.watched": {
+          "line": "u43pd0",
+          "speaker": "tin-can-tess",
+          "say": "Kara went through this with you on the Dry Flats."
+        },
+        "kara-meridian.not-watched": {
+          "line": "wg201a",
+          "speaker": "tin-can-tess",
+          "say": "You haven't been out to Kara on the Dry Flats yet. She covers this, and you'll want it."
+        },
+        "lucky-lenoir.watched": {
+          "line": "zf3b4q",
+          "speaker": "tin-can-tess",
+          "say": "Lucky showed you this at the Radio Spires. Did he lose a bet on it? He usually does."
+        },
+        "lucky-lenoir.not-watched": {
+          "line": "jwrf1g",
+          "speaker": "tin-can-tess",
+          "say": "You haven't met Lucky at the Radio Spires yet. He teaches this one, and he's good fun."
+        },
+        "calc.watched": {
+          "line": "irkd4i",
+          "speaker": "tin-can-tess",
+          "say": "Calc did this with you in the Engine Core. Bit of a talker, for a machine."
+        },
+        "calc.not-watched": {
+          "line": "ib8twp",
+          "speaker": "tin-can-tess",
+          "say": "You haven't been down to Calc in the Engine Core yet. It teaches this, and you'll want it."
+        }
+      }
+    },
+    "rook-dead-air": {
+      "lines": {
+        "own.watched": {
+          "line": "ut8s7q",
+          "speaker": "rook-dead-air",
+          "say": "We've had this one on my frequency already. Let's check the signal's still clear."
+        },
+        "own.not-watched": {
+          "line": "l16wmu",
+          "speaker": "rook-dead-air",
+          "say": "My lesson on this hasn't reached you yet. Fix that soon."
+        },
+        "short-version": {
+          "line": "teu16s",
+          "speaker": "rook-dead-air",
+          "say": "Short transmission, then. Listen close."
+        },
+        "after": {
+          "line": "iyzz2i",
+          "speaker": "rook-dead-air",
+          "say": "Tune in to the full lesson after this. You'll want it. Out."
+        },
+        "mags-the-ledger.watched": {
+          "line": "n2gvfk",
+          "speaker": "rook-dead-air",
+          "say": "Mags covered this with you in the Scrap Fields. Good. Saves me a broadcast."
+        },
+        "mags-the-ledger.not-watched": {
+          "line": "efxyqj",
+          "speaker": "rook-dead-air",
+          "say": "You haven't been to see Mags in the Scrap Fields yet. She teaches this, and it's worth the trip."
+        },
+        "tin-can-tess.watched": {
+          "line": "do9yfj",
+          "speaker": "rook-dead-air",
+          "say": "Tess gave you this at her yard. Clean signal, Tess."
+        },
+        "tin-can-tess.not-watched": {
+          "line": "z7nx3b",
+          "speaker": "rook-dead-air",
+          "say": "You haven't been round to Tess's yard yet. She covers this. Go and see her."
+        },
+        "kara-meridian.watched": {
+          "line": "uo4qot",
+          "speaker": "rook-dead-air",
+          "say": "Kara walked you through this on the Dry Flats. Precise as ever, I bet."
+        },
+        "kara-meridian.not-watched": {
+          "line": "fdovjn",
+          "speaker": "rook-dead-air",
+          "say": "You haven't been out to Kara on the Dry Flats yet. She teaches this, and you'll want it."
+        },
+        "lucky-lenoir.watched": {
+          "line": "ai7rkl",
+          "speaker": "rook-dead-air",
+          "say": "Lucky ran this with you at the Radio Spires. Our signals cross. I hear everything."
+        },
+        "lucky-lenoir.not-watched": {
+          "line": "iumjzl",
+          "speaker": "rook-dead-air",
+          "say": "You haven't been over to Lucky at the Radio Spires yet. He covers this. Ignore his odds."
+        },
+        "calc.watched": {
+          "line": "ln0w32",
+          "speaker": "rook-dead-air",
+          "say": "Calc sent you this from the Engine Core. Strong signal, that machine."
+        },
+        "calc.not-watched": {
+          "line": "xd8iw1",
+          "speaker": "rook-dead-air",
+          "say": "You haven't been down to Calc in the Engine Core yet. It teaches this, and you'll need it."
+        }
+      }
+    },
+    "kara-meridian": {
+      "lines": {
+        "own.watched": {
+          "line": "wgf1er",
+          "speaker": "kara-meridian",
+          "say": "We measured this one out together. Let's see if it still holds."
+        },
+        "own.not-watched": {
+          "line": "ufxmro",
+          "speaker": "kara-meridian",
+          "say": "We haven't done my lesson on this yet. We will."
+        },
+        "short-version": {
+          "line": "oahrim",
+          "speaker": "kara-meridian",
+          "say": "The short version, then. One line at a time."
+        },
+        "after": {
+          "line": "ba66t1",
+          "speaker": "kara-meridian",
+          "say": "Come back for the full lesson after this. You'll want it."
+        },
+        "mags-the-ledger.watched": {
+          "line": "h4qm7n",
+          "speaker": "kara-meridian",
+          "say": "Mags taught you this in the Scrap Fields. I'll build on her work."
+        },
+        "mags-the-ledger.not-watched": {
+          "line": "sw2aoy",
+          "speaker": "kara-meridian",
+          "say": "You haven't been to see Mags in the Scrap Fields yet. She teaches this, and you'll want it."
+        },
+        "tin-can-tess.watched": {
+          "line": "a5xac8",
+          "speaker": "kara-meridian",
+          "say": "Tess showed you this at her yard. Good foundations."
+        },
+        "tin-can-tess.not-watched": {
+          "line": "njgjnl",
+          "speaker": "kara-meridian",
+          "say": "You haven't been round to Tess's yard yet. She covers this. Start there."
+        },
+        "rook-dead-air.watched": {
+          "line": "iqtbyc",
+          "speaker": "kara-meridian",
+          "say": "Rook went over this with you at the Signal Tower."
+        },
+        "rook-dead-air.not-watched": {
+          "line": "r15qbx",
+          "speaker": "kara-meridian",
+          "say": "You haven't been up the Signal Tower to see Rook yet. He teaches this, and you'll want it."
+        },
+        "lucky-lenoir.watched": {
+          "line": "zzl6am",
+          "speaker": "kara-meridian",
+          "say": "Lucky showed you this at the Radio Spires. He's right more often than he wins."
+        },
+        "lucky-lenoir.not-watched": {
+          "line": "k6l33d",
+          "speaker": "kara-meridian",
+          "say": "You haven't met Lucky at the Radio Spires yet. He covers this, and you'll want it."
+        },
+        "calc.watched": {
+          "line": "ogqj02",
+          "speaker": "kara-meridian",
+          "say": "Calc took you through this in the Engine Core."
+        },
+        "calc.not-watched": {
+          "line": "z9ank5",
+          "speaker": "kara-meridian",
+          "say": "You haven't been down to Calc in the Engine Core yet. It teaches this. Go when you're ready."
+        }
+      }
+    },
+    "lucky-lenoir": {
+      "lines": {
+        "own.watched": {
+          "line": "iuc4by",
+          "speaker": "lucky-lenoir",
+          "say": "Ah, you have seen my lesson on this! I bet you remember it. I lose most bets."
+        },
+        "own.not-watched": {
+          "line": "yyfiz5",
+          "speaker": "lucky-lenoir",
+          "say": "You have not seen my lesson on this yet. A pity. It is one of my best."
+        },
+        "short-version": {
+          "line": "gu8esa",
+          "speaker": "lucky-lenoir",
+          "say": "Voilà, the short version. Watch closely."
+        },
+        "after": {
+          "line": "zj8b8j",
+          "speaker": "lucky-lenoir",
+          "say": "See the whole lesson after this. You will want it, I promise. And I keep my promises, mostly."
+        },
+        "mags-the-ledger.watched": {
+          "line": "bmokj5",
+          "speaker": "lucky-lenoir",
+          "say": "Mags taught you this in the Scrap Fields. She keeps a record of my debts too."
+        },
+        "mags-the-ledger.not-watched": {
+          "line": "m8nchx",
+          "speaker": "lucky-lenoir",
+          "say": "You have not been to see Mags in the Scrap Fields yet. She teaches this. You will want it."
+        },
+        "tin-can-tess.watched": {
+          "line": "h5bvsg",
+          "speaker": "lucky-lenoir",
+          "say": "Tess showed you this at her yard. A fine teacher, Tess."
+        },
+        "tin-can-tess.not-watched": {
+          "line": "yz66km",
+          "speaker": "lucky-lenoir",
+          "say": "You have not been to Tess's yard yet. She covers this. Go, go."
+        },
+        "rook-dead-air.watched": {
+          "line": "divgo1",
+          "speaker": "lucky-lenoir",
+          "say": "Rook gave you this at the Signal Tower. Loudly, I imagine."
+        },
+        "rook-dead-air.not-watched": {
+          "line": "damnxl",
+          "speaker": "lucky-lenoir",
+          "say": "You have not been up to Rook at the Signal Tower yet. He teaches this, and you will need it."
+        },
+        "kara-meridian.watched": {
+          "line": "xmcam8",
+          "speaker": "lucky-lenoir",
+          "say": "Kara walked you through this on the Dry Flats. She never bets. Very wise."
+        },
+        "kara-meridian.not-watched": {
+          "line": "b7e2jc",
+          "speaker": "lucky-lenoir",
+          "say": "You have not been out to Kara on the Dry Flats yet. She teaches this. You will want it."
+        },
+        "calc.watched": {
+          "line": "ibi7nd",
+          "speaker": "lucky-lenoir",
+          "say": "Calc showed you this in the Engine Core. That machine has never lost a bet."
+        },
+        "calc.not-watched": {
+          "line": "ocvbwv",
+          "speaker": "lucky-lenoir",
+          "say": "You have not been down to Calc in the Engine Core yet. It teaches this, and you will want it."
+        }
+      }
+    },
+    "calc": {
+      "lines": {
+        "own.watched": {
+          "line": "j15an9",
+          "speaker": "calc",
+          "say": "Record found. You completed my lesson on this. Confirming retention.",
+          "cue": "glitch",
+          "cue_at": "start"
+        },
+        "own.not-watched": {
+          "line": "l06ng5",
+          "speaker": "calc",
+          "say": "No record. You have not completed my lesson on this."
+        },
+        "short-version": {
+          "line": "egerp4",
+          "speaker": "calc",
+          "say": "Compressed version follows."
+        },
+        "after": {
+          "line": "bf9sg3",
+          "speaker": "calc",
+          "say": "Recommend the full lesson after this one. Probability you will need it: high."
+        },
+        "mags-the-ledger.watched": {
+          "line": "cancww",
+          "speaker": "calc",
+          "say": "Record found. Mags taught you this in the Scrap Fields."
+        },
+        "mags-the-ledger.not-watched": {
+          "line": "xxkpsr",
+          "speaker": "calc",
+          "say": "No record of a visit to Mags in the Scrap Fields. She teaches this. Recommend you go."
+        },
+        "tin-can-tess.watched": {
+          "line": "y9dawk",
+          "speaker": "calc",
+          "say": "Record found. Tess taught you this at her yard."
+        },
+        "tin-can-tess.not-watched": {
+          "line": "ow9ffb",
+          "speaker": "calc",
+          "say": "No record of a visit to Tess's yard. She teaches this. Recommend you go."
+        },
+        "rook-dead-air.watched": {
+          "line": "rtuuw3",
+          "speaker": "calc",
+          "say": "Record found. Rook transmitted this to you at the Signal Tower."
+        },
+        "rook-dead-air.not-watched": {
+          "line": "jwrnyp",
+          "speaker": "calc",
+          "say": "No record of a visit to Rook at the Signal Tower. He teaches this. Recommend you go."
+        },
+        "kara-meridian.watched": {
+          "line": "e9z8a6",
+          "speaker": "calc",
+          "say": "Record found. Kara taught you this on the Dry Flats."
+        },
+        "kara-meridian.not-watched": {
+          "line": "yl1cu9",
+          "speaker": "calc",
+          "say": "No record of a visit to Kara on the Dry Flats. She teaches this. Recommend you go."
+        },
+        "lucky-lenoir.watched": {
+          "line": "aaqxxd",
+          "speaker": "calc",
+          "say": "Record found. Lucky taught you this at the Radio Spires. He also owes me a battery."
+        },
+        "lucky-lenoir.not-watched": {
+          "line": "a3zmuk",
+          "speaker": "calc",
+          "say": "No record of a visit to Lucky at the Radio Spires. He teaches this. Recommend you go."
+        }
+      }
+    }
+  }
+}

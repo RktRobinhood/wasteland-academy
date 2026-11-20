@@ -22,6 +22,9 @@ const NEED := {
 
 const SK := "SL2.6.sketch"
 const SI := "SL2.3.sketch-from-info"
+# fn-sketch-from-features' own misconceptions (FAL-1149).
+const SF_HK_SWAP := "fn-sketch-from-features#6"
+const SF_NOTHING := "fn-sketch-from-features#7"
 
 
 func has(unknown: String) -> bool:
@@ -34,9 +37,9 @@ func need(unknown: String, _rep: String) -> Dictionary:
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
-	for key in ["lines", "graph", "table", "wrongs", "generic"]:
+	for key in ["lines", "graph", "table", "wrongs", "generic", "fillers"]:
 		if not out.has(key):
-			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+			out[key] = [] if key in ["lines", "wrongs", "generic", "fillers"] else null
 	out.given = GraphFromFeaturesSituation.export(s)
 	out.given.merge(out.get("check", {}), true)
 	out.trap = {}
@@ -385,8 +388,13 @@ func u_features_from_sketch(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var desc := func(h: Q, k: Q, r1: Q, r2: Q, c: Q, d: String) -> String:
 		return "vertex %s, roots %s and %s, y-intercept %s, %s" % [P(h, k), N(r1), N(r2), N(c), d]
 	var right: String = desc.call(s.h, s.k, s.r1, s.r2, s.c, dir)
-	var out := LogFunctionViews.choice(right, [wrong({"v": desc.call(s.h, s.k, s.r1, s.r2, s.c, other)}, SK + "#0" if s.a.sign() < 0 else "")],
-		[desc.call(s.k, s.h, s.r1, s.r2, s.c, dir), desc.call(s.h, s.k, s.r1.neg(), s.r2.neg(), s.c, dir), desc.call(s.h, s.k, s.r1, s.r2, s.k, dir)])
+	# The vertex's coordinates swapped, and the vertex's height as the y-intercept, are
+	# slips; the roots with their signs changed are a filler (they are read off labels).
+	var out := LogFunctionViews.choice(right, [wrong({"v": desc.call(s.h, s.k, s.r1, s.r2, s.c, other)}, SK + "#0" if s.a.sign() < 0 else ""),
+		wrong({"v": desc.call(s.k, s.h, s.r1, s.r2, s.c, dir)}, SF_HK_SWAP), wrong({"v": desc.call(s.h, s.k, s.r1, s.r2, s.k, dir)}, SK + "#2")],
+		[desc.call(s.h, s.k, s.r1.neg(), s.r2.neg(), s.c, dir)])
+	out.fillers = out.generic
+	out.erase("generic")
 	var pts: Array = [[s.r1.to_float(), 0.0, P(s.r1, 0)], [s.r2.to_float(), 0.0, P(s.r2, 0)], [s.h.to_float(), s.k.to_float(), P(s.h, s.k)],
 		[0.0, s.c.to_float(), P(0, s.c)]]
 	var w := card_win(s, [s.c.to_float()])
@@ -414,8 +422,11 @@ func u_judge_a_sketch(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"pointed": "Its vertex is a sharp point: a parabola is smooth there."}
 	var right: String = says[flaw]
 	var other: String = says["pointed" if flaw == "flipped" else "flipped"]
-	var out := LogFunctionViews.choice(right, [wrong({"v": "Its vertex should be on the y-axis, at %s." % P(0, s.c)}, SK + "#2")],
-		[other, "Nothing: the sketch is right."])
+	# The flaw the sketch doesn't have names no slip: a filler.
+	var out := LogFunctionViews.choice(right, [wrong({"v": "Its vertex should be on the y-axis, at %s." % P(0, s.c)}, SK + "#2"),
+		wrong({"v": "Nothing: the sketch is right."}, SF_NOTHING)], [other])
+	out.fillers = out.generic
+	out.erase("generic")
 	var g: Dictionary = drawn.graph.duplicate()
 	g.erase("card")
 	var lines := [general(s)]

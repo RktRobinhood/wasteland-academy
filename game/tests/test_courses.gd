@@ -80,23 +80,43 @@ func test_an_unknown_needs_every_one_of_its_skills() -> void:
 
 
 ## The built types that are on AA HL's list and no other course's (AHL subtopics).
-const HL_ONLY := ["t1-ahl-counting"]
+const HL_ONLY := ["t1-ahl-counting", "t1-ahl-complex-cartesian", "t1-ahl-complex-polar", "t1-ahl-de-moivre", "t1-ahl-conjugate-roots",
+	"fn-ahl-rational-quadratic", "fn-ahl-odd-even", "fn-ahl-inverse-restricted"]
+
+
+## The built types whose every unknown tests AI skills only (the AI-SL1.6 and 1.7 types, FAL-999):
+## no AA course has them.
+func _ai_only() -> Array:
+	return QuestionEngine.built_types().filter(func(id):
+		return QuestionEngine.type_of(id).unknowns.all(func(u): return u.skills.size() > 0 and u.skills.all(func(s): return s.begins_with("AI-"))))
 
 
 func test_aa_hl_covers_every_built_question_and_aa_sl_every_one_but_the_hl_only_types() -> void:
 	var all := QuestionEngine.cells().size()
 	check(all > 1000, "the game has %d cells" % all)
+	var ai_only := _ai_only()
+	check(ai_only.size() >= 4, "AI-only types: %s" % [ai_only])
+	var not_aa := QuestionEngine.built_types().filter(func(id): return not id in ai_only)
+	var ai_cells := QuestionEngine.cells(false, ai_only).size()
+	var ai_probes := QuestionEngine.probes().filter(func(p): return p.type in ai_only).size()
 	var hl_only_cells := QuestionEngine.cells(false, HL_ONLY).size()
 	var hl_only_probes := QuestionEngine.probes().filter(func(p): return p.type in HL_ONLY).size()
-	check_eq(QuestionEngine.cells(false, [], "aa-hl").size(), all, "AA HL has every cell")
-	check_eq(QuestionEngine.built_types("aa-hl"), QuestionEngine.built_types(), "AA HL has every built type")
-	check_eq(QuestionEngine.probes(false, "aa-hl").size(), QuestionEngine.probes().size(), "AA HL has every probe")
-	check_eq(QuestionEngine.cells(false, [], "aa-sl").size(), all - hl_only_cells, "AA SL has every cell but the HL-only types'")
-	check_eq(QuestionEngine.built_types("aa-sl"), QuestionEngine.built_types().filter(func(id): return not id in HL_ONLY), "AA SL has every other built type")
-	check_eq(QuestionEngine.probes(false, "aa-sl").size(), QuestionEngine.probes().size() - hl_only_probes, "AA SL has every other probe")
+	check_eq(QuestionEngine.cells(false, [], "aa-hl").size(), all - ai_cells, "AA HL has every cell but the AI-only types'")
+	check_eq(QuestionEngine.built_types("aa-hl"), not_aa, "AA HL has every built type but the AI-only ones")
+	check_eq(QuestionEngine.probes(false, "aa-hl").size(), QuestionEngine.probes().size() - ai_probes, "AA HL has every other probe")
+	check_eq(QuestionEngine.cells(false, [], "aa-sl").size(), all - ai_cells - hl_only_cells, "AA SL has every cell but the HL-only and AI-only types'")
+	check_eq(QuestionEngine.built_types("aa-sl"), not_aa.filter(func(id): return not id in HL_ONLY), "AA SL has every other built type")
+	check_eq(QuestionEngine.probes(false, "aa-sl").size(), QuestionEngine.probes().size() - ai_probes - hl_only_probes, "AA SL has every other probe")
 	for id in HL_ONLY:
 		check(QuestionEngine.cells(false, [id], "aa-sl").is_empty(), "AA SL has none of %s" % id)
 		check(not QuestionEngine.cells(false, [id], "aa-hl").is_empty(), "AA HL has %s" % id)
+	for id in ai_only:
+		for course in ["aa-sl", "aa-hl"]:
+			check(QuestionEngine.cells(false, [id], course).is_empty(), "%s has none of %s" % [course, id])
+		# A type whose every skill is AI HL's (AI-AHL1.12, FAL-1004) is on AI HL alone.
+		var hl_only: bool = QuestionEngine.type_of(id).unknowns.all(func(u): return u.skills.all(func(sk): return sk.begins_with("AI-AHL")))
+		check_eq(QuestionEngine.cells(false, [id], "ai-hl").size(), QuestionEngine.cells(false, [id]).size(), "AI HL has all of %s" % id)
+		check_eq(QuestionEngine.cells(false, [id], "ai-sl").size(), 0 if hl_only else QuestionEngine.cells(false, [id]).size(), "AI SL and %s" % id)
 
 
 func test_the_ai_courses_are_smaller_and_ai_hl_holds_ai_sl() -> void:

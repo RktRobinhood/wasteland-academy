@@ -10,6 +10,20 @@ const T := "SL2.1.intersection-lines#"
 const R_X_ONLY := T + "0"
 const R_SIGN := T + "1"
 const R_FAR := T + "2"
+const U := "fn-ext-intersection-lines#"
+const R_XY_SWAP := U + "3"
+const R_ONE_LINE := U + "4"
+const R_LINES_MIXED := U + "5"
+const R_PARA_SAME := U + "6"
+const R_SAME_PARA := U + "7"
+const R_ANY_CROSS := U + "8"
+const R_SWAP_C := U + "9"
+const R_GRAD_SIGN := U + "10"
+const R_C_SIGN := U + "11"
+const R_C_IS_Y := U + "12"
+const R_K_ADD := U + "13"
+const R_K_IS_Y := U + "14"
+const R_K_IS_C2 := U + "15"
 
 ## Methods that don't find a meeting point, for method-pick (after the catalogue's weak ones).
 const NOT_MEET := [
@@ -161,8 +175,19 @@ static func gen_y(a: int, b: int, k: int) -> String:
 	return yeq(Q.new(-a, b), Q.new(k, b))
 
 
+## The old unsorted point list, kept as on main for the views that still use it.
 static func point_wrongs(s: Dictionary) -> Array:
 	return [{"x": s.Y, "y": s.X}, {"x": s.X, "y": s.Y.neg()}, {"x": s.X.neg(), "y": s.Y}, {"x": s.X.neg(), "y": s.Y.neg()}]
+
+
+## The meeting point with its coordinates swapped: a slip.
+static func point_swapped(s: Dictionary) -> Dictionary:
+	return wrong({"x": s.Y, "y": s.X}, R_XY_SWAP)
+
+
+## The meeting point with a sign or two changed: fillers.
+static func point_fillers(s: Dictionary) -> Array:
+	return [{"x": s.X, "y": s.Y.neg()}, {"x": s.X.neg(), "y": s.Y}, {"x": s.X.neg(), "y": s.Y.neg()}]
 
 
 func u_meet_slope_intercept(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -171,8 +196,8 @@ func u_meet_slope_intercept(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		"pick_wrongs": NOT_MEET}
 	if rep == "graph":
 		out.graph = plot(s)
-	out.wrongs = [wrong({"x": s.X, "y": Q.new(0), "alone": true}, R_X_ONLY)]
-	out.generic = point_wrongs(s)
+	out.wrongs = [wrong({"x": s.X, "y": Q.new(0), "alone": true}, R_X_ONLY), point_swapped(s)]
+	out.fillers = point_fillers(s)
 	out.methods = {
 		"substitution": method(sl_sub(s) + [fin(ans)], ans.values),
 		"equate-y": method(sl_equate(s) + [fin(ans)], ans.values),
@@ -191,7 +216,8 @@ func u_meet_general(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if slip != 0:
 		var y := Q.new(s.a1 * s.k2 - s.k1, slip)
 		out.wrongs.append(wrong({"x": Q.new(s.k2).sub(y.mul(s.b2)), "y": y}, R_SIGN))
-	out.generic = point_wrongs(s)
+	out.wrongs.append(point_swapped(s))
+	out.fillers = point_fillers(s)
 	var gdc := ["Rearrange to y = …: %s and %s." % [gen_y(s.a1, s.b1, s.k1), gen_y(1, s.b2, s.k2)], "Graph both and use intersect: x = %s, y = %s." % [V(s, s.X), V(s, s.Y)], fin(ans)]
 	out.methods = {
 		"substitution": method(gen_sub(s) + [fin(ans)], ans.values),
@@ -209,7 +235,12 @@ func u_point_on_both(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var right: String = {"both": both, "one": one, "two": two, "none": none}[s.on]
 	var out := {"asked": "Show whether the point (%s, %s) lies on L₁ and L₂." % [N(s.px), N(s.py)]}
 	out.lines = ["L₁: " + L1(s), "L₂: " + L2(s)] if rep == "equation" else ["L₁ has gradient %s and y-intercept %s." % [N(s.m1), N(s.c1)], "L₂ has gradient %s and y-intercept %s." % [N(s.m2), N(s.c2)]]
-	out.merge(InverseRuleViews.choose(right, [], [both, one, two, none]))
+	# Checking one line only calls it on both; reading the labels the wrong way swaps L₁ and L₂.
+	var bad: Array = []
+	if s.on == "one" or s.on == "two":
+		bad.append(InverseRuleViews.tag(both, R_ONE_LINE))
+		bad.append(InverseRuleViews.tag(two if s.on == "one" else one, R_LINES_MIXED))
+	out.merge(InverseRuleViews.pick_of(right, bad, [both, one, two, none]))
 	var at := func(name: String, m: Q, c: Q) -> String:
 		var y: Q = m.mul(s.px).add(c)
 		return "On %s at x = %s, y = %s × %s%s = %s, %s %s." % [name, N(s.px), PF(m), PF(s.px), Fmt.plus(c), N(y), "the same as" if y.eq(s.py) else "not", N(s.py)]
@@ -230,8 +261,15 @@ func u_do_they_meet(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = ["L₁ has gradient %s and y-intercept %s." % [N(s.m1), N(s.c1)], "L₂ goes through (%s, %s) and (%s, %s)." % [N(s.qx), N(s.qy), N(s.rx), N(s.ry)]]
 		# Neither line is in general form here, so the working has no −a/b to use.
 		out.titles = {"coefficient-shortcut": "Compare the gradients and intercepts"}
-	var bad: Array = [InverseRuleViews.tag(far, R_FAR)] if s.rel == "para" else []
-	out.merge(InverseRuleViews.choose(right, bad, [meet, never, same, far]))
+	var bad: Array
+	match s.rel:
+		"para":
+			bad = [InverseRuleViews.tag(far, R_FAR), InverseRuleViews.tag(same, R_PARA_SAME)]
+		"same":
+			bad = [InverseRuleViews.tag(never, R_SAME_PARA), InverseRuleViews.tag(far, R_ANY_CROSS)]
+		_:
+			bad = [InverseRuleViews.tag(far, R_ANY_CROSS)]
+	out.merge(InverseRuleViews.pick_of(right, bad, [meet, never, same, far]))
 	var second := "L₂ rearranges to %s." % L2(s) if rep == "equation" else "L₂ has gradient (%s − %s)/(%s − %s) = %s, so it is %s." % [N(s.ry), PF(s.qy), N(s.rx), PF(s.qx), N(s.m2), L2(s)]
 	var eq_step: String
 	match s.rel:
@@ -268,8 +306,8 @@ func u_meet_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := point(s)
 	var out := {"asked": "The two lines are drawn on the grid. Find where they meet, and confirm it with algebra.", "answer": ans,
 		"lines": ["L₁: " + L1(s), "L₂: " + L2(s)], "graph": plot(s), "pick_wrongs": NOT_MEET}
-	out.wrongs = [wrong({"x": s.X, "y": Q.new(0), "alone": true}, R_X_ONLY)]
-	out.generic = point_wrongs(s)
+	out.wrongs = [wrong({"x": s.X, "y": Q.new(0), "alone": true}, R_X_ONLY), point_swapped(s)]
+	out.fillers = point_fillers(s)
 	var read := "The lines cross near (%s, %s) on the grid." % [Fmt.sf(s.X, 2), Fmt.sf(s.Y, 2)] if s.paper == 2 else "The lines cross at (%s, %s) on the grid." % [N(s.X), N(s.Y)]
 	out.methods = {
 		"equate-y": method([read] + sl_equate(s) + [fin(ans)], ans.values),
@@ -297,8 +335,15 @@ func u_line_through_meeting_point(rep: String, s: Dictionary, _rng: Seeded) -> D
 	var at := "They meet at (%s, %s)." % [N(s.X), N(s.Y)]
 	var grad: String = "The gradient from there to T is (%s − %s)/(%s − %s) = %s." % [N(s.ty), PF(s.Y), N(s.tx), PF(s.X), N(s.n)] if s.by_point else "L has gradient %s." % N(s.n)
 	var cs := "c = %s − %s × %s = %s." % [N(s.Y), PF(s.n), PF(s.X), N(s.c3)]
-	out.wrongs = []
-	out.generic = [{"m": s.n, "c": s.X.sub(s.n.mul(s.Y))}, {"m": s.n.neg(), "c": s.Y.add(s.n.mul(s.X))}, {"m": s.n, "c": s.c3.neg()}, {"m": s.n, "c": s.Y}]
+	var flipped := {"m": s.n.neg(), "c": s.Y.add(s.n.mul(s.X))}
+	out.wrongs = [wrong({"m": s.n, "c": s.X.sub(s.n.mul(s.Y))}, R_SWAP_C)]
+	out.fillers = []
+	# The gradient with its sign flipped is a slip only when it is worked out from T.
+	if s.by_point:
+		out.wrongs.append(wrong(flipped, R_GRAD_SIGN))
+	else:
+		out.fillers.append(flipped)
+	out.wrongs += [wrong({"m": s.n, "c": s.c3.neg()}, R_C_SIGN), wrong({"m": s.n, "c": s.Y}, R_C_IS_Y)]
 	out.methods = {
 		"substitution": method([sub[0], " ".join([sub[1], sub[2]]), grad + " " + cs, fin(ans)], ans.values),
 		"elimination": method([elim[0], " ".join([elim[1], elim[2]]), at + " " + grad, cs, fin(ans)], ans.values),
@@ -312,7 +357,8 @@ func u_constant_from_meeting_point(_rep: String, s: Dictionary, _rng: Seeded) ->
 	var out := {"asked": "L₁ and L₂ meet where x = %s. Find k." % N(s.X), "answer": ans, "lines": ["L₁: y = %sx + k" % Fmt.lead(s.m1), "L₂: " + L2(s)],
 		"pick_wrongs": NOT_MEET}
 	var m1x: Q = s.m1.mul(s.X)
-	out.generic = [{"v": s.Y.add(m1x)}, {"v": s.Y}, {"v": s.c2}, {"v": s.c1.neg()}, {"v": m1x}]
+	out.wrongs = [wrong({"v": s.Y.add(m1x)}, R_K_ADD), wrong({"v": s.Y}, R_K_IS_Y), wrong({"v": s.c2}, R_K_IS_C2)]
+	out.fillers = [{"v": s.c1.neg()}, {"v": m1x}]
 	var y := "On L₂ at x = %s, y = %s × %s%s = %s." % [N(s.X), PF(s.m2), PF(s.X), Fmt.plus(s.c2), N(s.Y)]
 	out.methods = {
 		"substitution": method([y, "Put (%s, %s) into L₁: %s = %s × %s + k." % [N(s.X), N(s.Y), N(s.Y), PF(s.m1), PF(s.X)], fin(ans)], ans.values),

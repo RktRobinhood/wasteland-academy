@@ -77,14 +77,18 @@ func test_exam_only_follows_exam_frequency() -> void:
 		if failures.size() > 3:
 			return
 	check(not counts.has("fn-concept-quadratic-forms"))
-	# Each built exam type is picked in proportion to its bank parts (frequency in the
-	# catalogue), out of the total over every built exam type, so a new class changes
-	# the expected shares without changing this test.
+	# Each built exam type in the save's course is picked in proportion to its bank parts
+	# (frequency in the catalogue), out of the total over those types, so a new class
+	# changes the expected shares without changing this test. A type the course doesn't
+	# offer (an AI-only one on the default course) is never picked.
+	var offered := {}
+	for c: Dictionary in QuestionEngine.cells(true, [], Courses.of(save)):
+		offered[c.type] = true
 	var exam: Array = []
 	var total := 0.0
 	for id in QuestionEngine.built_types():
 		var t := QuestionEngine.type_of(id)
-		if t.source == "exam":
+		if t.source == "exam" and offered.has(id):
 			exam.append(id)
 			total += float(t.frequency)
 	for id in exam:

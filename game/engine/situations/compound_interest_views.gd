@@ -23,6 +23,9 @@ const R_SHARE := SKILL + "find-rate-or-pv#2"
 const R_ROUND_NEAREST := SKILL + "find-time#0"
 const R_NO_CONVERT := SKILL + "find-time#1"
 const R_NOMINAL_ONLY := SKILL + "compare-options#0"
+## The type's own misconceptions, by index (FAL-1149).
+const R_TIMES_FACTOR := "t1-compound-interest#8"
+const R_ROUND_DOWN := "t1-compound-interest#9"
 
 const WHO := ["Kira", "Tomas", "The Guild", "A trader", "Ines", "The caravan fund"]
 const FREQ := {1: "annually", 2: "half-yearly", 4: "quarterly", 12: "monthly"}
@@ -161,7 +164,7 @@ func u_future_value(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var simple: float = pv * (1.0 + s.n * r / 100.0)
 	for w in [[annual, R_ANNUAL_RATE], [simple, R_SIMPLE], [fv - pv, R_TOTAL_INTEREST]]:
 		out.wrongs.append(wrong({"v": CompoundInterestSituation.money(w[0])}, w[1]))
-	out.generic = ms([CompoundInterestSituation.value(pv, r, s.k, s.n - 1), CompoundInterestSituation.value(pv, r, s.k, s.n + 1), fv * 1.05])
+	out.fillers = ms([CompoundInterestSituation.value(pv, r, s.k, s.n - 1), CompoundInterestSituation.value(pv, r, s.k, s.n + 1), fv * 1.05])
 	out.methods = _fv_steps(s, fv, ans, false)
 	return out
 
@@ -175,7 +178,10 @@ func u_interest_earned(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find the interest earned over the %d years, to the nearest cent." % s.n
 	out.answer = ans
 	out.wrongs = [wrong({"v": CompoundInterestSituation.money(fv)}, R_TOTAL_INTEREST)]
-	out.generic = ms([CompoundInterestSituation.value(pv, r, 1, s.k * s.n) - pv, pv * s.n * r / 100.0, fv - pv - 100.0, (fv - pv) * 1.1])
+	# The annual rate over kn periods and simple interest, each less the PV.
+	out.wrongs.append(wrong({"v": CompoundInterestSituation.money(CompoundInterestSituation.value(pv, r, 1, s.k * s.n) - pv)}, R_ANNUAL_RATE))
+	out.wrongs.append(wrong({"v": CompoundInterestSituation.money(pv * s.n * r / 100.0)}, R_SIMPLE))
+	out.fillers = ms([fv - pv - 100.0, (fv - pv) * 1.1])
 	out.methods = _fv_steps(s, fv, ans, true)
 	return out
 
@@ -190,9 +196,11 @@ func u_present_value(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := money_ans("PV = $", pv)
 	var out := {"lines": ["%s wants an account to be worth %s after %d years. The account pays %s%% per year, compounded %s." % [who(s), M(s.fv), s.n, D(s.r), freq(s.k)]],
 		"asked": "Find the amount to invest now, to the nearest cent.", "answer": ans, "table": null}
-	out.wrongs = []
 	# Compounding the wrong way, the annual rate over kn periods, and simple interest.
-	out.generic = ms([f * pow(1.0 + r / (100.0 * s.k), kn), f / pow(1.0 + r / 100.0, kn), f / (1.0 + s.n * r / 100.0), pv * 1.1])
+	out.wrongs = []
+	for w in [[f * pow(1.0 + r / (100.0 * s.k), kn), R_TIMES_FACTOR], [f / pow(1.0 + r / 100.0, kn), R_ANNUAL_RATE], [f / (1.0 + s.n * r / 100.0), R_SIMPLE]]:
+		out.wrongs.append(wrong({"v": CompoundInterestSituation.money(w[0])}, w[1]))
+	out.fillers = ms([pv * 1.1])
 	out.methods = {
 		"rearrange": method(["FV = PV(1 + r/(100k))^(kn), so PV = FV ÷ (1 + r/(100k))^(kn), with kn = %d periods." % kn,
 			"PV = %s ÷ %s^%d = %s ÷ %s = %s" % [D(s.fv), factor(r, s.k), kn, D(s.fv), "%.6f" % pow(1.0 + r / (100.0 * s.k), kn), F(pv)], final_step(ans)], ans.values),
@@ -211,7 +219,7 @@ func u_interest_rate(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"lines": ["%s invests %s in an account that pays interest compounded %s. After %d years the account is worth %s." % [who(s), M(s.pv), freq(s.k), s.n, M(s.fv)]],
 		"asked": "Find the annual interest rate, as a percentage to 3 s.f.", "answer": ans, "table": null}
 	out.wrongs = [wrong({"v": qf(CompoundInterestSituation.slip_root(s))}, R_ROOT_ONLY), wrong({"v": qf(CompoundInterestSituation.slip_share(s))}, R_SHARE)]
-	out.generic = [{"v": qf(found * 0.5)}, {"v": qf(found * 1.5)}, {"v": qf(found + 1.0)}, {"v": qf(found * s.k)}]
+	out.fillers = [{"v": qf(found * 0.5)}, {"v": qf(found * 1.5)}, {"v": qf(found + 1.0)}, {"v": qf(found * s.k)}]
 	out.methods = {
 		"rearrange": method(["FV ÷ PV = (1 + r/(100k))^(kn), so r = 100k((FV ÷ PV)^(1/kn) − 1), with kn = %d." % kn,
 			"FV ÷ PV = %s ÷ %s = %s" % [D(s.fv), D(s.pv), "%.6f" % ratio],
@@ -240,7 +248,10 @@ func u_time_needed(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.wrongs.append(wrong({"v": Q.new(roundi(x))}, R_ROUND_NEAREST))
 	if s.k > 1:
 		out.wrongs.append(wrong({"v": Q.new(int(ceilf(x * s.k)))}, R_NO_CONVERT))
-	out.generic = [{"v": Q.new(years + 1)}, {"v": Q.new(maxi(1, years - 1))}, {"v": Q.new(years + 2)}, {"v": Q.new(maxi(1, years - 2))}]
+	# The real number of years rounded down: the target not yet passed.
+	if years > 1:
+		out.wrongs.append(wrong({"v": Q.new(years - 1)}, R_ROUND_DOWN))
+	out.fillers = [{"v": Q.new(years + 1)}, {"v": Q.new(years + 2)}, {"v": Q.new(maxi(1, years - 2))}]
 	var ratio := target / pv
 	var per: float = 1.0 + r / (100.0 * s.k)
 	var periods: float = x * s.k
@@ -276,7 +287,7 @@ func u_compare_options(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a1 := CompoundInterestSituation.value(pv, ra, 1, s.n)
 	var b1 := CompoundInterestSituation.value(pv, rb, 1, s.n)
 	out.wrongs = [wrong({"v": CompoundInterestSituation.money(a1 - b1)}, R_NOMINAL_ONLY)]
-	out.generic = ms([d * 0.5, d * 1.5, d + 100.0, maxf(1.0, d - 100.0)])
+	out.fillers = ms([d * 0.5, d * 1.5, d + 100.0, maxf(1.0, d - 100.0)])
 	var fa := pow(1.0 + ra / (100.0 * s.k), s.k)
 	var fb := pow(1.0 + rb / (100.0 * s.kb), s.kb)
 	var both := ["Account A: %s × (1 + %s/%d)^%d = %s." % [D(s.pv), D(s.r), 100 * s.k, s.k * s.n, F(a)],

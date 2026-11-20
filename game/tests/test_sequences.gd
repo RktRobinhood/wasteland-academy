@@ -37,19 +37,22 @@ func test_every_cell_makes_a_question_in_its_representation() -> void:
 
 func test_every_distractor_misconception_is_an_option() -> void:
 	var t := QuestionEngine.type_of(TYPE)
-	for m in t.misconceptions:
-		check_eq(m.as, "distractor", m.ref)
+	for i in t.misconceptions.size():
+		var m: Dictionary = t.misconceptions[i]
+		# A misconception with no ref of its own is "<type id>#<index>".
+		var ref: String = m.get("ref", "%s#%d" % [TYPE, i])
+		check_eq(m.as, "distractor", ref)
 		for u in m.in:
 			var found := false
 			for c in QuestionEngine.cells(false, [TYPE]).filter(func(x): return x.unknown == u):
 				for seed in range(1, 25):
 					var q := _make(u, c.rep, c.angle, seed, "mcq")
-					if q.choices.any(func(o): return o.ref == m.ref):
+					if q.choices.any(func(o): return o.ref == ref):
 						found = true
 						break
 				if found:
 					break
-			check(found, "%s never appears on %s" % [m.ref, u])
+			check(found, "%s never appears on %s" % [ref, u])
 
 
 func test_n_from_the_sum_offers_the_negative_root() -> void:

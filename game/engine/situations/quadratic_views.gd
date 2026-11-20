@@ -137,6 +137,26 @@ static func lin(coeffs: Array, names: Array) -> String:
 	return out if out != "" else "0"
 
 
+## coef × letter = rhs, solved: "4a = 12, so a = 3", or just "a = 12" when coef is 1.
+static func solved(coef: Q, letter: String, rhs: Q, val: Q) -> String:
+	if coef.eq(1):
+		return "%s = %s" % [letter, N(rhs)]
+	return "%s = %s, so %s = %s" % [lin([coef], [letter]), N(rhs), letter, N(val)]
+
+
+## Substituting back: "c = 5 − 2 × 3 = −1", leaving out the products that are 0
+## (terms is [[x, y], ...] for each "− x × y"), and just "c = 5" when all of them are.
+static func back(letter: String, start: Q, terms: Array, val: Q) -> String:
+	var out := "%s = %s" % [letter, N(start)]
+	var any := false
+	for t in terms:
+		if Q.of(t[0]).is_zero() or Q.of(t[1]).is_zero():
+			continue
+		out += " − %s × %s" % [P(t[0]), P(t[1])]
+		any = true
+	return out + (" = " + N(val) if any else "")
+
+
 ## ax² + bx + c with x put in, keeping the letters in `letters` as unknowns:
 ## subst({"a": ½, "b": −2}, ["c"], −2) is "½(−2)² − 2(−2) + c".
 static func subst(known: Dictionary, letters: Array, x: Q) -> String:
@@ -158,6 +178,11 @@ static func subst(known: Dictionary, letters: Array, x: Q) -> String:
 		else:
 			out += (" − " if neg else " + ") + body
 	return out
+
+
+## ", divided by 3" after an equation's difference, or nothing when it is divided by 1.
+static func divided(d: Q) -> String:
+	return "" if d.eq(1) else ", divided by " + N(d)
 
 
 static func pt(x: Variant, y: Variant) -> Array:
@@ -439,6 +464,9 @@ func u_axis_from_equal_outputs(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 		out.given = {"points": [pt(x1, y), pt(x2, y)]}
 	var h := x1.add(x2).div(2)
 	var res := {"var": "x", "h": h}
+	# The pair is not on the x-axis, so the catalogue's "Midpoint of the x-intercepts" is
+	# named for what this working does (FAL-1055).
+	out.titles = {"midpoint-of-roots": "Midpoint of two points with equal y-values"}
 	out.methods = {"midpoint-of-roots": {"result": res, "steps": [
 		"f(%s) = f(%s) = %s: two inputs give the same output, so they are mirror images in the axis." % [N(x1), N(x2), N(y)],
 		"x = (%s%s)/2 = %s" % [N(x1), Fmt.plus(x2), N(h)],
@@ -591,6 +619,7 @@ func u_vertex_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		"given": {"table": table_given(t)}, "answer": ans,
 		"wrongs": [wrong({"x": h, "y": k, "kind": "maximum" if kind == "minimum" else "minimum"}, "fn-quadratic-features#20")],
 		"fillers": [{"x": k, "y": h, "kind": kind}, {"x": h.add(1), "y": QuadraticSituation.f(s, h.add(1)), "kind": kind}, {"x": h, "y": y1, "kind": kind}],
+		"titles": {"midpoint-of-roots": "Midpoint of two equal outputs, then read f there"},
 		"methods": {"midpoint-of-roots": {"result": res, "steps": [
 			"f(%s) = f(%s) = %s, so the axis is halfway between: x = %s." % [N(h.sub(1)), N(h.add(1)), N(y1), N(h)],
 			"The vertex is on the axis, and the table gives f(%s) = %s." % [N(h), N(k)],
@@ -625,7 +654,7 @@ func u_max_or_min(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 func u_h_k_from_vertex(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("vertex_form_a", {"h": s.h, "k": s.k}, {"a": s.a})
-	var out := {"asked": "f(x) = %s(x − h)² + k. Find h and k." % Fmt.lead(s.a), "answer": ans,
+	var out := {"asked": "Write down f(x) in the form %s(x − h)² + k." % Fmt.lead(s.a), "answer": ans,
 		"given": {"vertex": pt(s.h, s.k), "a": s.a.key()}}
 	if rep == "graph":
 		out.graph = graph(s, [[s.h, s.k]])
@@ -759,9 +788,12 @@ func u_factorised_from_vertex_form(_rep: String, s: Dictionary, _rng: Seeded) ->
 		"lines": [ver_line(s)], "given": given_form("vertex", s), "answer": ans,
 		"wrongs": [wrong({"a": s.a, "p": s.p.neg(), "q": s.q.neg()}, "fn-quadratic-features#23"), wrong({"a": Q.new(1), "p": s.p, "q": s.q}, "SL2.6.factorised-form#1")],
 		"fillers": [{"a": s.a, "p": s.h, "q": s.k}],
+		# f is in completed-square form already: the working takes square roots.
+		"titles": {"complete-square": "Set f(x) = 0 and take square roots"},
 		"methods": {
 			"complete-square": {"result": res, "steps": [
-				"Set f(x) = 0: %s%s² = %s" % [Fmt.lead(s.a), Fmt.factor(s.h), N(s.k.neg())],
+				# With a = 1 the divide-by-a line would repeat the one before it.
+				"Set f(x) = 0: %s%s² = %s" % [Fmt.lead(s.a), Fmt.factor(s.h), N(s.k.neg())] if not s.a.eq(1) else "Set f(x) = 0: %s²%s = 0" % [Fmt.factor(s.h), Fmt.plus(s.k)],
 				"%s² = %s" % [Fmt.factor(s.h), N(m2)],
 				"x%s = ±%s, so x = %s or x = %s" % [Fmt.plus(s.h.neg()), N(m), N(r1), N(r2)],
 				"So " + Answer.text(ans, res) + "."]},
@@ -782,6 +814,8 @@ func u_vertex_form_from_vertex_and_a(rep: String, s: Dictionary, _rng: Seeded) -
 	else:
 		out.lines = ["A parabola y = f(x) has its vertex at %s and leading coefficient a = %s." % [Fmt.point(s.h, s.k), N(s.a)]]
 	var res := {"a": s.a, "h": s.h, "k": s.k}
+	# a is given, so no point is needed for it.
+	out.titles = {"vertex-form-plus-point": "Put the vertex and a into a(x − h)² + k"}
 	out.methods = {"vertex-form-plus-point": {"result": res, "steps": [
 		"Vertex form is f(x) = a(x − h)² + k, with vertex (h, k).",
 		"Put in the vertex %s and a = %s." % [Fmt.point(s.h, s.k), N(s.a)],
@@ -821,7 +855,7 @@ func u_a_from_vertex_and_point(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	vf.append_array([
 		"f(x) = a%s²%s" % [Fmt.factor(s.h), Fmt.plus(s.k)],
 		"Substitute %s: %s = a(%s%s)²%s" % [Fmt.point(x1, y1), N(y1), N(x1), Fmt.plus(s.h.neg()), Fmt.plus(s.k)],
-		"%s = %s, so a = %s" % [N(y1.sub(s.k)), lin([dx2], ["a"]), N(a)],
+		solved(dx2, "a", y1.sub(s.k), a),
 		"So " + Answer.text(ans, res) + "."])
 	var sim: Array = head.duplicate()
 	sim.append_array([
@@ -829,9 +863,11 @@ func u_a_from_vertex_and_point(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		"Vertex %s: %s = %s" % [Fmt.point(s.h, s.k), lin([s.h.sq(), s.h, 1], ["a", "b", "c"]), N(s.k)],
 		"Point %s: %s = %s" % [Fmt.point(x1, y1), lin([x1.sq(), x1, 1], ["a", "b", "c"]), N(y1)],
 		"Subtract: %s = %s" % [lin([x1.sq().sub(s.h.sq()), x1.sub(s.h)], ["a", "b"]), N(y1.sub(s.k))],
-		"Put in b = %s: %s = %s, so a = %s" % [lin([s.h.mul(-2)], ["a"]), lin([x1.sq().sub(s.h.sq()).add(x1.sub(s.h).mul(s.h.mul(-2)))], ["a"]), N(y1.sub(s.k)), N(a)],
+		"Put in b = %s: %s" % [lin([s.h.mul(-2)], ["a"]), solved(x1.sq().sub(s.h.sq()).add(x1.sub(s.h).mul(s.h.mul(-2))), "a", y1.sub(s.k), a)],
 		"With vertex %s: %s." % [Fmt.point(s.h, s.k), Answer.text(ans, res)]])
 	out.methods = {"vertex-form-plus-point": {"steps": vf, "result": res}, "simultaneous-equations": {"steps": sim, "result": res}}
+	# Two equations, from the vertex and the point, with b = −2ah: not three points.
+	out.titles = {"simultaneous-equations": "Use b = −2ah, then substitute the vertex and the point"}
 	out.wrongs = [wrong({"a": Q.new(1), "h": s.h, "k": s.k}, "SL2.6.find-equation#0"), wrong({"a": s.a, "h": s.h.neg(), "k": s.k}, "fn-quadratic-from-conditions#5"),
 		wrong({"a": s.a.neg(), "h": s.h, "k": s.k}, "fn-quadratic-from-conditions#6")]
 	out.fillers = [{"a": s.a, "h": s.h, "k": s.k.neg()}]
@@ -857,7 +893,10 @@ func u_equation_from_vertex_and_root(rep: String, s: Dictionary, rng: Seeded) ->
 	var res := {"a": a_vf, "p": lo, "q": hi}
 	var res_if := {"a": a_if, "p": lo, "q": hi}
 	var mirror := "The other root is the mirror image of %s in the axis x = %s: 2 × %s − %s = %s." % [N(r), N(s.h), P(s.h), P(r), N(other)]
-	var by_vertex := "The vertex is on the curve: %s = a(%s%s)(%s%s) = %sa, so a = %s" % [N(s.k), N(s.h), Fmt.plus(lo.neg()), N(s.h), Fmt.plus(hi.neg()), N(s.h.sub(lo).mul(s.h.sub(hi))), N(a_if)]
+	var by_vertex := "The vertex is on the curve: %s = a(%s%s)(%s%s) = %s, so a = %s" % [N(s.k), N(s.h), Fmt.plus(lo.neg()), N(s.h), Fmt.plus(hi.neg()), lin([s.h.sub(lo).mul(s.h.sub(hi))], ["a"]), N(a_if)]
+	# In words there is no graph to read the intercepts from.
+	if rep != "graph":
+		out.titles = {"read-graph-intercepts": "Use the given root and its mirror image, then a from the vertex"}
 	out.methods = {
 		"vertex-form-plus-point": {"result": res, "steps": [
 			"f(x) = a%s²%s" % [Fmt.factor(s.h), Fmt.plus(s.k)],
@@ -909,12 +948,17 @@ func u_a_from_roots_and_point(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var prod: Q = x1.sub(s.p).mul(x1.sub(s.q))
 	var a := y1.div(prod)
 	var res := {"a": a, "p": s.p, "q": s.q}
-	var sub := "Substitute %s: %s = a(%s%s)(%s%s) = %sa, so a = %s" % [Fmt.point(x1, y1), N(y1), N(x1), Fmt.plus(s.p.neg()), N(x1), Fmt.plus(s.q.neg()), N(prod), N(a)]
+	var sub := "Substitute %s: %s = a(%s%s)(%s%s) = %s, so a = %s" % [Fmt.point(x1, y1), N(y1), N(x1), Fmt.plus(s.p.neg()), N(x1), Fmt.plus(s.q.neg()), lin([prod], ["a"]), N(a)]
 	var read := "f(%s) = 0 and f(%s) = 0, so the roots are %s and %s." % [N(s.p), N(s.q), N(s.p), N(s.q)] if rep == "table" else "The roots are %s and %s." % [N(s.p), N(s.q)]
+	# The intercepts come from a graph only on a graph; a table and words give them otherwise.
+	var intercepts: String = {"graph": "Read the x-intercepts from the graph: p = %s and q = %s.",
+		"table": "The table's zeros are the x-intercepts: p = %s and q = %s."}.get(rep, "The x-intercepts are given: p = %s and q = %s.") % [N(s.p), N(s.q)]
+	if rep != "graph":
+		out.titles = {"read-graph-intercepts": "Read p and q from the %s, then a from another point" % ("table's zeros" if rep == "table" else "given x-intercepts")}
 	out.methods = {
 		"intercept-form-plus-point": {"result": res, "steps": [read, "f(x) = a%s%s" % [Fmt.factor(s.p), Fmt.factor(s.q)], sub, "So " + Answer.text(ans, res) + "."]},
 		"roots-to-factors": {"result": res, "steps": [read, "Roots %s and %s give the factors %s and %s, so f(x) = a%s%s for some a." % [N(s.p), N(s.q), Fmt.factor(s.p), Fmt.factor(s.q), Fmt.factor(s.p), Fmt.factor(s.q)], sub, "So " + Answer.text(ans, res) + "."]},
-		"read-graph-intercepts": {"result": res, "steps": ["Read the x-intercepts: p = %s and q = %s." % [N(s.p), N(s.q)], "f(x) = a%s%s" % [Fmt.factor(s.p), Fmt.factor(s.q)], sub, "So " + Answer.text(ans, res) + "."]},
+		"read-graph-intercepts": {"result": res, "steps": [intercepts, "f(x) = a%s%s" % [Fmt.factor(s.p), Fmt.factor(s.q)], sub, "So " + Answer.text(ans, res) + "."]},
 	}
 	# (x − 1) written for a root at x = −1: flip the sign of one root.
 	var flip := {"a": s.a, "p": s.p.neg(), "q": s.q} if s.p.sign() < 0 else {"a": s.a, "p": s.p, "q": s.q.neg()}
@@ -947,6 +991,8 @@ func u_coefficients_from_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	# (x − 1) written for a root at x = −1.
 	var fp: Q = s.p.neg() if s.p.sign() < 0 else s.p
 	var fq: Q = s.q if s.p.sign() < 0 else s.q.neg()
+	# a is given, so no point is needed for it.
+	out.titles = {"intercept-form-plus-point": "Write a(x − p)(x − q) with the given a, then expand"}
 	out.methods = {
 		"intercept-form-plus-point": {"steps": st, "result": res},
 		"roots-to-factors": {"steps": st2, "result": res},
@@ -1044,8 +1090,8 @@ func u_coefficients_from_two_points_and_axis(rep: String, s: Dictionary, rng: Se
 		st = ["The axis x = %s gives −b/(2a) = %s, so b = %s." % [N(s.h), N(s.h), lin([s.h.mul(-2)], ["a"])],
 			"Substitute %s: %s = %s. With b = %s: %s = %s" % [Fmt.point(x1, y1), subst({}, ["a", "b", "c"], x1), N(y1), lin([s.h.mul(-2)], ["a"]), lin([u1, 1], ["a", "c"]), N(y1)],
 			"Substitute %s: %s = %s" % [Fmt.point(x2, y2), lin([u2, 1], ["a", "c"]), N(y2)],
-			"Subtract: %s = %s, so a = %s" % [lin([u2.sub(u1)], ["a"]), N(y2.sub(y1)), N(a)],
-			"c = %s − %s × %s = %s, and b = %s × %s = %s" % [N(y1), P(u1), P(a), N(c), N(s.h.mul(-2)), P(a), N(b)],
+			"Subtract: " + solved(u2.sub(u1), "a", y2.sub(y1), a),
+			"%s, and b = %s × %s = %s" % [back("c", y1, [[u1, a]], c), N(s.h.mul(-2)), P(a), N(b)],
 			"So " + Answer.text(ans, res) + "."]
 	else:
 		var r1 := y1.sub(s.a.mul(x1.sq()))
@@ -1053,12 +1099,20 @@ func u_coefficients_from_two_points_and_axis(rep: String, s: Dictionary, rng: Se
 		var b := r2.sub(r1).div(x2.sub(x1))
 		var c := r1.sub(b.mul(x1))
 		res = {"b": b, "c": c}
-		st = ["Substitute %s: %s = %s, so %s = %s" % [Fmt.point(x1, y1), subst({"a": s.a}, ["b", "c"], x1), N(y1), lin([x1, 1], ["b", "c"]), N(r1)],
-			"Substitute %s: %s = %s, so %s = %s" % [Fmt.point(x2, y2), subst({"a": s.a}, ["b", "c"], x2), N(y2), lin([x2, 1], ["b", "c"]), N(r2)],
-			"Subtract: %s = %s, so b = %s" % [lin([x2.sub(x1)], ["b"]), N(r2.sub(r1)), N(b)],
-			"c = %s − %s × %s = %s" % [N(r1), P(x1), P(b), N(c)],
+		# At x = 0 the point is the y-intercept, and only c is left.
+		var subs: Array = []
+		for pr in [[x1, y1, r1], [x2, y2, r2]]:
+			if pr[0].is_zero():
+				subs.append("Substitute %s: f(0) = c, so c = %s" % [Fmt.point(pr[0], pr[1]), N(pr[1])])
+			else:
+				subs.append("Substitute %s: %s = %s, so %s = %s" % [Fmt.point(pr[0], pr[1]), subst({"a": s.a}, ["b", "c"], pr[0]), N(pr[1]), lin([pr[0], 1], ["b", "c"]), N(pr[2])])
+		st = [subs[0], subs[1],
+			"Subtract: " + solved(x2.sub(x1), "b", r2.sub(r1), b),
+			back("c", r1, [[x1, b]], c),
 			"So " + Answer.text(ans, res) + "."]
 	out.methods = {"simultaneous-equations": {"steps": st, "result": res}}
+	# Two points, not three: named for what the working does.
+	out.titles = {"simultaneous-equations": "Use b = −2ah, then substitute both points" if with_axis else "Substitute both points, then solve for b and c"}
 	if with_axis:
 		out.fillers = [{"a": s.a, "b": s.b.neg(), "c": s.c}, {"a": s.a.neg(), "b": s.b, "c": s.c}, {"a": s.a, "b": s.b, "c": s.c.neg()}]
 	else:
@@ -1083,7 +1137,7 @@ func u_range_after_finding(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var r := "≥" if a.sign() > 0 else "≤"
 	var res := {"var": "y", "rel": r, "k": k}
 	out.methods = {"vertex-or-asymptote": {"result": res, "steps": [
-		"f(x) = a%s%s. Substitute %s: %s = %sa, so a = %s." % [Fmt.factor(s.p), Fmt.factor(s.q), Fmt.point(s.x1, s.y1), N(s.y1), N(prod), N(a)],
+		"f(x) = a%s%s. Substitute %s: %s = %s, so a = %s." % [Fmt.factor(s.p), Fmt.factor(s.q), Fmt.point(s.x1, s.y1), N(s.y1), lin([prod], ["a"]), N(a)],
 		"The vertex is on the axis x = (%s%s)/2 = %s: f(%s) = %s." % [N(s.p), Fmt.plus(s.q), N(h), N(h), N(k)],
 		"a %s 0, so the parabola opens %s and %s is its %s value." % [">" if a.sign() > 0 else "<", "upwards" if a.sign() > 0 else "downwards", N(k), "least" if a.sign() > 0 else "greatest"],
 		"So the range is " + Answer.text(ans, res) + "."]}}
@@ -1130,11 +1184,11 @@ func u_coefficients_from_three_points(rep: String, s: Dictionary, rng: Seeded) -
 	var sim: Array = ["Substitute the three points into ax² + bx + c:"]
 	sim.append_array(eqs)
 	sim.append_array([
-		"(2) − (1), divided by %s: %s = %s" % [N(xs[1].sub(xs[0])), lin([xs[0].add(xs[1]), 1], ["a", "b"]), N(m1)],
-		"(3) − (2), divided by %s: %s = %s" % [N(xs[2].sub(xs[1])), lin([xs[1].add(xs[2]), 1], ["a", "b"]), N(m2)],
-		"Subtract: %s = %s, so a = %s" % [lin([xs[2].sub(xs[0])], ["a"]), N(m2.sub(m1)), N(a)],
-		"b = %s − %s × %s = %s" % [N(m1), P(xs[0].add(xs[1])), P(a), N(b)],
-		"c = %s − %s × %s − %s × %s = %s" % [N(ys[0]), P(a), P(xs[0].sq()), P(b), P(xs[0]), N(c)],
+		"(2) − (1)%s: %s = %s" % [divided(xs[1].sub(xs[0])), lin([xs[0].add(xs[1]), 1], ["a", "b"]), N(m1)],
+		"(3) − (2)%s: %s = %s" % [divided(xs[2].sub(xs[1])), lin([xs[1].add(xs[2]), 1], ["a", "b"]), N(m2)],
+		"Subtract: " + solved(xs[2].sub(xs[0]), "a", m2.sub(m1), a),
+		back("b", m1, [[xs[0].add(xs[1]), a]], b),
+		back("c", ys[0], [[a, xs[0].sq()], [b, xs[0]]], c),
 		"So " + Answer.text(ans, res) + "."])
 	var gdc: Array = ["Enter the three equations in the GDC's simultaneous equation solver:"]
 	gdc.append_array(eqs)
@@ -1172,6 +1226,8 @@ func u_coefficient_from_point(rep: String, s: Dictionary, rng: Seeded) -> Dictio
 	var v: Q = s.y1.sub(rest).div(coef[which])
 	var res := {"v": v}
 	var lhs := lin([coef[which]], [which])
+	# One point, not three: named for what the working does.
+	out.titles = {"simultaneous-equations": "Substitute the point and solve for " + which}
 	out.methods = {"simultaneous-equations": {"result": res, "steps": [
 		"Substitute %s into f(x): %s = %s" % [Fmt.point(x1, s.y1), subst(s, [which], x1), N(s.y1)],
 		"%s%s = %s" % [lhs, Fmt.plus(rest), N(s.y1)] if not rest.is_zero() else "%s = %s" % [lhs, N(s.y1)],
@@ -1209,51 +1265,80 @@ func u_equation_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 
 # ── fn-concept-quadratic-forms ───────────────────────────────
 
-func u_match_three_forms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_match_three_forms(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var right := {"ga": s.a, "gb": s.b, "gc": s.c, "fa": s.a, "fp": s.p, "fq": s.q, "va": s.a, "vh": s.h, "vk": s.k}
 	var ans := Answer.make("triple", right)
 	var out := {"asked": "Which set of three equations all describe this same parabola?", "answer": ans}
-	var pre: Array = []
+	var pre := ""
 	if rep == "graph":
 		out.graph = graph(s, [[s.p, 0], [s.q, 0], [s.h, s.k], [0, s.c]])
 		out.lines = ["The graph of y = f(x) is shown."]
 		out.given = {"roots": [s.p.key(), s.q.key()], "vertex": pt(s.h, s.k), "yint": s.c.key()}
-		pre = ["Read from the graph: roots %s and %s, vertex %s, y-intercept %s." % [N(s.p), N(s.q), Fmt.point(s.h, s.k), N(s.c)]]
+		pre = "Read from the graph: roots %s and %s, vertex %s, y-intercept %s." % [N(s.p), N(s.q), Fmt.point(s.h, s.k), N(s.c)]
 	else:
 		out.lines = [gen_line(s)]
 		out.given = given_form("general", s)
-	var ev := expand_vertex_steps(s.a, s.h, s.k)
-	var ef := expand_factorised_steps(s.a, s.p, s.q)
-	var cmp: Array = pre.duplicate()
-	cmp.append("Expand the vertex form: %s = %s" % [Fmt.vertex(s.a, s.h, s.k), Fmt.general(s.a, ev.b, ev.c)])
-	cmp.append("Expand the factorised form: %s = %s" % [Fmt.factorised(s.a, s.p, s.q), Fmt.general(s.a, ef.b, ef.c)])
-	var res := {"ga": s.a, "gb": ev.b, "gc": ev.c, "fa": s.a, "fp": s.p, "fq": s.q, "va": s.a, "vh": s.h, "vk": s.k}
-	cmp.append("Both expand to the general form, so the set is " + Answer.text(ans, res) + ".")
-	var fm := formula_steps(s.a, s.b, s.c)
-	var rtf: Array = pre.duplicate()
-	rtf.append("Solve %s = 0:" % Fmt.general(s.a, s.b, s.c))
-	rtf.append_array(fm.steps)
-	var hh: Q = fm.r1.add(fm.r2).div(2)
-	var kk: Q = s.a.mul(hh.sub(fm.r1)).mul(hh.sub(fm.r2))
-	rtf.append("So f(x) = %s, with vertex at the midpoint x = %s and f(%s) = %s." % [Fmt.factorised(s.a, fm.r1, fm.r2), N(hh), N(hh), N(kk)])
-	var res2 := {"ga": s.a, "gb": s.b, "gc": s.c, "fa": s.a, "fp": fm.r1, "fq": fm.r2, "va": s.a, "vh": hh, "vk": kk}
-	rtf.append("So the set is " + Answer.text(ans, res2) + ".")
+	var cmp: Array = []
+	var res := {}
+	var rtf: Array = []
+	var res2 := {}
+	if rep == "graph":
+		# The graph shows no a: the y-intercept gives it, a(0 − p)(0 − q) = c.
+		var pq: Q = s.p.mul(s.q)
+		var a: Q = s.c.div(pq)
+		var by_c := "f(0) = a(0%s)(0%s) = %s = %s, so a = %s" % [Fmt.plus(s.p.neg()), Fmt.plus(s.q.neg()), lin([pq], ["a"]), N(s.c), N(a)]
+		var ev := expand_vertex_steps(a, s.h, s.k)
+		var ef := expand_factorised_steps(a, s.p, s.q)
+		res = {"ga": a, "gb": ev.b, "gc": ev.c, "fa": a, "fp": s.p, "fq": s.q, "va": a, "vh": s.h, "vk": s.k}
+		cmp = [pre + " " + by_c + ".",
+			"With a = %s the vertex form is %s, which expands to %s" % [N(a), Fmt.vertex(a, s.h, s.k), Fmt.general(a, ev.b, ev.c)],
+			"With a = %s the factorised form is %s, which expands to %s" % [N(a), Fmt.factorised(a, s.p, s.q), Fmt.general(a, ef.b, ef.c)],
+			"Both expand to the same general form, so the set is " + Answer.text(ans, res) + "."]
+		res2 = {"ga": a, "gb": ef.b, "gc": ef.c, "fa": a, "fp": s.p, "fq": s.q, "va": a, "vh": s.h, "vk": s.k}
+		rtf = [pre,
+			"Roots %s and %s give the factors: f(x) = a%s%s" % [N(s.p), N(s.q), Fmt.factor(s.p), Fmt.factor(s.q)],
+			by_c,
+			"Expand: %s = %s" % [Fmt.factorised(a, s.p, s.q), Fmt.general(a, ef.b, ef.c)],
+			"The vertex %s with a = %s gives %s." % [Fmt.point(s.h, s.k), N(a), Fmt.vertex(a, s.h, s.k)],
+			"So the set is " + Answer.text(ans, res2) + "."]
+	else:
+		# Compare the coefficients of each form, expanded, with the general form.
+		var a: Q = s.a
+		var h: Q = s.b.div(a.mul(-2))
+		var k: Q = s.c.sub(a.mul(h.sq()))
+		var sum: Q = s.b.neg().div(a)
+		var prod: Q = s.c.div(a)
+		var sp := formula_steps(Q.new(1), sum.neg(), prod)
+		res = {"ga": a, "gb": s.b, "gc": s.c, "fa": a, "fp": sp.r1, "fq": sp.r2, "va": a, "vh": h, "vk": k}
+		cmp = ["a(x − h)² + k = ax² − 2ahx + ah² + k. Compare with %s: a = %s; −2 × %s × h = %s, so h = %s; %s × %s + k = %s, so k = %s." % [
+				Fmt.general(a, s.b, s.c), N(a), P(a), N(s.b), N(h), P(a), P(h.sq()), N(s.c), N(k)],
+			"a(x − p)(x − q) = ax² − a(p + q)x + apq: p + q = −b/a = %s and pq = c/a = %s, so p and q are %s and %s." % [N(sum), N(prod), N(sp.r1), N(sp.r2)],
+			"So the set is " + Answer.text(ans, res) + "."]
+		var fm := formula_steps(s.a, s.b, s.c)
+		rtf = ["Solve %s = 0:" % Fmt.general(s.a, s.b, s.c)]
+		rtf.append_array(fm.steps)
+		var hh: Q = fm.r1.add(fm.r2).div(2)
+		var kk: Q = s.a.mul(hh.sub(fm.r1)).mul(hh.sub(fm.r2))
+		rtf.append("So f(x) = %s, with vertex at the midpoint x = %s and f(%s) = %s." % [Fmt.factorised(s.a, fm.r1, fm.r2), N(hh), N(hh), N(kk)])
+		res2 = {"ga": s.a, "gb": s.b, "gc": s.c, "fa": s.a, "fp": fm.r1, "fq": fm.r2, "va": s.a, "vh": hh, "vk": kk}
+		rtf.append("So the set is " + Answer.text(ans, res2) + ".")
 	out.methods = {"compare-coefficients": {"steps": cmp, "result": res}, "roots-to-factors": {"steps": rtf, "result": res2}}
-	var w1 := right.duplicate()
-	w1.vh = s.h.neg()
-	out.wrongs = [wrong(w1, "SL2.6.vertex#0")]
-	# g1: factors with the roots' own signs; g3: a left out of the factorised form.
-	var g1 := right.duplicate()
-	g1.fp = s.p.neg()
-	g1.fq = s.q.neg()
-	var g2 := right.duplicate()
-	g2.gc = s.c.neg()
-	var g3 := right.duplicate()
-	g3.fa = Q.new(1)
-	var g4 := right.duplicate()
-	g4.vk = s.k.neg()
-	out.wrongs.append_array([wrong(g1, "fn-concept-quadratic-forms#2"), wrong(g3, "fn-concept-quadratic-forms#4")])
-	out.fillers = [g2, g4]
+	# Two wrong factorised forms and two wrong vertex forms, each in two of the four
+	# options, so neither of the key's forms wins a majority vote (FAL-1055). The wrong
+	# factorised form is the roots' own signs or a left out; the wrong vertex form flips h.
+	var fac_slip := rng.chance(0.5)
+	var f_ref := "fn-concept-quadratic-forms#2" if fac_slip else "fn-concept-quadratic-forms#4"
+	var wf := right.duplicate()
+	if fac_slip:
+		wf.fp = s.p.neg()
+		wf.fq = s.q.neg()
+	else:
+		wf.fa = Q.new(1)
+	var wv := right.duplicate()
+	wv.vh = s.h.neg()
+	var both := wf.duplicate()
+	both.vh = s.h.neg()
+	out.wrongs = [wrong(wv, "SL2.6.vertex#0"), wrong(wf, f_ref), wrong(both, f_ref)]
 	return out
 
 
@@ -1287,8 +1372,11 @@ func u_form_for_feature(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			right = claim("general", feature, [s.c], "General form: the y-intercept is %s" % Fmt.point(0, s.c))
 			wrongs = [wrong(claim("factorised", feature, [s.p.mul(s.q)], "Factorised form: the y-intercept is %s" % Fmt.point(0, s.p.mul(s.q))), "SL2.6.factorised-form#2"),
 				wrong(claim("vertex", feature, [s.k], "Vertex form: the y-intercept is %s" % Fmt.point(0, s.k)), "fn-concept-quadratic-forms#3")]
-			fillers = [claim("vertex", feature, [s.h], "Vertex form: the y-intercept is %s" % Fmt.point(0, s.h)),
-				claim("general", feature, [s.b], "General form: the y-intercept is %s" % Fmt.point(0, s.b)),
+			# A General-form wrong first, so the key is not the only option naming its form
+			# (FAL-1055); (0, −c) stands in where b = c.
+			fillers = [claim("general", feature, [s.b], "General form: the y-intercept is %s" % Fmt.point(0, s.b)),
+				claim("general", feature, [s.c.neg()], "General form: the y-intercept is %s" % Fmt.point(0, s.c.neg())),
+				claim("vertex", feature, [s.h], "Vertex form: the y-intercept is %s" % Fmt.point(0, s.h)),
 				claim("factorised", feature, [s.p.add(s.q)], "Factorised form: the y-intercept is %s" % Fmt.point(0, s.p.add(s.q)))]
 			why = "In ax² + bx + c, f(0) = c, so the y-intercept %s shows at a glance. In the other forms it is apq or ah² + k." % Fmt.point(0, s.c)
 	var ans := Answer.make("claim", right)
@@ -1297,6 +1385,9 @@ func u_form_for_feature(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"lines": ["One parabola, three forms: %s." % forms], "answer": ans,
 		"given": {"forms": [given_form("general", s), given_form("factorised", s), given_form("vertex", s)], "feature": feature},
 		"wrongs": wrongs, "fillers": fillers,
+		# The catalogue's name for read-vertex-form gives the answer away where the vertex
+		# is asked, and is wrong for the other forms (FAL-1055).
+		"titles": {"read-vertex-form": "Recall what each form shows at a glance"},
 		"methods": {"read-vertex-form": {"steps": [why, "So: " + right.text + "."], "result": right}},
 	}
 
@@ -1326,6 +1417,8 @@ func u_form_for_task(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			fillers = [claim("factorised", "range", [s.p], "Factorised: y %s %s" % [rel, N(s.p)]),
 				claim("general", "range", [s.c], "General: y %s %s" % [rel, N(s.c)]),
 				claim("vertex", "range", [s.h], "Vertex: y %s %s" % [rel, N(s.h)]),
+				# Where h = k the line above is the key, and the key would be the only Vertex option.
+				claim("vertex", "range", [s.k.neg()], "Vertex: y %s %s" % [rel, N(s.k.neg())]),
 				claim("general", "range", [s.b], "General: y %s %s" % [rel, N(s.b)]),
 				claim("factorised", "range", [s.q], "Factorised: y %s %s" % [rel, N(s.q)])]
 			why = "The range stops at the vertex height k, which vertex form shows: k = %s, and a %s 0, so y %s %s." % [N(s.k), ">" if s.a.sign() > 0 else "<", rel, N(s.k)]
@@ -1343,6 +1436,9 @@ func u_form_for_task(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"asked": asked, "lines": ["One parabola, three forms: %s." % forms], "answer": ans,
 		"given": {"forms": [given_form("general", s), given_form("factorised", s), given_form("vertex", s)], "task": task},
 		"wrongs": wrongs, "fillers": fillers,
+		# The catalogue's name for read-vertex-form gives the answer away where the vertex
+		# is asked, and is wrong for the other forms (FAL-1055).
+		"titles": {"read-vertex-form": "Recall what each form shows at a glance"},
 		"methods": {"read-vertex-form": {"steps": [why, "So: " + right.text + "."], "result": right}},
 	}
 
@@ -1368,5 +1464,6 @@ func u_missing_form(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"So: " + res.text + "."]}}
 	out.fillers = [claim("vertex", "missing", [disc], "Vertex form: Δ = %s < 0, so the square can't be completed" % N(disc)),
 		claim("general", "missing", [disc], "General form: Δ = %s < 0, so b and c can't be found" % N(disc)),
-		claim("factorised", "missing", [disc.neg()], "Factorised form: Δ = %s, which is not a square" % N(disc.neg()))]
+		# The right form for a wrong reason: surds are real, so surd roots would factorise.
+		claim("factorised", "missing", [disc, "surds"], "Factorised form: Δ = %s < 0, so the roots p and q are surds" % N(disc))]
 	return out

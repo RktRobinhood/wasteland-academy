@@ -17,7 +17,7 @@ const NEED := {
 	"k-from-data-point": {"form": "data"},
 	"predict-from-data-point": {"form": "data"},
 	"time-to-level": {"form": "any"},
-	"whole-units-inequality": {"form": "any"},
+	"whole-units-inequality": {"form": "any", "whole": true},
 	"log-model-solve": {"form": "log10"},
 	"factor-from-percent": {"form": "factor"},
 	"model-from-table": {"form": "factor", "table": true},
@@ -142,10 +142,17 @@ static func filler_x(out: Dictionary, xs: Array) -> void:
 			out.fillers.append({"v": qf(x)})
 
 
+## Answer.trap_text writes these kinds at 2 s.f. (FAL-1144); before that a 2 s.f. trap
+## showed padded to 3 s.f. ("6.00 days") under "The IB needs 3 s.f." (#193).
+const MEASURE_TRAP := true
+
+
 ## Q7's rounding trap: the answer to 2 s.f., for a measure or a percentage change that
 ## needs rounding at 3 s.f. {} where it doesn't fit.
 static func trap(ans: Dictionary) -> Dictionary:
 	if ans.kind == "measure" or (ans.kind == "pct" and not ans.get("exact", false)):
+		if not MEASURE_TRAP:
+			return {}
 		var v: Q = ans.values.v
 		if not Answer.needs_rounding(v):
 			return {}
@@ -239,7 +246,8 @@ static func model_graph(s: Dictionary, t_max: float, points: Array, asymptote: b
 
 ## Solving the model = lv for t, written for each method. Returns {"eq", "iso", "logs",
 ## "expr", "both"}: the equation, the exponential alone, its log form, t as an
-## expression, and the log-both-sides line.
+## expression, and the log-both-sides step. A limited model is rearranged first, since
+## the log of a sum is no sum of logs (#193).
 static func solve_lines(s: Dictionary, lv: Q) -> Dictionary:
 	var y := sym(s)
 	match s.form:
@@ -253,16 +261,17 @@ static func solve_lines(s: Dictionary, lv: Q) -> Dictionary:
 				"iso": "%s = %s" % [pw, Fmt.equals("%s/%s" % [N(lv), N(s.P0)], N(ratio))],
 				"logs": "%s × ln %s = ln(%s)" % [ex, D(s.a), N(ratio)],
 				"expr": "t = %sln(%s)/ln %s" % [lead, N(ratio), D(s.a)],
-				"both": "ln %s + %s × ln %s = ln %s" % [N(s.P0), ex, D(s.a), N(lv)],
+				"both": "Take ln of both sides: ln %s + %s × ln %s = ln %s" % [N(s.P0), ex, D(s.a), N(lv)],
 			}
 		"cont":
 			var ratio := lv.div(s.A)
+			var kd := D(s.k) if s.k.sign() > 0 else "(%s)" % D(s.k)
 			return {
 				"eq": "%se^(%st) = %s" % [N(s.A), D(s.k), N(lv)],
 				"iso": "e^(%st) = %s" % [D(s.k), Fmt.equals("%s/%s" % [N(lv), N(s.A)], N(ratio))],
 				"logs": "%st = ln(%s)" % [D(s.k), N(ratio)],
-				"expr": "t = ln(%s)/%s" % [N(ratio), Fmt.paren(s.k)],
-				"both": "ln %s + %st = ln %s" % [N(s.A), D(s.k), N(lv)],
+				"expr": "t = ln(%s)/%s" % [N(ratio), kd],
+				"both": "Take ln of both sides: ln %s %s %st = ln %s" % [N(s.A), "+" if s.k.sign() > 0 else "−", D(s.k.abs_q()), N(lv)],
 			}
 		"half", "data":
 			var ratio := lv.div(s.A)
@@ -272,17 +281,17 @@ static func solve_lines(s: Dictionary, lv: Q) -> Dictionary:
 				"iso": "e^(kt) = " + Fmt.equals("%s/%s" % [N(lv), N(s.A)], N(ratio)),
 				"logs": "kt = ln(%s)" % N(ratio),
 				"expr": "t = ln(%s)/k" % N(ratio),
-				"both": "ln %s + kt = ln %s" % [N(s.A), N(lv)],
+				"both": "Take ln of both sides: ln %s + kt = ln %s" % [N(s.A), N(lv)],
 			}
 		"limited":
 			var ratio := lv.sub(s.C).div(s.A)
 			return {
 				"eq": "%s %s %se^(−%st) = %s" % [N(s.C), "+" if s.A.sign() > 0 else "−", N(s.A.abs_q()), D(s.k), N(lv)],
-				"iso": "e^(−%st) = (%s − %s)/%s = %s" % [D(s.k), N(lv), N(s.C), N(s.A), N(ratio)],
+				"iso": "e^(−%st) = (%s − %s)/%s = %s" % [D(s.k), N(lv), N(s.C), N(s.A) if s.A.sign() > 0 else "(%s)" % N(s.A), N(ratio)],
 				"logs": "−%st = ln(%s)" % [D(s.k), N(ratio)],
 				"expr": "t = −ln(%s)/%s" % [N(ratio), D(s.k)],
-				"both": "ln(%s − %s) = ln(%s) − %st" % [N(lv), N(s.C), N(s.A), D(s.k)] if s.A.sign() > 0 \
-					else "ln(%s − %s) = ln(%s) − %st" % [N(s.C), N(lv), N(s.A.neg()), D(s.k)],
+				"both": "Rearrange: %se^(−%st) = %s, then take ln of both sides: ln %s − %st = ln %s" % [N(s.A.abs_q()), D(s.k),
+					N(lv.sub(s.C).abs_q()), N(s.A.abs_q()), D(s.k), N(lv.sub(s.C).abs_q())],
 			}
 	return {}
 
@@ -482,8 +491,8 @@ func u_time_to_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var at := "%s = %s" % [sl.expr, W(t)]
 	out.methods = {
 		"logs-for-unknown": {"result": out.answer.values, "steps": [sl.eq, sl.iso, sl.logs, at, final]},
-		"isolate-then-log": {"result": out.answer.values, "steps": ["Isolate the power: " + sl.iso, "In log form: " + sl.logs, final]},
-		"log-both-sides": {"result": out.answer.values, "steps": [sl.eq, "Take ln of both sides: " + sl.both, at, final]},
+		"isolate-then-log": {"result": out.answer.values, "steps": ["Isolate the power: " + sl.iso, "In log form: %s, so %s" % [sl.logs, at], final]},
+		"log-both-sides": {"result": out.answer.values, "steps": [sl.eq, sl.both, at, final]},
 		"gdc-intersect": {"result": out.answer.values, "steps": [
 			"Graph y = %s and y = %s." % [model(s).split(" = ", true, 1)[1], N(lv)], "They meet at t = %s." % W(t), final]},
 		"gdc-solver": {"result": out.answer.values, "steps": [
@@ -493,7 +502,7 @@ func u_time_to_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return out
 
 
-func u_whole_units_inequality(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_whole_units_inequality(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var lv: Q = s.L
 	var t: float = s.tL
 	var y := sym(s)
@@ -508,8 +517,10 @@ func u_whole_units_inequality(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	# Rounding down, or to the nearest when that is down: the whole number before the crossing.
 	out.wrongs.append(wrong({"v": Q.new(first - 1)}, R_ROUNDED))
 	out.fillers = [{"v": Q.new(first + 1)}, {"v": Q.new(first + 2)}]
-	if first > 2:
-		out.fillers.append({"v": Q.new(first - 2)})
+	# With the slip always one below, fillers always above put the key second smallest
+	# every time (#193); half the time the one two below comes first instead.
+	if first > 3:
+		out.fillers.insert(0 if rng.chance(0.5) else 2, {"v": Q.new(first - 2)})
 	var sl := solve_lines(s, lv)
 	var lo := ExpModelSituation.value(s, first - 1)
 	var hi := ExpModelSituation.value(s, first)
@@ -531,7 +542,7 @@ func u_whole_units_inequality(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		"gdc-intersect": {"result": ans.values, "steps": ["Graph y = %s and y = %s." % [model(s).split(" = ", true, 1)[1], N(lv)], crossing, check, final]},
 		"repeated-multiplication": {"result": ans.values, "steps": [
 			"Each %s, %s." % [s.ctx.one, by], "Keep going until it passes %s: %s" % [N(lv), check], final]},
-		"log-both-sides": {"result": ans.values, "steps": [sl.eq, "Take ln of both sides: " + sl.both + ", so t = " + W(t), check, final]},
+		"log-both-sides": {"result": ans.values, "steps": [sl.eq, sl.both + ", so t = " + W(t), check, final]},
 		"gdc-solver": {"result": ans.values, "steps": ["Solve %s with the numerical solver: t = %s." % [sl.eq.split(", with")[0], W(t)], check, final]},
 		"table-search": {"result": ans.values, "steps": ["Tabulate %s at whole t and look for the first value %s %s." % [model(s).split(" = ", true, 1)[1], past, N(lv)], check, final]},
 	}
@@ -543,7 +554,9 @@ func u_log_model_solve(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var e: Q = s.R.div(s.m)
 	var x := ExpModelSituation.log_x(s)
 	var out := {"asked": "Find x when %s = %s." % [y, D(s.R)], "lines": lines(rep, s), "given": given_of(s),
-		"answer": measure("x = ", x), "wrongs": [], "fillers": []}
+		"answer": measure("x = ", x), "wrongs": [], "fillers": [],
+		# No P₀a^t here: the step is undoing the log (#193).
+		"titles": {"substitute-model": "Substitute, then turn the log back into a power of 10"}}
 	wrong_x(out, s.x0.to_float() * pow(e.to_float(), 10.0), "SL1.5.exp-log-form#1")
 	var p10 := pow(10.0, e.to_float())
 	wrong_x(out, s.x0.to_float() * e.to_float() * 10.0, R_TIMES_TEN)
@@ -631,7 +644,7 @@ func u_model_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 			"asymptote-first": {"result": ans.values, "steps": [
 				"The asymptote is y = %s, so C = %s." % [N(s.C), N(s.C)],
 				"At t = 0, e⁰ = 1, so C + A = %s and A = %s." % [N(start), N(s.A)],
-				"Through %s: e^(−%dk) = (%s − %s)/%s = %s, so k = −ln(%s)/%d = %s" % [Fmt.point(s.t1, s.P1), s.t1, N(s.P1), N(s.C), N(s.A), N(g), N(g), s.t1, W(k)],
+				"Through %s: e^(−%dk) = (%s − %s)/%s = %s, so k = −ln(%s)/%d = %s" % [Fmt.point(s.t1, s.P1), s.t1, N(s.P1), N(s.C), N(s.A) if s.A.sign() > 0 else "(%s)" % N(s.A), N(g), N(g), s.t1, W(k)],
 				final]},
 			"simultaneous-points": {"result": ans.values, "steps": [
 				"As t grows the model tends to C, so C = %s; and (0, %s) gives C + A = %s, so A = %s." % [N(s.C), N(start), N(start), N(s.A)],
@@ -648,7 +661,9 @@ func u_initial_from_later(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var said := ["%s t %s after it was first measured is modelled by %s. After %d %s it is %s." % [s.ctx.what, s.ctx.time, shown, s.t1, s.ctx.time, N(s.P1)]] \
 		if rep == "words" else [shown, "%s(%d) = %s" % [y, s.t1, N(s.P1)], "t is the time in %s." % s.ctx.time]
 	var out := {"asked": "Find the start value P₀.", "lines": said, "given": given_of(s), "answer": measure("P₀ = ", x),
-		"wrongs": [], "fillers": []}
+		"wrongs": [], "fillers": [],
+		# The unknown is the start, not an exponent: no logs are needed (#193).
+		"titles": {"logs-for-unknown": "Substitute, then divide by the growth factor"}}
 	wrong_x(out, s.P1.to_float() / pow(s.a.to_float(), s.t1 - 1), "SL2.9.exp-model#2")
 	wrong_x(out, s.P1.to_float() * g, R_STEP_UP)
 	wrong_x(out, s.P1.to_float() / (1.0 + (s.a.to_float() - 1.0) * s.t1), R_LINEAR)
