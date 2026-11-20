@@ -202,38 +202,72 @@ static func part_item(part: Dictionary) -> Dictionary:
 
 # ── Reactions ────────────────────────────────────────────────
 
-## Picks the tutor's stock reactions (reactions.json, #220) by the README's rules: never
-## the same line twice running, an ack only on some actions, a slip only on the first
-## miss of an item. The player asks; this answers with a line or {}.
+## Picks the tutor's stock reactions (reactions.json, #220) by the README's rules: an ack
+## only on some actions, a slip only on the first miss of an item. The player asks; this
+## answers with a line or {}. Each tutor and kind draws from a shuffle bag kept for the
+## session (FAL-1134): no line plays again until every other line of its kind in that set
+## has, and a refilled bag never starts with the line that played last.
 class Reactions:
+	const VOICE_DIR := "res://assets/audio/voice/explainers/reactions/"
+	## "tutor|kind" -> {"bag": [line ids still to play], "last": the id played last}.
+	static var _bags := {}
+	var tutor := ""
 	var lines := {"ack": [], "slip": []}
-	var _last := ""
 	var _acks := 0
 	var _rng := RandomNumberGenerator.new()
 
-	func _init(tutor: String, table: Dictionary, seed := 0) -> void:
+	func _init(tutor_id: String, table: Dictionary, seed := 0) -> void:
+		tutor = tutor_id
 		var t: Dictionary = table.get("tutors", {}).get(tutor, {})
 		lines.ack = t.get("ack", [])
 		lines.slip = t.get("slip", [])
 		_rng.seed = seed
 
+	## Forget what this session has played: a new session, or a test.
+	static func new_session() -> void:
+		_bags.clear()
+
+	## A reaction's recorded take, or null.
+	static func take(l: Dictionary) -> AudioStream:
+		var id := str(l.get("line", ""))
+		var path := VOICE_DIR + id + ".ogg"
+		return load(path) as AudioStream if id != "" and ResourceLoader.exists(path) else null
+
 	## A slip, for the first miss of an item (misses_before is 0); {} otherwise.
 	func slip(misses_before: int) -> Dictionary:
 		if misses_before > 0:
 			return {}
-		return _pick(lines.slip)
+		return _pick("slip")
 
 	## An ack on a free send or a right tile with no line of its own: every other one.
 	func ack() -> Dictionary:
 		_acks += 1
 		if _acks % 2 == 0:
 			return {}
-		return _pick(lines.ack)
+		return _pick("ack")
 
-	func _pick(from: Array) -> Dictionary:
-		var choices := from.filter(func(l): return str(l.get("line", "")) != _last)
-		if choices.is_empty():
+	func _pick(kind: String) -> Dictionary:
+		var by_id := {}
+		for l in lines[kind]:
+			if str(l.get("line", "")) != "":
+				by_id[str(l.line)] = l
+		if by_id.is_empty():
 			return {}
-		var l: Dictionary = choices[_rng.randi_range(0, choices.size() - 1)]
-		_last = str(l.get("line", ""))
-		return l
+		var key := tutor + "|" + kind
+		var s: Dictionary = _bags.get(key, {"bag": [], "last": ""})
+		# A line the set no longer has doesn't play.
+		var bag: Array = s.bag.filter(func(id): return by_id.has(id))
+		if bag.is_empty():
+			bag = by_id.keys()
+			for i in range(bag.size() - 1, 0, -1):
+				var j := _rng.randi_range(0, i)
+				var tmp = bag[i]
+				bag[i] = bag[j]
+				bag[j] = tmp
+			if bag.size() > 1 and bag[0] == s.last:
+				var j := _rng.randi_range(1, bag.size() - 1)
+				bag[0] = bag[j]
+				bag[j] = s.last
+		var id: String = bag.pop_front()
+		_bags[key] = {"bag": bag, "last": id}
+		return by_id[id]

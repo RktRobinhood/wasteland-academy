@@ -290,3 +290,173 @@ func test_the_audio_pack_is_not_needed_from_the_project() -> void:
 	var audio := _audio()
 	check(audio.ensure_pack(), "the music and voice lines need audio.pck from res://")
 	check(not audio.pack_loading(), "a pack download started from res://")
+
+
+## #235: each channel has its own mute beside its slider.
+const CHANNELS := {"Music": "music", "Voice": "voice", "SFX": "sfx"}
+
+
+func test_muting_a_channel_silences_only_its_bus() -> void:
+	var audio := _audio()
+	if audio == null:
+		return
+	audio.sound_enabled = true
+	audio.music_volume = 0.5
+	audio.sfx_volume = 0.7
+	audio.voice_volume = 0.9
+	await tree.create_timer(0.3).timeout  # let any duck tween settle
+	for bus: String in CHANNELS:
+		var key: String = CHANNELS[bus]
+		var idx := AudioServer.get_bus_index(bus)
+		var level_db := AudioServer.get_bus_volume_db(idx)
+		audio.set(key + "_muted", true)
+		check_eq(AudioServer.is_bus_mute(idx), true, "muting %s left its bus playing" % bus)
+		for other: String in CHANNELS:
+			if other != bus:
+				check_eq(AudioServer.is_bus_mute(AudioServer.get_bus_index(other)), false,
+						"muting %s also muted %s" % [bus, other])
+		audio.set(key + "_muted", false)
+		check_eq(AudioServer.is_bus_mute(idx), false, "unmuting %s left its bus muted" % bus)
+		check(absf(AudioServer.get_bus_volume_db(idx) - level_db) < 0.01,
+				"unmuting %s did not put its level back" % bus)
+	check(absf(audio.music_volume - 0.5) < 0.001, "muting moved the music slider")
+	check(absf(audio.sfx_volume - 0.7) < 0.001, "muting moved the effects slider")
+	check(absf(audio.voice_volume - 0.9) < 0.001, "muting moved the voice slider")
+	_restore(audio)
+
+
+func test_the_speaker_icon_still_switches_everything_off() -> void:
+	var audio := _audio()
+	if audio == null:
+		return
+	audio.sound_enabled = true
+	audio.voice_muted = true
+	audio.sound_enabled = false
+	for bus: String in CHANNELS:
+		check_eq(AudioServer.is_bus_mute(AudioServer.get_bus_index(bus)), true,
+				"sound off left %s on" % bus)
+	audio.sound_enabled = true
+	check_eq(AudioServer.is_bus_mute(AudioServer.get_bus_index("Voice")), true,
+			"sound on again unmuted the voice the player had muted")
+	check_eq(AudioServer.is_bus_mute(AudioServer.get_bus_index("Music")), false,
+			"sound on again left the music muted")
+	_restore(audio)
+
+
+func test_a_muted_voice_plays_no_line_and_leaves_the_music_up() -> void:
+	var audio := _audio()
+	if audio == null:
+		return
+	var stream := load(SfxCues.path("confirm")) as AudioStream
+	audio.sound_enabled = true
+	audio.voice_muted = true
+	check_eq(audio.play_voice(stream), false, "a muted voice still played a line")
+	check_eq(audio.voice_playing(), false, "a muted voice is playing")
+	audio.voice_muted = false
+	check_eq(audio.play_voice(stream), true, "the unmuted voice did not play")
+	audio.voice_muted = true
+	check_eq(audio.voice_playing(), false, "muting the voice did not end the line")
+	await tree.create_timer(0.4).timeout
+	check_eq(audio.ducked(), false, "the music stayed ducked under a muted line")
+	_restore(audio)
+
+
+func test_every_player_is_on_its_channel() -> void:
+	var audio := _audio()
+	if audio == null:
+		return
+	var buses := {}
+	for child in audio.get_children():
+		if child is AudioStreamPlayer:
+			buses[String((child as AudioStreamPlayer).bus)] = true
+	var found := buses.keys()
+	found.sort()
+	check_eq(found, ["Music", "SFX", "Voice"], "the buses Audio plays on")
+
+
+func test_mutes_survive_a_reload() -> void:
+	var audio := _audio()
+	if audio == null:
+		return
+	audio.sound_enabled = true
+	audio.music_muted = true
+	audio.voice_muted = true
+	var cfg := ConfigFile.new()
+	check_eq(cfg.load(SETTINGS_PATH), OK, "load %s" % SETTINGS_PATH)
+	check_eq(cfg.get_value("audio", "music_muted"), true, "saved music_muted")
+	check_eq(cfg.get_value("audio", "voice_muted"), true, "saved voice_muted")
+	check_eq(cfg.get_value("audio", "sfx_muted"), false, "saved sfx_muted")
+	var fresh: Node = (load("res://audio/audio.gd") as GDScript).new()
+	tree.root.add_child(fresh)
+	await tree.process_frame
+	check_eq(fresh.music_muted, true, "reloaded music_muted")
+	check_eq(fresh.voice_muted, true, "reloaded voice_muted")
+	check_eq(fresh.sfx_muted, false, "reloaded sfx_muted")
+	check(absf(fresh.music_volume - audio.music_volume) < 0.001, "the muted level was not kept")
+	fresh.sound_enabled = false
+	fresh.free()
+	_restore(audio)
+
+
+func test_a_settings_file_from_before_the_mutes_loads_unmuted() -> void:
+	var audio := _audio()
+	if audio == null:
+		return
+	var old := ConfigFile.new()
+	old.set_value("audio", "sound_enabled", true)
+	old.set_value("audio", "music_volume", 0.3)
+	old.set_value("audio", "sfx_volume", 0.4)
+	old.set_value("audio", "voice_volume", 0.5)
+	check_eq(old.save(SETTINGS_PATH), OK, "write an old settings file")
+	var fresh: Node = (load("res://audio/audio.gd") as GDScript).new()
+	tree.root.add_child(fresh)
+	await tree.process_frame
+	check_eq(fresh.music_muted, false, "old file: music came up muted")
+	check_eq(fresh.voice_muted, false, "old file: voice came up muted")
+	check_eq(fresh.sfx_muted, false, "old file: effects came up muted")
+	check(absf(fresh.music_volume - 0.3) < 0.001, "old file: music level")
+	fresh.sound_enabled = false
+	fresh.free()
+	_restore(audio)
+
+
+func test_the_settings_screen_has_a_switch_beside_each_slider() -> void:
+	var audio := _audio()
+	if audio == null:
+		return
+	audio.sound_enabled = true
+	var window_size := tree.root.size
+	tree.root.size = Vector2i(390, 844)
+	var panel := (load(SETTINGS_SCENE) as PackedScene).instantiate()
+	tree.root.add_child(panel)
+	panel.open()
+	for i in 3:
+		await tree.process_frame
+	var column := "Center/Panel/Pad/Column/"
+	var labels := {"Music": "Music", "Voice": "Voice", "Sfx": "Sound effects"}
+	var view := tree.root.get_visible_rect()
+	for row: String in labels:
+		check_eq((panel.get_node(column + row + "Label") as Label).text, labels[row],
+				"%s label" % row)
+		var toggle := panel.get_node_or_null(column + row + "Row/" + row + "Toggle") as Button
+		check(toggle != null, "no switch beside the %s slider" % row)
+		if toggle == null:
+			continue
+		check_eq(toggle.button_pressed, true, "%s starts on" % row)
+		check(view.encloses(toggle.get_global_rect()), "%s switch is off a phone screen" % row)
+		# At 390 px wide the window scales 1080 down to 390; 96 lands near 35 px.
+		check(toggle.size.y >= 96.0, "%s switch is too small to tap" % row)
+	var music := panel.get_node(column + "MusicRow/MusicToggle") as Button
+	music.button_pressed = false
+	check_eq(audio.music_muted, true, "the Music switch did not mute the music")
+	check_eq(music.text, "Off", "the Music switch reads On while muted")
+	check_eq(audio.voice_muted, false, "the Music switch muted the voice")
+	audio.voice_muted = true
+	check_eq((panel.get_node(column + "VoiceRow/VoiceToggle") as Button).button_pressed, false,
+			"the Voice switch did not follow Audio")
+	check(view.encloses((panel.get_node(column + "Close") as Control).get_global_rect()),
+			"Close is off a phone screen")
+	panel.queue_free()
+	await tree.process_frame
+	tree.root.size = window_size
+	_restore(audio)

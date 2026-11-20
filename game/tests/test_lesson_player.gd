@@ -138,6 +138,7 @@ func test_typed_answers_and_not_yet_lines() -> void:
 
 
 func test_reactions_never_repeat_and_a_slip_plays_once_per_item() -> void:
+	Lesson.Reactions.new_session()
 	var r := Lesson.Reactions.new("rook-dead-air", Lesson.shared("reactions"), 1)
 	var last := ""
 	for i in 30:
@@ -152,6 +153,58 @@ func test_reactions_never_repeat_and_a_slip_plays_once_per_item() -> void:
 			acks += 1
 	check(acks > 0 and acks < 10, "an ack plays on some sends, not every one: %d of 10" % acks)
 	check(Lesson.Reactions.new("nobody", Lesson.shared("reactions")).slip(0).is_empty(), "a tutor with no set plays none")
+
+
+## A set of n lines of one kind, for the bag tests.
+func _set_of(n: int) -> Dictionary:
+	var slips: Array = []
+	for i in n:
+		slips.append({"line": "s%d" % i, "speaker": "rook-dead-air", "say": "Slip %d." % i})
+	return {"tutors": {"rook-dead-air": {"ack": [], "slip": slips}}}
+
+
+func test_the_bag_plays_every_reaction_before_any_repeats() -> void:
+	for seed in 40:
+		Lesson.Reactions.new_session()
+		var r := Lesson.Reactions.new("rook-dead-air", _set_of(12), seed)
+		var played: Array = []
+		for round in 5:
+			var seen := {}
+			for i in 12:
+				var id := str(r.slip(0).line)
+				check(not seen.has(id), "seed %d: %s again before the set was used up" % [seed, id])
+				seen[id] = true
+				played.append(id)
+			check_eq(seen.size(), 12, "every line once a round")
+		for i in range(1, played.size()):
+			check(played[i] != played[i - 1], "seed %d: %s twice running across a refill" % [seed, played[i]])
+
+
+func test_the_bag_lasts_the_session_across_lessons() -> void:
+	Lesson.Reactions.new_session()
+	var seen := {}
+	# A new lesson makes a new picker; the bag is the session's, so it carries on.
+	for i in 6:
+		var r := Lesson.Reactions.new("rook-dead-air", _set_of(6), i)
+		var id := str(r.slip(0).line)
+		check(not seen.has(id), "%s again in the same session" % id)
+		seen[id] = true
+	# Each tutor and kind has its own bag.
+	var other := Lesson.Reactions.new("rook-dead-air", Lesson.shared("reactions"), 3)
+	check(not other.ack().is_empty(), "acks draw from their own bag")
+	Lesson.Reactions.new_session()
+
+
+func test_the_shipped_set_is_read_and_its_takes_found() -> void:
+	Lesson.Reactions.new_session()
+	var table := Lesson.shared("reactions")
+	var r := Lesson.Reactions.new("rook-dead-air", table, 5)
+	var ids: Array = table.tutors["rook-dead-air"].slip.map(func(l): return str(l.line))
+	var l := r.slip(0)
+	check(str(l.line) in ids, "a slip from reactions.json")
+	check(Lesson.Reactions.take(l) != null, "Rook's slips are recorded (FAL-1110)")
+	check(Lesson.Reactions.take({"line": "nope00"}) == null, "a line with no take is captioned only")
+	Lesson.Reactions.new_session()
 
 
 func test_a_recall_section_picks_its_version_from_the_watched_record() -> void:

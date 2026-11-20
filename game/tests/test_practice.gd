@@ -77,6 +77,28 @@ func test_a_wrong_option_records_its_misconception() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 
 
+func test_a_wrong_word_choice_shows_the_right_one() -> void:
+	# FAL-1053: word choices in a row were left grey; a list's options were coloured.
+	var made: Array = await _screen(_area(Vector2i(390, 844)))
+	var p: Control = made[1]
+	var v: Dictionary = QuestionEngine.cells(false, ["fn-pre-algebraic-fractions"]).filter(func(c): return c.unknown == "simplify-by-cancelling")[0].duplicate()
+	v.format = "value"
+	v.seed = 1
+	p.show_view(v)
+	p.autoplay(false)
+	check(p.feedback.text.begins_with("Not quite"), p.feedback.text)
+	var want := str(p.question.answer.values.v)
+	check(p._picks.v != want, "a wrong word was picked")
+	for b: Button in p._pick_buttons.v:
+		var c := b.get_theme_color("font_disabled_color")
+		if UiTheme.button_text(b) == want:
+			check_eq(c, UiTheme.TEAL, "the right option is teal")
+		elif UiTheme.button_text(b) == p._picks.v:
+			check_eq(c, UiTheme.PINK, "the wrong pick is pink")
+	made[0].free()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+
+
 func test_an_answer_box_shows_all_it_is_given() -> void:
 	# FAL-743: 0.00000842 showed as 000842 in a box of fixed width.
 	for window: Vector2i in [Vector2i(360, 800), Vector2i(390, 844), Vector2i(1280, 800)]:

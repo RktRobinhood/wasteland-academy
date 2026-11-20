@@ -125,10 +125,10 @@
     "fn-log-of-quadratic"
    ],
    "exam": true,
-   "status": "review-read",
-   "readBy": "review of main at 067afaa (GitHub #193)",
-   "date": "2026-11-16",
-   "note": "fn-log-of-quadratic interpret-parameter probe held only when the vertex height is above 1. Fixed in FAL-1033. Only the units named in #193 are confirmed read."
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-20",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: the asymptote sign-flip option could equal the key when the roots are ±p; vertex and factor forms without double signs or a bracketed bare x; the complete-the-square step divides by a bracketed fraction; the y-intercept is a whole number that is no power of the base, with the vertex slip and no nudges; base-from-max and zeros slips named; key-points, one-restriction, axis, test-point and quadratic-formula steps match their labels. Tests: test_reading_logq.gd."
   },
   {
    "situation": "gdc-curve",
@@ -137,7 +137,10 @@
     "fn-gdc-features"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-20",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: undefined-input and sketch-from-table working rules out every wrong graph; graph-read on an equation graphs f on the GDC, and for zeros gives an estimate instead of calling itself a failure; labels fit the unknown (y-intercept, k-for-count, transform-parent names the stretch); zero options never repeat a value; no false claim that a cubic has no algebraic solution; negatives bracketed; lists joined with \"and\"; command terms in count and window prompts; judge-a-sketch asks for a wrong or rough label; count-zeros fillers away from the key. Not fixed here: exact values shown to 3 s.f. (\"2.00\"), an engine follow-up. Tests: test_reading_gdccurve.gd."
   },
   {
    "situation": "gdc-two-curves",
@@ -146,7 +149,10 @@
     "fn-concept-solutions-as-intersections"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-20",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: x-not-y, graphs-for-equation and same-solutions prompts state their domain, so the key is the whole solution set (a root was missing); constant-from-crossing is asked on a domain with two meeting points, its words rep names k, and a cubic crossing is solved by factorising; the subtracted side is bracketed; the words rep names no A or B; the y-values slip has its own ref; the reflection method is named for its working; models-equal fillers off key + 1. Not fixed here: \"k = −1.00\" for an exact k, an engine follow-up. Tests: test_reading_gdctwo.gd."
   },
   {
    "situation": "gdc-combined",
@@ -154,7 +160,10 @@
     "fn-gdc-optimise-combined"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-20",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: max-difference for the towns solves D′(t) = 0 with ln, not the GDC; form-difference orders D by what it measures; negative terms bracketed when added; method names match the working (d′ and D′, not f′); difference-zero no longer prompts a method that fails; interpret-extreme offers no true statement as wrong; first-whole-day fillers away from the key. Tests: test_reading_gdctwo.gd."
   },
   {
    "situation": "gdc-context-equation",
@@ -162,7 +171,10 @@
     "fn-gdc-solve-equation"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-20",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: the count-roots answer varies (it was always 2); the zero-of-difference label fits a height or a time; smallest-whole-number offers the simple-interest slip; the solve-mixed-equation root is not the equation's own coefficient, and its window step reads once; constant-from-root words say where the curves meet and name the degree-mode slip. Tests: test_reading_mixed.gd."
   },
   {
    "situation": "graph-from-features",
@@ -170,7 +182,10 @@
     "fn-sketch-from-features"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-20",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: the trig words rep gives the maximum, so the upside-down card no longer fits it; transform-x-squared names the stretch (it was wrong when a = −½); judge-a-sketch working names the flaw it concludes; sketch-quadratic working writes its signs and fractions; each wrong trig graph names its slip (misconceptions #8 to #10). Tests: test_reading_mixed.gd."
   },
   {
    "situation": "composite-pair",
@@ -178,7 +193,10 @@
     "fn-composite"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-20",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: inner-from-composite numeric check uses enough inputs to fix a quadratic g (two values could not); expression, decompose and self-composite working derives the answer before checking it; the self-composite label names f; solve-composite stays on one route and the linear case offers named slips; negative divisors bracketed (inner-from-composite, parameter-from-value); fillers next to the key give way to named bracket slips. Tests: test_reading_mixed.gd."
   },
   {
    "situation": "composite-graph-table",
@@ -186,7 +204,10 @@
     "fn-graph-table-composite-inverse"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-20",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: the swap step put the point on f, not on f⁻¹; a self-composite input is no fixed point or 2-cycle, and a rule's input reads on the grid; two-step readings never give the input or the inner value; no engine nudges, and unnamed fillers never crowd the key; domain, range and points have slip options; every method works from what is shown (no graph read on an equation or table rep); readings go up or down by the sign; why-no-inverse has a near miss and no half-right reason; the restricted domain starts at the graph's left end; inverse points in A, B order. Tests: test_reading_cgt.gd."
   },
   {
    "situation": "inverse-rule",
@@ -194,7 +215,10 @@
     "fn-inverse-algebraic"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-20",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: a number put into f is bracketed after its coefficient (\"f(6) = 56 − 2\"); no two options equal (inverse asymptotes, function-from-inverse); every method finds f or f⁻¹ instead of stating it (reverse operations, graph reflection, graph check, compose f∘f); show-self-inverse writes f⁻¹ as f; one coefficient pattern; rational rules in lowest terms, and none is its own inverse where the inverse is asked; −b/(2a) bracketed; the words rep in words; ≠ options for a rational domain; inverse-root states the range of f⁻¹; fillers away from the key. Tests: test_reading_inv.gd."
   },
   {
    "situation": "rational-function",
@@ -204,7 +228,10 @@
     "fn-ext-transformed-reciprocal"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1055)",
+   "date": "2026-11-20",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: reciprocal-of-f gave the horizontal asymptote of f, not of 1/f; transformation-sequence keys with a stretch by factor 1 had right answers among the wrong options; the self-inverse distractor finds another inverse; the split-to-form error moves between lines; method names fit the question; the sketch table shows large x; substituted negatives and Δ bracketed; parent-graph reasoning from the signs; the letters question rules out a constant function; B is found, not stated; exact values not marked as rounded; every wrong reciprocal card names its slip; no filler next to the key. Tests: test_reading_rat.gd."
   },
   {
    "situation": "basic-function",

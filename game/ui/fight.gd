@@ -699,6 +699,8 @@ func _show_question() -> void:
 		taunt.name = "Taunt"
 		card.add_child(taunt)
 		card.move_child(taunt, 0)
+		# Its recorded take, when there is one (FAL-1134); the text shows either way.
+		VoiceLines.say(str(run.enemy.get("speaker", "")), run.enemy.taunt)
 	hint_label = UiTheme.math_label("", UiTheme.BODY, UiTheme.SAND)
 	hint_label.name = "Hint"
 	hint_label.visible = false
@@ -924,6 +926,7 @@ func _show_result(r: Dictionary) -> void:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.TEAL)
 			elif i == _choice:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.PINK)
+	_colour_picks(r.outcome in ["right", "late"])
 	# Q5: the worked solution shows after a wrong answer or a timeout.
 	if not r.solution.is_empty():
 		_show_working()

@@ -2,7 +2,8 @@ class_name SettingsPanel
 extends Control
 ## The sound settings screen (FAL-385): all sound on or off, a level for the
 ## background music, a separate one for the effects, and one for Spark's voice in the
-## explainers (FAL-429).
+## explainers (FAL-429). Each of Music, Voice and Sound effects has an On/Off switch
+## beside its slider (#235): Off silences that channel and keeps the slider where it is.
 ##
 ## It lives in the AudioHud autoload, so the gear icon opens it from anywhere.
 ## Changes reach Audio as the player drags, and Audio saves them.
@@ -16,6 +17,9 @@ extends Control
 @onready var _sfx_value: Label = %SfxValue
 @onready var _voice: HSlider = %VoiceSlider
 @onready var _voice_value: Label = %VoiceValue
+@onready var _music_on: Button = %MusicToggle
+@onready var _voice_on: Button = %VoiceToggle
+@onready var _sfx_on: Button = %SfxToggle
 @onready var _hint: Label = %Hint
 @onready var _close: Button = %Close
 
@@ -30,6 +34,10 @@ func _ready() -> void:
 	# One blip when the drag ends, so the level can be judged without a stutter.
 	_sfx.drag_ended.connect(_on_sfx_drag_ended)
 	_voice.value_changed.connect(func(value: float) -> void: Audio.voice_volume = value)
+	# Pressed means the channel is heard, as with the All sound switch above them.
+	_music_on.toggled.connect(func(on: bool) -> void: Audio.music_muted = not on)
+	_voice_on.toggled.connect(func(on: bool) -> void: Audio.voice_muted = not on)
+	_sfx_on.toggled.connect(_on_sfx_on_toggled)
 	_close.pressed.connect(close)
 	Audio.settings_changed.connect(_show_current)
 	_show_current()
@@ -65,6 +73,9 @@ func _show_current() -> void:
 	_sfx_value.text = _percent(Audio.sfx_volume)
 	_voice.set_value_no_signal(Audio.voice_volume)
 	_voice_value.text = _percent(Audio.voice_volume)
+	_show_channel(_music_on, not Audio.music_muted)
+	_show_channel(_voice_on, not Audio.voice_muted)
+	_show_channel(_sfx_on, not Audio.sfx_muted)
 	_hint.visible = not Audio.sound_enabled
 	_showing = false
 
@@ -72,6 +83,17 @@ func _show_current() -> void:
 func _on_sound_toggled(pressed: bool) -> void:
 	Audio.sound_enabled = pressed
 	if pressed:
+		Audio.play_sfx("confirm")
+
+
+static func _show_channel(button: Button, on: bool) -> void:
+	button.set_pressed_no_signal(on)
+	button.text = "On" if on else "Off"
+
+
+func _on_sfx_on_toggled(on: bool) -> void:
+	Audio.sfx_muted = not on
+	if on:
 		Audio.play_sfx("confirm")
 
 

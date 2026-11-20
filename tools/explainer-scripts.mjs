@@ -525,6 +525,9 @@ export function checkCallbacks(cb, ctx, file = 'callbacks.json') {
   return { errors, todo };
 }
 
+// The fewest lines a tutor's reaction set has of each kind (FAL-1136, FAL-1134).
+export const MIN_REACTIONS = { ack: 10, slip: 12 };
+
 // reactions.json: a stock set per tutor, recorded once and played in any lesson (#220).
 // Its lines get every line check, and none names a number or breaks its tutor's rules.
 export function checkReactions(r, ctx, file = 'reactions.json') {
@@ -535,8 +538,9 @@ export function checkReactions(r, ctx, file = 'reactions.json') {
     const w = `tutors.${tutor}`;
     if (!ctx.teachers.teachers?.[tutor]) err(w, `${tutor} is not in tools/explainer-clips/teachers.json`);
     for (const k of Object.keys(set)) if (!['ack', 'slip'].includes(k)) err(`${w}.${k}`, 'a tutor\'s reactions are ack and slip');
-    if (!(set.ack?.length >= 2)) fix(`${w}.ack`, 'has fewer than two acknowledgements');
-    if (!(set.slip?.length >= 3)) fix(`${w}.slip`, 'has fewer than three slip reactions, so one repeats too soon');
+    // A set this size lasts several lessons before the shuffle bag comes round (FAL-1134).
+    if (!(set.ack?.length >= MIN_REACTIONS.ack)) fix(`${w}.ack`, `has ${set.ack?.length || 0} acknowledgements; it needs at least ${MIN_REACTIONS.ack}, so they don't repeat`);
+    if (!(set.slip?.length >= MIN_REACTIONS.slip)) fix(`${w}.slip`, `has ${set.slip?.length || 0} slip reactions; it needs at least ${MIN_REACTIONS.slip}, so they don't repeat`);
     for (const [l, lw] of lines(set, w)) {
       if (l.speaker !== tutor) err(lw, `a ${tutor} reaction is spoken by ${l.speaker}`);
       const n = words(sayOf(l)).find(x => TURN_NUMBERS.has(x));

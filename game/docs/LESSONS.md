@@ -46,8 +46,10 @@ parts still read). Speed is 0.75×, 1× or 1.5×, and captions can be turned off
 | A turn | An engine turn asks one live question of its cell, in its answer boxes, and marks it with `QuestionEngine.mark`. A fallback turn asks its parts in order, each marked on the first number in its answer. Right shows "Signal's out." in teal, writes the working and plays a right line. A slip shows "Static." in rust, plays the not-yet line for the mark's misconception (or a neutral one) and asks again. After a slip, "Show me" writes the working and moves on. |
 
 Reactions follow `writing/explainers/README.md` ("Reactions"): a slip only on an item's
-first miss, an ack on every other free send or right tile, and never the same line twice
-running. There is no fail state and no score.
+first miss, and an ack on every other free send or right tile. Each tutor's `ack` and
+`slip` lines come from a shuffle bag kept for the session (FAL-1134): no line plays again
+until every other line of its kind in that set has, and a refilled bag never starts with
+the line that played last. There is no fail state and no score.
 
 At the end the lesson's id goes in the save's `watched` list, which picks the recall
 version next time.

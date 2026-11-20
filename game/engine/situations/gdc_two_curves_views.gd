@@ -214,7 +214,7 @@ func u_intersection_points(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var out := {"asked": "Find the coordinates of every point where the graphs of f and g meet.", "lines": eq_lines(s), "answer": ans,
 		"wrongs": wrongs, "fillers": gen}
 	if rep == "graph":
-		out.lines = ["The graphs of " + eq_lines(s)[0] + " are shown."]
+		out.lines = ["The graphs of " + eq_lines(s)[0] + ", are shown."]
 		out.graph = screen(s)
 	var whole := "Set the x-window to the whole domain, %s, not the standard −10 to 10." % dom(s)
 	out.methods = {"gdc-intersect": {"result": ans.values, "steps": [win_step(s), whole,
@@ -263,7 +263,8 @@ func u_models_equal(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		return {
 			"asked": "Find every time when %s." % what, "lines": [words(s)], "answer": ans2,
 			"wrongs": [wrong(Answer.xs_of([qf(c[0])]), SG + "#0"), wrong(Answer.xs_of(cs.map(func(x): return qf(x[1]))), R_Y_FOR_X)],
-			"fillers": [Answer.xs_of([qf(cs[1][0])]), Answer.xs_of(cs.map(func(x): return qf(x[0] + 1.0)))],
+			# The second time alone, and the first with the domain's end (not each time + 1).
+			"fillers": [Answer.xs_of([qf(cs[1][0])]), Answer.xs_of([qf(c[0]), s.d2])],
 			"methods": {
 				"gdc-intersect": {"result": ans2.values, "steps": [a_eq + ".", "Graph both for the whole of %s, not just to t = 10." % dom(s),
 					"The intersect tool gives " + times + ".", final2]},
@@ -275,7 +276,9 @@ func u_models_equal(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		}
 	var ans := num(c[0], "t = ")
 	var final := "So %s when %s %s." % [what, Answer.text(ans), ctx.x_unit]
-	var gen: Array = [{"v": qf(c[0] + 1.0)}, {"v": qf(floorf(c[0]))}, {"v": qf(s.d2.to_float() - c[0])}]
+	# Away from the key first: the domain's end and the time left after the crossing; the
+	# crossing cut down to a whole number last (not the time + 1, beside the key).
+	var gen: Array = [{"v": s.d2}, {"v": qf(s.d2.to_float() - c[0])}, {"v": qf(floorf(c[0]))}]
 	var out := {
 		"asked": "Find when %s." % what, "lines": [words(s)], "answer": ans, "wrongs": [wrong({"v": qf(c[1])}, R_Y_FOR_X)], "fillers": gen,
 		"methods": {
@@ -303,15 +306,18 @@ func u_function_and_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		"wrongs": [wrong(only, IN + "#0"), wrong(Answer.pts_of([[qf(cs[0][0]), qf(cs[0][1])]]), IN + "#1"),
 			wrong(Answer.pts_of([[qf(cs[1][0]), qf(cs[1][1])]]), IN + "#1")], "fillers": gen}
 	if rep == "graph":
-		out.lines = ["The graphs of " + eq_lines(s)[0] + " are shown."]
+		out.lines = ["The graphs of " + eq_lines(s)[0] + ", are shown."]
 		out.graph = screen(s)
 	var on_line := "f is increasing, so every crossing of f and f⁻¹ is on y = x: solve %s = x." % ft(s)
+	# The reflection says where to look (on y = x), and the GDC gives the 3 s.f.: the method
+	# is named for both halves, so its working doesn't contradict it.
+	out.titles = {"reflect-in-y-equals-x": "Reflect in y = x, then solve f(x) = x on the GDC"}
 	out.methods = {
 		"gdc-intersect": {"result": ans.values, "steps": [win_step(s), "The intersect tool gives %s." % cross6(cs), final]},
 		"sketch-and-count": {"result": ans.values, "steps": [on_line,
 			"A sketch of y = f(x) and y = x shows two crossings; the intersect tool gives %s." % cross6(cs), final]},
 		"reflect-in-y-equals-x": {"result": ans.values, "steps": [
-			"Reflecting in y = x shows where the graphs meet, but not the coordinates: this method fails for 3 s.f.",
+			"f⁻¹ is f reflected in y = x, so a sketch shows where the graphs meet, but not to 3 s.f.",
 			on_line + " The GDC gives " + cross6(cs) + ".", final]},
 	}
 	return out
@@ -346,7 +352,7 @@ func u_count_crossings(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"wrongs": [wrong({"v": Q.new(inside)}, IN + "#1")] if inside != n else [],
 		"fillers": [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(0)}]}
 	if rep == "graph":
-		out.lines = ["The graphs of " + eq_lines(s)[0] + " are shown."]
+		out.lines = ["The graphs of " + eq_lines(s)[0] + ", are shown."]
 		out.graph = screen(s)
 	out.methods = {
 		"zeros-of-difference": {"result": ans.values, "steps": ["The graphs meet where %s = 0." % diff_text(s),
@@ -437,19 +443,41 @@ func u_constant_from_crossing(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var line := "y = %s + k" % GdcKit.first(m, "x")
 	var lines := ["The line %s meets the curve y = %s where x = 0." % [line, ft(s)]]
 	if rep == "words":
-		lines = ["A straight line with gradient %s passes through the point where the curve y = %s crosses the y-axis." % [Fmt.dec(m), ft(s)]]
+		# The line is named with its k, so "find k" has something to find.
+		lines = ["The line %s passes through the point where the curve y = %s crosses the y-axis." % [line, ft(s)]]
 	var wr: Array = [wrong({"v0": k, "v1": qf(other[1])}, R_Y_FOR_X), wrong({"v0": m, "v1": qf(other[0])}, R_GRADIENT_K)]
 	var gen: Array = [{"v0": k.neg(), "v1": qf(other[0])}, {"v0": k, "v1": qf(-other[0])}]
 	var sub := "At x = 0 the curve is at y = %s, so 0 + k = %s: k = %s." % [Fmt.dec(k), Fmt.dec(k), Fmt.dec(k)]
+	# The curve may meet the line again outside the domain (a cosine, a cubic), so the other
+	# point is asked on the domain, where there are exactly two.
 	return {
-		"asked": "Find k, and the x-coordinate of the other point where the line meets the curve.", "lines": lines, "answer": ans, "wrongs": wr, "fillers": gen,
+		"asked": "Find k, and the x-coordinate of the other point where the line meets the curve for %s." % dom(s), "lines": lines, "answer": ans,
+		"wrongs": wr, "fillers": gen,
 		"methods": {
 			"gdc-intersect": {"result": ans.values, "steps": [sub,
-				"Graph y = %s and y = %s; the intersect tool finds the other crossing at x = %s." % [ft(s), gt(s), W(other[0])], final]},
-			"equate-and-solve": {"result": ans.values, "steps": [sub,
-				"Then %s = %s mixes families, so the GDC solves it: x = 0 or x = %s." % [ft(s), gt(s), W(other[0])], final]},
+				"Graph y = %s and y = %s for %s; the intersect tool finds the other crossing at x = %s." % [ft(s), gt(s), dom(s), W(other[0])], final]},
+			"equate-and-solve": {"result": ans.values, "steps": [sub, _equate_step(s, other[0]), final]},
 		},
 	}
+
+
+## f(x) = g(x) solved for the other crossing: a cubic through the line's point at x = 0 has
+## x as a factor, so the rest is a quadratic; any other family mixed with a line needs the GDC.
+static func _equate_step(s: Dictionary, x: float) -> String:
+	var eq := "Then %s = %s" % [ft(s), gt(s)]
+	if s.f.fam != "cubic":
+		return "%s mixes families, so the GDC solves it on %s: x = 0 or x = %s." % [eq, dom(s), W(x)]
+	# f − g = Ax³ + bx² + (m_f − m)x, as the constants cancel at x = 0.
+	var a: Q = s.f.A
+	var b: Q = s.f.b
+	var c: Q = s.f.m.sub(s.g.m)
+	var quad := GdcKit.first(a, "x²") + GdcKit.join(b, "x") + GdcKit.join(c, "")
+	var af := a.to_float()
+	var bf := b.to_float()
+	var root := sqrt(bf * bf - 4.0 * af * c.to_float())
+	var rs := [(-bf - root) / (2.0 * af), (-bf + root) / (2.0 * af)]
+	rs.sort()
+	return "%s gives x(%s) = 0: x = 0, or x = %s or x = %s from the quadratic; only x = %s is in %s." % [eq, quad, W(rs[0]), W(rs[1]), W(x), dom(s)]
 
 
 # ── fn-concept-solutions-as-intersections ────────────────────
@@ -459,14 +487,16 @@ func u_graphs_for_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var right := "Graph y = %s and y = %s, and read the x-coordinates where they meet." % [ft(s), gt(s)]
 	var out := LogFunctionViews.choice(right, [wrong({"v": "Graph y = %s and y = %s, and read the y-coordinates where they meet." % [ft(s), gt(s)]}, R_READ_Y),
 		wrong({"v": "Graph y = %s only, and read where it crosses the x-axis." % ft(s)}, R_ONE_SIDE)],
-		["Graph y = %s − %s, and read where it crosses y = 1." % [ft(s), gt(s)]])
+		["Graph y = %s − (%s), and read where it crosses y = 1." % [ft(s), gt(s)]])
 	var final: String = "So: " + right
+	# The domain is stated, so the crossings listed are every solution (a sine meets a
+	# line again further out).
 	out.merge({
-		"asked": "To solve %s with a GDC, which graphs do you draw, and what do you read off?" % eq, "lines": [eq],
+		"asked": "To solve %s with a GDC, which graphs do you draw, and what do you read off?" % eq, "lines": ["%s, for %s" % [eq, dom(s)]],
 		"methods": {
 			"sketch-and-count": {"result": out.answer.values, "steps": ["Each side of the equation is a function of x: graph each one.",
 				"A solution is an x where both sides are equal: an x-coordinate where the graphs meet.", final]},
-			"intersect-two-graphs": {"result": out.answer.values, "steps": ["Graph both sides, then use intersect at each crossing.",
+			"intersect-two-graphs": {"result": out.answer.values, "steps": ["Graph both sides for %s, then use intersect at each crossing." % dom(s),
 				"The solutions are the x-values it gives: %s." % xs6(s.crossings), final]},
 		}})
 	return out
@@ -543,16 +573,18 @@ func u_x_not_y(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var xs := "x = %s and x = %s" % [S(cs[0][0]), S(cs[1][0])]
 	var pts := "(%s, %s) and (%s, %s)" % [S(cs[0][0]), S(cs[0][1]), S(cs[1][0]), S(cs[1][1])]
 	var ys := "y = %s and y = %s" % [S(cs[0][1]), S(cs[1][1])]
-	var out := LogFunctionViews.choice(xs, [wrong({"v": pts}, IN + "#0"), wrong({"v": ys}, IN + "#0"),
+	# The y-values, written as y or as x, are the y-coordinates read off (R_READ_Y).
+	var out := LogFunctionViews.choice(xs, [wrong({"v": pts}, IN + "#0"), wrong({"v": ys}, R_READ_Y),
 		wrong({"v": "x = %s and x = %s" % [S(cs[0][1]), S(cs[1][1])]}, R_READ_Y)],
 		["x = %s and x = %s" % [S(-float(cs[0][0])), S(-float(cs[1][0]))],
 			"x = %s and x = %s" % [S(cs[0][0]), S(-float(cs[1][0]))]])
 	var final: String = "So the solutions are " + xs + "."
-	var lines := ["The graphs of y = %s and y = %s meet at %s." % [ft(s), gt(s), pts]]
+	# On the domain the two meeting points are every solution; further out there can be more.
+	var lines := ["For %s, the graphs of y = %s and y = %s meet at %s." % [dom(s), ft(s), gt(s), pts]]
 	if rep == "words":
-		lines = ["A student graphs y = %s and y = %s; the GDC shows they meet at %s." % [ft(s), gt(s), pts]]
+		lines = ["A student graphs y = %s and y = %s; for %s, the GDC shows they meet at %s." % [ft(s), gt(s), dom(s), pts]]
 	out.merge({
-		"asked": "What are the solutions of %s = %s?" % [ft(s), gt(s)], "lines": lines, "graph": screen(s) if rep == "graph" else null,
+		"asked": "What are the solutions of %s = %s for %s?" % [ft(s), gt(s), dom(s)], "lines": lines, "graph": screen(s) if rep == "graph" else null,
 		"methods": {
 			"sketch-and-count": {"result": out.answer.values, "steps": ["An equation in x has values of x as its solutions.",
 				"At each meeting point both sides are equal, so its x-coordinate solves it.", final]},
@@ -597,20 +629,28 @@ func u_difference_picture(_rep: String, s: Dictionary, rng: Seeded) -> Dictionar
 func u_same_solutions_after_rearranging(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var a := "%s = %s" % [ft(s), gt(s)]
 	var b := "%s − (%s) = 0" % [ft(s), gt(s)]
+	# The words rep has no equations A and B, only the student's claim: its options say "the
+	# equation" and "the zeros" instead.
+	var words := rep == "words"
 	var right := "Yes: B is A with %s taken from both sides, so they have the same solutions." % gt(s)
+	var meets := "No: B's solutions are where the graph of the difference meets y = %s." % gt(s)
+	if words:
+		right = "Yes: the zeros solve %s, which is the equation with %s taken from both sides." % [b, gt(s)]
+		meets = "No: the solutions are where the graph of the difference meets y = %s." % gt(s)
 	var out := LogFunctionViews.choice(right, [wrong({"v": "No: rearranging an equation changes its solutions."}, R_REARRANGE)],
-		["No: B's solutions are where the graph of the difference meets y = %s." % gt(s), "Yes, but only when both sides are lines."])
+		[meets, "Yes, but only when both sides are lines."])
 	var final: String = "So: " + right
 	var lines := ["Equation A: %s.  Equation B: %s." % [a, b]]
-	if rep == "words":
-		lines = ["A student says: \"Solving %s is the same as finding the zeros of y = %s − (%s).\"" % [a, ft(s), gt(s)]]
+	if words:
+		lines = ["A student says: \"Solving %s is the same as finding the zeros of y = %s − (%s), for %s.\"" % [a, ft(s), gt(s), dom(s)]]
+	# On the domain the zeros listed are every solution; further out there can be more.
 	out.merge({
-		"asked": "Do equations A and B have the same solutions?" if rep == "equation" else "Is the student right?", "lines": lines,
+		"asked": "For %s, do equations A and B have the same solutions?" % dom(s) if not words else "Is the student right?", "lines": lines,
 		"methods": {
 			"zeros-of-difference": {"result": out.answer.values, "steps": ["Subtracting the same thing from both sides keeps every solution and adds none.",
-				"So the zeros of the difference are the meeting x-values: %s." % xs6(s.crossings), final]},
-			"zero-of-difference": {"result": out.answer.values, "steps": ["Graph y = %s − (%s): it crosses the x-axis at %s." % [ft(s), gt(s), xs6(s.crossings)],
-				"Those are where the two graphs of A meet.", final]},
+				"So the zeros of the difference on %s are the meeting x-values: %s." % [dom(s), xs6(s.crossings)], final]},
+			"zero-of-difference": {"result": out.answer.values, "steps": ["Graph y = %s − (%s) for %s: it crosses the x-axis at %s." % [ft(s), gt(s), dom(s), xs6(s.crossings)],
+				"Those are the x-values where y = %s and y = %s meet." % [ft(s), gt(s)], final]},
 		}})
 	return out
 
@@ -620,8 +660,10 @@ func u_k_for_count(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var bottom: Q = s.bottom
 	var ans := Answer.make("range2", {"lo": bottom, "r1": "<", "r2": "<", "hi": top}, {"var": "k"})
 	ans.exact = true
-	var final := "So f(x) = k has three solutions for " + Answer.text(ans) + "."
+	# The equation as the question writes it (it names no f), and a cubic has no asymptotes.
+	var final := "So %s = k has three solutions for %s." % [ft(s), Answer.text(ans)]
 	return {
+		"titles": {"turning-point-boundaries": "Use the turning-point values as boundaries"},
 		"asked": "For which values of k does %s = k have exactly three solutions?" % ft(s),
 		"lines": ["The sketch shows y = %s, with turning points (%s, %s) and (%s, %s)." % [ft(s), N(s.p.neg()), N(_at_q(s, s.p.neg())),
 			N(s.p), N(_at_q(s, s.p))]], "graph": _sketch(s), "answer": ans,
