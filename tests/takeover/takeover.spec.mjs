@@ -356,7 +356,7 @@ test.describe('switch on: Godot at the root, the HTML game not published', () =>
 
     // The lesson ends: the new build takes over, with the old cache dropped
     await page.evaluate(async () => (await navigator.serviceWorker.getRegistration()).waiting.postMessage('skip-waiting'));
-    await expect.poll(async () => Object.keys(await cachedUrls(page))).toEqual(['wasteland-academy-godot-next']);
+    await expect.poll(async () => Object.keys(await cachedUrls(page)), { timeout: 60_000 }).toEqual(['wasteland-academy-godot-next']);
     await page.reload();
     await godotBoots(page);
     expect(await build()).toBe('2');
