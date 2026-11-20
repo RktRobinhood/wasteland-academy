@@ -115,6 +115,13 @@ Audio.sound_enabled = true           # what the speaker icon switches
   `reward` when the summary banks Scrap. The settings screen and the HUD play `confirm`,
   and the Bazaar `reward` and `confirm`. With sound off nothing is heard;
   `Audio.last_sfx` still records the cue asked for, for tests.
+- Bodge's lines in the Bazaar and the mini-boss and boss taunts play their recorded take
+  when it has one (FAL-1134, `audio/voice_lines.gd`), on the Voice bus as Spark's lines
+  do. A take is found by its text:
+  `assets/audio/voice/<speaker>/lines/<first 12 hex characters of the SHA-1 of the line>.ogg`,
+  where the speaker is `bodge`, or `<bosses.json key>-miniboss` or `-boss` (an island's
+  key when the zone borrows its island's boss). A line with no take, or edited since it
+  was recorded, shows as text only. `Audio.last_voice` records the file asked for.
 
 ## Explainers
 

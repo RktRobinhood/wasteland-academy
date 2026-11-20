@@ -79,8 +79,9 @@ var boss: Dictionary = {}
 var floor_cells: Array = []
 var floor_seen: Dictionary = {}
 var warmups_left := 0
-## {"name", "rank", "art", "hurt", "taunt", "damage", "scrap", "hp", "max_hp"}: art and
-## hurt are file paths (hurt "" for none), taunt "" for none (ArtSlots.enemy).
+## {"name", "rank", "art", "hurt", "taunt", "speaker", "damage", "scrap", "hp", "max_hp"}:
+## art and hurt are file paths (hurt "" for none), taunt "" for none, speaker the voice
+## its taunt's take is under (ArtSlots.enemy).
 var enemy: Dictionary = {}
 var question: Dictionary = {}
 var question_no := 0
@@ -195,7 +196,7 @@ func _next_fight() -> void:
 	# Who it is (name, taunt, art) is looks only (ArtSlots, FAL-470); the tier sets the numbers.
 	var look := ArtSlots.enemy(region, kind, tier, run_seed, floor_no, fight)
 	enemy = {"name": look.name, "rank": e.rank, "art": look.art, "hurt": look.hurt, "taunt": look.taunt,
-		"damage": Tuning.damage_on(int(e.damage), floor_no),
+		"speaker": look.speaker, "damage": Tuning.damage_on(int(e.damage), floor_no),
 		"scrap": e.scrap, "hp": int(e.hits) * Tuning.HIT, "max_hp": int(e.hits) * Tuning.HIT}
 	boss = {}
 	if kind != "fight":

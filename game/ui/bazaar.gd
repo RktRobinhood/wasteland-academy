@@ -14,7 +14,9 @@ extends Control
 ## first time (bazaar.met in the save), enter after that, buy after a purchase, broke
 ## and capped when a purchase can't go through for want of Scrap or at a cap, idle now
 ## and then, and leave on the way out. Never the same line twice in a row. No file, no
-## bubble; no art, no portrait.
+## bubble; no art, no portrait. A line with a recorded take plays it (FAL-1134): Bodge's
+## takes are named by their text (audio/voice_lines.gd), so a line without one, or one
+## edited since it was recorded, stays text only.
 ##
 ## Links: /next/#bazaar is its map link (engine/map_link.gd), so the browser's back
 ## button leaves it. /next/?bazaar opens it too; /next/?bazaar=demo opens it on a
@@ -34,6 +36,8 @@ const IDLE_EVERY := 4.0
 const IDLE_FOR := 0.6
 ## The store owner's lines, and the moments they're said at.
 const LINES := "shopkeeper.json"
+## Whose takes the lines play, when they have one (VoiceLines, FAL-1134).
+const SPEAKER := "bodge"
 const MOMENTS := ["first_visit", "enter", "idle", "buy", "broke", "capped", "leave"]
 ## An idle line comes after this many seconds with nothing said.
 const IDLE_LINE_EVERY := 30.0
@@ -114,6 +118,7 @@ func say(moment: String) -> String:
 	line.text = said
 	bubble.visible = true
 	_line_clock = 0.0
+	VoiceLines.say(SPEAKER, said)
 	return said
 
 

@@ -1,8 +1,8 @@
 extends Control
 ## A toy on its own (#217), at /?toy=relay, or res://scenes/toy.tscn in the editor: the
 ## relay set up as the exemplar sets it, with a button per task kind, the broken relay
-## (oupa's radio), and a stock reaction captioned on a miss, as the lesson player plays
-## one. It is a test bench, not a screen students reach: nothing links to it.
+## (oupa's radio), and Rook's stock reactions from reactions.json, captioned and voiced
+## by the lesson player's rules (Lesson.Reactions). It is a test bench, not a screen students reach: nothing links to it.
 
 const MAIN := "res://scenes/main.tscn"
 const ITEM := {"toy": "relay", "rule": "x² − 4", "dial": [-5, 5], "places": {"12": "Scrap Fields"}}
@@ -12,15 +12,16 @@ const TASKS := [
 	["Send −3", {"kind": "send", "input": -3}],
 	["Find 12", {"kind": "find", "output": 12, "place": "Scrap Fields"}],
 ]
-## Rook's stock reactions from the exemplar, until the script's set is read (#220).
-const REACTIONS := ["Static. Come in again.", "Eish. That one's gone to the wrong settlement. They'll cope.",
-	"Shame. The relay didn't like that.", "Hold on. Something's smoking up there. Go again."]
+## The relay is Rook's toy, so his set reacts.
+const TUTOR := "rook-dead-air"
 
 var toy: LessonToy
 var holder: Control
 var caption: Label
 var broken := false
-var _reaction := 0
+var reactions := Lesson.Reactions.new(TUTOR, Lesson.shared("reactions"), randi())
+## Misses on the task given, so only the first one gets a slip.
+var _misses := 0
 
 
 func _ready() -> void:
@@ -96,12 +97,25 @@ func build() -> void:
 
 func give(t: Dictionary) -> void:
 	toy.start(t)
+	_misses = 0
 	caption.text = ""
 
 
 func _on_act(a: Dictionary) -> void:
 	if a.hit == false:
-		caption.text = REACTIONS[_reaction % REACTIONS.size()]
-		_reaction += 1
+		_react(reactions.slip(_misses))
+		_misses += 1
+	elif a.hit == null:
+		_react(reactions.ack())
 	else:
-		caption.text = "Copy." if a.hit == null else "Sent."
+		caption.text = "Sent."
+
+
+## A reaction's caption, with its take when it has one. No reaction leaves the caption.
+func _react(l: Dictionary) -> void:
+	if l.is_empty():
+		return
+	caption.text = str(l.get("caption", l.get("say", "")))
+	var stream := Lesson.Reactions.take(l)
+	if stream != null:
+		Audio.play_voice(stream)
