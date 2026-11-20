@@ -54097,6 +54097,9 @@ def modgr_recip_tp(q):
     f = modgr_f(q)
     a, h, k = modgr_vertex(f)
     need(sp.degree(f, X) == 2 and a in (1, -1, 2, -2) and h.is_integer and abs(h) <= 4 and k in (2, 3, 4, 5, -2, -3, -4, -5), f"{f} is out of the situation's range")
+    if q["view"]["rep"] == "graph":
+        # The parabola shows 1.5 either side of its vertex before it leaves the plot.
+        need(abs(f.subs(X, h + sp.Rational(3, 2)) - k) <= MODGR_WIN[3] - (k if a > 0 else -k), "too little of the parabola is in the plot")
     r = 1 / f
     xs = sorted(sp.solveset(sp.numer(sp.together(sp.diff(r, X))), X, sp.S.Reals))
     need(len(xs) == 1, f"1/f has {len(xs)} turning points")

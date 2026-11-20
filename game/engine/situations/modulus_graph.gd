@@ -27,7 +27,8 @@ extends RefCounted
 ##   "recip"   a quad with two zeros and a vertex at height ±2, ±3 or ±4, for 1/f
 ##   "move"    a rule x² + bx + c with zeros h ± m, translated by the vector (mx, my) to a
 ##             g with zeros h + mx ± n (my = m² − n²); mx = my = 0 when not moved
-##   "turn"    a rule a(x − h)² + k with a = ±1 or ±2 and k not 0 or ±1
+##   "turn"    a rule a(x − h)² + k with a = ±1 or ±2 and k not 0 or ±1; as a graph, it reaches
+##             1.5 either side of the vertex before it leaves the plot
 ##   "square"  a quad or cubic with a turning point at height ±2, for [f(x)]²
 ##   "sqfeat"  a rule a(x − r₀)(x − r₁) with a = ±1 or ±2 and the vertex at height ±2 to ±9;
 ##             or, with `sine` allowed, A sin(bx)
@@ -59,7 +60,7 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 			"move":
 				s = _move(rng)
 			"turn":
-				s = _turn(rng)
+				s = _turn(rng, graph)
 			"square":
 				s = _square(rng)
 			"sqfeat":
@@ -262,10 +263,15 @@ static func _move(rng: Seeded) -> Dictionary:
 	return s
 
 
-static func _turn(rng: Seeded) -> Dictionary:
+static func _turn(rng: Seeded, graph: bool) -> Dictionary:
 	var a: int = [1, 1, -1, -1, 2, -2][rng.int_in(0, 5)]
 	var h := rng.int_in(-4, 4)
 	var k: int = [2, 3, 4, 5, -2, -3, -4, -5][rng.int_in(0, 7)]
+	# A graph shows the parabola at least 1.5 either side of its vertex: the room from the
+	# vertex to the edge it opens towards is at least 2.25|a|.
+	var room := (PLOT - k) if a > 0 else (PLOT + k)
+	if graph and room * 4 < 9 * absi(a):
+		return {}
 	return quad(Q.new(a), h, k)
 
 
