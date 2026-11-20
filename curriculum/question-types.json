@@ -109941,7 +109941,6 @@
      "text": "For a quadratic through a point, multiplies a by x rather than by x² when writing the equation",
      "as": "distractor",
      "in": [
-      "quadratic-three-points",
       "quadratic-from-symmetry"
      ],
      "wrong": "a multiplied by x, not x²"
