@@ -94,6 +94,9 @@ var perk: Dictionary = {}
 var region := "quadratics"
 var start_floor := 1
 var run_seed := 0
+var away := false
+var _skip_frame := false
+var _visibility_callback: JavaScriptObject
 var result: Dictionary = {}
 
 var title: Label
@@ -149,6 +152,7 @@ var _fall: Tween
 
 
 func _ready() -> void:
+	_watch_visibility()
 	theme = UiTheme.make()
 	_build()
 	resized.connect(_fit)
@@ -672,8 +676,47 @@ func paper_slot() -> Control:
 	return badge
 
 
+## The question clock holds while the tab or app is away (FAL-1042, #187). `away` is set
+## by the engine's focus-out notifications and, on the web, by the page's visibilitychange:
+## iOS Safari doesn't send a blur when the tab is switched or the app is backgrounded.
+## The first frame after it comes back is not counted, because a browser can hand it the
+## whole time away as one delta.
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+			set_away(true)
+		NOTIFICATION_APPLICATION_FOCUS_IN, NOTIFICATION_WM_WINDOW_FOCUS_IN:
+			set_away(false)
+
+
+## Calls `set_away` when the browser hides or shows the page. The callback is kept: the
+## bridge frees one nothing refers to.
+func _watch_visibility() -> void:
+	if not OS.has_feature("web"):
+		return
+	_visibility_callback = JavaScriptBridge.create_callback(func(_args: Array):
+		set_away(bool(JavaScriptBridge.eval("document.hidden", true))))
+	JavaScriptBridge.get_interface("document").addEventListener("visibilitychange", _visibility_callback)
+
+
+func _exit_tree() -> void:
+	if _visibility_callback != null:
+		JavaScriptBridge.get_interface("document").removeEventListener("visibilitychange", _visibility_callback)
+
+
+func set_away(value: bool) -> void:
+	if away and not value:
+		_skip_frame = true
+	away = value
+
+
 func _process(delta: float) -> void:
 	if run == null or run.state != "question":
+		return
+	if away:
+		return
+	if _skip_frame:
+		_skip_frame = false
 		return
 	var r := run.tick(delta)
 	if not r.is_empty():
