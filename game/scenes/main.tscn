@@ -59,7 +59,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.917647, 0.796078, 0.454902, 1)
 theme_override_fonts/font = ExtResource("3_tbgi4")
 theme_override_font_sizes/font_size = 48
-text = "Same math. Different world."
+text = "Same maths. Different world."
 horizontal_alignment = 1
 
 [node name="Buttons" type="HBoxContainer" parent="Center/Column"]
@@ -75,14 +75,16 @@ theme_override_font_sizes/font_size = 64
 text = "Play"
 
 [node name="Practice" type="Button" parent="Center/Column/Buttons"]
-custom_minimum_size = Vector2(400, 140)
+custom_minimum_size = Vector2(640, 140)
 layout_mode = 2
-theme_override_font_sizes/font_size = 64
-text = "Practice"
+theme_override_font_sizes/font_size = 44
+text = "Practice · no timer, no damage"
+autowrap_mode = 3
 
 [node name="Engine" type="Button" parent="Center/Column"]
+visible = false
 custom_minimum_size = Vector2(560, 120)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 56
-text = "Engine"
+text = "Question explorer"

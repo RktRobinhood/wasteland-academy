@@ -112,6 +112,17 @@ static func load_courses(path: String = COURSES) -> Array:
 
 # ── Layout ───────────────────────────────────────────────────
 
+## The explorer is a developer tool: one plain toggle, not the students' two-way switch.
+func _make_exam_switch() -> Control:
+	exam_toggle = Button.new()
+	exam_toggle.name = "ExamOnly"
+	exam_toggle.toggle_mode = true
+	exam_toggle.text = "Exam-style only: off"
+	exam_toggle.add_theme_font_size_override("font_size", UiTheme.SMALL)
+	exam_toggle.toggled.connect(_on_exam_toggled)
+	return exam_toggle
+
+
 func _build() -> void:
 	super._build()
 	title_label.text = "Engine"

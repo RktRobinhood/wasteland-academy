@@ -16,7 +16,7 @@ extends RefCounted
 ## Item ids: the upgrades "max_hp" and "lifeline", the perks in PERKS, and the cosmetics
 ## "frame:<id>" and "tint:<id>" (frames(), TINTS).
 
-const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Time Freeze"}
+const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"}
 
 const UPGRADES := {
 	"max_hp": {"name": "Max HP +10", "text": "Every run starts with 10 more HP."},

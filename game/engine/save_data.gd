@@ -35,6 +35,10 @@ extends RefCounted
 ##   here       the place on the world map the player last went into (FAL-988): an
 ##              island id, "thunderdome" or "bazaar", where the map's "you are here"
 ##              marker stands. A new save starts at the Bazaar
+##   intro      {"course": true once the student has picked their course, "cards": true once
+##              they have seen or skipped the "How a fight works" cards} (FAL-1041, #186). A
+##              blank save has both false, so the first launch asks for the course; every
+##              older save counts as done, because it already plays a course
 ##   watched    the tutor lessons played to the end (#218, ui/lesson/lesson_player.gd), by
 ##              explainer id, oldest first. A recall section picks its version from it
 ##
@@ -42,7 +46,7 @@ extends RefCounted
 ## misconception ref is recorded on the cell, so lesson feedback and suggestions can
 ## use it later.
 
-const VERSION := 6
+const VERSION := 7
 const PATH := "user://save.json"
 const HISTORY := MathsEngine.HISTORY
 
@@ -51,7 +55,7 @@ static func blank() -> Dictionary:
 	return {"version": VERSION, "settings": {"exam_only": false, "reduced_motion": false}, "course": Courses.DEFAULT, "cells": {}, "probes": {}, "history": [],
 		"seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
 		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}, "dungeon": {},
-		"bazaar": blank_bazaar(), "here": "bazaar", "watched": []}
+		"bazaar": blank_bazaar(), "here": "bazaar", "watched": [], "intro": {"course": false, "cards": false}}
 
 
 static func blank_bazaar() -> Dictionary:
@@ -119,6 +123,12 @@ static func call_step(v: int, data: Dictionary) -> Dictionary:
 			var out := data.duplicate(true)
 			out["here"] = "bazaar"
 			return out
+		6:
+			# Version 6 to 7 (FAL-1041): the first-run steps. A save that exists has
+			# played, so it is not asked for its course or shown the cards.
+			var out := data.duplicate(true)
+			out["intro"] = {"course": true, "cards": true}
+			return out
 	return data
 
 
@@ -129,7 +139,19 @@ static func set_course(data: Dictionary, course: String) -> bool:
 	if not Courses.has(course):
 		return false
 	data["course"] = course
+	if data.get("intro") is Dictionary:
+		data.intro["course"] = true
 	return true
+
+
+## True while a new save has not picked its course (first launch, #186).
+static func needs_course(data: Dictionary) -> bool:
+	return not bool((data.get("intro", {}) as Dictionary).get("course", true))
+
+
+## True while a new save has not seen the "How a fight works" cards.
+static func needs_cards(data: Dictionary) -> bool:
+	return not bool((data.get("intro", {}) as Dictionary).get("cards", true))
 
 
 ## Reads the save at path. A missing file is a new save. A file that can't be read

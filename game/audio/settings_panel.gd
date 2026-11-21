@@ -27,6 +27,7 @@ extends Control
 var _transfer: SaveTransferPanel
 
 var _showing := false
+var _group: ButtonGroup
 
 
 func _ready() -> void:
@@ -45,12 +46,75 @@ func _ready() -> void:
 	_transfer = SaveTransferPanel.new()
 	add_child(_transfer)
 	_save_button.pressed.connect(_transfer.open)
+	_add_play_settings()
 	Audio.settings_changed.connect(_show_current)
 	_show_current()
 
 
+## The student's course and the first-run cards, above the save button (#186): the
+## course picked on first launch must be easy to change later (string audit ST9).
+func _add_play_settings() -> void:
+	var column := _save_button.get_parent()
+	var at := _save_button.get_index()
+	var label := Label.new()
+	label.name = "CourseLabel"
+	label.text = "Your course"
+	var row := HBoxContainer.new()
+	row.name = "CourseRow"
+	row.add_theme_constant_override("separation", 12)
+	_group = ButtonGroup.new()
+	for id in Courses.ids():
+		var b := Button.new()
+		b.name = id
+		b.text = Courses.info(id).short
+		b.tooltip_text = Courses.info(id).name
+		b.toggle_mode = true
+		b.button_group = _group
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.custom_minimum_size.y = 96
+		b.pressed.connect(_set_course.bind(id))
+		row.add_child(b)
+	var cards := Button.new()
+	cards.name = "CardsButton"
+	cards.text = "How a fight works"
+	cards.pressed.connect(func() -> void: add_child(FirstRun.fight_cards()))
+	for n in [label, row, cards]:
+		column.add_child(n)
+		column.move_child(n, at)
+		at += 1
+
+
+## The course on the buttons: the open screen's save, or the saved file's.
+func _show_course() -> void:
+	if _group == null:
+		return
+	var id := Courses.of(_current_save())
+	for b in _group.get_buttons():
+		b.set_pressed_no_signal(b.name == id)
+
+
+func _current_save() -> Dictionary:
+	var scene := get_tree().current_scene if is_inside_tree() else null
+	if scene != null and scene.get("save") is Dictionary and not (scene.get("save") as Dictionary).is_empty():
+		return scene.get("save")
+	return SaveData.load_from()
+
+
+## Puts the student on a course. A screen that holds the save (the map, a run, Practice)
+## gets it too, so it doesn't write the old course back.
+func _set_course(id: String) -> void:
+	var scene := get_tree().current_scene
+	if scene != null and scene.has_method("set_course"):
+		scene.call("set_course", id)
+		return
+	var data := _current_save()
+	if SaveData.set_course(data, id):
+		SaveData.store(data, scene.get("save_path") if scene != null and scene.get("save_path") is String else SaveData.PATH)
+
+
 func open() -> void:
 	_show_current()
+	_show_course()
 	show()
 	_close.grab_focus()
 	Audio.play_sfx("confirm")

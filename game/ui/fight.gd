@@ -159,7 +159,12 @@ func _ready() -> void:
 		region = launch.region
 		start_floor = launch.floor if Dungeon.start_floors(save, region).has(launch.floor) else 1
 		launch = {}
-		start_run()
+		if SaveData.needs_cards(save):
+			# A new student's first run opens on the cards, before its first question
+			# and so before its timer (#186).
+			show_cards(start_run)
+		else:
+			start_run()
 		return
 	if deep.is_empty():
 		if select_first:
@@ -228,6 +233,19 @@ func _card_settling() -> bool:
 	return fit_box.fitting
 
 
+## The "How a fight works" cards over this screen. When they are closed, by Got it or
+## Skip, the save remembers it and `then` is called.
+func show_cards(then: Callable = Callable()) -> FirstRun:
+	var f := FirstRun.fight_cards()
+	f.finished.connect(func(_r: String):
+		save.intro["cards"] = true
+		SaveData.store(save, save_path)
+		if then.is_valid():
+			then.call())
+	add_child(f)
+	return f
+
+
 ## Starts a run with this screen's region, floor and seed (a fresh seed if 0).
 func start_run() -> void:
 	if run_seed == 0:
@@ -285,16 +303,16 @@ func show_floor_select() -> void:
 		floor_box.remove_child(c)
 		c.queue_free()
 	title.text = Dungeon.region_name(region)
-	var head := UiTheme.label("Choose a floor", 84, UiTheme.TEAL)
+	var head := UiTheme.label("Pick your starting mile", 84, UiTheme.TEAL)
 	head.name = "Heading"
 	head.add_theme_font_override("font", UiTheme.TITLE_FONT)
 	floor_box.add_child(head)
-	floor_box.add_child(UiTheme.label("A floor is %d fights: a mini-boss at fight %d and a boss at fight %d. Beat a floor's boss and later runs can start on the next floor." %
+	floor_box.add_child(UiTheme.label("Each mile is %d stops on the road, with a mini-boss at stop %d and a boss at stop %d. Beat a mile's boss and later runs can start on the next mile." %
 		[Tuning.FIGHTS_PER_FLOOR, Tuning.MINI_BOSS_AT, Tuning.FIGHTS_PER_FLOOR], UiTheme.BODY, UiTheme.DIM))
 	var rec := Dungeon.record(save, region)
 	var floors := Dungeon.start_floors(save, region)
 	if int(rec.get("best", 0)) > 0:
-		floor_box.add_child(_with_medal(int(rec.best), _mono("Best floor: %d · floor bosses beaten: %d" % [int(rec.best),
+		floor_box.add_child(_with_medal(int(rec.best), _mono("Furthest mile: %d · mile bosses beaten: %d" % [int(rec.best),
 			(rec.get("beaten", []) as Array).size()], UiTheme.BODY, UiTheme.SAND)))
 	var list := VBoxContainer.new()
 	list.name = "Floors"
@@ -303,7 +321,7 @@ func show_floor_select() -> void:
 	for f in floors:
 		var b := Button.new()
 		b.name = "Floor%d" % f
-		b.text = "Floor %d · %s" % [f, _floor_about(f)]
+		b.text = "Mile %d · %s" % [f, _floor_about(f)]
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		b.add_theme_font_size_override("font_size", UiTheme.BIG)
@@ -315,12 +333,12 @@ func show_floor_select() -> void:
 			start_run())
 		list.add_child(b)
 	var next_locked: int = floors.max() + 1
-	var lock := UiTheme.label("Floor %d · beat the floor %d boss to start here" % [next_locked, next_locked - 1], UiTheme.BODY, UiTheme.DIM)
+	var lock := UiTheme.label("Mile %d · beat the mile %d boss to start here" % [next_locked, next_locked - 1], UiTheme.BODY, UiTheme.DIM)
 	lock.name = "Locked"
 	list.add_child(lock)
 	var back := Button.new()
 	back.name = "Map"
-	back.text = "Back to the map"
+	back.text = "◂ " + Dungeon.region_name(region)
 	back.add_theme_font_size_override("font_size", UiTheme.BIG)
 	back.pressed.connect(to_map)
 	floor_box.add_child(back)
@@ -343,9 +361,9 @@ func leave_run() -> void:
 ## What a floor asks, in a few words.
 func _floor_about(f: int) -> String:
 	if f >= Tuning.MIX_FROM_FLOOR:
-		return "everything mixed, harder each floor"
+		return "every level mixed, harder each mile"
 	var band := Dungeon.floor_band(f)
-	return "levels %d to %d" % [band[0], band[1]]
+	return "questions at levels %d to %d" % [band[0], band[1]]
 
 
 func _build() -> void:
@@ -630,7 +648,7 @@ func _lifelines() -> Control:
 		b.text = LIFELINE_NAMES[id]
 		b.icon = load("res://assets/ui/lifeline-%s-on.png" % id)
 		b.expand_icon = true
-		b.custom_minimum_size = Vector2(230, 100)
+		b.custom_minimum_size = Vector2(170, 100)
 		b.add_theme_constant_override("icon_max_width", 64)
 		b.add_theme_font_size_override("font_size", UiTheme.SMALL)
 		b.pressed.connect(use_lifeline.bind(id))
@@ -684,7 +702,7 @@ func _show_question() -> void:
 		_job_fight = run.fights
 		job = JourneyLink.job_words(run, save)
 	render_question()
-	check_button.text = job.get("verb", "Attack")
+	check_button.text = "Lock in"
 	next_button.text = "Next question"
 	if run.another_way:
 		var tag := UiTheme.label("Another way: the same question, by this method. Bonus Scrap if you get it.", UiTheme.SMALL, UiTheme.SAND)
@@ -730,7 +748,7 @@ func _show_boss_part() -> void:
 			var right: bool = answers[i].outcome in ["right", "late", "glancing"]
 			var pv: Dictionary = b.parts[i].view
 			var asked: String = QuestionEngine.unknown_of(QuestionEngine.type_of(pv.type), pv.unknown).get("asked", "")
-			done.add_child(UiTheme.math("(%s) %s · %s: %s" % [QuestionEngine.part_letter(i), "right" if right else "missed",
+			done.add_child(UiTheme.math("(%s) %s · %s: %s" % [QuestionEngine.part_letter(i), "right" if right else "wrong",
 				asked, b.parts[i].answer_text], UiTheme.SMALL, UiTheme.TEAL if right else UiTheme.DIM))
 		card.add_child(done)
 		card.move_child(done, at)
@@ -747,10 +765,18 @@ func _show_boss_part() -> void:
 		_let_swipes_through()
 
 
+## The enemy's name and rank: "Raider · Operative". The Overseer is both, so it shows once.
+func _enemy_title() -> String:
+	var rank := String(Tuning.ENEMIES[run.tier].rank).capitalize()
+	if rank.to_lower() == String(run.enemy.name).to_lower():
+		return run.enemy.name
+	return "%s · %s" % [run.enemy.name, rank]
+
+
 func _update_progress() -> void:
 	if run == null or progress == null:
 		return
-	var what := "%s %d of %d" % ["fight" if job.is_empty() else "stop", run.fight, Tuning.FIGHTS_PER_FLOOR]
+	var what := "stop %d of %d" % [run.fight, Tuning.FIGHTS_PER_FLOOR]
 	if not run.boss.is_empty():
 		# The part on the card: the one just answered until Next part opens the next (FAL-970).
 		var at: int = run.boss.part - (1 if run.state == "result" else 0)
@@ -758,12 +784,12 @@ func _update_progress() -> void:
 			QuestionEngine.part_letter(clampi(at, 0, run.boss.parts.size() - 1)), run.boss.parts.size()]
 	else:
 		what += " · question %d" % run.question_no
-	progress.text = "Floor %d · %s · a miss costs %d HP" % [run.floor_no, what, run.enemy.damage]
+	progress.text = "Mile %d · %s · wrong answer: %d damage" % [run.floor_no, what, run.enemy.damage]
 
 
 func _update_hud() -> void:
-	title.text = "%s · Floor %d" % [Dungeon.region_name(region), run.floor_no]
-	enemy_name.text = job.get("label", "%s · D%d" % [run.enemy.name, run.tier])
+	title.text = "%s · Mile %d" % [Dungeon.region_name(region), run.floor_no]
+	enemy_name.text = job.get("label", _enemy_title())
 	enemy_art.texture = load(run.enemy.art)
 	enemy_bar.max_value = run.enemy.max_hp
 	enemy_bar.value = run.enemy.hp
@@ -875,7 +901,7 @@ func _show_result(r: Dictionary) -> void:
 			if boss_part:
 				feedback.text = "Hit! +%d Scrap" % (r.scrap + r.bonus)
 			elif job.is_empty():
-				feedback.text = "Hit! −%d enemy HP · +%d Scrap" % [r.enemy_damage, r.scrap + r.bonus]
+				feedback.text = "Hit! The %s takes %d damage · +%d Scrap" % [run.enemy.name, r.enemy_damage, r.scrap + r.bonus]
 			else:
 				feedback.text = "%s +%d Scrap" % [job.hit, r.scrap + r.bonus]
 		"glancing":
@@ -891,10 +917,10 @@ func _show_result(r: Dictionary) -> void:
 		"wrong":
 			# A miss may say why: a value rounded too early (#194).
 			var why_off: String = r.get("note", "")
-			feedback.text = "Missed. −%d HP. %s%s" % [r.player_damage, "" if why_off == "" else why_off + " ", QuestionEngine.answer_sentence(question)]
+			feedback.text = "Wrong answer. You take %d damage. %s%s" % [r.player_damage, "" if why_off == "" else why_off + " ", QuestionEngine.answer_sentence(question)]
 			color = UiTheme.PINK
 		"timeout":
-			feedback.text = "Time's up. −%d HP. %s" % [r.player_damage, QuestionEngine.answer_sentence(question)]
+			feedback.text = "Time's up. You take %d damage. %s" % [r.player_damage, QuestionEngine.answer_sentence(question)]
 			color = UiTheme.PINK
 	if r.bonus > 0:
 		feedback.text += " Another way: +%d bonus Scrap." % r.bonus
@@ -912,9 +938,9 @@ func _show_result(r: Dictionary) -> void:
 	if r.defeated:
 		feedback.text += "\n" + job.get("done", "The %s falls." % run.enemy.name)
 		if r.get("healed", 0) > 0:
-			feedback.text += " +%d HP." % r.healed
+			feedback.text += " You heal %d HP." % r.healed
 		if r.get("floor_cleared", false):
-			feedback.text += " Floor %d cleared: floor %d is next." % [run.floor_no, run.floor_no + 1]
+			feedback.text += " Mile %d cleared: mile %d is next." % [run.floor_no, run.floor_no + 1]
 	feedback.add_theme_color_override("font_color", color)
 	var banner := _result_banner(r)
 	if banner != null:
@@ -933,11 +959,11 @@ func _show_result(r: Dictionary) -> void:
 	check_button.visible = false
 	next_button.visible = true
 	if r.dead:
-		next_button.text = "See the summary"
+		next_button.text = "See how the run went"
 	elif r.get("floor_cleared", false):
-		next_button.text = "Next floor"
+		next_button.text = "Next mile"
 	elif r.defeated:
-		next_button.text = "Next fight" if job.is_empty() else "Walk on"
+		next_button.text = "Next stop"
 	else:
 		next_button.text = "Next part" if not run.boss.is_empty() else "Next question"
 	for e in _slots.values():
@@ -1033,7 +1059,7 @@ func _result_banner(r: Dictionary) -> Control:
 	var tex := ArtSlots.texture("ui/run/banner-" + slot)
 	if tex == null:
 		return null
-	var text := "Floor %d cleared" % run.floor_no if slot == "floor-cleared" else "Mini-boss beaten"
+	var text := "Mile %d cleared" % run.floor_no if slot == "floor-cleared" else "Mini-boss beaten"
 	return UiTheme.banner(tex, text, BANNER_HEIGHT, 84, UiTheme.SAND)
 
 
@@ -1082,19 +1108,19 @@ func _show_summary(s: Dictionary) -> void:
 		head.name = "Heading"
 		head.add_theme_font_override("font", UiTheme.TITLE_FONT)
 		summary_box.add_child(head)
-	var reached := _mono("Floor %d reached · bosses beaten: %d" % [s.floor, s.bosses], UiTheme.BIG)
+	var reached := _mono("Reached mile %d · bosses beaten: %d" % [s.floor, s.bosses], UiTheme.BIG)
 	reached.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	summary_box.add_child(_with_medal(int(Dungeon.record(save, region).get("best", 0)), reached))
 	var lines := [
-		"Questions right: %d of %d · fights won: %d" % [s.right, s.questions, s.fights_won],
-		"Scrap earned: %d" % s.scrap,
+		"Questions right: %d of %d · stops cleared: %d" % [s.right, s.questions, s.fights_won],
+		"Scrap earned this run: %d" % s.scrap,
 		"Scrap in the bank: %d" % s.banked,
 	]
 	for line in lines:
 		var l := _mono(line, UiTheme.BIG, UiTheme.SAND if line.begins_with("Scrap") else UiTheme.TEXT)
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		summary_box.add_child(l)
-	summary_box.add_child(UiTheme.label("Skills missed" if not s.missed.is_empty() else "No skills missed.", UiTheme.BIG, UiTheme.TEAL))
+	summary_box.add_child(UiTheme.label("Skills to work on from this run" if not s.missed.is_empty() else "Nothing to work on from this run.", UiTheme.BIG, UiTheme.TEAL))
 	var list := VBoxContainer.new()
 	list.name = "Missed"
 	list.add_theme_constant_override("separation", 8)
@@ -1118,7 +1144,7 @@ func _show_summary(s: Dictionary) -> void:
 	summary_box.add_child(shop)
 	var back := Button.new()
 	back.name = "Map"
-	back.text = "Back to the map"
+	back.text = "◂ " + Dungeon.region_name(region)
 	back.add_theme_font_size_override("font_size", UiTheme.BIG)
 	back.pressed.connect(to_map)
 	summary_box.add_child(back)

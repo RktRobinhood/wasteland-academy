@@ -88,10 +88,12 @@ const THUNDERDOME_PIN := Vector2(51, 46)
 const RELIC_LIBRARY_ZONE := Rect2(77, 71, 38, 11)
 const RELIC_LIBRARY_PIN := Vector2(80, 76)
 ## The Relic Library's card: its lessons come once the maths engine is done (FAL-325).
-const RELIC_LIBRARY_LINE := "Opens after the maths engine"
+const RELIC_LIBRARY_LINE := "Closed for now: lessons coming"
 ## The Bazaar's place on the overworld, the caravan at the bottom left (FAL-986).
 const BAZAAR_ZONE := Rect2(22, 70.75, 40, 10.5)
 const BAZAAR_PIN := Vector2(25, 74)
+## The line on a place's card after the first tap on a touch screen.
+const TAP_AGAIN := "Tap again to go in"
 ## Where a new save stands on the world map (the save's "here").
 const HOME := "bazaar"
 ## A name banner's text size on the world map: about 17 px on a phone held upright.
@@ -204,6 +206,8 @@ func _ready() -> void:
 			MapLink._write(r, true)
 	_fit()
 	show_route(r)
+	if SaveData.needs_course(save):
+		ask_course()
 
 
 ## Shows a route ({"screen": "world"}, {"screen": "island", "island"} or {"screen":
@@ -267,7 +271,7 @@ func reduced_motion() -> bool:
 
 static func island_info(id: String) -> Dictionary:
 	if id == Dungeon.THUNDERDOME:
-		return {"id": id, "name": Dungeon.THUNDERDOME_NAME, "topic": "Every island mixed", "zone": THUNDERDOME_ZONE,
+		return {"id": id, "name": Dungeon.THUNDERDOME_NAME, "topic": "Questions from all over the Wasteland", "zone": THUNDERDOME_ZONE,
 			"pin": THUNDERDOME_PIN}
 	for i in ISLANDS:
 		if i.id == id:
@@ -367,7 +371,7 @@ func _build() -> void:
 	ambient.reduced_motion = reduced_motion()
 	world_board.add_child(ambient)
 	ambient.build(AmbientLayer.entries(AMBIENT, "map"))
-	_header(world, "The Wasteland", "Title", func(): MapLink.home(get_tree()))
+	_header(world, "The Wasteland", "◂ Title", func(): MapLink.home(get_tree()))
 	var scrap := UiTheme.label("", UiTheme.SMALL, UiTheme.SAND)
 	scrap.name = "Scrap"
 	scrap.autowrap_mode = TextServer.AUTOWRAP_OFF
@@ -378,7 +382,7 @@ func _build() -> void:
 
 	island = _layer("Island")
 	island_board = _board(island)
-	_header(island, "Signal Tower", "World map", func(): go(MapLink.WORLD))
+	_header(island, "Signal Tower", "◂ The Wasteland", func(): go(MapLink.WORLD))
 
 	region_view = _layer("Region")
 	region_backdrop = UiTheme.backdrop(REGION_WASH)
@@ -454,7 +458,7 @@ func _course_row() -> Control:
 	var row := HBoxContainer.new()
 	row.name = "Course"
 	row.add_theme_constant_override("separation", 12)
-	var label := UiTheme.label("Course", UiTheme.SMALL, UiTheme.SAND)
+	var label := UiTheme.label("Your course", UiTheme.SMALL, UiTheme.SAND)
 	label.name = "Label"
 	label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	row.add_child(label)
@@ -480,8 +484,18 @@ func set_course(id: String) -> bool:
 	if not SaveData.set_course(save, id):
 		return false
 	SaveData.store(save, save_path)
-	_fill_region()
+	if screen == "region":
+		_fill_region()
 	return true
+
+
+## The first-launch question (#186): a blank save is asked for its course once, over
+## whatever screen opened. Picking one stores it.
+func ask_course() -> FirstRun:
+	var f := FirstRun.course_pick()
+	f.finished.connect(set_course)
+	add_child(f)
+	return f
 
 
 ## The Bazaar, as a history entry, so the browser's back button returns to the map.
@@ -658,6 +672,10 @@ func show_card(b: Button) -> void:
 	line.text = info[1]
 	line.add_theme_font_size_override("font_size", UiTheme.SMALL)
 	line.add_theme_color_override("font_color", info[2])
+	# On a touch screen the first tap shows the card and the next one goes in (#186).
+	var hint := card.get_node("Box/Hint") as Label
+	hint.text = TAP_AGAIN
+	hint.visible = touch and armed == b and not b.disabled
 	card.visible = true
 	card.reset_size()
 	var r := Rect2(b.position, b.size)
@@ -732,6 +750,12 @@ func _card(board: Control) -> PanelContainer:
 	l.autowrap_mode = TextServer.AUTOWRAP_OFF
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(l)
+	var h := UiTheme.label("", UiTheme.SMALL, UiTheme.SAND)
+	h.name = "Hint"
+	h.autowrap_mode = TextServer.AUTOWRAP_OFF
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.visible = false
+	box.add_child(h)
 	board.add_child(card)
 	return card
 
@@ -786,9 +810,9 @@ func _fill_world() -> void:
 	var td := _zone_button(world_board, "Thunderdome", THUNDERDOME_ZONE)
 	td.disabled = not thunderdome_open()
 	var td_at := Vector2(THUNDERDOME_ZONE.position.x, THUNDERDOME_ZONE.position.y) * BOARD / 100.0
-	_place(td, "Thunderdome", "Locked" if td.disabled else "Every island mixed", UiTheme.DIM if td.disabled else UiTheme.PINK,
+	_place(td, "Thunderdome", "Locked" if td.disabled else "Questions from all over the Wasteland", UiTheme.DIM if td.disabled else UiTheme.PINK,
 		Callable() if td.disabled else (func(): _go_from_world(Dungeon.THUNDERDOME, td_at, go.bind(MapLink.THUNDERDOME_ROUTE))),
-		"Thunderdome: opens with a second island" if td.disabled else "")
+		"Thunderdome: opens once two places are open" if td.disabled else "")
 	_landmark_pin(td, Dungeon.THUNDERDOME, "Thunderdome", THUNDERDOME_PIN, world_state(Dungeon.THUNDERDOME))
 	var lib := _zone_button(world_board, "RelicLibrary", RELIC_LIBRARY_ZONE)
 	lib.disabled = true
@@ -800,9 +824,9 @@ func _fill_world() -> void:
 		marker.name = "Marker"
 		marker.size = shop.size
 		shop.add_child(marker)
-	_place(shop, "Bazaar", "%d Scrap" % scrap, UiTheme.SAND,
+	_place(shop, "Bazaar", "%d Scrap to spend" % scrap, UiTheme.SAND,
 		func(): _go_from_world(HOME, Vector2(BAZAAR_ZONE.position.x, BAZAAR_ZONE.position.y) * BOARD / 100.0, open_bazaar),
-		"Bazaar · %d Scrap" % scrap)
+		"Bazaar · %d Scrap to spend" % scrap)
 	_landmark_pin(shop, HOME, "Bazaar", BAZAAR_PIN, "open")
 	_card(world_board)
 	_first_focus.call_deferred(world_board.get_node("Island_functions") as Button)
@@ -1045,9 +1069,18 @@ func _spot(id: String, title: String, state: String, painted: bool = false) -> B
 		beacon.position = b.size / 2.0
 		b.add_child(beacon)
 	island_board.add_child(b)
+	# The place's name stays on the board, so nobody has to hover or tap to read it (#186).
+	var banner := _banner(title)
+	banner.gui_input.connect(_banner_input.bind(b))
+	banner.mouse_entered.connect(func(): show_card(b))
+	banner.mouse_exited.connect(func(): _let_go(b))
+	b.add_child(banner)
+	banner.reset_size()
+	var bx := clampf(b.position.x + (b.size.x - banner.size.x) / 2.0, 12.0, BOARD.x - banner.size.x - 12.0)
+	banner.position = Vector2(bx - b.position.x, b.size.y - banner.size.y * 0.6)
 	if relic:
 		b.disabled = true
-		_place(b, title, "Locked", UiTheme.DIM, Callable(), "Locked · lessons later")
+		_place(b, title, "Closed for now", UiTheme.DIM, Callable(), "Relic device: lessons coming")
 	else:
 		var to := {"screen": "region", "island": route.island, "region": id}
 		_place(b, title, spot_line(id, state), STATE_COLOR[state], func(): zoom_to(island_board, at, go.bind(to)))
@@ -1068,20 +1101,20 @@ static func _shrink_to(l: Label, width: float, least: int = UiTheme.SMALL) -> vo
 
 
 ## The line on a spot's card: "Coming soon", or how the player is doing there, and
-## " · SPARK's pick" on the pick.
+## " · Spark's pick" on the pick.
 func spot_line(id: String, state: String) -> String:
 	if state == "locked":
 		return "Coming soon"
-	var pick_tag := " · SPARK's pick" if id == pick.get("region") else ""
+	var pick_tag := " · Spark's pick" if id == pick.get("region") else ""
 	var acc := Progress.accuracy(save, id)
 	var best := Progress.best_floor(save, id)
 	if acc.seen == 0 and best == 0:
 		return "Not tried yet" + pick_tag
 	var bits: Array = []
 	if best > 0:
-		bits.append("Floor %d" % best)
+		bits.append("Mile %d" % best)
 	if acc.seen > 0:
-		bits.append("%d%%" % acc.percent)
+		bits.append("%d%% right" % acc.percent)
 	if state == "cleared":
 		bits.append("Cleared")
 	return " · ".join(bits) + pick_tag
@@ -1224,7 +1257,7 @@ func _fill_region() -> void:
 	back.name = "Back"
 	# The Thunderdome stands on the world map, not on an island.
 	var dome: bool = id == Dungeon.THUNDERDOME
-	back.text = "World map" if dome else "Island"
+	back.text = "◂ The Wasteland" if dome else "◂ " + String(island_info(route.island).name)
 	back.add_theme_font_size_override("font_size", UiTheme.SMALL)
 	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(func(): go(MapLink.WORLD if dome else {"screen": "island", "island": route.island}))
@@ -1249,22 +1282,14 @@ func _fill_region() -> void:
 		region_col.add_child(soon)
 		var course := Courses.info(Courses.of(save))
 		if can_start(id) and not course.is_empty():
-			region_col.add_child(UiTheme.label("%s has no questions built here yet. Another course may: pick it above." % course.short, UiTheme.BODY, UiTheme.DIM))
+			region_col.add_child(UiTheme.label("No %s questions here yet. Another course has some: pick it above." % course.short, UiTheme.BODY, UiTheme.DIM))
 		else:
-			region_col.add_child(UiTheme.label("This region's questions aren't built yet. It opens here as soon as they are.", UiTheme.BODY, UiTheme.DIM))
+			region_col.add_child(UiTheme.label("No questions here yet. This topic opens as soon as they're built.", UiTheme.BODY, UiTheme.DIM))
 
-	var exam := Button.new()
-	exam.name = "ExamOnly"
-	exam.toggle_mode = true
-	exam.set_pressed_no_signal(bool(save.settings.get("exam_only", false)))
-	exam.text = "Exam-style only: " + ("on" if exam.button_pressed else "off")
-	exam.add_theme_font_size_override("font_size", UiTheme.SMALL)
-	exam.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	exam.toggled.connect(func(on: bool):
+	region_col.add_child(ExamSwitch.make(bool(save.settings.get("exam_only", false)), func(on: bool):
 		save.settings.exam_only = on
 		SaveData.store(save, save_path)
-		_fill_region())
-	region_col.add_child(exam)
+		_fill_region()))
 
 	region_col.add_child(_stats_panel(id))
 	region_col.add_child(_weak_panel(id))
@@ -1276,7 +1301,7 @@ func _fill_region() -> void:
 		for f in Dungeon.start_floors(save, id):
 			var b := Button.new()
 			b.name = "Floor%d" % f
-			b.text = "Start floor 1" if f == 1 else "Start at floor %d · floor %d boss beaten" % [f, f - 1]
+			b.text = "Start a run at mile 1" if f == 1 else "Start at mile %d · mile %d boss beaten" % [f, f - 1]
 			b.add_theme_font_size_override("font_size", UiTheme.BIG)
 			b.custom_minimum_size.y = 120
 			b.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -1285,7 +1310,7 @@ func _fill_region() -> void:
 			buttons.add_child(b)
 		var p := Button.new()
 		p.name = "Practice"
-		p.text = "Practice"
+		p.text = "Practice · no timer, no damage"
 		p.add_theme_font_size_override("font_size", UiTheme.BIG)
 		p.custom_minimum_size.y = 120
 		p.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -1310,8 +1335,8 @@ func _stats_panel(id: String) -> Control:
 	var best := Progress.best_floor(save, id)
 	var rows := [
 		["Accuracy", "Accuracy: %d%% · %d of %d right" % [acc.percent, acc.right, acc.seen] if acc.seen > 0 else "Accuracy: no answers yet"],
-		["BestFloor", "Best floor: %d" % best if best > 0 else "Best floor: no runs yet"],
-		["Coverage", "Coverage: %d of %d checked" % [cov.checked, cov.total]],
+		["BestFloor", "Furthest mile: %d" % best if best > 0 else "Furthest mile: no runs yet"],
+		["Tried", "Different questions tried: %d of %d" % [cov.checked, cov.total]],
 	]
 	for r in rows:
 		var l := UiTheme.label(r[1], UiTheme.BIG, UiTheme.TEXT)
@@ -1324,12 +1349,12 @@ func _weak_panel(id: String) -> Control:
 	var col := VBoxContainer.new()
 	col.name = "Weakest"
 	col.add_theme_constant_override("separation", 10)
-	col.add_child(UiTheme.label("Weakest skills", UiTheme.BIG, UiTheme.PINK))
+	col.add_child(UiTheme.label("Skills to work on", UiTheme.BIG, UiTheme.PINK))
 	var weak := Progress.weakest_skills(save, id)
 	if weak.is_empty():
-		col.add_child(UiTheme.label("None yet: a skill shows here after %d answers." % Progress.MIN_ATTEMPTS, UiTheme.BODY, UiTheme.DIM))
+		col.add_child(UiTheme.label("None yet. A skill shows here once you've answered it %d times." % Progress.MIN_ATTEMPTS, UiTheme.BODY, UiTheme.DIM))
 	for w in weak:
-		var l := UiTheme.label("• %s · %d%% of %d" % [w.name, w.percent, w.seen], UiTheme.BODY)
+		var l := UiTheme.label("• %s · %d%% right of %d" % [w.name, w.percent, w.seen], UiTheme.BODY)
 		l.name = "Skill_" + String(w.id).replace(".", "_")
 		col.add_child(l)
 	return col

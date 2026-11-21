@@ -48,7 +48,7 @@ func test_a_wrong_answer_shows_its_worked_solution() -> void:
 	check_eq(f.run.state, "result")
 	check_eq(f.result.outcome, "wrong")
 	check(f.working.visible, "the worked solution shows")
-	check(f.feedback.text.begins_with("Missed"), f.feedback.text)
+	check(f.feedback.text.begins_with("Wrong answer."), f.feedback.text)
 	check(f.next_button.visible)
 	check_eq(int(f.player_bar.value), f.run.hp)
 	f.next_question()
@@ -305,7 +305,7 @@ func test_a_job_talks_about_the_job() -> void:
 		check(f.progress.text.contains("· stop 1 of %d ·" % Tuning.FIGHTS_PER_FLOOR), f.progress.text)
 		check(not f.progress.text.contains("fight"), f.progress.text)
 		check(not f.enemy_name.text.contains("·"), "no tier tag")
-		check_eq(f.check_button.text, pick.sheet.verb, "the button says the job")
+		check_eq(f.check_button.text, "Lock in", "one submit verb, a job or not")
 		check(f.enemy_bar.is_visible_in_tree(), "the bar stays")
 		f.autoplay(true)
 		check(f.feedback.text.begins_with(pick.sheet.hit), f.feedback.text)
@@ -316,7 +316,7 @@ func test_a_job_talks_about_the_job() -> void:
 			f.autoplay(true)
 		check(f.feedback.text.contains(pick.sheet.done), f.feedback.text)
 		check(not f.feedback.text.contains("falls"), f.feedback.text)
-		check_eq(f.next_button.text, "Walk on")
+		check_eq(f.next_button.text, "Next stop")
 		_done(made)
 
 
@@ -338,7 +338,7 @@ func test_the_label_follows_the_strip_through_a_run() -> void:
 			check_eq(f.enemy_name.text, f.strip.assets.sheets[e.prop].label, "fight %d" % f.run.fight)
 		else:
 			monsters += 1
-			check_eq(f.enemy_name.text, "%s · D%d" % [f.run.enemy.name, f.run.tier], "fight %d" % f.run.fight)
+			check_eq(f.enemy_name.text, f._enemy_title(), "fight %d" % f.run.fight)
 		f.autoplay(true)
 		await tree.process_frame
 		await tree.process_frame
@@ -365,16 +365,16 @@ func test_a_fight_reads_as_a_fight() -> void:
 	var pick := _seed_for(["fight"])
 	var made: Array = await _screen(_area(Vector2i(390, 844)), pick.seed)
 	var f: Control = made[1]
-	check_eq(f.check_button.text, "Attack")
-	check_eq(f.enemy_name.text, "%s · D%d" % [f.run.enemy.name, f.run.tier])
-	check(f.progress.text.contains("· fight 1 of %d ·" % Tuning.FIGHTS_PER_FLOOR), f.progress.text)
+	check_eq(f.check_button.text, "Lock in")
+	check_eq(f.enemy_name.text, f._enemy_title())
+	check(f.progress.text.contains("· stop 1 of %d ·" % Tuning.FIGHTS_PER_FLOOR), f.progress.text)
 	f.autoplay(true)
 	check(f.feedback.text.begins_with("Hit!"), f.feedback.text)
 	while f.run.state != "ended" and not f.result.get("defeated", false):
 		f.next_question()
 		f.autoplay(true)
 	check(f.feedback.text.contains("The %s falls." % f.run.enemy.name), f.feedback.text)
-	check_eq(f.next_button.text, "Next fight")
+	check_eq(f.next_button.text, "Next stop")
 	_done(made)
 
 
@@ -417,9 +417,9 @@ func test_no_strip_keeps_the_fight_labels() -> void:
 	save.profile = {"avatar": "robot"}
 	var off: Array = await _screen(_area(Vector2i(390, 844)), pick.seed, false, save)
 	var g: Control = off[1]
-	check_eq(g.check_button.text, "Attack")
-	check_eq(g.enemy_name.text, "%s · D%d" % [g.run.enemy.name, g.run.tier])
-	check(g.progress.text.contains("· fight 1 of %d ·" % Tuning.FIGHTS_PER_FLOOR), g.progress.text)
+	check_eq(g.check_button.text, "Lock in")
+	check_eq(g.enemy_name.text, g._enemy_title())
+	check(g.progress.text.contains("· stop 1 of %d ·" % Tuning.FIGHTS_PER_FLOOR), g.progress.text)
 	var f: Control = on[1]
 	check_eq(f.run.question.view, g.run.question.view, "the same question")
 	f.autoplay(true)
@@ -604,7 +604,7 @@ func test_the_floor_select_offers_beaten_floors() -> void:
 	var floors: Node = f.floor_box.get_node("Floors")
 	check(floors.get_node_or_null("Floor1") is Button, "floor 1")
 	check(floors.get_node_or_null("Floor2") == null, "floor 2 is locked")
-	check(floors.get_node("Locked").text.contains("Floor 2 · beat the floor 1 boss"), floors.get_node("Locked").text)
+	check(floors.get_node("Locked").text.contains("Mile 2 · beat the mile 1 boss"), floors.get_node("Locked").text)
 	_done(made)
 	Dungeon.note_floor(save, "quadratics", 1, true)
 	Dungeon.note_floor(save, "quadratics", 2, true)
@@ -615,12 +615,12 @@ func test_the_floor_select_offers_beaten_floors() -> void:
 	for n in [1, 2, 3]:
 		check(floors.get_node_or_null("Floor%d" % n) is Button, "floor %d is open" % n)
 	check(floors.get_node_or_null("Floor4") == null, "floor 3's boss isn't beaten")
-	check(floors.get_node("Locked").text.contains("Floor 4 · beat the floor 3 boss"), floors.get_node("Locked").text)
+	check(floors.get_node("Locked").text.contains("Mile 4 · beat the mile 3 boss"), floors.get_node("Locked").text)
 	(floors.get_node("Floor3") as Button).pressed.emit()
 	await tree.process_frame
 	check(f.run != null and f.run.start_floor == 3, "the run starts on floor 3")
 	check(not f.floor_box.visible and f.scroll.visible)
-	check(f.title.text.contains("Floor 3"), f.title.text)
+	check(f.title.text.contains("Mile 3"), f.title.text)
 	_done(made)
 
 
@@ -646,7 +646,7 @@ func test_a_boss_part_shows_the_value_carried_on() -> void:
 	var carried: Node = f.card.get_node_or_null("Carried")
 	check(carried != null, "part (b) shows the carried value")
 	check(carried.get_child(0).text.contains(a.answer_text), carried.get_child(0).text)
-	check(f.card.get_node("PartsDone").get_child(0).text.begins_with("(a) missed"), "part (a) is marked")
+	check(f.card.get_node("PartsDone").get_child(0).text.begins_with("(a) wrong"), "part (a) is marked")
 	check(f.progress.text.contains("part (b)"), f.progress.text)
 	check_eq(f.enemy_hp.text, "%d/%d" % [f.run.boss.parts.size() - 1, f.run.boss.parts.size()], "parts left")
 	check(not f.run.records, "a jumped run records nothing")
@@ -791,7 +791,7 @@ func test_an_island_with_no_scenery_keeps_the_enemy_on_the_screen() -> void:
 	check(not f.strip.visible, "no strip")
 	check(f.enemy_art.is_visible_in_tree() and f.enemy_art.texture != null, "the portrait stands in")
 	check(f.backdrop.visible, "the island's close-up behind it")
-	check(f.job.is_empty() and f.check_button.text == "Attack", "a fight's words")
+	check(f.job.is_empty() and f.check_button.text == "Lock in", "a fight's words")
 	_done(made)
 
 

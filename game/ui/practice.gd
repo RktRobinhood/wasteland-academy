@@ -53,7 +53,10 @@ var margin: MarginContainer
 var hud_gap: Control
 var head: HBoxContainer
 var title_label: Label
+## "Exam questions only" (ExamSwitch); exam_toggle.toggled(on) is the setting's new value.
 var exam_toggle: Button
+var exam_switch: Control
+var _exam_row: Control
 var progress: Label
 var scroll: ScrollContainer
 var card: VBoxContainer
@@ -74,7 +77,7 @@ func _ready() -> void:
 	_build()
 	save = SaveData.load_from(save_path)
 	exam_toggle.set_pressed_no_signal(save.settings.exam_only)
-	exam_toggle.text = "Exam-style only: " + ("on" if save.settings.exam_only else "off")
+	_show_exam_switch()
 	resized.connect(_fit)
 	_fit()
 	var deep := deep_link()
@@ -115,19 +118,20 @@ func _build() -> void:
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(spacer)
-	exam_toggle = Button.new()
-	exam_toggle.name = "ExamOnly"
-	exam_toggle.toggle_mode = true
-	exam_toggle.text = "Exam-style only: off"
-	exam_toggle.add_theme_font_size_override("font_size", UiTheme.SMALL)
-	exam_toggle.toggled.connect(_on_exam_toggled)
-	head.add_child(exam_toggle)
+	exam_switch = _make_exam_switch()
+	if exam_switch is ExamSwitch:
+		# Two buttons and a line of help: too wide for the header on a phone.
+		_exam_row = exam_switch
+	else:
+		head.add_child(exam_switch)
 	# Keeps the toggle clear of the speaker and gear in the top-right corner.
 	hud_gap = Control.new()
 	hud_gap.name = "HudGap"
 	hud_gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_child(hud_gap)
 	col.add_child(head)
+	if _exam_row != null:
+		col.add_child(_exam_row)
 	var row := HBoxContainer.new()
 	row.name = "ProgressRow"
 	row.add_theme_constant_override("separation", 20)
@@ -137,7 +141,7 @@ func _build() -> void:
 	row.add_child(progress)
 	var map := Button.new()
 	map.name = "Map"
-	map.text = "Map"
+	map.text = "◂ " + (Dungeon.region_name(practice_region) if practice_region != "" else "The Wasteland")
 	map.add_theme_font_size_override("font_size", UiTheme.SMALL)
 	map.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	map.pressed.connect(func():
@@ -189,6 +193,21 @@ func show_view(view: Dictionary) -> void:
 
 
 ## The question's words on the card.
+## The question's kind in plain words, for its header (glossary, "Questions: kind, level
+## and mile"): "Exam question", or "Training" with what sort: a concept check, a warm-up
+## (level 0 prior learning) or a link question.
+static func kind_text(q: Dictionary) -> String:
+	if q.get("exam", false):
+		return "Exam question"
+	if q.get("format") == "probe":
+		return "Training · concept check"
+	if Dungeon.is_link(String(q.get("view", {}).get("type", ""))):
+		return "Training · link question"
+	if int(q.get("level", 1)) == 0:
+		return "Training · warm-up"
+	return "Training"
+
+
 func prompt_text() -> String:
 	return QuestionEngine.shown_prompt(question)
 
@@ -202,11 +221,7 @@ func render_question() -> void:
 		_add_next()
 		return
 
-	var meta := "%s · level %d" % [question.type_name, question.level]
-	if question.get("exam", false):
-		meta += " · exam style"
-	if question.format == "probe":
-		meta += " · concept"
+	var meta := "%s · %s · level %d of 5" % [question.type_name, kind_text(question), question.level]
 	var meta_row := HBoxContainer.new()
 	meta_row.name = "MetaRow"
 	meta_row.add_theme_constant_override("separation", 16)
@@ -237,7 +252,7 @@ func render_question() -> void:
 			_add_options(question.choices.map(func(c): return c.text))
 	check_button = Button.new()
 	check_button.name = "Check"
-	check_button.text = "Check"
+	check_button.text = "Lock in"
 	check_button.add_theme_font_size_override("font_size", UiTheme.BIG)
 	check_button.pressed.connect(check_answer)
 	card.add_child(check_button)
@@ -674,7 +689,7 @@ func _show_steps(box: VBoxContainer, i: int) -> void:
 	if Explainer.can_play(sol):
 		var watch := Button.new()
 		watch.name = "WatchIt"
-		watch.text = "Watch it"
+		watch.text = "Watch the explainer"
 		watch.add_theme_font_size_override("font_size", UiTheme.SMALL)
 		watch.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		watch.pressed.connect(watch_it.bind(i))
@@ -703,12 +718,25 @@ func _update_progress() -> void:
 			if r.get("last_result") == "right":
 				right += 1
 	progress.text = ("%s · " % Dungeon.region_name(practice_region) if practice_region != "" else "") + \
-		"%d of %d checked · %d right last time" % [seen, pool.size(), right]
+		"Different questions tried: %d of %d · right last time: %d" % [seen, pool.size(), right]
+
+
+## The exam switch for the header. The question explorer (a developer tool) swaps in its
+## own plain toggle.
+func _make_exam_switch() -> Control:
+	var s := ExamSwitch.make(false, _on_exam_toggled)
+	exam_toggle = s.only
+	return s
+
+
+## Puts the switch on the save's setting.
+func _show_exam_switch() -> void:
+	if exam_switch is ExamSwitch:
+		(exam_switch as ExamSwitch).show_value(save.settings.exam_only)
 
 
 func _on_exam_toggled(on: bool) -> void:
 	save.settings.exam_only = on
-	exam_toggle.text = "Exam-style only: " + ("on" if on else "off")
 	SaveData.store(save, save_path)
 	_update_progress()
 
@@ -784,8 +812,8 @@ func show_paper() -> void:
 	if paper == 2:
 		var b := Button.new()
 		b.name = "CalculatorButton"
-		b.text = "Calculator"
-		b.tooltip_text = "Paper 2: open the calculator. The clock keeps running."
+		b.text = "Paper 2 · Calculator"
+		b.tooltip_text = "Paper 2: open the calculator. The timer keeps running."
 		b.add_theme_font_override("font", UiTheme.TITLE_FONT)
 		b.add_theme_font_size_override("font_size", UiTheme.SMALL + 4)
 		var sb := UiTheme.panel(Color(UiTheme.TEAL, 0.18))
@@ -802,12 +830,23 @@ func show_paper() -> void:
 		b.pressed.connect(open_calculator)
 		slot.add_child(b)
 	elif paper == 1:
-		var l := UiTheme.label("No calculator", UiTheme.SMALL, UiTheme.DIM)
-		l.name = "NoCalculator"
+		var l := UiTheme.label("Paper 1 · No calculator", UiTheme.SMALL + 4, UiTheme.SAND)
+		l.name = "Text"
 		l.autowrap_mode = TextServer.AUTOWRAP_OFF
 		l.add_theme_font_override("font", UiTheme.TITLE_FONT)
-		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		slot.add_child(l)
+		var nb := UiTheme.panel(Color(UiTheme.SAND, 0.12))
+		nb.border_color = UiTheme.SAND
+		nb.set_border_width_all(3)
+		nb.content_margin_top = 10
+		nb.content_margin_bottom = 10
+		nb.content_margin_left = 18
+		nb.content_margin_right = 18
+		var plate := PanelContainer.new()
+		plate.name = "NoCalculator"
+		plate.add_theme_stylebox_override("panel", nb)
+		plate.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		plate.add_child(l)
+		slot.add_child(plate)
 
 
 ## Opens the calculator over the screen, in `mode` ("sci" or "graph"; as it was if

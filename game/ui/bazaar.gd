@@ -178,7 +178,7 @@ func _build() -> void:
 	head.add_child(spacer)
 	var back := Button.new()
 	back.name = "Back"
-	back.text = "World map"
+	back.text = "◂ The Wasteland"
 	back.add_theme_font_size_override("font_size", UiTheme.SMALL)
 	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(leave)
@@ -434,7 +434,7 @@ func _perks() -> Control:
 	var v: VBoxContainer = made[1]
 	var perk: Dictionary = Bazaar.record(save).perk
 	var slot := UiTheme.label(("Ready for your next run: " + Bazaar.perk_name(perk)) if not perk.is_empty()
-			else "Your slot is empty.", UiTheme.BODY, UiTheme.TEAL if not perk.is_empty() else UiTheme.DIM)
+			else "No perk bought for your next run.", UiTheme.BODY, UiTheme.TEAL if not perk.is_empty() else UiTheme.DIM)
 	slot.name = "Slot"
 	v.add_child(slot)
 	for id in Bazaar.PERKS:

@@ -261,7 +261,7 @@ func test_the_floor_cleared_banner_and_medal() -> void:
 		guard += 1
 	check(f.result.get("floor_cleared", false), "floor 1 cleared")
 	var banner: Control = f.card.get_node_or_null("Banner")
-	check(banner != null and (banner.get_node("Text") as Label).text == "Floor 1 cleared", "the floor-cleared banner")
+	check(banner != null and (banner.get_node("Text") as Label).text == "Mile 1 cleared", "the floor-cleared banner")
 	_done(made)
 	# A save whose best floor is 1 shows floor 1's medal on the floor select.
 	var save := SaveData.blank()
