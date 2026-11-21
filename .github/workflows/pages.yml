@@ -1,5 +1,14 @@
-# Publishes the site to GitHub Pages on every push to main: the repo as it is, plus
-# the Godot web export at next/. Pull requests build the site but don't deploy it.
+# Publishes the site to GitHub Pages. Pull requests build the site but don't deploy it.
+#
+# The student address is pinned (#184). GitHub Pages serves one site per repository, so
+# the root is the release the repository variable STUDENT_RELEASE names (a v* tag that
+# release.yml gated and built, its site kept as a release asset), and main is the
+# preview, under /preview/. A push to main refreshes /preview/ and leaves the root's
+# release as it was. With STUDENT_RELEASE unset, nothing is pinned yet and the root is
+# main, as before (README, "Releases"). Both builds are tied to an id: the tag, or
+# main-<commit>, shown on the title screen.
+#
+# The site below is the repo as it is, plus the Godot web export.
 #
 # The takeover switch is the GODOT_AT_ROOT line below (README, "Switching to Godot").
 # Off, the site is as above. On, Godot is at the root, the HTML game isn't published,
@@ -24,6 +33,8 @@ permissions:
 env:
   # The takeover switch: the repository variable GODOT_AT_ROOT, on or off. Unset is off.
   GODOT_AT_ROOT: ${{ vars.GODOT_AT_ROOT || 'off' }}
+  # The release at the root, or nothing for main at the root.
+  STUDENT_RELEASE: ${{ vars.STUDENT_RELEASE }}
 
 concurrency:
   group: pages-${{ github.ref }}
@@ -41,13 +52,34 @@ jobs:
           source: ./
           destination: ./_site
       - run: scripts/ci-install-godot.sh
-      - run: ./export.sh "$RUNNER_TEMP/next"
+      - name: Export main as build main-${{ github.sha }}
+        run: |
+          export WA_BUILD_ID="main-${GITHUB_SHA::7}"
+          ./export.sh "$RUNNER_TEMP/next"
       - name: Lay out the site with the takeover switch ${{ env.GODOT_AT_ROOT }}
         run: |
+          export WA_BUILD_ID="main-${GITHUB_SHA::7}"
           sudo chown -R "$(id -u):$(id -g)" _site
           scripts/assemble-site.sh _site "$RUNNER_TEMP/next" "$GODOT_AT_ROOT"
           scripts/check-site.sh _site
           ls -l _site _site/next
+      # The pinned release goes to the root and the site just built to /preview/. Not for
+      # a pull request, which only checks that the site builds.
+      - name: Pin the root to release ${{ env.STUDENT_RELEASE }}
+        if: github.event_name != 'pull_request' && env.STUDENT_RELEASE != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir "$RUNNER_TEMP/release"
+          gh release download "$STUDENT_RELEASE" -R "$GITHUB_REPOSITORY" -p 'site-*.tar.gz' -D "$RUNNER_TEMP/release"
+          mkdir _pinned
+          tar -xzf "$RUNNER_TEMP"/release/site-*.tar.gz -C _pinned
+          [ -f _pinned/index.html ] || { echo "release $STUDENT_RELEASE has no site" >&2; exit 1; }
+          mv _site _pinned/preview
+          rm -rf _site
+          mv _pinned _site
+          scripts/check-site.sh _site
+          ls -l _site
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site

@@ -54,7 +54,9 @@ on)
 	find "$site" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 	cp -r "$export_dir/." "$site/"
 	if [ -e "$site/service-worker.js" ]; then echo "the Godot export has a service-worker.js" >&2; exit 1; fi
-	cp "$takeover/service-worker.js" "$site/service-worker.js"
+	# The build id names the worker's cache, and changes the file, so the browser updates it (#184)
+	sed "s/__BUILD_ID__/$("$(dirname "$0")/build-id.sh")/" "$takeover/service-worker.js" > "$site/service-worker.js"
+	grep -q "const BUILD_ID = '" "$site/service-worker.js" || { echo "no BUILD_ID in the worker" >&2; exit 1; }
 	mkdir "$site/next"
 	cp "$takeover/next.html" "$site/next/index.html"
 	# The page registers the root worker, so it plays offline after one visit

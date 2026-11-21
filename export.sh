@@ -42,6 +42,12 @@ else
 	fi
 fi
 
+# The build id goes into the pack (game/engine/build.gd, #184) and is put back after
+BUILD_ID_FILE="$GAME/data/build_id.json"
+cp "$BUILD_ID_FILE" "$BUILD_ID_FILE.orig"
+trap 'mv -f "$BUILD_ID_FILE.orig" "$BUILD_ID_FILE"' EXIT
+printf '{"id": "%s"}\n' "$("$ROOT/scripts/build-id.sh")" > "$BUILD_ID_FILE"
+
 echo "== import =="
 import_project
 

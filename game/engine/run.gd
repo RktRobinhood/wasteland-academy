@@ -107,6 +107,9 @@ var missed: Array = []
 var answers: Array = []
 var summary: Dictionary = {}
 
+## Scrap already added to save.scrap during the run (see _bank), so a reload or crash
+## keeps what was earned and _end pays only the rest (#184).
+var _banked := 0
 var _followup: Dictionary = {}
 ## The prior-learning type to serve next, after a miss on a step that needs it.
 var _prior := ""
@@ -362,6 +365,7 @@ func _resolve(outcome: String, m: Dictionary) -> Dictionary:
 	enemy.hp = maxi(0, int(enemy.hp) - fx.enemy_damage)
 	hp = maxi(0, hp - fx.player_damage)
 	stats.scrap += fx.scrap + bonus
+	_bank()
 	stats.questions += 1
 	stats[outcome] += 1
 	var right := outcome in ["right", "late", "glancing"]
@@ -534,11 +538,19 @@ func use_freeze() -> float:
 	return frozen_left
 
 
+## Pays the Scrap earned so far into the save, once. fight.gd stores the save after each
+## answer, so a reload or crash mid-run loses no Scrap, and the floors a boss opened are
+## already in it (Dungeon.note_floor) (#184).
+func _bank() -> void:
+	save.scrap = int(save.get("scrap", 0)) + int(stats.scrap) - _banked
+	_banked = int(stats.scrap)
+
+
 # ── The end ──────────────────────────────────────────────────
 
 func _end(reason: String) -> void:
 	state = "ended"
-	save.scrap = int(save.get("scrap", 0)) + int(stats.scrap)
+	_bank()
 	var totals: Dictionary = save.get("runs", {})
 	totals.played = int(totals.get("played", 0)) + 1
 	totals.best_fights = maxi(int(totals.get("best_fights", 0)), int(stats.fights_won))

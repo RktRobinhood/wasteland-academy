@@ -59,6 +59,7 @@ func _ready() -> void:
 	if engine != null:
 		engine.pressed.connect(open_explorer)
 	add_credits_link()
+	add_build_label()
 	MapLink.listen(get_tree())
 	if _routed:
 		return
@@ -115,6 +116,22 @@ func open_explorer() -> void:
 
 func open_bazaar() -> void:
 	get_tree().change_scene_to_file(BAZAAR)
+
+
+## The build id (Build.id), small, in the bottom right corner, so a class can check
+## everyone is on the same build (#184).
+func add_build_label() -> Label:
+	var label := Label.new()
+	label.name = "BuildId"
+	label.text = "Build %s" % Build.id()
+	label.add_theme_font_size_override("font_size", UiTheme.BODY)
+	label.add_theme_color_override("font_color", UiTheme.DIM)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(label)
+	label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 48)
+	label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	return label
 
 
 ## The small "Credits" link, in the bottom left corner: third-party code, fonts and sound

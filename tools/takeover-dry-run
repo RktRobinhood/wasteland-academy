@@ -16,6 +16,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 site="${1:-}"
 export_dir="${2:-$ROOT/build/next}"
 work="$ROOT/_scratch/takeover"
+# The build id the sites are laid out with, and the tests look for in the worker (#184)
+export WA_BUILD_ID=dry-run
 
 rm -rf "$work"
 mkdir -p "$work/off"

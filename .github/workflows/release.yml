@@ -1,7 +1,9 @@
 # The release gate (#192): a release tag counts as green only when every job of
 # test.yml and every shard of the stress sweep (stress.yml) passed on that commit.
-# This workflow publishes nothing. The pinned student release (#184) adds its deploy
-# as a job that needs `green`.
+# After the gate, `publish` builds the site of the tag (its build id is the tag) and keeps
+# it as an asset of a GitHub release, marked a prerelease. That reaches no student:
+# pages.yml serves it at the root only once the repository variable STUDENT_RELEASE names
+# the tag, and that is the owner's decision (#184, README "Releases").
 name: release
 
 on:
@@ -34,3 +36,38 @@ jobs:
     steps:
       - run: test "${{ needs.test.result }}" = success
       - run: test "${{ needs.stress.result }}" = success
+
+  # The site of this tag, built as pages.yml builds main but with the tag as its build id,
+  # kept as a release asset for pages.yml to put at the root. Only after the gate is green.
+  publish:
+    needs: green
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - run: scripts/ci-install-godot.sh
+      - name: Export and lay out the site as ${{ github.ref_name }}
+        env:
+          WA_BUILD_ID: ${{ github.ref_name }}
+          GODOT_AT_ROOT: ${{ vars.GODOT_AT_ROOT || 'off' }}
+        run: |
+          ./export.sh "$RUNNER_TEMP/next"
+          sudo chown -R "$(id -u):$(id -g)" _site
+          scripts/assemble-site.sh _site "$RUNNER_TEMP/next" "$GODOT_AT_ROOT"
+          scripts/check-site.sh _site
+          tar -czf "$RUNNER_TEMP/site-$WA_BUILD_ID.tar.gz" -C _site .
+      - name: Keep the site as a prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" "$RUNNER_TEMP/site-$TAG.tar.gz" -R "$GITHUB_REPOSITORY" --prerelease \
+            --verify-tag --title "Build $TAG" \
+            --notes "Build id: $TAG (shown on the title screen). Passed the full test run and the stress sweep. Not the class release: students get it only once STUDENT_RELEASE names this tag."

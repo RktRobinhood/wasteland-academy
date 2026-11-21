@@ -76,6 +76,17 @@ To move or back up progress, open Settings (the gear) and choose "Export or impo
 
 The save is one versioned document (`game/engine/save_data.gd`, with migrations) keyed by permanent ids. Writes go to `save.json.tmp` and are renamed over `save.json`, which keeps the previous good save as `save.json.bak`. A save that can't be read is moved to `save.unreadable-<time>.json`, never overwritten, and the `.bak` is used if there is one.
 
+## Releases
+
+*For the site's maintainers (#184).* A merge to `main` must not change what a class is using, so the student address is pinned to a release and `main` has its own preview address. GitHub Pages serves one site per repository, so both are on it: the **release at the root** and **`main` under `/preview/`**.
+
+- **Cut a release:** push a tag, `git tag v1.0.0 && git push origin v1.0.0`. `.github/workflows/release.yml` runs the whole `test` run and the stress sweep on it, and only if both are green builds the site of that tag and keeps it as a prerelease on GitHub, with the build id in its notes. A tag that fails the gate publishes nothing. Cutting tags is free: they reach nobody.
+- **Pin it for students:** `gh variable set STUDENT_RELEASE --body v1.0.0 -R RktRobinhood/wasteland-academy`, then `gh workflow run pages.yml --ref main -R RktRobinhood/wasteland-academy`. This is the step that makes a release the one students are told to use, so it is the owner's decision (#204). Change the variable and run `pages` again to move to another release, or back to an earlier one.
+- **Until a release is pinned** (`STUDENT_RELEASE` unset) the root is `main`, as before, and every merge reaches it. Once it is set, a push to `main` refreshes `/preview/` and leaves the root alone.
+- **The build id** is the tag (`v1.0.0`), or `main-<commit>` on the preview, or `dev` in the editor. It is on the title screen, bottom right, in the release's notes and in the service worker's cache name (`scripts/build-id.sh`, `game/engine/build.gd`). A student can read it out to check a class is on one build.
+- **The service worker** (`_takeover/service-worker.js`) is cache first: a page loads from its build's own cache and never waits on the network, so slow Wi-Fi doesn't stall it and a reload is not a download. The browser checks for a new worker in the background. A new build downloads into its own cache and waits until no page is open on the old one, so a lesson stays on one build.
+- **A run is saved as it goes:** Scrap is banked with each answer and the save is written after each one (`Run._bank`), and a floor is recorded when it opens, so a reload or crash keeps what was earned and the floors reached.
+
 ## Switching to Godot
 
 This switch is for the site's maintainers.

@@ -98,6 +98,10 @@ async function cachedUrls(page) {
   });
 }
 
+// The worker's cache is named for the build (scripts/build-id.sh); tools/takeover-dry-run sets it
+const BUILD_ID = process.env.WA_BUILD_ID;
+const CACHE = 'wasteland-academy-godot-' + BUILD_ID;
+
 // The root worker controls the page and has copied the whole export
 async function godotCached(page, site) {
   await waitForWorker(page);
@@ -105,7 +109,7 @@ async function godotCached(page, site) {
   // less audio.pck, which waits until sound is on (#183)
   const root = path.join(SITES, 'on');
   const exported = fs.readdirSync(root).filter(f => !['service-worker.js', 'audio.pck'].includes(f) && fs.statSync(path.join(root, f)).isFile());
-  await expect.poll(async () => (await cachedUrls(page))['wasteland-academy-godot'] || [], { timeout: 60_000 })
+  await expect.poll(async () => (await cachedUrls(page))[CACHE] || [], { timeout: 60_000 })
     .toEqual(exported.map(f => site.url + f).sort());
 }
 
@@ -248,7 +252,7 @@ test.describe('switch on: Godot at the root, the HTML game not published', () =>
     // no old game file is left in any cache, only Godot's
     await expect.poll(async () => {
       try { return Object.keys(await cachedUrls(page)); } catch { return 'navigating'; }
-    }, { timeout: 60_000 }).toEqual(['wasteland-academy-godot']);
+    }, { timeout: 60_000 }).toEqual([CACHE]);
     await godotBoots(page);
     expect(new URL(page.url()).pathname).toBe(BASE);
     await godotCached(page, site);
@@ -287,7 +291,7 @@ test.describe('switch on: Godot at the root, the HTML game not published', () =>
     await godotBoots(page);
     await waitForWorker(page);
     await expect.poll(() => workerScopes(page, site)).toEqual(['']);
-    await expect.poll(async () => Object.keys(await cachedUrls(page))).toEqual(['wasteland-academy-godot']);
+    await expect.poll(async () => Object.keys(await cachedUrls(page))).toEqual([CACHE]);
     expect((await page.request.get(site.url + 'classic/')).status()).toBe(404);
   });
 
@@ -319,29 +323,44 @@ test.describe('switch on: Godot at the root, the HTML game not published', () =>
     errors.expectNone();
   });
 
-  test('a new deploy reaches a player who has the build cached, online and then offline', async ({ page, context }) => {
+  test('a new build waits for the lesson to end, and reaches the player after, offline too', async ({ page, context }) => {
     await page.goto(site.url);
     await godotBoots(page);
     await godotCached(page, site);
     const build = () => page.locator('meta[name="wa-build"]').getAttribute('content').catch(() => null);
     expect(await build()).toBe(null);
 
-    // The next deploy: a new index.html and index.js, with max-age=600 on everything as before
+    // The next deploy: a new index.html, index.js and worker (a new build id)
     site.state.edit = (rel, data) => {
       if (rel === 'index.html') return data.toString().replace('<head>', '<head>\n<meta name="wa-build" content="2">');
       if (rel === 'index.js') return data.toString() + '\nwindow.waBuildJs = 2;\n';
+      if (rel === 'service-worker.js') return data.toString().replace(`const BUILD_ID = '${BUILD_ID}'`, "const BUILD_ID = 'next'");
       return data;
     };
+    // The page loads from its cache and doesn't wait on the network, so it is still build 1
+    await page.reload();
+    await godotBoots(page);
+    expect(await build()).toBe(null);
+    // The browser updates the worker in the background; it fills its own cache and waits
+    await expect.poll(async () => {
+      const reg = await page.evaluate(async () => {
+        const r = await navigator.serviceWorker.getRegistration();
+        await r?.update();
+        return !!r?.waiting;
+      });
+      return reg && Object.keys(await cachedUrls(page)).sort();
+    }, { timeout: 60_000 }).toEqual([CACHE, 'wasteland-academy-godot-next'].sort());
+    await page.reload();
+    await godotBoots(page);
+    expect(await build()).toBe(null);
+
+    // The lesson ends: the new build takes over, with the old cache dropped
+    await page.evaluate(async () => (await navigator.serviceWorker.getRegistration()).waiting.postMessage('skip-waiting'));
+    await expect.poll(async () => Object.keys(await cachedUrls(page)), { timeout: 60_000 }).toEqual(['wasteland-academy-godot-next']);
     await page.reload();
     await godotBoots(page);
     expect(await build()).toBe('2');
     expect(await page.evaluate(() => window.waBuildJs)).toBe(2);
-
-    // The cache has the new deploy, so offline gets it too
-    await expect.poll(() => page.evaluate(async () => [
-      (await (await caches.match('index.html'))?.text())?.includes('wa-build'),
-      (await (await caches.match('index.js'))?.text())?.includes('waBuildJs'),
-    ])).toEqual([true, true]);
     await context.setOffline(true);
     await page.reload();
     await godotBoots(page);
