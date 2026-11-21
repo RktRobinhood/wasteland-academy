@@ -29,7 +29,7 @@ const DIR := "res://assets/audio/music/"
 const CUES := {
 	"overworld": {
 		"seed": 37202, "alternate": 37203,
-		"name": "Overworld", "bpm": 72, "seconds": 106.666667,
+		"name": "The Wasteland", "bpm": 72, "seconds": 106.666667,
 	},
 	"scrap-fields": {
 		"seed": 37201, "alternate": 37202,

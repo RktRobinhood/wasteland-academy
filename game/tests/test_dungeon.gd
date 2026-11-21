@@ -466,7 +466,7 @@ func test_the_all_regions_dungeon_mixes_every_built_region() -> void:
 	check(run.stats.bosses == 1, "it has a boss")
 	for e in run.answers:
 		check(all.has(_cell(e.cell).type), e.cell)
-	check_eq(Dungeon.region_name(Dungeon.ALL), "All regions")
+	check_eq(Dungeon.region_name(Dungeon.ALL), "All topics")
 
 
 ## Each island's all-regions dungeon mixes its own regions' types, and the Thunderdome
@@ -482,7 +482,7 @@ func test_each_island_and_the_thunderdome_mix_their_own_types() -> void:
 		var got := Dungeon.region_types(Dungeon.all_of(island))
 		check_eq(got.size(), want.size(), island + ": every type of its regions, once")
 		check(got.all(func(id): return want.has(id)), island + ": only its own regions' types")
-		check_eq(Dungeon.region_name(Dungeon.all_of(island)), "All regions")
+		check_eq(Dungeon.region_name(Dungeon.all_of(island)), "All topics")
 		every.merge(want)
 	var dome := Dungeon.region_types(Dungeon.THUNDERDOME)
 	check_eq(dome.size(), every.size(), "the Thunderdome: every island's types")

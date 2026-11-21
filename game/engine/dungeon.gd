@@ -21,7 +21,7 @@ extends RefCounted
 ## The Functions island's all-regions dungeon. Saves and links name it, so it keeps its id;
 ## another island's is "all-<island>" (all_of()), and its link is #<island>/all all the same.
 const ALL := "all"
-const ALL_NAME := "All regions"
+const ALL_NAME := "All topics"
 ## The Thunderdome (FAL-925): every built type of every island, mixed.
 const THUNDERDOME := "thunderdome"
 const THUNDERDOME_NAME := "Thunderdome"

@@ -1,6 +1,6 @@
 extends Control
 ## The title screen. "Play" opens the map (ui/map.gd), "Practice" opens the practice
-## screen and "Engine" the engine explorer. On the first load only, ?explore (see
+## screen and, on a teacher link (?teacher), "Question explorer" the question explorer. On the first load only, ?explore (see
 ## explorer.gd) goes to the explorer, ?study to the study screen (study.gd), a deep link
 ## to the Bazaar (see bazaar.gd), a run (see fight.gd) or a question (see practice.gd)
 ## goes straight there, and a map link
@@ -58,6 +58,9 @@ func _ready() -> void:
 	var engine := get_node_or_null("Center/Column/Engine") as Button
 	if engine != null:
 		engine.pressed.connect(open_explorer)
+		# The question explorer is a teacher's tool: a student never sees it (#186).
+		# A teacher's link adds ?teacher.
+		engine.visible = preload("res://ui/practice.gd").url_args().has("teacher")
 	add_credits_link()
 	add_build_label()
 	MapLink.listen(get_tree())

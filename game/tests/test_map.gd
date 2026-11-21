@@ -33,8 +33,10 @@ func _area(window: Vector2i) -> Vector2:
 
 func _map(route: Dictionary, save: Dictionary = {}, area := Vector2(1080, 1920), art_dir := "") -> Array:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
-	if not save.is_empty():
-		SaveData.store(save, SAVE)
+	# A student who has picked their course: a blank save is asked first (test_first_run.gd).
+	save = save if not save.is_empty() else SaveData.blank()
+	save.intro = {"course": true, "cards": true}
+	SaveData.store(save, SAVE)
 	MapLink.current = route
 	var frame := Control.new()
 	frame.size = area
@@ -355,13 +357,13 @@ func test_the_world_map() -> void:
 		check_eq(_card_of(m, b), names[id], id)
 	var td := board.get_node("Thunderdome") as Button
 	check(not td.disabled, "the Thunderdome is open with every island")
-	check_eq(_card_of(m, td), "Thunderdome · Every island mixed")
+	check_eq(_card_of(m, td), "Thunderdome · Questions from all over the Wasteland")
 	var lib := board.get_node("RelicLibrary") as Button
 	check(lib.disabled, "the Relic Library spot is locked")
-	check_eq(_card_of(m, lib), "Relic Library · Opens after the maths engine")
+	check_eq(_card_of(m, lib), "Relic Library · Closed for now: lessons coming")
 	var shop := board.get_node("Bazaar") as Button
 	check(not shop.disabled, "the Bazaar is open")
-	check_eq(_card_of(m, shop), "Bazaar · 0 Scrap")
+	check_eq(_card_of(m, shop), "Bazaar · 0 Scrap to spend")
 	check(shop.get_node_or_null("Marker") == null, "the painting has the Bazaar (FAL-791): no coded marker")
 	check(m.world.get_node_or_null("Footer") == null, "no bar under the board")
 	check_eq((m.world.get_node("Header").get_child(0).get_node("Scrap") as Label).text, "Scrap: 0", "the Scrap in the header")
@@ -375,8 +377,8 @@ func test_the_world_map_opens_the_bazaar_and_leaving_it_goes_back() -> void:
 	var made: Array = await _map({"screen": "world"}, save)
 	var m: Control = made[1]
 	var shop := m.world_board.get_node("Bazaar") as Button
-	check_eq(_card_of(m, shop), "Bazaar · 1240 Scrap", "the Scrap to spend")
-	check_eq(shop.tooltip_text, "Bazaar · 1240 Scrap")
+	check_eq(_card_of(m, shop), "Bazaar · 1240 Scrap to spend", "the Scrap to spend")
+	check_eq(shop.tooltip_text, "Bazaar · 1240 Scrap to spend")
 	check_eq((m.world.get_node("Header").get_child(0).get_node("Scrap") as Label).text, "Scrap: 1240")
 	# The Bazaar's zone, the caravan on the FAL-986 painting, trimmed clear of the Engine Core.
 	var zone: Rect2 = preload("res://ui/map.gd").BAZAAR_ZONE
@@ -393,7 +395,7 @@ func test_the_world_map_opens_the_bazaar_and_leaving_it_goes_back() -> void:
 	check(bazaar != null and bazaar.scene_file_path == BAZAAR, "the Bazaar is on screen")
 	if bazaar != null and bazaar.scene_file_path == BAZAAR:
 		var back := bazaar.find_child("Back", true, false) as Button
-		check_eq(back.text, "World map")
+		check_eq(back.text, "◂ The Wasteland")
 		bazaar.leave(true)
 		for i in 3:
 			await tree.process_frame
@@ -460,7 +462,7 @@ func test_the_world_map_names_every_place_on_a_banner() -> void:
 	var made: Array = await _map({"screen": "world"})
 	var m: Control = made[1]
 	var board: Control = m.world_board
-	var shown := _board_text(board)
+	var shown := _board_text(board, true)
 	var banners: Array = []
 	for p in _world_places():
 		var b := board.get_node(p[0]) as Button
@@ -485,7 +487,7 @@ func test_the_world_map_names_every_place_on_a_banner() -> void:
 		banners.append([p[0], r])
 	# Hover still brings the card with the second line.
 	var dome := board.get_node("Thunderdome") as Button
-	check_eq(_card_of(m, dome), "Thunderdome · Every island mixed")
+	check_eq(_card_of(m, dome), "Thunderdome · Questions from all over the Wasteland")
 	check(not (board.get_node("Card") as Control).visible, "no card until a place is looked at")
 	_done(made)
 
@@ -587,8 +589,8 @@ func test_the_functions_island() -> void:
 	check_eq(spots, _fn() + ["all", "relic"], "8 regions in order, the all-regions dungeon, the Relic device")
 	var buttons := _spot_buttons(m)
 	check(buttons.relic.disabled, "the Relic device is locked")
-	check_eq(_card_of(m, buttons.relic), "Relic device · Locked")
-	check_eq(_card_of(m, buttons.quadratics), "Quadratics · Floor 2 · 100%")
+	check_eq(_card_of(m, buttons.relic), "Relic device · Closed for now")
+	check_eq(_card_of(m, buttons.quadratics), "Quadratics · Mile 2 · 100% right")
 	for id in _fn():
 		var line := _card_of(m, buttons[id]).trim_prefix(Dungeon.region_name(id) + " · ")
 		check_eq(line == "Coming soon", not Progress.is_built(id), "%s: %s" % [id, line])
@@ -626,9 +628,10 @@ func _card_of(m: Control, b: Button) -> String:
 
 
 ## The board's labels a player can see, other than the card's.
-func _board_text(board: Control) -> Array:
+func _board_text(board: Control, with_banners := false) -> Array:
+	# The names on their banners (#186) are the one text a board shows.
 	return board.find_children("*", "Label", true, false).filter(func(l): return l.is_visible_in_tree() \
-		and not board.get_node("Card").is_ancestor_of(l)).map(func(l): return (l as Label).text)
+		and not board.get_node("Card").is_ancestor_of(l) and (with_banners or l.get_parent().name != "Banner")).map(func(l): return (l as Label).text)
 
 
 func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
@@ -911,8 +914,8 @@ func test_sparks_pick_gets_the_beacon_its_line_and_first_focus() -> void:
 	for id in buttons:
 		check_eq(buttons[id].get_node_or_null("Beacon") != null, id == open[1], id + ": a beacon only on the pick")
 	check(buttons[open[1]].get_node("Beacon").visible, "the beacon is on all the time")
-	check_eq(_card_of(m, buttons[open[1]]), Dungeon.region_name(open[1]) + " · Not tried yet · SPARK's pick")
-	check_eq(_card_of(m, buttons[open[0]]), Dungeon.region_name(open[0]) + " · 67%", "the tried region's line has no pick")
+	check_eq(_card_of(m, buttons[open[1]]), Dungeon.region_name(open[1]) + " · Not tried yet · Spark's pick")
+	check_eq(_card_of(m, buttons[open[0]]), Dungeon.region_name(open[0]) + " · 67% right", "the tried region's line has no pick")
 	check_eq(m.get_viewport().gui_get_focus_owner(), buttons[open[1]], "first focus on the pick")
 	check(not m.island_board.get_node("Card").visible, "the first focus shows no card")
 	check(not buttons[open[0]].disabled, "the region tried stays open: a pick is never a gate")
@@ -1030,16 +1033,16 @@ func test_a_region_screen_shows_progress_and_its_start_buttons() -> void:
 	check_eq((col.get_node("Head/Title") as Label).text, "Quadratics")
 	check(col.get_node_or_null("ComingSoon") == null, "Quadratics is built")
 	check_eq((col.get_node("Stats/Rows/Accuracy") as Label).text, "Accuracy: 50% · 1 of 2 right")
-	check_eq((col.get_node("Stats/Rows/BestFloor") as Label).text, "Best floor: 2")
-	check_eq((col.get_node("Stats/Rows/Coverage") as Label).text,
-		"Coverage: 2 of %d checked" % _hand_count("quadratics", false))
+	check_eq((col.get_node("Stats/Rows/BestFloor") as Label).text, "Furthest mile: 2")
+	check_eq((col.get_node("Stats/Rows/Tried") as Label).text,
+		"Different questions tried: 2 of %d" % _hand_count("quadratics", false))
 	var start: Control = col.get_node("Start")
 	check_eq(start.get_children().map(func(b): return String(b.name)), ["Floor1", "Floor2", "Floor3", "Practice"])
 	# The switch changes the count and is saved.
-	(col.get_node("ExamOnly") as Button).button_pressed = true
+	(col.find_child("ExamOnly", true, false) as Button).button_pressed = true
 	await tree.process_frame
-	check_eq((m.region_col.get_node("Stats/Rows/Coverage") as Label).text,
-		"Coverage: %d of %d checked" % [Progress.coverage(m.save, "quadratics").checked, _hand_count("quadratics", true)])
+	check_eq((m.region_col.get_node("Stats/Rows/Tried") as Label).text,
+		"Different questions tried: %d of %d" % [Progress.coverage(m.save, "quadratics").checked, _hand_count("quadratics", true)])
 	check_eq(SaveData.load_from(SAVE).settings.exam_only, true, "the switch is saved")
 	_done(made)
 
@@ -1103,6 +1106,7 @@ func test_a_region_with_nothing_built_shows_coming_soon_and_cannot_start() -> vo
 func test_the_fight_screen_starts_the_run_the_map_asked_for() -> void:
 	var fight_script := preload("res://ui/fight.gd")
 	var save := SaveData.blank()
+	save.intro = {"course": true, "cards": true}
 	Dungeon.note_floor(save, "quadratics", 1, true)
 	SaveData.store(save, SAVE)
 	for ask in [[2, 2], [5, 1]]:
@@ -1245,7 +1249,7 @@ func test_the_thunderdome_opens_a_mixed_screen() -> void:
 	(m.world_board.get_node("Thunderdome") as Button).pressed.emit()
 	check_eq(m.route, MapLink.THUNDERDOME_ROUTE, "its screen")
 	check_eq((m.region_col.get_node("Head/Title") as Label).text, "Thunderdome")
-	check_eq((m.region_col.get_node("Head/Back") as Button).text, "World map")
+	check_eq((m.region_col.get_node("Head/Back") as Button).text, "◂ The Wasteland")
 	check(m.region_col.get_node_or_null("Start/Floor1") != null, "a run can start")
 	check_eq(Audio.location(), "thunderdome", "its own loop")
 	var islands := {}
@@ -1267,6 +1271,9 @@ func test_a_run_starts_on_every_island_and_in_the_thunderdome() -> void:
 	for island in MapLink.OPEN_ISLANDS:
 		places.append(MapLink.region_ids(island)[0])
 		places.append(Dungeon.all_of(island))
+	var seen := SaveData.blank()
+	seen.intro = {"course": true, "cards": true}
+	SaveData.store(seen, SAVE)
 	for region in places:
 		for fight_no in [1, Tuning.FIGHTS_PER_FLOOR]:
 			fight_script.launch = {"region": region, "floor": 1}

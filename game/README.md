@@ -15,7 +15,7 @@ reference, [`docs/QUESTION-ENGINE.md`](docs/QUESTION-ENGINE.md).
 game/
 ├── project.godot        ← portrait 1080x1920 base, "expand" stretch, Compatibility renderer
 ├── export_presets.cfg   ← "Web": no threads, no PWA; "Web audio": the music and voice lines (audio.pck)
-├── scenes/main.tscn     ← title screen (title, Spark, Play, Practice, Engine)
+├── scenes/main.tscn     ← title screen (title, Spark, Play, Practice; the question explorer shows only on a teacher link, ?teacher)
 ├── scenes/map.tscn      ← the map (ui/map.gd): world, zone, region screen (see "The map")
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
 ├── scenes/fight.tscn    ← the fight screen (ui/fight.gd), on the practice screen's card
@@ -449,7 +449,7 @@ See [docs/MATHS-ENGINE.md](docs/MATHS-ENGINE.md).
 
 ### The engine explorer
 
-`/?explore`, or "Engine" on the title screen (FAL-391). Pick a course, a topic and
+`/?explore`, or "Question explorer" on the title screen of a teacher link, `/?teacher` (FAL-391, #186). Pick a course, a topic and
 a question class, then "Asked for", "Shown as", "Method" and the format, and play the
 question as on the practice screen. Nothing is saved. Question classes come from the
 catalogue: a type is live when its situation is built, so a new situation shows up
@@ -1300,3 +1300,7 @@ scripts/mcp-editor.sh stop
 Don't run `./export.sh` or `godot --import` while it is up (`./test.sh` skips its
 import then, and `./export.sh` refuses). See `docs/MCP-NOTES.md` for what works, the
 value formats the tools want, and the rules.
+
+## First run (FAL-1041, #186)
+
+A blank save (`intro.course` false) is asked for its course once, over whichever map screen opens (`ui/first_run.gd`, `FirstRun.course_pick()`); nothing is pre-picked. The course can be changed later on every topic screen and in Settings ("Your course"). The first run opens on four skippable "How a fight works" cards (`FirstRun.fight_cards()`, `intro.cards`), before its first question and so before its timer. Settings has a "How a fight works" button to see them again. Saves from before version 7 count as done. The exam switch is `ui/exam_switch.gd`. `tests/test_wording.gd` scans the UI strings and data text for the words `writing/glossary.json` bans.
