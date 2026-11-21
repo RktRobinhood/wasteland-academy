@@ -127,6 +127,8 @@ func _build_course() -> void:
 	continue_button.custom_minimum_size.y = 120
 	continue_button.pressed.connect(_continue)
 	_body.add_child(continue_button)
+	# Keyboard focus starts on the first course, not on the screen underneath (FAL-1042).
+	_focus.call_deferred(_body.get_node(Courses.ids()[0]))
 
 
 func _pick(id: String) -> void:

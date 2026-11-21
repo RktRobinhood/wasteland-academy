@@ -144,6 +144,36 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+  # The Godot build on an iPhone profile in WebKit (FAL-1042, #187): real taps from the
+  # title to the summary, a reload that keeps the save, and a timer that holds while the
+  # tab is hidden. Chromium alone never showed a Safari-only fault.
+  webkit:
+    needs: export
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: godot-web-export
+          path: build/next
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - run: npx playwright test -c tests/webkit
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: webkit-results
+          path: |
+            test-results/webkit/
+            playwright-report/webkit/
+          if-no-files-found: ignore
+          retention-days: 14
+
   # The telemetry collector (services/telemetry, FAL-406): a Cloudflare Worker,
   # tested in Cloudflare's local runtime with its own package.json.
   telemetry:
