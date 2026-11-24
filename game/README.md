@@ -624,13 +624,15 @@ Flats), `stats/` (the Radio Spires) and `calculus/` (the Engine Core). Each file
 optional: when one isn't there, that piece keeps the coded look (the zone's dusk
 gradient, `ArtSlots.GROUND`, with the jetty as a dot, and a ring in the state's colour
 with a short glyph, `GLYPHS`, for each place), so art can land one file at a time and an
-zone's painting shows the moment it's dropped in, with no code change. Only
-`functions/background.webp` is painted so far (FAL-791). Import each with mipmaps on,
-like the rest of the art.
+zone's painting shows the moment it's dropped in, with no code change. Two zones are
+painted so far: the Signal Tower (`functions/`, FAL-791) and the Dry Flats (`geometry/`,
+FAL-1034). Import each with mipmaps on, like the rest of the art; a ChatGPT board imports
+at lossy quality 0.6 (see the size budget in `ART_REQUIREMENTS.md`).
 
 | File | Size | What it is |
 |---|---|---|
 | `background.webp` (or `.png`) | 1080x1920, opaque | The whole zone, portrait, one painting with every place painted in at its point in that zone's `SPOTS` table in `ui/map.gd` (% of the board), the jetty at (50, 97). No roads, no text. The FAL-783 plan has the Signal Tower's table of places; the other four zones' tables were laid out for the coded look on FAL-925, and a painting may follow them or move them (then update `SPOTS`). With it, a place with no landmark PNG draws nothing but its button: an invisible square of 300 board units round its point (the Relic device's 160). A place that can't be played yet gets a dark wash and a padlock chip, a cleared one a flag chip, both from the code, so one painting serves every state |
+| `background-wide.webp` | 1920x1080, opaque | The same painting for a landscape layout (#199): the same square core with bands of open ground left and right instead of above and below. Nothing draws it yet, so the Web preset leaves it out of the export. Its spots are the `wide` entries in the zone's `zones.json` (`assets/art/intake/<zone>/`) |
 | `<spot>-locked.png` | 256x256, transparent | A spot's landmark before its questions are built |
 | `<spot>-open.png` | 256x256, transparent | A spot's landmark once it can be played |
 | `<spot>-cleared.png` | 256x256, transparent | A spot's landmark once floor 3's boss is beaten there |
@@ -654,6 +656,7 @@ painting has the Bazaar's stalls painted in at its zone (FAL-791), set `BAZAAR_P
 to drop the coded marker.
 
 Overworld painted by Matt Prokock with ChatGPT, 2026-11-16 (FAL-981); sky and dust bands extended locally with Qwen Image (FAL-986).
+The Dry Flats board is Matt Prokock's ChatGPT picture B2-2, 2026-11-17 (FAL-1034); its bands of open ground were extended locally the same way. Each file's record is in `assets/art/CREDITS.md`.
 
 ### Moving pieces (FAL-1075)
 
@@ -1278,6 +1281,10 @@ stays enabled in the editor.
 or when `index.pck` gzipped (as GitHub Pages sends it) is over its budget, 15 MB. It
 prints the sizes. On 2026-11-16 `index.pck` went from 49.7 MB (46.1 MB gzipped) to
 14.5 MB (12.2 MB gzipped), with `index.wasm` 10.1 MB gzipped and `audio.pck` 34.7 MB.
+On 2026-11-24 the budget went to 16 MB for the Dry Flats' board and backdrops (FAL-1034):
+`index.pck` 18.6 MB (15.5 MB gzipped), first load 25.8 MB gzipped. The zone boards are whole
+paintings by the CEO's decision; if the five zones take the first load past 30 MB, the boards
+move to one core plus band files (`ART_REQUIREMENTS.md`, size budget).
 
 `.github/workflows/pages.yml` deploys on every push to `main`: the repo through
 `actions/jekyll-build-pages`, plus the export, which `scripts/assemble-site.sh` puts at

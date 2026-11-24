@@ -1,6 +1,6 @@
 # Region art
 
-Art for each region of the Functions island and the Scrap Fields, loaded by file name (`engine/art_slots.gd`; the contract is the
+Art for each region of the Functions island, the Scrap Fields and the Dry Flats, loaded by file name (`engine/art_slots.gd`; the contract is the
 "Art slots" section of `game/README.md`). Every file is optional.
 
 ## Fight backdrops
@@ -27,8 +27,15 @@ colour. A phone held upright shows about the centre 500 px, so each region's lan
 | `binomial/backdrop.webp` | Drum triangle, yellow edge drums | 85,242 | 13.0% | 5.6% | 10.5% | 6.3:1 | 6.6:1 |
 | `proof/backdrop.webp` | Assay house, crane-arm balance dead level | 57,996 | 11.3% | 4.2% | 9.6% | 10.1:1 | 10.2:1 |
 | `all-algebra/backdrop.webp` | The foot of the wreck mountain, its gate | 156,960 | 12.2% | 5.9% | 12.9% | 8.9:1 | 8.8:1 |
+| `triangles/backdrop.webp` | Wedge quarry: a right-angled ramp, its ladder, notch and plumb line | 146,818 | 13.8% | 5.2% | 13.3% | 5.52:1 | 6.06:1 |
+| `trig-graphs/backdrop.webp` | Wave rocks: a sandstone ridge of four equal crests, a windwheel at its start | 87,106 | 15.0% | 4.9% | 12.1% | 6.45:1 | 6.69:1 |
+| `arcs-sectors/backdrop.webp` | Sundial floor: a round floor in wedges, one lifted out beside its slot | 116,796 | 16.3% | 7.4% | 17.3% | 4.66:1 | 4.81:1 |
+| `geometry-3d/backdrop.webp` | Mason's yard: an open girder box with a teal rod corner to corner, a pyramid and a cone | 148,254 | 12.3% | 6.8% | 10.5% | 4.69:1 | 4.84:1 |
+| `trig-equations/backdrop.webp` | Flooded wave canyon: a wave wall, a teal level line, a flag where they meet | 99,378 | 13.5% | 7.0% | 14.4% | 4.65:1 | 4.71:1 |
+| `unit-circle/backdrop.webp` | Stone ring: a pivot arm to the ring's edge, a magenta plumb line from its tip | 104,086 | 14.6% | 6.0% | 15.0% | 5.18:1 | 5.29:1 |
+| `all-geometry/backdrop.webp` | The foot of the stepped mesas, the arch above, the gate in the middle | 146,578 | 10.8% | 4.8% | 10.5% | 5.75:1 | 6.68:1 |
 
-Signal Tower batch total: 777,386 bytes. Scrap Fields batch total: 614,616 bytes.
+Signal Tower batch total: 777,386 bytes. Scrap Fields batch total: 614,616 bytes. Dry Flats batch total: 849,016 bytes.
 
 How these were measured (a Pillow script run on the files above; it and the review panels are on FAL-474):
 
@@ -72,3 +79,28 @@ columns of 1 to 6. Method, counters and review sheets are on FAL-963.
 | `binomial/backdrop.webp` | Round 1 #11 | 96502 | `032c5906` | Highlights above 40% luma rolled off by half (4.7:1 to 6.3:1); a small R-like mark on one drum end blurred to a plain smudge |
 | `proof/backdrop.webp` | Round 1 #14 | 96502 | `18a8c1b5` | None |
 | `all-algebra/backdrop.webp` | Round 1 #17 | 96502 | `f8411e99` | None |
+
+### The Dry Flats (FAL-1034)
+
+Made by Matt Prokock in ChatGPT from the Artist's prompt cards (`assets/art/prompt-cards/batch-1.md`, #201), on
+2026-11-16 and 2026-11-17, with the world map attached as the style reference. Nothing was painted locally. The
+Artist picked one candidate per card against the checklist in `ART_REQUIREMENTS.md`; the reasons are on FAL-1034.
+Each original is 1672 x 941. Pillow scaled it to 1920 x 1081 (LANCZOS), trimmed the bottom row, applied the edits
+below and encoded WebP at quality 90 (89 where 90 went over the 150 KB budget). Provenance and SHA-256 for each
+file are in `assets/art/CREDITS.md`.
+
+Two lines of the brief are looser here than for the local renders. ChatGPT draws a place wider than the centre
+600 px (most span 45 to 65 % of the width), so on an upright phone each keeps its maths in the centre 500 px but
+not always the whole place. And the worst-point text contrast is lower (4.7:1 to 6.7:1 rather than 6 to 11:1),
+still over WCAG AA's 4.5:1 everywhere. The roll-off pulls only the brightest highlights (lamp cores, neon, the
+glowing rod) toward the limit, so they stay lit.
+
+| File | Card and candidate | Prompt (sha256, first 8) | Edits (Pillow) |
+|---|---|---|---|
+| `triangles/backdrop.webp` | DF1-2 | `add8ce47` | None (q89) |
+| `trig-graphs/backdrop.webp` | DF2-1 | `a605915d` | None |
+| `arcs-sectors/backdrop.webp` | DF3-3 | `03840982` | Highlight roll-off on 1.06 % of pixels (lamp cores and neon), 4.04:1 to 4.66:1 on phone |
+| `geometry-3d/backdrop.webp` | DF4r-1 (the rerun of DF4) | `e74edfe9` | Highlight roll-off on 0.34 % of pixels (the rod's white core turns solid teal), 3.4:1 to 4.69:1 on phone; q89 |
+| `trig-equations/backdrop.webp` | DF5-5 | `4520f260` | Highlight roll-off on 0.68 % of pixels (the level line and its reflections), 3.5:1 to 4.65:1 on phone |
+| `unit-circle/backdrop.webp` | DF6-5 | `c8034e34` | None |
+| `all-geometry/backdrop.webp` | DF7-4 | `7e438e6c` | None |

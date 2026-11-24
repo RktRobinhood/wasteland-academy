@@ -378,17 +378,27 @@ file at intake and records its size in the PR.
 
 | Piece | File | Most it may weigh |
 |---|---|---|
-| Zone board, portrait | `game/assets/map/<zone>/background.webp`, 1080 × 1920 | 300 KB |
-| Zone board, landscape | `game/assets/map/<zone>/background-wide.webp`, 1920 × 1080 | 300 KB |
+| Zone board, portrait | `game/assets/map/<zone>/background.webp`, 1080 × 1920, WebP quality 60 | 560 KB |
+| Zone board, landscape | `game/assets/map/<zone>/background-wide.webp`, 1920 × 1080, WebP quality 60 | 560 KB |
 | B layer: the empty board (clean plate) | `game/assets/map/<zone>/plate.webp` and `plate-wide.webp` | 250 KB each |
 | B layer: one landmark cut-out | `game/assets/map/<zone>/<spot>.webp`, transparent, cropped to the landmark | 60 KB |
 | Fight backdrop | `game/assets/regions/<region>/backdrop.webp`, 1920 × 1080 | 150 KB |
 | World map, each orientation | `game/assets/map/overworld.webp`, `overworld-wide.webp` | 600 KB |
 
-All map and level art together stays under 8 MB. Today it's 3 MB: `game/assets/map` and
-`game/assets/regions` measure 1.5 MB each. If #183's budget for the whole pack ends up tighter, the
-backdrops go to WebP quality 80 first. The world map on `main` is a 1.2 MB PNG, and moving it to WebP is
-part of its landscape intake.
+**Boards: two baked files per zone** (the CEO's decision on FAL-1034, 2026-11-20). ChatGPT's hatching and salt
+cracks compress badly, so no board fits 300 KB. A board ships whole, at WebP quality 60, one file per
+orientation. If the five zones push the web first load past 30 MB, a follow-up task moves the boards to one
+core plus four band files that `map.gd` puts together, about a third smaller. Each zone's PR states the real
+sizes and the change to the first load.
+
+**What the web first load really holds.** Godot re-encodes every texture when it imports it (Lossy mode,
+mipmaps on), so `index.pck` holds Godot's copy, not the WebP file. Boards import at lossy quality 0.6 to match
+the file. Backdrops keep the 0.8 that every backdrop uses. The PR measures the imported size from the export
+(`scripts/check_pack.py` lists the pack). `background-wide.webp` is in the Web preset's exclude filter
+(`game/export_presets.cfg`) until a landscape layout reads it (#199): nothing draws it yet, so it costs students
+nothing. A PC preset leaves it in.
+
+The world map on `main` is a 1.2 MB PNG, and moving it to WebP is part of its landscape intake.
 
 ### The selection checklist
 
@@ -443,10 +453,12 @@ For each chosen piece, in the zone's PR:
 1. **Keep the original.** Store Matt's file unchanged in `_scratch/<task>/source/`, with its SHA-256.
 2. **Board: scale and extend.** Scale the core to 1080 × 1080 with LANCZOS, then add the bands for each
    orientation the FAL-986 way: outpaint only the band with a 24 px overlap, paste back only the band, and
-   feather the overlap. Prove with a diff that no source pixel changed outside the 24 px joins.
-3. **Measure the places** into `zones.json` in the FAL-986 format: `[centre x, centre y, width, height]` per
-   spot and `pin = [x, y]`, in % of the core, with the portrait and landscape board versions beside them. The
-   Coder sets `SPOTS` from this file.
+   feather the overlap. Where a place comes closer to the edge than that, narrow the join on that side so it
+   stays on open ground. Prove with a diff that no source pixel changed outside the joins.
+3. **Measure the places** into `assets/art/intake/<zone>/zones.json` in the FAL-986 format: `[centre x, centre
+   y, width, height]` per spot and `pin = [x, y]`, in % of the core, with the portrait and landscape board
+   versions beside them. `SPOTS` in `game/ui/map.gd` is set from the portrait spots in the same PR, nudged only
+   where two 300-unit squares would overlap or one would leave the board (`test_map.gd` checks both).
 4. **Backdrop:** crop or scale to 1920 × 1080, and measure luma and contrast with the FAL-474 script.
 5. **Compress** to WebP, inside the size budget. Name the file as the size budget table shows.
 6. **Record the provenance.** Add a line in `assets/art/CREDITS.md` for each file: the card id and the hash of

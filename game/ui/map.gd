@@ -106,9 +106,11 @@ const BAZAAR_PAINTED := true
 ## all-regions dungeon in the middle, the regions round it, the two most-examined by the
 ## landing on the south shore, and the Relic device. Spots are keyed by island, then by
 ## region id, plus "all" (the island's all-regions dungeon, spot_key()) and "relic". The
-## Signal Tower's is the FAL-783 plan's table, painted into its background; the others
-## are laid out for the coded look (FAL-925), with no two squares overlapping, and a
-## painting for one paints its places at these points.
+## Signal Tower's is the FAL-783 plan's table, painted into its background. The Dry
+## Flats' is measured from its painting (FAL-1034, zones.json in assets/art/intake/):
+## each place's centre, nudged where two squares would overlap or one would leave the
+## board. The others are laid out for the coded look (FAL-925), with no two squares
+## overlapping; a painting for one may move them, and then this table follows it.
 const SPOTS := {
 	"functions": {
 		"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
@@ -121,9 +123,9 @@ const SPOTS := {
 		"binomial": Vector2(79, 30), "proof": Vector2(50, 12), "all": Vector2(50, 50), "relic": Vector2(12, 50),
 	},
 	"geometry": {
-		"triangles": Vector2(25, 85), "trig-graphs": Vector2(75, 85), "arcs-sectors": Vector2(21, 64),
-		"geometry-3d": Vector2(79, 64), "trig-equations": Vector2(21, 27), "unit-circle": Vector2(79, 27),
-		"all": Vector2(50, 46), "relic": Vector2(50, 10),
+		"triangles": Vector2(16.5, 61.8), "trig-graphs": Vector2(75, 61.5), "arcs-sectors": Vector2(14, 44.2),
+		"geometry-3d": Vector2(86, 45.8), "trig-equations": Vector2(24, 28.1), "unit-circle": Vector2(79, 30),
+		"all": Vector2(46.5, 49.7), "relic": Vector2(47.4, 71.6),
 	},
 	"stats": {
 		"discrete-distributions": Vector2(25, 85), "probability": Vector2(75, 86), "normal-distribution": Vector2(21, 66),
