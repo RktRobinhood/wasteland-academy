@@ -357,6 +357,9 @@ static func _year(rng: Seeded, s: Dictionary) -> bool:
 	var slip: Q = value_q(s, Q.new(s.y0 + int(s.tp.to_float())))
 	if key.sign() <= 0 or absf(slip.to_float()) >= 1e8:
 		return false
+	# A count of traders is whole.
+	if s.ctx == 5 and not key.is_int():
+		return false
 	return Fmt.dec(key) != Fmt.dec(slip)
 
 
