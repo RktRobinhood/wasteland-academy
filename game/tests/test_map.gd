@@ -23,6 +23,9 @@ const SAVE := "user://test_map_save.json"
 const CATALOGUE := "res://data/catalogue.json"
 ## An island art folder with nothing in it: the coded look.
 const NO_ART := "res://tests/fixtures/no-art/map/"
+## The zones with a painting in assets/map/<island>/: the Signal Tower (FAL-791) and the
+## Dry Flats (FAL-1034).
+const PAINTED := ["functions", "geometry"]
 
 
 func _area(window: Vector2i) -> Vector2:
@@ -675,8 +678,9 @@ func test_every_island_is_laid_out_with_no_place_overlapping() -> void:
 			func(c): return String(c.name).trim_prefix("Spot_"))
 		check_eq(spots, MapLink.region_ids(island) + ["all", "relic"], island + ": its regions in order, all, relic")
 		check_eq(buttons.size(), (map_script.SPOTS[island] as Dictionary).size(), island + ": a place per spot")
-		check_eq(m.background_path() != "", island == "functions", island + ": only the Signal Tower is painted yet")
-		if island != "functions":
+		var painted: bool = island in PAINTED
+		check_eq(m.background_path() != "", painted, island + ": painted only where its painting has landed")
+		if not painted:
 			check(m.island_board.get_node_or_null("Ground") != null, island + ": the coded ground")
 		check_eq((m.island.get_node("Header").get_child(0).get_node("Title") as Label).text, m.island_info(island).name)
 		for id in buttons:
@@ -685,7 +689,7 @@ func test_every_island_is_laid_out_with_no_place_overlapping() -> void:
 			var centre: Vector2 = map_script.SPOTS[island][id] * map_script.BOARD / 100.0
 			check(r.get_center().distance_to(centre) < 0.5, "%s %s is on its spot" % [island, id])
 			check(board.encloses(r), "%s %s %s is on the board" % [island, id, r])
-			if island != "functions" and id != "relic":
+			if not painted and id != "relic":
 				var mark := b.get_node_or_null("Landmark/Coded/Mark") as Label
 				check(mark != null and mark.text == map_script.GLYPHS[id], "%s %s: its glyph" % [island, id])
 			for other in buttons:

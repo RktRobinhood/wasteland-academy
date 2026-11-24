@@ -18,7 +18,9 @@ import sys
 
 # Bytes, gzipped. Before #183 index.pck was about 46 MB this way; without the audio and
 # the addon it is about 12 MB. Raise the budget only with a reason in the commit.
-PCK_BUDGET = 15_000_000
+# 16 MB from FAL-1034: the Dry Flats' ChatGPT board and seven backdrops add 1.2 MB (the CEO's
+# size call: whole boards, until the first load passes 30 MB). Each later zone states its own raise.
+PCK_BUDGET = 16_000_000
 ADDON = "res://addons/godot_mcp_toolkit/"
 AUDIO_DIRS = ("res://assets/audio/music/", "res://assets/audio/voice/")
 

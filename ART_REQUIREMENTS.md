@@ -257,7 +257,247 @@ Short "ready" loops for the 3 class badges, the 3 skill **on** icons and the 3 l
 
 ---
 
+## MAP AND LEVEL ART FROM CHATGPT: PROMPT CARDS (#201)
+
+Owner decision, 2026-11-16: local image generation isn't good enough for map and level art. That covers the
+world map, the zone boards, fight backdrops and journey scenery. Matt makes this art in ChatGPT from prompt
+cards that the Artist writes. Character and people art isn't covered by this decision.
+
+**The loop**
+
+1. The Artist writes one prompt card per piece and sends them in batches, in priority order, on one Paperclip
+   card (#204). Each batch is also kept in the repo, in `assets/art/prompt-cards/`.
+2. Matt runs each prompt in ChatGPT and attaches about five candidates per piece, sometimes with a comment.
+   That's the end of his part.
+3. The Artist picks one candidate per piece against the checklist below and records why on the task. A
+   comment from Matt is a strong preference. If no candidate passes, the Artist replies with a revised
+   prompt, not a silent retry.
+4. Intake (below): measure, extend, resize, compress, name, and record the provenance and the prompt. Then
+   phone and desktop screenshots. One zone is one PR.
+
+Nothing in this loop is painted on the local GPU. The one exception is extending the edge bands at intake
+(the FAL-986 method), which adds open ground or sky around Matt's picture and never repaints his pixels.
+
+### The prompt card
+
+A card stands on its own. Matt should be able to run it with nothing else open. Every card has these fields,
+in this order:
+
+| Field | What goes in it |
+|---|---|
+| **Piece and file** | What it is, the zone, and the file it becomes (for example `game/assets/map/calculus/background.webp`) |
+| **Priority** | Its place in the batch |
+| **Reference images** | What to attach in ChatGPT, by name, each linked on the card. Usually the world map (`game/assets/map/overworld.png`), as the style reference |
+| **Size and aspect** | The aspect to pick in ChatGPT, and the size it becomes in the game |
+| **The prompt** | The full prompt, ready to paste. It opens with the style words below and ends with the "must not appear" list |
+| **Where things sit** | Each landmark's position, and the tap zone it becomes (the spot id). A layout picture for checking, posted on the card |
+| **Keep clear** | Areas where nothing may stand: the label and chip space, edge margins and bands |
+| **Must not appear** | Text, letters, numbers, symbols, logos, unwanted people, roads, and anything else the piece needs |
+| **Fixable later / not fixable** | What the Artist can fix at intake and what needs a new candidate |
+| **Candidates wanted** | About five unless the card says otherwise |
+
+**The style words** are the same on every card. They come from `assets/style-guide/` (the tokens in its README)
+and from the world map's look:
+
+> a detailed hand-inked comic illustration with crisp dark outlines, painted cel shading with fine hatching
+> in the shadows, a hard high sun, a sun-baked palette of rust orange and dust yellow with scrap-teal and
+> bazaar-magenta accents; post-apocalyptic but hopeful, everything built from scrap, rust and neon tubes
+
+The cards describe the look in words and don't name another game. The world map, attached as the
+reference, carries the look. That keeps a commercial game's name out of the prompt and the record (see the
+licence notes under "ChatGPT images in a paid release" below).
+
+**Never attach a layout sketch to ChatGPT.** On FAL-975 a colour-blob layout guide made the model paint every
+blob as its own raised disc. The layout picture on a card is for checking candidates. Positions go into the
+prompt as words.
+
+### Phone and PC: the square core (#199)
+
+The game must fit a portrait phone (9:16) and a landscape PC window (16:9). A zone board is generated as
+**one square picture, the core**, with every place inside it. At intake the core gets plain bands added on
+two sides for each orientation:
+
+- **Portrait phone board, 1080 × 1920:** the core at 1080 × 1080, centred, with a band of 420 above (sky
+  haze and dust, under the header) and 420 below (open ground and dust).
+- **Landscape PC board, 1920 × 1080:** the same core at 1080 × 1080, centred, with a band of 420 open
+  ground on the left and on the right.
+
+A place therefore has the same position inside the core in both orientations. Its zone is measured once in
+core coordinates and converted to each board. In each orientation the places fill the screen's short side,
+and the bands fill the rest.
+
+Why not the other ways:
+
+- **A wide 16:9 canvas with every place in a centre strip that also crops to 9:16.** ChatGPT's wide pictures
+  are about 1536 to 2048 px across. A 9:16 strip of one is 576 to 768 px wide, well under the 1080 a phone
+  board needs. On PC the places would sit in the middle third of the window.
+- **Two paintings per zone, one per orientation.** That doubles Matt's work, and the landmarks would differ
+  between the phone and the PC.
+
+**What the core needs from the prompt**
+
+- Square, 1:1.
+- Ground fills the whole picture, with no horizon and no sky, so the bands extend it on any side.
+- A plain margin of open ground about one-sixteenth of the width on all four edges, with nothing standing
+  on it, so the band joins pass through plain ground.
+- Places at the nine standard positions below, each about a quarter of the core wide, with open ground
+  between them.
+
+| Position | Centre in the core (% x, % y) | Used for |
+|---|---|---|
+| Centre | 50, 50 | The zone's biggest landmark, its all-regions dungeon (`all`) |
+| Top left, top, top right | 20, 20 · 50, 16 · 80, 20 | Regions |
+| Left, right | 16, 50 · 84, 50 | Regions |
+| Bottom left, bottom right | 20, 80 · 80, 80 | Regions |
+| Bottom | 50, 84 | A region, or the small relic shack (`relic`) when the zone has seven regions or fewer |
+
+A tap zone is about 28 % of the core (300 of 1080 board units, `HIT` in `game/ui/map.gd`) round each point.
+The Coder sets `SPOTS` from the measured places, and trims any zones that overlap, as on the world map. The
+old jetty or buggy at the bottom edge (`LANDING`) isn't painted on the new boards. It was never a button.
+
+**Keep clear on every board**
+
+- The foot of each place, the bottom 20 % of its patch: plain ground. The game draws the padlock or flag chip
+  there.
+- The open ground between places: the place card opens beside the place it names, over the painting.
+- The edge margin, as above.
+- No names, banners or signs on the board. The game shows each name on its card.
+
+**Fight backdrops** stay 1920 × 1080 (16:9). A phone held upright shows about the centre 500 px, so the
+landmark sits in the centre 600 px (x 660 to 1260), and the lower 40 % is plain dark ground for the question
+text. The rest of the rules are in `game/assets/regions/README.md`.
+
+**The world map** has a portrait original, which shipped in PR #180. The landscape version for PC is a
+separate wide card (16:9), with the same eight places in the same order. Matt makes it in the same ChatGPT
+chat.
+
+### Size budget (#183)
+
+Every piece is shipped as opaque lossy WebP. These are the most each file may weigh. The Artist measures each
+file at intake and records its size in the PR.
+
+| Piece | File | Most it may weigh |
+|---|---|---|
+| Zone board, portrait | `game/assets/map/<zone>/background.webp`, 1080 × 1920, WebP quality 60 | 560 KB |
+| Zone board, landscape | `game/assets/map/<zone>/background-wide.webp`, 1920 × 1080, WebP quality 60 | 560 KB |
+| B layer: the empty board (clean plate) | `game/assets/map/<zone>/plate.webp` and `plate-wide.webp` | 250 KB each |
+| B layer: one landmark cut-out | `game/assets/map/<zone>/<spot>.webp`, transparent, cropped to the landmark | 60 KB |
+| Fight backdrop | `game/assets/regions/<region>/backdrop.webp`, 1920 × 1080 | 150 KB |
+| World map, each orientation | `game/assets/map/overworld.webp`, `overworld-wide.webp` | 600 KB |
+
+**Boards: two baked files per zone** (the CEO's decision on FAL-1034, 2026-11-20). ChatGPT's hatching and salt
+cracks compress badly, so no board fits 300 KB. A board ships whole, at WebP quality 60, one file per
+orientation. If the five zones push the web first load past 30 MB, a follow-up task moves the boards to one
+core plus four band files that `map.gd` puts together, about a third smaller. Each zone's PR states the real
+sizes and the change to the first load.
+
+**What the web first load really holds.** Godot re-encodes every texture when it imports it (Lossy mode,
+mipmaps on), so `index.pck` holds Godot's copy, not the WebP file. Boards import at lossy quality 0.6 to match
+the file. Backdrops keep the 0.8 that every backdrop uses. The PR measures the imported size from the export
+(`scripts/check_pack.py` lists the pack). `background-wide.webp` is in the Web preset's exclude filter
+(`game/export_presets.cfg`) until a landscape layout reads it (#199): nothing draws it yet, so it costs students
+nothing. A PC preset leaves it in.
+
+The world map on `main` is a 1.2 MB PNG, and moving it to WebP is part of its landscape intake.
+
+### The selection checklist
+
+The Artist checks every candidate against this list and records the result on the task. A candidate passes
+when every **must** holds. Among the ones that pass, Matt's comment decides first, then the **should** lines.
+
+**Every piece, must**
+
+1. **Style match.** Next to the world map at the same size, it reads as the same artist: ink outlines, cel
+   shading, hatching, the palette, the hard sun. Shown side by side on the task.
+2. **No stray text.** No letters, numbers, symbols, logos or sign writing, checked at 1:1. A stray mark that a
+   small blur clears can be fixed at intake. Lettering that matters can't.
+3. **No unwanted figures.** No people, animals or vehicles except the ones the card names.
+4. **No roads or links.** No roads, paths, rails, bridges, channels or tracks join two places.
+
+**Zone boards and the world map, must**
+
+5. **Every place is there and reads as its maths.** Each place on the card is present and shows its idea
+   without a name: the crate rows double, the dam floods only under the curve, and so on. A wrong count can be
+   fixed at intake (crate rows, cube columns). A missing place, or one that doesn't show its maths, can't.
+6. **Positions.** Each place's centre is within about 8 % of the core of its position on the card, and no two
+   places' patches merge.
+7. **Edges extend.** The margin on all four sides is plain ground with nothing cut off, so the bands can be
+   added in both orientations.
+8. **Legible at phone size.** On a mockup at 270 × 480 (a portrait phone) with the header, chips and a place
+   card drawn on, each place is recognisable and the chip at its foot stays readable. The same mockup at
+   960 × 540 for PC. Posted on the task.
+
+**Fight backdrops, must**
+
+5. **Landmark in the centre 600 px** of the 1920 × 1080 frame, and still recognisable in the centre 500 px.
+6. **The lower 40 % is plain dark ground.**
+7. **Dark enough for text.** Mean luma about 25 % at most. White text at its worst point keeps 4.5:1 after the
+   game's 55 % wash, on phone and PC, measured with the FAL-474 script. Highlights can be rolled off at
+   intake if they're small.
+8. **The same place as on its board**, at ground level: the same structure, colours and ground.
+
+**Should**
+
+- Clean shapes that cut out well, where the piece is used for technique B (see below).
+- Whatever Matt said in his comment.
+- Fewer intake fixes.
+- A smaller file at the same quality.
+
+If no candidate passes, the reply on the card names the failed line for each candidate and gives a revised
+prompt. Only the lines that change are marked.
+
+### Intake
+
+For each chosen piece, in the zone's PR:
+
+1. **Keep the original.** Store Matt's file unchanged in `_scratch/<task>/source/`, with its SHA-256.
+2. **Board: scale and extend.** Scale the core to 1080 × 1080 with LANCZOS, then add the bands for each
+   orientation the FAL-986 way: outpaint only the band with a 24 px overlap, paste back only the band, and
+   feather the overlap. Where a place comes closer to the edge than that, narrow the join on that side so it
+   stays on open ground. Prove with a diff that no source pixel changed outside the joins.
+3. **Measure the places** into `assets/art/intake/<zone>/zones.json` in the FAL-986 format: `[centre x, centre
+   y, width, height]` per spot and `pin = [x, y]`, in % of the core, with the portrait and landscape board
+   versions beside them. `SPOTS` in `game/ui/map.gd` is set from the portrait spots in the same PR, nudged only
+   where two 300-unit squares would overlap or one would leave the board (`test_map.gd` checks both).
+4. **Backdrop:** crop or scale to 1920 × 1080, and measure luma and contrast with the FAL-474 script.
+5. **Compress** to WebP, inside the size budget. Name the file as the size budget table shows.
+6. **Record the provenance.** Add a line in `assets/art/CREDITS.md` for each file: the card id and the hash of
+   its prompt, the candidate number, "Generated by Matt Prokock with ChatGPT", the date, every edit, and the
+   SHA-256.
+7. **Screenshots.** The piece in the game at phone size (portrait) and desktop size (landscape), posted on the
+   task and the PR.
+
+### Making it feel alive: A or B
+
+Matt wants the maps to feel alive (#201). One zone, the Engine Core, gets both treatments, side by side. The
+Artist then chooses, from the measurements, and records the result here.
+
+- **A. A still painting plus engine effects:** dust layers drifting at the edges, cloud shadows, smoke
+  particles from the stacks, and masked glows and lava with a churn shader. All of it stops with
+  `reduced_motion()`. The plan is the FAL-981 research ([animation-research](/FAL/issues/FAL-981#document-animation-research)).
+- **B. A layered painting:** the empty board (a clean plate, made by Matt in ChatGPT as an edit of the chosen
+  board) under a cut-out of each landmark, so a landmark can be lit, animated or nudged on its own. The Artist
+  cuts the landmarks from the chosen board itself, so they match it exactly.
+- **C (a looping GIF or video)** is ruled out: ChatGPT GIFs have 4 to 16 frames and 256 colours, the
+  landmarks drift between frames, and Godot can't play GIFs (FAL-981).
+
+The comparison records each technique's file size, its frame time on a phone (the Coder's measurement), and
+screenshots, and is posted on the task.
+
+**Result:** not yet run. It waits on the Engine Core candidates.
+
+### ChatGPT images in a paid release (#199)
+
+Recorded 2026-11-16. The full note is in `assets/art/CREDITS.md`. In short, OpenAI's Terms of Use assign the
+output to the user and allow commercial use, so nothing found blocks a paid release. There are two caveats.
+Purely generated images get little or no copyright protection, so someone could copy the art. And Steam
+asks for a disclosure of AI-generated content that players see.
+
+---
+
 ## OVERWORLD MAP
+
+> **Superseded for the art itself.** The world map is Matt's ChatGPT painting, shipped in PR #180 (FAL-986, FAL-988), with no routes between places. New map and level art follows "MAP AND LEVEL ART FROM CHATGPT" above. The original brief is kept below for its zone list.
 
 ### Spec
 - Format: PNG or SVG
