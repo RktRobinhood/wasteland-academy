@@ -183,7 +183,8 @@ func test_every_type_appears_on_every_floor_it_belongs_to() -> void:
 		immortal(r)
 		sim(r, 0.7, 2)
 		for f in [r.start_floor, r.start_floor + 1]:
-			var want := types_of(Dungeon.floor_cells(REGION, f))
+			# The run's course: an AI-only type in the region never comes up for AA SL.
+			var want := types_of(Dungeon.floor_cells(REGION, f, false, [], r.course))
 			var got: Array = r.answers.filter(func(e): return e.floor == f).map(func(e): return _cell(e.cell).type)
 			for t in want:
 				check(got.has(t), "seed %d floor %d: %s never came up" % [seed_no, f, t])
