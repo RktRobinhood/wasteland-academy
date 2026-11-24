@@ -73,7 +73,7 @@ Each place has one spelling. Use "the" only where the table does.
 | **glancing hit** | The right value in the wrong form (for example not to 3 s.f.). Half a hit, half the Scrap. | "Glancing hit: half damage." | |
 | **wrong answer** | Not right. You take the enemy's damage and see the worked solution. | "Wrong answer. You take 20 damage." | miss, missed, fail |
 | **Time's up** | The timer ran out. You take the enemy's damage plus 10. | "Time's up. You take 30 damage." | timeout |
-| **timer** | The bar that runs down on each question: green, then orange, then red. | "The timer keeps running." | clock (fine in a sentence: "the clock keeps running") |
+| **timer** | The bar that runs down on each question: green, then orange, then red. The seconds beside it say "Late" in the red end, so the state never rests on colour alone. Settings sets it to ×1, ×1.25, ×1.5 (extra time) or Off; Off shows "No timer" and nothing is late or times out. | "The timer keeps running.", "Late 12s", "No timer" | clock (fine in a sentence: "the clock keeps running") |
 
 ## Scrap and the Bazaar
 

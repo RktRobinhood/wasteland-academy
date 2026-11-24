@@ -43,6 +43,10 @@ const MINUTES_PER_MARK := [1.5, 1.25, 1.0]
 ## From floor 4, this much less per floor, down to MINUTES_PER_MARK_MIN.
 const MINUTES_PER_MARK_STEP := 0.1
 const MINUTES_PER_MARK_MIN := 0.6
+## The timer settings a student can choose (#196): ×1, ×1.25 and ×1.5 for 25% and 50%
+## extra time (access arrangements), and 0 for off. Off means no question times out and
+## no right answer is late. The setting is save.settings.timer.
+const TIMER_CHOICES := [1.0, 1.25, 1.5, 0.0]
 ## Extra seconds for a typed answer.
 const TYPED_BONUS := 15
 ## No question gets less.
@@ -235,6 +239,15 @@ static func minutes_per_mark(on_floor: int) -> float:
 		return MINUTES_PER_MARK[maxi(on_floor, 1) - 1]
 	var m: float = MINUTES_PER_MARK[-1] - MINUTES_PER_MARK_STEP * (on_floor - MINUTES_PER_MARK.size())
 	return maxf(MINUTES_PER_MARK_MIN, snappedf(m, 0.001))
+
+
+## The save's timer multiplier (TIMER_CHOICES): 1.0 when unset or not one of them.
+static func timer_multiplier(save: Dictionary) -> float:
+	var m: float = float(save.get("settings", {}).get("timer", 1.0))
+	for c in TIMER_CHOICES:
+		if is_equal_approx(m, c):
+			return c
+	return 1.0
 
 
 ## Seconds a question gets: marks × minutes per mark, plus TYPED_BONUS for a typed

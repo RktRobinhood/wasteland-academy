@@ -887,3 +887,42 @@ func test_reduced_motion_plays_no_fight_effects() -> void:
 	check(_effect_nodes(f).is_empty(), "no dust burst")
 	check_eq(f.enemy_art.modulate.a, 0.0, "the fallen enemy just goes")
 	_done(made)
+
+
+## The timer's words carry its state, not just its colour (#196).
+func test_the_timer_says_late_and_frozen_in_words() -> void:
+	var made: Array = await _screen(_area(Vector2i(390, 844)))
+	var f: Control = made[1]
+	check(not f.timer_label.text.begins_with("Late"), "not late at the start: " + f.timer_label.text)
+	f._process(f.run.time_total * 0.9)
+	check(f.timer_label.text.begins_with("Late "), "late in the red: " + f.timer_label.text)
+	check_eq(f.timer_text(12.2, true, true), "❚❚ 13s", "frozen shows the pause")
+	check_eq(f.timer_text(40.0, false, false), "40s")
+	_done(made)
+
+
+## Timer Off (#196): no bar, the words say so, and the question never runs out.
+func test_timer_off_shows_no_timer_and_never_times_out() -> void:
+	var save := SaveData.blank()
+	save.settings.timer = 0.0
+	var made: Array = await _screen(_area(Vector2i(390, 844)), 3, false, save)
+	var f: Control = made[1]
+	f._process(100000.0)
+	check_eq(f.run.state, "question", "no timeout")
+	check(not f.timer_bar.visible, "no bar")
+	check_eq(f.timer_label.text, "No timer")
+	_done(made)
+
+
+## Reduced motion reaches the journey scene, and a hit shows no hurt flash (#196).
+func test_reduced_motion_stills_the_journey_and_the_hurt_flash() -> void:
+	var made: Array = await _portrait_screen(true)
+	var f: Control = made[1]
+	check(f.strip.reduced_motion, "the journey scene is told")
+	var art: Texture2D = f.enemy_art.texture
+	f.flash_hurt()
+	check_eq(f.enemy_art.texture, art, "no hurt frame")
+	f.save.settings.reduced_motion = false
+	f.apply_settings()
+	check(f.strip.reduced_motion == AmbientLayer.motion_reduced({}), "the switch turned off reaches it at once")
+	_done(made)

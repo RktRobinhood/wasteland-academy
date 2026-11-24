@@ -571,3 +571,29 @@ static func _cell(key: String) -> Dictionary:
 	var b := key.split("|")
 	var t := QuestionEngine.type_of(b[0])
 	return {"key": key, "type": b[0], "unknown": b[1], "level": int(QuestionEngine.unknown_of(t, b[1]).get("level", 0))}
+
+
+## Extra time (#196): ×1.25 and ×1.5 scale the clock; Off stops it, so no question times
+## out and no right answer is late, and Freeze has nothing to stop.
+func test_the_timer_setting_scales_or_stops_the_clock() -> void:
+	for m in [1.25, 1.5]:
+		var r := _run(11, 1)
+		r.save.settings.timer = m
+		r.start()
+		var marks: int = r.question.marks if r.question.marks > 0 else Tuning.DEFAULT_MARKS
+		check_eq(r.time_total, Tuning.seconds_for(marks, r.floor_no, r.question.format == "value") * m, "×%s" % m)
+		check(not r.untimed, "×%s is timed" % m)
+	var off := _run(11, 1)
+	off.save.settings.timer = 0.0
+	off.start()
+	check(off.untimed, "Off")
+	check(off.tick(100000.0).is_empty(), "no timeout")
+	check_eq(off.state, "question", "still open")
+	check(not off.in_late_zone(), "never late")
+	off.lifelines.freeze = 3
+	check(not off.can_use("freeze"), "nothing to freeze")
+	var odd := _run(11, 1)
+	odd.save.settings.timer = 3.0
+	check_eq(Tuning.timer_multiplier(odd.save), 1.0, "an unknown value is ×1")
+	check_eq(Tuning.timer_multiplier({}), 1.0, "no setting is ×1")
+	check_eq(SaveData.migrate({"version": 6, "settings": {}}).settings.timer, 1.0, "an older save gets ×1")

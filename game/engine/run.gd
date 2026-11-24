@@ -89,6 +89,8 @@ var question_no := 0
 var another_way := false
 var time_total := 0.0
 var time_left := 0.0
+## True while the open question has no clock: the student set the timer off (#196).
+var untimed := false
 var frozen_left := 0.0
 ## Seconds a refused answer may still give back on this question, and the response it
 ## last gave them for (#194).
@@ -254,7 +256,10 @@ func _open_question() -> void:
 	removed = []
 	hint = ""
 	var marks: int = question.marks if question.marks > 0 else Tuning.DEFAULT_MARKS
-	time_total = modifiers.apply("time", Tuning.seconds_for(marks, floor_no, question.format == "value"), _ctx())
+	# The student's extra-time setting (#196) scales the clock after the Bazaar's perks.
+	var mult := Tuning.timer_multiplier(save)
+	untimed = mult <= 0.0
+	time_total = modifiers.apply("time", Tuning.seconds_for(marks, floor_no, question.format == "value"), _ctx()) * maxf(mult, 1.0)
 	time_left = time_total
 	frozen_left = 0.0
 	refund_left = Tuning.REFUSED_REFUND_MAX
@@ -303,7 +308,7 @@ func _plan() -> Dictionary:
 ## The clock. Time Freeze holds it; when it runs out the question is a timeout.
 ## Returns the result when this tick timed the question out, else {}.
 func tick(delta: float) -> Dictionary:
-	if state != "question":
+	if state != "question" or untimed:
 		return {}
 	var d := delta
 	if frozen_left > 0.0:
@@ -322,7 +327,7 @@ func time_share() -> float:
 
 
 func in_late_zone() -> bool:
-	return time_share() < Tuning.LATE_ZONE
+	return not untimed and time_share() < Tuning.LATE_ZONE
 
 
 ## Marks a response (as MathsEngine.mark takes it) and resolves it. An incomplete
@@ -500,7 +505,7 @@ func can_use(lifeline: String) -> bool:
 		"hint":
 			return hint == "" and not question.solutions.is_empty()
 		"freeze":
-			return frozen_left <= 0.0
+			return frozen_left <= 0.0 and not untimed
 	return false
 
 
