@@ -145,11 +145,18 @@ static func _table(rng: Seeded, s: Dictionary) -> bool:
 	for i in 4:
 		ratios.append(ys[i + 1].div(ys[i]))
 	# Exactly one family fits: the first differences, the second or the ratios are constant.
-	var lin := all_equal(ds)
-	var quad := all_equal(d2) and not d2[0].is_zero()
-	var expo := all_equal(ratios)
+	var lin: bool = all_equal(ds)
+	var quad: bool = all_equal(d2) and not d2[0].is_zero()
+	var expo: bool = all_equal(ratios)
 	if [lin, quad, expo].count(true) != 1:
 		return false
+	# A linear or quadratic table's working shows its ratios to 3 s.f.: they must read as not constant.
+	if not expo:
+		var shown := {}
+		for q in ratios:
+			shown[Fmt.sf(q)] = true
+		if shown.size() == 1:
+			return false
 	s.fam = fam
 	s.xs = range(5).map(func(i): return Q.new(x0 + h * i))
 	s.ys = ys

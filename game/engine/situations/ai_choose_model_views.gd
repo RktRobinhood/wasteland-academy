@@ -40,11 +40,21 @@ const SKETCH := {"linear": "be a straight line", "quadratic": "rise to a single 
 	"growth": "rise ever more steeply", "decay": "fall ever more slowly, levelling off",
 	"sinusoidal": "rise and fall in a repeating cycle"}
 ## A proposed family, in a story and as a graph.
-const PROP_STORY := {"linear": "changes by the same amount in each equal step of time, so it only rises or only falls, at a steady rate",
-	"quadratic": "turns exactly once, so it can't repeat a cycle or level off",
-	"exponential": "changes by the same percentage in each equal step of time, so it only rises or only falls and never turns"}
+const PROP_STORY := {"linear": "changes by the same amount in each equal step of time: it rises or falls at a steady rate and never turns",
+	"quadratic": "turns exactly once: it rises to a single highest point and falls, or falls to a single lowest point and rises",
+	"exponential": "changes by the same percentage in each equal step of time: it only rises or only falls, and never turns"}
 const PROP_GRAPH := {"linear": "is a straight line: it never turns and keeps the same steepness",
 	"quadratic": "is a parabola, which turns exactly once", "exponential": "only rises or only falls, and never turns"}
+
+
+## A claim's question can also be asked as a student's answer to judge (true-false-reason); the
+## scatter question is not, as its pick-the-graph view has no claims to quote.
+func extra() -> Dictionary:
+	var out := {}
+	for u in UNKNOWNS:
+		if u != "family-from-graph":
+			out[u] = ["true-false-reason"]
+	return out
 
 
 func needs() -> Dictionary:
@@ -459,11 +469,11 @@ func u_domain_from_dimensions(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 			lines = ["A square of side x cm is cut from each corner of the card in the diagram, and the sides are folded up to make an open box.", V]
 			graph = OptimisationViews.new()._sheet_figure({"w": s.a, "h": s.b})
 		else:
-			lines = ["A square of side x cm is cut from each corner of a %d cm by %d cm card, and the sides are folded up to make an open box." % [s.a, s.b], V]
+			lines = ["A square of side x cm is cut from each corner of %s %d cm by %d cm card, and the sides are folded up to make an open box." % ["an" if s.a in [11, 18] else "a", s.a, s.b], V]
 		wr = [wrong(span(Q.new(s.a)), R_WHOLE_SIDE), wrong(span(top, true), R_END_IN)]
 		fill = [span(Q.new(s.b, 2)), span(Q.new(s.b))]
 		steps = ["x is the side of a square cut from each corner, so x > 0.",
-			"The base is (%d − 2x) cm by (%d − 2x) cm, and both must be positive: %d − 2x > 0 gives x < %s, which comes before %d − 2x > 0 (x < %s)." % [s.a, s.b, s.a, D(top), s.b, D(Q.new(s.b, 2))],
+			"The base is (%d − 2x) cm by (%d − 2x) cm, and both must be positive: %d − 2x > 0 gives x < %s, the shorter side's limit, as %d − 2x > 0 only needs x < %s." % [s.a, s.b, s.a, D(top), s.b, D(Q.new(s.b, 2))],
 			"At x = 0 and at x = %s the box has no volume, so both ends are left out." % D(top)]
 	else:
 		var A := "Its area is A = x(%d − 2x) m²." % s.F
