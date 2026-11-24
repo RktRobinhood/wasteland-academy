@@ -74,6 +74,27 @@ func test_the_timer_drains_into_a_timeout() -> void:
 	_done(made)
 
 
+func test_the_timer_holds_while_the_app_is_hidden() -> void:
+	var made: Array = await _screen(_area(Vector2i(390, 844)))
+	var f: Control = made[1]
+	var left: float = f.run.time_left
+	f._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	check(f.away, "focus out hides it")
+	f._process(f.run.time_total * 2.0)
+	check_eq(f.run.time_left, left, "no time passes while hidden, however long")
+	check_eq(f.run.state, "question", "and no timeout")
+	f._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	check(not f.away, "focus in shows it")
+	f._process(f.run.time_total * 2.0)
+	check_eq(f.run.time_left, left, "the frame that brings it back is not counted")
+	f._process(1.0)
+	check_eq(f.run.time_left, left - 1.0, "then the clock runs again")
+	f._notification(Node.NOTIFICATION_WM_WINDOW_FOCUS_OUT)
+	f._process(5.0)
+	check_eq(f.run.time_left, left - 1.0, "a window losing focus holds it too")
+	_done(made)
+
+
 func test_lifelines_on_the_screen() -> void:
 	var made: Array = await _screen(_area(Vector2i(390, 844)))
 	var f: Control = made[1]
