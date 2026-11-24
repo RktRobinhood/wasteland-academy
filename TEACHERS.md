@@ -2,24 +2,23 @@
 
 Wasteland Academy is a revision game for IB mathematics. Students answer exam-style questions to win fights on a run, and every wrong answer shows the worked solution. It plays in the browser at <https://rktrobinhood.github.io/wasteland-academy/>, on a phone or a laptop, and works offline after the first visit. What it stores and sends is in [`PRIVACY.md`](PRIVACY.md).
 
-Figures on this page are from [`curriculum/COVERAGE.md`](curriculum/COVERAGE.md) on 2026-11-16. That file is regenerated from the game's engine and is the current count.
+Figures below were checked against [`curriculum/COVERAGE.md`](curriculum/COVERAGE.md) on 2026-11-24. That generated report is the count source. A playable skill has at least one built question; this does not establish structural breadth, mathematical/human signoff, a finished adventure or an available narrated lesson. The [product charter](docs/PRODUCT-CHARTER.md) defines the broader classroom-ready target; the [alignment audit](docs/ALIGNMENT-AUDIT-2026-11-24.md) records remaining work.
 
 ## What each course can play
 
-A student picks their course on any topic's screen: AA SL, AA HL, AI SL or AI HL. The game then serves only that course's content.
+A new student is asked for their course on first launch: AA SL, AA HL, AI SL or AI HL. It can currently be changed on a topic's screen. Moving that control into Settings is accepted work still to do. The game serves only the selected course's content.
 
 | Course | Skills in the course | Playable | Different questions |
 |---|--:|--:|--:|
-| AA SL | 286 | 286 (100%) | 6,006 |
-| AA HL | 452 | 290 (64%) | 6,031 |
-| AI SL | 211 | 145 (69%) | 2,858 |
-| AI HL | 409 | 163 (40%) | 3,245 |
+| AA SL | 286 | 286 (100%) | 6,014 |
+| AA HL | 452 | 306 (68%) | 6,122 |
+| AI SL | 211 | 157 (74%) | 2,911 |
+| AI HL | 409 | 186 (45%) | 3,354 |
 
 A **skill** is one kind of question the IB sets within a syllabus subtopic. A skill is playable when the game can build a question that tests it.
 
-- **AA SL** is complete: every skill in all five topics.
-- **AA HL** plays everything it shares with SL, plus the counting part of AHL1.10. The other HL-only content has no questions yet, including complex numbers, proof by induction, vectors, further calculus, Maclaurin series and differential equations.
-- **AI SL and AI HL** play nearly all the content they share with AA. The AI-only content has no questions yet, including Voronoi diagrams, graph theory, matrices, hypothesis tests, Spearman's rank, amortization and the modelling subtopics.
+- **AA SL** has playable generators tagged to every mapped skill across all five topics. The complete AA SL game and its learning support remain the first release target.
+- **AA HL, AI SL and AI HL** have partial playable coverage, including shared mathematics and some additional content. See the generated report by subtopic for what is built; complete rollout of those courses is deferred behind AA SL completion.
 
 `curriculum/COVERAGE.md` breaks this down by subtopic.
 

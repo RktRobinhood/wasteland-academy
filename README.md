@@ -15,6 +15,12 @@ The [Math-AA question bank](https://github.com/RktRobinhood/Math-AA---Question-B
 
 ## Docs
 
+- [`docs/BUILD-LOOP.md`](docs/BUILD-LOOP.md) — Start here for the current integration queue and landing process
+- [`docs/PRODUCT-CHARTER.md`](docs/PRODUCT-CHARTER.md) — Accepted AA SL product target
+- [`docs/DOMAIN-GLOSSARY.md`](docs/DOMAIN-GLOSSARY.md) — Shared domain meanings; player wording stays in `writing/glossary.md`
+- [`docs/DECISION-REGISTER.md`](docs/DECISION-REGISTER.md) and [`docs/adr/`](docs/adr/) — Accepted decisions, proposals and open choices
+- [`docs/ALIGNMENT-AUDIT-2026-11-24.md`](docs/ALIGNMENT-AUDIT-2026-11-24.md) — Current implementation gaps and branch inventory
+
 - [`SPEC.md`](SPEC.md): the design specification
 - [`ROADMAP.md`](ROADMAP.md): the order of work and the milestones
 - [`TONE.md`](TONE.md): who the game is for, and the undertone under the writing and art
