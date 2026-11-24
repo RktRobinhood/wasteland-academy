@@ -1,5 +1,13 @@
 # Roadmap
 
+## Current direction — 2026-11-24
+
+The [product charter](docs/PRODUCT-CHARTER.md) and accepted [ADRs](docs/adr/) now govern scope. The first complete milestone is the **AA SL roguelike across all five zones**, with correct varied mathematics, optional learning support, exact run restoration, mastery, coherent regional stories and reviewed assets/accessibility. Playable-skill coverage is one input, not completion.
+
+Use [docs/BUILD-LOOP.md](docs/BUILD-LOOP.md) for the single active integration queue, issue dependencies and checks. The [current audit](docs/ALIGNMENT-AUDIT-2026-11-24.md) distinguishes completed groundwork from missing behavior. Other-course branches are preserved for later assessment. Keep four-course filtering and the reusable engine; do not resume mass HL/AI rollout, a separate academic product or platform expansion ahead of the AA SL milestone.
+
+The schedule below is historical context from November 16. Its PC/mobile sequence and issue links remain useful, but it is superseded as the build loop's order of work. Recheck issue state before doing any row; several classroom fixes have landed. Interactive explainers follow #215 and #218/#222: review the playable prototype before wider rollout or paid recording; #224 holds the revised cost tiers. The old FAL-1035 cap is unapproved.
+
 The order of work and the milestones. The GitHub issues named in each row hold the detail, and `AGENTS.md`, "Work while the owner is away", holds the decisions already made. No target dates are set: a milestone is done when its issues are closed.
 
 Last updated 2026-11-16 (owner decisions on #199, #18, #197 and #203; review on #198).

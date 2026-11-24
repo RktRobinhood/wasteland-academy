@@ -2,6 +2,8 @@
 
 Every game term a player reads, and the one wording we use for it. Written on FAL-1032 for GitHub #203 and #186. Owned by Writer. If you need a new term, or want to change one, raise it on a task. Don't make one up in the code.
 
+Reconciled 2026-11-24: this remains the exact player-copy source, with `glossary.json` enforcing current strings. [The domain glossary](../docs/DOMAIN-GLOSSARY.md) and [ADR-0002](../docs/adr/0002-curriculum-question-mastery.md) define the accepted target. Current question “level” is difficulty 0–5; future skill mastery is a separate 1–7 scale with “Not Yet Attempted” outside it. Paper/calculator policy is independent of both. The older Paper 1/level 3 and Paper 2/level 4 examples below describe current catalogue conventions, not a new authoring requirement. Current mile-boss “Cleared” is not proof of the future permanent regional story victory. Do not add unbuilt mastery/Thunderdome terms to the runtime string contract as though those features were shipped.
+
 Rules from #203 and `TONE.md`:
 
 - **Clear first, in-world second.** Maths words stay exact and plain. Flavour goes in the chrome around them: titles, banners, enemy names, Bazaar chatter.

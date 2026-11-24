@@ -1,10 +1,27 @@
 # Repository instructions
 
+## Start every build loop here
+
+Read [the product charter](docs/PRODUCT-CHARTER.md), [decision register](docs/DECISION-REGISTER.md), [domain glossary](docs/DOMAIN-GLOSSARY.md), and [delivery queue](docs/BUILD-LOOP.md) before choosing work. Read the governing ADR and the selected issue, including comments and linked PRs. Fetch `origin` and check the actual default branch: a local checkout or the November 21 audit may be stale.
+
+The accepted November 21 direction takes precedence over older scope/order defaults below: finish the complete five-zone **AA SL roguelike** first. Keep the four-course architecture and existing work; further course rollout, a separate academic product and platform expansion do not displace that milestone. The charter is the target, not a claim that those features already work.
+
+Use `docs/BUILD-LOOP.md` as the single integration queue. One bounded implementation PR is active at a time, with a named integration owner, issue acceptance criteria and evidence. Land or explicitly defer that slice before opening another. Existing branches are work to assess, not automatic priorities or permission to merge. Preserve unfinished branches; do not delete them to tidy the list.
+
+## Product authority
+
+- Accepted owner decisions and accepted ADR clauses define intended behavior. Code and tests show what exists. Older specs/issues are reconciled against those decisions; neither existing behavior nor an agent recommendation grants product approval.
+- New modes, major progression/economy systems, substantial learner-experience changes and unapproved mechanics need explicit owner approval. The framework principles in ADR-0005 to ADR-0007 are accepted; proposed creatures, items, story graphs and OPEN numeric values are not automatically authorized. Do not introduce the deferred stash/run-bag/quick-bar architecture.
+- Approved implementation, ordinary bug fixes, validation, wording and bounded refactoring proceed autonomously. Before changing gameplay semantics, cite the ADR, describe the behavior and define its acceptance checks. Keep save/skill IDs, routes and seeded question reproducibility stable.
+- Record unresolved choices and continue independent approved work. Do not ship guessed calibration, prerequisite gates, boss-to-story mappings or a Thunderdome floor for an unattempted learner.
+- Use `writing/glossary.md` and `writing/glossary.json` for exact player copy; the domain glossary defines meaning. A proposed interface is not a mandated rewrite.
+- Keep paid production, new voices, student-data handling, asset and release approvals below. Never claim classroom readiness from coverage counts or CI alone; record mathematical, asset and human playtest evidence separately.
+
 ## Work while the owner is away
 
 The owner wants this project to run without them at the keyboard (#204, 2026-11-16). Agents work through the open GitHub issues on their own. The owner's contact point is **Paperclip**: a card appears there when something needs approval or when art is wanted, and the owner answers there. Read #204 before picking up an issue; it stays open and pinned as the index.
 
-- **Do not wait for sign-off on ordinary work.** Where an issue gives a recommendation or a suggested wording, treat it as the decision and proceed. The owner comments afterwards if something reads wrong.
+- **Do not wait for sign-off on ordinary approved work.** Suggested wording and routine implementation choices may proceed. A recommendation for a new mode, major mechanic or OPEN design value remains a proposal until explicitly accepted.
 - **Never block on the owner.** While a card waits in Paperclip, carry on with other issues. Do not stop the queue.
 - **Batch requests.** One card with several questions or several art prompts is better than many cards.
 - **Every card stands on its own:** what is needed, why, the options with a recommendation, and what happens if there is no answer.
@@ -19,7 +36,7 @@ The owner wants this project to run without them at the keyboard (#204, 2026-11-
 - Reversing a decision listed below, or adding a new speaking character (the owner auditions voices for new characters).
 - Licence questions that could block a paid release.
 
-Everything else goes ahead without a card.
+Routine work within accepted scope goes ahead without a card. Product changes covered by "Product authority" also need explicit approval; silence is not approval. If Paperclip is unavailable, record the question and dependency on GitHub and continue independent work. Do not claim a Paperclip card was sent without a receipt.
 
 ### Art requests
 
@@ -53,10 +70,7 @@ Defaults that stand unless the owner objects:
 
 ### Order of work
 
-1. Before a class uses the web build: issues labelled `classroom-release`.
-2. Before any voice generation: issues labelled `explainers` (#188 to #191) and the cost cap on #18.
-3. Then `platforms` (#199, #201), starting with PC.
-4. Alongside: #195, #196, #198.
+The current order is [the delivery queue](docs/BUILD-LOOP.md). Classroom defects and mathematical correctness remain urgent. Interactive explainers retain #215's prototype and cost gates; #224 replaces the unapproved whole-map voice estimate. PC then mobile remains the eventual platform order, after the AA SL core milestone. Do not resurrect closed issues from this older list without checking their acceptance evidence.
 
 ## Keep GitHub issues current
 

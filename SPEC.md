@@ -4,7 +4,9 @@
 > Status: Live. The Godot game is at the main address; last checked against it 2026-11-16 (#198)  
 > Target: an app for PC, then Android and iOS (#199). GitHub Pages is the testing host
 
-**How to read this.** This is the design specification. Where it and the Godot game differ, the game and `game/README.md` are right, and this file should be fixed. Sections or paragraphs marked **Legacy** describe the original HTML game, which isn't published for students (#197).
+**How to read this (reconciled 2026-11-24).** The [product charter](docs/PRODUCT-CHARTER.md), [decision register](docs/DECISION-REGISTER.md), [domain glossary](docs/DOMAIN-GLOSSARY.md) and accepted [ADRs](docs/adr/) define intended behavior. Code and `game/README.md` describe implementation; discrepancies are tracked in the [alignment audit](docs/ALIGNMENT-AUDIT-2026-11-24.md), not resolved by declaring the code correct. This older specification retains historical detail; where it conflicts, accepted decisions govern. Sections marked **Legacy** describe the original HTML game, which isn't published for students (#197). Implementation order is in [the delivery queue](docs/BUILD-LOOP.md).
+
+The first complete product milestone is the AA SL roguelike across all five zones, including learning support, saved runs, progression and narrative completion. Other courses remain supported by the schema and existing generators. Full course rollout and platform expansion follow that milestone.
 
 ---
 
@@ -70,7 +72,7 @@ records the data requirements.
 - **Question engine** in `game/engine/`: seeded recipes generate every question, marking and worked solution from `curriculum/question-types.json`. Reference: `game/docs/QUESTION-ENGINE.md`. Its reusable interface is `MathsEngine` (`game/docs/MATHS-ENGINE.md`).
 - **Maths notation** is drawn by the game (`ui/math_box.gd`), and answers are typed in notation with stacked fractions, powers and roots (`ui/math_entry.gd`). No LaTeX.
 - **Fonts:** Bangers (display) and Share Tech Mono (body), both OFL, plus a DejaVu subset for maths symbols, copied into `game/assets/fonts/`.
-- **Saves:** `user://save.json` and `user://settings.cfg` (IndexedDB on the web). Per device, no accounts. Export and import are planned (#185); sync is for later (#202).
+- **Saves:** `user://save.json` and `user://settings.cfg` (IndexedDB on the web). Per device, no accounts. Safe backup/recovery and export/import are implemented (#262). Exact active-run restoration is still open (#267); sync is for later (#202).
 - **No network calls** beyond the site the game is served from (`PRIVACY.md`).
 - **Checks:** a headless Godot test suite, an independent SymPy answer checker and a seed sweep run in CI on every PR (`README.md`, "Run, test and export").
 
@@ -157,30 +159,18 @@ A wasteland map, The Wasteland, showing 5 topic zones + the central Thunderdome.
 
 **Central Hub**: The Thunderdome — battle arena, always accessible
 
-Zone states: **Locked** / **In Progress** / **Cleared** (boss defeated)  
-Node states: **Locked** / **Available** / **Complete** / **WANTED** (has flagged questions)
+All five syllabus zones are open from the start. Course-ineligible locations are intended to remain inert scenery. Only owner-approved, genuine within-zone skill dependencies may gate a route, with permanent unlocks; no cross-zone gates (ADR-0003). Current mile-boss records do not establish narrative victory (ADR-0006).
 
 ### 4.2 Zone Structure (Node Map)
 Zone maps are hubs (FAL-531): regions sit around the zone's tower, joined by branching roads, and open in any order. SPARK's pick (the untried, weakest or least-covered open region) gives guidance in place of gates. The floors inside a region stay in order. Players read a floor as a **mile** (`writing/glossary.md`).
-Each zone contains 6–10 nodes arranged in a branching path:
-- One **main branch** (linear, prerequisite-ordered)
-- **Side branches** for alternative/advanced subtopics
-- Node types: **Battle** (standard fight) / **Mini-Boss** / **Rest Point** (review worked solutions) / **Boss** (zone finale)
-- Completing the zone boss marks the zone **Cleared** on the overworld
+The exact story graph, prerequisites and regional climax are OPEN. Preserve current maps and location IDs. The accepted target separates introduction, complication and climax flags from mathematical mastery; a permanent story victory offers finish-or-continue without risking secured rewards. Do not turn the former 6–10-node/main-branch sketch into mandatory gates.
 
 ### 4.3 Thunderdome
 Central arena, accessible from day one. Students configure their run before entering.
 
-**Pre-run configuration screen**:
-- Topic selector: toggle any/all of the 5 topics
-- Difficulty filter: which difficulty tiers to include (D1–D5)
-- Mode selector: **Endurance** or **Gauntlet**
+**Accepted target, not current completion:** Exhibition is available from the start, with eligible topic selection and weighted probabilistic mixing. Boss Rush is the approved later Thunderdome format, subject to owner-approved unlock, earned-Scrap fee and rewards (ADR-0004). The former Endurance/Gauntlet sketch is superseded; it does not authorize extra modes.
 
-**Endurance Mode**: Questions come endlessly, difficulty scales up over time. Run ends when player HP hits zero. Score = questions answered correctly before death.
-
-**Gauntlet Mode**: Escalating waves. Wave 1 (D1/D2 questions) → Wave 2 (D2/D3 + Mini-Boss) → Wave 3 (D3/D4 + Mini-Boss) → Final Boss (D5). Succeed or die trying — no fixed question count.
-
-Both modes: high score tracked per configuration, shown on Thunderdome entry screen.
+Selection uses a fixed-for-run floor derived from attempted skill evidence, respects higher individual mastery and escalates during play. Calibration and the no-attempt fallback remain OPEN (ADR-0002). Personal bests require mathematically comparable configurations, accuracy and difficulty; score is distinct from Scrap and character XP. These policies still need implementation and verification.
 
 ---
 
@@ -239,6 +229,8 @@ Both modes: high score tracked per configuration, shown on Thunderdome entry scr
 - Freeze lifeline available
 
 ### 6.2 Difficulty Calibration Reference
+**ADR-0002 governs the target:** intrinsic question difficulty (0–5), Paper/calculator policy and skill mastery (1–7) are independent. Any historical equation of Paper 1 with level 3 or Paper 2 with level 4 below describes the older catalogue, not a rule for new calibration. Exact mastery weights and thresholds remain OPEN.
+
 Use the Math AASL Question Bank repo (read-only reference) at:
 `../Math AASL Question Bank/`
 
@@ -266,6 +258,8 @@ Topic breakdown follows the course scheme of work:
 ## 7. SPACED REPETITION ENGINE
 
 In the Godot game the planner (`game/engine/planner.gd`) serves a question cell the student has never seen first, then one they got wrong recently but not within the last few questions, then one weighted by how often the IB asks its type. It has no WANTED board yet.
+
+The accepted target (ADR-0002/0003) is shared difficulty-weighted skill evidence and temporary, skill-specific active bounties between runs, with explainer/location links. Sustained improvement clears a bounty. Legacy per-question flags and mid-combat BOUNTY displays below are historical, not the target.
 
 ### Legacy: the HTML game's logic
 - Questions answered with **Failure** are flagged as **WANTED**
@@ -310,12 +304,8 @@ Examples:
 - *Lucky Find*: One extra lifeline charge this run
 - *Focused*: Timer extended by 10s on all questions this run
 
-### Mastery Gating (Zone Mode)
-In the Godot game (FAL-531), zone maps are hubs: every built region opens in any order, and SPARK's pick gives guidance in place of the gates below. Only the floors inside a region stay sequential.
-- Zone nodes unlock sequentially along the main branch
-- Side branch nodes unlock when their prerequisite main-branch node is cleared
-- Zone boss unlocks only when all main-branch nodes are cleared
-- No minimum accuracy required to "pass" a node — students may always retry
+### Mastery and route access
+ADR-0002/0003 supersede the older sequential-node sketch. All five zones are open; only explicitly approved genuine within-zone dependencies may gate a route. Shared skill evidence from any mode can permanently unlock it; Test-Out applies only to a real gate. Narrative victory is separate from mastery. No specific new gate or threshold is approved by this specification.
 
 ---
 
@@ -425,4 +415,4 @@ See `ART_REQUIREMENTS.md` for full generation briefs.
 - Accounts, and cloud save or sync between devices (export and import only, #185; sync later, #202)
 - Telemetry, until the owner approves it (#133)
 
-HL and AI content and generated questions were out of scope for v1 and have shipped. Music, sound effects and voiced explainers are in scope: see ROADMAP.md.
+Partial HL and AI generators have shipped; their complete rollout is not a first AA SL release blocker. Music, sound effects and required approved explainers are in scope, with prototype, content and spending gates preserved: see ROADMAP.md and docs/BUILD-LOOP.md.
