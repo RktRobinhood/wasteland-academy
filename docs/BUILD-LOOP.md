@@ -16,7 +16,7 @@ Only **one implementation/integration PR at a time**. Design and owner review ca
 
 | Order | Work / issue | Next bounded deliverable | Dependency / stop condition |
 |---|---|---|---|
-| 0 | Direction adoption, #266 / #204 | Land charter, glossary, seven ADRs, audit, queue and reconciled entry points | Documentation only; does not finish the gameplay umbrella |
+| 0 — complete | Direction adoption, #266 / #204 | Landed in #270 as `fc357b0`: charter, glossary, seven ADRs, audit, queue and reconciled entry points | All PR checks and main test/deployment workflows subsequently passed. Skip this step; gameplay acceptance remains open |
 | 1 | Classroom correctness/accessibility, #193 / #196 / #187 | Finish one recorded defect or keyboard gap; collect real-device evidence using `game/docs/DEVICE-CHECKLIST.md` | #265 is merged and its CI is green. Real devices and complete keyboard acceptance remain; never report those as done from WebKit alone |
 | 2 | Exact active run, [#267](https://github.com/RktRobinhood/wasteland-academy/issues/267), ADR-0003 | First PR: versioned snapshot and exact restore with reward/evidence safety; then course Settings/inert scenery if a separate slice is needed | Inspect existing banking and quit/back semantics. Preserve hidden-tab pause. Ask only for unresolved recovery semantics |
 | 3 | Mastery calibration, [#268](https://github.com/RktRobinhood/wasteland-academy/issues/268), ADR-0002 | Reviewable formula, deterministic learner trajectories, migration/selection plan | Proposal is authorized; shipping numeric calibration and no-attempt floor needs recorded owner acceptance |
