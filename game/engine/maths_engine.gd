@@ -10,13 +10,15 @@ extends RefCounted
 ##   Generation             generate(request)            the same request, the same question
 ##   Marking                mark(question, response)
 ##   Worked solutions       worked_solutions(question), answer_sentence(question)
-##   Learning results       blank_evidence(), record(evidence, question, result, now),
-##                          results(evidence, course)
+##   Learning results       blank_evidence(), record(evidence, question, result, now,
+##                          outcome, assists), results(evidence, course)
+##   Mastery                mastery(evidence, skill), mastery_levels(evidence, course)
 ##
 ## A request is a Dictionary: {"type", "unknown", "rep", "angle", "format", "seed"} and,
 ## optionally, "paper" (1 or 2). A concept probe is {"type", "probe": index, "format":
-## "probe"}. Evidence is a Dictionary with "cells", "probes" and "history" (the game's
-## save is one, with its own fields beside them).
+## "probe"}. Evidence is a Dictionary with "cells", "probes", "history" and "mastery" (the
+## game's save is one, with its own fields beside them; until its v8 migration a save has
+## no "mastery", and record() adds one).
 
 ## The interface's version. A change that breaks a caller bumps it.
 const VERSION := 1
@@ -188,12 +190,18 @@ const HISTORY := 20
 
 ## Evidence with nothing in it.
 static func blank_evidence() -> Dictionary:
-	return {"cells": {}, "probes": {}, "history": []}
+	return {"cells": {}, "probes": {}, "history": [], "mastery": blank_mastery()}
 
 
-## Records a marked answer in the evidence.
-static func record(evidence: Dictionary, question: Dictionary, result: Dictionary, now: int) -> void:
+## Records a marked answer in the evidence: its cell (record_key) and the mastery of every
+## skill the question tests (record_mastery).
+##   outcome   "right", "late", "glancing", "wrong" or "timeout"; "" reads it from result
+##   assists   any of "hint", "fifty", "freeze" (the fight's lifelines); the question's own
+##             format adds "mcq", and a glancing result adds "glancing"
+static func record(evidence: Dictionary, question: Dictionary, result: Dictionary, now: int,
+		outcome: String = "", assists: Array = []) -> void:
 	record_key(evidence, question.cell, result.correct, now, result.get("misconception", ""), question.get("format") == "probe")
+	record_mastery(evidence, question, result, now, outcome, assists)
 
 
 ## Records one answer by key: a cell key (or a probe key with probe = true). Each cell
@@ -301,3 +309,282 @@ static func weakest_skills(evidence: Dictionary, pool: Array, n: int = WEAKEST) 
 ## right ÷ seen as a whole percent, or -1 when seen is 0.
 static func percent(right: int, seen: int) -> int:
 	return -1 if seen == 0 else roundi(100.0 * right / seen)
+
+
+# ── Mastery ──────────────────────────────────────────────────
+#
+# Per-skill mastery (ADR-0002; docs/proposals/mastery-calibration.md §2-§5 and §9,
+# accepted 2026-11-25 on FAL-1603). Every constant here is a value the proposal sets.
+# The formulas are the ones the proposal's simulation tested
+# (tests/sim/mastery_calibration_model.gd); tests/test_mastery_engine.gd checks the two
+# agree. Pure arithmetic: no random numbers and no clock, so seeds still reproduce. No
+# decay: a rating moves only when an answer is marked.
+#
+# evidence.mastery = {"version": 1, "skills": {skill id: record}}. A record is
+# {"m": rating, "n": answers counted, "exam_ok": unassisted exam-tier successes,
+# "ok_cells": distinct cells answered right, "recent_ok": the last cells answered right,
+# "last": time of the last answer, "migrated": false}. A skill with no record is Not Yet
+# Attempted: no rating, no level. Records are keyed by skill id only, never by course.
+
+## The mastery record's format.
+const MASTERY_VERSION := 1
+## First evidence starts at the bottom of Level 1.
+const MASTERY_START := 1.0
+const MASTERY_FLOOR := 1.0
+## The top of Level 7, so one miss does not drop a hard-won L7.
+const MASTERY_CAP := 7.999
+## Elo step: a matched success moves the rating K / 2.
+const MASTERY_K := 1.0
+## One rating point is one level.
+const MASTERY_SCALE := 1.0
+## A question of difficulty d (0-5) has rating d + 1: d3 sits at Level 4.
+const MASTERY_OFFSET := 1.0
+## Credit on a success, multiplied together. A 50-50 replaces the multiple-choice credit.
+const MASTERY_CREDIT := {"none": 1.0, "mcq": 0.75, "fifty": 0.4, "hint": 0.5, "glancing": 0.75,
+	"late": 1.0, "freeze": 1.0, "migrated": 0.75}
+## Weight of a miss.
+const MASTERY_MISS := {"wrong": 1.0, "timeout": 0.5}
+## Upward damping by band: [below this rating, factor].
+const MASTERY_DAMP := [[5.0, 1.0], [6.0, 0.5], [7.0, 0.25], [99.0, 0.125]]
+## Assisted (hint, 50-50) and migrated successes stop at the edge of Exam Ready.
+const MASTERY_ASSISTED_CAP := 3.999
+## A success on one of the skill's last MASTERY_REPEAT_WINDOW cells answered right counts half.
+const MASTERY_REPEAT_WINDOW := 3
+const MASTERY_REPEAT_FACTOR := 0.5
+## Distinct cells a record keeps: the gates need at most 5, and the save stays small.
+const MASTERY_CELLS_KEPT := 16
+## Exam Ready (L4+) needs this many unassisted successes at the exam tier: difficulty 3,
+## or the skill's top difficulty when that is lower.
+const MASTERY_EXAM_READY := 2
+const MASTERY_EXAM_TIER := 3
+## L6 needs right answers on this many distinct cells, L7 on MASTERY_L7_CELLS (or every
+## cell of the skill, when it has fewer).
+const MASTERY_L6_CELLS := 3
+const MASTERY_L7_CELLS := 5
+## The outcomes that are successes.
+const MASTERY_SUCCESSES := ["right", "late", "glancing"]
+
+## skill id -> the difficulty of its hardest question, and course -> {skill id: cells}.
+static var _skill_tops: Dictionary = {}
+static var _skill_counts: Dictionary = {}
+
+
+## Mastery with nothing in it.
+static func blank_mastery() -> Dictionary:
+	return {"version": MASTERY_VERSION, "skills": {}}
+
+
+## The skill ids a question tests (its unknown's "skills"), or [] for a probe.
+static func question_skills(question: Dictionary) -> Array:
+	if question.get("format") == "probe":
+		return []
+	var view: Dictionary = question.get("view", {})
+	return QuestionEngine.unknown_of(QuestionEngine.type_of(view.get("type", "")), view.get("unknown", "")).get("skills", [])
+
+
+## Updates the mastery of every skill a marked question tests (see record() for outcome
+## and assists). Nothing changes for a probe (not counted in v1), or for an incomplete
+## response that is not a timeout (nothing was marked).
+static func record_mastery(evidence: Dictionary, question: Dictionary, result: Dictionary, now: int,
+		outcome: String = "", assists: Array = []) -> void:
+	var skills := question_skills(question)
+	if skills.is_empty():
+		return
+	if outcome == "":
+		if not bool(result.get("complete", true)):
+			return
+		outcome = ("glancing" if result.get("glancing", false) else "right") if result.correct else "wrong"
+	var used := assists.duplicate()
+	if is_choice(question) and not used.has("mcq"):
+		used.append("mcq")
+	if result.get("glancing", false) and not used.has("glancing"):
+		used.append("glancing")
+	if not (evidence.get("mastery") is Dictionary):
+		evidence.mastery = blank_mastery()
+	var book: Dictionary = evidence.mastery.get("skills", {})
+	evidence.mastery.skills = book
+	var d := int(question.get("level", 0))
+	var shares := {}
+	if not outcome in MASTERY_SUCCESSES:
+		shares = mastery_blame(book, skills, d, misconception_skill(result.get("misconception", ""), skills))
+	for s in skills:
+		book[s] = mastery_update(book.get(s, {}), d, skill_top(s), outcome, used, question.cell,
+			float(shares.get(s, 1.0)), now)
+
+
+## The skill a misconception names, when it is one of skills, else "". A misconception's
+## ref is "<skill id>#<index>" when the catalogue files it under a skill.
+static func misconception_skill(ref: String, skills: Array) -> String:
+	var named := ref.get_slice("#", 0)
+	return named if ref != "" and skills.has(named) else ""
+
+
+## The rating of a question of difficulty d.
+static func question_rating(difficulty: int) -> float:
+	return float(difficulty) + MASTERY_OFFSET
+
+
+## The expected chance of success at rating m on a question rated e.
+static func mastery_expect(m: float, e: float) -> float:
+	return 1.0 / (1.0 + exp(-(m - e) / MASTERY_SCALE))
+
+
+## The upward damping at rating m.
+static func mastery_damp(m: float) -> float:
+	for band in MASTERY_DAMP:
+		if m < band[0]:
+			return band[1]
+	return MASTERY_DAMP[-1][1]
+
+
+## The credit for a success with these assists, multiplied together.
+static func mastery_credit(assists: Array) -> float:
+	var c := 1.0
+	for a in assists:
+		if a == "mcq" and assists.has("fifty"):
+			continue
+		c *= float(MASTERY_CREDIT.get(a, 1.0))
+	return c
+
+
+## Whether a success with these assists is the learner's own work.
+static func mastery_unassisted(assists: Array) -> bool:
+	return not (assists.has("hint") or assists.has("fifty") or assists.has("migrated"))
+
+
+## Blame shares for a miss on a question testing skills: (1 - p) / sum(1 - p), summing to
+## one; or all of it on named, the skill a misconception names. book: skill id -> record
+## (a skill without one is rated MASTERY_START). Writes nothing.
+static func mastery_blame(book: Dictionary, skills: Array, difficulty: int, named: String = "") -> Dictionary:
+	var out := {}
+	if named != "" and skills.has(named):
+		for s in skills:
+			out[s] = 1.0 if s == named else 0.0
+		return out
+	var e := question_rating(difficulty)
+	var total := 0.0
+	for s in skills:
+		total += 1.0 - mastery_expect(float(book.get(s, {}).get("m", MASTERY_START)), e)
+	for s in skills:
+		out[s] = (1.0 - mastery_expect(float(book.get(s, {}).get("m", MASTERY_START)), e)) / total
+	return out
+
+
+## One answer's effect on one skill's record ({} for Not Yet Attempted). Returns a new
+## record and leaves rec alone.
+##   difficulty   the question's 0-5 level
+##   top          the skill's top difficulty (skill_top)
+##   outcome      "right", "late", "glancing", "wrong" or "timeout"
+##   assists      see mastery_credit
+##   cell         the question's cell key
+##   share        this skill's blame share on a miss (mastery_blame)
+static func mastery_update(rec: Dictionary, difficulty: int, top: int, outcome: String, assists: Array = [],
+		cell: String = "", share: float = 1.0, now: int = 0) -> Dictionary:
+	var r: Dictionary = rec.duplicate(true) if not rec.is_empty() else \
+		{"m": MASTERY_START, "n": 0, "exam_ok": 0, "ok_cells": [], "recent_ok": [], "last": 0, "migrated": false}
+	var m := float(r.m)
+	var e := question_rating(difficulty)
+	r.n = int(r.n) + 1
+	r.last = now
+	# Migrated while it holds only replayed v7 evidence: one live answer ends that.
+	r.migrated = assists.has("migrated") and (rec.is_empty() or bool(rec.get("migrated", false)))
+	if outcome in MASTERY_SUCCESSES:
+		var used: Array = assists.duplicate()
+		if outcome != "right" and not used.has(outcome):
+			used.append(outcome)
+		# At or past the skill's hardest tier, a success counts as matched, not as easy.
+		if difficulty >= top and m >= e:
+			e = m
+		var step := MASTERY_K * (1.0 - mastery_expect(m, e)) * mastery_credit(used) * mastery_damp(m)
+		var recent: Array = r.recent_ok
+		if cell != "" and recent.has(cell):
+			step *= MASTERY_REPEAT_FACTOR
+		var own := mastery_unassisted(used)
+		var ceiling := MASTERY_CAP if own else maxf(m, MASTERY_ASSISTED_CAP)
+		r.m = minf(ceiling, m + step)
+		if own and not used.has("glancing") and difficulty >= mini(MASTERY_EXAM_TIER, top):
+			r.exam_ok = int(r.exam_ok) + 1
+		if cell != "":
+			var cells: Array = r.ok_cells
+			if not cells.has(cell) and cells.size() < MASTERY_CELLS_KEPT:
+				cells.append(cell)
+			recent.append(cell)
+			while recent.size() > MASTERY_REPEAT_WINDOW:
+				recent.pop_front()
+	else:
+		r.m = maxf(MASTERY_FLOOR, m - MASTERY_K * mastery_expect(m, e) * float(MASTERY_MISS.get(outcome, 1.0)) * share)
+	return r
+
+
+## The displayed level of a record: clamp(floor(m), 1, 7) after the evidence gates, or 0
+## for Not Yet Attempted ({}). cells: how many cells the skill has (for the L6/L7 gates).
+static func mastery_level(rec: Dictionary, cells: int = MASTERY_CELLS_KEPT) -> int:
+	if rec.is_empty():
+		return 0
+	var lv := clampi(floori(float(rec.m)), 1, 7)
+	var distinct := (rec.ok_cells as Array).size()
+	if lv >= 7 and distinct < mini(MASTERY_L7_CELLS, cells):
+		lv = 6
+	if lv >= 6 and distinct < mini(MASTERY_L6_CELLS, cells):
+		lv = 5
+	if lv >= 4 and int(rec.exam_ok) < MASTERY_EXAM_READY:
+		lv = 3
+	return lv
+
+
+## Skill id -> how many of the course's cells test it.
+static func _cell_counts(course: String) -> Dictionary:
+	if not _skill_counts.has(course):
+		var counts := {}
+		for c in requests(course):
+			for s in QuestionEngine.unknown_of(QuestionEngine.type_of(c.type), c.unknown).get("skills", []):
+				counts[s] = int(counts.get(s, 0)) + 1
+		_skill_counts[course] = counts
+	return _skill_counts[course]
+
+
+## The difficulty of the hardest question the engine can ask on a skill, in any course
+## (a record is shared by every course, so its top tier is too).
+static func skill_top(skill: String) -> int:
+	if _skill_tops.is_empty():
+		for c in requests():
+			for s in QuestionEngine.unknown_of(QuestionEngine.type_of(c.type), c.unknown).get("skills", []):
+				_skill_tops[s] = maxi(int(_skill_tops.get(s, 0)), int(c.level))
+	return int(_skill_tops.get(skill, 0))
+
+
+## How many cells test a skill in a course ("" for every course).
+static func skill_cells(skill: String, course: String = "") -> int:
+	return int(_cell_counts(course).get(skill, 0))
+
+
+## What the evidence says about one skill. Not Yet Attempted is {"skill", "attempted":
+## false} and nothing more: no rating and no level to average or show as L1. Otherwise
+## {"skill", "attempted": true, "level" 1-7, "rating", "progress" through the level
+## (rating - floor(rating), for a bar), "exam_ready" (level 4+), "answers"}. course sets
+## which cells count for the L6/L7 gates. Reading never creates a record.
+static func mastery(evidence: Dictionary, skill: String, course: String = "") -> Dictionary:
+	var rec: Dictionary = _book(evidence).get(skill, {})
+	if rec.is_empty():
+		return {"skill": skill, "attempted": false}
+	var lv := mastery_level(rec, skill_cells(skill, course))
+	var m := float(rec.m)
+	return {"skill": skill, "attempted": true, "level": lv, "rating": m, "progress": m - floorf(m),
+		"exam_ready": lv >= 4, "answers": int(rec.n)}
+
+
+## mastery() for every skill a course can ask about, by skill id, attempted or not. The
+## course filters what is read; it never copies, splits or resets a record.
+static func mastery_levels(evidence: Dictionary, course: String = "") -> Dictionary:
+	var out := {}
+	for s in _cell_counts(course):
+		out[s] = mastery(evidence, s, course)
+	return out
+
+
+## The evidence's skill records, or {} when it has none. Read-only use: it may be a copy.
+static func _book(evidence: Dictionary) -> Dictionary:
+	var mastery_data = evidence.get("mastery")
+	if not (mastery_data is Dictionary) or not (mastery_data.get("skills") is Dictionary):
+		return {}
+	return mastery_data.skills
