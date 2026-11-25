@@ -25,6 +25,10 @@ class EngineErrors extends Logger:
 func _screen(path: String, view: Dictionary) -> Array:
 	Input.emulate_touch_from_mouse = true
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+	# A save that has picked its course: on a blank one Practice asks the course first.
+	var save := SaveData.blank()
+	SaveData.set_course(save, Courses.DEFAULT)
+	SaveData.store(save, SAVE)
 	var base := Vector2(1080, 1920)
 	var window := Vector2(390, 844)
 	var frame := Control.new()
