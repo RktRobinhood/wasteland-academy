@@ -107,7 +107,8 @@ const BAZAAR_PAINTED := true
 ## landing on the south shore, and the Relic device. Spots are keyed by island, then by
 ## region id, plus "all" (the island's all-regions dungeon, spot_key()) and "relic". The
 ## Signal Tower's is the FAL-783 plan's table, painted into its background. The Dry
-## Flats' is measured from its painting (FAL-1034, zones.json in assets/art/intake/):
+## Flats' (FAL-1034) and the Radio Spires' (FAL-1611) are measured from their paintings
+## (zones.json in assets/art/intake/<island>/):
 ## each place's centre, nudged where two squares would overlap or one would leave the
 ## board. The others are laid out for the coded look (FAL-925), with no two squares
 ## overlapping; a painting for one may move them, and then this table follows it.
@@ -128,9 +129,9 @@ const SPOTS := {
 		"all": Vector2(46.5, 49.7), "relic": Vector2(47.4, 71.6),
 	},
 	"stats": {
-		"discrete-distributions": Vector2(25, 85), "probability": Vector2(75, 86), "normal-distribution": Vector2(21, 66),
-		"regression": Vector2(79, 65), "conditional-probability": Vector2(21, 27), "averages-spread": Vector2(79, 28),
-		"sampling-data": Vector2(50, 10), "all": Vector2(50, 46), "relic": Vector2(12, 47),
+		"discrete-distributions": Vector2(18, 64.6), "probability": Vector2(81, 66.6), "normal-distribution": Vector2(15, 48.8),
+		"regression": Vector2(84, 47.6), "conditional-probability": Vector2(17, 33), "averages-spread": Vector2(82, 31.9),
+		"sampling-data": Vector2(45, 30.6), "all": Vector2(49, 55), "relic": Vector2(47.5, 71.2),
 	},
 	"calculus": {
 		"kinematics": Vector2(25, 85), "stationary-points": Vector2(75, 86), "tangents-normals": Vector2(21, 66),

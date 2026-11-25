@@ -1,6 +1,6 @@
 # Region art
 
-Art for each region of the Functions island, the Scrap Fields and the Dry Flats, loaded by file name (`engine/art_slots.gd`; the contract is the
+Art for each region of the Functions island, the Scrap Fields, the Dry Flats and the Radio Spires, loaded by file name (`engine/art_slots.gd`; the contract is the
 "Art slots" section of `game/README.md`). Every file is optional.
 
 ## Fight backdrops
@@ -34,8 +34,16 @@ colour. A phone held upright shows about the centre 500 px, so each region's lan
 | `trig-equations/backdrop.webp` | Flooded wave canyon: a wave wall, a teal level line, a flag where they meet | 99,378 | 13.5% | 7.0% | 14.4% | 4.65:1 | 4.71:1 |
 | `unit-circle/backdrop.webp` | Stone ring: a pivot arm to the ring's edge, a magenta plumb line from its tip | 104,086 | 14.6% | 6.0% | 15.0% | 5.18:1 | 5.29:1 |
 | `all-geometry/backdrop.webp` | The foot of the stepped mesas, the arch above, the gate in the middle | 146,578 | 10.8% | 4.8% | 10.5% | 5.75:1 | 6.68:1 |
+| `discrete-distributions/backdrop.webp` | Mast row: seven masts stepping up to a peak and down | 96,200 | 11.4% | 4.2% | 10.6% | 5.41:1 | 6.32:1 |
+| `probability/backdrop.webp` | Gambling den: one die tumbled on another, an upright wheel with one arrow | 102,516 | 10.1% | 5.4% | 8.2% | 4.82:1 | 5.77:1 |
+| `normal-distribution/backdrop.webp` | Ball mill: balls through pegs into a bell-shaped heap | 125,368 | 10.3% | 6.4% | 7.8% | 4.71:1 | 4.80:1 |
+| `regression/backdrop.webp` | Antenna field: uneven masts along one straight taut cable | 86,574 | 9.6% | 4.8% | 7.8% | 4.80:1 | 5.61:1 |
+| `conditional-probability/backdrop.webp` | Valve tree forking 1, 2, 4, teal lit along one path | 105,594 | 9.6% | 5.2% | 7.8% | 4.64:1 | 4.82:1 |
+| `averages-spread/backdrop.webp` | Box on stilts: an upright bulkhead off-centre, a boom out of each end | 97,290 | 10.1% | 4.7% | 8.2% | 4.83:1 | 5.94:1 |
+| `sampling-data/backdrop.webp` | Sorting yard: heap, crane grab with one scoop, three single-colour bins | 94,726 | 12.2% | 5.1% | 10.2% | 4.84:1 | 5.26:1 |
+| `all-stats/backdrop.webp` | The foot of the twin spires, the gate between them | 143,130 | 11.0% | 5.6% | 8.6% | 4.82:1 | 5.26:1 |
 
-Signal Tower batch total: 777,386 bytes. Scrap Fields batch total: 614,616 bytes. Dry Flats batch total: 849,016 bytes.
+Signal Tower batch total: 777,386 bytes. Scrap Fields batch total: 614,616 bytes. Dry Flats batch total: 849,016 bytes. Radio Spires batch total: 851,398 bytes.
 
 How these were measured (a Pillow script run on the files above; it and the review panels are on FAL-474):
 
@@ -104,3 +112,22 @@ glowing rod) toward the limit, so they stay lit.
 | `trig-equations/backdrop.webp` | DF5-5 | `4520f260` | Highlight roll-off on 0.68 % of pixels (the level line and its reflections), 3.5:1 to 4.65:1 on phone |
 | `unit-circle/backdrop.webp` | DF6-5 | `c8034e34` | None |
 | `all-geometry/backdrop.webp` | DF7-4 | `7e438e6c` | None |
+
+### The Radio Spires (FAL-1611)
+
+Made by Matt Prokock in ChatGPT from the same prompt cards (#201) on 2026-11-17, the same way as the Dry Flats, and
+taken in the same way: Pillow scaled each to 1920 x 1081 (LANCZOS) and trimmed the bottom row (RS3-5, one row short,
+was resized straight to 1920 x 1080), applied the edits below and encoded WebP at quality 90. Provenance and SHA-256
+are in `assets/art/CREDITS.md`; the picks and reasons are on FAL-1034. White text keeps 4.64:1 to 5.41:1 on phone
+and 4.80:1 to 6.32:1 on PC.
+
+| File | Card and candidate | Prompt (sha256, first 8) | Edits (Pillow) |
+|---|---|---|---|
+| `discrete-distributions/backdrop.webp` | RS1-2 | `cecd8116` | None |
+| `probability/backdrop.webp` | RS2-4 | `f0f489ab` | A V mark on the middle lamp's brass box (reads as a heart at 5x) painted plain; highlight roll-off on 0.09 % of pixels, 4.59:1 to 4.82:1 on phone |
+| `normal-distribution/backdrop.webp` | RS3-5 | `a17ca15a` | Straight resize from 1672 x 940; highlight roll-off on 0.44 % of pixels (balls and lamp cores), 3.26:1 to 4.71:1 on phone |
+| `regression/backdrop.webp` | RS4-3 | `3f7141af` | The fallback pick (no RS4 candidate passed; no rerun was posted). Highlight roll-off on 0.09 % of pixels, 4.51:1 to 4.80:1 on phone |
+| `conditional-probability/backdrop.webp` | RS5-1 | `e67f1681` | Mat stripes smoothed along their bars (letter-like clumps at 4x), 0.25 % of the frame; highlight roll-off on 0.31 % of pixels, 3.62:1 to 4.64:1 on phone |
+| `averages-spread/backdrop.webp` | RS6-4 | `9acd3cf3` | None |
+| `sampling-data/backdrop.webp` | RS7-5 | `9ef0b3e4` | Highlight roll-off on 0.15 % of pixels (neon cores, the yellow bin), 4.46:1 to 4.84:1 on phone |
+| `all-stats/backdrop.webp` | RS8-5 | `6a1a740d` | Highlight roll-off on 0.16 % of pixels (the gate's neon), 3.75:1 to 4.82:1 on phone |
