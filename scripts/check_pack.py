@@ -22,7 +22,9 @@ import sys
 # size call: whole boards, until the first load passes 30 MB). Each later zone states its own raise.
 # 17.4 MB from FAL-1611: the Radio Spires' board and eight backdrops add 1.41 MB as imported.
 # 18.73 MB from FAL-1612: the Engine Core's board and eight backdrops add 1.33 MB as imported.
-PCK_BUDGET = 18_730_000
+# 19.32 MB from FAL-1613: the Scrap Fields' board (its backdrops were already in) adds 592,522 B as imported.
+# The first load is then 29.2 MB, so the next art raise starts the core-plus-bands follow-up.
+PCK_BUDGET = 19_322_522
 ADDON = "res://addons/godot_mcp_toolkit/"
 AUDIO_DIRS = ("res://assets/audio/music/", "res://assets/audio/voice/")
 

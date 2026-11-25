@@ -25,7 +25,7 @@ const CATALOGUE := "res://data/catalogue.json"
 const NO_ART := "res://tests/fixtures/no-art/map/"
 ## The zones with a painting in assets/map/<island>/: the Signal Tower (FAL-791), the
 ## Dry Flats (FAL-1034), the Radio Spires (FAL-1611) and the Engine Core (FAL-1612).
-const PAINTED := ["functions", "geometry", "stats", "calculus"]
+const PAINTED := ["functions", "geometry", "stats", "calculus", "algebra"]
 
 
 func _area(window: Vector2i) -> Vector2:
