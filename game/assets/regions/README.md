@@ -34,15 +34,15 @@ colour. A phone held upright shows about the centre 500 px, so each region's lan
 | `trig-equations/backdrop.webp` | Flooded wave canyon: a wave wall, a teal level line, a flag where they meet | 99,378 | 13.5% | 7.0% | 14.4% | 4.65:1 | 4.71:1 |
 | `unit-circle/backdrop.webp` | Stone ring: a pivot arm to the ring's edge, a magenta plumb line from its tip | 104,086 | 14.6% | 6.0% | 15.0% | 5.18:1 | 5.29:1 |
 | `all-geometry/backdrop.webp` | The foot of the stepped mesas, the arch above, the gate in the middle | 146,578 | 10.8% | 4.8% | 10.5% | 5.75:1 | 6.68:1 |
+| `discrete-distributions/backdrop.webp` | Mast row: seven masts stepping up to a peak and down | 96,200 | 11.4% | 4.2% | 10.6% | 5.41:1 | 6.32:1 |
+| `probability/backdrop.webp` | Gambling den: one die tumbled on another, an upright wheel with one arrow | 102,516 | 10.1% | 5.4% | 8.2% | 4.82:1 | 5.77:1 |
+| `normal-distribution/backdrop.webp` | Ball mill: balls through pegs into a bell-shaped heap | 125,368 | 10.3% | 6.4% | 7.8% | 4.71:1 | 4.80:1 |
+| `regression/backdrop.webp` | Antenna field: uneven masts along one straight taut cable | 86,574 | 9.6% | 4.8% | 7.8% | 4.80:1 | 5.61:1 |
+| `conditional-probability/backdrop.webp` | Valve tree forking 1, 2, 4, teal lit along one path | 105,594 | 9.6% | 5.2% | 7.8% | 4.64:1 | 4.82:1 |
+| `averages-spread/backdrop.webp` | Box on stilts: an upright bulkhead off-centre, a boom out of each end | 97,290 | 10.1% | 4.7% | 8.2% | 4.83:1 | 5.94:1 |
+| `sampling-data/backdrop.webp` | Sorting yard: heap, crane grab with one scoop, three single-colour bins | 94,726 | 12.2% | 5.1% | 10.2% | 4.84:1 | 5.26:1 |
+| `all-stats/backdrop.webp` | The foot of the twin spires, the gate between them | 143,130 | 11.0% | 5.6% | 8.6% | 4.82:1 | 5.26:1 |
 
-| `discrete-distributions/backdrop.webp` | Mast row: seven masts stepping up to a peak and down | 96200 | 11.4% | 4.2% | 10.6% | 5.41:1 | 6.32:1 |
-| `probability/backdrop.webp` | Gambling den: one die tumbled on another, an upright wheel with one arrow | 102516 | 10.1% | 5.4% | 8.2% | 4.82:1 | 5.77:1 |
-| `normal-distribution/backdrop.webp` | Ball mill: balls through pegs into a bell-shaped heap | 125368 | 10.3% | 6.4% | 7.8% | 4.71:1 | 4.80:1 |
-| `regression/backdrop.webp` | Antenna field: uneven masts along one straight taut cable | 86574 | 9.6% | 4.8% | 7.8% | 4.80:1 | 5.61:1 |
-| `conditional-probability/backdrop.webp` | Valve tree forking 1, 2, 4, teal lit along one path | 105594 | 9.6% | 5.2% | 7.8% | 4.64:1 | 4.82:1 |
-| `averages-spread/backdrop.webp` | Box on stilts: an upright bulkhead off-centre, a boom out of each end | 97290 | 10.1% | 4.7% | 8.2% | 4.83:1 | 5.94:1 |
-| `sampling-data/backdrop.webp` | Sorting yard: heap, crane grab with one scoop, three single-colour bins | 94726 | 12.2% | 5.1% | 10.2% | 4.84:1 | 5.26:1 |
-| `all-stats/backdrop.webp` | The foot of the twin spires, the gate between them | 143130 | 11.0% | 5.6% | 8.6% | 4.82:1 | 5.26:1 |
 Signal Tower batch total: 777,386 bytes. Scrap Fields batch total: 614,616 bytes. Dry Flats batch total: 849,016 bytes. Radio Spires batch total: 851,398 bytes.
 
 How these were measured (a Pillow script run on the files above; it and the review panels are on FAL-474):
