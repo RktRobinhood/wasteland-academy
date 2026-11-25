@@ -25,7 +25,7 @@ const TAP = {
   courseAaSl: [195, 180],
   courseContinue: [195, 749],
   scrapFields: [86, 325],
-  sequences: [94, 607],
+  sequences: [74, 538],
   startRun: [195, 414],
   skipCards: [188, 293],
   keyEight: [46, 680],
