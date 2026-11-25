@@ -107,7 +107,8 @@ const BAZAAR_PAINTED := true
 ## landing on the south shore, and the Relic device. Spots are keyed by island, then by
 ## region id, plus "all" (the island's all-regions dungeon, spot_key()) and "relic". The
 ## Signal Tower's is the FAL-783 plan's table, painted into its background. The Dry
-## Flats' (FAL-1034) and the Radio Spires' (FAL-1611) are measured from their paintings
+## Flats' (FAL-1034), the Radio Spires' (FAL-1611) and the Engine Core's (FAL-1612) are measured
+## from their paintings
 ## (zones.json in assets/art/intake/<island>/):
 ## each place's centre, nudged where two squares would overlap or one would leave the
 ## board. The others are laid out for the coded look (FAL-925), with no two squares
@@ -134,9 +135,9 @@ const SPOTS := {
 		"sampling-data": Vector2(45, 30.6), "all": Vector2(49, 55), "relic": Vector2(47.5, 71.2),
 	},
 	"calculus": {
-		"kinematics": Vector2(25, 85), "stationary-points": Vector2(75, 86), "tangents-normals": Vector2(21, 66),
-		"definite-integrals": Vector2(79, 65), "derivative-rules": Vector2(21, 27), "derivative-basics": Vector2(79, 28),
-		"integration": Vector2(50, 10), "all": Vector2(50, 46), "relic": Vector2(88, 47),
+		"kinematics": Vector2(22, 62.6), "stationary-points": Vector2(78, 62.6), "tangents-normals": Vector2(14, 46.8),
+		"definite-integrals": Vector2(85, 46.9), "derivative-rules": Vector2(18, 31), "derivative-basics": Vector2(80, 31.2),
+		"integration": Vector2(50, 28.6), "all": Vector2(50, 51.7), "relic": Vector2(48, 71.1),
 	},
 }
 ## The jetty the player lands at: painted only, a dot on the coded look, not a button.

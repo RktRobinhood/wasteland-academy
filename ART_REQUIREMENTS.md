@@ -484,7 +484,14 @@ Artist then chooses, from the measurements, and records the result here.
 The comparison records each technique's file size, its frame time on a phone (the Coder's measurement), and
 screenshots, and is posted on the task.
 
-**Result:** not yet run. It waits on the Engine Core candidates.
+**Result: A, for the Engine Core and for every zone after it** (CEO decision, 2026-11-24, FAL-1612). The
+side-by-side was not run, because B has no input. B needs an empty board that lines up with B4-1 to the pixel,
+so each cut-out lands back on its own ground. None exists. Matt's six B4P images (2026-11-17, FAL-1034) were a
+new picture, not an edit of B4-1: 0 of 225 tiles line up with it, structure correlation 0.04 to 0.18, and
+rust-red rock where B4-1 has orange sand. A already works on the world map (FAL-1074). The Engine Core ships as
+a still board (`game/assets/map/calculus/`), and its motion is the life pack in
+`assets/art/intake/calculus/life-pack.md`, which waits on the island layer (FAL-1092). If Matt later makes a
+pixel-aligned empty plate of a board, the comparison can still be run on that board.
 
 ### ChatGPT images in a paid release (#199)
 
