@@ -19,9 +19,15 @@ const DIM := Color(0.611765, 0.639216, 0.686275)
 const GRID := Color(1, 1, 1, 0.07)
 const GRID_MAJOR := Color(1, 1, 1, 0.16)
 
-const BODY := 42
-const BIG := 50
-const SMALL := 32
+## Text sizes. They are variables, not constants, for the Larger text setting (#196):
+## set_larger_text() raises them, and screens built after that use the new sizes. At
+## the normal sizes small text is about 10.7 px on a 360 px phone; with Larger text it
+## is about 14.7 px.
+static var BODY := 42
+static var BIG := 50
+static var SMALL := 32
+const NORMAL_SIZES := [42, 50, 32]
+const LARGER_SIZES := [48, 56, 44]
 
 const TITLE_FONT := preload("res://assets/fonts/bangers-latin.woff2")
 const MATH_FONT := preload("res://assets/fonts/dejavu-math-subset.woff2")
@@ -29,6 +35,18 @@ const MATH_FONT := preload("res://assets/fonts/dejavu-math-subset.woff2")
 const POWER_SCALE := 0.68
 const POWER_RAISE := -0.28
 
+
+
+## BODY, BIG and SMALL at the larger or the normal sizes.
+static func set_larger_text(on: bool) -> void:
+	var sizes: Array = LARGER_SIZES if on else NORMAL_SIZES
+	BODY = sizes[0]
+	BIG = sizes[1]
+	SMALL = sizes[2]
+
+
+static func larger_text(save: Dictionary) -> bool:
+	return bool(save.get("settings", {}).get("larger_text", false))
 
 
 ## Adds the maths subset behind the default font, once. Safe to call again.

@@ -273,6 +273,7 @@ func start_run() -> void:
 			Audio.play_sfx("open"))
 	run.run_ended.connect(_show_summary)
 	journey = JourneyLink.attach(run, strip, save)
+	apply_settings()
 	summary_box.visible = false
 	floor_box.visible = false
 	UiTheme.show_backdrop(backdrop, _backdrop())
@@ -866,13 +867,26 @@ func _update_plate() -> void:
 	(plate_row.get_node("Perk") as Label).text = ("Perk: " + Bazaar.perk_name(perk)) if not perk.is_empty() else ""
 
 
+## The bar and its words. The words carry the state as well as the colour does (#196):
+## "Late" in the red end, ❚❚ while Freeze holds it, "No timer" when the student set the
+## timer off (the bar is hidden then).
 func _update_timer() -> void:
+	timer_bar.visible = not run.untimed
+	if run.untimed:
+		timer_label.text = "No timer"
+		timer_label.add_theme_color_override("font_color", UiTheme.DIM)
+		return
 	timer_bar.max_value = run.time_total
 	timer_bar.value = run.time_left
 	var share := run.time_share()
 	timer_fill.bg_color = GREEN if share >= Tuning.BAR_ORANGE else (ORANGE if share >= Tuning.LATE_ZONE else RED)
-	timer_label.text = ("❚❚ " if run.frozen_left > 0.0 else "") + "%ds" % ceili(run.time_left)
+	timer_label.text = timer_text(run.time_left, run.frozen_left > 0.0, run.in_late_zone())
 	timer_label.add_theme_color_override("font_color", UiTheme.TEAL if run.frozen_left > 0.0 else UiTheme.TEXT)
+
+
+## The timer's words: the seconds left, after ❚❚ while frozen or "Late" in the late zone.
+static func timer_text(left: float, frozen: bool, late: bool) -> String:
+	return ("❚❚ " if frozen else ("Late " if late else "")) + "%ds" % ceili(left)
 
 
 func use_lifeline(id: String) -> void:
@@ -1028,13 +1042,20 @@ func _show_result(r: Dictionary) -> void:
 
 ## On a hit, the enemy's hurt frame for HURT_FLASH seconds, where it has one.
 func flash_hurt() -> void:
-	if run.enemy.hurt == "":
+	if run.enemy.hurt == "" or reduced_motion():
 		return
 	var art: String = run.enemy.art
 	enemy_art.texture = load(run.enemy.hurt)
 	get_tree().create_timer(HURT_FLASH).timeout.connect(func():
 		if is_instance_valid(enemy_art) and run != null and run.enemy.art == art:
 			enemy_art.texture = load(art))
+
+
+## Settings changed (the settings panel calls it, #196): the journey scene follows the
+## reduced-motion switch at once. A new timer setting applies from the next question.
+func apply_settings() -> void:
+	if strip != null and "reduced_motion" in strip:
+		strip.reduced_motion = reduced_motion()
 
 
 ## True when nothing should move (AmbientLayer.motion_reduced()).

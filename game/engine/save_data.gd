@@ -9,8 +9,11 @@ extends RefCounted
 ## sent anywhere.
 ##
 ##   version    VERSION; older saves go through migrate() on load
-##   settings   {"exam_only": false, "reduced_motion": false}; reduced_motion cuts between
-##              the map's layers instead of zooming (ui/map.gd)
+##   settings   {"exam_only": false, "reduced_motion": false, "timer": 1.0, "larger_text":
+##              false}; reduced_motion cuts between the map's layers instead of zooming
+##              (ui/map.gd) and stills the fight (ui/fight.gd); timer is the clock's
+##              multiplier, one of Tuning.TIMER_CHOICES (0.0 for off, #196); larger_text
+##              raises the text sizes (UiTheme.set_larger_text)
 ##   course     the student's IB course (FAL-397): "aa-sl", "aa-hl", "ai-sl" or "ai-hl".
 ##              Courses.of(save) reads it; set_course() changes it and keeps every cell
 ##              record, so progress on the skills two courses share is not lost
@@ -52,7 +55,7 @@ const HISTORY := MathsEngine.HISTORY
 
 
 static func blank() -> Dictionary:
-	return {"version": VERSION, "settings": {"exam_only": false, "reduced_motion": false}, "course": Courses.DEFAULT, "cells": {}, "probes": {}, "history": [],
+	return {"version": VERSION, "settings": {"exam_only": false, "reduced_motion": false, "timer": 1.0, "larger_text": false}, "course": Courses.DEFAULT, "cells": {}, "probes": {}, "history": [],
 		"seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
 		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}, "dungeon": {},
 		"bazaar": blank_bazaar(), "here": "bazaar", "watched": [], "intro": {"course": false, "cards": false}}

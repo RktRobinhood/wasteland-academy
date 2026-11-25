@@ -460,3 +460,45 @@ func test_the_settings_screen_has_a_switch_beside_each_slider() -> void:
 	await tree.process_frame
 	tree.root.size = window_size
 	_restore(audio)
+
+
+## Access settings (#196): the timer, reduced motion and larger text go into the save,
+## and the whole panel still fits a 360 px phone.
+func test_the_settings_screen_has_the_access_settings() -> void:
+	var path := "user://test_settings_save.json"
+	SaveData.store(SaveData.blank(), path)
+	var window_size := tree.root.size
+	tree.root.size = Vector2i(360, 740)
+	var panel := (load(SETTINGS_SCENE) as PackedScene).instantiate()
+	panel.fallback_path = path
+	tree.root.add_child(panel)
+	panel.open()
+	for i in 3:
+		await tree.process_frame
+	var column := "Center/Panel/Pad/Column/"
+	var names: Array = []
+	for b in panel.get_node(column + "TimerRow").get_children():
+		names.append(b.text)
+	check_eq(names, ["×1", "×1.25", "×1.5", "Off"], "the timer choices")
+	check((panel.get_node(column + "TimerRow/x1") as Button).button_pressed, "×1 to start")
+	(panel.get_node(column + "TimerRow/x1_5") as Button).emit_signal("pressed")
+	check_eq(float(SaveData.load_from(path).settings.timer), 1.5, "×1.5 saved")
+	var motion := panel.get_node(column + "MotionRow/MotionToggle") as Button
+	if not motion.disabled:
+		motion.button_pressed = true
+		check(bool(SaveData.load_from(path).settings.reduced_motion), "reduced motion saved")
+	var text := panel.get_node(column + "TextRow/TextToggle") as Button
+	text.button_pressed = true
+	check(bool(SaveData.load_from(path).settings.larger_text), "larger text saved")
+	check(UiTheme.SMALL * 360.0 / 1080.0 >= 14.0, "small text is at least 14 px on a 360 px phone: %d" % UiTheme.SMALL)
+	text.button_pressed = false
+	check_eq(UiTheme.SMALL, 32, "back to normal")
+	var view := tree.root.get_visible_rect()
+	for n in ["TimerRow/Off", "TextRow/TextToggle", "Close"]:
+		var c := panel.get_node(column + n) as Control
+		check(view.encloses(c.get_global_rect()), "%s is off a 360 px phone: %s" % [n, c.get_global_rect()])
+	panel.queue_free()
+	tree.root.size = window_size
+	for p in [path, path + ".bak", path + ".tmp"]:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(p))
+	await tree.process_frame
