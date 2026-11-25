@@ -20,7 +20,8 @@ import sys
 # the addon it is about 12 MB. Raise the budget only with a reason in the commit.
 # 16 MB from FAL-1034: the Dry Flats' ChatGPT board and seven backdrops add 1.2 MB (the CEO's
 # size call: whole boards, until the first load passes 30 MB). Each later zone states its own raise.
-PCK_BUDGET = 16_000_000
+# 17.4 MB from FAL-1611: the Radio Spires' board and eight backdrops add 1.41 MB as imported.
+PCK_BUDGET = 17_400_000
 ADDON = "res://addons/godot_mcp_toolkit/"
 AUDIO_DIRS = ("res://assets/audio/music/", "res://assets/audio/voice/")
 

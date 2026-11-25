@@ -624,9 +624,9 @@ Flats), `stats/` (the Radio Spires) and `calculus/` (the Engine Core). Each file
 optional: when one isn't there, that piece keeps the coded look (the zone's dusk
 gradient, `ArtSlots.GROUND`, with the jetty as a dot, and a ring in the state's colour
 with a short glyph, `GLYPHS`, for each place), so art can land one file at a time and an
-zone's painting shows the moment it's dropped in, with no code change. Two zones are
-painted so far: the Signal Tower (`functions/`, FAL-791) and the Dry Flats (`geometry/`,
-FAL-1034). Import each with mipmaps on, like the rest of the art; a ChatGPT board imports
+zone's painting shows the moment it's dropped in, with no code change. Three zones are
+painted so far: the Signal Tower (`functions/`, FAL-791), the Dry Flats (`geometry/`,
+FAL-1034) and the Radio Spires (`stats/`, FAL-1611). Import each with mipmaps on, like the rest of the art; a ChatGPT board imports
 at lossy quality 0.6 (see the size budget in `ART_REQUIREMENTS.md`).
 
 | File | Size | What it is |

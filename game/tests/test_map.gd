@@ -23,9 +23,9 @@ const SAVE := "user://test_map_save.json"
 const CATALOGUE := "res://data/catalogue.json"
 ## An island art folder with nothing in it: the coded look.
 const NO_ART := "res://tests/fixtures/no-art/map/"
-## The zones with a painting in assets/map/<island>/: the Signal Tower (FAL-791) and the
-## Dry Flats (FAL-1034).
-const PAINTED := ["functions", "geometry"]
+## The zones with a painting in assets/map/<island>/: the Signal Tower (FAL-791), the
+## Dry Flats (FAL-1034) and the Radio Spires (FAL-1611).
+const PAINTED := ["functions", "geometry", "stats"]
 
 
 func _area(window: Vector2i) -> Vector2:
