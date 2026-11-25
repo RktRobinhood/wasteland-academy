@@ -48,7 +48,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.133333, 0.827451, 0.772549, 1)
 theme_override_fonts/font = ExtResource("3_display")
 theme_override_font_sizes/font_size = 92
-text = "Sound"
+text = "Settings"
 horizontal_alignment = 1
 
 [node name="SoundRow" type="HBoxContainer" parent="Center/Panel/Pad/Column"]

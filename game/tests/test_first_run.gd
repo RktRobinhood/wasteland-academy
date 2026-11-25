@@ -6,6 +6,7 @@ extends "res://tests/test_case.gd"
 const MAP := "res://scenes/map.tscn"
 const MAIN := "res://scenes/main.tscn"
 const FIGHT := "res://scenes/fight.tscn"
+const PRACTICE := "res://scenes/practice.tscn"
 const SAVE := "user://test_first_run_save.json"
 
 
@@ -85,6 +86,52 @@ func test_the_map_asks_for_the_course_once() -> void:
 	var again: Array = await _mount(MAP, stored)
 	check(again[1].get_node_or_null("CoursePick") == null, "not asked twice")
 	_unmount(again)
+
+
+func test_practice_on_a_blank_save_asks_the_course_first() -> void:
+	# The title's "Practice" on a blank save (FAL-1608): the course question comes
+	# before any question, and practice then starts in the course picked.
+	var made: Array = await _mount(PRACTICE)
+	var p: Control = made[1]
+	var pick := p.get_node_or_null("CoursePick") as FirstRun
+	check(pick != null, "a blank save is asked its course before practice")
+	if pick == null:
+		_unmount(made)
+		return
+	check(p.question.is_empty(), "no question is asked before the course")
+	check(SaveData.needs_course(SaveData.load_from(SAVE)), "nothing is saved yet")
+	(pick._body.get_node("aa-hl") as Button).pressed.emit()
+	pick.continue_button.pressed.emit()
+	await tree.process_frame
+	await tree.process_frame
+	check(p.get_node_or_null("CoursePick") == null, "the question closes")
+	check(not p.question.is_empty(), "practice starts")
+	var stored := SaveData.load_from(SAVE)
+	check_eq(stored.course, "aa-hl", "in the course picked")
+	check(not SaveData.needs_course(stored), "and is not asked again")
+	_unmount(made)
+	var again: Array = await _mount(PRACTICE, stored)
+	check(again[1].get_node_or_null("CoursePick") == null, "not asked twice")
+	check(not (again[1].question as Dictionary).is_empty(), "straight into a question")
+	_unmount(again)
+
+
+func test_phone_headings_show_in_full_clear_of_the_speaker_and_gear() -> void:
+	# FAL-1608, at a phone's width: the map's title read "THE WASTEL…", and the course
+	# question ran under the speaker and gear.
+	var on := SaveData.blank()
+	SaveData.set_course(on, "aa-sl")
+	var made: Array = await _mount(MAP, on)
+	var t := made[1].get_node("World/Header").get_child(0).get_node("Title") as Label
+	var w := t.get_theme_font("font").get_string_size(t.text, HORIZONTAL_ALIGNMENT_LEFT, -1, t.get_theme_font_size("font_size")).x
+	check(w <= t.size.x, "\"%s\" fits its header (%.0f of %.0f)" % [t.text, w, t.size.x])
+	check(t.get_global_rect().end.x <= made[0].size.x - AudioHud.RESERVED_RIGHT, "and stops short of the speaker and gear")
+	_unmount(made)
+	var asked: Array = await _mount(MAP)
+	var h := (asked[1].get_node("CoursePick") as FirstRun)._body.get_node("Heading") as Label
+	var text_right := h.get_global_rect().end.x - h.get_theme_stylebox("normal").content_margin_right
+	check(text_right <= asked[0].size.x - AudioHud.RESERVED_RIGHT, "the course question wraps before the speaker and gear")
+	_unmount(asked)
 
 
 # ── The cards ────────────────────────────────────────────────

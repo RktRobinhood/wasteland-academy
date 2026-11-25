@@ -59371,7 +59371,6 @@
      "skill": "SL4.6.union",
      "method": "one-minus-neither",
      "suits": [
-      "neither-from-rule",
       "union-from-regions"
      ]
     },

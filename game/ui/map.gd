@@ -51,6 +51,9 @@ const MAP_ART := "res://assets/map/"
 ## Both maps are drawn on a portrait board of this size, scaled to fit under the header.
 const BOARD := Vector2(1080, 1920)
 const HEADER := 190.0
+## A header title's size, and the smallest it shrinks to on a narrow screen.
+const TITLE_SIZE := 84
+const TITLE_MIN := 40
 const COLUMN := 1000
 const COLUMN_WIDE := 1500
 ## A place's button on the island board, a square in board units round its point, and
@@ -441,18 +444,31 @@ func _header(parent: Control, text: String, back_text: String, back: Callable) -
 	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	b.pressed.connect(back)
 	row.add_child(b)
-	var t := UiTheme.label(text, 84, UiTheme.TEAL)
+	var t := UiTheme.label(text, TITLE_SIZE, UiTheme.TEAL)
 	t.name = "Title"
 	t.autowrap_mode = TextServer.AUTOWRAP_OFF
 	t.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	t.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	# On a phone the title shrinks to fit rather than trimming ("THE WASTEL…", FAL-1608).
+	t.resized.connect(fit_title.bind(t))
 	row.add_child(t)
 	var gap := Control.new()
 	gap.name = "HudGap"
 	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(gap)
 	_headers.append(m)
+
+
+## The largest title size, up to TITLE_SIZE and no smaller than TITLE_MIN, at which a
+## header title's text fits its label's width.
+static func fit_title(t: Label) -> void:
+	var font := t.get_theme_font("font")
+	var s := TITLE_SIZE
+	while s > TITLE_MIN and font.get_string_size(t.text, HORIZONTAL_ALIGNMENT_LEFT, -1, s).x > t.size.x:
+		s -= 2
+	if t.get_theme_font_size("font_size") != s:
+		t.add_theme_font_size_override("font_size", s)
 
 
 ## The course picker (FAL-397): one button per IB course, the save's course pressed.
@@ -987,6 +1003,7 @@ func _fill_island() -> void:
 	var info := island_info(route.island)
 	var title := island.get_node("Header").get_child(0).get_node("Title") as Label
 	title.text = info.name
+	fit_title(title)
 	var bg_path := background_path()
 	var painted := bg_path != ""
 	if painted:

@@ -29,7 +29,8 @@ const EXTENSION_WEIGHT := 2
 ##           it. "Exam-style only" ignores it: exam frequency is then the only rule.
 ##   probes  false leaves concept probes out (a fight asks questions with answers)
 ##   salt    mixed into the stream, so a run's seed changes its questions
-## The pool is only what the save's course covers (Courses.of), the probes too.
+## The pool is only what the save's course covers (Courses.of), the probes too. With a
+## region, the probes are that region's types only.
 static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionary:
 	var salt: String = opts.get("salt", "")
 	var rng := Seeded.new("planner|%d" % int(save.seed) + ("|" + salt if salt != "" else ""))
@@ -38,10 +39,10 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 	var course := Courses.of(save)
 	var region: String = opts.get("region", "")
 	var pool: Array
+	var types: Array = region_types(region, course) if region != "" else []
 	if opts.has("cells"):
 		pool = opts.cells
 	else:
-		var types: Array = region_types(region, course) if region != "" else []
 		pool = QuestionEngine.cells(exam_only, types, course)
 		if region != "" and types.is_empty():
 			pool = []
@@ -58,6 +59,9 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 
 	if not exam_only:
 		var probes := QuestionEngine.probes(false, course) if opts.get("probes", true) else []
+		# Topic practice asks only that region's concept checks (FAL-1608).
+		if region != "":
+			probes = probes.filter(func(p): return types.has(p.type))
 		if not probes.is_empty() and rng.int_in(1, PROBE_EVERY) == 1:
 			var unseen := probes.filter(func(p): return not save.probes.has(p.key))
 			var from: Array = unseen if not unseen.is_empty() else probes.filter(func(p): return not recent.has(p.key))
