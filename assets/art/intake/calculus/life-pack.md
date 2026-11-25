@@ -25,7 +25,7 @@ the top or bottom band, clear of every square.
 |---|---|---|---|---|---|---|
 | `core-stack-smoke` | Black smoke from the engine's three stacks, drifting right | 458, 743 · 495, 750 · 533, 758, rising to about 700, 600 | `rise`, 6 s, phases 0, 0.33, 0.66 | hidden | none | no (above the `all` square) |
 | `core-crater-lava` | The molten floor and walls of the crater: a slow churn | 585, 1080, the crater's glowing ring | `pulse`, 4 s, with a churn shader on a masked glow | still | none | yes (`all`) |
-| `core-gate-glow` | The furnace gate's two lit windows | 445, 1035 · 720, 1035 | `pulse`, 3 s, phases 0, 0.5 | still | none | yes (`all`) |
+| `core-gate-glow` | The furnace gate's two lit windows | 435, 1028 · 660, 1028 | `pulse`, 3 s, phases 0, 0.5 | still | none | yes (`all`) |
 | `core-engine-gear` | The big gear on the engine | 645, 885 (hub) | `spin`, 24 s a turn | still frame 0 | none | yes (`all`) |
 | `core-gear-train` | The gear train: the big gear and the two smaller ones, meshed | 120, 578 · 210, 585 · 330, 578 (hubs) | `spin`, the big gear 18 s a turn, the others faster by their size, opposite ways | still frame 0 | none | yes (`derivative-rules`) |
 | `core-gear-chain` | The chain from the last gear | 260 to 330, 545 to 575 | `cycle`, 8 frames at 6 fps, in step with the gears | still frame 0 | none | yes (`derivative-rules`) |
