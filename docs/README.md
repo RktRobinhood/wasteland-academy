@@ -8,6 +8,7 @@ For a fresh or interrupted build agent, start at [BUILD-LOOP.md](BUILD-LOOP.md),
 - [ADRs](adr/): seven accepted records, with their OPEN calibration/content details preserved.
 - [Current alignment audit](ALIGNMENT-AUDIT-2026-11-24.md): verified source state, known gaps, existing branches and issue links.
 - [Encounter audit brief](implementation/ENCOUNTER-AND-BOSS-AUDIT.md) and [contract proposal](implementation/ENCOUNTER-CONTRACT-PROPOSAL.md): inputs to #269; no mandated new schema or wholesale rewrite.
+- [Mastery calibration proposal](proposals/mastery-calibration.md): PROPOSED numbers for ADR-0002 with deterministic simulated learners (#268); awaiting owner acceptance, not implemented.
 
 ## Provenance and reconciliation
 

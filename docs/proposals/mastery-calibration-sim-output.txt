@@ -1,0 +1,109 @@
+# Output of: godot --headless --path game --script res://tests/run_tests.gd -- --only=mastery_calibration
+# Godot 4.7.2.stable.official.ed1daf0bf, base main b490181. Regenerate with the command above; the run is deterministic.
+sim| == failures (start m=4.5, L4) ==
+sim| miss at d0: drop 0.971 ->                                    m=3.529  L3
+sim| miss at d1: drop 0.924 ->                                    m=3.576  L3
+sim| miss at d2: drop 0.818 ->                                    m=3.682  L3
+sim| miss at d3: drop 0.622 ->                                    m=3.878  L3
+sim| miss at d4: drop 0.378 ->                                    m=4.122  L4
+sim| miss at d5: drop 0.182 ->                                    m=4.318  L4
+ok   test_mastery_calibration_sim.gd::test_above_and_below_level_failure
+sim| == above-level success (start m=3.5, L3) ==
+sim| success at d1 (rating 2): step +0.182 ->                                    m=3.682  L3
+sim| success at d2 (rating 3): step +0.378 ->                                    m=3.878  L3
+sim| success at d3 (rating 4): step +0.622 ->                                    m=4.122  L3
+sim| success at d4 (rating 5): step +0.818 ->                                    m=4.318  L3
+sim| success at d5 (rating 6): step +0.924 ->                                    m=4.424  L3
+ok   test_mastery_calibration_sim.gd::test_above_level_success
+sim| == assist credit (success at d3 from m=3.5) ==
+sim| value, unassisted                  step +0.622  counts for Exam Ready: true
+sim| late (slow but right)              step +0.622  counts for Exam Ready: true
+sim| Time Freeze                        step +0.622  counts for Exam Ready: true
+sim| multiple choice                    step +0.467  counts for Exam Ready: true
+sim| glancing (accuracy)                step +0.467  counts for Exam Ready: false
+sim| hint                               step +0.311  counts for Exam Ready: false
+sim| multiple choice + 50-50            step +0.249  counts for Exam Ready: false
+sim| hint + 50-50                       step +0.124  counts for Exam Ready: false
+sim| v7 answer replayed by migration    step +0.467  counts for Exam Ready: false
+sim| 30 hinted d3 successes             m=3.999  L3
+sim| + 2 unassisted d3 successes        m=4.877  L4
+ok   test_mastery_calibration_sim.gd::test_assist_credit
+sim| == below-level failure (start m=6.2, L6) ==
+sim| start                              m=6.200  L6
+sim| miss at d1                         m=5.215  L5
+sim| miss at d1                         m=4.253  L4
+ok   test_mastery_calibration_sim.gd::test_below_level_failure_from_l6
+sim| == success rate that holds a rating (questions chosen at the rating) ==
+sim| top d5, recommended        m2.0@d1 50%, m3.0@d2 50%, m4.0@d3 50%, m5.0@d4 67%, m6.0@d5 80%, m7.0@d5 92%, m7.5@d5 93%
+sim| top d5, softer alternative m2.0@d1 50%, m3.0@d2 50%, m4.0@d3 50%, m5.0@d4 57%, m6.0@d5 67%, m7.0@d5 85%, m7.5@d5 87%
+sim| top d3, recommended        m2.0@d1 50%, m3.0@d2 50%, m4.0@d3 50%, m5.0@d3 75%, m6.0@d3 88%, m7.0@d3 94%, m7.5@d3 94%
+sim| top d3, softer alternative m2.0@d1 50%, m3.0@d2 50%, m4.0@d3 50%, m5.0@d3 66%, m6.0@d3 78%, m7.0@d3 88%, m7.5@d3 89%
+ok   test_mastery_calibration_sim.gd::test_holding_rates
+sim| == simulated learners, 80 questions, top tier 5, seeded ==
+sim| ability 3.0: final m=3.715 L3, 42/80 right, first L6 at q-, first L7 at q-
+sim| ability 4.5: final m=4.715 L4, 44/80 right, first L6 at q-, first L7 at q-
+sim| ability 6.0: final m=5.485 L5, 52/80 right, first L6 at q28, first L7 at q-
+sim| ability 7.0: final m=5.637 L5, 58/80 right, first L6 at q12, first L7 at q-
+sim| ability 8.0: final m=6.190 L6, 71/80 right, first L6 at q12, first L7 at q30
+ok   test_mastery_calibration_sim.gd::test_l6_l7_diminishing_returns
+sim| == skill whose top tier is d3 (catalogue difficulty [1, 3]), 6 cells ==
+sim| success 1 at d1                    m=1.731  L1
+sim| success 2 at d1                    m=2.298  L2
+sim| success 3 at d1                    m=2.724  L2
+sim| success 4 at d2                    m=3.293  L3
+sim| success 5 at d2                    m=3.720  L3
+sim| success 6 at d3                    m=4.289  L3
+sim| success 8 at d3                    m=5.289  L5
+sim| success 12 at d3                   m=6.164  L6
+sim| success 16 at d3                   m=6.664  L6
+sim| success 19 at d3                   m=7.039  L7
+sim| successes to L7: 19
+sim| then one miss at its top tier      m=6.085  L6
+ok   test_mastery_calibration_sim.gd::test_low_ceiling_skill
+sim| == matched successes (difficulty chosen from the rating; top tier 5) ==
+sim| success 1 at d0                    m=1.500  L1
+sim| success 2 at d1                    m=2.122  L2
+sim| success 3 at d1                    m=2.592  L2
+sim| success 4 at d2                    m=3.193  L3
+sim| success 5 at d2                    m=3.645  L3
+sim| success 6 at d3                    m=4.232  L3
+sim| success 7 at d3                    m=4.675  L4
+sim| success 8 at d4                    m=5.255  L5
+sim| success 9 at d4                    m=5.474  L5
+sim| success 10 at d4                   m=5.665  L5
+sim| success 11 at d5                   m=5.957  L5
+sim| success 12 at d5                   m=6.212  L6
+sim| success 13 at d5                   m=6.337  L6
+sim| success 14 at d5                   m=6.462  L6
+sim| success 15 at d5                   m=6.587  L6
+sim| success 16 at d5                   m=6.712  L6
+sim| success 17 at d5                   m=6.837  L6
+sim| success 18 at d5                   m=6.962  L6
+sim| success 19 at d5                   m=7.087  L7
+sim| first reached (level: success no.): { 1: 1, 2: 2, 3: 4, 4: 7, 5: 8, 6: 12, 7: 19 }
+sim| ideal-match successes per level L1->L2..L6->L7: [2, 2, 2, 2, 4, 8] (total 20)
+ok   test_mastery_calibration_sim.gd::test_matched_successes
+sim| == migration replay of v7 counts ==
+sim| 12 right / 3 wrong replayed        m=3.999  L3
+ok   test_mastery_calibration_sim.gd::test_migration_replay
+sim| == multi-skill question at d3: A m=5.0, B m=2.5 ==
+sim| miss, no misconception: blame A 0.248, B 0.752
+sim|   after miss: A                    m=4.819  L4
+sim|   after miss: B                    m=2.363  L2
+sim| miss whose misconception names A: blame A 1.0, B 0.0
+sim|   after success: A                 m=5.134  L5
+sim|   after success: B                 m=3.318  L3
+sim| miss with an unattempted skill N: blame A 0.220, N 0.780 (N then starts at 1.0)
+ok   test_mastery_calibration_sim.gd::test_multi_skill_uncertainty
+sim| == 10 d3 successes: same cell m=4.740 L4, varied cells m=5.567 L5 ==
+ok   test_mastery_calibration_sim.gd::test_repeat_cell_counts_less
+sim| == Thunderdome floor ==
+sim| attempted A 5.2, B 2.4, C 3.4; D Not Yet Attempted -> floor 3.667
+sim|   A asks at rating 5.200 -> d4
+sim|   B asks at rating 3.667 -> d3
+sim|   C asks at rating 3.667 -> d3
+sim|   D asks at rating 3.667 -> d3
+sim|   after 3 misses B m=1.958; run floor still 3.667; B still asks at d3
+sim| no attempted skill -> fallback floor 2.0 (asks d1)
+ok   test_mastery_calibration_sim.gd::test_thunderdome_floor
+12 passed, 0 failed
