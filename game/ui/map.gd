@@ -106,18 +106,17 @@ const BAZAAR_PAINTED := true
 ## all-regions dungeon in the middle, the regions round it, the two most-examined by the
 ## landing on the south shore, and the Relic device. Spots are keyed by island, then by
 ## region id, plus "all" (the island's all-regions dungeon, spot_key()) and "relic". The
-## Signal Tower's is the FAL-783 plan's table, painted into its background. The Dry
-## Flats' (FAL-1034), the Radio Spires' (FAL-1611), the Engine Core's (FAL-1612) and the Scrap
-## Fields' (FAL-1613) are measured from their paintings
+## Signal Tower's (FAL-1614), the Dry Flats' (FAL-1034), the Radio Spires' (FAL-1611), the
+## Engine Core's (FAL-1612) and the Scrap Fields' (FAL-1613) are measured from their paintings
 ## (zones.json in assets/art/intake/<island>/):
 ## each place's centre, nudged where two squares would overlap or one would leave the
 ## board.
 const SPOTS := {
 	"functions": {
-		"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
-		"graphs-features": Vector2(79, 65), "lines": Vector2(21, 27), "rational": Vector2(79, 28),
-		"composite-inverse": Vector2(25, 10), "transformations": Vector2(75, 10), "all": Vector2(50, 46),
-		"relic": Vector2(12, 50),
+		"quadratics": Vector2(20, 65.7), "exp-log": Vector2(78.6, 62.6), "function-basics": Vector2(15, 41.4),
+		"graphs-features": Vector2(85, 43.8), "lines": Vector2(50, 25.8), "rational": Vector2(50, 68.8),
+		"composite-inverse": Vector2(20, 25.5), "transformations": Vector2(81, 28), "all": Vector2(50.4, 49.1),
+		"relic": Vector2(9.8, 53.6),
 	},
 	"algebra": {
 		"sequences": Vector2(19, 61.8), "finance": Vector2(77, 64.9), "exponents-logs": Vector2(15, 33.7),

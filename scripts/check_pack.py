@@ -23,8 +23,10 @@ import sys
 # 17.4 MB from FAL-1611: the Radio Spires' board and eight backdrops add 1.41 MB as imported.
 # 18.73 MB from FAL-1612: the Engine Core's board and eight backdrops add 1.33 MB as imported.
 # 19.32 MB from FAL-1613: the Scrap Fields' board (its backdrops were already in) adds 592,522 B as imported.
-# The first load is then 29.2 MB, so the next art raise starts the core-plus-bands follow-up.
-PCK_BUDGET = 19_322_522
+# 19.82 MB from FAL-1614: the Signal Tower's ChatGPT board replaces FAL-791's painting and adds
+# 496,625 B as imported (its backdrops were already in). The first load is then 29.7 MB, under the
+# 30 MB line, so the next art raise starts the core-plus-bands follow-up.
+PCK_BUDGET = 19_819_147
 ADDON = "res://addons/godot_mcp_toolkit/"
 AUDIO_DIRS = ("res://assets/audio/music/", "res://assets/audio/voice/")
 
