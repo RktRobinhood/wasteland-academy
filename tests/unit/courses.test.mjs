@@ -46,3 +46,15 @@ test('game/data/courses.json and curriculum/COURSES.md are up to date', () => {
   assert.equal(read(OUT.json), result.jsonText, 'rerun node tools/courses.mjs --write');
   assert.equal(read(OUT.md), result.mdText, 'rerun node tools/courses.mjs --write');
 });
+
+// ADR-0002 §9 and docs/DOMAIN-GLOSSARY.md §1: difficulty is demand only; paper and
+// calculator policy is a separate axis (#268 §12.9, FAL-1672).
+test('the difficulty descriptors describe demand and name no paper or calculator', () => {
+  for (const f of ['curriculum/aa-sl.json', 'curriculum/aa-hl.json', 'curriculum/ai.json']) {
+    const d = JSON.parse(read(f)).difficulty;
+    assert.deepEqual(Object.keys(d), ['1', '2', '3', '4', '5'], `${f}: levels unchanged`);
+    for (const [lvl, text] of Object.entries(d))
+      assert.doesNotMatch(text, /paper|calculator|\bP[12]\b|GDC/i, `${f} level ${lvl}: "${text}"`);
+    assert.notEqual(d['3'], d['4'], `${f}: levels 3 and 4 must read differently`);
+  }
+});

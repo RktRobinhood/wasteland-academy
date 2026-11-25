@@ -6,8 +6,8 @@
   "difficulty": {
     "1": "1-2 mark recall",
     "2": "3-4 mark procedural",
-    "3": "5-6 mark Paper 1 (no calculator)",
-    "4": "5-6 mark Paper 2 (calculator)",
+    "3": "5-6 mark multi-step",
+    "4": "5-6 mark extended reasoning",
     "5": "10+ mark synoptic (boss)"
   },
   "topics": [
