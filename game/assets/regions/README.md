@@ -1,6 +1,6 @@
 # Region art
 
-Art for each region of the Functions island, the Scrap Fields, the Dry Flats and the Radio Spires, loaded by file name (`engine/art_slots.gd`; the contract is the
+Art for each region of the Functions island, the Scrap Fields, the Dry Flats, the Radio Spires and the Engine Core, loaded by file name (`engine/art_slots.gd`; the contract is the
 "Art slots" section of `game/README.md`). Every file is optional.
 
 ## Fight backdrops
@@ -42,8 +42,16 @@ colour. A phone held upright shows about the centre 500 px, so each region's lan
 | `averages-spread/backdrop.webp` | Box on stilts: an upright bulkhead off-centre, a boom out of each end | 97,290 | 10.1% | 4.7% | 8.2% | 4.83:1 | 5.94:1 |
 | `sampling-data/backdrop.webp` | Sorting yard: heap, crane grab with one scoop, three single-colour bins | 94,726 | 12.2% | 5.1% | 10.2% | 4.84:1 | 5.26:1 |
 | `all-stats/backdrop.webp` | The foot of the twin spires, the gate between them | 143,130 | 11.0% | 5.6% | 8.6% | 4.82:1 | 5.26:1 |
+| `kinematics/backdrop.webp` | Test rail: a rocket cart, six marker posts with gaps growing about 1.45 times each | 86,932 | 9.9% | 4.6% | 7.4% | 4.77:1 | 5.29:1 |
+| `stationary-points/backdrop.webp` | Coaster: a cart flat on the crest and one in the dip, a spirit level beside each | 110,206 | 9.4% | 4.8% | 7.6% | 4.82:1 | 5.16:1 |
+| `tangents-normals/backdrop.webp` | Bending yard: a straight girder touching a steel arch at its top, a post straight up from there | 124,178 | 9.6% | 6.0% | 7.0% | 4.79:1 | 5.02:1 |
+| `definite-integrals/backdrop.webp` | Sluice: a sagging crest between two gate towers, lit only between them | 104,236 | 9.7% | 6.4% | 6.6% | 4.81:1 | 4.91:1 |
+| `derivative-rules/backdrop.webp` | Gearbox: a big gear, seven gears each smaller, a chain to a pair on a trestle | 101,332 | 11.7% | 6.4% | 9.1% | 4.81:1 | 5.26:1 |
+| `derivative-basics/backdrop.webp` | Slope gauges: plates tilting up, flat on top, down, along a hill-shaped ramp | 90,468 | 8.7% | 5.3% | 5.9% | 4.85:1 | 5.60:1 |
+| `integration/backdrop.webp` | Chute stack: four chutes of one S-shape, each a step up, into a tank | 99,756 | 8.8% | 5.3% | 6.2% | 4.78:1 | 4.99:1 |
+| `all-calculus/backdrop.webp` | The furnace gate: smokestacks left, the giant gear right, the door in the middle | 123,684 | 12.2% | 5.4% | 10.4% | 4.77:1 | 5.09:1 |
 
-Signal Tower batch total: 777,386 bytes. Scrap Fields batch total: 614,616 bytes. Dry Flats batch total: 849,016 bytes. Radio Spires batch total: 851,398 bytes.
+Signal Tower batch total: 777,386 bytes. Scrap Fields batch total: 614,616 bytes. Dry Flats batch total: 849,016 bytes. Radio Spires batch total: 851,398 bytes. Engine Core batch total: 840,792 bytes.
 
 How these were measured (a Pillow script run on the files above; it and the review panels are on FAL-474):
 
@@ -131,3 +139,23 @@ and 4.80:1 to 6.32:1 on PC.
 | `averages-spread/backdrop.webp` | RS6-4 | `9acd3cf3` | None |
 | `sampling-data/backdrop.webp` | RS7-5 | `9ef0b3e4` | Highlight roll-off on 0.15 % of pixels (neon cores, the yellow bin), 4.46:1 to 4.84:1 on phone |
 | `all-stats/backdrop.webp` | RS8-5 | `6a1a740d` | Highlight roll-off on 0.16 % of pixels (the gate's neon), 3.75:1 to 4.82:1 on phone |
+
+### The Engine Core (FAL-1612)
+
+Made by Matt Prokock in ChatGPT from the same prompt cards (#201) on 2026-11-17, and taken in the same way as the
+Radio Spires: Pillow applied any paint-over at source scale (EC3-1, EC4-2), scaled each to 1920 x 1081 (LANCZOS)
+and trimmed the bottom row (EC5-2's paint-over is on that frame), rolled off the highlights and encoded WebP at
+quality 90. Each rebuilds byte for byte from the 2026-11-17 intake chains. Provenance and SHA-256 are in
+`assets/art/CREDITS.md`; the picks and reasons are on FAL-1034. White text keeps 4.77:1 to 4.85:1 on phone and
+4.91:1 to 5.60:1 on PC.
+
+| File | Card and candidate | Prompt (sha256, first 8) | Edits (Pillow) |
+|---|---|---|---|
+| `kinematics/backdrop.webp` | EC1-5 | `7e861474` | Highlight roll-off on 0.16 % of pixels (the flame and the hottest lava), 3.49:1 to 4.77:1 on phone |
+| `stationary-points/backdrop.webp` | EC2-1 | `d4f63da4` | Highlight roll-off on 0.22 % of pixels (lamp cores, the levels' glow, the hottest lava), 4.00:1 to 4.82:1 on phone |
+| `tangents-normals/backdrop.webp` | EC3-1 | `ad8c9be2` | Marks round the hub ring (read as dial numerals at 8x) painted plain, 506 px at source scale (`paint_hub.py`); highlight roll-off on 0.28 % of pixels, 4.33:1 to 4.79:1 on phone |
+| `definite-integrals/backdrop.webp` | EC4-2 | `0c1c27ea` | Glyph rows on the plate band under each tower's lamp deck painted plain, 858 px at source scale (`paint_bands.py`); highlight roll-off on 0.40 % of pixels, 3.71:1 to 4.81:1 on phone |
+| `derivative-rules/backdrop.webp` | EC5-2 | `2ba0311c` | Marks like a word on a lamp-deck strip painted plain, 663 px at 1920 x 1080 (`paint_strip.py`, x 896-962, y 476-485); highlight roll-off on 0.16 % of pixels, 4.44:1 to 4.81:1 on phone |
+| `derivative-basics/backdrop.webp` | EC6-3 | `f2a5095c` | Highlight roll-off on 0.13 % of pixels (lamp cores), 4.52:1 to 4.85:1 on phone |
+| `integration/backdrop.webp` | EC7-5 | `3374c53d` | Highlight roll-off on 0.21 % of pixels (the hottest metal), 3.77:1 to 4.78:1 on phone |
+| `all-calculus/backdrop.webp` | EC8-3 | `43fc115a` | Highlight roll-off on 0.23 % of pixels (the door's glow), 4.27:1 to 4.77:1 on phone |
