@@ -107,12 +107,11 @@ const BAZAAR_PAINTED := true
 ## landing on the south shore, and the Relic device. Spots are keyed by island, then by
 ## region id, plus "all" (the island's all-regions dungeon, spot_key()) and "relic". The
 ## Signal Tower's is the FAL-783 plan's table, painted into its background. The Dry
-## Flats' (FAL-1034), the Radio Spires' (FAL-1611) and the Engine Core's (FAL-1612) are measured
-## from their paintings
+## Flats' (FAL-1034), the Radio Spires' (FAL-1611), the Engine Core's (FAL-1612) and the Scrap
+## Fields' (FAL-1613) are measured from their paintings
 ## (zones.json in assets/art/intake/<island>/):
 ## each place's centre, nudged where two squares would overlap or one would leave the
-## board. The others are laid out for the coded look (FAL-925), with no two squares
-## overlapping; a painting for one may move them, and then this table follows it.
+## board.
 const SPOTS := {
 	"functions": {
 		"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
@@ -121,8 +120,8 @@ const SPOTS := {
 		"relic": Vector2(12, 50),
 	},
 	"algebra": {
-		"sequences": Vector2(24, 72), "finance": Vector2(76, 72), "exponents-logs": Vector2(21, 30),
-		"binomial": Vector2(79, 30), "proof": Vector2(50, 12), "all": Vector2(50, 50), "relic": Vector2(12, 50),
+		"sequences": Vector2(19, 61.8), "finance": Vector2(77, 64.9), "exponents-logs": Vector2(15, 33.7),
+		"binomial": Vector2(83.5, 33.4), "proof": Vector2(50, 28), "all": Vector2(52, 49.1), "relic": Vector2(45.5, 71.9),
 	},
 	"geometry": {
 		"triangles": Vector2(16.5, 61.8), "trig-graphs": Vector2(75, 61.5), "arcs-sectors": Vector2(14, 44.2),
