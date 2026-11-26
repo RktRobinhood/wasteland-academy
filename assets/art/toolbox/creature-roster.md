@@ -17,7 +17,7 @@
 | Existing subject | Evidence and current status |
 |---|---|
 | The Compounder | Authored Scrap Fields boss name and taunt; actual regional portrait slot is empty. Registered neutral and hurt pair on shelf; actual region trial remains. |
-| Warden Apex | Authored Quadratics boss; artwork under test fixtures is not shipped. Neutral design on shelf; active Journey hides standard portraits, so prepare a dedicated staged left-facing sheet. |
+| Warden Apex | Authored Quadratics boss; artwork under test fixtures is not shipped. Neutral portrait and dedicated left-facing static idle study on shelf. Active Journey hides standard portraits. Remaining poses, stage eligibility, and integration are open. |
 | Mags the Ledger | Named in sequences lesson and callbacks; no dedicated visual on audited main. Original neutral candidate on shelf. Lesson stays draft. |
 | Tilly Redback, Banjo Brumby, Nugget Bullant, Spark | Existing portraits and Journey poses; preserve unless a specific art gap is verified. |
 

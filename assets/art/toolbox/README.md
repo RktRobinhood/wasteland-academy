@@ -13,7 +13,7 @@ An art-only shelf. The integration team can select, adapt, crop, animate or leav
 
 [Creature roster and named art audit](creature-roster.md) · [Antenna Kite flight preview](radio-spires/antenna-kite-01/previews/idle-and-dodge.webp) · [Kettle Runner map proof](scrap-fields/kettle-runner-01/previews/kettle-runner-phone-map.jpg)
 
-[The Compounder portrait pair](scrap-fields/compounder-01/README.md) · [Dry Flats Glassback Lizard](dry-flats/glassback-lizard-01/README.md)
+[The Compounder portrait pair](scrap-fields/compounder-01/README.md) · [Dry Flats Glassback Lizard](dry-flats/glassback-lizard-01/README.md) · [Warden Apex Journey idle study](signal-tower/warden-apex-01/journey-idle/README.md)
 
 [Machine-readable inventory](inventory.json) · [Priorities and gaps](coverage.md)
 

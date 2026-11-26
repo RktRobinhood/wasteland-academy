@@ -1,0 +1,31 @@
+{
+  "name": "warden-journey-idle",
+  "image": "warden-journey-idle.webp",
+  "facing": "left",
+  "origin": [
+    0,
+    0
+  ],
+  "figure_height": 350,
+  "display_height": 124,
+  "frames": [
+    {
+      "id": "idle",
+      "ox": -87,
+      "oy": -350,
+      "x": 2,
+      "y": 2,
+      "w": 175,
+      "h": 352
+    }
+  ],
+  "anims": {
+    "idle": {
+      "frames": [
+        0
+      ],
+      "fps": 1,
+      "loop": false
+    }
+  }
+}

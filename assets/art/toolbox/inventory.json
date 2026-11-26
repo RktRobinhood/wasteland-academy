@@ -109,8 +109,12 @@
       "category": "canonical-boss",
       "manifest": "signal-tower/warden-apex-01/manifest.json",
       "ready_for_trial": 0,
-      "art_candidates": 1,
-      "integrated": 0
+      "art_candidates": 2,
+      "integrated": 0,
+      "new_states": [
+        "portrait neutral",
+        "static Journey idle candidate"
+      ]
     }
   ],
   "unknown_or_incomplete": [

@@ -3,11 +3,11 @@
   "title": "Warden Apex",
   "category": "canonical-boss",
   "region": "functions",
-  "state": "portrait-candidate",
+  "state": "portrait-and-static-pose-candidates",
   "integrated": false,
   "main_reference": "d987d5f634c1dee1bb1b6b60a2b26e836cfc0b2d",
   "provenance": "Original built-in ImageGen; source master retained; alpha crop and packed exports",
-  "description": "Existing Quadratics boss, new visual proposal. Neutral portrait, bottom alignment y494. Active Journey currently hides the portrait; this is direction for a separate regional Journey sheet. No attack, hurt or stages, and no shared D5 reskin.",
+  "description": "Existing Quadratics boss, new visual proposal. Neutral portrait, bottom alignment y494. Active Journey currently hides the portrait; this is direction for a separate regional Journey sheet. A separate left-facing idle-only candidate is available. No attack, hurt or stages, and no shared D5 reskin.",
   "export": "exports/warden-apex.png",
   "dimensions": [
     512,
@@ -20,6 +20,15 @@
     "exports/warden-apex.png",
     "exports/warden-apex.webp",
     "masters/warden-apex-original.png",
-    "previews/warden-apex-display-scale.jpg"
-  ]
+    "previews/warden-apex-display-scale.jpg",
+    "journey-idle/PROMPT.md",
+    "journey-idle/README.md",
+    "journey-idle/exports/warden-journey-idle.json",
+    "journey-idle/exports/warden-journey-idle.png",
+    "journey-idle/exports/warden-journey-idle.webp",
+    "journey-idle/masters/warden-journey-idle-original.png",
+    "journey-idle/previews/warden-journey-placement.jpg"
+  ],
+  "secondary_candidate": "journey-idle/README.md",
+  "secondary_reference": "0c71165191802645ca30357d2b783a2c569722a6"
 }
