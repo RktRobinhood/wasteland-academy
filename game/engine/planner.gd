@@ -8,6 +8,10 @@ extends RefCounted
 ## first. With "Exam-style only" on, only exam cells are in the pool and rule 3 is the
 ## only rule, so the mix follows exam frequency.
 ##
+## Inside the unseen and frequency rules, each skill's cells nearest its mastery target
+## come first (MathsEngine.mastery_target, proposal §6): see _at_target. The Thunderdome
+## keeps its own selection (proposal §7).
+##
 ## Concept probes come in about one question in PROBE_EVERY, never-seen ones first.
 ## They are extension material, so "Exam-style only" leaves them out.
 ##
@@ -71,7 +75,7 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 
 		var unseen_cells := pool.filter(func(c): return not save.cells.has(c.key))
 		if not unseen_cells.is_empty():
-			return _view(_weighted(unseen_cells, rng), seed, fmt, "unseen", rng)
+			return _view(_weighted(_at_target(unseen_cells, save, region), rng), seed, fmt, "unseen", rng)
 
 		var wrong := pool.filter(func(c):
 			var r: Dictionary = save.cells.get(c.key, {})
@@ -81,7 +85,36 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 			return _view(wrong[0], seed, fmt, "wrong", rng)
 
 	var fresh := pool.filter(func(c): return not recent.has(c.key))
-	return _view(_weighted(fresh if not fresh.is_empty() else pool, rng), seed, fmt, "frequency", rng)
+	return _view(_weighted(_at_target(fresh if not fresh.is_empty() else pool, save, region), rng), seed, fmt, "frequency", rng)
+
+
+## The cells nearest their skill's mastery target (proposal §6). Cells are grouped by
+## type and skill; each group keeps the cells whose level is nearest the skill's target,
+## and a cell testing two skills stays when it is nearest in either group. Every type in
+## the pool keeps at least one cell, so _weighted still mixes types by exam frequency,
+## and nothing here draws a random number. In the Thunderdome the pool is unchanged.
+static func _at_target(cells: Array, save: Dictionary, region: String) -> Array:
+	if region == Dungeon.THUNDERDOME:
+		return cells
+	var targets := {}
+	var nearest := {}
+	var by_cell := []
+	for c in cells:
+		var gaps := {}
+		for s in MathsEngine.request_skills(c):
+			if not targets.has(s):
+				targets[s] = MathsEngine.mastery_target(save, s)
+			var group: String = c.type + "|" + s
+			var gap := absi(int(c.level) - int(targets[s]))
+			gaps[group] = gap
+			nearest[group] = mini(int(nearest.get(group, gap)), gap)
+		by_cell.append(gaps)
+	var out := []
+	for i in cells.size():
+		var gaps: Dictionary = by_cell[i]
+		if gaps.is_empty() or gaps.keys().any(func(g): return gaps[g] == nearest[g]):
+			out.append(cells[i])
+	return out
 
 
 ## The built types of a region (or an all-regions dungeon, or the Thunderdome), in catalogue order.
