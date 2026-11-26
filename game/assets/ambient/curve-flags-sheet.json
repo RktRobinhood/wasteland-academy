@@ -1,0 +1,184 @@
+{
+ "frames": {
+  "curve-flags-sheet_0001": {
+   "duration": 125,
+   "frame": {
+    "h": 126,
+    "w": 260,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 126,
+    "w": 260
+   },
+   "spriteSourceSize": {
+    "h": 126,
+    "w": 260,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "curve-flags-sheet_0002": {
+   "duration": 125,
+   "frame": {
+    "h": 126,
+    "w": 260,
+    "x": 260,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 126,
+    "w": 260
+   },
+   "spriteSourceSize": {
+    "h": 126,
+    "w": 260,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "curve-flags-sheet_0003": {
+   "duration": 125,
+   "frame": {
+    "h": 126,
+    "w": 260,
+    "x": 520,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 126,
+    "w": 260
+   },
+   "spriteSourceSize": {
+    "h": 126,
+    "w": 260,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "curve-flags-sheet_0004": {
+   "duration": 125,
+   "frame": {
+    "h": 126,
+    "w": 260,
+    "x": 780,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 126,
+    "w": 260
+   },
+   "spriteSourceSize": {
+    "h": 126,
+    "w": 260,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "curve-flags-sheet_0005": {
+   "duration": 125,
+   "frame": {
+    "h": 126,
+    "w": 260,
+    "x": 1040,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 126,
+    "w": 260
+   },
+   "spriteSourceSize": {
+    "h": 126,
+    "w": 260,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "curve-flags-sheet_0006": {
+   "duration": 125,
+   "frame": {
+    "h": 126,
+    "w": 260,
+    "x": 1300,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 126,
+    "w": 260
+   },
+   "spriteSourceSize": {
+    "h": 126,
+    "w": 260,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "curve-flags-sheet_0007": {
+   "duration": 125,
+   "frame": {
+    "h": 126,
+    "w": 260,
+    "x": 1560,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 126,
+    "w": 260
+   },
+   "spriteSourceSize": {
+    "h": 126,
+    "w": 260,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "curve-flags-sheet_0008": {
+   "duration": 125,
+   "frame": {
+    "h": 126,
+    "w": 260,
+    "x": 1820,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 126,
+    "w": 260
+   },
+   "spriteSourceSize": {
+    "h": 126,
+    "w": 260,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 8.0,
+  "image": "curve-flags-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 126,
+   "w": 2080
+  },
+  "version": "1"
+ }
+}

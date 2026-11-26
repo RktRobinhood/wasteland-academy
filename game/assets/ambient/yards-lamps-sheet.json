@@ -1,0 +1,520 @@
+{
+ "frames": {
+  "yards-lamps-sheet_0001": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0002": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 150,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0003": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 300,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0004": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 450,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0005": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 600,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0006": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 750,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0007": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 900,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0008": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 1050,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0009": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 85
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0010": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 150,
+    "y": 85
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0011": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 300,
+    "y": 85
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0012": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 450,
+    "y": 85
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0013": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 600,
+    "y": 85
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0014": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 750,
+    "y": 85
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0015": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 900,
+    "y": 85
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0016": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 1050,
+    "y": 85
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0017": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 170
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0018": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 150,
+    "y": 170
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0019": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 300,
+    "y": 170
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0020": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 450,
+    "y": 170
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0021": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 600,
+    "y": 170
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0022": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 750,
+    "y": 170
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0023": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 900,
+    "y": 170
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "yards-lamps-sheet_0024": {
+   "duration": 125,
+   "frame": {
+    "h": 85,
+    "w": 150,
+    "x": 1050,
+    "y": 170
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 85,
+    "w": 150
+   },
+   "spriteSourceSize": {
+    "h": 85,
+    "w": 150,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 8.0,
+  "image": "yards-lamps-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 255,
+   "w": 1200
+  },
+  "version": "1"
+ }
+}

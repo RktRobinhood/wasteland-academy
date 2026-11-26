@@ -1,0 +1,520 @@
+{
+ "frames": {
+  "dust-devil-stir-sheet_0001": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0002": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 72,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0003": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 144,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0004": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 216,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0005": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 288,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0006": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 360,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0007": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 432,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0008": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 504,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0009": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 120
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0010": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 72,
+    "y": 120
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0011": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 144,
+    "y": 120
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0012": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 216,
+    "y": 120
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0013": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 288,
+    "y": 120
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0014": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 360,
+    "y": 120
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0015": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 432,
+    "y": 120
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0016": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 504,
+    "y": 120
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0017": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 240
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0018": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 72,
+    "y": 240
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0019": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 144,
+    "y": 240
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0020": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 216,
+    "y": 240
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0021": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 288,
+    "y": 240
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0022": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 360,
+    "y": 240
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0023": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 432,
+    "y": 240
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "dust-devil-stir-sheet_0024": {
+   "duration": 125,
+   "frame": {
+    "h": 120,
+    "w": 72,
+    "x": 504,
+    "y": 240
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 120,
+    "w": 72
+   },
+   "spriteSourceSize": {
+    "h": 120,
+    "w": 72,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 8.0,
+  "image": "dust-devil-stir-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 360,
+   "w": 576
+  },
+  "version": "1"
+ }
+}

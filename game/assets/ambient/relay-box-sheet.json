@@ -1,0 +1,184 @@
+{
+ "frames": {
+  "relay-box-sheet_0001": {
+   "duration": 125,
+   "frame": {
+    "h": 140,
+    "w": 120,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 140,
+    "w": 120
+   },
+   "spriteSourceSize": {
+    "h": 140,
+    "w": 120,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "relay-box-sheet_0002": {
+   "duration": 125,
+   "frame": {
+    "h": 140,
+    "w": 120,
+    "x": 120,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 140,
+    "w": 120
+   },
+   "spriteSourceSize": {
+    "h": 140,
+    "w": 120,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "relay-box-sheet_0003": {
+   "duration": 125,
+   "frame": {
+    "h": 140,
+    "w": 120,
+    "x": 240,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 140,
+    "w": 120
+   },
+   "spriteSourceSize": {
+    "h": 140,
+    "w": 120,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "relay-box-sheet_0004": {
+   "duration": 125,
+   "frame": {
+    "h": 140,
+    "w": 120,
+    "x": 360,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 140,
+    "w": 120
+   },
+   "spriteSourceSize": {
+    "h": 140,
+    "w": 120,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "relay-box-sheet_0005": {
+   "duration": 125,
+   "frame": {
+    "h": 140,
+    "w": 120,
+    "x": 480,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 140,
+    "w": 120
+   },
+   "spriteSourceSize": {
+    "h": 140,
+    "w": 120,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "relay-box-sheet_0006": {
+   "duration": 125,
+   "frame": {
+    "h": 140,
+    "w": 120,
+    "x": 600,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 140,
+    "w": 120
+   },
+   "spriteSourceSize": {
+    "h": 140,
+    "w": 120,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "relay-box-sheet_0007": {
+   "duration": 125,
+   "frame": {
+    "h": 140,
+    "w": 120,
+    "x": 720,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 140,
+    "w": 120
+   },
+   "spriteSourceSize": {
+    "h": 140,
+    "w": 120,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "relay-box-sheet_0008": {
+   "duration": 125,
+   "frame": {
+    "h": 140,
+    "w": 120,
+    "x": 840,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 140,
+    "w": 120
+   },
+   "spriteSourceSize": {
+    "h": 140,
+    "w": 120,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 8.0,
+  "image": "relay-box-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 140,
+   "w": 960
+  },
+  "version": "1"
+ }
+}

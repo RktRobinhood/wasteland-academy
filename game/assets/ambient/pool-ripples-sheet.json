@@ -1,0 +1,520 @@
+{
+ "frames": {
+  "pool-ripples-sheet_0001": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0002": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 220,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0003": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 440,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0004": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 660,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0005": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 880,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0006": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 1100,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0007": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 1320,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0008": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 1540,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0009": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 80
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0010": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 220,
+    "y": 80
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0011": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 440,
+    "y": 80
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0012": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 660,
+    "y": 80
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0013": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 880,
+    "y": 80
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0014": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 1100,
+    "y": 80
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0015": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 1320,
+    "y": 80
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0016": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 1540,
+    "y": 80
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0017": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 160
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0018": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 220,
+    "y": 160
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0019": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 440,
+    "y": 160
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0020": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 660,
+    "y": 160
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0021": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 880,
+    "y": 160
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0022": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 1100,
+    "y": 160
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0023": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 1320,
+    "y": 160
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "pool-ripples-sheet_0024": {
+   "duration": 125,
+   "frame": {
+    "h": 80,
+    "w": 220,
+    "x": 1540,
+    "y": 160
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 80,
+    "w": 220
+   },
+   "spriteSourceSize": {
+    "h": 80,
+    "w": 220,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 8.0,
+  "image": "pool-ripples-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 240,
+   "w": 1760
+  },
+  "version": "1"
+ }
+}
