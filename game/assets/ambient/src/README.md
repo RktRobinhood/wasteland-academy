@@ -18,6 +18,7 @@ headless on the CPU. Run each step from the piece's own folder.
 | `fuel-drums`, `-wobble`, `-hiss`, `-blast`, `-wreck` | Pillow + numpy (FAL-1724) | `cd toys && python3 build_drums.py` (the stack is cut from `map/algebra/background-wide.webp`) |
 | `tower-lights`, `yards-lamps`, `pool-ripples`, `curve-flags`, `tower-banners` | Pillow + numpy (FAL-1725) | `cd toys && python3 build_signal.py` (Signal Tower B5-2: glows grown from the board's lit pixels, flags and banners are the board's own pixels warped) |
 | `dust-devil`, `-stir`; `relay-box`, `-spark`, `-hiss`, `-pop`, `-husk` | Pillow + numpy (FAL-1725) | `cd toys && python3 build_signal_toys.py` |
+| `strip-mast-lamps`, `strip-mid-lamps`, `strip-ruin-smoke` | Pillow + numpy (FAL-1726) | `cd toys && python3 build_strip.py` (Signal Tower journey strip: glows on the `far`/`mid` layers' own lamps, smoke off a far ruin; placed in layer pixels) |
 
 With `anicraft-cli run ... --save`, delete the old `.anicraft` first, because saving over it is refused.
 
