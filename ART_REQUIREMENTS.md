@@ -371,6 +371,15 @@ text. The rest of the rules are in `game/assets/regions/README.md`.
 separate wide card (16:9), with the same eight places in the same order. Matt makes it in the same ChatGPT
 chat.
 
+It shipped as `game/assets/map/overworld-wide.webp` (W1-4, FAL-1615), with its places in
+`assets/art/intake/world/zones.json`. **Its top eighth isn't calm:** the crane reaches to 1.5 % from the top
+edge and the tower's antenna to about 0.5 %. Whoever builds the PC layout (#199) does one of two things:
+
+- fit the map in the space under the header, as `map.gd`'s `_fit()` does for the portrait map now, so the
+  header covers nothing; or
+- if the map fills the window behind the header, shrink the picture to 87.5 % and add a haze band on top (and
+  dust bands at the sides), the FAL-986 fix. The places then move, so scale `zones.json` with the picture.
+
 ### Size budget (#183)
 
 Every piece is shipped as opaque lossy WebP. These are the most each file may weigh. The Artist measures each

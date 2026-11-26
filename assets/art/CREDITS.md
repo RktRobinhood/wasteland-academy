@@ -103,3 +103,11 @@ are the attachments on his FAL-1034 comments. Local copies, with `SHA256SUMS`, a
 |---|---|---|---|---|---|---|
 | `game/assets/map/functions/background.webp` | B5-2 (Signal Tower board) | `305990c4` | 2026-11-17 | Scaled 1254 to 1080 square (LANCZOS); the slope-marker sign by the salt-pan rail painted plain yellow (538 px of its face, columns 629-673, rows 89-127: each 1 px strip across the sign set to the median of its yellow pixels); bands of open desert added above and below (420 px each), outpainted locally with Qwen Image 2.1 (`qwen21_patch`, seed 1614101 both), joins 24 px feathered (12 px over the rail's buffer stop, columns 600-700); diff: 0 core pixels changed outside the joins and the sign; WebP q60, 602,982 B | `d6164c79a52e7c99ac6e9ce87d12a227bfbf019e317238c55b75734f66d6e9e2` | `0111da84a19d200958f4169464d09596e27aac356bcdae461ad3b3312200ad47` |
 | `game/assets/map/functions/background-wide.webp` | B5-2 (Signal Tower board) | `305990c4` | 2026-11-17 | Same core and sign fix; bands added left and right (420 px each, seed 1614101 both), joins 24 px (12 px on rows 660-840 left, the crater's rim; 12 px on rows 100-260, 370-430 and 640-840 right, the market, a pennant and the steps); diff: 0 core pixels changed outside the joins and the sign; WebP q60, 621,102 B | `d6164c79a52e7c99ac6e9ce87d12a227bfbf019e317238c55b75734f66d6e9e2` | `c7122514201de1bb2cc798ebac4354f6d5f0f843803b7d5f983ad986609f1013` |
+
+**The landscape world map** (FAL-1615), for the PC layout (#199). `zones.json` is in `intake/world/`. W1-4 is
+1672 x 941. Nothing draws it yet, and the Web preset leaves it out of the pack. No life-pack design here: the
+world map's life is FAL-1074 and FAL-1091.
+
+| File | Card and candidate | Prompt (sha256, first 8) | Made | Edits at intake | Original SHA-256 | Shipped SHA-256 |
+|---|---|---|---|---|---|---|
+| `game/assets/map/overworld-wide.webp` | W1-4 (world map, landscape) | `8687db54` | 2026-11-17 | Scaled 1672 x 941 to 1920 x 1081 (LANCZOS), bottom row trimmed; no paint-over (no text found at 2x); WebP q60, 482,110 B | `10ed87390d3336b4e5a0ef16abd8806fa3e8d5b53c8309fa844b0c720318c613` | `4f5cf7dfdca896500d536eef8ed6b9a4b907f15e5c17cd723dcbd7edb58eef81` |
