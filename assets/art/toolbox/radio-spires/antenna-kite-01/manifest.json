@@ -7,13 +7,13 @@
   "integrated": false,
   "main_reference": "d987d5f634c1dee1bb1b6b60a2b26e836cfc0b2d",
   "provenance": "Original built-in ImageGen; source master retained; alpha crop and packed exports",
-  "description": "Original biomechanical flyer candidate. Separate near and far root/tip articulation. Calm 2 s idle at 8 fps; optional one-shot 0.67 s dodge at 12 fps; static fallback. Shared placement origin (141,212) per 320\u00d7232 cell, facing left, 80 strip units; scale is fixed using maximum idle wing span. Calm idle or still only while a question is open. Does not include attack, hurt or defeated. Phone GIF uses an existing background crop and is not a game screenshot.",
+  "description": "Original biomechanical flyer candidate. Separate near and far root/tip articulation. Calm 2 s idle at 8 fps; optional one-shot 0.67 s dodge at 12 fps; static fallback. Common origin (141,212) in the virtual 320\u00d7232 pose canvas; packed rects use individual offsets, facing left, 80 strip units; scale is fixed using maximum idle wing span. Calm idle or still only while a question is open. Does not include attack, hurt or defeated. Phone GIF uses an existing background crop and is not a game screenshot.",
   "export": "exports/antenna-kite.webp",
   "dimensions": [
-    1920,
-    928
+    676,
+    615
   ],
-  "export_bytes": 184416,
+  "export_bytes": 180606,
   "proof": "previews/idle-and-dodge.webp",
   "files": [
     "PROMPT.md",
@@ -29,11 +29,19 @@
     "parts/near_tip.png",
     "previews/idle-and-dodge.gif",
     "previews/phone-three-phases.png",
-    "previews/idle-and-dodge.webp"
+    "previews/idle-and-dodge.webp",
+    "previews/atlas-comparison.jpg"
   ],
   "format_policy": {
     "runtime": "single transparent WebP atlas + JSON frame timing; parsed as native Godot textures",
     "preview_only": "Animated WebP (preferred) and GIF (legacy); not game imports",
     "verified_godot": "4.7.2 official rejects direct GIF and this animated WebP; use atlas for runtime"
+  },
+  "atlas_packing": {
+    "rectangles": 22,
+    "packed_rgba_estimated_bytes": 1662960,
+    "previous_rgba_estimated_bytes": 7127040,
+    "timing_and_offsets": "unchanged; alpha identical on all decoded frames, RGB lossy and visually compared",
+    "import_verified": "Godot 4.7.2, no in-game performance benchmark"
   }
 }
