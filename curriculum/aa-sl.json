@@ -525,7 +525,7 @@
                 {
                   "id": "formula-last",
                   "approach": "formula",
-                  "name": "Use Sₙ = (n/2)(u₁ + uₙ)",
+                  "name": "Use S_n = n/2(u_1 + u_n)",
                   "summary": "Best when the last term is known: number of terms times the average of the first and last terms."
                 },
                 {

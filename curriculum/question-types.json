@@ -10096,7 +10096,7 @@
      "wrong": "f(a) given for f(−a)"
     },
     {
-     "text": "Giving the value at the start, f(0), instead of the value at the input",
+     "text": "Giving the value at the start instead of the value at the input",
      "as": "distractor",
      "in": [
       "value-at-input"

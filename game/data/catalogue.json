@@ -10248,7 +10248,7 @@
 					"wrong": "f(a) given for f(−a)"
 				},
 				{
-					"text": "Giving the value at the start, f(0), instead of the value at the input",
+					"text": "Giving the value at the start instead of the value at the input",
 					"as": "distractor",
 					"in": [
 						"value-at-input"
@@ -26647,7 +26647,7 @@
 						],
 						"why": "uₙ has to be found first when only u₁ and d are given"
 					},
-					"name": "Use Sₙ = (n/2)(u₁ + uₙ)",
+					"name": "Use S_n = n/2(u_1 + u_n)",
 					"about": "Best when the last term is known: number of terms times the average of the first and last terms."
 				},
 				{
