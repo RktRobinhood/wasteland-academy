@@ -11,7 +11,7 @@ An art-only shelf. The integration team can select, adapt, crop, animate or leav
 | Scrap Fields · Copper Mite | Original left-facing creature, four grounded poses, optional cutout, measured alpha atlas. Ready for art trial, not wired. | [Monster kit](scrap-fields/copper-mite-01/README.md) · [390 px proof](scrap-fields/copper-mite-01/previews/phone-contrast.png) |
 | Radio Spires · Regression battle | Original daylight alternate paired with the existing night reference. Not registered for animation. | [Battle kit](radio-spires/battle-regression-01/README.md) · [Comparison](radio-spires/battle-regression-01/previews/night-then-day.jpg) |
 
-[Creature roster and named art audit](creature-roster.md) · [Antenna Kite flight preview](radio-spires/antenna-kite-01/previews/idle-and-dodge.gif) · [Kettle Runner map proof](scrap-fields/kettle-runner-01/previews/kettle-runner-phone-map.jpg)
+[Creature roster and named art audit](creature-roster.md) · [Antenna Kite flight preview](radio-spires/antenna-kite-01/previews/idle-and-dodge.webp) · [Kettle Runner map proof](scrap-fields/kettle-runner-01/previews/kettle-runner-phone-map.jpg)
 
 [Machine-readable inventory](inventory.json) · [Priorities and gaps](coverage.md)
 

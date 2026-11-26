@@ -14,7 +14,7 @@
     928
   ],
   "export_bytes": 184416,
-  "proof": "previews/idle-and-dodge.gif",
+  "proof": "previews/idle-and-dodge.webp",
   "files": [
     "PROMPT.md",
     "exports/antenna-kite-static.png",
@@ -28,6 +28,12 @@
     "parts/near_root.png",
     "parts/near_tip.png",
     "previews/idle-and-dodge.gif",
-    "previews/phone-three-phases.png"
-  ]
+    "previews/phone-three-phases.png",
+    "previews/idle-and-dodge.webp"
+  ],
+  "format_policy": {
+    "runtime": "single transparent WebP atlas + JSON frame timing; parsed as native Godot textures",
+    "preview_only": "Animated WebP (preferred) and GIF (legacy); not game imports",
+    "verified_godot": "4.7.2 official rejects direct GIF and this animated WebP; use atlas for runtime"
+  }
 }
