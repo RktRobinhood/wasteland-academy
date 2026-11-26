@@ -15,6 +15,8 @@ An art-only shelf. The integration team can select, adapt, crop, animate or leav
 
 [The Compounder portrait pair](scrap-fields/compounder-01/README.md) · [Dry Flats Glassback Lizard](dry-flats/glassback-lizard-01/README.md) · [Warden Apex Journey idle study](signal-tower/warden-apex-01/journey-idle/README.md)
 
+[Engine Core Boiler Crawler](engine-core/boiler-crawler-01/README.md) · [Actual backplate scale proof](engine-core/boiler-crawler-01/previews/engine-core-scale-proof.jpg)
+
 [Machine-readable inventory](inventory.json) · [Priorities and gaps](coverage.md)
 
 **Ready to integrate** means the artwork and individual files passed visual/file review. It does not mean the interaction is wired, reviewed in Godot or live. **Art candidate** means do not import before the noted art check passes. A preview never becomes a runtime file.

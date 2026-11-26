@@ -16,6 +16,18 @@
       ]
     },
     {
+      "id": "engine-core/boiler-crawler-01",
+      "zone": "calculus",
+      "category": "monster",
+      "manifest": "engine-core/boiler-crawler-01/manifest.json",
+      "ready_for_trial": 1,
+      "art_candidates": 0,
+      "integrated": 0,
+      "new_states": [
+        "static idle"
+      ]
+    },
+    {
       "id": "radio-spires/antenna-kite-01",
       "zone": "stats",
       "category": "monster",

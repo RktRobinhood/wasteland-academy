@@ -1,0 +1,34 @@
+{
+  "id": "engine-core/boiler-crawler-01",
+  "title": "Boiler Crawler",
+  "region": "calculus",
+  "category": "monster",
+  "state": "ambient-static-trial",
+  "integrated": false,
+  "provenance": "Original built-in ImageGen; Engine Core backdrop used only for style and placement proof.",
+  "main_reference": "c4bc45208d23f66b43ce428fe28995c3af383833",
+  "export": "exports/boiler-crawler.webp",
+  "metadata": "exports/boiler-crawler.json",
+  "dimensions": [
+    392,
+    241
+  ],
+  "export_bytes": 37348,
+  "proof": "previews/engine-core-scale-proof.jpg",
+  "animation": "Single calm idle frame; suitable as the reduced-motion base for a future separate loop.",
+  "excluded": [
+    "combat registration",
+    "attack",
+    "hurt",
+    "defeated",
+    "movement or gameplay rules"
+  ],
+  "files": [
+    "PROMPT.md",
+    "README.md",
+    "exports/boiler-crawler.json",
+    "exports/boiler-crawler.webp",
+    "masters/boiler-crawler-original.png",
+    "previews/engine-core-scale-proof.jpg"
+  ]
+}

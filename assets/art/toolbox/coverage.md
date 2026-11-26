@@ -13,3 +13,5 @@ The five syllabus zones already have painted boards. The prototype feel is not f
 Journey files must follow [the current parallax contract](https://github.com/RktRobinhood/wasteland-academy/blob/1423ce0/assets/journey/README.md). Target 864×256 far and mid, 896×98 near, visually smooth horizontal repeat, quiet foreground and stable feet line. Runtime currently needs an explicit `algebra → scrap-fields` region mapping plus imported scenery and an eligible avatar. Crop/layout proof is valid before wiring, not a substitute for running the actual Sequences route. Keep scenery generic enough for the selected zone; a sequence-specific live challenge must wait for an actual skill gate.
 
 No changes are proposed here to curriculum definitions, encounters, prices, rewards, unlocks, saves, input, or the build.
+
+Engine Core: the Boiler Crawler is ready for an isolated ambient art trial, not a live encounter. Godot loaded its transparent static WebP. No movement, combat or integration.
