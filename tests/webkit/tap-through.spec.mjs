@@ -5,7 +5,7 @@
 //
 // The game is one canvas, so taps are at fixed points of the 390x844 screen. The wall
 // clock is pinned: a run's seed comes from it, so the first question is always the same
-// one (a table, d = (101 - 53) / (16 - 10) = 8). A layout change moves these points and
+// one: the skill's lowest tier first (#268 §6), u7 = -66, u10 = -96, so d = -10. A layout change moves these points and
 // fails the test: read the screenshot in test-results/webkit, and move them.
 import { test, expect } from '@playwright/test';
 import http from 'node:http';
@@ -28,8 +28,10 @@ const TAP = {
   sequences: [74, 538],
   startRun: [195, 414],
   skipCards: [188, 293],
-  keyEight: [46, 680],
-  lockIn: [195, 764],
+  keyMinus: [294, 599],
+  keyOne: [46, 557],
+  keyZero: [146, 599],
+  lockIn: [195, 687],
   quit: [260, 22],
   playAgain: [195, 293],
 };
@@ -116,7 +118,7 @@ test('taps from the title to the summary, and the save survives a reload', async
   expect(await savedGame(page)).toBeNull();
 
   await toFirstQuestion(page);
-  await tap(page, TAP.keyEight);
+  for (const key of [TAP.keyMinus, TAP.keyOne, TAP.keyZero]) await tap(page, key);
   await tap(page, TAP.lockIn);
   await page.screenshot({ path: path.join(ROOT, 'test-results/webkit/after-answer.png') });
 
