@@ -4,6 +4,18 @@
   "scope": "Toolbox assets only, not a full audit of the game",
   "families": [
     {
+      "id": "dry-flats/glassback-lizard-01",
+      "zone": "geometry",
+      "category": "monster",
+      "manifest": "dry-flats/glassback-lizard-01/manifest.json",
+      "ready_for_trial": 1,
+      "art_candidates": 0,
+      "integrated": 0,
+      "new_states": [
+        "static idle"
+      ]
+    },
+    {
       "id": "radio-spires/antenna-kite-01",
       "zone": "stats",
       "category": "monster",
@@ -32,9 +44,13 @@
       "zone": "algebra",
       "category": "canonical-boss",
       "manifest": "scrap-fields/compounder-01/manifest.json",
-      "ready_for_trial": 0,
-      "art_candidates": 1,
-      "integrated": 0
+      "ready_for_trial": 2,
+      "art_candidates": 0,
+      "integrated": 0,
+      "new_states": [
+        "neutral",
+        "hurt"
+      ]
     },
     {
       "id": "scrap-fields/copper-mite-01",

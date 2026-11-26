@@ -1,0 +1,35 @@
+{
+  "id": "dry-flats/glassback-lizard-01",
+  "title": "Glassback Lizard",
+  "region": "geometry",
+  "category": "monster",
+  "state": "ambient-static-trial",
+  "integrated": false,
+  "provenance": "Original built-in ImageGen lizard and approved ImageGen cutout; geometry backdrop is used only in the proof",
+  "main_reference": "d987d5f634c1dee1bb1b6b60a2b26e836cfc0b2d",
+  "export": "exports/glassback-lizard.webp",
+  "metadata": "exports/glassback-lizard.json",
+  "dimensions": [
+    574,
+    142
+  ],
+  "export_bytes": 31900,
+  "proof": "previews/glassback-phone-proof.jpg",
+  "animation": "static native frame only",
+  "excluded": [
+    "combat registration",
+    "attack",
+    "hurt",
+    "defeated",
+    "walk",
+    "new puzzle, rewards or mechanics"
+  ],
+  "notes": "Use as candidate distant fauna initially. Draw 36 strip pixels high, left-facing; unaffected virtual foot origin. A separate silhouette and low file size, not a replacement for the native Dishback.",
+  "files": [
+    "PROMPT.md",
+    "exports/glassback-lizard.json",
+    "exports/glassback-lizard.webp",
+    "masters/glassback-lizard-original.png",
+    "previews/glassback-phone-proof.jpg"
+  ]
+}

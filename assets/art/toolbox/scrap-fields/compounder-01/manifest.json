@@ -3,23 +3,52 @@
   "title": "The Compounder",
   "category": "canonical-boss",
   "region": "algebra",
-  "state": "portrait-candidate",
+  "state": "portrait-pair-ready-for-trial",
   "integrated": false,
   "main_reference": "d987d5f634c1dee1bb1b6b60a2b26e836cfc0b2d",
   "provenance": "Original built-in ImageGen; source master retained; alpha crop and packed exports",
-  "description": "Algebra boss has an authored name and taunt; this is a new visual proposal. Neutral 512\u00d7512 regional portrait, bottom alignment y494. No matched hurt yet. The name can inherit from the zone but art does not; Claude must pick the actual region. Do not replace shared tiers.",
+  "description": "Canonical named Scrap Fields boss; new identity artwork. Same 512×512 neutral and non-graphic hurt portrait pair, bottom frame alignment, no translation. Select exact eligible region before trial, not a shared rank replacement. Existing game may add its own hit effect; no effect baked in.",
   "export": "exports/compounder.png",
   "dimensions": [
     512,
     512
   ],
   "export_bytes": 374169,
-  "proof": "previews/compounder-display-scale.jpg",
+  "proof": "previews/compounder-neutral-and-hurt.jpg",
   "files": [
+    "HURT-PROMPT.md",
     "PROMPT.md",
+    "exports/compounder-hurt.png",
+    "exports/compounder-hurt.webp",
     "exports/compounder.png",
     "exports/compounder.webp",
+    "masters/compounder-hurt-original.png",
     "masters/compounder-original.png",
-    "previews/compounder-display-scale.jpg"
-  ]
+    "previews/compounder-display-scale.jpg",
+    "previews/compounder-neutral-and-hurt.jpg"
+  ],
+  "pose_exports": {
+    "neutral": "exports/compounder.png",
+    "hurt": "exports/compounder-hurt.png",
+    "optional_smaller_webp": [
+      "exports/compounder.webp",
+      "exports/compounder-hurt.webp"
+    ]
+  },
+  "pair_registration": {
+    "alpha_iou": 0.98484,
+    "transform_px": [
+      0,
+      0
+    ],
+    "size": [
+      512,
+      512
+    ],
+    "proof_scales_px": [
+      72,
+      320
+    ],
+    "small_scale_note": "The expression is subtle at 72 px; assess readability at the full battle portrait size."
+  }
 }

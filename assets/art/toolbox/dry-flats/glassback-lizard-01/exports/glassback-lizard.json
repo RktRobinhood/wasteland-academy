@@ -1,0 +1,27 @@
+{
+  "name": "glassback-lizard",
+  "image": "glassback-lizard.webp",
+  "facing": "left",
+  "figure_height": 136,
+  "display_height": 36,
+  "frames": [
+    {
+      "id": "idle",
+      "x": 2,
+      "y": 2,
+      "w": 570,
+      "h": 138,
+      "ox": -245,
+      "oy": -136
+    }
+  ],
+  "anims": {
+    "idle": {
+      "frames": [
+        0
+      ],
+      "fps": 1,
+      "loop": false
+    }
+  }
+}

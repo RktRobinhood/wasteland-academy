@@ -13,6 +13,8 @@ An art-only shelf. The integration team can select, adapt, crop, animate or leav
 
 [Creature roster and named art audit](creature-roster.md) · [Antenna Kite flight preview](radio-spires/antenna-kite-01/previews/idle-and-dodge.webp) · [Kettle Runner map proof](scrap-fields/kettle-runner-01/previews/kettle-runner-phone-map.jpg)
 
+[The Compounder portrait pair](scrap-fields/compounder-01/README.md) · [Dry Flats Glassback Lizard](dry-flats/glassback-lizard-01/README.md)
+
 [Machine-readable inventory](inventory.json) · [Priorities and gaps](coverage.md)
 
 **Ready to integrate** means the artwork and individual files passed visual/file review. It does not mean the interaction is wired, reviewed in Godot or live. **Art candidate** means do not import before the noted art check passes. A preview never becomes a runtime file.
