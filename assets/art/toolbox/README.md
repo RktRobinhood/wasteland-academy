@@ -7,7 +7,7 @@ An art-only shelf. The integration team can select, adapt, crop, animate or leav
 | Zone / set | What is available | Where to start |
 |---|---|---|
 | Scrap Fields · Living map 01 | Separately layered rotor and fixed post, canonical phone/desktop placement previews, full-resolution masters. An extra crusher cube is kept as a candidate. | [Kit instructions](scrap-fields/kit-01/README.md) · [Asset manifest](scrap-fields/kit-01/manifest.json) · [Phone preview](scrap-fields/kit-01/previews/scrap-fields-phone-proof.png) |
-| Scrap Fields · Journey lane | Next production set: far salvage skyline, mid Sequences crusher and stacks, quiet treadable near edge. Status is tracked below; no incomplete strip is marked importable. | [Pipeline and zone coverage](coverage.md) |
+| Scrap Fields · Journey lane | Complete three-layer scenery kit with editable masters, exports and a proposed layer manifest. Ready for an isolated import trial, not wired. | [Journey kit](scrap-fields/journey-01/README.md) · [Preview](scrap-fields/journey-01/previews/journey-full.png) |
 
 **Ready to integrate** means the artwork and individual files passed visual/file review. It does not mean the interaction is wired, reviewed in Godot or live. **Art candidate** means do not import before the noted art check passes. A preview never becomes a runtime file.
 
