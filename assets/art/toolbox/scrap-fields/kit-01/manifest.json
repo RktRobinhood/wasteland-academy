@@ -1,0 +1,16 @@
+{
+  "kit": "scrap-fields-living-map-01",
+  "reference_commit": "1423ce06030f61fa9ae7563c9d8cd1946b134d32",
+  "board": "game/assets/map/algebra/background.webp",
+  "board_size_px": [1080, 1920],
+  "exports": [
+    {"id":"scrap-hubcap-rotor","path":"exports/scrap-hubcap-rotor-256.png","status":"ready-to-integrate","size_px":[256,256],"rgba":true,"map_size_px":[96,96],"anchor_kind":"pivot","board_anchor_px":[200,1577],"behavior":"Optional cosmetic on-tap rotation; keep still when reduced motion is selected."},
+    {"id":"scrap-hubcap-post","path":"exports/scrap-hubcap-post-512.png","status":"ready-to-integrate","size_px":[36,512],"rgba":true,"map_size_px":[13,186],"anchor_kind":"top-left","board_anchor_px":[194,1514],"behavior":"Fixed beneath rotor. Never rotate this layer."},
+    {"id":"scrap-crusher-cube","path":"exports/scrap-crusher-cube-256.png","status":"art-candidate","size_px":[256,233],"rgba":true,"board_anchor_px":[340,1075],"behavior":"Passive only; the current board already paints this cube. Do not wire until a clean plate and landing position pass review."}
+  ],
+  "masters": ["masters/scrap-hubcap-original.png", "masters/scrap-cube-original.png"],
+  "previews": ["previews/scrap-fields-phone-proof.png", "previews/scrap-fields-spin-detail.png", "previews/scrap-fields-desktop-proof.png"],
+  "credits": "New original art generated for Wasteland Academy, using the existing Scrap Fields board as visual reference. Published board appears only in placement previews.",
+  "runtime_status": "not-imported",
+  "notes": "README.md"
+}
