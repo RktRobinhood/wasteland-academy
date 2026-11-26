@@ -204,6 +204,23 @@ func test_record_times_are_the_latest_cell_answer() -> void:
 		check(int(v8.mastery.skills[s].last) > 0, "%s keeps a time for display" % s)
 
 
+func test_a_v7_save_with_a_mastery_block_is_rebuilt_from_its_cells() -> void:
+	# Since #283, Practice and Study write mastery into v7 saves while fights write only
+	# cells, so a v7 save can arrive with a mastery block whose answers are also in cells.
+	# Step 7 replaces it with the back-fill, counting every answer once (CEO review, FAL-1668).
+	var v7 := _v7_save()
+	var c: Dictionary = _cells(1, 3, 1)[0]
+	var skill: String = _skills(c)[0]
+	v7["mastery"] = E.blank_mastery()
+	E.record_key(v7, c.key, true, 1764000600)
+	v7.mastery.skills[skill] = E.mastery_update({}, 3, E.skill_top(skill), "right", [], c.key, 1.0, 1764000600)
+	check(not v7.mastery.skills.is_empty(), "the v7 save starts with a mastery block")
+	var v8 := SaveData.migrate(v7)
+	check_eq(_bytes(v8.mastery), _bytes(E.backfill_mastery(v7)), "mastery is the back-fill of the cells")
+	for s in v8.mastery.skills:
+		check(bool(v8.mastery.skills[s].migrated), "%s: the old block is not kept or merged" % s)
+
+
 func test_a_save_with_no_cells_migrates_to_empty_mastery() -> void:
 	var s := SaveData.blank()
 	s.erase("mastery")
