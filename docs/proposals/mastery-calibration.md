@@ -1,11 +1,11 @@
 # Proposal: skill mastery calibration
 
-- Status: **PROPOSED, awaiting owner acceptance.** Nothing here ships until Matt accepts it.
+- Status: **ACCEPTED 2026-11-25 (FAL-1603).** Matt accepted all nine §12 decisions at their recommended values; the record is on [#268](https://github.com/RktRobinhood/wasteland-academy/issues/268#issuecomment-7168441830). The values below marked PROPOSED are now the accepted values. Implementation lands in bounded PRs that follow §11, starting with the engine update and reads (FAL-1667).
 - Issue: [#268](https://github.com/RktRobinhood/wasteland-academy/issues/268) (Paperclip FAL-1603), queue row 3 in [BUILD-LOOP](../BUILD-LOOP.md).
 - Governed by [ADR-0002](../adr/0002-curriculum-question-mastery.md). It fills in that ADR's "Explicitly unresolved numerical details" and nothing else.
 - Evidence: [`game/tests/test_mastery_calibration_sim.gd`](../../game/tests/test_mastery_calibration_sim.gd) runs the model in [`game/tests/sim/mastery_calibration_model.gd`](../../game/tests/sim/mastery_calibration_model.gd) through the existing test runner. Its printed trajectories are in [`mastery-calibration-sim-output.txt`](mastery-calibration-sim-output.txt). The model sits under `tests/`, which every export preset excludes, so the game does not use it.
 
-Every number below is **PROPOSED** and has a one-line reason. The simulation passing shows that the numbers behave as described. It does not mean they are approved.
+Every number below is marked **PROPOSED** as it was reviewed, with a one-line reason. Since 2026-11-25 each is accepted at that value (see Status). The simulation shows the numbers behave as described.
 
 ## 1. Terms kept apart
 
@@ -241,4 +241,4 @@ Accepting the proposal means accepting each of these, or naming a different valu
 8. **Bounty defaults** (§10): accept them here, or leave them to the ADR-0003 bounty proposal.
 9. **Content follow-up**: reword the catalogue's difficulty descriptors 3/4 so they no longer name a paper.
 
-Until he accepts, implementation of #268 stays blocked. Exact active-run work (#267) and the encounter audit (#269) carry on independently.
+Matt accepted all nine on 2026-11-25 (FAL-1603). Exact active-run work (#267) and the encounter audit (#269) carry on independently.

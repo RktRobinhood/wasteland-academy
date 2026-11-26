@@ -16,6 +16,7 @@ The owner requested repository adoption and delivery reconciliation on November 
 | Help | Explainers available from start and linked to specific skills; optional 'Know Your Enemy' help from bounties | 0002/0003 |
 | Mastery | Seven displayed proficiency levels per individual skill, 'Not Yet Attempted' separate; level 4-5 Exam Ready, 6-7 skill-specific funny titles | 0002 |
 | Mastery evidence | Difficulty-weighted asymmetric evidence, partial credit for assists, higher-level hard successes meaningful, low-level misses can downgrade | 0002 |
+| Mastery calibration | Accepted 2026-11-25 (FAL-1603, [#268](https://github.com/RktRobinhood/wasteland-academy/issues/268#issuecomment-7168441830)): all nine decisions in [the calibration proposal](proposals/mastery-calibration.md) §12 at their recommended values. Logistic Elo step (start 1.0, K = 1, scale 1, question rating `d + 1`, cap 7.999); credits MCQ 0.75, glancing 0.75, hint 0.5, 50-50 0.4, late/Time Freeze 1.0, timeout miss 0.5, probes not counted; assisted and migrated work stops at 3.999 and L4 needs 2 unassisted exam-tier successes; multi-skill blame by `1 − p` or the named misconception; damping ×0.5/×0.25/×0.125, cell gates 3 and 5, repeats half; Thunderdome floor = attempted mean frozen per run, `max(F, m)`, no-attempt 2.0; v7 back-fill by deterministic replay; bounty defaults per §10; descriptors 3/4 reworded | 0002 |
 | Mode difference | Overworld uses each skill's current mastery; Thunderdome fixed-for-run floor from attempted-skill mean, escalates and respects higher individual levels | 0002 |
 | Geography | Same overall and regional maps for all courses; unsupported locations visible but inert; five large zones accessible from start | 0003 |
 | Prerequisites | No cross-zone gates; only real within-zone dependencies, unlock permanently from any mode; optional Test-Out for actual gates | 0003 |
@@ -56,7 +57,7 @@ A sandstorm shelter episode; giant mutant scorpion/sandworm/giant mosquito; armo
 
 1. Exact progression graph and final-boss identity for each current region; reconciliation of repeated 'mile' boss with narrative win.
 2. First region's three story beats, varied encounter lineup, and what math progression makes climax eligible.
-3. Exact mastery curve, weighted scoring, assist weights, initial Thunderdome floor when no attempted skills.
+3. ~~Exact mastery curve, assist weights, initial Thunderdome floor when no attempted skills.~~ Settled 2026-11-25 by the accepted [calibration proposal](proposals/mastery-calibration.md) (see A). Weighted run *scoring* stays open.
 4. Character XP/level curve, ultimate-tier progression and alternate-character realism with once-only account accolades.
 5. Scarcity/bazaar catalog, merchant rarity, Raider Attention probability/drop tables, status tick/recovery/stack cap values and composition rules.
 6. Boss Rush entry fee/return, Exhibition unlock target, allowable stopping behavior, and topic-breadth reward formula.
