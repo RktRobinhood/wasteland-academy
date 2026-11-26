@@ -23,8 +23,9 @@ const SAVE := "user://test_map_save.json"
 const CATALOGUE := "res://data/catalogue.json"
 ## An island art folder with nothing in it: the coded look.
 const NO_ART := "res://tests/fixtures/no-art/map/"
-## The zones with a painting in assets/map/<island>/: the Signal Tower (FAL-791), the
-## Dry Flats (FAL-1034), the Radio Spires (FAL-1611) and the Engine Core (FAL-1612).
+## The zones with a painting in assets/map/<island>/: the Signal Tower (FAL-1614), the
+## Dry Flats (FAL-1034), the Radio Spires (FAL-1611), the Engine Core (FAL-1612) and the
+## Scrap Fields (FAL-1613).
 const PAINTED := ["functions", "geometry", "stats", "calculus", "algebra"]
 
 
@@ -640,10 +641,10 @@ func _board_text(board: Control, with_banners := false) -> Array:
 func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
 	var map_script := preload("res://ui/map.gd")
 	check_eq(map_script.SPOTS.functions, {
-		"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
-		"graphs-features": Vector2(79, 65), "lines": Vector2(21, 27), "rational": Vector2(79, 28),
-		"composite-inverse": Vector2(25, 10), "transformations": Vector2(75, 10), "all": Vector2(50, 46),
-		"relic": Vector2(12, 50)}, "the FAL-783 plan's table")
+		"quadratics": Vector2(20, 65.7), "exp-log": Vector2(78.6, 62.6), "function-basics": Vector2(15, 41.4),
+		"graphs-features": Vector2(85, 43.8), "lines": Vector2(50, 25.8), "rational": Vector2(50, 68.8),
+		"composite-inverse": Vector2(20, 25.5), "transformations": Vector2(81, 28), "all": Vector2(50.4, 49.1),
+		"relic": Vector2(9.8, 53.6)}, "the table measured from Matt's board (FAL-1614)")
 	var made: Array = await _map({"screen": "island", "island": "functions"})
 	var m: Control = made[1]
 	var buttons := _spot_buttons(m)
@@ -751,14 +752,16 @@ func test_names_hide_until_a_place_is_hovered_focused_or_tapped() -> void:
 
 
 ## The island's columns sit closer than a card is tall (FAL-925), so a place's card goes
-## beside it, on the side with more room, on the board and clear of the place itself.
+## beside it, on the side with more room, on the board and clear of the place itself. On the
+## Signal Tower (FAL-1614) the lines and rational places share the middle column with the
+## all-regions dungeon, so their cards only have to clear them.
 func test_a_card_sits_beside_its_place_on_the_island() -> void:
 	var map_script := preload("res://ui/map.gd")
 	var made: Array = await _map({"screen": "island", "island": "functions"})
 	var m: Control = made[1]
 	var card := m.island_board.get_node("Card") as Control
 	var board := Rect2(Vector2.ZERO, map_script.BOARD)
-	for id in ["composite-inverse", "lines", "function-basics", "quadratics", "rational", "graphs-features", "relic"]:
+	for id in ["composite-inverse", "transformations", "function-basics", "graphs-features", "quadratics", "exp-log", "relic"]:
 		var b: Button = _spot_buttons(m)[id]
 		m.show_card(b)
 		var c := Rect2(card.position, card.size)
@@ -769,10 +772,12 @@ func test_a_card_sits_beside_its_place_on_the_island() -> void:
 		var left := r.get_center().x < map_script.BOARD.x / 2.0
 		check_eq(c.position.x > r.end.x, left, "%s: the card on the side with more room" % id)
 		m._hide_card()
-	var mid: Button = _spot_buttons(m)["all"]
-	m.show_card(mid)
-	var c := Rect2(card.position, card.size)
-	check(board.encloses(c) and not c.intersects(Rect2(mid.position, mid.size)), "the middle place's card clears it")
+	for id in ["all", "lines", "rational"]:
+		var mid: Button = _spot_buttons(m)[id]
+		m.show_card(mid)
+		var c := Rect2(card.position, card.size)
+		check(board.encloses(c) and not c.intersects(Rect2(mid.position, mid.size)), "%s: the middle place's card clears it" % id)
+		m._hide_card()
 	_done(made)
 
 

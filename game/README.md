@@ -625,13 +625,13 @@ optional: when one isn't there, that piece keeps the coded look (the zone's dusk
 gradient, `ArtSlots.GROUND`, with the jetty as a dot, and a ring in the state's colour
 with a short glyph, `GLYPHS`, for each place), so art can land one file at a time and an
 zone's painting shows the moment it's dropped in, with no code change. All five zones are
-painted: the Signal Tower (`functions/`, FAL-791), the Dry Flats (`geometry/`,
+painted: the Signal Tower (`functions/`, FAL-1614, Matt's board in place of FAL-791's), the Dry Flats (`geometry/`,
 FAL-1034), the Radio Spires (`stats/`, FAL-1611), the Engine Core (`calculus/`, FAL-1612) and the Scrap Fields (`algebra/`, FAL-1613). Import each with mipmaps on, like the rest of the art; a ChatGPT board imports
 at lossy quality 0.6 (see the size budget in `ART_REQUIREMENTS.md`).
 
 | File | Size | What it is |
 |---|---|---|
-| `background.webp` (or `.png`) | 1080x1920, opaque | The whole zone, portrait, one painting with every place painted in at its point in that zone's `SPOTS` table in `ui/map.gd` (% of the board), the jetty at (50, 97). No roads, no text. The FAL-783 plan has the Signal Tower's table of places; the other four zones' tables were laid out for the coded look on FAL-925, and a painting may follow them or move them (then update `SPOTS`). With it, a place with no landmark PNG draws nothing but its button: an invisible square of 300 board units round its point (the Relic device's 160). A place that can't be played yet gets a dark wash and a padlock chip, a cleared one a flag chip, both from the code, so one painting serves every state |
+| `background.webp` (or `.png`) | 1080x1920, opaque | The whole zone, portrait, one painting with every place painted in at its point in that zone's `SPOTS` table in `ui/map.gd` (% of the board), the jetty at (50, 97). No roads, no text. Each zone's table is measured from its painting (`zones.json` in `assets/art/intake/<zone>/`); a new painting may move the places (then update `SPOTS`). With it, a place with no landmark PNG draws nothing but its button: an invisible square of 300 board units round its point (the Relic device's 160). A place that can't be played yet gets a dark wash and a padlock chip, a cleared one a flag chip, both from the code, so one painting serves every state |
 | `background-wide.webp` | 1920x1080, opaque | The same painting for a landscape layout (#199): the same square core with bands of open ground left and right instead of above and below. Nothing draws it yet, so the Web preset leaves it out of the export. Its spots are the `wide` entries in the zone's `zones.json` (`assets/art/intake/<zone>/`) |
 | `<spot>-locked.png` | 256x256, transparent | A spot's landmark before its questions are built |
 | `<spot>-open.png` | 256x256, transparent | A spot's landmark once it can be played |
