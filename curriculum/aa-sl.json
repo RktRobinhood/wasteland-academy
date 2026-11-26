@@ -452,7 +452,7 @@
                 {
                   "id": "solve-linear",
                   "approach": "algebraic",
-                  "name": "Solve u_1 + (n − 1)d = value (or > value)",
+                  "name": "Form u₁ + (n − 1)d and solve for n",
                   "summary": "Solve the linear equation or inequality for n; n must be a positive integer, so round up for 'first term greater than'."
                 },
                 {
@@ -655,7 +655,7 @@
                 {
                   "id": "list-and-formula",
                   "approach": "formula",
-                  "name": "Write out terms, identify u_1, d and n, then use S_n",
+                  "name": "Write out the terms, then find u₁, d and n",
                   "summary": "Substitute the lower and upper limits to get the first and last terms, count terms as upper − lower + 1, then apply the sum formula."
                 },
                 {
@@ -7220,8 +7220,8 @@
                 {
                   "id": "stretch-then-translate-form",
                   "approach": "structural",
-                  "name": "Read a·f(b(x + c)) + d as stretches then one translation",
-                  "summary": "Stretch by 1/b horizontally and by a vertically, then translate by the vector (−c, d)."
+                  "name": "Read a·f(b(x − c)) + d as stretches then one translation",
+                  "summary": "Stretch by 1/b horizontally and by a vertically, then translate by the vector (c, d)."
                 },
                 {
                   "id": "gdc-overlay",
@@ -7305,7 +7305,7 @@
                 },
                 {
                   "thread": "transformations",
-                  "echo": "Reading g(x) = a·f(b(x + c)) + d as stretches and a translation is the skill you will reuse for every sin, cos, e^x and normal curve."
+                  "echo": "Reading g(x) = a·f(b(x − c)) + d as stretches and a translation is the skill you will reuse for every sin, cos, e^x and normal curve."
                 },
                 {
                   "thread": "equivalent-forms",
@@ -7342,8 +7342,8 @@
                 {
                   "id": "mapping-rule",
                   "approach": "formula",
-                  "name": "Use (x, y) ↦ (x/b − c, ay + d)",
-                  "summary": "For y = a·f(b(x + c)) + d, apply the rule to the coordinates in one step."
+                  "name": "Use (x, y) ↦ (x/b + c, ay + d)",
+                  "summary": "For y = a·f(b(x − c)) + d, apply the rule to the coordinates in one step."
                 },
                 {
                   "id": "step-by-step",
@@ -16056,7 +16056,7 @@
                 }
               ],
               "misconceptions": [
-                "Reversing the second-derivative test: a positive f″ means a minimum",
+                "Reversing the second-derivative test: taking a positive f″ to mean a maximum",
                 "f″(a) = 0 proves a point of inflexion (x⁴ has a minimum at 0 with f″(0) = 0)",
                 "Checking the sign of f rather than f′ either side of the point"
               ],

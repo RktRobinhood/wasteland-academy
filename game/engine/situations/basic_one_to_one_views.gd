@@ -55,8 +55,43 @@ static func N(v: Variant) -> String:
 
 ## The rule as a question shows it: half a parabola has to say which half.
 static func eqn(s: Dictionary) -> String:
-	var rule := BasicFunctionSituation.eqn(s)
+	var rule := "%s(%s) = %s" % [s.name, s.v, rule_text(s.f)]
 	return "%s, for x ≥ %s" % [rule, N(s.lo)] if s.get("form", "") == "half" else rule
+
+
+## f's rule, with no brackets round a one-term top or bottom of a fraction: "6/x", not "(6)/(x)".
+static func rule_text(f: Dictionary) -> String:
+	if f.get("fam", "") != "rat":
+		return BasicFunctionSituation.text(f)
+	var top := Fmt.terms([f.a, f.b], [1, 0], "x", true)
+	var bot := Fmt.terms([f.c, f.d], [1, 0], "x", true)
+	var one := func(t: String) -> bool: return not t.substr(1).contains(" ")
+	return "%s/%s" % [top if one.call(top) else "(%s)" % top, bot if one.call(bot) else "(%s)" % bot]
+
+
+## The working that solves f(x) = a for a rule of this situation, one line per move.
+static func solve_steps(s: Dictionary, a: Q) -> Array:
+	var w := func(v: Q) -> String: return BasicFunctionViews.W(v)
+	var inv: Q = Q.of(s.inv)
+	match s.get("form", "line"):
+		"root":
+			var u: Q = a.sub(s.f.k)
+			var inner := Fmt.terms([s.f.m, s.f.n], [1, 0], "x", true)
+			return ["√(%s) = %s − %s = %s" % [inner, w.call(a), in_sum(s.f.k), w.call(u)], "Square both sides: %s = %s" % [inner, w.call(u.sq())], "x = %s − %s = %s" % [w.call(u.sq()), in_sum(s.f.n), w.call(inv)]]
+		"exp":
+			var u: Q = a.sub(s.f.c)
+			return ["2^x = %s − %s = %s" % [w.call(a), in_sum(s.f.c), w.call(u)], "%s is 2^%s, so x = %s" % [w.call(u), w.call(inv), w.call(inv)]]
+		"half":
+			var top: Array = s.keys[0]
+			var h := Q.new(top[0])
+			var u: Q = a.sub(top[1])
+			var root: Q = inv.sub(h)
+			return ["Complete the square: %s = %s, so %s = %s − %s = %s" % [Fmt.vertex(1, h, top[1]), w.call(a), Fmt.factor(h) + "²", w.call(a), in_sum(Q.new(top[1])), w.call(u)],
+				"x ≥ %s, so take the positive root: %s = %s" % [N(s.lo), Fmt.factor(h).trim_prefix("(").trim_suffix(")"), w.call(root)], "x = %s + %s = %s" % [w.call(root), in_sum(h), w.call(inv)]]
+	var c: Q = Q.of(s.f.co[0])
+	var m: Q = Q.of(s.f.co[1])
+	var u: Q = a.sub(c)
+	return ["%s = %s − %s = %s" % [Fmt.terms([m], [1], "x", true), w.call(a), in_sum(c), w.call(u)], "x = %s ÷ %s = %s" % [w.call(u), in_sum(m), w.call(u.div(m))]]
 
 
 static func ways(steps: Dictionary, last: String, ans: Dictionary) -> Dictionary:
@@ -128,8 +163,11 @@ func u_sketch_inverse(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	]
 	var picked := GdcKit.pick(card.call(func(p): return [p[1], p[0]]), wrongs, rng)
 	var ans: Dictionary = picked.answer
-	var a: Array = keys[0]
-	var b: Array = keys[1]
+	# The working swaps two points that move: a point on y = x is its own image and picks out no graph.
+	var moving: Array = keys.filter(func(k): return k[0] != k[1])
+	var shown: Array = (moving + keys.filter(func(k): return k[0] == k[1])).slice(0, 2)
+	var a: Array = shown[0]
+	var b: Array = shown[1]
 	var swap := "The points %s and %s are on f, so %s and %s are on f⁻¹" % [Fmt.point(a[0], a[1]), Fmt.point(b[0], b[1]), Fmt.point(a[1], a[0]), Fmt.point(b[1], b[0])]
 	var out := {"asked": "Which graph shows y = f⁻¹(x)?", "lines": ["The graph of y = f(x) is shown, with its key points marked."],
 		"graph": plot(s, keys.map(func(k): return dot(k[0], k[1]))), "answer": ans, "graphs": picked.graphs}
@@ -144,10 +182,14 @@ func u_area_by_symmetry(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var give := rng.chance(0.5)
 	var ans := BasicFunctionViews.value("Area = ", s.area, s)
 	var say := func(v: Q) -> String: return BasicFunctionViews.say(v, s)
+	# Paper 2's working keeps more figures than the answer, so doubling the half rounds to the key:
+	# a half given as 0.260 doubles to 0.520, not the area's 0.521 (FAL-1605).
+	var work := func(v: Q) -> String: return BasicFunctionViews.W(v) if s.paper == 2 else say.call(v)
+	var given_half: String = Fmt.sf(s.half, 4) if s.paper == 2 else say.call(s.half)
 	var meet := "The graphs of f and f⁻¹ meet at (0, 0) and (%s, %s)." % [Fmt.dec(m), Fmt.dec(m)]
 	var lines: Array = ["%s, for x ≥ 0" % eqn(s), meet]
 	if give:
-		lines.append("The area between the graph of f and the line y = x is %s." % say.call(s.half))
+		lines.append("The area between the graph of f and the line y = x is %s." % given_half)
 	var out := {"asked": "Find the area of the region between the graphs of f and f⁻¹.", "lines": lines, "answer": ans, "wrongs": [wrong({"v": s.half}, R_HALF)],
 		"fillers": BasicFunctionViews.nums([s.area.mul(2), m.sq().div(2)], s.area)}
 	if rep == "graph":
@@ -155,10 +197,12 @@ func u_area_by_symmetry(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 			Plot.sample(func(x): return x, 0.0, m.to_float())], [[m.to_float(), m.to_float(), ""]], -1, ceili(m.to_float()) + 1, -1, ceili(m.to_float()) + 1)
 		out.graph = g
 		out.lines = lines + ["The graph shows f, f⁻¹ and y = x."]
-	var half := "The area between f and y = x is ∫(x − %s)dx from 0 to %s = %s" % [BasicFunctionSituation.text(s.f), Fmt.dec(m), say.call(s.half)]
+	var half := "The area between f and y = x is ∫(x − %s)dx from 0 to %s = %s" % [BasicFunctionSituation.text(s.f), Fmt.dec(m), work.call(s.half)]
 	if give:
-		half = "The area between f and y = x is given: %s" % say.call(s.half)
-	var twice := "f⁻¹ is the mirror image of f in y = x, so the whole region is twice that: 2 × %s" % say.call(s.half)
+		half = "The area between f and y = x is given: %s" % given_half
+	var shown: String = given_half if give else work.call(s.half)
+	var doubled: String = Fmt.work(2.0 * shown.to_float(), 6) if s.paper == 2 else say.call(s.area)
+	var twice := "f⁻¹ is the mirror image of f in y = x, so the whole region is twice that: 2 × %s = %s" % [shown, doubled]
 	out.methods = ways({"reflect-in-y-equals-x": [half, twice], "reflect-point": ["Each point of f between (0, 0) and (%s, %s) has its mirror image on f⁻¹, at the same distance from y = x" % [Fmt.dec(m), Fmt.dec(m)], half, twice]}, "So %s." % Answer.text(ans), ans)
 	return out
 
@@ -245,9 +289,8 @@ func u_inverse_from_rule(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 			wrongs = [wrong({"v": at_a}, R_VALUE), wrong({"v": Q.new(1).div(at_a)}, R_RECIPROCAL)]
 	var out := {"asked": "Find f⁻¹(%s), without finding f⁻¹(x)." % N(a), "lines": [eqn(s)], "answer": ans, "wrongs": wrongs,
 		"fillers": BasicFunctionViews.nums([a, GdcKit.qf(inv.to_float() + 1.0), inv.neg()], inv)}
-	var w := BasicFunctionViews.W(inv)
-	var solve := "f⁻¹(%s) is the x with f(x) = %s: %s = %s" % [N(a), N(a), BasicFunctionSituation.text(s.f), N(a)]
-	out.methods = ways({"solve-f-equals": [solve, "Solve it: x = %s" % w], "reverse-flow": undo_steps(s, a)}, "So %s." % Answer.text(ans), ans)
+	var solve := "f⁻¹(%s) is the x with f(x) = %s: %s = %s" % [N(a), N(a), rule_text(s.f), N(a)]
+	out.methods = ways({"solve-f-equals": [solve] + solve_steps(s, a), "reverse-flow": undo_steps(s, a)}, "So %s." % Answer.text(ans), ans)
 	return out
 
 
@@ -326,10 +369,23 @@ func u_meeting_on_y_equals_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		out.given = {"x_y": true}
 	else:
 		out.lines = [eqn(s)]
-	var eq: String = "Read where the curve crosses the line y = x" if rep == "graph" else "Solve f(x) = x: %s = x" % BasicFunctionSituation.text(s.f)
 	var why := "f is increasing, so f and f⁻¹ meet on y = x"
 	var sv := "That gives x = %s, and y = x there" % N(p)
-	out.methods = ways({"reflect-in-y-equals-x": [why, "Find where the curve crosses y = x: " + sv.to_lower()], "solve-f-equals": [why, eq, sv]}, "So %s." % Answer.text(ans), ans)
+	var how: Array
+	if rep == "graph":
+		how = ["Read where the curve crosses the line y = x", sv]
+	elif s.form == "line":
+		# mx + c = x, worked through to x rather than stated (FAL-1605).
+		var m: Q = Q.of(s.f.co[1])
+		how = ["Solve f(x) = x: %s = x" % rule_text(s.f), ("x = %s" % N(p) if m.sub(1).eq(1) else "%s = %s, so x = %s" % [Fmt.terms([m.sub(1)], [1], "x", true), BasicFunctionViews.W(s.c.neg()), N(p)]), "y = x there, so y = %s" % N(p)]
+	else:
+		var m2: Q = s.f.m
+		var n2: Q = s.f.n
+		var other: Q = n2.neg().div(Q.new(p))
+		how = ["Solve f(x) = x: %s = x" % rule_text(s.f), "Square both sides: %s = x², so %s = 0 and %s%s = 0" % [Fmt.terms([m2, n2], [1, 0], "x", true), Fmt.poly([1, m2.neg(), n2.neg()]), Fmt.factor(p), Fmt.factor(other)],
+			"A square root is never negative, so x = %s, not %s; y = x there, so y = %s" % [N(p), N(other), N(p)]]
+	var reflect: Array = [why, "Find where the curve crosses y = x: " + sv.to_lower()] if rep == "graph" else [why] + how
+	out.methods = ways({"reflect-in-y-equals-x": reflect, "solve-f-equals": [why] + how}, "So %s." % Answer.text(ans), ans)
 	return out
 
 
@@ -360,7 +416,17 @@ func u_is_self_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		out.lines = [eqn(s)]
 	var check := "Take the point %s on f: its mirror image in y = x is %s" % [Fmt.point(p, q), Fmt.point(q, p)]
-	var verdict: String = "Every swapped point is on the graph too" if s.inverse else "Put x = %s into f: it does not give %s" % [N(q), N(p)]
+	# The verdict is worked, not stated: the swapped rule for "yes", the value at the image for "no".
+	var verdict: String
+	if s.inverse:
+		var back: String = "x = %s − y gives y = %s" % [N(s.f.co[0]), rule_text(s.f)] if s.form == "flip" else "x = %s/y gives y = %s" % [N(s.k), rule_text(s.f)]
+		verdict = "Swap x and y in y = %s: %s, the same rule, so every swapped point is on the graph too" % [rule_text(s.f), back]
+		if rep == "graph":
+			verdict = "%s is on the graph too, and so is the mirror image of every point: the graph is symmetric in y = x" % Fmt.point(q, p)
+	elif rep == "graph":
+		verdict = "The graph does not pass through %s" % Fmt.point(q, p)
+	else:
+		verdict = "Put x = %s into f: f(%s) = %s, not %s" % [N(q), N(q), N(BasicFunctionSituation.at(s.f, q)), N(p)]
 	out.methods = ways({"reflect-in-y-equals-x": ["f is its own inverse when its graph is symmetric in y = x", check, verdict],
 		"midpoint-of-pair": [check, "The midpoint of the pair is on y = x, so the test is whether the second point is on f", verdict]}, "So: %s." % right, out.answer)
 	return out

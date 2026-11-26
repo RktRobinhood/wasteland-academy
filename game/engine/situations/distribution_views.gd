@@ -515,6 +515,9 @@ func u_event_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		var named := and_list(ends.map(func(x): return "x = %d" % x))
 		note = " (not %s: the inequality is strict)" % named
 		note_out = " (%s too, as the inequality is strict)" % named
+		# "leaves out x = 7 (x = 7 too, ...)" reads wrong when the strict end is all that is left out.
+		if outside_idx(s).map(func(k): return s.xs[k]) == ends:
+			note_out = " (the inequality is strict)"
 	var first: Array = [tabulate(s)] if rep == "equation" else []
 	var add := first.duplicate()
 	add.append_array([

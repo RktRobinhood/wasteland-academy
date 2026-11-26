@@ -499,7 +499,8 @@ static func _pile(rng: Seeded, s: Dictionary) -> bool:
 static func _stack_total(rng: Seeded, s: Dictionary) -> bool:
 	s.n = rng.int_in(4, 12)
 	s.v = total(s, s.n)
-	return true
+	# A table shows t₁ to t₄, so it asks for a stack it doesn't show (FAL-1605).
+	return s.rep != "table" or s.n > 4
 
 
 ## The fewest rows, of at least 3, that use whole crates exactly.

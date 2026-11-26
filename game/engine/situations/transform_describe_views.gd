@@ -153,8 +153,35 @@ static func point_step(s: Dictionary) -> String:
 	return "The point %s on f is at %s on g." % [P_(s, k), P_(s, TC.image(s.map, k[0], k[1]))]
 
 
-static func rewrite_step(s: Dictionary) -> String:
-	return "Written with f, g(x) = %s." % f_form(s, s.map)
+## g written with f. A graph gives no rule, so there it is read from P and Q first.
+static func rewrite_step(s: Dictionary, rep: String = "equation") -> String:
+	if rep != "graph":
+		return "Written with f, g(x) = %s." % f_form(s, s.map)
+	var two: Array = s.key.slice(0, 2)
+	var said: Array = []
+	for i in two.size():
+		said.append("%s%s %s %s′%s" % ["PQ"[i], P_(s, two[i]), "goes to" if i == 0 else "to", "PQ"[i], P_(s, TC.image(s.map, two[i][0], two[i][1]))])
+	return "From the graph, %s, so g(x) = %s." % [" and ".join(PackedStringArray(said)), f_form(s, s.map)]
+
+
+## A number to divide by, in brackets when it is a fraction or negative: "1 ÷ (1/3)".
+static func over(s: Dictionary, v: Q) -> String:
+	var t := TC.n(s, v)
+	return "(%s)" % t if t.contains("/") or v.sign() < 0 else t
+
+
+## A point taken through moves one at a time: "(0, 1) → (0, 2) → (0, 5)".
+static func trail(s: Dictionary, moves: Array, p: Array) -> String:
+	var at: Array = p
+	var parts: Array = [P_(s, p)]
+	for m in moves:
+		at = TC.image(TC.compose([m]), at[0], at[1])
+		parts.append(P_(s, at))
+	return " → ".join(PackedStringArray(parts))
+
+
+static func low(t: String) -> String:
+	return t.left(1).to_lower() + t.substr(1)
 
 
 ## g written with the letter f: "2f(3(x − 1)) + 4".
@@ -176,14 +203,22 @@ func u_describe_translation(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var m: Dictionary = s.moves[0]
 	var c: Q = m.c
 	var d: Q = m.d
+	# A graph gives no rule for g, so a method that works on the rule reads it off P and Q.
+	var seen: Array = [rewrite_step(s, rep)] if rep == "graph" else []
+	var k: Array = telling(s)
+	var im := TC.image(s.map, k[0], k[1])
+	var diff := "The change in x is %s − %s = %s and the change in y is %s − %s = %s." % [TC.n(s, im[0]), par(s, k[0]), TC.n(s, c), TC.n(s, im[1]), par(s, k[1]), TC.n(s, d)]
 	var out := ask(TC.tr_text(s, c, d), [[TC.tr_text(s, c.neg(), d), DESC]], [TC.tr_text(s, c.neg(), d.neg()), TC.tr_text(s, c, d.neg()), TC.tr_text(s, d, c)],
 		"Describe the transformation that maps the graph of f onto the graph of g.", [], {
-			"rewrite-in-f": [rewrite_step(s), "x is replaced by %s, which moves the graph %s, and the%s outside moves it %s." % [TC.x_minus(s, c), across_word(s, c), TC.plus(s, d), vert_word(s, d)]],
-			"substitute": ["Putting x − c for x and adding d gives g(x) = f(x − c) + d.", "That is %s when c = %s and d = %s." % [f_form(s, s.map), TC.n(s, c), TC.n(s, d)]],
-			"shift-features": [point_step(s), "The change in x is %s and the change in y is %s." % [TC.n(s, c), TC.n(s, d)]],
-			"gdc-overlay": ["Graph y = %s and y = %s on the GDC." % [TC.f_rule(s), TC.g_rule(s)], "Trace one point across: %s" % point_step(s)],
+			"rewrite-in-f": [rewrite_step(s, rep), "x is replaced by %s, which moves the graph %s, and the%s outside moves it %s." % [TC.x_minus(s, c), across_word(s, c), TC.plus(s, d), vert_word(s, d)]],
+			"substitute": seen + ["Putting x − a for x and adding b gives g(x) = f(x − a) + b.", "That is %s when a = %s and b = %s." % [f_form(s, s.map), TC.n(s, c), TC.n(s, d)]],
+			"shift-features": [point_step(s), diff],
+			"gdc-overlay": seen + ["Graph y = %s and y = %s on the GDC." % [TC.f_rule(s), TC.g_rule(s)], "Trace one point across: %s" % low(point_step(s)), diff],
 		})
 	out.merge(show_pair(rep, s), true)
+	if rep == "graph":
+		# The GDC needs f's rule to draw anything.
+		out.lines = [PAIR_LINE, f_line(s)]
 	return out
 
 
@@ -199,21 +234,27 @@ func u_describe_stretch(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wrongs: Array = [[TC.hs_text(s, flip), STRETCH], [TC.vs_text(s, a), D_AXIS]] if horizontal else [[TC.vs_text(s, flip), D_RECIP], [TC.hs_text(s, a), D_AXIS]]
 	wrongs.append([no_axis, NO_AXIS])
 	var fillers: Array = [TC.vs_text(s, flip)] if horizontal else [TC.hs_text(s, flip)]
-	# On 1/x or a log a horizontal stretch is another way to say something else.
+	# On 1/x a horizontal stretch is a vertical one, and on a log a translation. The other
+	# axis is still a slip on a log (log₂(x/a) is no stretch); the filler is a squared, not
+	# 2a (a stretch by 1 when a is ½).
 	if s.fam in TC.NO_HS:
 		wrongs = [[TC.vs_text(s, flip), D_RECIP], [no_axis, NO_AXIS]]
-		fillers = [TC.vs_text(s, a.mul(2))]
+		if s.fam != "recip":
+			wrongs.append([TC.hs_text(s, a), D_AXIS])
+		fillers = [TC.vs_text(s, a.mul(a))]
 	wrongs = wrongs.filter(func(w): return w[0] != right)
 	fillers = fillers.filter(func(t): return t != right)
 	var word := "x" if horizontal else "y"
 	var where := "inside the bracket, so x is multiplied by %s and every x-coordinate by %s" % [TC.n(s, s.map.B), TC.n(s, a)] if horizontal \
 		else "outside the bracket, so every y-coordinate is multiplied by %s" % TC.n(s, a)
+	var seen: Array = [rewrite_step(s, rep)] if rep == "graph" else []
 	var out := ask(right, wrongs, fillers, "Describe the transformation that maps the graph of f onto the graph of g.", [], {
-		"rewrite-in-f": [rewrite_step(s), "The factor is " + where + "."],
-		"scale-rule": ["a·f(x) stretches y by a, and f(bx) stretches x by 1/b.", "Here the factor is " + where + "."],
+		"rewrite-in-f": [rewrite_step(s, rep), "The factor is " + where + "."],
+		"scale-rule": seen + ["a·f(x) stretches y by a, and f(bx) stretches x by 1/b.", "Here the factor is " + where + "."],
 		"track-points": [point_step(s), "Only the %s-coordinates have changed, each multiplied by %s." % [word, TC.n(s, a)]],
 		"invariant-points": ["A vertical stretch leaves points on the x-axis alone, and a horizontal one leaves points on the y-axis alone.",
-			"Here the %s stay put, and the %s-coordinates are multiplied by %s." % ["points on the y-axis" if horizontal else "points on the x-axis", word, TC.n(s, a)]],
+			"Here the %s stay put. %s" % ["points on the y-axis" if horizontal else "points on the x-axis", point_step(s)],
+			"So the %s-coordinates are multiplied by %s." % [word, TC.n(s, a)]],
 	})
 	out.merge(show_pair(rep, s), true)
 	return out
@@ -223,14 +264,17 @@ func u_stretch_and_shift_parameters(rep: String, s: Dictionary, _rng: Seeded) ->
 	var k: Q = s.moves[0].a
 	var d: Q = s.moves[1].d
 	var ans := Answer.make("named", {"v0": k, "v1": d}, {"names": ["horizontal scale factor", "vertical translation"]})
-	var said := "The number with x is %s, so the horizontal scale factor is 1 ÷ %s = %s." % [TC.n(s, s.map.B), TC.n(s, s.map.B), TC.n(s, k)]
+	var said := "The number with x is %s, so the horizontal scale factor is 1 ÷ %s = %s." % [TC.n(s, s.map.B), over(s, s.map.B), TC.n(s, k)]
 	var p: Array = telling(s)
 	var im := TC.image(s.map, p[0], p[1])
+	var x_said := "the x-coordinate goes from %s to %s: %s ÷ %s = %s" % [TC.n(s, p[0]), TC.n(s, im[0]), TC.n(s, im[0]), over(s, p[0]), TC.n(s, k)] if not p[0].is_zero() \
+		else "the x-coordinate is multiplied by %s" % TC.n(s, k)
+	var seen: Array = [rewrite_step(s, rep)] if rep == "graph" else []
 	var out := typed(ans, [wrong({"v0": Q.new(1).div(k), "v1": d}, STRETCH)],
 		"Find the horizontal scale factor and the vertical translation that map the graph of f onto the graph of g.", [], {
-			"rewrite-in-f": [rewrite_step(s), said, "The number added outside is the vertical translation, %s." % TC.n(s, d)],
-			"compare-key-points": ["The point %s on f goes to %s on g." % [P_(s, p), P_(s, im)], "Its x-coordinate is multiplied by %s and %s is added to its y-coordinate." % [TC.n(s, k), TC.n(s, d)]],
-			"scale-rule": ["f(bx) + d is a horizontal stretch with scale factor 1/b, then a vertical translation by d.", said],
+			"rewrite-in-f": [rewrite_step(s, rep), said, "The number added outside is the vertical translation, %s." % TC.n(s, d)],
+			"compare-key-points": ["The point %s on f goes to %s on g." % [P_(s, p), P_(s, im)], "For the stretch, %s. For the translation, the y-coordinate goes from %s to %s: %s − %s = %s." % [x_said, TC.n(s, p[1]), TC.n(s, im[1]), TC.n(s, im[1]), par(s, p[1]), TC.n(s, d)]],
+			"scale-rule": seen + ["f(bx) + d is a horizontal stretch with scale factor 1/b, then a vertical translation by d.", said, "Here d = %s." % TC.n(s, d)],
 		}, s, [{"v0": k, "v1": d.neg()}, {"v0": Q.new(1).div(k), "v1": d.neg()}])
 	out.merge(show_pair(rep, s), true)
 	return out
@@ -238,7 +282,12 @@ func u_stretch_and_shift_parameters(rep: String, s: Dictionary, _rng: Seeded) ->
 
 ## The two wave models of relate-two-models: y = A sin(wt) + D.
 static func wave_text(s: Dictionary, a: Q, d: Q, name: String) -> String:
-	return "%s(t) = %s sin(%st)%s" % [name, TC.n(s, a), TC.n(s, s.w), TC.plus(s, d)]
+	return "%s(t) = %s%s" % [name, sine(s, a), TC.plus(s, d)]
+
+
+## "3 sin(4t)", and "sin(4t)" for an amplitude of 1.
+static func sine(s: Dictionary, a: Q) -> String:
+	return "%ssin(%st)" % ["" if a.eq(1) else TC.n(s, a) + " ", TC.n(s, s.w)]
 
 
 func u_relate_two_models(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -260,11 +309,13 @@ func u_relate_two_models(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ad: String = show.call(a.mul(d1))
 	var taken: String = "(%s)" % ad if a.mul(d1).sign() < 0 else ad
 	var joined: String = (" − " + ad.trim_prefix("−")) if a.mul(d1).sign() < 0 else " + " + ad
+	# The words view gives no rule (nor the period), so its working speaks of the centre line.
+	var stretched := ("%s%s" % [sine(s, a2), joined]) if rep == "equation" else "a wave of amplitude %s with centre line y = %s" % [TC.n(s, a2), ad]
+	var reach := "To reach q, add %s − %s = %s." % [TC.n(s, d2), taken, show.call(d)]
 	var steps := {
-		"rewrite-in-f": ["Multiplying p by %s gives %s sin(%st)%s." % [show.call(a), TC.n(s, a2), TC.n(s, s.w), joined],
-			"To reach q, add %s − %s = %s." % [TC.n(s, d2), taken, show.call(d)], tail],
+		"rewrite-in-f": ["Multiplying p by %s gives %s." % [show.call(a), stretched], reach, tail],
 		"scale-rule": ["The stretch comes from the amplitudes: %s ÷ %s = %s." % [TC.n(s, a2), TC.n(s, a1), show.call(a)],
-			"It also moves the centre line, to y = %s." % ad, "The translation takes it on to y = %s: %s." % [TC.n(s, d2), show.call(d)], tail],
+			"It also moves the centre line, to y = %s." % ad, "The translation takes it on to y = %s, so d = %s − %s = %s." % [TC.n(s, d2), TC.n(s, d2), taken, show.call(d)], tail],
 		"shift-features": ["The amplitude goes from %s to %s, a factor of %s." % [TC.n(s, a1), TC.n(s, a2), show.call(a)],
 			"The stretched centre line is y = %s, and it must reach y = %s, a move of %s." % [ad, TC.n(s, d2), show.call(d)], tail],
 	}
@@ -274,6 +325,8 @@ func u_relate_two_models(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var wa := a1.div(a2)
 	return {"asked": "The graph of p is mapped onto the graph of q by a vertical stretch with scale factor a, then a vertical translation by d, in that order. Find a and d.",
 		"lines": lines, "answer": ans, "methods": ms,
+		# The skill's name for the rule ("p f(x) scales y by p; f(qx) ...") reuses the waves' names.
+		"titles": {"scale-rule": "a·f(x) stretches every y-value by a"},
 		"wrongs": [wrong({"v0": a, "v1": d2.sub(d1)}, D_CENTRE), wrong({"v0": wa, "v1": d2.sub(wa.mul(d1))}, D_AMPS)],
 		"fillers": [{"v0": a, "v1": d.neg()}]}
 
@@ -322,12 +375,20 @@ func u_describe_from_graphs(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var two: Array = s.key
 	var im0 := TC.image(s.map, two[0][0], two[0][1])
 	var im1 := TC.image(s.map, two[1][0], two[1][1])
-	var across := "From P to Q, x changes by %s and y by %s. From P′ to Q′, x changes by %s and y by %s." % [TC.n(s, two[1][0].sub(two[0][0])), TC.n(s, two[1][1].sub(two[0][1])), TC.n(s, im1[0].sub(im0[0])), TC.n(s, im1[1].sub(im0[1]))]
-	var read := "The ratio of those changes gives the stretch or reflection, and what is left over is the translation."
+	var gap_f := [two[1][0].sub(two[0][0]), two[1][1].sub(two[0][1])]
+	var gap_g := [im1[0].sub(im0[0]), im1[1].sub(im0[1])]
+	var across := "From P to Q, x changes by %s and y by %s. From P′ to Q′, x changes by %s and y by %s." % [TC.n(s, gap_f[0]), TC.n(s, gap_f[1]), TC.n(s, gap_g[0]), TC.n(s, gap_g[1])]
+	# The ratio of the gaps names the first move, and where it leaves P names the translation.
+	var i := 1 if first.k in ["vs", "rx"] else 0
+	var other := 1 - i
+	var ratio := "The %s-gaps go from %s to %s: %s ÷ %s = %s, and the %s-gaps are unchanged, so the first move is %s." % ["xy"[i], TC.n(s, gap_f[i]), TC.n(s, gap_g[i]),
+		TC.n(s, gap_g[i]), over(s, gap_f[i]), TC.n(s, gap_g[i].div(gap_f[i])), "xy"[other], TC.move_text(s, first)]
+	var mid := TC.image(TC.compose([first]), two[0][0], two[0][1])
+	var rest := "That takes P to %s, and P′ is %s, so the translation is by the vector %s." % [P_(s, mid), P_(s, im0), P_(s, [tr_m.c, tr_m.d])]
 	var out := ask(right, wrongs, bad, "Describe the two transformations, in order, that map the graph of f onto the graph of g.", [PAIR_LINE], {
-		"compare-key-points": [across, read],
-		"overlay-graphs": ["Compare the shapes: the gaps between points show any stretch or flip.", across, read],
-		"track-points": ["P%s goes to P′%s, and Q%s goes to Q′%s." % [P_(s, two[0]), P_(s, im0), P_(s, two[1]), P_(s, im1)], across],
+		"compare-key-points": [across, ratio, rest],
+		"overlay-graphs": ["Compare the shapes: the gaps between points show any stretch or flip.", across, ratio, rest],
+		"track-points": ["P%s goes to P′%s, and Q%s goes to Q′%s." % [P_(s, two[0]), P_(s, im0), P_(s, two[1]), P_(s, im1)], across, ratio, rest],
 	})
 	out.graph = pair_graph(s)
 	return out
@@ -346,9 +407,19 @@ func u_describe_with_reflection(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 		if s.fam in ["root", "exp", "vert", "pts"]:
 			bad.append(TC.chain_text(s, [refl, {"k": "hs" if other.k == "vs" else "vs", "a": other.a}]))
 	var sign := "The minus sign is outside f, so the y-values change sign: a reflection in the x-axis." if refl.k == "rx" else "The minus sign is on x, inside f, so the x-values change sign: a reflection in the y-axis."
+	# The second move read from the rule too, not only named in the answer.
+	var then: String
+	match other.k:
+		"tr":
+			then = "Then %s in the bracket and the%s outside give %s." % [TC.x_minus(s, other.c), TC.plus(s, other.d), TC.move_text(s, other)]
+		"vs":
+			then = "Then the %s multiplying f gives %s." % [TC.n(s, other.a), TC.move_text(s, other)]
+		_:
+			then = "Then the %s with x gives %s." % [TC.n(s, s.map.B.abs_q()), TC.move_text(s, other)]
+	var seen: String = rewrite_step(s, rep) if rep == "graph" else "Compare a point on the two graphs: %s" % low(point_step(s))
 	var out := ask(right, [[swapped, REFLECT]], bad + [TC.chain_text(s, [other]), TC.chain_text(s, [refl])], "Describe the two transformations, in order, that map the graph of f onto the graph of g.", [], {
-		"rewrite-in-f": [rewrite_step(s), sign],
-		"overlay-graphs": ["Compare a point on the two graphs: %s" % point_step(s), sign],
+		"rewrite-in-f": [rewrite_step(s, rep), sign, then],
+		"overlay-graphs": [seen, sign, then],
 	})
 	out.merge(show_pair(rep, s), true)
 	return out
@@ -361,12 +432,15 @@ func u_describe_after_completing_square(_rep: String, s: Dictionary, _rng: Seede
 	var q := h.mul(h).add(k)
 	var line := "y = " + Fmt.poly([Q.new(1), p, q])
 	var form := "(%s)²%s" % [TC.x_minus(s, h), TC.plus(s, k)]
-	var done := "Halve %s to get %s, so %s = %s." % [TC.n(s, p), TC.n(s, h.neg()), line.trim_prefix("y = "), form]
+	# (x + 2)² is x² + 4x + 4, so the 4 is taken off again: (x + 2)² − 4 + 3.
+	var undo := "(%s)² − %s%s = " % [TC.x_minus(s, h), TC.n(s, h.mul(h)), TC.plus(s, q)] if not q.is_zero() else ""
+	var done := "Halve %s to get %s, so %s = %s%s." % [TC.n(s, p), TC.n(s, h.neg()), line.trim_prefix("y = "), undo, form]
 	var read := "The vertex of y = x² is (0, 0), and here it is %s." % TC.pt(s, h, k)
 	return ask(TC.tr_text(s, h, k), [[TC.tr_text(s, h.neg(), k), DESC], [TC.tr_text(s, p, q), D_COEFFS]], [TC.tr_text(s, h.neg(), k.neg()), TC.tr_text(s, h, k.neg())],
 		"The graph of y = x² is translated onto the graph of %s. Find the translation." % line, ["y = x²", line], {
 			"rewrite-in-f": [done, "That is f(x − c) + d with c = %s and d = %s." % [TC.n(s, h), TC.n(s, k)]],
-			"substitute": ["Write (x − c)² + d = x² − 2cx + c² + d and match it with %s." % line.trim_prefix("y = "), "−2c = %s gives c = %s, and then d = %s." % [TC.n(s, p), TC.n(s, h), TC.n(s, k)]],
+			"substitute": ["Write (x − a)² + b = x² − 2ax + a² + b and match it with %s." % line.trim_prefix("y = "),
+				"−2a = %s gives a = %s, and a² + b = %s gives b = %s − %s = %s." % [TC.n(s, p), TC.n(s, h), TC.n(s, q), TC.n(s, q), TC.n(s, h.mul(h)), TC.n(s, k)]],
 			"shift-features": [done, read],
 			"complete-square": [done, read],
 		})
@@ -384,13 +458,16 @@ func u_describe_factor_inside(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		# The wrong axis is a slip too, but the three above always take the slots.
 		[TC.chain_text(s, [{"k": "vs", "a": k}, TC.slide(c, 0)])],
 		"Describe the transformations, in order, that map the graph of y = f(x) onto the graph of y = g(x).", ["g(x) = f(%s)" % inside], {
-			"rewrite-in-f": ["Take %s out of the bracket: %s = %s." % [TC.n(s, b), inside, bracket], "The %s on x is the stretch, and %s then gives the translation, %s." % [TC.n(s, b), TC.x_minus(s, c), across_word(s, c)]],
+			"rewrite-in-f": ["Take %s out of the bracket: %s = %s." % [TC.n(s, b), inside, bracket], "The %s on x gives %s, and %s then gives the translation, %s." % [TC.n(s, b), TC.hs_text(s, k), TC.x_minus(s, c), across_word(s, c)]],
 			"scale-rule": ["Take %s out: g(x) = f(%s)." % [TC.n(s, b), bracket], "f(bx) is a stretch with scale factor 1/b = %s, and %s then moves the graph %s." % [TC.n(s, k), TC.x_minus(s, c), across_word(s, c)]],
 		})
 
 
 func u_vector_from_key_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var p: Array = s.key[0]
+	# A point off the axes where f has one: from (0, 0) the moved point is the vector itself,
+	# and the slip of giving the moved point (D_POINT) would be the key. P is that point.
+	var p: Array = telling(s)
+	s.key = [p] + s.key.filter(func(q): return q != p)
 	var m: Dictionary = s.moves[0]
 	var im := TC.image(s.map, p[0], p[1])
 	var ans := Answer.make("point", {"x": m.c, "y": m.d})
@@ -401,7 +478,9 @@ func u_vector_from_key_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 			"compare-key-points": [moved, diff],
 			"shift-features": ["A translation moves every feature by the same vector, so follow this one point. " + moved, diff],
 			"track-points": ["Subtract the start from the end, in that order.", diff],
-		}, s, [{"x": m.d, "y": m.c}])
+		# The parts swapped are the key when they are equal, and the backwards slip when they
+		# are opposite; one part's sign turned round is never either.
+		}, s, [{"x": m.d, "y": m.c}, {"x": m.c, "y": m.d.neg()}, {"x": m.c.neg(), "y": m.d}])
 	if rep == "graph":
 		out.lines = [PAIR_LINE]
 		out.graph = pair_graph(s)
@@ -423,12 +502,13 @@ static func reverse_of(s: Dictionary, lines: Array, refs: Array) -> Dictionary:
 	kept[kept.size() - 1] = fwd[0]
 	var k: Array = s.key[0]
 	var im := TC.image(s.map, k[0], k[1])
+	var undo := "Undo each move and take them last one first: the last move went on last, so it comes off first."
+	var there := "A point goes %s." % trail(s, fwd, k)
+	var home := "The moves back take it one move at a time: %s." % trail(s, back, im)
 	return ask(TC.chain_text(s, back), [[TC.chain_text(s, same_order), refs[0]], [TC.chain_text(s, flipped), refs[1]]], [TC.chain_text(s, kept), TC.chain_text(s, fwd)],
 		"Which moves, in order, map the new graph back onto the original one?", lines, {
-			"compare-key-points": ["Undo each move and take them last one first: the last move went on last, so it comes off first.",
-				"Check with a point: %s goes to %s, and the moves back return it to %s." % [P_(s, k), P_(s, im), P_(s, k)]],
-			"step-by-step": ["Undo each move and take them last one first: the last move went on last, so it comes off first.",
-				"Check with a point: %s goes to %s, and the moves back return it to %s." % [P_(s, k), P_(s, im), P_(s, k)]],
+			"compare-key-points": [undo, there, home],
+			"step-by-step": [there, undo, home],
 		})
 
 
