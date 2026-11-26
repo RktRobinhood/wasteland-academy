@@ -3,10 +3,99 @@
   "reference_commit": "1423ce06030f61fa9ae7563c9d8cd1946b134d32",
   "scope": "Toolbox assets only, not a full audit of the game",
   "families": [
-    {"id":"scrap-fields/living-map-01","zone":"algebra","category":"overworld-interaction","manifest":"scrap-fields/kit-01/manifest.json","ready_for_trial":2,"art_candidates":1,"integrated":0},
-    {"id":"scrap-fields/journey-01","zone":"algebra","category":"side-scroller-scenery","manifest":"scrap-fields/journey-01/exports/layers.json","ready_for_trial":3,"art_candidates":0,"integrated":0},
-    {"id":"scrap-fields/copper-mite-01","zone":"algebra","category":"monster","manifest":"scrap-fields/copper-mite-01/manifest.json","new_states":["idle","attack","hurt","defeated"],"ready_for_trial":2,"art_candidates":0,"integrated":0},
-    {"id":"radio-spires/battle-regression-01","zone":"stats","category":"battle-backdrop","manifest":"radio-spires/battle-regression-01/manifest.json","new_states":["day"],"reference_states":["night"],"ready_for_trial":1,"art_candidates":0,"integrated":0}
+    {
+      "id": "radio-spires/antenna-kite-01",
+      "zone": "stats",
+      "category": "monster",
+      "manifest": "radio-spires/antenna-kite-01/manifest.json",
+      "ready_for_trial": 1,
+      "art_candidates": 0,
+      "integrated": 0
+    },
+    {
+      "id": "radio-spires/battle-regression-01",
+      "zone": "stats",
+      "category": "battle-backdrop",
+      "manifest": "radio-spires/battle-regression-01/manifest.json",
+      "new_states": [
+        "day"
+      ],
+      "reference_states": [
+        "night"
+      ],
+      "ready_for_trial": 1,
+      "art_candidates": 0,
+      "integrated": 0
+    },
+    {
+      "id": "scrap-fields/compounder-01",
+      "zone": "algebra",
+      "category": "canonical-boss",
+      "manifest": "scrap-fields/compounder-01/manifest.json",
+      "ready_for_trial": 0,
+      "art_candidates": 1,
+      "integrated": 0
+    },
+    {
+      "id": "scrap-fields/copper-mite-01",
+      "zone": "algebra",
+      "category": "monster",
+      "manifest": "scrap-fields/copper-mite-01/manifest.json",
+      "new_states": [
+        "idle",
+        "attack",
+        "hurt",
+        "defeated"
+      ],
+      "ready_for_trial": 2,
+      "art_candidates": 0,
+      "integrated": 0
+    },
+    {
+      "id": "scrap-fields/journey-01",
+      "zone": "algebra",
+      "category": "side-scroller-scenery",
+      "manifest": "scrap-fields/journey-01/exports/layers.json",
+      "ready_for_trial": 3,
+      "art_candidates": 0,
+      "integrated": 0
+    },
+    {
+      "id": "scrap-fields/kettle-runner-01",
+      "zone": "algebra",
+      "category": "overworld-vehicle",
+      "manifest": "scrap-fields/kettle-runner-01/manifest.json",
+      "ready_for_trial": 1,
+      "art_candidates": 0,
+      "integrated": 0
+    },
+    {
+      "id": "scrap-fields/living-map-01",
+      "zone": "algebra",
+      "category": "overworld-interaction",
+      "manifest": "scrap-fields/kit-01/manifest.json",
+      "ready_for_trial": 2,
+      "art_candidates": 1,
+      "integrated": 0
+    },
+    {
+      "id": "scrap-fields/mags-the-ledger-01",
+      "zone": "algebra",
+      "category": "named-character",
+      "manifest": "scrap-fields/mags-the-ledger-01/manifest.json",
+      "ready_for_trial": 0,
+      "art_candidates": 1,
+      "integrated": 0
+    },
+    {
+      "id": "signal-tower/warden-apex-01",
+      "zone": "functions",
+      "category": "canonical-boss",
+      "manifest": "signal-tower/warden-apex-01/manifest.json",
+      "ready_for_trial": 0,
+      "art_candidates": 1,
+      "integrated": 0
+    }
   ],
   "unknown_or_incomplete": [
     "Per-region battle time-of-day coverage beyond checked entries",

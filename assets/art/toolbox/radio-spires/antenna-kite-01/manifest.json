@@ -1,0 +1,33 @@
+{
+  "id": "radio-spires/antenna-kite-01",
+  "title": "Antenna Kite",
+  "category": "monster",
+  "region": "stats",
+  "state": "ready-for-trial",
+  "integrated": false,
+  "main_reference": "d987d5f634c1dee1bb1b6b60a2b26e836cfc0b2d",
+  "provenance": "Original built-in ImageGen; source master retained; alpha crop and packed exports",
+  "description": "Original biomechanical flyer candidate. Separate near and far root/tip articulation. Calm 2 s idle at 8 fps; optional one-shot 0.67 s dodge at 12 fps; static fallback. Shared placement origin (141,212) per 320\u00d7232 cell, facing left, 80 strip units; scale is fixed using maximum idle wing span. Calm idle or still only while a question is open. Does not include attack, hurt or defeated. Phone GIF uses an existing background crop and is not a game screenshot.",
+  "export": "exports/antenna-kite.webp",
+  "dimensions": [
+    1920,
+    928
+  ],
+  "export_bytes": 184416,
+  "proof": "previews/idle-and-dodge.gif",
+  "files": [
+    "PROMPT.md",
+    "exports/antenna-kite-static.png",
+    "exports/antenna-kite.json",
+    "exports/antenna-kite.webp",
+    "masters/antenna-kite-original.png",
+    "parts/body.png",
+    "parts/crop-and-joints.json",
+    "parts/far_root.png",
+    "parts/far_tip.png",
+    "parts/near_root.png",
+    "parts/near_tip.png",
+    "previews/idle-and-dodge.gif",
+    "previews/phone-three-phases.png"
+  ]
+}

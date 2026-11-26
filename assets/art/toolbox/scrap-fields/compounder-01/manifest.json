@@ -1,0 +1,25 @@
+{
+  "id": "scrap-fields/compounder-01",
+  "title": "The Compounder",
+  "category": "canonical-boss",
+  "region": "algebra",
+  "state": "portrait-candidate",
+  "integrated": false,
+  "main_reference": "d987d5f634c1dee1bb1b6b60a2b26e836cfc0b2d",
+  "provenance": "Original built-in ImageGen; source master retained; alpha crop and packed exports",
+  "description": "Algebra boss has an authored name and taunt; this is a new visual proposal. Neutral 512\u00d7512 regional portrait, bottom alignment y494. No matched hurt yet. The name can inherit from the zone but art does not; Claude must pick the actual region. Do not replace shared tiers.",
+  "export": "exports/compounder.png",
+  "dimensions": [
+    512,
+    512
+  ],
+  "export_bytes": 374169,
+  "proof": "previews/compounder-display-scale.jpg",
+  "files": [
+    "PROMPT.md",
+    "exports/compounder.png",
+    "exports/compounder.webp",
+    "masters/compounder-original.png",
+    "previews/compounder-display-scale.jpg"
+  ]
+}

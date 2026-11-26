@@ -1,0 +1,5 @@
+# Source prompt
+
+Original built-in ImageGen output, no external artwork supplied to the model.
+
+Use case: stylized-concept. Single original game prop for Wasteland Academy living overworld, Scrap Fields. A comically overengineered salvaged matchbox-sized courier vehicle called the Kettle Runner, parked, seen from orthographic three-quarter overhead (front toward lower left), small enough for a busy painted sector map, not a hero vehicle. Sidecar wheels of mismatched size, vintage olive enamel kettle casing as a rear cargo box with spout silhouette, little canvas roll, slightly crooked bike handlebars, two sand tyres, single warm yellow headlamp. Shape first: big wheels, spout, and simple rust-copper silhouette read at 40 pixels. Hand-painted anime-comic with worn metal, dust yellow, charcoal, rust-orange, tiny muted teal cloth, natural amber upper-left lighting matching Wasteland Academy Scrap Fields. Separated isolated prop only, no background, transparent, no cast shadow, no ground, no streaks, no text or symbols. Not a map itself, no UI, no weapons.

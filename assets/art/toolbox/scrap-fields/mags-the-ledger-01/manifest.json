@@ -1,0 +1,25 @@
+{
+  "id": "scrap-fields/mags-the-ledger-01",
+  "title": "Mags the Ledger",
+  "category": "named-character",
+  "region": "algebra",
+  "state": "portrait-candidate",
+  "integrated": false,
+  "main_reference": "d987d5f634c1dee1bb1b6b60a2b26e836cfc0b2d",
+  "provenance": "Original built-in ImageGen; source master retained; alpha crop and packed exports",
+  "description": "Named sequences tutor and fight-pit bookkeeper, no named visual on audited main. Neutral dialogue identity candidate, bottom alignment y494. No talk pose. Lesson is draft, no lesson edits or rollout.",
+  "export": "exports/mags-the-ledger.png",
+  "dimensions": [
+    512,
+    512
+  ],
+  "export_bytes": 265911,
+  "proof": "previews/mags-the-ledger-display-scale.jpg",
+  "files": [
+    "PROMPT.md",
+    "exports/mags-the-ledger.png",
+    "exports/mags-the-ledger.webp",
+    "masters/mags-the-ledger-original.png",
+    "previews/mags-the-ledger-display-scale.jpg"
+  ]
+}

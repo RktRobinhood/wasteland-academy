@@ -1,0 +1,24 @@
+{
+  "id": "scrap-fields/kettle-runner-01",
+  "title": "Kettle Runner",
+  "category": "overworld-vehicle",
+  "region": "algebra",
+  "state": "ready-for-trial",
+  "integrated": false,
+  "main_reference": "d987d5f634c1dee1bb1b6b60a2b26e836cfc0b2d",
+  "provenance": "Original built-in ImageGen; source master retained; alpha crop and packed exports",
+  "description": "Original parked scrap courier sidecar. Passive decor; no hotspot, route, reward or implied interaction. Proof shows possible placement near the shack (roughly left x629, top y1421, width 122 on 1080\u00d71920), not an approved anchor; check actual hotspots and crop before use.",
+  "export": "exports/kettle-runner.webp",
+  "dimensions": [
+    360,
+    278
+  ],
+  "export_bytes": 43436,
+  "proof": "previews/kettle-runner-phone-map.jpg",
+  "files": [
+    "PROMPT.md",
+    "exports/kettle-runner.webp",
+    "masters/kettle-runner-original.png",
+    "previews/kettle-runner-phone-map.jpg"
+  ]
+}

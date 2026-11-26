@@ -1,0 +1,5 @@
+# Source prompt
+
+Original built-in ImageGen output, no external artwork supplied to the model.
+
+Use case: stylized-concept. Original transparent story dialogue portrait for Wasteland Academy's Mags the Ledger, the practical Scrap Fields fight-pit bookkeeper and arithmetic sequences tutor. Existing name and job, visual concept only. Waist-up, three-quarter towards screen right, attentive direct expression, a person in late middle age with short blunted gray-brown hair, strong nose, grounded practical demeanor, slate work apron over dusty brick scarf, narrow teal sun goggles folded above brow, one hand on large scuffed open ledger with closed brass clip, other finger resting on paper (no text). Expressive hand ink linework and flatter warm blocks with texture only on cloth and book, clean dialogue cutout for ~100px height, warm skin and pale book against dark panels. Original practical salvage outfit, world has a repair culture. No weapons, no scenery or frame, no text or written math, no hard cropping at head or sides, transparent. Avoid caricature, spectacle, or youth fashion.

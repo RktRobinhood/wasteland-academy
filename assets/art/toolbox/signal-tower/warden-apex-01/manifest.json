@@ -1,0 +1,25 @@
+{
+  "id": "signal-tower/warden-apex-01",
+  "title": "Warden Apex",
+  "category": "canonical-boss",
+  "region": "functions",
+  "state": "portrait-candidate",
+  "integrated": false,
+  "main_reference": "d987d5f634c1dee1bb1b6b60a2b26e836cfc0b2d",
+  "provenance": "Original built-in ImageGen; source master retained; alpha crop and packed exports",
+  "description": "Existing Quadratics boss, new visual proposal. Neutral portrait, bottom alignment y494. Active Journey currently hides the portrait; this is direction for a separate regional Journey sheet. No attack, hurt or stages, and no shared D5 reskin.",
+  "export": "exports/warden-apex.png",
+  "dimensions": [
+    512,
+    512
+  ],
+  "export_bytes": 173907,
+  "proof": "previews/warden-apex-display-scale.jpg",
+  "files": [
+    "PROMPT.md",
+    "exports/warden-apex.png",
+    "exports/warden-apex.webp",
+    "masters/warden-apex-original.png",
+    "previews/warden-apex-display-scale.jpg"
+  ]
+}
