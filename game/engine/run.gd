@@ -279,7 +279,7 @@ func _plan() -> Dictionary:
 		another_way = true
 		rule = "another-way"
 		return v
-	var opts := {"probes": false, "salt": salt}
+	var opts := {"probes": false, "salt": salt, "region": region}
 	var why := ""
 	if warmups_left > 0:
 		warmups_left -= 1

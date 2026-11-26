@@ -12,7 +12,8 @@ extends RefCounted
 ##   Worked solutions       worked_solutions(question), answer_sentence(question)
 ##   Learning results       blank_evidence(), record(evidence, question, result, now,
 ##                          outcome, assists), results(evidence, course)
-##   Mastery                mastery(evidence, skill), mastery_levels(evidence, course)
+##   Mastery                mastery(evidence, skill), mastery_levels(evidence, course),
+##                          mastery_target(evidence, skill)
 ##
 ## A request is a Dictionary: {"type", "unknown", "rep", "angle", "format", "seed"} and,
 ## optionally, "paper" (1 or 2). A concept probe is {"type", "probe": index, "format":
@@ -364,8 +365,10 @@ const MASTERY_L7_CELLS := 5
 ## The outcomes that are successes.
 const MASTERY_SUCCESSES := ["right", "late", "glancing"]
 
-## skill id -> the difficulty of its hardest question, and course -> {skill id: cells}.
+## skill id -> the difficulty of its hardest question, skill id -> its easiest, and
+## course -> {skill id: cells}.
 static var _skill_tops: Dictionary = {}
+static var _skill_bottoms: Dictionary = {}
 static var _skill_counts: Dictionary = {}
 
 
@@ -603,11 +606,39 @@ static func _cell_counts(course: String) -> Dictionary:
 ## The difficulty of the hardest question the engine can ask on a skill, in any course
 ## (a record is shared by every course, so its top tier is too).
 static func skill_top(skill: String) -> int:
-	if _skill_tops.is_empty():
-		for c in requests():
-			for s in QuestionEngine.unknown_of(QuestionEngine.type_of(c.type), c.unknown).get("skills", []):
-				_skill_tops[s] = maxi(int(_skill_tops.get(s, 0)), int(c.level))
+	_skill_range()
 	return int(_skill_tops.get(skill, 0))
+
+
+## The difficulty of the easiest question the engine can ask on a skill, in any course.
+static func skill_bottom(skill: String) -> int:
+	_skill_range()
+	return int(_skill_bottoms.get(skill, 0))
+
+
+static func _skill_range() -> void:
+	if not _skill_tops.is_empty():
+		return
+	for c in requests():
+		for s in request_skills(c):
+			_skill_tops[s] = maxi(int(_skill_tops.get(s, 0)), int(c.level))
+			_skill_bottoms[s] = mini(int(_skill_bottoms.get(s, c.level)), int(c.level))
+
+
+## The skill ids a request (or coverage cell) tests: its unknown's "skills".
+static func request_skills(request: Dictionary) -> Array:
+	return QuestionEngine.unknown_of(QuestionEngine.type_of(request.get("type", "")), request.get("unknown", "")).get("skills", [])
+
+
+## The difficulty the overworld aims at for a skill (proposal §6, ADR-0002 §6):
+## round(m - 1) within the skill's range, so a question sits where the learner is
+## expected to succeed about half the time. A Not Yet Attempted skill gets its lowest
+## tier, which is the first-visit scaffolding. Reading never creates a record.
+static func mastery_target(evidence: Dictionary, skill: String) -> int:
+	var rec: Dictionary = _book(evidence).get(skill, {})
+	if rec.is_empty():
+		return skill_bottom(skill)
+	return clampi(roundi(float(rec.m) - 1.0), skill_bottom(skill), skill_top(skill))
 
 
 ## How many cells test a skill in a course ("" for every course).
