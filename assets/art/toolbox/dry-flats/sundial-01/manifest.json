@@ -1,0 +1,17 @@
+{
+  "id": "dry-flats/sundial-01",
+  "title": "The Sundial",
+  "category": "canonical-boss",
+  "region": "geometry",
+  "state": "neutral-portrait-candidate",
+  "integrated": false,
+  "main_reference": "1423ce06030f61fa9ae7563c9d8cd1946b134d32",
+  "provenance": "Original built-in ImageGen using The Compounder as a style and crop reference only. Transparent source master retained.",
+  "description": "Neutral portrait for the existing Dry Flats Geometry boss. Triangle gnomon and plate. Not a shared boss fallback or new lore.",
+  "export": "exports/sundial.webp",
+  "dimensions": [512, 512],
+  "export_bytes": 96250,
+  "pose_exports": {"neutral": "exports/sundial.webp", "lossless": "exports/sundial.png"},
+  "proof": "previews/sundial-scale-proof.jpg",
+  "files": ["exports/sundial.png", "exports/sundial.webp", "masters/sundial-original.png", "previews/sundial-scale-proof.jpg"]
+}

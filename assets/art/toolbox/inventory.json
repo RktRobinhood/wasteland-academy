@@ -16,6 +16,18 @@
       ]
     },
     {
+      "id": "dry-flats/sundial-01",
+      "zone": "geometry",
+      "category": "canonical-boss",
+      "manifest": "dry-flats/sundial-01/manifest.json",
+      "ready_for_trial": 0,
+      "art_candidates": 1,
+      "integrated": 0,
+      "new_states": [
+        "portrait neutral"
+      ]
+    },
+    {
       "id": "engine-core/boiler-crawler-01",
       "zone": "calculus",
       "category": "monster",
