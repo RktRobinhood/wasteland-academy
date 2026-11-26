@@ -1,0 +1,15 @@
+{
+  "id": "radio-spires/battle-regression-01",
+  "kind": "battle-backdrop",
+  "zone": "stats",
+  "region": "regression",
+  "reference_commit": "1423ce06030f61fa9ae7563c9d8cd1946b134d32",
+  "states": {
+    "night": {"path":"game/assets/regions/regression/backdrop.webp","status":"canonical-reference-on-main","size_px":[1920,1080]},
+    "day": {"path":"exports/regression-day.webp","status":"ready-to-trial-as-static-alternate","size_px":[1920,1080],"alpha":false,"master":"masters/regression-day-original.png"}
+  },
+  "camera": "Same intended 16:9 front-on framing and quiet lower battle lane. Checked for visual continuity, not pixel-registered.",
+  "fit": "Static alternate per battle or a cut between views; not validated for crossfade or hit-area replacement.",
+  "preview":"previews/night-then-day.jpg",
+  "runtime_status":"not-imported"
+}

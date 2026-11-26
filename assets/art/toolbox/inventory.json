@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "reference_commit": "1423ce06030f61fa9ae7563c9d8cd1946b134d32",
+  "scope": "Toolbox assets only, not a full audit of the game",
+  "families": [
+    {"id":"scrap-fields/living-map-01","zone":"algebra","category":"overworld-interaction","manifest":"scrap-fields/kit-01/manifest.json","ready_for_trial":2,"art_candidates":1,"integrated":0},
+    {"id":"scrap-fields/journey-01","zone":"algebra","category":"side-scroller-scenery","manifest":"scrap-fields/journey-01/exports/layers.json","ready_for_trial":3,"art_candidates":0,"integrated":0},
+    {"id":"radio-spires/battle-regression-01","zone":"stats","category":"battle-backdrop","manifest":"radio-spires/battle-regression-01/manifest.json","new_states":["day"],"reference_states":["night"],"ready_for_trial":1,"art_candidates":0,"integrated":0}
+  ],
+  "unknown_or_incomplete": [
+    "Per-region battle time-of-day coverage beyond checked entries",
+    "Per-zone monster silhouettes and animation-state coverage",
+    "Overworld day-night registered proof and ambient layers",
+    "Journey scenery for other unmapped zones"
+  ]
+}
