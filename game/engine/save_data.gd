@@ -21,6 +21,9 @@ extends RefCounted
 ##              "misconceptions": {ref: times}, "last_misconception"}
 ##   probes     concept probe key -> the same record, without misconceptions
 ##   history    the last HISTORY cell keys asked, newest last (for spacing repeats)
+##   mastery    {"version", "skills": skill id -> its rating record} (MathsEngine,
+##              #268); a skill with no record is Not Yet Attempted. A v7 save gets it
+##              back-filled from its cells (MathsEngine.backfill_mastery)
 ##   seed       the planner's counter, so a run of questions is reproducible
 ##   class      the chosen class (FAL-308); null until classes exist
 ##   trees      skill trees (FAL-308); empty for now
@@ -49,14 +52,14 @@ extends RefCounted
 ## misconception ref is recorded on the cell, so lesson feedback and suggestions can
 ## use it later.
 
-const VERSION := 7
+const VERSION := 8
 const PATH := "user://save.json"
 const HISTORY := MathsEngine.HISTORY
 
 
 static func blank() -> Dictionary:
 	return {"version": VERSION, "settings": {"exam_only": false, "reduced_motion": false, "timer": 1.0, "larger_text": false}, "course": Courses.DEFAULT, "cells": {}, "probes": {}, "history": [],
-		"seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
+		"mastery": MathsEngine.blank_mastery(), "seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
 		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}, "dungeon": {},
 		"bazaar": blank_bazaar(), "here": "bazaar", "watched": [], "intro": {"course": false, "cards": false}}
 
@@ -132,7 +135,29 @@ static func call_step(v: int, data: Dictionary) -> Dictionary:
 			var out := data.duplicate(true)
 			out["intro"] = {"course": true, "cards": true}
 			return out
+		7:
+			# Version 7 to 8 (#268 §8): skill mastery. It is added beside cells, probes and
+			# history, which stay as they are, and rebuilt from the cell counts by replay.
+			# The replayed evidence is marked migrated: it stops below Exam Ready.
+			var out := data.duplicate(true)
+			out["mastery"] = MathsEngine.backfill_mastery(out)
+			return out
 	return data
+
+
+## A copy of a save as an older build reads it, for export to a device that has not
+## updated yet. Only version 8 -> 7 is supported: 8 only added "mastery", so dropping it
+## gives the v7 save back, and loading that copy in this build back-fills mastery again
+## from the cells. Returns {} for any other target.
+static func downgrade(data: Dictionary, to: int) -> Dictionary:
+	if to == int(data.get("version", VERSION)):
+		return data.duplicate(true)
+	if to != 7 or int(data.get("version", VERSION)) != 8:
+		return {}
+	var out := data.duplicate(true)
+	out.erase("mastery")
+	out.version = 7
+	return out
 
 
 ## Puts the save on a course (Courses.ids()). Returns false, changing nothing, for an id
@@ -250,17 +275,27 @@ static func store(data: Dictionary, path: String = PATH) -> bool:
 
 
 ## The save as a code a student can copy: "WA-SAVE-1:" and the JSON, base64 encoded.
-## It is one line, with no characters a chat app or a form field will change.
+## It is one line, with no characters a chat app or a form field will change. version
+## (default this build's) exports a copy an older build can import (downgrade).
 const CODE_PREFIX := "WA-SAVE-1:"
 
 
-static func export_code(data: Dictionary) -> String:
-	return CODE_PREFIX + Marshalls.utf8_to_base64(JSON.stringify(data))
+static func export_code(data: Dictionary, version: int = VERSION) -> String:
+	return CODE_PREFIX + Marshalls.utf8_to_base64(JSON.stringify(_for_version(data, version)))
 
 
-## The exported file's text: the JSON itself.
-static func export_text(data: Dictionary) -> String:
-	return JSON.stringify(data, "\t")
+## The exported file's text: the JSON itself. version as for export_code.
+static func export_text(data: Dictionary, version: int = VERSION) -> String:
+	return JSON.stringify(_for_version(data, version), "\t")
+
+
+## data as the given version reads it (downgrade), or data itself for this version or a
+## version downgrade() can't make.
+static func _for_version(data: Dictionary, version: int) -> Dictionary:
+	if version == int(data.get("version", VERSION)):
+		return data
+	var older := downgrade(data, version)
+	return older if not older.is_empty() else data
 
 
 ## Reads what a student pasted or opened: an export code or the exported JSON. Returns

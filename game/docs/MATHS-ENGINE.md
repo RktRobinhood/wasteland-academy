@@ -15,7 +15,7 @@ file, and it covers five things:
 | Generation | `generate(request)`, `prompt(question)`, `is_choice(question)` |
 | Marking | `mark(question, response)`, `model_response(question, right)` |
 | Worked solutions | `worked_solutions(question)`, `answer_sentence(question)` |
-| Mastery | `mastery(evidence, skill, course)` and `mastery_levels(evidence, course)`: per-skill level 1–7 or Not Yet Attempted (no record); `mastery_update`, `mastery_level` and `mastery_blame` are the pure rules ([calibration proposal](../../docs/proposals/mastery-calibration.md) §2–§5) |
+| Mastery | `mastery(evidence, skill, course)` and `mastery_levels(evidence, course)`: per-skill level 1–7 or Not Yet Attempted (no record); `mastery_update`, `mastery_level` and `mastery_blame` are the pure rules ([calibration proposal](../../docs/proposals/mastery-calibration.md) §2–§5); `backfill_mastery(evidence)` rebuilds records from v7 cell counts by deterministic replay (§8; save step 7 and the study file) |
 | Learning results | `blank_evidence()`, `record(evidence, question, result, now, outcome, assists)` (also updates mastery), `results(evidence, course, exam_only, type_ids)`, plus `coverage`, `accuracy`, `skill_stats` and `weakest_skills` over any list of requests |
 
 ## The data

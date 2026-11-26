@@ -484,6 +484,10 @@ static func _load_evidence(path: String) -> Dictionary:
 		for key in out:
 			if parsed.has(key) and typeof(parsed[key]) == typeof(out[key]):
 				out[key] = parsed[key]
+		# Evidence written before mastery (#268 §8): back-filled from its cells, as a v7
+		# game save is (SaveData step 7). cells, probes and history are kept as read.
+		if not (parsed.get("mastery") is Dictionary):
+			out.mastery = MathsEngine.backfill_mastery(out)
 	return out
 
 

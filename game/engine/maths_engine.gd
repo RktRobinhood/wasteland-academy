@@ -516,6 +516,63 @@ static func mastery_update(rec: Dictionary, difficulty: int, top: int, outcome: 
 	return r
 
 
+## Rebuilds mastery from v7 evidence, which kept only per-cell counts (save v7 -> v8,
+## proposal §8). Cells are replayed in sorted key order; each cell's rights and wrongs
+## are spread evenly with misses first on a tie (migration_order), at the cell's catalogue
+## level, for every skill its unknown lists. Each success carries the "migrated" assist:
+## credit 0.75, capped below Exam Ready and never counted toward it. v7 kept no order of
+## which miss matched which misconception, so a multi-skill miss uses shared blame. A cell
+## the catalogue no longer has is skipped. Pure: the same cells give the same records.
+## Returns a mastery dictionary ({"version", "skills"}); evidence is not changed.
+static func backfill_mastery(evidence: Dictionary) -> Dictionary:
+	var out := blank_mastery()
+	var cells = evidence.get("cells")
+	if not (cells is Dictionary) or cells.is_empty():
+		return out
+	var catalogue := {}
+	for c in requests():
+		catalogue[c.key] = c
+	var book: Dictionary = out.skills
+	var keys: Array = cells.keys()
+	keys.sort()
+	for key in keys:
+		if not catalogue.has(key) or not (cells[key] is Dictionary):
+			continue
+		var c: Dictionary = catalogue[key]
+		var skills: Array = QuestionEngine.unknown_of(QuestionEngine.type_of(c.type), c.unknown).get("skills", [])
+		if skills.is_empty():
+			continue
+		var rec: Dictionary = cells[key]
+		var d := int(c.level)
+		var when := int(rec.get("last", 0))
+		for outcome in migration_order(int(rec.get("right", 0)), int(rec.get("wrong", 0))):
+			var shares := {}
+			if outcome == "wrong":
+				shares = mastery_blame(book, skills, d)
+			for s in skills:
+				var before: Dictionary = book.get(s, {})
+				var after := mastery_update(before, d, skill_top(s), outcome, ["migrated"], key,
+					float(shares.get(s, 1.0)), when)
+				after.last = maxi(when, int(before.get("last", 0)))
+				book[s] = after
+	return out
+
+
+## A v7 cell's rights and wrongs as a replay order: spread evenly (Bresenham), a miss first
+## whenever the two are tied, so the replay invents no order in the learner's favour.
+static func migration_order(right: int, wrong: int) -> Array:
+	var out := []
+	var total := right + wrong
+	var placed := 0
+	for i in total:
+		if placed < wrong and float(placed) <= float(i) * wrong / total:
+			out.append("wrong")
+			placed += 1
+		else:
+			out.append("right")
+	return out
+
+
 ## The displayed level of a record: clamp(floor(m), 1, 7) after the evidence gates, or 0
 ## for Not Yet Attempted ({}). cells: how many cells the skill has (for the L6/L7 gates).
 static func mastery_level(rec: Dictionary, cells: int = MASTERY_CELLS_KEPT) -> int:
