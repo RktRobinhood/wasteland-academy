@@ -6,7 +6,8 @@ extends "res://tests/test_case.gd"
 ## (tools/check-answers) checks the maths.
 
 const TYPE := "t4-venn-addition-rule"
-const CELLS := 30
+## 28 since FAL-1608: "1 − P(neither)" no longer suits finding P(neither) itself (#193).
+const CELLS := 28
 const COUNTS := ["region-from-totals", "x-from-total", "table-missing-entry"]
 
 

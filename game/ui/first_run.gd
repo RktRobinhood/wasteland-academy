@@ -33,6 +33,9 @@ const CARDS := [
 		"You get one of each every run.\n\n50-50 takes away two wrong choices.\nHint shows the first step of the worked solution.\nFreeze stops the timer for 15 seconds.\n\nThe Bazaar sells extra charges for Scrap."],
 ]
 
+## The frame's margin on every side.
+const MARGIN := 48
+
 var picked := ""
 var continue_button: Button
 var card_at := 0
@@ -67,7 +70,7 @@ func _frame() -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 48)
+		margin.add_theme_constant_override("margin_" + side, MARGIN)
 	add_child(margin)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -89,6 +92,11 @@ func _heading(text: String) -> void:
 	var h := UiTheme.label(text, 84, UiTheme.TEAL)
 	h.name = "Heading"
 	h.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	# Wraps clear of the speaker and gear in the top-right corner (FAL-1608): the frame
+	# is already MARGIN in from the edge.
+	var clear := StyleBoxEmpty.new()
+	clear.content_margin_right = AudioHud.RESERVED_RIGHT - MARGIN
+	h.add_theme_stylebox_override("normal", clear)
 	_body.add_child(h)
 
 

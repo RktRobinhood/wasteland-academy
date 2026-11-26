@@ -90,8 +90,21 @@ func _ready() -> void:
 		if deep.autoplay != "":
 			autoplay(deep.autoplay == "right")
 		open_from_link(url_args())
+	elif SaveData.needs_course(save):
+		ask_course()
 	else:
 		next_question()
+
+
+## The first-run course question (#186), as the map asks it: a blank save opened on
+## Practice picks its course before the first question, so practice starts in it.
+func ask_course() -> FirstRun:
+	var f := FirstRun.course_pick()
+	f.finished.connect(func(id: String):
+		SaveData.set_course(save, id)
+		next_question())
+	add_child(f)
+	return f
 
 
 func _build() -> void:

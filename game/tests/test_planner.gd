@@ -33,6 +33,31 @@ func test_never_seen_cells_come_first() -> void:
 	check_eq(seen.size(), mine, "every cell was served once")
 
 
+func test_topic_practice_draws_only_its_own_concept_checks() -> void:
+	# FAL-1608: Probability practice asked an Optimisation concept check. With a region,
+	# every probe is one of the region's types; without one, probes come from anywhere.
+	var save := SaveData.blank()
+	var course := Courses.of(save)
+	var regions := {}
+	for p in QuestionEngine.probes(false, course):
+		var r = QuestionEngine.type_of(p.type).get("region")
+		if r != null:
+			regions[r] = true
+	check(regions.size() > 1, "probes span more than one region")
+	for region in regions:
+		var types := Dungeon.region_types(region, course)
+		var probes := 0
+		for i in 120:
+			var v := Planner.next(save, NOW, {"region": region})
+			if v.get("rule") == "probe":
+				probes += 1
+				check(types.has(v.type), "%s practice asked a probe from %s" % [region, v.type])
+		check(probes > 0, "%s practice still asks its own concept checks" % region)
+	# A fight's questions stay free of probes.
+	for i in 60:
+		check(Planner.next(save, NOW, {"region": regions.keys()[0], "probes": false}).get("rule") != "probe")
+
+
 func test_recent_wrong_cells_come_back_spaced() -> void:
 	var save := SaveData.blank()
 	_all_seen(save, true)
