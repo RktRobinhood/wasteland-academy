@@ -188,6 +188,23 @@ func _show_card(i: int) -> void:
 	_focus.call_deferred(go)
 
 
+## Tab and Shift+Tab go round this overlay's own controls, so focus can't leave it for
+## the screen underneath while it is open (FAL-1601, #187).
+func _input(e: InputEvent) -> void:
+	var forward := e.is_action_pressed("ui_focus_next", true)
+	if not forward and not e.is_action_pressed("ui_focus_prev", true):
+		return
+	var stops: Array = find_children("*", "Control", true, false).filter(func(c: Control):
+		return c.focus_mode != Control.FOCUS_NONE and c.is_visible_in_tree() \
+			and not (c is BaseButton and c.disabled))
+	if stops.is_empty():
+		return
+	var at := stops.find(get_viewport().gui_get_focus_owner())
+	var to := (at + 1) % stops.size() if forward else (at - 1 + stops.size()) % stops.size() if at >= 0 else stops.size() - 1
+	(stops[to] as Control).grab_focus()
+	get_viewport().set_input_as_handled()
+
+
 func _focus(b: Button) -> void:
 	if is_instance_valid(b) and b.is_inside_tree():
 		b.grab_focus()

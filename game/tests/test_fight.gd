@@ -135,6 +135,96 @@ func test_quit_shows_the_summary() -> void:
 	_done(made)
 
 
+# ── Keyboard only (FAL-1601, #187) ──────────────────────────
+
+## A key pressed and let go, sent to the window as a keyboard would.
+func _press(code: Key, shift := false, unicode := 0) -> void:
+	var e := InputEventKey.new()
+	e.keycode = code
+	e.physical_keycode = code
+	e.unicode = unicode
+	e.shift_pressed = shift
+	e.pressed = true
+	tree.root.push_input(e)
+	var up: InputEventKey = e.duplicate()
+	up.pressed = false
+	tree.root.push_input(up)
+
+
+func _focused() -> Control:
+	return tree.root.gui_get_focus_owner()
+
+
+## The first seed from 1 whose opening question passes `want`, as a mounted screen.
+func _screen_where(want: Callable) -> Array:
+	for seed_no in range(1, 80):
+		var made: Array = await _screen(_area(Vector2i(1280, 800)), seed_no)
+		await tree.process_frame
+		if want.call(made[1]):
+			return made
+		_done(made)
+	return []
+
+
+## The typed answer as a keyboard can type it: digits, a minus sign and a point.
+func _typable(f: Control) -> String:
+	if f.question.format != "value" or f._slots.size() != 1 or not f._picks.is_empty():
+		return ""
+	var id: String = f._slots.keys()[0]
+	var text: String = Answer.export_values({id: f.question.answer.values[id]})[id]
+	if f.question.answer.kind in ["measure", "measures"] or f.question.answer.get("show", "") != "":
+		return ""
+	for c in text:
+		if not c in "0123456789-.":
+			return ""
+	return text
+
+
+func test_a_choice_question_takes_first_focus() -> void:
+	var made: Array = await _screen_where(func(f): return f.question.format not in ["value", "probe"] and not f._choice_buttons.is_empty())
+	check(not made.is_empty(), "a seed opens on a multiple-choice question")
+	if made.is_empty():
+		return
+	var f: Control = made[1]
+	check_eq(_focused(), f._choice_buttons[0], "the first choice has focus, not a lifeline")
+	_press(KEY_ENTER)
+	check_eq(f._choice, 0, "Enter picks it")
+	_done(made)
+
+
+func test_a_typed_answer_by_keyboard_alone() -> void:
+	var made: Array = await _screen_where(func(f): return _typable(f) != "")
+	check(not made.is_empty(), "a seed opens on a typed whole-number answer")
+	if made.is_empty():
+		return
+	var f: Control = made[1]
+	var box: Control = f._slots.values()[0]
+	check_eq(_focused(), box, "the answer box has focus")
+	for c in _typable(f):
+		_press(KEY_MINUS if c == "-" else (KEY_PERIOD if c == "." else (KEY_0 + int(c)) as Key), false, c.unicode_at(0))
+	check_eq(box.text, _typable(f), "typed in")
+	_press(KEY_ENTER)
+	check_eq(f.run.state, "result", "Enter locks it in")
+	check(f.result.outcome in ["right", "late"], str(f.result.outcome))
+	_done(made)
+
+
+func test_quit_by_keyboard() -> void:
+	var made: Array = await _screen(_area(Vector2i(1280, 800)))
+	var f: Control = made[1]
+	await tree.process_frame
+	check(_focused() != null, "something in the fight has focus")
+	var steps := 0
+	while _focused() != f.quit_button and steps < 60:
+		_press(KEY_TAB)
+		steps += 1
+	check_eq(_focused(), f.quit_button, "Tab reaches Quit")
+	_press(KEY_ENTER)
+	check_eq(f.run.summary.get("reason", ""), "quit", "Enter on Quit ends the run")
+	check(f.summary_box.visible, "Run over shows")
+	_done(made)
+
+
 func test_fits_a_360_phone() -> void:
 	await _check_fits(Vector2i(360, 780))
 

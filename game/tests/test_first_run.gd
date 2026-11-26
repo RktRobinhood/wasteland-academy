@@ -248,3 +248,44 @@ func _chosen() -> Dictionary:
 	var s := SaveData.blank()
 	SaveData.set_course(s, "aa-sl")
 	return s
+
+
+# ── Keyboard only (FAL-1601, #187) ──────────────────────────
+
+func _tab(shift: bool) -> void:
+	var e := InputEventKey.new()
+	e.keycode = KEY_TAB
+	e.physical_keycode = KEY_TAB
+	e.shift_pressed = shift
+	e.pressed = true
+	tree.root.push_input(e)
+	var up: InputEventKey = e.duplicate()
+	up.pressed = false
+	tree.root.push_input(up)
+
+
+func test_tab_stays_inside_the_course_question() -> void:
+	var frame := Control.new()
+	frame.size = Vector2(1080, 1920)
+	tree.root.add_child(frame)
+	var under := Button.new()
+	under.name = "Underneath"
+	under.text = "Practice"
+	frame.add_child(under)
+	var pick := FirstRun.course_pick()
+	frame.add_child(pick)
+	await tree.process_frame
+	for shift in [false, true]:
+		for i in Courses.ids().size() * 3:
+			_tab(shift)
+			var at: Control = tree.root.gui_get_focus_owner()
+			check(at != null and pick.is_ancestor_of(at), "%s %d: focus left the course question for %s" %
+				["Shift+Tab" if shift else "Tab", i, at])
+	pick._pick(Courses.ids()[0])
+	var reached := false
+	for i in Courses.ids().size() + 2:
+		_tab(false)
+		reached = reached or tree.root.gui_get_focus_owner() == pick.continue_button
+	check(reached, "Tab reaches Continue once a course is picked")
+	frame.free()
+
