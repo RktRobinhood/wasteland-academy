@@ -71,7 +71,7 @@ pack([glow_frame(MW, MH, mast, k / N) for k in range(N)], "strip-mast-lamps", 8)
 # One cell across the whole mid tile, y 80..256, so it tiles with the layer.
 LX, LY, LW, LH = 0, 80, 864, 176
 mid_lamps = [(13, 121, TEAL), (129, 131, MAG), (128, 203, MAG), (172, 240, TEAL),
-             (237, 100, TEAL), (508, 159, TEAL), (632, 185, MAG), (760, 116, MAG)]
+             (237, 100, TEAL), (508, 159, TEAL), (760, 116, MAG)]   # (632,185) is a dish cable, not a lamp
 lamps = [(x - LX, y - LY, c, (i * 0.37) % 1.0, 7, 0.42) for i, (x, y, c) in enumerate(mid_lamps)]
 pack([glow_frame(LW, LH, lamps, k / N) for k in range(N)], "strip-mid-lamps", 8, colors=128)
 
