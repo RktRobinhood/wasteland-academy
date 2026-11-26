@@ -769,6 +769,10 @@ func _show_question() -> void:
 	card.add_child(hint_label)
 	card.move_child(hint_label, card.get_node("Prompt").get_index() + 1)
 	_update_hud()
+	# Keyboard focus starts on the first choice (FAL-1601, #187), so the first Tab isn't
+	# a lifeline. A typed answer's box already takes it (practice.gd's _add_slots).
+	if _slots.is_empty() and not _choice_buttons.is_empty():
+		_grab.call_deferred(_choice_buttons[0])
 
 
 ## A boss part's head on the card: which part, the parts done with their answers, and
