@@ -162,7 +162,8 @@ static func _self_inverse(rng: Seeded) -> Dictionary:
 		0:
 			var c := ExtensionViews.nonzero(rng, -6, 6)
 			var p := ExtensionViews.nonzero(rng, -3, 3)
-			if 2 * p == c or c - p == 0:
+			# The point and its mirror image stay in the graph's window (FAL-1605).
+			if 2 * p == c or c - p == 0 or absi(c - p) > 8:
 				return {}
 			return {"f": BasicFunctionSituation.poly([c, -1]), "form": "flip", "inverse": true, "p": p, "q": c - p}
 		1:
@@ -176,7 +177,8 @@ static func _self_inverse(rng: Seeded) -> Dictionary:
 			var c := ExtensionViews.nonzero(rng, -3, 3)
 			var p := rng.int_in(1, 3)
 			var q := m * p + c
-			if q == p or m * q + c == p:
+			# The point and its mirror image both stay in the graph's window (FAL-1605).
+			if q == p or m * q + c == p or absi(q) > 8:
 				return {}
 			return {"f": BasicFunctionSituation.poly([c, m]), "form": "line", "inverse": false, "p": p, "q": q}
 	var c := ExtensionViews.nonzero(rng, -4, 4)

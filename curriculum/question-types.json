@@ -10096,7 +10096,7 @@
      "wrong": "f(a) given for f(−a)"
     },
     {
-     "text": "Giving the constant term, the value at the start, instead of the value at the input",
+     "text": "Giving the value at the start instead of the value at the input",
      "as": "distractor",
      "in": [
       "value-at-input"
@@ -39382,7 +39382,7 @@
     {
      "kind": "always-sometimes-never",
      "prompt": "If the side opposite a given angle is the shorter of two given sides, two triangles fit.",
-     "answer": "Sometimes: it also has to be longer than the altitude from the vertex between the two sides. If it is shorter than the altitude it never reaches the base line, and no triangle fits.",
+     "answer": "Sometimes: the given angle must be acute and the side must be longer than the altitude from the vertex between the two sides. Equal to the altitude, it makes one right-angled triangle; shorter, it never reaches the base line and no triangle fits.",
      "level": 3
     },
     {
@@ -40842,7 +40842,7 @@
     {
      "kind": "always-sometimes-never",
      "prompt": "Two sides and an angle opposite one of them fix exactly one triangle.",
-     "answer": "Sometimes: if the side opposite the given angle is the longer one, only one triangle fits; if it is the shorter one but longer than the altitude, the angle from sin⁻¹ and 180° minus it can both work.",
+     "answer": "Sometimes: if the side opposite the given angle is the longer one, only one triangle fits; if it is the shorter one but longer than the altitude and the given angle is acute, the angle from sin⁻¹ and 180° minus it can both work.",
      "level": 4
     }
    ],
@@ -68235,7 +68235,7 @@
     },
     {
      "ref": "SL5.8.classify-stationary-points#0",
-     "text": "Reversing the second-derivative test: a positive f″ means a minimum",
+     "text": "Reversing the second-derivative test: taking a positive f″ to mean a maximum",
      "as": "distractor",
      "in": [
       "nature"

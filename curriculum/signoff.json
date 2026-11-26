@@ -240,7 +240,10 @@
     "fn-concept-function-notation"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1605)",
+   "date": "2026-11-26",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: 2 × (−9) bracketed in 2f(a); no f(a) = 0 (scale) or f(a) = ±1 (inverse), so the named slip isn't the key, and the inverse slips are shuffled so each is shown; table and graph views no longer use a rule the card doesn't show (inverse, input-from-output, zeros); f(x) = k, f⁻¹ and zero equations solved on the page; match-expressions has no repeated option and works out every expression; when-equal slips kept apart and asked with 'Find'; exact Paper 1 above-or-below; the expansion is shown; k is never a solution; sign slip and x-coefficient slip not offered on graphs; Paper 2 filler rounded; the Paper 1 ball input isn't level with the start; time-for-target slips as decimals, the domain check after the value, model equations solved; fn-evaluate-function#11 says the value at the start, not the constant term. Tests: test_reading_bfn.gd."
   },
   {
    "situation": "basic-restricted",
@@ -248,7 +251,10 @@
     "fn-domain-range"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1605)",
+   "date": "2026-11-26",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: −6/(x − 2) without brackets on top; range-quadratic uses only what the card gives (no y-intercept slip from words, no GDC on a rule that isn't shown); the vertex is found by −b/(2a); domain inequalities solved, with the sign turn when dividing by a negative; the range of f worked out for inverse-domain; asymptote ratio shown; composite-condition asks with 'Find'. Open (low): range-reflected fillers are empty intervals; domain-from-range fillers at the key ± 1 beside two named slips. Tests: test_reading_bfn.gd."
   },
   {
    "situation": "basic-one-to-one",
@@ -256,7 +262,10 @@
     "fn-inverse-reflection"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1605)",
+   "date": "2026-11-26",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed: Paper 2 area-by-symmetry gives the half to 4 s.f., so doubling it reaches the key; sketch-inverse swaps points that move off y = x; reciprocal rules written 6/x and (2x + 4)/x; self-inverse verdicts worked (the swapped rule, or the value at the image); self-inverse graph points kept in the window; meeting point and f(x) = a solved step by step, negative root rejected with a reason. Open (minor): the y-intercept slip mixes a fraction with a decimal rule. Tests: test_reading_odc.gd."
   },
   {
    "situation": "line-conditions",
@@ -265,7 +274,10 @@
     "fn-concept-gradient-meaning"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1605)",
+   "date": "2026-11-26",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Recomputed every key and option: all right. Fixed: general-form answers show the multiply-and-collect step; every working finds the gradients it uses (two points, L₁ and L₂ in general form, the rotated step); a parallel k question has no m₁ × m₂ = −1 working, and the product test explains a pair that isn't perpendicular; method names fit the question (no 'on the graph' without a graph, no 'in a table' without a table, intercept form isn't 'cover-up', a given equation isn't 'point-gradient' or 'find c'); set-zero works on the line as given; missing-coordinate works out the known leg first; the quarter-turn product finds both gradients; notation (−a/b, bracketed fractions, a coefficient of −1, 'down' and 'left' for negative steps). Open: gradient-from-general with |a| = |b| still has key ± 1 nudges (every slip lands on ±1). Tests: test_reading_line.gd."
   },
   {
    "situation": "transform-chain",
@@ -275,7 +287,10 @@
     "fn-concept-transform-order"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1605)",
+   "date": "2026-11-26",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Fixed (apply): an order-changes-rule filler that restated the key; a false 'only one graph passes through it' in sketch track-a-point; the √x copied-domain slip on log domains (now fn-transform-apply#19); fractions after ÷ and × bracketed; 'subtract 1.8', not 'add −1.8'; step-by-step and solve-for-input methods that repeated the mapping rule now move the point or solve; no key ± 1 for image points with x = 0; no non-terminating fillers on Paper 2; asymptote, rule-from-moves, order, undo and reflect working find the answer. Fixed (describe and order probes): track points only for a translation and the scale rule only for a stretch; the inside-as-outside slip right for both signs; fillers that repeated 'same graph' replaced; order-from-bracket's stretch-then-translate method only when the stretch is first; the two-orders filler no longer equals the key; working finds each order, pair, reverse and point a move at a time; describe-from-graphs divides and subtracts; graph views read g from P and Q; no 'scale factor 1' filler; vector-from-key-point keeps its moved-point slip; 'sin(5t)', not '1 sin(5t)'; vertex-form rules with one constant; 1 ÷ (1/b) bracketed. The method names now read a·f(b(x − c)) + d and (x/b + c, ay + d), as the working does. Open: exact fractions such as 5/6 among Paper 2 decimals. Tests: test_reading_tapp.gd, test_reading_tdesc.gd."
   },
   {
    "situation": "triangle",
@@ -285,7 +300,10 @@
     "t3-sine-cosine-rule"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1605)",
+   "date": "2026-11-26",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Recomputed every key, option and step line: all right. Fixed: drop-perpendicular working with an obtuse angle puts F beyond the vertex and works in 180° − X; every height from an obtuse angle says it falls outside, in a right triangle with the supplement and the same sine; no Paper 2 filler within 5% of the key; fillers that always equalled a named slip replaced (side-from-area height, acute angle-from-area, isosceles 'angle Z + 5°', the cosine rule's missing 2, Paper 1 yz), cutting key ± 1 options from 44 to 19 of 3416; the ambiguous-case probe answer adds the acute angle and the right-angled case. Open: method-pick and error-spot are listed for t3-sine-cosine-rule and t3-triangle-area but not built. Tests: test_reading_tri.gd."
   },
   {
    "situation": "arithmetic-sequence",
@@ -294,7 +312,10 @@
     "t1-ext-sigma-arithmetic"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1605)",
+   "date": "2026-11-26",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Recomputed every key, option and step line: all right. Fixed: no coefficient of 1 in the working ('u₁ + 1d', '1(n − 1)', '1 × 26', '+ 0', Σ '1 × 1 + 9'); '1 step', not '1 steps'; the series ellipsis takes the fourth term's sign; count-terms asks 'Write down the number of terms'; method names that fit both = and > questions and the count and write cells. Open: key ± 1 fillers in n-from-sum and upper-from-total (no other slip in the catalogue); SL1.2.nth-term#1 text speaks of a decreasing sequence on rising ones too (text copied in an explainer, left). Tests: test_reading_arith.gd."
   },
   {
    "situation": "arithmetic-context",
@@ -302,7 +323,10 @@
     "t1-arithmetic-in-context"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1605)",
+   "date": "2026-11-26",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Recomputed every key, option and step line: all right. Fixed: a stack's table never asks for a tₙ it shows; every whole-n-test wrong claim gives the other verdict; fillers no longer sit the key between itself and a named slip (far fillers first, mirrored fillers dropped, 'after n full days' tags key + d as SL1.2.nth-term#0); simple-interest working writes money as the table does. Open: zero-term fillers k + 1 and k + 2. Tests: test_reading_arith.gd."
   },
   {
    "situation": "distribution",
@@ -312,7 +336,10 @@
     "t4-discrete-distribution"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1605)",
+   "date": "2026-11-26",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Recomputed every key, wrong option and misconception value: all right. Fixed: complement wording when the strict end is the only value left out. Open: the whole-number slip shows as '33.0' at 3 s.f. (shared answer formatting, engine follow-up). Tests: test_reading_odc.gd."
   },
   {
    "situation": "cubic",
@@ -323,7 +350,10 @@
     "t5-stationary-points"
    ],
    "exam": true,
-   "status": "unread"
+   "status": "signed-off",
+   "readBy": "Curriculum Author (FAL-1605)",
+   "date": "2026-11-26",
+   "note": "Read every unit, representation, method and format (one exported question per cell and format) and the concept probes. Recomputed every key and option, including Paper 2 GDC values: all right. Fixed: an f′(a) answer no longer repeats its x; coefficient-from-tangent shows x₀ put into f′; point-gradient tangent and normal multiplied out to y = mx + c; SL5.8.classify-stationary-points#0 text now names the slip (a positive f″ taken as a maximum). Tests: test_reading_odc.gd."
   },
   {
    "situation": "binomial",

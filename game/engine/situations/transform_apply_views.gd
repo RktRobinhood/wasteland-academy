@@ -51,6 +51,73 @@ static func rule_line(s: Dictionary, map: Dictionary) -> String:
 	return "g(x) = " + TC.rule(s, map)
 
 
+## A number to multiply or divide by, in brackets when it is negative or a fraction:
+## "÷ (1/2)", "× (−0.8)", never "÷ 1/2".
+static func by(s: Dictionary, v: Q) -> String:
+	var t := TC.n(s, v)
+	return "(%s)" % t if v.sign() < 0 or t.contains("/") else t
+
+
+static func same_map(a: Dictionary, b: Dictionary) -> bool:
+	return a.A.eq(b.A) and a.B.eq(b.B) and a.C.eq(b.C) and a.D.eq(b.D)
+
+
+## "a = 1, b = 2, c = −3 and d = 4".
+static func abcd(s: Dictionary, map: Dictionary) -> String:
+	return "a = %s, b = %s, c = %s and d = %s" % [TC.n(s, map.A), TC.n(s, map.B), TC.n(s, map.C), TC.n(s, map.D)]
+
+
+## What scales x inside f, and what scales y outside it, named.
+static func x_scale_word(b: Q) -> String:
+	if b.abs_q().eq(1):
+		return "the reflection in the y-axis"
+	return "the stretch and the reflection in the y-axis" if b.sign() < 0 else "the horizontal stretch"
+
+
+static func y_scale_word(a: Q) -> String:
+	if a.abs_q().eq(1):
+		return "the reflection in the x-axis"
+	return "the stretch and the reflection in the x-axis" if a.sign() < 0 else "the vertical stretch"
+
+
+## The x-coordinate of a point moved one change at a time: "x: 4 ÷ 0.8 = 5 (the
+## horizontal stretch), then 5 + 1.2 = 6.2 (the translation)."
+static func x_moves(s: Dictionary, map: Dictionary, x0: Q) -> String:
+	var parts: PackedStringArray = []
+	var x := x0
+	if not map.B.eq(1):
+		var nx := x.div(map.B)
+		parts.append("%s ÷ %s = %s (%s)" % [TC.n(s, x), by(s, map.B), TC.n(s, nx), x_scale_word(map.B)])
+		x = nx
+	if not map.C.is_zero():
+		var nx := x.add(map.C)
+		parts.append("%s%s = %s (the translation)" % [TC.n(s, x), TC.plus(s, map.C), TC.n(s, nx)])
+	if parts.is_empty():
+		return "x: nothing acts on x, so it stays %s." % TC.n(s, x0)
+	return "x: " + ", then ".join(parts) + "."
+
+
+static func y_moves(s: Dictionary, map: Dictionary, y0: Q) -> String:
+	var parts: PackedStringArray = []
+	var y := y0
+	if not map.A.eq(1):
+		var ny: Q = map.A.mul(y)
+		parts.append("%s × %s = %s (%s)" % [TC.n(s, map.A), by(s, y), TC.n(s, ny), y_scale_word(map.A)])
+		y = ny
+	if not map.D.is_zero():
+		var ny := y.add(map.D)
+		parts.append("%s%s = %s (the translation)" % [TC.n(s, y), TC.plus(s, map.D), TC.n(s, ny)])
+	if parts.is_empty():
+		return "y: nothing acts on y, so it stays %s." % TC.n(s, y0)
+	return "y: " + ", then ".join(parts) + "."
+
+
+## Whether the graph of f moved by map passes through (x, y).
+static func passes(s: Dictionary, map: Dictionary, p: Array) -> bool:
+	var y := TC.at(s, map, p[0].to_float())
+	return not is_nan(y) and absf(y - p[1].to_float()) < 1e-7
+
+
 # ── Sketches: pick the graph ─────────────────────────────────
 
 ## A pick-the-graph question: wrongs [[map, ref, mistake, why]], with every card in one
@@ -88,16 +155,49 @@ func u_sketch_stretch_shift(_rep: String, s: Dictionary, rng: Seeded) -> Diction
 	if s.fam in TC.NO_HS:
 		off = [with(s.map, {"A": Q.new(1).div(a)}), "", "inverted", "it is stretched by 1 ÷ %s, not by %s" % [TC.n(s, a), TC.n(s, a)]]
 	var move_y := "Multiply each y-coordinate by %s, then move it %s." % [TC.n(s, a), vert_word(s, d)]
-	return sketch(s, "Which graph is y = %s?" % f_form(s, s.map), [
+	var wrongs: Array = [
 		[with(s.map, {"D": a.mul(d)}), SK_ONE, "bracket", "it adds the translation before stretching, so every point is too far: that is %s(f(x)%s)" % [TC.lead(s, a), TC.plus(s, d)]],
 		[with(s.map, {"D": d.neg()}), "", "wrong-way", "it moves the graph the wrong way after the stretch"],
 		off,
-	], {
+	]
+	var stretched := TC.compose([s.moves[0]])
+	var mid: PackedStringArray = []
+	var each: PackedStringArray = []
+	for k in s.key:
+		var m1 := TC.image(stretched, k[0], k[1])
+		mid.append("%s goes to %s" % [P_(s, k), P_(s, m1)])
+		each.append("%s goes to %s, then to %s" % [P_(s, k), P_(s, m1), P_(s, TC.image(s.map, k[0], k[1]))])
+	return sketch(s, "Which graph is y = %s?" % f_form(s, s.map), wrongs, {
 		"move-key-points": [move_y, points_step(s)],
-		"one-step-at-a-time": ["First the stretch: y becomes %s·y, and points on the x-axis stay." % TC.n(s, a), "Then the translation: every point moves %s." % vert_word(s, d)],
-		"track-a-point": ["Follow one point: %s goes to %s." % [P_(s, s.key[0]), P_(s, TC.image(s.map, s.key[0][0], s.key[0][1]))], "Only one graph passes through it with the right shape."],
-		"step-by-step": [move_y, points_step(s)],
+		"one-step-at-a-time": ["First the stretch: y becomes %s·y, and points on the x-axis stay. %s" % [TC.n(s, a), cap_join(mid)],
+			"Then the translation: every point moves %s. %s" % [vert_word(s, d), points_step(s)]],
+		"track-a-point": telling_track(s, wrongs.map(func(w): return w[0])),
+		"step-by-step": ["Stretch each point, then move it %s: %s" % [vert_word(s, d), cap_join(each)]],
 	}, rng)
+
+
+## Follow the fewest key points that no wrong card passes through all of, so the claim
+## that only one graph fits is true: a point on an axis can stay put under a wrong stretch.
+static func telling_track(s: Dictionary, wrong_maps: Array) -> Array:
+	# A point that moves shows the move better than one the moves happen to leave put.
+	var moving: Array = s.key.filter(func(k): return not TC.image(s.map, k[0], k[1])[1].eq(k[1]))
+	var sets: Array = moving.map(func(k): return [k]) + s.key.filter(func(k): return not k in moving).map(func(k): return [k])
+	for i in s.key.size():
+		for j in range(i + 1, s.key.size()):
+			sets.append([s.key[i], s.key[j]])
+	sets.append(s.key)
+	for pts in sets:
+		var ims: Array = pts.map(func(k): return TC.image(s.map, k[0], k[1]))
+		var fits_a_wrong := wrong_maps.any(func(w): return ims.all(func(im): return passes(s, w, im)))
+		if fits_a_wrong:
+			continue
+		var parts: PackedStringArray = []
+		for i in pts.size():
+			parts.append("%s goes to %s" % [P_(s, pts[i]), P_(s, ims[i])])
+		if pts.size() == 1:
+			return ["Follow one point: %s." % parts[0], "Only one of the graphs passes through %s." % P_(s, ims[0])]
+		return ["Follow the points: %s" % cap_join(parts), "Only one of the graphs passes through all of them."]
+	return ["Follow the points: " + points_step(s), "Check each graph's shape through them as well."]
 
 
 func u_sketch_reflection(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -131,7 +231,7 @@ func u_sketch_horizontal(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 			[with(TC.identity(), {"B": k}), "", "inverted", "it is stretched by %s, the number inside, not by 1 ÷ that number" % TC.n(s, b)],
 			[with(TC.identity(), {"A": k}), "", "vertical", "it is stretched parallel to the y-axis"],
 		]
-		var move := "A number multiplying x inside f is a horizontal stretch with scale factor 1 ÷ %s = %s." % [TC.n(s, b), TC.n(s, k)]
+		var move := "A number multiplying x inside f is a horizontal stretch with scale factor 1 ÷ %s = %s." % [by(s, b), TC.n(s, k)]
 		steps = {"move-key-points": [move, points_step(s)], "one-step-at-a-time": [move, points_step(s)]}
 	else:
 		var c: Q = m.c
@@ -156,7 +256,8 @@ func u_rule_single_translation(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	return ask(right, [[rule_line(s, with(s.map, {"C": c.neg()})), TR_SIGN], [inside, TR_INSIDE]],
 		[rule_line(s, with(s.map, {"D": d.neg()})), rule_line(s, with(s.map, {"C": c.neg(), "D": d.neg()})), rule_line(s, with(s.map, {"C": d, "D": c}))],
 		"Find g(x).", [f_given(rep, s), "The graph of y = f(x) is translated by the vector %s to give y = g(x)." % TC.pt(s, c, d)], {
-			"shift-features": ["The vector moves the graph %s and %s." % [across_word(s, c), vert_word(s, d)], "Across goes inside f, with the opposite sign. Up or down goes outside."],
+			"shift-features": ["The vector moves the graph %s and %s." % [across_word(s, c), vert_word(s, d)], "Across goes inside f, with the opposite sign. Up or down goes outside.",
+				"So g(x) = f(%s)%s." % [TC.x_minus(s, c), TC.plus(s, d)]],
 			"substitute": ["A translation by (c, d) gives g(x) = f(x − c) + d.", "Put in c = %s and d = %s: f(%s)%s." % [TC.n(s, c), TC.n(s, d), TC.x_minus(s, c), TC.plus(s, d)]],
 		})
 
@@ -182,12 +283,53 @@ func u_rule_from_moves(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		steps.append("After %s: %s." % [TC.move_text(s, m), f_form(s, TC.compose(so_far))])
 	var k: Array = s.key[0]
 	var im := TC.image(s.map, k[0], k[1])
+	var path: PackedStringArray = [P_(s, k)]
+	var done: Array = []
+	for m in moves:
+		done.append(m)
+		var at := TC.image(TC.compose(done), k[0], k[1])
+		path.append("%s after %s" % [P_(s, at), TC.move_text(s, m)])
 	return ask(right, wrongs, bad, "Find g(x).", [f_given(rep, s), moves_line(s)], {
 		"step-by-step-substitution": steps + ["With f written in, g(x) = %s." % TC.g_rule(s)],
-		"track-a-point": ["Follow one point through the moves: %s goes to %s." % [P_(s, k), P_(s, im)], "Stretches and reflections scale the input and output, and the translation comes last: %s." % f_form(s, s.map)],
-		"stretch-then-translate-form": ["The form a·f(b(x − c)) + d fits when stretches come first and the translation last.", "Here a = %s, b = %s, c = %s and d = %s." % [TC.n(s, a), TC.n(s, b), TC.n(s, s.map.C), TC.n(s, s.map.D)]],
+		"track-a-point": ["Follow one point through the moves: %s." % ", then ".join(path), parts_line(s, moves),
+			"So g(x) = %s, which does send %s to %s." % [f_form(s, s.map), P_(s, k), P_(s, im)]],
+		"stretch-then-translate-form": ["The form a·f(b(x − c)) + d fits when stretches come first and the translation last.", parts_line(s, moves),
+			"So g(x) = %s." % f_form(s, s.map)],
 		"gdc-overlay": ["Write %s from the moves: %s." % ["g", f_form(s, s.map)], "Graph it beside y = %s and check that %s goes to %s." % [TC.f_rule(s), P_(s, k), P_(s, im)]],
 	})
+
+
+## a, b, c and d read off the moves, when the stretches come first and one translation last:
+## "The vertical stretch gives a = 2, the horizontal stretch with scale factor 0.8 gives
+## b = 1 ÷ 0.8 = 1.25, and the translation gives c = −2 and d = 1."
+static func parts_line(s: Dictionary, moves: Array) -> String:
+	var map := TC.compose(moves)
+	var trs: Array = moves.filter(func(m): return m.k == "tr")
+	if trs.size() != 1 or moves[-1].k != "tr":
+		return "Here %s." % abcd(s, map)
+	var vss: Array = moves.filter(func(m): return m.k == "vs")
+	var hss: Array = moves.filter(func(m): return m.k == "hs")
+	var rx: bool = moves.any(func(m): return m.k == "rx")
+	var ry: bool = moves.any(func(m): return m.k == "ry")
+	var a_part := "nothing multiplies f, so a = 1"
+	if not vss.is_empty() or rx:
+		var said: Array = []
+		if not vss.is_empty():
+			said.append("the vertical stretch")
+		if rx:
+			said.append("the reflection in the x-axis")
+		a_part = "%s give%s a = %s" % [" and ".join(PackedStringArray(said)), "" if said.size() > 1 else "s", TC.n(s, map.A)]
+	var b_part := "nothing multiplies x inside f, so b = 1"
+	if not hss.is_empty():
+		var k := Q.new(1)
+		for m in hss:
+			k = k.mul(m.a)
+		b_part = "the horizontal stretch with scale factor %s gives b = %s1 ÷ %s = %s" % [TC.n(s, k), "−" if ry else "", by(s, k), TC.n(s, map.B)]
+		if ry:
+			b_part = b_part.replace("gives", "and the reflection in the y-axis give")
+	elif ry:
+		b_part = "the reflection in the y-axis gives b = −1"
+	return TC.cap("%s, %s, and the translation gives c = %s and d = %s." % [a_part, b_part, TC.n(s, map.C), TC.n(s, map.D)])
 
 
 func u_reflect_translate_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -203,12 +345,21 @@ func u_reflect_translate_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		if open_set.has(end):
 			open_set[end] = false
 	var wrongs: Array = [[say.call(sign_map, TC.moved_set(TC.f_domain(s), Q.new(1).div(sign_map.B), sign_map.C)), TR_SIGN],
-		[say.call(s.map, TC.f_domain(s)), END_COPY]]
+		# SL2.2.domain#1 names √x, so a log's copied domain is the type's own slip.
+		[say.call(s.map, TC.f_domain(s)), END_COPY if s.fam == "root" else A_COPIED]]
 	if s.fam == "root":
 		wrongs.append([say.call(s.map, open_set), END_OPEN])
 	var neg := "Negate the output, f(x) to −f(x)" if refl.k == "rx" else "Negate the input, f(x) to f(−x)"
-	var edge := "The domain's end %s moves with x: it is now %s." % [TC.set_text(s, TC.f_domain(s), "x"), TC.set_text(s, dom, "x")]
-	var step := "Then translate: replace x by %s and add %s, giving %s." % [TC.x_minus(s, t.c), TC.n(s, t.d), f_form(s, s.map)]
+	var fd := TC.f_domain(s)
+	var end: Q = TC.image(s.map, fd.lo, 0)[0]
+	var edge := "The end of the domain, x = %s, moves to x = %s%s, so %s becomes %s." % [TC.n(s, fd.lo), TC.n(s, end),
+		" and the reflection in the y-axis turns the inequality round" if refl.k == "ry" else "", TC.set_text(s, fd, "x"), TC.set_text(s, dom, "x")]
+	var add := ""
+	if t.d.sign() > 0:
+		add = " and add %s" % TC.n(s, t.d)
+	elif t.d.sign() < 0:
+		add = " and subtract %s" % TC.n(s, t.d.abs_q())
+	var step := "Then translate: replace x by %s%s, giving %s." % [TC.x_minus(s, t.c), add, f_form(s, s.map)]
 	wrongs.append([say.call(other_map, TC.moved_set(TC.f_domain(s), Q.new(1).div(other_map.B), other_map.C)), REFLECT])
 	return ask(right, wrongs, [say.call(s.map, TC.moved_set(TC.f_domain(s), Q.new(1).div(s.map.B), s.map.C.neg())), say.call(sign_map, dom)],
 		"Find g(x) and the domain of g.", [f_given(rep, s), moves_line(s)], {
@@ -242,9 +393,15 @@ func u_reflect_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs = [[rule_line(s, other), REFLECT]]
 		bad = [rule_line(s, TC.compose([{"k": "rx"}, {"k": "ry"}])), "g(x) = " + TC.f_rule(s), rule_line(s, with(TC.identity(), {"D": Q.new(-1)})), rule_line(s, with(TC.identity(), {"C": Q.new(1)}))]
 	var f_txt := TC.f_rule(s)
+	var done := right.trim_prefix("g(x) = ")
+	var worked: String
+	if s.fam == "poly":
+		worked = "Every term changes: %s = %s." % ["−(%s)" % f_txt if rx else TC.f_of(s, "−x"), done]
+	else:
+		worked = "With f(x) = %s, that is %s." % [f_txt, ("−" + f_txt) if rx else TC.f_of(s, "−x")]
 	return ask(right, wrongs, bad, "Find g(x), simplified.", [f_given(rep, s), moved], {
-		"negate-output-or-input": [how, "Do that to every term of %s." % f_txt],
-		"gdc-overlay": [how, "Graph y = %s and your g on the GDC: one should be the mirror image of the other in the %s-axis." % [f_txt, "x" if rx else "y"]],
+		"negate-output-or-input": [how, worked],
+		"gdc-overlay": [how, worked, "Graph y = %s and y = %s on the GDC: one should be the mirror image of the other in the %s-axis." % [f_txt, done, "x" if rx else "y"]],
 	})
 
 
@@ -269,15 +426,37 @@ func u_undo_moves(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		lines = ["A parabola y = f(x) goes through %s." % TC.chain_text(s, moves), "It ends up as y = %s." % g_text]
 	var signs: Array = back.map(func(m): return TC.slide(m.c.neg(), m.d) if m.k == "tr" else m)
 	var steps: Array = ["Undo each move, last one first: %s." % TC.chain_text(s, back)]
+	var subs: Array = ["Undo each move, last one first, by substituting into the rule."]
 	var done: Array = moves.duplicate()
-	for m in back:
+	for i in back.size():
+		var m: Dictionary = back[i]
 		done.append(m)
-		steps.append("After %s: y = %s." % [TC.move_text(s, m), vert_rule(s, TC.compose(done))])
+		var now := vert_rule(s, TC.compose(done))
+		steps.append("After %s: y = %s." % [TC.move_text(s, m), now])
+		subs.append("Undo %s: %s, so y = %s." % [TC.move_text(s, moves[moves.size() - 1 - i]), substitution(s, m), now])
 	return ask(right, [[wrong_map.call(same_order), A_SAME_ORDER], [wrong_map.call(moves), A_AGAIN]], [wrong_map.call(signs), wrong_map.call([TC.slide(0, s.map.D.neg())])],
 		"Find f(x).", lines, {
 			"step-by-step-substitution": steps,
-			"substitute": steps,
+			"substitute": subs,
 		})
+
+
+## A move as a change to the rule: "replace x by x − 3 and add 2", "multiply by 1/2".
+static func substitution(s: Dictionary, m: Dictionary) -> String:
+	match m.k:
+		"vs":
+			return "multiply the rule by %s" % TC.n(s, m.a)
+		"hs":
+			return "replace x by %sx" % TC.lead(s, Q.new(1).div(m.a))
+		"rx":
+			return "multiply the rule by −1"
+		"ry":
+			return "replace x by −x"
+	var out := "replace x by %s" % TC.x_minus(s, m.c) if not m.c.is_zero() else ""
+	if not m.d.is_zero():
+		var tail := "%s %s" % ["add" if m.d.sign() > 0 else "subtract", TC.n(s, m.d.abs_q())]
+		out = tail if out.is_empty() else out + " and " + tail
+	return out
 
 
 func u_order_changes_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -294,15 +473,26 @@ func u_order_changes_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var off_c := with(first, {"C": first.C.neg()})
 	if same and not first.C.is_zero():
 		wrongs = [[one_way.call(off_c), TR_SIGN]]
-	var bad: Array = [say.call(first, other_m), say.call(other_m, first), one_way.call(other_m), say.call(off_c, first)] if same else \
-		[say.call(second, first), say.call(first, other_m), say.call(other_m, second), say.call(off_c, second), say.call(first, with(second, {"C": second.C.neg()}))]
+	# A filler is a pair of rules, or [m] for "the same graph either way" with m. One that
+	# gives the right rule for both orders is the key in other words (other_m is first when
+	# D is 0, off_c when C is), so it is left out.
+	var pairs: Array = [[first, other_m], [other_m, first], [other_m], [off_c, first], [first, off_c], [off_c, off_c]] if same else \
+		[[second, first], [first, other_m], [other_m, second], [off_c, second], [first, with(second, {"C": second.C.neg()})]]
+	var bad: Array = []
+	for p in pairs:
+		if p.size() == 1:
+			if not same_map(p[0], first):
+				bad.append(one_way.call(p[0]))
+		elif not (same_map(p[0], first) and same_map(p[1], second)):
+			bad.append(say.call(p[0], p[1]))
 	var axis_same: bool = (stretch_m.k == "vs" and not t.d.is_zero()) or (stretch_m.k == "hs" and not t.c.is_zero())
 	var why := "The stretch and the translation act along the same axis, so the stretch changes the size of the translation when it comes second." if axis_same else "The stretch and the translation act along different axes, so neither changes the other."
 	var k: Array = s.key[0]
 	var im1 := TC.image(first, k[0], k[1])
 	var im2 := TC.image(second, k[0], k[1])
 	var track := "Follow %s: stretch first it lands at %s, translation first at %s." % [P_(s, k), P_(s, im1), P_(s, im2)]
-	var written := "Stretch first: %s. Translation first: %s." % [f_form(s, first), f_form(s, second)]
+	var written := "Stretch first: y = %s, then y = %s. Translation first: y = %s, then y = %s." % [f_form(s, TC.compose([stretch_m])), f_form(s, first),
+		f_form(s, TC.compose([t])), f_form(s, second)]
 	var lines: Array = [f_given(rep, s), "Two moves: %s, and %s." % [TC.move_text(s, stretch_m), TC.move_text(s, t)], "They can be done in either order."]
 	return ask(right, wrongs, bad, "Find g(x) for each order, and say whether the orders differ.", lines, {
 		"one-step-at-a-time": [written, why],
@@ -336,6 +526,57 @@ static func show_point(rep: String, s: Dictionary, p: Array, on_g: bool) -> Dict
 	return {"lines": ["The point P%s lies on y = %s(x)." % [P_(s, p), name], given]}
 
 
+## Solve b(x − c) = p for x: "0.8(x − 1.2) = 4, so x − 1.2 = 4 ÷ 0.8 = 5 and x = 6.2."
+static func solve_input(s: Dictionary, map: Dictionary, p: Q, x: Q) -> String:
+	var head := "g(x) reads f at %s, so the image's x-coordinate solves %s = %s" % [TC.inner(s, map), TC.inner(s, map), TC.n(s, p)]
+	if map.B.eq(1):
+		return "%s: x = %s%s = %s." % [head, TC.n(s, p), TC.plus(s, map.C), TC.n(s, x)]
+	var q := p.div(map.B)
+	if map.C.is_zero():
+		return "%s: x = %s ÷ %s = %s." % [head, TC.n(s, p), by(s, map.B), TC.n(s, x)]
+	return "%s: %s = %s ÷ %s = %s, so x = %s%s = %s." % [head, TC.x_minus(s, map.C), TC.n(s, p), by(s, map.B), TC.n(s, q), TC.n(s, q), TC.plus(s, map.C), TC.n(s, x)]
+
+
+## A point on g taken back one change at a time: the translation, then the stretch.
+static func undo_x(s: Dictionary, map: Dictionary, x1: Q) -> String:
+	var parts: PackedStringArray = []
+	var x := x1
+	if not map.C.is_zero():
+		var nx := x.sub(map.C)
+		parts.append("undo the translation, %s − %s = %s" % [TC.n(s, x), par(s, map.C), TC.n(s, nx)])
+		x = nx
+	if not map.B.eq(1):
+		var nx := x.mul(map.B)
+		parts.append("undo %s, %s × %s = %s" % [x_scale_word(map.B), TC.n(s, x), by(s, map.B), TC.n(s, nx)])
+	if parts.is_empty():
+		return "x: nothing acts on x, so it stays %s." % TC.n(s, x1)
+	return "x: " + ", then ".join(parts) + "."
+
+
+static func undo_y(s: Dictionary, map: Dictionary, y1: Q) -> String:
+	var parts: PackedStringArray = []
+	var y := y1
+	if not map.D.is_zero():
+		var ny := y.sub(map.D)
+		parts.append("undo the translation, %s − %s = %s" % [TC.n(s, y), par(s, map.D), TC.n(s, ny)])
+		y = ny
+	if not map.A.eq(1):
+		var ny := y.div(map.A)
+		parts.append("undo %s, %s ÷ %s = %s" % [y_scale_word(map.A), TC.n(s, y), by(s, map.A), TC.n(s, ny)])
+	if parts.is_empty():
+		return "y: nothing acts on y, so it stays %s." % TC.n(s, y1)
+	return "y: " + ", then ".join(parts) + "."
+
+
+## Point fillers as the options show them: none equal to the key, and on Paper 2 none
+## that cannot be written as a decimal (67/12 among decimals gives itself away).
+static func shown_fillers(s: Dictionary, fillers: Array, key: Array) -> Array:
+	return fillers.filter(func(f):
+		if f.x.eq(key[0]) and f.y.eq(key[1]):
+			return false
+		return s.paper != 2 or not (Fmt.dec(f.x).contains("/") or Fmt.dec(f.y).contains("/")))
+
+
 static func f_plot_at(s: Dictionary, p: Array) -> Dictionary:
 	var g := f_plot(s)
 	g.points = [{"x": p[0].to_float(), "y": p[1].to_float(), "label": "P" + P_(s, p)}]
@@ -356,14 +597,19 @@ func u_image_point(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if has_v and p[1].is_zero() and not p[0].is_zero():
 		wrongs.append(wrong({"x": p[0].mul(map.A).add(map.C), "y": im[1]}, ROOTS))
 	var ans := Answer.make("point", {"x": im[0], "y": im[1]})
-	var x_line := "x: %s ÷ %s%s = %s." % [TC.n(s, p[0]), par(s, map.B), TC.plus(s, map.C), TC.n(s, im[0])]
-	var y_line := "y: %s × %s%s = %s." % [TC.n(s, map.A), par(s, p[1]), TC.plus(s, map.D), TC.n(s, im[1])]
+	var x_line := "x: %s ÷ %s%s = %s." % [TC.n(s, p[0]), by(s, map.B), TC.plus(s, map.C), TC.n(s, im[0])]
+	var y_line := "y: %s × %s%s = %s." % [TC.n(s, map.A), by(s, p[1]), TC.plus(s, map.D), TC.n(s, im[1])]
+	# Without the named slips (a point with x = 0 loses two), these keep the fillers off the
+	# key's neighbours: the stretches without the translation, and the translation alone.
+	var fillers: Array = [{"x": im[1], "y": im[0]}, {"x": p[0].div(map.B), "y": map.A.mul(p[1])}, {"x": p[0].add(map.C), "y": p[1].add(map.D)}]
 	var out := typed(ans, wrongs, "Find the image of P on y = g(x).", [], {
-		"stretch-then-translate-form": ["g has the form a·f(b(x − c)) + d, with a = %s, b = %s, c = %s, d = %s." % [TC.n(s, map.A), TC.n(s, map.B), TC.n(s, map.C), TC.n(s, map.D)], x_line, y_line],
+		"stretch-then-translate-form": ["g has the form a·f(b(x − c)) + d, with %s." % abcd(s, map), x_line, y_line],
 		"mapping-rule": ["The mapping is (x, y) to (x/b + c, a·y + d).", x_line, y_line],
-		"step-by-step": ["Take each move in turn: first what acts on x, inside f.", x_line, y_line],
-		"solve-for-input": ["Solve b(x − c) = %s for the input that f reads as %s." % [TC.n(s, p[0]), TC.n(s, p[0])], x_line, y_line],
-	}, s, [{"x": im[1], "y": im[0]}])
+		"step-by-step": ["Move the point one change at a time: for x the stretch inside f, then the translation; for y the stretch outside f, then the translation.",
+			x_moves(s, map, p[0]), y_moves(s, map, p[1])],
+		"solve-for-input": [solve_input(s, map, p[0], im[0]), "Then y = a·f(%s) + d = %s × %s%s = %s, since f(%s) = %s." % [TC.n(s, p[0]),
+			TC.n(s, map.A), by(s, p[1]), TC.plus(s, map.D), TC.n(s, im[1]), TC.n(s, p[0]), TC.n(s, p[1])]],
+	}, s, shown_fillers(s, fillers, im))
 	out.merge(show_point(rep, s, p, false), true)
 	return out
 
@@ -378,12 +624,12 @@ func u_original_point(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		wrongs.append(wrong({"x": im[0].sub(map.C).div(map.B), "y": src[1]}, IM_DOUBLE))
 	var fillers: Array = [{"x": im[0], "y": src[1]}, {"x": src[0], "y": im[1].div(map.A)}, {"x": src[1], "y": src[0]}]
 	var x_line := "x: b(x′ − c) = %s × (%s − %s) = %s." % [TC.n(s, map.B), TC.n(s, im[0]), par(s, map.C), TC.n(s, src[0])]
-	var y_line := "y: (y′ − d) ÷ a = (%s − %s) ÷ %s = %s." % [TC.n(s, im[1]), par(s, map.D), par(s, map.A), TC.n(s, src[1])]
+	var y_line := "y: (y′ − d) ÷ a = (%s − %s) ÷ %s = %s." % [TC.n(s, im[1]), par(s, map.D), by(s, map.A), TC.n(s, src[1])]
 	var out := typed(Answer.make("point", {"x": src[0], "y": src[1]}), wrongs, "Find the point on y = f(x) it came from.", [], {
 		"mapping-rule": ["The mapping runs backwards: x = b(x′ − c) and y = (y′ − d) ÷ a.", x_line, y_line],
-		"step-by-step": ["Undo the moves, last one first.", x_line, y_line],
+		"step-by-step": ["Undo the moves, last one first: the translation, then the stretches.", undo_x(s, map, im[0]), undo_y(s, map, im[1])],
 		"solve-for-input": ["g at %s reads f at b(x′ − c), so that is the x-coordinate." % TC.n(s, im[0]), x_line, y_line],
-	}, s, fillers)
+	}, s, shown_fillers(s, fillers, src))
 	var shown := show_point("equation", s, im, true)
 	if rep == "table":
 		shown.lines[0] = "The table gives points on y = g(x). Q is the point with x = %s." % TC.n(s, im[0])
@@ -414,27 +660,40 @@ func u_moved_asymptote(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans: Dictionary
 	var wrongs: Array
 	var fillers: Array
-	var line_x: String = "x = 0 goes to x = %s." % TC.n(s, x) if x != null else ""
-	var line_y: String = "y = 0 goes to y = %s." % TC.n(s, y) if y != null else ""
+	var line_x: String = asy_x_line(s, map, asy.x) if x != null else ""
+	var line_y: String = asy_y_line(s, map, asy.y) if y != null else ""
+	var moved := (line_x + " " + line_y).strip_edges()
 	var read := "An asymptote moves with the curve: x = p goes to x = p/b + c, and y = q to y = a·q + d."
+	var shift := "A stretch or a reflection keeps an asymptote on an axis where it is, so only the translation by %s shifts it." % TC.pt(s, map.C, map.D)
+	steps = {"move-key-points": [read, moved], "shift-features": [shift, moved]}
 	if x != null and y != null:
 		ans = Answer.make("named", {"v0": x, "v1": y}, {"names": ["x", "y"]})
 		wrongs = [wrong({"v0": Q.new(0), "v1": y}, SK_ASY), wrong({"v0": x, "v1": Q.new(0)}, TR_ASY)]
 		fillers = [{"v0": y, "v1": x}, {"v0": x.neg(), "v1": y}]
-		steps = {"move-key-points": [read, line_x + " " + line_y], "shift-features": [read, line_x + " " + line_y]}
 	elif x != null:
 		ans = Answer.make("axis", {"var": "x", "h": x})
 		wrongs = [wrong({"var": "x", "h": Q.new(0)}, SK_ASY)]
 		fillers = [{"var": "x", "h": x.neg()}, {"var": "y", "h": x}]
-		steps = {"move-key-points": [read, line_x], "shift-features": [read, line_x]}
 	else:
 		ans = Answer.make("axis", {"var": "y", "h": y})
 		wrongs = [wrong({"var": "y", "h": Q.new(0)}, TR_ASY)]
 		fillers = [{"var": "y", "h": y.neg()}, {"var": "x", "h": y}]
-		steps = {"move-key-points": [read, line_y], "shift-features": [read, line_y]}
 	var out := typed(ans, wrongs, "Find the equation of each asymptote of g." if x != null and y != null else "Find the equation of the asymptote of g.", lines, steps, s, fillers)
 	out.graph = graph
 	return out
+
+
+## "x = 0 goes to x = 0 + 3.1 = 3.1.", worked through the map.
+static func asy_x_line(s: Dictionary, map: Dictionary, p: Q) -> String:
+	var work := TC.n(s, p) + ("" if map.B.eq(1) else " ÷ " + by(s, map.B)) + TC.plus(s, map.C)
+	var to: Q = TC.image(map, p, 0)[0]
+	return "x = %s goes to x = %s = %s." % [TC.n(s, p), work, TC.n(s, to)] if work != TC.n(s, p) else "x = %s stays where it is." % TC.n(s, p)
+
+
+static func asy_y_line(s: Dictionary, map: Dictionary, q: Q) -> String:
+	var work := ("" if map.A.eq(1) else by(s, map.A) + " × ") + TC.n(s, q) + TC.plus(s, map.D)
+	var to: Q = TC.image(map, 0, q)[1]
+	return "y = %s goes to y = %s = %s." % [TC.n(s, q), work, TC.n(s, to)] if work != TC.n(s, q) else "y = %s stays where it is." % TC.n(s, q)
 
 
 func u_domain_range_of_g(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -453,7 +712,7 @@ func u_domain_range_of_g(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var d_step := "The domain moves with what acts on x: %s becomes %s." % [TC.set_text(s, fd, "x"), TC.set_text(s, dom, "x")]
 	var r_step := "The range moves with what acts on y: %s becomes %s." % [TC.set_text(s, fr, "y"), TC.set_text(s, ran, "y")]
 	var out := ask(right, ([[swapped_sets, SWAP_SET]] if swapped_sets != right else []) + copied, bad, "Find the domain and the range of g.", [f_given("equation", s), moves_line(s)], {
-		"stretch-then-translate-form": ["g(x) = %s, so x goes to x/b + c and y to a·y + d, with a = %s, b = %s, c = %s, d = %s." % [f_form(s, map), TC.n(s, map.A), TC.n(s, map.B), TC.n(s, map.C), TC.n(s, map.D)], d_step, r_step],
+		"stretch-then-translate-form": ["g(x) = %s, so x goes to x/b + c and y to a·y + d, with %s." % [f_form(s, map), abcd(s, map)], d_step, r_step],
 		"graph-extent": ["Move the graph's left and right ends, and its lowest and highest points.", d_step, r_step],
 	})
 	if rep == "graph":

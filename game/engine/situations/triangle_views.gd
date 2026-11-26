@@ -182,11 +182,41 @@ static func wrong(out: Dictionary, x: float, ref: String = "") -> void:
 		out.wrongs.append({"values": {"v": qf(x)}, "ref": ref})
 
 
-## Fillers: wrong options with no slip behind them, kept only when real and positive.
+## Fillers: wrong options with no slip behind them, kept only when real and positive,
+## and not within NEAR of the answer: a filler that lands next to the key (sin⁻¹(b/a)
+## when the given angle is near 90°, ½ab|cos C| near 135°) is a guess, not a slip.
 static func fillers(out: Dictionary, xs: Array) -> void:
+	var key: float = (out.answer.values.v as Q).to_float() if out.answer.values.has("v") else NAN
 	for x in xs:
-		if is_finite(x) and x > 0.0:
+		if is_finite(x) and x > 0.0 and not (is_finite(key) and absf(x - key) <= NEAR * absf(key)):
 			out.fillers.append({"v": qf(x)})
+
+
+## A filler this close to the answer, as a fraction of it, is dropped (fillers()).
+const NEAR := 0.05
+
+
+## The step for a height taken from an obtuse angle at vertex L (d degrees): the height
+## falls outside the triangle, where the right triangle has 180° − d, with the same sine.
+## "" when the angle is not obtuse.
+static func outside(L: String, d: float) -> String:
+	if d <= 90.0:
+		return ""
+	var e := whole(180.0 - d)
+	return "%s = %s° is obtuse, so the height falls outside the triangle, in a right triangle with the angle 180° − %s° = %s° at %s; sin %s° = sin %s°." % [
+		cap(angle(L)), whole(d), whole(d), e, L, e, whole(d)]
+
+
+## Appends step to steps unless it is "".
+static func add(steps: Array, step: String) -> void:
+	if step != "":
+		steps.append(step)
+
+
+## Inserts step at index i unless it is "".
+static func add_at(steps: Array, i: int, step: String) -> void:
+	if step != "":
+		steps.insert(i, step)
 
 
 ## The question as the student sees it: lines (words), or a caption and a diagram.
@@ -322,13 +352,24 @@ func u_side_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var k := figs([h, fq], func(xs: Array) -> float: return xs[0] * xs[0] + xs[1] * xs[1], k2)
 	var th := Fmt.sf(h, k)
 	var tq := Fmt.sf(absf(fq), k)
-	var perp := [
-		"Drop a perpendicular from %s to the line %s, meeting it at F." % [Z, line(X, Y)],
-		"In the right triangle %sF%s: %sF = %s sin %s° = %s cm." % [X, Z, Z, ty, tX, th],
-		("F%s = %s = %s cm." % [Y, fq_text, tq]) if fq >= 0.0 else ("F lies beyond %s, so F%s = −(%s) = %s cm." % [Y, Y, fq_text, tq]),
+	var perp := ["Drop a perpendicular from %s to the line %s, meeting it at F." % [Z, line(X, Y)]]
+	if ax > 90.0:
+		# F lies beyond X: the right triangle XFZ has the angle 180° − X at X, and FY = FX + XY.
+		var tE := whole(180.0 - ax)
+		var tf := places(sy * cos(rad(180.0 - ax)), dp(tq))
+		perp.append_array([
+			"%s = %s° is obtuse, so F lies on the line %s extended beyond %s, and angle %s%sF = 180° − %s° = %s°." % [
+				cap(angle(X)), tX, line(X, Y), X, Z, X, tX, tE],
+			"In the right triangle %sF%s: %sF = %s sin %s° = %s cm and %sF = %s cos %s° = %s cm." % [X, Z, Z, ty, tE, th, X, ty, tE, tf],
+			"F%s = F%s + %s = %s + %s = %s cm." % [Y, X, line(X, Y), tf, tz, tq]])
+	else:
+		perp.append_array([
+			"In the right triangle %sF%s: %sF = %s sin %s° = %s cm." % [X, Z, Z, ty, tX, th],
+			("F%s = %s = %s cm." % [Y, fq_text, tq]) if fq >= 0.0 else ("F lies beyond %s, so F%s = %s cos %s° − %s = %s cm." % [Y, Y, ty, tX, tz, tq])])
+	perp.append_array([
 		"In the right triangle %sF%s: %s² = %sF² + F%s² = %s² + %s² = %s" % [Z, Y, side(X), Z, Y, th, tq, Fmt.sf(hyp2, k2)],
 		"%s = √%s = %s" % [side(X), Fmt.sf(hyp2, k2), sf(sqrt(hyp2))],
-		"So %s." % Answer.text(ans, res(sqrt(h * h + fq * fq)))]
+		"So %s." % Answer.text(ans, res(sqrt(h * h + fq * fq)))])
 	out.methods = {"cosine-rule": {"steps": cosine, "result": res(sx)},
 		"drop-perpendicular": {"steps": perp, "result": res(sqrt(h * h + fq * fq))}}
 	if cos(rad(ax)) > 0.0:
@@ -394,7 +435,11 @@ func u_angle_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	wrong(out, s.angles[Z], "SL3.2.cosine-rule-angle#0")
 	if top < 0:
 		wrong(out, 180.0 - x, "SL3.2.cosine-rule-angle#1")
-	fillers(out, [180.0 - x, deg(acos(clampf(float(sx * sx + sy * sy - sz * sz) / (2 * sx * sy), -1.0, 1.0))) + 5.0])
+	# Angle Z + 5° (angle Y where Z equals the answer, in an isosceles triangle), and the
+	# cosine with 2bc's 2 left out, where that is still a cosine.
+	var off: float = s.angles[Z] if absf(s.angles[Z] - x) >= 1.0 else s.angles[Y]
+	var no_two := float(top) / (sy * sz)
+	fillers(out, [180.0 - x, off + 5.0] + ([deg(acos(no_two))] if absf(no_two) < 1.0 else []))
 	return out
 
 
@@ -429,8 +474,11 @@ func u_side_sine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var alt := first.duplicate()
 	alt.append_array([
 		"Drop the altitude from %s to the line %s. Its height h is a side of two right triangles: h = %s sin %s and h = %s sin %s." % [
-			Z, line(X, Y), lo(X), Y, lo(Y), X],
-		"h = %s sin %s° = %s cm" % [tx, tY, th],
+			Z, line(X, Y), lo(X), Y, lo(Y), X]])
+	add(alt, outside(Y, ay))
+	alt.append("h = %s sin %s° = %s cm" % [tx, tY, th])
+	add(alt, outside(X, ax))
+	alt.append_array([
 		"%s = h / sin %s = %s / sin %s° = %s" % [lo(Y), X, th, tX, sf(q2)],
 		"So %s." % Answer.text(ans, res(q2))])
 	out.methods = {"sides-on-top": {"steps": top, "result": res(sy)}, "drop-altitude": {"steps": alt, "result": res(q2)}}
@@ -481,12 +529,13 @@ func u_angle_sine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"%s = sin⁻¹(%s) = %s°" % [Y, tr2, sf(x2)],
 		unique,
 		"So %s." % Answer.text(ans, res(x2))]
+	add_at(alt, 2, outside(X, ax))
 	out.methods = {"sines-on-top": {"steps": sines, "result": res(x)}, "drop-altitude": {"steps": alt, "result": res(x2)}}
 	var swapped := sx * sin(rad(ax)) / sy
 	if swapped < 1.0:
 		wrong(out, deg(asin(swapped)), "SL3.2.sine-rule#0")
 	wrong(out, 180.0 - x, "SL3.5.ambiguous-case#1")
-	fillers(out, [s.angles[Z], deg(asin(sy / sx)), ax * sy / sx])
+	fillers(out, [s.angles[Z], deg(asin(sy / sx)), ax * sy / sx, 90.0 - x])
 	return out
 
 
@@ -577,10 +626,10 @@ static func altitude_steps(s: Dictionary, kr: int) -> Array:
 	if sx > sy:
 		verdict = "%s > %s: %s > %s. %s meets the line %s once on each side of %s, and only the one on %s's side makes a triangle, so one triangle fits." % [
 			lo(X), lo(Y), whole(sx), whole(sy), side(X), line(X, Y), X, Y]
-	return [
-		"Drop the altitude from %s to the line %s: h = %s sin %s = %s sin %s° = %s cm." % [s.Z, line(X, Y), lo(Y), X, whole(sy), whole(ax), th],
-		verdict,
-		"sin %s = h / %s = %s / %s = %s" % [Y, lo(X), th, whole(sx), Fmt.sf(h / sx, kr)]]
+	var out := ["Drop the altitude from %s to the line %s: h = %s sin %s = %s sin %s° = %s cm." % [s.Z, line(X, Y), lo(Y), X, whole(sy), whole(ax), th]]
+	add(out, outside(X, ax))
+	out.append_array([verdict, "sin %s = h / %s = %s / %s = %s" % [Y, lo(X), th, whole(sx), Fmt.sf(h / sx, kr)]])
+	return out
 
 
 func u_both_angles(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -745,6 +794,7 @@ func u_area_from_two_sides(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"Take %s = %s cm as the base. The perpendicular height from %s is h = %s sin %s° = %s cm." % [side(Z), tz, Z, ty, tX, th],
 		"Area = ½ × base × height = ½ × %s × %s = %s" % [tz, th, sf(area2)],
 		"So %s." % Answer.text(ans, res(area2))]
+	add_at(base, 1, outside(X, ax))
 	out.methods = {"half-ab-sinc": {"steps": half, "result": res(area)}, "base-height": {"steps": base, "result": res(area2)}}
 	wrong(out, 2.0 * area, "SL3.2.area-sine#2")
 	wrong(out, 0.5 * sy * sz * sin(ax), "SL3.2.right-side#2")
@@ -783,10 +833,12 @@ func u_side_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"%d = ½ × %s × %s" % [area, side(Z), th],
 		"%s = 2 × %d / %s = %s" % [side(Z), area, th, sf(r2)],
 		"So %s." % Answer.text(ans, res(r2))]
+	add_at(base, 1, outside(X, ax))
 	out.methods = {"half-ab-sinc": {"steps": half, "result": res(sz)}, "base-height": {"steps": base, "result": res(r2)}}
 	wrong(out, sz / 2.0, "SL3.2.area-sine#2")
 	wrong(out, 2.0 * area / sy, R_NO_SINE)
-	fillers(out, [sz * sin(rad(ax)), area / sy])
+	# The height itself, as if it were the side; and both slips at once (no ½, no sine).
+	fillers(out, [h, area / sy])
 	return out
 
 
@@ -847,7 +899,8 @@ func u_angle_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrong(out, acute, "SL3.2.area-sine#1")
 	var no_half := deg(asin(ratio / 2.0))
 	wrong(out, 180.0 - no_half if obtuse else no_half, "SL3.2.area-sine#2")
-	fillers(out, [180.0 - x, deg(acos(ratio)), 90.0 - acute if not obtuse else 90.0 + acute / 2.0])
+	# cos⁻¹ of the ratio is 90° − the acute angle; the third filler differs by case.
+	fillers(out, [180.0 - x, deg(acos(ratio))] + ([180.0 - no_half] if not obtuse else [90.0 + acute / 2.0, 90.0 + acute]))
 	return out
 
 
@@ -978,14 +1031,26 @@ func u_side_cosine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var fq := Q.new(z).sub(Q.new(y).mul(c[0]))
 	var ycos := TriangleSituation.ex_mul([Q.new(y), 1], c)
 	var h2: Q = (h[0] as Q).sq().mul(int(h[1]))
-	var perp := [
-		"Drop a perpendicular from %s to the line %s, meeting it at F." % [Z, line(X, Y)],
-		"In the right triangle %sF%s: %sF = %d sin %d° = %d × %s = %s cm." % [X, Z, Z, y, d, y, sin_t(d), et(h)],
-		("F%s = %d − %d cos %d° = %d − %s = %s cm." % [Y, z, y, d, z, fac(ycos), fq.text()]) if fq.sign() >= 0 \
-			else ("F lies beyond %s, so F%s = %d cos %d° − %d = %s − %d = %s cm." % [Y, Y, y, d, z, et(ycos), z, fq.neg().text()]),
+	var perp := ["Drop a perpendicular from %s to the line %s, meeting it at F." % [Z, line(X, Y)]]
+	if d > 90:
+		# F lies beyond X: the right triangle XFZ has 180° − X at X (60° for 120°), and FY = FX + XY.
+		var e2 := 180 - d
+		var xf := TriangleSituation.ex_mul([Q.new(y), 1], TriangleSituation.cos_of(e2))
+		perp.append_array([
+			"%s = %d° is obtuse, so F lies on the line %s extended beyond %s, and angle %s%sF = 180° − %d° = %d°." % [
+				cap(angle(X)), d, line(X, Y), X, Z, X, d, e2],
+			"In the right triangle %sF%s: %sF = %d sin %d° = %d × %s = %s cm and %sF = %d cos %d° = %d × %s = %s cm." % [
+				X, Z, Z, y, e2, y, sin_t(e2), et(h), X, y, e2, y, cos_t(e2), et(xf)],
+			"F%s = F%s + %s = %s + %d = %s cm." % [Y, X, line(X, Y), et(xf), z, fq.text()]])
+	else:
+		perp.append_array([
+			"In the right triangle %sF%s: %sF = %d sin %d° = %d × %s = %s cm." % [X, Z, Z, y, d, y, sin_t(d), et(h)],
+			("F%s = %d − %d cos %d° = %d − %s = %s cm." % [Y, z, y, d, z, fac(ycos), fq.text()]) if fq.sign() >= 0 \
+				else ("F lies beyond %s, so F%s = %d cos %d° − %d = %s − %d = %s cm." % [Y, Y, y, d, z, et(ycos), z, fq.neg().text()])])
+	perp.append_array([
 		"In the right triangle %sF%s: %s² = %sF² + F%s² = %s + %s = %d" % [Z, Y, side(X), Z, Y, h2.text(), fq.sq().text(), x2],
 		"%s = √%d = %d" % [side(X), x2, x],
-		"So %s." % Answer.text(ans)]
+		"So %s." % Answer.text(ans)])
 	out.methods = {"cosine-rule": {"steps": cosine, "result": ans.values},
 		"drop-perpendicular": {"steps": perp, "result": ans.values}}
 	ex_wrong(out, [Q.new(x2), 1], "SL3.2.cosine-rule-side#1")
@@ -1068,8 +1133,11 @@ func u_side_sine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var alt := first.duplicate()
 	alt.append_array([
 		"Drop the altitude from %s to the line %s. Its height h is a side of two right triangles: h = %s sin %s and h = %s sin %s." % [
-			Z, line(X, Y), lo(X), Y, lo(Y), X],
-		"h = %d sin %d° = %d × %s = %s cm" % [x, dY, x, fac(sY), et(top_e)],
+			Z, line(X, Y), lo(X), Y, lo(Y), X]])
+	add(alt, outside(Y, dY))
+	alt.append("h = %d sin %d° = %d × %s = %s cm" % [x, dY, x, fac(sY), et(top_e)])
+	add(alt, outside(X, dX))
+	alt.append_array([
 		"%s = h / sin %s = %s ÷ %s = %s" % [lo(Y), X, et(top_e), fac(sX), et(e)],
 		"So %s." % Answer.text(ans)])
 	out.methods = {"sides-on-top": {"steps": top, "result": ans.values}, "drop-altitude": {"steps": alt, "result": ans.values}}
@@ -1107,6 +1175,7 @@ func u_area_from_two_sides_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 			side(Z), z, Z, y, d, y, fac(sX), et(h)],
 		"Area = ½ × base × height = ½ × %d × %s = %s" % [z, fac(h), et(e)],
 		"So %s." % Answer.text(ans)]
+	add_at(base, 1, outside(X, d))
 	out.methods = {"half-ab-sinc": {"steps": half, "result": ans.values}, "base-height": {"steps": base, "result": ans.values}}
 	ex_wrong(out, TriangleSituation.ex_mul(e, [Q.new(2), 1]), "SL3.2.area-sine#2")
 	var cX := TriangleSituation.cos_of(d)
@@ -1116,6 +1185,8 @@ func u_area_from_two_sides_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	if (cX[0] as Q).sign() > 0:
 		ex_wrong(out, half_cos, R_COS_AREA)
 	ex_fillers(out, ([] if (cX[0] as Q).sign() > 0 else [half_cos]) + [TriangleSituation.ex_mul([Q.new(y * z), 1], [(cX[0] as Q).abs_q(), cX[1]])])
+	# yz, with both the ½ and the sine left out, before the spares next to the answer.
+	ex_fillers(out, [[Q.new(y * z), 1]])
 	ex_fillers(out, near(e))
 	return out
 
@@ -1144,10 +1215,11 @@ func u_side_from_area_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"%d = ½ × %s × %s" % [area, side(Z), fac(h)],
 		"%s = 2 × %d ÷ %s = %d ÷ %s = %s" % [side(Z), area, fac(h), 2 * area, fac(h), et(e)],
 		"So %s." % Answer.text(ans)]
+	add_at(base, 1, outside(X, d))
 	out.methods = {"half-ab-sinc": {"steps": half, "result": ans.values}, "base-height": {"steps": base, "result": ans.values}}
 	ex_wrong(out, TriangleSituation.ex_mul(e, [Q.new(1, 2), 1]), "SL3.2.area-sine#2")
 	ex_wrong(out, [Q.new(2 * area, y), 1], R_NO_SINE)
-	ex_fillers(out, [TriangleSituation.ex_mul(e, sX), [Q.new(area, y), 1]])
+	ex_fillers(out, [h, [Q.new(area, y), 1]])
 	ex_fillers(out, near(e))
 	return out
 

@@ -136,6 +136,13 @@ static func W(v: Variant) -> String:
 	return t
 
 
+## A Paper 2 value as an option writes it, to 3 s.f., so no filler prints nine decimals.
+static func r3(v: Q, s: Dictionary) -> Q:
+	if not p2(s) or s.get("ctx", "") == "cost" or not Answer.needs_rounding(v):
+		return v
+	return Answer.parse_number(Fmt.sf(v).replace("−", "-")).q
+
+
 ## A number as an option says it: 3 s.f. on Paper 2, exact on Paper 1.
 static func say(v: Variant, s: Dictionary) -> String:
 	if s.get("ctx", "") == "cost":
@@ -202,7 +209,7 @@ static func graph_of(s: Dictionary, lo: float, hi: float, points: Array = [], hl
 func u_value_at_zero(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var y: Q = s.y_int
 	var head := call_at(s, 0)
-	var sub := "Put %s = 0 into the rule: %s = %s" % [s.v, head, say(y, s)]
+	var sub := "Put %s = 0 into the rule: %s = %s = %s" % [s.v, head, put_in(s, 0), say(y, s)]
 	if rep == "words":
 		var right := BasicFunctionSituation.start(s, say(y, s))
 		var wrongs := [tag("There is nothing yet at the start", R_NOTHING), tag(BasicFunctionSituation.said(s, say(y, s), "0"), R_SAID_SWAP)]
@@ -217,7 +224,7 @@ func u_value_at_zero(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		return out
 	var ans := value(head + " = ", y, s)
 	var out2 := {"asked": "Find %s." % head, "lines": [BasicFunctionSituation.setup(s)], "answer": ans,
-		"wrongs": [wrong({"v": Q.new(0)}, R_NOTHING)], "fillers": nums([BasicFunctionSituation.at(s.f, s.x0), y.add(1), y.neg()], y)}
+		"wrongs": [wrong({"v": Q.new(0)}, R_NOTHING)], "fillers": nums([r3(BasicFunctionSituation.at(s.f, s.x0), s), y.add(1), y.neg()], y)}
 	out2.methods = ways({"direct-substitution": [sub], "substitute-interpret": [sub, "%s = 0 is the start, so this is the start value" % s.v]}, final(ans), ans)
 	return out2
 
@@ -258,7 +265,8 @@ func u_y_intercept(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var zs: Array = s.zs.filter(func(z): return not z.eq(y)).map(func(z): return Answer.parse_number(Fmt.sf(z).replace("−", "-")).q)
 	var plain := [{"y": y.add(1)}, {"y": y.neg()}, {"y": s.f.co[2]}]
 	var wrongs: Array = [wrong({"y": zs[0]}, R_ZERO_YINT)] if not zs.is_empty() else []
-	if not s.f.co[1].eq(y):
+	# The coefficient of x is a slip only where the rule is written; a graph doesn't show it.
+	if rep != "graph" and not s.f.co[1].eq(y):
 		wrongs.append(wrong({"y": s.f.co[1]}, R_COEFF_X))
 	var out := {"asked": "Find the y-intercept of the graph of y = f(x).", "answer": ans, "fillers": plain, "wrongs": wrongs}
 	var read := "Read where the curve meets the y-axis: the height there is %s" % say(y, s)
@@ -289,7 +297,8 @@ func u_above_or_below(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		py = py.add(1)
 	var above := py.to_float() > yf
 	var head := call_at(s, x0)
-	var v := W(y0)
+	# Exact on Paper 1 (19/6, not 3.16667); the calculator's figures on Paper 2.
+	var v := W(y0) if p2(s) else Fmt.num(y0)
 	var size := "less" if above else "more"
 	var other := "more" if above else "less"
 	var right := "%s: %s = %s, which is %s than %s" % ["Above" if above else "Below", head, v, size, Fmt.dec(py)]
@@ -370,18 +379,27 @@ func u_input_from_output(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		out.wrongs.push_front(wrong(flipped, R_ZERO_SIGN))
 	else:
 		out.fillers.push_front(flipped)
-	var solve := "Solve f(x) = %s: %s = %s" % [Fmt.num(k), BasicFunctionSituation.text(s.f), Fmt.num(k)]
+	var rule := BasicFunctionSituation.text(s.f)
+	var solve := "Solve f(x) = %s: %s = %s" % [Fmt.num(k), rule, Fmt.num(k)]
 	var read := "Look for %s in the outputs and read the inputs that give it" % Fmt.num(k)
 	var vals := "They are x = %s and x = %s" % [W(zs[0]), W(zs[1])]
-	var steps := {"read-graph-table": [read, vals], "solve-for-input": [solve, "Bring the %s over to the left and solve the quadratic" % Fmt.num(k), vals]}
+	var asks := "f(x) = %s asks for every input whose output is %s" % [Fmt.num(k), Fmt.num(k)]
+	# The working solves the quadratic it shows, and a graph or a table, which show no rule,
+	# are read, not solved (FAL-1605).
+	var moved := BasicFunctionSituation.text(BasicFunctionSituation.poly([s.f.co[0].sub(k), s.f.co[1], s.f.co[2]]))
+	var how: String = ", which factorises as %s = 0" % BasicFunctionSituation.factorised(s) if s.has("a") else ", and the quadratic formula gives its two roots"
+	var steps := {"read-graph-table": ["Graph y = %s with the line y = %s, or table its values" % [rule, Fmt.num(k)], "Read the inputs where they meet: " + vals.to_lower()],
+		"solve-for-input": [solve, "Bring the %s over: %s = 0%s" % [Fmt.num(k), moved, how], vals]}
 	if rep == "table":
 		var xs: Array = range(s.p.n - 1, s.q.n + 2)
 		out.lines = ["The table gives values of f."]
 		out.table = table_of(s, xs)
+		steps = {"read-graph-table": [read, vals], "solve-for-input": [asks, read, vals]}
 	elif rep == "graph":
 		out.lines = ["The graph of y = f(x) is shown, with the line y = %s dashed." % Fmt.num(k)]
 		out.graph = graph_of(s, s.zs[0].to_float() - 2.0, s.zs[1].to_float() + 2.0, [], [[k.to_float(), ""]])
-		steps["read-graph-table"] = ["Find where the curve meets the dashed line y = %s" % Fmt.num(k), "Read down to the x-axis: " + vals.to_lower()]
+		var meet := "Find where the curve meets the dashed line y = %s" % Fmt.num(k)
+		steps = {"read-graph-table": [meet, "Read down to the x-axis: " + vals.to_lower()], "solve-for-input": [asks, meet, "Read down to the x-axis: " + vals.to_lower()]}
 	else:
 		out.lines = [BasicFunctionSituation.eqn(s)]
 	out.methods = ways(steps, final(ans), ans)
@@ -421,7 +439,17 @@ func u_expression_input(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var sub := Fmt.poly([a2, a1, a0]).replace("x", "(%s)" % inner)
 	var out := {"asked": "Write %s in the form Ax² + Bx + C." % head, "lines": [BasicFunctionSituation.eqn(s)], "answer": ans, "wrongs": wrongs,
 		"fillers": [{"A": v.A, "B": v.B.add(1), "C": v.C}, {"A": v.A, "B": v.B, "C": v.C.add(2)}, {"A": a2, "B": a1, "C": a0}]}
-	out.methods = ways({"direct-substitution": ["Replace each x with (%s): %s = %s" % [inner, head, sub], "Expand the brackets and collect like terms"]}, final(ans), ans)
+	# The expansion is shown, not only named (FAL-1605).
+	var work: Array
+	match mode:
+		0:
+			var opened := Fmt.terms([a2, a2.mul(2 * h), a2.mul(h * h), a1, a1.mul(h), a0], [2, 1, 0, 1, 0, 0])
+			work = ["Expand the brackets: %s = %s" % [head, opened], "Collect like terms"]
+		1:
+			work = ["Expand: (2x)² = 4x², so %s = %s" % [head, Fmt.poly([v.A, v.B, v.C])]]
+		_:
+			work = ["Expand: (−x)² = x², so %s = %s" % [head, Fmt.poly([v.A, v.B, v.C])]]
+	out.methods = ways({"direct-substitution": ["Replace each x with (%s): %s = %s" % [inner, head, sub]] + work}, final(ans), ans)
 	return out
 
 
@@ -434,9 +462,14 @@ func u_zeros(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			wrong(Answer.xs_of(zs.slice(0, zs.size() - 1)), R_ONE_OUT)],
 		# An option as long as the answer comes first, so a typed answer has a wrong one to match.
 		"fillers": [Answer.xs_of(zs.map(func(z): return z.add(1)))]}
+	# A graph has no factors to misread, so the signs flipped are no slip there (FAL-1605).
+	if rep == "graph":
+		out.wrongs.pop_front()
+		out.fillers.push_front(Answer.xs_of(flipped))
 	var has_form: bool = s.has("a") or s.fam == "cubic"
 	var form := "f(x) = " + BasicFunctionSituation.factorised(s) if has_form else ""
-	var vals := "The zeros are x = %s" % ", ".join(zs.map(func(z): return W(z)))
+	var names: Array = zs.map(func(z): return "x = " + W(z))
+	var vals: String = "The zeros are " + ", ".join(names.slice(0, names.size() - 1)) + " and " + names[-1]
 	var solve := "Set f(x) = 0: %s = 0" % BasicFunctionSituation.text(s.f)
 	var rd := "Read where the curve crosses the x-axis, where y = 0"
 	var fact: Array
@@ -446,10 +479,22 @@ func u_zeros(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		fact = ["These zeros are not whole numbers, so f has no factors to read: use the formula on %s = 0" % BasicFunctionSituation.text(s.f), vals]
 	if s.fam == "cubic":
 		fact = fact.slice(0, 1) + ["Each factor gives a zero: x alone gives x = 0, and each bracket x − p gives x = p", vals]
-	var steps := {"set-equal-zero": [solve, "Factorise or use the formula" if s.fam != "cubic" else "Take out x: this keeps the zero x = 0", vals],
+	var co: Array = s.f.co
+	var how: String
+	if s.fam == "cubic":
+		how = "Take out x, which keeps the zero x = 0: %s = 0" % BasicFunctionSituation.factorised(s)
+	elif has_form:
+		how = "Factorise: %s = 0" % BasicFunctionSituation.factorised(s)
+	else:
+		how = "Use the quadratic formula with a = %s, b = %s and c = %s" % [Fmt.dec(co[2]), Fmt.dec(co[1]), Fmt.dec(co[0])]
+	var steps := {"set-equal-zero": [solve, how, vals],
 		"factorised-read": fact, "gdc-zero": ["Graph y = %s on the calculator" % BasicFunctionSituation.text(s.f), "Use its zero tool at each crossing", vals], "graph-read": [rd, vals]}
 	if rep == "graph":
 		out.lines = ["The graph of y = f(x) is shown."]
+		# The graph shows no rule: every method reads the crossings (FAL-1605).
+		steps = {"set-equal-zero": ["f(x) = 0 where y = 0, so the zeros are the crossings with the x-axis", vals],
+			"factorised-read": [rd, "Each crossing x = p comes from a factor (x − p) of f(x)", vals],
+			"gdc-zero": ["The zero tool finds where y = 0; on the graph given, read those crossings", vals], "graph-read": [rd, vals]}
 		out.graph = graph_of(s, zs[0].to_float() - 2.0, zs[-1].to_float() + 2.0)
 	elif angle == "factorised-read" and has_form:
 		out.lines = [form]
@@ -464,8 +509,9 @@ func u_time_for_target(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var goal: Q = s.target
 	var unit: String = {"ball": " s", "cost": "", "pop": " h", "cool": " min"}[s.ctx]
 	var ans := value("%s = " % s.v, t, s, unit)
-	if s.ctx == "cost":
-		ans.erase("show")
+	# Written as a decimal where exact, so the output slip reads $67.50 as 67.5, not 135/2.
+	if s.ctx == "cost" or not p2(s):
+		ans.show = "dec"
 	var wrongs: Array = [wrong({"v": goal}, R_OUTPUT)]
 	if s.ctx == "ball":
 		wrongs.push_front(wrong({"v": s.tneg}, R_NEGATIVE))
@@ -482,10 +528,33 @@ func u_time_for_target(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = [BasicFunctionSituation.setup(s)]
 	var solve := "Set the rule equal to the target: %s = %s" % [BasicFunctionSituation.text(s.f, s.v), Fmt.dec(goal)]
 	var val := "This gives %s = %s" % [s.v, W(t)]
+	var alg := _solve_model(s, t, goal)
 	var reject: String = "The other root, %s = %s, is before the throw, so reject it" % [s.v, W(s.tneg)] if s.ctx == "ball" else "%s has to be 0 or more, and %s is" % [s.v, W(t)]
-	out.methods = ways({"gdc-table-trace": ["Table the rule on the calculator", "Find the entry that reaches %s" % Fmt.dec(goal), val], "solve-model": [solve, val, reject], "solve-for-input": [solve, val, reject],
-		"context-domain": ["The context needs %s ≥ 0" % s.v, solve, reject, val], "gdc-zero": ["Graph y = %s − %s" % [BasicFunctionSituation.text(s.f, s.v), Fmt.dec(goal)], "Use the zero tool for the zero with %s ≥ 0" % s.v, val]}, final(ans), ans)
+	out.methods = ways({"gdc-table-trace": ["Table the rule on the calculator", "Find the entry that reaches %s" % Fmt.dec(goal), val], "solve-model": [solve, alg, reject], "solve-for-input": [solve, alg, reject],
+		"context-domain": ["The context needs %s ≥ 0" % s.v, solve, alg, reject], "gdc-zero": ["Graph y = %s − %s" % [BasicFunctionSituation.text(s.f, s.v), Fmt.dec(goal)], "Use the zero tool for the zero with %s ≥ 0" % s.v, val]}, final(ans), ans)
 	return out
+
+
+## The model's equation solved on the page, ending ", so t = …" (FAL-1605).
+static func _solve_model(s: Dictionary, t: Q, goal: Q) -> String:
+	var f: Dictionary = s.f
+	match s.ctx:
+		"cost":
+			var rest: Q = goal.sub(f.co[0])
+			return "Take off the fee: %sn = %s, so n = %s ÷ %s = %s" % [Fmt.dec(f.co[1]), Fmt.dec(rest), Fmt.dec(rest), Fmt.dec(f.co[1]), W(t)]
+		"pop":
+			if not p2(s):
+				return "Divide by %s: %s^t = %s = %s%s, so t = %s" % [Fmt.num(f.A), Fmt.num(f.b), Fmt.num(goal.div(f.A)), Fmt.num(f.b), Fmt.sup(t.n), Fmt.num(t)]
+			return "Divide by %s: (%s)^t = %s/%s, so t = ln(%s/%s)/ln(%s) = %s" % [Fmt.num(f.A), Fmt.dec(f.b), Fmt.num(goal), Fmt.num(f.A), Fmt.num(goal), Fmt.num(f.A), Fmt.dec(f.b), W(t)]
+		"cool":
+			var lift: Q = goal.sub(f.c)
+			if not p2(s):
+				return "Take off %s and divide by %s: (%s)^t = %s = (%s)%s, so t = %s" % [Fmt.num(f.c), Fmt.num(f.A), Fmt.dec(f.b), Fmt.num(lift.div(f.A)), Fmt.dec(f.b), Fmt.sup(t.n), Fmt.num(t)]
+			return "Take off %s and divide by %s: e^(%st) = %s/%s, so t = ln(%s/%s)/(%s) = %s" % [Fmt.num(f.c), Fmt.num(f.A), Fmt.dec(f.k), Fmt.num(lift), Fmt.num(f.A), Fmt.num(lift), Fmt.num(f.A), Fmt.dec(f.k), W(t)]
+	var moved := BasicFunctionSituation.text(BasicFunctionSituation.poly([f.co[0].sub(goal), f.co[1], f.co[2]]), "t")
+	if not p2(s):
+		return "Rearrange and factorise: %s = 0, so t = %s or t = %s" % [Fmt.factorised(Q.new(-5), t, s.tneg).replace("x", "t"), Fmt.num(t), Fmt.num(s.tneg)]
+	return "Rearrange: %s = 0, so t = %s or t = %s, by the quadratic formula" % [moved, W(t), W(s.tneg)]
 
 
 func u_model_domain(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -546,7 +615,8 @@ func u_inside_or_outside_shift(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 			wrong({"v0": inner, "v1": s.y0}, R_STOP)])})
 	var solo := "f(%d + 1) = f(%d) = %s: the 1 is added to the input, before f" % [a, a + 1, Fmt.num(inner)]
 	var twin := "f(%d) + 1 = %s + 1 = %s: the 1 is added to the output, after f" % [a, Fmt.num(s.y0), Fmt.num(outer)]
-	out.methods = ways({"direct-substitution": [solo, twin], "read-graph-table": ["Read f(%d) = %s and f(%d) = %s" % [a, Fmt.num(s.y0), a + 1, Fmt.num(inner)], solo, twin]}, final(ans), ans)
+	var look := "Make a table of values: " if rep == "equation" else "Read "
+	out.methods = ways({"direct-substitution": [solo, twin], "read-graph-table": [look + "f(%d) = %s and f(%d) = %s" % [a, Fmt.num(s.y0), a + 1, Fmt.num(inner)], solo, twin]}, final(ans), ans)
 	return out
 
 
@@ -561,14 +631,16 @@ func u_inside_or_outside_scale(rep: String, s: Dictionary, rng: Seeded) -> Dicti
 		"wrongs": rng.shuffled([wrong({"v0": outer, "v1": outer}, R_TIMES), wrong({"v0": outer, "v1": inner}, R_SWAP), wrong({"v0": inner, "v1": inner}, R_TIMES_BACK),
 			wrong({"v0": inner, "v1": s.y0}, R_STOP)])})
 	var solo := "f(2 × %d) = f(%d) = %s: the input is doubled" % [a, 2 * a, Fmt.num(inner)]
-	var twin := "2f(%d) = 2 × %s = %s: the output is doubled" % [a, Fmt.num(s.y0), Fmt.num(outer)]
-	out.methods = ways({"direct-substitution": [solo, twin], "read-graph-table": ["Read f(%d) = %s and f(%d) = %s" % [a, Fmt.num(s.y0), 2 * a, Fmt.num(inner)], solo, twin]}, final(ans), ans)
+	# A negative output is bracketed: 2 × (−9), not 2 × −9 (FAL-1605).
+	var twin := "2f(%d) = 2 × %s = %s: the output is doubled" % [a, Fmt.paren(s.y0), Fmt.num(outer)]
+	var look := "Make a table of values: " if rep == "equation" else "Read "
+	out.methods = ways({"direct-substitution": [solo, twin], "read-graph-table": [look + "f(%d) = %s and f(%d) = %s" % [a, Fmt.num(s.y0), 2 * a, Fmt.num(inner)], solo, twin]}, final(ans), ans)
 	out.spot = {"lines": ["f(%d) = %s" % [a, Fmt.num(s.y0)], "f(2 × %d) = 2 × f(%d)" % [a, a], "= 2 × %s" % Fmt.paren(s.y0), "= %s" % Fmt.num(outer)],
 		"bad": 1, "ref": R_TIMES, "why": "f( ) is not a multiplication: the 2 is inside, on the input, so this is f(%d) = %s" % [2 * a, Fmt.num(inner)]}
 	return out
 
 
-func u_inverse_or_reciprocal(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_inverse_or_reciprocal(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var a: int = s.a.n
 	var k: Q = s.inv
 	var rec := Q.new(1).div(s.y0)
@@ -576,12 +648,18 @@ func u_inverse_or_reciprocal(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var xs: Array = range(mini(k.n, a) - 1, maxi(k.n, a) + 2)
 	var out := concept_lines(rep, s, xs)
 	out.merge({"asked": "Find f⁻¹(%d) and 1/f(%d)." % [a, a], "answer": ans,
-		"wrongs": [wrong({"v0": rec, "v1": rec}, R_RECIPROCAL), wrong({"v0": s.y0, "v1": rec}, R_INV_OUTPUT), wrong({"v0": k, "v1": s.y0}, R_STOP),
-			wrong({"v0": rec, "v1": k}, R_SWAP)]})
+		# Four slips for three places: shuffled, so each one is shown (FAL-1605).
+		"wrongs": rng.shuffled([wrong({"v0": rec, "v1": rec}, R_RECIPROCAL), wrong({"v0": s.y0, "v1": rec}, R_INV_OUTPUT), wrong({"v0": k, "v1": s.y0}, R_STOP),
+			wrong({"v0": rec, "v1": k}, R_SWAP)])})
 	var over := "1/%s" % Fmt.paren(s.y0)
 	var rcp := "1/f(%d) = %s%s: one over the output" % [a, over, "" if over == Fmt.num(rec) else " = " + Fmt.num(rec)]
-	var hit := "f(%s) = %d, so f⁻¹(%d) = %s" % [Fmt.num(k), a, a, Fmt.num(k)]
-	var sv := "Solve f(x) = %d: %s = %d gives x = %s" % [a, BasicFunctionSituation.text(s.f), a, Fmt.num(k)]
+	# The table shows no rule, so it is read; the equation is solved on the page (FAL-1605).
+	var hit := "The table has f(%s) = %d, so f⁻¹(%d) = %s" % [Fmt.num(k), a, a, Fmt.num(k)]
+	var sv := "Solve f(x) = %d: find %d in the f(x) row; it is under x = %s" % [a, a, Fmt.num(k)]
+	if rep != "table":
+		hit = "f(%s) = %s = %d, so f⁻¹(%d) = %s" % [Fmt.num(k), put_in(s, k), a, a, Fmt.num(k)]
+		sv = "Solve f(x) = %d: %s = %d, so %s = %s and x = %s" % [a, BasicFunctionSituation.text(s.f), a, Fmt.terms([s.f.co[1]], [1]),
+			Fmt.num(Q.new(a).sub(s.f.co[0])), Fmt.num(k)]
 	out.methods = ways({"read-graph-table": ["f⁻¹(%d) asks which input gives the output %d" % [a, a], hit, rcp], "solve-f-equals": [sv, rcp],
 		"swap-coordinates": ["(%s, %d) is on f, so (%d, %s) is on f⁻¹" % [Fmt.num(k), a, a, Fmt.num(k)], hit, rcp]}, final(ans), ans)
 	return out
@@ -590,8 +668,12 @@ func u_inverse_or_reciprocal(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 func u_match_expressions(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var a: int = s.a.n
 	var y: Q = s.y0
-	var all := [["f(%d)" % (a + 1), BasicFunctionSituation.at(s.f, a + 1)], ["f(%d) + 1" % a, y.add(1)], ["2f(%d)" % a, y.mul(2)], ["f(%d)" % (2 * a), BasicFunctionSituation.at(s.f, 2 * a)],
-		["f⁻¹(%d)" % a, s.inv], ["1/f(%d)" % a, Q.new(1).div(y)]]
+	var all: Array = []
+	# a = 1 makes f(a + 1) and f(2a) one expression, f(2): it is offered once (FAL-1605).
+	for e in [["f(%d)" % (a + 1), BasicFunctionSituation.at(s.f, a + 1)], ["f(%d) + 1" % a, y.add(1)], ["2f(%d)" % a, y.mul(2)], ["f(%d)" % (2 * a), BasicFunctionSituation.at(s.f, 2 * a)],
+			["f⁻¹(%d)" % a, s.inv], ["1/f(%d)" % a, Q.new(1).div(y)]]:
+		if not all.any(func(x): return x[0] == e[0]):
+			all.append(e)
 	var pick: Array = rng.pick(all)
 	var val: Q = pick[1]
 	var others: Array = rng.shuffled(all.filter(func(e): return not e[1].eq(val))).map(func(e): return e[0])
@@ -618,10 +700,16 @@ func u_match_expressions(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	# The other expressions: each is a value of f nobody slipped to (FAL-820).
 	out.fillers = out.generic
 	out.erase("generic")
-	var vals := "f(%d) = %s, f(%d) = %s, f(%d) = %s" % [a, Fmt.num(y), a + 1, Fmt.num(BasicFunctionSituation.at(s.f, a + 1)), 2 * a, Fmt.num(BasicFunctionSituation.at(s.f, 2 * a))]
+	var ins: Array = []
+	for x in [a, a + 1, 2 * a]:
+		if not ins.has(x):
+			ins.append(x)
+	var vals := ", ".join(ins.map(func(x): return "f(%d) = %s" % [x, Fmt.num(BasicFunctionSituation.at(s.f, x))]))
 	var inv := "f(%s) = %d, so f⁻¹(%d) = %s" % [Fmt.num(s.inv), a, a, Fmt.num(s.inv)]
-	out.methods = ways({"direct-substitution": ["Work out the values: " + vals, "Then 2f(%d) = %s and f(%d) + 1 = %s" % [a, Fmt.num(y.mul(2)), a, Fmt.num(y.add(1))], inv],
-		"swap-coordinates": [inv + ": swap the coordinates of a point on f", "The values of f itself: " + vals]}, "The value %s is %s. So %s." % [Fmt.num(val), pick[0], pick[0]], out.answer)
+	# Every method works out each expression, 1/f(a) too, so the one asked is found (FAL-1605).
+	var more := "Then 2f(%d) = %s, f(%d) + 1 = %s and 1/f(%d) = %s" % [a, Fmt.num(y.mul(2)), a, Fmt.num(y.add(1)), a, Fmt.num(Q.new(1).div(y))]
+	out.methods = ways({"direct-substitution": ["Work out the values: " + vals, more, inv],
+		"swap-coordinates": [inv + ": swap the coordinates of a point on f", "The values of f itself: " + vals, more]}, "The value %s is %s. So %s." % [Fmt.num(val), pick[0], pick[0]], out.answer)
 	return out
 
 
@@ -629,14 +717,15 @@ func u_when_equal(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var c: Q = s.y_int
 	var h: int = rng.int_in(2, 4)
 	var d: int = ExtensionViews.nonzero(rng, -5, 7)
-	if d == h:
-		d = h + 1
+	# d = ±h or d² = h would make h/d the key or d itself, so the slips would collapse (FAL-1605).
+	while d == h or d == -h or d * d == h or d == 0:
+		d += 1
 	var m := Q.new(d, h)
 	var ans := Answer.make("number", {"v": m}, {}, "m = ")
 	ans.exact = true
-	var out := {"asked": "For which value of m is f(x + %d) = f(x) %s for every x?" % [h, ("+ %d" % d) if d > 0 else ("− %d" % -d)],
+	var out := {"asked": "Find the value of m for which f(x + %d) = f(x) %s for every x." % [h, ("+ %d" % d) if d > 0 else ("− %d" % -d)],
 		"lines": ["f(x) = mx%s" % Fmt.plus(c)], "answer": ans, "wrongs": [wrong({"v": Q.new(h, d)}, R_M_FLIPPED), wrong({"v": Q.new(d)}, R_M_UNDIVIDED)],
 		"fillers": nums([Q.new(d - h), Q.new(1)]), "given": {"h": h, "d": d}}
 	out.methods = ways({"direct-substitution": ["Write out the left side: f(x + %d) = m(x + %d)%s = mx + %dm%s" % [h, h, Fmt.plus(c), h, Fmt.plus(c)],
-		"The right side is mx%s%s" % [Fmt.plus(c), Fmt.plus(d)], "The mx and the constant %s cancel, which leaves %dm = %s" % [Fmt.num(c), h, Fmt.num(d)]]}, final(ans), ans)
+		"The right side is mx%s%s" % [Fmt.plus(c), Fmt.plus(d)], "The mx and the constant %s cancel, which leaves %dm = %s" % [Fmt.num(c), h, Fmt.num(d)], "Divide both sides by %d: m = %s" % [h, Fmt.num(m)]]}, final(ans), ans)
 	return out

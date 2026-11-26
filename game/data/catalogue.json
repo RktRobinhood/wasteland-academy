@@ -10248,7 +10248,7 @@
 					"wrong": "f(a) given for f(−a)"
 				},
 				{
-					"text": "Giving the constant term, the value at the start, instead of the value at the input",
+					"text": "Giving the value at the start instead of the value at the input",
 					"as": "distractor",
 					"in": [
 						"value-at-input"
@@ -23735,8 +23735,8 @@
 						],
 						"why": "when the translation comes before a horizontal stretch, the shift inside the bracket is divided by b, so the form must be rebuilt"
 					},
-					"name": "Read a·f(b(x + c)) + d as stretches then one translation",
-					"about": "Stretch by 1/b horizontally and by a vertically, then translate by the vector (−c, d)."
+					"name": "Read a·f(b(x − c)) + d as stretches then one translation",
+					"about": "Stretch by 1/b horizontally and by a vertically, then translate by the vector (c, d)."
 				},
 				{
 					"skill": "SL2.11.composite-transform",
@@ -23762,8 +23762,8 @@
 						],
 						"why": "the rule has to be run backwards: x₀ = b(x − c) and y₀ = (y − d)/a"
 					},
-					"name": "Use (x, y) ↦ (x/b − c, ay + d)",
-					"about": "For y = a·f(b(x + c)) + d, apply the rule to the coordinates in one step."
+					"name": "Use (x, y) ↦ (x/b + c, ay + d)",
+					"about": "For y = a·f(b(x − c)) + d, apply the rule to the coordinates in one step."
 				},
 				{
 					"skill": "SL2.11.image-point",
@@ -25973,7 +25973,7 @@
 						"first-past",
 						"whole-n-test"
 					],
-					"name": "Solve u_1 + (n − 1)d = value (or > value)",
+					"name": "Form u₁ + (n − 1)d and solve for n",
 					"about": "Solve the linear equation or inequality for n; n must be a positive integer, so round up for 'first term greater than'."
 				},
 				{
@@ -26610,7 +26610,7 @@
 					"suits": [
 						"n-from-term"
 					],
-					"name": "Solve u_1 + (n − 1)d = value (or > value)",
+					"name": "Form u₁ + (n − 1)d and solve for n",
 					"about": "Solve the linear equation or inequality for n; n must be a positive integer, so round up for 'first term greater than'."
 				},
 				{
@@ -37647,7 +37647,7 @@
 				{
 					"kind": "always-sometimes-never",
 					"prompt": "If the side opposite a given angle is the shorter of two given sides, two triangles fit.",
-					"answer": "Sometimes: it also has to be longer than the altitude from the vertex between the two sides. If it is shorter than the altitude it never reaches the base line, and no triangle fits.",
+					"answer": "Sometimes: the given angle must be acute and the side must be longer than the altitude from the vertex between the two sides. Equal to the altitude, it makes one right-angled triangle; shorter, it never reaches the base line and no triangle fits.",
 					"level": 3
 				},
 				{
@@ -38977,7 +38977,7 @@
 				{
 					"kind": "always-sometimes-never",
 					"prompt": "Two sides and an angle opposite one of them fix exactly one triangle.",
-					"answer": "Sometimes: if the side opposite the given angle is the longer one, only one triangle fits; if it is the shorter one but longer than the altitude, the angle from sin⁻¹ and 180° minus it can both work.",
+					"answer": "Sometimes: if the side opposite the given angle is the longer one, only one triangle fits; if it is the shorter one but longer than the altitude and the given angle is acute, the angle from sin⁻¹ and 180° minus it can both work.",
 					"level": 4
 				}
 			],
@@ -64035,7 +64035,7 @@
 				},
 				{
 					"ref": "SL5.8.classify-stationary-points#0",
-					"text": "Reversing the second-derivative test: a positive f″ means a minimum",
+					"text": "Reversing the second-derivative test: taking a positive f″ to mean a maximum",
 					"as": "distractor",
 					"in": [
 						"nature"
@@ -79994,8 +79994,8 @@
 						],
 						"why": "the form puts stretches first, so the other order has to be converted"
 					},
-					"name": "Read a·f(b(x + c)) + d as stretches then one translation",
-					"about": "Stretch by 1/b horizontally and by a vertically, then translate by the vector (−c, d)."
+					"name": "Read a·f(b(x − c)) + d as stretches then one translation",
+					"about": "Stretch by 1/b horizontally and by a vertically, then translate by the vector (c, d)."
 				},
 				{
 					"skill": "SL2.11.image-point",
@@ -81211,8 +81211,8 @@
 						"image-from-equation",
 						"vector-from-images"
 					],
-					"name": "Use (x, y) ↦ (x/b − c, ay + d)",
-					"about": "For y = a·f(b(x + c)) + d, apply the rule to the coordinates in one step."
+					"name": "Use (x, y) ↦ (x/b + c, ay + d)",
+					"about": "For y = a·f(b(x − c)) + d, apply the rule to the coordinates in one step."
 				},
 				{
 					"skill": "SL2.11.image-point",
@@ -88019,7 +88019,7 @@
 						"write-sigma",
 						"upper-from-total"
 					],
-					"name": "Write out terms, identify u_1, d and n, then use S_n",
+					"name": "Write out the terms, then find u₁, d and n",
 					"about": "Substitute the lower and upper limits to get the first and last terms, count terms as upper − lower + 1, then apply the sum formula."
 				},
 				{

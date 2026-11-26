@@ -71,7 +71,12 @@ WORD_SLOTS = ("var", "rel", "kind", "k1", "k2")
 METHOD_PICK_TITLES = {("fn-ext-intersection-lines", "do-they-meet", "words", "coefficient-shortcut"): "Compare the gradients and intercepts",
                       # A decreasing question calls its function g (FAL-815).
                       ("t5-ext-always-increasing", "decreasing-quadratic", "equation", "complete-square"): "Complete the square on g′(x)",
-                      ("t5-ext-always-increasing", "decreasing-quadratic", "equation", "discriminant-negative"): "Discriminant of g′ is negative"}
+                      ("t5-ext-always-increasing", "decreasing-quadratic", "equation", "discriminant-negative"): "Discriminant of g′ is negative",
+                      # Two points in words, or a table, have no graph to count on (FAL-1605).
+                      ("fn-concept-gradient-meaning", "gradient-as-rate", "table", "rise-over-run"): "Rise over run",
+                      ("fn-concept-gradient-meaning", "gradient-as-rate", "words", "rise-over-run"): "Rise over run",
+                      ("fn-concept-gradient-meaning", "gradient-as-rate", "words", "table-differences"): "Split the change into equal steps",
+                      ("fn-concept-gradient-meaning", "perpendicular-why", "words", "rise-over-run"): "Rise over run"}
 
 
 class Fail(Exception):
@@ -2019,7 +2024,8 @@ def e10ar_seq(q, u):
         n = int((ma or mi).group(1))
         need(E10AR_N_SUM[0] <= n <= E10AR_N_SUM[1], f"n = {n}")
         if ma:
-            return say(T(n + 1)), {E10AR_MO + "1": {say(T(n))}, E10AR_TOTAL: {say(S(n))}}
+            # FAL-1605: after n full steps is term n + 1, and u₁ + (n + 1)d there is one step too many.
+            return say(T(n + 1)), {E10AR_MO + "1": {say(T(n))}, E10AR_NTH0: {say(T(n + 2))}, E10AR_TOTAL: {say(S(n))}}
         return say(T(n)), {E10AR_NTH0: {say(T(n + 1))}, E10AR_TOTAL: {say(S(n))}}
     if u == "term-number":
         v = e10ar_find(q, c, c["find"])
@@ -2104,13 +2110,15 @@ def e10ar_claims_whole(q):
     near = int(sp.floor(real + sp.Rational(1, 2)))
     if term:
         need(not multiple, "a term that is a multiple of d")
-        return [(f"Yes: n = {rd}, a whole number.", True, None), (f"Yes: n = {e10ar_d(real - 1)}, a whole number.", False, E10AR_FN + "2"),
+        # FAL-1605: every wrong claim gives the other verdict; n − 1 for n gave the key's.
+        return [(f"Yes: n = {rd}, a whole number.", True, None),
                 (f"No: {vt} is not a multiple of {e10ar_d(step)}, so it can't be a term.", False, E10AR_FN + "4"),
-                (f"No: {vt} is too far from the first term to be a term.", False, None)]
+                (f"No: {vt} is too far from the first term to be a term.", False, None),
+                (f"No: the terms step over {vt}, so none of them is exactly {vt}.", False, None)]
     need(multiple and abs(real - round(real)) >= E10AR_EDGE, f"the value {vt} is not a clean no")
     return [(f"No: n = {rd}, which is not a whole number.", True, None), (f"Yes: n = {rd}, which rounds to {near}.", False, E10AR_FN + "3"),
             (f"Yes: {vt} is a multiple of {e10ar_d(step)}, so it must be a term.", False, E10AR_FN + "4"),
-            (f"No: n = {e10ar_d(real - 1)}, which is not a whole number.", False, E10AR_FN + "2")]
+            (f"Yes: the terms change steadily, so one of them is exactly {vt}.", False, None)]
 
 
 def e10ar_after(q):
@@ -2363,6 +2371,8 @@ def e10ar_stack(q):
     need(m is not None, f"asked {q['asked']!r}")
     n = int(m.group(1))
     need(4 <= n <= 12, f"n = {n}")
+    # FAL-1605: a table shows t₁ to t₄, so it never asks for one of them.
+    need(q["view"]["rep"] != "table" or n > 4, f"the table shows t{n} already")
     S = lambda k: e10ar_sum(u1, d, k)
     return say(S(n)), {E10AR_TOTAL: {say(e10ar_term(u1, d, n))}, E10AR_MO + "13": {say(S(1) + (n - 1) * (S(2) - S(1)))}, E10AR_SUM1: {say(S(n - 1))},
                        E10AR_SUM0: {say(sp.Rational(n, 2) * (2 * u1 + n * d))}, E10AR_TIMES_N: {say(n * u1)}}
@@ -15351,7 +15361,8 @@ def check_one_to_one(q):
         whole = sp.integrate(sp.sqrt(X / a) - a * X**2, (X, 0, m))
         need(whole == 2 * half, "the region is not twice the half")
         if len(L) > 2 and "area between the graph of f" in L[2]:
-            need(n(half) in L[2], "the given half is wrong")
+            # Paper 2 gives the half to 4 s.f., so doubling it reaches the 3 s.f. key (FAL-1605).
+            need((sig3(half, 4) if paper == 2 else n(half)) in L[2], "the given half is wrong")
         want = f"Area = {n(whole)}"
         trap = bf_trap_num(paper, "Area = ", whole)
         wr[BO_C + "7"] = {f"Area = {n(half)}"}  # not doubled
@@ -15912,8 +15923,9 @@ def lc_concept(q, u):
             p, r, qx, qy = (lc_q(v) for v in f.groups())
             need((qx, qy) == (-r, p), "Q is not P turned a quarter-turn")
         else:
-            f = re.fullmatch(rf"A step along L₁ is ({LC_NUM}) across and ({LC_NUM}) up\. L₂ goes through the same point\.", L[0])
-            p, r = (lc_q(v) for v in f.groups())
+            f = re.fullmatch(rf"A step along L₁ is ({LC_NUM}) across and (\d+) (up|down)\. L₂ goes through the same point\.", L[0])
+            need(f is not None, f"can't read the step: {L[0]!r}")
+            p, r = lc_q(f.group(1)), lc_q(f.group(2)) * (-1 if f.group(3) == "down" else 1)
         m1, m2 = r / p, p / -r
         need(m1 * m2 == -1, "not perpendicular")
         return (f"A quarter-turn sends the step ({frac_text(p)}, {frac_text(r)}) to ({frac_text(-r)}, {frac_text(p)}), so the gradients are {frac_text(m1)} and {frac_text(m2)}, and their product is −1",
@@ -17519,7 +17531,9 @@ def tc_reflect_translate(q, g, moves, M):
         "SL2.11.reflect#1": lambda v: tc_same(v[0], tc_curve(g, other)) and v[1] == tc_moved(fd, 1 / other[1], other[2]),
         "SL2.11.translate#0": lambda v: tc_same(v[0], tc_curve(g, sign)) and v[1] == tc_moved(fd, 1 / sign[1], sign[2]),
         "SL2.2.domain#0": lambda v: tc_same(v[0], truth) and v[1] == openset,
-        "SL2.2.domain#1": lambda v: tc_same(v[0], truth) and v[1] == fd})
+        # SL2.2.domain#1 names √x; a log's copied domain is fn-transform-apply#19 (FAL-1605).
+        "SL2.2.domain#1": lambda v: g["fam"] == "root" and tc_same(v[0], truth) and v[1] == fd,
+        TC_TA + "19": lambda v: g["fam"] != "root" and tc_same(v[0], truth) and v[1] == fd})
 
 
 def tc_point(q, g, M, rep, u):
@@ -17629,7 +17643,7 @@ def tc_inside(q, g, moves, M):
             mt = re.fullmatch(rf"(up|down) ({TC_NUM})", h)
             return ("y", tc_num(mt[2]) * (1 if mt[1] == "up" else -1))
         tc_opts(q, rd, lambda v: v == ("x", c), {"SL2.11.describe#0": lambda v: v == ("x", -c),
-                                                 TC_TO + "5": lambda v: c > 0 and v == ("y", -c)})
+                                                 TC_TO + "5": lambda v: v == ("y", -c)})
     else:
         k = m["a"]
         tc_opts(q, lambda t: tc_moves(t.split(":")[0])[0]["k"] + str(tc_moves(t.split(":")[0])[0]["a"]), lambda v: v == "hs" + str(k),
@@ -17674,11 +17688,30 @@ def tc_vs_outside(q, g, moves, M):
         mt = re.fullmatch(r"(.+?) ((?:moves|stretches) .+); (.+?) ((?:moves|stretches) .+)", t)
         if mt is None:
             return None
-        return mt[2], mt[4], tc_same(tm_expr(mt[1]), ins), tc_same(tm_expr(mt[3]), outs)
-    says = lambda axis: (f"along the {axis}-axis" if m["k"] == "tr" else f"parallel to the {axis}-axis")
-    tc_opts(q, rd2, lambda v: isinstance(v, tuple) and v[2] and v[3] and says("x") in v[0] and says("y") in v[1], {
-        TC_TO + "6": lambda v: isinstance(v, tuple) and v[2] and v[3] and says("y") in v[0] and says("x") in v[1],
+        return tc_io_part(mt[2]), tc_io_part(mt[4]), tc_same(tm_expr(mt[1]), ins), tc_same(tm_expr(mt[3]), outs)
+    # Each change as (axis, signed shift or scale factor): inside acts on x the opposite way,
+    # outside on y as it reads; the sign slip reads the inside change as written.
+    if m["k"] == "tr":
+        IN, OUT, SIGN, slip = ("x", -c), ("y", c), ("x", c), "SL2.11.describe#0"
+    else:
+        IN, OUT, SIGN, slip = ("x", 1 / b), ("y", b), ("x", b), "SL2.11.stretch#0"
+    says = lambda v, a, o: isinstance(v, tuple) and v[2] and v[3] and v[0] == a and v[1] == o
+    tc_opts(q, rd2, lambda v: says(v, IN, OUT), {
+        TC_TO + "6": lambda v: says(v, OUT, IN),
+        slip: lambda v: says(v, SIGN, OUT),
         TC_TO + "7": lambda v: v == "same"})
+
+
+def tc_io_part(t):
+    """"moves it along the x-axis, 3 to the left" -> ("x", −3); "stretches it parallel to the
+    y-axis, scale factor 1/2" -> ("y", 1/2)."""
+    mt = re.fullmatch(rf"(?:moves it along|stretches it parallel to) the ([xy])-axis, (?:({TC_NUM}) to the (left|right)|(up|down) ({TC_NUM})|scale factor ({TC_NUM}))", t)
+    need(mt is not None, f"can't read {t!r}")
+    if mt[2]:
+        return (mt[1], tc_num(mt[2]) * (1 if mt[3] == "right" else -1))
+    if mt[4]:
+        return (mt[1], tc_num(mt[5]) * (1 if mt[4] == "up" else -1))
+    return (mt[1], tc_num(mt[6]))
 
 
 def tc_bracket(q, g, moves, M):
@@ -17715,10 +17748,11 @@ def tc_models(q):
     g, rep, L = q["given"], q["view"]["rep"], q["lines"]
     a1, d1, a2, d2, w = (R(g[k]) for k in ("a1", "d1", "a2", "d2", "w"))
     if rep == "equation":
-        nums = [tc_num(v) for v in re.fullmatch(rf"p\(t\) = ({TC_NUM}) sin\(({TC_NUM})t\) ([+−]) ({TC_NUM})", L[0]).group(1, 2, 4)]
-        need(nums == [a1, w, abs(d1)], "p is not the situation's")
-        nums = [tc_num(v) for v in re.fullmatch(rf"q\(t\) = ({TC_NUM}) sin\(({TC_NUM})t\) ([+−]) ({TC_NUM})", L[1]).group(1, 2, 4)]
-        need(nums == [a2, w, abs(d2)], "q is not the situation's")
+        # An amplitude of 1 is written sin(wt), with no 1 in front.
+        wave = lambda name, line: [sp.Integer(1) if v is None else tc_num(v) for v in re.fullmatch(rf"{name}\(t\) = (?:({TC_NUM}) )?sin\(({TC_NUM})t\) ([+−]) ({TC_NUM})", line).group(1, 2, 4)]
+        need(not re.search(r"= 1 sin", L[0] + L[1]), "an amplitude of 1 written as 1 sin")
+        need(wave("p", L[0]) == [a1, w, abs(d1)], "p is not the situation's")
+        need(wave("q", L[1]) == [a2, w, abs(d2)], "q is not the situation's")
     else:
         need(tc_num(re.search(rf"amplitude ({TC_NUM})", L[0])[1]) == a1 and tc_num(re.search(rf"amplitude ({TC_NUM})", L[1])[1]) == a2, "the amplitudes")
         need(tc_num(re.search(rf"y = ({TC_NUM})", L[0])[1]) == d1 and tc_num(re.search(rf"y = ({TC_NUM})", L[1])[1]) == d2, "the centre lines")
@@ -47410,7 +47444,7 @@ E16SA_OWN = "t1-ext-sigma-arithmetic#"
 E16SA_UNKNOWNS = ("count-terms", "evaluate-sigma", "evaluate-shifted", "write-sigma", "upper-from-total")
 E16SA_R = sp.Symbol("r")
 E16SA_LINE = re.compile(r"Σ \(r = (\d+) to (\d+|k)\) \(([^()]*)\)(?: = (−?\d+))?")
-E16SA_SERIES = re.compile(r"(−?\d+) ([+−]) (\d+) ([+−]) (\d+) \+ … ([+−]) (\d+)")
+E16SA_SERIES = re.compile(r"(−?\d+) ([+−]) (\d+) ([+−]) (\d+) ([+−]) … ([+−]) (\d+)")
 E16SA_UN_MAX = 400
 E16SA_SN_MAX = 4000
 
@@ -47447,9 +47481,11 @@ def E16SA_check(q):
         m = E16SA_SERIES.fullmatch(L[0])
         need(m is not None, f"can't read the series {L[0]!r}")
         sg = lambda s_, v: E16B_q(v) * (-1 if s_ == "−" else 1)
-        t1, t2, t3, last = E16B_q(m.group(1)), sg(m.group(2), m.group(3)), sg(m.group(4), m.group(5)), sg(m.group(6), m.group(7))
+        t1, t2, t3, last = E16B_q(m.group(1)), sg(m.group(2), m.group(3)), sg(m.group(4), m.group(5)), sg(m.group(7), m.group(8))
         d = t2 - t1
         need(d != 0 and t3 - t2 == d, "the series shown is not arithmetic")
+        # FAL-1605: the ellipsis carries the sign of the terms it stands for (the fourth's).
+        need((m.group(6) == "−") == (t3 + d < 0), f"the ellipsis sign {m.group(6)} is not the fourth term's, {t3 + d}")
         n = (last - t1) / d + 1
         need(n.q == 1 and 8 <= n <= 40, f"{last} is not a term from the 8th to the 40th")
         p, c = d, t1 - d
