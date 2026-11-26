@@ -155,7 +155,9 @@ static func text(r: Dictionary, v: String = "x") -> String:
 		"root":
 			return "%s√(%s)%s" % [GdcKit.lead(r.A), Fmt.terms([r.m, r.n], [1, 0], v, true), GdcKit.join(r.k, "")]
 		"rat":
-			return "(%s)/(%s)" % [Fmt.terms([r.a, r.b], [1, 0], v, true), Fmt.terms([r.c, r.d], [1, 0], v, true)]
+			# A number on top needs no brackets: "−6/(x − 2)", not "(−6)/(x − 2)".
+			var top: String = Fmt.terms([r.b], [0], v, true) if r.a.is_zero() else "(%s)" % Fmt.terms([r.a, r.b], [1, 0], v, true)
+			return "%s/(%s)" % [top, Fmt.terms([r.c, r.d], [1, 0], v, true)]
 		"exp":
 			var base: String = "%s(%s)^%s" % [GdcKit.lead(r.A), Fmt.dec(r.b), v]
 			if r.A.eq(1) and r.b.is_int():
@@ -270,8 +272,9 @@ static func _notation(rng: Seeded) -> Dictionary:
 	else:
 		f = poly([rng.int_in(-5, 6), ExtensionViews.nonzero(rng, -4, 4), 1])
 	var a := rng.int_in(1, 3)
-	# f(a + 1) and f(a) + 1, and f(2a) and 2f(a), differ, so the slip gives another value.
-	if at(f, a + 1).eq(at(f, a).add(1)) or at(f, 2 * a).eq(at(f, a).mul(2)):
+	# f(a + 1) and f(a) + 1, and f(2a) and 2f(a), differ, so the slip gives another value;
+	# and f(a) is not 0, so 2f(a) is not f(a) itself (the slip that stops at f(a), FAL-1605).
+	if at(f, a + 1).eq(at(f, a).add(1)) or at(f, 2 * a).eq(at(f, a).mul(2)) or at(f, a).is_zero():
 		return {}
 	return {"f": f, "a": Q.new(a), "x0": Q.new(a), "y0": at(f, a), "y_int": at(f, 0), "fam": "notation"}
 
@@ -288,7 +291,8 @@ static func _inverse(rng: Seeded) -> Dictionary:
 	var a := rng.int_in(1, 3)
 	var c := a - m * k
 	var f := poly([c, m])
-	if k == a or c == 0 or at(f, a).is_zero() or at(f, a).eq(at(f, a + 1).sub(1)):
+	# f(a) = ±1 would make 1/f(a) = f(a), so the slip that stops at f(a) is the key (FAL-1605).
+	if k == a or c == 0 or at(f, a).is_zero() or at(f, a).abs_q().eq(1) or at(f, a).eq(at(f, a + 1).sub(1)):
 		return {}
 	return {"f": f, "a": Q.new(a), "inv": Q.new(k), "x0": Q.new(a), "y0": at(f, a), "y_int": Q.new(c), "fam": "inverse"}
 
@@ -319,6 +323,9 @@ static func _roots(rng: Seeded, paper: int, offset: bool, grid: bool) -> Diction
 	var p := ExtensionViews.nonzero(rng, -4, 4) if grid else ExtensionViews.nonzero(rng, -5, 5)
 	var q := ExtensionViews.nonzero(rng, -4, 5) if grid else ExtensionViews.nonzero(rng, -5, 6)
 	if p >= q or (grid and (q - p > 5 or absi(a * p * q + k.n) > 12 or absi(k.n) > 6)):
+		return {}
+	# f(x) = k with k a solution makes "x = k" both the output slip and half the answer (FAL-1605).
+	if offset and (k.n == p or k.n == q):
 		return {}
 	var f := poly([a * p * q + k.n, -a * (p + q), a])
 	return {"f": f, "zs": [Q.new(p), Q.new(q)], "k": k, "y_int": at(f, 0), "fam": "quad", "a": Q.new(a), "p": Q.new(p), "q": Q.new(q), "x0": Q.new(p), "y0": k}
@@ -412,7 +419,8 @@ static func _ball(rng: Seeded, paper: int, s: Dictionary) -> bool:
 	s.tneg = Q.new(t_end - r - t1)
 	s.target = at(s.f, t1)
 	s.x0 = Q.new(rng.int_in(1, t_end - 1))
-	return s.tneg.sign() < 0
+	# At t_end − r the ball is back at its start height, so h(x0) = h(0) (FAL-1605).
+	return s.tneg.sign() < 0 and s.x0.n != t_end - r
 
 
 ## The sentence that sets up a model, its rule inside it.

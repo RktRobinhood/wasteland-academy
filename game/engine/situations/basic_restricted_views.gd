@@ -115,6 +115,17 @@ static func rounds(v: Variant) -> bool:
 	return Answer.needs_rounding(Q.of(v)) and Q.of(v).d > 12
 
 
+## A coefficient as it is substituted: bracketed when negative, a decimal when it ends.
+static func sub_in(v: Variant) -> String:
+	var q := Q.of(v)
+	return "(%s)" % Fmt.dec(q) if q.sign() < 0 else Fmt.dec(q)
+
+
+## x = −b/(2a) worked out from the rule, for a parabola's vertex (FAL-1605).
+static func vertex_x(s: Dictionary) -> String:
+	return "x = −b/(2a) = −%s/(2 × %s) = %s" % [sub_in(s.f.co[1]), sub_in(s.f.co[2]), BasicFunctionViews.W(s.h)]
+
+
 static func eqn(s: Dictionary) -> String:
 	return BasicFunctionSituation.eqn(s)
 
@@ -188,7 +199,10 @@ func u_range_quadratic(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var k: Q = s.k
 	var right := "y %s %s" % [rel, say(k)]
 	var out := {"asked": "State the range of f."}
-	var bad := [tag("x %s %s" % [rel, say(k)], R_IN_X), tag("y %s %s" % [other, say(k)], R_WRONG_WAY), tag("y %s %s" % [rel, say(s.f.co[0])], R_Y_INT)]
+	var bad := [tag("x %s %s" % [rel, say(k)], R_IN_X), tag("y %s %s" % [other, say(k)], R_WRONG_WAY)]
+	# Words give only the vertex, so the y-intercept can't be taken for the bound (FAL-1605).
+	if rep != "words":
+		bad.append(tag("y %s %s" % [rel, say(s.f.co[0])], R_Y_INT))
 	var plain := ["all real numbers"]
 	if s.h.eq(k):
 		plain.push_front("y > %s" % say(k))
@@ -204,9 +218,18 @@ func u_range_quadratic(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			out.lines = ["f is a parabola with vertex %s, opening %s." % [Fmt.point(s.h, k), "upwards" if up else "downwards"]]
 		_:
 			out.lines = [eqn(s)]
-	var turn := "The vertex is at x = %s, with height %s" % [BasicFunctionViews.W(s.h), BasicFunctionViews.W(k)]
-	var opens := "The parabola opens %s, so %s is its %s value" % ["up" if up else "down", BasicFunctionViews.W(k), "least" if up else "greatest"]
-	out.methods = ways({"vertex-or-asymptote": [turn, opens], "gdc-max-min": ["Graph y = f(x) and use the %s tool: %s" % ["minimum" if up else "maximum", BasicFunctionViews.W(k)], opens]}, right, out.answer)
+	var W := BasicFunctionViews.W
+	var turn := "The vertex is at x = %s, with height %s" % [W.call(s.h), W.call(k)]
+	var tool := "Graph y = f(x) and use the %s tool: %s" % ["minimum" if up else "maximum", W.call(k)]
+	match rep:
+		"equation":
+			turn = "The vertex is at %s, and f(%s) = %s" % [vertex_x(s), W.call(s.h), W.call(k)]
+		"graph":
+			tool = "Read the %s point of the graph: its height is %s" % ["lowest" if up else "highest", W.call(k)]
+		"words":
+			tool = "The %s point of the parabola is its vertex, at height %s" % ["lowest" if up else "highest", W.call(k)]
+	var opens := "The parabola opens %s, so %s is its %s value" % ["up" if up else "down", W.call(k), "least" if up else "greatest"]
+	out.methods = ways({"vertex-or-asymptote": [turn, opens], "gdc-max-min": [tool, opens]}, right, out.answer)
 	return out
 
 
@@ -230,6 +253,8 @@ func u_range_rational(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		return out
 	out.lines = [eqn(s)]
 	var ratio := "For large x, f(x) gets close to the ratio of the x terms: %s" % say(big)
+	if not s.f.c.eq(1):
+		ratio = "For large x, f(x) gets close to the ratio of the x coefficients: %s/%s = %s" % [Fmt.dec(s.f.a), Fmt.dec(s.f.c), say(big)]
 	out.methods = ways({"vertex-or-asymptote": [ratio, "So y = %s is the horizontal asymptote" % say(big), "f(x) never equals %s, and it takes every other value" % say(big)]}, right, out.answer)
 	return out
 
@@ -276,6 +301,8 @@ func u_range_restricted(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var W := BasicFunctionViews.W
 	var ends := "End values: f(%s) = %s and f(%s) = %s" % [N(s.lo), W.call(s.fa), N(s.hi), W.call(s.fb)]
 	var turn := "The vertex at x = %s is inside the domain, so its height %s counts too" % [W.call(s.h), W.call(s.k)]
+	if rep != "graph":
+		turn = "The vertex, at %s, is inside the domain, so its height f(%s) = %s counts too" % [vertex_x(s), W.call(s.h), W.call(s.k)]
 	var pick := "The least of these is %s and the greatest is %s" % [W.call(s.ymin), W.call(s.ymax)]
 	var look := "Look for the lowest and highest points of the curve on the domain" if rep == "graph" else "Sketch f on its domain and look for its lowest and highest points"
 	out.methods = ways({"graph-height": [look, turn, ends, pick], "endpoint-evaluation": [ends, turn, pick],
@@ -301,6 +328,8 @@ func u_range_reflected(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var f_range := "The range of f is %s" % iv("y", s.ymin, s.ymax)
 	var flip := "Every output changes sign, so the greatest of f becomes the least of g: %s to %s" % [W.call(lo), W.call(hi)]
 	var ends := "End values: f(%s) = %s and f(%s) = %s, and the vertex has height %s" % [N(s.lo), W.call(s.fa), N(s.hi), W.call(s.fb), W.call(s.k)]
+	if rep != "graph":
+		ends = "End values: f(%s) = %s and f(%s) = %s, and the vertex, at %s, has height %s" % [N(s.lo), W.call(s.fa), N(s.hi), W.call(s.fb), vertex_x(s), W.call(s.k)]
 	var look := "Reflecting in the x-axis turns the heights upside down" if rep == "graph" else "Sketch f on its domain: reflecting it in the x-axis turns the heights upside down"
 	out.methods = ways({"graph-height": [look, f_range, flip], "endpoint-evaluation": [ends, f_range, flip]}, right, out.answer)
 	return out
@@ -313,7 +342,7 @@ func u_composite_condition(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var right := "c %s %s" % [rel, say(m)]
 	var other := "≤" if strict else "<"
 	var g: String = "g(x) = √(x − c)" if s.form == "root" else "g(x) = ln(x − c)"
-	var out := {"asked": "For which values of c is g(f(x)) defined for every real x?", "lines": [eqn(s), g]}
+	var out := {"asked": "Find the values of c for which g(f(x)) is defined for every real x.", "lines": [eqn(s), g]}
 	out.merge(sort(right, [tag("c %s %s" % [other, say(m)], R_EDGE), tag("c ≥ %s" % say(m), R_C_ABOVE)], ["c > %s" % say(m), "c ≤ 0"], _rng))
 	trap_of(out, "c %s %s" % [rel, s2(m)], rounds(m))
 	var need_txt: String = "x − c ≥ 0, so x ≥ c" if s.form == "root" else "x − c > 0, so x > c"
@@ -344,7 +373,12 @@ func u_domain_root(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		plain.push_front("x ≤ %s" % N(c))
 	out.merge(sort(right, bad, plain, _rng))
-	out.methods = ways({"restriction-rules": [inside, "Solve it: x %s %s, and 0 under the root is allowed" % [rel, N(c)]], "graph-extent": ["Sketch f: the graph starts at x = %s, where the root is 0" % N(c), "It runs off to the %s from there, with that end included" % ("left" if s.left else "right")]}, right, out.answer)
+	var mx := Fmt.terms([s.f.m], [1])
+	var flip := " (dividing by a negative turns the sign round)" if s.left else ""
+	var solved: String = "Solve it: %s ≥ %s, so x %s %s%s, and 0 under the root is allowed" % [mx, N(s.f.n.neg()), rel, N(c), flip]
+	if s.f.m.eq(1):
+		solved = "Solve it: move the constant over, so x ≥ %s, and 0 under the root is allowed" % N(c)
+	out.methods = ways({"restriction-rules": [inside, solved], "graph-extent": ["Sketch f: the graph starts at x = %s, where the root is 0" % N(c), "It runs off to the %s from there, with that end included" % ("left" if s.left else "right")]}, right, out.answer)
 	return out
 
 
@@ -355,11 +389,12 @@ func u_domain_log_or_fraction(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	if s.form == "log":
 		right = "x > %s" % N(c)
 		out.merge(sort(right, [tag("x ≥ %s" % N(c), R_LOG_END), tag("x > 0", R_BARE), tag("x > %s" % N(c.neg()), R_SIGN)], ["x ≠ %s" % N(c)], _rng))
-		out.methods = ways({"restriction-rules": ["ln needs a positive input: %s > 0" % Fmt.terms([s.f.m, s.f.n], [1, 0], "x", true), "Solve it, and leave the end out: ln 0 is not defined"]}, right, out.answer)
+		out.methods = ways({"restriction-rules": ["ln needs a positive input: %s > 0" % Fmt.terms([s.f.m, s.f.n], [1, 0], "x", true), ("Solve it: move the constant over, so x > %s" % N(c) if s.f.m.eq(1) else "Solve it: %s > %s, so x > %s" % [Fmt.terms([s.f.m], [1]), N(s.f.n.neg()), N(c)])
+			+ "; the end is left out, as ln 0 is not defined"]}, right, out.answer)
 	else:
 		right = "x ≠ %s" % N(c)
 		out.merge(sort(right, [tag("x ≠ 0", R_BARE), tag("x ≠ %s" % N(c.neg()), R_SIGN)], ["x > %s" % N(c), "all real numbers"], _rng))
-		out.methods = ways({"restriction-rules": ["A fraction needs a bottom that is not 0: %s ≠ 0" % Fmt.terms([s.f.c, s.f.d], [1, 0], "x", true), "That rules out one value, and only that one"]}, right, out.answer)
+		out.methods = ways({"restriction-rules": ["A fraction needs a bottom that is not 0: %s ≠ 0" % Fmt.terms([s.f.c, s.f.d], [1, 0], "x", true), "%s = 0 only at x = %s, so x ≠ %s; that one value is ruled out, and only that one" % [Fmt.terms([s.f.c, s.f.d], [1, 0]), N(c), N(c)]]}, right, out.answer)
 	return out
 
 
@@ -416,7 +451,15 @@ func u_inverse_domain(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		out.lines = ["%s, %s" % [eqn(s), dom_text]]
 	var swap := "f⁻¹ swaps inputs and outputs: its domain is the range of f, and its range is the domain of f"
-	var ran := "The range of f is %s" % ran_f
+	# The range of f is worked out from f at the end of its domain (FAL-1605).
+	var ran: String
+	match s.form:
+		"line":
+			ran = "The range of f is %s, from f(%s) = %s and f(%s) = %s" % [ran_f, N(s.d1), N(BasicFunctionSituation.at(s.f, s.d1)), N(s.d2), N(BasicFunctionSituation.at(s.f, s.d2))]
+		"half":
+			ran = "The range of f is %s: f(%s) = %s at the vertex is its least value" % [ran_f, N(s.d1), N(s.r1)]
+		_:
+			ran = "The range of f is %s: f(%s) = %s, and the root only grows from there" % [ran_f, N(s.d1), N(s.r1)]
 	out.methods = ways({"swap-domain-range": [ran, swap], "horizontal-line": ["Each horizontal line meets f once, so f⁻¹ is a function", ran, swap]}, right, out.answer)
 	return out
 
@@ -442,7 +485,12 @@ func u_restrict_for_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	else:
 		out.lines = [eqn(s)]
 	var vx := "The vertex is at x = %s" % N(h)
+	var tool := "Graph it and use the turning point tool: x = %s" % N(h)
+	if rep == "graph":
+		tool = "Read the turning point of the graph: x = %s" % N(h)
+	else:
+		vx = "The vertex is at " + vertex_x(s)
 	var half := "One side of the vertex is one-to-one, and the point is on the side where x %s %s" % [rel, N(h)]
 	out.methods = ways({"restrict-at-vertex": [vx, half], "horizontal-line": ["A horizontal line meets the parabola twice until it is cut at the vertex", vx, half],
-		"gdc-turning-point": ["Graph it and use the turning point tool: x = %s" % N(h), half]}, right, out.answer)
+		"gdc-turning-point": [tool, half]}, right, out.answer)
 	return out

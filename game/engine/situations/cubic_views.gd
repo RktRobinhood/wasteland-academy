@@ -204,6 +204,15 @@ static func point_gradient(x0: Q, y0: Q, m: Q) -> String:
 	return "y − %s = %s(x − %s)" % [P(y0), N(m) if m.is_int() else P(m), P(x0)]
 
 
+## The point-gradient form multiplied out to y = mx + c, so the working reaches the line
+## it states (FAL-1605): "y = 3x − 9 − 23 = 3x − 32". Empty when there is nothing to do.
+static func expand_line(x0: Q, y0: Q, m: Q) -> Array:
+	var shift: Q = m.mul(x0).neg()
+	if shift.is_zero() or y0.is_zero():
+		return [] if shift.is_zero() and y0.is_zero() else ["y = %s" % Fmt.poly([m, shift.add(y0)])]
+	return ["y = %s%s = %s" % [Fmt.poly([m, shift]), Fmt.plus(y0), Fmt.poly([m, shift.add(y0)])]]
+
+
 static func wrong(values: Dictionary, ref: String = "") -> Dictionary:
 	return {"values": values, "ref": ref}
 
@@ -258,7 +267,8 @@ func u_gradient_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		asked = "Find the gradient of the curve at the point where x = %s." % N(s.x0)
 	var st: Array = ["%s = %s" % [dname(rep), deriv(s)]]
 	st.append(eval_step("f′", d_coeffs(s), s.x0, rep))
-	st.append("So %s at x = %s." % [Answer.text(ans), N(s.x0)])
+	# "f′(−2) = 36" names its x already; dy/dx needs it said.
+	st.append("So %s at x = %s." % [Answer.text(ans), N(s.x0)] if rep == "words" else "So %s." % Answer.text(ans))
 	var wrongs: Array = [wrong({"v": s.y0}, "SL5.3.gradient-at-point#0"), wrong({"v": Q.new(0)}, "SL5.3.gradient-at-point#1")]
 	if s.x0.sign() < 0:
 		wrongs.append(wrong({"v": s.a.mul(3).mul(s.x0.sq()).neg().add(s.b.mul(2).mul(s.x0)).add(s.c)}, "SL5.3.gradient-at-point#2"))
@@ -291,6 +301,7 @@ func u_tangent_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		asked = "Find the equation of the tangent to the curve at the point where x = %s, in the form y = mx + c." % N(s.x0)
 	var pg := contact_steps(rep, s)
 	pg.append(point_gradient(s.x0, s.y0, m))
+	pg.append_array(expand_line(s.x0, s.y0, m))
 	pg.append("So the tangent is %s." % Answer.text(ans))
 	var fc := contact_steps(rep, s)
 	fc.append("Put the point into y = %sx + c: %s = %s × %s + c" % [Fmt.lead(m) if m.is_int() else P(m), N(s.y0), P(m), P(s.x0)])
@@ -326,6 +337,7 @@ func u_normal_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		nr.append("The normal is perpendicular to the tangent, so its gradient is −1/%s = %s" % [P(m), N(mn)])
 	nr.append(point_gradient(s.x0, s.y0, mn))
+	nr.append_array(expand_line(s.x0, s.y0, mn))
 	nr.append("So the normal is %s." % Answer.text(ans))
 	var rf := contact_steps(rep, s)
 	var yf := Fmt.factor(s.y0).replace("x", "y")
@@ -467,10 +479,16 @@ func u_coefficient_from_tangent(rep: String, s: Dictionary, rng: Seeded) -> Dict
 	var at := "%s(%s)" % ["f′" if rep != "words" else "dy/dx at x = ", N(x0)]
 	if rep == "words":
 		at = "At x = %s, dy/dx" % N(x0)
+	# f′(x0) with x0 put in, so the working shows where coef·k + rest comes from (FAL-1605).
+	var put: String
+	if hid == "b":
+		put = subst([s.a.mul(3), 0, 0], x0) + " + 2k(%s)" % N(x0) + (Fmt.plus(s.c) if not s.c.is_zero() else "")
+	else:
+		put = subst([s.a.mul(3), s.b.mul(2), 0], x0) + " + k"
 	var st: Array = [
 		"%s = %s" % [dname_, d_k],
 		cond,
-		"%s = %s" % [at, lin_k(coef, rest)],
+		"%s = %s = %s" % [at, put, lin_k(coef, rest)],
 		"%s = %s" % [lin_k(coef, rest), N(g)],
 	]
 	if not coef.eq(1):
@@ -708,7 +726,7 @@ func u_tangent_at_point_p2(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		asked = "Find the equation of the tangent to the curve at the point where x = %s, in the form y = mx + c, with m and c%s." % [D(x0), SF3]
 	var final := "So the tangent is %s." % Answer.text(ans)
 	var pg := contact_steps_p2(rep, s)
-	pg.append("y − %s = %s%s" % [DP(s.y0), DP(m), dfactor(x0)])
+	pg.append("y − %s = %s%s, so y = %s" % [DP(s.y0), DP(m), dfactor(x0), Fmt.terms([m, c], [1, 0], "x", true)])
 	pg.append(final)
 	var fc := contact_steps_p2(rep, s)
 	fc.append("Put the point into y = %sx + c: c = %s − %s × %s = %s" % [D(m), D(s.y0), DP(m), DP(x0), D(c)])
@@ -741,7 +759,8 @@ func u_normal_at_point_p2(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		asked = "Find the equation of the normal to the curve at the point where x = %s, in the form y = mx + c, with m and c%s." % [D(x0), SF3]
 	var final := "So the normal is %s." % Answer.text(ans)
 	var nr := contact_steps_p2(rep, s)
-	nr.append("The normal is perpendicular to the tangent, so its gradient is −1/%s = %s; y − %s = %s%s" % [DP(m), W(mn), DP(s.y0), WP(mn), dfactor(x0)])
+	nr.append("The normal is perpendicular to the tangent, so its gradient is −1/%s = %s; y − %s = %s%s, so y = %sx %s %s" % [DP(m), W(mn), DP(s.y0), WP(mn), dfactor(x0),
+		W(mn), "−" if cn < 0.0 else "+", W(absf(cn))])
 	nr.append(final)
 	var rf := contact_steps_p2(rep, s)
 	rf.append("The normal through (x₀, y₀) with tangent gradient m is (x − x₀) + m(y − y₀) = 0: %s + %s(y − %s) = 0, so y = %sx %s %s" % [

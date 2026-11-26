@@ -166,6 +166,31 @@ static func step_from(a: Q, k: int, dq: Q) -> String:
 	return "%s + %d × %s" % [N(a), k, P(dq)]
 
 
+## k steps of d in working: "d" for one step, "7d" for seven (never "1d").
+static func kd(k: int) -> String:
+	return "d" if k == 1 else "%dd" % k
+
+
+## A coefficient times something already written: "x" for 1, "−x" for −1, "3 × x" or
+## "−4 × x" otherwise (FAL-1605: no "1 × 26", "1(n − 1)" or "−1 × 45").
+static func times(c: Q, x: String) -> String:
+	if c.eq(1):
+		return x
+	if c.eq(-1):
+		return "−" + x
+	return "%s × %s" % [N(c), x]
+
+
+## u₁ + d(n − 1) with d written in: "25 + 2(n − 1)", "−24 + (n − 1)", "−21 − (n − 1)",
+## "22 + (−2)(n − 1)".
+static func plus_d_steps(u1: Q, dq: Q) -> String:
+	if dq.eq(1):
+		return "%s + (n − 1)" % N(u1)
+	if dq.eq(-1):
+		return "%s − (n − 1)" % N(u1)
+	return "%s + %s(n − 1)" % [N(u1), P(dq)]
+
+
 static func terms_line(s: Dictionary) -> String:
 	return ", ".join(s.us.map(func(e): return N(e))) + ", …"
 
@@ -230,8 +255,8 @@ func u_term_from_u1_d(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var w: Q = s.d.mul(n).add(c)
 	var linear: Array = sh.read.duplicate()
 	linear.append_array([
-		"uₙ = u₁ + (n − 1)d = %s + %s(n − 1) = %s" % [N(s.u1), P(s.d), lin_n(s.d, c)],
-		"%s = %s × %d%s = %s" % [u(n), N(s.d), n, Fmt.plus(c), N(w)],
+		"uₙ = u₁ + (n − 1)d = %s = %s" % [plus_d_steps(s.u1, s.d), lin_n(s.d, c)],
+		"%s = %s%s = %s" % [u(n), times(s.d, str(n)), "" if c.is_zero() else Fmt.plus(c), N(w)],
 		"So %s." % Answer.text(ans, res(w))])
 	out.methods = {"nth-formula": {"steps": formula, "result": res(v)}, "linear-function": {"steps": linear, "result": res(w)}}
 	out.wrongs = [wrong(s.u1.add(s.d.mul(n)), "nth-term#0"), wrong(s.n, "nth-term#2")]
@@ -270,9 +295,9 @@ func u_d_from_two_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"d = (%s − %s)/%d = %s/%d = %s" % [N(s.uq), P(s.up), gaps, N(rise), gaps, N(dv)],
 			"So %s." % Answer.text(ans, res(dv))]},
 		"simultaneous": {"result": res(dv), "steps": [
-			"%s = u₁ + %dd = %s" % [u(s.p), s.p.n - 1, N(s.up)],
-			"%s = u₁ + %dd = %s" % [u(s.q), s.q.n - 1, N(s.uq)],
-			"Subtract the first from the second: %dd = %s" % [gaps, N(rise)],
+			"%s = u₁ + %s = %s" % [u(s.p), kd(s.p.n - 1), N(s.up)],
+			"%s = u₁ + %s = %s" % [u(s.q), kd(s.q.n - 1), N(s.uq)],
+			"Subtract the first from the second: %s = %s" % [kd(gaps), N(rise)],
 			"So %s." % Answer.text(ans, res(dv))]},
 	}
 	out.wrongs = [wrong(rise.div(gaps + 1), "find-u1-d#0"), wrong(s.d.neg(), "nth-term#1")]
@@ -294,13 +319,13 @@ func u_u1_from_two_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.methods = {
 		"gap-count": {"result": res(v), "steps": [
 			"From %s to %s is %d steps, so d = (%s − %s)/%d = %s." % [u(s.p), u(s.q), gaps, N(s.uq), P(s.up), gaps, N(dv)],
-			"From %s back to u₁ is %d steps: u₁ = %s − %d × %s = %s" % [u(s.p), back, N(s.up), back, P(dv), N(v)],
+			"From %s back to u₁ is %d step%s: u₁ = %s − %s = %s" % [u(s.p), back, "" if back == 1 else "s", N(s.up), times(Q.new(back), P(dv)), N(v)],
 			"So %s." % Answer.text(ans, res(v))]},
 		"simultaneous": {"result": res(v), "steps": [
-			"%s = u₁ + %dd = %s" % [u(s.p), back, N(s.up)],
-			"%s = u₁ + %dd = %s" % [u(s.q), s.q.n - 1, N(s.uq)],
-			"Subtract the first from the second: %dd = %s, so d = %s" % [gaps, N(rise), N(dv)],
-			"u₁ = %s − %d × %s = %s" % [N(s.up), back, P(dv), N(v)],
+			"%s = u₁ + %s = %s" % [u(s.p), kd(back), N(s.up)],
+			"%s = u₁ + %s = %s" % [u(s.q), kd(s.q.n - 1), N(s.uq)],
+			"Subtract the first from the second: %s = %s, so d = %s" % [kd(gaps), N(rise), N(dv)],
+			"u₁ = %s − %s = %s" % [N(s.up), times(Q.new(back), P(dv)), N(v)],
 			"So %s." % Answer.text(ans, res(v))]},
 	}
 	var d_wrong := rise.div(gaps + 1)
@@ -683,7 +708,7 @@ static func sigma(s: Dictionary, a: Variant, b: Variant) -> String:
 
 ## "3 × 5 + 2": the term at r = k, as a sum to work out.
 static func at(s: Dictionary, k: Variant) -> String:
-	return "%s × %s%s" % [N(s.p), N(k), Fmt.plus(s.q)]
+	return "%s%s" % [times(s.p, N(k)), Fmt.plus(s.q)]
 
 
 static func t_at(s: Dictionary, k: Variant) -> Q:
@@ -705,7 +730,7 @@ static func split_line(s: Dictionary, q_part: String = "") -> String:
 
 ## p × Σr ± Σ|q| as numbers: "3 × 210 + 40".
 static func combine(s: Dictionary, sr: Q, sq: Q) -> String:
-	return "%s × %s %s %s" % [N(s.p), N(sr), "−" if s.q.sign() < 0 else "+", N(sq)]
+	return "%s %s %s" % [times(s.p, N(sr)), "−" if s.q.sign() < 0 else "+", N(sq)]
 
 
 func _sigma_out(lines: Array, asked: String, ans: Dictionary, s: Dictionary, wrongs: Array, fillers: Array, methods: Dictionary) -> Dictionary:
@@ -750,7 +775,7 @@ func u_count_terms(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var said := "So there are %s." % Answer.text(ans)
 	var before := "The term at r = 1 comes before the sum starts." if a == 2 else "The %d terms from r = 1 to %d come before the sum starts." % [a - 1, a - 1]
 	var w := sigma_wrongs(Q.new(n), [[b - a, REF + "sigma#0"]])
-	return _sigma_out([sigma(s, s.lower, s.upper)], "How many terms does this sum have?", ans, s, w, sigma_fillers(Q.new(n), w, [n + 1, b, n + 2]), {
+	return _sigma_out([sigma(s, s.lower, s.upper)], "Write down the number of terms in this sum.", ans, s, w, sigma_fillers(Q.new(n), w, [n + 1, b, n + 2]), {
 		"list-and-formula": ["r takes every whole number from %d to %d, with one term for each." % [a, b], "n = %d − %d + 1 = %d" % [b, a, n], said],
 		"difference-of-sums": ["From r = 1 to %d there would be %d terms." % [b, b], before, "n = %d − %d = %d, so there are %s." % [b, a - 1, n, Answer.text(ans)]],
 	})
@@ -827,7 +852,9 @@ static func series_line(s: Dictionary) -> String:
 	var out := N(s.u1)
 	for v in [ArithmeticSequenceSituation.term(s, 2), ArithmeticSequenceSituation.term(s, 3)]:
 		out += Fmt.plus(v)
-	return out + " + …" + Fmt.plus(s.un)
+	# The ellipsis carries the sign of the terms it stands for, as the fourth term has it.
+	var fourth: Q = ArithmeticSequenceSituation.term(s, 4)
+	return out + (" − …" if fourth.sign() < 0 else " + …") + Fmt.plus(s.un)
 
 
 func u_write_sigma(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -846,7 +873,7 @@ func u_write_sigma(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"list-and-formula": ["u₁ = %s and d = %s − %s = %s." % [N(s.u1), N(u2), P(s.u1), N(s.d)],
 			"u₁ + (r − 1)d = %s + (r − 1) × %s = %s, so p = %s and q = %s." % [N(s.u1), P(s.d), gen_term(s), N(s.p), N(s.q)], last, said],
 		"linear-function": ["The terms change by %s each time, so the general term is %sr + q." % [N(s.d), Fmt.lead(s.p)],
-			"The first term is %s: %s × 1 + q = %s, so q = %s." % [N(s.u1), N(s.p), N(s.u1), N(s.q)], last, said],
+			"The first term is %s: %s + q = %s, so q = %s." % [N(s.u1), times(s.p, "1"), N(s.u1), N(s.q)], last, said],
 	})
 	return out
 

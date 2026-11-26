@@ -63,7 +63,22 @@ func papers(unknown: String, _rep: String, _angle: String) -> Array:
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
 	out.given = ArithmeticContextSituation.export(s)
+	out.fillers = unmirrored(out)
 	return out
+
+
+## The fillers less any that mirror a slip about the key (FAL-1605): with a slip at key − x, a
+## filler at key + x would leave the key in the middle of the two.
+static func unmirrored(out: Dictionary) -> Array:
+	var key = out.answer.get("values", {}).get("v")
+	if not key is Q:
+		return out.get("fillers", [])
+	var mirrors := {}
+	for w in out.get("wrongs", []):
+		var v = w.get("values", {}).get("v")
+		if v is Q:
+			mirrors[key.mul(2).sub(v).key()] = true
+	return out.get("fillers", []).filter(func(f): return not (f.get("v") is Q and mirrors.has(f.v.key())))
 
 
 # ── Writing things ───────────────────────────────────────────
@@ -128,6 +143,18 @@ static func so(ans: Dictionary) -> String:
 
 static func nums(vs: Array) -> Array:
 	return vs.map(func(v): return {"v": v})
+
+
+## A term found with no slip next to it (FAL-1605): u₁ dropped, (k − 1)d, on a rising story,
+## or d's sign flipped, u₁ − (k − 1)d, on a falling one. Either is a whole number of steps
+## from the term, not one step, so it doesn't sit by the key as a nudge would.
+static func far_term(s: Dictionary, k: int) -> Q:
+	return s.d.mul(k - 1) if s.d.sign() > 0 else s.u1.sub(s.d.mul(k - 1))
+
+
+## An n left as the decimal where the target is met, to 3 s.f.: the unrounded n.
+static func unrounded(real: Q) -> Q:
+	return Answer.parse_number(Fmt.sf(real).replace("−", "-")).q
 
 
 static func n_wrongs(pairs: Array) -> Array:
@@ -230,7 +257,7 @@ func u_term_in_context(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find %s." % (c.term % n)
 	out.answer = ans
 	out.wrongs = n_wrongs([[term(s, n + 1), R_N_D], [total(s, n), R_FOUND_TERM]])
-	out.fillers = nums([term(s, n - 1), s.d.mul(n), s.v.add(s.u1)])
+	out.fillers = nums([far_term(s, n), s.v.add(s.u1), s.u1.mul(n), term(s, n - 1)])
 	var solved := method([read_of(rep, s),
 		"One %s is one term, so n = %d and this is uₙ = u₁ + (n − 1)d." % [c.step, n],
 		"%s = %s = %s" % [U(n), term_sum(s, n - 1), D(s.v)], so(ans)], {"v": s.v})
@@ -292,9 +319,10 @@ func u_in_or_after(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find the %s %s the %s after %d full %ss." % [c.what, c.on, c.step, n, c.step] if is_after \
 		else "Find the %s %s %s %d." % [c.what, c.on, c.step, n]
 	out.answer = ans
-	out.wrongs = n_wrongs([[term(s, n), R_AFTER]]) if is_after else n_wrongs([[term(s, n + 1), R_N_D]])
+	# After n full steps it is term n + 1: u₁ + nd there is one step too many as well (FAL-1605).
+	out.wrongs = n_wrongs([[term(s, n), R_AFTER], [term(s, at + 1), R_N_D]]) if is_after else n_wrongs([[term(s, n + 1), R_N_D]])
 	out.wrongs.append_array(n_wrongs([[total(s, n), R_FOUND_TERM]]))
-	out.fillers = nums([term(s, at + 1), term(s, at - 1), s.d.mul(n)])
+	out.fillers = nums([far_term(s, at), v.add(s.u1), s.u1.mul(at), term(s, at - 1)])
 	var where := "Once %d full %ss have passed, %s %d is under way, so this is %s." % [n, c.step, c.step, n + 1, U(at)] if is_after \
 		else "%s %d is term %d, so this is %s." % [c.step.capitalize(), n, n, U(at)]
 	var solved := method([read_of(rep, s), where, "%s = %s = %s" % [U(at), term_sum(s, at - 1), D(v)], so(ans)], {"v": v})
@@ -319,7 +347,8 @@ func u_value_after(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.answer = ans
 	out.wrongs = n_wrongs([[term(s, n), R_AFTER]])
 	out.wrongs.append(wrong({"v": s.d.mul(n).abs_q()}, R_CHANGE_ONLY))
-	out.fillers = nums([term(s, n + 2), s.u1.add(s.d.mul(n * 2))])
+	# d's sign flipped, or the change counted twice, before the next step on (FAL-1605).
+	out.fillers = nums([s.u1.sub(s.d.mul(n)), s.u1.add(s.d.mul(n * 2)), s.v.add(s.u1), s.u1.mul(n), term(s, n + 2)].filter(func(v): return v.sign() > 0))
 	var start := "The amount at the start is u₁ = %s, before any %s has passed, and d = %s." % [D(s.u1), c.step, D(s.d)]
 	var solved := method([start, "After 1 %s it is u₂, so after %d %ss it is %s." % [c.step, n, c.step, U(n + 1)],
 		"%s = %s = %s" % [U(n + 1), term_sum(s, n), D(s.v)], so(ans)], {"v": s.v})
@@ -351,10 +380,10 @@ func u_simple_interest(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.fillers = nums([term(s, n + 2), p.add(s.rate.mul(n))])
 	var read := "The interest a year is %s%% of %s = %s tokens, the same every year." % [D(s.rate), D(p), Fmt.money(s.I)] if rep != "table" \
 		else "The value goes up by %s − %s = %s tokens each year." % [Fmt.money(term(s, 2)), Fmt.money(p), Fmt.money(s.I)]
-	var solved := method([read, "So u₁ = %s, the deposit before any year has passed, d = %s, and after %d years the value is %s." % [D(p), D(s.I), n, U(n + 1)],
-		"%s = %s + %d × %s = %s" % [U(n + 1), D(p), n, D(s.I), Fmt.money(s.v)], so(ans)], {"v": s.v})
+	var solved := method([read, "So u₁ = %s, the deposit before any year has passed, d = %s, and after %d years the value is %s." % [D(p), Fmt.money(s.I), n, U(n + 1)],
+		"%s = %s + %d × %s = %s" % [U(n + 1), D(p), n, Fmt.money(s.I), Fmt.money(s.v)], so(ans)], {"v": s.v})
 	var listed := method([read, "After 0, 1 and 2 years the value is %s, %s and %s." % [Fmt.money(p), Fmt.money(term(s, 2)), Fmt.money(term(s, 3))],
-		"After %d years: %s + %d × %s = %s" % [n, D(p), n, D(s.I), Fmt.money(s.v)], so(ans)], {"v": s.v})
+		"After %d years: %s + %d × %s = %s" % [n, D(p), n, Fmt.money(s.I), Fmt.money(s.v)], so(ans)], {"v": s.v})
 	out.methods = {"identify-parameters": solved, "tabulate": listed}
 	return out
 
@@ -592,7 +621,8 @@ func u_stack_crates(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.rowk > 0:
 		wr.append([Q.new(s.rowk), R_FOUND_TERM])
 	out.wrongs = n_wrongs(wr)
-	out.fillers = nums([Q.new(k + 1), Q.new(k - 1), Q.new(k * 2)])
+	# The number of full packs the stack uses, given as n, before the key's neighbours (FAL-1605).
+	out.fillers = nums([total(s, k).div(s.c), s.v, Q.new(k + 1), Q.new(k - 1), Q.new(k * 2)])
 	out.methods = {"gdc-table": method([pile_read(rep, s),
 		"The total in n rows is Sₙ, so enter Y1 = X ÷ 2 × (2 × %s + (X − 1) × %s) ÷ %d and open the table." % [D(s.u1), D(s.d), s.c],
 		"X = %d gives %s, which is not whole, and X = %d gives %s, the first whole value." % [k - 1, W(total(s, k - 1).div(s.c)), k, W(total(s, k).div(s.c))],
@@ -661,7 +691,8 @@ func u_term_number(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = (c.find % D(s.v)) + " Give n, the %s number." % c.step
 	out.answer = ans
 	out.wrongs = n_wrongs([[Q.new(k - 1), R_NO_ONE], [s.v, R_N_OR_TERM]])
-	out.fillers = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
+	# The value divided by d, with u₁ not taken off, before the key's neighbours (FAL-1605).
+	out.fillers = nums([unrounded(s.v.div(s.d.abs_q())), Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
 	out.methods = to_term(rep, s, s.v, k, ans)
 	return out
 
@@ -692,7 +723,9 @@ func u_count_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.asked = "Find n, the number of %s." % c.thing
 	out.answer = ans
 	out.wrongs = n_wrongs([[Q.new(k - 1), R_NO_ONE]])
-	out.fillers = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
+	# The last value divided by the gap, with the first not taken off, before the key's
+	# neighbours (FAL-1605).
+	out.fillers = nums([unrounded(s.last.div(s.d)), Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
 	var read := "From the table, u₁ = %s and d = %s − %s = %d." % [first, D(term(s, 2)), first, s.gap] if rep == "table" \
 		else "u₁ = %s, d = %d and the last term is %s." % [first, s.gap, last]
 	var gaps: Q = s.last.sub(s.u1)
@@ -722,7 +755,8 @@ func u_first_past(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = n_wrongs([[Q.new(k - 1), R_ROUND_DOWN], [s.v, R_N_OR_TERM]])
 	if by_sum > 0:
 		out.wrongs.append(wrong({"v": Q.new(by_sum)}, R_FOUND_TERM))
-	out.fillers = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
+	# The n where the target is met, not rounded up, before the key's neighbours (FAL-1605).
+	out.fillers = nums([unrounded(s.real), Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
 	var gap: Q = x.sub(s.u1).abs_q()
 	var step: Q = s.d.abs_q()
 	var word := "more" if rising else "less"
@@ -750,7 +784,7 @@ func u_first_total_past(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	while term(s, j).lt(x) or term(s, j).eq(x):
 		j += 1
 	out.wrongs = n_wrongs([[Q.new(k - 1), R_ROUND_DOWN], [s.v, R_N_OR_TERM], [Q.new(j), R_FOUND_TERM]])
-	out.fillers = nums([Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
+	out.fillers = nums([unrounded(s.real), Q.new(k + 1), Q.new(k + 2), Q.new(k - 2)])
 	var r: Dictionary = {"v": Q.new(k)}
 	var expr := "%s ÷ 2 × (2 × %s + (%s − 1) × %s)"
 	out.methods = {
@@ -771,14 +805,16 @@ func u_whole_n_test(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var vt := D(v)
 	var right: String = "Yes: n = %s, a whole number." % D(real) if yes else "No: n = %s, which is not a whole number." % D(real)
 	var wrongs: Array = []
+	# Every wrong claim gives the other verdict (FAL-1605): n − 1 found for n gives the key's
+	# verdict with a wrong number, so it is no wrong option here.
 	if yes:
-		wrongs = [["Yes: n = %s, a whole number." % D(real.sub(1)), R_NO_ONE],
-			["No: %s is not a multiple of %s, so it can't be a term." % [vt, D(step)], R_MULTIPLE],
-			["No: %s is too far from the first term to be a term." % vt, ""]]
+		wrongs = [["No: %s is not a multiple of %s, so it can't be a term." % [vt, D(step)], R_MULTIPLE],
+			["No: %s is too far from the first term to be a term." % vt, ""],
+			["No: the terms step over %s, so none of them is exactly %s." % [vt, vt], ""]]
 	else:
 		wrongs = [["Yes: n = %s, which rounds to %d." % [D(real), roundi(real.to_float())], R_ROUND_TERM],
 			["Yes: %s is a multiple of %s, so it must be a term." % [vt, D(step)], R_MULTIPLE],
-			["No: n = %s, which is not a whole number." % D(real.sub(1)), R_NO_ONE]]
+			["Yes: the terms change steadily, so one of them is exactly %s." % vt, ""]]
 	var made := DerivativeMeaningViews.claim_answer(right, rng.shuffled(wrongs))
 	var out := setup(rep, s)
 	out.asked = (c.can % vt) + " Justify your answer."

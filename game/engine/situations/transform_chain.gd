@@ -60,8 +60,9 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		if not ruled.is_empty():
 			fams = ruled
 	var marks := int(need.get("marks", 2))
+	var pat := for_angle(str(need.get("pat", "tr")), str(need.get("angle", "")))
 	for i in 500:
-		var s := _try(rng, fams, str(need.get("pat", "tr")), paper)
+		var s := _try(rng, fams, pat, paper)
 		if s.is_empty():
 			continue
 		if not drawn:
@@ -74,6 +75,18 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		if s.win[1] - s.win[0] <= SPAN and s.win[3] - s.win[2] <= SPAN:
 			return s
 	return {}
+
+
+## A chain whose moves hang on the method (FAL-1605): hz is a horizontal stretch or
+## translation, but tracking points (the translate method) only works a translation, the
+## scale rule only a stretch, and only a stretch first reads as the stretch-then-translate
+## form of a bracket.
+static func for_angle(pat: String, angle: String) -> String:
+	if pat == "hz" and angle in ["track-points", "scale-rule"]:
+		return "ht" if angle == "track-points" else "hs"
+	if pat == "bracket" and angle == "stretch-then-translate-form":
+		return "bracket-hs"
+	return pat
 
 
 ## Two waves of one period. Paper 1: q's amplitude a whole multiple or half of p's. Paper 2:
@@ -192,6 +205,7 @@ static func slide(c: Variant, d: Variant) -> Dictionary:
 ##   mixed   pair, or a stretch and a translation in the other direction (it doesn't)
 ##   asym    a vertical stretch or nothing, then a translation
 ##   bracket factor, or an upward translation then a vertical stretch: a(f(x) + d)
+##   bracket-hs  bracket's factor (see for_angle)
 static func _moves(rng: Seeded, s: Dictionary, pat: String) -> Array:
 	var p: int = s.paper
 	var can_hs: bool = not s.fam in NO_HS
@@ -262,8 +276,8 @@ static func _moves(rng: Seeded, s: Dictionary, pat: String) -> Array:
 			return [vs(rng, p), up]
 		"asym":
 			return [vs(rng, p), both] if rng.chance(0.5) else [both]
-		"bracket":
-			if can_hs and rng.chance(0.5):
+		"bracket", "bracket-hs":
+			if can_hs and (pat == "bracket-hs" or rng.chance(0.5)):
 				return [{"k": "hs", "a": Q.new(1, rng.int_in(2, 4))}, across]
 			return [up, vs(rng, p)]
 	return []
@@ -510,6 +524,8 @@ static func f_of(s: Dictionary, x: String) -> String:
 		"sin":
 			return "sin x" if plain else "sin" + wrapped
 		"vert":
+			if plain and s.u.is_zero():
+				return "x²" + plus(s, s.v)
 			return "(%s%s)²%s" % [x, plus(s, s.u.neg()), plus(s, s.v)]
 		"poly":
 			return "%s² %s %s%s" % [wrapped, "+" if s.u.sign() > 0 else "−", (Fmt.lead(s.u.abs_q()) + wrapped), plus(s, s.v)]
@@ -518,11 +534,17 @@ static func f_of(s: Dictionary, x: String) -> String:
 
 ## A·f(B(x − C)) + D with the rule written in, for any map.
 static func rule(s: Dictionary, map: Dictionary) -> String:
+	if s.fam == "vert" and map.B.eq(1) and not map.C.is_zero():
+		# (x − 3 − 2)² is written (x − 5)²: the vertex moved, one number in the bracket.
+		return rule_inner(s.merged({"u": s.u.add(map.C)}, true), map.A, "x", map.D)
 	return rule_inner(s, map.A, inner(s, map), map.D)
 
 
 ## The same with the input written by the caller.
 static func rule_inner(s: Dictionary, a: Q, input: String, d: Q) -> String:
+	if s.fam == "vert" and a.eq(1) and not d.is_zero():
+		# (x − 2)² − 2 − 2 is written (x − 2)² − 4.
+		return f_of(s.merged({"v": s.v.add(d)}, true), input)
 	var body := f_of(s, input)
 	var plain: bool = input == "x"
 	var map_d := d
