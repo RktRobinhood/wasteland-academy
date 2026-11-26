@@ -5,6 +5,7 @@
   "families": [
     {"id":"scrap-fields/living-map-01","zone":"algebra","category":"overworld-interaction","manifest":"scrap-fields/kit-01/manifest.json","ready_for_trial":2,"art_candidates":1,"integrated":0},
     {"id":"scrap-fields/journey-01","zone":"algebra","category":"side-scroller-scenery","manifest":"scrap-fields/journey-01/exports/layers.json","ready_for_trial":3,"art_candidates":0,"integrated":0},
+    {"id":"scrap-fields/copper-mite-01","zone":"algebra","category":"monster","manifest":"scrap-fields/copper-mite-01/manifest.json","new_states":["idle","attack","hurt","defeated"],"ready_for_trial":2,"art_candidates":0,"integrated":0},
     {"id":"radio-spires/battle-regression-01","zone":"stats","category":"battle-backdrop","manifest":"radio-spires/battle-regression-01/manifest.json","new_states":["day"],"reference_states":["night"],"ready_for_trial":1,"art_candidates":0,"integrated":0}
   ],
   "unknown_or_incomplete": [

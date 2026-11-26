@@ -8,6 +8,7 @@ An art-only shelf. The integration team can select, adapt, crop, animate or leav
 |---|---|---|
 | Scrap Fields · Living map 01 | Separately layered rotor and fixed post, canonical phone/desktop placement previews, full-resolution masters. An extra crusher cube is kept as a candidate. | [Kit instructions](scrap-fields/kit-01/README.md) · [Asset manifest](scrap-fields/kit-01/manifest.json) · [Phone preview](scrap-fields/kit-01/previews/scrap-fields-phone-proof.png) |
 | Scrap Fields · Journey lane | Complete three-layer scenery kit with editable masters, exports and a proposed layer manifest. Ready for an isolated import trial, not wired. | [Journey kit](scrap-fields/journey-01/README.md) · [Preview](scrap-fields/journey-01/previews/journey-full.png) |
+| Scrap Fields · Copper Mite | Original left-facing creature, four grounded poses, optional cutout, measured alpha atlas. Ready for art trial, not wired. | [Monster kit](scrap-fields/copper-mite-01/README.md) · [390 px proof](scrap-fields/copper-mite-01/previews/phone-contrast.png) |
 | Radio Spires · Regression battle | Original daylight alternate paired with the existing night reference. Not registered for animation. | [Battle kit](radio-spires/battle-regression-01/README.md) · [Comparison](radio-spires/battle-regression-01/previews/night-then-day.jpg) |
 
 [Machine-readable inventory](inventory.json) · [Priorities and gaps](coverage.md)

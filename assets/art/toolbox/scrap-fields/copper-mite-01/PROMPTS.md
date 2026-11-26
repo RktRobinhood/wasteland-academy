@@ -1,0 +1,21 @@
+# Copper Mite · generation record
+
+**Tool:** built-in ImageGen. Both original RGBA PNG results are archived unchanged under `masters/`. The second generation used only the first original result as its image reference. Text-only palette, scale and world guidance came from Wasteland Academy's art/style and Journey documentation; no existing third-party imagery was pasted or used as generation input. Contact-sheet clipping, alpha cleanup, uniform resizing and measured atlas registration were offline export operations, not new image generation.
+
+## Contact sheet
+
+```text
+Use case: stylized-concept
+Asset type: original Wasteland Academy game art, one CONTACT SHEET for left-facing side-view enemy sprites. Generate on TRUE TRANSPARENT background (RGBA).
+Three identical-size invisible cells, horizontally aligned across a very wide 3:2 landscape sheet (not a square). Independently usable sprites at 1/6, 1/2, and 5/6 of width, each with comfortable transparent blank separation at one-third and two-thirds, all same scale and all grounded at the same horizontal level near 64% from the top. No visible cell lines or text, no floor at all. The left and right sprite margins must leave about 8% of each cell blank, and no paint must touch edges. Its feet are always individually distinct.
+A compact fictional quadrupedal salvage insect nicknamed COPPER MITE, a waist-high mechanical hermit creature from a ruined junkyard. Three overlapping weathered copper carapace bands, subdued rust-orange bevel catches, charcoal and hand-bolted dark joints, one small teal slit eye looking LEFT on the leftmost blunt head, a pair of flat spade-like feelers, broad squat silhouette. Four articulated blunt rubber-like feet, NOT humanoid or a dog. Full profile LEFT across all poses, no rear view or 3/4 tilt, no weapons or gore; no energy or speed effects, no shadow, no stage, no text or logos. High-quality original Salvage Neon Bazaar: post-apocalyptic graphic-novel anime/semi-realistic hybrid, hand-painted slight ink contours, top-left cool daylight, restrained cyan accent, distinguishable against both midtone scrap-yellow background and dark gray battle screens. Shape reads at 80px tall. Preserve the same three plates, head, feet, materials, and scale across poses.
+Left sprite standing low and wary, neutral upright idle. Center same creature recoils at a mechanical rattle, slight crouch and head pulled in, two central planted feet exactly aligned to baseline. Right same creature settles into a defensive down/rest pose, folded feet continue to touch the same ground line, shell lower, intact, no sparks. Distinguishable silhouettes with recognizable identity continuity. Above/below are ONLY clear alpha. Final result is the three isolated copies on transparent canvas, ready for measured trim into same-foot-point atlas.
+```
+
+## Grounded shove
+
+```text
+Use case: precise-object-edit
+Asset: ONE individual left-facing game sprite on actual transparent alpha, not a sheet. Use the supplied Copper Mite three-pose contact sheet as exact character design reference. Same compact 4-legged salvage mite: same three broad weathered copper plates with visible bolt on each, two blunt spade feelers, one teal slit eye, charcoal arms and rubber feet. Original hand-painted Salvage Neon Bazaar graphic novel render, cool TOP-LEFT light. Keep exact material palette, ink edge thickness and full LEFT strict side profile. Head remains on LEFT.
+Produce just one new grounded shove / anticipatory attack pose, clearly different from all three references: low powerful silhouette, the blunt left head and feelers push well forward toward the left like a miniature plow, rear body raised a little, nearest forefoot reaches forward while at least two other broad recognizable feet plant along a level baseline, longest profile horizontally. Clearly the same animal, don't add metal spikes, limbs, weapons, sparks, attack marks, slash FX, shadows or floor. No lettering at all, no grid, no other variants, no background. Retain real transparent pixels around feelers, under-belly and surrounding four outline edges. Entire animal, side-on, toes comfortably inside margins. Place it centered on canvas with breathing space on all edges. Keep subdued tiny teal accent, no bright neon emission.
+```

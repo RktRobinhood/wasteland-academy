@@ -1,0 +1,79 @@
+{
+  "name": "copper-mite",
+  "image": "copper-mite.webp",
+  "facing": "left",
+  "origin": [
+    0,
+    0
+  ],
+  "figure_height": 228,
+  "display_height": 80,
+  "frames": [
+    {
+      "id": "idle",
+      "x": 71,
+      "y": 13,
+      "w": 342,
+      "h": 235,
+      "ox": -199,
+      "oy": -231
+    },
+    {
+      "id": "attack",
+      "x": 517,
+      "y": 30,
+      "w": 481,
+      "h": 217,
+      "ox": -265,
+      "oy": -214
+    },
+    {
+      "id": "hurt",
+      "x": 1119,
+      "y": 20,
+      "w": 315,
+      "h": 228,
+      "ox": -175,
+      "oy": -224
+    },
+    {
+      "id": "defeated",
+      "x": 1632,
+      "y": 70,
+      "w": 346,
+      "h": 178,
+      "ox": -174,
+      "oy": -174
+    }
+  ],
+  "anims": {
+    "idle": {
+      "frames": [
+        0
+      ],
+      "fps": 1,
+      "loop": true
+    },
+    "attack": {
+      "frames": [
+        1
+      ],
+      "fps": 1,
+      "loop": false
+    },
+    "hurt": {
+      "frames": [
+        2
+      ],
+      "fps": 1,
+      "loop": false
+    },
+    "defeated": {
+      "frames": [
+        3
+      ],
+      "fps": 1,
+      "loop": false
+    }
+  }
+}

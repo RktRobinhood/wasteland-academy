@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "asset_id": "scrap-fields/copper-mite-01",
+  "region": "scrap-fields",
+  "overworld_zone": "algebra",
+  "type": "monster-state-atlas",
+  "status": "ready-for-art-trial",
+  "game_integrations": 0,
+  "release_targets": [],
+  "reference_main": "24e0fa4c390bfb7889fce048b32108e18a1fbf6f",
+  "toolbox_parent": "31aec64efe4ba57bf32aee76194e7a9214657630",
+  "art_identity": "Original fictional local salvage insect, proposed noncanonical encounter candidate. Fitted geometry only; not a boss, rank replacement, progression or curriculum change.",
+  "provenance": {
+    "tool": "OpenAI built-in ImageGen",
+    "reference_image_for_shove": "masters/copper-mite-contact-sheet-original.png",
+    "external_image_inputs": [],
+    "prompt_record": "PROMPTS.md",
+    "export_process": "RGBA source retained; ImageMagick crops, removes sub-4% stray alpha, uniformly scales sprites and packs cells; no painted gameplay effects.",
+    "desktop_proof_background": "Existing art-only Scrap Fields journey-01 parallax exports, not the live game."
+  },
+  "geometry": {
+    "atlas": "exports/copper-mite.webp",
+    "frames": "exports/copper-mite.json",
+    "rectangle_coordinates": "zero-based x,y,w,h, with clear borders",
+    "cell_px": [
+      512,
+      256
+    ],
+    "feet_point_in_cell": [
+      270,
+      244
+    ],
+    "strong_contact_pixel_row": 243,
+    "facing": "left",
+    "figure_height_idle_px": 228,
+    "journey_reference_display_height_px": 80,
+    "poses": {
+      "idle": "wary",
+      "attack": "grounded shove",
+      "hurt": "recoil",
+      "defeated": "shell down"
+    },
+    "walk_cycle": false
+  },
+  "verification": {
+    "engine": "Godot 4.7.2 isolated; exact main JourneyAssets loader, scan/validate/region roster/WebP and texture decode/4 pose lookup/clear frame borders/shared contact row/portrait dimensions",
+    "previews": "864 px scene composition and 390 px contrast in warm and charcoal backgrounds; no real handset playtest or stage integration",
+    "scope": "Art files only. No runtime scene, story, community challenge, combat balance, tier, or curriculum hook added."
+  },
+  "files": {
+    "exports/copper-mite-portrait.png": {
+      "sha256": "a0fb170794acb394893029d8f81314bfbde0adab6f66402620a368659eafd61c",
+      "bytes": 58543,
+      "dimensions": [
+        256,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    "exports/copper-mite.json": {
+      "sha256": "5ad40f198c9d83eaa6ef6db2e9bd3794b562e05eaf452d1164a0e6cf1b47b090",
+      "bytes": 1106
+    },
+    "exports/copper-mite.webp": {
+      "sha256": "02150410a2fceeca7c83a5b6008015886c95043d0457ad44d8b9294ba04d81c0",
+      "bytes": 120888,
+      "dimensions": [
+        2048,
+        256
+      ],
+      "mode": "RGBA"
+    },
+    "masters/copper-mite-contact-sheet-original.png": {
+      "sha256": "5353c41727e4a2d6b10cc08ac3b931529f7add61dbf7e7deb6ac6e3fdf932d33",
+      "bytes": 1235809,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA"
+    },
+    "masters/copper-mite-shove-original.png": {
+      "sha256": "42f88953b54ecfa65a6042ff68dfe9eb1bc032075a44dcdd1b1153b7ac00b022",
+      "bytes": 1417381,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA"
+    },
+    "previews/journey-desktop.jpg": {
+      "sha256": "a39333dd4ed73eed8737f3f0c22813e64829bd68bb56235827d07c1069ac1bda",
+      "bytes": 115725,
+      "dimensions": [
+        864,
+        304
+      ],
+      "mode": "RGB"
+    },
+    "previews/phone-contrast.png": {
+      "sha256": "966a1f8c84c04085c95976e6d79c13d1becc2f4777808c54c3412c0d011e797c",
+      "bytes": 173610,
+      "dimensions": [
+        390,
+        318
+      ],
+      "mode": "RGBA"
+    }
+  }
+}
