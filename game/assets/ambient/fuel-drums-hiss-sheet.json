@@ -1,0 +1,226 @@
+{
+ "frames": {
+  "fuel-drums-hiss-sheet_0001": {
+   "duration": 83,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-hiss-sheet_0002": {
+   "duration": 83,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 200,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-hiss-sheet_0003": {
+   "duration": 83,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 400,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-hiss-sheet_0004": {
+   "duration": 83,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 600,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-hiss-sheet_0005": {
+   "duration": 83,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 800,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-hiss-sheet_0006": {
+   "duration": 83,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 1000,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-hiss-sheet_0007": {
+   "duration": 83,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 1200,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-hiss-sheet_0008": {
+   "duration": 83,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 1400,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-hiss-sheet_0009": {
+   "duration": 83,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 170
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-hiss-sheet_0010": {
+   "duration": 83,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 200,
+    "y": 170
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 12.0,
+  "image": "fuel-drums-hiss-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 340,
+   "w": 1600
+  },
+  "version": "1"
+ }
+}

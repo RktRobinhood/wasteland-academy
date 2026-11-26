@@ -1,0 +1,268 @@
+{
+ "frames": {
+  "world-smoke-sheet_0001": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0002": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 208,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0003": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 416,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0004": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 624,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0005": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 832,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0006": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 1040,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0007": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 1248,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0008": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 1456,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0009": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 72
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0010": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 208,
+    "y": 72
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0011": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 416,
+    "y": 72
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-sheet_0012": {
+   "duration": 100,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 624,
+    "y": 72
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 10.0,
+  "image": "world-smoke-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 144,
+   "w": 1664
+  },
+  "version": "1"
+ }
+}

@@ -1,0 +1,184 @@
+{
+ "frames": {
+  "fuel-drums-wobble-sheet_0001": {
+   "duration": 100,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-wobble-sheet_0002": {
+   "duration": 100,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 200,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-wobble-sheet_0003": {
+   "duration": 100,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 400,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-wobble-sheet_0004": {
+   "duration": 100,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 600,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-wobble-sheet_0005": {
+   "duration": 100,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 800,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-wobble-sheet_0006": {
+   "duration": 100,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 1000,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-wobble-sheet_0007": {
+   "duration": 100,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 1200,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "fuel-drums-wobble-sheet_0008": {
+   "duration": 100,
+   "frame": {
+    "h": 170,
+    "w": 200,
+    "x": 1400,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 170,
+    "w": 200
+   },
+   "spriteSourceSize": {
+    "h": 170,
+    "w": 200,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 10.0,
+  "image": "fuel-drums-wobble-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 170,
+   "w": 1600
+  },
+  "version": "1"
+ }
+}

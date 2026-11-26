@@ -12,6 +12,10 @@ headless on the CPU. Run each step from the piece's own folder.
 | `flats-dust-sheet` | EffectCraft | `effectcraft-cli run --commands dust.jsonl --empty --save-as dust.ecproj`, `./dust-set.sh`, render `--start 4 --end 8` to `seq/`, then `python3 ../pack_loop.py dust/seq ../flats-dust-sheet.png 6 12 --loop 24 --scale 0.5` from this folder |
 | `hit-spark-sheet` | EffectCraft | `spark.jsonl`, `./spark-set.sh`, render `--start 0.083 --end 0.75`, then `pack_loop.py ... 4 12` |
 | `dust-burst-sheet` | EffectCraft | `burst.jsonl`, `./burst-set.sh`, render `--start 0.083 --end 1.17`, then `pack_loop.py ... 7 12 --fade 4` |
+| `world-smoke-plate`, `world-smoke`, `world-smoke-stir` | Pillow + numpy (FAL-1724) | `cd toys && python3 build_smoke.py` (cuts W1-4's Engine Core plumes, paints the ground behind them, idle billow + stir) |
+| `crow-perch`, `crow-takeoff`, `crow-land` | Pillow (FAL-1724) | `cd toys && python3 build_crow.py` |
+| `signal-beacon-overload` | Pillow + numpy (FAL-1724) | `cd toys && python3 build_beacon.py` |
+| `fuel-drums`, `-wobble`, `-hiss`, `-blast`, `-wreck` | Pillow + numpy (FAL-1724) | `cd toys && python3 build_drums.py` (the stack is cut from `map/algebra/background-wide.webp`) |
 
 With `anicraft-cli run ... --save`, delete the old `.anicraft` first, because saving over it is refused.
 
@@ -22,5 +26,5 @@ python3 feather_edges.py ../hit-spark-sheet.png 24 --radial
 python3 feather_edges.py ../flats-dust-sheet.png 16
 python3 feather_edges.py ../engine-smoke-sheet.png 16 --sides R
 python3 feather_edges.py ../dome-neon-sheet.png 4 --sides B
-python3 check_edges.py        # every cell's outer 1 px row must read alpha <= 8; exits 1 otherwise
+python3 check_edges.py        # the toys/ builders fade their own cell edges (toylib.edge_fade); every cell's outer 1 px row must read alpha <= 8; exits 1 otherwise
 ```

@@ -1,0 +1,226 @@
+{
+ "frames": {
+  "signal-beacon-overload-sheet_0001": {
+   "duration": 83,
+   "frame": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 64,
+    "w": 64
+   },
+   "spriteSourceSize": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "signal-beacon-overload-sheet_0002": {
+   "duration": 83,
+   "frame": {
+    "h": 64,
+    "w": 64,
+    "x": 64,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 64,
+    "w": 64
+   },
+   "spriteSourceSize": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "signal-beacon-overload-sheet_0003": {
+   "duration": 83,
+   "frame": {
+    "h": 64,
+    "w": 64,
+    "x": 128,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 64,
+    "w": 64
+   },
+   "spriteSourceSize": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "signal-beacon-overload-sheet_0004": {
+   "duration": 83,
+   "frame": {
+    "h": 64,
+    "w": 64,
+    "x": 192,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 64,
+    "w": 64
+   },
+   "spriteSourceSize": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "signal-beacon-overload-sheet_0005": {
+   "duration": 83,
+   "frame": {
+    "h": 64,
+    "w": 64,
+    "x": 256,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 64,
+    "w": 64
+   },
+   "spriteSourceSize": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "signal-beacon-overload-sheet_0006": {
+   "duration": 83,
+   "frame": {
+    "h": 64,
+    "w": 64,
+    "x": 320,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 64,
+    "w": 64
+   },
+   "spriteSourceSize": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "signal-beacon-overload-sheet_0007": {
+   "duration": 83,
+   "frame": {
+    "h": 64,
+    "w": 64,
+    "x": 384,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 64,
+    "w": 64
+   },
+   "spriteSourceSize": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "signal-beacon-overload-sheet_0008": {
+   "duration": 83,
+   "frame": {
+    "h": 64,
+    "w": 64,
+    "x": 448,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 64,
+    "w": 64
+   },
+   "spriteSourceSize": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "signal-beacon-overload-sheet_0009": {
+   "duration": 83,
+   "frame": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 64
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 64,
+    "w": 64
+   },
+   "spriteSourceSize": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "signal-beacon-overload-sheet_0010": {
+   "duration": 83,
+   "frame": {
+    "h": 64,
+    "w": 64,
+    "x": 64,
+    "y": 64
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 64,
+    "w": 64
+   },
+   "spriteSourceSize": {
+    "h": 64,
+    "w": 64,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 12.0,
+  "image": "signal-beacon-overload-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 128,
+   "w": 512
+  },
+  "version": "1"
+ }
+}

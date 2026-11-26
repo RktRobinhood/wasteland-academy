@@ -1,0 +1,310 @@
+{
+ "frames": {
+  "world-smoke-stir-sheet_0001": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0002": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 208,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0003": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 416,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0004": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 624,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0005": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 832,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0006": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 1040,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0007": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 1248,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0008": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 1456,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0009": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 72
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0010": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 208,
+    "y": 72
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0011": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 416,
+    "y": 72
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0012": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 624,
+    "y": 72
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0013": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 832,
+    "y": 72
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  },
+  "world-smoke-stir-sheet_0014": {
+   "duration": 83,
+   "frame": {
+    "h": 72,
+    "w": 208,
+    "x": 1040,
+    "y": 72
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 72,
+    "w": 208
+   },
+   "spriteSourceSize": {
+    "h": 72,
+    "w": 208,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 12.0,
+  "image": "world-smoke-stir-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 144,
+   "w": 1664
+  },
+  "version": "1"
+ }
+}

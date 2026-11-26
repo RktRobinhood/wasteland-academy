@@ -1,0 +1,37 @@
+{
+ "frames": {
+  "world-smoke-plate-sheet_0001": {
+   "duration": 100,
+   "frame": {
+    "h": 144,
+    "w": 416,
+    "x": 0,
+    "y": 0
+   },
+   "rotated": false,
+   "sourceSize": {
+    "h": 144,
+    "w": 416
+   },
+   "spriteSourceSize": {
+    "h": 144,
+    "w": 416,
+    "x": 0,
+    "y": 0
+   },
+   "trimmed": false
+  }
+ },
+ "meta": {
+  "app": "FAL-1724 toylib (Pillow)",
+  "format": "RGBA8888",
+  "frameRate": 10.0,
+  "image": "world-smoke-plate-sheet.png",
+  "scale": "1",
+  "size": {
+   "h": 144,
+   "w": 416
+  },
+  "version": "1"
+ }
+}
