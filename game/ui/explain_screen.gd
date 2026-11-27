@@ -14,6 +14,8 @@ const DEFAULT_VIEW := {"type": "fn-quadratic-features", "unknown": "vertex-from-
 const TRIES := 20
 
 var player: Explainer
+var _turn_view: Dictionary = {}
+var _demo := false
 
 
 func _ready() -> void:
@@ -24,20 +26,31 @@ func _ready() -> void:
 	add_child(bg)
 	var args := preload("res://ui/practice.gd").url_args()
 	var deep := preload("res://ui/practice.gd").view_from(args)
+	_demo = str(args.get("autoplay", "")) != ""
 	var view: Dictionary = deep.get("view", {})
 	if view.is_empty() or view.get("format") == "probe":
 		view = DEFAULT_VIEW.duplicate()
 		view.seed = int(args.get("seed", randi_range(1, 999)))
 	var q := question_for(view)
 	player = Explainer.make(q, 0)
-	player.closed.connect(func() -> void: get_tree().change_scene_to_file.call_deferred(MAIN))
-	player.your_turn.connect(func(v: Dictionary) -> void:
-		preload("res://ui/practice.gd").launch_view = v
-		get_tree().change_scene_to_file.call_deferred(PRACTICE))
+	player.your_turn.connect(func(v: Dictionary) -> void: _turn_view = v)
+	player.closed.connect(_leave, CONNECT_ONE_SHOT)
 	add_child(player)
 	if args.has("t"):
 		player.pause()
 		player.seek(float(args.t))
+
+
+## Your turn emits its new view, then closes the player just like the Close button.
+## Use that one close signal for either destination, never queue both scene changes.
+func _leave() -> void:
+	if _turn_view.is_empty():
+		get_tree().change_scene_to_file.call_deferred(MAIN)
+		return
+	var practice := preload("res://ui/practice.gd")
+	practice.launch_view = _turn_view
+	practice.launch_view_demo = _demo
+	get_tree().change_scene_to_file.call_deferred(PRACTICE)
 
 
 ## The question for a view, moving on through the seeds until one has a move to watch.

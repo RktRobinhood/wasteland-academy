@@ -32,6 +32,7 @@ const LAYOUT_FRAMES := 3
 static var launch_region := ""
 ## A view to open on, read once by _ready(): the explainer's "Your turn" (FAL-429).
 static var launch_view := {}
+static var launch_view_demo := false
 
 ## Where the save lives. Tests point this somewhere else.
 var save_path := SaveData.PATH
@@ -85,14 +86,14 @@ func _ready() -> void:
 	var deep := deep_link()
 	if not launch_view.is_empty():
 		var v := launch_view
+		var course := Courses.of(save)
+		_answer_preview = launch_view_demo or course == "" or not MathsEngine.request_in_course(v, course)
 		launch_view = {}
+		launch_view_demo = false
 		show_view(v)
 	elif not deep.is_empty():
 		_answer_preview = deep.autoplay != "" or not MathsEngine.request_in_course(deep.view, Courses.of(save))
 		show_view(deep.view)
-		if _answer_preview and not question.has("error"):
-			feedback.text = PREVIEW_NOTE
-			feedback.visible = true
 		if deep.autoplay != "":
 			autoplay(deep.autoplay == "right")
 		open_from_link(url_args())
@@ -210,6 +211,9 @@ func next_question() -> void:
 func show_view(view: Dictionary) -> void:
 	question = MathsEngine.generate(view)
 	render_question()
+	if _answer_preview and not question.has("error"):
+		feedback.text = PREVIEW_NOTE
+		feedback.visible = true
 
 
 ## The question's words on the card.
