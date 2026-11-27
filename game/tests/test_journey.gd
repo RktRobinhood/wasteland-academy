@@ -723,7 +723,7 @@ func test_scrap_fields_uses_two_real_planes_and_keeps_other_islands() -> void:
 	for r in ["all-algebra", "sequences", "exponents-logs", "finance", "proof", "binomial"]:
 		check_eq(JourneyLink.region_for(r), "scrap-fields", r)
 	check_eq(JourneyLink.region_for("quadratics"), "signal-tower")
-	check_eq(JourneyLink.region_for("all-geometry"), "")
+	check_eq(JourneyLink.region_for("all-geometry"), "dry-flats")
 	check_eq(JourneyLink.region_for("all-calculus"), "")
 	var stage := _stage()
 	tree.root.add_child(stage)
@@ -813,4 +813,67 @@ func test_scrap_fields_live_run_is_view_only() -> void:
 	check(results[0][0].size() >= 5, "the authentic Sequences run has answers")
 	check_eq(results[0], results[1], "animation is not allowed to change a run")
 	check(stage.active and stage.region == "scrap-fields", "the live Run opens the right strip")
+	stage.free()
+
+
+func test_dry_flats_reuses_the_native_strip_with_its_own_arch_and_ground() -> void:
+	for r in ["all-geometry", "triangles", "arcs-sectors", "geometry-3d", "trig-equations", "trig-graphs", "unit-circle"]:
+		check_eq(JourneyLink.region_for(r), "dry-flats", r)
+	check_eq(JourneyLink.region_for("all-algebra"), "scrap-fields")
+	check_eq(JourneyLink.region_for("quadratics"), "signal-tower")
+	check_eq(JourneyLink.region_for("all-stats"), "")
+	check_eq(JourneyLink.region_for("all-calculus"), "")
+	var stage := _stage()
+	tree.root.add_child(stage)
+	var a := JourneyStage.shared_assets()
+	check_eq(a.regions["dry-flats"].layers.map(func(l): return l.name), ["far", "near"])
+	check_eq(a.regions["dry-flats"].layers.map(func(l): return l.scroll), [0.15, 1.0])
+	for pair in [[6, "night"], [7, "day"], [18, "day"], [19, "night"]]:
+		stage.start_run("dry-flats", "learner-female", "rebar", 42, pair[0])
+		check(stage.active and stage.visible, "both light variants show the strip")
+		for l in stage._layers:
+			var file := "res://assets/journey/dry-flats/%s-%s.webp" % [l.name, pair[1]]
+			check_eq(l.tex, a.texture(file), file)
+			check(l.tex != a.texture("res://assets/journey/scrap-fields/%s-%s.webp" % [l.name, pair[1]]), "this is not the Scrap Fields tile")
+		check_eq(stage._layers.size(), 2)
+		check(absf(stage._ground - 159.8) < 0.2, "the native walk anchor is preserved")
+	stage.fight_started(1, 1, 1)
+	stage.question_opened()
+	stage.advance(0.1)
+	var at: float = stage.snapshot().cam
+	stage.advance(1.0)
+	check_eq(stage.snapshot().cam, at, "no distracting scenery movement during a question")
+	check_eq(stage.encounter.group, ["d1-scavenger"], "shared visual roster")
+	stage.answer_resolved("right", {"hit": Tuning.HIT})
+	stage.fight_ended()
+	stage.fight_ahead(2, 2, 2)
+	var phases := {}
+	var move := at
+	for _frame in 600:
+		stage.advance(DT)
+		var snapshot := stage.snapshot()
+		move = maxf(move, snapshot.cam)
+		for pose in snapshot.anims:
+			phases[pose] = true
+	check(move > at + 0.5, "the party scrolls toward the next question")
+	for pose in ["attack", "defeated", "victory", "walk"]:
+		check(phases.has(pose), "standard motion pose %s" % pose)
+	stage.free()
+
+
+func test_dry_flats_strip_never_changes_a_triangles_run() -> void:
+	var stage := _stage()
+	tree.root.add_child(stage)
+	var results := []
+	for stage_enabled in [false, true]:
+		var run := Run.new(SaveData.blank(), "triangles", 1, 42)
+		run.clock = func() -> int: return 1_800_000_000
+		if stage_enabled:
+			JourneyLink.attach(run, stage)
+		preload("res://tests/test_combat.gd").play(run)
+		await tree.process_frame
+		results.append([run.answers, run.summary, JSON.stringify(run.save)])
+	check(results[0][0].size() >= 5, "the authentic Triangles run has answers")
+	check_eq(results[0], results[1], "the shared strip is read-only")
+	check(stage.active and stage.region == "dry-flats")
 	stage.free()
