@@ -1456,3 +1456,58 @@ func test_all_five_wide_islands_keep_registered_targets_and_cards_inside() -> vo
 					playable += 1
 			check_eq(playable, MapLink.region_ids(id).size() + 1, id + " all normal regions plus the island run")
 			_done(made)
+
+
+func test_optional_wide_web_assets_reject_wrong_or_stale_responses() -> void:
+	var script := preload("res://ui/map.gd")
+	var headers := PackedStringArray(["Content-Type: image/webp"])
+	var html := PackedStringArray(["Content-Type: text/html"])
+	var ok := HTTPRequest.RESULT_SUCCESS
+	check_eq(script.wide_web_path("geometry", "v1.2.0"), "map-art/v1.2.0/geometry.webp")
+	check_eq(script.wide_web_path("../outside", "v1.2.0"), "")
+	var raw := FileAccess.get_file_as_bytes("res://assets/map/geometry/background-wide.webp")
+	var portrait := FileAccess.get_file_as_bytes("res://assets/map/geometry/background.webp")
+	var im: Image = script.read_wide_web_image(ok, 200, headers, raw)
+	check(im != null and im.get_size() == Vector2i(1920, 1080), "exact optional source")
+	check_eq(script.read_wide_web_image(ok, 200, html, raw), null, "do not accept HTML fallback")
+	check_eq(script.read_wide_web_image(ok, 404, headers, raw), null)
+	check_eq(script.read_wide_web_image(ok, 200, headers, portrait), null, "wrong asset dimensions")
+	var large := PackedByteArray()
+	large.resize(script.WIDE_ART_LIMIT + 1)
+	check_eq(script.read_wide_web_image(ok, 200, headers, large), null, "oversized reply rejected")
+
+
+func test_layout_completion_waits_until_a_touch_target_is_no_longer_armed() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	var made: Array = await _map(MapLink.WORLD, save, _area(Vector2i(900, 650)))
+	var m: Control = made[1]
+	m.touch = true
+	var b := m.world_board.get_node("Island_geometry") as Button
+	m.press(b)
+	check(m.armed == b and m.card_for == b)
+	m._active_touch[7] = true
+	m._refresh_on_wide_load()
+	check(m._wide_update_waiting and m.armed == b and m.card_for == b)
+	m._active_touch.clear()
+	m._hide_card()
+	await tree.create_timer(0.30).timeout
+	check(not m._wide_update_waiting, "a late load resolved after the gesture")
+	check(m._wide_world and m.screen == "world")
+	_done(made)
+
+
+func test_landscape_rebuild_preserves_focused_destination_and_card() -> void:
+	var save := SaveData.blank()
+	save.settings.reduced_motion = true
+	var made: Array = await _map(MapLink.WORLD, save, _area(Vector2i(1440, 900)))
+	var m: Control = made[1]
+	var prior := m.world_board.get_node("Island_geometry") as Button
+	prior.grab_focus()
+	m.show_card(prior)
+	m._rebuild_framed_controls(m.world_board)
+	await tree.process_frame
+	var restored := m.world_board.get_node("Island_geometry") as Button
+	check(restored != prior and restored.has_focus(), "same destination remains focused")
+	check(m.card_for == restored and m.world_board.get_node("Card").visible)
+	_done(made)

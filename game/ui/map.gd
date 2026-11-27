@@ -54,6 +54,8 @@ const BOARD := Vector2(1080, 1920)
 const WIDE_FRAME := Rect2(-420, 420, 1920, 1080)
 const WIDE_AT_RATIO := 1.15
 const OVERWORLD_WIDE := "res://assets/map/overworld-wide.webp"
+const WIDE_ART_LIMIT := 750_000
+const WIDE_ART_KEYS := ["overworld", "algebra", "functions", "geometry", "stats", "calculus"]
 ## Authored W1-4 registration (assets/art/intake/world/zones.json). World wide
 ## has a different composition, so its gates cannot use the island transform.
 const WIDE_WORLD := {
@@ -206,6 +208,11 @@ var _fitted := {}
 var _map_frames := {}
 var _wide_world := false
 var _wide_island := false
+static var _wide_cache := {}
+var _wide_requests := {}
+var _wide_failed := {}
+var _wide_update_waiting := false
+var _active_touch := {}
 var _tween: Tween
 ## True while the board zooms into a place: presses wait for the next layer.
 var _zooming := false
@@ -389,10 +396,10 @@ func _frame_painting(board: Control) -> void:
 		return
 	var on_world := board == world_board
 	var wide := _wide_world if on_world else _wide_island
-	var path := OVERWORLD_WIDE if on_world else _island_wide_path()
 	var frame: Rect2 = _map_frames[board]
 	if wide:
-		art.texture = load(path)
+		var id := "overworld" if on_world else String(route.island)
+		art.texture = _wide_texture(id, OVERWORLD_WIDE if on_world else _island_wide_path(), false)
 	else:
 		var source: Texture2D = OVERWORLD if on_world else art.get_meta("portrait") as Texture2D
 		if source == null:
@@ -608,8 +615,8 @@ func _fit(refresh_assets := true) -> void:
 	var was_wide_world := _wide_world
 	var was_wide_island := _wide_island
 	var landscape := room.size.x / room.size.y >= WIDE_AT_RATIO
-	_wide_world = landscape and ResourceLoader.exists(OVERWORLD_WIDE)
-	_wide_island = landscape and art_dir == "" and route.has("island") and ResourceLoader.exists(_island_wide_path())
+	_wide_world = landscape and _wide_texture("overworld", OVERWORLD_WIDE, screen == "world") != null
+	_wide_island = landscape and art_dir == "" and route.has("island") and _wide_texture(String(route.island), _island_wide_path(), screen == "island") != null
 	for b in [world_board, island_board]:
 		var island_map: bool = b == island_board
 		var frame := map_frame(room.size, _wide_island if island_map else _wide_world, island_map)
@@ -624,21 +631,9 @@ func _fit(refresh_assets := true) -> void:
 	# Only switching the authored layout rebuilds the hit controls. A normal
 	# resize keeps the current controls and exact input registrations.
 	if refresh_assets and had_frame and screen == "world" and was_wide_world != _wide_world and world_board.has_node("Card"):
-		var focus := world_board.get_viewport().gui_get_focus_owner()
-		var focus_name := String(focus.name) if is_instance_valid(focus) and focus.get_parent() == world_board else ""
-		armed = null
-		card_for = null
-		_fill_world()
-		if focus_name != "":
-			_first_focus.call_deferred(world_board.get_node_or_null(focus_name) as Button)
+		_rebuild_framed_controls(world_board)
 	elif refresh_assets and had_frame and screen == "island" and was_wide_island != _wide_island and island_board.has_node("Card"):
-		var focus := island_board.get_viewport().gui_get_focus_owner()
-		var focus_name := String(focus.name) if is_instance_valid(focus) and focus.get_parent() == island_board else ""
-		armed = null
-		card_for = null
-		_fill_island()
-		if focus_name != "":
-			_first_focus.call_deferred(island_board.get_node_or_null(focus_name) as Button)
+		_rebuild_framed_controls(island_board)
 	var side := maxf(36.0, (area.x - (COLUMN_WIDE if area.x > area.y else COLUMN)) / 2.0)
 	for m in _headers:
 		m.add_theme_constant_override("margin_left", 36)
@@ -652,6 +647,106 @@ func _fit(refresh_assets := true) -> void:
 	region_margin.add_theme_constant_override("margin_right", int(side))
 	region_margin.add_theme_constant_override("margin_top", 40)
 	region_margin.add_theme_constant_override("margin_bottom", 30)
+
+
+## Preserve the selected destination and card when its responsive geometry changes.
+func _rebuild_framed_controls(board: Control) -> void:
+	var focus := board.get_viewport().gui_get_focus_owner()
+	var focus_name := String(focus.name) if is_instance_valid(focus) and focus.get_parent() == board else ""
+	var card_name := String(card_for.name) if is_instance_valid(card_for) and card_for.get_parent() == board else ""
+	var armed_name := String(armed.name) if is_instance_valid(armed) and armed.get_parent() == board else ""
+	armed = null
+	card_for = null
+	if board == world_board:
+		_fill_world()
+	else:
+		_fill_island()
+	if focus_name != "":
+		_first_focus.call_deferred(board.get_node_or_null(focus_name) as Button)
+	if armed_name != "":
+		armed = board.get_node_or_null(armed_name) as Button
+	if card_name != "":
+		var prior := board.get_node_or_null(card_name) as Button
+		if prior != null:
+			show_card(prior)
+
+
+## Portrait is always available. Web fetches only the landscape being opened.
+func _wide_texture(key: String, path: String, request_if_missing: bool) -> Texture2D:
+	if not WIDE_ART_KEYS.has(key):
+		return null
+	if not OS.has_feature("web"):
+		return load(path) as Texture2D if ResourceLoader.exists(path) else null
+	if _wide_cache.has(key):
+		return _wide_cache[key]
+	if request_if_missing and not _wide_failed.has(key) and not _wide_requests.has(key):
+		_request_wide(key)
+	return null
+
+
+static func wide_web_path(key: String, build: String) -> String:
+	return "map-art/%s/%s.webp" % [build.uri_encode(), key] if WIDE_ART_KEYS.has(key) else ""
+
+
+func _request_wide(key: String) -> void:
+	var path := wide_web_path(key, Build.id())
+	var url = JavaScriptBridge.eval(
+		"(() => { const u = new URL(%s, document.baseURI); return u.origin === location.origin ? u.href : ''; })()" %
+		JSON.stringify(path), true)
+	if not url is String or url.is_empty():
+		_wide_failed[key] = true
+		return
+	var request := HTTPRequest.new()
+	request.body_size_limit = WIDE_ART_LIMIT
+	request.timeout = 9.0
+	request.max_redirects = 0
+	request.accept_gzip = false
+	add_child(request)
+	_wide_requests[key] = request
+	request.request_completed.connect(func(result: int, status: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+		_wide_requests.erase(key)
+		request.queue_free()
+		var image := read_wide_web_image(result, status, headers, body)
+		if image == null:
+			_wide_failed[key] = true
+			return
+		_wide_cache[key] = ImageTexture.create_from_image(image)
+		_refresh_on_wide_load()
+	)
+	if request.request(url) != OK:
+		_wide_requests.erase(key)
+		request.queue_free()
+		_wide_failed[key] = true
+
+
+static func read_wide_web_image(result: int, status: int, headers: PackedStringArray, body: PackedByteArray) -> Image:
+	if result != HTTPRequest.RESULT_SUCCESS or status != 200 or body.size() < 12 or body.size() > WIDE_ART_LIMIT:
+		return null
+	var webp := false
+	for line in headers:
+		var name := line.get_slice(":", 0).strip_edges().to_lower()
+		if name == "content-type":
+			webp = line.get_slice(":", 1).get_slice(";", 0).strip_edges().to_lower() == "image/webp"
+	if not webp or body.slice(0, 4).get_string_from_ascii() != "RIFF" or body.slice(8, 12).get_string_from_ascii() != "WEBP":
+		return null
+	var image := Image.new()
+	if image.load_webp_from_buffer(body) != OK or image.get_size() != Vector2i(WIDE_FRAME.size):
+		return null
+	return image
+
+
+## Never move a target under an active press or an armed touchscreen card.
+func _refresh_on_wide_load() -> void:
+	if not is_inside_tree() or screen not in ["world", "island"]:
+		return
+	if _zooming or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or not _active_touch.is_empty() or (touch and is_instance_valid(armed)):
+		if not _wide_update_waiting:
+			_wide_update_waiting = true
+			get_tree().create_timer(0.2).timeout.connect(func():
+				_wide_update_waiting = false
+				_refresh_on_wide_load())
+		return
+	_fit()
 
 
 ## A board's [position, scale] zoomed ZOOM times into a point (board units), the point
@@ -922,6 +1017,11 @@ func _card(board: Control) -> PanelContainer:
 
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			_active_touch[event.index] = true
+		else:
+			_active_touch.erase(event.index)
 	if event is InputEventScreenTouch or event is InputEventScreenDrag:
 		touch = true
 	elif event is InputEventKey or (event is InputEventMouse and event.device != InputEvent.DEVICE_ID_EMULATION):

@@ -29,6 +29,10 @@ import sys
 PCK_BUDGET = 19_819_147
 ADDON = "res://addons/godot_mcp_toolkit/"
 AUDIO_DIRS = ("res://assets/audio/music/", "res://assets/audio/voice/")
+WIDE_MAP = {"res://assets/map/overworld-wide.webp"} | {
+    f"res://assets/map/{key}/background-wide.webp"
+    for key in ["algebra", "functions", "geometry", "stats", "calculus"]
+}
 
 
 def pack_files(path):
@@ -80,6 +84,8 @@ def main():
     files = pack_files(pck)
     sources = {name[:-len(".import")] for name in files if name.endswith(".import")}
     sources |= {name[:-len(".remap")] for name in files if name.endswith(".remap")}
+    for name in sorted(WIDE_MAP.intersection(set(files) | sources)):
+        problems.append(f"index.pck holds optional landscape art: {name}")
     for name in sorted(set(files) | sources):
         if name.startswith(ADDON):
             problems.append(f"index.pck holds the dev addon: {name}")
