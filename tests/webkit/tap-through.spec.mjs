@@ -23,7 +23,7 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.
 const TAP = {
   play: [72, 773],
   courseAaSl: [195, 180],
-  courseContinue: [195, 749],
+  courseContinue: [195, 805], // pinned course-picker footer
   scrapFields: [86, 325],
   sequences: [74, 538],
   startRun: [195, 414],

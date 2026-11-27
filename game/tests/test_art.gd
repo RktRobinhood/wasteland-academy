@@ -310,6 +310,30 @@ func test_the_title_screen_key_art() -> void:
 	_restore()
 
 
+func test_title_atmosphere_matches_cover_and_can_be_still() -> void:
+	var atmosphere := preload("res://ui/title_atmosphere.gd")
+	var frame := Control.new()
+	tree.root.add_child(frame)
+	var layer: Control = atmosphere.new()
+	frame.add_child(layer)
+	var wide := atmosphere.cover_rect(Vector2(1440, 900), Vector2(1920, 1080))
+	check(wide.position.is_equal_approx(Vector2(-80, 0)))
+	check(wide.size.is_equal_approx(Vector2(1600, 900)))
+	var tall := atmosphere.cover_rect(Vector2(390, 844), Vector2(1080, 1920))
+	check(tall.position.x < -40.0 and is_zero_approx(tall.position.y))
+	check(is_equal_approx(tall.size.y, 844.0))
+	layer.configure(Vector2(1080, 1920), false, false)
+	check(layer.visible and layer.is_processing())
+	check_eq(layer.mouse_filter, Control.MOUSE_FILTER_IGNORE, "motion never eats input")
+	layer._process(0.25)
+	check(layer.clock > 0.0, "title world animates")
+	layer.configure(Vector2(1080, 1920), false, true)
+	check(layer.visible and not layer.is_processing(), "reduced motion leaves the static painting")
+	layer.configure(Vector2.ZERO, false, false)
+	check(not layer.visible and not layer.is_processing(), "no art means no effects")
+	frame.free()
+
+
 func _bazaar() -> Array:
 	var frame := Control.new()
 	frame.size = _area(Vector2i(390, 844))

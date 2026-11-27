@@ -27,10 +27,13 @@ const EXPLAIN := "res://scenes/explain.tscn"
 const TOY := "res://scenes/toy.tscn"
 const LESSON := "res://scenes/lesson.tscn"
 const LESSON_SCREEN := preload("res://ui/lesson_screen.gd")
+const TITLE_ATMOSPHERE := preload("res://ui/title_atmosphere.gd")
 
 static var _routed := false
 
 var key_art: TextureRect
+var _ambient: Control
+var _calm_title := false
 ## Pushes the buttons to the foot of the screen while key art shows.
 var _gap: Control
 
@@ -41,6 +44,11 @@ func _ready() -> void:
 	key_art.name = "KeyArt"
 	add_child(key_art)
 	move_child(key_art, $Background.get_index() + 1)
+	_ambient = TITLE_ATMOSPHERE.new()
+	_ambient.name = "TitleAtmosphere"
+	key_art.add_child(_ambient)
+	_ambient.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_calm_title = AmbientLayer.motion_reduced(SaveData.load_from())
 	_gap = Control.new()
 	_gap.name = "Gap"
 	_gap.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -52,6 +60,7 @@ func _ready() -> void:
 	var play := get_node_or_null("Center/Column/Buttons/Play") as Button
 	if play != null:
 		play.pressed.connect(open_map)
+		_style_play(play)
 		play.grab_focus.call_deferred()
 	var start := get_node_or_null("Center/Column/Buttons/Practice") as Button
 	if start != null:
@@ -106,10 +115,32 @@ func _ready() -> void:
 func fit_art() -> void:
 	var tex := ArtSlots.texture("title/key-art" if size.x > size.y else "title/key-art-phone")
 	UiTheme.show_backdrop(key_art, tex)
+	_ambient.configure(tex.get_size() if tex != null else Vector2.ZERO, size.x > size.y, _calm_title)
 	var column := $Center/Column as Control
 	$Center/Column/Spark.visible = tex == null
 	_gap.visible = tex != null
-	column.custom_minimum_size.y = size.y * 0.9 if tex != null else 0.0
+	var compact_portrait := size.x <= size.y and size.y / maxf(size.x, 1.0) <= 1.82
+	column.custom_minimum_size.y = size.y * (0.87 if compact_portrait else 0.9) if tex != null else 0.0
+	var row := $Center/Column/Buttons as HBoxContainer
+	var wide := size.x > size.y
+	row.add_theme_constant_override("separation", 40 if wide else 32)
+	($Center/Column/Buttons/Play as Button).custom_minimum_size.x = 400 if wide else 360
+	($Center/Column/Buttons/Practice as Button).custom_minimum_size.x = 640 if wide else 590
+
+
+## Make Play the clear first choice, while keeping visible keyboard focus.
+func _style_play(play: Button) -> void:
+	for kind in ["normal", "hover", "pressed", "hover_pressed"]:
+		var style := theme.get_stylebox(kind, "Button").duplicate() as StyleBoxFlat
+		style.bg_color = UiTheme.TEAL if kind == "normal" else UiTheme.TEAL.lerp(Color.WHITE, 0.18)
+		style.border_color = UiTheme.BG
+		play.add_theme_stylebox_override(kind, style)
+	var focus := theme.get_stylebox("focus", "Button").duplicate() as StyleBoxFlat
+	focus.border_color = UiTheme.BG
+	focus.set_border_width_all(6)
+	play.add_theme_stylebox_override("focus", focus)
+	for variant in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color", "font_focus_color"]:
+		play.add_theme_color_override(variant, UiTheme.BG)
 
 
 func _open_lesson_preview() -> void:
