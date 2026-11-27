@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "region": "discrete-distributions",
+  "biome": "radio-spires",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/discrete-distributions/backdrop.webp",
+  "canonical_night_git_blob": "a274e68bb7c0b888380fdf9fa97692f984ca5aa4",
+  "day": {
+    "path": "day.webp",
+    "bytes": 119640,
+    "sha256": "c7937bf89b2cfb95ac0f9f17b7d5bc42aed2852ee18ccfb13412079bcba4504f",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 96200,
+    "sha256": "a778396c0ec2d0a7795681119c1292565457e15a425d0448c68dab4eeefb0f4b",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.2411,
+  "wash_min_recommended": 0.6,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.213,
+      "day": {
+        "desktop": 4.775,
+        "phone": 4.213
+      }
+    },
+    "0.6": {
+      "worst": 4.755,
+      "day": {
+        "desktop": 5.327,
+        "phone": 4.755
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

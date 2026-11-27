@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "region": "kinematics",
+  "biome": "engine-core",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/kinematics/backdrop.webp",
+  "canonical_night_git_blob": "cb1945fa8d7bc7ab58dab90a498237bf5d1341a8",
+  "day": {
+    "path": "day.webp",
+    "bytes": 87296,
+    "sha256": "2e7d5b2d45ca8e14ff811e56f9eaf03497f5ccb0f8cbc76995f35eb54e018f92",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 86932,
+    "sha256": "df8383f5e9a2b7bf8083e2761ea8d6c790e244a1ab8f76af88e333adc5b33cdc",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.2019,
+  "wash_min_recommended": 0.6,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.16,
+      "day": {
+        "desktop": 5.156,
+        "phone": 4.16
+      }
+    },
+    "0.6": {
+      "worst": 4.704,
+      "day": {
+        "desktop": 5.722,
+        "phone": 4.704
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

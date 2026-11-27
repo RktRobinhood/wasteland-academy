@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "region": "unit-circle",
+  "biome": "dry-flats",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/unit-circle/backdrop.webp",
+  "canonical_night_git_blob": "1660c40a7a23dcdbfd418d0282d36510a119100b",
+  "day": {
+    "path": "day.webp",
+    "bytes": 107572,
+    "sha256": "051099e0a3430a06322740028c69c7b51b95d6b38ea2a17a1124798b74d58d4b",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 104086,
+    "sha256": "1baed7d45faba2493b58bb60b8fb79b029ae4f65e4be1c2a994ed1097abdea92",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.2537,
+  "wash_min_recommended": 0.55,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.864,
+      "day": {
+        "desktop": 4.864,
+        "phone": 4.864
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}
