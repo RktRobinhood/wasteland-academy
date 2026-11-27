@@ -221,6 +221,22 @@ var _zooming := false
 var _quiet := false
 
 
+var scene_light := WorldLight.SceneGrade.new()
+
+
+func _update_world_light(delta: float) -> void:
+	scene_light.advance(delta)
+	for board in [world_board, island_board]:
+		var art := board.get_node_or_null("Art") as TextureRect
+		if art != null:
+			art.self_modulate = scene_light.grade
+	region_backdrop.self_modulate = scene_light.grade
+
+
+func _process(delta: float) -> void:
+	_update_world_light(delta)
+
+
 func _ready() -> void:
 	theme = UiTheme.make()
 	save = SaveData.load_from(save_path)
@@ -237,6 +253,7 @@ func _ready() -> void:
 			MapLink._write(r, true)
 	_fit()
 	show_route(r)
+	_update_world_light(0.0)
 	if SaveData.needs_course(save):
 		ask_course()
 

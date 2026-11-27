@@ -152,10 +152,24 @@ var _announced := -1
 var _fall: Tween
 
 
+var scene_light := WorldLight.SceneGrade.new()
+
+
+func _update_scene_light(delta: float) -> void:
+	var held: bool = run != null and run.state == "question"
+	scene_light.advance(delta, held)
+	backdrop.self_modulate = scene_light.grade
+	arena_art.self_modulate = scene_light.grade
+	# The Journey often already has painted night textures, so preserve depth
+	# and actor silhouettes instead of applying a second full night darkening.
+	strip.self_modulate = Color.WHITE.lerp(scene_light.grade, 0.40)
+
+
 func _ready() -> void:
 	_watch_visibility()
 	theme = UiTheme.make()
 	_build()
+	_update_scene_light(0.0)
 	resized.connect(_fit)
 	_fit()
 	var deep := deep_link()
@@ -726,6 +740,7 @@ func set_away(value: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	_update_scene_light(delta)
 	if run == null or run.state != "question":
 		return
 	if away:

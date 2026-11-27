@@ -19,6 +19,36 @@ const KEYS := [
 ]
 
 
+## A scene-owned sampler: throttle wall-clock reads and ease across a clock jump.
+## Ownership is visual only. A prompt can hold the last complete light state.
+class SceneGrade:
+	var clock: Callable = WorldLight.local_minute
+	var grade := Color.WHITE
+	var local_light := 0.10
+	var _goal := Color.WHITE
+	var _local_goal := 0.10
+	var _sample_in := 0.0
+	var _initialized := false
+
+	func advance(delta: float, held: bool = false) -> void:
+		if held and _initialized:
+			return
+		_sample_in -= delta
+		if _sample_in <= 0.0:
+			var now := WorldLight.palette(float(clock.call()))
+			_goal = now.grade
+			_local_goal = now.local_light
+			_sample_in = 0.75
+		if not _initialized:
+			_initialized = true
+			grade = _goal
+			local_light = _local_goal
+			return
+		var step := 1.0 - exp(-clampf(delta, 0.0, 0.25) * 2.0)
+		grade = grade.lerp(_goal, step)
+		local_light = lerpf(local_light, _local_goal, step)
+
+
 static func local_minute() -> float:
 	var t := Time.get_time_dict_from_system()
 	return float(t.hour) * 60.0 + float(t.minute) + float(t.second) / 60.0
