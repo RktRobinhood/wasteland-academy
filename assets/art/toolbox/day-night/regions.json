@@ -1,0 +1,255 @@
+{
+  "schema": 1,
+  "slot_roster_count": 38,
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "contract": {
+    "size": [
+      1920,
+      1080
+    ],
+    "hud_y_start": 324,
+    "phone_center_x": [
+      660,
+      1260
+    ],
+    "source_phase": "original battle plate (night/dusk)",
+    "encoded_format": "WebP, opaque",
+    "contrast_method": "WCAG relative luminance of the brightest 0.1% after alpha compositing UiTheme.BG (31,41,55) with each WebP, separately for full and center crops",
+    "text_rgb": [
+      0.93,
+      0.94,
+      0.96
+    ],
+    "max_webp_bytes": 153600
+  },
+  "entries": [
+    {
+      "region": "all",
+      "biome": "signal-tower",
+      "pair": "signal-tower/all/pair.json",
+      "canonical_dark_source": "game/assets/regions/all/backdrop.webp"
+    },
+    {
+      "region": "all-algebra",
+      "biome": "scrap-fields",
+      "pair": "scrap-fields/all-algebra/pair.json",
+      "canonical_dark_source": "game/assets/regions/all-algebra/backdrop.webp"
+    },
+    {
+      "region": "all-calculus",
+      "biome": "engine-core",
+      "pair": "engine-core/all-calculus/pair.json",
+      "canonical_dark_source": "game/assets/regions/all-calculus/backdrop.webp"
+    },
+    {
+      "region": "all-geometry",
+      "biome": "dry-flats",
+      "pair": "dry-flats/all-geometry/pair.json",
+      "canonical_dark_source": "game/assets/regions/all-geometry/backdrop.webp"
+    },
+    {
+      "region": "all-stats",
+      "biome": "radio-spires",
+      "pair": "radio-spires/all-stats/pair.json",
+      "canonical_dark_source": "game/assets/regions/all-stats/backdrop.webp"
+    },
+    {
+      "region": "arcs-sectors",
+      "biome": "dry-flats",
+      "pair": "dry-flats/arcs-sectors/pair.json",
+      "canonical_dark_source": "game/assets/regions/arcs-sectors/backdrop.webp"
+    },
+    {
+      "region": "averages-spread",
+      "biome": "radio-spires",
+      "pair": "radio-spires/averages-spread/pair.json",
+      "canonical_dark_source": "game/assets/regions/averages-spread/backdrop.webp"
+    },
+    {
+      "region": "binomial",
+      "biome": "scrap-fields",
+      "pair": "scrap-fields/binomial/pair.json",
+      "canonical_dark_source": "game/assets/regions/binomial/backdrop.webp"
+    },
+    {
+      "region": "composite-inverse",
+      "biome": "signal-tower",
+      "pair": "signal-tower/composite-inverse/pair.json",
+      "canonical_dark_source": "game/assets/regions/composite-inverse/backdrop.webp"
+    },
+    {
+      "region": "conditional-probability",
+      "biome": "radio-spires",
+      "pair": "radio-spires/conditional-probability/pair.json",
+      "canonical_dark_source": "game/assets/regions/conditional-probability/backdrop.webp"
+    },
+    {
+      "region": "definite-integrals",
+      "biome": "engine-core",
+      "pair": "engine-core/definite-integrals/pair.json",
+      "canonical_dark_source": "game/assets/regions/definite-integrals/backdrop.webp"
+    },
+    {
+      "region": "derivative-basics",
+      "biome": "engine-core",
+      "pair": "engine-core/derivative-basics/pair.json",
+      "canonical_dark_source": "game/assets/regions/derivative-basics/backdrop.webp"
+    },
+    {
+      "region": "derivative-rules",
+      "biome": "engine-core",
+      "pair": "engine-core/derivative-rules/pair.json",
+      "canonical_dark_source": "game/assets/regions/derivative-rules/backdrop.webp"
+    },
+    {
+      "region": "discrete-distributions",
+      "biome": "radio-spires",
+      "pair": "radio-spires/discrete-distributions/pair.json",
+      "canonical_dark_source": "game/assets/regions/discrete-distributions/backdrop.webp"
+    },
+    {
+      "region": "exp-log",
+      "biome": "signal-tower",
+      "pair": "signal-tower/exp-log/pair.json",
+      "canonical_dark_source": "game/assets/regions/exp-log/backdrop.webp"
+    },
+    {
+      "region": "exponents-logs",
+      "biome": "scrap-fields",
+      "pair": "scrap-fields/exponents-logs/pair.json",
+      "canonical_dark_source": "game/assets/regions/exponents-logs/backdrop.webp"
+    },
+    {
+      "region": "finance",
+      "biome": "scrap-fields",
+      "pair": "scrap-fields/finance/pair.json",
+      "canonical_dark_source": "game/assets/regions/finance/backdrop.webp"
+    },
+    {
+      "region": "function-basics",
+      "biome": "signal-tower",
+      "pair": "signal-tower/function-basics/pair.json",
+      "canonical_dark_source": "game/assets/regions/function-basics/backdrop.webp"
+    },
+    {
+      "region": "geometry-3d",
+      "biome": "dry-flats",
+      "pair": "dry-flats/geometry-3d/pair.json",
+      "canonical_dark_source": "game/assets/regions/geometry-3d/backdrop.webp"
+    },
+    {
+      "region": "graphs-features",
+      "biome": "signal-tower",
+      "pair": "signal-tower/graphs-features/pair.json",
+      "canonical_dark_source": "game/assets/regions/graphs-features/backdrop.webp"
+    },
+    {
+      "region": "integration",
+      "biome": "engine-core",
+      "pair": "engine-core/integration/pair.json",
+      "canonical_dark_source": "game/assets/regions/integration/backdrop.webp"
+    },
+    {
+      "region": "kinematics",
+      "biome": "engine-core",
+      "pair": "engine-core/kinematics/pair.json",
+      "canonical_dark_source": "game/assets/regions/kinematics/backdrop.webp"
+    },
+    {
+      "region": "lines",
+      "biome": "signal-tower",
+      "pair": "signal-tower/lines/pair.json",
+      "canonical_dark_source": "game/assets/regions/lines/backdrop.webp"
+    },
+    {
+      "region": "normal-distribution",
+      "biome": "radio-spires",
+      "pair": "radio-spires/normal-distribution/pair.json",
+      "canonical_dark_source": "game/assets/regions/normal-distribution/backdrop.webp"
+    },
+    {
+      "region": "probability",
+      "biome": "radio-spires",
+      "pair": "radio-spires/probability/pair.json",
+      "canonical_dark_source": "game/assets/regions/probability/backdrop.webp"
+    },
+    {
+      "region": "proof",
+      "biome": "scrap-fields",
+      "pair": "scrap-fields/proof/pair.json",
+      "canonical_dark_source": "game/assets/regions/proof/backdrop.webp"
+    },
+    {
+      "region": "quadratics",
+      "biome": "signal-tower",
+      "pair": "signal-tower/quadratics/pair.json",
+      "canonical_dark_source": "game/assets/regions/quadratics/backdrop.webp"
+    },
+    {
+      "region": "rational",
+      "biome": "signal-tower",
+      "pair": "signal-tower/rational/pair.json",
+      "canonical_dark_source": "game/assets/regions/rational/backdrop.webp"
+    },
+    {
+      "region": "regression",
+      "biome": "radio-spires",
+      "pair": "radio-spires/regression/pair.json",
+      "canonical_dark_source": "game/assets/regions/regression/backdrop.webp"
+    },
+    {
+      "region": "sampling-data",
+      "biome": "radio-spires",
+      "pair": "radio-spires/sampling-data/pair.json",
+      "canonical_dark_source": "game/assets/regions/sampling-data/backdrop.webp"
+    },
+    {
+      "region": "sequences",
+      "biome": "scrap-fields",
+      "pair": "scrap-fields/sequences/pair.json",
+      "canonical_dark_source": "game/assets/regions/sequences/backdrop.webp"
+    },
+    {
+      "region": "stationary-points",
+      "biome": "engine-core",
+      "pair": "engine-core/stationary-points/pair.json",
+      "canonical_dark_source": "game/assets/regions/stationary-points/backdrop.webp"
+    },
+    {
+      "region": "tangents-normals",
+      "biome": "engine-core",
+      "pair": "engine-core/tangents-normals/pair.json",
+      "canonical_dark_source": "game/assets/regions/tangents-normals/backdrop.webp"
+    },
+    {
+      "region": "transformations",
+      "biome": "signal-tower",
+      "pair": "signal-tower/transformations/pair.json",
+      "canonical_dark_source": "game/assets/regions/transformations/backdrop.webp"
+    },
+    {
+      "region": "triangles",
+      "biome": "dry-flats",
+      "pair": "dry-flats/triangles/pair.json",
+      "canonical_dark_source": "game/assets/regions/triangles/backdrop.webp"
+    },
+    {
+      "region": "trig-equations",
+      "biome": "dry-flats",
+      "pair": "dry-flats/trig-equations/pair.json",
+      "canonical_dark_source": "game/assets/regions/trig-equations/backdrop.webp"
+    },
+    {
+      "region": "trig-graphs",
+      "biome": "dry-flats",
+      "pair": "dry-flats/trig-graphs/pair.json",
+      "canonical_dark_source": "game/assets/regions/trig-graphs/backdrop.webp"
+    },
+    {
+      "region": "unit-circle",
+      "biome": "dry-flats",
+      "pair": "dry-flats/unit-circle/pair.json",
+      "canonical_dark_source": "game/assets/regions/unit-circle/backdrop.webp"
+    }
+  ]
+}

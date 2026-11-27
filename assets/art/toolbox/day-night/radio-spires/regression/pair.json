@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "region": "regression",
+  "biome": "radio-spires",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/regression/backdrop.webp",
+  "canonical_night_git_blob": "09aa5b0d852da0603aa5c35825215c7e2c76dd9f",
+  "day": {
+    "path": "day.webp",
+    "bytes": 137460,
+    "sha256": "d5eac077c6f82474d82a3f69ffc6d2c79bf6eb2065397e7ff232654a38a2e703",
+    "webp_quality": 88,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 86574,
+    "sha256": "63ddb903cfb2b921d1187bba05081024e77fd71500587d0872da22bce399e8ce",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.3352,
+  "wash_min_recommended": 0.6,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 3.976,
+      "day": {
+        "desktop": 4.086,
+        "phone": 3.976
+      }
+    },
+    "0.6": {
+      "worst": 4.507,
+      "day": {
+        "desktop": 4.623,
+        "phone": 4.507
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim.",
+  "prior_optional_variant": "assets/art/toolbox/radio-spires/battle-regression-01/exports/regression-day.webp"
+}

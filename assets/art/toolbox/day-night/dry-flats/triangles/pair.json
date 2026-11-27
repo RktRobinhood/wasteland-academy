@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "region": "triangles",
+  "biome": "dry-flats",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/triangles/backdrop.webp",
+  "canonical_night_git_blob": "83ba8de79cb6cd4f04c3f2b03941ba58dd306bbe",
+  "day": {
+    "path": "day.webp",
+    "bytes": 142162,
+    "sha256": "a73ea5d8107dec61b6e399d85e66e169555d59447271aa3154993b906a07449a",
+    "webp_quality": 82,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 146818,
+    "sha256": "7eac8db02b2472c7b505eac20af9f3767d8a2e54c42e987f8938daff5916be17",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.386,
+  "wash_min_recommended": 0.65,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 3.674,
+      "day": {
+        "desktop": 3.766,
+        "phone": 3.674
+      }
+    },
+    "0.6": {
+      "worst": 4.194,
+      "day": {
+        "desktop": 4.291,
+        "phone": 4.194
+      }
+    },
+    "0.65": {
+      "worst": 4.808,
+      "day": {
+        "desktop": 4.91,
+        "phone": 4.808
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

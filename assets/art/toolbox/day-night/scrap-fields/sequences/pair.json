@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "region": "sequences",
+  "biome": "scrap-fields",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/sequences/backdrop.webp",
+  "canonical_night_git_blob": "951ca52f49f5c1f6ffebea0a43df8f23952378b1",
+  "day": {
+    "path": "day.webp",
+    "bytes": 146770,
+    "sha256": "cec6b627864e22265579452750538cbca76079c7778893132d714503870e0d56",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 124808,
+    "sha256": "0bb4f4d3afcd582a0336b8ff472afd3cee854845bab7f279abe0552234ca726f",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.2651,
+  "wash_min_recommended": 0.55,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.597,
+      "day": {
+        "desktop": 4.636,
+        "phone": 4.597
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}
