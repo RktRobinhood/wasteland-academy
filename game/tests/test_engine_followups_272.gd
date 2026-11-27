@@ -53,15 +53,15 @@ func test_an_own_draw_of_those_methods_works() -> void:
 ## The k of fn-gdc-intersection's constant-from-crossing is exact: it shows as it is,
 ## beside the GDC's x to 3 s.f.
 func test_an_exact_value_in_a_named_answer_is_not_padded() -> void:
-	var ans := Answer.make("named", {"v0": Q.new(-1), "v1": Q.new(4672113, 1000000)}, {"names": ["k", "x"]})
+	var ans := Answer.make("named", {"v0": Q.new(-1), "v1": Q.new(4672113, 1000000)}, {"names": ["k", "x"], "exact": ["k"]})
 	ans.show = "sf"
 	check_eq(Answer.text(ans), "k = −1, x = 4.67")
 	ans.values = {"v0": Q.new(7, 2), "v1": Q.new(2), "v2": Q.new(33)}
-	ans.fixed = {"names": ["k", "x", "n"]}
-	check_eq(Answer.text(ans), "k = 3.5, x = 2, n = 33")
+	ans.fixed = {"names": ["k", "x", "n"], "exact": ["k", "n"]}
+	check_eq(Answer.text(ans), "k = 3.5, x = 2.00, n = 33")
 	# A decimal past 3 s.f., or a fraction that doesn't end, is still to 3 s.f.
 	ans.values = {"v0": Q.new(-2345, 1000), "v1": Q.new(1, 3)}
-	ans.fixed = {"names": ["k", "x"]}
+	ans.fixed = {"names": ["k", "x"], "exact": ["k", "x"]}
 	check_eq(Answer.text(ans), "k = −2.35, x = 0.333")
 	for c in QuestionEngine.cells(false, ["fn-gdc-intersection"]).filter(func(c): return c.unknown == "constant-from-crossing"):
 		for seed in range(1, 41):

@@ -558,11 +558,12 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 		"poly":
 			return ans.label + poly_text(ans, v)
 		"named":
-			# An exact value stays exact beside a GDC's 3 s.f. one ("k = −1, x = 2.35", #272).
+			# fixed.exact names the values that are exact, which stay as they are beside a
+			# GDC's 3 s.f. one when they have 3 s.f. or fewer ("k = −1, x = 2.35", #272).
 			var parts: PackedStringArray = []
 			for i in fx.names.size():
 				var x: Variant = v["v%d" % i]
-				var t := exact_short(x) if ans.get("show", "") == "sf" else ""
+				var t := exact_short(x) if ans.get("show", "") == "sf" and fx.names[i] in fx.get("exact", []) else ""
 				parts.append("%s = %s%s" % [fx.names[i], t if t != "" else shown(ans, x), fx.units[i] if fx.has("units") else ""])
 			return ", ".join(parts)
 		"pair":

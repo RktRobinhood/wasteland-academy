@@ -4453,9 +4453,11 @@ def ext_text(ans, v):
         cs, ps = ext_poly_parts(ans, v)
         return label + ext_terms(cs, ps, fx.get("var", "x"), ans.get("show") == "dec")
     if kind == "named":
-        # An exact value of 3 s.f. or fewer stays exact (#272).
+        # A value fixed.exact names stays exact when it has 3 s.f. or fewer (#272).
         units = fx.get("units", [""] * len(fx["names"]))
-        parts = [f"{n} = {ext_named_value(ans, v[f'v{i}'])}{units[i]}" for i, n in enumerate(fx["names"])]
+        exact = fx.get("exact", [])
+        parts = [f"{n} = {ext_named_value(ans, v[f'v{i}']) if n in exact else ext_shown(ans, v[f'v{i}'])}{units[i]}"
+                 for i, n in enumerate(fx["names"])]
         return ", ".join(parts)
     if kind == "pair":
         a, b = sorted([R(v["r1"]), R(v["r2"])])
@@ -7298,12 +7300,9 @@ def gc_s(x):
 
 
 def gc_named(x):
-    """x in a named answer, as the game writes it: exact, to the engine's nine decimal
-    places, when that has 3 s.f. or fewer ("−1", "0.5"), else to 3 s.f. (#272)."""
-    if x == 0:
-        return "0"
-    r = sp.Rational(x) if isinstance(x, sp.Rational) else sp.Rational(round(sp.Float(x, 30) * 10**9), 10**9)
-    return short_exact(r) or gc_s(x)
+    """An exact value in a named answer, as the game writes it: as it is when it has 3 s.f.
+    or fewer ("−1", "3.5"), else to 3 s.f. (#272)."""
+    return short_exact(sp.Rational(x)) or gc_s(x)
 
 
 def gc_rounds(x):
@@ -7913,10 +7912,10 @@ def check_gdc_two_curves(q):
         others = [c for c in cs if abs(c[0]) > 1e-20]
         need(len(cs) == 2 and len(others) == 1, "the line doesn't meet the curve once more")
         need(gc_fair(others[0][0]), "the other crossing is not a fair 3 s.f. value")
-        # A named answer keeps an exact value of 3 s.f. or fewer as it is (#272).
-        want = f"k = {gc_named(k)}, x = {gc_named(others[0][0])}"
-        wr = {TC_GI + "6": {f"k = {gc_named(k)}, x = {gc_named(others[0][1])}"},  # the other crossing's y
-              TC_GI + "8": {f"k = {gc_named(mm)}, x = {gc_named(others[0][0])}"}}  # k = the gradient
+        # k is exact: it shows as it is when it has 3 s.f. or fewer, beside x to 3 s.f. (#272).
+        want = f"k = {gc_named(k)}, x = {gc_s(others[0][0])}"
+        wr = {TC_GI + "6": {f"k = {gc_named(k)}, x = {gc_s(others[0][1])}"},  # the other crossing's y
+              TC_GI + "8": {f"k = {gc_named(mm)}, x = {gc_s(others[0][0])}"}}  # k = the gradient
         gc_check_common(q, want, wr, gc_trap([k, others[0][0]], f"k = {gc_s2(k)}, x = {gc_s2(others[0][0])}"))
         return None, None
     f, g, lo, hi, open_left = tc_read(q)
