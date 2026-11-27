@@ -1,0 +1,62 @@
+{
+  "purpose": "Asset review only; not runtime encounter definitions.",
+  "pool": "Shared ordinary human raider/scavenger presentation across biomes.",
+  "export": {
+    "canvas_px": [
+      256,
+      256
+    ],
+    "format": "RGBA PNG",
+    "orientation": "screen-left",
+    "foot_contact_normalized_y": 0.9375,
+    "placement": "Standalone candidate; no route wiring or native sprite replacement."
+  },
+  "provenance": {
+    "generator": "OpenAI built-in ImageGen",
+    "normalization": "Godot 4 native crop, Lanczos resize and alpha-preserving placement",
+    "style_reference": "assets/enemies/d2-raider.png (style only, no copied pixels)",
+    "reference_source_commit": "1423ce06030f61fa9ae7563c9d8cd1946b134d32"
+  },
+  "assets": [
+    {
+      "asset": "scam-nomad",
+      "file": "scam-nomad.png",
+      "art_label": "Scam nomad",
+      "visual_hook": "Long coat, scarf and one open palm; ordinary wayfarer presentation.",
+      "sha256": "23ca76875c9cc59ae441a2a44dd582abdf6d2a01420a90c3bc82b03c9949bbfc",
+      "source_sha256": "bae9e956d7150e5146b0be36f41b103ea759aa31f93b770be11544a22ac8a7ce"
+    },
+    {
+      "asset": "scout-runner",
+      "file": "scout-runner.png",
+      "art_label": "Scout runner",
+      "visual_hook": "Narrow angled running stance, split boots, tied-back hair; ordinary runner presentation.",
+      "sha256": "151e0dab413b4e01b6eb91977904ea2a6269b9d70558e89e9b7d13bc06d3254d",
+      "source_sha256": "e3c78f8977e1d70c2655449d8540814bef24ac85af810b1213830e19fdbb70c6"
+    },
+    {
+      "asset": "armored-junk-guard",
+      "file": "armored-junk-guard.png",
+      "art_label": "Armored junk guard",
+      "visual_hook": "Wide armor and planted boots; ordinary guard presentation, not a boss.",
+      "sha256": "bfd4d8f276509ea25911a9e0ff0d41fbea34d9fca939d9306834e0193c40147e",
+      "source_sha256": "06de21e4b7b201eb05dff400249a19757b36319a5f59b36e4b24ff63e8214a0a"
+    },
+    {
+      "asset": "patched-tinkerer",
+      "file": "patched-tinkerer.png",
+      "art_label": "Patched tinkerer",
+      "visual_hook": "Patch apron, instrument and rectangular pack; ordinary tinkerer or scavenger presentation.",
+      "sha256": "541bf2e5ca769224a036bd34a15fb802c5c36cae54824d2ccc963a95f20c3cba",
+      "source_sha256": "dd79cbc2361a8b17d210c48cba4f7685a334e78f52d9e9465e42509130e1c35e"
+    },
+    {
+      "asset": "salvage-lookout",
+      "file": "salvage-lookout.png",
+      "art_label": "Salvage lookout",
+      "visual_hook": "Raised binoculars, high elbows and swept cape; ordinary lookout presentation.",
+      "sha256": "fa19eff443bee62bdedad53570e85ca30ea453d5618ef3d94244f4eede694ed1",
+      "source_sha256": "90e7c6ae701b66d587e008d51a0596db7e528cee7f246ad3e33eacccd280dd8a"
+    }
+  ]
+}
