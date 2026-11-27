@@ -289,3 +289,22 @@ func test_tab_stays_inside_the_course_question() -> void:
 	check(reached, "Tab reaches Continue once a course is picked")
 	frame.free()
 
+
+func test_course_continue_remains_on_screen_and_desktop_has_readable_width() -> void:
+	for area in [Vector2(1080, 1920), Vector2(3072, 1920)]:
+		var frame := Control.new()
+		frame.size = area
+		tree.root.add_child(frame)
+		var pick := FirstRun.course_pick()
+		frame.add_child(pick)
+		for i in 4:
+			await tree.process_frame
+		var button := pick.continue_button
+		var scroll := pick._body.get_parent() as ScrollContainer
+		check(not scroll.is_ancestor_of(button), "the next action stays out of the scrolling list")
+		check(Rect2(Vector2.ZERO, area).encloses(button.get_global_rect()), "Continue is visible even on a short phone")
+		check(button.size.x <= FirstRun.PANEL_WIDTH, "course choices and Continue share a readable desktop line length")
+		check(button.disabled, "no course is preselected")
+		pick._pick("ai-hl")
+		check(not button.disabled and pick.picked == "ai-hl")
+		frame.free()

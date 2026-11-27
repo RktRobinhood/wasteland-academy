@@ -35,11 +35,14 @@ const CARDS := [
 
 ## The frame's margin on every side.
 const MARGIN := 48
+const PANEL_WIDTH := 1540.0
 
 var picked := ""
 var continue_button: Button
 var card_at := 0
 var _body: VBoxContainer
+var _margin: MarginContainer
+var _footer: VBoxContainer
 
 
 ## The course question. Nothing is pre-picked; Continue opens once a course is.
@@ -67,19 +70,37 @@ func _frame() -> void:
 	bg.color = Color(UiTheme.BG, 0.98)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, MARGIN)
-	add_child(margin)
+	_margin = MarginContainer.new()
+	_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_margin)
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 20)
+	_margin.add_child(stack)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	margin.add_child(scroll)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	stack.add_child(scroll)
 	_body = VBoxContainer.new()
 	_body.name = "Body"
 	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_body.add_theme_constant_override("separation", 22)
 	scroll.add_child(_body)
+	_footer = VBoxContainer.new()
+	_footer.name = "Footer"
+	_footer.hide()
+	stack.add_child(_footer)
+	resized.connect(_fit_frame)
+	_fit_frame()
+
+
+func _fit_frame() -> void:
+	var side := maxi(MARGIN, int((size.x - PANEL_WIDTH) * 0.5))
+	for edge in ["left", "right", "top", "bottom"]:
+		_margin.add_theme_constant_override("margin_" + edge, side if edge in ["left", "right"] else MARGIN)
+	var heading := _body.get_node_or_null("Heading") as Label
+	if heading != null:
+		var clear := heading.get_theme_stylebox("normal") as StyleBoxEmpty
+		clear.content_margin_right = maxf(0.0, AudioHud.RESERVED_RIGHT - side)
 
 
 func _clear() -> void:
@@ -98,6 +119,7 @@ func _heading(text: String) -> void:
 	clear.content_margin_right = AudioHud.RESERVED_RIGHT - MARGIN
 	h.add_theme_stylebox_override("normal", clear)
 	_body.add_child(h)
+	_fit_frame()
 
 
 # ── Course ───────────────────────────────────────────────────
@@ -134,7 +156,8 @@ func _build_course() -> void:
 	continue_button.add_theme_font_size_override("font_size", UiTheme.BIG)
 	continue_button.custom_minimum_size.y = 120
 	continue_button.pressed.connect(_continue)
-	_body.add_child(continue_button)
+	_footer.add_child(continue_button)
+	_footer.show()
 	# Keyboard focus starts on the first course, not on the screen underneath (FAL-1042).
 	_focus.call_deferred(_body.get_node(Courses.ids()[0]))
 
