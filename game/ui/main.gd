@@ -119,7 +119,8 @@ func fit_art() -> void:
 	var column := $Center/Column as Control
 	$Center/Column/Spark.visible = tex == null
 	_gap.visible = tex != null
-	column.custom_minimum_size.y = size.y * 0.9 if tex != null else 0.0
+	var compact_portrait := size.x <= size.y and size.y / maxf(size.x, 1.0) <= 1.82
+	column.custom_minimum_size.y = size.y * (0.87 if compact_portrait else 0.9) if tex != null else 0.0
 	var row := $Center/Column/Buttons as HBoxContainer
 	var wide := size.x > size.y
 	row.add_theme_constant_override("separation", 40 if wide else 32)
