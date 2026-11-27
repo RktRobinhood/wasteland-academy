@@ -73,6 +73,8 @@ if ! XDG_DATA_HOME="$data" "$GODOT" --headless --path "$GAME" --export-pack "Web
 fi
 # The size budget (#183): fails the export, and so CI, when the first load grows past it
 python3 -I "$ROOT/scripts/check_pack.py" "$out"
+# Landscape map art is separately served on demand, not in the first PCK.
+"$ROOT/scripts/export-map-art.sh" "$out" "$("$ROOT/scripts/build-id.sh")"
 # Link previews point at the share card, when there is one (FAL-470).
 "$ROOT/scripts/share-card.sh" "$out"
 ls -l "$out"

@@ -42,7 +42,11 @@ const BUILD = [
 ].map(f => new URL(f, self.location).href);
 // The music and voice lines (#183): fetched by the game only once sound is on, so not
 // at install. Kept like the files above once fetched, so sound works offline too.
-const ON_DEMAND = ['audio.pck'].map(f => new URL(f, self.location).href);
+// Only this build’s six exact optional artworks; never prefetched and never
+// replace another deployment’s /preview/ resources.
+const WIDE_MAP_ART = ['overworld', 'algebra', 'functions', 'geometry', 'stats', 'calculus']
+  .map(key => new URL('map-art/' + encodeURIComponent(BUILD_ID) + '/' + key + '.webp', self.location).href);
+const ON_DEMAND = [new URL('audio.pck', self.location).href, ...WIDE_MAP_ART];
 const ROOT = new URL('./', self.location).href;
 
 self.addEventListener('install', event => {
@@ -113,6 +117,9 @@ async function cacheFirst(event, key) {
   } else {
     response = await fetch(new Request(request, { cache: 'no-cache' }));
   }
-  if (response.ok) event.waitUntil(cache.put(key, response.clone()));
+  const type = (response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+  if (response.ok && (!WIDE_MAP_ART.includes(key) || type === 'image/webp')) {
+    event.waitUntil(cache.put(key, response.clone()));
+  }
   return response;
 }

@@ -30,6 +30,8 @@ extends Control
 ##   alpha     opacity (default 1)
 ##   still     with reduced motion, the frame (0-based) held still; without it the
 ##             piece is hidden
+##   stir      true to let pointer movement past this piece gently turn its anchored
+##             sprite. The position and anchor must meet at the painted emitter.
 ##
 ## With reduced motion (set before build()) nothing moves: each piece holds its still
 ## frame at its position, or is hidden. check() validates a list; the tests run it.
@@ -39,13 +41,34 @@ const MOTIONS: Array[String] = ["none", "bob", "sway", "drift", "path", "pulse",
 const FRAME_MODES: Array[String] = ["still", "cycle", "blink"]
 ## How far past the board's edge a position may sit (a crow flies in from off-screen).
 const EDGE := 200.0
+const STIR_REACH := 18.0 # Cell pixels just beyond the sprite.
+const STIR_LIMIT := 0.20944 # About 12 degrees, never applied to the scenery.
+const STIR_PULSE := 0.13
+const STIR_TRAVEL := 32.0 # Cell pixels to turn a resting plume to the limit.
+const STIR_REST := 0.001
 
-## Hold every piece still (or hide it). Set before build().
-var reduced_motion := false
+## Hold every piece still (or hide it), including an impulse already on screen.
+var reduced_motion := false:
+	set(value):
+		if reduced_motion == value:
+			return
+		reduced_motion = value
+		if value:
+			_reset_stir()
+			for t in things:
+				_hold_still(t)
+		else:
+			for t in things:
+				t["holder"].show()
+			_update(0.0)
+		_refresh_activity()
 ## Seconds since build().
 var time := 0.0
 ## One Dictionary per piece; see _make().
 var things: Array[Dictionary] = []
+var _stirrers: Array[Dictionary] = []
+var _animate_ambient := false
+var _stirring := false
 
 ## Sheets already cut into frames, by sheet name.
 static var _cut := {}
@@ -53,6 +76,17 @@ static var _cut := {}
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func _ready() -> void:
+	_refresh_activity()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED:
+		if not is_visible_in_tree():
+			_reset_stir()
+		_refresh_activity()
 
 
 ## A data file (data/ambient.json) read whole, or {} if it is missing or not an object.
@@ -127,20 +161,117 @@ func build(list: Array) -> void:
 		remove_child(c)
 		c.queue_free()
 	things = []
+	_stirrers = []
+	_animate_ambient = false
+	_stirring = false
 	time = 0.0
 	for e in list:
 		if e is Dictionary:
 			var t := _make(e)
 			if not t.is_empty():
 				things.append(t)
+				if t.has("stir_pivot"):
+					_stirrers.append(t)
+				_animate_ambient = _animate_ambient or t["moves"] or (t["mode"] != "still" and t["frames"].size() > 1)
 	_update(0.0)
+	_refresh_activity()
+
+
+func _refresh_activity() -> void:
+	var active := is_inside_tree() and is_visible_in_tree() and not reduced_motion
+	set_process(active and (_animate_ambient or _stirring))
+	set_process_input(active and not _stirrers.is_empty())
 
 
 func _process(delta: float) -> void:
-	if things.is_empty() or reduced_motion or not is_visible_in_tree():
+	if reduced_motion or not is_visible_in_tree():
 		return
-	time += delta
-	_update(delta)
+	if _animate_ambient:
+		time += delta
+		_update(delta)
+	if _stirring:
+		_settle_stir(delta)
+
+
+## Watch only motion, never mark the event handled. Real mouse and touch drag get
+## the same passive effect; button presses, taps and touch-emulated mouse are ignored.
+func _input(event: InputEvent) -> void:
+	if reduced_motion or not is_visible_in_tree():
+		return
+	if not (event is InputEventMouseMotion or event is InputEventScreenDrag):
+		return
+	if event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
+	var at: Vector2 = event.position
+	var travel: Vector2 = event.relative
+	if travel.is_zero_approx():
+		return
+	for t in _stirrers:
+		var stem: Node2D = t["spinner"]
+		var sprite: Sprite2D = t["sprite"]
+		var inverse := stem.get_global_transform_with_canvas().affine_inverse()
+		var local_at := inverse * at
+		var local_travel := inverse.basis_xform(travel)
+		var reach := sprite.get_rect().grow(STIR_REACH)
+		# Check the swept path as well as the endpoints: fast passes may skip the
+		# whole plume between motion events, especially on a reduced-size board.
+		if not _passes(reach, local_at - local_travel, local_at):
+			continue
+		var push := (local_travel.x + local_travel.y * 0.24) / STIR_TRAVEL
+		if absf(push) < 0.001:
+			continue
+		t["stir_target"] = clampf(float(t["stir_target"]) + STIR_LIMIT * push, -STIR_LIMIT, STIR_LIMIT)
+		t["stir_hold"] = STIR_PULSE
+		if not _stirring:
+			_stirring = true
+			_refresh_activity()
+
+
+static func _passes(rect: Rect2, from: Vector2, to: Vector2) -> bool:
+	if rect.has_point(from) or rect.has_point(to):
+		return true
+	var a := rect.position
+	var b := Vector2(rect.end.x, a.y)
+	var c := rect.end
+	var d := Vector2(a.x, c.y)
+	return (
+		Geometry2D.segment_intersects_segment(from, to, a, b) != null
+		or Geometry2D.segment_intersects_segment(from, to, b, c) != null
+		or Geometry2D.segment_intersects_segment(from, to, c, d) != null
+		or Geometry2D.segment_intersects_segment(from, to, d, a) != null
+	)
+
+
+func _settle_stir(delta: float) -> void:
+	var awake := false
+	for t in _stirrers:
+		var pivot: Node2D = t["stir_pivot"]
+		var target: float = t["stir_target"]
+		var hold: float = t["stir_hold"]
+		var elapsed := minf(delta, hold)
+		if elapsed > 0.0:
+			pivot.rotation = lerpf(pivot.rotation, target, 1.0 - exp(-21.0 * elapsed))
+			hold -= elapsed
+			t["stir_hold"] = hold
+			if hold <= 0.0:
+				t["stir_target"] = 0.0
+		if hold <= 0.0:
+			pivot.rotation *= exp(-8.0 * (delta - elapsed))
+		if hold <= 0.0 and absf(pivot.rotation) < STIR_REST:
+			pivot.rotation = 0.0
+		else:
+			awake = true
+	_stirring = awake
+	if not awake:
+		_refresh_activity()
+
+
+func _reset_stir() -> void:
+	for t in _stirrers:
+		t["stir_pivot"].rotation = 0.0
+		t["stir_target"] = 0.0
+		t["stir_hold"] = 0.0
+	_stirring = false
 
 
 func thing(id: String) -> Dictionary:
@@ -172,6 +303,8 @@ static func check(list: Array, board_size: Vector2, label := "") -> PackedString
 			problems.append("%s: unknown motion %s" % [where, e.get("motion")])
 		if e.has("frames") and not FRAME_MODES.has(str(e["frames"])):
 			problems.append("%s: unknown frames %s" % [where, e["frames"]])
+		if e.has("stir") and not (e["stir"] is bool):
+			problems.append("%s: stir must be true or false" % where)
 		if e.has("still") and (int(e["still"]) < 0 or int(e["still"]) >= n):
 			problems.append("%s: still frame %s is not one of its %d" % [where, e["still"], n])
 		var points := points_of(e)
@@ -213,8 +346,8 @@ static func _vecs(list) -> PackedVector2Array:
 # --- building ---------------------------------------------------------------------------
 
 
-## holder (position, scale, flip) > spinner (sway) > Sprite2D (the frame, its anchor on
-## the spinner's origin).
+## holder (position, scale, flip) > spinner (sway) > optional stir pivot > Sprite2D.
+## The sprite's authored anchor stays fixed at the origin of both rotators.
 func _make(e: Dictionary) -> Dictionary:
 	var sheet := str(e.get("sheet", ""))
 	var cells := frames(sheet)
@@ -232,7 +365,13 @@ func _make(e: Dictionary) -> Dictionary:
 	var anchor := _vecs([e.get("anchor", [0, 0])])
 	sprite.offset = -anchor[0] if not anchor.is_empty() else Vector2.ZERO
 	sprite.texture = cells[0]
-	spinner.add_child(sprite)
+	var pivot: Node2D
+	if e.get("stir", false) is bool and e.get("stir", false):
+		pivot = Node2D.new()
+		spinner.add_child(pivot)
+		pivot.add_child(sprite)
+	else:
+		spinner.add_child(sprite)
 	var mode := str(e.get("frames", "cycle"))
 	if not FRAME_MODES.has(mode):
 		mode = "cycle"
@@ -260,6 +399,10 @@ func _make(e: Dictionary) -> Dictionary:
 		"track_at": PackedFloat32Array(),
 		"track_len": 0.0,
 	}
+	if pivot != null:
+		t["stir_pivot"] = pivot
+		t["stir_target"] = 0.0
+		t["stir_hold"] = 0.0
 	# A piece with no motion and no bob is placed once, in build(), not every frame.
 	t["moves"] = t["motion"] != "none" or float(e.get("bob", 0.0)) != 0.0
 	if t["motion"] == "path":
@@ -283,8 +426,9 @@ func _hold_still(t: Dictionary) -> void:
 	var e: Dictionary = t["data"]
 	var holder: Node2D = t["holder"]
 	holder.visible = e.has("still")
-	t["frame"] = int(e.get("still", 0))
+	t["frame"] = clampi(int(e.get("still", 0)), 0, t["frames"].size() - 1)
 	t["sprite"].texture = t["frames"][t["frame"]]
+	t["spinner"].rotation = 0.0
 	holder.position = t["base"]
 	holder.scale = Vector2.ONE * t["scale"]
 	holder.modulate.a = t["alpha"]
