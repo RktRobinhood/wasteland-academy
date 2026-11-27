@@ -1,0 +1,6 @@
+# The Cartographer · neutral portrait candidate
+One optional original dialogue portrait for the existing Boss named The Cartographer in graphs-features. The survey roll, high collar, and rectangular viewer are visual proposals, not existing story facts. Do not read them as gameplay items. No expression sequence, animation, or integration is included.
+
+Source anchors: game/data/bosses.json and game/assets/regions/graphs-features/backdrop.webp at known local main snapshot 1423ce06030f61fa9ae7563c9d8cd1946b134d32. Style reference was our original toolbox Sundial only, not the same character. The generation master is preserved; the 512-pixel exports are cropped, resampled, and positioned with the lower edge at approximately 504. Use WebP as the runtime option; PNG as fallback for editing. Proof includes a 240-pixel view on the regional backdrop and 72-pixel views on dark/light; the face and broad map roll read at both, but the paper grid is detail for larger views only.
+
+Before any branch update, match current canon, artneeds intake, and existing art slots to avoid duplicates; this file is not a deployment or a request to change gameplay. Do not overwrite a newer portrait. No count change to the creature-family roster.

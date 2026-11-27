@@ -17,3 +17,5 @@ No changes are proposed here to curriculum definitions, encounters, prices, rewa
 Engine Core: the Boiler Crawler is ready for an isolated ambient art trial, not a live encounter. Godot loaded its transparent static WebP. No movement, combat or integration.
 
 Signal Tower: Relay Moth is a single left-facing static hover candidate, not combat or animation. Review the art at intended scene scale before selecting it. No map or route integration.
+
+Graph Features: The Cartographer neutral portrait is a shelf candidate for the existing boss only. Do not change the story, encounter or Journey until a portrait trial is accepted.

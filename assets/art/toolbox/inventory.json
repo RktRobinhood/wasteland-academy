@@ -151,6 +151,18 @@
       "new_states": [
         "static hover"
       ]
+    },
+    {
+      "id": "graphs-features/cartographer-01",
+      "zone": "graphs-features",
+      "category": "canonical-boss",
+      "manifest": "graphs-features/cartographer-01/manifest.json",
+      "ready_for_trial": 0,
+      "art_candidates": 1,
+      "integrated": 0,
+      "new_states": [
+        "portrait neutral"
+      ]
     }
   ],
   "unknown_or_incomplete": [

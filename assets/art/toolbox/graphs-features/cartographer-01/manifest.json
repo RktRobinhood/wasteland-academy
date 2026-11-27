@@ -1,0 +1,40 @@
+{
+  "id": "cartographer-01",
+  "region": "graphs-features",
+  "role": "boss_dialogue",
+  "state": "neutral",
+  "status": "local-candidate",
+  "canvas": [
+    512,
+    512
+  ],
+  "portrait_anchor": [
+    256,
+    504
+  ],
+  "alpha": true,
+  "requires_integration": true,
+  "source_revision": "1423ce06030f61fa9ae7563c9d8cd1946b134d32",
+  "files": [
+    {
+      "path": "exports/cartographer.png",
+      "bytes": 417738,
+      "sha256": "41a9af7bffe15c181668cd8b41ec71c83ae95430d346d83983ed1ff2912fec85"
+    },
+    {
+      "path": "exports/cartographer.webp",
+      "bytes": 84848,
+      "sha256": "c95a9b7a7ff79dbb52acccef886f7b5eca99c9207db9b9043de72d95fd16e6dd"
+    },
+    {
+      "path": "masters/cartographer-original.png",
+      "bytes": 2262318,
+      "sha256": "2785539c67f81c30c73ed8dee2bde93205b23e1ce9c21af10144f28aa3c24232"
+    },
+    {
+      "path": "previews/cartographer-scale-proof.jpg",
+      "bytes": 52088,
+      "sha256": "2da7651fe0a33e86b186a7985dd371d7fbc62bbed8c7852e98e91da7a2cf588b"
+    }
+  ]
+}

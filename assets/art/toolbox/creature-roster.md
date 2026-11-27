@@ -19,6 +19,7 @@
 | The Compounder | Authored Scrap Fields boss name and taunt; actual regional portrait slot is empty. Registered neutral and hurt pair on shelf; actual region trial remains. |
 | Warden Apex | Authored Quadratics boss; artwork under test fixtures is not shipped. Neutral portrait and dedicated left-facing static idle study on shelf. Active Journey hides standard portraits. Remaining poses, stage eligibility, and integration are open. |
 | The Sundial | [Existing Dry Flats Geometry boss](https://github.com/RktRobinhood/wasteland-academy/blob/c4bc45208d23f66b43ce428fe28995c3af383833/game/data/bosses.json). [Original neutral portrait candidate](dry-flats/sundial-01/README.md) on shelf; no shipped portrait, hurt pose, Journey animation, or integration. |
+| The Cartographer | [Existing Graph Features boss](https://github.com/RktRobinhood/wasteland-academy/blob/8511dc483a7d512394a6a84fc87fa86094628bba/game/data/bosses.json) with an optional [neutral portrait candidate](graphs-features/cartographer-01/README.md). No new poses, story, runtime integration or roster-family count. |
 | Mags the Ledger | Named in sequences lesson and callbacks; no dedicated visual on audited main. Original neutral candidate on shelf. Lesson stays draft. |
 | Tilly Redback, Banjo Brumby, Nugget Bullant, Spark | Existing portraits and Journey poses; preserve unless a specific art gap is verified. |
 
