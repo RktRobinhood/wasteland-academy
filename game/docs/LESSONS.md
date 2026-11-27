@@ -16,7 +16,15 @@ Plays a tutor lesson from its script (#218). The scripts and their format are in
 
 ## Opening a lesson
 
-The lessons aren't approved, so nothing on the student map links to one.
+The world map's **Relic Library** opens the optional worked-example archive. The first
+curated entry, Function notation, uses Rook's Signal Tower example and a separate
+negative-input linear twin. It is available from a new save and never changes a run,
+the watched record, mastery or Scrap. The underlying Relic devices and other draft
+lessons have not been opened on the map.
+
+- `/#relic-library` opens the library directly. **Back to map** returns to the world.
+- `/?teacher` also has a **Lesson preview** entry. Direct teacher test access is
+  `/?lesson-preview` (desktop: `-- --lesson-preview`).
 
 - Test site: `/?lesson` plays the exemplar, One In, One Out. `/?lesson=<script id>` plays
   another. `&recall=watched` or `&recall=not_watched` forces a recall version.
@@ -25,6 +33,17 @@ The lessons aren't approved, so nothing on the student map links to one.
 - Command line: `godot --path game res://scenes/lesson.tscn -- --lesson --auto`. Add
   `--quit` to quit at the end without touching the save, as the capture does:
   `godot --path game --write-movie run.avi --fixed-fps 30 --resolution 540x960 res://scenes/lesson.tscn -- --lesson --auto --quit`.
+
+## Adding a reviewed archive entry
+
+Keep the common player in `LessonPlayer`. Author lessons, board cues, interactions,
+and independent practice in the existing script format. Only after the excerpt passes
+math, touch/keyboard, pause/CC/restart, wrong-answer recovery and narration review,
+add it to `writing/explainers/archive.json`; run `node tools/game-explainers.mjs --write`.
+The list names exact lesson/section IDs and courses; it does not promote a whole draft.
+For now the explicitly authored twin keeps the same demand instead of drawing a
+different topic or missing a question's givens. Existing lesson action kinds remain
+available as small teaching interactions, without adding rewards or gates.
 
 ## What it plays
 
@@ -56,6 +75,13 @@ version next time.
 
 ## Audio
 
-Captions only for now. A recorded take drops in by line id, with no code change:
-`res://assets/audio/voice/explainers/<script id>/<line id>.ogg`, or `callbacks/` and
-`reactions/` in place of the script id. A line with a clip holds for the clip's length.
+Rook's **One In, One Out** has existing takes; all 11 other draft scripts can play on
+captions alone. Stock callbacks and reactions have their own takes. A line with a valid
+clip holds for its length. The web build fetches its separate audio pack after sound is
+enabled; captions continue to work before that or if the pack is unavailable.
+
+`node tools/game-explainers.mjs --write` generates `data/explainers/voice-index.json`
+from the source script, its accepted manifest and the SHA-256 of the OGG on disk. A
+changed spoken line or missing or mismatched take never plays from its old filename.
+Caption-only edits do not invalidate the recording. No new voice generation or spend
+is part of this pilot.

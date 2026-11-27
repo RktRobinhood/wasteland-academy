@@ -19,7 +19,9 @@ extends RefCounted
 const MAP := "res://scenes/map.tscn"
 const MAIN := "res://scenes/main.tscn"
 const BAZAAR := "res://scenes/bazaar.tscn"
+const RELIC_LIBRARY := "res://scenes/lesson.tscn"
 const WORLD := {"screen": "world"}
+const RELIC_LIBRARY_ROUTE := {"screen": "relic-library"}
 ## The Bazaar is its own scene, but a map link all the same, so back leaves it.
 const BAZAAR_ROUTE := {"screen": "bazaar"}
 ## Islands with a map, by link id -> catalogue topic: all five since FAL-925. A region is
@@ -46,6 +48,8 @@ static func parse(link: String) -> Dictionary:
 	var s := link.strip_edges().trim_prefix("#").trim_prefix("/").trim_suffix("/").to_lower()
 	if s == "bazaar":
 		return BAZAAR_ROUTE.duplicate()
+	if s == "relic-library":
+		return RELIC_LIBRARY_ROUTE.duplicate()
 	if s == Dungeon.THUNDERDOME:
 		return THUNDERDOME_ROUTE.duplicate()
 	var parts := s.split("/")
@@ -71,12 +75,19 @@ static func to_hash(route: Dictionary) -> String:
 			return "#%s/%s" % [route.island, Dungeon.ALL if Dungeon.is_all(route.region) else route.region]
 		"bazaar":
 			return "#bazaar"
+		"relic-library":
+			return "#relic-library"
 	return "#world"
 
 
 ## The scene a route is shown in: the Bazaar's own, or the map's.
 static func scene_for(route: Dictionary) -> String:
-	return BAZAAR if route.get("screen", "") == "bazaar" else MAP
+	match route.get("screen", ""):
+		"bazaar":
+			return BAZAAR
+		"relic-library":
+			return RELIC_LIBRARY
+	return MAP
 
 
 ## The catalogue's region ids on an island (every island's, for ""), each island's in the
@@ -165,7 +176,7 @@ static func go(tree: SceneTree, route: Dictionary, replace := false) -> void:
 ## quitting a run in progress first when `leave`.
 static func _show(tree: SceneTree, scene: Node, route: Dictionary, leave: bool) -> void:
 	var want := scene_for(route)
-	if scene != null and scene.scene_file_path == want and want == BAZAAR:
+	if scene != null and scene.scene_file_path == want and want != MAP:
 		return
 	if want == MAP and scene != null and scene.has_method("show_route"):
 		scene.show_route(route)

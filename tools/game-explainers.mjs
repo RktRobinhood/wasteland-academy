@@ -3,7 +3,7 @@
 // The Godot game can't read files outside game/, so the lesson player (#218, FAL-1088)
 // reads a copy of the explainer scripts and the stock lines they share: every
 // writing/explainers/ex.*.json, callbacks.json and reactions.json, byte for byte, in
-// game/data/explainers/. The manifest and the style sheets stay behind.
+// game/data/explainers/. Export only a compact manifest of verified spoken lines.
 //
 //   node tools/game-explainers.mjs           print whether the copy is current
 //   node tools/game-explainers.mjs --write   rewrite game/data/explainers/
@@ -12,13 +12,15 @@
 // when the copy is stale.
 
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { lines, sayOf, sayHash } from './explainer-scripts.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = path.join(ROOT, 'writing/explainers');
 export const OUT = path.join(ROOT, 'game/data/explainers');
-const SHARED = ['callbacks.json', 'reactions.json'];
+const SHARED = ['archive.json', 'callbacks.json', 'reactions.json'];
 
 // The files to copy, by name: { name: text }.
 export function build() {
@@ -28,7 +30,70 @@ export function build() {
       out[f] = fs.readFileSync(path.join(SRC, f), 'utf8');
     }
   }
+  checkArchive(out);
+  const manifest = JSON.parse(fs.readFileSync(path.join(SRC, 'manifest.json'), 'utf8'));
+  out['voice-index.json'] = voiceJson(voiceIndex(out, manifest, readAudio));
   return out;
+}
+
+// A file in the build doesn't make a draft visible. Each published excerpt must
+// explicitly name a checked worked part and its matching practice part.
+export function checkArchive(sources) {
+  const { format, entries } = JSON.parse(sources['archive.json']);
+  if (format !== 1 || !Array.isArray(entries)) throw Error('Invalid archive catalog format');
+  const seen = new Set();
+  for (const e of entries) {
+    const fail = msg => { throw Error(`Archive ${e.lesson}: ${msg}`); };
+    if (seen.has(e.lesson)) fail('duplicate entry');
+    seen.add(e.lesson);
+    const script = JSON.parse(sources[e.lesson + '.json'] ?? 'null');
+    const watch = script?.sections?.find(x => x.id === e.worked);
+    const practice = script?.sections?.find(x => x.id === e.practice);
+    if (watch?.kind !== 'example' || watch.level !== 'full' || !watch.problem?.setup ||
+        practice?.kind !== 'your-turn' || practice.turn?.like !== e.worked) fail('expected a worked example and its own twin');
+    if (e.practice_mode !== 'authored-twin' || !(practice.turn.fallback?.parts?.length > 0)) fail('the authored twin needs a complete stem');
+    if (!e.title?.trim() || !e.zone?.trim() || !e.prompt?.trim()) fail('missing student-facing entry text');
+    if (!Array.isArray(e.courses) || !e.courses.length || !e.courses.every(c => script.courses.includes(c)) ||
+        new Set(e.courses).size !== e.courses.length) fail('course mapping does not match the source lesson');
+  }
+}
+
+function voiceJson(index) {
+  const sets = Object.entries(index).map(([id, lines]) => {
+    const entries = Object.entries(lines).map(([key, cue]) => `    ${JSON.stringify(key)}: ${JSON.stringify(cue)}`);
+    return `  ${JSON.stringify(id)}: {\n${entries.join(',\n')}\n  }`;
+  });
+  return `{\n${sets.join(',\n')}\n}\n`;
+}
+
+function readAudio(file) {
+  const name = path.join(ROOT, file);
+  return fs.existsSync(name) ? fs.readFileSync(name) : null;
+}
+
+// Keep transcript review and provider details out of the game. Only an exact,
+// accepted line plus the actual matching audio bytes may enter the runtime index.
+export function voiceIndex(sources, manifest, audioBytes) {
+  const index = {};
+  for (const [name, text] of Object.entries(sources)) {
+    const id = name.slice(0, -5);
+    const verified = {};
+    for (const [line] of lines(JSON.parse(text))) {
+      const key = line.line ?? '';
+      if (!/^[a-z0-9]{6}$/.test(key)) continue;
+      const entry = manifest.lines?.[id]?.[key];
+      const take = entry?.take;
+      const expected = `game/assets/audio/voice/explainers/${id}/${key}.ogg`;
+      if (manifest.retired?.[id]?.[key] || !take || entry.speaker !== line.speaker ||
+          entry.say !== sayHash(line) || take.say !== entry.say || take.file !== expected ||
+          !/^(passed|accepted on review: .+)$/.test(take.word_check ?? '') || !/^[a-f0-9]{64}$/.test(take.sha256 ?? '')) continue;
+      const bytes = audioBytes(expected);
+      if (!bytes || createHash('sha256').update(bytes).digest('hex') !== take.sha256) continue;
+      verified[key] = [line.speaker, sayOf(line), line.cue ?? null, line.cue_at ?? null];
+    }
+    if (Object.keys(verified).length) index[id] = verified;
+  }
+  return index;
 }
 
 // What the copy has now: { name: text }.

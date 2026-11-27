@@ -54,6 +54,8 @@ var paused := false
 var reduced_motion := false
 var callbacks: Dictionary = {}
 var reactions: Lesson.Reactions
+var verified_voice: Dictionary = {}
+var allow_why_help := false
 
 ## Where the lesson is: the section playing, and the beats still to play in it.
 var seg := -1
@@ -114,6 +116,7 @@ func _init() -> void:
 func _ready() -> void:
 	theme = UiTheme.make()
 	callbacks = Lesson.shared("callbacks")
+	verified_voice = Lesson.shared("voice-index")
 	reactions = Lesson.Reactions.new(lesson.tutor(), Lesson.shared("reactions"), 220)
 	reduced_motion = LessonToy.reduce_motion(save)
 	title.text = str(lesson.data.get("title", "Lesson"))
@@ -249,7 +252,7 @@ func _button(id: String, text: String) -> Button:
 	b.name = id
 	b.text = text
 	b.add_theme_font_size_override("font_size", UiTheme.SMALL)
-	b.custom_minimum_size.y = TOUCH * 0.8
+	b.custom_minimum_size.y = TOUCH
 	return b
 
 
@@ -457,16 +460,18 @@ func _say(l: Dictionary) -> void:
 ## A line's recorded take, or null: by script id (or callbacks, reactions) and line id.
 func clip_for(l: Dictionary) -> AudioStream:
 	var id := str(l.get("line", ""))
-	if id == "":
+	var from := str(l.get("_from", lesson.id()))
+	var cue := [l.get("speaker"), l.get("say", l.get("caption")), l.get("cue"), l.get("cue_at")]
+	if id == "" or verified_voice.get(from, {}).get(id) != cue:
 		return null
-	var path := "%s%s/%s.ogg" % [VOICE_DIR, str(l.get("_from", lesson.id())), id]
+	var path := "%s%s/%s.ogg" % [VOICE_DIR, from, id]
 	return load(path) as AudioStream if ResourceLoader.exists(path) else null
 
 
 func _show_caption(text: String) -> void:
 	caption.remove_theme_color_override("font_color")
 	caption.text = text
-	caption_box.visible = captions
+	caption_box.modulate.a = 1.0 if captions else 0.0
 
 
 ## A stock reaction, over whatever is on screen: the toy keeps taking input.
@@ -610,7 +615,7 @@ func _entry(on_send: Callable) -> MathEntry:
 	var send := Button.new()
 	send.name = "Send"
 	send.text = "Send"
-	send.custom_minimum_size = Vector2(220, TOUCH * 0.8)
+	send.custom_minimum_size = Vector2(220, TOUCH)
 	send.pressed.connect(func(): on_send.call(e.text))
 	row.add_child(send)
 	actions.add_child(row)
@@ -732,6 +737,10 @@ func _ask(a: Dictionary, misses: int) -> void:
 				r.tapped.connect(pick.bind(i))
 	else:
 		_choice_buttons(a.get("choices", []), pick)
+		if allow_why_help and str(a.get("kind", "")) == "why" and misses > 0:
+			var help := _button("ExplainWhy", "Explain why")
+			help.pressed.connect(func(): _resume(a.get("right", [])))
+			actions.add_child(help)
 
 
 ## Answer a tap-line question by its key, as a tap on the line does.
@@ -1026,8 +1035,7 @@ func _show_banner(text: String, good: bool) -> void:
 func toggle_pause() -> void:
 	paused = not paused
 	pause_button.text = "Play" if paused else "Pause"
-	if paused:
-		Audio.stop_voice()
+	Audio.pause_voice(paused)
 
 
 func next_speed() -> void:
@@ -1039,7 +1047,7 @@ func next_speed() -> void:
 func set_captions(on: bool) -> void:
 	captions = on
 	cc_button.set_pressed_no_signal(on)
-	caption_box.visible = on
+	caption_box.modulate.a = 1.0 if on else 0.0
 
 
 func close() -> void:
