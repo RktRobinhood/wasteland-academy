@@ -42230,7 +42230,45 @@ def E12DG_pick(q):
     return None, None
 
 
-SITUATION_CHECKS = {"counting": check_counting, "constant-change": E12CC_check, "circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
+def check_basis_vector(q):
+    """Recover the displayed coefficients by their physical axis labels."""
+    lines = [s.replace("−", "-") for s in q["lines"] if s.startswith("Vector:")]
+    need(len(lines) == 1, "the basis expression is not visibly identifiable")
+    m = re.fullmatch(r"Vector: (-?)([0-9]*)([ijk]) ([+-]) ([0-9]*)([ijk])", lines[0])
+    need(m is not None, "expected two visible signed basis terms")
+    s1, n1, b1, s2, n2, b2 = m.groups()
+    a, b = int(n1 or 1), int(n2 or 1)
+    need(b1 != b2 and 1 <= a <= 8 and 1 <= b <= 8 and a != b and s1 != s2.replace("+", ""),
+         "need two different axes with unequal magnitudes and opposite signs")
+    need(n1 != "1" and n2 != "1", "an implicit unit coefficient should not be printed as 1")
+    p, r = "ijk".index(b1), "ijk".index(b2)
+    terms = [[p, -a if s1 else a], [r, -b if s2 == "-" else b]]
+    need(q["given"]["terms"] == terms, "export's structured givens disagree with visible terms")
+    # Build coordinates by looking up each possible axis in the displayed text.
+    want = tuple(next((v for j, v in terms if j == i), 0) for i in range(3))
+    shown = lambda v: ("(%d, %d, %d)" % tuple(v)).replace("-", "−")
+    swapped = list(want)
+    swapped[p], swapped[r] = want[r], want[p]
+    prefix = q["view"]["type"] + "#"
+    wrong = {prefix + "0": {shown(swapped)}, prefix + "1": {shown(map(abs, want))},
+             prefix + "2": {shown(-x for x in want)}}
+    need(q["paper"] == 1 and q["level"] == 1 and not q["exam"], "must remain Level 1 no-calculator training")
+    need(q["answer"]["kind"] == "form" and q["answer"]["exact"], "need the exact typed form")
+    fields = [x["slot"] for x in q["answer"]["template"] if isinstance(x, dict)]
+    need(fields == list("xyz"), "typed coordinates not in x, y, z order")
+    def values(row):
+        return tuple(R(row[axis]) for axis in "xyz")
+    need(values(q["answer"]["values"]) == want, "typed coordinates disagree with the printed question")
+    gc_check_common(q, shown(want), wrong, steps=(2, 2))
+    need({o["ref"] for o in q["choices"] if not o["correct"]} == set(wrong), "missing tagged slips")
+    for o in q["choices"]:
+        need(shown(values(o["values"])) == o["text"], "an option's internal coordinates differ from its label")
+    for sol in q["solutions"]:
+        need(values(sol["result"]) == want and "coefficient 0" in sol["steps"][0], "working does not explain the missing axis")
+    return None, None
+
+
+SITUATION_CHECKS = {"basis-vector": check_basis_vector, "counting": check_counting, "constant-change": E12CC_check, "circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
                     "distribution": check_distribution, "cubic": check_cubic,

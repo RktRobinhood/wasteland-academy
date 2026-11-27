@@ -4817,6 +4817,12 @@
               ],
               "methods": [
                 {
+                  "id": "read-axis-labels",
+                  "approach": "formula",
+                  "name": "Read signed axis coefficients",
+                  "summary": "Read the coefficients of i, j and k in x, y and z order. An absent term has coefficient zero."
+                },
+                {
                   "id": "end-minus-start",
                   "approach": "formula",
                   "name": "End minus start",

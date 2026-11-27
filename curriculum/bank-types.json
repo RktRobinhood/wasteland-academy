@@ -1210,83 +1210,6 @@
    "fragment": "aa-hl-topic34.json"
   },
   {
-   "id": "t3-ahl-vector-basics",
-   "topic": 3,
-   "source": "extension",
-   "kind": "skill",
-   "name": "Vectors: displacement, magnitude and parallel vectors",
-   "syllabus": [
-    "3.12"
-   ],
-   "skills": [
-    "AHL3.12.position-displacement",
-    "AHL3.12.vector-algebra",
-    "AHL3.12.magnitude-unit",
-    "AHL3.12.parallel-vectors",
-    "AHL3.12.distance-between-points"
-   ],
-   "unknowns": [
-    {
-     "id": "displacement",
-     "asked": "the displacement vector between two points",
-     "level": 1
-    },
-    {
-     "id": "magnitude",
-     "asked": "the magnitude of a vector",
-     "level": 1
-    },
-    {
-     "id": "distance-unit",
-     "asked": "a distance, a unit vector and a point from a vector relation",
-     "level": 2
-    },
-    {
-     "id": "parallel-unknown",
-     "asked": "the unknown components of two parallel vectors",
-     "level": 2
-    },
-    {
-     "id": "collinear",
-     "asked": "the scalar multiple, the unknown coordinates and a distance for three collinear points",
-     "level": 3
-    },
-    {
-     "id": "triangle-lengths",
-     "asked": "a side, a median and a parallelogram's diagonal from position vectors",
-     "level": 4
-    }
-   ],
-   "representations": [
-    {
-     "rep": "equation"
-    }
-   ],
-   "constraints": [
-    "exact questions use vectors with whole-number length",
-    "points are not collinear unless the question says so"
-   ],
-   "misconceptions": [
-    {
-     "text": "Subtracting in the wrong order: a - b for the vector from A to B"
-    },
-    {
-     "text": "Adding position vectors to get a displacement"
-    },
-    {
-     "text": "Dividing by the square of the magnitude for a unit vector"
-    }
-   ],
-   "home": "aa-hl",
-   "courses": [
-    "aa-hl"
-   ],
-   "subtopics": [
-    "AHL3.12"
-   ],
-   "fragment": "aa-hl-topic34.json"
-  },
-  {
    "id": "t3-ahl-scalar-product",
    "topic": 3,
    "source": "extension",
@@ -7255,30 +7178,6 @@
    "levels": [
     1,
     3
-   ],
-   "paper": "either"
-  },
-  "AHL3.12.distance-between-points": {
-   "name": "Find a distance between points as a vector magnitude",
-   "levels": [
-    2,
-    4
-   ],
-   "paper": "either"
-  },
-  "AHL3.12.parallel-vectors": {
-   "name": "Use or show that two vectors are parallel or points are collinear",
-   "levels": [
-    2,
-    3
-   ],
-   "paper": "either"
-  },
-  "AHL3.12.position-displacement": {
-   "name": "Find a displacement vector AB = b − a or a position vector",
-   "levels": [
-    1,
-    4
    ],
    "paper": "either"
   },

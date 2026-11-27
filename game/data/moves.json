@@ -327,6 +327,12 @@
   }
  },
  "map": {
+  "t3-ahl-vector-basics/basis-vector-to-components/read-axis-labels": {
+   "2": [
+    null,
+    null
+   ]
+  },
   "fn-exp-log-inverse-composite/evaluate-log-function/what-power": {
    "3": [
     "ask-what-power",

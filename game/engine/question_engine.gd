@@ -119,6 +119,7 @@ static var SITUATIONS := {
 	"antiderivative-condition": [AntiderivativeConditionSituation, AntiderivativeConditionViews],
 	"normal-properties": [NormalPropertiesSituation, NormalPropertiesViews],
 	"box-plot": [BoxPlotSituation, BoxPlotViews],
+	"basis-vector": [preload("res://engine/situations/basis_vector.gd"), preload("res://engine/situations/basis_vector_views.gd")],
 	"distance-midpoint": [DistanceMidpointSituation, DistanceMidpointViews],
 	"data-summary": [DataSummarySituation, DataSummaryViews],
 	"compound-interest": [CompoundInterestSituation, CompoundInterestViews],

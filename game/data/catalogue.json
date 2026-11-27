@@ -4144,6 +4144,19 @@
 				"a sector's angle stays from 60° to 300°, and its cone's radius is less than the sector's radius"
 			]
 		},
+		"basis-vector": {
+			"name": "Read signed basis coefficients",
+			"summary": "Present two signed unit-axis terms in either order. The third component is zero.",
+			"quantities": [
+				"ordered basis terms",
+				"signed coefficients",
+				"missing axis"
+			],
+			"clean": [
+				"one positive and one negative coefficient",
+				"unequal magnitudes between 1 and 8"
+			]
+		},
 		"distance-midpoint": {
 			"name": "Points in 2D or 3D, with their distances and midpoints",
 			"summary": "Two or three points, on a plan, as position vectors or on a figure on axes, inside a cuboid, a pyramid, a sphere, a hemisphere or a circle. The points are drawn first, so a distance is the root of a whole number and a midpoint is exact. A missing coordinate k is fixed by a distance, with its two values on either side of a known coordinate.",
@@ -7421,6 +7434,7 @@
 		"SL1.9.specific-term": "Find a specific term or coefficient in an expansion",
 		"SL3.1.angle-line-plane": "Find the angle between a line and a plane",
 		"SL3.1.angle-two-lines": "Find the angle between two intersecting lines in a 3D solid",
+		"AHL3.12.components-displacement": "Write vectors in components and find displacement vectors between points",
 		"SL3.1.distance-3d": "Find the distance between two points in 3D",
 		"SL3.1.volume-solids": "Find volumes of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.1.surface-area": "Find surface areas of pyramids, cones, spheres, hemispheres and composite solids",
@@ -35883,6 +35897,94 @@
 				"p1": 0,
 				"p2": 1
 			}
+		},
+		{
+			"id": "t3-ahl-vector-basics",
+			"topic": 3,
+			"source": "extension",
+			"kind": "skill",
+			"region": "geometry-3d",
+			"name": "Vector components in i, j and k",
+			"summary": "Read signed coefficients in axis order, including the missing component as zero.",
+			"situation": "basis-vector",
+			"level": [
+				1,
+				1
+			],
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "two signed terms with a missing axis"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "basis-vector-to-components",
+					"given": [
+						"two signed unit-axis terms in either order, one term absent"
+					],
+					"asked": "the three exact vector components in (x, y, z) order",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"AHL3.12.components-displacement"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "AHL3.12.components-displacement",
+					"method": "read-axis-labels",
+					"suits": [
+						"basis-vector-to-components"
+					],
+					"name": "Read signed axis coefficients",
+					"about": "Read the coefficients of i, j and k in x, y and z order. An absent term has coefficient zero."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Two packets show −2k + 5i and 5i − 2k. True or false: they store different vectors because the terms appear in a different order?",
+					"answer": "False. Both have x-component 5, missing y-component 0 and z-component −2; term order does not change the axis labels.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"text": "Putting a signed coefficient on the wrong axis",
+					"as": "distractor",
+					"in": [
+						"basis-vector-to-components"
+					],
+					"wrong": "Swaps the two nonzero axis coefficients."
+				},
+				{
+					"text": "Losing the negative sign on one component.",
+					"as": "distractor",
+					"in": [
+						"basis-vector-to-components"
+					],
+					"wrong": "Makes the negative component positive."
+				},
+				{
+					"text": "Writing the negative of the vector.",
+					"as": "distractor",
+					"in": [
+						"basis-vector-to-components"
+					],
+					"wrong": "Reverses both nonzero directions."
+				}
+			],
+			"frequency": 0
 		},
 		{
 			"id": "t3-distance-midpoint",
