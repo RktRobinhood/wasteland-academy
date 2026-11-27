@@ -692,6 +692,8 @@ func u_label_zeros(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		fac = ["f(x) is not a product of factors, so there are no factors to read: this method fails here.",
 			"Use the GDC's zero tool instead: " + zeros6_and(s) + ".", final]
+		# A shared draw then tries again told the method (question_engine._build, #272).
+		out.fails = ["factorised-read"]
 	out.methods = {
 		"gdc-zero": {"result": ans.values, "steps": gdc},
 		"factorised-read": {"result": ans.values, "steps": fac},
@@ -795,6 +797,7 @@ func _turning_point(rep: String, s: Dictionary, rng: Seeded, style: String) -> D
 	else:
 		form = ["f is not a transformed parent such as a(x − h)² + k, so the turning point can't be read off: this method fails here.",
 			tool, final]
+		out.fails = ["read-from-form"]
 	out.methods = {
 		"gdc-max-min": {"result": ans.values, "steps": [graph_step(s), tool, final]},
 		"derivative-zero": {"result": ans.values, "steps": [
