@@ -388,6 +388,9 @@ func _download_pack() -> void:
 	# Beside the page, which is beside index.pck, wherever the site puts the export.
 	var url = JavaScriptBridge.eval("new URL(%s, document.baseURI).href" % JSON.stringify(PACK_FILE), true)
 	_pack_request = HTTPRequest.new()
+	# Browser Fetch already decodes gzip but keeps the Content-Encoding header.
+	# Do not inflate the decoded PCK a second time in Godot's HTTPRequest.
+	_pack_request.accept_gzip = false
 	add_child(_pack_request)
 	_pack_request.request_completed.connect(func(result: int, code: int, _h, body: PackedByteArray) -> void:
 		_pack_request.queue_free()
