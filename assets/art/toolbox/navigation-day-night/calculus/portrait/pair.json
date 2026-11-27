@@ -1,0 +1,29 @@
+{
+  "id": "calculus",
+  "map_name": "Engine Core",
+  "layout": "portrait",
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_day_path": "game/assets/map/calculus/background.webp",
+  "size": [
+    1080,
+    1920
+  ],
+  "alpha": false,
+  "day": {
+    "path": "day.webp",
+    "bytes": 425284,
+    "sha256": "e8c3f8d79678a2d2151d5a7987dfbc8aa0a6aa7535af30f46cd6ca3a25cf85c6",
+    "source": "Original approved native art, byte-exact"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 511888,
+    "sha256": "9e156295ffaeed19c47e37366ba5159e391b979a9ce66282ce7df4154cc90f36",
+    "source": "Built-in ImageGen lighting-only edit of exact day artwork",
+    "webp_quality": 90
+  },
+  "day_minus_night_mean_luma": 0.2574,
+  "mean_night_luma": 0.2665,
+  "status": "art-candidate; verify every authored hotspot on both phases when integrating. Landmarks visually matching but not pixel registered.",
+  "switch": "Short tinted dip or swap under reduced motion; leave UI and hotspot coordinates fixed."
+}

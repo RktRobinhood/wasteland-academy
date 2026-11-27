@@ -1,0 +1,29 @@
+{
+  "id": "overworld",
+  "map_name": "Overworld",
+  "layout": "wide",
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_day_path": "game/assets/map/overworld-wide.webp",
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day": {
+    "path": "day.webp",
+    "bytes": 482110,
+    "sha256": "4f5cf7dfdca896500d536eef8ed6b9a4b907f15e5c17cd723dcbd7edb58eef81",
+    "source": "Original approved native art, byte-exact"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 613312,
+    "sha256": "e1e620bdc47845f739a040fe9c06e06b7b8b70d2a43cdf5ee1ffc332ef76b9a4",
+    "source": "Built-in ImageGen lighting-only edit of exact day artwork",
+    "webp_quality": 90
+  },
+  "day_minus_night_mean_luma": 0.1922,
+  "mean_night_luma": 0.2781,
+  "status": "art-candidate; verify every authored hotspot on both phases when integrating. Landmarks visually matching but not pixel registered.",
+  "switch": "Short tinted dip or swap under reduced motion; leave UI and hotspot coordinates fixed."
+}

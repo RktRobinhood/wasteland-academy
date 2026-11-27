@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "navigation_pair_count": 12,
+  "records": [
+    {
+      "id": "algebra",
+      "layout": "wide",
+      "manifest": "algebra/wide/pair.json",
+      "night_bytes": 526230
+    },
+    {
+      "id": "algebra",
+      "layout": "portrait",
+      "manifest": "algebra/portrait/pair.json",
+      "night_bytes": 512654
+    },
+    {
+      "id": "calculus",
+      "layout": "wide",
+      "manifest": "calculus/wide/pair.json",
+      "night_bytes": 519468
+    },
+    {
+      "id": "calculus",
+      "layout": "portrait",
+      "manifest": "calculus/portrait/pair.json",
+      "night_bytes": 511888
+    },
+    {
+      "id": "functions",
+      "layout": "wide",
+      "manifest": "functions/wide/pair.json",
+      "night_bytes": 631662
+    },
+    {
+      "id": "functions",
+      "layout": "portrait",
+      "manifest": "functions/portrait/pair.json",
+      "night_bytes": 543438
+    },
+    {
+      "id": "geometry",
+      "layout": "wide",
+      "manifest": "geometry/wide/pair.json",
+      "night_bytes": 426900
+    },
+    {
+      "id": "geometry",
+      "layout": "portrait",
+      "manifest": "geometry/portrait/pair.json",
+      "night_bytes": 457482
+    },
+    {
+      "id": "overworld",
+      "layout": "wide",
+      "manifest": "overworld/wide/pair.json",
+      "night_bytes": 613312
+    },
+    {
+      "id": "overworld",
+      "layout": "portrait",
+      "manifest": "overworld/portrait/pair.json",
+      "night_bytes": 408486
+    },
+    {
+      "id": "stats",
+      "layout": "wide",
+      "manifest": "stats/wide/pair.json",
+      "night_bytes": 584002
+    },
+    {
+      "id": "stats",
+      "layout": "portrait",
+      "manifest": "stats/portrait/pair.json",
+      "night_bytes": 529134
+    }
+  ],
+  "battle_scope_separate": "../day-night/README.md"
+}

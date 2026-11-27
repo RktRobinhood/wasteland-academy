@@ -1,0 +1,29 @@
+{
+  "id": "functions",
+  "map_name": "Signal Tower",
+  "layout": "portrait",
+  "source_main": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_day_path": "game/assets/map/functions/background.webp",
+  "size": [
+    1080,
+    1920
+  ],
+  "alpha": false,
+  "day": {
+    "path": "day.webp",
+    "bytes": 602982,
+    "sha256": "0111da84a19d200958f4169464d09596e27aac356bcdae461ad3b3312200ad47",
+    "source": "Original approved native art, byte-exact"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 543438,
+    "sha256": "da0f2c15268dad3cd4cd4e2ed2fbf579d69fe83e3e91af79f1f1acb9b5680ca8",
+    "source": "Built-in ImageGen lighting-only edit of exact day artwork",
+    "webp_quality": 90
+  },
+  "day_minus_night_mean_luma": 0.1855,
+  "mean_night_luma": 0.2462,
+  "status": "art-candidate; verify every authored hotspot on both phases when integrating. Landmarks visually matching but not pixel registered.",
+  "switch": "Short tinted dip or swap under reduced motion; leave UI and hotspot coordinates fixed."
+}
