@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "chimney-mantis",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    61,
+    39,
+    580,
+    375
+  ],
+  "anchor": [
+    320,
+    374
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 53088,
+      "sha256": "fb8de31530621d19dd717fea97d44188e61e95b28c15de3a9ee78145297b7c5c"
+    },
+    {
+      "path": "masters/chimney-mantis.png",
+      "bytes": 2115494,
+      "sha256": "faa84cd393ecca7146a1d7a0960e5a46277acd747cfacbb8a94eb8ae7d680169"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5610,
+      "sha256": "3046d5f0dedc4ca633e31bbdde30c7415d889eae2ccf9e5301187a110fa3647d"
+    }
+  ]
+}

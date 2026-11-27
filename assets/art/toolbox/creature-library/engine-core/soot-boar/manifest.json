@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "soot-boar",
+  "category": "wild",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    83,
+    62,
+    578,
+    347
+  ],
+  "anchor": [
+    330,
+    346
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 46348,
+      "sha256": "865e555dd9ff71422d63c26cd3702fbdb85e219ee4774a385f02a3bf6971b100"
+    },
+    {
+      "path": "masters/soot-boar.png",
+      "bytes": 2416816,
+      "sha256": "caaa3860a1508e42664e395a7707cd7408e8264cc25ca55adc0bb2b44d08b496"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 5283,
+      "sha256": "ef2f02f1b5d3ca21c9266c7386c8219b5ab4eaedd7988c35b97495688b1ad9a5"
+    }
+  ]
+}
