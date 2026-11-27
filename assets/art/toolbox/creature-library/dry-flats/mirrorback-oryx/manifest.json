@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "dry-flats",
+  "creature_family": "mirrorback-oryx",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    151,
+    38,
+    485,
+    372
+  ],
+  "anchor": [
+    318,
+    371
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 33804,
+      "sha256": "5a249de5bfdbbb2272a6f2bb14f50ea38a83932533635f28bf9b6d2c5b04fb1e"
+    },
+    {
+      "path": "masters/mirrorback-oryx.png",
+      "bytes": 1813936,
+      "sha256": "d1ba24b2e68f69c94b1501bce2d72b635df87d52ca8f405dfe6ff7c404fed86f"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 4605,
+      "sha256": "984a842438e596f84ad9df02b115e4361349f61bafadd1e0e85c123c494fbb43"
+    }
+  ]
+}

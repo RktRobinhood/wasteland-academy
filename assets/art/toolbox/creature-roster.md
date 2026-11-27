@@ -1,6 +1,6 @@
 # Regional creature roster
 
-**The original 35 designs below form the base roster; the expanded library now covers 55 across the five sectors.** The working art labels are not narrative canon or encounter rules. Count silhouettes, not colourways, props, bosses, or animation frames.
+**The original 35 designs below form the base roster; the expanded library now covers 60 across the five sectors.** The working art labels are not narrative canon or encounter rules. Count silhouettes, not colourways, props, bosses, or animation frames.
 
 | Sector | Visual vocabulary | Seven proposed families |
 |---|---|---|
@@ -10,7 +10,7 @@
 | Radio Spires | Insulated cables, slate equipment and odd aerial shapes | **Antenna Kite** (shelf), Cable-Slung Slug, Ferrite Bat (flyer), Static Tern (flyer), Fork Relay, Coil Viper, Linewalker |
 | Engine Core | Sooty heavy plating, ceramic heat shields, ember amber | **Boiler Crawler** (shelf), Cinderback Salamander, Flywheel Tick, Heatshield Pillbug, Vent Hoverer (flyer), Steam Hermit, Soot Finch (flyer) |
 
-**55 families have shelf art, 11 per sector. None were integrated by this pack.** [Complete creature library](creature-library/README.md) · [Machine-readable roster](creature-library/roster.json). Fifty kits are static left-facing cutouts, including the 20 expansion designs. Of the five earlier kits, Copper Mite has four held poses, Antenna Kite has an idle/dodge animation proof, and Glassback Lizard, Boiler Crawler and Relay Moth are static ambient studies. Native Dishback and the shared D-tier roster are not counted.
+**60 families have shelf art, 12 per sector. None were integrated by this pack.** [Complete creature library](creature-library/README.md) · [Machine-readable roster](creature-library/roster.json). There are 55 newer static kits, including the five salvage-augmented designs. Of the five earlier kits, Copper Mite has four held poses, Antenna Kite has an idle/dodge animation proof, and Glassback Lizard, Boiler Crawler and Relay Moth are static ambient studies. Native Dishback and the shared D-tier roster are not counted.
 
 ## Named art audit
 

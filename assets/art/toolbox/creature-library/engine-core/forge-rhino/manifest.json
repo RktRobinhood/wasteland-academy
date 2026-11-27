@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "engine-core",
+  "creature_family": "forge-rhino",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    63,
+    67,
+    568,
+    336
+  ],
+  "anchor": [
+    315,
+    335
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 53430,
+      "sha256": "a394ed807581a4738de1e5dace4c909a5afaa3880132431ae6fefc2b997e29fb"
+    },
+    {
+      "path": "masters/forge-rhino.png",
+      "bytes": 2174295,
+      "sha256": "6d9aac63fffe451bbe212ea0099f1b4dc47bfecf720e8f1e5133f5e20f7650f4"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 6530,
+      "sha256": "79f8a18efe61247807100bc65339a3d78a95fa07fe23ffaf2c558dcd0767bb5e"
+    }
+  ]
+}

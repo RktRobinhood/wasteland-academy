@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "signal-tower",
+  "creature_family": "relay-gibbon",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    74,
+    38,
+    566,
+    373
+  ],
+  "anchor": [
+    320,
+    372
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 68736,
+      "sha256": "150d37426a9cde8713e5d010e1eb5f911f1a41aff05844dfbafc4d46302df1bb"
+    },
+    {
+      "path": "masters/relay-gibbon.png",
+      "bytes": 2562792,
+      "sha256": "74f103f71a19268b331bf4878e5cc18da7bb0521582fe01aebbf276f08516e6c"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 6525,
+      "sha256": "2df6f52802a726e39678b504ed45385e829cad52d215b494268f1ee6314b747e"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 {
   "format": 1,
-  "new_static": 50,
+  "new_static": 55,
   "from_previous_shelf": 5,
-  "family_count": 55,
+  "family_count": 60,
   "integrated_by_this_pack": 0,
   "families": [
     {
@@ -47,6 +47,14 @@
       "manifest": "dry-flats/gypsum-hornram/manifest.json",
       "coverage": "static",
       "category": "wild"
+    },
+    {
+      "biome": "dry-flats",
+      "id": "mirrorback-oryx",
+      "manifest": "dry-flats/mirrorback-oryx/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical",
+      "visual_theme": "scrap-augmented animal"
     },
     {
       "biome": "dry-flats",
@@ -109,6 +117,14 @@
       "manifest": "engine-core/flywheel-tick/manifest.json",
       "coverage": "static",
       "category": "mechanical"
+    },
+    {
+      "biome": "engine-core",
+      "id": "forge-rhino",
+      "manifest": "engine-core/forge-rhino/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical",
+      "visual_theme": "scrap-augmented animal"
     },
     {
       "biome": "engine-core",
@@ -216,6 +232,14 @@
     },
     {
       "biome": "radio-spires",
+      "id": "induction-eel",
+      "manifest": "radio-spires/induction-eel/manifest.json",
+      "coverage": "static",
+      "category": "flyer",
+      "visual_theme": "scrap-augmented animal"
+    },
+    {
+      "biome": "radio-spires",
       "id": "linewalker",
       "manifest": "radio-spires/linewalker/manifest.json",
       "coverage": "static",
@@ -313,6 +337,14 @@
       "category": "wild"
     },
     {
+      "biome": "scrap-fields",
+      "id": "wreckback-bison",
+      "manifest": "scrap-fields/wreckback-bison/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical",
+      "visual_theme": "scrap-augmented animal"
+    },
+    {
       "biome": "signal-tower",
       "id": "bellwire-lynx",
       "manifest": "signal-tower/bellwire-lynx/manifest.json",
@@ -363,6 +395,14 @@
     },
     {
       "biome": "signal-tower",
+      "id": "relay-gibbon",
+      "manifest": "signal-tower/relay-gibbon/manifest.json",
+      "coverage": "static",
+      "category": "biomechanical",
+      "visual_theme": "scrap-augmented animal"
+    },
+    {
+      "biome": "signal-tower",
       "id": "relay-moth",
       "manifest": "../signal-tower/relay-moth-01/manifest.json",
       "coverage": "static hover"
@@ -390,11 +430,11 @@
     }
   ],
   "per_biome": {
-    "dry-flats": 11,
-    "engine-core": 11,
-    "radio-spires": 11,
-    "scrap-fields": 11,
-    "signal-tower": 11
+    "dry-flats": 12,
+    "engine-core": 12,
+    "radio-spires": 12,
+    "scrap-fields": 12,
+    "signal-tower": 12
   },
   "scope": "Regional creature silhouettes only; excludes shared human raiders, traps, obstacles, rigs, maps, bosses, and animation frames."
 }

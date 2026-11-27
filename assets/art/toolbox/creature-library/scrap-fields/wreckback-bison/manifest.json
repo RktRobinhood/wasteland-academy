@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "scrap-fields",
+  "creature_family": "wreckback-bison",
+  "category": "biomechanical",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    88,
+    44,
+    562,
+    366
+  ],
+  "anchor": [
+    325,
+    365
+  ],
+  "anchor_type": "ground",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 58196,
+      "sha256": "17823dab25f90b3f71a8fff1ad805f04aeb43458bb1a072128431a19f9b23d53"
+    },
+    {
+      "path": "masters/wreckback-bison.png",
+      "bytes": 2681966,
+      "sha256": "856973a8aff9a84727a0ed770b42fea676ef08bebb3628b7b2510cea2e697bc5"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 6649,
+      "sha256": "55925f672071f78638537bf75d43f3d85d73e91a7f232626bd0710be8fdc3bb4"
+    }
+  ]
+}

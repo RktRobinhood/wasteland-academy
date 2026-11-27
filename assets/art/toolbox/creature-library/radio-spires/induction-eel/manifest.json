@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "region_biome": "radio-spires",
+  "creature_family": "induction-eel",
+  "category": "flyer",
+  "status": "static left-facing art prototype; no behavior, encounter stat or animation authored here",
+  "source_main_reference": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "source": "Built-in ImageGen original design against earlier shelf style",
+  "primary": "exports/idle.webp",
+  "canvas": [
+    640,
+    420
+  ],
+  "alpha": true,
+  "visible_bounds_xyxy": [
+    38,
+    139,
+    601,
+    279
+  ],
+  "anchor": [
+    319,
+    209
+  ],
+  "anchor_type": "hover center",
+  "native_preview_note": "Standing/hover art only. Preserve facing, alpha and anchor in any separately animated atlas.",
+  "file_checks": {
+    "dominant_alpha_component": 1.0,
+    "margin_px_min": 18
+  },
+  "files": [
+    {
+      "path": "exports/idle.webp",
+      "bytes": 27162,
+      "sha256": "23adc060b814afa88c6e5e9689659711908f961c1a6adc95d179115b8eca0c39"
+    },
+    {
+      "path": "masters/induction-eel.png",
+      "bytes": 1473129,
+      "sha256": "f799b08d7a92248f1d87d876270222cb8150d822cd2dbe9fb2f7bf3bb8cd108f"
+    },
+    {
+      "path": "previews/idle-on-two-values.jpg",
+      "bytes": 3864,
+      "sha256": "1655a63a7b06fdb0752c7b0d1e06834099599478fbb217a2c48cc213903b677e"
+    }
+  ]
+}
