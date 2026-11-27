@@ -19,16 +19,7 @@ var _glow: GradientTexture2D
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_crow = AmbientLayer.frames("crow")
-	var falloff := Gradient.new()
-	falloff.offsets = PackedFloat32Array([0.0, 0.36, 1.0])
-	falloff.colors = PackedColorArray([Color(1, 1, 1, 0.8), Color(1, 1, 1, 0.24), Color(1, 1, 1, 0.0)])
-	_glow = GradientTexture2D.new()
-	_glow.width = 64
-	_glow.height = 64
-	_glow.gradient = falloff
-	_glow.fill = GradientTexture2D.FILL_RADIAL
-	_glow.fill_from = Vector2(0.5, 0.5)
-	_glow.fill_to = Vector2(1.0, 0.5)
+	_glow = WorldLight.radial_falloff()
 	set_process(false)
 
 
