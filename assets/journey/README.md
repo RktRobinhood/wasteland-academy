@@ -48,6 +48,12 @@ the walk cycle with no foot slide: the planted boot moves 36 px per walk frame o
 different stride sets `stride` in place of 36 / 880: the dog's is `0.08` (16 px per frame on its 203 px figure,
 measured from where its paws touch down in `walk1` to `walk4`), so at 48 px and 8 fps it walks at 30.7 px/s.
 
+**Scrap Fields** (`scrap-fields/layers.json`) uses two independently scrolling planes: the skyline/backdrop
+and a separate opaque ground band. There is no middle plane. An optional `day_image` names a paired tile of
+the same size and registration; `image` is the night/default tile. Lighting is picked once at run start
+(07:00–18:59 local for day). Do not add a second copy of the skyline under a faster scroll factor. Until local
+job sheets are authored, encounters without a job use the shared tier enemy in the strip; the run itself is unchanged.
+
 **Calm rule.** While a question is open, play only idle loops (code breathing, scale 1 to 1.02 over 2.4 s). The beat
 plays after the answer. Hits use at most one 80 ms white flash, so never more than 3 flashes a second. With reduced
 motion, swap poses only and stop the scroll.

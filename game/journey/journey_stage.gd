@@ -133,7 +133,7 @@ static func shared_assets() -> JourneyAssets:
 
 # ------------------------------------------------------------------ the run's calls
 
-func start_run(p_region: String, p_avatar: String, p_weapon: String = "rebar", p_seed: int = 0) -> void:
+func start_run(p_region: String, p_avatar: String, p_weapon: String = "rebar", p_seed: int = 0, local_hour: int = -1) -> void:
 	if fail_animations:
 		return
 	if assets == null:
@@ -156,7 +156,7 @@ func start_run(p_region: String, p_avatar: String, p_weapon: String = "rebar", p
 	_ahead = false
 	_opening = true
 	_roster = assets.roster(region)
-	_build_layers()
+	_build_layers(local_hour)
 	if active:
 		var lsheet: Dictionary = assets.sheets[avatar]
 		var stride: float = lsheet.stride if lsheet.stride > 0.0 else STRIDE
@@ -498,12 +498,21 @@ func _finish_encounter_props() -> void:
 	_props = _props.filter(func(p): return p.x - _cam > -200.0)
 
 
-func _build_layers() -> void:
+## Paired artwork uses the clock only when starting a run, never during a question.
+static func is_daylight(hour: int) -> bool:
+	return hour >= 7 and hour < 19
+
+
+func _build_layers(local_hour: int) -> void:
 	_layers.clear()
 	_ground = 160.0
 	var r: Dictionary = assets.regions.get(region, {})
+	var daylight := is_daylight(local_hour if local_hour >= 0 else int(Time.get_datetime_dict_from_system().hour))
 	for l in r.get("layers", []):
-		var tex := assets.texture(l.image)
+		var day_image := String(l.get("day_image", ""))
+		var tex := assets.texture(day_image) if daylight and not day_image.is_empty() else null
+		if tex == null:
+			tex = assets.texture(l.image)
 		if tex == null:
 			continue
 		var k: float = H / 256.0 * float(LAYER_K.get(l.name, 1.0))

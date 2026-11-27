@@ -29,7 +29,7 @@ var root: String
 var sheets := {}
 ## name -> {name, image, grip: Vector2, size: Vector2}
 var weapons := {}
-## region -> {layers: Array of {name, image, scroll, feet_y, w, h}, props: Array,
+## region -> {layers: Array of {name, image, day_image, scroll, feet_y, w, h}, props: Array,
 ## creatures: Array, loot: String}
 var regions := {}
 ## tier (1-5) -> enemy sheet name
@@ -85,7 +85,9 @@ func _add(dir: String, rel: String, file: String) -> void:
 		for ln in ["far", "mid", "near"]:
 			if data.get("layers", {}).has(ln):
 				var l: Dictionary = data.layers[ln]
-				layers.append({"name": ln, "image": dir.path_join(l.image), "scroll": float(l.get("scroll", 1.0)),
+				var day_image := String(l.get("day_image", ""))
+				layers.append({"name": ln, "image": dir.path_join(l.image),
+						"day_image": dir.path_join(day_image) if not day_image.is_empty() else "", "scroll": float(l.get("scroll", 1.0)),
 						"feet_y": float(l.get("feet_y", 0)), "w": float(l.get("w", 0)), "h": float(l.get("h", 0))})
 		_region(region).layers = layers
 		return
@@ -149,8 +151,8 @@ func has_avatar(avatar: String) -> bool:
 	return avatar in avatars
 
 
-## True when a region has its scenery (its parallax layers), so a strip there has somewhere
-## to walk. Only the Signal Tower has so far; the other islands' runs show no strip (FAL-925).
+## True when a region has scenery (its parallax layers). Unsupported islands keep
+## the stand-alone fight illustration (FAL-925).
 func has_scenery(region: String) -> bool:
 	return not (regions.get(region, {}).get("layers", []) as Array).is_empty()
 
@@ -239,4 +241,6 @@ func validate() -> PackedStringArray:
 		for l in regions[rn].layers:
 			if image(l.image) == null:
 				out.append("%s: can't read layer %s" % [rn, l.image])
+			if l.day_image != "" and image(l.day_image) == null:
+				out.append("%s: can't read daytime layer %s" % [rn, l.day_image])
 	return out
