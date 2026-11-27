@@ -1,5 +1,7 @@
 # Wasteland Academy
 
+**[Play Wasteland Academy](https://rktrobinhood.github.io/wasteland-academy/)**
+
 A post-apocalyptic roguelite for IB mathematics revision, built in Godot 4.7.2. It covers all of Analysis and Approaches SL, and most of the maths that AA HL, AI SL and AI HL share with it. Students play it in the browser at <https://rktrobinhood.github.io/wasteland-academy/>, on a phone or a laptop.
 
 The product is an app for PC, Android and iOS. PC comes first, after the web build is ready for a class (#199). GitHub Pages stays the testing host.
