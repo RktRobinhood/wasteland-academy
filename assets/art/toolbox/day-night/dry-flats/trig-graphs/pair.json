@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "region": "trig-graphs",
+  "biome": "dry-flats",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/trig-graphs/backdrop.webp",
+  "canonical_night_git_blob": "016e37721650039e2d9987047fe8c0efb58b3ef6",
+  "day": {
+    "path": "day.webp",
+    "bytes": 128708,
+    "sha256": "005656ec08e90452b8f1d3cb2793bd48c7e50f77fde371fb12d7be5d90c20a59",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 87106,
+    "sha256": "f4e025d8f294151cf678331397e937293c9f1f091125173b23a504d0f2e9d4ce",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.3117,
+  "wash_min_recommended": 0.6,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.027,
+      "day": {
+        "desktop": 4.027,
+        "phone": 4.027
+      }
+    },
+    "0.6": {
+      "worst": 4.561,
+      "day": {
+        "desktop": 4.561,
+        "phone": 4.561
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "region": "all-algebra",
+  "biome": "scrap-fields",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/all-algebra/backdrop.webp",
+  "canonical_night_git_blob": "eba2fe5b17dd3550bb39fe89e4fdfdaf7e9661ab",
+  "day": {
+    "path": "day.webp",
+    "bytes": 144272,
+    "sha256": "fe90d67a9b8a1e9ea79ef2cf9a74694249b050ca4ade1c60b87b46c9167cc9aa",
+    "webp_quality": 80,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 156960,
+    "sha256": "e00cb3a955315a0f9f453eb698a452dc5e11313769df3c71ffeb5ddfa97ffe1a",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.255,
+  "wash_min_recommended": 0.6,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.248,
+      "day": {
+        "desktop": 4.248,
+        "phone": 4.437
+      }
+    },
+    "0.6": {
+      "worst": 4.793,
+      "day": {
+        "desktop": 4.793,
+        "phone": 4.989
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

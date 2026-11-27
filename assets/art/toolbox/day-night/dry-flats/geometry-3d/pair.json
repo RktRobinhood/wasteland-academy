@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "region": "geometry-3d",
+  "biome": "dry-flats",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/geometry-3d/backdrop.webp",
+  "canonical_night_git_blob": "de0eb110bf73c6fd1629ecfffda6df35416c2703",
+  "day": {
+    "path": "day.webp",
+    "bytes": 138554,
+    "sha256": "58b34495bd5eea3e648d5e37a3a6827dd9dfe801a4a208fb49ae59f2a1dce965",
+    "webp_quality": 88,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 148254,
+    "sha256": "87955f8c609f766c90b68116b5913e141bc224f3b81a0ed4c3ac469efad4f3af",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.2867,
+  "wash_min_recommended": 0.65,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 3.401,
+      "day": {
+        "desktop": 3.868,
+        "phone": 3.401
+      }
+    },
+    "0.6": {
+      "worst": 3.902,
+      "day": {
+        "desktop": 4.397,
+        "phone": 3.902
+      }
+    },
+    "0.65": {
+      "worst": 4.5,
+      "day": {
+        "desktop": 5.019,
+        "phone": 4.5
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

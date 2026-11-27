@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "region": "tangents-normals",
+  "biome": "engine-core",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/tangents-normals/backdrop.webp",
+  "canonical_night_git_blob": "9c20c58f7a64bca294918e2fa8ff579d25c0d8e8",
+  "day": {
+    "path": "day.webp",
+    "bytes": 144700,
+    "sha256": "24b7b9397349dd69d0d2ffeb3b8fee2b69dc337a13751b5c9df6616e66056b3c",
+    "webp_quality": 88,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 124178,
+    "sha256": "47b130d921c598fe89ca043b2fa5dde35f617bce1fad8ae7da80876db624f687",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.2142,
+  "wash_min_recommended": 0.55,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 4.514,
+      "day": {
+        "desktop": 4.541,
+        "phone": 4.514
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

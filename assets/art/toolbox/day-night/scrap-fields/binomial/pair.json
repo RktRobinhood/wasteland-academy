@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "region": "binomial",
+  "biome": "scrap-fields",
+  "source_commit": "8511dc483a7d512394a6a84fc87fa86094628bba",
+  "canonical_night_path": "game/assets/regions/binomial/backdrop.webp",
+  "canonical_night_git_blob": "ccb7e9500e8b8062cf5c436a45cd0f0930418878",
+  "day": {
+    "path": "day.webp",
+    "bytes": 118100,
+    "sha256": "b99a8b0a417a292e3a0e6581d45e2dd7716957fd50fc2cb515aa7fbb4b2f0aba",
+    "webp_quality": 90,
+    "source": "Built-in ImageGen lighting-only edit of exact canonical night plate"
+  },
+  "night": {
+    "path": "night.webp",
+    "bytes": 85242,
+    "sha256": "cce1dbac58b0793169fc12d2cdc41155f7c0530d800bc1e97ac768db2316f97e",
+    "source": "Exact preserved canonical plate"
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "alpha": false,
+  "day_minus_night_mean_luma": 0.1773,
+  "wash_min_recommended": 0.55,
+  "both_crops_contrast_by_wash": {
+    "0.55": {
+      "worst": 5.259,
+      "day": {
+        "desktop": 5.553,
+        "phone": 5.259
+      }
+    }
+  },
+  "transition": "Dissolve through a short tinted dim phase; no strict pixel-registration claim."
+}

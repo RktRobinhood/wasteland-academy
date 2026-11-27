@@ -1,0 +1,249 @@
+{
+  "scope": "Native 1920\u00d71080 battle and floor-select backgrounds; no overworld and no runtime integration.",
+  "pair_count": 38,
+  "texture_count": 76,
+  "biome_pair_counts": {
+    "dry-flats": 7,
+    "engine-core": 8,
+    "radio-spires": 8,
+    "scrap-fields": 6,
+    "signal-tower": 9
+  },
+  "day_webp_bytes": 4843816,
+  "night_webp_bytes": 3933208,
+  "recommended_wash_counts": {
+    "0.55": 20,
+    "0.6": 14,
+    "0.65": 4
+  },
+  "ordered_pairs": [
+    {
+      "region": "all",
+      "manifest": "signal-tower/all/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 5.866
+    },
+    {
+      "region": "all-algebra",
+      "manifest": "scrap-fields/all-algebra/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.793
+    },
+    {
+      "region": "all-calculus",
+      "manifest": "engine-core/all-calculus/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 4.539
+    },
+    {
+      "region": "all-geometry",
+      "manifest": "dry-flats/all-geometry/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 5.044
+    },
+    {
+      "region": "all-stats",
+      "manifest": "radio-spires/all-stats/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 4.815
+    },
+    {
+      "region": "arcs-sectors",
+      "manifest": "dry-flats/arcs-sectors/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.837
+    },
+    {
+      "region": "averages-spread",
+      "manifest": "radio-spires/averages-spread/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 4.825
+    },
+    {
+      "region": "binomial",
+      "manifest": "scrap-fields/binomial/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 5.259
+    },
+    {
+      "region": "composite-inverse",
+      "manifest": "signal-tower/composite-inverse/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 5.453
+    },
+    {
+      "region": "conditional-probability",
+      "manifest": "radio-spires/conditional-probability/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 4.635
+    },
+    {
+      "region": "definite-integrals",
+      "manifest": "engine-core/definite-integrals/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 4.808
+    },
+    {
+      "region": "derivative-basics",
+      "manifest": "engine-core/derivative-basics/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 4.851
+    },
+    {
+      "region": "derivative-rules",
+      "manifest": "engine-core/derivative-rules/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.804
+    },
+    {
+      "region": "discrete-distributions",
+      "manifest": "radio-spires/discrete-distributions/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.755
+    },
+    {
+      "region": "exp-log",
+      "manifest": "signal-tower/exp-log/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 5.506
+    },
+    {
+      "region": "exponents-logs",
+      "manifest": "scrap-fields/exponents-logs/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 5.227
+    },
+    {
+      "region": "finance",
+      "manifest": "scrap-fields/finance/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 5.316
+    },
+    {
+      "region": "function-basics",
+      "manifest": "signal-tower/function-basics/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 6.105
+    },
+    {
+      "region": "geometry-3d",
+      "manifest": "dry-flats/geometry-3d/pair.json",
+      "min_wash": 0.65,
+      "tested_floor": 4.5
+    },
+    {
+      "region": "graphs-features",
+      "manifest": "signal-tower/graphs-features/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.991
+    },
+    {
+      "region": "integration",
+      "manifest": "engine-core/integration/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.784
+    },
+    {
+      "region": "kinematics",
+      "manifest": "engine-core/kinematics/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.704
+    },
+    {
+      "region": "lines",
+      "manifest": "signal-tower/lines/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 5.615
+    },
+    {
+      "region": "normal-distribution",
+      "manifest": "radio-spires/normal-distribution/pair.json",
+      "min_wash": 0.65,
+      "tested_floor": 5.053
+    },
+    {
+      "region": "probability",
+      "manifest": "radio-spires/probability/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.588
+    },
+    {
+      "region": "proof",
+      "manifest": "scrap-fields/proof/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.836
+    },
+    {
+      "region": "quadratics",
+      "manifest": "signal-tower/quadratics/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 5.279
+    },
+    {
+      "region": "rational",
+      "manifest": "signal-tower/rational/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 5.461
+    },
+    {
+      "region": "regression",
+      "manifest": "radio-spires/regression/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.507
+    },
+    {
+      "region": "sampling-data",
+      "manifest": "radio-spires/sampling-data/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.859
+    },
+    {
+      "region": "sequences",
+      "manifest": "scrap-fields/sequences/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 4.597
+    },
+    {
+      "region": "stationary-points",
+      "manifest": "engine-core/stationary-points/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.74
+    },
+    {
+      "region": "tangents-normals",
+      "manifest": "engine-core/tangents-normals/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 4.514
+    },
+    {
+      "region": "transformations",
+      "manifest": "signal-tower/transformations/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 5.65
+    },
+    {
+      "region": "triangles",
+      "manifest": "dry-flats/triangles/pair.json",
+      "min_wash": 0.65,
+      "tested_floor": 4.808
+    },
+    {
+      "region": "trig-equations",
+      "manifest": "dry-flats/trig-equations/pair.json",
+      "min_wash": 0.65,
+      "tested_floor": 5.016
+    },
+    {
+      "region": "trig-graphs",
+      "manifest": "dry-flats/trig-graphs/pair.json",
+      "min_wash": 0.6,
+      "tested_floor": 4.561
+    },
+    {
+      "region": "unit-circle",
+      "manifest": "dry-flats/unit-circle/pair.json",
+      "min_wash": 0.55,
+      "tested_floor": 4.864
+    }
+  ]
+}
